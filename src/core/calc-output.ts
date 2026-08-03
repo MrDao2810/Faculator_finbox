@@ -7,6 +7,7 @@
  */
 
 import type { CalcOutput, CalcWarning, VariableSpec } from './types';
+import { inheritedFrom, meaningless } from './warnings';
 
 type Extra = Pick<CalcOutput, 'extras' | 'series'>;
 
@@ -17,11 +18,13 @@ type Extra = Pick<CalcOutput, 'extras' | 'series'>;
  */
 export function ok(value: number, unit: string, extra: Extra = {}): CalcOutput {
   if (!Number.isFinite(value)) {
-    return fail(unit, {
-      code: 'MEANINGLESS',
-      message: 'Phép tính cho ra giá trị không xác định với bộ số liệu hiện tại.',
-      fix: 'Kiểm tra lại các ô đầu vào.',
-    });
+    return fail(
+      unit,
+      meaningless(
+        'Phép tính cho ra giá trị không xác định với bộ số liệu hiện tại.',
+        'Kiểm tra lại các ô đầu vào.',
+      ),
+    );
   }
   return { value, unit, ...extra };
 }
@@ -31,28 +34,57 @@ export function fail(unit: string, warning: CalcWarning): CalcOutput {
   return { value: null, unit, warning };
 }
 
-/** Cảnh báo kế thừa: thượng nguồn lỗi thì hạ nguồn không được âm thầm cho ra số (FR-15). */
-export function inherited(unit: string, upstreamLabel: string, fix?: string): CalcOutput {
-  return fail(unit, {
-    code: 'INHERITED',
-    message: `Chưa tính được vì ${upstreamLabel} ở bước trước đang lỗi.`,
-    fix: fix ?? `Sửa ${upstreamLabel} hoặc nhập tay giá trị này.`,
-  });
+/**
+ * Cảnh báo kế thừa: thượng nguồn lỗi thì hạ nguồn không được âm thầm cho ra số (FR-15).
+ *
+ * @param upstreamLabel tên công thức thượng nguồn đang lỗi, ví dụ 'Beta'
+ * @param selfLabel     tên biến tại chỗ, để gợi ý sửa chỉ đúng nút Ghi đè (WF-15)
+ */
+export function inherited(unit: string, upstreamLabel: string, selfLabel?: string): CalcOutput {
+  return fail(unit, inheritedFrom(upstreamLabel, selfLabel));
 }
 
 /**
  * Kẹp giá trị người dùng nhập vào khoảng hợp lệ của biến.
  * Không ném lỗi, không trả NaN — luôn cho ra một số dùng được.
+ * Gặp giá trị không phải số thì rơi về defaultValue của chính biến đó.
  */
 export function clampToSpec(raw: number, spec: VariableSpec): number {
-  if (!Number.isFinite(raw)) return spec.min ?? 0;
+  if (!Number.isFinite(raw)) return spec.defaultValue;
   let v = raw;
   if (spec.min !== undefined && v < spec.min) v = spec.min;
   if (spec.max !== undefined && v > spec.max) v = spec.max;
   return v;
 }
 
+/**
+ * Làm tròn về bội của step, tính từ min (hoặc từ 0 nếu biến không khai báo min).
+ * Dùng cho thanh trượt; ô số nhập tay thì không gọi, để người dùng gõ số lẻ được.
+ * Biến không có step thì trả nguyên giá trị.
+ */
+export function snapToStep(raw: number, spec: VariableSpec): number {
+  const clamped = clampToSpec(raw, spec);
+  const step = spec.step;
+  if (step === undefined || !Number.isFinite(step) || step <= 0) return clamped;
+
+  const base = spec.min ?? 0;
+  const snapped = base + Math.round((clamped - base) / step) * step;
+
+  // Làm tròn theo số chữ số thập phân của step để tránh rác dấu phẩy động (0,30000000000000004).
+  const decimals = decimalsOf(step);
+  const rounded = Number(snapped.toFixed(decimals));
+
+  // Bước nhảy có thể đẩy giá trị ra ngoài miền — kẹp lại lần nữa cho chắc.
+  return clampToSpec(rounded, spec);
+}
+
 /** Kiểm tra nhanh dùng trong test và trong lớp hiển thị. */
 export function isCalculated(out: CalcOutput): out is CalcOutput & { value: number } {
   return out.value !== null;
+}
+
+function decimalsOf(step: number): number {
+  const text = String(step);
+  const dot = text.indexOf('.');
+  return dot === -1 ? 0 : text.length - dot - 1;
 }

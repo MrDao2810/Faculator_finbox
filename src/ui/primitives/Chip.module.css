@@ -1,0 +1,47 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: 36px;
+  padding: 0 var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.chip:hover:not(:disabled) {
+  background: var(--color-sunken);
+}
+
+/*
+ * Đang chọn: đổi nền, đổi màu chữ VÀ dày viền lên 2px.
+ * Không để màu là dấu hiệu duy nhất — NFR-USA-06.
+ */
+.selected {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  border-width: 2px;
+  padding: 0 calc(var(--space-3) - 1px);
+}
+
+.static {
+  cursor: default;
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.selected .count {
+  color: var(--color-accent);
+}

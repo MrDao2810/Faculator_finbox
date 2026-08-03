@@ -1,0 +1,72 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  /* Vùng chạm tối thiểu 44px trên điện thoại — NFR-USA-01 */
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Nút nhỏ vẫn giữ vùng chạm 44px bằng đệm dọc trong suốt. */
+.sm {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.primary:hover:not(:disabled) {
+  background: var(--color-accent-strong);
+}
+
+.secondary {
+  background: var(--color-surface);
+  color: var(--color-accent);
+  border-color: var(--color-border-strong);
+}
+.secondary:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-ink-soft);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--color-sunken);
+}
+
+.danger {
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+.danger:hover:not(:disabled) {
+  background: var(--color-danger-soft);
+}

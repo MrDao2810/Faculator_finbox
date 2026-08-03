@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { clampToSpec, fail, inherited, isCalculated, ok } from './calc-output';
+import { clampToSpec, fail, inherited, isCalculated, ok, snapToStep } from './calc-output';
 import type { VariableSpec } from './types';
 
 const priceSpec: VariableSpec = {
   key: 'price',
   label: 'Giá thị trường',
   unit: '₫',
+  type: 'number',
+  defaultValue: 0,
   min: 0,
   max: 1_000_000,
   step: 100,
@@ -60,6 +62,12 @@ describe('inherited()', () => {
     expect(out.warning?.code).toBe('INHERITED');
     expect(out.warning?.message).toContain('Beta');
   });
+
+  it('gợi ý sửa chỉ ra cả hai lối đi khi biết tên biến tại chỗ (WF-15)', () => {
+    const out = inherited('%', 'Beta', 'WACC');
+    expect(out.warning?.fix).toContain('Beta');
+    expect(out.warning?.fix).toContain('WACC');
+  });
 });
 
 describe('clampToSpec()', () => {
@@ -75,8 +83,60 @@ describe('clampToSpec()', () => {
     expect(clampToSpec(92_000, priceSpec)).toBe(92_000);
   });
 
-  it('không bao giờ trả về NaN', () => {
-    expect(clampToSpec(Number.NaN, priceSpec)).toBe(0);
+  it('không bao giờ trả về NaN — rơi về giá trị mặc định', () => {
+    expect(clampToSpec(Number.NaN, priceSpec)).toBe(priceSpec.defaultValue);
+  });
+
+  it('biến không khai báo min/max thì giữ nguyên mọi số hữu hạn', () => {
+    const free: VariableSpec = {
+      key: 'g',
+      label: 'Tăng trưởng',
+      unit: '%',
+      type: 'number',
+      defaultValue: 0,
+      level: 'advanced',
+    };
+    expect(clampToSpec(-12.5, free)).toBe(-12.5);
+  });
+});
+
+describe('snapToStep()', () => {
+  it('làm tròn về bội của step', () => {
+    expect(snapToStep(92_040, priceSpec)).toBe(92_000);
+    expect(snapToStep(92_060, priceSpec)).toBe(92_100);
+  });
+
+  it('không sinh rác dấu phẩy động với step lẻ', () => {
+    const rate: VariableSpec = {
+      key: 'r',
+      label: 'Lãi suất',
+      unit: '%',
+      type: 'slider',
+      defaultValue: 6,
+      min: 0,
+      max: 20,
+      step: 0.1,
+      level: 'basic',
+    };
+    expect(snapToStep(6.24, rate)).toBe(6.2);
+    expect(snapToStep(0.3, rate)).toBe(0.3);
+  });
+
+  it('biến không có step thì giữ nguyên', () => {
+    const free: VariableSpec = {
+      key: 'eps',
+      label: 'EPS',
+      unit: '₫',
+      type: 'number',
+      defaultValue: 0,
+      level: 'basic',
+    };
+    expect(snapToStep(4_321.5, free)).toBe(4_321.5);
+  });
+
+  it('không bao giờ đẩy giá trị ra ngoài miền hợp lệ', () => {
+    expect(snapToStep(999_999, priceSpec)).toBeLessThanOrEqual(1_000_000);
+    expect(snapToStep(-1, priceSpec)).toBe(0);
   });
 });
 

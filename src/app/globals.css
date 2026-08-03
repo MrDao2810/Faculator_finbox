@@ -1,24 +1,96 @@
 /*
- * Design token tối thiểu, lấy đúng bảng màu blueprint của wireframe.
- * Gói WBS 1.2.1 sẽ mở rộng thành hệ thiết kế đầy đủ.
+ * HỆ THIẾT KẾ CƠ SỞ — gói WBS 1.2.1.
+ *
+ * Bảng màu blueprint lấy từ wireframe. Mọi token màu ở đây đã qua kiểm tra tương phản
+ * WCAG 2.1 AA (NFR-USA-06) — xem src/ui/contrast.test.ts, test đó đọc thẳng file này
+ * nên đổi màu mà tụt dưới ngưỡng là CI báo đỏ ngay.
+ *
+ * Quy ước đặt tên:
+ *   --color-*   màu      --text-*    cỡ chữ
+ *   --space-*   khoảng cách  --radius-*  bo góc
+ * Màu chữ (ink, muted, accent, danger, success, warning) đạt ≥ 4,5:1 trên cả nền
+ * --color-paper lẫn --color-surface. Màu ranh giới điều khiển đạt ≥ 3:1.
  */
-:root {
-  --paper: #ecebe6;
-  --ink: #33322e;
-  --muted: #8a877f;
-  --line: #b0ada4;
-  --accent: #3f5f7d;
-  --gold: #c3a457;
 
+:root {
+  /* ── Màu nền ─────────────────────────────────────────────────────────── */
+  --color-paper: #ecebe6; /* nền trang */
+  --color-surface: #ffffff; /* nền thẻ, nền ô nhập */
+  --color-sunken: #e3e1db; /* vùng chìm: thanh trượt, ô khoá */
+
+  /* ── Màu chữ ─────────────────────────────────────────────────────────── */
+  --color-ink: #33322e; /* chữ chính */
+  --color-ink-soft: #55534d; /* chữ phụ, nhãn */
+  --color-muted: #605d58; /* chữ mờ nhất còn đọc được — vẫn đạt AA cả trên vùng chìm */
+
+  /* ── Đường kẻ ────────────────────────────────────────────────────────── */
+  --color-border: #b0ada4; /* kẻ trang trí, chia dòng bảng */
+  --color-border-strong: #7f7c74; /* viền ô nhập và ranh giới điều khiển — cần ≥ 3:1 */
+
+  /* ── Màu nhấn ────────────────────────────────────────────────────────── */
+  --color-accent: #3f5f7d;
+  --color-accent-strong: #2f4a63; /* trạng thái hover / nhấn giữ */
+  --color-accent-soft: #dde5ed; /* nền nhạt của chip đang chọn */
+  --color-on-accent: #ffffff;
+
+  /* ── Màu trạng thái ──────────────────────────────────────────────────── */
+  --color-danger: #a3282d;
+  --color-danger-soft: #f7e3e3;
+  --color-success: #2f6b3f;
+  --color-warning: #7a5f14; /* chữ cảnh báo */
+  --color-warning-line: #c3a457; /* viền vàng của ô nhận giá trị tự động */
+  --color-warning-soft: #f5edd7;
+
+  --color-focus: #3f5f7d;
+
+  /* ── Thang chữ ───────────────────────────────────────────────────────── */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 26px;
+  --text-2xl: 32px; /* số kết quả lớn ở ResultBlock */
+  --text-3xl: 40px;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', monospace;
+
+  /* ── Khoảng cách ─────────────────────────────────────────────────────── */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
-  --radius: 10px;
+  --space-7: 32px;
+  --space-8: 48px;
 
-  /* Vùng chạm tối thiểu trên điện thoại — NFR-USA-01 */
-  --tap-min: 44px;
+  /* ── Bo góc & đổ bóng ────────────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(51, 50, 46, 0.08);
+  --shadow-md: 0 2px 8px rgba(51, 50, 46, 0.12);
+
+  /* ── Trạng thái focus — bắt buộc thấy rõ, không được tắt (NFR-USA-06) ── */
+  --focus-width: 3px;
+  --focus-ring: 0 0 0 var(--focus-width) rgba(63, 95, 125, 0.4);
+
+  /* ── Bố cục ──────────────────────────────────────────────────────────── */
+  --tap-min: 44px; /* vùng chạm tối thiểu trên điện thoại — NFR-USA-01 */
+  --content-max: 720px; /* cột nội dung, mobile-first */
+  --desktop-max: 1200px; /* bố cục ba cột WF-07 */
 }
 
 * {
@@ -29,16 +101,66 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.5;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  /* Bảng nhiều cột phải cuộn trong khung riêng, không kéo cả trang — NFR-USA-02 */
+  overflow-x: hidden;
 }
 
 main {
-  /* Mobile-first: bố cục dùng trọn ở màn 360px — UI-02 */
-  max-width: 720px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: var(--space-6) var(--space-4);
+}
+
+h1,
+h2,
+h3 {
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--text-xl);
+}
+h2 {
+  font-size: var(--text-lg);
+}
+h3 {
+  font-size: var(--text-md);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* Vòng focus dùng chung cho mọi phần tử tương tác. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Chữ chỉ dành cho trình đọc màn hình. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

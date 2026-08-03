@@ -8,8 +8,31 @@
 export type Level = 'basic' | 'advanced';
 
 /**
+ * Loại điều khiển nhập liệu sinh ra cho một biến.
+ * Danh sách này khớp với bộ điều khiển chốt ở WF-16 và các gói 2.3.1 → 2.3.3.
+ */
+export type ControlType =
+  | 'number' // ô số
+  | 'slider' // thanh trượt, cần đủ min/max/step
+  | 'select' // danh sách chọn
+  | 'radio' // radio nhiều dòng
+  | 'toggle' // bật/tắt, đúng 2 lựa chọn
+  | 'buttonGroup'; // nhóm nút kiểu Quý · Năm · TTM
+
+/**
+ * Một lựa chọn của biến kiểu select / radio / toggle / buttonGroup (LDR-02).
+ * Giá trị luôn là số để mọi biến đi vào công thức cùng một kiểu.
+ */
+export interface VariableOption {
+  value: number;
+  label: string;
+  /** Dòng mô tả phụ dưới nhãn — radio nhiều dòng ở WF-16 có dùng. */
+  description?: string;
+}
+
+/**
  * Đặc tả một biến đầu vào.
- * Bộ điều khiển nhập liệu ở giao diện sinh ra hoàn toàn từ đây, không hard-code (FR-05).
+ * Bộ điều khiển nhập liệu ở giao diện sinh ra hoàn toàn từ đây, không hard-code (FR-05, LDR-01).
  */
 export interface VariableSpec {
   /** Khoá duy nhất trong phạm vi một công thức, ví dụ 'price', 'eps'. */
@@ -18,12 +41,22 @@ export interface VariableSpec {
   label: string;
   /** Đơn vị hiện bên phải ô nhập: '₫', '%', 'lần', 'CP'… */
   unit: string;
+  /** Loại điều khiển. LDR-01 gọi trường này là `type`. */
+  type: ControlType;
+  /**
+   * Giá trị khởi tạo. LDR-01 gọi trường này là `default` — ở đây đổi tên thành
+   * `defaultValue` cho khỏi trùng từ khoá, còn ý nghĩa giữ nguyên.
+   * Bắt buộc có, để không ô nhập nào khởi động ở trạng thái trống hay NaN.
+   */
+  defaultValue: number;
   min?: number;
   max?: number;
   step?: number;
   level: Level;
   /** Mô tả ngắn, dùng cho cột MÔ TẢ của bảng biến (FR-02). */
   description?: string;
+  /** Bắt buộc với select / radio / toggle / buttonGroup. */
+  options?: ReadonlyArray<VariableOption>;
 }
 
 /**
@@ -69,10 +102,18 @@ export interface CalcOutput {
  */
 export interface MarketConstant {
   key: string;
+  /** Nhãn tiếng Việt hiện trên bảng bóc tách chi phí của WF-08. */
+  label: string;
+  /**
+   * Giá trị. Hằng số phần trăm ghi theo quy ước CON-05 — 0,1 nghĩa là 0,1%,
+   * đổi sang hệ số nhân bằng resolveRate().
+   */
   value: number;
   unit: string;
   /** Ngày bắt đầu có hiệu lực, dạng ISO 'YYYY-MM-DD'. */
   effectiveFrom: string;
   /** Trích dẫn văn bản, ví dụ 'Luật thuế TNCN 109/2025/QH15, Điều 20'. */
   legalBasis: string;
+  /** Ghi chú hiện dưới toggle/dòng phụ ở giao diện, ví dụ mức trần hay điều kiện áp dụng. */
+  note?: string;
 }

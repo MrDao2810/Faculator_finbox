@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Cai dependency
+        run: npm ci
+
+      - name: Lint (gom ca rang buoc ranh gioi tang CON-02, CON-03)
+        run: npm run lint
+
+      - name: Kiem kieu TypeScript
+        run: npm run typecheck
+
+      - name: Unit test
+        run: npm run test
+
+      - name: Build tinh
+        run: npm run build
+
+      - name: Luu ban build
+        uses: actions/upload-artifact@v4
+        with:
+          name: out
+          path: out/
+          retention-days: 7

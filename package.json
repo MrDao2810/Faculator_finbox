@@ -1,0 +1,46 @@
+{
+  "name": "faculator-finbox",
+  "version": "0.1.0-dev",
+  "private": true,
+  "description": "Falculator Finbox — thư viện công thức tài chính, web tĩnh không backend",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "npx --yes serve out",
+    "lint": "next lint --dir src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "prepare": "husky || true"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md,mjs}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.7",
+    "@types/react": "19.0.7",
+    "@types/react-dom": "19.0.3",
+    "eslint": "8.57.1",
+    "eslint-config-next": "15.1.6",
+    "eslint-config-prettier": "9.1.0",
+    "husky": "9.1.7",
+    "lint-staged": "15.4.1",
+    "prettier": "3.4.2",
+    "typescript": "5.7.3",
+    "vitest": "3.0.5"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals", "prettier"],
+  "overrides": [
+    {
+      "files": ["src/core/**/*.ts", "src/core/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["react", "react-dom", "next", "next/*"],
+                "message": "CON-02 — tang Domain (src/core) phai la TypeScript thuan, khong duoc phu thuoc React hay Next."
+              },
+              {
+                "group": ["@/ui/*", "@/app/*", "@/application/*", "@/data/*"],
+                "message": "CON-02 — src/core la tang trong cung, khong duoc goi nguoc len tang tren."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/data/**/*.ts", "src/data/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["react", "react-dom", "next", "next/*"],
+                "message": "Tang Data khong duoc phu thuoc React hay Next."
+              },
+              {
+                "group": ["@/ui/*", "@/app/*"],
+                "message": "Tang Data khong duoc goi len tang giao dien."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/application/**/*.ts", "src/application/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/ui/*", "@/app/*"],
+                "message": "Tang Application khong duoc goi len tang giao dien."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/**/*.ts", "src/app/**/*.tsx", "src/ui/**/*.ts", "src/ui/**/*.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/core/*", "@/data/*"],
+                "message": "CON-03 — tang giao dien khong duoc cham thang vao Domain hay Data. Di qua @/application."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

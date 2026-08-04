@@ -1,0 +1,64 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* Vùng chạm tối thiểu 44px cho cả hàng tiêu đề — NFR-USA-01. */
+.summary {
+  display: flex;
+  align-items: center;
+
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-4);
+
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Bỏ mũi tên mặc định của Safari để dùng dấu của mình. */
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+/*
+ * Dấu gập/mở tự vẽ bằng ký tự: hiện cả khi in ra giấy và khi không thấy màu.
+ * Ký tự đổi theo trạng thái nên đây là dấu hiệu hình, không phải dấu hiệu màu (NFR-USA-06).
+ */
+.summary::after {
+  content: '＋';
+  margin-left: auto;
+  padding-left: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+}
+
+.item[open] .summary::after {
+  content: '−';
+}
+
+.item[open] .summary {
+  font-weight: var(--weight-bold);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.body {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}

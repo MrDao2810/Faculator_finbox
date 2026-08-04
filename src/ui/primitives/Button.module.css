@@ -30,11 +30,32 @@
   width: 100%;
 }
 
-/* Nút nhỏ vẫn giữ vùng chạm 44px bằng đệm dọc trong suốt. */
+/*
+ * Nút nhỏ trông cao 36px nhưng vùng chạm vẫn đủ 44px, nhờ lớp phủ trong suốt căng giữa —
+ * NFR-USA-01.
+ *
+ * Trước đây comment này đã hứa như vậy nhưng CSS chỉ có min-height: 36px, nên nút nhỏ hụt
+ * vùng chạm. Đo trên Chrome thật ở 360px lúc làm gói 2.3.4 mới lộ ra.
+ *
+ * Lớp phủ đặt CHIỀU CAO CỐ ĐỊNH var(--tap-min) chứ không nới tương đối kiểu `inset: -4px`:
+ * chiều cao thật của nút xê dịch theo font (đo được 34–36px), nới tương đối thì vùng chạm
+ * ra 42px, vẫn thiếu. Cách này luôn đúng 44px bất kể nút cao bao nhiêu.
+ */
 .sm {
+  position: relative;
   min-height: 36px;
   padding: 0 var(--space-3);
   font-size: var(--text-sm);
+}
+
+.sm::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
 }
 
 .primary {

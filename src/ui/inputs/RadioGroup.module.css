@@ -1,0 +1,99 @@
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  padding: 0;
+  margin-bottom: var(--space-1);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Cả dòng là vùng chạm — NFR-USA-01. Nhãn bọc luôn radio nên bấm vào đâu trong dòng cũng chọn,
+ * không phải nhắm đúng cái chấm nhỏ.
+ */
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+
+  min-height: var(--tap-min);
+  padding: var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.option:hover {
+  border-color: var(--color-border-strong);
+}
+
+.fieldset:disabled .option {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/*
+ * Đang chọn: đổi nền, dày viền lên 2px VÀ in đậm nhãn.
+ * Ba dấu hiệu chứ không riêng màu — NFR-USA-06. Cùng ngôn ngữ hình với Chip.
+ */
+.selected {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  border-width: 2px;
+  padding: calc(var(--space-3) - 1px);
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-accent);
+  cursor: inherit;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-size: var(--text-base);
+  color: var(--color-ink);
+}
+
+.selected .optionLabel {
+  font-weight: var(--weight-bold);
+}
+
+.description {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.badge {
+  padding: 1px var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-pill);
+}

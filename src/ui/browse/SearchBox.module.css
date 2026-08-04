@@ -1,0 +1,87 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2) 0 var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.control:focus-within {
+  border-color: var(--color-focus);
+  box-shadow: var(--focus-ring);
+}
+
+.icon {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+
+  background: transparent;
+  border: none;
+}
+
+.input::placeholder {
+  color: var(--color-muted);
+}
+
+/*
+ * Ẩn nút xoá mặc định của trình duyệt cho input[type="search"] — nếu không sẽ có hai nút "×"
+ * chồng nhau. Nút xoá của mình có nhãn cho trình đọc màn hình và đủ vùng chạm 44px.
+ */
+.input::-webkit-search-cancel-button,
+.input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.input:focus {
+  outline: none;
+}
+
+/* Nút xoá giữ đủ vùng chạm 44px dù biểu tượng nhỏ — NFR-USA-01. */
+.clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin-right: calc(-1 * var(--space-1));
+
+  color: var(--color-ink-soft);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.clear:hover {
+  background: var(--color-sunken);
+}
+
+.hint {
+  padding: 0 var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}

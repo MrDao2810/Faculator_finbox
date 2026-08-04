@@ -1,0 +1,78 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+.group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.option {
+  /* Vùng chạm tối thiểu 44px — NFR-USA-01. */
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-ink-soft);
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.option:hover:not(.selected):not(:disabled) {
+  color: var(--color-ink);
+}
+
+.option:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/*
+ * Đang chọn: đổi nền, đổi màu chữ VÀ in đậm — ba dấu hiệu, không riêng màu (NFR-USA-06).
+ * Cùng ngôn ngữ hình với ModeToggle để người dùng nhận ra ngay đây là nhóm chọn một.
+ */
+.selected {
+  font-weight: var(--weight-bold);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.badge {
+  padding: 1px var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-pill);
+}

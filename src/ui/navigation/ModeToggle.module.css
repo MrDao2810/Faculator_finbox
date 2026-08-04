@@ -1,0 +1,38 @@
+.group {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.option {
+  /* Vùng chạm tối thiểu 44px — NFR-USA-01. Không thu nhỏ để lấy chỗ. */
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-ink-soft);
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.option:hover:not(.selected) {
+  color: var(--color-ink);
+}
+
+/*
+ * Đang chọn: đổi nền, đổi màu chữ VÀ in đậm.
+ * Không để màu là dấu hiệu duy nhất — NFR-USA-06.
+ */
+.selected {
+  font-weight: var(--weight-bold);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}

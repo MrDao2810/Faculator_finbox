@@ -1,8 +1,8 @@
 /*
  * HỆ THIẾT KẾ CƠ SỞ — gói WBS 1.2.1.
  *
- * Bảng màu blueprint lấy từ wireframe. Mọi token màu ở đây đã qua kiểm tra tương phản
- * WCAG 2.1 AA (NFR-USA-06) — xem src/ui/contrast.test.ts, test đó đọc thẳng file này
+ * Bảng màu "cam đất" (terracotta) trên nền giấy ngả kem. Mọi token màu ở đây đã qua kiểm tra
+ * tương phản WCAG 2.1 AA (NFR-USA-06) — xem src/ui/contrast.test.ts, test đó đọc thẳng file này
  * nên đổi màu mà tụt dưới ngưỡng là CI báo đỏ ngay.
  *
  * Quy ước đặt tên:
@@ -14,34 +14,42 @@
 
 :root {
   /* ── Màu nền ─────────────────────────────────────────────────────────── */
-  --color-paper: #ecebe6; /* nền trang */
+  --color-paper: #f7f2ec; /* nền trang */
   --color-surface: #ffffff; /* nền thẻ, nền ô nhập */
-  --color-sunken: #e3e1db; /* vùng chìm: thanh trượt, ô khoá */
+  --color-sunken: #efe7dc; /* vùng chìm: thanh trượt, ô khoá */
 
   /* ── Màu chữ ─────────────────────────────────────────────────────────── */
-  --color-ink: #33322e; /* chữ chính */
-  --color-ink-soft: #55534d; /* chữ phụ, nhãn */
-  --color-muted: #605d58; /* chữ mờ nhất còn đọc được — vẫn đạt AA cả trên vùng chìm */
+  --color-ink: #2e2a25; /* chữ chính */
+  --color-ink-soft: #564e44; /* chữ phụ, nhãn */
+  --color-muted: #6b6157; /* chữ mờ nhất còn đọc được — vẫn đạt AA cả trên vùng chìm */
 
   /* ── Đường kẻ ────────────────────────────────────────────────────────── */
-  --color-border: #b0ada4; /* kẻ trang trí, chia dòng bảng */
-  --color-border-strong: #7f7c74; /* viền ô nhập và ranh giới điều khiển — cần ≥ 3:1 */
+  --color-border: #dbd1c4; /* kẻ trang trí, chia dòng bảng */
+  --color-border-strong: #8a7f71; /* viền ô nhập và ranh giới điều khiển — cần ≥ 3:1 */
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
-  --color-accent: #3f5f7d;
-  --color-accent-strong: #2f4a63; /* trạng thái hover / nhấn giữ */
-  --color-accent-soft: #dde5ed; /* nền nhạt của chip đang chọn */
+  --color-accent: #ab4610; /* cam nung — dùng cho cả chữ lẫn nền nút */
+  --color-accent-strong: #8a380b; /* trạng thái hover / nhấn giữ */
+  --color-accent-soft: #fce9db; /* nền nhạt của chip đang chọn */
   --color-on-accent: #ffffff;
 
+  /*
+   * Cam rực, CHỈ dùng cho mảng màu không phải chữ: vạch chỉ báo, dấu hiệu thương hiệu,
+   * đường biểu đồ. Đạt 3:1 (ranh giới điều khiển) nhưng KHÔNG đạt 4,5:1 của chữ —
+   * src/ui/tokens.test.ts chặn việc gán nó vào thuộc tính `color`.
+   */
+  --color-accent-vivid: #e2620d;
+
   /* ── Màu trạng thái ──────────────────────────────────────────────────── */
-  --color-danger: #a3282d;
-  --color-danger-soft: #f7e3e3;
+  --color-danger: #a3202f; /* đẩy về đỏ thẫm để không lẫn với cam nhấn */
+  --color-danger-soft: #fbe1e3;
   --color-success: #2f6b3f;
   --color-warning: #7a5f14; /* chữ cảnh báo */
   --color-warning-line: #c3a457; /* viền vàng của ô nhận giá trị tự động */
-  --color-warning-soft: #f5edd7;
+  /* Đậm hơn nền giấy đủ để dải miễn trừ (FR-24) không hoà vào trang — nền giấy nay đã ngả kem. */
+  --color-warning-soft: #f4e9c8;
 
-  --color-focus: #3f5f7d;
+  --color-focus: #ab4610;
 
   /* ── Thang chữ ───────────────────────────────────────────────────────── */
   --text-xs: 12px;
@@ -80,17 +88,19 @@
   --radius-lg: 16px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(51, 50, 46, 0.08);
-  --shadow-md: 0 2px 8px rgba(51, 50, 46, 0.12);
+  --shadow-sm: 0 1px 2px rgba(46, 42, 37, 0.08);
+  --shadow-md: 0 2px 8px rgba(46, 42, 37, 0.12);
 
   /* ── Trạng thái focus — bắt buộc thấy rõ, không được tắt (NFR-USA-06) ── */
   --focus-width: 3px;
-  --focus-ring: 0 0 0 var(--focus-width) rgba(63, 95, 125, 0.4);
+  --focus-ring: 0 0 0 var(--focus-width) rgba(171, 70, 16, 0.35);
 
   /* ── Bố cục ──────────────────────────────────────────────────────────── */
   --tap-min: 44px; /* vùng chạm tối thiểu trên điện thoại — NFR-USA-01 */
   --content-max: 720px; /* cột nội dung, mobile-first */
   --desktop-max: 1200px; /* bố cục ba cột WF-07 */
+  --header-height: 56px;
+  --tabbar-height: 60px;
 }
 
 * {
@@ -106,15 +116,18 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
-  /* Bảng nhiều cột phải cuộn trong khung riêng, không kéo cả trang — NFR-USA-02 */
-  overflow-x: hidden;
 }
 
-main {
-  max-width: var(--content-max);
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
+/*
+ * Lưới an toàn cho NFR-USA-02: bảng nhiều cột phải cuộn trong khung riêng, không kéo cả trang.
+ * Dùng `clip` chứ KHÔNG dùng `hidden` — `hidden` biến body thành vùng cuộn và làm hỏng
+ * position: sticky của thanh trên với thanh điều hướng dưới.
+ */
+body {
+  overflow-x: clip;
 }
+
+/* Bố cục của vùng nội dung do AppShell giữ (gói 1.4.2), không đặt ở đây nữa. */
 
 h1,
 h2,

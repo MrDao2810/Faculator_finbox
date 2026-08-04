@@ -1,0 +1,27 @@
+/*
+ * Dải miễn trừ — FR-24, UI-04.
+ * Nằm ngay dưới thanh trên nên luôn ở trong tầm nhìn đầu tiên, không phải cuộn mới thấy.
+ * Không có nút đóng. Không được cắt ở bất kỳ bản phát hành nào.
+ */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  padding: var(--space-2) var(--space-4);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border-bottom: 1px solid var(--color-warning-line);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.text {
+  margin: 0;
+}

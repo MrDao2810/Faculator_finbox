@@ -12,14 +12,27 @@ export type {
   Explanation,
   FormulaDependency,
   FormulaExample,
+  FormulaQuery,
   FormulaSource,
   FormulaSpec,
   FormulaTestCase,
   IssueSeverity,
+  ListSort,
   Registry,
   RegistryIssue,
   Segment,
+  SegmentFilter,
 } from './types';
+
+export {
+  countByCategoryFor,
+  countBySegmentFor,
+  normalizeVi,
+  scoreFormula,
+  searchFormulas,
+  selectFormulas,
+  tokenize,
+} from './search';
 
 export { CATEGORIES, categoriesOf, expectedCountOf, findCategory } from './categories';
 

@@ -1,0 +1,110 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  min-height: var(--tap-min);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-base);
+  color: var(--color-ink);
+}
+
+/* Dòng ghi nguồn hằng số — CON-10, LDR-03. */
+.note {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+
+  min-height: var(--tap-min);
+  padding: 0 var(--space-1);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-muted);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.state {
+  min-width: 4ch;
+  text-align: right;
+}
+
+.track {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 26px;
+
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  transition: background-color 120ms ease;
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+
+  display: block;
+  width: 20px;
+  height: 20px;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  transition: transform 120ms ease;
+}
+
+/*
+ * Đang bật: đổi nền rãnh, đẩy nút sang phải, VÀ đổi màu chữ trạng thái.
+ * Nhãn chữ "Bật"/"Tắt" luôn hiện nên người không phân biệt được màu vẫn đọc được — NFR-USA-06.
+ */
+.on {
+  color: var(--color-accent);
+}
+
+.on .track {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.on .knob {
+  transform: translateX(18px);
+  border-color: var(--color-accent);
+}
+
+.badge {
+  align-self: flex-start;
+  padding: 1px var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-pill);
+}

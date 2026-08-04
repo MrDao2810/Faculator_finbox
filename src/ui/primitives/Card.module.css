@@ -1,4 +1,11 @@
 .card {
+  /*
+   * Bắt buộc: thẻ nằm trong lưới hay flex thì kích thước tối thiểu mặc định là min-content.
+   * Nhét một bảng rộng vào là cả lưới phình to hơn màn hình, kéo theo cả trang tràn ngang.
+   * min-width: 0 cho thẻ co lại được, để vùng cuộn của bảng làm đúng việc của nó (NFR-USA-02).
+   */
+  min-width: 0;
+
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

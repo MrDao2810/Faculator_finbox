@@ -3,6 +3,10 @@
  * Bảng nhiều cột KHÔNG được làm cả trang cuộn ngang, nên vùng cuộn nằm ở đây.
  */
 .scroller {
+  /* Không bao giờ rộng hơn chỗ được cấp — phần thừa cuộn bên trong khung này. */
+  max-width: 100%;
+  min-width: 0;
+
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--color-border);

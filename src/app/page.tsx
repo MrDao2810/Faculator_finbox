@@ -5,12 +5,13 @@ import {
   expectedCountOf,
   ok,
   scheduleOrDefault,
+  t,
 } from '@/application';
-import { Button, Card, Chip, Input, Table } from '@/ui/primitives';
+import { Card, Chip, Table } from '@/ui/primitives';
 
 /**
- * Trang tạm để chứng minh bộ khung chạy được và đường đi giữa các tầng đúng.
- * Gói WBS 3.1.1 sẽ thay bằng màn WF-01 Trang chủ thật.
+ * Trang chủ tạm — chứng minh bộ khung chạy được và đường đi giữa các tầng đúng.
+ * Gói WBS 3.1.1 sẽ thay bằng màn WF-01 thật.
  */
 
 /** Ngày tra biểu phí. Tầng Domain không tự lấy ngày hệ thống (NFR-REL-03). */
@@ -24,13 +25,13 @@ export default function Home() {
   const hangSo = bieuPhi === undefined ? [] : constantsAsOf(bieuPhi, NGAY_TRA);
 
   return (
-    <main>
-      <h1>Falculator Finbox</h1>
+    <>
+      <h1>{t('app.name')}</h1>
       <p style={{ color: 'var(--color-muted)', marginTop: 'var(--space-1)' }}>
-        Bộ khung dự án — gói WBS 1.1 đến 1.3.3. Chưa có công thức nào.
+        {t('page.placeholder.home')}
       </p>
 
-      <div style={{ display: 'grid', gap: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
+      <div style={{ display: 'grid', gap: 'var(--space-4)', marginTop: 'var(--space-5)' }}>
         <Card eyebrow="Kiểm tra đường đi giữa các tầng" padded>
           <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700 }}>
             {demo.value}{' '}
@@ -83,46 +84,14 @@ export default function Home() {
                   <td className="numeric">
                     {constant.value} {constant.unit}
                   </td>
-                  <td style={{ whiteSpace: 'normal', color: 'var(--color-muted)' }}>
-                    {constant.legalBasis}
-                  </td>
+                  {/* Giữ nowrap của khung bảng: cột dài thì cuộn ngang, không kéo dòng cao lên. */}
+                  <td style={{ color: 'var(--color-muted)' }}>{constant.legalBasis}</td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </Card>
-
-        <Card eyebrow="Gói 1.2.1" title="Primitive hệ thiết kế">
-          <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
-            <Input label="Giá thị trường" unit="₫" defaultValue={92000} hint="Tối thiểu 0 ₫" />
-            <Input
-              label="WACC"
-              unit="%"
-              defaultValue={11.4}
-              tone="derived"
-              hint="Nhận tự động từ công thức WACC"
-            />
-            <Input label="EPS" unit="₫" defaultValue={0} error="EPS bằng 0 — P/E không xác định." />
-            <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-              <Button>Tính lại</Button>
-              <Button variant="secondary">Nạp số liệu mẫu</Button>
-              <Button variant="ghost" size="sm">
-                Hoàn tác
-              </Button>
-            </div>
-          </div>
-        </Card>
       </div>
-
-      <p
-        style={{
-          marginTop: 'var(--space-6)',
-          fontSize: 'var(--text-sm)',
-          color: 'var(--color-muted)',
-        }}
-      >
-        Kết quả chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.
-      </p>
-    </main>
+    </>
   );
 }

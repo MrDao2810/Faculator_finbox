@@ -78,6 +78,17 @@ describe('bảng màu blueprint đạt WCAG 2.1 AA (NFR-USA-06)', () => {
     }
   }
 
+  /*
+   * Cam rực không phải màu chữ — nó chỉ cần đủ 3:1 để nhìn thấy vạch chỉ báo trên nền trang.
+   * Việc chặn dùng nó làm màu chữ nằm ở src/ui/tokens.test.ts.
+   */
+  for (const [bgLabel, bgToken] of backgrounds) {
+    it(`--color-accent-vivid trên ${bgLabel} đạt ${AA_NON_TEXT}:1 cho mảng màu`, () => {
+      const ratio = contrastRatio(color('--color-accent-vivid'), color(bgToken));
+      expect(ratio, `tỉ số hiện tại ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_NON_TEXT);
+    });
+  }
+
   it('chữ trên nền nhấn đạt AA — nút chính', () => {
     expect(meetsContrast(color('--color-on-accent'), color('--color-accent'))).toBe(true);
   });
@@ -111,6 +122,7 @@ describe('globals.css khai báo đủ token màu', () => {
       '--color-accent',
       '--color-accent-strong',
       '--color-accent-soft',
+      '--color-accent-vivid',
       '--color-on-accent',
       '--color-danger',
       '--color-danger-soft',

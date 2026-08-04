@@ -1,0 +1,91 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Bản ngang cho điện thoại. Dải dài hơn màn thì cuộn TRONG khung này, không kéo cả trang
+ * cuộn ngang — NFR-USA-02, cùng cách với vùng cuộn của primitive Table.
+ */
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: var(--space-2) 0;
+  list-style: none;
+
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.arrow {
+  color: var(--color-muted);
+}
+
+.step {
+  padding: var(--space-1) var(--space-3);
+
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  color: var(--color-ink-soft);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+/*
+ * Bước đang xem: đổi nền, đổi màu chữ, in đậm VÀ dày viền.
+ * Bốn dấu hiệu chứ không riêng màu — NFR-USA-06. Kèm aria-current="step" cho trình đọc màn hình.
+ */
+.current {
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  border-width: 2px;
+  padding: calc(var(--space-1) - 1px) calc(var(--space-3) - 1px);
+}
+
+.cyclic {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+}
+
+/* Bản dọc cho cột phải của bố cục desktop WF-07. */
+@media (min-width: 1024px) {
+  .list {
+    flex-direction: column;
+    align-items: stretch;
+    overflow-x: visible;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  /* Mũi tên quay xuống ở bản dọc. Xoay bằng CSS để JSX chỉ có một ký tự duy nhất. */
+  .arrow {
+    text-align: center;
+    transform: rotate(90deg);
+  }
+
+  .step {
+    text-align: center;
+    white-space: normal;
+  }
+}

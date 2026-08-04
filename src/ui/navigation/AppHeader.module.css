@@ -1,0 +1,61 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  /* Chừa tai thỏ / thanh trạng thái trên điện thoại. */
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  min-height: var(--header-height);
+  max-width: var(--desktop-max);
+  margin: 0 auto;
+  padding: var(--space-1) var(--space-4);
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  text-decoration: none;
+  color: var(--color-ink);
+}
+
+.name {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/*
+ * Ở màn 360px, chữ "Falculator Finbox" cộng hai cụm nút không đủ chỗ.
+ * Rút gọn tên thương hiệu thay vì để nút tràn ra ngoài — NFR-USA-01.
+ */
+.nameFull {
+  display: none;
+}
+
+@media (min-width: 420px) {
+  .nameShort {
+    display: none;
+  }
+  .nameFull {
+    display: inline;
+  }
+}

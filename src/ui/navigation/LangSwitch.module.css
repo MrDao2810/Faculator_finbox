@@ -1,0 +1,36 @@
+.group {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.option {
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  padding: 0 var(--space-2);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/*
+ * Đang chọn: nền nhạt + in đậm + đổi màu, cùng ngôn ngữ hình với Chip và ModeToggle.
+ * Ba dấu hiệu chứ không riêng màu (NFR-USA-06).
+ */
+.selected {
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.option:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}

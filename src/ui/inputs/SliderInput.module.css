@@ -1,0 +1,109 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+.value {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+/*
+ * NFR-USA-01: "thanh trượt kéo được bằng ngón cái".
+ * Cả hàng cao đủ 44px, nút kéo 28px — nhỏ hơn nữa là trượt hụt trên điện thoại.
+ */
+.slider {
+  width: 100%;
+  min-height: var(--tap-min);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 6px;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.slider::-moz-range-track {
+  height: 6px;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  /* Kéo nút lên cho tâm nút trùng tâm rãnh: (28 - 6) / 2 - 1 viền. */
+  margin-top: -11px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+
+  margin: 0;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+/*
+ * Ô khoá ở chế độ Cơ bản: mờ đi VÀ có nhãn chữ "nâng cao".
+ * Hai dấu hiệu chứ không riêng độ mờ — NFR-USA-06.
+ */
+.locked .slider {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.locked .value {
+  color: var(--color-muted);
+}
+
+.badge {
+  padding: 1px var(--space-2);
+  font-weight: var(--weight-medium);
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-pill);
+}

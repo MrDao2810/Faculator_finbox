@@ -1,0 +1,25 @@
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.item {
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}

@@ -123,6 +123,25 @@ export interface FormulaSpec {
   dependsOn?: ReadonlyArray<FormulaDependency>;
 }
 
+/** Cách sắp xếp danh sách công thức ở WF-02. */
+export type ListSort = 'featured' | 'az' | 'za';
+
+/** 'all' là chip “Tất cả” đứng cạnh chip Chứng khoán và Cá nhân. */
+export type SegmentFilter = Segment | 'all';
+
+/**
+ * Điều kiện lọc và tìm của màn danh sách (FR-19).
+ * Định nghĩa ở tầng Domain để logic lọc test được bằng Node; tầng Application chỉ việc
+ * đọc/ghi nó lên URL.
+ */
+export interface FormulaQuery {
+  /** Chuỗi tìm kiếm thô người dùng gõ, có dấu hay không dấu đều được. */
+  q: string;
+  segment: SegmentFilter;
+  categoryId: string | null;
+  sort: ListSort;
+}
+
 /** Mức nghiêm trọng của một phát hiện khi soát Registry. */
 export type IssueSeverity = 'error' | 'warning';
 

@@ -11,6 +11,9 @@ export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export { Input } from './Input';
 export type { InputProps, InputTone } from './Input';
 
+export { Select } from './Select';
+export type { SelectProps } from './Select';
+
 export { Card } from './Card';
 export type { CardProps } from './Card';
 

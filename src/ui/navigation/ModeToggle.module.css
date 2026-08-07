@@ -8,8 +8,13 @@
 }
 
 .option {
-  /* Vùng chạm tối thiểu 44px — NFR-USA-01. Không thu nhỏ để lấy chỗ. */
-  min-height: var(--tap-min);
+  /*
+   * Bản thiết kế vẽ cụm nút này cao 32px. Vùng chạm 44px của NFR-USA-01 vẫn giữ nguyên,
+   * chỉ là nó nằm ở lớp phủ ::after trong suốt chứ không phải ở phần nhìn thấy —
+   * cùng cách đã dùng cho nút nhỏ ở Button.module.css.
+   */
+  position: relative;
+  min-height: 32px;
   padding: 0 var(--space-3);
 
   font-family: inherit;
@@ -21,6 +26,16 @@
   border: none;
   border-radius: var(--radius-pill);
   cursor: pointer;
+}
+
+.option::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
 }
 
 .option:hover:not(.selected) {

@@ -10,23 +10,57 @@
  */
 
 import type { MessageKey } from './i18n';
+import { listParamsToQuery, type ListParams } from './url-state';
 
 export const ROUTES = {
   home: '/',
   formulas: '/cong-thuc/',
+  /**
+   * Màn tìm kiếm WF-09. KHÔNG có trong `NAV_ITEMS` và KHÔNG có trong `sitemap.xml`:
+   * đây là giao diện nhập truy vấn chứ không phải nội dung, và để Google lập chỉ mục nó
+   * thì trùng nội dung với `/cong-thuc/` (FR-25). Trang tự đặt `robots: noindex`.
+   */
+  search: '/tim-kiem/',
+  /**
+   * Bảng dữ liệu WF-05. Cũng KHÔNG có trong `NAV_ITEMS` và KHÔNG vào `sitemap.xml`: đây là
+   * chỗ nhập liệu của người dùng, không phải nội dung để Google lập chỉ mục (FR-25).
+   * WF-18 xếp nó trong chặng "Tính toán" nên nó sáng mục Công thức, giống màn tìm kiếm.
+   */
+  data: '/du-lieu/',
   portfolio: '/danh-muc/',
   settings: '/cai-dat/',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
 
+/**
+ * Bốn mục có mặt ở thanh nav dưới.
+ * `search` và `data` là route thật nhưng không phải mục điều hướng — tách kiểu ra để component
+ * thanh nav không phải bịa một icon cho chúng.
+ */
+export type NavKey = Exclude<RouteKey, 'search' | 'data'>;
+
 /** Đường dẫn tới một công thức, ví dụ '/cong-thuc/wacc/'. */
 export function formulaPath(id: string): string {
   return `${ROUTES.formulas}${id}/`;
 }
 
+/**
+ * Đường dẫn tới màn danh sách ĐÃ LỌC SẴN, ví dụ '/cong-thuc/?q=roi&category=returns'.
+ *
+ * Một chỗ duy nhất dựng loại link này — lưới nhóm ở trang chủ và hàng "Xem tất cả" của ô tìm
+ * đều gọi vào đây. Ghép chuỗi tay ở từng nơi thì tên tham số dễ lệch với `parseListParams()`
+ * mà không ai biết, và link mở ra một danh sách chưa lọc gì; đợt 7 đã dính đúng lỗi đó.
+ *
+ * Tham số mặc định được `listParamsToQuery()` lược bỏ, nên `DEFAULT_LIST_PARAMS` cho ra
+ * '/cong-thuc/' trơn chứ không phải '/cong-thuc/?segment=all&sort=featured'.
+ */
+export function formulaListPath(params: ListParams): string {
+  return `${ROUTES.formulas}${listParamsToQuery(params)}`;
+}
+
 export interface NavItem {
-  key: RouteKey;
+  key: NavKey;
   href: string;
   labelKey: MessageKey;
 }
@@ -44,10 +78,15 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
  * Trang chủ phải khớp tuyệt đối, các mục khác khớp cả trang con
  * (ví dụ '/cong-thuc/wacc/' vẫn sáng mục Công thức).
  */
-export function activeRouteKey(pathname: string): RouteKey | null {
+export function activeRouteKey(pathname: string): NavKey | null {
   const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
 
   if (path === ROUTES.home) return 'home';
+
+  // Màn tìm kiếm WF-09 và bảng dữ liệu WF-05 không có mục riêng ở thanh nav. WF-18 xếp cả hai
+  // trong luồng công thức, nên chúng sáng mục Công thức — tắt hết mọi mục sẽ khiến người dùng
+  // tưởng bị lạc.
+  if (path.startsWith(ROUTES.search) || path.startsWith(ROUTES.data)) return 'formulas';
 
   for (const item of NAV_ITEMS) {
     if (item.key === 'home') continue;

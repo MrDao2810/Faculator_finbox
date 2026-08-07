@@ -1,0 +1,120 @@
+/*
+ * Bottom sheet — gói WBS 2.5.
+ * Dán đáy màn hình, cao tối đa 88% để người dùng luôn thấy một dải nền phía trên và hiểu
+ * rằng bấm ra ngoài là đóng được.
+ */
+.sheet {
+  width: 100%;
+  max-width: var(--content-max);
+  max-height: 88dvh;
+
+  margin: 0 auto;
+  margin-block-end: 0;
+  margin-block-start: auto;
+  padding: 0;
+
+  color: var(--color-ink);
+  background: transparent;
+  border: none;
+  overflow: hidden;
+}
+
+.sheet::backdrop {
+  /* Nền mờ. Không dùng rgba() vì tokens.test.ts chặn màu viết thẳng trong CSS Module. */
+  background: var(--color-ink);
+  opacity: 0.45;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 88dvh;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-bottom: none;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  /* Chừa thanh gạt của điện thoại không phím cứng, như BottomTabBar đã làm. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+
+  padding: var(--space-5) var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Vạch kéo quen thuộc của bottom sheet — chỉ để nhận diện, không kéo được. */
+.grabber {
+  position: absolute;
+  top: var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 36px;
+  height: 4px;
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* Nút đóng giữ đủ vùng chạm 44px dù biểu tượng nhỏ — NFR-USA-01. */
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: var(--tap-min);
+  height: var(--tap-min);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0 0;
+
+  color: var(--color-ink-soft);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--color-sunken);
+}
+
+/* Chỉ phần thân cuộn; tiêu đề và hàng nút luôn nhìn thấy. */
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-4);
+}
+
+.footer {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-paper);
+}

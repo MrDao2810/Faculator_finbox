@@ -1,27 +1,62 @@
 /*
  * Dải miễn trừ — FR-24, UI-04.
- * Nằm ngay dưới thanh trên nên luôn ở trong tầm nhìn đầu tiên, không phải cuộn mới thấy.
- * Không có nút đóng. Không được cắt ở bất kỳ bản phát hành nào.
+ *
+ * Từ đợt 8 nằm ở CHÂN TRANG chứ không còn sát thanh trên: chủ dự án chốt lấy phần đầu màn
+ * đúng bản thiết kế. Vẫn do AppShell dựng nên mọi màn đều có, vẫn không có nút đóng, và
+ * vẫn không được cắt ở bất kỳ bản phát hành nào.
+ *
+ * Đổi từ dải vàng sang chữ nhỏ trên nền chìm: ở chân trang nó không cần giành sự chú ý,
+ * chỉ cần luôn ở đó và đọc được — --color-muted trên --color-sunken đạt 5,02:1.
  */
 .bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: center;
   gap: var(--space-2);
 
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
 
   font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+
+  background: var(--color-sunken);
+  border-top: 1px solid var(--color-border);
+}
+
+/*
+ * Bản `notice` — đầu màn chi tiết công thức (đợt 10).
+ *
+ * Ở đây câu miễn trừ phải giành được sự chú ý vì ngay bên dưới là một con số tiền, nên dùng
+ * nền vàng cảnh báo thay vì chữ xám chìm: --color-warning trên --color-warning-soft đạt
+ * 4,92:1, vẫn qua ngưỡng 4,5:1 của chữ thường.
+ */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  padding: var(--space-3);
+
+  font-size: var(--text-sm);
   line-height: var(--leading-normal);
   color: var(--color-warning);
 
   background: var(--color-warning-soft);
-  border-bottom: 1px solid var(--color-warning-line);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-md);
+}
+
+.notice .text {
+  font-weight: var(--weight-medium);
 }
 
 .icon {
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .text {
   margin: 0;
+  max-width: var(--content-max);
 }

@@ -11,7 +11,9 @@ import {
   variablesForLevel,
 } from './build';
 import { CATEGORIES, categoriesOf, expectedCountOf, findCategory } from './categories';
-import type { FormulaSpec } from './types';
+import { countHiddenByLevel, formulasForLevel, selectFormulas } from './search';
+import type { FormulaQuery, FormulaSpec } from './types';
+import { FORMULA_SUMMARIES } from '../formulas/summaries.generated';
 import { errorsOnly, validateFormula, validateRegistry, validateVariable } from './validate';
 
 const CATEGORY_IDS = new Set(CATEGORIES.map((c) => c.id));
@@ -93,6 +95,21 @@ describe('12 nhóm công thức (FR-01)', () => {
   it('tra được nhóm theo id và không ném lỗi với id lạ', () => {
     expect(findCategory('fees-tax')?.name).toBe('Phí & thuế thị trường VN');
     expect(findCategory('khong-co')).toBeUndefined();
+  });
+
+  /*
+   * `shortName` là chữ hiện trong lưới hai cột của WF-01 và trên thẻ công thức dạng ô.
+   * Quá 16 ký tự thì ở 360px nó bị cắt bằng dấu ba chấm và người dùng không đọc ra tên nhóm.
+   */
+  it('mọi nhóm có tên rút gọn không rỗng, không dài quá 16 ký tự, không trùng nhau', () => {
+    const tooLong = CATEGORIES.filter((c) => c.shortName.trim() === '' || c.shortName.length > 16);
+    expect(tooLong.map((c) => `${c.id}: "${c.shortName}"`)).toEqual([]);
+    expect(new Set(CATEGORIES.map((c) => c.shortName)).size).toBe(12);
+  });
+
+  it('tên rút gọn không dài hơn tên đầy đủ', () => {
+    const wrong = CATEGORIES.filter((c) => c.shortName.length > c.name.length);
+    expect(wrong.map((c) => c.id)).toEqual([]);
   });
 });
 
@@ -321,5 +338,49 @@ describe('sinh giao diện từ Registry (FR-05, FR-09)', () => {
     const formula = makeFormula();
     expect(variablesForLevel(formula, 'basic')).toHaveLength(1);
     expect(variablesForLevel(formula, 'advanced')).toHaveLength(2);
+  });
+});
+
+/*
+ * Chạy trên THƯ VIỆN THẬT chứ không trên fixture: thứ đang được gác ở đây là quan hệ giữa
+ * cấu hình `level` của 107 công thức và cái người dùng nhìn thấy, mà quan hệ đó chỉ sai được
+ * khi dữ liệu thật đổi. Nhóm 'corporate-finance' có 2/2 công thức mức nâng cao, nên ở chế độ
+ * Cơ bản nó rỗng — chấp nhận được VÌ màn có dòng "N công thức nâng cao đang ẩn" kèm nút bật.
+ * Ca kiểm dưới chốt đúng điều kiện đó: rỗng thì phải đếm ra được số để mà nói.
+ */
+describe('chế độ hiển thị lọc thư viện thật (FR-09)', () => {
+  const BASE: FormulaQuery = { q: '', segment: 'all', categoryId: null, sort: 'featured' };
+
+  it('Nâng cao thấy đủ 107, Cơ bản thấy ít hơn hẳn', () => {
+    expect(formulasForLevel(FORMULA_SUMMARIES, 'advanced')).toHaveLength(107);
+    expect(formulasForLevel(FORMULA_SUMMARIES, 'basic').length).toBeLessThan(107);
+  });
+
+  it('không nhóm nào rỗng ở chế độ Cơ bản mà KHÔNG đếm ra được số công thức đang ẩn', () => {
+    const coBan = formulasForLevel(FORMULA_SUMMARIES, 'basic');
+
+    for (const category of CATEGORIES) {
+      const query: FormulaQuery = { ...BASE, categoryId: category.id };
+      const hien = selectFormulas(coBan, query).length;
+      if (hien > 0) continue;
+
+      // Rỗng: bắt buộc phải có con số để màn giải thích được vì sao.
+      expect(
+        countHiddenByLevel(FORMULA_SUMMARIES, query, 'basic'),
+        `nhóm ${category.id} rỗng ở chế độ Cơ bản nhưng không nói được là đang ẩn bao nhiêu`,
+      ).toBeGreaterThan(0);
+    }
+  });
+
+  it('mọi nhóm: số hiện + số ẩn = số ở chế độ Nâng cao', () => {
+    const coBan = formulasForLevel(FORMULA_SUMMARIES, 'basic');
+
+    for (const category of CATEGORIES) {
+      const query: FormulaQuery = { ...BASE, categoryId: category.id };
+      const tong = selectFormulas(FORMULA_SUMMARIES, query).length;
+      const hien = selectFormulas(coBan, query).length;
+      const an = countHiddenByLevel(FORMULA_SUMMARIES, query, 'basic');
+      expect(hien + an, category.id).toBe(tong);
+    }
   });
 });

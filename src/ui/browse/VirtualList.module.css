@@ -1,0 +1,43 @@
+/*
+ * CỐ Ý KHÔNG dùng `gap`: khoảng cách của flex nằm NGOÀI chiều cao đo được của một dòng, nên
+ * nếu để gap thì số đo thiếu mất phần khoảng cách và hai khối đệm lệch dần theo số dòng —
+ * cuộn tới cuối danh sách 107 mục sẽ trôi mất cả trăm pixel.
+ * Khoảng cách đặt bằng padding-bottom nằm trong chính dòng, để phép đo tính luôn.
+ */
+.list {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Danh sách ngắn: dòng cao theo nội dung, không ép. */
+.item {
+  padding-bottom: var(--space-2);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 122px;
+}
+
+/*
+ * Danh sách đã ảo hoá: dòng CŨNG cao theo nội dung, y như danh sách ngắn.
+ *
+ * Trước đây chỗ này ép `height` (bản đầu viết cứng 84px, bản sau lấy số đo của một dòng dò)
+ * kèm `overflow: hidden`. Cả hai đều dựa trên giả định mọi thẻ cao bằng nhau — sai: đo 107 thẻ
+ * ở khổ 390px ra sáu chiều cao từ 102px tới 194px. Thẻ cao hơn số đã ép bị cắt cụt, chữ tràn
+ * đè lên thẻ bên cạnh.
+ *
+ * Nay VirtualList đo riêng từng dòng, nên ở đây không được ép gì cả — ép lại là mở lại đúng
+ * lỗi ấy. `src/ui/browse/VirtualList.test.tsx` chốt điều này bằng ca kiểm.
+ */
+.row {
+  padding-bottom: var(--space-2);
+}
+
+/* Khối đệm chỉ giữ chỗ, không nhận sự kiện và không có khoảng cách riêng. */
+.pad {
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}

@@ -1,0 +1,29 @@
+/*
+ * Bản tĩnh của danh sách — cùng số đo với FormulaBrowser.module.css để cú thế chỗ lúc
+ * hydrate không làm danh sách xê dịch. `.item` lấy đúng padding-bottom của VirtualList
+ * nhánh danh sách ngắn (không gap — lý do xem chú thích ở VirtualList.module.css).
+ */
+
+.static {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.count {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding-bottom: var(--space-2);
+}

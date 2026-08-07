@@ -1,0 +1,55 @@
+/*
+ * Dòng báo chế độ Cơ bản đang giấu bớt công thức.
+ *
+ * Cố ý KHÔNG dùng màu cảnh báo: đây không phải lỗi, chỉ là hệ quả của một cài đặt người dùng
+ * tự bật. Màu nhấn nhạt đủ để mắt bắt được mà không kéo sự chú ý khỏi danh sách.
+ */
+.note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Nút nằm trong câu nên trông như một liên kết, nhưng phải là `<button>` thật: nó đổi cài đặt
+ * chứ không đi đâu cả. Vùng chạm 44px nằm ở lớp phủ trong suốt, để dòng chữ không bị đội cao —
+ * cùng cách đã dùng ở ModeToggle.
+ */
+.action {
+  position: relative;
+
+  padding: 0;
+
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+  text-decoration: underline;
+
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.action::after {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--space-2));
+  right: calc(-1 * var(--space-2));
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+.action:hover {
+  color: var(--color-accent-strong);
+}

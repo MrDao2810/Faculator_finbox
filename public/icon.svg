@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="512" height="512">
+  <!--
+    Biểu tượng ứng dụng — cùng khối hộp với BrandMark trên thanh trên.
+
+    CẨN THẬN: đây là comment XML, KHÔNG được chứa hai dấu gạch ngang liền nhau. Bản trước của
+    file này viết tên biến CSS đầy đủ (có hai gạch ở đầu) ngay trong comment, khiến file sai
+    cú pháp XML và trình duyệt TỪ CHỐI dựng nó — favicon và mục SVG trong manifest im lặng
+    hỏng, không lỗi nào hiện ra. Vì thế bên dưới tên biến viết trần, không có hai gạch đầu.
+
+    Màu ghi cứng chứ không dùng biến CSS: file này được trình duyệt và hệ điều hành đọc RỜI
+    khỏi trang (tab, màn hình chính, danh sách ứng dụng), nơi không có :root nào để tra
+    color-brand-from / color-brand-to. Đổi màu thì đổi cả globals.css, icon-maskable.svg và
+    scripts/gen-icons.mjs, rồi chạy `npm run gen:icons`.
+
+    Ba mặt tách nhau bằng khe hở để lộ nền — không tô trắng, để nền đổi thì khe đổi theo. Khe
+    chỉ trừ vào cạnh TRONG nên bóng ngoài vẫn là hình sáu cạnh sắc nét.
+
+    Dải màu neo vào hệ toạ độ chung (userSpaceOnUse), không theo khung bao từng path — nếu
+    không, mỗi mặt có một dải riêng và chỗ giáp nhau bị gãy màu.
+
+    viewBox 32 nhưng khai width/height 512 để hệ điều hành có đủ độ phân giải khi phóng to;
+    SVG là ảnh vector nên không có gì để mất.
+  -->
+  <defs>
+    <linearGradient id="brand" gradientUnits="userSpaceOnUse" x1="4.8" y1="4" x2="27.2" y2="27.887">
+      <stop offset="0" stop-color="#2c6cbe"/>
+      <stop offset="1" stop-color="#102f5a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="#f4f6fa"/>
+  <path d="M16 4 26.834 8.386 16 12.771 5.166 8.386Z" fill="url(#brand)"/>
+  <path d="M4.8 8.831 15.725 13.253v14.634L4.8 23.464V8.831Z" fill="url(#brand)"/>
+  <path d="M27.2 8.831 16.275 13.253v14.634L27.2 23.464V8.831Z" fill="url(#brand)"/>
+</svg>

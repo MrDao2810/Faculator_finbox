@@ -1,0 +1,149 @@
+.search {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  /* Bo 10px cho khớp ô tìm ở thanh trên — đợt 8b đã bỏ dạng viên thuốc trên toàn app. */
+  border-radius: var(--radius-md);
+}
+
+.search::placeholder {
+  color: var(--color-muted);
+}
+
+/* Ẩn nút xoá mặc định của Chrome cho input[type=search] — cùng lý do như SearchBox. */
+.search::-webkit-search-cancel-button,
+.search::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/*
+ * Cảnh báo số liệu bản thảo. Rủi ro R-01 còn mở nên người dùng phải biết đây không phải
+ * báo cáo thật, trước khi họ tin vào con số tính ra.
+ */
+.draft {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Vùng kết quả. Chiều cao tối thiểu được ghim bằng JS lúc mở sheet — xem docblock trong
+ * PresetSheet.tsx. Ở đây chỉ căn nội dung lên đầu để chỗ trống dôi ra nằm phía dưới, chứ
+ * không đẩy danh sách xuống giữa khung.
+ */
+.results {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * Huy hiệu mã. Chữ đều và bề ngang tối thiểu cố định để cột mã thẳng hàng qua các dòng —
+ * mã ba ký tự và mã bốn ký tự không được làm lệch phần tên bên phải.
+ */
+.badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 52px;
+  min-height: 34px;
+  padding: 0 var(--space-2);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  /* Chiếm hết chỗ còn lại để nút "Nạp" luôn dạt về mép phải, mọi dòng thẳng hàng nhau. */
+  flex: 1;
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  /* Tên doanh nghiệp dài hơn chỗ trống thì xuống dòng, không đẩy nút "Nạp" ra khỏi khung. */
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.draftTag {
+  font-weight: var(--weight-medium);
+  color: var(--color-warning);
+}
+
+/*
+ * Không khớp gì thì câu nhắn nằm GIỮA vùng đã ghim, không dính lên đầu: chiều cao vùng này
+ * cố định nên phần trống dôi ra là thật, để câu nhắn treo trên nóc một khoảng trắng lớn thì
+ * nhìn như màn hỏng chứ không như một câu trả lời.
+ */
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  padding: var(--space-5) var(--space-3);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.footnote {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}

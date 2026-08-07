@@ -33,6 +33,13 @@
   min-width: 0;
   padding: 0;
 
+  /*
+   * NFR-USA-01. Khung .control cao 44px, nhưng chính ô input chỉ cao bằng dòng chữ (22px) và
+   * nằm giữa khung — chạm vào phần đệm trên hoặc dưới là không trúng gì cả. Kéo ô cao bằng
+   * khung để cả ô viền trở thành vùng chạm, đúng như nó trông thế.
+   */
+  align-self: stretch;
+
   font-family: inherit;
   font-size: var(--text-md);
   color: var(--color-ink);

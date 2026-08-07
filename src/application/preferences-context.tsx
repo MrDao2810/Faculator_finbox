@@ -25,12 +25,14 @@ import {
   writePreferences,
   type Preferences,
 } from './preferences';
+import type { UnitScaleId } from '@/core/format';
 import type { Level } from '@/core/types';
 
 interface PreferencesContextValue extends Preferences {
   setMode: (mode: Level) => void;
   setLocale: (locale: Locale) => void;
   setFeeScheduleId: (id: string) => void;
+  setUnitScale: (id: UnitScaleId) => void;
   /**
    * Đã đọc xong localStorage hay chưa.
    * Lần render đầu luôn là giá trị mặc định để HTML tĩnh và client khớp nhau;
@@ -74,6 +76,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       setMode: (mode) => persist({ ...prefs, mode }),
       setLocale: (locale) => persist({ ...prefs, locale }),
       setFeeScheduleId: (feeScheduleId) => persist({ ...prefs, feeScheduleId }),
+      setUnitScale: (unitScale) => persist({ ...prefs, unitScale }),
     }),
     [prefs, hydrated, persist],
   );
@@ -96,5 +99,6 @@ export function usePreferences(): PreferencesContextValue {
     setMode: () => undefined,
     setLocale: () => undefined,
     setFeeScheduleId: () => undefined,
+    setUnitScale: () => undefined,
   };
 }

@@ -8,6 +8,10 @@
  *
  * LƯU Ý cho người dùng hook này: với `output: 'export'`, component gọi hook này PHẢI nằm
  * trong một <Suspense> — bên trong có useSearchParams(). Quên là `npm run build` hỏng.
+ *
+ * LƯU Ý thứ hai: **đừng nối thẳng `setParams({ q })` vào `onChange` của một ô nhập.**
+ * `router.replace()` là bất đồng bộ nên gõ nhanh sẽ rơi ký tự — cho ô nhập đi qua
+ * `useQueryDraft()` (use-query-draft.ts), ở đó có giải thích đầy đủ.
  */
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';

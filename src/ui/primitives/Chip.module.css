@@ -3,6 +3,12 @@
   align-items: center;
   gap: var(--space-2);
 
+  /*
+   * Bản thiết kế vẽ chip cao 36px. Vùng chạm 44px của NFR-USA-01 nằm ở lớp phủ ::after trong
+   * suốt bên dưới — cùng cách Button.module.css làm cho nút .sm. Không nâng min-height lên 44px
+   * vì hàng chip lọc của WF-02 sẽ dày lên và vỡ hình.
+   */
+  position: relative;
   min-height: 36px;
   padding: 0 var(--space-3);
 
@@ -15,6 +21,17 @@
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-pill);
   cursor: pointer;
+}
+
+/* Căng đúng bề ngang chip: .selected bù padding cho viền 2px nên không được dùng inset âm. */
+.chip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
 }
 
 .chip:hover:not(:disabled) {

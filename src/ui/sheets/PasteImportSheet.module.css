@@ -1,0 +1,282 @@
+.label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Vùng dán dùng chữ đều để cột số thẳng hàng — dán từ Excel vào là nhìn ra ngay cột nào lệch.
+ */
+.area {
+  width: 100%;
+  min-height: 140px;
+  padding: var(--space-3);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink);
+  white-space: pre;
+  overflow-x: auto;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  resize: vertical;
+}
+
+.area::placeholder {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+}
+
+/* Nhãn khối, viết hoa màu nhấn — cùng ngôn ngữ với tiêu đề khối của trang chủ và WF-08. */
+.sectionLabel {
+  display: block;
+  margin-bottom: var(--space-2);
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.columns {
+  margin-top: var(--space-4);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/*
+ * Chip gán cột. Cả con chip là vùng chạm 44px nhờ <select> phủ kín ở dạng trong suốt —
+ * NFR-USA-01. Phần nhìn thấy cao 36px cho gọn, đúng bản thiết kế.
+ */
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  min-height: 36px;
+  padding: 0 var(--space-2);
+
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Cột đã gán vai trò: đổi nền, đổi màu chữ VÀ đậm chữ — ba dấu hiệu, không riêng màu
+ * (NFR-USA-06). Cột "Bỏ qua" giữ nền chìm để nhìn lướt là biết cột nào không vào bảng.
+ */
+.chipOn {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-soft);
+}
+
+/* Vùng chạm phủ ra ngoài phần nhìn thấy, cao đúng --tap-min — bài học đợt 5 và đợt 11. */
+.chip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Số thứ tự cột, để người dùng dò được chip nào ứng với cột nào trong vùng dán. */
+.chipIndex {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.chipOn .chipIndex {
+  color: var(--color-accent);
+  opacity: 0.7;
+}
+
+.chipText {
+  font-weight: var(--weight-medium);
+}
+
+.chipOn .chipText {
+  font-weight: var(--weight-bold);
+}
+
+.chipCaret {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.chipOn .chipCaret {
+  color: var(--color-accent);
+}
+
+/*
+ * <select> thật nằm phủ kín chip nhưng trong suốt: giữ nguyên bánh xe chọn của hệ điều hành,
+ * bàn phím và trình đọc màn hình, mà vẫn được hình dáng chip của bản thiết kế.
+ * Cao hơn phần nhìn thấy để trùng đúng vùng chạm 44px của lớp ::after.
+ */
+.chipSelect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  font-family: inherit;
+  font-size: var(--text-base); /* < 16px là iOS Safari tự phóng to trang khi chạm vào */
+  color: transparent;
+
+  background: transparent;
+  opacity: 0;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Vòng tiêu điểm phải hiện trên chip chứ không phải trên thẻ <select> vô hình. */
+.chipSelect:focus-visible {
+  outline: none;
+}
+
+.chip:has(.chipSelect:focus-visible) {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ── Khung xem trước ─────────────────────────────────────────────────────── */
+
+.previewWrap {
+  margin-top: var(--space-4);
+}
+
+/* Bảng sáu cột không vừa 360px — cuộn ngang trong khung riêng, cả sheet không tràn
+   (bài học đợt 7 với bảng lịch trả nợ WF-14). */
+.previewScroll {
+  /* Cùng bộ đôi với `.scroller` của primitive Table — lý do đầy đủ ghi ở Table.module.css. */
+  width: 100%;
+  min-width: 0;
+  contain: layout inline-size;
+
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.preview {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-xs);
+}
+
+.preview th,
+.preview td {
+  padding: var(--space-2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Cột ngày là chữ, canh trái cho khỏi lẫn với cột số. */
+.preview th:first-child,
+.preview td:first-child {
+  text-align: left;
+}
+
+.preview thead th {
+  font-weight: var(--weight-bold);
+  color: var(--color-ink-soft);
+  background: var(--color-sunken);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.preview tbody td {
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.preview tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.previewMore {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* ── Hai khối báo cáo ────────────────────────────────────────────────────── */
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/*
+ * Kết quả kiểm tra. Dấu ✓ và ! đứng trước chữ nên đọc được cả khi không phân biệt màu —
+ * NFR-USA-06. Đúng khuôn WF-11.
+ */
+.ok {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-success);
+
+  background: var(--color-success-soft);
+  border: 1px solid var(--color-success-line);
+  border-radius: var(--radius-md);
+}
+
+.none {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-muted);
+
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.problems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  padding: var(--space-2) var(--space-3);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-md);
+}
+
+.problem {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+}

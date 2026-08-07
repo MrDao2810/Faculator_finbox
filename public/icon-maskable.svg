@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="512" height="512">
+  <!--
+    Bản "maskable": Android cắt biểu tượng theo hình của từng hãng máy (tròn, vuông bo, giọt
+    nước), và chỉ đảm bảo giữ lại vòng tròn an toàn ở giữa — khoảng 80% cạnh. Vì thế khối hộp
+    ở đây nhỏ hơn bản thường và nền tràn kín khung, nếu không thì góc khối bị gọt mất.
+
+    Ba path dưới đây GIỐNG HỆT icon.svg, chỉ khác cái `transform` thu nhỏ về 80% quanh tâm.
+    Chép lại toạ độ đã thu nhỏ là mở đường cho hai bản lệch hình nhau mà không ai thấy.
+
+    Dải màu nằm TRONG `<g>` đã transform, nên nó co theo khối — không thì khối nhỏ lại mà dải
+    vẫn trải theo khung 32 cũ, và bản maskable chỉ hứng được đoạn giữa của dải.
+  -->
+  <defs>
+    <linearGradient id="brand" gradientUnits="userSpaceOnUse" x1="4.8" y1="4" x2="27.2" y2="27.887">
+      <stop offset="0" stop-color="#2c6cbe"/>
+      <stop offset="1" stop-color="#102f5a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" fill="#f4f6fa"/>
+  <g transform="translate(3.2 3.2) scale(0.8)">
+    <path d="M16 4 26.834 8.386 16 12.771 5.166 8.386Z" fill="url(#brand)"/>
+    <path d="M4.8 8.831 15.725 13.253v14.634L4.8 23.464V8.831Z" fill="url(#brand)"/>
+    <path d="M27.2 8.831 16.275 13.253v14.634L27.2 23.464V8.831Z" fill="url(#brand)"/>
+  </g>
+</svg>

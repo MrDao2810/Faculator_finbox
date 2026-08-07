@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { CATEGORIES } from '@/core/registry';
+
 import {
   DEFAULT_LIST_PARAMS,
   MAX_QUERY_LENGTH,
@@ -88,5 +90,26 @@ describe('isDefaultListParams()', () => {
     expect(isDefaultListParams(DEFAULT_LIST_PARAMS)).toBe(true);
     expect(isDefaultListParams({ ...DEFAULT_LIST_PARAMS, q: '   ' })).toBe(true);
     expect(isDefaultListParams({ ...DEFAULT_LIST_PARAMS, categoryId: 'risk' })).toBe(false);
+  });
+});
+
+/*
+ * Lỗi thật đã gặp: ô nhóm ở trang chủ ghép tay chuỗi `?nhom=<id>`, trong khi bộ đọc URL
+ * dùng tham số `category`. Link vẫn mở được trang nhưng KHÔNG lọc gì, và không test nào bắt
+ * được vì hai bên nằm ở hai file khác nhau. Ca dưới đây khoá lại vòng tròn đó.
+ */
+describe('link lọc nhóm luôn đọc lại được', () => {
+  it('mọi nhóm: dựng URL rồi đọc lại ra đúng nhóm đó', () => {
+    for (const category of CATEGORIES) {
+      const query = listParamsToQuery({ ...DEFAULT_LIST_PARAMS, categoryId: category.id });
+      const parsed = parseListParams(new URLSearchParams(query));
+
+      expect(parsed.categoryId, category.id).toBe(category.id);
+    }
+  });
+
+  it('chuỗi truy vấn có dấu ? ở đầu để ghép thẳng sau đường dẫn', () => {
+    const query = listParamsToQuery({ ...DEFAULT_LIST_PARAMS, categoryId: 'loans' });
+    expect(query.startsWith('?')).toBe(true);
   });
 });

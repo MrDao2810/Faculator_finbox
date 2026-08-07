@@ -1,0 +1,14 @@
+/*
+ * Đoạn khớp. Nền vàng nhạt VÀ chữ đậm — hai dấu hiệu, không riêng màu (NFR-USA-06).
+ * Chữ giữ --color-ink chứ không đổi sang màu cảnh báo: đây là phần được đánh dấu, không phải
+ * lỗi. Cặp ink trên warning-soft đạt 12,9:1.
+ */
+.hit {
+  padding: 0 1px;
+
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+
+  background: var(--color-warning-soft);
+  border-radius: 2px;
+}

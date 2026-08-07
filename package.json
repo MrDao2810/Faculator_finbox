@@ -3,18 +3,28 @@
   "version": "0.1.0-dev",
   "private": true,
   "description": "Falculator Finbox — thư viện công thức tài chính, web tĩnh không backend",
+  "//sideEffects": "Không module TS/TSX nào của dự án có tác dụng phụ lúc nạp — chỉ khai báo và hàm thuần. Thiếu dòng này thì webpack phải giữ MỌI module mà barrel `@/application` chạm tới, nghĩa là mọi trang tải cả diễn giải và hàm tính của toàn bộ Registry, kể cả trang 404. CSS phải chừa ra: nhập một file CSS CHÍNH LÀ tác dụng phụ, bỏ nó đi là mất sạch giao diện.",
+  "sideEffects": [
+    "*.css"
+  ],
+  "//preview": "Cổng 4173 chứ KHÔNG để `serve` tự chọn 3000: bản dựng thật đăng ký service worker cho origin nó chạy, mà `next dev` cũng ở 3000. Trùng cổng nghĩa là service worker của bản preview còn sống và chặn mọi điều hướng của dev server sau đó — trang hiện ra là bản cache cũ, chunk nó xin thì dev server không có, React không gắn được và cả màn hoá ra chết bấm. Khác cổng thì hai bên không bao giờ đụng nhau.",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-no-dev.mjs",
     "build": "next build",
-    "preview": "npx --yes serve out",
+    "preview": "npx --yes serve out -l 4173",
     "lint": "next lint --dir src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "verify:static": "node scripts/verify-static.mjs",
+    "size": "node scripts/size-report.mjs",
+    "gen:summaries": "node scripts/gen-summaries.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run test",
-    "prepare": "husky || true"
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",
+    "prepare": "husky || true",
+    "gen:icons": "node scripts/gen-icons.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

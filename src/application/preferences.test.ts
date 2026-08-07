@@ -12,6 +12,8 @@ describe('mặc định', () => {
     expect(DEFAULT_PREFERENCES.mode).toBe('basic');
     expect(DEFAULT_PREFERENCES.locale).toBe('vi');
     expect(DEFAULT_PREFERENCES.feeScheduleId).toBe('hose-2026');
+    // 'triệu ₫' là bậc WF-14 vẽ sẵn trên bảng lịch trả nợ — mặc định giữ nguyên hình cũ.
+    expect(DEFAULT_PREFERENCES.unitScale).toBe('million');
   });
 
   it('khoá lưu có đánh số phiên bản', () => {
@@ -21,7 +23,12 @@ describe('mặc định', () => {
 
 describe('readPreferences()', () => {
   it('đọc lại đúng thứ đã ghi', () => {
-    const prefs = { mode: 'advanced', locale: 'en', feeScheduleId: 'hose-2026' } as const;
+    const prefs = {
+      mode: 'advanced',
+      locale: 'en',
+      feeScheduleId: 'hose-2026',
+      unitScale: 'billion',
+    } as const;
     expect(readPreferences(writePreferences(prefs))).toEqual(prefs);
   });
 
@@ -57,19 +64,28 @@ describe('readPreferences()', () => {
     expect(prefs.feeScheduleId).toBe(DEFAULT_PREFERENCES.feeScheduleId);
   });
 
+  it('bậc đơn vị lạ thì rơi về mặc định, không lọt xuống bảng', () => {
+    expect(readPreferences('{"unitScale":"trieu-do"}').unitScale).toBe(
+      DEFAULT_PREFERENCES.unitScale,
+    );
+    expect(readPreferences('{"unitScale":42}').unitScale).toBe(DEFAULT_PREFERENCES.unitScale);
+    expect(readPreferences('{"unitScale":"dong"}').unitScale).toBe('dong');
+  });
+
   it('bỏ qua trường lạ, không mang theo rác', () => {
     const prefs = readPreferences('{"mode":"advanced","email":"a@b.c"}');
-    expect(Object.keys(prefs).sort()).toEqual(['feeScheduleId', 'locale', 'mode']);
+    expect(Object.keys(prefs).sort()).toEqual(['feeScheduleId', 'locale', 'mode', 'unitScale']);
   });
 });
 
 describe('writePreferences()', () => {
-  it('chỉ ghi ba trường đã biết — không để dữ liệu cá nhân lọt vào (LDR-04)', () => {
+  it('chỉ ghi những trường đã biết — không để dữ liệu cá nhân lọt vào (LDR-04)', () => {
     const json = writePreferences(DEFAULT_PREFERENCES);
     expect(Object.keys(JSON.parse(json) as object).sort()).toEqual([
       'feeScheduleId',
       'locale',
       'mode',
+      'unitScale',
     ]);
   });
 });

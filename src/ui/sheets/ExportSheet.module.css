@@ -1,0 +1,112 @@
+.formats {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.format {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1 1 140px;
+
+  min-height: var(--tap-min);
+  padding: var(--space-3);
+
+  font-family: inherit;
+  text-align: left;
+  color: var(--color-ink-soft);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/*
+ * Đang chọn: đổi nền, đổi màu chữ, in đậm VÀ dày viền — bốn dấu hiệu, không riêng màu
+ * (NFR-USA-06). Cùng ngôn ngữ hình với Chip và RadioGroup.
+ */
+.selected {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  border-width: 2px;
+  padding: calc(var(--space-3) - 1px);
+}
+
+/* Biểu tượng đứng trên tên định dạng, ăn màu theo trạng thái chọn của thẻ. */
+.formatIcon {
+  margin-bottom: var(--space-1);
+  color: var(--color-muted);
+}
+
+.selected .formatIcon {
+  color: var(--color-accent);
+}
+
+.formatName {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+}
+
+.selected .formatName {
+  font-weight: var(--weight-bold);
+}
+
+.formatHint {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * Hai tuỳ chọn nội dung, mỗi cái một dòng công tắc.
+ * Trước đợt này là ô tick; bản thiết kế vẽ công tắc, và công tắc cũng hợp hơn về nghĩa —
+ * đây là hai thiết lập bật/tắt độc lập, không phải danh sách nhiều lựa chọn của một câu hỏi.
+ */
+.options {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-4);
+}
+
+.options > * + * {
+  border-top: 1px solid var(--color-border);
+}
+
+/*
+ * Khối miễn trừ. Cố ý KHÔNG phải ô tick: FR-24 và WF-12 nói rõ không có tuỳ chọn tắt.
+ * Nếu sau này ai đó định thêm công tắc ở đây thì phải sửa cả buildExportContent() ở tầng
+ * Domain — và hàm đó có test chặn.
+ */
+.locked {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-md);
+}
+
+.lockedTitle {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-warning);
+}
+
+.lockedDetail {
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}
+
+.error {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-danger);
+}

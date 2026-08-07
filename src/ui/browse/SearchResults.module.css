@@ -1,0 +1,88 @@
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.groupName {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  /* Cả dòng là vùng chạm 44px — NFR-USA-01, và WF-09 ghi rõ dùng được bằng ngón cái. */
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-1);
+
+  color: var(--color-ink);
+  text-decoration: none;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.list li:last-child .row {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: var(--color-accent-soft);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+
+  /* Một dòng: đang tìm thì cần quét nhanh, không cần đọc hết mô tả. */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Cấp độ báo bằng chữ chứ không bằng màu — NFR-USA-06. */
+.level {
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}

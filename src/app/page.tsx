@@ -1,97 +1,122 @@
+import Link from 'next/link';
+
 import {
   CATEGORIES,
-  MARKET_CONFIG,
-  constantsAsOf,
+  FORMULAS,
+  ROUTES,
+  categoriesOf,
+  createRegistry,
   expectedCountOf,
-  ok,
-  scheduleOrDefault,
+  featuredFormulas,
   t,
 } from '@/application';
-import { Card, Chip, Table } from '@/ui/primitives';
+import { CategoryGrid, FormulaCard } from '@/ui/browse';
+
+import { HomeSearchPanel } from './HomeSearchPanel';
+import styles from './page.module.css';
 
 /**
- * Trang chủ tạm — chứng minh bộ khung chạy được và đường đi giữa các tầng đúng.
- * Gói WBS 3.1.1 sẽ thay bằng màn WF-01 thật.
+ * Màn WF-01 Trang chủ — gói WBS 3.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
+ *
+ * File này vẫn là **server component**: không hook, không state. Phần cần gõ được nằm trong
+ * đúng một client island là `HomeSearchPanel`, còn ba khối bên dưới truyền vào nó qua
+ * `children` nên vẫn do server dựng và không lọt vào gói JS của máy khách (NFR-PER-04).
+ *
+ * Trước đợt này ô tìm là một thẻ `<a>` trông giống ô nhập, bấm vào là nhảy sang `/tim-kiem/`.
+ * Nay gõ được tại chỗ. Vì sao trạng thái tìm KHÔNG lên URL: xem docblock của `HomeSearchPanel`,
+ * ở đó có cả số đo chứng minh.
+ *
+ * Dải miễn trừ FR-24 không nằm ở file này mà ở `AppShell`, để nó có mặt ở mọi màn chứ không
+ * phụ thuộc việc người viết màn có nhớ thêm hay không.
  */
 
-/** Ngày tra biểu phí. Tầng Domain không tự lấy ngày hệ thống (NFR-REL-03). */
-const NGAY_TRA = '2026-08-03';
+/** Dựng một lần lúc build — Registry là hằng số, không đổi giữa các lần render. */
+const REGISTRY = createRegistry(FORMULAS);
+const FEATURED = featuredFormulas(REGISTRY);
+
+const TOTAL_EXPECTED = CATEGORIES.reduce((sum, c) => sum + c.expectedCount, 0);
 
 export default function Home() {
-  // Gọi qua @/application — đúng cửa. Import thẳng @/core ở đây sẽ bị ESLint chặn.
-  const demo = ok(15.2, 'lần');
-
-  const bieuPhi = scheduleOrDefault(MARKET_CONFIG);
-  const hangSo = bieuPhi === undefined ? [] : constantsAsOf(bieuPhi, NGAY_TRA);
-
   return (
-    <>
-      <h1>{t('app.name')}</h1>
-      <p style={{ color: 'var(--color-muted)', marginTop: 'var(--space-1)' }}>
-        {t('page.placeholder.home')}
-      </p>
+    <div className={styles.page}>
+      {/*
+        Tiêu đề cấp một. Bản thiết kế không vẽ nó nên nó ẩn khỏi mắt — nhưng phải TỒN TẠI:
+        trang chủ là URL priority 1.0 của sitemap mà trước đợt này cả tài liệu không có lấy
+        một <h1> nào. Dùng `visually-hidden` chứ không `display: none`, để trình đọc màn hình
+        và bộ máy tìm kiếm vẫn thấy.
+      */}
+      <h1 className="visually-hidden">{t('home.h1')}</h1>
 
-      <div style={{ display: 'grid', gap: 'var(--space-4)', marginTop: 'var(--space-5)' }}>
-        <Card eyebrow="Kiểm tra đường đi giữa các tầng" padded>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700 }}>
-            {demo.value}{' '}
-            <span style={{ fontSize: 'var(--text-md)', fontWeight: 400 }}>{demo.unit}</span>
-          </div>
-          <p style={{ margin: 0, color: 'var(--color-muted)', fontSize: 'var(--text-sm)' }}>
-            Số này đi từ <code>src/core</code> qua <code>src/application</code> rồi mới tới đây.
-          </p>
-        </Card>
+      {/*
+        Ba khối dưới đây là NỘI DUNG LÚC CHƯA TÌM GÌ. Truyền qua children nên chúng vẫn do
+        server dựng: CategoryGrid và nhánh `tile` của FormulaCard không lọt vào gói máy khách.
+        Bắt đầu gõ là panel thay chỗ chúng bằng kết quả.
+      */}
+      <HomeSearchPanel>
+        {/* ── Công thức dùng hằng ngày — FR-20 ─────────────────────────────── */}
+        {FEATURED.length > 0 && (
+          <section className={styles.block} aria-labelledby="home-featured">
+            <h2 className={styles.blockTitle} id="home-featured">
+              {t('home.featured.title')}
+            </h2>
 
-        <Card
-          eyebrow="Gói 1.3.1"
-          title="12 nhóm công thức"
-          subtitle={`Chứng khoán ${expectedCountOf('stock')} · Cá nhân ${expectedCountOf('personal')}`}
-        >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-            {CATEGORIES.map((category) => (
-              <Chip
-                key={category.id}
-                label={category.name}
-                count={category.expectedCount}
-                selected={category.id === 'fees-tax'}
-              />
-            ))}
-          </div>
-        </Card>
-
-        <Card
-          eyebrow="Gói 1.3.2"
-          title={bieuPhi?.name ?? 'Chưa có biểu phí'}
-          subtitle={`Hằng số đang có hiệu lực tại ngày ${NGAY_TRA}`}
-          padded={false}
-        >
-          <Table caption="Biểu phí và thuế đang áp dụng" hideCaption>
-            <thead>
-              <tr>
-                <th scope="col">Khoản mục</th>
-                <th scope="col" className="numeric">
-                  Mức
-                </th>
-                <th scope="col">Căn cứ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hangSo.map((constant) => (
-                <tr key={constant.key}>
-                  <th scope="row" style={{ fontWeight: 500 }}>
-                    {constant.label}
-                  </th>
-                  <td className="numeric">
-                    {constant.value} {constant.unit}
-                  </td>
-                  {/* Giữ nowrap của khung bảng: cột dài thì cuộn ngang, không kéo dòng cao lên. */}
-                  <td style={{ color: 'var(--color-muted)' }}>{constant.legalBasis}</td>
-                </tr>
+            <ul className={styles.cards}>
+              {FEATURED.map((formula) => (
+                <li key={formula.id}>
+                  <FormulaCard formula={formula} variant="tile" />
+                </li>
               ))}
-            </tbody>
-          </Table>
-        </Card>
-      </div>
-    </>
+            </ul>
+          </section>
+        )}
+
+        {/* ── Duyệt theo nhóm — FR-01 ──────────────────────────────────────── */}
+        <section className={styles.block} aria-labelledby="home-browse">
+          <h2 className={styles.blockTitle} id="home-browse">
+            {t('home.browse.title')} · {TOTAL_EXPECTED} {t('home.browse.unit')}
+          </h2>
+
+          <h3 className={styles.segment}>
+            {t('home.segment.stock')} · {expectedCountOf('stock')}
+          </h3>
+          <CategoryGrid categories={categoriesOf('stock')} />
+
+          <h3 className={styles.segment}>
+            {t('home.segment.personal')} · {expectedCountOf('personal')}
+          </h3>
+          <CategoryGrid categories={categoriesOf('personal')} />
+        </section>
+
+        {/* ── Công cụ — lối vào những màn không có mục ở thanh dưới ─────────── */}
+        {/*
+          Thanh dưới chốt đúng bốn mục (WF-18), nên bảng dữ liệu WF-05 không có chỗ ở đó.
+          Trước đợt này nó không có LẤY MỘT LINK NÀO trong cả giao diện — chỉ gõ URL tay mới
+          tới được, dù màn đã dựng xong từ đợt 9.
+        */}
+        <section className={styles.block} aria-labelledby="home-tools">
+          <h2 className={styles.blockTitle} id="home-tools">
+            {t('home.tools.title')}
+          </h2>
+
+          <ul className={styles.tools}>
+            <li>
+              <Link className={styles.tool} href={ROUTES.data}>
+                <span className={styles.toolName}>{t('home.tools.data')}</span>
+                <span className={styles.toolHint}>{t('home.tools.dataHint')}</span>
+              </Link>
+            </li>
+          </ul>
+        </section>
+
+        {/*
+          Số trên ô nhóm là số công thức DỰ KIẾN của SRS 3.8, không phải số đang bấm vào được.
+          Từ đợt 8 lưới không còn nhãn "sắp có" nên đây là chỗ duy nhất còn nói thật tiến độ —
+          đừng xoá trước khi nhánh 5 đổ đủ 107 công thức.
+        */}
+        <p className={styles.progress}>
+          {t('home.progress')} {REGISTRY.formulas.length}/{TOTAL_EXPECTED}.
+        </p>
+      </HomeSearchPanel>
+    </div>
   );
 }

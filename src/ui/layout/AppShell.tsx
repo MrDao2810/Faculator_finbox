@@ -7,15 +7,18 @@ import { BottomTabBar } from '../navigation/BottomTabBar';
 import { DisclaimerBar } from '../navigation/DisclaimerBar';
 import { OfflineBanner } from '../navigation/OfflineBanner';
 import styles from './AppShell.module.css';
+import { ServiceWorker } from './ServiceWorker';
 
 /**
- * Bộ khung ứng dụng — gói WBS 1.4.2.
+ * Bộ khung ứng dụng — gói WBS 1.4.2, đổi thứ tự theo bản thiết kế hi-fi ở đợt 8.
  *
  * Thứ tự dọc cố định, không màn nào được đổi:
- *   thanh trên → banner ngoại tuyến → dải miễn trừ → nội dung → thanh điều hướng dưới.
+ *   banner ngoại tuyến → thanh trên → nội dung → dải miễn trừ → thanh điều hướng dưới.
  *
- * Dải miễn trừ đặt ở đây chứ không ở từng màn, để FR-24 và UI-04 không phụ thuộc việc
- * người viết màn có nhớ thêm hay không — cùng cách nghĩ với ok() giữ bất biến FR-06.
+ * Dải miễn trừ **vẫn đặt ở đây** chứ không ở từng màn, chỉ đổi chỗ từ đầu màn xuống chân
+ * trang: FR-24 và UI-04 không được phụ thuộc việc người viết màn có nhớ thêm hay không —
+ * cùng cách nghĩ với ok() giữ bất biến FR-06. Chủ dự án chốt đưa nó xuống chân trang để
+ * phần đầu màn giống bản thiết kế.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -24,15 +27,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         {t('nav.skipToContent')}
       </a>
 
-      <AppHeader />
       <OfflineBanner />
-      <DisclaimerBar />
+      <AppHeader />
 
       <main id="noi-dung" className={styles.content}>
         {children}
       </main>
 
+      <DisclaimerBar />
       <BottomTabBar />
+
+      {/* Không dựng ra gì — chỉ đăng ký service worker cho phần chạy ngoại tuyến (NFR-REL-02). */}
+      <ServiceWorker />
     </div>
   );
 }

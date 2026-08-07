@@ -23,39 +23,28 @@
 
 .brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-2);
   min-width: 0;
+  /* Vùng chạm 44px — NFR-USA-01. Khối hộp cao 26px nên phải nới bằng chiều cao tối thiểu. */
+  min-height: var(--tap-min);
   text-decoration: none;
-  color: var(--color-ink);
+  color: var(--color-accent);
 }
 
 .name {
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
   white-space: nowrap;
+  /* Chữ dài hơn chỗ trống thì cắt gọn, không đẩy hai cụm nút ra ngoài khung. */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   flex-shrink: 0;
-}
-
-/*
- * Ở màn 360px, chữ "Falculator Finbox" cộng hai cụm nút không đủ chỗ.
- * Rút gọn tên thương hiệu thay vì để nút tràn ra ngoài — NFR-USA-01.
- */
-.nameFull {
-  display: none;
-}
-
-@media (min-width: 420px) {
-  .nameShort {
-    display: none;
-  }
-  .nameFull {
-    display: inline;
-  }
 }

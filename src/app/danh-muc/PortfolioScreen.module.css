@@ -1,0 +1,240 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* Bốn thẻ chỉ số: hai cột ở 360px, tự giãn trên màn rộng — cùng công thức lưới với trang chủ. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-align: center;
+
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  /* Vùng chạm 44px — NFR-USA-01, tính cả nút bỏ mã nằm trong hàng. */
+  min-height: var(--tap-min);
+  padding: var(--space-3) 0;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.code {
+  flex-shrink: 0;
+  min-width: 52px;
+
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.quantity {
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+}
+
+.cost {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.weightBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.weight {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.weightLabel {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.removeButton {
+  flex-shrink: 0;
+  width: var(--tap-min);
+  min-height: var(--tap-min);
+
+  font-family: inherit;
+  font-size: var(--text-md);
+  line-height: 1;
+  color: var(--color-muted);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.removeButton:hover {
+  color: var(--color-danger);
+}
+
+/* Nút thêm mã: viền đứt như bản thiết kế — trông rõ là chỗ để thêm chứ không phải nội dung. */
+.addButton {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+
+  background: var(--color-surface);
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.addButton:hover {
+  background: var(--color-accent-soft);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.local {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+}
+
+.localTag {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Cảnh báo bản thảo, đặt ngay dưới khối con số tiền (đợt 15). Dùng nền vàng nhạt chứ không
+ * chỉ đổi màu chữ: NFR-USA-06 cấm dùng riêng màu để truyền tin, nên còn có cả nhãn chữ
+ * "số liệu bản thảo" đứng trước câu.
+ */
+.draftNote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-sm);
+}
+
+.draftTag {
+  flex-shrink: 0;
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}

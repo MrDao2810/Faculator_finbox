@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useRef, type RefObject } from 'react';
 
 import { t } from '@/application';
 
@@ -11,6 +11,17 @@ export interface SearchBoxProps {
   onChange: (value: string) => void;
   /** Hiện dòng nhắc “gõ không dấu vẫn ra đúng”. Tắt đi khi đã có kết quả. */
   showHint?: boolean;
+  /** Phím Esc. Không truyền thì Esc không làm gì thêm ngoài hành vi mặc định của ô. */
+  onCancel?: () => void;
+  /** Phím Enter. */
+  onSubmit?: () => void;
+  /**
+   * Tham chiếu tới chính thẻ `<input>`.
+   *
+   * Nơi gọi cần nó để TRẢ TIÊU ĐIỂM về ô sau khi bấm một nút rồi nút ấy tự tháo khỏi DOM —
+   * ví dụ "Xoá bộ lọc" ở trang chủ. Không truyền thì ô tự giữ tham chiếu riêng.
+   */
+  inputRef?: RefObject<HTMLInputElement | null>;
 }
 
 /**
@@ -19,12 +30,21 @@ export interface SearchBoxProps {
  * FR-19 · NFR-USA-03: gõ không dấu vẫn ra đúng. Việc bỏ dấu do
  * `normalizeVi()` ở tầng Domain lo; ở đây chỉ là ô nhập và nút xoá.
  *
- * Không tự giữ state: giá trị đi thẳng lên URL qua `useListParams()`, để link chia sẻ được
- * và nút Lùi của trình duyệt chạy đúng.
+ * Không tự giữ state: nơi gọi quyết định giá trị đi đâu — `/cong-thuc/` và `/tim-kiem/` đẩy
+ * lên URL qua `useListParams()`, còn trang chủ giữ trong state cục bộ (xem HomeSearchPanel).
  */
-export function SearchBox({ value, onChange, showHint = true }: SearchBoxProps) {
+export function SearchBox({
+  value,
+  onChange,
+  showHint = true,
+  onCancel,
+  onSubmit,
+  inputRef,
+}: SearchBoxProps) {
   const inputId = useId();
   const hintId = `${inputId}-hint`;
+  const ownRef = useRef<HTMLInputElement>(null);
+  const ref = inputRef ?? ownRef;
 
   return (
     <div className={styles.field}>
@@ -49,6 +69,7 @@ export function SearchBox({ value, onChange, showHint = true }: SearchBoxProps) 
         </svg>
 
         <input
+          ref={ref}
           id={inputId}
           className={styles.input}
           type="search"
@@ -61,6 +82,21 @@ export function SearchBox({ value, onChange, showHint = true }: SearchBoxProps) 
           onChange={(event) => {
             onChange(event.target.value);
           }}
+          /*
+           * Bắt phím trên CHÍNH ô nhập, không đặt ở thẻ bọc ngoài: nút × tự tháo mình khi ô
+           * rỗng, và nếu lúc đó tiêu điểm đang ở nút thì nó rơi về <body> — phím bấm tiếp sau
+           * không còn nổi bọt qua thẻ bọc nữa.
+           */
+          onKeyDown={(event) => {
+            if (event.key === 'Escape' && onCancel !== undefined) {
+              event.preventDefault();
+              onCancel();
+            }
+            if (event.key === 'Enter' && onSubmit !== undefined) {
+              event.preventDefault();
+              onSubmit();
+            }
+          }}
         />
 
         {value !== '' && (
@@ -69,6 +105,9 @@ export function SearchBox({ value, onChange, showHint = true }: SearchBoxProps) 
             className={styles.clear}
             onClick={() => {
               onChange('');
+              // Nút này biến mất ngay sau cú bấm. Không trả tiêu điểm thì nó rơi về <body>,
+              // và người dùng bàn phím phải Tab lại từ đầu tài liệu.
+              ref.current?.focus();
             }}
           >
             <span className="visually-hidden">{t('search.clear')}</span>

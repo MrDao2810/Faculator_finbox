@@ -2,17 +2,29 @@ import { t } from '@/application';
 
 import styles from './DisclaimerBar.module.css';
 
+export interface DisclaimerBarProps {
+  /**
+   * `footer` — dải chữ nhỏ ở chân trang, do AppShell dựng cho mọi màn.
+   * `notice` — ô vàng nổi bật đặt ngay đầu màn có kết quả tính.
+   */
+  variant?: 'footer' | 'notice';
+}
+
 /**
  * Dải miễn trừ trách nhiệm — gói WBS 2.1.3.
  *
- * FR-24 · UI-04: phải hiện trong tầm nhìn đầu tiên của MỌI màn có kết quả.
- * Đặt cố định trong AppShell nên không màn nào quên được. Không có nút đóng.
+ * FR-24 · UI-04: phải có mặt ở MỌI màn. Bản `footer` đặt cố định trong AppShell nên không màn
+ * nào quên được, và không có nút đóng. Từ đợt 8 nó nằm ở chân trang theo yêu cầu của chủ dự án.
+ *
+ * Bản `notice` có từ đợt 10, dùng cho màn chi tiết công thức: chân trang là chỗ tốt cho một
+ * lời nhắc thường trực, nhưng ở màn ĐANG BÀY RA MỘT CON SỐ TIỀN thì câu miễn trừ phải nằm
+ * cạnh con số ấy chứ không phải cách đó hai màn hình cuộn. Bản thiết kế hi-fi vẽ đúng như vậy.
  *
  * Dấu hiệu là biểu tượng + chữ, không phải chỉ màu (NFR-USA-06).
  */
-export function DisclaimerBar() {
+export function DisclaimerBar({ variant = 'footer' }: DisclaimerBarProps = {}) {
   return (
-    <div className={styles.bar} role="note">
+    <div className={variant === 'notice' ? styles.notice : styles.bar} role="note">
       <svg
         className={styles.icon}
         width="14"

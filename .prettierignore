@@ -2,3 +2,11 @@ node_modules
 .next
 out
 coverage
+
+# File sinh tự động: prettier định dạng lại là lệch với bản `summaries.test.ts` dựng ra,
+# và hook lint-staged sẽ làm điều đó ngay lúc commit. Sinh lại bằng `npm run gen:summaries`.
+src/core/formulas/summaries.generated.ts
+
+# Do công cụ tự ghi lại mỗi lần đổi quyền, nên định dạng nó xong là lần sau lại lệch —
+# `npm run check` đỏ vì một file không ai sửa tay. Không phải mã nguồn của sản phẩm.
+.claude/settings.json

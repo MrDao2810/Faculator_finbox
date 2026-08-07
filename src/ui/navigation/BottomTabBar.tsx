@@ -32,7 +32,7 @@ export function BottomTabBar() {
                 className={isActive ? `${styles.link} ${styles.active}` : styles.link}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <TabIcon route={item.key} />
+                <TabIcon route={item.key} active={isActive} />
                 <span className={styles.label}>{t(item.labelKey)}</span>
               </Link>
             </li>

@@ -7,6 +7,7 @@
  * File này KHÔNG import React để test được bằng Node. Phần React nằm ở preferences-context.tsx.
  */
 
+import { UNIT_SCALES, type UnitScaleId } from '@/core/format';
 import { MARKET_CONFIG } from '@/core/market';
 import type { Level } from '@/core/types';
 
@@ -21,16 +22,31 @@ export interface Preferences {
   locale: Locale;
   /** Biểu phí đang chọn ở WF-08 và WF-13. */
   feeScheduleId: string;
+  /**
+   * Bậc đơn vị tiền mặc định của các BẢNG số liệu (CON-05).
+   *
+   * Chỉ đổi cách BÀY con số, không đổi con số: công thức luôn tính bằng đồng, việc quy đổi do
+   * `scaleToUnit()` lo. Ô nhập không đụng tới cài đặt này — `parseViNumber()` đọc theo quy ước
+   * Việt Nam và đó là hợp đồng riêng của ô nhập, đổi theo cài đặt là mở lại đúng lớp lỗi
+   * "nhập 1,1 ra 11" của đợt 9.
+   */
+  unitScale: UnitScaleId;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
   mode: 'basic', // người dùng F0 là nhóm mặc định (SRS 1.3.3)
   locale: 'vi',
   feeScheduleId: MARKET_CONFIG.defaultScheduleId,
+  // 'triệu ₫' là mặc định của WF-14 ("ĐVT: triệu đồng"), giữ nguyên hình cũ cho người đang dùng.
+  unitScale: 'million',
 };
 
 function isMode(value: unknown): value is Level {
   return value === 'basic' || value === 'advanced';
+}
+
+function isUnitScale(value: unknown): value is UnitScaleId {
+  return typeof value === 'string' && UNIT_SCALES.some((scale) => scale.id === value);
 }
 
 function isKnownSchedule(value: unknown): value is string {
@@ -65,14 +81,16 @@ export function readPreferences(raw: string | null | undefined): Preferences {
     feeScheduleId: isKnownSchedule(record.feeScheduleId)
       ? record.feeScheduleId
       : DEFAULT_PREFERENCES.feeScheduleId,
+    unitScale: isUnitScale(record.unitScale) ? record.unitScale : DEFAULT_PREFERENCES.unitScale,
   };
 }
 
-/** Chuỗi JSON để ghi vào localStorage. Chỉ ghi ba trường đã biết, không ghi thừa. */
+/** Chuỗi JSON để ghi vào localStorage. Chỉ ghi những trường đã biết, không ghi thừa. */
 export function writePreferences(prefs: Preferences): string {
   return JSON.stringify({
     mode: prefs.mode,
     locale: prefs.locale,
     feeScheduleId: prefs.feeScheduleId,
+    unitScale: prefs.unitScale,
   });
 }

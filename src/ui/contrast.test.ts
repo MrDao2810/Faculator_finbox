@@ -79,7 +79,7 @@ describe('bảng màu blueprint đạt WCAG 2.1 AA (NFR-USA-06)', () => {
   }
 
   /*
-   * Cam rực không phải màu chữ — nó chỉ cần đủ 3:1 để nhìn thấy vạch chỉ báo trên nền trang.
+   * Xanh rực không phải màu chữ — nó chỉ cần đủ 3:1 để nhìn thấy vạch chỉ báo trên nền trang.
    * Việc chặn dùng nó làm màu chữ nằm ở src/ui/tokens.test.ts.
    */
   for (const [bgLabel, bgToken] of backgrounds) {
@@ -96,6 +96,10 @@ describe('bảng màu blueprint đạt WCAG 2.1 AA (NFR-USA-06)', () => {
   it('chữ cảnh báo đọc được trên nền cảnh báo nhạt', () => {
     expect(meetsContrast(color('--color-warning'), color('--color-warning-soft'))).toBe(true);
     expect(meetsContrast(color('--color-danger'), color('--color-danger-soft'))).toBe(true);
+  });
+
+  it('chữ báo thành công đọc được trên nền xanh lá nhạt — khối báo cáo WF-11', () => {
+    expect(meetsContrast(color('--color-success'), color('--color-success-soft'))).toBe(true);
   });
 
   it('chữ chính đọc được trên vùng chìm — ô khoá ở chế độ Cơ bản (WF-16)', () => {
@@ -127,6 +131,8 @@ describe('globals.css khai báo đủ token màu', () => {
       '--color-danger',
       '--color-danger-soft',
       '--color-success',
+      '--color-success-soft',
+      '--color-success-line',
       '--color-warning',
       '--color-warning-line',
       '--color-warning-soft',

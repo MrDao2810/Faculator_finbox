@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-import { FORMULAS, ROUTES, formulaPath } from '@/application';
+import { FORMULA_SUMMARIES, ROUTES, formulaPath } from '@/application';
 
 /**
  * Sơ đồ trang — FR-25.
@@ -30,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absolute(ROUTES.settings), priority: 0.3 },
   ];
 
-  const formulaPages: MetadataRoute.Sitemap = FORMULAS.map((formula) => ({
+  const formulaPages: MetadataRoute.Sitemap = FORMULA_SUMMARIES.map((formula) => ({
     url: absolute(formulaPath(formula.id)),
     priority: formula.isFeatured === true ? 0.8 : 0.7,
   }));

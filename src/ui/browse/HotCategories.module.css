@@ -1,0 +1,65 @@
+.hot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Tiêu đề khối viết hoa màu nhấn — cùng ngôn ngữ với trang chủ và WF-08. */
+.title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.grid {
+  display: grid;
+  /* Cùng công thức lưới với CategoryGrid, nhưng ô hẹp hơn để vừa ba cột ở 360px. */
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+
+  /* Tên nhóm dài xuống hai dòng làm ô đó cao hơn; cho mọi ô cùng hàng cao bằng nhau. */
+  height: 100%;
+
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+
+  text-decoration: none;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.tile:hover {
+  border-color: var(--color-accent);
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  /* Tên nhóm dài nhất là "Tài chính DN" — cho xuống dòng chứ đừng tràn ngang ở 360px. */
+  overflow-wrap: anywhere;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}

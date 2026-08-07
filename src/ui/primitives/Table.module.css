@@ -4,8 +4,23 @@
  */
 .scroller {
   /* Không bao giờ rộng hơn chỗ được cấp — phần thừa cuộn bên trong khung này. */
+  width: 100%;
   max-width: 100%;
   min-width: 0;
+
+  /*
+   * `overflow-x: auto` giữ được BẢN THÂN khung ở đúng bề rộng được cấp, nhưng KHÔNG chặn được
+   * bề rộng nội tại của bảng rò ra ngoài: Chrome ở chế độ di động lấy đó để định khung nhìn,
+   * rồi nới `window.innerWidth` ra bằng bảng. Đo trên bản build: bảng chuỗi giá sáu cột rộng
+   * 542px làm khung nhìn 360 thành **543**, và hệ quả thấy được là bottom sheet — vốn đặt
+   * `width: 100%` — bị dựng rộng 543px, tràn nửa ra ngoài màn hình.
+   *
+   * `contain: layout inline-size` cắt đường rò đó: bề rộng khung tự quyết theo chỗ được cấp,
+   * không nhìn nội dung. Đã thử `min-width: 0`, `contain: inline-size` một mình, `width: 100%`
+   * và `overflow-x: hidden` trên body — không cái nào đủ; chỉ cặp `layout inline-size` đưa
+   * khung nhìn về đúng 360 mà vẫn giữ nguyên phần cuộn ngang bên trong (542px).
+   */
+  contain: layout inline-size;
 
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;

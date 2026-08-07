@@ -1,0 +1,58 @@
+/*
+ * Nút quay lại của màn trong. Wireframe đặt nó ở hàng đầu, sát mép trái, ngay trên tiêu đề.
+ *
+ * Lùi trái đúng bằng phần đệm quang học của mũi tên, để CHỮ thẳng hàng với tiêu đề bên dưới
+ * chứ không thụt vào — nếu không, hàng đầu trông như bị lệch.
+ */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  /*
+   * Chỉ rộng bằng nội dung. Ba màn dùng nút này đều đặt nó trong một flex CỘT, mà flex cột mặc
+   * định `align-items: stretch` — để nguyên thì link kéo dài hết bề ngang và bấm vào khoảng
+   * trống bên phải chữ cũng nhảy trang. Đo được 366px trên khổ 390px trước khi thêm dòng này.
+   */
+  align-self: flex-start;
+
+  /* Vùng chạm 44px — NFR-USA-01. Đệm dọc gánh phần chiều cao còn thiếu của chữ. */
+  min-height: var(--tap-min);
+  margin-left: calc(-1 * var(--space-2));
+  padding: var(--space-2);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  text-decoration: none;
+
+  border-radius: var(--radius-sm);
+}
+
+.back:hover {
+  color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+}
+
+/*
+ * Mũi tên nhích sang trái một chút khi rê chuột — dấu hiệu hướng đi, không phải trang trí.
+ * Người bật "giảm chuyển động" thì bỏ, theo `prefers-reduced-motion` đã khai ở globals.css.
+ */
+.icon {
+  flex-shrink: 0;
+  transition: transform 120ms ease;
+}
+
+.back:hover .icon {
+  transform: translateX(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    transition: none;
+  }
+
+  .back:hover .icon {
+    transform: none;
+  }
+}

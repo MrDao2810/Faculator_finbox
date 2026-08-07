@@ -2,24 +2,35 @@
 
 ## Đã có
 
-- `primitives/` — gói WBS 1.2.1 và 2.3.3: `Button`, `Input`, `Select`, `Card`, `Chip`, `Table`
-  (khung bảng có vùng cuộn ngang riêng). Mọi kiểu dáng đọc token từ `src/app/globals.css`,
-  không hard-code màu.
+- `primitives/` — gói WBS 1.2.1, 2.3.3 và 2.5: `Button`, `Input`, `Select`, `Card`, `Chip`,
+  `Table` (khung bảng có vùng cuộn ngang riêng), `BottomSheet` (dựng trên `<dialog>` gốc).
+  Mọi kiểu dáng đọc token từ `src/app/globals.css`, không hard-code màu.
 - `navigation/` — gói 2.1: `AppHeader`, `OfflineBanner`, `ModeToggle`, `LangSwitch`,
   `BottomTabBar`, `DisclaimerBar`.
 - `layout/` — gói 1.4.2: `AppShell`.
-- `browse/` — gói 2.2: `SearchBox`, `CategoryFilter`, `FormulaCard`, `EmptyState`.
+- `browse/` — gói 2.2 và 3.1: `SearchBox`, `CategoryFilter`, `FormulaCard`, `EmptyState`,
+  `CategoryGrid` (WF-01), `VirtualList` (ảo hoá WF-02), `SearchResults` và
+  `RecentSearches` (WF-09).
 - `inputs/` — gói 2.3: `NumberInput` (5 trạng thái WF-16), `SliderInput`, `ButtonGroup`,
-  `RadioGroup`, `SelectInput`, `Toggle`, `UnitSwitcher`, `LinkedInput` (4 trạng thái FR-15).
+  `RadioGroup`, `SelectInput`, `Toggle`, `UnitSwitcher`, `LinkedInput` (4 trạng thái FR-15),
+  và `VariableField` chọn điều khiển theo `spec.type` (FR-05).
+- `screens/` — gói 3.2.3 và 3.2.4: `FeeTaxBody` (WF-08), `LoanScheduleBody` (WF-14), nạp trễ
+  theo id công thức qua `DetailBody`. Khác `result/`: những thứ trong đó dùng chung cho mọi
+  công thức, còn ở đây là bố cục riêng của đúng một màn trong wireframe.
 - `result/` — gói 2.4: `ResultBlock`, `ErrorState`, `InlineWarning`, `ExplanationAccordion`,
   `VariableTable`, `ExampleBlock`, `SourceBlock`, `FlowChainStrip`, `StatTile`.
+- `sheets/` — gói 2.5: `PresetSheet` (WF-10), `PasteImportSheet` (WF-11), `ExportSheet` (WF-12)
+  kèm `draw-card.ts` vẽ thẻ PNG bằng Canvas.
 - `contrast.ts` — công cụ tính tỉ số tương phản WCAG. `contrast.test.ts` đọc thẳng
   `globals.css` và chặn CI nếu đổi màu làm tụt dưới ngưỡng AA (NFR-USA-06).
 
 ## Sắp tới
 
-Gói 2.4.3 `FormulaLatex` (đang hoãn — chưa chốt có thêm KaTeX hay không) và gói 2.5 bottom
-sheet: `PresetSheet`, `PasteImportSheet`, `ExportSheet`.
+Hai chỗ đang cố ý để trống, và **nói rõ lý do ngay trên màn** thay vì để trống lặng lẽ:
+
+- gói 2.4.3 `FormulaLatex` — hoãn, chưa chốt có thêm KaTeX hay không. Trong lúc chờ, màn chi
+  tiết hiện `spec.expression`, tức công thức viết bằng chữ tiếng Việt.
+- nhánh 4 biểu đồ — WF-03, WF-08 và WF-14 đều đã chừa khung.
 
 ## Cách viết component ở đây
 

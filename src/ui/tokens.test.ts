@@ -25,7 +25,7 @@ function moduleCssFiles(): string[] {
 }
 
 /**
- * `--color-accent-vivid` là cam rực, chỉ đạt ngưỡng 3:1 của ranh giới điều khiển chứ không đạt
+ * `--color-accent-vivid` là xanh rực, chỉ đạt ngưỡng 3:1 của ranh giới điều khiển chứ không đạt
  * 4,5:1 của chữ. Nó tồn tại để làm mảng màu — vạch chỉ báo, dấu hiệu thương hiệu, đường biểu đồ.
  * Gán vào `color` là phá NFR-USA-06, nên chặn ngay ở đây thay vì trông chờ người review nhớ.
  * Khớp cả `color:` lẫn `-webkit-text-fill-color:`, nhưng bỏ qua `background-color`/`border-color`:
@@ -46,7 +46,7 @@ describe('CSS Module chỉ dùng token màu', () => {
 
     expect(
       offenders.map((f) => f.slice(SRC_DIR.length).replace(/\\/g, '/')),
-      'cam rực chỉ dùng cho mảng màu; chữ phải dùng var(--color-accent)',
+      'xanh rực chỉ dùng cho mảng màu; chữ phải dùng var(--color-accent)',
     ).toEqual([]);
   });
 

@@ -1,0 +1,160 @@
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/* ── Đầu màn ─────────────────────────────────────────────────────────────── */
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+}
+
+/* Cấp độ báo bằng chữ + viền, không chỉ bằng màu — NFR-USA-06. */
+.level {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Link sang bảng dữ liệu WF-05, đứng cạnh nút "Dán chuỗi giá". Cao bằng nút nhỏ đứng cạnh
+   để hàng không so le, và đủ 44px vùng chạm — NFR-USA-01. */
+.dataLink {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+}
+
+/* ── Khối chung ──────────────────────────────────────────────────────────── */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.blockHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.prose {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+.expression {
+  margin: 0;
+  padding: var(--space-3);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  /* Biểu thức dài cuộn ngang trong khung riêng, trang không cuộn theo — NFR-USA-02. */
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/*
+ * Khối chưa dựng xong: nói thẳng ra màn thay vì để trống lặng lẽ. Viền đứt để phân biệt được
+ * cả khi nhìn ảnh xám.
+ */
+.pendingNote {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.chartSlot {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-sunken);
+}
+
+.hiddenNote {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * Lưới ô nhập — bản thiết kế hi-fi xếp ô số thành hai cột.
+ *
+ * `auto-fit` + `minmax(140px, 1fr)`: ở 360px vừa đúng hai cột, màn hẹp hơn tự rơi về một cột,
+ * màn rộng thì giãn ra — cùng công thức lưới với CategoryGrid, không cần media query nào.
+ */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* min-width: 0 để nhãn dài không thổi cột rộng ra rồi đẩy cả lưới tràn ngang. */
+.field {
+  min-width: 0;
+}
+
+/* Thanh trượt, nhóm nút và công tắc chiếm trọn hàng — xem WIDE_CONTROLS ở FormulaDetail.tsx. */
+.fieldWide {
+  grid-column: 1 / -1;
+  min-width: 0;
+}

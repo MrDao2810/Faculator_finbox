@@ -7,10 +7,15 @@
  *
  * Toàn bộ file là hàm thuần, không đụng React, nên test được bằng Node và tái dùng được
  * cho SearchBox, màn danh sách lẫn bố cục desktop.
+ *
+ * Nhận `FormulaSummary` chứ không phải `FormulaSpec`: ở đây chỉ đụng tới id, tên, mô tả, thẻ
+ * và cờ nổi bật. Khai kiểu hẹp đúng thứ mình dùng khiến màn danh sách không có cớ để kéo theo
+ * diễn giải và hàm tính của cả Registry (NFR-PER-04). `FormulaSpec` vẫn truyền vào được.
  */
 
 import { CATEGORIES } from './categories';
-import type { Category, FormulaQuery, FormulaSpec } from './types';
+import type { Category, FormulaQuery, FormulaSummary } from './types';
+import type { Level } from '../types';
 
 /**
  * Bỏ dấu tiếng Việt và hạ chữ thường.
@@ -43,7 +48,7 @@ interface Field {
   weight: number;
 }
 
-function fieldsOf(formula: FormulaSpec): Field[] {
+function fieldsOf(formula: FormulaSummary): Field[] {
   return [
     { tokens: tokenize(formula.id), weight: 12 },
     { tokens: tokenize(formula.name.vi), weight: 10 },
@@ -61,7 +66,7 @@ function fieldsOf(formula: FormulaSpec): Field[] {
  *
  * @returns 0 nghĩa là không khớp
  */
-export function scoreFormula(formula: FormulaSpec, queryTokens: ReadonlyArray<string>): number {
+export function scoreFormula(formula: FormulaSummary, queryTokens: ReadonlyArray<string>): number {
   if (queryTokens.length === 0) return 0;
 
   const fields = fieldsOf(formula);
@@ -91,7 +96,7 @@ export function scoreFormula(formula: FormulaSpec, queryTokens: ReadonlyArray<st
 }
 
 /** So sánh tên theo thứ tự chữ cái tiếng Việt. */
-function compareName(a: FormulaSpec, b: FormulaSpec): number {
+function compareName(a: FormulaSummary, b: FormulaSummary): number {
   return a.name.vi.localeCompare(b.name.vi, 'vi');
 }
 
@@ -99,7 +104,10 @@ function compareName(a: FormulaSpec, b: FormulaSpec): number {
  * Tìm công thức theo chuỗi người dùng gõ, sắp theo độ liên quan.
  * Chuỗi rỗng thì trả về mảng rỗng — nơi gọi tự quyết hiện gì khi chưa gõ gì.
  */
-export function searchFormulas(formulas: ReadonlyArray<FormulaSpec>, query: string): FormulaSpec[] {
+export function searchFormulas(
+  formulas: ReadonlyArray<FormulaSummary>,
+  query: string,
+): FormulaSummary[] {
   const tokens = tokenize(query);
   if (tokens.length === 0) return [];
 
@@ -111,7 +119,7 @@ export function searchFormulas(formulas: ReadonlyArray<FormulaSpec>, query: stri
 }
 
 function segmentOf(
-  formula: FormulaSpec,
+  formula: FormulaSummary,
   categories: ReadonlyArray<Category>,
 ): Category['segment'] | null {
   return categories.find((c) => c.id === formula.categoryId)?.segment ?? null;
@@ -122,11 +130,11 @@ function segmentOf(
  * Tách riêng để số đếm của từng nhóm tính được mà không bị chính bộ lọc nhóm ảnh hưởng.
  */
 function applyFacets(
-  formulas: ReadonlyArray<FormulaSpec>,
+  formulas: ReadonlyArray<FormulaSummary>,
   query: Pick<FormulaQuery, 'segment' | 'categoryId'>,
   categories: ReadonlyArray<Category>,
   ignoreCategory = false,
-): FormulaSpec[] {
+): FormulaSummary[] {
   return formulas.filter((formula) => {
     if (query.segment !== 'all' && segmentOf(formula, categories) !== query.segment) return false;
     if (!ignoreCategory && query.categoryId !== null && formula.categoryId !== query.categoryId) {
@@ -143,10 +151,10 @@ function applyFacets(
  * Chọn A–Z hay Z–A thì thứ tự chữ cái được ưu tiên, vì đó là lựa chọn có chủ đích của người dùng.
  */
 export function selectFormulas(
-  formulas: ReadonlyArray<FormulaSpec>,
+  formulas: ReadonlyArray<FormulaSummary>,
   query: FormulaQuery,
   categories: ReadonlyArray<Category> = CATEGORIES,
-): FormulaSpec[] {
+): FormulaSummary[] {
   const faceted = applyFacets(formulas, query, categories);
   const hasQuery = tokenize(query.q).length > 0;
 
@@ -164,13 +172,51 @@ export function selectFormulas(
 }
 
 /**
+ * Bộ công thức nhìn thấy được ở một chế độ hiển thị — vế THỨ HAI của FR-09.
+ *
+ * Wireframe chốt FR-09 bằng hai câu: "Nhãn Cơ bản / Nâng cao hiển thị trên mỗi công thức" (đã
+ * có, là badge trên thẻ) và "Chế độ Nâng cao mở toàn bộ tham số **và công thức phức tạp**".
+ * Hàm này là vế sau: chế độ Cơ bản chỉ giữ công thức mức `basic`, Nâng cao trả nguyên bộ.
+ *
+ * Trước đợt này chỉ vế "tham số" được nối, mà `level: 'advanced'` ở biến chỉ có ở 9 / 107 công
+ * thức — nên nút chuyển chế độ nằm ở thanh trên của mọi màn mà bấm vào gần như không đổi gì.
+ *
+ * Generic để `FormulaSpec` truyền vào vẫn ra `FormulaSpec`, không bị hạ kiểu xuống summary.
+ */
+export function formulasForLevel<T extends Pick<FormulaSummary, 'level'>>(
+  formulas: ReadonlyArray<T>,
+  mode: Level,
+): ReadonlyArray<T> {
+  if (mode === 'advanced') return formulas;
+  return formulas.filter((formula) => formula.level === 'basic');
+}
+
+/**
+ * Bao nhiêu công thức KHỚP bộ lọc hiện tại nhưng đang bị chế độ Cơ bản giấu đi.
+ *
+ * Đây là con số nói ra thành lời trên màn ("N công thức nâng cao đang ẩn"), nên nó phải đếm
+ * đúng thứ người dùng sẽ thấy thêm khi bật Nâng cao — không phải tổng số công thức nâng cao.
+ * Vì vậy nó đi qua chính `selectFormulas()` chứ không tự lọc lại: một bộ lọc thứ hai viết tay
+ * là chỗ để con số và danh sách lệch nhau.
+ */
+export function countHiddenByLevel(
+  formulas: ReadonlyArray<FormulaSummary>,
+  query: FormulaQuery,
+  mode: Level,
+  categories: ReadonlyArray<Category> = CATEGORIES,
+): number {
+  if (mode === 'advanced') return 0;
+  return selectFormulas(formulas, query, categories).filter((f) => f.level === 'advanced').length;
+}
+
+/**
  * Số đếm hiện cạnh từng nhóm trong danh sách chọn của WF-02.
  *
  * Có áp mảng và chuỗi tìm kiếm nhưng KHÔNG áp nhóm đang chọn — để người dùng thấy được
  * chọn nhóm khác thì còn bao nhiêu kết quả, thay vì thấy toàn số 0.
  */
 export function countByCategoryFor(
-  formulas: ReadonlyArray<FormulaSpec>,
+  formulas: ReadonlyArray<FormulaSummary>,
   query: FormulaQuery,
   categories: ReadonlyArray<Category> = CATEGORIES,
 ): ReadonlyMap<string, number> {
@@ -187,7 +233,7 @@ export function countByCategoryFor(
 
 /** Số công thức của từng mảng, cho ba chip Tất cả · Chứng khoán · Cá nhân. */
 export function countBySegmentFor(
-  formulas: ReadonlyArray<FormulaSpec>,
+  formulas: ReadonlyArray<FormulaSummary>,
   query: FormulaQuery,
   categories: ReadonlyArray<Category> = CATEGORIES,
 ): Readonly<Record<'all' | 'stock' | 'personal', number>> {

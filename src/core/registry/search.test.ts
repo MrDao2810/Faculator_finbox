@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   countByCategoryFor,
   countBySegmentFor,
+  countHiddenByLevel,
+  formulasForLevel,
   normalizeVi,
   scoreFormula,
   searchFormulas,
@@ -220,6 +222,75 @@ describe('countByCategoryFor()', () => {
     const counts = countByCategoryFor(ALL, { ...BASE_QUERY, segment: 'personal' });
     expect(counts.get('valuation')).toBe(0);
     expect(counts.get('loans')).toBe(1);
+  });
+});
+
+describe('formulasForLevel() — vế "công thức phức tạp" của FR-09', () => {
+  it('chế độ Nâng cao trả nguyên bộ, không bỏ sót cái nào', () => {
+    expect(formulasForLevel(ALL, 'advanced')).toHaveLength(ALL.length);
+  });
+
+  it('chế độ Cơ bản bỏ công thức mức nâng cao', () => {
+    const ids = formulasForLevel(ALL, 'basic').map((f) => f.id);
+    expect(ids).not.toContain('wacc');
+    expect(ids).toEqual(['pe', 'emi', 'gia-hoa-von']);
+  });
+
+  it('giữ nguyên thứ tự đầu vào — sắp xếp là việc của selectFormulas()', () => {
+    const ids = formulasForLevel([WACC, PE, EMI], 'basic').map((f) => f.id);
+    expect(ids).toEqual(['pe', 'emi']);
+  });
+
+  it('không sửa mảng gốc', () => {
+    const truoc = [...ALL];
+    formulasForLevel(ALL, 'basic');
+    expect(ALL).toEqual(truoc);
+  });
+
+  it('bộ rỗng vẫn chạy, không ném lỗi', () => {
+    expect(formulasForLevel([], 'basic')).toEqual([]);
+  });
+});
+
+describe('countHiddenByLevel()', () => {
+  it('chế độ Nâng cao không giấu gì nên luôn là 0', () => {
+    expect(countHiddenByLevel(ALL, BASE_QUERY, 'advanced')).toBe(0);
+  });
+
+  it('đếm đúng số công thức chế độ Cơ bản đang giấu', () => {
+    expect(countHiddenByLevel(ALL, BASE_QUERY, 'basic')).toBe(1);
+  });
+
+  /*
+   * Con số này hiện thành câu "N công thức nâng cao đang ẩn" ngay cạnh danh sách, nên nó phải
+   * đếm trong PHẠM VI bộ lọc hiện tại. Đếm tổng số công thức nâng cao của cả Registry là hứa
+   * với người dùng những mục mà bật Nâng cao lên cũng không thấy.
+   */
+  it('chỉ đếm trong phạm vi bộ lọc đang áp, không đếm cả Registry', () => {
+    // Nhóm 'loans' chỉ có EMI mức cơ bản — không giấu gì, dù WACC nâng cao vẫn nằm đâu đó.
+    expect(countHiddenByLevel(ALL, { ...BASE_QUERY, categoryId: 'loans' }, 'basic')).toBe(0);
+    expect(countHiddenByLevel(ALL, { ...BASE_QUERY, categoryId: 'valuation' }, 'basic')).toBe(1);
+  });
+
+  it('có tính cả chuỗi tìm kiếm đang gõ', () => {
+    expect(countHiddenByLevel(ALL, { ...BASE_QUERY, q: 'chiet khau' }, 'basic')).toBe(1);
+    expect(countHiddenByLevel(ALL, { ...BASE_QUERY, q: 'nien kim' }, 'basic')).toBe(0);
+  });
+
+  /* Bất biến quan trọng nhất: con số nói ra và danh sách bày ra phải cộng lại bằng nhau. */
+  it('số ẩn + số hiện = số của chế độ Nâng cao, ở mọi bộ lọc', () => {
+    const queries: FormulaQuery[] = [
+      BASE_QUERY,
+      { ...BASE_QUERY, categoryId: 'valuation' },
+      { ...BASE_QUERY, segment: 'stock' },
+      { ...BASE_QUERY, q: 'dinh gia' },
+    ];
+
+    for (const query of queries) {
+      const hien = selectFormulas(formulasForLevel(ALL, 'basic'), query).length;
+      const an = countHiddenByLevel(ALL, query, 'basic');
+      expect(hien + an, JSON.stringify(query)).toBe(selectFormulas(ALL, query).length);
+    }
   });
 });
 

@@ -1,0 +1,95 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* Item của flex mặc định rộng tối thiểu bằng min-content; không có dòng này thì
+     lưới nhóm đẩy phình cả cột và trang tràn ngang ở 360px — bài học đợt 2. */
+  min-width: 0;
+}
+
+/* Tiêu đề khối viết hoa, màu nhấn — bản thiết kế hi-fi WF-01. */
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.cards {
+  display: grid;
+  /* Cùng công thức lưới với CategoryGrid: hai cột ở 360px, tự giãn trên màn rộng. */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.segment {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}
+
+.progress {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * Khối "Công cụ" — lối vào những màn KHÔNG có mục riêng ở thanh dưới.
+ * Thanh dưới chỉ có bốn mục (WF-18) nên màn bảng dữ liệu WF-05 không có chỗ ở đó; trước đợt
+ * này nó không có lấy một link nào trong cả giao diện.
+ */
+.tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tool {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  min-height: var(--tap-min);
+  padding: var(--space-3);
+
+  text-decoration: none;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.tool:hover {
+  border-color: var(--color-accent);
+}
+
+.toolName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent-strong);
+}
+
+.toolHint {
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+  /* Tên đầy đủ có thể dài hơn nửa bề ngang ở 360px — cho xuống dòng chứ đừng tràn. */
+  overflow-wrap: anywhere;
+}

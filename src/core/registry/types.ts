@@ -6,6 +6,7 @@
  * và viết hàm tính, không phải sửa mã lõi (NFR-MNT-01).
  */
 
+import type { SeriesRow } from '../price-series';
 import type { Level, VariableSpec, WarningCode } from '../types';
 
 /** Hai mảng sản phẩm của SRS mục 1.2.2. */
@@ -17,6 +18,13 @@ export interface Category {
   segment: Segment;
   /** Tên tiếng Việt hiện trên chip lọc và cây nhóm. */
   name: string;
+  /**
+   * Tên rút gọn cho chỗ hẹp: lưới hai cột của WF-01 và nhãn nhóm trên thẻ công thức.
+   * Ở 360px, "Phí & thuế thị trường VN" vỡ ra bốn dòng còn "Phí & thuế VN" thì vừa một dòng.
+   * Chữ lấy đúng nguyên văn wireframe. Không dùng ở chip lọc và dropdown WF-02 — chỗ đó
+   * rộng và cần tên đầy đủ để phân biệt nhóm.
+   */
+  shortName: string;
   nameEn: string;
   description: string;
   /**
@@ -67,6 +75,14 @@ export interface FormulaExample {
   title: string;
   /** Khoá phải trùng key của biến trong `variables`. */
   inputs: Readonly<Record<string, number>>;
+  /**
+   * Chuỗi giá đóng cửa cho công thức đọc `ctx.series`. `formulas.test.ts` bơm nó vào ctx khi
+   * đối chiếu `expected` với kết quả hàm tính — thiếu thì ví dụ của công thức chuỗi không bao
+   * giờ kiểm được.
+   */
+  series?: ReadonlyArray<number>;
+  /** Như `series` nhưng cho công thức đọc `ctx.bars` (cần OHLCV đầy đủ). */
+  bars?: ReadonlyArray<SeriesRow>;
   expected: number;
   note?: string;
 }
@@ -78,6 +94,10 @@ export interface FormulaExample {
 export interface FormulaTestCase {
   name: string;
   inputs: Readonly<Record<string, number>>;
+  /** Chuỗi giá đóng cửa bơm vào `ctx.series` riêng cho ca này (công thức chuỗi — FR-12). */
+  series?: ReadonlyArray<number>;
+  /** Chuỗi phiên OHLCV bơm vào `ctx.bars` riêng cho ca này. */
+  bars?: ReadonlyArray<SeriesRow>;
   expected: number | null;
   expectedWarning?: WarningCode;
   /** Sai số cho phép; mặc định 0,01 theo NFR-MNT-03. */
@@ -95,23 +115,44 @@ export interface FormulaDependency {
   variableKey: string;
 }
 
-/** Metadata đầy đủ của một công thức (LDR-01, LDR-02). */
-export interface FormulaSpec {
+/**
+ * Phần metadata vừa đủ để DUYỆT và TÌM — thẻ công thức, kết quả tìm, bộ đếm nhóm.
+ *
+ * Tách ra khỏi `FormulaSpec` vì lý do dung lượng, không phải vì gọn mã (NFR-PER-04):
+ * phần nặng của một công thức là bốn đoạn `explanation`, `example`, `tests` và `source` —
+ * chữ nghĩa mà màn danh sách không bao giờ hiện. Gộp chung thì MỌI trang phải tải diễn giải
+ * của cả 107 công thức chỉ để vẽ được cái thẻ có tên và một dòng mô tả.
+ *
+ * Bộ dữ liệu thật nằm ở `formulas/summaries.generated.ts`, sinh ra từ chính `ALL_FORMULAS`
+ * nên không thể lệch — `summaries.test.ts` gác chuyện đó.
+ */
+export interface FormulaSummary {
   id: string;
   categoryId: string;
   name: { vi: string; en: string };
   /** Mô tả ngắn hiện trên thẻ công thức. */
   description: string;
-  /** Chuỗi LaTeX để KaTeX render (UI-03). */
-  latex: string;
-  /** Biểu thức dạng chữ, chỉ để đối chiếu khi rà soát; không dùng để eval. */
-  expression?: string;
-  chartType: ChartType;
   level: Level;
   /** Đưa lên khối nổi bật của trang chủ (FR-20). */
   isFeatured?: boolean;
   /** Từ khoá cho tìm kiếm bỏ dấu (FR-19). */
   tags: ReadonlyArray<string>;
+}
+
+/** Metadata đầy đủ của một công thức (LDR-01, LDR-02). */
+export interface FormulaSpec extends FormulaSummary {
+  /** Chuỗi LaTeX để KaTeX render (UI-03). */
+  latex: string;
+  /**
+   * Công thức viết bằng chữ tiếng Việt, ví dụ 'P/E = Giá thị trường ÷ EPS'.
+   *
+   * Hai công dụng: người rà soát đối chiếu với hàm tính, và màn chi tiết HIỆN CHÍNH CHUỖI NÀY
+   * trong lúc gói 2.4.3 (render LaTeX bằng KaTeX) còn hoãn. Vì vậy nó phải đọc được với người
+   * dùng cuối, không được là biểu thức kiểu mã nguồn và tuyệt đối không phải LaTeX thô.
+   * Không dùng để eval.
+   */
+  expression?: string;
+  chartType: ChartType;
   variables: ReadonlyArray<VariableSpec>;
   /** Đơn vị của kết quả, ví dụ 'lần', '%', '₫'. */
   resultUnit: string;

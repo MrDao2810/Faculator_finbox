@@ -1,0 +1,233 @@
+/**
+ * Kiểm bản build tĩnh — chạy SAU `npm run build`.
+ *
+ * Vì sao cần một script riêng thay vì một ca vitest: thứ phải kiểm ở đây là NỘI DUNG CỦA FILE
+ * HTML XUẤT RA, mà file đó chỉ tồn tại sau khi build. `npm run check` chạy vitest trước build
+ * nên không thấy nó.
+ *
+ * Vì sao phải kiểm: với `output: 'export'`, chỉ cần một component trong cây gọi
+ * `useSearchParams()` là Next dựng ranh giới `<Suspense>` và **bỏ toàn bộ cây đó khỏi HTML
+ * tĩnh**, thay bằng một marker bailout. Build VẪN XANH. `/cong-thuc/` từng dính đúng lỗi đó
+ * (fallback={null} → 14,6 kB, không một link công thức nào) cho tới khi đợt 14 thay fallback
+ * bằng `StaticFormulaList` — và thêm cửa kiểm ở dưới để nó không tái diễn.
+ *
+ * Trang chủ là URL priority 1.0 của sitemap và là trang duy nhất Google thật sự cần đọc. Nếu
+ * người sau "sửa cho nhất quán" bằng cách cho `HomeSearchPanel` dùng `useListParams()`, trang
+ * chủ sẽ lặng lẽ mất 33 kB nội dung mà không test nào đỏ. Script này là chỗ chặn cứng.
+ */
+
+import { existsSync, readFileSync, statSync } from 'node:fs';
+
+/** Marker Next chèn vào chỗ cây bị loại khỏi HTML tĩnh. */
+const BAILOUT = 'BAILOUT_TO_CLIENT_SIDE_RENDERING';
+
+/**
+ * Ngưỡng kích thước trang chủ. Đặt thấp hơn hẳn số thật (khoảng 33 kB) để không phải sửa mỗi
+ * lần thêm bớt một công thức, nhưng vẫn cao hơn hẳn một trang chỉ còn vỏ AppShell (~14 kB).
+ */
+const MIN_HOME_BYTES = 25_000;
+
+const checks = [];
+
+function check(name, pass, detail = '') {
+  checks.push({ name, pass, detail });
+  console.log(`${pass ? 'OK  ' : 'FAIL'} ${name}${detail === '' ? '' : ` — ${detail}`}`);
+}
+
+let html = '';
+try {
+  html = readFileSync('out/index.html', 'utf8');
+} catch {
+  console.error('Không đọc được out/index.html — chạy `npm run build` trước.');
+  process.exit(1);
+}
+
+const bytes = statSync('out/index.html').size;
+
+check(
+  'trang chủ không rơi vào chế độ dựng ở máy khách',
+  !html.includes(BAILOUT),
+  html.includes(BAILOUT)
+    ? 'có marker bailout — nhiều khả năng vừa có component dùng useSearchParams() trong cây trang chủ'
+    : 'không có marker bailout',
+);
+
+check('khối "Công thức dùng hằng ngày" nằm trong HTML tĩnh', html.includes('id="home-featured"'));
+
+check('khối "Duyệt theo nhóm" nằm trong HTML tĩnh', html.includes('id="home-browse"'));
+
+check(
+  'trang chủ có đúng một <h1>',
+  (html.match(/<h1[\s>]/g) ?? []).length === 1,
+  `đếm được ${String((html.match(/<h1[\s>]/g) ?? []).length)}`,
+);
+
+check('trang chủ có link tới trang công thức', /href="\/cong-thuc\/[a-z0-9-]+\/"/.test(html));
+
+check(
+  `trang chủ đủ nội dung (> ${String(MIN_HOME_BYTES)} B)`,
+  bytes > MIN_HOME_BYTES,
+  `${String(bytes)} B`,
+);
+
+/*
+ * Hai màn KHÔNG có mục ở thanh dưới (WF-18 chốt đúng bốn mục), nên lối vào duy nhất của chúng
+ * là hai link dưới đây. Trước đợt 12 cả hai màn đã dựng xong mà không có link nào trỏ tới —
+ * chỉ gõ URL tay mới mở được, và không test nào đỏ. Đây là chỗ chặn việc đó tái diễn.
+ */
+check(
+  'trang chủ có lối vào màn bảng dữ liệu /du-lieu/',
+  html.includes('href="/du-lieu/"'),
+  'khối "Công cụ"',
+);
+
+check(
+  'thanh trên có lối vào màn tìm kiếm /tim-kiem/',
+  html.includes('href="/tim-kiem/"'),
+  'nút kính lúp',
+);
+
+/* ── /cong-thuc/ — URL chính danh của danh sách, sitemap khai priority 0.9 ── */
+
+/*
+ * Khác trang chủ, trang này ĐƯỢC PHÉP mang marker bailout: FormulaBrowser bên trong Suspense
+ * vẫn dựng ở máy khách (nó cần useSearchParams). Thứ phải có là FALLBACK — bản danh sách tĩnh
+ * nằm sẵn trong HTML. Vì vậy ở đây không kiểm marker, chỉ kiểm nội dung thật.
+ */
+let listHtml = '';
+try {
+  listHtml = readFileSync('out/cong-thuc/index.html', 'utf8');
+} catch {
+  // check dưới sẽ tự trượt vì chuỗi rỗng không chứa link nào.
+}
+
+const formulaLinks = new Set(
+  [...listHtml.matchAll(/href="\/cong-thuc\/([a-z0-9-]+)\/"/g)].map((m) => m[1]),
+);
+
+/*
+ * ĐỦ công thức, không phải "có là được".
+ *
+ * Từ đợt này chế độ Cơ bản lọc bớt danh sách theo cấp độ (FR-09), và mặc định của sản phẩm
+ * LÀ chế độ Cơ bản — nghĩa là 29 công thức mức nâng cao không hiện trên màn khi mới vào. Việc
+ * đó chỉ được phép xảy ra ở phía máy khách: `StaticFormulaList` là server component, không đọc
+ * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 107. Ai đó "sửa cho nhất quán"
+ * bằng cách lọc luôn ở fallback là lặng lẽ giấu 29 URL khỏi Google, mà build vẫn xanh.
+ */
+const TONG_CONG_THUC = (
+  readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/categoryId:/g) ?? []
+).length;
+
+check(
+  '/cong-thuc/ có ĐỦ link công thức trong HTML tĩnh (fallback không lọc theo chế độ)',
+  formulaLinks.size === TONG_CONG_THUC,
+  `${String(formulaLinks.size)} / ${String(TONG_CONG_THUC)} link công thức khác nhau`,
+);
+
+check(
+  '/cong-thuc/ có dòng đếm trong HTML tĩnh',
+  / công thức</.test(listHtml),
+  'dòng "N công thức"',
+);
+
+/* ── Trang 404 (đợt 14) ──────────────────────────────────────────────────── */
+
+let notFoundHtml = '';
+try {
+  notFoundHtml = readFileSync('out/404.html', 'utf8');
+} catch {
+  // check dưới tự trượt.
+}
+
+check(
+  'trang 404 là bản tiếng Việt, nằm trong AppShell',
+  notFoundHtml.includes('Không tìm thấy trang này') && notFoundHtml.includes('href="/tim-kiem/"'),
+  'trước đợt 14 là bản mặc định tiếng Anh của Next, không thanh điều hướng',
+);
+
+/* ── PWA (gói 3.6.2) ─────────────────────────────────────────────────────── */
+
+check(
+  'manifest được khai trong HTML và có mặt trong out/',
+  html.includes('rel="manifest"') && existsSync('out/manifest.webmanifest'),
+);
+
+check(
+  'service worker có mặt ở gốc out/ — phải ở gốc thì phạm vi mới phủ cả site',
+  existsSync('out/sw.js'),
+);
+
+/*
+ * PNG là thứ QUYẾT ĐỊNH việc cài được hay không: Chrome từ chối biểu tượng SVG trong manifest
+ * và iOS không đọc SVG cho apple-touch-icon. Trước đợt 15 manifest chỉ khai SVG nên PWA không
+ * cài được ở nền tảng nào — build vẫn xanh. Cửa kiểm này chặn việc đó tái diễn.
+ */
+check(
+  'biểu tượng PNG có đủ: 192, 512, maskable 512 và apple-touch 180',
+  ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'].every((name) =>
+    existsSync(`out/${name}`),
+  ),
+);
+
+const manifest = existsSync('out/manifest.webmanifest')
+  ? readFileSync('out/manifest.webmanifest', 'utf8')
+  : '';
+
+check(
+  'manifest khai biểu tượng PNG chứ không chỉ SVG',
+  manifest.includes('image/png') && manifest.includes('maskable'),
+);
+
+check('biểu tượng SVG vẫn còn cho tab trình duyệt', existsSync('out/icon.svg'));
+
+/*
+ * SVG phải là XML HỢP LỆ, không chỉ là "file có tồn tại".
+ *
+ * Lỗi thật đã gặp: comment trong `icon.svg` viết tên biến CSS đầy đủ (hai dấu gạch ở đầu).
+ * Đặc tả XML cấm chuỗi hai gạch ngang bên trong comment, nên trình duyệt TỪ CHỐI dựng cả
+ * file — favicon và mục SVG của manifest hỏng im lặng, không lỗi nào hiện ra ở đâu, và
+ * `existsSync` vẫn xanh vì file vẫn nằm đó. Bắt được bằng cách nạp thử vào <img> trong
+ * Chrome; ở đây gác lại bằng chính điều kiện gây lỗi.
+ */
+const svgFiles = ['out/icon.svg', 'out/icon-maskable.svg'].filter((f) => existsSync(f));
+const badSvg = svgFiles.filter((file) =>
+  [...readFileSync(file, 'utf8').matchAll(/<!--([\s\S]*?)-->/g)].some((m) => m[1].includes('--')),
+);
+
+check(
+  'SVG là XML hợp lệ — không có "--" trong comment',
+  svgFiles.length > 0 && badSvg.length === 0,
+  badSvg.length > 0
+    ? `${badSvg.join(', ')} — trình duyệt sẽ từ chối dựng, favicon hỏng im lặng`
+    : `${String(svgFiles.length)} file`,
+);
+
+/*
+ * Đường ra khỏi trang chi tiết.
+ *
+ * Chủ dự án báo: vào một công thức rồi thì không có lối quay về danh sách để chọn cái khác.
+ * Kiểm trên HTML TĨNH chứ không chỉ ở test jsdom — nút này phải là thẻ `<a>` thật, có mặt từ
+ * lượt tải đầu, chạy được cả khi JavaScript chưa tải xong. Dựng bằng `<button>` + router là
+ * lọt test mà hỏng đúng lúc mạng chậm.
+ */
+const detailPages = ['out/cong-thuc/pe/index.html', 'out/cong-thuc/rsi-wilder/index.html'];
+const withBackLink = detailPages.filter((page) => {
+  if (!existsSync(page)) return false;
+  const html = readFileSync(page, 'utf8');
+  // Thẻ <a> trỏ về danh sách, và chữ nói rõ đi đâu — không phải mỗi mũi tên trơn.
+  return html.includes('href="/cong-thuc/"') && html.includes('Danh sách công thức');
+});
+
+check(
+  'trang chi tiết có link quay về danh sách NGAY trong HTML tĩnh',
+  withBackLink.length === detailPages.length,
+  `${String(withBackLink.length)}/${String(detailPages.length)} trang`,
+);
+
+const failed = checks.filter((c) => !c.pass);
+console.log(`\n=== ${String(checks.length - failed.length)}/${String(checks.length)} đạt ===`);
+
+if (failed.length > 0) {
+  console.error('\nBản build tĩnh không đạt. Trang chủ là URL priority 1.0 của sitemap.');
+  process.exit(1);
+}

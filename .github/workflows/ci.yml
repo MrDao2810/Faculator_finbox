@@ -26,11 +26,34 @@ jobs:
       - name: Kiem kieu TypeScript
         run: npm run typecheck
 
+      # Hook lint-staged chi chay luc commit tren may dev; file sua ma chua commit thi khong ai
+      # format. Dot 13 tich 8 file lech vi dung khe ho nay — buoc nay chan tai CI.
+      - name: Kiem dinh dang prettier
+        run: npm run format:check
+
       - name: Unit test
         run: npm run test
 
       - name: Build tinh
         run: npm run build
+
+      # Build van xanh ke ca khi trang chu mat sach HTML tinh (bailout sang dung o may khach).
+      # Buoc nay doc thang out/index.html nen bat duoc chuyen do.
+      - name: Kiem ban build tinh
+        run: npm run verify:static
+
+      # Chan nguong NFR-PER-04. Cua kiem dat o 170 kB chu khong sat 200 kB, vi chi muc nhe nap
+      # o moi trang va no tang theo so cong thuc — cham 170 la luc phai tach tiep.
+      - name: Kiem ngan sach dung luong
+        run: npm run size
+
+      # `summaries.test.ts` da doi chieu chi muc voi Registry o buoc test tren. Buoc nay bat
+      # them mot ca khac: chay `npm run gen:summaries` roi COMMIT ban sinh ra khong khop —
+      # nghia la ai do sua tay file sinh tu dong.
+      - name: Chi muc nhe khong lech so voi Registry
+        run: |
+          npm run gen:summaries
+          git diff --exit-code src/core/formulas/summaries.generated.ts
 
       - name: Luu ban build
         uses: actions/upload-artifact@v4

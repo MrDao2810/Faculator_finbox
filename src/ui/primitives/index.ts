@@ -14,6 +14,9 @@ export type { InputProps, InputTone } from './Input';
 export { Select } from './Select';
 export type { SelectProps } from './Select';
 
+export { BottomSheet } from './BottomSheet';
+export type { BottomSheetProps } from './BottomSheet';
+
 export { Card } from './Card';
 export type { CardProps } from './Card';
 
@@ -22,3 +25,6 @@ export type { ChipProps } from './Chip';
 
 export { Table } from './Table';
 export type { TableProps } from './Table';
+
+export { Switch } from './Switch';
+export type { SwitchProps } from './Switch';

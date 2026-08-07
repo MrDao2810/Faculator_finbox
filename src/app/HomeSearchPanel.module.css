@@ -1,0 +1,80 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/*
+ * Vùng thông báo cho trình đọc màn hình. Có mặt trong DOM từ lần render đầu và không bao giờ
+ * tháo — sinh nó ra cùng lúc với nội dung thì trình đọc coi cả vùng là mới và bỏ qua.
+ * Không dùng `display: none` vì như thế trình đọc cũng bỏ qua nốt.
+ */
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+/*
+ * Hàng bàn giao sang danh sách đầy đủ. Là một dòng riêng chứ không phải nút nhỏ cuối trang:
+ * đây là lối duy nhất từ trang chủ tới một URL chia sẻ được, nên nó phải dễ thấy.
+ */
+.seeAll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  text-decoration: none;
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+}
+
+.seeAll:hover {
+  background: var(--color-sunken);
+}
+
+.more {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}

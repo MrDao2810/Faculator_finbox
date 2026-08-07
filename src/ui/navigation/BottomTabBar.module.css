@@ -43,16 +43,15 @@
 }
 
 /*
- * Mục đang chọn: đổi màu, in đậm VÀ có vạch chỉ báo phía trên.
+ * Mục đang chọn: đổi màu, in đậm VÀ icon chuyển từ nét sang đặc (xem TabIcon).
  * Ba dấu hiệu chứ không riêng màu — NFR-USA-06. Nhãn chữ luôn hiện, không chỉ có icon.
  *
- * Vạch chỉ báo dùng --color-accent-vivid: đây là mảng màu, không phải chữ, nên được phép
- * rực hơn. Chữ vẫn giữ --color-accent để đạt 4,5:1.
+ * Bản thiết kế không vẽ vạch chỉ báo phía trên nên đợt 8 bỏ nó; icon đặc gánh vai trò
+ * "dấu hiệu không phụ thuộc màu" mà vạch từng gánh.
  */
 .active {
   font-weight: var(--weight-bold);
   color: var(--color-accent);
-  box-shadow: inset 0 3px 0 0 var(--color-accent-vivid);
 }
 
 .label {

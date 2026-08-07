@@ -3,6 +3,9 @@
  *
  * Số lượng ở `expectedCount` lấy đúng bảng SRS mục 3.8: 94 công thức mảng chứng khoán
  * và 13 công thức mảng tài chính cá nhân, tổng 107.
+ *
+ * `shortName` lấy đúng nguyên văn wireframe WF-01 — đó là chữ đã được duyệt cho lưới hai cột,
+ * không phải bản rút gọn tôi tự nghĩ ra.
  */
 
 import type { Category } from './types';
@@ -13,6 +16,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'valuation',
     segment: 'stock',
     name: 'Định giá',
+    shortName: 'Định giá',
     nameEn: 'Valuation',
     description: 'Ước tính giá trị hợp lý của cổ phiếu: bội số, chiết khấu dòng tiền, cổ tức.',
     expectedCount: 18,
@@ -21,6 +25,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'fundamentals',
     segment: 'stock',
     name: 'Chỉ số doanh nghiệp',
+    shortName: 'Chỉ số DN',
     nameEn: 'Company fundamentals',
     description: 'Đọc sức khoẻ doanh nghiệp từ báo cáo tài chính: ROE, ROA, D/E, EPS, BVPS.',
     expectedCount: 13,
@@ -29,6 +34,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'returns',
     segment: 'stock',
     name: 'Lợi nhuận & cổ tức',
+    shortName: 'Lợi nhuận',
     nameEn: 'Returns & dividends',
     description: 'Đo hiệu quả một khoản đầu tư: ROI, HPR, CAGR, XIRR, tỷ suất cổ tức.',
     expectedCount: 13,
@@ -37,6 +43,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'risk',
     segment: 'stock',
     name: 'Rủi ro & danh mục',
+    shortName: 'Rủi ro',
     nameEn: 'Risk & portfolio',
     description: 'Đo biến động và rủi ro: Beta, Sharpe, Sortino, Max Drawdown, VaR.',
     expectedCount: 17,
@@ -45,6 +52,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'technical',
     segment: 'stock',
     name: 'Phân tích kỹ thuật',
+    shortName: 'Kỹ thuật',
     nameEn: 'Technical analysis',
     description: 'Chỉ báo đọc từ chuỗi giá: MA, RSI, MACD, Bollinger, ATR, ADX.',
     expectedCount: 18,
@@ -53,6 +61,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'derivatives',
     segment: 'stock',
     name: 'Phái sinh & quyền chọn',
+    shortName: 'Phái sinh',
     nameEn: 'Derivatives & options',
     description: 'Hợp đồng tương lai VN30F, quyền chọn, ký quỹ, đòn bẩy.',
     expectedCount: 7,
@@ -61,6 +70,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'fees-tax',
     segment: 'stock',
     name: 'Phí & thuế thị trường VN',
+    shortName: 'Phí & thuế VN',
     nameEn: 'Vietnam market fees & taxes',
     description:
       'Phí môi giới, thuế chuyển nhượng, thuế cổ tức, phí lưu ký, giá hoà vốn thực, lợi nhuận ròng.',
@@ -72,6 +82,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'savings',
     segment: 'personal',
     name: 'Tiết kiệm',
+    shortName: 'Tiết kiệm',
     nameEn: 'Savings',
     description: 'Lãi kép, lãi tiền gửi, tiết kiệm theo mục tiêu.',
     expectedCount: 5,
@@ -80,6 +91,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'investing',
     segment: 'personal',
     name: 'Đầu tư',
+    shortName: 'Đầu tư',
     nameEn: 'Investing',
     description: 'Đầu tư định kỳ và giá trị tương lai của dòng tiền đều.',
     expectedCount: 2,
@@ -88,6 +100,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'loans',
     segment: 'personal',
     name: 'Vay nợ',
+    shortName: 'Vay nợ',
     nameEn: 'Loans',
     description: 'Trả góp niên kim và gốc đều, lịch trả nợ từng kỳ, tổng lãi phải trả.',
     expectedCount: 3,
@@ -96,6 +109,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'personal-tax',
     segment: 'personal',
     name: 'Thuế thu nhập cá nhân',
+    shortName: 'Thuế TNCN',
     nameEn: 'Personal income tax',
     description: 'Thuế thu nhập từ tiền lương theo biểu luỹ tiến từng phần.',
     expectedCount: 1,
@@ -104,6 +118,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     id: 'corporate-finance',
     segment: 'personal',
     name: 'Tài chính doanh nghiệp',
+    shortName: 'Tài chính DN',
     nameEn: 'Corporate finance',
     description: 'Điểm hoà vốn sản lượng và NPV thẩm định dự án.',
     expectedCount: 2,

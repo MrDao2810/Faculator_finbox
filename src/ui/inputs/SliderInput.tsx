@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, type CSSProperties } from 'react';
 
 import { formatValueWithUnit, isLockedForMode, snapToStep, t } from '@/application';
 import type { Level, VariableSpec } from '@/application';
@@ -44,6 +44,14 @@ export function SliderInput({
     .filter(Boolean)
     .join(' ');
 
+  /*
+   * Phần rãnh đã tô, tính theo phần trăm để CSS vẽ bằng gradient.
+   * Miền rộng bằng 0 (min trùng max) thì chia cho 0 — kẹp về 0% thay vì để `NaN%` lọt vào
+   * thuộc tính CSS, chỗ đó trình duyệt bỏ qua im lặng và rãnh mất luôn phần tô.
+   */
+  const span = max - min;
+  const fill = span > 0 ? Math.min(100, Math.max(0, ((value - min) / span) * 100)) : 0;
+
   return (
     <div className={classes}>
       <div className={styles.head}>
@@ -59,6 +67,7 @@ export function SliderInput({
       <input
         id={inputId}
         className={styles.slider}
+        style={{ '--fill': `${String(fill)}%` } as CSSProperties}
         type="range"
         min={min}
         max={max}
@@ -73,15 +82,18 @@ export function SliderInput({
         }}
       />
 
+      {/*
+        Hai mốc dạt về hai đầu rãnh, đúng bản thiết kế — đọc được vị trí đang ở đâu trong miền.
+        Bước nhảy vẫn nằm trong đoạn này nhưng chỉ dành cho trình đọc màn hình: nó là thông tin
+        thật (aria-describedby trỏ vào đây) mà bản thiết kế không dành chỗ để bày ra.
+      */}
       <p id={marksId} className={styles.marks}>
         <span>
           {t('input.sliderMin')} {formatValueWithUnit(min, spec.unit, { maxDecimals: 4 })}
         </span>
-        <span aria-hidden="true">·</span>
-        <span>
+        <span className="visually-hidden">
           {t('input.sliderStep')} {formatValueWithUnit(step, spec.unit, { maxDecimals: 4 })}
         </span>
-        <span aria-hidden="true">·</span>
         <span>
           {t('input.sliderMax')} {formatValueWithUnit(max, spec.unit, { maxDecimals: 4 })}
         </span>

@@ -1,0 +1,202 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Tiêu đề khối màu nhấn, viết hoa — cùng kiểu với tiêu đề khối của trang chủ (đợt 8). */
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.table {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.rowLabel {
+  flex: 1;
+  font-size: var(--text-sm);
+}
+
+.rowFormula {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+
+  /* Chuỗi công thức dài thì cắt gọn, không đẩy dòng cao lên gấp đôi ở 360px. */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowValue {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+.total {
+  background: var(--color-sunken);
+}
+
+.total .rowLabel,
+.total .rowValue {
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  padding: var(--space-3);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.statBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.statLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.statNote {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.statValue {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+}
+
+/*
+ * Thẻ lợi nhuận ròng — nền xanh đặc, đúng bản thiết kế hi-fi.
+ *
+ * Chữ trắng trên --color-accent đạt 6,70:1, qua ngưỡng 4,5:1 của chữ thường. Không dùng
+ * --color-accent-vivid làm nền ở đây: nó chỉ đạt 3,68:1, đủ cho mảng màu chứ không đủ để
+ * đặt chữ lên trên.
+ */
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  padding: var(--space-4);
+
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.headlineLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.headlineValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+
+  /* Số tiền dài (mười chữ số + đơn vị) không được đẩy thẻ tràn ngang ở 360px. */
+  overflow-wrap: anywhere;
+}
+
+.headlineFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+}
+
+/*
+ * Huy hiệu ROI. Nền sáng + chữ đậm chứ không phải chữ màu trên nền xanh: --color-success trên
+ * --color-accent chỉ đạt 1,1:1, gần như không đọc được.
+ */
+.roi {
+  padding: 2px var(--space-2);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-pill);
+}
+
+.roiLabel {
+  font-weight: var(--weight-medium);
+}
+
+.roiGain {
+  color: var(--color-success);
+  background: var(--color-surface);
+}
+
+.roiLoss {
+  color: var(--color-danger);
+  background: var(--color-surface);
+}
+
+/* Chưa tính được thì trung tính — không tô đỏ một ô còn trống. */
+.roiUnknown {
+  color: var(--color-ink-soft);
+  background: var(--color-surface);
+}
+
+.headlineNote {
+  opacity: 0.92;
+}

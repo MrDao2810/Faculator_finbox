@@ -1,14 +1,21 @@
 import Link from 'next/link';
+import { memo } from 'react';
 
 import { findCategory, formulaPath, t } from '@/application';
-import type { FormulaSpec } from '@/application';
+import type { FormulaSummary } from '@/application';
 
 import styles from './FormulaCard.module.css';
 
 export interface FormulaCardProps {
-  formula: FormulaSpec;
+  formula: FormulaSummary;
   /** Ẩn nhãn nhóm khi cả danh sách vốn đã thuộc một nhóm. */
   showCategory?: boolean;
+  /**
+   * `row` — một hàng ngang có badge cấp độ và mũi tên, dùng ở danh sách WF-02 và WF-09.
+   * `tile` — ô vuông trong lưới hai cột của trang chủ WF-01: gọn hơn, bỏ badge và mũi tên
+   * vì ở khổ ô 150px chúng chiếm chỗ của phần chữ mà không nói thêm được gì.
+   */
+  variant?: 'row' | 'tile';
 }
 
 /**
@@ -17,12 +24,27 @@ export interface FormulaCardProps {
  * Dùng lại ở trang chủ (khối nổi bật), màn danh sách WF-02, và cột giữa của bố cục desktop
  * WF-07 — nên không tự quyết bố cục ngoài, chỉ lo phần bên trong thẻ.
  *
+ * Hai biến thể ở chung một file thay vì tách component riêng, để chỗ dựng đường dẫn
+ * (`formulaPath`) và chỗ tra nhóm chỉ có một bản.
+ *
  * Cả thẻ là một thẻ <a> thật, không phải div bắt sự kiện: bấm được, mở tab mới được,
  * và điều hướng được cả khi JavaScript chưa tải xong.
  */
-export function FormulaCard({ formula, showCategory = true }: FormulaCardProps) {
+function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: FormulaCardProps) {
   const category = findCategory(formula.categoryId);
   const isBasic = formula.level === 'basic';
+
+  if (variant === 'tile') {
+    return (
+      <Link href={formulaPath(formula.id)} className={styles.tile}>
+        <span className={styles.tileName}>{formula.name.vi}</span>
+        <span className={styles.tileDescription}>{formula.description}</span>
+        {showCategory && category !== undefined && (
+          <span className={styles.tileCategory}>{category.shortName}</span>
+        )}
+      </Link>
+    );
+  }
 
   return (
     <Link href={formulaPath(formula.id)} className={styles.card}>
@@ -58,3 +80,5 @@ export function FormulaCard({ formula, showCategory = true }: FormulaCardProps) 
     </Link>
   );
 }
+
+export const FormulaCard = memo(FormulaCardBase);

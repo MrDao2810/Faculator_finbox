@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Falculator Finbox — a Vietnamese financial/stock-formula library delivered as a **static site**:
 no backend, no database (`next.config.mjs` sets `output: 'export'`, build artifact is `out/`).
-Currently only the skeleton exists (WBS packages 1.1.1 and 1.1.2); no features are implemented yet.
-The remaining work plan lives in the external "WBS v7" estimate and the SRS, referenced throughout
-the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens).
+WBS branches 1 (foundation), 2 (component library) and 3.1–3.2 (screens) are done, minus packages
+2.4.3 (KaTeX, deferred) and 3.2.2 (WF-04, deferred). **21 of 107 formulas** are implemented in
+`src/core/formulas/` — see its README before adding more. The remaining work plan lives in the
+external "WBS v7" estimate and the SRS, referenced throughout the code by requirement IDs
+(FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens). Progress log: `TASK.md`.
 
 **All prose is Vietnamese** — comments, JSDoc, commit-adjacent docs, test names, UI copy, and every
 user-facing warning message. Write new code the same way.
@@ -44,17 +46,17 @@ src/app/          PRESENTATION  Next.js App Router pages (one URL per formula)
 src/ui/           PRESENTATION  shared components
 src/application/  APPLICATION   the only door between UI and Domain
 src/core/         DOMAIN        pure TypeScript, all financial logic
-src/data/         DATA          DataProvider + static sample datasets (empty so far)
+src/data/         DATA          DataProvider + static sample datasets (drafted, not real)
 ```
 
 The boundaries are **enforced by ESLint**, not convention (`.eslintrc.json` per-directory
 `no-restricted-imports` overrides):
 
-| Layer | May not import |
-| --- | --- |
-| `src/core` | `react`, `react-dom`, `next` · any layer above it |
-| `src/data` | `react`, `next` · `@/ui`, `@/app` |
-| `src/application` | `@/ui`, `@/app` |
+| Layer               | May not import                                           |
+| ------------------- | -------------------------------------------------------- |
+| `src/core`          | `react`, `react-dom`, `next` · any layer above it        |
+| `src/data`          | `react`, `next` · `@/ui`, `@/app`                        |
+| `src/application`   | `@/ui`, `@/app`                                          |
 | `src/app`, `src/ui` | `@/core/*`, `@/data/*` — must go through `@/application` |
 
 Consequence: anything in `src/core` that the UI needs must be **re-exported from
@@ -85,13 +87,16 @@ never throws and never returns NaN; tax/fee constants belong in `MarketConstant`
 ## Notes
 
 - TypeScript is strict with `noUncheckedIndexedAccess` — indexing an array yields `T | undefined`.
-- `src/app/page.tsx` is a throwaway smoke-test page proving the layer wiring works (renders `15.2`
-  routed core → application → UI); WBS 3.1.1 replaces it with the real WF-01 home screen.
+- Every formula is a `FormulaModule` — `spec` (metadata) and `calc` (the maths) in one object, so
+  a spec without a calculator is a typecheck error. `runFormula()` in `src/core/calc/` is the only
+  way to call one; it turns a blank field into an "incomplete input" warning rather than a zero,
+  and catches throws. The `tests[]` each spec declares are executed by `formulas.test.ts`.
 - Naming is inconsistent upstream: the package/directory is `faculator-finbox`, the product name in
   README and page metadata is "Falculator Finbox". Match whichever context you are editing.
 - Deployment target is Cloudflare Pages (framework preset "Next.js (Static HTML Export)", build
   output `out`, `NODE_VERSION=20`); keep the build compatible with pure static hosting —
   `trailingSlash: true` and unoptimized images are set for that reason.
+
 # Quy tắc riêng của tôi (Đào)
 
 > Phần này là quy tắc cá nhân, áp dụng cho mọi dự án. Paste vào cuối `CLAUDE.md` của từng dự án. Khi có xung đột, quy tắc trong phần chính của dự án (phía trên) được ưu tiên hơn.

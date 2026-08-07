@@ -32,3 +32,7 @@ export type { UnitSwitcherProps } from './UnitSwitcher';
 
 export { LinkedInput } from './LinkedInput';
 export type { LinkedInputProps } from './LinkedInput';
+
+/* Bộ điều phối theo `spec.type` — dùng ở màn chi tiết WF-03 (gói 3.2.1). */
+export { VariableField } from './VariableField';
+export type { VariableFieldProps } from './VariableField';

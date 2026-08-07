@@ -1,0 +1,54 @@
+.grid {
+  display: grid;
+  /* Hai cột ở 360px, tự giãn thêm cột trên màn rộng — không cần media query. */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Một hàng: tên trái, số phải — theo bản thiết kế hi-fi WF-01. */
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  /* Vùng chạm 44px của NFR-USA-01, đo cả ô chứ không chỉ phần chữ. */
+  min-height: var(--tap-min);
+  height: 100%;
+  padding: var(--space-2) var(--space-3);
+
+  color: var(--color-ink);
+  text-decoration: none;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.tile:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.name {
+  /* Tên rút gọn vẫn có thể dài hơn nửa ô ở 360px; cho co lại và cắt gọn thay vì đẩy số ra ngoài. */
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+}
+
+.count {
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}

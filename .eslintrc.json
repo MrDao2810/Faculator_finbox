@@ -66,7 +66,7 @@
           {
             "patterns": [
               {
-                "group": ["@/core/*", "@/data/*"],
+                "group": ["@/core", "@/core/*", "@/data", "@/data/*"],
                 "message": "CON-03 — tang giao dien khong duoc cham thang vao Domain hay Data. Di qua @/application."
               }
             ]

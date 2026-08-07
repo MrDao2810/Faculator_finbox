@@ -1,36 +1,43 @@
-.group {
+/*
+ * Ô ngôn ngữ theo bản thiết kế: chữ nhỏ trong khung bo nhẹ, nền nhấn nhạt.
+ * Nhìn cao 32px nhưng vùng chạm thật vẫn 44px nhờ lớp phủ ::after — NFR-USA-01.
+ */
+.button {
+  position: relative;
   display: inline-flex;
-  gap: 2px;
-}
+  align-items: center;
+  justify-content: center;
 
-.option {
-  min-height: var(--tap-min);
-  min-width: var(--tap-min);
+  min-width: 34px;
+  min-height: 32px;
   padding: 0 var(--space-2);
 
   font-family: inherit;
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-ink-soft);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
 
-  background: transparent;
-  border: none;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-soft);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
-/*
- * Đang chọn: nền nhạt + in đậm + đổi màu, cùng ngôn ngữ hình với Chip và ModeToggle.
- * Ba dấu hiệu chứ không riêng màu (NFR-USA-06).
- */
-.selected {
-  font-weight: var(--weight-bold);
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
+.button:hover {
+  border-color: var(--color-accent);
 }
 
-.option:disabled {
-  color: var(--color-muted);
-  cursor: not-allowed;
-  text-decoration: line-through;
+/*
+ * Vùng chạm phủ ra ngoài phần nhìn thấy. Chiều cao đặt cứng bằng --tap-min chứ không nới
+ * tương đối: chiều cao thật của nút xê dịch theo font nên nới bằng inset thì thiếu vài px —
+ * bài học đợt 5.
+ */
+.button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
 }

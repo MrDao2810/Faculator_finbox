@@ -1,0 +1,22 @@
+# Header bảo mật cho Cloudflare Pages — đợt 14. Pages đọc file này từ gốc thư mục xuất (out/).
+#
+# CSP không siết được script-src hơn 'unsafe-inline': bản export tĩnh của Next bootstrap bằng
+# <script> inline (self.__next_f), mà hosting tĩnh thì không đính nonce theo từng request được.
+# style-src cần 'unsafe-inline' vì nhiều component đặt style attribute (VirtualList, PresetSheet).
+# Phần còn lại khoá hết: không object, không frame, không kết nối ra ngoài — khớp LDR-04/COM-03
+# (dữ liệu chỉ nằm trên máy người dùng, sản phẩm không gọi máy chủ nào).
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+# File băm theo nội dung — đổi nội dung là đổi tên, nên cache vĩnh viễn là an toàn.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Service worker phải được kiểm tra lại mỗi lần tải, nếu không bản cũ sống mãi.
+/sw.js
+  Cache-Control: no-cache

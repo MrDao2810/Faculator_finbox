@@ -1,0 +1,243 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-align: center;
+
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * Bảng sáu cột không thể vừa 360px. Cho nó khung cuộn NGANG RIÊNG chứ không để cả trang
+ * tràn ngang — đúng cách đã dùng cho bảng lịch trả nợ WF-14 ở đợt 7.
+ */
+.tableWrap {
+  /* Cùng bộ đôi với `.scroller` của primitive Table — lý do đầy đủ ghi ở Table.module.css. */
+  width: 100%;
+  min-width: 0;
+  contain: layout inline-size;
+
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table th {
+  padding: var(--space-2) var(--space-2);
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  text-align: left;
+  white-space: nowrap;
+
+  background: var(--color-sunken);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Cột cờ báo lỗi và cột nút xoá — hẹp, không co giãn. */
+.flagCol {
+  width: 28px;
+  text-align: center;
+}
+
+.cell {
+  width: 100%;
+  min-width: 74px;
+  /* Số căn phải để so sánh giữa các dòng dễ hơn; riêng ô ngày giữ căn trái, xem .dateCell. */
+  text-align: right;
+  /* Vùng chạm 44px — NFR-USA-01. Ô nhập trong bảng cũng là điều khiển bấm được. */
+  min-height: var(--tap-min);
+  padding: 0 var(--space-2);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-ink);
+
+  background: transparent;
+  border: none;
+}
+
+.cell:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Ngày rộng hơn các cột số: bộ mẫu ghi dạng ISO '2025-01-02' (10 ký tự), còn người dùng dán
+ * từ Excel thì thường là '15/07'. Để 74px như cột số thì ngày ISO bị cắt cụt thành '2025-01-2'
+ * — lỗi chỉ lộ ra khi mở màn ra nhìn, không test nào bắt được.
+ */
+.dateCell {
+  min-width: 112px;
+  text-align: left;
+}
+
+/*
+ * Dòng có vấn đề: nền vàng nhạt + cờ "!" ở đầu dòng, không phải chỉ đổi màu chữ —
+ * NFR-USA-06. Câu giải thích nằm ngay dưới bảng để đọc được cả khi không phân biệt được màu.
+ */
+.badRow {
+  background: var(--color-warning-soft);
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 18px;
+  height: 18px;
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-on-accent);
+
+  background: var(--color-warning);
+  border-radius: var(--radius-pill);
+}
+
+.removeButton {
+  /* Nhìn nhỏ nhưng vùng chạm phủ trọn ô cao 44px của hàng. */
+  width: 100%;
+  min-height: var(--tap-min);
+
+  font-family: inherit;
+  font-size: var(--text-md);
+  line-height: 1;
+  color: var(--color-muted);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.removeButton:hover {
+  color: var(--color-danger);
+}
+
+.issues {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: var(--space-3);
+  list-style: none;
+
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-md);
+}
+
+.issue {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.issueFlag {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-on-accent);
+
+  background: var(--color-warning);
+  border-radius: var(--radius-pill);
+}
+
+.summary {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+.local {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+}
+
+.localTag {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}

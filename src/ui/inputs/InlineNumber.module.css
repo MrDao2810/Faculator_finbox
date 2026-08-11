@@ -1,0 +1,54 @@
+/*
+ * Ô gõ số gọn: nhìn là chữ, gõ được như ô nhập.
+ *
+ * Viền chỉ hiện khi có tiêu điểm. Đó là có chủ đích — chỗ này đứng lẫn trong dòng chữ (cạnh nhãn
+ * thanh trượt, trong dòng số của ví dụ), nên vẽ hộp viền thường trực sẽ biến một dòng đọc được
+ * thành một hàng biểu mẫu. Dấu hiệu "gõ được" là con trỏ chuột đổi thành dấu nhập chữ, cộng vòng
+ * focus khi chạm vào.
+ */
+.box {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+
+  padding: 2px var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.box:focus-within {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+/*
+ * Bề rộng ghim 14 ký tự — vừa đúng giá trị dài nhất Registry có: khoản vay 2.000.000.000 ₫ là 13
+ * ký tự, cộng chỗ cho phần thập phân. Ghim chứ không co giãn theo nội dung: co giãn thì bố cục
+ * nhích từng phím lúc người dùng đang gõ.
+ *
+ * Canh phải nên với giá trị ngắn con số vẫn nằm sát đơn vị — ô rộng ra không kéo số đi đâu.
+ */
+.input {
+  width: 14ch;
+  padding: 0;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  text-align: right;
+  background: transparent;
+  border: 0;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.unit {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.locked .input {
+  color: var(--color-muted);
+  cursor: not-allowed;
+}

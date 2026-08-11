@@ -19,7 +19,14 @@ export interface DailyBar {
   volume: number | null;
 }
 
-/** Số liệu cơ bản lấy từ báo cáo tài chính, đơn vị ghi rõ ở từng trường. */
+/**
+ * Số liệu cơ bản lấy từ báo cáo tài chính, đơn vị ghi rõ ở từng trường.
+ *
+ * Quy ước đơn vị bám đúng tầng Domain (`src/core/formulas/fundamentals.ts`): số trên mỗi cổ phiếu
+ * ghi bằng **₫**, khoản mục toàn doanh nghiệp ghi bằng **tỷ ₫**, số cổ phiếu ghi bằng **CP**. Nhờ
+ * vậy `presetInputs()` gán thẳng vào ô nhập, không đổi đơn vị dọc đường — chỗ nào phải nhân chia
+ * để khớp đơn vị là chỗ sẽ có ngày sai một nghìn lần mà không ai thấy.
+ */
 export interface Fundamentals {
   /** Lợi nhuận trên mỗi cổ phiếu, đơn vị ₫. */
   eps: number;
@@ -29,6 +36,20 @@ export interface Fundamentals {
   sharesOutstanding: number;
   /** Cổ tức tiền mặt mỗi cổ phiếu trong năm, đơn vị ₫. */
   dividendPerShare: number;
+  /**
+   * Lợi nhuận sau thuế cả năm, đơn vị **tỷ ₫**.
+   *
+   * Ở bộ mẫu, trường này SUY RA bằng phép nhân `eps × sharesOutstanding` chứ không phải một con số
+   * tự đặt thêm — xem `samples.ts`. Nguồn thật thì phải đọc thẳng từ báo cáo: lợi nhuận thật không
+   * bằng đúng tích ấy, vì EPS công bố tính trên số cổ phiếu bình quân gia quyền và có phần pha
+   * loãng. Nên đây là trường RIÊNG chứ không phải thứ tính lại được từ hai trường trên.
+   */
+  netIncome: number;
+  /**
+   * Vốn chủ sở hữu cuối kỳ, đơn vị **tỷ ₫**.
+   * Ở bộ mẫu suy ra bằng `bookValuePerShare × sharesOutstanding`; nguồn thật đọc từ báo cáo.
+   */
+  equity: number;
   /** Kỳ báo cáo, ví dụ 'BCTC 2025'. */
   period: string;
 }

@@ -16,8 +16,25 @@ import { FormulaDetail } from './FormulaDetail';
  * Mỗi công thức một trang tĩnh riêng với tiêu đề và mô tả riêng, đúng FR-25.
  */
 
-/** Ngày tra hằng số thuế & phí, chốt lúc build. Domain không tự lấy ngày hệ thống (NFR-REL-03). */
-const AS_OF = '2026-08-04';
+/**
+ * Ngày tra hằng số thuế & phí — đọc MỘT LẦN lúc build, rồi đi vào HTML tĩnh của cả 107 trang.
+ *
+ * Vì sao không viết cứng một ngày. Bản trước ghim `'2026-08-04'`, nên một hằng số khai
+ * `effectiveFrom` sau ngày đó sẽ **không bao giờ có hiệu lực**, dựng lại bao nhiêu lần cũng vậy
+ * — mà `resolveConstant()` chỉ lấy bản ghi có `effectiveFrom <= asOf`. Biểu thuế thu nhập cá
+ * nhân đang có mốc 2026-07-01; mốc kế tiếp sẽ lặng lẽ không vào, và không phép kiểm nào bắt
+ * được vì mọi thứ vẫn ra số.
+ *
+ * Vì sao đọc ở ĐÂY chứ không ở tầng Domain. NFR-REL-03 cấm Domain tự lấy ngày hệ thống, và lệnh
+ * cấm đó vẫn nguyên: `resolveConstant()` vẫn bắt buộc nhận `asOf`. Chỗ này là tầng
+ * PRESENTATION, và với `output: 'export'` thì nó chạy đúng một lần trên máy build — giá trị
+ * được nướng vào HTML, nên mọi người dùng thấy cùng một ngày và không có chuyện lệch hydration.
+ *
+ * `page.tsx` là server component, không có `'use client'`, nên phạm vi module này KHÔNG đi vào
+ * gói JS máy khách. Nếu có ngày chuyển hằng số này sang một file dùng chung, phải giữ nguyên
+ * tính chất đó — để nó lọt vào một client component là mỗi trình duyệt tự lấy ngày của mình.
+ */
+const AS_OF = new Date().toISOString().slice(0, 10);
 
 export function generateStaticParams(): Array<{ id: string }> {
   return FORMULAS.map((formula) => ({ id: formula.id }));

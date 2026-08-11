@@ -6,7 +6,7 @@
 
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from './types';
 
-export { missingInputLabels, runFormula } from './run';
+export { missingInputLabels, needsPriceSeries, runFormula } from './run';
 
 export type { SpecTestFailure } from './run-tests';
 export { DEFAULT_TOLERANCE, formatFailures, runAllSpecTests, runSpecTests } from './run-tests';

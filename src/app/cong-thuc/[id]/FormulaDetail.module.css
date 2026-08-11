@@ -114,20 +114,16 @@
 }
 
 /*
- * Khối chưa dựng xong: nói thẳng ra màn thay vì để trống lặng lẽ. Viền đứt để phân biệt được
- * cả khi nhìn ảnh xám.
+ * Dòng ghi chú phụ dưới một khối: câu "bản ký hiệu toán đang hoàn thiện", số phiên giá đã nạp.
+ *
+ * `.chartSlot` từng đứng ở đây làm khung nét đứt cho khối biểu đồ chưa dựng. Bỏ khi biểu đồ phủ tới
+ * 97 công thức và 10 công thức `chartType: 'none'` không dựng khối ấy chút nào — không còn trạng
+ * thái "chờ" nào để đóng khung.
  */
 .pendingNote {
   margin: 0;
   font-size: var(--text-xs);
   color: var(--color-muted);
-}
-
-.chartSlot {
-  padding: var(--space-4);
-  border: 1px dashed var(--color-border-strong);
-  border-radius: var(--radius-md);
-  background: var(--color-sunken);
 }
 
 .hiddenNote {

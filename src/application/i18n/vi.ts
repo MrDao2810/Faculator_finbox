@@ -141,6 +141,9 @@ export const vi = {
   'variable.colDescription': 'MÔ TẢ',
   'variable.noDescription': '—',
   'example.title': 'Ví dụ thực tế',
+  'example.editHint': 'Sửa được ngay tại đây — thay bằng số thật của mã bạn đang xem.',
+  'example.original': 'Ví dụ gốc cho:',
+  'example.reset': 'Về số của ví dụ',
   'source.title': 'Nguồn tham khảo',
   'flow.title': 'Dải luồng tính toán',
   'flow.cyclicWarning': 'Có bước phụ thuộc vòng nên chưa xếp được thứ tự:',
@@ -152,8 +155,8 @@ export const vi = {
   'detail.export': '↓ Xuất',
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
-  // Hai câu "sẽ có ở bản sau" dưới đây cố ý KHÔNG nhắc số gói WBS hay nhánh: người dùng cuối
-  // không cần biết sổ sách nội bộ, và câu có chữ "WBS" từng lọt cả vào file PDF xuất ra (đợt 14).
+  // Câu "sẽ có ở bản sau" dưới đây cố ý KHÔNG nhắc số gói WBS hay nhánh: người dùng cuối không cần
+  // biết sổ sách nội bộ, và câu có chữ "WBS" từng lọt cả vào file PDF xuất ra (đợt 14).
   'detail.latexPending': 'Bản ký hiệu toán học đang hoàn thiện — tạm hiện công thức dạng chữ.',
   'detail.inputs': 'Số liệu',
   'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
@@ -162,7 +165,22 @@ export const vi = {
   'detail.seriesLoaded': 'Đã nạp số phiên giá:',
   'detail.openDataTable': 'Mở bảng dữ liệu →',
   'detail.chart': 'Biểu đồ',
-  'detail.chartPending': 'Biểu đồ cho công thức này sẽ có ở bản sau.',
+  /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
+  'chart.sweepLabel': 'Xem kết quả đổi theo',
+  /*
+   * Bảng số liệu tương đương, gói trong <details>. HIỆN chứ không giấu bằng .visually-hidden:
+   * người sáng mắt cũng cần con số chính xác, mắt đọc biểu đồ chỉ ra được xu hướng.
+   */
+  'chart.showData': 'Xem số liệu',
+  /*
+   * Xem biểu đồ toàn màn hình. Hai câu nhắc xoay là HAI việc khác nhau, cố ý tách rời:
+   * câu đầu nhờ xoay máy, câu sau chỉ hiện khi trình duyệt không tự xoay được — hầu hết là iPhone,
+   * hoặc máy Android đang bật khoá xoay.
+   */
+  'chart.zoom': 'Phóng to',
+  'chart.exit': 'Thoát phóng to',
+  'chart.rotate': 'Xoay ngang điện thoại để biểu đồ rộng hơn.',
+  'chart.rotateUnlock': 'Máy đang khoá xoay thì mở Cài đặt nhanh rồi bật Xoay màn hình.',
 
   // Màn phí & thuế — WF-08, gói 3.2.3
   'fee.schedule': 'Biểu phí',
@@ -343,8 +361,7 @@ export const vi = {
   'settings.units.scheduleHint':
     'Dùng cho màn lợi nhuận ròng sau phí & thuế. Nguồn: Market Config.',
   'settings.data.title': 'Dữ liệu trên máy',
-  'settings.data.note':
-    'Sản phẩm không có máy chủ. Mọi thứ dưới đây nằm trong trình duyệt của bạn và không được gửi đi đâu.',
+  'settings.data.note': 'Mọi thứ dưới đây nằm trong trình duyệt của bạn và không được gửi đi đâu.',
   'settings.about.title': 'Về sản phẩm',
 
   'data.prefs': 'Tuỳ chọn hiển thị',

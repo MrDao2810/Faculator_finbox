@@ -17,10 +17,15 @@
   color: var(--color-ink-soft);
 }
 
-.value {
+/*
+ * Con số cạnh nhãn là Ô NHẬP THẬT, không phải chữ chỉ để đọc — phần gõ do `InlineNumber` cầm.
+ *
+ * Chỗ này chỉ đặt dáng chữ của WF-16: số đậm, màu nhấn. Nhờ vậy nhìn vẫn là "giá trị hiện tại"
+ * chứ không thành một hàng biểu mẫu chen vào bố cục.
+ */
+.valueBox {
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
-  font-variant-numeric: tabular-nums;
   color: var(--color-accent);
 }
 
@@ -110,7 +115,7 @@
   opacity: 0.55;
 }
 
-.locked .value {
+.locked .valueBox {
   color: var(--color-muted);
 }
 

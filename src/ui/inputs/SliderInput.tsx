@@ -5,6 +5,7 @@ import { useId, type CSSProperties } from 'react';
 import { formatValueWithUnit, isLockedForMode, snapToStep, t } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 
+import { InlineNumber } from './InlineNumber';
 import styles from './SliderInput.module.css';
 
 export interface SliderInputProps {
@@ -13,6 +14,12 @@ export interface SliderInputProps {
   onChange: (value: number) => void;
   mode?: Level;
   className?: string;
+}
+
+/** Giá trị có nằm đúng trên lưới bước của thanh trượt hay không. */
+function onStepGrid(value: number, spec: VariableSpec): boolean {
+  if (spec.step === undefined || spec.step <= 0) return true;
+  return Math.abs(value - snapToStep(value, spec)) < 1e-9;
 }
 
 /**
@@ -24,6 +31,24 @@ export interface SliderInputProps {
  *
  * NFR-USA-01 nói rõ "thanh trượt kéo được bằng ngón cái": vùng chạm của nút kéo đặt 28px và
  * cả hàng cao 44px, xem SliderInput.module.css.
+ *
+ * ── Vì sao con số cạnh nhãn GÕ ĐƯỢC ────────────────────────────────────────────────────────
+ *
+ * Chỗ này trước đây là một `<output>` chỉ để đọc, nên 97 biến kiểu `slider` trên toàn Registry
+ * chỉ nhập được bằng cách kéo, và kéo thì bám lưới `step`. Hệ quả đo được: 39 trên 78 công thức
+ * nhóm Cơ bản có ít nhất một ô như vậy, và người dùng muốn đưa số thật của một mã vào thì không
+ * đưa được — lãi suất 12,37% không kéo tới được khi bước là 0,1; khoản vay 1.234.000.000 ₫ của
+ * `tra-gop-nien-kim` càng không, vì bước ở đó là 10.000.000 ₫.
+ *
+ * Nên con số ấy giờ là một ô nhập thật, đứng đúng vị trí cũ. Hai điều theo sau:
+ *
+ *   · **Gõ thì KHÔNG bám lưới bước, kéo thì vẫn bám.** `step` là độ phân giải của ngón tay, không
+ *     phải luật của con số. Gõ đi qua `commitValue()` nên vẫn bị kẹp về `[min, max]` — miền là
+ *     luật thật, còn bước thì không.
+ *   · **Thuộc tính `step` của thanh trượt hạ xuống `any` khi giá trị lệch lưới.** Thẻ `range` của
+ *     HTML tự làm tròn `value` về bội của `step`, nên gõ 12,37 mà vẫn để `step="0.1"` thì nút kéo
+ *     hiện ở 12,4 trong khi phép tính chạy 12,37 — hai chỗ nói hai số. Lúc đã nằm đúng lưới thì
+ *     giữ nguyên `step` để phím mũi tên và cú kéo vẫn nhảy theo bước như cũ.
  */
 export function SliderInput({
   spec,
@@ -33,6 +58,8 @@ export function SliderInput({
   className,
 }: SliderInputProps) {
   const inputId = useId();
+  const boxId = `${inputId}-box`;
+  const labelId = `${inputId}-label`;
   const marksId = `${inputId}-marks`;
   const locked = isLockedForMode(spec, mode);
 
@@ -55,13 +82,24 @@ export function SliderInput({
   return (
     <div className={classes}>
       <div className={styles.head}>
-        <label className={styles.label} htmlFor={inputId}>
+        {/*
+          Nhãn trỏ vào Ô NHẬP, còn thanh trượt dùng lại đúng nhãn ấy qua `aria-labelledby`.
+          Hai điều khiển cùng một tên là đúng — chúng sửa cùng một con số — và trình đọc màn hình
+          phân biệt được bằng vai: một cái là `slider`, một cái là `textbox`.
+        */}
+        <label className={styles.label} id={labelId} htmlFor={boxId}>
           {spec.label}
         </label>
-        {/* Con số đọc được ngay cạnh nhãn — không bắt người dùng đoán theo vị trí nút kéo. */}
-        <output className={styles.value} htmlFor={inputId}>
-          {formatValueWithUnit(value, spec.unit, { maxDecimals: 4 })}
-        </output>
+
+        <InlineNumber
+          spec={spec}
+          value={value}
+          onChange={onChange}
+          readOnly={locked}
+          id={boxId}
+          describedBy={marksId}
+          className={styles.valueBox}
+        />
       </div>
 
       <input
@@ -71,9 +109,10 @@ export function SliderInput({
         type="range"
         min={min}
         max={max}
-        step={step}
+        step={onStepGrid(value, spec) ? step : 'any'}
         value={value}
         disabled={locked}
+        aria-labelledby={labelId}
         aria-describedby={marksId}
         onChange={(event) => {
           // snapToStep kẹp về miền và làm tròn theo bước, tránh rác dấu phẩy động

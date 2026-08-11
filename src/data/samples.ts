@@ -89,12 +89,39 @@ function round(value: number): number {
   return Math.round(value / 10) * 10;
 }
 
-function preset(code: string, name: string, basePrice: number, fundamentals: Fundamentals): Preset {
+/** Số liệu cơ bản của một mã, phần khai bằng tay. `netIncome` và `equity` suy ra sau. */
+type PerShare = Omit<Fundamentals, 'netIncome' | 'equity'>;
+
+/**
+ * Đổi số trên mỗi cổ phiếu thành khoản mục toàn doanh nghiệp.
+ *
+ * `eps` và `bookValuePerShare` tính bằng ₫/CP, nhân với số CP ra ₫, chia một tỷ ra **tỷ ₫** —
+ * đúng đơn vị mà `numberVar('netIncome', …, 'tỷ ₫')` bên Domain đang chờ.
+ *
+ * Đây là chỗ đáng nói rõ: hai trường này **suy ra bằng phép nhân, không phải số tôi tự đặt thêm**.
+ * Bộ mẫu vốn đã bịa sẵn EPS và BVPS; nhân chúng lên không bịa thêm gì, chỉ nói lại cùng một điều
+ * bằng đơn vị khác. Nhờ vậy `roe`, `bvps` và `eps-co-ban` nạp được từ bộ mẫu mà số liệu bản thảo
+ * không nở thêm một dòng nào. Các dòng còn lại của báo cáo (doanh thu, tổng tài sản, tài sản ngắn
+ * hạn, tồn kho…) thì KHÔNG suy ra được từ đây, nên vẫn để trống chờ số liệu thật của Finbox.
+ *
+ * Kiểm chứng: FPT với EPS 6.050 ₫ và 1,47 tỷ CP ra 8.893,5 tỷ ₫, khớp mức 8.894 mà
+ * `src/core/formulas/fundamentals.ts` đã dựng bộ số kiểm quanh nó.
+ */
+function wholeCompany(perShare: PerShare): Fundamentals {
+  const shares = perShare.sharesOutstanding;
+  return {
+    ...perShare,
+    netIncome: (perShare.eps * shares) / 1_000_000_000,
+    equity: (perShare.bookValuePerShare * shares) / 1_000_000_000,
+  };
+}
+
+function preset(code: string, name: string, basePrice: number, perShare: PerShare): Preset {
   return {
     code,
     name,
-    meta: `${fundamentals.period} · ${SESSION_COUNT} phiên giá`,
-    fundamentals,
+    meta: `${perShare.period} · ${SESSION_COUNT} phiên giá`,
+    fundamentals: wholeCompany(perShare),
     bars: makeBars(code, basePrice),
     // Không bao giờ đặt false ở đây cho tới khi có người đối chiếu báo cáo thật.
     isDraft: true,

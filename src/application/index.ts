@@ -100,11 +100,37 @@ export { DISCLAIMER_VI, buildExportContent, exportFileName } from '@/core/export
 
 // ── Bộ số liệu mẫu qua DataProvider — WF-10 (gói 2.5.1, FR-17) ──────────────
 export type { DailyBar, DataProvider, Fundamentals, Preset } from '@/data';
-export { SAMPLE_DATA, createStaticProvider, hasDraftData } from '@/data';
+export { SAMPLE_DATA, createStaticProvider, hasDraftData, presetInputs } from '@/data';
 
 // ── Bộ máy tính toán — chạy một công thức (nền cho nhánh 3 và 5) ────────────
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from '@/core/calc';
-export { missingInputLabels, runFormula } from '@/core/calc';
+export { missingInputLabels, needsPriceSeries, runFormula } from '@/core/calc';
+
+// ── Biểu đồ — FR-07, FR-08 (nhánh 4) ────────────────────────────────────────
+/*
+ * Chỉ mở ra những gì `src/ui/charts` thật sự gọi. `sweepPoints`, `rankSweepVariables`,
+ * `sweepDomain`, `niceAxis` cố ý KHÔNG có ở đây: chúng là nội bộ của `buildChartModel()`, và
+ * barrel càng hẹp thì rung cây càng sạch (xem `sideEffects` trong package.json).
+ */
+export type {
+  ChartArgs,
+  ChartAxis,
+  ChartKind,
+  ChartModel,
+  ChartPoint,
+  ChartTable,
+  ChartTick,
+  LineChart,
+  SweepOption,
+} from '@/core/chart';
+export {
+  CHART_TABLE_ROWS,
+  buildChartModel,
+  gapsOf,
+  linePath,
+  linearScale,
+  sweepCandidates,
+} from '@/core/chart';
 
 // ── Thư viện công thức — đủ 107 / 107 ───────────────────────────────────────
 export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';

@@ -17,6 +17,16 @@ interface Muc {
 const muc = (n: number): Muc[] =>
   Array.from({ length: n }, (_, i) => ({ id: `m${String(i)}`, ten: `Mục ${String(i)}` }));
 
+/**
+ * Số mục vừa đủ để bật nhánh ảo hoá.
+ *
+ * Trước đây các ca dưới viết cứng 107 — số công thức của thư viện — vì hồi ngưỡng còn là 40 thì
+ * 107 đi qua nhánh ảo hoá. Ngưỡng nay là 1000 nên 107 KHÔNG còn bật nó, và cả nhóm ca hoá đỏ dù
+ * component vẫn đúng. Bám vào ngưỡng thay vì vào một con số rời: đổi ngưỡng thì ca kiểm đi theo,
+ * và không ca nào lại đỏ vì một lý do chẳng liên quan tới thứ nó đang gác.
+ */
+const VUOT_NGUONG = VIRTUALIZE_THRESHOLD + 1;
+
 function mo(items: ReadonlyArray<Muc>) {
   return render(
     <VirtualList items={items} itemKey={(m) => m.id} label="Danh sách">
@@ -51,24 +61,24 @@ describe('VirtualList — danh sách ngắn thì dựng thẳng', () => {
 
 describe('VirtualList — vượt ngưỡng thì ảo hoá', () => {
   it('chỉ dựng một phần danh sách, phần còn lại thay bằng khối đệm', () => {
-    const { container } = mo(muc(107));
+    const { container } = mo(muc(VUOT_NGUONG));
 
     const dong = dongNoiDung(container);
     expect(dong.length).toBeGreaterThan(0);
-    expect(dong.length).toBeLessThan(107);
+    expect(dong.length).toBeLessThan(VUOT_NGUONG);
     expect(khoiDem(container).length).toBeGreaterThan(0);
   });
 
   it('nói cho trình đọc màn hình biết tổng thật, không phải số dòng đang dựng', () => {
-    const { container } = mo(muc(107));
+    const { container } = mo(muc(VUOT_NGUONG));
     const dong = dongNoiDung(container);
 
-    expect(dong[0]?.getAttribute('aria-setsize')).toBe('107');
+    expect(dong[0]?.getAttribute('aria-setsize')).toBe(String(VUOT_NGUONG));
     expect(dong[0]?.getAttribute('aria-posinset')).toBe('1');
   });
 
   it('số thứ tự chạy liên tục, không nhảy cóc', () => {
-    const { container } = mo(muc(107));
+    const { container } = mo(muc(VUOT_NGUONG));
     const so = dongNoiDung(container).map((li) => Number(li.getAttribute('aria-posinset')));
 
     expect(so).toEqual(so.map((_, i) => (so[0] ?? 0) + i));
@@ -88,7 +98,7 @@ describe('VirtualList — vượt ngưỡng thì ảo hoá', () => {
  */
 describe('VirtualList — không được ép chiều cao dòng nội dung', () => {
   it('dòng nội dung KHÔNG có style height — ép là cắt cụt thẻ cao', () => {
-    const { container } = mo(muc(107));
+    const { container } = mo(muc(VUOT_NGUONG));
 
     for (const li of dongNoiDung(container)) {
       expect(li.style.height, `dòng ${li.getAttribute('aria-posinset') ?? '?'}`).toBe('');
@@ -96,7 +106,7 @@ describe('VirtualList — không được ép chiều cao dòng nội dung', () 
   });
 
   it('chỉ KHỐI ĐỆM mới có chiều cao đặt sẵn — đó là việc của nó', () => {
-    const { container } = mo(muc(107));
+    const { container } = mo(muc(VUOT_NGUONG));
     const dem = khoiDem(container);
 
     expect(dem.length).toBeGreaterThan(0);
@@ -104,7 +114,7 @@ describe('VirtualList — không được ép chiều cao dòng nội dung', () 
   });
 
   it('dòng nội dung không bọc gì che nội dung tràn', () => {
-    const { container } = mo(muc(107));
+    const { container } = mo(muc(VUOT_NGUONG));
 
     for (const li of dongNoiDung(container)) {
       expect(li.style.overflow).toBe('');
@@ -113,8 +123,8 @@ describe('VirtualList — không được ép chiều cao dòng nội dung', () 
 });
 
 describe('VirtualList — đổi danh sách thì không vỡ', () => {
-  it('lọc từ 107 xuống dưới ngưỡng thì quay về dựng thẳng', () => {
-    const { container, rerender } = mo(muc(107));
+  it('lọc từ trên ngưỡng xuống dưới ngưỡng thì quay về dựng thẳng', () => {
+    const { container, rerender } = mo(muc(VUOT_NGUONG));
     expect(khoiDem(container).length).toBeGreaterThan(0);
 
     rerender(

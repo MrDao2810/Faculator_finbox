@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { fail, ok } from '../calc-output';
+import { FORMULA_MODULES } from '../formulas';
 import type { FormulaSpec } from '../registry/types';
 import { divideByZero } from '../warnings';
-import { missingInputLabels, runFormula } from './run';
+import { missingInputLabels, needsPriceSeries, runFormula } from './run';
 import { formatFailures, runAllSpecTests, runSpecTests } from './run-tests';
 import type { CalcContext, FormulaModule } from './types';
 
@@ -116,6 +117,47 @@ describe('runFormula()', () => {
     const tran: FormulaModule = { spec: SPEC, calc: (v) => ok(v('a') / v('b'), 'lần') };
 
     expect(runFormula(tran, { a: 1, b: 0 }, CTX).value).toBeNull();
+  });
+});
+
+describe('needsPriceSeries()', () => {
+  const canChuoi = () => FORMULA_MODULES.filter((m) => needsPriceSeries(m, CTX.asOf));
+
+  it('công thức vô hướng thì không cần chuỗi giá', () => {
+    expect(needsPriceSeries(CHIA, CTX.asOf)).toBe(false);
+  });
+
+  it('đúng 34 công thức ăn chuỗi giá — thêm bớt là có người vừa đổi hợp đồng dữ liệu', () => {
+    expect(canChuoi()).toHaveLength(34);
+  });
+
+  /*
+   * Ca này chốt lại đúng cái bug đợt này sửa, bằng số.
+   *
+   * Màn chi tiết từng lấy `chartType === 'candlestick'` làm cờ "cần chuỗi giá". Nến chỉ là 11
+   * trong 34 — 23 công thức còn lại gặp lỗi "chưa đủ phiên giá" mà trên màn không có nút nào để
+   * nạp. Nếu ai đó lại đi đường `chartType`, con số 23 dưới đây sẽ nói ngay vì sao không được.
+   */
+  it('nến chỉ là 11 trong 34 — lấy chartType làm cờ dữ liệu bỏ sót 23 công thức', () => {
+    const nen = canChuoi().filter((m) => m.spec.chartType === 'candlestick');
+
+    expect(nen).toHaveLength(11);
+    expect(canChuoi().length - nen.length).toBe(23);
+  });
+
+  it('trọn bốn loại biểu đồ dựa trên chuỗi đều cần chuỗi, không loại nào lọt', () => {
+    const dungChuoi: ReadonlyArray<string> = ['candlestick', 'histogram', 'underwater', 'scatter'];
+
+    for (const formula of FORMULA_MODULES) {
+      if (!dungChuoi.includes(formula.spec.chartType)) continue;
+      expect(needsPriceSeries(formula, CTX.asOf), formula.spec.id).toBe(true);
+    }
+  });
+
+  it('chỉ nhóm Rủi ro và Kỹ thuật mới ăn chuỗi', () => {
+    for (const formula of canChuoi()) {
+      expect(['risk', 'technical'], formula.spec.id).toContain(formula.spec.categoryId);
+    }
   });
 });
 

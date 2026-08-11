@@ -298,6 +298,49 @@ if (remaining > 0) {
 }
 
 /*
+ * ── Nguồn phình 3: chunk nạp trễ của riêng vài trang chi tiết ─────────────
+ *
+ * `next/dynamic` KHÔNG giấu được chi phí khỏi cửa kiểm. Đo trên bản build: HTML của
+ * /cong-thuc/loi-nhuan-rong/ có thêm đúng một chunk mà /cong-thuc/pe/ không có — chính khối
+ * WF-08 nạp trễ. Next vẫn ghi chunk vào HTML của trang THẬT SỰ dựng nó, nên "First Load JS" của
+ * trang ấy vẫn tính đủ. Nạp trễ chỉ giữ chi phí KHỎI những trang không dùng.
+ *
+ * Vì vậy phần này phải có số riêng: nó là ngân sách mà từng khối nặng được tiêu, và là chỗ duy
+ * nhất để biết một khối mới đắt bao nhiêu trước khi nó đẩy trang nào qua cửa kiểm.
+ *
+ * Lưu ý phân biệt: `import()` TRẦN (như `ExportSheet` gọi bộ vẽ PNG lúc bấm nút) thì chunk KHÔNG
+ * vào HTML, nên nó không hiện ở đây và cũng không tính vào cửa kiểm — đó mới là cách rời hẳn.
+ */
+const onEveryDetailPage = (asset) => detailPages.every((p) => p.assets.includes(asset));
+
+const lazyPages = detailPages
+  .map((page) => {
+    const own = page.assets.filter(
+      (a) => a.endsWith('.js') && !isLegacyOnly(a) && !onEveryDetailPage(a),
+    );
+    return { url: page.url, gzip: sumOf(own), files: own.length };
+  })
+  .filter((row) => row.files > 0)
+  .sort((a, b) => b.gzip - a.gzip);
+
+if (lazyPages.length === 0) {
+  console.log('\nChunk nạp trễ: không trang chi tiết nào có chunk riêng.');
+} else {
+  console.log(
+    `\nChunk nạp trễ riêng của từng trang (${String(lazyPages.length)}/` +
+      `${String(detailPages.length)} trang chi tiết · VẪN tính vào cửa kiểm):`,
+  );
+  for (const row of lazyPages.slice(0, 8)) {
+    console.log(
+      `  ${row.url.padEnd(30)} ${kb(row.gzip).padStart(9)} · ${String(row.files)} file riêng`,
+    );
+  }
+  if (lazyPages.length > 8) {
+    console.log(`  … và ${String(lazyPages.length - 8)} trang khác`);
+  }
+}
+
+/*
  * NFR-PER-04 nói về **First Load JS**, nên cửa kiểm gác đúng đại lượng đó — không gộp HTML và
  * CSS vào. Hai con số kia vẫn in ra ở trên vì chủ dự án cần biết tổng thật đi qua đường truyền,
  * nhưng lấy tổng đi so với một ngưỡng chỉ nói về JS là so lệch đại lượng.

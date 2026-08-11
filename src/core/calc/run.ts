@@ -13,6 +13,7 @@
  */
 
 import { fail } from '../calc-output';
+import { defaultInputs } from '../registry/build';
 import type { FormulaSpec } from '../registry/types';
 import type { CalcOutput } from '../types';
 import { incompleteInput, meaningless } from '../warnings';
@@ -63,4 +64,28 @@ export function runFormula(
       ),
     );
   }
+}
+
+/**
+ * Công thức này có ăn chuỗi giá hay không (FR-12).
+ *
+ * Vì sao THỬ CHẠY thay vì đọc một field khai sẵn: không có field nào khai điều đó. Trước đợt này
+ * màn chi tiết lấy `chartType === 'candlestick'` làm cờ — nhưng đó là loại BIỂU ĐỒ, không phải
+ * nhu cầu dữ liệu. Hệ quả: 11 công thức có nút "Dán chuỗi giá" trong khi 34 công thức cần chuỗi;
+ * cả nhóm phân phối lợi suất, sụt giảm từ đỉnh và hồi quy bị bỏ sót — người dùng gặp lỗi "chưa đủ
+ * phiên giá" mà trên màn không có lối nào để nạp.
+ *
+ * Phép thử ở đây CHÍNH LÀ phép mà `FormulaDetail.test.tsx` đang dùng để chốt con số 34: chạy công
+ * thức với giá trị mặc định và KHÔNG có chuỗi, rồi xem nó có báo thiếu chuỗi hay không. Nó không
+ * thể lệch với thực tế, còn một field khai tay thì lệch được — cùng cách nghĩ đã chọn cho `ok()`.
+ *
+ * Đặt cạnh `missingInputLabels()` vì cùng một loại câu hỏi: công thức này còn thiếu gì để ra số.
+ * Hàm thuần, một module luôn cho cùng một câu trả lời, nên nơi gọi bọc `useMemo` là đủ.
+ *
+ * @param asOf ngày tra hằng số — không đổi được kết quả (công thức chuỗi không đọc hằng số nào),
+ * nhưng `CalcContext` đòi nó và Domain không được tự lấy ngày hệ thống (NFR-REL-03).
+ */
+export function needsPriceSeries(formula: FormulaModule, asOf: string): boolean {
+  const probe = runFormula(formula, defaultInputs(formula.spec), { asOf });
+  return probe.warning?.code === 'MISSING_SERIES';
 }

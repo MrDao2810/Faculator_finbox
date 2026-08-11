@@ -5,8 +5,17 @@ import styles from './ExplanationAccordion.module.css';
 
 export interface ExplanationAccordionProps {
   explanation: Explanation;
-  /** Mở sẵn mục đầu. Chế độ Cơ bản nên mở, chế độ Nâng cao thì gập cho gọn (FR-09). */
-  openFirst?: boolean;
+  /**
+   * Mở sẵn **cả bốn mục**. Mặc định BẬT, và màn chi tiết không truyền gì để đè lên nó.
+   *
+   * Hai bước đã đi qua, ghi lại để không ai vô tình cuộn về: bản đầu gập hết ở chế độ Nâng cao cho
+   * gọn màn (FR-09); bản sau mở sẵn mục đầu. Cả hai đều để người đọc phải bấm mới thấy phần giải
+   * thích — mà FR-03 bắt buộc bốn mục ấy có mặt chính là để đọc, nên chủ dự án chốt mở hết.
+   *
+   * Vẫn dùng `<details>` chứ không đổi sang thẻ thường: người đọc GẬP LẠI được từng mục khi đã hiểu,
+   * và đó là chiều đúng — mặc định là thấy, thu gọn là lựa chọn.
+   */
+  defaultOpen?: boolean;
   className?: string;
 }
 
@@ -30,7 +39,7 @@ const SECTIONS: ReadonlyArray<{ key: keyof Explanation; labelKey: MessageKey }> 
  */
 export function ExplanationAccordion({
   explanation,
-  openFirst = true,
+  defaultOpen = true,
   className,
 }: ExplanationAccordionProps) {
   const classes = [styles.wrap, className].filter(Boolean).join(' ');
@@ -39,8 +48,8 @@ export function ExplanationAccordion({
     <section className={classes}>
       <h2 className={styles.title}>{t('explain.title')}</h2>
 
-      {SECTIONS.map((section, index) => (
-        <details key={section.key} className={styles.item} open={openFirst && index === 0}>
+      {SECTIONS.map((section) => (
+        <details key={section.key} className={styles.item} open={defaultOpen}>
           <summary className={styles.summary}>{t(section.labelKey)}</summary>
           <p className={styles.body}>{explanation[section.key]}</p>
         </details>

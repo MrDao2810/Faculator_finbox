@@ -6,7 +6,6 @@ import { buildExportContent, exportFileName, t } from '@/application';
 import type { CalcOutput, ExportFormat, FormulaSpec, Level } from '@/application';
 import { BottomSheet, Button, Switch } from '@/ui/primitives';
 
-import { downloadCardPng } from './draw-card';
 import styles from './ExportSheet.module.css';
 
 /** Hai định dạng xuất, đúng thứ tự WF-12. */
@@ -117,6 +116,15 @@ export function ExportSheet({
     setError(null);
     try {
       if (format === 'png') {
+        /*
+         * Nạp trễ bộ vẽ Canvas — nó chỉ chạy khi người dùng bấm đúng nút này.
+         *
+         * Trước đợt này `draw-card` được import tĩnh, nên toàn bộ mã vẽ Canvas nằm trong gói cơ
+         * sở của cả 107 trang chi tiết dù đa số người dùng không bao giờ xuất PNG. Dùng `import()`
+         * trần chứ không `next/dynamic`: chunk sinh ra KHÔNG được ghi vào HTML, nên nó rời hẳn
+         * khỏi "First Load JS" mà cửa kiểm NFR-PER-04 đo — khác `next/dynamic`, thứ vẫn bị tính.
+         */
+        const { downloadCardPng } = await import('./draw-card');
         await downloadCardPng(content, exportFileName(formula, 'png'));
       } else {
         // Vùng in nằm sẵn trong DOM dưới đây; CSS in ở globals.css lo phần ẩn những chỗ khác.

@@ -11,7 +11,9 @@ import {
   findFormulaModule,
   formatCalcOutput,
   hasDraftData,
+  needsPriceSeries,
   parseStoredSeries,
+  presetInputs,
   runFormula,
   scheduleOrDefault,
   t,
@@ -29,6 +31,7 @@ import {
   SourceBlock,
   VariableTable,
 } from '@/ui/result';
+import { FormulaChart, hasChart } from '@/ui/charts';
 import { BackLink, DisclaimerBar } from '@/ui/navigation';
 import { ExportSheet, PasteImportSheet, PresetSheet } from '@/ui/sheets';
 import { DetailBody, DetailConfig, hasConfigBlock, hasCustomBody, ownsResult } from '@/ui/screens';
@@ -115,6 +118,22 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
     [formula, inputs, ctx, spec.resultUnit],
   );
 
+  /*
+   * Công thức này có ăn chuỗi giá hay không — quyết định có hiện nút "Dán chuỗi giá" và lối vào
+   * bảng WF-05. Trước đợt này chỗ này đọc `spec.chartType === 'candlestick'`, tức lấy loại BIỂU ĐỒ
+   * làm cờ dữ liệu: 11 công thức có nút trong khi 34 công thức cần chuỗi. Nay hỏi thẳng Domain.
+   *
+   * Là thuộc tính TĨNH của công thức, không phải "hiện đang thiếu chuỗi": nút vẫn phải còn sau khi
+   * người dùng nạp xong, để họ nạp lại chuỗi khác được.
+   */
+  const wantsSeries = useMemo(
+    () => (formula === undefined ? false : needsPriceSeries(formula, asOf)),
+    [formula, asOf],
+  );
+
+  /** Công thức này đã có biểu đồ thật, hay còn đứng ở khung chờ. */
+  const showChart = hasChart(spec);
+
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
 
@@ -125,30 +144,40 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
   /**
    * Nạp bộ số liệu mẫu vào các ô KHỚP TÊN. FR-10 hứa "nạp xong vẫn sửa được từng ô", nên
    * đây chỉ là đặt giá trị chứ không khoá gì cả.
+   *
+   * Bảng ánh xạ đã chuyển xuống `presetInputs()` ở tầng Data. Nó từng nằm ngay đây, và cái giá của
+   * việc để tầng giao diện quyết định đơn vị đo lường thì đo được: bảng cũ bỏ sót số cổ phiếu, nên
+   * nạp FPT cho công thức vốn hoá ra giá FPT nhân số cổ phiếu mặc định. Ở tầng Data thì một ca test
+   * Node soi được cả 107 công thức, và đơn vị của từng khoá bị khoá lại bằng test.
    */
   function applyPreset(preset: Preset): void {
-    const last = preset.bars[preset.bars.length - 1];
-    const fromPreset: Record<string, number> = {
-      price: last?.close ?? 0,
-      buyPrice: last?.close ?? 0,
-      startPrice: preset.bars[0]?.close ?? 0,
-      endPrice: last?.close ?? 0,
-      entryPrice: last?.close ?? 0,
-      eps: preset.fundamentals.eps,
-      bookValuePerShare: preset.fundamentals.bookValuePerShare,
-      dividendPerShare: preset.fundamentals.dividendPerShare,
-      dividend: preset.fundamentals.dividendPerShare,
-    };
+    const fromPreset = presetInputs(preset, spec);
 
-    setInputs((current) => {
-      const next = { ...current };
-      for (const variable of spec.variables) {
-        const value = fromPreset[variable.key];
-        if (value !== undefined && Number.isFinite(value)) next[variable.key] = value;
-      }
-      return next;
-    });
+    setInputs((current) => ({ ...current, ...fromPreset }));
     setLoadedPreset(preset.code);
+
+    /*
+     * Chuỗi phiên của bộ mẫu đi thẳng vào ctx.
+     *
+     * Trước đợt này hàm này chỉ đặt các ô VÔ HƯỚNG, nên nạp FPT cho một công thức chuỗi (Sharpe,
+     * RSI, sụt giảm từ đỉnh…) vẫn ra "chưa đủ phiên giá" — nút "Nạp mẫu" nhìn như không làm gì,
+     * đúng 34 công thức. Bộ mẫu có sẵn 248 phiên OHLCV, chỉ là chưa ai chuyển sang.
+     *
+     * `DailyBar` có `close: number`, hẹp hơn `SeriesRow` (`close: number | null`), nên gán vào
+     * được mà không mất mát. Không ghi đè bảng WF-05 đã lưu ở localStorage: nạp mẫu là thao tác
+     * thử nhanh, bảng là dữ liệu người dùng chủ động quản ở /du-lieu/ — cùng lối với sheet dán.
+     */
+    setBars(
+      preset.bars.map(({ date, open, high, low, close, volume }) => ({
+        date,
+        open,
+        high,
+        low,
+        close,
+        volume,
+      })),
+    );
+    setSeriesCount(preset.bars.length);
   }
 
   return (
@@ -215,9 +244,18 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
       </section>
 
       {/* ── 4. Số liệu — ô nhập sinh từ VariableSpec (FR-05) ──────────────── */}
-      <section className={styles.block}>
+      {/*
+        `aria-labelledby` biến khối này thành một VÙNG có tên.
+        Cần từ khi khối Ví dụ thực tế cũng cho gõ số: hai chỗ bày CÙNG một giá trị nên chúng mang
+        cùng một tên ô — đúng nghĩa, vì đó là một con số chứ không phải hai. Cái người dùng cần để
+        không lẫn là biết mình đang ở vùng nào, và tên vùng làm đúng việc ấy: trình đọc màn hình
+        đọc "Số liệu" hay "Ví dụ thực tế" khi bước vào, rồi mới tới tên ô.
+      */}
+      <section className={styles.block} aria-labelledby="khoi-so-lieu">
         <div className={styles.blockHead}>
-          <h2 className={styles.blockTitle}>{t('detail.inputs')}</h2>
+          <h2 className={styles.blockTitle} id="khoi-so-lieu">
+            {t('detail.inputs')}
+          </h2>
           {hiddenCount > 0 && (
             <span className={styles.hiddenNote}>
               {hiddenCount} {t('detail.hiddenInBasic')}
@@ -247,7 +285,7 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
           ))}
         </div>
 
-        {spec.chartType === 'candlestick' && (
+        {wantsSeries && (
           <div className={styles.actions}>
             <Button
               variant="secondary"
@@ -270,7 +308,8 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
           </div>
         )}
 
-        {seriesCount !== null && (
+        {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
+        {wantsSeries && seriesCount !== null && (
           <p className={styles.pendingNote}>
             {t('detail.seriesLoaded')} {seriesCount}
           </p>
@@ -284,23 +323,54 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
       {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
       {hasCustomBody(spec.id) && <DetailBody id={spec.id} inputs={inputs} ctx={ctx} />}
 
-      {/* ── 6. Biểu đồ — nhánh 4 của WBS ─────────────────────────────────── */}
-      {spec.chartType !== 'none' && (
-        <section className={`${styles.block} ${styles.chartSlot}`}>
+      {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
+      {/*
+        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 97 trên 107 công thức, và 10
+        công thức còn lại khai `chartType: 'none'` nên chúng KHÔNG dựng khối này chút nào — không có
+        trạng thái thứ ba nào để bày.
+
+        Công thức ăn chuỗi giá mà chưa nạp dữ liệu thì `ChartBody` hiện đúng câu cảnh báo khối Kết
+        quả đang nói, kèm câu chỉ đường; nút "Nạp mẫu" và "Dán chuỗi giá" đã nằm ở khối Số liệu ngay
+        trên đó, nên không bày lối vào lần hai.
+      */}
+      {showChart && formula !== undefined && (
+        <section className={styles.block}>
           <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
-          <p className={styles.pendingNote}>{t('detail.chartPending')}</p>
+          <FormulaChart
+            formula={formula}
+            inputs={inputs}
+            ctx={ctx}
+            output={output}
+            level={mode}
+            {...(loadedPreset === null ? {} : { seriesLabel: loadedPreset })}
+          />
         </section>
       )}
 
       {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}
-      {/* Chế độ Cơ bản mở sẵn mục đầu; Nâng cao gập lại cho gọn (FR-09). */}
-      <ExplanationAccordion explanation={spec.explanation} openFirst={mode === 'basic'} />
+      {/*
+        LUÔN mở sẵn CẢ BỐN mục, không phụ thuộc chế độ — chủ dự án chốt.
+
+        Bản đầu gập hết ở chế độ Nâng cao cho gọn màn (FR-09), bản sau chỉ mở mục đầu. Cả hai đều bắt
+        người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để
+        đọc. Không truyền prop nào ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không có
+        điều kiện nào để về sau lệch với nó.
+      */}
+      <ExplanationAccordion explanation={spec.explanation} />
 
       {/* ── 8. Bảng biến ─────────────────────────────────────────────────── */}
       <VariableTable formula={spec} mode={mode} />
 
       {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
-      <ExampleBlock formula={spec} />
+      {/*
+        Dòng số của ví dụ gõ được tại chỗ. Trước đây khối này là ngõ cụt: nó bày một bộ số hoàn
+        chỉnh rồi để người đọc tự cuộn lên gõ lại từng ô.
+
+        Truyền thẳng `inputs` với `setValue` chứ không dựng state riêng cho khối — nhờ vậy ô ở đây
+        và ô ở khối Số liệu là CÙNG một con số, không phải hai bản sao có ngày lệch nhau. Kết quả
+        cũng lấy đúng `output` mà khối Kết quả đang hiện.
+      */}
+      <ExampleBlock formula={spec} inputs={inputs} output={output} onChange={setValue} />
       <SourceBlock sources={spec.source} />
 
       {/* ── Ba bottom sheet của gói 2.5 ──────────────────────────────────── */}

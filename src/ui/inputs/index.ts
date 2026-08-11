@@ -12,6 +12,9 @@
 export { NumberInput } from './NumberInput';
 export type { NumberInputProps } from './NumberInput';
 
+export { InlineNumber } from './InlineNumber';
+export type { InlineNumberProps } from './InlineNumber';
+
 export { SliderInput } from './SliderInput';
 export type { SliderInputProps } from './SliderInput';
 

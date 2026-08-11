@@ -1,9 +1,0 @@
-# Falculator Finbox — cho phép mọi bot; trang nào không muốn lên chỉ mục (nhu /tim-kiem/)
-# đã tự khai robots noindex trong metadata, không chặn ở đây để bot còn đọc được thẻ đó.
-#
-# Tên miền dưới đây phải đổi cùng lúc với NEXT_PUBLIC_SITE_URL nếu gắn tên miền riêng.
-
-User-agent: *
-Allow: /
-
-Sitemap: https://falculator-finbox.pages.dev/sitemap.xml

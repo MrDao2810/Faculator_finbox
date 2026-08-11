@@ -34,7 +34,18 @@ describe('shouldVirtualize()', () => {
 
   it('vượt ngưỡng thì mới ảo hoá', () => {
     expect(shouldVirtualize(VIRTUALIZE_THRESHOLD + 1)).toBe(true);
-    expect(shouldVirtualize(107)).toBe(true);
+  });
+
+  /*
+   * Ngưỡng từng là 40, nên cả thư viện đi qua nhánh ảo hoá. Đo lại thì ảo hoá làm việc cuộn TỆ
+   * ĐI ở cỡ này (27,7 ms mỗi khung so với 10,0 ms khi dựng thẳng), nên ngưỡng nâng lên 1000 và
+   * 107 công thức nay đi nhánh dựng thẳng.
+   *
+   * Chốt lại bằng ca kiểm chứ không bằng lời: hạ ngưỡng xuống dưới 107 là bật lại đúng đường đi
+   * đã đo là chậm hơn, và phải là một quyết định có người bấm chứ không phải một lần sửa hằng số.
+   */
+  it('thư viện 107 công thức nằm DƯỚI ngưỡng — dựng thẳng, đúng như đã đo', () => {
+    expect(shouldVirtualize(107)).toBe(false);
   });
 });
 

@@ -2,71 +2,908 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
-| Gói   | Nội dung                                            | Giờ WBS | Trạng thái                                   |
-| ----- | --------------------------------------------------- | ------- | -------------------------------------------- |
-| 1.1.1 | Repo + toolchain                                    | 3h00    | Xong (từ trước)                              |
-| 1.1.2 | CI/CD + hosting tĩnh                                | 3h30    | Xong (từ trước)                              |
-| 1.2.1 | Design token & primitive                            | 10h00   | Xong — đợt 1                                 |
-| 1.3.1 | FormulaRegistry: schema, bộ sinh, validator         | 7h00    | Xong — đợt 1                                 |
-| 1.3.2 | MarketConfig thuế & phí                             | 3h30    | Code xong — **số liệu chờ người đối chiếu**  |
-| 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                      | 4h00    | Xong — đợt 1                                 |
-| 1.4.1 | Routing, URL state & khung i18n                     | 5h30    | Xong — đợt 2, **trừ route động**             |
-| 1.4.2 | App shell & layout                                  | 2h00    | Xong — đợt 2                                 |
-| 2.1.1 | AppHeader · OfflineBanner · ModeToggle · LangSwitch | 10h00   | Xong — đợt 2                                 |
-| 2.1.2 | BottomTabBar                                        | 2h30    | Xong — đợt 2                                 |
-| 2.1.3 | DisclaimerBar                                       | 2h00    | Xong — đợt 2                                 |
-| 2.2.1 | SearchBox bỏ dấu                                    | 5h00    | Xong — đợt 3                                 |
-| 2.2.2 | CategoryFilter                                      | 3h30    | Xong — đợt 3                                 |
-| 2.2.3 | FormulaCard                                         | 3h00    | Xong — đợt 3                                 |
-| 2.3.1 | NumberInput — 5 trạng thái WF-16                    | 8h00    | Xong — đợt 5                                 |
-| 2.3.2 | SliderInput · ButtonGroup · RadioGroup              | 6h00    | Xong — đợt 5                                 |
-| 2.3.3 | SelectInput · Toggle · UnitSwitcher                 | 4h00    | Xong — đợt 5                                 |
-| 2.3.4 | LinkedInput                                         | 12h00   | Xong — đợt 5                                 |
-| 2.4.1 | ResultBlock                                         | 5h00    | Xong — đợt 5                                 |
-| 2.4.2 | ErrorState · InlineWarning                          | 5h00    | Xong — đợt 5                                 |
-| 2.4.3 | FormulaLatex (KaTeX)                                | 3h00    | **Hoãn** — chủ dự án chốt làm thật, chưa xếp |
-| 2.4.4 | ExplanationAccordion                                | 3h00    | Xong — đợt 5                                 |
-| 2.4.5 | VariableTable · ExampleBlock · SourceBlock          | 4h30    | Xong — đợt 5                                 |
-| 2.4.6 | FlowChain                                           | 6h00    | Xong — đợt 5                                 |
-| 2.4.7 | StatTile                                            | 2h00    | Xong — đợt 5 (WBS xếp "sau v0.2")            |
-| 2.5.1 | PresetSheet                                         | 6h00    | Xong — đợt 6, **số liệu mẫu là bản thảo**    |
-| 2.5.2 | PasteImportSheet                                    | 10h00   | Xong — đợt 6                                 |
-| 2.5.3 | ExportSheet                                         | 12h00   | Xong — đợt 6                                 |
-| 3.1.1 | HomePage — WF-01                                    | 6h00    | Xong — đợt 7                                 |
-| 3.1.2 | FormulaListPage — WF-02, có ảo hoá                  | 8h00    | Xong — đợt 7                                 |
-| 3.1.3 | SearchPage — WF-09 hai trạng thái                   | 7h00    | Xong — đợt 7                                 |
-| 3.2.1 | FormulaDetailBasic — WF-03                          | 7h00    | Xong — đợt 7                                 |
-| 3.2.2 | FormulaDetailAdvanced — WF-04                       | 10h00   | **Hoãn** — chờ chuỗi định giá gói 5.2.3      |
-| 3.2.3 | FeeTaxCalculator — WF-08                            | 9h00    | Xong — đợt 7                                 |
-| 3.2.4 | LoanScheduleScreen — WF-14                          | 8h00    | Xong — đợt 7                                 |
-| 5.1.2 | `fees.*` — 8 công thức phí & thuế                   | 11h12   | Xong — đợt 7 (kéo về sớm)                    |
-| 5.1.3 | `returns.*` — 4 / 13 công thức                      | ~3h30   | Một phần — đợt 7                             |
-| 5.1.4 | `personal.*` — 6 / 8 công thức                      | ~6h00   | Gần xong — đợt 7                             |
-| 5.2.2 | `valuation.multiples.*` — P/E, P/B                  | ~2h00   | Một phần — đợt 7 (kéo về sớm)                |
-| —     | Dựng lại WF-01 theo bản thiết kế hi-fi              | —       | Xong — đợt 8 (chủ dự án yêu cầu)             |
-| 3.3.1 | DataTableScreen — WF-05 bảng chuỗi giá OHLCV        | ~8h     | Xong — đợt 9                                 |
-| 3.4.1 | PortfolioScreen — WF-06 danh mục cá nhân            | ~8h     | Xong — đợt 9                                 |
-| —     | Dựng lại WF-08 và WF-14 theo bản thiết kế hi-fi     | —       | Xong — đợt 10 (chủ dự án yêu cầu)            |
-| —     | Tìm kiếm & lọc tại chỗ ở trang chủ                  | —       | Xong — đợt 11a (chủ dự án yêu cầu)           |
-| —     | Dựng lại ba bottom sheet theo hi-fi                 | —       | Xong — đợt 12 (chủ dự án yêu cầu)            |
-| 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot       | —       | Xong — đợt 12                                |
-| 3.6.1 | SettingsScreen — WF-13                              | ~6h     | Xong — đợt 12                                |
-| 3.6.2 | PWA — manifest + service worker                     | ~4h     | Xong — đợt 12, **biểu tượng PNG còn thiếu**  |
-| —     | Ô tìm không rơi ký tự khi gõ nhanh                  | —       | Xong — đợt 13                                |
-| —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát        | —       | Xong — đợt 13                                |
-| —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)         | —       | Xong — đợt 13                                |
-| —     | Dọn chất lượng phát hành sau kiểm kê                | —       | Xong — đợt 14                                |
-| 3.1.2 | /cong-thuc/ có HTML tĩnh thật cho Google            | —       | Xong — đợt 14                                |
-| —     | Sửa lỗi không bấm chuyển tab được (chỉ lúc dev)     | —       | Xong — xem mục ngay dưới                     |
-| 5.x   | Nối nốt 34 công thức chuỗi giá — **đủ 107/107**     | —       | Xong — xem mục "Đủ 107 công thức"            |
-| —     | Cửa gác chặn build khi dev server đang chạy         | —       | Xong — xem mục "lỗi khi click vào xem…"      |
-| 2.1.x | Nút quay lại cho ba màn trong (WF-03/05/09)         | —       | Xong — xem mục "Thêm đường ra khỏi màn…"     |
-| —     | Nút Cơ bản / Nâng cao lọc danh sách (FR-09 vế 2)    | —       | Xong — xem mục "Nút Nâng cao không đổi gì"   |
-| —     | Vẽ lại biểu tượng theo ảnh chủ dự án + dải màu      | —       | Xong — xem mục "Biểu tượng mới"              |
+| Gói   | Nội dung                                             | Giờ WBS | Trạng thái                                    |
+| ----- | ---------------------------------------------------- | ------- | --------------------------------------------- |
+| 1.1.1 | Repo + toolchain                                     | 3h00    | Xong (từ trước)                               |
+| 1.1.2 | CI/CD + hosting tĩnh                                 | 3h30    | Xong (từ trước)                               |
+| 1.2.1 | Design token & primitive                             | 10h00   | Xong — đợt 1                                  |
+| 1.3.1 | FormulaRegistry: schema, bộ sinh, validator          | 7h00    | Xong — đợt 1                                  |
+| 1.3.2 | MarketConfig thuế & phí                              | 3h30    | Code xong — **số liệu chờ người đối chiếu**   |
+| 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                       | 4h00    | Xong — đợt 1                                  |
+| 1.4.1 | Routing, URL state & khung i18n                      | 5h30    | Xong — đợt 2, **trừ route động**              |
+| 1.4.2 | App shell & layout                                   | 2h00    | Xong — đợt 2                                  |
+| 2.1.1 | AppHeader · OfflineBanner · ModeToggle · LangSwitch  | 10h00   | Xong — đợt 2                                  |
+| 2.1.2 | BottomTabBar                                         | 2h30    | Xong — đợt 2                                  |
+| 2.1.3 | DisclaimerBar                                        | 2h00    | Xong — đợt 2                                  |
+| 2.2.1 | SearchBox bỏ dấu                                     | 5h00    | Xong — đợt 3                                  |
+| 2.2.2 | CategoryFilter                                       | 3h30    | Xong — đợt 3                                  |
+| 2.2.3 | FormulaCard                                          | 3h00    | Xong — đợt 3                                  |
+| 2.3.1 | NumberInput — 5 trạng thái WF-16                     | 8h00    | Xong — đợt 5                                  |
+| 2.3.2 | SliderInput · ButtonGroup · RadioGroup               | 6h00    | Xong — đợt 5                                  |
+| 2.3.3 | SelectInput · Toggle · UnitSwitcher                  | 4h00    | Xong — đợt 5                                  |
+| 2.3.4 | LinkedInput                                          | 12h00   | Xong — đợt 5                                  |
+| 2.4.1 | ResultBlock                                          | 5h00    | Xong — đợt 5                                  |
+| 2.4.2 | ErrorState · InlineWarning                           | 5h00    | Xong — đợt 5                                  |
+| 2.4.3 | FormulaLatex (KaTeX)                                 | 3h00    | **Hoãn** — chủ dự án chốt làm thật, chưa xếp  |
+| 2.4.4 | ExplanationAccordion                                 | 3h00    | Xong — đợt 5                                  |
+| 2.4.5 | VariableTable · ExampleBlock · SourceBlock           | 4h30    | Xong — đợt 5                                  |
+| 2.4.6 | FlowChain                                            | 6h00    | Xong — đợt 5                                  |
+| 2.4.7 | StatTile                                             | 2h00    | Xong — đợt 5 (WBS xếp "sau v0.2")             |
+| 2.5.1 | PresetSheet                                          | 6h00    | Xong — đợt 6, **số liệu mẫu là bản thảo**     |
+| 2.5.2 | PasteImportSheet                                     | 10h00   | Xong — đợt 6                                  |
+| 2.5.3 | ExportSheet                                          | 12h00   | Xong — đợt 6                                  |
+| 3.1.1 | HomePage — WF-01                                     | 6h00    | Xong — đợt 7                                  |
+| 3.1.2 | FormulaListPage — WF-02, có ảo hoá                   | 8h00    | Xong — đợt 7                                  |
+| 3.1.3 | SearchPage — WF-09 hai trạng thái                    | 7h00    | Xong — đợt 7                                  |
+| 3.2.1 | FormulaDetailBasic — WF-03                           | 7h00    | Xong — đợt 7                                  |
+| 3.2.2 | FormulaDetailAdvanced — WF-04                        | 10h00   | **Hoãn** — chờ chuỗi định giá gói 5.2.3       |
+| 3.2.3 | FeeTaxCalculator — WF-08                             | 9h00    | Xong — đợt 7                                  |
+| 3.2.4 | LoanScheduleScreen — WF-14                           | 8h00    | Xong — đợt 7                                  |
+| 5.1.2 | `fees.*` — 8 công thức phí & thuế                    | 11h12   | Xong — đợt 7 (kéo về sớm)                     |
+| 5.1.3 | `returns.*` — 4 / 13 công thức                       | ~3h30   | Một phần — đợt 7                              |
+| 5.1.4 | `personal.*` — 6 / 8 công thức                       | ~6h00   | Gần xong — đợt 7                              |
+| 5.2.2 | `valuation.multiples.*` — P/E, P/B                   | ~2h00   | Một phần — đợt 7 (kéo về sớm)                 |
+| —     | Dựng lại WF-01 theo bản thiết kế hi-fi               | —       | Xong — đợt 8 (chủ dự án yêu cầu)              |
+| 3.3.1 | DataTableScreen — WF-05 bảng chuỗi giá OHLCV         | ~8h     | Xong — đợt 9                                  |
+| 3.4.1 | PortfolioScreen — WF-06 danh mục cá nhân             | ~8h     | Xong — đợt 9                                  |
+| —     | Dựng lại WF-08 và WF-14 theo bản thiết kế hi-fi      | —       | Xong — đợt 10 (chủ dự án yêu cầu)             |
+| —     | Tìm kiếm & lọc tại chỗ ở trang chủ                   | —       | Xong — đợt 11a (chủ dự án yêu cầu)            |
+| —     | Dựng lại ba bottom sheet theo hi-fi                  | —       | Xong — đợt 12 (chủ dự án yêu cầu)             |
+| 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot        | —       | Xong — đợt 12                                 |
+| 3.6.1 | SettingsScreen — WF-13                               | ~6h     | Xong — đợt 12                                 |
+| 3.6.2 | PWA — manifest + service worker                      | ~4h     | Xong — đợt 12, **biểu tượng PNG còn thiếu**   |
+| —     | Ô tìm không rơi ký tự khi gõ nhanh                   | —       | Xong — đợt 13                                 |
+| —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát         | —       | Xong — đợt 13                                 |
+| —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)          | —       | Xong — đợt 13                                 |
+| —     | Dọn chất lượng phát hành sau kiểm kê                 | —       | Xong — đợt 14                                 |
+| 3.1.2 | /cong-thuc/ có HTML tĩnh thật cho Google             | —       | Xong — đợt 14                                 |
+| —     | Sửa lỗi không bấm chuyển tab được (chỉ lúc dev)      | —       | Xong — xem mục ngay dưới                      |
+| 5.x   | Nối nốt 34 công thức chuỗi giá — **đủ 107/107**      | —       | Xong — xem mục "Đủ 107 công thức"             |
+| —     | Cửa gác chặn build khi dev server đang chạy          | —       | Xong — xem mục "lỗi khi click vào xem…"       |
+| 2.1.x | Nút quay lại cho ba màn trong (WF-03/05/09)          | —       | Xong — xem mục "Thêm đường ra khỏi màn…"      |
+| —     | Nút Cơ bản / Nâng cao lọc danh sách (FR-09 vế 2)     | —       | Xong — xem mục "Nút Nâng cao không đổi gì"    |
+| —     | Vẽ lại biểu tượng theo ảnh chủ dự án + dải màu       | —       | Xong — xem mục "Biểu tượng mới"               |
+| 4.0   | Dọn nền cho biểu đồ — sửa 3 bug, đo chunk nạp trễ    | ~5h     | Xong — xem mục "Đợt 0 của biểu đồ"            |
+| 4.1   | Đường quét độ nhạy cho nhóm Cơ bản — 50 công thức    | ~18h    | Xong — xem mục "Đợt 1 của biểu đồ"            |
+| 4.2   | Trục thời gian + nối dây bộ số liệu mẫu vào ô nhập   | ~14h    | Xong — xem mục "Đợt 2 của biểu đồ"            |
+| 2.3.2 | Thanh trượt gõ được số cụ thể + ví dụ đưa số lên ô   | ~6h     | Xong — xem mục "Cho gõ số cụ thể vào ô"       |
+| 4.3   | Mở biểu đồ cho 47 công thức còn lại — **phủ 97/107** | ~4h     | Xong — xem mục "Đợt 3 của biểu đồ"            |
+| 2.4.4 | Khối Giải thích luôn mở sẵn khi vào màn chi tiết     | —       | Xong — xem mục "Khối Giải thích… luôn mở sẵn" |
+| 4.4   | Nút phóng to biểu đồ toàn màn hình + xoay ngang      | ~5h     | Xong — xem mục "Phóng to biểu đồ"             |
 
 Cộng dồn: **231,7 giờ** trên tổng 623 giờ của bảng Estimate
 (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13).
 **Nhánh 3.1 xong trọn**; nhánh 3.2 xong ba trên bốn gói; nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Phóng to biểu đồ toàn màn hình
+
+### Yêu cầu
+
+> "thêm button chức năng phóng to biểu đồ sẽ nằm bên cạnh select lựa chọn xem kết quả đổi theo: khi
+> click vào button thì sẽ phóng to biểu đồ lên full màn hình điện thoại của người dùng, nếu biểu đồ
+> cần không gian để hiển thị thì xoay ngang màn hình của người dùng, lúc đó sẽ yêu cầu người dùng bật
+> xoay ngang để xem biểu đồ nhé."
+
+### Quyết định kỹ thuật đáng giải thích nhất: lớp phủ là cơ chế CHÍNH, Fullscreen API chỉ là phần thêm
+
+Cách hiển nhiên là `element.requestFullscreen()`. Nhưng **Safari trên iPhone không hỗ trợ
+`requestFullscreen` cho phần tử thường** — chỉ `<video>` mới vào được toàn màn hình. Dựa vào nó thì
+nút này chết hẳn trên iPhone, mà đó là phần lớn người dùng Việt Nam.
+
+Nên cơ chế chính là một `<dialog>` phủ kín khung nhìn (`inset: 0`, `100dvh`), chạy ở mọi máy. Fullscreen
+API và `screen.orientation.lock('landscape')` là **phần thêm best-effort**, gọi theo đúng thứ tự ấy vì
+Chrome trên Android đòi phải đang ở fullscreen mới cho khoá xoay. Cả hai đều bọc `catch`.
+
+Nhờ vậy hai câu yêu cầu của chủ dự án nối vào nhau thành một điều kiện duy nhất: khoá xoay ăn thì
+trình duyệt tự xoay ngang, `matchMedia('(orientation: portrait)')` thành `false`, câu nhắc tự biến
+mất. Không khoá được thì máy vẫn dọc và người dùng nhận đúng câu nhờ xoay tay, kèm cách bật khoá xoay.
+
+### Đã đổi file nào, vì sao
+
+| File                                | Đổi gì                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------- |
+| `src/ui/charts/ChartFullscreen.tsx` | **mới** — lớp phủ `<dialog>`, thử fullscreen + khoá xoay, câu nhờ xoay |
+| `src/ui/charts/ZoomButton.tsx`      | **mới** — nút "Phóng to", có chữ chứ không chỉ biểu tượng              |
+| `src/ui/charts/ChartFrame.tsx`      | thêm khe `action` cạnh `picker`, gói cả hai vào một hàng               |
+| `src/ui/charts/ChartBody.tsx`       | state `zoomed`, dựng ô chọn MỘT lần rồi dùng ở hai chỗ                 |
+| `src/ui/charts/LineChart.tsx`       | thêm prop `fill` — hình choán hết chỗ thay vì giữ tỉ lệ 16/10          |
+| `src/ui/charts/chart.module.css`    | hàng điều khiển, nút, lớp phủ, biến thể hình choán chỗ                 |
+| `src/application/i18n/vi.ts`        | 4 khoá mới                                                             |
+| `src/ui/charts/charts.test.tsx`     | +9 ca                                                                  |
+
+Bốn quyết định nhỏ, mỗi cái sửa một cái bẫy:
+
+- **Khe `action` riêng, không nhét nút vào `picker`.** `SweepPicker` tự trả `null` khi công thức chỉ
+  có một biến quét được, và nút phóng to phải CÒN ở đúng những công thức ấy. Có ca kiểm chốt bằng
+  `lai-suat-hieu-dung`.
+- **Ô chọn dựng một lần, dùng hai chỗ.** Nó không giữ state riêng — đọc `model.sweepKey`, bắn về
+  `setSweepKey` — nên ô trên trang và ô trong lớp phủ luôn nói cùng một biến. Cùng cách đã dùng cho
+  khối Ví dụ thực tế: hai chỗ hiện cùng con số vì chúng LÀ cùng con số.
+- **Nội dung lớp phủ chỉ dựng khi đang mở.** Để sẵn trong DOM là nhân đôi số thẻ SVG của cả 97 trang
+  chi tiết cho một thứ không ai xem. Ca kiểm đếm `path[data-points]` phải bằng 1 trước khi bấm.
+- **`100dvh` chứ không `100vh`.** `vh` trên điện thoại tính theo khung nhìn lúc thanh địa chỉ đã thu,
+  nên `100vh` đẩy đáy hộp xuống dưới mép màn và câu nhờ xoay bị thanh địa chỉ che.
+
+### Một chỗ suýt làm trắng cả màn
+
+Hàm dọn của effect gọi `screen.orientation.unlock()` và `document.exitFullscreen()`. Cả hai đều là
+thứ **có thể không tồn tại** — jsdom không có cái nào, iPhone không có khoá xoay. Đọc thẳng rồi gọi là
+ném `TypeError` ngay trong hàm dọn, mà lỗi ở đó React không hứng: người dùng bấm thoát phóng to và
+được một màn trắng. Nay cả hai đi qua `typeof` / optional chaining.
+
+Đây cũng là lý do bộ kiểm **chỉ vá `<dialog>.showModal()`** trong jsdom mà cố ý để Fullscreen API và
+`screen.orientation` vắng mặt: đó đúng là môi trường iPhone, nên nếu sau này ai viết lại phần này dựa
+vào `requestFullscreen()` thì các ca kiểm đỏ ngay.
+
+### Ngân sách — A/B trong cùng một worktree, chỉ khác nhau phần nối nút
+
+| Đo                                         | Chưa có phóng to | Có phóng to |    Chênh |
+| ------------------------------------------ | ---------------: | ----------: | -------: |
+| Trang nặng nhất theo JS (`loi-nhuan-rong`) |         154,8 kB |    155,7 kB | **+0,9** |
+| **Gói chung mọi trang đều tải**            |         130,4 kB |    130,4 kB |    **0** |
+| Chunk biểu đồ (nạp trễ, 97 trang)          |           7,7 kB |      8,5 kB |     +0,8 |
+
+Cửa kiểm 170 kB → **còn dư 14,3 kB**. Dưới xa trần 6 kB mỗi đợt tự đặt ở đợt 0.
+
+⚠ Không quote dòng "gói chung CSS" của báo cáo: nó nhảy 4,5 ↔ 8,6 kB giữa hai lượt build cùng một
+mã nguồn, nên đó là nhiễu của cách Next băm chunk CSS chứ không phải số đo. Cửa kiểm NFR-PER-04 tính
+theo First Load **JS**, và con số JS thì ổn định giữa các lượt.
+
+### Kiểm chứng
+
+- `npm run lint` · `typecheck` · `format:check` — sạch. **1.210 test xanh, 0 đỏ** (+11).
+- `next build` — 107 trang công thức. `verify:static` **19/19 đạt**.
+- Đọc HTML từ dev server đang chạy của chủ dự án: nút `chart_zoom` nằm **trong cùng thẻ**
+  `chart_controls` với `<select>` "Xem kết quả đổi theo", và `<dialog class="chart_full…">` có mặt ở
+  trạng thái đóng.
+
+### Còn lại
+
+- [ ] **Chưa kiểm trên máy thật.** Ba nhánh chỉ chạy được trên thiết bị: Android Chrome (fullscreen +
+      tự xoay ngang), iPhone Safari (lớp phủ + câu nhờ xoay tay), và máy Android đang bật khoá xoay
+      (câu hướng dẫn bật Xoay màn hình). jsdom chứng minh được nhánh "thiếu API", không chứng minh
+      được nhánh "có API và chạy đúng".
+- [ ] Người dùng thoát fullscreen bằng cử chỉ hệ thống thì lớp phủ vẫn ở đó — không hỏng gì (nó vẫn
+      phủ kín khung nhìn) nên chưa nghe `fullscreenchange`. Thêm sau nếu thấy khó chịu khi dùng thật.
+
+---
+
+## Khối Giải thích cho người mới — mở sẵn cả bốn mục khi vào màn
+
+### Yêu cầu
+
+Hai câu, câu sau siết lại phạm vi của câu trước:
+
+> "sửa lại phần Giải thích cho người mới sẽ luôn bật khi vào xem chi tiết công thức"
+>
+> "luôn bật các giải thích của các phần _Công thức này nói lên điều gì_ _Khi nào dùng_ _Cách đọc kết
+> quả_ _Sai lầm thường gặp_ khi vào phần công thức"
+
+Tôi đọc câu đầu là "mở mục đầu, bỏ điều kiện theo chế độ" và làm đúng thế, có ghi rõ trong bản trước
+của mục này rằng mở cả bốn là một chữ. Câu sau chốt: **mở hết bốn mục.**
+
+### Đã đổi file nào, vì sao
+
+| File                                            | Đổi gì                                                                    |
+| ----------------------------------------------- | ------------------------------------------------------------------------- |
+| `src/ui/result/ExplanationAccordion.tsx`        | prop `openFirst` → `defaultOpen`, `open={defaultOpen}` cho **cả bốn** mục |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`      | bỏ hẳn `openFirst={mode === 'basic'}`, không truyền prop nào              |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` | +2 ca (cả hai chế độ), +1 helper, dọn localStorage sau mỗi ca             |
+
+Ba bước đã đi qua, ghi lại để không ai vô tình cuộn về:
+
+1. Bản đầu **gập hết** ở chế độ Nâng cao cho gọn màn (FR-09).
+2. Bản giữa mở **mục đầu**, bỏ điều kiện theo chế độ.
+3. Nay mở **cả bốn**.
+
+Lý do xuyên suốt: FR-03 bắt buộc bốn mục ấy có mặt chính là để đọc, mà cả hai bản trước đều bắt người
+đọc phải bấm mới thấy. Vẫn dùng `<details>` chứ không đổi sang thẻ thường — người đọc **gập lại được**
+từng mục khi đã hiểu, và đó là chiều đúng: mặc định là thấy, thu gọn là lựa chọn.
+
+Đổi tên prop chứ không giữ `openFirst` với nghĩa mới: một prop tên "mở cái đầu" mà mở cả bốn là cái
+bẫy cho người đọc code sau này. `FormulaDetail` không truyền gì cả, nên chỗ gọi không còn điều kiện
+nào để về sau lệch với mặc định của component.
+
+### Hai chỗ ca kiểm dễ đỗ giả, phải xử riêng
+
+- **Nhãn bốn mục xuất hiện HAI lần trong DOM.** Vùng in của `ExportSheet` luôn có mặt (chỉ ẩn bằng
+  CSS) và nó dựng cùng bốn nhãn ấy thành `<h2>`. Truy vấn theo chữ trần khớp hai phần tử, nên helper
+  `mucGiaiThich()` lọc theo thẻ `SUMMARY` rồi mới lấy `<details>` cha.
+- **Ca chế độ Nâng cao phải tự chứng minh là đã vào chế độ đó.** `PreferencesProvider` đọc
+  localStorage trong effect, nên lần render đầu vẫn là Cơ bản. Nếu chỉ khẳng định `open === true` thì
+  ca đỗ ngay cả khi Provider chưa kịp đọc — vô nghĩa. Nên ca dùng `lai-kep` (có biến `perYear` khai
+  `level: 'advanced'`) và **chờ ô đó hiện ra trước**, lấy đó làm bằng chứng chế độ đã đổi thật.
+
+Thêm một điều đáng nói về cách dò: ca kiểm đọc thuộc tính `open` của `<details>`, **không** đọc chữ.
+Nội dung bốn mục nằm trong DOM cả khi gập, nên một ca bám vào chữ sẽ xanh ngay cả lúc khối gập kín.
+
+### Kiểm chứng
+
+- `npm run lint` · `typecheck` · `format:check` — sạch. **1.199 test xanh, 0 đỏ.**
+- Đọc HTML từ dev server đang chạy của chủ dự án: `pe` và `wacc` đều có **4** thẻ
+  `<details class="ExplanationAccordion…" open>`.
+
+---
+
+## Đợt 3 của biểu đồ — mở phạm vi cho 47 công thức còn lại
+
+### Yêu cầu
+
+> "bây giờ tiếp tục vẽ tiếp biểu đồ cho phần công thức chưa có biểu đồ"
+
+### Đo trước khi làm — việc nhỏ hơn kế hoạch dự tính rất nhiều
+
+Kế hoạch nhánh 4 xếp phần còn lại thành ba đợt (~39 giờ): candlestick · underwater · histogram, rồi
+stackedBar · waterfall, mỗi loại một renderer riêng. Trước khi viết dòng nào, chạy
+`buildChartModel()` trên **cả 107 công thức × 2 chế độ × có/không có chuỗi phiên** để xem Domain
+thật sự thiếu gì:
+
+| Đo gì                                                      | Kết quả         |
+| ---------------------------------------------------------- | --------------- |
+| Công thức không khai `chartType: 'none'`                   | 97              |
+| Trong đó Domain dựng được mô hình khi CÓ chuỗi giá         | **97 — tất cả** |
+| Ca ngoài dự kiến (không vẽ được vì lý do khác thiếu chuỗi) | **0**           |
+| Số phi hữu hạn hay nhãn lộ `NaN`/`undefined`               | **0**           |
+| Dựng chậm nhất một mô hình                                 | 18,8 ms         |
+
+Nghĩa là **động cơ vẽ đã xong từ đợt 1 và đợt 2**; thứ chặn 47 công thức chỉ là một vị từ ở tầng
+giao diện. Lý do phủ được rộng thế mà không cần renderer mới: giữa hai lối sinh điểm thì không công
+thức nào lọt. Đường quét độ nhạy chỉ đòi một biến vô hướng có `min`/`max` — 208 trên 209 biến của
+Registry đã khai sẵn. Đường theo thời gian chỉ đòi một chân giá hoặc một chuỗi cắt được tiền tố.
+
+Một chi tiết của phép đo đáng ghi lại vì nó gần làm tôi kết luận sai: lượt khảo sát đầu báo **8 công
+thức không vẽ được** (`loi-nhuan-rong`, `gia-hoa-von`, bốn công thức phái sinh, `thue-tncn-dau-tu`,
+`roi-rong`). Cả 8 đều mang cùng một câu: "Biểu phí đang chọn không có mức phí áp dụng tại ngày tra
+cứu". Nguyên nhân là **ctx của kịch bản khảo sát thiếu `schedule`**, không phải lỗi của sản phẩm —
+màn thật luôn truyền `scheduleOrDefault(MARKET_CONFIG, feeScheduleId)`. Thêm biểu phí vào thì cả 8
+ra đường ngay. Đây đúng cái bẫy mà comment ở đầu `chart.test.ts` đã ghi từ đợt 1.
+
+### Đã đổi file nào, vì sao
+
+| File                                              | Đổi gì                                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `src/ui/charts/FormulaChart.tsx`                  | `hasChart()` từ `sensitivity && basic` thành `chartType !== 'none'` — 1 dòng |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`        | bỏ nhánh khung chờ, khối biểu đồ còn một trạng thái                          |
+| `src/application/i18n/vi.ts`                      | xoá khoá `detail.chartPending` (mồ côi sau khi bỏ nhánh)                     |
+| `src/app/cong-thuc/[id]/FormulaDetail.module.css` | xoá `.chartSlot` — khung nét đứt không còn ai dựng                           |
+| `src/core/chart/build.ts`                         | phân biệt **dải khởi động** với **ngắt giữa** — xem mục dưới                 |
+| `src/core/chart/chart.test.ts`                    | thay ca chốt 50/43 bằng hai ca chốt phủ 63/34 và 97/10                       |
+| `src/core/chart/history.test.ts`                  | +5 ca: phủ 97 công thức × 2 chế độ, và 4 ca cho dải khởi động                |
+| `src/ui/charts/charts.test.tsx`                   | +8 ca: phạm vi `hasChart`, bốn họ mới, dải khởi động                         |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx`   | ca khung chờ thành ca vẽ thật; +1 ca luồng nạp mẫu cho công thức chuỗi       |
+
+Bốn họ vừa được phủ: **12** công thức `sensitivity` nhóm Nâng cao · **24** công thức cần chuỗi giá
+(`candlestick` 11, `histogram` 9, `underwater` 4 — trừ chồng lấn) · **10** công thức khai
+`stackedBar`/`waterfall` · **1** công thức `scatter`.
+
+### Dải khởi động không phải đường ngắt
+
+Đây là lỗi thật, không phải việc dọn dẹp. Với 34 công thức, mọi điểm `null` nằm liền một dải ở ĐẦU
+chuỗi phiên: RSI-14 không tồn tại ở phiên thứ 3, SMA-20 không tồn tại ở phiên thứ 5, VaR lịch sử đòi
+60 quan sát. Đó là **cách chỉ báo cuộn hoạt động**, không phải chỗ công thức sụp — nhưng bản trước
+gọi hết là _"Đường ngắt ở 59 phiên không tính được — thiếu chuỗi giá"_, đẩy người đọc đi tìm một sự
+cố không tồn tại.
+
+Nay câu mô tả nói: _"59 phiên đầu chưa đủ dữ liệu để tính, nên đường bắt đầu từ 26/03/2025."_ Và
+**bỏ hẳn dòng ghi chú** — vì không có gì để cảnh báo.
+
+Phép phân biệt hẹp có chủ đích, hai lớp:
+
+- Chỉ tính là khởi động khi **mọi** điểm `null` nằm liền một dải ở đầu. Một điểm `null` nằm sau một
+  phiên đã ra số là ngắt thật, và ghi chú phải còn — `he-so-bien-thien` đúng ca đó (lợi suất trung
+  bình đi qua 0), là công thức duy nhất trên toàn Registry.
+- Chỉ hỏi trên **trục thời gian**. Trên đường quét, dải null ở đầu không phải khởi động:
+  `co-lenh-rui-ro` có 18 mức đầu không ra số vì công thức không có nghĩa ở dải đó, chứ không vì
+  thiếu phiên — bảo người đọc "18 mức đầu chưa đủ dữ liệu" là nói sai nguyên nhân. Ca kiểm chốt cả
+  hai chiều.
+
+### Mười công thức `chartType: 'none'` — cố ý ở ngoài
+
+Không mở phạm vi tới chúng, và đó là ý nghĩa của nhãn ấy chứ không phải việc còn nợ: phí giao dịch
+bằng giá × khối lượng × tỉ lệ, nên đường quét của nó là một đoạn thẳng người đọc đoán trước được.
+
+Có ghi nhận khi khảo sát: **4 trong 10 cái đó vẫn dựng được mô hình** (`rut-truoc-han`,
+`gia-von-trung-binh-dca`, `loi-suat-vuot-chuan`, `basis-vn30f`), và hai cái đầu có 4–6 biến quét được
+nên biểu đồ của chúng sẽ không tầm thường. **Không tự đổi** — sửa `chartType` là sửa Registry, và
+đợt 0 đã đổi nhãn cho 4 công thức gắn sai thật; đây là bốn ca ranh giới cần chủ dự án quyết. Muốn mở
+thì đổi `chartType` của công thức ấy, không nới vị từ `hasChart()`.
+
+### Ngân sách — A/B trong cùng một môi trường, và lần này khớp số tuyệt đối
+
+Cổng 3000 vẫn có dev server của chủ dự án nên `check-no-dev.mjs` chặn build ở repo chính. Dựng
+worktree tạm (`node_modules` nối bằng junction), phủ toàn bộ cây làm việc lên đó, rồi build **hai
+lượt chỉ khác nhau đúng một dòng vị từ**:
+
+| Đo trong cùng worktree                          | 51 trang | 97 trang |  Chênh |
+| ----------------------------------------------- | -------: | -------: | -----: |
+| Trang nặng nhất theo JS (`loi-nhuan-rong`)      | 154,5 kB | 154,5 kB |  **0** |
+| **Gói chung mọi trang đều tải**                 | 130,3 kB | 130,3 kB |  **0** |
+| `lich-tra-no` — trang gánh cả hai chunk nạp trễ |        — | 154,2 kB | +6,0\* |
+| Số trang chi tiết tải chunk biểu đồ             |       51 |       97 |    +46 |
+
+\* `lich-tra-no` khai `stackedBar` nên trước đây không có biểu đồ; nay nó tải cả `DetailBody` của
+WF-14 lẫn chunk biểu đồ, thành trang nặng thứ hai. Vẫn dưới trang nặng nhất, và **cửa kiểm 170 kB
+còn dư 15,5 kB**.
+
+Đọc ra hai điều: **trang nặng nhất không nhích một byte** (nó đã có biểu đồ từ đợt 1), và gói chung
+vẫn đứng yên — bất biến quan trọng nhất của nhánh 4, kiểm bằng A/B chứ không bằng suy luận.
+
+Khác đợt 2 ở một chỗ đáng mừng: lần đó worktree phồng gói chung lên 161,1 kB nên chỉ dùng được phần
+chênh. Lần này worktree cho **130,3 kB**, khớp con số repo chính, và 154,5 kB nối liền mạch với
+153,7 kB đo được ở đợt 1 cộng ~0,9 kB của đợt 2. Nên số tuyệt đối lần này dùng được.
+
+### Kiểm chứng
+
+- `npm run lint` · `typecheck` · `format:check` — sạch.
+- **1.197 test xanh, 0 đỏ** (trước đợt: 1.182 + 5 đỏ baseline; 5 ca `VIRTUALIZE_THRESHOLD` đã được
+  sửa giữa hai đợt, xem mục "Còn lại" của đợt trước).
+- `next build` — 107 trang công thức, 114 trang tĩnh. `verify:static` **19/19 đạt**.
+- Kiểm trên dev server đang chạy của chủ dự án (chỉ đọc, không tắt tiến trình nào):
+
+| Trang               | Nhãn                  | Khối biểu đồ | `<figure>` | Đúng chưa                           |
+| ------------------- | --------------------- | ------------ | ---------- | ----------------------------------- |
+| `wacc`              | sensitivity, nâng cao | có           | có         | vẽ "WACC theo Chi phí vốn chủ (Re)" |
+| `fcff`              | waterfall             | có           | có         | nhận đường quét thay vì bỏ trống    |
+| `sma-n-phien`       | candlestick           | có           | không      | đúng — hiện cảnh báo chờ chuỗi giá  |
+| `var-lich-su`       | histogram             | có           | không      | đúng — hiện cảnh báo chờ chuỗi giá  |
+| `phi-giao-dich-mua` | none                  | **không**    | không      | đúng — không dựng khối nào          |
+
+### Còn lại
+
+- [ ] **Renderer riêng cho `stackedBar` và `waterfall`** (10 công thức) vẫn là việc thật. Chúng đang
+      nhận đường quét độ nhạy — một biểu đồ ĐÚNG, chỉ chưa phải biểu đồ lý tưởng. Không tự sinh được:
+      không metadata nào nói "thác nước của FCFF gồm những chặng nào theo thứ tự nào", `extras` là
+      các khoá rời rạc không thứ tự. Cần thêm field `breakdown?` vào `FormulaSpec` và bổ sung
+      `extras` trong `calc` của 10 công thức, cộng 3–4 token màu categorical.
+- [ ] **Nhiều đường trên một hình** cho nhóm chỉ báo: `extras` đã có sẵn `duongGiua`, `smaShort`
+      /`smaLong`, `emaFast`/`emaSlow`, `macd`/`histogram`, `peak`/`lastClose` — vẽ MACD cùng đường tín
+      hiệu trên một hình sẽ hơn hẳn hai trang riêng. `ChartModel` cần thêm nhánh `lines`.
+- [ ] **4 công thức `chartType: 'none'` ranh giới** ở mục trên — chờ chủ dự án quyết có mở không.
+- [ ] `npm run build && npm run size` trong repo chính để chốt con số tuyệt đối bằng chính môi trường
+      của cửa kiểm. Cần tắt dev server ở cổng 3000 trước.
+- [ ] Nợ cũ chưa liên quan đợt này: 8 dòng báo cáo chưa suy ra được (chờ số liệu Finbox), nguồn dữ
+      liệu cho mã ngoài 4 mã mẫu, gói 2.4.3 KaTeX và 3.2.2 WF-04.
+
+---
+
+## Cho gõ số cụ thể vào ô — thanh trượt và khối Ví dụ thực tế
+
+### Yêu cầu
+
+> "một số công thức basic khi test thì thấy người dùng chưa tự nhập được số liệu cụ thể mà người
+> dùng mong muốn. ví dụ: người dùng sẽ lấy thông số thật của ticker bên finbox_v2 và nhập vào các ô
+> để biểu đồ hiển thị cho người dùng hiểu (đó là cách biểu đồ hoạt động). và thêm nữa là ở phần dưới
+> cùng cũng đang có Ví dụ thực tế: nên cho người dùng nhập số liệu cụ thể như tôi nói."
+
+### Đo trước khi sửa — rào không nằm ở chỗ tôi đoán ban đầu
+
+Rà cả ba đường có thể chặn người dùng nhập số:
+
+| Rào                                       | Số công thức nhóm Cơ bản | Kết luận                 |
+| ----------------------------------------- | -----------------------: | ------------------------ |
+| **Thanh trượt — kéo được, KHÔNG gõ được** |              **39 / 78** | Đây là rào thật, đã sửa  |
+| Biến nâng cao bị ẩn ở chế độ Cơ bản       |                        3 | Đã có lối đi, không sửa  |
+| Biến rời rạc (chọn một trong vài giá trị) |                   6 biến | Rời rạc là đúng bản chất |
+
+Toàn Registry có **97 biến kiểu `slider`**, và trước đợt này con số cạnh nhãn chỉ là một `<output>`
+để đọc. Nghĩa là cách duy nhất nhập chúng là kéo, mà kéo thì bám lưới `step`:
+
+- lãi suất bước 0,1% → không kéo tới được 12,37%
+- `k` của dải Bollinger bước 0,5 → không kéo tới được 2,1
+- **khoản vay của `tra-gop-nien-kim` bước 10.000.000 ₫** → không nhập được khoản vay
+  1.234.000.000 ₫; chỉ chọn được bội số của mười triệu
+
+Đúng là "lấy thông số thật của ticker rồi nhập vào" thì không nhập được. **23 trên 50 công thức có
+biểu đồ** nằm trong nhóm này, nên biểu đồ cũng vẽ theo một con số không phải con số người dùng muốn.
+
+Hai rào còn lại KHÔNG sửa, và lý do ghi lại để đợt sau không mở ra làm lại:
+
+- Ba công thức ẩn một biến nâng cao (`eps-co-ban.preferredDividend`, `lai-kep.perYear`,
+  `rut-truoc-han.demandRate`). Dòng nhắc đã ghi "biến nâng cao đang ẩn — chuyển chế độ để xem", và
+  `ModeToggle` nằm trong `AppHeader` nên có trên mọi màn. Lối đi có sẵn.
+- Sáu biến rời rạc (số kỳ ghép lãi, mức tin cậy VaR, phương pháp trả nợ) chỉ có vài giá trị hợp lệ
+  về mặt tài chính — cho gõ tự do là mời người dùng nhập một giá trị vô nghĩa.
+
+⚠ Ghi lại một điểm lệch trong Domain, **không sửa ở đợt này**: `isLockedForMode()` ghi rõ theo WF-16
+trạng thái 5 là biến nâng cao bị **khoá chứ không bị ẩn**, nhưng `FormulaDetail` lại lọc chúng đi
+bằng `variablesForLevel()`. Nên trạng thái 5 không bao giờ hiện ra trên màn chi tiết — nó chỉ còn
+dùng được ở thanh trượt và ô số khi có ai truyền `mode='basic'` cho một biến nâng cao. Đổi chuyện
+này là đổi hành vi FR-09 vế 2 đã chốt, nên cần chủ dự án quyết.
+
+### Đã đổi file nào, vì sao
+
+| File                                    | Sửa gì                                                                                                                                                                                                                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/inputs/SliderInput.tsx`         | `<output>` cạnh nhãn thành **ô nhập thật**, đứng đúng vị trí cũ. Gõ đi qua `commitValue()` nên vẫn kẹp về `[min, max]` nhưng **không bám lưới `step`** — bước là độ phân giải của ngón tay, miền mới là luật. Kéo thì vẫn `snapToStep` như cũ.                            |
+| `src/ui/inputs/SliderInput.module.css`  | Ô giữ đúng dáng cũ của WF-16 (số đậm màu nhấn, dính sát đơn vị), chỉ hiện viền khi có tiêu điểm. Bề rộng ghim 14 ký tự — vừa giá trị dài nhất Registry có là 2.000.000.000 ₫; ghim chứ không co giãn theo nội dung, kẻo bố cục nhích từng phím.                           |
+| `src/ui/inputs/InlineNumber.tsx`        | **Mới.** Ô gõ số gọn, không nhãn — **một chỗ duy nhất** cầm quy tắc "gõ số" của dự án. `SliderInput` và `ExampleBlock` đều dùng nó, nên không có ba bản chép tay của cùng logic. `NumberInput` giữ bản riêng vì nó phải vẽ đủ năm trạng thái WF-16 qua primitive `Input`. |
+| `src/ui/result/ExampleBlock.tsx`        | Dòng số của ví dụ thành **ô gõ được tại chỗ**. Thêm dòng "Ví dụ gốc" kèm nút quay về, chỉ hiện khi số đang nhập đã lệch khỏi ví dụ. Không truyền `inputs`/`onChange` thì khối vẫn chỉ để đọc như trước.                                                                   |
+| `src/ui/result/ExampleBlock.module.css` | Vùng "Ví dụ gốc" tách bằng đường kẻ.                                                                                                                                                                                                                                      |
+| `FormulaDetail.tsx`                     | Truyền thẳng `inputs`, `output`, `setValue` xuống khối ví dụ. Hai khối Số liệu và Ví dụ thành **vùng có tên** qua `aria-labelledby`.                                                                                                                                      |
+| `src/application/i18n/vi.ts`            | `example.editHint`, `example.original`, `example.reset`.                                                                                                                                                                                                                  |
+
+### Thanh trượt không được nói khác ô nhập
+
+Chỗ dễ sai nhất, và nó là chi tiết của HTML chứ không phải của dự án: **thẻ `range` tự làm tròn
+`value` về bội của `step`**. Để `step="0.1"` mà giá trị là 12,37 thì nút kéo hiện ở 12,4 trong khi
+phép tính chạy 12,37 — hai điều khiển trên cùng một hàng nói hai con số.
+
+Nên `step` của thanh trượt hạ xuống `"any"` **khi và chỉ khi** giá trị lệch lưới. Lúc đã nằm đúng
+lưới (tức mọi lúc trước khi ai gõ, và ngay sau mỗi cú kéo) thì giữ nguyên `step`, nhờ vậy phím mũi
+tên và cú kéo vẫn nhảy theo bước đúng như cũ. Và vì handler kéo vẫn `snapToStep`, một cú kéo sau khi
+gõ số lệch lưới sẽ tự đưa giá trị về lưới — tự lành, không cần ai dọn.
+
+Về khả năng tiếp cận: nhãn nhìn thấy trỏ vào **ô nhập**, thanh trượt dùng lại đúng nhãn ấy qua
+`aria-labelledby`. Hai điều khiển cùng một tên là đúng — chúng sửa cùng một con số — và trình đọc
+màn hình phân biệt được bằng **vai**: một cái `slider`, một cái `textbox`. Test cũng bám vào vai
+(`getByRole`) chứ không bám nhãn, nên không có ca nào mơ hồ.
+
+### Khối Ví dụ thực tế gõ được tại chỗ
+
+Khối này bày một bộ số hoàn chỉnh đã tính sẵn ("FPT — Giá 92.000 ₫, EPS 6.050 ₫ → P/E ≈ 15,2 lần")
+nhưng là ngõ cụt: người đọc phải tự cuộn lên gõ lại từng ô mới thấy biểu đồ vẽ theo bộ số ấy.
+
+**Ghi lại một lần tôi làm thiếu.** Bản đầu tôi chỉ thêm một NÚT "đưa số này lên ô nhập", vì lo "hai
+bộ ô trên cùng một màn thì có ngày nói hai kết quả". Chủ dự án nhắc lại là muốn gõ được tại chỗ, nên
+làm đúng yêu cầu — và cái lo ngại ấy giải được bằng thiết kế, không cần đánh đổi:
+
+**Ô ở khối Ví dụ KHÔNG giữ state riêng.** Chúng đọc `inputs` và bắn `onChange` của chính màn chi
+tiết, tức cùng một biến state với ô ở khối Số liệu. Gõ ở đây hay gõ ở trên là một việc; hai chỗ luôn
+hiện cùng con số vì chúng **LÀ** cùng con số, không phải hai bản sao có ngày lệch nhau. Test chốt cả
+hai chiều: gõ dưới thì ô trên đổi, gõ trên thì ô dưới đổi.
+
+Còn con số của ví dụ trong Registry vẫn phải giữ được — nó là tài liệu (FR-02), và **17 trên 107
+công thức có ví dụ cố ý dùng chu kỳ ngắn hơn mặc định** để tính tay kiểm được (Bollinger 10 phiên
+thay vì 20, ATR 5 thay vì 14…). Với chúng, mở màn ra là số đang nhập đã lệch khỏi ví dụ. Nên khi
+lệch, khối hiện thêm dòng "Ví dụ gốc cho: …" kèm nút quay về. **Không bao giờ có hai con số cùng
+đứng mà không nói rõ cái nào là cái nào.**
+
+### Hai khối thành vùng có tên
+
+Hệ quả trực tiếp của việc bày cùng một giá trị ở hai chỗ: ô hai bên mang **cùng một tên**. Đó là
+đúng nghĩa — một con số thì một tên — nhưng người dùng cần biết mình đang gõ ở đâu. Nên khối Số liệu
+và khối Ví dụ đều nhận `aria-labelledby` trỏ vào `<h2>` của mình, thành **vùng có tên**: trình đọc
+màn hình đọc "Số liệu" hay "Ví dụ thực tế" khi bước vào, rồi mới tới tên ô.
+
+Việc này cũng dọn luôn phần test: mọi truy vấn ô nhập đi qua hai helper `oNhap()` và `oViDu()` khoanh
+đúng vùng, thay cho `getByLabelText` toàn màn. Ca kiểm phân biệt bằng đúng thứ người dùng phân biệt.
+
+### Kiểm chứng
+
+- `npm run check` sạch cả bốn cửa. **1.182 test xanh, 0 đỏ** (trước đợt này 1.139 xanh + 5 đỏ).
+- `npm run verify:static` 19/19 đạt — nhưng nó đọc `out/` của đợt 1, chưa dựng lại.
+- Test mới: `SliderInput.test.tsx` (16 ca, file này trước đây **không có test nào**),
+  `ExampleBlock.test.tsx` (11 ca), cộng 8 ca luồng thật ở `FormulaDetail.test.tsx`.
+- Ba ca quét cả 107 công thức đáng nhắc: `example.inputs` **khớp trọn khoá biến và nằm sẵn trong
+  miền** (lệch khoá thì ô im lặng rơi về chữ chỉ để đọc — không lỗi, không hiện gì, người dùng chỉ
+  thấy một dòng không gõ được); ví dụ **điền trọn mọi ô**; và **mọi công thức dựng đủ số ô gõ được**,
+  không sót dòng nào thành chữ chết.
+
+### Một ca cũ phải nới hạn thời gian
+
+`đúng 34 công thức có nút dán chuỗi` dựng **trọn 107 màn chi tiết** trong một vòng lặp. Chạy riêng
+mất ~3,3 giây, nhưng khi vitest chạy song song nhiều file thì các worker giành CPU và nó lên hơn 5
+giây — đỏ vì máy đang bận, không vì sản phẩm sai. Ô nhập mới làm mỗi lượt dựng nặng thêm một chút,
+đủ đẩy nó qua vạch. Nới hạn cho **đúng ca đó** lên 15 giây, không nới toàn cục: mọi ca khác vẫn nên
+hỏng nếu chậm bất thường.
+
+### Còn lại
+
+- [x] ~~5 test đỏ baseline của `VIRTUALIZE_THRESHOLD`~~ — **đã có người sửa**, buộc ca kiểm vào
+      `VIRTUALIZE_THRESHOLD + 1` thay cho số 107 viết cứng. Không phải việc của đợt này.
+- [ ] Chạy `npm run build && npm run size` trong repo chính để chốt con số tuyệt đối của cả đợt 2 và
+      đợt này. Cần tắt dev server ở cổng 3000 trước.
+- [ ] Điểm lệch WF-16 trạng thái 5 nêu ở trên — chờ chủ dự án quyết.
+
+---
+
+## Đợt 2 của biểu đồ — trục thời gian, và nối dây bộ số liệu mẫu
+
+### Yêu cầu
+
+> "hiện tại nếu muốn xem trực quan hơn khi thay số liệu ở ngoài vào để biểu đồ thể hiện rõ trực quan
+> hơn với công thức thì có được không. hoặc có thể điền một mã tồn tại và sẽ có những dữ liệu trực
+> quan của mã đó rồi biểu đồ được vẽ theo số liệu tương ứng của mã đó để người dễ hiểu hơn được không"
+
+Chủ dự án chốt qua câu hỏi chọn: **trục thời gian + nối dây preset**, và `Fundamentals` chỉ mở rộng
+**phần suy ra được bằng phép nhân** — không thêm dòng báo cáo tự đặt nào.
+
+### Đo trước khi làm
+
+Ô nhập mã đã có sẵn từ gói 2.5.1 (`PresetSheet` gọi `SAMPLE_DATA.search`, tìm theo mã lẫn tên, bỏ
+dấu). Nghẽn không nằm ở chỗ nhập mã, mà ở chỗ **nạp mã vào thì phần lớn ô không đổi**:
+
+| Trong 50 công thức Cơ bản có biểu đồ          | Trước | Sau |
+| --------------------------------------------- | ----: | --: |
+| Preset điền được ít nhất một ô                |    14 |  21 |
+| Preset điền được **trọn** mọi ô               |     6 |   9 |
+| Không mã nào điền thay được (tiền & giả định) |    25 |  25 |
+
+25 công thức cuối — lãi kép, CAGR, lãi lỗ phái sinh, chu kỳ chỉ báo — nhận vốn và giả định của
+chính người dùng, nên `presetInputs()` trả về object rỗng và **đó là câu trả lời đúng**, không phải
+thiếu sót. Ghi lại để đợt sau không ai đi "phủ cho đủ 50".
+
+### Hai bug thật tìm được khi đo
+
+1. **Vốn hoá thị trường ra số sai lặng lẽ.** Registry có hai khoá cho số cổ phiếu với hai đơn vị
+   khác nhau: `shares` bằng **triệu CP** (nhóm Định giá, mặc định 118) và `sharesOutstanding` bằng
+   **CP** (nhóm Chỉ số doanh nghiệp, mặc định 1.470.000.000). Bảng ánh xạ cũ trong `FormulaDetail`
+   không điền khoá nào trong hai khoá đó, nên nạp FPT xong vốn hoá = giá FPT × 118 triệu CP mặc
+   định — **sai hơn 12 lần**, mà trên màn không có gì nói là đã sai.
+2. **Ý định có từ đầu nhưng dây chưa nối.** `fundamentals.ts:17-18` ghi rõ "đặt key trùng đúng
+   trường của `Fundamentals` để nút Nạp mẫu tự điền được", nhưng `Fundamentals` chỉ có 5 trường
+   trong khi nhóm ấy cần `netIncome`, `equity`, `sharesOutstanding`.
+
+### Đã đổi file nào, vì sao
+
+**Tầng Data — nối dây preset**
+
+| File                        | Sửa gì                                                                                                                                                                                                                                                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/data/types.ts`         | `Fundamentals` thêm `netIncome` và `equity`, đơn vị **tỷ ₫** khớp `numberVar(…, 'tỷ ₫')` bên Domain. JSDoc nói rõ: bộ mẫu suy ra bằng phép nhân, nguồn thật phải đọc từ báo cáo vì EPS công bố tính trên số CP bình quân gia quyền nên lợi nhuận thật KHÔNG bằng đúng tích ấy.                   |
+| `src/data/samples.ts`       | `wholeCompany()` suy hai trường từ `eps × số CP` và `bvps × số CP`. **Không thêm một con số tự đặt nào** — bộ mẫu vốn đã bịa EPS và BVPS, nhân lên chỉ nói lại cùng một điều bằng đơn vị khác. Kiểm chứng: FPT ra 8.893,5 tỷ ₫, khớp mức 8.894 mà `fundamentals.ts` đã dựng bộ số kiểm quanh nó. |
+| `src/data/preset-inputs.ts` | **Mới.** `presetInputs(preset, spec)` — bảng ánh xạ chuyển từ `FormulaDetail.tsx` xuống đây. Đơn vị là phần dễ sai nhất nên `shares` chia 1e6, `sharesOutstanding` giữ nguyên, và cả hai bị test khoá lại.                                                                                       |
+| `src/data/index.ts`         | Mở `presetFillableKeys`, `presetInputs`.                                                                                                                                                                                                                                                         |
+| `src/application/index.ts`  | Mở `presetInputs` cho tầng giao diện.                                                                                                                                                                                                                                                            |
+| `FormulaDetail.tsx`         | `applyPreset()` gọi `presetInputs()` thay cho bảng viết cứng 9 dòng. Giảm 20 dòng ở tầng PRESENTATION, và giờ kiểm được bằng Node cho cả 107 công thức.                                                                                                                                          |
+
+**Tầng Domain — trục thời gian**
+
+| File                        | Sửa gì                                                                                                                                                                                                                                                                                                   |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/chart/history.ts` | **Mới.** Hai lối sinh điểm theo phiên: **chân giá** (thay ô giá bằng giá đóng cửa từng phiên) và **cắt tiền tố** (chạy lại công thức với chuỗi cắt tới đúng phiên đó). `formatSessionDate` cắt chuỗi ISO chứ không qua `new Date()` — `new Date('2025-12-31').getDate()` trên máy múi giờ âm trả về 30.  |
+| `src/core/chart/build.ts`   | Trục thời gian là **một mục trong ô chọn trục X đã có**, không phải loại biểu đồ mới → `ChartBody` và `SweepPicker` không phải sửa một dòng. Thêm trục `'Ngày'` dựng tay (không dùng `niceAxis`: nó làm tròn ra vạch ở phiên 250, một phiên không tồn tại). Có dữ liệu thì **mặc định** vẽ theo dữ liệu. |
+| `src/core/chart/table.ts`   | `condensePoints` giữ **hai đầu mỗi quãng `null`** thay vì mọi điểm `null`. Luật cũ đúng cho 42 mức nhưng đường thời gian phơi ngay chỗ hỏng: RSI-14 có 14 phiên đầu `null`, luật cũ đẩy 14 dòng "— , —" giống hệt lên đầu bảng rồi dồn 234 phiên có số thật vào đúng một dòng cuối.                      |
+| `src/ui/charts/*`           | `ChartBody` + `FormulaChart` thêm `seriesLabel` để câu mô tả nói rõ vẽ theo phiên của mã nào.                                                                                                                                                                                                            |
+
+### Quy tắc hai chân giá — chỗ ý nghĩa tự đúng mà không cần metadata
+
+- chân _giá hiện tại_ → giá đóng cửa từng phiên: `price`, `sellPrice`, `endPrice`
+- chân _giá vào_ → **giữ nguyên** giá người dùng nhập: `buyPrice`, `startPrice`, `entryPrice`
+
+Nhờ vậy `loi-nhuan-rong` thành "lãi lỗ của tôi qua từng phiên nếu mua ở giá đã nhập", `hpr` thành
+"lợi suất kể từ giá khởi điểm". Công thức chỉ có chân vào (`gia-hoa-von`, `co-lenh-rui-ro`) **tự
+loại mình**. Nếu thay bừa mọi ô có chữ "giá" thì mua và bán cùng một giá ở mọi phiên → đường lãi lỗ
+phẳng bằng 0, tức vẽ ra một điều sai. `history.test.ts` có ca riêng phân biệt hai cách làm.
+
+Cùng quy tắc ấy dùng lại ở `presetInputs`: chân vào lấy phiên **đầu** chuỗi, chân hiện tại lấy phiên
+**cuối** — nạp mẫu thành "mua đầu kỳ, bán phiên gần nhất" chứ không phải mua bán cùng giá ra 0%.
+
+### Phủ và chi phí — số đo thật
+
+| Đo gì                                  | Kết quả                                                  |
+| -------------------------------------- | -------------------------------------------------------- |
+| Vẽ theo thời gian được — nhóm Cơ bản   | **18/50** (11 chân giá + 7 cắt tiền tố)                  |
+| Vẽ theo thời gian được — toàn Registry | **49/107**                                               |
+| P/E của FPT qua 248 phiên              | 248/248 phiên ra số · **0,17 ms**                        |
+| RSI theo từng phiên (cắt tiền tố)      | 234/248 ra số, 14 phiên đầu đúng ra `null` · **1,76 ms** |
+| NFR-PER-02 cho phép                    | 100 ms                                                   |
+
+Không debounce, không worker, không rAF — `useMemo` là đủ.
+
+### Ngân sách — đo bằng A/B trong cùng một môi trường
+
+Cổng 3000 đang có dev server của chủ dự án (PID 28124), mà `check-no-dev.mjs` chặn build vì
+`next build` xoá rồi tạo lại `.next/` và làm dev server hỏng hẳn. Không tắt tiến trình của người
+khác, nên dựng **worktree tạm** (`git worktree add --detach`, `node_modules` nối bằng junction) rồi
+build hai lượt trong đó: một lượt HEAD sạch, một lượt có đủ đợt 0+1+2.
+
+| Đo trong worktree                    | HEAD sạch | + đợt 0/1/2 |    Chênh |
+| ------------------------------------ | --------: | ----------: | -------: |
+| Trang nặng nhất (`loi-nhuan-rong`)   |  179,3 kB |    185,4 kB | **+6,1** |
+| **Gói chung mọi trang đều tải**      |  161,1 kB |    161,1 kB |    **0** |
+| Chunk biểu đồ (đợt 1 đo được 5,1 kB) |         — |      5,9 kB | **+0,8** |
+
+Hai điều đọc ra:
+
+- **Gói chung không nhích một byte** → không có gì rò vào bundle mà cả 117 trang phải tải. Đây là
+  bất biến quan trọng nhất của nhánh 4 và nó được kiểm bằng A/B, không phải bằng suy luận.
+- Đợt 1 đã đo được +5,2 kB, nên **đợt 2 tốn khoảng +0,9 kB** — dưới xa trần 6 kB/đợt tự đặt ở đợt 0.
+
+⚠ **Con số TUYỆT ĐỐI của bảng trên không so được với cửa kiểm 170 kB.** Cùng một commit, `out/` cũ
+trong repo chính cho gói chung 130,5 kB còn worktree cho 161,1 kB — chênh 30,6 kB do môi trường
+build (junction `node_modules`, `.next/cache` lạnh), tôi chưa truy ra nguyên nhân. Suy ra thì
+153,7 + 0,9 ≈ **154,6 kB**, vẫn dư ~15 kB, nhưng **đó là số suy chứ không phải số đo**.
+
+### Còn lại
+
+- [ ] **Chạy `npm run build && npm run size` trong repo chính để chốt con số tuyệt đối.** Cần chủ dự
+      án tắt dev server ở cổng 3000 trước.
+- [ ] `npm run verify:static` chưa chạy lại — `out/` hiện tại là bản build của đợt 1.
+- [ ] 5 test đỏ baseline của `VIRTUALIZE_THRESHOLD` (xem mục "Đợt 1") vẫn chờ quyết định, **không
+      phải do đợt này**.
+- [ ] `ps` cần `salesPerShare`, `roa`/`bien-loi-nhuan-*`/`thanh-toan-*`/`vong-quay-*` cần doanh thu,
+      tổng tài sản, tài sản & nợ ngắn hạn, tồn kho — **không suy ra được**, chờ số liệu thật của
+      Finbox (giả định A1, rủi ro R-01). Thêm 8 dòng đó vào `Fundamentals` sẽ nâng "điền một phần"
+      từ 21 lên 25.
+- [ ] Muốn tra **mã ngoài 4 mã mẫu**: không có backend nên đường khả thi là JSON tĩnh mỗi mã
+      (`fetch('/du-lieu/FPT.json')`) — đo được 22 kB thô/mã, 12 kB dạng mảng gọn, **không chạm cửa
+      kiểm vì không phải JS**. Gọi API bên thứ ba thì khoá API nằm trong JS máy khách của bản tĩnh,
+      không giấu được, cộng bản quyền dữ liệu thị trường VN. Cần chủ dự án quyết nguồn dữ liệu.
+
+### Kiểm chứng
+
+- `npm run check` — lint sạch, typecheck sạch, prettier sạch.
+- **1.139 test xanh** (đợt 1: 1.081 → +58), đúng 5 đỏ baseline cũ.
+- Test mới: `src/data/preset-inputs.test.ts` (22 ca) và `src/core/chart/history.test.ts` (25 ca),
+  cộng 8 ca giao diện ở `charts.test.tsx` và 3 ca luồng thật ở `FormulaDetail.test.tsx`.
+- Ca đáng nói nhất: **vòng khép kín** — nạp bộ mẫu vào `eps-co-ban` và `bvps` phải trả về đúng con
+  số EPS và BVPS đã khai, chạy cho cả 4 mã. Nó chứng minh hai trường suy ra không mang thêm số tự
+  đặt nào, chứ không chỉ là lời hứa trong JSDoc.
+- `history.test.ts` **tự dựng chuỗi phiên** thay vì lấy từ `src/data`: ESLint chặn `src/core` gọi
+  lên `@/data` (CON-02, và chặn đúng), và bộ mẫu rồi sẽ bị thay bằng báo cáo thật nên ca kiểm bám
+  vào con số của nó sẽ đỏ vì lý do chẳng liên quan tới biểu đồ.
+
+---
+
+## Đợt 1 của biểu đồ — đường quét độ nhạy cho nhóm Cơ bản
+
+### Yêu cầu
+
+> "có thể cần bản vip để có thể xem chi tiết các bảng của bên nâng cao. nên là bây giờ vẽ trước các
+> biểu đồ cho các công thức cơ bản đơn giản trước"
+
+Hai việc tách rời. **Bản VIP là chuyện sau** — chủ dự án nói "có thể cần", nên đợt này KHÔNG dựng
+cổng thu phí; chỉ đảm bảo về sau khoá được bằng một vị từ (`hasChart()`) thay vì một đợt sửa lan.
+Việc làm ngay là vẽ cho nhóm cơ bản.
+
+Phạm vi cắt bằng đúng dữ liệu đang có: `spec.level === 'basic'` — cùng trục Cơ bản / Nâng cao mà
+FR-09 và `ModeToggle` vẫn dùng, nên không phải phát minh khái niệm mới.
+
+### Phạm vi đo được, không phải ước
+
+| Nhóm                               | Số công thức |
+| ---------------------------------- | -----------: |
+| `basic` + `sensitivity`            |       **50** |
+| — trong đó vẽ được NGAY khi mở     |       **43** |
+| — chờ chuỗi giá (chỉ báo kỹ thuật) |            7 |
+| `advanced` + `sensitivity`         |           12 |
+
+43 công thức vẽ được ngay trải khắp: 13 chỉ số doanh nghiệp, 11 lợi nhuận & cổ tức, 6 định giá,
+4 phái sinh, 4 tiết kiệm, 3 phí & thuế, 1 rủi ro, 1 đầu tư.
+
+### Đòn bẩy: 50 công thức, 0 dòng metadata
+
+`runFormula()` thuần và đồng bộ, còn 208 trên 209 biến vô hướng đã khai sẵn `min` với `max`. Nên
+quét một biến chỉ là gọi lại `runFormula` 42 lần rồi thu `{x, y}` — **không công thức nào phải khai
+thêm gì, và công thức thứ 108 sau này tự có biểu đồ.**
+
+Hệ quả kiến trúc: **KHÔNG dùng `CalcOutput.series` cho đường quét.** Nó là "một lần chạy trả một
+chuỗi", còn đường quét là "N lần chạy, mỗi lần một điểm". Ép từng công thức tự trả `series` là quay
+về 50 việc thủ công. Giữ `CalcOutput.series` cho ca duy nhất nó hợp — công thức tự nhiên sinh chuỗi
+trong lúc tính, như lịch trả nợ 240 kỳ.
+
+### Ba cái bẫy đã gặp và cách xử
+
+**1. `min`/`max` là chặn NHẬP SAI, không phải dải hiển thị.** Biến `price` khai
+`min: 0, max: 10_000_000` trong khi giá trị dùng thật là 92.000. Quét cả miền thì điểm hiện tại nằm
+ở pixel đầu tiên bên trái và 40 điểm còn lại vô nghĩa. → Quét **±50% quanh giá trị hiện tại** rồi
+kẹp vào `[min, max]`. Đó mới đúng câu hỏi biểu đồ độ nhạy sinh ra để trả lời.
+
+**2. Chọn biến quét bị NHIỄU DẤU PHẨY ĐỘNG quyết định.** Xếp hạng biến theo biên độ đầu ra là đúng
+(đó chính là định nghĩa độ nhạy), nhưng tỉ số đơn giản cho biên độ bằng nhau về mặt toán ở cả hai
+biến: quét P/E theo giá cho đúng 2/3, quét theo EPS cũng đúng 2/3. Hai đường tính khác nhau nên số
+thực lệch ở chữ số thứ mười sáu — và biểu đồ P/E hoá ra vẽ theo EPS chỉ vì phép chia rơi xuống dưới
+một phần tỉ tỉ. → **Làm tròn ba chữ số trước khi so**; hoà thì theo thứ tự khai báo.
+
+**3. Xếp hạng phải chốt bằng `defaultInputs`, không bằng giá trị đang gõ.** Nếu chốt theo inputs
+hiện tại thì biến được quét nhảy sang biến khác **giữa lúc người dùng kéo thanh trượt** — trục X
+đổi tên, biểu đồ nhảy, không ai đọc được. Chốt bằng mặc định biến `pickSweepVariable()` thành hàm
+thuần của `spec`: xác định tuyệt đối, memo được, không lệch hydration.
+
+### FR-06 ở tầng vẽ — ba tầng không lách được
+
+`ChartPoint.y` khai `number | null`, nên hàm nào đi qua nó cũng BUỘC quyết định làm gì với `null`.
+**Không có một cái `?? 0` nào trong cả nhánh này.**
+
+1. `y` lấy thẳng `out.value`. Không thay bằng 0, không nội suy.
+2. `extentOf()` bỏ qua mọi `null` → mức không tính được **không kéo trục**.
+3. `linePath()` gặp `null` thì đóng đoạn và mở `M` mới → **đường ĐỨT**, một `<path>` nhiều đoạn con.
+
+Cộng ba tín hiệu cho người đọc: vùng gạch chéo ở chỗ hở, câu mô tả ghi "3 trên 42 mức không tính
+được", và bảng số hiện `— , —` ở đúng những dòng ấy.
+
+Ca vàng chốt lại chuyện này: **quét EPS qua 0** — có mức `null`, và **tuyệt đối không mức nào ra 0**.
+
+### Khả năng tiếp cận — hai quyết định khác thói thường
+
+**`<svg aria-hidden="true">`.** Thông tin nằm trọn ở `<figcaption>` và bảng số. Nhét
+`<title>`/`<desc>` dài vào SVG được NVDA, JAWS và VoiceOver xử rất khác nhau, mà người dùng vẫn
+không lần qua 42 điểm bằng tai được. Ẩn hình, dựng lối đọc thật.
+
+**Bảng số HIỆN, không `.visually-hidden`.** Cách phổ biến là giấu một bảng chỉ cho trình đọc màn
+hình. Ở đây không giấu: người sáng mắt cũng cần con số chính xác — mắt đọc biểu đồ chỉ ra được xu
+hướng, không ra được "15,21". Gói trong `<details>` nên không choán màn.
+
+Hệ quả tốt cho việc kiểm: bảng ấy là **hợp đồng công khai với người dùng**, nên test bám vào nó
+thay vì bám vào chuỗi `d` — chỉnh một pixel padding không làm đỏ ca nào. Không dùng snapshot SVG.
+
+Không bao giờ chỉ dựa vào màu: dấu "giá trị hiện tại" có **chấm + vạch dọc nét đứt + nhãn chữ**;
+chỗ ngắt có **gạch chéo + chữ trong bảng + ghi chú**.
+
+**0 token màu mới.** `--color-accent-vivid` được dành sẵn từ đợt 4 cho đúng việc này và đã qua
+`contrast.test.ts`; nhãn trục là chữ nên dùng `--color-muted`.
+
+### Hai lỗi tự tìm ra khi viết test
+
+- **`<details>` cũng map sang role `group`**, nên `role="group"` tôi đặt trên `<figure>` làm hai
+  vùng lẫn nhau với cả trình đọc màn hình lẫn bộ kiểm. Bỏ đi: `<figure>` + `<figcaption>` qua
+  `aria-labelledby` đã đúng ngữ nghĩa sẵn.
+- **`<caption>` của bảng lặp y nguyên tiêu đề hình** → trình đọc màn hình đọc lại hai lần. Đổi
+  thành "Số liệu — …".
+
+Kèm một điểm giòn phải siết: từ khi màn có biểu đồ, `<figcaption>` trở thành TÊN của `<figure>`,
+nên `getByLabelText(/Giá thị trường/)` khớp cả hình lẫn ô nhập. Sáu truy vấn cũ trong
+`FormulaDetail.test.tsx` chỉ đang xanh vì biểu đồ nạp trễ chưa kịp gắn — đã siết về
+`{ selector: 'input' }` trước khi chúng thành ca chớp.
+
+### Đã đổi những file nào
+
+| File                                            | Nội dung                                                                                            |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `src/core/chart/types.ts`                       | hợp đồng `ChartModel`, `ChartPoint.y: number \| null`                                               |
+| `src/core/chart/scale.ts`                       | `extentOf` · `niceStep` · `niceAxis` (4 lưới an toàn) · `linearScale`                               |
+| `src/core/chart/path.ts`                        | `linePath` ngắt ở `null` · `gapsOf` · `fixed`                                                       |
+| `src/core/chart/sweep.ts`                       | động cơ quét: dải ±50%, xếp hạng theo biên độ đầu ra                                                |
+| `src/core/chart/table.ts`                       | `condensePoints` giữ đầu/cuối/đang-nhập/mọi mức lỗi                                                 |
+| `src/core/chart/build.ts`                       | `buildChartModel()` — cổng duy nhất, không bao giờ ném lỗi                                          |
+| `src/core/chart/index.ts`                       | cửa gom                                                                                             |
+| `src/application/index.ts`                      | mở 6 hàm + 9 kiểu qua barrel chọn lọc                                                               |
+| `src/ui/charts/` (8 file)                       | `FormulaChart` (ranh giới nạp trễ) · `ChartBody` · `ChartFrame` · `LineChart` · `SweepPicker` · css |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`      | nối khối 6; nhóm nâng cao giữ câu chờ                                                               |
+| `src/application/i18n/vi.ts`                    | 2 khoá mới                                                                                          |
+| `src/ui/tokens.test.ts`                         | chặn màu cứng trong thuộc tính SVG — lỗ mà bản cũ không với tới                                     |
+| `src/core/chart/chart.test.ts`                  | 46 ca, có ca quét cả 107 công thức                                                                  |
+| `src/ui/charts/charts.test.tsx`                 | 14 ca, đọc BẢNG SỐ chứ không đọc SVG                                                                |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` | 3 ca tích hợp + siết 6 truy vấn nhãn                                                                |
+
+### Số đo
+
+- `npm run lint` · `typecheck` · `format:check` — sạch.
+- `npm run test` — **1.081 xanh** (trước đợt: 931), 5 đỏ **có sẵn từ trước**.
+- `npm run build` — 117 trang tĩnh.
+- `npm run size` — **đạt**: nặng nhất `/cong-thuc/loi-nhuan-rong/` **153,7 kB** JS nén, dưới cửa
+  kiểm 170 kB, còn dư **16,3 kB**.
+
+**Chunk biểu đồ tốn đúng 5,1 kB nén, nạp ở 50 trang có biểu đồ.** Trang nặng nhất tăng
+148,5 → 153,7 kB, tức **+5,2 kB** — dưới trần tự đặt 6 kB mỗi đợt ở đợt 0. Mục "chunk nạp trễ" thêm
+ở đợt 0 trả công ngay tại đây: nó là chỗ duy nhất đọc được con số 5,1 kB ấy.
+
+Nhắc lại vì dễ nhầm: `next/dynamic` KHÔNG giấu chi phí khỏi cửa kiểm. 5,1 kB vẫn tính đủ vào 50
+trang có biểu đồ; nó chỉ giữ chi phí khỏi 57 trang còn lại, trang danh sách, trang chủ và 404.
+
+### Còn lại
+
+- Nhóm **Nâng cao** (12 công thức `sensitivity`) và các loại biểu đồ khác vẫn ở khung chờ. Mở rộng
+  là sửa **một vị từ** `hasChart()` — cũng chính là chỗ khoá vào bản trả phí nếu chủ dự án chốt làm.
+- 7 chỉ báo kỹ thuật cơ bản vẽ được ngay sau khi có chuỗi giá; nút "Nạp mẫu" và "Dán chuỗi giá" đã
+  nằm sẵn ở khối Số liệu từ đợt 0, nên chỉ cần hai cú bấm.
+- Nợ baseline vẫn nguyên: 5 ca đỏ `VIRTUALIZE_THRESHOLD` (xem mục đợt 0).
+
+---
+
+## Đợt 0 của biểu đồ — dọn nền trước khi vẽ dòng nào
+
+### Yêu cầu
+
+> "mỗi một công thức khi xem chi tiết thì đều có phần biểu đồ. vậy hãy cho tôi những lời khuyên để
+> làm biểu đồ cho hơn 100 công thức nếu khách muốn xem" — rồi chốt kế hoạch và nói "làm".
+
+Chủ dự án chốt bốn hướng: **tự viết SVG** (không thêm dependency), **tự suy diễn biến quét kèm
+dropdown cho người dùng đổi**, **nạp chuỗi mẫu có dán nhãn rõ**, và **làm `sensitivity` trước**
+(phủ 72/107). Kế hoạch đầy đủ nằm ngoài repo; đây là đợt 0 của kế hoạch đó: **chưa vẽ gì cả**, chỉ
+sửa những chỗ mà biểu đồ sẽ đứng lên.
+
+### Ba bug thật, phát hiện lúc khảo sát chứ không phải chủ dự án báo
+
+**1. `chartType === 'candlestick'` bị dùng nhầm vai làm cờ "công thức này cần chuỗi giá."**
+`FormulaDetail.tsx:250` lấy loại BIỂU ĐỒ để quyết định có hiện nút "Dán chuỗi giá" và lối vào bảng
+WF-05. Nến chỉ là **11 trong 34** công thức ăn chuỗi — 23 công thức còn lại (phân phối lợi suất,
+sụt giảm từ đỉnh, hồi quy) báo "chưa đủ phiên giá" mà trên màn **không có lối nào để nạp**. Ngõ cụt
+thật, chỉ là chưa ai bấm tới.
+
+Sửa bằng `needsPriceSeries(formula, asOf)` ở `src/core/calc/run.ts`: chạy công thức với giá trị mặc
+định và không có chuỗi, rồi xem nó có báo `MISSING_SERIES` hay không. Đây **chính là phép thử
+`FormulaDetail.test.tsx:287-308` đang dùng** để chốt con số 34, nên nó đã được chứng minh đúng cho
+toàn Registry và không tốn một dòng metadata nào. Đặt cạnh `missingInputLabels()` vì cùng một loại
+câu hỏi: công thức này còn thiếu gì để ra số.
+
+Đã cân nhắc và **bỏ** phương án khai tường minh `dataNeeds?: 'series' | 'bars'` trên `FormulaSpec`:
+rõ hơn khi đọc schema nhưng tốn 34 lượt sửa cộng một validator, và một field khai tay thì **lệch
+được** với thực tế — còn phép thử thì không.
+
+**2. `applyPreset()` không đẩy `preset.bars` vào ctx.** Hàm chỉ đặt 9 ô vô hướng, nên nạp FPT cho
+một công thức chuỗi vẫn ra "chưa đủ phiên giá": nút "Nạp mẫu" nhìn như không làm gì, đúng 34 công
+thức. Bộ mẫu có sẵn **248 phiên OHLCV** từ đợt 9, chỉ là chưa ai chuyển sang. `DailyBar` có
+`close: number`, hẹp hơn `SeriesRow` (`close: number | null`), nên gán vào được mà không mất mát.
+
+Đây cũng là điều kiện tiên quyết cho hướng "nạp chuỗi mẫu" chủ dự án đã chốt: sửa xong thì **hai cú
+bấm là có dữ liệu**.
+
+**3. `draw-card.ts:137` in "Biểu đồ — gói WBS 3.3" vào tấm PNG người dùng chia sẻ ra ngoài.**
+Đợt 14 đã dọn đường PDF nhưng bỏ sót đường PNG — ca kiểm chặn `/WBS|nhánh \d|gói \d/` chỉ soi màn
+chi tiết nên không với tới Canvas. Nay lấy `t('export.chartPending')`, cùng câu với vùng in.
+
+### Bốn công thức gắn sai `chartType`
+
+`do-rong-dai-bollinger`, `phan-tram-b-bollinger`, `stochastic-k`, `ty-le-khoi-luong` đang là
+`'none'` nhưng cả bốn **đều đọc `ctx.series`/`ctx.bars`** và **đều có biến chu kỳ quét được**
+(`do-rong-dai-bollinger` có `[BOLLINGER_PERIOD, BOLLINGER_K]`, cả hai là slider đủ min/max/step).
+Đổi sang `'sensitivity'`: **4 dòng để phủ thêm 4 công thức** ở đợt sau, không renderer mới, không
+token mới. `none` còn 10, `sensitivity` lên 62.
+
+Đã soi thêm 5 công thức nghi gắn sai — `rsi-wilder`, `roc-toc-do-thay-doi`,
+`khoang-cach-gia-so-sma`, `do-bien-dong-nam-hoa`, `he-so-bien-thien` — và kết luận **không sai**:
+chúng dựa trên chuỗi, đúng, nhưng đều có biến chu kỳ, và "RSI đổi thế nào khi chu kỳ chạy từ 5 tới
+30 phiên" là câu hỏi độ nhạy thật, chữa đúng hiểu nhầm "RSI là con số tuyệt đối" mà người mới hay
+mắc. Nhãn hiện tại đúng, chỉ chưa phải cách vẽ giàu thông tin nhất.
+
+### Dọn ngân sách trước khi tiêu
+
+**`ExportSheet` nạp trễ bộ vẽ Canvas.** `draw-card` đang được import TĨNH, nên toàn bộ mã vẽ nằm
+trong gói cơ sở của cả 107 trang chi tiết dù đa số người dùng không bao giờ xuất PNG. Đổi sang
+`await import('./draw-card')` bên trong tay bấm, **và bỏ dòng re-export ở `sheets/index.ts`** —
+một dòng `export … from './draw-card'` ở barrel kéo nó về chỗ cũ ngay, vì mọi màn chi tiết đều
+`import { ExportSheet } from '@/ui/sheets'`.
+
+Phân biệt quan trọng, và là lý do phải làm việc này TRƯỚC khi có `chart-canvas.ts`: `import()`
+**trần** thì chunk KHÔNG được ghi vào HTML nên rời hẳn khỏi "First Load JS"; còn `next/dynamic`
+thì **vẫn bị tính**.
+
+**`size-report.mjs` thêm mục "chunk nạp trễ riêng của từng trang".** Đo trên bản build: HTML của
+`/cong-thuc/loi-nhuan-rong/` có thêm đúng một chunk mà `/cong-thuc/pe/` không có — chính khối WF-08
+nạp trễ. Next vẫn ghi chunk vào HTML của trang thật sự dựng nó, nên `next/dynamic` **không giấu
+được chi phí khỏi cửa kiểm 170 kB**. Đây là chỗ duy nhất để biết một khối mới đắt bao nhiêu trước
+khi nó đẩy trang nào qua cửa. Trần tự đặt cho các đợt sau: **không đợt nào làm trang nặng nhất tăng
+quá 6 kB nén.**
+
+### Đã đổi những file nào
+
+| File                                            | Sửa gì                                                        |
+| ----------------------------------------------- | ------------------------------------------------------------- |
+| `src/core/calc/run.ts`                          | thêm `needsPriceSeries()`                                     |
+| `src/core/calc/index.ts`                        | export nó                                                     |
+| `src/application/index.ts`                      | export nó qua barrel chọn lọc                                 |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`      | `wantsSeries` thay cờ `candlestick`; `applyPreset` đẩy `bars` |
+| `src/core/formulas/technical-volatility.ts`     | 4 công thức `none` → `sensitivity`                            |
+| `src/ui/sheets/draw-card.ts`                    | bỏ chữ "gói WBS 3.3", lấy i18n                                |
+| `src/ui/sheets/ExportSheet.tsx`                 | nạp trễ `draw-card`                                           |
+| `src/ui/sheets/index.ts`                        | bỏ re-export `draw-card` (kèm lý do)                          |
+| `scripts/size-report.mjs`                       | mục "chunk nạp trễ riêng của từng trang"                      |
+| `src/core/calc/calc.test.ts`                    | 5 ca cho `needsPriceSeries`, khoá 34 / 11 / 23                |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` | 3 ca: 34 nút dán, P/E không có nút, nạp mẫu ra số             |
+
+### Số đo
+
+- `npm run lint` · `npm run typecheck` · `npm run format:check` — sạch.
+- `npm run test` — **931 xanh**, 5 đỏ **có sẵn từ trước đợt này**.
+- `npx vitest run src/core/calc/calc.test.ts` — 22/22.
+- `npx vitest run src/app/cong-thuc/[id]/FormulaDetail.test.tsx` — 25/25.
+- `npm run build` — 117 trang tĩnh.
+- `npm run size` — đạt: nặng nhất `/cong-thuc/loi-nhuan-rong/` **148,5 kB** JS nén, dưới cửa kiểm
+  170 kB. Mục "chunk nạp trễ" mới in ra đúng 2 trang có chunk riêng: WF-08 1,4 kB, WF-14 1,2 kB.
+
+**Đợt này TRUNG TÍNH về dung lượng, và đó là kết quả đáng ghi lại chứ không phải thất bại.**
+Đo baseline bằng `git stash` rồi build lại: nặng nhất cũng đúng **148,5 kB**. Nạp trễ `draw-card`
+CÓ hiệu lực — chunk `827.*.js` chứa `toBlob` nặng **1,4 kB nén** và **0 trang HTML tham chiếu**,
+tức nó đã rời hẳn khỏi First Load JS. Nhưng code mới của đợt này (`needsPriceSeries`, `wantsSeries`,
+phần map `bars`) tốn xấp xỉ đúng chừng đó nên bù trừ hết.
+
+Giá trị của việc nạp trễ vì vậy nằm ở phía trước, không phải ở con số hôm nay: `chart-canvas.ts`
+của đợt 3 sẽ rơi vào chunk 827 ấy thay vì vào gói cơ sở của 107 trang chi tiết. Làm sau thì phải
+gỡ ngược.
+
+Dư địa thật trước cửa kiểm: **21,5 kB nén** (170 − 148,5).
+
+### Còn lại
+
+- **Nợ baseline, KHÔNG thuộc đợt này:** 5 ca đỏ ở `src/core/virtual-window.test.ts` và
+  `src/ui/browse/VirtualList.test.tsx`. Nguyên nhân: `VIRTUALIZE_THRESHOLD` đã nâng lên **1000**
+  (comment ghi "dưới ngưỡng này thì dựng thẳng, ảo hoá chỉ tổ thêm chỗ sai") nhưng 5 test vẫn chờ
+  ảo hoá bật ở danh sách 107 mục. Đã xác nhận bằng `git stash`: đỏ y hệt khi chưa có thay đổi nào
+  của đợt 0. Cần chủ dự án quyết: hạ ngưỡng lại, hay viết lại 5 test theo ngưỡng mới.
 
 ---
 

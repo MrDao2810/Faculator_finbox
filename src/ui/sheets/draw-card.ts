@@ -9,6 +9,7 @@
  * có đường nào vẽ ra tấm thẻ thiếu miễn trừ (FR-24).
  */
 
+import { t } from '@/application';
 import type { ExportContent } from '@/application';
 
 const WIDTH = 1080;
@@ -134,7 +135,14 @@ export function drawExportCard(content: ExportContent): HTMLCanvasElement {
 
     ctx.fillStyle = muted;
     ctx.font = `400 26px ${sans}`;
-    ctx.fillText('Biểu đồ — gói WBS 3.3', PADDING + 24, y + 24);
+    /*
+     * Cùng câu với vùng in PDF, lấy từ i18n chứ không viết thẳng.
+     *
+     * Trước đợt này chỗ này in "Biểu đồ — gói WBS 3.3" — sổ sách kế hoạch nội bộ đi thẳng vào
+     * tấm PNG người dùng chia sẻ ra ngoài. Đợt 14 đã dọn đường PDF nhưng bỏ sót đường PNG, và
+     * ca kiểm chặn /WBS|nhánh \d|gói \d/ chỉ soi màn chi tiết nên không với tới Canvas.
+     */
+    ctx.fillText(t('export.chartPending'), PADDING + 24, y + 24);
     y += chartBox + 32;
   }
 

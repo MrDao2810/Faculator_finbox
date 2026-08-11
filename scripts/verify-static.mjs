@@ -224,6 +224,43 @@ check(
   `${String(withBackLink.length)}/${String(detailPages.length)} trang`,
 );
 
+/*
+ * robots.txt và sitemap.xml phải nói CÙNG một tên miền.
+ *
+ * Hai file này từng có hai nguồn: `sitemap.ts` đọc `NEXT_PUBLIC_SITE_URL`, còn
+ * `public/robots.txt` ghi cứng `pages.dev` kèm một dòng chú thích dặn nhớ sửa cùng lúc. Quên
+ * sửa thì bot đọc robots.txt rồi đi tìm sitemap ở tên miền cũ — 404, và không phép kiểm nào đỏ
+ * vì bản thân mỗi file đều hợp lệ. Nay cả hai sinh từ `src/app/site-url.ts`; cửa kiểm này gác
+ * chuyện ai đó tách chúng ra lần nữa.
+ *
+ * Kiểm trên bản BUILD chứ không trên mã nguồn: biến môi trường chỉ có giá trị thật lúc build,
+ * nên đây là chỗ duy nhất thấy được tên miền mà người dùng sẽ nhận.
+ */
+const robotsPath = 'out/robots.txt';
+const sitemapPath = 'out/sitemap.xml';
+
+if (existsSync(robotsPath) && existsSync(sitemapPath)) {
+  const robotsTxt = readFileSync(robotsPath, 'utf8');
+  const sitemapXml = readFileSync(sitemapPath, 'utf8');
+
+  const robotsHost = /Sitemap:\s*(https?:\/\/[^/\s]+)/i.exec(robotsTxt)?.[1];
+  const sitemapHost = /<loc>\s*(https?:\/\/[^/\s]+)/i.exec(sitemapXml)?.[1];
+
+  check(
+    'robots.txt và sitemap.xml trỏ cùng một tên miền',
+    robotsHost !== undefined && robotsHost === sitemapHost,
+    robotsHost === sitemapHost
+      ? robotsHost
+      : `robots.txt: ${robotsHost ?? 'không thấy dòng Sitemap:'} · sitemap.xml: ${sitemapHost ?? 'không thấy <loc>'}`,
+  );
+} else {
+  check(
+    'robots.txt và sitemap.xml trỏ cùng một tên miền',
+    false,
+    `thiếu file: ${[robotsPath, sitemapPath].filter((f) => !existsSync(f)).join(', ')}`,
+  );
+}
+
 const failed = checks.filter((c) => !c.pass);
 console.log(`\n=== ${String(checks.length - failed.length)}/${String(checks.length)} đạt ===`);
 

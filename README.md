@@ -140,8 +140,12 @@ Phần này cần tài khoản của bạn, tôi không tạo thay được.
    | Build command          | `npm run build`                |
    | Build output directory | `out`                          |
 
-4. Environment variables: `NODE_VERSION` = `20`, và `NEXT_PUBLIC_SITE_URL` = tên miền thật
-   (sitemap.xml lấy từ biến này — FR-25).
+4. Environment variables: `NODE_VERSION` = `20`, và `NEXT_PUBLIC_SITE_URL` = tên miền thật.
+
+   Cả `sitemap.xml` lẫn `robots.txt` sinh ra từ biến này (FR-25) — không còn file tĩnh nào ghi
+   cứng tên miền, nên chỉ có một chỗ để điền. Không đặt biến thì rơi về `*.pages.dev`, vẫn chạy;
+   đó cũng là đường mà bản xem thử của mỗi Pull Request đi. `npm run verify:static` có một phép
+   kiểm bắt hai file lệch tên miền nhau.
 
 Xong bước này thì mỗi lần push lên `main` là tự deploy, mỗi Pull Request có một URL preview riêng.
 

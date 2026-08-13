@@ -130,6 +130,47 @@ check(
   'dòng "N công thức"',
 );
 
+/* ── Ký hiệu toán học trong HTML tĩnh — gói 2.4.3 ────────────────────────── */
+
+/*
+ * Cả gói 2.4.3 đứng trên MỘT tính chất: `katex` chạy trong server component nên ký hiệu toán được
+ * nướng vào HTML lúc build, và phía máy khách tốn 0 byte JS. Tính chất ấy vô hình với mọi phép
+ * kiểm khác — unit test dựng bằng jsdom thì `<math>` nào cũng có, kể cả khi nó do JS máy khách
+ * sinh ra lúc chạy. Chỉ đọc thẳng file HTML trong `out/` mới phân biệt được hai chuyện đó.
+ *
+ * Ngày ai đó chuyển `latexToMathml()` vào một client component, mọi test khác vẫn xanh và chỉ
+ * phép kiểm này đỏ.
+ */
+let detailHtml = '';
+try {
+  detailHtml = readFileSync('out/cong-thuc/pe/index.html', 'utf8');
+} catch {
+  // Ba check dưới tự trượt vì chuỗi rỗng.
+}
+
+check(
+  'trang chi tiết có ký hiệu toán DỰNG SẴN trong HTML tĩnh',
+  detailHtml.includes('<math'),
+  '<math> của KaTeX, dựng lúc build',
+);
+
+/*
+ * Nhánh MathML không cần một dòng CSS nào của KaTeX. Nếu ai đó đổi sang `output: 'html'` thì HTML
+ * sẽ mang `class="katex-html"`, mà không nạp `katex.min.css` thì nó hiện thành một đống ký tự
+ * chồng lên nhau — trông vẫn "có công thức" nếu chỉ kiểm `<math`.
+ */
+check(
+  'ký hiệu toán KHÔNG kéo theo nhánh HTML của KaTeX (vốn đòi CSS + font riêng)',
+  detailHtml !== '' && !detailHtml.includes('katex-html'),
+  'chỉ MathML',
+);
+
+check(
+  'không nạp katex.min.css hay font của KaTeX',
+  detailHtml !== '' && !detailHtml.includes('katex.min.css') && !detailHtml.includes('KaTeX_Main'),
+  '0 tài sản kèm theo',
+);
+
 /* ── Trang 404 (đợt 14) ──────────────────────────────────────────────────── */
 
 let notFoundHtml = '';

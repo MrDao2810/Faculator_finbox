@@ -7,9 +7,9 @@ import { AppShell } from '@/ui/layout/AppShell';
 import './globals.css';
 
 /*
- * Tên sản phẩm lấy từ từ điển chứ không gõ lại: nó xuất hiện ba lần ngay trong khối này, và
- * cách viết vốn đã lệch nhau ở thượng nguồn (gói npm là `faculator-finbox`, sản phẩm là
- * "Falculator Finbox"). Một chỗ giữ chữ thì không có chỗ nào để lệch thêm.
+ * Tên sản phẩm lấy từ từ điển chứ không gõ lại: nó xuất hiện ba lần ngay trong khối này.
+ * Cách viết đúng là "Faculator Finbox" — không có chữ `l`, khớp gói npm `faculator-finbox`.
+ * Một chỗ giữ chữ thì không có chỗ nào để lệch thêm.
  */
 const APP_NAME = t('app.name');
 

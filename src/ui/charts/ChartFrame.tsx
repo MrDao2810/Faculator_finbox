@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { t } from '@/application';
 import type { LineChart as LineChartModel } from '@/application';
@@ -24,6 +24,8 @@ import styles from './chart.module.css';
 
 export interface ChartFrameProps {
   model: LineChartModel;
+  /** Gốc để ghép `id` của `<figcaption>`. Xem docblock của `ChartBody` về việc vì sao không `useId()`. */
+  idBase: string;
   /** Ô chọn biến trục X, đặt trên hình. */
   picker?: ReactNode;
   /**
@@ -36,8 +38,8 @@ export interface ChartFrameProps {
   children: ReactNode;
 }
 
-export function ChartFrame({ model, picker, action, children }: ChartFrameProps) {
-  const captionId = `${useId()}-caption`;
+export function ChartFrame({ model, idBase, picker, action, children }: ChartFrameProps) {
+  const captionId = `${idBase}-caption`;
 
   const rows = model.table.rows.length;
 

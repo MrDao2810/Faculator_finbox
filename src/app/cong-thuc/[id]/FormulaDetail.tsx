@@ -55,6 +55,14 @@ export interface FormulaDetailProps {
    * HTML sinh lúc build khác HTML sinh lúc chạy — lệch hydration.
    */
   asOf: string;
+  /**
+   * Ký hiệu toán học đã dựng sẵn lúc build — chuỗi MathML, xem `latex-html.ts`.
+   *
+   * Nhận qua prop chứ không tự dựng ở đây: component này có `'use client'`, nên gọi `katex` trong
+   * nó là kéo ~280 kB thư viện vào gói của trình duyệt. Dựng ở `page.tsx` thì HTML vào thẳng file
+   * tĩnh và phía máy khách tốn 0 byte JS.
+   */
+  latexHtml: string;
 }
 
 type SheetKind = 'preset' | 'paste' | 'export';
@@ -69,7 +77,7 @@ type SheetKind = 'preset' | 'paste' | 'export';
  * Hai công thức có khối kết quả riêng (WF-08 phí & thuế, WF-14 lịch trả nợ) được nạp qua
  * `DetailBody`, tải trễ theo id — đúng chữ "tải trễ khối nặng" của gói 3.2.1.
  */
-export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
+export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
@@ -236,11 +244,29 @@ export function FormulaDetail({ spec, asOf }: FormulaDetailProps) {
         <p className={styles.prose}>{spec.explanation.meaning}</p>
       </section>
 
-      {/* ── 3. Công thức — chỗ dành cho KaTeX, gói 2.4.3 đang hoãn ────────── */}
+      {/* ── 3. Công thức — ký hiệu toán học (gói 2.4.3) rồi tới bản dạng chữ ─ */}
       <section className={styles.block}>
         <h2 className={styles.blockTitle}>{t('detail.formula')}</h2>
+        {/*
+          `dangerouslySetInnerHTML` ở đây an toàn và không có đường nào khác: React không dựng
+          được cây MathML từ chuỗi. Đầu vào là hằng số `spec.latex` trong repo, đi qua KaTeX với
+          `trust: false`, và việc dựng xảy ra lúc BUILD chứ không lúc chạy — không có chỗ nào cho
+          chữ người dùng gõ lọt vào. Xem `latex-html.ts`.
+
+          `<div>` chứ không `<p>`: MathML là nội dung khối, nhét vào `<p>` là HTML sai cấu trúc.
+        */}
+        <div
+          className={styles.formula}
+          // eslint-disable-next-line react/no-danger -- xem chú thích ngay trên
+          dangerouslySetInnerHTML={{ __html: latexHtml }}
+        />
+        {/*
+          Bản dạng chữ GIỮ LẠI, không phải bản dự phòng: nó nói cùng công thức bằng tên đầy đủ
+          tiếng Việt ("Lợi nhuận sau thuế ÷ Vốn chủ sở hữu"), thứ mà ký hiệu viết tắt phía trên
+          không nói. Người mới đọc dòng này mới hiểu được ký hiệu kia. Tiện thể nó cũng là lối
+          đọc còn lại nếu trình duyệt quá cũ không dựng được MathML.
+        */}
         <p className={styles.expression}>{spec.expression ?? spec.latex}</p>
-        <p className={styles.pendingNote}>{t('detail.latexPending')}</p>
       </section>
 
       {/* ── 4. Số liệu — ô nhập sinh từ VariableSpec (FR-05) ──────────────── */}

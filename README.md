@@ -1,4 +1,4 @@
-# Falculator Finbox
+# Faculator Finbox
 
 Thư viện công thức tài chính và chứng khoán Việt Nam — tra cứu, tính toán, giải thích.
 Web tĩnh, không backend, không cơ sở dữ liệu (SRS v2.0 mục 2.1 và 6.1).
@@ -123,6 +123,8 @@ trong `src/core/warnings.ts` — công thức không tự chế câu chữ, đ�
 | Ô để trống ≠ số 0 (NFR-REL-01)          | `runFormula()` chặn trước khi gọi hàm tính          | `src/core/calc/calc.test.ts`         |
 | Công thức luôn có hàm tính              | `FormulaModule` gộp spec và calc làm một            | typecheck                            |
 | Link lọc nhóm đọc lại được              | Dựng URL bằng `listParamsToQuery()`, không ghép tay | `src/application/url-state.test.ts`  |
+| Ký hiệu toán không tốn JS máy khách     | `katex` chỉ chạy trong server component lúc build   | `scripts/verify-static.mjs`          |
+| `id` biểu đồ không do React sinh        | Ghép từ `spec.id`, không `useId()` dưới nạp trễ     | `src/ui/charts/charts.test.tsx`      |
 
 ---
 
@@ -156,11 +158,15 @@ test → build. Hỏng ở bước nào thì chặn merge ở bước đó.
 
 ## Việc tiếp theo theo WBS
 
-- **5.1 và 5.2** — 86 công thức còn lại. Cách thêm một công thức ghi ở
-  [`src/core/formulas/README.md`](src/core/formulas/README.md).
-- **3.2.2** WF-04 màn nâng cao — hoãn, làm cùng lúc với chuỗi định giá của gói 5.2.3.
-- **Nhánh 4** biểu đồ — WF-03, WF-08 và WF-14 đang chừa sẵn chỗ.
-- **2.4.3** FormulaLatex — hoãn, cần quyết có thêm KaTeX hay không (3h).
+- **3.2.2** WF-04 màn nâng cao — hoãn, làm cùng lúc với chuỗi định giá của gói 5.2.3. Phạm vi đúng
+  là chuỗi **không có Beta**: CAPM → WACC → FCFF/FCFE → giá trị nội tại → biên an toàn, beta để ô
+  nhập tay. Đây cũng là việc duy nhất kích hoạt `LinkedInput` và `FlowChainStrip` — hai component
+  đã dựng xong mà chưa màn nào dùng.
+- **Nhánh 4** biểu đồ — đợt 1–4 xong, phủ 97/107. Còn lại: renderer riêng cho `waterfall` và
+  `stackedBar` (10 công thức đang nhận đường quét độ nhạy — đúng, chỉ chưa lý tưởng), và nhiều
+  đường trên một hình cho nhóm chỉ báo.
+- **3.3.2** Beta — kẹt vì `src/data/samples.ts` không có chuỗi VN-Index để hồi quy, không phải vì
+  nhóm Rủi ro đã đầy 17/17.
 
 **Về dung lượng — nỗi lo cũ đã khép lại bằng số đo.** Hồi 21 công thức, metadata đi thẳng vào
 gói JS của màn danh sách và phép ngoại suy cho ra "107 công thức sẽ vượt ngưỡng 200 kB của
@@ -177,5 +183,6 @@ Ba việc chặn phát hành v0.1, đều là **nội dung chờ người đối
 3. **Diễn giải của 107 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
    đã có ví dụ số kiểm chứng độc lập cho từng công thức.
 
-Và một việc nội dung mới lộ ra khi đủ 107: **thiếu công thức Beta** — xem
+Và một việc lộ ra khi đủ 107: **thiếu công thức Beta**. Nó nằm cùng gốc với việc số 2 ở trên —
+Beta hồi quy cần một chuỗi VN-Index mà bộ mẫu chưa có. Xem
 [src/core/formulas/README.md](src/core/formulas/README.md), mục "Còn thiếu".

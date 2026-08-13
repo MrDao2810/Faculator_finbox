@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { FORMULAS, findCategory } from '@/application';
 
 import { FormulaDetail } from './FormulaDetail';
+import { latexToMathml } from './latex-html';
 
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
@@ -64,8 +65,13 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const formula = FORMULAS.find((f) => f.id === id);
 
-  // Chỉ xảy ra nếu ai đó gõ tay một id lạ; generateStaticParams đã sinh sẵn đúng 21 trang.
+  // Chỉ xảy ra nếu ai đó gõ tay một id lạ; generateStaticParams đã sinh sẵn đúng 107 trang.
   if (formula === undefined) notFound();
 
-  return <FormulaDetail spec={formula} asOf={AS_OF} />;
+  /*
+   * Dựng ký hiệu toán học ở ĐÂY, cùng lý do với `AS_OF` phía trên: file này là server component
+   * nên `katex` chỉ chạy trên máy build và không đi vào gói JS của trình duyệt. Xem `latex-html.ts`
+   * để biết vì sao chọn nhánh MathML.
+   */
+  return <FormulaDetail spec={formula} asOf={AS_OF} latexHtml={latexToMathml(formula.latex)} />;
 }

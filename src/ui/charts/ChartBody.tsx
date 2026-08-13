@@ -79,21 +79,55 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
   }
 
   /*
+   * Gốc của mọi `id` trong cây biểu đồ — sinh từ prop, KHÔNG từ `useId()`.
+   *
+   * Vì sao: cả thư mục này nằm sau ranh giới `next/dynamic` của `FormulaChart`. React đánh số
+   * `useId()` theo vị trí trong cây, mà cây lúc dựng HTML tĩnh khác cây lúc hydrate — phía máy
+   * khách còn thêm một bậc `lazy` đang chờ. Kết quả là chuỗi hai bên lệch nhau, và giả lập Android
+   * đo được 5 lượt cảnh báo lệch hydration trên mỗi trang có biểu đồ (trang `chartType: 'none'`
+   * thì 0). Hậu quả thực tế nhỏ — React giữ giá trị của máy chủ cho cả hai thuộc tính nên
+   * `aria-labelledby` vẫn trỏ đúng — nhưng cảnh báo là thật, và nó nuốt mất tín hiệu của mọi lỗi
+   * hydration sau này.
+   *
+   * `spec.id` an toàn làm gốc: nó chính là đoạn URL của công thức, Registry đã kiểm trùng, và nó
+   * đến từ prop chứ không từ nội bộ React — nên hai bên giống nhau theo cấu tạo, không theo may rủi.
+   *
+   * Hậu tố `-full`: bản phóng to là bản THỨ HAI của cùng một hình và nó cùng nằm trong DOM khi lớp
+   * phủ mở. Thiếu hậu tố là hai node trùng `<pattern id>`, trình duyệt lấy node đầu, vùng gạch chéo
+   * của màn phóng to trỏ nhầm. Có ca kiểm chốt điều này.
+   *
+   * Bất biến này được chốt bằng CA KIỂM, không bằng grep: `charts.test.tsx` quét cả cây biểu đồ và
+   * đỏ nếu có `id` nào mang hình dạng React tự sinh (`:r…:` hoặc `«…»`). Grep không dùng được vì
+   * chính những dòng chú thích này đã chứa chữ ấy.
+   */
+  const idBase = `chart-${formula.spec.id}`;
+
+  /*
    * MỘT ô chọn, dựng hai lần ở hai chỗ.
    *
    * Nó không giữ state riêng — giá trị đọc từ `model.sweepKey`, thay đổi bắn về `setSweepKey` — nên
    * ô trên trang và ô trong màn phóng to luôn nói cùng một biến. Đúng cách đã dùng cho khối Ví dụ
    * thực tế: hai chỗ hiện cùng con số vì chúng LÀ cùng con số.
+   *
+   * Nhưng `id` thì phải KHÁC nhau, nên đây là một HÀM DỰNG chứ không phải một biến giữ sẵn element:
+   * hai bản cùng nằm trong DOM khi lớp phủ mở, và `<label for>` trỏ vào node đầu tiên trùng `id`.
+   * Dùng chung một element là ô chọn trong màn phóng to mất nhãn.
    */
-  const picker = (
-    <SweepPicker options={model.options} value={model.sweepKey} onChange={setSweepKey} />
+  const pickerVoi = (base: string) => (
+    <SweepPicker
+      idBase={base}
+      options={model.options}
+      value={model.sweepKey}
+      onChange={setSweepKey}
+    />
   );
 
   return (
     <>
       <ChartFrame
         model={model}
-        picker={picker}
+        idBase={idBase}
+        picker={pickerVoi(idBase)}
         action={
           <ZoomButton
             onClick={() => {
@@ -102,7 +136,7 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
           />
         }
       >
-        <LineChart model={model} />
+        <LineChart model={model} idBase={idBase} />
       </ChartFrame>
 
       <ChartFullscreen
@@ -111,7 +145,8 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
           setZoomed(false);
         }}
         model={model}
-        controls={picker}
+        idBase={`${idBase}-full`}
+        controls={pickerVoi(`${idBase}-full`)}
       />
     </>
   );

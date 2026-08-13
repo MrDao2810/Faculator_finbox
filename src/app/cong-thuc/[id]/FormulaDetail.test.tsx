@@ -10,6 +10,7 @@ import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/pref
 import { PreferencesProvider } from '@/application/preferences-context';
 
 import { FormulaDetail } from './FormulaDetail';
+import { latexToMathml } from './latex-html';
 
 /** jsdom chưa cài đặt <dialog>.showModal(); ba bottom sheet cần hai hàm này để mở ra được. */
 beforeAll(() => {
@@ -33,6 +34,18 @@ function specOf(id: string): FormulaSpec {
   const found = FORMULAS.find((f) => f.id === id);
   if (found === undefined) throw new Error(`Registry thiếu công thức '${id}'.`);
   return found;
+}
+
+/**
+ * Màn chi tiết như `page.tsx` dựng nó.
+ *
+ * Dựng ký hiệu toán bằng **chính hàm `page.tsx` gọi**, không phải một chuỗi giả: nếu ca kiểm nhận
+ * `latexHtml="<math/>"` viết tay thì nó chứng minh được đúng một thứ là component in ra cái nó
+ * được đưa — còn việc 107 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
+ * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX kèm theo, miễn phí.
+ */
+function Man({ spec }: { spec: FormulaSpec }) {
+  return <FormulaDetail spec={spec} asOf={AS_OF} latexHtml={latexToMathml(spec.latex)} />;
 }
 
 /**
@@ -84,7 +97,7 @@ function mucGiaiThich(): ReadonlyArray<HTMLDetailsElement> {
 
 describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   it('dựng đủ các khối bắt buộc của FR-02, FR-03 và FR-04', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     expect(screen.getByRole('heading', { level: 1 })).not.toBeNull();
     expect(screen.getByText('Ý nghĩa')).not.toBeNull();
@@ -101,7 +114,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    * người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để đọc.
    */
   it('cả bốn mục của phần Giải thích mở sẵn khi vào màn', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     const items = mucGiaiThich();
     expect(items).toHaveLength(4);
@@ -121,7 +134,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     // chưa kịp đọc localStorage.
     render(
       <PreferencesProvider>
-        <FormulaDetail spec={specOf('lai-kep')} asOf={AS_OF} />
+        <Man spec={specOf('lai-kep')} />
       </PreferencesProvider>,
     );
 
@@ -130,10 +143,31 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(mucGiaiThich().every((item) => item.open)).toBe(true);
   });
 
-  it('nói rõ khối còn trống thay vì để trống lặng lẽ', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+  /*
+   * Trạng thái chờ CUỐI CÙNG của màn này đã đóng: khối Công thức từng in câu "bản ký hiệu toán học
+   * đang hoàn thiện" trong khi gói 2.4.3 hoãn. Nay nó dựng MathML thật.
+   *
+   * Ca kiểm bám vào `<math>` chứ không bám vào chuỗi ký hiệu: nội dung bên trong là chuyện của
+   * KaTeX, thứ dự án cam kết là khối Công thức có ký hiệu toán chứ không chỉ có một dòng chữ.
+   */
+  it('khối Công thức dựng ký hiệu toán thật, không còn câu chờ', () => {
+    const { container } = render(<Man spec={specOf('pe')} />);
 
-    expect(screen.getByText(/tạm hiện công thức dạng chữ/)).not.toBeNull();
+    expect(container.querySelector('math')).not.toBeNull();
+    expect(screen.queryByText(/đang hoàn thiện|tạm hiện công thức dạng chữ/)).toBeNull();
+  });
+
+  /*
+   * Bản dạng chữ phải CÒN bên cạnh ký hiệu, không bị nó thay thế: nó nói cùng công thức bằng tên
+   * đầy đủ tiếng Việt, thứ mà ký hiệu viết tắt không nói — và là lối đọc còn lại nếu trình duyệt
+   * quá cũ không dựng được MathML.
+   */
+  it('giữ cả bản dạng chữ bên cạnh ký hiệu toán', () => {
+    render(<Man spec={specOf('roe')} />);
+
+    const expr = specOf('roe').expression;
+    expect(expr).toBeDefined();
+    expect(screen.getByText(String(expr))).not.toBeNull();
   });
 
   /*
@@ -142,14 +176,14 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    * thuộc nhóm Nâng cao — ca này giữ cho câu ấy không quay lại ở bất kỳ công thức nào.
    */
   it('không còn khung chờ ở khối biểu đồ — nhóm nâng cao cũng vẽ thật', async () => {
-    render(<FormulaDetail spec={specOf('wacc')} asOf={AS_OF} />);
+    render(<Man spec={specOf('wacc')} />);
 
     expect(await screen.findByRole('figure')).not.toBeNull();
     expect(screen.queryByText(/sẽ có ở bản sau/)).toBeNull();
   });
 
   it('không lọt sổ sách nội bộ (WBS, nhánh, gói) ra màn người dùng', () => {
-    const { container } = render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    const { container } = render(<Man spec={specOf('pe')} />);
 
     // Chữ "WBS" từng nằm ngay trên màn chi tiết VÀ trong file PDF xuất ra (đợt 14 mới gỡ).
     // Ca kiểm này giữ cho nó không quay lại — người dùng không cần biết mã kế hoạch nội bộ.
@@ -157,14 +191,14 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   });
 
   it('ô nhập sinh từ VariableSpec, không viết cứng cho công thức nào (FR-05)', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     expect(oNhap(/Giá thị trường/)).not.toBeNull();
     expect(oNhap(/EPS/)).not.toBeNull();
   });
 
   it('miễn trừ nằm NGAY ĐẦU MÀN chứ không đợi cuộn hết trang (FR-24 · UI-04)', () => {
-    const { container } = render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    const { container } = render(<Man spec={specOf('pe')} />);
 
     const notice = container.querySelector('[role="note"]');
     if (notice === null) throw new Error('Màn chi tiết thiếu dải miễn trừ.');
@@ -180,14 +214,14 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
 describe('WF-03 — lưới ô nhập', () => {
   it('ô số xếp hai cột, thanh trượt chiếm trọn hàng', () => {
     // P/E toàn ô số; lịch trả nợ có ba thanh trượt và một nhóm nút.
-    const narrow = render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    const narrow = render(<Man spec={specOf('pe')} />);
     const narrowFields = [...narrow.container.querySelectorAll('[class*="fields"] > div')];
 
     expect(narrowFields.length).toBeGreaterThan(0);
     expect(narrowFields.every((el) => !el.className.includes('fieldWide'))).toBe(true);
     cleanup();
 
-    const wide = render(<FormulaDetail spec={specOf('lich-tra-no')} asOf={AS_OF} />);
+    const wide = render(<Man spec={specOf('lich-tra-no')} />);
     const wideFields = [...wide.container.querySelectorAll('[class*="fields"] > div')];
 
     expect(wideFields.length).toBeGreaterThan(0);
@@ -197,18 +231,18 @@ describe('WF-03 — lưới ô nhập', () => {
 
 describe('WF-08 — khối chọn biểu phí đặt trên ô nhập', () => {
   it('công thức lãi ròng có ô chọn biểu phí; công thức khác thì không', () => {
-    render(<FormulaDetail spec={specOf('loi-nhuan-rong')} asOf={AS_OF} />);
+    render(<Man spec={specOf('loi-nhuan-rong')} />);
     expect(screen.getByLabelText('Biểu phí')).not.toBeNull();
     cleanup();
 
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     expect(screen.queryByLabelText('Biểu phí')).toBeNull();
   });
 });
 
 describe('WF-03 — không hiện cùng một con số hai lần', () => {
   it('lãi ròng chỉ hiện ở thẻ riêng, không kèm khối kết quả chung', () => {
-    render(<FormulaDetail spec={specOf('loi-nhuan-rong')} asOf={AS_OF} />);
+    render(<Man spec={specOf('loi-nhuan-rong')} />);
 
     expect(screen.queryByText('KẾT QUẢ')).toBeNull();
     // Con số vẫn phải còn — bỏ khối chung chứ không bỏ kết quả.
@@ -216,7 +250,7 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
   });
 
   it('lịch trả nợ GIỮ khối chung vì tổng lãi khác khoản trả hằng tháng', () => {
-    render(<FormulaDetail spec={specOf('lich-tra-no')} asOf={AS_OF} />);
+    render(<Man spec={specOf('lich-tra-no')} />);
 
     expect(screen.getByText('KẾT QUẢ')).not.toBeNull();
     expect(screen.getByText('989.691.880,64')).not.toBeNull();
@@ -224,7 +258,7 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
   });
 
   it('công thức thường vẫn có khối kết quả chung', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     expect(screen.getByText('KẾT QUẢ')).not.toBeNull();
   });
 
@@ -238,12 +272,12 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
 
 describe('WF-03 — kết quả cập nhật tức thì', () => {
   it('P/E hiện đúng 15,21 lần với ví dụ của wireframe', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     expect(screen.getByTestId('result-text').textContent).toBe('15,21 lần');
   });
 
   it('đổi ô nhập thì kết quả đổi theo', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     const price = oNhap(/Giá thị trường/);
     await userEvent.clear(price);
@@ -254,7 +288,7 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
   });
 
   it('EPS bằng 0 thì ra “— , —” kèm lý do, TUYỆT ĐỐI không ra 0 (FR-06)', async () => {
-    const { container } = render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    const { container } = render(<Man spec={specOf('pe')} />);
 
     const eps = oNhap(/EPS/);
     await userEvent.clear(eps);
@@ -268,7 +302,7 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
   });
 
   it('EPS âm thì báo không có ý nghĩa và gợi ý chuyển sang P/B (WF-15)', async () => {
-    const { container } = render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    const { container } = render(<Man spec={specOf('pe')} />);
 
     const eps = oNhap(/EPS/);
     await userEvent.clear(eps);
@@ -282,7 +316,7 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
 
 describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
   it('bấm Nạp mẫu thì mở sheet chọn mã', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
 
@@ -291,7 +325,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
   });
 
   it('nạp preset thì giá trị chảy về ô nhập và kết quả tính lại (FR-10)', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     const before = screen.getByTestId('result-text').textContent;
 
@@ -304,7 +338,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
   });
 
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: '↓ Xuất' }));
 
@@ -318,7 +352,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     const coNut: string[] = [];
 
     for (const spec of FORMULAS) {
-      const { unmount } = render(<FormulaDetail spec={spec} asOf={AS_OF} />);
+      const { unmount } = render(<Man spec={spec} />);
       if (screen.queryByRole('button', { name: t('detail.pasteSeries') }) !== null) {
         coNut.push(spec.id);
       }
@@ -345,14 +379,14 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
   }, 15_000);
 
   it('công thức vô hướng không có nút nào — đừng bày thứ họ không dùng', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     expect(screen.queryByRole('button', { name: t('detail.pasteSeries') })).toBeNull();
     expect(screen.queryByRole('link', { name: t('detail.openDataTable') })).toBeNull();
   });
 
   it('nạp bộ mẫu thì công thức chuỗi ra số NGAY, không còn báo thiếu phiên giá', async () => {
-    render(<FormulaDetail spec={specOf('ty-so-sharpe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('ty-so-sharpe')} />);
 
     // Mở màn ra là chờ dữ liệu — đúng FR-06, không bịa số.
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
@@ -372,7 +406,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
 
 describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
   it('công thức cơ bản vẽ biểu đồ thật, nạp trễ qua next/dynamic', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     // Thân biểu đồ nằm sau ranh giới nạp trễ nên tới sau một nhịp.
     expect(await screen.findByRole('figure')).not.toBeNull();
@@ -380,7 +414,7 @@ describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
   });
 
   it('đổi ô nhập thì biểu đồ và bảng số đổi theo, khớp con số ở khối Kết quả', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     const figure = await screen.findByRole('figure');
 
     const price = oNhap(/Giá thị trường/);
@@ -401,7 +435,7 @@ describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
     const none = FORMULAS.find((f) => f.chartType === 'none');
     if (none === undefined) throw new Error('Registry không còn công thức nào chartType none.');
 
-    render(<FormulaDetail spec={none} asOf={AS_OF} />);
+    render(<Man spec={none} />);
 
     expect(screen.queryByRole('figure')).toBeNull();
     expect(screen.queryByText('Biểu đồ')).toBeNull();
@@ -415,7 +449,7 @@ describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
    * theo từng phiên. Trước đợt này nó chỉ có duy nhất câu "sẽ có ở bản sau", bấm gì cũng không đổi.
    */
   it('công thức ăn chuỗi giá: nói rõ thiếu gì, nạp mẫu xong thì vẽ theo từng phiên', async () => {
-    render(<FormulaDetail spec={specOf('sma-n-phien')} asOf={AS_OF} />);
+    render(<Man spec={specOf('sma-n-phien')} />);
 
     expect(screen.queryByRole('figure')).toBeNull();
     const waiting = await screen.findByRole('status');
@@ -440,7 +474,7 @@ describe('WF-03 — người dùng gõ được số cụ thể của mã họ �
    * tới được khi bước là 0,1%.
    */
   it('gõ được giá trị lệch lưới bước vào ô của thanh trượt, và kết quả tính theo đúng số đó', async () => {
-    render(<FormulaDetail spec={specOf('lai-kep')} asOf={AS_OF} />);
+    render(<Man spec={specOf('lai-kep')} />);
 
     const rate = oNhap(/Lãi suất/);
     await userEvent.clear(rate);
@@ -458,7 +492,7 @@ describe('WF-03 — người dùng gõ được số cụ thể của mã họ �
   });
 
   it('khoản vay gõ được từng đồng, dù bước thanh trượt là 10 triệu', async () => {
-    render(<FormulaDetail spec={specOf('tra-gop-nien-kim')} asOf={AS_OF} />);
+    render(<Man spec={specOf('tra-gop-nien-kim')} />);
 
     const amount = oNhap(/Số tiền vay/);
     await userEvent.clear(amount);
@@ -468,7 +502,7 @@ describe('WF-03 — người dùng gõ được số cụ thể của mã họ �
   });
 
   it('miền vẫn là luật — gõ ra ngoài min/max thì kẹp lại', async () => {
-    render(<FormulaDetail spec={specOf('lai-kep')} asOf={AS_OF} />);
+    render(<Man spec={specOf('lai-kep')} />);
 
     const rate = oNhap(/Lãi suất/);
     await userEvent.clear(rate);
@@ -481,7 +515,7 @@ describe('WF-03 — người dùng gõ được số cụ thể của mã họ �
 
 describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   it('dòng số của ví dụ là ô gõ được, không phải chữ chết', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     expect((oViDu(/Giá thị trường/) as HTMLInputElement).readOnly).toBe(false);
     expect((oViDu(/EPS/) as HTMLInputElement).readOnly).toBe(false);
@@ -493,7 +527,7 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
    * thì ô ở trên đổi theo, và ngược lại — chúng không phải hai bản sao mà LÀ một con số.
    */
   it('gõ ở khối Ví dụ thì ô ở khối Số liệu đổi theo, và kết quả tính lại', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     const duoi = oViDu(/Giá thị trường/);
     await userEvent.clear(duoi);
@@ -504,7 +538,7 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   it('gõ ở khối Số liệu thì ô ở khối Ví dụ cũng đổi — hai chiều', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     const tren = oNhap(/EPS/);
     await userEvent.clear(tren);
@@ -514,7 +548,7 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   it('biểu đồ vẽ lại theo số vừa gõ ở khối Ví dụ', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     const figure = await screen.findByRole('figure');
 
     const duoi = oViDu(/Giá thị trường/);
@@ -525,7 +559,7 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   it('lệch khỏi ví dụ thì nói ra con số gốc kèm nút quay về, bấm là trở lại trọn bộ', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     // Đang đúng bộ của ví dụ thì chưa cần bày nút nào.
     expect(screen.queryByRole('button', { name: 'Về số của ví dụ' })).toBeNull();
@@ -549,7 +583,7 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
    * người vừa bấm "nạp FPT" đang chờ được thấy.
    */
   it('bấm Nạp mẫu thì trục X tự chuyển sang thời gian, câu mô tả nói rõ mã', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     await screen.findByRole('figure');
 
     expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
@@ -564,7 +598,7 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
   });
 
   it('nạp mã xong vẫn đổi lại về đường giả định được (FR-10 — không khoá gì cả)', async () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
     await screen.findByRole('figure');
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
@@ -581,7 +615,7 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
    * đây là kiểm việc NẠP, không kiểm phép tính.
    */
   it('nạp mã điền cả số cổ phiếu, không để nguyên giá trị mặc định', async () => {
-    render(<FormulaDetail spec={specOf('von-hoa-thi-truong')} asOf={AS_OF} />);
+    render(<Man spec={specOf('von-hoa-thi-truong')} />);
 
     const shares = oNhap(/Số cổ phiếu lưu hành/);
     expect((shares as HTMLInputElement).value).toBe('118');
@@ -600,7 +634,7 @@ describe('WF-03 — đường ra khỏi màn chi tiết', () => {
    */
   it('mọi công thức đều có link quay về danh sách', () => {
     for (const spec of FORMULAS) {
-      const { unmount } = render(<FormulaDetail spec={spec} asOf={AS_OF} />);
+      const { unmount } = render(<Man spec={spec} />);
 
       const back = screen.getByRole('link', { name: t('nav.backToList') });
       expect(back.getAttribute('href'), spec.id).toMatch(/^\/cong-thuc\/?(\?|$)/);
@@ -610,7 +644,7 @@ describe('WF-03 — đường ra khỏi màn chi tiết', () => {
   });
 
   it('đường ra là link thật, không phải nút — chạy được cả khi JavaScript chưa tải xong', () => {
-    render(<FormulaDetail spec={specOf('pe')} asOf={AS_OF} />);
+    render(<Man spec={specOf('pe')} />);
 
     expect(screen.getByRole('link', { name: t('nav.backToList') }).tagName).toBe('A');
   });
@@ -619,7 +653,7 @@ describe('WF-03 — đường ra khỏi màn chi tiết', () => {
 describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn', () => {
   it('mọi công thức đều dựng được và không hiện NaN hay Infinity', () => {
     for (const spec of FORMULAS) {
-      const { container, unmount } = render(<FormulaDetail spec={spec} asOf={AS_OF} />);
+      const { container, unmount } = render(<Man spec={spec} />);
 
       expect(container.textContent, spec.id).not.toContain('NaN');
       expect(container.textContent, spec.id).not.toContain('Infinity');
@@ -640,7 +674,7 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
    */
   it('không công thức nào là ngõ cụt: hoặc ra số, hoặc nói rõ thiếu gì và chỉ cách khắc phục', () => {
     for (const spec of FORMULAS) {
-      const { unmount } = render(<FormulaDetail spec={spec} asOf={AS_OF} />);
+      const { unmount } = render(<Man spec={spec} />);
       const shown = screen.getByTestId('result-text').textContent ?? '';
 
       if (!shown.includes(NO_VALUE)) {
@@ -668,7 +702,7 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
     const chờDữLiệu: string[] = [];
 
     for (const spec of FORMULAS) {
-      const { unmount } = render(<FormulaDetail spec={spec} asOf={AS_OF} />);
+      const { unmount } = render(<Man spec={spec} />);
       if ((screen.getByTestId('result-text').textContent ?? '').includes(NO_VALUE)) {
         chờDữLiệu.push(spec.id);
       }

@@ -14,7 +14,7 @@
  * Cắt dấu `/` thừa ở cuối: `https://x.vn/` cộng `/cong-thuc/` sẽ ra `//cong-thuc/`.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://falculator-finbox.pages.dev'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://faculator-finbox.pages.dev'
 ).replace(/\/+$/, '');
 
 /** Ghép đường dẫn nội bộ thành URL tuyệt đối. */

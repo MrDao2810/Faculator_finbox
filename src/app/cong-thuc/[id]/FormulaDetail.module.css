@@ -97,6 +97,35 @@
   line-height: var(--leading-normal);
 }
 
+/*
+ * Ký hiệu toán học — chuỗi MathML do KaTeX dựng lúc build (gói 2.4.3).
+ *
+ * Không nạp `katex.min.css`: nhánh MathML để trình duyệt tự dàn trang bằng font của chính trang,
+ * nên nó không cần một dòng CSS nào của KaTeX lẫn 20 file font đi kèm. Cả phần tạo kiểu ở đây gói
+ * gọn trong khối này.
+ */
+.formula {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-4) var(--space-3);
+
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  /* Công thức dài (DDM hai giai đoạn, Sortino) cuộn ngang trong khung riêng — NFR-USA-02. */
+  overflow-x: auto;
+}
+
+/*
+ * `:global` vì `class="katex"` do KaTeX sinh ra, không do CSS module đặt tên.
+ *
+ * Chỉ nâng cỡ chữ: ký hiệu toán ở cỡ chữ thân bài thì chỉ số dưới và tử số của phân số nhỏ tới
+ * mức khó đọc trên điện thoại.
+ */
+.formula :global(.katex) {
+  font-size: 1.15em;
+}
+
 .expression {
   margin: 0;
   padding: var(--space-3);
@@ -114,11 +143,11 @@
 }
 
 /*
- * Dòng ghi chú phụ dưới một khối: câu "bản ký hiệu toán đang hoàn thiện", số phiên giá đã nạp.
+ * Dòng ghi chú phụ dưới một khối. Nay còn đúng một nơi dùng: số phiên giá đã nạp.
  *
- * `.chartSlot` từng đứng ở đây làm khung nét đứt cho khối biểu đồ chưa dựng. Bỏ khi biểu đồ phủ tới
- * 97 công thức và 10 công thức `chartType: 'none'` không dựng khối ấy chút nào — không còn trạng
- * thái "chờ" nào để đóng khung.
+ * Hai trạng thái "chờ" từng dùng khuôn này đều đã đóng. `.chartSlot` là khung nét đứt cho khối
+ * biểu đồ chưa dựng, bỏ khi biểu đồ phủ tới 97 công thức. Câu "bản ký hiệu toán đang hoàn thiện"
+ * bỏ khi gói 2.4.3 dựng thật — xem `.formula` phía trên.
  */
 .pendingNote {
   margin: 0;

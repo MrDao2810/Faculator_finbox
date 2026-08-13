@@ -427,8 +427,11 @@ export const TY_SO_TREYNOR: FormulaModule = {
       numberVar('beta', 'Hệ số beta của danh mục', 'lần', 1.2, {
         min: -5,
         max: 5,
+        // Cố ý KHÔNG nhắc "công thức Beta": thư viện chưa có công thức đó, và câu cũ trỏ người
+        // dùng đi tìm một thứ không tồn tại. Beta hồi quy là gói 3.3.2, kẹt vì `src/data` chưa có
+        // chuỗi VN-Index để hồi quy. Chỉ nêu những nguồn có thật.
         description:
-          'Nhập tay: lấy từ công thức Beta, từ bảng dữ liệu của công ty chứng khoán, hoặc từ báo cáo quỹ. Beta 1 nghĩa là biến động ngang thị trường.',
+          'Nhập tay: lấy từ bảng dữ liệu của công ty chứng khoán, từ báo cáo quỹ, hoặc từ trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
       }),
     ],
     explanation: {

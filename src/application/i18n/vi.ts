@@ -11,9 +11,9 @@ import { DISCLAIMER_VI } from '@/core/disclaimer';
 
 export const vi = {
   /* Tên đầy đủ — dùng cho tiêu đề tài liệu trong `layout.tsx`, không hiện trên thanh trên. */
-  'app.name': 'Falculator Finbox',
-  /* Tên gọn hiện cạnh logo trên thanh trên — bản thiết kế chỉ ghi "Falculator". */
-  'app.brand': 'Falculator',
+  'app.name': 'Faculator Finbox',
+  /* Tên gọn hiện cạnh logo trên thanh trên — bản thiết kế chỉ ghi "Faculator". */
+  'app.brand': 'Faculator',
 
   // Điều hướng — WF-18 chốt thanh nav dưới có 4 mục
   'nav.primary': 'Điều hướng chính',
@@ -155,9 +155,6 @@ export const vi = {
   'detail.export': '↓ Xuất',
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
-  // Câu "sẽ có ở bản sau" dưới đây cố ý KHÔNG nhắc số gói WBS hay nhánh: người dùng cuối không cần
-  // biết sổ sách nội bộ, và câu có chữ "WBS" từng lọt cả vào file PDF xuất ra (đợt 14).
-  'detail.latexPending': 'Bản ký hiệu toán học đang hoàn thiện — tạm hiện công thức dạng chữ.',
   'detail.inputs': 'Số liệu',
   'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
   'detail.constantSource': 'Market Config · CON-10',

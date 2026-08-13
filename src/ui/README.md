@@ -26,11 +26,16 @@
 
 ## Sắp tới
 
-Hai chỗ đang cố ý để trống, và **nói rõ lý do ngay trên màn** thay vì để trống lặng lẽ:
+Không còn khối nào ở trạng thái chờ trên màn chi tiết.
 
-- gói 2.4.3 `FormulaLatex` — hoãn, chưa chốt có thêm KaTeX hay không. Trong lúc chờ, màn chi
-  tiết hiện `spec.expression`, tức công thức viết bằng chữ tiếng Việt.
-- nhánh 4 biểu đồ — WF-03, WF-08 và WF-14 đều đã chừa khung.
+Gói 2.4.3 (ký hiệu toán học) **đã xong**, nhưng KHÔNG có component nào ở đây: nó phải chạy lúc
+build mới không tốn byte JS nào của trình duyệt, mà mọi thứ trong thư mục này đều là component
+phía máy khách. Chỗ dựng nằm ở `src/app/cong-thuc/[id]/latex-html.ts`, gọi từ `page.tsx` — server
+component. Đừng bọc lại thành một `FormulaLatex` ở đây; làm thế là kéo ~280 kB `katex` vào gói.
+
+Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 97/107 công thức, kèm màn phóng to toàn màn hình.
+Hai component còn dựng xong mà chưa màn nào dùng là `inputs/LinkedInput` và `result/FlowChainStrip`:
+cả hai chờ gói 5.2.3 sinh ra chuỗi phụ thuộc `dependsOn` đầu tiên. Giữ, đừng dọn.
 
 ## Cách viết component ở đây
 

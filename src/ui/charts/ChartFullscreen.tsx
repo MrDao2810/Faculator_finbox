@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { t } from '@/application';
 import type { LineChart as LineChartModel } from '@/application';
@@ -35,6 +35,13 @@ export interface ChartFullscreenProps {
   onClose: () => void;
   model: LineChartModel;
   /**
+   * Gốc để ghép `id` của tiêu đề và của `<pattern>` bên trong hình.
+   *
+   * Phải KHÁC gốc của bản trên trang: hai bản cùng nằm trong DOM khi lớp phủ đang mở. `ChartBody`
+   * là chỗ gắn hậu tố phân biệt.
+   */
+  idBase: string;
+  /**
    * Ô chọn trục X, bày lại trong màn phóng to.
    *
    * Có mặt ở đây là cố ý: đổi trục là việc người ta muốn làm NGAY khi đang xem kỹ, và bắt thoát ra
@@ -42,6 +49,14 @@ export interface ChartFullscreenProps {
    */
   controls?: ReactNode;
 }
+
+/**
+ * Khoá đánh dấu mục lịch sử do lớp phủ này đẩy vào.
+ *
+ * Đặt tên có tiền tố sản phẩm vì `history.state` là không gian tên DÙNG CHUNG với App Router của
+ * Next: một khoá trơn kiểu `zoom` có ngày đụng thứ khác đang ở đó.
+ */
+const HISTORY_MARKER = 'ffbChartZoom';
 
 /** Máy có đang để dọc hay không. `null` là chưa biết — chưa mở nên chưa hỏi. */
 function usePortrait(active: boolean): boolean | null {
@@ -76,13 +91,26 @@ function usePortrait(active: boolean): boolean | null {
   return portrait;
 }
 
-export function ChartFullscreen({ open, onClose, model, controls }: ChartFullscreenProps) {
+export function ChartFullscreen({ open, onClose, model, idBase, controls }: ChartFullscreenProps) {
   const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
+  const titleId = `${idBase}-title`;
 
   /** Khoá xoay đã ăn hay chưa — quyết định có phải nhờ người dùng xoay tay không. */
   const [locked, setLocked] = useState(false);
   const portrait = usePortrait(open);
+
+  /*
+   * `onClose` là arrow dựng mới mỗi lượt render ở `ChartBody`. Đưa thẳng vào deps của effect lịch
+   * sử bên dưới là effect chạy lại mỗi lượt render — tức đẩy THÊM MỘT mục lịch sử mỗi lượt render.
+   * Ref giữ tham chiếu mới nhất mà không kéo theo phụ thuộc.
+   *
+   * Cố ý KHÔNG bắt `ChartBody` bọc `useCallback`: làm thế là đẩy bất biến sang mọi người gọi sau
+   * này. Component tự phòng thân, đúng nếp đã dùng ở `usePortrait` phía trên.
+   */
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
 
   useEffect(() => {
     const dialog = ref.current;
@@ -101,6 +129,67 @@ export function ChartFullscreen({ open, onClose, model, controls }: ChartFullscr
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = previous;
+    };
+  }, [open]);
+
+  /*
+   * ── Nút Back của hệ thống phải ĐÓNG LỚP PHỦ, không phải rời trang ────────────────────────────
+   *
+   * `<dialog>` không có liên kết nào với lịch sử duyệt. Trên Android, khi đang phóng to mà bấm
+   * Back thì trình duyệt đi thẳng bước điều hướng: người dùng rời `/cong-thuc/pe/` về
+   * `/cong-thuc/` và MẤT HẾT số vừa gõ. Đo được trên giả lập Pixel 7: gõ 77777 vào ô nhập, phóng
+   * to, bấm Back — về danh sách, ô nhập trống. Lớp phủ "đóng" chỉ vì cả trang bị tháo.
+   *
+   * Cách vá: mở lớp phủ thì đẩy một mục lịch sử, nghe `popstate` để đóng, và khi đóng bằng nút X
+   * hay phím Esc thì tự gỡ mục ấy đi để không để rác lại.
+   *
+   * Chưa kiểm được, cần máy Android THẬT: Chrome ăn cú Back đầu tiên để thoát fullscreen trước,
+   * nên lần đầu người dùng có thể thấy thanh trạng thái quay lại mà lớp phủ vẫn nguyên. Cách bù
+   * hiển nhiên là nghe `fullscreenchange` rồi đóng lớp phủ khi `fullscreenElement` thành null —
+   * nhưng giả lập không tái tạo được lớp ấy, nên đó sẽ là vá mù. Để nguyên, ghi lại ở TASK.md.
+   */
+  useEffect(() => {
+    if (!open) return;
+
+    /*
+     * Biến cục bộ của effect, KHÔNG phải ref: vòng đời của nó đúng bằng vòng đời MỘT lần mở, nên
+     * giá trị cũ không thể rò sang lần mở sau. Ref thì rò.
+     */
+    let mine = true;
+
+    /*
+     * Trộn state cũ vào chứ không đẩy object trơn: App Router của Next vá `pushState` và giữ cây
+     * route trong `history.state`. Ghi đè nó là lúc Back về router dựng lại sai nhánh.
+     *
+     * KHÔNG truyền tham số url thứ ba. Cùng URL thì `popstate` là điều hướng same-route, trang
+     * không dựng lại, và số người dùng vừa gõ còn nguyên — đó là toàn bộ mục đích của bản vá này.
+     */
+    window.history.pushState({ ...window.history.state, [HISTORY_MARKER]: true }, '');
+
+    const onPopState = () => {
+      // Mục của ta vừa bị gỡ khỏi lịch sử — tuyệt đối không gọi `history.back()` ở hàm dọn nữa,
+      // gọi là lùi thêm một bước THẬT và người dùng rời trang đúng thứ bản vá này đang chặn.
+      mine = false;
+      closeRef.current();
+    };
+    window.addEventListener('popstate', onPopState);
+
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      const state: unknown = window.history.state;
+      /*
+       * Đóng bằng nút X hoặc phím Esc: mục đẩy vào vẫn còn, tự gỡ đi.
+       *
+       * Đọc lại `history.state` khiến hàm dọn AN TOÀN KHI CHẠY HAI LẦN — `reactStrictMode` đang
+       * bật (`next.config.mjs`) nên ở chế độ dev React gọi effect → dọn → effect, mà
+       * `history.back()` là bất đồng bộ; thiếu phép kiểm này thì lượt dọn thứ hai lùi thêm một
+       * bước không phải của mình.
+       */
+      const marked =
+        typeof state === 'object' &&
+        state !== null &&
+        (state as Record<string, unknown>)[HISTORY_MARKER] === true;
+      if (mine && marked) window.history.back();
     };
   }, [open]);
 
@@ -190,7 +279,7 @@ export function ChartFullscreen({ open, onClose, model, controls }: ChartFullscr
             </button>
           </header>
 
-          <LineChart model={model} fill />
+          <LineChart model={model} idBase={idBase} fill />
 
           <div className={styles.fullFoot}>
             {controls}

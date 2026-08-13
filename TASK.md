@@ -24,7 +24,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 2.3.4 | LinkedInput                                          | 12h00   | Xong — đợt 5                                  |
 | 2.4.1 | ResultBlock                                          | 5h00    | Xong — đợt 5                                  |
 | 2.4.2 | ErrorState · InlineWarning                           | 5h00    | Xong — đợt 5                                  |
-| 2.4.3 | FormulaLatex (KaTeX)                                 | 3h00    | **Hoãn** — chủ dự án chốt làm thật, chưa xếp  |
+| 2.4.3 | FormulaLatex (KaTeX)                                 | 3h00    | Xong — xem mục "Ký hiệu toán học"             |
 | 2.4.4 | ExplanationAccordion                                 | 3h00    | Xong — đợt 5                                  |
 | 2.4.5 | VariableTable · ExampleBlock · SourceBlock           | 4h30    | Xong — đợt 5                                  |
 | 2.4.6 | FlowChain                                            | 6h00    | Xong — đợt 5                                  |
@@ -70,10 +70,381 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 4.3   | Mở biểu đồ cho 47 công thức còn lại — **phủ 97/107** | ~4h     | Xong — xem mục "Đợt 3 của biểu đồ"            |
 | 2.4.4 | Khối Giải thích luôn mở sẵn khi vào màn chi tiết     | —       | Xong — xem mục "Khối Giải thích… luôn mở sẵn" |
 | 4.4   | Nút phóng to biểu đồ toàn màn hình + xoay ngang      | ~5h     | Xong — xem mục "Phóng to biểu đồ"             |
+| —     | Sửa tên sản phẩm "Falculator" → "Faculator"          | —       | Xong — xem mục "Sửa tên sản phẩm"             |
+| —     | Vá lệch hydration `useId()` ở cây biểu đồ            | —       | Xong — xem mục "Đợt đóng đuôi"                |
+| —     | Vá nút Back Android xoá trang khi phóng to biểu đồ   | —       | Xong — xem mục "Đợt đóng đuôi"                |
+| —     | Đồng bộ lại CLAUDE.md / README / TASK.md với code    | —       | Xong — xem mục "Đợt đóng đuôi"                |
+| 2.4.3 | Ký hiệu toán học — KaTeX dựng lúc build              | 3h00    | Xong — xem mục "Ký hiệu toán học"             |
+| —     | Kiểm tra lỗi toàn dự án + dọn ba điểm sửa nhanh      | —       | Xong — xem mục "Kiểm tra lỗi"                 |
 
 Cộng dồn: **231,7 giờ** trên tổng 623 giờ của bảng Estimate
 (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13).
 **Nhánh 3.1 xong trọn**; nhánh 3.2 xong ba trên bốn gói; nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Kiểm tra lỗi toàn dự án — và ba điểm dọn ngay
+
+### Yêu cầu
+
+> "kiểm tra lỗi của dự án" → "những lỗi nào có thể sửa được nhanh thì bắt đầu sửa cho tôi"
+
+### Chuỗi kiểm tra chạy được: xanh hết
+
+`typecheck`, `lint` (0 warning), `format:check`, và **1224 test / 53 file** đều qua trước khi
+đụng vào gì. Không có lỗi nào ở chuỗi kiểm tra tĩnh.
+
+### Lỗ hổng lớn nhất KHÔNG phải bug code — đã đóng
+
+`npm run build` **chưa chạy lần nào kể từ khi thêm KaTeX**. `out/` còn là bản dựng 08/08, và đọc
+thẳng `out/cong-thuc/pe/index.html` thì **không có `<math`**. Nghĩa là ba check KaTeX của
+`verify-static.mjs` chưa bao giờ chạy thật, mà theo đúng chú thích trong chính file đó, chúng là
+**phép kiểm duy nhất** phân biệt được dựng-lúc-build với dựng-lúc-chạy — unit test jsdom thì
+`<math>` nào cũng có. Toàn bộ lý lẽ "0 byte KaTeX phía máy khách" của gói 2.4.3 khi ấy chưa có gì
+chứng thực.
+
+Cửa gác `check-no-dev.mjs` chặn build vì dev server còn sống từ hôm trước (PID 22712, cổng 3000).
+**Không dùng `FFB_ALLOW_BUILD_WITH_DEV=1`** — chính cửa gác nói cách đó làm hỏng hẳn dev server
+đang chạy và nó không tự hồi phục. Dừng đúng PID đó rồi build.
+
+Kết quả, đo thật:
+
+| Phép kiểm       | Kết quả                                      |
+| --------------- | -------------------------------------------- |
+| `build`         | Đạt — 118 trang tĩnh, 0 lỗi                  |
+| `verify:static` | Đạt — **22/22**, gồm cả ba check KaTeX       |
+| `size`          | Đạt — **156,0 kB** JS nén, cửa kiểm 170,0 kB |
+
+Gói 2.4.3 giờ đã được chứng thực đúng thứ nó tự nhận: MathML nằm sẵn trong HTML tĩnh, không kèm
+`katex.min.css`, không file font nào.
+
+**Cẩn thận với con số của `next build`**: nó báo `/cong-thuc/[id]` là 215 kB "First Load JS", trông
+như vượt cửa. Đó là số **thô**; NFR-PER-04 đo JS **đã nén**, và `size-report.mjs` đo đúng thứ đó.
+Dư địa còn 14 kB, không rộng.
+
+### Đã đổi file nào — ba điểm sửa nhanh
+
+- **`scripts/verify-static.mjs`** — check "không nạp katex.min.css hay font của KaTeX" thiếu guard
+  `detailHtml !== ''`. Thiếu file `out/cong-thuc/pe/index.html` thì `catch` nuốt lỗi, `detailHtml`
+  thành chuỗi rỗng và check **pass giả**. Hai check anh em cùng khối làm đúng; chỉ mình nó lệch.
+- **`package.json`** + **`package-lock.json`** — `katex` từ `^0.18.4` về **`0.18.4`**. Nó là
+  dependency DUY NHẤT của repo dùng caret; `next`, `react`, `react-dom` và cả 15 devDependency đều
+  ghim cứng. Riêng gói này lý lẽ đứng trên số đo thật của đúng bản 0.18.4 (bảng đo ở mục dưới) và
+  trên cấu trúc markup mà CSS đang bám vào, nên caret là chỗ để một bản minor đổi cả hai thứ đó mà
+  không ai biết. Sửa cả lock để `npm ci` không lệch.
+- **`src/app/cong-thuc/[id]/latex-html.test.ts`** — thêm ca kiểm chốt lớp bọc `class="katex"` CÓ
+  MẶT. `FormulaDetail.module.css` nâng cỡ chữ bằng `.formula :global(.katex)`, tức bám vào class do
+  KaTeX sinh, mà các ca cũ chỉ chốt sự VẮNG MẶT của `katex-html`. Bản KaTeX sau bỏ lớp bọc ấy là cỡ
+  chữ tụt lặng lẽ, cả bộ test vẫn xanh. Đã render thật bằng 0.18.4 để xác nhận lớp bọc đang có.
+
+Sau khi sửa: `npm run check` xanh, **1225 test**.
+
+### Đã soi và KHÔNG phải lỗi — ghi lại để khỏi ai soi lại
+
+- **`ChartFullscreen.tsx` không lùi nhầm một bước lịch sử.** Hàm dọn chỉ gọi `history.back()` khi
+  cả `mine` lẫn `marked` đúng, mà `marked` đọc lại `history.state` ngay lúc dọn. Điều hướng thật
+  (`Link` / `router.push`) thay `history.state` nên `marked` thành false → không lùi thêm.
+- **`package-lock.json` bỏ caret ở 5 devDeps không phải drift** — `package.json` vốn đã ghim cứng
+  từ trước, lock cũ mới là bản lệch, và `npm install katex` đồng bộ lại nó.
+- **Không drift `gen:summaries`** — `summaries.test.ts` đối chiếu file sinh mỗi lần chạy test.
+- **`detail.latexPending` gỡ sạch**, **"Falculator" không còn trong mã nguồn**, **KaTeX không lọt
+  vào client bundle** (chỉ `page.tsx` server component và file test import nó), **`src/ui/charts/`
+  không còn lời gọi `useId()` nào** — mọi chỗ còn chữ đó đều là chú thích.
+
+### Còn lại
+
+- [x] Chạy `npm run build` → `npm run verify:static` → `npm run size` — xong, kết quả ở bảng trên.
+- [ ] `next lint` in cảnh báo deprecation (Next 16 sẽ gỡ). Chủ dự án chốt **để nguyên bây giờ**:
+      chưa gãy, lint vẫn 0 warning, mà chuyển đổi đụng cả hàng rào ranh giới tầng CON-02/CON-03.
+- [ ] `.claude/settings.json` (+23 allow rule) đang nằm chung working tree với ba chủ đề code —
+      nên tách khỏi commit code.
+- [ ] Dev server đã bị dừng để build (PID 22712). Bật lại bằng `npm run dev` khi cần.
+
+---
+
+## Ký hiệu toán học — gói 2.4.3, hoãn từ đợt 5
+
+### Yêu cầu
+
+> "bắt đầu làm tiếp dự án được rồi chứ"
+
+Hướng đã chốt ở đợt trước: KaTeX render **lúc build**, không tốn byte JS nào phía máy khách.
+
+### Đo trước khi viết dòng nào — và số đo đổi luôn cấu hình
+
+Trường `latex` có ở cả 107 spec từ đợt 1 nhưng **chưa bao giờ được đưa qua một bộ dựng nào**, nên
+việc đầu tiên là chạy thử cả 107 chuỗi qua KaTeX ở ba chế độ output:
+
+| Chế độ          | 107 CT thô | nén     | Tài sản kèm theo          | Chữ Việt có dấu  |
+| --------------- | ---------- | ------- | ------------------------- | ---------------- |
+| `htmlAndMathml` | 414,9 kB   | 20,1 kB | +23 kB CSS, ~20 file font | **hỏng metric**  |
+| `html`          | 358,2 kB   | 12,7 kB | +23 kB CSS, ~20 file font | **hỏng metric**  |
+| `mathml`        | 55,9 kB    | 6,0 kB  | **không gì cả**           | sạch, 0 cảnh báo |
+
+**0 lỗi dựng** trên cả 107 chuỗi — không có chuỗi latex hỏng nào nằm sẵn trong metadata.
+
+Dung lượng đã đủ để chọn `mathml`, nhưng thứ thật sự LOẠI hai chế độ kia là cột cuối. Công thức
+của dự án viết bằng chữ tiếng Việt trong `\text{}` — `\text{Vốn chủ sở hữu}`,
+`\text{Số CP lưu hành}`. Bộ dựng HTML của KaTeX không có số đo bề rộng cho ký tự có dấu tiếng Việt
+(hàng trăm dòng `No character metrics for 'ổ' in style 'Main-Regular'`) và font `KaTeX_Main` cũng
+không chứa những glyph ấy. Nhánh MathML không cần metric: trình duyệt tự dàn trang bằng font của
+chính trang.
+
+Nói cách khác: cấu hình mặc định của KaTeX là cấu hình sai cho dự án này, và chỉ có đo trên chính
+dữ liệu của dự án mới thấy. Mỗi trang chỉ mang MỘT công thức nên chi phí thật là **294–1326 B thô
+(~229–452 B nén)**, không phải con số tổng ở bảng trên.
+
+### Một nghi ngờ sai, ghi lại để khỏi ai nghi lại
+
+Markup của `roe` cho thấy KaTeX bẻ chữ "ố" thành `<mover>` chồng hai dấu trên "o", trong khi "ủ ở
+ữ" cùng câu thì giữ nguyên. Nghi chuỗi nguồn lẫn hai dạng chuẩn hoá Unicode — **sai**: kiểm cả 107
+chuỗi `latex`, `name.vi` và `expression`, không chuỗi nào lệch NFC, và "ố" là U+1ED1 một mã điểm.
+Đó là bảng dựng sẵn của chính KaTeX. Chụp màn bằng Chrome thật: hiện ra **đúng y chữ "ố"**, không
+phải xử lý gì.
+
+### Đã đổi file nào — gói 2.4.3
+
+- **`src/app/cong-thuc/[id]/latex-html.ts`** (mới) — `latexToMathml()`. Docblock ghi trọn bảng đo
+  ở trên và bất biến "chỉ server component được import".
+- **`src/app/cong-thuc/[id]/page.tsx`** — dựng ký hiệu rồi truyền xuống qua prop. Đây là server
+  component, cùng lý do đã ghi cho `AS_OF`: `katex` nặng ~280 kB, vào gói trình duyệt là vượt cửa
+  kiểm 170 kB ngay.
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — khối 3 dựng MathML bằng
+  `dangerouslySetInnerHTML`, bỏ câu chờ. **Giữ lại bản dạng chữ** bên dưới: nó nói cùng công thức
+  bằng tên đầy đủ tiếng Việt, thứ ký hiệu viết tắt không nói — và là lối đọc còn lại nếu trình
+  duyệt quá cũ không dựng được MathML.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`** — `.formula`, cuộn ngang riêng cho công
+  thức dài (DDM hai giai đoạn, Sortino).
+- **`src/application/i18n/vi.ts`** — xoá `detail.latexPending`. Ca kiểm khoá mồ côi của đợt 13 sẽ
+  đỏ nếu để lại.
+- **`scripts/verify-static.mjs`** — 14 → **17 check**.
+- **`package.json`** — `katex` vào `dependencies`, không phải `devDependencies`: `page.tsx` import
+  nó nên nó là đầu vào để BUILD được ứng dụng. Cloudflare Pages cài `devDependencies` hay không là
+  chuyện của cấu hình, không nên phụ thuộc vào.
+
+### Vì sao ba check mới nằm ở `verify-static` chứ không ở vitest
+
+Cả gói này đứng trên một tính chất: ký hiệu được nướng vào HTML **lúc build**. Tính chất ấy vô hình
+với unit test — jsdom dựng component thì `<math>` nào cũng có, kể cả khi nó do JS máy khách sinh ra
+lúc chạy. Chỉ đọc thẳng `out/cong-thuc/pe/index.html` mới phân biệt được hai chuyện đó.
+
+Ngày ai đó chuyển `latexToMathml()` vào một client component, 1224 ca vitest vẫn xanh và chỉ ba
+check này đỏ. Hai check kia chốt hệ quả của việc chọn `mathml`: không có `katex-html`, không nạp
+`katex.min.css` lẫn font `KaTeX_Main` — chốt hệ quả nên vẫn đúng kể cả khi KaTeX đổi tên tuỳ chọn.
+
+### Ca kiểm dựng bằng hàm THẬT, không bằng chuỗi giả
+
+45 chỗ dựng màn trong `FormulaDetail.test.tsx` nay đi qua một wrapper `Man` gọi chính
+`latexToMathml()`. Nếu đưa `latexHtml="<math/>"` viết tay thì ca kiểm chỉ chứng minh component in
+ra cái nó được đưa; đi qua hàm thật thì **mỗi ca dùng `Man` là một lượt kiểm KaTeX kèm theo, miễn
+phí**.
+
+### Kiểm chứng — gói 2.4.3
+
+`npm run check` xanh: **1224 test / 53 file** (trước gói này 1219). Sáu ca mới: 4 ca ở
+`latex-html.test.ts` (cả 107 công thức dựng được · latex hỏng thì NÉM chứ không trả khối chữ đỏ ·
+chỉ ra MathML · giữ nguyên chữ Việt có dấu) và 2 ca ở màn chi tiết (khối Công thức có `<math>` và
+hết câu chờ · bản dạng chữ vẫn còn bên cạnh).
+
+Chụp màn bằng Chrome thật trên 8 công thức nặng chữ Việt (`roe`, `eps-co-ban`, `atr-dao-dong-thuc`,
+`ddm-hai-giai-doan`, `ty-so-sortino`, `thanh-toan-nhanh`, `gia-hoa-von`): phân số, Σ, căn bậc hai,
+chỉ số dưới, `max(...)` đều dựng đúng, **không nạp một byte CSS hay font nào của KaTeX**.
+
+### Còn lại
+
+- [ ] `npm run build && npm run verify:static && npm run size` — vẫn chờ tắt dev server ở cổng 3000. Đây là chỗ chốt hai điều chưa chứng minh được: ba check mới đạt, và **First Load JS
+      không đổi** so với mốc 148,7 kB (bằng chứng `katex` không lọt vào gói máy khách).
+- [ ] Trình duyệt không dựng được MathML (Chrome dưới 109, ra 2023) sẽ hiện ký hiệu thành chữ
+      chạy liền. Bản dạng chữ ngay dưới vẫn đọc được nên không phải ngõ cụt, nhưng chưa đo trên
+      máy thật xem nó xấu tới đâu.
+
+---
+
+## Đợt đóng đuôi — hai lỗi thật, và sổ sách thôi nói sai về chính mình
+
+### Yêu cầu
+
+> "phân tích bước tiếp theo cần làm"
+
+Rà lại toàn bộ trạng thái trước khi chọn việc. Kết quả rà làm đổi hẳn thứ tự ưu tiên, nên ghi lại
+phần đo trước.
+
+### Phần lớn "việc còn lại" trong file này đã xong mà chưa ai gạch
+
+| Thứ                | Sổ sách đang ghi                      | Đo lại được                                        |
+| ------------------ | ------------------------------------- | -------------------------------------------------- |
+| Công thức          | `CLAUDE.md`: "21 of 107"              | **107/107**, đủ `expectedCount` cả 12 nhóm         |
+| Nhánh 4 biểu đồ    | `README.md`: "đang chừa sẵn chỗ"      | **Xong**, phủ 97/107, có cả phóng to toàn màn hình |
+| Cờ `isDraft`       | đợt 14 xếp vào "còn lại"              | **Đã nối** tới Danh mục, bảng dữ liệu, bản xuất    |
+| Biểu tượng PWA PNG | đợt 12–13 xếp vào "còn thiếu"         | **Đã có**, sinh bằng `scripts/gen-icons.mjs`       |
+| 5 ca đỏ baseline   | `VIRTUALIZE_THRESHOLD` chờ quyết định | **Đã sửa** — cả bộ 1210 test xanh trước đợt này    |
+
+`CLAUDE.md` là file nạp vào đầu **mọi** phiên Claude sau này, và nó sai ở đúng con số nặng nhất
+của repo. Một phiên tin nó sẽ đi hiện thực "công thức thứ 22". Đó là lý do phần đồng bộ tài liệu
+nằm trong đợt này chứ không để sau.
+
+### Đã đổi file nào — đợt này
+
+**Lỗi 1: lệch hydration ở cây biểu đồ** (giả lập Android đo được 5 lượt / 2 loại mỗi trang có
+biểu đồ; trang `chartType: 'none'` thì 0).
+
+- **`src/ui/charts/ChartBody.tsx`** — sinh `idBase = 'chart-' + formula.spec.id`, truyền xuống cả
+  ba component con. Bản phóng to nhận `${idBase}-full`. Ô chọn trục X đổi từ **một biến giữ
+  element** sang **một hàm dựng** (`pickerVoi`): nó được dựng ở hai chỗ, mà `id` hai chỗ phải khác
+  nhau, còn dùng chung một element thì ô chọn trong màn phóng to mất nhãn.
+- **`src/ui/charts/ChartFrame.tsx`**, **`LineChart.tsx`**, **`ChartFullscreen.tsx`** — bỏ `useId()`,
+  nhận `idBase` làm prop bắt buộc.
+- **`src/ui/charts/SweepPicker.tsx`** — truyền `id` tường minh xuống `Select`. Chỗ này **không nằm
+  trong chẩn đoán ban đầu**; xem mục dưới.
+
+**Lỗi 2: nút Back của Android xoá cả trang khi đang phóng to biểu đồ.**
+
+- **`src/ui/charts/ChartFullscreen.tsx`** — mở lớp phủ thì `history.pushState`, nghe `popstate` để
+  đóng, đóng bằng nút X hay Esc thì `history.back()` tự gỡ mục đã đẩy.
+
+**Đồng bộ sổ sách:**
+
+- **`CLAUDE.md`** — 107/107, nhánh 4 xong, danh sách lệnh đủ 14 script, sửa câu sai về môi trường
+  test, ghi rõ FR-15 chưa chạy và bốn module đang chờ nó, thêm bất biến "không `useId()` trong
+  `src/ui/charts`".
+- **`README.md`** — mục "Việc tiếp theo theo WBS" viết lại theo hiện trạng.
+- **`src/ui/README.md`** — bỏ nhánh 4 khỏi mục "Sắp tới".
+- **`src/core/formulas/README.md`** — mục "Còn thiếu": ghi đúng lý do Beta kẹt.
+- **`src/core/formulas/risk-ratios.ts`** — mô tả ô beta của `ty-so-treynor` thôi bảo người dùng
+  "lấy từ công thức Beta". Công thức đó không tồn tại, nên câu cũ chỉ người dùng đi tìm hư không.
+
+### Ba quyết định đáng ghi lại
+
+**1. Vì sao KHÔNG dùng `{ ssr: false }`** — cách một dòng, diệt cả lớp lỗi hydration. Nó kéo câu
+mô tả `<figcaption>` và **toàn bộ bảng số `<details>`** ra khỏi HTML tĩnh của 97 trang chi tiết.
+Bảng đó là thứ `ChartFrame` tự gọi là "hợp đồng CÔNG KHAI với người dùng", và là phần biểu đồ duy
+nhất Google đọc được. `verify:static` cũng **không** bắt được mất mát ấy — nó kiểm trang chủ, số
+link ở trang danh sách và nút quay lại, không kiểm markup biểu đồ. Một hồi quy nội dung im lặng,
+đúng loại thất bại mà script kia sinh ra để chặn. Cách đã chọn tốn 0 byte và không đụng ranh giới
+nạp trễ.
+
+**2. `formula.spec.id` an toàn làm gốc id** vì nó chính là đoạn URL, Registry đã kiểm trùng, và nó
+đến từ prop chứ không từ nội bộ React — hai bên giống nhau theo cấu tạo, không theo may rủi.
+
+**3. Không đuổi theo cú Back thứ nhất trên Android thật.** Chrome ăn cú Back đầu để thoát
+fullscreen trước khi điều hướng. Cách bù hiển nhiên là nghe `fullscreenchange` rồi đóng lớp phủ
+khi `fullscreenElement` thành null — nhưng giả lập không tái tạo được lớp ấy, nên đó sẽ là vá mù.
+Ghi vào docblock, chờ máy thật.
+
+### Chính ca kiểm bắt được chỗ tôi chẩn đoán thiếu
+
+Chẩn đoán ban đầu chỉ nêu hai chỗ gọi `useId()` dưới ranh giới nạp trễ: `ChartFrame` và
+`LineChart`. Vá xong hai chỗ đó, ca kiểm bất biến vẫn đỏ với hai id `:r1n:` và `:r1o:` — chúng đến
+từ **`Select` primitive** mà `SweepPicker` dùng, cũng nằm trong cùng cây.
+
+Đây là lý do ca kiểm được viết thành **phép quét cả cây tìm hình dạng id của React**, chứ không
+phải liệt kê từng component. Liệt kê thì nó đã bỏ sót đúng chỗ này, và lần sau ai thêm một
+primitive mới vào cây biểu đồ cũng sẽ lọt.
+
+Không dùng grep làm phép kiểm được: chính những dòng chú thích giải thích bất biến cũng chứa chữ
+`useId`, nên grep tự báo dương tính giả.
+
+### Kiểm chứng — đợt này
+
+`npm run check` xanh toàn bộ: lint, typecheck, prettier, **1219 test / 52 file** (trước đợt này là
+1210 — thêm 9 ca: 4 ca id tất định, 5 ca nút Back).
+
+Chín ca mới, và ranh giới của chúng:
+
+- 4 ca id: `figcaption` mang `chart-pe-caption`; mở lớp phủ thì có **hai** `<pattern>` với id khác
+  nhau; không id nào trong cây mang hình dạng React sinh; và cả **ba nhánh dựng** của `ChartBody`
+  (đường quét · theo thời gian · chờ dữ liệu) đều sạch.
+- 5 ca Back: chưa mở thì không đụng lịch sử · mở thì đẩy đúng một mục và **giữ nguyên state sẵn có
+  của router Next** · bấm Back thì đóng lớp phủ và **không** lùi thêm bước · đóng bằng X thì tự gỡ
+  mục · mở lại lần hai thì đẩy lại mục mới.
+
+Phải giả lập `history` cho **cả file** `charts.test.tsx`, không riêng khối test mới: 8 ca phóng to
+có sẵn nay cũng đẩy một mục lịch sử thật, và `back()` của jsdom bất đồng bộ nên mục ấy rò từ ca này
+sang ca sau.
+
+Những ca trên chỉ chứng minh **cơ chế**. Triệu chứng người dùng thấy — số đã gõ còn nguyên sau khi
+bấm Back, và 0 cảnh báo hydration — phải đo lại trên giả lập mobile, jsdom không có nút Back.
+
+### Còn lại
+
+- [ ] **Chạy lại bộ CDP trên giả lập mobile** để chốt hai triệu chứng: `/cong-thuc/pe/` cho 0 lỗi
+      console (trước là 5 lượt / 2 loại), và gõ `77777` → phóng to → bấm Back thì lớp phủ đóng, URL
+      vẫn `/cong-thuc/pe/`, số còn nguyên.
+- [ ] `npm run build && npm run verify:static && npm run size` — cần tắt dev server ở cổng 3000.
+      Ghi First Load JS trang nặng nhất cạnh mốc 148,7 kB để chứng minh bản vá id tốn 0 kB.
+- [ ] **Cú Back thứ nhất trên máy Android thật** — xem quyết định 3 ở trên.
+- [ ] Đặt tên project Cloudflare Pages là `faculator-finbox` cho khớp origin dự phòng ở
+      `src/app/site-url.ts`. `verify:static` **không** bắt được lỗi này: phép kiểm ở đó chỉ so
+      `robots.txt` và `sitemap.xml` có khớp nhau không, mà cả hai cùng sai một kiểu.
+- [ ] Ba việc nội dung chặn v0.1 vẫn nguyên: thuế/phí bản thảo · bộ mẫu tự dựng · diễn giải chưa rà.
+- [ ] Đợt sau đã chốt hướng: **KaTeX (gói 2.4.3) render lúc build** trong `gen-summaries.mjs` —
+      0 byte JS phía máy khách, cả 107 spec đã có sẵn trường `latex`. Cần duyệt dependency `katex`.
+
+---
+
+## Sửa tên sản phẩm — "Falculator" thành "Faculator"
+
+### Yêu cầu
+
+> "là Faculator-finbox nhé. đổi ở tất cả những nơi đang sai"
+
+Bối cảnh: đang chuẩn bị đưa dự án lên Cloudflare Pages thì lộ ra tên sản phẩm trong code
+(`Falculator`, có chữ `l`) không khớp tên kho GitHub (`Faculator_finbox`). Chủ dự án chốt cách
+viết đúng là **Faculator**.
+
+### Vì sao đây không chỉ là lỗi chính tả
+
+`src/app/site-url.ts` lấy `https://falculator-finbox.pages.dev` làm tên miền dự phòng khi chưa đặt
+`NEXT_PUBLIC_SITE_URL`. Tên miền đó không tồn tại. Để nguyên thì `robots.txt` và `sitemap.xml` —
+cả hai đều sinh từ đúng hằng số ấy — sẽ chỉ bot sang một tên miền chết, mà `verify:static` vẫn
+xanh: phép kiểm ở đó chỉ so hai file có **khớp nhau** không, nó không biết tên miền có thật hay không.
+
+Tên file xuất cũng mang tên sai: `exportFileName()` sinh `falculator-pe.png`, nghĩa là mỗi ảnh
+người dùng chia sẻ ra ngoài đều dán nhãn sai tên sản phẩm.
+
+### Đã đổi file nào, vì sao
+
+- **`src/application/i18n/vi.ts`** — `app.name` → `Faculator Finbox`, `app.brand` → `Faculator`.
+  Đây là nguồn chữ duy nhất cho thanh trên và tiêu đề tài liệu, nên sửa một chỗ là cả giao diện
+  đổi theo.
+- **`src/app/site-url.ts`** — tên miền dự phòng → `https://faculator-finbox.pages.dev`, kéo theo
+  `robots.txt` và `sitemap.xml` cùng đúng.
+- **`src/core/export-content.ts`** — tiền tố tên file xuất → `faculator-<id>`.
+- **`src/core/export-content.test.ts`** — 3 ca kiểm theo tên file mới.
+- **`public/manifest.webmanifest`** — `name` + `short_name`: tên hiện dưới biểu tượng khi cài PWA.
+- **`package.json`** — trường `description`.
+- **`README.md`** — tiêu đề.
+- **`src/app/layout.tsx`**, **`src/ui/navigation/AppHeader.tsx`** — chú thích. Chú thích ở
+  `layout.tsx` vốn giải thích rằng tên gói npm và tên sản phẩm lệch nhau; nay hết lệch nên viết
+  lại chứ không chỉ xoá một chữ cái.
+- **`CLAUDE.md`** — ghi cách viết đúng, kèm cảnh báo đừng để chữ `l` quay lại.
+
+### Chỗ cố ý KHÔNG đổi
+
+`TASK.md` còn 5 chỗ mang chữ `Falculator`, để nguyên có chủ đích:
+
+- 3 chỗ là ghi chép lịch sử — mô tả việc đã làm ở đợt trước, và tên file PNG đã xuất lúc kiểm
+  thử. Sửa nhật ký là làm sai bản ghi.
+- 2 chỗ là **tên file thật** trong thư mục Downloads: `Wireframe Falculator Finbox.html`. Đã kiểm,
+  file đó có thật và đúng tên đó. Sửa đi thì câu lệnh `grep` ghi kèm trong log không chạy được nữa.
+
+`CLAUDE.md` còn một chỗ, chính là dòng cảnh báo nêu tên cách viết sai — cố ý.
+
+### Kiểm chứng
+
+`npm run check` xanh toàn bộ: lint, typecheck, prettier, **1210 test / 52 file**.
+
+Chưa chạy `npm run build` + `verify:static` vì dev server đang chạy ở cổng 3000 và cửa gác
+`check-no-dev.mjs` chặn — đúng như thiết kế của nó.
+
+### Còn lại
+
+- Build lại + `verify:static` sau khi tắt dev server, để chắc `robots.txt` và `sitemap.xml` sinh ra
+  mang tên miền mới.
+- Đặt tên project trên Cloudflare Pages là `faculator-finbox` cho khớp tên miền dự phòng; dùng tên
+  khác thì phải đặt biến `NEXT_PUBLIC_SITE_URL`.
+- Kho GitHub vẫn tên `Faculator_finbox` (gạch dưới). Không ảnh hưởng gì vì tên kho không lộ ra
+  người dùng — đổi hay không tuỳ chủ dự án.
 
 ---
 
@@ -161,12 +532,119 @@ theo First Load **JS**, và con số JS thì ổn định giữa các lượt.
 
 ### Còn lại
 
-- [ ] **Chưa kiểm trên máy thật.** Ba nhánh chỉ chạy được trên thiết bị: Android Chrome (fullscreen +
-      tự xoay ngang), iPhone Safari (lớp phủ + câu nhờ xoay tay), và máy Android đang bật khoá xoay
-      (câu hướng dẫn bật Xoay màn hình). jsdom chứng minh được nhánh "thiếu API", không chứng minh
-      được nhánh "có API và chạy đúng".
+- [x] ~~Chưa kiểm nhánh "có API và chạy đúng"~~ → đã kiểm trên giả lập iPhone và Android, xem mục
+      ngay dưới. jsdom chỉ chứng minh được nhánh "thiếu API".
+- [ ] **Nút Back của Android xoá cả trang thay vì đóng lớp phủ** — giả lập bắt được, chưa sửa. Xem
+      mục dưới.
+- [ ] **Chưa kiểm trên máy thật.** Giả lập không thay được ba thứ: thanh địa chỉ thu/nhả của Chrome
+      Android (phép thử thật của `100dvh`), khoá xoay ĂN được (giả lập luôn từ chối
+      `NotSupportedError` vì máy để bàn không xoay được), và cách Chrome Android chặn Back để thoát
+      fullscreen trước khi điều hướng.
 - [ ] Người dùng thoát fullscreen bằng cử chỉ hệ thống thì lớp phủ vẫn ở đó — không hỏng gì (nó vẫn
       phủ kín khung nhìn) nên chưa nghe `fullscreenchange`. Thêm sau nếu thấy khó chịu khi dùng thật.
+
+---
+
+## Kiểm chức năng phóng to trên giả lập điện thoại — iPhone rồi Android
+
+### Yêu cầu
+
+> "chạy kiểm thử chức năng phóng to trên giả lập mobile cho tôi" — rồi: "chạy giả lập andoid dự án đi."
+
+### Cách kiểm, và vì sao không dùng jsdom
+
+Lái Chrome thật qua CDP, không thêm dependency (Node 24 đã có `WebSocket` toàn cục). Hai bộ ở
+`scratchpad`: `zoom-mobile.mjs` (iPhone 14 Pro) và `zoom-android.mjs` (Pixel 7 + Android phổ thông
+360×640, chạy cả hai khổ trong một lượt).
+
+Ba điểm khiến bộ Android **không phải bản sao đổi kích thước** — đây đúng ba nhánh mà bộ iPhone không
+chạm tới, vì trên iPhone các API ấy vắng mặt:
+
+| Nhánh trong `ChartFullscreen`           | iPhone   | Android                                       |
+| --------------------------------------- | -------- | --------------------------------------------- |
+| `requestFullscreen()` phần tử thường    | không có | **có** → vào thật, `<html>` fullscreen        |
+| `screen.orientation.lock('landscape')`  | không có | **có** → gọi thật, bị từ chối, phải không sập |
+| `unlock()` + `exitFullscreen()` khi dọn | bỏ qua   | **chạy thật** — đúng chỗ từng ném `TypeError` |
+
+Bộ Android gài máy ghi quanh cả ba API trước khi bấm, nên phân biệt được "im vì API không tồn tại"
+với "gọi rồi và bị từ chối" — hai thứ khác nhau mà cùng cho ra "không khoá được".
+
+Hai điểm nữa: bấm bằng **chạm thật** (`Input.dispatchTouchEvent`, không phải chuột — đi qua bộ nhận
+cử chỉ của Chrome), và **nút Back** của hệ thống, thứ iPhone không có.
+
+### Kết quả
+
+| Bộ                        | Ca kiểm | Đạt |
+| ------------------------- | ------: | --- |
+| iPhone 14 Pro 393×852     |      31 | 31  |
+| Pixel 7 412×915           |      42 | 41  |
+| Android phổ thông 360×640 |      42 | 41  |
+
+Số đo đáng lưu: nút phóng to 98×44px, **đúng bằng** `<select>` bên cạnh ở cả ba khổ. Hình khi phóng
+to 386×648 (Pixel 7) và 334×373 (360px). Xoay ngang: hình rộng ×2,30 trên Pixel 7 và ×1,84 trên khổ
+360px — cả hai **vượt tỉ lệ khung nhìn** của chính máy ấy (×2,22 và ×1,78), tức hình ăn hết phần bề
+ngang việc xoay máy mang lại, còn giành thêm chỗ của lề. Không khổ nào tràn hộp (`scrollHeight`
+bằng `clientHeight`), nên nút thoát luôn ở trong màn.
+
+Bằng chứng "lớp phủ nằm trên cùng" là `document.elementFromPoint`, không phải ảnh chụp:
+`Page.captureScreenshot` **không vẽ top layer** dù thử `fromSurface` cả hai chiều, headless và
+headful — ảnh chụp trông y như trang chưa bấm gì. Phép chạm mạnh hơn ảnh: nó trả về đúng phần tử
+NHẬN cú chạm, và nó xác nhận thêm biểu đồ trên trang không nhận được cú nào.
+
+### Hai lỗi thật do giả lập tìm ra
+
+**1. Ô chọn ăn 192px chiều cao trong màn phóng to** (iPhone, đã sửa). `flex: 1 1 12rem` đặt thẳng lên
+`.picker` đúng trong hàng ngang, nhưng cùng ô chọn ấy dựng lại trong lớp phủ — chỗ đó là flex **cột**,
+nên `flex-basis` biến thành **chiều cao**. Ràng vào `.controls .picker`. Hình khi ngang 135 → 248px,
+khi dọc 472 → 585px. Ghi lại trong comment ở `chart.module.css`.
+
+**2. Nút Back khi đang phóng to xoá cả trang** (Android, **chưa sửa**). Đo bằng `back-probe.mjs`, đi
+qua một cú bấm thật từ danh sách vào công thức để history có đúng một bước lùi trong ứng dụng:
+
+```text
+Đã gõ 77777 vào ô nhập · /cong-thuc/pe/ · history.length=3
+Đang phóng to: 1 dialog · fullscreen CÓ
+Sau khi bấm Back:  đang ở /cong-thuc/ ("Công thức") · 0 dialog · fullscreen đã thoát · ô nhập trống
+→ ĐÃ RỜI trang công thức · số đã gõ MẤT
+```
+
+`<dialog>` không có liên kết nào với history, nên Back đi thẳng bước điều hướng: người dùng về danh
+sách và **mất hết số đã gõ**. Lớp phủ "đóng" chỉ vì cả trang bị tháo. Phần dọn chạy đúng (fullscreen
+thoát, `body.overflow` trả lại) nên không có hậu quả nào khác.
+
+Trên máy Android thật còn một lớp nữa: Chrome chặn Back lần đầu để thoát fullscreen, nên lần đầu
+người dùng thấy thanh trạng thái quay lại mà lớp phủ **vẫn nguyên** — bấm lần hai mới mất trang.
+Giả lập không tái tạo được lớp này (nêu ra để không nhầm là đã kiểm).
+
+Hướng sửa, chờ chủ dự án chốt vì nó chạm vào history: khi mở lớp phủ thì `history.pushState`, nghe
+`popstate` để đóng, và khi đóng bằng nút X thì `history.back()` để không để lại rác trong history.
+Khoảng 15 dòng trong `ChartFullscreen`, cộng ca kiểm.
+
+### Ba lỗi trong chính bộ kiểm, phải sửa mới tin được kết quả
+
+- **Đo trước khi CSS áp** (iPhone). Next dev cấy `<link>` CSS lúc hydrate, mà nút đã có trong HTML từ
+  máy chủ: đo ngay lúc ấy ra nút cao 25px, ô chọn 19px — kích thước mặc định của trình duyệt — và bộ
+  kiểm báo hỏng NFR-USA-01 oan. Nay chờ tới khi `--tap-min` đọc được.
+- **Dò nhầm phần tử** (iPhone). `querySelector('figure svg')` trúng biểu tượng 16px của chính nút
+  phóng to, nên "diện tích hình" là 256px². Nay đi qua `path[data-points]` → `ownerSVGElement`.
+- **Hỏi sai câu hỏi, hai lần.** Lượt iPhone đòi _diện tích_ hình phải tăng khi xoay ngang — không thể,
+  màn xoay vẫn bấy nhiêu điểm ảnh. Lượt Android đòi hình rộng ×2 — cũng không thể trên máy 360×640,
+  vì xoay ngang chỉ rộng thêm ×1,78. Mốc đúng là **tỉ lệ khung nhìn của chính máy ấy**, và nó phát
+  hiện được đúng thứ đáng phát hiện: hình có ăn hết phần bề ngang xoay ra được hay không.
+
+Cộng một lỗi lặng của bộ iPhone: `const consoleErrors = []` khai **trong** khối `try`, nên khối báo
+cáo cuối file kiểm `typeof consoleErrors !== 'undefined'` không bao giờ thấy nó — mọi lỗi console bị
+nuốt im, kể cả lệch hydration. Đã hoisted ra ngoài ở cả hai bộ.
+
+### Lệch hydration — xác nhận lại, vẫn chưa sửa
+
+Bộ Android bắt **5 lượt · 2 loại**, cả hai là lệch hydration ở khối biểu đồ, giống hệt bản iPhone →
+**không phải chuyện của Android**, và không phải chuyện của nút phóng to. Vị trí: `useId()` trong
+`ChartFrame`, dưới ranh giới `next/dynamic`. Trang `chartType: 'none'` cho **0** lỗi.
+
+Chưa xác định được nó có sẵn từ đợt 1 hay không — `ChartFrame` và `LineChart` đã dùng `useId()` từ
+đợt ấy. Tác động thực tế nhỏ (React giữ giá trị của máy chủ cho **cả hai** thuộc tính nên
+`figure aria-labelledby` vẫn trỏ đúng `figcaption id`), nhưng cảnh báo là thật.
 
 ---
 

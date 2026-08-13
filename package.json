@@ -2,7 +2,7 @@
   "name": "faculator-finbox",
   "version": "0.1.0-dev",
   "private": true,
-  "description": "Falculator Finbox — thư viện công thức tài chính, web tĩnh không backend",
+  "description": "Faculator Finbox — thư viện công thức tài chính, web tĩnh không backend",
   "//sideEffects": "Không module TS/TSX nào của dự án có tác dụng phụ lúc nạp — chỉ khai báo và hàm thuần. Thiếu dòng này thì webpack phải giữ MỌI module mà barrel `@/application` chạm tới, nghĩa là mọi trang tải cả diễn giải và hàm tính của toàn bộ Registry, kể cả trang 404. CSS phải chừa ra: nhập một file CSS CHÍNH LÀ tác dụng phụ, bỏ nó đi là mất sạch giao diện.",
   "sideEffects": [
     "*.css"
@@ -36,6 +36,7 @@
     ]
   },
   "dependencies": {
+    "katex": "0.18.4",
     "next": "15.5.22",
     "react": "19.0.0",
     "react-dom": "19.0.0"

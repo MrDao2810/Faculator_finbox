@@ -147,5 +147,5 @@ function describeInput(value: number | undefined, spec: VariableSpec): string {
 /** Tên file gợi ý. Chỉ dùng ký tự an toàn cho mọi hệ điều hành. */
 export function exportFileName(formula: FormulaSpec, format: ExportFormat): string {
   const slug = formula.id.replace(/[^a-z0-9.-]/gi, '-').toLowerCase();
-  return `falculator-${slug}.${format}`;
+  return `faculator-${slug}.${format}`;
 }

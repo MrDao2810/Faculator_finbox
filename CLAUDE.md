@@ -4,13 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Falculator Finbox — a Vietnamese financial/stock-formula library delivered as a **static site**:
+Faculator Finbox — a Vietnamese financial/stock-formula library delivered as a **static site**:
 no backend, no database (`next.config.mjs` sets `output: 'export'`, build artifact is `out/`).
-WBS branches 1 (foundation), 2 (component library) and 3.1–3.2 (screens) are done, minus packages
-2.4.3 (KaTeX, deferred) and 3.2.2 (WF-04, deferred). **21 of 107 formulas** are implemented in
-`src/core/formulas/` — see its README before adding more. The remaining work plan lives in the
-external "WBS v7" estimate and the SRS, referenced throughout the code by requirement IDs
-(FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens). Progress log: `TASK.md`.
+
+**All 107 of 107 formulas** are implemented and registered in `src/core/formulas/` (17 group files
+spread into `FORMULA_MODULES`); every category sits exactly at its `expectedCount` and the Registry
+validator fails the build if one exceeds it. Read that directory's README before adding anything —
+and note that a 108th formula is not a free addition.
+
+WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as is
+package 2.4.3 (maths notation). Charts cover **97 of 107** formulas; the other 10 declare
+`chartType: 'none'` deliberately — their output is a monotone function of one input, so a chart
+would say nothing. Still deferred: **3.2.2** (WF-04 advanced screen, waiting on the valuation chain
+of package 5.2.3).
+
+The remaining work plan lives in the external "WBS v7" estimate and the SRS, referenced throughout
+the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens). Progress log:
+`TASK.md` — newest entry first.
+
+**What blocks v0.1 is content, not code**: the 7 tax/fee constants in `src/core/market/schedules.ts`
+are still marked draft pending a check against the source legal texts; `src/data/samples.ts` is
+fabricated (seeded PRNG, `isDraft: true`); and the 107 explanations have not been peer-reviewed.
 
 **All prose is Vietnamese** — comments, JSDoc, commit-adjacent docs, test names, UI copy, and every
 user-facing warning message. Write new code the same way.
@@ -18,14 +32,19 @@ user-facing warning message. Write new code the same way.
 ## Commands
 
 ```bash
-npm run dev          # dev server on :3000
-npm run build        # static export to out/
-npm run preview      # serve the built out/
-npm run lint         # ESLint — also enforces the layer boundaries (CON-02/CON-03)
-npm run typecheck    # tsc --noEmit
-npm test             # vitest run
-npm run check        # lint + typecheck + test — run before pushing
-npm run format       # prettier --write .
+npm run dev            # dev server on :3000
+npm run build          # static export to out/ (prebuild refuses to run while dev holds :3000)
+npm run preview        # serve the built out/ on :4173 — never :3000, see package.json//preview
+npm run lint           # ESLint — also enforces the layer boundaries (CON-02/CON-03)
+npm run typecheck      # tsc --noEmit
+npm test               # vitest run
+npm run format         # prettier --write .
+npm run format:check   # prettier --check .
+npm run check          # lint + typecheck + format:check + test — run before pushing
+npm run verify:static  # 14 assertions against a built out/ — run after build
+npm run size           # measures out/, gates First Load JS at 170 kB (NFR-PER-04)
+npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
+npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
 ```
 
 Single test file / single case:
@@ -35,9 +54,12 @@ npx vitest run src/core/calc-output.test.ts
 npx vitest run -t 'chặn Infinity'
 ```
 
-Tests are `src/**/*.test.ts` (Node environment, no jsdom — colocated next to the module under test).
-CI (`.github/workflows/ci.yml`) runs lint → typecheck → test → build; a husky pre-commit hook runs
-lint-staged (eslint --fix + prettier).
+Tests are `src/**/*.test.ts` and `*.test.tsx`, colocated next to the module under test. The default
+environment is `node` (`vitest.config.ts`); a file that needs a DOM opts in with a
+`// @vitest-environment jsdom` comment on line 1 rather than a global config — `environmentMatchGlobs`
+is deprecated. CI (`.github/workflows/ci.yml`) runs lint → typecheck → format:check → test → build →
+verify:static → size, then re-runs `gen:summaries` and fails if the committed generated file drifts.
+A husky pre-commit hook runs lint-staged (eslint --fix + prettier).
 
 ## Four-layer architecture
 
@@ -77,7 +99,12 @@ Every calculation function returns `CalcOutput` (`src/core/types.ts`), construct
 wireframe WF-15 (`DIVIDE_BY_ZERO`, `MEANINGLESS`, `MISSING_SERIES`, `MODEL_VIOLATION`, `INHERITED`,
 `INCOMPLETE_INPUT`). Messages are plain-language Vietnamese explaining the cause, plus a one-line
 `fix` suggestion (NFR-USA-04). Downstream formulas whose upstream failed must use `inherited()`
-rather than silently producing a number (FR-15).
+rather than silently producing a number (FR-15) — but note that **this half of FR-15 has never
+actually run**: `dependsOn` is declared in only two places (`valuation-dcf.ts`), `inherited()` is
+called by no formula, and nothing reads `ctx.upstream`. Consequence: `src/core/linked-input.ts`,
+`src/core/flow-chain.ts`, `src/ui/inputs/LinkedInput` and `src/ui/result/FlowChainStrip` are all
+built and tested but have zero call sites. Keep them — they are the paid-for groundwork of package
+5.2.3 (the valuation chain) and WF-04, not dead code to prune.
 
 Other domain conventions already established: input controls are generated entirely from
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
@@ -91,8 +118,28 @@ never throws and never returns NaN; tax/fee constants belong in `MarketConstant`
   a spec without a calculator is a typecheck error. `runFormula()` in `src/core/calc/` is the only
   way to call one; it turns a blank field into an "incomplete input" warning rather than a zero,
   and catches throws. The `tests[]` each spec declares are executed by `formulas.test.ts`.
-- Naming is inconsistent upstream: the package/directory is `faculator-finbox`, the product name in
-  README and page metadata is "Falculator Finbox". Match whichever context you are editing.
+- **KaTeX runs at build time only.** `src/app/cong-thuc/[id]/latex-html.ts` is imported solely by
+  `page.tsx`, which is a server component, so with `output: 'export'` the maths notation is baked
+  into the static HTML of all 107 pages and the browser downloads **zero** bytes of KaTeX
+  (the library is ~280 kB — importing it from a client component blows the 170 kB gate instantly).
+  Output mode is `mathml`, not the default `htmlAndMathml`: measured on this repo's own formulas it
+  is 6 kB gzip instead of 20 kB, needs no `katex.min.css` and no font files at all, and — the
+  deciding factor — KaTeX's HTML builder has no character metrics for Vietnamese diacritics, which
+  every formula uses inside `\text{}`. `verify-static.mjs` asserts `<math` is present in
+  `out/cong-thuc/pe/index.html` and that no `katex-html` class or font reference came with it;
+  that is the only check that can tell build-time rendering from client-time rendering.
+- **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
+  `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
+  static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every
+  id there is derived from `formula.spec.id` and threaded down as an `idBase` prop, with a `-full`
+  suffix for the fullscreen copy so the two `<pattern>` nodes that coexist stay unique. This includes
+  shared primitives: `SweepPicker` passes an explicit `id` to `Select` instead of letting it generate
+  one. `charts.test.tsx` fails if any id in the chart subtree matches React's `:r…:` / `«…»` shape.
+- The product name is **Faculator Finbox** — no `l`. An earlier misspelling "Falculator" was
+  scrubbed from the whole repo; if it reappears in UI copy, in an export filename (`faculator-<id>`),
+  or in the `pages.dev` fallback in `src/app/site-url.ts`, that is the typo coming back. The npm
+  package and the Cloudflare Pages project are `faculator-finbox`; the local directory and the
+  GitHub repo are still named `Faculator_finbox`, which is fine — neither is user-visible.
 - Deployment target is Cloudflare Pages (framework preset "Next.js (Static HTML Export)", build
   output `out`, `NODE_VERSION=20`); keep the build compatible with pure static hosting —
   `trailingSlash: true` and unoptimized images are set for that reason.

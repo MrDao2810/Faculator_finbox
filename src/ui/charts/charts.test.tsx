@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   FORMULAS,
@@ -32,7 +32,28 @@ beforeAll(() => {
   };
 });
 
-afterEach(cleanup);
+/*
+ * Giả lập `history`, KHÔNG để jsdom chạy thật — và đặt cho CẢ FILE, không riêng khối test nút Back.
+ *
+ * Hai lý do, cả hai đều đã cắn một lần:
+ * 1. `window` dùng chung cho mọi ca trong file. Mọi ca bấm "Phóng to" nay đều đẩy một mục lịch sử
+ *    thật, và mục ấy rò từ ca này sang ca sau.
+ * 2. `history.back()` của jsdom bất đồng bộ, nên thứ tự các ca đủ để đổi kết quả.
+ */
+beforeEach(() => {
+  // Trả `history.state` về mốc sạch trước mỗi ca: `back()` bị vô hiệu nên mục của ca trước không
+  // tự lùi ra, và cờ đánh dấu của nó còn nguyên trong state.
+  window.history.replaceState(null, '');
+  // `pushState` để CHẠY THẬT (spy mặc định gọi xuyên): hàm dọn đọc lại `history.state` để biết mục
+  // của mình còn không, nên chặn ở đây là chặn luôn thứ đang cần kiểm.
+  vi.spyOn(window.history, 'pushState');
+  vi.spyOn(window.history, 'back').mockImplementation(() => undefined);
+});
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 const CTX: CalcContext = {
   asOf: '2026-08-04',
@@ -586,5 +607,145 @@ describe('Phóng to biểu đồ toàn màn hình', () => {
       expect(container.innerHTML, id).not.toContain('NaN');
       unmount();
     }
+  });
+});
+
+/*
+ * `id` trong cây biểu đồ phải TẤT ĐỊNH.
+ *
+ * Cả thư mục charts nằm sau ranh giới `next/dynamic`, chỗ mà `useId()` sinh chuỗi lệch nhau giữa
+ * lần dựng HTML tĩnh và lần hydrate — giả lập Android đo được 5 lượt cảnh báo mỗi trang có biểu đồ.
+ * Ba ca dưới đây là thứ giữ cho nó không quay lại; grep không dùng được vì chính các dòng chú thích
+ * trong `ChartBody` cũng chứa chữ `useId`.
+ */
+describe('id của biểu đồ — tất định, không do React sinh', () => {
+  /** Hình dạng id React tự sinh: `:r3:` ở React 18, `«r3»` ở bản dựng sẵn phía máy chủ. */
+  const ID_CUA_REACT = /^[:«]/;
+
+  it('figcaption mang id ghép từ mã công thức, và figure trỏ đúng vào đó', () => {
+    const { container } = draw('pe');
+
+    const figure = container.querySelector('figure');
+    const caption = container.querySelector('figcaption');
+
+    expect(caption?.id).toBe('chart-pe-caption');
+    expect(figure?.getAttribute('aria-labelledby')).toBe('chart-pe-caption');
+  });
+
+  /*
+   * Bản trên trang và bản phóng to CÙNG nằm trong DOM khi lớp phủ mở. `<pattern id>` phải duy nhất
+   * trong cả tài liệu; trùng thì trình duyệt lấy node đầu và vùng gạch chéo của màn phóng to trỏ
+   * nhầm sang hình bên dưới. Hậu tố `-full` là thứ ngăn điều đó.
+   */
+  it('mở lớp phủ thì có hai pattern gạch chéo, và hai id KHÁC nhau', async () => {
+    const { container } = draw('pe');
+
+    expect(container.querySelectorAll('pattern')).toHaveLength(1);
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const ids = [...container.querySelectorAll('pattern')].map((node) => node.id);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    expect(ids).toContain('chart-pe-hatch');
+    expect(ids).toContain('chart-pe-full-hatch');
+  });
+
+  /*
+   * Ô chọn trục X cũng nằm trong cây này, và `Select` primitive mặc định tự sinh `id` bằng
+   * `useId()` — chính ca kiểm này bắt được nó ở lần vá đầu. Quét cả cây thay vì liệt kê từng
+   * component là để lần sau ai thêm một primitive mới vào đây thì đỏ ngay, không phải nhớ.
+   */
+  it('không id nào trong cây biểu đồ mang hình dạng React tự sinh', async () => {
+    const { container } = draw('pe');
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const ids = [...container.querySelectorAll('[id]')].map((node) => node.id);
+    expect(ids.length).toBeGreaterThan(0);
+    expect(ids.filter((id) => ID_CUA_REACT.test(id))).toEqual([]);
+  });
+
+  it('cả ba nhánh dựng của ChartBody đều sạch: quét, theo thời gian, và chờ dữ liệu', () => {
+    // 'sma-n-phien' chưa nạp chuỗi thì rơi vào nhánh `unavailable` — nhánh dựng InlineWarning.
+    for (const [nhan, ket] of [
+      ['đường quét', draw('pe')],
+      ['theo thời gian', drawLoaded('sma-n-phien')],
+      ['chờ dữ liệu', draw('sma-n-phien')],
+    ] as const) {
+      const ids = [...ket.container.querySelectorAll('[id]')].map((node) => node.id);
+      expect(
+        ids.filter((id) => ID_CUA_REACT.test(id)),
+        nhan,
+      ).toEqual([]);
+      ket.unmount();
+    }
+  });
+});
+
+/*
+ * Nút Back của hệ thống khi đang phóng to.
+ *
+ * Lỗi gốc, đo trên giả lập Pixel 7: `<dialog>` không có liên kết nào với lịch sử, nên Back đi thẳng
+ * bước điều hướng — người dùng rời `/cong-thuc/pe/` về `/cong-thuc/` và MẤT HẾT số vừa gõ. Lớp phủ
+ * "đóng" chỉ vì cả trang bị tháo.
+ *
+ * Những ca dưới đây kiểm CƠ CHẾ (đẩy mục, nghe popstate, tự dọn). Phần triệu chứng — số đã gõ còn
+ * nguyên sau khi bấm Back — phải kiểm trên giả lập mobile, jsdom không có nút Back.
+ */
+describe('Nút Back của hệ thống — đóng lớp phủ, không rời trang', () => {
+  it('chưa bấm phóng to thì không đụng gì tới lịch sử', () => {
+    draw('pe');
+
+    expect(window.history.pushState).not.toHaveBeenCalled();
+  });
+
+  /*
+   * Đối số state phải GIỮ NGUYÊN khoá đã có: App Router của Next vá `pushState` và giữ cây route
+   * trong `history.state`. Đẩy object trơn là ghi đè nó, và Back về thì router dựng lại sai nhánh.
+   */
+  it('bấm phóng to thì đẩy đúng một mục, và không ghi đè state sẵn có của router', async () => {
+    window.history.replaceState({ __NA: 'cây route của Next' }, '');
+    draw('pe');
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    expect(window.history.pushState).toHaveBeenCalledTimes(1);
+    expect(window.history.state).toMatchObject({
+      __NA: 'cây route của Next',
+      ffbChartZoom: true,
+    });
+  });
+
+  it('bấm Back thì lớp phủ đóng, và KHÔNG lùi thêm bước nào nữa', async () => {
+    draw('pe');
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+    expect(screen.queryByRole('dialog')).not.toBeNull();
+
+    fireEvent(window, new PopStateEvent('popstate'));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // Ca chống gỡ hai lần: mục của ta vừa bị chính cú Back gỡ đi. Gọi `back()` ở hàm dọn nữa là
+    // lùi một bước THẬT — đúng cái lỗi bản vá này đang chặn.
+    expect(window.history.back).not.toHaveBeenCalled();
+  });
+
+  it('đóng bằng nút X thì tự gỡ mục đã đẩy, không để rác lịch sử', async () => {
+    draw('pe');
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Thoát phóng to' }));
+
+    expect(window.history.back).toHaveBeenCalledTimes(1);
+    expect(window.history.pushState).toHaveBeenCalledTimes(1);
+  });
+
+  it('mở lại lần hai thì đẩy lại mục mới — cờ của lần trước không kẹt', async () => {
+    draw('pe');
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Thoát phóng to' }));
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    expect(window.history.pushState).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole('dialog')).not.toBeNull();
   });
 });

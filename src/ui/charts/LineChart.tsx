@@ -1,7 +1,5 @@
 'use client';
 
-import { useId } from 'react';
-
 import { gapsOf, linePath, linearScale } from '@/application';
 import type { ChartTick, LineChart as LineChartModel } from '@/application';
 
@@ -23,6 +21,9 @@ import styles from './chart.module.css';
  *    hydration.
  * 3. **Không tooltip.** Điện thoại không có hover, và 42 vùng chạm 44px trên khổ 320 là bất khả
  *    thi. Bảng số thay thế, đồng thời phục vụ luôn trình đọc màn hình.
+ * 4. **`id` của `<pattern>` nhận từ ngoài, KHÔNG gọi `useId()`.** Xem docblock của `ChartBody`:
+ *    cả thư mục này nằm dưới ranh giới `next/dynamic`, chỗ mà `useId()` sinh chuỗi lệch nhau giữa
+ *    máy chủ và máy khách.
  */
 
 /* Khung vẽ theo đơn vị viewBox. Trục Y chiếm lề trái cho nhãn số. */
@@ -52,6 +53,15 @@ function thin(ticks: ReadonlyArray<ChartTick>, keep: number): ReadonlyArray<Char
 export interface LineChartProps {
   model: LineChartModel;
   /**
+   * Gốc để ghép `id` của `<pattern>`.
+   *
+   * Bắt buộc, không có mặc định: `<pattern id>` phải duy nhất trong CẢ tài liệu, mà bản trên trang
+   * và bản trong màn phóng to cùng nằm trong DOM khi lớp phủ đang mở. Một giá trị mặc định là hai
+   * node trùng `id`, và trình duyệt lấy node đầu — tức vùng gạch chéo của màn phóng to trỏ nhầm.
+   * Bắt người gọi truyền vào khiến chỗ phân biệt nằm ở `ChartBody`, nơi nhìn thấy cả hai bản.
+   */
+  idBase: string;
+  /**
    * Cho hình CHOÁN HẾT chỗ được cấp thay vì giữ tỉ lệ 16/10 — dùng ở màn phóng to.
    *
    * Không đổi `viewBox`, chỉ đổi cách khung ngoài chiếm chỗ: `preserveAspectRatio` đã lo phần nội
@@ -60,8 +70,8 @@ export interface LineChartProps {
   fill?: boolean;
 }
 
-export function LineChart({ model, fill = false }: LineChartProps) {
-  const hatchId = `${useId()}-hatch`;
+export function LineChart({ model, idBase, fill = false }: LineChartProps) {
+  const hatchId = `${idBase}-hatch`;
 
   const sx = linearScale(model.x.domain, [PLOT.x0, PLOT.x1]);
   // Trục Y lật chiều: toạ độ SVG đi xuống, giá trị đi lên.

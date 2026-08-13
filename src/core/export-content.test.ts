@@ -228,12 +228,12 @@ describe('tuỳ chọn kèm theo', () => {
 
 describe('exportFileName()', () => {
   it('ghép tên theo id công thức và định dạng', () => {
-    expect(exportFileName(PE, 'pdf')).toBe('falculator-pe.pdf');
-    expect(exportFileName(PE, 'png')).toBe('falculator-pe.png');
+    expect(exportFileName(PE, 'pdf')).toBe('faculator-pe.pdf');
+    expect(exportFileName(PE, 'png')).toBe('faculator-pe.png');
   });
 
   it('bỏ ký tự lạ để tên file an toàn trên mọi hệ điều hành', () => {
     const odd: FormulaSpec = { ...PE, id: 'p/e ratio' };
-    expect(exportFileName(odd, 'png')).toBe('falculator-p-e-ratio.png');
+    expect(exportFileName(odd, 'png')).toBe('faculator-p-e-ratio.png');
   });
 });

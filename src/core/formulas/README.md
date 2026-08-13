@@ -104,11 +104,27 @@ con số khác đi mà không ai sai:
 ## Còn thiếu
 
 - **Beta.** Đủ 107 công thức nhưng KHÔNG có Beta, trong khi `categories.ts` liệt nó đầu nhóm
-  Rủi ro và `capm` phải để beta thành ô nhập tay. Nhóm Rủi ro đã đầy 17/17 nên muốn thêm Beta
-  thì phải nâng `expectedCount` lên 18 hoặc bỏ một công thức khác — cần chủ dự án quyết.
+  Rủi ro và `capm` phải để beta thành ô nhập tay.
+
+  Chỗ kẹt thật KHÔNG phải là chỗ ngồi trong Registry, mà là **dữ liệu**: beta là hệ số hồi quy
+  của lợi suất cổ phiếu theo lợi suất thị trường, mà `src/data/samples.ts` chỉ có 4 mã và
+  **không có chuỗi VN-Index nào** để hồi quy vào. Đó là gói 3.3.2, nằm sau cùng một rào giả
+  định A1 / rủi ro R-01 với bộ số liệu mẫu thật.
+
+  Việc nâng `expectedCount` của nhóm Rủi ro từ 17 lên 18 chỉ là bước thủ tục sau khi có dữ liệu,
+  không phải thứ đang chặn. Trong lúc chờ, phần mô tả ô beta ở `capm` và `ty-so-treynor` **không
+  được trỏ người dùng sang "công thức Beta"** — câu ấy đã bị gỡ khỏi `risk-ratios.ts` vì nó chỉ
+  vào thứ không tồn tại.
+
 - **XIRR** đã có hàm thuần và test đầy đủ trong `returns.ts` nhưng **chưa đăng ký thành công
   thức**: nó cần bảng nhập dòng tiền có ngày, tức gói WBS 3.3.1 (WF-05).
 - **Chuỗi kế thừa FR-15 chưa chạy.** `dependsOn` mới khai ở hai chỗ trong `valuation-dcf.ts`,
   còn `inherited()` chưa công thức nào gọi và `ctx.upstream` chưa ai đọc.
-- **Chuỗi định giá** Beta → CAPM → WACC → DCF → giá mục tiêu → biên an toàn là gói 5.2.3,
-  làm cùng lúc với màn WF-04 (gói 3.2.2).
+- **Chuỗi định giá** là gói 5.2.3, làm cùng lúc với màn WF-04 (gói 3.2.2). Phạm vi làm được
+  NGAY, không chờ dữ liệu, là chuỗi **bỏ Beta** ở đầu: CAPM → WACC → FCFF/FCFE → giá trị nội
+  tại → biên an toàn, với beta để ô nhập tay. Lưu ý hai điều khi bắt tay:
+  - Registry hiện chỉ khai **2 cạnh `dependsOn` rời nhau** (`wacc ← capm.costEquity`,
+    `fcfe ← fcff.fcff`) — chuỗi 7 bước ghi trong `src/core/flow-chain.ts` là mong muốn, chưa
+    phải hiện trạng.
+  - **Chưa có công thức giá mục tiêu.** Nhóm Định giá đã đầy 18/18, nên thêm nó cũng vướng
+    đúng bài toán `expectedCount` như Beta.

@@ -21,15 +21,24 @@ export interface SweepPickerProps {
   options: ReadonlyArray<SweepOption>;
   value: string;
   onChange: (key: string) => void;
+  /**
+   * Gốc để ghép `id` của ô chọn — bắt buộc, xem docblock của `ChartBody`.
+   *
+   * `Select` mặc định tự sinh `id` bằng `useId()`, mà cả cây biểu đồ nằm sau ranh giới
+   * `next/dynamic` nên chuỗi ấy lệch nhau giữa máy chủ và máy khách. Truyền `id` tường minh là
+   * cách tắt nhánh đó mà không phải sửa primitive dùng chung.
+   */
+  idBase: string;
 }
 
-export function SweepPicker({ options, value, onChange }: SweepPickerProps) {
+export function SweepPicker({ options, value, onChange, idBase }: SweepPickerProps) {
   // Một biến thì không có gì để đổi — bày ra một ô chọn chỉ có một dòng là bày ra thứ vô dụng.
   if (options.length < 2) return null;
 
   return (
     <Select
       className={styles.picker}
+      id={`${idBase}-sweep`}
       label={t('chart.sweepLabel')}
       value={value}
       onChange={(event) => {

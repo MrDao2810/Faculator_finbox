@@ -10,10 +10,10 @@ import { SearchLink } from './SearchLink';
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
  *
- * Khối hộp + tên "Falculator", nút chuyển chế độ Cơ bản / Nâng cao, nút tìm kiếm, nút ngôn ngữ.
+ * Khối hộp + tên "Faculator", nút chuyển chế độ Cơ bản / Nâng cao, nút tìm kiếm, nút ngôn ngữ.
  * Dính trên khi cuộn để mấy nút này luôn với tới được trên điện thoại.
  *
- * Tên rút còn "Falculator" chứ không phải "Falculator Finbox": ở 360px, tên đầy đủ cộng hai
+ * Tên rút còn "Faculator" chứ không phải "Faculator Finbox": ở 360px, tên đầy đủ cộng hai
  * cụm nút không đủ chỗ, và bản thiết kế cũng chỉ ghi một chữ. Tên đầy đủ vẫn là `app.name`,
  * dùng ở tiêu đề trang và metadata.
  */

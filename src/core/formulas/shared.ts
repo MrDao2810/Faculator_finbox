@@ -61,8 +61,16 @@ export const SOURCE_PIT_LAW: FormulaSource = {
   label: 'Luật Thuế thu nhập cá nhân 109/2025/QH15',
 };
 
+/*
+ * Sửa ở đợt 9: nhãn này còn trích Thông tư 128/2018/TT-BTC — văn bản đã bị Thông tư
+ * 102/2021/TT-BTC thay từ 01/01/2022. Vòng đối chiếu 5.1.1 (Q1) đã sửa `legalBasis` của hai
+ * hằng số phí môi giới trong `market/schedules.ts` nhưng bỏ sót nhãn dùng chung ở đây, nên khối
+ * Nguồn của 5 trang công thức phí chỉ người dùng tới văn bản hết hiệu lực — trong khi con số
+ * ngay trên màn tính từ hằng số mang căn cứ 102/2021. Một ca kiểm trong `market.test.ts` nay
+ * giữ hai bên trích cùng một thông tư.
+ */
 export const SOURCE_FEE_CIRCULAR: FormulaSource = {
-  label: 'Thông tư 128/2018/TT-BTC về giá dịch vụ trong lĩnh vực chứng khoán',
+  label: 'Thông tư 102/2021/TT-BTC về giá dịch vụ trong lĩnh vực chứng khoán',
 };
 
 export const SOURCE_VSD: FormulaSource = {

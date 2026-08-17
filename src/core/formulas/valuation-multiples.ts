@@ -217,6 +217,15 @@ export const EV: FormulaModule = {
       },
     ],
     source: [SOURCE_CFA],
+    /*
+     * Ba chặng của thác nước chính là ba ô nhập — không cần `extras`, không sửa `calc`.
+     * Đây cũng là lý do `ev` được chọn làm công thức chứng minh cho renderer bóc tách.
+     */
+    breakdown: [
+      { key: 'marketCap', sign: 1, shortLabel: 'Vốn hoá' },
+      { key: 'totalDebt', sign: 1, shortLabel: 'Nợ vay' },
+      { key: 'cash', sign: -1, shortLabel: 'Tiền mặt' },
+    ],
   },
   calc: (v) => {
     const marketCap = v('marketCap');
@@ -732,6 +741,19 @@ export const NCAV: FormulaModule = {
     latex: 'NCAV = \\frac{\\text{TSNH} - \\text{Tổng nợ}}{N}',
     expression: 'NCAV mỗi cổ phiếu = (Tài sản ngắn hạn − Tổng nợ phải trả) ÷ Số cổ phiếu lưu hành',
     chartType: 'waterfall',
+    /*
+     * Chặng phải là số TRÊN MỖI CỔ PHIẾU, không phải tài sản và nợ thô.
+     *
+     * Công thức này có phép CHIA sau phép trừ, nên khai thẳng `currentAssets` và `totalLiabilities`
+     * là hai cột đơn vị `tỷ ₫` cộng lại ra 2.200 trong khi kết quả là 18.644 `₫/CP` — lệch bốn chữ
+     * số và lệch cả đơn vị. Bất biến "tổng các chặng bằng kết quả" bắt đúng ca này, nên hai số dưới
+     * đây được chia sẵn ở `calc` rồi mới đưa lên hình.
+     */
+    breakdown: [
+      { key: 'assetsPerShare', sign: 1, shortLabel: 'TSNH mỗi CP' },
+      { key: 'liabilitiesPerShare', sign: -1, shortLabel: 'Trừ nợ mỗi CP' },
+    ],
+    breakdownTotal: 'NCAV',
     level: 'advanced',
     tags: ['ncav', 'net net', 'graham', 'tai san ngan han', 'dau tu gia tri'],
     resultUnit: '₫',
@@ -802,7 +824,12 @@ export const NCAV: FormulaModule = {
     }
 
     // (tỷ ₫) ÷ (triệu CP) ra nghìn ₫/CP; nhân 1.000 để về ₫/CP.
-    return ok(((v('currentAssets') - v('totalLiabilities')) / shares) * 1_000, '₫');
+    const assetsPerShare = (v('currentAssets') / shares) * 1_000;
+    const liabilitiesPerShare = (v('totalLiabilities') / shares) * 1_000;
+
+    return ok(assetsPerShare - liabilitiesPerShare, '₫', {
+      extras: { assetsPerShare, liabilitiesPerShare },
+    });
   },
 };
 

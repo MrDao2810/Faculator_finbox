@@ -3,11 +3,12 @@
 Thư viện công thức tài chính và chứng khoán Việt Nam — tra cứu, tính toán, giải thích.
 Web tĩnh, không backend, không cơ sở dữ liệu (SRS v2.0 mục 2.1 và 6.1).
 
-> **Trạng thái:** xong nhánh 1 (nền tảng), nhánh 2 (thư viện giao diện) và **nhánh 3.1 + 3.2**
-> (màn hình), trừ hai gói đang hoãn là 2.4.3 và 3.2.2. Sản phẩm đã **dùng thử được từ đầu đến
-> cuối**: mở trang chủ → chọn nhóm → mở công thức → đổi số → xem kết quả → xuất file.
+> **Trạng thái:** xong nhánh 1 (nền tảng), nhánh 2 (thư viện giao diện), **nhánh 3.1 + 3.2**
+> (màn hình) và nhánh 4 (biểu đồ) — hai gói từng hoãn là 2.4.3 và 3.2.2 nay đã đóng. Sản phẩm đã
+> **dùng thử được từ đầu đến cuối**: mở trang chủ → chọn nhóm → mở công thức → đổi số → xem kết
+> quả → xuất file.
 >
-> **107 trên 107 công thức** đã có và đã qua kiểm chứng số học độc lập. Nhánh 5 xong phần
+> **108 trên 108 công thức** đã có và đã qua kiểm chứng số học độc lập. Nhánh 5 xong phần
 > công thức; xem [TASK.md](TASK.md) để biết phần nào còn lại.
 
 ---
@@ -24,23 +25,24 @@ Vài chỗ đáng xem trước:
 | Đường dẫn                    | Màn                                                          |
 | ---------------------------- | ------------------------------------------------------------ |
 | `/`                          | WF-01 — công thức dùng hằng ngày, 12 nhóm chia hai mảng      |
-| `/cong-thuc/pe/`             | WF-03 — khuôn chi tiết dùng chung cho cả 107 công thức       |
+| `/cong-thuc/pe/`             | WF-03 — khuôn chi tiết dùng chung cho cả 108 công thức       |
 | `/cong-thuc/loi-nhuan-rong/` | WF-08 — bóc tách phí & thuế, giá hoà vốn thực, ROI ròng      |
 | `/cong-thuc/lich-tra-no/`    | WF-14 — ba thanh trượt và lịch trả nợ 240 kỳ có rút gọn      |
 | `/tim-kiem/?q=bitcoin`       | WF-09 trạng thái B — nói rõ phạm vi sản phẩm, gợi ý thay thế |
 
 ## Các lệnh
 
-| Lệnh                | Việc                                                                  |
-| ------------------- | --------------------------------------------------------------------- |
-| `npm run dev`       | Chạy máy chủ phát triển, sửa file là tự nạp lại                       |
-| `npm run build`     | Build ra thư mục `out/` — toàn HTML tĩnh, đem đi host ở đâu cũng được |
-| `npm run preview`   | Xem thử bản build tĩnh                                                |
-| `npm run lint`      | ESLint, **bao gồm cả ràng buộc ranh giới tầng CON-02 / CON-03**       |
-| `npm run typecheck` | Kiểm kiểu TypeScript, không sinh file                                 |
-| `npm test`          | Unit test bằng Vitest                                                 |
-| `npm run check`     | Chạy cả ba: lint + typecheck + test. Dùng trước khi push              |
-| `npm run format`    | Prettier định dạng lại toàn bộ                                        |
+| Lệnh                   | Việc                                                                  |
+| ---------------------- | --------------------------------------------------------------------- |
+| `npm run dev`          | Chạy máy chủ phát triển, sửa file là tự nạp lại                       |
+| `npm run build`        | Build ra thư mục `out/` — toàn HTML tĩnh, đem đi host ở đâu cũng được |
+| `npm run preview`      | Xem thử bản build tĩnh                                                |
+| `npm run lint`         | ESLint, **bao gồm cả ràng buộc ranh giới tầng CON-02 / CON-03**       |
+| `npm run typecheck`    | Kiểm kiểu TypeScript, không sinh file                                 |
+| `npm test`             | Unit test bằng Vitest                                                 |
+| `npm run check`        | Chạy cả ba: lint + typecheck + test. Dùng trước khi push              |
+| `npm run format`       | Prettier định dạng lại toàn bộ                                        |
+| `npm run check:chrome` | 14 phép kiểm trên Chrome thật ở khổ 360×780 — cần `out/` dựng sẵn     |
 
 ---
 
@@ -102,29 +104,30 @@ export function pe(price: number, eps: number) {
 không phụ thuộc việc người viết công thức có nhớ kiểm tra hay không.
 
 Sáu loại cảnh báo chuẩn lấy đúng từ màn **WF-15** của wireframe, mỗi loại một hàm dựng thông điệp
-trong `src/core/warnings.ts` — công thức không tự chế câu chữ, để cả 107 công thức nói cùng giọng.
+trong `src/core/warnings.ts` — công thức không tự chế câu chữ, để cả 108 công thức nói cùng giọng.
 
 ## Cùng cách nghĩ đó, áp cho những chỗ khác
 
-| Bất biến                                | Cách giữ                                            | Hỏng thì biết ngay ở đâu             |
-| --------------------------------------- | --------------------------------------------------- | ------------------------------------ |
-| Không hiện NaN / ∞ (FR-06)              | `ok()` tự chuyển thành `fail`                       | `src/core/calc-output.test.ts`       |
-| Lỗi hiện `— , —`, không hiện 0 (FR-06)  | `ResultBlock` giao hẳn cho `ErrorState`, một khuôn  | `src/ui/result/ErrorState.test.tsx`  |
-| Chuỗi người gõ không thành NaN          | `parseViNumber()` trả `null` chứ không trả NaN      | `src/core/format.test.ts`            |
-| Ghi đè thắng cả khi thượng nguồn lỗi    | `resolveLinked()` xét `override` trước cảnh báo     | `src/core/linked-input.test.ts`      |
-| File xuất luôn có miễn trừ (FR-24)      | `buildExportContent()` không nhận cờ tắt            | `src/core/export-content.test.ts`    |
-| Dán hỏng vài dòng không mất cả bộ       | `parsePaste()` không ném lỗi, trả `skipped[]`       | `src/core/paste-import.test.ts`      |
-| Màu đạt tương phản AA (NFR-USA-06)      | Test đọc thẳng `globals.css` rồi tính tỉ số         | `src/ui/contrast.test.ts`            |
-| Màu chỉ đi qua token                    | Test quét mọi `*.module.css` tìm mã màu viết thẳng  | `src/ui/tokens.test.ts`              |
-| Miễn trừ hiện ở mọi màn (FR-24)         | Đặt trong `AppShell`, không đặt ở từng màn          | `src/ui/layout/AppShell.tsx`         |
-| Hằng số thuế/phí có căn cứ (LDR-03)     | `validateMarketConfig()` bắt bản ghi thiếu          | `src/core/market/market.test.ts`     |
-| Công thức có đủ metadata (FR-03, FR-04) | Validator của Registry                              | `src/core/registry/registry.test.ts` |
-| Ca kiểm thử khai ra thì phải CHẠY THẬT  | `runSpecTests()` duyệt `spec.tests` của mọi CT      | `src/core/formulas/formulas.test.ts` |
-| Ô để trống ≠ số 0 (NFR-REL-01)          | `runFormula()` chặn trước khi gọi hàm tính          | `src/core/calc/calc.test.ts`         |
-| Công thức luôn có hàm tính              | `FormulaModule` gộp spec và calc làm một            | typecheck                            |
-| Link lọc nhóm đọc lại được              | Dựng URL bằng `listParamsToQuery()`, không ghép tay | `src/application/url-state.test.ts`  |
-| Ký hiệu toán không tốn JS máy khách     | `katex` chỉ chạy trong server component lúc build   | `scripts/verify-static.mjs`          |
-| `id` biểu đồ không do React sinh        | Ghép từ `spec.id`, không `useId()` dưới nạp trễ     | `src/ui/charts/charts.test.tsx`      |
+| Bất biến                                | Cách giữ                                            | Hỏng thì biết ngay ở đâu              |
+| --------------------------------------- | --------------------------------------------------- | ------------------------------------- |
+| Không hiện NaN / ∞ (FR-06)              | `ok()` tự chuyển thành `fail`                       | `src/core/calc-output.test.ts`        |
+| Lỗi hiện `— , —`, không hiện 0 (FR-06)  | `ResultBlock` giao hẳn cho `ErrorState`, một khuôn  | `src/ui/result/ErrorState.test.tsx`   |
+| Chuỗi người gõ không thành NaN          | `parseViNumber()` trả `null` chứ không trả NaN      | `src/core/format.test.ts`             |
+| Ghi đè thắng cả khi thượng nguồn lỗi    | `resolveLinked()` xét `override` trước cảnh báo     | `src/core/linked-input.test.ts`       |
+| File xuất luôn có miễn trừ (FR-24)      | `buildExportContent()` không nhận cờ tắt            | `src/core/export-content.test.ts`     |
+| Dán hỏng vài dòng không mất cả bộ       | `parsePaste()` không ném lỗi, trả `skipped[]`       | `src/core/paste-import.test.ts`       |
+| Màu đạt tương phản AA (NFR-USA-06)      | Test đọc thẳng `globals.css` rồi tính tỉ số         | `src/ui/contrast.test.ts`             |
+| Màu chỉ đi qua token                    | Test quét mọi `*.module.css` tìm mã màu viết thẳng  | `src/ui/tokens.test.ts`               |
+| Miễn trừ hiện ở mọi màn (FR-24)         | Đặt trong `AppShell`, không đặt ở từng màn          | `src/ui/layout/AppShell.tsx`          |
+| Hằng số thuế/phí có căn cứ (LDR-03)     | `validateMarketConfig()` bắt bản ghi thiếu          | `src/core/market/market.test.ts`      |
+| Công thức có đủ metadata (FR-03, FR-04) | Validator của Registry                              | `src/core/registry/registry.test.ts`  |
+| Ca kiểm thử khai ra thì phải CHẠY THẬT  | `runSpecTests()` duyệt `spec.tests` của mọi CT      | `src/core/formulas/formulas.test.ts`  |
+| Diễn giải không tự mâu thuẫn với spec   | 7 phép đối chiếu prose với `spec`, `calc`, bộ mẫu   | `src/application/prose-audit.test.ts` |
+| Ô để trống ≠ số 0 (NFR-REL-01)          | `runFormula()` chặn trước khi gọi hàm tính          | `src/core/calc/calc.test.ts`          |
+| Công thức luôn có hàm tính              | `FormulaModule` gộp spec và calc làm một            | typecheck                             |
+| Link lọc nhóm đọc lại được              | Dựng URL bằng `listParamsToQuery()`, không ghép tay | `src/application/url-state.test.ts`   |
+| Ký hiệu toán không tốn JS máy khách     | `katex` chỉ chạy trong server component lúc build   | `scripts/verify-static.mjs`           |
+| `id` biểu đồ không do React sinh        | Ghép từ `spec.id`, không `useId()` dưới nạp trễ     | `src/ui/charts/charts.test.tsx`       |
 
 ---
 
@@ -158,31 +161,34 @@ test → build. Hỏng ở bước nào thì chặn merge ở bước đó.
 
 ## Việc tiếp theo theo WBS
 
-- **3.2.2** WF-04 màn nâng cao — hoãn, làm cùng lúc với chuỗi định giá của gói 5.2.3. Phạm vi đúng
-  là chuỗi **không có Beta**: CAPM → WACC → FCFF/FCFE → giá trị nội tại → biên an toàn, beta để ô
-  nhập tay. Đây cũng là việc duy nhất kích hoạt `LinkedInput` và `FlowChainStrip` — hai component
-  đã dựng xong mà chưa màn nào dùng.
-- **Nhánh 4** biểu đồ — đợt 1–4 xong, phủ 97/107. Còn lại: renderer riêng cho `waterfall` và
-  `stackedBar` (10 công thức đang nhận đường quét độ nhạy — đúng, chỉ chưa lý tưởng), và nhiều
-  đường trên một hình cho nhóm chỉ báo.
+- **3.2.2 + 5.2.3 đã xong** — chuỗi `CAPM → Mô hình Gordon → Biên an toàn` chạy thật, và màn nâng
+  cao WF-04 là một khối mọc thêm trên trang chi tiết khi bật chế độ Nâng cao (không thêm URL nào).
+  `LinkedInput` và `FlowChainStrip` nay có nơi dùng. Chuỗi có **sáu cạnh `dependsOn`** thành hai
+  nhánh: `CAPM → Gordon → Biên an toàn`, và `CAPM → WACC → Giá trị nội tại FCFF ← FCFF → FCFE`.
+  Mắt xích khép nhánh FCFF chính là công thức thứ **108** — nhóm Định giá nâng 18 → 19, nên **bảng
+  SRS mục 3.8 ngoài repo phải sửa 94 / 13 / 107 thành 95 / 13 / 108**.
+- **Nhánh 4** biểu đồ — xong, phủ 98/108, kèm thác nước bóc tách cho **đủ 10** công thức khai
+  `waterfall`/`stackedBar`; không còn cái nào chờ. Bốn cái bày bóc tách ngay khi mở màn (đường quét
+  của chúng là đường thẳng), sáu cái còn lại giữ đường quét làm mặc định và bóc tách nằm trong ô
+  chọn trục. Việc còn của nhánh: nhiều đường trên một hình cho nhóm chỉ báo kỹ thuật.
 - **3.3.2** Beta — kẹt vì `src/data/samples.ts` không có chuỗi VN-Index để hồi quy, không phải vì
   nhóm Rủi ro đã đầy 17/17.
 
 **Về dung lượng — nỗi lo cũ đã khép lại bằng số đo.** Hồi 21 công thức, metadata đi thẳng vào
 gói JS của màn danh sách và phép ngoại suy cho ra "107 công thức sẽ vượt ngưỡng 200 kB của
 NFR-PER-04". Đợt 13 tách chỉ mục nhẹ khỏi Registry và khai `sideEffects` trong `package.json`
-để webpack rung được cây qua barrel. Kết quả đo ở mốc 107 thật: **chỉ mục nhẹ 9,5 kB nén cho
-cả 107 công thức** (0,1 kB mỗi công thức), trang nặng nhất **148,7 kB** First Load JS — dưới cả
-cửa kiểm 170 kB. Chạy `npm run size` để xem lại bất cứ lúc nào.
+để webpack rung được cây qua barrel. Số đo mới nhất ở mốc **108** công thức: chỉ mục nhẹ
+**10,9 kB** nén (0,1 kB mỗi công thức), trang nặng nhất **156,9 kB** First Load JS — còn dư
+13,1 kB dưới cửa kiểm 170 kB. Chạy `npm run size` để xem lại bất cứ lúc nào.
 
 Ba việc chặn phát hành v0.1, đều là **nội dung chờ người đối chiếu**, không phải code:
 
 1. **Thuế & phí** trong `src/core/market/schedules.ts` còn là bản thảo (gói WBS 5.1.1).
 2. **Bộ số liệu mẫu** trong `src/data/samples.ts` là số tôi tự dựng, không phải BCTC thật —
    giả định A1 và rủi ro R-01 của SRS vẫn còn mở.
-3. **Diễn giải của 107 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
+3. **Diễn giải của 108 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
    đã có ví dụ số kiểm chứng độc lập cho từng công thức.
 
-Và một việc lộ ra khi đủ 107: **thiếu công thức Beta**. Nó nằm cùng gốc với việc số 2 ở trên —
+Và một việc lộ ra khi đủ 108: **thiếu công thức Beta**. Nó nằm cùng gốc với việc số 2 ở trên —
 Beta hồi quy cần một chuỗi VN-Index mà bộ mẫu chưa có. Xem
 [src/core/formulas/README.md](src/core/formulas/README.md), mục "Còn thiếu".

@@ -106,6 +106,10 @@ export { SAMPLE_DATA, createStaticProvider, hasDraftData, presetInputs } from '@
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from '@/core/calc';
 export { missingInputLabels, needsPriceSeries, runFormula } from '@/core/calc';
 
+// ── Chạy cả một chuỗi công thức nối nhau — FR-15 (gói 5.2.3) ────────────────
+export type { ChainField, ChainInputs, ChainOverrides, ChainResult, ChainStep } from '@/core/calc';
+export { chainFor, runChain } from '@/core/calc';
+
 // ── Biểu đồ — FR-07, FR-08 (nhánh 4) ────────────────────────────────────────
 /*
  * Chỉ mở ra những gì `src/ui/charts` thật sự gọi. `sweepPoints`, `rankSweepVariables`,
@@ -113,6 +117,7 @@ export { missingInputLabels, needsPriceSeries, runFormula } from '@/core/calc';
  * barrel càng hẹp thì rung cây càng sạch (xem `sideEffects` trong package.json).
  */
 export type {
+  BreakdownBar,
   ChartArgs,
   ChartAxis,
   ChartKind,
@@ -120,8 +125,10 @@ export type {
   ChartPoint,
   ChartTable,
   ChartTick,
+  DrawableChart,
   LineChart,
   SweepOption,
+  WaterfallChart,
 } from '@/core/chart';
 export {
   CHART_TABLE_ROWS,
@@ -132,7 +139,7 @@ export {
   sweepCandidates,
 } from '@/core/chart';
 
-// ── Thư viện công thức — đủ 107 / 107 ───────────────────────────────────────
+// ── Thư viện công thức — đủ 108 / 108 ───────────────────────────────────────
 export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';
 
 // Bóc tách phí & thuế — khối chính của WF-08 (gói 3.2.3)

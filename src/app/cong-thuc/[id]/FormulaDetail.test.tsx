@@ -41,7 +41,7 @@ function specOf(id: string): FormulaSpec {
  *
  * Dựng ký hiệu toán bằng **chính hàm `page.tsx` gọi**, không phải một chuỗi giả: nếu ca kiểm nhận
  * `latexHtml="<math/>"` viết tay thì nó chứng minh được đúng một thứ là component in ra cái nó
- * được đưa — còn việc 107 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
+ * được đưa — còn việc 108 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
  * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX kèm theo, miễn phí.
  */
 function Man({ spec }: { spec: FormulaSpec }) {
@@ -287,6 +287,27 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
     expect(screen.getByTestId('result-text').textContent).toBe('19,83 lần');
   });
 
+  /*
+   * Kết quả đổi NGAY TRONG LÚC GÕ, không đợi rời ô.
+   *
+   * Ca ngay trên có `userEvent.tab()` ở cuối nên nó không phân biệt được hai chuyện: cập nhật theo
+   * từng phím, hay chỉ cập nhật một lần lúc chốt. Bản đầu là vế thứ hai, và người dùng báo đúng
+   * triệu chứng đó — gõ xong mà khối Kết quả vẫn đứng im, trông như màn bị treo.
+   *
+   * Ca này KHÔNG rời ô, và đó là toàn bộ điểm của nó.
+   */
+  it('kết quả đổi theo từng phím gõ, chưa cần rời ô', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    const price = oNhap(/Giá thị trường/);
+    await userEvent.clear(price);
+    await userEvent.type(price, '120000');
+
+    // Con trỏ vẫn nằm trong ô.
+    expect(price).toBe(document.activeElement);
+    expect(screen.getByTestId('result-text').textContent).toBe('19,83 lần');
+  });
+
   it('EPS bằng 0 thì ra “— , —” kèm lý do, TUYỆT ĐỐI không ra 0 (FR-06)', async () => {
     const { container } = render(<Man spec={specOf('pe')} />);
 
@@ -371,7 +392,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     /*
      * Hạn 15 giây thay cho mặc định 5 giây.
      *
-     * Ca này dựng TRỌN 107 màn chi tiết — chạy riêng mất khoảng 3,3 giây, nhưng khi vitest chạy
+     * Ca này dựng TRỌN 108 màn chi tiết — chạy riêng mất khoảng 3,3 giây, nhưng khi vitest chạy
      * song song nhiều file thì các worker giành CPU và nó lên hơn 5 giây, tức đỏ vì máy đang bận
      * chứ không vì sản phẩm sai. Nới hạn cho ĐÚNG ca này, không nới toàn cục: mọi ca khác vẫn nên
      * hỏng nếu chậm bất thường.
@@ -663,7 +684,7 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
   });
 
   /*
-   * Bất biến thật, viết lại khi Registry đủ 107 công thức.
+   * Bất biến thật, viết lại khi Registry đủ 108 công thức.
    *
    * Bản trước đòi MỌI công thức ra được một con số với giá trị mặc định. Điều đó đúng khi cả 73
    * công thức đầu chỉ ăn biến vô hướng, nhưng 34 công thức chuỗi giá thì KHÔNG thể ra số khi
@@ -719,5 +740,129 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
 
     // Và phải có ĐÚNG 34 công thức như vậy — thêm bớt là có người vừa đổi hợp đồng dữ liệu.
     expect(chờDữLiệu.length).toBe(34);
+  });
+});
+
+/*
+ * ── Chuỗi công thức trên màn nâng cao — WF-04, FR-15 (gói 5.2.3) ────────────────────────────
+ *
+ * Đây là lần đầu FR-15 chạy thật trên một màn: `dependsOn` sinh ra dải luồng, kết quả bước trước
+ * chảy vào ô bước sau, và thượng nguồn gãy thì bước sau kế thừa cảnh báo. Ca kiểm ở đây soi phần
+ * NỐI DÂY; phần toán của chuỗi đã có `run-chain.test.ts` lo.
+ */
+
+/** Màn chi tiết ở chế độ Nâng cao — gieo tuỳ chọn trước khi Provider đọc localStorage. */
+function manNangCao(spec: FormulaSpec) {
+  window.localStorage.setItem(
+    PREFERENCES_STORAGE_KEY,
+    JSON.stringify({ ...DEFAULT_PREFERENCES, mode: 'advanced' }),
+  );
+  return render(
+    <PreferencesProvider>
+      <Man spec={spec} />
+    </PreferencesProvider>,
+  );
+}
+
+/** Khối chuỗi — một vùng có tên riêng, tách hẳn khỏi vùng "Số liệu". */
+function khoiChuoi(): HTMLElement {
+  return screen.getByRole('region', { name: t('chain.title') });
+}
+
+describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
+  it('chế độ Cơ bản không dựng khối chuỗi, kể cả với công thức nằm trong chuỗi', () => {
+    render(<Man spec={specOf('mo-hinh-gordon')} />);
+
+    expect(screen.queryByRole('region', { name: t('chain.title') })).toBeNull();
+    // Và ô r vẫn là thanh trượt nhập tay như trước đợt này.
+    expect(screen.queryByRole('button', { name: t('input.override') })).toBeNull();
+  });
+
+  it('công thức không dính cạnh nào thì Nâng cao cũng không có khối chuỗi', async () => {
+    manNangCao(specOf('pe'));
+
+    // Chờ Provider đọc xong localStorage rồi mới kết luận là KHÔNG có — nếu không thì ca này
+    // đỗ giả ngay ở lượt dựng đầu, lúc chế độ còn là Cơ bản.
+    expect(await screen.findByTestId('result-text')).not.toBeNull();
+    expect(screen.queryByRole('region', { name: t('chain.title') })).toBeNull();
+  });
+
+  it('ô "Suất sinh lợi yêu cầu" nhận tự động từ CAPM, có ghi tên nguồn (FR-15)', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+
+    // '↳ CAPM — chi phí vốn chủ sở hữu' do LinkedInput dựng; sự có mặt của nó chứng minh cạnh
+    // dependsOn đã chảy tới tận ô nhập, không dừng ở metadata.
+    expect(await screen.findByText(/↳ CAPM/)).not.toBeNull();
+
+    // 3,5 + 1,2 × 8 = 13,1% — con số của CAPM, không phải 12% mặc định của chính ô này.
+    const o = oNhap(/Suất sinh lợi yêu cầu/) as HTMLInputElement;
+    expect(o.value).toBe('13,1');
+
+    // 2.000 × 1,05 ÷ 0,081 = 25.925,93 ₫
+    expect(screen.getByTestId('result-text').textContent).toContain('25.925');
+  });
+
+  it('dải luồng bày đủ ba bước và đánh dấu bước đang xem', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+
+    const dai = within(khoi).getByRole('list');
+    expect(dai.textContent).toContain('CAPM');
+    expect(dai.textContent).toContain('Biên an toàn');
+    expect(dai.querySelector('[aria-current="step"]')?.textContent).toContain('Gordon');
+  });
+
+  it('sửa số ở bước TRƯỚC thì kết quả của công thức đang xem đổi theo', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+
+    // Thẻ CAPM mở sẵn vì nó cấp số liệu trực tiếp cho công thức đang xem.
+    const beta = within(khoi).getByRole('textbox', { name: /Hệ số beta/ });
+    await userEvent.clear(beta);
+    await userEvent.type(beta, '2');
+
+    // 3,5 + 2 × 8 = 19,5% → 2.000 × 1,05 ÷ 0,145 = 14.482,76 ₫
+    expect((oNhap(/Suất sinh lợi yêu cầu/) as HTMLInputElement).value).toBe('19,5');
+    expect(screen.getByTestId('result-text').textContent).toContain('14.482');
+  });
+
+  it('thượng nguồn lỗi thì kết quả là CẢNH BÁO KẾ THỪA, không phải "còn thiếu"', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+
+    // beta −2 kéo chi phí vốn chủ xuống 3,5 − 16 = −12,5% → CAPM không tính được.
+    const beta = within(khoi).getByRole('textbox', { name: /Hệ số beta/ });
+    await userEvent.clear(beta);
+    await userEvent.type(beta, '-2');
+
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+    expect(screen.getAllByText(WARNING_LABELS.INHERITED).length).toBeGreaterThan(0);
+    // Ô r người dùng KHÔNG hề bỏ trống, nên tuyệt đối không được báo "Còn thiếu".
+    expect(screen.queryByText(/Còn thiếu/)).toBeNull();
+  });
+
+  it('bấm Ghi đè thì ô thành của người dùng và chuỗi chạy tiếp', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    await screen.findByText(/↳ CAPM/);
+
+    const khoiSoLieu = screen.getByRole('region', { name: t('detail.inputs') });
+    await userEvent.click(within(khoiSoLieu).getByRole('button', { name: t('input.override') }));
+
+    expect(within(khoiSoLieu).getByText(t('input.overridden'))).not.toBeNull();
+    expect(within(khoiSoLieu).getByRole('button', { name: t('input.revert') })).not.toBeNull();
+    // Ghi đè bắt đầu từ chính giá trị đang hiện nên kết quả không nhảy lung tung.
+    expect(screen.getByTestId('result-text').textContent).toContain('25.925');
+  });
+
+  it('bước SAU dùng kết quả của công thức đang xem, và nói rõ đó là bước sau', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+
+    expect(within(khoi).getByText(t('chain.upstreamHeading'))).not.toBeNull();
+    expect(within(khoi).getByText(t('chain.downstreamHeading'))).not.toBeNull();
+
+    // Biên an toàn gập sẵn, nhưng dòng tóm tắt phải hiện kết quả:
+    // (25.925,93 − 30.000) ÷ 25.925,93 = −15,71%
+    expect(khoiChuoi().textContent).toContain('-15,71');
   });
 });

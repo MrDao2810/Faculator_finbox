@@ -8,5 +8,15 @@ export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from 
 
 export { missingInputLabels, needsPriceSeries, runFormula } from './run';
 
+export type {
+  ChainArgs,
+  ChainField,
+  ChainInputs,
+  ChainOverrides,
+  ChainResult,
+  ChainStep,
+} from './run-chain';
+export { chainFor, runChain } from './run-chain';
+
 export type { SpecTestFailure } from './run-tests';
 export { DEFAULT_TOLERANCE, formatFailures, runAllSpecTests, runSpecTests } from './run-tests';

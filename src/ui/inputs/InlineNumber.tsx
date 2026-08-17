@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 
-import { commitValue, formatNumber, t } from '@/application';
+import { commitValue, formatNumber, parseViNumber } from '@/application';
 import type { VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './InlineNumber.module.css';
 
@@ -30,8 +31,10 @@ export interface InlineNumberProps {
  * của ví dụ), và `NumberInput` — cái cuối vẫn giữ bản riêng vì nó phải vẽ đủ năm trạng thái WF-16
  * qua primitive `Input`, còn hai chỗ kia chỉ cần con số.
  *
- * Bốn quy tắc, giống hệt `NumberInput` để hai ô không cư xử khác nhau:
+ * Năm quy tắc, giống hệt `NumberInput` để hai ô không cư xử khác nhau:
  *
+ *   0. **Đẩy giá trị lên ngay từng phím gõ**, chuỗi chưa ra số thì bỏ qua lượt đó. Trước đây cả
+ *      hai ô chỉ báo lên lúc rời ô, nên gõ xong mà khối Kết quả vẫn đứng im — xem `NumberInput`.
  *   1. **Không kẹp trong lúc gõ.** Gõ '−4' thì ô hiện '−4'; kẹp chỉ xảy ra lúc chốt.
  *   2. **Giữ chuỗi thô khi đang gõ, chuỗi đã định dạng khi rời ra** — nếu định dạng từng phím thì
  *      gõ '92000' bị chèn dấu chấm giữa chừng và con trỏ nhảy.
@@ -52,6 +55,7 @@ export function InlineNumber({
 }: InlineNumberProps) {
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
   const [draft, setDraft] = useState<string | null>(null);
+  const t = useT();
 
   const classes = [styles.box, readOnly ? styles.locked : undefined, className]
     .filter(Boolean)
@@ -85,7 +89,13 @@ export function InlineNumber({
           setDraft(String(value));
         }}
         onChange={(event) => {
-          setDraft(event.target.value);
+          const next = event.target.value;
+          setDraft(next);
+
+          // Quy tắc 0 — xem docblock. Chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì giữ nguyên giá
+          // trị cũ chứ không đẩy `null` lên, vì nơi nhận chỉ biết nhận số (FR-06).
+          const parsed = parseViNumber(next);
+          if (parsed !== null && parsed !== value) onChange(parsed);
         }}
         onBlur={commit}
         onKeyDown={(event) => {

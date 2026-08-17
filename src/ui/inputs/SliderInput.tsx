@@ -2,8 +2,9 @@
 
 import { useId, type CSSProperties } from 'react';
 
-import { formatValueWithUnit, isLockedForMode, snapToStep, t } from '@/application';
+import { formatValueWithUnit, isLockedForMode, snapToStep } from '@/application';
 import type { Level, VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import { InlineNumber } from './InlineNumber';
 import styles from './SliderInput.module.css';
@@ -58,6 +59,7 @@ export function SliderInput({
   className,
 }: SliderInputProps) {
   const inputId = useId();
+  const t = useT();
   const boxId = `${inputId}-box`;
   const labelId = `${inputId}-label`;
   const marksId = `${inputId}-marks`;

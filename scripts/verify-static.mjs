@@ -16,7 +16,7 @@
  * chủ sẽ lặng lẽ mất 33 kB nội dung mà không test nào đỏ. Script này là chỗ chặn cứng.
  */
 
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 
 /** Marker Next chèn vào chỗ cây bị loại khỏi HTML tĩnh. */
 const BAILOUT = 'BAILOUT_TO_CLIENT_SIDE_RENDERING';
@@ -111,7 +111,7 @@ const formulaLinks = new Set(
  * Từ đợt này chế độ Cơ bản lọc bớt danh sách theo cấp độ (FR-09), và mặc định của sản phẩm
  * LÀ chế độ Cơ bản — nghĩa là 29 công thức mức nâng cao không hiện trên màn khi mới vào. Việc
  * đó chỉ được phép xảy ra ở phía máy khách: `StaticFormulaList` là server component, không đọc
- * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 107. Ai đó "sửa cho nhất quán"
+ * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 108. Ai đó "sửa cho nhất quán"
  * bằng cách lọc luôn ở fallback là lặng lẽ giấu 29 URL khỏi Google, mà build vẫn xanh.
  */
 const TONG_CONG_THUC = (
@@ -251,18 +251,83 @@ check(
  * lượt tải đầu, chạy được cả khi JavaScript chưa tải xong. Dựng bằng `<button>` + router là
  * lọt test mà hỏng đúng lúc mạng chậm.
  */
+/*
+ * Hai chuỗi phải nằm trong CÙNG MỘT thẻ <a>, không phải hai lần `includes` rời nhau.
+ *
+ * Bản trước kiểm rời và vì thế không gác được gì: vế `href="/cong-thuc/"` luôn đúng trên mọi
+ * trang nhờ thanh điều hướng dưới (BottomTabBar render sẵn link ấy vào HTML tĩnh), nên thay
+ * BackLink bằng `<button onClick={router.push}>Danh sách công thức</button>` thì chữ vẫn được
+ * dựng vào HTML, href vẫn có từ thanh dưới — hai vế đều đạt, cửa xanh, mà nút quay về chết
+ * đúng lúc mạng chậm. Chính là regression mà comment phía trên nói phép kiểm này tồn tại để chặn.
+ *
+ * Lookahead phủ định chặn không cho vắt qua `</a>`, nên chữ phải thật sự nằm trong thẻ neo đó.
+ */
+const BACK_LINK = /<a[^>]*href="\/cong-thuc\/"[^>]*>(?:(?!<\/a>)[\s\S])*?Danh sách công thức/;
 const detailPages = ['out/cong-thuc/pe/index.html', 'out/cong-thuc/rsi-wilder/index.html'];
 const withBackLink = detailPages.filter((page) => {
   if (!existsSync(page)) return false;
-  const html = readFileSync(page, 'utf8');
-  // Thẻ <a> trỏ về danh sách, và chữ nói rõ đi đâu — không phải mỗi mũi tên trơn.
-  return html.includes('href="/cong-thuc/"') && html.includes('Danh sách công thức');
+  return BACK_LINK.test(readFileSync(page, 'utf8'));
 });
 
 check(
   'trang chi tiết có link quay về danh sách NGAY trong HTML tĩnh',
   withBackLink.length === detailPages.length,
   `${String(withBackLink.length)}/${String(detailPages.length)} trang`,
+);
+
+/*
+ * Khối chuỗi công thức (WF-04, gói 5.2.3) — hai tính chất chỉ nhìn thấy được trên bản build.
+ *
+ * 1. Khối KHÔNG được có trong HTML tĩnh. Nó chỉ hiện ở chế độ Nâng cao, mà chế độ đọc từ
+ *    localStorage sau hydrate; HTML build sẵn luôn là chế độ Cơ bản mặc định. Nếu id
+ *    `khoi-chuoi` xuất hiện trong HTML tĩnh nghĩa là ai đó đã đổi mặc định sang Nâng cao —
+ *    một thay đổi sản phẩm phải là quyết định, không phải tai nạn — hoặc điều kiện dựng khối
+ *    bị nới. Cả hai đều đáng chặn ở đây vì không ca vitest nào nhìn thấy HTML xuất ra.
+ *
+ * 2. Thân khối (`ChainBody`) phải nằm trong một chunk NẠP TRỄ: có mặt trên đĩa nhưng không
+ *    một file HTML nào tham chiếu bằng thẻ <script>. Đây đúng lời hứa của `ChainPanel` —
+ *    108 trang chi tiết không trả tiền cho một khối chỉ 7 công thức dùng. Dò bằng tên class
+ *    CSS module (`stepFailed`) chứ không bằng chữ tiếng Việt: chuỗi tiếng Việt trong bundle
+ *    bị escape unicode tuỳ chỗ, so sánh thô sẽ âm tính giả.
+ */
+const waccPath = 'out/cong-thuc/wacc/index.html';
+const waccHtml = existsSync(waccPath) ? readFileSync(waccPath, 'utf8') : '';
+
+check(
+  'khối chuỗi WF-04 không rò vào HTML tĩnh (mặc định vẫn là chế độ Cơ bản)',
+  waccHtml !== '' && !waccHtml.includes('id="khoi-chuoi"'),
+  waccHtml === '' ? `thiếu ${waccPath}` : 'HTML tĩnh của trang trong chuỗi không mang khối',
+);
+
+const chunkDir = 'out/_next/static/chunks';
+const chainChunks = readdirSync(chunkDir)
+  .filter((name) => name.endsWith('.js'))
+  .filter((name) => readFileSync(`${chunkDir}/${name}`, 'utf8').includes('stepFailed'));
+
+/** Mọi file HTML trong out/ — một trang bất kỳ tham chiếu chunk là ranh giới đã thủng. */
+function htmlFilesUnder(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) return entry.name === '_next' ? [] : htmlFilesUnder(path);
+    return entry.name.endsWith('.html') ? [path] : [];
+  });
+}
+
+const chainChunkReferenced =
+  chainChunks.length > 0 &&
+  htmlFilesUnder('out').some((page) => {
+    const pageHtml = readFileSync(page, 'utf8');
+    return chainChunks.some((name) => pageHtml.includes(name));
+  });
+
+check(
+  'thân khối chuỗi nằm trong chunk nạp trễ — không trang nào tải sẵn',
+  chainChunks.length > 0 && !chainChunkReferenced,
+  chainChunks.length === 0
+    ? 'không tìm thấy chunk nào mang ChainBody — khối biến mất khỏi bản build?'
+    : chainChunkReferenced
+      ? `chunk ${chainChunks.join(', ')} bị tham chiếu tĩnh — ranh giới next/dynamic thủng`
+      : `${chainChunks.join(', ')} chỉ nạp khi cần`,
 );
 
 /*

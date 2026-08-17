@@ -6,6 +6,7 @@ import { FORMULA_MODULES } from '../formulas';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
+import { BREAKDOWN_KEY } from './breakdown';
 import { buildChartModel } from './build';
 import { gapsOf, linePath } from './path';
 import { decimalsOf, extentOf, linearScale, niceAxis, niceStep } from './scale';
@@ -275,6 +276,48 @@ describe('sweepDomain()', () => {
     expect(domain?.count).toBeGreaterThan(1);
   });
 
+  it('bước thô thì hai đầu dải BÁM lưới bước — không còn "4,5 năm" trên trục số nguyên', () => {
+    // Đúng ca đã gặp ngoài màn: biến years của DDM hai giai đoạn, bước 1, mặc định 5.
+    // ±50% cho dải 2,5 → 7,5; bản cũ chia đều thành 2,5 · 3,5 · 4,5… trong khi hàm tính
+    // Math.round về năm nguyên — sáu trên bảy điểm là bậc thang mang nhãn sai.
+    const years = { ...price, type: 'slider' as const, step: 1, min: 1, max: 20, defaultValue: 5 };
+    const domain = sweepDomain(years, 5);
+
+    expect(domain).toEqual({ lo: 3, hi: 7, count: 5 });
+  });
+
+  it('bám bước giữ đúng gốc min như snapToStep — bước lẻ cũng không rác dấu phẩy động', () => {
+    const rate = {
+      ...price,
+      type: 'slider' as const,
+      step: 0.5,
+      min: 0.25,
+      max: 30,
+      defaultValue: 3,
+    };
+    const domain = sweepDomain(rate, 3);
+
+    // ±50% quanh 3 là 1,5 → 4,5; lưới bước tính từ min 0,25 là 0,25 · 0,75 · 1,25 · 1,75…
+    // nên hai đầu bám vào 1,75 và 4,25 — không phải 1,5 và 4,5 của lưới tính từ 0.
+    expect(domain).toEqual({ lo: 1.75, hi: 4.25, count: 6 });
+  });
+
+  it('dải hẹp hơn một bước thì giữ hành vi cũ thay vì trả null làm mất cả biểu đồ', () => {
+    const coarse = {
+      ...price,
+      type: 'slider' as const,
+      step: 10,
+      min: 0,
+      max: 100,
+      defaultValue: 7,
+    };
+    const domain = sweepDomain(coarse, 7);
+
+    // ±50% quanh 7 là 3,5 → 10,5 — chỉ chứa đúng một mốc lưới (10), không dựng dải bám bước được.
+    expect(domain).not.toBeNull();
+    expect(domain?.count).toBe(2);
+  });
+
   it('miền suy biến thì trả null chứ không vẽ một cột đứng', () => {
     expect(sweepDomain({ ...price, min: 5, max: 5 }, 5)).toBeNull();
     expect(sweepDomain(price, Number.NaN)).not.toBeNull(); // rơi về defaultValue
@@ -480,12 +523,12 @@ describe('buildChartModel()', () => {
   });
 
   /*
-   * Ca đắt giá nhất của cả nhánh: quét TOÀN BỘ 107 công thức qua đúng một vòng lặp.
+   * Ca đắt giá nhất của cả nhánh: quét TOÀN BỘ 108 công thức qua đúng một vòng lặp.
    *
-   * Bắt được mọi công thức lệch mà không phải viết 107 ca, và chạy ở tầng Domain nên nhanh gấp
+   * Bắt được mọi công thức lệch mà không phải viết 108 ca, và chạy ở tầng Domain nên nhanh gấp
    * bội so với render jsdom — cùng tinh thần `formulas.test.ts`.
    */
-  it('cả 107 công thức: không ném lỗi, không NaN, không Infinity ở BẤT KỲ số nào', () => {
+  it('cả 108 công thức: không ném lỗi, không NaN, không Infinity ở BẤT KỲ số nào', () => {
     for (const formula of FORMULA_MODULES) {
       const id = formula.spec.id;
       const inputs = defaultInputs(formula.spec);
@@ -493,13 +536,14 @@ describe('buildChartModel()', () => {
 
       const model = buildChartModel({ formula, inputs, ctx: CTX, output, level: 'advanced' });
 
-      expect(['line', 'unavailable'], id).toContain(model.kind);
+      expect(['line', 'waterfall', 'unavailable'], id).toContain(model.kind);
       if (model.kind === 'unavailable') {
         expect(model.warning.message, id).not.toBe('');
         continue;
       }
 
-      for (const axis of [model.x, model.y]) {
+      // Thác nước không có trục X kiểu số — trục ngang của nó là các CHẶNG, không phải đại lượng.
+      for (const axis of model.kind === 'waterfall' ? [model.y] : [model.x, model.y]) {
         expect(Number.isFinite(axis.domain[0]), `${id}: miền`).toBe(true);
         expect(Number.isFinite(axis.domain[1]), `${id}: miền`).toBe(true);
         expect(axis.domain[0], `${id}: miền`).toBeLessThan(axis.domain[1]);
@@ -510,11 +554,23 @@ describe('buildChartModel()', () => {
         }
       }
 
-      for (const point of model.points) {
-        expect(Number.isFinite(point.x), `${id}: x`).toBe(true);
-        expect(point.y === null || Number.isFinite(point.y), `${id}: y`).toBe(true);
-        expect(point.label, `${id}: nhãn x`).not.toMatch(/NaN|Infinity|undefined/);
-        expect(point.valueLabel, `${id}: nhãn y`).not.toMatch(/NaN|Infinity|undefined/);
+      if (model.kind === 'waterfall') {
+        for (const bar of model.bars) {
+          expect(Number.isFinite(bar.delta), `${id}: phần đóng góp`).toBe(true);
+          expect(Number.isFinite(bar.cumulative), `${id}: mức cộng dồn`).toBe(true);
+          expect(bar.label, `${id}: nhãn cột`).not.toMatch(/NaN|Infinity|undefined/);
+          expect(bar.valueLabel, `${id}: nhãn giá trị`).not.toMatch(/NaN|Infinity|undefined/);
+        }
+        // Chân cột phải có chỗ đứng: miền trục LUÔN chứa số 0.
+        expect(model.y.domain[0], `${id}: miền phải chứa 0`).toBeLessThanOrEqual(0);
+        expect(model.y.domain[1], `${id}: miền phải chứa 0`).toBeGreaterThanOrEqual(0);
+      } else {
+        for (const point of model.points) {
+          expect(Number.isFinite(point.x), `${id}: x`).toBe(true);
+          expect(point.y === null || Number.isFinite(point.y), `${id}: y`).toBe(true);
+          expect(point.label, `${id}: nhãn x`).not.toMatch(/NaN|Infinity|undefined/);
+          expect(point.valueLabel, `${id}: nhãn y`).not.toMatch(/NaN|Infinity|undefined/);
+        }
       }
 
       expect(model.title, id).not.toMatch(/NaN|Infinity|undefined/);
@@ -542,19 +598,31 @@ describe('buildChartModel()', () => {
    * câu "chưa có phiên giá" kèm câu chỉ đường, và đó là trạng thái ĐÚNG chứ không phải thiếu sót.
    * Chốt cả hai con số: nếu một công thức tuột khỏi nhóm vẽ được vì lý do khác thì ca này đỏ.
    */
-  it('chưa nạp dữ liệu: vẽ được ngay 63 công thức, 34 công thức chờ chuỗi giá', () => {
+  it('chưa nạp dữ liệu: 60 đường quét + 4 bóc tách, 34 công thức chờ chuỗi giá', () => {
     const wanted = FORMULA_MODULES.filter((f) => f.spec.chartType !== 'none');
     const drawn = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'line');
+    const bocTach = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'waterfall');
     const waiting = wanted.filter((f) => {
       const model = modelOf(f.spec.id, 'advanced');
       return model.kind === 'unavailable' && model.warning.code === 'MISSING_SERIES';
     });
 
-    expect(wanted).toHaveLength(97);
-    expect(drawn).toHaveLength(63);
+    expect(wanted).toHaveLength(98);
+    expect(drawn).toHaveLength(60);
+    /*
+     * BỐN công thức bày thác nước NGAY khi mở màn — đúng bốn cái khai `chartType: 'waterfall'`:
+     * `ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`. Điểm chung của chúng không phải là tình cờ:
+     * đường quét của cả bốn đều là ĐƯỜNG THẲNG (FCFF theo EBIT có hệ số góc 1 − t, FCFE theo FCFF
+     * hệ số góc 1, NCAV theo tài sản ngắn hạn hệ số góc 1.000/N), tức đúng loại hình mà luật
+     * `chartType: 'none'` sinh ra để loại.
+     *
+     * Sáu công thức khai `breakdown` còn lại mang `stackedBar` nên vẫn nằm trong nhóm `drawn`:
+     * bóc tách của chúng nằm trong ô chọn trục, không đè lên đường quét vốn nói được điều riêng.
+     */
+    expect(bocTach).toHaveLength(4);
     expect(waiting).toHaveLength(34);
-    // Không ca nào rơi ra ngoài hai nhóm ấy — không có "không vẽ được vì lý do khác".
-    expect(drawn.length + waiting.length).toBe(wanted.length);
+    // Không ca nào rơi ra ngoài ba nhóm ấy — không có "không vẽ được vì lý do khác".
+    expect(drawn.length + bocTach.length + waiting.length).toBe(wanted.length);
   });
 
   /*
@@ -568,6 +636,441 @@ describe('buildChartModel()', () => {
     const none = FORMULA_MODULES.filter((f) => f.spec.chartType === 'none');
 
     expect(none).toHaveLength(10);
-    expect(FORMULA_MODULES).toHaveLength(107);
+    expect(FORMULA_MODULES).toHaveLength(108);
+  });
+});
+
+/*
+ * ── Biểu đồ bóc tách — thác nước WF-17 (gói 5.2.3) ──────────────────────────────────────────
+ *
+ * Công thức đầu tiên đi lối này là `ev`: EV = vốn hoá + nợ vay − tiền mặt. Đường quét của nó là
+ * một đường thẳng hệ số góc đúng bằng 1 — người đọc đoán trước được, đúng loại hình mà chính dự
+ * án viết luật `chartType: 'none'` để loại. Hình bậc thang nói được điều đường thẳng kia không nói.
+ */
+describe('bóc tách — thác nước', () => {
+  const ev = moduleOf('ev');
+  const inputsEv = defaultInputs(ev.spec);
+
+  function waterfallOf() {
+    const model = buildChartModel({
+      formula: ev,
+      inputs: inputsEv,
+      ctx: CTX,
+      output: runFormula(ev, inputsEv, CTX),
+      level: 'advanced',
+    });
+    if (model.kind !== 'waterfall')
+      throw new Error(`ev phải ra thác nước, đang ra '${model.kind}'`);
+    return model;
+  }
+
+  it('mặc định bày bóc tách, không phải đường quét', () => {
+    expect(waterfallOf().kind).toBe('waterfall');
+  });
+
+  it('dựng đủ các chặng cộng một cột tổng', () => {
+    const bars = waterfallOf().bars;
+
+    expect(bars.map((bar) => bar.label)).toEqual(['Vốn hoá', 'Nợ vay', 'Tiền mặt', 'EV']);
+    expect(bars.filter((bar) => bar.isTotal === true)).toHaveLength(1);
+    expect(bars[bars.length - 1]?.isTotal).toBe(true);
+  });
+
+  /*
+   * Bất biến quan trọng nhất của cả loại biểu đồ này. Một hình bóc tách mà cộng các phần lại
+   * không ra con số ở khối Kết quả là hình nói dối về chính phép tính nó đang minh hoạ — và
+   * không ca kiểm nào khác bắt được, vì mỗi cột riêng lẻ đều là số hợp lệ.
+   */
+  it('TỔNG các chặng đúng bằng kết quả công thức', () => {
+    const bars = waterfallOf().bars;
+    const stages = bars.filter((bar) => bar.isTotal !== true);
+    const total = bars[bars.length - 1];
+
+    const cong = stages.reduce((sum, bar) => sum + bar.delta, 0);
+    const ketQua = runFormula(ev, inputsEv, CTX).value;
+
+    expect(ketQua).not.toBeNull();
+    expect(cong).toBeCloseTo(ketQua ?? 0, 6);
+    expect(total?.delta).toBeCloseTo(ketQua ?? 0, 6);
+  });
+
+  it('dấu của từng chặng theo đúng metadata: tiền mặt TRỪ ra', () => {
+    const bars = waterfallOf().bars;
+
+    expect(bars[0]?.delta).toBe(9_200); // vốn hoá cộng vào
+    expect(bars[1]?.delta).toBe(3_500); // nợ vay cộng vào
+    expect(bars[2]?.delta).toBe(-1_200); // tiền mặt trừ ra
+  });
+
+  it('mức cộng dồn chạy đúng, để chân cột sau nối đỉnh cột trước', () => {
+    expect(waterfallOf().bars.map((bar) => bar.cumulative)).toEqual([
+      9_200, 12_700, 11_500, 11_500,
+    ]);
+  });
+
+  it('miền trục LUÔN chứa số 0 — chân cột phải có chỗ đứng', () => {
+    const y = waterfallOf().y;
+
+    expect(y.domain[0]).toBeLessThanOrEqual(0);
+    expect(y.domain[1]).toBeGreaterThanOrEqual(11_500);
+  });
+
+  it('bảng số bày đúng các chặng, cho cả trình đọc màn hình lẫn người tra số', () => {
+    const table = waterfallOf().table;
+
+    expect(table.rows).toHaveLength(4);
+    expect(table.rows[2]?.[0]).toBe('Tiền mặt');
+    expect(table.columns[0]).toBe('Thành phần');
+  });
+
+  it('bóc tách là MỘT MỤC trong ô chọn trục, không phải màn riêng', () => {
+    const model = waterfallOf();
+
+    expect(model.options.some((option) => option.label === 'Bóc tách')).toBe(true);
+    expect(model.sweepKey).toBe(model.options[0]?.key);
+    // Và người dùng vẫn đổi sang đường quét được.
+    expect(model.options.length).toBeGreaterThan(1);
+  });
+
+  it('chọn một biến ở ô ấy thì quay về đường quét bình thường', () => {
+    const model = buildChartModel({
+      formula: ev,
+      inputs: inputsEv,
+      ctx: CTX,
+      output: runFormula(ev, inputsEv, CTX),
+      level: 'advanced',
+      sweepKey: 'marketCap',
+    });
+
+    expect(model.kind).toBe('line');
+  });
+
+  it('công thức không khai breakdown thì không có mục bóc tách nào', () => {
+    const pe = moduleOf('pe');
+    const inputs = defaultInputs(pe.spec);
+    const model = buildChartModel({
+      formula: pe,
+      inputs,
+      ctx: CTX,
+      output: runFormula(pe, inputs, CTX),
+      level: 'advanced',
+    });
+
+    expect(model.kind).toBe('line');
+    if (model.kind !== 'line') return;
+    expect(model.options.some((option) => option.label === 'Bóc tách')).toBe(false);
+  });
+
+  it('kết quả đang lỗi thì không bóc tách — không có tổng nào để bày', () => {
+    const broken = { ...inputsEv, marketCap: 0 };
+    const model = buildChartModel({
+      formula: ev,
+      inputs: broken,
+      ctx: CTX,
+      output: runFormula(ev, broken, CTX),
+      level: 'advanced',
+    });
+
+    expect(model.kind).not.toBe('waterfall');
+  });
+
+  /*
+   * Cửa gác của CẢ LOẠI biểu đồ, không của riêng công thức nào.
+   *
+   * Ca `ev` phía trên chốt bất biến "tổng các chặng bằng kết quả" cho đúng một công thức; ca này
+   * bắt nó phải đúng với MỌI công thức khai `breakdown`, kể cả những cái thêm sau. Đây là chỗ
+   * duy nhất chặn được lỗi khai chặng lệch — mỗi cột riêng lẻ vẫn là số hợp lệ, không ca nào
+   * khác nhìn ra.
+   */
+  it('MỌI công thức khai breakdown đều cộng đúng về kết quả của chính nó', () => {
+    const declared = FORMULA_MODULES.filter((f) => f.spec.breakdown !== undefined);
+
+    // Chốt cả số lượng: thêm một công thức khai breakdown mà quên nghĩ tới ca này thì đỏ ở đây.
+    expect(declared.map((f) => f.spec.id).sort()).toEqual([
+      'ddm-hai-giai-doan',
+      'ev',
+      'fcfe',
+      'fcff',
+      'lich-tra-no',
+      'ncav-tren-co-phieu',
+      'thue-tncn-dau-tu',
+      'tra-gop-goc-deu',
+      'tra-gop-nien-kim',
+      'wacc',
+    ]);
+
+    for (const formula of declared) {
+      const inputs = defaultInputs(formula.spec);
+      const output = runFormula(formula, inputs, CTX);
+      const model = buildChartModel({
+        formula,
+        inputs,
+        ctx: CTX,
+        output,
+        level: 'advanced',
+        sweepKey: BREAKDOWN_KEY,
+      });
+
+      expect(model.kind, formula.spec.id).toBe('waterfall');
+      if (model.kind !== 'waterfall') continue;
+
+      const stages = model.bars.filter((bar) => bar.isTotal !== true);
+      const cong = stages.reduce((sum, bar) => sum + bar.delta, 0);
+
+      expect(stages.length, formula.spec.id).toBeGreaterThanOrEqual(2);
+      expect(output.value, formula.spec.id).not.toBeNull();
+      /*
+       * Sai số tương đối: các con số ở đây chạy từ 11.500 (tỷ ₫) tới 1,79 tỷ (₫), không so
+       * tuyệt đối được. Mẫu số lấy theo cột LỚN NHẤT chứ không theo `output.value`: kết quả
+       * bằng 0 là chuyện có thật (tổng lãi của khoản vay lãi suất 0%), mà chia cho 0 thì biểu
+       * thức ra Infinity và phép kiểm đỏ oan — hoặc tệ hơn, `?? 1` biến nó thành so tuyệt đối
+       * với ngưỡng 1e-9 trên những con số hàng trăm triệu.
+       */
+      const thang = Math.max(Math.abs(output.value ?? 0), ...stages.map((b) => Math.abs(b.delta)));
+      expect(Math.abs(cong - (output.value ?? 0)) / (thang === 0 ? 1 : thang)).toBeLessThan(1e-9);
+    }
+  });
+});
+
+/*
+ * ── Bóc tách của ba công thức vay (đợt 3) ────────────────────────────────────────────────────
+ *
+ * Khác `ev` ở đúng một điểm, và điểm ấy là cả thiết kế: ba công thức này khai `stackedBar` chứ
+ * không phải `waterfall`, nên bóc tách là MỘT MỤC trong ô chọn trục, không phải hình mặc định.
+ * Đường quét của chúng nói được điều riêng — tổng lãi theo kỳ hạn là một đường cong lồi, đúng
+ * điều `commonMistakes` của `lich-tra-no` cảnh báo — nên không có lý do gì đè lên nó.
+ */
+describe('bóc tách — ba công thức vay', () => {
+  const VAY = ['tra-gop-nien-kim', 'tra-gop-goc-deu', 'lich-tra-no'] as const;
+
+  function chartOf(id: string, sweepKey?: string) {
+    const formula = moduleOf(id);
+    const inputs = defaultInputs(formula.spec);
+    const output = runFormula(formula, inputs, CTX);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output,
+      level: 'advanced',
+      ...(sweepKey === undefined ? {} : { sweepKey }),
+    });
+    return { model, ketQua: output.value };
+  }
+
+  it('mặc định VẪN là đường quét — bóc tách chỉ đứng sẵn trong ô chọn', () => {
+    for (const id of VAY) {
+      const { model } = chartOf(id);
+
+      expect(model.kind, id).toBe('line');
+      if (model.kind !== 'line') continue;
+      expect(
+        model.options.some((option) => option.label === 'Bóc tách'),
+        id,
+      ).toBe(true);
+    }
+  });
+
+  it('chọn mục ấy thì ra thác nước, mỗi công thức đủ hai chặng và một cột tổng', () => {
+    for (const id of VAY) {
+      const { model } = chartOf(id, BREAKDOWN_KEY);
+
+      expect(model.kind, id).toBe('waterfall');
+      if (model.kind !== 'waterfall') continue;
+      expect(model.bars, id).toHaveLength(3);
+      expect(model.bars[2]?.isTotal, id).toBe(true);
+    }
+  });
+
+  /*
+   * Cạm bẫy đã ghi từ đợt 2, nay có ca kiểm chốt cách né: cột chồng "gốc + lãi" cộng ra TỔNG PHẢI
+   * TRẢ, trong khi kết quả của công thức chỉ là phần lãi. Đảo chiều phép tính thì hai vế khớp.
+   */
+  it('lich-tra-no: tổng phải trả TRỪ gốc vay ra đúng tổng lãi', () => {
+    const { model, ketQua } = chartOf('lich-tra-no', BREAKDOWN_KEY);
+    if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
+
+    expect(model.bars.map((bar) => bar.label)).toEqual([
+      'Tổng phải trả',
+      'Trừ gốc vay',
+      'Tổng lãi',
+    ]);
+    expect(model.bars[0]?.delta).toBeCloseTo(1_789_691_880.64, 0);
+    expect(model.bars[1]?.delta).toBe(-800_000_000);
+    expect(ketQua).toBeCloseTo(989_691_880.64, 0);
+    expect(model.bars[2]?.delta).toBeCloseTo(ketQua ?? 0, 6);
+  });
+
+  /*
+   * Lãi suất 0% — ca hỏng thật, tìm ra ở đợt 9 và tái hiện được bằng số.
+   *
+   * Hai chỗ cùng vỡ ở đây, và cả hai đều im lặng. `totalPaid` từng cộng dồn 240 kỳ trong khi
+   * chặng thứ hai trừ đi `amount` lấy nguyên từ ô nhập, nên hai đường tích luỹ lệch nhau
+   * −1,19e−7 thay vì triệt tiêu về 0; `Math.floor` trong `niceAxis` nới hạt bụi ấy thành trọn
+   * một bước, ra trục [−200 triệu, 800 triệu] với vạch "−200" dưới một hình không có cột nào âm.
+   * Bộ mặc định của WF-14 nằm trong số 1.214 bộ dính, nên chỉ cần kéo thanh lãi suất về đầu trái.
+   *
+   * Không dùng `defaultInputs` được — bẫy chỉ lộ khi rate = 0 — nên ca này tự dựng inputs.
+   */
+  it('lich-tra-no ở lãi suất 0%: trục không có vạch âm nào, tổng lãi đúng bằng 0', () => {
+    const formula = moduleOf('lich-tra-no');
+    const inputs = { ...defaultInputs(formula.spec), rate: 0 };
+    const output = runFormula(formula, inputs, CTX);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output,
+      level: 'advanced',
+      sweepKey: BREAKDOWN_KEY,
+    });
+    if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
+
+    expect(output.value).toBe(0);
+    // Vá tại gốc: hai vế triệt tiêu đúng bằng 0, không còn bụi.
+    expect((model.bars[0]?.delta ?? 0) + (model.bars[1]?.delta ?? 0)).toBe(0);
+    expect(model.y.domain[0]).toBe(0);
+    expect(model.y.ticks.every((tick) => tick.value >= 0)).toBe(true);
+  });
+
+  /*
+   * Cột tổng phải mang tên ĐẠI LƯỢNG, không mang tên công việc. Không có `breakdownTotal` thì nhãn
+   * suy từ tên công thức và ra 'Lịch trả nợ vay' — đặt sai tên cho chính con số cột ấy đang bày.
+   */
+  it('cột tổng lấy nhãn từ breakdownTotal chứ không từ tên công thức', () => {
+    const { model } = chartOf('lich-tra-no', BREAKDOWN_KEY);
+    if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
+
+    expect(model.bars[2]?.label).toBe('Tổng lãi');
+    expect(model.bars[2]?.label).not.toBe('Lịch trả nợ vay');
+  });
+
+  /*
+   * Điều duy nhất hình này tồn tại để nói, và cũng là câu `howToRead` của chính công thức:
+   * "những năm đầu phần lớn tiền trả là lãi". Ở kỳ 1 của bộ số WF-14, lãi gấp hơn năm lần gốc.
+   */
+  it('tra-gop-nien-kim: kỳ đầu phần lãi lớn hơn hẳn phần gốc', () => {
+    const { model, ketQua } = chartOf('tra-gop-nien-kim', BREAKDOWN_KEY);
+    if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
+
+    const goc = model.bars[0];
+    const lai = model.bars[1];
+
+    expect(goc?.label).toBe('Gốc kỳ đầu');
+    expect(lai?.label).toBe('Lãi kỳ đầu');
+    expect(lai?.delta).toBeCloseTo(6_333_333.33, 1);
+    expect(lai?.delta ?? 0).toBeGreaterThan((goc?.delta ?? 0) * 5);
+    expect((goc?.delta ?? 0) + (lai?.delta ?? 0)).toBeCloseTo(ketQua ?? 0, 6);
+  });
+
+  it('tra-gop-goc-deu: gốc mỗi kỳ cộng lãi kỳ đầu ra đúng khoản trả kỳ đầu', () => {
+    const { model, ketQua } = chartOf('tra-gop-goc-deu', BREAKDOWN_KEY);
+    if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
+
+    expect(model.bars[0]?.delta).toBeCloseTo(800_000_000 / 240, 6);
+    expect(model.bars[1]?.delta).toBeCloseTo(6_333_333.33, 1);
+    expect(ketQua).toBeCloseTo(9_666_666.67, 1);
+  });
+
+  /*
+   * Bẫy đơn vị của `ncav-tren-co-phieu`, ca duy nhất trong 10 công thức có phép CHIA sau phép trừ.
+   *
+   * Khai thẳng hai ô nhập thì hai cột mang đơn vị `tỷ ₫` (4.800 và 2.600) trong khi kết quả mang
+   * `₫/CP` (18.644) — lệch bốn chữ số. Ca này khoá lại rằng chặng đã chia sẵn cho số cổ phiếu:
+   * 4.800 tỷ ÷ 118 triệu CP × 1.000 = 40.678 ₫/CP.
+   */
+  it('ncav: chặng là số TRÊN MỖI CỔ PHIẾU, không phải tài sản và nợ thô', () => {
+    const formula = moduleOf('ncav-tren-co-phieu');
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+      sweepKey: BREAKDOWN_KEY,
+    });
+    if (model.kind !== 'waterfall') throw new Error('ncav phải ra thác nước');
+
+    expect(model.bars[0]?.delta).toBeCloseTo(40_677.97, 1);
+    expect(model.bars[1]?.delta).toBeCloseTo(-22_033.9, 1);
+    expect(model.bars[2]?.label).toBe('NCAV');
+    // Và tuyệt đối KHÔNG phải con số thô của ô nhập.
+    expect(model.bars[0]?.delta).not.toBeCloseTo(4_800, 0);
+  });
+
+  /*
+   * Điều mô hình DDM hai giai đoạn tồn tại để nói, và cũng là chỗ người định giá hay tự lừa mình:
+   * phần lớn giá trị nằm ở GIÁ TRỊ CUỐI KỲ — tức ở giả định tăng trưởng dài hạn — chứ không nằm ở
+   * mấy năm tăng nhanh vừa ngồi ước lượng kỹ. Đo ở bộ số mặc định: **73,3%**, tức gần ba phần tư
+   * định giá đến từ một con số g2 duy nhất.
+   */
+  it('ddm: giá trị cuối kỳ chiếm phần lớn định giá', () => {
+    const formula = moduleOf('ddm-hai-giai-doan');
+    const inputs = defaultInputs(formula.spec);
+    const output = runFormula(formula, inputs, CTX);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output,
+      level: 'advanced',
+      sweepKey: BREAKDOWN_KEY,
+    });
+    if (model.kind !== 'waterfall') throw new Error('ddm phải ra thác nước');
+
+    const [giaiDoanDau, cuoiKy] = model.bars;
+
+    expect(giaiDoanDau?.label).toBe('Cổ tức giai đoạn đầu');
+    expect(cuoiKy?.label).toBe('Giá trị cuối kỳ');
+    expect(model.bars[2]?.label).toBe('Giá trị cổ phiếu');
+
+    const tyTrongCuoiKy = (cuoiKy?.delta ?? 0) / (output.value ?? 1);
+    expect(tyTrongCuoiKy).toBeGreaterThan(0.7);
+    expect(tyTrongCuoiKy).toBeCloseTo(0.733, 2);
+  });
+
+  /*
+   * `fcff` là công thức nhiều chặng nhất — bốn, trong đó hai chặng trừ ra. Ca này chốt rằng dấu
+   * đi đúng từ metadata sang cột, chứ không phải chỉ tổng khớp một cách tình cờ.
+   */
+  it('fcff: bốn chặng, hai cộng hai trừ, và mặc định bày luôn bóc tách', () => {
+    const formula = moduleOf('fcff');
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+    });
+
+    // Không truyền `sweepKey`: `chartType: 'waterfall'` nên bóc tách là hình mặc định.
+    expect(model.kind).toBe('waterfall');
+    if (model.kind !== 'waterfall') return;
+
+    const stages = model.bars.filter((bar) => bar.isTotal !== true);
+    expect(stages).toHaveLength(4);
+    expect(stages.filter((bar) => bar.delta < 0)).toHaveLength(2);
+    expect(stages[0]?.label).toBe('EBIT sau thuế');
+  });
+
+  /*
+   * Kỳ hạn 0 làm công thức lỗi, và lúc đó KHÔNG được bày bóc tách: `extras` không có, mà một cột
+   * mang nhãn nhưng rỗng ruột còn tệ hơn không vẽ gì.
+   */
+  it('kỳ hạn 0 thì không có mục bóc tách nào', () => {
+    const formula = moduleOf('lich-tra-no');
+    const inputs = { ...defaultInputs(formula.spec), years: 0 };
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+      sweepKey: BREAKDOWN_KEY,
+    });
+
+    expect(model.kind).not.toBe('waterfall');
   });
 });

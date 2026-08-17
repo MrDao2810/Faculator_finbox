@@ -1,8 +1,10 @@
 'use client';
 
-import { UNIT_SCALES, t } from '@/application';
+import { UNIT_SCALES } from '@/application';
 import type { UnitScaleId } from '@/application';
+import { useT } from '@/application/preferences-context';
 
+import { UNIT_SCALE_KEYS } from '../i18n/keys';
 import styles from './UnitSwitcher.module.css';
 
 export interface UnitSwitcherProps {
@@ -22,6 +24,7 @@ export interface UnitSwitcherProps {
  * khác với các điều khiển còn lại của 2.3.
  */
 export function UnitSwitcher({ value, onChange, className }: UnitSwitcherProps) {
+  const t = useT();
   const classes = [styles.group, className].filter(Boolean).join(' ');
 
   return (
@@ -38,7 +41,7 @@ export function UnitSwitcher({ value, onChange, className }: UnitSwitcherProps) 
               onChange(scale.id);
             }}
           >
-            {scale.label}
+            {t(UNIT_SCALE_KEYS[scale.id])}
           </button>
         );
       })}

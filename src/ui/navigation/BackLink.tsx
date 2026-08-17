@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-import { LAST_LIST_URL_KEY, ROUTES, backToListHref, t } from '@/application';
+import { LAST_LIST_URL_KEY, ROUTES, backToListHref } from '@/application';
 import type { MessageKey } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './BackLink.module.css';
 
@@ -56,6 +57,7 @@ export function BackLink({
   rememberList = true,
 }: BackLinkProps) {
   const [href, setHref] = useState(fallbackHref);
+  const t = useT();
 
   useEffect(() => {
     if (!rememberList) return;

@@ -605,6 +605,15 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     expression:
       'Tổng thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng + Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
     chartType: 'stackedBar',
+    /*
+     * Hai khoản bị khấu trừ ở hai thời điểm khác nhau, và đó chính là điều `howToRead` muốn nói.
+     * `extras` đã có sẵn từ trước, không phải sửa `calc`.
+     */
+    breakdown: [
+      { key: 'transferTax', sign: 1, shortLabel: 'Thuế chuyển nhượng' },
+      { key: 'dividendTax', sign: 1, shortLabel: 'Thuế cổ tức' },
+    ],
+    breakdownTotal: 'Tổng thuế',
     level: 'basic',
     tags: ['thue tncn', 'thue dau tu', 'chuyen nhuong', 'co tuc', 'personal income tax'],
     resultUnit: '₫',
@@ -641,6 +650,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
       expected: 197_000,
       note: 'Gồm 97.000 ₫ thuế chuyển nhượng và 100.000 ₫ thuế cổ tức.',
     },
+    note: 'Công thức tính cho cổ phiếu niêm yết. Luật thuế mới có hai ưu đãi nằm ngoài phạm vi: giảm 50% thuế với lợi tức từ quỹ đầu tư chứng khoán/BĐS, và miễn thuế chuyển nhượng chứng chỉ quỹ mở nắm giữ từ 2 năm.',
     tests: [
       {
         name: 'vừa bán vừa nhận cổ tức trong năm',

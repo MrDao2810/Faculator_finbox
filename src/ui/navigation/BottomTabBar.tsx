@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { NAV_ITEMS, activeRouteKey, t } from '@/application';
+import { NAV_ITEMS, activeRouteKey } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './BottomTabBar.module.css';
 import { TabIcon } from './TabIcon';
@@ -19,6 +20,7 @@ import { TabIcon } from './TabIcon';
 export function BottomTabBar() {
   const pathname = usePathname();
   const active = activeRouteKey(pathname);
+  const t = useT();
 
   return (
     <nav className={styles.bar} aria-label={t('nav.primary')}>

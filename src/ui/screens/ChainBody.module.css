@@ -1,0 +1,136 @@
+/*
+ * Khối chuỗi công thức của màn nâng cao WF-04 — gói WBS 3.2.2.
+ *
+ * Bố cục bám đúng khối chung của màn chi tiết (`FormulaDetail.module.css`) để hai phần không
+ * trông như hai màn dán vào nhau: cùng khoảng cách, cùng cỡ tiêu đề, cùng lưới ô nhập.
+ */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.intro {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+.groupTitle {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+/* ── Một bước của chuỗi ──────────────────────────────────────────────────── */
+
+.step {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+/*
+ * Dòng tóm tắt phải đủ cao để chạm được bằng ngón tay (NFR-USA-01) và phải hiện KẾT QUẢ ngay
+ * khi còn gập: gập lại vẫn theo dõi được chuỗi chạy tới đâu, không phải mở từng thẻ ra dò.
+ */
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+
+  cursor: pointer;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Dấu tam giác tự vẽ, xoay khi mở — thay cho marker mặc định mỗi trình duyệt một kiểu. */
+.summary::before {
+  content: '▸';
+  flex-shrink: 0;
+  color: var(--color-muted);
+  /* 120ms như Switch — globals.css đã tắt mọi transition khi người dùng xin giảm chuyển động. */
+  transition: transform 120ms ease;
+}
+
+.step[open] > .summary::before {
+  transform: rotate(90deg);
+}
+
+.stepName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.stepValue {
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+/* Bước chưa ra số: chữ cảnh báo + kiểu chữ nghiêng, không chỉ đổi màu (NFR-USA-06). */
+.stepFailed {
+  font-style: italic;
+  color: var(--color-warning);
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  padding: 0 var(--space-3) var(--space-3);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.field {
+  min-width: 0;
+}
+
+/* Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng. */
+.fieldWide {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.openLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+
+  min-height: var(--tap-min);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+}

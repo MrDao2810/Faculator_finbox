@@ -109,7 +109,7 @@ describe('ExampleBlock — giữ được con số gốc của ví dụ (FR-02)'
   });
 
   /*
-   * 17 trên 107 công thức có ví dụ cố ý dùng chu kỳ ngắn hơn giá trị mặc định để tính tay kiểm
+   * 17 trên 108 công thức có ví dụ cố ý dùng chu kỳ ngắn hơn giá trị mặc định để tính tay kiểm
    * được. Với chúng, mở màn ra là số đang nhập ĐÃ lệch khỏi ví dụ — nên phải nói ra con số gốc
    * ngay, chứ không để người đọc tưởng dòng "→" là kết quả của ví dụ.
    */
@@ -142,9 +142,9 @@ describe('ExampleBlock — giữ được con số gốc của ví dụ (FR-02)'
  *
  * Khối này dựng ô nhập theo khoá của `example.inputs`. Chỉ cần MỘT công thức khai lệch khoá là chỗ
  * đó không tra ra `VariableSpec`, ô im lặng rơi về chữ chỉ để đọc — không lỗi, không hiện gì, người
- * dùng chỉ thấy một dòng không gõ được. Một vòng lặp chặn được chuyện đó cho cả 107 công thức.
+ * dùng chỉ thấy một dòng không gõ được. Một vòng lặp chặn được chuyện đó cho cả 108 công thức.
  */
-describe('ExampleBlock — hợp đồng với Registry, quét cả 107 công thức', () => {
+describe('ExampleBlock — hợp đồng với Registry, quét cả 108 công thức', () => {
   it('mọi example.inputs đều khớp khoá biến và nằm trong miền hợp lệ', () => {
     for (const spec of FORMULAS) {
       const keys = Object.keys(spec.example.inputs);

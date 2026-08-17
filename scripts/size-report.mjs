@@ -31,7 +31,7 @@ const BUDGET = 200 * 1024;
  */
 const CHECKPOINT = 170 * 1024;
 
-const FORMULAS_TARGET = 107;
+const FORMULAS_TARGET = 108;
 
 /**
  * Số công thức đang thật sự có trong Registry — ĐỌC từ chỉ mục đã sinh, không viết cứng.
@@ -290,7 +290,7 @@ if (remaining > 0) {
     );
   }
 } else {
-  // Đã đủ 107 — từ đây không ngoại suy nữa, chỉ còn số ĐO ĐƯỢC ở mục cửa kiểm bên dưới.
+  // Đã đủ chỉ tiêu — từ đây không ngoại suy nữa, chỉ còn số ĐO ĐƯỢC ở mục cửa kiểm bên dưới.
   console.log(
     `\nRegistry đã đủ ${String(FORMULAS_TARGET)} công thức — không còn phần ngoại suy, ` +
       `con số dưới đây là số đo thật.`,

@@ -236,7 +236,7 @@ function theCongThuc(container: HTMLElement, id: string): Element | undefined {
  * Vế thứ hai của FR-09 ("Nâng cao mở toàn bộ tham số VÀ CÔNG THỨC PHỨC TẠP").
  *
  * Trước đợt này nút Cơ bản / Nâng cao nằm ở thanh trên của mọi màn nhưng bấm vào gần như
- * không đổi gì: chỉ 9 / 107 công thức có biến mức nâng cao để mà ẩn. Hai ca dưới chốt việc
+ * không đổi gì: chỉ 9 / 108 công thức có biến mức nâng cao để mà ẩn. Hai ca dưới chốt việc
  * nút ấy có tác dụng thật ngay trên trang chủ.
  */
 describe('HomeSearchPanel — chế độ hiển thị lọc kết quả (FR-09)', () => {

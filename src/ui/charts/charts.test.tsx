@@ -129,12 +129,12 @@ function drawLoadedAdvanced(id: string, extra: CalcInputs = {}) {
 }
 
 describe('hasChart() — phạm vi', () => {
-  it('phủ đúng 97 công thức: mọi công thức trừ nhóm khai chartType none', () => {
+  it('phủ đúng 98 công thức: mọi công thức trừ nhóm khai chartType none', () => {
     const drawn = FORMULAS.filter((spec) => hasChart(spec));
     const skipped = FORMULAS.filter((spec) => !hasChart(spec));
 
-    expect(FORMULAS).toHaveLength(107);
-    expect(drawn).toHaveLength(97);
+    expect(FORMULAS).toHaveLength(108);
+    expect(drawn).toHaveLength(98);
     expect(skipped).toHaveLength(10);
     // Bỏ qua thì phải vì chính cái nhãn ấy, không vì lý do nào khác lẫn vào.
     expect(skipped.every((spec) => spec.chartType === 'none')).toBe(true);
@@ -417,7 +417,7 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
 /*
  * Bốn họ vừa mở phạm vi, mỗi họ một ca đại diện — không lặp lại 47 lần.
  *
- * Ranh giới cố ý: tầng Domain đã có ca quét CẢ 107 công thức ở `chart.test.ts` (nhanh gấp bội vì
+ * Ranh giới cố ý: tầng Domain đã có ca quét CẢ 108 công thức ở `chart.test.ts` (nhanh gấp bội vì
  * không dựng DOM), nên ở đây chỉ kiểm điều duy nhất jsdom mới nói được: bốn họ ấy thật sự dựng ra
  * `<figure>` với bảng số đọc được, chứ không phải một mô hình đúng mà giao diện không lắp nổi.
  */
@@ -665,10 +665,25 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
     expect(ids.filter((id) => ID_CUA_REACT.test(id))).toEqual([]);
   });
 
-  it('cả ba nhánh dựng của ChartBody đều sạch: quét, theo thời gian, và chờ dữ liệu', () => {
+  /*
+   * Renderer thác nước cũng phải đi qua đúng phép quét ấy, kể cả bản trong màn phóng to.
+   * Bỏ sót nó thì bất biến "không `useId()`" không được gác cho renderer mới, và lớp lỗi
+   * 5-cảnh-báo-lệch-hydration-mỗi-trang quay lại lặng lẽ ở đúng những trang có bóc tách.
+   */
+  it('cây biểu đồ THÁC NƯỚC cũng không có id nào do React sinh, kể cả khi phóng to', async () => {
+    const { container } = draw('ev');
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const ids = [...container.querySelectorAll('[id]')].map((node) => node.id);
+    expect(ids.length).toBeGreaterThan(0);
+    expect(ids.filter((id) => ID_CUA_REACT.test(id))).toEqual([]);
+  });
+
+  it('cả bốn nhánh dựng của ChartBody đều sạch: quét, bóc tách, theo thời gian, chờ dữ liệu', () => {
     // 'sma-n-phien' chưa nạp chuỗi thì rơi vào nhánh `unavailable` — nhánh dựng InlineWarning.
     for (const [nhan, ket] of [
       ['đường quét', draw('pe')],
+      ['bóc tách', draw('ev')],
       ['theo thời gian', drawLoaded('sma-n-phien')],
       ['chờ dữ liệu', draw('sma-n-phien')],
     ] as const) {

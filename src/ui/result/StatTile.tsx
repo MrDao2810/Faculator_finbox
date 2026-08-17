@@ -1,5 +1,8 @@
-import { formatCalcOutput, isCalculated, t } from '@/application';
+'use client';
+
+import { formatCalcOutput, isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './StatTile.module.css';
 
@@ -36,6 +39,7 @@ export function StatTile({
   showEyebrow = true,
   className,
 }: StatTileProps) {
+  const t = useT();
   const classes = [styles.tile, isCalculated(output) ? undefined : styles.empty, className]
     .filter(Boolean)
     .join(' ');

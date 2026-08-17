@@ -15,7 +15,7 @@ afterEach(cleanup);
  *
  * Lý do: cả hai đo hành vi "đọc danh sách được truyền vào" chứ không đo Registry. Khi Registry
  * còn dở (21 rồi 73 công thức) thì bản thân nó sẵn có nhóm rỗng và sẵn có ô lệch `expectedCount`,
- * nên tiền đề tự thoả. Đủ 107 công thức là mọi nhóm đều đầy và mọi ô đều khớp `expectedCount`,
+ * nên tiền đề tự thoả. Đủ 108 công thức là mọi nhóm đều đầy và mọi ô đều khớp `expectedCount`,
  * tiền đề tắt ngóm và ca kiểm đỏ dù component không hề sai.
  *
  * Dựng dữ liệu riêng thì hành vi vẫn được canh, mà ca kiểm không còn phụ thuộc vào việc thư

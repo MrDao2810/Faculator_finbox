@@ -13,11 +13,11 @@ import {
   parseViNumber,
   removeRow,
   serializeStoredSeries,
-  t,
   toCsv,
   updateRow,
 } from '@/application';
 import type { PasteResult, Preset, SeriesRow } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { BackLink } from '@/ui/navigation';
 import { Button } from '@/ui/primitives';
 import { PasteImportSheet, PresetSheet } from '@/ui/sheets';
@@ -80,6 +80,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
   onChange,
   onRemove,
 }: SeriesRowFieldsProps) {
+  const t = useT();
   return (
     <tr className={bad ? styles.badRow : undefined}>
       <td className={styles.flagCol}>
@@ -125,6 +126,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
 });
 
 export function DataTableScreen() {
+  const t = useT();
   const [code, setCode] = useState('');
   const [rows, setRows] = useState<ReadonlyArray<SeriesRow>>([]);
   const [sheet, setSheet] = useState<'preset' | 'paste' | null>(null);
@@ -228,12 +230,12 @@ export function DataTableScreen() {
     link.download = `${code === '' ? 'chuoi-gia' : code.toLowerCase()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [rows, code, fromDraft]);
+  }, [rows, code, fromDraft, t]);
 
   const clearAll = useCallback(() => {
     if (!window.confirm(t('series.clearConfirm'))) return;
     setRows([]);
-  }, []);
+  }, [t]);
 
   return (
     <div className={styles.screen}>

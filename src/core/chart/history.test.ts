@@ -437,9 +437,9 @@ describe('trục thời gian — quét toàn Registry', () => {
    * ẩn biến nâng cao khỏi ô chọn trục X (FR-09) — một công thức mà mọi biến đều là nâng cao sẽ không
    * còn ứng viên nào ở chế độ Cơ bản, và đó đúng là kiểu hụt mà ca này canh.
    */
-  it('nạp chuỗi giá rồi thì CẢ 97 công thức đều dựng được mô hình, ở cả hai chế độ', () => {
+  it('nạp chuỗi giá rồi thì CẢ 98 công thức đều dựng được mô hình, ở cả hai chế độ', () => {
     const wanted = FORMULA_MODULES.filter((formula) => formula.spec.chartType !== 'none');
-    expect(wanted).toHaveLength(97);
+    expect(wanted).toHaveLength(98);
 
     for (const level of ['basic', 'advanced'] as const) {
       for (const formula of wanted) {
@@ -452,7 +452,9 @@ describe('trục thời gian — quét toàn Registry', () => {
           level,
         });
 
-        expect(built.kind, `${formula.spec.id} · ${level}`).toBe('line');
+        // 'waterfall' cũng là dựng ĐƯỢC: công thức khai `breakdown` bày bóc tách thay cho đường
+        // quét, và đó là lựa chọn có chủ đích chứ không phải một nhánh hụt.
+        expect(['line', 'waterfall'], `${formula.spec.id} · ${level}`).toContain(built.kind);
       }
     }
   });

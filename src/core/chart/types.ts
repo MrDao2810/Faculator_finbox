@@ -99,6 +99,52 @@ export interface UnavailableChart {
   warning: CalcWarning;
 }
 
-export type ChartModel = LineChart | UnavailableChart;
+/** Một cột của biểu đồ bóc tách. */
+export interface BreakdownBar {
+  /** Nhãn dưới cột, đã rút gọn sẵn ở Domain. */
+  label: string;
+  /** Phần đóng góp, đã mang dấu: âm nghĩa là cột đi xuống. */
+  delta: number;
+  /** Mức tổng đang chạy SAU cột này — đáy và đỉnh cột suy ra từ đây. */
+  cumulative: number;
+  /** Giá trị đã định dạng kèm đơn vị, cho bảng số và nhãn trên cột. */
+  valueLabel: string;
+  /** Cột tổng đứng cuối, vẽ từ 0 lên chứ không nối tiếp cột trước. */
+  isTotal?: boolean;
+}
+
+/**
+ * Biểu đồ bóc tách — thác nước của WF-17 (FR-07).
+ *
+ * Dùng cho công thức mà câu hỏi đáng hỏi KHÔNG phải "đổi một biến thì kết quả đổi ra sao" mà là
+ * "con số này ghép từ những phần nào". EV chẳng hạn: đường quét của nó là một đường thẳng hệ số
+ * góc đúng bằng 1 — người đọc biết trước khi mở trang, đúng thứ luật `chartType: 'none'` sinh ra
+ * để loại. Hình bậc thang thì nói được điều đường thẳng kia không nói.
+ */
+export interface WaterfallChart {
+  kind: 'waterfall';
+  title: string;
+  summary: string;
+  /** Trục giá trị. Bất biến riêng của loại này: miền LUÔN chứa số 0 — chân cột phải có chỗ đứng. */
+  y: ChartAxis;
+  bars: ReadonlyArray<BreakdownBar>;
+  table: ChartTable;
+  /** Cùng danh sách với `LineChart.options` — bóc tách là MỘT MỤC trong ô chọn trục, không phải màn khác. */
+  options: ReadonlyArray<SweepOption>;
+  /** Mục đang chọn trong ô ấy. */
+  sweepKey: string;
+  note?: string;
+}
+
+/**
+ * Mô hình VẼ ĐƯỢC — mọi nhánh trừ `unavailable`.
+ *
+ * `ChartFrame` và màn phóng to nhận kiểu này: chúng chỉ đụng `title`, `summary`, `table`, `note`
+ * — bốn thứ mọi loại biểu đồ đều có. Nhờ vậy thêm loại thứ tư sau này không phải sửa hai file ấy,
+ * chỉ phải thêm một nhánh ở `ChartBody`.
+ */
+export type DrawableChart = LineChart | WaterfallChart;
+
+export type ChartModel = DrawableChart | UnavailableChart;
 
 export type ChartKind = ChartModel['kind'];

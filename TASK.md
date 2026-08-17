@@ -36,7 +36,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.1.2 | FormulaListPage — WF-02, có ảo hoá                   | 8h00    | Xong — đợt 7                                  |
 | 3.1.3 | SearchPage — WF-09 hai trạng thái                    | 7h00    | Xong — đợt 7                                  |
 | 3.2.1 | FormulaDetailBasic — WF-03                           | 7h00    | Xong — đợt 7                                  |
-| 3.2.2 | FormulaDetailAdvanced — WF-04                        | 10h00   | **Hoãn** — chờ chuỗi định giá gói 5.2.3       |
+| 3.2.2 | FormulaDetailAdvanced — WF-04                        | 10h00   | Xong — xem mục "Chuỗi định giá chạy thật"     |
 | 3.2.3 | FeeTaxCalculator — WF-08                             | 9h00    | Xong — đợt 7                                  |
 | 3.2.4 | LoanScheduleScreen — WF-14                           | 8h00    | Xong — đợt 7                                  |
 | 5.1.2 | `fees.*` — 8 công thức phí & thuế                    | 11h12   | Xong — đợt 7 (kéo về sớm)                     |
@@ -75,11 +75,969 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Vá nút Back Android xoá trang khi phóng to biểu đồ   | —       | Xong — xem mục "Đợt đóng đuôi"                |
 | —     | Đồng bộ lại CLAUDE.md / README / TASK.md với code    | —       | Xong — xem mục "Đợt đóng đuôi"                |
 | 2.4.3 | Ký hiệu toán học — KaTeX dựng lúc build              | 3h00    | Xong — xem mục "Ký hiệu toán học"             |
+| —     | Kết quả đổi theo từng phím gõ + gõ không còn khựng   | —       | Xong — xem mục "Gõ tới đâu, kết quả tới đó"   |
 | —     | Kiểm tra lỗi toàn dự án + dọn ba điểm sửa nhanh      | —       | Xong — xem mục "Kiểm tra lỗi"                 |
+| 5.2.3 | Chuỗi định giá — FR-15 chạy thật                     | 22h30   | Một phần — xem mục "Chuỗi định giá chạy thật" |
+| 5.2.3 | Mắt xích DCF khép nhánh FCFF — **107 → 108**         | ~6h     | Xong — xem mục "Đợt 2"                        |
+| 4.x   | Renderer thác nước bóc tách, chứng minh bằng `ev`    | ~10h    | Xong — xem mục "Đợt 2"                        |
+| —     | Kế hoạch 3 đợt gỡ 4 nhóm vấn đề + đợt 1 (đo + 3 vá)  | —       | Xong — xem mục "Đợt 1 của kế hoạch"           |
+| 4.x   | Bóc tách ba công thức vay — né bẫy `lich-tra-no`     | ~5h     | Xong — xem mục "Đợt 3"                        |
+| —     | Bộ kiểm Chrome thật qua CDP — `npm run check:chrome` | ~4h     | Xong — xem mục "Đợt 3"                        |
+| 4.x   | Khai chặng bóc tách nốt 6 công thức — đủ 10/10       | ~4h     | Xong — xem mục "Đợt 4"                        |
+| —     | Rà 432 đoạn diễn giải + cửa gác nội dung đầu tiên    | ~3h     | Xong — xem mục "Đợt 5"                        |
+| 5.1.1 | Hồ sơ đối chiếu 7 hằng số thuế/phí — duyệt và đã áp  | ~3h     | Xong — xem mục "Đợt 6"                        |
+| 3.6.3 | Từ điển tiếng Anh cho giao diện — 231/232 khoá       | ~4h     | Một phần — xem mục "Đợt 7"                    |
+| 3.6.3 | Luồng locale + gắn lại LangSwitch — FR-21 chạy thật  | ~6h     | Xong — xem mục "Đợt 8"                        |
+| —     | Rà đa-agent phần chưa commit + vá 12 lỗi tìm ra      | ~5h     | Xong — xem mục "Đợt 9"                        |
 
-Cộng dồn: **231,7 giờ** trên tổng 623 giờ của bảng Estimate
-(148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13).
-**Nhánh 3.1 xong trọn**; nhánh 3.2 xong ba trên bốn gói; nhánh 3.6 xong 3.6.1 và 3.6.2.
+Cộng dồn: **~292 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
+kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
+~5 giờ đợt 1 của kế hoạch, ~10 giờ hai phần đã làm của gói 3.6.3 và ~5 giờ đợt rà 9).
+**Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
+Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Đợt 1 của kế hoạch — số đo nền, và ba vết vá rẻ
+
+Trạng thái: **xong, đã kiểm đủ bốn cửa**. `npm run check` xanh **1273 test / 55 file**;
+`npm run build` 118 trang; `npm run verify:static` **24/24** (thêm 2 check); `npm run size`
+**155,9 kB** trên cửa kiểm 170 kB.
+
+### Yêu cầu
+
+> "lập kế hoạch và cách để giải quyết các vấn đề trên"
+
+Kế hoạch đầy đủ đã trình và chủ dự án chốt ba điều: **trần công thức nâng 107 → 108** (mở khoá
+công thức "Giá trị nội tại từ FCFF" ở đợt 2 — kéo theo sửa bảng SRS mục 3.8 ngoài repo);
+**bắt đầu bằng đợt 1** (đo + vá rẻ); **được dừng dev server** (PID 37968, đã xác minh đúng
+tiến trình `next start-server` của repo này rồi mới dừng).
+
+### Số đo nền — trả lời rủi ro lớn nhất của kế hoạch
+
+Lo ngại: gói chuỗi đưa `LinkedInput` vào import tĩnh của cả 107 trang, dư địa cửa kiểm chỉ 14 kB.
+Đo thật:
+
+| Thứ                              | Kết quả                                                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Trang nặng nhất                  | **155,9 kB** — dưới cửa 170 kB, ngang mốc cũ 156,0                                                     |
+| `ChainBody` (thân khối WF-04)    | chunk **987**, 1,9 kB nén, **0 trang** tham chiếu tĩnh — nạp trễ thuần                                 |
+| `LinkedInput` + `FlowChainStrip` | nằm trong chunk chung của 107 trang chi tiết — đúng dự báo, nhưng tổng không tăng nên **không cần gỡ** |
+
+Bẫy đo đã né: chuỗi tiếng Việt trong bundle bị escape unicode tuỳ chỗ, nên truy vết component
+phải dò bằng **tên class CSS module** (`stepFailed`, `overriddenTag`) chứ không phải chữ trên
+màn. Suýt kết luận nhầm chunk 227 (thực ra chỉ chứa từ điển i18n) là ChainBody.
+
+### Đã đổi file nào — ba vết vá
+
+- **`src/core/chart/sweep.ts`** — lỗi có thật, xác minh bằng chạy: biến `years` của
+  `ddm-hai-giai-doan` (bước 1, mặc định 5) cho dải quét 2,5 → 7,5 chia đều thành
+  **2,5 · 3,5 · 4,5…** trong khi hàm tính `Math.round` về năm nguyên — sáu trên bảy điểm là bậc
+  thang mang nhãn sai. Gốc bệnh ở `sweepDomain()`: chú thích nói "bám bước" nhưng code chỉ giảm
+  SỐ điểm, chưa bao giờ bám hai ĐẦU dải vào lưới bước. Nay khi bước chi phối mật độ, hai đầu
+  bám lưới `min ?? 0 + k×step` (cùng gốc với `snapToStep()`); số lẻ lấy theo CẢ bước lẫn gốc —
+  bản vá đầu chỉ lấy theo bước, `toFixed(1)` cắt 1,75 thành 1,8, chính ca kiểm mới bắt được.
+  `lai-kep` cùng biến `years` không dính chỉ vì mặc định 10 cho lo = 5 tròn sẵn. +3 ca kiểm.
+- **`src/core/registry/categories.ts`** — mô tả nhóm Rủi ro thôi kể "Beta": công thức đó không
+  tồn tại (kẹt dữ liệu VN-Index, gói 3.3.2). Lưu ý đã kiểm: `category.description` hiện chưa
+  render ở màn nào — kế hoạch nói "người dùng nhìn thấy" là nói quá — nhưng sửa để ngày nó lên
+  màn không mang lời hứa sai.
+- **`scripts/verify-static.mjs`** — 22 → **24 check**. Hai check mới gác đúng hai tính chất chỉ
+  nhìn thấy trên bản build: (1) khối chuỗi KHÔNG rò vào HTML tĩnh — id `khoi-chuoi` xuất hiện là
+  ai đó đổi chế độ mặc định sang Nâng cao hoặc nới điều kiện dựng khối; (2) `ChainBody` nằm trong
+  chunk không một file HTML nào của `out/` tham chiếu — ranh giới `next/dynamic` thủng là đỏ ngay.
+
+### Việc còn lại của kế hoạch (đã chốt thứ tự)
+
+1. **Đợt 2** — sửa `runChain` cho hai nhánh cùng đổ một ô (chặn khi MỌI cạnh cùng khoá hỏng,
+   không phải cạnh đầu tiên) → công thức `gia-tri-noi-tai-fcff` (18 → 19, 107 → 108, ~10 chỗ số
+   ghi cứng, `gen:summaries`) → renderer waterfall chứng minh bằng `ev` (trục Y phải chứa 0,
+   nhận `idBase`, vào ca quét id).
+2. **Đợt 3** — bộ kiểm Chrome thật (chép harness CDP từ scratchpad về repo trước khi nó mất),
+   cột chồng gốc/lãi cho 3 công thức vay, trình bày khối chuỗi theo ảnh WF-04 nếu có ảnh.
+3. **Beta**: nằm ngoài cả ba đợt. Chặn bởi gói "ghép hai chuỗi theo ngày" (ngày trong bảng là
+   chuỗi thô, dán VN-Index xếp mới-trước là beta ngược dấu không cảnh báo) và bởi bộ mẫu: bốn
+   chuỗi PRNG độc lập không có nhân tố thị trường chung — beta tính ra ≈ 0 (FPT 0,039,
+   HPG −0,021), sai về bản chất chứ không phải chưa đối chiếu. Bảng tra beta ngành: **bỏ hẳn** —
+   `MarketConstant` đòi `legalBasis` mà beta ngành không có cơ sở pháp lý nào.
+
+---
+
+## Đợt 2 — khép nhánh FCFF của chuỗi, và biểu đồ thôi nói điều hiển nhiên
+
+Trạng thái: **xong, đã kiểm đủ bốn cửa**. `npm run check` xanh **1290 test / 55 file** (trước đợt
+này 1270); `npm run build` 119 trang; `npm run verify:static` **24/24**; `npm run size`
+**156,9 kB** trên cửa kiểm 170 kB.
+
+### Yêu cầu
+
+> "lập kế hoạch và cách để giải quyết các vấn đề trên" → chốt lộ trình ba đợt → "bắt đầu đợt 2 luôn"
+
+Chủ dự án chốt trước khi làm: **nâng trần 107 → 108** (thêm đúng một công thức), và làm đợt 1
+trước. Đợt 1 đã xong trọn, kể cả phần đo — sửa trục `years` của ddm, gỡ chữ "Beta" khỏi mô tả nhóm
+Rủi ro, thêm 2 check `verify:static` cho khối chuỗi.
+
+### Việc 1 — `runChain()` xử đúng hai nguồn cùng một ô
+
+Lỗi do chính tôi tạo ra ở đợt trước, tự soi ra khi rà lại. Hàm duyệt theo CẠNH nên sai hai chỗ
+cùng lúc: chặn ngay ở cạnh hỏng ĐẦU TIÊN dù nguồn kia đang có số dùng được, và để cạnh sau ghi đè
+giá trị của cạnh trước mà không ai hay.
+
+Nay gom cạnh theo **biến nhận** (`groupByVariable()`): ô lấy nguồn cấp được số đầu tiên theo thứ
+tự khai, và chỉ khi **mọi** nguồn của ô đó hỏng thì bước mới kế thừa lỗi. Registry hôm nay chưa có
+ô nào hai nguồn nên lỗi ấy chưa bao giờ chạy — nhưng nó nằm đúng trên đường đi của mắt xích DCF,
+nên phải sửa trước. Ba ca kiểm dựng bằng fixture khoá cả hai chiều; chúng đỏ với bản cũ.
+
+### Việc 2 — công thức `gia-tri-noi-tai-fcff`, và 107 → 108
+
+Trước đợt này `wacc`, `fcff`, `fcfe` là ba công thức **không ai tiêu thụ kết quả**. Mắt xích mới
+khép nhánh đó lại:
+
+```text
+EV = FCFF × (1 + g) ÷ (WACC − g)   → tỷ ₫
+Vốn chủ = EV − Nợ vay ròng          → tỷ ₫
+Giá trị nội tại = Vốn chủ ÷ Số CP   → ₫/CP, nhân 1.000 vì tỷ chia cho triệu
+```
+
+Hệ số 1.000 ấy theo đúng tiền lệ `ncav-tren-co-phieu`. Quên nó là sai ba chữ số mà con số vẫn
+trông hợp lý — đúng loại lỗi mà cửa gác đơn vị của đợt trước sinh ra để chặn.
+
+**Cố ý KHÔNG khai cạnh sang `bien-an-toan`** dù đơn vị khớp: ô "Giá trị nội tại ước tính" bên đó
+đã nhận từ mô hình Gordon. `runChain()` xử được hai nguồn, nhưng trên màn hình người dùng chỉ thấy
+MỘT nhãn nguồn và không có cách nào chọn nguồn kia — tức bày ra một lựa chọn không bấm được. Chọn
+mô hình định giá nào là việc của người định giá; tới khi giao diện hỏi được câu đó thì ô kia để
+nhập tay.
+
+Số kiểm chứng tính độc lập dạng đóng trước khi viết hàm: 300 × 1,04 ÷ 0,067 = 4.656,7164 tỷ; trừ
+300 còn 4.356,7164; chia 118 nhân 1.000 = **36.921,33 ₫**. Bảy ca kiểm trong `spec.tests`.
+
+**Nâng trần**: `valuation` 18 → 19, tổng 107 → 108. Bộ kiểm tự chỉ ra **đúng 7 file** phải sửa,
+không phải dò tay: `registry.test.ts` (94→95, 107→108), `chart.test.ts`, `history.test.ts`,
+`charts.test.tsx`, `latex-html.test.ts`, `summaries.test.ts` (chạy `gen:summaries`), và
+`SettingsScreen.test.tsx` tự xanh lại sau khi sinh lại chỉ mục — màn Cài đặt đếm động nên không
+phải sửa.
+
+> **Việc còn nợ ngoài repo: bảng SRS mục 3.8 vẫn ghi 94 / 13 / 107.** Không sửa thì hai tài liệu
+> lệch nhau vĩnh viễn. Đã ghi cảnh báo vào `categories.ts` và `CLAUDE.md`.
+
+### Việc 3 — renderer thác nước, chứng minh bằng `ev`
+
+Vấn đề có thật chứ không phải thẩm mỹ: đường quét của `ev` là một **đường thẳng hệ số góc đúng
+bằng 1** (EV = vốn hoá + hằng số). Đó chính là loại hình mà dự án viết luật `chartType: 'none'` để
+loại — người đọc đoán trước được, vẽ ra không nói gì.
+
+**Chặng khai bằng metadata, không suy từ `extras`.** `extras` là một `Record` không thứ tự, không
+dấu, không nhãn — mà thác nước cần đúng ba thứ đó. Thêm `BreakdownStage` vào Registry: `key` (trỏ
+vào biến đầu vào HOẶC vào `extras`), `sign`, `shortLabel`. Trường tuỳ chọn nên 107 công thức kia
+không đổi gì.
+
+`ev` được chọn làm ca chứng minh vì **ba chặng của nó chính là ba ô nhập** — không sửa một dòng
+`calc` nào.
+
+Ba quyết định đáng ghi:
+
+- **Bóc tách là MỘT MỤC trong ô chọn trục**, đứng cạnh "Theo thời gian", không phải màn riêng.
+  Nhờ vậy `SweepPicker` và `ChartBody` không phải biết nó tồn tại, và người dùng vẫn đổi sang
+  đường quét bằng đúng ô cũ.
+- **Cột nằm ngang.** Nhãn chặng tiếng Việt ("Tiền và tương đương tiền") dài gấp ba tới năm lần bề
+  ngang một cột đứng trong khung 320 đơn vị. Cột đứng chỉ còn ba lối — xoay 45 độ, cắt cụt, hoặc
+  rút gọn tới mất nghĩa — cả ba tệ hơn việc quay cả hình đi 90 độ.
+- **Miền trục LUÔN chứa 0.** Chân cột phải có chỗ đứng; bỏ 0 ra ngoài thì cột "Vốn hoá" 9.200 tỷ
+  và cột "EV" 11.500 tỷ trông chỉ chênh một mẩu.
+
+`ChartModel` từ union hai nhánh thành ba, và typecheck chỉ thẳng ra **mọi** chỗ giả định chỉ có
+hai: `ChartFrame`, `ChartFullscreen`, `ChartBody`, hai file test. Thêm `DrawableChart` (union trừ
+`unavailable`) để hai file khung nhận cả hai loại, lần sau thêm loại thứ tư không phải sửa chúng.
+
+### Đã đổi file nào
+
+**Domain**: `calc/run-chain.ts` (gom cạnh theo biến) · `formulas/valuation-dcf.ts` (công thức mới,
+file thành 10 công thức) · `formulas/valuation-multiples.ts` (khai `breakdown` cho `ev`) ·
+`registry/types.ts` (`BreakdownStage`) · `registry/categories.ts` (18 → 19) · `chart/breakdown.ts`
+(mới) · `chart/types.ts` (`WaterfallChart`, `DrawableChart`) · `chart/build.ts`.
+
+**Giao diện**: `charts/WaterfallChart.tsx` (mới) · `charts/chart.module.css` ·
+`charts/ChartBody.tsx` · `charts/ChartFrame.tsx` · `charts/ChartFullscreen.tsx`.
+
+**Barrel**: `core/chart/index.ts`, `application/index.ts`.
+
+### Kiểm chứng
+
+**1290 test** (trước đợt 1270), thêm 20 ca:
+
+- 3 ca hai nguồn cùng một ô: nguồn hỏng không chặn được nguồn lành · mọi nguồn hỏng mới kế thừa ·
+  ghi đè thắng cả hai;
+- 7 ca của công thức mới trong `spec.tests`, tự chạy qua `formulas.test.ts`;
+- 12 ca thác nước, trong đó ca quan trọng nhất là **tổng các chặng đúng bằng kết quả công thức** —
+  một hình bóc tách cộng lại không ra con số ở khối Kết quả là hình nói dối về chính phép tính nó
+  minh hoạ, mà từng cột riêng lẻ vẫn là số hợp lệ nên không ca nào khác bắt được;
+- 2 ca giao diện: cây thác nước không có id do React sinh kể cả khi phóng to, và cả **bốn** nhánh
+  dựng của `ChartBody` đều sạch.
+
+Hai cửa gác sẵn có tự bắt đúng việc: `chart.test.ts` phát hiện `ev` tuột khỏi nhóm "đường quét",
+`history.test.ts` phát hiện nó không còn là `line`. Cả hai đã sửa để diễn đạt bất biến mới chứ
+không phải chỉ bơm số.
+
+### Đo trên bản build — dựng ở BẢN SAO, không đụng dev server
+
+Cổng 3000 có dev server **mới** (PID 23148, chủ dự án tự bật lúc 15:02) — khác PID tôi được phép
+dừng ở đợt 1, nên không dừng. Cũng không cần: chép cây làm việc sang scratchpad (2,7 MB, trừ
+`node_modules` / `.next` / `out` / `.git`), nối `node_modules` bằng junction rồi dựng ở đó. Thứ mà
+`check-no-dev.mjs` bảo vệ là `.next/` và `out/` của thư mục gốc; build ở nơi khác thì nó không với
+tới được, nên `FFB_ALLOW_BUILD_WITH_DEV=1` ở đây đúng nghĩa "cổng đó không phải dev server của thư
+mục này" chứ không phải bịt cửa gác.
+
+| Thứ                    | Đợt 1 (107 CT) | Đợt 2 (108 CT) |                                        |
+| ---------------------- | -------------- | -------------- | -------------------------------------- |
+| Trang tĩnh             | 118            | **119**        | thêm đúng trang của công thức mới      |
+| `verify:static`        | 24/24          | **24/24**      | cả hai check khối chuỗi vẫn đạt        |
+| Trang nặng nhất (JS)   | 155,9 kB       | **156,9 kB**   | `lich-tra-no`, dư **13,1 kB** dưới cửa |
+| Chỉ mục nhẹ, mọi trang | —              | **10,9 kB**    | 0,1 kB mỗi công thức                   |
+| Chunk nạp trễ của `ev` | —              | 8,2 kB         | thác nước không đẻ chunk riêng nào     |
+
+Cả đợt 2 tốn **1,0 kB** trên trang nặng nhất — công thức mới, renderer thác nước và nhánh thứ ba
+của `ChartModel` cộng lại. `WaterfallChart` không làm phình vì nó rơi vào đúng chunk biểu đồ đã
+nạp trễ sẵn.
+
+**Một chỗ tôi ghi sai ở bản trước, sửa lại:** `verify:static` có **24** phép kiểm, không phải 25.
+Hai dòng `check()` cuối file là hai nhánh của một `if/else` (thiếu `robots.txt` thì báo trượt), nên
+đếm dòng gọi ra 25 mà chạy chỉ ra 24. `CLAUDE.md` đã sửa theo.
+
+### Dọn số 107 còn kẹt trong chú thích
+
+Nâng trần để lại **39 file** vẫn khẳng định "107 công thức" ở thì hiện tại — kể cả một chỗ người
+dùng thật sự đọc: `description` của `/cong-thuc/` đi thẳng vào thẻ meta của HTML tĩnh.
+
+Ranh giới khi quét, vì không phải số 107 nào cũng sai:
+
+- **Sửa** những câu khẳng định trạng thái HIỆN TẠI — "khuôn chi tiết dùng chung cho cả 107 công
+  thức", "đủ 107 / 107", "phủ 97 trên 107" (nay 98/108), "cả 107 trang chi tiết cùng gánh".
+- **Giữ nguyên** những câu ghi lại một PHÉP ĐO ĐÃ LÀM: "đo 107 thẻ ở khổ 390px ra sáu chiều cao",
+  bảng đo ba chế độ output của KaTeX, chuyện `size-report.mjs` từng chia cho 21. Sửa chúng thành
+  108 là bịa một phép đo chưa từng chạy.
+- **Không đụng `TASK.md`** — nhật ký theo thời gian; viết lại quá khứ là hỏng chính thứ nó ghi.
+
+Hai chỗ lệch nữa lộ ra khi quét: `categories.ts` còn ghi "Mảng chứng khoán — 94 công thức" ngay
+dưới docblock đã sửa thành 95, và `registry.test.ts` có tên ca "Nâng cao thấy đủ 107" trong khi
+chính nó `expect(...).toHaveLength(108)` ở dòng dưới.
+
+Quét bằng script có xác nhận từng chuỗi phải khớp **đúng một lần**, không thì dừng và không ghi gì
+— thay vì `sed` mù, vì "107" cũng là dữ liệu giá trong ca kiểm của `technical-volatility.ts`.
+
+### Còn lại
+
+- [x] **`npm run build` → `verify:static` → `size`** — xong, số ở mục "Đo trên bản build" bên dưới.
+- [x] **Ba công thức vay đã khai `breakdown`** — làm ở đợt 3, kể cả cạm bẫy `lich-tra-no`. Còn
+      **sáu** công thức khai `waterfall`/`stackedBar` mà chưa khai chặng.
+- [x] **Đã kiểm trên Chrome thật** — `npm run check:chrome`, xem mục "Đợt 3".
+- [ ] Bảng SRS mục 3.8 ngoài repo — xem trên.
+
+## Đợt 3 — bóc tách ba công thức vay, và bộ kiểm trên Chrome thật
+
+Trạng thái: **xong, đã kiểm đủ năm cửa**. `npm run check` xanh **1298 test / 55 file** (trước đợt
+1290); `npm run build` 119 trang; `verify:static` **24/24**; `size` **156,9 kB** — không đổi một
+byte nào so với đợt 2; và cửa mới `npm run check:chrome` **10/10** trên Chrome thật.
+
+### Yêu cầu
+
+> "tiếp tục bước tiếp theo theo kế hoạch" → đợt 3 của lộ trình đã chốt: harness Chrome, cột chồng
+> gốc/lãi cho ba công thức vay, WF-04 hi-fi nếu có ảnh.
+
+Việc thứ ba **không làm**: nó có điều kiện "nếu có ảnh WF-04 hi-fi", mà chưa có ảnh nào. Dựng theo
+tưởng tượng rồi bảo là bám wireframe thì tệ hơn để nguyên.
+
+### Việc 1 — cạm bẫy `lich-tra-no`, và cách né
+
+Đợt 2 đã ghi sẵn chỗ này sẽ vỡ: cột chồng hiển nhiên của một khoản vay là **gốc + lãi**, nhưng kết
+quả của `lich-tra-no` chỉ là phần **lãi**. Hình ấy cộng lại ra tổng phải trả, lệch hẳn con số ở
+khối Kết quả — và bất biến "tổng các chặng bằng kết quả" sẽ đỏ. Đúng ra phải đỏ.
+
+Lối đi là **đảo chiều phép tính**, vì tổng lãi chính là phần dôi ra của những gì phải trả so với
+những gì đã vay:
+
+```text
+Tổng phải trả  1.789,7 triệu ₫   (+)
+Trừ gốc vay      800,0 triệu ₫   (−)
+──────────────────────────────
+Tổng lãi         989,7 triệu ₫
+```
+
+Đúng từng đồng, không phải xấp xỉ: `buildAmortisation()` ép kỳ cuối trả nốt đúng dư nợ còn lại nên
+tổng phần gốc bằng đúng số tiền vay. Và hình này nói thẳng điều `commonMistakes` của chính công
+thức cảnh báo — vay 800 triệu mà phải trả gần 1.790 triệu.
+
+Hai công thức vay còn lại dễ hơn vì kết quả của chúng vốn đã là một tổng: `tra-gop-nien-kim` bóc
+**kỳ đầu** thành gốc + lãi (ở bộ số WF-14, lãi 6,33 triệu gấp hơn năm lần gốc 1,12 triệu — đúng
+câu `howToRead` "những năm đầu phần lớn tiền trả là lãi"), `tra-gop-goc-deu` bóc kỳ đầu thành gốc
+mỗi kỳ + lãi kỳ đầu. Cả hai chỉ cần thêm `extras`, không đụng một dòng phép tính nào.
+
+### Việc 1b — hai quyết định thiết kế lộ ra khi có ca thứ hai
+
+**`waterfall` bày bóc tách mặc định, `stackedBar` chỉ đứng trong ô chọn.** Đợt 2 để "khai
+`breakdown` là thành hình mặc định", và lý lẽ khi ấy chỉ đúng cho `ev`: đường quét của EV là một
+đường thẳng hệ số góc bằng 1, không nói gì. Đường quét của `lich-tra-no` thì ngược hẳn — tổng lãi
+theo kỳ hạn là một đường cong lồi, và nó **chính là** điều `commonMistakes` cảnh báo. Bày bóc tách
+đè lên nó là lấy một hình tốt thay bằng một hình tốt khác: không được gì mà mất cái đang có.
+
+Ranh giới lấy ngay từ `chartType` chứ không thêm trường mới — `waterfall` nghĩa là bóc tách CHÍNH
+LÀ biểu đồ, `stackedBar` nghĩa là thành phần đáng xem nhưng không thay được đường quét. Cả 10 công
+thức đã mang sẵn đúng nhãn. Hệ quả đo được: ca kiểm "63 đường quét + 1 bóc tách" **không phải sửa
+số** — ba công thức vay vẫn nằm trong nhóm 63.
+
+**Cột tổng phải mang tên đại lượng, không mang tên công việc.** Nhãn cột tổng vốn suy từ tên công
+thức, đúng cho `ev` ('EV — giá trị doanh nghiệp' thành 'EV') nhưng ra 'Lịch trả nợ vay' cho một cột
+mang giá trị tổng lãi. Thêm `spec.breakdownTotal` tuỳ chọn; nó lợp cả nhãn trục giá trị, chỗ Chrome
+vừa chỉ ra là cũng đang ghi 'Lịch trả nợ vay (tỷ ₫)' cho một trục đo tiền lãi.
+
+### Việc 2 — `npm run check:chrome`
+
+Harness CDP từ scratchpad được chép về repo thành `scripts/chrome-check.mjs`, và dựng thành cửa
+kiểm thật thay vì một đoạn thăm dò dùng một lần.
+
+Lý do nó phải tồn tại bên cạnh 1298 ca vitest: **jsdom không có bộ dựng hình**, nên mọi phép đo
+hình học đều trả 0 — `getBBox()`, `getBoundingClientRect()`, bề rộng chữ. Ba lớp lỗi đi lọt qua
+toàn bộ bộ kiểm hiện có: nhãn tràn khung, cột âm vẽ ngược chiều, và khối nạp trễ có hiện ra hay
+không. Riêng lớp thứ ba là **nửa còn lại** của phép kiểm ở `verify:static`: chỗ đó chứng minh khối
+chuỗi VẮNG trong HTML tĩnh, nhưng không ai chứng minh bật chế độ Nâng cao thì nó PHẢI hiện.
+
+Script tự dựng cả hai đầu: một máy chủ tĩnh `node:http` trên cổng hệ điều hành tự cấp, và một
+Chrome riêng với hồ sơ tạm. Cổng tự cấp né luôn cái bẫy service worker đã ghi trong `package.json`
+— không đụng 3000 của `next dev`, không đụng 4173 của `preview`.
+
+**Chỉ tắt đúng tiến trình mình bật** — đóng lịch sự bằng `Browser.close`, hết hạn thì `taskkill`
+theo PID, và cả hai nằm trong `finally`. Lần chạy đầu tôi để lỗi ném ra ngoài khối dọn dẹp, đó là
+cách bỏ lại một Chrome không ai tắt. Tuyệt đối không diệt theo tên tiến trình: chủ dự án đang mở
+37 tiến trình Chrome của họ.
+
+Mười phép kiểm, tất cả ở khổ **360×780**:
+
+| Nhóm      | Kiểm gì                                                                         |
+| --------- | ------------------------------------------------------------------------------- |
+| Thác nước | dựng được · nhãn không tràn · ba cột có bề rộng thật · **cột âm đúng chiều**    |
+| Thác nước | ba nhãn khớp đúng thứ Domain dựng · console sạch                                |
+| Chuỗi     | Cơ bản KHÔNG hiện · Nâng cao HIỆN sau hydrate · không tràn ngang · console sạch |
+
+Số đo đáng giữ: nhãn chặng dài nhất còn cách mép trái **35,8 đơn vị** — lề 96 đơn vị đủ rộng cho
+nhãn dài gấp rưỡi hiện tại. Cột âm chạy 200,9 → 285,7 trong khi cột trước hết ở 285,7, tức mép phải
+trùng đỉnh cột trước và thân kéo về bên trái: đúng chiều.
+
+Lần chạy đầu hỏng vì tôi đoán id ô chọn là `#lich-tra-no-sweep`; thật ra `ChartBody` ghép
+`idBase = chart-${spec.id}`. Đọc từ HTML đã dựng ra mới biết — cũng là một điểm cộng nhỏ cho việc
+kiểm trên bản build thay vì trên nguồn.
+
+### Đã đổi file nào
+
+**Domain**: `registry/types.ts` (`breakdownTotal`) · `chart/breakdown.ts` (nhãn cột tổng) ·
+`chart/build.ts` (mặc định theo `chartType`, nhãn trục theo `breakdownTotal`) ·
+`formulas/personal.ts` (ba khai báo `breakdown` + `extras` cho hai công thức).
+
+**Công cụ**: `scripts/chrome-check.mjs` (mới) · `package.json` (script `check:chrome`).
+
+### Kiểm chứng
+
+**1298 test**, thêm 8 ca ở `chart.test.ts` (61 → 69 ca trong file):
+
+- **cửa gác cả loại biểu đồ**: MỌI công thức khai `breakdown` phải cộng đúng về kết quả của chính
+  nó, kèm chốt danh sách 4 id — thêm công thức mới mà quên nghĩ tới bất biến này là đỏ ngay;
+- ba công thức vay mặc định vẫn ra đường quét, bóc tách nằm sẵn trong ô chọn;
+- chọn mục ấy thì ra thác nước đủ hai chặng một tổng;
+- `lich-tra-no`: tổng phải trả trừ gốc vay ra đúng tổng lãi, cột thứ hai âm;
+- cột tổng lấy nhãn từ `breakdownTotal`, không lấy từ tên công thức;
+- `tra-gop-nien-kim`: lãi kỳ đầu gấp hơn năm lần gốc;
+- `tra-gop-goc-deu`: hai chặng cộng đúng khoản trả kỳ đầu;
+- kỳ hạn 0 thì không có mục bóc tách nào.
+
+### Còn lại
+
+- [ ] **Sáu công thức còn khai `waterfall`/`stackedBar` mà chưa khai `breakdown`**: `ncav-tren-co-phieu`,
+      `fcff`, `fcfe`, `wacc`, `ddm-hai-giai-doan`, `thue-tncn-dau-tu`. Ba cái đầu là nhóm thật sự
+      đáng làm. Cạm bẫy đã thấy trước ở `ncav-tren-co-phieu`: kết quả có phép CHIA cho số cổ phiếu,
+      nên chặng phải là số **trên mỗi cổ phiếu** tính sẵn trong `extras`, không phải tài sản và nợ
+      thô — khai thô là bất biến "tổng bằng kết quả" đỏ ngay, đúng như nó nên đỏ.
+- [ ] **Ảnh WF-04 hi-fi** — chưa có, nên khối chuỗi vẫn đang mang kiểu dáng tự dựng.
+- [ ] Bảng SRS mục 3.8 ngoài repo: 94 / 13 / 107 → **95 / 13 / 108**.
+
+## Đợt 9 — rà lại toàn bộ phần chưa commit, và vá 12 lỗi tìm ra
+
+Trạng thái: **xong**. `npm run check` xanh **1331 test / 59 file**; `verify:static` **24/24**;
+`npm run size` **162,8 kB** trên cửa 170; `check:chrome` **18/18**.
+
+### Yêu cầu
+
+> "dự án còn gì chưa làm và chưa thể làm?" → "ok, làm đợt 9"
+
+Trước khi gom commit 8 đợt (129 file), rà lại phần chưa commit bằng 5 hướng soi song song, mỗi
+phát hiện phải qua một lượt **phản biện đối nghịch** tự tái hiện được mới công nhận. Kết quả:
+11 lỗi thật, cộng 1 lỗi chưa phán vì agent phản biện chết giữa chừng do hết hạn mức phiên —
+xác minh riêng sau, và hoá ra nó là lỗi nặng nhất cả đợt.
+
+### Bài học: cửa gác dựng ở đợt 8 THỦNG, và chính nó để lọt hai lỗi
+
+Cửa gác "client không được import `t` build-time" soi file mở đầu bằng `'use client'`.
+`FormulaCard.tsx` và `SearchResults.tsx` **không mang directive nào** — chúng là module dùng
+chung, vào gói máy khách theo chân component import chúng — nên hai badge "Cơ bản"/"Nâng cao"
+nằm im tiếng Việt giữa màn EN mà cửa gác vẫn xanh. Nay soi **toàn bộ `src/ui` + `src/app`**, ai
+muốn dùng `t()` build-time phải có tên trong danh sách miễn trừ kèm lý do. Chạy lần đầu nó bắt
+ngay `AppHeader.tsx` — file thứ ba mà bản cũ bỏ sót. Thêm một ca kiểm nữa chặn **miễn trừ chết**:
+mục nào hết lý do mà còn nằm trong danh sách là đỏ.
+
+Rút ra: gác theo _dấu hiệu khai báo_ (directive) là gác theo thứ người viết có thể quên;
+gác theo _phạm vi thư mục_ thì không quên được.
+
+### 12 lỗi đã vá
+
+**Cửa gác đỗ giả (4)** — mỗi cái đều đã chứng minh đỏ được sau khi sửa:
+
+- Cửa gác `t` build-time: xem trên. Bằng chứng đỏ: bắt `AppHeader` ngay lượt chạy đầu.
+- `prose-audit` phép kiểm A không bắt được **cả hai tiền lệ sáng lập ghi trong docblock của chính
+  nó**: `'beta'` nằm trong danh sách miễn trừ (nên "công thức Beta" đi lọt), và `proseOf()` chỉ
+  quét `FormulaSpec` — mô tả nhóm ở `categories.ts`, đúng nơi lỗi từng xảy ra, không hề được soi.
+  Nay gỡ `'beta'`, quét cả mô tả 12 nhóm, và thêm một ca riêng cho dạng liệt kê tên trần
+  ("Sharpe, Sortino, …") mà regex có từ dẫn không với tới. Danh sách `CHUA_CO` tự hết hạn: Beta
+  lên sóng thì ca kiểm đỏ và nhắc xoá tên. Bằng chứng đỏ: thêm "Beta" vào mô tả nhóm Rủi ro →
+  đỏ đúng một dòng, rồi hoàn nguyên.
+- `check:chrome` assertion "không cột nào bẹp thành vạch" là **tautology**: renderer kẹp sàn
+  `Math.max(…, 1)` nên `w >= 1` không bao giờ sai được. Đổi thành `w > 1` — chạm sàn nghĩa là bẹp.
+- `verify:static` check "có link quay về" dùng hai `includes` rời nhau, mà vế `href="/cong-thuc/"`
+  luôn đúng nhờ thanh tab dưới — nên đúng regression mà comment của nó nói mình chặn (thay
+  `<a>` bằng `<button>` + router) vẫn đi qua. Nay một regex đòi hai chuỗi trong **cùng một thẻ
+  `<a>`**. Bằng chứng: thử regex với HTML thật (true) và với ca `button` + tab bar (false).
+
+**i18n sót (5)**: hai badge cấp độ chuyển sang lá `<T>` — không dùng `useT()` được vì
+`FormulaCard` được dựng ở CẢ hai phía (client và `StaticFormulaList` server); nhãn ba bậc đơn vị
+tiền có khoá riêng (`UNIT_SCALE_KEYS`, dây neo với `UNIT_SCALES` ở Domain) nên màn EN thôi hiện
+"Total interest … million ₫" ngay trên "Unit: triệu ₫" — tiện thể gộp luôn `loan.millionDong`
+trùng vai; `about.schedule` dịch lệch nghĩa ("Fee schedule in use" trong khi con số là SỐ biểu
+phí đã nạp) → "Fee schedules loaded"; `ExportSheet` giữ **cờ** thay vì chuỗi đã dịch trong state.
+
+**Dữ liệu & pháp lý (2)**: `SOURCE_FEE_CIRCULAR` còn trích Thông tư 128/2018 — vòng Q1 sửa
+`schedules.ts` mà sót nhãn dùng chung, nên khối Nguồn của 5 trang phí chỉ người dùng tới văn bản
+đã bị thay, trái với căn cứ của chính hằng số dùng trong cùng phép tính. Nay là 102/2021, **kèm
+dây neo** trong `market.test.ts` bắt hai bên trích cùng số thông tư. Và `AS_OF` lấy ngày UTC:
+build trong khung 00:00–06:59 giờ Việt Nam đúng ngày một hằng số có hiệu lực thì cả đợt deploy
+chạy bằng luật cũ — nay lấy theo `Asia/Ho_Chi_Minh`, vì hằng số của sản phẩm là luật Việt Nam.
+
+**Bụi dấu phẩy động (1)** — lỗi chưa phán, xác minh riêng và là lỗi nặng nhất:
+
+`lich-tra-no` ở **lãi suất 0%** hiện trục `[−200 triệu, 800 triệu]` với vạch "−200" dưới một
+biểu đồ không có cột nào âm. `totalPaid` cộng dồn 240 kỳ trong khi chặng thứ hai trừ `amount`
+lấy nguyên từ ô nhập — hai đường tích luỹ lệch **−1,19e−7** thay vì triệt tiêu, rồi `Math.floor`
+trong `niceAxis` nới hạt bụi ấy thành trọn một bước trục. Quét lưới thanh trượt thật: **1.214 bộ
+số dính, 100% ở lãi suất 0**, kể cả bộ mặc định 800 triệu / 20 năm của WF-14 — chỉ cần kéo thanh
+lãi suất về đầu trái là thấy. Chín công thức bóc tách còn lại không dính (chúng triệt tiêu bằng
+hiệu hai số bằng nhau đúng bit).
+
+Vá hai lớp: **gốc** — `totalPaid = amount + totalInterest`, chặt chứ không xấp xỉ vì
+`buildAmortisation` ép kỳ cuối đóng dư nợ về 0; **lớp lỗi** — `breakdownExtent` quét bụi dưới
+1e-9 tương đối về 0 trước khi giao cho `niceAxis`, để công thức thứ 11 khai bóc tách không gặp
+lại. Ca hồi quy ở lãi suất 0 đã chứng minh đỏ được: hoàn nguyên bản vá gốc thì nó báo đúng
+`-1.1920928955078125e-7`.
+
+Kèm theo, cùng ca ấy lộ một cái bẫy trong chính bất biến "tổng chặng = kết quả": nó chia cho
+`|output.value|`, mà kết quả bằng 0 là chuyện có thật — biểu thức ra `Infinity` và phép kiểm đỏ
+oan. Nay mẫu số lấy theo cột lớn nhất.
+
+### Còn nợ, đã ghi tại chỗ
+
+Tiêu đề trục biểu đồ (`core/chart/build.ts`) ghép `${tên} (${scale.label})` ngay trong
+`ChartModel` — chuỗi do Domain dựng và có chứa TÊN CÔNG THỨC, nên để nguyên tới lượt dịch nội
+dung chứ không vá nửa vời. Ghi trong docblock của `src/ui/i18n/keys.ts`.
+
+## Đợt 8 — thông luồng locale, gắn lại LangSwitch (gói 3.6.3, phần giữa)
+
+Trạng thái: **xong — FR-21 chạy thật lần đầu**. `npm run check` xanh **1325 test / 59 file**
+(thêm 12 ca, 3 file test mới); `verify:static` **24/24**; `npm run size` **162,6 kB** trên cửa
+kiểm 170 (+1,6 kB cho phần luồng); `npm run check:chrome` **18/18** — thêm 4 assertion cho luồng
+EN. Build trong bản sao scratchpad, dev server PID 23148 không đụng.
+
+### Yêu cầu
+
+> "ok bắt đầu làm"
+
+### Kiến trúc — ba đường chữ đi, cộng một thuộc tính
+
+1. **Client component** → `useT()` (hook mới trong `preferences-context.tsx`): bản `t()` đã buộc
+   vào locale đang chọn. Component đặt `const t = useT();` — shadow đúng tên nên toàn bộ call
+   site `t('…')` giữ nguyên, diff mỗi file chỉ 2–3 dòng. **~45 file** chuyển kiểu này; phần cơ
+   học giao 4 agent chạy song song trên các nhóm file rời nhau, rà lại bằng diff + 4 cửa kiểm.
+2. **Server component** → lá client `<T k="…">` (`src/ui/i18n/T.tsx` — file mới): trang chủ và
+   AppShell cố ý là server component để CategoryGrid/FormulaCard không vào gói máy khách
+   (NFR-PER-04) — bọc ĐÚNG PHẦN CHỮ vào lá thì cả khối vẫn do server dựng, chỉ chữ hydrate.
+   Context xuyên qua server children bình thường nên lá vẫn nhận locale. Trang 404 thì chuyển
+   hẳn client vì chữ đi qua props string của `EmptyState`; `SearchLink` cũng client vì nhãn nằm
+   trong thuộc tính `title`.
+3. **Cố ý đứng yên** (mỗi chỗ một comment tại chỗ): metadata trong `layout.tsx` (build-time);
+   `DisclaimerBar` (câu miễn trừ phải trùng từng chữ với file xuất — FR-24); fallback SEO
+   `StaticFormulaList` (bị FormulaBrowser thế chỗ sau hydrate); vùng in PDF + thẻ PNG của
+   `ExportSheet`/`draw-card` — file xuất là tài liệu tiếng Việt trọn vẹn, một câu Anh giữa
+   tài liệu Việt là tài liệu hỏng.
+4. `<html lang>` đổi theo locale sau hydrate (effect trong Provider) — không đổi thì trình đọc
+   màn hình đọc chữ Anh bằng giọng Việt.
+
+`LangSwitch` gắn lại vào AppHeader: cả hai điều kiện của quyết định đợt 14 (có bản dịch + luồng
+thông) đã đạt. Mẫu hydrate giữ nguyên của `ffb.prefs.v1`: render đầu luôn tiếng Việt khớp HTML
+tĩnh, localStorage đọc trong effect — Chrome thật xác nhận console sạch, không lệch hydration.
+
+### Cửa gác mới — và cái nó bắt được ngay lượt chạy đầu
+
+- `i18n.test.ts`: **file 'use client' không được import `t` tĩnh từ `@/application`** — chữ
+  import kiểu đó đóng băng tiếng Việt lúc build, lỗi chỉ lộ khi có người bấm thử từng màn ở EN.
+  Lượt chạy đầu bắt ngay `BackLink.tsx` và `Switch.tsx` — hai file bản kiểm kê regex sót vì
+  chúng gọi `t(bienSo)` không có nháy đơn ngay sau `t(`. Ngoại lệ có tên: `ExportSheet` (giữ
+  `t as tVi` cho vùng in, lý do ghi tại chỗ).
+- Cửa gác khoá mồ côi nhận thêm `"key"` nháy kép — khoá đi qua JSX `<T k="…">` không bị báo oan.
+- 3 file test mới: `use-t.test.tsx` (4 ca — fallback ngoài Provider, đổi tức thì + ghi
+  localStorage + đổi `<html lang>`, hydrate từ EN đã lưu), `LangSwitch.test.tsx` (4 ca — điểm
+  đáng gác: sau khi chuyển, chính cái nút phải NÓI TIẾNG ANH), `T.test.tsx` (2 ca).
+- `check:chrome` 14 → **18**: tiêu đề trong server children đổi sau hydrate (rủi ro riêng của
+  kiến trúc lá `<T>` — jsdom kiểm từng lá, còn "cả trang thật từ HTML tĩnh Việt sang EN mà
+  console sạch" chỉ Chrome thật trả lời được), nhãn tab bar client đổi theo, `<html lang>`
+  thành `en`, console sạch kể cả cảnh báo hydration.
+
+### Ghi chú cho lượt dịch nội dung (phần cuối 3.6.3)
+
+Hai chuỗi cứng tiếng Việt còn nằm ngoài i18n, tồn tại từ trước: caption "Số liệu — {tên}" trong
+`ChartFrame` và bộ nhãn cột `COLUMN_LABELS` của `PasteImportSheet` (nhãn build-time từ tầng
+application). Chưa có khoá nên nút EN không đổi được chúng — xử cùng lượt dịch nội dung công thức.
+
+### Còn lại của FR-21
+
+1. Dịch nội dung công thức (tên + 432 đoạn diễn giải) — **sau** duyệt chuyên môn bản tiếng Việt.
+2. Câu miễn trừ + vế file xuất theo locale — chủ dự án chốt chữ, làm cùng nhau một lượt.
+
+## Đợt 7 — từ điển tiếng Anh cho giao diện (gói 3.6.3, phần đầu)
+
+Trạng thái: **xong phần khoá giao diện** — `npm run check` xanh **1313 test / 56 file** (thêm 3);
+build trong bản sao scratchpad (dev server PID 23148 vẫn giữ :3000, không đụng), `verify:static`
+**24/24**, `npm run size` **161,0 kB** trên cửa kiểm 170 kB.
+
+### Yêu cầu
+
+> "giờ tiếp tục làm dự án thôi"
+
+Mục code làm ngay được duy nhất còn lại là gói 3.6.3 (FR-21, 14 giờ WBS). Gói ấy tách được ba
+phần: từ điển giao diện (đợt này), luồng locale + gắn lại LangSwitch (đợt sau), và dịch nội
+dung công thức — 432 đoạn, cố ý chờ duyệt nội dung bản Việt xong mới dịch để khỏi dịch hai lần.
+
+### Đã đổi file nào
+
+- **`src/application/i18n/en.ts`** — dịch **231/232 khoá**. Khoá duy nhất cố ý bỏ lại:
+  `disclaimer.text` — câu miễn trừ trên màn phải trùng từng chữ với câu đính vào file xuất
+  (`DISCLAIMER_VI`) mà bộ dựng file xuất chưa biết locale, dịch một vế là hai vế lệch nhau
+  (FR-24); câu pháp lý cũng cần chủ dự án chốt chữ. Bẫy chính khi dịch: nhiều khoá đứng ngay
+  sau con số ghép ở call site ("12 kết quả") mà tiếng Anh có số ít/số nhiều — khoá nào con số
+  có thể bằng 1 thì dùng dạng "(s)" (`result(s)`, `formula(s)`, `row(s)`), khoá nào luôn ≥ 2
+  (`loan.condensed`, `home.browse.unit`) để số nhiều trơn. Trước khi dịch đã soi từng call
+  site ghép chuỗi để giữ đúng trật tự từ.
+- **`src/application/i18n/i18n.test.ts`** — hai ca đang mã hoá trạng thái "en rỗng" viết lại
+  thành bất biến mới: nợ dịch còn đúng `['disclaimer.text']`, và đường rơi về tiếng Việt kiểm
+  bằng chính khoá đó. Thêm ba ca gác bản dịch: truyền locale ra đúng câu Anh; câu Anh không
+  sót chữ có dấu (trừ hai câu cố ý nêu ví dụ “Định giá” và tên đơn vị "đồng");
+  `series.empty` phải nhắc đúng nhãn đã dịch của nút `series.addRow`.
+- **`src/ui/navigation/AppHeader.tsx`** — cập nhật comment lý do LangSwitch chưa gắn: vế
+  "en.ts chưa có câu nào" đã hết đúng, chỉ còn vế luồng locale.
+
+### Số đo NFR-PER-04 — cái giá của từ điển thứ hai
+
+`DICTIONARIES = { vi, en }` là import tĩnh nên từ điển EN nằm trong First Load JS của MỌI
+trang: trang nặng nhất 155,9 → **161,0 kB** (+5,1 kB nén), dư địa cửa kiểm còn 9 kB. Ghi nhớ
+cho đợt thông luồng locale: nếu cần đòi lại phần này thì tách `en.ts` sang `import()` động chỉ
+nạp khi người dùng bấm sang EN — chưa làm bây giờ vì vẫn dưới cửa, và thêm đường async là thêm
+bề mặt lỗi khi chưa có gì dùng đến.
+
+### Còn lại của FR-21
+
+1. Thông luồng locale: `t()` chưa call site nào truyền locale — hướng làm là `useT()` đọc
+   `usePreferences().locale`; chữ server-render sẽ hiện bản Việt tới khi hydrate (cùng mẫu
+   `ffb.prefs.v1` hiện có). Xong vế này thì gắn lại LangSwitch — một dòng trong AppHeader.
+2. Dịch nội dung công thức (tên + 432 đoạn diễn giải trong spec, tầng Domain) — sau khi duyệt
+   chuyên môn bản tiếng Việt.
+3. Dịch câu miễn trừ — làm cùng lúc với vế file xuất theo locale, chữ do chủ dự án chốt.
+
+## Đợt 6 — hồ sơ đối chiếu 7 hằng số thuế & phí (gói 5.1.1)
+
+Trạng thái: **xong trọn — chủ dự án duyệt Q1–Q7 và đã áp vào code** (1310 test / 56 file xanh). Hồ sơ:
+`src/core/market/README.md`. Chưa sửa một ký tự nào trong `schedules.ts`: file ấy tự dán nhãn
+"BẮT BUỘC được người rà soát đối chiếu văn bản gốc", và hồ sơ máy tra không thay được người rà —
+nó chỉ đổi việc của người rà từ "đi tìm và đọc 5 văn bản" thành "gật hoặc lắc từng dòng".
+
+### Yêu cầu
+
+> "bước kia bạn thực hiện giúp tôi đi" — bước hồ sơ đối chiếu, việc chặn v0.1 cao nhất.
+
+### Cách làm
+
+Sáu lượt tra độc lập chạy song song trên nguồn mở (Cổng TTĐT Chính phủ, Bộ Tài chính,
+luatvietnam.vn toàn văn, VSD/VSDC, báo lớn), mỗi văn bản một lượt; riêng Luật Thuế TNCN mới —
+căn cứ rủi ro nhất vì hiệu lực mới hơn một tháng — thêm một lượt **phản biện** với đề bài "cố
+chứng minh lượt một sai". Luật chơi: chỉ nhận KHỚP khi nguồn nêu rõ con số/ngày, không tìm được
+thì ghi "chưa xác minh" chứ không đoán. 92 lần truy vấn.
+
+### Kết quả một dòng
+
+**Cả 7 con số đều khớp. Nhưng 4/7 bản ghi sai phần căn cứ** — ngày hiệu lực hoặc văn bản:
+
+| Chỗ sai                | Đang khai                    | Đúng ra                                                                        |
+| ---------------------- | ---------------------------- | ------------------------------------------------------------------------------ |
+| Môi giới — căn cứ      | TT 128/2018, trần 0,5%       | Đã bị thay: TT 102/2021, trần 0,45%                                            |
+| Lưu ký — ngày hiệu lực | 2022-02-27                   | **2022-01-01** — không nguồn nào có ngày 27/02; nghi chép lẫn từ chính số 0,27 |
+| T+2 — cơ quan ban hành | "Quy chế giao dịch của HOSE" | Quyết định 109/QĐ-VSD của **VSD** (nay: QĐ 39/QĐ-HĐTV 2025 của VSDC)           |
+| VN30F — sở niêm yết    | "Quy chế của HOSE"           | Hợp đồng niêm yết tại **HNX**; HOSE chỉ tính chỉ số cơ sở                      |
+
+Phần thuế — chỗ tôi ngờ nhất — hoá ra **khớp trọn** và là kết quả chắc nhất: Luật 109/2025/QH15
+có thật (QH XV kỳ 10, 10/12/2025), hiệu lực đúng 01/07/2026, chuyển nhượng vẫn 0,1%/lần (Điều 13
+khoản 2), cổ tức vẫn 5% (Điều 12); mức 20%-trên-lãi chỉ áp cho vốn góp, và đề xuất 20% cho cổ
+phần chưa niêm yết chết ở dự thảo. Hai lượt tra độc lập trùng kết quả từng ý.
+
+Hai khoảng trống nội bộ soi ra không cần mạng: hai hằng số thuế **không có bản ghi tiền nhiệm**
+(đặt `asOf` trước 01/07/2026 là công thức báo "thiếu hằng số" — trái lời hứa trong docblock
+`resolve.ts`), và `validateMarketConfig()` đúng vai chỉ bắt thiếu trường, không bắt sai nội dung.
+
+Sửa lại một câu tôi nói sai ở đợt trước: ngày hiệu lực 01/07/2026 nằm **trước** `asOf` (ngày
+build), không phải sau — hai hằng số thuế đang có hiệu lực bình thường.
+
+### Đã đổi file nào
+
+- **`src/core/market/README.md`** (mới) — hồ sơ đầy đủ: bảng 7 dòng, chứng cứ từng dòng, nguồn,
+  giới hạn (thuvienphapluat.vn chặn máy 403 nên chưa lượt nào đọc bản gốc có dấu), và bảng
+  quyết định Q1–Q7 chờ đánh dấu.
+- `TASK.md` — mục này.
+
+### Còn lại
+
+- [x] **Chủ dự án duyệt trọn Q1–Q7** ("ok Q1-Q7", xác nhận lại qua câu hỏi hai nghĩa). Đã áp:
+      4 căn cứ/ngày sửa theo hồ sơ, thêm 2 bản ghi thuế tiền nhiệm (2015-01-01 / 2009-01-01 —
+      hai mốc này lấy từ kiến thức nền, người rà bản gốc kiểm cùng lượt với Q7), ghi chú ưu đãi
+      luật mới vào `thue-co-tuc` + `thue-tncn-dau-tu`, và viết lại 3 ca kiểm đang mã hoá khoảng
+      trống cũ thành bất biến mới (trước luật mới → luật cũ; trước MỌI luật → thiếu hằng số).
+- [ ] Nhãn "BẢN THẢO" trên `schedules.ts` chỉ nên gỡ sau khi người rà đối chiếu bản gốc có dấu
+      (vbpl.vn / Công báo) — hồ sơ này toàn nguồn thứ cấp.
+
+---
+
+## Đợt 5 — rà 432 đoạn diễn giải, và cửa gác nội dung đầu tiên
+
+Trạng thái: **xong**. `npm run check` xanh **1308 test / 56 file** (trước đợt 1301 / 55 — file thứ
+56 chính là cửa gác mới).
+
+### Yêu cầu
+
+> "bạn hãy rà cho tôi" → báo cáo 4 phát hiện → "thực hiện tiếp 3 bước trên"
+
+Ba bước đã chốt: sửa hai câu Fisher, viết lại hai mục `whenToUse` cụt, và dựng bản rà thành cửa
+kiểm thường trực.
+
+### Bản rà — thất bại trước, kết quả sau
+
+Bản đầu có 7 phép kiểm và ra **189 báo động, trong đó dưới 5 cái là thật**. Ba phép bị vứt vì tiền
+đề sai chứ không phải vì khó sửa: "mọi số trong `example.title` là giá trị đầu vào" (sai — "10
+năm", "250 phiên" là bối cảnh), "đơn vị trong prose phải là đơn vị của công thức" (sai — tiêu đề mô
+tả Ô NHẬP `92.000 ₫/CP`, không mô tả kết quả `lần`), "mọi số trong `note` dẫn ra được từ ví dụ"
+(sai — "quy tắc 72", "ngưỡng RSI 70" là đối chiếu bên ngoài, đúng chỗ). Kèm một lỗi kỹ thuật đáng
+nhớ: dải regex `[A-ZÀ-Ỹ]` trong Unicode chứa CẢ chữ thường tiếng Việt, nên "công thức đầu tiên…"
+bị nuốt thành danh từ riêng.
+
+Bản chặt lại ra **4 phát hiện thật trên 432 đoạn**:
+
+| Chỗ                                 | Vấn đề                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| `loi-suat-thuc` — howToRead và note | Gọi "công thức Fisher" như trỏ link đi nơi khác, trong khi Fisher CHÍNH LÀ công thức đang mở |
+| `phi-giao-dich-ban` — whenToUse     | 39 ký tự, không nêu tình huống như 106 mục còn lại                                           |
+| `hpr` — whenToUse                   | 44 ký tự, cùng bệnh                                                                          |
+
+Và **năm phép kiểm sạch** — đáng giá không kém: không đoạn nào trùng nguyên văn giữa 108 công thức
+(chỗ tôi ngờ nhất — 432 đoạn soạn liên tục mà không chép nhầm phát nào), không lời hứa "báo lỗi"
+nào thiếu ca kiểm, hai câu "khớp bộ số liệu mẫu" đều khớp thật, hai câu "gấp N lần" đều đúng, và
+không ngưỡng diễn giải nào ("trên 2 là tốt") nằm ngoài vùng đường quét vẽ tới được.
+
+### Ba bước sửa
+
+1. **Hai câu Fisher** (`performance.ts`) — bỏ cái tên đọc-như-link: "phép chia ở trên mới cho con
+   số đúng" thay cho "công thức Fisher mới chính xác". Không đụng số.
+2. **Hai mục `whenToUse`** viết lại theo giọng của file và tránh trùng góc với mục sát bên:
+   `phi-giao-dich-ban` lấy góc "khoản thương lượng được, khác thuế và phí lưu ký" (vì `thue-ban`
+   ngay dưới đã chiếm góc "số tiền thực về tài khoản"); `hpr` lấy góc "chốt lại khoản đã bán, tính
+   trọn cả lãi giá lẫn cổ tức" (vì ROI ngay trên đã chiếm góc "so sánh quy mô khác nhau").
+3. **`src/application/prose-audit.test.ts`** — cửa gác nội dung đầu tiên của dự án, 7 phép, 33ms,
+   nằm trong `npm run check`.
+
+### Vì sao cửa gác nằm ở tầng Application
+
+Phép kiểm H đối chiếu prose với `@/data/samples.ts`, mà CON-02 cấm `src/core` gọi ngược lên tầng
+Data. Đây là file test duy nhất KHÔNG nằm cạnh module nó kiểm — CLAUDE.md đã ghi chú.
+
+### Cửa gác đã được thử phá
+
+Cửa không đỏ được là cửa vô dụng, nên thử: đổi `eps: 6_050 → 6_051` trong `samples.ts`. Đỏ đúng
+một ca với thông điệp chỉ thẳng chỗ — "eps-co-ban — example.note: nói khớp bộ mẫu nhưng 6.050
+không có trong SAMPLE_PRESETS" — khôi phục thì xanh lại, `git diff` sạch. Phép H tồn tại đúng cho
+kịch bản này: `samples.ts` là số bản thảo, CHẮC CHẮN sẽ đổi khi có số thật, và hai câu "khớp bộ số
+liệu mẫu" sẽ thành lời nói dối mà không cửa nào khác đỏ.
+
+### Đã đổi file nào
+
+- **`src/core/formulas/performance.ts`** — hai câu Fisher.
+- **`src/core/formulas/fees.ts`**, **`src/core/formulas/returns.ts`** — hai mục `whenToUse`.
+- **`src/application/prose-audit.test.ts`** (mới) — 7 phép kiểm, docblock ghi cả ba phép đã thử
+  rồi bỏ để không ai dựng lại.
+- **`CLAUDE.md`**, **`README.md`**, **`src/core/formulas/README.md`** — ghi cửa gác mới.
+
+### Còn lại
+
+- [ ] Phần "432 đoạn có DẠY ĐÚNG tài chính không" — bản rà cơ học không chạm tới, vẫn cần người
+      có chuyên môn đọc. Đây vẫn là việc chặn v0.1 thứ ba.
+- [ ] Bảng SRS mục 3.8 ngoài repo: 94 / 13 / 107 → **95 / 13 / 108**.
+
+---
+
+## Đợt 4 — khép nốt bóc tách: mười công thức, không còn cái nào chờ
+
+Trạng thái: **xong, đã kiểm đủ năm cửa**. `npm run check` xanh **1301 test / 55 file** (trước đợt
+1298); `build` 119 trang; `verify:static` **24/24**; `size` **156,9 kB** — không nhúc nhích một byte
+qua cả hai đợt; `check:chrome` **14/14** (thêm 4 phép kiểm).
+
+### Yêu cầu
+
+> "tiếp tục sửa và làm tiếp các bước như kế hoạch đã định"
+
+Mục còn mở duy nhất làm được ngay: sáu công thức khai `waterfall`/`stackedBar` mà chưa khai chặng.
+Nay **cả sáu đã khai**, tổng cộng 10 công thức bóc tách được — nhóm "chờ khai chặng" rỗng.
+
+### Một quy luật lộ ra khi soi đủ mười cái
+
+Đợt 3 chia mặc định theo `chartType` với lý lẽ đúng cho bốn ca đã biết. Soi nốt sáu ca còn lại thì
+ranh giới ấy hoá ra **khớp trọn**, và không phải tình cờ:
+
+| `chartType`  | Công thức                                   | Đường quét của nó                              |
+| ------------ | ------------------------------------------- | ---------------------------------------------- |
+| `waterfall`  | `ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`  | **đường thẳng** — hệ số góc 1, 1−t, 1, 1.000/N |
+| `stackedBar` | 3 công thức vay, `wacc`, `ddm`, `thue-tncn` | đường cong, nói được điều riêng                |
+
+Bốn cái nhóm trên là đúng loại hình mà luật `chartType: 'none'` sinh ra để loại — vẽ ra người đọc
+đoán trước được. Nên chúng bày bóc tách ngay khi mở màn; sáu cái nhóm dưới giữ đường quét làm mặc
+định và bóc tách đứng trong ô chọn. Con số dịch chuyển đúng như vậy: **60 đường quét + 4 bóc tách +
+34 chờ chuỗi giá**, trước đợt là 63 + 1 + 34.
+
+Người khai nhãn `chartType` từ nhánh 4 đã phân loại đúng mà chưa nói ra lý do; đợt này chỉ là đọc
+lại được lý do ấy và viết nó vào ca kiểm.
+
+### Bẫy `ncav-tren-co-phieu` — đã ghi trước ở đợt 3, và nó vỡ đúng chỗ ấy
+
+Đây là ca DUY NHẤT trong mười cái có phép **chia** sau phép trừ. Khai thẳng hai ô nhập thì hai cột
+mang `tỷ ₫` (4.800 và 2.600) trong khi kết quả mang `₫/CP` (18.644) — lệch bốn chữ số **và** lệch cả
+đơn vị. Chia sẵn ở `calc` rồi mới đưa lên hình: 40.678 và 22.034 ₫/CP, hiệu đúng bằng kết quả.
+
+Cửa gác toàn Registry dựng ở đợt 3 bắt đúng ca này ngay lượt chạy đầu — đó là lý do nó tồn tại.
+
+### Mười khai báo
+
+| Công thức            | Chặng                                                        |
+| -------------------- | ------------------------------------------------------------ |
+| `wacc`               | Phần vốn chủ + Phần nợ vay — đúng hai vế của chính công thức |
+| `fcff`               | EBIT sau thuế + Khấu hao − Chi đầu tư − Tăng VLĐ ròng        |
+| `fcfe`               | FCFF − Lãi vay sau thuế + Vay ròng mới                       |
+| `ddm-hai-giai-doan`  | Cổ tức giai đoạn đầu + Giá trị cuối kỳ                       |
+| `ncav-tren-co-phieu` | TSNH mỗi CP − Trừ nợ mỗi CP                                  |
+| `thue-tncn-dau-tu`   | Thuế chuyển nhượng + Thuế cổ tức — `extras` đã có sẵn        |
+
+Bốn cái còn lại (`ev`, ba công thức vay) khai ở hai đợt trước.
+
+Chỗ `fcff` đáng ghi: `nwcChange` âm nghĩa là vốn lưu động GIẢM, tức giải phóng tiền. Dấu `-1` biến
+nó thành cột cộng — đúng cả về toán lẫn về nghĩa, tiền quay về doanh nghiệp thật.
+
+### Đã đổi file nào
+
+**Domain**: `formulas/valuation-dcf.ts` (4 khai báo, `extras` cho `wacc`/`fcff`/`fcfe`/`ddm`) ·
+`formulas/valuation-multiples.ts` (`ncav`, chia sẵn theo cổ phiếu) · `formulas/planning.ts`
+(`thue-tncn-dau-tu`, chỉ khai báo).
+
+**Công cụ**: `scripts/chrome-check.mjs` — thêm trang `fcff` và 4 phép kiểm.
+
+### Kiểm chứng
+
+**+3 ca vitest**, tất cả nhắm vào chỗ có thể sai âm thầm:
+
+- `ncav`: chặng là số **trên mỗi cổ phiếu**, kèm một khẳng định phủ định — cột đầu **không** được
+  gần 4.800, tức không được là con số thô của ô nhập;
+- `ddm`: giá trị cuối kỳ chiếm **73,3%** định giá. Tôi viết ca này với ngưỡng "gấp hơn ba lần" và
+  **nó đỏ** — tỷ lệ thật là 2,74 lần. Sửa ngưỡng theo số đo chứ không sửa cho vừa: hơn 70%, và chốt
+  đúng 0,733. Điều đáng nói của hình vẫn nguyên — gần ba phần tư định giá đến từ một con số `g2`;
+- `fcff`: bốn chặng, đúng hai chặng âm, và mặc định bày bóc tách mà không cần truyền `sweepKey`.
+
+Cửa gác toàn Registry tự phủ sáu công thức mới: chốt danh sách 10 id, rồi so tổng chặng với kết quả
+theo **sai số tương đối** — các con số ở đây chạy từ 11.500 tỷ ₫ tới 8,6% nên không so tuyệt đối
+được.
+
+**+4 phép kiểm Chrome** trên trang `fcff`, hình nhiều chặng nhất:
+
+- bày thác nước ngay khi mở màn, 5 cột, không phải bấm ô chọn;
+- nhãn bốn chặng không tràn — mép trái gần nhất **30,4** trên lề 96;
+- hình cao **164** đơn vị so với 112 của hình ba chặng, mà trang vẫn không tràn ngang. Đây là chỗ
+  đóng nốt lo ngại "chiều cao chạy theo số chặng" ghi từ đợt 2;
+- console sạch.
+
+### Còn lại
+
+- [ ] **Nhánh 4 đã đóng phần bóc tách.** Việc còn của nhánh: nhiều đường trên một hình cho nhóm chỉ
+      báo kỹ thuật (chưa có gói WBS).
+- [ ] **Ảnh WF-04 hi-fi** — chưa có, khối chuỗi vẫn mang kiểu dáng tự dựng.
+- [ ] Bảng SRS mục 3.8 ngoài repo: 94 / 13 / 107 → **95 / 13 / 108**.
+
+---
+
+## Chuỗi định giá chạy thật — gói 5.2.3 và màn WF-04 (gói 3.2.2)
+
+Trạng thái: **code xong, cửa gác build đã chạy ở mục "Đợt 1 của kế hoạch" ngay trên**
+(`npm run check` xanh **1270 test / 55 file** tại thời điểm đợt; build/verify/size đo sau đó
+cùng ba vết vá của đợt 1).
+
+### Yêu cầu
+
+> "thực hiện 1 cho tôi" — mục 1 của danh sách việc còn lại: gói 5.2.3 + 3.2.2.
+
+Ba điều chủ dự án chốt trước khi tôi viết dòng nào:
+
+1. **Giữ đúng 107 công thức** — nối chuỗi bằng công thức sẵn có, không thêm cái nào.
+2. **WF-04 là một khối trong màn chi tiết**, không phải route riêng.
+3. **Hỏi lại trước khi dừng dev server** để chạy build.
+
+### Hiện trạng đo được trước khi làm — và nó đổi phạm vi
+
+Rà bằng 6 agent song song rồi tổng hợp, mọi con số dưới đây đều kiểm tay lại:
+
+| Thứ                               | Sổ sách đang ghi                | Đo lại được                                                                                      |
+| --------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Mắt xích của chuỗi định giá       | "cần làm cả chuỗi"              | CAPM · WACC · FCFF · FCFE · Biên an toàn **đã có**                                               |
+| Cạnh `dependsOn`                  | "khai ở hai chỗ"                | đúng 2, và cả hai **rời nhau**, không thành chuỗi                                                |
+| Chỗ trống trong nhóm              | "nhóm Định giá đã đầy 18/18"    | **cả 12 nhóm đều đầy** — không nhóm nào còn chỗ                                                  |
+| Cửa chặn khi vượt `expectedCount` | "Registry validator chặn build" | thật ra là `formulas.test.ts` + `registry.test.ts` (ghi cứng 94/13/107); validator chỉ `warning` |
+
+Thứ thiếu **không phải cả chuỗi mà đúng một mắt xích**: "giá trị nội tại chiết khấu từ FCFF".
+Thiếu nó thì WACC, FCFF, FCFE là ba ngọn cụt — không ai tiêu thụ kết quả của chúng.
+
+**Không nối tạm bằng công thức sẵn có.** Đã soi hai ứng viên và loại cả hai vì lý do tài chính chứ
+không phải kỹ thuật: `ev` là EV **kế toán** (vốn hoá + nợ − tiền mặt), đi từ thị giá chứ không ăn
+dòng tiền; `gia-tri-hien-tai` là PV của **một khoản đơn**, không có giá trị cuối kỳ. Nối vào thì
+validator vẫn cho qua — cạnh trỏ đúng id, đúng key — và sản phẩm sẽ dạy sai người dùng.
+
+Nên chuỗi của đợt này là **CAPM → Mô hình Gordon → Biên an toàn**: ba công thức đã có, đơn vị khớp
+tuyệt đối ở cả hai cạnh, thẳng một mạch nên dải luồng vẽ đúng, và đủ để FR-15 chạy trọn vẹn.
+
+### Vì sao KHÔNG sửa `runFormula()` — chỗ suýt sai nặng nhất
+
+`runFormula()` chặn ô thiếu bằng `INCOMPLETE_INPUT` **trước** khi gọi hàm tính. Nếu chuỗi cứ để ô
+móc nối trống rồi gọi thẳng vào đó, người dùng nhận **"Còn thiếu: Suất sinh lợi yêu cầu (r)"** cho
+một ô họ không hề bỏ trống — sai nguyên nhân, ngược NFR-USA-04, và ngược đúng lời hứa của WF-15.
+
+Đường sửa hiển nhiên là nới cổng chung ấy. Nhưng cổng chung là đường đi của **cả 107 công thức**, và
+nó đang gánh ba con số khoá cứng ở `calc.test.ts` cùng hàm `needsPriceSeries()`. Nên mạch bị cắt ở
+**lớp trên**: thượng nguồn lỗi thì `runChain()` trả `inherited()` ngay, không gọi `runFormula()`
+lượt đó. `run.ts`, `calc-output.ts`, `types.ts` không phải sửa một dòng nào.
+
+### Hai loại cảnh báo, cố ý khác nhau
+
+Repo đang có hai chính sách trái nhau về mã cảnh báo khi kế thừa. Đợt này chốt lại, và chốt là
+**cả hai đều đúng, ở hai chỗ khác nhau**:
+
+- **Ô nhập** giữ nguyên mã GỐC của thượng nguồn (`resolveLinked()` lo) — nó trả lời "vì sao ô này
+  chưa có số", mà nguyên nhân thật là CAPM đang `MEANINGLESS`, không phải "kế thừa".
+- **Kết quả bước dưới** dùng `INHERITED` (`inherited()` lo) — nó trả lời "vì sao bước này chưa ra
+  số", và câu đúng là "vì bước trước đang lỗi".
+
+Màn hình hiện cả hai; chúng bổ sung nhau chứ không chồng nhau.
+
+### Đã đổi file nào
+
+**Tầng Domain**
+
+- **`src/core/calc/run-chain.ts`** (mới) — `runChain()` sắp topo bằng chính `buildFlowChain()` mà
+  dải luồng dùng để vẽ, nên **thứ tự tính và thứ tự bày ra không thể lệch nhau**. Đây là nơi DUY
+  NHẤT gọi `inherited()` và nơi duy nhất **ghi** `ctx.upstream` — trường ấy khai từ gói 3.x mà tới
+  giờ chưa ai ghi vào. Kèm `chainFor()`: lấy **tổ tiên + hậu duệ** của công thức đang xem, KHÔNG
+  lấy cả thành phần liên thông — WACC và Gordon cùng nhận từ CAPM nhưng là hai nhánh song song,
+  gộp vào một dải là vẽ mũi tên nói sai quan hệ.
+- **`src/core/formulas/valuation-dcf.ts`** — thêm 2 cạnh: `mo-hinh-gordon.requiredReturn ← capm`
+  và `bien-an-toan.intrinsic ← mo-hinh-gordon`. Chính mô tả của ô r vốn đã ghi "thường lấy từ
+  CAPM"; cạnh này biến câu đọc bằng mắt ấy thành đường dẫn số liệu chạy thật.
+- **`src/core/calc/index.ts`**, **`src/application/index.ts`** — mở cửa `runChain`, `chainFor` và
+  5 kiểu đi kèm (CON-03).
+
+**Hai cửa gác mới ở `formulas.test.ts`** — đây là phần tôi thấy đáng giá nhất của đợt:
+
+- **Cạnh `dependsOn` phải nối hai đầu cùng đơn vị.** `validate.ts` đã kiểm cạnh trỏ đúng công thức
+  và đúng biến, nhưng KHÔNG kiểm đơn vị. Khai `fcff ──► gia-tri-hien-tai.futureValue` thì validator
+  cho qua, mà chuỗi sẽ đổ con số `300` đơn vị **tỷ ₫** vào ô đơn vị **₫** — sai 9 chữ số, không
+  cảnh báo nào, không ca kiểm nào đỏ. Đúng loại lỗi FR-06 sinh ra để chặn, chỉ khác là nó ra một
+  con số trông hợp lệ thay vì NaN.
+- **Giá trị mặc định của thượng nguồn phải nằm trong miền của ô nhận.** Không thì người dùng gặp
+  ô đỏ ngay lượt mở màn đầu tiên — cạnh khai sai chỗ chứ không phải người dùng nhập sai.
+
+**Tầng giao diện**
+
+- **`src/ui/result/FlowChainStrip.tsx`** — sửa luật mũi tên. Bản cũ chèn `→` giữa MỌI cặp bước liên
+  tiếp; đồ thị rẽ nhánh thì hai nhánh song song nằm cạnh nhau sau khi sắp topo, và mũi tên giữa
+  chúng **nói ra một quan hệ không tồn tại**. Nay chỉ vẽ mũi tên khi bước sau thật sự khai bước
+  ngay trước nó; nhánh khác thì ngăn bằng dấu chấm kèm chữ cho trình đọc màn hình. Thêm prop
+  `statuses` (bước nào đang gãy — nhãn CHỮ, không chỉ màu) và `column` để bản dọc ≥1024px thành
+  **tuỳ chọn**: nơi gọi thật đầu tiên là màn một cột, bật dọc ở đó là dải xổ thành cột pill cao
+  lêu nghêu giữa trang.
+- **`src/ui/result/FlowChainStrip.test.tsx`** (mới, 8 ca) — component dựng từ đợt 5 mà **chưa có
+  ca kiểm nào**, vì chưa màn nào dùng. Nay nó lên màn nên phần bất biến phải được khoá.
+- **`src/ui/screens/ChainBody.tsx`** + `.module.css` (mới) — khối WF-04: dải luồng, rồi mỗi bước
+  trước/sau là một thẻ gập được có ô nhập riêng và kết quả riêng. Thẻ cấp số liệu TRỰC TIẾP cho
+  công thức đang xem thì **mở sẵn** (đó là thứ người ta bật Nâng cao để sửa); các thẻ khác gập lại
+  nhưng dòng tóm tắt vẫn hiện kết quả.
+- **`src/ui/screens/ChainPanel.tsx`** (mới) — ranh giới `next/dynamic`, khuôn bám đúng
+  `FormulaChart` và `DetailBody`. Barrel chỉ xuất ranh giới này, KHÔNG xuất `ChainBody`.
+
+**Màn chi tiết**
+
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — bốn thay đổi: hai kho state mới
+  (`chainInputs` cho các bước khác, `overrides` riêng cho ô móc nối — trộn hai kho là mất phân biệt
+  "chưa ghi đè" với "ghi đè đúng bằng giá trị tự động", tức nút Hoàn tác không còn gì để hoàn); ô
+  nào có cạnh thì lưới ô nhập dựng `LinkedInput` **tại chỗ** thay cho `VariableField`; kết quả lấy
+  từ chuỗi chứ không từ `runFormula()` đơn lẻ; và biểu đồ, khối Ví dụ, bản xuất đều chạy trên
+  `effectiveInputs` (ô thường + ô móc nối đã giải) để không có hai con số cho cùng một biến.
+
+### Vì sao 4 ca kiểm quét cả 107 màn không phải sửa một dòng
+
+Đây là rủi ro lớn nhất mà khảo sát chỉ ra, và nó tự tan: khối chuỗi chỉ dựng khi
+`mode === 'advanced'` **và** `chainFor()` trả về khác rỗng — tức 101 trên 107 công thức không có
+gì, và ở chế độ Cơ bản thì **không công thức nào** có gì. Bốn ca quét ấy chạy ở chế độ mặc định,
+vốn là Cơ bản. Có ca kiểm chốt thẳng điều đó, để lần sau ai đổi mặc định thì biết mình vừa đụng gì.
+
+### Kiểm chứng
+
+**1270 test / 55 file**, thêm 41 ca so với trước đợt:
+
+- **20 ca** `run-chain.test.ts` — chuỗi thật trong Registry (thứ tự topo, số chảy đúng, lỗi lan
+  hai tầng, ghi đè thắng cả khi thượng nguồn lỗi, ghi đè bằng 0 vẫn là ghi đè, giá trị ngoài miền
+  KHÔNG bị kẹp) cộng fixture tự dựng cho đồ thị vòng, `ctx.upstream`, chuỗi rỗng.
+- **8 ca** `FlowChainStrip.test.tsx`.
+- **8 ca** WF-04 trên màn thật — trong đó ca nặng nhất: **sửa beta ở thẻ CAPM thì kết quả của
+  Gordon đổi theo**, và **thượng nguồn lỗi thì màn nói "Cảnh báo kế thừa" chứ không nói "Còn
+  thiếu"**. Ca sau là ca chống hồi quy quan trọng nhất của cả gói.
+- **2 ca** cửa gác đơn vị và miền giá trị, cộng 3 ca lẻ.
+
+Con số kỳ vọng tính tay bằng dạng đóng trước khi viết: CAPM 3,5 + 1,2 × 8 = 13,1% → Gordon
+2.000 × 1,05 ÷ 0,081 = 25.925,93 ₫ → Biên an toàn (25.925,93 − 30.000) ÷ 25.925,93 = −15,71%.
+
+### Còn lại
+
+- [x] **`npm run build` → `verify:static` → `size`** — làm ở mục "Đợt 1 của kế hoạch" phía trên.
+      Suy luận được thay bằng số đo: 155,9 kB / 170 kB, `ChainBody` nạp trễ thuần; riêng
+      `LinkedInput` + `FlowChainStrip` nằm trong chunk chung của 107 trang chi tiết (không phải
+      chỉ 6 trang như suy luận cũ) nhưng tổng không tăng nên giữ nguyên.
+- [ ] **Mắt xích "giá trị nội tại chiết khấu từ FCFF"** — chủ dự án ĐÃ chốt nâng 107 → 108,
+      xếp vào đợt 2 của kế hoạch. Giá mục tiêu KHÔNG làm: không có cạnh `dependsOn` hợp lệ nào
+      (P/E hiện tại ≠ P/E mục tiêu), nó là công thức độc lập, tách khỏi mọi đợt chuỗi.
+- [ ] **Chưa kiểm trên Chrome thật.** Toàn bộ đợt này kiểm bằng jsdom. Ba thứ jsdom không nói được:
+      thẻ `<details>` bấm mở/gập có mượt không, dải luồng cuộn ngang ở 360px, và vùng chạm của nút
+      Ghi đè / Hoàn tác khi hai nút đứng cạnh nhau.
+- [ ] **`LinkedInput` luôn dựng `NumberInput`** kể cả khi biến khai `type: 'slider'` — ô "Suất sinh
+      lợi yêu cầu" ở chế độ Nâng cao thành ô số thay vì thanh trượt. Chấp nhận được vì wireframe
+      WF-04 vẽ ô ấy là giá trị chữ kèm nút Ghi đè, nhưng nếu chủ dự án muốn giữ thanh trượt thì
+      phải cho `LinkedInput` đi qua `VariableField`.
 
 ---
 
@@ -159,6 +1117,111 @@ Sau khi sửa: `npm run check` xanh, **1225 test**.
 - [ ] `.claude/settings.json` (+23 allow rule) đang nằm chung working tree với ba chủ đề code —
       nên tách khỏi commit code.
 - [ ] Dev server đã bị dừng để build (PID 22712). Bật lại bằng `npm run dev` khi cần.
+
+---
+
+## Gõ tới đâu, kết quả tới đó — và gõ liền tay không còn khựng
+
+### Yêu cầu
+
+> "mỗi khi nhập thông số vào các ô ví dụ như số liệu trong phần công thức thì đang trong quá trình
+> nhập thì phần kết quả cần thay đổi luôn. nâng cấp cần có trải nghiệm mượt hơn và không được đơ"
+
+### Lỗi gốc — một dòng, và nó có chủ đích từ đầu
+
+`NumberInput` chỉ gọi `onChange` ở `onBlur`. Nghĩa là gõ xong cả một con số mà khối Kết quả vẫn
+đứng im cho tới khi người dùng bấm ra chỗ khác — đúng triệu chứng "đơ" họ mô tả, dù không có gì
+chậm cả. `InlineNumber` (ô số cạnh thanh trượt và ô của khối Ví dụ thực tế) cùng lỗi, và docblock
+của nó ghi rõ nó phải cư xử **giống hệt** `NumberInput`, nên phải sửa cả hai.
+
+Vì sao nó thành ra như vậy: quy tắc "không kẹp giá trị trong lúc gõ" của WF-16 bị hiểu rộng thành
+"không báo gì lên trong lúc gõ". Hai chuyện khác nhau — một đằng là ĐỔI thứ người dùng đang gõ
+dưới tay họ, một đằng là cho phần còn lại của màn biết họ đang gõ gì. Nay mỗi phím đều đẩy giá trị
+**thô, chưa kẹp** lên; việc kẹp vẫn để dành cho lúc chốt qua `commitValue()`.
+
+Chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì bỏ qua lượt đó chứ không đẩy `null` lên — nơi nhận chỉ
+biết nhận số, đẩy lên là buộc phải quy thành 0 hoặc NaN, đúng hai thứ FR-06 cấm.
+
+### Rồi mới tới phần "mượt" — và đo trước khi tối ưu
+
+Cho kết quả chạy theo từng phím nghĩa là mỗi phím gõ là một lượt dựng lại cả màn. Đo chi phí thật:
+
+|                          | `runFormula` | `buildChartModel`       |
+| ------------------------ | ------------ | ----------------------- |
+| `gia-von-trung-binh-dca` | 0,001 ms     | — (`chartType: 'none'`) |
+| `pe`                     | 0,000 ms     | **7,5 ms**              |
+| `lich-tra-no`            | 0,016 ms     | **11,3 ms**             |
+| `wacc`                   | 0,001 ms     | **15,6 ms**             |
+
+Kết quả rẻ tới mức không đáng bàn. **Biểu đồ mới là chỗ nghẽn**: 15,6 ms đã nuốt trọn một khung
+hình 60 Hz, chưa tính phần React dựng lại vài trăm thẻ SVG. (Ghi chú: mục "Đợt 2 của biểu đồ" từng
+ghi 1,76 ms — đó là đường theo thời gian, không phải đường quét độ nhạy.)
+
+### Phép đo đầu tiên của tôi SAI, và nó suýt dẫn tới kết luận ngược
+
+Bản đo đầu gõ từng phím rồi chờ một khung đôi (~32 ms) mới gõ tiếp. Kết quả: bỏ `useDeferredValue`
+đi còn **nhanh hơn** (p50 26 ms so với 31 ms). Lý do: 32 ms còn dài hơn cả một lượt dựng biểu đồ,
+nên chẳng có gì để hoãn — phép đo không bao giờ chạm tới chỗ nghẽn, và phần hoãn chỉ tổ thêm một
+lượt dựng.
+
+Phải đo đúng cảnh người dùng kêu: **gõ liền tay**, phím nối phím, 14 phím trong ~220 ms. Lúc đó
+mới thấy long task 416 ms.
+
+### Kết quả A/B trên Chrome thật (lái qua CDP, trang `/cong-thuc/wacc/`)
+
+|                             | thời gian CHẶN                       | trễ ký tự p50 |
+| --------------------------- | ------------------------------------ | ------------- |
+| Trước — không hoãn          | 366 · 382 · 389 ms                   | 210–225 ms    |
+| Sau — có `useDeferredValue` | 107 · 117 · 142 · 146 · 163 · 200 ms | 100–103 ms    |
+
+**Chặn giảm ~62%, trễ ký tự giảm ~55%.** Số đo trên bản dev; bản build thật sẽ nhanh hơn nữa.
+
+### Một tối ưu bị BỎ vì không chứng minh được
+
+Đã thử `memo` cho ba khối tĩnh của màn (`VariableTable`, `SourceBlock`, `ExplanationAccordion`) —
+prop của chúng không đổi theo phím gõ nên trên lý thuyết phải bớt được một mớ việc. Đo 3 lượt mỗi
+bên: **không memo 107–200 ms, có memo 117–146 ms** — hai dải chồng nhau, tức nằm trong nhiễu đo.
+Đã gỡ bỏ. Không giữ lại thứ chỉ nghe hợp lý mà số không đỡ được.
+
+`memo` ở `FormulaChart` thì GIỮ, và nó là chuyện khác: nó không phải tối ưu suy đoán mà là vế thứ
+hai của chính `useDeferredValue`. Thiếu nó thì ở lượt dựng gấp React vẫn đi xuống cả cây biểu đồ
+(`buildChartModel` được `useMemo` đỡ, nhưng phần đối chiếu vài trăm thẻ SVG thì không) — tức phần
+hoãn mất phân nửa tác dụng.
+
+### Vì sao KHÔNG debounce
+
+Debounce làm chậm mọi thứ đi một khoảng cố định do mình đoán, kể cả khi máy thừa sức vẽ kịp.
+`useDeferredValue` để React tự đo: máy khoẻ thì biểu đồ theo kịp gần như tức thì, máy yếu thì tự
+giãn ra, và lượt vẽ đang dở bị NGẮT khi người dùng gõ tiếp. Không có con số ma nào phải chỉnh.
+
+### Đã đổi file nào
+
+- **`src/ui/inputs/NumberInput.tsx`** — đẩy giá trị lên theo từng phím.
+- **`src/ui/inputs/InlineNumber.tsx`** — cùng thay đổi, giữ hai ô cư xử giống nhau.
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — `useDeferredValue` cho `inputs` của biểu đồ,
+  kèm `chartOutput` tính theo đúng bản hoãn ấy (đưa kết quả MỚI kèm số liệu CŨ vào cùng một lượt
+  dựng là biểu đồ vẽ một đằng còn câu mô tả nói một nẻo).
+- **`src/ui/charts/FormulaChart.tsx`** — `memo`, xem trên.
+
+### Kiểm chứng
+
+`npm run check` xanh: **1229 test / 53 file** (trước 1224). Năm ca mới:
+
+- 3 ca ở `NumberInput.test.tsx` — gõ `'123'` thì nhận đủ ba mốc `[1, 12, 123]` (chứng minh từng
+  phím, không phải một phát ở cuối) · đẩy giá trị THÔ chưa kẹp · chuỗi chưa ra số thì KHÔNG báo lên.
+- 1 ca ở `FormulaDetail.test.tsx` — gõ mà **không rời ô** thì kết quả đã đổi. Ca cũ có
+  `userEvent.tab()` ở cuối nên nó không phân biệt được "đổi theo từng phím" với "chỉ đổi lúc chốt";
+  ca mới bỏ hẳn cú `tab` đó, và đấy là toàn bộ điểm của nó.
+- 1 ca siết ca cũ: `toHaveBeenLastCalledWith(0)` thay cho `toHaveBeenCalledWith(0)`, để việc kẹp
+  lúc chốt vẫn được chốt đúng là lượt CUỐI.
+
+### Còn lại
+
+- [ ] Đo lại trên bản build thật — mọi số ở trên là bản dev, vốn chậm hơn hẳn. Vẫn chờ tắt dev
+      server ở cổng 3000.
+- [ ] Trang không có biểu đồ (`gia-von-trung-binh-dca`, đúng trang trong ảnh chủ dự án gửi) vẫn
+      chặn ~140 ms khi gõ liền 14 phím. Phần này KHÔNG phải biểu đồ; chưa truy ra chỗ tốn. Ở tốc độ
+      gõ của người thật (~8–10 phím/giây) thì đo được **0 long task**, nên chưa xếp là lỗi.
 
 ---
 

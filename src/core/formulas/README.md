@@ -1,6 +1,6 @@
 # Thư viện công thức
 
-Nhánh 5 của WBS. Đủ **107 / 107** công thức.
+Nhánh 5 của WBS. Đủ **108 / 108** công thức.
 
 Mỗi công thức là một `FormulaModule` — mô tả và cách tính nằm trong **cùng một object**:
 
@@ -39,6 +39,8 @@ Không phải đăng ký ở đâu khác. `FORMULAS`, `sitemap.xml`, trang `/con
 | `expression` đọc được, không lẫn LaTeX            | `formulas.test.ts`                         |
 | id chỉ dùng chữ thường và gạch ngang (đi vào URL) | validator Registry                         |
 | Không vượt `expectedCount` của SRS 3.8            | `formulas.test.ts`                         |
+| Chặng `breakdown` cộng lại ĐÚNG bằng kết quả      | `chart.test.ts` — quét mọi CT khai chặng   |
+| Diễn giải không mâu thuẫn với chính `spec`        | `src/application/prose-audit.test.ts`      |
 
 ## Ba luật của thân hàm tính
 
@@ -63,6 +65,29 @@ Không phải đăng ký ở đâu khác. `FORMULAS`, `sitemap.xml`, trang `/con
 
 Cùng một tình huống thì phải dùng cùng một mã cảnh báo ở mọi công thức. Kỳ hạn 0 ở
 `tra-gop-nien-kim`, `tra-gop-goc-deu` và `tiet-kiem-muc-tieu` đều là `DIVIDE_BY_ZERO`.
+
+## Khai `breakdown` — một luật, một cái bẫy
+
+Công thức khai `chartType: 'waterfall'` hoặc `'stackedBar'` thì khai luôn `spec.breakdown`: danh
+sách chặng có thứ tự, mỗi chặng một `key` (trỏ vào biến đầu vào HOẶC vào `extras`), một `sign`, và
+`shortLabel` cho cột hẹp. Cả **10** công thức thuộc hai nhãn ấy đã khai.
+
+**Luật:** tổng các chặng phải ra đúng KẾT QUẢ của công thức. Không phải xấp xỉ. Một hình bóc tách
+cộng không ra con số ở khối Kết quả là hình nói dối về chính phép tính nó minh hoạ, mà từng cột
+riêng lẻ vẫn là số hợp lệ nên không ca kiểm nào khác nhìn ra — vì thế `chart.test.ts` có một ca quét
+mọi công thức khai chặng.
+
+**Bẫy:** kết quả có phép **chia** hoặc phép nhân hệ số sau phép cộng trừ thì chặng phải là số ĐÃ
+QUY ĐỔI, tính sẵn trong `extras`. `ncav-tren-co-phieu` là ca đúng loại: khai thẳng hai ô nhập thì
+hai cột mang `tỷ ₫` (4.800 và 2.600) trong khi kết quả mang `₫/CP` (18.644) — lệch bốn chữ số và
+lệch cả đơn vị.
+
+Cùng loại bẫy, chiều khác: `lich-tra-no` có kết quả là **một phần** của thứ hiển nhiên đem cộng
+(kết quả là tổng lãi, cột chồng gốc + lãi ra tổng phải trả). Lối ra là đảo chiều phép tính —
+`tổng phải trả − gốc vay = tổng lãi`.
+
+Nhãn cột tổng suy từ tên công thức (`'EV — giá trị doanh nghiệp'` thành `'EV'`). Tên nào gọi tên
+CÔNG VIỆC chứ không gọi tên đại lượng thì khai `spec.breakdownTotal` — nó lợp cả nhãn trục giá trị.
 
 ## Nguồn số liệu kiểm chứng
 
@@ -103,7 +128,7 @@ con số khác đi mà không ai sai:
 
 ## Còn thiếu
 
-- **Beta.** Đủ 107 công thức nhưng KHÔNG có Beta, trong khi `categories.ts` liệt nó đầu nhóm
+- **Beta.** Đủ 108 công thức nhưng KHÔNG có Beta, trong khi `categories.ts` liệt nó đầu nhóm
   Rủi ro và `capm` phải để beta thành ô nhập tay.
 
   Chỗ kẹt thật KHÔNG phải là chỗ ngồi trong Registry, mà là **dữ liệu**: beta là hệ số hồi quy
@@ -118,13 +143,26 @@ con số khác đi mà không ai sai:
 
 - **XIRR** đã có hàm thuần và test đầy đủ trong `returns.ts` nhưng **chưa đăng ký thành công
   thức**: nó cần bảng nhập dòng tiền có ngày, tức gói WBS 3.3.1 (WF-05).
-- **Chuỗi kế thừa FR-15 chưa chạy.** `dependsOn` mới khai ở hai chỗ trong `valuation-dcf.ts`,
-  còn `inherited()` chưa công thức nào gọi và `ctx.upstream` chưa ai đọc.
-- **Chuỗi định giá** là gói 5.2.3, làm cùng lúc với màn WF-04 (gói 3.2.2). Phạm vi làm được
-  NGAY, không chờ dữ liệu, là chuỗi **bỏ Beta** ở đầu: CAPM → WACC → FCFF/FCFE → giá trị nội
-  tại → biên an toàn, với beta để ô nhập tay. Lưu ý hai điều khi bắt tay:
-  - Registry hiện chỉ khai **2 cạnh `dependsOn` rời nhau** (`wacc ← capm.costEquity`,
-    `fcfe ← fcff.fcff`) — chuỗi 7 bước ghi trong `src/core/flow-chain.ts` là mong muốn, chưa
-    phải hiện trạng.
-  - **Chưa có công thức giá mục tiêu.** Nhóm Định giá đã đầy 18/18, nên thêm nó cũng vướng
-    đúng bài toán `expectedCount` như Beta.
+- **Giá mục tiêu.** Không có cạnh `dependsOn` nào hợp lệ: ứng viên duy nhất là `pe → targetPe`,
+  mà P/E hiện tại khác P/E mục tiêu — validator sẽ cho qua và sản phẩm dạy sai người dùng. Nó là
+  một công thức độc lập tử tế, **không phải một mắt xích của chuỗi**, nên đừng gộp vào đợt chuỗi
+  nào. Thêm nó là 108 → 109, cùng bài toán `expectedCount` với Beta.
+
+## Chuỗi kế thừa FR-15 — đã chạy thật (gói 5.2.3)
+
+Sáu cạnh `dependsOn` của cả Registry đều nằm trong `valuation-dcf.ts`, thành hai nhánh:
+
+```text
+capm ──► mo-hinh-gordon.requiredReturn ──► bien-an-toan.intrinsic
+capm ──► wacc.costEquity ──► gia-tri-noi-tai-fcff.wacc ◄── fcff.fcff   ·   fcff ──► fcfe.fcff
+```
+
+`runChain()` ở `src/core/calc/run-chain.ts` là nơi DUY NHẤT gọi `inherited()` và nơi duy nhất ghi
+`ctx.upstream`. Ba luật khi thêm cạnh mới:
+
+- **Đơn vị hai đầu phải khớp** — `formulas.test.ts` chặn. Đổ `300` đơn vị `tỷ ₫` vào một ô đơn vị
+  `₫` là sai 9 chữ số mà không cảnh báo nào bắt được.
+- **Giá trị mặc định của thượng nguồn phải nằm trong miền của ô nhận** — cũng có ca kiểm. Không
+  thì người dùng gặp ô đỏ ngay lượt mở màn đầu tiên.
+- **Đừng gọi thẳng `runFormula()` cho công thức trong chuỗi.** Ô móc nối để trống sẽ ra
+  `INCOMPLETE_INPUT` — sai nguyên nhân cho một ô người dùng không hề bỏ trống.

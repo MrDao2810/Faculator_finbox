@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 
-import { ROUTES, t } from '@/application';
+import { ROUTES } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { EmptyState } from '@/ui/browse';
 
 import styles from './not-found.module.css';
@@ -16,8 +19,13 @@ import styles from './not-found.module.css';
  *
  * Hai lối ra thay vì một: URL sai hay gặp nhất ở đây là link công thức cũ, nên "Tìm công thức"
  * hữu ích hơn "Về trang chủ" — nhưng vẫn giữ cả hai cho người chỉ muốn thoát.
+ *
+ * Là client component từ đợt 8 (luồng locale): chữ ở đây đi qua props string của `EmptyState`
+ * nên không bọc lá `<T>` được, mà trang 404 cũng chẳng có gì đáng giữ ngoài gói máy khách.
  */
 export default function NotFound() {
+  const t = useT();
+
   return (
     <div className={styles.page}>
       <EmptyState

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 
-import { findCategory, formulaPath, t } from '@/application';
+import { findCategory, formulaPath } from '@/application';
 import type { FormulaSummary } from '@/application';
 
+import { T } from '../i18n/T';
 import { Highlight } from './Highlight';
 import styles from './SearchResults.module.css';
 
@@ -69,7 +70,7 @@ export function SearchResults({ formulas, query = '' }: SearchResultsProps) {
                   </span>
 
                   <span className={styles.level}>
-                    {t(formula.level === 'basic' ? 'level.basic' : 'level.advanced')}
+                    <T k={formula.level === 'basic' ? 'level.basic' : 'level.advanced'} />
                   </span>
 
                   <svg

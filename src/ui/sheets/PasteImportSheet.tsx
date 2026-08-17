@@ -2,11 +2,27 @@
 
 import { useId, useMemo, useState } from 'react';
 
-import { COLUMN_LABELS, formatNumber, parsePaste, summarizeSkipped, t } from '@/application';
-import type { ColumnKind, PasteResult, PriceBar } from '@/application';
+import { formatNumber, parsePaste, summarizeSkipped } from '@/application';
+import type { ColumnKind, MessageKey, PasteResult, PriceBar } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { BottomSheet, Button } from '@/ui/primitives';
 
 import styles from './PasteImportSheet.module.css';
+
+/**
+ * Nhãn HIỂN THỊ của từng vai trò cột, tra theo locale. Bản gốc tiếng Việt là `COLUMN_LABELS`
+ * ở Domain (đúng chữ WF-11) — ca kiểm trong i18n.test.ts giữ khoá vi khớp từng chữ với nó.
+ * Từ vựng ĐOÁN cột từ header dán vào (`HEADER_WORDS`) vẫn ở Domain, không dính gì tới locale.
+ */
+const COLUMN_LABEL_KEYS: Readonly<Record<ColumnKind, MessageKey>> = {
+  date: 'paste.col.date',
+  open: 'paste.col.open',
+  high: 'paste.col.high',
+  low: 'paste.col.low',
+  close: 'paste.col.close',
+  volume: 'paste.col.volume',
+  ignore: 'paste.col.ignore',
+};
 
 export interface PasteImportSheetProps {
   open: boolean;
@@ -73,6 +89,7 @@ interface ColumnChipProps {
  */
 function ColumnChip({ index, kind, onChange }: ColumnChipProps) {
   const id = useId();
+  const t = useT();
   const assigned = kind !== 'ignore';
 
   return (
@@ -85,7 +102,7 @@ function ColumnChip({ index, kind, onChange }: ColumnChipProps) {
         {index + 1}
       </span>
       <span className={styles.chipText} aria-hidden="true">
-        {COLUMN_LABELS[kind]}
+        {t(COLUMN_LABEL_KEYS[kind])}
       </span>
       <span className={styles.chipCaret} aria-hidden="true">
         ▾
@@ -101,7 +118,7 @@ function ColumnChip({ index, kind, onChange }: ColumnChipProps) {
       >
         {ASSIGNABLE.map((option) => (
           <option key={option} value={option}>
-            {COLUMN_LABELS[option]}
+            {t(COLUMN_LABEL_KEYS[option])}
           </option>
         ))}
       </select>
@@ -126,6 +143,7 @@ export function PasteImportSheet({ open, onClose, onImport }: PasteImportSheetPr
 
   const result = useMemo(() => parsePaste(text, override ?? undefined), [text, override]);
   const problems = useMemo(() => summarizeSkipped(result.skipped), [result.skipped]);
+  const t = useT();
 
   const hasText = text.trim() !== '';
   const canImport = result.rows.length > 0;
@@ -229,7 +247,7 @@ export function PasteImportSheet({ open, onClose, onImport }: PasteImportSheetPr
                 <tr>
                   {PREVIEW_COLUMNS.map((column) => (
                     <th key={column.kind} scope="col">
-                      {COLUMN_LABELS[column.kind]}
+                      {t(COLUMN_LABEL_KEYS[column.kind])}
                     </th>
                   ))}
                 </tr>

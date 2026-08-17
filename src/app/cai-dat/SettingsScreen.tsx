@@ -10,9 +10,8 @@ import {
   PRICE_SERIES_KEY,
   RECENT_SEARCHES_KEY,
   formatNumber,
-  t,
 } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 import { UnitSwitcher } from '@/ui/inputs';
 import { Button, Select } from '@/ui/primitives';
 import { ModeToggle } from '@/ui/navigation';
@@ -58,6 +57,7 @@ function sizeOf(key: string): number | null {
  */
 export function SettingsScreen() {
   const { feeScheduleId, setFeeScheduleId, unitScale, setUnitScale } = usePreferences();
+  const t = useT();
 
   const [sizes, setSizes] = useState<ReadonlyArray<number | null>>(() =>
     STORAGE_ITEMS.map(() => null),

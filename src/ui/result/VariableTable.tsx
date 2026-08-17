@@ -1,5 +1,8 @@
-import { t, variablesForLevel } from '@/application';
+'use client';
+
+import { variablesForLevel } from '@/application';
 import type { FormulaSpec, Level } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { Table } from '@/ui/primitives';
 
 export interface VariableTableProps {
@@ -19,6 +22,7 @@ export interface VariableTableProps {
  * trang cuộn ngang (NFR-USA-02).
  */
 export function VariableTable({ formula, mode = 'advanced', className }: VariableTableProps) {
+  const t = useT();
   const variables = variablesForLevel(formula, mode);
 
   return (

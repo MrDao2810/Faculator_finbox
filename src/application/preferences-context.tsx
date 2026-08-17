@@ -17,7 +17,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import type { Locale } from './i18n';
+import { t, type Locale, type MessageKey } from './i18n';
 import {
   DEFAULT_PREFERENCES,
   PREFERENCES_STORAGE_KEY,
@@ -60,6 +60,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
+  // HTML tĩnh khai `lang="vi"` (layout.tsx). Người dùng đã chọn EN thì thuộc tính phải đổi
+  // theo, không thì trình đọc màn hình đọc chữ Anh bằng giọng Việt. Chạy sau hydrate nên
+  // không lệch với HTML tĩnh.
+  useEffect(() => {
+    document.documentElement.lang = prefs.locale;
+  }, [prefs.locale]);
+
   const persist = useCallback((next: Preferences) => {
     setPrefs(next);
     try {
@@ -101,4 +108,20 @@ export function usePreferences(): PreferencesContextValue {
     setFeeScheduleId: () => undefined,
     setUnitScale: () => undefined,
   };
+}
+
+/**
+ * Bản `t()` đã buộc vào locale đang chọn — luồng locale của gói 3.6.3.
+ *
+ * Mọi client component hiện chữ dùng hook này rồi đặt tên biến là `t`, để call site giữ
+ * nguyên dạng `t('key')` quen thuộc. Ngoài Provider (test render component trần) thì
+ * `usePreferences()` trả mặc định nên chữ ra tiếng Việt — đúng hành vi HTML tĩnh.
+ *
+ * Server component KHÔNG gọi được hook — chữ cần đổi theo locale ở đó đi qua lá client
+ * `<T k="…">` (src/ui/i18n/T.tsx); chữ cố ý đứng yên (câu miễn trừ FR-24, metadata build-time,
+ * fallback SEO `StaticFormulaList`) thì giữ `t()` thẳng từ `@/application`.
+ */
+export function useT(): (key: MessageKey) => string {
+  const { locale } = usePreferences();
+  return useCallback((key: MessageKey) => t(key, locale), [locale]);
 }

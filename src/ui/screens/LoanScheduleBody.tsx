@@ -6,9 +6,10 @@ import {
   condenseWithGaps,
   findUnitScale,
   formatNumber,
-  t,
 } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
+
+import { UNIT_SCALE_KEYS } from '../i18n/keys';
 import { Table } from '@/ui/primitives';
 
 import styles from './LoanScheduleBody.module.css';
@@ -46,6 +47,7 @@ export function LoanScheduleBody({ inputs }: LoanScheduleBodyProps) {
    * mọi phép tính vẫn tính bằng đồng ở tầng Domain.
    */
   const { unitScale } = usePreferences();
+  const t = useT();
   const scale = findUnitScale(unitScale);
   const decimals = DECIMALS[scale.id] ?? 2;
 
@@ -79,13 +81,14 @@ export function LoanScheduleBody({ inputs }: LoanScheduleBodyProps) {
           <div className={styles.subStat}>
             <span className={styles.subLabel}>{t('loan.totalInterest')}</span>
             <span className={styles.subValue}>
-              {formatNumber(totalInterest / MILLION, { maxDecimals: 1 })} {t('loan.millionDong')}
+              {formatNumber(totalInterest / MILLION, { maxDecimals: 1 })}{' '}
+              {t(UNIT_SCALE_KEYS.million)}
             </span>
           </div>
           <div className={styles.subStat}>
             <span className={styles.subLabel}>{t('loan.totalPaid')}</span>
             <span className={styles.subValue}>
-              {formatNumber(totalPaid / MILLION, { maxDecimals: 1 })} {t('loan.millionDong')}
+              {formatNumber(totalPaid / MILLION, { maxDecimals: 1 })} {t(UNIT_SCALE_KEYS.million)}
             </span>
           </div>
         </div>
@@ -95,7 +98,7 @@ export function LoanScheduleBody({ inputs }: LoanScheduleBodyProps) {
         <div className={styles.blockHead}>
           <h2 className={styles.blockTitle}>{t('loan.schedule')}</h2>
           <span className={styles.unitNote}>
-            {t('loan.tableUnit')} {scale.label}
+            {t('loan.tableUnit')} {t(UNIT_SCALE_KEYS[scale.id])}
           </span>
         </div>
 

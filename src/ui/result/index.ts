@@ -31,7 +31,7 @@ export { SourceBlock } from './SourceBlock';
 export type { SourceBlockProps } from './SourceBlock';
 
 export { FlowChainStrip } from './FlowChainStrip';
-export type { FlowChainStripProps } from './FlowChainStrip';
+export type { FlowChainStripProps, FlowStatus } from './FlowChainStrip';
 
 export { StatTile } from './StatTile';
 export type { StatTileProps } from './StatTile';

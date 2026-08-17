@@ -21,6 +21,9 @@ export interface DisclaimerBarProps {
  * cạnh con số ấy chứ không phải cách đó hai màn hình cuộn. Bản thiết kế hi-fi vẽ đúng như vậy.
  *
  * Dấu hiệu là biểu tượng + chữ, không phải chỉ màu (NFR-USA-06).
+ *
+ * CỐ Ý dùng `t()` build-time chứ không theo locale: `disclaimer.text` là khoá duy nhất chưa
+ * dịch (xem docblock en.ts) — câu trên màn phải trùng từng chữ với câu đính vào file xuất.
  */
 export function DisclaimerBar({ variant = 'footer' }: DisclaimerBarProps = {}) {
   return (

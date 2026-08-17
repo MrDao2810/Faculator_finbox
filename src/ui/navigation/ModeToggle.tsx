@@ -1,7 +1,6 @@
 'use client';
 
-import { t } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 import type { Level } from '@/application';
 
 import styles from './ModeToggle.module.css';
@@ -22,6 +21,7 @@ const OPTIONS: ReadonlyArray<{ value: Level; labelKey: 'mode.basic' | 'mode.adva
  */
 export function ModeToggle() {
   const { mode, setMode } = usePreferences();
+  const t = useT();
 
   return (
     <div className={styles.group} role="group" aria-label={t('mode.label')}>

@@ -7,6 +7,11 @@
  *
  * Câu miễn trừ lấy từ `ExportContent.disclaimer`, mà `buildExportContent()` luôn điền — không
  * có đường nào vẽ ra tấm thẻ thiếu miễn trừ (FR-24).
+ *
+ * CỐ Ý dùng `t()` build-time (tiếng Việt) chứ không theo locale: tấm PNG là file xuất, và
+ * file xuất là tài liệu tiếng Việt trọn vẹn — nội dung từ `buildExportContent` (tầng Domain,
+ * không đọc được i18n) lẫn câu miễn trừ đều tiếng Việt. Xem chú thích cùng lý do ở vùng in
+ * của `ExportSheet.tsx`.
  */
 
 import { t } from '@/application';

@@ -1,10 +1,21 @@
 /**
  * Tầng DOMAIN — nhóm Định giá, nửa chiết khấu dòng tiền (một phần gói WBS 5.2.3).
  *
- * Chín công thức: Gordon (DDM một giai đoạn) · DDM hai giai đoạn · CAPM · WACC ·
- * FCFF từ EBIT · FCFE từ FCFF · PV · FV · biên an toàn. Đây là các mắt xích vô hướng
+ * Mười công thức: Gordon (DDM một giai đoạn) · DDM hai giai đoạn · CAPM · WACC ·
+ * FCFF từ EBIT · FCFE từ FCFF · giá trị nội tại từ FCFF · PV · FV · biên an toàn. Đây là các mắt xích vô hướng
  * của chuỗi định giá CAPM → WACC → DCF → biên an toàn; phần cần chuỗi giá (Beta hồi quy)
  * chờ gói 3.3.2, nên beta ở CAPM là ô nhập tay.
+ *
+ * ── Bốn cạnh `dependsOn` của cả Registry đều nằm trong file này (FR-15, gói 5.2.3) ──────────
+ *
+ *   capm ──► mo-hinh-gordon.requiredReturn ──► bien-an-toan.intrinsic
+ *   capm ──► wacc.costEquity ──► gia-tri-noi-tai-fcff.wacc ◄── fcff.fcff  ·  fcff ──► fcfe.fcff
+ *
+ * Hai nhánh, `runChain()` chạy thật cả hai. Nhánh dưới hội tụ: `gia-tri-noi-tai-fcff` nhận từ
+ * HAI công thức khác nhau vào HAI biến khác nhau — đó là hình thoi, không phải hai nguồn cho
+ * cùng một ô (trường hợp ấy `runChain()` cũng xử được, xem docblock của nó).
+ *
+ * Đơn vị hai đầu mỗi cạnh phải khớp nhau; `formulas.test.ts` gác điều đó cho cả bốn cạnh.
  *
  * Thuế suất TNDN trong WACC và FCFF là Ô NHẬP chứ không tra MarketConfig: biểu phí
  * hiện hành (`market/schedules.ts`) chưa có key thuế TNDN, và mức thuế thực nộp của
@@ -113,6 +124,17 @@ export const MO_HINH_GORDON: FormulaModule = {
       },
     ],
     source: [SOURCE_DAMODARAN_DDM, SOURCE_CFA],
+    /*
+     * Mắt xích giữa của chuỗi định giá (gói 5.2.3).
+     *
+     * Suất sinh lợi yêu cầu r CHÍNH LÀ chi phí vốn chủ sở hữu — cùng một đại lượng, hai cái tên
+     * theo hai giáo trình; chính mô tả của ô cũng ghi "thường lấy từ CAPM". Cạnh này biến câu ấy
+     * từ lời khuyên đọc bằng mắt thành đường dẫn số liệu chạy thật.
+     *
+     * Đơn vị hai đầu đều là '%', và mặc định của CAPM (3,5 + 1,2 × 8 = 13,1%) nằm gọn trong miền
+     * [0…30] của thanh trượt này — có ca kiểm chốt cả hai điều đó.
+     */
+    dependsOn: [{ formulaId: 'capm', variableKey: 'requiredReturn' }],
   },
   calc: (v) => {
     const r = v('requiredReturn');
@@ -159,6 +181,11 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     expression:
       'Giá trị cổ phiếu = Tổng cổ tức giai đoạn đầu chiết khấu về hiện tại + Giá trị cuối kỳ chiết khấu về hiện tại',
     chartType: 'stackedBar',
+    breakdown: [
+      { key: 'pvStage1', sign: 1, shortLabel: 'Cổ tức giai đoạn đầu' },
+      { key: 'pvTerminal', sign: 1, shortLabel: 'Giá trị cuối kỳ' },
+    ],
+    breakdownTotal: 'Giá trị cổ phiếu',
     level: 'advanced',
     tags: ['ddm hai giai doan', 'two stage ddm', 'chiet khau co tuc', 'tang truong hai giai doan'],
     resultUnit: '₫',
@@ -285,16 +312,22 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     const n = Math.round(v('years'));
 
     let dividend = v('dividend');
-    let value = 0;
+    let pvStage1 = 0;
     for (let t = 1; t <= n; t += 1) {
       dividend *= 1 + g1;
-      value += dividend / Math.pow(1 + i, t);
+      pvStage1 += dividend / Math.pow(1 + i, t);
     }
 
     const terminal = (dividend * (1 + g2 / 100)) / ((r - g2) / 100);
-    value += terminal / Math.pow(1 + i, n);
+    const pvTerminal = terminal / Math.pow(1 + i, n);
 
-    return ok(value, '₫');
+    /*
+     * Hai cấu phần tách riêng cho biểu đồ bóc tách. Đây là con số đáng nói nhất của mô hình: ở bộ
+     * số mặc định, giá trị cuối kỳ chiếm khoảng bốn phần năm giá trị cổ phiếu — tức phần lớn định
+     * giá nằm ở giả định tăng trưởng dài hạn chứ không nằm ở mấy năm tăng nhanh mà người dùng vừa
+     * ngồi ước lượng kỹ.
+     */
+    return ok(pvStage1 + pvTerminal, '₫', { extras: { pvStage1, pvTerminal } });
   },
 };
 
@@ -396,6 +429,11 @@ export const WACC: FormulaModule = {
     expression:
       'WACC = Tỷ trọng vốn chủ × Chi phí vốn chủ + Tỷ trọng nợ × Chi phí nợ × (1 − Thuế suất)',
     chartType: 'stackedBar',
+    /* Đúng hai vế của chính công thức, nên cộng lại ra đúng WACC — không cần xử lý gì thêm. */
+    breakdown: [
+      { key: 'equityPart', sign: 1, shortLabel: 'Phần vốn chủ' },
+      { key: 'debtPart', sign: 1, shortLabel: 'Phần nợ vay' },
+    ],
     level: 'advanced',
     tags: ['wacc', 'chi phi von binh quan', 'co cau von', 'la chan thue', 'cost of capital'],
     resultUnit: '%',
@@ -479,11 +517,10 @@ export const WACC: FormulaModule = {
       );
     }
 
-    const weighted =
-      (equity / total) * v('costEquity') +
-      (debt / total) * v('costDebt') * (1 - v('taxRate') / 100);
+    const equityPart = (equity / total) * v('costEquity');
+    const debtPart = (debt / total) * v('costDebt') * (1 - v('taxRate') / 100);
 
-    return ok(weighted, '%');
+    return ok(equityPart + debtPart, '%', { extras: { equityPart, debtPart } });
   },
 };
 
@@ -500,6 +537,17 @@ export const FCFF: FormulaModule = {
       'Tiền còn lại cho cả chủ nợ lẫn cổ đông sau thuế và sau khi tái đầu tư, tính từ EBIT.',
     latex: 'FCFF = EBIT \\, (1 - t) + Dep - CapEx - \\Delta NWC',
     expression: 'FCFF = EBIT × (1 − Thuế suất) + Khấu hao − Chi đầu tư − Tăng vốn lưu động ròng',
+    /*
+     * Bốn chặng đúng bằng bốn số hạng của công thức. `nwcChange` âm (vốn lưu động GIẢM, tức giải
+     * phóng tiền) thì dấu `-1` biến nó thành cột cộng — đúng về toán và đúng về nghĩa, tiền quay
+     * về doanh nghiệp thật.
+     */
+    breakdown: [
+      { key: 'ebitAfterTax', sign: 1, shortLabel: 'EBIT sau thuế' },
+      { key: 'depreciation', sign: 1, shortLabel: 'Khấu hao' },
+      { key: 'capex', sign: -1, shortLabel: 'Chi đầu tư' },
+      { key: 'nwcChange', sign: -1, shortLabel: 'Tăng VLĐ ròng' },
+    ],
     chartType: 'waterfall',
     level: 'advanced',
     tags: ['fcff', 'dong tien tu do', 'ebit', 'dcf', 'free cash flow'],
@@ -578,8 +626,9 @@ export const FCFF: FormulaModule = {
       );
     }
 
-    const value = ebit * (1 - v('taxRate') / 100) + v('depreciation') - v('capex') - v('nwcChange');
-    return ok(value, 'tỷ ₫');
+    const ebitAfterTax = ebit * (1 - v('taxRate') / 100);
+    const value = ebitAfterTax + v('depreciation') - v('capex') - v('nwcChange');
+    return ok(value, 'tỷ ₫', { extras: { ebitAfterTax } });
   },
 };
 
@@ -597,6 +646,11 @@ export const FCFE: FormulaModule = {
     latex: 'FCFE = FCFF - I \\, (1 - t) + \\Delta B',
     expression: 'FCFE = FCFF − Chi phí lãi vay × (1 − Thuế suất) + Vay ròng mới',
     chartType: 'waterfall',
+    breakdown: [
+      { key: 'fcff', sign: 1, shortLabel: 'FCFF' },
+      { key: 'interestAfterTax', sign: -1, shortLabel: 'Lãi vay sau thuế' },
+      { key: 'netBorrowing', sign: 1, shortLabel: 'Vay ròng mới' },
+    ],
     level: 'advanced',
     tags: ['fcfe', 'dong tien tu do co dong', 'dcf', 'free cash flow to equity'],
     resultUnit: 'tỷ ₫',
@@ -670,12 +724,214 @@ export const FCFE: FormulaModule = {
       );
     }
 
-    return ok(v('fcff') - interest * (1 - v('taxRate') / 100) + v('netBorrowing'), 'tỷ ₫');
+    const interestAfterTax = interest * (1 - v('taxRate') / 100);
+    return ok(v('fcff') - interestAfterTax + v('netBorrowing'), 'tỷ ₫', {
+      extras: { interestAfterTax },
+    });
   },
 };
 
 /*
- * ── 7. Giá trị hiện tại (PV) ───────────────────────────────────────────────────────────
+ * ── 7. Giá trị nội tại từ FCFF ─────────────────────────────────────────────────────────
+ *
+ * Mắt xích khép nhánh FCFF của chuỗi định giá (gói 5.2.3). Trước khi có nó, `wacc`, `fcff` và
+ * `fcfe` là ba công thức KHÔNG AI tiêu thụ kết quả — chuỗi có đầu mà không có chỗ đi tới.
+ *
+ * Ba phép nối tiếp nhau, và chỗ dễ sai nhất là phép thứ ba:
+ *   EV = FCFF × (1 + g) ÷ (WACC − g)   → tỷ ₫  (Gordon áp lên dòng tiền doanh nghiệp)
+ *   Vốn chủ = EV − Nợ vay ròng          → tỷ ₫
+ *   Giá trị nội tại = Vốn chủ ÷ Số CP   → ₫/CP, nhân 1.000 vì tỷ ÷ triệu
+ *
+ * Hệ số 1.000 ấy đúng theo tiền lệ của `ncav-tren-co-phieu`: `tỷ ₫ ÷ triệu CP` ra `nghìn ₫/CP`.
+ * Quên nó là sai đúng ba chữ số mà con số vẫn trông hợp lý.
+ *
+ * **Cố ý KHÔNG khai cạnh sang `bien-an-toan`**, dù ô "Giá trị nội tại ước tính" bên đó nhận đúng
+ * đơn vị này. Ô ấy đã nhận từ mô hình Gordon; thêm nguồn thứ hai thì `runChain()` xử được (nó ưu
+ * tiên nguồn đầu tiên cấp được số), nhưng trên màn hình người dùng chỉ thấy MỘT nhãn nguồn và
+ * không có cách nào chọn nguồn kia — tức bày ra một lựa chọn không bấm được. Chọn nguồn nào là
+ * việc của người định giá, và cho tới khi giao diện hỏi được câu đó thì ô kia để nhập tay.
+ */
+
+export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
+  spec: {
+    id: 'gia-tri-noi-tai-fcff',
+    categoryId: 'valuation',
+    name: { vi: 'Giá trị nội tại từ FCFF (DCF)', en: 'Intrinsic value from FCFF' },
+    description:
+      'Chiết khấu dòng tiền tự do của doanh nghiệp bằng WACC, trừ nợ ròng, chia cho số cổ phiếu.',
+    latex:
+      'V_0 = \\frac{\\dfrac{FCFF \\, (1+g)}{WACC - g} - D_{\\text{ròng}}}{\\text{Số CP}} \\times 1000',
+    expression:
+      'Giá trị nội tại = (FCFF × (1 + g) ÷ (WACC − g) − Nợ vay ròng) ÷ Số cổ phiếu lưu hành × 1.000',
+    chartType: 'sensitivity',
+    level: 'advanced',
+    tags: ['dcf', 'gia tri noi tai', 'chiet khau dong tien', 'fcff', 'intrinsic value'],
+    resultUnit: '₫',
+    variables: [
+      numberVar('fcff', 'Dòng tiền tự do của doanh nghiệp (FCFF)', 'tỷ ₫', 300, {
+        min: -1_000_000,
+        max: 10_000_000,
+        description: 'Kết quả từ công thức FCFF, hoặc nhập tay nếu đã có sẵn.',
+      }),
+      sliderVar('growth', 'Tăng trưởng FCFF dài hạn (g)', '%', 4, 0, 10, 0.1, {
+        description: 'Tốc độ tăng dòng tiền đều mãi mãi — nên quanh tăng trưởng GDP dài hạn.',
+      }),
+      sliderVar('wacc', 'Chi phí vốn bình quân (WACC)', '%', 10.7, 0, 30, 0.1, {
+        description: 'Suất chiết khấu cho dòng tiền của cả doanh nghiệp — thường lấy từ WACC.',
+      }),
+      numberVar('netDebt', 'Nợ vay ròng', 'tỷ ₫', 300, {
+        min: -1_000_000,
+        max: 10_000_000,
+        description: 'Nợ vay chịu lãi trừ tiền và tương đương tiền; âm nghĩa là tiền nhiều hơn nợ.',
+      }),
+      numberVar('shares', 'Số cổ phiếu lưu hành', 'triệu CP', 118, {
+        min: 0,
+        max: 100_000,
+        description: 'Số cổ phiếu đang lưu hành, tính bằng triệu.',
+      }),
+    ],
+    explanation: {
+      meaning:
+        'Toàn bộ dòng tiền doanh nghiệp tạo ra trong tương lai, quy về hôm nay, trả nợ xong rồi chia đều cho từng cổ phiếu.',
+      whenToUse:
+        'Khi doanh nghiệp có dòng tiền dương và ổn định nhưng trả cổ tức ít hơn khả năng — lúc đó mô hình cổ tức định giá thấp hơn thực chất.',
+      howToRead:
+        'So con số này với thị giá: cao hơn nhiều là cổ phiếu đang rẻ theo mô hình. Kết quả cực nhạy với hiệu WACC − g, nên hãy thử vài kịch bản thay vì tin một con số.',
+      commonMistakes:
+        'Chọn g gần bằng WACC làm giá trị phồng lên vô lý; và quên trừ nợ vay ròng — đó là phần thuộc về chủ nợ, không phải cổ đông.',
+    },
+    example: {
+      title: 'FCFF 300 tỷ, tăng 4%/năm, WACC 10,7%, nợ ròng 300 tỷ, 118 triệu CP',
+      inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
+      expected: 36_921.33,
+      note: 'Giá trị doanh nghiệp 4.657 tỷ ₫, trừ nợ ròng còn 4.357 tỷ ₫ cho cổ đông.',
+    },
+    tests: [
+      {
+        // Tính độc lập dạng đóng: 300 × 1,04 ÷ 0,067 = 4.656,7164 tỷ; − 300 = 4.356,7164;
+        // ÷ 118 × 1.000 = 36.921,3256 ₫.
+        name: 'ca thường — FCFF 300, g 4%, WACC 10,7%, nợ ròng 300, 118 triệu CP',
+        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
+        expected: 36_921.33,
+        tolerance: 1,
+      },
+      {
+        name: 'không nợ ròng thì toàn bộ giá trị doanh nghiệp thuộc về cổ đông',
+        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 0, shares: 118 },
+        expected: 39_463.7,
+        tolerance: 1,
+      },
+      {
+        name: 'WACC đúng bằng g thì mẫu số WACC − g bằng 0',
+        inputs: { fcff: 300, growth: 4, wacc: 4, netDebt: 300, shares: 118 },
+        expected: null,
+        expectedWarning: 'DIVIDE_BY_ZERO',
+      },
+      {
+        name: 'WACC nhỏ hơn g thì giá trị âm vô nghĩa, không phải chia cho 0',
+        inputs: { fcff: 300, growth: 6, wacc: 4, netDebt: 300, shares: 118 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
+      {
+        name: 'số cổ phiếu bằng 0 thì chia cho 0',
+        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 0 },
+        expected: null,
+        expectedWarning: 'DIVIDE_BY_ZERO',
+      },
+      {
+        name: 'FCFF âm thì mô hình tăng trưởng đều mất ý nghĩa',
+        inputs: { fcff: -100, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
+      {
+        name: 'nợ ròng vượt cả giá trị doanh nghiệp thì phần cổ đông âm',
+        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 6_000, shares: 118 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
+    ],
+    source: [SOURCE_DAMODARAN_FCF, SOURCE_CORPORATE_FINANCE],
+    /*
+     * Hai cạnh, hai biến khác nhau — không phải hai nguồn cho cùng một ô. Đơn vị khớp cả hai đầu:
+     * `fcff` ra 'tỷ ₫', `wacc` ra '%'; ca kiểm đơn vị ở `formulas.test.ts` gác điều đó.
+     */
+    dependsOn: [
+      { formulaId: 'fcff', variableKey: 'fcff' },
+      { formulaId: 'wacc', variableKey: 'wacc' },
+    ],
+  },
+  calc: (v) => {
+    const fcff = v('fcff');
+    const growth = v('growth');
+    const wacc = v('wacc');
+    const shares = v('shares');
+
+    if (shares <= 0) {
+      return fail(
+        '₫',
+        divideByZero(
+          'giá trị nội tại',
+          'Số cổ phiếu lưu hành',
+          'Nhập số cổ phiếu đang lưu hành lớn hơn 0.',
+        ),
+      );
+    }
+
+    if (fcff <= 0) {
+      return fail(
+        '₫',
+        meaningless(
+          'FCFF âm hoặc bằng 0 thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp âm — không định giá được bằng cách này.',
+          'Dùng kỳ có dòng tiền dương, hoặc ước tính FCFF bình thường hoá của vài năm gần nhất.',
+        ),
+      );
+    }
+
+    if (wacc === growth) {
+      return fail(
+        '₫',
+        divideByZero(
+          'giá trị doanh nghiệp',
+          'hiệu WACC − g',
+          'Nhập WACC lớn hơn tăng trưởng dài hạn g.',
+        ),
+      );
+    }
+
+    if (wacc < growth) {
+      return fail(
+        '₫',
+        meaningless(
+          'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g — g vượt WACC cho ra giá trị âm vô nghĩa.',
+          'Giảm g về mức bền vững dài hạn (thường quanh tăng trưởng GDP) hoặc xem lại WACC.',
+        ),
+      );
+    }
+
+    const enterpriseValue = (fcff * (1 + growth / 100)) / ((wacc - growth) / 100);
+    const equityValue = enterpriseValue - v('netDebt');
+
+    if (equityValue <= 0) {
+      return fail(
+        '₫',
+        meaningless(
+          'Nợ vay ròng lớn hơn cả giá trị doanh nghiệp, nên phần còn lại cho cổ đông là số âm.',
+          'Kiểm tra lại nợ vay ròng, hoặc xem lại giả định tăng trưởng và WACC.',
+        ),
+      );
+    }
+
+    // tỷ ₫ chia cho triệu CP ra nghìn ₫ mỗi cổ phiếu — nhân 1.000 để về đơn vị đồng.
+    return ok((equityValue / shares) * 1_000, '₫', {
+      extras: { enterpriseValue, equityValue },
+    });
+  },
+};
+
+/*
+ * ── 8. Giá trị hiện tại (PV) ───────────────────────────────────────────────────────────
  */
 
 export const GIA_TRI_HIEN_TAI: FormulaModule = {
@@ -769,7 +1025,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
 };
 
 /*
- * ── 8. Giá trị tương lai (FV) ──────────────────────────────────────────────────────────
+ * ── 9. Giá trị tương lai (FV) ──────────────────────────────────────────────────────────
  */
 
 export const GIA_TRI_TUONG_LAI: FormulaModule = {
@@ -852,7 +1108,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
 };
 
 /*
- * ── 9. Biên an toàn ────────────────────────────────────────────────────────────────────
+ * ── 10. Biên an toàn ───────────────────────────────────────────────────────────────────
  */
 
 export const BIEN_AN_TOAN: FormulaModule = {
@@ -921,6 +1177,17 @@ export const BIEN_AN_TOAN: FormulaModule = {
       },
     ],
     source: [SOURCE_GRAHAM, SOURCE_CFA],
+    /*
+     * Mắt xích cuối của chuỗi định giá (gói 5.2.3): giá trị nội tại đến từ mô hình Gordon.
+     *
+     * Chọn Gordon chứ không phải DDM hai giai đoạn vì Gordon là mô hình định giá **cơ bản nhất**
+     * ra đơn vị '₫' cho mỗi cổ phiếu, và cả hai mắt xích trước nó đều đã có sẵn — chuỗi chạy được
+     * ngay mà không phải thêm công thức nào vào nhóm Định giá vốn đã đủ 18/18.
+     *
+     * Ô này vẫn nhập tay được: ai định giá bằng DDM hai giai đoạn hay bằng bội số thì bấm Ghi đè.
+     * Đó là lối thoát mà WF-15 hứa, và `resolveLinked()` cho ghi đè thắng cả khi Gordon đang lỗi.
+     */
+    dependsOn: [{ formulaId: 'mo-hinh-gordon', variableKey: 'intrinsic' }],
   },
   calc: (v) => {
     const intrinsic = v('intrinsic');
@@ -950,7 +1217,7 @@ export const BIEN_AN_TOAN: FormulaModule = {
   },
 };
 
-/** Chín công thức chiết khấu dòng tiền của nhóm Định giá. */
+/** Mười công thức chiết khấu dòng tiền của nhóm Định giá. */
 export const VALUATION_DCF_FORMULAS: ReadonlyArray<FormulaModule> = [
   MO_HINH_GORDON,
   DDM_HAI_GIAI_DOAN,
@@ -958,6 +1225,7 @@ export const VALUATION_DCF_FORMULAS: ReadonlyArray<FormulaModule> = [
   WACC,
   FCFF,
   FCFE,
+  GIA_TRI_NOI_TAI_FCFF,
   GIA_TRI_HIEN_TAI,
   GIA_TRI_TUONG_LAI,
   BIEN_AN_TOAN,

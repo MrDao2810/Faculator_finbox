@@ -18,7 +18,7 @@ import { latexToMathml } from './latex-html';
  */
 
 /**
- * Ngày tra hằng số thuế & phí — đọc MỘT LẦN lúc build, rồi đi vào HTML tĩnh của cả 107 trang.
+ * Ngày tra hằng số thuế & phí — đọc MỘT LẦN lúc build, rồi đi vào HTML tĩnh của cả 108 trang.
  *
  * Vì sao không viết cứng một ngày. Bản trước ghim `'2026-08-04'`, nên một hằng số khai
  * `effectiveFrom` sau ngày đó sẽ **không bao giờ có hiệu lực**, dựng lại bao nhiêu lần cũng vậy
@@ -34,8 +34,21 @@ import { latexToMathml } from './latex-html';
  * `page.tsx` là server component, không có `'use client'`, nên phạm vi module này KHÔNG đi vào
  * gói JS máy khách. Nếu có ngày chuyển hằng số này sang một file dùng chung, phải giữ nguyên
  * tính chất đó — để nó lọt vào một client component là mỗi trình duyệt tự lấy ngày của mình.
+ *
+ * Vì sao lấy ngày theo múi giờ Việt Nam chứ không `toISOString()`. Bản trước dùng
+ * `new Date().toISOString().slice(0, 10)`, mà `toISOString()` LUÔN trả giờ UTC — chậm 7 tiếng
+ * so với giờ Việt Nam. Build rơi vào khung 00:00–06:59 sáng đúng ngày một hằng số có hiệu lực
+ * thì `AS_OF` còn là ngày hôm trước, `resolveConstant()` loại bản ghi vừa hiệu lực, và cả đợt
+ * deploy chạy bằng luật cũ cho tới lần build sau. Đúng kiểu hỏng im lặng mà đoạn trên nói
+ * chuyện bỏ ngày ghim cứng để tránh — chỉ là cửa sổ hẹp hơn nên khó thấy hơn. Hằng số của sản
+ * phẩm là văn bản pháp luật Việt Nam, nên ngày tra phải là ngày ở Việt Nam.
  */
-const AS_OF = new Date().toISOString().slice(0, 10);
+const AS_OF = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Ho_Chi_Minh',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(new Date());
 
 export function generateStaticParams(): Array<{ id: string }> {
   return FORMULAS.map((formula) => ({ id: formula.id }));
@@ -65,7 +78,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const formula = FORMULAS.find((f) => f.id === id);
 
-  // Chỉ xảy ra nếu ai đó gõ tay một id lạ; generateStaticParams đã sinh sẵn đúng 107 trang.
+  // Chỉ xảy ra nếu ai đó gõ tay một id lạ; generateStaticParams đã sinh sẵn đúng 108 trang.
   if (formula === undefined) notFound();
 
   /*

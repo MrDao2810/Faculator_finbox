@@ -136,7 +136,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     variables: [quantity, sellPrice],
     explanation: {
       meaning: 'Số tiền công ty chứng khoán thu trên giá trị lệnh bán đã khớp.',
-      whenToUse: 'Khi tính số tiền thực nhận sau khi bán.',
+      whenToUse:
+        'Khi ước tính chi phí của lệnh bán, hoặc khi so mức phí giữa các công ty chứng khoán — đây là khoản thương lượng được, khác thuế và phí lưu ký.',
       howToRead: 'Một vòng mua – bán chịu phí hai lần, nên chi phí gấp đôi mức của một lệnh.',
       commonMistakes: 'Chỉ trừ phí mua mà quên phí bán khi ước tính lãi.',
     },
@@ -236,6 +237,7 @@ export const THUE_CO_TUC: FormulaModule = {
       inputs: { quantity: 1_000, dividendPerShare: 2_000 },
       expected: 100_000,
     },
+    note: 'Công thức tính cho cổ tức tiền mặt của cổ phiếu. Lợi tức được chia từ quỹ đầu tư chứng khoán hoặc quỹ bất động sản được giảm 50% thuế theo luật thuế mới — trường hợp đó nằm ngoài phạm vi ở đây.',
     tests: [
       {
         name: 'cổ tức 2.000 ₫/CP trên 1.000 CP',

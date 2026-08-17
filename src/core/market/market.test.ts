@@ -10,6 +10,7 @@ import {
   validateMarketConfig,
 } from './resolve';
 import { HOSE_2026, MARKET_CONFIG } from './schedules';
+import { SOURCE_FEE_CIRCULAR } from '../formulas/shared';
 import type { FeeSchedule, MarketConfig } from './types';
 
 /** Ngày cố định trong test — Domain không được lấy ngày hệ thống (NFR-REL-03). */
@@ -37,6 +38,28 @@ describe('cấu hình thị trường mặc định', () => {
   });
 });
 
+/*
+ * Dây neo giữa hai nơi cùng trích một văn bản.
+ *
+ * Vòng đối chiếu 5.1.1 sửa `legalBasis` của hai hằng số phí môi giới sang Thông tư 102/2021
+ * nhưng bỏ sót `SOURCE_FEE_CIRCULAR` — nhãn hiện ở khối Nguồn của 5 trang công thức phí — nên
+ * suốt một thời gian màn tính bằng căn cứ mới trong khi khối Nguồn chỉ người dùng tới văn bản
+ * đã bị thay. Không có ca kiểm nào bắt được vì hai bên nằm ở hai thư mục khác nhau.
+ */
+describe('căn cứ pháp lý không được lệch giữa hằng số và khối Nguồn', () => {
+  it('phí môi giới và SOURCE_FEE_CIRCULAR trích cùng một thông tư', () => {
+    const soThongTu = /Thông tư (\d+\/\d+)\/TT-BTC/;
+    const cuaHangSo = soThongTu.exec(
+      HOSE_2026.constants.find((c) => c.key === 'fee.brokerage.buy')?.legalBasis ?? '',
+    )?.[1];
+    const cuaKhoiNguon = soThongTu.exec(SOURCE_FEE_CIRCULAR.label)?.[1];
+
+    expect(cuaHangSo, 'không đọc được số thông tư trong legalBasis').toBeDefined();
+    expect(cuaKhoiNguon, 'không đọc được số thông tư trong SOURCE_FEE_CIRCULAR').toBeDefined();
+    expect(cuaKhoiNguon).toBe(cuaHangSo);
+  });
+});
+
 describe('resolveConstant()', () => {
   it('lấy được thuế chuyển nhượng khi luật đã có hiệu lực', () => {
     const c = resolveConstant(HOSE_2026, 'tax.transfer.sell', SAU_KHI_LUAT_MOI_HIEU_LUC);
@@ -44,10 +67,19 @@ describe('resolveConstant()', () => {
     expect(c?.legalBasis).toContain('109/2025/QH15');
   });
 
-  it('không trả bản ghi chưa tới ngày hiệu lực', () => {
-    expect(
-      resolveConstant(HOSE_2026, 'tax.transfer.sell', TRUOC_KHI_LUAT_MOI_HIEU_LUC),
-    ).toBeUndefined();
+  /*
+   * Trước 01/07/2026 KHÔNG phải là "chưa có thuế" — là luật cũ. Hai bản ghi nối nhau từ đợt duyệt
+   * Q5: mức vẫn 0,1% nhưng căn cứ đổi, và căn cứ là thứ hiện ở khối Nguồn nên phải đúng thời điểm.
+   */
+  it('trước ngày luật mới hiệu lực thì rơi về bản ghi luật cũ, cùng mức 0,1%', () => {
+    const c = resolveConstant(HOSE_2026, 'tax.transfer.sell', TRUOC_KHI_LUAT_MOI_HIEU_LUC);
+    expect(c?.value).toBe(0.1);
+    expect(c?.legalBasis).toContain('71/2014/QH13');
+    expect(c?.legalBasis).not.toContain('109/2025');
+  });
+
+  it('trước khi CÓ bất kỳ bản ghi nào thì mới là undefined — 2014 còn hai cách tính song song', () => {
+    expect(resolveConstant(HOSE_2026, 'tax.transfer.sell', '2014-12-31')).toBeUndefined();
   });
 
   it('có nhiều bản ghi cùng khoá thì lấy bản mới nhất còn hiệu lực', () => {
@@ -86,7 +118,8 @@ describe('resolveConstant()', () => {
 
 describe('resolveValue() và resolveRate()', () => {
   it('trả null thay vì 0 khi không tra được (FR-06)', () => {
-    expect(resolveValue(HOSE_2026, 'tax.dividend.cash', TRUOC_KHI_LUAT_MOI_HIEU_LUC)).toBeNull();
+    // 2008: trước cả Luật Thuế TNCN đầu tiên (04/2007 hiệu lực 01/01/2009) — không có gì để tra.
+    expect(resolveValue(HOSE_2026, 'tax.dividend.cash', '2008-06-30')).toBeNull();
   });
 
   it('đổi phần trăm sang hệ số nhân theo quy ước CON-05', () => {
@@ -115,8 +148,20 @@ describe('constantsAsOf()', () => {
   });
 
   it('bỏ hằng số chưa có hiệu lực', () => {
-    const list = constantsAsOf(HOSE_2026, TRUOC_KHI_LUAT_MOI_HIEU_LUC);
+    const list = constantsAsOf(HOSE_2026, '2014-12-31');
     expect(list.map((c) => c.key)).not.toContain('tax.transfer.sell');
+  });
+
+  /*
+   * Chỗ dễ vỡ nhất sau khi thuế có hai bản ghi: màn Cài đặt dựng bảng từ hàm này, mà hai bản cùng
+   * khoá lên bảng cả hai là người dùng thấy "Thuế chuyển nhượng" hai dòng. Mỗi khoá đúng MỘT bản,
+   * và bản thắng phải là bản mới.
+   */
+  it('khoá có hai bản ghi thì bảng chỉ hiện bản đang hiệu lực — luật mới', () => {
+    const list = constantsAsOf(HOSE_2026, SAU_KHI_LUAT_MOI_HIEU_LUC);
+    const transfer = list.filter((c) => c.key === 'tax.transfer.sell');
+    expect(transfer).toHaveLength(1);
+    expect(transfer[0]?.legalBasis).toContain('109/2025/QH15');
   });
 });
 

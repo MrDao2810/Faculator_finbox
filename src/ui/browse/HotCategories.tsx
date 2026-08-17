@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 
-import { CATEGORIES, DEFAULT_LIST_PARAMS, formulaListPath, t } from '@/application';
+import { CATEGORIES, DEFAULT_LIST_PARAMS, formulaListPath } from '@/application';
 import type { FormulaSummary } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './HotCategories.module.css';
 
@@ -22,10 +25,12 @@ const DEFAULT_LIMIT = 6;
  * ở đợt 8. Khối này thì ngược lại, nó là lối tắt, mà lối tắt dẫn vào phòng trống là lối tắt hỏng.
  * Nhóm chưa có công thức nào **không xuất hiện** ở đây.
  *
- * Là server component: không hook, không state, nên nó nằm trong HTML tĩnh và không thêm gì
- * vào gói máy khách.
+ * Là client component (được render trong SearchScreen vốn đã là client) và dùng `useT()` để
+ * chữ đổi theo locale người dùng chọn.
  */
 export function HotCategories({ formulas, limit = DEFAULT_LIMIT }: HotCategoriesProps) {
+  const t = useT();
+
   const counts = new Map<string, number>();
   for (const formula of formulas) {
     counts.set(formula.categoryId, (counts.get(formula.categoryId) ?? 0) + 1);

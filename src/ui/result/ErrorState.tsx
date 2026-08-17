@@ -1,5 +1,8 @@
-import { NO_VALUE, WARNING_LABELS, t } from '@/application';
+'use client';
+
+import { NO_VALUE, WARNING_LABELS } from '@/application';
 import type { CalcWarning } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './ErrorState.module.css';
 
@@ -23,6 +26,7 @@ export interface ErrorStateProps {
  * Ở đây `— , —` là hằng số `NO_VALUE`, dùng chung với `formatCalcOutput()`.
  */
 export function ErrorState({ warning, unit, action, className }: ErrorStateProps) {
+  const t = useT();
   const classes = [styles.block, className].filter(Boolean).join(' ');
 
   return (

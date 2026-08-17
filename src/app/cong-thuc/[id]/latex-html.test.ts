@@ -7,13 +7,13 @@ import { latexToMathml } from './latex-html';
 /*
  * Gói 2.4.3 — ký hiệu toán học.
  *
- * Ca nặng nhất ở đây là ca đầu: nó chạy CẢ 107 chuỗi `latex` qua KaTeX. Trước gói này, trường
+ * Ca nặng nhất ở đây là ca đầu: nó chạy CẢ 108 chuỗi `latex` qua KaTeX. Trước gói này, trường
  * `latex` chưa bao giờ được đưa qua một bộ dựng nào — nó chỉ nằm trong metadata và không ai đọc,
  * nên một chuỗi sai cú pháp có thể đã nằm đó từ lâu mà không phép kiểm nào chạm tới.
  */
 
 describe('latexToMathml() — dựng ký hiệu toán lúc build', () => {
-  it('cả 107 công thức đều dựng được, không ném lỗi', () => {
+  it('cả 108 công thức đều dựng được, không ném lỗi', () => {
     const hong: Array<{ id: string; message: string }> = [];
 
     for (const spec of FORMULAS) {
@@ -28,7 +28,7 @@ describe('latexToMathml() — dựng ký hiệu toán lúc build', () => {
       }
     }
 
-    expect(FORMULAS).toHaveLength(107);
+    expect(FORMULAS).toHaveLength(108);
     expect(
       hong,
       `công thức dựng hỏng: ${hong.map((h) => `${h.id} (${h.message})`).join(' · ')}`,

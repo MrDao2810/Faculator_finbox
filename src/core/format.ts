@@ -2,7 +2,7 @@
  * Tầng DOMAIN — định dạng và đọc số theo quy ước Việt Nam (gói WBS 2.3, 2.4).
  *
  * CON-05: nghìn ngăn bằng dấu chấm, thập phân bằng dấu phẩy — `92.000`, `14,3`.
- * Cả bộ nhập liệu (2.3) lẫn khối kết quả (2.4) đều đi qua đây, để 107 công thức hiện số
+ * Cả bộ nhập liệu (2.3) lẫn khối kết quả (2.4) đều đi qua đây, để 108 công thức hiện số
  * cùng một kiểu và đội nội dung sửa được ở một chỗ.
  *
  * Locale khoá cứng 'vi-VN' chứ không lấy locale hệ thống: tầng Domain phải cho ra cùng

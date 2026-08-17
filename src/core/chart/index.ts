@@ -3,21 +3,24 @@
  *
  * Toàn bộ toán nằm ở đây, không ở component: ESLint chặn `src/ui` chạm `@/core`, và đó là ràng
  * buộc có lợi — nó ép phần khó nhất (chọn biến, chia vạch, xử lý điểm đứt) thành hàm thuần test
- * được bằng Node, nên kiểm được cho cả 107 công thức trong một ca test thay vì 107 ca.
+ * được bằng Node, nên kiểm được cho cả 108 công thức trong một ca test thay vì 108 ca.
  *
- * KHÔNG gom vào `series-utils.ts`: file đó bị 34 công thức import nên nằm trong gói mà cả 107
+ * KHÔNG gom vào `series-utils.ts`: file đó bị 34 công thức import nên nằm trong gói mà cả 108
  * trang chi tiết đều tải. Nhánh này chỉ được nạp trễ qua `ChartBody`.
  */
 
 export type {
+  BreakdownBar,
   ChartAxis,
   ChartKind,
   ChartModel,
   ChartPoint,
   ChartTable,
   ChartTick,
+  DrawableChart,
   LineChart,
   SweepOption,
+  WaterfallChart,
   UnavailableChart,
 } from './types';
 

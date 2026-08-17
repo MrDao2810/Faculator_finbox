@@ -1,9 +1,11 @@
 import Link from 'next/link';
 
-import { ROUTES, t } from '@/application';
+import { ROUTES } from '@/application';
 
+import { T } from '../i18n/T';
 import styles from './AppHeader.module.css';
 import { BrandMark } from './BrandMark';
+import { LangSwitch } from './LangSwitch';
 import { ModeToggle } from './ModeToggle';
 import { SearchLink } from './SearchLink';
 
@@ -23,18 +25,20 @@ export function AppHeader() {
       <div className={styles.inner}>
         <Link href={ROUTES.home} className={styles.brand}>
           <BrandMark />
-          <span className={styles.name}>{t('app.brand')}</span>
+          <span className={styles.name}>
+            <T k="app.brand" />
+          </span>
         </Link>
 
         <div className={styles.controls}>
           <ModeToggle />
           <SearchLink />
           {/*
-            LangSwitch cố ý KHÔNG nằm ở đây cho tới v1.0 (quyết định của chủ dự án, đợt 14):
-            `en.ts` chưa có câu nào và `t()` chưa call site nào truyền locale, nên nút bấm
-            không đổi được gì trên màn — một nút chết tệ hơn không có nút. FR-21 vốn xếp ở
-            v1.0; khi gói 3.6.3 thông luồng locale + có bản dịch thì lắp lại một dòng là xong.
+            Gắn lại từ đợt 8: hai điều kiện của quyết định đợt 14 (có bản dịch + luồng locale
+            thông qua useT()) đều đã đạt, nút bấm là chữ trên màn đổi thật. Chữ chưa dịch —
+            nội dung công thức, câu miễn trừ — vẫn hiện tiếng Việt, đúng lời `lang.enPartial`.
           */}
+          <LangSwitch />
         </div>
       </div>
     </header>

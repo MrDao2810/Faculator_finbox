@@ -2,7 +2,7 @@
 
 import { useId, useRef, type RefObject } from 'react';
 
-import { t } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './SearchBox.module.css';
 
@@ -45,6 +45,7 @@ export function SearchBox({
   const hintId = `${inputId}-hint`;
   const ownRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? ownRef;
+  const t = useT();
 
   return (
     <div className={styles.field}>

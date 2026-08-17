@@ -137,6 +137,54 @@
   font-size: 10px;
 }
 
+/* ── Thác nước bóc tách — WF-17 ─────────────────────────────────────────── */
+
+/*
+ * Khác `.svg` ở đúng một chỗ: KHÔNG ghim tỉ lệ. Chiều cao của thác nước đi theo số chặng, nên
+ * `aspect-ratio: 16/10` sẽ bóp méo hình ba chặng và kéo giãn hình tám chặng. `height: auto` để
+ * trình duyệt suy chiều cao từ `viewBox` — vẫn không có phép đo DOM nào.
+ */
+.svgStack {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * Ba loại cột phân biệt bằng MÀU CỘNG HÌNH, không chỉ bằng màu (NFR-USA-06): cột trừ có viền đứt,
+ * cột tổng có viền đậm. Bảng số ngay dưới hình nói lại đúng ba con số ấy bằng chữ, nên người
+ * không phân biệt được màu vẫn đọc đủ.
+ */
+.barUp {
+  fill: var(--color-accent-vivid);
+}
+
+.barDown {
+  fill: var(--color-surface);
+  stroke: var(--color-accent-vivid);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+
+.barTotal {
+  fill: var(--color-ink-soft);
+  stroke: var(--color-ink);
+  stroke-width: 1.5;
+}
+
+/* Đường nối đỉnh cột này sang chân cột sau — thứ làm nên hình bậc thang. */
+.barStep {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.barLabel {
+  fill: var(--color-ink-soft);
+  font-size: 9px;
+  dominant-baseline: middle;
+}
+
 /* ── Ghi chú và bảng số ─────────────────────────────────────────────────── */
 
 .note {

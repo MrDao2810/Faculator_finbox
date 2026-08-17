@@ -154,7 +154,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
       whenToUse:
         'Khi đánh giá gửi tiết kiệm hay trái phiếu dài hạn — kênh có lợi suất danh nghĩa cố định.',
       howToRead:
-        'Kết quả âm nghĩa là tiền vẫn tăng trên sổ nhưng sức mua đang giảm. Phép trừ thẳng chỉ là xấp xỉ, công thức Fisher mới chính xác.',
+        'Kết quả âm nghĩa là tiền vẫn tăng trên sổ nhưng sức mua đang giảm. Lấy lợi suất trừ thẳng lạm phát chỉ là xấp xỉ; phép chia ở trên mới cho con số đúng.',
       commonMistakes:
         'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77% — lệch càng lớn khi lạm phát càng cao.',
     },
@@ -162,7 +162,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
       title: 'Lãi danh nghĩa 10%/năm, lạm phát 4%/năm',
       inputs: { nominal: 10, inflation: 4 },
       expected: 5.77,
-      note: 'Thấp hơn phép trừ thẳng 6% một chút — đó là điểm của công thức Fisher.',
+      note: 'Thấp hơn phép trừ thẳng 6% một chút — đó chính là điểm của phép chia này.',
     },
     tests: [
       {

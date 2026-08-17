@@ -13,10 +13,9 @@ import {
   formulasForLevel,
   isDefaultListParams,
   selectFormulas,
-  t,
 } from '@/application';
 import type { ListParams } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 import { CategoryFilter, EmptyState, FormulaCard, HiddenByLevelNote, SearchBox } from '@/ui/browse';
 import { Button } from '@/ui/primitives';
 
@@ -82,6 +81,7 @@ const LIVE_DELAY = 400;
 export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
   const [params, setParams] = useState<ListParams>(DEFAULT_LIST_PARAMS);
   const { mode } = usePreferences();
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
 
   /*
@@ -123,7 +123,7 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
     return () => {
       clearTimeout(timer);
     };
-  }, [searching, results.length]);
+  }, [searching, results.length, t]);
 
   /** Về trạng thái nhàn, và trả tiêu điểm về ô tìm vì nút vừa bấm đã tự tháo khỏi DOM. */
   function reset(): void {

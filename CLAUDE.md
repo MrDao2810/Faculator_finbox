@@ -7,16 +7,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Faculator Finbox — a Vietnamese financial/stock-formula library delivered as a **static site**:
 no backend, no database (`next.config.mjs` sets `output: 'export'`, build artifact is `out/`).
 
-**All 107 of 107 formulas** are implemented and registered in `src/core/formulas/` (17 group files
-spread into `FORMULA_MODULES`); every category sits exactly at its `expectedCount` and the Registry
-validator fails the build if one exceeds it. Read that directory's README before adding anything —
-and note that a 108th formula is not a free addition.
+**All 108 formulas** are implemented and registered in `src/core/formulas/` (17 group files
+spread into `FORMULA_MODULES`); **all 12 categories sit exactly at their `expectedCount`**, so there
+is no free slot anywhere. Two vitest cases hold that line — `formulas.test.ts` ("không nhóm nào vượt
+số công thức dự kiến") and `registry.test.ts`, which hard-codes 95 / 13 / 108; the Registry validator
+only downgrades an under-full category to a `warning`. Read that directory's README before adding
+anything: a 109th formula is a product-scope decision, not a free addition. The jump from 107 to
+108 (valuation 18 → 19, for `gia-tri-noi-tai-fcff`) was signed off by the project owner in package
+5.2.3; **the SRS table in section 3.8 still says 94 / 13 / 107 and has to be corrected to match.**
 
-WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as is
-package 2.4.3 (maths notation). Charts cover **97 of 107** formulas; the other 10 declare
-`chartType: 'none'` deliberately — their output is a monotone function of one input, so a chart
-would say nothing. Still deferred: **3.2.2** (WF-04 advanced screen, waiting on the valuation chain
-of package 5.2.3).
+WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as are
+packages 2.4.3 (maths notation) and **3.2.2 + 5.2.3** (the valuation chain and the WF-04 advanced
+screen). Charts cover **98 of 108** formulas; the other 10 declare `chartType: 'none'` deliberately —
+their output is a monotone function of one input, so a chart would say nothing.
 
 The remaining work plan lives in the external "WBS v7" estimate and the SRS, referenced throughout
 the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens). Progress log:
@@ -24,7 +27,7 @@ the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe scre
 
 **What blocks v0.1 is content, not code**: the 7 tax/fee constants in `src/core/market/schedules.ts`
 are still marked draft pending a check against the source legal texts; `src/data/samples.ts` is
-fabricated (seeded PRNG, `isDraft: true`); and the 107 explanations have not been peer-reviewed.
+fabricated (seeded PRNG, `isDraft: true`); and the 108 explanations have not been peer-reviewed.
 
 **All prose is Vietnamese** — comments, JSDoc, commit-adjacent docs, test names, UI copy, and every
 user-facing warning message. Write new code the same way.
@@ -41,7 +44,8 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 14 assertions against a built out/ — run after build
+npm run verify:static  # 24 assertions against a built out/ — run after build
+npm run check:chrome   # 18 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 170 kB (NFR-PER-04)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -53,6 +57,13 @@ Single test file / single case:
 npx vitest run src/core/calc-output.test.ts
 npx vitest run -t 'chặn Infinity'
 ```
+
+One test is deliberately **not** colocated: `src/application/prose-audit.test.ts` guards the 432
+explanation passages of the 108 formulas against contradicting their own `spec`/`calc` — it lives in
+the Application layer because one of its seven checks reads `@/data/samples.ts`, which CON-02 forbids
+`src/core` from importing. Read its docblock before adding a check to it: three earlier checks were
+removed for producing 169 false positives between them, and the reasons are recorded there so nobody
+rebuilds them.
 
 Tests are `src/**/*.test.ts` and `*.test.tsx`, colocated next to the module under test. The default
 environment is `node` (`vitest.config.ts`); a file that needs a DOM opts in with a
@@ -99,12 +110,64 @@ Every calculation function returns `CalcOutput` (`src/core/types.ts`), construct
 wireframe WF-15 (`DIVIDE_BY_ZERO`, `MEANINGLESS`, `MISSING_SERIES`, `MODEL_VIOLATION`, `INHERITED`,
 `INCOMPLETE_INPUT`). Messages are plain-language Vietnamese explaining the cause, plus a one-line
 `fix` suggestion (NFR-USA-04). Downstream formulas whose upstream failed must use `inherited()`
-rather than silently producing a number (FR-15) — but note that **this half of FR-15 has never
-actually run**: `dependsOn` is declared in only two places (`valuation-dcf.ts`), `inherited()` is
-called by no formula, and nothing reads `ctx.upstream`. Consequence: `src/core/linked-input.ts`,
-`src/core/flow-chain.ts`, `src/ui/inputs/LinkedInput` and `src/ui/result/FlowChainStrip` are all
-built and tested but have zero call sites. Keep them — they are the paid-for groundwork of package
-5.2.3 (the valuation chain) and WF-04, not dead code to prune.
+rather than silently producing a number (FR-15).
+
+**FR-15 runs for real since package 5.2.3.** All six `dependsOn` edges live in `valuation-dcf.ts`
+and form two branches:
+
+```text
+capm ──► mo-hinh-gordon.requiredReturn ──► bien-an-toan.intrinsic
+capm ──► wacc.costEquity ──► gia-tri-noi-tai-fcff.wacc ◄── fcff.fcff   ·   fcff ──► fcfe.fcff
+```
+
+The second branch converges — two upstreams into two _different_ variables of one formula.
+`runChain()` also handles two upstreams into the _same_ variable (it takes the first source that
+yields a number and only inherits when every source for that variable fails), though no Registry
+edge exercises that yet. `runChain()` in `src/core/calc/run-chain.ts` is the
+only caller of `inherited()` and the only writer of `ctx.upstream`; it deliberately does **not**
+go through `runFormula()` when an upstream is broken, because that gate reports a blank linked
+field as `INCOMPLETE_INPUT` — the wrong cause for a field the user never left blank. Two warnings
+coexist on purpose: the input keeps the upstream's original code (`resolveLinked()`), the
+downstream result gets `INHERITED`.
+
+On screen this is the WF-04 half of package 3.2.2: `FormulaDetail` renders the chain block only
+in **advanced mode** and only for formulas that `chainFor()` places in a chain — that is 7 of them
+(`capm`, `wacc`, `mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), so 101
+of 108 get nothing, and basic mode behaves exactly as before — which is why the four sweeps over
+all 108 detail screens in `FormulaDetail.test.tsx` needed no changes. `src/ui/screens/ChainPanel.tsx` is
+the `next/dynamic` boundary (same pattern as `FormulaChart`/`DetailBody`); never export
+`ChainBody` from the `@/ui/screens` barrel or its cost lands on all 108 detail pages.
+
+## Chart kinds
+
+`ChartModel` is a three-way union: `line` (sensitivity sweep or time axis), `waterfall`
+(breakdown), and `unavailable`. `ChartFrame` and `ChartFullscreen` take `DrawableChart` — the
+union minus `unavailable` — so a fourth kind only needs a branch in `ChartBody`.
+
+A formula gets a waterfall by declaring `spec.breakdown` (ordered stages, each with a `sign` and
+an optional `shortLabel`, keyed to an input variable **or** to a key in the result's `extras`).
+**All ten** formulas tagged `waterfall`/`stackedBar` now declare stages — nothing is left waiting.
+
+`chartType` decides whether the breakdown is the _default_ view or merely an entry in the picker,
+and across all ten the split is not arbitrary: the four `waterfall` ones (`ev`, `fcff`, `fcfe`,
+`ncav-tren-co-phieu`) each have a **straight-line** sweep — slopes 1, 1−t, 1 and 1000/N — which is
+exactly what `chartType: 'none'` exists to reject, so for them the breakdown _is_ the chart. The
+six `stackedBar` ones keep the sweep as the default because it still says something: total interest
+against term is a convex curve, and it is precisely what `lich-tra-no`'s own `commonMistakes` warns
+about. Never promote a `stackedBar` formula to breakdown-by-default without checking what its sweep
+would lose. Current split: 60 sweeps + 4 waterfalls + 34 waiting on a price series.
+
+Two invariants hold it honest: the stages must sum to the formula's own result — a registry-wide
+sweep in `chart.test.ts` enforces this for **every** formula that declares stages, and pins the
+list of ids so a new one can't slip in unexamined — and the value axis must contain zero, because
+bars need somewhere to stand. `lich-tra-no` shows the trap: the obvious "principal + interest"
+stack sums to the total _paid_, while the formula's result is the interest alone, so the honest
+decomposition inverts it (`total paid − principal borrowed = total interest`). Optional
+`spec.breakdownTotal` names the total bar and the value axis, for formulas whose name is a _job_
+rather than a _quantity_ ('Lịch trả nợ vay' labelling a bar that holds total interest).
+
+Breakdown is an _entry in the axis picker_ (`BREAKDOWN_KEY`), exactly like the time axis, not a
+separate screen, so `SweepPicker` and `ChartBody` stay unaware of it.
 
 Other domain conventions already established: input controls are generated entirely from
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
@@ -120,7 +183,7 @@ never throws and never returns NaN; tax/fee constants belong in `MarketConstant`
   and catches throws. The `tests[]` each spec declares are executed by `formulas.test.ts`.
 - **KaTeX runs at build time only.** `src/app/cong-thuc/[id]/latex-html.ts` is imported solely by
   `page.tsx`, which is a server component, so with `output: 'export'` the maths notation is baked
-  into the static HTML of all 107 pages and the browser downloads **zero** bytes of KaTeX
+  into the static HTML of all 108 pages and the browser downloads **zero** bytes of KaTeX
   (the library is ~280 kB — importing it from a client component blows the 170 kB gate instantly).
   Output mode is `mathml`, not the default `htmlAndMathml`: measured on this repo's own formulas it
   is 6 kB gzip instead of 20 kB, needs no `katex.min.css` and no font files at all, and — the
@@ -135,6 +198,25 @@ never throws and never returns NaN; tax/fee constants belong in `MarketConstant`
   suffix for the fullscreen copy so the two `<pattern>` nodes that coexist stay unique. This includes
   shared primitives: `SweepPicker` passes an explicit `id` to `Select` instead of letting it generate
   one. `charts.test.tsx` fails if any id in the chart subtree matches React's `:r…:` / `«…»` shape.
+- **On-screen text goes through `useT()`** (client components) or the client leaf `<T k="…">`
+  from `src/ui/i18n/T.tsx` — the leaf is what server components use (home page, AppShell), and
+  also what a component rendered on _both_ sides must use (`FormulaCard` is reached from both
+  `FormulaBrowser` and the server-rendered `StaticFormulaList`, so a hook would crash the server
+  pass). The static `t()` import from `@/application` is frozen to Vietnamese at build time, so
+  a gate in `i18n.test.ts` scans **all of `src/ui` + `src/app`** and fails any file importing it
+  that is not on a five-entry allowlist, each entry carrying its reason: `layout.tsx` metadata,
+  `DisclaimerBar` (FR-24 — must match the export attachment verbatim), the SEO fallback
+  `StaticFormulaList`, and the print/PNG regions of `ExportSheet`/`draw-card` (exported files are
+  all-Vietnamese documents). The gate scans by directory on purpose: an earlier version keyed off
+  the `'use client'` directive and missed three shared modules that carry no directive but land
+  in the client bundle anyway. A second case fails any allowlist entry that no longer needs to be
+  there. `disclaimer.text` is the one untranslated key — the en.ts docblock records why.
+- Display labels that the Domain also owns (`UNIT_SCALES[].label`, `COLUMN_LABELS`) are duplicated
+  as i18n keys, with a test tying the Vietnamese side to the Domain string verbatim — CON-02 keeps
+  `src/core` from reading i18n, so the copy is deliberate and the anchor test is what keeps the two
+  from drifting. Chart axis titles are the remaining exception: `build.ts` bakes
+  `${name} (${scale.label})` into `ChartModel`, and since that string also carries the formula
+  name, it waits for the content-translation pass.
 - The product name is **Faculator Finbox** — no `l`. An earlier misspelling "Falculator" was
   scrubbed from the whole repo; if it reappears in UI copy, in an export filename (`faculator-<id>`),
   or in the `pages.dev` fallback in `src/app/site-url.ts`, that is the typo coming back. The npm

@@ -18,6 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "verify:static": "node scripts/verify-static.mjs",
+    "//check:chrome": "Chạy TAY sau `npm run build`, không nằm trong `npm run check` cũng không nằm trong CI: cần Chrome trên máy và cần out/ dựng sẵn. Nó tự bật một Chrome riêng với hồ sơ tạm và chỉ tắt đúng tiến trình ấy — Chrome của bạn không bị đụng.",
+    "check:chrome": "node scripts/chrome-check.mjs",
     "size": "node scripts/size-report.mjs",
     "gen:summaries": "node scripts/gen-summaries.mjs",
     "format": "prettier --write .",

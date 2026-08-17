@@ -6,7 +6,7 @@
  *
  * Trạng thái lọc của WF-02 nằm trên URL (`/cong-thuc/?q=rui+ro&category=risk`). Nếu nút quay
  * lại luôn trỏ cứng về `/cong-thuc/` thì người dùng lọc xong, mở một công thức, quay ra là mất
- * sạch bộ lọc và phải lọc lại từ đầu. Với 107 công thức thì đó là một hình phạt thật.
+ * sạch bộ lọc và phải lọc lại từ đầu. Với 108 công thức thì đó là một hình phạt thật.
  *
  * ## Vì sao KHÔNG dùng `history.back()`
  *

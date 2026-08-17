@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 
-import { ROUTES, t } from '@/application';
+import { ROUTES } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './SearchLink.module.css';
 
@@ -17,8 +20,13 @@ import styles from './SearchLink.module.css';
  *
  * Nhìn cao 32px cho khớp `ModeToggle` và `LangSwitch` đứng cạnh, vùng chạm thật vẫn 44px nhờ
  * lớp phủ `::after` (NFR-USA-01).
+ *
+ * Là client component từ đợt 8 (luồng locale): nhãn nằm trong thuộc tính `title` nên không
+ * bọc lá `<T>` được.
  */
 export function SearchLink() {
+  const t = useT();
+
   return (
     <Link href={ROUTES.search} className={styles.link} title={t('search.label')}>
       <span className="visually-hidden">{t('search.label')}</span>

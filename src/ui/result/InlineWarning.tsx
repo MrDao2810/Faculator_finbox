@@ -1,5 +1,8 @@
-import { WARNING_LABELS, t } from '@/application';
+'use client';
+
+import { WARNING_LABELS } from '@/application';
 import type { CalcWarning } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './InlineWarning.module.css';
 
@@ -15,9 +18,10 @@ export interface InlineWarningProps {
  * ví dụ ô WACC đang kế thừa lỗi từ Beta ở thượng nguồn (FR-15).
  *
  * Dấu hiệu là biểu tượng + nhãn chữ + viền, không phải chỉ màu (NFR-USA-06).
- * Không có 'use client': chỉ hiển thị, không bắt sự kiện.
+ * Cần 'use client' vì chữ lấy qua hook `useT()` theo locale, dù component không bắt sự kiện.
  */
 export function InlineWarning({ warning, className }: InlineWarningProps) {
+  const t = useT();
   const classes = [styles.warning, className].filter(Boolean).join(' ');
 
   return (

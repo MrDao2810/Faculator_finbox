@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import {
+  FORMULA_MODULES,
   MARKET_CONFIG,
   PRICE_SERIES_KEY,
   ROUTES,
+  chainFor,
   defaultInputs,
   findFormulaModule,
   formatCalcOutput,
@@ -14,14 +16,24 @@ import {
   needsPriceSeries,
   parseStoredSeries,
   presetInputs,
+  runChain,
   runFormula,
   scheduleOrDefault,
-  t,
   variablesForLevel,
 } from '@/application';
-import type { CalcContext, CalcOutput, FormulaSpec, Preset, SeriesRow } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
-import { VariableField } from '@/ui/inputs';
+import type {
+  CalcContext,
+  CalcInputs,
+  CalcOutput,
+  ChainInputs,
+  ChainOverrides,
+  FormulaModule,
+  FormulaSpec,
+  Preset,
+  SeriesRow,
+} from '@/application';
+import { usePreferences, useT } from '@/application/preferences-context';
+import { LinkedInput, VariableField } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 import {
   ErrorState,
@@ -34,9 +46,25 @@ import {
 import { FormulaChart, hasChart } from '@/ui/charts';
 import { BackLink, DisclaimerBar } from '@/ui/navigation';
 import { ExportSheet, PasteImportSheet, PresetSheet } from '@/ui/sheets';
-import { DetailBody, DetailConfig, hasConfigBlock, hasCustomBody, ownsResult } from '@/ui/screens';
+import {
+  ChainPanel,
+  DetailBody,
+  DetailConfig,
+  hasConfigBlock,
+  hasCustomBody,
+  ownsResult,
+} from '@/ui/screens';
 
 import styles from './FormulaDetail.module.css';
+
+/**
+ * Spec của cả thư viện, dựng một lần ngoài component — `chainFor()` cần nhìn toàn Registry để
+ * biết công thức nào cấp số liệu cho công thức nào.
+ *
+ * Đọc từ `FORMULA_MODULES` chứ không từ `FORMULAS`: màn này vốn đã kéo `FORMULA_MODULES` vào gói
+ * qua `findFormulaModule()`, nên đây là 0 byte thêm.
+ */
+const ALL_SPECS = FORMULA_MODULES.map((module) => module.spec);
 
 /**
  * Điều khiển chiếm trọn bề ngang của lưới ô nhập.
@@ -70,7 +98,7 @@ type SheetKind = 'preset' | 'paste' | 'export';
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
  *
- * Chín khối đúng thứ tự wireframe. Đây là màn dùng nhiều nhất và là khuôn cho cả 107 công
+ * Chín khối đúng thứ tự wireframe. Đây là màn dùng nhiều nhất và là khuôn cho cả 108 công
  * thức, nên **không có gì viết cứng cho một công thức cụ thể**: ô nhập sinh từ `VariableSpec`
  * (FR-05), kết quả đi qua `runFormula()`, diễn giải và nguồn đọc từ Registry.
  *
@@ -79,12 +107,26 @@ type SheetKind = 'preset' | 'paste' | 'export';
  */
 export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
+  const t = useT();
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   const [seriesCount, setSeriesCount] = useState<number | null>(null);
   const [bars, setBars] = useState<ReadonlyArray<SeriesRow> | null>(null);
+
+  /*
+   * ── Trạng thái của chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ───────────────────────────────
+   *
+   * Hai kho tách nhau, và tách có lý do:
+   *   · `chainInputs` giữ ô nhập của các bước KHÁC (beta của CAPM, thị giá của Biên an toàn…).
+   *     Ô của công thức đang xem vẫn nằm ở `inputs` phía trên — một con số một chỗ giữ.
+   *   · `overrides` giữ riêng những ô móc nối mà người dùng bấm Ghi đè. Không trộn vào ô nhập
+   *     thường: `resolveLinked()` phân biệt "chưa ghi đè" với "ghi đè đúng bằng giá trị tự động",
+   *     và trộn hai kho lại là mất đúng sự phân biệt ấy — nút Hoàn tác sẽ không còn gì để hoàn.
+   */
+  const [chainInputs, setChainInputs] = useState<ChainInputs>({});
+  const [overrides, setOverrides] = useState<ChainOverrides>({});
 
   /*
    * Chuỗi giá cho công thức nhóm Kỹ thuật / Rủi ro (FR-12) đọc từ bảng WF-05 trong
@@ -118,12 +160,110 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   );
 
   const formula = findFormulaModule(spec.id);
-  const output: CalcOutput = useMemo(
+  const soloOutput: CalcOutput = useMemo(
     () =>
       formula === undefined
         ? { value: null, unit: spec.resultUnit, warning: MISSING_CALCULATOR }
         : runFormula(formula, inputs, ctx),
     [formula, inputs, ctx, spec.resultUnit],
+  );
+
+  /*
+   * ── Chuỗi công thức: chỉ dựng ở chế độ Nâng cao, và chỉ với công thức có dính cạnh ──────────
+   *
+   * `chainFor()` trả mảng rỗng cho 101 trên 108 công thức, nên `inChain` tắt và toàn bộ phần dưới
+   * là số không: không tính chuỗi, không dựng khối, không tải chunk nạp trễ. Ở chế độ Cơ bản thì
+   * mọi công thức đều đi đường cũ y hệt trước đợt này — đó cũng là lý do 4 ca kiểm quét cả 108
+   * màn không phải sửa một dòng nào.
+   */
+  const chainSpecs = useMemo(() => chainFor(ALL_SPECS, spec.id), [spec.id]);
+  const inChain = mode === 'advanced' && chainSpecs.length > 0;
+
+  const chainModules = useMemo(
+    () =>
+      chainSpecs
+        .map((step) => findFormulaModule(step.id))
+        .filter((found): found is FormulaModule => found !== undefined),
+    [chainSpecs],
+  );
+
+  /** Ô nhập của cả chuỗi: bước đang xem lấy từ `inputs`, các bước khác lấy từ `chainInputs`. */
+  const allChainInputs = useMemo<ChainInputs>(() => {
+    const map: Record<string, CalcInputs> = {};
+    for (const step of chainModules) {
+      const id = step.spec.id;
+      map[id] = id === spec.id ? inputs : (chainInputs[id] ?? defaultInputs(step.spec));
+    }
+    return map;
+  }, [chainModules, chainInputs, inputs, spec.id]);
+
+  const chain = useMemo(
+    () =>
+      inChain
+        ? runChain({ modules: chainModules, inputs: allChainInputs, overrides, ctx })
+        : undefined,
+    [inChain, chainModules, allChainInputs, overrides, ctx],
+  );
+
+  const chainStep = chain?.byId.get(spec.id);
+
+  /**
+   * Kết quả bày ra màn.
+   *
+   * Trong chuỗi thì lấy kết quả CỦA CHUỖI, không phải kết quả chạy riêng: đó là chỗ duy nhất
+   * biết thượng nguồn có lỗi hay không, và cũng là chỗ duy nhất trả về cảnh báo `INHERITED`
+   * thay vì "Còn thiếu: …" cho một ô người dùng không hề bỏ trống (FR-15).
+   */
+  const output: CalcOutput = chainStep?.output ?? soloOutput;
+
+  /** Giá trị mà các ô móc nối của công thức đang xem đang thật sự mang. */
+  const linkedValues = useMemo<Record<string, number>>(() => {
+    const values: Record<string, number> = {};
+    for (const field of chainStep?.fields ?? []) {
+      if (field.linked.value !== null) values[field.spec.key] = field.linked.value;
+    }
+    return values;
+  }, [chainStep]);
+
+  /** Bộ số thật sự đang dùng cho công thức đang xem — ô thường cộng ô móc nối đã giải xong. */
+  const effectiveInputs = useMemo(() => ({ ...inputs, ...linkedValues }), [inputs, linkedValues]);
+
+  /*
+   * ── Biểu đồ chạy sau một nhịp, để lượt gõ không bị nghẽn ────────────────────────────────────
+   *
+   * Từ khi ô số đẩy giá trị lên theo TỪNG PHÍM (xem `NumberInput`), mỗi phím gõ là một lượt dựng
+   * lại cả màn. Khối Kết quả rẻ tới mức không đáng bàn — `runFormula()` đo được 0,001–0,016 ms.
+   * Biểu đồ thì không: `buildChartModel()` phải chạy công thức vài chục tới vài trăm lần để quét
+   * đường độ nhạy, đo trên chính Registry này ra **7,5 ms (P/E) · 11,3 ms (lịch trả nợ) ·
+   * 15,6 ms (WACC)**. Một khung hình 60 Hz chỉ có 16,7 ms, nên riêng nó đã đủ làm rớt khung —
+   * cộng thêm phần React dựng lại SVG thì gõ nhanh là thấy khựng.
+   *
+   * `useDeferredValue` tách hai việc ấy ra hai mức ưu tiên: React dựng khối Kết quả bằng giá trị
+   * mới ngay lập tức, còn biểu đồ vẫn giữ giá trị cũ ở lượt đó rồi bắt kịp ở lượt sau, và lượt sau
+   * ấy bị NGẮT nếu người dùng gõ tiếp. Gõ liền tay thì biểu đồ chỉ vẽ lại một lần lúc ngừng, thay
+   * vì vẽ lại sau mỗi phím.
+   *
+   * Vì sao KHÔNG debounce bằng `setTimeout`: debounce làm chậm mọi thứ đi một khoảng cố định do
+   * mình đoán, kể cả khi máy thừa sức vẽ kịp. `useDeferredValue` để React tự đo — máy khoẻ thì
+   * biểu đồ theo kịp gần như tức thì, máy yếu thì tự giãn ra. Không có con số ma nào phải chỉnh.
+   *
+   * `chartOutput` phải tính lại theo `chartInputs`, không dùng chung `output` ở trên: đưa kết quả
+   * MỚI kèm số liệu CŨ vào cùng một lượt dựng là biểu đồ vẽ một đằng còn câu mô tả nói một nẻo.
+   */
+  /*
+   * Biểu đồ quét trên `effectiveInputs` chứ không phải `inputs`: ô móc nối đang nhận 13,1% từ
+   * CAPM mà biểu đồ vẫn vẽ theo 12% mặc định thì hình và số nói hai chuyện khác nhau. Thượng
+   * nguồn lỗi thì ô móc nối không có số nào để góp, `effectiveInputs` rơi về đúng con số mà ô
+   * nhập đang hiển thị — hình khớp với thứ người dùng thấy trong ô, còn câu "chưa tính được"
+   * thì khối Kết quả nói, đó mới là chỗ FR-06 canh.
+   */
+  const chartInputs = useDeferredValue(effectiveInputs);
+  const chartOutput: CalcOutput = useMemo(
+    () =>
+      formula === undefined
+        ? { value: null, unit: spec.resultUnit, warning: MISSING_CALCULATOR }
+        : runFormula(formula, chartInputs, ctx),
+    [formula, chartInputs, ctx, spec.resultUnit],
   );
 
   /*
@@ -145,8 +285,44 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
 
+  /** Ô nào của công thức đang xem đang nhận giá trị từ bước trước. */
+  const linkedFields = new Map(chainStep?.fields.map((field) => [field.spec.key, field]) ?? []);
+
+  /**
+   * Đặt giá trị cho một ô của công thức đang xem.
+   *
+   * Ô móc nối đi đường KHÁC: gõ vào nó là **ghi đè**, không phải sửa ô nhập thường. Nếu ghi thẳng
+   * vào `inputs` thì lượt dựng sau `linkedValues` lại đè lên bằng giá trị của bước trước — ô nhìn
+   * như nuốt mất con số vừa gõ. Gom cả hai đường vào một hàm để khối Ví dụ thực tế (cũng gọi hàm
+   * này) không phải biết ô nào là ô móc nối.
+   */
   function setValue(key: string, value: number): void {
+    if (linkedFields.has(key)) {
+      setOverride(spec.id, key, value);
+      return;
+    }
     setInputs((current) => ({ ...current, [key]: value }));
+  }
+
+  /** Ghi đè một ô móc nối, hoặc `undefined` để hoàn tác về giá trị tự động. */
+  function setOverride(formulaId: string, key: string, value: number | undefined): void {
+    setOverrides((current) => {
+      const forFormula = { ...current[formulaId] };
+      if (value === undefined) delete forFormula[key];
+      else forFormula[key] = value;
+      return { ...current, [formulaId]: forFormula };
+    });
+  }
+
+  /** Đặt giá trị cho ô nhập của MỘT BƯỚC KHÁC trong chuỗi. */
+  function setChainValue(formulaId: string, key: string, value: number): void {
+    const stepSpec = chainSpecs.find((candidate) => candidate.id === formulaId);
+    if (stepSpec === undefined) return;
+
+    setChainInputs((current) => ({
+      ...current,
+      [formulaId]: { ...(current[formulaId] ?? defaultInputs(stepSpec)), [key]: value },
+    }));
   }
 
   /**
@@ -156,7 +332,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * Bảng ánh xạ đã chuyển xuống `presetInputs()` ở tầng Data. Nó từng nằm ngay đây, và cái giá của
    * việc để tầng giao diện quyết định đơn vị đo lường thì đo được: bảng cũ bỏ sót số cổ phiếu, nên
    * nạp FPT cho công thức vốn hoá ra giá FPT nhân số cổ phiếu mặc định. Ở tầng Data thì một ca test
-   * Node soi được cả 107 công thức, và đơn vị của từng khoá bị khoá lại bằng test.
+   * Node soi được cả 108 công thức, và đơn vị của từng khoá bị khoá lại bằng test.
    */
   function applyPreset(preset: Preset): void {
     const fromPreset = presetInputs(preset, spec);
@@ -293,22 +469,43 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
 
         <div className={styles.fields}>
-          {shown.map((variable) => (
-            <div
-              key={variable.key}
-              className={WIDE_CONTROLS.includes(variable.type) ? styles.fieldWide : styles.field}
-            >
-              <VariableField
-                spec={variable}
-                value={inputs[variable.key] ?? variable.defaultValue}
-                onChange={(value) => {
-                  setValue(variable.key, value);
-                }}
-                mode={mode}
-                sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
-              />
-            </div>
-          ))}
+          {shown.map((variable) => {
+            const linked = linkedFields.get(variable.key);
+            // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
+            const wide = linked !== undefined || WIDE_CONTROLS.includes(variable.type);
+
+            return (
+              <div key={variable.key} className={wide ? styles.fieldWide : styles.field}>
+                {linked === undefined ? (
+                  <VariableField
+                    spec={variable}
+                    value={inputs[variable.key] ?? variable.defaultValue}
+                    onChange={(value) => {
+                      setValue(variable.key, value);
+                    }}
+                    mode={mode}
+                    sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
+                  />
+                ) : (
+                  /*
+                    Ô nhận giá trị từ bước trước (FR-15). Dựng TẠI CHỖ trong lưới chứ không gom
+                    xuống khối chuỗi bên dưới: nó vẫn là một biến của công thức này, đứng đúng
+                    thứ tự của nó trong bảng biến. Gom xuống dưới là người dùng phải ghép hai
+                    danh sách ô nhập trong đầu mới biết công thức cần những gì.
+                  */
+                  <LinkedInput
+                    spec={variable}
+                    upstream={linked.upstream}
+                    {...(linked.override === undefined ? {} : { override: linked.override })}
+                    onOverrideChange={(value) => {
+                      setOverride(spec.id, variable.key, value);
+                    }}
+                    mode={mode}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {wantsSeries && (
@@ -342,6 +539,28 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         )}
       </section>
 
+      {/* ── 4b. Chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ────────────────── */}
+      {/*
+        Đặt NGAY SAU khối Số liệu và TRƯỚC khối Kết quả, đúng mạch đọc: người dùng vừa thấy một ô
+        ghi "↳ nhận tự động từ CAPM" ở trên, câu hỏi kế tiếp là "CAPM đó là gì, sửa ở đâu" — khối
+        này trả lời ngay tại đó, trước khi họ kịp cuộn đi tìm.
+
+        Chỉ có mặt ở chế độ Nâng cao và chỉ với công thức nằm trong chuỗi. Đây cũng là payload
+        nặng nhất của nút Cơ bản / Nâng cao mà đợt trước đã lắp trước màn mà nó mở.
+      */}
+      {chain !== undefined && (
+        <ChainPanel
+          formulas={chainSpecs}
+          chain={chain}
+          currentId={spec.id}
+          inputs={allChainInputs}
+          overrides={overrides}
+          onInput={setChainValue}
+          onOverride={setOverride}
+          mode={mode}
+        />
+      )}
+
       {/* ── 5. Kết quả ───────────────────────────────────────────────────── */}
       {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
       {!ownsResult(spec.id) && <ResultBlock output={output} />}
@@ -351,7 +570,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
       {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
       {/*
-        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 97 trên 107 công thức, và 10
+        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 98 trên 108 công thức, và 10
         công thức còn lại khai `chartType: 'none'` nên chúng KHÔNG dựng khối này chút nào — không có
         trạng thái thứ ba nào để bày.
 
@@ -364,9 +583,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
           <FormulaChart
             formula={formula}
-            inputs={inputs}
+            inputs={chartInputs}
             ctx={ctx}
-            output={output}
+            output={chartOutput}
             level={mode}
             {...(loadedPreset === null ? {} : { seriesLabel: loadedPreset })}
           />
@@ -396,7 +615,11 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         và ô ở khối Số liệu là CÙNG một con số, không phải hai bản sao có ngày lệch nhau. Kết quả
         cũng lấy đúng `output` mà khối Kết quả đang hiện.
       */}
-      <ExampleBlock formula={spec} inputs={inputs} output={output} onChange={setValue} />
+      {/*
+        `effectiveInputs` chứ không phải `inputs`: ô móc nối cũng xuất hiện ở đây, và nó phải bày
+        đúng con số mà khối Số liệu đang bày. Gõ vào nó thì `setValue()` tự lái sang ghi đè.
+      */}
+      <ExampleBlock formula={spec} inputs={effectiveInputs} output={output} onChange={setValue} />
       <SourceBlock sources={spec.source} />
 
       {/* ── Ba bottom sheet của gói 2.5 ──────────────────────────────────── */}
@@ -438,7 +661,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         }}
         formula={spec}
         output={output}
-        inputs={inputs}
+        // Bản xuất phải mang con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
+        inputs={effectiveInputs}
         mode={mode}
         // Người dùng vừa nạp bộ mẫu thì file xuất ra phải tự nói điều đó (bộ mẫu hiện toàn
         // là bản thảo — xem src/data/samples.ts).

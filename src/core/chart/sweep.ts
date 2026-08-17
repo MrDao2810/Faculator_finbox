@@ -84,18 +84,59 @@ export function sweepDomain(
   // Bước thô hơn độ phân giải của dải thì giảm số điểm, kẻo nhiều x trùng nhau sau khi bám bước.
   let count = SWEEP_POINTS;
   if (variable.step !== undefined && variable.step > 0) {
-    const steps = Math.floor((hi - lo) / variable.step) + 1;
-    if (steps < SWEEP_POINTS) count = Math.max(2, steps);
+    const step = variable.step;
+    const steps = Math.floor((hi - lo) / step) + 1;
+    if (steps < SWEEP_POINTS) {
+      /*
+       * Khi bước chi phối mật độ điểm thì hai đầu dải phải BÁM LƯỚI BƯỚC — cùng gốc `min ?? 0`
+       * với `snapToStep()`. Bản trước chỉ giảm số điểm mà để nguyên hai đầu, nên biến `years`
+       * (bước 1, mặc định 5) cho dải 2,5 → 7,5 chia đều thành 2,5 · 3,5 · 4,5… — nhãn nói
+       * "4,5 năm" trong khi hàm tính làm tròn thành 5 năm: sáu trên bảy điểm của đường là một
+       * bậc thang mang nhãn sai. Chỉ trục có bước thô mới đi nhánh này; dải liên tục (41 điểm)
+       * giữ nguyên đường cũ.
+       */
+      const origin = variable.min ?? 0;
+      // Lưới bắt đầu ở origin nên mốc lưới mang số lẻ của CẢ HAI: bước 0,5 tính từ min 0,25
+      // cho các mốc 1,75 · 2,25… — lấy mỗi số lẻ của bước là toFixed cắt 1,75 thành 1,8.
+      const decimals = Math.max(decimalsOf(step), decimalsOf(origin));
+      const snappedLo = Number(
+        (origin + Math.ceil(roundFloat((lo - origin) / step)) * step).toFixed(decimals),
+      );
+      const snappedHi = Number(
+        (origin + Math.floor(roundFloat((hi - origin) / step)) * step).toFixed(decimals),
+      );
+
+      if (snappedHi > snappedLo) {
+        lo = snappedLo;
+        hi = snappedHi;
+        count = Math.round((hi - lo) / step) + 1;
+      } else {
+        // Dải hẹp hơn một bước — giữ hành vi cũ, còn hơn trả về null làm mất cả biểu đồ.
+        count = Math.max(2, steps);
+      }
+    }
   }
 
   return { lo, hi, count };
+}
+
+/** Số chữ số thập phân của bước — cùng cách `snapToStep()` chống rác dấu phẩy động. */
+function decimalsOf(step: number): number {
+  const text = String(step);
+  const dot = text.indexOf('.');
+  return dot === -1 ? 0 : text.length - dot - 1;
+}
+
+/** Gọt nhiễu dấu phẩy động trước khi lấy trần/sàn — 4,999999999 phải là 5, không phải 4. */
+function roundFloat(value: number): number {
+  return Number(value.toFixed(9));
 }
 
 /**
  * Những biến đưa lên trục X được.
  *
  * Loại biến rời rạc (`select`/`radio`/`toggle`/`buttonGroup`) — chỉ có 5 biến như vậy trên toàn bộ
- * 107 công thức, và một danh sách chọn không quét thành đường được.
+ * 108 công thức, và một danh sách chọn không quét thành đường được.
  *
  * Lọc theo `level` chứ không lấy hết: chế độ Cơ bản ẩn biến nâng cao (FR-09), nên quét một biến
  * người dùng không thấy trên màn là vẽ ra thứ họ không đối chiếu được với ô nhập nào.

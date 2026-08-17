@@ -119,6 +119,13 @@ export const vi = {
   'input.sliderMax': 'max',
   'input.sliderStep': 'step',
   'input.unitLabel': 'Đơn vị hiển thị',
+  /*
+   * Nhãn ba bậc đơn vị tiền. Bản gốc là `UNIT_SCALES[].label` ở Domain (CON-05) — một ca kiểm
+   * trong i18n.test.ts giữ hai bên khớp từng chữ. Xem `src/ui/i18n/keys.ts`.
+   */
+  'unit.scale.billion': 'tỷ ₫',
+  'unit.scale.million': 'triệu ₫',
+  'unit.scale.dong': '₫',
   'input.override': 'Ghi đè',
   'input.revert': 'Hoàn tác',
   'input.overridden': 'đã ghi đè',
@@ -147,6 +154,17 @@ export const vi = {
   'source.title': 'Nguồn tham khảo',
   'flow.title': 'Dải luồng tính toán',
   'flow.cyclicWarning': 'Có bước phụ thuộc vòng nên chưa xếp được thứ tự:',
+  // Chỉ trình đọc màn hình nghe: dấu chấm ngăn hai nhánh song song, không phải mũi tên nối tiếp.
+  'flow.branch': 'nhánh khác',
+  'flow.stepError': 'lỗi',
+
+  // Chuỗi công thức nối nhau — WF-04, FR-15 (gói 5.2.3)
+  'chain.title': 'Chuỗi công thức',
+  'chain.intro':
+    'Kết quả mỗi bước chảy thẳng vào ô của bước sau. Sửa số ở bước trước là cả chuỗi tính lại.',
+  'chain.upstreamHeading': 'Bước trước — cấp số liệu cho công thức đang xem',
+  'chain.downstreamHeading': 'Bước sau — dùng kết quả của công thức đang xem',
+  'chain.openStep': 'Mở màn riêng của bước này',
   'stat.eyebrow': 'CHỈ SỐ',
 
   // Màn chi tiết công thức — WF-03, gói 3.2.1
@@ -169,6 +187,8 @@ export const vi = {
    * người sáng mắt cũng cần con số chính xác, mắt đọc biểu đồ chỉ ra được xu hướng.
    */
   'chart.showData': 'Xem số liệu',
+  /* Caption ẩn của bảng số liệu — cố ý KHÁC tiêu đề hình, ghép "<caption> — <tên hình>". */
+  'chart.tableCaption': 'Số liệu',
   /*
    * Xem biểu đồ toàn màn hình. Hai câu nhắc xoay là HAI việc khác nhau, cố ý tách rời:
    * câu đầu nhờ xoay máy, câu sau chỉ hiện khi trình duyệt không tự xoay được — hầu hết là iPhone,
@@ -194,7 +214,6 @@ export const vi = {
   'loan.monthly': 'Trả hằng tháng',
   'loan.totalInterest': 'Tổng lãi',
   'loan.totalPaid': 'Tổng phải trả',
-  'loan.millionDong': 'triệu ₫',
   'loan.schedule': 'Lịch trả nợ',
   /* Nhãn đơn vị bảng. Bậc đơn vị ghép vào sau, lấy từ cài đặt (WF-13) chứ không viết cứng. */
   'loan.tableUnit': 'ĐVT:',
@@ -284,6 +303,18 @@ export const vi = {
   'paste.placeholder': '15/07\t25.10\t25.60\t24.90\t25.40',
   'paste.assignColumns': 'Gán cột',
   'paste.column': 'Cột',
+  /*
+   * Nhãn HIỂN THỊ của từng vai trò cột. Bản gốc là `COLUMN_LABELS` ở Domain (đúng chữ WF-11)
+   * — một ca kiểm trong i18n.test.ts giữ hai bên khớp từng chữ. Từ vựng ĐOÁN cột từ header
+   * dán vào (`HEADER_WORDS`) là chuyện khác, vẫn nằm nguyên trong Domain.
+   */
+  'paste.col.date': 'Ngày',
+  'paste.col.open': 'Mở',
+  'paste.col.high': 'Cao',
+  'paste.col.low': 'Thấp',
+  'paste.col.close': 'Đóng',
+  'paste.col.volume': 'KL',
+  'paste.col.ignore': 'Bỏ qua',
   /* Khung xem trước: chỗ duy nhất đối chiếu được phần dán với phần máy đọc ra, trước khi nạp. */
   'paste.previewLabel': 'Xem trước',
   'paste.previewCaption': 'Vài phiên đầu đọc được từ dữ liệu vừa dán',
@@ -335,7 +366,7 @@ export const vi = {
   'home.search.dropFilter': 'Bỏ lọc',
   'home.featured.title': 'Công thức dùng hằng ngày',
   'home.browse.title': 'Duyệt theo nhóm',
-  /* Đơn vị ghép sau tổng số ở tiêu đề khối: "Duyệt theo nhóm · 107 công thức". */
+  /* Đơn vị ghép sau tổng số ở tiêu đề khối: "Duyệt theo nhóm · 108 công thức". */
   'home.browse.unit': 'công thức',
   /* Nhãn mảng ở trang chủ. Rộng rãi hơn chip lọc nên viết đủ chữ, không dùng `filter.segment.*`. */
   'home.segment.stock': 'Chứng khoán',

@@ -8,9 +8,9 @@ import {
   createRegistry,
   expectedCountOf,
   featuredFormulas,
-  t,
 } from '@/application';
 import { CategoryGrid, FormulaCard } from '@/ui/browse';
+import { T } from '@/ui/i18n/T';
 
 import { HomeSearchPanel } from './HomeSearchPanel';
 import styles from './page.module.css';
@@ -45,7 +45,9 @@ export default function Home() {
         một <h1> nào. Dùng `visually-hidden` chứ không `display: none`, để trình đọc màn hình
         và bộ máy tìm kiếm vẫn thấy.
       */}
-      <h1 className="visually-hidden">{t('home.h1')}</h1>
+      <h1 className="visually-hidden">
+        <T k="home.h1" />
+      </h1>
 
       {/*
         Ba khối dưới đây là NỘI DUNG LÚC CHƯA TÌM GÌ. Truyền qua children nên chúng vẫn do
@@ -57,7 +59,7 @@ export default function Home() {
         {FEATURED.length > 0 && (
           <section className={styles.block} aria-labelledby="home-featured">
             <h2 className={styles.blockTitle} id="home-featured">
-              {t('home.featured.title')}
+              <T k="home.featured.title" />
             </h2>
 
             <ul className={styles.cards}>
@@ -73,16 +75,16 @@ export default function Home() {
         {/* ── Duyệt theo nhóm — FR-01 ──────────────────────────────────────── */}
         <section className={styles.block} aria-labelledby="home-browse">
           <h2 className={styles.blockTitle} id="home-browse">
-            {t('home.browse.title')} · {TOTAL_EXPECTED} {t('home.browse.unit')}
+            <T k="home.browse.title" /> · {TOTAL_EXPECTED} <T k="home.browse.unit" />
           </h2>
 
           <h3 className={styles.segment}>
-            {t('home.segment.stock')} · {expectedCountOf('stock')}
+            <T k="home.segment.stock" /> · {expectedCountOf('stock')}
           </h3>
           <CategoryGrid categories={categoriesOf('stock')} />
 
           <h3 className={styles.segment}>
-            {t('home.segment.personal')} · {expectedCountOf('personal')}
+            <T k="home.segment.personal" /> · {expectedCountOf('personal')}
           </h3>
           <CategoryGrid categories={categoriesOf('personal')} />
         </section>
@@ -95,14 +97,18 @@ export default function Home() {
         */}
         <section className={styles.block} aria-labelledby="home-tools">
           <h2 className={styles.blockTitle} id="home-tools">
-            {t('home.tools.title')}
+            <T k="home.tools.title" />
           </h2>
 
           <ul className={styles.tools}>
             <li>
               <Link className={styles.tool} href={ROUTES.data}>
-                <span className={styles.toolName}>{t('home.tools.data')}</span>
-                <span className={styles.toolHint}>{t('home.tools.dataHint')}</span>
+                <span className={styles.toolName}>
+                  <T k="home.tools.data" />
+                </span>
+                <span className={styles.toolHint}>
+                  <T k="home.tools.dataHint" />
+                </span>
               </Link>
             </li>
           </ul>
@@ -110,11 +116,12 @@ export default function Home() {
 
         {/*
           Số trên ô nhóm là số công thức DỰ KIẾN của SRS 3.8, không phải số đang bấm vào được.
-          Từ đợt 8 lưới không còn nhãn "sắp có" nên đây là chỗ duy nhất còn nói thật tiến độ —
-          đừng xoá trước khi nhánh 5 đổ đủ 107 công thức.
+          Từ đợt 8 lưới không còn nhãn "sắp có" nên đây là chỗ duy nhất còn nói thật tiến độ.
+          Nhánh 5 nay đủ 108/108 nên hai vế trùng nhau, nhưng ĐỪNG xoá: chúng lệch lại ngay lần
+          `expectedCount` được nâng tiếp — Beta của gói 3.3.2 là lần gần nhất đang chờ.
         */}
         <p className={styles.progress}>
-          {t('home.progress')} {REGISTRY.formulas.length}/{TOTAL_EXPECTED}.
+          <T k="home.progress" /> {REGISTRY.formulas.length}/{TOTAL_EXPECTED}.
         </p>
       </HomeSearchPanel>
     </div>

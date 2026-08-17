@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { memo } from 'react';
 
 import type {
   CalcContext,
@@ -30,12 +31,12 @@ const ChartBody = dynamic(async () => (await import('./ChartBody')).ChartBody);
 /**
  * Công thức này có biểu đồ hay chưa.
  *
- * **Phủ 97 trên 107 công thức** — mọi công thức trừ 10 cái khai `chartType: 'none'`.
+ * **Phủ 98 trên 108 công thức** — mọi công thức trừ 10 cái khai `chartType: 'none'`.
  *
  * Vì sao mở được rộng thế mà không phải viết thêm renderer nào: động cơ ở `@/core/chart` sinh điểm
  * từ hai lối, và giữa hai lối thì không công thức nào lọt. Đường quét độ nhạy chỉ cần một biến vô
  * hướng có `min`/`max` — 208 trên 209 biến của Registry đã khai sẵn. Đường theo thời gian chỉ cần
- * một chân giá hoặc một chuỗi cắt được tiền tố. Đo bằng `buildChartModel()` trên cả 107 công thức ×
+ * một chân giá hoặc một chuỗi cắt được tiền tố. Đo bằng `buildChartModel()` trên cả 108 công thức ×
  * 2 chế độ × có/không có chuỗi phiên: **0 ca ngoài dự kiến**, nên phạm vi ở đây là số đo chứ không
  * phải phỏng đoán.
  *
@@ -61,7 +62,20 @@ export interface FormulaChartProps {
   seriesLabel?: string;
 }
 
-export function FormulaChart(props: FormulaChartProps) {
+/**
+ * `memo` ở đây là vế thứ hai của việc gõ mượt, và thiếu nó thì vế thứ nhất gần như vô nghĩa.
+ *
+ * Màn chi tiết đưa vào đây một bản `inputs` đã qua `useDeferredValue`, nghĩa là ở lượt dựng gấp
+ * của mỗi phím gõ, mọi prop của component này đều GIỮ NGUYÊN tham chiếu cũ. Không có `memo` thì
+ * React vẫn dựng lại cả cây biểu đồ ở lượt ấy: `buildChartModel()` thì `useMemo` bên trong đỡ
+ * được, nhưng phần dựng và đối chiếu vài trăm thẻ SVG thì không — mà đó mới là phần thấy rõ trên
+ * máy yếu. Có `memo` thì cả cây bị cắt ngay tại đây, và biểu đồ chỉ dựng lại ở lượt ưu tiên thấp
+ * khi `inputs` hoãn thật sự đổi.
+ *
+ * So sánh nông (mặc định) là đủ: `inputs`, `ctx` và `output` bên màn chi tiết đều đi qua `useMemo`
+ * hoặc `useState` nên chúng chỉ đổi tham chiếu khi nội dung đổi thật.
+ */
+export const FormulaChart = memo(function FormulaChart(props: FormulaChartProps) {
   if (!hasChart(props.formula.spec)) return null;
   return <ChartBody {...props} />;
-}
+});

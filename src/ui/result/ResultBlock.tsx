@@ -1,7 +1,10 @@
+'use client';
+
 import type { ReactNode } from 'react';
 
-import { formatNumber, isCalculated, t } from '@/application';
+import { formatNumber, isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import { ErrorState } from './ErrorState';
 import styles from './ResultBlock.module.css';
@@ -28,6 +31,7 @@ export interface ResultBlockProps {
  * không cắt ngang thao tác đang làm — cùng cách với dòng đếm kết quả ở màn danh sách.
  */
 export function ResultBlock({ output, interpretation, action, className }: ResultBlockProps) {
+  const t = useT();
   if (!isCalculated(output)) {
     const warning = output.warning;
     // fail() luôn kèm warning, nhưng CalcOutput dựng tay có thể thiếu — vẫn phải không vỡ.

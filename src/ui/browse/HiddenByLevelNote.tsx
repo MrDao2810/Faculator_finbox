@@ -1,7 +1,6 @@
 'use client';
 
-import { t } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 
 import styles from './HiddenByLevelNote.module.css';
 
@@ -23,6 +22,7 @@ export interface HiddenByLevelNoteProps {
  */
 export function HiddenByLevelNote({ count, className }: HiddenByLevelNoteProps) {
   const { setMode } = usePreferences();
+  const t = useT();
 
   // Không ẩn công thức nào thì không có gì để nói — im lặng, không dựng ô trống.
   if (count <= 0) return null;

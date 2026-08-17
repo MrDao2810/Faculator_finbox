@@ -2,8 +2,9 @@
 
 import { useId } from 'react';
 
-import { isLockedForMode, t } from '@/application';
+import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './RadioGroup.module.css';
 
@@ -32,6 +33,7 @@ export function RadioGroup({
   className,
 }: RadioGroupProps) {
   const groupId = useId();
+  const t = useT();
   const options = spec.options ?? [];
   const locked = isLockedForMode(spec, mode);
 

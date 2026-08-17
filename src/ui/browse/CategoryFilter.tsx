@@ -1,7 +1,8 @@
 'use client';
 
-import { CATEGORIES, t } from '@/application';
+import { CATEGORIES } from '@/application';
 import type { ListParams, ListSort, SegmentFilter } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { Button, Chip, Select } from '@/ui/primitives';
 
 import styles from './CategoryFilter.module.css';
@@ -49,6 +50,7 @@ export function CategoryFilter({
   categoryCounts,
   showReset,
 }: CategoryFilterProps) {
+  const t = useT();
   const visibleCategories = CATEGORIES.filter(
     (category) => params.segment === 'all' || category.segment === params.segment,
   );

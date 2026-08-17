@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { t } from '@/application';
-
+import { T } from '../i18n/T';
 import { AppHeader } from '../navigation/AppHeader';
 import { BottomTabBar } from '../navigation/BottomTabBar';
 import { DisclaimerBar } from '../navigation/DisclaimerBar';
@@ -24,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className={styles.shell}>
       <a href="#noi-dung" className={styles.skipLink}>
-        {t('nav.skipToContent')}
+        <T k="nav.skipToContent" />
       </a>
 
       <OfflineBanner />

@@ -14,10 +14,9 @@ import {
   parseRecentSearches,
   selectFormulas,
   serializeRecentSearches,
-  t,
 } from '@/application';
 import { useListParams } from '@/application/use-list-params';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 import { useQueryDraft } from '@/application/use-query-draft';
 import {
   EmptyState,
@@ -49,6 +48,7 @@ const SUGGESTED_IDS: ReadonlyArray<string> = ['co-lenh-rui-ro', 'roi', 'gia-hoa-
 export function SearchScreen() {
   const { params, setParams } = useListParams();
   const { mode } = usePreferences();
+  const t = useT();
   const [recent, setRecent] = useState<ReadonlyArray<string>>([]);
   const inputRef = useRef<HTMLDivElement>(null);
 

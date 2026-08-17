@@ -1,7 +1,6 @@
 'use client';
 
-import { t } from '@/application';
-import { usePreferences } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 
 import styles from './LangSwitch.module.css';
 
@@ -17,6 +16,7 @@ import styles from './LangSwitch.module.css';
  */
 export function LangSwitch() {
   const { locale, setLocale } = usePreferences();
+  const t = useT();
   const isVi = locale === 'vi';
 
   return (

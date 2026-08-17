@@ -13,7 +13,7 @@ import { formatFailures, runSpecTests } from '../calc/run-tests';
 import type { CalcContext } from '../calc/types';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
-import { createRegistry } from '../registry/build';
+import { createRegistry, defaultInputs } from '../registry/build';
 import { errorsOnly, formatIssues } from '../registry/validate';
 import { buildFeeBreakdown } from './fees';
 import { ALL_FORMULAS, FORMULA_MODULES, findFormulaModule } from './index';
@@ -103,6 +103,55 @@ describe('Registry với toàn bộ công thức thật', () => {
       expect(expression, `${spec.id} còn ngoặc nhọn của LaTeX`).not.toMatch(/[{}]/);
       // Dấu bằng bảo đảm đây là một công thức chứ không phải mẩu biểu thức rời.
       expect(expression, `${spec.id} thiếu dấu bằng`).toContain('=');
+    }
+  });
+
+  /*
+   * Cửa gác của chuỗi phụ thuộc (FR-15).
+   *
+   * `validate.ts` đã kiểm cạnh trỏ tới công thức có thật và biến có thật. Thứ nó KHÔNG kiểm được
+   * là đơn vị: khai `fcff ──► gia-tri-hien-tai.futureValue` thì validator cho qua, mà chuỗi sẽ
+   * đổ con số "300" đơn vị **tỷ ₫** vào một ô đơn vị **₫** — sai 9 chữ số, không cảnh báo nào,
+   * không ca kiểm nào đỏ. Đúng loại lỗi mà FR-06 sinh ra để chặn, chỉ khác là nó ra một con số
+   * trông hợp lệ thay vì NaN.
+   */
+  it('mọi cạnh dependsOn nối hai đầu CÙNG đơn vị (FR-15)', () => {
+    const byId = new Map(ALL_FORMULAS.map((spec) => [spec.id, spec]));
+
+    for (const spec of ALL_FORMULAS) {
+      for (const dependency of spec.dependsOn ?? []) {
+        const upstream = byId.get(dependency.formulaId);
+        const variable = spec.variables.find((v) => v.key === dependency.variableKey);
+        const canh = `${dependency.formulaId} → ${spec.id}.${dependency.variableKey}`;
+
+        expect(upstream, `${canh}: không có công thức thượng nguồn`).toBeDefined();
+        expect(variable, `${canh}: không có biến nhận`).toBeDefined();
+        expect(variable?.unit, `${canh}: lệch đơn vị`).toBe(upstream?.resultUnit);
+      }
+    }
+  });
+
+  it('giá trị mặc định của thượng nguồn nằm trong miền của ô nhận', () => {
+    // Không phải luật cứng — chuỗi cố ý KHÔNG kẹp giá trị thượng nguồn (xem `run-chain.ts`).
+    // Nhưng nếu ngay bộ số mặc định đã lọt ra ngoài miền thì người dùng gặp ô đỏ ở lượt mở màn
+    // đầu tiên, tức cạnh khai sai chỗ chứ không phải người dùng nhập sai.
+    for (const formula of FORMULA_MODULES) {
+      for (const dependency of formula.spec.dependsOn ?? []) {
+        const upstream = findFormulaModule(dependency.formulaId);
+        const variable = formula.spec.variables.find((v) => v.key === dependency.variableKey);
+        if (upstream === undefined || variable === undefined) continue;
+
+        const out = runFormula(upstream, defaultInputs(upstream.spec), CTX);
+        const canh = `${dependency.formulaId} → ${formula.spec.id}.${dependency.variableKey}`;
+
+        expect(out.value, `${canh}: thượng nguồn không tính được với số mặc định`).not.toBeNull();
+        if (variable.min !== undefined) {
+          expect(out.value ?? 0, `${canh}: dưới min`).toBeGreaterThanOrEqual(variable.min);
+        }
+        if (variable.max !== undefined) {
+          expect(out.value ?? 0, `${canh}: trên max`).toBeLessThanOrEqual(variable.max);
+        }
+      }
     }
   });
 

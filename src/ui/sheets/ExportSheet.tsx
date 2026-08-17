@@ -2,8 +2,15 @@
 
 import { useState } from 'react';
 
-import { buildExportContent, exportFileName, t } from '@/application';
+/*
+ * `t as tVi`: vùng in PDF phía dưới là MỘT PHẦN CỦA FILE XUẤT — tài liệu tiếng Việt trọn vẹn
+ * (nội dung từ `buildExportContent` ở tầng Domain, miễn trừ tiếng Việt), nên câu chờ biểu đồ
+ * trong đó phải giữ bản build-time chứ không đổi theo locale — một câu Anh giữa tài liệu Việt
+ * là tài liệu hỏng. Khung sheet (nút, nhãn, lỗi) thì theo locale qua `useT()` như mọi màn.
+ */
+import { buildExportContent, exportFileName, t as tVi } from '@/application';
 import type { CalcOutput, ExportFormat, FormulaSpec, Level } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { BottomSheet, Button, Switch } from '@/ui/primitives';
 
 import styles from './ExportSheet.module.css';
@@ -99,10 +106,16 @@ export function ExportSheet({
   mode = 'advanced',
   fromDraftData = false,
 }: ExportSheetProps) {
+  const t = useT();
   const [format, setFormat] = useState<ExportFormat>('pdf');
   const [includeChart, setIncludeChart] = useState(true);
   const [includeDetails, setIncludeDetails] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  /*
+   * Giữ CỜ chứ không giữ chuỗi đã dịch: nhét `t('export.failed')` vào state là đóng băng câu
+   * lỗi ở ngôn ngữ lúc nó xảy ra, nên đổi sang EN rồi mở lại sheet vẫn thấy câu tiếng Việt cũ
+   * nằm giữa toàn nhãn tiếng Anh. Dịch lúc dựng thì câu luôn theo ngôn ngữ đang xem.
+   */
+  const [failed, setFailed] = useState(false);
 
   const content = buildExportContent(
     formula,
@@ -113,14 +126,14 @@ export function ExportSheet({
   );
 
   async function run() {
-    setError(null);
+    setFailed(false);
     try {
       if (format === 'png') {
         /*
          * Nạp trễ bộ vẽ Canvas — nó chỉ chạy khi người dùng bấm đúng nút này.
          *
          * Trước đợt này `draw-card` được import tĩnh, nên toàn bộ mã vẽ Canvas nằm trong gói cơ
-         * sở của cả 107 trang chi tiết dù đa số người dùng không bao giờ xuất PNG. Dùng `import()`
+         * sở của cả 108 trang chi tiết dù đa số người dùng không bao giờ xuất PNG. Dùng `import()`
          * trần chứ không `next/dynamic`: chunk sinh ra KHÔNG được ghi vào HTML, nên nó rời hẳn
          * khỏi "First Load JS" mà cửa kiểm NFR-PER-04 đo — khác `next/dynamic`, thứ vẫn bị tính.
          */
@@ -133,7 +146,7 @@ export function ExportSheet({
       onClose();
     } catch {
       // Trình duyệt chặn canvas hoặc chặn tải file — nói rõ chứ không im lặng.
-      setError(t('export.failed'));
+      setFailed(true);
     }
   }
 
@@ -196,9 +209,9 @@ export function ExportSheet({
         <span className={styles.lockedDetail}>{t('export.disclaimerLockedDetail')}</span>
       </div>
 
-      {error !== null && (
+      {failed && (
         <p className={styles.error} role="alert">
-          {error}
+          {t('export.failed')}
         </p>
       )}
 
@@ -212,7 +225,8 @@ export function ExportSheet({
         <p className="print-result">{content.result}</p>
         {content.interpretation !== undefined && <p>{content.interpretation}</p>}
 
-        {content.includeChart && <div className="print-chart">{t('export.chartPending')}</div>}
+        {/* Bản build-time (tVi) có chủ đích — xem chú thích ở khối import. */}
+        {content.includeChart && <div className="print-chart">{tVi('export.chartPending')}</div>}
 
         <table>
           <caption>Giá trị đầu vào</caption>

@@ -2,8 +2,9 @@
 
 import { useId } from 'react';
 
-import { isLockedForMode, t } from '@/application';
+import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './Toggle.module.css';
 
@@ -39,6 +40,7 @@ export function Toggle({
   className,
 }: ToggleProps) {
   const labelId = useId();
+  const t = useT();
   const noteId = `${labelId}-note`;
 
   const options = spec.options ?? [];

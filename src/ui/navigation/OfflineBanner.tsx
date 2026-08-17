@@ -1,6 +1,6 @@
 'use client';
 
-import { t } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { useOnlineStatus } from '@/application/use-online-status';
 
 import styles from './OfflineBanner.module.css';
@@ -16,6 +16,7 @@ import styles from './OfflineBanner.module.css';
  */
 export function OfflineBanner() {
   const online = useOnlineStatus();
+  const t = useT();
 
   if (online) return null;
 

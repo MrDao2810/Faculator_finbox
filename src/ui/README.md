@@ -33,9 +33,26 @@ build mới không tốn byte JS nào của trình duyệt, mà mọi thứ tron
 phía máy khách. Chỗ dựng nằm ở `src/app/cong-thuc/[id]/latex-html.ts`, gọi từ `page.tsx` — server
 component. Đừng bọc lại thành một `FormulaLatex` ở đây; làm thế là kéo ~280 kB `katex` vào gói.
 
-Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 97/107 công thức, kèm màn phóng to toàn màn hình.
-Hai component còn dựng xong mà chưa màn nào dùng là `inputs/LinkedInput` và `result/FlowChainStrip`:
-cả hai chờ gói 5.2.3 sinh ra chuỗi phụ thuộc `dependsOn` đầu tiên. Giữ, đừng dọn.
+Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 98/108 công thức, kèm màn phóng to toàn màn hình.
+Từ gói 5.2.3 có thêm `charts/WaterfallChart` cho biểu đồ bóc tách, nay phủ **đủ 10** công thức khai
+`waterfall`/`stackedBar`. Khai `chartType: 'waterfall'` thì bóc tách là hình MẶC ĐỊNH — bốn cái
+(`ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`), đều là những công thức có đường quét thẳng nên hình
+kia không nói gì. Khai `stackedBar` thì bóc tách chỉ là một mục trong ô chọn trục và đường quét vẫn
+đứng đầu. Xem docblock của `chart/build.ts`.
+
+Kiểm hình dạng thật bằng `npm run check:chrome` — jsdom trả 0 cho mọi phép đo hình học nên nhãn
+tràn khung, cột âm vẽ ngược chiều và chiều cao chạy theo số chặng đều lọt qua `*.test.tsx`.
+
+`inputs/LinkedInput` và `result/FlowChainStrip` **đã có nơi dùng** từ gói 5.2.3, sau một quãng dài
+dựng xong mà nằm không. Chuỗi định giá có hai nhánh — `capm → mo-hinh-gordon → bien-an-toan`, và
+`capm → wacc → gia-tri-noi-tai-fcff ← fcff → fcfe` — với hai chỗ gọi: `screens/ChainBody` (khối
+chuỗi của màn nâng cao WF-04) cùng chính màn chi tiết, nơi biến nào có cạnh `dependsOn` thì lưới ô
+nhập dựng `LinkedInput` thay cho `VariableField`.
+
+`screens/ChainPanel` là ranh giới `next/dynamic` của khối ấy — **đừng** xuất `ChainBody` ra barrel,
+xuất là cả 108 trang chi tiết cùng gánh trong khi chỉ **7 công thức** dùng tới (`capm`, `wacc`,
+`mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), và chỉ khi bật chế độ
+Nâng cao.
 
 ## Cách viết component ở đây
 

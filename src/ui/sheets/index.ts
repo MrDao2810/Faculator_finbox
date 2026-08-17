@@ -21,7 +21,7 @@ export type { ExportSheetProps } from './ExportSheet';
  * `draw-card` KHÔNG re-export ở đây có chủ đích.
  *
  * `ExportSheet` nạp nó bằng `import()` trong lúc bấm nút, để mã vẽ Canvas rời khỏi gói cơ sở của
- * 107 trang chi tiết. Một dòng `export … from './draw-card'` ở barrel này kéo nó về chỗ cũ ngay,
+ * 108 trang chi tiết. Một dòng `export … from './draw-card'` ở barrel này kéo nó về chỗ cũ ngay,
  * vì mọi màn chi tiết đều `import { ExportSheet } from '@/ui/sheets'`. Không ai ngoài `ExportSheet`
  * cần tới nó.
  */

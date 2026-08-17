@@ -1,7 +1,8 @@
 'use client';
 
-import { buildFeeBreakdown, formatCalcOutput, formatNumber, t } from '@/application';
+import { buildFeeBreakdown, formatCalcOutput, formatNumber } from '@/application';
 import type { CalcContext } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
 import styles from './FeeTaxBody.module.css';
@@ -22,6 +23,7 @@ export interface FeeTaxBodyProps {
  * với ví dụ wireframe; ở đây chỉ còn phần bày ra màn.
  */
 export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
+  const t = useT();
   const breakdown = buildFeeBreakdown(inputs, ctx);
 
   return (

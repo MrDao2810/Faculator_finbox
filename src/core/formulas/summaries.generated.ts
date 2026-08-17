@@ -242,6 +242,14 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
     tags: ['fcfe', 'dong tien tu do co dong', 'dcf', 'free cash flow to equity'],
   },
   {
+    id: 'gia-tri-noi-tai-fcff',
+    categoryId: 'valuation',
+    name: { vi: 'Giá trị nội tại từ FCFF (DCF)', en: 'Intrinsic value from FCFF' },
+    description: 'Chiết khấu dòng tiền tự do của doanh nghiệp bằng WACC, trừ nợ ròng, chia cho số cổ phiếu.',
+    level: 'advanced',
+    tags: ['dcf', 'gia tri noi tai', 'chiet khau dong tien', 'fcff', 'intrinsic value'],
+  },
+  {
     id: 'gia-tri-hien-tai',
     categoryId: 'valuation',
     name: { vi: 'Giá trị hiện tại (PV)', en: 'Present value' },

@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
-import { t } from '@/application';
+import { T } from '@/ui/i18n/T';
 
 import { FormulaBrowser } from './FormulaBrowser';
 import { StaticFormulaList } from './StaticFormulaList';
 
 export const metadata: Metadata = {
   title: 'Công thức',
-  description: 'Danh sách 107 công thức đầu tư chứng khoán và tài chính cá nhân, chia 12 nhóm.',
+  description: 'Danh sách 108 công thức đầu tư chứng khoán và tài chính cá nhân, chia 12 nhóm.',
 };
 
 /**
@@ -21,7 +21,9 @@ export const metadata: Metadata = {
 export default function FormulaListPage() {
   return (
     <>
-      <h1>{t('page.formulas.title')}</h1>
+      <h1>
+        <T k="page.formulas.title" />
+      </h1>
 
       <div style={{ marginTop: 'var(--space-4)' }}>
         {/*

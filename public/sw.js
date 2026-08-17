@@ -32,7 +32,7 @@ const SHELL = '/';
 /**
  * Trần số mục trong kho.
  *
- * Không có trần thì kho phình theo số trang người dùng từng mở — với 107 công thức, mỗi trang
+ * Không có trần thì kho phình theo số trang người dùng từng mở — với 108 công thức, mỗi trang
  * kéo theo HTML cộng vài chunk, đủ để chạm hạn mức lưu trữ của trình duyệt trên máy chật. Khi
  * đầy thì trình duyệt xoá SẠCH kho chứ không xoá bớt, tức là mất luôn khả năng chạy ngoại
  * tuyến. Tự cắt bớt theo lối vào trước ra trước thì mất vài mục cũ, giữ được phần còn lại.

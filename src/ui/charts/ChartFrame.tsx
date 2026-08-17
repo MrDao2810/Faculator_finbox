@@ -2,8 +2,8 @@
 
 import { type ReactNode } from 'react';
 
-import { t } from '@/application';
-import type { LineChart as LineChartModel } from '@/application';
+import type { DrawableChart } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 
@@ -23,7 +23,7 @@ import styles from './chart.module.css';
  */
 
 export interface ChartFrameProps {
-  model: LineChartModel;
+  model: DrawableChart;
   /** Gốc để ghép `id` của `<figcaption>`. Xem docblock của `ChartBody` về việc vì sao không `useId()`. */
   idBase: string;
   /** Ô chọn biến trục X, đặt trên hình. */
@@ -39,6 +39,7 @@ export interface ChartFrameProps {
 }
 
 export function ChartFrame({ model, idBase, picker, action, children }: ChartFrameProps) {
+  const t = useT();
   const captionId = `${idBase}-caption`;
 
   const rows = model.table.rows.length;
@@ -82,7 +83,9 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
             một chuỗi thì trình đọc màn hình đọc lại hai lần, và người dùng không biết mình đang ở
             hình hay ở bảng.
           */}
-          <caption className="visually-hidden">Số liệu — {model.title}</caption>
+          <caption className="visually-hidden">
+            {t('chart.tableCaption')} — {model.title}
+          </caption>
           <thead>
             <tr>
               <th scope="col">{model.table.columns[0]}</th>
@@ -120,6 +123,8 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
  * còn lại để nối một dòng bảng với một điểm trên hình. Nhãn sinh từ cùng một `formatValueWithUnit`
  * nên hai bên không thể lệch cách viết.
  */
-function currentLabel(model: LineChartModel): string | undefined {
+function currentLabel(model: DrawableChart): string | undefined {
+  // Thác nước không có "điểm hiện tại" — mọi cột đều là số hiện tại, không cột nào được tô riêng.
+  if (model.kind !== 'line') return undefined;
   return model.points.find((point) => point.marked === true)?.label;
 }

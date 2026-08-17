@@ -1,6 +1,6 @@
 'use client';
 
-import { t } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 
@@ -21,6 +21,8 @@ export interface ZoomButtonProps {
 }
 
 export function ZoomButton({ onClick }: ZoomButtonProps) {
+  const t = useT();
+
   return (
     <button type="button" className={styles.zoom} onClick={onClick}>
       <svg

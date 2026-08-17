@@ -1,5 +1,7 @@
-import { t } from '@/application';
+'use client';
+
 import type { FormulaSource } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './SourceBlock.module.css';
 
@@ -19,6 +21,7 @@ export interface SourceBlockProps {
  * có backend nên không muốn rò referrer sang bên thứ ba (NFR-SEC-01).
  */
 export function SourceBlock({ sources, className }: SourceBlockProps) {
+  const t = useT();
   if (sources.length === 0) return null;
 
   const classes = [styles.block, className].filter(Boolean).join(' ');

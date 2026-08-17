@@ -65,6 +65,16 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     expression:
       'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
     chartType: 'stackedBar',
+    /*
+     * Bóc tách KỲ ĐẦU, không phải cả kỳ hạn. Khoản trả hằng tháng không đổi suốt 240 kỳ nhưng
+     * ruột của nó đổi từng kỳ, và chính câu `howToRead` bên dưới nói điều đó: "những năm đầu
+     * phần lớn tiền trả là lãi". Hai cột này là hình của đúng câu ấy — ở kỳ 1 phần lãi cao nhất.
+     */
+    breakdown: [
+      { key: 'firstPrincipal', sign: 1, shortLabel: 'Gốc kỳ đầu' },
+      { key: 'firstInterest', sign: 1, shortLabel: 'Lãi kỳ đầu' },
+    ],
+    breakdownTotal: 'Trả kỳ đầu',
     level: 'basic',
     isFeatured: true,
     tags: ['tra gop', 'emi', 'nien kim', 'vay mua nha'],
@@ -101,7 +111,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     source: [SOURCE_CORPORATE_FINANCE],
   },
   calc: (v) => {
-    const payment = annuityPayment(v('amount'), v('rate'), v('years'));
+    const amount = v('amount');
+    const payment = annuityPayment(amount, v('rate'), v('years'));
     if (payment === null) {
       return {
         value: null,
@@ -109,7 +120,15 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
         warning: divideByZero('khoản trả hằng tháng', 'Kỳ hạn', 'Nhập kỳ hạn ít nhất 1 năm.'),
       };
     }
-    return ok(payment, '₫/tháng');
+
+    /*
+     * Ruột của kỳ đầu, cho biểu đồ bóc tách. Lãi kỳ 1 tính trên trọn dư nợ gốc, phần còn lại của
+     * khoản trả là gốc — nên hai số này cộng lại đúng bằng `payment`, không phải xấp xỉ.
+     */
+    const firstInterest = amount * monthlyRate(v('rate'));
+    return ok(payment, '₫/tháng', {
+      extras: { firstPrincipal: payment - firstInterest, firstInterest },
+    });
   },
 };
 
@@ -145,6 +164,12 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     latex: 'A_1 = \\frac{P}{n} + P \\cdot i',
     expression: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
     chartType: 'stackedBar',
+    /* Kỳ đầu chính là kết quả của công thức này, nên hai chặng ghép lại đúng bằng nó. */
+    breakdown: [
+      { key: 'firstPrincipal', sign: 1, shortLabel: 'Gốc mỗi kỳ' },
+      { key: 'firstInterest', sign: 1, shortLabel: 'Lãi kỳ đầu' },
+    ],
+    breakdownTotal: 'Trả kỳ đầu',
     level: 'basic',
     tags: ['goc deu', 'tra gop', 'du no giam dan'],
     resultUnit: '₫',
@@ -183,7 +208,9 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       };
     }
     const amount = v('amount');
-    return ok(amount / n + amount * monthlyRate(v('rate')), '₫');
+    const firstPrincipal = amount / n;
+    const firstInterest = amount * monthlyRate(v('rate'));
+    return ok(firstPrincipal + firstInterest, '₫', { extras: { firstPrincipal, firstInterest } });
   },
 };
 
@@ -214,6 +241,25 @@ export const LICH_TRA_NO: FormulaModule = {
     latex: '\\text{Tổng lãi} = \\sum_{k=1}^{n} L_k',
     expression: 'Tổng lãi = Cộng tiền lãi của tất cả các kỳ',
     chartType: 'stackedBar',
+    /*
+     * ── Cạm bẫy của công thức này, và cách né ────────────────────────────────────────────
+     *
+     * Cột chồng hiển nhiên là "gốc + lãi" — nhưng KẾT QUẢ của công thức chỉ là phần LÃI, nên
+     * hình ấy cộng lại ra tổng phải trả, lệch hẳn con số ở khối Kết quả. Bất biến "tổng các
+     * chặng bằng kết quả" sẽ đỏ, và đúng ra phải đỏ: một hình bóc tách cộng không ra con số nó
+     * đang minh hoạ là hình nói dối.
+     *
+     * Lối đi đúng là đảo chiều phép tính, vì tổng lãi CHÍNH LÀ phần dôi ra của những gì phải
+     * trả so với những gì đã vay: `tổng phải trả − gốc vay = tổng lãi`, đúng từng đồng theo
+     * cách `buildAmortisation()` ép kỳ cuối về dư nợ 0. Hình thành ra hai cột và một cột tổng,
+     * và nó nói thẳng đúng điều `commonMistakes` cảnh báo — vay 800 triệu mà phải trả 1.790
+     * triệu.
+     */
+    breakdown: [
+      { key: 'totalPaid', sign: 1, shortLabel: 'Tổng phải trả' },
+      { key: 'amount', sign: -1, shortLabel: 'Trừ gốc vay' },
+    ],
+    breakdownTotal: 'Tổng lãi',
     level: 'basic',
     isFeatured: true,
     tags: ['lich tra no', 'tong lai', 'bang tra no', 'amortisation'],
@@ -266,7 +312,20 @@ export const LICH_TRA_NO: FormulaModule = {
     }
 
     const totalInterest = schedule.reduce((sum, row) => sum + row.interest, 0);
-    const totalPaid = schedule.reduce((sum, row) => sum + row.payment, 0);
+    /*
+     * Suy ra chứ KHÔNG cộng dồn `row.payment`, dù hai cách bằng nhau về toán.
+     *
+     * Cộng dồn thì tổng phải trả và số gốc vay đi theo hai đường tích luỹ khác nhau, nên ở lãi
+     * suất 0 chúng lệch nhau một hạt bụi dấu phẩy động: đo được 799.999.999,99999988 so với
+     * 800.000.000 đúng. Chặng bóc tách "tổng phải trả − gốc vay" khi ấy ra −1,19e−7 thay vì 0,
+     * `Math.floor` trong `niceAxis` nới trục xuống trọn một bước, và người dùng thấy vạch
+     * "−200 (triệu ₫)" dưới một biểu đồ không có cột nào âm. Đo trên lưới thanh trượt thật:
+     * 1.214 bộ số dính, tất cả đều ở lãi suất 0 — kể cả bộ mặc định 800 triệu / 20 năm của WF-14.
+     *
+     * `buildAmortisation` ép kỳ cuối đóng dư nợ về đúng 0, nên gốc trả trong lịch đúng bằng
+     * `amount` và đẳng thức này chặt chứ không phải xấp xỉ.
+     */
+    const totalPaid = v('amount') + totalInterest;
 
     return ok(totalInterest, '₫', {
       extras: { totalPaid, periods: schedule.length, firstPayment: schedule[0]?.payment ?? 0 },

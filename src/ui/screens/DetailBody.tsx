@@ -9,11 +9,11 @@ import { FeeScheduleField } from './FeeScheduleField';
 /**
  * Khối kết quả riêng của một số công thức — gói WBS 3.2.1 ("tải trễ khối nặng").
  *
- * Phần lớn trong 107 công thức chỉ cần khối kết quả chung của WF-03. Vài công thức có màn
+ * Phần lớn trong 108 công thức chỉ cần khối kết quả chung của WF-03. Vài công thức có màn
  * riêng trong wireframe: WF-08 bóc tách phí & thuế, WF-14 lịch trả nợ 240 kỳ.
  *
  * Vì sao KHÔNG tách thành route riêng như `/phi-thue/`:
- * giữ một lược đồ URL `/cong-thuc/<id>/` cho cả 107 công thức thì sitemap, `formulaPath()`
+ * giữ một lược đồ URL `/cong-thuc/<id>/` cho cả 108 công thức thì sitemap, `formulaPath()`
  * và mọi link nội bộ không phải xử lý ngoại lệ (FR-25). Ở đây chỉ là thân màn khác nhau.
  *
  * `next/dynamic` để hai khối này chỉ tải khi đúng công thức đó được mở, chứ không nằm trong

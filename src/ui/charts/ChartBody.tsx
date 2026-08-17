@@ -10,6 +10,7 @@ import { ChartFrame } from './ChartFrame';
 import { ChartFullscreen } from './ChartFullscreen';
 import { LineChart } from './LineChart';
 import { SweepPicker } from './SweepPicker';
+import { WaterfallChart } from './WaterfallChart';
 import { ZoomButton } from './ZoomButton';
 
 /**
@@ -136,7 +137,16 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
           />
         }
       >
-        <LineChart model={model} idBase={idBase} />
+        {/*
+          Một `switch` trên `kind`, đúng lời hứa ở đầu `chart/types.ts`: mọi phần khó đã xong ở
+          Domain, chỗ này chỉ chọn renderer. Thêm loại thứ tư sau này cũng chỉ thêm một nhánh —
+          `ChartFrame` và màn phóng to nhận `DrawableChart` nên không phải sửa.
+        */}
+        {model.kind === 'waterfall' ? (
+          <WaterfallChart model={model} idBase={idBase} />
+        ) : (
+          <LineChart model={model} idBase={idBase} />
+        )}
       </ChartFrame>
 
       <ChartFullscreen

@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { memo } from 'react';
 
-import { findCategory, formulaPath, t } from '@/application';
+import { findCategory, formulaPath } from '@/application';
 import type { FormulaSummary } from '@/application';
 
+import { T } from '../i18n/T';
 import styles from './FormulaCard.module.css';
 
 export interface FormulaCardProps {
@@ -29,6 +30,10 @@ export interface FormulaCardProps {
  *
  * Cả thẻ là một thẻ <a> thật, không phải div bắt sự kiện: bấm được, mở tab mới được,
  * và điều hướng được cả khi JavaScript chưa tải xong.
+ *
+ * Badge cấp độ đi qua lá `<T>` chứ không `useT()`: file này được dựng ở CẢ HAI phía — client
+ * (FormulaBrowser, HomeSearchPanel) lẫn server (StaticFormulaList, fallback SEO) — nên gọi hook
+ * thẳng sẽ ném lỗi ở lượt dựng server. Lá `<T>` chạy được cả hai chỗ.
  */
 function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: FormulaCardProps) {
   const category = findCategory(formula.categoryId);
@@ -52,7 +57,7 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
         <div className={styles.head}>
           <span className={styles.name}>{formula.name.vi}</span>
           <span className={`${styles.badge} ${isBasic ? styles.basic : styles.advanced}`}>
-            {t(isBasic ? 'level.basic' : 'level.advanced')}
+            <T k={isBasic ? 'level.basic' : 'level.advanced'} />
           </span>
         </div>
 

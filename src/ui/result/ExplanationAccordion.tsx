@@ -1,5 +1,7 @@
-import { t } from '@/application';
+'use client';
+
 import type { Explanation, MessageKey } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './ExplanationAccordion.module.css';
 
@@ -42,6 +44,7 @@ export function ExplanationAccordion({
   defaultOpen = true,
   className,
 }: ExplanationAccordionProps) {
+  const t = useT();
   const classes = [styles.wrap, className].filter(Boolean).join(' ');
 
   return (

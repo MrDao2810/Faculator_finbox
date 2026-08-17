@@ -105,6 +105,29 @@ export interface FormulaTestCase {
 }
 
 /**
+ * Một chặng của biểu đồ bóc tách — thác nước và cột chồng của WF-17 (FR-07).
+ *
+ * Vì sao khai bằng METADATA chứ không suy từ `extras` của `CalcOutput`: `extras` là một
+ * `Record` không thứ tự, không dấu, không nhãn. Thác nước cần đúng ba thứ đó — chặng nào trước,
+ * cộng hay trừ, và gọi là gì trong một cột rộng 40px. Suy đoán từ tên khoá là đoán mò, còn khai
+ * ra thì thêm một chặng chỉ là thêm một dòng, không phải sửa renderer (NFR-MNT-01, LDR-01).
+ */
+export interface BreakdownStage {
+  /**
+   * Khoá của một BIẾN đầu vào, hoặc của một mục trong `extras` khi chặng ấy phải tính ra
+   * mới có (ví dụ EBIT sau thuế của FCFF — không có ô nhập nào mang sẵn con số đó).
+   */
+  key: string;
+  /** Cộng hay trừ vào tổng đang chạy. */
+  sign: 1 | -1;
+  /**
+   * Nhãn cho cột hẹp. Thiếu thì lấy nhãn của biến — mà nhãn biến thường dài gấp mấy lần bề
+   * ngang một cột ở màn 360px, nên chặng nào có nhãn dài đều nên khai ngắn lại ở đây.
+   */
+  shortLabel?: string;
+}
+
+/**
  * Một cạnh của đồ thị phụ thuộc: đầu ra của công thức khác chảy vào một biến ở đây (FR-15).
  * Gói 5.3.1 đọc chính các cạnh này để sắp xếp topo.
  */
@@ -121,7 +144,7 @@ export interface FormulaDependency {
  * Tách ra khỏi `FormulaSpec` vì lý do dung lượng, không phải vì gọn mã (NFR-PER-04):
  * phần nặng của một công thức là bốn đoạn `explanation`, `example`, `tests` và `source` —
  * chữ nghĩa mà màn danh sách không bao giờ hiện. Gộp chung thì MỌI trang phải tải diễn giải
- * của cả 107 công thức chỉ để vẽ được cái thẻ có tên và một dòng mô tả.
+ * của cả 108 công thức chỉ để vẽ được cái thẻ có tên và một dòng mô tả.
  *
  * Bộ dữ liệu thật nằm ở `formulas/summaries.generated.ts`, sinh ra từ chính `ALL_FORMULAS`
  * nên không thể lệch — `summaries.test.ts` gác chuyện đó.
@@ -162,6 +185,21 @@ export interface FormulaSpec extends FormulaSummary {
   source: ReadonlyArray<FormulaSource>;
   note?: string;
   dependsOn?: ReadonlyArray<FormulaDependency>;
+  /**
+   * Các chặng của biểu đồ bóc tách. Chỉ có nghĩa với `chartType` là `waterfall` hoặc
+   * `stackedBar`; công thức khác bỏ trống và không mất gì.
+   *
+   * Tổng các chặng phải ra đúng KẾT QUẢ của công thức — có ca kiểm chốt điều đó, vì một biểu đồ
+   * bóc tách cộng không ra con số ở khối Kết quả là biểu đồ nói dối về chính phép tính của nó.
+   */
+  breakdown?: ReadonlyArray<BreakdownStage>;
+  /**
+   * Nhãn của CỘT TỔNG trong hình bóc tách. Thiếu thì lấy phần trước dấu gạch dài của tên công
+   * thức — đúng cho `ev` ('EV — giá trị doanh nghiệp' thành 'EV'), sai cho những công thức mà
+   * tên gọi tên CÔNG VIỆC chứ không gọi tên đại lượng: cột tổng của `lich-tra-no` mang giá trị
+   * tổng lãi, gắn nhãn 'Lịch trả nợ vay' vào đó là đặt sai tên cho chính con số nó đang bày.
+   */
+  breakdownTotal?: string;
 }
 
 /** Cách sắp xếp danh sách công thức ở WF-02. */

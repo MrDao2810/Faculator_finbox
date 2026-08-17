@@ -19,6 +19,10 @@ import styles from './StaticFormulaList.module.css';
  *
  * Thứ tự lấy đúng `DEFAULT_LIST_PARAMS` qua cùng một `selectFormulas()` — lệch thứ tự với
  * FormulaBrowser là danh sách "nhảy" ngay lúc hydrate.
+ *
+ * CỐ Ý dùng `t()` build-time (tiếng Việt) chứ không theo locale: khối này tồn tại cho bộ máy
+ * tìm kiếm và cho người chưa chạy xong JS — hai đối tượng đều chưa có locale; hydrate xong là
+ * FormulaBrowser (đã theo locale) thế chỗ nguyên khối.
  */
 export function StaticFormulaList() {
   const formulas = selectFormulas(FORMULA_SUMMARIES, DEFAULT_LIST_PARAMS);

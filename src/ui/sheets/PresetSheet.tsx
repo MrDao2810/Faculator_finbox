@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { SAMPLE_DATA, t } from '@/application';
+import { SAMPLE_DATA } from '@/application';
 import type { Preset } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { BottomSheet, Button } from '@/ui/primitives';
 
 import styles from './PresetSheet.module.css';
@@ -66,6 +67,8 @@ export function PresetSheet({ open, onClose, onLoad }: PresetSheetProps) {
     const height = resultsRef.current?.getBoundingClientRect().height ?? 0;
     if (height > 0) setFloor(height);
   }, [open]);
+
+  const t = useT();
 
   /** Xoá luôn từ khoá khi đóng, để lần mở sau bắt đầu từ danh sách đầy đủ. */
   function close(): void {

@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 
-import { formulaPath, resolveLinked, startOverrideValue, t } from '@/application';
+import { formulaPath, resolveLinked, startOverrideValue } from '@/application';
 import type { Level, LinkedUpstream, VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { Button } from '@/ui/primitives';
 
 import { InlineWarning } from '../result/InlineWarning';
@@ -42,6 +43,7 @@ export function LinkedInput({
   mode = 'advanced',
   className,
 }: LinkedInputProps) {
+  const t = useT();
   const args = { spec, upstream, override };
   const linked = resolveLinked(args);
 

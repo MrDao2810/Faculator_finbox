@@ -18,11 +18,19 @@ import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
 import { formatNumber, formatValueWithUnit } from '../format';
 import type { CalcOutput, Level } from '../types';
 import { WARNING_LABELS, meaningless } from '../warnings';
+import {
+  BREAKDOWN_KEY,
+  BREAKDOWN_LABEL,
+  breakdownBars,
+  breakdownExtent,
+  canDrawBreakdown,
+} from './breakdown';
 import { HISTORY_KEY, HISTORY_LABEL, canDrawHistory, historyPoints, sessionTicks } from './history';
 import { decimalsOf, extentOf, niceAxis } from './scale';
 import { pickSweepVariable, sweepCandidates, sweepPoints } from './sweep';
 import { condensePoints } from './table';
-import type { ChartAxis, ChartModel, ChartPoint, ChartTable } from './types';
+import type { FormulaSpec } from '../registry/types';
+import type { ChartAxis, ChartModel, ChartPoint, ChartTable, SweepOption } from './types';
 
 export interface ChartArgs {
   formula: FormulaModule;
@@ -67,6 +75,62 @@ function axisUnit(unit: string, maxAbs: number): { factor: number; label: string
   if (unit === '₫' && maxAbs >= 1_000_000_000) return { factor: 1_000_000_000, label: 'tỷ ₫' };
   if (unit === '₫' && maxAbs >= 1_000_000) return { factor: 1_000_000, label: 'triệu ₫' };
   return { factor: 1, label: unit };
+}
+
+/**
+ * Mô hình thác nước — dựng xong ở đây, renderer chỉ còn chiếu toạ độ.
+ *
+ * Không dùng chung nhánh cuối của `buildChartModel()` vì hai thứ khác hẳn: thác nước không có
+ * trục X kiểu số (trục ngang là các CHẶNG, không phải một đại lượng), và miền trục Y phải chứa 0.
+ */
+function buildBreakdownModel(
+  spec: FormulaSpec,
+  inputs: CalcInputs,
+  output: CalcOutput,
+  name: string,
+  options: ReadonlyArray<SweepOption>,
+): ChartModel {
+  const bars = breakdownBars(spec, inputs, output);
+  const extent = breakdownExtent(bars);
+
+  if (bars.length === 0 || extent === null) {
+    return { kind: 'unavailable', title: name, warning: output.warning ?? NOTHING_TO_DRAW };
+  }
+
+  /*
+   * Trục giá trị mang tên ĐẠI LƯỢNG, không mang tên công thức — cùng lý do với nhãn cột tổng.
+   * Trục của `lich-tra-no` đo tổng lãi; gắn 'Lịch trả nợ vay (tỷ ₫)' vào đó là đặt tên một công
+   * việc cho một số tiền. Công thức không khai `breakdownTotal` thì giữ nguyên nếp cũ của mọi
+   * biểu đồ khác, nên thay đổi này chỉ chạm đúng những cái vừa khai.
+   */
+  const y = buildAxis(extent[0], extent[1], spec.breakdownTotal ?? name, spec.resultUnit);
+  const total = bars[bars.length - 1];
+
+  const stages = bars.filter((bar) => bar.isTotal !== true);
+  const cong = stages.filter((bar) => bar.delta >= 0).length;
+  const tru = stages.length - cong;
+
+  const sentences = [
+    `${name} bóc thành ${String(stages.length)} phần: ${stages.map((bar) => bar.label).join(' · ')}.`,
+    cong > 0 && tru > 0
+      ? `${String(cong)} phần cộng vào, ${String(tru)} phần trừ ra.`
+      : `Mọi phần đều ${cong > 0 ? 'cộng vào' : 'trừ ra'}.`,
+    total === undefined ? '' : `Cộng lại được ${total.valueLabel}.`,
+  ];
+
+  return {
+    kind: 'waterfall',
+    title: `${name} — bóc tách`,
+    summary: sentences.filter((sentence) => sentence !== '').join(' '),
+    y,
+    bars,
+    table: {
+      columns: ['Thành phần', y.title],
+      rows: bars.map((bar) => [bar.label, bar.valueLabel] as const),
+    },
+    options,
+    sweepKey: BREAKDOWN_KEY,
+  };
 }
 
 function buildAxis(lo: number, hi: number, name: string, unit: string): ChartAxis {
@@ -146,10 +210,34 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    * chuỗi `sweepKey` rồi bắn lên. Chỗ duy nhất biết có hai lối sinh điểm là hàm này.
    */
   const historyReady = canDrawHistory(formula, ctx);
+  const breakdownReady = canDrawBreakdown(spec, inputs, output);
   const options = [
+    ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
     ...candidates.map((variable) => ({ key: variable.key, label: shortLabel(variable.label) })),
   ];
+
+  /*
+   * Bóc tách MẶC ĐỊNH hay chỉ là một mục trong ô chọn — quyết bằng `chartType`, không bằng việc
+   * công thức có khai `breakdown` hay không.
+   *
+   * `waterfall` nghĩa là bóc tách CHÍNH LÀ biểu đồ của công thức đó. Thứ đáng xem nhất của EV
+   * không phải "vốn hoá tăng thì EV tăng bao nhiêu" — đường ấy là một đường thẳng hệ số góc bằng
+   * 1, đúng loại hình mà chính dự án viết luật `chartType: 'none'` để loại.
+   *
+   * `stackedBar` thì khác hẳn, và ba công thức vay là ví dụ: đường quét tổng lãi theo kỳ hạn là
+   * một đường cong lồi, và nó chính là điều `commonMistakes` của `lich-tra-no` cảnh báo ("kéo dài
+   * kỳ hạn làm khoản trả hằng tháng nhẹ đi nhưng tổng lãi tăng mạnh"). Bày bóc tách đè lên nó là
+   * lấy một hình tốt thay bằng một hình tốt khác — không được lợi gì mà mất cái đang có. Nên ở
+   * nhóm này bóc tách đứng sẵn trong ô chọn, người dùng bấm một lần là thấy.
+   */
+  const breakdownFirst = breakdownReady && spec.chartType === 'waterfall';
+  if (
+    breakdownReady &&
+    (sweepKey === BREAKDOWN_KEY || (sweepKey === undefined && breakdownFirst))
+  ) {
+    return buildBreakdownModel(spec, inputs, output, name, options);
+  }
 
   /*
    * Có dữ liệu thật thì MẶC ĐỊNH vẽ theo dữ liệu thật.

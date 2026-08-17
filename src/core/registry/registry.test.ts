@@ -81,10 +81,10 @@ describe('12 nhóm công thức (FR-01)', () => {
     expect(new Set(CATEGORIES.map((c) => c.id)).size).toBe(12);
   });
 
-  it('khớp bảng SRS 3.8: 94 chứng khoán + 13 cá nhân = 107', () => {
-    expect(expectedCountOf('stock')).toBe(94);
+  it('khớp bảng SRS 3.8 sau khi nâng nhóm Định giá: 95 chứng khoán + 13 cá nhân = 108', () => {
+    expect(expectedCountOf('stock')).toBe(95);
     expect(expectedCountOf('personal')).toBe(13);
-    expect(expectedCountOf('stock') + expectedCountOf('personal')).toBe(107);
+    expect(expectedCountOf('stock') + expectedCountOf('personal')).toBe(108);
   });
 
   it('chia đúng 7 nhóm chứng khoán và 5 nhóm cá nhân', () => {
@@ -343,7 +343,7 @@ describe('sinh giao diện từ Registry (FR-05, FR-09)', () => {
 
 /*
  * Chạy trên THƯ VIỆN THẬT chứ không trên fixture: thứ đang được gác ở đây là quan hệ giữa
- * cấu hình `level` của 107 công thức và cái người dùng nhìn thấy, mà quan hệ đó chỉ sai được
+ * cấu hình `level` của 108 công thức và cái người dùng nhìn thấy, mà quan hệ đó chỉ sai được
  * khi dữ liệu thật đổi. Nhóm 'corporate-finance' có 2/2 công thức mức nâng cao, nên ở chế độ
  * Cơ bản nó rỗng — chấp nhận được VÌ màn có dòng "N công thức nâng cao đang ẩn" kèm nút bật.
  * Ca kiểm dưới chốt đúng điều kiện đó: rỗng thì phải đếm ra được số để mà nói.
@@ -351,9 +351,9 @@ describe('sinh giao diện từ Registry (FR-05, FR-09)', () => {
 describe('chế độ hiển thị lọc thư viện thật (FR-09)', () => {
   const BASE: FormulaQuery = { q: '', segment: 'all', categoryId: null, sort: 'featured' };
 
-  it('Nâng cao thấy đủ 107, Cơ bản thấy ít hơn hẳn', () => {
-    expect(formulasForLevel(FORMULA_SUMMARIES, 'advanced')).toHaveLength(107);
-    expect(formulasForLevel(FORMULA_SUMMARIES, 'basic').length).toBeLessThan(107);
+  it('Nâng cao thấy đủ 108, Cơ bản thấy ít hơn hẳn', () => {
+    expect(formulasForLevel(FORMULA_SUMMARIES, 'advanced')).toHaveLength(108);
+    expect(formulasForLevel(FORMULA_SUMMARIES, 'basic').length).toBeLessThan(108);
   });
 
   it('không nhóm nào rỗng ở chế độ Cơ bản mà KHÔNG đếm ra được số công thức đang ẩn', () => {

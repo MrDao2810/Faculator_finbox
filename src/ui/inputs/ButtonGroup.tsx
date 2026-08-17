@@ -1,7 +1,8 @@
 'use client';
 
-import { isLockedForMode, t } from '@/application';
+import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './ButtonGroup.module.css';
 
@@ -29,6 +30,7 @@ export function ButtonGroup({
   mode = 'advanced',
   className,
 }: ButtonGroupProps) {
+  const t = useT();
   const options = spec.options ?? [];
   const locked = isLockedForMode(spec, mode);
 

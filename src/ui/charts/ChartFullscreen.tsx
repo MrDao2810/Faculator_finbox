@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { t } from '@/application';
-import type { LineChart as LineChartModel } from '@/application';
+import type { DrawableChart } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import { LineChart } from './LineChart';
+import { WaterfallChart } from './WaterfallChart';
 import styles from './chart.module.css';
 
 /**
@@ -33,7 +34,7 @@ import styles from './chart.module.css';
 export interface ChartFullscreenProps {
   open: boolean;
   onClose: () => void;
-  model: LineChartModel;
+  model: DrawableChart;
   /**
    * Gốc để ghép `id` của tiêu đề và của `<pattern>` bên trong hình.
    *
@@ -92,6 +93,7 @@ function usePortrait(active: boolean): boolean | null {
 }
 
 export function ChartFullscreen({ open, onClose, model, idBase, controls }: ChartFullscreenProps) {
+  const t = useT();
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = `${idBase}-title`;
 
@@ -279,7 +281,11 @@ export function ChartFullscreen({ open, onClose, model, idBase, controls }: Char
             </button>
           </header>
 
-          <LineChart model={model} idBase={idBase} fill />
+          {model.kind === 'waterfall' ? (
+            <WaterfallChart model={model} idBase={idBase} fill />
+          ) : (
+            <LineChart model={model} idBase={idBase} fill />
+          )}
 
           <div className={styles.fullFoot}>
             {controls}

@@ -6,7 +6,7 @@
  *   · một dòng GỢI Ý SỬA, hiện sau mũi tên ↳ trên giao diện.
  *
  * Công thức không tự chế thông điệp. Muốn báo lỗi thì gọi hàm trong file này,
- * để cả 107 công thức nói cùng một giọng và đội nội dung sửa được ở một chỗ.
+ * để cả 108 công thức nói cùng một giọng và đội nội dung sửa được ở một chỗ.
  */
 
 import type { CalcWarning, WarningCode } from './types';

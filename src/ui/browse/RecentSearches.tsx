@@ -1,6 +1,6 @@
 'use client';
 
-import { t } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './RecentSearches.module.css';
 
@@ -19,6 +19,8 @@ export interface RecentSearchesProps {
  * LDR-04: chỉ là những chuỗi chính người dùng đã gõ, nằm trên máy họ, có nút xoá hết.
  */
 export function RecentSearches({ terms, onPick, onClear }: RecentSearchesProps) {
+  const t = useT();
+
   if (terms.length === 0) return null;
 
   return (

@@ -1,8 +1,13 @@
 /**
  * Tầng DOMAIN — 12 nhóm công thức của FR-01.
  *
- * Số lượng ở `expectedCount` lấy đúng bảng SRS mục 3.8: 94 công thức mảng chứng khoán
- * và 13 công thức mảng tài chính cá nhân, tổng 107.
+ * Số lượng ở `expectedCount` lấy theo bảng SRS mục 3.8: 95 công thức mảng chứng khoán
+ * và 13 công thức mảng tài chính cá nhân, tổng 108.
+ *
+ * Bảng gốc của SRS ghi 94 / 13 / 107. Nhóm Định giá được nâng 18 → 19 ở gói 5.2.3 để có chỗ cho
+ * `gia-tri-noi-tai-fcff` — mắt xích khép nhánh FCFF của chuỗi định giá, thiếu nó thì WACC, FCFF
+ * và FCFE là ba công thức không ai tiêu thụ kết quả. Chủ dự án đã chốt; **bảng SRS ngoài repo
+ * phải sửa theo cho khớp**, nếu không hai tài liệu lệch nhau vĩnh viễn.
  *
  * `shortName` lấy đúng nguyên văn wireframe WF-01 — đó là chữ đã được duyệt cho lưới hai cột,
  * không phải bản rút gọn tôi tự nghĩ ra.
@@ -11,7 +16,7 @@
 import type { Category } from './types';
 
 export const CATEGORIES: ReadonlyArray<Category> = [
-  // ── Mảng chứng khoán — 94 công thức ────────────────────────────────────────
+  // ── Mảng chứng khoán — 95 công thức ────────────────────────────────────────
   {
     id: 'valuation',
     segment: 'stock',
@@ -19,7 +24,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     shortName: 'Định giá',
     nameEn: 'Valuation',
     description: 'Ước tính giá trị hợp lý của cổ phiếu: bội số, chiết khấu dòng tiền, cổ tức.',
-    expectedCount: 18,
+    expectedCount: 19,
   },
   {
     id: 'fundamentals',
@@ -45,7 +50,9 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     name: 'Rủi ro & danh mục',
     shortName: 'Rủi ro',
     nameEn: 'Risk & portfolio',
-    description: 'Đo biến động và rủi ro: Beta, Sharpe, Sortino, Max Drawdown, VaR.',
+    // KHÔNG kể "Beta" ở đây: nhóm chưa có công thức Beta (hồi quy cần chuỗi VN-Index mà bộ mẫu
+    // chưa có — gói 3.3.2). Kể ra là hứa một công thức người dùng tìm không thấy.
+    description: 'Đo biến động và rủi ro: Sharpe, Sortino, Treynor, Max Drawdown, VaR.',
     expectedCount: 17,
   },
   {
@@ -135,7 +142,7 @@ export function categoriesOf(segment: Category['segment']): ReadonlyArray<Catego
   return CATEGORIES.filter((c) => c.segment === segment);
 }
 
-/** Tổng số công thức dự kiến của một mảng — dùng cho nhãn “chứng khoán 94 / cá nhân 13” ở WF-01. */
+/** Tổng số công thức dự kiến của một mảng — dùng cho nhãn “chứng khoán 95 / cá nhân 13” ở WF-01. */
 export function expectedCountOf(segment: Category['segment']): number {
   return categoriesOf(segment).reduce((sum, c) => sum + c.expectedCount, 0);
 }

@@ -1,7 +1,8 @@
 'use client';
 
-import { formatCalcOutput, formatValueWithUnit, t } from '@/application';
+import { formatCalcOutput, formatValueWithUnit } from '@/application';
 import type { CalcInputs, CalcOutput, FormulaSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { InlineNumber } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 
@@ -46,6 +47,7 @@ export interface ExampleBlockProps {
  * hai con số cùng đứng mà không nói rõ cái nào là cái nào.
  */
 export function ExampleBlock({ formula, inputs, output, onChange, className }: ExampleBlockProps) {
+  const t = useT();
   const { example } = formula;
   const classes = [styles.block, className].filter(Boolean).join(' ');
 

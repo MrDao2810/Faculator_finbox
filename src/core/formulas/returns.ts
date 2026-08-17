@@ -111,7 +111,8 @@ export const HPR: FormulaModule = {
     ],
     explanation: {
       meaning: 'Tổng lợi ích thu được trên một cổ phiếu trong kỳ, gồm cả lãi giá lẫn cổ tức.',
-      whenToUse: 'Khi đánh giá một cổ phiếu có trả cổ tức đều.',
+      whenToUse:
+        'Khi chốt lại một khoản đã bán và muốn tính trọn cả lãi giá lẫn cổ tức đã nhận trong suốt thời gian nắm giữ.',
       howToRead:
         'Cao hơn tỷ suất tính theo giá thuần đúng bằng phần cổ tức, nên cổ phiếu cổ tức cao nhìn khác hẳn.',
       commonMistakes:

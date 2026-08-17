@@ -2,7 +2,7 @@
 
 import { useId } from 'react';
 
-import { t } from '@/application';
+import { useT } from '@/application/preferences-context';
 
 import styles from './Switch.module.css';
 
@@ -36,6 +36,7 @@ export function Switch({
   className,
 }: SwitchProps) {
   const labelId = useId();
+  const t = useT();
   const hintId = `${labelId}-hint`;
 
   const classes = [styles.row, className].filter(Boolean).join(' ');

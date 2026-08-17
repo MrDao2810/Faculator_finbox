@@ -66,7 +66,7 @@ import { ALL_FORMULAS } from '../formulas';
 import type { FormulaSpec } from './types';
 
 /**
- * Toàn bộ công thức của sản phẩm, ĐẦY ĐỦ metadata — đủ 107 / 107.
+ * Toàn bộ công thức của sản phẩm, ĐẦY ĐỦ metadata — đủ 108 / 108.
  * Thêm công thức là sửa `src/core/formulas/`, không sửa file này.
  *
  * Nặng: kéo theo cả diễn giải, ví dụ, ca kiểm thử và hàm tính của mọi công thức. Chỉ màn

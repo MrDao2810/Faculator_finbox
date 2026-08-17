@@ -13,9 +13,9 @@ import {
   removeHolding,
   serializeHoldings,
   summarisePortfolio,
-  t,
 } from '@/application';
 import type { Holding } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { Button, Input, Select } from '@/ui/primitives';
 import { StatTile } from '@/ui/result';
 
@@ -61,6 +61,7 @@ interface FormState {
 const EMPTY_FORM: FormState = { code: '', quantity: '', costPrice: '', buyDate: '', beta: '' };
 
 export function PortfolioScreen() {
+  const t = useT();
   const [holdings, setHoldings] = useState<ReadonlyArray<Holding>>([]);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [formOpen, setFormOpen] = useState(false);

@@ -6,7 +6,7 @@ import katex from 'katex';
  * ── Bất biến của file này: CHỈ server component được import ────────────────────────────────────
  *
  * `page.tsx` không có `'use client'`, nên với `output: 'export'` nó chạy **đúng một lần trên máy
- * build** và kết quả được nướng thẳng vào HTML tĩnh của 107 trang. Đó là toàn bộ lý do gói này
+ * build** và kết quả được nướng thẳng vào HTML tĩnh của 108 trang. Đó là toàn bộ lý do gói này
  * không tốn một byte JS nào phía máy khách — `katex` nặng ~280 kB thô, đưa vào gói trình duyệt là
  * vượt cửa kiểm 170 kB của NFR-PER-04 ngay lập tức.
  *
@@ -36,10 +36,10 @@ import katex from 'katex';
  *
  * ── Ba điều đã kiểm, ghi lại để khỏi kiểm lại ─────────────────────────────────────────────────
  *
- * 1. **Cả 107 chuỗi `latex` đều dựng được**, 0 lỗi, 0 cảnh báo ở `strict: false`.
+ * 1. **Cả 108 chuỗi `latex` đều dựng được**, 0 lỗi, 0 cảnh báo ở `strict: false`.
  * 2. **KaTeX tự bẻ vài ký tự có dấu thành dấu chồng** — "ố" thành `<mover>` hai tầng trên "o".
  *    Đây là hành vi của thư viện, không phải lỗi dữ liệu: nguồn đã ở dạng NFC (U+1ED1), đã kiểm
- *    cả 107 chuỗi `latex`, `name.vi` và `expression` — không chuỗi nào lệch NFC. Chụp màn bằng
+ *    cả 108 chuỗi `latex`, `name.vi` và `expression` — không chuỗi nào lệch NFC. Chụp màn bằng
  *    Chrome thật cho thấy kết quả hiện **đúng y chữ "ố"**, nên không phải xử lý gì.
  * 3. **Không cần lọc HTML.** Đầu vào là hằng số trong repo, không phải chữ người dùng gõ, và
  *    `trust` để mặc định `false` nên KaTeX từ chối mọi lệnh sinh liên kết hay thuộc tính tuỳ ý.

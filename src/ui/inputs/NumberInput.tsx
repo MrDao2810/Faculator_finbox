@@ -2,15 +2,25 @@
 
 import { useState } from 'react';
 
-import { commitValue, formatNumber, resolveInputState, t } from '@/application';
+import { commitValue, formatNumber, parseViNumber, resolveInputState } from '@/application';
 import type { InputState, Level, VariableSpec } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { Input, type InputTone } from '@/ui/primitives';
 
 export interface NumberInputProps {
   spec: VariableSpec;
   /** Giá trị hiện tại. Component không tự giữ state — màn hình mới là nơi giữ. */
   value: number;
-  /** Gọi khi giá trị đã CHỐT (rời ô hoặc Enter), đã kẹp về miền hợp lệ. */
+  /**
+   * Gọi mỗi khi giá trị đọc được từ ô thay đổi.
+   *
+   * Hai thời điểm, và chúng khác nhau ở chỗ có KẸP hay không:
+   *
+   * - **Từng phím gõ**, với giá trị thô chưa kẹp — để khối Kết quả đổi theo ngay trong lúc gõ.
+   *   Gõ dở thành chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì KHÔNG gọi: giữ nguyên giá trị cũ còn
+   *   hơn đẩy `null` hay `NaN` lên (FR-06).
+   * - **Lúc chốt** (rời ô hoặc Enter), với giá trị đã kẹp về miền hợp lệ qua `commitValue()`.
+   */
   onChange: (value: number) => void;
   /** Chế độ hiển thị hiện tại — quyết định ô có bị khoá không (FR-09). */
   mode?: Level;
@@ -42,6 +52,12 @@ const TONE_BY_STATE: Readonly<Record<InputState, InputTone>> = {
  * 1. **Không kẹp giá trị trong lúc gõ.** Người dùng gõ '−4' thì ô hiện '−4' kèm '! min 0',
  *    chứ không tự nhảy về 0 ngay giữa chừng — sửa giá trị dưới tay người đang gõ là cách
  *    nhanh nhất làm họ mất phương hướng. Kẹp chỉ xảy ra lúc chốt, qua `commitValue()`.
+ *
+ *    Lưu ý điều này KHÔNG có nghĩa là giữ giá trị lại không cho ra ngoài. Bản đầu chỉ gọi
+ *    `onChange` lúc rời ô, nên gõ xong cả một con số mà khối Kết quả vẫn đứng im cho tới khi
+ *    người dùng bấm ra chỗ khác — trông y như màn bị treo. Nay mỗi phím gõ đều đẩy giá trị thô
+ *    lên, còn việc kẹp thì vẫn để dành cho lúc chốt. Hai chuyện khác nhau: một đằng là ĐỔI thứ
+ *    người dùng đang gõ, một đằng là cho phần còn lại của màn biết họ đang gõ gì.
  * 2. **Ô giữ chuỗi thô khi đang gõ, giữ chuỗi đã định dạng khi rời ra.** Nếu định dạng ngay
  *    từng phím thì gõ '92000' sẽ bị chèn dấu chấm giữa chừng và con trỏ nhảy lung tung.
  * 3. **Dòng phụ đi qua `hint`/`error` của primitive** chứ không tự vẽ thẻ riêng — nhờ vậy nó
@@ -63,6 +79,7 @@ export function NumberInput({
   const [focused, setFocused] = useState(false);
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
   const [draft, setDraft] = useState<string | null>(null);
+  const t = useT();
 
   const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
   const { state, note } = resolveInputState({ raw, spec, focused, derivedFrom, mode });
@@ -99,7 +116,19 @@ export function NumberInput({
         setDraft(String(value));
       }}
       onChange={(event) => {
-        setDraft(event.target.value);
+        const next = event.target.value;
+        setDraft(next);
+
+        /*
+         * Đẩy lên NGAY, không đợi rời ô — đây là thứ làm khối Kết quả sống theo tay gõ.
+         *
+         * `null` là chuỗi chưa ra số: ô vừa bị xoá trắng, mới gõ mỗi dấu trừ, hay đang dở
+         * '1,'. Những lúc ấy giữ nguyên giá trị cũ, vì đẩy lên `null` thì phải quy nó thành 0
+         * hoặc NaN — cả hai đều là thứ FR-06 cấm. Rời ô thì `commitValue()` lo nốt: trống
+         * thì về `defaultValue` của chính biến đó.
+         */
+        const parsed = parseViNumber(next);
+        if (parsed !== null) onChange(parsed);
       }}
       onBlur={() => {
         setFocused(false);

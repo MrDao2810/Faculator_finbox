@@ -2,99 +2,158 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
-| Gói   | Nội dung                                             | Giờ WBS | Trạng thái                                    |
-| ----- | ---------------------------------------------------- | ------- | --------------------------------------------- |
-| 1.1.1 | Repo + toolchain                                     | 3h00    | Xong (từ trước)                               |
-| 1.1.2 | CI/CD + hosting tĩnh                                 | 3h30    | Xong (từ trước)                               |
-| 1.2.1 | Design token & primitive                             | 10h00   | Xong — đợt 1                                  |
-| 1.3.1 | FormulaRegistry: schema, bộ sinh, validator          | 7h00    | Xong — đợt 1                                  |
-| 1.3.2 | MarketConfig thuế & phí                              | 3h30    | Code xong — **số liệu chờ người đối chiếu**   |
-| 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                       | 4h00    | Xong — đợt 1                                  |
-| 1.4.1 | Routing, URL state & khung i18n                      | 5h30    | Xong — đợt 2, **trừ route động**              |
-| 1.4.2 | App shell & layout                                   | 2h00    | Xong — đợt 2                                  |
-| 2.1.1 | AppHeader · OfflineBanner · ModeToggle · LangSwitch  | 10h00   | Xong — đợt 2                                  |
-| 2.1.2 | BottomTabBar                                         | 2h30    | Xong — đợt 2                                  |
-| 2.1.3 | DisclaimerBar                                        | 2h00    | Xong — đợt 2                                  |
-| 2.2.1 | SearchBox bỏ dấu                                     | 5h00    | Xong — đợt 3                                  |
-| 2.2.2 | CategoryFilter                                       | 3h30    | Xong — đợt 3                                  |
-| 2.2.3 | FormulaCard                                          | 3h00    | Xong — đợt 3                                  |
-| 2.3.1 | NumberInput — 5 trạng thái WF-16                     | 8h00    | Xong — đợt 5                                  |
-| 2.3.2 | SliderInput · ButtonGroup · RadioGroup               | 6h00    | Xong — đợt 5                                  |
-| 2.3.3 | SelectInput · Toggle · UnitSwitcher                  | 4h00    | Xong — đợt 5                                  |
-| 2.3.4 | LinkedInput                                          | 12h00   | Xong — đợt 5                                  |
-| 2.4.1 | ResultBlock                                          | 5h00    | Xong — đợt 5                                  |
-| 2.4.2 | ErrorState · InlineWarning                           | 5h00    | Xong — đợt 5                                  |
-| 2.4.3 | FormulaLatex (KaTeX)                                 | 3h00    | Xong — xem mục "Ký hiệu toán học"             |
-| 2.4.4 | ExplanationAccordion                                 | 3h00    | Xong — đợt 5                                  |
-| 2.4.5 | VariableTable · ExampleBlock · SourceBlock           | 4h30    | Xong — đợt 5                                  |
-| 2.4.6 | FlowChain                                            | 6h00    | Xong — đợt 5                                  |
-| 2.4.7 | StatTile                                             | 2h00    | Xong — đợt 5 (WBS xếp "sau v0.2")             |
-| 2.5.1 | PresetSheet                                          | 6h00    | Xong — đợt 6, **số liệu mẫu là bản thảo**     |
-| 2.5.2 | PasteImportSheet                                     | 10h00   | Xong — đợt 6                                  |
-| 2.5.3 | ExportSheet                                          | 12h00   | Xong — đợt 6                                  |
-| 3.1.1 | HomePage — WF-01                                     | 6h00    | Xong — đợt 7                                  |
-| 3.1.2 | FormulaListPage — WF-02, có ảo hoá                   | 8h00    | Xong — đợt 7                                  |
-| 3.1.3 | SearchPage — WF-09 hai trạng thái                    | 7h00    | Xong — đợt 7                                  |
-| 3.2.1 | FormulaDetailBasic — WF-03                           | 7h00    | Xong — đợt 7                                  |
-| 3.2.2 | FormulaDetailAdvanced — WF-04                        | 10h00   | Xong — xem mục "Chuỗi định giá chạy thật"     |
-| 3.2.3 | FeeTaxCalculator — WF-08                             | 9h00    | Xong — đợt 7                                  |
-| 3.2.4 | LoanScheduleScreen — WF-14                           | 8h00    | Xong — đợt 7                                  |
-| 5.1.2 | `fees.*` — 8 công thức phí & thuế                    | 11h12   | Xong — đợt 7 (kéo về sớm)                     |
-| 5.1.3 | `returns.*` — 4 / 13 công thức                       | ~3h30   | Một phần — đợt 7                              |
-| 5.1.4 | `personal.*` — 6 / 8 công thức                       | ~6h00   | Gần xong — đợt 7                              |
-| 5.2.2 | `valuation.multiples.*` — P/E, P/B                   | ~2h00   | Một phần — đợt 7 (kéo về sớm)                 |
-| —     | Dựng lại WF-01 theo bản thiết kế hi-fi               | —       | Xong — đợt 8 (chủ dự án yêu cầu)              |
-| 3.3.1 | DataTableScreen — WF-05 bảng chuỗi giá OHLCV         | ~8h     | Xong — đợt 9                                  |
-| 3.4.1 | PortfolioScreen — WF-06 danh mục cá nhân             | ~8h     | Xong — đợt 9                                  |
-| —     | Dựng lại WF-08 và WF-14 theo bản thiết kế hi-fi      | —       | Xong — đợt 10 (chủ dự án yêu cầu)             |
-| —     | Tìm kiếm & lọc tại chỗ ở trang chủ                   | —       | Xong — đợt 11a (chủ dự án yêu cầu)            |
-| —     | Dựng lại ba bottom sheet theo hi-fi                  | —       | Xong — đợt 12 (chủ dự án yêu cầu)             |
-| 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot        | —       | Xong — đợt 12                                 |
-| 3.6.1 | SettingsScreen — WF-13                               | ~6h     | Xong — đợt 12                                 |
-| 3.6.2 | PWA — manifest + service worker                      | ~4h     | Xong — đợt 12, **biểu tượng PNG còn thiếu**   |
-| —     | Ô tìm không rơi ký tự khi gõ nhanh                   | —       | Xong — đợt 13                                 |
-| —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát         | —       | Xong — đợt 13                                 |
-| —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)          | —       | Xong — đợt 13                                 |
-| —     | Dọn chất lượng phát hành sau kiểm kê                 | —       | Xong — đợt 14                                 |
-| 3.1.2 | /cong-thuc/ có HTML tĩnh thật cho Google             | —       | Xong — đợt 14                                 |
-| —     | Sửa lỗi không bấm chuyển tab được (chỉ lúc dev)      | —       | Xong — xem mục ngay dưới                      |
-| 5.x   | Nối nốt 34 công thức chuỗi giá — **đủ 107/107**      | —       | Xong — xem mục "Đủ 107 công thức"             |
-| —     | Cửa gác chặn build khi dev server đang chạy          | —       | Xong — xem mục "lỗi khi click vào xem…"       |
-| 2.1.x | Nút quay lại cho ba màn trong (WF-03/05/09)          | —       | Xong — xem mục "Thêm đường ra khỏi màn…"      |
-| —     | Nút Cơ bản / Nâng cao lọc danh sách (FR-09 vế 2)     | —       | Xong — xem mục "Nút Nâng cao không đổi gì"    |
-| —     | Vẽ lại biểu tượng theo ảnh chủ dự án + dải màu       | —       | Xong — xem mục "Biểu tượng mới"               |
-| 4.0   | Dọn nền cho biểu đồ — sửa 3 bug, đo chunk nạp trễ    | ~5h     | Xong — xem mục "Đợt 0 của biểu đồ"            |
-| 4.1   | Đường quét độ nhạy cho nhóm Cơ bản — 50 công thức    | ~18h    | Xong — xem mục "Đợt 1 của biểu đồ"            |
-| 4.2   | Trục thời gian + nối dây bộ số liệu mẫu vào ô nhập   | ~14h    | Xong — xem mục "Đợt 2 của biểu đồ"            |
-| 2.3.2 | Thanh trượt gõ được số cụ thể + ví dụ đưa số lên ô   | ~6h     | Xong — xem mục "Cho gõ số cụ thể vào ô"       |
-| 4.3   | Mở biểu đồ cho 47 công thức còn lại — **phủ 97/107** | ~4h     | Xong — xem mục "Đợt 3 của biểu đồ"            |
-| 2.4.4 | Khối Giải thích luôn mở sẵn khi vào màn chi tiết     | —       | Xong — xem mục "Khối Giải thích… luôn mở sẵn" |
-| 4.4   | Nút phóng to biểu đồ toàn màn hình + xoay ngang      | ~5h     | Xong — xem mục "Phóng to biểu đồ"             |
-| —     | Sửa tên sản phẩm "Falculator" → "Faculator"          | —       | Xong — xem mục "Sửa tên sản phẩm"             |
-| —     | Vá lệch hydration `useId()` ở cây biểu đồ            | —       | Xong — xem mục "Đợt đóng đuôi"                |
-| —     | Vá nút Back Android xoá trang khi phóng to biểu đồ   | —       | Xong — xem mục "Đợt đóng đuôi"                |
-| —     | Đồng bộ lại CLAUDE.md / README / TASK.md với code    | —       | Xong — xem mục "Đợt đóng đuôi"                |
-| 2.4.3 | Ký hiệu toán học — KaTeX dựng lúc build              | 3h00    | Xong — xem mục "Ký hiệu toán học"             |
-| —     | Kết quả đổi theo từng phím gõ + gõ không còn khựng   | —       | Xong — xem mục "Gõ tới đâu, kết quả tới đó"   |
-| —     | Kiểm tra lỗi toàn dự án + dọn ba điểm sửa nhanh      | —       | Xong — xem mục "Kiểm tra lỗi"                 |
-| 5.2.3 | Chuỗi định giá — FR-15 chạy thật                     | 22h30   | Một phần — xem mục "Chuỗi định giá chạy thật" |
-| 5.2.3 | Mắt xích DCF khép nhánh FCFF — **107 → 108**         | ~6h     | Xong — xem mục "Đợt 2"                        |
-| 4.x   | Renderer thác nước bóc tách, chứng minh bằng `ev`    | ~10h    | Xong — xem mục "Đợt 2"                        |
-| —     | Kế hoạch 3 đợt gỡ 4 nhóm vấn đề + đợt 1 (đo + 3 vá)  | —       | Xong — xem mục "Đợt 1 của kế hoạch"           |
-| 4.x   | Bóc tách ba công thức vay — né bẫy `lich-tra-no`     | ~5h     | Xong — xem mục "Đợt 3"                        |
-| —     | Bộ kiểm Chrome thật qua CDP — `npm run check:chrome` | ~4h     | Xong — xem mục "Đợt 3"                        |
-| 4.x   | Khai chặng bóc tách nốt 6 công thức — đủ 10/10       | ~4h     | Xong — xem mục "Đợt 4"                        |
-| —     | Rà 432 đoạn diễn giải + cửa gác nội dung đầu tiên    | ~3h     | Xong — xem mục "Đợt 5"                        |
-| 5.1.1 | Hồ sơ đối chiếu 7 hằng số thuế/phí — duyệt và đã áp  | ~3h     | Xong — xem mục "Đợt 6"                        |
-| 3.6.3 | Từ điển tiếng Anh cho giao diện — 231/232 khoá       | ~4h     | Một phần — xem mục "Đợt 7"                    |
-| 3.6.3 | Luồng locale + gắn lại LangSwitch — FR-21 chạy thật  | ~6h     | Xong — xem mục "Đợt 8"                        |
-| —     | Rà đa-agent phần chưa commit + vá 12 lỗi tìm ra      | ~5h     | Xong — xem mục "Đợt 9"                        |
+| Gói   | Nội dung                                             | Giờ WBS | Trạng thái                                     |
+| ----- | ---------------------------------------------------- | ------- | ---------------------------------------------- |
+| 1.1.1 | Repo + toolchain                                     | 3h00    | Xong (từ trước)                                |
+| 1.1.2 | CI/CD + hosting tĩnh                                 | 3h30    | Xong (từ trước)                                |
+| 1.2.1 | Design token & primitive                             | 10h00   | Xong — đợt 1                                   |
+| 1.3.1 | FormulaRegistry: schema, bộ sinh, validator          | 7h00    | Xong — đợt 1                                   |
+| 1.3.2 | MarketConfig thuế & phí                              | 3h30    | Code xong — **số liệu chờ người đối chiếu**    |
+| 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                       | 4h00    | Xong — đợt 1                                   |
+| 1.4.1 | Routing, URL state & khung i18n                      | 5h30    | Xong — đợt 2, **trừ route động**               |
+| 1.4.2 | App shell & layout                                   | 2h00    | Xong — đợt 2                                   |
+| 2.1.1 | AppHeader · OfflineBanner · ModeToggle · LangSwitch  | 10h00   | Xong — đợt 2                                   |
+| 2.1.2 | BottomTabBar                                         | 2h30    | Xong — đợt 2                                   |
+| 2.1.3 | DisclaimerBar                                        | 2h00    | Xong — đợt 2                                   |
+| 2.2.1 | SearchBox bỏ dấu                                     | 5h00    | Xong — đợt 3                                   |
+| 2.2.2 | CategoryFilter                                       | 3h30    | Xong — đợt 3                                   |
+| 2.2.3 | FormulaCard                                          | 3h00    | Xong — đợt 3                                   |
+| 2.3.1 | NumberInput — 5 trạng thái WF-16                     | 8h00    | Xong — đợt 5                                   |
+| 2.3.2 | SliderInput · ButtonGroup · RadioGroup               | 6h00    | Xong — đợt 5                                   |
+| 2.3.3 | SelectInput · Toggle · UnitSwitcher                  | 4h00    | Xong — đợt 5                                   |
+| 2.3.4 | LinkedInput                                          | 12h00   | Xong — đợt 5                                   |
+| 2.4.1 | ResultBlock                                          | 5h00    | Xong — đợt 5                                   |
+| 2.4.2 | ErrorState · InlineWarning                           | 5h00    | Xong — đợt 5                                   |
+| 2.4.3 | FormulaLatex (KaTeX)                                 | 3h00    | Xong — xem mục "Ký hiệu toán học"              |
+| 2.4.4 | ExplanationAccordion                                 | 3h00    | Xong — đợt 5                                   |
+| 2.4.5 | VariableTable · ExampleBlock · SourceBlock           | 4h30    | Xong — đợt 5                                   |
+| 2.4.6 | FlowChain                                            | 6h00    | Xong — đợt 5                                   |
+| 2.4.7 | StatTile                                             | 2h00    | Xong — đợt 5 (WBS xếp "sau v0.2")              |
+| 2.5.1 | PresetSheet                                          | 6h00    | Xong — đợt 6, **số liệu mẫu là bản thảo**      |
+| 2.5.2 | PasteImportSheet                                     | 10h00   | Xong — đợt 6                                   |
+| 2.5.3 | ExportSheet                                          | 12h00   | Xong — đợt 6                                   |
+| 3.1.1 | HomePage — WF-01                                     | 6h00    | Xong — đợt 7                                   |
+| 3.1.2 | FormulaListPage — WF-02, có ảo hoá                   | 8h00    | Xong — đợt 7                                   |
+| 3.1.3 | SearchPage — WF-09 hai trạng thái                    | 7h00    | Xong — đợt 7                                   |
+| 3.2.1 | FormulaDetailBasic — WF-03                           | 7h00    | Xong — đợt 7                                   |
+| 3.2.2 | FormulaDetailAdvanced — WF-04                        | 10h00   | Xong — xem mục "Chuỗi định giá chạy thật"      |
+| 3.2.3 | FeeTaxCalculator — WF-08                             | 9h00    | Xong — đợt 7                                   |
+| 3.2.4 | LoanScheduleScreen — WF-14                           | 8h00    | Xong — đợt 7                                   |
+| 5.1.2 | `fees.*` — 8 công thức phí & thuế                    | 11h12   | Xong — đợt 7 (kéo về sớm)                      |
+| 5.1.3 | `returns.*` — 4 / 13 công thức                       | ~3h30   | Một phần — đợt 7                               |
+| 5.1.4 | `personal.*` — 6 / 8 công thức                       | ~6h00   | Gần xong — đợt 7                               |
+| 5.2.2 | `valuation.multiples.*` — P/E, P/B                   | ~2h00   | Một phần — đợt 7 (kéo về sớm)                  |
+| —     | Dựng lại WF-01 theo bản thiết kế hi-fi               | —       | Xong — đợt 8 (chủ dự án yêu cầu)               |
+| 3.3.1 | DataTableScreen — WF-05 bảng chuỗi giá OHLCV         | ~8h     | Xong — đợt 9                                   |
+| 3.4.1 | PortfolioScreen — WF-06 danh mục cá nhân             | ~8h     | Xong — đợt 9                                   |
+| —     | Dựng lại WF-08 và WF-14 theo bản thiết kế hi-fi      | —       | Xong — đợt 10 (chủ dự án yêu cầu)              |
+| —     | Tìm kiếm & lọc tại chỗ ở trang chủ                   | —       | Xong — đợt 11a (chủ dự án yêu cầu)             |
+| —     | Dựng lại ba bottom sheet theo hi-fi                  | —       | Xong — đợt 12 (chủ dự án yêu cầu)              |
+| 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot        | —       | Xong — đợt 12                                  |
+| 3.6.1 | SettingsScreen — WF-13                               | ~6h     | Xong — đợt 12                                  |
+| 3.6.2 | PWA — manifest + service worker                      | ~4h     | Xong — đợt 12, **biểu tượng PNG còn thiếu**    |
+| —     | Ô tìm không rơi ký tự khi gõ nhanh                   | —       | Xong — đợt 13                                  |
+| —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát         | —       | Xong — đợt 13                                  |
+| —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)          | —       | Xong — đợt 13                                  |
+| —     | Dọn chất lượng phát hành sau kiểm kê                 | —       | Xong — đợt 14                                  |
+| 3.1.2 | /cong-thuc/ có HTML tĩnh thật cho Google             | —       | Xong — đợt 14                                  |
+| —     | Sửa lỗi không bấm chuyển tab được (chỉ lúc dev)      | —       | Xong — xem mục ngay dưới                       |
+| 5.x   | Nối nốt 34 công thức chuỗi giá — **đủ 107/107**      | —       | Xong — xem mục "Đủ 107 công thức"              |
+| —     | Cửa gác chặn build khi dev server đang chạy          | —       | Xong — xem mục "lỗi khi click vào xem…"        |
+| 2.1.x | Nút quay lại cho ba màn trong (WF-03/05/09)          | —       | Xong — xem mục "Thêm đường ra khỏi màn…"       |
+| —     | Nút Cơ bản / Nâng cao lọc danh sách (FR-09 vế 2)     | —       | Xong — xem mục "Nút Nâng cao không đổi gì"     |
+| —     | Vẽ lại biểu tượng theo ảnh chủ dự án + dải màu       | —       | Xong — xem mục "Biểu tượng mới"                |
+| 4.0   | Dọn nền cho biểu đồ — sửa 3 bug, đo chunk nạp trễ    | ~5h     | Xong — xem mục "Đợt 0 của biểu đồ"             |
+| 4.1   | Đường quét độ nhạy cho nhóm Cơ bản — 50 công thức    | ~18h    | Xong — xem mục "Đợt 1 của biểu đồ"             |
+| 4.2   | Trục thời gian + nối dây bộ số liệu mẫu vào ô nhập   | ~14h    | Xong — xem mục "Đợt 2 của biểu đồ"             |
+| 2.3.2 | Thanh trượt gõ được số cụ thể + ví dụ đưa số lên ô   | ~6h     | Xong — xem mục "Cho gõ số cụ thể vào ô"        |
+| 4.3   | Mở biểu đồ cho 47 công thức còn lại — **phủ 97/107** | ~4h     | Xong — xem mục "Đợt 3 của biểu đồ"             |
+| 2.4.4 | Khối Giải thích luôn mở sẵn khi vào màn chi tiết     | —       | Xong — xem mục "Khối Giải thích… luôn mở sẵn"  |
+| 4.4   | Nút phóng to biểu đồ toàn màn hình + xoay ngang      | ~5h     | Xong — xem mục "Phóng to biểu đồ"              |
+| —     | Sửa tên sản phẩm "Falculator" → "Faculator"          | —       | Xong — xem mục "Sửa tên sản phẩm"              |
+| —     | Vá lệch hydration `useId()` ở cây biểu đồ            | —       | Xong — xem mục "Đợt đóng đuôi"                 |
+| —     | Vá nút Back Android xoá trang khi phóng to biểu đồ   | —       | Xong — xem mục "Đợt đóng đuôi"                 |
+| —     | Đồng bộ lại CLAUDE.md / README / TASK.md với code    | —       | Xong — xem mục "Đợt đóng đuôi"                 |
+| 2.4.3 | Ký hiệu toán học — KaTeX dựng lúc build              | 3h00    | Xong — xem mục "Ký hiệu toán học"              |
+| —     | Kết quả đổi theo từng phím gõ + gõ không còn khựng   | —       | Xong — xem mục "Gõ tới đâu, kết quả tới đó"    |
+| —     | Kiểm tra lỗi toàn dự án + dọn ba điểm sửa nhanh      | —       | Xong — xem mục "Kiểm tra lỗi"                  |
+| 5.2.3 | Chuỗi định giá — FR-15 chạy thật                     | 22h30   | Một phần — xem mục "Chuỗi định giá chạy thật"  |
+| 5.2.3 | Mắt xích DCF khép nhánh FCFF — **107 → 108**         | ~6h     | Xong — xem mục "Đợt 2"                         |
+| 4.x   | Renderer thác nước bóc tách, chứng minh bằng `ev`    | ~10h    | Xong — xem mục "Đợt 2"                         |
+| —     | Kế hoạch 3 đợt gỡ 4 nhóm vấn đề + đợt 1 (đo + 3 vá)  | —       | Xong — xem mục "Đợt 1 của kế hoạch"            |
+| 4.x   | Bóc tách ba công thức vay — né bẫy `lich-tra-no`     | ~5h     | Xong — xem mục "Đợt 3"                         |
+| —     | Bộ kiểm Chrome thật qua CDP — `npm run check:chrome` | ~4h     | Xong — xem mục "Đợt 3"                         |
+| 4.x   | Khai chặng bóc tách nốt 6 công thức — đủ 10/10       | ~4h     | Xong — xem mục "Đợt 4"                         |
+| —     | Rà 432 đoạn diễn giải + cửa gác nội dung đầu tiên    | ~3h     | Xong — xem mục "Đợt 5"                         |
+| 5.1.1 | Hồ sơ đối chiếu 7 hằng số thuế/phí — duyệt và đã áp  | ~3h     | Xong — xem mục "Đợt 6"                         |
+| 3.6.3 | Từ điển tiếng Anh cho giao diện — 231/232 khoá       | ~4h     | Một phần — xem mục "Đợt 7"                     |
+| 3.6.3 | Luồng locale + gắn lại LangSwitch — FR-21 chạy thật  | ~6h     | Xong — xem mục "Đợt 8"                         |
+| —     | Rà đa-agent phần chưa commit + vá 12 lỗi tìm ra      | ~5h     | Xong — xem mục "Đợt 9"                         |
+| 5.1.1 | **Đóng gói** — gỡ nhãn BẢN THẢO sau khi rà bản gốc   | —       | Xong — xem mục "Đợt 10"                        |
+| —     | Duyệt chuyên môn bằng máy — 432 đoạn, 5 lỗi tìm ra   | ~6h     | Câu chữ **chờ chủ dự án duyệt** — mục "Đợt 11" |
+| —     | Bày hằng số MarketConfig trên màn chi tiết + cửa gác | ~4h     | Xong — xem mục "Đợt 11"                        |
+| —     | Vá tràn ngang 360px — chuỗi WF-04, bảng biểu đồ      | —       | Xong — xem mục "Vá tràn ngang 360px"           |
 
-Cộng dồn: **~292 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
+Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
-~5 giờ đợt 1 của kế hoạch, ~10 giờ hai phần đã làm của gói 3.6.3 và ~5 giờ đợt rà 9).
+~5 giờ đợt 1 của kế hoạch, ~10 giờ hai phần đã làm của gói 3.6.3, ~5 giờ đợt rà 9 và ~10 giờ
+đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Vá tràn ngang 360px — chuỗi WF-04, bảng biểu đồ, thanh trượt
+
+Trạng thái: **xong, đã kiểm đủ năm cửa**. Code cho đợt này đã nằm sẵn trong working tree khi
+phiên này bắt đầu — chưa commit, chưa có mục nhật ký — nên việc của phiên là đọc lại diff, dựng
+bản build thật để xác nhận, và ghi lại ở đây; không viết thêm dòng sửa lỗi nào mới.
+
+`npm run check` xanh **1347 test / 61 file** (không đổi so với Đợt 11 — đây là đợt sửa hình học
+thuần, jsdom không đo được nên không ca vitest nào bắt được các lỗi này). `npm run build` (dựng
+ở bản sao scratchpad, không đụng dev server chủ dự án đang chạy ở cổng 3000) ra đủ 119 trang;
+`verify:static` **24/24**; `check:chrome` **20/20** — nâng từ 18 vì chính đợt này thêm hai ca; `size`
+**163,0 kB** trên cửa 170 kB.
+
+### Ba lỗi tràn ngang, đều lộ ra ở khổ 360px
+
+1. **Khối chuỗi WF-04 — thanh trượt rơi vào lưới 143px.** Danh sách "điều khiển chiếm trọn hàng"
+   (`slider`, `buttonGroup`, `radio`, `toggle`) từng chỉ khai ở `FormulaDetail.tsx`
+   (`WIDE_CONTROLS`); `ChainBody.tsx` — thân khối chuỗi, dựng sau — không biết luật này nên luôn ép
+   `styles.field` (nửa lưới). Hậu quả: năm thanh trượt của chuỗi WACC bị nhét vào ô 143px, đẩy
+   trang cuộn ngang. Vá bằng cách tách `isWideControl()` dùng chung trong `@/ui/inputs`, cả
+   `FormulaDetail.tsx` lẫn `ChainBody.tsx` cùng gọi một hàm.
+2. **`FlowChainStrip` rò bề rộng nội tại.** Dải bước cuộn ngang trong khung riêng
+   (`overflow-x: auto`) đúng NFR-USA-02, nhưng thiếu `contain: layout inline-size` thì bề rộng
+   NỘI TẠI của dải vẫn định lại khung nhìn của Chrome di động — đo trên bản build, chuỗi bốn bước
+   của `gia-tri-noi-tai-fcff` dài 944px kéo khung nhìn 360 thành 495. Cùng bẫy đã trả giá một lần ở
+   `primitives/Table.module.css`, nay áp lại đúng chỗ.
+3. **Bảng số liệu trong `ChartFrame` không có vùng cuộn riêng.** Ô bảng `white-space: nowrap` nên
+   `width: 100%` không giữ nổi — bề rộng nội tại thắng. Tiêu đề cột dài của
+   `gia-tri-noi-tai-fcff` ("Giá trị nội tại từ FCFF (DCF) (₫)") làm bảng rộng 385px trong cột
+   344px. Vá bằng `.tableScroll` mới (`overflow-x: auto` + `contain: layout inline-size`, cùng
+   công thức với hai chỗ trên), không dùng thẳng primitive `Table` vì bảng này đã nằm trong một
+   `<details>` có khung riêng.
+
+Kèm hai vá nhỏ cùng nhóm: `InlineNumber.module.css` thêm `min-width: 0; max-width: 100%` để ô
+14ch co lại thay vì lọt ra ngoài khung hẹp; `SliderInput.module.css` thêm `flex-wrap` cho hàng
+nhãn + ô giá trị để hai thứ không đè lên cột bên cạnh khi nhãn dài.
+
+### Cửa gác `check:chrome` cũ bị mù đúng chỗ cần thấy nhất
+
+Ca "khối chuỗi không đẩy trang tràn ngang" đã có từ trước nhưng đo `block.scrollWidth` — mà khối
+chuỗi là hộp `overflow: visible`, nên `scrollWidth` của nó luôn bằng đúng bề rộng được cấp (328)
+dù con bên trong vẽ tràn ra ngoài. Ca này báo "vừa khung" trong khi trang thật cuộn ngang tới
+495px — đúng dạng "cửa gác đỗ giả" mà Đợt 9 từng ghi nhận. Sửa bằng cách đo
+`document.documentElement.scrollWidth` (chuyện của TRANG) thay vì của khối. Thêm hai ca mới: mở
+trang `gia-tri-noi-tai-fcff` (chuỗi dài nhất Registry) kèm bảng số liệu mở, kiểm trang không cuộn
+ngang; và đếm nhãn thanh trượt cao quá hai dòng (dấu hiệu bị bóp vào cột hẹp) — bắt được cả khi
+bề rộng trang tình cờ vẫn vừa.
+
+### Việc còn lại
+
+Không còn việc nào của riêng đợt này. `FormulaDetail.tsx` cũng mang thay đổi của Đợt 11
+(`ConstantsNote`) trong cùng file — hai việc độc lập, chung một file vì cùng chạm khối Số liệu.
 
 ---
 
@@ -456,6 +515,159 @@ kiểm trên bản build thay vì trên nguồn.
       thô — khai thô là bất biến "tổng bằng kết quả" đỏ ngay, đúng như nó nên đỏ.
 - [ ] **Ảnh WF-04 hi-fi** — chưa có, nên khối chuỗi vẫn đang mang kiểu dáng tự dựng.
 - [ ] Bảng SRS mục 3.8 ngoài repo: 94 / 13 / 107 → **95 / 13 / 108**.
+
+## Đợt 11 — duyệt chuyên môn bằng máy, và khối hằng số trên màn chi tiết
+
+Trạng thái: **xong phần code, 5 lỗi diễn giải đang chờ chủ dự án duyệt câu chữ.**
+`npm run check` xanh **1347 test / 61 file**; build 119 trang; `verify:static` **24/24**;
+`size` **162,9 kB** trên cửa 170 kB; `check:chrome` **18/18**.
+
+### Hai lượt rà, và bài học về cách đặt tiêu chí
+
+Chạy thử nhóm **Phái sinh** trước (7 công thức, 28 đoạn) với bốn tiêu chí rộng — prose so với
+`calc`, chuẩn mực tài chính, ranh giới FR-24, độ dễ đọc. Kết quả: 13 phát hiện mức cao/vừa,
+**2 lỗi thật**, 11 bị phản biện bác. Tỷ lệ trúng **15%**.
+
+Đọc kỹ 11 cái bị bác thì thấy chúng cùng một hình dạng: góp ý văn phong, "nên thêm", "chưa đủ rõ",
+"thuật ngữ chưa giải thích", hoặc đòi một mục diễn giải gánh nội dung của mục khác — trong khi
+FR-03 chia bốn mục chính là để không lặp. Còn **cả hai lỗi thật đều thuộc đúng hai loại khách
+quan**: một câu tự mâu thuẫn với câu khác trên cùng màn, và một mệnh đề định lượng bị chính số
+học của công thức bác.
+
+Nên lượt hai (101 công thức còn lại) **siết tiêu chí xuống đúng hai loại đó**, kèm danh sách cấm
+báo. Kết quả: **3 phát hiện, 3/3 qua phản biện — tỷ lệ trúng 100%**, và 8 trong 11 agent trả về
+mảng rỗng, đúng như mong đợi.
+
+Bài học đáng ghi: với vòng rà bằng máy, **tiêu chí hẹp và kiểm được cho ra ít phát hiện hơn nhưng
+đáng tin hơn hẳn**; tiêu chí rộng sinh ra khối lượng đọc lớn mà phần lớn là khẩu vị biên tập. Chi
+phí cũng chênh: 1,15 triệu token cho 28 đoạn ở lượt rộng, 1,12 triệu cho 404 đoạn ở lượt hẹp.
+
+Điểm nữa: vòng phản biện **chặn được nhiều đề xuất sửa sẽ làm hỏng thêm**, không chỉ lọc phát
+hiện sai. Bốn lần nó bác đúng những đề xuất chép hằng số thị trường vào prose — 5,9 lần đòn bẩy,
+550.000 ₫, "gần 100% tài sản ký quỹ", thang cảnh báo 80/90/100% — tức dựng lại đúng cái bẫy
+LDR-03/CON-10 tránh, ở dạng chữ nên lint không bắt được.
+
+### Năm lỗi diễn giải — CHỜ DUYỆT, chưa đụng vào code
+
+| Công thức                | Mục                 | Lỗi                                                                           |
+| ------------------------ | ------------------- | ----------------------------------------------------------------------------- |
+| `basis-vn30f`            | meaning + howToRead | dạy "basis dương = kỳ vọng tăng" trong khi >½ basis là chi phí nắm giữ        |
+| `don-bay-hieu-dung`      | commonMistakes      | gọi nghịch đảo tỷ lệ ký quỹ là "mức lúc vào lệnh" — đó là **trần**            |
+| `irr-nien-kim`           | whenToUse           | mời dùng cho trái phiếu coupon, mô hình không có ô nhập mệnh giá hoàn kỳ cuối |
+| `ty-so-calmar`           | commonMistakes      | cảnh báo về một con số mà `calc` không bao giờ cho ra                         |
+| `do-lech-chuan-ban-phan` | howToRead           | khẳng định "luôn ≤ độ lệch chuẩn đầy đủ" vô điều kiện — sai khi ngưỡng cao    |
+
+Ba cái sau đo được bằng số: IRR lệch **17 điểm phần trăm** (7,93% so với 25%); Calmar với chuỗi
+toàn phiên tăng cho mẫu số **đúng bằng 0** nên `calc` trả `DIVIDE_BY_ZERO` chứ không "vọt lên vài
+chục lần"; độ lệch chuẩn bán phần ở ngưỡng 5% ra 4,87% tức **gấp 3,44 lần** con số mà câu prose
+nói là trần trên.
+
+### Khối hằng số — vá một lỗ hổng mà chính vòng phản biện đào ra
+
+Khi bác đề xuất "chép 100.000 ₫ vào prose", người phản biện chỉ ra thứ đáng sửa nằm ở UI chứ
+không ở chữ: **hằng số MarketConfig không hiện trị số ở bất kỳ đâu trên màn chi tiết.** Kiểm lại
+thì đúng — `FormulaDetail.tsx` chỉ có một chỗ nhắc tới hằng số (`sourceNote` ở dòng 487, chỉ gắn
+cho biến kiểu `toggle`, và là nhãn suông không có trị số), trong khi có **24 lời gọi**
+`constantOf`/`rateOf` trải trên 13 công thức.
+
+Ví dụ tệ nhất: `phi-giao-dich-mua` cho ra 138.000 ₫ từ 1.000 CP × 92.000 ₫ mà **mức 0,15% không
+xuất hiện ở đâu** — không ở bảng biến (nó không phải ô nhập), không ở khối Nguồn (chỗ đó dành cho
+`spec.source`), và `example.note` của công thức này thì trống. Người dùng thấy con số phí mà không
+có cách nào biết nó tính theo tỷ lệ nào — trong khi đó lại đúng là thứ khác nhau giữa các công ty
+chứng khoán. Trớ trêu: nhóm phí & thuế là nhóm mà mấy con số ấy **là luật định**, đã có sẵn
+`effectiveFrom` và `legalBasis` trong `schedules.ts` — dữ liệu đủ để bày, chỉ thiếu chỗ hiển thị.
+
+Cách vá — khai **khoá**, không khai trị số, để trị số tiếp tục chảy từ `schedules.ts`:
+
+- `spec.usesConstants?: ReadonlyArray<MarketConstantKey>` (`registry/types.ts`), khai ở 13 công
+  thức trong `derivatives.ts` (5), `fees.ts` (7), `planning.ts` (1).
+- `constantsUsedBy(spec, ctx)` trong `formulas/shared.ts` — cạnh `constantOf` vì nó là bản nhiều
+  khoá của chính hàm ấy. Không đặt bên `market/resolve.ts`: `registry/types` vừa trỏ xuống
+  `market/types` để lấy `MarketConstantKey`, đặt ngược lại thành vòng.
+- `ConstantsNote` (`ui/result/`) — nhãn, trị số + đơn vị, ngày hiệu lực, căn cứ pháp lý. Đặt
+  **cuối khối Số liệu**, không tách thành khối riêng: nó thuộc về đầu vào, và tách ra thì nó rơi
+  xuống dưới khối Kết quả, tức người dùng đọc xong con số rồi mới biết nó tính theo mức nào.
+- `formatIsoDate` chuyển từ `chart/history.ts` sang `core/format.ts`. Docblock cũ nói rõ nó nằm
+  bên chart để trang chủ khỏi trả tiền cho thứ nó không dùng — lý do ấy hết hiệu lực khi gói cơ sở
+  cũng phải in ngày; `formatSessionDate` giữ tên và gọi sang, vì tên nó mang nghĩa riêng của biểu
+  đồ (nhãn một PHIÊN).
+
+Chi phí đo được: **+0,1 kB** First Load JS (162,8 → 162,9), và 95 trong 108 trang không thêm nút
+DOM nào vì component tự trả `null` khi danh sách rỗng.
+
+### Cửa gác `constants-gate.test.ts` — hai chiều, hai cơ chế khác nhau
+
+Cố ý không dùng chung một cách kiểm, vì mỗi cách mù một kiểu:
+
+1. **Quét mã nguồn** bắt khai **thiếu** — cắt file theo từng `FormulaModule`, gom khoá trong mỗi
+   khối rồi đối chiếu. Cần quét nguồn vì lời gọi nào không chạy trong ca kiểm nào thì cách (2)
+   không thấy.
+2. **Rút hằng số** bắt khai **thừa** — dựng biểu phí thiếu đúng khoá đã khai rồi chạy `calc`, kết
+   quả bắt buộc phải hỏng. Cách này không đọc chữ trong file nên không bị lừa bởi khoá nằm trong
+   comment hay chuỗi.
+3. Ca thứ ba giữ **danh sách file quét** khớp với tập công thức có khai — thiếu ca này thì thêm
+   một file nhóm mới có `rateOf` là cửa gác im lặng bỏ qua.
+
+Đã đột biến từng ca, mỗi ca đỏ đúng chỗ nó phải đỏ:
+
+| Đột biến                             | Ca bắt được                              |
+| ------------------------------------ | ---------------------------------------- |
+| gỡ `usesConstants` của `phi-luu-ky`  | ca 1 (`tra 'fee.custody' mà không khai`) |
+| khai thừa `market.settlement.days`   | ca 3 (`bỏ khoá đó đi vẫn ra 1350`)       |
+| bỏ `planning.ts` khỏi danh sách quét | ca 2 (`thue-tncn-dau-tu`)                |
+
+Giới hạn đã biết, ghi trong docblock: quét nguồn chỉ hiểu khoá viết thẳng dạng chuỗi. Hiện không
+có chỗ nào viết `constantOf(ctx, k)` với `k` là biến; nếu sau này cần thì phải đổi cách kiểm chứ
+đừng nới regex.
+
+### Việc còn lại của đợt
+
+- [ ] **5 câu chữ chờ duyệt** — chủ dự án đọc rồi mới sửa. Không tự áp.
+- [ ] Lượt tra 24 con số thật cho 4 mã mẫu **chết vì chạm giới hạn phiên**, 0/24. Bốn agent đã kịp
+      tải về scratchpad các BCTC gốc (FPT hợp nhất Q4/2025 + riêng 2025 đã kiểm toán, VNM hợp nhất
+      2025 / Q4-2025 / Q1-2026 / bản kiểm toán 2024) — chạy lại thì đỡ được phần tìm nguồn, nhưng
+      **không vớt kết luận nào** của chúng vì chưa cái nào qua phản biện.
+
+## Đợt 10 — gỡ nhãn BẢN THẢO của hằng số thuế & phí (đóng gói 5.1.1)
+
+Trạng thái: **xong**. Một trong ba việc chặn v0.1 đã đóng — còn hai.
+
+### Yêu cầu
+
+> "tôi đã rà bản thảo rồi và thấy được rồi, bạn hãy gỡ những bản thảo thừa. trước khi xóa thì
+> hỏi thôi để chốt"
+
+### Vì sao phải hỏi lại trước khi gỡ
+
+Repo có **hai loại nhãn bản thảo nói hai chuyện khác nhau**, và lượt rà của chủ dự án chỉ chạm
+loại thứ nhất:
+
+- **Loại A — pháp lý**: khối cảnh báo đầu `market/schedules.ts` và trạng thái hồ sơ cùng thư mục.
+  Nói rằng 7 hằng số thuế/phí chờ người đối chiếu văn bản gốc. Đây đúng là thứ vừa được rà.
+- **Loại B — số liệu mẫu**: `samples.ts` mang `isDraft: true`, kéo theo nhãn trên PresetSheet,
+  câu cảnh báo ở màn Danh mục, câu đính vào file xuất và PNG, 5 khoá i18n, 3 ca kiểm. Nói rằng
+  12 mã cổ phiếu là **số tự dựng bằng PRNG có hạt giống**, không phải báo cáo tài chính thật.
+
+Gỡ loại B là để sản phẩm trình bày số bịa như số thật — không liên quan gì tới việc đọc văn bản
+pháp luật. Chủ dự án chốt: **chỉ gỡ loại A**, giữ nguyên loại B.
+
+Hai điều chốt thêm cùng lượt: hai mốc ngày của Q5 (01/01/2015 và 01/01/2009) — thứ không nằm
+trong 7 con số máy tra được mà do người viết điền từ kiến thức nền — **đã được kiểm trên bản gốc
+và xác nhận đúng**; và hồ sơ đối chiếu **giữ lại**, chỉ đổi trạng thái.
+
+### Đã đổi file nào
+
+- **`src/core/market/schedules.ts`** — thay khối "⚠ BẢN THẢO — CHỜ NGƯỜI ĐỐI CHIẾU" bằng ghi
+  nhận đã qua hai vòng (máy tra nguồn mở → người đọc bản gốc), kèm điều kiện cho lần sửa sau:
+  đổi một con số thì phải kèm `legalBasis` trỏ văn bản ĐANG hiệu lực và một dòng trong hồ sơ.
+- **`src/core/market/README.md`** — trạng thái "ĐÓNG", bảng Q1–Q7 đánh dấu đủ bảy dòng, gỡ câu
+  cảnh báo về hai mốc Q5 và ghi rõ chúng đã được kiểm. Thêm mục **"Lần rà sau bắt đầu từ đâu"**:
+  hồ sơ đóng không có nghĩa hằng số đứng yên — Thông tư 102/2021 chưa ai tra tình trạng hiệu lực
+  của chính nó, biểu giá VSDC đổi được mà không cần sửa luật, và T+2 là quy chế chứ không phải
+  luật (thị trường đang bàn T+1).
+- **`README.md`** — "ba việc chặn v0.1" thành hai, kèm câu dặn đừng gỡ nhãn số liệu mẫu chừng
+  nào con số còn là số bịa.
+- **`CLAUDE.md`** — cùng nội dung, phía tiếng Anh.
 
 ## Đợt 9 — rà lại toàn bộ phần chưa commit, và vá 12 lỗi tìm ra
 

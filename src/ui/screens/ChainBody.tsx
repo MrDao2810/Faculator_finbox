@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { formatCalcOutput, formulaPath, variablesForLevel } from '@/application';
 import type { ChainInputs, ChainOverrides, ChainResult, FormulaSpec, Level } from '@/application';
 import { useT } from '@/application/preferences-context';
-import { LinkedInput, VariableField } from '@/ui/inputs';
+import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { FlowChainStrip, InlineWarning } from '@/ui/result';
 import type { FlowStatus } from '@/ui/result';
 
@@ -151,7 +151,10 @@ export function ChainBody({
                     onInput(step.formulaId, variable.key, value);
                   }}
                   mode={mode}
-                  className={styles.field}
+                  // Cùng luật với khối Số liệu: thanh trượt và nhóm nút chiếm trọn hàng. Thẻ bước
+                  // còn hẹp hơn khối chính (thụt vào hai lần), nên bỏ luật này ở đây là ô lưới
+                  // rơi xuống 143px — xem docblock của `isWideControl()`.
+                  className={isWideControl(variable.type) ? styles.fieldWide : styles.field}
                 />
               );
             })}

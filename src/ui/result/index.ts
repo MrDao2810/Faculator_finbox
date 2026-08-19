@@ -30,6 +30,9 @@ export type { ExampleBlockProps } from './ExampleBlock';
 export { SourceBlock } from './SourceBlock';
 export type { SourceBlockProps } from './SourceBlock';
 
+export { ConstantsNote } from './ConstantsNote';
+export type { ConstantsNoteProps } from './ConstantsNote';
+
 export { FlowChainStrip } from './FlowChainStrip';
 export type { FlowChainStripProps, FlowStatus } from './FlowChainStrip';
 

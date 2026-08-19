@@ -150,6 +150,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.inputs': 'Inputs',
   'detail.hiddenInBasic': 'advanced variable(s) hidden — switch mode to see them',
   'detail.constantSource': 'Market Config · CON-10',
+  'detail.constantsInUse': 'Calculated at these rates',
+  'detail.constantSince': 'in effect since',
   'detail.pasteSeries': 'Paste a price series from Excel',
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.openDataTable': 'Open the data table →',

@@ -11,6 +11,10 @@
   align-items: baseline;
   gap: 2px;
 
+  /* Khung chứa hẹp hơn 14ch thì co lại, không lọt ra ngoài — xem chú thích ở .input. */
+  min-width: 0;
+  max-width: 100%;
+
   padding: 2px var(--space-1);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
@@ -27,9 +31,15 @@
  * nhích từng phím lúc người dùng đang gõ.
  *
  * Canh phải nên với giá trị ngắn con số vẫn nằm sát đơn vị — ô rộng ra không kéo số đi đâu.
+ *
+ * `max-width` là chốt chặn, không phải phủ định cái ghim trên: khung nào rộng hơn 14ch thì ô vẫn
+ * đúng 14ch và không nhích khi gõ. Chỉ khi khung hẹp hơn thế nó mới co, và co còn hơn là lọt ra
+ * ngoài đè lên cột bên cạnh. `min-width: 0` vì mặc định của flex item là không co dưới nội dung.
  */
 .input {
   width: 14ch;
+  min-width: 0;
+  max-width: 100%;
   padding: 0;
   font: inherit;
   font-variant-numeric: tabular-nums;

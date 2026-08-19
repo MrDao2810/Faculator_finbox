@@ -1,6 +1,6 @@
 'use client';
 
-import type { Level, VariableSpec } from '@/application';
+import type { ControlType, Level, VariableSpec } from '@/application';
 
 import { ButtonGroup } from './ButtonGroup';
 import { NumberInput } from './NumberInput';
@@ -17,6 +17,22 @@ export interface VariableFieldProps {
   /** Dòng phụ ghi nguồn hằng số, chỉ dùng cho toggle liên quan thuế/phí (CON-10). */
   sourceNote?: string;
   className?: string;
+}
+
+/**
+ * Điều khiển KHÔNG xếp hai cột được ở khổ 360px — phải chiếm trọn một hàng của lưới ô nhập.
+ *
+ * Ô số và danh sách chọn vừa nửa bề ngang; thanh trượt, nhóm nút và công tắc thì không — chúng
+ * cần cả chiều ngang cho nhãn, giá trị và hai mốc min/max. Bản thiết kế hi-fi vẽ đúng vậy: WF-08
+ * bốn ô số thành lưới 2×2, WF-14 ba thanh trượt xếp dọc.
+ *
+ * Ở đây chứ không ở từng màn: danh sách này từng nằm riêng trong `FormulaDetail.tsx`, và khối
+ * chuỗi WF-04 dựng sau đã bỏ sót nó — hậu quả là năm thanh trượt của chuỗi WACC rơi vào ô lưới
+ * 143px, nhãn vỡ thành sáu dòng một chữ và ô giá trị 14ch lọt hẳn ra ngoài khung, kéo cả trang
+ * tràn ngang ở 360px. Một danh sách dùng chung thì màn mới không lệch được nữa.
+ */
+export function isWideControl(type: ControlType): boolean {
+  return type === 'slider' || type === 'buttonGroup' || type === 'radio' || type === 'toggle';
 }
 
 /**

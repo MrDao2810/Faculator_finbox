@@ -8,6 +8,13 @@
 /*
  * Bản ngang cho điện thoại. Dải dài hơn màn thì cuộn TRONG khung này, không kéo cả trang
  * cuộn ngang — NFR-USA-02, cùng cách với vùng cuộn của primitive Table.
+ *
+ * "Cùng cách" nay là cùng cả `contain`, không chỉ cùng `overflow-x`. Thiếu dòng contain, dải
+ * vẫn cuộn đúng bên trong nhưng bề rộng NỘI TẠI của nó rò ra ngoài định lại khung nhìn của
+ * Chrome di động: đo trên bản build, chuỗi bốn bước của `gia-tri-noi-tai-fcff` dài 944px làm
+ * khung nhìn 360 thành 495, tức cả trang cuộn ngang trong khi mọi phần tử đều nằm trong cột.
+ * Đây đúng là cái bẫy mà `.scroller` của `primitives/Table.module.css` đã tả — đọc chú thích ở
+ * đó trước khi bỏ dòng này.
  */
 .list {
   display: flex;
@@ -18,6 +25,7 @@
   padding: var(--space-2) 0;
   list-style: none;
 
+  contain: layout inline-size;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -95,6 +103,8 @@
   .column .list {
     flex-direction: column;
     align-items: stretch;
+    /* Bản dọc không cuộn ngang nên cũng không cần chặn rò bề rộng — trả về mặc định. */
+    contain: none;
     overflow-x: visible;
   }
 

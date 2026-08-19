@@ -20,7 +20,7 @@
 
 import { needsPriceSeries, runFormula } from '../calc/run';
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
-import { formatCalcOutput } from '../format';
+import { formatCalcOutput, formatIsoDate } from '../format';
 import type { SeriesRow } from '../price-series';
 import type { ChartPoint } from './types';
 
@@ -94,17 +94,15 @@ export function canDrawHistory(formula: FormulaModule, ctx: CalcContext): boolea
 /**
  * Ngày ISO thành nhãn tiếng Việt.
  *
- * Đặt ở đây chứ không ở `format.ts` là có tính toán: `format.ts` nằm trong gói cơ sở mà cả 117 trang
- * đều tải, còn định dạng ngày chỉ biểu đồ cần. Thêm vào đó là bắt trang chủ trả tiền cho một thứ nó
- * không dùng.
- *
- * Không đi qua `new Date()`: chuỗi ISO đã đúng thứ tự sẵn, cắt chuỗi thì không có múi giờ nào xen
- * vào được. Một `new Date('2025-12-31')` rồi `getDate()` trên máy ở múi giờ âm sẽ ra ngày 30.
+ * Trước gói hằng số, thân hàm nằm ngay đây kèm lý do: `format.ts` thuộc gói cơ sở mà cả 119 trang
+ * đều tải, còn định dạng ngày thì chỉ biểu đồ cần, nên để bên này để trang chủ khỏi trả tiền cho
+ * một thứ nó không dùng. Lý do đó hết hiệu lực khi khối hằng số của màn chi tiết cũng phải in ngày
+ * hiệu lực: gói cơ sở giờ CÓ dùng, và giữ hai bản cắt chuỗi giống hệt nhau ở hai tầng mới là cái
+ * giá đắt hơn. Thân hàm chuyển sang `formatIsoDate` trong `format.ts`; tên này giữ nguyên vì nó
+ * mang nghĩa riêng của biểu đồ (nhãn một PHIÊN giao dịch) và đang được gọi ở nhiều chỗ.
  */
 export function formatSessionDate(iso: string): string {
-  const [year, month, day] = iso.split('-');
-  if (year === undefined || month === undefined || day === undefined) return iso;
-  return `${day}/${month}/${year}`;
+  return formatIsoDate(iso);
 }
 
 /** Nhãn ngắn cho vạch trục: chỉ tháng và năm, đủ gọn để bốn vạch không chồng nhau ở khổ 360px. */

@@ -25,9 +25,12 @@ The remaining work plan lives in the external "WBS v7" estimate and the SRS, ref
 the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens). Progress log:
 `TASK.md` — newest entry first.
 
-**What blocks v0.1 is content, not code**: the 7 tax/fee constants in `src/core/market/schedules.ts`
-are still marked draft pending a check against the source legal texts; `src/data/samples.ts` is
-fabricated (seeded PRNG, `isDraft: true`); and the 108 explanations have not been peer-reviewed.
+**What blocks v0.1 is content, not code**, and two items remain: `src/data/samples.ts` is
+fabricated (seeded PRNG, `isDraft: true` — never remove those draft markers while the numbers are
+invented; three tests pin the flag), and the 108 explanations have not been peer-reviewed. The
+third item is closed — the 7 tax/fee constants were checked against the source legal texts and
+signed off on 17/08/2026, so `schedules.ts` no longer carries a draft label; `src/core/market/README.md`
+keeps the evidence trail and names the three constants most likely to expire next.
 
 **All prose is Vietnamese** — comments, JSDoc, commit-adjacent docs, test names, UI copy, and every
 user-facing warning message. Write new code the same way.
@@ -173,6 +176,16 @@ Other domain conventions already established: input controls are generated entir
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
 never throws and never returns NaN; tax/fee constants belong in `MarketConstant` records carrying
 `effectiveFrom` + `legalBasis`, kept out of formula bodies (LDR-03, CON-10).
+
+A formula whose `calc` reads a market constant must also **declare the key** in
+`spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`
+(1). The declaration is what `ConstantsNote` reads to print the label, value, unit, effective date
+and legal basis at the end of the Số liệu block; before it existed, `phi-giao-dich-mua` showed
+138.000 ₫ without the 0,15% rate appearing anywhere on the page. Declare the **key only** — the
+value keeps flowing from `schedules.ts`, so a rate change moves the screen with it, whereas a
+number copied into prose rots silently and lint cannot see it. `constants-gate.test.ts` holds both
+directions: a source scan catches an undeclared call site, and pulling each declared key out of the
+schedule must break the formula, which catches a declaration the calc never uses.
 
 ## Notes
 

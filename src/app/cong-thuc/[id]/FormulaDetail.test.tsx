@@ -270,6 +270,50 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
    */
 });
 
+describe('WF-03 — hằng số thuế & phí phải hiện ra, không được ẩn sau kết quả', () => {
+  /*
+   * Lỗ hổng gói này vá: trước đây `phi-giao-dich-mua` cho ra 138.000 ₫ từ 1.000 CP × 92.000 ₫ mà
+   * mức 0,15% KHÔNG xuất hiện ở bất kỳ đâu trên trang — không ở bảng biến (nó không phải ô nhập),
+   * không ở khối Nguồn (chỗ đó dành cho `spec.source`), và `example.note` của công thức này thì
+   * trống. Người dùng thấy con số phí mà không có cách nào biết nó tính theo tỷ lệ nào, trong khi
+   * đó lại đúng là thứ khác nhau giữa các công ty chứng khoán.
+   */
+  it('phí giao dịch mua nói rõ đang tính theo 0,15%, kèm ngày hiệu lực và căn cứ', () => {
+    render(<Man spec={specOf('phi-giao-dich-mua')} />);
+
+    // Khoanh vùng Số liệu, không dò cả trang: khối Nguồn cũng trích đúng thông tư ấy, nên một
+    // truy vấn trần khớp hai chỗ — mà chỗ phải đúng là chỗ đứng cạnh ô nhập.
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+
+    expect(within(khoi).getByText('0,15 %')).not.toBeNull();
+    expect(within(khoi).getByText(/01\/01\/2022/)).not.toBeNull();
+    expect(within(khoi).getByText(/Thông tư 102\/2021\/TT-BTC/)).not.toBeNull();
+    // Con số kết quả vẫn nguyên — khối mới thêm thông tin chứ không thay chỗ của gì cả.
+    // getAllByText vì con số này vốn hiện ở ba chỗ: khối Kết quả, khối Ví dụ và vùng in của
+    // ExportSheet (luôn nằm trong DOM, chỉ ẩn bằng CSS).
+    expect(screen.getAllByText('138.000 ₫').length).toBeGreaterThan(0);
+  });
+
+  it('công thức tra nhiều mức thì bày đủ — giá hoà vốn ăn cả bốn', () => {
+    render(<Man spec={specOf('gia-hoa-von')} />);
+
+    // Đúng 4, không phải "ít nhất 4": bảng biến cũng dựng dt nhưng nằm ở khối khác, nên một con
+    // số dôi ra ở đây nghĩa là khối bị dựng hai lần hoặc lọt hằng số của công thức khác.
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(within(khoi).getAllByRole('term')).toHaveLength(4);
+  });
+
+  it('công thức không tra hằng số nào thì không mọc thêm khối — P/E phải sạch', () => {
+    render(<Man spec={specOf('pe')} />);
+    expect(screen.queryByText(t('detail.constantsInUse'))).toBeNull();
+  });
+
+  it('hệ số nhân VN30F hiện bằng trị số thật, không phải chữ "hệ số nhân" suông', () => {
+    render(<Man spec={specOf('lai-lo-vi-the-long')} />);
+    expect(screen.getByText('100.000 ₫/điểm')).not.toBeNull();
+  });
+});
+
 describe('WF-03 — kết quả cập nhật tức thì', () => {
   it('P/E hiện đúng 15,21 lần với ví dụ của wireframe', () => {
     render(<Man spec={specOf('pe')} />);

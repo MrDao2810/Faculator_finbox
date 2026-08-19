@@ -33,6 +33,7 @@ export {
   UNIT_SCALES,
   findUnitScale,
   formatCalcOutput,
+  formatIsoDate,
   formatNumber,
   formatValueWithUnit,
   parseViNumber,
@@ -142,6 +143,9 @@ export {
 // ── Thư viện công thức — đủ 108 / 108 ───────────────────────────────────────
 export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';
 
+// Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết
+export { constantsUsedBy } from '@/core/formulas';
+
 // Bóc tách phí & thuế — khối chính của WF-08 (gói 3.2.3)
 export type { FeeBreakdown, FeeBreakdownRow } from '@/core/formulas';
 export { buildFeeBreakdown } from '@/core/formulas';
@@ -213,7 +217,12 @@ export {
 } from '@/core/registry';
 
 // ── MarketConfig — thuế & phí (CON-10) ──────────────────────────────────────
-export type { FeeSchedule, MarketConfig, MarketConstantKey } from '@/core/market';
+export type {
+  FeeSchedule,
+  MarketConfig,
+  MarketConstantKey,
+  TypedMarketConstant,
+} from '@/core/market';
 
 export {
   MARKET_CONFIG,

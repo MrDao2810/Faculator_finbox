@@ -4,14 +4,23 @@
   gap: var(--space-1);
 }
 
+/*
+ * Cho xuống dòng khi hết chỗ. Hàng này ghép một nhãn dài tuỳ ý với một ô nhập ghim 14ch, nên
+ * trong khung hẹp hai thứ đó không thể cùng nằm một dòng: không có `flex-wrap`, ô giá trị lọt
+ * hẳn ra ngoài khung và đè lên cột bên cạnh — đúng chuyện đã xảy ra ở khối chuỗi WF-04.
+ * Bố cục thường thấy không đổi: ở bề ngang bình thường hai thứ vẫn nằm cùng một dòng.
+ */
 .head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
 }
 
 .label {
+  /* Mặc định của flex item là min-width:auto, tức không co dưới bề rộng chữ dài nhất. */
+  min-width: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);

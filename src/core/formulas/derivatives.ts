@@ -316,6 +316,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
         expectedWarning: 'MEANINGLESS',
       },
     ],
+    usesConstants: ['derivative.vn30f.multiplier'],
     source: [SOURCE_HULL, SOURCE_HNX_VN30F],
   },
   calc: (v, ctx) => {
@@ -402,6 +403,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
         expectedWarning: 'MEANINGLESS',
       },
     ],
+    usesConstants: ['derivative.vn30f.multiplier'],
     source: [SOURCE_HULL, SOURCE_HNX_VN30F],
   },
   calc: (v, ctx) => {
@@ -496,6 +498,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
     ],
+    usesConstants: ['derivative.vn30f.multiplier'],
     source: [SOURCE_HULL, SOURCE_HNX_VN30F],
   },
   calc: (v, ctx) => {
@@ -612,6 +615,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
         expectedWarning: 'MEANINGLESS',
       },
     ],
+    usesConstants: ['derivative.vn30f.multiplier'],
     source: [SOURCE_HULL, SOURCE_HNX_VN30F],
   },
   calc: (v, ctx) => {
@@ -716,6 +720,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
         expectedWarning: 'MEANINGLESS',
       },
     ],
+    usesConstants: ['derivative.vn30f.multiplier'],
     source: [SOURCE_HULL, SOURCE_HNX_VN30F],
   },
   calc: (v, ctx) => {

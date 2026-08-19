@@ -1,9 +1,15 @@
 # Hồ sơ đối chiếu thuế & phí — gói WBS 5.1.1
 
-Trạng thái: **Q1–Q7 đã được chủ dự án duyệt trọn ngày 14/08/2026 và đã áp vào `schedules.ts`**
-(xem bảng cuối). Hồ sơ do máy tra trên nguồn mở (6 lượt tra độc lập, 92 lần truy vấn) — KHÔNG thay
-được người rà soát mà `schedules.ts` yêu cầu: mọi nguồn là nguồn thứ cấp, nên nhãn BẢN THẢO của
-file ấy vẫn giữ (Q7) cho tới khi người rà đối chiếu bản gốc có dấu trên vbpl.vn/Công báo.
+Trạng thái: **ĐÓNG — gói 5.1.1 hoàn tất ngày 17/08/2026.**
+
+Hai vòng nối nhau: máy tra trên nguồn mở (14/08/2026, 6 lượt tra độc lập, 92 lần truy vấn) dựng
+nên hồ sơ này và chủ dự án duyệt trọn Q1–Q7; sau đó **chủ dự án đối chiếu bản gốc có dấu và xác
+nhận** — kể cả hai mốc hiệu lực của bản ghi thuế tiền nhiệm (01/01/2015 và 01/01/2009), thứ mà
+vòng máy không tra được. Nhãn BẢN THẢO trên `schedules.ts` đã gỡ theo đó.
+
+Hồ sơ giữ lại làm **dấu vết nguồn**, không phải việc còn tồn: nó là thứ trả lời "vì sao con số
+này đáng tin" khi có người hỏi lại, và là điểm xuất phát cho lần rà sau — mỗi hằng số ở đây đều
+sẽ hết hạn khi văn bản pháp luật đổi.
 
 ## Kết luận một dòng
 
@@ -101,30 +107,50 @@ Sáu lượt tra độc lập chạy song song, mỗi văn bản một lượt; 
 biện được giao đề bài "cố chứng minh kết quả kia sai". Luật chỉ nhận là KHỚP khi có nguồn nêu rõ
 con số/ngày; không tìm được thì ghi "chưa xác minh" chứ không đoán. Nguồn ưu tiên: Cổng TTĐT Chính
 phủ, trang Bộ Tài chính, luatvietnam.vn (toàn văn), VSD/VSDC, báo lớn. **thuvienphapluat.vn chặn
-máy (403) trong mọi lượt**, nên chưa lượt nào đọc được bản gốc có dấu — đó là việc còn lại đúng
-nghĩa của người rà.
+máy (403) trong mọi lượt**, nên không lượt máy nào đọc được bản gốc có dấu — chính vì thế vòng
+người đọc bản gốc là bắt buộc, và nó đã chạy ngày 17/08/2026.
+
+Mọi ghi chú "chưa xác minh" rải trong mục "Từng dòng" là ghi chú của **vòng máy**, giữ nguyên
+làm dấu vết chứ không phải việc còn tồn — chúng nói cho lần tra sau biết chỗ nào vòng máy không
+tới được.
 
 Một sự cố phương pháp đáng ghi cho lần tra sau: một lượt đọc trang luatvietnam trả về kết luận
 "Điều 11 áp 20% cho cả cổ tức lẫn chứng khoán" — đọc lại chính trang đó với yêu cầu chặt hơn thì
 trang KHÔNG hề ghi vậy (các mức 5–35% trên trang thuộc biểu luỹ tiến tiền lương). Kết quả đọc máy
 đơn lẻ mà trái với nhiều nguồn khác thì phải đọc lại trước khi tin.
 
-## Bảng quyết định — đã duyệt trọn 14/08/2026, đã áp vào code
+## Bảng quyết định — duyệt trọn 14/08/2026, đã áp vào code, đóng 17/08/2026
 
 Ghi chú khi áp: Q5 dùng hai mốc `2015-01-01` (Luật 71/2014/QH13 — thời điểm 0,1%/lần thành cách
-tính duy nhất) và `2009-01-01` (Luật 04/2007/QH12 hiệu lực — cổ tức 5%). **Hai mốc này lấy từ
-kiến thức nền, CHƯA qua lượt tra nào của hồ sơ** — người rà bản gốc kiểm cùng lượt với Q7. Trước
-hai mốc ấy app cố ý báo "thiếu hằng số": giai đoạn 2009–2014 tồn tại song song hai cách tính thuế
-chuyển nhượng nên không mô hình bằng một con số được.
+tính duy nhất) và `2009-01-01` (Luật 04/2007/QH12 hiệu lực — cổ tức 5%). Hai mốc này KHÔNG nằm
+trong 7 con số máy tra được — chúng do người viết điền từ kiến thức nền, và **chủ dự án đã kiểm
+lại trên bản gốc ở vòng rà 17/08/2026, xác nhận đúng cả hai**. Trước hai mốc ấy app cố ý báo
+"thiếu hằng số": giai đoạn 2009–2014 tồn tại song song hai cách tính thuế chuyển nhượng nên
+không mô hình bằng một con số được.
 
-| #   | Đề xuất sửa trong `schedules.ts`                                                                                                                                         | Quyết |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
-| Q1  | Hai dòng môi giới: `legalBasis` → "Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45%", `effectiveFrom` → `2022-01-01`. Giá trị 0,15% giữ nguyên                     | ☐     |
-| Q2  | `fee.custody`: `effectiveFrom` → `2022-01-01`; `legalBasis` thêm vế "được giữ trong biểu giá VSDC theo cơ chế Thông tư 83/2024/TT-BTC" sau khi đối chiếu trang VSDC      | ☐     |
-| Q3  | `market.settlement.days`: `legalBasis` → "Quy chế bù trừ và thanh toán của VSD — Quyết định 109/QĐ-VSD 19/08/2022 (hiện hành: Quyết định 39/QĐ-HĐTV 2025 của VSDC)"      | ☐     |
-| Q4  | `derivative.vn30f.multiplier`: `legalBasis` đổi HOSE → **HNX** (mẫu hợp đồng do HNX xây dựng, UBCKNN chấp thuận)                                                         | ☐     |
-| Q5  | Thêm bản ghi tiền nhiệm cho hai hằng số thuế (0,1% / 5%, căn cứ Luật 04/2007/QH12 sửa đổi, `effectiveFrom` ngày cũ) để tra được giao dịch trước 01/07/2026               | ☐     |
-| Q6  | Ghi chú hai ưu đãi mới của Luật 109/2025 (giảm 50% quỹ đầu tư, miễn CCQ mở ≥ 2 năm) vào diễn giải `thue-co-tuc` / `thue-tncn-dau-tu` — hoặc chốt là ngoài phạm vi        | ☐     |
-| Q7  | Sau khi duyệt Q1–Q5: gỡ nhãn "BẢN THẢO" trên đầu `schedules.ts`? Chỉ nên gỡ khi người rà đã đối chiếu bản gốc có dấu (vbpl.vn / Công báo) — hồ sơ này toàn nguồn thứ cấp | ☐     |
+| #   | Đề xuất sửa trong `schedules.ts`                                                                                                                                    | Quyết |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Q1  | Hai dòng môi giới: `legalBasis` → "Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45%", `effectiveFrom` → `2022-01-01`. Giá trị 0,15% giữ nguyên                | ☑    |
+| Q2  | `fee.custody`: `effectiveFrom` → `2022-01-01`; `legalBasis` thêm vế "được giữ trong biểu giá VSDC theo cơ chế Thông tư 83/2024/TT-BTC" sau khi đối chiếu trang VSDC | ☑    |
+| Q3  | `market.settlement.days`: `legalBasis` → "Quy chế bù trừ và thanh toán của VSD — Quyết định 109/QĐ-VSD 19/08/2022 (hiện hành: Quyết định 39/QĐ-HĐTV 2025 của VSDC)" | ☑    |
+| Q4  | `derivative.vn30f.multiplier`: `legalBasis` đổi HOSE → **HNX** (mẫu hợp đồng do HNX xây dựng, UBCKNN chấp thuận)                                                    | ☑    |
+| Q5  | Thêm bản ghi tiền nhiệm cho hai hằng số thuế (0,1% / 5%, căn cứ Luật 04/2007/QH12 sửa đổi, `effectiveFrom` ngày cũ) để tra được giao dịch trước 01/07/2026          | ☑    |
+| Q6  | Ghi chú hai ưu đãi mới của Luật 109/2025 (giảm 50% quỹ đầu tư, miễn CCQ mở ≥ 2 năm) vào diễn giải `thue-co-tuc` / `thue-tncn-dau-tu` — hoặc chốt là ngoài phạm vi   | ☑    |
+| Q7  | Gỡ nhãn "BẢN THẢO" trên đầu `schedules.ts` — chỉ khi người rà đã đối chiếu bản gốc có dấu (vbpl.vn / Công báo), vì hồ sơ này toàn nguồn thứ cấp                     | ☑    |
 
-Duyệt xong dòng nào, đánh dấu vào cột Quyết rồi giao lại — phần sửa code là một lượt nhỏ.
+Cả bảy dòng đã duyệt và áp. Q1–Q6 áp ngày 14/08/2026; Q7 gỡ ngày 17/08/2026 sau khi chủ dự án
+đối chiếu bản gốc.
+
+## Lần rà sau bắt đầu từ đâu
+
+Hồ sơ này đóng, nhưng hằng số thì không đứng yên. Ba chỗ đã biết là sẽ phải tra lại:
+
+- **Thông tư 102/2021** — hồ sơ chưa tra tình trạng hiệu lực của chính nó (mục 1 ghi rõ). Nếu có
+  văn bản thay nó thì trần phí môi giới đổi, và `SOURCE_FEE_CIRCULAR` ở `formulas/shared.ts` phải
+  đổi theo — một ca kiểm trong `market.test.ts` bắt hai nơi trích cùng số thông tư.
+- **Biểu giá VSDC** — phí lưu ký 0,27 ₫ nay do VSDC ban hành theo cơ chế Thông tư 83/2024, tức là
+  đổi được mà không cần sửa luật.
+- **Chu kỳ thanh toán** — T+2 là quy chế của VSDC, không phải luật; thị trường đang bàn T+1.
+
+Cách làm lần sau: đọc mục "Từng dòng" để biết nguồn nào đã tra và tra bằng cách nào, rồi chỉ tra
+lại phần đã đổi. Đừng bỏ vòng người đọc bản gốc — vòng máy chỉ tới được nguồn thứ cấp.

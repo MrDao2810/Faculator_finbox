@@ -8,7 +8,7 @@
 import { fail } from '../calc-output';
 import type { MarketConstantKey, TypedMarketConstant } from '../market/types';
 import { resolveConstant, resolveRate } from '../market/resolve';
-import type { FormulaSource } from '../registry/types';
+import type { FormulaSource, FormulaSpec } from '../registry/types';
 import type { CalcOutput, Level, VariableSpec } from '../types';
 import { meaningless } from '../warnings';
 import type { CalcContext } from '../calc/types';
@@ -43,6 +43,30 @@ export function constantOf(
 ): TypedMarketConstant | undefined {
   if (ctx.schedule === undefined) return undefined;
   return resolveConstant(ctx.schedule, key, ctx.asOf);
+}
+
+/**
+ * Những hằng số mà một công thức tra, đã giải theo `asOf` — để màn chi tiết bày nhãn, trị số,
+ * đơn vị và ngày hiệu lực ngay cạnh ô nhập.
+ *
+ * Đặt ở đây chứ không ở `market/resolve.ts` vì nó cần cả `FormulaSpec` lẫn `CalcContext`: để bên
+ * market thì tầng market phải với ngược lên registry, mà registry vừa trỏ xuống market để lấy
+ * `MarketConstantKey` — thành vòng, dù chỉ là vòng kiểu.
+ *
+ * Khoá đã khai mà biểu phí đang chọn không có bản nào hiệu lực tại `asOf` thì BỎ QUA thay vì
+ * dựng một dòng trống. Đúng lúc đó công thức cũng đã hỏng bằng `missingConstant()`, và khối
+ * Kết quả mới là chỗ nói chuyện thiếu hằng số — hai chỗ cùng kêu một lỗi là nhiễu.
+ */
+export function constantsUsedBy(
+  spec: Pick<FormulaSpec, 'usesConstants'>,
+  ctx: CalcContext,
+): ReadonlyArray<TypedMarketConstant> {
+  const dung: TypedMarketConstant[] = [];
+  for (const khoa of spec.usesConstants ?? []) {
+    const ban = constantOf(ctx, khoa);
+    if (ban !== undefined) dung.push(ban);
+  }
+  return dung;
 }
 
 /*

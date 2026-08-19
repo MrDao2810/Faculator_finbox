@@ -213,6 +213,39 @@
   border-radius: var(--radius-sm);
 }
 
+/*
+ * Vùng cuộn riêng cho bảng số liệu — NFR-USA-02.
+ *
+ * Ô bảng để `white-space: nowrap` (số không được ngắt dòng), nên `width: 100%` không giữ nổi bảng
+ * trong cột: bề rộng nội tại thắng. Đo trên bản build, `gia-tri-noi-tai-fcff` có tiêu đề cột
+ * "Giá trị nội tại từ FCFF (DCF) (₫)" làm bảng rộng 385px trong cột 344px và kéo cả trang cuộn
+ * ngang ở khổ 360px.
+ *
+ * `contain: layout inline-size` đi kèm `overflow-x` chứ không phải trang trí: một mình
+ * `overflow-x: auto` giữ được khung nhưng vẫn để bề rộng nội tại của bảng rò ra định lại khung
+ * nhìn của Chrome di động. Bài học đó đã trả giá một lần ở primitive `Table` — đọc chú thích
+ * `.scroller` trong `primitives/Table.module.css` trước khi đụng vào hai dòng dưới đây.
+ *
+ * Không dùng thẳng primitive `Table` vì nó vẽ viền, nền và bo góc cho cả khung — hợp với bảng
+ * đứng riêng ở WF-05/WF-14, nhưng ở đây bảng nằm trong một `<details>` vốn đã có khung của nó.
+ */
+.tableScroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  contain: layout inline-size;
+
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Vùng cuộn phải nhận được tiêu điểm để lăn được bằng bàn phím. */
+.tableScroll:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

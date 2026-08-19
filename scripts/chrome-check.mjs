@@ -432,19 +432,73 @@ try {
     chuoiHien ? 'chunk next/dynamic tải và gắn được' : 'chờ 8 giây không thấy #khoi-chuoi',
   );
 
+  /*
+   * Đo scrollWidth của TRANG, không phải của khối.
+   *
+   * Bản trước đọc `block.scrollWidth` — và nó mù. Khối chuỗi là hộp `overflow: visible` nên
+   * `scrollWidth` của nó chỉ bằng bề rộng được cấp (328) dù con của nó vẽ tràn ra ngoài; phép
+   * kiểm báo "vừa khung" trong khi trang thật cuộn ngang tới 495px vì năm thanh trượt của chuỗi
+   * bị nhét vào ô lưới 143px. Cuộn ngang là chuyện của TRANG, nên phải hỏi trang.
+   */
   const buoc = await evaluate(`(() => {
   const block = document.querySelector('#khoi-chuoi')?.closest('section');
   if (!block) return null;
+  const doc = document.documentElement;
   return {
     text: block.innerText.slice(0, 400),
-    tran: block.scrollWidth > document.documentElement.clientWidth + 1,
+    tran: doc.scrollWidth > doc.clientWidth + 1,
+    rong: doc.scrollWidth,
   };
 })()`);
 
   check(
     'khối chuỗi không đẩy trang tràn ngang ở khổ 360px',
     buoc !== null && buoc.tran === false,
-    buoc === null ? 'không đọc được khối' : 'vừa khung',
+    buoc === null ? 'không đọc được khối' : `trang rộng ${String(buoc.rong)}px`,
+  );
+
+  /*
+   * Chuỗi dài nhất, và mở luôn bảng số liệu — hai thứ mà trang `wacc` ở trên không chạm tới.
+   * `gia-tri-noi-tai-fcff` có bốn bước với tên dài nhất Registry có, còn bảng số liệu thì để
+   * `white-space: nowrap` nên tiêu đề cột "Giá trị nội tại từ FCFF (DCF) (₫)" đẩy bảng rộng
+   * 385px trong cột 344px. Cả hai chỉ lộ ra khi mở `<details>`, nên phải mở.
+   */
+  await open('/cong-thuc/gia-tri-noi-tai-fcff/');
+  try {
+    await waitFor("document.querySelector('#khoi-chuoi')", 8000);
+  } catch {
+    /* Ca dưới sẽ báo nếu khối không lên. */
+  }
+
+  const chuoiDai = await evaluate(`(() => {
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
+  const doc = document.documentElement;
+  const truot = [...document.querySelectorAll('input[type=range]')];
+  const nhanCao = truot
+    .map((s) => {
+      const nhan = s.closest('div')?.querySelector('label');
+      return nhan ? Math.round(nhan.getBoundingClientRect().height) : 0;
+    })
+    .filter((h) => h > 44);
+  return { rong: doc.scrollWidth, khung: doc.clientWidth, soTruot: truot.length, nhanVo: nhanCao.length };
+})()`);
+
+  check(
+    'chuỗi dài nhất + bảng số liệu mở: trang vẫn không cuộn ngang',
+    chuoiDai !== null && chuoiDai.rong <= chuoiDai.khung + 1,
+    chuoiDai === null ? 'không đọc được trang' : `trang rộng ${String(chuoiDai.rong)}px`,
+  );
+
+  /*
+   * Nhãn thanh trượt cao quá hai dòng nghĩa là nó đang bị bóp vào một cột hẹp — dấu hiệu của
+   * đúng lỗi trên, bắt được cả khi bề rộng trang tình cờ vẫn vừa.
+   */
+  check(
+    'không nhãn thanh trượt nào bị bóp vỡ thành nhiều dòng',
+    chuoiDai !== null && chuoiDai.nhanVo === 0,
+    chuoiDai === null
+      ? 'không đọc được trang'
+      : `${String(chuoiDai.soTruot)} thanh trượt, ${String(chuoiDai.nhanVo)} nhãn vỡ`,
   );
 
   check(

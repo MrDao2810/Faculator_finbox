@@ -176,6 +176,8 @@ export const vi = {
   'detail.inputs': 'Số liệu',
   'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
   'detail.constantSource': 'Market Config · CON-10',
+  'detail.constantsInUse': 'Đang tính theo các mức sau',
+  'detail.constantSince': 'áp dụng từ',
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
   'detail.seriesLoaded': 'Đã nạp số phiên giá:',
   'detail.openDataTable': 'Mở bảng dữ liệu →',

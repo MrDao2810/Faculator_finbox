@@ -77,40 +77,52 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
           {t('chart.showData')} ({rows})
         </summary>
 
-        <table className={styles.table}>
-          {/*
-            Tên bảng phải KHÁC tiêu đề hình, không phải bản sao của nó: hai phần tử mang y nguyên
-            một chuỗi thì trình đọc màn hình đọc lại hai lần, và người dùng không biết mình đang ở
-            hình hay ở bảng.
-          */}
-          <caption className="visually-hidden">
-            {t('chart.tableCaption')} — {model.title}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">{model.table.columns[0]}</th>
-              <th scope="col">{model.table.columns[1]}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {model.table.rows.map((row, index) =>
-              row === null ? (
-                // Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ 240 kỳ.
-                <tr key={`gap-${String(index)}`} className={styles.gapRow}>
-                  <td colSpan={2}>…</td>
-                </tr>
-              ) : (
-                <tr
-                  key={`${row[0]}-${String(index)}`}
-                  className={row[0] === currentLabel(model) ? styles.currentRow : undefined}
-                >
-                  <td>{row[0]}</td>
-                  <td>{row[1]}</td>
-                </tr>
-              ),
-            )}
-          </tbody>
-        </table>
+        {/*
+          Vùng cuộn ngang riêng, cùng nếp với primitive `Table` — bảng nhiều chữ không được kéo cả
+          trang cuộn ngang (NFR-USA-02). `tabIndex` để lăn được bằng bàn phím; `role="group"` +
+          `aria-label` để trình đọc màn hình biết vừa bước vào vùng cuộn của bảng nào.
+        */}
+        <div
+          className={styles.tableScroll}
+          tabIndex={0}
+          role="group"
+          aria-label={`${t('chart.tableCaption')} — ${model.title}`}
+        >
+          <table className={styles.table}>
+            {/*
+              Tên bảng phải KHÁC tiêu đề hình, không phải bản sao của nó: hai phần tử mang y nguyên
+              một chuỗi thì trình đọc màn hình đọc lại hai lần, và người dùng không biết mình đang ở
+              hình hay ở bảng.
+            */}
+            <caption className="visually-hidden">
+              {t('chart.tableCaption')} — {model.title}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{model.table.columns[0]}</th>
+                <th scope="col">{model.table.columns[1]}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {model.table.rows.map((row, index) =>
+                row === null ? (
+                  // Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ 240 kỳ.
+                  <tr key={`gap-${String(index)}`} className={styles.gapRow}>
+                    <td colSpan={2}>…</td>
+                  </tr>
+                ) : (
+                  <tr
+                    key={`${row[0]}-${String(index)}`}
+                    className={row[0] === currentLabel(model) ? styles.currentRow : undefined}
+                  >
+                    <td>{row[0]}</td>
+                    <td>{row[1]}</td>
+                  </tr>
+                ),
+              )}
+            </tbody>
+          </table>
+        </div>
       </details>
     </figure>
   );

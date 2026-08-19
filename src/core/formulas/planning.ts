@@ -669,6 +669,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
         expectedWarning: 'MEANINGLESS',
       },
     ],
+    usesConstants: ['tax.transfer.sell', 'tax.dividend.cash'],
     source: [SOURCE_PIT_LAW],
   },
   calc: (v, ctx) => {

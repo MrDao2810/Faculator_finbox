@@ -9,6 +9,7 @@ import {
   PRICE_SERIES_KEY,
   ROUTES,
   chainFor,
+  constantsUsedBy,
   defaultInputs,
   findFormulaModule,
   formatCalcOutput,
@@ -33,9 +34,10 @@ import type {
   SeriesRow,
 } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
-import { LinkedInput, VariableField } from '@/ui/inputs';
+import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 import {
+  ConstantsNote,
   ErrorState,
   ExampleBlock,
   ExplanationAccordion,
@@ -66,14 +68,11 @@ import styles from './FormulaDetail.module.css';
  */
 const ALL_SPECS = FORMULA_MODULES.map((module) => module.spec);
 
-/**
- * Điều khiển chiếm trọn bề ngang của lưới ô nhập.
- *
- * Ô số và danh sách chọn xếp hai cột được ở 360px; thanh trượt, nhóm nút và công tắc thì không —
- * chúng cần cả chiều ngang cho nhãn, giá trị và hai mốc min/max. Bản thiết kế hi-fi vẽ đúng
- * như vậy: WF-08 bốn ô số thành lưới 2×2, WF-14 ba thanh trượt xếp dọc.
+/*
+ * Danh sách điều khiển chiếm trọn hàng từng nằm ở đây; nay dùng chung tại
+ * `isWideControl()` trong `@/ui/inputs` vì khối chuỗi WF-04 cũng cần đúng luật ấy và đã bỏ sót
+ * nó một lần — xem docblock của hàm.
  */
-const WIDE_CONTROLS: ReadonlyArray<string> = ['slider', 'buttonGroup', 'radio', 'toggle'];
 
 export interface FormulaDetailProps {
   spec: FormulaSpec;
@@ -472,7 +471,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           {shown.map((variable) => {
             const linked = linkedFields.get(variable.key);
             // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
-            const wide = linked !== undefined || WIDE_CONTROLS.includes(variable.type);
+            const wide = linked !== undefined || isWideControl(variable.type);
 
             return (
               <div key={variable.key} className={wide ? styles.fieldWide : styles.field}>
@@ -537,6 +536,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             {t('detail.seriesLoaded')} {seriesCount}
           </p>
         )}
+
+        {/*
+          Hằng số thuế & phí đang áp — đặt CUỐI khối Số liệu, không tách thành khối riêng.
+          Nó thuộc về đầu vào: cùng là thứ quyết định con số ở khối Kết quả, chỉ khác chỗ người
+          dùng không gõ được. Tách ra thành khối số 5 thì nó rơi xuống dưới Kết quả, tức là người
+          dùng đọc xong con số rồi mới biết nó tính theo mức nào — muộn.
+
+          Tự trả về null khi công thức không tra hằng số nào, nên 95 trong 108 trang không thêm
+          một nút DOM nào.
+        */}
+        <ConstantsNote constants={constantsUsedBy(spec, ctx)} />
       </section>
 
       {/* ── 4b. Chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ────────────────── */}

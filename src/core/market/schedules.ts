@@ -1,14 +1,17 @@
 /**
  * Tầng DOMAIN — số liệu MarketConfig (gói WBS 1.3.2).
  *
- * ⚠ BẢN THẢO — CHỜ NGƯỜI ĐỐI CHIẾU VĂN BẢN GỐC CÓ DẤU.
- * Gói WBS 5.1.1 ghi rõ: mức phí, thuế suất và ngày hiệu lực dưới đây BẮT BUỘC được
- * người rà soát đối chiếu với văn bản gốc trước khi phát hành v0.1.
+ * ĐÃ ĐỐI CHIẾU VĂN BẢN GỐC — gói WBS 5.1.1 đóng ngày 17/08/2026, hết điều kiện chặn v0.1 về
+ * số liệu thị trường.
  *
- * Đã qua MỘT vòng đối chiếu trên nguồn mở (14/08/2026, chủ dự án duyệt Q1–Q7) — xem hồ sơ
- * `README.md` cùng thư mục: cả 7 con số khớp nguồn; 4 bản ghi được sửa phần căn cứ/ngày theo
- * hồ sơ ấy. Nhãn bản thảo GIỮ NGUYÊN vì mọi nguồn của vòng này là nguồn thứ cấp
- * (thuvienphapluat.vn chặn máy) — gỡ nhãn là việc của người rà đọc bản gốc trên vbpl.vn/Công báo.
+ * Bảy hằng số dưới đây qua hai vòng: máy tra nguồn mở (14/08/2026 — hồ sơ `README.md` cùng thư
+ * mục ghi từng nguồn và từng quyết định Q1–Q7), rồi chủ dự án đọc bản gốc có dấu và xác nhận,
+ * kể cả hai mốc hiệu lực của bản ghi thuế tiền nhiệm mà vòng máy không tra tới.
+ *
+ * Sửa một con số ở đây là đổi kết quả của 8 công thức phí & thuế, nên đi kèm bắt buộc phải có
+ * `legalBasis` trỏ đúng văn bản ĐANG hiệu lực (LDR-03, CON-10) và một dòng trong hồ sơ nói vì
+ * sao. Mục cuối hồ sơ liệt kê ba chỗ đã biết là sẽ phải tra lại — thông tư phí, biểu giá VSDC,
+ * và chu kỳ thanh toán.
  *
  * Quy ước ghi giá trị (CON-05): hằng số phần trăm ghi theo dạng người đọc thấy trên
  * văn bản — 0,1 nghĩa là 0,1%. Đổi sang hệ số nhân bằng resolveRate().

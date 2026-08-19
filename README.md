@@ -181,13 +181,18 @@ NFR-PER-04". Đợt 13 tách chỉ mục nhẹ khỏi Registry và khai `sideEff
 **10,9 kB** nén (0,1 kB mỗi công thức), trang nặng nhất **156,9 kB** First Load JS — còn dư
 13,1 kB dưới cửa kiểm 170 kB. Chạy `npm run size` để xem lại bất cứ lúc nào.
 
-Ba việc chặn phát hành v0.1, đều là **nội dung chờ người đối chiếu**, không phải code:
+Còn **hai việc** chặn phát hành v0.1, đều là **nội dung chờ người đối chiếu**, không phải code:
 
-1. **Thuế & phí** trong `src/core/market/schedules.ts` còn là bản thảo (gói WBS 5.1.1).
-2. **Bộ số liệu mẫu** trong `src/data/samples.ts` là số tôi tự dựng, không phải BCTC thật —
-   giả định A1 và rủi ro R-01 của SRS vẫn còn mở.
-3. **Diễn giải của 108 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
+1. **Bộ số liệu mẫu** trong `src/data/samples.ts` là số tôi tự dựng, không phải BCTC thật —
+   giả định A1 và rủi ro R-01 của SRS vẫn còn mở. Mọi `Preset` mang `isDraft: true` và giao diện
+   nói rõ điều đó ở bốn chỗ; **đừng gỡ mấy nhãn ấy chừng nào con số còn là số bịa**.
+2. **Diễn giải của 108 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
    đã có ví dụ số kiểm chứng độc lập cho từng công thức.
+
+Việc thứ ba đã xong: **thuế & phí** trong `src/core/market/schedules.ts` (gói WBS 5.1.1) qua hai
+vòng đối chiếu — máy tra nguồn mở, rồi chủ dự án đọc bản gốc có dấu — và đóng ngày 17/08/2026.
+Hồ sơ nguồn giữ ở [src/core/market/README.md](src/core/market/README.md), kèm ba hằng số nhiều
+khả năng phải tra lại sớm nhất.
 
 Và một việc lộ ra khi đủ 108: **thiếu công thức Beta**. Nó nằm cùng gốc với việc số 2 ở trên —
 Beta hồi quy cần một chuỗi VN-Index mà bộ mẫu chưa có. Xem

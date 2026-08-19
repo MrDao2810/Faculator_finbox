@@ -72,6 +72,19 @@ export function formatCalcOutput(out: CalcOutput, options?: FormatNumberOptions)
   return formatValueWithUnit(out.value, out.unit, options);
 }
 
+/**
+ * Ngày ISO 'YYYY-MM-DD' thành 'DD/MM/YYYY'. Chuỗi không đúng dạng thì trả nguyên xi.
+ *
+ * KHÔNG đi qua `new Date()`: chuỗi ISO đã đúng thứ tự sẵn nên cắt chuỗi là đủ, và không có múi
+ * giờ nào xen vào được — `new Date('2025-12-31').getDate()` trên máy ở múi giờ âm ra ngày 30.
+ * Cùng lý do bản build là HTML tĩnh: chuỗi sinh lúc build phải khớp chuỗi sinh lúc chạy.
+ */
+export function formatIsoDate(iso: string): string {
+  const [year, month, day] = iso.split('-');
+  if (year === undefined || month === undefined || day === undefined) return iso;
+  return `${day}/${month}/${year}`;
+}
+
 /*
  * ── Đọc ngược thứ người dùng gõ ────────────────────────────────────────────────────────
  */

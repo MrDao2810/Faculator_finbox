@@ -108,6 +108,7 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
         expected: 0,
       },
     ],
+    usesConstants: ['fee.brokerage.buy'],
     source: [SOURCE_FEE_CIRCULAR],
   },
   calc: (v, ctx) => {
@@ -153,6 +154,7 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
         expected: 145_500,
       },
     ],
+    usesConstants: ['fee.brokerage.sell'],
     source: [SOURCE_FEE_CIRCULAR],
   },
   calc: (v, ctx) => {
@@ -199,6 +201,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
         expected: 97_000,
       },
     ],
+    usesConstants: ['tax.transfer.sell'],
     source: [SOURCE_PIT_LAW],
   },
   calc: (v, ctx) => {
@@ -250,6 +253,7 @@ export const THUE_CO_TUC: FormulaModule = {
         expected: 0,
       },
     ],
+    usesConstants: ['tax.dividend.cash'],
     source: [SOURCE_PIT_LAW],
   },
   calc: (v, ctx) => {
@@ -300,6 +304,7 @@ export const PHI_LUU_KY: FormulaModule = {
         expected: 270,
       },
     ],
+    usesConstants: ['fee.custody'],
     source: [SOURCE_VSD],
   },
   calc: (v, ctx) => {
@@ -354,6 +359,7 @@ export const GIA_HOA_VON: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
     ],
+    usesConstants: ['fee.brokerage.buy', 'fee.brokerage.sell', 'tax.transfer.sell', 'fee.custody'],
     source: [SOURCE_FEE_CIRCULAR, SOURCE_PIT_LAW],
   },
   calc: (v, ctx) => breakEvenPrice(v, ctx),
@@ -491,6 +497,7 @@ export const ROI_RONG: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
     ],
+    usesConstants: ['fee.brokerage.buy', 'fee.brokerage.sell', 'tax.transfer.sell', 'fee.custody'],
     source: [SOURCE_FEE_CIRCULAR],
   },
   calc: (v, ctx) => {

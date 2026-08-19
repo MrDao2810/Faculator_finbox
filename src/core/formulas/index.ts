@@ -50,6 +50,9 @@ export {
 export type { Cashflow, XirrOptions } from './returns';
 export { xirr, xirrNotConverged } from './returns';
 
+// Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết
+export { constantsUsedBy } from './shared';
+
 /** Toàn bộ công thức đã có hàm tính. */
 export const FORMULA_MODULES: ReadonlyArray<FormulaModule> = [
   ...MULTIPLE_FORMULAS,

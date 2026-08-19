@@ -6,6 +6,7 @@
  * và viết hàm tính, không phải sửa mã lõi (NFR-MNT-01).
  */
 
+import type { MarketConstantKey } from '../market/types';
 import type { SeriesRow } from '../price-series';
 import type { Level, VariableSpec, WarningCode } from '../types';
 
@@ -184,6 +185,23 @@ export interface FormulaSpec extends FormulaSummary {
   tests: ReadonlyArray<FormulaTestCase>;
   source: ReadonlyArray<FormulaSource>;
   note?: string;
+  /**
+   * Khoá của những hằng số MarketConfig mà `calc` tra tới — KHAI BÁO KHOÁ, không phải trị số.
+   *
+   * Mục đích là hiển thị: màn chi tiết bày nhãn, trị số, đơn vị và ngày hiệu lực của từng hằng
+   * số ngay dưới khối Số liệu, để người dùng thấy con số kết quả đang tính theo mức nào. Trước
+   * gói này, `phi-giao-dich-mua` cho ra 138.000 ₫ mà mức 0,15% không xuất hiện ở bất kỳ đâu trên
+   * trang — người dùng không có cách nào biết phí tính theo tỷ lệ gì.
+   *
+   * Chỉ khai khoá vì trị số phải tiếp tục chảy từ `schedules.ts` (LDR-03, CON-10): luật đổi thì
+   * màn hình đổi theo, không mục. Chép "0,15%" hay "100.000 ₫" vào prose thì lint không bắt được
+   * và nó sẽ âm thầm sai.
+   *
+   * Hai ca kiểm trong `constants-gate.test.ts` giữ khai báo khớp với thân hàm: một ca quét mã
+   * nguồn để không lời gọi nào bị bỏ khai, một ca rút từng khoá khỏi biểu phí và bắt buộc công
+   * thức phải hỏng — khai một khoá mình không dùng cũng là đỏ.
+   */
+  usesConstants?: ReadonlyArray<MarketConstantKey>;
   dependsOn?: ReadonlyArray<FormulaDependency>;
   /**
    * Các chặng của biểu đồ bóc tách. Chỉ có nghĩa với `chartType` là `waterfall` hoặc

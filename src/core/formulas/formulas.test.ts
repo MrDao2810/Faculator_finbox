@@ -74,9 +74,18 @@ describe('Registry với toàn bộ công thức thật', () => {
       const { id, example } = formula.spec;
       // Ví dụ của công thức chuỗi mang theo chuỗi giá riêng — bơm vào ctx thì mới kiểm được.
       const ctx: typeof CTX =
-        example.series === undefined && example.bars === undefined
+        example.series === undefined &&
+        example.bars === undefined &&
+        example.marketSeries === undefined &&
+        example.cashflows === undefined
           ? CTX
-          : { ...CTX, series: example.series, bars: example.bars };
+          : {
+              ...CTX,
+              series: example.series,
+              bars: example.bars,
+              marketSeries: example.marketSeries,
+              cashflows: example.cashflows,
+            };
       const out = runFormula(formula, example.inputs, ctx);
 
       expect(out.value, `${id} — ví dụ phải tính được`).not.toBeNull();

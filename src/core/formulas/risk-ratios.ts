@@ -6,6 +6,11 @@
  * độ lệch chuẩn (Sharpe), phần giảm (Sortino), beta (Treynor), sai số theo dõi (thông tin),
  * mức sụt giảm sâu nhất (Calmar), hay cỡ lãi so với cỡ lỗ (thắng/thua).
  *
+ * Cộng thêm Beta — không phải một tỷ số mà là chính thước đo Treynor đem chia, nhưng đặt cùng
+ * file vì cùng ngưỡng 60 phiên tối thiểu và cùng nhóm 'risk'. Từng kẹt vì hồi quy cần HAI
+ * chuỗi giá cùng lúc (cổ phiếu và VN-Index) mà bộ mẫu trước đây không có chỉ số nào — xem
+ * docblock ngay trên `BETA` bên dưới.
+ *
  * Cả sáu đọc chuỗi giá qua `requireCloses()` của `series-utils.ts`, tối thiểu 60 phiên: dưới
  * mức đó độ lệch chuẩn mẫu nhảy loạn theo vài phiên cá biệt và mọi tỷ số ở đây mất ý nghĩa
  * thống kê. Thiếu phiên thì `MISSING_SERIES`, tuyệt đối không tính bừa trên mẫu nhỏ (FR-06).
@@ -26,7 +31,14 @@ import type { FormulaModule } from '../calc/types';
 import type { CalcWarning } from '../types';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
-import { maxDrawdown, mean, requireCloses, sampleStdDev, simpleReturns } from './series-utils';
+import {
+  maxDrawdown,
+  mean,
+  requireCloses,
+  requireMarketCloses,
+  sampleStdDev,
+  simpleReturns,
+} from './series-utils';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
 /*
@@ -46,6 +58,11 @@ const SOURCE_SORTINO: FormulaSource = {
 const SOURCE_TREYNOR: FormulaSource = {
   label:
     'Jack L. Treynor — "How to Rate Management of Investment Funds", Harvard Business Review, tập 43 số 1 (1965), trang 63–75',
+};
+
+const SOURCE_SHARPE_CAPM: FormulaSource = {
+  label:
+    'William F. Sharpe — "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, tập 19 số 3 (1964), trang 425–442',
 };
 
 const SOURCE_GRINOLD_KAHN: FormulaSource = {
@@ -192,6 +209,180 @@ const FALLING_CLOSES: ReadonlyArray<number> = Array.from({ length: 61 }, (_, i) 
 
 /** 30 phiên zigzag — cố ý ngắn hơn ngưỡng 60 để kiểm ca thiếu dữ liệu chuỗi. */
 const SHORT_CLOSES: ReadonlyArray<number> = cycleCloses(29);
+
+/**
+ * Chuỗi VN-Index dùng riêng cho ca kiểm Beta — cùng nhịp zigzag nhưng khởi đầu ở 1.000 điểm
+ * cho giống thang đo của một chỉ số thật. Chỉ là hình thức: beta tính trên LỢI SUẤT chứ không
+ * trên mức giá, nên khởi đầu ở 100 hay 1.000 không đổi kết quả.
+ */
+const MARKET_CLOSES: ReadonlyArray<number> = cycleCloses(60, 1_000);
+
+/**
+ * Dựng một chuỗi giá NGƯỢC từ lợi suất của `marketCloses` nhân hệ số `factor` — cho ra beta
+ * ĐÚNG bằng `factor`, không phải xấp xỉ: về đại số, Cov(k·R_m, R_m) / Var(R_m) = k với MỌI
+ * chuỗi R_m có phương sai khác 0, không phụ thuộc hình dạng của nó. Nhờ vậy ca kiểm không
+ * phải tin một con số dán sẵn — ai đọc hàm này cũng suy ra được kết quả.
+ */
+function betaScaledCloses(
+  marketCloses: ReadonlyArray<number>,
+  factor: number,
+  start = 100,
+): number[] {
+  const closes = [start];
+  let price = start;
+  for (const r of simpleReturns(marketCloses)) {
+    price *= 1 + r * factor;
+    closes.push(price);
+  }
+  return closes;
+}
+
+/** Cổ phiếu biến động đúng 1,5 lần VN-Index mỗi phiên — beta lý thuyết bằng 1,5. */
+const STOCK_BETA_1_5: ReadonlyArray<number> = betaScaledCloses(MARKET_CLOSES, 1.5);
+
+/** Cổ phiếu đi NGƯỢC thị trường, biên độ bằng nửa — beta lý thuyết bằng −0,5. */
+const STOCK_BETA_NEG_0_5: ReadonlyArray<number> = betaScaledCloses(MARKET_CLOSES, -0.5);
+
+/*
+ * ── 0. Beta ────────────────────────────────────────────────────────────────────────────
+ *
+ * Không phải một TỶ SỐ như sáu công thức còn lại của file — Beta là chính THƯỚC ĐO rủi ro mà
+ * tỷ số Treynor ở mục 3 đem chia cho lợi suất. Đặt trong file này vì cùng ngưỡng tối thiểu
+ * 60 phiên và cùng nhóm 'risk', không phải vì cùng loại hình.
+ *
+ * Từng kẹt vì thiếu dữ liệu: hồi quy cần HAI chuỗi cùng lúc (cổ phiếu và VN-Index), mà
+ * `src/data/samples.ts` trước đây chỉ có bốn mã, không mã nào là chỉ số. Gói này thêm
+ * `ctx.marketSeries` (xem docblock ở `calc/types.ts`) và một chuỗi VN-Index bản thảo — xem
+ * `DataProvider.vnIndex()`. Bộ mẫu bản thảo hiện tại là bốn chuỗi PRNG ĐỘC LẬP không có nhân
+ * tố thị trường chung, nên beta tính từ chúng sẽ ra một số GẦN 0 — đúng về mặt toán học, chỉ
+ * không minh hoạ được một cổ phiếu thật biến động ra sao. Đó là hạn chế đã biết của bộ số
+ * liệu bản thảo, không phải lỗi của công thức; `spec.tests` dưới đây dùng chuỗi dựng riêng
+ * để minh hoạ đúng ý nghĩa của beta > 1, beta < 1 và beta âm.
+ */
+
+export const BETA: FormulaModule = {
+  spec: {
+    id: 'beta',
+    categoryId: 'risk',
+    name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta coefficient' },
+    description: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
+    latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}',
+    expression:
+      'Beta = Hiệp phương sai(lợi suất cổ phiếu, lợi suất VN-Index) ÷ Phương sai(lợi suất VN-Index)',
+    chartType: 'scatter',
+    level: 'advanced',
+    tags: ['beta', 'he so beta', 'rui ro he thong', 'capm', 'systematic risk', 'hoi quy'],
+    resultUnit: 'lần',
+    variables: [
+      sliderVar('sessions', 'Số phiên lấy để hồi quy', 'phiên', 60, MIN_SESSIONS, 500, 1, {
+        description: `Lấy bao nhiêu phiên gần nhất của CẢ HAI chuỗi giá — cổ phiếu và VN-Index — để hồi quy. ${SESSIONS_NOTE}`,
+      }),
+    ],
+    explanation: {
+      meaning:
+        'Beta 1,5 nghĩa là VN-Index tăng hay giảm 1% thì cổ phiếu này thường tăng hay giảm khoảng 1,5% — hệ số góc của đường hồi quy lợi suất cổ phiếu theo lợi suất thị trường.',
+      whenToUse:
+        'Khi ước lượng chi phí vốn chủ theo CAPM, xếp mức nhạy cảm của một cổ phiếu với thị trường chung, hoặc làm mẫu số cho tỷ số Treynor.',
+      howToRead:
+        'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn. Beta âm — cổ phiếu đi NGƯỢC thị trường — hiếm nhưng có thật, thường gặp ở vàng hoặc một số ngành phòng thủ.',
+      commonMistakes:
+        'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
+    },
+    example: {
+      title: 'Cổ phiếu biến động gấp rưỡi VN-Index trong 61 phiên mẫu',
+      inputs: { sessions: 60 },
+      series: STOCK_BETA_1_5,
+      marketSeries: MARKET_CLOSES,
+      expected: 1.5,
+      note: 'VN-Index tăng 1% thì cổ phiếu này thường tăng khoảng 1,5% — biến động mạnh hơn thị trường.',
+    },
+    tests: [
+      {
+        name: 'cổ phiếu biến động gấp rưỡi thị trường — beta 1,5',
+        inputs: { sessions: 60 },
+        series: STOCK_BETA_1_5,
+        marketSeries: MARKET_CLOSES,
+        expected: 1.5,
+      },
+      {
+        name: 'cổ phiếu đúng bằng thị trường — beta 1',
+        inputs: { sessions: 60 },
+        series: MARKET_CLOSES,
+        marketSeries: MARKET_CLOSES,
+        expected: 1,
+      },
+      {
+        name: 'cổ phiếu đi ngược thị trường, biên độ nửa — beta −0,5',
+        inputs: { sessions: 60 },
+        series: STOCK_BETA_NEG_0_5,
+        marketSeries: MARKET_CLOSES,
+        expected: -0.5,
+      },
+      {
+        name: 'VN-Index đứng yên thì phương sai bằng 0, không chia được',
+        inputs: { sessions: 60 },
+        series: STOCK_BETA_1_5,
+        marketSeries: FLAT_CLOSES,
+        expected: null,
+        expectedWarning: 'DIVIDE_BY_ZERO',
+      },
+      {
+        name: 'cổ phiếu mới 30 phiên thì chưa đủ dữ liệu để hồi quy',
+        inputs: { sessions: 60 },
+        series: SHORT_CLOSES,
+        marketSeries: MARKET_CLOSES,
+        expected: null,
+        expectedWarning: 'MISSING_SERIES',
+      },
+      {
+        name: 'chưa nạp chuỗi VN-Index thì chưa hồi quy được, dù cổ phiếu đủ phiên',
+        inputs: { sessions: 60 },
+        series: STOCK_BETA_1_5,
+        expected: null,
+        expectedWarning: 'MISSING_SERIES',
+      },
+    ],
+    source: [SOURCE_SHARPE_CAPM, SOURCE_CFA],
+  },
+  calc: (v, ctx) => {
+    const unit = 'lần';
+    const sessions = Math.max(MIN_SESSIONS, Math.round(v('sessions')));
+
+    const stockCloses = requireCloses(ctx, sessions);
+    if (!Array.isArray(stockCloses)) return fail(unit, stockCloses);
+
+    const marketCloses = requireMarketCloses(ctx, sessions);
+    if (!Array.isArray(marketCloses)) return fail(unit, marketCloses);
+
+    const stockReturns = simpleReturns(stockCloses.slice(-sessions));
+    const marketReturns = simpleReturns(marketCloses.slice(-sessions));
+
+    const avgStock = mean(stockReturns);
+    const avgMarket = mean(marketReturns);
+
+    let covariance = 0;
+    let varianceMarket = 0;
+    for (let i = 0; i < marketReturns.length; i += 1) {
+      const dm = (marketReturns[i] ?? 0) - avgMarket;
+      const di = (stockReturns[i] ?? 0) - avgStock;
+      covariance += dm * di;
+      varianceMarket += dm * dm;
+    }
+
+    if (varianceMarket === 0) {
+      return fail(
+        unit,
+        divideByZero(
+          'Beta',
+          'Phương sai lợi suất VN-Index',
+          'VN-Index đứng yên suốt cửa sổ này nên không có biến động để so — chọn cửa sổ dài hơn.',
+        ),
+      );
+    }
+
+    return ok(covariance / varianceMarket, unit);
+  },
+};
 
 /*
  * ── 1. Tỷ số Sharpe ────────────────────────────────────────────────────────────────────
@@ -427,11 +618,10 @@ export const TY_SO_TREYNOR: FormulaModule = {
       numberVar('beta', 'Hệ số beta của danh mục', 'lần', 1.2, {
         min: -5,
         max: 5,
-        // Cố ý KHÔNG nhắc "công thức Beta": thư viện chưa có công thức đó, và câu cũ trỏ người
-        // dùng đi tìm một thứ không tồn tại. Beta hồi quy là gói 3.3.2, kẹt vì `src/data` chưa có
-        // chuỗi VN-Index để hồi quy. Chỉ nêu những nguồn có thật.
+        // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
+        // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
         description:
-          'Nhập tay: lấy từ bảng dữ liệu của công ty chứng khoán, từ báo cáo quỹ, hoặc từ trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
+          'Nhập tay: tính bằng công thức Beta của thư viện này (dán chuỗi giá cổ phiếu), lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ, hoặc trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
       }),
     ],
     explanation: {
@@ -660,7 +850,7 @@ export const TY_SO_CALMAR: FormulaModule = {
       howToRead:
         'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
       commonMistakes:
-        'Chạy Calmar trên một chuỗi ngắn toàn phiên tăng: mẫu số gần bằng 0 làm tỷ số vọt lên vài chục lần, trong khi thực chất chỉ là chuỗi chưa gặp nhịp điều chỉnh nào.',
+        'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',
     },
     example: {
       title: 'Chuỗi 61 phiên hình chữ V: lên 120, rơi về 90, hồi lên 110',
@@ -867,6 +1057,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
 
 /** Sáu tỷ số hiệu quả điều chỉnh rủi ro, bổ sung cho nhóm 'risk'. */
 export const RISK_RATIO_FORMULAS: ReadonlyArray<FormulaModule> = [
+  BETA,
   TY_SO_SHARPE,
   TY_SO_SORTINO,
   TY_SO_TREYNOR,

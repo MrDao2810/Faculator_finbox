@@ -3,8 +3,10 @@
  *
  * Mười công thức: Gordon (DDM một giai đoạn) · DDM hai giai đoạn · CAPM · WACC ·
  * FCFF từ EBIT · FCFE từ FCFF · giá trị nội tại từ FCFF · PV · FV · biên an toàn. Đây là các mắt xích vô hướng
- * của chuỗi định giá CAPM → WACC → DCF → biên an toàn; phần cần chuỗi giá (Beta hồi quy)
- * chờ gói 3.3.2, nên beta ở CAPM là ô nhập tay.
+ * của chuỗi định giá CAPM → WACC → DCF → biên an toàn; beta ở CAPM vẫn là ô NHẬP TAY dù công
+ * thức Beta hồi quy (nhóm Rủi ro) đã đăng ký — CAPM không đọc chuỗi giá nào, và người dùng có
+ * thể có beta từ một nguồn khác (công ty chứng khoán, báo cáo quỹ) chứ không bắt buộc phải
+ * tính lại bằng công thức trong thư viện này.
  *
  * ── Bốn cạnh `dependsOn` của cả Registry đều nằm trong file này (FR-15, gói 5.2.3) ──────────
  *
@@ -355,7 +357,8 @@ export const CAPM: FormulaModule = {
       numberVar('beta', 'Hệ số beta (β)', 'lần', 1.2, {
         min: -3,
         max: 4,
-        description: 'Độ nhạy của cổ phiếu so với thị trường, nhập tay từ nguồn dữ liệu bên ngoài.',
+        description:
+          'Độ nhạy của cổ phiếu so với thị trường. Nhập tay — tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc lấy từ nguồn dữ liệu bên ngoài.',
       }),
       sliderVar('erp', 'Phần bù rủi ro thị trường (ERP)', '%', 8, 0, 15, 0.1, {
         description: 'Mức sinh lợi kỳ vọng của thị trường cổ phiếu vượt trên lãi suất phi rủi ro.',

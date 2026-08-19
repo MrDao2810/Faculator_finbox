@@ -81,10 +81,10 @@ describe('12 nhóm công thức (FR-01)', () => {
     expect(new Set(CATEGORIES.map((c) => c.id)).size).toBe(12);
   });
 
-  it('khớp bảng SRS 3.8 sau khi nâng nhóm Định giá: 95 chứng khoán + 13 cá nhân = 108', () => {
-    expect(expectedCountOf('stock')).toBe(95);
+  it('khớp bảng SRS 3.8 sau khi thêm ba công thức cố ý chưa đăng ký: 98 chứng khoán + 13 cá nhân = 111', () => {
+    expect(expectedCountOf('stock')).toBe(98);
     expect(expectedCountOf('personal')).toBe(13);
-    expect(expectedCountOf('stock') + expectedCountOf('personal')).toBe(108);
+    expect(expectedCountOf('stock') + expectedCountOf('personal')).toBe(111);
   });
 
   it('chia đúng 7 nhóm chứng khoán và 5 nhóm cá nhân', () => {
@@ -351,9 +351,9 @@ describe('sinh giao diện từ Registry (FR-05, FR-09)', () => {
 describe('chế độ hiển thị lọc thư viện thật (FR-09)', () => {
   const BASE: FormulaQuery = { q: '', segment: 'all', categoryId: null, sort: 'featured' };
 
-  it('Nâng cao thấy đủ 108, Cơ bản thấy ít hơn hẳn', () => {
-    expect(formulasForLevel(FORMULA_SUMMARIES, 'advanced')).toHaveLength(108);
-    expect(formulasForLevel(FORMULA_SUMMARIES, 'basic').length).toBeLessThan(108);
+  it('Nâng cao thấy đủ 111, Cơ bản thấy ít hơn hẳn', () => {
+    expect(formulasForLevel(FORMULA_SUMMARIES, 'advanced')).toHaveLength(111);
+    expect(formulasForLevel(FORMULA_SUMMARIES, 'basic').length).toBeLessThan(111);
   });
 
   it('không nhóm nào rỗng ở chế độ Cơ bản mà KHÔNG đếm ra được số công thức đang ẩn', () => {

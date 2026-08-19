@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-import type { CalcContext } from '@/application';
+import type { CalcContext, CalcOutput, CashflowRow } from '@/application';
 
 import { FeeScheduleField } from './FeeScheduleField';
 
@@ -22,9 +22,10 @@ import { FeeScheduleField } from './FeeScheduleField';
 
 const FeeTaxBody = dynamic(async () => (await import('./FeeTaxBody')).FeeTaxBody);
 const LoanScheduleBody = dynamic(async () => (await import('./LoanScheduleBody')).LoanScheduleBody);
+const XirrBody = dynamic(async () => (await import('./XirrBody')).XirrBody);
 
 /** id công thức có thân riêng. Công thức không nằm trong đây dùng khối kết quả chung. */
-const CUSTOM_BODIES = ['loi-nhuan-rong', 'lich-tra-no'] as const;
+const CUSTOM_BODIES = ['loi-nhuan-rong', 'lich-tra-no', 'xirr'] as const;
 
 /**
  * id công thức có khối cấu hình riêng ĐẶT TRÊN ô nhập.
@@ -47,8 +48,13 @@ const CONFIG_BLOCKS = ['loi-nhuan-rong'] as const;
  *
  * Cảnh báo vẫn đi đường cũ: thân riêng dựng `InlineWarning`, vốn nêu đủ nhãn lỗi, nguyên nhân
  * và câu gợi ý sửa như `ErrorState` — bỏ khối chung không làm mất thông tin lỗi nào (FR-06).
+ *
+ * `xirr` cũng thuộc nhóm này nhưng vì lý do khác: khối chung không đọc được bảng dòng tiền
+ * (`ctx.cashflows` không phải một biến của `spec.variables`), nên nó luôn hiện đúng con số —
+ * không phải nguy cơ hiện HAI con số như WF-08, mà là khối chung sẽ hiện đúng nhưng KHÔNG cho
+ * sửa được bảng dòng tiền ngay tại đó.
  */
-const OWN_RESULT = ['loi-nhuan-rong'] as const;
+const OWN_RESULT = ['loi-nhuan-rong', 'xirr'] as const;
 
 export function hasCustomBody(id: string): boolean {
   return (CUSTOM_BODIES as ReadonlyArray<string>).includes(id);
@@ -66,11 +72,38 @@ export interface DetailBodyProps {
   id: string;
   inputs: Readonly<Record<string, number>>;
   ctx: CalcContext;
+  /**
+   * Kết quả đã tính ở `FormulaDetail` — `XirrBody` bày thẳng thay vì tính lại, vì `ctx` truyền
+   * xuống đây với `cashflowRows` hiện tại đã đủ để `FormulaDetail` ra đúng con số rồi; tính lại
+   * là hai chỗ cùng tính một phép, đúng loại lỗi "hai chỗ nói hai chuyện" dự án đã né chỗ khác.
+   */
+  output?: CalcOutput;
+  /**
+   * Bảng dòng tiền của XIRR — sống ở `FormulaDetail` (cùng lý do `bars` sống ở đó), thân riêng
+   * chỉ đọc và báo thay đổi qua `onCashflowRowsChange`. Công thức khác bỏ qua ba props này.
+   */
+  cashflowRows?: ReadonlyArray<CashflowRow>;
+  onCashflowRowsChange?: (rows: ReadonlyArray<CashflowRow>) => void;
 }
 
-export function DetailBody({ id, inputs, ctx }: DetailBodyProps) {
+export function DetailBody({
+  id,
+  inputs,
+  ctx,
+  output,
+  cashflowRows,
+  onCashflowRowsChange,
+}: DetailBodyProps) {
   if (id === 'loi-nhuan-rong') return <FeeTaxBody inputs={inputs} ctx={ctx} />;
   if (id === 'lich-tra-no') return <LoanScheduleBody inputs={inputs} />;
+  if (
+    id === 'xirr' &&
+    output !== undefined &&
+    cashflowRows !== undefined &&
+    onCashflowRowsChange !== undefined
+  ) {
+    return <XirrBody output={output} rows={cashflowRows} onRowsChange={onCashflowRowsChange} />;
+  }
   return null;
 }
 

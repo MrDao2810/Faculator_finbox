@@ -46,6 +46,28 @@ export function requireCloses(
   return closes.length >= min ? closes : missingSeries(min, closes.length, what);
 }
 
+/**
+ * Chuỗi giá đóng cửa VN-Index dùng được từ `ctx.marketSeries` — riêng cho công thức Beta.
+ *
+ * Tách khỏi `usableCloses()` dù cùng hình dạng: `ctx.series` là chuỗi của MÃ đang xem, còn
+ * `ctx.marketSeries` là chuỗi CỐ ĐỊNH của chỉ số, hai nguồn khác nhau không được lẫn vào nhau.
+ */
+export function usableMarketCloses(ctx: CalcContext): number[] {
+  return (ctx.marketSeries ?? []).filter(
+    (close): close is number => typeof close === 'number' && close > 0,
+  );
+}
+
+/** Như `requireCloses` nhưng đòi tối thiểu `min` phiên VN-Index từ `ctx.marketSeries`. */
+export function requireMarketCloses(
+  ctx: CalcContext,
+  min: number,
+  what = 'phiên giá VN-Index',
+): number[] | CalcWarning {
+  const closes = usableMarketCloses(ctx);
+  return closes.length >= min ? closes : missingSeries(min, closes.length, what);
+}
+
 /** Như `requireCloses` nhưng trả chuỗi phiên OHLCV đầy đủ — chỉ giữ phiên có giá đóng cửa. */
 export function requireBars(
   ctx: CalcContext,

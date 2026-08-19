@@ -8,9 +8,12 @@ import {
   MARKET_CONFIG,
   PRICE_SERIES_KEY,
   ROUTES,
+  SAMPLE_DATA,
+  cashflowsOf,
   chainFor,
   constantsUsedBy,
   defaultInputs,
+  emptyCashflowRow,
   findFormulaModule,
   formatCalcOutput,
   hasDraftData,
@@ -26,6 +29,7 @@ import type {
   CalcContext,
   CalcInputs,
   CalcOutput,
+  CashflowRow,
   ChainInputs,
   ChainOverrides,
   FormulaModule,
@@ -67,6 +71,17 @@ import styles from './FormulaDetail.module.css';
  * qua `findFormulaModule()`, nên đây là 0 byte thêm.
  */
 const ALL_SPECS = FORMULA_MODULES.map((module) => module.spec);
+
+/**
+ * Chuỗi giá đóng cửa VN-Index — tính MỘT LẦN ngoài component, giống `ALL_SPECS`.
+ *
+ * Khác `bars`/`series` vốn phụ thuộc trạng thái người dùng (đã dán chuỗi hay chưa, đang xem mã
+ * nào), đây là một chuỗi CỐ ĐỊNH (FR-17) nên luôn có mặt trong `ctx` — công thức Beta không cần
+ * người dùng làm gì thêm để có `ctx.marketSeries`.
+ */
+const VN_INDEX_CLOSES = SAMPLE_DATA.vnIndex()
+  .map((bar) => bar.close)
+  .filter((close): close is number => typeof close === 'number' && close > 0);
 
 /*
  * Danh sách điều khiển chiếm trọn hàng từng nằm ở đây; nay dùng chung tại
@@ -128,6 +143,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const [overrides, setOverrides] = useState<ChainOverrides>({});
 
   /*
+   * Bảng dòng tiền có ngày — riêng cho XIRR (`ctx.cashflows`). Sống ở ĐÂY, không trong thân
+   * riêng `XirrBody`, vì cùng một lý do `bars` sống ở đây: `output` và chuỗi chữ ẩn dưới khối
+   * Kết quả (dùng cho bộ kiểm) đều tính từ `ctx` của component này — để state ở con thì hai
+   * nơi tính ra hai số khác nhau cho cùng một công thức, đúng loại lỗi "hai chỗ nói hai chuyện"
+   * dự án đã né ở `historyPoints`/`ResultBlock`. Mặc định hai dòng trống — đúng số ít nhất
+   * XIRR cần, để người dùng thấy ngay khuôn bảng thay vì một danh sách rỗng.
+   */
+  const [cashflowRows, setCashflowRows] = useState<ReadonlyArray<CashflowRow>>(() => [
+    emptyCashflowRow(),
+    emptyCashflowRow(),
+  ]);
+
+  /*
    * Chuỗi giá cho công thức nhóm Kỹ thuật / Rủi ro (FR-12) đọc từ bảng WF-05 trong
    * localStorage — trong effect chứ không lúc khởi tạo state, vì HTML build sẵn không có
    * localStorage và lần render đầu ở máy khách phải giống hệt lúc build (bài học đợt 2).
@@ -146,6 +174,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     () => ({
       asOf,
       schedule: scheduleOrDefault(MARKET_CONFIG, feeScheduleId),
+      marketSeries: VN_INDEX_CLOSES,
+      cashflows: cashflowsOf(cashflowRows),
       ...(bars === null
         ? {}
         : {
@@ -155,7 +185,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               .filter((close): close is number => typeof close === 'number' && close > 0),
           }),
     }),
-    [asOf, feeScheduleId, bars],
+    [asOf, feeScheduleId, bars, cashflowRows],
   );
 
   const formula = findFormulaModule(spec.id);
@@ -576,7 +606,16 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       {!ownsResult(spec.id) && <ResultBlock output={output} />}
 
       {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
-      {hasCustomBody(spec.id) && <DetailBody id={spec.id} inputs={inputs} ctx={ctx} />}
+      {hasCustomBody(spec.id) && (
+        <DetailBody
+          id={spec.id}
+          inputs={inputs}
+          ctx={ctx}
+          output={output}
+          cashflowRows={cashflowRows}
+          onCashflowRowsChange={setCashflowRows}
+        />
+      )}
 
       {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
       {/*

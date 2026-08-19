@@ -7,12 +7,13 @@
 
 import { normalizeVi } from '@/core/registry';
 
-import { SAMPLE_PRESETS } from './samples';
-import type { DataProvider, Preset } from './types';
+import { SAMPLE_PRESETS, VN_INDEX_BARS } from './samples';
+import type { DailyBar, DataProvider, Preset } from './types';
 
 /** Dựng một provider từ danh sách preset cho sẵn — nhờ vậy test truyền được bộ giả. */
 export function createStaticProvider(
   presets: ReadonlyArray<Preset> = SAMPLE_PRESETS,
+  vnIndexBars: ReadonlyArray<DailyBar> = VN_INDEX_BARS,
 ): DataProvider {
   const byCode = new Map(presets.map((item) => [item.code.toUpperCase(), item]));
 
@@ -30,6 +31,8 @@ export function createStaticProvider(
         return haystack.includes(needle);
       });
     },
+
+    vnIndex: () => vnIndexBars,
   };
 }
 

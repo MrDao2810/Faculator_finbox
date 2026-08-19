@@ -194,6 +194,14 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
     tags: ['earnings yield', 'ty suat loi nhuan', 'nghich dao pe', 'e p', 'so voi lai suat'],
   },
   {
+    id: 'gia-muc-tieu',
+    categoryId: 'valuation',
+    name: { vi: 'Giá mục tiêu', en: 'Target price' },
+    description: 'Mức giá kỳ vọng nếu thị trường định giá cổ phiếu theo đúng P/E mục tiêu đã chọn.',
+    level: 'basic',
+    tags: ['gia muc tieu', 'target price', 'dinh gia', 'pe muc tieu'],
+  },
+  {
     id: 'mo-hinh-gordon',
     categoryId: 'valuation',
     name: { vi: 'Mô hình Gordon (DDM một giai đoạn)', en: 'Gordon growth model' },
@@ -376,6 +384,14 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
     tags: ['ty suat co tuc', 'dividend yield', 'co tuc'],
   },
   {
+    id: 'xirr',
+    categoryId: 'returns',
+    name: { vi: 'XIRR — suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
+    description: 'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.',
+    level: 'advanced',
+    tags: ['xirr', 'suat sinh loi noi tai', 'dong tien khong deu', 'irr thuc te'],
+  },
+  {
     id: 'loi-suat-nam-hoa',
     categoryId: 'returns',
     name: { vi: 'Lợi suất năm hoá', en: 'Annualized return' },
@@ -535,6 +551,14 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
     description: 'Trong kỳ, cổ phiếu đã có lần giảm liên tiếp nhiều nhất bao nhiêu phiên.',
     level: 'basic',
     tags: ['chuoi giam', 'losing streak', 'phien giam lien tiep', 'ky luat', 'tam ly'],
+  },
+  {
+    id: 'beta',
+    categoryId: 'risk',
+    name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta coefficient' },
+    description: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
+    level: 'advanced',
+    tags: ['beta', 'he so beta', 'rui ro he thong', 'capm', 'systematic risk', 'hoi quy'],
   },
   {
     id: 'ty-so-sharpe',

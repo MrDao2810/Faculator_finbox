@@ -598,7 +598,7 @@ describe('buildChartModel()', () => {
    * câu "chưa có phiên giá" kèm câu chỉ đường, và đó là trạng thái ĐÚNG chứ không phải thiếu sót.
    * Chốt cả hai con số: nếu một công thức tuột khỏi nhóm vẽ được vì lý do khác thì ca này đỏ.
    */
-  it('chưa nạp dữ liệu: 60 đường quét + 4 bóc tách, 34 công thức chờ chuỗi giá', () => {
+  it('chưa nạp dữ liệu: 61 đường quét + 4 bóc tách, 35 công thức chờ chuỗi giá', () => {
     const wanted = FORMULA_MODULES.filter((f) => f.spec.chartType !== 'none');
     const drawn = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'line');
     const bocTach = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'waterfall');
@@ -607,8 +607,8 @@ describe('buildChartModel()', () => {
       return model.kind === 'unavailable' && model.warning.code === 'MISSING_SERIES';
     });
 
-    expect(wanted).toHaveLength(98);
-    expect(drawn).toHaveLength(60);
+    expect(wanted).toHaveLength(100);
+    expect(drawn).toHaveLength(61);
     /*
      * BỐN công thức bày thác nước NGAY khi mở màn — đúng bốn cái khai `chartType: 'waterfall'`:
      * `ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`. Điểm chung của chúng không phải là tình cờ:
@@ -620,7 +620,7 @@ describe('buildChartModel()', () => {
      * bóc tách của chúng nằm trong ô chọn trục, không đè lên đường quét vốn nói được điều riêng.
      */
     expect(bocTach).toHaveLength(4);
-    expect(waiting).toHaveLength(34);
+    expect(waiting).toHaveLength(35);
     // Không ca nào rơi ra ngoài ba nhóm ấy — không có "không vẽ được vì lý do khác".
     expect(drawn.length + bocTach.length + waiting.length).toBe(wanted.length);
   });
@@ -632,11 +632,11 @@ describe('buildChartModel()', () => {
    * đoán trước được, vẽ ra chỉ thêm một hình không nói gì. Ca này chốt rằng nhãn ấy là một quyết
    * định về ý nghĩa, và giao diện tôn trọng nó bằng cách không dựng khối biểu đồ nào.
    */
-  it('nhóm chartType none vẫn nằm ngoài phạm vi — đúng 10 công thức', () => {
+  it('nhóm chartType none — nay 11 công thức, thêm xirr', () => {
     const none = FORMULA_MODULES.filter((f) => f.spec.chartType === 'none');
 
-    expect(none).toHaveLength(10);
-    expect(FORMULA_MODULES).toHaveLength(108);
+    expect(none).toHaveLength(11);
+    expect(FORMULA_MODULES).toHaveLength(111);
   });
 });
 

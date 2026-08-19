@@ -47,7 +47,7 @@ export {
   methodOf,
 } from './personal';
 
-export type { Cashflow, XirrOptions } from './returns';
+export type { XirrOptions } from './returns';
 export { xirr, xirrNotConverged } from './returns';
 
 // Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết

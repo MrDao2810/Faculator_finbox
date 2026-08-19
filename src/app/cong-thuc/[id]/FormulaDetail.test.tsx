@@ -413,7 +413,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 });
 
 describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12)', () => {
-  it('đúng 34 công thức có nút dán chuỗi — bằng số công thức CẦN chuỗi, không phải 11 công thức nến', () => {
+  it('đúng 35 công thức có nút dán chuỗi — bằng số công thức CẦN chuỗi, không phải 11 công thức nến', () => {
     const coNut: string[] = [];
 
     for (const spec of FORMULAS) {
@@ -426,11 +426,11 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
 
     /*
      * Bug chủ dự án chưa báo nhưng có thật: chỗ này từng đọc `chartType === 'candlestick'`, tức
-     * lấy loại BIỂU ĐỒ làm cờ dữ liệu. Nến chỉ là 11 trong 34 — 23 công thức còn lại (phân phối
+     * lấy loại BIỂU ĐỒ làm cờ dữ liệu. Nến chỉ là 11 trong 35 — 24 công thức còn lại (phân phối
      * lợi suất, sụt giảm từ đỉnh, hồi quy) gặp lỗi "chưa đủ phiên giá" mà trên màn không có lối
      * nào để nạp. Ngõ cụt thật sự, chỉ là không ai bấm tới.
      */
-    expect(coNut).toHaveLength(34);
+    expect(coNut).toHaveLength(35);
     expect(coNut.filter((id) => specOf(id).chartType === 'candlestick')).toHaveLength(11);
 
     /*
@@ -751,11 +751,19 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
       const text = alert.textContent ?? '';
 
       /*
-       * Lý do HỢP LỆ duy nhất để không ra số với giá trị mặc định là chưa có chuỗi giá.
+       * Lý do HỢP LỆ để không ra số với giá trị mặc định là chưa có chuỗi giá (MISSING_SERIES).
        * Mọi mã khác — chia cho 0, không có ý nghĩa… — nghĩa là chính bộ giá trị mặc định của
        * công thức tự mâu thuẫn, và đó là lỗi thật chứ không phải trạng thái chờ người dùng.
+       *
+       * `xirr` là ngoại lệ DUY NHẤT, và có lý do riêng: nó không đọc `ctx.series`/`ctx.bars`
+       * nên không được mang mã MISSING_SERIES — mang mã đó sẽ khiến `needsPriceSeries()` xếp
+       * nhầm nó vào nhóm cần nút "Dán chuỗi giá" (xem docblock ở `calc` của `xirr`). Đầu vào
+       * của nó là một BẢNG dòng tiền, nên mã đúng là INCOMPLETE_INPUT — cùng bản chất "chờ
+       * dữ liệu có cấu trúc từ người dùng", chỉ khác cấu trúc đó là bảng chứ không phải chuỗi.
        */
-      expect(text, `${spec.id}: mã cảnh báo`).toContain(WARNING_LABELS.MISSING_SERIES);
+      const expectedLabel =
+        spec.id === 'xirr' ? WARNING_LABELS.INCOMPLETE_INPUT : WARNING_LABELS.MISSING_SERIES;
+      expect(text, `${spec.id}: mã cảnh báo`).toContain(expectedLabel);
       // Phải có câu chỉ đường, không được chỉ báo lỗi rồi bỏ mặc.
       expect(text, `${spec.id}: thiếu câu chỉ cách khắc phục`).toContain(t('result.fixPrefix'));
 
@@ -775,15 +783,15 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
     }
 
     // Hai nhóm chuỗi giá là `risk` và `technical`; `risk` còn một công thức vô hướng (cỡ lệnh).
+    // `xirr` chờ một BẢNG dòng tiền chứ không chuỗi giá, nên đứng riêng ở nhóm `returns`.
     for (const id of chờDữLiệu) {
       const spec = specOf(id);
-      expect(['risk', 'technical'], `${id} phải ra số ngay mà lại chờ dữ liệu`).toContain(
-        spec.categoryId,
-      );
+      const allowed = id === 'xirr' ? ['returns'] : ['risk', 'technical'];
+      expect(allowed, `${id} phải ra số ngay mà lại chờ dữ liệu`).toContain(spec.categoryId);
     }
 
-    // Và phải có ĐÚNG 34 công thức như vậy — thêm bớt là có người vừa đổi hợp đồng dữ liệu.
-    expect(chờDữLiệu.length).toBe(34);
+    // Và phải có ĐÚNG 36 công thức như vậy — thêm bớt là có người vừa đổi hợp đồng dữ liệu.
+    expect(chờDữLiệu.length).toBe(36);
   });
 });
 

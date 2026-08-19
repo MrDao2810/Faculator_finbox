@@ -194,11 +194,11 @@ export const BASIS_VN30F: FormulaModule = {
     ],
     explanation: {
       meaning:
-        'Thước đo tâm lý thị trường phái sinh: basis dương là hợp đồng đang được trả giá cao hơn chỉ số, basis âm là thấp hơn.',
+        'Chênh lệch giữa giá hợp đồng tương lai và chỉ số cơ sở: basis dương là hợp đồng đang được trả giá cao hơn chỉ số, basis âm là thấp hơn.',
       whenToUse:
         'Theo dõi trước khi vào lệnh — basis đang rộng bất thường hay hẹp dần về ngày đáo hạn đều là thông tin.',
       howToRead:
-        'Basis dương lớn thường đi với kỳ vọng tăng, basis âm sâu đi với tâm lý bi quan. Càng gần đáo hạn basis càng co về 0.',
+        'Không đọc thẳng mọi basis dương là kỳ vọng tăng — quá nửa mức đó thường chỉ là chi phí nắm giữ hợp lý (xem mục Lỗi hay gặp). Basis vượt hẳn mức chi phí đó, hoặc basis âm sâu bất thường, mới đáng đọc là tâm lý thị trường. Càng gần đáo hạn basis càng co về 0.',
       commonMistakes:
         'Quên rằng một phần basis là chi phí nắm giữ hợp lý (lãi suất trừ cổ tức) — không phải cứ basis dương là thị trường hưng phấn.',
     },
@@ -688,7 +688,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       howToRead:
         'Con số càng cao thì biên an toàn trước một lệnh gọi ký quỹ càng mỏng. Vốn thực giảm vì thua lỗ sẽ tự đẩy đòn bẩy lên mà không cần mở thêm hợp đồng nào.',
       commonMistakes:
-        'Nghĩ đòn bẩy cố định bằng nghịch đảo tỷ lệ ký quỹ. Đó chỉ là mức lúc vào lệnh — thua lỗ làm vốn mỏng đi thì đòn bẩy thực đã cao hơn con số ban đầu.',
+        'Nghĩ nghịch đảo tỷ lệ ký quỹ là đòn bẩy cố định của mọi lệnh. Đó chỉ là mức TRẦN — mức cao nhất được phép khi nộp đúng ký quỹ tối thiểu; nộp ký quỹ dày hơn thì đòn bẩy thực đã thấp hơn ngay từ lúc vào lệnh, còn thua lỗ theo thời gian lại tự đẩy đòn bẩy thực lên cao hơn con số ban đầu.',
     },
     example: {
       title: '1 hợp đồng ở 1.280 điểm, vốn thực có 30 triệu ₫',

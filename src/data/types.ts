@@ -87,4 +87,10 @@ export interface DataProvider {
   byCode(code: string): Preset | undefined;
   /** Tìm theo mã hoặc tên, bỏ dấu. Chuỗi rỗng thì trả về toàn bộ danh sách. */
   search(query: string): ReadonlyArray<Preset>;
+  /**
+   * Chuỗi phiên của VN-Index — riêng cho công thức Beta (FR-17: "gắn được mã cổ phiếu và chỉ
+   * số VN-Index thật qua DataProvider"). Không phải một `Preset`: không có mã, không isDraft
+   * riêng, không hiện ở PresetSheet — chỉ nạp thẳng vào `ctx.marketSeries`.
+   */
+  vnIndex(): ReadonlyArray<DailyBar>;
 }

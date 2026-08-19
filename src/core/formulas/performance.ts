@@ -524,7 +524,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
       meaning:
         'Mức lãi suất chiết khấu làm tổng giá trị hiện tại của các khoản thu về đúng bằng số vốn đã bỏ ra.',
       whenToUse:
-        'Khi thẩm định một khoản cho vay trả đều, mua trái phiếu coupon đều, hay một dự án thu tiền đều đặn.',
+        'Khi thẩm định một khoản cho vay trả đều, một hợp đồng trả góp, hay một dự án thu tiền đều đặn mỗi kỳ mà không có khoản hoàn vốn nào ở kỳ cuối — trái phiếu coupon trả lại mệnh giá khi đáo hạn thì mô hình này KHÔNG tính đúng.',
       howToRead:
         'IRR tính theo KỲ — dòng tiền theo tháng thì đây là %/tháng, muốn so với lãi suất năm phải năm hoá thêm một bước.',
       commonMistakes:

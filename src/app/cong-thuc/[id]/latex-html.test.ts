@@ -13,7 +13,7 @@ import { latexToMathml } from './latex-html';
  */
 
 describe('latexToMathml() — dựng ký hiệu toán lúc build', () => {
-  it('cả 108 công thức đều dựng được, không ném lỗi', () => {
+  it('cả 111 công thức đều dựng được, không ném lỗi', () => {
     const hong: Array<{ id: string; message: string }> = [];
 
     for (const spec of FORMULAS) {
@@ -28,7 +28,7 @@ describe('latexToMathml() — dựng ký hiệu toán lúc build', () => {
       }
     }
 
-    expect(FORMULAS).toHaveLength(108);
+    expect(FORMULAS).toHaveLength(111);
     expect(
       hong,
       `công thức dựng hỏng: ${hong.map((h) => `${h.id} (${h.message})`).join(' · ')}`,

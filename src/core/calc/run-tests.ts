@@ -59,9 +59,18 @@ function checkCase(
   // Ca nào khai chuỗi giá riêng thì bơm vào ctx của đúng ca đó — công thức chuỗi (FR-12)
   // không kiểm được bằng ctx chung vốn không có chuỗi nào.
   const caseCtx: CalcContext =
-    testCase.series === undefined && testCase.bars === undefined
+    testCase.series === undefined &&
+    testCase.bars === undefined &&
+    testCase.marketSeries === undefined &&
+    testCase.cashflows === undefined
       ? ctx
-      : { ...ctx, series: testCase.series ?? ctx.series, bars: testCase.bars ?? ctx.bars };
+      : {
+          ...ctx,
+          series: testCase.series ?? ctx.series,
+          bars: testCase.bars ?? ctx.bars,
+          marketSeries: testCase.marketSeries ?? ctx.marketSeries,
+          cashflows: testCase.cashflows ?? ctx.cashflows,
+        };
 
   const out = runFormula(formula, testCase.inputs, caseCtx);
 

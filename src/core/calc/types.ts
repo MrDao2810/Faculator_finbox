@@ -10,6 +10,7 @@
  * chỉ khai báo thêm một FormulaSpec và viết hàm tính" — đây đúng là hai thứ đó, buộc đi liền nhau.
  */
 
+import type { Cashflow } from '../cashflow-series';
 import type { FeeSchedule } from '../market/types';
 import type { SeriesRow } from '../price-series';
 import type { FormulaSpec } from '../registry/types';
@@ -42,6 +43,22 @@ export interface CalcContext {
    * đếm phiên DÙNG ĐƯỢC trước khi tính, thiếu thì `missingSeries()`.
    */
   bars?: ReadonlyArray<SeriesRow>;
+  /**
+   * Chuỗi giá đóng cửa của VN-Index, cùng chiều với `series` (phiên CŨ trước, phiên MỚI CUỐI).
+   * Riêng cho công thức Beta — hồi quy lợi suất cổ phiếu theo lợi suất thị trường cần HAI chuỗi
+   * cùng lúc, khác mọi công thức chuỗi giá khác trong Registry vốn chỉ đọc một mình `series`.
+   *
+   * Nguồn không đến từ lựa chọn của người dùng như `series` — VN-Index là một chuỗi CỐ ĐỊNH,
+   * luôn có mặt bất kể đang xem mã nào (xem `DataProvider.vnIndex()`), nên tầng gọi (màn chi
+   * tiết) phải tự nạp trường này chứ không đợi người dùng dán thêm gì.
+   */
+  marketSeries?: ReadonlyArray<number>;
+  /**
+   * Dòng tiền có ngày cho XIRR — công thức duy nhất trong Registry cần một BẢNG thay vì một
+   * chuỗi số hay vài ô nhập. Do thân riêng của XIRR (`ui/screens/XirrBody.tsx`) tự quản lý
+   * bảng và nạp vào đây bằng `cashflowsOf()`, cùng cách `series` được nạp từ `bars`.
+   */
+  cashflows?: ReadonlyArray<Cashflow>;
   /** Kết quả các công thức thượng nguồn, cho cảnh báo kế thừa của FR-15. */
   upstream?: Readonly<Record<string, CalcOutput>>;
 }

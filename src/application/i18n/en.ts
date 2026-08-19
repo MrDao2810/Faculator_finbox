@@ -257,6 +257,16 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'series.needMore':
     'Beta and Sharpe need at least 60 sessions to mean anything statistically. Not enough yet — results will report missing data.',
 
+  'xirr.tableTitle': 'Cash flows',
+  'xirr.hint':
+    'Negative is money out, positive is money in — the last row is usually the current value.',
+  'xirr.addRow': 'Add row',
+  'xirr.removeRow': 'Delete row',
+  'xirr.colDate': 'Date',
+  'xirr.colAmount': 'Amount (₫)',
+  'xirr.rowLabel': 'Row',
+  'xirr.usable': 'usable cash flows',
+
   'paste.title': 'Paste data',
   'paste.subtitle': 'OHLC price series pasted straight from Excel or a CSV file',
   'paste.areaLabel': 'Paste your data here',

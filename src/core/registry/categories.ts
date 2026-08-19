@@ -1,13 +1,20 @@
 /**
  * Tầng DOMAIN — 12 nhóm công thức của FR-01.
  *
- * Số lượng ở `expectedCount` lấy theo bảng SRS mục 3.8: 95 công thức mảng chứng khoán
- * và 13 công thức mảng tài chính cá nhân, tổng 108.
+ * Số lượng ở `expectedCount` lấy theo bảng SRS mục 3.8, đã qua ba lần nâng — **bảng SRS ngoài
+ * repo phải sửa theo cho khớp**, nếu không tài liệu lệch nhau vĩnh viễn:
  *
- * Bảng gốc của SRS ghi 94 / 13 / 107. Nhóm Định giá được nâng 18 → 19 ở gói 5.2.3 để có chỗ cho
- * `gia-tri-noi-tai-fcff` — mắt xích khép nhánh FCFF của chuỗi định giá, thiếu nó thì WACC, FCFF
- * và FCFE là ba công thức không ai tiêu thụ kết quả. Chủ dự án đã chốt; **bảng SRS ngoài repo
- * phải sửa theo cho khớp**, nếu không hai tài liệu lệch nhau vĩnh viễn.
+ *   - Gốc: 94 chứng khoán + 13 cá nhân = 107.
+ *   - Gói 5.2.3: Định giá 18 → 19 (107 → 108) cho `gia-tri-noi-tai-fcff` — mắt xích khép nhánh
+ *     FCFF của chuỗi định giá, thiếu nó thì WACC, FCFF và FCFE là ba công thức không ai tiêu
+ *     thụ kết quả.
+ *   - Đợt thêm ba công thức "cố ý chưa đăng ký" ở `formulas/README.md`: Định giá 19 → 20
+ *     (108 → 109) cho `gia-muc-tieu` (độc lập, không cần dữ liệu mới); Rủi ro 17 → 18
+ *     (109 → 110) cho `beta` (hồi quy cần chuỗi VN-Index — nay `samples.ts` đã có); Lợi nhuận
+ *     & cổ tức 13 → 14 (110 → 111) cho `xirr` (hàm thuần đã có từ trước, nay có thân riêng
+ *     quản lý bảng dòng tiền — `ui/screens/XirrBody.tsx`).
+ *
+ * Tổng hiện tại: **98 chứng khoán + 13 cá nhân = 111**. Đủ ba công thức "cố ý chưa đăng ký".
  *
  * `shortName` lấy đúng nguyên văn wireframe WF-01 — đó là chữ đã được duyệt cho lưới hai cột,
  * không phải bản rút gọn tôi tự nghĩ ra.
@@ -23,8 +30,9 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     name: 'Định giá',
     shortName: 'Định giá',
     nameEn: 'Valuation',
-    description: 'Ước tính giá trị hợp lý của cổ phiếu: bội số, chiết khấu dòng tiền, cổ tức.',
-    expectedCount: 19,
+    description:
+      'Ước tính giá trị hợp lý của cổ phiếu: bội số, chiết khấu dòng tiền, cổ tức, giá mục tiêu.',
+    expectedCount: 20,
   },
   {
     id: 'fundamentals',
@@ -42,7 +50,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     shortName: 'Lợi nhuận',
     nameEn: 'Returns & dividends',
     description: 'Đo hiệu quả một khoản đầu tư: ROI, HPR, CAGR, XIRR, tỷ suất cổ tức.',
-    expectedCount: 13,
+    expectedCount: 14,
   },
   {
     id: 'risk',
@@ -50,10 +58,8 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     name: 'Rủi ro & danh mục',
     shortName: 'Rủi ro',
     nameEn: 'Risk & portfolio',
-    // KHÔNG kể "Beta" ở đây: nhóm chưa có công thức Beta (hồi quy cần chuỗi VN-Index mà bộ mẫu
-    // chưa có — gói 3.3.2). Kể ra là hứa một công thức người dùng tìm không thấy.
-    description: 'Đo biến động và rủi ro: Sharpe, Sortino, Treynor, Max Drawdown, VaR.',
-    expectedCount: 17,
+    description: 'Đo biến động và rủi ro: Beta, Sharpe, Sortino, Treynor, Max Drawdown, VaR.',
+    expectedCount: 18,
   },
   {
     id: 'technical',

@@ -53,10 +53,23 @@ function makeBars(count = SESSIONS): ReadonlyArray<SeriesRow> {
 
 const BARS = makeBars();
 
+/**
+ * Chuỗi VN-Index tự dựng riêng cho ca kiểm này — cùng lý do với `makeBars()`: không import từ
+ * `@/data` (CON-02), và không phụ thuộc bộ mẫu bản thảo sẽ bị thay. Đường sin lệch pha với
+ * `makeBars()` để phương sai khác 0, đủ cho `beta` hồi quy ra một số hữu hạn.
+ */
+function makeMarketCloses(count = SESSIONS): number[] {
+  return Array.from(
+    { length: count },
+    (_, i) => Math.round((1_000 + 80 * Math.sin(i / 7) + 2 * i) / 10) * 10,
+  );
+}
+
 const WITH_BARS: CalcContext = {
   ...BASE,
   bars: BARS,
   series: BARS.map((bar) => bar.close).filter((c): c is number => typeof c === 'number' && c > 0),
+  marketSeries: makeMarketCloses(),
 };
 
 function moduleOf(id: string): FormulaModule {
@@ -437,9 +450,9 @@ describe('trục thời gian — quét toàn Registry', () => {
    * ẩn biến nâng cao khỏi ô chọn trục X (FR-09) — một công thức mà mọi biến đều là nâng cao sẽ không
    * còn ứng viên nào ở chế độ Cơ bản, và đó đúng là kiểu hụt mà ca này canh.
    */
-  it('nạp chuỗi giá rồi thì CẢ 98 công thức đều dựng được mô hình, ở cả hai chế độ', () => {
+  it('nạp chuỗi giá rồi thì CẢ 100 công thức đều dựng được mô hình, ở cả hai chế độ', () => {
     const wanted = FORMULA_MODULES.filter((formula) => formula.spec.chartType !== 'none');
-    expect(wanted).toHaveLength(98);
+    expect(wanted).toHaveLength(100);
 
     for (const level of ['basic', 'advanced'] as const) {
       for (const formula of wanted) {
@@ -459,14 +472,14 @@ describe('trục thời gian — quét toàn Registry', () => {
     }
   });
 
-  it('vẽ theo thời gian được cho 18 công thức nhóm Cơ bản, 49 trên toàn Registry', () => {
+  it('vẽ theo thời gian được cho 18 công thức nhóm Cơ bản, 50 trên toàn Registry', () => {
     const able = FORMULA_MODULES.filter((formula) => canDrawHistory(formula, WITH_BARS));
     const basicChart = able.filter(
       (formula) => formula.spec.chartType === 'sensitivity' && formula.spec.level === 'basic',
     );
 
     expect(basicChart).toHaveLength(18);
-    expect(able).toHaveLength(49);
+    expect(able).toHaveLength(50);
   });
 
   it('dựng hai lần ra kết quả y hệt — không có nguồn ngẫu nhiên nào trong đường vẽ', () => {

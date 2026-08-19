@@ -9,6 +9,10 @@
  * mọi `Preset` đều mang `isDraft: true` và giao diện bắt buộc nói rõ điều đó với người dùng.
  * Khi có số liệu thật thì thay nội dung file này, không phải sửa chỗ nào khác.
  *
+ * `VN_INDEX_BARS` ở cuối file là chuỗi chỉ số, không phải một `Preset` — nó không đi qua
+ * PresetSheet, chỉ nạp thẳng vào `ctx.marketSeries` cho công thức Beta. Cùng mức bản thảo
+ * như bốn mã trên, xem docblock riêng ngay tại chỗ khai báo.
+ *
  * Chuỗi giá sinh bằng bước ngẫu nhiên CÓ HẠT GIỐNG cố định, không dùng Math.random: bản build
  * là HTML tĩnh nên số liệu phải giống hệt nhau giữa lúc build và lúc chạy, nếu không sẽ lệch
  * hydration. Cùng lý do với việc `resolveConstant()` bắt buộc nhận `asOf` (NFR-REL-03).
@@ -159,3 +163,18 @@ export const SAMPLE_PRESETS: ReadonlyArray<Preset> = [
     period: 'BCTC 2025',
   }),
 ];
+
+/**
+ * Chuỗi phiên VN-Index — CỐ ĐỊNH, không phải một mã để tìm hay chọn qua PresetSheet.
+ *
+ * Dùng riêng cho công thức Beta (`ctx.marketSeries`, xem docblock ở `calc/types.ts`): hồi quy
+ * lợi suất cổ phiếu theo lợi suất thị trường cần một chuỗi CHỈ SỐ, không phải một mã cổ phiếu.
+ * Cùng cách dựng và cùng nhãn bản thảo như bốn mã ở trên — mọi cảnh báo "⚠ SỐ LIỆU TỰ DỰNG" ở
+ * đầu file này áp dụng y hệt cho chuỗi này.
+ *
+ * Đã biết và cố ý CHƯA vá: bốn mã cổ phiếu và chuỗi này đều là PRNG ĐỘC LẬP, không có nhân tố
+ * thị trường chung — beta tính từ chúng sẽ ra một số gần 0 (đúng về toán, không minh hoạ được
+ * một cổ phiếu thật). `spec.tests` của `BETA` dùng chuỗi dựng riêng để minh hoạ đúng ý nghĩa,
+ * không dựa vào bộ mẫu này. Xem `src/core/formulas/README.md` mục "Còn thiếu".
+ */
+export const VN_INDEX_BARS: ReadonlyArray<DailyBar> = makeBars('VNINDEX', 1_250);

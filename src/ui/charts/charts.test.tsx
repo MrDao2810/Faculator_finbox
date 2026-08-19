@@ -129,13 +129,13 @@ function drawLoadedAdvanced(id: string, extra: CalcInputs = {}) {
 }
 
 describe('hasChart() — phạm vi', () => {
-  it('phủ đúng 98 công thức: mọi công thức trừ nhóm khai chartType none', () => {
+  it('phủ đúng 100 công thức: mọi công thức trừ nhóm khai chartType none', () => {
     const drawn = FORMULAS.filter((spec) => hasChart(spec));
     const skipped = FORMULAS.filter((spec) => !hasChart(spec));
 
-    expect(FORMULAS).toHaveLength(108);
-    expect(drawn).toHaveLength(98);
-    expect(skipped).toHaveLength(10);
+    expect(FORMULAS).toHaveLength(111);
+    expect(drawn).toHaveLength(100);
+    expect(skipped).toHaveLength(11);
     // Bỏ qua thì phải vì chính cái nhãn ấy, không vì lý do nào khác lẫn vào.
     expect(skipped.every((spec) => spec.chartType === 'none')).toBe(true);
   });

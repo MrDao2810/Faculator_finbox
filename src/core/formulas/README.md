@@ -128,25 +128,24 @@ con số khác đi mà không ai sai:
 
 ## Còn thiếu
 
-- **Beta.** Đủ 108 công thức nhưng KHÔNG có Beta, trong khi `categories.ts` liệt nó đầu nhóm
-  Rủi ro và `capm` phải để beta thành ô nhập tay.
+Cả ba đã xong — xem [TASK.md](../../../TASK.md) mục "Ba công thức cố ý chưa đăng ký". Mục này
+giữ lại làm lịch sử: vì sao mỗi công thức từng kẹt, và vá bằng cách nào.
 
-  Chỗ kẹt thật KHÔNG phải là chỗ ngồi trong Registry, mà là **dữ liệu**: beta là hệ số hồi quy
-  của lợi suất cổ phiếu theo lợi suất thị trường, mà `src/data/samples.ts` chỉ có 4 mã và
-  **không có chuỗi VN-Index nào** để hồi quy vào. Đó là gói 3.3.2, nằm sau cùng một rào giả
-  định A1 / rủi ro R-01 với bộ số liệu mẫu thật.
-
-  Việc nâng `expectedCount` của nhóm Rủi ro từ 17 lên 18 chỉ là bước thủ tục sau khi có dữ liệu,
-  không phải thứ đang chặn. Trong lúc chờ, phần mô tả ô beta ở `capm` và `ty-so-treynor` **không
-  được trỏ người dùng sang "công thức Beta"** — câu ấy đã bị gỡ khỏi `risk-ratios.ts` vì nó chỉ
-  vào thứ không tồn tại.
-
-- **XIRR** đã có hàm thuần và test đầy đủ trong `returns.ts` nhưng **chưa đăng ký thành công
-  thức**: nó cần bảng nhập dòng tiền có ngày, tức gói WBS 3.3.1 (WF-05).
-- **Giá mục tiêu.** Không có cạnh `dependsOn` nào hợp lệ: ứng viên duy nhất là `pe → targetPe`,
-  mà P/E hiện tại khác P/E mục tiêu — validator sẽ cho qua và sản phẩm dạy sai người dùng. Nó là
-  một công thức độc lập tử tế, **không phải một mắt xích của chuỗi**, nên đừng gộp vào đợt chuỗi
-  nào. Thêm nó là 108 → 109, cùng bài toán `expectedCount` với Beta.
+- ~~**Beta.**~~ Đã đăng ký (`risk-ratios.ts`, id `beta`). Chỗ kẹt cũ KHÔNG phải chỗ ngồi trong
+  Registry mà là **dữ liệu** — beta là hệ số hồi quy của lợi suất cổ phiếu theo lợi suất thị
+  trường, mà `src/data/samples.ts` từng chỉ có 4 mã và không có chuỗi VN-Index nào để hồi quy
+  vào. Vá bằng `DataProvider.vnIndex()` + `CalcContext.marketSeries` (chuỗi giá THỨ HAI, khác
+  mọi công thức chuỗi giá khác trong Registry vốn chỉ đọc một mình `ctx.series`). Hạn chế còn
+  lại: bộ mẫu vẫn là PRNG độc lập không có nhân tố thị trường chung, nên beta đo trên bộ mẫu ra
+  một số gần 0 — đúng về toán, không minh hoạ được một cổ phiếu thật.
+- ~~**Giá mục tiêu.**~~ Đã đăng ký (`valuation-multiples.ts`, id `gia-muc-tieu`), độc lập, không
+  có cạnh `dependsOn` nào — ứng viên duy nhất `pe → targetPe` bị loại vì P/E hiện tại khác hẳn
+  P/E mục tiêu, nối chúng là dạy sai người dùng rằng hai con số đó là một.
+- ~~**XIRR.**~~ Đã đăng ký (`returns.ts`, id `xirr`). Hàm thuần `xirr()` vẫn nguyên như trước;
+  chỗ khác biệt là công thức DUY NHẤT đọc `ctx.cashflows` thay vì `spec.variables` — bảng dòng
+  tiền có độ dài tuỳ ý không phải thứ `VariableSpec` biểu diễn được. Bảng sống trong thân riêng
+  `ui/screens/XirrBody.tsx`, state đặt ở `FormulaDetail` (không đặt trong thân riêng) để tránh
+  đúng bẫy "hai chỗ tính ra hai số" — xem docblock ở `DetailBodyProps.output`.
 
 ## Chuỗi kế thừa FR-15 — đã chạy thật (gói 5.2.3)
 

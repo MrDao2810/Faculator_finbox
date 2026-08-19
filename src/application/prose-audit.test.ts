@@ -209,16 +209,17 @@ function troSangThuKhongCo(): Finding[] {
 /**
  * Tên bị kể ra như thể đã có, trong khi công thức chưa tồn tại.
  *
- * Danh sách này phải NGẮN DẦN chứ không dài ra. 'Beta' là tiền lệ sáng lập: mô tả nhóm Rủi ro
- * từng liệt kê nó giữa Sharpe/Sortino/VaR, trong khi hồi quy Beta cần chuỗi VN-Index mà bộ số
- * liệu mẫu chưa có (gói 3.3.2) — người dùng bấm vào nhóm rồi đi tìm một công thức không tồn tại.
+ * Danh sách này phải NGẮN DẦN chứ không dài ra. 'Beta' từng là tiền lệ sáng lập ở đây — mô tả
+ * nhóm Rủi ro liệt kê nó giữa Sharpe/Sortino/VaR trong khi hồi quy Beta còn kẹt vì thiếu chuỗi
+ * VN-Index — và đã tự hết hạn đúng như thiết kế: công thức `beta` lên sóng, ca kiểm dưới đỏ,
+ * xoá tên khỏi danh sách. Rỗng là trạng thái ĐÚNG, không phải bỏ quên.
  *
  * Vì sao cần phép kiểm riêng chứ không dựa vào TRO_SANG: trong một câu liệt kê
  * ("Đo biến động và rủi ro: Sharpe, Sortino, …") cái tên đứng TRẦN, không có từ dẫn nào phía
  * trước, nên regex kia không với tới. Chỉ soi mô tả nhóm — ở đó một cái tên là một lời hứa
  * "nhóm này có nó"; còn trong prose công thức thì "beta" thường là tên một BIẾN, hợp lệ.
  */
-const CHUA_CO = ['Beta'];
+const CHUA_CO: ReadonlyArray<string> = [];
 
 function keTenThuChuaCo(): Finding[] {
   const out: Finding[] = [];

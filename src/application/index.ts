@@ -83,6 +83,22 @@ export { summarisePortfolio, valueHoldings } from '@/core/portfolio';
 export type { RowCheck, RowIssue, RowIssueCode, SeriesCheck, SeriesRow } from '@/core/price-series';
 export { checkRow, checkSeries, closesOf, emptyRow, toCsv } from '@/core/price-series';
 
+// ── Dòng tiền có ngày sửa tay — thân riêng của XIRR (gói WBS 3.3.1) ─────────
+export type {
+  Cashflow,
+  CashflowIssueCode,
+  CashflowRow,
+  CashflowRowCheck,
+  CashflowRowIssue,
+  CashflowSeriesCheck,
+} from '@/core/cashflow-series';
+export {
+  cashflowsOf,
+  checkCashflowRow,
+  checkCashflowSeries,
+  emptyCashflowRow,
+} from '@/core/cashflow-series';
+
 // ── Dán dữ liệu từ Excel / CSV — WF-11 (gói 2.5.2) ──────────────────────────
 export type { ColumnKind, PasteResult, PriceBar, SkippedRow } from '@/core/paste-import';
 export {

@@ -1,8 +1,8 @@
 /**
  * Tầng DOMAIN — nhóm Định giá, nửa BỘI SỐ & SO SÁNH (gói WBS 5.2.x).
  *
- * Chín công thức: P/S, giá trị doanh nghiệp (EV), EV/EBITDA, EV/Sales, PEG,
- * vốn hoá thị trường, số Graham, NCAV trên cổ phiếu và tỷ suất lợi nhuận trên giá.
+ * Mười công thức: P/S, giá trị doanh nghiệp (EV), EV/EBITDA, EV/Sales, PEG,
+ * vốn hoá thị trường, số Graham, NCAV trên cổ phiếu, tỷ suất lợi nhuận trên giá và giá mục tiêu.
  * Nửa còn lại của nhóm (chiết khấu dòng tiền, cổ tức) do đợt khác đảm nhận.
  *
  * P/E và P/B đã nằm ở nhóm 'fundamentals' theo wireframe WF-02/WF-03, nên không lặp lại
@@ -931,7 +931,112 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
   },
 };
 
-/** Chín công thức bội số & so sánh của nhóm Định giá. */
+/*
+ * ── 10. Giá mục tiêu ───────────────────────────────────────────────────────────────────
+ *
+ * Cố ý ĐỘC LẬP, không phải một mắt xích của chuỗi FR-15: ứng viên cạnh duy nhất là
+ * `pe → targetPe`, nhưng P/E hiện tại khác hẳn P/E mục tiêu về ý nghĩa — nối chúng bằng
+ * `dependsOn` là dạy sai người dùng rằng hai con số đó là một. Xem `formulas/README.md`
+ * mục "Còn thiếu".
+ */
+
+export const GIA_MUC_TIEU: FormulaModule = {
+  spec: {
+    id: 'gia-muc-tieu',
+    categoryId: 'valuation',
+    name: { vi: 'Giá mục tiêu', en: 'Target price' },
+    description: 'Mức giá kỳ vọng nếu thị trường định giá cổ phiếu theo đúng P/E mục tiêu đã chọn.',
+    latex: 'P_{\\text{mục tiêu}} = P/E_{\\text{mục tiêu}} \\times EPS',
+    expression: 'Giá mục tiêu = P/E mục tiêu × EPS',
+    chartType: 'sensitivity',
+    level: 'basic',
+    tags: ['gia muc tieu', 'target price', 'dinh gia', 'pe muc tieu'],
+    resultUnit: '₫',
+    variables: [
+      numberVar('targetPe', 'P/E mục tiêu', 'lần', 15, {
+        min: 0,
+        max: 1_000,
+        description: 'Bội số P/E kỳ vọng thị trường sẽ trả, ví dụ P/E trung bình ngành.',
+      }),
+      numberVar('eps', 'EPS — lợi nhuận trên mỗi cổ phiếu', '₫', 6_050, {
+        min: -1_000_000,
+        max: 1_000_000,
+        description: 'Lợi nhuận sau thuế chia cho số cổ phiếu đang lưu hành.',
+      }),
+    ],
+    explanation: {
+      meaning:
+        'Mức giá cổ phiếu sẽ có nếu thị trường định giá đúng theo một P/E mục tiêu do người dùng chọn, giữ nguyên EPS hiện tại.',
+      whenToUse:
+        'Khi ước tính điểm chốt lời hoặc so dư địa tăng giá với thị giá đang có, dựa trên kỳ vọng P/E sẽ đi về đâu.',
+      howToRead:
+        'Giá mục tiêu cao hơn thị giá hiện tại nghĩa là còn dư địa tăng NẾU P/E mục tiêu thành hiện thực — đây là một kịch bản, không phải một lời hứa.',
+      commonMistakes:
+        'Lấy P/E mục tiêu từ một doanh nghiệp khác ngành, hoặc quên rằng giá mục tiêu tính trên EPS HIỆN TẠI — EPS có thể đổi trước khi P/E kịp đạt mức mục tiêu.',
+    },
+    example: {
+      title: 'EPS 6.050 ₫, P/E mục tiêu 18 lần',
+      inputs: { eps: 6_050, targetPe: 18 },
+      expected: 108_900,
+      note: 'Cao hơn thị giá 92.000 ₫ của ví dụ WF-03 — dư địa tăng nếu P/E đạt đúng mức mục tiêu.',
+    },
+    tests: [
+      {
+        name: 'ca thường — EPS 6.050 ₫ với P/E mục tiêu 18 lần',
+        inputs: { eps: 6_050, targetPe: 18 },
+        expected: 108_900,
+      },
+      {
+        name: 'P/E mục tiêu thấp hơn P/E hiện tại thì giá mục tiêu thấp hơn thị giá',
+        inputs: { eps: 6_050, targetPe: 10 },
+        expected: 60_500,
+      },
+      {
+        name: 'doanh nghiệp đang lỗ thì không có giá mục tiêu theo P/E',
+        inputs: { eps: -1_200, targetPe: 15 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
+      {
+        name: 'P/E mục tiêu bằng 0 hoặc âm không phải một kỳ vọng hợp lý',
+        inputs: { eps: 6_050, targetPe: 0 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
+    ],
+    source: [SOURCE_CFA],
+  },
+  calc: (v) => {
+    const eps = v('eps');
+    const targetPe = v('targetPe');
+
+    if (eps <= 0) {
+      return {
+        value: null,
+        unit: '₫',
+        warning: meaningless(
+          'Giá mục tiêu cần EPS dương — nhân P/E mục tiêu với lợi nhuận âm hoặc bằng 0 không cho ra một mức giá có nghĩa.',
+          'Dùng Số Graham hoặc NCAV trên cổ phiếu để định giá doanh nghiệp đang lỗ.',
+        ),
+      };
+    }
+
+    if (targetPe <= 0) {
+      return {
+        value: null,
+        unit: '₫',
+        warning: meaningless(
+          'P/E mục tiêu phải dương — một mức bội số bằng 0 hoặc âm không phải là kỳ vọng định giá hợp lý.',
+          'Nhập một P/E mục tiêu dương, ví dụ P/E trung bình ngành hoặc P/E lịch sử của chính cổ phiếu.',
+        ),
+      };
+    }
+
+    return ok(targetPe * eps, '₫');
+  },
+};
+
+/** Mười công thức bội số & so sánh của nhóm Định giá. */
 export const VALUATION_MULTIPLE_FORMULAS: ReadonlyArray<FormulaModule> = [
   PS,
   EV,
@@ -942,4 +1047,5 @@ export const VALUATION_MULTIPLE_FORMULAS: ReadonlyArray<FormulaModule> = [
   SO_GRAHAM,
   NCAV,
   TY_SUAT_LOI_NHUAN_TREN_GIA,
+  GIA_MUC_TIEU,
 ];

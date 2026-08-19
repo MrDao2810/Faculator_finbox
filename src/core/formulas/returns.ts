@@ -1,20 +1,18 @@
 /**
  * Tầng DOMAIN — nhóm lợi nhuận & cổ tức (một phần gói WBS 5.1.3).
  *
- * Bốn công thức tính được từ ô nhập số: ROI, HPR, CAGR, tỷ suất cổ tức.
- *
- * XIRR nằm cuối file dưới dạng HÀM THUẦN đã kiểm thử, nhưng **chưa đăng ký thành công thức**:
- * nó cần một bảng dòng tiền có ngày, mà bảng đó là gói WBS 3.3.1 (WF-05) chưa làm. Đăng ký sớm
- * thì màn chi tiết của XIRR lúc nào cũng báo thiếu dữ liệu — thà để phần toán sẵn sàng và nối
- * vào khi có chỗ nhập.
+ * Bốn công thức tính được từ ô nhập số: ROI, HPR, CAGR, tỷ suất cổ tức. XIRR là công thức thứ
+ * năm — hàm `xirr()` thuần vẫn ở đây, nay đã đăng ký thành `FormulaModule` với thân riêng
+ * `ui/screens/XirrBody.tsx` quản lý bảng dòng tiền có ngày (`CalcContext.cashflows`).
  *
  * SRS nêu đích danh cặp dễ nhầm ROI / HPR: HPR tính cả cổ tức, ROI thì không.
  */
 
-import { ok } from '../calc-output';
+import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
+import type { Cashflow } from '../cashflow-series';
 import type { CalcWarning } from '../types';
-import { divideByZero, meaningless } from '../warnings';
+import { divideByZero, incompleteInput, meaningless } from '../warnings';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
 /*
@@ -324,13 +322,6 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
  * ── XIRR — phần toán đã xong, chờ chỗ nhập dòng tiền ───────────────────────────────────
  */
 
-/** Một dòng tiền có ngày. Số âm là tiền chi ra, số dương là tiền thu về. */
-export interface Cashflow {
-  /** Ngày dạng ISO 'YYYY-MM-DD'. */
-  date: string;
-  amount: number;
-}
-
 export interface XirrOptions {
   /** Suất sinh lợi khởi điểm cho Newton-Raphson. */
   guess?: number;
@@ -425,7 +416,7 @@ function bisectXirr(npv: (rate: number) => number): number | null {
   return (low + high) / 2;
 }
 
-/** Cảnh báo dùng khi XIRR không hội tụ — để sẵn cho lúc gói 3.3.1 nối bảng dòng tiền vào. */
+/** Cảnh báo dùng khi XIRR không hội tụ. */
 export function xirrNotConverged(): CalcWarning {
   return meaningless(
     'Không tìm được suất sinh lợi phù hợp với chuỗi dòng tiền này.',
@@ -433,5 +424,117 @@ export function xirrNotConverged(): CalcWarning {
   );
 }
 
-/** Bốn công thức lợi nhuận đã đăng ký. XIRR chưa có mặt — xem ghi chú đầu file. */
-export const RETURN_FORMULAS: ReadonlyArray<FormulaModule> = [ROI, HPR, CAGR, TY_SUAT_CO_TUC];
+/*
+ * ── 5. XIRR ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Công thức DUY NHẤT trong Registry đọc `ctx.cashflows` thay vì tính từ `spec.variables` —
+ * dòng tiền có ngày là một BẢNG độ dài tuỳ ý, không phải thứ `VariableSpec` biểu diễn được.
+ * Biến `guess` là tham số duy nhất thật sự đi qua ô nhập chuẩn; bảng dòng tiền sống trong
+ * thân riêng `ui/screens/XirrBody.tsx` (xem `hasCustomBody`/`ownsResult` ở `DetailBody.tsx`).
+ *
+ * `chartType: 'none'` cố ý: biến duy nhất sweep được là điểm xuất phát của Newton-Raphson,
+ * không phải một tham số tài chính — quét nó không nói lên điều gì về khoản đầu tư.
+ */
+
+const XIRR_GUESS_VAR = sliderVar('guess', 'Suất sinh lợi khởi điểm', '%/năm', 10, -50, 100, 1, {
+  level: 'advanced',
+  description:
+    'Điểm xuất phát cho thuật toán tìm nghiệm. Hiếm khi cần đổi — chỉ chỉnh nếu công thức báo không tìm được suất sinh lợi.',
+});
+
+export const XIRR: FormulaModule = {
+  spec: {
+    id: 'xirr',
+    categoryId: 'returns',
+    name: { vi: 'XIRR — suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
+    description:
+      'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.',
+    latex: '\\sum_{i} \\frac{CF_i}{(1+XIRR)^{d_i / 365}} = 0',
+    expression:
+      'Tổng các dòng tiền, mỗi cái chiết khấu theo XIRR và đúng số ngày thực kể từ dòng đầu tiên = 0',
+    chartType: 'none',
+    level: 'advanced',
+    tags: ['xirr', 'suat sinh loi noi tai', 'dong tien khong deu', 'irr thuc te'],
+    resultUnit: '%/năm',
+    variables: [XIRR_GUESS_VAR],
+    explanation: {
+      meaning:
+        'Suất sinh lợi năm hoá của một khoản đầu tư có nhiều lần rót thêm hoặc rút bớt tiền vào những NGÀY KHÔNG ĐỀU nhau — khác IRR thường vốn giả định các kỳ cách đều nhau.',
+      whenToUse:
+        'Khi đầu tư định kỳ không đều (góp thêm lệch tháng, rút một phần giữa chừng), hoặc cần so một danh mục thực tế với một kênh đầu tư khác theo đúng ngày thực đã xảy ra.',
+      howToRead:
+        'Đọc như một mức lãi suất kép mỗi năm. Cao hơn lãi suất tiết kiệm là khoản đầu tư đang thắng; khác IRR thường, XIRR không đòi các kỳ cách đều.',
+      commonMistakes:
+        'Quên rằng dòng tiền cuối cùng phải là GIÁ TRỊ HIỆN TẠI của khoản đầu tư (một khoản thu về GIẢ ĐỊNH nếu bán hết hôm nay), không phải chỉ tính tới lần rót tiền gần nhất.',
+    },
+    example: {
+      title: 'Đầu tư 100 triệu ₫, sau đúng một năm giá trị thành 110 triệu ₫',
+      inputs: { guess: 10 },
+      cashflows: [
+        { date: '2025-01-01', amount: -100_000_000 },
+        { date: '2026-01-01', amount: 110_000_000 },
+      ],
+      expected: 10,
+      note: 'Chỉ một khoản đầu, một khoản thu sau đúng một năm — XIRR trùng với lãi suất kép thông thường.',
+    },
+    tests: [
+      {
+        name: 'một khoản chi và một khoản thu sau đúng một năm — 10%/năm',
+        inputs: { guess: 10 },
+        cashflows: [
+          { date: '2025-01-01', amount: -100_000_000 },
+          { date: '2026-01-01', amount: 110_000_000 },
+        ],
+        expected: 10,
+      },
+      {
+        name: 'lỗ sau một năm thì suất sinh lợi âm — -20%/năm',
+        inputs: { guess: 10 },
+        cashflows: [
+          { date: '2025-01-01', amount: -100_000_000 },
+          { date: '2026-01-01', amount: 80_000_000 },
+        ],
+        expected: -20,
+      },
+      {
+        name: 'chưa đủ hai dòng tiền thì chưa tính được',
+        inputs: { guess: 10 },
+        cashflows: [{ date: '2025-01-01', amount: -100_000_000 }],
+        expected: null,
+        expectedWarning: 'INCOMPLETE_INPUT',
+      },
+      {
+        name: 'dòng tiền toàn cùng dấu thì không có nghiệm',
+        inputs: { guess: 10 },
+        cashflows: [
+          { date: '2025-01-01', amount: 100_000 },
+          { date: '2026-01-01', amount: 200_000 },
+        ],
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
+    ],
+    source: [SOURCE_CFA],
+  },
+  calc: (v, ctx) => {
+    const unit = '%/năm';
+    const flows = ctx.cashflows ?? [];
+
+    /*
+     * `INCOMPLETE_INPUT`, không phải `MISSING_SERIES`: XIRR không đọc `ctx.series`/`ctx.bars`
+     * nên không được rơi vào nhóm "cần chuỗi giá" mà `needsPriceSeries()` dò bằng chính mã cảnh
+     * báo này — dò trúng sẽ bật nhầm nút "Dán chuỗi giá" (dành cho `ctx.series`) trên trang.
+     */
+    if (flows.length < 2) {
+      return fail(unit, incompleteInput(['ít nhất 2 dòng tiền']));
+    }
+
+    const rate = xirr(flows, { guess: v('guess') / 100 });
+    if (rate === null) return fail(unit, xirrNotConverged());
+
+    return ok(rate * 100, unit);
+  },
+};
+
+/** Năm công thức lợi nhuận đã đăng ký. */
+export const RETURN_FORMULAS: ReadonlyArray<FormulaModule> = [ROI, HPR, CAGR, TY_SUAT_CO_TUC, XIRR];

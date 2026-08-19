@@ -6,6 +6,7 @@
  * và viết hàm tính, không phải sửa mã lõi (NFR-MNT-01).
  */
 
+import type { Cashflow } from '../cashflow-series';
 import type { MarketConstantKey } from '../market/types';
 import type { SeriesRow } from '../price-series';
 import type { Level, VariableSpec, WarningCode } from '../types';
@@ -84,6 +85,10 @@ export interface FormulaExample {
   series?: ReadonlyArray<number>;
   /** Như `series` nhưng cho công thức đọc `ctx.bars` (cần OHLCV đầy đủ). */
   bars?: ReadonlyArray<SeriesRow>;
+  /** Chuỗi giá VN-Index cho công thức đọc `ctx.marketSeries` — riêng cho Beta (FR-12). */
+  marketSeries?: ReadonlyArray<number>;
+  /** Dòng tiền cho công thức đọc `ctx.cashflows` — riêng cho XIRR. */
+  cashflows?: ReadonlyArray<Cashflow>;
   expected: number;
   note?: string;
 }
@@ -99,6 +104,10 @@ export interface FormulaTestCase {
   series?: ReadonlyArray<number>;
   /** Chuỗi phiên OHLCV bơm vào `ctx.bars` riêng cho ca này. */
   bars?: ReadonlyArray<SeriesRow>;
+  /** Chuỗi giá VN-Index bơm vào `ctx.marketSeries` riêng cho ca này — riêng cho Beta. */
+  marketSeries?: ReadonlyArray<number>;
+  /** Dòng tiền bơm vào `ctx.cashflows` riêng cho ca này — riêng cho XIRR. */
+  cashflows?: ReadonlyArray<Cashflow>;
   expected: number | null;
   expectedWarning?: WarningCode;
   /** Sai số cho phép; mặc định 0,01 theo NFR-MNT-03. */

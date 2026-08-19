@@ -299,6 +299,16 @@ export const vi = {
   'series.needMore':
     'Beta và Sharpe cần ít nhất 60 phiên để có ý nghĩa thống kê. Hiện chưa đủ, kết quả sẽ báo thiếu dữ liệu.',
 
+  'xirr.tableTitle': 'Dòng tiền',
+  'xirr.hint':
+    'Số âm là tiền chi ra, số dương là tiền thu về — dòng cuối thường là giá trị hiện tại.',
+  'xirr.addRow': 'Thêm dòng',
+  'xirr.removeRow': 'Xoá dòng',
+  'xirr.colDate': 'Ngày',
+  'xirr.colAmount': 'Số tiền (₫)',
+  'xirr.rowLabel': 'Dòng',
+  'xirr.usable': 'dòng tiền dùng được',
+
   'paste.title': 'Dán dữ liệu',
   'paste.subtitle': 'Chuỗi giá OHLC dán thẳng từ Excel hoặc file CSV',
   'paste.areaLabel': 'Dán dữ liệu vào đây',

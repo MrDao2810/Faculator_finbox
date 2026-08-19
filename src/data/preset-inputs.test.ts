@@ -153,17 +153,19 @@ describe('bảng ánh xạ không có khoá chết', () => {
    *
    * Ba mức, và khoảng cách giữa chúng chính là phần còn thiếu:
    *
-   *   50 công thức nhóm Cơ bản có biểu đồ
-   *   21 điền được ÍT NHẤT một ô          ← trước đợt này là 14
+   *   51 công thức nhóm Cơ bản có biểu đồ
+   *   22 điền được ÍT NHẤT một ô          ← trước đợt này là 14
    *    9 điền được TRỌN mọi ô             ← trước đợt này là 6; nạp mã là ra ngay số của mã
    *
    * Ba cái vừa thêm vào mức "trọn" là `bvps`, `roe` và `von-hoa-thi-truong` — hai cái đầu nhờ hai
-   * trường suy ra, cái thứ ba là lỗ số cổ phiếu vừa bịt. Mười hai công thức mới điền được một phần
-   * thì phần thiếu đều là dòng báo cáo không suy ra được (doanh thu, tổng tài sản, tổng nợ) hoặc ô
-   * thuộc quyết định của người dùng (số lượng mua, số tháng giữ, giá cắt lỗ). 25 công thức cuối thì
-   * không mã nào điền thay được, vì đầu vào là tiền và giả định của chính người dùng.
+   * trường suy ra, cái thứ ba là lỗ số cổ phiếu vừa bịt. `gia-muc-tieu` (công thức 109) đẩy mức
+   * "một phần" lên 22: `eps` điền được từ báo cáo, nhưng `targetPe` là một lựa chọn của người
+   * dùng — không báo cáo tài chính nào có sẵn P/E MỤC TIÊU. Mười hai công thức khác điền được một
+   * phần thì phần thiếu đều là dòng báo cáo không suy ra được (doanh thu, tổng tài sản, tổng nợ)
+   * hoặc ô thuộc quyết định của người dùng (số lượng mua, số tháng giữ, giá cắt lỗ). 25 công thức
+   * cuối thì không mã nào điền thay được, vì đầu vào là tiền và giả định của chính người dùng.
    */
-  it('phủ của bộ mẫu trên 50 công thức có biểu đồ: 21 điền một phần, 9 điền trọn', () => {
+  it('phủ của bộ mẫu trên 51 công thức có biểu đồ: 22 điền một phần, 9 điền trọn', () => {
     const withChart = FORMULA_MODULES.filter(
       (formula) => formula.spec.chartType === 'sensitivity' && formula.spec.level === 'basic',
     );
@@ -175,8 +177,8 @@ describe('bảng ánh xạ không có khoá chết', () => {
         Object.keys(presetInputs(FPT, formula.spec)).length === formula.spec.variables.length,
     );
 
-    expect(withChart).toHaveLength(50);
-    expect(some).toHaveLength(21);
+    expect(withChart).toHaveLength(51);
+    expect(some).toHaveLength(22);
     expect(all).toHaveLength(9);
   });
 

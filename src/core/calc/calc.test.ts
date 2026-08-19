@@ -127,22 +127,22 @@ describe('needsPriceSeries()', () => {
     expect(needsPriceSeries(CHIA, CTX.asOf)).toBe(false);
   });
 
-  it('đúng 34 công thức ăn chuỗi giá — thêm bớt là có người vừa đổi hợp đồng dữ liệu', () => {
-    expect(canChuoi()).toHaveLength(34);
+  it('đúng 35 công thức ăn chuỗi giá — thêm bớt là có người vừa đổi hợp đồng dữ liệu', () => {
+    expect(canChuoi()).toHaveLength(35);
   });
 
   /*
    * Ca này chốt lại đúng cái bug đợt này sửa, bằng số.
    *
    * Màn chi tiết từng lấy `chartType === 'candlestick'` làm cờ "cần chuỗi giá". Nến chỉ là 11
-   * trong 34 — 23 công thức còn lại gặp lỗi "chưa đủ phiên giá" mà trên màn không có nút nào để
-   * nạp. Nếu ai đó lại đi đường `chartType`, con số 23 dưới đây sẽ nói ngay vì sao không được.
+   * trong 35 — 24 công thức còn lại gặp lỗi "chưa đủ phiên giá" mà trên màn không có nút nào để
+   * nạp. Nếu ai đó lại đi đường `chartType`, con số 24 dưới đây sẽ nói ngay vì sao không được.
    */
-  it('nến chỉ là 11 trong 34 — lấy chartType làm cờ dữ liệu bỏ sót 23 công thức', () => {
+  it('nến chỉ là 11 trong 35 — lấy chartType làm cờ dữ liệu bỏ sót 24 công thức', () => {
     const nen = canChuoi().filter((m) => m.spec.chartType === 'candlestick');
 
     expect(nen).toHaveLength(11);
-    expect(canChuoi().length - nen.length).toBe(23);
+    expect(canChuoi().length - nen.length).toBe(24);
   });
 
   it('trọn bốn loại biểu đồ dựa trên chuỗi đều cần chuỗi, không loại nào lọt', () => {

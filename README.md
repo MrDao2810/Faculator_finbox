@@ -40,9 +40,9 @@ Vài chỗ đáng xem trước:
 | `npm run lint`         | ESLint, **bao gồm cả ràng buộc ranh giới tầng CON-02 / CON-03**       |
 | `npm run typecheck`    | Kiểm kiểu TypeScript, không sinh file                                 |
 | `npm test`             | Unit test bằng Vitest                                                 |
-| `npm run check`        | Chạy cả ba: lint + typecheck + test. Dùng trước khi push              |
+| `npm run check`        | lint + typecheck + format:check + test. Dùng trước khi push           |
 | `npm run format`       | Prettier định dạng lại toàn bộ                                        |
-| `npm run check:chrome` | 14 phép kiểm trên Chrome thật ở khổ 360×780 — cần `out/` dựng sẵn     |
+| `npm run check:chrome` | 20 phép kiểm trên Chrome thật ở khổ 360×780 — cần `out/` dựng sẵn     |
 
 ---
 

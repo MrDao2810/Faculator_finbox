@@ -80,8 +80,10 @@ const NHAN_GIAI_THICH = [
 /**
  * Bốn mục của khối Giải thích, dưới dạng thẻ `<details>` để đọc được thuộc tính `open`.
  *
- * Phải lọc theo thẻ: vùng in của `ExportSheet` luôn có mặt trong DOM (chỉ ẩn bằng CSS) và nó dựng
- * cùng bốn nhãn ấy thành `<h2>`, nên một truy vấn theo chữ trần khớp hai phần tử.
+ * Lọc theo thẻ chứ không lấy phần tử đầu tiên: vùng in của `ExportSheet` dựng cùng bốn nhãn ấy
+ * thành `<h2>`, nên một truy vấn theo chữ trần khớp hai phần tử ngay khi sheet đã mở. (Từ đợt vá
+ * hiệu năng, sheet chỉ được dựng từ lần mở đầu tiên — nhưng chỗ lọc này vẫn phải giữ: nó là thứ
+ * nói rằng ta đang dò đúng thẻ `<summary>` của khối gập, không phải một tiêu đề trùng chữ.)
  *
  * Dò `open` chứ không dò chữ: nội dung bốn mục nằm trong DOM cả khi gập, nên một ca kiểm bám vào chữ
  * sẽ xanh ngay cả lúc khối gập kín — đúng kiểu đỗ giả.
@@ -270,6 +272,50 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
    */
 });
 
+describe('WF-03 — lưới ô nhập: điều kiện cần để hàng thẳng được', () => {
+  /*
+   * Hai ô cùng hàng thẳng nhau nhờ `subgrid`, mà `subgrid` chỉ với tới con TRỰC TIẾP của lưới —
+   * nên nhãn / khung nhập / dòng phụ phải là con của chính ô lưới, không được nằm sau một lớp
+   * <div> bọc. Trước đợt này màn chi tiết có lớp bọc ấy và hai khung nhập của `pe` lệch nhau 20px
+   * ở khổ 360px khi nhãn một bên xuống hai dòng.
+   *
+   * jsdom không dựng bố cục nên không đo được độ lệch — ca đó nằm ở `npm run check:chrome`. Ở đây
+   * chỉ giữ ĐIỀU KIỆN CẦN, và nó là thứ dễ vô tình phá nhất khi ai đó bọc thêm một div.
+   */
+  it('ô lưới chính là điều khiển, không có lớp div bọc ở giữa', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    const luoi = khoi.querySelector('[class*="fields"]');
+    expect(luoi).not.toBeNull();
+
+    const oLuoi = [...(luoi?.children ?? [])];
+    expect(oLuoi.length).toBe(2);
+
+    for (const o of oLuoi) {
+      // Nhãn và ô nhập phải là CON TRỰC TIẾP của ô lưới.
+      const conTrucTiep = [...o.children];
+      expect(
+        conTrucTiep.some((c) => c.tagName === 'LABEL'),
+        `ô "${o.querySelector('label')?.textContent ?? '?'}" không có <label> làm con trực tiếp`,
+      ).toBe(true);
+    }
+  });
+
+  it('mọi ô hẹp đều span đủ số hàng — nếu không hàng dưới sẽ chèn vào giữa', () => {
+    // Cùng lý do: một ô quên `grid-row: span` sẽ phá thế thẳng hàng của cả lưới. Giữ bằng cách
+    // khoá tên class, vì giá trị span nằm ở CSS mà jsdom không đọc.
+    render(<Man spec={specOf('pe')} />);
+
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    const luoi = khoi.querySelector('[class*="fields"]');
+
+    for (const o of [...(luoi?.children ?? [])]) {
+      expect(String(o.className)).toMatch(/field/);
+    }
+  });
+});
+
 describe('WF-03 — hằng số thuế & phí phải hiện ra, không được ẩn sau kết quả', () => {
   /*
    * Lỗ hổng gói này vá: trước đây `phi-giao-dich-mua` cho ra 138.000 ₫ từ 1.000 CP × 92.000 ₫ mà
@@ -289,8 +335,8 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
     expect(within(khoi).getByText(/01\/01\/2022/)).not.toBeNull();
     expect(within(khoi).getByText(/Thông tư 102\/2021\/TT-BTC/)).not.toBeNull();
     // Con số kết quả vẫn nguyên — khối mới thêm thông tin chứ không thay chỗ của gì cả.
-    // getAllByText vì con số này vốn hiện ở ba chỗ: khối Kết quả, khối Ví dụ và vùng in của
-    // ExportSheet (luôn nằm trong DOM, chỉ ẩn bằng CSS).
+    // getAllByText vì con số này hiện ở hai chỗ: khối Kết quả và khối Ví dụ. (Trước đợt vá hiệu
+    // năng còn chỗ thứ ba là vùng in của ExportSheet, hồi nó luôn nằm sẵn trong DOM.)
     expect(screen.getAllByText('138.000 ₫').length).toBeGreaterThan(0);
   });
 
@@ -409,6 +455,51 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 
     expect(screen.getByText(/Miễn trừ tự động đính kèm/)).not.toBeNull();
     expect(screen.getByText(/Không thể tắt/)).not.toBeNull();
+  });
+});
+
+/*
+ * Ba bottom sheet từng luôn nằm trong DOM, chỉ đóng bằng thuộc tính `open` của `<dialog>`. Cái giá
+ * đo được: mỗi lượt vào màn chi tiết dựng thừa ~150 nút, và riêng `ExportSheet` gọi
+ * `buildExportContent()` ở MỖI lượt dựng — tức mỗi phím gõ — để dựng một tài liệu chưa ai mở.
+ */
+describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
+  it('chưa bấm nút nào thì cả ba sheet đều vắng mặt', () => {
+    const { container } = render(<Man spec={specOf('pe')} />);
+
+    // Vùng in của ExportSheet đi theo sheet, nên nó cũng chưa có mặt.
+    expect(container.querySelector('.print-region')).toBeNull();
+    expect(screen.queryByText(/Miễn trừ tự động đính kèm/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Nạp' })).toBeNull();
+  });
+
+  it('mở rồi đóng thì sheet vẫn còn trong DOM — không mất lựa chọn bên trong', async () => {
+    const { container } = render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: '↓ Xuất' }));
+    expect(container.querySelector('.print-region')).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Đóng' }));
+    expect(container.querySelector('.print-region')).not.toBeNull();
+  });
+});
+
+/*
+ * jsdom không dựng bố cục nên không kiểm được `content-visibility` có tác dụng thật hay không —
+ * phần đó nằm ở `scripts/chrome-check.mjs`. Ở đây chỉ giữ điều kiện CẦN: lớp phải còn nguyên trên
+ * đúng những khối được phép hoãn, và tuyệt đối KHÔNG lan sang khối Số liệu (chỗ người dùng thao
+ * tác) hay ra ngoài các khối có phần tử cần thoát khỏi hộp cha.
+ */
+describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', () => {
+  it('năm khối cuối màn có lớp, khối Số liệu thì không', () => {
+    const { container } = render(<Man spec={specOf('pe')} />);
+
+    const hoan = [...container.querySelectorAll('[class*="deferred"]')];
+    // Giải thích · Bảng biến · Ví dụ thực tế · Nguồn tham khảo · Biểu đồ.
+    expect(hoan).toHaveLength(5);
+
+    const soLieu = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(String(soLieu.className)).not.toMatch(/deferred/);
   });
 });
 

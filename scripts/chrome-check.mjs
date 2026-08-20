@@ -244,11 +244,20 @@ function check(name, pass, detail = '') {
  *
  * Lọc `right <= 100` để chỉ lấy nhãn chặng: lề trái rộng 96 đơn vị, nên mọi thứ kết thúc trước
  * mốc 100 là nhãn chặng, còn nhãn vạch trục và tiêu đề trục nằm bên phải hoặc dưới đáy.
+ *
+ * PHẢI cuộn tới biểu đồ trước khi đo. Khối Biểu đồ mang `content-visibility: auto`, nên khi nó
+ * còn nằm dưới nếp gấp thì trình duyệt KHÔNG dựng hình bên trong: `getBBox()` trả về toàn số 0 và
+ * phép kiểm "nhãn chặng không tràn khung" xanh một cách vô nghĩa (x = 0 thì không bao giờ < 0).
+ * Đúng lớp lỗi mà cả script này sinh ra để bắt, nên chỗ cuộn là bắt buộc chứ không phải tiện tay.
  */
 function docThacNuoc() {
-  return evaluate(`(() => {
+  return evaluate(`(async () => {
   const svg = [...document.querySelectorAll('svg')].find((s) => s.querySelectorAll('rect').length >= 3);
   if (!svg) return { found: false };
+
+  svg.scrollIntoView({ block: 'center' });
+  // Hai khung hình: một để trình duyệt bỏ cờ "bỏ qua dựng hình", một để dựng xong rồi mới đo.
+  await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
   const box = svg.viewBox.baseVal;
   const labels = [...svg.querySelectorAll('text')]
     .map((t) => ({ text: t.textContent, x: t.getBBox().x, right: t.getBBox().x + t.getBBox().width }))
@@ -284,6 +293,150 @@ async function cleanup() {
 }
 
 try {
+  /* ── 0. Lưới ô nhập thẳng hàng ở khổ 360px ───────────────────────────────── */
+
+  /*
+   * Hai ô cùng một hàng phải có khung nhập ngang nhau, kể cả khi nhãn một bên dài gấp đôi bên kia.
+   * Đo trên bản build trước khi vá: `pe` ở 360px có nhãn "Giá thị trường" cao 20px và "EPS — lợi
+   * nhuận trên mỗi cổ phiếu" cao 39px, hai khung nhập lệch nhau đúng 20px.
+   *
+   * Chỉ Chrome thật trả lời được: jsdom không dựng bố cục nên không đo được chiều cao, và `subgrid`
+   * — thứ đang giữ hàng thẳng — thì jsdom cũng không hiểu. Bản jsdom chỉ giữ được điều kiện CẦN
+   * (ô lưới chính là điều khiển, không có div bọc), nằm ở `FormulaDetail.test.tsx`.
+   */
+  const LECH_HANG = `(() => {
+  const luoi = [...document.querySelectorAll('[class*="fields"]')].find((el) => getComputedStyle(el).display === 'grid');
+  if (!luoi) return null;
+
+  const o = [...luoi.children].map((el) => {
+    const khung = el.querySelector('input')?.closest('div');
+    return {
+      nhan: (el.querySelector('label')?.textContent ?? '?').trim().slice(0, 24),
+      oTop: Math.round(el.getBoundingClientRect().top),
+      khungTop: khung ? Math.round(khung.getBoundingClientRect().top) : null,
+    };
+  });
+
+  const hang = new Map();
+  for (const x of o) {
+    if (x.khungTop === null) continue;
+    const k = String(x.oTop);
+    if (!hang.has(k)) hang.set(k, []);
+    hang.get(k).push(x);
+  }
+
+  const lech = [];
+  for (const [, nhom] of hang) {
+    if (nhom.length < 2) continue;
+    const tops = nhom.map((n) => n.khungTop);
+    const d = Math.max(...tops) - Math.min(...tops);
+    if (d > 1) lech.push(nhom.map((n) => n.nhan).join(' / ') + ' lệch ' + d + 'px');
+  }
+  return { soO: o.length, lech };
+})()`;
+
+  for (const [slug, viSao] of [
+    ['pe', 'nhãn một dòng đứng cạnh nhãn hai dòng'],
+    ['loi-nhuan-rong', 'lưới 2×2 của WF-08, nhãn đều một dòng'],
+  ]) {
+    await open(`/cong-thuc/${slug}/`);
+    const hang = await evaluate(LECH_HANG);
+    check(
+      `${slug}: ô nhập cùng hàng thẳng nhau ở 360px — ${viSao}`,
+      hang !== null && hang.lech.length === 0,
+      hang === null
+        ? 'không thấy lưới ô nhập'
+        : (hang.lech[0] ?? `${String(hang.soO)} ô, không ô nào lệch`),
+    );
+  }
+
+  /* ── 0b. Khối dưới nếp gấp thật sự được hoãn dựng hình ───────────────────── */
+
+  /*
+   * Năm khối dưới nếp gấp mang `content-visibility: auto` để trình duyệt bỏ qua phần dựng hình của
+   * chúng ở lượt đầu. Đo A/B trên chính bản build này (Chrome thật, 360×780, CPU hãm ×4): bấm từ
+   * Trang chủ sang màn chi tiết khoá luồng chính **491 ms**, còn **310 ms** sau khi bật — và tắt
+   * lại bằng một dòng CSS đè thì con số quay về ~467 ms.
+   *
+   * Phép kiểm ở đây gác **thuộc tính tính toán**, không gác con số thời gian: thời gian thì máy nào
+   * đo cũng khác, còn `contentVisibility` thì đúng hoặc sai. jsdom không làm được phần này — nó
+   * không có bộ tính style từ CSS Module, nên bản jsdom trong `FormulaDetail.test.tsx` chỉ soi được
+   * cái LỚP có gắn hay không, chứ không biết quy tắc CSS có thật sự tới được phần tử hay không.
+   *
+   * KHÔNG kiểm bằng chiều cao. Đã thử và nó sai: `content-visibility: auto` chỉ đẩy việc dựng hình
+   * ra khỏi đường găng, rồi Chrome vẫn dựng nốt lúc rảnh — nên đo sau khi trang đã yên thì mọi khối
+   * đều cao thật, và một phép kiểm "phải cao 0" sẽ xanh/đỏ tuỳ nhịp máy.
+   */
+  await open('/cong-thuc/pe/');
+
+  const hoan = await evaluate(`(async () => {
+  const khoi = [...document.querySelectorAll('section, table')].filter((el) => getComputedStyle(el).contentVisibility === 'auto');
+  const soLieu = [...document.querySelectorAll('section')].find((s) => s.getAttribute('aria-labelledby') === 'khoi-so-lieu');
+
+  const giaiThich = [...document.querySelectorAll('section')].find((s) => s.querySelectorAll('details').length >= 4);
+  if (!giaiThich) return null;
+  giaiThich.scrollIntoView({ block: 'center' });
+  await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+
+  return {
+    hoan: khoi.map((el) => el.querySelector('h2')?.textContent ?? el.tagName),
+    soLieuCv: soLieu ? getComputedStyle(soLieu).contentVisibility : null,
+    caoMuc: [...giaiThich.querySelectorAll('details')].map((d) => Math.round(d.getBoundingClientRect().height)),
+  };
+})()`);
+
+  check(
+    'đúng năm khối dưới nếp gấp được hoãn dựng hình, khối Số liệu thì không',
+    hoan !== null && hoan.hoan.length === 5 && hoan.soLieuCv === 'visible',
+    hoan === null ? 'không thấy khối Giải thích' : `hoãn: ${hoan.hoan.join(' · ')}`,
+  );
+
+  check(
+    'cuộn tới thì khối Giải thích dựng đủ bốn mục, không mất chữ',
+    hoan !== null && hoan.caoMuc.length === 4 && hoan.caoMuc.every((h) => h > 0),
+    hoan === null ? '' : `cao: ${hoan.caoMuc.join(' · ')}`,
+  );
+
+  /* ── 0c. Bản in vẫn đúng sau khi sheet Xuất chuyển sang dựng-khi-mở ──────── */
+
+  /*
+   * `@media print` trong `globals.css` ẩn TOÀN BỘ trang rồi bật lại đúng `.print-region`. Vùng in
+   * ấy nằm trong `ExportSheet`, mà sheet nay chỉ dựng từ lần mở đầu tiên — nên luật ẩn phải kèm
+   * điều kiện `:has(.print-region)`, và điều kiện ấy phải bọc `:where()` để không cộng độ ưu tiên.
+   *
+   * Cả hai chiều đều đã hỏng thật trong lúc làm gói này, nên cả hai đều phải có phép kiểm: thiếu
+   * điều kiện thì Ctrl+P lúc chưa mở sheet in ra tờ trắng; thiếu `:where()` thì Ctrl+P lúc ĐÃ mở
+   * sheet cũng in ra tờ trắng. Không cửa kiểm nào khác thấy được — jsdom không có `@media print`,
+   * còn `verify:static` chỉ đọc file chứ không tính style.
+   */
+  await open('/cong-thuc/pe/');
+
+  await send('Emulation.setEmulatedMedia', { media: 'print' });
+  const inKhiChuaMo = await evaluate(
+    `({ vungIn: Boolean(document.querySelector('.print-region')), tieuDe: getComputedStyle(document.querySelector('h1')).visibility })`,
+  );
+  check(
+    'chưa mở sheet Xuất mà bấm in thì trang vẫn in ra được, không phải tờ trắng',
+    inKhiChuaMo.vungIn === false && inKhiChuaMo.tieuDe === 'visible',
+    `vùng in: ${String(inKhiChuaMo.vungIn)} · tiêu đề: ${inKhiChuaMo.tieuDe}`,
+  );
+
+  await send('Emulation.setEmulatedMedia', { media: 'screen' });
+  await evaluate(
+    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Xuất/.test(x.textContent ?? '')); if (!b) return false; b.click(); return true; })()`,
+  );
+  await waitFor("document.querySelector('.print-region')");
+  await send('Emulation.setEmulatedMedia', { media: 'print' });
+  const inKhiDaMo = await evaluate(
+    `({ vungIn: getComputedStyle(document.querySelector('.print-region')).visibility, tieuDe: getComputedStyle(document.querySelector('h1')).visibility })`,
+  );
+  check(
+    'mở sheet Xuất rồi in thì ra đúng thẻ kết quả, phần còn lại của trang bị ẩn',
+    inKhiDaMo.vungIn === 'visible' && inKhiDaMo.tieuDe === 'hidden',
+    `vùng in: ${inKhiDaMo.vungIn} · tiêu đề trang: ${inKhiDaMo.tieuDe}`,
+  );
+  await send('Emulation.setEmulatedMedia', { media: 'screen' });
+
   /* ── 1. Thác nước bóc tách trên màn 360px ────────────────────────────────── */
 
   await open('/cong-thuc/lich-tra-no/');

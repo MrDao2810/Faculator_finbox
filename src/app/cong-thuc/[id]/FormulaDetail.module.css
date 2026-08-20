@@ -166,20 +166,83 @@
  * `auto-fit` + `minmax(140px, 1fr)`: ở 360px vừa đúng hai cột, màn hẹp hơn tự rơi về một cột,
  * màn rộng thì giãn ra — cùng công thức lưới với CategoryGrid, không cần media query nào.
  */
+/*
+ * Bốn hàng cho mỗi ô nhập, không phải một.
+ *
+ * Ô nhập gồm bốn phần xếp dọc: nhãn · khung nhập · dòng phụ · dòng lỗi (dòng lỗi chỉ hiện khi
+ * giá trị ra ngoài miền, nhưng vẫn phải chừa chỗ, nếu không lúc nó bật ra hàng sẽ giật). Nếu mỗi
+ * ô chỉ chiếm MỘT hàng lưới rồi tự xếp dọc bên trong, hai ô cùng hàng sẽ lệch nhau ngay khi nhãn
+ * của chúng khác số dòng — đo trên `pe` ở khổ 360px: "Giá thị trường" cao 20px, "EPS — lợi nhuận
+ * trên mỗi cổ phiếu" cao 39px, hai khung nhập lệch nhau đúng **20px**.
+ *
+ * Nên lưới khai bốn hàng cho mỗi ô, và từng ô `subgrid` vào đúng bốn hàng đó: nhãn của cả hàng
+ * cùng cao bằng nhãn cao nhất, khung nhập thẳng nhau, dòng phụ thẳng nhau. WF-08 (bốn ô nhãn một
+ * dòng) không đổi hình gì cả — thứ này chỉ ra tay khi các nhãn khác nhau.
+ *
+ * `row-gap` nhỏ là khoảng cách GIỮA BỐN PHẦN của một ô; khoảng cách giữa hai hàng ô đến từ
+ * `padding-bottom` của chính ô, vì mọi hàng của lưới đều dùng chung một `row-gap`.
+ */
 .fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-4);
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
   min-width: 0;
 }
 
 /* min-width: 0 để nhãn dài không thổi cột rộng ra rồi đẩy cả lưới tràn ngang. */
-.field {
+.fields > .field {
   min-width: 0;
+
+  display: grid;
+  /*
+   * Một cột, rộng đúng bằng ô — KHÔNG để `auto`. Cột `auto` co theo max-content của nhãn, nên
+   * nhãn dài không xuống dòng nữa mà tràn hẳn ra ngoài ô rồi đè sang cột bên cạnh. `minmax(0, 1fr)`
+   * cho phép cột hẹp hơn nội dung, tức nhãn quay lại xuống dòng như cũ.
+   */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: subgrid;
+  grid-row: span 4;
+  /* Chỗ thở giữa hai hàng ô — bù cho row-gap đã bị kéo nhỏ lại ở trên. */
+  padding-bottom: var(--space-3);
 }
 
-/* Thanh trượt, nhóm nút và công tắc chiếm trọn hàng — xem WIDE_CONTROLS ở FormulaDetail.tsx. */
+/*
+ * Thanh trượt, nhóm nút và công tắc chiếm trọn hàng — xem `isWideControl()` ở `@/ui/inputs`.
+ *
+ * KHÔNG subgrid ở đây: ô rộng chiếm cả bề ngang nên không có ô nào bên cạnh để mà thẳng hàng, và
+ * số phần bên trong không cố định — `LinkedInput` còn mang thêm hàng nút Ghi đè / Hoàn tác.
+ * Vẫn phải span 4 hàng để không chen vào bộ hàng của các ô hẹp đứng cạnh.
+ */
 .fieldWide {
   grid-column: 1 / -1;
+  grid-row: span 4;
   min-width: 0;
+  padding-bottom: var(--space-3);
+}
+
+/*
+ * ── Bốn khối cuối màn: bỏ qua phần dựng hình cho tới lúc cuộn tới ──────────────────────────
+ *
+ * Giải thích, Bảng biến, Ví dụ thực tế và Nguồn tham khảo luôn nằm dưới nếp gấp ở khổ điện thoại,
+ * nhưng lượt layout ĐẦU TIÊN của màn vẫn phải đo hết chúng. Đo trên Chrome thật, khổ 360×780, CPU
+ * hãm ×4: lượt bấm từ Trang chủ sang màn chi tiết khoá luồng chính **491 ms**, trong đó một lượt
+ * Layout duy nhất chiếm 218 ms. Bật `content-visibility` cho bốn khối này còn **318 ms**.
+ *
+ * `contain-intrinsic-size: auto <mốc>`: `auto` bảo trình duyệt NHỚ kích thước thật sau lần dựng
+ * đầu, nên thanh cuộn chỉ ước lượng đúng một lần rồi ổn định; con số 320px chỉ là mốc lúc chưa
+ * biết gì. Bỏ `auto` đi là mỗi lần cuộn qua lại thanh cuộn nhảy.
+ *
+ * Khối Biểu đồ cũng mang lớp này. Nó an toàn dù có chế độ toàn màn, vì `ChartFullscreen` dựng
+ * `<dialog>` và mở bằng `showModal()` — phần tử ở top layer không chịu containment của tổ tiên.
+ * Biểu đồ cũng không đo DOM (viewBox cố định, xem docblock của `LineChart`), nên không có phép đo
+ * nào bị sai lúc khối đang bị bỏ qua.
+ *
+ * Vì sao KHÔNG dán lên cả màn. `content-visibility: auto` kéo theo `contain: layout style paint`
+ * kể cả khi khối đang hiện, mà `paint` thì CẮT mọi thứ tràn ra ngoài hộp. Khối Số liệu thì không
+ * được lợi gì (luôn trên nếp gấp) mà lại là chỗ người dùng thao tác nhiều nhất.
+ */
+.deferred {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
 }

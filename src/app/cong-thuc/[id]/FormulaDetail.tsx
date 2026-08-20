@@ -126,6 +126,22 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
   const [sheet, setSheet] = useState<SheetKind | null>(null);
+  /**
+   * Ba bottom sheet chỉ được DỰNG khi người dùng mở lần đầu, rồi giữ lại.
+   *
+   * Trước đợt này cả ba luôn nằm trong DOM (chỉ đóng bằng thuộc tính `open` của `<dialog>`), nên
+   * mỗi lần vào màn chi tiết là dựng thừa ~150 nút — riêng `ExportSheet` còn gọi
+   * `buildExportContent()` ở MỖI lượt dựng, tức mỗi phím gõ, để dựng một tài liệu không ai xem.
+   *
+   * Giữ lại sau khi đã mở chứ không tháo lúc đóng: bên trong sheet có lựa chọn của người dùng
+   * (định dạng xuất, các ô tick) mà tháo đi là mất.
+   */
+  const [mountedSheets, setMountedSheets] = useState<ReadonlySet<SheetKind>>(() => new Set());
+
+  function openSheet(kind: SheetKind): void {
+    setMountedSheets((current) => (current.has(kind) ? current : new Set(current).add(kind)));
+    setSheet(kind);
+  }
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   const [seriesCount, setSeriesCount] = useState<number | null>(null);
   const [bars, setBars] = useState<ReadonlyArray<SeriesRow> | null>(null);
@@ -474,7 +490,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             variant="secondary"
             size="sm"
             onClick={() => {
-              setSheet('preset');
+              openSheet('preset');
             }}
           >
             {loadedPreset === null
@@ -486,7 +502,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             variant="secondary"
             size="sm"
             onClick={() => {
-              setSheet('export');
+              openSheet('export');
             }}
           >
             {t('detail.export')}
@@ -554,36 +570,45 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
             const wide = linked !== undefined || isWideControl(variable.type);
 
-            return (
-              <div key={variable.key} className={wide ? styles.fieldWide : styles.field}>
-                {linked === undefined ? (
-                  <VariableField
-                    spec={variable}
-                    value={inputs[variable.key] ?? variable.defaultValue}
-                    onChange={(value) => {
-                      setValue(variable.key, value);
-                    }}
-                    mode={mode}
-                    sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
-                  />
-                ) : (
-                  /*
-                    Ô nhận giá trị từ bước trước (FR-15). Dựng TẠI CHỖ trong lưới chứ không gom
-                    xuống khối chuỗi bên dưới: nó vẫn là một biến của công thức này, đứng đúng
-                    thứ tự của nó trong bảng biến. Gom xuống dưới là người dùng phải ghép hai
-                    danh sách ô nhập trong đầu mới biết công thức cần những gì.
-                  */
-                  <LinkedInput
-                    spec={variable}
-                    upstream={linked.upstream}
-                    {...(linked.override === undefined ? {} : { override: linked.override })}
-                    onOverrideChange={(value) => {
-                      setOverride(spec.id, variable.key, value);
-                    }}
-                    mode={mode}
-                  />
-                )}
-              </div>
+            /*
+              Điều khiển LÀ ô lưới, không bọc thêm một <div> quanh nó.
+              Bọc thì nhãn / khung nhập / dòng phụ nằm sâu thêm một tầng, và `subgrid` — thứ giữ
+              cho hai ô cùng hàng thẳng nhau khi một nhãn dài hơn — chỉ với tới con TRỰC TIẾP.
+              Khối chuỗi WF-04 vốn đã dựng theo lối này, nên bỏ lớp bọc cũng là đưa hai màn về
+              cùng một hình dạng DOM.
+            */
+            const className = wide ? styles.fieldWide : styles.field;
+
+            return linked === undefined ? (
+              <VariableField
+                key={variable.key}
+                spec={variable}
+                value={inputs[variable.key] ?? variable.defaultValue}
+                onChange={(value) => {
+                  setValue(variable.key, value);
+                }}
+                mode={mode}
+                sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
+                className={className}
+              />
+            ) : (
+              /*
+                Ô nhận giá trị từ bước trước (FR-15). Dựng TẠI CHỖ trong lưới chứ không gom
+                xuống khối chuỗi bên dưới: nó vẫn là một biến của công thức này, đứng đúng
+                thứ tự của nó trong bảng biến. Gom xuống dưới là người dùng phải ghép hai
+                danh sách ô nhập trong đầu mới biết công thức cần những gì.
+              */
+              <LinkedInput
+                key={variable.key}
+                spec={variable}
+                upstream={linked.upstream}
+                {...(linked.override === undefined ? {} : { override: linked.override })}
+                onOverrideChange={(value) => {
+                  setOverride(spec.id, variable.key, value);
+                }}
+                mode={mode}
+                className={className}
+              />
             );
           })}
         </div>
@@ -594,7 +619,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               variant="secondary"
               size="sm"
               onClick={() => {
-                setSheet('paste');
+                openSheet('paste');
               }}
             >
               {t('detail.pasteSeries')}
@@ -693,7 +718,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         trên đó, nên không bày lối vào lần hai.
       */}
       {showChart && formula !== undefined && (
-        <section className={styles.block}>
+        <section className={`${styles.block} ${styles.deferred}`}>
           <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
           <FormulaChart
             formula={formula}
@@ -715,10 +740,15 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         đọc. Không truyền prop nào ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không có
         điều kiện nào để về sau lệch với nó.
       */}
-      <ExplanationAccordion explanation={spec.explanation} />
+      {/*
+        Bốn khối cuối màn mang lớp `deferred` — xem chú thích trong `FormulaDetail.module.css`.
+        Chúng luôn nằm dưới nếp gấp ở khổ điện thoại, nên bỏ qua phần dựng hình của chúng cho tới
+        lúc cuộn tới là cắt được phần lớn lượt layout đầu tiên của màn.
+      */}
+      <ExplanationAccordion explanation={spec.explanation} className={styles.deferred} />
 
       {/* ── 8. Bảng biến ─────────────────────────────────────────────────── */}
-      <VariableTable formula={spec} mode={mode} />
+      <VariableTable formula={spec} mode={mode} className={styles.deferred} />
 
       {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
       {/*
@@ -733,56 +763,68 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         `effectiveInputs` chứ không phải `inputs`: ô móc nối cũng xuất hiện ở đây, và nó phải bày
         đúng con số mà khối Số liệu đang bày. Gõ vào nó thì `setValue()` tự lái sang ghi đè.
       */}
-      <ExampleBlock formula={spec} inputs={effectiveInputs} output={output} onChange={setValue} />
-      <SourceBlock sources={spec.source} />
-
-      {/* ── Ba bottom sheet của gói 2.5 ──────────────────────────────────── */}
-      <PresetSheet
-        open={sheet === 'preset'}
-        onClose={() => {
-          setSheet(null);
-        }}
-        onLoad={applyPreset}
-      />
-
-      <PasteImportSheet
-        open={sheet === 'paste'}
-        onClose={() => {
-          setSheet(null);
-        }}
-        onImport={(result) => {
-          setSeriesCount(result.rows.length);
-          // Chuỗi vừa dán đi thẳng vào ctx để công thức chuỗi tính NGAY — không ghi đè bảng
-          // WF-05 đã lưu: dán ở màn chi tiết là thao tác thử nhanh, bảng là dữ liệu người
-          // dùng chủ động quản ở /du-lieu/.
-          setBars(
-            result.rows.map(({ date, open, high, low, close, volume }) => ({
-              date,
-              open,
-              high,
-              low,
-              close,
-              volume,
-            })),
-          );
-          setAppliedToTable(false);
-        }}
-      />
-
-      <ExportSheet
-        open={sheet === 'export'}
-        onClose={() => {
-          setSheet(null);
-        }}
+      <ExampleBlock
         formula={spec}
-        output={output}
-        // Bản xuất phải mang con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
         inputs={effectiveInputs}
-        mode={mode}
-        // Người dùng vừa nạp bộ mẫu thì file xuất ra phải tự nói điều đó (bộ mẫu hiện toàn
-        // là bản thảo — xem src/data/samples.ts).
-        fromDraftData={loadedPreset !== null && hasDraftData()}
+        output={output}
+        onChange={setValue}
+        className={styles.deferred}
       />
+      <SourceBlock sources={spec.source} className={styles.deferred} />
+
+      {/* ── Ba bottom sheet của gói 2.5 — chỉ dựng từ lần mở đầu tiên ────── */}
+      {mountedSheets.has('preset') && (
+        <PresetSheet
+          open={sheet === 'preset'}
+          onClose={() => {
+            setSheet(null);
+          }}
+          onLoad={applyPreset}
+        />
+      )}
+
+      {mountedSheets.has('paste') && (
+        <PasteImportSheet
+          open={sheet === 'paste'}
+          onClose={() => {
+            setSheet(null);
+          }}
+          onImport={(result) => {
+            setSeriesCount(result.rows.length);
+            // Chuỗi vừa dán đi thẳng vào ctx để công thức chuỗi tính NGAY — không ghi đè bảng
+            // WF-05 đã lưu: dán ở màn chi tiết là thao tác thử nhanh, bảng là dữ liệu người
+            // dùng chủ động quản ở /du-lieu/.
+            setBars(
+              result.rows.map(({ date, open, high, low, close, volume }) => ({
+                date,
+                open,
+                high,
+                low,
+                close,
+                volume,
+              })),
+            );
+            setAppliedToTable(false);
+          }}
+        />
+      )}
+
+      {mountedSheets.has('export') && (
+        <ExportSheet
+          open={sheet === 'export'}
+          onClose={() => {
+            setSheet(null);
+          }}
+          formula={spec}
+          output={output}
+          // Bản xuất phải mang con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
+          inputs={effectiveInputs}
+          mode={mode}
+          // Người dùng vừa nạp bộ mẫu thì file xuất ra phải tự nói điều đó (bộ mẫu hiện toàn
+          // là bản thảo — xem src/data/samples.ts).
+          fromDraftData={loadedPreset !== null && hasDraftData()}
+        />
+      )}
 
       {/* Chuỗi kết quả dạng chữ, để bộ kiểm tự động soi được mà không phải đọc DOM lồng nhau. */}
       <span className="visually-hidden" data-testid="result-text">

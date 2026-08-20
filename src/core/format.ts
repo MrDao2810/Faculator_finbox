@@ -30,6 +30,34 @@ export interface FormatNumberOptions {
 }
 
 /**
+ * Bộ định dạng đã dựng, tra theo cặp (số lẻ tối thiểu, số lẻ tối đa).
+ *
+ * `new Intl.NumberFormat()` không rẻ — nó phải tra dữ liệu locale ICU mỗi lần gọi. Đo trên bản
+ * build: mở MỘT màn chi tiết dựng **273 bộ** mà chỉ có **3 cặp tham số khác nhau**, tốn 40 ms ở
+ * lượt đầu (lúc dữ liệu locale còn nguội). Con số ấy lặp lại theo TỪNG PHÍM gõ, vì mỗi phím là
+ * một lượt dựng lại cả màn.
+ *
+ * Nhớ lại được vì hàm này thuần: cùng cặp tham số thì cùng một bộ định dạng, và `Intl.NumberFormat`
+ * không mang trạng thái giữa các lần `.format()`. Số khoá bị chặn bởi mã nguồn chứ không bởi
+ * người dùng — tham số đến từ `VariableSpec.decimals` và các chỗ gọi cố định, nên bảng tra không
+ * phình theo thao tác.
+ */
+const FORMATTERS = new Map<string, Intl.NumberFormat>();
+
+function formatterFor(minDecimals: number, maxDecimals: number): Intl.NumberFormat {
+  const key = `${String(minDecimals)}:${String(maxDecimals)}`;
+  const cached = FORMATTERS.get(key);
+  if (cached !== undefined) return cached;
+
+  const formatter = new Intl.NumberFormat(LOCALE, {
+    minimumFractionDigits: minDecimals,
+    maximumFractionDigits: maxDecimals,
+  });
+  FORMATTERS.set(key, formatter);
+  return formatter;
+}
+
+/**
  * Định dạng một số theo quy ước Việt Nam.
  * Giá trị không hữu hạn trả về NO_VALUE chứ không bao giờ ra chuỗi 'NaN' hay 'Infinity' (FR-06).
  */
@@ -38,10 +66,7 @@ export function formatNumber(value: number, options: FormatNumberOptions = {}): 
 
   const { minDecimals = 0, maxDecimals = 2, signed = false } = options;
 
-  const text = new Intl.NumberFormat(LOCALE, {
-    minimumFractionDigits: minDecimals,
-    maximumFractionDigits: Math.max(minDecimals, maxDecimals),
-  }).format(value);
+  const text = formatterFor(minDecimals, Math.max(minDecimals, maxDecimals)).format(value);
 
   // Chỉ thêm dấu + cho số dương; số 0 và số âm giữ nguyên (Intl đã có sẵn dấu trừ).
   return signed && value > 0 ? `+${text}` : text;

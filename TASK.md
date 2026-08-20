@@ -107,6 +107,187 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Vá đơ khi bấm từ Trang chủ / Danh sách sang màn Chi tiết
+
+Trạng thái: **xong phần vá, còn MỘT việc chờ chủ dự án quyết** (xem "Lỗ hổng cửa kiểm dung
+lượng" ở cuối mục). `npm run check` xanh **1363 test / 62 file**; build scratch-copy 122 trang;
+`verify:static` **24/24**; `size` **164,6 kB**/170 kB — không đổi; `check:chrome` **26/26**, nâng
+từ 24 vì đợt này thêm bốn ca (hai ca hoãn dựng hình, hai ca bản in).
+
+### Triệu chứng và cách đo
+
+Chủ dự án báo bấm vào một công thức thì màn đứng im một lúc rồi mới nhảy. Đo lại trên Chrome thật,
+khổ 360×780, CPU hãm ×4 (xấp xỉ điện thoại tầm trung), bản build tĩnh — không đo `next dev`, vì bản
+dev còn có StrictMode dựng đôi và biên dịch route theo yêu cầu, chậm hơn hẳn nhưng không phải thứ
+người dùng cuối gặp.
+
+Hai con số, mỗi con số một câu hỏi khác nhau:
+
+- **tới khi hiện kết quả** — từ lúc bấm tới lúc khối Kết quả có mặt trong DOM.
+- **tới khi hết đơ** — mốc kết thúc của long task cuối cùng. Đây mới là thứ chủ dự án gọi là "đơ":
+  suốt quãng ấy màn hình vẫn là trang CŨ, không nhúc nhích, không có dấu hiệu nào cho biết máy
+  đang làm việc.
+
+|       | hiện kết quả | hết đơ  |
+| ----- | ------------ | ------- |
+| trước | 513 ms       | 491 ms  |
+| sau   | ~470 ms      | ~325 ms |
+
+Chỉ **lượt bấm ĐẦU TIÊN** của một phiên mới đơ. Từ lượt thứ hai trở đi không có long task nào ≥
+50 ms — mã đã biên dịch, dữ liệu đã nằm trong bộ nhớ.
+
+### Đã đi nhầm đường trước khi tìm ra
+
+Nghi ngờ đầu tiên là gói JS: chunk riêng của route `[id]` nặng **376 kB thô / 94 kB nén**, gấp đôi
+react-dom, và nó chứa **cả 108 công thức** — kể cả `tests` (10,6 kB nén) là dữ liệu chỉ dùng lúc
+chạy vitest, và `explanation` (21 kB nén) là chữ mà trang nào cũng đã có sẵn trong HTML tĩnh của
+chính nó.
+
+Nhưng thí nghiệm cắt thẳng vào chunk đã dựng cho thấy nghi ngờ ấy sai về ĐỘ LỚN: cắt 36% chunk
+(92,8 → 59,7 kB nén) chỉ nhanh lên 16%. Tải và biên dịch không phải phần chính — trace
+`devtools.timeline` chỉ ra **một lượt Layout 218 ms** và **một lượt dựng React 254 ms**. Nhờ vậy
+tránh được một đợt tái cấu trúc Registry vừa to vừa rủi ro mà không giải quyết đúng chỗ đau.
+
+### Ba việc đã làm
+
+1. **`content-visibility: auto` cho năm khối dưới nếp gấp** — Biểu đồ, Giải thích, Bảng biến, Ví
+   dụ, Nguồn (`FormulaDetail.module.css` `.deferred`). Phần lớn mức cải thiện nằm ở đây: A/B trên
+   cùng một bản build, tắt lại bằng một dòng CSS đè thì "hết đơ" quay về ~467 ms.
+   KHÔNG dán lên khối Số liệu và cũng không dán cả màn: `content-visibility: auto` kéo theo
+   `contain: paint` kể cả khi khối đang hiện, mà `paint` thì cắt mọi thứ tràn ra ngoài hộp.
+2. **Nhớ lại `Intl.NumberFormat`** (`src/core/format.ts`). Mở một màn chi tiết dựng **273 bộ định
+   dạng** mà chỉ có **3 cặp tham số** khác nhau, tốn 40 ms ở lượt đầu. Con số ấy lặp lại theo từng
+   phím gõ, nên đây còn là vá cho độ trễ lúc nhập liệu chứ không riêng lúc điều hướng.
+3. **Ba bottom sheet chỉ dựng từ lần mở đầu tiên.** Trước đây cả ba luôn nằm trong DOM (~150 nút),
+   và `ExportSheet` còn gọi `buildExportContent()` ở MỖI lượt dựng — tức mỗi phím gõ — để dựng một
+   tài liệu chưa ai mở.
+
+Chỉ trong một trường hợp con số nhỏ hơn hẳn: `/cong-thuc/` → `lich-tra-no` chỉ giảm 511 → 431 ms,
+vì thân riêng WF-14 (bảng lịch trả nợ, 257 nút) nằm TRÊN năm khối được hoãn nên không hưởng lợi.
+
+### Hai lỗi tự gây ra trong lúc vá, và cửa gác cho chúng
+
+**Bản in.** Vùng in nằm trong `ExportSheet`, nên sheet chưa dựng thì `@media print` ẩn sạch trang
+và Ctrl+P in ra tờ trắng. Thêm điều kiện `:has(.print-region)` vào luật ẩn. Viết trần thì
+`:has(.print-region)` cộng độ ưu tiên của một lớp, luật ẩn (0,1,1) thắng luật hiện `.print-region`
+(0,1,0) — và Ctrl+P lúc ĐÃ mở sheet cũng in ra tờ trắng. Phải bọc `:where()` để giữ nguyên độ ưu
+tiên (0,0,1) như bản `body *` cũ. Cả hai chiều đều đã hỏng thật, nên `check:chrome` nay có hai ca
+riêng, mỗi ca đỏ với đúng một đột biến.
+
+**Cửa gác thác nước suýt mù.** `docThacNuoc()` đọc `getBBox()` của nhãn chặng. Khối Biểu đồ nay
+mang `content-visibility: auto`, mà khối chưa cuộn tới thì `getBBox()` trả về toàn số 0 — phép kiểm
+"nhãn không tràn khung" sẽ xanh vô nghĩa (x = 0 thì không bao giờ < 0). Thêm bước cuộn tới biểu đồ
+rồi chờ hai khung hình trước khi đo.
+
+**Ca kiểm "phải cao 0" đã thử và đã bỏ.** Bản đầu của cửa gác `content-visibility` đo chiều cao và
+đòi khối chưa cuộn tới phải cao 0. Sai: `content-visibility: auto` chỉ đẩy việc dựng hình ra khỏi
+đường găng, Chrome vẫn dựng nốt lúc rảnh — đo sau khi trang yên thì khối nào cũng cao thật. Nay gác
+bằng **thuộc tính tính toán** (`contentVisibility === 'auto'` trên đúng năm khối, `'visible'` trên
+khối Số liệu), thứ đúng-hoặc-sai chứ không tuỳ nhịp máy.
+
+### Lỗ hổng cửa kiểm dung lượng — CHỜ CHỦ DỰ ÁN QUYẾT
+
+`scripts/size-report.mjs` **không đếm chunk nặng nhất của cả bản build**. Nó đọc đường dẫn từ HTML,
+mà Next ghi thư mục route động dưới dạng mã hoá URL `%5Bid%5D`, còn bảng tra cỡ file thì dựng từ
+đường dẫn thật `[id]` — nên dòng `.filter((a) => sizes.has(a))` lặng lẽ vứt nó đi.
+
+Hệ quả: script báo trang chi tiết nặng **164,6 kB** JS nén và kết luận "còn dưới cửa kiểm 170 kB".
+Số thật là **~256 kB** — vượt cả cửa kiểm 170 kB lẫn ngân sách NFR-PER-04 200 kB. Chính Next cũng
+đã in `230 kB` cho route `/cong-thuc/[id]` ở mỗi lần build, chỉ là không ai đối chiếu hai con số.
+
+Vá chỗ lọc thì `npm run size` đỏ, tức **CI đỏ** — nên chưa vá. Ba đường đi, cần chủ dự án chọn:
+
+1. Vá phép đo, chấp nhận CI đỏ tới khi cắt được gói. Trung thực nhất, nhưng chặn mọi PR khác.
+2. Vá phép đo và nâng ngưỡng tạm thời kèm ghi rõ hạn chót. Rủi ro: ngưỡng nâng tạm rồi ở lại vĩnh
+   viễn.
+3. Vá phép đo cùng lúc với đợt cắt gói (bỏ `tests` khỏi spec, đưa `explanation` ra khỏi gói máy
+   khách). Ước lượng cắt được ~56 kB nén trên 92,8 kB, tức về lại quanh 200 kB.
+
+### File đã đổi
+
+| File                                              | Sửa gì                                                         |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| `src/core/format.ts`                              | Nhớ lại `Intl.NumberFormat` theo cặp (số lẻ tối thiểu, tối đa) |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`        | Ba sheet dựng-khi-mở; gắn `.deferred` cho năm khối             |
+| `src/app/cong-thuc/[id]/FormulaDetail.module.css` | Lớp `.deferred`                                                |
+| `src/app/globals.css`                             | `@media print` gác bằng `:where(body:has(.print-region))`      |
+| `scripts/chrome-check.mjs`                        | +4 ca; `docThacNuoc()` cuộn tới biểu đồ trước khi đo           |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx`   | +3 ca; sửa hai chú thích đã cũ                                 |
+
+---
+
+## Căn thẳng hàng lưới ô nhập ở màn hẹp — `subgrid`
+
+Trạng thái: **xong, đã kiểm đủ bốn cửa**. `npm run check` xanh **1360 test / 62 file**; build
+scratch-copy 122 trang; `verify:static` **24/24**; `size` — trang nặng nhất vẫn **164,6 kB**/170 kB,
+không đổi (thay đổi thuần CSS + bỏ một lớp `<div>`); `check:chrome` **22/22**, nâng từ 20 vì đợt
+này thêm hai ca.
+
+### Yêu cầu
+
+> Chủ dự án gửi ảnh chụp khối "SỐ LIỆU" của `pe`: "với những màn nhỏ thì sẽ bị lỗi như ảnh. sửa
+> lỗi để khi màn hình nhỏ sẽ không xảy ra lỗi như này"
+
+### Đo trước
+
+Đọc thẳng từ dev server đang chạy ở cổng 3000 (chỉ GET, không đụng gì) bằng Chrome headless riêng
+ở khổ 360×780:
+
+- `pe`: nhãn "Giá thị trường" cao **20px** (một dòng), "EPS — lợi nhuận trên mỗi cổ phiếu" cao
+  **39px** (hai dòng) → hai khung nhập lệch nhau đúng **20px**, dòng mô tả bên dưới cũng lệch.
+- `loi-nhuan-rong` (lưới 2×2 của WF-08): mọi nhãn một dòng → **không lệch**.
+
+Tức lỗi chỉ nổ khi các nhãn trong cùng một hàng khác số dòng. Điều này loại luôn hai hướng vá dễ
+nghĩ ra: **đổi sang một cột ở màn hẹp** sẽ phá lưới 2×2 mà bản hi-fi WF-08 vẽ, còn **chừa cứng hai
+dòng cho mọi nhãn** thì thêm khoảng trống chết vào đúng những màn đang không có lỗi.
+
+### Cách vá: `subgrid`
+
+Lưới khai **bốn hàng cho mỗi ô** (nhãn · khung nhập · dòng phụ · dòng lỗi), và từng ô `subgrid`
+vào đúng bốn hàng đó. Nhãn của cả hàng cùng cao bằng nhãn cao nhất, nên khung nhập thẳng nhau mà
+không cần biết trước nhãn dài bao nhiêu. Hàng lỗi chừa sẵn chỗ vì nó chỉ bật khi giá trị ra ngoài
+miền — không chừa thì lúc nó hiện, cả hàng giật.
+
+Hai điều kiện kỹ thuật, cả hai đều học được bằng cách làm sai trước:
+
+1. **Phải bỏ lớp `<div>` bọc quanh điều khiển.** `subgrid` chỉ với tới con TRỰC TIẾP của lưới, mà
+   màn chi tiết đang bọc mỗi điều khiển trong một `<div className={styles.field}>`. Bỏ lớp bọc,
+   truyền `className` thẳng cho `VariableField`/`LinkedInput` — đúng lối khối chuỗi WF-04 vốn đã
+   dùng, nên đây cũng là đưa hai màn về cùng một hình dạng DOM.
+2. **Cột con phải là `minmax(0, 1fr)`, không được để `auto`.** Lần thử đầu để mặc định: cột co
+   theo max-content của nhãn nên nhãn dài **thôi xuống dòng** và tràn hẳn ra ngoài ô, đè sang cột
+   bên cạnh — tệ hơn lỗi ban đầu. Ảnh chụp lúc đó cho thấy ô "6.050" chạy ra ngoài mép phải màn.
+
+`row-gap` của lưới kéo xuống `--space-1` (khoảng cách giữa bốn phần trong một ô); khoảng thở giữa
+hai hàng ô lấy từ `padding-bottom` của chính ô, vì mọi hàng của một lưới dùng chung một `row-gap`.
+
+Ô rộng (`fieldWide` — thanh trượt, nhóm nút, công tắc, `LinkedInput`) **không** subgrid: chiếm cả
+bề ngang thì không có ô nào bên cạnh để thẳng hàng, và số phần bên trong không cố định. Vẫn phải
+`grid-row: span 4` để không chen vào bộ hàng của các ô hẹp đứng cạnh.
+
+Áp cho cả hai lưới ô nhập của dự án: `FormulaDetail.module.css` và `ChainBody.module.css`. Grep
+`repeat(auto-fit|auto-fill)` cho thấy năm lưới còn lại đều là lưới THẺ (nhóm, danh mục, trang chủ)
+— thẻ vốn kéo giãn bằng nhau nên không dính lớp lỗi này.
+
+### Cửa gác
+
+- `check:chrome` thêm hai ca đo **thẳng độ lệch**: `pe` (nhãn một dòng cạnh nhãn hai dòng) và
+  `loi-nhuan-rong` (2×2, nhãn đều một dòng). Ca thứ hai là **đối chứng** — nó phải xanh cả trước
+  lẫn sau, nếu không thì cách vá đang làm hỏng chỗ vốn đúng.
+- jsdom không dựng bố cục nên không đo được độ lệch, và cũng không hiểu `subgrid`. Bản vitest chỉ
+  giữ **điều kiện cần**: ô lưới chính là điều khiển, `<label>` là con trực tiếp. Đó lại đúng là thứ
+  dễ vô tình phá nhất — chỉ cần ai đó bọc thêm một `<div>`.
+
+Đột biến: bỏ `grid-template-rows: subgrid` → ca `pe` đỏ (**lệch 13px**) còn ca `loi-nhuan-rong` vẫn
+xanh; bọc lại lớp `<div>` → ca vitest đỏ đúng chỗ ("không có `<label>` làm con trực tiếp").
+
+### Việc còn lại
+
+Không còn. Ghi chú tương thích: `subgrid` là Baseline từ 2023 (Chrome 117, Safari 16, Firefox 71);
+trình duyệt cũ hơn rơi về đúng hành vi trước đợt này, tức lệch chứ không vỡ.
+
+---
+
 ## Cuộn lên khi bấm "Về số của ví dụ"
 
 Trạng thái: **xong, đã kiểm đủ**. `npm run check` xanh **1352 test / 61 file** (không còn dòng

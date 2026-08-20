@@ -106,21 +106,39 @@
   padding-top: var(--space-3);
 }
 
+/*
+ * Bốn hàng cho mỗi ô nhập, y như lưới của khối Số liệu — xem chú thích dài ở
+ * `FormulaDetail.module.css`. Thẻ bước còn hẹp hơn khối chính (thụt vào hai lần) nên nhãn ở đây
+ * càng hay xuống hai dòng, tức càng dễ lệch nếu không căn theo hàng.
+ */
 .fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-4);
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
   min-width: 0;
 }
 
-.field {
+.fields > .field {
   min-width: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: subgrid;
+  grid-row: span 4;
+  padding-bottom: var(--space-3);
 }
 
-/* Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng. */
+/*
+ * Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng — cùng luật với thanh
+ * trượt và nhóm nút, xem `isWideControl()`. Không subgrid: chiếm cả bề ngang thì không có ô nào
+ * bên cạnh để mà thẳng hàng, và số phần bên trong không cố định.
+ */
 .fieldWide {
   grid-column: 1 / -1;
+  grid-row: span 4;
   min-width: 0;
+  padding-bottom: var(--space-3);
 }
 
 .openLink {

@@ -220,8 +220,19 @@ a {
   /*
    * Dùng visibility chứ không display:none cho phần còn lại — display:none trên tổ tiên sẽ
    * kéo theo cả .print-region dù nó được bật lại.
+   *
+   * `:has(.print-region)` là điều kiện MỚI, và nó cần thiết từ khi ba bottom sheet chỉ được dựng
+   * lúc người dùng mở lần đầu (xem `FormulaDetail.tsx`): vùng in nằm trong `ExportSheet`, nên
+   * trang chưa mở sheet lần nào thì trong DOM không có `.print-region`. Không có điều kiện này,
+   * bấm Ctrl+P ở màn chi tiết sẽ ẩn sạch mọi thứ và in ra một tờ trắng. Có nó thì trang in ra
+   * bình thường như mọi màn khác, còn khi sheet đã mở thì vẫn in đúng thẻ kết quả như trước.
+   *
+   * Bọc trong `:where()` để điều kiện ấy KHÔNG cộng thêm độ ưu tiên. `:has(.print-region)` mang
+   * độ ưu tiên của một lớp, nên viết trần thì luật ẩn này (0,1,1) sẽ thắng luật hiện `.print-region`
+   * (0,1,0) ngay bên dưới — đo trên Chrome thật: mở sheet Xuất rồi in ra tờ trắng, đúng cái lỗi
+   * dòng `:has()` sinh ra để tránh. `:where()` giữ nguyên độ ưu tiên (0,0,1) như bản `body *` cũ.
    */
-  body * {
+  :where(body:has(.print-region)) * {
     visibility: hidden;
   }
 

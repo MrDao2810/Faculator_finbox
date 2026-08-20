@@ -125,6 +125,29 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
             size="sm"
             onClick={() => {
               for (const row of rows) onChange(row.key, row.exampleValue);
+
+              /*
+               * Khối Ví dụ nằm cuối trang, khối Số liệu — nơi con số vừa đổi thật sự hiện ra —
+               * nằm trên đầu. Bấm xong mà không cuộn thì người dùng không thấy gì đổi, phải tự
+               * cuộn lên tìm; chủ dự án báo đúng chỗ này khi tự thử. `khoi-so-lieu` là id cố định
+               * của khối đó trong `FormulaDetail.tsx` — nơi DUY NHẤT dựng `ExampleBlock` có state.
+               *
+               * Kiểm `typeof` trước khi gọi cả `matchMedia` lẫn `scrollIntoView`: jsdom (môi
+               * trường test) không cài `matchMedia` — gọi thẳng ném `TypeError`, và ca kiểm bấm
+               * đúng nút này vẫn xanh nhưng vitest báo "Uncaught Exception" riêng, đúng loại lỗi
+               * âm thầm mà bộ kiểm không bắt được nếu không nhìn kỹ. Trình duyệt thật luôn có cả
+               * hai nên nhánh else không bao giờ chạy ở đó — hai dòng an toàn này chỉ để test sạch.
+               */
+              const target = document.getElementById('khoi-so-lieu');
+              if (target !== null && typeof target.scrollIntoView === 'function') {
+                const reduceMotion =
+                  typeof window.matchMedia === 'function' &&
+                  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                target.scrollIntoView({
+                  behavior: reduceMotion ? 'auto' : 'smooth',
+                  block: 'start',
+                });
+              }
             }}
           >
             {t('example.reset')}

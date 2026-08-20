@@ -23,6 +23,7 @@ import {
   runChain,
   runFormula,
   scheduleOrDefault,
+  serializeStoredSeries,
   variablesForLevel,
 } from '@/application';
 import type {
@@ -128,6 +129,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   const [seriesCount, setSeriesCount] = useState<number | null>(null);
   const [bars, setBars] = useState<ReadonlyArray<SeriesRow> | null>(null);
+  /**
+   * Đã ghi `bars` hiện tại vào bảng WF-05 (`/du-lieu/`) hay chưa — nhãn nút "Áp dụng vào bảng
+   * dữ liệu" đổi thành "Đã áp dụng ✓" sau khi bấm, cùng nếp với `loadedPreset`. Đặt lại về false
+   * mỗi khi `bars` đổi (nạp mẫu khác, dán chuỗi khác) — xem effect ngay dưới `applyToDataTable`.
+   */
+  const [appliedToTable, setAppliedToTable] = useState(false);
 
   /*
    * ── Trạng thái của chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ───────────────────────────────
@@ -377,8 +384,10 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
      * đúng 34 công thức. Bộ mẫu có sẵn 248 phiên OHLCV, chỉ là chưa ai chuyển sang.
      *
      * `DailyBar` có `close: number`, hẹp hơn `SeriesRow` (`close: number | null`), nên gán vào
-     * được mà không mất mát. Không ghi đè bảng WF-05 đã lưu ở localStorage: nạp mẫu là thao tác
-     * thử nhanh, bảng là dữ liệu người dùng chủ động quản ở /du-lieu/ — cùng lối với sheet dán.
+     * được mà không mất mát. Không TỰ ghi đè bảng WF-05 đã lưu ở localStorage: nạp mẫu là thao
+     * tác thử nhanh, bảng là dữ liệu người dùng chủ động quản ở /du-lieu/ — cùng lối với sheet
+     * dán. Muốn đưa đúng chuỗi này vào bảng thì bấm nút "Áp dụng vào bảng dữ liệu" riêng
+     * (`applyToDataTable()`) — một hành động rõ ràng, không phải tác dụng phụ của "Nạp mẫu".
      */
     setBars(
       preset.bars.map(({ date, open, high, low, close, volume }) => ({
@@ -391,6 +400,48 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       })),
     );
     setSeriesCount(preset.bars.length);
+
+    /*
+     * XIRR đọc `ctx.cashflows`, không `ctx.series` — đúng cái bẫy "Nạp mẫu nhìn như không làm
+     * gì" đã gặp ở 34 công thức chuỗi trước đây (xem chú thích trên), lặp lại lần nữa vì bộ mẫu
+     * không có khái niệm "dòng tiền đầu tư có ngày" để khớp tên. Dựng một kịch bản 2 dòng, có
+     * ý nghĩa thật chứ không phải số bịa: đầu tư 100 triệu ₫ ở phiên ĐẦU bộ mẫu, giá trị hiện
+     * tại ở phiên CUỐI tính đúng theo tỉ lệ giá tăng/giảm thật của mã đó — XIRR ra suất sinh lợi
+     * nếu mua giữ nguyên suốt giai đoạn 248 phiên. Chỉ set cho đúng công thức XIRR, không đụng
+     * `cashflowRows` của công thức khác (biến đó công thức khác không đọc tới, nhưng gọn hơn).
+     */
+    if (spec.id === 'xirr') {
+      const first = preset.bars[0];
+      const last = preset.bars[preset.bars.length - 1];
+      if (first !== undefined && last !== undefined && first.close > 0) {
+        const investment = 100_000_000;
+        const currentValue = Math.round((investment * (last.close / first.close)) / 1_000) * 1_000;
+        setCashflowRows([
+          { date: first.date, amount: -investment },
+          { date: last.date, amount: currentValue },
+        ]);
+      }
+    }
+    setAppliedToTable(false);
+  }
+
+  /**
+   * Ghi `bars` hiện tại vào bảng WF-05 (`/du-lieu/`) — hành động RÕ RÀNG do người dùng chủ động
+   * bấm, khác hẳn "Nạp mẫu"/"Dán chuỗi giá" vốn cố ý không tự ghi đè (xem docblock ở
+   * `applyPreset()`). Mã đi kèm lấy từ `loadedPreset` nếu có; dán tay thì không có mã, để trống
+   * — đúng quy ước `StoredSeries.code` rỗng nghĩa là "bảng tự nhập, chưa gắn mã nào".
+   */
+  function applyToDataTable(): void {
+    if (bars === null) return;
+    try {
+      window.localStorage.setItem(
+        PRICE_SERIES_KEY,
+        serializeStoredSeries({ code: loadedPreset ?? '', rows: bars }),
+      );
+      setAppliedToTable(true);
+    } catch {
+      // localStorage bị chặn (chế độ riêng tư) — không chặn thao tác đang làm, chỉ là chưa lưu được.
+    }
   }
 
   return (
@@ -550,11 +601,25 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             </Button>
 
             {/*
+              Chỉ hiện khi đã có gì để áp dụng — nút này ghi CHỦ Ý, khác "Nạp mẫu"/"Dán chuỗi
+              giá" vốn cố ý không tự ghi đè bảng WF-05 (xem docblock `applyToDataTable()`).
+              Chủ dự án báo mất dấu: nạp mẫu xong sang /du-lieu/ không thấy gì — đây là lối vá.
+            */}
+            {bars !== null && (
+              <Button variant="secondary" size="sm" onClick={applyToDataTable}>
+                {appliedToTable ? t('detail.appliedToTable') : t('detail.applyToTable')}
+              </Button>
+            )}
+
+            {/*
               Lối vào bảng WF-05. Dán tại chỗ chỉ đọc được chuỗi vào công thức đang mở; muốn
               sửa từng phiên, xem dòng nào sai, hay giữ chuỗi lại thì phải sang bảng. Trước đợt
               này màn đó không có link nào trỏ tới từ bất kỳ đâu trong giao diện.
+
+              Mang theo `?from=<id>` để nút quay lại ở /du-lieu/ biết đường về ĐÚNG công thức
+              này thay vì về danh sách chung — chủ dự án báo mất dấu công thức đang thao tác.
             */}
-            <Link className={styles.dataLink} href={ROUTES.data}>
+            <Link className={styles.dataLink} href={`${ROUTES.data}?from=${spec.id}`}>
               {t('detail.openDataTable')}
             </Link>
           </div>
@@ -700,6 +765,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               volume,
             })),
           );
+          setAppliedToTable(false);
         }}
       />
 

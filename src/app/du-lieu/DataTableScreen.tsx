@@ -1,14 +1,17 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+  FORMULA_SUMMARIES,
   MAX_SERIES_ROWS,
   PRICE_SERIES_KEY,
   appendRow,
   checkSeries,
   emptyRow,
   formatNumber,
+  formulaPath,
   parseStoredSeries,
   parseViNumber,
   removeRow,
@@ -127,6 +130,22 @@ const SeriesRowFields = memo(function SeriesRowFields({
 
 export function DataTableScreen() {
   const t = useT();
+
+  /*
+   * Đến từ nút "Mở bảng dữ liệu" của một trang công thức thì nút quay lại phải về ĐÚNG trang đó,
+   * không về danh sách chung — chủ dự án báo mất dấu công thức đang thao tác. Tham số `from` do
+   * `FormulaDetail.tsx` gắn vào link; kiểm lại bằng `FORMULA_SUMMARIES` chứ không tin thẳng
+   * chuỗi trên URL, để một tham số gõ bậy không dựng ra một link trỏ vào chỗ không tồn tại.
+   *
+   * Cố ý dùng `FORMULA_SUMMARIES` (chỉ mục nhẹ) chứ không `findFormulaModule()`/
+   * `FORMULA_MODULES`: bảng dữ liệu là màn KHÔNG liên quan gì tới việc tính toán của riêng một
+   * công thức, kéo cả Registry đầy đủ (111 hàm tính) vào chỉ để so một chuỗi id sẽ nặng thêm
+   * hàng chục kB First Load JS một cách vô lý — đã đo thấy /du-lieu/ nhảy từ 131 kB lên 217 kB
+   * khi thử bằng `findFormulaModule()`.
+   */
+  const fromId = useSearchParams().get('from');
+  const fromFormula = fromId === null ? undefined : FORMULA_SUMMARIES.find((f) => f.id === fromId);
+
   const [code, setCode] = useState('');
   const [rows, setRows] = useState<ReadonlyArray<SeriesRow>>([]);
   const [sheet, setSheet] = useState<'preset' | 'paste' | null>(null);
@@ -241,10 +260,22 @@ export function DataTableScreen() {
     <div className={styles.screen}>
       <header className={styles.head}>
         {/*
-          WF-18 xếp bảng dữ liệu trong luồng công thức, nên đường ra là về danh sách công thức —
-          giống hệt trang chi tiết, và cùng nhớ bộ lọc người dùng vừa đặt.
+          WF-18 xếp bảng dữ liệu trong luồng công thức, nên mặc định đường ra là về danh sách
+          công thức — giống hệt trang chi tiết, và cùng nhớ bộ lọc người dùng vừa đặt.
+
+          Ngoại lệ: vào từ nút "Mở bảng dữ liệu" của một trang công thức thì về ĐÚNG trang đó.
+          `rememberList={false}` vì lúc này không còn là "về danh sách" nữa — đọc sessionStorage
+          rồi ghi đè bằng href công thức chỉ tổ nhấp nháy một nhịp trước khi đúng.
         */}
-        <BackLink />
+        {fromFormula === undefined ? (
+          <BackLink />
+        ) : (
+          <BackLink
+            fallbackHref={formulaPath(fromFormula.id)}
+            labelKey="nav.backToFormula"
+            rememberList={false}
+          />
+        )}
 
         <h1 className={styles.title}>{t('series.title')}</h1>
         <p className={styles.subtitle}>

@@ -95,6 +95,8 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Vá tràn ngang 360px — chuỗi WF-04, bảng biểu đồ         | —       | Xong — xem mục "Vá tràn ngang 360px"          |
 | —     | Vá 5 câu chữ diễn giải sai + nâng vitest vá lỗ critical | —       | Xong — xem mục "Vá 5 câu chữ…"                |
 | —     | Giá mục tiêu (109) + Beta (110) + XIRR (111)            | —       | Xong — xem mục "Ba công thức cố ý…"           |
+| —     | Vá 3 lỗi điều hướng/nạp mẫu — WF-03 và XIRR             | —       | Xong — xem mục "Vá ba lỗi điều hướng…"        |
+| —     | Nút "Về số của ví dụ" tự cuộn lên khối Số liệu          | —       | Xong — xem mục "Cuộn lên khi bấm…"            |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -102,6 +104,120 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Cuộn lên khi bấm "Về số của ví dụ"
+
+Trạng thái: **xong, đã kiểm đủ**. `npm run check` xanh **1352 test / 61 file** (không còn dòng
+"Errors" của vitest); build scratch-copy 122 trang; `verify:static` **24/24**; `size` — trang
+nặng nhất vẫn 164,6 kB/170 kB, không đổi so với trước (thay đổi không kéo thêm import nào).
+
+### Yêu cầu
+
+> Chủ dự án tự thử: "sau khi click vào 'Về số của ví dụ' thì tự động scroll lên phần trên có số
+> của ví dụ". Khối Ví dụ nằm cuối trang, khối Số liệu — nơi con số vừa đổi thật sự hiện ra — nằm
+> trên đầu; bấm xong mà không cuộn thì không thấy gì đổi, phải tự cuộn lên tìm.
+
+### Sửa
+
+`ExampleBlock.tsx` — nút "Về số của ví dụ" (`example.reset`), sau vòng lặp `onChange()` trả từng
+ô về giá trị ví dụ, gọi thêm `document.getElementById('khoi-so-lieu')?.scrollIntoView(...)`.
+`khoi-so-lieu` là id cố định của khối Số liệu, đặt sẵn trong `FormulaDetail.tsx` — nơi DUY NHẤT
+dựng `ExampleBlock` có state (không cần thêm id mới). Tôn trọng `prefers-reduced-motion`: cuộn
+mượt (`behavior: 'smooth'`) trừ khi người dùng đã bật giảm chuyển động, thì nhảy thẳng (`'auto'`).
+
+Bẫy gặp phải: gọi thẳng `window.matchMedia()` làm vitest báo "Uncaught Exception" riêng ngoài các
+ca kiểm (jsdom không cài API này) — bài kiểm bấm đúng nút đó vẫn xanh, đúng loại lỗi âm thầm nếu
+không nhìn kỹ dòng "Errors" của vitest. Vá bằng cách bọc `typeof window.matchMedia === 'function'`
+và `typeof target.scrollIntoView === 'function'` trước khi gọi — trình duyệt thật luôn có cả hai
+nên hai dòng an toàn này chỉ để test sạch, không đổi hành vi thật.
+
+### Đã kiểm bằng Chrome thật
+
+Vào `/cong-thuc/pe/`, sửa "Giá thị trường" 92.000 → 50.000 (kết quả đổi 15,21 → 8,26 lần), cuộn
+xuống khối Ví dụ ở cuối trang, bấm "Về số của ví dụ" — trang tự cuộn thẳng lên khối Số liệu, giá
+trị về đúng 92.000 ₫/6.050 ₫, kết quả 15,21 lần hiện ngay trong khung nhìn, không cần tự cuộn tìm.
+
+---
+
+## Vá ba lỗi điều hướng/nạp mẫu — WF-03 và XIRR
+
+Trạng thái: **xong, đã kiểm đủ**. `npm run check` xanh **1352 test / 61 file**; build 122
+trang; `verify:static` **24/24**; `check:chrome` **20/20**; `size` — trang nặng nhất vẫn
+164,6 kB/170 kB, **`/du-lieu/` 141 kB** (đo kỹ vì suýt vỡ, xem mục "Bẫy đo được" dưới).
+
+### Yêu cầu
+
+> Chủ dự án tự thử: "sau khi tôi nạp mẫu vào một công thức bất kỳ thông qua button 'Mở dữ liệu
+> bảng' thì không thấy button áp dụng mẫu vừa dùng... và khi đó tôi click vào quay lại 'Danh
+> sách công thức' thì lại bị out khỏi công thức đang thao tác -> lý ra phải quay lại công thức
+> đang thao tác". Vá xong Việc 1/2, tự thử tiếp ngay: "sau khi nạp mẫu vẫn chưa thấy có sự thay
+> đổi gì" — lộ ra Việc 3, riêng ở XIRR.
+
+Điều tra trước khi sửa: cả hai đều là **hành vi cố ý, có ghi chú trong code** — nạp mẫu ở màn
+công thức cố ý không ghi đè bảng WF-05 ("nạp mẫu là thao tác thử nhanh, bảng là dữ liệu người
+dùng chủ động quản"), và `BackLink` cố ý luôn về danh sách công thức, không phải cây điều hướng
+nhớ "đến từ đâu" (TASK.md mục "Thêm đường ra khỏi màn chi tiết", đợt đóng đuôi). Hỏi lại chủ dự
+án hai câu hỏi độc lập trước khi đụng vào hành vi đã có chủ đích — cả hai đều được xác nhận đổi.
+
+### Việc 1 — nút "Áp dụng vào bảng dữ liệu"
+
+Thêm state `appliedToTable` cạnh `bars` trong `FormulaDetail.tsx`, đặt lại `false` ở cả hai nơi
+`bars` đổi (`applyPreset()`, `onImport` của `PasteImportSheet`). Nút chỉ hiện khi `bars !== null`
+(có gì đó để áp dụng), nhãn đổi "Áp dụng vào bảng dữ liệu" → "Đã áp dụng ✓" sau khi bấm — cùng
+nếp với "Nạp mẫu" → "Đã nạp X". Bấm thì ghi thẳng `serializeStoredSeries({ code: loadedPreset ??
+'', rows: bars })` vào `PRICE_SERIES_KEY` — đúng khoá mà `/du-lieu/` đọc lúc mount, nên sang đó
+là thấy ngay. Mã trống (`code: ''`) khi dữ liệu đến từ dán tay chứ không phải nạp mẫu — đúng quy
+ước `StoredSeries.code` rỗng nghĩa là "bảng tự nhập, chưa gắn mã nào" đã có sẵn.
+
+### Việc 2 — `BackLink` về đúng công thức khi biết mình từ đâu tới
+
+Link "Mở bảng dữ liệu" nay mang `?from=<id>`. `DataTableScreen.tsx` đọc tham số đó bằng
+`useSearchParams()` (đã có sẵn `<Suspense>` bọc ở `page.tsx` — comment ở đó ghi "bên trong có
+useSearchParams()" dù lúc đó chưa hề có, hoá ra là chỗ chờ sẵn đúng việc này). Kiểm lại chuỗi
+`from` với `FORMULA_SUMMARIES` (không tin thẳng URL) rồi truyền
+`fallbackHref={formulaPath(...)}` + `rememberList={false}` cho `BackLink` — `rememberList=false`
+vì lúc này không còn là "về danh sách" nữa, đọc `sessionStorage` rồi ghi đè bằng href công thức
+chỉ tổ nhấp nháy một nhịp. Không có `from` (vào `/du-lieu/` thẳng, hoặc từ nơi khác) thì `BackLink`
+đi đúng đường cũ — hành vi mặc định không đổi. Thêm khoá `nav.backToFormula` ("Quay lại công
+thức") để nhãn nút nói đúng sẽ về đâu, không dùng chung nhãn "Danh sách công thức" gây hiểu nhầm.
+
+### Việc 3 — "Nạp mẫu" trên XIRR nhìn như không làm gì
+
+Phát hiện khi chủ dự án tự thử ngay sau đợt vá Việc 1/2: _"sau khi nạp mẫu vẫn chưa thấy có sự
+thay đổi gì"_. Tái hiện trên `beta` và `gia-muc-tieu` thì "Nạp mẫu" vẫn đúng; chỉ XIRR bị —
+đúng cái bẫy "nút Nạp mẫu nhìn như không làm gì" đã gặp ở 34 công thức chuỗi trước đây (xem
+chú thích trong chính `applyPreset()`), lặp lại lần nữa vì bộ mẫu không có khái niệm "dòng tiền
+đầu tư có ngày" để khớp tên — `applyPreset()` vẫn set `bars`/`loadedPreset` (nút đổi "Đã nạp
+FPT") nhưng XIRR không đọc `ctx.series`, nên bảng dòng tiền và kết quả đứng yên.
+
+Hai hướng đưa ra, chủ dự án chọn **dựng kịch bản minh hoạ** thay vì ẩn nút: nạp preset cho XIRR
+giờ tự điền 2 dòng tiền có ý nghĩa thật — đầu tư 100 triệu ₫ ở phiên ĐẦU bộ mẫu, giá trị hiện
+tại ở phiên CUỐI tính đúng theo tỉ lệ giá tăng/giảm thật của mã đó (`currentValue = 100tr ×
+giá_cuối / giá_đầu`, làm tròn nghìn đồng) — tức "nếu mua giữ nguyên suốt giai đoạn 248 phiên
+thì XIRR ra bao nhiêu". Không phải số bịa: tỉ lệ tăng/giảm lấy từ đúng chuỗi giá của bộ mẫu.
+Đo thật: nạp FPT ra **13,24%/năm** (đầu tư 100.000.000 ₫ ngày 20/01/2025, thành 112.472.000 ₫
+ngày 31/12/2025 — khớp đúng đường giá 248 phiên của FPT trong bộ mẫu).
+
+### Bẫy đo được — suýt kéo cả Registry vào một màn không cần nó
+
+Bản đầu dùng `findFormulaModule()` (từ `FORMULA_MODULES`, kéo theo `calc` của cả 111 công thức)
+để kiểm tham số `from`. Đo trên bản build: `/du-lieu/` nhảy từ 131 kB lên **217 kB** First Load
+JS — vượt cửa kiểm 170 kB, dù màn này không tính toán bất kỳ công thức nào, chỉ cần biết một
+chuỗi id có tồn tại hay không. Đổi sang `FORMULA_SUMMARIES` (chỉ mục nhẹ, đúng mục đích sinh ra
+nó — xem `registry/types.ts`) đưa `/du-lieu/` về **141 kB**. Bài học: `findFormulaModule` chỉ
+dùng ở màn THẬT SỰ cần chạy một công thức; màn chỉ cần tra cứu metadata thì `FORMULA_SUMMARIES`.
+
+### Đã kiểm bằng Chrome thật, đúng luồng chủ dự án mô tả
+
+Nạp mẫu FPT vào `beta` → bấm "Áp dụng vào bảng dữ liệu" (nhãn đổi "Đã áp dụng ✓", localStorage
+có `{code: "FPT", rows: 248}`) → bấm "Mở bảng dữ liệu" (href `/du-lieu/?from=beta` đúng) →
+`/du-lieu/` hiện sẵn "FPT · dùng cho Beta / Sharpe / VaR" → nút quay lại hiện "Quay lại công
+thức", trỏ `/cong-thuc/beta/`. Vào `/du-lieu/` KHÔNG qua `from` thì nút quay lại vẫn "Danh sách
+công thức" như cũ — không phá hành vi mặc định. Riêng XIRR: nạp mẫu FPT ra đúng 2 dòng tiền
+(20/01/2025 · −100.000.000 ₫, 31/12/2025 · 112.472.000 ₫) và kết quả 13,24%/năm — không phải
+"— , —" như trước khi vá.
 
 ---
 

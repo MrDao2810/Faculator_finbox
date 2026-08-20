@@ -28,6 +28,8 @@ export const vi = {
    * khác nhau mang cùng một tên trên cùng một màn — người dùng lẫn trình đọc màn hình đều rối.
    */
   'nav.backToList': 'Danh sách công thức',
+  /** Nhãn nút quay lại khi `/du-lieu/` biết mình được mở từ đúng công thức nào (tham số `from`). */
+  'nav.backToFormula': 'Quay lại công thức',
 
   // Chế độ hiển thị — FR-09
   'mode.label': 'Chế độ hiển thị',
@@ -179,6 +181,8 @@ export const vi = {
   'detail.constantsInUse': 'Đang tính theo các mức sau',
   'detail.constantSince': 'áp dụng từ',
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
+  'detail.applyToTable': 'Áp dụng vào bảng dữ liệu',
+  'detail.appliedToTable': 'Đã áp dụng ✓',
   'detail.seriesLoaded': 'Đã nạp số phiên giá:',
   'detail.openDataTable': 'Mở bảng dữ liệu →',
   'detail.chart': 'Biểu đồ',

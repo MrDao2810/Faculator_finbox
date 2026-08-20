@@ -31,6 +31,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'nav.settings': 'Settings',
   /* Cố ý khác `nav.formulas` — cùng lý do bản tiếng Việt: màn chi tiết đã có khối "Formula". */
   'nav.backToList': 'Formula list',
+  'nav.backToFormula': 'Back to formula',
 
   'mode.label': 'Display mode',
   'mode.basic': 'Basic',
@@ -153,6 +154,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantsInUse': 'Calculated at these rates',
   'detail.constantSince': 'in effect since',
   'detail.pasteSeries': 'Paste a price series from Excel',
+  'detail.applyToTable': 'Apply to the data table',
+  'detail.appliedToTable': 'Applied ✓',
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.openDataTable': 'Open the data table →',
   'detail.chart': 'Chart',

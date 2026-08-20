@@ -473,14 +473,29 @@ try {
   const chuoiDai = await evaluate(`(() => {
   document.querySelectorAll('details').forEach((d) => { d.open = true; });
   const doc = document.documentElement;
-  const truot = [...document.querySelectorAll('input[type=range]')];
-  const nhanCao = truot
-    .map((s) => {
+
+  /*
+   * Mỗi thanh trượt phải chiếm TRỌN một hàng của lưới ô nhập nó đang nằm trong.
+   *
+   * Đo quan hệ ô-với-lưới chứ không đo bề rộng trang: hai vá ở tầng component (SliderInput cho
+   * xuống dòng, InlineNumber co lại) đã chặn được phần tràn, nên một thanh trượt bị nhét vào ô
+   * 143px KHÔNG còn làm trang cuộn ngang nữa — nó chỉ xấu. Bất biến thật là ô rộng bằng lưới.
+   */
+  const hep = [];
+  for (const s of document.querySelectorAll('input[type=range]')) {
+    let o = s.parentElement;
+    while (o && !(o.parentElement && getComputedStyle(o.parentElement).display === 'grid')) {
+      o = o.parentElement;
+    }
+    if (!o || !o.parentElement) continue;
+    const rongO = o.getBoundingClientRect().width;
+    const rongLuoi = o.parentElement.getBoundingClientRect().width;
+    if (rongO < rongLuoi - 1) {
       const nhan = s.closest('div')?.querySelector('label');
-      return nhan ? Math.round(nhan.getBoundingClientRect().height) : 0;
-    })
-    .filter((h) => h > 44);
-  return { rong: doc.scrollWidth, khung: doc.clientWidth, soTruot: truot.length, nhanVo: nhanCao.length };
+      hep.push((nhan ? nhan.textContent.trim().slice(0, 22) : '?') + ' ' + Math.round(rongO) + '/' + Math.round(rongLuoi));
+    }
+  }
+  return { rong: doc.scrollWidth, khung: doc.clientWidth, soTruot: document.querySelectorAll('input[type=range]').length, hep };
 })()`);
 
   check(
@@ -489,16 +504,14 @@ try {
     chuoiDai === null ? 'không đọc được trang' : `trang rộng ${String(chuoiDai.rong)}px`,
   );
 
-  /*
-   * Nhãn thanh trượt cao quá hai dòng nghĩa là nó đang bị bóp vào một cột hẹp — dấu hiệu của
-   * đúng lỗi trên, bắt được cả khi bề rộng trang tình cờ vẫn vừa.
-   */
   check(
-    'không nhãn thanh trượt nào bị bóp vỡ thành nhiều dòng',
-    chuoiDai !== null && chuoiDai.nhanVo === 0,
+    'mọi thanh trượt chiếm trọn một hàng lưới — kể cả trong thẻ bước của chuỗi',
+    chuoiDai !== null && chuoiDai.hep.length === 0,
     chuoiDai === null
       ? 'không đọc được trang'
-      : `${String(chuoiDai.soTruot)} thanh trượt, ${String(chuoiDai.nhanVo)} nhãn vỡ`,
+      : chuoiDai.hep.length === 0
+        ? `${String(chuoiDai.soTruot)} thanh trượt, không cái nào bị bóp`
+        : chuoiDai.hep.join(' · '),
   );
 
   check(

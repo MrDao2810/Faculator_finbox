@@ -180,6 +180,24 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
     expect(screen.getByRole('table')).not.toBeNull();
   });
 
+  /*
+   * Ô bảng để `white-space: nowrap` nên bảng rộng theo tên cột, không theo cột chứa nó. Đo trên
+   * bản build ở khổ 360px, `gia-tri-noi-tai-fcff` có tiêu đề "Giá trị nội tại từ FCFF (DCF) (₫)"
+   * làm bảng rộng 385px trong cột 344px và kéo cả TRANG cuộn ngang — hỏng NFR-USA-02. Vùng cuộn
+   * phải là của riêng bảng, và phải lăn được bằng bàn phím.
+   */
+  it('bảng số nằm trong vùng cuộn riêng, lăn được bằng bàn phím', () => {
+    draw('pe');
+
+    const bang = screen.getByRole('table');
+    const vung = bang.parentElement;
+
+    expect(vung?.getAttribute('role')).toBe('group');
+    expect(vung?.getAttribute('tabindex')).toBe('0');
+    expect(vung?.getAttribute('aria-label')).toBeTruthy();
+    expect(String(vung?.className)).toMatch(/tableScroll/);
+  });
+
   it('bảng số mang đúng con số khối Kết quả đang hiện — hai chỗ không được nói hai số', () => {
     draw('pe');
 

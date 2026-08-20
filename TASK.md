@@ -413,11 +413,18 @@ Trạng thái: **xong, đã kiểm đủ năm cửa**. Code cho đợt này đã
 phiên này bắt đầu — chưa commit, chưa có mục nhật ký — nên việc của phiên là đọc lại diff, dựng
 bản build thật để xác nhận, và ghi lại ở đây; không viết thêm dòng sửa lỗi nào mới.
 
-`npm run check` xanh **1347 test / 61 file** (không đổi so với Đợt 11 — đây là đợt sửa hình học
-thuần, jsdom không đo được nên không ca vitest nào bắt được các lỗi này). `npm run build` (dựng
-ở bản sao scratchpad, không đụng dev server chủ dự án đang chạy ở cổng 3000) ra đủ 119 trang;
-`verify:static` **24/24**; `check:chrome` **20/20** — nâng từ 18 vì chính đợt này thêm hai ca; `size`
-**163,0 kB** trên cửa 170 kB.
+`npm run check` xanh **1358 test / 62 file**. `npm run build` (dựng ở bản sao scratchpad, không
+đụng dev server chủ dự án đang chạy ở cổng 3000) ra đủ 122 trang; `verify:static` **24/24**;
+`check:chrome` **20/20** — nâng từ 18 vì chính đợt này thêm hai ca; `size` **164,6 kB** trên cửa
+170 kB.
+
+Bản ghi đầu tiên của mục này nói "jsdom không đo được nên không ca vitest nào bắt được các lỗi
+này" và để test ở 1347/61. Điều đó **sai một nửa và đã sửa**: bề rộng tính bằng pixel thì jsdom
+đúng là chịu, nhưng bất biến thật của lỗi số 1 không phải pixel mà là **ô lưới nào mang class
+`fieldWide`** — thứ jsdom đọc được. Quan trọng hơn: `check:chrome` KHÔNG nằm trong CI
+(CI chạy lint → typecheck → format:check → test → build → verify:static → size), nên nếu chỉ có
+bộ Chrome thì lỗi này về lại nhánh main mà không cửa nào kêu. Nay có `ChainBody.test.tsx` (5 ca)
+và một ca vùng cuộn bảng trong `charts.test.tsx`.
 
 ### Ba lỗi tràn ngang, đều lộ ra ở khổ 360px
 
@@ -451,8 +458,19 @@ dù con bên trong vẽ tràn ra ngoài. Ca này báo "vừa khung" trong khi tr
 495px — đúng dạng "cửa gác đỗ giả" mà Đợt 9 từng ghi nhận. Sửa bằng cách đo
 `document.documentElement.scrollWidth` (chuyện của TRANG) thay vì của khối. Thêm hai ca mới: mở
 trang `gia-tri-noi-tai-fcff` (chuỗi dài nhất Registry) kèm bảng số liệu mở, kiểm trang không cuộn
-ngang; và đếm nhãn thanh trượt cao quá hai dòng (dấu hiệu bị bóp vào cột hẹp) — bắt được cả khi
-bề rộng trang tình cờ vẫn vừa.
+ngang; và một ca cho riêng lỗi số 1.
+
+Ca thứ hai đó lúc đầu **đo nhầm đại lượng**, và chính phép đột biến lộ ra. Bản đầu đếm nhãn thanh
+trượt cao quá hai dòng; gỡ luật ô rộng ra build lại thì nhãn chỉ cao 39px (hai dòng) nên ca vẫn
+xanh, và bề rộng trang cũng vẫn vừa — vì hai vá tầng component (`flex-wrap` ở `SliderInput`,
+`max-width` ở `InlineNumber`) đã chặn phần tràn. Nói cách khác: sau khi vá tầng component, một
+thanh trượt bị nhét vào ô 143px **không còn làm trang cuộn ngang nữa, nó chỉ xấu** — đúng cái xấu
+mà chủ dự án chụp ảnh. Nên ca phải đo **bất biến thật**: bề rộng ô lưới so với bề rộng lưới, và
+đỏ khi ô hẹp hơn. Bản sửa báo đúng từng ô: `Lãi suất phi rủi ro (R 143/302 · …`.
+
+Bài học chung với Đợt 9: một cửa gác chưa từng thấy đỏ thì chưa biết nó gác cái gì. Cả hai lần
+sai ở đây — `block.scrollWidth` và chiều cao nhãn — đều là **đo một hệ quả** thay vì đo bất biến,
+và cả hai đều xanh suốt cho tới khi bị đột biến.
 
 ### Việc còn lại
 
@@ -824,7 +842,7 @@ kiểm trên bản build thay vì trên nguồn.
 
 Trạng thái: **xong phần code, 5 lỗi diễn giải đang chờ chủ dự án duyệt câu chữ.**
 `npm run check` xanh **1347 test / 61 file**; build 119 trang; `verify:static` **24/24**;
-`size` **162,9 kB** trên cửa 170 kB; `check:chrome` **18/18**.
+`size` **164,6 kB** trên cửa 170 kB; `check:chrome` **20/20**.
 
 ### Hai lượt rà, và bài học về cách đặt tiêu chí
 
@@ -896,8 +914,16 @@ Cách vá — khai **khoá**, không khai trị số, để trị số tiếp t�
   cũng phải in ngày; `formatSessionDate` giữ tên và gọi sang, vì tên nó mang nghĩa riêng của biểu
   đồ (nhãn một PHIÊN).
 
-Chi phí đo được: **+0,1 kB** First Load JS (162,8 → 162,9), và 95 trong 108 trang không thêm nút
-DOM nào vì component tự trả `null` khi danh sách rỗng.
+Chi phí đo được bằng cách gỡ hẳn khối ra rồi build lại: **~0 kB** First Load JS trên trang nặng
+nhất (164,5 kB khi không có khối, 164,6 kB khi có), và 95 trong 108 trang không thêm nút DOM nào
+vì component tự trả `null` khi danh sách rỗng.
+
+Một ghi chú về cách đo, vì lần này suýt kết luận sai: con số cửa kiểm nhảy 162,9 → 164,6 giữa hai
+lần build và tôi tưởng đợt vá giao diện tốn 1,7 kB. Gỡ từng thay đổi ra build lại thì cả ba thay
+đổi JS của đợt vá chỉ tốn 0,1 kB, còn khối hằng số tốn ~0. Bước nhảy là do Next chia lại ranh giới
+chunk chứ không phải mã mới nặng thêm. Bài học: **đừng quy kết một bước nhảy kích thước cho thay
+đổi gần nhất — gỡ ra build lại mới biết**, vì trang được cửa kiểm soi là trang NẶNG NHẤT và nó đổi
+theo cách chia chunk.
 
 ### Cửa gác `constants-gate.test.ts` — hai chiều, hai cơ chế khác nhau
 

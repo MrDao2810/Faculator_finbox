@@ -1,0 +1,13 @@
+{
+  // Worker chi phuc vu file tinh: khong co script, tro vao thu muc out/
+  // ma `next build` (output: 'export') sinh ra. Co file nay thi wrangler
+  // KHONG dung preset OpenNext nua.
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "faculator-finbox",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./out",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

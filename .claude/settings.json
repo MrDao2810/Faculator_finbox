@@ -535,7 +535,9 @@
       "Bash(powershell -Command \"Stop-Process -Id 29944 -Force\")",
       "Bash(node scratch-bench.mjs)",
       "Bash(node scratch-verify-list.mjs)",
-      "Bash(echo \"TSC_EXIT:$?\")"
+      "Bash(echo \"TSC_EXIT:$?\")",
+      "Bash(powershell -Command \"Stop-Process -Id 25988 -Force\")",
+      "Bash(node scratch-disclaimer-check.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

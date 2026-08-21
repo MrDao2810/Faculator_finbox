@@ -1,5 +1,4 @@
-import { t } from '@/application';
-
+import { T } from '../i18n/T';
 import styles from './DisclaimerBar.module.css';
 
 export interface DisclaimerBarProps {
@@ -22,8 +21,11 @@ export interface DisclaimerBarProps {
  *
  * Dấu hiệu là biểu tượng + chữ, không phải chỉ màu (NFR-USA-06).
  *
- * CỐ Ý dùng `t()` build-time chứ không theo locale: `disclaimer.text` là khoá duy nhất chưa
- * dịch (xem docblock en.ts) — câu trên màn phải trùng từng chữ với câu đính vào file xuất.
+ * Chữ đi qua lá `<T k="disclaimer.text">` nên đổi theo locale như mọi chữ giao diện khác. Câu
+ * đính vào file xuất (`buildExportContent()`) KHÔNG đọc theo locale — nó luôn lấy
+ * `DISCLAIMER_VI` thẳng, vì tài liệu xuất ra cố ý luôn là văn bản tiếng Việt trọn vẹn (xem
+ * docblock `src/core/disclaimer.ts` và `src/core/export-content.ts`). Hai câu diễn cùng một ý
+ * bằng hai ngôn ngữ khác nhau khi đang ở chế độ EN — không còn là bản dịch-từng-chữ của nhau.
  */
 export function DisclaimerBar({ variant = 'footer' }: DisclaimerBarProps = {}) {
   return (
@@ -43,7 +45,9 @@ export function DisclaimerBar({ variant = 'footer' }: DisclaimerBarProps = {}) {
         <path d="M12 8v5" />
         <path d="M12 16.5v.01" />
       </svg>
-      <p className={styles.text}>{t('disclaimer.text')}</p>
+      <p className={styles.text}>
+        <T k="disclaimer.text" />
+      </p>
     </div>
   );
 }

@@ -217,13 +217,20 @@ schedule must break the formula, which catches a declaration the calc never uses
   `FormulaBrowser` and the server-rendered `StaticFormulaList`, so a hook would crash the server
   pass). The static `t()` import from `@/application` is frozen to Vietnamese at build time, so
   a gate in `i18n.test.ts` scans **all of `src/ui` + `src/app`** and fails any file importing it
-  that is not on a five-entry allowlist, each entry carrying its reason: `layout.tsx` metadata,
-  `DisclaimerBar` (FR-24 — must match the export attachment verbatim), the SEO fallback
-  `StaticFormulaList`, and the print/PNG regions of `ExportSheet`/`draw-card` (exported files are
-  all-Vietnamese documents). The gate scans by directory on purpose: an earlier version keyed off
-  the `'use client'` directive and missed three shared modules that carry no directive but land
-  in the client bundle anyway. A second case fails any allowlist entry that no longer needs to be
-  there. `disclaimer.text` is the one untranslated key — the en.ts docblock records why.
+  that is not on a four-entry allowlist, each entry carrying its reason: `layout.tsx` metadata,
+  the SEO fallback `StaticFormulaList`, and the print/PNG regions of `ExportSheet`/`draw-card`
+  (exported files are all-Vietnamese documents, including the disclaimer they carry — see next
+  point). The gate scans by directory on purpose: an earlier version keyed off the `'use client'`
+  directive and missed three shared modules that carry no directive but land in the client bundle
+  anyway. A second case fails any allowlist entry that no longer needs to be there.
+- The English dictionary is complete (`missingKeys('en')` is empty) — `disclaimer.text` (FR-24)
+  was the last holdout and is now translated too, read through `DisclaimerBar.tsx`'s `<T>` leaf.
+  It stays a deliberate paraphrase, not a literal translation pair: `buildExportContent()` never
+  reads this i18n key — every export (PDF/PNG) always attaches `DISCLAIMER_VI` verbatim regardless
+  of the on-screen locale, because exported files are intentionally all-Vietnamese documents (see
+  next point). So the on-screen disclaimer now follows locale like everything else, while the one
+  inside an exported file stays fixed in Vietnamese — the same split every other piece of content
+  already has between the live UI and a downloaded document.
 - Display labels that the Domain also owns (`UNIT_SCALES[].label`, `COLUMN_LABELS`) are duplicated
   as i18n keys, with a test tying the Vietnamese side to the Domain string verbatim — CON-02 keeps
   `src/core` from reading i18n, so the copy is deliberate and the anchor test is what keeps the two

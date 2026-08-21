@@ -107,6 +107,48 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Dịch nốt câu miễn trừ trên màn — khoá cuối cùng của từ điển EN
+
+Trạng thái: **xong**. Chủ dự án yêu cầu: dải miễn trừ "Kết quả chỉ mang tính tham khảo, không
+phải khuyến nghị đầu tư" ở chân trang cũng phải đổi sang tiếng Anh khi bật EN — trước đó
+`disclaimer.text` là khoá DUY NHẤT cố ý bỏ trống trong `en.ts`, vì lý do cũ: câu trên màn phải
+trùng từng chữ với câu đính vào file xuất, mà bộ dựng file xuất (`buildExportContent()`) không
+biết locale.
+
+Quyết định: **tách hai câu ra làm hai**, không còn ràng buộc "trùng từng chữ" nữa. Câu trên MÀN
+giờ theo locale như mọi chữ giao diện khác (`disclaimer.text` dịch thật trong `en.ts`: "Results
+are for reference only, not investment advice."). Câu đính vào file xuất (PDF/PNG) **vẫn luôn lấy
+`DISCLAIMER_VI` thẳng, không đổi** — đúng quy ước đã có sẵn cho toàn bộ nội dung xuất ra (`ExportSheet`/
+`draw-card.ts` là "tài liệu tiếng Việt trọn vẹn", đã ghi trong CLAUDE.md từ trước). Hai câu diễn
+cùng một ý bằng hai ngôn ngữ ở chế độ EN — không còn là bản dịch-từng-chữ của nhau, giống hệt cách
+mọi nội dung khác đã tách giữa màn hình (theo locale) và file xuất (luôn tiếng Việt) từ đợt dịch
+108 công thức trước đó.
+
+### Đã đổi
+
+- `src/application/i18n/en.ts` — thêm bản dịch `disclaimer.text`, sửa lại docblock đầu file (từ
+  điển nay dịch **đủ**, `missingKeys('en')` rỗng).
+- `src/ui/navigation/DisclaimerBar.tsx` — đổi từ `t()` build-time sang lá `<T k="disclaimer.text">`
+  (đúng nguyên tắc `<T>`/`<Pick>` đã dùng ở mục trên) nên đổi theo locale mà không cần biến
+  `AppShell`/`DisclaimerBar` thành client component.
+- `src/core/disclaimer.ts` — sửa docblock: `DISCLAIMER_VI` giờ chỉ còn dùng cho bản VI trên màn
+  và cho file xuất (luôn cố định), bản EN trên màn là câu dịch riêng ở `en.ts`, không đọc hằng
+  số này.
+- `src/application/i18n/i18n.test.ts` — bỏ `DisclaimerBar.tsx` khỏi danh sách miễn trừ dùng `t()`
+  build-time (còn 4 mục, không phải 5); viết lại ca kiểm "chưa dịch rơi về tiếng Việt" thành bất
+  biến chung qua `missingKeys()` thay vì neo vào đúng khoá `disclaimer.text` (khoá đó nay đã dịch,
+  không còn là ví dụ hợp lệ); thêm ca kiểm câu miễn trừ EN có đủ nội dung bắt buộc và ca kiểm câu
+  trên màn (theo locale) khác câu đính vào file xuất (luôn `DISCLAIMER_VI`) khi ở chế độ EN.
+- `CLAUDE.md` — cập nhật danh sách miễn trừ `t()` build-time (5 → 4 mục), sửa câu nói sai
+  "`disclaimer.text` is the one untranslated key".
+
+Xác minh: `npx tsc --noEmit` 0 lỗi; `npm run lint`/`format:check` sạch; `npm test` **1365/1365 qua
+62 file**; `npm run build` + `npm run size` (175,3 kB, vẫn dưới cửa kiểm 180 kB) + `npm run
+verify:static` (24/24) đều xanh; kiểm Chrome thật thủ công xác nhận bật EN thì dải chân trang đổi
+đúng sang "Results are for reference only, not investment advice."
+
+---
+
 ## Vá nốt 4 chỗ vẫn tiếng Việt sau khi dịch — FormulaCard, CategoryGrid, ChainBody, SearchResults
 
 Trạng thái: **xong**. Chủ dự án báo (kèm ảnh chụp màn hình): bật EN rồi vào danh sách công thức,

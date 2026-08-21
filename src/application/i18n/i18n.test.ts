@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
+import { DISCLAIMER_VI } from '@/core/disclaimer';
 import { UNIT_SCALES } from '@/core/format';
 import { COLUMN_LABELS } from '@/core/paste-import';
 
@@ -36,18 +37,19 @@ describe('khung i18n', () => {
     expect(t('mode.advanced')).toBe('Nâng cao');
   });
 
-  it('chưa dịch thì rơi về tiếng Việt, không hiện key trần', () => {
-    // `disclaimer.text` là khoá duy nhất còn cố ý chưa dịch (xem docblock en.ts) — dùng chính
-    // nó để giữ đường rơi về tiếng Việt luôn có ca kiểm che.
-    const text = t('disclaimer.text', 'en');
-    expect(text).toBe(t('disclaimer.text'));
-    expect(text).not.toContain('disclaimer.');
+  it('mọi khoá missingKeys() báo thiếu thì t() thật sự rơi về tiếng Việt, không hiện key trần', () => {
+    // Bất biến chung, không neo vào một khoá cụ thể nào — vẫn kiểm được đường rơi về tiếng Việt
+    // của t() kể cả khi (như hiện tại) không còn khoá nào thiếu, và tự bắt lại được nếu sau này
+    // có khoá mới thêm vào vi.ts mà quên dịch sang en.ts.
+    for (const locale of LOCALES) {
+      for (const key of missingKeys(locale)) {
+        expect(t(key, locale)).toBe(t(key, 'vi'));
+      }
+    }
   });
 
-  it('phần còn nợ dịch chỉ còn đúng câu miễn trừ — cố ý, xem docblock en.ts', () => {
-    // Câu miễn trừ trên màn phải trùng từng chữ với câu đính vào file xuất (DISCLAIMER_VI),
-    // mà bộ dựng file xuất chưa biết locale — dịch một vế là hai vế lệch nhau (FR-24).
-    expect(missingKeys('en')).toEqual(['disclaimer.text']);
+  it('từ điển tiếng Anh đã dịch đủ, không còn khoá nào nợ', () => {
+    expect(missingKeys('en')).toEqual([]);
   });
 
   it('isLocale chặn giá trị lạ đọc từ localStorage', () => {
@@ -58,9 +60,18 @@ describe('khung i18n', () => {
     expect(isLocale(7)).toBe(false);
   });
 
-  it('câu miễn trừ FR-24 có mặt và đúng nội dung bắt buộc', () => {
+  it('câu miễn trừ FR-24 có mặt và đúng nội dung bắt buộc, cả hai ngôn ngữ', () => {
     expect(t('disclaimer.text')).toContain('tham khảo');
     expect(t('disclaimer.text')).toContain('không phải khuyến nghị đầu tư');
+    expect(t('disclaimer.text', 'en')).toContain('reference only');
+    expect(t('disclaimer.text', 'en')).toContain('not investment advice');
+  });
+
+  it('câu miễn trừ trên MÀN theo locale, câu đính vào file xuất luôn tiếng Việt (FR-24)', () => {
+    // Hai câu diễn cùng một ý bằng hai ngôn ngữ ở chế độ EN — không phải bản dịch từng chữ của
+    // nhau, vì DISCLAIMER_VI đính vào file xuất không đọc theo locale (xem docblock disclaimer.ts).
+    expect(t('disclaimer.text', 'en')).not.toBe(DISCLAIMER_VI);
+    expect(t('disclaimer.text', 'vi')).toBe(DISCLAIMER_VI);
   });
 });
 
@@ -130,10 +141,6 @@ describe('chữ trên màn không được đóng băng lúc build', () => {
     {
       duoi: join('app', 'layout.tsx'),
       viSao: 'metadata dựng lúc build (tiêu đề tài liệu, manifest) — không phải chữ trên màn',
-    },
-    {
-      duoi: join('navigation', 'DisclaimerBar.tsx'),
-      viSao: 'FR-24 — câu miễn trừ phải trùng từng chữ với câu đính vào file xuất',
     },
     {
       duoi: join('cong-thuc', 'StaticFormulaList.tsx'),

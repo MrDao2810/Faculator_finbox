@@ -14,15 +14,20 @@ function make(id: string, vi: string, dependsOn: ReadonlyArray<string> = []): Fo
     id,
     categoryId: 'valuation',
     name: { vi, en: id },
-    description: '',
+    description: { vi: '', en: '' },
     latex: 'x',
     chartType: 'none',
     level: 'basic',
     tags: [],
     resultUnit: 'lần',
     variables: [],
-    explanation: { meaning: 'x', whenToUse: 'x', howToRead: 'x', commonMistakes: 'x' },
-    example: { title: 'x', inputs: {}, expected: 1 },
+    explanation: {
+      meaning: { vi: 'x', en: 'x' },
+      whenToUse: { vi: 'x', en: 'x' },
+      howToRead: { vi: 'x', en: 'x' },
+      commonMistakes: { vi: 'x', en: 'x' },
+    },
+    example: { title: { vi: 'x', en: 'x' }, inputs: {}, expected: 1 },
     tests: [],
     source: [],
     dependsOn: edges.length > 0 ? edges : undefined,
@@ -57,8 +62,8 @@ describe('sắp thứ tự dải luồng (WF-04)', () => {
 
   it('lấy nhãn tiếng Việt từ Registry, không phải id', () => {
     const chain = buildFlowChain(WF04);
-    expect(chain.steps[0]?.label).toBe('Beta');
-    expect(chain.steps[1]?.label).toBe('CAPM · Re');
+    expect(chain.steps[0]?.label.vi).toBe('Beta');
+    expect(chain.steps[1]?.label.vi).toBe('CAPM · Re');
   });
 
   it('đánh đúng bậc để bản dọc desktop biết xếp cột', () => {

@@ -28,7 +28,7 @@
 
 import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
-import type { CalcWarning } from '../types';
+import type { Bilingual, CalcWarning } from '../types';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
 import {
@@ -46,37 +46,52 @@ import { SOURCE_CFA, numberVar, sliderVar } from './shared';
  */
 
 const SOURCE_SHARPE: FormulaSource = {
-  label:
-    'William F. Sharpe — "The Sharpe Ratio", The Journal of Portfolio Management, tập 21 số 1 (mùa thu 1994), trang 49–58',
+  label: {
+    vi: 'William F. Sharpe — "The Sharpe Ratio", The Journal of Portfolio Management, tập 21 số 1 (mùa thu 1994), trang 49–58',
+    en: 'William F. Sharpe — "The Sharpe Ratio", The Journal of Portfolio Management, vol. 21 no. 1 (Fall 1994), pp. 49–58',
+  },
 };
 
 const SOURCE_SORTINO: FormulaSource = {
-  label:
-    'Frank A. Sortino & Lee N. Price — "Performance Measurement in a Downside Risk Framework", The Journal of Investing, tập 3 số 3 (mùa thu 1994), trang 59–64',
+  label: {
+    vi: 'Frank A. Sortino & Lee N. Price — "Performance Measurement in a Downside Risk Framework", The Journal of Investing, tập 3 số 3 (mùa thu 1994), trang 59–64',
+    en: 'Frank A. Sortino & Lee N. Price — "Performance Measurement in a Downside Risk Framework", The Journal of Investing, vol. 3 no. 3 (Fall 1994), pp. 59–64',
+  },
 };
 
 const SOURCE_TREYNOR: FormulaSource = {
-  label:
-    'Jack L. Treynor — "How to Rate Management of Investment Funds", Harvard Business Review, tập 43 số 1 (1965), trang 63–75',
+  label: {
+    vi: 'Jack L. Treynor — "How to Rate Management of Investment Funds", Harvard Business Review, tập 43 số 1 (1965), trang 63–75',
+    en: 'Jack L. Treynor — "How to Rate Management of Investment Funds", Harvard Business Review, vol. 43 no. 1 (1965), pp. 63–75',
+  },
 };
 
 const SOURCE_SHARPE_CAPM: FormulaSource = {
-  label:
-    'William F. Sharpe — "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, tập 19 số 3 (1964), trang 425–442',
+  label: {
+    vi: 'William F. Sharpe — "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, tập 19 số 3 (1964), trang 425–442',
+    en: 'William F. Sharpe — "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, vol. 19 no. 3 (1964), pp. 425–442',
+  },
 };
 
 const SOURCE_GRINOLD_KAHN: FormulaSource = {
-  label:
-    'Richard C. Grinold & Ronald N. Kahn — Active Portfolio Management, ấn bản 2 (McGraw-Hill, 1999), chương 5: Residual Risk and Return — The Information Ratio',
+  label: {
+    vi: 'Richard C. Grinold & Ronald N. Kahn — Active Portfolio Management, ấn bản 2 (McGraw-Hill, 1999), chương 5: Residual Risk and Return — The Information Ratio',
+    en: 'Richard C. Grinold & Ronald N. Kahn — Active Portfolio Management, 2nd edition (McGraw-Hill, 1999), chapter 5: Residual Risk and Return — The Information Ratio',
+  },
 };
 
 const SOURCE_CALMAR: FormulaSource = {
-  label: 'Terry W. Young — "Calmar Ratio: A Smoother Tool", tạp chí Futures, tháng 10/1991',
+  label: {
+    vi: 'Terry W. Young — "Calmar Ratio: A Smoother Tool", tạp chí Futures, tháng 10/1991',
+    en: 'Terry W. Young — "Calmar Ratio: A Smoother Tool", Futures magazine, October 1991',
+  },
 };
 
 const SOURCE_KAUFMAN: FormulaSource = {
-  label:
-    'Perry J. Kaufman — Trading Systems and Methods, ấn bản 6 (Wiley, 2020), phần đo hiệu quả hệ thống giao dịch',
+  label: {
+    vi: 'Perry J. Kaufman — Trading Systems and Methods, ấn bản 6 (Wiley, 2020), phần đo hiệu quả hệ thống giao dịch',
+    en: 'Perry J. Kaufman — Trading Systems and Methods, 6th edition (Wiley, 2020), section on trading system performance measurement',
+  },
 };
 
 /*
@@ -93,24 +108,40 @@ const MIN_SESSIONS = 60;
 
 /** Câu mô tả dùng lại ở ô "Số phiên trong một năm" và ô ngưỡng của tỷ số thắng/thua. */
 const SESSIONS_NOTE = `Cần ít nhất ${MIN_SESSIONS} phiên giá thì tỷ số mới có ý nghĩa thống kê.`;
+/** Bản tiếng Anh của `SESSIONS_NOTE`, dùng cho các trường `en`. */
+const SESSIONS_NOTE_EN = `At least ${MIN_SESSIONS} price sessions are needed for the ratio to be statistically meaningful.`;
 
 /** Lãi suất phi rủi ro — biến nhập tay, không lấy từ biểu phí thị trường. */
-const RISK_FREE_VAR = sliderVar('riskFree', 'Lãi suất phi rủi ro / năm', '%', 4.5, 0, 15, 0.1, {
-  description:
-    'Mức sinh lời coi như chắc chắn, thường lấy lợi suất trái phiếu chính phủ kỳ hạn 1 năm.',
-});
+const RISK_FREE_VAR = sliderVar(
+  'riskFree',
+  { vi: 'Lãi suất phi rủi ro / năm', en: 'Risk-free rate / year' },
+  '%',
+  4.5,
+  0,
+  15,
+  0.1,
+  {
+    description: {
+      vi: 'Mức sinh lời coi như chắc chắn, thường lấy lợi suất trái phiếu chính phủ kỳ hạn 1 năm.',
+      en: 'The return treated as essentially certain, usually the yield on a 1-year government bond.',
+    },
+  },
+);
 
 /** Số phiên quy năm — 250 là số phiên giao dịch một năm của HOSE, tuần là 52, tháng là 12. */
 const SESSIONS_VAR = sliderVar(
   'sessionsPerYear',
-  'Số phiên trong một năm',
+  { vi: 'Số phiên trong một năm', en: 'Sessions per year' },
   'phiên',
   250,
   12,
   365,
   1,
   {
-    description: `Chuỗi theo ngày giao dịch thì để 250, theo tuần để 52, theo tháng để 12. ${SESSIONS_NOTE}`,
+    description: {
+      vi: `Chuỗi theo ngày giao dịch thì để 250, theo tuần để 52, theo tháng để 12. ${SESSIONS_NOTE}`,
+      en: `Use 250 for a daily-trading series, 52 for weekly, 12 for monthly. ${SESSIONS_NOTE_EN}`,
+    },
   },
 );
 
@@ -126,18 +157,24 @@ function perSessionRate(annualPercent: number, sessionsPerYear: number): number 
 function invalidSessionsPerYear(sessionsPerYear: number): CalcWarning | null {
   if (sessionsPerYear > 0) return null;
   return divideByZero(
-    'kết quả quy năm',
-    'Số phiên trong một năm',
-    'Nhập ít nhất 1 phiên mỗi năm — chuỗi theo ngày thường là 250.',
+    { vi: 'kết quả quy năm', en: 'the annualised result' },
+    { vi: 'Số phiên trong một năm', en: 'sessions per year' },
+    {
+      vi: 'Nhập ít nhất 1 phiên mỗi năm — chuỗi theo ngày thường là 250.',
+      en: 'Enter at least 1 session per year — a daily series is usually 250.',
+    },
   );
 }
 
 /** Cảnh báo dùng chung khi chuỗi giá đứng yên nên độ lệch chuẩn bằng 0. */
-function flatSeriesWarning(what: string): CalcWarning {
+function flatSeriesWarning(what: Bilingual): CalcWarning {
   return divideByZero(
     what,
-    'Độ lệch chuẩn lợi suất',
-    'Chuỗi giá đang đứng yên nên không có biến động để chia — nạp chuỗi giá có thay đổi giữa các phiên.',
+    { vi: 'Độ lệch chuẩn lợi suất', en: 'standard deviation of returns' },
+    {
+      vi: 'Chuỗi giá đang đứng yên nên không có biến động để chia — nạp chuỗi giá có thay đổi giữa các phiên.',
+      en: 'The price series is flat, so there is no volatility to divide by — load a price series that changes between sessions.',
+    },
   );
 }
 
@@ -265,36 +302,67 @@ export const BETA: FormulaModule = {
     id: 'beta',
     categoryId: 'risk',
     name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta coefficient' },
-    description: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
+    description: {
+      vi: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
+      en: 'How much more or less a stock swings than the broader market, measured against the VN-Index.',
+    },
     latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}',
-    expression:
-      'Beta = Hiệp phương sai(lợi suất cổ phiếu, lợi suất VN-Index) ÷ Phương sai(lợi suất VN-Index)',
+    expression: {
+      vi: 'Beta = Hiệp phương sai(lợi suất cổ phiếu, lợi suất VN-Index) ÷ Phương sai(lợi suất VN-Index)',
+      en: 'Beta = Covariance(stock return, VN-Index return) ÷ Variance(VN-Index return)',
+    },
     chartType: 'scatter',
     level: 'advanced',
     tags: ['beta', 'he so beta', 'rui ro he thong', 'capm', 'systematic risk', 'hoi quy'],
     resultUnit: 'lần',
     variables: [
-      sliderVar('sessions', 'Số phiên lấy để hồi quy', 'phiên', 60, MIN_SESSIONS, 500, 1, {
-        description: `Lấy bao nhiêu phiên gần nhất của CẢ HAI chuỗi giá — cổ phiếu và VN-Index — để hồi quy. ${SESSIONS_NOTE}`,
-      }),
+      sliderVar(
+        'sessions',
+        { vi: 'Số phiên lấy để hồi quy', en: 'Sessions used for the regression' },
+        'phiên',
+        60,
+        MIN_SESSIONS,
+        500,
+        1,
+        {
+          description: {
+            vi: `Lấy bao nhiêu phiên gần nhất của CẢ HAI chuỗi giá — cổ phiếu và VN-Index — để hồi quy. ${SESSIONS_NOTE}`,
+            en: `How many of the most recent sessions of BOTH price series — the stock and the VN-Index — to use for the regression. ${SESSIONS_NOTE_EN}`,
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning:
-        'Beta 1,5 nghĩa là VN-Index tăng hay giảm 1% thì cổ phiếu này thường tăng hay giảm khoảng 1,5% — hệ số góc của đường hồi quy lợi suất cổ phiếu theo lợi suất thị trường.',
-      whenToUse:
-        'Khi ước lượng chi phí vốn chủ theo CAPM, xếp mức nhạy cảm của một cổ phiếu với thị trường chung, hoặc làm mẫu số cho tỷ số Treynor.',
-      howToRead:
-        'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn. Beta âm — cổ phiếu đi NGƯỢC thị trường — hiếm nhưng có thật, thường gặp ở vàng hoặc một số ngành phòng thủ.',
-      commonMistakes:
-        'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
+      meaning: {
+        vi: 'Beta 1,5 nghĩa là VN-Index tăng hay giảm 1% thì cổ phiếu này thường tăng hay giảm khoảng 1,5% — hệ số góc của đường hồi quy lợi suất cổ phiếu theo lợi suất thị trường.',
+        en: "A beta of 1.5 means that when the VN-Index rises or falls 1%, this stock typically rises or falls about 1.5% — the slope of the regression line of the stock's return against the market return.",
+      },
+      whenToUse: {
+        vi: 'Khi ước lượng chi phí vốn chủ theo CAPM, xếp mức nhạy cảm của một cổ phiếu với thị trường chung, hoặc làm mẫu số cho tỷ số Treynor.',
+        en: 'When estimating cost of equity under CAPM, ranking how sensitive a stock is to the broader market, or as the denominator of the Treynor ratio.',
+      },
+      howToRead: {
+        vi: 'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn. Beta âm — cổ phiếu đi NGƯỢC thị trường — hiếm nhưng có thật, thường gặp ở vàng hoặc một số ngành phòng thủ.',
+        en: 'A beta above 1 means the stock swings more than the market, between 0 and 1 means it swings less. A negative beta — the stock moves OPPOSITE the market — is rare but real, often seen in gold or some defensive sectors.',
+      },
+      commonMistakes: {
+        vi: 'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
+        en: 'Computing beta from a few dozen recent sessions and treating it as a fixed, permanent number — beta drifts over time, especially after major corporate events such as a capital raise or a change in core business.',
+      },
     },
     example: {
-      title: 'Cổ phiếu biến động gấp rưỡi VN-Index trong 61 phiên mẫu',
+      title: {
+        vi: 'Cổ phiếu biến động gấp rưỡi VN-Index trong 61 phiên mẫu',
+        en: 'A stock swinging 1.5 times the VN-Index over a 61-session sample',
+      },
       inputs: { sessions: 60 },
       series: STOCK_BETA_1_5,
       marketSeries: MARKET_CLOSES,
       expected: 1.5,
-      note: 'VN-Index tăng 1% thì cổ phiếu này thường tăng khoảng 1,5% — biến động mạnh hơn thị trường.',
+      note: {
+        vi: 'VN-Index tăng 1% thì cổ phiếu này thường tăng khoảng 1,5% — biến động mạnh hơn thị trường.',
+        en: 'When the VN-Index rises 1%, this stock typically rises about 1.5% — more volatile than the market.',
+      },
     },
     tests: [
       {
@@ -373,9 +441,12 @@ export const BETA: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          'Beta',
-          'Phương sai lợi suất VN-Index',
-          'VN-Index đứng yên suốt cửa sổ này nên không có biến động để so — chọn cửa sổ dài hơn.',
+          { vi: 'Beta', en: 'Beta' },
+          { vi: 'Phương sai lợi suất VN-Index', en: 'variance of VN-Index returns' },
+          {
+            vi: 'VN-Index đứng yên suốt cửa sổ này nên không có biến động để so — chọn cửa sổ dài hơn.',
+            en: 'The VN-Index was flat over this window, so there is no volatility to compare against — choose a longer window.',
+          },
         ),
       );
     }
@@ -393,32 +464,50 @@ export const TY_SO_SHARPE: FormulaModule = {
     id: 'ty-so-sharpe',
     categoryId: 'risk',
     name: { vi: 'Tỷ số Sharpe', en: 'Sharpe ratio' },
-    description:
-      'Mỗi đơn vị biến động phải chịu đổi lại được bao nhiêu phần lợi suất vượt trên lãi suất phi rủi ro.',
+    description: {
+      vi: 'Mỗi đơn vị biến động phải chịu đổi lại được bao nhiêu phần lợi suất vượt trên lãi suất phi rủi ro.',
+      en: 'How much excess return over the risk-free rate is earned for each unit of volatility endured.',
+    },
     latex: 'S = \\frac{\\bar{r}_p - r_f}{\\sigma_p} \\times \\sqrt{m}',
-    expression:
-      'Tỷ số Sharpe = (Lợi suất bình quân một phiên − Lãi suất phi rủi ro một phiên) ÷ Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên trong một năm',
+    expression: {
+      vi: 'Tỷ số Sharpe = (Lợi suất bình quân một phiên − Lãi suất phi rủi ro một phiên) ÷ Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên trong một năm',
+      en: 'Sharpe ratio = (Average per-session return − Per-session risk-free rate) ÷ Standard deviation of per-session returns × square root of Sessions per year',
+    },
     chartType: 'histogram',
     level: 'advanced',
     tags: ['sharpe', 'ty so sharpe', 'rui ro dieu chinh', 'risk adjusted', 'do bien dong'],
     resultUnit: 'lần',
     variables: [RISK_FREE_VAR, SESSIONS_VAR],
     explanation: {
-      meaning:
-        'Lãi nhiều mà đường giá gập ghềnh thì chưa chắc hơn lãi ít mà êm. Sharpe đặt phần lãi vượt trên lãi suất phi rủi ro lên bàn cân với độ lệch chuẩn của lợi suất từng phiên.',
-      whenToUse:
-        'Khi so hai danh mục hay hai quỹ có mức lãi khác nhau và mức biến động cũng khác nhau, trên cùng một khoảng thời gian.',
-      howToRead:
-        'Dưới 1 là bình thường, quanh 1 là khá, trên 2 là rất tốt nhưng phải nghi ngờ mẫu quá ngắn. Số âm nghĩa là danh mục còn thua gửi tiết kiệm mà vẫn phải chịu biến động.',
-      commonMistakes:
-        'So Sharpe của hai kỳ dài ngắn khác nhau, hoặc quên rằng độ lệch chuẩn phạt cả những phiên TĂNG mạnh — danh mục lãi đột biến vài phiên có thể bị Sharpe chấm điểm thấp oan.',
+      meaning: {
+        vi: 'Lãi nhiều mà đường giá gập ghềnh thì chưa chắc hơn lãi ít mà êm. Sharpe đặt phần lãi vượt trên lãi suất phi rủi ro lên bàn cân với độ lệch chuẩn của lợi suất từng phiên.',
+        en: 'A high return on a bumpy price line is not necessarily better than a lower, smoother one. Sharpe weighs the return earned above the risk-free rate against the standard deviation of session-by-session returns.',
+      },
+      whenToUse: {
+        vi: 'Khi so hai danh mục hay hai quỹ có mức lãi khác nhau và mức biến động cũng khác nhau, trên cùng một khoảng thời gian.',
+        en: 'When comparing two portfolios or funds with different returns and different volatility over the same period.',
+      },
+      howToRead: {
+        vi: 'Dưới 1 là bình thường, quanh 1 là khá, trên 2 là rất tốt nhưng phải nghi ngờ mẫu quá ngắn. Số âm nghĩa là danh mục còn thua gửi tiết kiệm mà vẫn phải chịu biến động.',
+        en: 'Below 1 is ordinary, around 1 is decent, above 2 is very good but should raise suspicion of too short a sample. A negative value means the portfolio underperformed a savings deposit while still bearing volatility.',
+      },
+      commonMistakes: {
+        vi: 'So Sharpe của hai kỳ dài ngắn khác nhau, hoặc quên rằng độ lệch chuẩn phạt cả những phiên TĂNG mạnh — danh mục lãi đột biến vài phiên có thể bị Sharpe chấm điểm thấp oan.',
+        en: 'Comparing Sharpe ratios computed over periods of different lengths, or forgetting that standard deviation penalizes strongly RISING sessions too — a portfolio with a few outsized gains can be unfairly marked down by Sharpe.',
+      },
     },
     example: {
-      title: 'Chuỗi 61 phiên mẫu, lãi suất phi rủi ro 4,5%/năm',
+      title: {
+        vi: 'Chuỗi 61 phiên mẫu, lãi suất phi rủi ro 4,5%/năm',
+        en: 'A 61-session sample series, risk-free rate 4.5%/year',
+      },
       inputs: { riskFree: 4.5, sessionsPerYear: 250 },
       series: ZIGZAG_CLOSES,
       expected: 1.02,
-      note: 'Chuỗi lên 10% sau 60 phiên nhưng dao động khá mạnh, nên Sharpe chỉ quanh mức 1 lần.',
+      note: {
+        vi: 'Chuỗi lên 10% sau 60 phiên nhưng dao động khá mạnh, nên Sharpe chỉ quanh mức 1 lần.',
+        en: 'The series rose 10% over 60 sessions but swung quite a bit, so Sharpe lands only around 1.',
+      },
     },
     tests: [
       {
@@ -475,7 +564,8 @@ export const TY_SO_SHARPE: FormulaModule = {
 
     const returns = simpleReturns(closes);
     const deviation = sampleStdDev(returns);
-    if (deviation === 0) return fail(unit, flatSeriesWarning('tỷ số Sharpe'));
+    if (deviation === 0)
+      return fail(unit, flatSeriesWarning({ vi: 'tỷ số Sharpe', en: 'the Sharpe ratio' }));
 
     const excess = mean(returns) - perSessionRate(v('riskFree'), sessions);
     return ok((excess / deviation) * Math.sqrt(sessions), unit, {
@@ -496,33 +586,51 @@ export const TY_SO_SORTINO: FormulaModule = {
     id: 'ty-so-sortino',
     categoryId: 'risk',
     name: { vi: 'Tỷ số Sortino', en: 'Sortino ratio' },
-    description:
-      'Như Sharpe nhưng mẫu số chỉ đếm phần biến động ĐI XUỐNG — phần rủi ro mà nhà đầu tư thật sự sợ.',
+    description: {
+      vi: 'Như Sharpe nhưng mẫu số chỉ đếm phần biến động ĐI XUỐNG — phần rủi ro mà nhà đầu tư thật sự sợ.',
+      en: 'Like Sharpe, but the denominator counts only DOWNSIDE volatility — the kind of risk investors actually fear.',
+    },
     latex:
       'Sortino = \\frac{\\bar{r}_p - r_f}{\\sigma_d} \\times \\sqrt{m}, \\quad \\sigma_d = \\sqrt{\\frac{1}{n} \\sum_{t=1}^{n} \\min(0, r_t - r_f)^2}',
-    expression:
-      'Tỷ số Sortino = (Lợi suất bình quân một phiên − Ngưỡng phi rủi ro một phiên) ÷ Độ lệch chuẩn phần giảm × căn bậc hai của Số phiên trong một năm',
+    expression: {
+      vi: 'Tỷ số Sortino = (Lợi suất bình quân một phiên − Ngưỡng phi rủi ro một phiên) ÷ Độ lệch chuẩn phần giảm × căn bậc hai của Số phiên trong một năm',
+      en: 'Sortino ratio = (Average per-session return − Per-session risk-free threshold) ÷ Downside deviation × square root of Sessions per year',
+    },
     chartType: 'histogram',
     level: 'advanced',
     tags: ['sortino', 'ty so sortino', 'downside risk', 'rui ro giam gia', 'do lech phan giam'],
     resultUnit: 'lần',
     variables: [RISK_FREE_VAR, SESSIONS_VAR],
     explanation: {
-      meaning:
-        'Sharpe phạt cả những phiên tăng vọt vì chúng cũng làm độ lệch chuẩn phình ra. Sortino chỉ đo phần lợi suất rơi dưới ngưỡng chấp nhận được, nên đúng với cảm nhận rủi ro của người bỏ tiền.',
-      whenToUse:
-        'Khi danh mục có vài phiên lãi đột biến, hoặc khi so các chiến lược mà mức lỗ mới là thứ đáng quan tâm — quỹ mở, chiến lược quyền chọn, danh mục hưu trí.',
-      howToRead:
-        'Luôn cao hơn Sharpe của cùng chuỗi nếu các phiên tăng mạnh hơn các phiên giảm. Đọc theo cùng thang với Sharpe: quanh 1 là khá, trên 2 là tốt.',
-      commonMistakes:
-        'So thẳng Sortino với Sharpe rồi kết luận danh mục "tốt hơn" — hai thước đo có mẫu số khác nhau. Ngoài ra mẫu số chia cho TỔNG số phiên, nên chuỗi hầu như không có phiên giảm sẽ cho ra con số rất lớn, cần cảnh giác.',
+      meaning: {
+        vi: 'Sharpe phạt cả những phiên tăng vọt vì chúng cũng làm độ lệch chuẩn phình ra. Sortino chỉ đo phần lợi suất rơi dưới ngưỡng chấp nhận được, nên đúng với cảm nhận rủi ro của người bỏ tiền.',
+        en: 'Sharpe penalizes even sharply rising sessions, since they also inflate the standard deviation. Sortino measures only the return that falls below an acceptable threshold, matching how investors actually perceive risk.',
+      },
+      whenToUse: {
+        vi: 'Khi danh mục có vài phiên lãi đột biến, hoặc khi so các chiến lược mà mức lỗ mới là thứ đáng quan tâm — quỹ mở, chiến lược quyền chọn, danh mục hưu trí.',
+        en: 'When a portfolio has a handful of outsized gaining sessions, or when comparing strategies where losses are what matters — open-end funds, options strategies, retirement portfolios.',
+      },
+      howToRead: {
+        vi: 'Luôn cao hơn Sharpe của cùng chuỗi nếu các phiên tăng mạnh hơn các phiên giảm. Đọc theo cùng thang với Sharpe: quanh 1 là khá, trên 2 là tốt.',
+        en: 'Always higher than the Sharpe ratio for the same series if gaining sessions are larger than losing ones. Read on the same scale as Sharpe: around 1 is decent, above 2 is good.',
+      },
+      commonMistakes: {
+        vi: 'So thẳng Sortino với Sharpe rồi kết luận danh mục "tốt hơn" — hai thước đo có mẫu số khác nhau. Ngoài ra mẫu số chia cho TỔNG số phiên, nên chuỗi hầu như không có phiên giảm sẽ cho ra con số rất lớn, cần cảnh giác.',
+        en: 'Comparing Sortino directly against Sharpe and concluding the portfolio is "better" — the two measures use different denominators. Also, the denominator divides by the TOTAL number of sessions, so a series with almost no losing sessions produces a suspiciously huge number.',
+      },
     },
     example: {
-      title: 'Chuỗi 61 phiên mẫu, ngưỡng là lãi suất phi rủi ro 4,5%/năm',
+      title: {
+        vi: 'Chuỗi 61 phiên mẫu, ngưỡng là lãi suất phi rủi ro 4,5%/năm',
+        en: 'A 61-session sample series, threshold set to the 4.5%/year risk-free rate',
+      },
       inputs: { riskFree: 4.5, sessionsPerYear: 250 },
       series: ZIGZAG_CLOSES,
       expected: 1.58,
-      note: 'Cao hơn Sharpe 1,02 của cùng chuỗi vì các phiên tăng mạnh hơn các phiên giảm.',
+      note: {
+        vi: 'Cao hơn Sharpe 1,02 của cùng chuỗi vì các phiên tăng mạnh hơn các phiên giảm.',
+        en: "Higher than the same series' Sharpe ratio of 1.02, because gaining sessions outweigh losing ones.",
+      },
     },
     tests: [
       {
@@ -578,9 +686,12 @@ export const TY_SO_SORTINO: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          'tỷ số Sortino',
-          'Độ lệch chuẩn phần giảm',
-          'Chuỗi này không có phiên nào rơi dưới ngưỡng phi rủi ro nên không có rủi ro giảm giá để chia — dùng tỷ số Sharpe hoặc kéo dài chuỗi giá.',
+          { vi: 'tỷ số Sortino', en: 'the Sortino ratio' },
+          { vi: 'Độ lệch chuẩn phần giảm', en: 'downside deviation' },
+          {
+            vi: 'Chuỗi này không có phiên nào rơi dưới ngưỡng phi rủi ro nên không có rủi ro giảm giá để chia — dùng tỷ số Sharpe hoặc kéo dài chuỗi giá.',
+            en: 'This series has no session falling below the risk-free threshold, so there is no downside risk to divide by — use the Sharpe ratio instead, or extend the price series.',
+          },
         ),
       );
     }
@@ -603,11 +714,15 @@ export const TY_SO_TREYNOR: FormulaModule = {
     id: 'ty-so-treynor',
     categoryId: 'risk',
     name: { vi: 'Tỷ số Treynor', en: 'Treynor ratio' },
-    description:
-      'Phần lợi suất vượt lãi suất phi rủi ro tính trên mỗi đơn vị beta — rủi ro không thể phân tán bằng cách đa dạng hoá.',
+    description: {
+      vi: 'Phần lợi suất vượt lãi suất phi rủi ro tính trên mỗi đơn vị beta — rủi ro không thể phân tán bằng cách đa dạng hoá.',
+      en: 'The excess return over the risk-free rate earned per unit of beta — the risk that diversification cannot remove.',
+    },
     latex: 'T = \\frac{(\\bar{r}_p - r_f) \\times m}{\\beta_p}',
-    expression:
-      'Tỷ số Treynor = (Lợi suất bình quân một phiên − Lãi suất phi rủi ro một phiên) × Số phiên trong một năm ÷ Hệ số beta',
+    expression: {
+      vi: 'Tỷ số Treynor = (Lợi suất bình quân một phiên − Lãi suất phi rủi ro một phiên) × Số phiên trong một năm ÷ Hệ số beta',
+      en: 'Treynor ratio = (Average per-session return − Per-session risk-free rate) × Sessions per year ÷ Beta coefficient',
+    },
     chartType: 'scatter',
     level: 'advanced',
     tags: ['treynor', 'ty so treynor', 'beta', 'rui ro he thong', 'risk adjusted'],
@@ -615,31 +730,53 @@ export const TY_SO_TREYNOR: FormulaModule = {
     variables: [
       RISK_FREE_VAR,
       SESSIONS_VAR,
-      numberVar('beta', 'Hệ số beta của danh mục', 'lần', 1.2, {
-        min: -5,
-        max: 5,
-        // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
-        // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
-        description:
-          'Nhập tay: tính bằng công thức Beta của thư viện này (dán chuỗi giá cổ phiếu), lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ, hoặc trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
-      }),
+      numberVar(
+        'beta',
+        { vi: 'Hệ số beta của danh mục', en: 'Portfolio beta coefficient' },
+        'lần',
+        1.2,
+        {
+          min: -5,
+          max: 5,
+          // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
+          // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
+          description: {
+            vi: 'Nhập tay: tính bằng công thức Beta của thư viện này (dán chuỗi giá cổ phiếu), lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ, hoặc trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
+            en: "Enter manually: compute it with this library's Beta formula (paste the stock price series), or take it from a brokerage data table, a fund report, or an exchange statistics page. A beta of 1 means volatility in line with the market.",
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning:
-        'Sharpe chia cho TOÀN BỘ biến động, Treynor chỉ chia cho phần biến động đi cùng thị trường. Ai đã nắm một danh mục đa dạng thì phần riêng lẻ coi như đã triệt tiêu, chỉ còn beta là đáng tính tiền.',
-      whenToUse:
-        'Khi đánh giá một quỹ hay một danh mục con NẰM TRONG một danh mục lớn đã đa dạng hoá, hoặc khi xếp hạng nhiều quỹ cùng đo theo VN-Index.',
-      howToRead:
-        'Đọc như một mức lãi vượt chuẩn quy năm cho mỗi 1 đơn vị beta. Con số càng cao càng tốt; so sánh chỉ có nghĩa giữa các danh mục cùng đo theo một chỉ số tham chiếu.',
-      commonMistakes:
-        'Dùng Treynor cho một danh mục chỉ có vài mã: khi chưa đa dạng hoá thì rủi ro riêng lẻ còn rất lớn mà beta không hề đo tới, nên tỷ số vẽ ra bức tranh quá đẹp.',
+      meaning: {
+        vi: 'Sharpe chia cho TOÀN BỘ biến động, Treynor chỉ chia cho phần biến động đi cùng thị trường. Ai đã nắm một danh mục đa dạng thì phần riêng lẻ coi như đã triệt tiêu, chỉ còn beta là đáng tính tiền.',
+        en: 'Sharpe divides by TOTAL volatility, Treynor divides only by the volatility that moves with the market. Anyone holding a diversified portfolio has already eliminated the idiosyncratic part, so only beta is worth pricing.',
+      },
+      whenToUse: {
+        vi: 'Khi đánh giá một quỹ hay một danh mục con NẰM TRONG một danh mục lớn đã đa dạng hoá, hoặc khi xếp hạng nhiều quỹ cùng đo theo VN-Index.',
+        en: 'When evaluating a fund or a sub-portfolio that sits INSIDE a larger, already diversified portfolio, or when ranking several funds measured against the same VN-Index.',
+      },
+      howToRead: {
+        vi: 'Đọc như một mức lãi vượt chuẩn quy năm cho mỗi 1 đơn vị beta. Con số càng cao càng tốt; so sánh chỉ có nghĩa giữa các danh mục cùng đo theo một chỉ số tham chiếu.',
+        en: 'Read it as an annualized excess return per 1 unit of beta. The higher the better; comparisons are only meaningful between portfolios measured against the same benchmark index.',
+      },
+      commonMistakes: {
+        vi: 'Dùng Treynor cho một danh mục chỉ có vài mã: khi chưa đa dạng hoá thì rủi ro riêng lẻ còn rất lớn mà beta không hề đo tới, nên tỷ số vẽ ra bức tranh quá đẹp.',
+        en: 'Using Treynor for a portfolio holding only a handful of stocks: without diversification, idiosyncratic risk is still large and beta does not capture it at all, so the ratio paints too flattering a picture.',
+      },
     },
     example: {
-      title: 'Chuỗi 61 phiên mẫu, beta 1,2 và lãi suất phi rủi ro 4,5%/năm',
+      title: {
+        vi: 'Chuỗi 61 phiên mẫu, beta 1,2 và lãi suất phi rủi ro 4,5%/năm',
+        en: 'A 61-session sample series, beta 1.2 and risk-free rate 4.5%/year',
+      },
       inputs: { riskFree: 4.5, sessionsPerYear: 250, beta: 1.2 },
       series: ZIGZAG_CLOSES,
       expected: 37.28,
-      note: 'Lợi suất vượt chuẩn quy năm khoảng 44,7%; chia cho beta 1,2 còn 37,3% cho mỗi đơn vị beta.',
+      note: {
+        vi: 'Lợi suất vượt chuẩn quy năm khoảng 44,7%; chia cho beta 1,2 còn 37,3% cho mỗi đơn vị beta.',
+        en: 'Annualized excess return is about 44.7%; divided by beta 1.2, that is 37.3% per unit of beta.',
+      },
     },
     tests: [
       {
@@ -693,9 +830,12 @@ export const TY_SO_TREYNOR: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          'tỷ số Treynor',
-          'Hệ số beta',
-          'Beta bằng 0 nghĩa là danh mục không hề đi theo thị trường — dùng tỷ số Sharpe thay thế.',
+          { vi: 'tỷ số Treynor', en: 'the Treynor ratio' },
+          { vi: 'Hệ số beta', en: 'beta coefficient' },
+          {
+            vi: 'Beta bằng 0 nghĩa là danh mục không hề đi theo thị trường — dùng tỷ số Sharpe thay thế.',
+            en: 'A beta of 0 means the portfolio does not move with the market at all — use the Sharpe ratio instead.',
+          },
         ),
       );
     }
@@ -703,8 +843,14 @@ export const TY_SO_TREYNOR: FormulaModule = {
       return fail(
         unit,
         meaningless(
-          'Beta âm làm tỷ số Treynor đảo dấu: danh mục lãi vẫn cho ra con số âm, và danh mục lỗ lại cho ra con số dương.',
-          'Nhập beta dương, hoặc dùng tỷ số Sharpe cho danh mục đi ngược thị trường.',
+          {
+            vi: 'Beta âm làm tỷ số Treynor đảo dấu: danh mục lãi vẫn cho ra con số âm, và danh mục lỗ lại cho ra con số dương.',
+            en: 'A negative beta flips the sign of the Treynor ratio: a gaining portfolio still produces a negative number, and a losing portfolio produces a positive one.',
+          },
+          {
+            vi: 'Nhập beta dương, hoặc dùng tỷ số Sharpe cho danh mục đi ngược thị trường.',
+            en: 'Enter a positive beta, or use the Sharpe ratio for a portfolio that moves opposite the market.',
+          },
         ),
       );
     }
@@ -726,41 +872,70 @@ export const TY_SO_THONG_TIN: FormulaModule = {
     id: 'ty-so-thong-tin',
     categoryId: 'risk',
     name: { vi: 'Tỷ số thông tin', en: 'Information ratio' },
-    description:
-      'Phần lợi suất thắng được chuẩn so sánh, tính trên mỗi đơn vị rủi ro phải chấp nhận để đi lệch khỏi chuẩn.',
+    description: {
+      vi: 'Phần lợi suất thắng được chuẩn so sánh, tính trên mỗi đơn vị rủi ro phải chấp nhận để đi lệch khỏi chuẩn.',
+      en: 'The return earned above a benchmark, per unit of risk taken on by deviating from that benchmark.',
+    },
     latex: 'IR = \\frac{\\bar{r}_p - \\bar{r}_b}{\\sigma_{p-b}} \\times \\sqrt{m}',
-    expression:
-      'Tỷ số thông tin = (Lợi suất bình quân một phiên − Lợi suất chuẩn một phiên) ÷ Độ lệch chuẩn phần chênh lệch × căn bậc hai của Số phiên trong một năm',
+    expression: {
+      vi: 'Tỷ số thông tin = (Lợi suất bình quân một phiên − Lợi suất chuẩn một phiên) ÷ Độ lệch chuẩn phần chênh lệch × căn bậc hai của Số phiên trong một năm',
+      en: 'Information ratio = (Average per-session return − Per-session benchmark return) ÷ Standard deviation of the difference × square root of Sessions per year',
+    },
     chartType: 'histogram',
     level: 'advanced',
     tags: ['information ratio', 'ty so thong tin', 'vuot chuan', 'benchmark', 'sai so theo doi'],
     resultUnit: 'lần',
     variables: [
-      numberVar('benchmarkReturn', 'Lợi suất chuẩn so sánh / năm', '%', 12, {
-        min: -100,
-        max: 200,
-        description:
-          'Mức tăng cả năm của chuẩn dùng để so, ví dụ VN-Index. Nhập một con số duy nhất chứ không phải cả chuỗi.',
-      }),
+      numberVar(
+        'benchmarkReturn',
+        { vi: 'Lợi suất chuẩn so sánh / năm', en: 'Benchmark return / year' },
+        '%',
+        12,
+        {
+          min: -100,
+          max: 200,
+          description: {
+            vi: 'Mức tăng cả năm của chuẩn dùng để so, ví dụ VN-Index. Nhập một con số duy nhất chứ không phải cả chuỗi.',
+            en: 'The full-year gain of the benchmark used for comparison, such as the VN-Index. Enter a single number, not a whole series.',
+          },
+        },
+      ),
       SESSIONS_VAR,
     ],
     explanation: {
-      meaning:
-        'Thắng chuẩn 5 điểm phần trăm bằng cách bám sát chuẩn khác hẳn thắng 5 điểm bằng cách đánh cược lệch hẳn khỏi chuẩn. Tỷ số thông tin chia phần thắng đó cho mức độ đi lệch.',
-      whenToUse:
-        'Khi chấm điểm một quỹ chủ động hay chính danh mục của mình so với VN-Index, và muốn biết phần thắng có xứng với rủi ro đi lệch hay không.',
-      howToRead:
-        'Từ 0,5 trở lên đã là quản lý chủ động tốt theo thang của Grinold & Kahn; trên 1 là hiếm. Số âm nghĩa là đi lệch khỏi chuẩn mà vẫn thua chuẩn.',
-      commonMistakes:
-        'Đọc tỷ số thông tin như Sharpe. Sharpe so với lãi suất phi rủi ro, tỷ số thông tin so với chuẩn thị trường — một danh mục có thể tốt theo thước này và tệ theo thước kia.',
+      meaning: {
+        vi: 'Thắng chuẩn 5 điểm phần trăm bằng cách bám sát chuẩn khác hẳn thắng 5 điểm bằng cách đánh cược lệch hẳn khỏi chuẩn. Tỷ số thông tin chia phần thắng đó cho mức độ đi lệch.',
+        en: 'Beating the benchmark by 5 percentage points while tracking it closely is very different from beating it by 5 points through a bold bet away from it. The information ratio divides that outperformance by the degree of deviation.',
+      },
+      whenToUse: {
+        vi: 'Khi chấm điểm một quỹ chủ động hay chính danh mục của mình so với VN-Index, và muốn biết phần thắng có xứng với rủi ro đi lệch hay không.',
+        en: 'When scoring an actively managed fund or your own portfolio against the VN-Index, and wanting to know whether the outperformance is worth the risk taken by deviating.',
+      },
+      howToRead: {
+        vi: 'Từ 0,5 trở lên đã là quản lý chủ động tốt theo thang của Grinold & Kahn; trên 1 là hiếm. Số âm nghĩa là đi lệch khỏi chuẩn mà vẫn thua chuẩn.',
+        en: 'From 0.5 upward already counts as good active management on the Grinold & Kahn scale; above 1 is rare. A negative value means deviating from the benchmark while still underperforming it.',
+      },
+      commonMistakes: {
+        vi: 'Đọc tỷ số thông tin như Sharpe. Sharpe so với lãi suất phi rủi ro, tỷ số thông tin so với chuẩn thị trường — một danh mục có thể tốt theo thước này và tệ theo thước kia.',
+        en: 'Reading the information ratio the same way as Sharpe. Sharpe compares against the risk-free rate, the information ratio against a market benchmark — a portfolio can look good by one measure and poor by the other.',
+      },
     },
-    note: 'Bản rút gọn: chuẩn so sánh nhập bằng MỘT con số %/năm thay vì cả chuỗi, nên sai số theo dõi ở mẫu số chính là độ lệch chuẩn lợi suất của danh mục. Muốn sai số theo dõi đúng nghĩa thì cần chuỗi giá của chuẩn để trừ theo từng phiên — phần đó chờ gói nhập hai chuỗi.',
+    note: {
+      vi: 'Bản rút gọn: chuẩn so sánh nhập bằng MỘT con số %/năm thay vì cả chuỗi, nên sai số theo dõi ở mẫu số chính là độ lệch chuẩn lợi suất của danh mục. Muốn sai số theo dõi đúng nghĩa thì cần chuỗi giá của chuẩn để trừ theo từng phiên — phần đó chờ gói nhập hai chuỗi.',
+      en: "Simplified version: the benchmark is entered as a SINGLE %/year figure rather than a full series, so the tracking error in the denominator is simply the standard deviation of the portfolio's own returns. A true tracking error needs the benchmark's own price series to subtract session by session — that awaits the two-series input package.",
+    },
     example: {
-      title: 'Chuỗi 61 phiên mẫu so với chuẩn tăng 12%/năm',
+      title: {
+        vi: 'Chuỗi 61 phiên mẫu so với chuẩn tăng 12%/năm',
+        en: 'A 61-session sample series against a benchmark rising 12%/year',
+      },
       inputs: { benchmarkReturn: 12, sessionsPerYear: 250 },
       series: ZIGZAG_CLOSES,
       expected: 0.86,
-      note: 'Danh mục thắng chuẩn nhưng phải chịu biến động khá lớn, nên tỷ số dừng dưới mức 1.',
+      note: {
+        vi: 'Danh mục thắng chuẩn nhưng phải chịu biến động khá lớn, nên tỷ số dừng dưới mức 1.',
+        en: 'The portfolio beat the benchmark but had to bear fairly large volatility, so the ratio stays below 1.',
+      },
     },
     tests: [
       {
@@ -812,7 +987,8 @@ export const TY_SO_THONG_TIN: FormulaModule = {
     // Chuẩn là một con số vô hướng nên trừ đi cùng một lượng ở mọi phiên: độ lệch chuẩn của
     // phần chênh lệch bằng đúng độ lệch chuẩn lợi suất danh mục (xem `note` của spec).
     const deviation = sampleStdDev(returns);
-    if (deviation === 0) return fail(unit, flatSeriesWarning('tỷ số thông tin'));
+    if (deviation === 0)
+      return fail(unit, flatSeriesWarning({ vi: 'tỷ số thông tin', en: 'the information ratio' }));
 
     const active = mean(returns) - perSessionRate(v('benchmarkReturn'), sessions);
     return ok((active / deviation) * Math.sqrt(sessions), unit, {
@@ -833,31 +1009,50 @@ export const TY_SO_CALMAR: FormulaModule = {
     id: 'ty-so-calmar',
     categoryId: 'risk',
     name: { vi: 'Tỷ số Calmar', en: 'Calmar ratio' },
-    description:
-      'Lợi suất năm hoá chia cho mức sụt giảm sâu nhất — đo phần lãi đổi lại bằng cú đau lớn nhất đã phải chịu.',
+    description: {
+      vi: 'Lợi suất năm hoá chia cho mức sụt giảm sâu nhất — đo phần lãi đổi lại bằng cú đau lớn nhất đã phải chịu.',
+      en: 'Annualized return divided by the maximum drawdown — the return earned in exchange for the biggest pain endured.',
+    },
     latex: 'Calmar = \\frac{r_{nam}}{MDD}',
-    expression: 'Tỷ số Calmar = Lợi suất năm hoá ÷ Mức sụt giảm sâu nhất từ đỉnh',
+    expression: {
+      vi: 'Tỷ số Calmar = Lợi suất năm hoá ÷ Mức sụt giảm sâu nhất từ đỉnh',
+      en: 'Calmar ratio = Annualized return ÷ Maximum drawdown from peak',
+    },
     chartType: 'underwater',
     level: 'advanced',
     tags: ['calmar', 'ty so calmar', 'max drawdown', 'sut giam sau nhat', 'mdd'],
     resultUnit: 'lần',
     variables: [SESSIONS_VAR],
     explanation: {
-      meaning:
-        'Độ lệch chuẩn đo mức gập ghềnh trung bình, còn mức sụt giảm sâu nhất đo đúng cái làm người ta bán tháo. Calmar hỏi: mỗi 1% sụt giảm sâu nhất đã phải chịu đổi lại được bao nhiêu phần lợi suất năm.',
-      whenToUse:
-        'Khi đánh giá một chiến lược hay một quỹ mà điều kiện chịu đựng của người bỏ tiền là có hạn — thường dùng cho quỹ phòng hộ và hệ thống giao dịch.',
-      howToRead:
-        'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
-      commonMistakes:
-        'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',
+      meaning: {
+        vi: 'Độ lệch chuẩn đo mức gập ghềnh trung bình, còn mức sụt giảm sâu nhất đo đúng cái làm người ta bán tháo. Calmar hỏi: mỗi 1% sụt giảm sâu nhất đã phải chịu đổi lại được bao nhiêu phần lợi suất năm.',
+        en: 'Standard deviation measures average bumpiness, while maximum drawdown captures exactly what triggers panic selling. Calmar asks: for each 1% of maximum drawdown endured, how much annual return was earned in return.',
+      },
+      whenToUse: {
+        vi: 'Khi đánh giá một chiến lược hay một quỹ mà điều kiện chịu đựng của người bỏ tiền là có hạn — thường dùng cho quỹ phòng hộ và hệ thống giao dịch.',
+        en: "When evaluating a strategy or fund where the investor's tolerance for pain is limited — commonly used for hedge funds and trading systems.",
+      },
+      howToRead: {
+        vi: 'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
+        en: 'Above 1 means the annual gain already exceeds the deepest drawdown. The original Calmar is computed over 36 months; with a window of only 60 sessions, annualizing inflates the numerator, so the figure can look deceptively good.',
+      },
+      commonMistakes: {
+        vi: 'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',
+        en: 'Running Calmar on a short series with few corrections: a small maximum drawdown inflates the ratio by tens of times even though the annualized return is nothing special. A series that rises perfectly steadily, never drawing down, makes the denominator exactly zero, and the formula reports an error clearly rather than silently returning a wrong number.',
+      },
     },
     example: {
-      title: 'Chuỗi 61 phiên hình chữ V: lên 120, rơi về 90, hồi lên 110',
+      title: {
+        vi: 'Chuỗi 61 phiên hình chữ V: lên 120, rơi về 90, hồi lên 110',
+        en: 'A V-shaped 61-session series: rising to 120, falling to 90, recovering to 110',
+      },
       inputs: { sessionsPerYear: 250 },
       series: DIP_CLOSES,
       expected: 1.95,
-      note: 'Sụt giảm sâu nhất 25% từ đỉnh 120 xuống đáy 90; lợi suất năm hoá 48,8% chia cho 25% được 1,95 lần.',
+      note: {
+        vi: 'Sụt giảm sâu nhất 25% từ đỉnh 120 xuống đáy 90; lợi suất năm hoá 48,8% chia cho 25% được 1,95 lần.',
+        en: 'Maximum drawdown of 25% from the peak of 120 to the trough of 90; an annualized return of 48.8% divided by 25% gives 1.95.',
+      },
     },
     tests: [
       {
@@ -910,9 +1105,12 @@ export const TY_SO_CALMAR: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          'tỷ số Calmar',
-          'Mức sụt giảm sâu nhất',
-          'Chuỗi này chưa có phiên nào thấp hơn đỉnh trước đó — kéo dài chuỗi giá qua một nhịp điều chỉnh, hoặc dùng tỷ số Sharpe.',
+          { vi: 'tỷ số Calmar', en: 'the Calmar ratio' },
+          { vi: 'Mức sụt giảm sâu nhất', en: 'maximum drawdown' },
+          {
+            vi: 'Chuỗi này chưa có phiên nào thấp hơn đỉnh trước đó — kéo dài chuỗi giá qua một nhịp điều chỉnh, hoặc dùng tỷ số Sharpe.',
+            en: 'This series has no session lower than its previous peak — extend the price series through a correction, or use the Sharpe ratio instead.',
+          },
         ),
       );
     }
@@ -938,36 +1136,66 @@ export const TY_SO_THANG_THUA: FormulaModule = {
     id: 'ty-so-thang-thua',
     categoryId: 'risk',
     name: { vi: 'Tỷ số thắng/thua', en: 'Win/loss (payoff) ratio' },
-    description:
-      'Trung bình mức tăng của các phiên tăng so với trung bình mức giảm của các phiên giảm.',
+    description: {
+      vi: 'Trung bình mức tăng của các phiên tăng so với trung bình mức giảm của các phiên giảm.',
+      en: 'The average gain of rising sessions compared with the average loss of falling sessions.',
+    },
     latex: 'W/L = \\frac{\\overline{r^{+}}}{\\left| \\overline{r^{-}} \\right|}',
-    expression:
-      'Tỷ số thắng/thua = Trung bình mức tăng của các phiên tăng ÷ Trung bình mức giảm của các phiên giảm',
+    expression: {
+      vi: 'Tỷ số thắng/thua = Trung bình mức tăng của các phiên tăng ÷ Trung bình mức giảm của các phiên giảm',
+      en: 'Win/loss ratio = Average gain of rising sessions ÷ Average loss of falling sessions',
+    },
     chartType: 'histogram',
     level: 'basic',
     tags: ['thang thua', 'win loss', 'payoff ratio', 'phien tang phien giam', 'bien do'],
     resultUnit: 'lần',
     variables: [
-      sliderVar('threshold', 'Ngưỡng bỏ qua phiên đi ngang', '%', 0, 0, 3, 0.1, {
-        description: `Phiên biến động trong khoảng cộng trừ ngưỡng này bị coi là đi ngang và không được tính vào cả hai vế. Để 0 nghĩa là tính hết. ${SESSIONS_NOTE}`,
-      }),
+      sliderVar(
+        'threshold',
+        { vi: 'Ngưỡng bỏ qua phiên đi ngang', en: 'Threshold to ignore flat sessions' },
+        '%',
+        0,
+        0,
+        3,
+        0.1,
+        {
+          description: {
+            vi: `Phiên biến động trong khoảng cộng trừ ngưỡng này bị coi là đi ngang và không được tính vào cả hai vế. Để 0 nghĩa là tính hết. ${SESSIONS_NOTE}`,
+            en: `A session that moves within plus or minus this threshold is treated as flat and excluded from both sides. Leave it at 0 to count every session. ${SESSIONS_NOTE_EN}`,
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning:
-        'Đo độ "lệch vai" của chuỗi giá: khi tăng thì tăng bao nhiêu, khi giảm thì giảm bao nhiêu. Trên 1 nghĩa là các nhịp tăng có biên độ lớn hơn các nhịp giảm.',
-      whenToUse:
-        'Khi soi tính cách của một cổ phiếu trước khi vào lệnh, hoặc khi kiểm lại một chiến lược: cỡ lãi trung bình có bù nổi cỡ lỗ trung bình không.',
-      howToRead:
-        'Đây là tỷ số về BIÊN ĐỘ, không phải về tần suất. Tỷ số 1,2 mà chỉ 30% số phiên tăng thì tổng cuộc vẫn lỗ — phải đọc kèm số phiên tăng và số phiên giảm.',
-      commonMistakes:
-        'Coi tỷ số trên 1 là chắc chắn có lãi. Cần nhân với tỷ lệ thắng mới ra kỳ vọng: tỷ lệ thắng 30% và tỷ số thắng/thua 1,2 vẫn là một chiến lược thua.',
+      meaning: {
+        vi: 'Đo độ "lệch vai" của chuỗi giá: khi tăng thì tăng bao nhiêu, khi giảm thì giảm bao nhiêu. Trên 1 nghĩa là các nhịp tăng có biên độ lớn hơn các nhịp giảm.',
+        en: 'Measures the "lopsidedness" of a price series: how much it rises when it rises, and how much it falls when it falls. Above 1 means rising moves are larger in magnitude than falling ones.',
+      },
+      whenToUse: {
+        vi: 'Khi soi tính cách của một cổ phiếu trước khi vào lệnh, hoặc khi kiểm lại một chiến lược: cỡ lãi trung bình có bù nổi cỡ lỗ trung bình không.',
+        en: "When sizing up a stock's personality before placing an order, or when reviewing a strategy: does the average gain size offset the average loss size.",
+      },
+      howToRead: {
+        vi: 'Đây là tỷ số về BIÊN ĐỘ, không phải về tần suất. Tỷ số 1,2 mà chỉ 30% số phiên tăng thì tổng cuộc vẫn lỗ — phải đọc kèm số phiên tăng và số phiên giảm.',
+        en: 'This is a ratio of MAGNITUDE, not frequency. A ratio of 1.2 with only 30% of sessions rising still nets out to a loss overall — always read it alongside the counts of gaining and losing sessions.',
+      },
+      commonMistakes: {
+        vi: 'Coi tỷ số trên 1 là chắc chắn có lãi. Cần nhân với tỷ lệ thắng mới ra kỳ vọng: tỷ lệ thắng 30% và tỷ số thắng/thua 1,2 vẫn là một chiến lược thua.',
+        en: 'Assuming a ratio above 1 guarantees a profit. It must be multiplied by the win rate to get expectancy: a 30% win rate with a 1.2 win/loss ratio is still a losing strategy.',
+      },
     },
     example: {
-      title: 'Chuỗi 61 phiên mẫu, tính hết mọi phiên tăng và giảm',
+      title: {
+        vi: 'Chuỗi 61 phiên mẫu, tính hết mọi phiên tăng và giảm',
+        en: 'A 61-session sample series, counting every rising and falling session',
+      },
       inputs: { threshold: 0 },
       series: ZIGZAG_CLOSES,
       expected: 1.16,
-      note: '30 phiên tăng trung bình 2,87% so với 30 phiên giảm trung bình 2,47%.',
+      note: {
+        vi: '30 phiên tăng trung bình 2,87% so với 30 phiên giảm trung bình 2,47%.',
+        en: '30 rising sessions averaging 2.87% against 30 falling sessions averaging 2.47%.',
+      },
     },
     tests: [
       {
@@ -1028,9 +1256,12 @@ export const TY_SO_THANG_THUA: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          'tỷ số thắng/thua',
-          'Trung bình mức giảm của các phiên giảm',
-          'Chuỗi này không có phiên giảm nào vượt ngưỡng — hạ ngưỡng bỏ qua phiên đi ngang, hoặc kéo dài chuỗi giá.',
+          { vi: 'tỷ số thắng/thua', en: 'the win/loss ratio' },
+          { vi: 'Trung bình mức giảm của các phiên giảm', en: 'average loss of falling sessions' },
+          {
+            vi: 'Chuỗi này không có phiên giảm nào vượt ngưỡng — hạ ngưỡng bỏ qua phiên đi ngang, hoặc kéo dài chuỗi giá.',
+            en: 'This series has no falling session past the threshold — lower the flat-session threshold, or extend the price series.',
+          },
         ),
       );
     }
@@ -1038,8 +1269,14 @@ export const TY_SO_THANG_THUA: FormulaModule = {
       return fail(
         unit,
         meaningless(
-          'Chuỗi này không có phiên tăng nào vượt ngưỡng nên không có vế thắng để đem so.',
-          'Hạ ngưỡng bỏ qua phiên đi ngang, hoặc chọn giai đoạn có cả nhịp tăng.',
+          {
+            vi: 'Chuỗi này không có phiên tăng nào vượt ngưỡng nên không có vế thắng để đem so.',
+            en: 'This series has no rising session past the threshold, so there is no winning side to compare against.',
+          },
+          {
+            vi: 'Hạ ngưỡng bỏ qua phiên đi ngang, hoặc chọn giai đoạn có cả nhịp tăng.',
+            en: 'Lower the flat-session threshold, or choose a period that includes an uptrend.',
+          },
         ),
       );
     }

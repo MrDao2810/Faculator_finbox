@@ -38,7 +38,7 @@ import type {
   Preset,
   SeriesRow,
 } from '@/application';
-import { usePreferences, useT } from '@/application/preferences-context';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 import {
@@ -123,6 +123,7 @@ type SheetKind = 'preset' | 'paste' | 'export';
 export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
+  const pick = usePick();
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
   const [sheet, setSheet] = useState<SheetKind | null>(null);
@@ -478,12 +479,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         <BackLink />
 
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>{spec.name.vi}</h1>
+          <h1 className={styles.title}>{pick(spec.name)}</h1>
           <span className={styles.level}>
             {t(spec.level === 'basic' ? 'level.basic' : 'level.advanced')}
           </span>
         </div>
-        <p className={styles.subtitle}>{spec.description}</p>
+        <p className={styles.subtitle}>{pick(spec.description)}</p>
 
         <div className={styles.actions}>
           <Button
@@ -513,7 +514,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       {/* ── 2. Ý nghĩa ───────────────────────────────────────────────────── */}
       <section className={styles.block}>
         <h2 className={styles.blockTitle}>{t('detail.meaning')}</h2>
-        <p className={styles.prose}>{spec.explanation.meaning}</p>
+        <p className={styles.prose}>{pick(spec.explanation.meaning)}</p>
       </section>
 
       {/* ── 3. Công thức — ký hiệu toán học (gói 2.4.3) rồi tới bản dạng chữ ─ */}
@@ -538,7 +539,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           không nói. Người mới đọc dòng này mới hiểu được ký hiệu kia. Tiện thể nó cũng là lối
           đọc còn lại nếu trình duyệt quá cũ không dựng được MathML.
         */}
-        <p className={styles.expression}>{spec.expression ?? spec.latex}</p>
+        <p className={styles.expression}>
+          {spec.expression === undefined ? spec.latex : pick(spec.expression)}
+        </p>
       </section>
 
       {/* ── 4. Số liệu — ô nhập sinh từ VariableSpec (FR-05) ──────────────── */}
@@ -840,6 +843,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
  */
 const MISSING_CALCULATOR = {
   code: 'INCOMPLETE_INPUT',
-  message: 'Công thức này chưa có phần tính toán.',
-  fix: 'Đây là lỗi của chúng tôi, không phải của bạn. Vui lòng thử công thức khác.',
+  message: {
+    vi: 'Công thức này chưa có phần tính toán.',
+    en: 'This formula has no calculator yet.',
+  },
+  fix: {
+    vi: 'Đây là lỗi của chúng tôi, không phải của bạn. Vui lòng thử công thức khác.',
+    en: 'This is our mistake, not yours. Please try another formula.',
+  },
 } as const;

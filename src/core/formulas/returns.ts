@@ -24,36 +24,61 @@ export const ROI: FormulaModule = {
     id: 'roi',
     categoryId: 'returns',
     name: { vi: 'ROI — tỷ suất lợi nhuận', en: 'Return on investment' },
-    description: 'Phần trăm lãi hoặc lỗ so với số vốn đã bỏ ra.',
+    description: {
+      vi: 'Phần trăm lãi hoặc lỗ so với số vốn đã bỏ ra.',
+      en: 'The percentage gain or loss relative to the capital invested.',
+    },
     latex: 'ROI = \\frac{V_{cuoi} - V_{dau}}{V_{dau}} \\times 100',
-    expression: 'ROI = (Giá trị hiện tại − Vốn bỏ ra) ÷ Vốn bỏ ra × 100',
+    expression: {
+      vi: 'ROI = (Giá trị hiện tại − Vốn bỏ ra) ÷ Vốn bỏ ra × 100',
+      en: 'ROI = (Current value − Capital invested) ÷ Capital invested × 100',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
     tags: ['roi', 'ty suat loi nhuan', 'hieu qua dau tu'],
     resultUnit: '%',
     variables: [
-      numberVar('cost', 'Vốn bỏ ra', '₫', 100_000_000, {
+      numberVar('cost', { vi: 'Vốn bỏ ra', en: 'Capital invested' }, '₫', 100_000_000, {
         min: 0,
         max: 100_000_000_000,
-        description: 'Tổng số tiền đã đầu tư ban đầu.',
+        description: {
+          vi: 'Tổng số tiền đã đầu tư ban đầu.',
+          en: 'The total amount originally invested.',
+        },
       }),
-      numberVar('current', 'Giá trị hiện tại', '₫', 125_000_000, {
+      numberVar('current', { vi: 'Giá trị hiện tại', en: 'Current value' }, '₫', 125_000_000, {
         min: 0,
         max: 100_000_000_000,
-        description: 'Giá trị của khoản đầu tư tại thời điểm đánh giá.',
+        description: {
+          vi: 'Giá trị của khoản đầu tư tại thời điểm đánh giá.',
+          en: 'The value of the investment at the time of evaluation.',
+        },
       }),
     ],
     explanation: {
-      meaning: 'Mỗi trăm đồng bỏ ra đang sinh ra bao nhiêu đồng lãi.',
-      whenToUse: 'Khi so sánh nhanh hiệu quả giữa các khoản đầu tư có quy mô khác nhau.',
-      howToRead:
-        'ROI không tính tới thời gian: 25% trong một năm và 25% trong năm năm là hai chuyện rất khác nhau.',
-      commonMistakes:
-        'Dùng ROI để so hai khoản có thời gian nắm giữ khác nhau. Muốn so thì dùng CAGR.',
+      meaning: {
+        vi: 'Mỗi trăm đồng bỏ ra đang sinh ra bao nhiêu đồng lãi.',
+        en: 'How much profit each hundred đồng invested is generating.',
+      },
+      whenToUse: {
+        vi: 'Khi so sánh nhanh hiệu quả giữa các khoản đầu tư có quy mô khác nhau.',
+        en: 'For a quick comparison of performance between investments of different sizes.',
+      },
+      howToRead: {
+        vi: 'ROI không tính tới thời gian: 25% trong một năm và 25% trong năm năm là hai chuyện rất khác nhau.',
+        en: 'ROI does not account for time: a 25% return in one year and a 25% return over five years are very different things.',
+      },
+      commonMistakes: {
+        vi: 'Dùng ROI để so hai khoản có thời gian nắm giữ khác nhau. Muốn so thì dùng CAGR.',
+        en: 'Using ROI to compare two investments with different holding periods. Use CAGR instead for that comparison.',
+      },
     },
     example: {
-      title: 'Bỏ ra 100 triệu ₫, nay còn 125 triệu ₫',
+      title: {
+        vi: 'Bỏ ra 100 triệu ₫, nay còn 125 triệu ₫',
+        en: 'Invested 100 million ₫, now worth 125 million ₫',
+      },
       inputs: { cost: 100_000_000, current: 125_000_000 },
       expected: 25,
     },
@@ -75,7 +100,11 @@ export const ROI: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero('ROI', 'Vốn bỏ ra', 'Nhập số vốn lớn hơn 0.'),
+        warning: divideByZero(
+          { vi: 'ROI', en: 'ROI' },
+          { vi: 'Vốn bỏ ra', en: 'capital invested' },
+          { vi: 'Nhập số vốn lớn hơn 0.', en: 'Enter a capital amount greater than 0.' },
+        ),
       };
     }
     return ok(((v('current') - cost) / cost) * 100, '%');
@@ -91,33 +120,66 @@ export const HPR: FormulaModule = {
     id: 'hpr',
     categoryId: 'returns',
     name: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'Holding period return' },
-    description: 'Lợi suất một kỳ nắm giữ, tính cả chênh lệch giá lẫn cổ tức nhận được.',
+    description: {
+      vi: 'Lợi suất một kỳ nắm giữ, tính cả chênh lệch giá lẫn cổ tức nhận được.',
+      en: 'The holding-period return, including both the price change and dividends received.',
+    },
     latex: 'HPR = \\frac{P_{cuoi} - P_{dau} + D}{P_{dau}} \\times 100',
-    expression: 'HPR = (Giá cuối kỳ − Giá đầu kỳ + Cổ tức) ÷ Giá đầu kỳ × 100',
+    expression: {
+      vi: 'HPR = (Giá cuối kỳ − Giá đầu kỳ + Cổ tức) ÷ Giá đầu kỳ × 100',
+      en: 'HPR = (Ending price − Starting price + Dividend) ÷ Starting price × 100',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['hpr', 'loi suat', 'ky nam giu', 'co tuc'],
     resultUnit: '%',
     variables: [
-      numberVar('startPrice', 'Giá đầu kỳ', '₫', 78_000, { min: 0, max: 10_000_000 }),
-      numberVar('endPrice', 'Giá cuối kỳ', '₫', 92_000, { min: 0, max: 10_000_000 }),
-      numberVar('dividend', 'Cổ tức nhận trong kỳ', '₫/CP', 2_000, {
+      numberVar('startPrice', { vi: 'Giá đầu kỳ', en: 'Starting price' }, '₫', 78_000, {
         min: 0,
-        max: 1_000_000,
-        description: 'Tổng cổ tức tiền mặt trên mỗi cổ phiếu trong kỳ nắm giữ.',
+        max: 10_000_000,
       }),
+      numberVar('endPrice', { vi: 'Giá cuối kỳ', en: 'Ending price' }, '₫', 92_000, {
+        min: 0,
+        max: 10_000_000,
+      }),
+      numberVar(
+        'dividend',
+        { vi: 'Cổ tức nhận trong kỳ', en: 'Dividends received during the period' },
+        '₫/CP',
+        2_000,
+        {
+          min: 0,
+          max: 1_000_000,
+          description: {
+            vi: 'Tổng cổ tức tiền mặt trên mỗi cổ phiếu trong kỳ nắm giữ.',
+            en: 'Total cash dividends per share received during the holding period.',
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning: 'Tổng lợi ích thu được trên một cổ phiếu trong kỳ, gồm cả lãi giá lẫn cổ tức.',
-      whenToUse:
-        'Khi chốt lại một khoản đã bán và muốn tính trọn cả lãi giá lẫn cổ tức đã nhận trong suốt thời gian nắm giữ.',
-      howToRead:
-        'Cao hơn tỷ suất tính theo giá thuần đúng bằng phần cổ tức, nên cổ phiếu cổ tức cao nhìn khác hẳn.',
-      commonMistakes:
-        'Nhầm HPR với ROI. ROI chỉ nhìn chênh lệch giá trị; HPR cộng thêm dòng tiền cổ tức.',
+      meaning: {
+        vi: 'Tổng lợi ích thu được trên một cổ phiếu trong kỳ, gồm cả lãi giá lẫn cổ tức.',
+        en: 'The total benefit earned per share over the period, including both price gains and dividends.',
+      },
+      whenToUse: {
+        vi: 'Khi chốt lại một khoản đã bán và muốn tính trọn cả lãi giá lẫn cổ tức đã nhận trong suốt thời gian nắm giữ.',
+        en: 'When closing out a position that has been sold and you want to capture the full return — price gains plus dividends received throughout the holding period.',
+      },
+      howToRead: {
+        vi: 'Cao hơn tỷ suất tính theo giá thuần đúng bằng phần cổ tức, nên cổ phiếu cổ tức cao nhìn khác hẳn.',
+        en: 'It exceeds the return based on price alone by exactly the dividend portion, so high-dividend stocks look quite different under HPR.',
+      },
+      commonMistakes: {
+        vi: 'Nhầm HPR với ROI. ROI chỉ nhìn chênh lệch giá trị; HPR cộng thêm dòng tiền cổ tức.',
+        en: 'Confusing HPR with ROI. ROI only looks at the change in value; HPR also adds in the dividend cash flow.',
+      },
     },
     example: {
-      title: 'Mua 78.000 ₫, bán 92.000 ₫, nhận cổ tức 2.000 ₫',
+      title: {
+        vi: 'Mua 78.000 ₫, bán 92.000 ₫, nhận cổ tức 2.000 ₫',
+        en: 'Bought at 78,000 ₫, sold at 92,000 ₫, received 2,000 ₫ in dividends',
+      },
       inputs: { startPrice: 78_000, endPrice: 92_000, dividend: 2_000 },
       expected: 20.51,
     },
@@ -147,7 +209,11 @@ export const HPR: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero('HPR', 'Giá đầu kỳ', 'Nhập giá đầu kỳ lớn hơn 0.'),
+        warning: divideByZero(
+          { vi: 'HPR', en: 'HPR' },
+          { vi: 'Giá đầu kỳ', en: 'starting price' },
+          { vi: 'Nhập giá đầu kỳ lớn hơn 0.', en: 'Enter a starting price greater than 0.' },
+        ),
       };
     }
     return ok(((v('endPrice') - start + v('dividend')) / start) * 100, '%');
@@ -163,29 +229,54 @@ export const CAGR: FormulaModule = {
     id: 'cagr',
     categoryId: 'returns',
     name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'Compound annual growth rate' },
-    description: 'Tốc độ tăng trưởng bình quân mỗi năm của một khoản đầu tư.',
+    description: {
+      vi: 'Tốc độ tăng trưởng bình quân mỗi năm của một khoản đầu tư.',
+      en: 'The average annual growth rate of an investment.',
+    },
     latex: 'CAGR = \\left(\\frac{V_{cuoi}}{V_{dau}}\\right)^{1/t} - 1',
-    expression: 'CAGR = (Giá trị cuối ÷ Giá trị đầu)^(1 ÷ Số năm) − 1',
+    expression: {
+      vi: 'CAGR = (Giá trị cuối ÷ Giá trị đầu)^(1 ÷ Số năm) − 1',
+      en: 'CAGR = (Ending value ÷ Starting value)^(1 ÷ Number of years) − 1',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
     tags: ['cagr', 'tang truong kep', 'binh quan nam'],
     resultUnit: '%',
     variables: [
-      numberVar('start', 'Giá trị ban đầu', '₫', 100_000_000, { min: 0, max: 100_000_000_000 }),
-      numberVar('end', 'Giá trị cuối kỳ', '₫', 200_000_000, { min: 0, max: 100_000_000_000 }),
-      sliderVar('years', 'Số năm', 'năm', 5, 1, 50, 1),
+      numberVar('start', { vi: 'Giá trị ban đầu', en: 'Starting value' }, '₫', 100_000_000, {
+        min: 0,
+        max: 100_000_000_000,
+      }),
+      numberVar('end', { vi: 'Giá trị cuối kỳ', en: 'Ending value' }, '₫', 200_000_000, {
+        min: 0,
+        max: 100_000_000_000,
+      }),
+      sliderVar('years', { vi: 'Số năm', en: 'Number of years' }, 'năm', 5, 1, 50, 1),
     ],
     explanation: {
-      meaning: 'Mức tăng trưởng đều mỗi năm mà nếu duy trì sẽ đưa giá trị đầu tới giá trị cuối.',
-      whenToUse: 'Khi so sánh các khoản đầu tư có thời gian nắm giữ khác nhau.',
-      howToRead:
-        'Là con số đã san phẳng: thực tế từng năm có thể lên xuống mạnh quanh mức bình quân này.',
-      commonMistakes:
-        'Coi CAGR như lợi suất chắc chắn của năm tới. Nó là số liệu quá khứ đã được làm mượt.',
+      meaning: {
+        vi: 'Mức tăng trưởng đều mỗi năm mà nếu duy trì sẽ đưa giá trị đầu tới giá trị cuối.',
+        en: 'The steady annual growth rate that, if sustained, would carry the starting value to the ending value.',
+      },
+      whenToUse: {
+        vi: 'Khi so sánh các khoản đầu tư có thời gian nắm giữ khác nhau.',
+        en: 'When comparing investments with different holding periods.',
+      },
+      howToRead: {
+        vi: 'Là con số đã san phẳng: thực tế từng năm có thể lên xuống mạnh quanh mức bình quân này.',
+        en: 'It is a smoothed figure: actual year-by-year results can swing widely around this average.',
+      },
+      commonMistakes: {
+        vi: 'Coi CAGR như lợi suất chắc chắn của năm tới. Nó là số liệu quá khứ đã được làm mượt.',
+        en: 'Treating CAGR as a guaranteed return for the coming year. It is a smoothed historical figure.',
+      },
     },
     example: {
-      title: 'Từ 100 triệu ₫ lên 200 triệu ₫ sau 5 năm',
+      title: {
+        vi: 'Từ 100 triệu ₫ lên 200 triệu ₫ sau 5 năm',
+        en: 'From 100 million ₫ to 200 million ₫ over 5 years',
+      },
       inputs: { start: 100_000_000, end: 200_000_000, years: 5 },
       expected: 14.87,
     },
@@ -225,14 +316,22 @@ export const CAGR: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero('CAGR', 'Giá trị ban đầu', 'Nhập giá trị ban đầu lớn hơn 0.'),
+        warning: divideByZero(
+          { vi: 'CAGR', en: 'CAGR' },
+          { vi: 'Giá trị ban đầu', en: 'starting value' },
+          { vi: 'Nhập giá trị ban đầu lớn hơn 0.', en: 'Enter a starting value greater than 0.' },
+        ),
       };
     }
     if (years <= 0) {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero('CAGR', 'Số năm', 'Nhập ít nhất 1 năm.'),
+        warning: divideByZero(
+          { vi: 'CAGR', en: 'CAGR' },
+          { vi: 'Số năm', en: 'number of years' },
+          { vi: 'Nhập ít nhất 1 năm.', en: 'Enter at least 1 year.' },
+        ),
       };
     }
     if (start < 0 || end < 0) {
@@ -241,8 +340,14 @@ export const CAGR: FormulaModule = {
         unit: '%',
         warning: {
           code: 'MODEL_VIOLATION',
-          message: 'Mô hình không dùng được khi giá trị đầu hoặc cuối là số âm.',
-          fix: 'CAGR chỉ có nghĩa với giá trị dương. Dùng ROI nếu khoản đầu tư đã mất hết vốn.',
+          message: {
+            vi: 'Mô hình không dùng được khi giá trị đầu hoặc cuối là số âm.',
+            en: 'The model does not apply when the starting or ending value is negative.',
+          },
+          fix: {
+            vi: 'CAGR chỉ có nghĩa với giá trị dương. Dùng ROI nếu khoản đầu tư đã mất hết vốn.',
+            en: 'CAGR is only meaningful for positive values. Use ROI if the investment has lost all its capital.',
+          },
         },
       };
     }
@@ -260,28 +365,53 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     id: 'ty-suat-co-tuc',
     categoryId: 'returns',
     name: { vi: 'Tỷ suất cổ tức', en: 'Dividend yield' },
-    description: 'Cổ tức tiền mặt một năm so với thị giá hiện tại của cổ phiếu.',
+    description: {
+      vi: 'Cổ tức tiền mặt một năm so với thị giá hiện tại của cổ phiếu.',
+      en: "Annual cash dividends relative to the stock's current market price.",
+    },
     latex: 'DY = \\frac{D}{P} \\times 100',
-    expression: 'Tỷ suất cổ tức = Cổ tức cả năm ÷ Thị giá × 100',
+    expression: {
+      vi: 'Tỷ suất cổ tức = Cổ tức cả năm ÷ Thị giá × 100',
+      en: 'Dividend yield = Annual dividend ÷ Market price × 100',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
     tags: ['ty suat co tuc', 'dividend yield', 'co tuc'],
     resultUnit: '%',
     variables: [
-      numberVar('price', 'Thị giá', '₫', 92_000, { min: 0, max: 10_000_000 }),
-      numberVar('dividendPerShare', 'Cổ tức cả năm', '₫/CP', 2_000, { min: 0, max: 1_000_000 }),
+      numberVar('price', { vi: 'Thị giá', en: 'Market price' }, '₫', 92_000, {
+        min: 0,
+        max: 10_000_000,
+      }),
+      numberVar('dividendPerShare', { vi: 'Cổ tức cả năm', en: 'Annual dividend' }, '₫/CP', 2_000, {
+        min: 0,
+        max: 1_000_000,
+      }),
     ],
     explanation: {
-      meaning: 'Mỗi trăm đồng bỏ ra mua cổ phiếu thì nhận về bao nhiêu đồng cổ tức mỗi năm.',
-      whenToUse: 'Khi tìm cổ phiếu tạo dòng tiền đều, so với lãi suất tiết kiệm ngân hàng.',
-      howToRead:
-        'Tỷ suất cao bất thường thường do giá vừa giảm mạnh, chứ không hẳn do doanh nghiệp hào phóng.',
-      commonMistakes:
-        'Lấy mức cổ tức công bố mà quên thuế cổ tức bị khấu trừ, nên số thực nhận thấp hơn.',
+      meaning: {
+        vi: 'Mỗi trăm đồng bỏ ra mua cổ phiếu thì nhận về bao nhiêu đồng cổ tức mỗi năm.',
+        en: 'How many đồng in dividends you receive each year for every hundred đồng spent buying the stock.',
+      },
+      whenToUse: {
+        vi: 'Khi tìm cổ phiếu tạo dòng tiền đều, so với lãi suất tiết kiệm ngân hàng.',
+        en: 'When looking for stocks that generate steady cash flow, comparable to a bank savings rate.',
+      },
+      howToRead: {
+        vi: 'Tỷ suất cao bất thường thường do giá vừa giảm mạnh, chứ không hẳn do doanh nghiệp hào phóng.',
+        en: 'An unusually high yield is often the result of a sharp price drop, not necessarily generous dividends from the company.',
+      },
+      commonMistakes: {
+        vi: 'Lấy mức cổ tức công bố mà quên thuế cổ tức bị khấu trừ, nên số thực nhận thấp hơn.',
+        en: 'Using the announced dividend amount while forgetting the dividend tax withheld, so the actual amount received is lower.',
+      },
     },
     example: {
-      title: 'Thị giá 92.000 ₫, cổ tức 2.000 ₫/CP/năm',
+      title: {
+        vi: 'Thị giá 92.000 ₫, cổ tức 2.000 ₫/CP/năm',
+        en: 'Market price 92,000 ₫, dividend 2,000 ₫/share/year',
+      },
       inputs: { price: 92_000, dividendPerShare: 2_000 },
       expected: 2.17,
     },
@@ -311,7 +441,11 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero('tỷ suất cổ tức', 'Thị giá', 'Nhập thị giá lớn hơn 0.'),
+        warning: divideByZero(
+          { vi: 'tỷ suất cổ tức', en: 'dividend yield' },
+          { vi: 'Thị giá', en: 'market price' },
+          { vi: 'Nhập thị giá lớn hơn 0.', en: 'Enter a market price greater than 0.' },
+        ),
       };
     }
     return ok((v('dividendPerShare') / price) * 100, '%');
@@ -419,8 +553,14 @@ function bisectXirr(npv: (rate: number) => number): number | null {
 /** Cảnh báo dùng khi XIRR không hội tụ. */
 export function xirrNotConverged(): CalcWarning {
   return meaningless(
-    'Không tìm được suất sinh lợi phù hợp với chuỗi dòng tiền này.',
-    'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày đúng thứ tự.',
+    {
+      vi: 'Không tìm được suất sinh lợi phù hợp với chuỗi dòng tiền này.',
+      en: 'No rate of return could be found for this cash flow series.',
+    },
+    {
+      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày đúng thứ tự.',
+      en: 'Check again: you need at least one outflow and one inflow, with dates in the correct order.',
+    },
   );
 }
 
@@ -436,46 +576,75 @@ export function xirrNotConverged(): CalcWarning {
  * không phải một tham số tài chính — quét nó không nói lên điều gì về khoản đầu tư.
  */
 
-const XIRR_GUESS_VAR = sliderVar('guess', 'Suất sinh lợi khởi điểm', '%/năm', 10, -50, 100, 1, {
-  level: 'advanced',
-  description:
-    'Điểm xuất phát cho thuật toán tìm nghiệm. Hiếm khi cần đổi — chỉ chỉnh nếu công thức báo không tìm được suất sinh lợi.',
-});
+const XIRR_GUESS_VAR = sliderVar(
+  'guess',
+  { vi: 'Suất sinh lợi khởi điểm', en: 'Initial rate guess' },
+  '%/năm',
+  10,
+  -50,
+  100,
+  1,
+  {
+    level: 'advanced',
+    description: {
+      vi: 'Điểm xuất phát cho thuật toán tìm nghiệm. Hiếm khi cần đổi — chỉ chỉnh nếu công thức báo không tìm được suất sinh lợi.',
+      en: 'The starting point for the solver algorithm. Rarely needs changing — adjust it only if the formula reports that it could not find a rate of return.',
+    },
+  },
+);
 
 export const XIRR: FormulaModule = {
   spec: {
     id: 'xirr',
     categoryId: 'returns',
     name: { vi: 'XIRR — suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
-    description:
-      'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.',
+    description: {
+      vi: 'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.',
+      en: 'The annualized rate of return from a series of irregularly timed cash inflows and outflows, computed on actual dates.',
+    },
     latex: '\\sum_{i} \\frac{CF_i}{(1+XIRR)^{d_i / 365}} = 0',
-    expression:
-      'Tổng các dòng tiền, mỗi cái chiết khấu theo XIRR và đúng số ngày thực kể từ dòng đầu tiên = 0',
+    expression: {
+      vi: 'Tổng các dòng tiền, mỗi cái chiết khấu theo XIRR và đúng số ngày thực kể từ dòng đầu tiên = 0',
+      en: 'The sum of all cash flows, each discounted at XIRR over the actual number of days since the first cash flow, equals 0',
+    },
     chartType: 'none',
     level: 'advanced',
     tags: ['xirr', 'suat sinh loi noi tai', 'dong tien khong deu', 'irr thuc te'],
     resultUnit: '%/năm',
     variables: [XIRR_GUESS_VAR],
     explanation: {
-      meaning:
-        'Suất sinh lợi năm hoá của một khoản đầu tư có nhiều lần rót thêm hoặc rút bớt tiền vào những NGÀY KHÔNG ĐỀU nhau — khác IRR thường vốn giả định các kỳ cách đều nhau.',
-      whenToUse:
-        'Khi đầu tư định kỳ không đều (góp thêm lệch tháng, rút một phần giữa chừng), hoặc cần so một danh mục thực tế với một kênh đầu tư khác theo đúng ngày thực đã xảy ra.',
-      howToRead:
-        'Đọc như một mức lãi suất kép mỗi năm. Cao hơn lãi suất tiết kiệm là khoản đầu tư đang thắng; khác IRR thường, XIRR không đòi các kỳ cách đều.',
-      commonMistakes:
-        'Quên rằng dòng tiền cuối cùng phải là GIÁ TRỊ HIỆN TẠI của khoản đầu tư (một khoản thu về GIẢ ĐỊNH nếu bán hết hôm nay), không phải chỉ tính tới lần rót tiền gần nhất.',
+      meaning: {
+        vi: 'Suất sinh lợi năm hoá của một khoản đầu tư có nhiều lần rót thêm hoặc rút bớt tiền vào những NGÀY KHÔNG ĐỀU nhau — khác IRR thường vốn giả định các kỳ cách đều nhau.',
+        en: 'The annualized rate of return of an investment with multiple contributions or withdrawals on IRREGULARLY spaced DATES — unlike ordinary IRR, which assumes evenly spaced periods.',
+      },
+      whenToUse: {
+        vi: 'Khi đầu tư định kỳ không đều (góp thêm lệch tháng, rút một phần giữa chừng), hoặc cần so một danh mục thực tế với một kênh đầu tư khác theo đúng ngày thực đã xảy ra.',
+        en: "When investing on an irregular schedule (contributions that don't line up monthly, partial withdrawals along the way), or when comparing an actual portfolio against another investment channel using the real dates involved.",
+      },
+      howToRead: {
+        vi: 'Đọc như một mức lãi suất kép mỗi năm. Cao hơn lãi suất tiết kiệm là khoản đầu tư đang thắng; khác IRR thường, XIRR không đòi các kỳ cách đều.',
+        en: 'Read it as a compound annual interest rate. Higher than the savings rate means the investment is winning; unlike ordinary IRR, XIRR does not require evenly spaced periods.',
+      },
+      commonMistakes: {
+        vi: 'Quên rằng dòng tiền cuối cùng phải là GIÁ TRỊ HIỆN TẠI của khoản đầu tư (một khoản thu về GIẢ ĐỊNH nếu bán hết hôm nay), không phải chỉ tính tới lần rót tiền gần nhất.',
+        en: 'Forgetting that the final cash flow must be the CURRENT VALUE of the investment (a HYPOTHETICAL amount received if everything were sold today), not just the most recent contribution.',
+      },
     },
     example: {
-      title: 'Đầu tư 100 triệu ₫, sau đúng một năm giá trị thành 110 triệu ₫',
+      title: {
+        vi: 'Đầu tư 100 triệu ₫, sau đúng một năm giá trị thành 110 triệu ₫',
+        en: 'Invested 100 million ₫; after exactly one year the value became 110 million ₫',
+      },
       inputs: { guess: 10 },
       cashflows: [
         { date: '2025-01-01', amount: -100_000_000 },
         { date: '2026-01-01', amount: 110_000_000 },
       ],
       expected: 10,
-      note: 'Chỉ một khoản đầu, một khoản thu sau đúng một năm — XIRR trùng với lãi suất kép thông thường.',
+      note: {
+        vi: 'Chỉ một khoản đầu, một khoản thu sau đúng một năm — XIRR trùng với lãi suất kép thông thường.',
+        en: 'Just one investment and one payout exactly one year later — XIRR coincides with an ordinary compound interest rate.',
+      },
     },
     tests: [
       {
@@ -526,7 +695,10 @@ export const XIRR: FormulaModule = {
      * báo này — dò trúng sẽ bật nhầm nút "Dán chuỗi giá" (dành cho `ctx.series`) trên trang.
      */
     if (flows.length < 2) {
-      return fail(unit, incompleteInput(['ít nhất 2 dòng tiền']));
+      return fail(
+        unit,
+        incompleteInput([{ vi: 'ít nhất 2 dòng tiền', en: 'at least 2 cash flows' }]),
+      );
     }
 
     const rate = xirr(flows, { guess: v('guess') / 100 });

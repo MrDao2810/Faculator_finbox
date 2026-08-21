@@ -3,7 +3,7 @@
 import { type ReactNode } from 'react';
 
 import type { DrawableChart } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 
@@ -40,6 +40,7 @@ export interface ChartFrameProps {
 
 export function ChartFrame({ model, idBase, picker, action, children }: ChartFrameProps) {
   const t = useT();
+  const pick = usePick();
   const captionId = `${idBase}-caption`;
 
   const rows = model.table.rows.length;
@@ -53,8 +54,8 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
      */
     <figure className={styles.chart} aria-labelledby={captionId}>
       <figcaption className={styles.caption} id={captionId}>
-        <strong className={styles.captionTitle}>{model.title}</strong>
-        <span className={styles.captionText}>{model.summary}</span>
+        <strong className={styles.captionTitle}>{pick(model.title)}</strong>
+        <span className={styles.captionText}>{pick(model.summary)}</span>
       </figcaption>
 
       {(picker !== undefined || action !== undefined) && (
@@ -68,7 +69,7 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
 
       {model.note !== undefined && (
         <p className={styles.note} role="note">
-          {model.note}
+          {pick(model.note)}
         </p>
       )}
 
@@ -86,7 +87,7 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
           className={styles.tableScroll}
           tabIndex={0}
           role="group"
-          aria-label={`${t('chart.tableCaption')} — ${model.title}`}
+          aria-label={`${t('chart.tableCaption')} — ${pick(model.title)}`}
         >
           <table className={styles.table}>
             {/*
@@ -95,31 +96,35 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
               hình hay ở bảng.
             */}
             <caption className="visually-hidden">
-              {t('chart.tableCaption')} — {model.title}
+              {t('chart.tableCaption')} — {pick(model.title)}
             </caption>
             <thead>
               <tr>
-                <th scope="col">{model.table.columns[0]}</th>
-                <th scope="col">{model.table.columns[1]}</th>
+                <th scope="col">{pick(model.table.columns[0])}</th>
+                <th scope="col">{pick(model.table.columns[1])}</th>
               </tr>
             </thead>
             <tbody>
-              {model.table.rows.map((row, index) =>
-                row === null ? (
+              {model.table.rows.map((row, index) => {
+                if (row === null) {
                   // Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ 240 kỳ.
-                  <tr key={`gap-${String(index)}`} className={styles.gapRow}>
-                    <td colSpan={2}>…</td>
-                  </tr>
-                ) : (
+                  return (
+                    <tr key={`gap-${String(index)}`} className={styles.gapRow}>
+                      <td colSpan={2}>…</td>
+                    </tr>
+                  );
+                }
+                const label = pick(row[0]);
+                return (
                   <tr
-                    key={`${row[0]}-${String(index)}`}
-                    className={row[0] === currentLabel(model) ? styles.currentRow : undefined}
+                    key={`${label}-${String(index)}`}
+                    className={label === currentLabel(model) ? styles.currentRow : undefined}
                   >
-                    <td>{row[0]}</td>
+                    <td>{label}</td>
                     <td>{row[1]}</td>
                   </tr>
-                ),
-              )}
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -2,7 +2,7 @@
 
 import { formatCalcOutput, isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './StatTile.module.css';
 
@@ -40,6 +40,7 @@ export function StatTile({
   className,
 }: StatTileProps) {
   const t = useT();
+  const pick = usePick();
   const classes = [styles.tile, isCalculated(output) ? undefined : styles.empty, className]
     .filter(Boolean)
     .join(' ');
@@ -51,7 +52,7 @@ export function StatTile({
       <span className={styles.value}>{formatCalcOutput(output, { maxDecimals: decimals })}</span>
       {/* Không tính được thì lý do quan trọng hơn dòng phụ — thay chỗ luôn. */}
       {output.warning !== undefined ? (
-        <span className={styles.warning}>{output.warning.message}</span>
+        <span className={styles.warning}>{pick(output.warning.message)}</span>
       ) : (
         note !== undefined && <span className={styles.note}>{note}</span>
       )}

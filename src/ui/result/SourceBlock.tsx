@@ -1,7 +1,7 @@
 'use client';
 
 import type { FormulaSource } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './SourceBlock.module.css';
 
@@ -22,6 +22,7 @@ export interface SourceBlockProps {
  */
 export function SourceBlock({ sources, className }: SourceBlockProps) {
   const t = useT();
+  const pick = usePick();
   if (sources.length === 0) return null;
 
   const classes = [styles.block, className].filter(Boolean).join(' ');
@@ -31,12 +32,12 @@ export function SourceBlock({ sources, className }: SourceBlockProps) {
       <h2 className={styles.title}>{t('source.title')}</h2>
       <ul className={styles.list}>
         {sources.map((source) => (
-          <li key={source.label} className={styles.item}>
+          <li key={pick(source.label)} className={styles.item}>
             {source.url === undefined ? (
-              source.label
+              pick(source.label)
             ) : (
               <a href={source.url} target="_blank" rel="noreferrer">
-                {source.label}
+                {pick(source.label)}
               </a>
             )}
           </li>

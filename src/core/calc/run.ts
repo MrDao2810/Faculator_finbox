@@ -15,7 +15,7 @@
 import { fail } from '../calc-output';
 import { defaultInputs } from '../registry/build';
 import type { FormulaSpec } from '../registry/types';
-import type { CalcOutput } from '../types';
+import type { Bilingual, CalcOutput } from '../types';
 import { incompleteInput, meaningless } from '../warnings';
 import type { CalcContext, CalcInputs, CalcValues, FormulaModule } from './types';
 
@@ -23,8 +23,11 @@ import type { CalcContext, CalcInputs, CalcValues, FormulaModule } from './types
  * Nhãn các biến chưa có giá trị dùng được.
  * Thiếu key, hoặc có key nhưng giá trị không hữu hạn, đều tính là chưa nhập.
  */
-export function missingInputLabels(spec: FormulaSpec, inputs: CalcInputs): ReadonlyArray<string> {
-  const missing: string[] = [];
+export function missingInputLabels(
+  spec: FormulaSpec,
+  inputs: CalcInputs,
+): ReadonlyArray<Bilingual> {
+  const missing: Bilingual[] = [];
   for (const variable of spec.variables) {
     const value = inputs[variable.key];
     if (value === undefined || !Number.isFinite(value)) missing.push(variable.label);
@@ -59,8 +62,14 @@ export function runFormula(
     return fail(
       spec.resultUnit,
       meaningless(
-        'Phép tính gặp lỗi ngoài dự kiến với bộ số liệu hiện tại.',
-        'Kiểm tra lại các ô đầu vào, hoặc nạp bộ số liệu mẫu để so sánh.',
+        {
+          vi: 'Phép tính gặp lỗi ngoài dự kiến với bộ số liệu hiện tại.',
+          en: 'The calculation hit an unexpected error with the current inputs.',
+        },
+        {
+          vi: 'Kiểm tra lại các ô đầu vào, hoặc nạp bộ số liệu mẫu để so sánh.',
+          en: 'Double-check the input fields, or load a sample dataset to compare.',
+        },
       ),
     );
   }

@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 
 import { findCategory, formulaPath } from '@/application';
 import type { FormulaSummary } from '@/application';
+import { usePick } from '@/application/preferences-context';
 
 import { T } from '../i18n/T';
 import { Highlight } from './Highlight';
@@ -33,15 +36,17 @@ interface Group {
  * bảng chữ cái — kết quả khớp nhất phải nằm trên cùng.
  */
 export function SearchResults({ formulas, query = '' }: SearchResultsProps) {
+  const pick = usePick();
   const groups: Group[] = [];
   const byId = new Map<string, Group>();
 
   for (const formula of formulas) {
     let group = byId.get(formula.categoryId);
     if (group === undefined) {
+      const category = findCategory(formula.categoryId);
       group = {
         id: formula.categoryId,
-        name: findCategory(formula.categoryId)?.name ?? formula.categoryId,
+        name: category !== undefined ? pick(category.name) : formula.categoryId,
         formulas: [],
       };
       byId.set(formula.categoryId, group);
@@ -62,10 +67,10 @@ export function SearchResults({ formulas, query = '' }: SearchResultsProps) {
                 <Link href={formulaPath(formula.id)} className={styles.row}>
                   <span className={styles.body}>
                     <span className={styles.name}>
-                      <Highlight text={formula.name.vi} query={query} />
+                      <Highlight text={pick(formula.name)} query={query} />
                     </span>
                     <span className={styles.hint}>
-                      <Highlight text={formula.description} query={query} />
+                      <Highlight text={pick(formula.description)} query={query} />
                     </span>
                   </span>
 

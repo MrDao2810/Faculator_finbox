@@ -6,7 +6,7 @@
  * nhờ vậy tính lại được một giao dịch trong quá khứ theo đúng biểu phí thời điểm đó.
  */
 
-import type { MarketConstant } from '../types';
+import type { Bilingual, MarketConstant } from '../types';
 
 /**
  * Khoá hằng số dùng chung cho cả hệ thống.
@@ -33,8 +33,8 @@ export interface TypedMarketConstant extends MarketConstant {
 export interface FeeSchedule {
   id: string;
   /** Tên hiện trong danh sách chọn, ví dụ 'Mặc định HOSE 2026'. */
-  name: string;
-  description: string;
+  name: Bilingual;
+  description: Bilingual;
   constants: ReadonlyArray<TypedMarketConstant>;
 }
 

@@ -14,7 +14,7 @@ import type { VariableSpec } from './types';
 /** Biến cơ bản, đúng ô 'Giá thị trường' của WF-03. */
 const price: VariableSpec = {
   key: 'price',
-  label: 'Giá thị trường',
+  label: { vi: 'Giá thị trường', en: 'Market price' },
   unit: '₫',
   type: 'number',
   defaultValue: 92_000,
@@ -26,7 +26,7 @@ const price: VariableSpec = {
 /** Biến nâng cao, đúng ô 'Tăng trưởng g' của WF-16 (min 0 · step 0,1 · max 12). */
 const growth: VariableSpec = {
   key: 'g',
-  label: 'Tăng trưởng g',
+  label: { vi: 'Tăng trưởng g', en: 'Growth g' },
   unit: '%',
   type: 'slider',
   defaultValue: 4,

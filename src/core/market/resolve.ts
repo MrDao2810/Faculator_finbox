@@ -121,9 +121,9 @@ export function validateMarketConfig(config: MarketConfig): string[] {
       } else if (constant.value < 0) {
         problems.push(`${at}: giá trị không được âm.`);
       }
-      if (constant.label.trim() === '') problems.push(`${at}: thiếu nhãn tiếng Việt.`);
+      if (constant.label.vi.trim() === '') problems.push(`${at}: thiếu nhãn tiếng Việt.`);
       // LDR-03: thiếu căn cứ pháp lý là lỗi, không phải nhắc nhở.
-      if (constant.legalBasis.trim() === '') problems.push(`${at}: thiếu căn cứ pháp lý.`);
+      if (constant.legalBasis.vi.trim() === '') problems.push(`${at}: thiếu căn cứ pháp lý.`);
 
       const stamp = `${constant.key}@${constant.effectiveFrom}`;
       if (seen.has(stamp)) problems.push(`${at}: trùng bản ghi ngày ${constant.effectiveFrom}.`);

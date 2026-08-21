@@ -25,7 +25,7 @@ describe('cấu hình thị trường mặc định', () => {
   it('mọi hằng số đều có ngày hiệu lực và căn cứ pháp lý', () => {
     for (const constant of HOSE_2026.constants) {
       expect(constant.effectiveFrom).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(constant.legalBasis.trim()).not.toBe('');
+      expect(constant.legalBasis.vi.trim()).not.toBe('');
     }
   });
 
@@ -50,9 +50,9 @@ describe('căn cứ pháp lý không được lệch giữa hằng số và kh�
   it('phí môi giới và SOURCE_FEE_CIRCULAR trích cùng một thông tư', () => {
     const soThongTu = /Thông tư (\d+\/\d+)\/TT-BTC/;
     const cuaHangSo = soThongTu.exec(
-      HOSE_2026.constants.find((c) => c.key === 'fee.brokerage.buy')?.legalBasis ?? '',
+      HOSE_2026.constants.find((c) => c.key === 'fee.brokerage.buy')?.legalBasis.vi ?? '',
     )?.[1];
-    const cuaKhoiNguon = soThongTu.exec(SOURCE_FEE_CIRCULAR.label)?.[1];
+    const cuaKhoiNguon = soThongTu.exec(SOURCE_FEE_CIRCULAR.label.vi)?.[1];
 
     expect(cuaHangSo, 'không đọc được số thông tư trong legalBasis').toBeDefined();
     expect(cuaKhoiNguon, 'không đọc được số thông tư trong SOURCE_FEE_CIRCULAR').toBeDefined();
@@ -64,7 +64,7 @@ describe('resolveConstant()', () => {
   it('lấy được thuế chuyển nhượng khi luật đã có hiệu lực', () => {
     const c = resolveConstant(HOSE_2026, 'tax.transfer.sell', SAU_KHI_LUAT_MOI_HIEU_LUC);
     expect(c?.value).toBe(0.1);
-    expect(c?.legalBasis).toContain('109/2025/QH15');
+    expect(c?.legalBasis.vi).toContain('109/2025/QH15');
   });
 
   /*
@@ -74,8 +74,8 @@ describe('resolveConstant()', () => {
   it('trước ngày luật mới hiệu lực thì rơi về bản ghi luật cũ, cùng mức 0,1%', () => {
     const c = resolveConstant(HOSE_2026, 'tax.transfer.sell', TRUOC_KHI_LUAT_MOI_HIEU_LUC);
     expect(c?.value).toBe(0.1);
-    expect(c?.legalBasis).toContain('71/2014/QH13');
-    expect(c?.legalBasis).not.toContain('109/2025');
+    expect(c?.legalBasis.vi).toContain('71/2014/QH13');
+    expect(c?.legalBasis.vi).not.toContain('109/2025');
   });
 
   it('trước khi CÓ bất kỳ bản ghi nào thì mới là undefined — 2014 còn hai cách tính song song', () => {
@@ -85,24 +85,24 @@ describe('resolveConstant()', () => {
   it('có nhiều bản ghi cùng khoá thì lấy bản mới nhất còn hiệu lực', () => {
     const schedule: FeeSchedule = {
       id: 'test',
-      name: 'Biểu phí thử',
-      description: '',
+      name: { vi: 'Biểu phí thử', en: 'Test schedule' },
+      description: { vi: '', en: '' },
       constants: [
         {
           key: 'tax.transfer.sell',
-          label: 'Thuế chuyển nhượng',
+          label: { vi: 'Thuế chuyển nhượng', en: 'Transfer tax' },
           value: 0.1,
           unit: '%',
           effectiveFrom: '2015-01-01',
-          legalBasis: 'Luật cũ',
+          legalBasis: { vi: 'Luật cũ', en: 'Old law' },
         },
         {
           key: 'tax.transfer.sell',
-          label: 'Thuế chuyển nhượng',
+          label: { vi: 'Thuế chuyển nhượng', en: 'Transfer tax' },
           value: 0.2,
           unit: '%',
           effectiveFrom: '2026-07-01',
-          legalBasis: 'Luật mới',
+          legalBasis: { vi: 'Luật mới', en: 'New law' },
         },
       ],
     };
@@ -161,13 +161,13 @@ describe('constantsAsOf()', () => {
     const list = constantsAsOf(HOSE_2026, SAU_KHI_LUAT_MOI_HIEU_LUC);
     const transfer = list.filter((c) => c.key === 'tax.transfer.sell');
     expect(transfer).toHaveLength(1);
-    expect(transfer[0]?.legalBasis).toContain('109/2025/QH15');
+    expect(transfer[0]?.legalBasis.vi).toContain('109/2025/QH15');
   });
 });
 
 describe('chọn biểu phí (WF-08, WF-13)', () => {
   it('tra được biểu phí theo id', () => {
-    expect(findSchedule(MARKET_CONFIG, 'hose-2026')?.name).toBe('Mặc định HOSE 2026');
+    expect(findSchedule(MARKET_CONFIG, 'hose-2026')?.name.vi).toBe('Mặc định HOSE 2026');
   });
 
   it('id lạ hoặc chưa chọn thì rơi về biểu phí mặc định', () => {
@@ -190,16 +190,16 @@ describe('validateMarketConfig()', () => {
       schedules: [
         {
           id: 'x',
-          name: 'x',
-          description: '',
+          name: { vi: 'x', en: 'x' },
+          description: { vi: '', en: '' },
           constants: [
             {
               key: 'fee.custody',
-              label: 'Phí lưu ký',
+              label: { vi: 'Phí lưu ký', en: 'Custody fee' },
               value: 0.27,
               unit: '₫/CP/tháng',
               effectiveFrom: '2022-02-27',
-              legalBasis: '   ',
+              legalBasis: { vi: '   ', en: '   ' },
             },
           ],
         },
@@ -214,16 +214,16 @@ describe('validateMarketConfig()', () => {
       schedules: [
         {
           id: 'x',
-          name: 'x',
-          description: '',
+          name: { vi: 'x', en: 'x' },
+          description: { vi: '', en: '' },
           constants: [
             {
               key: 'fee.brokerage.buy',
-              label: 'Phí môi giới',
+              label: { vi: 'Phí môi giới', en: 'Brokerage fee' },
               value: -1,
               unit: '%',
               effectiveFrom: '15/02/2019',
-              legalBasis: 'Thông tư 128/2018/TT-BTC',
+              legalBasis: { vi: 'Thông tư 128/2018/TT-BTC', en: 'Circular 128/2018/TT-BTC' },
             },
           ],
         },

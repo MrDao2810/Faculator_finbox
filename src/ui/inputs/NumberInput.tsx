@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { commitValue, formatNumber, parseViNumber, resolveInputState } from '@/application';
 import type { InputState, Level, VariableSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { Input, type InputTone } from '@/ui/primitives';
 
 export interface NumberInputProps {
@@ -80,21 +80,23 @@ export function NumberInput({
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
   const [draft, setDraft] = useState<string | null>(null);
   const t = useT();
+  const pick = usePick();
 
   const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
   const { state, note } = resolveInputState({ raw, spec, focused, derivedFrom, mode });
 
   const locked = state === 'locked';
+  const description = spec.description === undefined ? undefined : pick(spec.description);
 
   // Ngoài miền là lỗi thật sự nên đi đường `error` (có role="alert"); các dòng phụ khác
   // chỉ là thông tin nên đi đường `hint`.
   const error = state === 'outOfRange' ? note : undefined;
-  const hint = state === 'outOfRange' ? spec.description : (note ?? spec.description);
+  const hint = state === 'outOfRange' ? description : (note ?? description);
 
   return (
     <Input
       className={className}
-      label={spec.label}
+      label={pick(spec.label)}
       hideLabel={hideLabel}
       unit={spec.unit}
       tone={TONE_BY_STATE[state]}

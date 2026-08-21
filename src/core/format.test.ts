@@ -66,7 +66,7 @@ describe('formatCalcOutput()', () => {
   });
 
   it('không tính được thì hiện đúng chuỗi “— , —” của WF-15, không phải 0', () => {
-    const out = fail('lần', divideByZero('P/E', 'EPS'));
+    const out = fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' }));
     const text = formatCalcOutput(out);
 
     expect(text).toBe(`${NO_VALUE} lần`);

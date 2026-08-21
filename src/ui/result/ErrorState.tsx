@@ -2,7 +2,7 @@
 
 import { NO_VALUE, WARNING_LABELS } from '@/application';
 import type { CalcWarning } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './ErrorState.module.css';
 
@@ -27,6 +27,7 @@ export interface ErrorStateProps {
  */
 export function ErrorState({ warning, unit, action, className }: ErrorStateProps) {
   const t = useT();
+  const pick = usePick();
   const classes = [styles.block, className].filter(Boolean).join(' ');
 
   return (
@@ -34,15 +35,15 @@ export function ErrorState({ warning, unit, action, className }: ErrorStateProps
       <div className={styles.head}>
         <span className={styles.value}>{NO_VALUE}</span>
         {unit !== undefined && unit.trim() !== '' && <span className={styles.unit}>{unit}</span>}
-        <span className={styles.chip}>{WARNING_LABELS[warning.code]}</span>
+        <span className={styles.chip}>{pick(WARNING_LABELS[warning.code])}</span>
       </div>
 
-      <p className={styles.message}>{warning.message}</p>
+      <p className={styles.message}>{pick(warning.message)}</p>
 
       {warning.fix !== undefined && (
         <p className={styles.fix}>
           <span aria-hidden="true">{t('result.fixPrefix')} </span>
-          {warning.fix}
+          {pick(warning.fix)}
         </p>
       )}
 

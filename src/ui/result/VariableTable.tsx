@@ -2,7 +2,7 @@
 
 import { variablesForLevel } from '@/application';
 import type { FormulaSpec, Level } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { Table } from '@/ui/primitives';
 
 export interface VariableTableProps {
@@ -23,6 +23,7 @@ export interface VariableTableProps {
  */
 export function VariableTable({ formula, mode = 'advanced', className }: VariableTableProps) {
   const t = useT();
+  const pick = usePick();
   const variables = variablesForLevel(formula, mode);
 
   return (
@@ -37,9 +38,13 @@ export function VariableTable({ formula, mode = 'advanced', className }: Variabl
       <tbody>
         {variables.map((variable) => (
           <tr key={variable.key}>
-            <th scope="row">{variable.label}</th>
+            <th scope="row">{pick(variable.label)}</th>
             <td>{variable.unit}</td>
-            <td>{variable.description ?? t('variable.noDescription')}</td>
+            <td>
+              {variable.description !== undefined
+                ? pick(variable.description)
+                : t('variable.noDescription')}
+            </td>
           </tr>
         ))}
       </tbody>

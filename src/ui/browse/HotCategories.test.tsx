@@ -36,7 +36,7 @@ describe('HotCategories — WF-09 khối lối tắt', () => {
     expect(empty.length).toBeGreaterThan(0);
 
     for (const category of empty) {
-      expect(screen.queryByText(category.shortName), category.shortName).toBeNull();
+      expect(screen.queryByText(category.shortName.vi), category.shortName.vi).toBeNull();
     }
   });
 
@@ -52,7 +52,7 @@ describe('HotCategories — WF-09 khối lối tắt', () => {
 
     for (const link of screen.getAllByRole('link')) {
       const name = link.querySelector('span')?.textContent ?? '';
-      const category = CATEGORIES.find((c) => c.shortName === name);
+      const category = CATEGORIES.find((c) => c.shortName.vi === name);
       expect(category, `không tra được nhóm "${name}"`).toBeDefined();
 
       const shown = Number(link.querySelectorAll('span')[1]?.textContent);
@@ -72,7 +72,7 @@ describe('HotCategories — WF-09 khối lối tắt', () => {
 
     for (const link of screen.getAllByRole('link')) {
       const name = link.querySelector('span')?.textContent ?? '';
-      const category = CATEGORIES.find((c) => c.shortName === name);
+      const category = CATEGORIES.find((c) => c.shortName.vi === name);
       const shown = Number(link.querySelectorAll('span')[1]?.textContent);
       expect(shown, name).toBe(FORMULAS.filter((f) => f.categoryId === category?.id).length);
     }

@@ -13,7 +13,7 @@ afterEach(cleanup);
 /** Lãi suất kiểu WF-16: bước 0,1% — thứ chặn người dùng gõ 12,37%. */
 const RATE: VariableSpec = {
   key: 'rate',
-  label: 'Lãi suất',
+  label: { vi: 'Lãi suất', en: 'Interest rate' },
   unit: '%',
   type: 'slider',
   level: 'basic',
@@ -26,7 +26,7 @@ const RATE: VariableSpec = {
 /** Khoản vay của `tra-gop-nien-kim`: bước 10.000.000 ₫ — ca cực đoan nhất của cùng vấn đề. */
 const AMOUNT: VariableSpec = {
   key: 'amount',
-  label: 'Số tiền vay',
+  label: { vi: 'Số tiền vay', en: 'Loan amount' },
   unit: '₫',
   type: 'slider',
   level: 'basic',

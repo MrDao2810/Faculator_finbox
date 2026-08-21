@@ -30,7 +30,10 @@ const PE: FormulaSpec = {
   id: 'pe',
   categoryId: 'fundamentals',
   name: { vi: 'Hệ số giá trên lợi nhuận (P/E)', en: 'Price to Earnings' },
-  description: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+  description: {
+    vi: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+    en: 'How much is paid per unit of profit.',
+  },
   latex: 'x',
   chartType: 'sensitivity',
   level: 'basic',
@@ -39,17 +42,22 @@ const PE: FormulaSpec = {
   variables: [
     {
       key: 'price',
-      label: 'Giá thị trường',
+      label: { vi: 'Giá thị trường', en: 'Market price' },
       unit: '₫',
       type: 'number',
       defaultValue: 0,
       level: 'basic',
     },
   ],
-  explanation: { meaning: 'a', whenToUse: 'b', howToRead: 'c', commonMistakes: 'd' },
-  example: { title: 'x', inputs: {}, expected: 1 },
+  explanation: {
+    meaning: { vi: 'a', en: 'a' },
+    whenToUse: { vi: 'b', en: 'b' },
+    howToRead: { vi: 'c', en: 'c' },
+    commonMistakes: { vi: 'd', en: 'd' },
+  },
+  example: { title: { vi: 'x', en: 'x' }, inputs: {}, expected: 1 },
   tests: [],
-  source: [{ label: 'CFA Institute' }],
+  source: [{ label: { vi: 'CFA Institute', en: 'CFA Institute' } }],
 };
 
 describe('ExportSheet — FR-24', () => {

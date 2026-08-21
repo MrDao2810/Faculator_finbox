@@ -16,7 +16,7 @@ import { modelViolation } from './warnings';
 /** Biến WACC — đúng ca của WF-15: WACC nhận giá trị từ CAPM ở thượng nguồn. */
 const wacc: VariableSpec = {
   key: 'wacc',
-  label: 'WACC',
+  label: { vi: 'WACC', en: 'WACC' },
   unit: '%',
   type: 'number',
   defaultValue: 12.1,
@@ -27,14 +27,20 @@ const wacc: VariableSpec = {
 
 const capmOk: LinkedUpstream = {
   formulaId: 'capm',
-  label: 'CAPM',
+  label: { vi: 'CAPM', en: 'CAPM' },
   output: ok(14.3, '%'),
 };
 
 const capmLoi: LinkedUpstream = {
   formulaId: 'capm',
-  label: 'CAPM',
-  output: fail('%', modelViolation('chưa đủ 60 phiên giá để tính Beta')),
+  label: { vi: 'CAPM', en: 'CAPM' },
+  output: fail(
+    '%',
+    modelViolation({
+      vi: 'chưa đủ 60 phiên giá để tính Beta',
+      en: 'not enough 60 price sessions to compute Beta',
+    }),
+  ),
 };
 
 describe('mode manual — không móc nối', () => {
@@ -60,7 +66,7 @@ describe('mode linked — đang nhận giá trị tự động', () => {
     const result = resolveLinked({ spec: wacc, upstream: capmOk });
     expect(result.mode).toBe('linked');
     expect(result.value).toBe(14.3);
-    expect(result.sourceLabel).toBe('CAPM');
+    expect(result.sourceLabel?.vi).toBe('CAPM');
   });
 
   it('mở nút Ghi đè, chưa có gì để hoàn tác', () => {
@@ -84,21 +90,21 @@ describe('mode inheritedError — thượng nguồn lỗi', () => {
   it('giữ nguyên cảnh báo gốc của thượng nguồn để người dùng biết hỏng ở đâu', () => {
     const result = resolveLinked({ spec: wacc, upstream: capmLoi });
     expect(result.warning?.code).toBe('MODEL_VIOLATION');
-    expect(result.warning?.message).toContain('60 phiên giá');
+    expect(result.warning?.message.vi).toContain('60 phiên giá');
   });
 
   it('thượng nguồn lỗi mà không kèm lý do thì tự dựng cảnh báo kế thừa hai lối đi', () => {
     const upstream: LinkedUpstream = {
       formulaId: 'capm',
-      label: 'CAPM',
+      label: { vi: 'CAPM', en: 'CAPM' },
       // Cố tình dựng tay một CalcOutput thiếu warning, mô phỏng công thức viết ẩu.
       output: { value: null, unit: '%' },
     };
     const result = resolveLinked({ spec: wacc, upstream });
 
     expect(result.warning?.code).toBe('INHERITED');
-    expect(result.warning?.fix).toContain('CAPM');
-    expect(result.warning?.fix).toContain('WACC');
+    expect(result.warning?.fix?.vi).toContain('CAPM');
+    expect(result.warning?.fix?.vi).toContain('WACC');
   });
 
   it('vẫn mở nút Ghi đè — đó là lối thoát WF-15 hứa với người dùng', () => {
@@ -129,7 +135,9 @@ describe('mode overridden — đã ghi đè', () => {
   });
 
   it('vẫn ghi tên nguồn để người dùng biết đang ghi đè lên cái gì', () => {
-    expect(resolveLinked({ spec: wacc, upstream: capmOk, override: 11 }).sourceLabel).toBe('CAPM');
+    expect(resolveLinked({ spec: wacc, upstream: capmOk, override: 11 }).sourceLabel?.vi).toBe(
+      'CAPM',
+    );
   });
 
   it('ghi đè bằng số 0 vẫn là ghi đè, không bị nhầm thành chưa ghi đè', () => {
@@ -165,7 +173,12 @@ describe('startOverrideValue()', () => {
 });
 
 describe('gom nhiều ô lại', () => {
-  const eps: VariableSpec = { ...wacc, key: 'eps', label: 'EPS', defaultValue: 6_050 };
+  const eps: VariableSpec = {
+    ...wacc,
+    key: 'eps',
+    label: { vi: 'EPS', en: 'EPS' },
+    defaultValue: 6_050,
+  };
 
   it('linkedInputs trả null cho ô chưa có số dùng được, không trả 0 (FR-06)', () => {
     const inputs = linkedInputs([
@@ -183,7 +196,7 @@ describe('gom nhiều ô lại', () => {
       { spec: eps, override: 6_050 },
     ]);
 
-    expect(missing).toEqual(['WACC']);
+    expect(missing).toEqual([{ vi: 'WACC', en: 'WACC' }]);
   });
 
   it('mọi ô đủ số thì không còn gì thiếu', () => {

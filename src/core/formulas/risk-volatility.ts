@@ -20,15 +20,17 @@
 import { fail, ok } from '../calc-output';
 import type { CalcContext, FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
-import type { CalcWarning, VariableSpec } from '../types';
+import type { Bilingual, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import { mean, requireCloses, sampleStdDev, simpleReturns } from './series-utils';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
 /** Nguồn dùng chung của cả nhóm — chương về rủi ro và lợi suất lịch sử. */
 const SOURCE_INVESTMENTS: FormulaSource = {
-  label:
-    'Bodie, Kane & Marcus — Investments, ấn bản 12 (McGraw-Hill), chương 5: Risk, Return, and the Historical Record',
+  label: {
+    vi: 'Bodie, Kane & Marcus — Investments, ấn bản 12 (McGraw-Hill), chương 5: Risk, Return, and the Historical Record',
+    en: 'Bodie, Kane & Marcus — Investments, 12th edition (McGraw-Hill), chapter 5: Risk, Return, and the Historical Record',
+  },
 };
 
 /** Dưới 30 phiên thì độ lệch chuẩn lợi suất chỉ là con số cho có, không nói được gì. */
@@ -55,18 +57,36 @@ function windowCloses(ctx: CalcContext, sessions: number, minimum: number): numb
 
 /** Ô chọn độ dài cửa sổ cho nhóm độ lệch chuẩn. */
 function stdDevWindowVar(): VariableSpec {
-  return sliderVar('sessions', 'Số phiên lấy để tính', 'phiên', 60, MIN_SESSIONS_STDDEV, 500, 1, {
-    level: 'advanced',
-    description:
-      'Lấy bao nhiêu phiên gần nhất trong chuỗi giá. Tối thiểu 30 phiên; dưới 60 phiên thì ước lượng còn yếu vì mẫu quá mỏng.',
-  });
+  return sliderVar(
+    'sessions',
+    { vi: 'Số phiên lấy để tính', en: 'Number of sessions used' },
+    'phiên',
+    60,
+    MIN_SESSIONS_STDDEV,
+    500,
+    1,
+    {
+      level: 'advanced',
+      description: {
+        vi: 'Lấy bao nhiêu phiên gần nhất trong chuỗi giá. Tối thiểu 30 phiên; dưới 60 phiên thì ước lượng còn yếu vì mẫu quá mỏng.',
+        en: 'How many of the most recent sessions to take from the price series. Minimum 30 sessions; below 60 sessions the estimate is still weak because the sample is too thin.',
+      },
+    },
+  );
 }
 
 /** Ô chọn độ dài cửa sổ cho hai công thức đếm — ngưỡng nhẹ hơn nhóm độ lệch chuẩn. */
-function countWindowVar(description: string): VariableSpec {
-  return sliderVar('sessions', 'Số phiên trong kỳ', 'phiên', 60, MIN_SESSIONS_COUNT, 500, 1, {
-    description,
-  });
+function countWindowVar(description: Bilingual): VariableSpec {
+  return sliderVar(
+    'sessions',
+    { vi: 'Số phiên trong kỳ', en: 'Number of sessions in the period' },
+    'phiên',
+    60,
+    MIN_SESSIONS_COUNT,
+    500,
+    1,
+    { description },
+  );
 }
 
 /*
@@ -115,31 +135,50 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
     id: 'do-lech-chuan-loi-suat-phien',
     categoryId: 'risk',
     name: { vi: 'Độ lệch chuẩn lợi suất theo phiên', en: 'Daily return standard deviation' },
-    description: 'Mức dao động bình quân của lợi suất mỗi phiên quanh lợi suất trung bình.',
+    description: {
+      vi: 'Mức dao động bình quân của lợi suất mỗi phiên quanh lợi suất trung bình.',
+      en: "The average deviation of each session's return around the mean return.",
+    },
     latex: 's = \\sqrt{\\frac{\\sum_{t=1}^{n}(r_t - \\bar{r})^2}{n - 1}}',
-    expression:
-      'Độ lệch chuẩn phiên = căn bậc hai của [Tổng bình phương (Lợi suất từng phiên − Lợi suất bình quân) ÷ (Số lợi suất − 1)]',
+    expression: {
+      vi: 'Độ lệch chuẩn phiên = căn bậc hai của [Tổng bình phương (Lợi suất từng phiên − Lợi suất bình quân) ÷ (Số lợi suất − 1)]',
+      en: "Session standard deviation = square root of [Sum of squares (each session's return − average return) ÷ (number of returns − 1)]",
+    },
     chartType: 'histogram',
     level: 'advanced',
     tags: ['do lech chuan', 'bien dong', 'volatility', 'standard deviation', 'rui ro'],
     resultUnit: '%/phiên',
     variables: [stdDevWindowVar()],
     explanation: {
-      meaning:
-        'Thước đo cơ bản nhất của rủi ro: lợi suất mỗi phiên thường lệch khỏi mức trung bình bao nhiêu phần trăm.',
-      whenToUse:
-        'Khi cần một con số duy nhất để so mức dao động của hai cổ phiếu, hoặc làm đầu vào cho Sharpe và VaR.',
-      howToRead:
-        'Số càng lớn thì giá càng nhảy mạnh giữa các phiên. Với chuỗi lợi suất phân phối chuẩn, khoảng hai phần ba số phiên nằm trong khoảng một lần độ lệch chuẩn quanh mức trung bình.',
-      commonMistakes:
-        'Tính trên vài chục phiên rồi coi là mức biến động ổn định của cổ phiếu — mẫu càng mỏng, con số càng nhảy theo kỳ chọn. Một lỗi khác là đem so thẳng độ lệch chuẩn theo phiên với con số theo năm của báo cáo quỹ.',
+      meaning: {
+        vi: 'Thước đo cơ bản nhất của rủi ro: lợi suất mỗi phiên thường lệch khỏi mức trung bình bao nhiêu phần trăm.',
+        en: "The most basic measure of risk: how many percentage points each session's return typically deviates from the average.",
+      },
+      whenToUse: {
+        vi: 'Khi cần một con số duy nhất để so mức dao động của hai cổ phiếu, hoặc làm đầu vào cho Sharpe và VaR.',
+        en: 'When you need a single number to compare the volatility of two stocks, or as an input for Sharpe and VaR.',
+      },
+      howToRead: {
+        vi: 'Số càng lớn thì giá càng nhảy mạnh giữa các phiên. Với chuỗi lợi suất phân phối chuẩn, khoảng hai phần ba số phiên nằm trong khoảng một lần độ lệch chuẩn quanh mức trung bình.',
+        en: 'The larger the number, the more sharply the price swings between sessions. For a normally distributed return series, about two-thirds of sessions fall within one standard deviation of the mean.',
+      },
+      commonMistakes: {
+        vi: 'Tính trên vài chục phiên rồi coi là mức biến động ổn định của cổ phiếu — mẫu càng mỏng, con số càng nhảy theo kỳ chọn. Một lỗi khác là đem so thẳng độ lệch chuẩn theo phiên với con số theo năm của báo cáo quỹ.',
+        en: "Computing it over a few dozen sessions and treating it as the stock's stable volatility level — the thinner the sample, the more the number jumps around depending on the period chosen. Another mistake is comparing the per-session standard deviation directly against the annualized figure in a fund report.",
+      },
     },
     example: {
-      title: '30 phiên gần nhất của một chuỗi tăng có rung lắc nhẹ',
+      title: {
+        vi: '30 phiên gần nhất của một chuỗi tăng có rung lắc nhẹ',
+        en: 'The most recent 30 sessions of a mildly choppy uptrend',
+      },
       inputs: { sessions: 30 },
       series: CHUOI_TANG_ZIGZAG,
       expected: 1.4159,
-      note: 'Khoảng 1,4%/phiên — mức thường thấy của một cổ phiếu vốn hoá lớn trên HOSE.',
+      note: {
+        vi: 'Khoảng 1,4%/phiên — mức thường thấy của một cổ phiếu vốn hoá lớn trên HOSE.',
+        en: 'About 1.4%/session — a typical level for a large-cap stock on HOSE.',
+      },
     },
     tests: [
       {
@@ -188,39 +227,67 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
     id: 'do-bien-dong-nam-hoa',
     categoryId: 'risk',
     name: { vi: 'Độ biến động năm hoá', en: 'Annualized volatility' },
-    description: 'Quy độ lệch chuẩn lợi suất theo phiên về mức tương đương cả năm.',
+    description: {
+      vi: 'Quy độ lệch chuẩn lợi suất theo phiên về mức tương đương cả năm.',
+      en: 'Converts the per-session return standard deviation into its yearly equivalent.',
+    },
     latex: '\\sigma_{nam} = s_{phien} \\times \\sqrt{D}',
-    expression:
-      'Độ biến động năm = Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên giao dịch trong một năm',
+    expression: {
+      vi: 'Độ biến động năm = Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên giao dịch trong một năm',
+      en: 'Annualized volatility = per-session return standard deviation × square root of the number of trading sessions in a year',
+    },
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['bien dong nam', 'annualized volatility', 'sigma', 'do lech chuan nam', 'rui ro'],
     resultUnit: '%/năm',
     variables: [
       stdDevWindowVar(),
-      numberVar('tradingDays', 'Số phiên giao dịch trong một năm', 'phiên', 250, {
-        min: 1,
-        max: 366,
-        level: 'advanced',
-        description: 'Thị trường Việt Nam giao dịch khoảng 250 phiên mỗi năm.',
-      }),
+      numberVar(
+        'tradingDays',
+        { vi: 'Số phiên giao dịch trong một năm', en: 'Trading sessions per year' },
+        'phiên',
+        250,
+        {
+          min: 1,
+          max: 366,
+          level: 'advanced',
+          description: {
+            vi: 'Thị trường Việt Nam giao dịch khoảng 250 phiên mỗi năm.',
+            en: 'The Vietnamese market trades roughly 250 sessions per year.',
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning:
-        'Cùng một mức rủi ro nhưng đo bằng đơn vị năm, để so được với lãi suất, với biến động của chỉ số hay của một quỹ.',
-      whenToUse:
-        'Khi báo cáo mức rủi ro của danh mục, hoặc khi cần đầu vào cho công thức định giá quyền chọn và VaR theo năm.',
-      howToRead:
-        'Nhân với căn bậc hai của số phiên chứ không nhân thẳng số phiên: rủi ro cộng dồn theo căn thời gian, nên 1,4%/phiên thành khoảng 22%/năm chứ không phải 350%.',
-      commonMistakes:
-        'Nhân độ lệch chuẩn phiên với 250 thay vì với căn bậc hai của 250. Sai lầm thứ hai là dùng 365 ngày lịch trong khi chuỗi giá chỉ có ngày giao dịch.',
+      meaning: {
+        vi: 'Cùng một mức rủi ro nhưng đo bằng đơn vị năm, để so được với lãi suất, với biến động của chỉ số hay của một quỹ.',
+        en: 'The same level of risk, but measured in yearly terms, so it can be compared against interest rates or the volatility of an index or a fund.',
+      },
+      whenToUse: {
+        vi: 'Khi báo cáo mức rủi ro của danh mục, hoặc khi cần đầu vào cho công thức định giá quyền chọn và VaR theo năm.',
+        en: "When reporting a portfolio's risk level, or when you need an input for option pricing formulas and annual VaR.",
+      },
+      howToRead: {
+        vi: 'Nhân với căn bậc hai của số phiên chứ không nhân thẳng số phiên: rủi ro cộng dồn theo căn thời gian, nên 1,4%/phiên thành khoảng 22%/năm chứ không phải 350%.',
+        en: 'It is multiplied by the square root of the number of sessions, not the number of sessions directly: risk accumulates with the square root of time, so 1.4%/session becomes about 22%/year, not 350%.',
+      },
+      commonMistakes: {
+        vi: 'Nhân độ lệch chuẩn phiên với 250 thay vì với căn bậc hai của 250. Sai lầm thứ hai là dùng 365 ngày lịch trong khi chuỗi giá chỉ có ngày giao dịch.',
+        en: 'Multiplying the per-session standard deviation by 250 instead of by the square root of 250. A second mistake is using 365 calendar days when the price series only contains trading days.',
+      },
     },
     example: {
-      title: '30 phiên gần nhất, quy về năm 250 phiên giao dịch',
+      title: {
+        vi: '30 phiên gần nhất, quy về năm 250 phiên giao dịch',
+        en: 'The most recent 30 sessions, annualized to a 250-session trading year',
+      },
       inputs: { sessions: 30, tradingDays: 250 },
       series: CHUOI_TANG_ZIGZAG,
       expected: 22.387,
-      note: '1,4159%/phiên nhân căn bậc hai của 250 ra khoảng 22,4%/năm.',
+      note: {
+        vi: '1,4159%/phiên nhân căn bậc hai của 250 ra khoảng 22,4%/năm.',
+        en: '1.4159%/session times the square root of 250 comes to about 22.4%/year.',
+      },
     },
     tests: [
       {
@@ -259,8 +326,14 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       return fail(
         unit,
         meaningless(
-          'Số phiên giao dịch trong một năm phải lớn hơn 0 thì mới quy độ biến động về mức cả năm được.',
-          'Nhập khoảng 250 phiên — số phiên giao dịch thường thấy của một năm trên HOSE.',
+          {
+            vi: 'Số phiên giao dịch trong một năm phải lớn hơn 0 thì mới quy độ biến động về mức cả năm được.',
+            en: 'The number of trading sessions per year must be greater than 0 to annualize the volatility.',
+          },
+          {
+            vi: 'Nhập khoảng 250 phiên — số phiên giao dịch thường thấy của một năm trên HOSE.',
+            en: 'Enter about 250 sessions — the typical number of trading sessions in a year on HOSE.',
+          },
         ),
       );
     }
@@ -281,40 +354,67 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
     id: 'do-lech-chuan-ban-phan',
     categoryId: 'risk',
     name: { vi: 'Độ lệch chuẩn bán phần', en: 'Downside deviation' },
-    description: 'Chỉ đo phần dao động nằm DƯỚI một ngưỡng lợi suất, bỏ qua các phiên tăng.',
+    description: {
+      vi: 'Chỉ đo phần dao động nằm DƯỚI một ngưỡng lợi suất, bỏ qua các phiên tăng.',
+      en: 'Measures only the volatility falling BELOW a return threshold, ignoring up sessions.',
+    },
     latex: 'DD = \\sqrt{\\frac{\\sum_{r_t < B}(r_t - B)^2}{n - 1}}',
-    expression:
-      'Độ lệch chuẩn bán phần = căn bậc hai của [Tổng bình phương (Lợi suất − Ngưỡng) của riêng các phiên dưới ngưỡng ÷ (Số lợi suất − 1)]',
+    expression: {
+      vi: 'Độ lệch chuẩn bán phần = căn bậc hai của [Tổng bình phương (Lợi suất − Ngưỡng) của riêng các phiên dưới ngưỡng ÷ (Số lợi suất − 1)]',
+      en: 'Downside deviation = square root of [Sum of squares (return − threshold) for sessions below the threshold only ÷ (number of returns − 1)]',
+    },
     chartType: 'histogram',
     level: 'advanced',
     tags: ['downside deviation', 'do lech chuan ban phan', 'rui ro giam', 'sortino', 'nguong'],
     resultUnit: '%/phiên',
     variables: [
       stdDevWindowVar(),
-      numberVar('threshold', 'Ngưỡng lợi suất mỗi phiên', '%', 0, {
-        min: -5,
-        max: 5,
-        level: 'advanced',
-        description:
-          'Mức lợi suất coi là chấp nhận được. Để 0 nghĩa là chỉ tính các phiên giảm giá.',
-      }),
+      numberVar(
+        'threshold',
+        { vi: 'Ngưỡng lợi suất mỗi phiên', en: 'Per-session return threshold' },
+        '%',
+        0,
+        {
+          min: -5,
+          max: 5,
+          level: 'advanced',
+          description: {
+            vi: 'Mức lợi suất coi là chấp nhận được. Để 0 nghĩa là chỉ tính các phiên giảm giá.',
+            en: 'The return level considered acceptable. Leaving it at 0 means only losing sessions are counted.',
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning:
-        'Phần rủi ro mà nhà đầu tư thực sự ngại: mức dao động của riêng những phiên rơi xuống dưới ngưỡng đặt ra.',
-      whenToUse:
-        'Khi so hai danh mục có cùng độ lệch chuẩn nhưng một bên hay rơi sâu hơn, hoặc khi cần mẫu số cho tỷ số Sortino.',
-      howToRead:
-        'Với ngưỡng mặc định 0% (chỉ tính phiên giảm giá), thường nhỏ hơn hoặc bằng độ lệch chuẩn đầy đủ vì đã bỏ hết phần tăng giá. Nâng ngưỡng lên cao thì số này tăng theo và có thể VƯỢT QUA độ lệch chuẩn đầy đủ — mẫu số đo khoảng cách tới ngưỡng, không phải tới lợi suất trung bình. Bằng 0 nghĩa là trong kỳ không phiên nào rơi xuống dưới ngưỡng, đó là kết quả thật chứ không phải thiếu dữ liệu.',
-      commonMistakes:
-        'Chia cho số phiên nằm dưới ngưỡng thay vì cho tổng số phiên quan sát — làm thế thì danh mục càng ít phiên xấu lại càng bị chấm rủi ro cao. Lỗi thứ hai là quên đặt ngưỡng theo cùng đơn vị kỳ với chuỗi lợi suất.',
+      meaning: {
+        vi: 'Phần rủi ro mà nhà đầu tư thực sự ngại: mức dao động của riêng những phiên rơi xuống dưới ngưỡng đặt ra.',
+        en: 'The part of risk investors actually dread: the volatility of only those sessions that fall below the chosen threshold.',
+      },
+      whenToUse: {
+        vi: 'Khi so hai danh mục có cùng độ lệch chuẩn nhưng một bên hay rơi sâu hơn, hoặc khi cần mẫu số cho tỷ số Sortino.',
+        en: 'When comparing two portfolios with the same standard deviation where one tends to fall deeper, or when you need the denominator for the Sortino ratio.',
+      },
+      howToRead: {
+        vi: 'Với ngưỡng mặc định 0% (chỉ tính phiên giảm giá), thường nhỏ hơn hoặc bằng độ lệch chuẩn đầy đủ vì đã bỏ hết phần tăng giá. Nâng ngưỡng lên cao thì số này tăng theo và có thể VƯỢT QUA độ lệch chuẩn đầy đủ — mẫu số đo khoảng cách tới ngưỡng, không phải tới lợi suất trung bình. Bằng 0 nghĩa là trong kỳ không phiên nào rơi xuống dưới ngưỡng, đó là kết quả thật chứ không phải thiếu dữ liệu.',
+        en: 'With the default 0% threshold (only losing sessions counted), the figure is usually smaller than or equal to the full standard deviation because all the up sessions are excluded. Raising the threshold pushes this number up, and it can EXCEED the full standard deviation — the denominator measures distance to the threshold, not to the average return. A value of 0 means no session in the period fell below the threshold, a genuine result rather than missing data.',
+      },
+      commonMistakes: {
+        vi: 'Chia cho số phiên nằm dưới ngưỡng thay vì cho tổng số phiên quan sát — làm thế thì danh mục càng ít phiên xấu lại càng bị chấm rủi ro cao. Lỗi thứ hai là quên đặt ngưỡng theo cùng đơn vị kỳ với chuỗi lợi suất.',
+        en: 'Dividing by the number of sessions below the threshold instead of the total number of observed sessions — doing so scores a portfolio with fewer bad sessions as riskier. A second mistake is forgetting to set the threshold in the same period unit as the return series.',
+      },
     },
     example: {
-      title: '30 phiên gần nhất, ngưỡng 0% mỗi phiên',
+      title: {
+        vi: '30 phiên gần nhất, ngưỡng 0% mỗi phiên',
+        en: 'The most recent 30 sessions, threshold 0% per session',
+      },
       inputs: { sessions: 30, threshold: 0 },
       series: CHUOI_TANG_ZIGZAG,
       expected: 0.6731,
-      note: 'Nhỏ hơn hẳn độ lệch chuẩn đầy đủ 1,4159% vì chuỗi này tăng là chính.',
+      note: {
+        vi: 'Nhỏ hơn hẳn độ lệch chuẩn đầy đủ 1,4159% vì chuỗi này tăng là chính.',
+        en: 'Well below the full standard deviation of 1.4159% because this series is mostly rising.',
+      },
     },
     tests: [
       {
@@ -374,30 +474,50 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
     id: 'he-so-bien-thien',
     categoryId: 'risk',
     name: { vi: 'Hệ số biến thiên', en: 'Coefficient of variation' },
-    description: 'Bao nhiêu đơn vị rủi ro phải chịu cho mỗi đơn vị lợi suất bình quân.',
+    description: {
+      vi: 'Bao nhiêu đơn vị rủi ro phải chịu cho mỗi đơn vị lợi suất bình quân.',
+      en: 'How many units of risk are borne for each unit of average return.',
+    },
     latex: 'CV = \\frac{s}{\\bar{r}}',
-    expression: 'Hệ số biến thiên = Độ lệch chuẩn lợi suất ÷ Lợi suất bình quân',
+    expression: {
+      vi: 'Hệ số biến thiên = Độ lệch chuẩn lợi suất ÷ Lợi suất bình quân',
+      en: 'Coefficient of variation = return standard deviation ÷ average return',
+    },
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['he so bien thien', 'coefficient of variation', 'cv', 'rui ro tren loi suat'],
     resultUnit: 'lần',
     variables: [stdDevWindowVar()],
     explanation: {
-      meaning:
-        'Đưa rủi ro và lợi suất về cùng một tỷ lệ, nhờ đó so được hai cổ phiếu có mặt bằng lợi suất khác hẳn nhau.',
-      whenToUse:
-        'Khi chọn giữa hai cơ hội mà một bên vừa lãi cao hơn vừa dao động mạnh hơn, nên không nhìn riêng chỉ số nào mà quyết được.',
-      howToRead:
-        'Số càng NHỎ càng tốt: mỗi phần lợi suất kiếm được phải trả bằng ít rủi ro hơn. Đây là tỷ số thuần, không có đơn vị.',
-      commonMistakes:
-        'Dùng khi lợi suất bình quân âm — lúc đó tỷ số ra số âm và xếp hạng ngược hoàn toàn, nên công thức này chỉ dùng cho kỳ có lợi suất bình quân dương.',
+      meaning: {
+        vi: 'Đưa rủi ro và lợi suất về cùng một tỷ lệ, nhờ đó so được hai cổ phiếu có mặt bằng lợi suất khác hẳn nhau.',
+        en: 'Puts risk and return on the same scale, making it possible to compare two stocks with very different return levels.',
+      },
+      whenToUse: {
+        vi: 'Khi chọn giữa hai cơ hội mà một bên vừa lãi cao hơn vừa dao động mạnh hơn, nên không nhìn riêng chỉ số nào mà quyết được.',
+        en: 'When choosing between two opportunities where one has both a higher return and stronger volatility, so neither metric alone can decide it.',
+      },
+      howToRead: {
+        vi: 'Số càng NHỎ càng tốt: mỗi phần lợi suất kiếm được phải trả bằng ít rủi ro hơn. Đây là tỷ số thuần, không có đơn vị.',
+        en: 'The SMALLER the number, the better: each unit of return earned costs less risk. This is a pure ratio with no unit.',
+      },
+      commonMistakes: {
+        vi: 'Dùng khi lợi suất bình quân âm — lúc đó tỷ số ra số âm và xếp hạng ngược hoàn toàn, nên công thức này chỉ dùng cho kỳ có lợi suất bình quân dương.',
+        en: 'Using it when the average return is negative — the ratio then comes out negative and the ranking flips entirely, so this formula should only be used for periods with a positive average return.',
+      },
     },
     example: {
-      title: '30 phiên gần nhất của một chuỗi tăng có rung lắc nhẹ',
+      title: {
+        vi: '30 phiên gần nhất của một chuỗi tăng có rung lắc nhẹ',
+        en: 'The most recent 30 sessions of a mildly choppy uptrend',
+      },
       inputs: { sessions: 30 },
       series: CHUOI_TANG_ZIGZAG,
       expected: 3.3382,
-      note: 'Lợi suất bình quân 0,4241%/phiên, độ lệch chuẩn 1,4159%/phiên — mỗi phần lợi suất kèm hơn ba phần dao động.',
+      note: {
+        vi: 'Lợi suất bình quân 0,4241%/phiên, độ lệch chuẩn 1,4159%/phiên — mỗi phần lợi suất kèm hơn ba phần dao động.',
+        en: 'Average return 0.4241%/session, standard deviation 1.4159%/session — every unit of return carries more than three units of volatility.',
+      },
     },
     tests: [
       {
@@ -442,9 +562,12 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          'hệ số biến thiên',
-          'Lợi suất bình quân mỗi phiên',
-          'Chọn kỳ có giá thay đổi, hoặc dùng Độ lệch chuẩn lợi suất theo phiên để đo riêng mức dao động.',
+          { vi: 'hệ số biến thiên', en: 'coefficient of variation' },
+          { vi: 'Lợi suất bình quân mỗi phiên', en: 'Average return per session' },
+          {
+            vi: 'Chọn kỳ có giá thay đổi, hoặc dùng Độ lệch chuẩn lợi suất theo phiên để đo riêng mức dao động.',
+            en: 'Choose a period where the price changes, or use the Daily return standard deviation to measure volatility on its own.',
+          },
         ),
       );
     }
@@ -452,8 +575,14 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       return fail(
         unit,
         meaningless(
-          'Lợi suất bình quân trong kỳ đang âm nên hệ số biến thiên ra số âm, không dùng để xếp hạng rủi ro được.',
-          'Chọn kỳ có lợi suất bình quân dương, hoặc dùng Độ lệch chuẩn lợi suất theo phiên.',
+          {
+            vi: 'Lợi suất bình quân trong kỳ đang âm nên hệ số biến thiên ra số âm, không dùng để xếp hạng rủi ro được.',
+            en: 'The average return in this period is negative, so the coefficient of variation comes out negative and cannot be used to rank risk.',
+          },
+          {
+            vi: 'Chọn kỳ có lợi suất bình quân dương, hoặc dùng Độ lệch chuẩn lợi suất theo phiên.',
+            en: 'Choose a period with a positive average return, or use the Daily return standard deviation instead.',
+          },
         ),
       );
     }
@@ -471,34 +600,55 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
     id: 'bien-do-dao-dong-lon-nhat',
     categoryId: 'risk',
     name: { vi: 'Biên độ dao động lớn nhất trong kỳ', en: 'Peak-to-trough price range' },
-    description:
-      'Giá đóng cửa cao nhất trong kỳ cao hơn giá đóng cửa thấp nhất bao nhiêu phần trăm.',
+    description: {
+      vi: 'Giá đóng cửa cao nhất trong kỳ cao hơn giá đóng cửa thấp nhất bao nhiêu phần trăm.',
+      en: 'How many percent the highest closing price in the period is above the lowest closing price.',
+    },
     latex: 'A = \\frac{P_{max} - P_{min}}{P_{min}} \\times 100',
-    expression:
-      'Biên độ dao động = (Giá đóng cửa cao nhất − Giá đóng cửa thấp nhất) ÷ Giá đóng cửa thấp nhất × 100',
+    expression: {
+      vi: 'Biên độ dao động = (Giá đóng cửa cao nhất − Giá đóng cửa thấp nhất) ÷ Giá đóng cửa thấp nhất × 100',
+      en: 'Price range = (highest closing price − lowest closing price) ÷ lowest closing price × 100',
+    },
     chartType: 'candlestick',
     level: 'basic',
     tags: ['bien do dao dong', 'dinh day', 'price range', 'cao nhat thap nhat', 'vung gia'],
     resultUnit: '%',
     variables: [
-      countWindowVar('Lấy bao nhiêu phiên gần nhất để tìm đỉnh và đáy. Tối thiểu 10 phiên.'),
+      countWindowVar({
+        vi: 'Lấy bao nhiêu phiên gần nhất để tìm đỉnh và đáy. Tối thiểu 10 phiên.',
+        en: 'How many of the most recent sessions to scan for the peak and trough. Minimum 10 sessions.',
+      }),
     ],
     explanation: {
-      meaning:
-        'Khoảng cách giữa đỉnh và đáy giá đóng cửa trong kỳ — bề rộng của vùng giá mà cổ phiếu đã đi qua.',
-      whenToUse:
-        'Khi ước lượng nhanh mức dao động của một mã trước khi đặt cắt lỗ hoặc chốt lời, và khi so vùng giá giữa các kỳ.',
-      howToRead:
-        'Tính theo đáy làm gốc, nên đọc là "từ đáy lên đỉnh tăng bao nhiêu phần trăm". Biên độ rộng nghĩa là vào lệnh sai vùng thì chênh lệch rất lớn.',
-      commonMistakes:
-        'Nhầm với mức sụt giảm sâu nhất từ đỉnh: biên độ không quan tâm đỉnh và đáy cái nào tới trước, còn drawdown thì bắt buộc đáy phải nằm SAU đỉnh.',
+      meaning: {
+        vi: 'Khoảng cách giữa đỉnh và đáy giá đóng cửa trong kỳ — bề rộng của vùng giá mà cổ phiếu đã đi qua.',
+        en: 'The distance between the peak and trough closing prices in the period — the width of the price zone the stock has traveled through.',
+      },
+      whenToUse: {
+        vi: 'Khi ước lượng nhanh mức dao động của một mã trước khi đặt cắt lỗ hoặc chốt lời, và khi so vùng giá giữa các kỳ.',
+        en: "When quickly estimating a stock's volatility before setting a stop-loss or take-profit order, and when comparing price zones across periods.",
+      },
+      howToRead: {
+        vi: 'Tính theo đáy làm gốc, nên đọc là "từ đáy lên đỉnh tăng bao nhiêu phần trăm". Biên độ rộng nghĩa là vào lệnh sai vùng thì chênh lệch rất lớn.',
+        en: 'It is computed with the trough as the base, so read it as "how many percent from trough to peak." A wide range means entering at the wrong zone carries a very large difference.',
+      },
+      commonMistakes: {
+        vi: 'Nhầm với mức sụt giảm sâu nhất từ đỉnh: biên độ không quan tâm đỉnh và đáy cái nào tới trước, còn drawdown thì bắt buộc đáy phải nằm SAU đỉnh.',
+        en: 'Confusing it with maximum drawdown: the price range does not care which of the peak or trough came first, whereas drawdown requires the trough to occur AFTER the peak.',
+      },
     },
     example: {
-      title: '12 phiên gần nhất, đáy 97 và đỉnh 105',
+      title: {
+        vi: '12 phiên gần nhất, đáy 97 và đỉnh 105',
+        en: 'The most recent 12 sessions, trough 97 and peak 105',
+      },
       inputs: { sessions: 12 },
       series: CHUOI_12_PHIEN,
       expected: 8.2474,
-      note: 'Chênh 8 đơn vị giá trên nền đáy 97 nên biên độ là 8,25%.',
+      note: {
+        vi: 'Chênh 8 đơn vị giá trên nền đáy 97 nên biên độ là 8,25%.',
+        en: 'An 8-unit gap on a base of 97 gives a range of 8.25%.',
+      },
     },
     tests: [
       {
@@ -553,32 +703,55 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
     id: 'chuoi-phien-giam-dai-nhat',
     categoryId: 'risk',
     name: { vi: 'Chuỗi phiên giảm dài nhất', en: 'Longest losing streak' },
-    description: 'Trong kỳ, cổ phiếu đã có lần giảm liên tiếp nhiều nhất bao nhiêu phiên.',
+    description: {
+      vi: 'Trong kỳ, cổ phiếu đã có lần giảm liên tiếp nhiều nhất bao nhiêu phiên.',
+      en: 'In the period, the longest run of consecutive declining sessions the stock has had.',
+    },
     latex: 'L = \\max\\{k : r_{t+1} < 0, \\ldots, r_{t+k} < 0\\}',
-    expression: 'Chuỗi giảm dài nhất = Số phiên giảm giá liên tiếp nhiều nhất trong kỳ',
+    expression: {
+      vi: 'Chuỗi giảm dài nhất = Số phiên giảm giá liên tiếp nhiều nhất trong kỳ',
+      en: 'Longest losing streak = the greatest number of consecutive declining sessions in the period',
+    },
     chartType: 'underwater',
     level: 'basic',
     tags: ['chuoi giam', 'losing streak', 'phien giam lien tiep', 'ky luat', 'tam ly'],
     resultUnit: 'phiên',
     variables: [
-      countWindowVar('Lấy bao nhiêu phiên gần nhất để đếm chuỗi giảm. Tối thiểu 10 phiên.'),
+      countWindowVar({
+        vi: 'Lấy bao nhiêu phiên gần nhất để đếm chuỗi giảm. Tối thiểu 10 phiên.',
+        en: 'How many of the most recent sessions to scan for losing streaks. Minimum 10 sessions.',
+      }),
     ],
     explanation: {
-      meaning:
-        'Đợt giảm liền mạch dài nhất trong kỳ, đếm theo số phiên có giá đóng cửa thấp hơn phiên liền trước.',
-      whenToUse:
-        'Khi chuẩn bị tâm lý và kế hoạch cho một chuỗi thua: biết mã này từng giảm liền năm phiên thì không hoảng ở phiên thứ ba.',
-      howToRead:
-        'Đơn vị là phiên, không phải phần trăm — chuỗi dài chưa chắc mất nhiều tiền nếu mỗi phiên chỉ giảm nhẹ. Kết quả 0 nghĩa là trong kỳ không phiên nào giảm.',
-      commonMistakes:
-        'Coi đây là thước đo mức lỗ. Muốn biết mất bao nhiêu thì xem mức sụt giảm sâu nhất từ đỉnh; chuỗi phiên giảm chỉ đo độ dai của đợt giảm.',
+      meaning: {
+        vi: 'Đợt giảm liền mạch dài nhất trong kỳ, đếm theo số phiên có giá đóng cửa thấp hơn phiên liền trước.',
+        en: 'The longest unbroken decline in the period, counted as the number of sessions whose closing price is lower than the one right before it.',
+      },
+      whenToUse: {
+        vi: 'Khi chuẩn bị tâm lý và kế hoạch cho một chuỗi thua: biết mã này từng giảm liền năm phiên thì không hoảng ở phiên thứ ba.',
+        en: 'When preparing mentally and planning for a losing streak: knowing this stock has fallen for five straight sessions before means not panicking on the third one.',
+      },
+      howToRead: {
+        vi: 'Đơn vị là phiên, không phải phần trăm — chuỗi dài chưa chắc mất nhiều tiền nếu mỗi phiên chỉ giảm nhẹ. Kết quả 0 nghĩa là trong kỳ không phiên nào giảm.',
+        en: 'The unit is sessions, not percent — a long streak does not necessarily mean heavy losses if each session only dips slightly. A result of 0 means no session declined during the period.',
+      },
+      commonMistakes: {
+        vi: 'Coi đây là thước đo mức lỗ. Muốn biết mất bao nhiêu thì xem mức sụt giảm sâu nhất từ đỉnh; chuỗi phiên giảm chỉ đo độ dai của đợt giảm.',
+        en: 'Treating this as a measure of loss size. To know how much was lost, look at maximum drawdown instead; the losing streak only measures how persistent the decline was.',
+      },
     },
     example: {
-      title: '12 phiên gần nhất, có đoạn giảm bốn phiên liền',
+      title: {
+        vi: '12 phiên gần nhất, có đoạn giảm bốn phiên liền',
+        en: 'The most recent 12 sessions, with a four-session losing run',
+      },
       inputs: { sessions: 12 },
       series: CHUOI_12_PHIEN,
       expected: 4,
-      note: 'Đoạn 104 → 103 → 101 → 99 → 98 là bốn phiên giảm liên tiếp.',
+      note: {
+        vi: 'Đoạn 104 → 103 → 101 → 99 → 98 là bốn phiên giảm liên tiếp.',
+        en: 'The run 104 → 103 → 101 → 99 → 98 is four consecutive declining sessions.',
+      },
     },
     tests: [
       {

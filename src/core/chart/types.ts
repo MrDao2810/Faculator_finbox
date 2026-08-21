@@ -9,7 +9,7 @@
  * PDF, và tấm PNG vẽ bằng Canvas.
  */
 
-import type { CalcWarning, WarningCode } from '../types';
+import type { Bilingual, CalcWarning, WarningCode } from '../types';
 
 /**
  * Một điểm trên biểu đồ.
@@ -39,8 +39,8 @@ export interface ChartTick {
 }
 
 export interface ChartAxis {
-  /** Nhãn trục, ví dụ 'EPS (₫)' hoặc 'Vốn hoá (tỷ ₫)'. */
-  title: string;
+  /** Nhãn trục, ví dụ 'EPS (₫)' hoặc 'Vốn hoá (tỷ ₫)'. Cả hai ngôn ngữ. */
+  title: Bilingual;
   /**
    * Miền ĐÃ làm đẹp, theo đơn vị dữ liệu gốc (chưa chia).
    * Bất biến: cả hai số hữu hạn và `domain[0] < domain[1]` — `niceAxis()` bảo đảm.
@@ -56,24 +56,28 @@ export interface ChartAxis {
  * sáng mắt tra con số chính xác, vừa là hợp đồng để test bám vào thay vì bám vào chuỗi `d`.
  */
 export interface ChartTable {
-  columns: readonly [string, string];
-  /** `null` là dòng ngắt "…" — cùng nếp `SCHEDULE_GAP` của lịch trả nợ. */
-  rows: ReadonlyArray<readonly [string, string] | null>;
+  columns: readonly [Bilingual, Bilingual];
+  /**
+   * `null` là dòng ngắt "…" — cùng nếp `SCHEDULE_GAP` của lịch trả nợ.
+   * Cột đầu là nhãn — mang cả hai ngôn ngữ khi nó là chữ (chặng bóc tách); cột số/đơn vị vẫn
+   * dùng chung một chuỗi cho cả hai vế vì chưa dịch đơn vị (xem ghi chú ở `build.ts`).
+   */
+  rows: ReadonlyArray<readonly [Bilingual, string] | null>;
 }
 
 /** Một biến có thể đưa lên trục X. */
 export interface SweepOption {
   key: string;
-  label: string;
+  label: Bilingual;
 }
 
 /** Đường quét độ nhạy — FR-08. */
 export interface LineChart {
   kind: 'line';
   /** Tiêu đề dạng "P/E theo EPS" — vào `<figcaption>`. */
-  title: string;
-  /** Một câu tiếng Việt mô tả nội dung, cho `<figcaption>`, bản in và PNG. */
-  summary: string;
+  title: Bilingual;
+  /** Một câu mô tả nội dung, cho `<figcaption>`, bản in và PNG. */
+  summary: Bilingual;
   x: ChartAxis;
   y: ChartAxis;
   points: ReadonlyArray<ChartPoint>;
@@ -83,7 +87,7 @@ export interface LineChart {
   /** Mọi biến đưa lên trục X được — nguồn cho dropdown đổi trục. */
   options: ReadonlyArray<SweepOption>;
   /** Ghi chú khi có điểm không tính được hoặc miền bị cắt. */
-  note?: string;
+  note?: Bilingual;
 }
 
 /**
@@ -95,14 +99,14 @@ export interface LineChart {
  */
 export interface UnavailableChart {
   kind: 'unavailable';
-  title: string;
+  title: Bilingual;
   warning: CalcWarning;
 }
 
 /** Một cột của biểu đồ bóc tách. */
 export interface BreakdownBar {
   /** Nhãn dưới cột, đã rút gọn sẵn ở Domain. */
-  label: string;
+  label: Bilingual;
   /** Phần đóng góp, đã mang dấu: âm nghĩa là cột đi xuống. */
   delta: number;
   /** Mức tổng đang chạy SAU cột này — đáy và đỉnh cột suy ra từ đây. */
@@ -123,8 +127,8 @@ export interface BreakdownBar {
  */
 export interface WaterfallChart {
   kind: 'waterfall';
-  title: string;
-  summary: string;
+  title: Bilingual;
+  summary: Bilingual;
   /** Trục giá trị. Bất biến riêng của loại này: miền LUÔN chứa số 0 — chân cột phải có chỗ đứng. */
   y: ChartAxis;
   bars: ReadonlyArray<BreakdownBar>;
@@ -133,7 +137,7 @@ export interface WaterfallChart {
   options: ReadonlyArray<SweepOption>;
   /** Mục đang chọn trong ô ấy. */
   sweepKey: string;
-  note?: string;
+  note?: Bilingual;
 }
 
 /**

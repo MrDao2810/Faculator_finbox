@@ -6,7 +6,7 @@
  * người dùng không bao giờ nhìn thấy NaN, Infinity hay 0 thay cho lỗi.
  */
 
-import type { CalcOutput, CalcWarning, VariableSpec } from './types';
+import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from './types';
 import { inheritedFrom, meaningless } from './warnings';
 
 type Extra = Pick<CalcOutput, 'extras' | 'series'>;
@@ -21,8 +21,11 @@ export function ok(value: number, unit: string, extra: Extra = {}): CalcOutput {
     return fail(
       unit,
       meaningless(
-        'Phép tính cho ra giá trị không xác định với bộ số liệu hiện tại.',
-        'Kiểm tra lại các ô đầu vào.',
+        {
+          vi: 'Phép tính cho ra giá trị không xác định với bộ số liệu hiện tại.',
+          en: 'The calculation produced an undefined value with the current inputs.',
+        },
+        { vi: 'Kiểm tra lại các ô đầu vào.', en: 'Double-check the input fields.' },
       ),
     );
   }
@@ -40,7 +43,11 @@ export function fail(unit: string, warning: CalcWarning): CalcOutput {
  * @param upstreamLabel tên công thức thượng nguồn đang lỗi, ví dụ 'Beta'
  * @param selfLabel     tên biến tại chỗ, để gợi ý sửa chỉ đúng nút Ghi đè (WF-15)
  */
-export function inherited(unit: string, upstreamLabel: string, selfLabel?: string): CalcOutput {
+export function inherited(
+  unit: string,
+  upstreamLabel: Bilingual,
+  selfLabel?: Bilingual,
+): CalcOutput {
   return fail(unit, inheritedFrom(upstreamLabel, selfLabel));
 }
 

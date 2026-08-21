@@ -33,7 +33,7 @@ import type { ChartPoint } from './types';
 export const HISTORY_KEY = '__time';
 
 /** Nhãn hiện trên ô chọn. */
-export const HISTORY_LABEL = 'Theo thời gian';
+export const HISTORY_LABEL = { vi: 'Theo thời gian', en: 'Over time' };
 
 /**
  * Chân *giá hiện tại* — thay theo từng phiên.

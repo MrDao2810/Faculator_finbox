@@ -1,7 +1,7 @@
 'use client';
 
 import type { SweepOption } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { Select } from '@/ui/primitives';
 
 import styles from './chart.module.css';
@@ -33,6 +33,7 @@ export interface SweepPickerProps {
 
 export function SweepPicker({ options, value, onChange, idBase }: SweepPickerProps) {
   const t = useT();
+  const pick = usePick();
 
   // Một biến thì không có gì để đổi — bày ra một ô chọn chỉ có một dòng là bày ra thứ vô dụng.
   if (options.length < 2) return null;
@@ -49,7 +50,7 @@ export function SweepPicker({ options, value, onChange, idBase }: SweepPickerPro
     >
       {options.map((option) => (
         <option key={option.key} value={option.key}>
-          {option.label}
+          {pick(option.label)}
         </option>
       ))}
     </Select>

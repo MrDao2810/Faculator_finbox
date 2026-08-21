@@ -2,7 +2,7 @@
 
 import { buildFlowChain } from '@/application';
 import type { FormulaSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './FlowChainStrip.module.css';
 
@@ -57,6 +57,7 @@ export function FlowChainStrip({
   className,
 }: FlowChainStripProps) {
   const t = useT();
+  const pick = usePick();
   const chain = buildFlowChain(formulas);
   if (chain.steps.length === 0 && chain.cyclic.length === 0) return null;
 
@@ -95,7 +96,7 @@ export function FlowChainStrip({
                 ))}
 
               <span className={stepClasses} aria-current={current ? 'step' : undefined}>
-                {step.label}
+                {pick(step.label)}
                 {/*
                   Trạng thái lỗi phải đọc được bằng CHỮ, không chỉ bằng màu và viền (NFR-USA-06).
                   Đây cũng là thứ khiến dải có ích trên màn nâng cao: nó chỉ thẳng vào bước đang

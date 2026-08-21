@@ -2,7 +2,7 @@
 
 import { formatCalcOutput, formatValueWithUnit } from '@/application';
 import type { CalcInputs, CalcOutput, FormulaSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { InlineNumber } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 
@@ -48,6 +48,7 @@ export interface ExampleBlockProps {
  */
 export function ExampleBlock({ formula, inputs, output, onChange, className }: ExampleBlockProps) {
   const t = useT();
+  const pick = usePick();
   const { example } = formula;
   const classes = [styles.block, className].filter(Boolean).join(' ');
 
@@ -57,7 +58,13 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
   const rows = Object.entries(example.inputs).map(([key, exampleValue]) => {
     const variable = formula.variables.find((v) => v.key === key);
     const current = inputs?.[key] ?? exampleValue;
-    return { key, variable, label: variable?.label ?? key, exampleValue, current };
+    return {
+      key,
+      variable,
+      label: variable !== undefined ? pick(variable.label) : key,
+      exampleValue,
+      current,
+    };
   });
 
   /** Số đang nhập có còn đúng bộ của ví dụ hay không. */
@@ -73,7 +80,7 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
       <h2 className={styles.title} id="khoi-vi-du">
         {t('example.title')}
       </h2>
-      <p className={styles.subtitle}>{example.title}</p>
+      <p className={styles.subtitle}>{pick(example.title)}</p>
 
       <dl className={styles.inputs}>
         {rows.map((row) => (
@@ -105,7 +112,7 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
 
       <p className={styles.result}>
         <span aria-hidden="true">→ </span>
-        {formula.name.vi} ≈{' '}
+        {pick(formula.name)} ≈{' '}
         <strong>
           {editable && output !== undefined
             ? formatCalcOutput(output)
@@ -113,7 +120,7 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
         </strong>
       </p>
 
-      {example.note !== undefined && <p className={styles.note}>{example.note}</p>}
+      {example.note !== undefined && <p className={styles.note}>{pick(example.note)}</p>}
 
       {editable && !onExample && (
         <div className={styles.action}>

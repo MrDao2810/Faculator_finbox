@@ -47,8 +47,8 @@ describe('requireCloses / requireBars — cửa MISSING_SERIES (FR-06, FR-12)', 
     expect(Array.isArray(result)).toBe(false);
     if (!Array.isArray(result)) {
       expect(result.code).toBe('MISSING_SERIES');
-      expect(result.message).toContain('60');
-      expect(result.message).toContain('2');
+      expect(result.message.vi).toContain('60');
+      expect(result.message.vi).toContain('2');
     }
   });
 

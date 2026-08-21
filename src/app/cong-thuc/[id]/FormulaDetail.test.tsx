@@ -169,7 +169,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
 
     const expr = specOf('roe').expression;
     expect(expr).toBeDefined();
-    expect(screen.getByText(String(expr))).not.toBeNull();
+    expect(screen.getByText(expr?.vi ?? '')).not.toBeNull();
   });
 
   /*
@@ -854,7 +854,7 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
        */
       const expectedLabel =
         spec.id === 'xirr' ? WARNING_LABELS.INCOMPLETE_INPUT : WARNING_LABELS.MISSING_SERIES;
-      expect(text, `${spec.id}: mã cảnh báo`).toContain(expectedLabel);
+      expect(text, `${spec.id}: mã cảnh báo`).toContain(expectedLabel.vi);
       // Phải có câu chỉ đường, không được chỉ báo lỗi rồi bỏ mặc.
       expect(text, `${spec.id}: thiếu câu chỉ cách khắc phục`).toContain(t('result.fixPrefix'));
 
@@ -979,7 +979,7 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     await userEvent.type(beta, '-2');
 
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
-    expect(screen.getAllByText(WARNING_LABELS.INHERITED).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(WARNING_LABELS.INHERITED.vi).length).toBeGreaterThan(0);
     // Ô r người dùng KHÔNG hề bỏ trống, nên tuyệt đối không được báo "Còn thiếu".
     expect(screen.queryByText(/Còn thiếu/)).toBeNull();
   });

@@ -118,8 +118,14 @@ export function summarisePortfolio(
     const empty = (unit: string): CalcOutput =>
       fail(unit, {
         code: 'INCOMPLETE_INPUT',
-        message: 'Danh mục chưa có mã nào.',
-        fix: 'Bấm “Thêm mã cổ phiếu” để bắt đầu.',
+        message: {
+          vi: 'Danh mục chưa có mã nào.',
+          en: 'The portfolio has no holdings yet.',
+        },
+        fix: {
+          vi: 'Bấm “Thêm mã cổ phiếu” để bắt đầu.',
+          en: 'Tap "Add a stock" to get started.',
+        },
       });
 
     return {
@@ -139,8 +145,14 @@ export function summarisePortfolio(
     missingPrice.length > 0
       ? fail('₫', {
           code: 'MISSING_SERIES',
-          message: `Chưa tra được thị giá của ${missingPrice.join(', ')} nên không tính được tổng giá trị.`,
-          fix: 'Nạp bộ số liệu mẫu có mã này, hoặc bỏ mã khỏi danh mục.',
+          message: {
+            vi: `Chưa tra được thị giá của ${missingPrice.join(', ')} nên không tính được tổng giá trị.`,
+            en: `Could not look up the market price of ${missingPrice.join(', ')}, so the total value cannot be calculated.`,
+          },
+          fix: {
+            vi: 'Nạp bộ số liệu mẫu có mã này, hoặc bỏ mã khỏi danh mục.',
+            en: 'Load a sample dataset that includes this ticker, or remove it from the portfolio.',
+          },
         })
       : ok(total, '₫');
 
@@ -153,14 +165,26 @@ export function summarisePortfolio(
   if (missingBeta.length > 0) {
     beta = fail('lần', {
       code: 'MISSING_SERIES',
-      message: `Chưa có beta của ${missingBeta.join(', ')}. Beta danh mục là bình quân gia quyền nên thiếu một mã là chưa tính được.`,
-      fix: 'Nhập beta cho mã còn thiếu khi sửa mã đó.',
+      message: {
+        vi: `Chưa có beta của ${missingBeta.join(', ')}. Beta danh mục là bình quân gia quyền nên thiếu một mã là chưa tính được.`,
+        en: `Missing beta for ${missingBeta.join(', ')}. Portfolio beta is a weighted average, so a missing ticker means it cannot be calculated.`,
+      },
+      fix: {
+        vi: 'Nhập beta cho mã còn thiếu khi sửa mã đó.',
+        en: 'Enter beta for the missing ticker while editing it.',
+      },
     });
   } else if (totalValue.value === null || totalValue.value <= 0) {
     beta = fail('lần', {
       code: 'INHERITED',
-      message: 'Chưa tính được beta danh mục vì tổng giá trị danh mục đang lỗi.',
-      fix: 'Sửa phần thị giá ở trên trước.',
+      message: {
+        vi: 'Chưa tính được beta danh mục vì tổng giá trị danh mục đang lỗi.',
+        en: 'Cannot calculate portfolio beta because the total portfolio value is broken.',
+      },
+      fix: {
+        vi: 'Sửa phần thị giá ở trên trước.',
+        en: 'Fix the market price section above first.',
+      },
     });
   } else {
     const weighted = rows.reduce((sum, row) => sum + (row.value ?? 0) * (row.holding.beta ?? 0), 0);
@@ -184,25 +208,46 @@ export function summarisePortfolio(
   if (badDates.length > 0) {
     rate = fail('%/năm', {
       code: 'INCOMPLETE_INPUT',
-      message: `Thiếu hoặc sai ngày mua của ${badDates.join(', ')} — không có ngày thì không dựng được dòng tiền.`,
-      fix: 'Nhập ngày mua dạng ngày-tháng-năm cho mã còn thiếu.',
+      message: {
+        vi: `Thiếu hoặc sai ngày mua của ${badDates.join(', ')} — không có ngày thì không dựng được dòng tiền.`,
+        en: `Missing or invalid buy date for ${badDates.join(', ')} — without a date, no cash flow can be built.`,
+      },
+      fix: {
+        vi: 'Nhập ngày mua dạng ngày-tháng-năm cho mã còn thiếu.',
+        en: 'Enter a day-month-year buy date for the missing ticker.',
+      },
     });
   } else if (!isIsoDate(asOf)) {
     rate = fail('%/năm', {
       code: 'INCOMPLETE_INPUT',
-      message: 'Thiếu ngày định giá nên chưa quy được giá trị hiện tại thành dòng tiền.',
+      message: {
+        vi: 'Thiếu ngày định giá nên chưa quy được giá trị hiện tại thành dòng tiền.',
+        en: 'Missing the valuation date, so the current value cannot be turned into a cash flow.',
+      },
     });
   } else if (futureBuys.length > 0) {
     rate = fail('%/năm', {
       code: 'MODEL_VIOLATION',
-      message: `Ngày mua của ${futureBuys.join(', ')} nằm sau ngày định giá — chưa mua thì chưa có lợi suất để tính.`,
-      fix: 'Kiểm tra lại năm trong ngày mua.',
+      message: {
+        vi: `Ngày mua của ${futureBuys.join(', ')} nằm sau ngày định giá — chưa mua thì chưa có lợi suất để tính.`,
+        en: `The buy date of ${futureBuys.join(', ')} is after the valuation date — there's no return to calculate before a purchase happens.`,
+      },
+      fix: {
+        vi: 'Kiểm tra lại năm trong ngày mua.',
+        en: 'Double-check the year in the buy date.',
+      },
     });
   } else if (totalValue.value === null || totalValue.value <= 0) {
     rate = fail('%/năm', {
       code: 'INHERITED',
-      message: 'Chưa tính được XIRR vì tổng giá trị danh mục đang lỗi.',
-      fix: 'Sửa phần thị giá ở trên trước.',
+      message: {
+        vi: 'Chưa tính được XIRR vì tổng giá trị danh mục đang lỗi.',
+        en: 'Cannot calculate XIRR because the total portfolio value is broken.',
+      },
+      fix: {
+        vi: 'Sửa phần thị giá ở trên trước.',
+        en: 'Fix the market price section above first.',
+      },
     });
   } else {
     /*
@@ -223,9 +268,14 @@ export function summarisePortfolio(
       result === null
         ? fail('%/năm', {
             code: 'MEANINGLESS',
-            message:
-              'Dòng tiền của danh mục này không có suất sinh lợi nào làm giá trị hiện tại về 0.',
-            fix: 'Kiểm tra lại ngày mua và giá vốn.',
+            message: {
+              vi: 'Dòng tiền của danh mục này không có suất sinh lợi nào làm giá trị hiện tại về 0.',
+              en: 'This portfolio’s cash flows have no rate of return that brings the present value to 0.',
+            },
+            fix: {
+              vi: 'Kiểm tra lại ngày mua và giá vốn.',
+              en: 'Double-check the buy dates and cost prices.',
+            },
           })
         : ok(result * 100, '%/năm');
   }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { formatCalcOutput, formulaPath, variablesForLevel } from '@/application';
 import type { ChainInputs, ChainOverrides, ChainResult, FormulaSpec, Level } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { usePick, useT } from '@/application/preferences-context';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { FlowChainStrip, InlineWarning } from '@/ui/result';
 import type { FlowStatus } from '@/ui/result';
@@ -66,6 +66,7 @@ export function ChainBody({
     () => new Set(chain.byId.get(currentId)?.dependsOn ?? []),
   );
   const t = useT();
+  const pick = usePick();
 
   const currentIndex = chain.steps.findIndex((step) => step.formulaId === currentId);
   if (currentIndex === -1) return null;
@@ -105,7 +106,7 @@ export function ChainBody({
         }}
       >
         <summary className={styles.summary}>
-          <span className={styles.stepName}>{spec.name.vi}</span>
+          <span className={styles.stepName}>{pick(spec.name)}</span>
           <span
             className={
               step.output.value === null

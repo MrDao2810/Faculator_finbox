@@ -4,7 +4,7 @@ import { useId, type CSSProperties } from 'react';
 
 import { formatValueWithUnit, isLockedForMode, snapToStep } from '@/application';
 import type { Level, VariableSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import { InlineNumber } from './InlineNumber';
 import styles from './SliderInput.module.css';
@@ -60,6 +60,7 @@ export function SliderInput({
 }: SliderInputProps) {
   const inputId = useId();
   const t = useT();
+  const pick = usePick();
   const boxId = `${inputId}-box`;
   const labelId = `${inputId}-label`;
   const marksId = `${inputId}-marks`;
@@ -90,7 +91,7 @@ export function SliderInput({
           phân biệt được bằng vai: một cái là `slider`, một cái là `textbox`.
         */}
         <label className={styles.label} id={labelId} htmlFor={boxId}>
-          {spec.label}
+          {pick(spec.label)}
         </label>
 
         <InlineNumber

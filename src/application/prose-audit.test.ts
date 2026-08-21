@@ -66,27 +66,35 @@ interface Finding {
   chiTiet: string;
 }
 
-/** Bốn mục diễn giải bắt buộc của FR-03. */
+/**
+ * Bốn mục diễn giải bắt buộc của FR-03.
+ *
+ * Mỗi mục nay là `Bilingual` (gói dịch tiếng Anh) — cửa gác này soi phần tiếng Việt vì đó là nội
+ * dung đã được rà soát nội dung / là nguồn sự thật (xem docblock đầu file); nó KHÔNG mở rộng sang
+ * kiểm câu tiếng Anh.
+ */
 function dienGiai(spec: FormulaSpec): Array<readonly [string, string]> {
   return [
-    ['explanation.meaning', spec.explanation.meaning],
-    ['explanation.whenToUse', spec.explanation.whenToUse],
-    ['explanation.howToRead', spec.explanation.howToRead],
-    ['explanation.commonMistakes', spec.explanation.commonMistakes],
+    ['explanation.meaning', spec.explanation.meaning.vi],
+    ['explanation.whenToUse', spec.explanation.whenToUse.vi],
+    ['explanation.howToRead', spec.explanation.howToRead.vi],
+    ['explanation.commonMistakes', spec.explanation.commonMistakes.vi],
   ];
 }
 
-/** Mọi đoạn prose người dùng đọc được trên màn chi tiết. */
+/** Mọi đoạn prose người dùng đọc được trên màn chi tiết — luôn đọc `.vi`, lý do xem `dienGiai()`. */
 function proseOf(spec: FormulaSpec): Array<readonly [string, string]> {
   const out: Array<readonly [string, string]> = [
-    ['description', spec.description],
+    ['description', spec.description.vi],
     ...dienGiai(spec),
-    ['example.title', spec.example.title],
+    ['example.title', spec.example.title.vi],
   ];
-  if (spec.example.note !== undefined) out.push(['example.note', spec.example.note]);
-  if (spec.note !== undefined) out.push(['note', spec.note]);
+  if (spec.example.note !== undefined) out.push(['example.note', spec.example.note.vi]);
+  if (spec.note !== undefined) out.push(['note', spec.note.vi]);
   for (const v of spec.variables) {
-    if (v.description !== undefined) out.push([`variables.${v.key}.description`, v.description]);
+    if (v.description !== undefined) {
+      out.push([`variables.${v.key}.description`, v.description.vi]);
+    }
   }
   return out;
 }
@@ -189,7 +197,7 @@ function troSangThuKhongCo(): Finding[] {
      * lập xảy ra (nhóm Rủi ro kể tên Beta). Trước đợt 9 hàm này chỉ quét FormulaSpec, nên nơi
      * duy nhất từng hỏng lại là nơi duy nhất không được soi.
      */
-    ...CATEGORIES.map((c) => [`nhóm ${c.id}`, 'description', c.description] as const),
+    ...CATEGORIES.map((c) => [`nhóm ${c.id}`, 'description', c.description.vi] as const),
   ];
 
   const out: Finding[] = [];
@@ -225,7 +233,7 @@ function keTenThuChuaCo(): Finding[] {
   const out: Finding[] = [];
   for (const c of CATEGORIES) {
     for (const chua of CHUA_CO) {
-      if (!new RegExp(`\\b${chua}\\b`).test(c.description)) continue;
+      if (!new RegExp(`\\b${chua}\\b`).test(c.description.vi)) continue;
       out.push({
         id: `nhóm ${c.id}`,
         truong: 'description',
@@ -241,7 +249,10 @@ function keTenThuChuaCo(): Finding[] {
 function trungNguyenVan(): Finding[] {
   const theoNoiDung = new Map<string, string[]>();
   for (const { spec } of FORMULA_MODULES) {
-    for (const [truong, text] of [...dienGiai(spec), ['description', spec.description] as const]) {
+    for (const [truong, text] of [
+      ...dienGiai(spec),
+      ['description', spec.description.vi] as const,
+    ]) {
       const khoa = `${truong}|${text.trim().toLowerCase()}`;
       theoNoiDung.set(khoa, [...(theoNoiDung.get(khoa) ?? []), spec.id]);
     }

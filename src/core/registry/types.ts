@@ -9,7 +9,7 @@
 import type { Cashflow } from '../cashflow-series';
 import type { MarketConstantKey } from '../market/types';
 import type { SeriesRow } from '../price-series';
-import type { Level, VariableSpec, WarningCode } from '../types';
+import type { Bilingual, Level, VariableSpec, WarningCode } from '../types';
 
 /** Hai mảng sản phẩm của SRS mục 1.2.2. */
 export type Segment = 'stock' | 'personal';
@@ -18,17 +18,16 @@ export type Segment = 'stock' | 'personal';
 export interface Category {
   id: string;
   segment: Segment;
-  /** Tên tiếng Việt hiện trên chip lọc và cây nhóm. */
-  name: string;
+  /** Tên hiện trên chip lọc và cây nhóm, cả hai ngôn ngữ. */
+  name: Bilingual;
   /**
    * Tên rút gọn cho chỗ hẹp: lưới hai cột của WF-01 và nhãn nhóm trên thẻ công thức.
    * Ở 360px, "Phí & thuế thị trường VN" vỡ ra bốn dòng còn "Phí & thuế VN" thì vừa một dòng.
    * Chữ lấy đúng nguyên văn wireframe. Không dùng ở chip lọc và dropdown WF-02 — chỗ đó
    * rộng và cần tên đầy đủ để phân biệt nhóm.
    */
-  shortName: string;
-  nameEn: string;
-  description: string;
+  shortName: Bilingual;
+  description: Bilingual;
   /**
    * Số công thức dự kiến theo SRS mục 3.8.
    * Dùng để đối chiếu tiến độ, không phải để chặn — nhóm chưa làm xong vẫn hợp lệ.
@@ -56,25 +55,25 @@ export type ChartType =
 /** Bốn mục diễn giải bắt buộc của FR-03. Không mục nào được để trống. */
 export interface Explanation {
   /** Công thức này nói lên điều gì. */
-  meaning: string;
+  meaning: Bilingual;
   /** Khi nào dùng. */
-  whenToUse: string;
+  whenToUse: Bilingual;
   /** Cách đọc kết quả. */
-  howToRead: string;
+  howToRead: Bilingual;
   /** Sai lầm thường gặp. */
-  commonMistakes: string;
+  commonMistakes: Bilingual;
 }
 
 /** Nguồn tham khảo của công thức (FR-04, CON-11). */
 export interface FormulaSource {
   /** Trích dẫn đầy đủ: giáo trình, chuẩn mực, hoặc văn bản pháp luật. */
-  label: string;
+  label: Bilingual;
   url?: string;
 }
 
 /** Ví dụ thực tế bằng số liệu Việt Nam, hiện trên màn chi tiết (FR-02). */
 export interface FormulaExample {
-  title: string;
+  title: Bilingual;
   /** Khoá phải trùng key của biến trong `variables`. */
   inputs: Readonly<Record<string, number>>;
   /**
@@ -90,7 +89,7 @@ export interface FormulaExample {
   /** Dòng tiền cho công thức đọc `ctx.cashflows` — riêng cho XIRR. */
   cashflows?: ReadonlyArray<Cashflow>;
   expected: number;
-  note?: string;
+  note?: Bilingual;
 }
 
 /**
@@ -134,7 +133,7 @@ export interface BreakdownStage {
    * Nhãn cho cột hẹp. Thiếu thì lấy nhãn của biến — mà nhãn biến thường dài gấp mấy lần bề
    * ngang một cột ở màn 360px, nên chặng nào có nhãn dài đều nên khai ngắn lại ở đây.
    */
-  shortLabel?: string;
+  shortLabel?: Bilingual;
 }
 
 /**
@@ -162,9 +161,9 @@ export interface FormulaDependency {
 export interface FormulaSummary {
   id: string;
   categoryId: string;
-  name: { vi: string; en: string };
+  name: Bilingual;
   /** Mô tả ngắn hiện trên thẻ công thức. */
-  description: string;
+  description: Bilingual;
   level: Level;
   /** Đưa lên khối nổi bật của trang chủ (FR-20). */
   isFeatured?: boolean;
@@ -184,7 +183,7 @@ export interface FormulaSpec extends FormulaSummary {
    * dùng cuối, không được là biểu thức kiểu mã nguồn và tuyệt đối không phải LaTeX thô.
    * Không dùng để eval.
    */
-  expression?: string;
+  expression?: Bilingual;
   chartType: ChartType;
   variables: ReadonlyArray<VariableSpec>;
   /** Đơn vị của kết quả, ví dụ 'lần', '%', '₫'. */
@@ -193,7 +192,7 @@ export interface FormulaSpec extends FormulaSummary {
   example: FormulaExample;
   tests: ReadonlyArray<FormulaTestCase>;
   source: ReadonlyArray<FormulaSource>;
-  note?: string;
+  note?: Bilingual;
   /**
    * Khoá của những hằng số MarketConfig mà `calc` tra tới — KHAI BÁO KHOÁ, không phải trị số.
    *
@@ -226,7 +225,7 @@ export interface FormulaSpec extends FormulaSummary {
    * tên gọi tên CÔNG VIỆC chứ không gọi tên đại lượng: cột tổng của `lich-tra-no` mang giá trị
    * tổng lãi, gắn nhãn 'Lịch trả nợ vay' vào đó là đặt sai tên cho chính con số nó đang bày.
    */
-  breakdownTotal?: string;
+  breakdownTotal?: Bilingual;
 }
 
 /** Cách sắp xếp danh sách công thức ở WF-02. */

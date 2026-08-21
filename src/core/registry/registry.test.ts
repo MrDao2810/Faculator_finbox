@@ -24,7 +24,10 @@ function makeFormula(patch: Partial<FormulaSpec> = {}): FormulaSpec {
     id: 'pe',
     categoryId: 'valuation',
     name: { vi: 'Tỷ số giá trên lợi nhuận (P/E)', en: 'Price to Earnings' },
-    description: 'Cho biết nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+    description: {
+      vi: 'Cho biết nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+      en: 'Shows how much investors pay for each unit of earnings.',
+    },
     latex: 'P/E = \\frac{P}{EPS}',
     chartType: 'sensitivity',
     level: 'basic',
@@ -34,7 +37,7 @@ function makeFormula(patch: Partial<FormulaSpec> = {}): FormulaSpec {
     variables: [
       {
         key: 'price',
-        label: 'Giá thị trường',
+        label: { vi: 'Giá thị trường', en: 'Market price' },
         unit: '₫',
         type: 'number',
         defaultValue: 92_000,
@@ -43,7 +46,7 @@ function makeFormula(patch: Partial<FormulaSpec> = {}): FormulaSpec {
       },
       {
         key: 'eps',
-        label: 'EPS',
+        label: { vi: 'EPS', en: 'EPS' },
         unit: '₫',
         type: 'number',
         defaultValue: 6_050,
@@ -51,13 +54,25 @@ function makeFormula(patch: Partial<FormulaSpec> = {}): FormulaSpec {
       },
     ],
     explanation: {
-      meaning: 'Số năm lợi nhuận cần có để hoàn lại giá đang mua.',
-      whenToUse: 'So sánh nhanh hai doanh nghiệp cùng ngành.',
-      howToRead: 'P/E càng cao thì kỳ vọng tăng trưởng càng lớn, kèm rủi ro càng lớn.',
-      commonMistakes: 'So P/E giữa hai ngành khác nhau.',
+      meaning: {
+        vi: 'Số năm lợi nhuận cần có để hoàn lại giá đang mua.',
+        en: 'The number of years of earnings needed to recover the purchase price.',
+      },
+      whenToUse: {
+        vi: 'So sánh nhanh hai doanh nghiệp cùng ngành.',
+        en: 'Quickly compare two companies in the same industry.',
+      },
+      howToRead: {
+        vi: 'P/E càng cao thì kỳ vọng tăng trưởng càng lớn, kèm rủi ro càng lớn.',
+        en: 'A higher P/E implies higher growth expectations and higher risk.',
+      },
+      commonMistakes: {
+        vi: 'So P/E giữa hai ngành khác nhau.',
+        en: 'Comparing P/E across different industries.',
+      },
     },
     example: {
-      title: 'Cổ phiếu giá 92.000 ₫, EPS 6.050 ₫',
+      title: { vi: 'Cổ phiếu giá 92.000 ₫, EPS 6.050 ₫', en: 'Stock priced 92,000 ₫, EPS 6,050 ₫' },
       inputs: { price: 92_000, eps: 6_050 },
       expected: 15.21,
     },
@@ -70,7 +85,14 @@ function makeFormula(patch: Partial<FormulaSpec> = {}): FormulaSpec {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
     ],
-    source: [{ label: 'Damodaran, Investment Valuation, chương 18' }],
+    source: [
+      {
+        label: {
+          vi: 'Damodaran, Investment Valuation, chương 18',
+          en: 'Damodaran, Investment Valuation, chapter 18',
+        },
+      },
+    ],
     ...patch,
   };
 }
@@ -93,7 +115,7 @@ describe('12 nhóm công thức (FR-01)', () => {
   });
 
   it('tra được nhóm theo id và không ném lỗi với id lạ', () => {
-    expect(findCategory('fees-tax')?.name).toBe('Phí & thuế thị trường VN');
+    expect(findCategory('fees-tax')?.name.vi).toBe('Phí & thuế thị trường VN');
     expect(findCategory('khong-co')).toBeUndefined();
   });
 
@@ -102,13 +124,15 @@ describe('12 nhóm công thức (FR-01)', () => {
    * Quá 16 ký tự thì ở 360px nó bị cắt bằng dấu ba chấm và người dùng không đọc ra tên nhóm.
    */
   it('mọi nhóm có tên rút gọn không rỗng, không dài quá 16 ký tự, không trùng nhau', () => {
-    const tooLong = CATEGORIES.filter((c) => c.shortName.trim() === '' || c.shortName.length > 16);
-    expect(tooLong.map((c) => `${c.id}: "${c.shortName}"`)).toEqual([]);
-    expect(new Set(CATEGORIES.map((c) => c.shortName)).size).toBe(12);
+    const tooLong = CATEGORIES.filter(
+      (c) => c.shortName.vi.trim() === '' || c.shortName.vi.length > 16,
+    );
+    expect(tooLong.map((c) => `${c.id}: "${c.shortName.vi}"`)).toEqual([]);
+    expect(new Set(CATEGORIES.map((c) => c.shortName.vi)).size).toBe(12);
   });
 
   it('tên rút gọn không dài hơn tên đầy đủ', () => {
-    const wrong = CATEGORIES.filter((c) => c.shortName.length > c.name.length);
+    const wrong = CATEGORIES.filter((c) => c.shortName.vi.length > c.name.vi.length);
     expect(wrong.map((c) => c.id)).toEqual([]);
   });
 });
@@ -116,7 +140,7 @@ describe('12 nhóm công thức (FR-01)', () => {
 describe('validateVariable()', () => {
   const base: VariableSpec = {
     key: 'r',
-    label: 'Lãi suất',
+    label: { vi: 'Lãi suất', en: 'Interest rate' },
     unit: '%',
     type: 'slider',
     defaultValue: 6,
@@ -152,7 +176,7 @@ describe('validateVariable()', () => {
   it('select thiếu lựa chọn thì báo lỗi (LDR-02)', () => {
     const select: VariableSpec = {
       key: 'period',
-      label: 'Kỳ',
+      label: { vi: 'Kỳ', en: 'Period' },
       unit: '',
       type: 'select',
       defaultValue: 1,
@@ -164,15 +188,15 @@ describe('validateVariable()', () => {
   it('toggle chỉ chấp nhận đúng 2 lựa chọn', () => {
     const toggle: VariableSpec = {
       key: 'includeFee',
-      label: 'Tính cả phí',
+      label: { vi: 'Tính cả phí', en: 'Include fee' },
       unit: '',
       type: 'toggle',
       defaultValue: 1,
       level: 'basic',
       options: [
-        { value: 0, label: 'Không' },
-        { value: 1, label: 'Có' },
-        { value: 2, label: 'Thừa' },
+        { value: 0, label: { vi: 'Không', en: 'No' } },
+        { value: 1, label: { vi: 'Có', en: 'Yes' } },
+        { value: 2, label: { vi: 'Thừa', en: 'Extra' } },
       ],
     };
     expect(errorsOnly(validateVariable(toggle, 'x'))).not.toHaveLength(0);
@@ -181,14 +205,14 @@ describe('validateVariable()', () => {
   it('mặc định phải nằm trong danh sách lựa chọn', () => {
     const radio: VariableSpec = {
       key: 'method',
-      label: 'Phương thức trả',
+      label: { vi: 'Phương thức trả', en: 'Repayment method' },
       unit: '',
       type: 'radio',
       defaultValue: 9,
       level: 'basic',
       options: [
-        { value: 0, label: 'Niên kim' },
-        { value: 1, label: 'Gốc đều' },
+        { value: 0, label: { vi: 'Niên kim', en: 'Annuity' } },
+        { value: 1, label: { vi: 'Gốc đều', en: 'Equal principal' } },
       ],
     };
     const issues = errorsOnly(validateVariable(radio, 'x'));
@@ -217,7 +241,10 @@ describe('validateFormula()', () => {
     const formula = makeFormula();
     const issues = errorsOnly(
       validateFormula(
-        { ...formula, explanation: { ...formula.explanation, howToRead: '  ' } },
+        {
+          ...formula,
+          explanation: { ...formula.explanation, howToRead: { vi: '  ', en: '  ' } },
+        },
         CATEGORY_IDS,
       ),
     );
@@ -247,7 +274,9 @@ describe('validateFormula()', () => {
   it('bắt ví dụ dùng biến không có thật', () => {
     const issues = errorsOnly(
       validateFormula(
-        makeFormula({ example: { title: 'x', inputs: { bogus: 1 }, expected: 1 } }),
+        makeFormula({
+          example: { title: { vi: 'x', en: 'x' }, inputs: { bogus: 1 }, expected: 1 },
+        }),
         CATEGORY_IDS,
       ),
     );

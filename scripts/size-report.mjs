@@ -28,8 +28,13 @@ const BUDGET = 200 * 1024;
  * Cửa kiểm sớm.
  * Đặt dưới hẳn ngưỡng chứ không sát nút: chỉ mục nhẹ nạp ở MỌI trang, nên mỗi công thức thêm
  * vào đều đẩy con số này lên. Chạm cửa kiểm là lúc phải tách gói, không phải lúc đã vỡ ngưỡng.
+ *
+ * Nâng từ 170 lên 180 kB khi thêm bản dịch tiếng Anh cho toàn bộ 108 công thức: `FormulaDetail`
+ * kéo cả `FORMULA_MODULES` vào gói (xem docblock `ALL_SPECS` ở đó) nên nội dung song ngữ khiến
+ * mọi trang chi tiết tăng đều ~4-5 kB nén. Trang nặng nhất đo được là 175,2 kB — vẫn cách xa
+ * ngân sách NFR-PER-04 thật (200 kB), chỉ chạm cửa kiểm sớm cũ. Quyết định của chủ dự án.
  */
-const CHECKPOINT = 170 * 1024;
+const CHECKPOINT = 180 * 1024;
 
 const FORMULAS_TARGET = 108;
 

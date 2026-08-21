@@ -2,6 +2,7 @@
 
 import { gapsOf, linePath, linearScale } from '@/application';
 import type { ChartTick, LineChart as LineChartModel } from '@/application';
+import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 
@@ -71,6 +72,7 @@ export interface LineChartProps {
 }
 
 export function LineChart({ model, idBase, fill = false }: LineChartProps) {
+  const pick = usePick();
   const hatchId = `${idBase}-hatch`;
 
   const sx = linearScale(model.x.domain, [PLOT.x0, PLOT.x1]);
@@ -193,7 +195,7 @@ export function LineChart({ model, idBase, fill = false }: LineChartProps) {
           lề trái. Tên trục Y đặt trên góc trái, tên trục X ở giữa đáy — đúng lối các báo cáo in.
         */}
         <text className={styles.axisTitle} x={PLOT.x0 - 2} y={PLOT.y0 - 2}>
-          {model.y.title}
+          {pick(model.y.title)}
         </text>
         <text
           className={styles.axisTitle}
@@ -201,7 +203,7 @@ export function LineChart({ model, idBase, fill = false }: LineChartProps) {
           y={H - 6}
           textAnchor="middle"
         >
-          {model.x.title}
+          {pick(model.x.title)}
         </text>
       </svg>
     </div>

@@ -2,7 +2,7 @@
 
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './ButtonGroup.module.css';
 
@@ -31,6 +31,7 @@ export function ButtonGroup({
   className,
 }: ButtonGroupProps) {
   const t = useT();
+  const pick = usePick();
   const options = spec.options ?? [];
   const locked = isLockedForMode(spec, mode);
 
@@ -40,7 +41,7 @@ export function ButtonGroup({
     <div className={classes}>
       <div className={styles.head}>
         <span className={styles.label} id={`${spec.key}-label`}>
-          {spec.label}
+          {pick(spec.label)}
         </span>
         {locked && <span className={styles.badge}>{t('input.lockedBadge')}</span>}
       </div>
@@ -59,13 +60,13 @@ export function ButtonGroup({
                 onChange(option.value);
               }}
             >
-              {option.label}
+              {pick(option.label)}
             </button>
           );
         })}
       </div>
 
-      {spec.description !== undefined && <p className={styles.hint}>{spec.description}</p>}
+      {spec.description !== undefined && <p className={styles.hint}>{pick(spec.description)}</p>}
     </div>
   );
 }

@@ -25,15 +25,21 @@ afterEach(cleanup);
 
 /** Sáu loại lỗi chuẩn của WF-15, dựng đúng bằng catalog tầng Domain. */
 const WF15: Readonly<Record<WarningCode, CalcWarning>> = {
-  DIVIDE_BY_ZERO: divideByZero('P/E', 'EPS'),
+  DIVIDE_BY_ZERO: divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' }),
   MEANINGLESS: meaningless(
-    'P/E không có ý nghĩa khi doanh nghiệp đang lỗ.',
-    'Gợi ý chuyển sang P/B',
+    {
+      vi: 'P/E không có ý nghĩa khi doanh nghiệp đang lỗ.',
+      en: 'P/E is not meaningful when the company is losing money.',
+    },
+    { vi: 'Gợi ý chuyển sang P/B', en: 'Suggest switching to P/B' },
   ),
   MISSING_SERIES: missingSeries(60, 24),
-  MODEL_VIOLATION: modelViolation('g ≥ WACC', 'Giảm g xuống dưới 12,1%'),
-  INHERITED: inheritedFrom('Beta', 'WACC'),
-  INCOMPLETE_INPUT: incompleteInput(['Giá bán']),
+  MODEL_VIOLATION: modelViolation(
+    { vi: 'g ≥ WACC', en: 'g ≥ WACC' },
+    { vi: 'Giảm g xuống dưới 12,1%', en: 'Lower g below 12.1%' },
+  ),
+  INHERITED: inheritedFrom({ vi: 'Beta', en: 'Beta' }, { vi: 'WACC', en: 'WACC' }),
+  INCOMPLETE_INPUT: incompleteInput([{ vi: 'Giá bán', en: 'Sale price' }]),
 };
 
 describe('sáu loại lỗi của WF-15', () => {
@@ -43,15 +49,15 @@ describe('sáu loại lỗi của WF-15', () => {
       render(<ErrorState warning={warning} unit="lần" />);
 
       // Câu nêu nguyên nhân.
-      expect(screen.getByText(warning.message)).not.toBeNull();
+      expect(screen.getByText(warning.message.vi)).not.toBeNull();
 
       // Nhãn ngắn — dấu hiệu chữ, để không phụ thuộc màu (NFR-USA-06).
-      expect(screen.getByText(WARNING_LABELS[code])).not.toBeNull();
+      expect(screen.getByText(WARNING_LABELS[code].vi)).not.toBeNull();
 
       // Dòng gợi ý sửa (NFR-USA-04). Cả sáu mã của WF-15 đều phải có.
       expect(warning.fix, `mã ${code} thiếu gợi ý sửa`).toBeDefined();
       if (warning.fix !== undefined) {
-        expect(screen.getByText(warning.fix, { exact: false })).not.toBeNull();
+        expect(screen.getByText(warning.fix.vi, { exact: false })).not.toBeNull();
       }
     });
   }
@@ -98,7 +104,7 @@ describe('ResultBlock giao việc báo lỗi cho ErrorState', () => {
 
     expect(screen.getByRole('alert')).not.toBeNull();
     expect(screen.getByText(NO_VALUE)).not.toBeNull();
-    expect(screen.getByText(WF15.DIVIDE_BY_ZERO.message)).not.toBeNull();
+    expect(screen.getByText(WF15.DIVIDE_BY_ZERO.message.vi)).not.toBeNull();
   });
 
   it('ok() chặn Infinity nên khối kết quả cũng không thể hiện Infinity', () => {

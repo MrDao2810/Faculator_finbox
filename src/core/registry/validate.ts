@@ -8,7 +8,7 @@
  * ví dụ nhóm chưa có công thức nào, hay ví dụ mẫu bỏ sót một biến.
  */
 
-import type { ControlType, VariableSpec } from '../types';
+import type { Bilingual, ControlType, VariableSpec } from '../types';
 import type { Category, FormulaSpec, RegistryIssue } from './types';
 
 /** Điều khiển bắt buộc phải khai báo danh sách lựa chọn (LDR-02). */
@@ -19,6 +19,16 @@ const ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
 
 function isBlank(text: string | undefined): boolean {
   return text === undefined || text.trim() === '';
+}
+
+/** Vế tiếng Việt rỗng — chặn phát hành, đúng mức nghiêm ngặt như một field string bắt buộc. */
+function isBlankVi(value: Bilingual | undefined): boolean {
+  return value === undefined || value.vi.trim() === '';
+}
+
+/** Vế tiếng Anh rỗng — chỉ nhắc (warning), cùng mức đã áp cho `name.en` từ trước. */
+function isBlankEn(value: Bilingual | undefined): boolean {
+  return value === undefined || value.en.trim() === '';
 }
 
 function err(path: string, message: string): RegistryIssue {
@@ -34,7 +44,10 @@ export function validateVariable(spec: VariableSpec, path: string): RegistryIssu
   const issues: RegistryIssue[] = [];
 
   if (isBlank(spec.key)) issues.push(err(path, 'Biến thiếu key.'));
-  if (isBlank(spec.label)) issues.push(err(`${path}.label`, 'Biến thiếu nhãn tiếng Việt.'));
+  if (isBlankVi(spec.label)) issues.push(err(`${path}.label`, 'Biến thiếu nhãn tiếng Việt.'));
+  if (isBlankEn(spec.label)) {
+    issues.push(warn(`${path}.label.en`, 'Biến thiếu nhãn tiếng Anh — FR-21 cần khi bật VI/EN.'));
+  }
 
   if (!Number.isFinite(spec.defaultValue)) {
     issues.push(err(`${path}.defaultValue`, 'Giá trị mặc định phải là số hữu hạn.'));
@@ -84,8 +97,11 @@ export function validateVariable(spec: VariableSpec, path: string): RegistryIssu
       issues.push(err(`${path}.options`, 'Toggle chỉ được có đúng 2 lựa chọn.'));
     }
     for (const [i, option] of options.entries()) {
-      if (isBlank(option.label)) {
+      if (isBlankVi(option.label)) {
         issues.push(err(`${path}.options[${i}].label`, 'Lựa chọn thiếu nhãn.'));
+      }
+      if (isBlankEn(option.label)) {
+        issues.push(warn(`${path}.options[${i}].label.en`, 'Lựa chọn thiếu nhãn tiếng Anh.'));
       }
       if (!Number.isFinite(option.value)) {
         issues.push(err(`${path}.options[${i}].value`, 'Giá trị lựa chọn phải là số hữu hạn.'));
@@ -138,7 +154,12 @@ export function validateFormula(
   if (isBlank(formula.name.en)) {
     issues.push(warn(`${path}.name.en`, 'Thiếu tên tiếng Anh — FR-21 cần khi bật VI/EN.'));
   }
-  if (isBlank(formula.description)) issues.push(err(`${path}.description`, 'Thiếu mô tả ngắn.'));
+  if (isBlankVi(formula.description)) {
+    issues.push(err(`${path}.description`, 'Thiếu mô tả ngắn.'));
+  }
+  if (isBlankEn(formula.description)) {
+    issues.push(warn(`${path}.description.en`, 'Thiếu mô tả ngắn tiếng Anh.'));
+  }
   if (isBlank(formula.latex)) issues.push(err(`${path}.latex`, 'Thiếu chuỗi LaTeX (UI-03).'));
   if (isBlank(formula.resultUnit)) {
     issues.push(err(`${path}.resultUnit`, 'Thiếu đơn vị của kết quả.'));
@@ -152,8 +173,13 @@ export function validateFormula(
     ['commonMistakes', 'sai lầm thường gặp'],
   ];
   for (const [field, label] of explanationFields) {
-    if (isBlank(formula.explanation[field])) {
+    if (isBlankVi(formula.explanation[field])) {
       issues.push(err(`${path}.explanation.${field}`, `Thiếu mục diễn giải: ${label} (FR-03).`));
+    }
+    if (isBlankEn(formula.explanation[field])) {
+      issues.push(
+        warn(`${path}.explanation.${field}.en`, `Thiếu bản tiếng Anh của mục: ${label}.`),
+      );
     }
   }
 
@@ -162,10 +188,13 @@ export function validateFormula(
     issues.push(err(`${path}.source`, 'Thiếu nguồn tham khảo (FR-04).'));
   }
   for (const [i, source] of formula.source.entries()) {
-    if (isBlank(source.label)) {
+    if (isBlankVi(source.label)) {
       issues.push(
         err(`${path}.source[${i}].label`, 'Nguồn tham khảo không có nội dung trích dẫn.'),
       );
+    }
+    if (isBlankEn(source.label)) {
+      issues.push(warn(`${path}.source[${i}].label.en`, 'Nguồn tham khảo thiếu bản tiếng Anh.'));
     }
   }
 
@@ -188,8 +217,11 @@ export function validateFormula(
   }
 
   // Ví dụ (FR-02)
-  if (isBlank(formula.example.title)) {
+  if (isBlankVi(formula.example.title)) {
     issues.push(err(`${path}.example.title`, 'Ví dụ thiếu tiêu đề.'));
+  }
+  if (isBlankEn(formula.example.title)) {
+    issues.push(warn(`${path}.example.title.en`, 'Ví dụ thiếu tiêu đề tiếng Anh.'));
   }
   issues.push(...checkInputs(formula.example.inputs, seenKeys, `${path}.example.inputs`));
 
@@ -258,13 +290,13 @@ export function validateRegistry(
     const count = formulas.filter((f) => f.categoryId === category.id).length;
     if (count === 0) {
       issues.push(
-        warn(`categories.${category.id}`, `Nhóm '${category.name}' chưa có công thức nào.`),
+        warn(`categories.${category.id}`, `Nhóm '${category.name.vi}' chưa có công thức nào.`),
       );
     } else if (count > category.expectedCount) {
       issues.push(
         warn(
           `categories.${category.id}`,
-          `Nhóm '${category.name}' có ${count} công thức, nhiều hơn ${category.expectedCount} theo SRS 3.8.`,
+          `Nhóm '${category.name.vi}' có ${count} công thức, nhiều hơn ${category.expectedCount} theo SRS 3.8.`,
         ),
       );
     }

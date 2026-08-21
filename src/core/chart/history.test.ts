@@ -6,6 +6,7 @@ import { FORMULA_MODULES, findFormulaModule } from '../formulas';
 import { MARKET_CONFIG, scheduleOrDefault } from '../market';
 import type { SeriesRow } from '../price-series';
 import { defaultInputs } from '../registry/build';
+import type { Bilingual } from '../types';
 import { buildChartModel } from './build';
 import {
   HISTORY_KEY,
@@ -274,10 +275,13 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
     const built = model('pe', WITH_BARS);
     if (built.kind !== 'line') throw new Error('phải vẽ được');
 
-    expect(built.options[0]).toEqual({ key: HISTORY_KEY, label: 'Theo thời gian' });
+    expect(built.options[0]).toEqual({
+      key: HISTORY_KEY,
+      label: { vi: 'Theo thời gian', en: 'Over time' },
+    });
     expect(built.sweepKey).toBe(HISTORY_KEY);
-    expect(built.title).toBe('P/E theo thời gian');
-    expect(built.summary).toContain('P/E của FPT qua 248 phiên');
+    expect(built.title.vi).toBe('P/E theo thời gian');
+    expect(built.summary.vi).toContain('P/E của FPT qua 248 phiên');
   });
 
   it('chưa nạp phiên nào thì không bày mục đó ra, và mặc định vẫn là đường quét', () => {
@@ -286,7 +290,7 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
 
     expect(built.options.map((option) => option.key)).toEqual(['price', 'eps']);
     expect(built.sweepKey).toBe('price');
-    expect(built.title).toBe('P/E theo Giá thị trường');
+    expect(built.title.vi).toBe('P/E theo Giá thị trường');
   });
 
   it('người dùng chọn một biến thì tôn trọng lựa chọn ấy, không giành lái', () => {
@@ -294,7 +298,7 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
     if (built.kind !== 'line') throw new Error('phải vẽ được');
 
     expect(built.sweepKey).toBe('eps');
-    expect(built.title).toBe('P/E theo EPS');
+    expect(built.title.vi).toBe('P/E theo EPS');
   });
 
   it('xin đường thời gian khi dữ liệu đã mất thì rơi về đường quét, không vẽ khung rỗng', () => {
@@ -308,16 +312,18 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
     const built = model('pe', WITH_BARS);
     if (built.kind !== 'line') throw new Error('phải vẽ được');
 
-    expect(built.table.columns[0]).toBe('Ngày');
+    expect(built.table.columns[0].vi).toBe('Ngày');
     const firstRow = built.table.rows.find((row) => row !== null);
-    expect(firstRow?.[0]).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
+    expect(firstRow?.[0].vi).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
   });
 
   it('bảng số của RSI không bị 14 dòng trống dồn lên đầu', () => {
     const built = model('rsi-wilder', WITH_BARS);
     if (built.kind !== 'line') throw new Error('phải vẽ được');
 
-    const rows = built.table.rows.filter((row): row is readonly [string, string] => row !== null);
+    const rows = built.table.rows.filter(
+      (row): row is readonly [Bilingual, string] => row !== null,
+    );
     // `valueLabel` mang cả đơn vị — '— , — điểm' — nên so bằng `includes`, không so bằng dấu bằng.
     const blanks = rows.filter((row) => row[1].includes('— , —'));
 
@@ -359,8 +365,8 @@ describe('dải khởi động của chỉ báo cuộn', () => {
   it('nói "phiên đầu chưa đủ dữ liệu" và chỉ ra phiên đường bắt đầu, KHÔNG có ghi chú ngắt', () => {
     const built = lineOf('rsi-wilder');
 
-    expect(built.summary).toContain('phiên đầu chưa đủ dữ liệu để tính');
-    expect(built.summary).toContain('đường bắt đầu từ');
+    expect(built.summary.vi).toContain('phiên đầu chưa đủ dữ liệu để tính');
+    expect(built.summary.vi).toContain('đường bắt đầu từ');
     expect(built.note).toBeUndefined();
   });
 
@@ -368,10 +374,10 @@ describe('dải khởi động của chỉ báo cuộn', () => {
     const built = lineOf('rsi-wilder');
     const nulls = built.points.filter((p) => p.y === null).length;
 
-    expect(built.summary).toContain(`${String(nulls)} phiên đầu`);
+    expect(built.summary.vi).toContain(`${String(nulls)} phiên đầu`);
     expect(built.points[nulls]?.y).not.toBeNull();
     // Nhãn trong câu là NGÀY của đúng phiên ấy, không phải chỉ số phiên.
-    expect(built.summary).toContain(built.points[nulls]?.label ?? '@@');
+    expect(built.summary.vi).toContain(built.points[nulls]?.label ?? '@@');
   });
 
   it('ngắt GIỮA vùng có dữ liệu thì ghi chú vẫn còn — không gộp hai chuyện làm một', () => {
@@ -380,8 +386,8 @@ describe('dải khởi động của chỉ báo cuộn', () => {
 
     // Chốt tiền đề của ca kiểm: công thức này thật sự có null nằm sau một phiên đã ra số.
     expect(nulls.some((i, k) => i !== k)).toBe(true);
-    expect(built.note).toContain('không tính được');
-    expect(built.summary).not.toContain('phiên đầu chưa đủ dữ liệu');
+    expect(built.note?.vi).toContain('không tính được');
+    expect(built.summary.vi).not.toContain('phiên đầu chưa đủ dữ liệu');
   });
 
   /*
@@ -402,9 +408,9 @@ describe('dải khởi động của chỉ báo cuộn', () => {
     if (built.kind !== 'line') throw new Error('phải ra đường quét');
 
     expect(built.points.some((p) => p.y === null)).toBe(true);
-    expect(built.summary).not.toContain('chưa đủ dữ liệu');
-    expect(built.summary).toContain('không tính được');
-    expect(built.note).toContain('mức không tính được');
+    expect(built.summary.vi).not.toContain('chưa đủ dữ liệu');
+    expect(built.summary.vi).toContain('không tính được');
+    expect(built.note?.vi).toContain('mức không tính được');
   });
 });
 
@@ -438,7 +444,7 @@ describe('trục thời gian — quét toàn Registry', () => {
       }
 
       expect(JSON.stringify(built), id).not.toContain('NaN');
-      expect(built.summary, id).not.toContain('undefined');
+      expect(built.summary.vi, id).not.toContain('undefined');
     }
   });
 

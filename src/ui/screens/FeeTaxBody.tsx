@@ -2,7 +2,7 @@
 
 import { buildFeeBreakdown, formatCalcOutput, formatNumber } from '@/application';
 import type { CalcContext } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
 import styles from './FeeTaxBody.module.css';
@@ -24,6 +24,7 @@ export interface FeeTaxBodyProps {
  */
 export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
   const t = useT();
+  const pick = usePick();
   const breakdown = buildFeeBreakdown(inputs, ctx);
 
   return (
@@ -35,8 +36,8 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
           {breakdown.rows.map((row) => (
             <div key={row.key} className={styles.row}>
               <div className={styles.rowBody}>
-                <span className={styles.rowLabel}>{row.label}</span>
-                <span className={styles.rowFormula}>{row.formula}</span>
+                <span className={styles.rowLabel}>{pick(row.label)}</span>
+                <span className={styles.rowFormula}>{pick(row.formula)}</span>
               </div>
               <span className={styles.rowValue}>{formatCalcOutput(row.output)}</span>
             </div>

@@ -20,9 +20,12 @@ const PE: FormulaSpec = {
   id: 'pe',
   categoryId: 'fundamentals',
   name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'Price to earnings ratio' },
-  description: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận của doanh nghiệp.',
+  description: {
+    vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận của doanh nghiệp.',
+    en: 'How much an investor pays for each dong of the company’s profit.',
+  },
   latex: 'P/E = \\frac{P}{EPS}',
-  expression: 'P/E = Giá thị trường ÷ EPS',
+  expression: { vi: 'P/E = Giá thị trường ÷ EPS', en: 'P/E = Market price ÷ EPS' },
   chartType: 'sensitivity',
   level: 'basic',
   isFeatured: true,
@@ -31,7 +34,7 @@ const PE: FormulaSpec = {
   variables: [
     {
       key: 'price',
-      label: 'Giá thị trường',
+      label: { vi: 'Giá thị trường', en: 'Market price' },
       unit: '₫',
       type: 'number',
       defaultValue: 92_000,
@@ -40,18 +43,33 @@ const PE: FormulaSpec = {
     },
   ],
   explanation: {
-    meaning: 'Số năm lợi nhuận cần có để hoàn lại giá đang mua.',
-    whenToUse: 'So sánh nhanh hai doanh nghiệp cùng ngành.',
-    howToRead: 'P/E càng cao thì kỳ vọng tăng trưởng càng lớn.',
-    commonMistakes: 'So P/E giữa hai ngành khác nhau.',
+    meaning: {
+      vi: 'Số năm lợi nhuận cần có để hoàn lại giá đang mua.',
+      en: 'The number of years of profit needed to recoup the purchase price.',
+    },
+    whenToUse: {
+      vi: 'So sánh nhanh hai doanh nghiệp cùng ngành.',
+      en: 'Quickly compare two companies in the same industry.',
+    },
+    howToRead: {
+      vi: 'P/E càng cao thì kỳ vọng tăng trưởng càng lớn.',
+      en: 'The higher the P/E, the greater the growth expectation.',
+    },
+    commonMistakes: {
+      vi: 'So P/E giữa hai ngành khác nhau.',
+      en: 'Comparing P/E across two different industries.',
+    },
   },
   example: {
-    title: 'Cổ phiếu giá 92.000 ₫, EPS 6.050 ₫',
+    title: {
+      vi: 'Cổ phiếu giá 92.000 ₫, EPS 6.050 ₫',
+      en: 'Stock price 92,000 VND, EPS 6,050 VND',
+    },
     inputs: { price: 92_000 },
     expected: 15.21,
   },
   tests: [{ name: 'ví dụ WF-03', inputs: { price: 92_000 }, expected: 15.21, tolerance: 0.01 }],
-  source: [{ label: 'Giáo trình phân tích tài chính' }],
+  source: [{ label: { vi: 'Giáo trình phân tích tài chính', en: 'Financial analysis textbook' } }],
 };
 
 describe('biến thể row — danh sách WF-02 và WF-09', () => {
@@ -80,7 +98,7 @@ describe('biến thể tile — lưới trang chủ WF-01', () => {
     render(<FormulaCard formula={PE} variant="tile" />);
 
     expect(screen.getByText(PE.name.vi)).not.toBeNull();
-    expect(screen.getByText(PE.description)).not.toBeNull();
+    expect(screen.getByText(PE.description.vi)).not.toBeNull();
     expect(screen.getByText('Chỉ số DN')).not.toBeNull();
     expect(screen.queryByText('Chỉ số doanh nghiệp')).toBeNull();
   });

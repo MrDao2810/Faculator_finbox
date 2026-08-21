@@ -13,6 +13,7 @@
 
 // ── Kiểu dữ liệu nền ────────────────────────────────────────────────────────
 export type {
+  Bilingual,
   CalcOutput,
   CalcWarning,
   ControlType,
@@ -252,7 +253,7 @@ export {
 
 // ── Khung ứng dụng (gói 1.4.1) ──────────────────────────────────────────────
 export type { Locale, MessageKey } from './i18n';
-export { LOCALES, isLocale, missingKeys, t } from './i18n';
+export { LOCALES, isLocale, missingKeys, pick, t } from './i18n';
 
 export type { NavItem, NavKey, RouteKey } from './routes';
 export { NAV_ITEMS, ROUTES, activeRouteKey, formulaListPath, formulaPath } from './routes';

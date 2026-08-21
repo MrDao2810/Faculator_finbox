@@ -12,7 +12,7 @@ afterEach(cleanup);
 
 const price: VariableSpec = {
   key: 'price',
-  label: 'Giá thị trường',
+  label: { vi: 'Giá thị trường', en: 'Market price' },
   unit: '₫',
   type: 'number',
   defaultValue: 92_000,
@@ -23,7 +23,7 @@ const price: VariableSpec = {
 
 const growth: VariableSpec = {
   key: 'g',
-  label: 'Tăng trưởng g',
+  label: { vi: 'Tăng trưởng g', en: 'Growth g' },
   unit: '%',
   type: 'number',
   defaultValue: 4,

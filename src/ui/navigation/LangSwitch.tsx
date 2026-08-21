@@ -11,8 +11,10 @@ import styles from './LangSwitch.module.css';
  * qua lại VI ↔ EN. Chữ trên nút là ngôn ngữ **đang dùng**, còn `aria-label` nói rõ hành động
  * sẽ xảy ra, để trình đọc màn hình không phải đoán.
  *
- * Bản dịch tiếng Anh (gói WBS 3.6.3) chưa có câu nào; `t()` tự rơi về tiếng Việt nên bấm sang
- * EN thì giao diện vẫn đọc được chứ không ra key trần. `title` nói trước điều đó.
+ * Bản dịch tiếng Anh phủ hết khoá giao diện và toàn bộ nội dung công thức (spec `Bilingual`,
+ * xem docblock đầu `en.ts`); vài khối vẫn cố ý hoặc còn hạn chế kỹ thuật ở tiếng Việt — cùng
+ * nơi đó liệt kê. `t()`/`pick()` đều tự rơi về tiếng Việt cho phần chưa dịch, nên bấm sang EN
+ * không bao giờ ra key trần. `title` nói trước điều đó.
  */
 export function LangSwitch() {
   const { locale, setLocale } = usePreferences();

@@ -238,7 +238,7 @@ describe('condensePoints()', () => {
 describe('sweepDomain()', () => {
   const price = {
     key: 'price',
-    label: 'Giá',
+    label: { vi: 'Giá', en: 'Price' },
     unit: '₫',
     type: 'number' as const,
     defaultValue: 92_000,
@@ -450,18 +450,18 @@ describe('buildChartModel()', () => {
 
     expect(model.kind).toBe('line');
     if (model.kind !== 'line') return;
-    expect(model.title).toBe('P/E theo Giá thị trường');
-    expect(model.x.title).toBe('Giá thị trường (₫)');
-    expect(model.y.title).toBe('P/E (lần)');
+    expect(model.title.vi).toBe('P/E theo Giá thị trường');
+    expect(model.x.title.vi).toBe('Giá thị trường (₫)');
+    expect(model.y.title.vi).toBe('P/E (lần)');
   });
 
   it('câu mô tả nói đủ dải, khoảng kết quả và giá trị hiện tại — đây là lối đọc của trình đọc màn hình', () => {
     const model = modelOf('pe');
     if (model.kind !== 'line') throw new Error('phải ra đường quét');
 
-    expect(model.summary).toContain('Quét Giá thị trường');
-    expect(model.summary).toContain('giá trị hiện tại');
-    expect(model.summary).toContain('Mọi mức đều tính được.');
+    expect(model.summary.vi).toContain('Quét Giá thị trường');
+    expect(model.summary.vi).toContain('giá trị hiện tại');
+    expect(model.summary.vi).toContain('Mọi mức đều tính được.');
   });
 
   it('công thức chờ chuỗi giá thì nói ĐÚNG câu khối kết quả đang nói, không vẽ khung rỗng', () => {
@@ -493,7 +493,7 @@ describe('buildChartModel()', () => {
     if (model.kind !== 'line') return;
     expect(model.points.some((p) => p.y === null)).toBe(true);
     expect(model.note).toBeDefined();
-    expect(model.note).toContain('không tính được');
+    expect(model.note?.vi).toContain('không tính được');
     expect(model.table.rows.some((row) => row?.[1].includes('— , —') === true)).toBe(true);
   });
 
@@ -518,7 +518,7 @@ describe('buildChartModel()', () => {
     const model = modelOf('von-hoa-thi-truong');
     if (model.kind !== 'line') throw new Error('phải ra đường quét');
 
-    expect(model.y.title).toMatch(/\((tỷ|triệu) ₫\)/);
+    expect(model.y.title.vi).toMatch(/\((tỷ|triệu) ₫\)/);
     for (const tick of model.y.ticks) expect(tick.label.length).toBeLessThan(10);
   });
 
@@ -538,7 +538,7 @@ describe('buildChartModel()', () => {
 
       expect(['line', 'waterfall', 'unavailable'], id).toContain(model.kind);
       if (model.kind === 'unavailable') {
-        expect(model.warning.message, id).not.toBe('');
+        expect(model.warning.message.vi, id).not.toBe('');
         continue;
       }
 
@@ -558,7 +558,7 @@ describe('buildChartModel()', () => {
         for (const bar of model.bars) {
           expect(Number.isFinite(bar.delta), `${id}: phần đóng góp`).toBe(true);
           expect(Number.isFinite(bar.cumulative), `${id}: mức cộng dồn`).toBe(true);
-          expect(bar.label, `${id}: nhãn cột`).not.toMatch(/NaN|Infinity|undefined/);
+          expect(bar.label.vi, `${id}: nhãn cột`).not.toMatch(/NaN|Infinity|undefined/);
           expect(bar.valueLabel, `${id}: nhãn giá trị`).not.toMatch(/NaN|Infinity|undefined/);
         }
         // Chân cột phải có chỗ đứng: miền trục LUÔN chứa số 0.
@@ -573,11 +573,11 @@ describe('buildChartModel()', () => {
         }
       }
 
-      expect(model.title, id).not.toMatch(/NaN|Infinity|undefined/);
-      expect(model.summary, id).not.toMatch(/NaN|Infinity|undefined/);
+      expect(model.title.vi, id).not.toMatch(/NaN|Infinity|undefined/);
+      expect(model.summary.vi, id).not.toMatch(/NaN|Infinity|undefined/);
       for (const row of model.table.rows) {
         if (row === null) continue;
-        expect(row[0] + row[1], `${id}: bảng`).not.toMatch(/NaN|Infinity|undefined/);
+        expect(row[0].vi + row[1], `${id}: bảng`).not.toMatch(/NaN|Infinity|undefined/);
       }
     }
   });
@@ -671,7 +671,7 @@ describe('bóc tách — thác nước', () => {
   it('dựng đủ các chặng cộng một cột tổng', () => {
     const bars = waterfallOf().bars;
 
-    expect(bars.map((bar) => bar.label)).toEqual(['Vốn hoá', 'Nợ vay', 'Tiền mặt', 'EV']);
+    expect(bars.map((bar) => bar.label.vi)).toEqual(['Vốn hoá', 'Nợ vay', 'Tiền mặt', 'EV']);
     expect(bars.filter((bar) => bar.isTotal === true)).toHaveLength(1);
     expect(bars[bars.length - 1]?.isTotal).toBe(true);
   });
@@ -719,14 +719,14 @@ describe('bóc tách — thác nước', () => {
     const table = waterfallOf().table;
 
     expect(table.rows).toHaveLength(4);
-    expect(table.rows[2]?.[0]).toBe('Tiền mặt');
-    expect(table.columns[0]).toBe('Thành phần');
+    expect(table.rows[2]?.[0]?.vi).toBe('Tiền mặt');
+    expect(table.columns[0].vi).toBe('Thành phần');
   });
 
   it('bóc tách là MỘT MỤC trong ô chọn trục, không phải màn riêng', () => {
     const model = waterfallOf();
 
-    expect(model.options.some((option) => option.label === 'Bóc tách')).toBe(true);
+    expect(model.options.some((option) => option.label.vi === 'Bóc tách')).toBe(true);
     expect(model.sweepKey).toBe(model.options[0]?.key);
     // Và người dùng vẫn đổi sang đường quét được.
     expect(model.options.length).toBeGreaterThan(1);
@@ -758,7 +758,7 @@ describe('bóc tách — thác nước', () => {
 
     expect(model.kind).toBe('line');
     if (model.kind !== 'line') return;
-    expect(model.options.some((option) => option.label === 'Bóc tách')).toBe(false);
+    expect(model.options.some((option) => option.label.vi === 'Bóc tách')).toBe(false);
   });
 
   it('kết quả đang lỗi thì không bóc tách — không có tổng nào để bày', () => {
@@ -865,7 +865,7 @@ describe('bóc tách — ba công thức vay', () => {
       expect(model.kind, id).toBe('line');
       if (model.kind !== 'line') continue;
       expect(
-        model.options.some((option) => option.label === 'Bóc tách'),
+        model.options.some((option) => option.label.vi === 'Bóc tách'),
         id,
       ).toBe(true);
     }
@@ -890,7 +890,7 @@ describe('bóc tách — ba công thức vay', () => {
     const { model, ketQua } = chartOf('lich-tra-no', BREAKDOWN_KEY);
     if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
 
-    expect(model.bars.map((bar) => bar.label)).toEqual([
+    expect(model.bars.map((bar) => bar.label.vi)).toEqual([
       'Tổng phải trả',
       'Trừ gốc vay',
       'Tổng lãi',
@@ -941,8 +941,8 @@ describe('bóc tách — ba công thức vay', () => {
     const { model } = chartOf('lich-tra-no', BREAKDOWN_KEY);
     if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
 
-    expect(model.bars[2]?.label).toBe('Tổng lãi');
-    expect(model.bars[2]?.label).not.toBe('Lịch trả nợ vay');
+    expect(model.bars[2]?.label.vi).toBe('Tổng lãi');
+    expect(model.bars[2]?.label.vi).not.toBe('Lịch trả nợ vay');
   });
 
   /*
@@ -956,8 +956,8 @@ describe('bóc tách — ba công thức vay', () => {
     const goc = model.bars[0];
     const lai = model.bars[1];
 
-    expect(goc?.label).toBe('Gốc kỳ đầu');
-    expect(lai?.label).toBe('Lãi kỳ đầu');
+    expect(goc?.label.vi).toBe('Gốc kỳ đầu');
+    expect(lai?.label.vi).toBe('Lãi kỳ đầu');
     expect(lai?.delta).toBeCloseTo(6_333_333.33, 1);
     expect(lai?.delta ?? 0).toBeGreaterThan((goc?.delta ?? 0) * 5);
     expect((goc?.delta ?? 0) + (lai?.delta ?? 0)).toBeCloseTo(ketQua ?? 0, 6);
@@ -994,7 +994,7 @@ describe('bóc tách — ba công thức vay', () => {
 
     expect(model.bars[0]?.delta).toBeCloseTo(40_677.97, 1);
     expect(model.bars[1]?.delta).toBeCloseTo(-22_033.9, 1);
-    expect(model.bars[2]?.label).toBe('NCAV');
+    expect(model.bars[2]?.label.vi).toBe('NCAV');
     // Và tuyệt đối KHÔNG phải con số thô của ô nhập.
     expect(model.bars[0]?.delta).not.toBeCloseTo(4_800, 0);
   });
@@ -1021,9 +1021,9 @@ describe('bóc tách — ba công thức vay', () => {
 
     const [giaiDoanDau, cuoiKy] = model.bars;
 
-    expect(giaiDoanDau?.label).toBe('Cổ tức giai đoạn đầu');
-    expect(cuoiKy?.label).toBe('Giá trị cuối kỳ');
-    expect(model.bars[2]?.label).toBe('Giá trị cổ phiếu');
+    expect(giaiDoanDau?.label.vi).toBe('Cổ tức giai đoạn đầu');
+    expect(cuoiKy?.label.vi).toBe('Giá trị cuối kỳ');
+    expect(model.bars[2]?.label.vi).toBe('Giá trị cổ phiếu');
 
     const tyTrongCuoiKy = (cuoiKy?.delta ?? 0) / (output.value ?? 1);
     expect(tyTrongCuoiKy).toBeGreaterThan(0.7);
@@ -1052,7 +1052,7 @@ describe('bóc tách — ba công thức vay', () => {
     const stages = model.bars.filter((bar) => bar.isTotal !== true);
     expect(stages).toHaveLength(4);
     expect(stages.filter((bar) => bar.delta < 0)).toHaveLength(2);
-    expect(stages[0]?.label).toBe('EBIT sau thuế');
+    expect(stages[0]?.label.vi).toBe('EBIT sau thuế');
   });
 
   /*

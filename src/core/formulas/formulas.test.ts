@@ -100,13 +100,13 @@ describe('Registry với toàn bộ công thức thật', () => {
    */
   it('mọi công thức có dòng công thức viết bằng chữ để hiện khi KaTeX còn hoãn', () => {
     for (const spec of ALL_FORMULAS) {
-      expect(spec.expression?.trim(), spec.id).toBeTruthy();
+      expect(spec.expression?.vi.trim(), spec.id).toBeTruthy();
     }
   });
 
   it('dòng đó phải đọc được — không lẫn ký hiệu LaTeX', () => {
     for (const spec of ALL_FORMULAS) {
-      const expression = spec.expression ?? '';
+      const expression = spec.expression?.vi ?? '';
 
       expect(expression, `${spec.id} còn dấu gạch chéo ngược của LaTeX`).not.toMatch(/\\/);
       expect(expression, `${spec.id} còn ngoặc nhọn của LaTeX`).not.toMatch(/[{}]/);
@@ -168,7 +168,7 @@ describe('Registry với toàn bộ công thức thật', () => {
     const registry = createRegistry(ALL_FORMULAS);
     for (const category of registry.categories) {
       const count = registry.byCategory.get(category.id)?.length ?? 0;
-      expect(count, category.name).toBeLessThanOrEqual(category.expectedCount);
+      expect(count, category.name.vi).toBeLessThanOrEqual(category.expectedCount);
     }
   });
 });
@@ -185,9 +185,9 @@ describe('WF-08 — bảng bóc tách phí & thuế khớp từng đồng với 
   it('chuỗi công thức hiện trong dòng đúng khuôn WF-08', () => {
     const { rows } = buildFeeBreakdown(WF08, CTX);
 
-    expect(rows[0]?.formula).toBe('0,15% × 92.000.000 ₫');
-    expect(rows[2]?.formula).toBe('0,10% × 97.000.000 ₫');
-    expect(rows[3]?.formula).toContain('0,27 ₫/CP/tháng × 1.000 × 5');
+    expect(rows[0]?.formula.vi).toBe('0,15% × 92.000.000 ₫');
+    expect(rows[2]?.formula.vi).toBe('0,10% × 97.000.000 ₫');
+    expect(rows[3]?.formula.vi).toContain('0,27 ₫/CP/tháng × 1.000 × 5');
   });
 
   it('tổng chi phí, giá hoà vốn, lãi ròng và ROI ròng đều khớp', () => {
@@ -208,7 +208,7 @@ describe('WF-08 — bảng bóc tách phí & thuế khớp từng đồng với 
     expect(b.rows[3]?.output.value).toBe(1_350);
     expect(b.rows[1]?.output.warning?.code).toBe('INCOMPLETE_INPUT');
     expect(b.netProfit.warning?.code).toBe('INCOMPLETE_INPUT');
-    expect(b.netProfit.warning?.message).toContain('Giá bán');
+    expect(b.netProfit.warning?.message.vi).toContain('Giá bán');
   });
 
   it('giá hoà vốn không cần giá bán — mốc này phải hiện được trước khi bán', () => {

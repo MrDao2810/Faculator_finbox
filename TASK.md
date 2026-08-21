@@ -107,6 +107,132 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Vá nốt 4 chỗ vẫn tiếng Việt sau khi dịch — FormulaCard, CategoryGrid, ChainBody, SearchResults
+
+Trạng thái: **xong**. Chủ dự án báo (kèm ảnh chụp màn hình): bật EN rồi vào danh sách công thức,
+số đếm trên đầu trang đã ra "111 formula(s)" (đúng — khối đó đã theo locale) nhưng **tên và mô tả
+từng thẻ công thức** ("Biên an toàn", "CAGR — tăng trưởng kép hằng năm"...) vẫn tiếng Việt. Đúng
+lỗ hổng đã ghi ở mục "Việc còn lại" ngay dưới — giờ vá luôn, không để dành nữa.
+
+### Nguyên nhân và cách vá
+
+`FormulaCard.tsx` và `CategoryGrid.tsx` dựng ở CẢ HAI phía (server: trang chủ, `StaticFormulaList`
+fallback SEO; client: `FormulaBrowser` sau khi hydrate) nên không gọi được `usePick()` — hook ném
+lỗi ở lượt dựng server. Trước đây các field `Bilingual` (tên/mô tả công thức, tên nhóm) đọc thẳng
+`.vi`, đứng yên bất kể locale.
+
+Dựng thêm `src/ui/i18n/Pick.tsx` — lá client `<Pick value={bilingual} />`, đúng nguyên tắc `<T
+k="…">` (`src/ui/i18n/T.tsx`) đã dùng cho khoá từ điển: bọc ĐÚNG PHẦN CHỮ vào một component
+`'use client'` nhỏ thì cả khối vẫn do server dựng, chỉ đoạn chữ đó hydrate và đổi theo locale.
+Khác `<T>` (đọc khoá từ điển), `<Pick>` đọc thẳng field `Bilingual` khai ở Domain.
+
+Áp `<Pick>` vào bốn chỗ:
+
+- `FormulaCard.tsx` — tên, mô tả công thức, tên/tên rút gọn nhóm (cả hai biến thể `row`/`tile`).
+- `CategoryGrid.tsx` — tên rút gọn nhóm ở khối "Duyệt theo nhóm" trang chủ.
+- `ChainBody.tsx` — tên công thức trong từng bước của khối chuỗi (WF-04, đã là client component
+  sẵn nhưng sót một chỗ đọc `.vi` thẳng thay vì `usePick()`).
+- `SearchResults.tsx` — tên công thức tô sáng ở kết quả tìm kiếm (dòng mô tả cạnh nó đã đúng
+  `pick()` từ trước, chỉ riêng dòng tên bị sót).
+
+Rà toàn bộ `src/app` + `src/ui` bằng `grep` cho mọi chỗ còn đọc `.vi` thẳng trên field vốn là
+`Bilingual` để tìm nốt các chỗ sót — không còn chỗ nào khác ngoài bốn chỗ trên (phần còn lại đã
+đúng `pick()`/`usePick()`, hoặc cố ý đứng yên tiếng Việt: metadata SEO, `StaticFormulaList` build-
+time, file xuất PDF/PNG — đã ghi rõ lý do tại chỗ).
+
+Xác minh: `npx tsc --noEmit` 0 lỗi; `npm run check` xanh **1364/1364 test qua 62 file** (test cũ
+không cần sửa — `<Pick>` render đúng "vi" theo mặc định `DEFAULT_PREFERENCES`); `npm run build` +
+`npm run size` (175,3 kB, vẫn dưới cửa kiểm 180 kB) + `npm run verify:static` (24/24) đều xanh;
+kiểm Chrome thật thủ công xác nhận: bật EN ở `/cong-thuc/` thì "Biên an toàn" biến mất, thay bằng
+"Margin of safety"; trang chủ (`CategoryGrid`) cũng đổi đúng.
+
+### Vụ "dật đơ hơn" — đo lại, không thấy hồi quy thật
+
+Chủ dự án báo dự án giật/đơ hơn, đang xem qua `npm run dev`. Hỏi lại và đo trên **bản build thật**
+bằng Chrome thật (CPU hãm ×4, khổ 360px), cùng phương pháp đợt "Vá đơ khi bấm..." phía dưới — vì
+`next dev` vốn chậm hơn hẳn bản build do StrictMode dựng đôi và biên dịch route theo yêu cầu, không
+phản ánh đúng trải nghiệm người dùng cuối.
+
+Kết quả bấm client-side (không tải lại trang): Trang chủ → Danh sách ~58ms tổng long task, Danh
+sách → Chi tiết (`wacc`) ~104ms tổng long task — cùng cỡ hoặc nhẹ hơn số đã ghi ở đợt vá đơ trước
+(~325ms hết đơ cho lượt bấm đầu). Trang Danh sách tải nguội qua URL: **0 long task**. Không thấy
+dấu hiệu hồi quy thật trên bản build; nhiều khả năng cảm giác giật đến từ `npm run dev` vốn chậm
+hơn theo thiết kế, không phải lỗi phát sinh từ đợt dịch. Đã tắt tạm rồi bật lại dev server sau khi
+đo xong.
+
+---
+
+## Dịch toàn bộ nội dung công thức sang tiếng Anh — nối nốt phần còn lại của 3.6.3
+
+Trạng thái: **xong phần cơ học, còn MỘT việc chờ chủ dự án quyết** (xem "Việc còn lại" cuối mục).
+`npx tsc --noEmit` 0 lỗi toàn dự án; `npm run lint` sạch; `npm run format:check` sạch; `npm test`
+**1363/1363 qua 62 file**; `npm run build` thành công; `npm run size` đạt cửa kiểm mới (xem dưới);
+`npm run verify:static` **24/24**; kiểm Chrome thật thủ công (trang `wacc` — công thức có chain)
+xác nhận tiêu đề, diễn giải, ví dụ, nguồn, cảnh báo đều đổi đúng sang EN khi bấm nút đổi ngôn ngữ.
+
+Gói 3.6.3 (đợt 7-8) mới dịch **khoá giao diện** (menu, tiêu đề khối, header bảng...). Đợt này dịch
+tiếp phần đợt 7 từng ghi rõ là "chờ": toàn bộ **nội dung công thức** — tên, mô tả, 4 mục diễn giải
+(432 đoạn), nhãn/mô tả biến số, ví dụ, nguồn tham khảo — và **văn bản sinh tại runtime ở tầng
+Domain** (cảnh báo `WarningCode`, breakdown phí, tiêu đề/tóm tắt biểu đồ, câu kiểm dòng tiền).
+
+### Kiến trúc lưu trữ
+
+Mở rộng field spec thành `{vi, en}` (kiểu `Bilingual` mới ở `src/core/types.ts`), đúng tiền lệ
+`name: {vi, en}` sẵn có — không dựng dictionary riêng. `pick(value, locale)` (Application) và
+`usePick()` (React hook, mirror `useT()`) là cách duy nhất UI đọc field bilingual.
+
+Văn bản Domain sinh tại runtime (`warnings.ts`, `chart/build.ts`, `fees.ts`, `cashflow-series.ts`,
+`portfolio.ts`) tự viết **cả hai câu vi/en cùng lúc** ngay tại chỗ dựng câu, trả về `Bilingual` —
+không qua i18n (CON-02 cấm Domain import `@/application`), không dựng tầng key+template (sẽ phải
+nhồi hàng trăm câu riêng của từng công thức vào dictionary chung UI, sai nguyên tắc "nội dung công
+thức thuộc spec/Domain").
+
+### Phạm vi đã đổi
+
+- Kiểu: `core/types.ts`, `core/registry/types.ts`, `core/market/types.ts` — mọi field prose
+  (`VariableSpec.label/description`, `CalcWarning.message/fix`, `MarketConstant.label/legalBasis/
+note`, `Category.*`, `Explanation.*`, `FormulaSource.label`, `FormulaExample.title/note`,
+  `FormulaSummary.description`, `FormulaSpec.expression/note/breakdownTotal`,
+  `BreakdownStage.shortLabel`, `FeeSchedule.name/description`) → `Bilingual`.
+- Domain: `warnings.ts`, `calc-output.ts`, `formulas/shared.ts` (kể cả các hằng `SOURCE_*`),
+  `chart/build.ts` + `chart/types.ts` + `chart/breakdown.ts` + `chart/history.ts`,
+  `formulas/fees.ts`, `cashflow-series.ts`, `registry/validate.ts` (mở rộng cảnh báo `.en` rỗng
+  ra mọi field, không chỉ `name.en`), `registry/categories.ts` (12 nhóm), `market/schedules.ts`
+  (biểu phí HOSE 2026 + 7 hằng số), `calc/run.ts`, `calc/run-chain.ts`, `flow-chain.ts`,
+  `linked-input.ts`, `portfolio.ts`, `export-content.ts` (đọc `.vi` — văn bản xuất PDF/PNG cố ý
+  vẫn tiếng Việt), `formulas/series-utils.ts`, `market/resolve.ts`, `registry/search.ts` (tìm
+  theo cả hai ngôn ngữ).
+- Toàn bộ 17 file nhóm công thức dịch tay từng field prose của 108 công thức, giữ nguyên viết
+  tắt tài chính (P/E, EPS, WACC, CAPM, FCFF, ROE, Sharpe, RSI, MACD...) ở cả hai ngôn ngữ.
+- `summaries.test.ts` + `summaries.generated.ts` sinh lại theo kiểu `Bilingual` mới.
+- UI: `pick`/`usePick` gắn vào ~25 component (khối Kết quả, biểu đồ, ô nhập, FeeTaxBody,
+  SettingsScreen, SearchResults...), `FormulaDetail.tsx`, `page.tsx` (metadata SEO đọc `.vi`
+  tường minh — cố ý, build-time).
+- `en.ts` và `LangSwitch.tsx`: sửa lại docblock đang nói sai hiện trạng (nói nội dung công thức
+  "chờ dịch", nói LangSwitch "chưa gắn lại AppHeader" — cả hai đều đã xong từ trước hoặc đợt này).
+
+### Lỗ hổng cửa kiểm dung lượng — đã tự vá
+
+`npm run size` đỏ ngay sau khi dịch xong: nội dung song ngữ đẩy ~100 trang công thức lên
+~174–175,2 kB JS (cửa kiểm cũ 170 kB). Nguyên nhân: `findFormulaModule()` trong
+`FormulaDetail.tsx` buộc bundler đóng cả `FORMULA_MODULES` (108 công thức, spec + `calc`) vào
+gói client của MỌI trang chi tiết — kiến trúc có sẵn từ trước (đã ghi "0 byte thêm" trong code),
+nội dung tăng gần gấp đôi thì gói tăng theo. Sửa triệt để (tách từng công thức thành chunk riêng,
+`findFormulaModule` tải động theo id) là refactor lớn, không làm trong đợt này.
+
+Ngân sách NFR-PER-04 thật là **200 kB** (`BUDGET` trong `scripts/size-report.mjs`) — `CHECKPOINT`
+chỉ là cửa cảnh báo sớm đặt dưới hẳn ngưỡng đó. Trang nặng nhất đo được (175,2 kB) vẫn cách xa
+200 kB, chỉ chạm cửa cảnh báo sớm. Đã hỏi chủ dự án, được chọn: **nâng `CHECKPOINT` 170 → 180 kB**
+(để lại ~5 kB dư trước cửa kiểm, ~20 kB dư trước ngân sách thật), cập nhật luôn hai chỗ nhắc số
+170 kB trong `CLAUDE.md`.
+
+### Việc còn lại
+
+~~`FormulaCard.tsx` và `CategoryGrid.tsx`... không gọi được `usePick()`.~~ **Đã vá** — xem mục
+"Vá nốt 4 chỗ vẫn tiếng Việt sau khi dịch" ngay phía trên (lá `<Pick>`, cùng nguyên tắc `<T k="…">`).
+
+---
+
 ## Vá đơ khi bấm từ Trang chủ / Danh sách sang màn Chi tiết
 
 Trạng thái: **xong phần vá, còn MỘT việc chờ chủ dự án quyết** (xem "Lỗ hổng cửa kiểm dung

@@ -11,7 +11,7 @@ import {
   RECENT_SEARCHES_KEY,
   formatNumber,
 } from '@/application';
-import { usePreferences, useT } from '@/application/preferences-context';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { UnitSwitcher } from '@/ui/inputs';
 import { Button, Select } from '@/ui/primitives';
 import { ModeToggle } from '@/ui/navigation';
@@ -58,6 +58,7 @@ function sizeOf(key: string): number | null {
 export function SettingsScreen() {
   const { feeScheduleId, setFeeScheduleId, unitScale, setUnitScale } = usePreferences();
   const t = useT();
+  const pick = usePick();
 
   const [sizes, setSizes] = useState<ReadonlyArray<number | null>>(() =>
     STORAGE_ITEMS.map(() => null),
@@ -139,7 +140,7 @@ export function SettingsScreen() {
             */}
             {MARKET_CONFIG.schedules.map((schedule) => (
               <option key={schedule.id} value={schedule.id}>
-                {schedule.name}
+                {pick(schedule.name)}
               </option>
             ))}
           </Select>

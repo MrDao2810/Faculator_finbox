@@ -9,7 +9,7 @@ import { fail } from '../calc-output';
 import type { MarketConstantKey, TypedMarketConstant } from '../market/types';
 import { resolveConstant, resolveRate } from '../market/resolve';
 import type { FormulaSource, FormulaSpec } from '../registry/types';
-import type { CalcOutput, Level, VariableSpec } from '../types';
+import type { Bilingual, CalcOutput, Level, VariableSpec } from '../types';
 import { meaningless } from '../warnings';
 import type { CalcContext } from '../calc/types';
 
@@ -20,12 +20,18 @@ import type { CalcContext } from '../calc/types';
  */
 
 /** Cảnh báo dùng chung khi chưa chọn được biểu phí hoặc biểu phí thiếu khoản mục. */
-export function missingConstant(unit: string, what: string): CalcOutput {
+export function missingConstant(unit: string, what: Bilingual): CalcOutput {
   return fail(
     unit,
     meaningless(
-      `Biểu phí đang chọn không có mức ${what} áp dụng tại ngày tra cứu.`,
-      'Chọn biểu phí khác ở màn Cài đặt, hoặc kiểm tra lại ngày áp dụng.',
+      {
+        vi: `Biểu phí đang chọn không có mức ${what.vi} áp dụng tại ngày tra cứu.`,
+        en: `The selected fee schedule has no ${what.en} rate in effect on the lookup date.`,
+      },
+      {
+        vi: 'Chọn biểu phí khác ở màn Cài đặt, hoặc kiểm tra lại ngày áp dụng.',
+        en: 'Choose a different fee schedule in Settings, or check the effective date.',
+      },
     ),
   );
 }
@@ -74,15 +80,24 @@ export function constantsUsedBy(
  */
 
 export const SOURCE_CFA: FormulaSource = {
-  label: 'Giáo trình phân tích đầu tư (CFA Institute)',
+  label: {
+    vi: 'Giáo trình phân tích đầu tư (CFA Institute)',
+    en: 'Investment Analysis curriculum (CFA Institute)',
+  },
 };
 
 export const SOURCE_VAS: FormulaSource = {
-  label: 'Chuẩn mực kế toán Việt Nam (VAS)',
+  label: {
+    vi: 'Chuẩn mực kế toán Việt Nam (VAS)',
+    en: 'Vietnamese Accounting Standards (VAS)',
+  },
 };
 
 export const SOURCE_PIT_LAW: FormulaSource = {
-  label: 'Luật Thuế thu nhập cá nhân 109/2025/QH15',
+  label: {
+    vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15',
+    en: 'Personal Income Tax Law 109/2025/QH15',
+  },
 };
 
 /*
@@ -94,15 +109,24 @@ export const SOURCE_PIT_LAW: FormulaSource = {
  * giữ hai bên trích cùng một thông tư.
  */
 export const SOURCE_FEE_CIRCULAR: FormulaSource = {
-  label: 'Thông tư 102/2021/TT-BTC về giá dịch vụ trong lĩnh vực chứng khoán',
+  label: {
+    vi: 'Thông tư 102/2021/TT-BTC về giá dịch vụ trong lĩnh vực chứng khoán',
+    en: 'Circular 102/2021/TT-BTC on securities service pricing',
+  },
 };
 
 export const SOURCE_VSD: FormulaSource = {
-  label: 'Biểu phí dịch vụ của Tổng công ty Lưu ký và Bù trừ chứng khoán Việt Nam (VSDC)',
+  label: {
+    vi: 'Biểu phí dịch vụ của Tổng công ty Lưu ký và Bù trừ chứng khoán Việt Nam (VSDC)',
+    en: 'Service fee schedule of the Vietnam Securities Depository and Clearing Corporation (VSDC)',
+  },
 };
 
 export const SOURCE_CORPORATE_FINANCE: FormulaSource = {
-  label: 'Brealey, Myers & Allen — Principles of Corporate Finance',
+  label: {
+    vi: 'Brealey, Myers & Allen — Principles of Corporate Finance',
+    en: 'Brealey, Myers & Allen — Principles of Corporate Finance',
+  },
 };
 
 /*
@@ -113,13 +137,13 @@ export interface NumberVarOptions {
   min?: number;
   max?: number;
   level?: Level;
-  description?: string;
+  description?: Bilingual;
 }
 
 /** Ô nhập số thông thường. */
 export function numberVar(
   key: string,
-  label: string,
+  label: Bilingual,
   unit: string,
   defaultValue: number,
   options: NumberVarOptions = {},
@@ -131,13 +155,13 @@ export function numberVar(
 /** Thanh trượt. Validator bắt buộc đủ min, max và step nên ba tham số này không tuỳ chọn. */
 export function sliderVar(
   key: string,
-  label: string,
+  label: Bilingual,
   unit: string,
   defaultValue: number,
   min: number,
   max: number,
   step: number,
-  options: { level?: Level; description?: string } = {},
+  options: { level?: Level; description?: Bilingual } = {},
 ): VariableSpec {
   const { level = 'basic', description } = options;
   return { key, label, unit, type: 'slider', defaultValue, min, max, step, level, description };

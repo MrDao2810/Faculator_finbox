@@ -4,6 +4,7 @@ import { memo } from 'react';
 import { findCategory, formulaPath } from '@/application';
 import type { FormulaSummary } from '@/application';
 
+import { Pick } from '../i18n/Pick';
 import { T } from '../i18n/T';
 import styles from './FormulaCard.module.css';
 
@@ -31,9 +32,10 @@ export interface FormulaCardProps {
  * Cả thẻ là một thẻ <a> thật, không phải div bắt sự kiện: bấm được, mở tab mới được,
  * và điều hướng được cả khi JavaScript chưa tải xong.
  *
- * Badge cấp độ đi qua lá `<T>` chứ không `useT()`: file này được dựng ở CẢ HAI phía — client
- * (FormulaBrowser, HomeSearchPanel) lẫn server (StaticFormulaList, fallback SEO) — nên gọi hook
- * thẳng sẽ ném lỗi ở lượt dựng server. Lá `<T>` chạy được cả hai chỗ.
+ * Badge cấp độ và tên/mô tả công thức/nhóm đều đi qua lá `<T>`/`<Pick>` chứ không `useT()`/
+ * `usePick()` thẳng: file này được dựng ở CẢ HAI phía — client (FormulaBrowser, HomeSearchPanel)
+ * lẫn server (StaticFormulaList, fallback SEO) — nên gọi hook thẳng sẽ ném lỗi ở lượt dựng
+ * server. Hai lá này chạy được cả hai chỗ (xem docblock `Pick.tsx`).
  */
 function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: FormulaCardProps) {
   const category = findCategory(formula.categoryId);
@@ -42,10 +44,16 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
   if (variant === 'tile') {
     return (
       <Link href={formulaPath(formula.id)} className={styles.tile}>
-        <span className={styles.tileName}>{formula.name.vi}</span>
-        <span className={styles.tileDescription}>{formula.description}</span>
+        <span className={styles.tileName}>
+          <Pick value={formula.name} />
+        </span>
+        <span className={styles.tileDescription}>
+          <Pick value={formula.description} />
+        </span>
         {showCategory && category !== undefined && (
-          <span className={styles.tileCategory}>{category.shortName}</span>
+          <span className={styles.tileCategory}>
+            <Pick value={category.shortName} />
+          </span>
         )}
       </Link>
     );
@@ -55,16 +63,22 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
     <Link href={formulaPath(formula.id)} className={styles.card}>
       <div className={styles.body}>
         <div className={styles.head}>
-          <span className={styles.name}>{formula.name.vi}</span>
+          <span className={styles.name}>
+            <Pick value={formula.name} />
+          </span>
           <span className={`${styles.badge} ${isBasic ? styles.basic : styles.advanced}`}>
             <T k={isBasic ? 'level.basic' : 'level.advanced'} />
           </span>
         </div>
 
-        <p className={styles.description}>{formula.description}</p>
+        <p className={styles.description}>
+          <Pick value={formula.description} />
+        </p>
 
         {showCategory && category !== undefined && (
-          <div className={styles.category}>{category.name}</div>
+          <div className={styles.category}>
+            <Pick value={category.name} />
+          </div>
         )}
       </div>
 

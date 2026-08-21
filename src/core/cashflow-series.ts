@@ -10,6 +10,8 @@
  * một màn dùng chung như `/du-lieu/`.
  */
 
+import type { Bilingual } from './types';
+
 /**
  * Một dòng tiền đã đủ để tính — cả hai trường đều bắt buộc, `amount` khác 0.
  * Đây là hình dạng `CalcContext.cashflows` và `spec.tests[].cashflows` đọc.
@@ -38,8 +40,8 @@ export type CashflowIssueCode =
 
 export interface CashflowRowIssue {
   code: CashflowIssueCode;
-  /** Câu tiếng Việt nêu đúng nguyên nhân, viết như nói với người mới (NFR-USA-04). */
-  message: string;
+  /** Câu nêu đúng nguyên nhân, viết như nói với người mới (NFR-USA-04). Cả hai ngôn ngữ. */
+  message: Bilingual;
 }
 
 /** Kết quả kiểm một dòng: chỉ số dòng trong bảng (đếm từ 0) kèm các vấn đề tìm thấy. */
@@ -66,18 +68,27 @@ export function checkCashflowRow(row: CashflowRow): ReadonlyArray<CashflowRowIss
   const issues: CashflowRowIssue[] = [];
 
   if (row.date.trim() === '') {
-    issues.push({ code: 'MISSING_DATE', message: 'Thiếu ngày của dòng tiền này.' });
+    issues.push({
+      code: 'MISSING_DATE',
+      message: { vi: 'Thiếu ngày của dòng tiền này.', en: 'This cash flow is missing a date.' },
+    });
   }
 
   if (row.amount === null) {
     issues.push({
       code: 'MISSING_AMOUNT',
-      message: 'Thiếu số tiền — âm là chi ra, dương là thu về.',
+      message: {
+        vi: 'Thiếu số tiền — âm là chi ra, dương là thu về.',
+        en: 'Missing amount — negative for money out, positive for money in.',
+      },
     });
   } else if (row.amount === 0) {
     issues.push({
       code: 'ZERO_AMOUNT',
-      message: 'Số tiền bằng 0 không phải một dòng tiền — xoá dòng này nếu không có giao dịch.',
+      message: {
+        vi: 'Số tiền bằng 0 không phải một dòng tiền — xoá dòng này nếu không có giao dịch.',
+        en: 'A zero amount is not a cash flow — delete this row if there was no transaction.',
+      },
     });
   }
 
@@ -104,7 +115,10 @@ export function checkCashflowSeries(rows: ReadonlyArray<CashflowRow>): CashflowS
       } else {
         issues.push({
           code: 'DUPLICATE_DATE',
-          message: `Ngày ${key} đã có ở dòng ${String(first + 1)} — gộp hai dòng tiền cùng ngày lại thành một.`,
+          message: {
+            vi: `Ngày ${key} đã có ở dòng ${String(first + 1)} — gộp hai dòng tiền cùng ngày lại thành một.`,
+            en: `The date ${key} already appears in row ${String(first + 1)} — merge the two cash flows on the same date into one.`,
+          },
         });
       }
     }

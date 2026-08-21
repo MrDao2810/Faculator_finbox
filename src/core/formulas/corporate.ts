@@ -29,46 +29,86 @@ export const DIEM_HOA_VON: FormulaModule = {
     id: 'diem-hoa-von',
     categoryId: 'corporate-finance',
     name: { vi: 'Điểm hoà vốn doanh nghiệp', en: 'Break-even point' },
-    description:
-      'Cần bán bao nhiêu sản phẩm để doanh thu vừa đủ bù toàn bộ chi phí, kèm mức doanh thu hoà vốn tương ứng.',
+    description: {
+      vi: 'Cần bán bao nhiêu sản phẩm để doanh thu vừa đủ bù toàn bộ chi phí, kèm mức doanh thu hoà vốn tương ứng.',
+      en: 'How many units must be sold for revenue to just cover total costs, along with the matching break-even revenue.',
+    },
     latex: 'Q_{hv} = \\frac{FC}{P - VC} \\qquad DT_{hv} = Q_{hv} \\times P',
-    expression: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán − Biến phí đơn vị)',
+    expression: {
+      vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán − Biến phí đơn vị)',
+      en: 'Break-even output = Fixed cost ÷ (Selling price − Variable cost per unit)',
+    },
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['diem hoa von', 'hoa von', 'break even', 'bep', 'dinh phi', 'bien phi', 'so du dam phi'],
     resultUnit: 'sản phẩm',
     variables: [
-      numberVar('fixedCost', 'Định phí', '₫', 500_000_000, {
+      numberVar('fixedCost', { vi: 'Định phí', en: 'Fixed cost' }, '₫', 500_000_000, {
         min: 0,
         max: 1_000_000_000_000,
-        description: 'Chi phí không đổi theo sản lượng: thuê mặt bằng, khấu hao, lương cố định.',
+        description: {
+          vi: 'Chi phí không đổi theo sản lượng: thuê mặt bằng, khấu hao, lương cố định.',
+          en: 'Cost that does not change with output volume: rent, depreciation, fixed salaries.',
+        },
       }),
-      numberVar('price', 'Giá bán một sản phẩm', '₫', 50_000, {
-        min: 0,
-        max: 1_000_000_000,
-        description: 'Giá bán bình quân của một đơn vị sản phẩm.',
-      }),
-      numberVar('variableCost', 'Biến phí một sản phẩm', '₫', 30_000, {
-        min: 0,
-        max: 1_000_000_000,
-        description: 'Chi phí tăng theo từng sản phẩm bán ra: nguyên liệu, hoa hồng, vận chuyển.',
-      }),
+      numberVar(
+        'price',
+        { vi: 'Giá bán một sản phẩm', en: 'Selling price per unit' },
+        '₫',
+        50_000,
+        {
+          min: 0,
+          max: 1_000_000_000,
+          description: {
+            vi: 'Giá bán bình quân của một đơn vị sản phẩm.',
+            en: 'Average selling price of one unit of the product.',
+          },
+        },
+      ),
+      numberVar(
+        'variableCost',
+        { vi: 'Biến phí một sản phẩm', en: 'Variable cost per unit' },
+        '₫',
+        30_000,
+        {
+          min: 0,
+          max: 1_000_000_000,
+          description: {
+            vi: 'Chi phí tăng theo từng sản phẩm bán ra: nguyên liệu, hoa hồng, vận chuyển.',
+            en: 'Cost that rises with each unit sold: raw materials, commissions, shipping.',
+          },
+        },
+      ),
     ],
     explanation: {
-      meaning:
-        'Mốc sản lượng mà tại đó doanh nghiệp không lãi cũng không lỗ; bán vượt mốc này thì mỗi sản phẩm thêm mới bắt đầu sinh lời.',
-      whenToUse:
-        'Khi lập kế hoạch kinh doanh, định giá sản phẩm mới, hoặc đánh giá một doanh nghiệp có cấu trúc định phí nặng.',
-      howToRead:
-        'Điểm hoà vốn càng thấp so với sản lượng thực tế thì biên an toàn càng dày. Doanh thu hoà vốn ở dòng phụ giúp so thẳng với doanh thu trên báo cáo.',
-      commonMistakes:
-        'Xếp nhầm chi phí nửa cố định nửa biến đổi (điện, lương có thưởng doanh số) vào một cột duy nhất, làm điểm hoà vốn lệch xa thực tế.',
+      meaning: {
+        vi: 'Mốc sản lượng mà tại đó doanh nghiệp không lãi cũng không lỗ; bán vượt mốc này thì mỗi sản phẩm thêm mới bắt đầu sinh lời.',
+        en: 'The output level at which the company neither profits nor loses; every unit sold beyond this point starts generating profit.',
+      },
+      whenToUse: {
+        vi: 'Khi lập kế hoạch kinh doanh, định giá sản phẩm mới, hoặc đánh giá một doanh nghiệp có cấu trúc định phí nặng.',
+        en: 'When drafting a business plan, pricing a new product, or assessing a company with a heavy fixed-cost structure.',
+      },
+      howToRead: {
+        vi: 'Điểm hoà vốn càng thấp so với sản lượng thực tế thì biên an toàn càng dày. Doanh thu hoà vốn ở dòng phụ giúp so thẳng với doanh thu trên báo cáo.',
+        en: 'The lower the break-even point is relative to actual output, the thicker the margin of safety. The break-even revenue shown alongside lets you compare directly against reported revenue.',
+      },
+      commonMistakes: {
+        vi: 'Xếp nhầm chi phí nửa cố định nửa biến đổi (điện, lương có thưởng doanh số) vào một cột duy nhất, làm điểm hoà vốn lệch xa thực tế.',
+        en: 'Misclassifying semi-fixed, semi-variable costs (electricity, salary plus sales bonus) into a single column, which pushes the break-even point far from reality.',
+      },
     },
     example: {
-      title: 'Định phí 500 triệu ₫, giá bán 50.000 ₫, biến phí 30.000 ₫/sản phẩm',
+      title: {
+        vi: 'Định phí 500 triệu ₫, giá bán 50.000 ₫, biến phí 30.000 ₫/sản phẩm',
+        en: 'Fixed cost 500 million VND, selling price 50,000 VND, variable cost 30,000 VND per unit',
+      },
       inputs: { fixedCost: 500_000_000, price: 50_000, variableCost: 30_000 },
       expected: 25_000,
-      note: 'Doanh thu hoà vốn tương ứng 1,25 tỷ ₫.',
+      note: {
+        vi: 'Doanh thu hoà vốn tương ứng 1,25 tỷ ₫.',
+        en: 'The corresponding break-even revenue is 1.25 billion VND.',
+      },
     },
     tests: [
       {
@@ -111,9 +151,12 @@ export const DIEM_HOA_VON: FormulaModule = {
         value: null,
         unit: 'sản phẩm',
         warning: divideByZero(
-          'điểm hoà vốn',
-          'số dư đảm phí đơn vị',
-          'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
+          { vi: 'điểm hoà vốn', en: 'break-even point' },
+          { vi: 'số dư đảm phí đơn vị', en: 'unit contribution margin' },
+          {
+            vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
+            en: 'Raise the selling price above the variable cost per unit, or find a way to reduce variable cost.',
+          },
         ),
       };
     }
@@ -123,8 +166,14 @@ export const DIEM_HOA_VON: FormulaModule = {
         value: null,
         unit: 'sản phẩm',
         warning: meaningless(
-          'Giá bán thấp hơn biến phí đơn vị nên mỗi sản phẩm bán ra càng làm lỗ thêm — doanh nghiệp không bao giờ hoà vốn.',
-          'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
+          {
+            vi: 'Giá bán thấp hơn biến phí đơn vị nên mỗi sản phẩm bán ra càng làm lỗ thêm — doanh nghiệp không bao giờ hoà vốn.',
+            en: 'The selling price is below the variable cost per unit, so every unit sold adds to the loss — the company will never break even.',
+          },
+          {
+            vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
+            en: 'Raise the selling price above the variable cost per unit, or find a way to reduce variable cost.',
+          },
         ),
       };
     }
@@ -148,10 +197,15 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     id: 'don-bay-tong-hop',
     categoryId: 'corporate-finance',
     name: { vi: 'Đòn bẩy tổng hợp (DOL × DFL)', en: 'Degree of total leverage' },
-    description:
-      'Doanh thu thay đổi 1% thì EPS thay đổi bao nhiêu phần trăm, gộp cả đòn bẩy hoạt động và đòn bẩy tài chính.',
+    description: {
+      vi: 'Doanh thu thay đổi 1% thì EPS thay đổi bao nhiêu phần trăm, gộp cả đòn bẩy hoạt động và đòn bẩy tài chính.',
+      en: 'How many percent EPS changes for a 1% change in revenue, combining both operating leverage and financial leverage.',
+    },
     latex: 'DTL = DOL \\times DFL = \\frac{DT - BP}{EBIT - I}',
-    expression: 'Đòn bẩy tổng hợp = (Doanh thu − Tổng biến phí) ÷ (EBIT − Lãi vay)',
+    expression: {
+      vi: 'Đòn bẩy tổng hợp = (Doanh thu − Tổng biến phí) ÷ (EBIT − Lãi vay)',
+      en: 'Degree of total leverage = (Revenue − Total variable cost) ÷ (EBIT − Interest expense)',
+    },
     chartType: 'sensitivity',
     level: 'advanced',
     tags: [
@@ -166,40 +220,72 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     ],
     resultUnit: 'lần',
     variables: [
-      numberVar('revenue', 'Doanh thu', '₫', 2_000_000_000, {
+      numberVar('revenue', { vi: 'Doanh thu', en: 'Revenue' }, '₫', 2_000_000_000, {
         min: 0,
         max: 1_000_000_000_000,
-        description: 'Doanh thu thuần trong kỳ.',
+        description: { vi: 'Doanh thu thuần trong kỳ.', en: 'Net revenue for the period.' },
       }),
-      numberVar('variableCost', 'Tổng biến phí', '₫', 1_200_000_000, {
-        min: 0,
-        max: 1_000_000_000_000,
-        description: 'Toàn bộ chi phí biến đổi theo doanh thu trong kỳ.',
-      }),
-      numberVar('fixedCost', 'Định phí hoạt động', '₫', 500_000_000, {
-        min: 0,
-        max: 1_000_000_000_000,
-        description: 'Chi phí hoạt động cố định, chưa gồm lãi vay.',
-      }),
-      numberVar('interest', 'Lãi vay', '₫', 100_000_000, {
+      numberVar(
+        'variableCost',
+        { vi: 'Tổng biến phí', en: 'Total variable cost' },
+        '₫',
+        1_200_000_000,
+        {
+          min: 0,
+          max: 1_000_000_000_000,
+          description: {
+            vi: 'Toàn bộ chi phí biến đổi theo doanh thu trong kỳ.',
+            en: 'All costs that vary with revenue during the period.',
+          },
+        },
+      ),
+      numberVar(
+        'fixedCost',
+        { vi: 'Định phí hoạt động', en: 'Operating fixed cost' },
+        '₫',
+        500_000_000,
+        {
+          min: 0,
+          max: 1_000_000_000_000,
+          description: {
+            vi: 'Chi phí hoạt động cố định, chưa gồm lãi vay.',
+            en: 'Fixed operating cost, not including interest expense.',
+          },
+        },
+      ),
+      numberVar('interest', { vi: 'Lãi vay', en: 'Interest expense' }, '₫', 100_000_000, {
         min: 0,
         max: 1_000_000_000_000,
         level: 'advanced',
-        description: 'Chi phí lãi vay phải trả trong kỳ.',
+        description: {
+          vi: 'Chi phí lãi vay phải trả trong kỳ.',
+          en: 'Interest expense payable during the period.',
+        },
       }),
     ],
     explanation: {
-      meaning:
-        'Hệ số khuếch đại từ doanh thu tới EPS: DOL đo phần khuếch đại do định phí hoạt động, DFL đo phần do lãi vay, nhân lại thành đòn bẩy tổng hợp.',
-      whenToUse:
-        'Khi đánh giá độ nhạy lợi nhuận của doanh nghiệp nhiều định phí hoặc vay nợ lớn, nhất là lúc dự phóng kịch bản doanh thu tăng giảm.',
-      howToRead:
-        'Đòn bẩy 4 lần nghĩa là doanh thu tăng 1% thì EPS tăng khoảng 4%, nhưng giảm 1% thì EPS cũng giảm 4% — con số càng lớn, lợi nhuận càng dễ vỡ khi doanh thu hụt.',
-      commonMistakes:
-        'Coi đòn bẩy cao là điểm cộng vô điều kiện; nó chỉ có lợi khi doanh thu đi lên, và hệ số này chỉ đúng cho thay đổi nhỏ quanh mức doanh thu hiện tại.',
+      meaning: {
+        vi: 'Hệ số khuếch đại từ doanh thu tới EPS: DOL đo phần khuếch đại do định phí hoạt động, DFL đo phần do lãi vay, nhân lại thành đòn bẩy tổng hợp.',
+        en: 'The amplification factor from revenue to EPS: DOL measures the amplification from operating fixed cost, DFL measures the part from interest expense, and multiplying them gives the degree of total leverage.',
+      },
+      whenToUse: {
+        vi: 'Khi đánh giá độ nhạy lợi nhuận của doanh nghiệp nhiều định phí hoặc vay nợ lớn, nhất là lúc dự phóng kịch bản doanh thu tăng giảm.',
+        en: 'When assessing the profit sensitivity of a company with heavy fixed costs or large debt, especially when projecting revenue-increase or revenue-decrease scenarios.',
+      },
+      howToRead: {
+        vi: 'Đòn bẩy 4 lần nghĩa là doanh thu tăng 1% thì EPS tăng khoảng 4%, nhưng giảm 1% thì EPS cũng giảm 4% — con số càng lớn, lợi nhuận càng dễ vỡ khi doanh thu hụt.',
+        en: 'A leverage of 4 times means a 1% increase in revenue drives roughly a 4% increase in EPS, but a 1% decrease in revenue also drives a 4% drop in EPS — the larger the number, the more fragile profit becomes when revenue falls short.',
+      },
+      commonMistakes: {
+        vi: 'Coi đòn bẩy cao là điểm cộng vô điều kiện; nó chỉ có lợi khi doanh thu đi lên, và hệ số này chỉ đúng cho thay đổi nhỏ quanh mức doanh thu hiện tại.',
+        en: 'Treating high leverage as an unconditional plus; it only helps when revenue is rising, and the coefficient is only accurate for small changes around the current revenue level.',
+      },
     },
     example: {
-      title: 'Doanh thu 2 tỷ ₫, biến phí 1,2 tỷ ₫, định phí 500 triệu ₫, lãi vay 100 triệu ₫',
+      title: {
+        vi: 'Doanh thu 2 tỷ ₫, biến phí 1,2 tỷ ₫, định phí 500 triệu ₫, lãi vay 100 triệu ₫',
+        en: 'Revenue 2 billion VND, variable cost 1.2 billion VND, fixed cost 500 million VND, interest expense 100 million VND',
+      },
       inputs: {
         revenue: 2_000_000_000,
         variableCost: 1_200_000_000,
@@ -207,7 +293,10 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         interest: 100_000_000,
       },
       expected: 4,
-      note: 'DOL 2,67 × DFL 1,5 = 4: doanh thu giảm 10% thì EPS giảm khoảng 40%.',
+      note: {
+        vi: 'DOL 2,67 × DFL 1,5 = 4: doanh thu giảm 10% thì EPS giảm khoảng 40%.',
+        en: 'DOL 2.67 × DFL 1.5 = 4: a 10% drop in revenue drives roughly a 40% drop in EPS.',
+      },
     },
     tests: [
       {
@@ -265,8 +354,14 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         value: null,
         unit: 'lần',
         warning: meaningless(
-          'EBIT không dương — doanh nghiệp đang lỗ từ hoạt động kinh doanh nên hệ số đòn bẩy không còn ý nghĩa.',
-          'Xem lại doanh thu và cấu trúc chi phí; dùng điểm hoà vốn để biết cần bán thêm bao nhiêu.',
+          {
+            vi: 'EBIT không dương — doanh nghiệp đang lỗ từ hoạt động kinh doanh nên hệ số đòn bẩy không còn ý nghĩa.',
+            en: 'EBIT is not positive — the company is posting an operating loss, so the leverage coefficient is no longer meaningful.',
+          },
+          {
+            vi: 'Xem lại doanh thu và cấu trúc chi phí; dùng điểm hoà vốn để biết cần bán thêm bao nhiêu.',
+            en: 'Review revenue and the cost structure; use the break-even point to see how much more needs to be sold.',
+          },
         ),
       };
     }
@@ -276,9 +371,12 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         value: null,
         unit: 'lần',
         warning: divideByZero(
-          'đòn bẩy tổng hợp',
-          'EBIT trừ lãi vay',
-          'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
+          { vi: 'đòn bẩy tổng hợp', en: 'degree of total leverage' },
+          { vi: 'EBIT trừ lãi vay', en: 'EBIT minus interest expense' },
+          {
+            vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
+            en: 'Reduce debt or wait until EBIT clearly exceeds interest expense before measuring leverage.',
+          },
         ),
       };
     }
@@ -288,8 +386,14 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         value: null,
         unit: 'lần',
         warning: meaningless(
-          'EBIT thấp hơn lãi vay — lợi nhuận hoạt động không đủ trả lãi, nên DFL và đòn bẩy tổng hợp vô nghĩa.',
-          'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
+          {
+            vi: 'EBIT thấp hơn lãi vay — lợi nhuận hoạt động không đủ trả lãi, nên DFL và đòn bẩy tổng hợp vô nghĩa.',
+            en: 'EBIT is lower than interest expense — operating profit is not enough to cover interest, so DFL and the degree of total leverage are meaningless.',
+          },
+          {
+            vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
+            en: 'Reduce debt or wait until EBIT clearly exceeds interest expense before measuring leverage.',
+          },
         ),
       };
     }

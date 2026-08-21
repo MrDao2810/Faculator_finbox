@@ -5,7 +5,7 @@ import type { VariableSpec } from './types';
 
 const priceSpec: VariableSpec = {
   key: 'price',
-  label: 'Giá thị trường',
+  label: { vi: 'Giá thị trường', en: 'Market price' },
   unit: '₫',
   type: 'number',
   defaultValue: 0,
@@ -46,27 +46,33 @@ describe('fail()', () => {
   it('luôn kèm lý do bằng tiếng Việt', () => {
     const out = fail('lần', {
       code: 'DIVIDE_BY_ZERO',
-      message: 'Chưa tính được P/E vì EPS bằng 0.',
-      fix: 'Nhập EPS khác 0 hoặc chọn kỳ khác',
+      message: {
+        vi: 'Chưa tính được P/E vì EPS bằng 0.',
+        en: 'Cannot calculate P/E because EPS is 0.',
+      },
+      fix: {
+        vi: 'Nhập EPS khác 0 hoặc chọn kỳ khác',
+        en: 'Enter a non-zero EPS or choose a different period',
+      },
     });
     expect(out.value).toBeNull();
-    expect(out.warning?.message).toContain('EPS');
+    expect(out.warning?.message.vi).toContain('EPS');
     expect(out.warning?.fix).toBeTruthy();
   });
 });
 
 describe('inherited()', () => {
   it('nêu đúng công thức thượng nguồn đang lỗi (FR-15)', () => {
-    const out = inherited('%', 'Beta');
+    const out = inherited('%', { vi: 'Beta', en: 'Beta' });
     expect(out.value).toBeNull();
     expect(out.warning?.code).toBe('INHERITED');
-    expect(out.warning?.message).toContain('Beta');
+    expect(out.warning?.message.vi).toContain('Beta');
   });
 
   it('gợi ý sửa chỉ ra cả hai lối đi khi biết tên biến tại chỗ (WF-15)', () => {
-    const out = inherited('%', 'Beta', 'WACC');
-    expect(out.warning?.fix).toContain('Beta');
-    expect(out.warning?.fix).toContain('WACC');
+    const out = inherited('%', { vi: 'Beta', en: 'Beta' }, { vi: 'WACC', en: 'WACC' });
+    expect(out.warning?.fix?.vi).toContain('Beta');
+    expect(out.warning?.fix?.vi).toContain('WACC');
   });
 });
 
@@ -90,7 +96,7 @@ describe('clampToSpec()', () => {
   it('biến không khai báo min/max thì giữ nguyên mọi số hữu hạn', () => {
     const free: VariableSpec = {
       key: 'g',
-      label: 'Tăng trưởng',
+      label: { vi: 'Tăng trưởng', en: 'Growth' },
       unit: '%',
       type: 'number',
       defaultValue: 0,
@@ -109,7 +115,7 @@ describe('snapToStep()', () => {
   it('không sinh rác dấu phẩy động với step lẻ', () => {
     const rate: VariableSpec = {
       key: 'r',
-      label: 'Lãi suất',
+      label: { vi: 'Lãi suất', en: 'Interest rate' },
       unit: '%',
       type: 'slider',
       defaultValue: 6,
@@ -125,7 +131,7 @@ describe('snapToStep()', () => {
   it('biến không có step thì giữ nguyên', () => {
     const free: VariableSpec = {
       key: 'eps',
-      label: 'EPS',
+      label: { vi: 'EPS', en: 'EPS' },
       unit: '₫',
       type: 'number',
       defaultValue: 0,
@@ -143,6 +149,6 @@ describe('snapToStep()', () => {
 describe('isCalculated()', () => {
   it('phân biệt được kết quả có số và kết quả lỗi', () => {
     expect(isCalculated(ok(1, 'lần'))).toBe(true);
-    expect(isCalculated(inherited('lần', 'WACC'))).toBe(false);
+    expect(isCalculated(inherited('lần', { vi: 'WACC', en: 'WACC' }))).toBe(false);
   });
 });

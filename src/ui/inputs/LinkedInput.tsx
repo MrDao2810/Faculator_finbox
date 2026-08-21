@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { formulaPath, resolveLinked, startOverrideValue } from '@/application';
 import type { Level, LinkedUpstream, VariableSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { Button } from '@/ui/primitives';
 
 import { InlineWarning } from '../result/InlineWarning';
@@ -44,6 +44,7 @@ export function LinkedInput({
   className,
 }: LinkedInputProps) {
   const t = useT();
+  const pick = usePick();
   const args = { spec, upstream, override };
   const linked = resolveLinked(args);
 
@@ -66,7 +67,11 @@ export function LinkedInput({
         mode={mode}
         // Chỉ ghi nguồn khi giá trị đang thật sự đến từ thượng nguồn. Đã ghi đè thì ô là của
         // người dùng, gắn '↳ CAPM' vào nữa sẽ sai.
-        derivedFrom={linked.mode === 'linked' ? linked.sourceLabel : undefined}
+        derivedFrom={
+          linked.mode === 'linked' && linked.sourceLabel !== undefined
+            ? pick(linked.sourceLabel)
+            : undefined
+        }
         onChange={(value) => {
           // Sửa tay ngay trên ô cũng tính là ghi đè — không bắt phải bấm nút trước.
           onOverrideChange(value);
@@ -81,7 +86,7 @@ export function LinkedInput({
               {linked.sourceLabel !== undefined && (
                 <span className={styles.source}>
                   {' · '}
-                  {t('input.autoFrom')} {linked.sourceLabel}
+                  {t('input.autoFrom')} {pick(linked.sourceLabel)}
                 </span>
               )}
             </>

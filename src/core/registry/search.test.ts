@@ -17,15 +17,20 @@ import type { FormulaQuery, FormulaSpec } from './types';
 function make(patch: Partial<FormulaSpec> & Pick<FormulaSpec, 'id' | 'categoryId'>): FormulaSpec {
   return {
     name: { vi: patch.id, en: patch.id },
-    description: '',
+    description: { vi: '', en: '' },
     latex: 'x',
     chartType: 'none',
     level: 'basic',
     tags: [],
     resultUnit: 'lần',
     variables: [],
-    explanation: { meaning: 'x', whenToUse: 'x', howToRead: 'x', commonMistakes: 'x' },
-    example: { title: 'x', inputs: {}, expected: 1 },
+    explanation: {
+      meaning: { vi: 'x', en: 'x' },
+      whenToUse: { vi: 'x', en: 'x' },
+      howToRead: { vi: 'x', en: 'x' },
+      commonMistakes: { vi: 'x', en: 'x' },
+    },
+    example: { title: { vi: 'x', en: 'x' }, inputs: {}, expected: 1 },
     tests: [],
     source: [],
     ...patch,
@@ -36,7 +41,10 @@ const PE = make({
   id: 'pe',
   categoryId: 'valuation',
   name: { vi: 'Tỷ số giá trên lợi nhuận (P/E)', en: 'Price to Earnings' },
-  description: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+  description: {
+    vi: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+    en: 'How much is paid for each unit of earnings.',
+  },
   tags: ['boi so', 'dinh gia'],
   isFeatured: true,
 });
@@ -45,7 +53,10 @@ const WACC = make({
   id: 'wacc',
   categoryId: 'valuation',
   name: { vi: 'Chi phí vốn bình quân (WACC)', en: 'Weighted Average Cost of Capital' },
-  description: 'Lãi suất chiết khấu dùng cho dòng tiền doanh nghiệp.',
+  description: {
+    vi: 'Lãi suất chiết khấu dùng cho dòng tiền doanh nghiệp.',
+    en: 'The discount rate used for corporate cash flows.',
+  },
   tags: ['chiet khau'],
   level: 'advanced',
 });
@@ -54,7 +65,10 @@ const EMI = make({
   id: 'emi',
   categoryId: 'loans',
   name: { vi: 'Trả góp niên kim', en: 'Equated Monthly Instalment' },
-  description: 'Số tiền phải trả đều mỗi kỳ.',
+  description: {
+    vi: 'Số tiền phải trả đều mỗi kỳ.',
+    en: 'The amount to be paid equally each period.',
+  },
   tags: ['vay no'],
 });
 
@@ -62,7 +76,10 @@ const HOA_VON = make({
   id: 'gia-hoa-von',
   categoryId: 'fees-tax',
   name: { vi: 'Giá hoà vốn thực', en: 'Real break-even price' },
-  description: 'Giá bán tối thiểu để không lỗ sau phí và thuế.',
+  description: {
+    vi: 'Giá bán tối thiểu để không lỗ sau phí và thuế.',
+    en: 'The minimum sale price to avoid a loss after fees and taxes.',
+  },
   tags: ['phi', 'thue'],
   isFeatured: true,
 });

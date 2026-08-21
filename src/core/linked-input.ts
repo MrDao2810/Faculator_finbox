@@ -11,7 +11,7 @@
  * Component chỉ lo vẽ.
  */
 
-import type { CalcOutput, CalcWarning, VariableSpec } from './types';
+import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from './types';
 import { inheritedFrom } from './warnings';
 
 export type LinkedMode =
@@ -25,7 +25,7 @@ export interface LinkedUpstream {
   /** id công thức thượng nguồn — để nút “Mở …” điều hướng được. */
   formulaId: string;
   /** Nhãn hiện trên giao diện, ví dụ 'CAPM'. */
-  label: string;
+  label: Bilingual;
   /** Kết quả của công thức thượng nguồn, có thể đang lỗi. */
   output: CalcOutput;
 }
@@ -45,7 +45,7 @@ export interface LinkedResult {
   /** Lý do khi không có số. Chỉ có ở mode 'inheritedError'. */
   warning?: CalcWarning;
   /** Nhãn nguồn để hiện dòng '↳ CAPM'. */
-  sourceLabel?: string;
+  sourceLabel?: Bilingual;
   /** Có hiện nút “Ghi đè” không. */
   canOverride: boolean;
   /** Có hiện nút “Hoàn tác” không. */
@@ -141,6 +141,6 @@ export function linkedInputs(
 }
 
 /** Các biến đang thiếu số dùng được — dựng thông điệp INCOMPLETE_INPUT hoặc chặn tính tiếp. */
-export function missingLinkedLabels(entries: ReadonlyArray<LinkedArgs>): string[] {
+export function missingLinkedLabels(entries: ReadonlyArray<LinkedArgs>): Bilingual[] {
   return entries.filter((entry) => resolveLinked(entry).value === null).map((e) => e.spec.label);
 }

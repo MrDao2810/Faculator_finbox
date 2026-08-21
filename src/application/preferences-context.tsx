@@ -17,7 +17,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import { t, type Locale, type MessageKey } from './i18n';
+import { pick, t, type Locale, type MessageKey } from './i18n';
+import type { Bilingual } from '@/core/types';
 import {
   DEFAULT_PREFERENCES,
   PREFERENCES_STORAGE_KEY,
@@ -124,4 +125,13 @@ export function usePreferences(): PreferencesContextValue {
 export function useT(): (key: MessageKey) => string {
   const { locale } = usePreferences();
   return useCallback((key: MessageKey) => t(key, locale), [locale]);
+}
+
+/**
+ * Bản `pick()` đã buộc vào locale đang chọn — đọc nội dung công thức (`Bilingual`) khai ở Domain.
+ * Cùng một nguyên tắc với `useT()`: gọi ngoài Provider vẫn ra tiếng Việt, không ném lỗi.
+ */
+export function usePick(): (value: Bilingual) => string {
+  const { locale } = usePreferences();
+  return useCallback((value: Bilingual) => pick(value, locale), [locale]);
 }

@@ -8,6 +8,16 @@
 export type Level = 'basic' | 'advanced';
 
 /**
+ * Một đoạn chữ có cả hai ngôn ngữ (gói dịch tiếng Anh cho nội dung công thức).
+ * Domain tự viết cả hai vế ngay tại chỗ khai báo — không import i18n (CON-02) — đúng tiền lệ
+ * `FormulaSummary.name`. Tầng UI đọc qua `pick()` của `@/application`, không đọc `.vi`/`.en` trực tiếp.
+ */
+export interface Bilingual {
+  vi: string;
+  en: string;
+}
+
+/**
  * Loại điều khiển nhập liệu sinh ra cho một biến.
  * Danh sách này khớp với bộ điều khiển chốt ở WF-16 và các gói 2.3.1 → 2.3.3.
  */
@@ -25,9 +35,9 @@ export type ControlType =
  */
 export interface VariableOption {
   value: number;
-  label: string;
+  label: Bilingual;
   /** Dòng mô tả phụ dưới nhãn — radio nhiều dòng ở WF-16 có dùng. */
-  description?: string;
+  description?: Bilingual;
 }
 
 /**
@@ -37,8 +47,8 @@ export interface VariableOption {
 export interface VariableSpec {
   /** Khoá duy nhất trong phạm vi một công thức, ví dụ 'price', 'eps'. */
   key: string;
-  /** Nhãn tiếng Việt hiện trên giao diện. */
-  label: string;
+  /** Nhãn hiện trên giao diện, cả hai ngôn ngữ. */
+  label: Bilingual;
   /** Đơn vị hiện bên phải ô nhập: '₫', '%', 'lần', 'CP'… */
   unit: string;
   /** Loại điều khiển. LDR-01 gọi trường này là `type`. */
@@ -54,7 +64,7 @@ export interface VariableSpec {
   step?: number;
   level: Level;
   /** Mô tả ngắn, dùng cho cột MÔ TẢ của bảng biến (FR-02). */
-  description?: string;
+  description?: Bilingual;
   /** Bắt buộc với select / radio / toggle / buttonGroup. */
   options?: ReadonlyArray<VariableOption>;
 }
@@ -73,10 +83,10 @@ export type WarningCode =
 
 export interface CalcWarning {
   code: WarningCode;
-  /** Nêu đúng nguyên nhân, viết như nói với người mới (NFR-USA-04). */
-  message: string;
-  /** Dòng gợi ý sửa, hiện sau mũi tên ↳ trên giao diện. */
-  fix?: string;
+  /** Nêu đúng nguyên nhân, viết như nói với người mới (NFR-USA-04). Cả hai ngôn ngữ. */
+  message: Bilingual;
+  /** Dòng gợi ý sửa, hiện sau mũi tên ↳ trên giao diện. Cả hai ngôn ngữ. */
+  fix?: Bilingual;
 }
 
 /**
@@ -102,8 +112,8 @@ export interface CalcOutput {
  */
 export interface MarketConstant {
   key: string;
-  /** Nhãn tiếng Việt hiện trên bảng bóc tách chi phí của WF-08. */
-  label: string;
+  /** Nhãn hiện trên bảng bóc tách chi phí của WF-08, cả hai ngôn ngữ. */
+  label: Bilingual;
   /**
    * Giá trị. Hằng số phần trăm ghi theo quy ước CON-05 — 0,1 nghĩa là 0,1%,
    * đổi sang hệ số nhân bằng resolveRate().
@@ -112,8 +122,8 @@ export interface MarketConstant {
   unit: string;
   /** Ngày bắt đầu có hiệu lực, dạng ISO 'YYYY-MM-DD'. */
   effectiveFrom: string;
-  /** Trích dẫn văn bản, ví dụ 'Luật thuế TNCN 109/2025/QH15, Điều 20'. */
-  legalBasis: string;
+  /** Trích dẫn văn bản, ví dụ 'Luật thuế TNCN 109/2025/QH15, Điều 20'. Cả hai ngôn ngữ. */
+  legalBasis: Bilingual;
   /** Ghi chú hiện dưới toggle/dòng phụ ở giao diện, ví dụ mức trần hay điều kiện áp dụng. */
-  note?: string;
+  note?: Bilingual;
 }

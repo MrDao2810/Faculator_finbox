@@ -1,7 +1,7 @@
 'use client';
 
 import { MARKET_CONFIG } from '@/application';
-import { usePreferences, useT } from '@/application/preferences-context';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { Select } from '@/ui/primitives';
 
 /**
@@ -20,6 +20,7 @@ import { Select } from '@/ui/primitives';
 export function FeeScheduleField() {
   const { feeScheduleId, setFeeScheduleId } = usePreferences();
   const t = useT();
+  const pick = usePick();
 
   return (
     <Select
@@ -32,7 +33,7 @@ export function FeeScheduleField() {
     >
       {MARKET_CONFIG.schedules.map((schedule) => (
         <option key={schedule.id} value={schedule.id}>
-          {schedule.name}
+          {pick(schedule.name)}
         </option>
       ))}
     </Select>

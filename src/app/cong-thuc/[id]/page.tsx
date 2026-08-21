@@ -67,8 +67,8 @@ export async function generateMetadata({
 
   return {
     title: formula.name.vi,
-    description: formula.description,
-    keywords: [...formula.tags, formula.name.vi, formula.name.en, category?.name ?? ''].filter(
+    description: formula.description.vi,
+    keywords: [...formula.tags, formula.name.vi, formula.name.en, category?.name.vi ?? ''].filter(
       (k) => k !== '',
     ),
   };

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import { CATEGORIES, DEFAULT_LIST_PARAMS, formulaListPath } from '@/application';
 import type { FormulaSummary } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './HotCategories.module.css';
 
@@ -30,6 +30,7 @@ const DEFAULT_LIMIT = 6;
  */
 export function HotCategories({ formulas, limit = DEFAULT_LIMIT }: HotCategoriesProps) {
   const t = useT();
+  const pick = usePick();
 
   const counts = new Map<string, number>();
   for (const formula of formulas) {
@@ -58,7 +59,7 @@ export function HotCategories({ formulas, limit = DEFAULT_LIMIT }: HotCategories
               className={styles.tile}
               href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
             >
-              <span className={styles.name}>{category.shortName}</span>
+              <span className={styles.name}>{pick(category.shortName)}</span>
               <span className={styles.count}>{count}</span>
             </Link>
           </li>

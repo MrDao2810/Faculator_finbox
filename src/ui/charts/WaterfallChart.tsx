@@ -2,6 +2,7 @@
 
 import { linearScale } from '@/application';
 import type { WaterfallChart as WaterfallModel } from '@/application';
+import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 
@@ -40,6 +41,8 @@ export interface WaterfallChartProps {
 }
 
 export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartProps) {
+  const pick = usePick();
+
   /*
    * Chiều cao theo SỐ CHẶNG, không phải tỉ lệ cố định như đường quét: ba chặng và tám chặng cần
    * hai khung khác nhau. `viewBox` vẫn là hằng số suy từ dữ liệu đã dựng sẵn ở Domain, nên không
@@ -102,7 +105,7 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
                 y={rowTop + ROW / 2}
                 textAnchor="end"
               >
-                {bar.label}
+                {pick(bar.label)}
               </text>
 
               <rect className={kindClass} x={left} y={barTop} width={width} height={BAR_HEIGHT} />
@@ -138,7 +141,7 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
         ))}
 
         <text className={styles.axisTitle} x={(plotLeft + plotRight) / 2} y={height - 4}>
-          {model.y.title}
+          {pick(model.y.title)}
         </text>
       </svg>
     </div>

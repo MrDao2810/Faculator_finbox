@@ -14,7 +14,10 @@ const PE: FormulaSpec = {
   id: 'pe',
   categoryId: 'fundamentals',
   name: { vi: 'Hệ số giá trên lợi nhuận (P/E)', en: 'Price to Earnings' },
-  description: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+  description: {
+    vi: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
+    en: 'How much you pay for each unit of earnings.',
+  },
   latex: 'P/E = \\frac{P}{EPS}',
   chartType: 'sensitivity',
   level: 'basic',
@@ -23,16 +26,16 @@ const PE: FormulaSpec = {
   variables: [
     {
       key: 'price',
-      label: 'Giá thị trường',
+      label: { vi: 'Giá thị trường', en: 'Market price' },
       unit: '₫',
       type: 'number',
       defaultValue: 92_000,
       level: 'basic',
-      description: 'Giá đóng cửa gần nhất.',
+      description: { vi: 'Giá đóng cửa gần nhất.', en: 'Most recent closing price.' },
     },
     {
       key: 'g',
-      label: 'Tăng trưởng g',
+      label: { vi: 'Tăng trưởng g', en: 'Growth g' },
       unit: '%',
       type: 'number',
       defaultValue: 4,
@@ -40,14 +43,33 @@ const PE: FormulaSpec = {
     },
   ],
   explanation: {
-    meaning: 'Số năm lợi nhuận cần có để hoàn lại giá đang mua.',
-    whenToUse: 'So sánh hai doanh nghiệp cùng ngành.',
-    howToRead: 'Càng cao thì kỳ vọng càng lớn.',
-    commonMistakes: 'So giữa hai ngành khác nhau.',
+    meaning: {
+      vi: 'Số năm lợi nhuận cần có để hoàn lại giá đang mua.',
+      en: 'Number of years of earnings needed to recoup the purchase price.',
+    },
+    whenToUse: {
+      vi: 'So sánh hai doanh nghiệp cùng ngành.',
+      en: 'Compare two companies in the same industry.',
+    },
+    howToRead: {
+      vi: 'Càng cao thì kỳ vọng càng lớn.',
+      en: 'The higher it is, the higher the expectation.',
+    },
+    commonMistakes: {
+      vi: 'So giữa hai ngành khác nhau.',
+      en: 'Comparing across different industries.',
+    },
   },
-  example: { title: 'x', inputs: { price: 92_000 }, expected: 15.2 },
+  example: { title: { vi: 'x', en: 'x' }, inputs: { price: 92_000 }, expected: 15.2 },
   tests: [],
-  source: [{ label: 'Giáo trình phân tích đầu tư (CFA Institute)' }],
+  source: [
+    {
+      label: {
+        vi: 'Giáo trình phân tích đầu tư (CFA Institute)',
+        en: 'Investment analysis textbook (CFA Institute)',
+      },
+    },
+  ],
 };
 
 const INPUTS = { price: 92_000, g: 4 };
@@ -81,7 +103,7 @@ describe('FR-24 — miễn trừ không thể tắt', () => {
   it('vẫn đính kèm cả khi phép tính đang lỗi', () => {
     const content = buildExportContent(
       PE,
-      fail('lần', divideByZero('P/E', 'EPS')),
+      fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' })),
       INPUTS,
       options(),
     );
@@ -104,7 +126,7 @@ describe('nội dung file xuất', () => {
   it('không tính được thì ghi “— , —”, tuyệt đối không ghi 0 (FR-06)', () => {
     const content = buildExportContent(
       PE,
-      fail('lần', divideByZero('P/E', 'EPS')),
+      fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' })),
       INPUTS,
       options(),
     );
@@ -133,15 +155,15 @@ describe('nội dung file xuất', () => {
       variables: [
         {
           key: 'period',
-          label: 'Kỳ số liệu',
+          label: { vi: 'Kỳ số liệu', en: 'Period' },
           unit: '',
           type: 'buttonGroup',
           defaultValue: 2,
           level: 'basic',
           options: [
-            { value: 1, label: 'Quý' },
-            { value: 2, label: 'Năm' },
-            { value: 3, label: 'TTM' },
+            { value: 1, label: { vi: 'Quý', en: 'Quarter' } },
+            { value: 2, label: { vi: 'Năm', en: 'Year' } },
+            { value: 3, label: { vi: 'TTM', en: 'TTM' } },
           ],
         },
       ],
@@ -159,12 +181,12 @@ describe('nội dung file xuất', () => {
       variables: [
         {
           key: 'period',
-          label: 'Kỳ số liệu',
+          label: { vi: 'Kỳ số liệu', en: 'Period' },
           unit: '',
           type: 'buttonGroup',
           defaultValue: 1,
           level: 'basic',
-          options: [{ value: 1, label: 'Quý' }],
+          options: [{ value: 1, label: { vi: 'Quý', en: 'Quarter' } }],
         },
       ],
     };

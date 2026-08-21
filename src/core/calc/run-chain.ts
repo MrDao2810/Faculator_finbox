@@ -49,7 +49,7 @@ import { buildFlowChain } from '../flow-chain';
 import type { LinkedResult, LinkedUpstream } from '../linked-input';
 import { resolveLinked } from '../linked-input';
 import type { FormulaDependency, FormulaSpec } from '../registry/types';
-import type { CalcOutput, VariableSpec } from '../types';
+import type { Bilingual, CalcOutput, VariableSpec } from '../types';
 import { runFormula } from './run';
 import type { CalcContext, CalcInputs, FormulaModule } from './types';
 
@@ -76,8 +76,8 @@ export interface ChainField {
 /** Một bước của chuỗi, đã tính xong. */
 export interface ChainStep {
   formulaId: string;
-  /** Tên tiếng Việt của công thức — dùng cho dải luồng và câu cảnh báo. */
-  label: string;
+  /** Tên công thức — dùng cho dải luồng và câu cảnh báo. */
+  label: Bilingual;
   /** Bậc trong luồng: 0 là bước không phụ thuộc ai. */
   depth: number;
   /** Các bước đứng ngay trước bước này (chỉ tính bước có mặt trong chuỗi). */
@@ -136,7 +136,7 @@ export function runChain(args: ChainArgs): ChainResult {
     const resolved: Record<string, number> = {};
 
     /** Ô nhận đầu tiên không có nguồn nào cấp được số. */
-    let blockedBy: { label: string; variable: VariableSpec } | undefined;
+    let blockedBy: { label: Bilingual; variable: VariableSpec } | undefined;
 
     for (const [variableKey, dependencies] of groupByVariable(spec.dependsOn ?? [])) {
       const variable = variableOf(spec, variableKey);

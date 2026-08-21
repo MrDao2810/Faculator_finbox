@@ -77,7 +77,7 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
 
     expect(summary.totalValue.value).toBeNull();
     expect(summary.totalValue.warning?.code).toBe('MISSING_SERIES');
-    expect(summary.totalValue.warning?.message).toContain('MNG');
+    expect(summary.totalValue.warning?.message.vi).toContain('MNG');
   });
 
   it('beta danh mục là bình quân gia quyền theo giá trị, không phải trung bình cộng', () => {
@@ -105,7 +105,7 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
 
     expect(summary.beta.value).toBeNull();
     expect(summary.beta.warning?.code).toBe('MISSING_SERIES');
-    expect(summary.beta.warning?.message).toContain('HPG');
+    expect(summary.beta.warning?.message.vi).toContain('HPG');
   });
 
   it('beta kế thừa lỗi khi tổng giá trị lỗi (FR-15)', () => {
@@ -128,7 +128,7 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
 
     expect(summary.xirr.value).toBeNull();
     expect(summary.xirr.warning?.code).toBe('INCOMPLETE_INPUT');
-    expect(summary.xirr.warning?.message).toContain('FPT');
+    expect(summary.xirr.warning?.message.vi).toContain('FPT');
   });
 
   it('ngày định giá sai thì báo thiếu chứ không tự lấy ngày hệ thống (NFR-REL-03)', () => {
@@ -147,7 +147,7 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
 
     expect(summary.xirr.value).toBeNull();
     expect(summary.xirr.warning?.code).toBe('MODEL_VIOLATION');
-    expect(summary.xirr.warning?.message).toContain('FPT');
+    expect(summary.xirr.warning?.message.vi).toContain('FPT');
   });
 
   it('không bao giờ để lọt NaN hay Infinity ra ngoài (FR-06)', () => {

@@ -12,7 +12,7 @@
 
 import type { CalcContext } from '../calc/types';
 import type { SeriesRow } from '../price-series';
-import type { CalcWarning } from '../types';
+import type { Bilingual, CalcWarning } from '../types';
 import { missingSeries } from '../warnings';
 
 /**
@@ -40,7 +40,7 @@ export function usableCloses(ctx: CalcContext): number[] {
 export function requireCloses(
   ctx: CalcContext,
   min: number,
-  what = 'phiên giá',
+  what: Bilingual = { vi: 'phiên giá', en: 'price sessions' },
 ): number[] | CalcWarning {
   const closes = usableCloses(ctx);
   return closes.length >= min ? closes : missingSeries(min, closes.length, what);
@@ -62,7 +62,7 @@ export function usableMarketCloses(ctx: CalcContext): number[] {
 export function requireMarketCloses(
   ctx: CalcContext,
   min: number,
-  what = 'phiên giá VN-Index',
+  what: Bilingual = { vi: 'phiên giá VN-Index', en: 'VN-Index price sessions' },
 ): number[] | CalcWarning {
   const closes = usableMarketCloses(ctx);
   return closes.length >= min ? closes : missingSeries(min, closes.length, what);
@@ -72,7 +72,7 @@ export function requireMarketCloses(
 export function requireBars(
   ctx: CalcContext,
   min: number,
-  what = 'phiên giá',
+  what: Bilingual = { vi: 'phiên giá', en: 'price sessions' },
 ): SeriesRow[] | CalcWarning {
   const bars = (ctx.bars ?? []).filter(
     (bar): bar is SeriesRow & { close: number } => typeof bar.close === 'number' && bar.close > 0,

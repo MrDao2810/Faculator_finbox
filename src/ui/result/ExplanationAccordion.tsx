@@ -1,7 +1,7 @@
 'use client';
 
 import type { Explanation, MessageKey } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './ExplanationAccordion.module.css';
 
@@ -45,6 +45,7 @@ export function ExplanationAccordion({
   className,
 }: ExplanationAccordionProps) {
   const t = useT();
+  const pick = usePick();
   const classes = [styles.wrap, className].filter(Boolean).join(' ');
 
   return (
@@ -54,7 +55,7 @@ export function ExplanationAccordion({
       {SECTIONS.map((section) => (
         <details key={section.key} className={styles.item} open={defaultOpen}>
           <summary className={styles.summary}>{t(section.labelKey)}</summary>
-          <p className={styles.body}>{explanation[section.key]}</p>
+          <p className={styles.body}>{pick(explanation[section.key])}</p>
         </details>
       ))}
     </section>

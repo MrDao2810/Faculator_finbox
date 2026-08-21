@@ -54,7 +54,8 @@ function fieldsOf(formula: FormulaSummary): Field[] {
     { tokens: tokenize(formula.name.vi), weight: 10 },
     { tokens: tokenize(formula.name.en), weight: 6 },
     { tokens: formula.tags.flatMap(tokenize), weight: 5 },
-    { tokens: tokenize(formula.description), weight: 2 },
+    { tokens: tokenize(formula.description.vi), weight: 2 },
+    { tokens: tokenize(formula.description.en), weight: 2 },
   ];
 }
 

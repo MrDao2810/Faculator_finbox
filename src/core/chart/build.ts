@@ -12,11 +12,16 @@
  * Nhãn số cũng định dạng SẴN ở đây. Nếu để renderer tự gọi `formatNumber` thì mỗi renderer tự
  * quyết số chữ số thập phân, và bảng số, nhãn trục, câu mô tả, bản in với tấm PNG sẽ nói bốn kiểu
  * khác nhau về cùng một con số.
+ *
+ * Mọi câu chữ ở đây tự viết CẢ HAI vế vi/en ngay tại chỗ (không import i18n, CON-02) — cùng cách
+ * `warnings.ts` làm. Số và đơn vị (`formatNumber`, `formatValueWithUnit`, `resultUnit`) CHƯA nằm
+ * trong đợt dịch này — chúng dùng chung một chuỗi cho cả hai vế, xem ghi chú ở `Bilingual` trong
+ * `core/types.ts` và mục "Giới hạn đã biết" của kế hoạch.
  */
 
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
 import { formatNumber, formatValueWithUnit } from '../format';
-import type { CalcOutput, Level } from '../types';
+import type { Bilingual, CalcOutput, Level } from '../types';
 import { WARNING_LABELS, meaningless } from '../warnings';
 import {
   BREAKDOWN_KEY,
@@ -53,15 +58,17 @@ export interface ChartArgs {
 }
 
 /**
- * Phần trước dấu gạch dài của một nhãn.
+ * Phần trước dấu gạch dài của một nhãn, áp cho cả hai vế độc lập.
  *
  * 'EPS — lợi nhuận trên mỗi cổ phiếu' thành 'EPS'. Tên đầy đủ hợp cho bảng biến và tiêu đề màn,
  * nhưng nhãn trục ở khổ 360px thì phải gọn. Chỉ cắt ở gạch dài có khoảng trắng hai bên nên không
- * chạm tới dấu nối trong từ.
+ * chạm tới dấu nối trong từ. Tên tiếng Anh thường không có gạch dài đó nên vế `en` giữ nguyên cả
+ * câu — chấp nhận được, đây chỉ là rút gọn cho vừa khổ, không phải chỗ đúng/sai.
  */
-function shortLabel(text: string): string {
-  const [head] = text.split(/\s[—–]\s/);
-  return (head ?? text).trim();
+function shortLabel(text: Bilingual): Bilingual {
+  const [headVi] = text.vi.split(/\s[—–]\s/);
+  const [headEn] = text.en.split(/\s[—–]\s/);
+  return { vi: (headVi ?? text.vi).trim(), en: (headEn ?? text.en).trim() };
 }
 
 /**
@@ -71,10 +78,14 @@ function shortLabel(text: string): string {
  * bậc rồi ghi đơn vị vào TIÊU ĐỀ trục là cách các báo cáo tài chính vẫn làm, và nó dùng lại đúng
  * ba bậc `UNIT_SCALES` của `format.ts`.
  */
-function axisUnit(unit: string, maxAbs: number): { factor: number; label: string } {
-  if (unit === '₫' && maxAbs >= 1_000_000_000) return { factor: 1_000_000_000, label: 'tỷ ₫' };
-  if (unit === '₫' && maxAbs >= 1_000_000) return { factor: 1_000_000, label: 'triệu ₫' };
-  return { factor: 1, label: unit };
+function axisUnit(unit: string, maxAbs: number): { factor: number; label: Bilingual } {
+  if (unit === '₫' && maxAbs >= 1_000_000_000) {
+    return { factor: 1_000_000_000, label: { vi: 'tỷ ₫', en: 'billion ₫' } };
+  }
+  if (unit === '₫' && maxAbs >= 1_000_000) {
+    return { factor: 1_000_000, label: { vi: 'triệu ₫', en: 'million ₫' } };
+  }
+  return { factor: 1, label: { vi: unit, en: unit } };
 }
 
 /**
@@ -87,7 +98,7 @@ function buildBreakdownModel(
   spec: FormulaSpec,
   inputs: CalcInputs,
   output: CalcOutput,
-  name: string,
+  name: Bilingual,
   options: ReadonlyArray<SweepOption>,
 ): ChartModel {
   const bars = breakdownBars(spec, inputs, output);
@@ -110,22 +121,35 @@ function buildBreakdownModel(
   const cong = stages.filter((bar) => bar.delta >= 0).length;
   const tru = stages.length - cong;
 
-  const sentences = [
-    `${name} bóc thành ${String(stages.length)} phần: ${stages.map((bar) => bar.label).join(' · ')}.`,
+  const stageListVi = stages.map((bar) => bar.label.vi).join(' · ');
+  const stageListEn = stages.map((bar) => bar.label.en).join(' · ');
+
+  const sentencesVi = [
+    `${name.vi} bóc thành ${String(stages.length)} phần: ${stageListVi}.`,
     cong > 0 && tru > 0
       ? `${String(cong)} phần cộng vào, ${String(tru)} phần trừ ra.`
       : `Mọi phần đều ${cong > 0 ? 'cộng vào' : 'trừ ra'}.`,
     total === undefined ? '' : `Cộng lại được ${total.valueLabel}.`,
   ];
+  const sentencesEn = [
+    `${name.en} breaks down into ${String(stages.length)} parts: ${stageListEn}.`,
+    cong > 0 && tru > 0
+      ? `${String(cong)} parts add, ${String(tru)} parts subtract.`
+      : `Every part ${cong > 0 ? 'adds in' : 'subtracts out'}.`,
+    total === undefined ? '' : `Together they total ${total.valueLabel}.`,
+  ];
 
   return {
     kind: 'waterfall',
-    title: `${name} — bóc tách`,
-    summary: sentences.filter((sentence) => sentence !== '').join(' '),
+    title: { vi: `${name.vi} — bóc tách`, en: `${name.en} — breakdown` },
+    summary: {
+      vi: sentencesVi.filter((sentence) => sentence !== '').join(' '),
+      en: sentencesEn.filter((sentence) => sentence !== '').join(' '),
+    },
     y,
     bars,
     table: {
-      columns: ['Thành phần', y.title],
+      columns: [{ vi: 'Thành phần', en: 'Component' }, y.title],
       rows: bars.map((bar) => [bar.label, bar.valueLabel] as const),
     },
     options,
@@ -133,14 +157,17 @@ function buildBreakdownModel(
   };
 }
 
-function buildAxis(lo: number, hi: number, name: string, unit: string): ChartAxis {
+function buildAxis(lo: number, hi: number, name: Bilingual, unit: string): ChartAxis {
   const nice = niceAxis(lo, hi);
   const maxAbs = Math.max(Math.abs(nice.domain[0]), Math.abs(nice.domain[1]));
   const scale = axisUnit(unit, maxAbs);
   const decimals = decimalsOf(nice.step / scale.factor);
 
   return {
-    title: scale.label === '' ? name : `${name} (${scale.label})`,
+    title: {
+      vi: scale.label.vi === '' ? name.vi : `${name.vi} (${scale.label.vi})`,
+      en: scale.label.en === '' ? name.en : `${name.en} (${scale.label.en})`,
+    },
     domain: nice.domain,
     ticks: nice.ticks.map((value) => ({
       value,
@@ -151,14 +178,26 @@ function buildAxis(lo: number, hi: number, name: string, unit: string): ChartAxi
 
 /** Công thức không có biến vô hướng nào quét được — hiếm, nhưng phải nói ra chứ không vẽ khung rỗng. */
 const NO_SWEEP_VARIABLE = meaningless(
-  'Công thức này không có ô số nào quét được để dựng đường độ nhạy.',
-  'Xem bảng biến bên dưới để biết công thức phụ thuộc những gì.',
+  {
+    vi: 'Công thức này không có ô số nào quét được để dựng đường độ nhạy.',
+    en: 'This formula has no numeric field that can be swept to draw a sensitivity line.',
+  },
+  {
+    vi: 'Xem bảng biến bên dưới để biết công thức phụ thuộc những gì.',
+    en: 'See the variable table below to see what the formula depends on.',
+  },
 );
 
 /** Quét xong mà không mức nào ra số — thường vì còn một ô khác đang để trống. */
 const NOTHING_TO_DRAW = meaningless(
-  'Chưa mức nào tính ra kết quả nên chưa vẽ được đường.',
-  'Kiểm tra lại các ô đầu vào, hoặc nạp bộ số liệu mẫu để so sánh.',
+  {
+    vi: 'Chưa mức nào tính ra kết quả nên chưa vẽ được đường.',
+    en: 'No level produced a result yet, so the line cannot be drawn.',
+  },
+  {
+    vi: 'Kiểm tra lại các ô đầu vào, hoặc nạp bộ số liệu mẫu để so sánh.',
+    en: 'Double-check the input fields, or load a sample dataset to compare.',
+  },
 );
 
 /**
@@ -195,7 +234,7 @@ function warmUpLength(points: ReadonlyArray<ChartPoint>): number {
 export function buildChartModel(args: ChartArgs): ChartModel {
   const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel } = args;
   const { spec } = formula;
-  const name = shortLabel(spec.name.vi);
+  const name = shortLabel(spec.name);
 
   if (output.warning?.code === 'MISSING_SERIES') {
     return { kind: 'unavailable', title: name, warning: output.warning };
@@ -211,7 +250,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    */
   const historyReady = canDrawHistory(formula, ctx);
   const breakdownReady = canDrawBreakdown(spec, inputs, output);
-  const options = [
+  const options: SweepOption[] = [
     ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
     ...candidates.map((variable) => ({ key: variable.key, label: shortLabel(variable.label) })),
@@ -251,17 +290,17 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   let points: ReadonlyArray<ChartPoint>;
   let x: ChartAxis;
   let activeKey: string;
-  let axisName: string;
+  let axisName: Bilingual;
 
   if (onTime) {
     points = historyPoints(formula, inputs, ctx);
     x = {
-      title: 'Ngày',
+      title: { vi: 'Ngày', en: 'Date' },
       domain: [0, Math.max(1, points.length - 1)],
       ticks: sessionTicks(ctx.bars ?? []),
     };
     activeKey = HISTORY_KEY;
-    axisName = 'thời gian';
+    axisName = { vi: 'thời gian', en: 'time' };
   } else {
     const chosen =
       candidates.find((variable) => variable.key === sweepKey) ??
@@ -292,7 +331,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const table: ChartTable = {
     columns: [x.title, y.title],
     rows: condensePoints(points).map((point) =>
-      point === null ? null : ([point.label, point.valueLabel] as const),
+      point === null ? null : ([{ vi: point.label, en: point.label }, point.valueLabel] as const),
     ),
   };
 
@@ -300,7 +339,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const marked = points.find((point) => point.marked === true);
   const first = points[0];
   const last = points[points.length - 1];
-  const unit = onTime ? 'phiên' : 'mức';
+  const unit = onTime ? { vi: 'phiên', en: 'sessions' } : { vi: 'mức', en: 'levels' };
 
   /*
    * Chỉ hỏi "khởi động" trên trục thời gian.
@@ -312,31 +351,56 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const warmUp = onTime ? warmUpLength(points) : 0;
   const firstReal = points[warmUp];
 
-  const sentences = [
+  const sentencesVi = [
     first === undefined || last === undefined
       ? ''
       : onTime
-        ? `${name}${seriesLabel === undefined ? '' : ` của ${seriesLabel}`} qua ${String(points.length)} phiên, từ ${first.label} tới ${last.label}.`
-        : `Quét ${axisName} từ ${first.label} tới ${last.label} qua ${String(points.length)} mức.`,
-    `${name} chạy trong khoảng ${formatValueWithUnit(yExtent[0], spec.resultUnit)} tới ${formatValueWithUnit(yExtent[1], spec.resultUnit)}.`,
+        ? `${name.vi}${seriesLabel === undefined ? '' : ` của ${seriesLabel}`} qua ${String(points.length)} phiên, từ ${first.label} tới ${last.label}.`
+        : `Quét ${axisName.vi} từ ${first.label} tới ${last.label} qua ${String(points.length)} mức.`,
+    `${name.vi} chạy trong khoảng ${formatValueWithUnit(yExtent[0], spec.resultUnit)} tới ${formatValueWithUnit(yExtent[1], spec.resultUnit)}.`,
     marked === undefined
       ? ''
       : onTime
         ? `Phiên gần nhất ${marked.label} cho ${marked.valueLabel}.`
         : `Ở giá trị hiện tại ${marked.label}, kết quả là ${marked.valueLabel}.`,
     missing === 0
-      ? `Mọi ${unit} đều tính được.`
+      ? `Mọi ${unit.vi} đều tính được.`
       : warmUp > 0 && firstReal !== undefined
         ? `${String(warmUp)} phiên đầu chưa đủ dữ liệu để tính, nên đường bắt đầu từ ${firstReal.label}.`
-        : `${String(missing)} trên ${String(points.length)} ${unit} không tính được.`,
+        : `${String(missing)} trên ${String(points.length)} ${unit.vi} không tính được.`,
+  ];
+
+  const sentencesEn = [
+    first === undefined || last === undefined
+      ? ''
+      : onTime
+        ? `${name.en}${seriesLabel === undefined ? '' : ` for ${seriesLabel}`} over ${String(points.length)} sessions, from ${first.label} to ${last.label}.`
+        : `Sweeping ${axisName.en} from ${first.label} to ${last.label} across ${String(points.length)} levels.`,
+    `${name.en} ranges from ${formatValueWithUnit(yExtent[0], spec.resultUnit)} to ${formatValueWithUnit(yExtent[1], spec.resultUnit)}.`,
+    marked === undefined
+      ? ''
+      : onTime
+        ? `The most recent session ${marked.label} gives ${marked.valueLabel}.`
+        : `At the current value ${marked.label}, the result is ${marked.valueLabel}.`,
+    missing === 0
+      ? `Every ${unit.en} produced a result.`
+      : warmUp > 0 && firstReal !== undefined
+        ? `The first ${String(warmUp)} sessions don't have enough data to calculate yet, so the line starts at ${firstReal.label}.`
+        : `${String(missing)} of ${String(points.length)} ${unit.en} could not be calculated.`,
   ];
 
   const reason = points.find((point) => point.y === null && point.reason !== undefined)?.reason;
 
   return {
     kind: 'line',
-    title: `${name} theo ${axisName}`,
-    summary: sentences.filter((sentence) => sentence !== '').join(' '),
+    title: {
+      vi: `${name.vi} theo ${axisName.vi}`,
+      en: onTime ? `${name.en} over ${axisName.en}` : `${name.en} vs ${axisName.en}`,
+    },
+    summary: {
+      vi: sentencesVi.filter((sentence) => sentence !== '').join(' '),
+      en: sentencesEn.filter((sentence) => sentence !== '').join(' '),
+    },
     x,
     y,
     points,
@@ -351,9 +415,14 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     ...(missing === 0 || warmUp > 0
       ? {}
       : {
-          note: `Đường ngắt ở ${String(missing)} ${unit} không tính được${
-            reason === undefined ? '' : ` — ${WARNING_LABELS[reason].toLowerCase()}`
-          }.`,
+          note: {
+            vi: `Đường ngắt ở ${String(missing)} ${unit.vi} không tính được${
+              reason === undefined ? '' : ` — ${WARNING_LABELS[reason].vi.toLowerCase()}`
+            }.`,
+            en: `The line breaks at ${String(missing)} ${unit.en} that could not be calculated${
+              reason === undefined ? '' : ` — ${WARNING_LABELS[reason].en.toLowerCase()}`
+            }.`,
+          },
         }),
   };
 }

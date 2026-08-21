@@ -1,16 +1,17 @@
 /**
  * Tầng APPLICATION — từ điển tiếng Anh (gói WBS 3.6.3, phần khoá giao diện — đợt 7).
  *
- * Đợt 7 dịch toàn bộ khoá giao diện. Ba phần còn lại của FR-21:
- *   · `disclaimer.text` CỐ Ý chưa dịch — câu miễn trừ trên màn phải trùng từng chữ với câu
- *     đính vào file xuất (`DISCLAIMER_VI`, xem docblock src/core/disclaimer.ts), mà bộ dựng
- *     file xuất chưa biết locale. Dịch một vế là hai vế lệch nhau, và câu pháp lý cũng cần
- *     chủ dự án chốt chữ. Khi nào làm vế xuất theo locale thì dịch cả hai cùng lúc.
- *   · Nội dung công thức (tên, 4 mục diễn giải — 432 đoạn) nằm trong spec ở tầng Domain,
- *     chờ duyệt nội dung bản tiếng Việt xong mới dịch để khỏi dịch hai lần.
- *   · Luồng locale chưa thông: `t()` chưa call site nào truyền locale và LangSwitch chưa gắn
- *     lại vào AppHeader (quyết định đợt 14). Từ điển này vì thế chưa hiện ra màn — nó là
- *     điều kiện thứ nhất trong hai điều kiện để gắn lại nút.
+ * Đợt 7 dịch toàn bộ khoá giao diện; LangSwitch đã gắn vào AppHeader từ đợt 14. Nội dung công
+ * thức (tên, 4 mục diễn giải — 432 đoạn, ví dụ, biến số, nguồn, cảnh báo runtime) đã dịch toàn
+ * bộ ở đợt sau đó, lưu ngay trong spec ở tầng Domain dưới dạng `Bilingual {vi, en}` — xem
+ * `Bilingual` ở `src/core/types.ts` và `pick()`/`usePick()` ở tầng Application, KHÔNG nằm
+ * trong từ điển này. `disclaimer.text` (FR-24) dịch ở đợt kế tiếp — xem `DisclaimerBar.tsx`.
+ *
+ * Từ điển này (và mọi field `Bilingual` ở Domain) nay đã dịch **đủ**: `missingKeys('en')` rỗng.
+ * Vài khối vẫn cố định tiếng Việt theo thiết kế, KHÔNG phải nợ dịch: metadata SEO build-time
+ * (`page.tsx`), `StaticFormulaList` (fallback trước hydrate), file PDF/PNG xuất ra
+ * (`draw-card.ts`, `ExportSheet.tsx` — tài liệu xuất luôn là văn bản tiếng Việt trọn vẹn, kể cả
+ * câu miễn trừ đính kèm vẫn lấy `DISCLAIMER_VI`), và tên công ty mẫu trong `samples.ts`.
  *
  * Bẫy số ít/số nhiều: nhiều khoá đứng ngay sau một con số ghép ở call site ("12 kết quả"),
  * mà từ điển phẳng không phân nhánh theo số được. Khoá nào con số có thể bằng 1 thì dùng
@@ -48,7 +49,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'offline.detail':
     'No internet connection. Every calculation still runs because the calculator lives on your device.',
 
-  // 'disclaimer.text' — cố ý bỏ trống, xem docblock đầu file.
+  // Miễn trừ trên MÀN theo locale (FR-24, DisclaimerBar.tsx dùng lá <T>). Câu đính vào file
+  // xuất KHÔNG đọc khoá này — nó luôn lấy DISCLAIMER_VI thẳng, vì tài liệu xuất ra cố ý luôn
+  // tiếng Việt (xem docblock đầu file). Hai câu diễn cùng một ý, không phải bản dịch từng chữ
+  // của nhau, nên không có ca kiểm nào neo chúng lại với nhau.
+  'disclaimer.text': 'Results are for reference only, not investment advice.',
 
   'search.label': 'Find a formula',
   'search.placeholder': 'Formula name, e.g. P/E or dinh gia',

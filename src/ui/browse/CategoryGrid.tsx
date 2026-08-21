@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { DEFAULT_LIST_PARAMS, formulaListPath } from '@/application';
 import type { Category } from '@/application';
 
+import { Pick } from '../i18n/Pick';
 import styles from './CategoryGrid.module.css';
 
 export interface CategoryGridProps {
@@ -22,6 +23,9 @@ export interface CategoryGridProps {
  *
  * Mỗi ô là một thẻ <a> thật trỏ tới màn danh sách đã lọc sẵn nhóm đó, nên bấm được, mở tab
  * mới được, và điều hướng được cả khi JavaScript chưa tải xong.
+ *
+ * `shortName` là `Bilingual`, đọc qua lá client `<Pick>` chứ không `usePick()` thẳng: đây là
+ * server component thuần (chỉ dựng ở trang chủ, không hook được) — xem docblock `Pick.tsx`.
  */
 export function CategoryGrid({ categories }: CategoryGridProps) {
   return (
@@ -33,7 +37,9 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
             href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
             className={styles.tile}
           >
-            <span className={styles.name}>{category.shortName}</span>
+            <span className={styles.name}>
+              <Pick value={category.shortName} />
+            </span>
             <span className={styles.count}>{category.expectedCount}</span>
           </Link>
         </li>

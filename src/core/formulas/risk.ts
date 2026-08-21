@@ -18,44 +18,86 @@ export const CO_LENH_RUI_RO: FormulaModule = {
     id: 'co-lenh-rui-ro',
     categoryId: 'risk',
     name: { vi: 'Cỡ lệnh theo % rủi ro', en: 'Risk-based position size' },
-    description: 'Số cổ phiếu được phép mua để một lệnh thua không vượt quá mức rủi ro đã định.',
+    description: {
+      vi: 'Số cổ phiếu được phép mua để một lệnh thua không vượt quá mức rủi ro đã định.',
+      en: 'The number of shares you may buy so that, if the trade loses, the loss does not exceed the risk you set.',
+    },
     latex: 'Q = \\frac{V \\times r}{P_{vao} - P_{cat}}',
-    expression: 'Cỡ lệnh = Vốn tài khoản × Rủi ro mỗi lệnh ÷ (Giá vào lệnh − Giá cắt lỗ)',
+    expression: {
+      vi: 'Cỡ lệnh = Vốn tài khoản × Rủi ro mỗi lệnh ÷ (Giá vào lệnh − Giá cắt lỗ)',
+      en: 'Position size = Account capital × Risk per trade ÷ (Entry price − Stop-loss price)',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
     tags: ['co lenh', 'position size', 'quan tri rui ro', 'cat lo'],
     resultUnit: 'CP',
     variables: [
-      numberVar('capital', 'Vốn tài khoản', '₫', 500_000_000, {
+      numberVar('capital', { vi: 'Vốn tài khoản', en: 'Account capital' }, '₫', 500_000_000, {
         min: 0,
         max: 100_000_000_000,
-        description: 'Tổng vốn đang dùng để giao dịch.',
+        description: {
+          vi: 'Tổng vốn đang dùng để giao dịch.',
+          en: 'Total capital used for trading.',
+        },
       }),
-      sliderVar('riskPercent', 'Rủi ro mỗi lệnh', '%', 2, 0.1, 10, 0.1, {
-        description: 'Phần trăm vốn chấp nhận mất nếu lệnh này chạm cắt lỗ.',
-      }),
-      numberVar('entryPrice', 'Giá vào lệnh', '₫', 92_000, { min: 0, max: 10_000_000 }),
-      numberVar('stopPrice', 'Giá cắt lỗ', '₫', 86_000, {
+      sliderVar(
+        'riskPercent',
+        { vi: 'Rủi ro mỗi lệnh', en: 'Risk per trade' },
+        '%',
+        2,
+        0.1,
+        10,
+        0.1,
+        {
+          description: {
+            vi: 'Phần trăm vốn chấp nhận mất nếu lệnh này chạm cắt lỗ.',
+            en: 'Percentage of capital you accept losing if this trade hits its stop-loss.',
+          },
+        },
+      ),
+      numberVar('entryPrice', { vi: 'Giá vào lệnh', en: 'Entry price' }, '₫', 92_000, {
         min: 0,
         max: 10_000_000,
-        description: 'Mức giá sẽ bán ra để dừng lỗ.',
+      }),
+      numberVar('stopPrice', { vi: 'Giá cắt lỗ', en: 'Stop-loss price' }, '₫', 86_000, {
+        min: 0,
+        max: 10_000_000,
+        description: {
+          vi: 'Mức giá sẽ bán ra để dừng lỗ.',
+          en: 'The price at which you will sell to stop the loss.',
+        },
       }),
     ],
     explanation: {
-      meaning:
-        'Khối lượng lớn nhất được phép mua, sao cho nếu giá chạm mức cắt lỗ thì khoản mất đúng bằng mức rủi ro đã định trước.',
-      whenToUse: 'Trước mỗi lệnh mua, để khối lượng do kỷ luật quyết chứ không do cảm xúc.',
-      howToRead:
-        'Đặt cắt lỗ càng sát giá vào thì được mua càng nhiều, nhưng cũng càng dễ bị quét khỏi vị thế.',
-      commonMistakes:
-        'Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau.',
+      meaning: {
+        vi: 'Khối lượng lớn nhất được phép mua, sao cho nếu giá chạm mức cắt lỗ thì khoản mất đúng bằng mức rủi ro đã định trước.',
+        en: 'The largest quantity you may buy such that, if the price hits the stop-loss level, the loss equals exactly the risk you set in advance.',
+      },
+      whenToUse: {
+        vi: 'Trước mỗi lệnh mua, để khối lượng do kỷ luật quyết chứ không do cảm xúc.',
+        en: 'Before every buy order, so the quantity is decided by discipline rather than emotion.',
+      },
+      howToRead: {
+        vi: 'Đặt cắt lỗ càng sát giá vào thì được mua càng nhiều, nhưng cũng càng dễ bị quét khỏi vị thế.',
+        en: 'The closer the stop-loss is to the entry price, the more you may buy — but the easier it is to get stopped out of the position.',
+      },
+      commonMistakes: {
+        vi: 'Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau.',
+        en: 'Buying a round amount of money first and only then thinking about the stop-loss. The correct order is: choose the stop-loss level first, and let the quantity follow from it.',
+      },
     },
     example: {
-      title: 'Vốn 500 triệu ₫, rủi ro 2%, vào 92.000 ₫, cắt lỗ 86.000 ₫',
+      title: {
+        vi: 'Vốn 500 triệu ₫, rủi ro 2%, vào 92.000 ₫, cắt lỗ 86.000 ₫',
+        en: 'Capital 500 million ₫, risk 2%, entry 92,000 ₫, stop-loss 86,000 ₫',
+      },
       inputs: { capital: 500_000_000, riskPercent: 2, entryPrice: 92_000, stopPrice: 86_000 },
       expected: 1_666.67,
-      note: 'Thực tế làm tròn xuống bội của 100 cổ phiếu theo lô giao dịch.',
+      note: {
+        vi: 'Thực tế làm tròn xuống bội của 100 cổ phiếu theo lô giao dịch.',
+        en: 'In practice, round down to a multiple of 100 shares per trading lot.',
+      },
     },
     tests: [
       {
@@ -86,9 +128,12 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         value: null,
         unit: 'CP',
         warning: divideByZero(
-          'cỡ lệnh',
-          'Khoảng cách tới cắt lỗ',
-          'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
+          { vi: 'cỡ lệnh', en: 'position size' },
+          { vi: 'Khoảng cách tới cắt lỗ', en: 'Distance to stop-loss' },
+          {
+            vi: 'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
+            en: 'Set a stop-loss price lower than the entry price.',
+          },
         ),
       };
     }
@@ -98,8 +143,14 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         value: null,
         unit: 'CP',
         warning: meaningless(
-          'Giá cắt lỗ đang cao hơn giá vào lệnh, nên lệnh mua này không có phần rủi ro để tính.',
-          'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
+          {
+            vi: 'Giá cắt lỗ đang cao hơn giá vào lệnh, nên lệnh mua này không có phần rủi ro để tính.',
+            en: 'The stop-loss price is higher than the entry price, so this buy order has no risk portion to calculate.',
+          },
+          {
+            vi: 'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
+            en: 'Set a stop-loss price lower than the entry price.',
+          },
         ),
       };
     }

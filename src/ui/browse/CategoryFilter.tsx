@@ -2,7 +2,7 @@
 
 import { CATEGORIES } from '@/application';
 import type { ListParams, ListSort, SegmentFilter } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { Button, Chip, Select } from '@/ui/primitives';
 
 import styles from './CategoryFilter.module.css';
@@ -51,6 +51,7 @@ export function CategoryFilter({
   showReset,
 }: CategoryFilterProps) {
   const t = useT();
+  const pick = usePick();
   const visibleCategories = CATEGORIES.filter(
     (category) => params.segment === 'all' || category.segment === params.segment,
   );
@@ -84,7 +85,7 @@ export function CategoryFilter({
           <option value="">{t('filter.category.all')}</option>
           {visibleCategories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.name} ({categoryCounts.get(category.id) ?? 0})
+              {pick(category.name)} ({categoryCounts.get(category.id) ?? 0})
             </option>
           ))}
         </Select>

@@ -9,11 +9,12 @@
  */
 
 import type { FormulaSpec } from './registry/types';
+import type { Bilingual } from './types';
 
 export interface FlowStep {
   formulaId: string;
-  /** Nhãn hiện trên dải, lấy tên tiếng Việt của công thức. */
-  label: string;
+  /** Nhãn hiện trên dải, lấy tên công thức. */
+  label: Bilingual;
   /** Các bước đứng ngay trước bước này. */
   dependsOn: ReadonlyArray<string>;
   /** Bậc trong luồng: 0 là bước không phụ thuộc ai. Dùng để vẽ cột ở bản dọc desktop. */
@@ -103,6 +104,6 @@ export function flowDepth(chain: FlowChain): number {
   return chain.steps.reduce((max, step) => Math.max(max, step.depth), 0);
 }
 
-function labelOf(formulas: ReadonlyArray<FormulaSpec>, id: string): string {
-  return formulas.find((formula) => formula.id === id)?.name.vi ?? id;
+function labelOf(formulas: ReadonlyArray<FormulaSpec>, id: string): Bilingual {
+  return formulas.find((formula) => formula.id === id)?.name ?? { vi: id, en: id };
 }

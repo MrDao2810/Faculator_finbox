@@ -77,7 +77,7 @@ describe('đơn vị & biểu phí — cài đặt ghi được và nhớ đư�
     for (const schedule of MARKET_CONFIG.schedules) {
       const option = [...select.options].find((o) => o.value === schedule.id);
       expect(option, schedule.id).toBeDefined();
-      expect(option?.textContent).toBe(schedule.name);
+      expect(option?.textContent).toBe(schedule.name.vi);
     }
 
     // Biểu phí đang dùng phải là cái đang được chọn sẵn.

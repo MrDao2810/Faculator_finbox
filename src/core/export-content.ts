@@ -89,35 +89,35 @@ export function buildExportContent(
   const shown = variablesForLevel(formula, mode);
 
   const inputLines: ExportLine[] = shown.map((variable) => ({
-    label: variable.label,
+    label: variable.label.vi,
     value: describeInput(inputs[variable.key], variable),
   }));
 
   const variableLines: ExportLine[] = options.includeDetails
     ? shown.map((variable) => ({
-        label: `${variable.label} (${variable.unit})`,
-        value: variable.description ?? '—',
+        label: `${variable.label.vi} (${variable.unit})`,
+        value: variable.description?.vi ?? '—',
       }))
     : [];
 
   const explanationLines: ExportLine[] = options.includeDetails
     ? [
-        { label: 'Công thức này nói lên điều gì', value: formula.explanation.meaning },
-        { label: 'Khi nào dùng', value: formula.explanation.whenToUse },
-        { label: 'Cách đọc kết quả', value: formula.explanation.howToRead },
-        { label: 'Sai lầm thường gặp', value: formula.explanation.commonMistakes },
+        { label: 'Công thức này nói lên điều gì', value: formula.explanation.meaning.vi },
+        { label: 'Khi nào dùng', value: formula.explanation.whenToUse.vi },
+        { label: 'Cách đọc kết quả', value: formula.explanation.howToRead.vi },
+        { label: 'Sai lầm thường gặp', value: formula.explanation.commonMistakes.vi },
       ]
     : [];
 
   return {
     title: formula.name.vi,
-    subtitle: formula.description,
+    subtitle: formula.description.vi,
     result: formatCalcOutput(output),
     interpretation,
     inputs: inputLines,
     variables: variableLines,
     explanation: explanationLines,
-    sources: formula.source.map((source) => source.label),
+    sources: formula.source.map((source) => source.label.vi),
     // Chừa chỗ biểu đồ chỉ có nghĩa khi công thức thật sự có biểu đồ (FR-07).
     includeChart: options.includeChart && formula.chartType !== 'none',
     // KHÔNG nhận từ tham số, KHÔNG có nhánh nào bỏ qua. Đây chính là FR-24.
@@ -139,7 +139,7 @@ function describeInput(value: number | undefined, spec: VariableSpec): string {
   }
 
   const option = spec.options?.find((item) => item.value === value);
-  if (option !== undefined) return option.label;
+  if (option !== undefined) return option.label.vi;
 
   return formatCalcOutput({ value, unit: spec.unit });
 }

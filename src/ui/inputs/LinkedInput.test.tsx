@@ -13,7 +13,7 @@ afterEach(cleanup);
 
 const wacc: VariableSpec = {
   key: 'wacc',
-  label: 'WACC',
+  label: { vi: 'WACC', en: 'WACC' },
   unit: '%',
   type: 'number',
   defaultValue: 12.1,
@@ -22,15 +22,25 @@ const wacc: VariableSpec = {
   level: 'basic',
 };
 
-const capmOk: LinkedUpstream = { formulaId: 'capm', label: 'CAPM', output: ok(14.3, '%') };
+const capmOk: LinkedUpstream = {
+  formulaId: 'capm',
+  label: { vi: 'CAPM', en: 'CAPM' },
+  output: ok(14.3, '%'),
+};
 
 const capmLoi: LinkedUpstream = {
   formulaId: 'capm',
-  label: 'CAPM',
+  label: { vi: 'CAPM', en: 'CAPM' },
   output: fail('%', {
     code: 'MISSING_SERIES',
-    message: 'Cần ít nhất 60 phiên giá, hiện mới có 24.',
-    fix: 'Nạp bộ số liệu mẫu hoặc dán chuỗi giá từ Excel.',
+    message: {
+      vi: 'Cần ít nhất 60 phiên giá, hiện mới có 24.',
+      en: 'Need at least 60 price sessions, currently only 24.',
+    },
+    fix: {
+      vi: 'Nạp bộ số liệu mẫu hoặc dán chuỗi giá từ Excel.',
+      en: 'Load a sample dataset or paste a price series from Excel.',
+    },
   }),
 };
 

@@ -2,6 +2,7 @@
 
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
+import { usePick } from '@/application/preferences-context';
 import { Select } from '@/ui/primitives';
 
 export interface SelectInputProps {
@@ -27,14 +28,15 @@ export function SelectInput({
   hideLabel = false,
   className,
 }: SelectInputProps) {
+  const pick = usePick();
   const options = spec.options ?? [];
 
   return (
     <Select
       className={className}
-      label={spec.label}
+      label={pick(spec.label)}
       hideLabel={hideLabel}
-      hint={spec.description}
+      hint={spec.description === undefined ? undefined : pick(spec.description)}
       value={String(value)}
       disabled={isLockedForMode(spec, mode)}
       onChange={(event) => {
@@ -46,7 +48,7 @@ export function SelectInput({
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>
-          {option.label}
+          {pick(option.label)}
         </option>
       ))}
     </Select>

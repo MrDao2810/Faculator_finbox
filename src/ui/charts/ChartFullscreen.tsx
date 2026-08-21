@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import type { DrawableChart } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import { LineChart } from './LineChart';
 import { WaterfallChart } from './WaterfallChart';
@@ -94,6 +94,7 @@ function usePortrait(active: boolean): boolean | null {
 
 export function ChartFullscreen({ open, onClose, model, idBase, controls }: ChartFullscreenProps) {
   const t = useT();
+  const pick = usePick();
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = `${idBase}-title`;
 
@@ -262,7 +263,7 @@ export function ChartFullscreen({ open, onClose, model, idBase, controls }: Char
         <div className={styles.fullPanel}>
           <header className={styles.fullHeader}>
             <h2 className={styles.fullTitle} id={titleId}>
-              {model.title}
+              {pick(model.title)}
             </h2>
             <button type="button" className={styles.fullClose} onClick={onClose}>
               <span className="visually-hidden">{t('chart.exit')}</span>
@@ -289,10 +290,10 @@ export function ChartFullscreen({ open, onClose, model, idBase, controls }: Char
 
           <div className={styles.fullFoot}>
             {controls}
-            <p className={styles.fullSummary}>{model.summary}</p>
+            <p className={styles.fullSummary}>{pick(model.summary)}</p>
             {model.note !== undefined && (
               <p className={styles.note} role="note">
-                {model.note}
+                {pick(model.note)}
               </p>
             )}
             {/*

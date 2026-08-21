@@ -15,7 +15,7 @@ import { ok } from '../calc-output';
 import { runFormula } from '../calc/run';
 import type { CalcContext, CalcValues, FormulaModule } from '../calc/types';
 import { formatNumber } from '../format';
-import type { CalcOutput } from '../types';
+import type { Bilingual, CalcOutput } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import {
   SOURCE_FEE_CIRCULAR,
@@ -33,35 +33,56 @@ import {
  * mà chạy được hết.
  */
 
-const quantity = numberVar('quantity', 'Khối lượng', 'CP', 1_000, {
+const quantity = numberVar('quantity', { vi: 'Khối lượng', en: 'Quantity' }, 'CP', 1_000, {
   min: 0,
   max: 50_000_000,
-  description: 'Số cổ phiếu mua vào rồi bán ra.',
+  description: {
+    vi: 'Số cổ phiếu mua vào rồi bán ra.',
+    en: 'Number of shares bought and then sold.',
+  },
 });
 
-const months = numberVar('months', 'Thời gian nắm giữ', 'tháng', 5, {
+const months = numberVar('months', { vi: 'Thời gian nắm giữ', en: 'Holding period' }, 'tháng', 5, {
   min: 0,
   max: 600,
-  description: 'Số tháng cổ phiếu nằm trong tài khoản lưu ký.',
+  description: {
+    vi: 'Số tháng cổ phiếu nằm trong tài khoản lưu ký.',
+    en: 'Number of months the shares sit in the custody account.',
+  },
 });
 
-const buyPrice = numberVar('buyPrice', 'Giá mua', '₫', 92_000, {
+const buyPrice = numberVar('buyPrice', { vi: 'Giá mua', en: 'Buy price' }, '₫', 92_000, {
   min: 0,
   max: 10_000_000,
-  description: 'Giá khớp lệnh mua, tính cho một cổ phiếu.',
+  description: {
+    vi: 'Giá khớp lệnh mua, tính cho một cổ phiếu.',
+    en: 'The matched buy price, per share.',
+  },
 });
 
-const sellPrice = numberVar('sellPrice', 'Giá bán', '₫', 97_000, {
+const sellPrice = numberVar('sellPrice', { vi: 'Giá bán', en: 'Sell price' }, '₫', 97_000, {
   min: 0,
   max: 10_000_000,
-  description: 'Giá khớp lệnh bán, tính cho một cổ phiếu.',
+  description: {
+    vi: 'Giá khớp lệnh bán, tính cho một cổ phiếu.',
+    en: 'The matched sell price, per share.',
+  },
 });
 
-const dividendPerShare = numberVar('dividendPerShare', 'Cổ tức tiền mặt', '₫/CP', 2_000, {
-  min: 0,
-  max: 1_000_000,
-  description: 'Số tiền cổ tức nhận được trên mỗi cổ phiếu, trước thuế.',
-});
+const dividendPerShare = numberVar(
+  'dividendPerShare',
+  { vi: 'Cổ tức tiền mặt', en: 'Cash dividend' },
+  '₫/CP',
+  2_000,
+  {
+    min: 0,
+    max: 1_000_000,
+    description: {
+      vi: 'Số tiền cổ tức nhận được trên mỗi cổ phiếu, trước thuế.',
+      en: 'The dividend amount received per share, before tax.',
+    },
+  },
+);
 
 /** Ví dụ WF-08 dùng lại cho `example` và `tests` của cả nhóm. */
 const WF08 = { quantity: 1_000, months: 5, buyPrice: 92_000, sellPrice: 97_000 } as const;
@@ -75,24 +96,43 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
     id: 'phi-giao-dich-mua',
     categoryId: 'fees-tax',
     name: { vi: 'Phí giao dịch mua', en: 'Buy-side brokerage fee' },
-    description: 'Phí công ty chứng khoán thu khi lệnh mua khớp.',
+    description: {
+      vi: 'Phí công ty chứng khoán thu khi lệnh mua khớp.',
+      en: 'The fee the brokerage charges when a buy order is matched.',
+    },
     latex: 'F_{mua} = Q \\times P_{mua} \\times r_{mua}',
-    expression: 'Phí mua = Khối lượng × Giá mua × Tỷ lệ phí mua',
+    expression: {
+      vi: 'Phí mua = Khối lượng × Giá mua × Tỷ lệ phí mua',
+      en: 'Buy fee = Quantity × Buy price × Buy fee rate',
+    },
     chartType: 'none',
     level: 'basic',
     tags: ['phi mua', 'phi moi gioi', 'phi giao dich'],
     resultUnit: '₫',
     variables: [quantity, buyPrice],
     explanation: {
-      meaning: 'Số tiền công ty chứng khoán thu trên giá trị lệnh mua đã khớp.',
-      whenToUse: 'Khi muốn biết giá vốn thật của một lệnh mua, không chỉ là giá khớp lệnh.',
-      howToRead:
-        'Phí tính trên giá trị giao dịch chứ không trên khoản lãi, nên mua rồi bán ngay vẫn mất phí.',
-      commonMistakes:
-        'Tưởng phí đã nằm trong giá khớp lệnh. Phí được trừ riêng khỏi tiền trong tài khoản.',
+      meaning: {
+        vi: 'Số tiền công ty chứng khoán thu trên giá trị lệnh mua đã khớp.',
+        en: 'The amount the brokerage collects on the value of a matched buy order.',
+      },
+      whenToUse: {
+        vi: 'Khi muốn biết giá vốn thật của một lệnh mua, không chỉ là giá khớp lệnh.',
+        en: 'When you want the true cost basis of a buy order, not just the matched price.',
+      },
+      howToRead: {
+        vi: 'Phí tính trên giá trị giao dịch chứ không trên khoản lãi, nên mua rồi bán ngay vẫn mất phí.',
+        en: 'The fee is charged on the transaction value, not on any profit, so even an immediate buy-and-sell still incurs it.',
+      },
+      commonMistakes: {
+        vi: 'Tưởng phí đã nằm trong giá khớp lệnh. Phí được trừ riêng khỏi tiền trong tài khoản.',
+        en: 'Assuming the fee is already baked into the matched price. It is deducted separately from the account balance.',
+      },
     },
     example: {
-      title: 'Mua 1.000 CP giá 92.000 ₫, biểu phí HOSE 2026',
+      title: {
+        vi: 'Mua 1.000 CP giá 92.000 ₫, biểu phí HOSE 2026',
+        en: 'Buy 1,000 shares at 92,000 ₫, HOSE 2026 fee schedule',
+      },
       inputs: { quantity: WF08.quantity, buyPrice: WF08.buyPrice },
       expected: 138_000,
     },
@@ -113,7 +153,8 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
   },
   calc: (v, ctx) => {
     const rate = rateOf(ctx, 'fee.brokerage.buy');
-    if (rate === null) return missingConstant('₫', 'phí môi giới lệnh mua');
+    if (rate === null)
+      return missingConstant('₫', { vi: 'phí môi giới lệnh mua', en: 'buy order brokerage fee' });
     return ok(v('quantity') * v('buyPrice') * rate, '₫');
   },
 };
@@ -127,23 +168,43 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     id: 'phi-giao-dich-ban',
     categoryId: 'fees-tax',
     name: { vi: 'Phí giao dịch bán', en: 'Sell-side brokerage fee' },
-    description: 'Phí công ty chứng khoán thu khi lệnh bán khớp.',
+    description: {
+      vi: 'Phí công ty chứng khoán thu khi lệnh bán khớp.',
+      en: 'The fee the brokerage charges when a sell order is matched.',
+    },
     latex: 'F_{ban} = Q \\times P_{ban} \\times r_{ban}',
-    expression: 'Phí bán = Khối lượng × Giá bán × Tỷ lệ phí bán',
+    expression: {
+      vi: 'Phí bán = Khối lượng × Giá bán × Tỷ lệ phí bán',
+      en: 'Sell fee = Quantity × Sell price × Sell fee rate',
+    },
     chartType: 'none',
     level: 'basic',
     tags: ['phi ban', 'phi moi gioi', 'phi giao dich'],
     resultUnit: '₫',
     variables: [quantity, sellPrice],
     explanation: {
-      meaning: 'Số tiền công ty chứng khoán thu trên giá trị lệnh bán đã khớp.',
-      whenToUse:
-        'Khi ước tính chi phí của lệnh bán, hoặc khi so mức phí giữa các công ty chứng khoán — đây là khoản thương lượng được, khác thuế và phí lưu ký.',
-      howToRead: 'Một vòng mua – bán chịu phí hai lần, nên chi phí gấp đôi mức của một lệnh.',
-      commonMistakes: 'Chỉ trừ phí mua mà quên phí bán khi ước tính lãi.',
+      meaning: {
+        vi: 'Số tiền công ty chứng khoán thu trên giá trị lệnh bán đã khớp.',
+        en: 'The amount the brokerage collects on the value of a matched sell order.',
+      },
+      whenToUse: {
+        vi: 'Khi ước tính chi phí của lệnh bán, hoặc khi so mức phí giữa các công ty chứng khoán — đây là khoản thương lượng được, khác thuế và phí lưu ký.',
+        en: 'When estimating the cost of a sell order, or comparing fee rates across brokerages — this is a negotiable cost, unlike tax and custody fees.',
+      },
+      howToRead: {
+        vi: 'Một vòng mua – bán chịu phí hai lần, nên chi phí gấp đôi mức của một lệnh.',
+        en: 'One buy-sell round trip pays the fee twice, so the cost is double a single order.',
+      },
+      commonMistakes: {
+        vi: 'Chỉ trừ phí mua mà quên phí bán khi ước tính lãi.',
+        en: 'Deducting only the buy fee and forgetting the sell fee when estimating profit.',
+      },
     },
     example: {
-      title: 'Bán 1.000 CP giá 97.000 ₫, biểu phí HOSE 2026',
+      title: {
+        vi: 'Bán 1.000 CP giá 97.000 ₫, biểu phí HOSE 2026',
+        en: 'Sell 1,000 shares at 97,000 ₫, HOSE 2026 fee schedule',
+      },
       inputs: { quantity: WF08.quantity, sellPrice: WF08.sellPrice },
       expected: 145_500,
     },
@@ -159,7 +220,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
   },
   calc: (v, ctx) => {
     const rate = rateOf(ctx, 'fee.brokerage.sell');
-    if (rate === null) return missingConstant('₫', 'phí môi giới lệnh bán');
+    if (rate === null)
+      return missingConstant('₫', { vi: 'phí môi giới lệnh bán', en: 'sell order brokerage fee' });
     return ok(v('quantity') * v('sellPrice') * rate, '₫');
   },
 };
@@ -173,24 +235,40 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     id: 'thue-chuyen-nhuong',
     categoryId: 'fees-tax',
     name: { vi: 'Thuế chuyển nhượng chứng khoán', en: 'Securities transfer tax' },
-    description: 'Thuế thu nhập cá nhân tính trên giá trị bán, thu cả khi giao dịch lỗ.',
+    description: {
+      vi: 'Thuế thu nhập cá nhân tính trên giá trị bán, thu cả khi giao dịch lỗ.',
+      en: 'Personal income tax charged on the sell value, collected even on a loss-making trade.',
+    },
     latex: 'T = Q \\times P_{ban} \\times r_{thue}',
-    expression: 'Thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng',
+    expression: {
+      vi: 'Thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng',
+      en: 'Tax = Quantity × Sell price × Transfer tax rate',
+    },
     chartType: 'none',
     level: 'basic',
     tags: ['thue', 'thue cnck', 'chuyen nhuong'],
     resultUnit: '₫',
     variables: [quantity, sellPrice],
     explanation: {
-      meaning: 'Khoản thuế Nhà nước thu khi bán chứng khoán, tính trên giá trị bán.',
-      whenToUse: 'Mỗi lần bán, để biết số tiền thực về tài khoản.',
-      howToRead:
-        'Thuế tính trên giá trị bán chứ không trên phần lãi — bán lỗ vẫn phải nộp khoản này.',
-      commonMistakes:
-        'Tưởng lỗ thì được miễn thuế. Cách tính hiện hành thu theo giá trị bán, không theo lãi.',
+      meaning: {
+        vi: 'Khoản thuế Nhà nước thu khi bán chứng khoán, tính trên giá trị bán.',
+        en: 'The tax the State collects when securities are sold, charged on the sell value.',
+      },
+      whenToUse: {
+        vi: 'Mỗi lần bán, để biết số tiền thực về tài khoản.',
+        en: 'Every time you sell, to know the actual amount that lands in your account.',
+      },
+      howToRead: {
+        vi: 'Thuế tính trên giá trị bán chứ không trên phần lãi — bán lỗ vẫn phải nộp khoản này.',
+        en: 'The tax is charged on the sell value, not on any profit — even a loss-making sale still owes it.',
+      },
+      commonMistakes: {
+        vi: 'Tưởng lỗ thì được miễn thuế. Cách tính hiện hành thu theo giá trị bán, không theo lãi.',
+        en: 'Assuming a loss means the tax is waived. The current rule charges it on the sell value, not on profit.',
+      },
     },
     example: {
-      title: 'Bán 1.000 CP giá 97.000 ₫',
+      title: { vi: 'Bán 1.000 CP giá 97.000 ₫', en: 'Sell 1,000 shares at 97,000 ₫' },
       inputs: { quantity: WF08.quantity, sellPrice: WF08.sellPrice },
       expected: 97_000,
     },
@@ -206,7 +284,11 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
   },
   calc: (v, ctx) => {
     const rate = rateOf(ctx, 'tax.transfer.sell');
-    if (rate === null) return missingConstant('₫', 'thuế chuyển nhượng chứng khoán');
+    if (rate === null)
+      return missingConstant('₫', {
+        vi: 'thuế chuyển nhượng chứng khoán',
+        en: 'securities transfer tax',
+      });
     return ok(v('quantity') * v('sellPrice') * rate, '₫');
   },
 };
@@ -220,27 +302,47 @@ export const THUE_CO_TUC: FormulaModule = {
     id: 'thue-co-tuc',
     categoryId: 'fees-tax',
     name: { vi: 'Thuế cổ tức tiền mặt', en: 'Cash dividend tax' },
-    description: 'Thuế khấu trừ trên cổ tức tiền mặt trước khi tiền về tài khoản.',
+    description: {
+      vi: 'Thuế khấu trừ trên cổ tức tiền mặt trước khi tiền về tài khoản.',
+      en: 'The tax withheld on a cash dividend before the money reaches the account.',
+    },
     latex: 'T_{ct} = Q \\times D \\times r_{ct}',
-    expression: 'Thuế cổ tức = Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
+    expression: {
+      vi: 'Thuế cổ tức = Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
+      en: 'Dividend tax = Quantity × Dividend per share × Dividend tax rate',
+    },
     chartType: 'none',
     level: 'basic',
     tags: ['thue co tuc', 'co tuc', 'dividend'],
     resultUnit: '₫',
     variables: [quantity, dividendPerShare],
     explanation: {
-      meaning: 'Phần cổ tức bị khấu trừ thuế trước khi chuyển về tài khoản nhà đầu tư.',
-      whenToUse: 'Khi ước tính dòng tiền cổ tức thực nhận trong năm.',
-      howToRead: 'Công ty chứng khoán khấu trừ sẵn, nên số tiền về tài khoản đã là số sau thuế.',
-      commonMistakes:
-        'Lấy nguyên mức cổ tức công bố để tính tỷ suất cổ tức thực nhận, thành ra cao hơn thực tế.',
+      meaning: {
+        vi: 'Phần cổ tức bị khấu trừ thuế trước khi chuyển về tài khoản nhà đầu tư.',
+        en: 'The portion of the dividend withheld as tax before it is transferred to the investor account.',
+      },
+      whenToUse: {
+        vi: 'Khi ước tính dòng tiền cổ tức thực nhận trong năm.',
+        en: 'When estimating the actual dividend cash flow received during the year.',
+      },
+      howToRead: {
+        vi: 'Công ty chứng khoán khấu trừ sẵn, nên số tiền về tài khoản đã là số sau thuế.',
+        en: 'The brokerage withholds it automatically, so the amount that lands in the account is already net of tax.',
+      },
+      commonMistakes: {
+        vi: 'Lấy nguyên mức cổ tức công bố để tính tỷ suất cổ tức thực nhận, thành ra cao hơn thực tế.',
+        en: 'Using the announced dividend amount as-is to compute the actual dividend yield, which overstates it.',
+      },
     },
     example: {
-      title: '1.000 CP, cổ tức 2.000 ₫/CP',
+      title: { vi: '1.000 CP, cổ tức 2.000 ₫/CP', en: '1,000 shares, dividend 2,000 ₫/share' },
       inputs: { quantity: 1_000, dividendPerShare: 2_000 },
       expected: 100_000,
     },
-    note: 'Công thức tính cho cổ tức tiền mặt của cổ phiếu. Lợi tức được chia từ quỹ đầu tư chứng khoán hoặc quỹ bất động sản được giảm 50% thuế theo luật thuế mới — trường hợp đó nằm ngoài phạm vi ở đây.',
+    note: {
+      vi: 'Công thức tính cho cổ tức tiền mặt của cổ phiếu. Lợi tức được chia từ quỹ đầu tư chứng khoán hoặc quỹ bất động sản được giảm 50% thuế theo luật thuế mới — trường hợp đó nằm ngoài phạm vi ở đây.',
+      en: 'This formula covers cash dividends from stocks. Income distributed from securities investment funds or real estate funds gets a 50% tax reduction under the new tax law — that case is out of scope here.',
+    },
     tests: [
       {
         name: 'cổ tức 2.000 ₫/CP trên 1.000 CP',
@@ -258,7 +360,8 @@ export const THUE_CO_TUC: FormulaModule = {
   },
   calc: (v, ctx) => {
     const rate = rateOf(ctx, 'tax.dividend.cash');
-    if (rate === null) return missingConstant('₫', 'thuế cổ tức tiền mặt');
+    if (rate === null)
+      return missingConstant('₫', { vi: 'thuế cổ tức tiền mặt', en: 'cash dividend tax' });
     return ok(v('quantity') * v('dividendPerShare') * rate, '₫');
   },
 };
@@ -272,23 +375,40 @@ export const PHI_LUU_KY: FormulaModule = {
     id: 'phi-luu-ky',
     categoryId: 'fees-tax',
     name: { vi: 'Phí lưu ký', en: 'Custody fee' },
-    description: 'Phí giữ hộ cổ phiếu, tính theo số cổ phiếu và số tháng nắm giữ.',
+    description: {
+      vi: 'Phí giữ hộ cổ phiếu, tính theo số cổ phiếu và số tháng nắm giữ.',
+      en: 'The fee for holding shares in custody, charged by share count and months held.',
+    },
     latex: 'F_{lk} = Q \\times M \\times c',
-    expression: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
+    expression: {
+      vi: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
+      en: 'Custody fee = Quantity × Holding period × Rate per share per month',
+    },
     chartType: 'none',
     level: 'basic',
     tags: ['phi luu ky', 'vsd', 'custody'],
     resultUnit: '₫',
     variables: [quantity, months],
     explanation: {
-      meaning: 'Khoản phí nhỏ thu hằng tháng cho việc lưu giữ cổ phiếu trên tài khoản.',
-      whenToUse: 'Khi tính chi phí của một khoản đầu tư nắm giữ dài.',
-      howToRead:
-        'Rất nhỏ với lệnh ngắn hạn, nhưng cộng dồn đáng kể khi giữ nhiều cổ phiếu trong nhiều năm.',
-      commonMistakes: 'Bỏ qua hoàn toàn khi tính giá hoà vốn của khoản nắm giữ dài hạn.',
+      meaning: {
+        vi: 'Khoản phí nhỏ thu hằng tháng cho việc lưu giữ cổ phiếu trên tài khoản.',
+        en: 'A small fee charged monthly for holding shares in the account.',
+      },
+      whenToUse: {
+        vi: 'Khi tính chi phí của một khoản đầu tư nắm giữ dài.',
+        en: 'When computing the cost of a long-held investment.',
+      },
+      howToRead: {
+        vi: 'Rất nhỏ với lệnh ngắn hạn, nhưng cộng dồn đáng kể khi giữ nhiều cổ phiếu trong nhiều năm.',
+        en: 'Negligible for a short-term trade, but it adds up meaningfully when holding a large position for years.',
+      },
+      commonMistakes: {
+        vi: 'Bỏ qua hoàn toàn khi tính giá hoà vốn của khoản nắm giữ dài hạn.',
+        en: 'Ignoring it entirely when computing the break-even price of a long-held position.',
+      },
     },
     example: {
-      title: '1.000 CP giữ 5 tháng',
+      title: { vi: '1.000 CP giữ 5 tháng', en: '1,000 shares held for 5 months' },
       inputs: { quantity: WF08.quantity, months: WF08.months },
       expected: 1_350,
     },
@@ -309,7 +429,8 @@ export const PHI_LUU_KY: FormulaModule = {
   },
   calc: (v, ctx) => {
     const constant = constantOf(ctx, 'fee.custody');
-    if (constant === undefined) return missingConstant('₫', 'phí lưu ký');
+    if (constant === undefined)
+      return missingConstant('₫', { vi: 'phí lưu ký', en: 'custody fee' });
     return ok(v('quantity') * v('months') * constant.value, '₫');
   },
 };
@@ -323,10 +444,15 @@ export const GIA_HOA_VON: FormulaModule = {
     id: 'gia-hoa-von',
     categoryId: 'fees-tax',
     name: { vi: 'Giá hoà vốn thực', en: 'True break-even price' },
-    description: 'Giá bán tối thiểu để không lỗ sau khi trừ hết phí và thuế.',
+    description: {
+      vi: 'Giá bán tối thiểu để không lỗ sau khi trừ hết phí và thuế.',
+      en: 'The minimum sell price to avoid a loss after all fees and taxes.',
+    },
     latex: 'P_{hv} = \\frac{Q \\cdot P_{mua} + F_{mua} + F_{lk}}{Q\\,(1 - r_{ban} - r_{thue})}',
-    expression:
-      'Giá hoà vốn = (Tiền mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
+    expression: {
+      vi: 'Giá hoà vốn = (Tiền mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
+      en: 'Break-even price = (Buy value + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -334,17 +460,34 @@ export const GIA_HOA_VON: FormulaModule = {
     resultUnit: '₫',
     variables: [quantity, months, buyPrice],
     explanation: {
-      meaning: 'Mức giá bán mà tại đó tiền thu về vừa đúng bằng tiền đã bỏ ra, không lãi không lỗ.',
-      whenToUse: 'Trước khi đặt lệnh bán, để biết bán dưới mức nào là thực sự lỗ.',
-      howToRead: 'Luôn cao hơn giá mua, vì phải gánh cả phí mua, phí bán, thuế bán và phí lưu ký.',
-      commonMistakes:
-        'Lấy đúng giá mua làm mốc hoà vốn. Bán bằng giá mua là đã lỗ đúng bằng tổng chi phí.',
+      meaning: {
+        vi: 'Mức giá bán mà tại đó tiền thu về vừa đúng bằng tiền đã bỏ ra, không lãi không lỗ.',
+        en: 'The sell price at which the proceeds exactly equal the money put in — no profit, no loss.',
+      },
+      whenToUse: {
+        vi: 'Trước khi đặt lệnh bán, để biết bán dưới mức nào là thực sự lỗ.',
+        en: 'Before placing a sell order, to know below which price you are actually at a loss.',
+      },
+      howToRead: {
+        vi: 'Luôn cao hơn giá mua, vì phải gánh cả phí mua, phí bán, thuế bán và phí lưu ký.',
+        en: 'Always higher than the buy price, since it must cover the buy fee, sell fee, sell tax, and custody fee.',
+      },
+      commonMistakes: {
+        vi: 'Lấy đúng giá mua làm mốc hoà vốn. Bán bằng giá mua là đã lỗ đúng bằng tổng chi phí.',
+        en: 'Treating the buy price itself as the break-even mark. Selling at the buy price is already a loss equal to the total costs.',
+      },
     },
     example: {
-      title: 'Mua 1.000 CP giá 92.000 ₫, giữ 5 tháng',
+      title: {
+        vi: 'Mua 1.000 CP giá 92.000 ₫, giữ 5 tháng',
+        en: 'Buy 1,000 shares at 92,000 ₫, held for 5 months',
+      },
       inputs: { quantity: WF08.quantity, months: WF08.months, buyPrice: WF08.buyPrice },
       expected: 92_370.28,
-      note: 'Bán đúng 92.000 ₫ là lỗ, dù không giảm giá đồng nào.',
+      note: {
+        vi: 'Bán đúng 92.000 ₫ là lỗ, dù không giảm giá đồng nào.',
+        en: 'Selling at exactly 92,000 ₫ is a loss, even though the price did not drop at all.',
+      },
     },
     tests: [
       {
@@ -371,7 +514,11 @@ function breakEvenPrice(v: CalcValues, ctx: CalcContext): CalcOutput {
     return {
       value: null,
       unit: '₫',
-      warning: divideByZero('giá hoà vốn', 'Khối lượng', 'Nhập số cổ phiếu lớn hơn 0.'),
+      warning: divideByZero(
+        { vi: 'giá hoà vốn', en: 'break-even price' },
+        { vi: 'Khối lượng', en: 'Quantity' },
+        { vi: 'Nhập số cổ phiếu lớn hơn 0.', en: 'Enter a share quantity greater than 0.' },
+      ),
     };
   }
 
@@ -380,7 +527,7 @@ function breakEvenPrice(v: CalcValues, ctx: CalcContext): CalcOutput {
   const rTax = rateOf(ctx, 'tax.transfer.sell');
   const custody = constantOf(ctx, 'fee.custody');
   if (rBuy === null || rSell === null || rTax === null || custody === undefined) {
-    return missingConstant('₫', 'phí và thuế giao dịch');
+    return missingConstant('₫', { vi: 'phí và thuế giao dịch', en: 'transaction fees and taxes' });
   }
 
   const netRatio = 1 - rSell - rTax;
@@ -389,8 +536,14 @@ function breakEvenPrice(v: CalcValues, ctx: CalcContext): CalcOutput {
       value: null,
       unit: '₫',
       warning: meaningless(
-        'Tổng phí bán và thuế bán từ 100% trở lên nên không có giá bán nào hoà vốn được.',
-        'Kiểm tra lại biểu phí đang chọn.',
+        {
+          vi: 'Tổng phí bán và thuế bán từ 100% trở lên nên không có giá bán nào hoà vốn được.',
+          en: 'The combined sell fee and sell tax total 100% or more, so no sell price can break even.',
+        },
+        {
+          vi: 'Kiểm tra lại biểu phí đang chọn.',
+          en: 'Check the fee schedule currently selected.',
+        },
       ),
     };
   }
@@ -409,9 +562,15 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     id: 'loi-nhuan-rong',
     categoryId: 'fees-tax',
     name: { vi: 'Lợi nhuận ròng sau phí & thuế', en: 'Net profit after fees and taxes' },
-    description: 'Số tiền lãi thực sự còn lại sau khi trừ hết phí giao dịch và thuế.',
+    description: {
+      vi: 'Số tiền lãi thực sự còn lại sau khi trừ hết phí giao dịch và thuế.',
+      en: 'The actual profit left over after deducting all transaction fees and taxes.',
+    },
     latex: 'L_{rong} = Q\\,(P_{ban} - P_{mua}) - (F_{mua} + F_{ban} + T + F_{lk})',
-    expression: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − Tổng chi phí',
+    expression: {
+      vi: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − Tổng chi phí',
+      en: 'Net profit = Quantity × (Sell price − Buy price) − Total costs',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -419,18 +578,34 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     resultUnit: '₫',
     variables: [quantity, months, buyPrice, sellPrice],
     explanation: {
-      meaning: 'Phần tiền thật sự vào túi sau một vòng mua – bán, đã trừ mọi khoản phải nộp.',
-      whenToUse: 'Khi đánh giá một giao dịch đã thực hiện, hoặc thử một kịch bản giá bán.',
-      howToRead:
-        'Luôn nhỏ hơn lãi gộp trên bảng giá. Khoảng cách giữa hai con số chính là tổng chi phí.',
-      commonMistakes:
-        'Lấy chênh lệch giá nhân khối lượng rồi coi đó là lãi. Với biên lãi mỏng, chi phí có thể nuốt hết.',
+      meaning: {
+        vi: 'Phần tiền thật sự vào túi sau một vòng mua – bán, đã trừ mọi khoản phải nộp.',
+        en: 'The money that actually ends up in your pocket after a buy-sell round trip, net of everything owed.',
+      },
+      whenToUse: {
+        vi: 'Khi đánh giá một giao dịch đã thực hiện, hoặc thử một kịch bản giá bán.',
+        en: 'When evaluating a completed trade, or testing a hypothetical sell-price scenario.',
+      },
+      howToRead: {
+        vi: 'Luôn nhỏ hơn lãi gộp trên bảng giá. Khoảng cách giữa hai con số chính là tổng chi phí.',
+        en: 'Always smaller than the gross profit shown on the price board. The gap between the two figures is the total cost.',
+      },
+      commonMistakes: {
+        vi: 'Lấy chênh lệch giá nhân khối lượng rồi coi đó là lãi. Với biên lãi mỏng, chi phí có thể nuốt hết.',
+        en: 'Taking the price difference times the quantity as the profit. With a thin margin, costs can eat it all.',
+      },
     },
     example: {
-      title: 'Mua 1.000 CP giá 92.000 ₫, bán 97.000 ₫ sau 5 tháng',
+      title: {
+        vi: 'Mua 1.000 CP giá 92.000 ₫, bán 97.000 ₫ sau 5 tháng',
+        en: 'Buy 1,000 shares at 92,000 ₫, sell at 97,000 ₫ after 5 months',
+      },
       inputs: { ...WF08 },
       expected: 4_618_150,
-      note: 'Lãi gộp 5.000.000 ₫, tổng chi phí 381.850 ₫.',
+      note: {
+        vi: 'Lãi gộp 5.000.000 ₫, tổng chi phí 381.850 ₫.',
+        en: 'Gross profit 5,000,000 ₫, total costs 381,850 ₫.',
+      },
     },
     tests: [
       { name: 'ví dụ WF-08', inputs: { ...WF08 }, expected: 4_618_150 },
@@ -445,7 +620,11 @@ export const LOI_NHUAN_RONG: FormulaModule = {
   },
   calc: (v, ctx) => {
     const costs = totalCostOf(v, ctx);
-    if (costs === null) return missingConstant('₫', 'phí và thuế giao dịch');
+    if (costs === null)
+      return missingConstant('₫', {
+        vi: 'phí và thuế giao dịch',
+        en: 'transaction fees and taxes',
+      });
 
     const gross = v('quantity') * (v('sellPrice') - v('buyPrice'));
     return ok(gross - costs.total, '₫', {
@@ -467,24 +646,43 @@ export const ROI_RONG: FormulaModule = {
     id: 'roi-rong',
     categoryId: 'fees-tax',
     name: { vi: 'ROI ròng sau phí & thuế', en: 'Net ROI after fees and taxes' },
-    description: 'Tỷ suất lợi nhuận thực trên số vốn đã thực sự bỏ ra.',
+    description: {
+      vi: 'Tỷ suất lợi nhuận thực trên số vốn đã thực sự bỏ ra.',
+      en: 'The actual return rate on the capital actually put in.',
+    },
     latex: 'ROI_{rong} = \\frac{L_{rong}}{Q \\cdot P_{mua} + F_{mua} + F_{lk}} \\times 100',
-    expression: 'ROI ròng = Lợi nhuận ròng ÷ Vốn thực bỏ ra × 100',
+    expression: {
+      vi: 'ROI ròng = Lợi nhuận ròng ÷ Vốn thực bỏ ra × 100',
+      en: 'Net ROI = Net profit ÷ Actual capital deployed × 100',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['roi rong', 'ty suat loi nhuan', 'hieu qua'],
     resultUnit: '%',
     variables: [quantity, months, buyPrice, sellPrice],
     explanation: {
-      meaning: 'Lãi ròng chia cho vốn thực bỏ ra, gồm cả phí mua và phí lưu ký.',
-      whenToUse: 'Khi so sánh hiệu quả giữa các giao dịch có quy mô vốn khác nhau.',
-      howToRead:
-        'Luôn thấp hơn tỷ suất tính theo giá thuần. Chênh lệch càng rõ khi giao dịch ngắn và dày.',
-      commonMistakes:
-        'Chia lãi ròng cho giá trị mua thuần thay vì cho tổng vốn bỏ ra, làm tỷ suất đẹp hơn thực tế.',
+      meaning: {
+        vi: 'Lãi ròng chia cho vốn thực bỏ ra, gồm cả phí mua và phí lưu ký.',
+        en: 'Net profit divided by the actual capital deployed, including the buy fee and custody fee.',
+      },
+      whenToUse: {
+        vi: 'Khi so sánh hiệu quả giữa các giao dịch có quy mô vốn khác nhau.',
+        en: 'When comparing the efficiency of trades with different capital sizes.',
+      },
+      howToRead: {
+        vi: 'Luôn thấp hơn tỷ suất tính theo giá thuần. Chênh lệch càng rõ khi giao dịch ngắn và dày.',
+        en: 'Always lower than a return rate computed on raw prices. The gap widens for short, frequent trades.',
+      },
+      commonMistakes: {
+        vi: 'Chia lãi ròng cho giá trị mua thuần thay vì cho tổng vốn bỏ ra, làm tỷ suất đẹp hơn thực tế.',
+        en: 'Dividing net profit by the raw buy value instead of the total capital deployed, which flatters the rate beyond reality.',
+      },
     },
     example: {
-      title: 'Mua 1.000 CP giá 92.000 ₫, bán 97.000 ₫ sau 5 tháng',
+      title: {
+        vi: 'Mua 1.000 CP giá 92.000 ₫, bán 97.000 ₫ sau 5 tháng',
+        en: 'Buy 1,000 shares at 92,000 ₫, sell at 97,000 ₫ after 5 months',
+      },
       inputs: { ...WF08 },
       expected: 5.01,
     },
@@ -502,13 +700,24 @@ export const ROI_RONG: FormulaModule = {
   },
   calc: (v, ctx) => {
     const costs = totalCostOf(v, ctx);
-    if (costs === null) return missingConstant('%', 'phí và thuế giao dịch');
+    if (costs === null)
+      return missingConstant('%', {
+        vi: 'phí và thuế giao dịch',
+        en: 'transaction fees and taxes',
+      });
 
     if (costs.costBasis === 0) {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero('ROI ròng', 'Vốn bỏ ra', 'Nhập khối lượng và giá mua lớn hơn 0.'),
+        warning: divideByZero(
+          { vi: 'ROI ròng', en: 'Net ROI' },
+          { vi: 'Vốn bỏ ra', en: 'Capital deployed' },
+          {
+            vi: 'Nhập khối lượng và giá mua lớn hơn 0.',
+            en: 'Enter a quantity and buy price greater than 0.',
+          },
+        ),
       };
     }
 
@@ -527,9 +736,9 @@ export const ROI_RONG: FormulaModule = {
 export interface FeeBreakdownRow {
   key: string;
   /** Nhãn hiện ở cột trái, ví dụ 'Phí giao dịch mua'. */
-  label: string;
+  label: Bilingual;
   /** Công thức hiện ngay dưới nhãn, ví dụ '0,15% × 92.000.000 ₫' — WF-08 đòi hiện trong dòng. */
-  formula: string;
+  formula: Bilingual;
   /** Số tiền. Là CalcOutput chứ không phải number, để một dòng lỗi không kéo sập cả bảng. */
   output: CalcOutput;
 }
@@ -566,32 +775,37 @@ export function buildFeeBreakdown(
   // Đi qua runFormula chứ không gọi thẳng `calc`: nhờ vậy ô để trống ra đúng cảnh báo
   // "Chưa nhập đủ" của WF-15, và chỉ dòng nào thiếu mới hỏng — đúng câu wireframe ghi
   // "Nhập giá bán để xem lợi nhuận ròng. Các ô còn lại đã đủ."
+  const custodyFormula: Bilingual =
+    custody === undefined
+      ? { vi: '—', en: '—' }
+      : {
+          vi: `${formatNumber(custody.value, { maxDecimals: 2 })} ₫/CP/tháng × ${formatNumber(v('quantity'))} × ${formatNumber(v('months'))}`,
+          en: `${formatNumber(custody.value, { maxDecimals: 2 })} ₫/share/month × ${formatNumber(v('quantity'))} × ${formatNumber(v('months'))}`,
+        };
+
   const rows: FeeBreakdownRow[] = [
     {
       key: 'fee.brokerage.buy',
-      label: 'Phí giao dịch mua',
+      label: { vi: 'Phí giao dịch mua', en: 'Buy transaction fee' },
       formula: percentTimes(rBuy, buyValue),
       output: runFormula(PHI_GIAO_DICH_MUA, inputs, ctx),
     },
     {
       key: 'fee.brokerage.sell',
-      label: 'Phí giao dịch bán',
+      label: { vi: 'Phí giao dịch bán', en: 'Sell transaction fee' },
       formula: percentTimes(rSell, sellValue),
       output: runFormula(PHI_GIAO_DICH_BAN, inputs, ctx),
     },
     {
       key: 'tax.transfer.sell',
-      label: 'Thuế CNCK (khi bán)',
+      label: { vi: 'Thuế CNCK (khi bán)', en: 'Securities transfer tax (on sell)' },
       formula: percentTimes(rTax, sellValue),
       output: runFormula(THUE_CHUYEN_NHUONG, inputs, ctx),
     },
     {
       key: 'fee.custody',
-      label: 'Phí lưu ký',
-      formula:
-        custody === undefined
-          ? '—'
-          : `${formatNumber(custody.value, { maxDecimals: 2 })} ₫/CP/tháng × ${formatNumber(v('quantity'))} × ${formatNumber(v('months'))}`,
+      label: { vi: 'Phí lưu ký', en: 'Custody fee' },
+      formula: custodyFormula,
       output: runFormula(PHI_LUU_KY, inputs, ctx),
     },
   ];
@@ -624,10 +838,11 @@ function sumRows(rows: ReadonlyArray<FeeBreakdownRow>): CalcOutput {
 }
 
 /** '0,15% × 92.000.000 ₫'. Không tra được mức thì trả dấu gạch, không trả '0% × …'. */
-function percentTimes(rate: number | null, base: number): string {
-  if (rate === null || !Number.isFinite(base)) return '—';
+function percentTimes(rate: number | null, base: number): Bilingual {
+  if (rate === null || !Number.isFinite(base)) return { vi: '—', en: '—' };
   // minDecimals 2 để thuế 0,1% hiện thành '0,10%' đúng như wireframe, không thành '0,1%'.
-  return `${formatNumber(rate * 100, { minDecimals: 2, maxDecimals: 3 })}% × ${formatNumber(base)} ₫`;
+  const text = `${formatNumber(rate * 100, { minDecimals: 2, maxDecimals: 3 })}% × ${formatNumber(base)} ₫`;
+  return { vi: text, en: text };
 }
 
 /**

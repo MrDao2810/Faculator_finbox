@@ -2,7 +2,7 @@
 
 import { WARNING_LABELS } from '@/application';
 import type { CalcWarning } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './InlineWarning.module.css';
 
@@ -22,6 +22,7 @@ export interface InlineWarningProps {
  */
 export function InlineWarning({ warning, className }: InlineWarningProps) {
   const t = useT();
+  const pick = usePick();
   const classes = [styles.warning, className].filter(Boolean).join(' ');
 
   return (
@@ -43,11 +44,11 @@ export function InlineWarning({ warning, className }: InlineWarningProps) {
       </svg>
 
       <div className={styles.body}>
-        <span className={styles.label}>{WARNING_LABELS[warning.code]}</span>
-        <span className={styles.message}>{warning.message}</span>
+        <span className={styles.label}>{pick(WARNING_LABELS[warning.code])}</span>
+        <span className={styles.message}>{pick(warning.message)}</span>
         {warning.fix !== undefined && (
           <span className={styles.fix}>
-            {t('result.fixPrefix')} {warning.fix}
+            {t('result.fixPrefix')} {pick(warning.fix)}
           </span>
         )}
       </div>

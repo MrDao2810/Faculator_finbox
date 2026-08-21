@@ -4,7 +4,7 @@ import { useId } from 'react';
 
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './Toggle.module.css';
 
@@ -41,6 +41,7 @@ export function Toggle({
 }: ToggleProps) {
   const labelId = useId();
   const t = useT();
+  const pick = usePick();
   const noteId = `${labelId}-note`;
 
   const options = spec.options ?? [];
@@ -58,7 +59,7 @@ export function Toggle({
     <div className={classes}>
       <span className={styles.text}>
         <span className={styles.label} id={labelId}>
-          {spec.label}
+          {pick(spec.label)}
         </span>
         {sourceNote !== undefined && (
           <span className={styles.note} id={noteId}>
@@ -81,7 +82,7 @@ export function Toggle({
         }}
       >
         {/* Nhãn chữ Bật/Tắt chứ không chỉ vị trí nút gạt — NFR-USA-06. */}
-        <span className={styles.state}>{checked ? on.label : off.label}</span>
+        <span className={styles.state}>{pick(checked ? on.label : off.label)}</span>
         <span className={styles.track} aria-hidden="true">
           <span className={styles.knob} />
         </span>

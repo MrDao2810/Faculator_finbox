@@ -15,18 +15,37 @@ const SPEC: FormulaSpec = {
   id: 'chia',
   categoryId: 'fundamentals',
   name: { vi: 'Phép chia', en: 'Divide' },
-  description: 'Lấy tử chia mẫu.',
+  description: { vi: 'Lấy tử chia mẫu.', en: 'Divide the numerator by the denominator.' },
   latex: 'a / b',
   chartType: 'none',
   level: 'basic',
   tags: ['chia'],
   resultUnit: 'lần',
   variables: [
-    { key: 'a', label: 'Tử số', unit: '', type: 'number', defaultValue: 10, level: 'basic' },
-    { key: 'b', label: 'Mẫu số', unit: '', type: 'number', defaultValue: 2, level: 'basic' },
+    {
+      key: 'a',
+      label: { vi: 'Tử số', en: 'Numerator' },
+      unit: '',
+      type: 'number',
+      defaultValue: 10,
+      level: 'basic',
+    },
+    {
+      key: 'b',
+      label: { vi: 'Mẫu số', en: 'Denominator' },
+      unit: '',
+      type: 'number',
+      defaultValue: 2,
+      level: 'basic',
+    },
   ],
-  explanation: { meaning: 'a', whenToUse: 'b', howToRead: 'c', commonMistakes: 'd' },
-  example: { title: 'x', inputs: { a: 10, b: 2 }, expected: 5 },
+  explanation: {
+    meaning: { vi: 'a', en: 'a' },
+    whenToUse: { vi: 'b', en: 'b' },
+    howToRead: { vi: 'c', en: 'c' },
+    commonMistakes: { vi: 'd', en: 'd' },
+  },
+  example: { title: { vi: 'x', en: 'x' }, inputs: { a: 10, b: 2 }, expected: 5 },
   tests: [
     { name: 'ca thường', inputs: { a: 10, b: 2 }, expected: 5 },
     {
@@ -36,26 +55,34 @@ const SPEC: FormulaSpec = {
       expectedWarning: 'DIVIDE_BY_ZERO',
     },
   ],
-  source: [{ label: 'Sách giáo khoa' }],
+  source: [{ label: { vi: 'Sách giáo khoa', en: 'Textbook' } }],
 };
 
 const CHIA: FormulaModule = {
   spec: SPEC,
   calc: (v) => {
     const b = v('b');
-    if (b === 0) return fail('lần', divideByZero('phép chia', 'Mẫu số'));
+    if (b === 0)
+      return fail(
+        'lần',
+        divideByZero({ vi: 'phép chia', en: 'the division' }, { vi: 'Mẫu số', en: 'Denominator' }),
+      );
     return ok(v('a') / b, 'lần');
   },
 };
 
 describe('missingInputLabels()', () => {
   it('thiếu key thì báo đúng nhãn tiếng Việt của ô', () => {
-    expect(missingInputLabels(SPEC, { a: 10 })).toEqual(['Mẫu số']);
+    expect(missingInputLabels(SPEC, { a: 10 })).toEqual([{ vi: 'Mẫu số', en: 'Denominator' }]);
   });
 
   it('có key nhưng giá trị không hữu hạn cũng tính là chưa nhập', () => {
-    expect(missingInputLabels(SPEC, { a: Number.NaN, b: 2 })).toEqual(['Tử số']);
-    expect(missingInputLabels(SPEC, { a: Number.POSITIVE_INFINITY, b: 2 })).toEqual(['Tử số']);
+    expect(missingInputLabels(SPEC, { a: Number.NaN, b: 2 })).toEqual([
+      { vi: 'Tử số', en: 'Numerator' },
+    ]);
+    expect(missingInputLabels(SPEC, { a: Number.POSITIVE_INFINITY, b: 2 })).toEqual([
+      { vi: 'Tử số', en: 'Numerator' },
+    ]);
   });
 
   it('đủ hết thì không báo gì', () => {
@@ -77,7 +104,7 @@ describe('runFormula()', () => {
 
     expect(out.value).toBeNull();
     expect(out.warning?.code).toBe('INCOMPLETE_INPUT');
-    expect(out.warning?.message).toContain('Mẫu số');
+    expect(out.warning?.message.vi).toContain('Mẫu số');
   });
 
   it('ô trống KHÔNG rơi về defaultValue — mặc định chỉ là giá trị khởi tạo của giao diện', () => {
@@ -172,7 +199,13 @@ describe('runSpecTests() — làm cho NFR-MNT-02 chạy thật', () => {
       ...CHIA,
       calc: (v) =>
         v('b') === 0
-          ? fail('lần', divideByZero('phép chia', 'Mẫu số'))
+          ? fail(
+              'lần',
+              divideByZero(
+                { vi: 'phép chia', en: 'the division' },
+                { vi: 'Mẫu số', en: 'Denominator' },
+              ),
+            )
           : ok(v('a') / v('b') + 1, 'lần'),
     };
     const failures = runSpecTests(sai, CTX);
@@ -196,7 +229,7 @@ describe('runSpecTests() — làm cho NFR-MNT-02 chạy thật', () => {
       ...CHIA,
       calc: (v) =>
         v('b') === 0
-          ? fail('lần', { code: 'MEANINGLESS', message: 'lý do khác' })
+          ? fail('lần', { code: 'MEANINGLESS', message: { vi: 'lý do khác', en: 'other reason' } })
           : ok(v('a') / v('b'), 'lần'),
     };
     const failures = runSpecTests(nham, CTX);

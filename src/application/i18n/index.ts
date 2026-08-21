@@ -7,6 +7,8 @@
  * Nguyên tắc: thiếu bản dịch thì rơi về tiếng Việt chứ KHÔNG hiện key trần ra màn hình.
  */
 
+import type { Bilingual } from '@/core/types';
+
 import { en } from './en';
 import { vi } from './vi';
 
@@ -35,6 +37,17 @@ export function missingKeys(locale: Locale): MessageKey[] {
     const text = dictionary[key];
     return text === undefined || text.trim() === '';
   });
+}
+
+/**
+ * Đọc một field nội dung công thức (`Bilingual`, khai ở Domain) theo locale đang chọn.
+ * Đây là hàm DUY NHẤT tầng UI dùng để đọc `name`/`description`/`explanation.*`/`label`… —
+ * không đọc thẳng `.vi`/`.en`, để đổi quy tắc chọn ngôn ngữ (ví dụ rơi về vi khi en rỗng)
+ * chỉ phải sửa một chỗ.
+ */
+export function pick(value: Bilingual, locale: Locale): string {
+  if (locale === 'en') return value.en.trim() === '' ? value.vi : value.en;
+  return value.vi;
 }
 
 export { vi, en };

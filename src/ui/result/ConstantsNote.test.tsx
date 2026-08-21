@@ -25,20 +25,26 @@ afterEach(cleanup);
 
 const PHI_MOI_GIOI: TypedMarketConstant = {
   key: 'fee.brokerage.buy',
-  label: 'Phí môi giới lệnh mua',
+  label: { vi: 'Phí môi giới lệnh mua', en: 'Buy order brokerage fee' },
   value: 0.15,
   unit: '%',
   effectiveFrom: '2022-01-01',
-  legalBasis: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch',
+  legalBasis: {
+    vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch',
+    en: 'Circular 102/2021/TT-BTC — brokerage fee cap of 0.45% of transaction value',
+  },
 };
 
 const PHI_LUU_KY: TypedMarketConstant = {
   key: 'fee.custody',
-  label: 'Phí lưu ký',
+  label: { vi: 'Phí lưu ký', en: 'Custody fee' },
   value: 0.27,
   unit: '₫/CP/tháng',
   effectiveFrom: '2022-01-01',
-  legalBasis: 'Biểu giá kèm Thông tư 101/2021/TT-BTC',
+  legalBasis: {
+    vi: 'Biểu giá kèm Thông tư 101/2021/TT-BTC',
+    en: 'Fee schedule attached to Circular 101/2021/TT-BTC',
+  },
 };
 
 describe('ConstantsNote', () => {
@@ -87,6 +93,6 @@ describe('ConstantsNote', () => {
     render(<ConstantsNote constants={[that]} />);
 
     expect(screen.getByText('0,1 %')).toBeTruthy();
-    expect(screen.getByText(that.label)).toBeTruthy();
+    expect(screen.getByText(that.label.vi)).toBeTruthy();
   });
 });

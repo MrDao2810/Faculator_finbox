@@ -2,7 +2,7 @@
 
 import type { TypedMarketConstant } from '@/application';
 import { formatIsoDate, formatValueWithUnit } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './ConstantsNote.module.css';
 
@@ -31,6 +31,7 @@ export interface ConstantsNoteProps {
  */
 export function ConstantsNote({ constants }: ConstantsNoteProps) {
   const t = useT();
+  const pick = usePick();
   if (constants.length === 0) return null;
 
   return (
@@ -39,7 +40,7 @@ export function ConstantsNote({ constants }: ConstantsNoteProps) {
       <dl className={styles.list}>
         {constants.map((constant) => (
           <div key={`${constant.key}@${constant.effectiveFrom}`} className={styles.row}>
-            <dt className={styles.label}>{constant.label}</dt>
+            <dt className={styles.label}>{pick(constant.label)}</dt>
             <dd className={styles.value}>
               {/*
                 Trị số ghi theo đúng quy ước CON-05 của bản ghi: 0,15 với đơn vị '%' ra "0,15 %".
@@ -52,7 +53,7 @@ export function ConstantsNote({ constants }: ConstantsNoteProps) {
               <span className={styles.since}>
                 {t('detail.constantSince')} {formatIsoDate(constant.effectiveFrom)}
               </span>
-              <span className={styles.basis}>{constant.legalBasis}</span>
+              <span className={styles.basis}>{pick(constant.legalBasis)}</span>
             </dd>
           </div>
         ))}

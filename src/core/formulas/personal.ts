@@ -24,23 +24,41 @@ import { SOURCE_CORPORATE_FINANCE, numberVar, sliderVar } from './shared';
 
 const loanAmount = sliderVar(
   'amount',
-  'Số tiền vay',
+  { vi: 'Số tiền vay', en: 'Loan amount' },
   '₫',
   800_000_000,
   100_000_000,
   2_000_000_000,
   10_000_000,
   {
-    description: 'Dư nợ gốc ban đầu của khoản vay.',
+    description: {
+      vi: 'Dư nợ gốc ban đầu của khoản vay.',
+      en: 'The initial principal balance of the loan.',
+    },
   },
 );
 
-const loanRate = sliderVar('rate', 'Lãi suất / năm', '%', 9.5, 0, 18, 0.1, {
-  description: 'Lãi suất danh nghĩa theo năm ghi trên hợp đồng.',
-});
+const loanRate = sliderVar(
+  'rate',
+  { vi: 'Lãi suất / năm', en: 'Interest rate / year' },
+  '%',
+  9.5,
+  0,
+  18,
+  0.1,
+  {
+    description: {
+      vi: 'Lãi suất danh nghĩa theo năm ghi trên hợp đồng.',
+      en: 'The nominal annual interest rate stated in the contract.',
+    },
+  },
+);
 
-const loanYears = sliderVar('years', 'Kỳ hạn', 'năm', 20, 1, 30, 1, {
-  description: 'Thời gian trả nợ. Mỗi năm 12 kỳ trả hằng tháng.',
+const loanYears = sliderVar('years', { vi: 'Kỳ hạn', en: 'Term' }, 'năm', 20, 1, 30, 1, {
+  description: {
+    vi: 'Thời gian trả nợ. Mỗi năm 12 kỳ trả hằng tháng.',
+    en: 'The repayment period. Each year has 12 monthly instalments.',
+  },
 });
 
 /** Bộ số của WF-14, dùng lại cho `example` và `tests` của cả ba công thức vay nợ. */
@@ -60,10 +78,15 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     id: 'tra-gop-nien-kim',
     categoryId: 'loans',
     name: { vi: 'Trả góp niên kim', en: 'Annuity loan payment (EMI)' },
-    description: 'Số tiền cố định phải trả mỗi tháng cho khoản vay trả góp dư nợ giảm dần.',
+    description: {
+      vi: 'Số tiền cố định phải trả mỗi tháng cho khoản vay trả góp dư nợ giảm dần.',
+      en: 'The fixed amount due each month for a reducing-balance instalment loan.',
+    },
     latex: 'EMI = \\frac{P \\cdot i \\,(1+i)^n}{(1+i)^n - 1}',
-    expression:
-      'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
+    expression: {
+      vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
+      en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1]',
+    },
     chartType: 'stackedBar',
     /*
      * Bóc tách KỲ ĐẦU, không phải cả kỳ hạn. Khoản trả hằng tháng không đổi suốt 240 kỳ nhưng
@@ -71,28 +94,52 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
      * phần lớn tiền trả là lãi". Hai cột này là hình của đúng câu ấy — ở kỳ 1 phần lãi cao nhất.
      */
     breakdown: [
-      { key: 'firstPrincipal', sign: 1, shortLabel: 'Gốc kỳ đầu' },
-      { key: 'firstInterest', sign: 1, shortLabel: 'Lãi kỳ đầu' },
+      {
+        key: 'firstPrincipal',
+        sign: 1,
+        shortLabel: { vi: 'Gốc kỳ đầu', en: 'First-period principal' },
+      },
+      {
+        key: 'firstInterest',
+        sign: 1,
+        shortLabel: { vi: 'Lãi kỳ đầu', en: 'First-period interest' },
+      },
     ],
-    breakdownTotal: 'Trả kỳ đầu',
+    breakdownTotal: { vi: 'Trả kỳ đầu', en: 'First-period payment' },
     level: 'basic',
     isFeatured: true,
     tags: ['tra gop', 'emi', 'nien kim', 'vay mua nha'],
     resultUnit: '₫/tháng',
     variables: [loanAmount, loanRate, loanYears],
     explanation: {
-      meaning: 'Khoản tiền giống nhau ở mọi kỳ, trong đó phần lãi giảm dần còn phần gốc tăng dần.',
-      whenToUse: 'Khi vay mua nhà hoặc vay tiêu dùng theo phương thức trả đều hằng tháng.',
-      howToRead:
-        'Những năm đầu phần lớn tiền trả là lãi, nên trả trước hạn sớm tiết kiệm được nhiều hơn trả muộn.',
-      commonMistakes:
-        'Chỉ nhìn số tiền hằng tháng thấy vừa sức mà không cộng lại tổng lãi phải trả cả kỳ hạn.',
+      meaning: {
+        vi: 'Khoản tiền giống nhau ở mọi kỳ, trong đó phần lãi giảm dần còn phần gốc tăng dần.',
+        en: 'The same amount is paid every period, with the interest portion shrinking and the principal portion growing over time.',
+      },
+      whenToUse: {
+        vi: 'Khi vay mua nhà hoặc vay tiêu dùng theo phương thức trả đều hằng tháng.',
+        en: 'For home loans or consumer loans repaid with equal monthly instalments.',
+      },
+      howToRead: {
+        vi: 'Những năm đầu phần lớn tiền trả là lãi, nên trả trước hạn sớm tiết kiệm được nhiều hơn trả muộn.',
+        en: 'In the early years most of the payment is interest, so paying off early saves more than paying off later.',
+      },
+      commonMistakes: {
+        vi: 'Chỉ nhìn số tiền hằng tháng thấy vừa sức mà không cộng lại tổng lãi phải trả cả kỳ hạn.',
+        en: 'Judging affordability only by the monthly amount, without adding up the total interest paid over the whole term.',
+      },
     },
     example: {
-      title: 'Vay 800 triệu ₫, 9,5%/năm, 20 năm',
+      title: {
+        vi: 'Vay 800 triệu ₫, 9,5%/năm, 20 năm',
+        en: 'Borrow 800 million VND, 9.5%/year, 20 years',
+      },
       inputs: { ...WF14 },
       expected: 7_457_049.5,
-      note: 'Tổng phải trả khoảng 1.789,7 triệu ₫, trong đó lãi khoảng 989,7 triệu ₫.',
+      note: {
+        vi: 'Tổng phải trả khoảng 1.789,7 triệu ₫, trong đó lãi khoảng 989,7 triệu ₫.',
+        en: 'Total repayment is about 1,789.7 million VND, of which about 989.7 million VND is interest.',
+      },
     },
     tests: [
       { name: 'ví dụ WF-14', inputs: { ...WF14 }, expected: 7_457_049.5, tolerance: 1 },
@@ -117,7 +164,11 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       return {
         value: null,
         unit: '₫/tháng',
-        warning: divideByZero('khoản trả hằng tháng', 'Kỳ hạn', 'Nhập kỳ hạn ít nhất 1 năm.'),
+        warning: divideByZero(
+          { vi: 'khoản trả hằng tháng', en: 'the monthly payment' },
+          { vi: 'Kỳ hạn', en: 'Term' },
+          { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+        ),
       };
     }
 
@@ -160,33 +211,63 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     id: 'tra-gop-goc-deu',
     categoryId: 'loans',
     name: { vi: 'Trả góp gốc đều', en: 'Equal-principal loan payment' },
-    description: 'Số tiền phải trả ở kỳ đầu tiên khi trả gốc đều nhau mỗi tháng.',
+    description: {
+      vi: 'Số tiền phải trả ở kỳ đầu tiên khi trả gốc đều nhau mỗi tháng.',
+      en: 'The amount due in the first period when repaying an equal amount of principal each month.',
+    },
     latex: 'A_1 = \\frac{P}{n} + P \\cdot i',
-    expression: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
+    expression: {
+      vi: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
+      en: 'First period = Loan amount ÷ Number of periods + Loan amount × Period rate',
+    },
     chartType: 'stackedBar',
     /* Kỳ đầu chính là kết quả của công thức này, nên hai chặng ghép lại đúng bằng nó. */
     breakdown: [
-      { key: 'firstPrincipal', sign: 1, shortLabel: 'Gốc mỗi kỳ' },
-      { key: 'firstInterest', sign: 1, shortLabel: 'Lãi kỳ đầu' },
+      {
+        key: 'firstPrincipal',
+        sign: 1,
+        shortLabel: { vi: 'Gốc mỗi kỳ', en: 'Principal per period' },
+      },
+      {
+        key: 'firstInterest',
+        sign: 1,
+        shortLabel: { vi: 'Lãi kỳ đầu', en: 'First-period interest' },
+      },
     ],
-    breakdownTotal: 'Trả kỳ đầu',
+    breakdownTotal: { vi: 'Trả kỳ đầu', en: 'First-period payment' },
     level: 'basic',
     tags: ['goc deu', 'tra gop', 'du no giam dan'],
     resultUnit: '₫',
     variables: [loanAmount, loanRate, loanYears],
     explanation: {
-      meaning:
-        'Mỗi kỳ trả một phần gốc như nhau cộng tiền lãi trên dư nợ còn lại, nên số tiền giảm dần.',
-      whenToUse: 'Khi thu nhập hiện tại đủ mạnh và muốn tổng lãi phải trả thấp hơn niên kim.',
-      howToRead: 'Kỳ đầu nặng nhất — đây chính là con số cần cân đối với thu nhập hằng tháng.',
-      commonMistakes:
-        'So sánh kỳ đầu của gốc đều với khoản cố định của niên kim rồi kết luận gốc đều đắt hơn.',
+      meaning: {
+        vi: 'Mỗi kỳ trả một phần gốc như nhau cộng tiền lãi trên dư nợ còn lại, nên số tiền giảm dần.',
+        en: 'Each period repays the same amount of principal plus interest on the remaining balance, so the payment decreases over time.',
+      },
+      whenToUse: {
+        vi: 'Khi thu nhập hiện tại đủ mạnh và muốn tổng lãi phải trả thấp hơn niên kim.',
+        en: 'When current income is strong enough and the goal is a lower total interest cost than an annuity loan.',
+      },
+      howToRead: {
+        vi: 'Kỳ đầu nặng nhất — đây chính là con số cần cân đối với thu nhập hằng tháng.',
+        en: 'The first period is the heaviest — this is the figure to weigh against monthly income.',
+      },
+      commonMistakes: {
+        vi: 'So sánh kỳ đầu của gốc đều với khoản cố định của niên kim rồi kết luận gốc đều đắt hơn.',
+        en: 'Comparing the first equal-principal payment to the fixed annuity payment and concluding equal-principal is more expensive.',
+      },
     },
     example: {
-      title: 'Vay 800 triệu ₫, 9,5%/năm, 20 năm — kỳ đầu',
+      title: {
+        vi: 'Vay 800 triệu ₫, 9,5%/năm, 20 năm — kỳ đầu',
+        en: 'Borrow 800 million VND, 9.5%/year, 20 years — first period',
+      },
       inputs: { ...WF14 },
       expected: 9_666_666.67,
-      note: 'Kỳ cuối chỉ còn khoảng 3,36 triệu ₫.',
+      note: {
+        vi: 'Kỳ cuối chỉ còn khoảng 3,36 triệu ₫.',
+        en: 'The last period is only about 3.36 million VND.',
+      },
     },
     tests: [
       { name: 'ví dụ WF-14, kỳ đầu', inputs: { ...WF14 }, expected: 9_666_666.67, tolerance: 1 },
@@ -204,7 +285,11 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero('khoản trả kỳ đầu', 'Kỳ hạn', 'Nhập kỳ hạn ít nhất 1 năm.'),
+        warning: divideByZero(
+          { vi: 'khoản trả kỳ đầu', en: 'the first-period payment' },
+          { vi: 'Kỳ hạn', en: 'Term' },
+          { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+        ),
       };
     }
     const amount = v('amount');
@@ -220,15 +305,18 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
 
 const loanMethod: import('../types').VariableSpec = {
   key: 'method',
-  label: 'Phương thức trả',
+  label: { vi: 'Phương thức trả', en: 'Repayment method' },
   unit: '',
   type: 'buttonGroup',
   defaultValue: 1,
   level: 'basic',
-  description: 'Niên kim trả đều mỗi kỳ; gốc đều trả gốc như nhau, lãi giảm dần.',
+  description: {
+    vi: 'Niên kim trả đều mỗi kỳ; gốc đều trả gốc như nhau, lãi giảm dần.',
+    en: 'Annuity pays the same amount each period; equal-principal repays the same principal with decreasing interest.',
+  },
   options: [
-    { value: 1, label: 'Niên kim' },
-    { value: 2, label: 'Gốc đều' },
+    { value: 1, label: { vi: 'Niên kim', en: 'Annuity' } },
+    { value: 2, label: { vi: 'Gốc đều', en: 'Equal principal' } },
   ],
 };
 
@@ -237,9 +325,15 @@ export const LICH_TRA_NO: FormulaModule = {
     id: 'lich-tra-no',
     categoryId: 'loans',
     name: { vi: 'Lịch trả nợ vay', en: 'Loan amortisation schedule' },
-    description: 'Tổng số tiền lãi phải trả trong cả kỳ hạn, kèm bảng chi tiết từng kỳ.',
+    description: {
+      vi: 'Tổng số tiền lãi phải trả trong cả kỳ hạn, kèm bảng chi tiết từng kỳ.',
+      en: 'The total interest payable over the whole term, with a detailed period-by-period table.',
+    },
     latex: '\\text{Tổng lãi} = \\sum_{k=1}^{n} L_k',
-    expression: 'Tổng lãi = Cộng tiền lãi của tất cả các kỳ',
+    expression: {
+      vi: 'Tổng lãi = Cộng tiền lãi của tất cả các kỳ',
+      en: 'Total interest = Sum of the interest of every period',
+    },
     chartType: 'stackedBar',
     /*
      * ── Cạm bẫy của công thức này, và cách né ────────────────────────────────────────────
@@ -256,28 +350,44 @@ export const LICH_TRA_NO: FormulaModule = {
      * triệu.
      */
     breakdown: [
-      { key: 'totalPaid', sign: 1, shortLabel: 'Tổng phải trả' },
-      { key: 'amount', sign: -1, shortLabel: 'Trừ gốc vay' },
+      { key: 'totalPaid', sign: 1, shortLabel: { vi: 'Tổng phải trả', en: 'Total repaid' } },
+      { key: 'amount', sign: -1, shortLabel: { vi: 'Trừ gốc vay', en: 'Less loan principal' } },
     ],
-    breakdownTotal: 'Tổng lãi',
+    breakdownTotal: { vi: 'Tổng lãi', en: 'Total interest' },
     level: 'basic',
     isFeatured: true,
     tags: ['lich tra no', 'tong lai', 'bang tra no', 'amortisation'],
     resultUnit: '₫',
     variables: [loanAmount, loanRate, loanYears, loanMethod],
     explanation: {
-      meaning: 'Toàn bộ tiền lãi phải trả cho ngân hàng từ kỳ đầu tới khi tất toán.',
-      whenToUse: 'Khi so sánh hai phương thức trả, hoặc cân nhắc rút ngắn kỳ hạn.',
-      howToRead:
-        'Với cùng lãi suất và kỳ hạn, gốc đều luôn cho tổng lãi thấp hơn niên kim, đổi lại kỳ đầu nặng hơn.',
-      commonMistakes:
-        'Chỉ nhìn lãi suất mà bỏ qua kỳ hạn. Kéo dài kỳ hạn làm khoản trả hằng tháng nhẹ đi nhưng tổng lãi tăng mạnh.',
+      meaning: {
+        vi: 'Toàn bộ tiền lãi phải trả cho ngân hàng từ kỳ đầu tới khi tất toán.',
+        en: 'The total interest owed to the bank from the first period until the loan is fully settled.',
+      },
+      whenToUse: {
+        vi: 'Khi so sánh hai phương thức trả, hoặc cân nhắc rút ngắn kỳ hạn.',
+        en: 'When comparing the two repayment methods, or considering shortening the term.',
+      },
+      howToRead: {
+        vi: 'Với cùng lãi suất và kỳ hạn, gốc đều luôn cho tổng lãi thấp hơn niên kim, đổi lại kỳ đầu nặng hơn.',
+        en: 'For the same rate and term, equal-principal always yields lower total interest than annuity, at the cost of a heavier first period.',
+      },
+      commonMistakes: {
+        vi: 'Chỉ nhìn lãi suất mà bỏ qua kỳ hạn. Kéo dài kỳ hạn làm khoản trả hằng tháng nhẹ đi nhưng tổng lãi tăng mạnh.',
+        en: 'Looking only at the interest rate while ignoring the term. Extending the term lowers the monthly payment but sharply raises total interest.',
+      },
     },
     example: {
-      title: 'Vay 800 triệu ₫, 9,5%/năm, 20 năm, niên kim',
+      title: {
+        vi: 'Vay 800 triệu ₫, 9,5%/năm, 20 năm, niên kim',
+        en: 'Borrow 800 million VND, 9.5%/year, 20 years, annuity',
+      },
       inputs: { ...WF14, method: 1 },
       expected: 989_691_880.64,
-      note: 'Tiền lãi xấp xỉ 124% số tiền đã vay.',
+      note: {
+        vi: 'Tiền lãi xấp xỉ 124% số tiền đã vay.',
+        en: 'The interest is roughly 124% of the amount borrowed.',
+      },
     },
     tests: [
       {
@@ -307,7 +417,11 @@ export const LICH_TRA_NO: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero('lịch trả nợ', 'Kỳ hạn', 'Nhập kỳ hạn ít nhất 1 năm.'),
+        warning: divideByZero(
+          { vi: 'lịch trả nợ', en: 'the amortisation schedule' },
+          { vi: 'Kỳ hạn', en: 'Term' },
+          { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+        ),
       };
     }
 
@@ -460,53 +574,80 @@ export const LAI_KEP: FormulaModule = {
     id: 'lai-kep',
     categoryId: 'savings',
     name: { vi: 'Lãi kép', en: 'Compound interest' },
-    description: 'Số tiền tích luỹ khi tiền lãi được nhập vào gốc theo định kỳ.',
+    description: {
+      vi: 'Số tiền tích luỹ khi tiền lãi được nhập vào gốc theo định kỳ.',
+      en: 'The accumulated amount when interest is periodically compounded into the principal.',
+    },
     latex: 'A = P \\left(1 + \\frac{r}{n}\\right)^{n t}',
-    expression:
-      'Số tiền cuối = Gốc × (1 + Lãi suất năm ÷ Số lần nhập lãi)^(Số lần nhập lãi × Số năm)',
+    expression: {
+      vi: 'Số tiền cuối = Gốc × (1 + Lãi suất năm ÷ Số lần nhập lãi)^(Số lần nhập lãi × Số năm)',
+      en: 'Final amount = Principal × (1 + Annual rate ÷ Compounding frequency)^(Compounding frequency × Years)',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
     tags: ['lai kep', 'compound', 'tich luy'],
     resultUnit: '₫',
     variables: [
-      numberVar('principal', 'Số tiền gốc', '₫', 10_000_000, {
+      numberVar('principal', { vi: 'Số tiền gốc', en: 'Principal amount' }, '₫', 10_000_000, {
         min: 0,
         max: 100_000_000_000,
-        description: 'Số tiền gửi ban đầu.',
+        description: { vi: 'Số tiền gửi ban đầu.', en: 'The initial deposit amount.' },
       }),
-      sliderVar('rate', 'Lãi suất / năm', '%', 8, 0, 20, 0.1, {
-        description: 'Lãi suất danh nghĩa theo năm.',
+      sliderVar('rate', { vi: 'Lãi suất / năm', en: 'Interest rate / year' }, '%', 8, 0, 20, 0.1, {
+        description: {
+          vi: 'Lãi suất danh nghĩa theo năm.',
+          en: 'The nominal annual interest rate.',
+        },
       }),
-      sliderVar('years', 'Thời gian', 'năm', 10, 1, 50, 1, {
-        description: 'Số năm để tiền sinh lãi.',
+      sliderVar('years', { vi: 'Thời gian', en: 'Time' }, 'năm', 10, 1, 50, 1, {
+        description: {
+          vi: 'Số năm để tiền sinh lãi.',
+          en: 'The number of years the money earns interest.',
+        },
       }),
       {
         key: 'perYear',
-        label: 'Số lần nhập lãi / năm',
+        label: { vi: 'Số lần nhập lãi / năm', en: 'Compounding frequency / year' },
         unit: 'lần',
         type: 'select',
         defaultValue: 12,
         level: 'advanced',
-        description: 'Nhập lãi càng dày thì số tiền cuối kỳ càng lớn.',
+        description: {
+          vi: 'Nhập lãi càng dày thì số tiền cuối kỳ càng lớn.',
+          en: 'The more frequently interest compounds, the larger the final amount.',
+        },
         options: [
-          { value: 1, label: 'Mỗi năm' },
-          { value: 4, label: 'Mỗi quý' },
-          { value: 12, label: 'Mỗi tháng' },
-          { value: 365, label: 'Mỗi ngày' },
+          { value: 1, label: { vi: 'Mỗi năm', en: 'Annually' } },
+          { value: 4, label: { vi: 'Mỗi quý', en: 'Quarterly' } },
+          { value: 12, label: { vi: 'Mỗi tháng', en: 'Monthly' } },
+          { value: 365, label: { vi: 'Mỗi ngày', en: 'Daily' } },
         ],
       },
     ],
     explanation: {
-      meaning: 'Tiền lãi của kỳ trước cũng sinh lãi ở kỳ sau, nên số dư tăng nhanh dần.',
-      whenToUse: 'Khi ước tính khoản tiết kiệm dài hạn hoặc so sánh các kỳ hạn gửi.',
-      howToRead:
-        'Chênh lệch so với lãi đơn nhỏ ở vài năm đầu và rõ rệt sau mười năm — đó là điểm mạnh của thời gian.',
-      commonMistakes:
-        'Nhầm lãi suất danh nghĩa với lãi suất thực nhận. Nhập lãi 12 lần một năm cho kết quả cao hơn nhập lãi một lần.',
+      meaning: {
+        vi: 'Tiền lãi của kỳ trước cũng sinh lãi ở kỳ sau, nên số dư tăng nhanh dần.',
+        en: 'The interest from a previous period itself earns interest in later periods, so the balance grows at an accelerating pace.',
+      },
+      whenToUse: {
+        vi: 'Khi ước tính khoản tiết kiệm dài hạn hoặc so sánh các kỳ hạn gửi.',
+        en: 'When estimating long-term savings or comparing different deposit terms.',
+      },
+      howToRead: {
+        vi: 'Chênh lệch so với lãi đơn nhỏ ở vài năm đầu và rõ rệt sau mười năm — đó là điểm mạnh của thời gian.',
+        en: 'The gap versus simple interest is small in the first few years and becomes pronounced after ten years — that is the power of time.',
+      },
+      commonMistakes: {
+        vi: 'Nhầm lãi suất danh nghĩa với lãi suất thực nhận. Nhập lãi 12 lần một năm cho kết quả cao hơn nhập lãi một lần.',
+        en: 'Confusing the nominal rate with the effective rate actually received. Compounding 12 times a year yields more than compounding once.',
+      },
     },
     example: {
-      title: 'Gửi 10 triệu ₫, 8%/năm, nhập lãi hằng tháng, 10 năm',
+      title: {
+        vi: 'Gửi 10 triệu ₫, 8%/năm, nhập lãi hằng tháng, 10 năm',
+        en: 'Deposit 10 million VND, 8%/year, compounded monthly, 10 years',
+      },
       inputs: { principal: 10_000_000, rate: 8, years: 10, perYear: 12 },
       expected: 22_196_402.35,
     },
@@ -537,7 +678,14 @@ export const LAI_KEP: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero('lãi kép', 'Số lần nhập lãi', 'Chọn ít nhất 1 lần nhập lãi mỗi năm.'),
+        warning: divideByZero(
+          { vi: 'lãi kép', en: 'compound interest' },
+          { vi: 'Số lần nhập lãi', en: 'Compounding frequency' },
+          {
+            vi: 'Chọn ít nhất 1 lần nhập lãi mỗi năm.',
+            en: 'Choose at least 1 compounding per year.',
+          },
+        ),
       };
     }
     const growth = Math.pow(1 + v('rate') / 100 / perYear, perYear * v('years'));
@@ -554,30 +702,50 @@ export const LAI_TIEN_GUI: FormulaModule = {
     id: 'lai-tien-gui',
     categoryId: 'savings',
     name: { vi: 'Lãi tiền gửi có kỳ hạn', en: 'Term deposit interest' },
-    description: 'Tiền lãi đơn nhận được cho một khoản gửi tiết kiệm có kỳ hạn.',
+    description: {
+      vi: 'Tiền lãi đơn nhận được cho một khoản gửi tiết kiệm có kỳ hạn.',
+      en: 'The simple interest earned on a fixed-term savings deposit.',
+    },
     latex: 'I = P \\times \\frac{r}{100 \\times 12} \\times T',
-    expression: 'Tiền lãi = Số tiền gửi × Lãi suất năm ÷ 12 × Số tháng',
+    expression: {
+      vi: 'Tiền lãi = Số tiền gửi × Lãi suất năm ÷ 12 × Số tháng',
+      en: 'Interest = Deposit amount × Annual rate ÷ 12 × Number of months',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['lai tien gui', 'tiet kiem', 'ky han', 'lai don'],
     resultUnit: '₫',
     variables: [
-      numberVar('principal', 'Số tiền gửi', '₫', 100_000_000, {
+      numberVar('principal', { vi: 'Số tiền gửi', en: 'Deposit amount' }, '₫', 100_000_000, {
         min: 0,
         max: 100_000_000_000,
       }),
-      sliderVar('rate', 'Lãi suất / năm', '%', 5.5, 0, 15, 0.1),
-      sliderVar('months', 'Kỳ hạn', 'tháng', 12, 1, 60, 1),
+      sliderVar('rate', { vi: 'Lãi suất / năm', en: 'Interest rate / year' }, '%', 5.5, 0, 15, 0.1),
+      sliderVar('months', { vi: 'Kỳ hạn', en: 'Term' }, 'tháng', 12, 1, 60, 1),
     ],
     explanation: {
-      meaning: 'Số tiền lãi ngân hàng trả khi gửi tiết kiệm tới hết kỳ hạn.',
-      whenToUse: 'Khi so sánh các kỳ hạn gửi tại một hoặc nhiều ngân hàng.',
-      howToRead: 'Lãi tăng theo đúng tỷ lệ với số tiền gửi và với số tháng.',
-      commonMistakes:
-        'Rút trước hạn thì phần lớn ngân hàng chỉ trả lãi không kỳ hạn, thấp hơn nhiều con số này.',
+      meaning: {
+        vi: 'Số tiền lãi ngân hàng trả khi gửi tiết kiệm tới hết kỳ hạn.',
+        en: 'The interest amount the bank pays when a savings deposit is held to full maturity.',
+      },
+      whenToUse: {
+        vi: 'Khi so sánh các kỳ hạn gửi tại một hoặc nhiều ngân hàng.',
+        en: 'When comparing deposit terms at one bank or across several banks.',
+      },
+      howToRead: {
+        vi: 'Lãi tăng theo đúng tỷ lệ với số tiền gửi và với số tháng.',
+        en: 'Interest scales exactly proportionally with the deposit amount and with the number of months.',
+      },
+      commonMistakes: {
+        vi: 'Rút trước hạn thì phần lớn ngân hàng chỉ trả lãi không kỳ hạn, thấp hơn nhiều con số này.',
+        en: 'Withdrawing early: most banks then only pay the no-term rate, which is far lower than this figure.',
+      },
     },
     example: {
-      title: 'Gửi 100 triệu ₫, 5,5%/năm, kỳ hạn 12 tháng',
+      title: {
+        vi: 'Gửi 100 triệu ₫, 5,5%/năm, kỳ hạn 12 tháng',
+        en: 'Deposit 100 million VND, 5.5%/year, 12-month term',
+      },
       inputs: { principal: 100_000_000, rate: 5.5, months: 12 },
       expected: 5_500_000,
     },
@@ -609,32 +777,62 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
     id: 'tiet-kiem-muc-tieu',
     categoryId: 'savings',
     name: { vi: 'Tiết kiệm theo mục tiêu', en: 'Goal-based savings' },
-    description: 'Số tiền cần gửi đều mỗi tháng để đạt một mục tiêu tài chính.',
+    description: {
+      vi: 'Số tiền cần gửi đều mỗi tháng để đạt một mục tiêu tài chính.',
+      en: 'The equal monthly deposit needed to reach a financial goal.',
+    },
     latex: 'PMT = \\frac{FV \\cdot i}{(1+i)^n - 1}',
-    expression: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
+    expression: {
+      vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
+      en: 'Monthly deposit = Goal × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
+    },
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['tiet kiem muc tieu', 'goal savings', 'gui dinh ky'],
     resultUnit: '₫/tháng',
     variables: [
-      numberVar('target', 'Số tiền mục tiêu', '₫', 1_000_000_000, {
+      numberVar('target', { vi: 'Số tiền mục tiêu', en: 'Target amount' }, '₫', 1_000_000_000, {
         min: 0,
         max: 100_000_000_000,
-        description: 'Số tiền muốn có được vào cuối kỳ.',
+        description: {
+          vi: 'Số tiền muốn có được vào cuối kỳ.',
+          en: 'The amount you want to have by the end of the period.',
+        },
       }),
-      sliderVar('rate', 'Lãi suất kỳ vọng / năm', '%', 6, 0, 20, 0.1),
-      sliderVar('months', 'Thời gian', 'tháng', 60, 1, 360, 1),
+      sliderVar(
+        'rate',
+        { vi: 'Lãi suất kỳ vọng / năm', en: 'Expected interest rate / year' },
+        '%',
+        6,
+        0,
+        20,
+        0.1,
+      ),
+      sliderVar('months', { vi: 'Thời gian', en: 'Time' }, 'tháng', 60, 1, 360, 1),
     ],
     explanation: {
-      meaning: 'Khoản gửi đều hằng tháng vừa đủ để tích luỹ tới con số mục tiêu.',
-      whenToUse: 'Khi đặt mục tiêu mua nhà, mua xe, hoặc lập quỹ dự phòng có thời hạn rõ ràng.',
-      howToRead:
-        'Kéo dài thời gian làm khoản gửi hằng tháng nhẹ đi rất nhanh, mạnh hơn là nâng lãi suất kỳ vọng.',
-      commonMistakes:
-        'Lấy mục tiêu chia đều cho số tháng rồi coi là đủ — cách đó bỏ qua phần tiền lãi tích luỹ.',
+      meaning: {
+        vi: 'Khoản gửi đều hằng tháng vừa đủ để tích luỹ tới con số mục tiêu.',
+        en: 'The equal monthly deposit that is just enough to accumulate to the target amount.',
+      },
+      whenToUse: {
+        vi: 'Khi đặt mục tiêu mua nhà, mua xe, hoặc lập quỹ dự phòng có thời hạn rõ ràng.',
+        en: 'When setting a goal to buy a house, buy a car, or build an emergency fund with a clear deadline.',
+      },
+      howToRead: {
+        vi: 'Kéo dài thời gian làm khoản gửi hằng tháng nhẹ đi rất nhanh, mạnh hơn là nâng lãi suất kỳ vọng.',
+        en: 'Extending the time horizon lowers the monthly deposit much faster than raising the expected interest rate does.',
+      },
+      commonMistakes: {
+        vi: 'Lấy mục tiêu chia đều cho số tháng rồi coi là đủ — cách đó bỏ qua phần tiền lãi tích luỹ.',
+        en: 'Simply dividing the goal evenly by the number of months and assuming that is enough — this ignores the interest that accumulates.',
+      },
     },
     example: {
-      title: 'Muốn có 1 tỷ ₫ sau 5 năm, lãi kỳ vọng 6%/năm',
+      title: {
+        vi: 'Muốn có 1 tỷ ₫ sau 5 năm, lãi kỳ vọng 6%/năm',
+        en: 'Want 1 billion VND after 5 years, expected 6%/year',
+      },
       inputs: { target: 1_000_000_000, rate: 6, months: 60 },
       expected: 14_332_801.53,
     },
@@ -667,9 +865,9 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         value: null,
         unit: '₫/tháng',
         warning: divideByZero(
-          'khoản gửi hằng tháng',
-          'Thời gian',
-          'Nhập thời gian từ 1 tháng trở lên.',
+          { vi: 'khoản gửi hằng tháng', en: 'the monthly deposit' },
+          { vi: 'Thời gian', en: 'Time' },
+          { vi: 'Nhập thời gian từ 1 tháng trở lên.', en: 'Enter a time of at least 1 month.' },
         ),
       };
     }

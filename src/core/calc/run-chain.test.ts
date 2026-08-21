@@ -83,7 +83,7 @@ describe('chuỗi định giá CAPM → Gordon → Biên an toàn', () => {
     const field = chain.byId.get('mo-hinh-gordon')?.fields[0];
     expect(field?.spec.key).toBe('requiredReturn');
     expect(field?.upstream.formulaId).toBe('capm');
-    expect(field?.upstream.label).toBe(CAPM.spec.name.vi);
+    expect(field?.upstream.label.vi).toBe(CAPM.spec.name.vi);
     expect(field?.linked.mode).toBe('linked');
     expect(field?.linked.value).toBeCloseTo(13.1, 6);
     expect(field?.override).toBeUndefined();
@@ -115,9 +115,9 @@ describe('chuỗi định giá CAPM → Gordon → Biên an toàn', () => {
     });
     const warning = chain.byId.get('mo-hinh-gordon')?.output.warning;
 
-    expect(warning?.message).toContain(CAPM.spec.name.vi);
-    expect(warning?.fix).toContain(CAPM.spec.name.vi);
-    expect(warning?.fix).toContain('Suất sinh lợi yêu cầu (r)');
+    expect(warning?.message.vi).toContain(CAPM.spec.name.vi);
+    expect(warning?.fix?.vi).toContain(CAPM.spec.name.vi);
+    expect(warning?.fix?.vi).toContain('Suất sinh lợi yêu cầu (r)');
   });
 
   it('lỗi lan qua hai tầng: CAPM hỏng thì cả Gordon lẫn Biên an toàn đều kế thừa', () => {
@@ -131,7 +131,7 @@ describe('chuỗi định giá CAPM → Gordon → Biên an toàn', () => {
     expect(mos?.output.value).toBeNull();
     expect(mos?.output.warning?.code).toBe('INHERITED');
     // Nói tên bước NGAY TRƯỚC nó, không phải tên gốc rễ — người dùng lần ngược từng bước một.
-    expect(mos?.output.warning?.message).toContain(GORDON.spec.name.vi);
+    expect(mos?.output.warning?.message.vi).toContain(GORDON.spec.name.vi);
   });
 
   it('ghi đè thắng cả khi thượng nguồn đang lỗi — đúng lối thoát WF-15 hứa', () => {
@@ -239,7 +239,9 @@ describe('runChain — các nhánh biên', () => {
    * bản đầu của runChain() sai cả hai chiều ở đúng chỗ này.
    */
   it('hai nguồn cùng đổ vào một ô: nguồn hỏng KHÔNG chặn được nguồn còn cấp được số', () => {
-    const hong = fixture('hong', { calc: () => fail('lần', meaningless('hỏng có chủ đích')) });
+    const hong = fixture('hong', {
+      calc: () => fail('lần', meaningless({ vi: 'hỏng có chủ đích', en: 'deliberately broken' })),
+    });
     const lanh = fixture('lanh', { calc: () => ok(42, 'lần') });
     const duoi = fixture('duoi', {
       // Nguồn hỏng khai TRƯỚC — bản đầu chặn ngay tại đây dù `lanh` đang có số dùng được.
@@ -263,8 +265,12 @@ describe('runChain — các nhánh biên', () => {
   });
 
   it('hai nguồn cùng đổ vào một ô: MỌI nguồn hỏng thì mới kế thừa lỗi', () => {
-    const hongA = fixture('hong-a', { calc: () => fail('lần', meaningless('hỏng A')) });
-    const hongB = fixture('hong-b', { calc: () => fail('lần', meaningless('hỏng B')) });
+    const hongA = fixture('hong-a', {
+      calc: () => fail('lần', meaningless({ vi: 'hỏng A', en: 'broken A' })),
+    });
+    const hongB = fixture('hong-b', {
+      calc: () => fail('lần', meaningless({ vi: 'hỏng B', en: 'broken B' })),
+    });
     const duoi = fixture('duoi', {
       dependsOn: [
         { formulaId: 'hong-a', variableKey: 'x' },
@@ -280,12 +286,14 @@ describe('runChain — các nhánh biên', () => {
 
     expect(chain.byId.get('duoi')?.output.warning?.code).toBe('INHERITED');
     // Nêu tên nguồn hỏng ĐẦU TIÊN theo thứ tự khai — tất định, không theo thứ tự duyệt Map.
-    expect(chain.byId.get('duoi')?.output.warning?.message).toContain('Công thức hong-a');
+    expect(chain.byId.get('duoi')?.output.warning?.message.vi).toContain('Công thức hong-a');
     expect(chain.byId.get('duoi')?.fields).toHaveLength(1);
   });
 
   it('hai nguồn cùng đổ vào một ô: ghi đè thắng cả hai', () => {
-    const hong = fixture('hong', { calc: () => fail('lần', meaningless('hỏng có chủ đích')) });
+    const hong = fixture('hong', {
+      calc: () => fail('lần', meaningless({ vi: 'hỏng có chủ đích', en: 'deliberately broken' })),
+    });
     const lanh = fixture('lanh', { calc: () => ok(42, 'lần') });
     const duoi = fixture('duoi', {
       dependsOn: [
@@ -373,9 +381,12 @@ function fixture(
       id,
       categoryId: 'valuation',
       name: { vi: `Công thức ${id}`, en: id },
-      description: `Công thức giả ${id} dùng cho ca kiểm.`,
+      description: {
+        vi: `Công thức giả ${id} dùng cho ca kiểm.`,
+        en: `Fake formula ${id} for tests.`,
+      },
       latex: 'y = x',
-      expression: 'y = x',
+      expression: { vi: 'y = x', en: 'y = x' },
       chartType: 'none',
       level: 'advanced',
       tags: [],
@@ -383,7 +394,7 @@ function fixture(
       variables: [
         {
           key: 'x',
-          label: `Ô x của ${id}`,
+          label: { vi: `Ô x của ${id}`, en: `Field x of ${id}` },
           unit: 'lần',
           type: 'number',
           defaultValue: 1,
@@ -391,14 +402,14 @@ function fixture(
         },
       ],
       explanation: {
-        meaning: 'giả',
-        whenToUse: 'giả',
-        howToRead: 'giả',
-        commonMistakes: 'giả',
+        meaning: { vi: 'giả', en: 'fake' },
+        whenToUse: { vi: 'giả', en: 'fake' },
+        howToRead: { vi: 'giả', en: 'fake' },
+        commonMistakes: { vi: 'giả', en: 'fake' },
       },
-      example: { title: 'giả', inputs: { x: 1 }, expected: 1 },
+      example: { title: { vi: 'giả', en: 'fake' }, inputs: { x: 1 }, expected: 1 },
       tests: [{ name: 'giả', inputs: { x: 1 }, expected: 1 }],
-      source: [{ label: 'giả' }],
+      source: [{ label: { vi: 'giả', en: 'fake' } }],
       ...specParts,
     },
     calc: calc ?? ((v) => ok(v('x'), 'lần')),

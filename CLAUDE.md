@@ -49,7 +49,7 @@ npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 24 assertions against a built out/ — run after build
 npm run check:chrome   # 18 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
-npm run size           # measures out/, gates First Load JS at 170 kB (NFR-PER-04)
+npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
 ```
@@ -197,7 +197,7 @@ schedule must break the formula, which catches a declaration the calc never uses
 - **KaTeX runs at build time only.** `src/app/cong-thuc/[id]/latex-html.ts` is imported solely by
   `page.tsx`, which is a server component, so with `output: 'export'` the maths notation is baked
   into the static HTML of all 108 pages and the browser downloads **zero** bytes of KaTeX
-  (the library is ~280 kB — importing it from a client component blows the 170 kB gate instantly).
+  (the library is ~280 kB — importing it from a client component blows the 180 kB gate instantly).
   Output mode is `mathml`, not the default `htmlAndMathml`: measured on this repo's own formulas it
   is 6 kB gzip instead of 20 kB, needs no `katex.min.css` and no font files at all, and — the
   deciding factor — KaTeX's HTML builder has no character metrics for Vietnamese diacritics, which

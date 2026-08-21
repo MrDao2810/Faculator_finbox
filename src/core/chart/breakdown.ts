@@ -10,14 +10,14 @@
 
 import { formatValueWithUnit } from '../format';
 import type { BreakdownStage, FormulaSpec } from '../registry/types';
-import type { CalcOutput } from '../types';
+import type { Bilingual, CalcOutput } from '../types';
 import type { CalcInputs } from '../calc/types';
 import type { BreakdownBar } from './types';
 
 /** Khoá của mục "Bóc tách" trong ô chọn trục X. Không trùng được với key biến vì có gạch dưới đôi. */
 export const BREAKDOWN_KEY = '__breakdown';
 
-export const BREAKDOWN_LABEL = 'Bóc tách';
+export const BREAKDOWN_LABEL = { vi: 'Bóc tách', en: 'Breakdown' };
 
 /**
  * Công thức này bóc tách được hay không.
@@ -142,16 +142,19 @@ function stageValue(stage: BreakdownStage, inputs: CalcInputs, output: CalcOutpu
   return null;
 }
 
-function labelOf(spec: FormulaSpec, key: string): string {
-  return spec.variables.find((variable) => variable.key === key)?.label ?? key;
+function labelOf(spec: FormulaSpec, key: string): Bilingual {
+  const variable = spec.variables.find((item) => item.key === key);
+  return variable?.label ?? { vi: key, en: key };
 }
 
 /**
  * Tên cột tổng: `breakdownTotal` nếu công thức khai, không thì lấy phần trước dấu gạch dài của
- * tên công thức — 'EV — giá trị…' thành 'EV'.
+ * tên công thức — 'EV — giá trị…' thành 'EV'. Tên tiếng Anh thường không có dấu gạch dài đó nên
+ * giữ nguyên cả câu — chấp nhận được vì đây chỉ là nhãn cột tổng, không phải chỗ đúng/sai.
  */
-function shortTotalLabel(spec: FormulaSpec): string {
+function shortTotalLabel(spec: FormulaSpec): Bilingual {
   if (spec.breakdownTotal !== undefined) return spec.breakdownTotal;
-  const [head] = spec.name.vi.split(' — ');
-  return head ?? spec.name.vi;
+  const [headVi] = spec.name.vi.split(' — ');
+  const [headEn] = spec.name.en.split(' — ');
+  return { vi: headVi ?? spec.name.vi, en: headEn ?? spec.name.en };
 }

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { buildChartModel } from '@/application';
 import type { CalcContext, CalcInputs, CalcOutput, FormulaModule, Level } from '@/application';
+import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
 import { ChartFrame } from './ChartFrame';
@@ -12,6 +13,7 @@ import { LineChart } from './LineChart';
 import { SweepPicker } from './SweepPicker';
 import { WaterfallChart } from './WaterfallChart';
 import { ZoomButton } from './ZoomButton';
+import styles from './chart.module.css';
 
 /**
  * Thân biểu đồ — NẠP TRỄ.
@@ -33,9 +35,27 @@ export interface ChartBodyProps {
   level: Level;
   /** Mã của bộ số liệu đang nạp, để câu mô tả nói rõ đường vẽ theo phiên của mã nào. */
   seriesLabel?: string;
+  /**
+   * Nhả tay tại một điểm đang dò trên đường quét thì gọi hàm này với `(khoá biến, giá trị X)`.
+   *
+   * Chỉ forward xuống `LineChart` khi biến trên trục X hiện là một biến INPUT THẬT của công thức
+   * đang xem — xem `canApplyPoint` bên dưới. Không áp dụng cho `WaterfallChart`: mỗi cột thác nước
+   * là một THÀNH PHẦN khác nhau của phép bóc tách, không phải các mức khác nhau của một biến.
+   */
+  onApplyPoint?: (key: string, value: number) => void;
 }
 
-export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: ChartBodyProps) {
+export function ChartBody({
+  formula,
+  inputs,
+  ctx,
+  output,
+  level,
+  seriesLabel,
+  onApplyPoint,
+}: ChartBodyProps) {
+  const t = useT();
+
   /*
    * `null` nghĩa là "chưa chọn gì, dùng trục Domain tự chọn". Cố ý không khởi tạo bằng biến mặc
    * định: nếu chép nó vào state thì lúc đổi chế độ Cơ bản / Nâng cao, state còn giữ một biến giờ
@@ -78,6 +98,30 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
      */
     return <InlineWarning warning={model.warning} />;
   }
+
+  /*
+   * Chỉ cho phép ghi ngược vào ô Số liệu khi trục X hiện đang là một biến INPUT THẬT của công thức
+   * đang xem — `sweepKey` có thể là `HISTORY_KEY` ('__time', trục thời gian, tự chọn làm mặc định
+   * sau khi nạp chuỗi giá) hoặc `BREAKDOWN_KEY` ('__breakdown', chỉ ở `kind: 'waterfall'`), cả hai
+   * đều không phải mức của một input nào — nhả tay lúc đó không được ghi gì. Không cần biết tên
+   * hai khoá đặc biệt ấy: mọi `sweepKey` do người dùng TỰ CHỌN đã được `sweepCandidates()` đảm bảo
+   * là một `VariableSpec.key` thật (xem `core/chart/sweep.ts`), nên chỉ cần hỏi thẳng Registry.
+   */
+  const canApplyPoint =
+    model.kind === 'line' && formula.spec.variables.some((v) => v.key === model.sweepKey);
+
+  /*
+   * Trục hiện KHÔNG áp dụng được (đang xem theo thời gian) NHƯNG có ít nhất một mục khác trong ô
+   * chọn LÀ một biến thật — vậy thì bấm không câm hẳn, chỉ cần đổi ô chọn. Nói thẳng điều đó ra
+   * thay vì để người dùng tự đoán, vì trải nghiệm mặc định của mọi công thức cần chuỗi giá (nạp mẫu
+   * xong là tự chuyển sang trục thời gian) khiến đây gần như lượt tương tác DUY NHẤT họ gặp trên
+   * biểu đồ đó — không nói gì thì cú bấm trông như tính năng không hoạt động.
+   */
+  const showApplyHint =
+    model.kind === 'line' &&
+    !canApplyPoint &&
+    onApplyPoint !== undefined &&
+    model.options.some((option) => formula.spec.variables.some((v) => v.key === option.key));
 
   /*
    * Gốc của mọi `id` trong cây biểu đồ — sinh từ prop, KHÔNG từ `useId()`.
@@ -145,7 +189,14 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
         {model.kind === 'waterfall' ? (
           <WaterfallChart model={model} idBase={idBase} />
         ) : (
-          <LineChart model={model} idBase={idBase} />
+          <>
+            <LineChart
+              model={model}
+              idBase={idBase}
+              onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
+            />
+            {showApplyHint && <p className={styles.applyHint}>{t('chart.applyHintTimeAxis')}</p>}
+          </>
         )}
       </ChartFrame>
 
@@ -157,6 +208,8 @@ export function ChartBody({ formula, inputs, ctx, output, level, seriesLabel }: 
         model={model}
         idBase={`${idBase}-full`}
         controls={pickerVoi(`${idBase}-full`)}
+        onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
+        showApplyHint={showApplyHint}
       />
     </>
   );

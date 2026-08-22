@@ -12,11 +12,13 @@ import {
   findFormulaModule,
   runFormula,
   scheduleOrDefault,
+  t,
 } from '@/application';
 import type { CalcContext, CalcInputs, FormulaModule, Level, SeriesRow } from '@/application';
 
 import { ChartBody } from './ChartBody';
 import { hasChart } from './FormulaChart';
+import { CHART_GEOMETRY } from './LineChart';
 
 /*
  * jsdom chưa cài đặt `<dialog>.showModal()`, và cũng KHÔNG có Fullscreen API hay `screen.orientation`.
@@ -625,6 +627,496 @@ describe('Phóng to biểu đồ toàn màn hình', () => {
       expect(container.innerHTML, id).not.toContain('NaN');
       unmount();
     }
+  });
+});
+
+/*
+ * Dò điểm (crosshair) — rê chuột / chạm-kéo hiện giá trị TẠI BẤT KỲ điểm nào trên đường, không
+ * chỉ điểm "giá trị hiện tại" đánh dấu sẵn. Xem docblock mục 3 ở đầu `LineChart.tsx`.
+ *
+ * jsdom không tính layout thật — `getBoundingClientRect()` luôn trả về toàn số 0. Giả một khung
+ * khớp ĐÚNG `viewBox` (`CHART_GEOMETRY.W`×`CHART_GEOMETRY.H`) để `pointerToViewBox()` quy đổi ra
+ * đúng số px đã truyền vào sự kiện — hệ số phóng = 1, không lệch offset nào, nên các ca dưới đây
+ * không phải tự làm lại phép tính letterbox mà `pointerToViewBox()` đã có test riêng ở
+ * `core/chart/chart.test.ts`.
+ */
+describe('Dò điểm (crosshair)', () => {
+  function gioKhungKhopViewBox() {
+    return vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: CHART_GEOMETRY.W,
+      height: CHART_GEOMETRY.H,
+      right: CHART_GEOMETRY.W,
+      bottom: CHART_GEOMETRY.H,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+  }
+
+  const giuaVungVe = {
+    x: (CHART_GEOMETRY.PLOT.x0 + CHART_GEOMETRY.PLOT.x1) / 2,
+    y: (CHART_GEOMETRY.PLOT.y0 + CHART_GEOMETRY.PLOT.y1) / 2,
+  };
+
+  it('chưa rê/chạm thì không có vệt dò nào', () => {
+    draw('pe');
+    expect(screen.queryByTestId('chart-pe-hover')).toBeNull();
+  });
+
+  /*
+   * Rê đúng vào toạ độ của điểm "giá trị hiện tại" (đọc thẳng từ `chart-marker` đã dựng, không
+   * đoán) — vệt dò phải SNAP vào đúng điểm đó và nói CÙNG một con số với dấu cố định, chứng minh
+   * nó đọc từ `model.points` thật chứ không bịa ra một giá trị theo toạ độ con trỏ.
+   */
+  it('rê chuột đúng vị trí điểm "giá trị hiện tại": vệt dò cho ra cùng một con số với dấu cố định', () => {
+    gioKhungKhopViewBox();
+    const { container } = draw('pe');
+
+    const markerLine = container.querySelector('[data-testid="chart-marker"] line');
+    const markerLabel = container.querySelector('[data-testid="chart-marker"] text')?.textContent;
+    const markerX = Number(markerLine?.getAttribute('x1'));
+    if (markerLabel === undefined || markerLabel === null || Number.isNaN(markerX)) {
+      throw new Error('Không đọc được dấu "giá trị hiện tại" — kịch bản test đã đổi.');
+    }
+
+    fireEvent.pointerMove(screen.getByTestId('chart-pe-hover-capture'), {
+      pointerType: 'mouse',
+      clientX: markerX,
+      clientY: giuaVungVe.y,
+    });
+
+    const overlay = screen.getByTestId('chart-pe-hover');
+    expect(overlay.textContent).toContain(markerLabel);
+    expect(overlay.querySelector('circle')).not.toBeNull();
+  });
+
+  it('rời chuột thì tắt vệt dò ngay', () => {
+    gioKhungKhopViewBox();
+    draw('pe');
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: giuaVungVe.x,
+      clientY: giuaVungVe.y,
+    });
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+
+    fireEvent.pointerLeave(capture, { pointerType: 'mouse' });
+    expect(screen.queryByTestId('chart-pe-hover')).toBeNull();
+  });
+
+  it('chạm-kéo: giữ lại vệt dò sau khi nhấc ngón tay — ngón tay vừa che mất chỗ cần đọc', () => {
+    gioKhungKhopViewBox();
+    draw('pe');
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerDown(capture, {
+      pointerType: 'touch',
+      clientX: giuaVungVe.x,
+      clientY: giuaVungVe.y,
+    });
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+
+    fireEvent.pointerUp(capture, { pointerType: 'touch' });
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+
+    fireEvent.pointerLeave(capture, { pointerType: 'touch' });
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+  });
+
+  /*
+   * Snap trúng một điểm KHÔNG tính được (giữa quãng đứt) vẫn phải hiện vạch + nhãn — Domain đã
+   * định dạng sẵn câu "không có giá trị" cho đúng trường hợp này — nhưng KHÔNG được vẽ chấm, vì
+   * không có toạ độ Y nào để đặt nó. Toạ độ quãng đứt đọc thẳng từ chính `rect` gạch chéo đã
+   * dựng, không đoán domain của trục.
+   */
+  it('dò trúng điểm không tính được: vẫn hiện vạch + nhãn, KHÔNG vẽ chấm', async () => {
+    gioKhungKhopViewBox();
+    const pe = moduleOf('pe');
+    const good = defaultInputs(pe.spec);
+    const zero = { ...good, eps: 0 };
+    const view = (inputs: CalcInputs) => (
+      <ChartBody
+        formula={pe}
+        inputs={inputs}
+        ctx={CTX}
+        output={runFormula(pe, inputs, CTX)}
+        level="basic"
+      />
+    );
+
+    const { container, rerender } = render(view(good));
+    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    rerender(view(zero));
+
+    const gap = container.querySelector('rect[fill^="url(#"]');
+    if (gap === null) throw new Error('Không tìm thấy vùng gạch chéo — kịch bản test đã đổi.');
+    const gapX = Number(gap.getAttribute('x'));
+    const gapWidth = Number(gap.getAttribute('width'));
+
+    fireEvent.pointerMove(screen.getByTestId('chart-pe-hover-capture'), {
+      pointerType: 'mouse',
+      clientX: gapX + gapWidth / 2,
+      clientY: giuaVungVe.y,
+    });
+
+    const overlay = screen.getByTestId('chart-pe-hover');
+    expect(overlay.querySelector('circle')).toBeNull();
+    expect(overlay.textContent).toContain('— , —');
+  });
+
+  it('vẫn dò được ở bản phóng to, tách biệt hẳn với vệt dò của bản trên trang', async () => {
+    gioKhungKhopViewBox();
+    draw('pe');
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    fireEvent.pointerMove(screen.getByTestId('chart-pe-full-hover-capture'), {
+      pointerType: 'mouse',
+      clientX: giuaVungVe.x,
+      clientY: giuaVungVe.y,
+    });
+
+    expect(screen.getByTestId('chart-pe-full-hover')).not.toBeNull();
+    // Bản trên trang không có pointer nào đi qua nó — vệt dò không tự lan sang.
+    expect(screen.queryByTestId('chart-pe-hover')).toBeNull();
+  });
+});
+
+/*
+ * Ghi giá trị điểm vừa bấm/nhả vào ô Số liệu — mục tiêu của tính năng "để người dùng hiểu".
+ *
+ * Rê/chạm suông không được ghi gì (đã kiểm ở nhóm trên: `pointermove` chỉ đổi `hover`, không đụng
+ * `onApplyPoint`). Nhóm này kiểm đúng lượt NHẢ TAY — `pointerup`/`pointercancel` — và cái GUARD ở
+ * `ChartBody` quyết định có cho phép ghi hay không tuỳ trục X đang là gì.
+ */
+describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
+  function gioKhungKhopViewBox() {
+    return vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: CHART_GEOMETRY.W,
+      height: CHART_GEOMETRY.H,
+      right: CHART_GEOMETRY.W,
+      bottom: CHART_GEOMETRY.H,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+  }
+
+  const diemGiuaKhung = {
+    x: (CHART_GEOMETRY.PLOT.x0 + CHART_GEOMETRY.PLOT.x1) / 2,
+    y: (CHART_GEOMETRY.PLOT.y0 + CHART_GEOMETRY.PLOT.y1) / 2,
+  };
+
+  /** `pe` dựng thẳng qua `ChartBody`, có gắn `onApplyPoint` — khác `draw()` ở đầu file (không có). */
+  function drawVoiApply(onApplyPoint: (key: string, value: number) => void) {
+    const formula = moduleOf('pe');
+    const inputs = defaultInputs(formula.spec);
+    return render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={CTX}
+        output={runFormula(formula, inputs, CTX)}
+        level="basic"
+        onApplyPoint={onApplyPoint}
+      />,
+    );
+  }
+
+  it('nhả chuột tại điểm "giá trị hiện tại": gọi onApplyPoint đúng (price, 92000)', () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    const { container } = drawVoiApply(onApplyPoint);
+
+    const markerX = Number(
+      container.querySelector('[data-testid="chart-marker"] line')?.getAttribute('x1'),
+    );
+    if (Number.isNaN(markerX)) {
+      throw new Error('Không đọc được dấu "giá trị hiện tại" — kịch bản test đã đổi.');
+    }
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: markerX,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerUp(capture, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).toHaveBeenCalledTimes(1);
+    expect(onApplyPoint).toHaveBeenCalledWith('price', 92_000);
+    // Ghi được rồi thì ẩn vệt dò ngay — dấu "giá trị hiện tại" sẽ tự nhảy tới đúng chỗ này ở lượt
+    // dựng sau, không cần chồng thêm vệt dò lên nó.
+    expect(screen.queryByTestId('chart-pe-hover')).toBeNull();
+  });
+
+  it('rê chuột suông rồi rời đi, không nhả tay tại điểm nào: KHÔNG gọi onApplyPoint', () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    drawVoiApply(onApplyPoint);
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerLeave(capture, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).not.toHaveBeenCalled();
+  });
+
+  it('nhấc ngón tay (touch) tại điểm đang dò: cũng gọi onApplyPoint, vệt dò vẫn còn hiện', () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    drawVoiApply(onApplyPoint);
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerDown(capture, {
+      pointerType: 'touch',
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerUp(capture, { pointerType: 'touch' });
+
+    expect(onApplyPoint).toHaveBeenCalledTimes(1);
+    expect(onApplyPoint.mock.calls[0]?.[0]).toBe('price');
+    // Hành vi giữ vệt dò sau khi nhấc ngón tay không đổi — chỉ THÊM việc ghi giá trị, không bớt gì.
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+  });
+
+  it('huỷ cử chỉ (pointercancel) KHÔNG được coi là một lượt chọn — không gọi onApplyPoint', () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    drawVoiApply(onApplyPoint);
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerCancel(capture, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).not.toHaveBeenCalled();
+    // Cử chỉ bị huỷ vẫn phải tắt vệt dò — chỉ không ghi gì, không phải "đứng hình" vệt dò cũ.
+    expect(screen.queryByTestId('chart-pe-hover')).toBeNull();
+  });
+
+  it('không truyền onApplyPoint: nhả tay không ném lỗi, và GIỮ vệt dò lại làm phản hồi', () => {
+    gioKhungKhopViewBox();
+    // Không đi qua drawVoiApply — dựng thẳng ChartBody không có onApplyPoint, đúng nhánh mặc định.
+    const formula = moduleOf('pe');
+    const inputs = defaultInputs(formula.spec);
+    render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={CTX}
+        output={runFormula(formula, inputs, CTX)}
+        level="basic"
+      />,
+    );
+
+    const capture = screen.getByTestId('chart-pe-hover-capture');
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+    });
+    expect(() => {
+      fireEvent.pointerUp(capture, { pointerType: 'mouse' });
+    }).not.toThrow();
+    // Không có gì để ghi, nhưng người dùng vẫn vừa bấm thật — vệt dò phải còn đó, không tắt ngay.
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+  });
+
+  /*
+   * Guard ở `ChartBody`: một khi biểu đồ nạp chuỗi giá và trục X tự chuyển sang thời gian
+   * (`sweepKey === HISTORY_KEY`), điểm trên đường là MỘT PHIÊN QUÁ KHỨ — không phải mức của input
+   * nào. Nhả tay lúc đó không được ghi gì, dù `onApplyPoint` đã được truyền vào.
+   *
+   * Đây đúng là tình huống người dùng gặp ở những công thức cần chuỗi giá (`beta`, các nhóm Kỹ
+   * thuật/Rủi ro…): trục MẶC ĐỊNH sau khi nạp mẫu luôn là thời gian, nên nhả tay ở đó là lượt tương
+   * tác DUY NHẤT phần lớn người dùng từng thử trên biểu đồ ấy. Không ghi được gì là đúng (không thể
+   * gán một NGÀY cho một ô số), nhưng nếu vệt dò cũng tắt luôn thì cú bấm trông như không có
+   * chuyện gì xảy ra — nên phải kiểm CẢ HAI: không gọi `onApplyPoint`, VÀ vệt dò còn ở lại.
+   */
+  it('trục đã tự chuyển sang thời gian (đã nạp chuỗi giá): nhả tay KHÔNG ghi gì, nhưng vệt dò còn lại làm phản hồi', () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    const formula = moduleOf('pe');
+    const inputs = defaultInputs(formula.spec);
+    const { container } = render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={WITH_BARS}
+        output={runFormula(formula, inputs, WITH_BARS)}
+        level="basic"
+        seriesLabel="FPT"
+        onApplyPoint={onApplyPoint}
+      />,
+    );
+
+    // Trục mặc định đã là thời gian khi có chuỗi giá — xác nhận trước khi bắn sự kiện.
+    expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
+
+    const capture = container.querySelector('[data-testid="chart-pe-hover-capture"]');
+    if (capture === null) throw new Error('Không tìm thấy vùng bắt sự kiện — kịch bản đã đổi.');
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerUp(capture, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).not.toHaveBeenCalled();
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+
+    /*
+     * Đúng lỗi người dùng thật gặp: bấm xong rồi đưa chuột đi (đọc kết quả xong, với tay làm việc
+     * khác) — hoàn toàn tự nhiên, không phải một lượt "rê chuột suông" mới cần tắt vệt dò. Thiếu
+     * `pinned` thì `pointerleave` xoá mất vệt dò ngay khi chuột rời khỏi vùng vẽ, và cú bấm lại
+     * trông như không có chuyện gì xảy ra — y hệt phản hồi ban đầu.
+     */
+    fireEvent.pointerLeave(capture, { pointerType: 'mouse' });
+    expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+  });
+
+  /*
+   * Yêu cầu người dùng sau khi thấy vệt dò vẫn không rõ vì sao ô Số liệu không đổi: "bấm vào chart
+   * mà không thấy dữ liệu + thanh tròn thay đổi — sửa lại như các chart khác". Trục thời gian không
+   * thể ghi được (không có ô nào ứng với "một ngày trong quá khứ") — cách xử lý là NÓI RÕ ra sao mới
+   * bấm áp dụng được, thay vì cố áp dụng sai chỗ.
+   */
+  it('trục đang là thời gian: hiện gợi ý đổi trục để bấm áp dụng được (cả bản trên trang lẫn phóng to)', async () => {
+    gioKhungKhopViewBox();
+    const formula = moduleOf('pe');
+    const inputs = defaultInputs(formula.spec);
+    render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={WITH_BARS}
+        output={runFormula(formula, inputs, WITH_BARS)}
+        level="basic"
+        seriesLabel="FPT"
+        onApplyPoint={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
+    expect(screen.getByText(t('chart.applyHintTimeAxis'))).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+    expect(screen.getAllByText(t('chart.applyHintTimeAxis'))).toHaveLength(2);
+  });
+
+  it('trục đang là biến số (áp dụng được): KHÔNG hiện gợi ý đổi trục', () => {
+    gioKhungKhopViewBox();
+    drawVoiApply(vi.fn());
+    expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
+  });
+
+  it('không truyền onApplyPoint: dù trục là thời gian cũng KHÔNG hiện gợi ý (tính năng không bật ở đây)', () => {
+    gioKhungKhopViewBox();
+    const formula = moduleOf('pe');
+    const inputs = defaultInputs(formula.spec);
+    render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={WITH_BARS}
+        output={runFormula(formula, inputs, WITH_BARS)}
+        level="basic"
+        seriesLabel="FPT"
+      />,
+    );
+    expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
+  });
+
+  it('bản phóng to: nhả tay cũng ghi được, tách biệt với bản trên trang', async () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    drawVoiApply(onApplyPoint);
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const captureFull = screen.getByTestId('chart-pe-full-hover-capture');
+    fireEvent.pointerMove(captureFull, {
+      pointerType: 'mouse',
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerUp(captureFull, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).toHaveBeenCalledTimes(1);
+    expect(onApplyPoint.mock.calls[0]?.[0]).toBe('price');
+  });
+});
+
+/*
+ * Hover từng cột của biểu đồ thác nước — cơ chế khác `LineChart` (không snap liên tục, chỉ theo
+ * TỪNG CỘT rời rạc), nên kiểm riêng. `ev` là công thức bóc tách dùng xuyên suốt các ca thác nước
+ * ở trên.
+ */
+describe('Dò điểm — thác nước (hover từng cột)', () => {
+  /*
+   * Bảng số của thác nước KHÔNG rút gọn (khác đường quét — `condensePoints` chỉ áp cho
+   * `LineChart`): `table.rows` là `bars.map((bar) => [bar.label, bar.valueLabel])`, đúng thứ tự
+   * `model.bars` — nên `<rect>` đầu tiên trong SVG và dòng đầu của bảng LUÔN cùng một cột. Test
+   * dựa thẳng vào đối chiếu đó, không đoán giá trị.
+   */
+  it('trỏ vào cột đầu: hiện đúng giá trị CỦA CỘT ĐÓ (khớp dòng đầu bảng), viền đậm lên; rời ra thì tắt lại', () => {
+    const { container } = draw('ev');
+
+    const target = container.querySelectorAll('svg rect')[0];
+    if (target === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
+
+    const table = screen.getByRole('table');
+    const firstRow = within(table).getAllByRole('row').slice(1)[0]; // bỏ dòng tiêu đề
+    if (firstRow === undefined)
+      throw new Error('Bảng số không có dòng nào — kịch bản test đã đổi.');
+    const expectedValue = within(firstRow).getAllByRole('cell')[1]?.textContent;
+    if (expectedValue === undefined || expectedValue === null || expectedValue === '') {
+      throw new Error('Không đọc được giá trị dòng đầu bảng — kịch bản test đã đổi.');
+    }
+
+    const coGiaTriTrenHinh = () =>
+      [...container.querySelectorAll('svg text')].some(
+        (node) => node.textContent === expectedValue,
+      );
+
+    expect(coGiaTriTrenHinh()).toBe(false);
+
+    fireEvent.pointerEnter(target);
+    expect(target.getAttribute('class')).toMatch(/barHover/);
+    expect(coGiaTriTrenHinh()).toBe(true);
+
+    fireEvent.pointerLeave(target);
+    expect(coGiaTriTrenHinh()).toBe(false);
+  });
+
+  it('chạm vào cột (pointerdown) cũng viền đậm ngay, không cần rê trước', () => {
+    const { container } = draw('ev');
+
+    const bars = container.querySelectorAll('svg rect');
+    const target = bars[1] ?? bars[0];
+    if (target === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
+
+    fireEvent.pointerDown(target, { pointerType: 'touch' });
+    expect(target.getAttribute('class')).toMatch(/barHover/);
   });
 });
 

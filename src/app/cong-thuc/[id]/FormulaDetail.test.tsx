@@ -1,13 +1,20 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { FORMULAS, NO_VALUE, SAMPLE_DATA, WARNING_LABELS, formatIsoDate, t } from '@/application';
 import type { FormulaSpec } from '@/application';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
+/*
+ * Import sâu, cố ý: `@/ui/charts` (barrel) chỉ export `FormulaChart`/`hasChart` để giữ renderer
+ * ngoài chunk chung (xem docblock ở đó) — `CHART_GEOMETRY` không có trong barrel. Test không đóng
+ * gói cho trình duyệt và không đi qua luật ESLint chặn `@/core/*` từ `src/app`, nên import sâu ở
+ * đây an toàn, chỉ để lấy đúng hằng số hình học đã dùng để giả `getBoundingClientRect()`.
+ */
+import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 
 import { FormulaDetail } from './FormulaDetail';
 import { latexToMathml } from './latex-html';
@@ -1106,5 +1113,73 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     // Biên an toàn gập sẵn, nhưng dòng tóm tắt phải hiện kết quả:
     // (25.925,93 − 30.000) ÷ 25.925,93 = −15,71%
     expect(khoiChuoi().textContent).toContain('-15,71');
+  });
+});
+
+/*
+ * Bấm/nhả trên biểu đồ ghi giá trị vào ô Số liệu — luồng ĐẦU-CUỐI thật (khác `charts.test.tsx`,
+ * nơi kiểm `ChartBody`/`LineChart` cô lập). Ở đây phải đi trọn đường: `LineChart` → `ChartBody` →
+ * `FormulaChart` (qua `next/dynamic`, qua `memo`) → `onChartApplyPoint`/`setValue` ở
+ * `FormulaDetail.tsx` → ô nhập thật đổi số, kết quả tính lại. KHÔNG cuộn trang — cố ý, xem docblock
+ * cạnh `onChartApplyPoint`.
+ */
+describe('WF-03 — bấm/nhả trên biểu đồ ghi giá trị vào ô Số liệu', () => {
+  function gioKhungKhopViewBox() {
+    vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: CHART_GEOMETRY.W,
+      height: CHART_GEOMETRY.H,
+      right: CHART_GEOMETRY.W,
+      bottom: CHART_GEOMETRY.H,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+  }
+
+  it('bấm/nhả tại một điểm khác điểm hiện tại: ô "Giá thị trường" đổi số, kết quả tính lại', async () => {
+    gioKhungKhopViewBox();
+
+    render(<Man spec={specOf('pe')} />);
+    const figure = await screen.findByRole('figure');
+
+    const capture = within(figure).getByTestId('chart-pe-hover-capture');
+    const markerX = Number(
+      within(figure).getByTestId('chart-marker').querySelector('line')?.getAttribute('x1'),
+    );
+    if (Number.isNaN(markerX)) {
+      throw new Error('Không đọc được dấu "giá trị hiện tại" — kịch bản test đã đổi.');
+    }
+    // Lệch hẳn khỏi điểm hiện tại để chắc chắn thấy ô đổi số, không phải áp đúng số cũ.
+    const target = Math.max(CHART_GEOMETRY.PLOT.x0 + 4, markerX - 60);
+    const y = (CHART_GEOMETRY.PLOT.y0 + CHART_GEOMETRY.PLOT.y1) / 2;
+
+    fireEvent.pointerMove(capture, { pointerType: 'mouse', clientX: target, clientY: y });
+    fireEvent.pointerUp(capture, { pointerType: 'mouse' });
+
+    const price = oNhap(/Giá thị trường/) as HTMLInputElement;
+    expect(price.value).not.toBe('92.000');
+    // Kết quả (P/E) phải tính lại theo đúng số vừa ghi — không phải khối Kết quả đứng im.
+    expect(screen.getByTestId('result-text').textContent).not.toBe('15,21 lần');
+  });
+
+  it('chỉ rê chuột suông rồi rời đi (chưa nhả tay tại điểm nào): ô Số liệu KHÔNG đổi', async () => {
+    gioKhungKhopViewBox();
+    render(<Man spec={specOf('pe')} />);
+    const figure = await screen.findByRole('figure');
+
+    const capture = within(figure).getByTestId('chart-pe-hover-capture');
+    const y = (CHART_GEOMETRY.PLOT.y0 + CHART_GEOMETRY.PLOT.y1) / 2;
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: CHART_GEOMETRY.PLOT.x0 + 20,
+      clientY: y,
+    });
+    fireEvent.pointerLeave(capture, { pointerType: 'mouse' });
+
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
   });
 });

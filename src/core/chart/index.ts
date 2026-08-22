@@ -29,6 +29,9 @@ export { decimalsOf, extentOf, linearScale, niceAxis, niceStep } from './scale';
 
 export { fixed, gapsOf, linePath } from './path';
 
+export type { ViewBoxRect } from './pointer';
+export { nearestPointByX, pointerToViewBox } from './pointer';
+
 export type { SweepDomain, SweepRank } from './sweep';
 export {
   SWEEP_POINTS,

@@ -74,6 +74,27 @@
   }
 }
 
+/*
+ * Ở PC, tỉ lệ 16/7 của breakpoint trên khớp SAI với viewBox gốc (16/10 — 320×200), nên
+ * `preserveAspectRatio="meet"` phải co theo chiều cao để vừa khung, để dư khoảng trắng hai bên
+ * VÀ phóng to nội dung theo chiều dư đó. Cộng thêm khung rộng cỡ `--desktop-max` (1200px) thì
+ * hệ số phóng đo được tới 2,5×–3,65× — chữ trục vốn 10px hiện ra to như tiêu đề.
+ *
+ * Sửa hai lỗi cùng lúc: trả `aspect-ratio` về đúng tỉ lệ viewBox (hết letterbox), và chặn
+ * `.plot` không rộng quá 480px (~1,5× khổ mobile 320px) để chữ SVG không phóng vượt mức đọc
+ * được. `.plotFill` (màn phóng to, ngay dưới) phải huỷ lại giới hạn này — nó CỐ Ý chiếm hết chỗ.
+ */
+@media (min-width: 1024px) {
+  .svg {
+    aspect-ratio: 16 / 10;
+  }
+
+  .plot {
+    max-width: 480px;
+    margin-inline: auto;
+  }
+}
+
 /* ── Nét vẽ ─────────────────────────────────────────────────────────────── */
 
 .grid {
@@ -137,6 +158,51 @@
   font-size: 10px;
 }
 
+/* ── Dò điểm (crosshair) — rê chuột / chạm-kéo, tách hẳn khỏi `.marker*` ─── */
+
+/*
+ * Vùng trong suốt bắt pointer event, phủ đúng vùng vẽ. `pointer-events: all` bắt buộc: mặc định
+ * SVG chỉ bắt sự kiện ở phần THẬT SỰ tô màu (`visiblePainted`), mà `fill: transparent` không tô
+ * gì cả — thiếu dòng này thì vùng trong suốt không bắt được sự kiện nào.
+ */
+.hoverCapture {
+  fill: transparent;
+  pointer-events: all;
+  cursor: crosshair;
+  /* Chặn cuộn trang mặc định khi bắt đầu kéo ngón tay TỪ BÊN TRONG khung vẽ — người dùng vẫn
+     cuộn được bình thường nếu bắt đầu từ ngoài khung. */
+  touch-action: none;
+}
+
+/* Nhóm vẽ vạch dò — không tự bắt sự kiện, để lọt xuống `.hoverCapture` bên dưới nó. */
+.hoverOverlay {
+  pointer-events: none;
+}
+
+.hoverLine {
+  stroke: var(--color-ink-soft);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.hoverDot {
+  fill: var(--color-surface);
+  stroke: var(--color-ink-soft);
+  stroke-width: 2;
+}
+
+.hoverLabel {
+  fill: var(--color-ink);
+  font-size: 11px;
+  font-weight: var(--weight-medium);
+  /* Viền trắng sau chữ (halo) thay cho việc vẽ nền — không cần đo bề rộng text để đặt kích
+     thước một hình chữ nhật, nhãn vẫn đọc được dù đè lên lưới/đường bên dưới. */
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+}
+
 /* ── Thác nước bóc tách — WF-17 ─────────────────────────────────────────── */
 
 /*
@@ -185,12 +251,41 @@
   dominant-baseline: middle;
 }
 
+/*
+ * Hover từng cột — không cần quy đổi toạ độ liên tục như đường quét (cột rời rạc, không có
+ * "điểm giữa hai cột" để snap). Viền đậm bằng token có sẵn, không thêm màu mới.
+ */
+.barHover {
+  stroke: var(--color-ink);
+  stroke-width: 2;
+}
+
+/* Giá trị cột đang hover — hiện ngay trên hình, thay vì bắt mở bảng số mới tra được. */
+.barValueLabel {
+  fill: var(--color-ink);
+  font-size: 9px;
+  font-weight: var(--weight-medium);
+  dominant-baseline: middle;
+  /* Halo trắng — cùng kỹ thuật `.hoverLabel`, cần thiết vì nhãn nằm ĐÈ LÊN cột có màu. */
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+}
+
 /* ── Ghi chú và bảng số ─────────────────────────────────────────────────── */
 
 .note {
   margin: 0;
   font-size: var(--text-xs);
   color: var(--color-warning);
+}
+
+/* Gợi ý cách xem — trung tính, khác .note (dành cho cảnh báo đường đứt quãng). */
+.applyHint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
 }
 
 .data {
@@ -441,6 +536,8 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
+  /* Huỷ `.plot{max-width:480px}` của khối ≥1024px phía trên — màn phóng to CỐ Ý chiếm hết chỗ. */
+  max-width: none;
 }
 
 .svgFill {

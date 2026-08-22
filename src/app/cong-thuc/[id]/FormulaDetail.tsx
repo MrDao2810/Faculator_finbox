@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   FORMULA_MODULES,
@@ -398,6 +398,26 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       return { ...current, [formulaId]: forFormula };
     });
   }
+
+  /*
+   * Nhả tay tại một điểm trên biểu đồ — ghi giá trị đó vào đúng ô Số liệu (qua `setValue()`, cùng
+   * hàm `VariableField`/`ExampleBlock` đang dùng, nên ô móc nối vẫn tự chuyển thành Ghi đè đúng
+   * cách). KHÔNG cuộn trang — biểu đồ tự vẽ lại quanh điểm mới ngay tại chỗ đang xem là đủ để thấy
+   * đã đổi, cuộn lên khối Số liệu chỉ giật trang một cách không cần thiết.
+   *
+   * `onApplyPoint` xuyên qua `memo(FormulaChart)` — PHẢI giữ tham chiếu ổn định giữa các lượt
+   * render (xem docblock `FormulaChartProps.onApplyPoint`), nhưng `setValue` đóng lấy
+   * `linkedFields`/`spec.id` mới mỗi lượt nên bản thân nó KHÔNG ổn định. Ref giữ bản mới nhất,
+   * `useCallback([])` dựng một vỏ bọc vĩnh viễn không đổi tham chiếu — component tự phòng thân,
+   * không bắt `FormulaChart` phải tự lo (cùng tinh thần `closeRef` ở `ChartFullscreen.tsx`).
+   */
+  const applyChartPointRef = useRef(setValue);
+  useEffect(() => {
+    applyChartPointRef.current = setValue;
+  });
+  const onChartApplyPoint = useCallback((key: string, value: number) => {
+    applyChartPointRef.current(key, value);
+  }, []);
 
   /** Đặt giá trị cho ô nhập của MỘT BƯỚC KHÁC trong chuỗi. */
   function setChainValue(formulaId: string, key: string, value: number): void {
@@ -854,6 +874,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             output={chartOutput}
             level={mode}
             {...(chartSeriesLabel === undefined ? {} : { seriesLabel: chartSeriesLabel })}
+            // KHÔNG thay bằng closure viết trực tiếp ở đây — xem docblock `onApplyPoint` ở trên.
+            onApplyPoint={onChartApplyPoint}
           />
         </section>
       )}

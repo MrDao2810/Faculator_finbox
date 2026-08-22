@@ -9,6 +9,7 @@ import { defaultInputs } from '../registry/build';
 import { BREAKDOWN_KEY } from './breakdown';
 import { buildChartModel } from './build';
 import { gapsOf, linePath } from './path';
+import { nearestPointByX, pointerToViewBox } from './pointer';
 import { decimalsOf, extentOf, linearScale, niceAxis, niceStep } from './scale';
 import { pickSweepVariable, sweepCandidates, sweepDomain, sweepPoints } from './sweep';
 import { condensePoints } from './table';
@@ -200,6 +201,61 @@ describe('gapsOf()', () => {
 
   it('không có mức nào lỗi thì không có khoảng nào', () => {
     expect(gapsOf([point(0, 1), point(1, 2)], (v) => v)).toHaveLength(0);
+  });
+});
+
+describe('pointerToViewBox()', () => {
+  it('khung khớp đúng tỉ lệ viewBox thì chỉ còn chia theo hệ số phóng', () => {
+    // Khung 320×200 thật, viewBox 320×200 — hệ số phóng đúng bằng 1, không lệch offset nào.
+    const rect = { left: 0, top: 0, width: 320, height: 200 };
+    expect(pointerToViewBox(rect, 160, 100, 320, 200)).toEqual({ x: 160, y: 100 });
+  });
+
+  it('khung rộng hơn tỉ lệ viewBox — trừ đúng dải trắng hai bên trước khi chia', () => {
+    // Khung 400×200 (tỉ lệ 2) rộng hơn viewBox 320×200 (tỉ lệ 1.6) — hệ số phóng theo chiều CAO
+    // (200/200 = 1), dải trắng mỗi bên (400 - 320×1)/2 = 40px.
+    const rect = { left: 0, top: 0, width: 400, height: 200 };
+    expect(pointerToViewBox(rect, 40, 0, 320, 200)).toEqual({ x: 0, y: 0 });
+    expect(pointerToViewBox(rect, 200, 100, 320, 200)).toEqual({ x: 160, y: 100 });
+  });
+
+  it('khung cao hơn tỉ lệ viewBox — trừ đúng dải trắng trên/dưới trước khi chia', () => {
+    // Khung 320×400 (tỉ lệ 0.8) cao hơn viewBox 320×200 (tỉ lệ 1.6) — hệ số phóng theo chiều
+    // RỘNG (320/320 = 1), dải trắng mỗi bên (400 - 200×1)/2 = 100px.
+    const rect = { left: 0, top: 0, width: 320, height: 400 };
+    expect(pointerToViewBox(rect, 0, 100, 320, 200)).toEqual({ x: 0, y: 0 });
+  });
+
+  it('trừ đúng left/top của khung trước khi quy đổi', () => {
+    const rect = { left: 50, top: 20, width: 320, height: 200 };
+    expect(pointerToViewBox(rect, 210, 120, 320, 200)).toEqual({ x: 160, y: 100 });
+  });
+
+  it('khung chưa có kích thước (chưa dựng xong hoặc display:none) trả về null', () => {
+    expect(pointerToViewBox({ left: 0, top: 0, width: 0, height: 0 }, 0, 0, 320, 200)).toBeNull();
+  });
+});
+
+describe('nearestPointByX()', () => {
+  const sx = (v: number) => v * 10;
+
+  it('chọn đúng điểm gần con trỏ nhất', () => {
+    const points = [point(0, 0), point(1, 2), point(2, 4)];
+    expect(nearestPointByX(points, 11, sx)).toEqual(point(1, 2));
+  });
+
+  it('đúng biên giữa hai điểm — nghiêng về điểm gặp trước (khoảng cách bằng nhau)', () => {
+    const points = [point(0, 0), point(1, 2)];
+    expect(nearestPointByX(points, 5, sx)).toEqual(point(0, 0));
+  });
+
+  it('mảng rỗng trả về undefined, không ném lỗi', () => {
+    expect(nearestPointByX([], 0, sx)).toBeUndefined();
+  });
+
+  it('SNAP đúng điểm gần nhất kể cả khi điểm đó không tính được (y === null) — không bịa nội suy', () => {
+    const points = [point(0, 1), point(1, null), point(2, 3)];
+    expect(nearestPointByX(points, 10, sx)).toEqual(point(1, null));
   });
 });
 

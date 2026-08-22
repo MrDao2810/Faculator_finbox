@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
-import { NAV_ITEMS, activeRouteKey } from '@/application';
+import { NAV_ITEMS } from '@/application';
 import { useT } from '@/application/preferences-context';
 
 import styles from './BottomTabBar.module.css';
 import { TabIcon } from './TabIcon';
+import { useActiveNavKey } from './useActiveNavKey';
 
 /**
  * Thanh điều hướng dưới — gói WBS 2.1.2.
@@ -18,8 +18,7 @@ import { TabIcon } from './TabIcon';
  * điều hướng được cả khi JavaScript chưa tải xong.
  */
 export function BottomTabBar() {
-  const pathname = usePathname();
-  const active = activeRouteKey(pathname);
+  const active = useActiveNavKey();
   const t = useT();
 
   return (

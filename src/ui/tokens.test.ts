@@ -118,7 +118,15 @@ describe('SVG nội tuyến cũng chỉ dùng token màu', () => {
  * Danh sách lớp dưới đây là những lớp đang gán cho `<text>`. Thêm lớp chữ mới thì thêm tên vào đây
  * — chưa có cách nào biết từ CSS rằng một lớp nhắm vào `<text>` hay vào `<path>`.
  */
-const SVG_TEXT_CLASSES = ['tick', 'axisTitle', 'markerLabel', 'caption', 'valueLabel'] as const;
+const SVG_TEXT_CLASSES = [
+  'tick',
+  'axisTitle',
+  'markerLabel',
+  'caption',
+  'valueLabel',
+  'hoverLabel',
+  'barValueLabel',
+] as const;
 
 describe('chữ trong SVG không dùng màu chỉ đạt 3:1', () => {
   for (const name of SVG_TEXT_CLASSES) {

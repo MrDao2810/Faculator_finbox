@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { linearScale } from '@/application';
 import type { WaterfallChart as WaterfallModel } from '@/application';
 import { usePick } from '@/application/preferences-context';
@@ -23,6 +25,12 @@ import styles from './chart.module.css';
  *
  * Đổi lại, "trục Y" của mô hình nằm ngang trên hình. Tên trường giữ nguyên theo Domain: nó là
  * TRỤC GIÁ TRỊ, còn vẽ ra chiều nào là việc của renderer.
+ *
+ * ── Hover từng cột ──────────────────────────────────────────────────────────────────────────
+ *
+ * Không dùng cơ chế dò điểm liên tục như `LineChart` (không có "điểm giữa hai cột" để snap —
+ * cột rời rạc). Thay vào đó, trỏ/chạm vào MỘT cột thì viền cột đó đậm lên và hiện `valueLabel`
+ * ngay trên hình — vốn trước giờ chỉ có trong bảng số dưới `<details>`, phải mở ra mới tra được.
  */
 
 /* Khung vẽ theo đơn vị viewBox. Lề trái rộng cho nhãn chặng đọc ngang. */
@@ -42,6 +50,9 @@ export interface WaterfallChartProps {
 
 export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartProps) {
   const pick = usePick();
+
+  /** Cột đang trỏ/chạm — `null` là không cột nào. Cục bộ, không đồng bộ với bản phóng to. */
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   /*
    * Chiều cao theo SỐ CHẶNG, không phải tỉ lệ cố định như đường quét: ba chặng và tám chặng cần
@@ -96,6 +107,7 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
 
           const kindClass =
             bar.isTotal === true ? styles.barTotal : bar.delta < 0 ? styles.barDown : styles.barUp;
+          const hovering = hoverIndex === index;
 
           return (
             <g key={`${idBase}-bar-${String(index)}`}>
@@ -108,7 +120,35 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
                 {pick(bar.label)}
               </text>
 
-              <rect className={kindClass} x={left} y={barTop} width={width} height={BAR_HEIGHT} />
+              <rect
+                className={hovering ? `${kindClass} ${styles.barHover}` : kindClass}
+                x={left}
+                y={barTop}
+                width={width}
+                height={BAR_HEIGHT}
+                onPointerEnter={() => {
+                  setHoverIndex(index);
+                }}
+                onPointerLeave={() => {
+                  setHoverIndex((current) => (current === index ? null : current));
+                }}
+                onPointerDown={() => {
+                  setHoverIndex(index);
+                }}
+              />
+
+              {/* Giá trị cột — chỉ hiện khi đang trỏ/chạm, đặt giữa cột nên không bao giờ tràn
+                  ra ngoài viewBox dù cột ở sát mép trái/phải. */}
+              {hovering && (
+                <text
+                  className={styles.barValueLabel}
+                  x={(xFrom + xTo) / 2}
+                  y={rowTop + ROW / 2}
+                  textAnchor="middle"
+                >
+                  {bar.valueLabel}
+                </text>
+              )}
 
               {/*
               Đường nối từ đỉnh cột này sang chân cột sau — thứ làm nên hình bậc thang. Không vẽ

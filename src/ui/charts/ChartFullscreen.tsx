@@ -49,6 +49,20 @@ export interface ChartFullscreenProps {
    * rồi đổi rồi phóng to lại là ba bước cho một ý.
    */
   controls?: ReactNode;
+  /**
+   * Chuyển thẳng xuống `LineChart` — nhả tay tại một điểm đang dò ghi giá trị đó vào ô Số liệu.
+   *
+   * `<LineChart>` ở đây là instance THỨ HAI, độc lập với bản trên trang (`ChartBody` dựng bản
+   * trên trang riêng, không đi qua component này) — thiếu prop này thì tính năng chỉ hoạt động ở
+   * biểu đồ nhỏ, câm lặng ở màn phóng to.
+   */
+  onApplyPoint?: (key: string, value: number) => void;
+  /**
+   * Trục hiện không áp dụng được (đang xem theo thời gian) nhưng có biến khác đổi sang được — hiện
+   * gợi ý ngay dưới hình. `ChartBody` tính điều kiện này một lần rồi truyền cả hai bản, để logic
+   * "khi nào nói" chỉ sống ở một chỗ.
+   */
+  showApplyHint?: boolean;
 }
 
 /**
@@ -92,7 +106,15 @@ function usePortrait(active: boolean): boolean | null {
   return portrait;
 }
 
-export function ChartFullscreen({ open, onClose, model, idBase, controls }: ChartFullscreenProps) {
+export function ChartFullscreen({
+  open,
+  onClose,
+  model,
+  idBase,
+  controls,
+  onApplyPoint,
+  showApplyHint = false,
+}: ChartFullscreenProps) {
   const t = useT();
   const pick = usePick();
   const ref = useRef<HTMLDialogElement>(null);
@@ -285,7 +307,7 @@ export function ChartFullscreen({ open, onClose, model, idBase, controls }: Char
           {model.kind === 'waterfall' ? (
             <WaterfallChart model={model} idBase={idBase} fill />
           ) : (
-            <LineChart model={model} idBase={idBase} fill />
+            <LineChart model={model} idBase={idBase} fill onApplyPoint={onApplyPoint} />
           )}
 
           <div className={styles.fullFoot}>
@@ -296,6 +318,7 @@ export function ChartFullscreen({ open, onClose, model, idBase, controls }: Char
                 {pick(model.note)}
               </p>
             )}
+            {showApplyHint && <p className={styles.applyHint}>{t('chart.applyHintTimeAxis')}</p>}
             {/*
               Câu nhờ xoay chỉ hiện khi máy ĐANG dọc. Khoá xoay ăn thì trình duyệt tự xoay sang ngang,
               `portrait` thành false và câu tự biến mất — một điều kiện lo cả hai nhánh.

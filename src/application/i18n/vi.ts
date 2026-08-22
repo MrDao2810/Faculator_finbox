@@ -208,6 +208,14 @@ export const vi = {
    * câu đầu nhờ xoay máy, câu sau chỉ hiện khi trình duyệt không tự xoay được — hầu hết là iPhone,
    * hoặc máy Android đang bật khoá xoay.
    */
+  /*
+   * Hiện dưới biểu đồ khi trục X đang là thời gian (HISTORY_KEY) — bấm/nhả lúc đó KHÔNG ghi được
+   * gì vào ô Số liệu (không có ô nào tương ứng "một ngày trong quá khứ"), khác các trục biến số
+   * khác nơi bấm áp dụng được luôn. Không có gợi ý này thì cú bấm trên các công thức cần chuỗi giá
+   * (mặc định luôn mở ra đúng trục thời gian) trông như tính năng không hoạt động.
+   */
+  'chart.applyHintTimeAxis':
+    'Trục đang là thời gian nên bấm không ghi được gì — đổi mục "Xem kết quả đổi theo" ở trên sang một biến số để bấm áp dụng giá trị.',
   'chart.zoom': 'Phóng to',
   'chart.exit': 'Thoát phóng to',
   'chart.rotate': 'Xoay ngang điện thoại để biểu đồ rộng hơn.',

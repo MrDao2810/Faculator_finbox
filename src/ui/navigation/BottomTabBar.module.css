@@ -57,3 +57,10 @@
 .label {
   text-align: center;
 }
+
+/* Bốn mục chuyển lên HeaderNav ở màn PC — thanh này chỉ còn việc ở điện thoại/máy tính bảng. */
+@media (min-width: 1024px) {
+  .bar {
+    display: none;
+  }
+}

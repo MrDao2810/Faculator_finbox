@@ -1,0 +1,58 @@
+/*
+ * Ẩn mặc định — chỉ hiện ở màn PC. Dưới 1024px, bốn mục vẫn nằm ở `BottomTabBar` như cũ.
+ * `display: none` gỡ nav này khỏi flex layout của `.inner` (AppHeader) và khỏi cây trợ năng ở
+ * mọi khổ hẹp hơn, không cần `aria-hidden` riêng.
+ */
+.nav {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .nav {
+    display: flex;
+    /* Chiếm hết khoảng còn lại giữa khối thương hiệu và cụm nút phải, rồi tự căn giữa nội dung
+       của mình — không cần đổi `justify-content: space-between` sẵn có của `.inner`. */
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+.list {
+  display: flex;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-muted);
+  text-decoration: none;
+
+  border-bottom: 2px solid transparent;
+}
+
+.link:hover {
+  color: var(--color-ink);
+}
+
+.link:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Đang chọn: đậm chữ VÀ gạch chân — hai dấu hiệu ngoài màu, không vay icon (NFR-USA-06). */
+.active {
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}

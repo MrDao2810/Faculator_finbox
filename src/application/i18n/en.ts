@@ -175,6 +175,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.sweepLabel': 'See how the result changes with',
   'chart.showData': 'View the numbers',
   'chart.tableCaption': 'Data',
+  'chart.applyHintTimeAxis':
+    'The axis is time, so clicking won\'t write anything — switch "See how the result changes with" above to a variable to apply a clicked value.',
   'chart.zoom': 'Expand',
   'chart.exit': 'Exit full screen',
   'chart.rotate': 'Turn your phone sideways for a wider chart.',

@@ -146,6 +146,7 @@ export type {
   DrawableChart,
   LineChart,
   SweepOption,
+  ViewBoxRect,
   WaterfallChart,
 } from '@/core/chart';
 export {
@@ -154,6 +155,8 @@ export {
   gapsOf,
   linePath,
   linearScale,
+  nearestPointByX,
+  pointerToViewBox,
   sweepCandidates,
 } from '@/core/chart';
 

@@ -60,6 +60,15 @@ export interface FormulaChartProps {
   level: FormulaSpec['level'];
   /** Mã của bộ số liệu đang nạp, để câu mô tả nói rõ đường vẽ theo phiên của mã nào. */
   seriesLabel?: string;
+  /**
+   * Nhả tay tại một điểm trên đường quét thì gọi hàm này để ghi giá trị đó ngược vào ô Số liệu.
+   *
+   * **PHẢI có tham chiếu ổn định giữa các lượt render** (ví dụ dựng qua `useCallback` rồi cầm
+   * bằng ref phía trong, không viết closure trực tiếp trong JSX) — đây là prop đi qua `memo` ngay
+   * dưới đây, và một tham chiếu đổi mỗi lượt gõ phím sẽ vô hiệu hoá đúng cơ chế đang được giải
+   * thích trong docblock của `memo`.
+   */
+  onApplyPoint?: (key: string, value: number) => void;
 }
 
 /**
@@ -73,7 +82,8 @@ export interface FormulaChartProps {
  * khi `inputs` hoãn thật sự đổi.
  *
  * So sánh nông (mặc định) là đủ: `inputs`, `ctx` và `output` bên màn chi tiết đều đi qua `useMemo`
- * hoặc `useState` nên chúng chỉ đổi tham chiếu khi nội dung đổi thật.
+ * hoặc `useState` nên chúng chỉ đổi tham chiếu khi nội dung đổi thật. `onApplyPoint` cũng phải giữ
+ * đúng luật này — xem chú thích của nó ở `FormulaChartProps`.
  */
 export const FormulaChart = memo(function FormulaChart(props: FormulaChartProps) {
   if (!hasChart(props.formula.spec)) return null;

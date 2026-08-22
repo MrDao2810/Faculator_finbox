@@ -5,6 +5,7 @@ import { ROUTES } from '@/application';
 import { T } from '../i18n/T';
 import styles from './AppHeader.module.css';
 import { BrandMark } from './BrandMark';
+import { HeaderNav } from './HeaderNav';
 import { LangSwitch } from './LangSwitch';
 import { ModeToggle } from './ModeToggle';
 import { SearchLink } from './SearchLink';
@@ -29,6 +30,10 @@ export function AppHeader() {
             <T k="app.brand" />
           </span>
         </Link>
+
+        {/* Bốn mục điều hướng — chỉ hiện ở màn PC (≥1024px). Dưới khổ đó, BottomTabBar vẫn lo
+            việc này ở đáy màn, đúng như trước; xem HeaderNav.module.css. */}
+        <HeaderNav />
 
         <div className={styles.controls}>
           <ModeToggle />

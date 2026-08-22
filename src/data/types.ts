@@ -71,6 +71,15 @@ export interface Preset {
    * (giả định A1, rủi ro R-01 của SRS vẫn còn mở).
    */
   isDraft: boolean;
+  /**
+   * Ngày (ISO) mà `fundamentals` được đối chiếu với nguồn thật gần nhất nhất — `undefined` nghĩa
+   * là không rõ/không áp dụng (nguồn tự dựng thuần không có mốc "lấy lúc nào" để nói).
+   *
+   * Không ghi TÊN nguồn ở đây — đó vẫn là chi tiết riêng của phần cấp `DataProvider` này
+   * (FR-17: "giao diện chỉ được biết tới DataProvider"), chỉ ghi ĐỘ MỚI để màn chi tiết nói
+   * "cập nhật lúc …" khi đã nạp một preset có trường này.
+   */
+  fundamentalsAsOf?: string;
 }
 
 /**

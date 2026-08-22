@@ -172,6 +172,9 @@ export const vi = {
   // Màn chi tiết công thức — WF-03, gói 3.2.1
   'detail.loadPreset': 'Nạp mẫu',
   'detail.preset': 'Đã nạp',
+  'detail.jumpToExample': 'Xem ví dụ thực tế ↓',
+  'detail.fundamentalsSource':
+    'Số liệu cơ bản (EPS, giá trị sổ sách, số CP, cổ tức…) của mã này lấy thật từ Finbox_v2, đối chiếu lúc',
   'detail.export': '↓ Xuất',
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
@@ -181,6 +184,11 @@ export const vi = {
   'detail.constantsInUse': 'Đang tính theo các mức sau',
   'detail.constantSince': 'áp dụng từ',
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
+  'detail.loadExample': 'Xem ví dụ minh hoạ',
+  'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
+  'detail.exampleSeriesNote':
+    'Đây là chuỗi số dựng sẵn để minh hoạ đúng ý nghĩa công thức, không phải giá cổ phiếu thật của công ty nào.',
+  'detail.exampleSeriesLabel': 'ví dụ minh hoạ',
   'detail.applyToTable': 'Áp dụng vào bảng dữ liệu',
   'detail.appliedToTable': 'Đã áp dụng ✓',
   'detail.seriesLoaded': 'Đã nạp số phiên giá:',

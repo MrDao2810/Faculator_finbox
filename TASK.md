@@ -107,6 +107,212 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Lối thứ ba cho công thức chuỗi giá: "Xem ví dụ minh hoạ"
+
+Trạng thái: **xong**. Chủ dự án hỏi tiếp sau mục "Nạp số liệu cơ bản THẬT" ngay dưới đây: 35 công
+thức chuỗi giá (kể cả `beta`) vẫn dùng `bars`/`VN_INDEX_BARS` PRNG bịa vì Finbox_v2 không có đủ
+lịch sử giá — vậy người dùng không hiểu bộ mẫu và cũng không có chuỗi giá thật của riêng mình để
+dán thì làm sao "hiểu và test được"?
+
+**Phát hiện khi rà:** hai lối cũ (nút "Nạp mẫu" đầu trang, nút "Dán chuỗi giá từ Excel" ở khối Số
+liệu) đều đòi một trong hai điều kiện đó. Tệ hơn, "Nạp mẫu" với công thức chuỗi âm thầm cho một kết
+quả SAI Ý NGHĨA mà không cảnh báo gì: 4 preset công ty là 4 chuỗi PRNG độc lập không có nhân tố thị
+trường chung, nên nạp bất kỳ mã nào cho `beta` ra một số gần 0 — đúng về toán học (không NaN,
+không Infinity) nhưng phá hỏng đúng bài học beta phải dạy (xem docblock gốc ở đầu
+`risk-ratios.ts`).
+
+Trong khi đó mỗi công thức trong 35 công thức này đã tự khai `spec.example.series` (hoặc
+`example.bars` với nhóm nến, `example.marketSeries` riêng cho `beta`) — chuỗi số dựng TAY để ra
+đúng `example.expected`, dùng để tự kiểm ở `formulas.test.ts`. Dữ liệu đúng đã có sẵn, chỉ là chưa
+ai nối nó vào màn hình: `ExampleBlock` (khối "Ví dụ thực tế" cuối trang) chỉ đọc/gõ được ô số vô
+hướng (`example.inputs`), hoàn toàn không đụng tới `example.series`.
+
+**Giải pháp:** thêm nút thứ ba "Xem ví dụ minh hoạ" ngay cạnh "Dán chuỗi giá từ Excel" trong khối
+Số liệu (chủ dự án chọn vị trí này qua `AskUserQuestion`, thay vì giấu trong PresetSheet hay chỉ
+hiện số tĩnh không tương tác). Bấm vào nạp thẳng `spec.example.series`/`example.bars` vào `bars`
+— không bịa số liệu mới, tái dùng đúng hằng số mỗi công thức đã tự khai. Nhãn nút đổi thành "Đã xem
+ví dụ minh hoạ ✓" và một ghi chú xuất hiện ngay dưới: "Đây là chuỗi số dựng sẵn để minh hoạ đúng ý
+nghĩa công thức, không phải giá cổ phiếu thật của công ty nào." — không để ai nhầm là số thật.
+
+Riêng `beta` cần vá thêm một chỗ: công thức này đọc CẢ HAI chuỗi cùng lúc (`ctx.series` của cổ
+phiếu VÀ `ctx.marketSeries` của VN-Index) trong một phép hồi quy, còn `ctx.marketSeries` trước đợt
+này bị khoá cứng vào `VN_INDEX_CLOSES` (tính một lần ngoài component, không phải state). Chỉ nạp vế
+cổ phiếu mà giữ nguyên vế VN-Index PRNG thì hồi quy vẫn chạy nhưng ra một số KHÁC 1,5 — sai âm thầm,
+đúng loại lỗi khó phát hiện nếu không tự kiểm bằng số. Vá bằng một state mới
+`marketSeriesOverride: ReadonlyArray<number> | null`, mặc định `null` (dùng `VN_INDEX_CLOSES` như
+cũ cho 34 công thức kia), chỉ được đặt khi bấm nút minh hoạ trên `beta` (đọc `example.marketSeries`)
+và tự trả về `null` khi người dùng nạp mẫu thật hoặc dán chuỗi thật của riêng họ (hai hành động đó
+đúng nghĩa là "thôi minh hoạ, chuyển sang thử số thật").
+
+**File đã sửa:**
+
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — thêm state `marketSeriesOverride`/`exampleLoaded`,
+  hàm `loadIllustrativeExample()`, nút mới trong khối Số liệu, ghi chú minh hoạ, và
+  `chartSeriesLabel` để câu mô tả biểu đồ nói "của ví dụ minh hoạ" thay vì im lặng khi chưa nạp mã
+  nào. `applyPreset()` và `onImport` của `PasteImportSheet` đều trả `marketSeriesOverride`/
+  `exampleLoaded` về `null`/`false`.
+- `src/application/i18n/vi.ts`, `en.ts` — 4 khoá mới: `detail.loadExample`, `detail.exampleLoaded`,
+  `detail.exampleSeriesNote`, `detail.exampleSeriesLabel`.
+- `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` — 2 ca mới: một ca chung (`ty-so-sharpe`) xác
+  nhận nút nạp đúng, đổi nhãn, hiện ghi chú, và không đụng nhãn "Nạp mẫu"; một ca riêng cho `beta`
+  xác nhận kết quả ra ĐÚNG 1,5 lần — đây là ca hồi quy chặn đúng lỗi "chỉ nạp một vế" mô tả ở trên,
+  vì nếu quên nối `marketSeriesOverride` thì test này đỏ trong khi test "hết NO_VALUE" ở ca chung
+  không bắt được.
+
+**Xác minh:** `npx tsc --noEmit` 0 lỗi · `npx eslint .` sạch · `npx prettier --check` sạch (sau một
+lượt `--write` tự canh lề đoạn state mới) · `npx vitest run` 1367/1367 (tăng 2 từ 1365) · kiểm bằng
+Chrome thật (headless, khổ 390×844) qua agent riêng: `/cong-thuc/ty-so-sharpe/` trước khi bấm hiện
+`— , — lần` + cảnh báo thiếu 60 phiên, sau khi bấm ra `1,02 lần` kèm nhãn/ghi chú đúng; `/cong-thuc/
+beta/` trước khi bấm hiện `— , — lần`, sau khi bấm ra đúng `1,5 lần` — khớp tuyệt đối
+`example.expected`, xác nhận cả hai vế dữ liệu đã đổi đồng bộ.
+
+**Còn lại:** đây chỉ là lối "hiểu ý nghĩa công thức", không phải nguồn số liệu thật thay cho phần
+còn thiếu — Beta và 34 công thức chuỗi giá vẫn chưa có nguồn dữ liệu giá thật (xem mục dưới), người
+dùng muốn số thật vẫn phải tự dán qua "Dán chuỗi giá từ Excel".
+
+**Mở rộng ngay sau đó — chủ dự án hỏi lại:** "thêm ở nhóm công thức nào vậy, tôi nghĩ nên thêm ở
+TẤT CẢ, từ cơ bản đến phức tạp — đã gọi không hiểu thì mọi mức đều vậy". Giải thích lại cho rõ: nút
+"Xem ví dụ minh hoạ" ở trên CHỈ cần cho 35 công thức chuỗi giá vì đây là nhóm DUY NHẤT thật sự đứng
+im ở trạng thái trống khi mới vào màn (73 công thức còn lại tính ngay bằng `defaultInputs()`, không
+bao giờ trống) — và khối "Ví dụ thực tế" (`ExampleBlock`) vốn đã có mặt ở CẢ 108 trang, không riêng
+nhóm nào, với một bộ số minh hoạ đầy đủ + nút "Về số của ví dụ". Cái thiếu thật sự không phải TÍNH
+NĂNG mà là VỊ TRÍ: khối đó nằm cuối trang, người mới vào không chắc biết cuộn xuống.
+
+Chủ dự án chọn qua `AskUserQuestion`: thêm một nút cuộn nhanh, dùng chung cho cả 108 trang. Đã thêm
+nút thứ ba **"Xem ví dụ thực tế ↓"** ở khối hành động đầu trang (giữa "Nạp mẫu" và "↓ Xuất") — bấm
+vào chỉ CUỘN xuống `#khoi-vi-du` (khối Ví dụ thực tế đã có sẵn), không nạp/đổi gì cả. Đặt tên khác
+hẳn "Xem ví dụ minh hoạ" (nút cũ, chỉ 35 công thức chuỗi, có NẠP số liệu) để hai nút không bị nhầm
+là một trên cùng một trang `beta` — nơi cả hai cùng xuất hiện.
+
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — hàm `scrollToExample()` (cùng kỹ thuật cuộn mượt +
+  kiểm `matchMedia`/`scrollIntoView` như nút "Về số của ví dụ" trong `ExampleBlock`), nút mới trong
+  `<header>`.
+- `src/application/i18n/vi.ts`, `en.ts` — khoá `detail.jumpToExample`.
+- `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` — 1 ca mới xác nhận nút có mặt trên cả công thức
+  vô hướng (`pe`) lẫn công thức chuỗi (`beta`), bấm không ném lỗi (jsdom không cài
+  `scrollIntoView`, đúng nhánh an toàn).
+
+**Xác minh:** tsc/eslint/prettier sạch · `npx vitest run` 1368/1368 (tăng 1) · Chrome thật xác nhận
+ba nút đúng thứ tự trên `/cong-thuc/pe/`, cuộn tới đúng khối (`scrollY` 0 → 1827, khối vào khung
+nhìn); trên `/cong-thuc/beta/` cả hai nút "Xem ví dụ…" cùng có mặt, tách biệt rõ vị trí lẫn chữ, bấm
+nút đầu trang không đụng gì tới ô nhập/kết quả phía trên (HTML khối Số liệu y hệt trước/sau).
+
+**Đính chính ngay sau đó — chủ dự án hỏi nhầm:** "'Xem ví dụ thực tế' là dùng ví dụ, mã được gọi từ
+API Finbox về đúng không? Nếu đúng thì thêm hiệu ứng cho biết ví dụ thực tế bắt đầu từ đâu, như thế
+nào." Câu trả lời: KHÔNG — cả "Ví dụ thực tế" (`spec.example`, ví dụ `multiples.ts:85-93` của P/E:
+`{ title: 'Giá 92.000 ₫, EPS 6.050 ₫', inputs: { price: 92_000, eps: 6_050 }, expected: 15.21 }`)
+lẫn "Xem ví dụ minh hoạ" (`spec.example.series`) đều là số TĨNH viết tay trong code, biên dịch vào
+trang lúc build — không gọi API, không có tên công ty nào cả (kể cả site cũng không backend để gọi
+lúc chạy, `output: 'export'`). Nơi DUY NHẤT có số thật từ Finbox_v2 là nút "Nạp mẫu" (fundamentals
+của FPT/HPG/VNM/MWG, xem mục "Nạp số liệu cơ bản THẬT" phía dưới) — nhưng cũng chỉ lấy lúc tôi tự
+chạy `npm run gen:live-fundamentals` bằng tay khi code, không phải lúc người dùng mở trang.
+
+Chủ dự án chọn qua `AskUserQuestion`: thêm chú thích nguồn gốc ngay ở nút "Nạp mẫu" — đúng chỗ có
+số thật, thay vì hiệu ứng chung chung không phân biệt được ba tầng dữ liệu (Ví dụ thực tế / Xem ví
+dụ minh hoạ / Nạp mẫu) đang dễ gây nhầm.
+
+- `src/data/types.ts` — thêm `Preset.fundamentalsAsOf?: string`, cố ý CHỈ ghi ngày, không ghi tên
+  nguồn: tầng Data giữ nguyên đúng lời hứa FR-17 "giao diện chỉ được biết tới `DataProvider`".
+- `src/data/samples.ts` — `preset()` gán `fundamentalsAsOf: LIVE_FUNDAMENTALS_FETCHED_AT` cho cả
+  bốn mã (cùng một lượt sinh, cùng một mốc).
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — biến `loadedFundamentalsAsOf` (tra qua
+  `SAMPLE_DATA.byCode(loadedPreset)`, không giữ state riêng — `loadedPreset` đã là nguồn sự thật
+  duy nhất); dòng ghi chú mới trong `<header>`, chỉ hiện khi có mốc để nói. Tên nguồn ("Finbox_v2")
+  nằm ở chuỗi UI, không phải trong dữ liệu — content, không phải một khớp nối code vi phạm CON-02.
+- `src/application/i18n/vi.ts`, `en.ts` — khoá `detail.fundamentalsSource`.
+- `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` — 1 ca mới: chưa nạp thì chưa có dòng nào, nạp
+  FPT xong thì dòng hiện đúng "Finbox_v2" + ngày khớp `fundamentalsAsOf`; và một khẳng định thêm ở
+  ca "Xem ví dụ minh hoạ" đã có — bấm nút đó KHÔNG được để dòng "Finbox_v2" xuất hiện.
+
+**Xác minh:** tsc/eslint/prettier sạch · `npx vitest run` 1369/1369 (tăng 1) · Chrome thật xác nhận
+dòng hiện đúng "Số liệu cơ bản (…) của mã này lấy thật từ Finbox_v2, đối chiếu lúc 21/08/2026" sau
+khi nạp FPT ở `/cong-thuc/pe/`, và hoàn toàn vắng mặt trên `/cong-thuc/beta/` sau khi chỉ bấm "Xem
+ví dụ minh hoạ" (không đụng "Nạp mẫu").
+
+---
+
+## Nạp số liệu cơ bản THẬT từ API Finbox_v2 vào bộ mẫu WF-10
+
+Trạng thái: **xong**. Chủ dự án yêu cầu tìm hiểu xem API của Finbox_v2 (`C:\finbox_v2`, dự án
+Flutter cùng công ty) có dùng được để vá phần `src/data/samples.ts` đang bịa (`isDraft: true`,
+một trong hai việc chặn v0.1) hay không.
+
+### Khảo sát
+
+Đọc code `finbox_v2` (KHÔNG sửa gì — chỉ đọc) rồi gọi thử API thật (`dcs.finbox.vn`, không cần
+Bearer token):
+
+- **`POST /v1/getTickerDetail {ticker, day:0}` — CÓ số liệu cơ bản thật**: EPS pha loãng, giá trị
+  sổ sách/CP, số CP lưu hành, kỳ báo cáo, lợi nhuận ròng theo quý (`dynamic.ln_q{quý}/{năm}`), tỷ
+  lệ cổ tức tiền mặt theo năm (`dynamic.ct_ct_tm_{năm}`).
+- **KHÔNG có API OHLCV dài hạn hay VN-Index dài hạn** — `tendays` chỉ 10 phiên (1 giá/phiên,
+  không OHLC), tham số `day` không lùi được cửa sổ (thử `day:10`, response giống hệt `day:0`).
+  `GET /dashboard/index` (VN-Index) chỉ 21 phiên thật. Không đủ cho 34 công thức chuỗi giá
+  (SMA/RSI/Bollinger/MACD/volatility/Sharpe/VaR/drawdown) hay cho Beta.
+- **Không có field `equity` (vốn chủ sở hữu) tuyệt đối** — chỉ có tỷ lệ Nợ/VCSH.
+
+⇒ Quyết định phạm vi: chỉ thay phần **fundamentals** cho 4 mã đang có preset (FPT, HPG, VNM,
+MWG). Chuỗi giá (`bars`, `VN_INDEX_BARS`) vẫn PRNG bịa như cũ.
+
+### Vá theo đường (không phải theo dự đoán ban đầu)
+
+Kế hoạch ban đầu giả định `dividendPerShare` là TỶ LỆ trên mệnh giá (gặp VCB
+`ct_ct_tm_2025=0.45` giống 45%) — **sai**. Đối chiếu thêm VNM/FPT mới thấy đây là cùng thang
+"nghìn ₫" như các field khác (VNM `...=4.35` → 4.350 ₫/CP thật, khớp mức cổ tức VNM vẫn trả).
+
+Nghiêm trọng hơn: kế hoạch ban đầu định lấy `netIncome` từ `dynamic.ln_y{năm hiện tại}` — **sai
+63%** cho MWG. `ln_y2026=6017` chỉ là LŨY KẾ TỪ ĐẦU NĂM (2026 chưa hết năm), không cùng kỳ với
+EPS hiện tại (12 tháng gần nhất). Test "vòng khép kín" trong `preset-inputs.test.ts` (nạp
+fundamentals vào `eps-co-ban` rồi so lại đúng EPS đã khai) bắt được ngay — đúng việc nó được dựng
+ra để làm. Vá bằng TTM: cộng 4 quý gần nhất (`ln_q{quý}/{năm}`), khớp `eps_pha_loang × slcp`
+trong vòng 0,2%.
+
+### Đã đổi
+
+- `scripts/gen-live-fundamentals.mjs` (mới) — script chạy TAY, cần mạng (`npm run
+gen:live-fundamentals`), KHÔNG nằm trong `npm test`/CI. Gọi 4 lần API cho FPT/HPG/VNM/MWG, tự
+  đối chiếu P/E, P/B, và TTM-netIncome-vs-EPS trước khi ghi file — lệch quá 1% thì `throw`, không
+  ghi số sai.
+- `src/data/live-fundamentals.generated.ts` (mới, sinh tự động) — export `LIVE_FUNDAMENTALS`
+  theo mã + `LIVE_FUNDAMENTALS_FETCHED_AT`.
+- `src/data/samples.ts` — 4 preset đọc `eps`/`bookValuePerShare`/`sharesOutstanding`/
+  `dividendPerShare`/`netIncome`/`period` từ `LIVE_FUNDAMENTALS` (số thật); `equity` vẫn suy ra
+  bằng `bookValuePerShare × sharesOutstanding` (API không có field này). `bars`/`VN_INDEX_BARS`
+  không đổi — vẫn PRNG. `isDraft: true` **giữ nguyên** trên cả 4 preset (chuỗi giá vẫn bịa nên
+  preset chưa "đối chiếu báo cáo thật" trọn vẹn).
+- `package.json` — thêm script `gen:live-fundamentals`.
+- Sửa 3 file test khớp số thật mới: `src/data/preset-inputs.test.ts` (bỏ số ghim cứng của FPT
+  cũ; nới lỏng vòng khép kín `eps-co-ban`/`roe` xuống dung sai tương đối 2% — netIncome nay là số
+  thật độc lập, không còn suy đúng-tuyệt-đối từ eps×shares nữa; `bvps` vẫn khép kín chính xác vì
+  equity vẫn suy ra), `src/data/provider.test.ts` (kỳ báo cáo đọc động thay vì ghim "BCTC 2025"),
+  `FormulaDetail.test.tsx` (số cổ phiếu hiển thị đọc động, so bằng số thay vì chuỗi ghim cứng).
+- `src/core/formulas/fundamentals.ts` — 3 chỗ `example.title`/`.note` của `eps-co-ban`, `bvps`,
+  `ty-le-chi-tra-co-tuc` từng khẳng định "khớp bộ số liệu mẫu"/nêu đích danh "bộ số FPT của
+  WF-10" — nay không còn đúng vì bộ mẫu đổi theo mỗi lần chạy `gen:live-fundamentals`.
+  `prose-audit.test.ts` bắt được 2/3 chỗ (chỗ thứ ba không khớp regex `/số liệu mẫu/` nhưng cùng
+  loại lỗi, sửa luôn cho nhất quán). Số trong `inputs`/`expected`/`tests[]` giữ nguyên — đây là ví
+  dụ minh hoạ cố định, không phải số đọc từ `samples.ts` lúc chạy, chỉ đổi phần prose từng khẳng
+  định sai.
+
+Xác minh: `npx tsc --noEmit` 0 lỗi; `npm run lint`/`format:check` sạch; `npm test`
+**1365/1365 qua 62 file**; `npm run build` + `npm run size` (175,5 kB, dưới cửa kiểm 180 kB) +
+`npm run verify:static` (24/24) đều xanh; kiểm Chrome thật thủ công: nạp mẫu FPT ở trang `roe`,
+ô `netIncome`/`equity` hiện đúng `9.999,4`/`39.851,2` — khớp `LIVE_FUNDAMENTALS.FPT`.
+
+### Công thức được lợi (23 dòng, 8 file nhóm)
+
+`pe`, `so-graham`, `ty-suat-loi-nhuan-tren-gia`, `gia-muc-tieu`, `ty-le-chi-tra-co-tuc` (EPS thật);
+`pb` (BVPS thật); `von-hoa-thi-truong`, `ncav-tren-co-phieu`, `gia-tri-noi-tai-fcff` (số CP thật);
+`eps-co-ban`, `roe`, `roa`, `bien-loi-nhuan-rong` (netIncome thật — trước đây suy từ eps×shares);
+`bvps`, `no-tren-von-chu`, `wacc`, `don-bay-hieu-dung` (equity — vẫn suy ra, không có field thật);
+`mo-hinh-gordon`, `ddm-hai-giai-doan`, `hpr`, `ty-suat-co-tuc`, `thue-tncn-dau-tu`, `thue-co-tuc`
+(dividend thật, cùng thang nghìn ₫ như eps/bookValue).
+
+**Chưa giải quyết** (API không đủ): Beta, và 34 công thức chuỗi giá dài — xem
+`src/core/formulas/README.md` mục "Còn thiếu".
+
+---
+
 ## Dịch nốt câu miễn trừ trên màn — khoá cuối cùng của từ điển EN
 
 Trạng thái: **xong**. Chủ dự án yêu cầu: dải miễn trừ "Kết quả chỉ mang tính tham khảo, không

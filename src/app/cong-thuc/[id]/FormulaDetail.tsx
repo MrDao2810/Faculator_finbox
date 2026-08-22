@@ -16,6 +16,7 @@ import {
   emptyCashflowRow,
   findFormulaModule,
   formatCalcOutput,
+  formatIsoDate,
   hasDraftData,
   needsPriceSeries,
   parseStoredSeries,
@@ -147,6 +148,21 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const [seriesCount, setSeriesCount] = useState<number | null>(null);
   const [bars, setBars] = useState<ReadonlyArray<SeriesRow> | null>(null);
   /**
+   * Ghi đè `ctx.marketSeries` (VN-Index) — CHỈ khi người dùng vừa bấm "Xem ví dụ minh hoạ" trên
+   * một công thức có khai `example.marketSeries` (hiện chỉ `beta`). `null` là trạng thái bình
+   * thường của 107 công thức còn lại, dùng luôn `VN_INDEX_CLOSES` cố định như trước đợt này.
+   *
+   * Vì sao Beta cần thêm biến này mà 34 công thức chuỗi khác thì không: Beta đọc CẢ HAI chuỗi
+   * (`ctx.series` của cổ phiếu và `ctx.marketSeries` của VN-Index) trong cùng một phép hồi quy.
+   * Nạp đúng `example.series` (vế cổ phiếu) mà vẫn giữ `VN_INDEX_CLOSES` PRNG bịa (vế thị trường)
+   * thì hồi quy KHÔNG ra được `example.expected` — hai vế phải cùng là số dựng tay mới khớp nhau.
+   */
+  const [marketSeriesOverride, setMarketSeriesOverride] = useState<ReadonlyArray<number> | null>(
+    null,
+  );
+  /** Đang bày chuỗi minh hoạ (không phải bộ mẫu công ty thật, không phải chuỗi người dùng dán). */
+  const [exampleLoaded, setExampleLoaded] = useState(false);
+  /**
    * Đã ghi `bars` hiện tại vào bảng WF-05 (`/du-lieu/`) hay chưa — nhãn nút "Áp dụng vào bảng
    * dữ liệu" đổi thành "Đã áp dụng ✓" sau khi bấm, cùng nếp với `loadedPreset`. Đặt lại về false
    * mỗi khi `bars` đổi (nạp mẫu khác, dán chuỗi khác) — xem effect ngay dưới `applyToDataTable`.
@@ -198,7 +214,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     () => ({
       asOf,
       schedule: scheduleOrDefault(MARKET_CONFIG, feeScheduleId),
-      marketSeries: VN_INDEX_CLOSES,
+      marketSeries: marketSeriesOverride ?? VN_INDEX_CLOSES,
       cashflows: cashflowsOf(cashflowRows),
       ...(bars === null
         ? {}
@@ -209,7 +225,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               .filter((close): close is number => typeof close === 'number' && close > 0),
           }),
     }),
-    [asOf, feeScheduleId, bars, cashflowRows],
+    [asOf, feeScheduleId, bars, cashflowRows, marketSeriesOverride],
   );
 
   const formula = findFormulaModule(spec.id);
@@ -335,6 +351,22 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   /** Công thức này đã có biểu đồ thật, hay còn đứng ở khung chờ. */
   const showChart = hasChart(spec);
 
+  /**
+   * Tên nguồn chuỗi để câu mô tả biểu đồ nói rõ "của FPT" hay "của ví dụ minh hoạ" — ưu tiên mã
+   * mẫu thật, vì `loadedPreset` luôn về `null` khi `loadIllustrativeExample()` chạy (xem hàm đó).
+   */
+  const chartSeriesLabel =
+    loadedPreset ?? (exampleLoaded ? t('detail.exampleSeriesLabel') : undefined);
+
+  /**
+   * Ngày đối chiếu fundamentals của preset đang nạp — tra qua `SAMPLE_DATA` bằng mã thay vì giữ
+   * một state riêng: `loadedPreset` đã là nguồn sự thật duy nhất cho "đang nạp mã nào", giữ thêm
+   * một bản sao là mở đường cho hai chỗ lệch nhau. `undefined` (không rõ/không áp dụng) và preset
+   * chưa nạp gì đều rơi về cùng `null` — khối JSX bên dưới không cần phân biệt hai lý do đó.
+   */
+  const loadedFundamentalsAsOf =
+    loadedPreset === null ? null : (SAMPLE_DATA.byCode(loadedPreset)?.fundamentalsAsOf ?? null);
+
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
 
@@ -392,6 +424,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
     setInputs((current) => ({ ...current, ...fromPreset }));
     setLoadedPreset(preset.code);
+    // Nạp mẫu công ty thật thì thôi ở trạng thái "ví dụ minh hoạ" — xem loadIllustrativeExample().
+    setMarketSeriesOverride(null);
+    setExampleLoaded(false);
 
     /*
      * Chuỗi phiên của bộ mẫu đi thẳng vào ctx.
@@ -443,6 +478,40 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   }
 
   /**
+   * Nạp chuỗi MINH HOẠ có sẵn trong `spec.example` — lối thứ ba cho người chưa hiểu bộ mẫu 4
+   * công ty (PRNG bịa, không mang ý nghĩa gì cho công thức chuỗi) và cũng không có chuỗi giá thật
+   * nào của riêng mình để dán. Khác hẳn "Nạp mẫu": số ở đây KHÔNG PHẢI giá cổ phiếu của công ty
+   * nào — chỉ là chuỗi dựng tay để công thức ra ĐÚNG kết quả minh hoạ đã ghi ở `example.expected`
+   * (vd Beta ra đúng 1,5, thay vì một số gần 0 vô nghĩa mà 4 preset PRNG độc lập cho ra — xem
+   * docblock đầu `risk-ratios.ts`). Không bịa số liệu mới: dùng lại đúng hằng số mỗi công thức đã
+   * tự khai trong `spec.example`/`spec.tests` để tự kiểm ở `formulas.test.ts`.
+   *
+   * `date` đặt bằng chỉ số phiên dạng chuỗi ('1', '2'…) chứ không phải ngày thật: biểu đồ vốn đã
+   * vẽ theo CHỈ SỐ phiên chứ không theo mốc thời gian (xem docblock `historyPoints()`), và một
+   * ngày ISO bịa ra dễ bị hiểu lầm là phiên giao dịch thật đã từng xảy ra.
+   */
+  function loadIllustrativeExample(): void {
+    const rows =
+      spec.example.bars ??
+      spec.example.series?.map((close, index) => ({
+        date: String(index + 1),
+        open: null,
+        high: null,
+        low: null,
+        close,
+        volume: null,
+      }));
+    if (rows === undefined || rows.length === 0) return;
+
+    setBars(rows);
+    setSeriesCount(rows.length);
+    setMarketSeriesOverride(spec.example.marketSeries ?? null);
+    setLoadedPreset(null);
+    setExampleLoaded(true);
+    setAppliedToTable(false);
+  }
+
+  /**
    * Ghi `bars` hiện tại vào bảng WF-05 (`/du-lieu/`) — hành động RÕ RÀNG do người dùng chủ động
    * bấm, khác hẳn "Nạp mẫu"/"Dán chuỗi giá" vốn cố ý không tự ghi đè (xem docblock ở
    * `applyPreset()`). Mã đi kèm lấy từ `loadedPreset` nếu có; dán tay thì không có mã, để trống
@@ -461,6 +530,24 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     }
   }
 
+  /**
+   * Cuộn xuống khối "Ví dụ thực tế" ở cuối trang (mọi công thức đều có, không riêng nhóm chuỗi
+   * giá) — lối cho người vừa vào màn, chưa hiểu công thức và cũng chưa có số liệu riêng, khỏi
+   * phải tự đoán cuộn xuống đâu. Khối đó đã bày sẵn một bộ số minh hoạ đầy đủ, gõ được, kèm nút
+   * quay về số gốc — không có gì mới để dựng, chỉ là đưa lối vào nó lên gần tầm mắt hơn.
+   *
+   * Cùng kỹ thuật cuộn với nút "Về số của ví dụ" trong `ExampleBlock` (kiểm `matchMedia` trước khi
+   * gọi vì jsdom không cài đặt nó — xem docblock ở đó), chỉ đổi chiều: từ đầu trang xuống cuối.
+   */
+  function scrollToExample(): void {
+    const target = document.getElementById('khoi-vi-du');
+    if (target === null || typeof target.scrollIntoView !== 'function') return;
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
   return (
     <div className={styles.detail}>
       {/*
@@ -470,7 +557,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       */}
       <DisclaimerBar variant="notice" />
 
-      {/* ── 1. Đầu màn: đường ra, tên, nhóm, hai nút hành động ────────────── */}
+      {/* ── 1. Đầu màn: đường ra, tên, nhóm, ba nút hành động ────────────── */}
       <header className={styles.head}>
         {/*
           Đường ra khỏi màn này. Wireframe vẽ dấu `‹` ở hàng đầu của mọi màn trong; bản dựng
@@ -499,6 +586,16 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               : `${t('detail.preset')} ${loadedPreset}`}
           </Button>
 
+          {/*
+            Lối tắt cho người vừa vào màn, chưa hiểu công thức và chưa có số liệu riêng — chung
+            cho CẢ 108 công thức, không riêng nhóm chuỗi giá (xem docblock `scrollToExample()`).
+            Chỉ CUỘN, không nạp gì cả — khác hẳn nút "Xem ví dụ minh hoạ" ở khối Số liệu của 35
+            công thức chuỗi giá, vốn NẠP số liệu minh hoạ vào phép tính.
+          */}
+          <Button variant="secondary" size="sm" onClick={scrollToExample}>
+            {t('detail.jumpToExample')}
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"
@@ -509,6 +606,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             {t('detail.export')}
           </Button>
         </div>
+
+        {/*
+          Trả lời câu "số liệu mẫu bắt đầu từ đâu, như thế nào" — chỉ hiện khi đã nạp một preset
+          CÓ mốc đối chiếu (bốn mã WF-10 hiện tại đều có, xem `samples.ts`). Không hiện cho
+          "Xem ví dụ minh hoạ" hay dán tay: cả hai đều không phải số đối chiếu báo cáo thật.
+        */}
+        {loadedFundamentalsAsOf !== null && (
+          <p className={styles.pendingNote}>
+            {t('detail.fundamentalsSource')} {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
+          </p>
+        )}
       </header>
 
       {/* ── 2. Ý nghĩa ───────────────────────────────────────────────────── */}
@@ -629,6 +737,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             </Button>
 
             {/*
+              Lối thứ ba cho người chưa có chuỗi giá thật để dán VÀ không hiểu bộ mẫu 4 công ty —
+              xem docblock `loadIllustrativeExample()`. Ẩn hẳn với công thức không khai
+              `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
+            */}
+            {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
+              <Button variant="secondary" size="sm" onClick={loadIllustrativeExample}>
+                {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
+              </Button>
+            )}
+
+            {/*
               Chỉ hiện khi đã có gì để áp dụng — nút này ghi CHỦ Ý, khác "Nạp mẫu"/"Dán chuỗi
               giá" vốn cố ý không tự ghi đè bảng WF-05 (xem docblock `applyToDataTable()`).
               Chủ dự án báo mất dấu: nạp mẫu xong sang /du-lieu/ không thấy gì — đây là lối vá.
@@ -658,6 +777,11 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           <p className={styles.pendingNote}>
             {t('detail.seriesLoaded')} {seriesCount}
           </p>
+        )}
+
+        {/* Chỉ hiện khi số đang bày LÀ chuỗi minh hoạ — đừng để người dùng tưởng nhầm là số thật. */}
+        {wantsSeries && exampleLoaded && (
+          <p className={styles.pendingNote}>{t('detail.exampleSeriesNote')}</p>
         )}
 
         {/*
@@ -729,7 +853,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             ctx={ctx}
             output={chartOutput}
             level={mode}
-            {...(loadedPreset === null ? {} : { seriesLabel: loadedPreset })}
+            {...(chartSeriesLabel === undefined ? {} : { seriesLabel: chartSeriesLabel })}
           />
         </section>
       )}
@@ -794,6 +918,10 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           }}
           onImport={(result) => {
             setSeriesCount(result.rows.length);
+            // Dán chuỗi thật của riêng mình thì thôi ở trạng thái "ví dụ minh hoạ" — người dùng
+            // vừa đưa vào đúng thứ khối minh hoạ tồn tại để thay thế.
+            setMarketSeriesOverride(null);
+            setExampleLoaded(false);
             // Chuỗi vừa dán đi thẳng vào ctx để công thức chuỗi tính NGAY — không ghi đè bảng
             // WF-05 đã lưu: dán ở màn chi tiết là thao tác thử nhanh, bảng là dữ liệu người
             // dùng chủ động quản ở /du-lieu/.

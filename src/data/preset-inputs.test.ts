@@ -28,7 +28,7 @@ describe('presetInputs — điền đúng ô, đúng đơn vị', () => {
     const filled = presetInputs(FPT, moduleOf('pe').spec);
 
     expect(Object.keys(filled).sort()).toEqual(['eps', 'price']);
-    expect(filled.eps).toBe(6_050);
+    expect(filled.eps).toBe(FPT.fundamentals.eps);
     expect(filled.price).toBe(LAST_CLOSE);
   });
 
@@ -63,14 +63,14 @@ describe('số cổ phiếu — hai khoá, hai đơn vị', () => {
   it('khoá shares nhận TRIỆU cổ phiếu', () => {
     const filled = presetInputs(FPT, moduleOf('von-hoa-thi-truong').spec);
 
-    expect(filled.shares).toBe(1_470); // 1,47 tỷ CP viết bằng triệu CP
+    expect(filled.shares).toBeCloseTo(FPT.fundamentals.sharesOutstanding / 1_000_000, 6);
     expect(filled.price).toBe(LAST_CLOSE);
   });
 
   it('khoá sharesOutstanding nhận nguyên số cổ phiếu', () => {
     const filled = presetInputs(FPT, moduleOf('bvps').spec);
 
-    expect(filled.sharesOutstanding).toBe(1_470_000_000);
+    expect(filled.sharesOutstanding).toBe(FPT.fundamentals.sharesOutstanding);
   });
 
   it('đơn vị trong Registry bị khoá lại — đổi đơn vị mà quên sửa map thì test đỏ, không phải người dùng nhận số sai', () => {
@@ -90,49 +90,66 @@ describe('số cổ phiếu — hai khoá, hai đơn vị', () => {
     const out = runFormula(cap, inputs, CTX);
 
     // giá (₫/CP) × số CP ÷ một tỷ = tỷ ₫
-    const expected = (LAST_CLOSE * 1_470_000_000) / 1_000_000_000;
+    const expected = (LAST_CLOSE * FPT.fundamentals.sharesOutstanding) / 1_000_000_000;
 
     expect(out.value).not.toBeNull();
     expect(out.value ?? 0).toBeCloseTo(expected, 6);
   });
 });
 
-/*
- * ── Vòng tròn khép kín của hai trường suy ra ──────────────────────────────────────────────────
- *
- * `netIncome` và `equity` của bộ mẫu suy ra bằng `eps × số CP` và `bvps × số CP`. Nếu phép suy ấy
- * đúng thì nạp bộ mẫu vào `eps-co-ban` và `bvps` phải trả về ĐÚNG con số EPS và BVPS đã khai — đi
- * một vòng qua khoản mục toàn doanh nghiệp rồi chia lại cho số cổ phiếu. Đây là chỗ chứng minh hai
- * trường mới không mang thêm một con số tự đặt nào, chứ không chỉ là lời hứa trong JSDoc.
+/**
+ * So khớp TƯƠNG ĐỐI — dùng cho các ca ở dưới đọc `netIncome` thật (không còn khép vòng tuyệt đối
+ * như số bịa cũ, xem docblock ngay dưới).
  */
-describe('netIncome và equity suy ra — kiểm bằng vòng khép kín', () => {
+function expectCloseRelative(actual: number, expected: number, tolerance: number): void {
+  expect(Math.abs(actual - expected) / Math.abs(expected)).toBeLessThan(tolerance);
+}
+
+/*
+ * ── Vòng tròn khép kín — equity vẫn suy ra, netIncome giờ là số thật độc lập (Finbox_v2) ────────
+ *
+ * `equity` suy ra bằng `bvps × số CP` (script `gen:live-fundamentals` làm y hệt `wholeCompany()`
+ * cũ), nên nạp bộ mẫu vào `bvps` vẫn phải trả về ĐÚNG con số BVPS đã khai — không lệch một xu.
+ *
+ * `netIncome` từ đợt Finbox_v2 KHÔNG còn suy ra từ `eps × số CP` nữa — là lợi nhuận 12 tháng gần
+ * nhất đọc thẳng từ báo cáo (xem `scripts/gen-live-fundamentals.mjs`), độc lập với EPS công bố
+ * (EPS pha loãng tính theo số CP bình quân gia quyền TRONG KỲ, không phải số CP CUỐI KỲ dùng ở
+ * đây). Vòng khép kín `eps-co-ban`/`roe` vì vậy chỉ còn XẤP XỈ đúng — lệch quan sát được từ gần 0%
+ * tới ~0,2% (MWG). Ngưỡng 2% có biên an toàn nhưng vẫn bắt được lỗi kỳ báo cáo/đơn vị thật sự
+ * (bài học TTM-vs-luỹ-kế-từ-đầu-năm từng vá — lệch tới 63%, vượt xa 2%).
+ */
+describe('vòng khép kín equity, netIncome xấp xỉ EPS thật (Finbox_v2)', () => {
   for (const preset of SAMPLE_PRESETS) {
-    it(`${preset.code}: nạp vào eps-co-ban ra lại đúng EPS đã khai`, () => {
-      const eps = moduleOf('eps-co-ban');
-      const inputs = { ...defaultInputs(eps.spec), ...presetInputs(preset, eps.spec) };
-
-      expect(runFormula(eps, inputs, CTX).value ?? 0).toBeCloseTo(preset.fundamentals.eps, 6);
-    });
-
     it(`${preset.code}: nạp vào bvps ra lại đúng BVPS đã khai`, () => {
       const bvps = moduleOf('bvps');
       const inputs = { ...defaultInputs(bvps.spec), ...presetInputs(preset, bvps.spec) };
 
+      // Độ chính xác 1 (không phải 6 như trước): `equity` sinh ra làm tròn 1 chữ số thập phân
+      // (tỷ ₫) trong gen-live-fundamentals.mjs, nên đi vòng qua rồi chia lại lệch cỡ 0,01-0,02 ₫
+      // trên số hàng chục nghìn — làm tròn hiển thị, không phải số bịa thêm.
       expect(runFormula(bvps, inputs, CTX).value ?? 0).toBeCloseTo(
         preset.fundamentals.bookValuePerShare,
-        6,
+        1,
       );
     });
 
-    it(`${preset.code}: ROE bằng đúng EPS chia BVPS`, () => {
+    it(`${preset.code}: nạp vào eps-co-ban ra lại XẤP XỈ EPS đã khai`, () => {
+      const eps = moduleOf('eps-co-ban');
+      const inputs = { ...defaultInputs(eps.spec), ...presetInputs(preset, eps.spec) };
+
+      expectCloseRelative(runFormula(eps, inputs, CTX).value ?? 0, preset.fundamentals.eps, 0.02);
+    });
+
+    it(`${preset.code}: ROE XẤP XỈ EPS chia BVPS`, () => {
       const roe = moduleOf('roe');
       const inputs = { ...defaultInputs(roe.spec), ...presetInputs(preset, roe.spec) };
       const { eps, bookValuePerShare } = preset.fundamentals;
 
-      // ROE = LNST/VCSH = (eps × CP)/(bvps × CP) = eps/bvps. Số cổ phiếu triệt tiêu.
-      expect(runFormula(roe, inputs, CTX).value ?? 0).toBeCloseTo(
+      // ROE = LNST/VCSH; nếu netIncome khớp hệt eps×CP thì bằng eps/bvps — nay chỉ còn xấp xỉ.
+      expectCloseRelative(
+        runFormula(roe, inputs, CTX).value ?? 0,
         (eps / bookValuePerShare) * 100,
-        6,
+        0.02,
       );
     });
   }

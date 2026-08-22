@@ -4,7 +4,7 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-import { FORMULAS, NO_VALUE, WARNING_LABELS, t } from '@/application';
+import { FORMULAS, NO_VALUE, SAMPLE_DATA, WARNING_LABELS, formatIsoDate, t } from '@/application';
 import type { FormulaSpec } from '@/application';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
@@ -448,6 +448,33 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     expect(screen.getByRole('button', { name: /Đã nạp FPT/ })).not.toBeNull();
   });
 
+  /*
+   * Chủ dự án hỏi "ví dụ thực tế lấy từ API Finbox đúng không, cho biết bắt đầu từ đâu, như thế
+   * nào" — hoá ra câu hỏi đó chỉ đúng với "Nạp mẫu" (Ví dụ thực tế/"Xem ví dụ minh hoạ" đều là số
+   * tĩnh viết tay, không đụng API). Ca này chốt đúng chỗ CÓ số thật: sau khi nạp mẫu, màn phải nói
+   * rõ tên nguồn (Finbox_v2) và ngày đối chiếu — không được để người dùng tự đoán.
+   */
+  it('nạp mẫu thì hiện dòng nói rõ nguồn số liệu cơ bản (Finbox_v2) và ngày đối chiếu', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    // Chưa nạp gì thì chưa có gì để nói về nguồn — đừng bày trước khi có sự thật để bày.
+    // Chuỗi khoá có dấu ngoặc — dò bằng so khớp con chuỗi (exact: false), không bọc RegExp: bọc
+    // RegExp thì dấu ngoặc trong chuỗi bị hiểu thành cú pháp nhóm, khớp sai hẳn ý.
+    expect(screen.queryByText(t('detail.fundamentalsSource'), { exact: false })).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
+    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+
+    const fpt = SAMPLE_DATA.byCode('FPT');
+    if (fpt?.fundamentalsAsOf === undefined) {
+      throw new Error('Bộ mẫu WF-10 thiếu fundamentalsAsOf cho FPT.');
+    }
+
+    const note = screen.getByText(t('detail.fundamentalsSource'), { exact: false });
+    expect(note.textContent).toContain('Finbox_v2');
+    expect(note.textContent).toContain(formatIsoDate(fpt.fundamentalsAsOf.slice(0, 10)));
+  });
+
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
     render(<Man spec={specOf('pe')} />);
 
@@ -557,6 +584,49 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
      */
     expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
     expect(screen.getByText(/Đã nạp số phiên giá/)).not.toBeNull();
+  });
+
+  /*
+   * Lối thứ ba cho người chưa hiểu bộ mẫu 4 công ty (PRNG bịa) VÀ không có chuỗi giá thật nào
+   * của riêng mình để dán — xem docblock `loadIllustrativeExample()`. Khác "Nạp mẫu": không đòi
+   * người dùng biết bộ mẫu là gì, chỉ cần bấm một nút là công thức chạy ra đúng con số minh hoạ.
+   */
+  it('nút "Xem ví dụ minh hoạ" nạp thẳng chuỗi có sẵn trong spec.example, ra số NGAY', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+    expect(screen.queryByRole('button', { name: t('detail.exampleLoaded') })).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+
+    expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
+    // Nhãn nút đổi để người dùng biết mình vừa nạp gì, và ghi chú nói rõ đây KHÔNG phải số thật.
+    expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
+    expect(screen.getByText(t('detail.exampleSeriesNote'))).not.toBeNull();
+    // Đây không phải một bộ mẫu công ty — nút "Nạp mẫu" ở đầu trang vẫn phải đứng nguyên nhãn cũ.
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+    // Và KHÔNG được nói đây là số thật từ Finbox_v2 — chuỗi minh hoạ không đụng API nào cả.
+    expect(screen.queryByText(t('detail.fundamentalsSource'), { exact: false })).toBeNull();
+  });
+
+  /*
+   * Ca hồi quy riêng cho Beta: công thức này đọc CẢ HAI chuỗi (cổ phiếu VÀ VN-Index) cùng lúc,
+   * còn 34 công thức chuỗi khác chỉ đọc một. Nếu `loadIllustrativeExample()` chỉ nạp vế cổ phiếu
+   * (`example.series`) mà bỏ quên `example.marketSeries`, hồi quy vẫn chạy nhưng lấy vế thị
+   * trường từ `VN_INDEX_CLOSES` (PRNG bịa cố định của màn) — beta ra một số KHÁC 1,5, sai âm thầm
+   * mà ca kiểm coi "không còn NO_VALUE" ở test bên trên không bắt được. Ca này bắt đúng lỗi đó.
+   */
+  it('với Beta, nút minh hoạ đổi CẢ chuỗi cổ phiếu lẫn chuỗi VN-Index — ra đúng 1,5 lần của ví dụ', async () => {
+    render(<Man spec={specOf('beta')} />);
+
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+
+    const shown = screen.getByTestId('result-text').textContent ?? '';
+    expect(shown).not.toContain(NO_VALUE);
+    const parsed = Number(shown.replace(' lần', '').replace(',', '.'));
+    expect(parsed).toBeCloseTo(1.5, 1);
   });
 });
 
@@ -730,6 +800,25 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
     expect(screen.getByTestId('result-text').textContent).toBe('15,21 lần');
   });
+
+  /*
+   * Nút cuộn xuống khối này (đầu màn, cạnh "Nạp mẫu") phải có mặt trên CẢ 108 công thức, không
+   * riêng nhóm chuỗi giá — chủ dự án chốt điều này sau khi hỏi vì sao chỉ 35 công thức chuỗi có
+   * lối "Xem ví dụ minh hoạ": người "chưa hiểu, chưa có số liệu" là một nhóm người dùng, không
+   * phải một nhóm công thức. jsdom không cài `Element.scrollIntoView`, nên ca này còn kiểm luôn
+   * nhánh an toàn trong `scrollToExample()` không ném lỗi khi hàm đó vắng mặt.
+   */
+  it('nút "Xem ví dụ thực tế ↓" ở đầu trang có trên mọi công thức, kể cả công thức chuỗi giá', async () => {
+    for (const id of ['pe', 'beta']) {
+      const { unmount } = render(<Man spec={specOf(id)} />);
+
+      const jump = screen.getByRole('button', { name: t('detail.jumpToExample') });
+      await userEvent.click(jump);
+      expect(document.getElementById('khoi-vi-du')).not.toBeNull();
+
+      unmount();
+    }
+  });
 });
 
 describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu của mã', () => {
@@ -779,7 +868,17 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
     await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
 
-    expect((oNhap(/Số cổ phiếu lưu hành/) as HTMLInputElement).value).toBe('1.470');
+    // Không ghim cứng chuỗi hiển thị: `sharesOutstanding` đọc từ số thật (LIVE_FUNDAMENTALS,
+    // Finbox_v2), đổi mỗi lần chạy `npm run gen:live-fundamentals`. So bằng số sau khi đổi
+    // định dạng vi-VN ('.' phân nghìn, ',' thập phân) ngược lại thành number.
+    const fpt = SAMPLE_DATA.byCode('FPT');
+    if (fpt === undefined) throw new Error('Bộ mẫu thiếu FPT.');
+    const expectedShares = fpt.fundamentals.sharesOutstanding / 1_000_000;
+
+    const shown = (oNhap(/Số cổ phiếu lưu hành/) as HTMLInputElement).value;
+    expect(shown).not.toBe('118');
+    const parsed = Number(shown.replaceAll('.', '').replace(',', '.'));
+    expect(parsed).toBeCloseTo(expectedShares, 2);
   });
 });
 

@@ -22,6 +22,8 @@
     "check:chrome": "node scripts/chrome-check.mjs",
     "size": "node scripts/size-report.mjs",
     "gen:summaries": "node scripts/gen-summaries.mjs",
+    "//gen:live-fundamentals": "Chạy TAY, cần mạng: gọi API thật của Finbox_v2 (dcs.finbox.vn). Không nằm trong npm run check/CI, cùng lý do với check:chrome.",
+    "gen:live-fundamentals": "node scripts/gen-live-fundamentals.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",

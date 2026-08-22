@@ -4,9 +4,12 @@
  * Mười một công thức, cộng với P/E và P/B đã có ở `multiples.ts` là đủ 13 theo
  * `expectedCount` của SRS 3.8.
  *
- * Bộ số kiểm chứng dựng quanh preset FPT của `src/data/samples.ts` (EPS 6.050 ₫,
- * BVPS 24.800 ₫, 1,47 tỷ cổ phiếu): suy ngược ra LNST ≈ 8.894 tỷ ₫ và vốn chủ sở hữu
- * 36.456 tỷ ₫, các số còn lại (doanh thu, tổng tài sản…) đặt ở mức hợp lý cùng cỡ.
+ * Bộ số kiểm chứng minh hoạ theo cỡ một cổ phiếu vốn hoá lớn (LNST ≈ 8.894 tỷ ₫,
+ * vốn chủ sở hữu 36.456 tỷ ₫, 1,47 tỷ cổ phiếu — dựng ban đầu quanh preset FPT của
+ * `src/data/samples.ts` trước khi bộ mẫu đó đổi sang số thật từ Finbox_v2, xem TASK.md).
+ * Cố tình KHÔNG cập nhật theo mỗi lần `npm run gen:live-fundamentals`: đây là ví dụ
+ * cố định để người đọc dò tay theo, không phải khẳng định "khớp bộ số liệu mẫu"
+ * (khẳng định đó có `prose-audit.test.ts` gác riêng — xem `example.note` mỗi công thức).
  * Mọi số kỳ vọng trong `tests[]` đều tính trước bằng script dạng đóng độc lập,
  * theo đúng luật của README thư mục này.
  *
@@ -183,14 +186,14 @@ export const EPS_CO_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'LNST 8.894 tỷ ₫, 1,47 tỷ cổ phiếu — bộ số FPT của WF-10',
-        en: 'Net income 8,894 billion ₫, 1.47 billion shares — the FPT dataset from WF-10',
+        vi: 'LNST 8.894 tỷ ₫, 1,47 tỷ cổ phiếu',
+        en: 'Net income 8,894 billion ₫, 1.47 billion shares',
       },
       inputs: { netIncome: 8_894, preferredDividend: 0, sharesOutstanding: 1_470_000_000 },
       expected: 6_050.34,
       note: {
-        vi: 'Khớp EPS 6.050 ₫ trong bộ số liệu mẫu.',
-        en: 'Matches the EPS of 6,050 ₫ in the sample dataset.',
+        vi: 'Ra EPS 6.050,34 ₫ — đơn vị ₫/CP, không phải tỷ ₫ như LNST.',
+        en: 'Works out to an EPS of 6,050.34 ₫ — a per-share figure, unlike the billion-₫ scale of net income.',
       },
     },
     tests: [
@@ -281,14 +284,14 @@ export const BVPS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn chủ 36.456 tỷ ₫, 1,47 tỷ cổ phiếu — bộ số FPT của WF-10',
-        en: 'Equity 36,456 billion ₫, 1.47 billion shares — the FPT dataset from WF-10',
+        vi: 'Vốn chủ 36.456 tỷ ₫, 1,47 tỷ cổ phiếu',
+        en: 'Equity 36,456 billion ₫, 1.47 billion shares',
       },
       inputs: { equity: 36_456, sharesOutstanding: 1_470_000_000 },
       expected: 24_800,
       note: {
-        vi: 'Khớp BVPS 24.800 ₫ trong bộ số liệu mẫu.',
-        en: 'Matches the BVPS of 24,800 ₫ in the sample dataset.',
+        vi: 'Ra BVPS 24.800 ₫ — đơn vị ₫/CP, không phải tỷ ₫ như vốn chủ sở hữu.',
+        en: 'Works out to a BVPS of 24,800 ₫ — a per-share figure, unlike the billion-₫ scale of equity.',
       },
     },
     tests: [
@@ -1206,8 +1209,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Cổ tức 2.000 ₫/CP, EPS 6.050 ₫ — bộ số FPT của WF-10',
-        en: 'Dividend 2,000 ₫/share, EPS 6,050 ₫ — the FPT dataset from WF-10',
+        vi: 'Cổ tức 2.000 ₫/CP, EPS 6.050 ₫',
+        en: 'Dividend 2,000 ₫/share, EPS 6,050 ₫',
       },
       inputs: { dividendPerShare: 2_000, eps: 6_050 },
       expected: 33.06,

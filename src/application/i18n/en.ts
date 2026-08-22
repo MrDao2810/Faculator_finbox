@@ -150,6 +150,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'detail.loadPreset': 'Load sample',
   'detail.preset': 'Loaded',
+  'detail.jumpToExample': 'See the worked example ↓',
+  'detail.fundamentalsSource':
+    "This ticker's fundamentals (EPS, book value, shares, dividend…) come from real Finbox_v2 data, checked on",
   'detail.export': '↓ Export',
   'detail.meaning': 'Meaning',
   'detail.formula': 'Formula',
@@ -159,6 +162,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantsInUse': 'Calculated at these rates',
   'detail.constantSince': 'in effect since',
   'detail.pasteSeries': 'Paste a price series from Excel',
+  'detail.loadExample': 'View illustrative example',
+  'detail.exampleLoaded': 'Illustrative example loaded ✓',
+  'detail.exampleSeriesNote':
+    "This is a purpose-built illustrative series, not a real stock's price history.",
+  'detail.exampleSeriesLabel': 'the illustrative example',
   'detail.applyToTable': 'Apply to the data table',
   'detail.appliedToTable': 'Applied ✓',
   'detail.seriesLoaded': 'Price sessions loaded:',

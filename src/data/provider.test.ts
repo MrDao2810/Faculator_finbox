@@ -8,9 +8,11 @@ describe('bộ số liệu mẫu', () => {
     expect(SAMPLE_PRESETS.map((p) => p.code)).toEqual(['FPT', 'HPG', 'VNM', 'MWG']);
   });
 
-  it('mã nào cũng ghi rõ nguồn theo khuôn "BCTC 2025 · 248 phiên giá"', () => {
+  it('mã nào cũng ghi rõ nguồn theo khuôn "BCTC <kỳ> · 248 phiên giá"', () => {
+    // Kỳ báo cáo (`BCTC Q2/2026`...) đọc từ LIVE_FUNDAMENTALS, đổi theo lần chạy
+    // `gen:live-fundamentals` gần nhất — không ghim cứng một năm.
     for (const preset of SAMPLE_PRESETS) {
-      expect(preset.meta).toContain('BCTC 2025');
+      expect(preset.meta).toContain(preset.fundamentals.period);
       expect(preset.meta).toContain('248 phiên giá');
     }
   });

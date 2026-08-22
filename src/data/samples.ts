@@ -1,23 +1,29 @@
 /**
  * Tầng DATA — bộ số liệu mẫu (gói WBS 2.5.1).
  *
- * ⚠ SỐ LIỆU TỰ DỰNG — KHÔNG PHẢI BÁO CÁO TÀI CHÍNH THẬT.
+ * ⚠ CHUỖI GIÁ VẪN TỰ DỰNG — KHÔNG PHẢI GIÁ THẬT. Số liệu cơ bản (EPS, giá trị sổ sách, số CP,
+ * lợi nhuận ròng, cổ tức) từ nay đọc từ `LIVE_FUNDAMENTALS` (`live-fundamentals.generated.ts`,
+ * sinh từ API thật của Finbox_v2 — `npm run gen:live-fundamentals`). Vì chuỗi giá `bars` vẫn là
+ * PRNG bịa, cả `Preset` vẫn giữ `isDraft: true`: chưa thể coi là "đã đối chiếu báo cáo thật"
+ * trọn vẹn khi phần giá trong cùng preset còn là số tự dựng.
  *
- * SRS ghi giả định A1 và rủi ro R-01: Finbox sẽ cấp bộ số liệu mẫu, và tới giờ vẫn chưa có.
- * Không có dữ liệu thì sheet WF-10 không dựng được, nên đợt này tự dựng một bộ để hoàn thiện
- * đường đi. Con số bên dưới ở mức hợp lý cho thị trường Việt Nam nhưng **do tôi đặt ra**;
- * mọi `Preset` đều mang `isDraft: true` và giao diện bắt buộc nói rõ điều đó với người dùng.
- * Khi có số liệu thật thì thay nội dung file này, không phải sửa chỗ nào khác.
+ * `equity` (vốn chủ sở hữu) vẫn SUY RA bằng `bookValuePerShare × sharesOutstanding` — Finbox_v2
+ * không có field vốn chủ sở hữu tuyệt đối, xem docblock `scripts/gen-live-fundamentals.mjs`.
+ *
+ * SRS ghi giả định A1 và rủi ro R-01: Finbox sẽ cấp bộ số liệu mẫu — nay đã đúng một phần
+ * (fundamentals), còn chuỗi giá dài hạn theo mã và VN-Index thì API Finbox_v2 không có (đã xác
+ * nhận: tối đa 10-21 phiên, không đủ cho SMA/RSI/Bollinger/MACD hay hồi quy Beta) — xem
+ * `src/core/formulas/README.md` mục "Còn thiếu" và `TASK.md`.
  *
  * `VN_INDEX_BARS` ở cuối file là chuỗi chỉ số, không phải một `Preset` — nó không đi qua
- * PresetSheet, chỉ nạp thẳng vào `ctx.marketSeries` cho công thức Beta. Cùng mức bản thảo
- * như bốn mã trên, xem docblock riêng ngay tại chỗ khai báo.
+ * PresetSheet, chỉ nạp thẳng vào `ctx.marketSeries` cho công thức Beta. Vẫn PRNG bịa như cũ.
  *
  * Chuỗi giá sinh bằng bước ngẫu nhiên CÓ HẠT GIỐNG cố định, không dùng Math.random: bản build
  * là HTML tĩnh nên số liệu phải giống hệt nhau giữa lúc build và lúc chạy, nếu không sẽ lệch
  * hydration. Cùng lý do với việc `resolveConstant()` bắt buộc nhận `asOf` (NFR-REL-03).
  */
 
+import { LIVE_FUNDAMENTALS, LIVE_FUNDAMENTALS_FETCHED_AT } from './live-fundamentals.generated';
 import type { DailyBar, Fundamentals, Preset } from './types';
 
 /** Phiên gần nhất của bộ mẫu. Cố định, không lấy ngày hệ thống. */
@@ -93,75 +99,38 @@ function round(value: number): number {
   return Math.round(value / 10) * 10;
 }
 
-/** Số liệu cơ bản của một mã, phần khai bằng tay. `netIncome` và `equity` suy ra sau. */
-type PerShare = Omit<Fundamentals, 'netIncome' | 'equity'>;
-
-/**
- * Đổi số trên mỗi cổ phiếu thành khoản mục toàn doanh nghiệp.
- *
- * `eps` và `bookValuePerShare` tính bằng ₫/CP, nhân với số CP ra ₫, chia một tỷ ra **tỷ ₫** —
- * đúng đơn vị mà `numberVar('netIncome', …, 'tỷ ₫')` bên Domain đang chờ.
- *
- * Đây là chỗ đáng nói rõ: hai trường này **suy ra bằng phép nhân, không phải số tôi tự đặt thêm**.
- * Bộ mẫu vốn đã bịa sẵn EPS và BVPS; nhân chúng lên không bịa thêm gì, chỉ nói lại cùng một điều
- * bằng đơn vị khác. Nhờ vậy `roe`, `bvps` và `eps-co-ban` nạp được từ bộ mẫu mà số liệu bản thảo
- * không nở thêm một dòng nào. Các dòng còn lại của báo cáo (doanh thu, tổng tài sản, tài sản ngắn
- * hạn, tồn kho…) thì KHÔNG suy ra được từ đây, nên vẫn để trống chờ số liệu thật của Finbox.
- *
- * Kiểm chứng: FPT với EPS 6.050 ₫ và 1,47 tỷ CP ra 8.893,5 tỷ ₫, khớp mức 8.894 mà
- * `src/core/formulas/fundamentals.ts` đã dựng bộ số kiểm quanh nó.
- */
-function wholeCompany(perShare: PerShare): Fundamentals {
-  const shares = perShare.sharesOutstanding;
-  return {
-    ...perShare,
-    netIncome: (perShare.eps * shares) / 1_000_000_000,
-    equity: (perShare.bookValuePerShare * shares) / 1_000_000_000,
-  };
-}
-
-function preset(code: string, name: string, basePrice: number, perShare: PerShare): Preset {
+function preset(code: string, name: string, basePrice: number, fundamentals: Fundamentals): Preset {
   return {
     code,
     name,
-    meta: `${perShare.period} · ${SESSION_COUNT} phiên giá`,
-    fundamentals: wholeCompany(perShare),
+    meta: `${fundamentals.period} · ${SESSION_COUNT} phiên giá`,
+    fundamentals,
     bars: makeBars(code, basePrice),
-    // Không bao giờ đặt false ở đây cho tới khi có người đối chiếu báo cáo thật.
+    // Chuỗi giá (bars) vẫn PRNG bịa — xem docblock đầu file — nên chưa đặt false ở đây được,
+    // dù fundamentals bên dưới đã là số thật từ Finbox_v2.
     isDraft: true,
+    fundamentalsAsOf: LIVE_FUNDAMENTALS_FETCHED_AT,
   };
 }
 
-/** Bốn mã của WF-10. */
+/** Tra `LIVE_FUNDAMENTALS`, báo lỗi rõ ràng thay vì âm thầm để `undefined` lọt vào Preset. */
+function liveFundamentals(code: string): Fundamentals {
+  const found = LIVE_FUNDAMENTALS[code];
+  if (found === undefined) {
+    throw new Error(
+      `Thiếu số liệu thật cho mã ${code} trong live-fundamentals.generated.ts — chạy lại ` +
+        `\`npm run gen:live-fundamentals\`.`,
+    );
+  }
+  return found;
+}
+
+/** Bốn mã của WF-10 — fundamentals đọc từ `LIVE_FUNDAMENTALS` (số thật, Finbox_v2). */
 export const SAMPLE_PRESETS: ReadonlyArray<Preset> = [
-  preset('FPT', 'FPT Corporation', 92_000, {
-    eps: 6_050,
-    bookValuePerShare: 24_800,
-    sharesOutstanding: 1_470_000_000,
-    dividendPerShare: 2_000,
-    period: 'BCTC 2025',
-  }),
-  preset('HPG', 'Tập đoàn Hoà Phát', 25_400, {
-    eps: 1_720,
-    bookValuePerShare: 17_900,
-    sharesOutstanding: 6_390_000_000,
-    dividendPerShare: 500,
-    period: 'BCTC 2025',
-  }),
-  preset('VNM', 'Vinamilk', 64_000, {
-    eps: 4_310,
-    bookValuePerShare: 16_200,
-    sharesOutstanding: 2_090_000_000,
-    dividendPerShare: 3_850,
-    period: 'BCTC 2025',
-  }),
-  preset('MWG', 'Thế Giới Di Động', 52_000, {
-    eps: 2_480,
-    bookValuePerShare: 14_600,
-    sharesOutstanding: 1_460_000_000,
-    dividendPerShare: 500,
-    period: 'BCTC 2025',
-  }),
+  preset('FPT', 'FPT Corporation', 92_000, liveFundamentals('FPT')),
+  preset('HPG', 'Tập đoàn Hoà Phát', 25_400, liveFundamentals('HPG')),
+  preset('VNM', 'Vinamilk', 64_000, liveFundamentals('VNM')),
+  preset('MWG', 'Thế Giới Di Động', 52_000, liveFundamentals('MWG')),
 ];
 
 /**
@@ -169,8 +138,8 @@ export const SAMPLE_PRESETS: ReadonlyArray<Preset> = [
  *
  * Dùng riêng cho công thức Beta (`ctx.marketSeries`, xem docblock ở `calc/types.ts`): hồi quy
  * lợi suất cổ phiếu theo lợi suất thị trường cần một chuỗi CHỈ SỐ, không phải một mã cổ phiếu.
- * Cùng cách dựng và cùng nhãn bản thảo như bốn mã ở trên — mọi cảnh báo "⚠ SỐ LIỆU TỰ DỰNG" ở
- * đầu file này áp dụng y hệt cho chuỗi này.
+ * Cùng cách dựng và vẫn PRNG bịa như bốn mã ở trên — API Finbox_v2 có VN-Index thật nhưng chỉ
+ * ~21 phiên (đã gọi thử, xem TASK.md), không đủ dài để thay chuỗi này.
  *
  * Đã biết và cố ý CHƯA vá: bốn mã cổ phiếu và chuỗi này đều là PRNG ĐỘC LẬP, không có nhân tố
  * thị trường chung — beta tính từ chúng sẽ ra một số gần 0 (đúng về toán, không minh hoạ được

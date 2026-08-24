@@ -111,7 +111,7 @@ const formulaLinks = new Set(
  * Từ đợt này chế độ Cơ bản lọc bớt danh sách theo cấp độ (FR-09), và mặc định của sản phẩm
  * LÀ chế độ Cơ bản — nghĩa là 29 công thức mức nâng cao không hiện trên màn khi mới vào. Việc
  * đó chỉ được phép xảy ra ở phía máy khách: `StaticFormulaList` là server component, không đọc
- * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 108. Ai đó "sửa cho nhất quán"
+ * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 111. Ai đó "sửa cho nhất quán"
  * bằng cách lọc luôn ở fallback là lặng lẽ giấu 29 URL khỏi Google, mà build vẫn xanh.
  */
 const TONG_CONG_THUC = (
@@ -286,7 +286,7 @@ check(
  *
  * 2. Thân khối (`ChainBody`) phải nằm trong một chunk NẠP TRỄ: có mặt trên đĩa nhưng không
  *    một file HTML nào tham chiếu bằng thẻ <script>. Đây đúng lời hứa của `ChainPanel` —
- *    108 trang chi tiết không trả tiền cho một khối chỉ 7 công thức dùng. Dò bằng tên class
+ *    111 trang chi tiết không trả tiền cho một khối chỉ 7 công thức dùng. Dò bằng tên class
  *    CSS module (`stepFailed`) chứ không bằng chữ tiếng Việt: chuỗi tiếng Việt trong bundle
  *    bị escape unicode tuỳ chỗ, so sánh thô sẽ âm tính giả.
  */

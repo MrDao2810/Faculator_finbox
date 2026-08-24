@@ -48,7 +48,7 @@ function specOf(id: string): FormulaSpec {
  *
  * Dựng ký hiệu toán bằng **chính hàm `page.tsx` gọi**, không phải một chuỗi giả: nếu ca kiểm nhận
  * `latexHtml="<math/>"` viết tay thì nó chứng minh được đúng một thứ là component in ra cái nó
- * được đưa — còn việc 108 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
+ * được đưa — còn việc 111 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
  * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX kèm theo, miễn phí.
  */
 function Man({ spec }: { spec: FormulaSpec }) {
@@ -561,7 +561,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     /*
      * Hạn 15 giây thay cho mặc định 5 giây.
      *
-     * Ca này dựng TRỌN 108 màn chi tiết — chạy riêng mất khoảng 3,3 giây, nhưng khi vitest chạy
+     * Ca này dựng TRỌN 111 màn chi tiết — chạy riêng mất khoảng 3,3 giây, nhưng khi vitest chạy
      * song song nhiều file thì các worker giành CPU và nó lên hơn 5 giây, tức đỏ vì máy đang bận
      * chứ không vì sản phẩm sai. Nới hạn cho ĐÚNG ca này, không nới toàn cục: mọi ca khác vẫn nên
      * hỏng nếu chậm bất thường.
@@ -809,7 +809,7 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   /*
-   * Nút cuộn xuống khối này (đầu màn, cạnh "Nạp mẫu") phải có mặt trên CẢ 108 công thức, không
+   * Nút cuộn xuống khối này (đầu màn, cạnh "Nạp mẫu") phải có mặt trên CẢ 111 công thức, không
    * riêng nhóm chuỗi giá — chủ dự án chốt điều này sau khi hỏi vì sao chỉ 35 công thức chuỗi có
    * lối "Xem ví dụ minh hoạ": người "chưa hiểu, chưa có số liệu" là một nhóm người dùng, không
    * phải một nhóm công thức. jsdom không cài `Element.scrollIntoView`, nên ca này còn kiểm luôn

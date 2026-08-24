@@ -1,12 +1,12 @@
 /**
- * Cửa gác NỘI DUNG — đối chiếu 432 đoạn diễn giải của 108 công thức với chính `spec`, `calc` và
+ * Cửa gác NỘI DUNG — đối chiếu 444 đoạn diễn giải của 111 công thức với chính `spec`, `calc` và
  * bộ số liệu mẫu.
  *
  * ## Nó gác cái gì, và vì sao không cửa nào khác gác được
  *
  * Mọi cửa kiểm còn lại của dự án đều gác CON SỐ: `formulas.test.ts` chạy `spec.tests`, `chart.test.ts`
  * chốt tổng các chặng, `registry.test.ts` đếm nhóm. Không cái nào đọc câu chữ. Mà lỗi trong câu chữ
- * thì không bao giờ tự lộ: mỗi câu đều là tiếng Việt hợp lệ, và người duyệt đọc tuần tự 108 công
+ * thì không bao giờ tự lộ: mỗi câu đều là tiếng Việt hợp lệ, và người duyệt đọc tuần tự 111 công
  * thức sẽ không nhớ nổi công thức thứ 12 đã nói gì để mà thấy công thức thứ 87 mâu thuẫn.
  *
  * Tiền lệ có thật, cả ba đều đã lên sản phẩm: mô tả nhóm Rủi ro từng kể tên "Beta" — một công thức

@@ -23,7 +23,7 @@
 import type { Category } from './types';
 
 export const CATEGORIES: ReadonlyArray<Category> = [
-  // ── Mảng chứng khoán — 95 công thức ────────────────────────────────────────
+  // ── Mảng chứng khoán — 98 công thức ────────────────────────────────────────
   {
     id: 'valuation',
     segment: 'stock',
@@ -170,7 +170,7 @@ export function categoriesOf(segment: Category['segment']): ReadonlyArray<Catego
   return CATEGORIES.filter((c) => c.segment === segment);
 }
 
-/** Tổng số công thức dự kiến của một mảng — dùng cho nhãn “chứng khoán 95 / cá nhân 13” ở WF-01. */
+/** Tổng số công thức dự kiến của một mảng — dùng cho nhãn “chứng khoán 98 / cá nhân 13” ở WF-01. */
 export function expectedCountOf(segment: Category['segment']): number {
   return categoriesOf(segment).reduce((sum, c) => sum + c.expectedCount, 0);
 }

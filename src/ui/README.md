@@ -33,7 +33,7 @@ build mới không tốn byte JS nào của trình duyệt, mà mọi thứ tron
 phía máy khách. Chỗ dựng nằm ở `src/app/cong-thuc/[id]/latex-html.ts`, gọi từ `page.tsx` — server
 component. Đừng bọc lại thành một `FormulaLatex` ở đây; làm thế là kéo ~280 kB `katex` vào gói.
 
-Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 98/108 công thức, kèm màn phóng to toàn màn hình.
+Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 100/111 công thức, kèm màn phóng to toàn màn hình.
 Từ gói 5.2.3 có thêm `charts/WaterfallChart` cho biểu đồ bóc tách, nay phủ **đủ 10** công thức khai
 `waterfall`/`stackedBar`. Khai `chartType: 'waterfall'` thì bóc tách là hình MẶC ĐỊNH — bốn cái
 (`ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`), đều là những công thức có đường quét thẳng nên hình
@@ -50,7 +50,7 @@ chuỗi của màn nâng cao WF-04) cùng chính màn chi tiết, nơi biến n�
 nhập dựng `LinkedInput` thay cho `VariableField`.
 
 `screens/ChainPanel` là ranh giới `next/dynamic` của khối ấy — **đừng** xuất `ChainBody` ra barrel,
-xuất là cả 108 trang chi tiết cùng gánh trong khi chỉ **7 công thức** dùng tới (`capm`, `wacc`,
+xuất là cả 111 trang chi tiết cùng gánh trong khi chỉ **7 công thức** dùng tới (`capm`, `wacc`,
 `mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), và chỉ khi bật chế độ
 Nâng cao.
 

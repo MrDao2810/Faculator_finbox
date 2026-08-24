@@ -7,18 +7,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Faculator Finbox — a Vietnamese financial/stock-formula library delivered as a **static site**:
 no backend, no database (`next.config.mjs` sets `output: 'export'`, build artifact is `out/`).
 
-**All 108 formulas** are implemented and registered in `src/core/formulas/` (17 group files
+**All 111 formulas** are implemented and registered in `src/core/formulas/` (17 group files
 spread into `FORMULA_MODULES`); **all 12 categories sit exactly at their `expectedCount`**, so there
 is no free slot anywhere. Two vitest cases hold that line — `formulas.test.ts` ("không nhóm nào vượt
-số công thức dự kiến") and `registry.test.ts`, which hard-codes 95 / 13 / 108; the Registry validator
+số công thức dự kiến") and `registry.test.ts`, which hard-codes 98 / 13 / 111; the Registry validator
 only downgrades an under-full category to a `warning`. Read that directory's README before adding
-anything: a 109th formula is a product-scope decision, not a free addition. The jump from 107 to
+anything: a 112th formula is a product-scope decision, not a free addition. The jump from 107 to
 108 (valuation 18 → 19, for `gia-tri-noi-tai-fcff`) was signed off by the project owner in package
-5.2.3; **the SRS table in section 3.8 still says 94 / 13 / 107 and has to be corrected to match.**
+5.2.3; three more "deliberately unregistered" formulas (`gia-muc-tieu`, `beta`, `xirr`) then closed
+out 108 → 111 — full history in `src/core/registry/categories.ts`'s docblock. **The SRS table in
+section 3.8 still says 94 / 13 / 107 and has to be corrected to 98 / 13 / 111.**
 
 WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as are
 packages 2.4.3 (maths notation) and **3.2.2 + 5.2.3** (the valuation chain and the WF-04 advanced
-screen). Charts cover **98 of 108** formulas; the other 10 declare `chartType: 'none'` deliberately —
+screen). Charts cover **100 of 111** formulas; the other 11 declare `chartType: 'none'` deliberately —
 their output is a monotone function of one input, so a chart would say nothing.
 
 The remaining work plan lives in the external "WBS v7" estimate and the SRS, referenced throughout
@@ -27,7 +29,7 @@ the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe scre
 
 **What blocks v0.1 is content, not code**, and two items remain: `src/data/samples.ts` is
 fabricated (seeded PRNG, `isDraft: true` — never remove those draft markers while the numbers are
-invented; three tests pin the flag), and the 108 explanations have not been peer-reviewed. The
+invented; three tests pin the flag), and the 111 explanations have not been peer-reviewed. The
 third item is closed — the 7 tax/fee constants were checked against the source legal texts and
 signed off on 17/08/2026, so `schedules.ts` no longer carries a draft label; `src/core/market/README.md`
 keeps the evidence trail and names the three constants most likely to expire next.
@@ -62,7 +64,7 @@ npx vitest run -t 'chặn Infinity'
 ```
 
 One test is deliberately **not** colocated: `src/application/prose-audit.test.ts` guards the 432
-explanation passages of the 108 formulas against contradicting their own `spec`/`calc` — it lives in
+explanation passages of the 111 formulas against contradicting their own `spec`/`calc` — it lives in
 the Application layer because one of its seven checks reads `@/data/samples.ts`, which CON-02 forbids
 `src/core` from importing. Read its docblock before adding a check to it: three earlier checks were
 removed for producing 169 false positives between them, and the reasons are recorded there so nobody
@@ -135,11 +137,11 @@ downstream result gets `INHERITED`.
 
 On screen this is the WF-04 half of package 3.2.2: `FormulaDetail` renders the chain block only
 in **advanced mode** and only for formulas that `chainFor()` places in a chain — that is 7 of them
-(`capm`, `wacc`, `mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), so 101
-of 108 get nothing, and basic mode behaves exactly as before — which is why the four sweeps over
-all 108 detail screens in `FormulaDetail.test.tsx` needed no changes. `src/ui/screens/ChainPanel.tsx` is
+(`capm`, `wacc`, `mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), so 104
+of 111 get nothing, and basic mode behaves exactly as before — which is why the four sweeps over
+all 111 detail screens in `FormulaDetail.test.tsx` needed no changes. `src/ui/screens/ChainPanel.tsx` is
 the `next/dynamic` boundary (same pattern as `FormulaChart`/`DetailBody`); never export
-`ChainBody` from the `@/ui/screens` barrel or its cost lands on all 108 detail pages.
+`ChainBody` from the `@/ui/screens` barrel or its cost lands on all 111 detail pages.
 
 ## Chart kinds
 
@@ -196,7 +198,7 @@ schedule must break the formula, which catches a declaration the calc never uses
   and catches throws. The `tests[]` each spec declares are executed by `formulas.test.ts`.
 - **KaTeX runs at build time only.** `src/app/cong-thuc/[id]/latex-html.ts` is imported solely by
   `page.tsx`, which is a server component, so with `output: 'export'` the maths notation is baked
-  into the static HTML of all 108 pages and the browser downloads **zero** bytes of KaTeX
+  into the static HTML of all 111 pages and the browser downloads **zero** bytes of KaTeX
   (the library is ~280 kB — importing it from a client component blows the 180 kB gate instantly).
   Output mode is `mathml`, not the default `htmlAndMathml`: measured on this repo's own formulas it
   is 6 kB gzip instead of 20 kB, needs no `katex.min.css` and no font files at all, and — the

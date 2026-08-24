@@ -160,7 +160,7 @@ export {
   sweepCandidates,
 } from '@/core/chart';
 
-// ── Thư viện công thức — đủ 108 / 108 ───────────────────────────────────────
+// ── Thư viện công thức — đủ 111 / 111 ───────────────────────────────────────
 export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';
 
 // Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết

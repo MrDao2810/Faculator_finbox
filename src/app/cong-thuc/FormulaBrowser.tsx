@@ -35,7 +35,7 @@ import styles from './FormulaBrowser.module.css';
  * `useSearchParams()`, mà với `output: 'export'` thì hook đó bắt buộc nằm trong Suspense.
  *
  * Danh sách đi qua `VirtualList`: dưới 40 mục thì dựng thẳng, trên thì chỉ dựng phần đang
- * nằm trong tầm nhìn để giữ NFR-PER-02 khi đủ 108 công thức.
+ * nằm trong tầm nhìn để giữ NFR-PER-02 khi đủ 111 công thức.
  */
 export function FormulaBrowser() {
   const { params, setParams, reset } = useListParams();

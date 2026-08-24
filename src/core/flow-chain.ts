@@ -42,7 +42,7 @@ export interface FlowChain {
  *   không treo vòng lặp. Registry khai sai không được làm hỏng cả màn.
  *
  * Cạnh trỏ ra ngoài danh sách truyền vào bị bỏ qua — dải luồng thường chỉ vẽ một nhánh của
- * Registry, không phải toàn bộ 108 công thức.
+ * Registry, không phải toàn bộ 111 công thức.
  */
 export function buildFlowChain(formulas: ReadonlyArray<FormulaSpec>): FlowChain {
   const order = new Map<string, number>();

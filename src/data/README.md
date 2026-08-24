@@ -8,21 +8,40 @@ Nơi ở của `DataProvider` và các bộ số liệu mẫu tĩnh mà wirefram
   giao diện chỉ biết tới interface, không biết số liệu đến từ file tĩnh hay từ API.
 - `provider.ts` — `createStaticProvider()` đọc bộ tĩnh; `SAMPLE_DATA` là bản dùng trong sản phẩm.
 - `samples.ts` — bốn mã FPT · HPG · VNM · MWG, mỗi mã 248 phiên giá.
+- `live-fundamentals.generated.ts` — số liệu cơ bản THẬT của 4 mã trên, sinh bởi
+  `npm run gen:live-fundamentals` (`scripts/gen-live-fundamentals.mjs`, gọi API Finbox_v2 lúc
+  build/dev, không phải lúc chạy — site là static export, không backend).
 
-## ⚠ Số liệu hiện tại là bản thảo
+## ⚠ Một phần vẫn là bản thảo
 
-Con số trong `samples.ts` **do tôi tự dựng**, không phải báo cáo tài chính thật. SRS ghi giả
-định A1 và rủi ro R-01: Finbox sẽ cấp bộ số liệu mẫu, tới giờ vẫn chưa có. Không có dữ liệu thì
-sheet WF-10 không dựng được, nên đợt 6 tự dựng một bộ để hoàn thiện đường đi.
+Số liệu trong `samples.ts` **không còn 100% tự dựng** như trước. Từ đợt "Nạp số liệu cơ bản THẬT
+từ API Finbox_v2" (xem `TASK.md`):
 
-Mọi `Preset` mang `isDraft: true`, và `PresetSheet` hiện cảnh báo cho người dùng thấy. **Phải
-thay bằng số liệu thật trước khi phát hành v0.1** — thay nội dung `samples.ts` là đủ.
+- **Fundamentals** (EPS, giá trị sổ sách, số CP lưu hành, lợi nhuận ròng, cổ tức) của 4 mã đọc
+  thật từ `LIVE_FUNDAMENTALS` — giả định A1 của SRS nay đã đúng một phần.
+- **Chuỗi giá** (`bars` từng mã, và `VN_INDEX_BARS`) **vẫn PRNG bịa**, và bị chặn cứng: API
+  Finbox_v2 xác nhận tối đa chỉ 10-21 phiên/mã, không đủ cho SMA/RSI/Bollinger/MACD hay hồi quy
+  Beta (cần ~248 phiên). Rủi ro R-01 của SRS vẫn còn mở ở phần này.
+- `equity` (vốn chủ sở hữu) vẫn SUY RA bằng `bookValuePerShare × sharesOutstanding` — Finbox_v2
+  không trả field vốn chủ sở hữu tuyệt đối.
 
-## Đổi sang nguồn dữ liệu thật
+Mọi `Preset` vẫn mang `isDraft: true`, và `PresetSheet` vẫn cảnh báo cho người dùng thấy điều đó —
+**đừng gỡ nhãn ấy chừng nào chuỗi giá còn là số bịa**. Chi tiết đầy đủ nằm ở docblock đầu
+`samples.ts`.
 
-Viết một cài đặt khác của `DataProvider` rồi đổi chỗ khởi tạo `SAMPLE_DATA`. Không component
-nào phải sửa. Nếu nguồn mới là bất đồng bộ thì đổi kiểu trả về sang `Promise` — đó là thay đổi
-phá vỡ có chủ đích, làm cùng lúc với gói lấy dữ liệu.
+## Cách đã lấy số liệu thật — generator lúc build, không phải `DataProvider` thứ hai
+
+Vì sản phẩm là static export (không backend, không gọi API lúc runtime), cách đã chọn cho phần
+fundamentals **không** phải viết thêm một cài đặt khác của `DataProvider` — `createStaticProvider()`
+vẫn là cài đặt duy nhất, và interface `DataProvider` vẫn hoàn toàn đồng bộ. Thay vào đó,
+`scripts/gen-live-fundamentals.mjs` chạy TAY lúc cần (`npm run gen:live-fundamentals`, cần mạng),
+gọi API Finbox_v2 rồi ghi kết quả ra `live-fundamentals.generated.ts`; `samples.ts` import file đó
+như một hằng số tĩnh bình thường. Muốn thêm mã hoặc làm mới số liệu thì chạy lại script đó, không
+sửa `provider.ts`.
+
+Nếu sau này có nguồn chuỗi giá đủ dài (điều kiện đang chặn ở trên), cách tự nhiên nhất là mở rộng
+đúng generator này — thêm trường `bars` vào file `.generated.ts` — chứ không phải đổi kiến trúc
+`DataProvider` sang bất đồng bộ; site tĩnh không có chỗ để một `DataProvider` runtime chạy.
 
 ## Vì sao chuỗi giá sinh bằng hạt giống cố định
 

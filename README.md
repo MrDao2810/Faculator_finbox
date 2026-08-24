@@ -8,7 +8,7 @@ Web tĩnh, không backend, không cơ sở dữ liệu (SRS v2.0 mục 2.1 và 6
 > **dùng thử được từ đầu đến cuối**: mở trang chủ → chọn nhóm → mở công thức → đổi số → xem kết
 > quả → xuất file.
 >
-> **108 trên 108 công thức** đã có và đã qua kiểm chứng số học độc lập. Nhánh 5 xong phần
+> **111 trên 111 công thức** đã có và đã qua kiểm chứng số học độc lập. Nhánh 5 xong phần
 > công thức; xem [TASK.md](TASK.md) để biết phần nào còn lại.
 
 ---
@@ -25,7 +25,7 @@ Vài chỗ đáng xem trước:
 | Đường dẫn                    | Màn                                                          |
 | ---------------------------- | ------------------------------------------------------------ |
 | `/`                          | WF-01 — công thức dùng hằng ngày, 12 nhóm chia hai mảng      |
-| `/cong-thuc/pe/`             | WF-03 — khuôn chi tiết dùng chung cho cả 108 công thức       |
+| `/cong-thuc/pe/`             | WF-03 — khuôn chi tiết dùng chung cho cả 111 công thức       |
 | `/cong-thuc/loi-nhuan-rong/` | WF-08 — bóc tách phí & thuế, giá hoà vốn thực, ROI ròng      |
 | `/cong-thuc/lich-tra-no/`    | WF-14 — ba thanh trượt và lịch trả nợ 240 kỳ có rút gọn      |
 | `/tim-kiem/?q=bitcoin`       | WF-09 trạng thái B — nói rõ phạm vi sản phẩm, gợi ý thay thế |
@@ -104,7 +104,7 @@ export function pe(price: number, eps: number) {
 không phụ thuộc việc người viết công thức có nhớ kiểm tra hay không.
 
 Sáu loại cảnh báo chuẩn lấy đúng từ màn **WF-15** của wireframe, mỗi loại một hàm dựng thông điệp
-trong `src/core/warnings.ts` — công thức không tự chế câu chữ, để cả 108 công thức nói cùng giọng.
+trong `src/core/warnings.ts` — công thức không tự chế câu chữ, để cả 111 công thức nói cùng giọng.
 
 ## Cùng cách nghĩ đó, áp cho những chỗ khác
 
@@ -165,35 +165,37 @@ test → build. Hỏng ở bước nào thì chặn merge ở bước đó.
   cao WF-04 là một khối mọc thêm trên trang chi tiết khi bật chế độ Nâng cao (không thêm URL nào).
   `LinkedInput` và `FlowChainStrip` nay có nơi dùng. Chuỗi có **sáu cạnh `dependsOn`** thành hai
   nhánh: `CAPM → Gordon → Biên an toàn`, và `CAPM → WACC → Giá trị nội tại FCFF ← FCFF → FCFE`.
-  Mắt xích khép nhánh FCFF chính là công thức thứ **108** — nhóm Định giá nâng 18 → 19, nên **bảng
-  SRS mục 3.8 ngoài repo phải sửa 94 / 13 / 107 thành 95 / 13 / 108**.
-- **Nhánh 4** biểu đồ — xong, phủ 98/108, kèm thác nước bóc tách cho **đủ 10** công thức khai
+  Mắt xích khép nhánh FCFF chính là công thức thứ **108** — nhóm Định giá nâng 18 → 19. Sau đó ba
+  công thức "cố ý chưa đăng ký" (`gia-muc-tieu`, `beta`, `xirr`) khép nốt 108 → 111 — chi tiết ở
+  docblock `src/core/registry/categories.ts`, nên **bảng SRS mục 3.8 ngoài repo phải sửa
+  94 / 13 / 107 thành 98 / 13 / 111**.
+- **Nhánh 4** biểu đồ — xong, phủ 100/111, kèm thác nước bóc tách cho **đủ 10** công thức khai
   `waterfall`/`stackedBar`; không còn cái nào chờ. Bốn cái bày bóc tách ngay khi mở màn (đường quét
   của chúng là đường thẳng), sáu cái còn lại giữ đường quét làm mặc định và bóc tách nằm trong ô
   chọn trục. Việc còn của nhánh: nhiều đường trên một hình cho nhóm chỉ báo kỹ thuật.
-- **3.3.2** Beta — kẹt vì `src/data/samples.ts` không có chuỗi VN-Index để hồi quy, không phải vì
-  nhóm Rủi ro đã đầy 17/17.
 
-**Về dung lượng — nỗi lo cũ đã khép lại bằng số đo.** Hồi 21 công thức, metadata đi thẳng vào
-gói JS của màn danh sách và phép ngoại suy cho ra "107 công thức sẽ vượt ngưỡng 200 kB của
-NFR-PER-04". Đợt 13 tách chỉ mục nhẹ khỏi Registry và khai `sideEffects` trong `package.json`
-để webpack rung được cây qua barrel. Số đo mới nhất ở mốc **108** công thức: chỉ mục nhẹ
-**10,9 kB** nén (0,1 kB mỗi công thức), trang nặng nhất **156,9 kB** First Load JS — còn dư
-13,1 kB dưới cửa kiểm 170 kB. Chạy `npm run size` để xem lại bất cứ lúc nào.
+**Về dung lượng — cửa kiểm từng xanh giả.** Hồi 21 công thức, metadata đi thẳng vào gói JS của
+màn danh sách và phép ngoại suy cho ra "107 công thức sẽ vượt ngưỡng 200 kB của NFR-PER-04". Đợt
+13 tách chỉ mục nhẹ khỏi Registry và khai `sideEffects` trong `package.json` để webpack rung được
+cây qua barrel — nhưng `scripts/size-report.mjs` từ đó luôn so khớp asset đọc từ HTML (Next mã
+hoá route động thành `%5Bid%5D`) với bảng tra dựng từ đĩa (giữ nguyên `[id]`), nên **chunk nặng
+nhất của MỌI trang chi tiết bị lặng lẽ vứt khỏi phép đo** — script báo "an toàn" nhiều đợt liền.
+Đã vá lỗi so khớp; số đo thật hiện tại: cả 111/111 trang chi tiết đều nặng **308–319 kB** First
+Load JS — vượt cả cửa kiểm 180 kB lẫn ngân sách NFR-PER-04 (200 kB). Xem `TASK.md` để biết hướng
+xử lý đã chọn. Chạy `npm run size` để xem lại bất cứ lúc nào.
 
 Còn **hai việc** chặn phát hành v0.1, đều là **nội dung chờ người đối chiếu**, không phải code:
 
-1. **Bộ số liệu mẫu** trong `src/data/samples.ts` là số tôi tự dựng, không phải BCTC thật —
-   giả định A1 và rủi ro R-01 của SRS vẫn còn mở. Mọi `Preset` mang `isDraft: true` và giao diện
-   nói rõ điều đó ở bốn chỗ; **đừng gỡ mấy nhãn ấy chừng nào con số còn là số bịa**.
-2. **Diễn giải của 108 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
+1. **Bộ số liệu mẫu** trong `src/data/samples.ts` một phần vẫn là số tôi tự dựng — giả định A1
+   và rủi ro R-01 của SRS vẫn còn mở. Fundamentals (EPS, BVPS, số CP, lợi nhuận ròng, cổ tức) của
+   4 mã FPT/HPG/VNM/MWG nay lấy thật từ API Finbox_v2 (`npm run gen:live-fundamentals`), nhưng
+   chuỗi giá (`bars`, `VN_INDEX_BARS`) vẫn PRNG bịa — API chỉ có 10-21 phiên, không đủ cho ~248
+   phiên mà Beta và các công thức kỹ thuật cần. Mọi `Preset` vẫn mang `isDraft: true` và giao diện
+   nói rõ điều đó ở bốn chỗ; **đừng gỡ mấy nhãn ấy chừng nào chuỗi giá còn là số bịa**.
+2. **Diễn giải của 111 công thức** do tôi soạn theo giáo trình, chưa ai rà lại. Phần toán thì
    đã có ví dụ số kiểm chứng độc lập cho từng công thức.
 
 Việc thứ ba đã xong: **thuế & phí** trong `src/core/market/schedules.ts` (gói WBS 5.1.1) qua hai
 vòng đối chiếu — máy tra nguồn mở, rồi chủ dự án đọc bản gốc có dấu — và đóng ngày 17/08/2026.
 Hồ sơ nguồn giữ ở [src/core/market/README.md](src/core/market/README.md), kèm ba hằng số nhiều
 khả năng phải tra lại sớm nhất.
-
-Và một việc lộ ra khi đủ 108: **thiếu công thức Beta**. Nó nằm cùng gốc với việc số 2 ở trên —
-Beta hồi quy cần một chuỗi VN-Index mà bộ mẫu chưa có. Xem
-[src/core/formulas/README.md](src/core/formulas/README.md), mục "Còn thiếu".

@@ -1,6 +1,6 @@
 # Thư viện công thức
 
-Nhánh 5 của WBS. Đủ **108 / 108** công thức.
+Nhánh 5 của WBS. Đủ **111 / 111** công thức.
 
 Mỗi công thức là một `FormulaModule` — mô tả và cách tính nằm trong **cùng một object**:
 

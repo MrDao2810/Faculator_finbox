@@ -153,7 +153,7 @@ export interface FormulaDependency {
  * Tách ra khỏi `FormulaSpec` vì lý do dung lượng, không phải vì gọn mã (NFR-PER-04):
  * phần nặng của một công thức là bốn đoạn `explanation`, `example`, `tests` và `source` —
  * chữ nghĩa mà màn danh sách không bao giờ hiện. Gộp chung thì MỌI trang phải tải diễn giải
- * của cả 108 công thức chỉ để vẽ được cái thẻ có tên và một dòng mô tả.
+ * của cả 111 công thức chỉ để vẽ được cái thẻ có tên và một dòng mô tả.
  *
  * Bộ dữ liệu thật nằm ở `formulas/summaries.generated.ts`, sinh ra từ chính `ALL_FORMULAS`
  * nên không thể lệch — `summaries.test.ts` gác chuyện đó.

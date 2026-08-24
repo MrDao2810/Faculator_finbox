@@ -31,12 +31,12 @@ const ChartBody = dynamic(async () => (await import('./ChartBody')).ChartBody);
 /**
  * Công thức này có biểu đồ hay chưa.
  *
- * **Phủ 98 trên 108 công thức** — mọi công thức trừ 10 cái khai `chartType: 'none'`.
+ * **Phủ 100 trên 111 công thức** — mọi công thức trừ 11 cái khai `chartType: 'none'`.
  *
  * Vì sao mở được rộng thế mà không phải viết thêm renderer nào: động cơ ở `@/core/chart` sinh điểm
  * từ hai lối, và giữa hai lối thì không công thức nào lọt. Đường quét độ nhạy chỉ cần một biến vô
  * hướng có `min`/`max` — 208 trên 209 biến của Registry đã khai sẵn. Đường theo thời gian chỉ cần
- * một chân giá hoặc một chuỗi cắt được tiền tố. Đo bằng `buildChartModel()` trên cả 108 công thức ×
+ * một chân giá hoặc một chuỗi cắt được tiền tố. Đo bằng `buildChartModel()` trên cả 111 công thức ×
  * 2 chế độ × có/không có chuỗi phiên: **0 ca ngoài dự kiến**, nên phạm vi ở đây là số đo chứ không
  * phải phỏng đoán.
  *

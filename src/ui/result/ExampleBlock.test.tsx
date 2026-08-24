@@ -142,9 +142,9 @@ describe('ExampleBlock — giữ được con số gốc của ví dụ (FR-02)'
  *
  * Khối này dựng ô nhập theo khoá của `example.inputs`. Chỉ cần MỘT công thức khai lệch khoá là chỗ
  * đó không tra ra `VariableSpec`, ô im lặng rơi về chữ chỉ để đọc — không lỗi, không hiện gì, người
- * dùng chỉ thấy một dòng không gõ được. Một vòng lặp chặn được chuyện đó cho cả 108 công thức.
+ * dùng chỉ thấy một dòng không gõ được. Một vòng lặp chặn được chuyện đó cho cả 111 công thức.
  */
-describe('ExampleBlock — hợp đồng với Registry, quét cả 108 công thức', () => {
+describe('ExampleBlock — hợp đồng với Registry, quét cả 111 công thức', () => {
   it('mọi example.inputs đều khớp khoá biến và nằm trong miền hợp lệ', () => {
     for (const spec of FORMULAS) {
       const keys = Object.keys(spec.example.inputs);

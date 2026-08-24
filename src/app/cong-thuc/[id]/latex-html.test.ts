@@ -7,7 +7,7 @@ import { latexToMathml } from './latex-html';
 /*
  * Gói 2.4.3 — ký hiệu toán học.
  *
- * Ca nặng nhất ở đây là ca đầu: nó chạy CẢ 108 chuỗi `latex` qua KaTeX. Trước gói này, trường
+ * Ca nặng nhất ở đây là ca đầu: nó chạy CẢ 111 chuỗi `latex` qua KaTeX. Trước gói này, trường
  * `latex` chưa bao giờ được đưa qua một bộ dựng nào — nó chỉ nằm trong metadata và không ai đọc,
  * nên một chuỗi sai cú pháp có thể đã nằm đó từ lâu mà không phép kiểm nào chạm tới.
  */

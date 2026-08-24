@@ -1,7 +1,7 @@
 /**
  * Tầng DOMAIN — cửa sổ hiển thị của danh sách ảo hoá (gói WBS 3.1.2).
  *
- * WF-02 phải chịu được 108 công thức mà vẫn giữ NFR-PER-02 (dưới 100 ms). Cách làm là chỉ
+ * WF-02 phải chịu được 111 công thức mà vẫn giữ NFR-PER-02 (dưới 100 ms). Cách làm là chỉ
  * dựng ra DOM những dòng đang nằm trong tầm nhìn, còn phần trên và phần dưới thay bằng hai
  * khối đệm rỗng đúng chiều cao — thanh cuộn nhờ vậy vẫn dài đúng như khi có đủ dòng.
  *
@@ -73,7 +73,7 @@ function heightAt(heights: ReadonlyArray<number>, index: number): number {
  * Không bao giờ ném lỗi và không bao giờ trả khoảng vô lý: cuộn quá đà ở hai đầu, danh sách
  * ngắn hơn khung nhìn, hay chưa đo được chiều cao nào đều có lối ra xác định.
  *
- * Duyệt tuyến tính chứ không tìm nhị phân: danh sách dài nhất của sản phẩm là 108 mục, và một
+ * Duyệt tuyến tính chứ không tìm nhị phân: danh sách dài nhất của sản phẩm là 111 mục, và một
  * vòng lặp đọc thẳng thì không có chỗ để sai chỉ số — thứ đắt hơn nhiều so với vài chục phép
  * cộng mỗi lần cuộn.
  */

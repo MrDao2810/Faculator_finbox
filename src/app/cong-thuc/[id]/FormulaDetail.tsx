@@ -114,7 +114,7 @@ type SheetKind = 'preset' | 'paste' | 'export';
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
  *
- * Chín khối đúng thứ tự wireframe. Đây là màn dùng nhiều nhất và là khuôn cho cả 108 công
+ * Chín khối đúng thứ tự wireframe. Đây là màn dùng nhiều nhất và là khuôn cho cả 111 công
  * thức, nên **không có gì viết cứng cho một công thức cụ thể**: ô nhập sinh từ `VariableSpec`
  * (FR-05), kết quả đi qua `runFormula()`, diễn giải và nguồn đọc từ Registry.
  *
@@ -240,9 +240,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   /*
    * ── Chuỗi công thức: chỉ dựng ở chế độ Nâng cao, và chỉ với công thức có dính cạnh ──────────
    *
-   * `chainFor()` trả mảng rỗng cho 101 trên 108 công thức, nên `inChain` tắt và toàn bộ phần dưới
+   * `chainFor()` trả mảng rỗng cho 104 trên 111 công thức, nên `inChain` tắt và toàn bộ phần dưới
    * là số không: không tính chuỗi, không dựng khối, không tải chunk nạp trễ. Ở chế độ Cơ bản thì
-   * mọi công thức đều đi đường cũ y hệt trước đợt này — đó cũng là lý do 4 ca kiểm quét cả 108
+   * mọi công thức đều đi đường cũ y hệt trước đợt này — đó cũng là lý do 4 ca kiểm quét cả 111
    * màn không phải sửa một dòng nào.
    */
   const chainSpecs = useMemo(() => chainFor(ALL_SPECS, spec.id), [spec.id]);
@@ -437,7 +437,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * Bảng ánh xạ đã chuyển xuống `presetInputs()` ở tầng Data. Nó từng nằm ngay đây, và cái giá của
    * việc để tầng giao diện quyết định đơn vị đo lường thì đo được: bảng cũ bỏ sót số cổ phiếu, nên
    * nạp FPT cho công thức vốn hoá ra giá FPT nhân số cổ phiếu mặc định. Ở tầng Data thì một ca test
-   * Node soi được cả 108 công thức, và đơn vị của từng khoá bị khoá lại bằng test.
+   * Node soi được cả 111 công thức, và đơn vị của từng khoá bị khoá lại bằng test.
    */
   function applyPreset(preset: Preset): void {
     const fromPreset = presetInputs(preset, spec);
@@ -608,7 +608,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
           {/*
             Lối tắt cho người vừa vào màn, chưa hiểu công thức và chưa có số liệu riêng — chung
-            cho CẢ 108 công thức, không riêng nhóm chuỗi giá (xem docblock `scrollToExample()`).
+            cho CẢ 111 công thức, không riêng nhóm chuỗi giá (xem docblock `scrollToExample()`).
             Chỉ CUỘN, không nạp gì cả — khác hẳn nút "Xem ví dụ minh hoạ" ở khối Số liệu của 35
             công thức chuỗi giá, vốn NẠP số liệu minh hoạ vào phép tính.
           */}
@@ -810,7 +810,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           dùng không gõ được. Tách ra thành khối số 5 thì nó rơi xuống dưới Kết quả, tức là người
           dùng đọc xong con số rồi mới biết nó tính theo mức nào — muộn.
 
-          Tự trả về null khi công thức không tra hằng số nào, nên 95 trong 108 trang không thêm
+          Tự trả về null khi công thức không tra hằng số nào, nên 98 trong 111 trang không thêm
           một nút DOM nào.
         */}
         <ConstantsNote constants={constantsUsedBy(spec, ctx)} />
@@ -856,7 +856,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
       {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
       {/*
-        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 98 trên 108 công thức, và 10
+        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 100 trên 111 công thức, và 11
         công thức còn lại khai `chartType: 'none'` nên chúng KHÔNG dựng khối này chút nào — không có
         trạng thái thứ ba nào để bày.
 

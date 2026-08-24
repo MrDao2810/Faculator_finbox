@@ -3,9 +3,9 @@
  *
  * Toàn bộ toán nằm ở đây, không ở component: ESLint chặn `src/ui` chạm `@/core`, và đó là ràng
  * buộc có lợi — nó ép phần khó nhất (chọn biến, chia vạch, xử lý điểm đứt) thành hàm thuần test
- * được bằng Node, nên kiểm được cho cả 108 công thức trong một ca test thay vì 108 ca.
+ * được bằng Node, nên kiểm được cho cả 111 công thức trong một ca test thay vì 111 ca.
  *
- * KHÔNG gom vào `series-utils.ts`: file đó bị 34 công thức import nên nằm trong gói mà cả 108
+ * KHÔNG gom vào `series-utils.ts`: file đó bị 34 công thức import nên nằm trong gói mà cả 111
  * trang chi tiết đều tải. Nhánh này chỉ được nạp trễ qua `ChartBody`.
  */
 

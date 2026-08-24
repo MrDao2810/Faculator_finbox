@@ -31,12 +31,14 @@ const BUDGET = 200 * 1024;
  *
  * Nâng từ 170 lên 180 kB khi thêm bản dịch tiếng Anh cho toàn bộ 108 công thức: `FormulaDetail`
  * kéo cả `FORMULA_MODULES` vào gói (xem docblock `ALL_SPECS` ở đó) nên nội dung song ngữ khiến
- * mọi trang chi tiết tăng đều ~4-5 kB nén. Trang nặng nhất đo được là 175,2 kB — vẫn cách xa
- * ngân sách NFR-PER-04 thật (200 kB), chỉ chạm cửa kiểm sớm cũ. Quyết định của chủ dự án.
+ * mọi trang chi tiết tăng đều ~4-5 kB nén. Số "175,2 kB, cách xa ngân sách" đo lúc đó dùng đúng
+ * `assetsOf()` chưa vá lỗi đối chiếu `%5Bid%5D`/`[id]` — là số đo THIẾU, không phải số thật. Xem
+ * `TASK.md` cho số đo hiện tại (mọi trang chi tiết đều vượt xa cả cửa kiểm này lẫn ngân sách
+ * NFR-PER-04). Hướng xử lý là quyết định của chủ dự án.
  */
 const CHECKPOINT = 180 * 1024;
 
-const FORMULAS_TARGET = 108;
+const FORMULAS_TARGET = 111;
 
 /**
  * Số công thức đang thật sự có trong Registry — ĐỌC từ chỉ mục đã sinh, không viết cứng.
@@ -131,7 +133,10 @@ function assetsOf(html) {
   const found = new Set();
   for (const match of html.matchAll(/["'(](\/_next\/static\/[^"')]+?\.(?:js|css))["')]/g)) {
     const asset = match[1];
-    if (asset !== undefined) found.add(asset.slice(1));
+    // Next mã hoá URL đoạn route động khi ghi vào HTML (`[id]` → `%5Bid%5D`), nhưng thư mục
+    // thật trên đĩa — và bảng tra `sizes` dựng từ `walk(ROOT)` — vẫn giữ ngoặc literal. Không
+    // giải mã thì `sizes.has(a)` không khớp, và chunk nặng nhất bị lặng lẽ vứt khỏi phép đo.
+    if (asset !== undefined) found.add(decodeURIComponent(asset.slice(1)));
   }
   return [...found];
 }

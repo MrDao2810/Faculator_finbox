@@ -14,7 +14,7 @@
  * Nếu chuỗi cứ để ô móc nối trống rồi gọi thẳng vào đó, người dùng sẽ nhận "Còn thiếu: Suất sinh
  * lợi yêu cầu (r)" cho một ô họ **không hề bỏ trống** — sai nguyên nhân, và ngược đúng lời hứa
  * của WF-15. Nên mạch bị cắt ở ĐÂY: thượng nguồn lỗi thì trả `inherited()` ngay, không gọi
- * `runFormula()` lượt đó. Đổi lại, cổng chung của cả 108 công thức không phải sửa một dòng nào.
+ * `runFormula()` lượt đó. Đổi lại, cổng chung của cả 111 công thức không phải sửa một dòng nào.
  *
  * ── Hai loại cảnh báo, cố ý khác nhau ───────────────────────────────────────────────────────
  *

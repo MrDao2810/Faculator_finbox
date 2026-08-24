@@ -579,12 +579,12 @@ describe('buildChartModel()', () => {
   });
 
   /*
-   * Ca đắt giá nhất của cả nhánh: quét TOÀN BỘ 108 công thức qua đúng một vòng lặp.
+   * Ca đắt giá nhất của cả nhánh: quét TOÀN BỘ 111 công thức qua đúng một vòng lặp.
    *
-   * Bắt được mọi công thức lệch mà không phải viết 108 ca, và chạy ở tầng Domain nên nhanh gấp
+   * Bắt được mọi công thức lệch mà không phải viết 111 ca, và chạy ở tầng Domain nên nhanh gấp
    * bội so với render jsdom — cùng tinh thần `formulas.test.ts`.
    */
-  it('cả 108 công thức: không ném lỗi, không NaN, không Infinity ở BẤT KỲ số nào', () => {
+  it('cả 111 công thức: không ném lỗi, không NaN, không Infinity ở BẤT KỲ số nào', () => {
     for (const formula of FORMULA_MODULES) {
       const id = formula.spec.id;
       const inputs = defaultInputs(formula.spec);

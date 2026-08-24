@@ -372,7 +372,7 @@ describe('sinh giao diện từ Registry (FR-05, FR-09)', () => {
 
 /*
  * Chạy trên THƯ VIỆN THẬT chứ không trên fixture: thứ đang được gác ở đây là quan hệ giữa
- * cấu hình `level` của 108 công thức và cái người dùng nhìn thấy, mà quan hệ đó chỉ sai được
+ * cấu hình `level` của 111 công thức và cái người dùng nhìn thấy, mà quan hệ đó chỉ sai được
  * khi dữ liệu thật đổi. Nhóm 'corporate-finance' có 2/2 công thức mức nâng cao, nên ở chế độ
  * Cơ bản nó rỗng — chấp nhận được VÌ màn có dòng "N công thức nâng cao đang ẩn" kèm nút bật.
  * Ca kiểm dưới chốt đúng điều kiện đó: rỗng thì phải đếm ra được số để mà nói.

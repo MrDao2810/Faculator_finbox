@@ -133,7 +133,7 @@ export function ExportSheet({
          * Nạp trễ bộ vẽ Canvas — nó chỉ chạy khi người dùng bấm đúng nút này.
          *
          * Trước đợt này `draw-card` được import tĩnh, nên toàn bộ mã vẽ Canvas nằm trong gói cơ
-         * sở của cả 108 trang chi tiết dù đa số người dùng không bao giờ xuất PNG. Dùng `import()`
+         * sở của cả 111 trang chi tiết dù đa số người dùng không bao giờ xuất PNG. Dùng `import()`
          * trần chứ không `next/dynamic`: chunk sinh ra KHÔNG được ghi vào HTML, nên nó rời hẳn
          * khỏi "First Load JS" mà cửa kiểm NFR-PER-04 đo — khác `next/dynamic`, thứ vẫn bị tính.
          */

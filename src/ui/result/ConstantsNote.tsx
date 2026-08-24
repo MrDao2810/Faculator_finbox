@@ -17,7 +17,7 @@ export interface ConstantsNoteProps {
  * biến, cũng không nằm trong khối Nguồn (chỗ đó dành cho `spec.source`). Trước gói này, màn
  * `phi-giao-dich-mua` cho ra 138.000 ₫ từ 1.000 CP × 92.000 ₫ mà mức 0,15% không hiện ở bất kỳ
  * đâu trên trang — người dùng không có cách nào biết con số đang tính theo tỷ lệ nào, trong khi
- * đó lại đúng là thứ khác nhau giữa các công ty chứng khoán. Đo được: 13 trong 108 công thức tra
+ * đó lại đúng là thứ khác nhau giữa các công ty chứng khoán. Đo được: 13 trong 111 công thức tra
  * hằng số, 5 trong số đó không có `example.note` nêu mức nào cả.
  *
  * Ba mảnh thông tin, không cắt bớt mảnh nào:

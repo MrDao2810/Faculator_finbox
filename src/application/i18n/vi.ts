@@ -398,7 +398,7 @@ export const vi = {
   'home.search.dropFilter': 'Bỏ lọc',
   'home.featured.title': 'Công thức dùng hằng ngày',
   'home.browse.title': 'Duyệt theo nhóm',
-  /* Đơn vị ghép sau tổng số ở tiêu đề khối: "Duyệt theo nhóm · 108 công thức". */
+  /* Đơn vị ghép sau tổng số ở tiêu đề khối: "Duyệt theo nhóm · 111 công thức". */
   'home.browse.unit': 'công thức',
   /* Nhãn mảng ở trang chủ. Rộng rãi hơn chip lọc nên viết đủ chữ, không dùng `filter.segment.*`. */
   'home.segment.stock': 'Chứng khoán',

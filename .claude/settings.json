@@ -621,7 +621,9 @@
       "Bash(node \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\65b00387-0f55-4413-aa45-f1fa8b01f411\\\\scratchpad\\\\cold-profile.mjs\")",
       "Bash(grep -n \"^## \\\\|^---$\" TASK.md)",
       "Bash(curl -s -o /dev/null -w \"4173:%{http_code}\\\\n\" http://127.0.0.1:4173/)",
-      "Bash(curl -s -o /dev/null -w \"3000:%{http_code}\\\\n\" http://127.0.0.1:3000/)"
+      "Bash(curl -s -o /dev/null -w \"3000:%{http_code}\\\\n\" http://127.0.0.1:3000/)",
+      "Bash(node \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\65b00387-0f55-4413-aa45-f1fa8b01f411\\\\scratchpad\\\\check-redraw.mjs\")",
+      "PowerShell(Stop-Process -Id 17668 -Force -ErrorAction SilentlyContinue)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

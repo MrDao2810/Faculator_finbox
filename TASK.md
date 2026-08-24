@@ -8,7 +8,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 1.1.2 | CI/CD + hosting tĩnh                                         | 3h30    | Xong (từ trước)                                                |
 | 1.2.1 | Design token & primitive                                     | 10h00   | Xong — đợt 1                                                   |
 | 1.3.1 | FormulaRegistry: schema, bộ sinh, validator                  | 7h00    | Xong — đợt 1                                                   |
-| 1.3.2 | MarketConfig thuế & phí                                      | 3h30    | Code xong — **số liệu chờ người đối chiếu**                    |
+| 1.3.2 | MarketConfig thuế & phí                                      | 3h30    | Xong — đối chiếu xong, đóng 17/08/2026                         |
 | 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                               | 4h00    | Xong — đợt 1                                                   |
 | 1.4.1 | Routing, URL state & khung i18n                              | 5h30    | Xong — đợt 2, **trừ route động**                               |
 | 1.4.2 | App shell & layout                                           | 2h00    | Xong — đợt 2                                                   |
@@ -51,7 +51,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Dựng lại ba bottom sheet theo hi-fi                          | —       | Xong — đợt 12 (chủ dự án yêu cầu)                              |
 | 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot                | —       | Xong — đợt 12                                                  |
 | 3.6.1 | SettingsScreen — WF-13                                       | ~6h     | Xong — đợt 12                                                  |
-| 3.6.2 | PWA — manifest + service worker                              | ~4h     | Xong — đợt 12, **biểu tượng PNG còn thiếu**                    |
+| 3.6.2 | PWA — manifest + service worker                              | ~4h     | Xong — đợt 12, biểu tượng PNG sinh bằng `gen-icons.mjs`        |
 | —     | Ô tìm không rơi ký tự khi gõ nhanh                           | —       | Xong — đợt 13                                                  |
 | —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát                 | —       | Xong — đợt 13                                                  |
 | —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)                  | —       | Xong — đợt 13                                                  |
@@ -108,6 +108,68 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Audit toàn dự án + vá bug đo dung lượng bị lãng quên — đồng bộ lại 108 → 111
+
+Trạng thái: **xong phần đồng bộ tài liệu và vá bug đo lường; phần chọn hướng xử lý ngân sách dung
+lượng CHỜ CHỦ DỰ ÁN QUYẾT**.
+
+Yêu cầu: rà lại dự án xem còn thiếu bước nào. Phát hiện chính: Registry đã tăng từ 108 lên
+**111 công thức** từ đợt "Ba công thức cố ý…" phía dưới (`gia-muc-tieu`, `beta`, `xirr` — đăng ký
+xong từ lâu) và mọi test số lượng đã tự cập nhật đúng, nhưng CLAUDE.md, README.md và hơn chục
+comment/docblock rải trong `src/` + `scripts/` vẫn ghi 108 — kể cả một chuỗi SEO hiển thị thật cho
+người dùng (`src/app/cong-thuc/page.tsx`).
+
+### Phát hiện quan trọng nhất — mục "Độ trễ chuyển trang" ngay dưới đây SAI ở phần dung lượng
+
+Đợt đo đó kết luận "`npm run size` đo đúng chỉ số cửa kiểm... trang nặng nhất 177,1 kB, vẫn dưới
+180 kB — Dung lượng tải không phải vấn đề". **Kết luận này sai** — không phải do đo sai lúc đó, mà
+do chính `scripts/size-report.mjs` có bug từ trước: Next mã hoá route động thành `%5Bid%5D` trong
+HTML, còn bảng tra kích thước dựng từ đĩa giữ nguyên `[id]`, nên `assetsOf()` lặng lẽ vứt đúng
+chunk nặng nhất khỏi phép đo — của MỌI trang chi tiết, không riêng gì một trang. Bug này từng được
+chính dự án tự bắt (mục "Lỗ hổng cửa kiểm dung lượng — CHỜ CHỦ DỰ ÁN QUYẾT" ở đợt cũ hơn) rồi bị
+quên, và đợt đo "Độ trễ chuyển trang" chạy lại đúng script hỏng mà không đối chiếu lại.
+
+**Đã vá** (`decodeURIComponent()` trong `assetsOf()`). Số đo thật sau khi vá:
+
+|                                      | Trước (script hỏng) | Sau (đã vá)                               |
+| ------------------------------------ | ------------------- | ----------------------------------------- |
+| Trang nặng nhất                      | 177,1 kB            | **308–319 kB**, cả 111/111 trang chi tiết |
+| So với cửa kiểm CI (180 kB)          | dưới                | **vượt**                                  |
+| So với ngân sách NFR-PER-04 (200 kB) | dưới                | **vượt ~60%**                             |
+
+Ba hướng xử lý cũ (mục "Lỗ hổng cửa kiểm dung lượng") vẫn còn nguyên giá trị nhưng số liệu đã đổi
+hẳn — ước tính cắt gói ~56 kB khi đó không còn đủ đưa về dưới ngân sách. **CHỜ CHỦ DỰ ÁN CHỌN
+HƯỚNG**, chưa tự quyết.
+
+### Đã sửa (đồng bộ 108 → 111, rủi ro thấp, không đổi hành vi)
+
+`scripts/size-report.mjs` (bug đo lường + `FORMULAS_TARGET`) · `src/app/cong-thuc/page.tsx` (SEO
+description giờ đọc `FORMULA_MODULES.length` thay vì hardcode, kèm test mới `page.test.tsx` khoá
+lại) · `src/core/registry/categories.ts` (2 chỗ còn ghi 95, đáng lẽ 98 — tái phát đúng kiểu lỗi
+từng bắt ở đợt 107→108) · `CLAUDE.md` · `README.md` (bỏ luôn ghi chú "Beta — kẹt" đã sai vì Beta
+đăng ký xong từ lâu, và mục dung lượng viết lại theo bảng trên) · `src/data/README.md` (viết lại
+cho khớp: fundamentals 4 mã đã lấy thật qua `gen-live-fundamentals`, chỉ còn chuỗi giá là bịa) ·
+comment "108" còn sót ở `FormulaDetail.tsx`, `prose-audit.test.ts`, `formulas/README.md`,
+`application/index.ts`, `registry/index.ts`, `warnings.ts`, `ui/README.md`, `verify-static.mjs` ·
+2 ô bảng WBS đầu file này (MarketConfig, PWA icon — cả hai đã xong từ lâu nhưng bảng chưa cập
+nhật).
+
+**Cố tình KHÔNG đụng**: các chỗ "108"/"107" kể lại lịch sử (docblock `categories.ts`, các mục log
+cũ phía dưới kể cả mục "Độ trễ chuyển trang" ngay dưới đây) và số liệu trùng ngẫu nhiên trong file
+công thức (`valuation-multiples.ts` có `expected: 108_900`; `risk-drawdown.ts` có chuỗi giá mẫu
+"...106, 108, 110..." — không liên quan gì tới số lượng công thức).
+
+### Còn lại
+
+- Chọn hướng xử lý ngân sách dung lượng (3 phương án cũ, số liệu mới — xem bảng trên).
+- Hai việc chặn v0.1 vẫn y nguyên: chuỗi giá `samples.ts` còn bịa (kẹt vì API Finbox_v2 chỉ có
+  10-21 phiên, không đủ ~248 phiên cần cho Beta/kỹ thuật), và 111 đoạn diễn giải chưa được chuyên
+  gia tài chính rà.
+- Chưa chạy `npm run check` thật trong lượt này (bắt đầu ở Plan Mode chỉ-đọc) — cần chạy để xác
+  nhận không sót assertion nào hard-code 108.
 
 ---
 

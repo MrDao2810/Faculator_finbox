@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { FORMULA_MODULES } from '@/application';
 import { T } from '@/ui/i18n/T';
 
 import { FormulaBrowser } from './FormulaBrowser';
@@ -8,7 +9,7 @@ import { StaticFormulaList } from './StaticFormulaList';
 
 export const metadata: Metadata = {
   title: 'Công thức',
-  description: 'Danh sách 108 công thức đầu tư chứng khoán và tài chính cá nhân, chia 12 nhóm.',
+  description: `Danh sách ${String(FORMULA_MODULES.length)} công thức đầu tư chứng khoán và tài chính cá nhân, chia 12 nhóm.`,
 };
 
 /**

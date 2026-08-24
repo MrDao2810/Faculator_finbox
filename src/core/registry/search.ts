@@ -179,7 +179,7 @@ export function selectFormulas(
  * có, là badge trên thẻ) và "Chế độ Nâng cao mở toàn bộ tham số **và công thức phức tạp**".
  * Hàm này là vế sau: chế độ Cơ bản chỉ giữ công thức mức `basic`, Nâng cao trả nguyên bộ.
  *
- * Trước đợt này chỉ vế "tham số" được nối, mà `level: 'advanced'` ở biến chỉ có ở 9 / 108 công
+ * Trước đợt này chỉ vế "tham số" được nối, mà `level: 'advanced'` ở biến chỉ có ở 10 / 111 công
  * thức — nên nút chuyển chế độ nằm ở thanh trên của mọi màn mà bấm vào gần như không đổi gì.
  *
  * Generic để `FormulaSpec` truyền vào vẫn ra `FormulaSpec`, không bị hạ kiểu xuống summary.

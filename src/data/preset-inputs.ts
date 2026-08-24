@@ -5,7 +5,7 @@
  * "trường `sharesOutstanding` của báo cáo đi vào ô nào, theo đơn vị nào". Đó là kiến thức tài chính
  * chứ không phải việc của một component, và hệ quả đo được: bảng cũ bỏ sót số cổ phiếu, nên nạp FPT
  * cho công thức vốn hoá ra **giá FPT × số cổ phiếu mặc định 118 triệu** — sai gần 12 lần mà trên màn
- * không có gì nói là đã sai. Đưa xuống đây thì kiểm được bằng Node cho cả 108 công thức một lượt.
+ * không có gì nói là đã sai. Đưa xuống đây thì kiểm được bằng Node cho cả 111 công thức một lượt.
  *
  * FR-10 hứa "nạp xong vẫn sửa được từng ô", nên hàm này chỉ TRẢ VỀ giá trị; không khoá, không lưu.
  */

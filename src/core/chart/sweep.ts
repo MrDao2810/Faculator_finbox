@@ -136,7 +136,7 @@ function roundFloat(value: number): number {
  * Những biến đưa lên trục X được.
  *
  * Loại biến rời rạc (`select`/`radio`/`toggle`/`buttonGroup`) — chỉ có 5 biến như vậy trên toàn bộ
- * 108 công thức, và một danh sách chọn không quét thành đường được.
+ * 111 công thức, và một danh sách chọn không quét thành đường được.
  *
  * Lọc theo `level` chứ không lấy hết: chế độ Cơ bản ẩn biến nâng cao (FR-09), nên quét một biến
  * người dùng không thấy trên màn là vẽ ra thứ họ không đối chiếu được với ô nhập nào.

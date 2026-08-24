@@ -18,7 +18,7 @@ import { latexToMathml } from './latex-html';
  */
 
 /**
- * Ngày tra hằng số thuế & phí — đọc MỘT LẦN lúc build, rồi đi vào HTML tĩnh của cả 108 trang.
+ * Ngày tra hằng số thuế & phí — đọc MỘT LẦN lúc build, rồi đi vào HTML tĩnh của cả 111 trang.
  *
  * Vì sao không viết cứng một ngày. Bản trước ghim `'2026-08-04'`, nên một hằng số khai
  * `effectiveFrom` sau ngày đó sẽ **không bao giờ có hiệu lực**, dựng lại bao nhiêu lần cũng vậy
@@ -78,7 +78,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const formula = FORMULAS.find((f) => f.id === id);
 
-  // Chỉ xảy ra nếu ai đó gõ tay một id lạ; generateStaticParams đã sinh sẵn đúng 108 trang.
+  // Chỉ xảy ra nếu ai đó gõ tay một id lạ; generateStaticParams đã sinh sẵn đúng 111 trang.
   if (formula === undefined) notFound();
 
   /*

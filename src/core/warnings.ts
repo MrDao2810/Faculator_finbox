@@ -6,7 +6,7 @@
  *   · một dòng GỢI Ý SỬA, hiện sau mũi tên ↳ trên giao diện.
  *
  * Công thức không tự chế thông điệp. Muốn báo lỗi thì gọi hàm trong file này,
- * để cả 108 công thức nói cùng một giọng và đội nội dung sửa được ở một chỗ.
+ * để cả 111 công thức nói cùng một giọng và đội nội dung sửa được ở một chỗ.
  *
  * Mỗi hàm tự viết CẢ HAI câu vi/en ngay tại chỗ — không import i18n (CON-02), đúng cách
  * `FormulaSummary.name: {vi, en}` đã làm từ trước. Tham số nhãn/nguyên nhân cũng là `Bilingual`

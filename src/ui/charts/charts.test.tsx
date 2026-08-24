@@ -437,7 +437,7 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
 /*
  * Bốn họ vừa mở phạm vi, mỗi họ một ca đại diện — không lặp lại 47 lần.
  *
- * Ranh giới cố ý: tầng Domain đã có ca quét CẢ 108 công thức ở `chart.test.ts` (nhanh gấp bội vì
+ * Ranh giới cố ý: tầng Domain đã có ca quét CẢ 111 công thức ở `chart.test.ts` (nhanh gấp bội vì
  * không dựng DOM), nên ở đây chỉ kiểm điều duy nhất jsdom mới nói được: bốn họ ấy thật sự dựng ra
  * `<figure>` với bảng số đọc được, chứ không phải một mô hình đúng mà giao diện không lắp nổi.
  */

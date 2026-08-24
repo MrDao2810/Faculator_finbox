@@ -117,7 +117,7 @@ export default function Home() {
         {/*
           Số trên ô nhóm là số công thức DỰ KIẾN của SRS 3.8, không phải số đang bấm vào được.
           Từ đợt 8 lưới không còn nhãn "sắp có" nên đây là chỗ duy nhất còn nói thật tiến độ.
-          Nhánh 5 nay đủ 108/108 nên hai vế trùng nhau, nhưng ĐỪNG xoá: chúng lệch lại ngay lần
+          Nhánh 5 nay đủ 111/111 nên hai vế trùng nhau, nhưng ĐỪNG xoá: chúng lệch lại ngay lần
           `expectedCount` được nâng tiếp — Beta của gói 3.3.2 là lần gần nhất đang chờ.
         */}
         <p className={styles.progress}>

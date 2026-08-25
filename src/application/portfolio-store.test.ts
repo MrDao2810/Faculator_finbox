@@ -8,6 +8,7 @@ import {
   parseHoldings,
   removeHolding,
   serializeHoldings,
+  updateHolding,
 } from './portfolio-store';
 
 function holding(patch: Partial<Holding> = {}): Holding {
@@ -113,6 +114,94 @@ describe('addHolding', () => {
   it('dừng ở trần số mã', () => {
     const full = Array.from({ length: MAX_HOLDINGS }, (_, i) => holding({ code: `M${i}` }));
     expect(addHolding(full, holding({ code: 'MOI' }))).toHaveLength(MAX_HOLDINGS);
+  });
+});
+
+describe('updateHolding', () => {
+  /*
+   * Ca quan trọng nhất của cả nhóm này.
+   *
+   * `addHolding()` cố ý CỘNG DỒN — "thêm FPT lần nữa" nghĩa là mua thêm. Nếu việc sửa cũng đi
+   * qua hàm ấy thì sửa 500 CP thành 300 CP sẽ ra 800 CP: đúng cái lỗi mà thao tác sửa sinh ra
+   * để chữa. Ai gộp hai hàm lại sau này sẽ làm ca này đỏ.
+   */
+  it('THAY THẾ số lượng chứ không cộng dồn như addHolding', () => {
+    const list = [holding({ quantity: 500 })];
+
+    const sua = updateHolding(list, 'FPT', { ...holding(), quantity: 300 });
+    expect(sua[0]?.quantity).toBe(300);
+
+    // Đối chứng: cùng đầu vào, `addHolding` ra 800 — hai hàm phục vụ hai ý định khác nhau.
+    expect(addHolding(list, holding({ quantity: 300 }))[0]?.quantity).toBe(800);
+  });
+
+  it('ghi đè cả giá vốn, ngày mua và beta — kể cả xoá beta về null', () => {
+    const list = [holding({ costPrice: 78_000, buyDate: '2025-01-02', beta: 1.1 })];
+
+    const sua = updateHolding(list, 'FPT', {
+      ...holding(),
+      costPrice: 60_000,
+      buyDate: '2024-06-30',
+      beta: null,
+    });
+
+    expect(sua[0]?.costPrice).toBe(60_000);
+    expect(sua[0]?.buyDate).toBe('2024-06-30');
+    expect(sua[0]?.beta).toBeNull();
+  });
+
+  it('không đụng tới các mã khác', () => {
+    const list = [holding(), holding({ code: 'HPG', quantity: 1_000 })];
+
+    const sua = updateHolding(list, 'FPT', { ...holding(), quantity: 1 });
+    expect(sua[1]?.quantity).toBe(1_000);
+  });
+
+  it('mã không có trong danh mục thì KHÔNG tự thêm mới', () => {
+    const sua = updateHolding([holding()], 'VNM', { ...holding(), quantity: 999 });
+
+    expect(sua).toHaveLength(1);
+    expect(sua[0]?.code).toBe('FPT');
+  });
+
+  it('số lượng hoặc giá vốn không dương thì từ chối, giữ nguyên bản cũ', () => {
+    const list = [holding({ quantity: 500 })];
+
+    expect(updateHolding(list, 'FPT', { ...holding(), quantity: 0 })[0]?.quantity).toBe(500);
+    expect(updateHolding(list, 'FPT', { ...holding(), costPrice: -1 })[0]?.quantity).toBe(500);
+  });
+
+  it('không sửa mảng gốc', () => {
+    const list = [holding({ quantity: 500 })];
+    updateHolding(list, 'FPT', { ...holding(), quantity: 1 });
+    expect(list[0]?.quantity).toBe(500);
+  });
+});
+
+describe('tên doanh nghiệp đi kèm mã', () => {
+  it('đọc và ghi lại được qua localStorage', () => {
+    const list = parseHoldings(serializeHoldings([holding({ name: 'FPT Corp' })]));
+    expect(list[0]?.name).toBe('FPT Corp');
+  });
+
+  /*
+   * Danh mục lưu từ trước gói này không có trường `name`. Nó phải VẮNG hẳn chứ không thành chuỗi
+   * rỗng — màn dùng `holding.name !== undefined` để quyết định có vẽ dòng tên hay không, và một
+   * chuỗi rỗng sẽ vẽ ra một khoảng trắng vô nghĩa cạnh mã.
+   */
+  it('bản lưu cũ không có tên thì bỏ hẳn trường, không thành chuỗi rỗng', () => {
+    const list = parseHoldings(
+      JSON.stringify([{ code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '' }]),
+    );
+
+    expect(list[0]?.name).toBeUndefined();
+  });
+
+  it('thêm lại cùng mã kèm tên thì điền tên vào bản cũ chưa có', () => {
+    const cu = [holding()];
+    const moi = addHolding(cu, holding({ name: 'FPT Corp' }));
+
+    expect(moi[0]?.name).toBe('FPT Corp');
   });
 });
 

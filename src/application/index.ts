@@ -156,6 +156,16 @@ export {
   serializeCachedTickers,
 } from './ticker-list-store';
 
+export type { CachedPrices, CachedQuote } from './price-cache-store';
+export {
+  PRICE_CACHE_KEY,
+  PRICE_CACHE_TTL_MS,
+  isPriceCacheFresh,
+  oldestAsOf,
+  parseCachedPrices,
+  serializeCachedPrices,
+} from './price-cache-store';
+
 // ── Bộ máy tính toán — chạy một công thức (nền cho nhánh 3 và 5) ────────────
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from '@/core/calc';
 export { missingInputLabels, needsPriceSeries, runFormula } from '@/core/calc';
@@ -321,6 +331,7 @@ export {
   parseHoldings,
   removeHolding,
   serializeHoldings,
+  updateHolding,
 } from './portfolio-store';
 
 export { LAST_LIST_URL_KEY, backToListHref, listUrlToStore, parseListUrl } from './last-list-url';

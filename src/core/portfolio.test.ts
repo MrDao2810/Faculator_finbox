@@ -191,8 +191,110 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
       asOf,
     );
 
-    for (const output of [summary.totalValue, summary.beta, summary.xirr, summary.count]) {
+    for (const output of [
+      summary.totalValue,
+      summary.totalCost,
+      summary.gain,
+      summary.gainPercent,
+      summary.beta,
+      summary.xirr,
+      summary.count,
+    ]) {
       expect(output.value === null || Number.isFinite(output.value)).toBe(true);
     }
+  });
+});
+
+describe('vốn đã bỏ ra và lãi/lỗ chưa thực hiện', () => {
+  const asOf = '2026-01-02';
+
+  it('cộng đúng vốn, hiệu ra lãi, và phần trăm khớp tay', () => {
+    // 500 CP × 78.000 ₫ = 39.000.000 ₫ vốn; thị giá 100.000 ₫ → 50.000.000 ₫.
+    const summary = summarisePortfolio([holding()], PRICES, asOf);
+
+    expect(summary.totalCost.value).toBe(39_000_000);
+    expect(summary.gain.value).toBe(11_000_000);
+    expect(summary.gainPercent.value).toBeCloseTo((11 / 39) * 100, 6);
+  });
+
+  it('lỗ ra số âm chứ không bị kẹp về 0', () => {
+    const summary = summarisePortfolio([holding({ costPrice: 120_000 })], PRICES, asOf);
+
+    expect(summary.gain.value).toBe(-10_000_000);
+    expect(summary.gainPercent.value).toBeLessThan(0);
+  });
+
+  /*
+   * Ca này chặn một cái bẫy cụ thể. `total` trong `summarisePortfolio()` cộng bằng
+   * `row.value ?? 0`, tức coi mã thiếu giá như bằng 0 ₫. Đem `total` trừ thẳng tổng vốn thì mã
+   * ấy đóng góp một khoản "lỗ" bịa đúng bằng số tiền đã bỏ ra — con số sai mà trông rất có lý,
+   * đúng loại FR-06 muốn chặn. Lãi/lỗ phải THỪA HƯỞNG lỗi thay vì tự tính lấy.
+   */
+  it('một mã thiếu giá thì lãi/lỗ báo thừa hưởng, KHÔNG bịa ra khoản lỗ bằng vốn', () => {
+    const summary = summarisePortfolio([holding(), holding({ code: 'MNG' })], PRICES, asOf);
+
+    expect(summary.totalValue.value).toBeNull();
+    expect(summary.gain.value).toBeNull();
+    expect(summary.gain.warning?.code).toBe('INHERITED');
+    expect(summary.gainPercent.value).toBeNull();
+  });
+
+  /*
+   * Vốn KHÔNG phụ thuộc thị giá — đó là điểm khiến nó đáng có mặt trên màn: mất mạng thì đây là
+   * con số thật duy nhất còn lại, và nó giữ cho khối đầu màn không trắng trơn.
+   */
+  it('mất mạng vẫn cộng được vốn, vì vốn không cần thị giá', () => {
+    const summary = summarisePortfolio([holding()], new Map(), asOf, 'failed');
+
+    expect(summary.totalValue.value).toBeNull();
+    expect(summary.totalCost.value).toBe(39_000_000);
+  });
+
+  it('vốn hỏng thì lãi/lỗ thừa hưởng từ phía vốn, và nói đúng phía nào hỏng', () => {
+    const summary = summarisePortfolio([holding({ costPrice: Number.NaN })], PRICES, asOf);
+
+    expect(summary.totalCost.value).toBeNull();
+    expect(summary.gain.warning?.code).toBe('INHERITED');
+    expect(summary.gain.warning?.message.vi).toContain('vốn');
+  });
+
+  it('danh mục rỗng: cả ba ô mới đều nói lý do, không ô nào ra 0', () => {
+    const summary = summarisePortfolio([], PRICES, asOf);
+
+    for (const output of [summary.totalCost, summary.gain, summary.gainPercent]) {
+      expect(output.value).toBeNull();
+      expect(output.warning?.code).toBe('INCOMPLETE_INPUT');
+    }
+  });
+});
+
+describe('ba trạng thái của bảng thị giá', () => {
+  const asOf = '2026-01-02';
+
+  it("'ready': thiếu giá là do nguồn không có mã, nên khuyên kiểm tra lại mã", () => {
+    const summary = summarisePortfolio([holding({ code: 'MNG' })], PRICES, asOf, 'ready');
+
+    expect(summary.totalValue.warning?.fix?.vi).toContain('bỏ mã khỏi danh mục');
+  });
+
+  /*
+   * `'stale'` đi chung nhánh với `'failed'`: cả hai đều là "không hỏi được nguồn". Lời khuyên
+   * phải là thử lại, KHÔNG được là "bỏ mã khỏi danh mục" — xui người dùng xoá dữ liệu thật của
+   * họ vì một sự cố tạm thời là hỏng nặng hơn nhiều so với việc thiếu một con số.
+   */
+  it("'stale' và 'failed' đều khuyên thử lại, không khuyên bỏ mã", () => {
+    for (const state of ['stale', 'failed'] as const) {
+      const summary = summarisePortfolio([holding({ code: 'MNG' })], PRICES, asOf, state);
+
+      expect(summary.totalValue.warning?.fix?.vi).toContain('Thử lại');
+      expect(summary.totalValue.warning?.fix?.vi).not.toContain('bỏ mã khỏi danh mục');
+    }
+  });
+
+  it("'stale' mà mọi mã đều có giá thì tổng vẫn ra số — giá cũ vẫn là giá thật", () => {
+    const summary = summarisePortfolio([holding()], PRICES, asOf, 'stale');
+
+    expect(summary.totalValue.value).toBe(50_000_000);
+    expect(summary.gain.value).toBe(11_000_000);
   });
 });

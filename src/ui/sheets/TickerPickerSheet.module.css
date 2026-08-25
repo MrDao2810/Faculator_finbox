@@ -125,6 +125,24 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Nhãn "đã có" của mã đang nắm giữ.
+ *
+ * Không khoá nút chọn: chọn lại một mã đang giữ là hợp lệ và sẽ cộng dồn vào dòng cũ. Việc của
+ * nhãn này chỉ là nói ra điều đó trước khi bấm, để người dùng không tưởng mình vừa tạo dòng thứ
+ * hai cùng mã.
+ */
+.held {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
 /* Dòng "60/1.649 mã · gõ thêm…". Phải đọc được, nhưng không tranh chỗ với danh sách. */
 .footnote {
   margin: var(--space-3) 0 0;

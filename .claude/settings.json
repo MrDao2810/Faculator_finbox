@@ -651,7 +651,9 @@
       "Bash(node -e \"console.log\\(require\\('fs'\\).readFileSync\\('src/data/live-preset.ts','utf8'\\).split\\('\\\\n'\\).slice\\(86,120\\).join\\('\\\\n'\\)\\)\")",
       "Bash(git -C \"C:/Faculator_finbox\" checkout -- src/data/live-preset.ts)",
       "Bash(git -C \"C:/Faculator_finbox\" status --porcelain -- src/data/live-preset.ts)",
-      "Bash(grep -n \"region\\\\|listitem\\\\|heading', { level\" src/app/danh-muc/PortfolioScreen.test.tsx)"
+      "Bash(grep -n \"region\\\\|listitem\\\\|heading', { level\" src/app/danh-muc/PortfolioScreen.test.tsx)",
+      "Bash(curl -s -X POST \"https://dcs.finbox.vn/data/symbols\" -H \"Content-Type: application/json\" -d '{\"symbols\":[\"FPT\"]}' -o sym.json --max-time 25)",
+      "Bash(curl -s \"https://dcs.finbox.vn/v1/getMarketDates\" --max-time 20)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

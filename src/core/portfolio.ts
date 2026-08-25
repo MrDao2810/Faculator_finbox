@@ -1,9 +1,10 @@
 /**
  * Tầng DOMAIN — danh mục cá nhân của màn WF-06 (gói WBS 3.4.1).
  *
- * Bốn con số ở đầu màn (tổng giá trị · beta danh mục · XIRR toàn danh mục · số mã) đều là
- * KẾT QUẢ TÍNH, nên tất cả đi qua `CalcOutput` chứ không trả số trần — FR-06 áp cho màn này
- * y như cho mọi công thức. Thiếu dữ liệu thì hiện "— , —" kèm lý do, không hiện 0.
+ * Các con số ở đầu màn (tổng giá trị · vốn đã bỏ ra · lãi/lỗ ₫ và % · beta danh mục · XIRR toàn
+ * danh mục · số mã) đều là KẾT QUẢ TÍNH, nên tất cả đi qua `CalcOutput` chứ không trả số trần —
+ * FR-06 áp cho màn này y như cho mọi công thức. Thiếu dữ liệu thì hiện "— , —" kèm lý do,
+ * không hiện 0.
  *
  * Danh mục nằm trên máy người dùng (NFR-SEC-01, COM-03); phần cất giữ do tầng Application lo,
  * ở đây chỉ có phép tính thuần.
@@ -17,6 +18,14 @@ import type { CalcOutput } from './types';
 export interface Holding {
   /** Mã cổ phiếu viết hoa, ví dụ 'FPT'. */
   code: string;
+  /**
+   * Tên doanh nghiệp, ví dụ 'FPT Corp'. Không bắt buộc.
+   *
+   * Thuần để HIỆN, không phép tính nào đọc tới. Có mặt vì ô chọn mã cho tìm theo tên công ty:
+   * người dùng gõ "hoà phát" để tìm ra HPG, rồi danh sách nắm giữ chỉ hiện mỗi 'HPG' thì công
+   * sức tìm ấy mất trắng. Danh mục cũ trong máy chưa có trường này nên nó là tuỳ chọn.
+   */
+  name?: string;
   /** Số cổ phiếu. */
   quantity: number;
   /** Giá vốn bình quân một cổ phiếu, đơn vị ₫. */
@@ -44,25 +53,46 @@ export interface HoldingValue {
   value: number | null;
   /** Tỷ trọng trên tổng danh mục, đơn vị %. `null` khi thiếu giá. */
   weight: number | null;
+  /**
+   * Vốn đã bỏ ra = số lượng × giá vốn, đơn vị ₫.
+   *
+   * KHÔNG phụ thuộc thị giá — đây là tiền người dùng đã trả, tra được hay không tra được giá thì
+   * nó vẫn thế. Nhờ vậy màn còn một con số thật để hiện cả lúc mất mạng.
+   */
+  cost: number | null;
+  /** Lãi/lỗ chưa thực hiện = giá trị thị trường − vốn, đơn vị ₫. `null` khi thiếu giá. */
+  gain: number | null;
+  /** Lãi/lỗ trên vốn, đơn vị %. `null` khi thiếu giá hoặc vốn không dương. */
+  gainPercent: number | null;
 }
 
 /**
- * Vì sao bảng thị giá lại thiếu.
+ * Bảng thị giá đang ở tình trạng nào.
  *
  * `'ready'` — tra được nguồn, mã nào vắng là vì nguồn không có mã đó.
- * `'failed'` — không hỏi được nguồn (mất mạng, hết hạn chờ, máy chủ lỗi).
+ * `'failed'` — không hỏi được nguồn và cũng không có gì để thay (mất mạng, hết hạn chờ, lỗi máy chủ).
+ * `'stale'` — không hỏi được nguồn, nhưng đang dùng giá của một phiên đã lưu trước đó.
  *
- * Hai ca ra cùng một hệ quả (không có giá) nhưng cần **hai lời khuyên trái ngược**: ca đầu bảo
- * người dùng bỏ mã đi, ca sau bảo họ thử lại. Trước khi có tham số này, màn khuyên "bỏ mã khỏi
- * danh mục" ngay cả lúc chỉ là rớt wifi — tức xui người dùng xoá dữ liệu thật của họ vì một sự
- * cố tạm thời.
+ * Ba ca cần **ba lời khuyên khác nhau**: ca đầu bảo người dùng bỏ mã đi, hai ca sau bảo họ thử
+ * lại. Trước khi có tham số này, màn khuyên "bỏ mã khỏi danh mục" ngay cả lúc chỉ là rớt wifi —
+ * tức xui người dùng xoá dữ liệu thật của họ vì một sự cố tạm thời.
+ *
+ * `'stale'` KHÔNG làm phép tính hỏng: giá của một phiên đã đóng cửa vẫn là giá thật, chỉ là cũ.
+ * Điều kiện để nó lương thiện nằm ở tầng giao diện — màn phải nói rõ đang dùng giá phiên nào
+ * (`TickerSnapshot.asOfDate`). Hiện một cái giá cũ mà im lặng mới là thứ FR-06 cấm.
  */
-export type PriceState = 'ready' | 'failed';
+export type PriceState = 'ready' | 'failed' | 'stale';
 
 export interface PortfolioSummary {
   rows: ReadonlyArray<HoldingValue>;
   /** Tổng giá trị thị trường, đơn vị ₫. */
   totalValue: CalcOutput;
+  /** Tổng vốn đã bỏ ra, đơn vị ₫. Không cần thị giá nên gần như luôn tính được. */
+  totalCost: CalcOutput;
+  /** Lãi/lỗ chưa thực hiện của cả danh mục, đơn vị ₫. */
+  gain: CalcOutput;
+  /** Lãi/lỗ trên vốn của cả danh mục, đơn vị %. */
+  gainPercent: CalcOutput;
   /** Beta bình quân gia quyền theo giá trị. */
   beta: CalcOutput;
   /** Suất sinh lợi theo dòng tiền thực của cả danh mục, đơn vị %/năm. */
@@ -88,18 +118,30 @@ export function valueHoldings(
 ): HoldingValue[] {
   const priced = holdings.map((holding) => {
     const marketPrice = prices.get(holding.code) ?? null;
+    const quantityOk = Number.isFinite(holding.quantity) && holding.quantity > 0;
     const usable =
-      marketPrice !== null &&
-      Number.isFinite(marketPrice) &&
-      marketPrice > 0 &&
-      Number.isFinite(holding.quantity) &&
-      holding.quantity > 0;
+      marketPrice !== null && Number.isFinite(marketPrice) && marketPrice > 0 && quantityOk;
+
+    const value = usable ? holding.quantity * marketPrice : null;
+    /*
+     * Vốn tính riêng, KHÔNG kèm điều kiện có thị giá: đây là tiền đã trả, không liên quan gì tới
+     * việc hôm nay tra được giá hay không. Tách như thế thì lúc mất mạng màn vẫn còn một con số
+     * thật để hiện thay vì trống trơn cả khối.
+     */
+    const cost =
+      quantityOk && Number.isFinite(holding.costPrice) && holding.costPrice > 0
+        ? holding.quantity * holding.costPrice
+        : null;
 
     return {
       holding,
       marketPrice: usable ? marketPrice : null,
-      value: usable ? holding.quantity * marketPrice : null,
+      value,
       weight: null as number | null,
+      cost,
+      gain: value === null || cost === null ? null : value - cost,
+      gainPercent:
+        value === null || cost === null || cost <= 0 ? null : ((value - cost) / cost) * 100,
     };
   });
 
@@ -113,7 +155,7 @@ export function valueHoldings(
 }
 
 /**
- * Bốn con số đầu màn WF-06.
+ * Bảy con số đầu màn WF-06.
  *
  * `asOf` bắt buộc: XIRR cần một mốc "hôm nay" để quy giá trị hiện tại thành dòng tiền dương,
  * và Domain không được tự lấy ngày hệ thống — cùng lý do `resolveConstant()` bắt buộc nhận
@@ -145,6 +187,9 @@ export function summarisePortfolio(
     return {
       rows,
       totalValue: empty('₫'),
+      totalCost: empty('₫'),
+      gain: empty('₫'),
+      gainPercent: empty('%'),
       beta: empty('lần'),
       xirr: empty('%/năm'),
       count,
@@ -160,7 +205,13 @@ export function summarisePortfolio(
     missingPrice.length > 0
       ? fail(
           '₫',
-          priceState === 'failed'
+          /*
+           * `'stale'` đi chung nhánh với `'failed'`: cả hai đều là "không hỏi được nguồn". Khác
+           * biệt duy nhất là ca `'stale'` còn giá cũ để dùng, nên phần lớn mã vẫn có giá và
+           * nhánh này chỉ chạy khi có mã VẮNG MẶT cả trong bản cache — mà lúc ấy nguyên nhân
+           * đúng vẫn là mất mạng, không phải "nguồn không có mã này".
+           */
+          priceState !== 'ready'
             ? {
                 code: 'MISSING_SERIES',
                 message: {
@@ -186,6 +237,94 @@ export function summarisePortfolio(
         )
       : ok(total, '₫');
 
+  // ── Vốn đã bỏ ra và lãi/lỗ chưa thực hiện ─────────────────────────────────
+  /*
+   * Vốn KHÔNG phụ thuộc thị giá, nên nó vẫn ra số ngay cả lúc mất mạng — đó là chủ ý. Chỉ hỏng
+   * khi chính dữ liệu người dùng nhập hỏng (số lượng hoặc giá vốn không dương), mà `parseHoldings`
+   * đã loại từ đầu; nhánh này là lưới an toàn cho đường gọi trực tiếp từ test hoặc mã khác.
+   */
+  const missingCost = rows.filter((row) => row.cost === null).map((row) => row.holding.code);
+  const totalCost =
+    missingCost.length > 0
+      ? fail('₫', {
+          code: 'INCOMPLETE_INPUT',
+          message: {
+            vi: `Thiếu số lượng hoặc giá vốn của ${missingCost.join(', ')} nên chưa cộng được vốn đã bỏ ra.`,
+            en: `Missing the quantity or cost price of ${missingCost.join(', ')}, so the invested amount cannot be totalled.`,
+          },
+          fix: {
+            vi: 'Bấm vào mã đó để sửa lại số lượng và giá vốn.',
+            en: 'Tap that ticker to correct its quantity and cost price.',
+          },
+        })
+      : ok(
+          rows.reduce((sum, row) => sum + (row.cost ?? 0), 0),
+          '₫',
+        );
+
+  /*
+   * Lãi/lỗ là HIỆU của hai con số trên, nên hỏng ở đâu thì thừa hưởng ở đó (FR-15). Không được
+   * lấy `total` trần: `total` cộng bằng `row.value ?? 0`, tức coi mã thiếu giá như bằng 0 — đem
+   * trừ vốn của chính mã ấy sẽ ra một khoản "lỗ" bịa đúng bằng số tiền đã bỏ ra.
+   */
+  const brokenSide = totalValue.value === null ? 'value' : totalCost.value === null ? 'cost' : null;
+
+  const gain =
+    brokenSide === null
+      ? ok((totalValue.value ?? 0) - (totalCost.value ?? 0), '₫')
+      : fail('₫', {
+          code: 'INHERITED',
+          message: {
+            vi:
+              brokenSide === 'value'
+                ? 'Chưa tính được lãi/lỗ vì tổng giá trị danh mục đang lỗi.'
+                : 'Chưa tính được lãi/lỗ vì tổng vốn đã bỏ ra đang lỗi.',
+            en:
+              brokenSide === 'value'
+                ? 'Cannot calculate the gain or loss because the total portfolio value is broken.'
+                : 'Cannot calculate the gain or loss because the total invested amount is broken.',
+          },
+          fix: {
+            vi:
+              brokenSide === 'value'
+                ? 'Sửa phần thị giá ở trên trước.'
+                : 'Sửa lại số lượng và giá vốn của mã còn thiếu.',
+            en:
+              brokenSide === 'value'
+                ? 'Fix the market price section above first.'
+                : 'Correct the quantity and cost price of the incomplete ticker.',
+          },
+        });
+
+  let gainPercent: CalcOutput;
+  if (gain.value === null || totalCost.value === null) {
+    gainPercent = fail('%', {
+      code: 'INHERITED',
+      message: {
+        vi: 'Chưa tính được lãi/lỗ theo phần trăm vì số lãi/lỗ tuyệt đối đang lỗi.',
+        en: 'Cannot calculate the percentage gain because the absolute gain is broken.',
+      },
+      fix: {
+        vi: 'Sửa nguyên nhân của ô Lãi/lỗ ở trên.',
+        en: 'Fix the cause shown on the gain tile above.',
+      },
+    });
+  } else if (totalCost.value <= 0) {
+    gainPercent = fail('%', {
+      code: 'DIVIDE_BY_ZERO',
+      message: {
+        vi: 'Vốn đã bỏ ra bằng 0 nên không có mẫu số để tính phần trăm lãi/lỗ.',
+        en: 'The invested amount is zero, so there is no denominator for a percentage gain.',
+      },
+      fix: {
+        vi: 'Nhập giá vốn lớn hơn 0 cho các mã trong danh mục.',
+        en: 'Enter a cost price above 0 for the holdings in the portfolio.',
+      },
+    });
+  } else {
+    gainPercent = ok((gain.value / totalCost.value) * 100, '%');
+  }
+
   // ── Beta danh mục — bình quân gia quyền theo giá trị ───────────────────────
   const missingBeta = holdings
     .filter((holding) => holding.beta === undefined || holding.beta === null)
@@ -200,8 +339,8 @@ export function summarisePortfolio(
         en: `Missing beta for ${missingBeta.join(', ')}. Portfolio beta is a weighted average, so a missing ticker means it cannot be calculated.`,
       },
       fix: {
-        vi: 'Nhập beta cho mã còn thiếu khi sửa mã đó.',
-        en: 'Enter beta for the missing ticker while editing it.',
+        vi: 'Bấm vào mã còn thiếu trong danh sách dưới đây để sửa và nhập beta.',
+        en: 'Tap the ticker below that is missing a beta to edit it and enter one.',
       },
     });
   } else if (totalValue.value === null || totalValue.value <= 0) {
@@ -310,5 +449,5 @@ export function summarisePortfolio(
         : ok(result * 100, '%/năm');
   }
 
-  return { rows, totalValue, beta, xirr: rate, count };
+  return { rows, totalValue, totalCost, gain, gainPercent, beta, xirr: rate, count };
 }

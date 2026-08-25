@@ -252,6 +252,31 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.priceLoading': 'Fetching market prices…',
   'portfolio.priceFailed': 'Could not fetch market prices from Finbox.',
   'portfolio.priceRetry': 'Try again',
+
+  'portfolio.totalCost': 'Invested',
+  'portfolio.gain': 'Gain / loss',
+
+  'portfolio.cellQuantity': 'Quantity',
+  'portfolio.marketPrice': 'Market price',
+  'portfolio.priceMissing': 'no price yet',
+  'portfolio.betaShort': 'beta',
+  'portfolio.edit': 'Edit',
+  'portfolio.editHint':
+    'Change the quantity, cost price, purchase date or beta. To change the ticker itself, remove it and add it again.',
+  'portfolio.formSave': 'Save changes',
+  'portfolio.mergeNote':
+    'This ticker is already in the portfolio. Adding again will add up the quantity and recalculate the average cost price — it will not create a second row. To correct the existing numbers instead, cancel this form and tap the ticker in the list.',
+  'portfolio.formMerge': 'Add to the existing holding',
+
+  'portfolio.errCode': 'Pick a ticker first.',
+  'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
+  'portfolio.errCostPrice': 'Enter the cost per share, above 0.',
+  'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 — or leave it blank if unknown.',
+  'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
+
+  'portfolio.priceSession': 'Session of',
+  'portfolio.priceRefresh': 'Refresh',
+  'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
   'portfolio.formulas': 'Run a formula',
   'portfolio.formulasTitle': 'Formulas this ticker can fill',
   'portfolio.formulasSubtitle': 'Open a formula with this ticker’s data already filled in',
@@ -264,6 +289,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.searchLabel': 'Search by code or company name',
   'ticker.searchPlaceholder': 'FPT, Hoa Phat…',
   'ticker.pick': 'Pick',
+  'ticker.held': 'already held',
+  'ticker.pickHeld': 'Add more',
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
   'ticker.capped': 'tickers · type more to narrow the list',

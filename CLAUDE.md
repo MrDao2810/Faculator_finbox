@@ -181,10 +181,29 @@ Three things that are easy to break here:
   `verify:static` fails on the `<math` assertion in `out/cong-thuc/pe/index.html`.
 
 The service worker does not touch these calls at all: `handles()` in `public/sw.js` rejects
-cross-origin and non-GET. Offline behaviour is therefore hand-rolled — the ticker list is cached in
-`localStorage` with a 24 h TTL (`ticker-list-store.ts`), and a failed price fetch flows into
-`summarisePortfolio(…, 'failed')`, which swaps the advice from "remove the ticker" to "check your
-connection and retry". Never let a network failure produce a `0` (FR-06).
+cross-origin and non-GET. Offline behaviour is therefore hand-rolled, with **two** caches and one
+rule that governs the second:
+
+- The ticker list, in `localStorage` with a 24 h TTL (`ticker-list-store.ts`).
+- Market prices, in `localStorage` with a 7-day TTL (`price-cache-store.ts`). This one used to be
+  forbidden — `ticker-list-store.ts` carried the reason in writing: showing a stale price without
+  saying it is stale is exactly the "wrong number that looks right" FR-06 exists to stop. That
+  reason still stands; what changed is that `TickerSnapshot` now carries `asOfDate` (from Finbox's
+  `date` field, cross-checked against `GET /v1/getMarketDates` to confirm it is a real **trading
+  session**, not today echoed back). So the cache is allowed **only** because the screen can name
+  the session it is quoting. `PriceState` gained a third value `'stale'` for this, and
+  `PortfolioScreen.test.tsx` pins that the session date renders whenever it is in effect. Do not
+  loosen that pairing.
+
+`summarisePortfolio(…)` treats `'stale'` and `'failed'` alike for the _missing price_ warning —
+both mean "could not reach the source", so the advice is "retry", never "remove the ticker".
+Never let a network failure produce a `0` (FR-06).
+
+The 4 portfolio tiles are now **6**: total value, invested, gain/loss (with the percentage as its
+`note`), beta, XIRR, holdings count. `totalCost` is deliberately independent of market price — it
+is the one real number that survives an outage, which is why the header does not go blank offline.
+`gain` **inherits** rather than computing: `total` sums `row.value ?? 0`, so subtracting cost from
+it directly would invent a loss exactly the size of an unpriced holding's cost basis.
 
 ## Chart kinds
 

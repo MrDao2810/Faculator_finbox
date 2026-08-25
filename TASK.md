@@ -101,6 +101,8 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Bấm biểu đồ ghi vào Số liệu + xác minh không có "đơ"         | —       | Xong — xem mục "Bấm biểu đồ ghi giá trị…"                      |
 | —     | Bỏ cuộn khi bấm biểu đồ + vá "Beta im" + điều tra sâu độ trễ | —       | Xong 2/3 — xem mục "Phản hồi vòng hai…"                        |
 | —     | Tái hiện + định vị đúng nguyên nhân độ trễ chuyển trang      | —       | Chẩn đoán xong — xem mục "Độ trễ chuyển trang: tái hiện được…" |
+| 3.4.1 | Danh mục dùng số liệu thật — 1.649 mã + thị giá lúc chạy     | —       | Xong — xem mục "Danh mục dùng số liệu THẬT"                    |
+| 3.4.1 | Vá trọn 8 đề mục còn hở của tab Danh mục                     | —       | Xong phần code — xem mục "Vá trọn 8 đề mục còn hở"             |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -108,6 +110,202 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Tab Danh mục — vá trọn 8 đề mục còn hở so với WF-06
+
+Trạng thái: **xong phần code, chưa build lại.** `npx vitest run` xanh **1536/1536 test qua 69 file**
+(tăng 57), `npm run lint` · `npx tsc --noEmit` · `npx prettier --check` đều sạch.
+
+### Vì sao có đợt này
+
+Chủ dự án hỏi màn Danh mục còn thiếu gì so với wireframe và SRS. Bản SRS lẫn 5 ảnh hi-fi WF-06
+**không nằm trong repo** (không có thư mục `docs/`), nên phần rà soát đối chiếu với chính lời hứa
+trong mã nguồn và tài liệu dự án. Kết quả: 8 chỗ hở chưa ai ghi, chủ dự án chốt "lần lượt hoàn
+thiện" cả 8.
+
+### Tám đề mục, và cái gì đã đổi cho từng cái
+
+| #   | Chỗ hở                                    | Cách vá                                                                           |
+| --- | ----------------------------------------- | --------------------------------------------------------------------------------- |
+| 1   | Không sửa được mã đã thêm                 | `updateHolding()` + nút Sửa ở dòng đầu mỗi mã; form có chế độ sửa, ô mã khoá lại  |
+| 2   | Ba ca thao tác hỏng trong im lặng         | Câu lỗi theo từng ô qua prop `error` của `Input`, cộng một câu cho ca đủ trần mã  |
+| 3   | Không có lãi/lỗ ở bất kỳ đâu              | `totalCost` · `gain` · `gainPercent` ở Domain; 2 ô mới đầu màn + lãi/lỗ từng dòng |
+| 4   | Dòng mã giấu thị giá, ngày mua, beta      | Cả ba lên dòng, ngày mua qua `formatIsoDate`                                      |
+| 5   | Tên doanh nghiệp bị vứt sau khi chọn      | `Holding.name` (tuỳ chọn, bản lưu cũ không có thì bỏ hẳn trường)                  |
+| 6   | Không biết giá thuộc phiên nào            | `TickerSnapshot.asOfDate` đọc từ field `date` của API                             |
+| 7   | Ngoại tuyến: giá không có cache           | `price-cache-store.ts`, TTL 7 ngày, kèm trạng thái `'stale'`                      |
+| 8   | Tra thành công rồi thì không làm mới được | Dòng trạng thái thị giá luôn hiện, luôn có nút Làm mới                            |
+
+### Đề mục 6 và 7 dính nhau — và đó là điều kiện để đề mục 7 được phép tồn tại
+
+`ticker-list-store.ts` từng ghi thẳng lý do **không** cache thị giá: _"Hiện một cái giá cũ mà không
+nói rõ cũ là đúng loại số sai mà trông có lý mà FR-06 muốn tránh."_ Lý do ấy đúng, và nó chưa bao
+giờ là "cấm cache" — nó là **cấm cache mà im lặng**.
+
+Nên phải làm đề mục 6 trước. Gọi thật API: `POST /data/symbols` trả `date: 20260825`. Đối chiếu với
+`GET /v1/getMarketDates` — endpoint đó liệt kê `20260825, 20260824, 20260821, 20260820, 20260819,
+20260818`, tức **bỏ đúng thứ Bảy và Chủ nhật**. Vậy `date` là ngày PHIÊN thật chứ không phải hôm
+nay lặp lại, và màn nói được "Giá phiên 21/08/2026".
+
+Có ngày phiên rồi thì kho giá mới ra đời, kèm đúng ràng buộc: `PriceState` thêm giá trị `'stale'`,
+và có ca kiểm khoá việc ngày phiên phải hiện lên màn khi đang ở trạng thái đó. Docblock của
+`ticker-list-store.ts` đã sửa lại cho khỏi nói ngược với thứ vừa thêm.
+
+Ngày phiên còn sửa được một chỗ khác: `presetFromSnapshot()` từng ghi **ngày mở máy** vào chuỗi giá
+một phiên. Mở app chiều thứ Bảy là gán con số cho một phiên không hề tồn tại. Nay lấy `asOfDate`,
+`asOf` chỉ còn là phương án dự phòng.
+
+### Hai lỗi tự mình gây ra rồi tự bắt được
+
+1. **`priceState` không bao giờ rời `'ready'` khi mạng hỏng.** Bản đầu để nó là state riêng, chốt
+   giá trị ngay trong khối `catch` — nhưng ở đó chưa nhìn thấy giá trị mới của `quotes` (bản dự
+   phòng vừa đọc từ cache), nên hai state lệch pha: mạng hỏng mà màn vẫn báo bình thường. Ca kiểm
+   "mạng hỏng: hiện lý do và nút thử lại" của đợt trước bắt được ngay. Sửa: **suy ra** `priceState`
+   từ `fetchFailed` + `quotes.size` thay vì giữ state thứ hai — không có pha nào để lệch.
+
+2. **`aria-label` nuốt mất toàn bộ con số vừa đưa lên màn.** Bản đầu bọc cả dòng mã vào một nút
+   Sửa và đặt `aria-label="Sửa FPT"`. Quy tắc tính tên trợ năng: `aria-label` thay thế **toàn bộ**
+   nội dung bên trong — nghĩa là số lượng, giá vốn, thị giá, lãi/lỗ, ngày mua đều biến mất khỏi bản
+   đọc, đúng những thứ đề mục 3 và 4 vừa đưa lên.
+
+   Thử hướng thứ hai — bỏ `aria-label`, thêm một `<span>` ẩn chứa chữ "Sửa " — cũng hỏng: đo bằng
+   `computeAccessibleName()` ra `"SửaFPT100 CP · giá vốn 60.000 ₫ · chưa có giámua 02/01/2026"`,
+   vì tên nút được ghép từ nội dung từng thẻ con **sau khi cắt khoảng trắng hai đầu**.
+
+   Chốt: nút Sửa bao **đúng dòng đầu** (mã + tên), khối số nằm ngoài nút nên vẫn được đọc như chữ
+   thường của mục danh sách. Có ca kiểm ghim việc này (`khối số nằm NGOÀI nút sửa`).
+
+### Ba quyết định đáng ghi lại
+
+- **Không dùng `NumberInput` (bộ 5 trạng thái WF-16) cho form Danh mục**, dù đó là component dựng
+  sẵn cho việc báo lỗi ô nhập. Nó nhận một `VariableSpec` — hình dạng của một BIẾN CÔNG THỨC trong
+  Registry — mà "số cổ phiếu nắm giữ" không phải biến công thức; dùng nó phải bịa ba spec giả, và
+  hai trạng thái `derived`/`locked` của nó vô nghĩa ở đây. Bản thân `NumberInput` cũng chỉ chuyển
+  câu lỗi xuống prop `error` của primitive `Input`, nên đường đi cho trình đọc màn hình là một.
+- **`updateHolding` phải là hàm riêng, không dùng lại `addHolding`.** `addHolding` cố ý cộng dồn
+  ("thêm FPT lần nữa" = mua thêm). Sửa thì ngược hẳn — đang đính chính con số cũ. Dùng chung thì
+  sửa 500 CP thành 300 CP sẽ ra 800 CP, đúng cái lỗi mà thao tác sửa sinh ra để chữa. Có ca kiểm
+  đặt hai hàm cạnh nhau trên cùng đầu vào để khoá điều này.
+- **`gain` phải THỪA HƯỞNG lỗi, không tự tính.** `total` trong `summarisePortfolio()` cộng bằng
+  `row.value ?? 0`, tức coi mã thiếu giá như bằng 0 ₫. Trừ thẳng tổng vốn thì mã ấy đóng góp một
+  khoản "lỗ" bịa **đúng bằng số tiền đã bỏ ra** — số sai mà trông rất có lý. Ngược lại, `totalCost`
+  cố ý KHÔNG phụ thuộc thị giá: mất mạng thì đây là con số thật duy nhất còn lại, và nó giữ cho
+  khối đầu màn không trắng trơn.
+
+### Đã đổi file nào
+
+**Domain** — `src/core/portfolio.ts`: `Holding.name`; `HoldingValue` thêm `cost`/`gain`/
+`gainPercent`; `PortfolioSummary` thêm `totalCost`/`gain`/`gainPercent`; `PriceState` thêm
+`'stale'`; lời khuyên của cảnh báo beta trỏ vào nút Sửa vừa có thật. (+13 ca kiểm)
+
+**Application** — `price-cache-store.ts` (mới, +11 ca); `portfolio-store.ts` thêm
+`updateHolding()` và đọc/ghi `name` (+9 ca); `ticker-list-store.ts` sửa docblock đã nói ngược;
+`index.ts` xuất thêm; `i18n/vi.ts` + `en.ts` thêm 18 khoá; `i18n.test.ts` ghim câu "danh mục đã
+đầy" phải nói đúng `MAX_HOLDINGS`.
+
+**Data** — `finbox/types.ts` + `finbox/map.ts`: `asOfDate` và `toIsoDate()` (+3 ca);
+`live-preset.ts` lấy ngày phiên thay ngày mở máy (+2 ca).
+
+**Giao diện** — `PortfolioScreen.tsx` dựng lại phần dòng mã, form và dòng trạng thái giá;
+`PortfolioScreen.module.css` theo. (+21 ca)
+
+**Tài liệu** — `CLAUDE.md` mục "The one network call" ghi hai kho cache và luật của kho thứ hai;
+`README.md` mục "Một lời gọi ra ngoài" nói lại phần ngoại tuyến.
+
+### Vòng phản hồi: ba việc chủ dự án báo, ba kết luận khác nhau
+
+Chủ dự án gửi ảnh chụp màn hình kèm ba nhận xét. Kiểm từng cái bằng máy, ra ba loại khác nhau —
+đáng ghi vì cả ba dễ bị gộp làm một.
+
+1. **"Sửa lại mà giao diện xấu."** KHÔNG phải lỗi của đợt này. Trong ảnh, dòng mã đọc là
+   `100 CPgiá vốn 21₫` — dính liền, không có dấu `·` nào. Đó là dấu vân tay của mã **cũ**: bản cũ
+   dựng hai `<span>` rời (`.quantity`, `.cost`) xếp chồng nhờ `.detail { flex-direction: column }`,
+   nên khi CSS Module không áp được thì hai span thành inline và dính vào nhau. Dựng thật bản mới
+   trong jsdom ra `VNI  100 CP · giá vốn 21 ₫ · chưa có giá` — đủ dấu phân cách. Kết luận: dev
+   server đang phục vụ bản cũ, cần tắt, xoá `.next`, chạy lại.
+
+   (Mã trong ảnh là `VNI` — mã có trong `/bp/codes` nhưng KHÔNG có bản ghi ở `/data/symbols`, tức
+   đúng cái 43% đã đo ở đợt trước. Vì thế tỷ trọng hiện "—". Đây là lý do nên đổi nguồn danh sách
+   mã sang screener, việc vẫn đang chờ quyết.)
+
+2. **"Chưa thấy phần sửa."** Lỗi thật của em, và phải vá **hai lượt**:
+
+   - Lượt đầu: nút Sửa chỉ đổi màu lúc **rê chuột**, mà màn này thiết kế cho 360px — điện thoại
+     không có trạng thái rê chuột, nên nút trông y hệt chữ thường. Thêm dấu `✎` luôn hiện.
+   - Lượt hai, sau khi chủ dự án xem lại: `✎` bị `margin-left: auto` đẩy sang tận lề phải, ở đó
+     nó **rời hẳn khỏi cái mã mà nó sửa** nên vẫn không đoán ra để làm gì. Chuyển về đứng ngay
+     sau tên mã, và vẽ thành huy hiệu nhỏ có nền màu nhấn thay vì một ký tự trần.
+
+   Cùng lượt hai, mỗi mã được bọc thành một **thẻ có viền** (`.row` nhận `border` + `radius` +
+   nền, `.list` chuyển từ gạch chân sang `gap`). Lý do: một mã nay chiếm tới bốn dòng chữ, mà
+   gạch chân không nói được đâu là ranh giới giữa hai mã — mắt đọc thành một khối liên tục. Viền
+   dùng đúng khuôn `.form` và `.empty` ngay bên dưới nên cả màn vẫn là một họ.
+
+   Ký hiệu mang `aria-hidden` vì `aria-label` của nút đã nói "Sửa &lt;mã&gt;".
+
+   - Lượt ba, sau ảnh chụp tiếp theo: **dựng lại toàn bộ ruột thẻ.** Có viền rồi nhưng bên trong
+     vẫn là `100 CP · giá vốn 21 ₫ · chưa có giá` cùng một dòng `mua 02/08/2026 · beta 1,1` —
+     tất cả cùng cỡ chữ nhỏ nhất, cùng màu xám, nhãn và giá trị trông y hệt nhau. Đọc ra thì
+     được nhưng **không dò được**: phải đọc hết cả câu mới biết con số nào là giá vốn. Thêm nữa,
+     `.row` xếp NGANG nên ở 360px cột số bị ép còn hơn nửa bề ngang, "tỷ trọng" trôi ra giữa thẻ
+     xa hẳn ô số nó gọi tên, và dòng cuối bị tràn ra ngoài viền.
+
+     Bố cục mới xếp **dọc**, bốn tầng: mã + nút sửa → dải lãi/lỗ → lưới số liệu → hai nút.
+
+     - **Dải lãi/lỗ** riêng một dòng có nền (xanh/đỏ nhạt theo chiều), vì đó là con số người ta
+       mở màn để xem; mọi thứ còn lại là bối cảnh cho nó. Dấu +/− vẫn mang tin, màu chỉ là lớp
+       thứ hai (NFR-USA-06).
+     - **Lưới số liệu** kiểu nhãn-trên/giá-trị-dưới, `auto-fill minmax(104px, 1fr)` — ba cột ở
+       360px. Nhãn chữ nhỏ in hoa màu mờ, giá trị cỡ chữ thường màu đậm với `tabular-nums`: đúng
+       khuôn `StatTile` ở đầu màn, nên hai khối số của cùng một màn nói cùng một thứ tiếng. Sáu
+       ô: Số lượng · Giá vốn · Thị giá · Tỷ trọng · Ngày mua · beta (hai ô cuối chỉ khi có).
+
+3. **"Hai nút xem công thức và xoá hiển thị mờ nhạt, không biết có thể thao tác."** Đúng. Chúng
+   là hai ký tự `ƒ` và `×` trần trên nền trong suốt, không viền, màu chữ mờ — một ký tự xám thì
+   không có gì phân biệt với chữ trang trí. Nay là primitive `Button` có chữ đọc được: **Tính
+   công thức** (`secondary`) và **Bỏ mã** (`danger` — viền đỏ nền trắng, không phải nút đỏ đặc
+   quá gắt cho một danh sách). Đi kèm là vạch ngăn phía trên vùng hành động: bấm nhầm nút xoá vì
+   tưởng còn đang đọc số là loại lỗi không hoàn tác được.
+
+   `aria-label` vẫn kèm mã (`"Tính công thức FPT"`) nên các ca kiểm cũ không phải sửa, còn người
+   dùng thì nhìn thấy chữ.
+
+4. **"Có vẻ đang tạo được mã trùng nhau."** Kiểm bằng máy: **không có mã trùng.** Thêm VNI hai lần
+   (100 rồi 50) ra đúng một dòng 150 CP, giá vốn bình quân tính lại — `addHolding()` chạy đúng
+   thiết kế. Nhưng cảm nhận của chủ dự án đúng ở chỗ khác: màn làm việc đó **trong im lặng**, nên
+   người dùng thấy dòng cũ tự nhảy số mà không có lời nào. Cùng loại với ba ca "hỏng trong im
+   lặng" đã vá ở trên, chỉ khác là ở đây thao tác THÀNH CÔNG nhưng làm việc khác điều người dùng
+   tưởng. Vá ba chỗ, tất cả đều nói TRƯỚC khi bấm:
+
+   - Sheet chọn mã gắn nhãn `đã có` lên mã đang giữ, nút đổi thành **Cộng thêm**.
+   - Form hiện một dòng nhắc nói rõ sẽ cộng dồn và tính lại giá vốn bình quân, kèm lối đi khác
+     ("muốn sửa số đang có thì huỷ form rồi bấm vào mã").
+   - Nhãn nút chính đổi thành **Cộng thêm vào mã đã có** — không hứa "Thêm vào danh mục" khi việc
+     sắp làm là cộng dồn.
+
+   Thêm 4 ca kiểm, trong đó có ca dựng lại đúng kịch bản trùng mã để nếu sau này ai làm hỏng
+   phần gộp thì đỏ ngay.
+
+Cộng cả ba vòng phản hồi: `vitest` lên **1542 ca / 69 file**.
+
+### Còn lại
+
+- [ ] **Chạy `npm run build` + `npm run size` + `npm run verify:static`.** Vẫn cần tắt dev server ở
+      cổng 3000 trước — cùng nút chặn với đợt trước.
+- [ ] Kiểm Chrome thật: bấm dòng mã → form đổ sẵn số, sửa số lượng KHÔNG cộng dồn; bấm Thêm với ô
+      trống → có câu lỗi, form không đóng; tắt mạng rồi tải lại → vẫn ra tổng kèm dòng "Giá phiên
+      …" và cảnh báo; bấm Làm mới lúc bình thường → gọi lại nguồn. Đo lại vùng chạm 44px cho nút
+      Sửa và hai nút cuối thẻ, và xem lưới số liệu có đủ ba cột ở 360px không.
+- [ ] Beta vẫn nhập tay. Đáng nói là công thức `beta` **đã có** trong Registry (số 110) từ đợt "Ba
+      công thức cố ý…", đọc `ctx.marketSeries`; nút chặn nay là **chưa có chuỗi VN-Index thật**
+      (bộ mẫu là 4 chuỗi PRNG độc lập nên beta ra gần 0) và API Finbox không có field beta. Màn
+      Danh mục vẫn chưa nối gì với công thức đó.
+- [ ] Nguồn danh sách mã: `POST /data/filter` (1.005 mã, 100% có giá) vẫn **chờ chủ dự án quyết** —
+      xem mục đợt trước.
+- [ ] Ba thứ chưa kết luận được vì thiếu bản SRS/wireframe gốc: sắp xếp/lọc danh mục, xuất danh mục
+      ra PDF/PNG, biểu đồ tỷ trọng.
 
 ---
 

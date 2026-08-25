@@ -176,6 +176,26 @@ export function toFundamentals(record: Record<string, unknown>): Fundamentals | 
   };
 }
 
+/**
+ * `20260825` → `'2026-08-25'`. Thứ gì khác dạng ấy đều thành `null`.
+ *
+ * Cắt chuỗi chứ không qua `new Date()`, cùng lý do `formatIsoDate()` nêu: không có múi giờ nào
+ * xen vào được. Có kiểm miền tháng/ngày để một con số rác như `20261399` không thành ngày.
+ */
+export function toIsoDate(value: unknown): string | null {
+  const raw = num(value);
+  if (raw === null || !Number.isInteger(raw)) return null;
+
+  const digits = String(raw);
+  if (digits.length !== 8) return null;
+
+  const month = Number(digits.slice(4, 6));
+  const day = Number(digits.slice(6, 8));
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+}
+
 /** Một bản ghi của `POST /data/symbols` thành ảnh chụp, hoặc `null` khi thiếu cả mã. */
 export function toSnapshot(value: unknown): TickerSnapshot | null {
   const record = asRecord(value);
@@ -190,6 +210,7 @@ export function toSnapshot(value: unknown): TickerSnapshot | null {
     code: code.toUpperCase(),
     name: text(record.company) ?? code.toUpperCase(),
     priceVnd: priceRaw === null || priceRaw <= 0 ? null : round(priceRaw * THOUSAND, 0),
+    asOfDate: toIsoDate(record.date),
     floor: text(record.floor),
     industry: text(record.industry),
     fundamentals: toFundamentals(record),

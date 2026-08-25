@@ -149,8 +149,10 @@ Ba điều đi kèm, đừng nới ra khi chưa hỏi chủ dự án:
   án chốt.
 - Thứ rời khỏi máy người dùng chỉ là **mã cổ phiếu**. Số lượng nắm giữ, giá vốn, ngày mua vẫn nằm
   nguyên trong `localStorage` và không bao giờ đi vào tham số của lời gọi nào.
-- Mất mạng thì không ô nào được hiện `0`: danh sách mã rơi về bản cache, còn thị giá hỏng thì bốn
-  ô tổng hiện "—" kèm lời khuyên **thử lại** (không phải "bỏ mã khỏi danh mục").
+- Mất mạng thì không ô nào được hiện `0`. Danh sách mã rơi về bản cache 24 giờ; thị giá rơi về bản
+  cache 7 ngày và màn **phải** ghi rõ đang dùng giá phiên nào — đó là điều kiện để được phép giữ
+  giá cũ. Không còn giá nào dùng được thì các ô hiện "—" kèm lời khuyên **thử lại** (không phải
+  "bỏ mã khỏi danh mục"). Riêng ô **Vốn đã bỏ ra** vẫn ra số vì nó không cần thị giá.
 
 Chi tiết kỹ thuật: [`src/data/README.md`](src/data/README.md).
 

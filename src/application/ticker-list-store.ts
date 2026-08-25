@@ -10,9 +10,13 @@
  * `dcs.finbox.vn` KHÔNG nằm trong kho của service worker. Không có lớp này thì mở màn lúc mất
  * mạng là ô chọn mã rỗng trơn — trái NFR-REL-02 ("dùng được khi mất mạng").
  *
- * Cache CẢ danh sách mã chứ không cache thị giá: danh sách mã đổi vài lần một năm, còn giá đổi
- * từng phiên. Hiện một cái giá cũ mà không nói rõ cũ là đúng loại "số sai mà trông có lý" mà
- * FR-06 muốn tránh.
+ * Hạn dùng ở đây rộng tay (24 h) vì danh sách mã đổi vài lần một năm, còn giá thì đổi từng
+ * phiên — nên thị giá có kho riêng, luật riêng: xem `price-cache-store.ts`.
+ *
+ * ⚠ Chỗ này từng ghi "cache danh sách mã chứ KHÔNG cache thị giá", với lý do hiện một cái giá cũ
+ * mà không nói rõ cũ là đúng loại "số sai mà trông có lý" mà FR-06 muốn tránh. Lý do đó vẫn
+ * nguyên giá trị; thứ đã đổi là nay `TickerSnapshot` mang `asOfDate` nên màn nói được rõ giá
+ * thuộc phiên nào. Kho giá ra đời kèm đúng ràng buộc ấy — đọc docblock của nó trước khi sửa.
  */
 
 import type { TickerRef } from '@/data';

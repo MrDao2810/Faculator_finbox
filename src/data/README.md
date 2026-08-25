@@ -27,6 +27,12 @@ Thêm ở gói "Danh mục dùng số liệu thật". **Bất đồng bộ, có 
 - `live-preset.ts` — `presetFromSnapshot()` nối cổng 2 về lại kiểu `Preset` của cổng 1, để
   `presetInputs()` dùng chung cho cả hai nguồn.
 
+`TickerSnapshot.asOfDate` mang **ngày phiên** của thị giá, đọc từ field `date` của API. Đã đối
+chiếu với `GET /v1/getMarketDates`: endpoint đó bỏ đúng thứ Bảy và Chủ nhật, nên `date` là ngày
+phiên thật chứ không phải hôm nay lặp lại. Trường này nhỏ nhưng gánh hai việc — cho màn nói rõ giá
+thuộc phiên nào, và nhờ đó tầng Application mới được phép giữ lại giá cũ dùng lúc mất mạng
+(`price-cache-store.ts`). Đừng bỏ nó đi mà không đọc luật ở docblock kho ấy.
+
 ⚠ **Đây là chỗ duy nhất trong sản phẩm gọi ra ngoài máy người dùng.** `public/_headers` mở đúng
 một origin trong `connect-src`. Chỉ MÃ cổ phiếu được gửi đi; số lượng nắm giữ và giá vốn thì không.
 Ai thêm lời gọi mới ở đây phải giữ đúng ranh giới ấy.

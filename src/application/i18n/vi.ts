@@ -315,6 +315,59 @@ export const vi = {
   'portfolio.priceLoading': 'Đang lấy thị giá…',
   'portfolio.priceFailed': 'Không lấy được thị giá từ Finbox.',
   'portfolio.priceRetry': 'Thử lại',
+
+  // ── Lãi/lỗ và vốn — hai thẻ thêm vào bốn thẻ gốc của WF-06 ─────────────────
+  'portfolio.totalCost': 'Vốn đã bỏ ra',
+  'portfolio.gain': 'Lãi/lỗ',
+
+  /*
+   * ── Nhãn của lưới số liệu trong thẻ mã ────────────────────────────────────
+   *
+   * Đây là NHÃN đứng riêng một dòng phía trên giá trị, không phải mảnh ghép giữa câu, nên viết
+   * hoa chữ đầu và đủ nghĩa khi đứng một mình. Bản trước là mảnh câu viết thường ('giá', 'mua')
+   * ghép thành `100 CP · giá vốn 21 ₫ · chưa có giá` — đọc được nhưng không dò được.
+   *
+   * `portfolio.costPrice` và `portfolio.weight` vẫn viết thường vì CSS đã `text-transform:
+   * uppercase`; hai khoá ấy có từ trước và không đổi để khỏi động vào chỗ khác.
+   */
+  'portfolio.cellQuantity': 'Số lượng',
+  'portfolio.marketPrice': 'Thị giá',
+  'portfolio.priceMissing': 'chưa có giá',
+  'portfolio.betaShort': 'beta',
+  'portfolio.edit': 'Sửa',
+  'portfolio.editHint':
+    'Đổi số lượng, giá vốn, ngày mua hoặc beta. Muốn đổi mã thì bỏ rồi thêm lại.',
+  'portfolio.formSave': 'Lưu thay đổi',
+
+  /*
+   * Thêm lại một mã đang giữ thì `addHolding()` CỘNG DỒN vào dòng cũ chứ không tạo dòng thứ hai
+   * — hành vi đúng ("thêm FPT lần nữa" = mua thêm), nhưng trước đây nó xảy ra trong im lặng nên
+   * người dùng tưởng màn đang cho tạo mã trùng. Nhãn nút đổi theo luôn: hứa đúng việc sắp làm,
+   * ngay tại chỗ người ta đọc kỹ nhất.
+   */
+  'portfolio.mergeNote':
+    'Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng và tính lại giá vốn bình quân, không tạo dòng thứ hai. Muốn sửa số đang có thì huỷ form rồi bấm vào mã trong danh sách.',
+  'portfolio.formMerge': 'Cộng thêm vào mã đã có',
+
+  /*
+   * Câu lỗi của form.
+   *
+   * Trước khi có chúng, ba ca hỏng đều IM LẶNG: ô trống thì nút không làm gì, số lượng 0 thì
+   * form đóng lại như đã thêm xong, và đủ 50 mã cũng thế. Thao tác hỏng mà trông như thành công
+   * là thứ NFR-USA-04 muốn chặn.
+   *
+   * Con số 50 trong `portfolio.errFull` phải khớp `MAX_HOLDINGS`; `i18n.test.ts` có ca ghim.
+   */
+  'portfolio.errCode': 'Chọn mã cổ phiếu trước đã.',
+  'portfolio.errQuantity': 'Nhập số cổ phiếu nắm giữ, lớn hơn 0.',
+  'portfolio.errCostPrice': 'Nhập giá vốn một cổ phiếu, lớn hơn 0.',
+  'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 — hoặc để trống nếu chưa biết.',
+  'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
+
+  // ── Trạng thái thị giá: luôn hiện, luôn nói rõ giá thuộc phiên nào ─────────
+  'portfolio.priceSession': 'Giá phiên',
+  'portfolio.priceRefresh': 'Làm mới',
+  'portfolio.priceStale': 'Chưa làm mới được thị giá — đang dùng giá đã lưu.',
   'portfolio.formulas': 'Tính công thức',
   'portfolio.formulasTitle': 'Công thức dùng được với mã này',
   'portfolio.formulasSubtitle': 'Mở công thức với số liệu của mã đã điền sẵn',
@@ -329,6 +382,9 @@ export const vi = {
   'ticker.searchLabel': 'Tìm mã hoặc tên doanh nghiệp',
   'ticker.searchPlaceholder': 'FPT, Hoà Phát…',
   'ticker.pick': 'Chọn',
+  // Mã đang giữ vẫn chọn được (sẽ cộng dồn), nên đây là NHÃN chứ không phải lời từ chối.
+  'ticker.held': 'đã có',
+  'ticker.pickHeld': 'Cộng thêm',
   'ticker.loading': 'Đang tải danh sách mã…',
   'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
   // Đứng ngay SAU cặp số "60/1.649", nên câu phải mở đầu bằng đơn vị và không viết hoa.

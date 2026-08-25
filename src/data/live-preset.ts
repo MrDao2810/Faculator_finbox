@@ -29,12 +29,19 @@ export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Pres
   const { fundamentals } = snapshot;
   if (fundamentals === null) return undefined;
 
+  /*
+   * Ngày của PHIÊN, không phải ngày mở máy. Mở app chiều thứ Bảy thì `asOf` là thứ Bảy trong khi
+   * con số đang cầm là giá thứ Sáu — ghi ngày mở máy vào chuỗi giá là gán cho một phiên không hề
+   * tồn tại. `asOf` chỉ còn là phương án dự phòng cho ca API không trả `date`.
+   */
+  const sessionDate = snapshot.asOfDate ?? asOf;
+
   const bars: DailyBar[] =
     snapshot.priceVnd === null
       ? []
       : [
           {
-            date: asOf,
+            date: sessionDate,
             open: null,
             high: null,
             low: null,
@@ -51,7 +58,7 @@ export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Pres
     fundamentals,
     bars,
     isDraft: false,
-    fundamentalsAsOf: asOf,
+    fundamentalsAsOf: sessionDate,
   };
 }
 

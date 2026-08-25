@@ -30,6 +30,13 @@ export interface TickerPickerSheetProps {
   onClose: () => void;
   /** Gọi khi người dùng chọn một mã. Sheet tự đóng sau đó. */
   onPick: (ticker: TickerRef) => void;
+  /**
+   * Mã đã có trong danh mục, để đánh dấu ngay trong danh sách.
+   *
+   * Chọn lại một mã đang giữ là hợp lệ — nó sẽ cộng dồn vào dòng cũ. Nhưng người dùng phải biết
+   * điều đó TRƯỚC khi bấm, nếu không họ tưởng mình vừa tạo một dòng thứ hai.
+   */
+  heldCodes?: ReadonlySet<string>;
 }
 
 /**
@@ -39,7 +46,7 @@ export interface TickerPickerSheetProps {
  * sản phẩm trông và dùng giống nhau, nhưng nguồn khác hẳn: `PresetSheet` đọc `DataProvider`
  * đồng bộ, còn ở đây là `MarketFeed` bất đồng bộ nên có thêm ba trạng thái đang tải / lỗi / cũ.
  */
-export function TickerPickerSheet({ open, onClose, onPick }: TickerPickerSheetProps) {
+export function TickerPickerSheet({ open, onClose, onPick, heldCodes }: TickerPickerSheetProps) {
   const t = useT();
   const [query, setQuery] = useState('');
 
@@ -131,6 +138,15 @@ export function TickerPickerSheet({ open, onClose, onPick }: TickerPickerSheetPr
                   <span className={styles.badge}>{ticker.code}</span>
                   <span className={styles.name}>{ticker.name}</span>
 
+                  {/*
+                    Mã đang giữ vẫn chọn được — nó sẽ cộng dồn vào dòng cũ, đó là hành vi đúng.
+                    Nhưng phải nói ra TRƯỚC khi bấm, nếu không người dùng tưởng vừa tạo dòng thứ
+                    hai cùng mã. Nhãn nút cũng đổi theo, để đích bấm không hứa sai.
+                  */}
+                  {heldCodes?.has(ticker.code) === true && (
+                    <span className={styles.held}>{t('ticker.held')}</span>
+                  )}
+
                   <Button
                     variant="secondary"
                     size="sm"
@@ -139,7 +155,7 @@ export function TickerPickerSheet({ open, onClose, onPick }: TickerPickerSheetPr
                       close();
                     }}
                   >
-                    {t('ticker.pick')}
+                    {heldCodes?.has(ticker.code) === true ? t('ticker.pickHeld') : t('ticker.pick')}
                   </Button>
                 </li>
               ))}

@@ -8,6 +8,8 @@ import { DISCLAIMER_VI } from '@/core/disclaimer';
 import { UNIT_SCALES } from '@/core/format';
 import { COLUMN_LABELS } from '@/core/paste-import';
 
+import { MAX_HOLDINGS } from '../portfolio-store';
+
 import { LOCALES, en, isLocale, missingKeys, t, vi } from './index';
 
 /** Gốc src/ — hai cửa gác quét file (khoá mồ côi, import t trong client) dùng chung. */
@@ -50,6 +52,19 @@ describe('khung i18n', () => {
 
   it('từ điển tiếng Anh đã dịch đủ, không còn khoá nào nợ', () => {
     expect(missingKeys('en')).toEqual([]);
+  });
+
+  /*
+   * Con số chép vào câu chữ thì rữa trong im lặng — lint không thấy được.
+   *
+   * `portfolio.errFull` phải nói đúng trần số mã đang có hiệu lực. Đây là ca duy nhất trong từ
+   * điển có một hằng số của mã nguồn nằm bên trong câu, nên ghim nó lại thay vì đợi ai đó nâng
+   * `MAX_HOLDINGS` rồi để màn báo sai con số.
+   */
+  it('câu “danh mục đã đầy” nói đúng trần MAX_HOLDINGS ở cả hai ngôn ngữ', () => {
+    for (const locale of LOCALES) {
+      expect(t('portfolio.errFull', locale)).toContain(String(MAX_HOLDINGS));
+    }
   });
 
   it('isLocale chặn giá trị lạ đọc từ localStorage', () => {

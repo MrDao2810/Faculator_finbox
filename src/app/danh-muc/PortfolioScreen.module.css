@@ -63,89 +63,240 @@
 .list {
   display: flex;
   flex-direction: column;
+  gap: var(--space-2);
 
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/*
+ * Mỗi mã là một THẺ có viền bọc trọn — mã, tên, số liệu, lãi/lỗ, tỷ trọng và hai nút cuối dòng.
+ *
+ * Trước đây các dòng chỉ ngăn nhau bằng một gạch chân. Đủ khi mỗi dòng có hai dòng chữ, nhưng nay
+ * một mã chiếm tới bốn dòng, và gạch chân không nói được đâu là ranh giới giữa hai mã — mắt đọc
+ * thành một khối chữ liên tục. Viền bọc trả lại ranh giới ấy, cùng khuôn với `.form` và `.empty`
+ * ngay bên dưới nên cả màn vẫn là một họ.
+ */
+/*
+ * Xếp DỌC, không phải ngang.
+ *
+ * Bản trước xếp ngang: cột số liệu bên trái, ô tỷ trọng và hai nút dồn sang phải, canh giữa theo
+ * chiều đứng. Ở 360px nó ép cột trái xuống còn hơn nửa bề ngang, nên bốn dòng số phải xuống hàng
+ * lung tung; còn "tỷ trọng" thì trôi ra giữa thẻ, xa hẳn cái ô số mà nó gọi tên. Xếp dọc cho mỗi
+ * phần trọn bề ngang: mã → lãi/lỗ → lưới số liệu → hai nút.
+ */
 .row {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
 
-  /* Vùng chạm 44px — NFR-USA-01, tính cả nút bỏ mã nằm trong hàng. */
-  min-height: var(--tap-min);
-  padding: var(--space-3) 0;
+  padding: var(--space-3);
 
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
-.row:last-child {
-  border-bottom: none;
+/*
+ * Dòng đầu (mã + tên) là nút mở form sửa, nên phải tự gỡ hết dáng nút mặc định của trình duyệt:
+ * nền, viền, canh giữa, cỡ chữ. Vẫn là <button> thật để bàn phím và trình đọc màn hình dùng
+ * được — vòng focus lấy từ globals.css.
+ *
+ * Rộng hết cột và cao tối thiểu 44px (NFR-USA-01) để thành đích chạm tử tế, chứ không phải một
+ * mẩu chữ ba ký tự.
+ */
+.editButton {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+
+  width: 100%;
+  min-height: var(--tap-min);
+  min-width: 0;
+  padding: 0;
+
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  color: inherit;
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.editButton:hover .code {
+  color: var(--color-accent);
+}
+
+/*
+ * Dấu bút chì — tín hiệu "chỗ này bấm được để sửa".
+ *
+ * Đứng NGAY SAU tên mã, không đẩy ra lề phải. Bản trước để `margin-left: auto` nên nó trôi sang
+ * tận mép kia của dòng, rời hẳn khỏi cái mã mà nó sửa — nhìn không đoán ra nó dùng để làm gì.
+ * Đặt cạnh tên thì quan hệ "sửa CÁI NÀY" đọc được ngay, không cần chú thích.
+ *
+ * Vẽ thành huy hiệu nhỏ có nền chứ không phải một ký tự trần, và luôn hiện chứ không đợi rê
+ * chuột: màn thiết kế cho 360px, mà điện thoại không có trạng thái rê chuột.
+ */
+.editMark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  font-size: var(--text-xs);
+  line-height: 1;
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.editButton:hover .editMark {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
 }
 
 .code {
   flex-shrink: 0;
-  min-width: 52px;
 
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
 }
 
-.detail {
+/*
+ * Tên doanh nghiệp: cắt bằng dấu ba chấm chứ không xuống dòng. Ô chọn mã cho tìm theo tên nên
+ * tên phải có mặt ở đây, nhưng nó là thứ để NHẬN RA mã chứ không phải thứ để đọc kỹ — cho nó
+ * đẩy ba dòng số liệu xuống dưới là đánh đổi sai.
+ */
+.name {
+  min-width: 0;
+  overflow: hidden;
+
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/*
+ * ── Dải lãi/lỗ ──────────────────────────────────────────────────────────────
+ *
+ * Con số người ta mở màn để xem, nên nó được một dải riêng có nền, không lẫn vào lưới số liệu.
+ * Màu chỉ là lớp thứ hai — dấu +/− ngay trước con số mới là thứ mang tin, để người không phân
+ * biệt được màu vẫn đọc đúng (NFR-USA-06). Nền nhạt cũng theo chiều lãi/lỗ nhưng vẫn nhạt đủ để
+ * chữ đạt tương phản.
+ */
+.gainBand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: var(--space-2);
+
+  border-radius: var(--radius-sm);
+}
+
+.gainLabel {
+  flex-shrink: 0;
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.gainValue {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.gainPercent {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.gainUp {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.gainDown {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/*
+ * ── Lưới số liệu: nhãn trên, giá trị dưới ───────────────────────────────────
+ *
+ * Cùng khuôn `StatTile` ở đầu màn — nhãn chữ nhỏ in hoa màu mờ, giá trị cỡ chữ thường màu đậm.
+ * Nhờ vậy hai khối số của cùng một màn nói cùng một thứ tiếng, và mắt dò được theo nhãn thay vì
+ * phải đọc hết một câu nối bằng dấu chấm.
+ *
+ * `auto-fill` với đáy 104px cho ba cột ở 360px và tự giãn trên màn rộng, cùng công thức lưới với
+ * khối thẻ chỉ số phía trên.
+ */
+.cells {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--space-2) var(--space-3);
+
+  margin: 0;
+}
+
+.cell {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  flex: 1;
+  gap: 1px;
   min-width: 0;
 }
 
-.quantity {
+.cellLabel {
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.cellValue {
+  margin: 0;
+
   font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
   color: var(--color-ink);
+  overflow-wrap: anywhere;
 }
 
-.cost {
-  font-size: var(--text-xs);
-  color: var(--color-muted);
-}
-
-.weightBox {
+/*
+ * ── Hai nút cuối thẻ ────────────────────────────────────────────────────────
+ *
+ * Trước đây là hai ký tự `ƒ` và `×` trên nền trong suốt, không viền, màu chữ mờ — chủ dự án báo
+ * là nhìn không biết bấm được. Nay dùng primitive `Button` nên có sẵn viền, vòng focus và vùng
+ * chạm 44px; nút bỏ mã lấy sắc thái `danger` (viền đỏ, nền trắng) để phân biệt hành động phá
+ * với hành động chính mà không cần một nút đỏ đặc quá gắt cho một danh sách.
+ *
+ * Vạch ngăn phía trên tách vùng hành động khỏi vùng số liệu — bấm nhầm vào nút xoá vì tưởng còn
+ * đang đọc số là loại lỗi không hoàn tác được.
+ */
+.actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  flex-shrink: 0;
-}
+  flex-wrap: wrap;
+  gap: var(--space-2);
 
-.weight {
-  font-size: var(--text-md);
-  font-weight: var(--weight-bold);
-}
-
-.weightLabel {
-  font-size: var(--text-xs);
-  color: var(--color-muted);
-}
-
-.removeButton {
-  flex-shrink: 0;
-  width: var(--tap-min);
-  min-height: var(--tap-min);
-
-  font-family: inherit;
-  font-size: var(--text-md);
-  line-height: 1;
-  color: var(--color-muted);
-
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.removeButton:hover {
-  color: var(--color-danger);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Nút thêm mã: viền đứt như bản thiết kế — trông rõ là chỗ để thêm chứ không phải nội dung. */
@@ -186,6 +337,49 @@
   gap: var(--space-2);
 }
 
+/*
+ * Câu lỗi của ô chọn mã. Ba ô còn lại đi qua prop `error` của primitive Input (đã nối sẵn
+ * aria-invalid + aria-describedby + role="alert"); riêng ô mã là một <button> tự dựng nên phải
+ * tự vẽ câu lỗi, và phải tự mang `role="alert"` cho khớp.
+ */
+.fieldError {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-danger);
+}
+
+/*
+ * Lời nhắc "mã này đã có, thêm nữa là cộng dồn".
+ *
+ * Không phải lỗi nên không dùng màu cảnh báo — thao tác vẫn hợp lệ. Nhưng phải nổi hơn dòng gợi
+ * ý thường, vì nó đang đính chính một hiểu nhầm chứ không chỉ bổ sung thông tin.
+ */
+.mergeNote {
+  padding: var(--space-2);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+
+  background: var(--color-paper);
+  border-left: 2px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+/* Lỗi không thuộc ô nào — hiện chỉ có một ca: danh mục đã đủ MAX_HOLDINGS mã. */
+.formError {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-danger);
+
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+}
+
 .local {
   display: flex;
   align-items: flex-start;
@@ -218,6 +412,12 @@
  * màu để truyền tin, nên ca lỗi còn kèm hẳn một nút hành động, còn ca đang tải thì không.
  */
 .priceNote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
   margin: 0;
   padding: var(--space-2) var(--space-3);
 
@@ -228,6 +428,15 @@
   background: var(--color-paper);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+}
+
+/* Phần chữ của dòng trạng thái: gộp nhiều mảnh (đang tải · lý do hỏng · ngày phiên) trên một
+   dòng, xuống dòng được ở màn hẹp mà không đẩy nút làm mới đi đâu. */
+.priceText {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .priceError {
@@ -246,33 +455,6 @@
 
   background: var(--color-warning-soft);
   border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-sm);
-}
-
-/*
- * Nút "ƒ" mở danh sách công thức của một mã.
- *
- * Cùng dáng nút "×" bỏ mã ngay bên cạnh để hai đích bấm cuối dòng thẳng hàng nhau, nhưng mang
- * màu nhấn chứ không phải màu chữ mờ: đây là hành động chính của dòng, còn xoá là hành động
- * phá. Ký hiệu ƒ là chữ, nên vẫn có `aria-label` đầy đủ cho trình đọc màn hình.
- */
-.formulaButton {
-  flex-shrink: 0;
-  width: var(--tap-min);
-  min-height: var(--tap-min);
-
-  font-family: var(--font-mono);
-  font-size: var(--text-md);
-  line-height: 1;
-  color: var(--color-accent);
-
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.formulaButton:hover {
-  background: var(--color-accent-soft);
   border-radius: var(--radius-sm);
 }
 
@@ -312,6 +494,13 @@
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   cursor: pointer;
+}
+
+/* Chế độ sửa khoá ô mã lại — đổi mã của một dòng đang có là hai thao tác khác, không phải sửa. */
+.codeButton:disabled {
+  cursor: default;
+  background: var(--color-paper);
+  border-style: dashed;
 }
 
 .codePlaceholder {

@@ -54,8 +54,13 @@ export function parseHoldings(raw: string | null | undefined): Holding[] {
       continue;
     }
 
+    const name = typeof record.name === 'string' ? record.name.trim().slice(0, 80) : '';
+
     clean.push({
       code,
+      // Bản lưu cũ không có `name`; bỏ hẳn trường thay vì ghi chuỗi rỗng, để `?? code` ở màn
+      // phân biệt được "chưa từng biết tên" với "tên rỗng".
+      ...(name === '' ? {} : { name }),
       quantity,
       costPrice,
       buyDate: typeof record.buyDate === 'string' ? record.buyDate.trim().slice(0, 10) : '',
@@ -97,6 +102,9 @@ export function addHolding(list: ReadonlyArray<Holding>, holding: Holding): Hold
     item.code === code
       ? {
           ...item,
+          // Tên mới ghi đè tên cũ nếu lần thêm này có; bản lưu cũ chưa có tên thì nhờ đây mà
+          // được điền vào, không phải xoá đi thêm lại.
+          ...(holding.name === undefined ? {} : { name: holding.name }),
           quantity,
           costPrice: cost / quantity,
           buyDate:
@@ -109,6 +117,28 @@ export function addHolding(list: ReadonlyArray<Holding>, holding: Holding): Hold
         }
       : item,
   );
+}
+
+/**
+ * Sửa một mã đã có — **thay thế**, không cộng dồn.
+ *
+ * Vì sao phải có hàm riêng chứ không dùng lại `addHolding`: `addHolding` cố ý cộng dồn số lượng
+ * và bình quân lại giá vốn, vì "thêm FPT lần nữa" nghĩa là mua thêm. Nhưng "sửa FPT" thì ngược
+ * hẳn — người dùng đang **đính chính** con số cũ, thường vì gõ nhầm. Dùng chung một hàm thì sửa
+ * 500 CP thành 300 CP sẽ ra 800 CP, tức đúng cái lỗi mà việc sửa sinh ra để chữa.
+ *
+ * Mã không có trong danh sách thì trả về bản sao nguyên vẹn: không tự thêm mới, vì lời gọi ấy
+ * gần như chắc chắn là một lỗi lập trình chứ không phải ý định của người dùng.
+ */
+export function updateHolding(
+  list: ReadonlyArray<Holding>,
+  code: string,
+  next: Omit<Holding, 'code'>,
+): Holding[] {
+  const target = code.trim().toUpperCase();
+  if (next.quantity <= 0 || next.costPrice <= 0) return [...list];
+
+  return list.map((item) => (item.code === target ? { ...next, code: target } : item));
 }
 
 /** Bỏ một mã khỏi danh mục. */

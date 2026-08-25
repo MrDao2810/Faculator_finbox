@@ -41,6 +41,18 @@ export interface TickerSnapshot {
   name: string;
   /** Thị giá phiên gần nhất, đơn vị **₫** (API trả nghìn ₫, đã nhân 1000). `null` khi thiếu. */
   priceVnd: number | null;
+  /**
+   * Ngày của phiên mà `priceVnd` thuộc về, dạng ISO 'YYYY-MM-DD'. `null` khi API không trả.
+   *
+   * API trả `date: 20260825` (số nguyên). Đã đối chiếu với `GET /v1/getMarketDates` — endpoint đó
+   * liệt kê 20260825, 20260824, 20260821, 20260820… tức bỏ đúng thứ Bảy và Chủ nhật, nên `date`
+   * là NGÀY PHIÊN thật chứ không phải hôm nay lặp lại.
+   *
+   * Có trường này thì hai việc mới làm được cho lương thiện: nói rõ giá thuộc phiên nào (mở app
+   * chiều thứ Bảy thì đó là giá thứ Sáu), và cho phép giữ lại giá cũ dùng lúc mất mạng mà vẫn
+   * ghi rõ nó cũ tới đâu — xem `PriceState` ở `@/core/portfolio`.
+   */
+  asOfDate: string | null;
   /** Sàn niêm yết, ví dụ 'HOSE'. `null` khi API không trả. */
   floor: string | null;
   /** Ngành, ví dụ 'Bán lẻ'. `null` khi API không trả. */

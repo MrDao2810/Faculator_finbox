@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LIVE_FUNDAMENTALS } from '../live-fundamentals.generated';
-import { parseSnapshots, parseTickerList, toFundamentals, toSnapshot } from './map';
+import { parseSnapshots, parseTickerList, toFundamentals, toIsoDate, toSnapshot } from './map';
 
 /**
  * Đây là bản CẮT GỌN của phản hồi thật `POST https://dcs.finbox.vn/data/symbols`, lấy ngày
@@ -168,6 +168,35 @@ describe('ảnh chụp một mã', () => {
   it('thân phản hồi lạ thì ra bảng rỗng, không ném', () => {
     expect(parseSnapshots(null).size).toBe(0);
     expect(parseSnapshots({ khac: 1 }).size).toBe(0);
+  });
+});
+
+/*
+ * Ngày phiên.
+ *
+ * API trả `date: 20260825`. Đã đối chiếu với `GET /v1/getMarketDates`, endpoint đó liệt kê
+ * 20260825, 20260824, 20260821, 20260820… — bỏ đúng thứ Bảy và Chủ nhật, nên `date` là ngày
+ * PHIÊN thật chứ không phải hôm nay lặp lại. Đây là mảnh cho phép màn Danh mục nói rõ giá thuộc
+ * phiên nào, và nhờ đó mới được phép giữ lại giá cũ dùng lúc mất mạng.
+ */
+describe('ngày phiên của ảnh chụp', () => {
+  it('đổi số 8 chữ số thành ngày ISO', () => {
+    expect(toIsoDate(20260825)).toBe('2026-08-25');
+    expect(toSnapshot({ ...FPT_ROW, date: 20260821 })?.asOfDate).toBe('2026-08-21');
+  });
+
+  it('nguồn không trả ngày thì về null, ảnh chụp vẫn dùng được', () => {
+    const snapshot = toSnapshot(FPT_ROW);
+
+    expect(snapshot?.asOfDate).toBeNull();
+    expect(snapshot?.priceVnd).toBe(71_400);
+  });
+
+  it('số rác không thành ngày', () => {
+    // Sai độ dài, tháng 13, ngày 0, số thực, chuỗi — không cái nào được lọt thành ngày hợp lệ.
+    for (const raw of [2026, 202608251, 20261325, 20260800, 2026.5, '20260825', null]) {
+      expect(toIsoDate(raw)).toBeNull();
+    }
   });
 });
 

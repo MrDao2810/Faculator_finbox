@@ -12,6 +12,7 @@ const SNAPSHOT: TickerSnapshot = {
   code: 'FPT',
   name: 'FPT Corp',
   priceVnd: 71_400,
+  asOfDate: '2026-08-21',
   floor: 'HOSE',
   industry: 'Phần mềm & DV máy tính',
   fundamentals: {
@@ -44,7 +45,25 @@ describe('dựng Preset từ ảnh chụp thị trường', () => {
 
     expect(bars).toHaveLength(1);
     expect(bars[0]?.close).toBe(71_400);
-    expect(bars[0]?.date).toBe(ASOF);
+  });
+
+  /*
+   * Ngày của phiên, KHÔNG phải ngày mở máy.
+   *
+   * `SNAPSHOT.asOfDate` cố ý khác `ASOF` để ca này có sức nặng: mở app ngày 24/08 mà con số đang
+   * cầm là giá phiên 21/08 thì ghi 24/08 vào chuỗi giá là gán số cho một phiên không tồn tại.
+   */
+  it('lấy ngày PHIÊN của ảnh chụp, không lấy ngày mở máy', () => {
+    const preset = presetFromSnapshot(SNAPSHOT, ASOF);
+
+    expect(preset?.bars[0]?.date).toBe('2026-08-21');
+    expect(preset?.fundamentalsAsOf).toBe('2026-08-21');
+  });
+
+  it('nguồn không trả ngày phiên thì mới rơi về ngày mở máy', () => {
+    const preset = presetFromSnapshot({ ...SNAPSHOT, asOfDate: null }, ASOF);
+
+    expect(preset?.bars[0]?.date).toBe(ASOF);
   });
 
   it('thiếu thị giá thì chuỗi rỗng chứ không dựng phiên giả', () => {

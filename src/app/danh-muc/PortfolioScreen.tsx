@@ -3,36 +3,42 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+  MARKET_FEED,
   PORTFOLIO_KEY,
-  SAMPLE_DATA,
   addHolding,
   formatNumber,
-  hasDraftData,
+  isAbortError,
   parseHoldings,
   parseViNumber,
   removeHolding,
   serializeHoldings,
   summarisePortfolio,
 } from '@/application';
-import type { Holding } from '@/application';
+import type { Holding, PriceState, TickerRef, TickerSnapshot } from '@/application';
 import { useT } from '@/application/preferences-context';
-import { Button, Input, Select } from '@/ui/primitives';
+import { Button, Input } from '@/ui/primitives';
 import { StatTile } from '@/ui/result';
+import { FormulaForTickerSheet, TickerPickerSheet } from '@/ui/sheets';
 
 import styles from './PortfolioScreen.module.css';
 
 /**
- * Màn WF-06 Danh mục cá nhân — gói WBS 3.4.1.
+ * Màn WF-06 Danh mục cá nhân — gói WBS 3.4.1, mở rộng ở gói "Danh mục dùng số liệu thật".
  *
  * Bốn con số đầu màn đều là **kết quả tính** nên đi qua `StatTile` nhận thẳng `CalcOutput`:
  * thiếu dữ liệu thì ô hiện "— , —" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm
  * nhất trong cả sản phẩm — một danh mục mới toanh có tổng giá trị chưa xác định, không phải 0 ₫.
  *
- * Toàn bộ danh mục nằm trong localStorage của người dùng: không tài khoản, không backend,
- * không gửi đi đâu (NFR-SEC-01, COM-03). Màn nói thẳng điều đó ở cuối trang.
+ * ── Thứ gì rời khỏi máy người dùng, thứ gì không ────────────────────────────────────────────
  *
- * Thị giá lấy qua `DataProvider` — bản đầu là số liệu mẫu tĩnh, đổi sang nguồn thật thì màn
- * này không sửa dòng nào (FR-17).
+ * Số lượng nắm giữ, giá vốn, ngày mua, beta: **không bao giờ** rời localStorage. Chỉ danh sách
+ * MÃ được gửi tới `dcs.finbox.vn` để tra thị giá, và đó là điều màn nói thẳng ở cuối trang.
+ * Trước gói này sản phẩm không gọi máy chủ nào và CSP khoá `connect-src 'self'`; nay CSP mở
+ * đúng một origin — xem `public/_headers`.
+ *
+ * Mã chọn được là **toàn bộ ~1.649 mã đang giao dịch** (`TickerPickerSheet`), không còn giới hạn
+ * ở 4 preset của `samples.ts`. Bộ mẫu WF-10 vẫn còn nguyên và vẫn dùng ở màn chi tiết công thức
+ * — hai nguồn phục vụ hai việc khác nhau, xem `src/data/finbox/types.ts`.
  */
 
 /**
@@ -52,13 +58,24 @@ function todayIso(): string {
 
 interface FormState {
   code: string;
+  name: string;
   quantity: string;
   costPrice: string;
   buyDate: string;
   beta: string;
 }
 
-const EMPTY_FORM: FormState = { code: '', quantity: '', costPrice: '', buyDate: '', beta: '' };
+const EMPTY_FORM: FormState = {
+  code: '',
+  name: '',
+  quantity: '',
+  costPrice: '',
+  buyDate: '',
+  beta: '',
+};
+
+/** Hai sheet của màn. Chỉ dựng khi người dùng mở lần đầu — cùng nếp `FormulaDetail`. */
+type SheetKind = 'ticker' | 'formulas';
 
 export function PortfolioScreen() {
   const t = useT();
@@ -67,6 +84,26 @@ export function PortfolioScreen() {
   const [formOpen, setFormOpen] = useState(false);
   const [asOf, setAsOf] = useState('');
   const [loaded, setLoaded] = useState(false);
+
+  const [sheet, setSheet] = useState<SheetKind | null>(null);
+  const [mountedSheets, setMountedSheets] = useState<ReadonlySet<SheetKind>>(() => new Set());
+  /** Mã đang xem danh sách công thức. */
+  const [formulasFor, setFormulasFor] = useState<string | null>(null);
+
+  const openSheet = useCallback((kind: SheetKind): void => {
+    setMountedSheets((current) => (current.has(kind) ? current : new Set(current).add(kind)));
+    setSheet(kind);
+  }, []);
+  const closeSheet = useCallback((): void => {
+    setSheet(null);
+  }, []);
+
+  // ── Thị giá lấy từ Finbox ──────────────────────────────────────────────────
+  const [quotes, setQuotes] = useState<ReadonlyMap<string, TickerSnapshot>>(() => new Map());
+  const [priceState, setPriceState] = useState<PriceState>('ready');
+  const [priceLoading, setPriceLoading] = useState(false);
+  /** Tăng lên mỗi lần bấm "Thử lại" — đủ để effect chạy lại, không cần state nào khác. */
+  const [priceAttempt, setPriceAttempt] = useState(0);
 
   useEffect(() => {
     try {
@@ -87,19 +124,70 @@ export function PortfolioScreen() {
     }
   }, [holdings, loaded]);
 
-  /** Bảng thị giá tra theo mã, dựng từ phiên gần nhất của bộ số liệu. */
+  /*
+   * Khoá phụ thuộc là CHUỖI MÃ đã sắp xếp, không phải mảng `holdings`.
+   *
+   * Sửa số lượng hay giá vốn của một mã không đổi gì về phía thị giá, nhưng nó tạo một mảng
+   * `holdings` mới — lấy mảng làm phụ thuộc thì mỗi lần gõ một chữ số vào ô số lượng là một lần
+   * gọi mạng.
+   */
+  const codesKey = useMemo(
+    () =>
+      [...new Set(holdings.map((holding) => holding.code))]
+        .sort((a, b) => a.localeCompare(b))
+        .join(','),
+    [holdings],
+  );
+
+  useEffect(() => {
+    if (!loaded) return;
+
+    if (codesKey === '') {
+      setQuotes(new Map());
+      setPriceState('ready');
+      setPriceLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setPriceLoading(true);
+
+    void (async () => {
+      try {
+        const snapshots = await MARKET_FEED.snapshots(codesKey.split(','), controller.signal);
+        if (controller.signal.aborted) return;
+        setQuotes(snapshots);
+        setPriceState('ready');
+      } catch (error) {
+        if (isAbortError(error) || controller.signal.aborted) return;
+        /*
+         * KHÔNG xoá bảng giá đang có: giá của các mã đã tra được vẫn là giá thật của lần tra
+         * trước. Tổng giá trị vẫn báo lỗi đúng, vì `summarisePortfolio()` chỉ ra số khi MỌI mã
+         * đều có giá — mã vừa thêm mà chưa tra được sẽ giữ tổng ở trạng thái thiếu.
+         */
+        setPriceState('failed');
+      } finally {
+        if (!controller.signal.aborted) setPriceLoading(false);
+      }
+    })();
+
+    return () => {
+      controller.abort();
+    };
+  }, [codesKey, loaded, priceAttempt]);
+
+  /** Bảng tra mã → thị giá (₫), đúng hình dạng `summarisePortfolio()` cần. */
   const prices = useMemo(() => {
     const map = new Map<string, number>();
-    for (const preset of SAMPLE_DATA.list()) {
-      const last = preset.bars[preset.bars.length - 1];
-      if (last !== undefined) map.set(preset.code, last.close);
+    for (const [code, snapshot] of quotes) {
+      if (snapshot.priceVnd !== null) map.set(code, snapshot.priceVnd);
     }
     return map;
-  }, []);
+  }, [quotes]);
 
   const summary = useMemo(
-    () => summarisePortfolio(holdings, prices, asOf),
-    [holdings, prices, asOf],
+    () => summarisePortfolio(holdings, prices, asOf, priceState),
+    [holdings, prices, asOf, priceState],
   );
 
   const submit = useCallback(() => {
@@ -119,6 +207,10 @@ export function PortfolioScreen() {
     setForm(EMPTY_FORM);
     setFormOpen(false);
   }, [form]);
+
+  const pickTicker = useCallback((ticker: TickerRef): void => {
+    setForm((current) => ({ ...current, code: ticker.code, name: ticker.name }));
+  }, []);
 
   return (
     <div className={styles.screen}>
@@ -150,15 +242,30 @@ export function PortfolioScreen() {
       </div>
 
       {/*
-        Cảnh báo bản thảo đặt NGAY DƯỚI khối con số tiền, không nhét vào ô chọn mã.
-        Tổng giá trị và lãi/lỗ ở trên dựng từ thị giá của bộ số liệu mẫu tự dựng — người dùng
-        phải đọc được điều đó ở đúng chỗ họ đang nhìn con số, chứ không phải ở một ô khác
-        phía dưới. Cờ đọc từ `hasDraftData()`, nên khi bộ mẫu thật về là câu này tự biến mất.
+        Trạng thái của phần thị giá, đặt NGAY DƯỚI khối con số — đúng chỗ người dùng đang nhìn
+        con số, cùng lý do mà cảnh báo bản thảo trước đây đặt ở đây.
+
+        Chỉ hiện khi có chuyện để nói: đang tải, hoặc tra hỏng. Tra xong bình thường thì không
+        có dòng nào, vì "mọi thứ ổn" không đáng chiếm một dòng trên màn hẹp.
       */}
-      {hasDraftData() && (
-        <p className={styles.draftNote} role="note">
-          <span className={styles.draftTag}>{t('preset.draftTag')}</span>
-          {t('preset.draftInline')}
+      {priceLoading && (
+        <p className={styles.priceNote} role="status">
+          {t('portfolio.priceLoading')}
+        </p>
+      )}
+
+      {!priceLoading && priceState === 'failed' && (
+        <p className={styles.priceError} role="alert">
+          <span>{t('portfolio.priceFailed')}</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setPriceAttempt((n) => n + 1);
+            }}
+          >
+            {t('portfolio.priceRetry')}
+          </Button>
         </p>
       )}
 
@@ -195,6 +302,19 @@ export function PortfolioScreen() {
                   <span className={styles.weightLabel}>{t('portfolio.weight')}</span>
                 </span>
 
+                {/* Lối đi từ MÃ sang CÔNG THỨC — chiều ngược của nút "Nạp mẫu" ở màn chi tiết. */}
+                <button
+                  type="button"
+                  className={styles.formulaButton}
+                  aria-label={`${t('portfolio.formulas')} ${row.holding.code}`}
+                  onClick={() => {
+                    setFormulasFor(row.holding.code);
+                    openSheet('formulas');
+                  }}
+                >
+                  ƒ
+                </button>
+
                 <button
                   type="button"
                   className={styles.removeButton}
@@ -212,21 +332,33 @@ export function PortfolioScreen() {
 
         {formOpen ? (
           <div className={styles.form}>
-            <Select
-              label={t('portfolio.formCode')}
-              value={form.code}
-              onChange={(event) => {
-                setForm((current) => ({ ...current, code: event.target.value }));
-              }}
-              hint={t('portfolio.priceNote')}
-            >
-              <option value="">—</option>
-              {SAMPLE_DATA.list().map((preset) => (
-                <option key={preset.code} value={preset.code}>
-                  {preset.code} · {preset.name}
-                </option>
-              ))}
-            </Select>
+            {/*
+              Ô chọn mã là một NÚT mở sheet, không phải <select>: danh sách có ~1.649 mã, mà một
+              <select> chừng ấy option thì không gõ tìm được và dựng ra 1.649 nút DOM.
+            */}
+            <div className={styles.codeField}>
+              <span className={styles.codeLabel} id="portfolio-code-label">
+                {t('portfolio.formCode')}
+              </span>
+              <button
+                type="button"
+                className={styles.codeButton}
+                aria-labelledby="portfolio-code-label"
+                onClick={() => {
+                  openSheet('ticker');
+                }}
+              >
+                {form.code === '' ? (
+                  <span className={styles.codePlaceholder}>{t('portfolio.pickCode')}</span>
+                ) : (
+                  <>
+                    <span className={styles.codeBadge}>{form.code}</span>
+                    <span className={styles.codeName}>{form.name}</span>
+                  </>
+                )}
+              </button>
+              <span className={styles.codeHint}>{t('portfolio.priceNote')}</span>
+            </div>
 
             <Input
               label={t('portfolio.formQuantity')}
@@ -295,6 +427,24 @@ export function PortfolioScreen() {
         <span className={styles.localTag}>{t('portfolio.localTag')}</span>
         {t('portfolio.localOnly')}
       </p>
+
+      {mountedSheets.has('ticker') && (
+        <TickerPickerSheet open={sheet === 'ticker'} onClose={closeSheet} onPick={pickTicker} />
+      )}
+
+      {mountedSheets.has('formulas') && (
+        <FormulaForTickerSheet
+          open={sheet === 'formulas'}
+          onClose={closeSheet}
+          code={formulasFor}
+          /*
+           * Mã chưa tra được giá thì sheet phải nói khác đi: 15 công thức điền hụt một ô và 8
+           * công thức không điền được ô nào. Dữ liệu đã nằm sẵn trong `quotes`, không thêm lời
+           * gọi mạng nào. `undefined` (chưa chọn mã nào) coi như có giá — sheet lúc đó không mở.
+           */
+          hasPrice={formulasFor === null || (quotes.get(formulasFor)?.priceVnd ?? null) !== null}
+        />
+      )}
     </div>
   );
 }

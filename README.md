@@ -1,7 +1,9 @@
 # Faculator Finbox
 
 Thư viện công thức tài chính và chứng khoán Việt Nam — tra cứu, tính toán, giải thích.
-Web tĩnh, không backend, không cơ sở dữ liệu (SRS v2.0 mục 2.1 và 6.1).
+Web tĩnh, không backend riêng, không cơ sở dữ liệu (SRS v2.0 mục 2.1 và 6.1). Ngoại lệ duy nhất:
+tab **Danh mục** gọi thẳng API Finbox (`dcs.finbox.vn`) từ trình duyệt để lấy danh sách mã và thị
+giá — xem mục [Một lời gọi ra ngoài](#một-lời-gọi-ra-ngoài).
 
 > **Trạng thái:** xong nhánh 1 (nền tảng), nhánh 2 (thư viện giao diện), **nhánh 3.1 + 3.2**
 > (màn hình) và nhánh 4 (biểu đồ) — hai gói từng hoãn là 2.4.3 và 3.2.2 nay đã đóng. Sản phẩm đã
@@ -54,7 +56,7 @@ src/
 ├── ui/             PRESENTATION  — component dùng chung (nhánh 2 trong WBS)
 ├── application/    APPLICATION   — cửa duy nhất giữa giao diện và Domain
 ├── core/           DOMAIN        — TypeScript thuần, toàn bộ logic tài chính
-└── data/           DATA          — DataProvider, bộ số liệu mẫu tĩnh
+└── data/           DATA          — DataProvider (bộ mẫu tĩnh) + MarketFeed (gọi API Finbox)
 ```
 
 ### Luật ranh giới — ESLint chặn thật, không phải quy ước suông
@@ -128,6 +130,29 @@ trong `src/core/warnings.ts` — công thức không tự chế câu chữ, đ�
 | Link lọc nhóm đọc lại được              | Dựng URL bằng `listParamsToQuery()`, không ghép tay | `src/application/url-state.test.ts`   |
 | Ký hiệu toán không tốn JS máy khách     | `katex` chỉ chạy trong server component lúc build   | `scripts/verify-static.mjs`           |
 | `id` biểu đồ không do React sinh        | Ghép từ `spec.id`, không `useId()` dưới nạp trễ     | `src/ui/charts/charts.test.tsx`       |
+
+---
+
+## Một lời gọi ra ngoài
+
+Sản phẩm gọi đúng **một** máy chủ ngoài, và chỉ ở tab Danh mục:
+
+| Endpoint                          | Dùng để                                     | Khi nào                                                   |
+| --------------------------------- | ------------------------------------------- | --------------------------------------------------------- |
+| `GET dcs.finbox.vn/bp/codes`      | ~1.649 mã đang giao dịch, cho ô chọn mã     | khi mở ô chọn mã; cache localStorage 24 giờ               |
+| `POST dcs.finbox.vn/data/symbols` | thị giá + số liệu cơ bản, nhiều mã một lượt | khi mở tab Danh mục, và khi mở `/cong-thuc/<id>/?ma=<MÃ>` |
+
+Ba điều đi kèm, đừng nới ra khi chưa hỏi chủ dự án:
+
+- `public/_headers` mở **đúng một origin** trong `connect-src`. Trước gói này nó khoá `'self'` và
+  ghi rõ "sản phẩm không gọi máy chủ nào" — câu đó nay không còn đúng, và việc nới đã được chủ dự
+  án chốt.
+- Thứ rời khỏi máy người dùng chỉ là **mã cổ phiếu**. Số lượng nắm giữ, giá vốn, ngày mua vẫn nằm
+  nguyên trong `localStorage` và không bao giờ đi vào tham số của lời gọi nào.
+- Mất mạng thì không ô nào được hiện `0`: danh sách mã rơi về bản cache, còn thị giá hỏng thì bốn
+  ô tổng hiện "—" kèm lời khuyên **thử lại** (không phải "bỏ mã khỏi danh mục").
+
+Chi tiết kỹ thuật: [`src/data/README.md`](src/data/README.md).
 
 ---
 

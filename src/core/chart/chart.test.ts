@@ -553,6 +553,41 @@ describe('buildChartModel()', () => {
     expect(model.table.rows.some((row) => row?.[1].includes('— , —') === true)).toBe(true);
   });
 
+  /*
+   * NGÕ CỤT chủ dự án báo, nay chặn lại bằng ca kiểm.
+   *
+   * Đường quét theo số phiên vẽ CẢ vùng vượt quá chuỗi đang có (các điểm `y === null`, hiện thành
+   * vệt gạch chéo). Nhả tay trong vùng ấy ghi ngược một N quá lớn vào ô Số liệu, nên kết quả rơi
+   * vào `MISSING_SERIES`. Bản trước bỏ vẽ ngay lúc đó, mà ô chọn trục nằm TRONG khung biểu đồ —
+   * mất hình là mất luôn mọi chỗ bấm, phải rời màn rồi vào lại mới chọn lại được.
+   *
+   * Điều kiện đủ để thoát ngõ cụt: hình vẫn còn, tức phải có ít nhất một mức N vẫn ra số thật để
+   * người dùng bấm sang. Đó chính là hai `expect` cuối.
+   */
+  it('chuỗi đã nạp nhưng hụt so với N đang chọn: VẪN vẽ, để bấm lại được ngay tại chỗ', () => {
+    const sma = moduleOf('sma-n-phien');
+    const ctx: CalcContext = { ...CTX, series: Array.from({ length: 61 }, (_, i) => 20_000 + i) };
+    const inputs = { period: 75 };
+    const output = runFormula(sma, inputs, ctx);
+
+    // Tiền đề của ca kiểm: đây đúng là trạng thái ngay sau cú bấm hụt, không phải ca dựng khống.
+    expect(output.warning?.code).toBe('MISSING_SERIES');
+
+    const model = buildChartModel({
+      formula: sma,
+      inputs,
+      ctx,
+      output,
+      level: 'basic',
+      sweepKey: 'period',
+    });
+
+    expect(model.kind).toBe('line');
+    if (model.kind !== 'line') return;
+    expect(model.points.some((p) => p.y === null)).toBe(true);
+    expect(model.points.some((p) => p.y !== null)).toBe(true);
+  });
+
   it('tôn trọng biến người dùng chọn, và bỏ qua key rác', () => {
     const inputs = defaultInputs(pe.spec);
     const args = {

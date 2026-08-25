@@ -153,6 +153,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.jumpToExample': 'See the worked example ↓',
   'detail.fundamentalsSource':
     "This ticker's fundamentals (EPS, book value, shares, dividend…) come from real Finbox_v2 data, checked on",
+  'detail.tickerLoading': 'fetching live data for this ticker…',
+  'detail.tickerFailed':
+    'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
   'detail.export': '↓ Export',
   'detail.meaning': 'Meaning',
   'detail.formula': 'Formula',
@@ -216,7 +219,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'preset.draftTag': 'draft data',
   'preset.draftTitle': 'Fabricated numbers, not yet checked against real statements.',
   'preset.draftDetail': 'For trying the feature out only. Do not base decisions on the results.',
-  'preset.draftInline': 'Market price comes from a fabricated sample dataset, not real statements.',
   'preset.draftExport':
     'Input numbers come from a fabricated sample dataset, not yet checked against real statements.',
 
@@ -235,9 +237,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.empty': 'Nothing here yet. Add your first ticker to see total value and weights.',
   'portfolio.localTag': 'LOCAL',
   'portfolio.localOnly':
-    'The portfolio is stored on this device only (localStorage). Nothing is sent to a server.',
+    'Quantities and cost prices stay on this device only (localStorage). Only the ticker codes are sent to Finbox to look up market prices.',
   'portfolio.formCode': 'Ticker',
-  'portfolio.formQuantity': 'Number of shares',
+  'portfolio.formQuantity': 'Shares held',
   'portfolio.formCostPrice': 'Cost per share (₫)',
   'portfolio.formBuyDate': 'Purchase date',
   'portfolio.formBeta': 'Beta (leave blank if unknown)',
@@ -245,7 +247,31 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formCancel': 'Cancel',
   'portfolio.betaHint':
     'Beta cannot be computed automatically yet — it needs return series for both the stock and the market index. Enter it by hand if you already have it.',
-  'portfolio.priceNote': 'Market price comes from the sample dataset, not a real-time quote.',
+  'portfolio.priceNote': 'Market prices come from Finbox at the latest session, not live quotes.',
+  'portfolio.pickCode': 'Pick a ticker',
+  'portfolio.priceLoading': 'Fetching market prices…',
+  'portfolio.priceFailed': 'Could not fetch market prices from Finbox.',
+  'portfolio.priceRetry': 'Try again',
+  'portfolio.formulas': 'Run a formula',
+  'portfolio.formulasTitle': 'Formulas this ticker can fill',
+  'portfolio.formulasSubtitle': 'Open a formula with this ticker’s data already filled in',
+  'portfolio.formulasFilled': 'fields prefilled',
+  'portfolio.formulasNoPrice':
+    'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
+
+  'ticker.title': 'Pick a ticker',
+  'ticker.subtitle': 'Every tradable ticker, from Finbox',
+  'ticker.searchLabel': 'Search by code or company name',
+  'ticker.searchPlaceholder': 'FPT, Hoa Phat…',
+  'ticker.pick': 'Pick',
+  'ticker.loading': 'Loading the ticker list…',
+  'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
+  'ticker.capped': 'tickers · type more to narrow the list',
+  'ticker.retry': 'Try again',
+  'ticker.errorNetwork': 'Could not load the ticker list. Check your connection and try again.',
+  'ticker.errorSource':
+    'The data source returned something unreadable. Try again in a few minutes.',
+  'ticker.stale': 'Showing the list from a previous load — it may be out of date.',
 
   'series.title': 'OHLCV price series',
   'series.subtitle': 'used for Beta / Sharpe / VaR',

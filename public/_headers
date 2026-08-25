@@ -3,11 +3,19 @@
 # CSP không siết được script-src hơn 'unsafe-inline': bản export tĩnh của Next bootstrap bằng
 # <script> inline (self.__next_f), mà hosting tĩnh thì không đính nonce theo từng request được.
 # style-src cần 'unsafe-inline' vì nhiều component đặt style attribute (VirtualList, PresetSheet).
-# Phần còn lại khoá hết: không object, không frame, không kết nối ra ngoài — khớp LDR-04/COM-03
-# (dữ liệu chỉ nằm trên máy người dùng, sản phẩm không gọi máy chủ nào).
+# Phần còn lại khoá hết: không object, không frame.
+#
+# `connect-src` KHÔNG còn là 'self' đơn thuần kể từ gói "Danh mục dùng số liệu thật".
+# Trước đó dòng này ghi "không kết nối ra ngoài — sản phẩm không gọi máy chủ nào", và điều đó
+# không còn đúng: tab Danh mục (WF-06) gọi `dcs.finbox.vn` lúc chạy để lấy danh sách mã và thị
+# giá. Chủ dự án đã chốt việc nới này; xem TASK.md để biết đánh đổi.
+#
+# Mở ĐÚNG MỘT origin, không ký tự đại diện: `connect-src 'self' https://dcs.finbox.vn`. Thứ rời
+# khỏi máy người dùng chỉ là MÃ cổ phiếu — số lượng và giá vốn vẫn nằm nguyên trong localStorage,
+# nên phần lõi của LDR-04/COM-03 (dữ liệu danh mục là của người dùng) vẫn giữ.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://dcs.finbox.vn; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin

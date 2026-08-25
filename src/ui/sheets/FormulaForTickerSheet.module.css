@@ -1,0 +1,149 @@
+/*
+ * Sheet "mã này tính được công thức nào" — gói "Danh mục dùng số liệu thật".
+ *
+ * Mỗi dòng là một LINK phủ kín ô, không phải một ô có nút bên trong: cả dòng là một đích bấm
+ * duy nhất nên đạt vùng chạm tối thiểu mà không cần thêm phần tử nào.
+ */
+
+/* Ô tìm — cùng dáng với ô tìm của PresetSheet và TickerPickerSheet, ba sheet nhìn như một. */
+.search {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.search::placeholder {
+  color: var(--color-muted);
+}
+
+/* Ẩn nút xoá mặc định của Chrome cho input[type=search] — cùng lý do như SearchBox. */
+.search::-webkit-search-cancel-button,
+.search::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/*
+ * Câu "mã này chưa có thị giá". Tông cảnh báo nhạt: danh sách vẫn dùng được, đây là ghi chú giải
+ * thích vì sao nó ngắn hơn, không phải báo hỏng.
+ */
+.note {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-sm);
+}
+
+/* Câu "không tìm thấy". Căn giữa để không treo lệch trên khoảng trắng còn lại của sheet. */
+.state {
+  margin: 0;
+  padding: var(--space-5) var(--space-3);
+
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/*
+ * Hai khối cấp độ — Cơ bản rồi Nâng cao. Chép khuôn `SearchResults.module.css` để hai chỗ chia
+ * nhóm công thức của sản phẩm trông như một, dù một chỗ nhóm theo danh mục còn chỗ này theo cấp độ.
+ */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Tiêu đề nhóm cố ý NHẸ hơn tên công thức: nó là nhãn phân loại, không phải nội dung. Chữ in hoa
+ * nhỏ và màu mờ đúng như `.groupName` của SearchResults.
+ *
+ * `text-transform` chỉ đổi cách vẽ chứ không đổi `textContent`, nên ca test so đúng chữ "Cơ bản"
+ * vẫn khớp.
+ */
+.groupName {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex: 1;
+
+  min-height: var(--tap-min);
+  padding: var(--space-3);
+
+  color: var(--color-ink);
+  text-decoration: none;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.link:hover,
+.link:focus-visible {
+  border-color: var(--color-border-strong);
+}
+
+.name {
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  /* Tên công thức dài thì xuống dòng, không đẩy phần "2/2 ô" ra khỏi khung. */
+  overflow-wrap: anywhere;
+}
+
+/*
+ * "2/2 ô điền sẵn" — con số quan trọng ở đây là tỷ lệ, vì danh sách xếp theo nó: dòng đầu điền
+ * đủ mọi ô, dòng cuối chỉ điền được một ô trong năm.
+ */
+.fill {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}

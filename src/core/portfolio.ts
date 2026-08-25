@@ -46,6 +46,19 @@ export interface HoldingValue {
   weight: number | null;
 }
 
+/**
+ * Vì sao bảng thị giá lại thiếu.
+ *
+ * `'ready'` — tra được nguồn, mã nào vắng là vì nguồn không có mã đó.
+ * `'failed'` — không hỏi được nguồn (mất mạng, hết hạn chờ, máy chủ lỗi).
+ *
+ * Hai ca ra cùng một hệ quả (không có giá) nhưng cần **hai lời khuyên trái ngược**: ca đầu bảo
+ * người dùng bỏ mã đi, ca sau bảo họ thử lại. Trước khi có tham số này, màn khuyên "bỏ mã khỏi
+ * danh mục" ngay cả lúc chỉ là rớt wifi — tức xui người dùng xoá dữ liệu thật của họ vì một sự
+ * cố tạm thời.
+ */
+export type PriceState = 'ready' | 'failed';
+
 export interface PortfolioSummary {
   rows: ReadonlyArray<HoldingValue>;
   /** Tổng giá trị thị trường, đơn vị ₫. */
@@ -110,6 +123,7 @@ export function summarisePortfolio(
   holdings: ReadonlyArray<Holding>,
   prices: ReadonlyMap<string, number>,
   asOf: string,
+  priceState: PriceState = 'ready',
 ): PortfolioSummary {
   const rows = valueHoldings(holdings, prices);
   const count = ok(holdings.length, 'mã');
@@ -141,19 +155,35 @@ export function summarisePortfolio(
   const missingPrice = rows.filter((row) => row.value === null).map((row) => row.holding.code);
   const total = rows.reduce((sum, row) => sum + (row.value ?? 0), 0);
 
+  const missingList = missingPrice.join(', ');
   const totalValue =
     missingPrice.length > 0
-      ? fail('₫', {
-          code: 'MISSING_SERIES',
-          message: {
-            vi: `Chưa tra được thị giá của ${missingPrice.join(', ')} nên không tính được tổng giá trị.`,
-            en: `Could not look up the market price of ${missingPrice.join(', ')}, so the total value cannot be calculated.`,
-          },
-          fix: {
-            vi: 'Nạp bộ số liệu mẫu có mã này, hoặc bỏ mã khỏi danh mục.',
-            en: 'Load a sample dataset that includes this ticker, or remove it from the portfolio.',
-          },
-        })
+      ? fail(
+          '₫',
+          priceState === 'failed'
+            ? {
+                code: 'MISSING_SERIES',
+                message: {
+                  vi: 'Chưa lấy được thị giá từ nguồn dữ liệu nên không tính được tổng giá trị.',
+                  en: 'Could not fetch market prices from the data source, so the total value cannot be calculated.',
+                },
+                fix: {
+                  vi: 'Kiểm tra kết nối mạng rồi bấm “Thử lại”.',
+                  en: 'Check your network connection, then tap "Try again".',
+                },
+              }
+            : {
+                code: 'MISSING_SERIES',
+                message: {
+                  vi: `Chưa tra được thị giá của ${missingList} nên không tính được tổng giá trị.`,
+                  en: `Could not look up the market price of ${missingList}, so the total value cannot be calculated.`,
+                },
+                fix: {
+                  vi: 'Nguồn dữ liệu chưa có mã này — kiểm tra lại mã, hoặc bỏ mã khỏi danh mục.',
+                  en: 'The data source has no such ticker — check the code, or remove it from the portfolio.',
+                },
+              },
+        )
       : ok(total, '₫');
 
   // ── Beta danh mục — bình quân gia quyền theo giá trị ───────────────────────

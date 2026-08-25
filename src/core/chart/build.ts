@@ -105,7 +105,13 @@ function buildBreakdownModel(
   const extent = breakdownExtent(bars);
 
   if (bars.length === 0 || extent === null) {
-    return { kind: 'unavailable', title: name, warning: output.warning ?? NOTHING_TO_DRAW };
+    return {
+      kind: 'unavailable',
+      title: name,
+      warning: output.warning ?? NOTHING_TO_DRAW,
+      options,
+      sweepKey: BREAKDOWN_KEY,
+    };
   }
 
   /*
@@ -227,18 +233,26 @@ function warmUpLength(points: ReadonlyArray<ChartPoint>): number {
 /**
  * Dựng mô hình biểu đồ cho một công thức.
  *
- * Thứ tự kiểm có ý nghĩa: **chỉ bỏ vẽ khi thiếu chuỗi giá**, chứ không bỏ vẽ khi kết quả hiện tại
- * đang lỗi. Người dùng gõ EPS = 0 thì khối Kết quả báo chia cho 0, nhưng đường quét vẫn rất đáng
- * xem — nó cho thấy đúng chỗ công thức sụp, và đó là minh hoạ FR-06 rõ nhất trên toàn ứng dụng.
+ * **Không bỏ vẽ chỉ vì KẾT QUẢ HIỆN TẠI đang lỗi** — kể cả lỗi thiếu chuỗi giá. Người dùng gõ
+ * EPS = 0 thì khối Kết quả báo chia cho 0, nhưng đường quét vẫn rất đáng xem: nó cho thấy đúng chỗ
+ * công thức sụp, và đó là minh hoạ FR-06 rõ nhất trên toàn ứng dụng.
+ *
+ * Trước đợt này có một cửa chặn sớm bỏ vẽ ngay khi `output.warning` là `MISSING_SERIES`, mâu thuẫn
+ * với chính câu trên và tạo ra một **ngõ cụt thật**: đường quét theo số phiên VẼ CẢ vùng vượt quá
+ * chuỗi đang có (`sweepPoints` giữ nguyên các điểm `y === null`, vẽ thành vệt gạch chéo), nên nhả
+ * tay trong vùng ấy ghi ngược một N quá lớn vào ô Số liệu → kết quả lỗi `MISSING_SERIES` → biểu đồ
+ * biến mất cùng với ô chọn trục → không còn chỗ nào để bấm lại, phải rời màn rồi vào lại. Chủ dự án
+ * báo đúng ca này.
+ *
+ * Nay câu hỏi "có vẽ được không" do CHÍNH DỮ LIỆU trả lời, ở các cửa `extent === null` bên dưới:
+ * chuỗi chưa nạp thì mọi điểm quét đều `null` → `yExtent` rỗng → vẫn trả `unavailable` mang đúng
+ * `output.warning` như cũ; còn chuỗi đã nạp mà chỉ hụt so với N hiện tại thì phần N nhỏ hơn vẫn ra
+ * số thật → hình vẫn vẽ, người dùng bấm lại điểm khác ngay tại chỗ.
  */
 export function buildChartModel(args: ChartArgs): ChartModel {
   const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel } = args;
   const { spec } = formula;
   const name = shortLabel(spec.name);
-
-  if (output.warning?.code === 'MISSING_SERIES') {
-    return { kind: 'unavailable', title: name, warning: output.warning };
-  }
 
   const candidates = sweepCandidates(spec, level);
 
@@ -307,13 +321,19 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       pickSweepVariable(formula, ctx, level);
 
     if (chosen === null) {
-      return { kind: 'unavailable', title: name, warning: NO_SWEEP_VARIABLE };
+      return { kind: 'unavailable', title: name, warning: NO_SWEEP_VARIABLE, options };
     }
 
     points = sweepPoints(formula, inputs, ctx, chosen.key, span);
     const xExtent = extentOf(points.map((point) => point.x));
     if (xExtent === null) {
-      return { kind: 'unavailable', title: name, warning: output.warning ?? NOTHING_TO_DRAW };
+      return {
+        kind: 'unavailable',
+        title: name,
+        warning: output.warning ?? NOTHING_TO_DRAW,
+        options,
+        sweepKey: chosen.key,
+      };
     }
 
     axisName = shortLabel(chosen.label);
@@ -323,7 +343,13 @@ export function buildChartModel(args: ChartArgs): ChartModel {
 
   const yExtent = extentOf(points.map((point) => point.y));
   if (yExtent === null) {
-    return { kind: 'unavailable', title: name, warning: output.warning ?? NOTHING_TO_DRAW };
+    return {
+      kind: 'unavailable',
+      title: name,
+      warning: output.warning ?? NOTHING_TO_DRAW,
+      options,
+      sweepKey: activeKey,
+    };
   }
 
   const y = buildAxis(yExtent[0], yExtent[1], name, spec.resultUnit);

@@ -35,9 +35,10 @@ import styles from './chart.module.css';
  *    ĐÚNG MỘT điểm cố định: giá trị người dùng đang nhập). Không hiện gì mà bảng số không nói được
  *    — chỉ hiện NHANH HƠN, đúng con số bảng đã liệt kê. Nhả tay (không phải rê/chạm suông) tại
  *    điểm đang dò còn ghi giá trị X của điểm đó ngược vào ô Số liệu tương ứng (`onApplyPoint`) —
- *    dò xong thấy đúng ý thì áp dụng luôn, không phải gõ lại bằng tay. Trục hiện không áp dụng
- *    được (`onApplyPoint` vắng mặt, ví dụ đang xem theo thời gian) thì nhả tay không ghi gì, nhưng
- *    vệt dò vẫn ở lại thay vì tắt ngay — xem quyết định 5.
+ *    dò xong thấy đúng ý thì áp dụng luôn, không phải gõ lại bằng tay. Hai trường hợp nhả tay KHÔNG
+ *    ghi gì: trục hiện không áp dụng được (`onApplyPoint` vắng mặt, ví dụ đang xem theo thời gian),
+ *    và điểm vừa bấm không tính được (`y === null`, phần vẽ gạch chéo). Cả hai giữ vệt dò lại thay
+ *    vì tắt ngay — xem quyết định 5.
  * 4. **`id` của `<pattern>` nhận từ ngoài, KHÔNG gọi `useId()`.** Xem docblock của `ChartBody`:
  *    cả thư mục này nằm dưới ranh giới `next/dynamic`, chỗ mà `useId()` sinh chuỗi lệch nhau giữa
  *    máy chủ và máy khách.
@@ -48,7 +49,7 @@ import styles from './chart.module.css';
  *    một lượt chọn của người dùng, ghi giá trị lúc đó là ghi nhầm ý. `handlePointerUp` còn phân
  *    biệt thêm một lần nữa BÊN TRONG: ghi được thì ẩn vệt dò ngay (chuột — dấu "giá trị hiện tại"
  *    đã tự nhảy tới đúng chỗ, không cần chồng thêm vệt dò); ghi KHÔNG được (trục đang là thời gian,
- *    `onApplyPoint` vắng mặt) thì GIỮ vệt dò lại — nếu tắt ngay như ghi được, cú bấm trên một biểu
+ *    hoặc điểm không tính được) thì GIỮ vệt dò lại — nếu tắt ngay như ghi được, cú bấm trên một biểu
  *    đồ không áp dụng được sẽ trông như không có chuyện gì xảy ra, dù người dùng vừa bấm thật.
  */
 
@@ -174,21 +175,31 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
   }
 
   function handlePointerUp(event: ReactPointerEvent<SVGRectElement>) {
-    // Nhả tay tại điểm đang dò — một lượt CHỌN thật, ghi giá trị đó vào ô Số liệu (nếu cho phép).
-    if (hover !== null) onApplyPoint?.(model.sweepKey, hover.x);
+    /*
+     * Nhả tay tại điểm đang dò — một lượt CHỌN thật, ghi giá trị đó vào ô Số liệu (nếu cho phép).
+     *
+     * KHÔNG ghi điểm `y === null` — phần đường vẽ gạch chéo, tức mức mà chính biểu đồ đang nói là
+     * không tính được. Ghi nó vào ô Số liệu là lấy đúng thứ hình vừa từ chối làm giá trị mới, và nó
+     * từng tạo ra một ngõ cụt thật: mỗi cú bấm trong vùng chết đẩy giá trị hiện tại lên cao hơn, mà
+     * miền quét luôn bám quanh giá trị hiện tại, nên chỉ vài cú là cả miền trôi ra khỏi vùng còn dữ
+     * liệu — lúc ấy không trục nào vẽ được nữa. Chặn ngay từ cú bấm là chặn tận gốc, thay vì chữa
+     * hậu quả ở `buildChartModel`.
+     */
+    const ghiDuoc = hover !== null && hover.y !== null && onApplyPoint !== undefined;
+    if (ghiDuoc) onApplyPoint(model.sweepKey, hover.x);
 
     // Chạm: giữ lại vệt dò sau khi nhấc ngón tay — ngón tay vừa che mất đúng chỗ cần đọc.
     if (event.pointerType === 'touch') return;
 
     /*
-     * Trục hiện KHÔNG áp dụng được (`onApplyPoint` vắng mặt — xem guard ở `ChartBody`) thì vừa rồi
-     * không ghi được gì vào đâu cả, nhưng người dùng vẫn vừa bấm thật (ví dụ biểu đồ của một công
-     * thức cần chuỗi giá, đã tự chuyển sang trục thời gian). GHIM vệt dò lại làm phản hồi DUY NHẤT
-     * của cú bấm đó — `pinned=true` khiến `handlePointerLeave` bên dưới bỏ qua, vì đưa chuột đi sau
-     * khi bấm là chuyện đương nhiên, không phải lúc để xoá. Ghi được rồi thì khác hẳn: dấu "giá trị
-     * hiện tại" đã tự nhảy tới đúng chỗ vừa bấm, vệt dò xong việc, ẩn ngay để khỏi chồng lên dấu đó.
+     * Cú bấm KHÔNG ghi được gì — trục hiện không áp dụng được (`onApplyPoint` vắng mặt, xem guard ở
+     * `ChartBody`), hoặc điểm vừa bấm nằm trong vùng không tính được. Người dùng vẫn vừa bấm thật,
+     * nên GHIM vệt dò lại làm phản hồi DUY NHẤT của cú bấm đó — `pinned=true` khiến
+     * `handlePointerLeave` bên dưới bỏ qua, vì đưa chuột đi sau khi bấm là chuyện đương nhiên, không
+     * phải lúc để xoá. Ghi được rồi thì khác hẳn: dấu "giá trị hiện tại" đã tự nhảy tới đúng chỗ vừa
+     * bấm, vệt dò xong việc, ẩn ngay để khỏi chồng lên dấu đó.
      */
-    if (hover !== null && onApplyPoint === undefined) {
+    if (hover !== null && !ghiDuoc) {
       setPinned(true);
       return;
     }

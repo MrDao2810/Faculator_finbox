@@ -175,6 +175,10 @@ export const vi = {
   'detail.jumpToExample': 'Xem ví dụ thực tế ↓',
   'detail.fundamentalsSource':
     'Số liệu cơ bản (EPS, giá trị sổ sách, số CP, cổ tức…) của mã này lấy thật từ Finbox_v2, đối chiếu lúc',
+  // Hai câu dưới đứng SAU mã (“FPT · …”), nên viết thường.
+  'detail.tickerLoading': 'đang lấy số liệu thật của mã…',
+  'detail.tickerFailed':
+    'không lấy được số liệu của mã — nhập tay, hoặc bấm “Nạp mẫu” để dùng bộ số liệu sẵn có.',
   'detail.export': '↓ Xuất',
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
@@ -262,7 +266,14 @@ export const vi = {
     'Dùng để thử đường đi của tính năng. Đừng dựa vào con số tính ra để ra quyết định.',
   /* Câu ngắn đi kèm ngay CẠNH CON SỐ tiền — dùng ở màn Danh mục và trong file xuất ra.
      Khác `preset.draftDetail` ở chỗ nó phải đọc lọt trong một dòng hẹp. */
-  'preset.draftInline': 'Thị giá lấy từ bộ số liệu mẫu tự dựng, chưa đối chiếu báo cáo thật.',
+  /*
+   * `preset.draftInline` đã bị xoá ở gói "Danh mục dùng số liệu thật".
+   *
+   * Nó chỉ có một nơi dùng: câu cảnh báo bản thảo dưới bốn con số của màn Danh mục. Nay thị giá
+   * ở màn đó lấy thật từ Finbox nên không còn gì để cảnh báo, và ca "khoá mồ côi" trong
+   * `i18n.test.ts` bắt được ngay lúc gỡ. `preset.draftTag` và `preset.draftExport` vẫn còn dùng
+   * (PresetSheet và file xuất), nên giữ nguyên.
+   */
   'preset.draftExport': 'Số liệu đầu vào lấy từ bộ mẫu tự dựng, chưa đối chiếu báo cáo thật.',
 
   // Dán từ Excel / CSV — WF-11, gói 2.5.2
@@ -281,10 +292,17 @@ export const vi = {
   'portfolio.remove': 'Bỏ mã',
   'portfolio.empty': 'Chưa có mã nào. Thêm mã đầu tiên để xem tổng giá trị và tỷ trọng.',
   'portfolio.localTag': 'CỤC BỘ',
+  /*
+   * Câu này từng ghi "Không gửi lên máy chủ." và điều đó KHÔNG còn đúng kể từ gói lấy thị giá
+   * thật: mã cổ phiếu phải rời máy thì mới tra được giá. Số lượng nắm giữ và giá vốn — hai thứ
+   * riêng tư thật sự — vẫn không đi đâu cả, và câu mới nói đúng ranh giới đó thay vì hứa suông.
+   */
   'portfolio.localOnly':
-    'Danh mục chỉ lưu trên thiết bị này (localStorage). Không gửi lên máy chủ.',
+    'Số lượng và giá vốn chỉ lưu trên thiết bị này (localStorage). Chỉ mã cổ phiếu được gửi tới Finbox để tra thị giá.',
   'portfolio.formCode': 'Mã cổ phiếu',
-  'portfolio.formQuantity': 'Số cổ phiếu',
+  // "Số cổ phiếu" trần bị đọc nhầm thành số CP LƯU HÀNH — cụm mà Domain dùng cho
+  // `sharesOutstanding`. Thêm "nắm giữ" để hai khái niệm không còn trùng chữ.
+  'portfolio.formQuantity': 'Số cổ phiếu nắm giữ',
   'portfolio.formCostPrice': 'Giá vốn một cổ phiếu (₫)',
   'portfolio.formBuyDate': 'Ngày mua',
   'portfolio.formBeta': 'Beta (để trống nếu chưa biết)',
@@ -292,7 +310,33 @@ export const vi = {
   'portfolio.formCancel': 'Huỷ',
   'portfolio.betaHint':
     'Beta chưa tính tự động được — cần chuỗi lợi suất của cả mã lẫn chỉ số thị trường. Nhập tay nếu bạn đã có số.',
-  'portfolio.priceNote': 'Thị giá lấy từ bộ số liệu mẫu, chưa phải giá thời gian thực.',
+  'portfolio.priceNote': 'Thị giá lấy từ Finbox theo phiên gần nhất, không phải giá khớp lệnh.',
+  'portfolio.pickCode': 'Chọn mã',
+  'portfolio.priceLoading': 'Đang lấy thị giá…',
+  'portfolio.priceFailed': 'Không lấy được thị giá từ Finbox.',
+  'portfolio.priceRetry': 'Thử lại',
+  'portfolio.formulas': 'Tính công thức',
+  'portfolio.formulasTitle': 'Công thức dùng được với mã này',
+  'portfolio.formulasSubtitle': 'Mở công thức với số liệu của mã đã điền sẵn',
+  // Đứng SAU cặp số "2/2", nên viết thường và mở đầu bằng đơn vị.
+  'portfolio.formulasFilled': 'ô điền sẵn',
+  'portfolio.formulasNoPrice':
+    'Chưa tra được thị giá của mã này, nên các công thức cần giá đã bị lược bớt hoặc điền ít ô hơn.',
+
+  // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
+  'ticker.title': 'Chọn mã cổ phiếu',
+  'ticker.subtitle': 'Toàn bộ mã đang giao dịch, lấy từ Finbox',
+  'ticker.searchLabel': 'Tìm mã hoặc tên doanh nghiệp',
+  'ticker.searchPlaceholder': 'FPT, Hoà Phát…',
+  'ticker.pick': 'Chọn',
+  'ticker.loading': 'Đang tải danh sách mã…',
+  'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
+  // Đứng ngay SAU cặp số "60/1.649", nên câu phải mở đầu bằng đơn vị và không viết hoa.
+  'ticker.capped': 'mã · gõ thêm để thu hẹp danh sách',
+  'ticker.retry': 'Thử lại',
+  'ticker.errorNetwork': 'Không tải được danh sách mã. Kiểm tra kết nối mạng rồi thử lại.',
+  'ticker.errorSource': 'Nguồn dữ liệu trả về thứ không đọc được. Thử lại sau ít phút.',
+  'ticker.stale': 'Đang hiện danh sách của lần tải trước, có thể đã cũ.',
 
   // ── Bảng dữ liệu WF-05 (gói 3.3.1) ────────────────────────────────────────
   'series.title': 'Chuỗi giá OHLCV',

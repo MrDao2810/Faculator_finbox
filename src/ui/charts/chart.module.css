@@ -288,6 +288,14 @@
   color: var(--color-ink-soft);
 }
 
+/*
+ * Ô chọn trục giữ lại khi không vẽ được — đường ra duy nhất của trạng thái ấy, nên nó phải nằm
+ * ngay dưới câu cảnh báo chứ không lẫn vào đâu khác.
+ */
+.axisEscape {
+  margin-top: var(--space-3);
+}
+
 .data {
   font-size: var(--text-xs);
 }

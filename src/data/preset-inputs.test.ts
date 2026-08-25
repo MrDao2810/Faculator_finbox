@@ -38,6 +38,19 @@ describe('presetInputs — điền đúng ô, đúng đơn vị', () => {
     expect(presetInputs(FPT, moduleOf('cagr').spec)).toEqual({});
   });
 
+  it('preset chỉ có MỘT phiên thì bỏ trống chân giá vào, không điền bằng chính phiên đó', () => {
+    /*
+     * Ca của preset dựng lúc chạy từ API Finbox — chỉ có thị giá hôm nay, không có lịch sử.
+     * Điền cả hai chân bằng cùng một giá thì HPR ra đúng 0%: "mua và bán cùng một giá", một
+     * tình huống vô nghĩa mà trông như đã nạp xong.
+     */
+    const motPhien = { ...FPT, bars: FPT.bars.slice(-1) };
+    const filled = presetInputs(motPhien, moduleOf('hpr').spec);
+
+    expect(filled.startPrice).toBeUndefined();
+    expect(filled.endPrice).toBe(LAST_CLOSE);
+  });
+
   it('chân giá vào lấy phiên ĐẦU, chân giá hiện tại lấy phiên CUỐI', () => {
     const filled = presetInputs(FPT, moduleOf('hpr').spec);
 

@@ -145,6 +145,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setSheet(kind);
   }
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
+  /** Ngày đối chiếu số liệu cơ bản của preset đang nạp — đặt và xoá cùng lúc với `loadedPreset`. */
+  const [fundamentalsAsOf, setFundamentalsAsOf] = useState<string | null>(null);
   const [seriesCount, setSeriesCount] = useState<number | null>(null);
   const [bars, setBars] = useState<ReadonlyArray<SeriesRow> | null>(null);
   /**
@@ -168,6 +170,20 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * mỗi khi `bars` đổi (nạp mẫu khác, dán chuỗi khác) — xem effect ngay dưới `applyToDataTable`.
    */
   const [appliedToTable, setAppliedToTable] = useState(false);
+
+  /**
+   * Mã đến từ `?ma=` trên URL — lối đi từ tab Danh mục sang màn này.
+   *
+   * `null` là trạng thái bình thường: người dùng mở trang bằng đường thẳng, không qua danh mục.
+   * Nạp xong thì cũng về `null`, vì lúc đó `loadedPreset` đã là nguồn sự thật cho "đang nạp mã
+   * nào" — giữ thêm một bản sao là mở đường cho hai chỗ lệch nhau.
+   */
+  const [liveTicker, setLiveTicker] = useState<{
+    code: string;
+    status: 'loading' | 'failed';
+  } | null>(null);
+  /** Cầu nối tới `applyPreset()` bên dưới — nó dựng lại mỗi lượt render nên không đưa vào deps được. */
+  const applyPresetRef = useRef<(preset: Preset) => void>(() => undefined);
 
   /*
    * ── Trạng thái của chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ───────────────────────────────
@@ -209,6 +225,57 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       // báo MISSING_SERIES, đúng đường FR-06.
     }
   }, []);
+
+  /*
+   * ── `?ma=FPT`: nạp số liệu thật của một mã ngay khi mở trang ────────────────────────────────
+   *
+   * Lối đi từ tab Danh mục sang đây (gói "Danh mục dùng số liệu thật"): ở đó bấm nút ƒ trên một
+   * dòng mã là mở `/cong-thuc/<id>/?ma=<MÃ>`, và trang này tự nạp số liệu của mã vào ô nhập —
+   * đúng thứ nút "Nạp mẫu" làm, chỉ khác là mã đến từ URL và từ API thay vì từ 4 preset tĩnh.
+   *
+   * ⚠ Đọc bằng `window.location.search` TRONG một effect, TUYỆT ĐỐI không dùng
+   * `useSearchParams()`. Với `output: 'export'`, hook đó buộc cả cây phải nằm trong `<Suspense>`
+   * và Next bỏ hẳn phần đó khỏi HTML tĩnh — 111 trang chi tiết mất ký hiệu toán MathML dựng sẵn
+   * lúc build, và `npm run verify:static` đỏ ngay ở khẳng định `<math` trong
+   * `out/cong-thuc/pe/index.html`. Tham số này chỉ đổi trạng thái SAU khi hydrate, nên đọc phía
+   * máy khách không mất gì cả.
+   *
+   * Gọi `applyPresetRef.current` chứ không gọi thẳng `applyPreset`: hàm đó dựng lại mỗi lượt
+   * render. Effect gán ref nằm dưới nó trong file nên chạy SAU effect này, nhưng lúc `await` xong
+   * thì mọi effect của lượt gắn đầu tiên đã chạy hết — ref chắc chắn đã có hàm thật.
+   *
+   * ⚠ `await import()` chứ không import tĩnh: phần gọi mạng nằm sau một ranh giới nạp trễ, cùng
+   * cách `ChainPanel`/`FormulaChart`/`DetailBody` làm. Bản đầu import tĩnh và đo được +4 kB trên
+   * CẢ 111 trang chi tiết — nhóm trang đang vượt cửa kiểm dung lượng xa nhất — để phục vụ một
+   * tham số mà hầu hết lượt mở trang không có.
+   */
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get('ma');
+    const code = raw === null ? '' : raw.trim().toUpperCase();
+    // Chặn tham số gõ bậy TRƯỚC khi đem nó đi gọi mạng. Mã dài nhất đang có là 8 ký tự (E1VFVN30).
+    if (!/^[A-Z0-9]{3,12}$/.test(code)) return;
+
+    const controller = new AbortController();
+    setLiveTicker({ code, status: 'loading' });
+
+    void (async () => {
+      const { loadLivePreset } = await import('@/application/live-preset-loader');
+      const result = await loadLivePreset(code, asOf, controller.signal);
+
+      if (result.status === 'cancelled' || controller.signal.aborted) return;
+      if (result.status === 'failed') {
+        setLiveTicker({ code, status: 'failed' });
+        return;
+      }
+
+      applyPresetRef.current(result.preset);
+      setLiveTicker(null);
+    })();
+
+    return () => {
+      controller.abort();
+    };
+  }, [asOf]);
 
   const ctx = useMemo<CalcContext>(
     () => ({
@@ -359,13 +426,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     loadedPreset ?? (exampleLoaded ? t('detail.exampleSeriesLabel') : undefined);
 
   /**
-   * Ngày đối chiếu fundamentals của preset đang nạp — tra qua `SAMPLE_DATA` bằng mã thay vì giữ
-   * một state riêng: `loadedPreset` đã là nguồn sự thật duy nhất cho "đang nạp mã nào", giữ thêm
-   * một bản sao là mở đường cho hai chỗ lệch nhau. `undefined` (không rõ/không áp dụng) và preset
-   * chưa nạp gì đều rơi về cùng `null` — khối JSX bên dưới không cần phân biệt hai lý do đó.
+   * Ngày đối chiếu fundamentals của preset đang nạp.
+   *
+   * Trước gói "Danh mục dùng số liệu thật", chỗ này tra `SAMPLE_DATA.byCode(loadedPreset)`. Nay
+   * preset còn có thể đến từ API (`?ma=`) cho một mã **không nằm trong bộ mẫu**, nên phép tra ấy
+   * trả `undefined` và dòng nguồn biến mất đúng lúc nó cần thiết nhất — dữ liệu thật lấy lúc chạy
+   * mới là thứ người dùng cần biết là lấy khi nào.
+   *
+   * Nên nay `applyPreset()` ghi thẳng `preset.fundamentalsAsOf` vào state. Vẫn không có hai nguồn
+   * sự thật: nó được đặt và xoá đúng cùng chỗ với `loadedPreset`.
    */
-  const loadedFundamentalsAsOf =
-    loadedPreset === null ? null : (SAMPLE_DATA.byCode(loadedPreset)?.fundamentalsAsOf ?? null);
+  const loadedFundamentalsAsOf = loadedPreset === null ? null : fundamentalsAsOf;
 
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
@@ -444,6 +515,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
     setInputs((current) => ({ ...current, ...fromPreset }));
     setLoadedPreset(preset.code);
+    setFundamentalsAsOf(preset.fundamentalsAsOf ?? null);
     // Nạp mẫu công ty thật thì thôi ở trạng thái "ví dụ minh hoạ" — xem loadIllustrativeExample().
     setMarketSeriesOverride(null);
     setExampleLoaded(false);
@@ -497,6 +569,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setAppliedToTable(false);
   }
 
+  // Cập nhật sau MỖI lượt render, không có mảng phụ thuộc: `applyPreset` đọc `spec` và nhiều
+  // setter, nên bản mới nhất luôn là bản đúng.
+  useEffect(() => {
+    applyPresetRef.current = applyPreset;
+  });
+
   /**
    * Nạp chuỗi MINH HOẠ có sẵn trong `spec.example` — lối thứ ba cho người chưa hiểu bộ mẫu 4
    * công ty (PRNG bịa, không mang ý nghĩa gì cho công thức chuỗi) và cũng không có chuỗi giá thật
@@ -527,6 +605,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setSeriesCount(rows.length);
     setMarketSeriesOverride(spec.example.marketSeries ?? null);
     setLoadedPreset(null);
+    setFundamentalsAsOf(null);
     setExampleLoaded(true);
     setAppliedToTable(false);
   }
@@ -635,6 +714,20 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         {loadedFundamentalsAsOf !== null && (
           <p className={styles.pendingNote}>
             {t('detail.fundamentalsSource')} {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
+          </p>
+        )}
+
+        {/*
+          Trạng thái của mã đến từ `?ma=` trên URL. Nạp xong thì `liveTicker` về null và dòng
+          nguồn số liệu ngay trên đã nói thay — không cần một dòng "đã xong" nữa.
+        */}
+        {liveTicker !== null && (
+          <p
+            className={styles.pendingNote}
+            role={liveTicker.status === 'failed' ? 'alert' : 'status'}
+          >
+            {liveTicker.code} ·{' '}
+            {liveTicker.status === 'loading' ? t('detail.tickerLoading') : t('detail.tickerFailed')}
           </p>
         )}
       </header>

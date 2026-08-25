@@ -5,7 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 Faculator Finbox — a Vietnamese financial/stock-formula library delivered as a **static site**:
-no backend, no database (`next.config.mjs` sets `output: 'export'`, build artifact is `out/`).
+no backend of its own, no database (`next.config.mjs` sets `output: 'export'`, build artifact is
+`out/`). It does make **one** outbound call at runtime — the browser fetches ticker lists and market
+prices from `dcs.finbox.vn` for the portfolio tab; see "The one network call" below before adding
+any other.
 
 **All 111 formulas** are implemented and registered in `src/core/formulas/` (17 group files
 spread into `FORMULA_MODULES`); **all 12 categories sit exactly at their `expectedCount`**, so there
@@ -84,7 +87,7 @@ src/app/          PRESENTATION  Next.js App Router pages (one URL per formula)
 src/ui/           PRESENTATION  shared components
 src/application/  APPLICATION   the only door between UI and Domain
 src/core/         DOMAIN        pure TypeScript, all financial logic
-src/data/         DATA          DataProvider + static sample datasets (drafted, not real)
+src/data/         DATA          DataProvider (static samples) + MarketFeed (live Finbox calls)
 ```
 
 The boundaries are **enforced by ESLint**, not convention (`.eslintrc.json` per-directory
@@ -142,6 +145,46 @@ of 111 get nothing, and basic mode behaves exactly as before — which is why th
 all 111 detail screens in `FormulaDetail.test.tsx` needed no changes. `src/ui/screens/ChainPanel.tsx` is
 the `next/dynamic` boundary (same pattern as `FormulaChart`/`DetailBody`); never export
 `ChainBody` from the `@/ui/screens` barrel or its cost lands on all 111 detail pages.
+
+## The one network call — `MarketFeed`
+
+**The site now calls one external server at runtime**, and that reverses a constraint the repo used
+to state absolutely. Until the "Danh mục dùng số liệu thật" package, `public/_headers` locked
+`connect-src 'self'` with the comment _"sản phẩm không gọi máy chủ nào"_. It now reads
+`connect-src 'self' https://dcs.finbox.vn`. One origin, no wildcard, signed off by the project
+owner. Any new outbound call needs the same sign-off — do not widen this quietly.
+
+`src/data/finbox/` is the **second** data port, deliberately separate from `DataProvider`:
+
+|         | `DataProvider` (`src/data/types.ts`) | `MarketFeed` (`src/data/finbox/types.ts`)   |
+| ------- | ------------------------------------ | ------------------------------------------- |
+| Shape   | synchronous                          | `Promise` + `AbortSignal`                   |
+| Serves  | 4 WF-10 presets, full 248-bar series | ~1.649 tickers, one session's price         |
+| Used by | "Nạp mẫu" on all 111 detail screens  | `/danh-muc/`, and `?ma=` on a detail screen |
+
+`DataProvider` stays synchronous exactly as its docblock promises — a `Preset` requires bars _and_
+fundamentals, which a ticker list has neither of, so folding the two together would mean inventing
+fields. `presetFromSnapshot()` in `src/data/live-preset.ts` bridges back the other way, so
+`presetInputs()` serves both sources.
+
+Three things that are easy to break here:
+
+- **Only ticker codes leave the device.** Quantities, cost prices and buy dates never enter a
+  request. `portfolio.localOnly` says so on screen and a test pins the wording.
+- **`LIVE_PRESET_FORMULAS` is pinned data, not a computation.** Deriving it needs `spec.variables`
+  for all 111 formulas, i.e. the whole Registry in `/danh-muc/`'s bundle (measured elsewhere:
+  131 kB → 217 kB against a 180 kB gate). `live-preset.test.ts` recomputes it from the real
+  Registry and compares line by line, so it cannot drift silently.
+- **`FormulaDetail` reads `?ma=` from `window.location.search` inside an effect, never
+  `useSearchParams()`.** With `output: 'export'` that hook forces the subtree into `<Suspense>` and
+  Next drops it from the static HTML — all 111 detail pages would lose their build-time MathML and
+  `verify:static` fails on the `<math` assertion in `out/cong-thuc/pe/index.html`.
+
+The service worker does not touch these calls at all: `handles()` in `public/sw.js` rejects
+cross-origin and non-GET. Offline behaviour is therefore hand-rolled — the ticker list is cached in
+`localStorage` with a 24 h TTL (`ticker-list-store.ts`), and a failed price fetch flows into
+`summarisePortfolio(…, 'failed')`, which swaps the advice from "remove the ticker" to "check your
+connection and retry". Never let a network failure produce a `0` (FR-06).
 
 ## Chart kinds
 

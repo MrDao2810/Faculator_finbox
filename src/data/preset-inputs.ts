@@ -47,9 +47,20 @@ function candidates(fundamentals: Fundamentals, bars: ReadonlyArray<DailyBar>): 
   const first = bars[0];
   const last = bars[bars.length - 1];
 
+  /*
+   * Chuỗi CHỈ CÓ MỘT PHIÊN thì bỏ hẳn chân giá vào, không điền bằng chính phiên ấy.
+   *
+   * Đây là ca của preset dựng lúc chạy từ API Finbox: nó chỉ có thị giá hôm nay, không có lịch
+   * sử. Điền cả hai chân bằng cùng một giá thì mọi công thức lãi/lỗ ra đúng 0% — "mua và bán
+   * cùng một giá" — tức bày ra một tình huống vô nghĩa mà trông như đã nạp xong, đúng cái bẫy
+   * docblock ở đầu file này cảnh báo. Để trống thì `runFormula()` báo INCOMPLETE_INPUT và người
+   * dùng biết còn phải gõ giá vốn của chính họ vào (FR-06).
+   */
+  const entryClose = bars.length >= 2 ? first?.close : undefined;
+
   const values: Record<string, number | undefined> = {
     // ── Chuỗi giá ────────────────────────────────────────────────────────────
-    ...Object.fromEntries(ENTRY_LEG.map((key) => [key, first?.close])),
+    ...Object.fromEntries(ENTRY_LEG.map((key) => [key, entryClose])),
     ...Object.fromEntries(CURRENT_LEG.map((key) => [key, last?.close])),
 
     // ── Số trên mỗi cổ phiếu, đơn vị ₫ ───────────────────────────────────────

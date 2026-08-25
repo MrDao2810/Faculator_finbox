@@ -101,6 +101,19 @@ export interface UnavailableChart {
   kind: 'unavailable';
   title: Bilingual;
   warning: CalcWarning;
+  /**
+   * Các trục KHÁC vẫn chọn được, để giao diện giữ lại ô chọn trục thay vì bỏ trống cả khối.
+   *
+   * Vì sao trạng thái "không vẽ được" vẫn phải mang danh sách này: ô chọn trục nằm TRONG khung
+   * biểu đồ, nên bỏ hình đi là bỏ luôn chỗ bấm duy nhất để đổi sang một trục vẫn vẽ được — người
+   * dùng kẹt lại, phải rời màn rồi vào lại. Ca thật: chuỗi 61 phiên với SMA 75 phiên thì trục thời
+   * gian không còn điểm nào, nhưng trục "Số phiên" vẫn vẽ tốt phần N ≤ 61.
+   *
+   * Bỏ trống khi chỗ dựng chưa kịp biết có những trục nào (các lối thoát sớm của `buildChartModel`).
+   */
+  options?: ReadonlyArray<SweepOption>;
+  /** Mục đang chọn trong ô ấy — để ô chọn hiện đúng trục người dùng đang đứng. */
+  sweepKey?: string;
 }
 
 /** Một cột của biểu đồ bóc tách. */

@@ -1,0 +1,134 @@
+/*
+ * Sheet chọn mã — gói "Danh mục dùng số liệu thật".
+ *
+ * Bám sát PresetSheet.module.css để hai ô chọn mã của sản phẩm nhìn như một. Chỗ khác là ba
+ * trạng thái mà PresetSheet không có (đang tải · lỗi · danh sách cũ), vì nguồn ở đây cần mạng.
+ */
+
+.search {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.search::placeholder {
+  color: var(--color-muted);
+}
+
+.search:disabled {
+  color: var(--color-muted);
+  background: var(--color-paper);
+}
+
+/* Ẩn nút xoá mặc định của Chrome cho input[type=search] — cùng lý do như SearchBox. */
+.search::-webkit-search-cancel-button,
+.search::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/*
+ * Câu "danh sách có thể đã cũ". Dùng tông cảnh báo nhạt chứ không phải tông lỗi: danh sách vẫn
+ * dùng được, đây là ghi chú chứ không phải hỏng.
+ */
+.stale {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-sm);
+}
+
+/* Ô cho ba câu trạng thái: đang tải, không khớp, lỗi. Căn giữa để không treo trên khoảng trắng. */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+
+  margin: 0;
+  padding: var(--space-5) var(--space-3);
+
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.errorText {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* Bề ngang tối thiểu cố định để cột mã thẳng hàng — mã 3 ký tự và mã 8 ký tự (E1VFVN30). */
+.badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 72px;
+  min-height: 34px;
+  padding: 0 var(--space-2);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  /* Tên dài thì xuống dòng, không đẩy nút "Chọn" ra khỏi khung. */
+  overflow-wrap: anywhere;
+}
+
+/* Dòng "60/1.649 mã · gõ thêm…". Phải đọc được, nhưng không tranh chỗ với danh sách. */
+.footnote {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-align: center;
+}

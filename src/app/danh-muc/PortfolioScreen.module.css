@@ -210,14 +210,31 @@
 }
 
 /*
- * Cảnh báo bản thảo, đặt ngay dưới khối con số tiền (đợt 15). Dùng nền vàng nhạt chứ không
- * chỉ đổi màu chữ: NFR-USA-06 cấm dùng riêng màu để truyền tin, nên còn có cả nhãn chữ
- * "số liệu bản thảo" đứng trước câu.
+ * Trạng thái của phần thị giá, đặt ngay dưới khối con số tiền — đúng chỗ đã từng đặt cảnh báo
+ * "số liệu bản thảo" trước khi thị giá thành số thật, và vì cùng một lý do: câu nói về con số
+ * phải nằm cạnh con số.
+ *
+ * Chỉ có hai ca, và chúng khác nhau về mức độ chứ không chỉ về màu — NFR-USA-06 cấm dùng riêng
+ * màu để truyền tin, nên ca lỗi còn kèm hẳn một nút hành động, còn ca đang tải thì không.
  */
-.draftNote {
+.priceNote {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.priceError {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
 
   margin: 0;
@@ -232,9 +249,94 @@
   border-radius: var(--radius-sm);
 }
 
-.draftTag {
+/*
+ * Nút "ƒ" mở danh sách công thức của một mã.
+ *
+ * Cùng dáng nút "×" bỏ mã ngay bên cạnh để hai đích bấm cuối dòng thẳng hàng nhau, nhưng mang
+ * màu nhấn chứ không phải màu chữ mờ: đây là hành động chính của dòng, còn xoá là hành động
+ * phá. Ký hiệu ƒ là chữ, nên vẫn có `aria-label` đầy đủ cho trình đọc màn hình.
+ */
+.formulaButton {
   flex-shrink: 0;
+  width: var(--tap-min);
+  min-height: var(--tap-min);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  line-height: 1;
+  color: var(--color-accent);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.formulaButton:hover {
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+/* ── Ô chọn mã: một nút mở sheet, không phải <select> ───────────────────────── */
+
+.codeField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/*
+ * Nhãn là <span> chứ không <label>: đích của nó là một <button>, mà bấm vào <label> gắn với
+ * <button> thì trình duyệt không chuyển tiêu điểm như với ô nhập. Nối bằng `aria-labelledby`.
+ */
+.codeLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+}
+
+.codeButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  text-align: left;
+  color: var(--color-ink);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.codePlaceholder {
+  color: var(--color-muted);
+}
+
+.codeBadge {
+  flex-shrink: 0;
+
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+.codeName {
+  min-width: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.codeHint {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
 }

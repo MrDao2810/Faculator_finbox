@@ -95,8 +95,28 @@ export function ChartBody({
      * Không vẽ được thì nói ĐÚNG câu khối Kết quả đang nói, kèm câu chỉ đường (NFR-USA-04).
      * Không thêm nút "Nạp mẫu" / "Dán chuỗi giá" ở đây: hai nút ấy đã nằm ngay khối Số liệu phía
      * trên cho cả 34 công thức ăn chuỗi (đợt trước), và bày lần hai là hai lối vào cho một việc.
+     *
+     * NHƯNG vẫn giữ ô chọn trục khi còn trục khác để chọn: ô ấy nằm trong khung biểu đồ, nên bỏ
+     * hình đi mà bỏ luôn ô chọn là bịt đường ra — người dùng phải rời màn rồi vào lại mới đổi được
+     * trục. Ca thật: chuỗi 61 phiên với SMA 75 phiên thì trục thời gian không còn điểm nào, trong
+     * khi trục "Số phiên" vẫn vẽ tốt phần N ≤ 61.
      */
-    return <InlineWarning warning={model.warning} />;
+    const escapeOptions = model.options ?? [];
+    if (escapeOptions.length <= 1) return <InlineWarning warning={model.warning} />;
+
+    return (
+      <>
+        <InlineWarning warning={model.warning} />
+        <div className={styles.axisEscape}>
+          <SweepPicker
+            idBase={`chart-${formula.spec.id}`}
+            options={escapeOptions}
+            value={model.sweepKey ?? escapeOptions[0]?.key ?? ''}
+            onChange={setSweepKey}
+          />
+        </div>
+      </>
+    );
   }
 
   /*

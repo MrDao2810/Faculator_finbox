@@ -111,10 +111,244 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Danh mục dùng số liệu THẬT — 1.649 mã, thị giá lúc chạy, và lối đi Mã → Công thức
+
+Trạng thái: **xong, chờ chủ dự án kiểm trên Chrome thật.** `npm run check` xanh (1470/1470 test qua
+68 file), `npm run build` + `npm run verify:static` (24/24) xanh. `npm run size` vẫn đỏ — **lỗi có
+sẵn, không phải do đợt này**: cả 111 trang chi tiết đã vượt cửa kiểm từ đợt "Audit toàn dự án", và
+chủ dự án đã chọn phương án 1 (chấp nhận CI đỏ tới khi cắt được gói thật). `/danh-muc/` **158 kB,
+vẫn dưới cửa kiểm 180 kB** — đó là phần thưởng của quyết định ghim `LIVE_PRESET_FORMULAS`.
+
+### Yêu cầu
+
+Chủ dự án hỏi ba câu, rồi chốt hướng qua `AskUserQuestion`:
+
+1. Vùng bốn ô ở đầu tab Danh mục dùng thế nào — hoá ra không phải hỏi để sửa, mà vì màn khi rỗng
+   toàn là ô "— , —"; câu trả lời: đó là kết quả tự điền sau khi thêm mã, và `0 ₫` bị FR-06 cấm.
+2. API Finbox có danh sách mã để đưa vào ô chọn không → **lấy lúc chạy**.
+3. "Số cổ phiếu" là gì → là số CP nắm giữ; nhãn trùng cụm Domain dùng cho `sharesOutstanding`.
+   Kèm theo: làm luôn phần chọn công thức từ dòng mã.
+
+### Khảo sát API (gọi thật, không đoán)
+
+| Endpoint                          | Đo được                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `GET dcs.finbox.vn/bp/codes`      | 1.729 mục / 82 kB; lọc `code !== name` ra **1.649 mã** + tên công ty, loại sạch 80 mục chỉ số và ngành  |
+| `POST dcs.finbox.vn/data/symbols` | 346 field/mã, có `priceFlat` và đủ field dựng `Fundamentals`; 3 mã = 20 kB, **30 mã = 199 kB / 0,23 s** |
+| CORS                              | `Access-Control-Allow-Origin: *`, preflight `OPTIONS` trả 200, không cần token                          |
+| `GET /data/symbol/{mã}/quotes`    | HTTP 200 nhưng thân **0 byte** — không dùng được, nên không có đường lấy riêng giá cho nhẹ              |
+
+Hai điều chỉ lộ ra khi gọi thật, và cả hai đều đổi thiết kế:
+
+- **`/data/symbols` trải PHẲNG các khoá theo kỳ** (`ln_q2/2026`…) ngay trên bản ghi, trong khi
+  `/v1/getTickerDetail` gói chúng trong `dynamic`. `map.ts` đọc được cả hai hình dạng.
+- **CSP của CHÍNH dự án chặn**: `public/_headers` khoá `connect-src 'self'`, kèm câu "sản phẩm
+  không gọi máy chủ nào". CORS mở phía Finbox không cứu được. Đã hỏi lại chủ dự án và được chốt:
+  nới thành `connect-src 'self' https://dcs.finbox.vn`, đúng một origin, không ký tự đại diện.
+
+### Ba quyết định kiến trúc
+
+**1. `DataProvider` giữ nguyên ĐỒNG BỘ, thêm cổng thứ hai.** `Preset` bắt buộc có chuỗi giá và số
+liệu cơ bản; danh sách 1.649 mã không có cả hai, nhét vào thì phải bịa trường. Nên `MarketFeed`
+(`src/data/finbox/`) là interface riêng, bất đồng bộ. `presetFromSnapshot()` nối ngược lại để
+`presetInputs()` phục vụ chung cả hai nguồn.
+
+**2. `LIVE_PRESET_FORMULAS` là dữ liệu GHIM, không phải phép tính lúc chạy.** Tính danh sách "mã
+này điền được công thức nào" cần `spec.variables` của cả 111 công thức → kéo cả Registry vào gói
+`/danh-muc/` (đo ở màn khác: 131 kB → 217 kB, cửa kiểm 180 kB). Ghim được vì danh sách **giống
+nhau với mọi mã**. `live-preset.test.ts` tính lại từ Registry thật và so từng dòng.
+
+**3. `?ma=` đọc bằng `window.location.search` trong effect, KHÔNG `useSearchParams()`.** Hook đó
+với `output: 'export'` ép cả cây vào `<Suspense>` và Next bỏ nó khỏi HTML tĩnh — 111 trang chi tiết
+mất MathML dựng sẵn và `verify:static` đỏ ở khẳng định `<math`.
+
+### Hai thứ bỏ đi vì đo được là sai
+
+- **`VirtualList` không dùng trong sheet chọn mã.** Nó tính cửa sổ từ `window.scroll` và cố ý
+  không tạo khung cuộn lồng — mà thân `BottomSheet` chính là một khung cuộn lồng (`overflow-y:
+auto`), nên danh sách sẽ đứng im ở 40 mục đầu. Thay bằng cắt còn 60 dòng **kèm dòng "60/1.649 mã
+  · gõ thêm để thu hẹp"** — cắt mà không nói thì thành "thị trường chỉ có 60 mã".
+- **Bỏ bộ nhớ đệm cấp module trong `useTickerList`.** Bản đầu có một biến `memo` ngoài React để
+  khỏi `JSON.parse` lại; cái giá thật của nó hiện ra ngay ở test — danh sách của ca kiểm trước rò
+  sang ca sau. Đọc lại localStorage tốn ~1 ms; một trạng thái toàn cục ẩn tốn nhiều hơn.
+
+### Đã đổi file nào, vì sao
+
+| File                                            | Sửa gì                                                                                                                                                                                                |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/_headers`                               | Nới `connect-src` cho `dcs.finbox.vn` + đính chính chú thích cũ                                                                                                                                       |
+| `src/data/finbox/types.ts` (mới)                | `MarketFeed`, `TickerRef`, `TickerSnapshot`, `MarketFeedError`; docblock nêu vì sao là cổng riêng                                                                                                     |
+| `src/data/finbox/map.ts` (mới)                  | Thuần: đơn vị nghìn ₫ → ₫, TTM 4 quý, lọc `code !== name`, đọc cả hai hình dạng phản hồi                                                                                                              |
+| `src/data/finbox/client.ts` (mới)               | Hai endpoint, hạn chờ 12 s, gộp tay `AbortSignal` (`AbortSignal.any` chưa có trong `lib: ES2022`)                                                                                                     |
+| `src/data/finbox/index.ts` (mới)                | `MARKET_FEED` + `createStubFeed()` dùng chung cho test                                                                                                                                                |
+| `src/data/live-preset.ts` (mới)                 | `presetFromSnapshot()` + `LIVE_PRESET_FORMULAS` (31 công thức)                                                                                                                                        |
+| `src/data/preset-inputs.ts`                     | `candidates()` bỏ trống chân "giá vào" khi chuỗi < 2 phiên — nếu không, preset một phiên làm mọi công thức lãi/lỗ ra đúng 0%                                                                          |
+| `src/core/portfolio.ts`                         | Thêm `priceState: 'ready' \| 'failed'`. Ca lỗi mạng đổi lời khuyên từ "bỏ mã khỏi danh mục" sang "kiểm tra mạng rồi Thử lại" — lời khuyên cũ là xui người dùng xoá dữ liệu thật vì một sự cố tạm thời |
+| `src/application/ticker-list-store.ts` (mới)    | Cache localStorage, TTL 24 h; mốc thời gian ở tương lai cũng coi là hết hạn                                                                                                                           |
+| `src/application/use-ticker-list.ts` (mới)      | Hiện cache trước, làm mới ngầm; chỉ chạm mạng khi sheet mở                                                                                                                                            |
+| `src/ui/sheets/TickerPickerSheet.tsx` (mới)     | Sheet chọn mã, tìm bỏ dấu, mã khớp đầu chuỗi đứng trước                                                                                                                                               |
+| `src/ui/sheets/FormulaForTickerSheet.tsx` (mới) | 31 công thức kèm "x/y ô điền sẵn", link `/cong-thuc/<id>/?ma=<MÃ>`                                                                                                                                    |
+| `src/app/danh-muc/PortfolioScreen.tsx`          | Thị giá thật + trạng thái tải/lỗi/thử lại; `<Select>` → nút mở sheet; nút ƒ trên mỗi dòng; bỏ nhãn bản thảo                                                                                           |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`      | Đọc `?ma=`; `loadedFundamentalsAsOf` thôi tra `SAMPLE_DATA` mà đọc thẳng `preset.fundamentalsAsOf` — mã lấy lúc chạy không nằm trong bộ mẫu nên phép tra cũ làm dòng nguồn biến mất đúng lúc cần nhất |
+| `src/application/i18n/{vi,en}.ts`               | 24 khoá mới; `portfolio.formQuantity` → "Số cổ phiếu nắm giữ"; `portfolio.localOnly` viết lại cho đúng sự thật; xoá `preset.draftInline` (hết chỗ dùng)                                               |
+| `CLAUDE.md`, `README.md`, `src/data/README.md`  | Đính chính "không gọi máy chủ nào"                                                                                                                                                                    |
+
+### Xác minh
+
+- `npm run lint` · `npx tsc --noEmit` · `prettier --check src/**` sạch.
+- `npx vitest run` **1479/1479 qua 68 file** (tăng 42 ca so với trước gói: map 17, cache 8,
+  live-preset 11, màn Danh mục 19 — trừ phần trùng với ca cũ).
+- Ca đáng giá nhất: `map.test.ts` chạy `map.ts` trên phản hồi THẬT của FPT và MWG rồi so với đúng
+  con số `scripts/gen-live-fundamentals.mjs` đã sinh ra — hai bản cài đặt riêng của cùng một phép
+  tính (script Node trần không import được TS) nay không trôi khỏi nhau được. MWG là ca bẫy:
+  `ln_y2026 = 6017` (luỹ kế từ đầu năm) so với TTM 9.856,5 — lệch 63%.
+- `npm run build` + `npm run verify:static` **24/24**, trong đó hai phép canh đúng bẫy đợt này:
+  "trang chi tiết có ký hiệu toán DỰNG SẴN trong HTML tĩnh" và "chỉ MathML, không kéo CSS/font
+  KaTeX". Hai phép này đỏ ngay nếu ai đó đổi `?ma=` sang `useSearchParams()`.
+- `npm run size`: trang chi tiết 321,9–323,1 kB (trước đợt này TASK ghi 308–319 kB, nhưng con số
+  đó đo trước cả mấy đợt biểu đồ đang dở nên không so thẳng được). `/danh-muc/` 158 kB.
+- ⚠ **Ba con số build ở hai dòng trên đo TRƯỚC đợt bổ sung bên dưới** (chia nhóm cấp độ, ô tìm,
+  cột `priceFields`). Đợt bổ sung chưa build lại được vì dev server đang giữ cổng 3000. Phần
+  lint/typecheck/format/test thì đã chạy lại đầy đủ trên bản mới nhất.
+
+### Đợt bổ sung: chia nhóm cấp độ, ô tìm, và một lỗi "hứa quá" bị bắt
+
+Chủ dự án xem màn thật rồi yêu cầu thêm hai việc, và ảnh chụp màn hình để lộ thêm một việc thứ ba.
+
+**1. Chia nhóm Cơ bản / Nâng cao trong sheet công thức.** 24 + 7. Chia thành hai `<section>` có
+tiêu đề `h3` (BottomSheet đã dùng `h2`), chép khuôn `SearchResults`. Tái dùng khoá `level.basic`
+/ `level.advanced` sẵn có — 0 khoá i18n mới. Thứ tự nhóm ghim bằng hằng `['basic','advanced']`,
+không suy từ thứ tự dữ liệu.
+
+**Cố ý KHÔNG lọc theo chế độ đang chọn**, khác ba màn duyệt. Lý do đầy đủ nằm trong docblock
+`FormulaForTickerSheet`; tóm tắt: đây là kệ ghim tay chứ không phải danh sách duyệt (cùng loại
+với khối FR-20 ở trang chủ đã được miễn lọc), lọc thì mất 23% danh sách và mất đúng nhánh định
+giá DCF, mà ẩn khỏi danh sách vốn chưa bao giờ là chặn — `/cong-thuc/<id>/` không có cửa gác cấp
+độ nào. Một ca test khoá quyết định này lại: ai thêm lọc sẽ làm nó đỏ.
+
+**2. Ô tìm trong sheet.** Lọc bằng CHÍNH `scoreFormula` + `tokenize` của ô tìm toàn cục, không
+viết bản so chuỗi thứ hai — nên gõ không dấu ("co tuc" ra "cổ tức") và tra cả `tags` y như màn
+Tìm kiếm. Hai hàm này nay export thêm qua barrel Application. Cố ý không sắp lại theo điểm liên
+quan: danh sách đang xếp theo tỷ lệ ô điền, và đó mới là thứ người dùng chọn theo.
+
+**3. Lỗi "hứa quá" — do workflow phản biện bắt được, không phải do test.**
+
+Ảnh chụp của chủ dự án là mã `VNI`. Kiểm ra: `VNI` CÓ trong `/bp/codes` ("VinaLand Invest Corp")
+nhưng `/data/symbols` không trả bản ghi nào — và đo trên mẫu 60 mã rải đều thì **43% mã trong
+`/bp/codes` không có số liệu thị trường**. Từ đó lộ ra lỗi thật:
+
+`LIVE_PRESET_FORMULAS.filled` đo trên một ảnh chụp ĐỦ cả giá lẫn số liệu cơ bản. Nhưng
+`finbox/map.ts` đối chiếu hai thứ đó **độc lập** (hai phép P/E và P/B tự bỏ qua khi thiếu giá),
+nên một mã có thể có số liệu cơ bản hợp lệ mà `priceVnd` vẫn `null`. Khi đó `presetFromSnapshot()`
+cho `bars: []` → `presetInputs()` không điền `price`/`endPrice`/`sellPrice`. Đo được:
+**15 trên 31 công thức lệch, 8 trong đó tụt hẳn về 0 ô.** Sheet vẫn in "2/2 ô điền sẵn" cho P/E
+rồi mở ra một trang chỉ điền được EPS — không một tín hiệu hỏng nào.
+
+Vá: thêm cột `priceFields` vào `LivePresetFormula` (số ô do thị giá điền), `PortfolioScreen`
+truyền `hasPrice` lấy thẳng từ `quotes` đang cầm sẵn (không thêm lời gọi mạng), sheet trừ cột đó
+ra, **bỏ hẳn dòng còn 0 ô**, sắp lại bằng đúng comparator đã sinh ra thứ tự ghim, và hiện một
+dòng nói rõ vì sao danh sách ngắn hơn. `live-preset.test.ts` đo `priceFields` bằng chính
+`presetFromSnapshot` với và không có giá, nên cột mới không trôi được.
+
+Workflow phản biện nêu 7 phát hiện, 6 bị bác bỏ khi bắt người khác cố tái hiện — giữ lại đúng
+cái này.
+
+### Còn hở, chưa làm đợt này
+
+- **Nguồn danh sách mã có thể tốt hơn hẳn.** `POST /data/filter` (screener) với
+  `returns:["ticker","company","priceFlat","floor","industry"]` trả **1.005 mã, 100% có tên công
+  ty VÀ có giá > 0**, gói gọn 36,5 kB — so với `/bp/codes` 1.649 mã / 70,6 kB mà 43% không có số
+  liệu. `VNI` bị loại đúng, `E1VFVN30` vẫn còn, cả 4 mã mẫu vẫn còn. Đổi nguồn sẽ khiến lỗi
+  "hứa quá" ở trên gần như không còn đất sống. Đánh đổi: bắt buộc có tham số `date` hợp lệ (ngày
+  cũ trả 0 dòng), nên phải gọi `GET /v1/getMarketDates` trước — thêm một vòng, nhưng phản hồi chỉ
+  ~100 byte. **Chờ chủ dự án quyết.**
+
+### Một điều chỉnh sau khi đo
+
+Bản đầu import tĩnh `MARKET_FEED` + `presetFromSnapshot` vào `FormulaDetail`, tức cộng phần gọi
+mạng vào **cả 111 trang chi tiết** để phục vụ một tham số URL mà hầu hết lượt mở không có. Đã tách
+`src/application/live-preset-loader.ts` và gọi bằng `await import()` — cùng ranh giới nạp trễ mà
+`ChainPanel`/`FormulaChart`/`DetailBody` dùng. Thu về khiêm tốn hơn dự đoán: Next báo First Load JS
+của `/cong-thuc/[id]` 289 → 288 kB, còn `size-report.mjs` chỉ giảm ~0,5 kB vì nó **cố ý tính cả
+chunk nạp trễ** vào cửa kiểm. Vẫn giữ, vì mã gọi mạng ra khỏi đường tới-hạn là đúng cấu trúc dù
+thước đo của dự án không thưởng cho việc đó.
+
+⚠ **Đừng re-export `loadLivePreset` từ `src/application/index.ts`** — barrel đó được import tĩnh ở
+khắp nơi nên một dòng re-export kéo `finbox/client.ts` về lại gói chung ngay. Cùng lý do
+`draw-card` không nằm trong barrel `@/ui/sheets`.
+
+### Còn lại
+
+- [ ] **Chạy lại `npm run build` + `npm run size` + `npm run verify:static`** cho đợt bổ sung
+      (chia nhóm cấp độ · ô tìm · `priceFields`). Cần tắt dev server ở cổng 3000 trước.
+- [ ] Kiểm Chrome thật: thêm mã ngoài 4 mã mẫu → bốn ô ra số; tắt mạng → cảnh báo + nút Thử lại,
+      không ô nào hiện 0; bấm ƒ → sang công thức với ô đã điền; DevTools Console không có dòng
+      chặn `connect-src`.
+- [ ] `wrangler.jsonc` trượt `prettier --check` — **lỗi có sẵn từ trước đợt này**, không nằm trong
+      phạm vi sửa (git status: file không bị đợt này chạm).
+- [ ] Beta vẫn nhập tay (API không có field beta, cũng không có chuỗi VN-Index đủ dài) và 34 công
+      thức chuỗi giá vẫn kẹt (`tendays` chỉ 10 phiên, không OHLC).
+- [ ] Danh mục 50 mã (`MAX_HOLDINGS`) kéo ~330 kB mỗi lần mở màn; danh mục thường 5–15 mã
+      (~35–100 kB). Nếu thấy nặng thì xin Finbox một endpoint chỉ trả giá.
+
+---
+
+## Vá ngõ cụt "bấm biểu đồ xong mất luôn biểu đồ"
+
+Trạng thái: **xong, đã kiểm chứng trên Chrome thật**.
+
+Chủ dự án báo: bấm một điểm trên biểu đồ thì hiện thông báo thiếu phiên, và từ đó **phải rời màn rồi
+vào lại mới chọn lại được trên biểu đồ**. Đề xuất ban đầu là bật dialog báo lỗi, tắt dialog thì chọn
+lại. Sau khi đọc mã, chốt hướng khác đạt cùng mục tiêu mà **không tốn thêm cú bấm nào**: đừng để
+biểu đồ biến mất ngay từ đầu. Chủ dự án đã duyệt hướng này.
+
+### Ba chỗ hỏng, sửa cả ba — mỗi chỗ là một đoạn của cùng một ngõ cụt
+
+1. **`buildChartModel` bỏ vẽ quá tay** (`src/core/chart/build.ts`). Có một cửa chặn sớm trả
+   `unavailable` ngay khi kết quả hiện tại lỗi `MISSING_SERIES` — mâu thuẫn với chính docblock ngay
+   trên nó ("chỉ bỏ vẽ khi thiếu chuỗi giá, **chứ không bỏ vẽ khi kết quả hiện tại đang lỗi**"). Nó
+   giết cả những hình vẫn vẽ được: chuỗi 61 phiên với N = 75 thì phần N ≤ 61 vẫn ra số thật. Đã bỏ
+   cửa ấy; câu hỏi "có vẽ được không" nay do dữ liệu trả lời ở các cửa `extent === null` bên dưới —
+   ca chưa nạp chuỗi vẫn trả `unavailable` mang đúng cảnh báo cũ, không đổi hành vi.
+2. **Mất hình là mất luôn ô chọn trục** (`UnavailableChart` + `ChartBody`). Ô chọn trục nằm TRONG
+   khung biểu đồ, nên khi hình biến mất thì không còn chỗ nào để đổi sang trục khác — kể cả khi trục
+   khác vẫn vẽ tốt. `UnavailableChart` nay mang thêm `options` + `sweepKey` (đều tuỳ chọn), và
+   `ChartBody` giữ ô chọn lại khi còn nhiều hơn một trục. Chưa nạp gì thì vẫn không bày ô chọn —
+   lúc ấy nó rỗng, bày ra chỉ tổ vướng.
+3. **Cú bấm ghi được cả giá trị mà chính biểu đồ nói là không tính được** (`LineChart`). Đây mới là
+   gốc: miền quét luôn bám quanh giá trị hiện tại, nên mỗi cú bấm trong vùng gạch chéo lại đẩy giá
+   trị lên cao hơn và kéo cả miền đi theo — vài cú là toàn miền trôi khỏi vùng còn dữ liệu, lúc đó
+   **không trục nào vẽ được nữa**. Nay nhả tay trên điểm `y === null` không ghi gì, nhưng vẫn ghim
+   vệt dò lại làm phản hồi (đúng nếp đã có cho trục thời gian) để cú bấm không trông như rơi vào hư
+   không.
+
+### Kiểm chứng
+
+Bốn ca kiểm mới (1408 → 1412), và **ca then chốt đã được đối chứng là ĐỎ khi chưa vá** — không phải
+ca kiểm rỗng. Cặp ca "chưa nạp chuỗi: không bày ô chọn" và "chuỗi hụt: vẫn giữ ô chọn" tự chứng minh
+cho nhau vì cùng đi vào nhánh không-vẽ-được.
+
+Chạy Chrome thật qua CDP trên dev server, bấm chuột thật (không gọi hàm JS trong trang), trên đúng
+trục "Số phiên" — trục mặc định sau khi nạp là thời gian, nơi bấm vốn dĩ không ghi gì nên bấm ở đó
+là đo nhầm chỗ:
+
+| bấm ở                     | ô Số phiên                    | vệt dò                        | biểu đồ    |
+| ------------------------- | ----------------------------- | ----------------------------- | ---------- |
+| mép phải (vùng gạch chéo) | giữ nguyên 20 — **không ghi** | ghim lại làm phản hồi         | còn nguyên |
+| mép trái (vùng tính được) | 20 → **11** — ghi bình thường | ẩn (dấu hiện tại đã nhảy tới) | còn nguyên |
+
+### Còn lại
+
+Ca cực đoan vẫn không vẽ được hình trên bất kỳ trục nào: chuỗi 20 phiên mà ô Số phiên đang để 190
+(gõ tay, không phải bấm từ biểu đồ — đường bấm đã bị chặn ở mục 3). Lúc ấy đúng là không có gì để
+vẽ, và lối ra là ô nhập ngay khối Số liệu phía trên chứ không phải biểu đồ. Không xử thêm.
+
+---
+
 ## Audit toàn dự án + vá bug đo dung lượng bị lãng quên — đồng bộ lại 108 → 111
 
-Trạng thái: **xong phần đồng bộ tài liệu và vá bug đo lường; phần chọn hướng xử lý ngân sách dung
-lượng CHỜ CHỦ DỰ ÁN QUYẾT**.
+Trạng thái: **xong đồng bộ tài liệu + vá bug đo lường; đã chọn hướng xử lý ngân sách dung lượng —
+xem mục ngay dưới**.
 
 Yêu cầu: rà lại dự án xem còn thiếu bước nào. Phát hiện chính: Registry đã tăng từ 108 lên
 **111 công thức** từ đợt "Ba công thức cố ý…" phía dưới (`gia-muc-tieu`, `beta`, `xirr` — đăng ký
@@ -141,8 +375,27 @@ quên, và đợt đo "Độ trễ chuyển trang" chạy lại đúng script h�
 | So với ngân sách NFR-PER-04 (200 kB) | dưới                | **vượt ~60%**                             |
 
 Ba hướng xử lý cũ (mục "Lỗ hổng cửa kiểm dung lượng") vẫn còn nguyên giá trị nhưng số liệu đã đổi
-hẳn — ước tính cắt gói ~56 kB khi đó không còn đủ đưa về dưới ngân sách. **CHỜ CHỦ DỰ ÁN CHỌN
-HƯỚNG**, chưa tự quyết.
+hẳn — ước tính cắt gói ~56 kB khi đó không còn đủ đưa về dưới ngân sách.
+
+**Đã chọn phương án 1 (chấp nhận CI đỏ tới khi cắt được gói thật), không tự chọn 2 hay 3:**
+
+- Phương án 2 (nâng ngưỡng tạm) không còn là "nới nhẹ" — khoảng lệch giờ là 308–319 kB so với
+  ngân sách 200 kB, phải nâng `CHECKPOINT` gần gấp đôi mới xanh, tức gần như vô hiệu hoá cửa kiểm
+  NFR-PER-04 chứ không phải nới tạm. Đây là quyết định làm yếu một NFR đã ký — không tự làm.
+- Phương án 3 (cắt gói) đã lần ra ĐÚNG nguyên nhân, ghi lại để đợt sau khỏi dò lại: `FormulaDetail.tsx`
+  (client component) import trọn `FORMULA_MODULES` — cả 111 `spec` ĐẦY ĐỦ
+  (`explanation`/`example`/`tests`/`source`) cộng 111 hàm `calc` — vì `findFormulaModule()` và
+  `chainFor(ALL_SPECS, …)` cần tra cứu công thức KHÁC ngay trên trình duyệt để chạy `runChain()`
+  cho 7 công thức có chuỗi (hàm số không truyền qua prop từ server component được, chỉ dữ liệu
+  truyền được). Muốn cắt thật phải tách `calc` khỏi phần chữ nặng ngay từ cách ĐỊNH NGHĨA công
+  thức — tức bỏ đúng thiết kế "spec và calc gộp một object" mà `src/core/formulas/README.md` chốt
+  là cố ý ("để thiếu hàm tính là lỗi typecheck"). Đây là đổi kiến trúc thật, chạm cách viết cả 111
+  công thức và đường tính real-time của 111 trang — cần một đợt riêng có phạm vi rõ, không phải
+  việc làm lặng lẽ trong một câu "tự sửa giúp tôi".
+
+Vậy từ đây `npm run size` / bước `size` trong CI sẽ **đỏ trung thực**, phản ánh đúng thực trạng đã
+vượt ngân sách — không che bằng cách nới cửa kiểm. Khi nào chủ dự án muốn làm đợt cắt gói thật
+(phương án 3) thì quay lại mục này.
 
 ### Đã sửa (đồng bộ 108 → 111, rủi ro thấp, không đổi hành vi)
 

@@ -77,7 +77,7 @@ export type { FlowChain, FlowStep } from '@/core/flow-chain';
 export { buildFlowChain, flowDepth } from '@/core/flow-chain';
 
 // ── Danh mục cá nhân — WF-06 (gói 3.4.1) ────────────────────────────────────
-export type { Holding, HoldingValue, PortfolioSummary } from '@/core/portfolio';
+export type { Holding, HoldingValue, PortfolioSummary, PriceState } from '@/core/portfolio';
 export { summarisePortfolio, valueHoldings } from '@/core/portfolio';
 
 // ── Chuỗi giá OHLCV sửa tay — WF-05 (gói 3.3.1) ─────────────────────────────
@@ -118,7 +118,43 @@ export { DISCLAIMER_VI, buildExportContent, exportFileName } from '@/core/export
 
 // ── Bộ số liệu mẫu qua DataProvider — WF-10 (gói 2.5.1, FR-17) ──────────────
 export type { DailyBar, DataProvider, Fundamentals, Preset } from '@/data';
-export { SAMPLE_DATA, createStaticProvider, hasDraftData, presetInputs } from '@/data';
+export {
+  SAMPLE_DATA,
+  createStaticProvider,
+  hasDraftData,
+  presetFillableKeys,
+  presetInputs,
+} from '@/data';
+
+// ── Số liệu thị trường lúc chạy — gói "Danh mục dùng số liệu thật" ──────────
+// Cổng THỨ HAI, tách khỏi `DataProvider` đồng bộ ở trên; xem `src/data/finbox/types.ts`.
+export type {
+  FeedFailureKind,
+  LivePresetFormula,
+  MarketFeed,
+  TickerRef,
+  TickerSnapshot,
+} from '@/data';
+export {
+  LIVE_PRESET_FORMULAS,
+  MARKET_FEED,
+  MarketFeedError,
+  createStubFeed,
+  isAbortError,
+  presetFromSnapshot,
+} from '@/data';
+
+export type { TickerListStatus, UseTickerListResult } from './use-ticker-list';
+export { useTickerList } from './use-ticker-list';
+
+export type { CachedTickerList } from './ticker-list-store';
+export {
+  TICKER_LIST_KEY,
+  TICKER_LIST_TTL_MS,
+  isTickerListFresh,
+  parseCachedTickers,
+  serializeCachedTickers,
+} from './ticker-list-store';
 
 // ── Bộ máy tính toán — chạy một công thức (nền cho nhánh 3 và 5) ────────────
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from '@/core/calc';
@@ -231,8 +267,12 @@ export {
   formulasForLevel,
   highlightParts,
   normalizeVi,
+  // `scoreFormula` + `tokenize`: hai mảnh rời của phép tìm, cho nơi cần LỌC một danh sách đã có
+  // thứ tự riêng thay vì sắp lại theo độ liên quan (xem `FormulaForTickerSheet`).
+  scoreFormula,
   searchFormulas,
   selectFormulas,
+  tokenize,
   variablesForLevel,
 } from '@/core/registry';
 

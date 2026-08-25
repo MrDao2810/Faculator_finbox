@@ -300,6 +300,55 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     // Phải có câu chỉ đường, không được báo lỗi rồi bỏ mặc (NFR-USA-04).
     expect(warning).toMatch(/Nạp bộ số liệu mẫu|dán chuỗi giá/i);
   });
+
+  /*
+   * Chưa nạp gì thì KHÔNG có trục nào khác để mà chọn — ô chọn trục lúc ấy chỉ là một hộp rỗng vô
+   * nghĩa. Ca này chốt đúng vế đó, để lối thoát thêm ở ca dưới không lan sang trạng thái này.
+   */
+  it('chưa nạp chuỗi: không bày ô chọn trục, vì không có trục nào khác để chọn', () => {
+    draw('rsi-wilder');
+
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  /*
+   * ĐƯỜNG RA khi không vẽ được — chuỗi ĐÃ nạp nhưng hụt so với N đang chọn.
+   *
+   * 61 phiên với SMA 75 phiên: trục thời gian (trục mặc định sau khi nạp) không còn điểm nào, nên
+   * khối biểu đồ rơi về câu cảnh báo. Nhưng trục "Số phiên" vẫn vẽ tốt phần N ≤ 61, nên ô chọn trục
+   * PHẢI còn lại — nó nằm trong khung biểu đồ, mất nó là mất đường đổi trục duy nhất và người dùng
+   * phải rời màn rồi vào lại. Chủ dự án báo đúng kiểu bế tắc này.
+   */
+  it('chuỗi hụt so với N: vẫn giữ ô chọn trục để đổi sang trục còn vẽ được', () => {
+    const formula = moduleOf('sma-n-phien');
+    const shortBars = FPT_BARS.slice(0, 61);
+    const ctx: CalcContext = {
+      ...CTX,
+      bars: shortBars,
+      series: shortBars
+        .map((bar) => bar.close)
+        .filter((close): close is number => typeof close === 'number' && close > 0),
+    };
+    const inputs = { ...defaultInputs(formula.spec), period: 75 };
+
+    render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={ctx}
+        output={runFormula(formula, inputs, ctx)}
+        level="basic"
+        seriesLabel="FPT"
+      />,
+    );
+
+    // Vẫn nói đúng câu khối Kết quả đang nói…
+    expect(screen.getByRole('status').textContent ?? '').toContain('phiên');
+    // …nhưng KHÔNG bịt đường ra: ô chọn trục còn đó, và có mục "Số phiên" để nhảy sang.
+    const picker = screen.getByRole('combobox');
+    expect(picker).not.toBeNull();
+    expect(picker.textContent ?? '').toContain('Số phiên');
+  });
 });
 
 describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số liệu của mã', () => {
@@ -939,6 +988,61 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     }).not.toThrow();
     // Không có gì để ghi, nhưng người dùng vẫn vừa bấm thật — vệt dò phải còn đó, không tắt ngay.
     expect(screen.getByTestId('chart-pe-hover')).not.toBeNull();
+  });
+
+  /*
+   * Vùng gạch chéo (`y === null`) KHÔNG được ghi vào ô Số liệu — chặn tận gốc một ngõ cụt thật.
+   *
+   * Miền quét luôn bám quanh GIÁ TRỊ HIỆN TẠI. Nếu cú bấm trong vùng chết vẫn ghi, mỗi lần bấm lại
+   * đẩy giá trị hiện tại lên cao hơn và kéo cả miền quét đi theo, nên chỉ vài cú là toàn miền trôi
+   * ra ngoài vùng còn dữ liệu — lúc đó không trục nào vẽ được nữa và người dùng phải rời màn rồi vào
+   * lại. Ca này bấm ở CẢ HAI vùng để chứng minh luật mới biết phân biệt, chứ không phải câm hẳn.
+   */
+  it('nhả tay trong vùng không tính được: KHÔNG ghi; vùng tính được thì vẫn ghi bình thường', () => {
+    gioKhungKhopViewBox();
+    const onApplyPoint = vi.fn();
+    const formula = moduleOf('sma-n-phien');
+    const ctx: CalcContext = {
+      ...CTX,
+      series: Array.from({ length: 20 }, (_, i) => 20_000 + 10 * i),
+    };
+    const inputs = { ...defaultInputs(formula.spec), period: 20 };
+    render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={ctx}
+        output={runFormula(formula, inputs, ctx)}
+        level="basic"
+        onApplyPoint={onApplyPoint}
+      />,
+    );
+
+    const capture = screen.getByTestId('chart-sma-n-phien-hover-capture');
+
+    // Mép PHẢI: số phiên lớn nhất của miền quét, vượt quá 20 phiên đang có → không tính được.
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: CHART_GEOMETRY.PLOT.x1 - 1,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerUp(capture, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).not.toHaveBeenCalled();
+    // Vẫn phải có phản hồi: vệt dò ở lại, không để cú bấm trông như rơi vào hư không.
+    expect(screen.getByTestId('chart-sma-n-phien-hover')).not.toBeNull();
+
+    // Mép TRÁI: số phiên nhỏ hơn 20 → tính được → cú bấm ghi bình thường như trước.
+    fireEvent.pointerMove(capture, {
+      pointerType: 'mouse',
+      clientX: CHART_GEOMETRY.PLOT.x0 + 1,
+      clientY: diemGiuaKhung.y,
+    });
+    fireEvent.pointerUp(capture, { pointerType: 'mouse' });
+
+    expect(onApplyPoint).toHaveBeenCalledTimes(1);
+    expect(onApplyPoint.mock.calls[0]?.[0]).toBe('period');
+    expect(onApplyPoint.mock.calls[0]?.[1]).toBeLessThanOrEqual(20);
   });
 
   /*

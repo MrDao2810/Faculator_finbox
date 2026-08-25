@@ -1,8 +1,8 @@
 # Tầng DATA
 
-Nơi ở của `DataProvider` và các bộ số liệu mẫu tĩnh mà wireframe WF-10 vẽ.
+Hai cổng cấp số liệu, phục vụ hai việc khác nhau.
 
-## Đã có
+## Cổng 1 — `DataProvider`: bộ số liệu mẫu tĩnh của WF-10
 
 - `types.ts` — `DataProvider`, `Preset`, `DailyBar`, `Fundamentals`. Đây là hợp đồng của FR-17:
   giao diện chỉ biết tới interface, không biết số liệu đến từ file tĩnh hay từ API.
@@ -10,7 +10,26 @@ Nơi ở của `DataProvider` và các bộ số liệu mẫu tĩnh mà wirefram
 - `samples.ts` — bốn mã FPT · HPG · VNM · MWG, mỗi mã 248 phiên giá.
 - `live-fundamentals.generated.ts` — số liệu cơ bản THẬT của 4 mã trên, sinh bởi
   `npm run gen:live-fundamentals` (`scripts/gen-live-fundamentals.mjs`, gọi API Finbox_v2 lúc
-  build/dev, không phải lúc chạy — site là static export, không backend).
+  build, không phải lúc chạy).
+
+Cổng này **đồng bộ** và ở nguyên như vậy. Nó phục vụ nút "Nạp mẫu" của 111 màn chi tiết công thức.
+
+## Cổng 2 — `MarketFeed`: số liệu thị trường lúc chạy (`finbox/`)
+
+Thêm ở gói "Danh mục dùng số liệu thật". **Bất đồng bộ, có gọi mạng.**
+
+- `finbox/types.ts` — `MarketFeed`, `TickerRef`, `TickerSnapshot`, `MarketFeedError`. Docblock ở
+  đó giải thích vì sao đây là cổng RIÊNG chứ không phải `DataProvider` đổi sang Promise.
+- `finbox/map.ts` — thuần, không fetch: đổi đơn vị nghìn ₫ → ₫, lợi nhuận TTM 4 quý, lọc mã khỏi
+  chỉ số/ngành bằng luật `code !== name`.
+- `finbox/client.ts` — hai endpoint của `dcs.finbox.vn`: `GET /bp/codes` (~1.649 mã) và
+  `POST /data/symbols` (thị giá + số liệu cơ bản, nhiều mã một lượt).
+- `live-preset.ts` — `presetFromSnapshot()` nối cổng 2 về lại kiểu `Preset` của cổng 1, để
+  `presetInputs()` dùng chung cho cả hai nguồn.
+
+⚠ **Đây là chỗ duy nhất trong sản phẩm gọi ra ngoài máy người dùng.** `public/_headers` mở đúng
+một origin trong `connect-src`. Chỉ MÃ cổ phiếu được gửi đi; số lượng nắm giữ và giá vốn thì không.
+Ai thêm lời gọi mới ở đây phải giữ đúng ranh giới ấy.
 
 ## ⚠ Một phần vẫn là bản thảo
 
@@ -29,19 +48,26 @@ Mọi `Preset` vẫn mang `isDraft: true`, và `PresetSheet` vẫn cảnh báo c
 **đừng gỡ nhãn ấy chừng nào chuỗi giá còn là số bịa**. Chi tiết đầy đủ nằm ở docblock đầu
 `samples.ts`.
 
-## Cách đã lấy số liệu thật — generator lúc build, không phải `DataProvider` thứ hai
+## Vì sao BỘ MẪU lấy số lúc build, còn DANH MỤC lấy số lúc chạy
 
-Vì sản phẩm là static export (không backend, không gọi API lúc runtime), cách đã chọn cho phần
-fundamentals **không** phải viết thêm một cài đặt khác của `DataProvider` — `createStaticProvider()`
-vẫn là cài đặt duy nhất, và interface `DataProvider` vẫn hoàn toàn đồng bộ. Thay vào đó,
-`scripts/gen-live-fundamentals.mjs` chạy TAY lúc cần (`npm run gen:live-fundamentals`, cần mạng),
-gọi API Finbox_v2 rồi ghi kết quả ra `live-fundamentals.generated.ts`; `samples.ts` import file đó
-như một hằng số tĩnh bình thường. Muốn thêm mã hoặc làm mới số liệu thì chạy lại script đó, không
-sửa `provider.ts`.
+Hai cách, và mỗi cách đúng cho việc của nó.
 
-Nếu sau này có nguồn chuỗi giá đủ dài (điều kiện đang chặn ở trên), cách tự nhiên nhất là mở rộng
-đúng generator này — thêm trường `bars` vào file `.generated.ts` — chứ không phải đổi kiến trúc
-`DataProvider` sang bất đồng bộ; site tĩnh không có chỗ để một `DataProvider` runtime chạy.
+**Bộ mẫu WF-10 lấy lúc build.** `scripts/gen-live-fundamentals.mjs` chạy TAY khi cần
+(`npm run gen:live-fundamentals`, cần mạng), gọi API rồi ghi ra `live-fundamentals.generated.ts`;
+`samples.ts` import như một hằng số bình thường. Nhờ vậy 111 trang chi tiết công thức mở được khi
+mất mạng, và `createStaticProvider()` vẫn là cài đặt duy nhất của `DataProvider`. Muốn thêm mã
+hoặc làm mới số thì chạy lại script, không sửa `provider.ts`.
+
+**Danh mục lấy lúc chạy.** Ở đó không có cách nào khác: người dùng chọn mã bất kỳ trong ~1.649 mã,
+và cái họ cần là thị giá của phiên hôm nay — hai thứ không nhét vừa một file sinh lúc build. Nên
+mới có cổng thứ hai.
+
+Đường phân chia: **thứ gì giống nhau với mọi người dùng và đổi chậm thì lấy lúc build; thứ gì phụ
+thuộc lựa chọn của từng người và đổi theo phiên thì lấy lúc chạy.**
+
+Chuỗi giá dài vẫn kẹt ở cả hai đường: API chỉ có 10–21 phiên, không đủ cho SMA/RSI/Bollinger/MACD
+hay hồi quy Beta (cần ~248 phiên). Ngày nào có nguồn đủ dài, cách tự nhiên nhất vẫn là mở rộng
+generator lúc build — thêm `bars` vào file `.generated.ts`.
 
 ## Vì sao chuỗi giá sinh bằng hạt giống cố định
 
@@ -52,3 +78,9 @@ thay vì tự lấy ngày hệ thống (NFR-REL-03).
 ## Ràng buộc
 
 Không được import React hay Next, không được gọi lên tầng giao diện. Được phép import `@/core`.
+
+`live-preset.ts` có thêm một ràng buộc riêng: **không được import Registry**. Danh sách công thức
+mà một mã điền được là dữ liệu ghim sẵn (`LIVE_PRESET_FORMULAS`) chứ không phải phép tính lúc
+chạy — tính nó cần `spec.variables` của cả 111 công thức, tức kéo cả Registry vào gói của trang
+`/danh-muc/` (đo ở màn khác: 131 kB → 217 kB, trong khi cửa kiểm là 180 kB).
+`live-preset.test.ts` tính lại từ Registry thật và so từng dòng, nên bản ghim không trôi được.

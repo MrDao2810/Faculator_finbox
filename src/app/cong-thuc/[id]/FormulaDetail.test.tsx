@@ -19,6 +19,20 @@ import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 import { FormulaDetail } from './FormulaDetail';
 import { latexToMathml } from './latex-html';
 
+/**
+ * Cổng số liệu thị trường thay bằng bản giả — chỉ đường `?ma=` dùng tới nó.
+ *
+ * `vi.hoisted` là bắt buộc vì `vi.mock` bị kéo lên đầu file. Thay `@/data` chứ không thay
+ * `@/application`: barrel của Application chỉ re-export lại từ đây, và `SAMPLE_DATA` cùng mọi
+ * thứ khác vẫn là bản thật nhờ `importOriginal`.
+ */
+const feed = vi.hoisted(() => ({ listTickers: vi.fn(), snapshots: vi.fn() }));
+
+vi.mock('@/data', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/data')>();
+  return { ...actual, MARKET_FEED: feed };
+});
+
 /** jsdom chưa cài đặt <dialog>.showModal(); ba bottom sheet cần hai hàm này để mở ra được. */
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -33,6 +47,10 @@ afterEach(() => {
   cleanup();
   // Ca kiểm chế độ Nâng cao gieo tuỳ chọn vào localStorage — dọn để nó không chảy sang ca sau.
   window.localStorage.clear();
+  // Ca kiểm `?ma=` đổi URL; trả lại đường trơn để ca sau không vô tình nạp một mã.
+  window.history.replaceState({}, '', '/');
+  feed.listTickers.mockReset();
+  feed.snapshots.mockReset();
 });
 
 const AS_OF = '2026-08-04';
@@ -440,6 +458,80 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 
     expect(screen.getByText('FPT')).not.toBeNull();
     expect(screen.getByLabelText('Tìm mã cổ phiếu')).not.toBeNull();
+  });
+
+  /*
+   * ── `?ma=` — lối đi từ tab Danh mục sang màn này ────────────────────────────────────────────
+   *
+   * Bốn ca dưới đây khoá đúng bốn điều đáng hỏng: nạp được, không nạp bừa, hỏng thì nói, và
+   * KHÔNG gọi mạng ở 111 trang mở theo đường thường.
+   */
+  it('mở kèm ?ma=FPT thì tự nạp số liệu thật của mã vào ô nhập', async () => {
+    feed.snapshots.mockResolvedValue(
+      new Map([
+        [
+          'FPT',
+          {
+            code: 'FPT',
+            name: 'FPT Corp',
+            priceVnd: 71_400,
+            floor: 'HOSE',
+            industry: 'Phần mềm & DV máy tính',
+            fundamentals: {
+              eps: 5867,
+              bookValuePerShare: 23246,
+              sharesOutstanding: 1714326422,
+              dividendPerShare: 2000,
+              netIncome: 9999.4,
+              equity: 39851.2,
+              period: 'BCTC Q2/2026',
+            },
+          },
+        ],
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+
+    // Nút đổi nhãn y như khi bấm "Nạp mẫu" — cùng một đường `applyPreset()`.
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    // Chờ xong rồi mới soi lời gọi: phần gọi mạng nằm sau `await import()` nên nó KHÔNG xảy ra
+    // ngay trong lượt render đầu.
+    expect(feed.snapshots.mock.calls[0]?.[0]).toEqual(['FPT']);
+    /*
+     * Và dòng nguồn phải hiện, dù FPT-của-API không đi qua bộ mẫu WF-10 — đây chính là ca mà
+     * phép tra `SAMPLE_DATA.byCode()` cũ làm hỏng, vì mã lấy lúc chạy không nằm trong bộ mẫu.
+     *
+     * Dò bằng một mẩu chữ đặc trưng chứ không bọc cả câu vào `new RegExp`: câu đầy đủ có dấu
+     * ngoặc đơn, mà trong biểu thức chính quy thì đó là dấu gom nhóm chứ không phải chữ.
+     */
+    expect(screen.getByText(/lấy thật từ Finbox_v2/)).not.toBeNull();
+  });
+
+  it('không gọi mạng khi mở trang theo đường thường', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    expect(feed.snapshots).not.toHaveBeenCalled();
+  });
+
+  it('tham số ?ma= gõ bậy thì bỏ qua, không đem đi gọi mạng', () => {
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=<script>');
+
+    render(<Man spec={specOf('pe')} />);
+
+    expect(feed.snapshots).not.toHaveBeenCalled();
+  });
+
+  it('lấy số liệu hỏng thì nói rõ và chỉ đường khác, không im lặng', async () => {
+    feed.snapshots.mockRejectedValue(new Error('mất mạng'));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByText(/không lấy được số liệu của mã/);
+    // Vẫn còn lối đi khác: bộ mẫu WF-10 không cần mạng.
+    expect(screen.getByRole('button', { name: 'Nạp mẫu' })).not.toBeNull();
   });
 
   it('nạp preset thì giá trị chảy về ô nhập và kết quả tính lại (FR-10)', async () => {

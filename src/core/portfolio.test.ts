@@ -80,6 +80,37 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
     expect(summary.totalValue.warning?.message.vi).toContain('MNG');
   });
 
+  /*
+   * Hai ca dưới đây tách "nguồn không có mã này" khỏi "không hỏi được nguồn". Cùng ra kết quả
+   * thiếu giá, nhưng lời khuyên phải ngược nhau — khuyên bỏ mã khỏi danh mục lúc chỉ rớt mạng
+   * là xui người dùng xoá dữ liệu thật của họ vì một sự cố tạm thời.
+   */
+  it('không lấy được giá vì mạng: khuyên thử lại, KHÔNG khuyên bỏ mã', () => {
+    const summary = summarisePortfolio([holding()], new Map(), asOf, 'failed');
+
+    expect(summary.totalValue.value).toBeNull();
+    expect(summary.totalValue.warning?.code).toBe('MISSING_SERIES');
+    expect(summary.totalValue.warning?.fix?.vi).toContain('Thử lại');
+    expect(summary.totalValue.warning?.fix?.vi).not.toContain('bỏ mã');
+  });
+
+  it('nguồn không có mã: vẫn nêu đích danh mã và cho phép bỏ mã', () => {
+    const summary = summarisePortfolio([holding({ code: 'MNG' })], PRICES, asOf, 'ready');
+
+    expect(summary.totalValue.warning?.message.vi).toContain('MNG');
+    expect(summary.totalValue.warning?.fix?.vi).toContain('bỏ mã');
+  });
+
+  it('lỗi mạng vẫn KHÔNG được để bất kỳ ô nào rơi về 0 (FR-06)', () => {
+    const summary = summarisePortfolio([holding({ beta: 1 })], new Map(), asOf, 'failed');
+
+    expect(summary.totalValue.value).toBeNull();
+    expect(summary.beta.value).toBeNull();
+    expect(summary.xirr.value).toBeNull();
+    // Số mã thì vẫn đếm được — nó không phụ thuộc thị giá.
+    expect(summary.count.value).toBe(1);
+  });
+
   it('beta danh mục là bình quân gia quyền theo giá trị, không phải trung bình cộng', () => {
     // FPT 50 tr₫ beta 1,0 · HPG 30 tr₫ beta 1,5 → (50×1,0 + 30×1,5) / 80 = 1,1875
     const summary = summarisePortfolio(

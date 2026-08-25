@@ -1,10 +1,21 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FORMULAS, NO_VALUE, SAMPLE_DATA, WARNING_LABELS, formatIsoDate, t } from '@/application';
+import {
+  FORMULAS,
+  FORMULA_USAGE_KEY,
+  NO_VALUE,
+  SAMPLE_DATA,
+  SAVED_CALCS_KEY,
+  WARNING_LABELS,
+  formatIsoDate,
+  parseFormulaUsage,
+  parseSavedCalcs,
+  t,
+} from '@/application';
 import type { FormulaSpec } from '@/application';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
@@ -1273,5 +1284,231 @@ describe('WF-03 — bấm/nhả trên biểu đồ ghi giá trị vào ô Số l
     fireEvent.pointerLeave(capture, { pointerType: 'mouse' });
 
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+  });
+});
+
+/*
+ * ── Lưu phép tính vào tab "Công thức" của màn Danh mục ──────────────────────────────────────
+ *
+ * Chiều đi thứ hai giữa hai màn. Trước gói này quan hệ chỉ có một chiều: tab Danh mục mở
+ * `/cong-thuc/<id>/?ma=<MÃ>`, còn số liệu người dùng vừa nhập ở đây thì đóng trang là mất.
+ */
+describe('WF-03 — lưu phép tính vào danh mục', () => {
+  it('nút có mặt ở mọi công thức, không riêng nhóm gắn với một mã', () => {
+    for (const id of ['pe', 'lich-tra-no', 'phi-giao-dich-mua']) {
+      cleanup();
+      render(<Man spec={specOf(id)} />);
+      expect(screen.getByRole('button', { name: t('detail.saveToPortfolio') })).not.toBeNull();
+    }
+  });
+
+  it('lưu xong thì phép tính nằm trong localStorage kèm bộ số đang nhập', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+    await userEvent.click(screen.getByRole('button', { name: t('save.submit') }));
+
+    const saved = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY));
+    expect(saved).toHaveLength(1);
+    expect(saved[0]?.formulaId).toBe('pe');
+    expect(saved[0]?.name.trim()).not.toBe('');
+    // Bộ số mặc định của P/E: giá 92.000 ₫, và kết quả cất đi phải khớp con số đang hiện.
+    expect(saved[0]?.inputs.price).toBe(92_000);
+    expect(saved[0]?.resultValue).toBeCloseTo(15.2066, 3);
+    expect(screen.getByTestId('result-text').textContent).toBe('15,21 lần');
+  });
+
+  it('`?luu=` nạp lại đúng bộ số đã lưu và nói rõ ngày lưu', async () => {
+    const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-1',
+          formulaId: 'pe',
+          name: 'Phép tính của tôi',
+          inputs: { price: 50_000, eps: 5_000 },
+          resultValue: 10,
+          resultUnit: 'lần',
+          savedAt,
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=pe-1');
+
+    render(<Man spec={specOf('pe')} />);
+
+    expect(await screen.findByText(/Phép tính của tôi/)).not.toBeNull();
+    expect(screen.getByText(/25\/08\/2026/)).not.toBeNull();
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('50.000');
+    expect(screen.getByTestId('result-text').textContent).toBe('10 lần');
+  });
+
+  it('id lạ thì nói ra, không lặng lẽ bày bộ số mặc định', async () => {
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=khong-co-that');
+    render(<Man spec={specOf('pe')} />);
+
+    expect(await screen.findByText(t('detail.restoredMissing'))).not.toBeNull();
+  });
+
+  /*
+   * Hai tham số cùng ghi vào ô nhập. Phép tính đã lưu là bộ số người dùng tự chốt, nên nạp đè
+   * số liệu thị trường lên nó là làm hỏng đúng thứ họ vừa mở ra xem.
+   */
+  it('`?luu=` thắng `?ma=` — không gọi mạng khi đang mở lại một phép tính đã lưu', async () => {
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-1',
+          formulaId: 'pe',
+          name: 'Bộ số của tôi',
+          inputs: { price: 50_000, eps: 5_000 },
+          resultValue: 10,
+          resultUnit: 'lần',
+          savedAt: Date.now(),
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=pe-1&ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByText(/Bộ số của tôi/);
+    expect(feed.snapshots).not.toHaveBeenCalled();
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('50.000');
+  });
+
+  it('công thức chuỗi giá: mở lại mà chuỗi đã khác thì nói ra, không im lặng đổi số', async () => {
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'rsi-1',
+          formulaId: 'rsi-wilder',
+          name: 'RSI đã lưu',
+          inputs: {},
+          resultValue: 55,
+          resultUnit: 'điểm',
+          savedAt: Date.now(),
+          needsSeries: true,
+          seriesCount: 248,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/rsi-wilder/?luu=rsi-1');
+
+    render(<Man spec={specOf('rsi-wilder')} />);
+
+    // Máy này chưa có chuỗi nào trong bảng WF-05, nên 0 phiên ≠ 248 phiên lúc lưu.
+    expect(await screen.findByText(t('detail.restoredNeedsSeries'))).not.toBeNull();
+  });
+});
+
+/**
+ * Ghi nhận lượt dùng — nguyên liệu cho khối "Công thức dùng hằng ngày" của trang chủ (FR-20).
+ *
+ * Đồng hồ giả CỤC BỘ trong describe này: bốn vòng quét 111 màn ở trên chạy với đồng hồ thật và
+ * không được đụng tới. Ngưỡng ở lại 8 giây cũng là lý do các ca kiểm khác không vô tình ghi lượt
+ * dùng — không ca nào chạy lâu đến thế.
+ */
+describe('ghi nhận lượt dùng', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  /** Lịch sử đang nằm trong localStorage, đã lọc sạch. */
+  function lichSu(): ReadonlyArray<{ id: string; count: number; at: number }> {
+    return parseFormulaUsage(window.localStorage.getItem(FORMULA_USAGE_KEY));
+  }
+
+  function choiDenNguong(ms = 8000): void {
+    act(() => {
+      vi.advanceTimersByTime(ms);
+    });
+  }
+
+  it('rời trang trước ngưỡng thì không ghi gì — bấm nhầm không xáo trang chủ', () => {
+    render(<Man spec={specOf('pe')} />);
+    choiDenNguong(7000);
+    cleanup();
+
+    expect(lichSu()).toEqual([]);
+  });
+
+  it('ở lại qua ngưỡng thì ghi đúng một lượt', () => {
+    render(<Man spec={specOf('pe')} />);
+    choiDenNguong();
+
+    expect(lichSu()).toEqual([{ id: 'pe', count: 1, at: expect.any(Number) }]);
+  });
+
+  it('ở lại thêm nữa cũng chỉ một lượt cho mỗi lần mở trang', () => {
+    render(<Man spec={specOf('pe')} />);
+    choiDenNguong();
+    choiDenNguong(60_000);
+
+    expect(lichSu()[0]?.count).toBe(1);
+  });
+
+  it('mở lại lần hai thì cộng thành hai lượt', () => {
+    render(<Man spec={specOf('pe')} />);
+    choiDenNguong();
+    cleanup();
+
+    render(<Man spec={specOf('pe')} />);
+    choiDenNguong();
+
+    expect(lichSu()).toEqual([{ id: 'pe', count: 2, at: expect.any(Number) }]);
+  });
+
+  it('chạm vào số liệu thì ghi ngay, và timer sau đó không ghi thêm lần nữa', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    fireEvent.change(oNhap(/Giá thị trường/), { target: { value: '100000' } });
+    expect(lichSu()[0]?.count).toBe(1);
+
+    choiDenNguong();
+    expect(lichSu()[0]?.count).toBe(1);
+  });
+
+  it('tab đang ẩn lúc hết ngưỡng thì không ghi — tab mở nền không phải người đang đọc', () => {
+    const goc = Object.getOwnPropertyDescriptor(Document.prototype, 'visibilityState');
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => 'hidden',
+    });
+
+    render(<Man spec={specOf('pe')} />);
+    choiDenNguong();
+
+    expect(lichSu()).toEqual([]);
+
+    if (goc === undefined) {
+      // @ts-expect-error — trả document về nguyên trạng, jsdom không có API nào khác.
+      delete document.visibilityState;
+    } else {
+      Object.defineProperty(document, 'visibilityState', goc);
+    }
+  });
+
+  it('localStorage bị chặn thì không ném lỗi ra ngoài, màn vẫn dựng', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('chế độ riêng tư');
+    });
+
+    render(<Man spec={specOf('pe')} />);
+    expect(() => {
+      choiDenNguong();
+    }).not.toThrow();
+
+    expect(screen.getByRole('region', { name: t('detail.inputs') })).not.toBeNull();
+    vi.restoreAllMocks();
   });
 });

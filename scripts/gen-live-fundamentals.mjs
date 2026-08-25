@@ -25,9 +25,14 @@
  * `netIncome` KHÔNG lấy `dynamic.ln_y{năm hiện tại}` — đã thử và sai: với MWG, `ln_y2026 = 6017`
  * chỉ là LŨY KẾ TỪ ĐẦU NĂM (đúng bằng `ln_q1/2026 + ln_q2/2026`, vì 2026 chưa hết năm), trong khi
  * `eps_pha_loang` là EPS **12 tháng gần nhất** (TTM). Hai khái niệm khác kỳ, đem tính ROE/EPS
- * ngược lại ra số sai gần 2/3. Phép đối chiếu đúng: cộng 4 quý gần nhất
- * (`ln_q2/2026+ln_q1/2026+ln_q4/2025+ln_q3/2025` = 9.856,5) khớp `eps_pha_loang × slcp`
- * (9.838,9, lệch 0,18%) — vì vậy dùng TTM (4 quý gần nhất), có tự đối chiếu bằng đúng phép này.
+ * ngược lại ra số sai gần 2/3. Đúng phép: cộng 4 quý gần nhất
+ * (`ln_q2/2026+ln_q1/2026+ln_q4/2025+ln_q3/2025` = 9.856,5).
+ *
+ * ⚠ Bản đầu đối chiếu tổng TTM ấy với `eps_pha_loang × slcp` (MWG lệch 0,18% nên qua). Phép đó
+ * ĐÃ GỠ ngày 25/08/2026: nó so hai đại lượng khác nhau — EPS công bố tính trên số CP bình quân
+ * gia quyền, phần lợi nhuận thuộc cổ đông mẹ, đã pha loãng — và loại nhầm 268/1.005 mã ở bản
+ * chạy lúc chạy (SSI 10,4%, HHV 6,7%, CEO 4,5%). Thay bằng `checkLatestQuarters()`: hai quý ta
+ * chọn phải khớp `ln_quygannhat` / `ln_quygannhi`. Lý do đầy đủ ở `src/data/finbox/map.ts`.
  */
 
 import { writeFileSync } from 'node:fs';
@@ -73,12 +78,12 @@ function latestNonZero(dynamic, prefix) {
 }
 
 /**
- * Lợi nhuận ròng 12 tháng gần nhất — cộng 4 quý gần nhất tìm được trong `dynamic.ln_q{quý}/{năm}`.
+ * Các quý có số trong `dynamic.ln_q{quý}/{năm}`, mới nhất trước.
  * Xem docblock đầu file vì sao không dùng `ln_y{năm}`.
  */
-function trailingTwelveMonths(dynamic) {
+function latestQuarters(dynamic) {
   const re = /^ln_q(\d)\/(\d{4})$/;
-  const quarters = Object.keys(dynamic)
+  return Object.keys(dynamic)
     .map((key) => {
       const m = re.exec(key);
       if (m === null) return undefined;
@@ -90,9 +95,42 @@ function trailingTwelveMonths(dynamic) {
     })
     .filter((entry) => entry !== undefined)
     .sort((a, b) => b.rank - a.rank);
+}
 
-  if (quarters.length < 4) return undefined;
+/**
+ * Lợi nhuận ròng 12 tháng gần nhất — cộng 4 quý gần nhất, và bốn quý phải LIỀN NHAU.
+ * Chuỗi thủng một kỳ thì tổng trải hơn 12 tháng, không còn là TTM. Xem bản song sinh ở `map.ts`.
+ */
+function trailingTwelveMonths(quarters) {
+  const newest = quarters[0];
+  const oldest = quarters[3];
+  if (newest === undefined || oldest === undefined) return undefined;
+  if (newest.rank - oldest.rank !== 3) return undefined;
+
   return quarters.slice(0, 4).reduce((sum, entry) => sum + entry.value, 0);
+}
+
+/**
+ * Hai quý ta chọn phải khớp `ln_quygannhat` / `ln_quygannhi` do API tự công bố.
+ *
+ * Bản song sinh của `latestQuartersAgree()` trong `src/data/finbox/map.ts` — đọc lý do đầy đủ ở
+ * đó. Tóm tắt: phép cũ đối chiếu "TTM sinh lại đúng EPS" loại nhầm 268/1.005 mã vì hai vế là hai
+ * đại lượng khác nhau (số CP bình quân gia quyền, lợi ích cổ đông thiểu số, pha loãng).
+ */
+function checkLatestQuarters(ticker, dynamic, quarters) {
+  const EPSILON = 0.05;
+  const expected = [dynamic.ln_quygannhat, dynamic.ln_quygannhi];
+
+  expected.forEach((value, index) => {
+    const picked = quarters[index];
+    if (typeof value !== 'number' || !Number.isFinite(value) || picked === undefined) return;
+    if (Math.abs(picked.value - value) > EPSILON) {
+      throw new Error(
+        `${ticker}: quý gần nhất tự chọn (${String(picked.value)}) không khớp con số API công bố ` +
+          `(${String(value)}) — dừng, không ghi file.`,
+      );
+    }
+  });
 }
 
 function checkClose(ticker, label, computed, expected) {
@@ -121,15 +159,17 @@ function buildFundamentals(ticker, main) {
   const period =
     typeof main.bctc === 'string' && main.bctc.startsWith('BCTC') ? main.bctc : `BCTC ${main.bctc}`;
 
-  const netIncomeTTM = trailingTwelveMonths(main.dynamic);
+  const quarters = latestQuarters(main.dynamic);
+  // Đối chiếu kỳ báo cáo — bắt được lỗi chọn nhầm quý mà checkClose P/E, P/B không thấy (khác
+  // field API). Phải chạy TRƯỚC phép cộng: sai kỳ thì tổng có ra số cũng là số của kỳ khác.
+  checkLatestQuarters(ticker, main.dynamic, quarters);
+
+  const netIncomeTTM = trailingTwelveMonths(quarters);
   if (netIncomeTTM === undefined) {
     throw new Error(
       `${ticker}: không đủ 4 quý gần nhất trong dynamic.ln_q* để tính lợi nhuận TTM.`,
     );
   }
-  // Đối chiếu: TTM phải sinh lại đúng EPS hiện tại (cùng khái niệm "12 tháng gần nhất") — chỗ này
-  // bắt được lỗi kỳ báo cáo lệch nhau mà checkClose P/E, P/B không bắt được (khác field API).
-  checkClose(ticker, 'netIncome TTM → EPS', (netIncomeTTM * 1e9) / sharesOutstanding, eps);
 
   // Cùng thang "nghìn ₫" như eps/bookValue — xem docblock đầu file, KHÔNG phải tỷ lệ trên mệnh giá.
   const dividendEntry = latestNonZero(main.dynamic, 'ct_ct_tm_');

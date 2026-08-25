@@ -529,3 +529,110 @@
   line-height: var(--leading-normal);
   color: var(--color-muted);
 }
+
+/*
+ * ── Hai tab: Mã · Công thức ─────────────────────────────────────────────────
+ *
+ * Tab đang chọn báo bằng CẢ nền, màu chữ lẫn gạch chân dày — không chỉ bằng màu (NFR-USA-06).
+ * Hai nút chia đôi bề ngang để ở khổ 360px không nút nào bị cắt.
+ */
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.tab {
+  flex: 1;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-muted);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-bottom: 3px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.tabActive {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+
+/*
+ * ── Danh sách phép tính đã lưu ──────────────────────────────────────────────
+ *
+ * Câu nhắc "kết quả của lần lưu, không tính lại" đứng ngay đầu danh sách chứ không nằm ở chân
+ * màn: nó là điều kiện để bày một con số cũ mà vẫn lương thiện, nên phải nằm trong tầm mắt của
+ * chính con số đó.
+ */
+.savedNote {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.savedName {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+  /* Tên do người dùng đặt nên dài ngắn tuỳ ý — xuống dòng chứ không tràn ngang ở 360px. */
+  overflow-wrap: anywhere;
+}
+
+.savedMeta {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.savedResult {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}
+
+/*
+ * "Mở lại" là <Link> chứ không phải <Button> — nó điều hướng sang màn khác, nên phải mở được
+ * bằng chuột giữa và bằng menu ngữ cảnh. Dáng vẫn kẻ theo nút thứ cấp để ba hành động cuối thẻ
+ * trông cùng một hàng.
+ */
+.savedOpen {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  text-decoration: none;
+
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.renameRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

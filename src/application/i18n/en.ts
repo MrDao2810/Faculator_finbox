@@ -157,6 +157,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.tickerFailed':
     'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
   'detail.export': '↓ Export',
+  'detail.saveToPortfolio': '☆ Save to portfolio',
+  'detail.restoredNote': 'saved calculation from',
+  'detail.restoredMissing':
+    'saved calculation not found — it may have been deleted on this device.',
+  'detail.restoredNeedsSeries':
+    'This calculation uses a price series, and the series on this device no longer matches the one used when it was saved — the result shown may differ from the saved number. Reload the price series before reading it.',
   'detail.meaning': 'Meaning',
   'detail.formula': 'Formula',
   'detail.inputs': 'Inputs',
@@ -228,6 +234,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.beta': 'Portfolio beta',
   'portfolio.xirr': 'Portfolio XIRR',
   'portfolio.count': 'Tickers',
+  'portfolio.hiddenByLevel': 'advanced tile(s) hidden',
   'portfolio.holdings': 'Holdings',
   'portfolio.shares': 'sh',
   'portfolio.costPrice': 'cost',
@@ -284,6 +291,20 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
 
+  'portfolio.tabHoldings': 'Tickers',
+  'portfolio.tabSaved': 'Formulas',
+  'portfolio.savedEmpty':
+    'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
+  'portfolio.savedOpen': 'Reopen',
+  'portfolio.savedRename': 'Rename',
+  'portfolio.savedRemove': 'Delete',
+  'portfolio.savedSaveName': 'Save name',
+  'portfolio.savedNameLabel': 'Calculation name',
+  'portfolio.savedAt': 'saved',
+  'portfolio.savedResultNote':
+    'The result as of the moment it was saved — not recalculated. Tap “Reopen” to run it again.',
+  'portfolio.savedNeedsSeries': 'Needs price series',
+
   'ticker.title': 'Pick a ticker',
   'ticker.subtitle': 'Every tradable ticker, from Finbox',
   'ticker.searchLabel': 'Search by code or company name',
@@ -322,9 +343,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* Luôn đứng dạng "X / Y usable sessions" nên số nhiều trơn đọc thuận hơn "(s)". */
   'series.usable': 'usable sessions',
   'series.rowLabel': 'Row',
-  'series.localOnly':
-    'Price series are stored on this device only (localStorage). Nothing is sent to a server.',
-  'series.localTag': 'LOCAL',
+  /* Không còn `series.localOnly` / `series.localTag`: màn bảng dữ liệu bỏ dòng ghi chú
+     localStorage (25/08/2026). Câu tương đương chỉ còn ở màn Danh mục — `portfolio.localOnly`. */
   'series.needMore':
     'Beta and Sharpe need at least 60 sessions to mean anything statistically. Not enough yet — results will report missing data.',
 
@@ -379,6 +399,23 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'export.doPng': 'Export PNG',
   'export.failed': 'Could not export the file. Your browser may be blocking downloads.',
 
+  'save.title': 'Save to portfolio',
+  'save.subtitle': 'Keep these inputs and this result to reopen later',
+  'save.nameLabel': 'Name this calculation',
+  'save.nameHint': 'The name appears on the Formulas tab of the Portfolio screen.',
+  'save.suggestions': 'Suggested names',
+  'save.submit': 'Save to portfolio',
+  'save.done': 'Saved to Portfolio › Formulas.',
+  'save.goToPortfolio': 'View in portfolio',
+  'save.errEmpty': 'Give it a name first — an unnamed entry is one you will never find again.',
+  'save.errDuplicate':
+    'A saved calculation already uses this name. Pick another so the two do not blur together.',
+  'save.errFull':
+    'You already have 30 saved calculations. Delete one in the portfolio before saving another.',
+  'save.errNoResult':
+    'The result is currently an error, so there is nothing to save. Fix the inputs until a result appears, then save.',
+  'save.failed': 'Could not save. Your browser may be blocking local storage, or it is full.',
+
   'switch.on': 'On',
   'switch.off': 'Off',
 
@@ -388,8 +425,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'home.search.results': 'result(s)',
   'home.search.dropFilter': 'Drop the filter',
   'home.featured.title': 'Everyday formulas',
+  'home.featured.personalNote':
+    'The formulas you open most often have been moved to the front. This history stays on your device and is never sent anywhere.',
   'home.browse.title': 'Browse by group',
   'home.browse.unit': 'formulas',
+  'home.browse.advancedOnly': 'Advanced only',
   'home.segment.stock': 'Stocks',
   'home.segment.personal': 'Personal finance',
   'home.progress': 'The library is filling in step by step — now at',
@@ -399,7 +439,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'settings.mode.title': 'Display mode',
   'settings.mode.label': 'Basic or Advanced',
-  'settings.mode.hint': 'Basic mode hides advanced variables and keeps the explanation open.',
+  'settings.mode.hint':
+    'Advanced mode adds the complex formulas, every advanced variable, the valuation chain, and the Beta / XIRR tiles in Portfolio.',
   'settings.units.title': 'Units & display',
   'settings.units.scale': 'Money unit in tables',
   'settings.units.scaleHint':
@@ -414,6 +455,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.recent': 'Search history',
   'data.series': 'Entered price series',
   'data.portfolio': 'Personal portfolio',
+  'data.saved': 'Saved calculations',
+  'data.usage': 'Formulas you opened',
+  'data.tickers': 'Ticker list',
+  'data.prices': 'Cached prices',
   'data.empty': 'nothing saved',
   'data.chars': 'characters',
   'data.remove': 'Delete',

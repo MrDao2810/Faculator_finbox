@@ -5,10 +5,14 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 
 import {
   FORMULA_MODULES,
+  FORMULA_USAGE_KEY,
   MARKET_CONFIG,
+  MAX_SAVED_CALCS,
   PRICE_SERIES_KEY,
   ROUTES,
   SAMPLE_DATA,
+  SAVED_CALCS_KEY,
+  addSavedCalc,
   cashflowsOf,
   chainFor,
   constantsUsedBy,
@@ -19,11 +23,17 @@ import {
   formatIsoDate,
   hasDraftData,
   needsPriceSeries,
+  parseFormulaUsage,
+  parseSavedCalcs,
   parseStoredSeries,
   presetInputs,
+  recordFormulaUsage,
   runChain,
   runFormula,
+  savedCalcId,
   scheduleOrDefault,
+  serializeFormulaUsage,
+  serializeSavedCalcs,
   serializeStoredSeries,
   variablesForLevel,
 } from '@/application';
@@ -37,6 +47,7 @@ import type {
   FormulaModule,
   FormulaSpec,
   Preset,
+  SavedCalc,
   SeriesRow,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
@@ -53,7 +64,7 @@ import {
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
 import { BackLink, DisclaimerBar } from '@/ui/navigation';
-import { ExportSheet, PasteImportSheet, PresetSheet } from '@/ui/sheets';
+import { ExportSheet, PasteImportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
   ChainPanel,
   DetailBody,
@@ -85,11 +96,36 @@ const VN_INDEX_CLOSES = SAMPLE_DATA.vnIndex()
   .map((bar) => bar.close)
   .filter((close): close is number => typeof close === 'number' && close > 0);
 
+/**
+ * Ở lại bao lâu thì tính là một lượt dùng thật, tính bằng mili giây.
+ *
+ * Tám giây: đủ dài để loại lượt bấm nhầm và lượt vào từ Google rồi thoát ngay, đủ ngắn để người
+ * thật sự đọc công thức không bị bỏ sót. Đây là một núm số, đổi được — nhưng đổi thì sửa cả ca
+ * kiểm trong `FormulaDetail.test.tsx`.
+ */
+const USAGE_DWELL_MS = 8000;
+
 /*
  * Danh sách điều khiển chiếm trọn hàng từng nằm ở đây; nay dùng chung tại
  * `isWideControl()` trong `@/ui/inputs` vì khối chuỗi WF-04 cũng cần đúng luật ấy và đã bỏ sót
  * nó một lần — xem docblock của hàm.
  */
+
+/**
+ * Mốc epoch thành ngày ISO 'YYYY-MM-DD' theo giờ **địa phương**, để đưa cho `formatIsoDate()`.
+ *
+ * Không dùng `toISOString().slice(0, 10)`: hàm đó đổi sang UTC, nên một phép tính lưu lúc 7 giờ
+ * sáng ở Việt Nam sẽ hiện ra ngày hôm trước. Chuỗi này chỉ sinh phía máy khách (sau khi đọc
+ * localStorage) nên không vướng ràng buộc "HTML lúc build phải khớp lúc chạy".
+ */
+function isoDayOf(ms: number): string {
+  const date = new Date(ms);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${String(date.getFullYear())}-${month}-${day}`;
+}
 
 export interface FormulaDetailProps {
   spec: FormulaSpec;
@@ -109,7 +145,16 @@ export interface FormulaDetailProps {
   latexHtml: string;
 }
 
-type SheetKind = 'preset' | 'paste' | 'export';
+type SheetKind = 'preset' | 'paste' | 'export' | 'save';
+
+/** Thứ màn cần nhớ về một phép tính vừa mở lại từ `?luu=`. */
+interface RestoredCalc {
+  name: string;
+  savedAt: number;
+  needsSeries: boolean;
+  /** Số phiên của chuỗi giá lúc lưu — `null` khi bản lưu không ghi. */
+  seriesCount: number | null;
+}
 
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
@@ -182,6 +227,27 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     code: string;
     status: 'loading' | 'failed';
   } | null>(null);
+
+  /*
+   * ── Lưu phép tính vào tab "Công thức" của màn Danh mục ──────────────────────────────────────
+   *
+   * `savedCalcs` chỉ được đọc lúc MỞ sheet, không lúc gắn màn: 111 trang chi tiết không việc gì
+   * phải chạm localStorage cho một kho mà hầu hết lượt mở trang không dùng tới. Sheet cần nó để
+   * né tên trùng và để biết kho đã đầy chưa.
+   *
+   * `saveStamp` là mốc thời gian của LƯỢT MỞ SHEET, dùng cho cả gợi ý tên lẫn `id` của mục sắp
+   * lưu. Một mốc cho cả hai việc, nên cái tên gợi ý ra và cái mục cất đi luôn nói cùng một ngày.
+   */
+  const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
+  const [saveStamp, setSaveStamp] = useState(0);
+  /**
+   * Phép tính đang được mở lại từ `?luu=`.
+   *
+   * `'missing'` là ca thật, không phải ca hiếm: người dùng bấm "Mở lại" ở tab Danh mục trên một
+   * máy khác, hoặc vừa xoá kho ở màn Cài đặt. Im lặng bày ra bộ số mặc định thì họ tưởng phép
+   * tính đã lưu của mình vừa đổi số.
+   */
+  const [restored, setRestored] = useState<RestoredCalc | 'missing' | null>(null);
   /** Cầu nối tới `applyPreset()` bên dưới — nó dựng lại mỗi lượt render nên không đưa vào deps được. */
   const applyPresetRef = useRef<(preset: Preset) => void>(() => undefined);
 
@@ -227,6 +293,49 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   }, []);
 
   /*
+   * ── Ghi nhận một lượt dùng thật, cho khối "Công thức dùng hằng ngày" của trang chủ ──────────
+   *
+   * Ghi thẳng ở đây chứ không dựng một hook dùng chung: đây là màn DUY NHẤT bày ra một công thức
+   * (nút ƒ ở tab Danh mục cũng chỉ điều hướng sang chính URL này kèm `?ma=`), nên hook sẽ chỉ có
+   * đúng một nơi gọi — mà mỗi module thêm là một mục nữa trong gói của 111 trang đang vượt cửa
+   * kiểm dung lượng. Có nơi gọi thứ hai thì hãy tách.
+   *
+   * "Lượt dùng thật" là ở lại đủ lâu HOẶC thật sự chạm vào số liệu, ghi đúng một lần mỗi lượt mở
+   * trang — cùng tinh thần "chỉ ghi khi thật sự ra kết quả" của lịch sử tìm kiếm ở WF-09. Mở
+   * trang là ghi ngay thì lịch sử đầy những lượt bấm nhầm và lượt vào từ Google rồi thoát, và
+   * trang chủ sẽ bị xáo bởi thứ người dùng không hề dùng.
+   *
+   * KHÔNG lấy "ô nhập khác giá trị mặc định" làm tín hiệu: đường `?ma=` ngay dưới đây tự nạp số
+   * liệu vào ô khi mở trang, nên điều kiện đó đúng mà không có hành động nào của người dùng.
+   * `<Link>` của Next có prefetch nhưng prefetch không chạy component, nên không sinh lượt giả.
+   */
+  const recordedRef = useRef(false);
+
+  const markUsed = useCallback(() => {
+    if (recordedRef.current) return;
+    recordedRef.current = true;
+    try {
+      const list = parseFormulaUsage(window.localStorage.getItem(FORMULA_USAGE_KEY));
+      window.localStorage.setItem(
+        FORMULA_USAGE_KEY,
+        serializeFormulaUsage(recordFormulaUsage(list, spec.id, Date.now())),
+      );
+    } catch {
+      // Trình duyệt chặn localStorage — không có lịch sử thì trang chủ chỉ trở về đúng 18 ghim.
+    }
+  }, [spec.id]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Tab mở nền (và bản dựng trước của trình duyệt) không phải là người đang đọc.
+      if (document.visibilityState === 'visible') markUsed();
+    }, USAGE_DWELL_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [markUsed]);
+
+  /*
    * ── `?ma=FPT`: nạp số liệu thật của một mã ngay khi mở trang ────────────────────────────────
    *
    * Lối đi từ tab Danh mục sang đây (gói "Danh mục dùng số liệu thật"): ở đó bấm nút ƒ trên một
@@ -249,8 +358,58 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * CẢ 111 trang chi tiết — nhóm trang đang vượt cửa kiểm dung lượng xa nhất — để phục vụ một
    * tham số mà hầu hết lượt mở trang không có.
    */
+  /*
+   * ── `?luu=<id>`: mở lại một phép tính đã lưu ────────────────────────────────────────────────
+   *
+   * Lối về từ tab "Công thức" của màn Danh mục. Tab đó cố ý KHÔNG tính lại (nó không được phép
+   * kéo cả Registry vào gói của `/danh-muc/`), nên "Mở lại" là chỗ duy nhất con số được tính lại
+   * — ở đây, bằng chính bộ máy đã sinh ra nó.
+   *
+   * ⚠ Vẫn `window.location.search` trong một effect, TUYỆT ĐỐI không `useSearchParams()` — cùng
+   * lý do đã ghi ở effect `?ma=` ngay dưới: hook đó làm 111 trang mất MathML dựng lúc build.
+   *
+   * Đọc localStorage đồng bộ chứ không qua `import()`: kho này nằm sẵn trong gói (nút Lưu ở màn
+   * này cũng dùng), nên không có byte nào tiết kiệm được bằng cách nạp trễ.
+   */
   useEffect(() => {
-    const raw = new URLSearchParams(window.location.search).get('ma');
+    const id = new URLSearchParams(window.location.search).get('luu');
+    if (id === null || id.trim() === '') return;
+
+    let saved: SavedCalc | undefined;
+    try {
+      saved = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)).find(
+        (item) => item.id === id.trim(),
+      );
+    } catch {
+      // localStorage bị chặn — cùng ca với "không tìm thấy": nói ra chứ không lặng lẽ bày số mặc định.
+    }
+
+    if (saved === undefined || saved.formulaId !== spec.id) {
+      setRestored('missing');
+      return;
+    }
+
+    // Trộn CHỒNG lên bộ mặc định chứ không thay hẳn: bản lưu cũ có thể thiếu ô mà công thức nay
+    // mới thêm, và một ô trống sẽ thành "thiếu đầu vào" thay vì giữ giá trị mặc định của nó.
+    setInputs((current) => ({ ...current, ...saved.inputs }));
+    if (saved.code !== undefined) setLoadedPreset(saved.code);
+    setRestored({
+      name: saved.name,
+      savedAt: saved.savedAt,
+      needsSeries: saved.needsSeries,
+      seriesCount: saved.seriesCount ?? null,
+    });
+  }, [spec.id]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    /*
+     * `?luu=` thắng `?ma=`: cả hai đều ghi vào `inputs`, và một phép tính đã lưu là bộ số người
+     * dùng tự chốt — nạp đè số liệu thị trường lên đó là làm hỏng đúng thứ họ vừa mở ra xem.
+     */
+    if ((params.get('luu') ?? '').trim() !== '') return;
+
+    const raw = params.get('ma');
     const code = raw === null ? '' : raw.trim().toUpperCase();
     // Chặn tham số gõ bậy TRƯỚC khi đem nó đi gọi mạng. Mã dài nhất đang có là 8 ký tự (E1VFVN30).
     if (!/^[A-Z0-9]{3,12}$/.test(code)) return;
@@ -415,6 +574,22 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     [formula, asOf],
   );
 
+  /**
+   * Chuỗi giá hiện có KHÔNG khớp chuỗi lúc lưu, ở một phép tính vừa mở lại.
+   *
+   * Kho lưu cố ý không cất `bars` (xem docblock `saved-calc-store.ts`), nên con số tính ra bây
+   * giờ có thể khác con số nằm dưới cái tên người dùng đã đặt. Nói thẳng ra chứ không để họ đọc
+   * một kết quả mới dưới một cái nhãn cũ (FR-06).
+   *
+   * So theo SỐ PHIÊN chứ không so từng giá: đủ để bắt ca thường gặp (chưa nạp chuỗi, hoặc đã nạp
+   * chuỗi khác), mà không phải cất cả chuỗi chỉ để đối chiếu.
+   */
+  const seriesMismatch =
+    restored !== null &&
+    restored !== 'missing' &&
+    restored.needsSeries &&
+    (bars?.length ?? 0) !== (restored.seriesCount ?? 0);
+
   /** Công thức này đã có biểu đồ thật, hay còn đứng ở khung chờ. */
   const showChart = hasChart(spec);
 
@@ -453,6 +628,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * này) không phải biết ô nào là ô móc nối.
    */
   function setValue(key: string, value: number): void {
+    // Chạm vào số liệu là dùng thật, không cần đợi hết ngưỡng ở lại (xem effect ghi lượt dùng).
+    markUsed();
+
     if (linkedFields.has(key)) {
       setOverride(spec.id, key, value);
       return;
@@ -630,6 +808,55 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   }
 
   /**
+   * Mở sheet "Lưu vào danh mục".
+   *
+   * Đọc kho ngay tại đây — không phải lúc gắn màn — vì sheet cần danh sách tên đang có để né
+   * trùng, mà 111 trang chi tiết thì không việc gì phải chạm localStorage cho một kho mà hầu hết
+   * lượt mở trang không dùng tới.
+   */
+  function openSaveSheet(): void {
+    try {
+      setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
+    } catch {
+      // localStorage bị chặn — coi như kho rỗng. Lúc bấm Lưu, `saveCalc()` sẽ báo không ghi được.
+      setSavedCalcs([]);
+    }
+    setSaveStamp(Date.now());
+    openSheet('save');
+  }
+
+  /**
+   * Ghi một phép tính vào kho. Trả `false` khi trình duyệt chặn localStorage hoặc đã hết chỗ —
+   * sheet nói ra, không nuốt lỗi rồi đóng lại như đã lưu xong.
+   *
+   * Đọc lại kho ngay trước khi ghi thay vì tin vào `savedCalcs` trong state: giữa lúc mở sheet
+   * và lúc bấm Lưu, người dùng có thể đã xoá một mục ở tab Danh mục đang mở trong thẻ khác.
+   */
+  function saveCalc(name: string): boolean {
+    try {
+      const current = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY));
+      const next = addSavedCalc(current, {
+        id: savedCalcId(spec.id, saveStamp),
+        formulaId: spec.id,
+        name,
+        ...(loadedPreset === null ? {} : { code: loadedPreset }),
+        inputs: effectiveInputs,
+        resultValue: output.value,
+        resultUnit: output.unit,
+        savedAt: saveStamp,
+        needsSeries: wantsSeries,
+        ...(bars === null ? {} : { seriesCount: bars.length }),
+      });
+
+      window.localStorage.setItem(SAVED_CALCS_KEY, serializeSavedCalcs(next));
+      setSavedCalcs(next);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Cuộn xuống khối "Ví dụ thực tế" ở cuối trang (mọi công thức đều có, không riêng nhóm chuỗi
    * giá) — lối cho người vừa vào màn, chưa hiểu công thức và cũng chưa có số liệu riêng, khỏi
    * phải tự đoán cuộn xuống đâu. Khối đó đã bày sẵn một bộ số minh hoạ đầy đủ, gõ được, kèm nút
@@ -704,6 +931,15 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           >
             {t('detail.export')}
           </Button>
+
+          {/*
+            Lối sang tab "Công thức" của màn Danh mục. Hiện ở CẢ 111 công thức, không riêng nhóm
+            có mã: người tính một khoản vay hay một mức phí cũng muốn giữ lại kết quả y như người
+            đang định giá một mã.
+          */}
+          <Button variant="secondary" size="sm" onClick={openSaveSheet}>
+            {t('detail.saveToPortfolio')}
+          </Button>
         </div>
 
         {/*
@@ -728,6 +964,28 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           >
             {liveTicker.code} ·{' '}
             {liveTicker.status === 'loading' ? t('detail.tickerLoading') : t('detail.tickerFailed')}
+          </p>
+        )}
+
+        {/*
+          Phép tính mở lại từ `?luu=`. Ngày lưu phải có mặt: nó là mốc để người dùng đối chiếu
+          con số đang hiện với con số họ nhớ — cùng ràng buộc mà tab Danh mục và kho thị giá
+          đã lưu đang chịu.
+        */}
+        {restored === 'missing' && (
+          <p className={styles.pendingNote} role="alert">
+            {t('detail.restoredMissing')}
+          </p>
+        )}
+        {restored !== null && restored !== 'missing' && (
+          <p className={styles.pendingNote} role="status">
+            ☆ {restored.name} · {t('detail.restoredNote')}{' '}
+            {formatIsoDate(isoDayOf(restored.savedAt))}
+          </p>
+        )}
+        {seriesMismatch && (
+          <p className={styles.pendingNote} role="alert">
+            {t('detail.restoredNeedsSeries')}
           </p>
         )}
       </header>
@@ -1069,6 +1327,24 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           // Người dùng vừa nạp bộ mẫu thì file xuất ra phải tự nói điều đó (bộ mẫu hiện toàn
           // là bản thảo — xem src/data/samples.ts).
           fromDraftData={loadedPreset !== null && hasDraftData()}
+        />
+      )}
+
+      {mountedSheets.has('save') && (
+        <SaveCalcSheet
+          open={sheet === 'save'}
+          onClose={() => {
+            setSheet(null);
+          }}
+          formulaName={pick(spec.name)}
+          resultText={formatCalcOutput(output)}
+          {...(loadedPreset === null ? {} : { code: loadedPreset })}
+          existingNames={savedCalcs.map((item) => item.name)}
+          full={savedCalcs.length >= MAX_SAVED_CALCS}
+          // Kết quả đang lỗi thì không cho lưu — xem docblock của sheet.
+          hasResult={output.value !== null}
+          savedAt={saveStamp}
+          onSave={saveCalc}
         />
       )}
 

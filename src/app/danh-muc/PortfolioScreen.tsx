@@ -2,25 +2,35 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import Link from 'next/link';
+
 import {
+  FORMULA_SUMMARIES,
   MARKET_FEED,
   MAX_HOLDINGS,
   PORTFOLIO_KEY,
   PRICE_CACHE_KEY,
+  SAVED_CALCS_KEY,
   addHolding,
   formatCalcOutput,
   formatIsoDate,
   formatNumber,
+  formatValueWithUnit,
+  formulaPath,
   isAbortError,
   isCalculated,
   isPriceCacheFresh,
   oldestAsOf,
   parseCachedPrices,
   parseHoldings,
+  parseSavedCalcs,
   parseViNumber,
   removeHolding,
+  removeSavedCalc,
+  renameSavedCalc,
   serializeCachedPrices,
   serializeHoldings,
+  serializeSavedCalcs,
   summarisePortfolio,
   updateHolding,
 } from '@/application';
@@ -29,10 +39,12 @@ import type {
   CachedQuote,
   Holding,
   PriceState,
+  SavedCalc,
   TickerRef,
   TickerSnapshot,
 } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
+import { HiddenByLevelNote } from '@/ui/browse';
 import { Button, Input } from '@/ui/primitives';
 import { StatTile } from '@/ui/result';
 import { FormulaForTickerSheet, TickerPickerSheet } from '@/ui/sheets';
@@ -46,6 +58,17 @@ import styles from './PortfolioScreen.module.css';
  * Sáu con số đầu màn đều là **kết quả tính** nên đi qua `StatTile` nhận thẳng `CalcOutput`:
  * thiếu dữ liệu thì ô hiện "— , —" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm
  * nhất trong cả sản phẩm — một danh mục mới toanh có tổng giá trị chưa xác định, không phải 0 ₫.
+ *
+ * ── Sáu ô ở chế độ Nâng cao, bốn ô ở Cơ bản (FR-09) ─────────────────────────────────────────
+ *
+ * Beta và XIRR là hai khái niệm nâng cao thật, và với người dùng F0 chúng gần như **luôn** ở
+ * trạng thái "— , —": beta là bình quân gia quyền nên thiếu beta của một mã là hỏng cả ô, mà
+ * beta thì phải nhập tay; XIRR đòi ngày mua hợp lệ ở mọi mã. Bốn trên sáu ô nói được điều gì
+ * đó ngay sau khi thêm mã đầu tiên, hai ô còn lại thì không — nên chế độ Cơ bản (mặc định của
+ * sản phẩm, SRS 1.3.3) chỉ dựng bốn ô ấy, kèm dòng nói ra là đang giấu hai ô.
+ *
+ * Ô nhập Beta trong form và ô `beta` trong thẻ nắm giữ đi theo cùng luật — bày một con số mà
+ * chính chế độ đang xem không cho sửa là một ngõ cụt.
  *
  * ── Thứ gì rời khỏi máy người dùng, thứ gì không ────────────────────────────────────────────
  *
@@ -82,6 +105,30 @@ function todayIso(): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+/**
+ * Mốc epoch thành ngày ISO 'YYYY-MM-DD' theo giờ **địa phương**, để đưa cho `formatIsoDate()`.
+ *
+ * Không dùng `toISOString().slice(0, 10)`: hàm đó đổi sang UTC, nên một phép tính lưu lúc 7 giờ
+ * sáng ở Việt Nam sẽ hiện ra ngày hôm trước — cùng lý do `todayIso()` ngay trên tự ghép chuỗi.
+ */
+function isoDayOf(ms: number): string {
+  const date = new Date(ms);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/**
+ * Số ô mà chế độ Cơ bản giấu đi — Beta và XIRR.
+ *
+ * Con số này phải khớp số `StatTile` nằm trong nhánh `advanced &&` bên dưới. Không đếm được tự
+ * động vì chúng là JSX, nên `PortfolioScreen.test.tsx` gác bằng cách đếm ô thật ở cả hai chế độ
+ * rồi so hiệu số với chính hằng số này — thêm một ô nâng cao mà quên sửa đây là đỏ ngay.
+ */
+const ADVANCED_TILES = 2;
+
 interface FormState {
   code: string;
   name: string;
@@ -112,6 +159,24 @@ interface FormErrors {
 /** Hai sheet của màn. Chỉ dựng khi người dùng mở lần đầu — cùng nếp `FormulaDetail`. */
 type SheetKind = 'ticker' | 'formulas';
 
+/**
+ * Hai tab của màn: mã đang nắm giữ, và phép tính đã lưu từ màn chi tiết công thức.
+ *
+ * Tab thứ hai KHÔNG tính lại con số nào. Tính lại đòi `FORMULA_MODULES`, tức cả Registry, trong
+ * gói của `/danh-muc/` — đã đo một lần ở `LIVE_PRESET_FORMULAS`: 131 kB lên 217 kB, vượt hẳn cửa
+ * 180 kB. Nên tab này chỉ bày lại con số đã cất kèm NGÀY LƯU, còn việc tính lại thuộc về nút
+ * "Mở lại", nơi màn chi tiết chạy đúng bộ máy đã sinh ra nó.
+ *
+ * Tên công thức lấy từ `FORMULA_SUMMARIES` — chỉ mục nhẹ, cố ý không kéo theo hàm tính.
+ */
+type PortfolioTab = 'holdings' | 'saved';
+
+/** Giá trị của `?tab=` trên URL. Tiếng Việt cho khớp lối đặt đường dẫn của cả sản phẩm. */
+const SAVED_TAB_PARAM = 'cong-thuc';
+
+/** Tra tên công thức theo id, dạng song ngữ. `undefined` khi id không còn trong Registry. */
+const SUMMARY_BY_ID = new Map(FORMULA_SUMMARIES.map((summary) => [summary.id, summary]));
+
 /** Bản cache chỉ giữ giá; dựng lại thành `TickerSnapshot` để phần còn lại của màn không phải biết. */
 function snapshotFromCache(quote: CachedQuote): TickerSnapshot {
   return {
@@ -129,6 +194,10 @@ function snapshotFromCache(quote: CachedQuote): TickerSnapshot {
 
 export function PortfolioScreen() {
   const t = useT();
+  const pick = usePick();
+  const { mode } = usePreferences();
+  /** Chế độ Nâng cao mở thêm ô Beta, ô XIRR và ô nhập beta — FR-09. */
+  const advanced = mode === 'advanced';
   const [holdings, setHoldings] = useState<ReadonlyArray<Holding>>([]);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [formOpen, setFormOpen] = useState(false);
@@ -142,6 +211,13 @@ export function PortfolioScreen() {
   const [mountedSheets, setMountedSheets] = useState<ReadonlySet<SheetKind>>(() => new Set());
   /** Mã đang xem danh sách công thức. */
   const [formulasFor, setFormulasFor] = useState<string | null>(null);
+
+  // ── Tab "Công thức": phép tính đã lưu từ màn chi tiết ──────────────────────
+  const [tab, setTab] = useState<PortfolioTab>('holdings');
+  const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
+  /** Id mục đang đổi tên tại chỗ. `null` nghĩa là không có mục nào đang sửa. */
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState('');
 
   const openSheet = useCallback((kind: SheetKind): void => {
     setMountedSheets((current) => (current.has(kind) ? current : new Set(current).add(kind)));
@@ -169,11 +245,60 @@ export function PortfolioScreen() {
   useEffect(() => {
     try {
       setHoldings(parseHoldings(window.localStorage.getItem(PORTFOLIO_KEY)));
+      setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
     } catch {
       // localStorage bị chặn — màn vẫn dùng được, chỉ không nhớ giữa hai lần mở.
     }
+
+    /*
+     * Tab mở sẵn đến từ `?tab=cong-thuc` — lối đi thẳng từ câu "Đã lưu vào Danh mục › Công thức"
+     * ở sheet lưu.
+     *
+     * ⚠ `window.location.search` trong effect, KHÔNG `useSearchParams()`: với `output: 'export'`
+     * hook đó buộc cây phải nằm trong `<Suspense>` và Next bỏ phần đó khỏi HTML tĩnh. Màn này
+     * không có MathML để mất như 111 trang chi tiết, nhưng quy ước là một cho cả sản phẩm.
+     */
+    try {
+      if (new URLSearchParams(window.location.search).get('tab') === SAVED_TAB_PARAM) {
+        setTab('saved');
+      }
+    } catch {
+      // URL lạ thì cứ mở tab mặc định.
+    }
+
     setAsOf(todayIso());
     setLoaded(true);
+  }, []);
+
+  /**
+   * Đổi tab và ghi lại vào URL, để nút Back của trình duyệt và việc chia sẻ đường dẫn đều đúng.
+   *
+   * `replaceState` chứ không `pushState`: đổi tab không phải là đi tới một màn khác, và nhồi
+   * từng lượt bấm tab vào lịch sử sẽ biến nút Back thành "quay lại tab trước" — đúng cái bẫy mà
+   * gói phóng to biểu đồ đã phải gỡ một lần.
+   */
+  const switchTab = useCallback((next: PortfolioTab): void => {
+    setTab(next);
+    setRenaming(null);
+
+    try {
+      const url = new URL(window.location.href);
+      if (next === 'saved') url.searchParams.set('tab', SAVED_TAB_PARAM);
+      else url.searchParams.delete('tab');
+      window.history.replaceState(null, '', `${url.pathname}${url.search}`);
+    } catch {
+      // Trình duyệt chặn History API — tab vẫn đổi, chỉ là URL không theo.
+    }
+  }, []);
+
+  /** Ghi lại kho phép tính đã lưu sau mỗi lần đổi tên hoặc xoá. */
+  const persistSaved = useCallback((next: ReadonlyArray<SavedCalc>): void => {
+    setSavedCalcs(next);
+    try {
+      window.localStorage.setItem(SAVED_CALCS_KEY, serializeSavedCalcs(next));
+    } catch {
+      // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
+    }
   }, []);
 
   useEffect(() => {
@@ -350,13 +475,30 @@ export function PortfolioScreen() {
     const quantity = parseViNumber(form.quantity);
     const costPrice = parseViNumber(form.costPrice);
     const betaTyped = form.beta.trim();
-    const beta = betaTyped === '' ? null : parseViNumber(betaTyped);
+    const typedBeta = betaTyped === '' ? null : parseViNumber(betaTyped);
+
+    /*
+     * Beta ghi xuống: chế độ Cơ bản KHÔNG đọc từ form mà lấy thẳng bản đang lưu.
+     *
+     * `updateHolding()` thay thế trọn bản ghi, nên bất cứ đường nào làm `beta` ra `null` ở đây
+     * là xoá mất số người dùng đã nhập — mất dữ liệu, không phải ẩn hiển thị. Ở chế độ Cơ bản ô
+     * beta không dựng ra nên form không phải nguồn sự thật của nó nữa; đọc lại từ `holdings` là
+     * đường duy nhất không phụ thuộc việc `parseViNumber()` có đọc nổi chuỗi cũ hay không.
+     * (Thêm một mã đã có thì `addHolding()` tự giữ — xem `portfolio-store.ts`.)
+     */
+    const storedBeta =
+      editing === null ? null : (holdings.find((item) => item.code === editing)?.beta ?? null);
+    const beta = advanced ? typedBeta : storedBeta;
 
     const next: FormErrors = {};
     if (code === '') next.code = t('portfolio.errCode');
     if (quantity === null || quantity <= 0) next.quantity = t('portfolio.errQuantity');
     if (costPrice === null || costPrice <= 0) next.costPrice = t('portfolio.errCostPrice');
-    if (betaTyped !== '' && beta === null) next.beta = t('portfolio.errBeta');
+    /*
+     * Chỉ bắt lỗi beta khi ô beta ĐANG HIỆN — câu lỗi trên một ô vô hình là form từ chối lưu mà
+     * không nói được vì sao.
+     */
+    if (advanced && betaTyped !== '' && typedBeta === null) next.beta = t('portfolio.errBeta');
 
     /*
      * Trần số mã: `addHolding()` từ chối trong im lặng khi danh mục đã đầy, nên phải chặn ở đây
@@ -395,7 +537,7 @@ export function PortfolioScreen() {
           }),
     );
     closeForm();
-  }, [form, editing, holdings, t, closeForm]);
+  }, [form, editing, holdings, advanced, t, closeForm]);
 
   /**
    * Mã đang chọn ở form THÊM đã nằm trong danh mục sẵn rồi.
@@ -436,51 +578,227 @@ export function PortfolioScreen() {
         <p className={styles.subtitle}>{t('portfolio.subtitle')}</p>
       </header>
 
-      <div className={styles.stats}>
-        <StatTile
-          label={t('portfolio.totalValue')}
-          output={summary.totalValue}
-          showEyebrow={false}
-          decimals={0}
-        />
-        <StatTile
-          label={t('portfolio.totalCost')}
-          output={summary.totalCost}
-          showEyebrow={false}
-          decimals={0}
-        />
-        <StatTile
-          label={t('portfolio.gain')}
-          output={summary.gain}
-          showEyebrow={false}
-          decimals={0}
-          /*
-           * Phần trăm đi làm dòng phụ của chính ô Lãi/lỗ thay vì chiếm một ô thứ bảy: hai con số
-           * là hai cách đọc CÙNG một đại lượng. Chỉ truyền khi nó thật sự tính được — không thì
-           * `StatTile` in ra "— %" thừa, mà lý do đã nằm ngay trên đó rồi.
-           */
-          note={
-            isCalculated(summary.gainPercent)
-              ? formatCalcOutput(summary.gainPercent, { maxDecimals: 1 })
-              : undefined
-          }
-        />
-        <StatTile label={t('portfolio.beta')} output={summary.beta} showEyebrow={false} />
-        <StatTile
-          label={t('portfolio.xirr')}
-          output={summary.xirr}
-          showEyebrow={false}
-          decimals={1}
-        />
-        <StatTile
-          label={t('portfolio.count')}
-          output={summary.count}
-          showEyebrow={false}
-          decimals={0}
-        />
+      {/*
+        Hai tab: mã đang giữ · phép tính đã lưu.
+
+        Dựng tay bằng `role="tablist"` chứ không qua một primitive: sản phẩm chưa có primitive
+        tab nào, và đây là chỗ duy nhất cần nó. Số đếm nằm ngay trên nhãn để người dùng biết tab
+        kia có gì mà không phải bấm sang xem.
+      */}
+      <div className={styles.tabs} role="tablist" aria-label={t('portfolio.title')}>
+        <button
+          type="button"
+          role="tab"
+          id="portfolio-tab-holdings"
+          aria-selected={tab === 'holdings'}
+          aria-controls="portfolio-panel-holdings"
+          className={tab === 'holdings' ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+          onClick={() => {
+            switchTab('holdings');
+          }}
+        >
+          {t('portfolio.tabHoldings')} ({holdings.length})
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="portfolio-tab-saved"
+          aria-selected={tab === 'saved'}
+          aria-controls="portfolio-panel-saved"
+          className={tab === 'saved' ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+          onClick={() => {
+            switchTab('saved');
+          }}
+        >
+          {t('portfolio.tabSaved')} ({savedCalcs.length})
+        </button>
       </div>
 
-      {/*
+      {tab === 'saved' ? (
+        <section
+          id="portfolio-panel-saved"
+          role="tabpanel"
+          aria-labelledby="portfolio-tab-saved"
+          className={styles.block}
+        >
+          {savedCalcs.length === 0 ? (
+            <p className={styles.empty}>{t('portfolio.savedEmpty')}</p>
+          ) : (
+            <>
+              {/*
+                Nói thẳng rằng con số đang bày là con số CỦA LẦN LƯU, không phải số tính lại.
+                Cùng ràng buộc mà thị giá đã lưu đang chịu ở tab bên cạnh: được dùng số cũ, nhưng
+                phải nói rõ nó thuộc mốc nào (FR-06).
+              */}
+              <p className={styles.savedNote} role="note">
+                {t('portfolio.savedResultNote')}
+              </p>
+
+              <ul className={styles.list}>
+                {savedCalcs.map((saved) => {
+                  const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
+                  // Công thức bị gỡ khỏi Registry thì id vẫn là thứ nhận ra được, hơn là một dòng trống.
+                  const formulaName =
+                    summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
+
+                  return (
+                    <li key={saved.id} className={styles.row}>
+                      {renaming === saved.id ? (
+                        <div className={styles.renameRow}>
+                          <Input
+                            label={t('portfolio.savedNameLabel')}
+                            value={renameDraft}
+                            maxLength={60}
+                            onChange={(event) => {
+                              setRenameDraft(event.target.value);
+                            }}
+                          />
+                          <div className={styles.actions}>
+                            <Button
+                              size="sm"
+                              disabled={renameDraft.trim() === ''}
+                              onClick={() => {
+                                persistSaved(renameSavedCalc(savedCalcs, saved.id, renameDraft));
+                                setRenaming(null);
+                              }}
+                            >
+                              {t('portfolio.savedSaveName')}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setRenaming(null);
+                              }}
+                            >
+                              {t('portfolio.formCancel')}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className={styles.savedName}>{saved.name}</p>
+                          <p className={styles.savedMeta}>
+                            {saved.code === undefined
+                              ? formulaName
+                              : `${saved.code} · ${formulaName}`}
+                            {' · '}
+                            {t('portfolio.savedAt')} {formatIsoDate(isoDayOf(saved.savedAt))}
+                            {saved.needsSeries && ` · ${t('portfolio.savedNeedsSeries')}`}
+                          </p>
+                          {/*
+                            Kết quả định dạng lại từ SỐ THÔ mỗi lần hiện, không phải chuỗi đã cất
+                            sẵn: chuỗi là chữ đã dịch, mà ngôn ngữ đổi được lúc chạy. Thiếu số thì
+                            hiện gạch chứ không hiện 0 (FR-06).
+                          */}
+                          <p className={styles.savedResult}>
+                            {saved.resultValue === null
+                              ? '—'
+                              : formatValueWithUnit(saved.resultValue, saved.resultUnit)}
+                          </p>
+
+                          <div className={styles.actions}>
+                            <Link
+                              className={styles.savedOpen}
+                              href={`${formulaPath(saved.formulaId)}?luu=${saved.id}`}
+                            >
+                              {t('portfolio.savedOpen')}
+                            </Link>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              aria-label={`${t('portfolio.savedRename')} ${saved.name}`}
+                              onClick={() => {
+                                setRenaming(saved.id);
+                                setRenameDraft(saved.name);
+                              }}
+                            >
+                              {t('portfolio.savedRename')}
+                            </Button>
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              aria-label={`${t('portfolio.savedRemove')} ${saved.name}`}
+                              onClick={() => {
+                                persistSaved(removeSavedCalc(savedCalcs, saved.id));
+                              }}
+                            >
+                              {t('portfolio.savedRemove')}
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        </section>
+      ) : (
+        <div id="portfolio-panel-holdings" role="tabpanel" aria-labelledby="portfolio-tab-holdings">
+          <div className={styles.stats}>
+            <StatTile
+              label={t('portfolio.totalValue')}
+              output={summary.totalValue}
+              showEyebrow={false}
+              decimals={0}
+            />
+            <StatTile
+              label={t('portfolio.totalCost')}
+              output={summary.totalCost}
+              showEyebrow={false}
+              decimals={0}
+            />
+            <StatTile
+              label={t('portfolio.gain')}
+              output={summary.gain}
+              showEyebrow={false}
+              decimals={0}
+              /*
+               * Phần trăm đi làm dòng phụ của chính ô Lãi/lỗ thay vì chiếm một ô thứ bảy: hai con số
+               * là hai cách đọc CÙNG một đại lượng. Chỉ truyền khi nó thật sự tính được — không thì
+               * `StatTile` in ra "— %" thừa, mà lý do đã nằm ngay trên đó rồi.
+               */
+              note={
+                isCalculated(summary.gainPercent)
+                  ? formatCalcOutput(summary.gainPercent, { maxDecimals: 1 })
+                  : undefined
+              }
+            />
+            {/*
+          Hai ô nâng cao — FR-09. Đặt TRƯỚC ô "Số mã" chứ không dồn xuống cuối, để thứ tự bốn ô
+          còn lại ở chế độ Cơ bản vẫn là thứ tự người dùng đã quen: giá trị · vốn · lãi/lỗ · số mã.
+        */}
+            {advanced && (
+              <>
+                <StatTile label={t('portfolio.beta')} output={summary.beta} showEyebrow={false} />
+                <StatTile
+                  label={t('portfolio.xirr')}
+                  output={summary.xirr}
+                  showEyebrow={false}
+                  decimals={1}
+                />
+              </>
+            )}
+            <StatTile
+              label={t('portfolio.count')}
+              output={summary.count}
+              showEyebrow={false}
+              decimals={0}
+            />
+          </div>
+
+          {/*
+        Dòng "2 ô nâng cao đang ẩn · Bật chế độ Nâng cao", ngay dưới lưới ô chứ không phải cuối
+        màn: trình đọc màn hình phải gặp nó ngay sau bốn ô, đúng lúc câu hỏi "còn gì nữa không"
+        nảy ra.
+      */}
+          {!advanced && (
+            <HiddenByLevelNote count={ADVANCED_TILES} labelKey="portfolio.hiddenByLevel" />
+          )}
+
+          {/*
         Trạng thái thị giá, đặt NGAY DƯỚI khối con số — đúng chỗ người dùng đang nhìn con số.
 
         Luôn hiện khi danh mục có mã, kể cả lúc mọi thứ bình thường: dòng này mang NGÀY PHIÊN,
@@ -488,104 +806,119 @@ export function PortfolioScreen() {
         hỏng — mở app chiều thứ Bảy thì con số đang nhìn là giá thứ Sáu. Nút làm mới cũng vì thế
         mà luôn có mặt, không đợi hỏng mới xuất hiện.
       */}
-      {holdings.length > 0 && (
-        <p
-          className={priceState === 'ready' ? styles.priceNote : styles.priceError}
-          role={priceState === 'ready' ? 'status' : 'alert'}
-        >
-          <span className={styles.priceText}>
-            {priceLoading && <span>{t('portfolio.priceLoading')}</span>}
-            {!priceLoading && priceState === 'failed' && <span>{t('portfolio.priceFailed')}</span>}
-            {!priceLoading && priceState === 'stale' && <span>{t('portfolio.priceStale')}</span>}
-            {!priceLoading && priceAsOf !== null && (
-              <span>
-                {t('portfolio.priceSession')} {formatIsoDate(priceAsOf)}
+          {holdings.length > 0 && (
+            <p
+              className={priceState === 'ready' ? styles.priceNote : styles.priceError}
+              role={priceState === 'ready' ? 'status' : 'alert'}
+            >
+              <span className={styles.priceText}>
+                {priceLoading && <span>{t('portfolio.priceLoading')}</span>}
+                {!priceLoading && priceState === 'failed' && (
+                  <span>{t('portfolio.priceFailed')}</span>
+                )}
+                {!priceLoading && priceState === 'stale' && (
+                  <span>{t('portfolio.priceStale')}</span>
+                )}
+                {!priceLoading && priceAsOf !== null && (
+                  <span>
+                    {t('portfolio.priceSession')} {formatIsoDate(priceAsOf)}
+                  </span>
+                )}
               </span>
-            )}
-          </span>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={priceLoading}
-            onClick={() => {
-              setPriceAttempt((n) => n + 1);
-            }}
-          >
-            {priceState === 'ready' ? t('portfolio.priceRefresh') : t('portfolio.priceRetry')}
-          </Button>
-        </p>
-      )}
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={priceLoading}
+                onClick={() => {
+                  setPriceAttempt((n) => n + 1);
+                }}
+              >
+                {priceState === 'ready' ? t('portfolio.priceRefresh') : t('portfolio.priceRetry')}
+              </Button>
+            </p>
+          )}
 
-      <section className={styles.block} aria-labelledby="portfolio-holdings">
-        <h2 className={styles.blockTitle} id="portfolio-holdings">
-          {t('portfolio.holdings')}
-        </h2>
+          <section className={styles.block} aria-labelledby="portfolio-holdings">
+            <h2 className={styles.blockTitle} id="portfolio-holdings">
+              {t('portfolio.holdings')}
+            </h2>
 
-        {holdings.length === 0 ? (
-          <p className={styles.empty}>{t('portfolio.empty')}</p>
-        ) : (
-          <ul className={styles.list}>
-            {summary.rows.map((row) => {
-              const { holding } = row;
+            {holdings.length === 0 ? (
+              <p className={styles.empty}>{t('portfolio.empty')}</p>
+            ) : (
+              <ul className={styles.list}>
+                {summary.rows.map((row) => {
+                  const { holding } = row;
 
-              /*
-               * Số liệu của mã, dựng thành các ô NHÃN–GIÁ TRỊ thay vì một câu nối bằng dấu chấm.
-               *
-               * Bản trước ghép tất cả thành `100 CP · giá vốn 21 ₫ · chưa có giá` rồi thêm một
-               * dòng `mua 02/08/2026 · beta 1,1` nữa, cả hai cùng cỡ chữ nhỏ nhất và cùng màu
-               * xám. Đọc ra thì được, nhưng KHÔNG dò được: mắt phải đọc hết cả câu mới biết con
-               * số nào là giá vốn, và nhãn lẫn giá trị trông y hệt nhau. Tách nhãn ra chữ nhỏ in
-               * hoa, giá trị để cỡ chữ thường màu đậm — đúng khuôn `StatTile` ở đầu màn, nên hai
-               * khối số của cùng một màn nói cùng một thứ tiếng.
-               *
-               * Ngày mua và beta chỉ hiện khi có. Ngày mua đáng ngại nhất trong nhóm — gõ nhầm
-               * năm là đúng cái bẫy mà luật `MODEL_VIOLATION` ở `summarisePortfolio()` dựng ra
-               * để chặn, mà người dùng lại không có cách nào nhìn thấy ngày đang lưu để sửa.
-               */
-              const cells: ReadonlyArray<{ label: string; value: string }> = [
-                {
-                  label: t('portfolio.cellQuantity'),
-                  value: `${formatNumber(holding.quantity) ?? holding.quantity} ${t('portfolio.shares')}`,
-                },
-                {
-                  label: t('portfolio.costPrice'),
-                  value: `${formatNumber(holding.costPrice) ?? '—'} ₫`,
-                },
-                {
-                  label: t('portfolio.marketPrice'),
-                  // Thiếu giá thì nói thẳng là chưa có, KHÔNG hiện 0 ₫ (FR-06).
-                  value:
-                    row.marketPrice === null
-                      ? t('portfolio.priceMissing')
-                      : `${formatNumber(row.marketPrice) ?? '—'} ₫`,
-                },
-                {
-                  label: t('portfolio.weight'),
-                  value:
-                    row.weight === null
-                      ? '—'
-                      : `${formatNumber(row.weight, { maxDecimals: 0 }) ?? '—'}%`,
-                },
-                ...(holding.buyDate === ''
-                  ? []
-                  : [{ label: t('portfolio.formBuyDate'), value: formatIsoDate(holding.buyDate) }]),
-                ...(holding.beta === undefined || holding.beta === null
-                  ? []
-                  : [
-                      {
-                        label: t('portfolio.betaShort'),
-                        value:
-                          formatNumber(holding.beta, { maxDecimals: 4 }) ?? String(holding.beta),
-                      },
-                    ]),
-              ];
+                  /*
+                   * Số liệu của mã, dựng thành các ô NHÃN–GIÁ TRỊ thay vì một câu nối bằng dấu chấm.
+                   *
+                   * Bản trước ghép tất cả thành `100 CP · giá vốn 21 ₫ · chưa có giá` rồi thêm một
+                   * dòng `mua 02/08/2026 · beta 1,1` nữa, cả hai cùng cỡ chữ nhỏ nhất và cùng màu
+                   * xám. Đọc ra thì được, nhưng KHÔNG dò được: mắt phải đọc hết cả câu mới biết con
+                   * số nào là giá vốn, và nhãn lẫn giá trị trông y hệt nhau. Tách nhãn ra chữ nhỏ in
+                   * hoa, giá trị để cỡ chữ thường màu đậm — đúng khuôn `StatTile` ở đầu màn, nên hai
+                   * khối số của cùng một màn nói cùng một thứ tiếng.
+                   *
+                   * Ngày mua và beta chỉ hiện khi có. Ngày mua đáng ngại nhất trong nhóm — gõ nhầm
+                   * năm là đúng cái bẫy mà luật `MODEL_VIOLATION` ở `summarisePortfolio()` dựng ra
+                   * để chặn, mà người dùng lại không có cách nào nhìn thấy ngày đang lưu để sửa.
+                   */
+                  const cells: ReadonlyArray<{ label: string; value: string }> = [
+                    {
+                      label: t('portfolio.cellQuantity'),
+                      value: `${formatNumber(holding.quantity) ?? holding.quantity} ${t('portfolio.shares')}`,
+                    },
+                    {
+                      label: t('portfolio.costPrice'),
+                      value: `${formatNumber(holding.costPrice) ?? '—'} ₫`,
+                    },
+                    {
+                      label: t('portfolio.marketPrice'),
+                      // Thiếu giá thì nói thẳng là chưa có, KHÔNG hiện 0 ₫ (FR-06).
+                      value:
+                        row.marketPrice === null
+                          ? t('portfolio.priceMissing')
+                          : `${formatNumber(row.marketPrice) ?? '—'} ₫`,
+                    },
+                    {
+                      label: t('portfolio.weight'),
+                      value:
+                        row.weight === null
+                          ? '—'
+                          : `${formatNumber(row.weight, { maxDecimals: 0 }) ?? '—'}%`,
+                    },
+                    ...(holding.buyDate === ''
+                      ? []
+                      : [
+                          {
+                            label: t('portfolio.formBuyDate'),
+                            value: formatIsoDate(holding.buyDate),
+                          },
+                        ]),
+                    /*
+                     * Beta chỉ hiện ở chế độ Nâng cao — cùng luật với ô Beta ở đầu màn và ô nhập
+                     * trong form. Ở chế độ Cơ bản, form không có ô beta nên bày con số ra đây là
+                     * bày một thứ chính chế độ đang xem không cho sửa.
+                     */
+                    ...(!advanced || holding.beta === undefined || holding.beta === null
+                      ? []
+                      : [
+                          {
+                            label: t('portfolio.betaShort'),
+                            value:
+                              formatNumber(holding.beta, { maxDecimals: 4 }) ??
+                              String(holding.beta),
+                          },
+                        ]),
+                  ];
 
-              const up = row.gain !== null && row.gain >= 0;
+                  const up = row.gain !== null && row.gain >= 0;
 
-              return (
-                <li key={holding.code} className={styles.row}>
-                  {/*
+                  return (
+                    <li key={holding.code} className={styles.row}>
+                      {/*
                       Nút mở form sửa bao ĐÚNG dòng đầu (mã + tên), không bao các dòng số bên
                       dưới. Lý do là quy tắc tính tên trợ năng: `aria-label` NUỐT toàn bộ nội
                       dung bên trong nút, nên bọc cả khối số vào nút sẽ làm số lượng, giá vốn,
@@ -598,21 +931,21 @@ export function PortfolioScreen() {
                       và mọi con số nằm ngoài nút nên vẫn được đọc như chữ thường của mục danh
                       sách. Nhãn có kèm tên công ty vì tên ấy nằm trong nút.
                     */}
-                  <button
-                    type="button"
-                    className={styles.editButton}
-                    aria-label={`${t('portfolio.edit')} ${holding.code}${
-                      holding.name === undefined ? '' : ` ${holding.name}`
-                    }`}
-                    onClick={() => {
-                      startEdit(holding);
-                    }}
-                  >
-                    <span className={styles.code}>{holding.code}</span>
-                    {holding.name !== undefined && (
-                      <span className={styles.name}>{holding.name}</span>
-                    )}
-                    {/*
+                      <button
+                        type="button"
+                        className={styles.editButton}
+                        aria-label={`${t('portfolio.edit')} ${holding.code}${
+                          holding.name === undefined ? '' : ` ${holding.name}`
+                        }`}
+                        onClick={() => {
+                          startEdit(holding);
+                        }}
+                      >
+                        <span className={styles.code}>{holding.code}</span>
+                        {holding.name !== undefined && (
+                          <span className={styles.name}>{holding.name}</span>
+                        )}
+                        {/*
                         Dấu bút chì là thứ DUY NHẤT nói cho người dùng biết chỗ này bấm được, nên
                         vị trí của nó quan trọng ngang việc nó tồn tại. Nó phải đứng NGAY SAU tên
                         mã: bản trước đẩy sang lề phải bằng `margin-left: auto`, và ở đó nó rời
@@ -624,12 +957,12 @@ export function PortfolioScreen() {
                         Trình đọc màn hình không nghe thấy ký hiệu này: `aria-label` của nút đã
                         thay toàn bộ nội dung bên trong.
                       */}
-                    <span className={styles.editMark} aria-hidden="true">
-                      ✎
-                    </span>
-                  </button>
+                        <span className={styles.editMark} aria-hidden="true">
+                          ✎
+                        </span>
+                      </button>
 
-                  {/*
+                      {/*
                     Lãi/lỗ đứng thành một dải riêng ngay dưới mã, không lẫn vào lưới số liệu:
                     đây là con số người ta mở màn để xem, mọi thứ còn lại là bối cảnh cho nó.
 
@@ -637,32 +970,34 @@ export function PortfolioScreen() {
                     biến mất chứ KHÔNG hiện 0 ₫ (FR-06); lý do đã nằm ở ô "Thị giá — chưa có giá"
                     ngay dưới, và ở ô Lãi/lỗ đầu màn.
                   */}
-                  {row.gain !== null && row.gainPercent !== null && (
-                    <p
-                      className={[styles.gainBand, up ? styles.gainUp : styles.gainDown].join(' ')}
-                    >
-                      <span className={styles.gainLabel}>{t('portfolio.gain')}</span>
-                      <span className={styles.gainValue}>
-                        {up ? '+' : '−'}
-                        {formatNumber(Math.abs(row.gain), { maxDecimals: 0 }) ?? '—'} ₫
-                      </span>
-                      <span className={styles.gainPercent}>
-                        {up ? '+' : '−'}
-                        {formatNumber(Math.abs(row.gainPercent), { maxDecimals: 1 }) ?? '—'}%
-                      </span>
-                    </p>
-                  )}
+                      {row.gain !== null && row.gainPercent !== null && (
+                        <p
+                          className={[styles.gainBand, up ? styles.gainUp : styles.gainDown].join(
+                            ' ',
+                          )}
+                        >
+                          <span className={styles.gainLabel}>{t('portfolio.gain')}</span>
+                          <span className={styles.gainValue}>
+                            {up ? '+' : '−'}
+                            {formatNumber(Math.abs(row.gain), { maxDecimals: 0 }) ?? '—'} ₫
+                          </span>
+                          <span className={styles.gainPercent}>
+                            {up ? '+' : '−'}
+                            {formatNumber(Math.abs(row.gainPercent), { maxDecimals: 1 }) ?? '—'}%
+                          </span>
+                        </p>
+                      )}
 
-                  <dl className={styles.cells}>
-                    {cells.map((cell) => (
-                      <div key={cell.label} className={styles.cell}>
-                        <dt className={styles.cellLabel}>{cell.label}</dt>
-                        <dd className={styles.cellValue}>{cell.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                      <dl className={styles.cells}>
+                        {cells.map((cell) => (
+                          <div key={cell.label} className={styles.cell}>
+                            <dt className={styles.cellLabel}>{cell.label}</dt>
+                            <dd className={styles.cellValue}>{cell.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
 
-                  {/*
+                      {/*
                     Hai nút cuối thẻ là NÚT THẬT có chữ, không còn là ký tự `ƒ` và `×` trần.
 
                     Bản trước để hai ký tự ấy trên nền trong suốt, màu chữ mờ, không viền — chủ dự
@@ -670,162 +1005,177 @@ export function PortfolioScreen() {
                     tự xám không có gì phân biệt với chữ trang trí. Dùng primitive `Button` thì
                     được luôn viền, vòng focus và vùng chạm 44px đã chuẩn hoá sẵn.
                   */}
-                  <div className={styles.actions}>
-                    {/* Lối đi từ MÃ sang CÔNG THỨC — chiều ngược của nút "Nạp mẫu" ở màn chi tiết. */}
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      aria-label={`${t('portfolio.formulas')} ${holding.code}`}
-                      onClick={() => {
-                        setFormulasFor(holding.code);
-                        openSheet('formulas');
-                      }}
-                    >
-                      {t('portfolio.formulas')}
-                    </Button>
+                      <div className={styles.actions}>
+                        {/* Lối đi từ MÃ sang CÔNG THỨC — chiều ngược của nút "Nạp mẫu" ở màn chi tiết. */}
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          aria-label={`${t('portfolio.formulas')} ${holding.code}`}
+                          onClick={() => {
+                            setFormulasFor(holding.code);
+                            openSheet('formulas');
+                          }}
+                        >
+                          {t('portfolio.formulas')}
+                        </Button>
 
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      aria-label={`${t('portfolio.remove')} ${holding.code}`}
-                      onClick={() => {
-                        setHoldings((current) => removeHolding(current, holding.code));
-                        // Đang sửa đúng mã vừa bị bỏ thì form phải đóng, nếu không nó sẽ lưu
-                        // ngược một mã không còn tồn tại.
-                        if (editing === holding.code) closeForm();
-                      }}
-                    >
-                      {t('portfolio.remove')}
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          aria-label={`${t('portfolio.remove')} ${holding.code}`}
+                          onClick={() => {
+                            setHoldings((current) => removeHolding(current, holding.code));
+                            // Đang sửa đúng mã vừa bị bỏ thì form phải đóng, nếu không nó sẽ lưu
+                            // ngược một mã không còn tồn tại.
+                            if (editing === holding.code) closeForm();
+                          }}
+                        >
+                          {t('portfolio.remove')}
+                        </Button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
 
-        {formOpen ? (
-          <div className={styles.form}>
-            {/*
+            {formOpen ? (
+              <div className={styles.form}>
+                {/*
               Ô chọn mã là một NÚT mở sheet, không phải <select>: danh sách có ~1.649 mã, mà một
               <select> chừng ấy option thì không gõ tìm được và dựng ra 1.649 nút DOM.
 
               Ở chế độ SỬA, nút này khoá lại: đổi mã của một dòng đang có không phải là "sửa" mà
               là hai thao tác khác nhau (bỏ mã cũ, thêm mã mới) với hai con số vốn khác nhau.
             */}
-            <div className={styles.codeField}>
-              <span className={styles.codeLabel} id="portfolio-code-label">
-                {t('portfolio.formCode')}
-              </span>
-              <button
-                type="button"
-                className={styles.codeButton}
-                aria-labelledby="portfolio-code-label"
-                disabled={editing !== null}
-                onClick={() => {
-                  openSheet('ticker');
-                }}
-              >
-                {form.code === '' ? (
-                  <span className={styles.codePlaceholder}>{t('portfolio.pickCode')}</span>
-                ) : (
-                  <>
-                    <span className={styles.codeBadge}>{form.code}</span>
-                    <span className={styles.codeName}>{form.name}</span>
-                  </>
+                <div className={styles.codeField}>
+                  <span className={styles.codeLabel} id="portfolio-code-label">
+                    {t('portfolio.formCode')}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.codeButton}
+                    aria-labelledby="portfolio-code-label"
+                    disabled={editing !== null}
+                    onClick={() => {
+                      openSheet('ticker');
+                    }}
+                  >
+                    {form.code === '' ? (
+                      <span className={styles.codePlaceholder}>{t('portfolio.pickCode')}</span>
+                    ) : (
+                      <>
+                        <span className={styles.codeBadge}>{form.code}</span>
+                        <span className={styles.codeName}>{form.name}</span>
+                      </>
+                    )}
+                  </button>
+                  <span className={styles.codeHint}>
+                    {editing === null ? t('portfolio.priceNote') : t('portfolio.editHint')}
+                  </span>
+                  {errors.code !== undefined && (
+                    <span className={styles.fieldError} role="alert">
+                      {errors.code}
+                    </span>
+                  )}
+                  {mergingInto !== null && (
+                    <span className={styles.mergeNote} role="note">
+                      {t('portfolio.mergeNote')}
+                    </span>
+                  )}
+                </div>
+
+                <Input
+                  label={t('portfolio.formQuantity')}
+                  inputMode="decimal"
+                  value={form.quantity}
+                  error={errors.quantity}
+                  onChange={(event) => {
+                    setField('quantity', event.target.value);
+                  }}
+                />
+
+                <Input
+                  label={t('portfolio.formCostPrice')}
+                  inputMode="decimal"
+                  value={form.costPrice}
+                  error={errors.costPrice}
+                  onChange={(event) => {
+                    setField('costPrice', event.target.value);
+                  }}
+                />
+
+                <Input
+                  label={t('portfolio.formBuyDate')}
+                  type="date"
+                  value={form.buyDate}
+                  onChange={(event) => {
+                    setField('buyDate', event.target.value);
+                  }}
+                />
+
+                {/*
+              Ô nhập beta chỉ có ở chế độ Nâng cao — FR-09.
+
+              `form.beta` VẪN được `startEdit()` đổ đầy dù ô không dựng ra, và `submit()` vẫn ghi
+              lại đúng giá trị ấy. Bỏ đi là mỗi lần sửa một mã ở chế độ Cơ bản sẽ xoá mất beta
+              người dùng đã nhập trước đó — mất dữ liệu, không phải ẩn hiển thị.
+            */}
+                {advanced && (
+                  <Input
+                    label={t('portfolio.formBeta')}
+                    inputMode="decimal"
+                    hint={t('portfolio.betaHint')}
+                    value={form.beta}
+                    error={errors.beta}
+                    onChange={(event) => {
+                      setField('beta', event.target.value);
+                    }}
+                  />
                 )}
-              </button>
-              <span className={styles.codeHint}>
-                {editing === null ? t('portfolio.priceNote') : t('portfolio.editHint')}
-              </span>
-              {errors.code !== undefined && (
-                <span className={styles.fieldError} role="alert">
-                  {errors.code}
-                </span>
-              )}
-              {mergingInto !== null && (
-                <span className={styles.mergeNote} role="note">
-                  {t('portfolio.mergeNote')}
-                </span>
-              )}
-            </div>
 
-            <Input
-              label={t('portfolio.formQuantity')}
-              inputMode="decimal"
-              value={form.quantity}
-              error={errors.quantity}
-              onChange={(event) => {
-                setField('quantity', event.target.value);
-              }}
-            />
+                {errors.form !== undefined && (
+                  <p className={styles.formError} role="alert">
+                    {errors.form}
+                  </p>
+                )}
 
-            <Input
-              label={t('portfolio.formCostPrice')}
-              inputMode="decimal"
-              value={form.costPrice}
-              error={errors.costPrice}
-              onChange={(event) => {
-                setField('costPrice', event.target.value);
-              }}
-            />
-
-            <Input
-              label={t('portfolio.formBuyDate')}
-              type="date"
-              value={form.buyDate}
-              onChange={(event) => {
-                setField('buyDate', event.target.value);
-              }}
-            />
-
-            <Input
-              label={t('portfolio.formBeta')}
-              inputMode="decimal"
-              hint={t('portfolio.betaHint')}
-              value={form.beta}
-              error={errors.beta}
-              onChange={(event) => {
-                setField('beta', event.target.value);
-              }}
-            />
-
-            {errors.form !== undefined && (
-              <p className={styles.formError} role="alert">
-                {errors.form}
-              </p>
-            )}
-
-            <div className={styles.formActions}>
-              {/*
+                <div className={styles.formActions}>
+                  {/*
                 Nhãn nút đổi theo việc nút sắp làm. "Thêm vào danh mục" khi thật ra là cộng dồn
                 vào một dòng đã có là hứa sai ngay trên đích bấm — chỗ người dùng đọc kỹ nhất.
               */}
-              <Button onClick={submit}>
-                {editing !== null
-                  ? t('portfolio.formSave')
-                  : mergingInto !== null
-                    ? t('portfolio.formMerge')
-                    : t('portfolio.formSubmit')}
-              </Button>
-              <Button variant="ghost" onClick={closeForm}>
-                {t('portfolio.formCancel')}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className={styles.addButton}
-            onClick={() => {
-              setFormOpen(true);
-            }}
-          >
-            + {t('portfolio.add')}
-          </button>
-        )}
-      </section>
+                  <Button onClick={submit}>
+                    {editing !== null
+                      ? t('portfolio.formSave')
+                      : mergingInto !== null
+                        ? t('portfolio.formMerge')
+                        : t('portfolio.formSubmit')}
+                  </Button>
+                  <Button variant="ghost" onClick={closeForm}>
+                    {t('portfolio.formCancel')}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.addButton}
+                onClick={() => {
+                  setFormOpen(true);
+                }}
+              >
+                + {t('portfolio.add')}
+              </button>
+            )}
+          </section>
+        </div>
+      )}
 
+      {/*
+        Dòng cam kết riêng tư nằm NGOÀI cả hai tab: nó nói về toàn bộ dữ liệu của màn, và phép
+        tính đã lưu cũng nằm trên máy người dùng y như số lượng và giá vốn.
+      */}
       <p className={styles.local}>
         <span className={styles.localTag}>{t('portfolio.localTag')}</span>
         {t('portfolio.localOnly')}

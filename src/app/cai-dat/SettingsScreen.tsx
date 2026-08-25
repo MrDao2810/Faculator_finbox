@@ -4,11 +4,15 @@ import { useCallback, useEffect, useState } from 'react';
 
 import {
   FORMULA_SUMMARIES,
+  FORMULA_USAGE_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
+  PRICE_CACHE_KEY,
   PRICE_SERIES_KEY,
   RECENT_SEARCHES_KEY,
+  SAVED_CALCS_KEY,
+  TICKER_LIST_KEY,
   formatNumber,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
@@ -19,20 +23,40 @@ import { ModeToggle } from '@/ui/navigation';
 import styles from './SettingsScreen.module.css';
 
 /**
- * Bốn thứ app này lưu trên máy người dùng, đúng thứ tự "hay động tới nhất" trước.
+ * Mọi thứ app này lưu trên máy người dùng, đúng thứ tự "hay động tới nhất" trước.
  *
  * LDR-04 · NFR-SEC-01 · COM-03: mọi thứ ở đây nằm trên thiết bị và không gửi đi đâu. Nói ra
  * được thì phải xoá được — người dùng không có cách nào khác để lấy lại quyền với dữ liệu của
  * mình, vì không có tài khoản nào để đăng xuất.
+ *
+ * Thêm một kho mới mà quên thêm dòng vào đây là dựng ra đúng thứ danh sách này tồn tại để chặn:
+ * dữ liệu nằm trên máy người dùng mà họ không có nút nào để xoá. Chuyện đó đã xảy ra thật hai
+ * lần — `ffb.tickers.v1` và `ffb.prices.v1` nằm ngoài danh sách này kể từ gói "Danh mục dùng số
+ * liệu thật" cho tới khi được vá cùng đợt cá nhân hoá trang chủ. Nay có ca kiểm quét mọi hằng
+ * `'ffb.…'` trong `src/application` để không có lần thứ ba; xem `SettingsScreen.test.tsx`.
  */
 const STORAGE_ITEMS: ReadonlyArray<{
   key: string;
-  labelKey: 'data.prefs' | 'data.recent' | 'data.series' | 'data.portfolio';
+  labelKey:
+    | 'data.prefs'
+    | 'data.recent'
+    | 'data.usage'
+    | 'data.series'
+    | 'data.portfolio'
+    | 'data.saved'
+    | 'data.tickers'
+    | 'data.prices';
 }> = [
   { key: PREFERENCES_STORAGE_KEY, labelKey: 'data.prefs' },
   { key: RECENT_SEARCHES_KEY, labelKey: 'data.recent' },
+  // Hai kho "lịch sử" đứng cạnh nhau: cùng loại dữ liệu, cùng lý do người dùng muốn xoá.
+  { key: FORMULA_USAGE_KEY, labelKey: 'data.usage' },
   { key: PRICE_SERIES_KEY, labelKey: 'data.series' },
   { key: PORTFOLIO_KEY, labelKey: 'data.portfolio' },
+  { key: SAVED_CALCS_KEY, labelKey: 'data.saved' },
+  // Hai kho tạm của tab Danh mục. Xoá chỉ mất bộ nhớ đệm, lần mở sau tự lấy lại từ nguồn.
+  { key: TICKER_LIST_KEY, labelKey: 'data.tickers' },
+  { key: PRICE_CACHE_KEY, labelKey: 'data.prices' },
 ];
 
 /** Cỡ một mục trong localStorage, tính bằng ký tự. `null` nghĩa là chưa có gì. */

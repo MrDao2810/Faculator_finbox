@@ -673,7 +673,53 @@ try {
     noise.slice(0, 2).join(' | '),
   );
 
-  /* ── 4. Luồng EN sau hydrate — lá <T> trong children server-render (đợt 8) ─ */
+  /* ── 4. Trang chủ cá nhân hoá — lưới ghim sắp lại theo lịch sử trên máy ──── */
+
+  /*
+   * Chỗ DUY NHẤT trả lời được "có lệch hydration thật không".
+   *
+   * Lưới 18 ô do server dựng, rồi một client component sắp lại theo `ffb.usage.v1`. Lượt render
+   * đầu ở máy khách phải trùng khít HTML tĩnh, nếu không React vứt cả cây đi — và cảnh báo của
+   * nó chui ra đúng cái console mà phép kiểm thứ ba dưới đây đang soi. jsdom không thay được:
+   * ở đó không có lượt hydrate thật nào.
+   */
+  await evaluate(
+    `localStorage.setItem('ffb.usage.v1', JSON.stringify([{ id: 'xirr', count: 9, at: Date.now() }])), true`,
+  );
+  await open('/');
+
+  const oDau = await evaluate(
+    `document.querySelector('#home-featured')?.closest('section')?.querySelector('li a')?.getAttribute('href') ?? null`,
+  );
+  check(
+    'lịch sử đưa công thức hay mở lên ô đầu của khối',
+    oDau === '/cong-thuc/xirr/',
+    `ô đầu trỏ ${String(oDau)}`,
+  );
+
+  const soGhim = (
+    readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/isFeatured: true/g) ??
+    []
+  ).length;
+  const soO = await evaluate(
+    `document.querySelector('#home-featured')?.closest('section')?.querySelectorAll('li').length ?? 0`,
+  );
+  check(
+    'khối vẫn đủ số ô sau khi sắp lại — không co giãn theo lịch sử',
+    soGhim > 0 && soO === soGhim,
+    `${String(soO)} ô, cần ${String(soGhim)}`,
+  );
+
+  check(
+    'trang chủ đã cá nhân hoá không kêu lỗi hay cảnh báo nào ra console — kể cả lệch hydration',
+    noise.length === 0,
+    noise.slice(0, 2).join(' | '),
+  );
+
+  // Dọn ngay: cụm EN dưới đây phải thấy đúng thứ tự ghim như một máy sạch.
+  await evaluate(`localStorage.removeItem('ffb.usage.v1'), true`);
+
+  /* ── 5. Luồng EN sau hydrate — lá <T> trong children server-render (đợt 8) ─ */
 
   /*
    * Rủi ro riêng của kiến trúc i18n: ba khối trang chủ là server children truyền vào client

@@ -80,6 +80,10 @@ export { buildFlowChain, flowDepth } from '@/core/flow-chain';
 export type { Holding, HoldingValue, PortfolioSummary, PriceState } from '@/core/portfolio';
 export { summarisePortfolio, valueHoldings } from '@/core/portfolio';
 
+// ── Phép tính đã lưu — tab "Công thức" của WF-06 ────────────────────────────
+export type { SuggestCalcNameInput } from '@/core/saved-calc-name';
+export { MAX_SAVED_NAME, suggestCalcNames } from '@/core/saved-calc-name';
+
 // ── Chuỗi giá OHLCV sửa tay — WF-05 (gói 3.3.1) ─────────────────────────────
 export type { RowCheck, RowIssue, RowIssueCode, SeriesCheck, SeriesRow } from '@/core/price-series';
 export { checkRow, checkSeries, closesOf, emptyRow, toCsv } from '@/core/price-series';
@@ -324,6 +328,23 @@ export {
   serializeRecentSearches,
 } from './recent-searches';
 
+// Lịch sử mở công thức — cá nhân hoá khối "Công thức dùng hằng ngày" của trang chủ (FR-20)
+export type { FormulaUsage, RankFeaturedInput } from './formula-usage';
+export {
+  FORMULA_USAGE_KEY,
+  MAX_USAGE_COUNT,
+  MAX_USAGE_ENTRIES,
+  PERSONAL_SLOTS,
+  USAGE_HALF_LIFE_MS,
+  USAGE_MIN_SCORE,
+  parseFormulaUsage,
+  rankFeaturedIds,
+  recordFormulaUsage,
+  sameOrder,
+  serializeFormulaUsage,
+  usageScore,
+} from './formula-usage';
+
 export {
   MAX_HOLDINGS,
   PORTFOLIO_KEY,
@@ -333,6 +354,18 @@ export {
   serializeHoldings,
   updateHolding,
 } from './portfolio-store';
+
+export type { SavedCalc } from './saved-calc-store';
+export {
+  MAX_SAVED_CALCS,
+  SAVED_CALCS_KEY,
+  addSavedCalc,
+  parseSavedCalcs,
+  removeSavedCalc,
+  renameSavedCalc,
+  savedCalcId,
+  serializeSavedCalcs,
+} from './saved-calc-store';
 
 export { LAST_LIST_URL_KEY, backToListHref, listUrlToStore, parseListUrl } from './last-list-url';
 

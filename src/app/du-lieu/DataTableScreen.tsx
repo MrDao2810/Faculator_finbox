@@ -37,8 +37,11 @@ import styles from './DataTableScreen.module.css';
  * Ba lối vào dữ liệu, cùng đổ về một bảng: nhập tay từng dòng · nạp bộ mẫu của DataProvider ·
  * dán từ Excel qua sheet WF-11 đã dựng ở đợt 6. Lối ra là CSV tải về.
  *
- * Bảng lưu ở localStorage chứ không gửi đi đâu (NFR-SEC-01, COM-03) — sản phẩm không có
- * backend, nhưng vẫn phải nói rõ trên màn để người dùng biết dữ liệu của mình nằm ở đâu.
+ * Bảng lưu ở localStorage chứ không gửi đi đâu (NFR-SEC-01, COM-03). Màn từng có một dòng ghi
+ * chú nói đúng câu ấy ngay dưới bảng; chủ dự án cho bỏ ngày 25/08/2026 vì người dùng không cần
+ * đọc nó. Bỏ được là vì màn này KHÔNG gọi mạng lần nào, nên chẳng có gì để cảnh báo — chỗ duy
+ * nhất còn phải nói rõ là màn Danh mục, nơi mã cổ phiếu có rời máy thật (`portfolio.localOnly`,
+ * có ca kiểm ghim nguyên văn). Đừng dựng lại dòng này ở đây.
  */
 
 /** Sáu cột của bảng, đúng thứ tự wireframe. */
@@ -100,6 +103,11 @@ const SeriesRowFields = memo(function SeriesRowFields({
             className={column.key === 'date' ? `${styles.cell} ${styles.dateCell}` : styles.cell}
             inputMode={column.key === 'date' ? 'text' : 'decimal'}
             aria-label={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
+            /* Ô số chưa điền hiện dấu gạch chứ không để trắng trơn: bốn cột Mở/Cao/Thấp/Khối
+               lượng thường trống cả bảng (chuỗi minh hoạ chỉ có giá đóng cửa), mà trắng trơn thì
+               đọc ra là ô khoá. Ký tự thuần nên không qua i18n — cùng loại với '×' của nút xoá
+               và '!' của cờ báo lỗi ngay dưới. */
+            placeholder={column.key === 'date' ? undefined : '—'}
             value={column.key === 'date' ? row.date : showNumber(row[column.key])}
             onChange={(event) => {
               const raw = event.target.value;
@@ -386,11 +394,6 @@ export function DataTableScreen() {
           </p>
         </>
       )}
-
-      <p className={styles.local}>
-        <span className={styles.localTag}>{t('series.localTag')}</span>
-        {t('series.localOnly')}
-      </p>
 
       {/* Hai sheet của gói 2.5. Sheet xuất file WF-12 KHÔNG có ở đây: nó xuất kết quả một công
           thức ra PDF/PNG, còn lối ra của bảng này là CSV — nút "Tải CSV" ngay trên. */}

@@ -12,6 +12,7 @@ import {
 import { CategoryGrid, FormulaCard } from '@/ui/browse';
 import { T } from '@/ui/i18n/T';
 
+import { FeaturedFormulas } from './FeaturedFormulas';
 import { HomeSearchPanel } from './HomeSearchPanel';
 import styles from './page.module.css';
 
@@ -62,13 +63,17 @@ export default function Home() {
               <T k="home.featured.title" />
             </h2>
 
-            <ul className={styles.cards}>
-              {FEATURED.map((formula) => (
-                <li key={formula.id}>
-                  <FormulaCard formula={formula} variant="tile" />
-                </li>
-              ))}
-            </ul>
+            {/*
+              Thẻ vẫn do SERVER dựng ở đây rồi truyền xuống — `FeaturedFormulas` chỉ sắp lại thứ
+              tự theo lịch sử trên máy. Nhờ vậy 18 link công thức không phụ thuộc một dòng mã
+              máy khách nào và `out/index.html` giữ nguyên phần Google đang đọc được.
+            */}
+            <FeaturedFormulas
+              pinned={FEATURED.map((formula) => ({
+                id: formula.id,
+                card: <FormulaCard formula={formula} variant="tile" />,
+              }))}
+            />
           </section>
         )}
 

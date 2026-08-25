@@ -1,16 +1,23 @@
 // @vitest-environment jsdom
 
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   FORMULAS,
+  FORMULA_USAGE_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
+  PRICE_CACHE_KEY,
   PRICE_SERIES_KEY,
   RECENT_SEARCHES_KEY,
+  SAVED_CALCS_KEY,
+  TICKER_LIST_KEY,
 } from '@/application';
 import { readPreferences } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
@@ -91,17 +98,76 @@ describe('đơn vị & biểu phí — cài đặt ghi được và nhớ đư�
 });
 
 describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
-  it('liệt kê đủ bốn khoá app đang dùng', () => {
+  it('liệt kê đủ các khoá app đang dùng', () => {
     open();
 
     for (const key of [
       PREFERENCES_STORAGE_KEY,
       RECENT_SEARCHES_KEY,
+      FORMULA_USAGE_KEY,
       PRICE_SERIES_KEY,
       PORTFOLIO_KEY,
+      SAVED_CALCS_KEY,
+      TICKER_LIST_KEY,
+      PRICE_CACHE_KEY,
     ]) {
       expect(screen.getByText(key), key).not.toBeNull();
     }
+  });
+
+  /**
+   * Cửa gác: kho mới mà quên dòng ở màn này thì đỏ ngay, không đợi ai đó tình cờ nhận ra.
+   *
+   * Đã thủng hai lần thật — `ffb.tickers.v1` và `ffb.prices.v1` ghi vào máy người dùng từ gói
+   * "Danh mục dùng số liệu thật" mà không có nút xoá nào, cho tới đợt cá nhân hoá trang chủ mới
+   * được vá. Quét file thay vì liệt kê tay vì chính việc liệt kê tay là thứ đã bỏ sót.
+   */
+  it('mọi kho localStorage khai trong src/application đều xoá được ở màn này', () => {
+    // `process.cwd()` chứ không `import.meta.url`: file này chạy ở môi trường jsdom, nơi
+    // `import.meta.url` là một URL http chứ không phải file:// nên `fileURLToPath` ném lỗi.
+    const dir = join(process.cwd(), 'src', 'application');
+    const files = readdirSync(dir).filter(
+      (name) => name.endsWith('.ts') && !name.includes('.test.'),
+    );
+    // Đường dẫn hỏng thì không có gì để soi và ca kiểm đỗ giả — chặn kiểu đỗ đó.
+    expect(files.length, `không quét được ${dir}`).toBeGreaterThan(5);
+
+    /** Kho KHÔNG cần nút xoá, kèm lý do. Danh sách này phải luôn có lý do, không được để trống. */
+    const CO_Y: ReadonlyArray<{ key: string; viSao: string }> = [
+      {
+        key: 'ffb.lastList.v1',
+        viSao: 'sessionStorage — tự hết khi đóng tab, không sống qua phiên nên không có gì để xoá',
+      },
+    ];
+
+    const khai = new Set<string>();
+    for (const name of files) {
+      const src = readFileSync(join(dir, name), 'utf8');
+      for (const match of src.matchAll(/'(ffb\.[a-z.]+v\d+)'/gi)) {
+        const key = match[1];
+        if (key !== undefined) khai.add(key);
+      }
+    }
+    expect(
+      khai.size,
+      'không tìm thấy khoá ffb.* nào — biểu thức quét có thể đã hỏng',
+    ).toBeGreaterThan(4);
+
+    open();
+    const tren_man = new Set(
+      screen.getAllByRole('listitem').flatMap((row) => {
+        const code = row.querySelector('code')?.textContent;
+        return code === null || code === undefined ? [] : [code];
+      }),
+    );
+
+    const thieu = [...khai].filter(
+      (key) => !tren_man.has(key) && !CO_Y.some((mien) => mien.key === key),
+    );
+    expect(
+      thieu,
+      `kho nằm trên máy người dùng mà không có nút xoá: ${thieu.join(', ')} — thêm dòng vào STORAGE_ITEMS`,
+    ).toEqual([]);
   });
 
   it('chưa lưu gì thì nói "chưa lưu gì" và khoá nút xoá của dòng đó', () => {

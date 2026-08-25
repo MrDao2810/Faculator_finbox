@@ -54,6 +54,28 @@ check(
 
 check('khối "Công thức dùng hằng ngày" nằm trong HTML tĩnh', html.includes('id="home-featured"'));
 
+/*
+ * Đủ SỐ Ô ghim, không chỉ đủ cái tiêu đề.
+ *
+ * Cửa kiểm ngay trên chỉ tìm `id="home-featured"`, mà id đó nằm ở `<h2>` phía server nên nó còn
+ * nguyên kể cả khi lưới bên dưới rỗng. Từ đợt cá nhân hoá, lưới do một client component dựng:
+ * nếu người sau cho nó chờ một cờ `hydrated` rồi mới vẽ, 18 link công thức biến mất khỏi HTML
+ * tĩnh mà cửa kiểm cũ vẫn xanh. Đây là chỗ chặn.
+ *
+ * Số ghim đọc THẲNG từ chỉ mục đã sinh chứ không viết cứng — thêm bớt một `isFeatured` không
+ * được biến script này thành việc phải sửa tay.
+ */
+const soGhim = (
+  readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/isFeatured: true/g) ?? []
+).length;
+const homeLinks = new Set(html.match(/href="\/cong-thuc\/[a-z0-9-]+\/"/g) ?? []);
+
+check(
+  `trang chủ dựng sẵn đủ ${String(soGhim)} link công thức ghim trong HTML tĩnh`,
+  soGhim > 0 && homeLinks.size >= soGhim,
+  `${String(homeLinks.size)} link duy nhất, cần ${String(soGhim)}`,
+);
+
 check('khối "Duyệt theo nhóm" nằm trong HTML tĩnh', html.includes('id="home-browse"'));
 
 check(

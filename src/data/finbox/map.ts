@@ -11,13 +11,34 @@
  *    ai thấy ngay trên màn.
  * 2. **`netIncome` là TTM, không phải `ln_y{năm}`.** Đo được với MWG: `ln_y2026 = 6017` chỉ là
  *    luỹ kế từ đầu năm (2026 chưa hết), trong khi `eps_pha_loang` là EPS 12 tháng gần nhất. Hai
- *    khái niệm khác kỳ, đem tính ROE ra sai gần 2/3. Đúng phép: cộng 4 quý gần nhất.
+ *    khái niệm khác kỳ, đem tính ROE ra sai gần 2/3. Đúng phép: cộng 4 quý gần nhất, và bốn quý
+ *    ấy phải LIỀN NHAU — xem `trailingTwelveMonths()`.
  * 3. **`ct_ct_tm_` là nghìn ₫, KHÔNG phải tỷ lệ trên mệnh giá.** Thoạt nhìn VCB `0.45` rất giống
  *    45%, nhưng VNM `4.35` → 4.350 ₫/CP mới khớp mức cổ tức VNM thật trả.
  *
  * Vì sao vẫn còn hai bản (file này và script `.mjs`): script chạy bằng Node trần nên không import
  * được TypeScript. Chống trôi bằng `map.test.ts` — nó chạy file này trên phản hồi thật của FPT và
  * MWG rồi so với đúng con số mà script đã sinh ra trong `live-fundamentals.generated.ts`.
+ *
+ * ── Vì sao KHÔNG đối chiếu "TTM phải sinh lại đúng EPS đang công bố" ─────────────────────────
+ *
+ * Bản đầu có phép ấy, với ngưỡng 1%, và nó **loại 268 trên 1.005 mã** (đo ngày 25/08/2026 trên
+ * toàn bộ danh sách) — trong đó có SSI, CEO, HHV, tức mã lớn có số liệu hoàn toàn hợp lệ. Người
+ * dùng bấm "Tính công thức" ở một mã như thế chỉ nhận được câu "không lấy được số liệu của mã".
+ *
+ * Phép ấy sai **bản chất**, không phải sai ngưỡng: nó so hai đại lượng khác nhau. `netIncome` là
+ * lợi nhuận hợp nhất 4 quý chia cho số cổ phiếu ĐANG lưu hành, còn `eps_pha_loang` do doanh
+ * nghiệp công bố tính trên số cổ phiếu **bình quân gia quyền** của kỳ, trên phần lợi nhuận
+ * **thuộc cổ đông công ty mẹ**, và đã pha loãng. Doanh nghiệp phát hành thêm trong 12 tháng, hay
+ * có lợi ích cổ đông thiểu số, là lệch — SSI lệch 10,4%, HHV 6,7%, CEO 4,5%, còn FPT chỉ vừa lọt
+ * ở 0,6%. Chính docblock của `Fundamentals.netIncome` đã nói đúng điều này từ trước.
+ * Nới ngưỡng cũng không cứu được: phân vị 90% của độ lệch là 17%, phân vị 99% là 152%.
+ *
+ * Thay bằng hai phép kiểm ĐÚNG BẢN CHẤT, cùng nhắm vào thứ `latestQuarters()` có thể làm sai:
+ * `latestQuartersAgree()` (hai quý ta chọn phải khớp `ln_quygannhat` / `ln_quygannhi`, hai trường
+ * độc lập của cùng phản hồi — đo được 913/914 mã khớp) và điều kiện bốn quý liền nhau trong
+ * `trailingTwelveMonths()` (928/941 đạt; 13 bản ghi trượt đều là chuỗi hỏng thật, có mã nhảy
+ * thẳng từ Q2/2025 về Q3/2017). Tỷ lệ bỏ oan xuống 0, số mã nạp được lên 903 trên 1.005.
  *
  * ── Vì sao hỏng thì trả `null` chứ không ném ────────────────────────────────────────────────
  *
@@ -100,24 +121,74 @@ function latestNonZero(record: Record<string, unknown>, prefix: string): number 
   return null;
 }
 
-/** Lợi nhuận ròng 12 tháng gần nhất — cộng 4 quý gần nhất của `ln_q{quý}/{năm}`, đơn vị tỷ ₫. */
-function trailingTwelveMonths(record: Record<string, unknown>): number | null {
-  const re = /^ln_q(\d)\/(\d{4})$/;
-  const quarters = periodicKeys(record)
-    .map((key) => {
-      const match = re.exec(key);
-      if (match === null) return null;
-      const value = periodicNumber(record, key);
-      if (value === null) return null;
-      return { rank: Number(match[2]) * 4 + Number(match[1]), value };
-    })
-    .filter((entry): entry is { rank: number; value: number } => entry !== null)
-    // Cùng một quý có thể xuất hiện ở cả bản phẳng lẫn `dynamic`; giữ một bản, nếu không TTM
-    // sẽ cộng đôi và ra gấp đôi lợi nhuận thật.
-    .filter((entry, index, all) => all.findIndex((other) => other.rank === entry.rank) === index)
-    .sort((a, b) => b.rank - a.rank);
+/** Một quý có số: `rank` là thứ tự KỲ (`năm × 4 + quý`), không phải thứ tự giá trị. */
+interface Quarter {
+  rank: number;
+  value: number;
+}
 
-  if (quarters.length < 4) return null;
+/** Các quý `ln_q{quý}/{năm}` có số, MỚI NHẤT TRƯỚC. Đơn vị tỷ ₫. */
+function latestQuarters(record: Record<string, unknown>): Quarter[] {
+  const re = /^ln_q(\d)\/(\d{4})$/;
+  return (
+    periodicKeys(record)
+      .map((key) => {
+        const match = re.exec(key);
+        if (match === null) return null;
+        const value = periodicNumber(record, key);
+        if (value === null) return null;
+        return { rank: Number(match[2]) * 4 + Number(match[1]), value };
+      })
+      .filter((entry): entry is Quarter => entry !== null)
+      // Cùng một quý có thể xuất hiện ở cả bản phẳng lẫn `dynamic`; giữ một bản, nếu không TTM
+      // sẽ cộng đôi và ra gấp đôi lợi nhuận thật.
+      .filter((entry, index, all) => all.findIndex((other) => other.rank === entry.rank) === index)
+      .sort((a, b) => b.rank - a.rank)
+  );
+}
+
+/**
+ * Hai quý mà phép sắp trên chọn ra có ĐÚNG là hai quý API tự gọi là gần nhất không.
+ *
+ * Đây là phép đối chiếu thay cho "TTM phải sinh lại đúng EPS" — lý do đầy đủ ở docblock đầu file.
+ * Nó kiểm đúng thứ `latestQuarters()` có thể làm sai (chọn nhầm kỳ, sắp nhầm thứ tự, hoặc một ô
+ * `ln_q*` mang giá trị hỏng), bằng hai trường độc lập của cùng phản hồi.
+ *
+ * Ngưỡng là SAI SỐ TUYỆT ĐỐI 0,05 tỷ ₫ chứ không phải sai số tương đối: cả hai vế đều đã được API
+ * làm tròn tới một chữ số thập phân, nên chênh lệch hợp lệ duy nhất là chênh lệch làm tròn. Sai số
+ * tương đối sẽ nới rộng vô nghĩa với doanh nghiệp lớn và bóp nghẹt với doanh nghiệp lãi gần 0.
+ *
+ * Thiếu trường để so thì coi như ĐẠT — cùng luật `withinTolerance()` đang dùng, và đo được là 27
+ * trên 1.005 bản ghi rơi vào ca này.
+ */
+function latestQuartersAgree(record: Record<string, unknown>, quarters: Quarter[]): boolean {
+  const EPSILON = 0.05;
+  const expected = [
+    periodicNumber(record, 'ln_quygannhat'),
+    periodicNumber(record, 'ln_quygannhi'),
+  ];
+
+  return expected.every((value, index) => {
+    const picked = quarters[index];
+    if (value === null || picked === undefined) return true;
+    return Math.abs(picked.value - value) <= EPSILON;
+  });
+}
+
+/**
+ * Lợi nhuận ròng 12 tháng gần nhất — cộng 4 quý gần nhất, đơn vị tỷ ₫.
+ *
+ * Bốn quý phải LIỀN NHAU. Chuỗi thủng một kỳ vẫn "đủ bốn cái", nhưng tổng khi ấy trải rộng hơn 12
+ * tháng nên không còn là TTM — đo ngày 25/08/2026 có 13 trên 941 bản ghi thủng như vậy, trong đó
+ * có mã nhảy thẳng từ Q2/2025 về Q3/2017. `rank` đếm theo kỳ, nên liền nhau nghĩa là hiệu đúng
+ * bằng 3.
+ */
+function trailingTwelveMonths(quarters: Quarter[]): number | null {
+  const newest = quarters[0];
+  const oldest = quarters[3];
+  if (newest === undefined || oldest === undefined) return null;
+  if (newest.rank - oldest.rank !== 3) return null;
+
   return quarters.slice(0, 4).reduce((sum, entry) => sum + entry.value, 0);
 }
 
@@ -131,8 +202,8 @@ function withinTolerance(computed: number, expected: number | null): boolean {
  * Số liệu cơ bản của một bản ghi, hoặc `null` nếu thiếu field bắt buộc / không qua đối chiếu.
  *
  * Ba phép đối chiếu bắt ba loại lỗi khác nhau, nên giữ đủ cả ba: P/E và P/B bắt lỗi đơn vị (nhân
- * hụt hoặc nhân thừa 1000), còn TTM → EPS bắt lỗi lệch kỳ báo cáo mà hai phép kia không thấy vì
- * chúng đọc field khác.
+ * hụt hoặc nhân thừa 1000), còn phép quý gần nhất bắt lỗi lệch kỳ báo cáo mà hai phép kia không
+ * thấy vì chúng đọc field khác.
  */
 export function toFundamentals(record: Record<string, unknown>): Fundamentals | null {
   const epsRaw = num(record.eps_pha_loang);
@@ -153,14 +224,14 @@ export function toFundamentals(record: Record<string, unknown>): Fundamentals | 
     return null;
   }
 
-  const netIncomeTtm = trailingTwelveMonths(record);
+  const quarters = latestQuarters(record);
+  if (!latestQuartersAgree(record, quarters)) return null;
+
+  const netIncomeTtm = trailingTwelveMonths(quarters);
   if (netIncomeTtm === null) return null;
 
   const eps = round(epsRaw * THOUSAND, 0);
   const bookValuePerShare = round(bookRaw * THOUSAND, 0);
-
-  // TTM phải sinh lại đúng EPS đang công bố — cả hai đều là khái niệm "12 tháng gần nhất".
-  if (!withinTolerance((netIncomeTtm * BILLION) / shares, eps === 0 ? null : eps)) return null;
 
   const dividendRaw = latestNonZero(record, 'ct_ct_tm_');
 

@@ -35,6 +35,9 @@ const FPT_ROW = {
   'ln_q3/2025': 2434.8,
   'ln_q2/2025': 2257.5,
   'ln_q1/2025': 2174.3,
+  // API tự công bố hai quý gần nhất — đây là thứ `latestQuartersAgree()` đối chiếu.
+  ln_quygannhat: 2567.7,
+  ln_quygannhi: 2487.4,
   ln_y2026: 5055,
   ct_ct_tm_2025: 2,
   ct_ct_tm_2024: 2,
@@ -59,11 +62,67 @@ const MWG_ROW = {
   'ln_q3/2025': 1770.9,
   'ln_q2/2025': 1648.1,
   'ln_q1/2025': 1545.9,
+  ln_quygannhat: 3302.5,
+  ln_quygannhi: 2714.4,
   ln_y2026: 6017,
   // Không có ct_ct_tm_2025 trong phản hồi thật — năm gần nhất có số là 2024.
   ct_ct_tm_2024: 1,
   ct_ct_tm_2023: 0.5,
 };
+
+/**
+ * **Ca chống hồi quy của lỗi "nạp mã nhưng không có số liệu nào vào ô".**
+ *
+ * Số thật của SSI, cùng ngày 25/08/2026. Trước gói này bản ghi bị BỎ, vì phép đối chiếu cũ đòi
+ * `netIncome_TTM ÷ slcp` phải bằng `eps_pha_loang` trong 1%: 4.801,6 tỷ ÷ 2,501 tỷ CP = 1.920 ₫
+ * trong khi EPS công bố là 2.143 ₫ — lệch 10,4%, vì SSI phát hành thêm cổ phiếu trong 12 tháng
+ * nên EPS tính trên số CP bình quân gia quyền, ít hơn số CP đang lưu hành.
+ *
+ * Số liệu KHÔNG sai chỗ nào: P/E và P/B do Finbox tự tính đều khớp tới 0,02%.
+ */
+const SSI_ROW = {
+  ticker: 'SSI',
+  company: 'Chứng khoán SSI',
+  floor: 'HOSE',
+  priceFlat: 21.25,
+  pe: 9.916,
+  pb: 1.309,
+  eps_pha_loang: 2.143,
+  gia_tri_so_sach: 16.23,
+  slcp: 2501097752,
+  bctc: 'Q2/2026',
+  'ln_q2/2026': 1231.1,
+  'ln_q1/2026': 1277.9,
+  'ln_q4/2025': 817.5,
+  'ln_q3/2025': 1475.1,
+  ln_quygannhat: 1231.1,
+  ln_quygannhi: 1277.9,
+  ct_ct_tm_2024: 1,
+};
+
+describe('mã có phát hành thêm cổ phiếu vẫn nạp được số liệu', () => {
+  it('SSI: nhận bản ghi, không bỏ vì EPS lệch số CP bình quân gia quyền', () => {
+    const ssi = toFundamentals(SSI_ROW);
+
+    expect(ssi).not.toBeNull();
+    expect(ssi?.eps).toBe(2143);
+    expect(ssi?.bookValuePerShare).toBe(16230);
+    // 1.231,1 + 1.277,9 + 817,5 + 1.475,1 — bốn quý gần nhất.
+    expect(ssi?.netIncome).toBe(4801.6);
+  });
+
+  /*
+   * Ghim luôn khoảng lệch, để nếu sau này ai định dựng lại phép đối chiếu cũ thì thấy ngay con số
+   * mà nó sẽ vấp phải. 10,4% không phải sai số làm tròn — đó là hai đại lượng khác nhau.
+   */
+  it('độ lệch giữa TTM ÷ số CP và EPS công bố là 10,4% — quá xa mọi ngưỡng làm tròn', () => {
+    const ssi = toFundamentals(SSI_ROW);
+    const epsTuTtm = ((ssi?.netIncome ?? 0) * 1e9) / (ssi?.sharesOutstanding ?? 1);
+
+    expect(Math.round(epsTuTtm)).toBe(1920);
+    expect(Math.abs(epsTuTtm - 2143) / 2143).toBeGreaterThan(0.1);
+  });
+});
 
 describe('đọc số liệu cơ bản từ phản hồi Finbox_v2', () => {
   /*
@@ -105,14 +164,33 @@ describe('đọc số liệu cơ bản từ phản hồi Finbox_v2', () => {
     expect(toFundamentals({ ...FPT_ROW, eps_pha_loang: 5867 })).toBeNull();
   });
 
-  it('bỏ bản ghi khi lợi nhuận không sinh lại được EPS đang công bố', () => {
-    // Lệch kỳ báo cáo: P/E và P/B vẫn khớp vì chúng đọc field khác, chỉ phép TTM → EPS bắt được.
+  it('bỏ bản ghi khi quý gần nhất tự chọn không khớp con số API công bố', () => {
+    // Một ô `ln_q*` mang giá trị hỏng (sai đơn vị 10 lần). P/E và P/B vẫn khớp vì chúng đọc field
+    // khác; chỉ phép đối chiếu với `ln_quygannhat` bắt được.
     expect(toFundamentals({ ...FPT_ROW, 'ln_q2/2026': 25677 })).toBeNull();
+    // Sắp nhầm thứ tự hai quý mới nhất cũng bị bắt — đó là lỗi kỳ báo cáo, không phải lỗi giá trị.
+    expect(toFundamentals({ ...FPT_ROW, ln_quygannhat: 2487.4, ln_quygannhi: 2567.7 })).toBeNull();
   });
 
-  it('bỏ bản ghi khi thiếu đủ bốn quý gần nhất', () => {
-    const { 'ln_q3/2025': _dropped, ...thieuQuy } = FPT_ROW;
+  /*
+   * API không trả hai trường đối chiếu thì vẫn nhận — cùng luật `withinTolerance()` đang dùng cho
+   * P/E và P/B: không có số để so thì không có cơ sở để bác. Đo ngày 25/08/2026: 27 trên 1.005
+   * bản ghi rơi vào ca này, chặn hết là bỏ oan 27 mã vì một thiếu sót của nguồn.
+   */
+  it('không có trường đối chiếu thì vẫn nhận bản ghi', () => {
+    const { ln_quygannhat: _nhat, ln_quygannhi: _nhi, ...thieuDoiChieu } = FPT_ROW;
+    expect(toFundamentals(thieuDoiChieu)?.netIncome).toBe(9999.4);
+  });
+
+  it('bỏ bản ghi khi chuỗi quý THỦNG một kỳ — tổng khi ấy trải hơn 12 tháng', () => {
+    // Vẫn còn 5 quý sau khi bỏ, tức vẫn "đủ bốn cái"; cái sai là bốn cái ấy không liền nhau.
+    const { 'ln_q3/2025': _thung, ...thieuQuy } = FPT_ROW;
     expect(toFundamentals(thieuQuy)).toBeNull();
+  });
+
+  it('bỏ bản ghi khi không đủ bốn quý', () => {
+    const { 'ln_q3/2025': _q3, 'ln_q2/2025': _q2, 'ln_q1/2025': _q1, ...chiConBaQuy } = FPT_ROW;
+    expect(toFundamentals(chiConBaQuy)).toBeNull();
   });
 
   it('đọc được cả hình dạng lồng trong `dynamic` của getTickerDetail', () => {

@@ -35,6 +35,24 @@ describe('HiddenByLevelNote — FR-09', () => {
   });
 
   /*
+   * Màn Danh mục ẩn Ô SỐ LIỆU chứ không ẩn công thức, nên nó mượn cùng khối này với một câu
+   * khác. Ca này gác việc `labelKey` thật sự đổi chữ — dùng chung khối mà vẫn nói đúng thứ
+   * đang thiếu là toàn bộ lý do prop ấy tồn tại.
+   */
+  it('labelKey đổi được câu chữ cho chỗ ẩn Ô thay vì ẩn CÔNG THỨC', () => {
+    render(
+      <PreferencesProvider>
+        <HiddenByLevelNote count={2} labelKey="portfolio.hiddenByLevel" />
+      </PreferencesProvider>,
+    );
+
+    expect(screen.getByText(/ô nâng cao đang ẩn/).textContent).toContain('2');
+    expect(screen.queryByText(/công thức nâng cao đang ẩn/)).toBeNull();
+    // Nút bật vẫn là nút cũ — đó là thứ không được phép khác nhau giữa các màn.
+    expect(screen.getByRole('button', { name: 'Bật chế độ Nâng cao' })).toBeTruthy();
+  });
+
+  /*
    * Không ẩn gì thì không được để lại ô trống: ba màn dùng chung khối này đều xếp theo flex
    * có `gap`, nên một thẻ <p> rỗng vẫn ăn một khoảng trắng lửng giữa danh sách.
    */

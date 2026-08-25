@@ -103,6 +103,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Tái hiện + định vị đúng nguyên nhân độ trễ chuyển trang      | —       | Chẩn đoán xong — xem mục "Độ trễ chuyển trang: tái hiện được…" |
 | 3.4.1 | Danh mục dùng số liệu thật — 1.649 mã + thị giá lúc chạy     | —       | Xong — xem mục "Danh mục dùng số liệu THẬT"                    |
 | 3.4.1 | Vá trọn 8 đề mục còn hở của tab Danh mục                     | —       | Xong phần code — xem mục "Vá trọn 8 đề mục còn hở"             |
+| 3.4.1 | Lưu phép tính vào Danh mục — tab "Công thức"                 | —       | Xong phần code — xem mục "Lưu phép tính vào Danh mục"          |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -110,6 +111,448 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Nạp mã vào công thức mà không có số nào vào ô — 268/1.005 mã bị loại oan
+
+Trạng thái: **xong**, đã đo lại trên toàn bộ danh sách mã và xem tận mắt trên Chrome.
+
+### Triệu chứng và cách khoanh vùng
+
+Chủ dự án báo: bấm "Tính công thức" ở một mã trong Danh mục, trang công thức mở ra nhưng số liệu
+của mã không vào ô nào. Khoanh vùng bằng cách quét trên dev server:
+
+- **Cả 31 công thức trong `LIVE_PRESET_FORMULAS` đều nạp đúng với FPT** — cả khi tải thẳng URL lẫn
+  khi đi đúng lối bấm thật (Danh mục → ƒ → sheet → link, tức điều hướng phía máy khách qua
+  `next/link`). Nên lỗi KHÔNG nằm ở effect `?ma=`, ở `applyPresetRef`, hay ở đường link.
+- Đổi sang quét nhiều **mã** trên cùng một công thức thì lộ ra: FPT, VNM, HPG, VCB, MWG, VIC, TCB,
+  DGC, BSR nạp được; **SSI, CEO, HHV, E1VFVN30 báo "không lấy được số liệu của mã"**.
+
+E1VFVN30 là chứng chỉ quỹ, không có EPS lẫn giá trị sổ sách — hỏng đúng và phải hỏng. Ba mã còn
+lại thì API trả **đủ** số liệu.
+
+### Nguyên nhân
+
+`toFundamentals()` trong `src/data/finbox/map.ts` có ba phép đối chiếu. Đo bằng chính con số API:
+
+| Mã  | P/E lệch | P/B lệch | TTM ÷ số CP → EPS                   |
+| --- | -------- | -------- | ----------------------------------- |
+| FPT | 0,005%   | 0,013%   | 5.833 vs 5.867 → **0,6%** (vừa lọt) |
+| CEO | 0,000%   | 0,024%   | 322 vs 337 → **4,5%** ✖            |
+| HHV | 0,004%   | 0,009%   | 1.094 vs 1.173 → **6,7%** ✖        |
+| SSI | 0,000%   | 0,023%   | 1.920 vs 2.143 → **10,4%** ✖       |
+
+Hai cửa đầu lệch ~0,00% và **không loại một mã nào** trên cả 1.005 bản ghi — chúng bắt lỗi đơn vị
+và chạy đúng. Cửa thứ ba, `netIncome_TTM ÷ slcp` phải bằng `eps_pha_loang` trong 1%, **loại 268
+trên 1.005 mã**.
+
+Cửa ấy sai **bản chất** chứ không sai ngưỡng: nó so hai đại lượng khác nhau. `netIncome` là lợi
+nhuận hợp nhất 4 quý chia số CP **đang** lưu hành; `eps_pha_loang` do doanh nghiệp công bố tính
+trên số CP **bình quân gia quyền** của kỳ, trên phần lợi nhuận **thuộc cổ đông công ty mẹ**, và đã
+pha loãng. SSI phát hành thêm cổ phiếu trong 12 tháng nên lệch 10,4%. Chính docblock của
+`Fundamentals.netIncome` (`src/data/types.ts:39-46`) đã viết đúng điều này từ trước — hai chỗ mâu
+thuẫn nhau trong cùng một kho.
+
+Nới ngưỡng không cứu được: phân vị 90% của độ lệch là 17%, phân vị 99% là 152%.
+
+### Cách sửa
+
+Thay bằng hai phép kiểm nhắm đúng thứ `latestQuarters()` **có thể** làm sai:
+
+1. **`latestQuartersAgree()`** — hai quý ta chọn phải khớp `ln_quygannhat` / `ln_quygannhi`, hai
+   trường độc lập của cùng phản hồi. Đo: **913/914 mã khớp (99,89%)**; mã duy nhất lệch là PV2, ở
+   đó chính API tự mâu thuẫn. Ngưỡng là sai số **tuyệt đối** 0,05 tỷ ₫ vì cả hai vế đều đã làm
+   tròn một chữ số. Thiếu trường để so thì coi như đạt — cùng luật `withinTolerance()` đang dùng.
+2. **Bốn quý phải LIỀN NHAU** trong `trailingTwelveMonths()`. Chỗ hở này do ca test cũ lộ ra: bỏ
+   `ln_q3/2025` khỏi FPT thì vẫn còn 5 quý, tức vẫn "đủ bốn cái", nhưng tổng khi ấy trải hơn 12
+   tháng nên không còn là TTM. Đo: **928/941 đạt**; 13 bản ghi trượt đều là chuỗi hỏng thật (CMN
+   nhảy từ Q2/2025 về Q3/2017).
+
+### Kết quả đo lại trên toàn bộ 1.649 mã
+
+|                      | Trước   | Sau       |
+| -------------------- | ------- | --------- |
+| thiếu field bắt buộc | 102     | 102       |
+| loại ở cửa P/E · P/B | 0 · 0   | 0 · 0     |
+| loại ở cửa TTM→EPS   | **268** | — (đã gỡ) |
+| lệch quý gần nhất    | —       | **0**     |
+| chuỗi quý thủng lỗ   | —       | **0**     |
+| **nạp được**         | **635** | **903**   |
+
+### File đã đổi
+
+| File                                | Sửa gì                                                                                                                                                                             |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/data/finbox/map.ts`            | tách `latestQuarters()`; thêm `latestQuartersAgree()`; `trailingTwelveMonths()` nhận mảng quý và đòi 4 quý liền nhau; **gỡ** phép TTM→EPS; docblock ghi lại toàn bộ số đo          |
+| `scripts/gen-live-fundamentals.mjs` | bản song sinh chạy lúc build — sửa y hệt để hai bản không trôi khỏi nhau (ca kiểm neo ở `map.test.ts:135`)                                                                         |
+| `src/data/finbox/map.test.ts`       | thêm `ln_quygannhat`/`ln_quygannhi` thật vào fixture FPT + MWG; **fixture SSI mới** làm ca chống hồi quy; viết lại ca đối chiếu; tách ca "thủng một kỳ" khỏi ca "không đủ bốn quý" |
+
+`live-fundamentals.generated.ts` **không đổi**: FPT và MWG qua cả phép cũ lẫn phép mới với cùng
+con số, nên ca neo giữa hai bản cài đặt vẫn xanh.
+
+### Kiểm chứng
+
+`npm run check` xanh — lint · tsc · prettier · **1674/1674 test qua 75 file** (baseline 1670/75 của
+mục dưới, +4 ca mới). Trên Chrome thật, dev server: SSI · CEO · HHV nay đều "Đã nạp" và điền đủ 2
+ô; E1VFVN30 vẫn báo không lấy được — đúng, vì chứng chỉ quỹ không có EPS lẫn giá trị sổ sách.
+
+**Chưa build lại**: cổng 3000 đang có dev server của phiên khác nên `npm run build` bị
+`check-no-dev.mjs` từ chối. Cần chạy `build` + `verify:static` khi cổng rảnh.
+
+### Còn lại
+
+- **102 bản ghi thiếu field bắt buộc** (chứng chỉ quỹ, mã mới niêm yết) vẫn không nạp được, và
+  câu trên màn là "không lấy được số liệu của mã — nhập tay, hoặc bấm Nạp mẫu". Đúng về mặt FR-06
+  nhưng chưa phân biệt "nguồn không có số liệu cơ bản cho loại tài sản này" với "gọi mạng hỏng".
+  Đáng tách làm hai câu.
+- API chỉ trả **1.005 bản ghi** cho 1.649 mã trong danh sách. Chưa truy vì sao — có thể do phân
+  trang, do giới hạn phía Finbox, hoặc do 644 mã kia không có dữ liệu. Nếu sheet ƒ mở ở một mã
+  thuộc nhóm ấy thì cũng rơi vào ca trên.
+- `FormulaForTickerSheet` hứa "2/2 ô điền sẵn" dựa trên `LIVE_PRESET_FORMULAS`, đã trừ theo
+  `priceFields` khi mã không có giá, nhưng chưa có cột tương ứng cho mã không có số liệu cơ bản.
+
+---
+
+## Bảng dữ liệu WF-05 — ô nhập trông như ô nhập, và bỏ dòng ghi chú localStorage
+
+Trạng thái: **xong**, đã xem tận mắt trên Chrome thật. Hai việc chủ dự án nêu, gộp một đợt vì
+cùng nằm ở màn `/du-lieu/`.
+
+### 1. "Các ô quá mờ nhạt … không biết là có thể nhập liệu được vào đó"
+
+Nguyên nhân nằm gọn ở hai dòng CSS: `.cell` để `background: transparent; border: none`. Đó là
+cách của `InlineNumber`, vốn **cố ý** giấu viền vì nó đứng lẫn trong dòng chữ — vẽ hộp viền
+thường trực sẽ biến câu văn thành hàng biểu mẫu, và docblock của nó nói rõ thế. Chép sang bảng
+dữ liệu thì lý do ấy mất sạch: 6 cột × tối đa 248 dòng đều là ô sửa được, xung quanh không có
+chữ nào để lẫn vào, nên giấu viền chỉ làm cả bảng đọc ra là bảng **chỉ đọc**.
+
+Sửa bằng đúng cặp token mà `globals.css` đã đặt tên cho ô nhập — nền `--color-surface`, viền
+`--color-border-strong` ("viền ô nhập và ranh giới điều khiển — cần ≥ 3:1") — bo `--radius-sm`,
+thêm `cursor: text`, và cho `td` đệm 3px làm rãnh để mỗi ô thành một hộp rời thay vì một mảng
+viền liền khối. Ba thứ đi kèm:
+
+- **`placeholder="—"` cho 5 cột số.** Bốn cột Mở/Cao/Thấp/Khối lượng thường trống cả bảng (chuỗi
+  minh hoạ của Beta chỉ có giá đóng cửa), ô trắng trơn đọc ra là ô khoá. Cột Ngày không có.
+- **`.badRow .cell` cũng ăn nền vàng.** Ô nhập nay có nền trắng riêng, không cho nó ăn màu thì
+  nền vàng của dòng sai chỉ còn hở ra ở rãnh 3px — coi như mất dấu hiệu NFR-USA-06.
+- **`:focus-visible` → `:focus`.** Ô nhập chữ không có lối vào nào là "vô tình", nên vòng focus
+  phải hiện ở mọi lối vào; đây cũng đúng cách primitive `Input` làm (`.control:focus-within`).
+  Đo trên Chrome: ô nhàn viền `#78859a` không đổ bóng, ô có tiêu điểm viền `#1d4ed8` + vòng
+  `0 0 0 3px rgba(29,78,216,.35)`.
+
+### 2. Bỏ dòng "Chuỗi giá chỉ lưu trên thiết bị này (localStorage). Không gửi lên máy chủ."
+
+Chủ dự án chốt bỏ — người dùng không cần đọc. **Đã nêu rủi ro trước khi làm**: docblock của màn
+viện dẫn NFR-SEC-01/COM-03 cho đúng câu ấy. Bỏ được vì màn `/du-lieu/` **không gọi mạng lần
+nào**, nên chẳng có gì để cảnh báo; chỗ thật sự cần nói rõ là màn Danh mục, nơi mã cổ phiếu có
+rời máy thật — `portfolio.localOnly` còn nguyên và có ca kiểm ghim nguyên văn. Docblock của màn
+được viết lại kèm câu "đừng dựng lại dòng này ở đây".
+
+Kéo theo: xoá `series.localOnly` + `series.localTag` khỏi **cả** `vi.ts` và `en.ts`, nếu không
+cửa kiểm khoá mồ côi ở `i18n.test.ts` đỏ ngay. Hai chỗ đều để lại một dòng chú thích nói vì sao
+khoá biến mất.
+
+### File đã đổi
+
+| File                                         | Sửa gì                                                                                                                                                                                                |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/du-lieu/DataTableScreen.module.css` | `.cell` có nền + viền + bo + `cursor: text`; `td` đệm 3px, `td.flagCol` giữ 0; thêm `.cell:hover`, `.cell::placeholder`, `.badRow .cell`; `:focus-visible` → `:focus`; **xoá** `.local` + `.localTag` |
+| `src/app/du-lieu/DataTableScreen.tsx`        | thêm `placeholder` cho 5 cột số; **xoá** khối `<p className={styles.local}>`; viết lại docblock                                                                                                       |
+| `src/application/i18n/vi.ts`, `en.ts`        | **xoá** `series.localOnly` + `series.localTag`                                                                                                                                                        |
+| `src/app/du-lieu/DataTableScreen.test.tsx`   | **file mới** — 5 ca                                                                                                                                                                                   |
+
+### Kiểm chứng
+
+`npm run typecheck` · `npm run lint` · `npm run format:check` xanh. `npm test` **1670/1670 qua 75
+file** (baseline 1665/74 của mục dưới, +5 ca mới).
+
+Xem tận mắt trên **Chrome thật** khổ 390×844, chụp qua CDP: ô nhập hiện rõ là hộp trắng viền
+xám, ô trống có dấu gạch chờ, dòng sai vẫn vàng nguyên dòng, console **sạch** (không cảnh báo
+hydration), và không còn chữ "localStorage" hay "máy chủ" trên màn.
+
+**Chạy trên `next dev` cổng 3000 chứ không phải bản build.** `npm run build` bị `check-no-dev.mjs`
+từ chối vì cổng 3000 đang có dev server của một phiên khác — nên `out/` là bản cũ, và mọi số của
+`verify:static` / `npm run size` chạy lúc này **không nói gì** về đợt sửa này. Không dùng
+`FFB_ALLOW_BUILD_WITH_DEV=1` vì nó phá đồ thị module của dev server đang chạy. Cần build lại và
+chạy `verify:static` + `check:chrome` khi cổng 3000 rảnh.
+
+### Còn lại
+
+- **Bảng vẫn phải cuộn ngang, và cột ĐÓNG nằm ngoài khung.** Đo được `scrollWidth 574` /
+  `clientWidth 356` ở khổ 390px. Đây là chuyện **có sẵn từ trước** (6 cột không thể vừa 360px,
+  `.tableWrap` đã có `overflow-x: auto` từ đợt 6), nhưng rãnh 3px làm bảng rộng thêm 36px, nên
+  cột ĐÓNG — cột duy nhất có số trong chuỗi minh hoạ — càng phải cuộn xa hơn. Chưa động vào vì
+  ngoài phạm vi chủ dự án nêu; nếu làm thì hướng là ghim cột Ngày hoặc thu 4 cột trống lại.
+- **Ba lỗi của kế hoạch "Vá bảng dữ liệu WF-05" vẫn còn nguyên**, và ảnh chụp lần này cho thấy
+  rõ: ô ĐÓNG dòng 2 hiện `100.44999999999997`, ô dòng 3 hiện `100.14955` bị cắt đuôi. Đó là mục
+  A + B của kế hoạch (`rawViNumber()` ở Domain, `NumberCell` dùng chung) — chưa làm:
+  1. không gõ được số thập phân (`parseViNumber('12,')` nuốt dấu phẩy ngay khi vừa gõ);
+  2. sửa một ô có thể nhân giá trị lên 1000 (`String(100.449)` đọc ngược ra `100449`), còn latent
+     ở `NumberInput.tsx:118`, `InlineNumber.tsx:89`, `XirrBody.tsx:22`;
+  3. câu cảnh báo in giá kiểu Anh — thấy ngay trong ảnh: "Giá cao nhất (97) nhỏ hơn giá thấp
+     nhất (99.5)", trong khi ô nhập bên cạnh đọc kiểu Việt.
+- Mục C của kế hoạch (nói rõ "chuỗi chỉ có giá đóng cửa" và "cột Ngày là chỉ số phiên") cần hỏi
+  lại chủ dự án: đợt này vừa bỏ một dòng ghi chú vì "không cần đọc", nên thêm hai dòng khác phải
+  cân nhắc.
+- `DataTableScreen.tsx` còn một dòng code chết: `formatNumber(check.usableCount) ?? check.usableCount`
+  — nhánh `??` không bao giờ chạy vì `formatNumber` khai trả `string`. Để lại cho đợt kế hoạch.
+
+---
+
+## Khối "Công thức dùng hằng ngày" cá nhân hoá thật — FR-20
+
+Trạng thái: **xong phần code, chưa build lại.** `npm run check` xanh (lint · tsc · prettier ·
+**1665/1665 test qua 74 file**, trong đó 56 ca mới). `npm run verify:static` **25/25 đạt** nhưng
+chạy trên `out/` của đợt trước — cổng 3000 đang có dev server nên `npm run build` từ chối chạy
+(`scripts/check-no-dev.mjs`). Còn lại: build → `verify:static` → `size` → `check:chrome`.
+
+### Đính chính thực trạng — vì sao có đợt này
+
+Khối trên trang chủ **không hề có cơ chế nào**: 18 công thức gắn tay `isFeatured: true`, lọc bằng
+`featuredFormulas()`, tính một lần lúc build. Vào lần đầu hay lần thứ 100 đều y hệt nhau — không
+localStorage, không đếm lượt, không empty state. Tên khối hứa cá nhân hoá mà mã thì không làm gì.
+Chủ dự án chốt: cá nhân hoá **thật**, và khối vẫn **luôn đủ 18 ô**.
+
+### Ba núm số đã chốt
+
+| Núm               | Trị  | Ý nghĩa                                                         |
+| ----------------- | ---- | --------------------------------------------------------------- |
+| `PERSONAL_SLOTS`  | 6    | Trần suất cho lịch sử → luôn còn ≥ 12 ghim tay                  |
+| `USAGE_DWELL_MS`  | 8000 | Ở lại ≥ 8 s (tab đang hiện) **hoặc** sửa ô nhập — cái nào trước |
+| `USAGE_MIN_SCORE` | 1,5  | Mở 1 lần hôm nay = 1,0 → chưa đủ, bấm nhầm không xáo trang chủ  |
+
+Điểm suy giảm **lúc đọc**: `count × 0.5^(tuổi / 30 ngày)`. `now` luôn truyền vào tham số, không
+hàm nào tự gọi `Date.now()` — lấy giờ hệ thống giữa lúc render là đường thẳng tới lệch hydration.
+
+### Vì sao thẻ vẫn do server dựng
+
+18 ô ghim **không đi qua một dòng mã máy khách nào**: `page.tsx` dựng sẵn `<FormulaCard>` rồi
+truyền xuống qua `pinned[].card`, client island chỉ sắp lại thứ tự. Đường render phía máy khách
+chỉ chạy cho tối đa 6 ô chèn thêm. Đo được trên `out/` đợt trước: `FORMULA_SUMMARIES` và cả hai
+nhánh của `FormulaCard` **đã nằm sẵn** trong gói trang chủ (chunk `9755-*` và `4629-*`), và khối
+featured vốn đã được serialize hai lần vào `out/index.html` vì là `children` của client island —
+nên phần thêm gần như bằng 0.
+
+Không chờ cờ `hydrated`: khối chứa ứng viên LCP của URL priority 1.0. Người chưa có lịch sử không
+thấy một lượt dựng lại nào — nhánh `sameOrder()` chặn hẳn `setState`.
+
+### Vá kèm — hai kho người dùng không xoá được (tách commit riêng)
+
+`ffb.tickers.v1` và `ffb.prices.v1` ghi vào máy người dùng từ gói "Danh mục dùng số liệu thật" mà
+**không có mặt trong `STORAGE_ITEMS`** của màn Cài đặt, trái docblock ngay trên nó ("Nói ra được
+thì phải xoá được" — LDR-04 · NFR-SEC-01 · COM-03). Nay có nút xoá, và có **cửa gác quét mọi hằng
+`'ffb.…'` trong `src/application`** đối chiếu với danh sách màn Cài đặt render ra, allowlist một
+mục kèm lý do (`ffb.lastList.v1` là sessionStorage). Đã thử bỏ một dòng để xác nhận cửa gác đỏ
+thật, không phải cửa gác đỗ giả.
+
+### File đã đổi
+
+| File                                              | Đổi gì                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------ |
+| `src/application/formula-usage.ts` (mới)          | Kho lịch sử: parse/record/score/rank. Không import `FORMULA_SUMMARIES`   |
+| `src/application/formula-usage.test.ts` (mới)     | 41 ca — JSON hỏng, id sai dạng, số âm, đồng hồ lệch, bất biến 18 ô       |
+| `src/application/index.ts`                        | Cụm export mới, cạnh cụm `recent-searches`                               |
+| `src/application/i18n/{vi,en}.ts`                 | 4 khoá: `home.featured.personalNote`, `data.{usage,tickers,prices}`      |
+| `src/app/FeaturedFormulas.{tsx,module.css}` (mới) | Client island sắp lại thứ tự + dòng phụ đề dưới lưới                     |
+| `src/app/FeaturedFormulas.test.tsx` (mới)         | 8 ca, gồm ca so `renderToStaticMarkup()` với DOM đã mount                |
+| `src/app/page.tsx`                                | Thay `<ul>` bằng `<FeaturedFormulas pinned={…} />`; `<h2>` giữ nguyên    |
+| `src/app/page.module.css`                         | `.cards` chuyển sang file mới; `.tools` giữ lại (lưới khác)              |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`        | `markUsed()` + effect dwell 8 s + móc vào `setValue()`                   |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx`   | 7 ca, fake timers **cục bộ** — 4 vòng quét 111 màn không bị đụng         |
+| `src/app/cai-dat/SettingsScreen.{tsx,test.tsx}`   | +3 khoá vào `STORAGE_ITEMS`, nới union, cửa gác quét `ffb.*`             |
+| `scripts/verify-static.mjs`                       | Phép kiểm thứ 25: đủ **số link ghim**, không chỉ đủ `id="home-featured"` |
+| `scripts/chrome-check.mjs`                        | Cụm 3 phép kiểm cá nhân hoá + console sạch, tự dọn khoá trước cụm EN     |
+
+### Việc còn lại
+
+1. Tắt dev server ở cổng 3000 → `npm run build`.
+2. `npm run verify:static` (chờ **26/26** — phép kiểm mới lúc đó soi HTML có mã mới).
+3. `npm run size` — dự kiến `/` +~1,5–2 kB gz, còn xa cửa 180 kB. 111 trang chi tiết +~0,4 kB
+   nhưng **đã đỏ sẵn từ đợt "Audit toàn dự án"**, không phải hồi quy mới của đợt này.
+4. `npm run check:chrome` — cụm mới là chỗ duy nhất trả lời được "có lệch hydration thật không".
+5. Cập nhật số phép kiểm `check:chrome` ở `CLAUDE.md` dòng 56 sau khi chạy (đang ghi 18, chưa đo lại).
+
+---
+
+## Lưu phép tính vào Danh mục — tab "Công thức"
+
+Trạng thái: **xong phần code, đã build và đo.** `npx vitest run` xanh **1665/1665 qua 74 file**;
+`npm run lint` · `npx tsc --noEmit` · `npx prettier --check` sạch; `npm run build` xanh 122 trang;
+`npm run verify:static` **25/25 đạt** (kể cả khẳng định `<math` — ký hiệu toán vẫn dựng lúc build,
+tức effect `?luu=` không kéo trang nào vào `<Suspense>`).
+
+### Dung lượng — đo bằng worktree ở HEAD, không phải đoán
+
+`npm run size` **đỏ**, nhưng đỏ **từ trước**: nợ đã ghi ở mục "Audit toàn dự án" — `FormulaDetail`
+là client component import trọn `FORMULA_MODULES`, nên 111 trang chi tiết vượt cửa 180 kB từ đợt vá
+bug đo lường. Không phải việc của đợt này, và cắt nó là đổi kiến trúc thật (xem mục đó).
+
+Để tách phần đợt này cộng thêm, đã dựng `git worktree` ở HEAD (junction `node_modules`, build
+riêng, đã gỡ sạch sau khi đo):
+
+| Trang                                                           | HEAD     | Sau đợt này  | Δ       |
+| --------------------------------------------------------------- | -------- | ------------ | ------- |
+| `/danh-muc/` — First Load JS của Next                           | 161 kB   | **165 kB**   | +4 kB   |
+| `/cong-thuc/lich-tra-no/` — `size-report`, gồm cả chunk nạp trễ | 324,1 kB | **328,3 kB** | +4,2 kB |
+
+`/danh-muc/` **vẫn dưới cửa 180 kB** — tab Công thức đọc `FORMULA_SUMMARIES` chứ không chạm
+`FORMULA_MODULES`, đúng thứ ràng buộc này tồn tại để giữ. Lưu ý con số Δ ở trên là **của cả hai
+phiên** đang sửa kho (đợt này + đợt "Công thức đã mở"), chưa tách riêng được.
+
+### Chủ dự án báo
+
+> "sau khi từ phần công thức mà test xong thấy khá ổn và thông số test khá ok thì muốn lưu lại để
+> vào danh mục thì chưa có chức năng đó"
+
+Đúng vậy. Quan hệ giữa hai màn trước đợt này chỉ có **một chiều**: tab Danh mục mở
+`/cong-thuc/<id>/?ma=<MÃ>`, còn bộ số người dùng vừa nhập ở màn chi tiết thì không có chỗ nào giữ
+lại — đóng trang là mọi ô về `defaultInputs(spec)`. Cả repo không có draft/autosave nào cho
+`inputs`; thứ duy nhất `FormulaDetail` từng ghi xuống là chuỗi giá (`ffb.series.v1`).
+
+### Hai điều chốt qua `AskUserQuestion`
+
+1. Tab "Công thức" bày **kết quả đã lưu kèm ngày lưu**, KHÔNG tính lại tại chỗ. Tính lại đòi
+   `FORMULA_MODULES` (cả Registry) trong gói của `/danh-muc/` — đã đo một lần ở
+   `LIVE_PRESET_FORMULAS`: 131 kB → 217 kB, vượt cửa 180 kB. Muốn số mới thì bấm "Mở lại".
+2. Danh sách **phẳng**, không nhóm tự đặt tên.
+
+### Đã đổi file nào — và vì sao
+
+- **`src/application/saved-calc-store.ts`** (mới) — kho `ffb.saved.v1`, trần 30 mục. Cùng khuôn 7
+  store đang có: thuần, không import React, `parse*` không bao giờ ném, cắt trần cả khi đọc lẫn
+  khi ghi. Hai quyết định đáng nhớ:
+  - **Không cất chuỗi giá (`bars`)** — 248 phiên × 6 trường × 30 mục là đủ phình localStorage.
+    Cất `needsSeries` + `seriesCount` thay thế; mở lại mà số phiên đã khác thì màn **nói ra**.
+  - **Không cất chuỗi kết quả đã định dạng** — đó là chữ đã dịch, mà ngôn ngữ đổi được lúc chạy
+    (bài học `ExportSheet` giữ **cờ** `failed` chứ không giữ câu lỗi). Cất số thô + đơn vị.
+- **`src/core/saved-calc-name.ts`** (mới) — `suggestCalcNames()` sinh 3 gợi ý (mã · tên · kết quả ·
+  ngày), đã né trùng bằng hậu tố ' (2)'. Ở Domain vì `MAX_SAVED_NAME` phải là **một** trần cho cả
+  nơi gợi ý lẫn nơi cất, mà CON-02 chỉ cho chiều Application → Domain. Nhận `formulaName` đã
+  `pick()` sẵn nên không đọc i18n; nhận `savedAt` nên không gọi đồng hồ (NFR-REL-03).
+- **`src/ui/sheets/SaveCalcSheet.tsx` + `.module.css`** (mới) — bottom sheet đặt tên. **Chặn lưu
+  khi kết quả đang lỗi**: một con số sai nằm ở tab Danh mục còn nguy hơn ở màn công thức, vì ngoài
+  đó không có ô nhập nào để nhìn ra nguyên nhân, chỉ còn cái tên do chính người dùng đặt bảo chứng
+  cho nó (FR-06). Ghi hỏng (localStorage bị chặn) thì nói ra, không đóng lại như đã lưu xong.
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — nút "☆ Lưu vào danh mục" ở cả **111** công
+  thức, mount lazy qua cơ chế `mountedSheets` sẵn có. Effect mới đọc `?luu=<id>`, đặt **trên**
+  effect `?ma=`; `?ma=` return sớm khi URL có `luu` — hai tham số cùng ghi vào `inputs`, mà bộ số
+  đã lưu là thứ người dùng tự chốt. Vẫn `window.location.search` trong effect, **không**
+  `useSearchParams()` (111 trang sẽ mất MathML dựng lúc build).
+- **`src/app/danh-muc/PortfolioScreen.tsx` + `.module.css`** — hai tab `role="tablist"`, nhãn kèm
+  số đếm. Tab Công thức lấy tên công thức từ `FORMULA_SUMMARIES` (chỉ mục nhẹ) — **không** import
+  `FORMULA_MODULES`. `?tab=cong-thuc` ghi bằng `replaceState`, không `pushState`: đổi tab không
+  phải đi sang màn khác, nhồi vào lịch sử là biến nút Back thành "quay lại tab trước".
+- **`src/app/cai-dat/SettingsScreen.tsx`** — thêm `ffb.saved.v1` vào `STORAGE_ITEMS`; kho nằm trên
+  máy người dùng thì phải có nút xoá (LDR-04).
+- **`src/application/index.ts`**, **`i18n/vi.ts` + `en.ts`** — mở cửa barrel; ~25 khoá mới.
+
+**Test** — `saved-calc-store.test.ts` (18 ca), `saved-calc-name.test.ts` (10 ca),
+`SaveCalcSheet.test.tsx` (10 ca), `PortfolioScreen.test.tsx` +11 ca nhóm "tab Công thức",
+`FormulaDetail.test.tsx` +6 ca nhóm "lưu phép tính vào danh mục".
+
+Một chi tiết đáng ghi ở `PortfolioScreen.test.tsx`: `beforeEach` nay trả URL về `/`. Đổi tab ghi
+`?tab=cong-thuc` vào URL — đúng ý đồ (tải lại trang thì vẫn ở tab cũ) — nhưng jsdom giữ
+`location` chung cho cả file, nên không dọn thì ca sau khởi động ngay ở tab Công thức.
+
+### Còn lại
+
+- [x] `npm run build` + `verify:static` (25/25) + `size` — xem mục "Dung lượng" ở trên. Chủ dự án
+      đồng ý tắt dev server ở cổng 3000 (đã xác nhận đúng PID của `next/dist/server/lib/start-server.js`
+      thuộc dự án này) để `check-no-dev.mjs` không chặn; **cần bật lại `npm run dev` khi làm tiếp**.
+- [ ] Lái Chrome thật: `/cong-thuc/pe/?ma=HPG` → sửa số → Lưu → chọn gợi ý tên → sang
+      `/danh-muc/?tab=cong-thuc` → Mở lại → Đổi tên → Xoá → vào `/cai-dat/` xoá `ffb.saved.v1`.
+      Thêm một công thức chuỗi giá (`rsi-wilder`) để xem lời nhắc nạp lại chuỗi có hiện đúng không.
+
+---
+
+## Chế độ Cơ bản / Nâng cao có tác dụng ở Danh mục — FR-09 vế 3
+
+Trạng thái: **làm dở, tạm dừng theo yêu cầu chủ dự án.** Bước A (màn Danh mục) xong và xanh; ba
+bước còn lại chưa bắt đầu. Dừng vì phát hiện **một phiên khác đang sửa cùng kho** (tính năng
+"Phép tính đã lưu": `saved-calc-store.ts`, `saved-calc-name.ts`, `SaveCalcSheet.tsx`, tab Công
+thức ở màn Danh mục) và hai bên chạm chung `PortfolioScreen.tsx` + `application/index.ts`.
+
+### Chủ dự án báo
+
+> "khi chuyển chế độ thì ở màn trang chủ không thấy thay đổi gì và Danh mục cùng Cài đặt cũng vậy.
+> chỉ có Công thức mới thay đổi"
+
+Đo lại: đúng vậy. Nút `ModeToggle` nằm ở `AppHeader` nên có mặt ở **mọi màn**, nhưng cả repo chỉ có
+**5 nơi** đọc `mode`, và cả 5 đều thuộc nhánh thư viện công thức — `HomeSearchPanel` (chỉ khi đang
+gõ tìm), `FormulaBrowser`, `SearchScreen`, `FormulaDetail`, `HiddenByLevelNote`. `PortfolioScreen`
+và `SettingsScreen` không gọi `usePreferences()` một dòng nào.
+
+Số liệu nền: **111 công thức = 79 Cơ bản + 32 Nâng cao**; `corporate-finance` là nhóm **duy nhất
+rỗng hoàn toàn** ở chế độ Cơ bản (2/2 công thức đều nâng cao). Phân khúc 68→98 và 11→13.
+
+### Bốn việc chủ dự án đã chốt qua `AskUserQuestion`
+
+|     | Việc                                                           | Trạng thái                                             |
+| --- | -------------------------------------------------------------- | ------------------------------------------------------ |
+| A   | Danh mục: Cơ bản 4 ô, Nâng cao 6 ô                             | **Xong**                                               |
+| B   | Trang chủ: lưới nhóm + dòng tiến độ nói theo chế độ            | Xong một nửa (`CategoryGrid`), chưa nối vào `page.tsx` |
+| C   | Cài đặt: Cơ bản giấu chi tiết kỹ thuật của khối dữ liệu cục bộ | Chưa bắt đầu                                           |
+| D   | Dòng `aria-live` xác nhận khi đổi chế độ                       | Chưa bắt đầu                                           |
+
+### Đã đổi file nào — và vì sao
+
+- **`src/app/danh-muc/PortfolioScreen.tsx`** — đọc `mode`; chế độ Cơ bản bỏ tile **Beta** và
+  **XIRR**, bỏ ô nhập Beta trong form, bỏ ô `beta` trong thẻ nắm giữ. Lý do chọn đúng hai ô này:
+  chúng là khái niệm nâng cao thật, **và** với người dùng F0 chúng gần như luôn ở trạng thái
+  "— , —" (beta là bình quân gia quyền nên thiếu beta một mã là hỏng cả ô, mà beta phải nhập tay;
+  XIRR đòi ngày mua hợp lệ ở mọi mã). Hằng số `ADVANCED_TILES` để con số trên dòng báo không
+  phải chép tay.
+- **Hai cửa bẫy đã xử lý cùng lúc** — đây là phần dễ hỏng nhất:
+  - **Beta ghi xuống lấy từ bản đang lưu, không đọc từ form** khi ô đang ẩn. `updateHolding()`
+    THAY THẾ trọn bản ghi, nên mọi đường làm `beta` ra `null` ở đây là **xoá mất số người dùng đã
+    nhập** — mất dữ liệu, không phải chuyện ẩn hiển thị. Có ca kiểm chống hồi quy riêng.
+  - **Bỏ qua kiểm lỗi beta khi ô không hiện** — câu lỗi trên một ô vô hình là form từ chối lưu mà
+    không nói được vì sao.
+- **`src/ui/browse/HiddenByLevelNote.tsx`** — thêm prop `labelKey` (union hai khoá). Màn Danh mục
+  ẩn **Ô SỐ LIỆU** chứ không ẩn công thức, mà ba câu "đang ẩn" phải khác nhau — nối tiếp đúng
+  nguyên tắc đã ghi ở chú thích `list.hiddenByLevel` trong `vi.ts`.
+- **`src/ui/browse/CategoryGrid.tsx` + `.module.css`** — thêm prop tuỳ chọn `counts`. Không truyền
+  thì in `expectedCount` như cũ (giữ nguyên hợp đồng và ca kiểm cũ). Nhóm có `counts = 0` thì hiện
+  **nhãn chữ** `chỉ ở Nâng cao` thay vì in số `0`, và ô **vẫn là link** — màn danh sách phía sau
+  đã có khối rỗng riêng kèm nút bật chế độ. Chưa có ai truyền `counts` vào, đó là phần bước B.
+- **`src/application/i18n/vi.ts` + `en.ts`** — thêm `home.browse.advancedOnly`,
+  `portfolio.hiddenByLevel`; **sửa `settings.mode.hint`** vì câu cũ nói sai: nó hứa "Chế độ Cơ bản
+  … mở sẵn phần giải thích" trong khi `ExplanationAccordion` nay luôn mở ở **cả hai** chế độ.
+
+**Test** — `PortfolioScreen.test.tsx`: helper `moManNangCao()` (ghi `ffb.prefs.v1` trước khi render
+rồi **chờ bằng chứng** hiện ra — đúng nếp ở mục "Hai chỗ ca kiểm dễ đỗ giả"), sửa 3 ca đang giả
+định 6 ô, thêm 4 ca mới gồm ca chống mất beta. `CategoryGrid.test.tsx` +3, `HiddenByLevelNote.test.tsx` +1.
+
+### Còn lại
+
+- [ ] **Bước B** — `src/app/BrowseByCategory.tsx` (client) bê khối "Duyệt theo nhóm" + dòng tiến độ
+      ra khỏi `page.tsx`, truyền `counts` cho `CategoryGrid`. Đếm bằng
+      `countByCategoryFor(formulasForLevel(FORMULA_SUMMARIES, mode), DEFAULT_LIST_PARAMS)` — **không
+      cần hàm Domain mới**, cả bốn thứ đã xuất sẵn và đã nằm trong gói máy khách của trang chủ.
+      `FORMULAS` + `createRegistry()` phải **ở lại** `page.tsx` (Registry đầy đủ, 131 → 217 kB).
+- [ ] **Bước C** — `SettingsScreen.tsx`: Cơ bản gộp khối dữ liệu cục bộ thành một dòng tổng + nút
+      "Xoá toàn bộ" (nút **không** được ẩn — LDR-04). 3 ca kiểm hiện có sẽ đỏ, phải chuyển sang
+      chế độ Nâng cao.
+- [ ] **Bước D** — `ModeChangeNotice` trong `AppShell`. Hai điều bắt buộc: vùng `aria-live` dựng từ
+      render đầu và không bao giờ tháo; **không kêu khi hydrate** (Provider đọc localStorage trong
+      effect nên `mode` tự nhảy `basic → advanced` mà người dùng chẳng bấm gì — dùng cờ `hydrated`).
+      Con số trong câu **không được import `FORMULA_SUMMARIES` vào `AppShell`** (rơi vào gói mọi
+      trang); nên sinh một hằng số `ADVANCED_FORMULA_COUNT` qua `gen:summaries`.
+- [ ] Thêm assertion `verify:static`: lưới nhóm giữ đủ 12 lối vào kể cả ở chế độ Cơ bản. HTML tĩnh
+      dựng ở mặc định Cơ bản, nên đây là chỗ chặn việc lặng lẽ giấu một nhóm khỏi Google.
+- [ ] Chạy `npm run build` + `verify:static` + `size` (đọc riêng `/` và `/danh-muc/`; cửa kiểm
+      `size` **đỏ sẵn** từ đợt Audit, không phải do đợt này).
+- [ ] Lái Chrome thật: đổi chế độ ở từng màn; **ở Cơ bản sửa một mã đã có beta → beta còn nguyên**.
+
+### Hai thứ đỏ KHÔNG phải của đợt này
+
+- `i18n.test.ts` "khoá mồ côi": `home.featured.personalNote`, `data.usage`, `data.tickers`,
+  `data.prices` — khoá của phiên "Phép tính đã lưu", chưa nối call site.
+- `prettier --check`: `vi.ts` (`save.failed`) và `en.ts` (`detail.restoredMissing`) — cùng phiên đó.
+  `PortfolioScreen.tsx` đã chạy `prettier --write` vì khối tile của đợt này bị lệch thụt lề sau khi
+  phiên kia bọc màn vào cấu trúc tab.
+- `PortfolioScreen.test.tsx` nhóm "tab Công thức": `/cong-thuc/pe?luu=` thiếu dấu gạch chéo cuối.
 
 ---
 

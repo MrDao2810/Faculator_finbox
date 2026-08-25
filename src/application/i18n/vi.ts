@@ -180,6 +180,25 @@ export const vi = {
   'detail.tickerFailed':
     'không lấy được số liệu của mã — nhập tay, hoặc bấm “Nạp mẫu” để dùng bộ số liệu sẵn có.',
   'detail.export': '↓ Xuất',
+
+  /*
+   * ── Lưu phép tính vào tab "Công thức" của màn Danh mục ─────────────────────
+   *
+   * Nút hiện ở CẢ 111 công thức, không riêng nhóm có mã: người dùng tính một khoản vay hay một
+   * mức phí cũng muốn giữ lại kết quả y như khi định giá một mã.
+   */
+  'detail.saveToPortfolio': '☆ Lưu vào danh mục',
+  // Hai câu dưới đứng SAU tên phép tính đã lưu, nên viết thường.
+  'detail.restoredNote': 'phép tính đã lưu ngày',
+  'detail.restoredMissing': 'không tìm thấy phép tính đã lưu — có thể nó đã bị xoá khỏi máy này.',
+  /*
+   * Kho lưu KHÔNG cất chuỗi giá (xem docblock `saved-calc-store.ts`), nên mở lại một công thức
+   * nhóm chuỗi mà bảng dữ liệu đang khác lúc lưu thì kết quả sẽ khác. Nói thẳng ra còn hơn để
+   * người dùng đọc một con số mới dưới một cái tên cũ (FR-06).
+   */
+  'detail.restoredNeedsSeries':
+    'Phép tính này dùng chuỗi giá, mà chuỗi đang có trong máy không khớp lúc lưu — kết quả hiện tại có thể khác con số đã lưu. Nạp lại chuỗi giá trước khi đọc kết quả.',
+
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
   'detail.inputs': 'Số liệu',
@@ -284,6 +303,14 @@ export const vi = {
   'portfolio.beta': 'Beta danh mục',
   'portfolio.xirr': 'XIRR toàn DM',
   'portfolio.count': 'Số mã',
+  /*
+   * Chế độ Cơ bản đang giấu hai ô Beta và XIRR — FR-09.
+   *
+   * Chữ cố ý khác `list.hiddenByLevel` ("công thức nâng cao đang ẩn") và `detail.hiddenInBasic`
+   * ("biến nâng cao đang ẩn"): ba chỗ ẩn ba LOẠI thứ khác nhau, dùng chung một câu thì người
+   * đọc không biết mình đang thiếu công thức, thiếu biến hay thiếu con số.
+   */
+  'portfolio.hiddenByLevel': 'ô nâng cao đang ẩn',
   'portfolio.holdings': 'Nắm giữ',
   'portfolio.shares': 'CP',
   'portfolio.costPrice': 'giá vốn',
@@ -376,6 +403,30 @@ export const vi = {
   'portfolio.formulasNoPrice':
     'Chưa tra được thị giá của mã này, nên các công thức cần giá đã bị lược bớt hoặc điền ít ô hơn.',
 
+  /*
+   * ── Hai tab của màn Danh mục: Mã · Công thức ───────────────────────────────
+   *
+   * Tab "Công thức" giữ các phép tính người dùng đã lưu từ màn chi tiết. Nhãn tab đứng cạnh
+   * một con số đếm ('Mã (5)') nên phải ngắn và là DANH TỪ, không phải câu lệnh.
+   */
+  'portfolio.tabHoldings': 'Mã',
+  'portfolio.tabSaved': 'Công thức',
+  'portfolio.savedEmpty':
+    'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
+  'portfolio.savedOpen': 'Mở lại',
+  'portfolio.savedRename': 'Đổi tên',
+  'portfolio.savedRemove': 'Xoá',
+  'portfolio.savedSaveName': 'Lưu tên',
+  'portfolio.savedNameLabel': 'Tên phép tính',
+  /*
+   * Ngày lưu KHÔNG phải thứ trang trí — nó là điều kiện để bày một con số cũ mà vẫn lương thiện,
+   * đúng cặp ràng buộc mà `price-cache-store.ts` đặt ra cho thị giá đã lưu: được dùng số cũ,
+   * nhưng phải nói rõ số ấy thuộc mốc nào. Tab này không tính lại, nên bỏ ngày đi là vi phạm.
+   */
+  'portfolio.savedAt': 'lưu',
+  'portfolio.savedResultNote': 'Kết quả của lần lưu, không tính lại. Bấm “Mở lại” để tính lại.',
+  'portfolio.savedNeedsSeries': 'Cần chuỗi giá',
+
   // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
   'ticker.title': 'Chọn mã cổ phiếu',
   'ticker.subtitle': 'Toàn bộ mã đang giao dịch, lấy từ Finbox',
@@ -414,8 +465,8 @@ export const vi = {
   'series.empty': 'Bảng đang trống. Bấm “Thêm dòng” để nhập tay, hoặc nạp một bộ số liệu mẫu.',
   'series.usable': 'phiên dùng được',
   'series.rowLabel': 'Dòng',
-  'series.localOnly': 'Chuỗi giá chỉ lưu trên thiết bị này (localStorage). Không gửi lên máy chủ.',
-  'series.localTag': 'CỤC BỘ',
+  /* Không còn `series.localOnly` / `series.localTag`: màn bảng dữ liệu bỏ dòng ghi chú
+     localStorage (25/08/2026). Câu tương đương chỉ còn ở màn Danh mục — `portfolio.localOnly`. */
   'series.needMore':
     'Beta và Sharpe cần ít nhất 60 phiên để có ý nghĩa thống kê. Hiện chưa đủ, kết quả sẽ báo thiếu dữ liệu.',
 
@@ -478,6 +529,32 @@ export const vi = {
   'export.doPng': 'Xuất PNG',
   'export.failed': 'Chưa xuất được file. Trình duyệt có thể đang chặn tải xuống.',
 
+  /*
+   * ── Sheet "Lưu vào danh mục" ───────────────────────────────────────────────
+   *
+   * Con số 30 trong `save.errFull` phải khớp `MAX_SAVED_CALCS`; `i18n.test.ts` có ca ghim,
+   * y như cách con số 50 của `portfolio.errFull` đang được ghim theo `MAX_HOLDINGS`.
+   */
+  'save.title': 'Lưu vào danh mục',
+  'save.subtitle': 'Giữ lại bộ số liệu và kết quả này để mở lại sau',
+  'save.nameLabel': 'Đặt tên cho phép tính',
+  'save.nameHint': 'Tên hiện ở tab Công thức của màn Danh mục.',
+  'save.suggestions': 'Gợi ý tên',
+  'save.submit': 'Lưu vào danh mục',
+  'save.done': 'Đã lưu vào Danh mục › Công thức.',
+  'save.goToPortfolio': 'Xem trong danh mục',
+  'save.errEmpty': 'Đặt một cái tên trước đã — tên trống thì sau này không tìm lại được.',
+  'save.errDuplicate': 'Đã có một phép tính tên này. Đặt tên khác để hai mục không lẫn nhau.',
+  'save.errFull': 'Đã lưu đủ 30 phép tính. Xoá bớt một mục trong danh mục trước khi lưu thêm.',
+  /*
+   * Không cho lưu một kết quả đang lỗi. Cất một con số sai rồi bày nó ra tab Danh mục — nơi
+   * không có ô nhập nào để người dùng thấy nguyên nhân — đúng là thứ FR-06 sinh ra để chặn.
+   */
+  'save.errNoResult':
+    'Kết quả đang báo lỗi nên chưa lưu được. Sửa số liệu cho tới khi có kết quả rồi lưu lại.',
+  'save.failed':
+    'Chưa lưu được. Trình duyệt có thể đang chặn bộ nhớ cục bộ hoặc đã hết dung lượng.',
+
   /* Nhãn chữ của công tắc. Luôn hiện cạnh nút gạt để trạng thái không phụ thuộc màu
      (NFR-USA-06) — cùng cách `inputs/Toggle` đang làm với nhãn của từng biến. */
   'switch.on': 'Bật',
@@ -497,9 +574,22 @@ export const vi = {
   /* Lối ra khi bộ lọc đang che mất kết quả: "Bỏ lọc · 12 kết quả". */
   'home.search.dropFilter': 'Bỏ lọc',
   'home.featured.title': 'Công thức dùng hằng ngày',
+  /* Chỉ hiện khi lịch sử đã thật sự đổi thứ tự khối — trang chủ tự sắp lại mà im lặng là
+     hành vi lén, cùng lý do màn danh mục nói thẳng dữ liệu nằm ở đâu. */
+  'home.featured.personalNote':
+    'Những công thức bạn hay mở đã được đưa lên đầu. Lịch sử này nằm trên máy bạn, không gửi đi đâu.',
   'home.browse.title': 'Duyệt theo nhóm',
   /* Đơn vị ghép sau tổng số ở tiêu đề khối: "Duyệt theo nhóm · 111 công thức". */
   'home.browse.unit': 'công thức',
+  /*
+   * Nhãn thay cho số trên ô nhóm mà chế độ Cơ bản giấu sạch — hiện chỉ có `corporate-finance`
+   * (2/2 công thức đều mức nâng cao).
+   *
+   * Phải là CHỮ chứ không được in số `0`: ô vẫn bấm vào được và màn danh sách phía sau vẫn có
+   * khối rỗng riêng kèm nút bật, nên một con số 0 trơ trọi ở đây đọc ra là "nhóm này rỗng" —
+   * sai, và đúng kiểu im lặng mà FR-06 sinh ra để chặn.
+   */
+  'home.browse.advancedOnly': 'chỉ ở Nâng cao',
   /* Nhãn mảng ở trang chủ. Rộng rãi hơn chip lọc nên viết đủ chữ, không dùng `filter.segment.*`. */
   'home.segment.stock': 'Chứng khoán',
   'home.segment.personal': 'Tài chính cá nhân',
@@ -512,7 +602,13 @@ export const vi = {
   // Màn cài đặt — WF-13, gói 3.6.1
   'settings.mode.title': 'Chế độ hiển thị',
   'settings.mode.label': 'Cơ bản hay Nâng cao',
-  'settings.mode.hint': 'Chế độ Cơ bản ẩn bớt biến nâng cao và mở sẵn phần giải thích.',
+  /*
+   * Câu này TỪNG SAI: nó hứa chế độ Cơ bản "mở sẵn phần giải thích", trong khi
+   * `ExplanationAccordion` đã chuyển sang luôn mở ở CẢ HAI chế độ (`defaultOpen = true`, chủ
+   * dự án chốt). Viết lại theo đúng những gì chế độ thật sự đổi, tính cả ba màn vừa nối dây.
+   */
+  'settings.mode.hint':
+    'Nâng cao mở thêm công thức phức tạp, toàn bộ biến nâng cao, chuỗi định giá, và ô Beta / XIRR ở màn Danh mục.',
   'settings.units.title': 'Đơn vị & biểu thị',
   'settings.units.scale': 'Đơn vị tiền trong bảng',
   'settings.units.scaleHint':
@@ -528,6 +624,10 @@ export const vi = {
   'data.recent': 'Từ khoá đã tìm',
   'data.series': 'Chuỗi giá đã nhập',
   'data.portfolio': 'Danh mục cá nhân',
+  'data.saved': 'Phép tính đã lưu',
+  'data.usage': 'Công thức đã mở',
+  'data.tickers': 'Danh sách mã',
+  'data.prices': 'Giá đã lưu',
   'data.empty': 'chưa lưu gì',
   'data.chars': 'ký tự',
   'data.remove': 'Xoá',

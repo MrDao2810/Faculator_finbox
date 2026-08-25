@@ -23,6 +23,9 @@ export type { PasteImportSheetProps } from './PasteImportSheet';
 export { ExportSheet } from './ExportSheet';
 export type { ExportSheetProps } from './ExportSheet';
 
+export { SaveCalcSheet } from './SaveCalcSheet';
+export type { SaveCalcSheetProps } from './SaveCalcSheet';
+
 /*
  * `draw-card` KHÔNG re-export ở đây có chủ đích.
  *

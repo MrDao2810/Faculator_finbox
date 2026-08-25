@@ -80,8 +80,9 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Đệm 3px là rãnh giữa các ô nhập — xem chú thích ở .cell về việc mỗi ô là một hộp riêng. */
 .table td {
-  padding: 0;
+  padding: 3px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -89,12 +90,29 @@
   border-bottom: none;
 }
 
-/* Cột cờ báo lỗi và cột nút xoá — hẹp, không co giãn. */
+/* Cột cờ báo lỗi và cột nút xoá — hẹp, không co giãn. Không phải ô nhập nên không cần rãnh. */
 .flagCol {
   width: 28px;
   text-align: center;
 }
 
+.table td.flagCol {
+  padding: 0;
+}
+
+/*
+ * Ô nhập phải TRÔNG như ô nhập.
+ *
+ * Trước đợt này ô để `background: transparent; border: none` — chép cách của InlineNumber, vốn
+ * cố ý giấu viền vì nó đứng lẫn trong dòng chữ và vẽ hộp sẽ biến câu văn thành hàng biểu mẫu.
+ * Ở đây lý do ấy KHÔNG còn: 6 cột × tối đa 248 dòng đều là ô sửa được, xung quanh không có chữ
+ * nào để lẫn vào, nên giấu viền chỉ khiến cả bảng đọc ra là bảng chỉ-đọc. Chủ dự án báo đúng
+ * thế: "các ô quá mờ nhạt làm cho tôi cũng không biết là có thể nhập liệu được vào đó".
+ *
+ * Dùng đúng cặp mà globals.css đã đặt tên cho ô nhập: nền --color-surface, viền
+ * --color-border-strong ("viền ô nhập và ranh giới điều khiển — cần ≥ 3:1"). Bo --radius-sm và
+ * thụt vào 3px (đệm của td) để mỗi ô thành một hộp rời, thay vì một mảng viền liền khối.
+ */
 .cell {
   width: 100%;
   min-width: 74px;
@@ -108,14 +126,32 @@
   font-size: var(--text-sm);
   color: var(--color-ink);
 
-  background: transparent;
-  border: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  /* Con trỏ chữ I: dấu hiệu "gõ được" thứ hai, cho người dùng chuột. */
+  cursor: text;
 }
 
-.cell:focus-visible {
+/* Ô trống không được biến mất: giữ nền trắng + viền để vẫn đọc ra là ô chờ điền. */
+.cell::placeholder {
+  color: var(--color-muted);
+}
+
+.cell:hover {
+  border-color: var(--color-accent);
+}
+
+/*
+ * `:focus` chứ không `:focus-visible`. Ô nhập chữ thì không có lối vào nào là "vô tình" — người
+ * dùng chạm hay Tab vào đều là cố ý gõ — nên vòng focus phải hiện ở MỌI lối vào. Đây cũng đúng
+ * cách primitive Input làm (`.control:focus-within`), còn `:focus-visible` thì Chrome không khớp
+ * khi tiêu điểm do mã đặt, chẳng hạn lúc màn tự đưa con trỏ về ô vừa thêm.
+ */
+.cell:focus {
   outline: none;
+  border-color: var(--color-focus);
   box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
 }
 
 /*
@@ -133,6 +169,14 @@
  * NFR-USA-06. Câu giải thích nằm ngay dưới bảng để đọc được cả khi không phân biệt được màu.
  */
 .badRow {
+  background: var(--color-warning-soft);
+}
+
+/*
+ * Ô nhập nay có nền trắng riêng, nên nếu không cho nó ăn màu vàng thì nền của cả dòng chỉ còn
+ * hở ra ở rãnh 3px — coi như mất dấu hiệu. Giữ nguyên viền ô để dòng sai vẫn sửa được ngay.
+ */
+.badRow .cell {
   background: var(--color-warning-soft);
 }
 
@@ -217,27 +261,4 @@
   margin: 0;
   font-size: var(--text-sm);
   color: var(--color-ink-soft);
-}
-
-.local {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-
-  margin: 0;
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-muted);
-}
-
-.localTag {
-  flex-shrink: 0;
-  padding: 1px var(--space-2);
-
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--color-ink-soft);
-
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
 }

@@ -8,9 +8,12 @@ import {
   LIVE_PRESET_FORMULAS,
   MAX_HOLDINGS,
   PORTFOLIO_KEY,
+  PREFERENCES_STORAGE_KEY,
   PRICE_CACHE_KEY,
   PRICE_CACHE_TTL_MS,
+  SAVED_CALCS_KEY,
 } from '@/application';
+import { PreferencesProvider } from '@/application/preferences-context';
 
 import { PortfolioScreen } from './PortfolioScreen';
 
@@ -69,6 +72,29 @@ function seedHolding(): void {
   );
 }
 
+/**
+ * Dựng màn ở chế độ **Nâng cao** — FR-09.
+ *
+ * `render(<PortfolioScreen />)` trần không có Provider nên `usePreferences()` trả về mặc định,
+ * tức chế độ Cơ bản: ở đó ô Beta, ô XIRR và ô nhập beta đều không dựng ra. Ca nào cần tới
+ * chúng phải đi qua đây.
+ *
+ * Hai chi tiết KHÔNG được bỏ, cùng lý do đã ghi ở mục "Hai chỗ ca kiểm dễ đỗ giả" trong
+ * `TASK.md`: `PreferencesProvider` đọc localStorage trong **effect**, nên lần render đầu vẫn là
+ * Cơ bản — vì vậy (1) phải ghi tuỳ chọn TRƯỚC khi render, và (2) phải **chờ một bằng chứng**
+ * của chế độ mới hiện ra rồi mới khẳng định. Thiếu vế (2) thì ca kiểm xanh kể cả khi Provider
+ * chưa kịp đọc, tức là ca vô nghĩa.
+ */
+async function moManNangCao(): Promise<void> {
+  window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ mode: 'advanced' }));
+  render(
+    <PreferencesProvider>
+      <PortfolioScreen />
+    </PreferencesProvider>,
+  );
+  await screen.findByText('Beta danh mục');
+}
+
 /** Gieo một mã rồi mở sheet công thức của nó — ba ca dưới đây đều bắt đầu từ đúng chỗ này. */
 async function moSheetCongThuc(): Promise<HTMLElement> {
   seedHolding();
@@ -79,6 +105,14 @@ async function moSheetCongThuc(): Promise<HTMLElement> {
 
 beforeEach(() => {
   window.localStorage.clear();
+  /*
+   * Trả URL về gốc giữa hai ca.
+   *
+   * Đổi tab ghi `?tab=cong-thuc` vào URL bằng `history.replaceState` — đúng ý đồ (tải lại trang
+   * thì vẫn ở tab cũ), nhưng jsdom giữ `location` chung cho cả file, nên không dọn thì ca sau
+   * khởi động ngay ở tab Công thức và không tìm thấy gì của tab Mã.
+   */
+  window.history.replaceState(null, '', '/');
   feed.listTickers.mockReset();
   feed.snapshots.mockReset();
   feed.listTickers.mockResolvedValue([
@@ -103,9 +137,17 @@ describe('WF-06 — danh mục rỗng', () => {
     render(<PortfolioScreen />);
 
     const notes = await screen.findAllByText('Danh mục chưa có mã nào.');
-    // Tổng giá trị · Vốn đã bỏ ra · Lãi/lỗ · Beta · XIRR.
-    // Ô "Số mã" thì 0 là con số đúng, nên nó không có câu này.
-    expect(notes).toHaveLength(5);
+    // Tổng giá trị · Vốn đã bỏ ra · Lãi/lỗ. Beta và XIRR chỉ có ở chế độ Nâng cao (ca ngay
+    // dưới), còn ô "Số mã" thì 0 là con số ĐÚNG nên nó không mang câu này.
+    expect(notes).toHaveLength(3);
+    expect(screen.queryByText(/^0\s*₫$/)).toBeNull();
+  });
+
+  it('chế độ Nâng cao: hai ô nâng cao cũng nói rõ chưa có mã nào (FR-06)', async () => {
+    await moManNangCao();
+
+    // Ba ô của chế độ Cơ bản, cộng Beta và XIRR.
+    expect(screen.getAllByText('Danh mục chưa có mã nào.')).toHaveLength(5);
     expect(screen.queryByText(/^0\s*₫$/)).toBeNull();
   });
 
@@ -392,7 +434,8 @@ describe('WF-06 — sửa một mã đã thêm', () => {
    */
   it('nhập được beta qua form sửa, đúng như cảnh báo beta chỉ dẫn', async () => {
     seedHolding();
-    render(<PortfolioScreen />);
+    // Cả cảnh báo beta lẫn ô nhập beta đều thuộc chế độ Nâng cao — FR-09.
+    await moManNangCao();
 
     expect(await screen.findByText(/Chưa có beta của FPT/)).toBeTruthy();
 
@@ -408,6 +451,110 @@ describe('WF-06 — sửa một mã đã thêm', () => {
     const row = screen.getByRole('listitem');
     expect(within(row).getByText('beta')).toBeTruthy();
     expect(row.textContent).toContain('1,1');
+  });
+});
+
+/*
+ * Chế độ Cơ bản giấu bớt màn Danh mục — FR-09, vế thứ ba (sau "công thức" và "biến").
+ *
+ * Chủ dự án báo: bấm nút Cơ bản / Nâng cao ở thanh trên thì tab Danh mục không đổi gì. Đúng
+ * vậy — trước gói này màn không đọc `usePreferences()` một dòng nào.
+ */
+describe('WF-06 — chế độ hiển thị giấu bớt ô nâng cao (FR-09)', () => {
+  /*
+   * Sáu nhãn ô của màn. Đếm bằng nhãn chứ không đếm phần tử: mọi ô đều đặt `showEyebrow={false}`
+   * nên không có chữ "CHỈ SỐ" chung để bám, còn class thì đã bị CSS Modules băm.
+   */
+  const NHAN_O = [
+    'Tổng giá trị',
+    'Vốn đã bỏ ra',
+    'Lãi/lỗ',
+    'Beta danh mục',
+    'XIRR toàn DM',
+    'Số mã',
+  ] as const;
+
+  function demO(): number {
+    return NHAN_O.filter((nhan) => screen.queryByText(nhan) !== null).length;
+  }
+
+  it('Cơ bản dựng 4 ô, Nâng cao dựng 6 — hiệu số đúng bằng số ô nói là đang ẩn', async () => {
+    render(<PortfolioScreen />);
+    await screen.findByText('Nắm giữ');
+
+    const coBan = demO();
+    expect(coBan).toBe(4);
+    expect(screen.queryByText('Beta danh mục')).toBeNull();
+    expect(screen.queryByText('XIRR toàn DM')).toBeNull();
+
+    cleanup();
+    await moManNangCao();
+    expect(screen.getByText('XIRR toàn DM')).toBeTruthy();
+
+    /*
+     * Con số trên dòng "N ô nâng cao đang ẩn" phải bằng ĐÚNG hiệu số ô thật giữa hai chế độ.
+     * Đây là chỗ gác hằng số `ADVANCED_TILES`: thêm một ô nâng cao mà quên sửa nó thì câu chữ
+     * hứa một đằng, màn giấu một nẻo — mà không cửa nào khác thấy được.
+     */
+    expect(demO() - coBan).toBe(2);
+  });
+
+  it('Cơ bản nói ra là đang giấu, và bấm vào là hiện đủ', async () => {
+    render(
+      <PreferencesProvider>
+        <PortfolioScreen />
+      </PreferencesProvider>,
+    );
+    await screen.findByText('Nắm giữ');
+
+    // Phải nói ra bằng SỐ — "một vài ô đang ẩn" thì người dùng không biết mình đang thiếu gì.
+    expect(screen.getByText(/ô nâng cao đang ẩn/).textContent).toContain('2');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Bật chế độ Nâng cao' }));
+
+    expect(await screen.findByText('Beta danh mục')).toBeTruthy();
+    expect(screen.getByText('XIRR toàn DM')).toBeTruthy();
+    // Nói xong việc thì dòng báo phải biến mất, không đứng đó nói một chuyện đã cũ.
+    expect(screen.queryByText(/ô nâng cao đang ẩn/)).toBeNull();
+  });
+
+  it('Cơ bản: form thêm mã không có ô Beta', async () => {
+    render(<PortfolioScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
+    // Ba ô kia vẫn còn — chỉ đúng một ô bị giấu.
+    expect(screen.getByLabelText('Số cổ phiếu nắm giữ')).toBeTruthy();
+    expect(screen.getByLabelText('Giá vốn một cổ phiếu (₫)')).toBeTruthy();
+    expect(screen.queryByLabelText('Beta (để trống nếu chưa biết)')).toBeNull();
+  });
+
+  /*
+   * Ca chống hồi quy quan trọng nhất của cả gói.
+   *
+   * `updateHolding()` THAY THẾ trọn bản ghi. Nếu `submit()` cứ đọc `form.beta` trong khi ô beta
+   * đang ẩn, thì mỗi lần người dùng sửa số lượng ở chế độ Cơ bản sẽ xoá sạch beta họ đã nhập
+   * trước đó — mất dữ liệu trong im lặng, không phải chuyện ẩn hiển thị.
+   */
+  it('Cơ bản: sửa một mã đang có beta thì beta KHÔNG bị xoá', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '2026-01-02', beta: 1.1 },
+      ]),
+    );
+
+    render(<PortfolioScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: /^Sửa FPT/ }));
+
+    const quantity = screen.getByLabelText('Số cổ phiếu nắm giữ');
+    await userEvent.clear(quantity);
+    await userEvent.type(quantity, '200');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
+
+    await waitFor(() => {
+      const saved: unknown = JSON.parse(window.localStorage.getItem(PORTFOLIO_KEY) ?? '[]');
+      expect(saved).toEqual([expect.objectContaining({ quantity: 200, beta: 1.1 })]);
+    });
   });
 });
 
@@ -512,7 +659,10 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
   });
 
   it('beta gõ chữ: nói rõ, không lặng lẽ biến thành “chưa có beta”', async () => {
-    await moForm();
+    // Ô beta chỉ có ở chế độ Nâng cao, nên câu lỗi của nó cũng chỉ có nghĩa ở đó — FR-09.
+    await moManNangCao();
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
     await userEvent.type(screen.getByLabelText('Beta (để trống nếu chưa biết)'), 'abc');
     await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
 
@@ -795,5 +945,155 @@ describe('WF-06 — lời hứa về dữ liệu riêng tư', () => {
     expect(note.textContent).toContain('Chỉ mã cổ phiếu được gửi tới Finbox');
     // Câu cũ hứa "Không gửi lên máy chủ" — nay không còn đúng, không được để sót lại.
     expect(note.textContent).not.toContain('Không gửi lên máy chủ');
+  });
+});
+
+/*
+ * ── Tab "Công thức": phép tính đã lưu từ màn chi tiết ──────────────────────────────────────
+ *
+ * Tab này cố ý KHÔNG tính lại con số nào — tính lại đòi cả Registry trong gói của `/danh-muc/`,
+ * đã đo một lần là 131 kB lên 217 kB, vượt cửa 180 kB. Nên điều kiện để nó lương thiện là bày
+ * NGÀY LƯU cùng con số, và ca kiểm dưới ghim đúng chỗ đó.
+ */
+function seedSaved(): void {
+  window.localStorage.setItem(
+    SAVED_CALCS_KEY,
+    JSON.stringify([
+      {
+        id: 'pe-1756000000000',
+        formulaId: 'pe',
+        name: 'HPG · P/E',
+        code: 'HPG',
+        inputs: { price: 25000, eps: 2000 },
+        resultValue: 12.5,
+        resultUnit: 'lần',
+        savedAt: new Date(2026, 7, 25, 10, 0, 0).getTime(),
+        needsSeries: false,
+      },
+    ]),
+  );
+}
+
+describe('WF-06 — tab Công thức', () => {
+  it('mặc định mở tab Mã; chưa lưu gì thì tab kia mời lưu chứ không để trống', async () => {
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(screen.getByText(/Chưa lưu phép tính nào/)).not.toBeNull();
+  });
+
+  it('sáu ô chỉ thuộc tab Mã — tab Công thức không mang theo con số của tab kia', async () => {
+    seedHolding();
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Tổng giá trị');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(screen.queryByText('Tổng giá trị')).toBeNull();
+    expect(screen.queryByText('Nắm giữ')).toBeNull();
+  });
+
+  it('bày tên, công thức, kết quả đã lưu và NGÀY LƯU', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(screen.getByText('HPG · P/E')).not.toBeNull();
+    expect(screen.getByText('12,5 lần')).not.toBeNull();
+    // Ngày lưu là điều kiện để bày một con số không tính lại (xem docblock trên).
+    expect(screen.getByText(/25\/08\/2026/)).not.toBeNull();
+    expect(screen.getByText(/không tính lại/)).not.toBeNull();
+  });
+
+  it('nhãn tab mang số đếm của cả hai bên', async () => {
+    seedHolding();
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    expect(await screen.findByRole('tab', { name: 'Mã (1)' })).not.toBeNull();
+    expect(screen.getByRole('tab', { name: 'Công thức (1)' })).not.toBeNull();
+  });
+
+  it('nút Mở lại dẫn về đúng công thức kèm ?luu=', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    const open = screen.getByRole('link', { name: 'Mở lại' });
+    // `next/link` bỏ dấu '/' ngay trước '?' — cùng cách ca "từ mã sang công thức" ở trên xử lý.
+    expect(open.getAttribute('href')?.replace('/?', '?')).toBe(
+      '/cong-thuc/pe?luu=pe-1756000000000',
+    );
+  });
+
+  it('đổi tên ghi thẳng vào localStorage', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Đổi tên HPG · P/E' }));
+
+    const field = screen.getByLabelText('Tên phép tính') as HTMLInputElement;
+    await userEvent.clear(field);
+    await userEvent.type(field, 'Sàng HPG quý 3');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu tên' }));
+
+    expect(screen.getByText('Sàng HPG quý 3')).not.toBeNull();
+    expect(window.localStorage.getItem(SAVED_CALCS_KEY)).toContain('Sàng HPG quý 3');
+  });
+
+  it('xoá thì mục biến khỏi màn và khỏi localStorage', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá HPG · P/E' }));
+
+    expect(screen.getByText(/Chưa lưu phép tính nào/)).not.toBeNull();
+    expect(window.localStorage.getItem(SAVED_CALCS_KEY)).toBe('[]');
+  });
+
+  it('thiếu kết quả thì hiện gạch, KHÔNG hiện 0 (FR-06)', async () => {
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-1',
+          formulaId: 'pe',
+          name: 'Chưa có số',
+          inputs: {},
+          resultValue: null,
+          resultUnit: 'lần',
+          savedAt: Date.now(),
+          needsSeries: false,
+        },
+      ]),
+    );
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(screen.getByText('—')).not.toBeNull();
+    expect(screen.queryByText('0 lần')).toBeNull();
+  });
+
+  it('không gọi mạng chỉ vì đổi sang tab Công thức', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(feed.snapshots).not.toHaveBeenCalled();
   });
 });

@@ -52,7 +52,7 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 24 assertions against a built out/ — run after build
+npm run verify:static  # 25 assertions against a built out/ — run after build
 npm run check:chrome   # 18 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
@@ -268,6 +268,21 @@ schedule must break the formula, which catches a declaration the calc never uses
   every formula uses inside `\text{}`. `verify-static.mjs` asserts `<math` is present in
   `out/cong-thuc/pe/index.html` and that no `katex-html` class or font reference came with it;
   that is the only check that can tell build-time rendering from client-time rendering.
+- **The home "Công thức dùng hằng ngày" shelf is personalised, and three invariants hold it up.**
+  The 18 tiles are still built by the **server** in `page.tsx` from the `isFeatured` flag and passed
+  down as `pinned[].card`; `FeaturedFormulas.tsx` is a thin client island that only **reorders** them
+  from `ffb.usage.v1` (a formula's score halves every 30 days; `PERSONAL_SLOTS = 6` caps how many
+  tiles history may claim, so at least 12 curated pins always survive). So: (1) the shelf is always
+  exactly `pinnedIds.length` tiles with no repeats — `rankFeaturedIds()` guarantees it and
+  `formula-usage.test.ts` sweeps for it; (2) the first client render must equal the build-time HTML —
+  state starts at the constant `null`, `localStorage` and `Date.now()` are read only inside the
+  effect, and `FeaturedFormulas.test.tsx` compares `renderToStaticMarkup()` against the mounted DOM;
+  (3) `verify-static.mjs` now asserts `out/index.html` carries **as many formula links as there are
+  pins**, not merely `id="home-featured"` — the old check passes even with an empty grid, because
+  that id lives on the server-rendered `<h2>`. Never make the grid wait on a `hydrated` flag: it
+  holds the home page's LCP candidate. A usage entry is written once per page view, after 8 s of
+  visible dwell **or** the first edit to an input — never on mount, since `?ma=` fills the fields by
+  itself.
 - **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
   `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
   static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every

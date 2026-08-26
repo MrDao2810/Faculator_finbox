@@ -105,6 +105,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.4.1 | Vá trọn 8 đề mục còn hở của tab Danh mục                     | —       | Xong phần code — xem mục "Vá trọn 8 đề mục còn hở"             |
 | 3.4.1 | Lưu phép tính vào Danh mục — tab "Công thức"                 | —       | Xong phần code — xem mục "Lưu phép tính vào Danh mục"          |
 | —     | Mã dính theo lượt duyệt — nạp một lần, xem mọi công thức     | —       | Xong — xem mục "Mã dính theo lượt duyệt"                       |
+| 1.2.1 | Giao diện tối — bảng màu thứ hai + nút ở màn Cài đặt         | —       | Xong phần code — xem mục "Giao diện tối"                       |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -112,6 +113,249 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Giao diện tối
+
+Trạng thái: **xong phần code, đã xem tận mắt trên Chrome thật**. `npm run check` xanh trọn (1.811 ca).
+Dựng thêm ba lượt kiểm CDP trên Chrome riêng trỏ vào dev server — **35/35 phép đạt**, có ảnh chụp
+từng màn ở bảng tối. Còn lại đúng bốn lệnh cần bản build: `build`, `verify:static`, `size`,
+`check:chrome`; cổng 3000 đang có dev server nên chưa chạy được.
+
+### Chốt trước khi làm
+
+Bốn câu hỏi, chủ dự án trả lời:
+
+1. **Hai trạng thái Sáng / Tối, mặc định Sáng.** Không có "Theo hệ thống", nên `globals.css` cũng
+   không đọc `prefers-color-scheme` — một nguồn quyết định duy nhất.
+2. **Nút ở màn Cài đặt**, ban đầu chốt là không gắn vào thanh trên (khổ 360px chỗ đó đã có ba điều
+   khiển). **Sửa sau khi xem bản chạy**: chủ dự án yêu cầu đưa lên thanh trên cho khổ màn PC — nay
+   nút đứng ở cả hai chỗ, thanh trên chỉ hiện từ 1024px, xem mục "Đưa nút lên thanh trên" cuối bài.
+3. **File PNG xuất ra luôn nền sáng.**
+4. **Sửa luôn ba token đang dùng mà chưa khai.**
+
+### Vì sao thân bài chỉ là một khối CSS
+
+Quét cả repo cho `dark`, `data-theme`, `color-scheme`, `prefers-color-scheme`: 0 kết quả — chưa có
+gì. Nhưng **67 file `*.module.css` không có một mã màu viết thẳng nào**, vì `tokens.test.ts` ép như
+vậy từ gói 1.2.1. Nên thêm bảng màu thứ hai là thêm một khối token, không phải đi sửa 67 file.
+Ngoài ba dòng vá lỗi sẵn có, không CSS Module nào bị đụng tới.
+
+Bảng tối đi qua **đúng** bộ ngưỡng WCAG mà bảng sáng đang chịu — 27 phép mỗi bảng, biên thấp nhất
+`--color-border-strong` trên nền thẻ = 3,58:1 (ngưỡng 3). Hai chỗ cố ý đảo chiều so với bảng sáng:
+`--color-accent-strong` (hover) SÁNG hơn màu nhấn, và `--color-on-accent` thành màu thẫm — trên nền
+tối, nút chính là mảng xanh nhạt chữ thẫm, giữ chữ trắng trên xanh đậm thì nút lặn mất.
+
+### Cái bẫy lớn nhất: `contrast.test.ts` sẽ hỏng trong im lặng
+
+`extractColorTokens()` quét regex **cả file** rồi dồn vào một map phẳng — không biết gì về bộ chọn,
+khai sau đè khai trước. Thêm khối tối vào là bộ kiểm lặng lẽ chuyển sang chấm bảng **tối**, bảng
+sáng hết được chấm, **mà CI vẫn xanh**. Nguy hiểm hơn là gãy hẳn.
+
+Sửa: `extractColorTokens(css, selector = ':root')` cắt đúng thân một khối (đếm ngoặc, không tìm `}`
+đầu tiên), rồi `contrast.test.ts` dựng `DARK = { ...LIGHT, ...khối tối }` — trộn chồng mới đúng
+cascade, token nào bảng tối không đè (`--color-brand-*`) vẫn giữ giá trị gốc. Toàn bộ khối kiểm bọc
+trong vòng lặp hai bảng: **31 ca → 56 ca**. Kèm một ca chứng minh phép cắt thật sự cắt — nếu nó trả
+về cả file thì 27 phép kia thành trò vô nghĩa mà vẫn xanh.
+
+Đây cũng là lý do dòng `color-scheme: light` của khối `@media print` đặt lên `html` chứ không lên
+`:root`: hai bộ chọn nhắm cùng một thẻ, nhưng có hai khối trùng tên `:root` thì phép cắt bóc nhầm khối.
+
+### Ba lỗi sẵn có mà nền tối làm lộ ra
+
+`var()` gọi tới biến chưa ai khai thì CSS lặng thinh — thuộc tính coi như không hợp lệ, chỗ đó rơi
+về thừa kế hoặc trong suốt. Không lỗi, không cảnh báo, chỉ là màu sai. Cả ba đều sống nhiều đợt:
+
+| Chỗ                          | Cũ                                        | Mới                   |
+| ---------------------------- | ----------------------------------------- | --------------------- |
+| `chart.module.css:456,461`   | `var(--color-bg)` — chưa từng khai        | `var(--color-paper)`  |
+| `CategoryGrid.module.css:64` | `var(--color-surface-muted, transparent)` | `var(--color-sunken)` |
+| `CategoryGrid.module.css:71` | `var(--color-ink-muted)` — chưa từng khai | `var(--color-muted)`  |
+
+Chỗ đầu là `<dialog>` xem biểu đồ toàn màn hình: nền nó **đang trong suốt**, chỉ "trông ổn" vì trang
+phía sau màu trắng.
+
+Chặn lần thứ tư bằng cửa kiểm mới trong `tokens.test.ts`: mọi `var(--…)` trong CSS Module phải có
+trong `:root` (miễn `--fill`, do `SliderInput.tsx` đặt inline). Cửa thứ hai: mọi `--color-*` của bảng
+sáng phải có bản tối, trừ danh sách miễn có ghi lý do (`--color-brand-*` — logo cố ý đứng yên); cộng
+`--shadow-sm`/`--shadow-md`/`--focus-ring`, vốn nhúng cứng màu mực bên trong. Không có cửa này thì
+người thêm token mới chỉ cần quên khối tối là hỏng lặng lẽ — bộ kiểm tương phản không có cách nào
+biết vừa có một token ra đời.
+
+### `--color-scrim` — token mới
+
+`BottomSheet.module.css` là **chỗ duy nhất cả repo dùng token ngược vai**: nền mờ lấy
+`background: var(--color-ink); opacity: 0.45`, kèm chú thích "không dùng rgba() vì tokens.test.ts
+chặn". Ở bảng tối mực là màu gần trắng → tấm nền mờ **sáng bừng lên** thay vì tối đi. Nay có token
+riêng khai kèm độ đục ngay trong `globals.css` (chỗ `tokens.test.ts` không quét), và dòng `opacity`
+biến mất.
+
+Đã quét cả hai chiều còn lại: không có `background: var(--color-{ink,ink-soft,muted})` ở đâu khác,
+không có `color: var(--color-{surface,paper,sunken})` ở đâu cả. Hai mẹo vẽ của biểu đồ
+(`fill: var(--color-surface)` làm quầng chữ, làm cột rỗng) tự đúng khi đổi token, vì nền `.plot`
+cũng là `--color-surface`.
+
+### Script chặn nháy trắng — cái mới duy nhất về kiến trúc
+
+Mặc định Sáng và theme chỉ áp sau hydrate, nên người đã chọn Tối sẽ thấy một nháy trắng nguyên trang
+mỗi lần tải cứng. Chữa bằng `<script>` inline ở `<head>`, đặt `data-theme` trước lượt vẽ đầu.
+
+- CSP **đã cho phép sẵn** — `script-src 'self' 'unsafe-inline'`, vốn phải có vì bản export tĩnh của
+  Next tự bootstrap bằng script inline. Không nới thêm gì, không sửa `public/_headers`.
+- `<html>` cần `suppressHydrationWarning` (cũng là lần đầu của dự án), vì DOM sẽ mang một thuộc tính
+  mà HTML tĩnh không có. Cờ đó chỉ chặn cảnh báo trên đúng thẻ `<html>`, không lan xuống cây con.
+- Đã xác nhận trên dev server: Next gộp `<head>` của layout vào `<head>` thật, script nằm đúng chỗ —
+  sau `<meta name="theme-color">`, trước `<body>`.
+
+Khoá `'ffb.prefs.v1'` trong script lấy từ `PREFERENCES_STORAGE_KEY` chứ không gõ lại.
+
+### Cất ở đâu, và vì sao không tạo kho mới
+
+Thêm trường `theme` vào `ffb.prefs.v1` sẵn có. `SettingsScreen.test.tsx` có ca quét mọi hằng
+`'ffb.*.v<số>'` trong `src/application` rồi bắt buộc từng khoá phải hiện ra như một `<code>` xoá được
+trên màn Cài đặt — dùng lại khoá cũ là né trọn.
+
+**Không nâng khoá lên `v2`**: `readPreferences` vốn rơi-về-mặc-định theo từng trường, nên bản ghi cũ
+không có `theme` đọc ra `'light'` — đúng mặc định, không hỏng gì. Có ca kiểm ghim đúng điều đó.
+
+### `<meta name="theme-color">`
+
+Metadata của Next dựng lúc build nên không biết lựa chọn nằm trong máy người dùng; giá trị trong
+`layout.tsx` là của bảng sáng. `PreferencesProvider` vá lại thẻ lúc chạy bằng cách **đọc thẳng token
+`--color-paper` đang áp** — không chép mã màu vào TS, nên đổi bảng màu là thẻ meta đi theo.
+
+### File xuất luôn nền sáng
+
+`draw-card.ts` đọc `getComputedStyle(document.documentElement)` để "thẻ PNG cùng bảng màu với giao
+diện" — hợp lý khi chỉ có một bảng màu, hỏng ngay khi có hai: ai bật Tối sẽ xuất ra tấm thẻ nền tối,
+kể cả ô miễn trừ FR-24. Nay ghim hằng `CARD_COLORS` ở bảng sáng.
+
+Lý do y hệt lý do file xuất luôn tiếng Việt dù giao diện đang tiếng Anh: tấm PNG rời khỏi màn hình và
+sống tiếp một mình — dán vào báo cáo, gửi qua chat, đem đi in — nên nó theo quy ước của TÀI LIỆU chứ
+không theo tuỳ chọn hiển thị của người vừa bấm nút. Bản in `@media print` vốn đã ghim `#000`/`#fff`,
+nay hai đường xuất file nói cùng một thứ.
+
+Tiện thể dọn: sáu giá trị dự phòng cũ (`#2e2a25`, `#ab4610`, `#dbd1c4`…) là bảng "cam đất" của đợt 4
+đã bỏ, lệch từ lâu. `draw-card.test.ts` mới đối chiếu từng mã màu với `globals.css` và chặn
+`getComputedStyle` quay lại.
+
+### Đổi những file nào
+
+| File                                                              | Sửa gì                                                                                                                                       |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/globals.css`                                             | `color-scheme: light` + `--color-scrim` vào `:root`; khối `[data-theme='dark']` 26 biến; `html { color-scheme: light }` trong `@media print` |
+| `src/ui/contrast.ts`                                              | `cssBlock()` mới (đếm ngoặc); `extractColorTokens(css, selector)`                                                                            |
+| `src/ui/contrast.test.ts`                                         | Chấm cả hai bảng — 31 → 56 ca; thêm ca chứng minh phép cắt thật sự cắt                                                                       |
+| `src/ui/tokens.test.ts`                                           | Hai cửa kiểm mới: biến gọi tới phải được khai; bảng tối phải đè đủ                                                                           |
+| `src/application/preferences.ts`                                  | Kiểu `Theme`, trường `theme`, `isTheme()`, đọc và ghi                                                                                        |
+| `src/application/preferences-context.tsx`                         | `setTheme` + effect ghi `data-theme` và vá thẻ meta                                                                                          |
+| `src/application/index.ts`                                        | Mở `Theme` qua barrel                                                                                                                        |
+| `src/app/layout.tsx`                                              | `THEME_BOOT_SCRIPT` trong `<head>`, `suppressHydrationWarning`                                                                               |
+| `src/ui/navigation/ThemePicker.tsx` + `.module.css` + `.test.tsx` | Cụm hai ô có chữ cho màn Cài đặt, khuôn `ModeToggle`                                                                                         |
+| `src/ui/navigation/ThemeSwitch.tsx` + `.module.css` + `.test.tsx` | Nút icon mặt trời/mặt trăng cho thanh trên, khuôn `LangSwitch`                                                                               |
+| `src/ui/navigation/index.ts`                                      | Xuất `ThemeSwitch`                                                                                                                           |
+| `src/ui/navigation/AppHeader.tsx` + `.module.css` + `.test.tsx`   | Gắn `ThemeSwitch` vào `.controls`, bọc `.themeControl` ẩn dưới 1024px                                                                        |
+| `src/app/cai-dat/SettingsScreen.tsx`                              | Một hàng trong khối "Chế độ hiển thị"                                                                                                        |
+| `src/ui/sheets/draw-card.ts` + `.test.ts`                         | Ghim bảng sáng, bỏ `getComputedStyle`                                                                                                        |
+| `src/ui/primitives/BottomSheet.module.css`                        | Nền mờ dùng `--color-scrim`                                                                                                                  |
+| `src/ui/charts/chart.module.css`                                  | `--color-bg` → `--color-paper` (2 chỗ)                                                                                                       |
+| `src/ui/browse/CategoryGrid.module.css`                           | Hai token chưa khai → token có thật                                                                                                          |
+| `src/application/i18n/{vi,en}.ts`                                 | 7 khoá: `theme.label/light/dark`, `theme.switchToDark/switchToLight`, `settings.theme.label/hint`                                            |
+| `src/application/preferences.test.ts`                             | Ghim `theme` trong danh sách khoá; ca bản `v1` cũ                                                                                            |
+
+**Không đụng tới**: `public/_headers` (CSP đã đủ), `public/sw.js` (`globals.css` đổi nội dung là đổi
+tên băm, không cần nâng `CACHE`), `manifest.webmanifest` và bốn file biểu tượng (manifest không có
+dạng theo media query; logo cố ý không đổi theo giao diện), bảy mã màu tuyệt đối của khối `@media
+print`, và 67 CSS Module còn lại.
+
+Ngân sách 180 kB không bị đụng: cửa kiểm so `p.jsGzip`, CSS không tính; phần JS thêm vào chỉ là
+`ThemeSwitch` cộng một effect.
+
+### Xem tận mắt trên Chrome — 35/35, và một lỗi tìm ra ở đó
+
+Ba lượt kiểm qua CDP, Chrome riêng hồ sơ tạm, khổ 390×844, trỏ vào dev server:
+
+- **Vòng 1 (21 ca)** — mặc định sáng; bấm Tối thì `data-theme`, token, `color-scheme`, nền `body`,
+  màu chữ, thẻ `theme-color` và `localStorage` đều đổi đúng; **tải lại vẫn tối** (script chặn nháy
+  chạy thật); nền `<dialog>` phóng to hết trong suốt; nền mờ bottom sheet **tối đi**; bấm Sáng về
+  đúng chỗ cũ. Console sạch trên mọi màn — **không có cảnh báo lệch hydration nào**, tức
+  `suppressHydrationWarning` cộng script inline không sinh nợ.
+- **Vòng 2 (8 ca)** — thác nước `fcff`: cột rỗng `.barDown` tô `rgb(27, 36, 53)` đúng bằng
+  `--color-surface`, mẹo "cột rỗng" vẫn đọc đúng vì nền khung vẽ cũng là token ấy; chuỗi WF-04 ở
+  chế độ Nâng cao hiện ra, không tràn ngang (390 vs 390); Danh mục và danh sách công thức sạch.
+- **Vòng 3 (6 ca)** — bật Tối rồi xuất PNG: bắt canvas qua `toBlob`, đọc điểm ảnh ba góc, **cả ba
+  đều `rgb(255, 255, 255)`**. Tấm thẻ ra đúng nền trắng, chữ xanh, ô miễn trừ vàng nhạt.
+
+**Lỗi tìm ra và đã vá**: `@media print { html { color-scheme: light } }` **không ăn**. `@media`
+không cộng độ ưu tiên, nên `html` (0,0,1) thua `[data-theme='dark']` (0,1,0) ở trên — in ra vẫn
+`color-scheme: dark`. Đổi bộ chọn thành `[data-theme]` (0,1,0, đứng sau nên thắng tie) là hết. Đây
+đúng lớp lỗi mà chú thích `:has()` vs `:where()` của khối in đã cảnh báo từ trước; chỉ có chạy trên
+Chrome thật mới thấy — không bộ kiểm nào của dự án bắt được.
+
+### Đưa nút lên thanh trên — bổ sung theo yêu cầu chủ dự án
+
+Ban đầu chốt "chỉ ở màn Cài đặt". Xem bản chạy xong, chủ dự án yêu cầu đưa lên thanh công cụ cho
+**khổ màn PC**, và yêu cầu ở đó là **một icon bấm-là-đổi**, không phải cụm hai ô có chữ.
+
+Nay **một tuỳ chọn, hai hình**:
+
+| Component     | Ở đâu                    | Hình                | Vì sao                                                                                           |
+| ------------- | ------------------------ | ------------------- | ------------------------------------------------------------------------------------------------ |
+| `ThemeSwitch` | thanh trên, **≥ 1024px** | 1 icon, bấm là đổi  | Chỗ hẹp; nằm cạnh `LangSwitch` vốn cũng bấm-là-đổi, nên theo cùng quy ước                        |
+| `ThemePicker` | màn Cài đặt, mọi khổ màn | 2 ô có chữ Sáng/Tối | Cài đặt là chỗ người ta tới để ĐỌC mình đang đặt gì; và nó đứng ngay dưới `ModeToggle` cùng hình |
+
+Hai component nhưng **một nguồn sự thật**: cả hai đọc/ghi qua `usePreferences`, không cái nào giữ
+state riêng. (Bản cũ tên `ThemeSwitch` — cụm hai ô — đổi tên thành `ThemePicker`; tên `ThemeSwitch`
+nay dành cho nút icon, khớp cách `LangSwitch` đặt tên cho đúng loại nút ấy.)
+
+Quy ước icon: **icon nói đang ở đâu** (mặt trời = đang sáng), `aria-label`/`title` nói bấm vào thì
+gì xảy ra — giống hệt `LangSwitch` ("chữ trên nút là ngôn ngữ đang dùng"). Hai nút bấm-là-đổi nằm
+sát nhau mà một cái bày trạng thái hiện tại, cái kia bày đích đến, thì không ai đoán đúng cả hai.
+
+**Hai icon cùng nằm trong DOM, CSS chọn cái nào hiện theo `data-theme` — không phải React chọn.**
+Lượt render đầu luôn là `theme: 'light'` (phải thế mới khớp HTML tĩnh), nên để React chọn thì người
+đã bật Tối sẽ thấy mặt trời trên nền tối cho tới khi hydrate xong — đúng loại sai lệch mà cả cái
+script chặn nháy sinh ra để tránh; vá một nửa thì thà không vá. Cho CSS chọn thì icon đúng ngay từ
+lượt vẽ đầu, và đúng cả khi JS hỏng hoàn toàn. Điều này chạy được vì bộ chọn `[data-theme='dark']`
+không mang lớp nào nên CSS Module để nguyên, không băm tên — **đã đo trên Chrome thật**, không phải
+suy ra.
+
+Việc ẩn dưới 1024px nằm ở lớp bọc `.themeControl` trong `AppHeader.module.css`, **không** nằm trong
+`ThemeSwitch.module.css`. Ngưỡng 1024px lấy đúng của `HeaderNav` nên hai thứ hiện/ẩn cùng lúc.
+
+**Đo trên Chrome thật — 22/22** qua hai lượt:
+
+| Phép đo              | Kết quả                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------- |
+| 360px                | ẩn hẳn (`display: none`, khỏi cả cây trợ năng) · không tràn ngang · console sạch          |
+| 1023px               | vẫn ẩn — đúng ngay dưới ngưỡng                                                            |
+| 1024px               | hiện · **biên hẹp nhất**: cụm nút phải rộng 338px trong khung 1009px, còn dư 16px         |
+| 1280px               | nút 36×32, đúng cỡ `LangSwitch` bên cạnh                                                  |
+| bảng sáng            | 2 svg trong DOM, đúng 1 cái hiện, và là **mặt trời**                                      |
+| bấm                  | trang sang tối · icon đổi sang **mặt trăng** · nhãn đổi sang "Chuyển sang giao diện sáng" |
+| tải lại khi đang tối | icon mặt trăng **đúng ngay**, không chờ hydrate                                           |
+| console              | sạch ở mọi bước                                                                           |
+
+Ba file kiểm gác phần jsdom không đo được:
+
+- `AppHeader.test.tsx` — nút nằm trong lớp bọc `.themeControl` (media query thì jsdom không áp,
+  nên ca kiểm gác lớp bọc; gỡ nó đi là nút hiện ở 360px, nơi thanh trên vốn đã hết chỗ), và thanh
+  trên dùng bản icon chứ không phải bản có chữ.
+- `ThemeSwitch.test.tsx` — nút không có chữ nên `aria-label` là thứ DUY NHẤT nói cho trình đọc màn
+  hình biết bấm vào thì gì xảy ra; kèm ca ghim "cả hai icon phải nằm sẵn trong DOM", vì đó là cơ
+  chế chứ không phải dư thừa.
+- `ThemePicker.test.tsx` — như cũ.
+
+### Việc còn lại
+
+- [ ] `npm run build` → `npm run verify:static` (25/25) → `npm run size` → `npm run check:chrome`
+      (29 ca). Cần cổng 3000 trống — dev server đang giữ. `check:chrome` gần như chắc xanh: 5 ca
+      `noise.length === 0` của nó đã được bốn lượt kiểm ở trên đo trước trên cùng một Chrome, và
+      nó chạy ở 360px — khổ mà nút trên thanh đang ẩn.
+- [ ] Xem tận mắt ở bảng tối: màn chi tiết (ô nhập, thanh trượt, vòng focus, khối cảnh báo), biểu đồ
+      thác nước và đường, nút phóng to toàn màn hình (xác nhận `--color-bg` hết trong suốt), nền mờ
+      của bottom sheet phải **tối đi**, PNG xuất ra phải **trắng**, Ctrl+P phải ra bản in trắng-đen.
 
 ---
 

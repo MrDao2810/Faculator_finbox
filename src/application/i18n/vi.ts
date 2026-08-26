@@ -36,6 +36,15 @@ export const vi = {
   'mode.basic': 'Cơ bản',
   'mode.advanced': 'Nâng cao',
 
+  // Bảng màu giao diện
+  'theme.label': 'Giao diện',
+  'theme.light': 'Sáng',
+  'theme.dark': 'Tối',
+  /* Nhãn cho nút icon trên thanh trên: icon nói đang ở đâu, hai câu này nói bấm vào thì gì xảy
+     ra — cùng cách `lang.switchTo*` làm cho nút ngôn ngữ. */
+  'theme.switchToDark': 'Chuyển sang giao diện tối',
+  'theme.switchToLight': 'Chuyển sang giao diện sáng',
+
   // Ngôn ngữ — FR-21
   'lang.vi': 'VI',
   'lang.en': 'EN',
@@ -627,6 +636,9 @@ export const vi = {
    */
   'settings.mode.hint':
     'Nâng cao mở thêm công thức phức tạp, toàn bộ biến nâng cao, chuỗi định giá, và ô Beta / XIRR ở màn Danh mục.',
+  'settings.theme.label': 'Sáng hay Tối',
+  'settings.theme.hint':
+    'Lựa chọn này nằm trên máy bạn và chỉ đổi màu giao diện. File PNG và bản in xuất ra vẫn luôn nền sáng.',
   'settings.units.title': 'Đơn vị & biểu thị',
   'settings.units.scale': 'Đơn vị tiền trong bảng',
   'settings.units.scaleHint':

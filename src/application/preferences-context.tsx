@@ -25,6 +25,7 @@ import {
   readPreferences,
   writePreferences,
   type Preferences,
+  type Theme,
 } from './preferences';
 import type { UnitScaleId } from '@/core/format';
 import type { Level } from '@/core/types';
@@ -32,6 +33,7 @@ import type { Level } from '@/core/types';
 interface PreferencesContextValue extends Preferences {
   setMode: (mode: Level) => void;
   setLocale: (locale: Locale) => void;
+  setTheme: (theme: Theme) => void;
   setFeeScheduleId: (id: string) => void;
   setUnitScale: (id: UnitScaleId) => void;
   /**
@@ -68,6 +70,28 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = prefs.locale;
   }, [prefs.locale]);
 
+  /*
+   * Bảng màu, cùng cách với `lang` ngay trên: ghi vào `<html>` sau khi hydrate xong.
+   *
+   * HTML tĩnh không mang `data-theme` (mặc định là bảng sáng), nên lượt render đầu vẫn khớp.
+   * Người đã chọn Tối được script chặn nháy trong `layout.tsx` đặt thuộc tính này TRƯỚC lượt vẽ
+   * đầu; effect ở đây ghi lại đúng giá trị ấy, nên hai chỗ không đánh nhau.
+   *
+   * `<meta name="theme-color">` phải vá theo, nếu không thanh trạng thái trên di động vẫn giữ
+   * màu giấy sáng viền quanh một trang tối. Đọc thẳng token đã áp thay vì chép mã màu vào đây —
+   * đổi bảng màu trong globals.css là thẻ meta đi theo, không có mã màu thứ hai để lệch.
+   */
+  useEffect(() => {
+    document.documentElement.dataset.theme = prefs.theme;
+
+    const paper = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-paper')
+      .trim();
+    if (paper !== '') {
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', paper);
+    }
+  }, [prefs.theme]);
+
   const persist = useCallback((next: Preferences) => {
     setPrefs(next);
     try {
@@ -83,6 +107,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       hydrated,
       setMode: (mode) => persist({ ...prefs, mode }),
       setLocale: (locale) => persist({ ...prefs, locale }),
+      setTheme: (theme) => persist({ ...prefs, theme }),
       setFeeScheduleId: (feeScheduleId) => persist({ ...prefs, feeScheduleId }),
       setUnitScale: (unitScale) => persist({ ...prefs, unitScale }),
     }),
@@ -106,6 +131,7 @@ export function usePreferences(): PreferencesContextValue {
     hydrated: false,
     setMode: () => undefined,
     setLocale: () => undefined,
+    setTheme: () => undefined,
     setFeeScheduleId: () => undefined,
     setUnitScale: () => undefined,
   };

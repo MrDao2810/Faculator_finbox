@@ -8,9 +8,11 @@ import {
 } from './preferences';
 
 describe('mặc định', () => {
-  it('mở lần đầu là chế độ Cơ bản, tiếng Việt, biểu phí mặc định', () => {
+  it('mở lần đầu là chế độ Cơ bản, tiếng Việt, giao diện sáng, biểu phí mặc định', () => {
     expect(DEFAULT_PREFERENCES.mode).toBe('basic');
     expect(DEFAULT_PREFERENCES.locale).toBe('vi');
+    // Phải là 'light': HTML tĩnh dựng lúc build không mang `data-theme`, tức là bảng sáng.
+    expect(DEFAULT_PREFERENCES.theme).toBe('light');
     expect(DEFAULT_PREFERENCES.feeScheduleId).toBe('hose-2026');
     // 'triệu ₫' là bậc WF-14 vẽ sẵn trên bảng lịch trả nợ — mặc định giữ nguyên hình cũ.
     expect(DEFAULT_PREFERENCES.unitScale).toBe('million');
@@ -26,6 +28,7 @@ describe('readPreferences()', () => {
     const prefs = {
       mode: 'advanced',
       locale: 'en',
+      theme: 'dark',
       feeScheduleId: 'hose-2026',
       unitScale: 'billion',
     } as const;
@@ -72,9 +75,33 @@ describe('readPreferences()', () => {
     expect(readPreferences('{"unitScale":"dong"}').unitScale).toBe('dong');
   });
 
+  it('bảng màu lạ thì rơi về sáng', () => {
+    expect(readPreferences('{"theme":"tim-than"}').theme).toBe('light');
+    expect(readPreferences('{"theme":true}').theme).toBe('light');
+    expect(readPreferences('{"theme":"dark"}').theme).toBe('dark');
+  });
+
+  /*
+   * Bản ghi có sẵn trong máy người dùng từ trước khi có giao diện tối — không có trường `theme`.
+   * Nó phải đọc ra bảng sáng chứ không được làm hỏng cả bộ; đó là lý do khoá vẫn là `v1`.
+   */
+  it('bản cũ chưa có trường theme vẫn đọc được nguyên vẹn', () => {
+    const prefs = readPreferences('{"mode":"advanced","locale":"en","unitScale":"dong"}');
+    expect(prefs.theme).toBe('light');
+    expect(prefs.mode).toBe('advanced');
+    expect(prefs.locale).toBe('en');
+    expect(prefs.unitScale).toBe('dong');
+  });
+
   it('bỏ qua trường lạ, không mang theo rác', () => {
     const prefs = readPreferences('{"mode":"advanced","email":"a@b.c"}');
-    expect(Object.keys(prefs).sort()).toEqual(['feeScheduleId', 'locale', 'mode', 'unitScale']);
+    expect(Object.keys(prefs).sort()).toEqual([
+      'feeScheduleId',
+      'locale',
+      'mode',
+      'theme',
+      'unitScale',
+    ]);
   });
 });
 
@@ -85,6 +112,7 @@ describe('writePreferences()', () => {
       'feeScheduleId',
       'locale',
       'mode',
+      'theme',
       'unitScale',
     ]);
   });

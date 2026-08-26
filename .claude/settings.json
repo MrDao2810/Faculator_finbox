@@ -704,7 +704,19 @@
       "Bash(perl -0pi -e \"s/  const applyPresetRef = useRef<\\\\\\(preset: Preset\\\\\\) => void>\\\\\\(\\\\\\(\\\\\\) => undefined\\\\\\);/  const applyPresetRef = useRef<\\(preset: Preset, fromSession?: boolean\\) => void>\\(\\(\\) => undefined\\);/\" \"src/app/cong-thuc/[id]/FormulaDetail.tsx\")",
       "Bash(perl -0pi -e \"s/  hasDraftData,\\\\n  needsPriceSeries,/  hasDraftData,\\\\n  isTickerCode,\\\\n  needsPriceSeries,/\" \"src/app/cong-thuc/[id]/FormulaDetail.tsx\")",
       "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; [PSCustomObject]@{ PID = $_.OwningProcess; Name = $p.Name; Started = $p.StartTime; Cmd = \\(Get-CimInstance Win32_Process -Filter \"ProcessId=$\\($_.OwningProcess\\)\"\\).CommandLine } } | Format-List)",
-      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"Cổng 3000 đang bị giữ bởi PID $\\($c.OwningProcess\\)\" } else { \"Cổng 3000 trống\" })"
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"Cổng 3000 đang bị giữ bởi PID $\\($c.OwningProcess\\)\" } else { \"Cổng 3000 trống\" })",
+      "Bash(node \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\d5c1a351-cbdd-47db-80c1-cf934341e779\\\\scratchpad\\\\probe-gates.mjs\")",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { foreach \\($x in $c\\) { $p = Get-Process -Id $x.OwningProcess -ErrorAction SilentlyContinue; \"PID $\\($x.OwningProcess\\)  $\\($p.ProcessName\\)  started $\\($p.StartTime\\)\" } } else { \"khong co gi nghe cong 3000\" })",
+      "Bash(node theme-check.mjs .)",
+      "Bash(node theme-check2.mjs .)",
+      "Bash(node theme-check3.mjs .)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"van con: PID $\\($c[0].OwningProcess\\)\" } else { \"cong 3000 da trong\" })",
+      "Bash(node header-check.mjs .)",
+      "Bash(grep -n \"Nút chỉ nằm ở màn Cài đặt\\\\|không gắn vào thanh trên\\\\|ThemeSwitch.tsx\\\\` + \" TASK.md)",
+      "Bash(git mv *)",
+      "Bash(node icon-check.mjs .)",
+      "Bash(grep -n \"ThemeSwitch.tsx\\\\` + \\\\`.module.css\\\\` + \\\\`.test.tsx\\\\`\" TASK.md)",
+      "Bash(grep -n \"5 khoá: \\\\`theme.label\" TASK.md)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

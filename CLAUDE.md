@@ -253,6 +253,40 @@ schedule must break the formula, which catches a declaration the calc never uses
 
 ## Notes
 
+- **There are two colour palettes, and both live in `src/app/globals.css`.** The dark one is a
+  second token block under `[data-theme='dark']`; the 67 CSS Modules were not touched, because
+  `tokens.test.ts` had already forced every colour through a token. Three rules hold it together.
+  (1) A new colour token must be declared in **both** blocks — `tokens.test.ts` fails otherwise,
+  and its exemption list (`--color-brand-*`, the logo, deliberately theme-invariant) requires a
+  written reason per entry. (2) `contrast.test.ts` runs the **whole** WCAG battery over both
+  palettes, 27 assertions each; `extractColorTokens(css, selector)` is scope-aware precisely
+  because the older flat version would have silently retargeted the light assertions at the dark
+  values and stayed green. That is also why the `@media print` block sets `color-scheme` on `html`
+  rather than `:root` — two blocks with the same selector name and the extractor cuts the wrong
+  one. (3) Selector specificity stays at `[data-theme='dark']`, never `html[data-theme='dark']`:
+  the token layer must not outrank component rules, and the `@media print` docblock records what
+  that class of mistake costs. Theme is `Preferences.theme` inside the existing `ffb.prefs.v1`
+  (two states, default light, no `prefers-color-scheme` anywhere — the project owner chose an
+  explicit setting over an inferred one). `PreferencesProvider` writes `data-theme` after hydrate
+  the same way it writes `lang`, and an inline `<head>` script in `layout.tsx` — the repo's first,
+  CSP-legal under the existing `'unsafe-inline'`, paired with `suppressHydrationWarning` on
+  `<html>` — sets it before first paint so dark users get no white flash. The control has **two
+  shapes for one preference**: `ThemeSwitch`, a single icon button in the header from 1024px up
+  (hidden below that by `AppHeader.module.css`'s `.themeControl` wrapper, never by the component
+  itself), and `ThemePicker`, the labelled two-option control in Settings at every width — so
+  Settings is the only way in on a phone and that row can never be dropped. Both read and write
+  through `usePreferences`, so the state stays single-sourced; only the affordance differs, for the
+  reason `ThemePicker`'s docblock records. `ThemeSwitch` keeps **both** icons in the DOM and lets
+  CSS pick by `data-theme` rather than letting React pick one: first render is always `light` so
+  that it matches the static HTML, so a React-picked icon would show a sun on a dark page until
+  hydration — the exact flash the boot script exists to prevent.
+- **Exported files stay light, always.** `draw-card.ts` used to read live tokens through
+  `getComputedStyle` so the PNG matched the UI; with two palettes that turns every share card
+  dark, disclaimer box included. It now pins `CARD_COLORS` to the light palette, and
+  `draw-card.test.ts` both blocks `getComputedStyle` from returning and diffs all eight hex codes
+  against `globals.css`. Same reasoning as exports always being Vietnamese while the UI can be
+  English: an exported file is a standalone document. `@media print` already hard-coded
+  `#000`/`#fff`, so PDF and PNG now agree.
 - TypeScript is strict with `noUncheckedIndexedAccess` — indexing an array yields `T | undefined`.
 - Every formula is a `FormulaModule` — `spec` (metadata) and `calc` (the maths) in one object, so
   a spec without a calculator is a typecheck error. `runFormula()` in `src/core/calc/` is the only

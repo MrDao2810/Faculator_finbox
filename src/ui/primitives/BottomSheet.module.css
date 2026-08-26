@@ -20,9 +20,14 @@
 }
 
 .sheet::backdrop {
-  /* Nền mờ. Không dùng rgba() vì tokens.test.ts chặn màu viết thẳng trong CSS Module. */
-  background: var(--color-ink);
-  opacity: 0.45;
+  /*
+   * Nền mờ đi qua token riêng `--color-scrim` (khai kèm độ đục ngay trong globals.css, chỗ
+   * tokens.test.ts không quét).
+   *
+   * Bản trước là `--color-ink` hạ `opacity` xuống 0,45 — chạy đúng chừng nào mực còn là màu
+   * thẫm. Sang giao diện tối mực thành gần trắng, và tấm nền mờ sáng bừng lên thay vì tối đi.
+   */
+  background: var(--color-scrim);
 }
 
 .panel {

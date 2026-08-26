@@ -16,10 +16,21 @@ import { isLocale, type Locale } from './i18n';
 /** Đổi khoá khi cấu trúc đổi, để bản cũ trong máy người dùng không làm hỏng bản mới. */
 export const PREFERENCES_STORAGE_KEY = 'ffb.prefs.v1';
 
+/**
+ * Bảng màu giao diện.
+ *
+ * Hai trạng thái, không có trạng thái "theo hệ điều hành": chủ dự án chốt người dùng tự chọn ở
+ * màn Cài đặt. Vì thế `globals.css` cũng không đọc `prefers-color-scheme` — một nguồn quyết
+ * định duy nhất, không có cảnh cài đặt hệ thống và lựa chọn trong app cãi nhau.
+ */
+export type Theme = 'light' | 'dark';
+
 export interface Preferences {
   /** Chế độ hiển thị Cơ bản / Nâng cao — FR-09. */
   mode: Level;
   locale: Locale;
+  /** Bảng màu sáng / tối. Áp bằng `data-theme` trên `<html>`. */
+  theme: Theme;
   /** Biểu phí đang chọn ở WF-08 và WF-13. */
   feeScheduleId: string;
   /**
@@ -36,6 +47,8 @@ export interface Preferences {
 export const DEFAULT_PREFERENCES: Preferences = {
   mode: 'basic', // người dùng F0 là nhóm mặc định (SRS 1.3.3)
   locale: 'vi',
+  // Sáng là mặc định, và cũng là thứ HTML tĩnh dựng ra lúc build — xem `layout.tsx`.
+  theme: 'light',
   feeScheduleId: MARKET_CONFIG.defaultScheduleId,
   // 'triệu ₫' là mặc định của WF-14 ("ĐVT: triệu đồng"), giữ nguyên hình cũ cho người đang dùng.
   unitScale: 'million',
@@ -43,6 +56,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
 
 function isMode(value: unknown): value is Level {
   return value === 'basic' || value === 'advanced';
+}
+
+function isTheme(value: unknown): value is Theme {
+  return value === 'light' || value === 'dark';
 }
 
 function isUnitScale(value: unknown): value is UnitScaleId {
@@ -78,6 +95,8 @@ export function readPreferences(raw: string | null | undefined): Preferences {
   return {
     mode: isMode(record.mode) ? record.mode : DEFAULT_PREFERENCES.mode,
     locale: isLocale(record.locale) ? record.locale : DEFAULT_PREFERENCES.locale,
+    // Bản ghi cũ không có trường này — rơi về 'light', đúng mặc định, nên không cần nâng khoá lên v2.
+    theme: isTheme(record.theme) ? record.theme : DEFAULT_PREFERENCES.theme,
     feeScheduleId: isKnownSchedule(record.feeScheduleId)
       ? record.feeScheduleId
       : DEFAULT_PREFERENCES.feeScheduleId,
@@ -90,6 +109,7 @@ export function writePreferences(prefs: Preferences): string {
   return JSON.stringify({
     mode: prefs.mode,
     locale: prefs.locale,
+    theme: prefs.theme,
     feeScheduleId: prefs.feeScheduleId,
     unitScale: prefs.unitScale,
   });

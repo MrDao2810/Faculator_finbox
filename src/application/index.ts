@@ -315,7 +315,7 @@ export { LOCALES, isLocale, missingKeys, pick, t } from './i18n';
 export type { NavItem, NavKey, RouteKey } from './routes';
 export { NAV_ITEMS, ROUTES, activeRouteKey, formulaListPath, formulaPath } from './routes';
 
-export type { Preferences } from './preferences';
+export type { Preferences, Theme } from './preferences';
 export { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from './preferences';
 
 // Chip “Tìm gần đây” của WF-09 (gói 3.1.3)

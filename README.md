@@ -118,8 +118,11 @@ trong `src/core/warnings.ts` — công thức không tự chế câu chữ, đ�
 | Ghi đè thắng cả khi thượng nguồn lỗi    | `resolveLinked()` xét `override` trước cảnh báo     | `src/core/linked-input.test.ts`       |
 | File xuất luôn có miễn trừ (FR-24)      | `buildExportContent()` không nhận cờ tắt            | `src/core/export-content.test.ts`     |
 | Dán hỏng vài dòng không mất cả bộ       | `parsePaste()` không ném lỗi, trả `skipped[]`       | `src/core/paste-import.test.ts`       |
-| Màu đạt tương phản AA (NFR-USA-06)      | Test đọc thẳng `globals.css` rồi tính tỉ số         | `src/ui/contrast.test.ts`             |
+| Màu đạt AA ở CẢ HAI bảng (NFR-USA-06)   | Test đọc `globals.css`, chấm bảng sáng và bảng tối  | `src/ui/contrast.test.ts`             |
 | Màu chỉ đi qua token                    | Test quét mọi `*.module.css` tìm mã màu viết thẳng  | `src/ui/tokens.test.ts`               |
+| `var(--…)` gọi tới biến có thật         | Đối chiếu biến CSS Module dùng với `:root`          | `src/ui/tokens.test.ts`               |
+| Bảng tối đè đủ token của bảng sáng      | Đối chiếu hai khối, danh sách miễn phải ghi lý do   | `src/ui/tokens.test.ts`               |
+| File xuất luôn nền sáng                 | `draw-card.ts` ghim bảng sáng, không đọc token sống | `src/ui/sheets/draw-card.test.ts`     |
 | Miễn trừ hiện ở mọi màn (FR-24)         | Đặt trong `AppShell`, không đặt ở từng màn          | `src/ui/layout/AppShell.tsx`          |
 | Hằng số thuế/phí có căn cứ (LDR-03)     | `validateMarketConfig()` bắt bản ghi thiếu          | `src/core/market/market.test.ts`      |
 | Công thức có đủ metadata (FR-03, FR-04) | Validator của Registry                              | `src/core/registry/registry.test.ts`  |

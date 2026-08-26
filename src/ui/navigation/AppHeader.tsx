@@ -9,11 +9,13 @@ import { HeaderNav } from './HeaderNav';
 import { LangSwitch } from './LangSwitch';
 import { ModeToggle } from './ModeToggle';
 import { SearchLink } from './SearchLink';
+import { ThemeSwitch } from './ThemeSwitch';
 
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
  *
- * Khối hộp + tên "Faculator", nút chuyển chế độ Cơ bản / Nâng cao, nút tìm kiếm, nút ngôn ngữ.
+ * Khối hộp + tên "Faculator", nút chuyển chế độ Cơ bản / Nâng cao, nút đổi giao diện Sáng / Tối
+ * (chỉ ở màn PC), nút tìm kiếm, nút ngôn ngữ.
  * Dính trên khi cuộn để mấy nút này luôn với tới được trên điện thoại.
  *
  * Tên rút còn "Faculator" chứ không phải "Faculator Finbox": ở 360px, tên đầy đủ cộng hai
@@ -37,6 +39,14 @@ export function AppHeader() {
 
         <div className={styles.controls}>
           <ModeToggle />
+          {/*
+            Nút đổi giao diện, chỉ hiện từ 1024px trở lên — xem `.themeControl`. Đứng ngay cạnh
+            nút chế độ vì cả hai là cùng một loại việc ("trang này bày ra như thế nào"), đúng thứ
+            tự chúng đứng trong khối "Chế độ hiển thị" ở màn Cài đặt.
+          */}
+          <span className={styles.themeControl}>
+            <ThemeSwitch />
+          </span>
           <SearchLink />
           {/*
             Gắn lại từ đợt 8: hai điều kiện của quyết định đợt 14 (có bản dịch + luồng locale

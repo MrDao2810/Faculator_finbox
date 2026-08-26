@@ -18,7 +18,7 @@ import {
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { UnitSwitcher } from '@/ui/inputs';
 import { Button, Select } from '@/ui/primitives';
-import { ModeToggle } from '@/ui/navigation';
+import { ModeToggle, ThemePicker } from '@/ui/navigation';
 
 import styles from './SettingsScreen.module.css';
 
@@ -134,6 +134,24 @@ export function SettingsScreen() {
           </span>
           {/* Dùng lại đúng nút của thanh trên, không dựng bản thứ hai — một nguồn sự thật. */}
           <ModeToggle />
+        </div>
+
+        {/*
+          Bảng màu ở cùng khối với chế độ Cơ bản/Nâng cao: cả hai đều là "trang này bày ra như
+          thế nào", và cả hai đều chỉ nằm trên máy người dùng.
+
+          Ở đây là bản có CHỮ (`ThemePicker`), không phải nút icon của thanh trên: màn Cài đặt là
+          chỗ người ta tới để ĐỌC xem mình đang đặt gì, một icon đơn lẻ bắt đoán. Hai hình khác
+          nhau nhưng cùng đọc/ghi qua `usePreferences` — một nguồn sự thật.
+
+          Nút trên thanh chỉ hiện từ 1024px, nên hàng này là lối vào DUY NHẤT trên điện thoại.
+        */}
+        <div className={styles.row}>
+          <span className={styles.rowText}>
+            <span className={styles.rowLabel}>{t('settings.theme.label')}</span>
+            <span className={styles.rowHint}>{t('settings.theme.hint')}</span>
+          </span>
+          <ThemePicker />
         </div>
       </section>
 

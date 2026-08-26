@@ -38,6 +38,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'mode.basic': 'Basic',
   'mode.advanced': 'Advanced',
 
+  'theme.label': 'Appearance',
+  'theme.light': 'Light',
+  'theme.dark': 'Dark',
+  'theme.switchToDark': 'Switch to dark appearance',
+  'theme.switchToLight': 'Switch to light appearance',
+
   'lang.vi': 'VI',
   'lang.en': 'EN',
   'lang.switchToEn': 'Switch to English',
@@ -445,6 +451,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'settings.mode.label': 'Basic or Advanced',
   'settings.mode.hint':
     'Advanced mode adds the complex formulas, every advanced variable, the valuation chain, and the Beta / XIRR tiles in Portfolio.',
+  'settings.theme.label': 'Light or Dark',
+  'settings.theme.hint':
+    'Kept on this device and only changes the interface. Exported PNGs and printouts always stay on a light background.',
   'settings.units.title': 'Units & display',
   'settings.units.scale': 'Money unit in tables',
   'settings.units.scaleHint':

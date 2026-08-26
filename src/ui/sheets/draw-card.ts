@@ -21,12 +21,32 @@ const WIDTH = 1080;
 const PADDING = 72;
 const LINE = 44;
 
-/** Màu đọc từ token đang áp dụng, để thẻ PNG cùng bảng màu với giao diện. */
-function token(name: string, fallback: string): string {
-  if (typeof document === 'undefined') return fallback;
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return value === '' ? fallback : value;
-}
+/**
+ * Bảng màu của tấm thẻ — GHIM ở bảng sáng, không đọc token đang áp dụng.
+ *
+ * Bản trước đọc `getComputedStyle(document.documentElement)` để "thẻ PNG cùng bảng màu với giao
+ * diện". Từ khi có giao diện tối thì điều đó nghĩa là ai bật Tối sẽ xuất ra một tấm thẻ nền tối
+ * — kể cả ô miễn trừ FR-24.
+ *
+ * Chốt: file xuất luôn nền sáng, cùng lẽ với việc file xuất luôn là tài liệu tiếng Việt dù giao
+ * diện đang tiếng Anh (xem docblock đầu file). Tấm PNG rời khỏi màn hình và sống tiếp một mình —
+ * dán vào báo cáo, gửi qua chat, đem đi in — nên nó theo quy ước của TÀI LIỆU, không theo tuỳ
+ * chọn hiển thị của người vừa bấm nút. Bản in `@media print` vốn đã ghim `#000`/`#fff`, nay hai
+ * đường xuất file nói cùng một thứ.
+ *
+ * Sáu giá trị này chép từ `:root` của globals.css. Không đọc token được nữa thì đây là bản chép,
+ * và `draw-card.test.ts` đối chiếu từng mã màu với globals.css để bản chép không lệch âm thầm.
+ */
+const CARD_COLORS = {
+  paper: '#ffffff', // --color-surface
+  ink: '#1a2233', // --color-ink
+  inkSoft: '#46536b', // --color-ink-soft
+  muted: '#58657a', // --color-muted
+  accent: '#1d4ed8', // --color-accent
+  border: '#d7dee9', // --color-border
+  warnBg: '#f8e7b4', // --color-warning-soft
+  warnInk: '#7a5f14', // --color-warning
+} as const;
 
 /** Cắt chuỗi thành nhiều dòng vừa bề ngang cho trước. */
 function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
@@ -52,14 +72,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): st
  * Đo trước rồi mới vẽ nên chiều cao vừa khít nội dung, không thừa khoảng trắng ở đáy.
  */
 export function drawExportCard(content: ExportContent): HTMLCanvasElement {
-  const paper = token('--color-surface', '#ffffff');
-  const ink = token('--color-ink', '#2e2a25');
-  const inkSoft = token('--color-ink-soft', '#564e44');
-  const muted = token('--color-muted', '#6b6157');
-  const accent = token('--color-accent', '#ab4610');
-  const border = token('--color-border', '#dbd1c4');
-  const warnBg = token('--color-warning-soft', '#f4e9c8');
-  const warnInk = token('--color-warning', '#7a5f14');
+  const { paper, ink, inkSoft, muted, accent, border, warnBg, warnInk } = CARD_COLORS;
 
   const sans = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
   const inner = WIDTH - PADDING * 2;

@@ -80,15 +80,59 @@ export function meetsContrast(
   return contrastRatio(foreground, background) >= threshold;
 }
 
+/** Che các ký tự có nghĩa trong biểu thức chính quy — tên bộ chọn có `[`, `]`, `'`. */
+function escapeForRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
- * Bóc các biến màu `--color-*: #hex;` từ một chuỗi CSS.
- * Dùng để test đọc thẳng globals.css, tránh cảnh chép màu ra file TS rồi lệch nhau.
+ * Thân của khối luật ứng với một bộ chọn, hoặc `null` nếu không có.
+ *
+ * Đếm ngoặc để cắt cho đúng chỗ chứ không tìm `}` đầu tiên: globals.css hiện chưa có khối lồng
+ * nhau, nhưng một `@media` bọc ngoài về sau sẽ làm cách cắt ngây thơ trả về một mẩu cụt mà vẫn
+ * trông như hợp lệ — đúng loại hỏng âm thầm mà cả file test này sinh ra để chặn.
+ *
+ * Xuất ra ngoài vì `tokens.test.ts` cũng cần cắt đúng hai khối bảng màu ấy — hai cửa kiểm khác
+ * nhau nhưng chung một phép cắt, và chép phép cắt sang file thứ hai là dựng ra chỗ để lệch.
  */
-export function extractColorTokens(css: string): Record<string, string> {
+export function cssBlock(css: string, selector: string): string | null {
+  const opening = new RegExp(`${escapeForRegExp(selector)}\\s*\\{`).exec(css);
+  if (opening === null) return null;
+
+  const start = opening.index + opening[0].length;
+  let depth = 1;
+  let index = start;
+
+  while (index < css.length && depth > 0) {
+    const char = css[index];
+    if (char === '{') depth += 1;
+    else if (char === '}') depth -= 1;
+    index += 1;
+  }
+
+  // Ngoặc không đóng đủ nghĩa là file CSS hỏng — trả null để test báo, không đoán bừa.
+  return depth === 0 ? css.slice(start, index - 1) : null;
+}
+
+/**
+ * Bóc các biến màu `--color-*: #hex;` trong đúng MỘT khối luật của chuỗi CSS.
+ * Dùng để test đọc thẳng globals.css, tránh cảnh chép màu ra file TS rồi lệch nhau.
+ *
+ * Có tham số `selector` kể từ khi thêm bảng màu tối: bản trước quét cả file rồi dồn vào một map
+ * phẳng, nên khai sau đè khai trước. Thêm khối `[data-theme='dark']` vào là bộ kiểm tương phản
+ * lặng lẽ chuyển sang chấm bảng TỐI, còn bảng sáng thì hết được chấm — mà CI vẫn xanh. Buộc phải
+ * nói rõ đang hỏi bảng nào thì không còn đường nào để lệch.
+ *
+ * Bộ chọn không có trong file thì trả về map rỗng; nơi gọi tự báo thiếu token nào.
+ */
+export function extractColorTokens(css: string, selector = ':root'): Record<string, string> {
+  const body = cssBlock(css, selector);
+  if (body === null) return {};
+
   const tokens: Record<string, string> = {};
   const pattern = /(--color-[a-z0-9-]+)\s*:\s*(#[0-9a-fA-F]{3,8})\s*;/g;
 
-  for (const match of css.matchAll(pattern)) {
+  for (const match of body.matchAll(pattern)) {
     const name = match[1];
     const value = match[2];
     if (name !== undefined && value !== undefined) tokens[name] = value;

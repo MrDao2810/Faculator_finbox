@@ -453,12 +453,14 @@
   max-height: 100dvh;
   padding: 0;
   border: 0;
-  background: var(--color-bg);
+  /* `--color-paper`: `--color-bg` chưa bao giờ được khai trong globals.css, nên cả hộp lẫn nền
+     sau nó vốn đang trong suốt — chỉ "trông ổn" chừng nào trang phía sau còn màu trắng. */
+  background: var(--color-paper);
   color: var(--color-ink);
 }
 
 .full::backdrop {
-  background: var(--color-bg);
+  background: var(--color-paper);
 }
 
 .fullPanel {

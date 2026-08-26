@@ -60,13 +60,16 @@
  * bấm vào được, nên nó không phải là nút bị khoá. Dấu hiệu phân biệt KHÔNG chỉ nằm ở màu —
  * nhãn "chỉ ở Nâng cao" thay chỗ con số là thứ đọc được cả khi chụp xám hoàn toàn (NFR-USA-06).
  */
+/* `--color-sunken` và `--color-muted` là hai token có thật; hai tên cũ ở đây
+   (`--color-surface-muted`, `--color-ink-muted`) chưa từng được khai, nên ô này thật ra vẫn
+   đang trong suốt và con số vẫn giữ nguyên màu chữ thừa kế. */
 .advancedOnly {
-  background: var(--color-surface-muted, transparent);
+  background: var(--color-sunken);
   border-style: dashed;
 }
 
 .advancedOnly .count {
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-muted);
+  color: var(--color-muted);
 }

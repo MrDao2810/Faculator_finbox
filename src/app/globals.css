@@ -15,6 +15,13 @@
  */
 
 :root {
+  /*
+   * Nói cho trình duyệt biết đang ở bảng nào, để thanh cuộn, popup của `<select>` và style mặc
+   * định của `<dialog>` đi theo. Mấy thứ đó do hệ điều hành vẽ, CSS của ta không với tới — thiếu
+   * dòng này thì bật giao diện tối xong vẫn còn thanh cuộn trắng chạy dọc mép màn.
+   */
+  color-scheme: light;
+
   /* ── Màu nền ─────────────────────────────────────────────────────────── */
   --color-paper: #f4f6fa; /* nền trang */
   --color-surface: #ffffff; /* nền thẻ, nền ô nhập */
@@ -71,6 +78,15 @@
 
   --color-focus: #1d4ed8;
 
+  /*
+   * Nền mờ sau bottom sheet.
+   *
+   * Là token riêng chứ không phải `--color-ink` hạ độ đục: mực là màu CHỮ, nên ở bảng tối nó
+   * thành màu gần trắng và tấm nền mờ sẽ sáng lên thay vì tối đi. Đây là chỗ duy nhất trong dự
+   * án cần một màu phủ, và một màu phủ không đảo chiều theo màu chữ.
+   */
+  --color-scrim: rgba(26, 34, 51, 0.45);
+
   /* ── Thang chữ ───────────────────────────────────────────────────────── */
   --text-xs: 12px;
   --text-sm: 13px;
@@ -121,6 +137,85 @@
   --desktop-max: 1200px; /* bố cục ba cột WF-07 */
   --header-height: 56px;
   --tabbar-height: 60px;
+}
+
+/*
+ * BẢNG MÀU TỐI.
+ *
+ * Chỉ đè token MÀU. Thang chữ, khoảng cách, bo góc, bố cục không đổi theo giao diện — chép chúng
+ * xuống đây là dựng ra hai nguồn sự thật cho cùng một con số.
+ *
+ * Bật bằng `data-theme="dark"` trên `<html>`, do `PreferencesProvider` đặt (và do script chặn
+ * nháy trong `layout.tsx` đặt sớm hơn, trước lượt vẽ đầu). Hai trạng thái Sáng/Tối, mặc định
+ * Sáng — CỐ Ý không đọc `prefers-color-scheme`: chủ dự án chốt người dùng tự chọn ở màn Cài đặt,
+ * không suy từ cài đặt hệ điều hành.
+ *
+ * Bộ chọn viết trần `[data-theme='dark']` (độ ưu tiên 0,1,0) chứ không `html[data-theme='dark']`
+ * (0,1,1). Thêm một bậc ưu tiên ở đây là kéo cả hệ token lên cao hơn mọi luật thành phần, và
+ * vùng in ở cuối file này đã có một bài học đắt về đúng chuyện đó — xem chú thích `:has()` vs
+ * `:where()` ở khối `@media print`.
+ *
+ * Cả 22 token màu ở đây đều qua đúng bộ kiểm WCAG mà bảng sáng đang chịu — `contrast.test.ts`
+ * chấm CẢ HAI bảng, 27 phép mỗi bảng. `--color-brand-from`/`--color-brand-to` cố ý KHÔNG có mặt:
+ * đó là mảng màu của logo, nó không đổi theo giao diện.
+ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* ── Màu nền ─────────────────────────────────────────────────────────── */
+  /* Giữ nguyên thứ tự nổi/chìm của bảng sáng, chỉ lật quanh trục sáng: thẻ nổi lên trên nền
+     trang, vùng chìm lặn xuống dưới. */
+  --color-paper: #111827;
+  --color-surface: #1b2435;
+  --color-sunken: #0a0f1a;
+
+  /* ── Màu chữ ─────────────────────────────────────────────────────────── */
+  --color-ink: #e8edf6; /* 15,10:1 trên nền trang */
+  --color-ink-soft: #b3c0d4; /* 9,64:1 */
+  --color-muted: #93a1b8; /* 6,78:1 — trên vùng chìm vẫn 7,33:1 */
+
+  /* ── Đường kẻ ────────────────────────────────────────────────────────── */
+  --color-border: #313d52; /* kẻ trang trí, giữ đúng dải ~1,4:1 nhạt như bảng sáng */
+  --color-border-strong: #6b7a93; /* 4,08 / 3,58 — vẫn qua ngưỡng 3:1 */
+
+  /* ── Màu nhấn ────────────────────────────────────────────────────────── */
+  --color-accent: #8ab4f8; /* 8,42 / 7,38 */
+  /*
+   * Hover SÁNG hơn màu nhấn, ngược chiều bảng sáng. Trên nền tối, "nhấn mạnh" là tiến lại gần
+   * nguồn sáng; lấy màu thẫm hơn như bảng sáng thì nút bấm vào lại như lặn mất.
+   */
+  --color-accent-strong: #a8c7fa;
+  --color-accent-soft: #1e3a6b; /* chữ nhấn trên nền này 5,32:1 */
+  /*
+   * ĐẢO: nút chính thành nền xanh nhạt, chữ thẫm (8,65:1). Giữ chữ trắng trên nền xanh đậm ở
+   * bảng tối sẽ cho một khối tối trên nền tối — nút hết ra dáng nút.
+   */
+  --color-on-accent: #0f1523;
+
+  /* Xanh rực — vẫn CHỈ dùng cho mảng màu, không phải chữ. 6,40 / 5,61. */
+  --color-accent-vivid: #5b9bff;
+
+  /* ── Màu trạng thái ──────────────────────────────────────────────────── */
+  --color-danger: #f4a0a6; /* 8,81 / 7,72 */
+  --color-danger-soft: #3a1a1f; /* cặp với --color-danger: 7,74:1 */
+  --color-success: #7ddaa0; /* 10,48 / 9,19 */
+  --color-success-soft: #10301f; /* cặp: 8,47:1 */
+  --color-success-line: #376a4d; /* viền trang trí, khớp dải ~2,3:1 của bảng sáng */
+  --color-warning: #e5c168; /* 10,27 / 9,00 */
+  --color-warning-line: #6b5a24; /* khớp dải ~2:1 của bảng sáng */
+  --color-warning-soft: #3a2f10; /* cặp: 7,63:1 */
+
+  --color-focus: #8ab4f8;
+
+  --color-scrim: rgba(3, 6, 12, 0.66);
+
+  /*
+   * Đổ bóng và vòng focus nhúng cứng màu mực của bảng sáng, nên phải viết lại theo.
+   * Bóng trên nền tối cần đậm hơn hẳn: nền càng tối thì một mảng đen mờ càng khó thấy.
+   */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6);
+  --focus-ring: 0 0 0 var(--focus-width) rgba(138, 180, 248, 0.4);
 }
 
 * {
@@ -217,6 +312,23 @@ a {
 }
 
 @media print {
+  /*
+   * Bản in luôn là giấy trắng mực đen, kể cả khi màn hình đang ở giao diện tối — cùng lẽ với
+   * việc file xuất luôn là tài liệu tiếng Việt dù giao diện đang tiếng Anh: nó rời khỏi màn
+   * hình và sống tiếp một mình.
+   *
+   * Bộ chọn phải là `[data-theme]`, không phải `html` hay `:root`. `@media` KHÔNG cộng độ ưu tiên,
+   * nên `html` (0,0,1) thua `[data-theme='dark']` (0,1,0) ở trên và luật này im lặng không ăn —
+   * đã đo trên Chrome thật, in ra vẫn `color-scheme: dark`. Ở đây (0,1,0) bằng điểm và đứng sau
+   * nên thắng. Trang chưa hydrate chưa có thuộc tính ấy thì `:root` vốn đã là `light`.
+   *
+   * Cũng vì thế mà KHÔNG viết `:root` ở đây: `contrast.test.ts` tìm khối `:root` theo tên để bóc
+   * token, có hai khối trùng tên là nó bóc nhầm khối.
+   */
+  [data-theme] {
+    color-scheme: light;
+  }
+
   /*
    * Dùng visibility chứ không display:none cho phần còn lại — display:none trên tổ tiên sẽ
    * kéo theo cả .print-region dù nó được bật lại.

@@ -48,3 +48,23 @@
   gap: var(--space-1);
   flex-shrink: 0;
 }
+
+/*
+ * Nút đổi giao diện Sáng / Tối — chỉ hiện ở màn PC, cùng ngưỡng 1024px với `HeaderNav`.
+ *
+ * Dưới khổ đó thanh trên đã có ba điều khiển và không còn chỗ; lối vào duy nhất khi ấy là khối
+ * "Chế độ hiển thị" ở màn Cài đặt, nơi nút này vẫn hiện ở MỌI khổ màn. `display: none` gỡ nó
+ * khỏi cả bố cục lẫn cây trợ năng, nên không cần `aria-hidden` riêng.
+ *
+ * Bọc ngoài chứ không đặt vào chính `ThemeSwitch.module.css`: cùng một component còn đứng ở màn
+ * Cài đặt, mà ở đó nó không bao giờ được ẩn.
+ */
+.themeControl {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .themeControl {
+    display: flex;
+  }
+}

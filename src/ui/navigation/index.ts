@@ -11,3 +11,6 @@ export { LangSwitch } from './LangSwitch';
 export { ModeToggle } from './ModeToggle';
 export { OfflineBanner } from './OfflineBanner';
 export { SearchLink } from './SearchLink';
+/* Hai hình cho cùng một tuỳ chọn: icon gọn cho thanh trên, hai ô có chữ cho màn Cài đặt. */
+export { ThemePicker } from './ThemePicker';
+export { ThemeSwitch } from './ThemeSwitch';

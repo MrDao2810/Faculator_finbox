@@ -52,6 +52,29 @@
   gap: var(--space-2);
 }
 
+/*
+ * Hàng nút đầu màn: nút chính xuống hàng riêng và trải hết bề ngang ở khổ điện thoại — bản
+ * thiết kế mobile đợt 13.
+ *
+ * Vì sao chỉ ở khổ hẹp: ở 360px bốn nút `sm` xếp thành hai hàng so le, và "Lưu vào danh mục"
+ * rơi vào chỗ nào là tuỳ độ dài ba nhãn trước nó — có công thức nó nằm cuối hàng một, có công
+ * thức nằm đầu hàng hai. Nút quan trọng nhất của màn mà đứng ở chỗ đoán không ra. Từ 600px trở
+ * lên cả bốn nằm gọn một hàng nên không có gì phải sửa.
+ *
+ * Nhắm `.actionsHead > :last-child` chứ không truyền `className` cho riêng nút: một lớp rời có
+ * độ ưu tiên 0,1,0 đúng bằng `.button` của primitive, nên cái nào thắng phụ thuộc thứ tự hai file
+ * CSS Module trong gói — thứ không đoán trước được (cùng cái bẫy đã ghi ở nút xoá màn Cài đặt).
+ * Thêm `:last-child` là 0,2,0, thắng chắc chắn ở mọi thứ tự.
+ *
+ * KHÔNG dùng prop `fullWidth` của Button: nó trải hết bề ngang ở MỌI khổ, kể cả màn rộng nơi cả
+ * bốn nút vốn nằm gọn một hàng.
+ */
+@media (max-width: 599px) {
+  .actionsHead > :last-child {
+    flex: 1 1 100%;
+  }
+}
+
 /* Link sang bảng dữ liệu WF-05, đứng cạnh nút "Dán chuỗi giá". Cao bằng nút nhỏ đứng cạnh
    để hàng không so le, và đủ 44px vùng chạm — NFR-USA-01. */
 .dataLink {
@@ -104,13 +127,29 @@
  * nên nó không cần một dòng CSS nào của KaTeX lẫn 20 file font đi kèm. Cả phần tạo kiểu ở đây gói
  * gọn trong khối này.
  */
-.formula {
-  margin: 0 0 var(--space-2);
+/*
+ * Thẻ bọc cả hai vế của khối Công thức — bản thiết kế đợt 12.
+ *
+ * Nền và viền nay nằm ở ĐÂY chứ không ở từng vế: hai khung rời cạnh nhau đọc ra như hai thông
+ * tin khác nhau, trong khi chúng là cùng một công thức viết hai lần.
+ */
+.formulaCard {
+  display: flex;
+  flex-direction: column;
+
   padding: var(--space-4) var(--space-3);
 
-  background: var(--color-sunken);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+
+  /* Không có dòng này thì công thức dài đẩy phình cả thẻ thay vì cuộn bên trong. */
+  min-width: 0;
+}
+
+.formula {
+  margin: 0;
+  text-align: center;
 
   /* Công thức dài (DDM hai giai đoạn, Sortino) cuộn ngang trong khung riêng — NFR-USA-02. */
   overflow-x: auto;
@@ -126,18 +165,21 @@
   font-size: 1.15em;
 }
 
+/*
+ * Vế thứ hai, ngăn với ký hiệu toán bằng một đường kẻ thay vì bằng một khung riêng.
+ * `white-space: nowrap` giữ nguyên: biểu thức đầy đủ tiếng Việt bẻ dòng giữa chừng thì đọc ra
+ * hai phép tính khác nhau — nó cuộn ngang trong khung riêng, đúng NFR-USA-02.
+ */
 .expression {
-  margin: 0;
-  padding: var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
 
   font-family: var(--font-mono);
   font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+  text-align: center;
 
-  background: var(--color-sunken);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-
-  /* Biểu thức dài cuộn ngang trong khung riêng, trang không cuộn theo — NFR-USA-02. */
   overflow-x: auto;
   white-space: nowrap;
 }

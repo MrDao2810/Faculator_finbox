@@ -131,10 +131,10 @@ const formulaLinks = new Set(
  * ĐỦ công thức, không phải "có là được".
  *
  * Từ đợt này chế độ Cơ bản lọc bớt danh sách theo cấp độ (FR-09), và mặc định của sản phẩm
- * LÀ chế độ Cơ bản — nghĩa là 29 công thức mức nâng cao không hiện trên màn khi mới vào. Việc
+ * LÀ chế độ Cơ bản — nghĩa là 32 công thức mức nâng cao không hiện trên màn khi mới vào. Việc
  * đó chỉ được phép xảy ra ở phía máy khách: `StaticFormulaList` là server component, không đọc
  * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 111. Ai đó "sửa cho nhất quán"
- * bằng cách lọc luôn ở fallback là lặng lẽ giấu 29 URL khỏi Google, mà build vẫn xanh.
+ * bằng cách lọc luôn ở fallback là lặng lẽ giấu 32 URL khỏi Google, mà build vẫn xanh.
  */
 const TONG_CONG_THUC = (
   readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/categoryId:/g) ?? []

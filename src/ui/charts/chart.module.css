@@ -10,12 +10,30 @@
  * việc gán nó cho chữ.
  */
 
+/*
+ * Cả biểu đồ nay là MỘT thẻ, và vùng vẽ chìm vào nền thẻ đó — bản thiết kế đợt 12.
+ * Trước đợt này thẻ không có nền, còn vùng vẽ tự mang viền riêng, nên hình đọc ra như một mảnh
+ * dán vào giữa phần chữ.
+ */
 .chart {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
   margin: 0;
+  padding: var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* Tiêu đề và nút phóng to đứng cùng một hàng — bản thiết kế đợt 12. */
+.captionRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
 /* ── Câu mô tả: lối đọc chính, không phải chú thích cho vui ─────────────── */
@@ -24,6 +42,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  /* Đứng cạnh nút phóng to nên phải chịu co, không thì tiêu đề dài đẩy nút ra khỏi thẻ. */
+  min-width: 0;
+  flex: 1;
 }
 
 .captionTitle {
@@ -55,9 +76,10 @@
   contain: layout inline-size;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  /*
+   * Không viền, không nền riêng: thẻ `.chart` bao ngoài đã lo cả hai. Giữ `contain` và
+   * `overflow-x` vì chúng là phần chống tràn ngang, không phải phần trang trí.
+   */
 }
 
 .svg {
@@ -115,6 +137,166 @@
   stroke-linejoin: round;
 }
 
+/*
+ * Vùng tô dưới đường — bản thiết kế đợt 12.
+ *
+ * Màu đi qua `className` của hai thẻ `<stop>` chứ không viết vào thuộc tính `stopColor`: đó là
+ * điều kiện để `tokens.test.ts` còn gác được màu của biểu đồ. `<stop>` không phải thẻ `<text>`
+ * nên nó không thuộc diện `SVG_TEXT_CLASSES`.
+ *
+ * Độ đục 0,28 là mức đo trên bảng SÁNG. Trên nền tối một dải mờ luôn khó thấy hơn — nếu nhìn tận
+ * mắt thấy nhạt quá thì nâng ở đây, đừng đổi màu.
+ */
+.area {
+  stroke: none;
+}
+
+.areaTop {
+  stop-color: var(--color-accent-vivid);
+  stop-opacity: 0.28;
+}
+
+.areaBottom {
+  stop-color: var(--color-accent-vivid);
+  stop-opacity: 0;
+}
+
+/*
+ * Mốc tham chiếu — ngưỡng cố định của chỉ báo (30 / 70 của RSI, 20 / 80 của Stochastic…).
+ *
+ * `--color-muted` cho CẢ nét lẫn chữ, cố ý không phải màu nhấn: `--color-accent-vivid` đang là
+ * đường dữ liệu và `--color-highlight` đang là dấu "giá trị hiện tại". Mốc tham chiếu là thứ đứng
+ * yên, không phải thứ người dùng vừa làm ra — cho nó một trong hai màu ấy là ba loại thông tin
+ * cùng đòi sự chú ý trên một hình 320×200.
+ *
+ * Cặp `--color-muted` trên `--color-surface` không phải màu mới: `.tick` và `.axisTitle` ngay dưới
+ * đã dùng đúng nó, nên nó đã nằm sẵn trong bộ kiểm tương phản của cả hai bảng màu.
+ *
+ * Nét đứt 4-3 thưa hơn hẳn `.markerLine` (3-3) và `.hoverLine` (2-2): ba loại đường đứt trên cùng
+ * một hình thì mật độ gạch là thứ phân biệt chúng khi ảnh chuyển sang xám (NFR-USA-06).
+ */
+.refRule {
+  stroke: var(--color-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.refLabel {
+  fill: var(--color-muted);
+  font-size: 9px;
+  /* Quầng nền sau chữ — cùng kỹ thuật `.hoverLabel`, cần vì nhãn nằm trong lòng vùng vẽ và đường
+     quét có thể đi ngang qua ngay dưới nó. */
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+}
+
+/* ── Chuỗi PHỤ vẽ chồng — SMA trên đường giá, dải Bollinger, đường Signal ── */
+
+/*
+ * Bốn lớp tông chỉ RÓT vào đúng một khe: `--series-ink` (khai ở `:root`, xem globals.css).
+ * Nét, hai đầu dải chuyển màu và mẫu trong legend đều đọc khe ấy — một lớp mỗi tông là đủ cho cả
+ * ba chỗ, thay vì ba lớp nhân bốn tông. Cùng cách nghĩ với `category-tone.module.css`.
+ *
+ * Bản đầu dùng `color` + `currentColor` cho gọn hơn, và `tokens.test.ts` bắt ngay: `color` thừa kế
+ * xuống MỌI chữ nằm trong, mà `--color-accent-vivid` chỉ đạt 3:1 — hợp cho nét vẽ, không hợp cho
+ * chữ. Khe riêng thì không có đường nào rò sang chữ.
+ *
+ * Bốn token đều đã có sẵn phép kiểm tương phản ở cả hai bảng màu; đợt này không đẻ token màu nào.
+ */
+.tonePrimary {
+  --series-ink: var(--color-accent-vivid);
+}
+
+.toneSeriesTeal {
+  --series-ink: var(--color-tint-teal);
+}
+
+.toneSeriesViolet {
+  --series-ink: var(--color-tint-violet);
+}
+
+.toneSeriesMuted {
+  --series-ink: var(--color-muted);
+}
+
+/*
+ * Nét của chuỗi phụ. Cố ý KHÔNG viết lại `.line` của chuỗi chính theo khe này: `.line` giữ
+ * nguyên `stroke: var(--color-accent-vivid)` để 100 biểu đồ một chuỗi ra đúng cùng chuỗi HTML như
+ * trước. Trùng lặp một dòng, đổi lấy chắc chắn không lệch một pixel.
+ *
+ * `stroke-width` do component đặt inline theo `series.width` — nó là SỐ, không phải màu, nên không
+ * đụng luật cấm màu cứng của `tokens.test.ts`.
+ */
+.seriesLine {
+  fill: none;
+  stroke: var(--series-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
+ * Nét đứt của chuỗi phụ — 6-4, thưa hơn cả ba loại đường đứt đang có (mốc tham chiếu 4-3, dấu giá
+ * trị hiện tại 3-3, vạch dò 2-2). Mật độ gạch là thứ phân biệt chúng khi ảnh chuyển sang xám.
+ */
+.seriesDashed {
+  stroke-dasharray: 6 4;
+}
+
+.seriesArea {
+  stroke: none;
+}
+
+/* Hai đầu dải: khe `--series-ink` thừa kế từ chính thẻ `<linearGradient>` mang lớp tông — xem chú
+   thích ở `LineChart.tsx` về việc vì sao lớp phải nằm ở ĐÓ chứ không trên `<path>`. Độ đục khớp
+   `.areaTop` của chuỗi chính. */
+.seriesAreaTop {
+  stop-color: var(--series-ink);
+  stop-opacity: 0.28;
+}
+
+.seriesAreaBottom {
+  stop-color: var(--series-ink);
+  stop-opacity: 0;
+}
+
+/* ── Legend — chỉ dựng khi có từ hai chuỗi trở lên ───────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+}
+
+/* Mẫu nét thừa hưởng `--series-ink` của lớp tông trên `<li>`, nên nó tự đúng màu của chuỗi. */
+.legendSwatch {
+  flex: none;
+  display: block;
+}
+
+/* Nhãn dùng màu CHỮ thường, không dùng màu của chuỗi: màu nét chỉ đạt 3:1, đủ cho đường vẽ nhưng
+   không đủ cho chữ (NFR-USA-06). Mẫu nét bên cạnh mới là chỗ mang màu. */
+.legendLabel {
+  color: var(--color-ink-soft);
+}
+
+/* Mũi tên chỉ chuỗi này đọc trục trái hay trục phải — chỉ hiện khi hình có hai trục. */
+.legendAxis {
+  color: var(--color-muted);
+}
+
 /* Vùng không tính được: gạch chéo + chữ trong bảng số, hai dấu hiệu, không chỉ dựa vào màu. */
 .gapHatch {
   stroke: var(--color-border-strong);
@@ -130,22 +312,37 @@
  * Ba dấu hiệu cùng lúc: chấm đặc, vạch dọc nét đứt, và nhãn chữ. Chuyển ảnh sang xám vẫn đọc được
  * (NFR-USA-06).
  */
+/*
+ * Màu cam, không phải xanh: đường quét đã là xanh, nên dấu chỉ giá trị hiện tại vẽ chồng lên nó
+ * bằng cùng họ màu thì hai thứ dính vào nhau. Cam ở đây đúng vai của nó trong bảng màu — chỗ
+ * người dùng đang đứng, tương ứng với con số họ vừa gõ.
+ */
+/*
+ * Nhóm bọc cả ba nét của dấu. Nó nay vẽ SAU vùng bắt sự kiện (xem chú thích ở `LineChart.tsx`),
+ * nên bắt buộc phải nhả pointer event xuống dưới — nếu không, rê chuột ngang qua chính cái dấu
+ * này là mất vạch dò.
+ */
+.marker {
+  pointer-events: none;
+}
+
 .markerLine {
-  stroke: var(--color-accent);
+  stroke: var(--color-highlight);
   stroke-width: 1;
   stroke-dasharray: 3 3;
 }
 
 .markerDot {
-  fill: var(--color-accent);
+  fill: var(--color-highlight);
   stroke: var(--color-surface);
   stroke-width: 2;
 }
 
+/* Đây là CHỮ, nên nó dùng `--color-highlight` (đạt 4,5:1), không phải một màu chỉ đạt 3:1. */
 .markerLabel {
-  fill: var(--color-ink);
+  fill: var(--color-highlight);
   font-size: 11px;
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-bold);
 }
 
 .tick {
@@ -168,10 +365,24 @@
 .hoverCapture {
   fill: transparent;
   pointer-events: all;
+  /* Chữ thập = "đang dò đọc". Đây là trạng thái NỀN, dùng khi bấm không ghi được gì. */
   cursor: crosshair;
   /* Chặn cuộn trang mặc định khi bắt đầu kéo ngón tay TỪ BÊN TRONG khung vẽ — người dùng vẫn
      cuộn được bình thường nếu bắt đầu từ ngoài khung. */
   touch-action: none;
+}
+
+/*
+ * Bấm được thì con trỏ phải nói ra: bàn tay là quy ước chung của web cho "chỗ này bấm được", và
+ * đây chính là dấu hiệu mà tính năng bấm-áp-dụng đang thiếu — nó chạy đúng nhưng gần như không ai
+ * tìm ra.
+ *
+ * Cùng độ ưu tiên (0,1,0) với `.hoverCapture` nên thắng nhờ THỨ TỰ, và ở đây thứ tự là chắc chắn:
+ * hai luật nằm trong CÙNG một file, không phải hai CSS Module khác nhau — chỗ mà thứ tự trong gói
+ * là thứ không đoán trước được.
+ */
+.hoverCaptureReady {
+  cursor: pointer;
 }
 
 /* Nhóm vẽ vạch dò — không tự bắt sự kiện, để lọt xuống `.hoverCapture` bên dưới nó. */
@@ -283,9 +494,29 @@
 
 /* Gợi ý cách xem — trung tính, khác .note (dành cho cảnh báo đường đứt quãng). */
 .applyHint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
   margin: 0;
   font-size: var(--text-xs);
   color: var(--color-ink-soft);
+}
+
+/*
+ * Trạng thái KHẲNG ĐỊNH: "bấm được ngay bây giờ".
+ *
+ * Màu nhấn chứ không phải màu chữ phụ, và đây là chỗ khác biệt đáng giá nhất của cả đợt: câu kia
+ * là lời xin lỗi (bấm không ăn gì), câu này là lời mời. Cùng một sắc xám thì hai câu đọc như nhau,
+ * mà chúng nói hai điều ngược nhau.
+ *
+ * `--color-accent` trên `--color-surface` chính là cặp của mọi liên kết trong sản phẩm, nên nó đã
+ * nằm sẵn trong bộ kiểm tương phản của cả hai bảng màu — không đẻ thêm token nào.
+ *
+ * Icon đi kèm là dấu hiệu thứ hai, không để màu gánh một mình (NFR-USA-06).
+ */
+.applyHintReady {
+  color: var(--color-accent);
 }
 
 /*
@@ -425,9 +656,13 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-accent);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  /*
+   * Viền GIỮ LẠI, chỉ đổi màu theo nền: một nút chỉ có nền nhạt thì ranh giới của nó so với thẻ
+   * chỉ đạt ~1,1:1, dưới hẳn ngưỡng 3:1 mà NFR-USA-06 đòi cho ranh giới điều khiển.
+   */
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -548,6 +783,15 @@
   overflow: hidden;
   /* Huỷ `.plot{max-width:480px}` của khối ≥1024px phía trên — màn phóng to CỐ Ý chiếm hết chỗ. */
   max-width: none;
+
+  /*
+   * Nền phải tự lấy lại ở đây: từ đợt 12 `.plot` không còn mang nền nữa (thẻ `.chart` bao ngoài
+   * lo phần đó), mà trong màn phóng to không có thẻ nào bao ngoài — `<dialog>` nền
+   * `--color-paper`. Thiếu dòng này thì quầng sau chữ của `.hoverLabel` và `.barValueLabel`,
+   * vốn tô bằng `stroke: var(--color-surface)`, lệch màu với chính nền nó đang nằm trên.
+   */
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
 }
 
 .svgFill {

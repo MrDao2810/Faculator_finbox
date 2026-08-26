@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DrawableChart } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { ApplyHint } from './ApplyHint';
+import type { ApplyHintState } from './ApplyHint';
 import { LineChart } from './LineChart';
 import { WaterfallChart } from './WaterfallChart';
 import styles from './chart.module.css';
@@ -58,11 +60,12 @@ export interface ChartFullscreenProps {
    */
   onApplyPoint?: (key: string, value: number) => void;
   /**
-   * Trục hiện không áp dụng được (đang xem theo thời gian) nhưng có biến khác đổi sang được — hiện
-   * gợi ý ngay dưới hình. `ChartBody` tính điều kiện này một lần rồi truyền cả hai bản, để logic
-   * "khi nào nói" chỉ sống ở một chỗ.
+   * Trạng thái của dòng gợi ý bấm-áp-dụng, hoặc `null` khi không có gì để nói.
+   *
+   * `ChartBody` tính một lần rồi truyền cả hai bản, để logic "khi nào nói gì" chỉ sống ở một chỗ —
+   * bản phóng to và bản trên trang nói khác nhau là người dùng đọc ra hai sự thật về cùng một hình.
    */
-  showApplyHint?: boolean;
+  applyHint?: ApplyHintState | null;
 }
 
 /**
@@ -113,7 +116,7 @@ export function ChartFullscreen({
   idBase,
   controls,
   onApplyPoint,
-  showApplyHint = false,
+  applyHint = null,
 }: ChartFullscreenProps) {
   const t = useT();
   const pick = usePick();
@@ -318,7 +321,7 @@ export function ChartFullscreen({
                 {pick(model.note)}
               </p>
             )}
-            {showApplyHint && <p className={styles.applyHint}>{t('chart.applyHintTimeAxis')}</p>}
+            {applyHint !== null && <ApplyHint state={applyHint} />}
             {/*
               Câu nhờ xoay chỉ hiện khi máy ĐANG dọc. Khoá xoay ăn thì trình duyệt tự xoay sang ngang,
               `portrait` thành false và câu tự biến mất — một điều kiện lo cả hai nhánh.

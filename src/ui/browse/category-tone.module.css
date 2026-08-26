@@ -1,0 +1,49 @@
+/*
+ * Tông màu của một nhóm công thức — bảy lớp, dùng chung cho thẻ công thức và ô lưới nhóm.
+ *
+ * Mỗi lớp chỉ RÓT vào hai khe `--category-ink` / `--category-soft`; nó cố ý không tự đặt `color`
+ * hay `background`. Nhờ vậy nó không bao giờ tranh phần với luật của component đang dùng nó: hai
+ * file CSS Module có cùng độ ưu tiên, nên nếu cả hai cùng gán `color` thì cái thắng phụ thuộc
+ * thứ tự chúng nằm trong gói CSS — thứ không đoán trước được và đổi theo thứ tự import.
+ *
+ * Năm trong bảy tông dùng lại cặp màu đã có sẵn bộ kiểm tương phản; chỉ teal và violet là token
+ * mới. Xem docblock của `CategoryIcon.tsx` về việc vì sao bảy tông là đủ cho 12 nhóm.
+ *
+ * Tông trung tính dùng `--color-ink-soft` trên `--color-sunken` chứ không phải `--color-muted`:
+ * chữ badge cỡ 12px cần 4,5:1 trên nền chìm, và cặp này đạt 6,59 (sáng) / 10,41 (tối).
+ */
+
+.toneBlue {
+  --category-ink: var(--color-accent);
+  --category-soft: var(--color-accent-soft);
+}
+
+.toneTeal {
+  --category-ink: var(--color-tint-teal);
+  --category-soft: var(--color-tint-teal-soft);
+}
+
+.toneGreen {
+  --category-ink: var(--color-success);
+  --category-soft: var(--color-success-soft);
+}
+
+.toneRed {
+  --category-ink: var(--color-danger);
+  --category-soft: var(--color-danger-soft);
+}
+
+.toneViolet {
+  --category-ink: var(--color-tint-violet);
+  --category-soft: var(--color-tint-violet-soft);
+}
+
+.toneGold {
+  --category-ink: var(--color-warning);
+  --category-soft: var(--color-warning-soft);
+}
+
+.toneNeutral {
+  --category-ink: var(--color-ink-soft);
+  --category-soft: var(--color-sunken);
+}

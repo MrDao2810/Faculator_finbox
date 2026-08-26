@@ -34,8 +34,8 @@ import styles from './FormulaBrowser.module.css';
  * Tách khỏi page.tsx vì cần <Suspense> bao ngoài: `useListParams()` dùng
  * `useSearchParams()`, mà với `output: 'export'` thì hook đó bắt buộc nằm trong Suspense.
  *
- * Danh sách đi qua `VirtualList`: dưới 40 mục thì dựng thẳng, trên thì chỉ dựng phần đang
- * nằm trong tầm nhìn để giữ NFR-PER-02 khi đủ 111 công thức.
+ * Danh sách đi qua `VirtualList`, nhưng ở cỡ 111 công thức nó dựng THẲNG cả danh sách: ngưỡng
+ * ảo hoá là 1000 vì đo lại thấy ảo hoá làm việc cuộn tệ đi ở cỡ này. Xem docblock `VirtualList`.
  */
 export function FormulaBrowser() {
   const { params, setParams, reset } = useListParams();

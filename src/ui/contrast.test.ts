@@ -74,11 +74,19 @@ for (const [palette, tokens] of PALETTES) {
       ['nền thẻ', '--color-surface'],
     ] as const;
 
+    /*
+     * `--color-highlight` và hai tông nhóm nằm ở đây chứ không ở `nonTextTokens`: cả ba đều được
+     * dùng làm màu CHỮ — cam là nhãn của nút chính và của vạch giá trị hiện tại trên biểu đồ,
+     * hai tông kia là chữ trong badge nhóm. Chúng phải chịu ngưỡng 4,5:1, không phải 3:1.
+     */
     const textTokens = [
       '--color-ink',
       '--color-ink-soft',
       '--color-muted',
       '--color-accent',
+      '--color-highlight',
+      '--color-tint-teal',
+      '--color-tint-violet',
       '--color-danger',
       '--color-success',
       '--color-warning',
@@ -119,6 +127,33 @@ for (const [palette, tokens] of PALETTES) {
       expect(meetsContrast(color('--color-on-accent'), color('--color-accent'))).toBe(true);
     });
 
+    /*
+     * Nút hành động chính là màu cam, và trạng thái hover đổi NỀN chứ không đổi chữ — nên cả hai
+     * nền phải được chấm. Bỏ sót vế `-strong` thì nút chỉ hỏng lúc rê chuột, đúng lúc không ai
+     * chụp màn hình.
+     */
+    it('chữ trên nền nhấn phụ đạt AA — nút cam, cả lúc hover', () => {
+      expect(meetsContrast(color('--color-on-highlight'), color('--color-highlight'))).toBe(true);
+      expect(meetsContrast(color('--color-on-highlight'), color('--color-highlight-strong'))).toBe(
+        true,
+      );
+    });
+
+    /*
+     * Badge nhóm ở thẻ công thức và ô lưới nhóm: chữ tông trên nền tông cùng họ. Bảy tông, nhưng
+     * bốn trong số đó (accent · success · danger · warning trên nền -soft của chúng) đã có ca
+     * riêng ở trên rồi, nên ở đây chỉ còn ba cặp chưa ai chấm.
+     */
+    it('badge tông nhóm vẫn đọc được — ba cặp chưa có ca nào khác chấm', () => {
+      expect(meetsContrast(color('--color-highlight'), color('--color-highlight-soft'))).toBe(true);
+      expect(meetsContrast(color('--color-tint-teal'), color('--color-tint-teal-soft'))).toBe(true);
+      expect(meetsContrast(color('--color-tint-violet'), color('--color-tint-violet-soft'))).toBe(
+        true,
+      );
+      // Tông trung tính dùng lại cặp có sẵn — ghim luôn để nó không trôi theo lần chỉnh màu sau.
+      expect(meetsContrast(color('--color-ink-soft'), color('--color-sunken'))).toBe(true);
+    });
+
     it('chữ cảnh báo đọc được trên nền cảnh báo nhạt', () => {
       expect(meetsContrast(color('--color-warning'), color('--color-warning-soft'))).toBe(true);
       expect(meetsContrast(color('--color-danger'), color('--color-danger-soft'))).toBe(true);
@@ -154,6 +189,14 @@ const REQUIRED_TOKENS = [
   '--color-accent-soft',
   '--color-accent-vivid',
   '--color-on-accent',
+  '--color-highlight',
+  '--color-highlight-strong',
+  '--color-highlight-soft',
+  '--color-on-highlight',
+  '--color-tint-teal',
+  '--color-tint-teal-soft',
+  '--color-tint-violet',
+  '--color-tint-violet-soft',
   '--color-danger',
   '--color-danger-soft',
   '--color-success',
@@ -177,7 +220,7 @@ describe('globals.css khai báo đủ token màu', () => {
   /*
    * Bóc theo bộ chọn phải thật sự CẮT, không phải quét cả file rồi trả về mọi thứ.
    * Nếu `findBlock` hỏng và trả về toàn bộ nội dung, `LIGHT` sẽ dính giá trị của bảng tối và
-   * cả 27 phép kiểm phía trên biến thành trò vô nghĩa mà vẫn xanh — ca này chặn đúng chỗ đó.
+   * cả 39 phép kiểm phía trên biến thành trò vô nghĩa mà vẫn xanh — ca này chặn đúng chỗ đó.
    */
   it('bóc token theo đúng khối, không lẫn giữa hai bảng', () => {
     const darkOnly = extractColorTokens(css, DARK_SELECTOR);

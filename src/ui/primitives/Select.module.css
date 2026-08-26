@@ -23,8 +23,10 @@
   color: var(--color-ink);
 
   background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  /* Đi theo `.control` của Input từng con số — hai loại ô hay đứng cạnh nhau trong cùng một hàng,
+     nên cả bo góc lẫn màu viền phải đổi cùng nhau (màu nhấn từ đợt 13). */
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-lg);
 }
 
 .select:disabled {

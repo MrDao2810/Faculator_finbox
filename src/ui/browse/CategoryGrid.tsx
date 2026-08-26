@@ -5,6 +5,7 @@ import type { Category } from '@/application';
 
 import { Pick } from '../i18n/Pick';
 import { T } from '../i18n/T';
+import { CategoryIcon, toneClass } from './CategoryIcon';
 import styles from './CategoryGrid.module.css';
 
 export interface CategoryGridProps {
@@ -54,8 +55,17 @@ export function CategoryGrid({ categories, counts }: CategoryGridProps) {
             <Link
               /* Cùng một hàm với hàng "Xem tất cả" của ô tìm trang chủ — xem formulaListPath(). */
               href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
-              className={advancedOnly ? `${styles.tile} ${styles.advancedOnly}` : styles.tile}
+              className={[
+                styles.tile,
+                toneClass(category.id),
+                advancedOnly ? styles.advancedOnly : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
             >
+              <span className={styles.icon} aria-hidden="true">
+                <CategoryIcon id={category.id} size={16} />
+              </span>
               <span className={styles.name}>
                 <Pick value={category.shortName} />
               </span>

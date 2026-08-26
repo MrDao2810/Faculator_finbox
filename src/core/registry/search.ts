@@ -48,8 +48,30 @@ interface Field {
   weight: number;
 }
 
+/**
+ * Chỉ mục từ khoá đã cắt sẵn, nhớ theo từng công thức.
+ *
+ * Vì sao cần: một phím gõ ở màn danh sách kéo theo **bốn** lượt chấm điểm cả thư viện
+ * (`selectFormulas` + hai bộ đếm + `countHiddenByLevel`), mà mỗi lượt lại gọi `fieldsOf()` cho
+ * từng công thức. Sáu trường × 111 công thức × 4 lượt = 2.664 lần `normalize('NFD')` + regex +
+ * split cho MỖI ký tự người dùng gõ — trong khi bộ từ ấy không hề đổi giữa các lượt.
+ * Đo được: 1,41 ms → 0,11 ms mỗi lượt chấm 111 công thức, và lượt dựng chỉ mục 1,78 ms chỉ chạy
+ * đúng một lần.
+ *
+ * `WeakMap` chứ không phải `Map`: khoá là chính object công thức, nên bộ nhớ tự đi theo Registry
+ * và không có chỗ nào phải dọn tay. Điều kiện để nó đúng — và đang đúng — là **không ai sao chép
+ * `FormulaSummary`**: `selectFormulas`/`applyFacets`/`formulasForLevel` đều trả mảng mới chứa
+ * cùng object (`[...formulas]` sao chép MẢNG, không sao chép phần tử). Ngày nào có ai viết
+ * `.map(f => ({ ...f }))` thì chỉ mục trượt 100% và chỗ này lặng lẽ thành vô nghĩa — không sai
+ * kết quả, chỉ mất hết phần nhanh.
+ */
+const FIELD_INDEX = new WeakMap<FormulaSummary, Field[]>();
+
 function fieldsOf(formula: FormulaSummary): Field[] {
-  return [
+  const cached = FIELD_INDEX.get(formula);
+  if (cached !== undefined) return cached;
+
+  const fields: Field[] = [
     { tokens: tokenize(formula.id), weight: 12 },
     { tokens: tokenize(formula.name.vi), weight: 10 },
     { tokens: tokenize(formula.name.en), weight: 6 },
@@ -57,6 +79,8 @@ function fieldsOf(formula: FormulaSummary): Field[] {
     { tokens: tokenize(formula.description.vi), weight: 2 },
     { tokens: tokenize(formula.description.en), weight: 2 },
   ];
+  FIELD_INDEX.set(formula, fields);
+  return fields;
 }
 
 /**

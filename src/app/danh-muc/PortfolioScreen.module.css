@@ -39,10 +39,17 @@
   color: var(--color-muted);
 }
 
-/* Bốn thẻ chỉ số: hai cột ở 360px, tự giãn trên màn rộng — cùng công thức lưới với trang chủ. */
+/*
+ * Bốn (hoặc sáu) thẻ chỉ số: hai cột ở 360px, trải hết hàng trên màn rộng.
+ *
+ * `auto-fit` chứ không `auto-fill` như các lưới khác, và ở đây khác biệt ấy nhìn thấy được:
+ * `auto-fill` giữ nguyên các cột rỗng, nên ở 1280px bốn ô co lại còn 150px và dồn về mép trái,
+ * bỏ trống hơn nửa hàng. Số ô ở đây luôn ít và cố định (4 hoặc 6), khác lưới công thức vốn có
+ * hàng chục ô và cần cột đều nhau giữa các hàng.
+ */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: var(--space-2);
 }
 
@@ -62,17 +69,41 @@
   color: var(--color-accent);
 }
 
+/*
+ * Khối rỗng — nay có icon lớn ở giữa (bản thiết kế đợt 12).
+ *
+ * Là `<div>` chứ không `<ul>`: tab "Mã" tuyệt đối không được sinh thêm `<li>` nào, vì sáu ca
+ * trong `PortfolioScreen.test.tsx` dò thẻ của một mã bằng `getByRole('listitem')` SỐ ÍT.
+ */
 .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+
   margin: 0;
   padding: var(--space-5) var(--space-4);
 
-  font-size: var(--text-sm);
-  color: var(--color-muted);
   text-align: center;
 
   background: var(--color-surface);
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-md);
+}
+
+.emptyIcon {
+  display: inline-flex;
+  color: var(--color-muted);
+  /* Icon vẽ ở 18px, phóng lên cho cân với khoảng trống — nét dày theo tỉ lệ, không bị mảnh đi. */
+  transform: scale(1.8);
+  transform-origin: center;
+  margin: var(--space-2) 0;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
 }
 
 .list {
@@ -314,25 +345,40 @@
   border-top: 1px solid var(--color-border);
 }
 
-/* Nút thêm mã: viền đứt như bản thiết kế — trông rõ là chỗ để thêm chứ không phải nội dung. */
+/*
+ * Nút thêm mã — hành động chính của cả màn, nên nó mang màu cam và quầng sáng (đợt 12).
+ *
+ * Trước đó là một ô viền đứt rộng hết hàng, đọc ra như một chỗ trống chờ điền chứ không phải một
+ * nút bấm. Nay rộng vừa nội dung và căn giữa, để nó là thứ duy nhất mắt dừng lại khi danh mục
+ * còn rỗng.
+ */
+.addRow {
+  display: flex;
+  justify-content: center;
+}
+
 .addButton {
-  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
   min-height: var(--tap-min);
-  padding: var(--space-3);
+  padding: 0 var(--space-6);
 
   font-family: inherit;
   font-size: var(--text-base);
-  font-weight: var(--weight-medium);
-  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+  color: var(--color-on-highlight);
 
-  background: var(--color-surface);
-  border: 1px dashed var(--color-accent);
-  border-radius: var(--radius-md);
+  background: var(--color-highlight);
+  border: none;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-highlight);
   cursor: pointer;
 }
 
 .addButton:hover {
-  background: var(--color-accent-soft);
+  background: var(--color-highlight-strong);
 }
 
 .form {
@@ -407,6 +453,9 @@
 }
 
 .localTag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   flex-shrink: 0;
   padding: 1px var(--space-2);
 
@@ -416,6 +465,12 @@
 
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-sm);
+}
+
+/* Ổ khoá nhỏ hơn chữ một chút, để cái tem không cao hơn dòng nó đứng cùng. */
+.localTag svg {
+  width: 14px;
+  height: 14px;
 }
 
 /*
@@ -558,6 +613,11 @@
 }
 
 .tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
   flex: 1;
   min-height: var(--tap-min);
   padding: var(--space-2) var(--space-3);
@@ -574,9 +634,15 @@
   cursor: pointer;
 }
 
+/*
+ * Tab đang chọn: nền chuyển màu xanh, chữ đảo màu, in đậm — ba dấu hiệu, không chỉ màu.
+ *
+ * Xanh chứ không cam: hai tab là chỗ CHUYỂN GIỮA hai vùng nội dung, cùng họ với thanh điều hướng,
+ * không phải một hành động. Cam của màn này để dành cho đúng một chỗ — nút "Thêm mã cổ phiếu".
+ */
 .tabActive {
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
+  color: var(--color-on-accent);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-strong));
   border-color: var(--color-accent);
   font-weight: var(--weight-bold);
 }

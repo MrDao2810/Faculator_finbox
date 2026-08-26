@@ -20,7 +20,7 @@
  */
 
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
-import { formatNumber, formatValueWithUnit } from '../format';
+import { NO_VALUE, formatNumber, formatValueWithUnit } from '../format';
 import type { Bilingual, CalcOutput, Level } from '../types';
 import { WARNING_LABELS, meaningless } from '../warnings';
 import {
@@ -30,12 +30,27 @@ import {
   breakdownExtent,
   canDrawBreakdown,
 } from './breakdown';
-import { HISTORY_KEY, HISTORY_LABEL, canDrawHistory, historyPoints, sessionTicks } from './history';
+import {
+  HISTORY_KEY,
+  HISTORY_LABEL,
+  canDrawHistory,
+  closePriceSeries,
+  historyPoints,
+  sessionTicks,
+} from './history';
 import { decimalsOf, extentOf, niceAxis } from './scale';
+import { usableOverlays } from './series';
 import { pickSweepVariable, sweepCandidates, sweepPoints } from './sweep';
 import { condensePoints } from './table';
-import type { FormulaSpec } from '../registry/types';
-import type { ChartAxis, ChartModel, ChartPoint, ChartTable, SweepOption } from './types';
+import type { FormulaSpec, PriceOverlaySpec } from '../registry/types';
+import type {
+  ChartAxis,
+  ChartModel,
+  ChartPoint,
+  ChartSeries,
+  ChartTable,
+  SweepOption,
+} from './types';
 
 export interface ChartArgs {
   formula: FormulaModule;
@@ -55,6 +70,26 @@ export interface ChartArgs {
    * phiên" mà không nói phiên của mã nào là biểu đồ người đọc không kiểm chứng được.
    */
   seriesLabel?: string;
+  /**
+   * Chuỗi PHỤ do NƠI GỌI truyền vào — mối nối còn để ngỏ, hiện chưa ai dùng.
+   *
+   * Đọc kỹ trước khi nối một công thức mới vào đây, vì có HAI lối và lối này không phải lối mặc
+   * định. Đợt mở đường cho nhiều chuỗi đoán rằng chuỗi phụ nào cũng phải nhận từ nơi gọi (lý lẽ:
+   * nó phải TÍNH từ `ctx`, khác hằng số tĩnh như `referenceLines`). Đợt nối SMA cho thấy lý lẽ ấy
+   * chỉ đúng một nửa, và chọn ngược lại:
+   *
+   *   - **Khai trong Registry, tính trong Domain** — `spec.priceOverlay` cho đường giá đóng cửa
+   *     (`closePriceSeries()` bên dưới). Lối này đúng khi chuỗi phụ suy được từ mỗi `ctx`; nó giữ
+   *     phép tính ở Domain và giữ khai báo cạnh chính công thức, đúng nếp `referenceLines`.
+   *   - **Truyền từ nơi gọi** — chính trường này. Chỉ dùng khi chuỗi phụ cần thứ mà `buildChartModel()`
+   *     không có: kết quả của một công thức KHÁC chẳng hạn. Nhớ rằng nơi gọi là `ChartBody`, tức
+   *     tầng GIAO DIỆN — nhét phép tính tài chính vào đó là phá đúng lời hứa ở đầu `chart/types.ts`.
+   *     Ba dải Bollinger và đường Signal của MACD nhiều khả năng vẫn nên đi lối thứ nhất, mở rộng
+   *     khai báo thay vì tính ở `ChartBody`.
+   *
+   * Chuỗi lệch lưới x, trùng khoá, hoặc lấy khoá của chuỗi chính đều bị LOẠI — xem `usableOverlays()`.
+   */
+  overlays?: ReadonlyArray<ChartSeries>;
 }
 
 /**
@@ -182,6 +217,24 @@ function buildAxis(lo: number, hi: number, name: Bilingual, unit: string): Chart
   };
 }
 
+/**
+ * Nhãn legend của chuỗi CHÍNH khi có đường giá vẽ kèm — 'SMA 20 phiên', theo đúng số phiên đang
+ * nhập nên đổi slider là legend đổi theo, và người đọc biết ngay đường đậm là SMA của chu kỳ nào.
+ *
+ * Ô số phiên đang trống (khoá không có trong `inputs`) hoặc mang giá trị chưa hợp lệ thì rơi về
+ * tên ngắn trần — không bao giờ ghép 'NaN phiên' vào một nhãn (FR-06 áp cho cả chữ, không riêng số).
+ */
+function overlayPrimaryLabel(declared: PriceOverlaySpec, inputs: CalcInputs): Bilingual {
+  const raw = declared.periodKey === undefined ? undefined : inputs[declared.periodKey];
+  if (raw === undefined || !Number.isFinite(raw) || raw < 1) return declared.shortName;
+
+  const n = String(Math.round(raw));
+  return {
+    vi: `${declared.shortName.vi} ${n} phiên`,
+    en: `${n}-period ${declared.shortName.en}`,
+  };
+}
+
 /** Công thức không có biến vô hướng nào quét được — hiếm, nhưng phải nói ra chứ không vẽ khung rỗng. */
 const NO_SWEEP_VARIABLE = meaningless(
   {
@@ -250,7 +303,7 @@ function warmUpLength(points: ReadonlyArray<ChartPoint>): number {
  * số thật → hình vẫn vẽ, người dùng bấm lại điểm khác ngay tại chỗ.
  */
 export function buildChartModel(args: ChartArgs): ChartModel {
-  const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel } = args;
+  const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel, overlays } = args;
   const { spec } = formula;
   const name = shortLabel(spec.name);
 
@@ -352,13 +405,113 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     };
   }
 
-  const y = buildAxis(yExtent[0], yExtent[1], name, spec.resultUnit);
+  /*
+   * ── Chuỗi phụ ──────────────────────────────────────────────────────────────
+   *
+   * Lọc TRƯỚC khi dựng bất cứ thứ gì bám theo chúng (miền trục trái, trục phải, cột bảng): chuỗi
+   * lệch lưới bị loại ở đây thì không có chỗ nào phía sau phải hỏi lại "chuỗi này có dùng được
+   * không".
+   *
+   * `companion` là đường giá đóng cửa của công thức khai `spec.priceOverlay` — CHỈ dựng trong
+   * nhánh thời gian: trên đường quét, mỗi điểm là một mức giả định chứ không phải một phiên, nên
+   * "giá đóng cửa tại điểm đó" không tồn tại. Nhờ cái cổng này, đổi trục X sang một biến số là
+   * đường giá tự ẩn và mô hình trở về đúng hình một chuỗi như trước.
+   */
+  const companion = onTime && spec.priceOverlay !== undefined ? closePriceSeries(ctx) : null;
+  const requested = companion === null ? (overlays ?? []) : [companion, ...(overlays ?? [])];
+  const extra = requested.length === 0 ? [] : usableOverlays(requested, points);
 
+  /*
+   * Miền trục TRÁI ôm mọi chuỗi đọc trục trái, không riêng chuỗi chính.
+   *
+   * Renderer chiếu toạ độ bằng thang tuyến tính và KHÔNG cắt hình ngoài khung, nên một chuỗi phụ
+   * vượt miền sẽ vẽ tràn ra ngoài vùng vẽ — với SMA thì chắc chắn xảy ra: giá thô dao động rộng
+   * hơn chính đường trung bình làm mượt nó. Khi không có chuỗi phụ trục trái, `yFull` LÀ `yExtent`
+   * — cùng một giá trị, không phải "tương đương" — nên 100 biểu đồ một chuỗi giữ nguyên miền cũ.
+   * Câu mô tả bên dưới vẫn đọc `yExtent`: khoảng chạy của CHÍNH công thức là điều câu ấy nói.
+   */
+  const leftOverlayYs = extra
+    .filter((series) => series.axis !== 'right')
+    .flatMap((series) => series.points.map((point) => point.y));
+  const yFull =
+    leftOverlayYs.length === 0
+      ? yExtent
+      : (extentOf([...points.map((point) => point.y), ...leftOverlayYs]) ?? yExtent);
+
+  const y = buildAxis(yFull[0], yFull[1], name, spec.resultUnit);
+
+  /*
+   * Mốc tham chiếu — lọc theo miền Y ĐANG hiện, không nới trục ra ôm lấy chúng.
+   *
+   * Đây là chỗ quyết định cả tính năng, nên nói rõ vì sao lọc chứ không giãn: miền Y bám sát dữ
+   * liệu thật, và đó là thứ làm cho một đường quét đọc được. RSI theo "Số phiên" chạy trong khoảng
+   * 52–56 điểm; kéo trục ra 30–70 để hai mốc có chỗ đứng thì đường 4 điểm ấy dẹt thành một vạch
+   * ngang — mất đúng thứ người dùng vừa đổi trục để xem, đổi lấy hai đường kẻ không liên quan tới
+   * miền đang xem. Ngoài khung thì ẩn; câu mô tả bên dưới cũng chỉ nhắc mốc còn hiện.
+   *
+   * `Number.isFinite` là lưới an toàn của chính file này (lời hứa số 2 ở docblock đầu file): một
+   * `NaN` lọt tới renderer thành `y1="NaN"`, và Chrome bỏ qua cả thẻ trong im lặng.
+   */
+  const referenceLines = (spec.referenceLines ?? []).filter(
+    (line) => Number.isFinite(line.value) && line.value >= y.domain[0] && line.value <= y.domain[1],
+  );
+
+  /*
+   * Nhãn legend gọn cho chuỗi chính — CHỈ khi đường giá thật sự được vẽ: legend chỉ hiện từ hai
+   * chuỗi trở lên, nên gắn nhãn lúc chuỗi phụ bị loại là gắn một trường không ai đọc mà vẫn làm
+   * lệch bất biến "mô hình một chuỗi y hệt trước".
+   */
+  const primaryLabel =
+    companion !== null && extra.includes(companion) && spec.priceOverlay !== undefined
+      ? overlayPrimaryLabel(spec.priceOverlay, inputs)
+      : undefined;
+
+  /*
+   * Trục Y phải — chỉ dựng khi thật sự có chuỗi xin nó.
+   *
+   * Miền lấy trên TẤT CẢ chuỗi đọc trục phải gộp lại (ba dải Bollinger phải nằm chung một thang,
+   * không thì hình nói dối về khoảng cách giữa chúng), còn tên và đơn vị lấy của chuỗi ĐẦU TIÊN —
+   * các chuỗi cùng đọc một trục thì phải cùng đơn vị, và chuỗi đầu là cái đại diện đọc được nhất.
+   */
+  const rightSeries = extra.filter((series) => series.axis === 'right');
+  const rightExtent =
+    rightSeries.length === 0
+      ? null
+      : extentOf(rightSeries.flatMap((series) => series.points.map((point) => point.y)));
+  const rightHead = rightSeries[0];
+  const yRight =
+    rightExtent === null || rightHead === undefined
+      ? undefined
+      : buildAxis(rightExtent[0], rightExtent[1], rightHead.label, rightHead.unit ?? '');
+
+  /*
+   * Bảng số — thêm một cột cho mỗi chuỗi phụ.
+   *
+   * Rút gọn vẫn chạy trên CHUỖI CHÍNH, không đổi một dòng: `condensePoints()` giữ điểm đầu, điểm
+   * cuối, điểm "giá trị hiện tại" và hai đầu mỗi quãng đứt — bốn thứ ấy là thuộc tính của chuỗi
+   * chính, và chuỗi phụ không có quyền kéo bảng đi chỗ khác.
+   *
+   * Chuỗi phụ lấy giá trị theo CHỈ SỐ của điểm đã giữ; `usableOverlays()` đã bảo đảm cùng lưới x
+   * nên chỉ số ấy trỏ đúng phiên/mức. Nhánh `extra.length === 0` giữ nguyên đúng biểu thức cũ, để
+   * 100 biểu đồ một chuỗi dựng ra đúng cùng một mảng như trước — không phải "tương đương", mà là
+   * cùng một biểu thức.
+   */
   const table: ChartTable = {
-    columns: [x.title, y.title],
-    rows: condensePoints(points).map((point) =>
-      point === null ? null : ([{ vi: point.label, en: point.label }, point.valueLabel] as const),
-    ),
+    columns: [x.title, y.title, ...extra.map((series) => series.label)],
+    rows: condensePoints(points).map((point) => {
+      if (point === null) return null;
+      const label = { vi: point.label, en: point.label };
+      if (extra.length === 0) return [label, point.valueLabel] as const;
+
+      const index = points.indexOf(point);
+      return [
+        label,
+        point.valueLabel,
+        ...extra.map((series) =>
+          index < 0 ? NO_VALUE : (series.points[index]?.valueLabel ?? NO_VALUE),
+        ),
+      ] as const;
+    }),
   };
 
   const missing = points.filter((point) => point.y === null).length;
@@ -377,6 +530,18 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const warmUp = onTime ? warmUpLength(points) : 0;
   const firstReal = points[warmUp];
 
+  /*
+   * Khoảng chạy của từng chuỗi phụ, cho câu mô tả. Cùng lẽ với câu về mốc tham chiếu ngay dưới:
+   * `<svg>` mang `aria-hidden`, nên một đường không được nói ra bằng chữ là một đường không tồn
+   * tại với trình đọc màn hình — và câu này cũng đi thẳng vào bản in PDF lẫn tấm PNG.
+   */
+  const overlayRanges = extra.flatMap((series) => {
+    const ext = extentOf(series.points.map((point) => point.y));
+    return ext === null
+      ? []
+      : [{ label: series.label, lo: ext[0], hi: ext[1], unit: series.unit ?? spec.resultUnit }];
+  });
+
   const sentencesVi = [
     first === undefined || last === undefined
       ? ''
@@ -384,6 +549,14 @@ export function buildChartModel(args: ChartArgs): ChartModel {
         ? `${name.vi}${seriesLabel === undefined ? '' : ` của ${seriesLabel}`} qua ${String(points.length)} phiên, từ ${first.label} tới ${last.label}.`
         : `Quét ${axisName.vi} từ ${first.label} tới ${last.label} qua ${String(points.length)} mức.`,
     `${name.vi} chạy trong khoảng ${formatValueWithUnit(yExtent[0], spec.resultUnit)} tới ${formatValueWithUnit(yExtent[1], spec.resultUnit)}.`,
+    overlayRanges.length === 0
+      ? ''
+      : `Vẽ kèm: ${overlayRanges
+          .map(
+            (range) =>
+              `${range.label.vi} ${formatValueWithUnit(range.lo, range.unit)} tới ${formatValueWithUnit(range.hi, range.unit)}`,
+          )
+          .join(' · ')}.`,
     marked === undefined
       ? ''
       : onTime
@@ -394,6 +567,19 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       : warmUp > 0 && firstReal !== undefined
         ? `${String(warmUp)} phiên đầu chưa đủ dữ liệu để tính, nên đường bắt đầu từ ${firstReal.label}.`
         : `${String(missing)} trên ${String(points.length)} ${unit.vi} không tính được.`,
+    /*
+     * Mốc tham chiếu cũng phải NÓI RA BẰNG CHỮ, không chỉ vẽ.
+     *
+     * `<svg>` mang `aria-hidden` (xem docblock `LineChart`), nên với trình đọc màn hình thì hai
+     * đường kẻ 30 và 70 đơn giản là không tồn tại. Câu mô tả này và bảng số là toàn bộ những gì họ
+     * đọc được — bỏ qua chỗ này là làm đúng cái việc tính năng sinh ra để sửa, chỉ khác đối tượng.
+     * Nó cũng đi thẳng vào bản in PDF và tấm PNG chia sẻ, hai chỗ không có màu nào để dựa vào.
+     */
+    referenceLines.length === 0
+      ? ''
+      : `Mốc tham chiếu: ${referenceLines
+          .map((line) => `${line.label.vi} ${formatValueWithUnit(line.value, spec.resultUnit)}`)
+          .join(' · ')}.`,
   ];
 
   const sentencesEn = [
@@ -403,6 +589,14 @@ export function buildChartModel(args: ChartArgs): ChartModel {
         ? `${name.en}${seriesLabel === undefined ? '' : ` for ${seriesLabel}`} over ${String(points.length)} sessions, from ${first.label} to ${last.label}.`
         : `Sweeping ${axisName.en} from ${first.label} to ${last.label} across ${String(points.length)} levels.`,
     `${name.en} ranges from ${formatValueWithUnit(yExtent[0], spec.resultUnit)} to ${formatValueWithUnit(yExtent[1], spec.resultUnit)}.`,
+    overlayRanges.length === 0
+      ? ''
+      : `Also drawn: ${overlayRanges
+          .map(
+            (range) =>
+              `${range.label.en} ${formatValueWithUnit(range.lo, range.unit)} to ${formatValueWithUnit(range.hi, range.unit)}`,
+          )
+          .join(' · ')}.`,
     marked === undefined
       ? ''
       : onTime
@@ -413,6 +607,11 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       : warmUp > 0 && firstReal !== undefined
         ? `The first ${String(warmUp)} sessions don't have enough data to calculate yet, so the line starts at ${firstReal.label}.`
         : `${String(missing)} of ${String(points.length)} ${unit.en} could not be calculated.`,
+    referenceLines.length === 0
+      ? ''
+      : `Reference levels: ${referenceLines
+          .map((line) => `${line.label.en} ${formatValueWithUnit(line.value, spec.resultUnit)}`)
+          .join(' · ')}.`,
   ];
 
   const reason = points.find((point) => point.y === null && point.reason !== undefined)?.reason;
@@ -430,9 +629,25 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     x,
     y,
     points,
+    /*
+     * Cả hai trường của nhiều-chuỗi đều VẮNG MẶT khi không dùng, không phải mảng rỗng / undefined
+     * ghi rõ — cùng nếp `note` và `referenceLines`. Đó là điều kiện để bất biến "công thức một
+     * chuỗi dựng ra đúng mô hình như trước" kiểm được bằng `toEqual`.
+     */
+    ...(extra.length === 0 ? {} : { overlays: extra }),
+    ...(primaryLabel === undefined ? {} : { primaryLabel }),
+    ...(yRight === undefined ? {} : { yRight }),
     table,
     sweepKey: activeKey,
     options,
+    /*
+     * Vắng mặt hẳn khi không mốc nào lọt khung — không phải mảng rỗng.
+     *
+     * Có chủ đích: "công thức không khai mốc thì mô hình y hệt như trước" là một bất biến kiểm
+     * được bằng `toEqual`, mà một `referenceLines: []` thừa ra đã đủ làm nó đỏ. Cùng nếp với
+     * `note` ngay dưới đây.
+     */
+    ...(referenceLines.length === 0 ? {} : { referenceLines }),
     /*
      * Ghi chú chỉ dành cho NGẮT GIỮA. Dải khởi động đã được câu mô tả nói đúng bản chất ngay trên
      * đó rồi, và nó không phải điều đáng cảnh báo — thêm một dòng "đường ngắt" nữa là dựng lên một

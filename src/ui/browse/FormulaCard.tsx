@@ -6,6 +6,7 @@ import type { FormulaSummary } from '@/application';
 
 import { Pick } from '../i18n/Pick';
 import { T } from '../i18n/T';
+import { CategoryIcon, toneClass } from './CategoryIcon';
 import styles from './FormulaCard.module.css';
 
 export interface FormulaCardProps {
@@ -13,9 +14,11 @@ export interface FormulaCardProps {
   /** Ẩn nhãn nhóm khi cả danh sách vốn đã thuộc một nhóm. */
   showCategory?: boolean;
   /**
-   * `row` — một hàng ngang có badge cấp độ và mũi tên, dùng ở danh sách WF-02 và WF-09.
-   * `tile` — ô vuông trong lưới hai cột của trang chủ WF-01: gọn hơn, bỏ badge và mũi tên
-   * vì ở khổ ô 150px chúng chiếm chỗ của phần chữ mà không nói thêm được gì.
+   * `row` — một hàng ngang có icon nhóm, badge cấp độ, badge nhóm và mũi tên; dùng ở danh sách
+   * WF-02 và WF-09. Ở khổ hàng thì cả bốn đều có chỗ, khác hẳn khổ ô 164px của trang chủ.
+   * `tile` — ô vuông trong lưới hai cột của trang chủ WF-01: icon nhóm, tên, mô tả và badge
+   * nhóm. Vẫn bỏ badge cấp độ và mũi tên, vì ở khổ ô 164px chúng chiếm chỗ của phần chữ mà
+   * không nói thêm được gì.
    */
   variant?: 'row' | 'tile';
 }
@@ -42,8 +45,18 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
   const isBasic = formula.level === 'basic';
 
   if (variant === 'tile') {
+    /*
+     * Lớp tông đặt trên chính thẻ, không đặt trên icon hay badge: nó chỉ rót hai khe
+     * `--category-*`, còn hai phần bên trong đọc khe đó. Xem docblock `toneClass()`.
+     */
     return (
-      <Link href={formulaPath(formula.id)} className={styles.tile}>
+      <Link
+        href={formulaPath(formula.id)}
+        className={`${styles.tile} ${toneClass(formula.categoryId)}`}
+      >
+        <span className={styles.tileIcon} aria-hidden="true">
+          <CategoryIcon id={formula.categoryId} />
+        </span>
         <span className={styles.tileName}>
           <Pick value={formula.name} />
         </span>
@@ -59,8 +72,23 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
     );
   }
 
+  /*
+   * Lớp tông cũng đặt trên chính thẻ, y như nhánh ô — xem chú thích ở trên và docblock
+   * `toneClass()`. Icon và badge nhóm bên trong chỉ đọc hai khe `--category-*`.
+   */
   return (
-    <Link href={formulaPath(formula.id)} className={styles.card}>
+    <Link
+      href={formulaPath(formula.id)}
+      className={`${styles.card} ${toneClass(formula.categoryId)}`}
+    >
+      {/*
+        Icon nhóm ở đầu hàng — bản thiết kế mobile đợt 13. Cùng dấu hiệu với nhánh ô của trang
+        chủ, nên một công thức mang đúng một hình dù gặp nó ở màn nào.
+      */}
+      <span className={styles.rowIcon} aria-hidden="true">
+        <CategoryIcon id={formula.categoryId} size={20} />
+      </span>
+
       <div className={styles.body}>
         <div className={styles.head}>
           <span className={styles.name}>

@@ -177,6 +177,62 @@ describe('scoreFormula()', () => {
     const plain = scoreFormula(make({ ...HOA_VON, isFeatured: false }), tokenize('gia'));
     expect(featured).toBeGreaterThan(plain);
   });
+
+  /*
+   * Chỉ mục từ khoá (`FIELD_INDEX`, đợt 13) nhớ bộ từ đã cắt theo THAM CHIẾU object. Hai điều
+   * phải đúng, và cả hai đều lặng lẽ nếu sai — kết quả vẫn ra số, chỉ là ra số sai hoặc mất hết
+   * phần nhanh.
+   */
+  it('chấm cùng một công thức nhiều lần luôn ra cùng một điểm', () => {
+    const lan1 = scoreFormula(PE, tokenize('dinh gia'));
+    const lan2 = scoreFormula(PE, tokenize('dinh gia'));
+    expect(lan2).toBe(lan1);
+    expect(lan1).toBeGreaterThan(0);
+  });
+
+  it('hai công thức khác nhau không dùng chung chỉ mục của nhau', () => {
+    // `vay no` chỉ khớp EMI. Nếu chỉ mục lẫn khoá thì PE cũng ra điểm.
+    expect(scoreFormula(EMI, tokenize('vay'))).toBeGreaterThan(0);
+    expect(scoreFormula(PE, tokenize('vay'))).toBe(0);
+  });
+});
+
+/*
+ * Điều kiện SỐNG CÒN của chỉ mục từ khoá: các hàm lọc phải trả về CHÍNH object công thức, không
+ * phải bản sao. `WeakMap` khoá theo tham chiếu, nên một ngày nào đó ai đó viết
+ * `.map(f => ({ ...f }))` cho tiện là chỉ mục trượt 100% — không ca kiểm nào khác thấy được, vì
+ * kết quả tìm kiếm vẫn đúng từng chữ. Ca này là chỗ duy nhất bắt được.
+ */
+describe('lọc không được sao chép công thức — điều kiện của chỉ mục từ khoá', () => {
+  it('selectFormulas trả về đúng object đã truyền vào', () => {
+    const ra = selectFormulas(ALL, BASE_QUERY);
+    for (const formula of ra) {
+      expect(
+        ALL.some((goc) => goc === formula),
+        formula.id,
+      ).toBe(true);
+    }
+  });
+
+  it('formulasForLevel cũng vậy', () => {
+    for (const formula of formulasForLevel(ALL, 'basic')) {
+      expect(
+        ALL.some((goc) => goc === formula),
+        formula.id,
+      ).toBe(true);
+    }
+  });
+
+  it('searchFormulas cũng vậy', () => {
+    const ra = searchFormulas(ALL, 'gia');
+    expect(ra.length).toBeGreaterThan(0);
+    for (const formula of ra) {
+      expect(
+        ALL.some((goc) => goc === formula),
+        formula.id,
+      ).toBe(true);
+    }
+  });
 });
 
 describe('selectFormulas()', () => {

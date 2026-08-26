@@ -49,6 +49,93 @@
    */
   --color-accent-vivid: #3b7bf0;
 
+  /* ── Màu nhấn phụ ────────────────────────────────────────────────────── */
+  /*
+   * Cam. Là màu của HÀNH ĐỘNG CHÍNH, không phải màu nhấn thứ hai dùng thay nhau với xanh.
+   *
+   * Bản thiết kế đợt 12 tách hai vai vốn dồn cả vào `--color-accent`: xanh lo phần "đi tới"
+   * (link, thanh điều hướng, tab, đường biểu đồ), cam lo phần "bấm vào đây" (nút chính, mục đang
+   * chọn của các cặp Cơ bản/Nâng cao · Sáng/Tối · đơn vị, nút thêm mã, vạch giá trị hiện tại trên
+   * biểu đồ). Một màn chỉ nên có một chỗ cam — thấy hai nút cam cạnh nhau là dùng sai.
+   *
+   * Cố ý KHÔNG đổi `--color-accent` sang cam: `draw-card.ts` ghim tám mã màu của bảng sáng cho
+   * ảnh chia sẻ, và mảng màu logo (`--color-brand-*`) là xanh, đổi màu nhấn thì cả sản phẩm lệch
+   * tông với chính dấu hiệu của nó.
+   *
+   * Cam bảng sáng phải THẪM (5,48:1 trên nền trang) vì nó cũng làm màu chữ — cam tươi như bản vẽ
+   * chỉ đạt ~2:1, không qua nổi NFR-USA-06. Bảng tối thì ngược lại, tươi lên được 9,56:1.
+   */
+  --color-highlight: #b23c00;
+  --color-highlight-strong: #8f3000; /* hover / nhấn giữ */
+  --color-highlight-soft: #ffe8db; /* nền nhạt, cặp với --color-highlight 5,03:1 */
+  --color-on-highlight: #ffffff;
+
+  /* ── Tông nhóm công thức ─────────────────────────────────────────────── */
+  /*
+   * Bảy tông cho 12 nhóm, và năm trong bảy dùng lại cặp đã có (accent · success · danger ·
+   * warning · ink-soft trên sunken). Chỉ hai tông dưới đây là mới.
+   *
+   * Vì sao không phải 12 tông riêng: trang chủ bày các nhóm ở HAI lưới rời nhau — Chứng khoán 7
+   * nhóm, Cá nhân 5 nhóm — nên bảy tông đã đủ để trong cùng một lưới không có hai ô trùng màu.
+   * Thứ phân biệt thật là hình icon (12 hình khác nhau) cộng tên nhóm bằng chữ; màu chỉ là lớp
+   * thứ hai, đúng NFR-USA-06. Đổi lại, bảng màu đẻ thêm bốn token thay vì hai mươi bốn.
+   *
+   * Viết bằng mã hex chứ KHÔNG dựng bằng `color-mix()`: `extractColorTokens()` chỉ đọc
+   * `--color-*: #hex;`, nên màu sinh động sẽ không có phép kiểm tương phản nào chấm — đúng loại
+   * hỏng lặng lẽ mà cả hai cửa gác màu sinh ra để chặn.
+   */
+  --color-tint-teal: #0f6b6b;
+  --color-tint-teal-soft: #d7efee;
+  --color-tint-violet: #6b3fbf;
+  --color-tint-violet-soft: #eae1fb;
+
+  /*
+   * Hai KHE để một nhóm rót tông của nó vào. Không phải token màu: `category-tone.module.css`
+   * gán lại chúng theo từng nhóm, còn thẻ và ô lưới chỉ đọc `var(--category-ink)`.
+   *
+   * Khai ở đây vì `tokens.test.ts` đòi mọi biến mà CSS Module gọi tới phải có mặt trong `:root`,
+   * và vì giá trị mặc định phải là một màu THẬT — component quên gắn lớp tông thì rơi về xanh,
+   * chứ không rơi về trong suốt. Chúng không mang tiền tố `--color-` nên không bị luật "bảng tối
+   * phải đè đủ" ràng buộc: tông của nhóm đổi theo giao diện thông qua chính token nó trỏ tới.
+   */
+  --category-ink: var(--color-accent);
+  --category-soft: var(--color-accent-soft);
+
+  /*
+   * Khe cùng loại, cho TÔNG CỦA MỘT CHUỖI trên biểu đồ nhiều chuỗi (SMA trên đường giá, ba dải
+   * Bollinger, MACD và Signal). Lớp tông trong `chart.module.css` rót vào đây, còn nét vẽ và hai
+   * đầu dải chuyển màu đọc ra.
+   *
+   * Vì sao là một khe RIÊNG chứ không phải `color` + `currentColor` — cách ấy ngắn hơn nhưng sai:
+   * `color` thừa kế xuống mọi chữ nằm trong, mà `--color-accent-vivid` chỉ đạt 3:1 nên nó hợp cho
+   * nét vẽ chứ không hợp cho chữ. `tokens.test.ts` có hẳn một ca chặn `color: var(--color-accent-vivid)`
+   * và nó đã bắt đúng lần thử đầu tiên. Khe riêng thì không có đường nào rò sang chữ.
+   */
+  --series-ink: var(--color-accent-vivid);
+
+  /*
+   * Dải chuyển màu của mục ĐANG CHỌN trong ba cụm nút hai bậc — Cơ bản/Nâng cao, Sáng/Tối, và
+   * bậc đơn vị tiền. Chủ dự án chốt hình này ở đợt 13.
+   *
+   * Là token chứ không chép chuỗi vào ba file: ba cụm ấy CỐ Ý giống hệt nhau (xem docblock
+   * `ThemePicker.module.css`), nên chúng phải đổi cùng nhau, không phải đổi được hai trong ba.
+   *
+   * Không mang tiền tố `--color-` nên nó không bị luật "bảng tối phải đè đủ" ràng buộc, và cũng
+   * KHÔNG cần bản tối: hai đầu dải là `var()`, nên chúng tự phân giải theo bảng đang bật. Cả hai
+   * đầu đều đã có phép kiểm tương phản với `--color-on-highlight` trong `contrast.test.ts`
+   * (ca "nút cam, cả lúc hover"), nên chữ trên nút đạt AA ở mọi điểm của dải.
+   *
+   * Thứ tự `-strong` trước rồi `-highlight` sau, không phải ngược lại: ở bảng TỐI thì
+   * `-strong` mới là đầu SÁNG hơn, nên dải đi từ sáng ở góc trên-trái xuống đậm ở góc dưới-phải,
+   * đúng bản vẽ. Ở bảng sáng thứ tự ấy cho chiều ngược lại, và điều đó chấp nhận được — cái phải
+   * giữ là độ tương phản của chữ, không phải chiều của dải.
+   */
+  --gradient-highlight: linear-gradient(
+    135deg,
+    var(--color-highlight-strong),
+    var(--color-highlight)
+  );
+
   /*
    * Màu của dấu hiệu thương hiệu (khối hộp) — dải chuyển từ góc trên-trái xuống góc dưới-phải.
    *
@@ -126,6 +213,12 @@
 
   --shadow-sm: 0 1px 2px rgba(26, 34, 51, 0.08);
   --shadow-md: 0 2px 8px rgba(26, 34, 51, 0.12);
+  /*
+   * Quầng sáng dưới nút hành động chính. Khai ở đây chứ không viết thẳng vào CSS Module vì
+   * `box-shadow` buộc phải nhúng màu, mà `tokens.test.ts` cấm `rgba(` trong file `.module.css`.
+   * Nhúng cứng màu nên nó nằm trong `COLOUR_DERIVED` và phải có bản tối, như hai dòng trên.
+   */
+  --shadow-highlight: 0 6px 18px rgba(178, 60, 0, 0.32);
 
   /* ── Trạng thái focus — bắt buộc thấy rõ, không được tắt (NFR-USA-06) ── */
   --focus-width: 3px;
@@ -155,9 +248,10 @@
  * vùng in ở cuối file này đã có một bài học đắt về đúng chuyện đó — xem chú thích `:has()` vs
  * `:where()` ở khối `@media print`.
  *
- * Cả 22 token màu ở đây đều qua đúng bộ kiểm WCAG mà bảng sáng đang chịu — `contrast.test.ts`
- * chấm CẢ HAI bảng, 27 phép mỗi bảng. `--color-brand-from`/`--color-brand-to` cố ý KHÔNG có mặt:
- * đó là mảng màu của logo, nó không đổi theo giao diện.
+ * Cả 30 token màu ở đây đều qua đúng bộ kiểm WCAG mà bảng sáng đang chịu — `contrast.test.ts`
+ * chấm CẢ HAI bảng, 39 phép mỗi bảng. `--color-brand-from`/`--color-brand-to` cố ý KHÔNG có mặt:
+ * đó là mảng màu của logo, nó không đổi theo giao diện. `--category-ink`/`--category-soft` cũng
+ * không có mặt, vì lý do khác: chúng là khe trỏ tới token khác, không phải màu.
  */
 [data-theme='dark'] {
   color-scheme: dark;
@@ -195,6 +289,25 @@
   /* Xanh rực — vẫn CHỈ dùng cho mảng màu, không phải chữ. 6,40 / 5,61. */
   --color-accent-vivid: #5b9bff;
 
+  /* ── Màu nhấn phụ ────────────────────────────────────────────────────── */
+  /*
+   * Cam tươi lên hẳn so với bảng sáng: 9,56 / 8,38. Trên nền tối, cam đất #b23c00 của bảng sáng
+   * chỉ còn 1,7:1 — gần như một vệt nâu lẫn vào nền.
+   *
+   * `--color-on-highlight` ĐẢO thành nâu rất thẫm, cùng lẽ với `--color-on-accent`: giữ chữ trắng
+   * trên cam nhạt chỉ được 1,8:1, nút mất hết chữ.
+   */
+  --color-highlight: #ffab70;
+  --color-highlight-strong: #ffc59a; /* sáng hơn, ngược chiều bảng sáng — như --color-accent-strong */
+  --color-highlight-soft: #4a2208; /* cặp với --color-highlight: 7,42:1 */
+  --color-on-highlight: #3b1a00; /* trên nền cam: 8,48:1 */
+
+  /* ── Tông nhóm công thức ─────────────────────────────────────────────── */
+  --color-tint-teal: #5fd4cd; /* 9,96 / 8,73 */
+  --color-tint-teal-soft: #103430; /* cặp: 7,57:1 */
+  --color-tint-violet: #c4a7f5; /* 8,61 / 7,55 */
+  --color-tint-violet-soft: #2b1d47; /* cặp: 7,44:1 */
+
   /* ── Màu trạng thái ──────────────────────────────────────────────────── */
   --color-danger: #f4a0a6; /* 8,81 / 7,72 */
   --color-danger-soft: #3a1a1f; /* cặp với --color-danger: 7,74:1 */
@@ -216,6 +329,9 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6);
   --focus-ring: 0 0 0 var(--focus-width) rgba(138, 180, 248, 0.4);
+  /* Quầng của nút chính lấy chính màu cam đang dùng, không lấy màu đen: trên nền tối một mảng
+     đen mờ không đọc ra là quầng sáng, nó chỉ làm nút trông bẩn. */
+  --shadow-highlight: 0 6px 20px rgba(255, 171, 112, 0.28);
 }
 
 * {

@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { formatCalcOutput, isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
@@ -19,6 +21,11 @@ export interface StatTileProps {
    * thiết kế WF-06 vẽ.
    */
   showEyebrow?: boolean;
+  /**
+   * Icon nhỏ ở góc trên thẻ — bản thiết kế đợt 12. Luôn là SVG `aria-hidden`: nhãn chữ mới là
+   * thứ trình đọc màn hình đọc, và `textContent` của thẻ không được đổi.
+   */
+  icon?: ReactNode;
   className?: string;
 }
 
@@ -37,6 +44,7 @@ export function StatTile({
   note,
   decimals = 2,
   showEyebrow = true,
+  icon,
   className,
 }: StatTileProps) {
   const t = useT();
@@ -47,6 +55,17 @@ export function StatTile({
 
   return (
     <div className={classes}>
+      {/*
+        Icon là con TRỰC TIẾP của thẻ, không bọc chung với nhãn vào một khối đầu thẻ.
+        `PortfolioScreen.test.tsx` dò giá trị bằng `findByText(nhãn).parentElement` — gộp icon và
+        nhãn vào một `<div>` là `parentElement` của nhãn không còn chứa con số nữa, và bốn ca ở
+        đó đỏ mà không nói được lý do thật.
+      */}
+      {icon !== undefined && (
+        <span className={styles.icon} aria-hidden="true">
+          {icon}
+        </span>
+      )}
       {showEyebrow && <span className={styles.eyebrow}>{t('stat.eyebrow')}</span>}
       <span className={styles.label}>{label}</span>
       <span className={styles.value}>{formatCalcOutput(output, { maxDecimals: decimals })}</span>

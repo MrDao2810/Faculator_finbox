@@ -64,6 +64,69 @@ export function linePath(
 }
 
 /**
+ * Chuỗi `d` của VÙNG dưới đường, để tô dải chuyển màu (bản thiết kế đợt 12).
+ *
+ * Cùng luật ngắt quãng với `linePath`, nhưng mỗi dải liền mạch phải là một đoạn con ĐÓNG KÍN
+ * riêng: `M x,đáy L … L x,đáy Z`. Đây là chỗ dễ sai nhất — đem thẳng chuỗi của `linePath` ra tô
+ * `fill` thì SVG tự nối điểm cuối về điểm đầu và vẽ ra một hình không có nghĩa gì, mà nhìn thoáng
+ * qua vẫn "có vẻ được" ở những biểu đồ đơn điệu.
+ *
+ * `baselineY` là toạ độ SVG của đáy khung vẽ, không phải giá trị 0 của trục — trục Y của phần lớn
+ * biểu đồ ở đây không chạm 0, nên tô xuống tới 0 sẽ tràn ra ngoài khung.
+ *
+ * @returns chuỗi rỗng khi không có điểm nào vẽ được — nơi gọi bỏ hẳn thẻ `<path>`.
+ */
+export function areaPath(
+  points: ReadonlyArray<ChartPoint>,
+  sx: (value: number) => number,
+  sy: (value: number) => number,
+  baselineY: number,
+): string {
+  if (!Number.isFinite(baselineY)) return '';
+
+  const parts: string[] = [];
+  /* Đoạn đang mở: nhớ x đầu để còn hạ chân về đáy đúng chỗ khi đóng lại. */
+  let firstX: number | null = null;
+  let lastX = 0;
+
+  function close() {
+    if (firstX === null) return;
+    parts.push(
+      `L${fixed(lastX)},${fixed(baselineY)}`,
+      `L${fixed(firstX)},${fixed(baselineY)}`,
+      'Z',
+    );
+    firstX = null;
+  }
+
+  for (const point of points) {
+    if (!drawable(point)) {
+      close();
+      continue;
+    }
+
+    const x = sx(point.x);
+    const y = sy(point.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      close();
+      continue;
+    }
+
+    if (firstX === null) {
+      parts.push(`M${fixed(x)},${fixed(y)}`);
+      firstX = x;
+    } else {
+      parts.push(`L${fixed(x)},${fixed(y)}`);
+    }
+    lastX = x;
+  }
+
+  close();
+
+  return parts.join(' ');
+}
+
+/**
  * Các khoảng trên trục X không tính được, để tô vùng gạch chéo.
  *
  * Gộp các điểm `null` liền nhau thành một khoảng, và nới sang hai điểm vẽ được kề bên — vùng tô

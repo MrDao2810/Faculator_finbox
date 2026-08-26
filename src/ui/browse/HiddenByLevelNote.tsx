@@ -43,18 +43,47 @@ export function HiddenByLevelNote({
 
   return (
     <p className={[styles.note, className].filter(Boolean).join(' ')}>
-      <span>
-        {count} {t(labelKey)}
+      {/*
+        Ổ khoá — cùng hình với khối "Dữ liệu trên máy" ở màn Cài đặt, và cùng nghĩa: có thứ đang
+        bị giữ lại. Vẽ tay, `aria-hidden`, không chữ bên trong: câu ngay cạnh đã nói đủ.
+      */}
+      <span className={styles.icon} aria-hidden="true">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v9H5v-9Z" />
+        </svg>
       </span>
-      <button
-        type="button"
-        className={styles.action}
-        onClick={() => {
-          setMode('advanced');
-        }}
-      >
-        {t('list.showAdvanced')}
-      </button>
+
+      {/*
+        Hai dòng chứ không một — bản thiết kế mobile đợt 13: ở khổ 360px câu và nút xuống dòng
+        lộn xộn giữa chừng, đọc thành một câu đứt quãng.
+
+        Con số và chữ phải nằm TRONG CÙNG một phần tử: ca kiểm dò `getByText(/…đang ẩn/)` rồi đòi
+        `textContent` của chính phần tử ấy chứa con số — tách ra là ca đó đỏ, và đúng ra là đỏ,
+        vì "29" đứng rời khỏi câu thì trình đọc màn hình cũng đọc thành hai mẩu.
+      */}
+      <span className={styles.text}>
+        <span className={styles.count}>
+          {count} {t(labelKey)}
+        </span>
+        <button
+          type="button"
+          className={styles.action}
+          onClick={() => {
+            setMode('advanced');
+          }}
+        >
+          {t('list.showAdvanced')}
+        </button>
+      </span>
     </p>
   );
 }

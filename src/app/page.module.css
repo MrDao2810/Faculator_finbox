@@ -4,6 +4,60 @@
   gap: var(--space-5);
 }
 
+/*
+ * Dải mở đầu — bản thiết kế đợt 12.
+ *
+ * Icon lấy màu nhấn XANH chứ không phải cam: cam là màu của hành động bấm được, còn dải này chỉ
+ * giới thiệu. Một mảng cam to ngay đầu trang sẽ tranh mắt với nút chính thật ở màn chi tiết.
+ */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.heroIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 44px;
+  height: 44px;
+
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* Không có dòng này thì câu phụ đề dài đẩy phình cả dải ở 360px. */
+  min-width: 0;
+}
+
+.heroTitle {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.heroSubtitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+  overflow-wrap: anywhere;
+}
+
 .block {
   display: flex;
   flex-direction: column;

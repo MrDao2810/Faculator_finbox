@@ -25,9 +25,19 @@
   border-radius: var(--radius-md);
 }
 
-/* Tiêu đề khối viết hoa màu nhấn — cùng ngôn ngữ với trang chủ và WF-08. */
+/*
+ * Tiêu đề khối viết hoa màu nhấn — cùng ngôn ngữ với trang chủ và WF-08.
+ * Từ đợt 12 thêm icon và một đường kẻ dưới, để bốn khối tách nhau rõ khi cuộn nhanh.
+ */
 .blockTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
   margin: 0;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
@@ -110,6 +120,79 @@
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-muted);
+}
+
+/*
+ * Nút xoá một kho — icon thùng rác trên nền đỏ nhạt (bản thiết kế đợt 12).
+ *
+ * Vuông đúng 44px nên vùng chạm đạt NFR-USA-01 mà không cần lớp phủ `::after` như nút nhỏ của
+ * `Button`. Cặp màu `--color-danger` trên `--color-danger-soft` đã có phép kiểm tương phản sẵn
+ * trong `contrast.test.ts`.
+ */
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+
+  width: var(--tap-min);
+  height: var(--tap-min);
+
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/*
+ * Kho rỗng thì không có gì để xoá. Làm mờ VÀ để thuộc tính `disabled` thật — dấu hiệu thị giác
+ * một mình không nói cho trình đọc màn hình biết nút đang không bấm được.
+ */
+.removeButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/*
+ * Vùng chứa thanh Hoàn tác. Luôn có mặt trong DOM (xem chú thích ở SettingsScreen.tsx) nên phải
+ * KHÔNG chiếm chỗ khi rỗng: `.block` là flex cột có `gap`, mà một hộp rỗng vẫn ăn trọn một nhịp
+ * gap giữa danh sách và nút "Xoá toàn bộ".
+ */
+.undoSlot:empty {
+  display: none;
+}
+
+/*
+ * Thanh Hoàn tác — nền cam nhạt, không phải nền đỏ.
+ *
+ * Cố ý KHÔNG dùng cặp `--color-danger-*` của nút thùng rác: đỏ ở sản phẩm này nghĩa là "có gì đó
+ * sai" (cảnh báo FR-06, ô nhập không hợp lệ), còn xoá xong là việc bình thường vừa hoàn tất.
+ *
+ * Cặp chữ/nền ở đây là `--color-ink` trên `--color-highlight-soft`, tự tính lại bằng đúng công
+ * thức của `contrast.ts`: 13,49:1 ở bảng sáng và 11,73:1 ở bảng tối — dư ngưỡng 4,5:1.
+ */
+.undoBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  background: var(--color-highlight-soft);
+  border-radius: var(--radius-md);
+}
+
+.undoText {
+  /* Co được để nút Hoàn tác không bị đẩy ra ngoài khung ở khổ 360px. */
+  flex: 1 1 160px;
+  min-width: 0;
+
+  font-size: var(--text-sm);
+  color: var(--color-ink);
 }
 
 /* ── Về sản phẩm ─────────────────────────────────────────────────────────── */

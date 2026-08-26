@@ -1,7 +1,14 @@
 .grid {
   display: grid;
-  /* Hai cột ở 360px, tự giãn thêm cột trên màn rộng — không cần media query. */
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  /*
+   * Hai cột ở 360px, tự giãn thêm cột trên màn rộng — không cần media query.
+   *
+   * 156px là trần thật, không phải con số chọn cho đẹp: cột nội dung ở khổ 360 rộng 328px
+   * (360 trừ 16px padding mỗi bên của `AppShell`), nên hai cột tốn 2×156 + 8 gap = 320px và
+   * vừa khít. Đợt 12 từng nới lên 164px cho ô rộng rãi hơn khi thêm icon — đo trên Chrome thật
+   * ở 360px thì lưới rớt xuống MỘT cột, vì 2×164 + 8 = 336 > 328. Đừng nới lại.
+   */
+  grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
   gap: var(--space-2);
 
   margin: 0;
@@ -9,7 +16,7 @@
   list-style: none;
 }
 
-/* Một hàng: tên trái, số phải — theo bản thiết kế hi-fi WF-01. */
+/* Một hàng: icon + tên bên trái, badge số bên phải — bản thiết kế đợt 12. */
 .tile {
   display: flex;
   align-items: center;
@@ -26,17 +33,27 @@
 
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);
 }
 
+/* Hover đổi viền theo tông nhóm; nền giữ nguyên để badge số không chìm vào nó. */
 .tile:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+  border-color: var(--category-ink);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Icon nhóm — không có nền riêng, chỉ mang màu tông; ô pill vốn đã chật. */
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--category-ink);
 }
 
 .name {
   /* Tên rút gọn vẫn có thể dài hơn nửa ô ở 360px; cho co lại và cắt gọn thay vì đẩy số ra ngoài. */
   min-width: 0;
+  /* Chiếm phần giữa để badge số luôn nằm sát mép phải, còn icon dính liền với tên. */
+  flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -46,11 +63,16 @@
   line-height: var(--leading-tight);
 }
 
+/* Badge số — mang tông của nhóm, cùng hình với nhãn nhóm trên thẻ công thức. */
 .count {
   flex-shrink: 0;
+  padding: 0 var(--space-2);
+
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  color: var(--color-accent);
+  color: var(--category-ink);
+  background: var(--category-soft);
+  border-radius: var(--radius-pill);
 }
 
 /*
@@ -68,8 +90,14 @@
   border-style: dashed;
 }
 
+/*
+ * Nhãn "chỉ ở Nâng cao" thay chỗ con số, nên nó bỏ luôn dáng badge: một câu ba chữ nhét trong
+ * viên pill nhỏ sẽ chiếm gần trọn ô và đẩy tên nhóm cụt mất.
+ */
 .advancedOnly .count {
+  padding: 0;
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-muted);
+  background: transparent;
 }

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import type { FormulaSpec } from '@/application';
 
+import { toneClass } from './CategoryIcon';
 import { FormulaCard } from './FormulaCard';
 
 afterEach(cleanup);
@@ -77,21 +78,51 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
     const { container } = render(<FormulaCard formula={PE} />);
 
     expect(screen.getByText('Cơ bản')).not.toBeNull();
-    expect(container.querySelector('svg')).not.toBeNull();
+    expect(container.innerHTML).toContain('m9 6 6 6-6 6');
+  });
+
+  /*
+   * Hợp đồng thêm ở đợt 13: hàng nay CÓ icon nhóm, đúng bản thiết kế mobile. Đếm hẳn hai SVG
+   * thay vì "có ít nhất một" — đó là cách duy nhất để ca này bắt được ngày ai đó gỡ icon đi mà
+   * mũi tên vẫn còn, hoặc ngược lại.
+   */
+  it('có icon nhóm ở đầu hàng, đứng cạnh mũi tên chứ không thay nó', () => {
+    const { container } = render(<FormulaCard formula={PE} />);
+    expect(container.querySelectorAll('svg')).toHaveLength(2);
   });
 
   it('hiện tên nhóm đầy đủ', () => {
     render(<FormulaCard formula={PE} />);
     expect(screen.getByText('Chỉ số doanh nghiệp')).not.toBeNull();
   });
+
+  /*
+   * Icon và badge nhóm đều tô bằng hai khe `--category-*`, mà khe ấy do lớp tông rót vào TỔ TIÊN.
+   * Quên lớp tông trên thẻ thì cả hai rơi về giá trị mặc định ở `:root` — xanh cho mọi nhóm, tức
+   * là mất sạch thứ mà bản đồ 7 tông dựng lên, mà màn hình vẫn trông "chạy được".
+   */
+  it('thẻ mang lớp tông của nhóm, để icon và badge có màu riêng', () => {
+    render(<FormulaCard formula={PE} />);
+
+    const link = screen.getByRole('link');
+    expect(link.className).toContain(toneClass('fundamentals'));
+    expect(toneClass('fundamentals')).not.toBe('');
+  });
 });
 
 describe('biến thể tile — lưới trang chủ WF-01', () => {
-  it('bỏ badge cấp độ và mũi tên để nhường chỗ cho phần chữ', () => {
+  /*
+   * Hợp đồng đổi ở đợt 12: ô nay CÓ icon nhóm. Trước đó ca này khẳng định ô không có SVG nào —
+   * đúng với bản thiết kế cũ, sai với bản mới. Phần còn giữ nguyên là hai thứ vốn bị bỏ đi vì
+   * chiếm chỗ của phần chữ ở khổ ô 164px: badge cấp độ và mũi tên của biến thể hàng.
+   */
+  it('có icon nhóm, nhưng vẫn không có badge cấp độ lẫn mũi tên', () => {
     const { container } = render(<FormulaCard formula={PE} variant="tile" />);
 
     expect(screen.queryByText('Cơ bản')).toBeNull();
-    expect(container.querySelector('svg')).toBeNull();
+    expect(container.querySelectorAll('svg')).toHaveLength(1);
+    // Nét của mũi tên chevron ở biến thể hàng — nó không được lọt sang đây.
+    expect(container.innerHTML).not.toContain('m9 6 6 6-6 6');
   });
 
   it('giữ đủ ba dòng của bản thiết kế: tên · mô tả · nhóm rút gọn', () => {

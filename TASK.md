@@ -104,6 +104,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.4.1 | Danh mục dùng số liệu thật — 1.649 mã + thị giá lúc chạy     | —       | Xong — xem mục "Danh mục dùng số liệu THẬT"                    |
 | 3.4.1 | Vá trọn 8 đề mục còn hở của tab Danh mục                     | —       | Xong phần code — xem mục "Vá trọn 8 đề mục còn hở"             |
 | 3.4.1 | Lưu phép tính vào Danh mục — tab "Công thức"                 | —       | Xong phần code — xem mục "Lưu phép tính vào Danh mục"          |
+| —     | Mã dính theo lượt duyệt — nạp một lần, xem mọi công thức     | —       | Xong — xem mục "Mã dính theo lượt duyệt"                       |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -372,6 +373,81 @@ thật, không phải cửa gác đỗ giả.
    nhưng **đã đỏ sẵn từ đợt "Audit toàn dự án"**, không phải hồi quy mới của đợt này.
 4. `npm run check:chrome` — cụm mới là chỗ duy nhất trả lời được "có lệch hydration thật không".
 5. Cập nhật số phép kiểm `check:chrome` ở `CLAUDE.md` dòng 56 sau khi chạy (đang ghi 18, chưa đo lại).
+
+---
+
+## Mã dính theo lượt duyệt — nạp một lần, xem được mọi công thức
+
+Trạng thái: **xong.** `npm run check` xanh **1695/1695 qua 76 file**; `npm run build` xanh;
+`verify:static` **25/25**.
+
+### Vì sao làm cái này chứ không đi tối ưu mili-giây
+
+Chủ dự án đặt hai việc: cải tiến hiệu suất + thao tác khi dùng công thức, và gợi ý phương án lưu
+dữ liệu. Rà lại thì **phần "hiệu suất" đã được đo cạn ở mục "Độ trễ chuyển trang"** phía dưới:
+độ trễ là chi phí khởi động React/App Router (~464 ms trên 700-900 ms), Registry 111 công thức chỉ
+chiếm ~20-27 ms. Không còn gì đáng cắt ở đó.
+
+Thứ còn cắt được là **số thao tác**, và điểm nghẽn lớn nhất đo được bằng code: `loadedPreset` là
+`useState(null)` cục bộ của MỘT màn, nên xem HPG qua 5 chỉ số là **5 lần nạp mẫu và 5 lời gọi
+mạng** — trong khi người dùng thật xem _một mã qua nhiều chỉ số_, không phải ngược lại.
+
+### Đã đổi file nào — và vì sao
+
+- **`src/application/active-ticker.ts`** (mới) — kho `ffb.activeTicker.v1` trên **`sessionStorage`**.
+  Hai quyết định đáng nhớ:
+  - **Cất cả `Preset` chứ không chỉ cất mã.** Cất mỗi mã thì mỗi công thức mở sau lại là một lời
+    gọi tới `dcs.finbox.vn` cho **cùng mã, cùng phiên**. Cất preset thì cả lượt duyệt tốn đúng một
+    lời gọi. Preset ở đây nhỏ: API chỉ trả **một phiên** giá, không phải 248 phiên như bộ mẫu tĩnh.
+  - **`sessionStorage` chứ không `localStorage`** — không chỉ vì "đây là ngữ cảnh một lượt duyệt"
+    như `last-list-url.ts`, mà vì giá cổ phiếu cũ đi theo giờ: một bản cất trong `localStorage` sẽ
+    sống qua đêm rồi âm thầm điền số hôm qua vào ô nhập hôm nay.
+  - `parse*` từ chối cả bản cất khi thiếu **bất kỳ** trường nào của `Fundamentals`, và khi mã ngoài
+    lệch mã trong preset — ca thứ hai là kiểu sai tệ nhất, vì mọi con số trên màn vẫn trông hợp lý.
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — `applyPreset()` ghi mã vào kho; một effect
+  **riêng** đọc kho ra và nạp lại.
+  - ⚠ Effect đọc kho phải nằm **DƯỚI** effect gán `applyPresetRef`. Nó chạy đồng bộ (khác đường
+    `?ma=` có `await`), nên đặt trên là gọi vào hàm rỗng lúc khởi tạo ref và mã lặng lẽ không được
+    nạp — đúng 3 ca kiểm đã bắt được ở bản đầu.
+  - Thứ tự nhường đường: `?luu=` > `?ma=` > kho phiên. Tham số URL là ý định vừa nói ra; bộ số đã
+    lưu là thứ người dùng tự chốt; mã của lượt trước xếp sau cả hai.
+  - Thanh trạng thái `HPG · đang dùng cho mọi công thức trong lượt xem này · [Đổi mã] [Bỏ mã]`.
+    Đây là **điều kiện** để việc tự điền ô không thành một bất ngờ, cùng luật mà thị giá đã lưu ở
+    tab Danh mục đang chịu. "Bỏ mã" xoá kho **và** trả ô về mặc định — chỉ xoá kho thì màn còn
+    nguyên số của mã người dùng vừa nói là không muốn nữa.
+- **`src/app/cong-thuc/[id]/TickerPickerPanel.tsx`** (mới) — ranh giới `next/dynamic` cho sheet
+  chọn mã, khuôn `ChainPanel`. Import **thẳng** file `@/ui/sheets/TickerPickerSheet`, không qua
+  barrel `@/ui/sheets` (barrel đó đã bị import tĩnh cho ba sheet khác).
+
+**Test** — `active-ticker.test.ts` (13 ca), `FormulaDetail.test.tsx` +7 ca. `afterEach` nay dọn cả
+`sessionStorage`: không dọn thì mã của ca trước tự nạp vào ca sau.
+
+`SettingsScreen.test.tsx` — thêm `ffb.activeTicker.v1` vào danh sách miễn trừ **kèm lý do**, cùng
+chỗ `ffb.lastList.v1` đang đứng: sessionStorage tự hết khi đóng tab, và lối xoá nằm ngay tại chỗ
+nó có tác dụng (nút "Bỏ mã").
+
+### Dung lượng — đo trên bản build
+
+| Trang                                     | Trước    | Sau          | Δ       |
+| ----------------------------------------- | -------- | ------------ | ------- |
+| `/cong-thuc/[id]`                         | 294 kB   | **295 kB**   | +1 kB   |
+| `/cong-thuc/lich-tra-no/` (`size-report`) | 328,3 kB | **329,6 kB** | +1,3 kB |
+| `/danh-muc/`                              | 165 kB   | **165 kB**   | 0       |
+
+Đã kiểm thẳng trong `out/`: grep 19 chunk mà `cong-thuc/pe/index.html` nạp — **`heldCodes` (prop
+riêng của `TickerPickerSheet`) không có ở chunk nào**, tức `next/dynamic` cắt đúng.
+
+`useTickerList` và các khoá i18n `ticker.*` **có** trong gói chung, nhưng đó là nợ **có sẵn**:
+`src/application/index.ts` re-export `useTickerList`, còn từ điển thì vốn nằm chung. Nếu muốn cắt
+tiếp, đó là ứng viên — cùng lý do `live-preset-loader` cố ý không nằm trong barrel.
+
+### Gợi ý đã đưa cho chủ dự án, chưa làm
+
+Phương án lưu dữ liệu, xếp theo mức cam kết: **(1) xuất/nhập file JSON** ở màn Cài đặt — rẻ nhất,
+giải đúng nỗi lo mất dữ liệu khi đổi máy; (2) nhúng phép tính vào URL để chia sẻ; (3) chuyển sang
+**IndexedDB** để cất được cả chuỗi giá dài mà `saved-calc-store` hiện phải từ chối; (4) File System
+Access API; (5) backend thật — phá ràng buộc "static, không backend", cần sign-off. Chủ dự án chọn
+**chưa làm**, chỉ nghe gợi ý.
 
 ---
 

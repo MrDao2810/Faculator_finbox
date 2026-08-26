@@ -736,7 +736,18 @@ export function PortfolioScreen() {
           )}
         </section>
       ) : (
-        <div id="portfolio-panel-holdings" role="tabpanel" aria-labelledby="portfolio-tab-holdings">
+        /*
+          `styles.panel` KHÔNG được bỏ. `.screen` là flex column có `gap`, nên trước khi có tab,
+          sáu ô số · thanh thị giá · khối Nắm giữ là con TRỰC TIẾP của nó và được giãn cách sẵn.
+          Bọc chúng vào một <div> trần để làm tabpanel là cắt đứt quan hệ ấy: cả ba dính sát
+          nhau, thanh thị giá đè lên tiêu đề "NẮM GIỮ". `.panel` chép lại đúng luật giãn cách đó.
+        */
+        <div
+          id="portfolio-panel-holdings"
+          role="tabpanel"
+          aria-labelledby="portfolio-tab-holdings"
+          className={styles.panel}
+        >
           <div className={styles.stats}>
             <StatTile
               label={t('portfolio.totalValue')}
@@ -823,6 +834,20 @@ export function PortfolioScreen() {
                   <span>
                     {t('portfolio.priceSession')} {formatIsoDate(priceAsOf)}
                   </span>
+                )}
+                {/*
+                  Nguồn TRẢ LỜI ĐƯỢC nhưng không mã nào có giá — ca thật, gặp ngay khi người dùng
+                  gõ một mã không nằm trong danh sách Finbox (ví dụ 'VNI', vốn là chỉ số chứ không
+                  phải cổ phiếu). Bốn nhánh trên đều tắt: không đang tải, không hỏng, không giá cũ,
+                  và không có ngày phiên nào để khoe.
+
+                  Không có nhánh này thì thanh chỉ còn mỗi nút "Làm mới" nằm chơ vơ bên phải một
+                  hộp trắng — người dùng thấy một thao tác được mời gọi mà không biết để làm gì.
+                  Lý do đầy đủ (mã nào thiếu, nên làm gì) đã nằm ở ô "Tổng giá trị" ngay trên, nên
+                  ở đây chỉ cần một câu ngắn nói vì sao thanh này trống.
+                */}
+                {!priceLoading && priceState === 'ready' && priceAsOf === null && (
+                  <span>{t('portfolio.priceNone')}</span>
                 )}
               </span>
 

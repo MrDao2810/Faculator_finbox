@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
+  ACTIVE_TICKER_KEY,
   FORMULA_MODULES,
   FORMULA_USAGE_KEY,
   MARKET_CONFIG,
@@ -22,7 +23,9 @@ import {
   formatCalcOutput,
   formatIsoDate,
   hasDraftData,
+  isTickerCode,
   needsPriceSeries,
+  parseActiveTicker,
   parseFormulaUsage,
   parseSavedCalcs,
   parseStoredSeries,
@@ -32,6 +35,7 @@ import {
   runFormula,
   savedCalcId,
   scheduleOrDefault,
+  serializeActiveTicker,
   serializeFormulaUsage,
   serializeSavedCalcs,
   serializeStoredSeries,
@@ -73,6 +77,8 @@ import {
   hasCustomBody,
   ownsResult,
 } from '@/ui/screens';
+
+import { TickerPickerPanel } from './TickerPickerPanel';
 
 import styles from './FormulaDetail.module.css';
 
@@ -238,6 +244,21 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * `saveStamp` là mốc thời gian của LƯỢT MỞ SHEET, dùng cho cả gợi ý tên lẫn `id` của mục sắp
    * lưu. Một mốc cho cả hai việc, nên cái tên gợi ý ra và cái mục cất đi luôn nói cùng một ngày.
    */
+  /**
+   * Mã đang dùng cho CẢ LƯỢT DUYỆT — thứ làm nên "nạp một lần, xem được mọi công thức".
+   *
+   * Tách khỏi `loadedPreset` dù hai thứ gần như luôn bằng nhau: `loadedPreset` về `null` mỗi khi
+   * người dùng nạp chuỗi minh hoạ (`loadIllustrativeExample`), mà việc ấy KHÔNG có nghĩa là họ
+   * thôi theo dõi mã — thanh trạng thái và nút "Bỏ mã" phải sống sót qua nó.
+   */
+  const [stickyTicker, setStickyTicker] = useState<string | null>(null);
+  /*
+   * Sheet chọn mã. Hai cờ chứ không một, cùng khuôn `mountedSheets` ở trên: `pickerMounted` để
+   * chunk chỉ tải khi người dùng thật sự bấm "Đổi mã", `pickerOpen` để đóng/mở mà không tháo
+   * component (mất luôn từ khoá họ vừa gõ và danh sách 1.649 mã vừa tải).
+   */
+  const [pickerMounted, setPickerMounted] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
   const [saveStamp, setSaveStamp] = useState(0);
   /**
@@ -249,7 +270,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    */
   const [restored, setRestored] = useState<RestoredCalc | 'missing' | null>(null);
   /** Cầu nối tới `applyPreset()` bên dưới — nó dựng lại mỗi lượt render nên không đưa vào deps được. */
-  const applyPresetRef = useRef<(preset: Preset) => void>(() => undefined);
+  const applyPresetRef = useRef<(preset: Preset, fromSession?: boolean) => void>(() => undefined);
 
   /*
    * ── Trạng thái của chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ───────────────────────────────
@@ -411,8 +432,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
     const raw = params.get('ma');
     const code = raw === null ? '' : raw.trim().toUpperCase();
+
     // Chặn tham số gõ bậy TRƯỚC khi đem nó đi gọi mạng. Mã dài nhất đang có là 8 ký tự (E1VFVN30).
-    if (!/^[A-Z0-9]{3,12}$/.test(code)) return;
+    if (!isTickerCode(code)) return;
 
     const controller = new AbortController();
     setLiveTicker({ code, status: 'loading' });
@@ -688,12 +710,30 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * nạp FPT cho công thức vốn hoá ra giá FPT nhân số cổ phiếu mặc định. Ở tầng Data thì một ca test
    * Node soi được cả 111 công thức, và đơn vị của từng khoá bị khoá lại bằng test.
    */
-  function applyPreset(preset: Preset): void {
+  function applyPreset(preset: Preset, fromSession = false): void {
     const fromPreset = presetInputs(preset, spec);
 
     setInputs((current) => ({ ...current, ...fromPreset }));
     setLoadedPreset(preset.code);
     setFundamentalsAsOf(preset.fundamentalsAsOf ?? null);
+    setStickyTicker(preset.code);
+
+    /*
+     * Ghi mã vào kho phiên để công thức MỞ SAU dùng lại — xem docblock `active-ticker.ts`.
+     *
+     * Bỏ qua khi chính preset này vừa đọc RA từ kho: ghi lại y nguyên thứ vừa đọc chỉ tốn một
+     * lượt tuần tự hoá cho mỗi trang mở, không thêm được gì.
+     */
+    if (!fromSession) {
+      try {
+        window.sessionStorage.setItem(
+          ACTIVE_TICKER_KEY,
+          serializeActiveTicker({ code: preset.code, preset }),
+        );
+      } catch {
+        // sessionStorage bị chặn (chế độ riêng tư) — mã không dính sang màn sau, chỉ vậy thôi.
+      }
+    }
     // Nạp mẫu công ty thật thì thôi ở trạng thái "ví dụ minh hoạ" — xem loadIllustrativeExample().
     setMarketSeriesOverride(null);
     setExampleLoaded(false);
@@ -752,6 +792,39 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   useEffect(() => {
     applyPresetRef.current = applyPreset;
   });
+
+  /*
+   * ── Mã dính theo lượt duyệt: dùng lại mã đang xem cho công thức vừa mở ──────────────────────
+   *
+   * Đây là phần cắt được thao tác lặp lớn nhất của sản phẩm. Trước đợt này mã chỉ sống trong
+   * state của MỘT màn, nên xem HPG qua 5 chỉ số là 5 lần nạp mẫu — trong khi người dùng thật xem
+   * *một mã qua nhiều chỉ số*, không phải *một chỉ số của nhiều mã*.
+   *
+   * KHÔNG gọi mạng: preset đã dựng sẵn và cất trong `sessionStorage` từ lượt tra đầu tiên, nên
+   * cả lượt duyệt chỉ tốn đúng một lời gọi tới `dcs.finbox.vn` cho mỗi mã.
+   *
+   * Không im lặng: `stickyTicker` bật lên thì thanh dưới tiêu đề gọi tên mã ra kèm nút bỏ — cùng
+   * ràng buộc mà mọi chỗ dùng số liệu đã cất trong sản phẩm này phải giữ (`price-cache-store.ts`).
+   *
+   * ⚠ Effect này phải đứng **DƯỚI** effect gán `applyPresetRef` ngay trên. Nó chạy đồng bộ (không
+   * `await` như đường `?ma=`), nên đặt ở trên là gọi vào hàm rỗng lúc khởi tạo ref và mã lặng lẽ
+   * không được nạp — đúng ba ca kiểm đã bắt được khi bản đầu gộp nó vào effect `?ma=`.
+   *
+   * Nhường đường cho cả hai tham số URL: `?ma=` là ý định người dùng vừa nói ra, `?luu=` là bộ số
+   * họ đã tự chốt. Mã của lượt trước không được đè lên thứ nào trong hai thứ đó.
+   */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if ((params.get('ma') ?? '').trim() !== '') return;
+    if ((params.get('luu') ?? '').trim() !== '') return;
+
+    try {
+      const active = parseActiveTicker(window.sessionStorage.getItem(ACTIVE_TICKER_KEY));
+      if (active !== null) applyPresetRef.current(active.preset, true);
+    } catch {
+      // sessionStorage bị chặn — màn chạy như trước đợt này, với bộ số mặc định.
+    }
+  }, [spec.id]);
 
   /**
    * Nạp chuỗi MINH HOẠ có sẵn trong `spec.example` — lối thứ ba cho người chưa hiểu bộ mẫu 4
@@ -854,6 +927,58 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Thôi theo dõi mã: xoá kho phiên **và** trả ô nhập về bộ mặc định của công thức.
+   *
+   * Phải làm cả hai. Chỉ xoá kho thì màn vẫn còn nguyên số của mã vừa bỏ, và người dùng đang
+   * nhìn một bộ số họ vừa nói là không muốn nữa; chỉ xoá ô thì mã quay lại ngay ở công thức kế.
+   */
+  function clearTicker(): void {
+    try {
+      window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
+    } catch {
+      // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
+    }
+
+    setStickyTicker(null);
+    setLoadedPreset(null);
+    setFundamentalsAsOf(null);
+    setInputs(defaultInputs(spec));
+    setBars(null);
+    setSeriesCount(null);
+    setMarketSeriesOverride(null);
+    setExampleLoaded(false);
+    setAppliedToTable(false);
+  }
+
+  /**
+   * Đổi sang mã khác từ sheet chọn mã.
+   *
+   * Đi qua đúng đường của `?ma=` — `loadLivePreset` nằm sau ranh giới `await import()`, nên phần
+   * gọi mạng vẫn không nằm trong gói của 111 trang chi tiết.
+   */
+  function pickTicker(code: string): void {
+    const wanted = code.trim().toUpperCase();
+    if (!isTickerCode(wanted)) return;
+
+    setPickerOpen(false);
+    setLiveTicker({ code: wanted, status: 'loading' });
+
+    void (async () => {
+      const { loadLivePreset } = await import('@/application/live-preset-loader');
+      const result = await loadLivePreset(wanted, asOf);
+
+      if (result.status !== 'ok') {
+        // 'cancelled' không xảy ra ở đây (không truyền signal), nên mọi ngả còn lại là hỏng thật.
+        setLiveTicker({ code: wanted, status: 'failed' });
+        return;
+      }
+
+      applyPresetRef.current(result.preset);
+      setLiveTicker(null);
+    })();
   }
 
   /**
@@ -986,6 +1111,34 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         {seriesMismatch && (
           <p className={styles.pendingNote} role="alert">
             {t('detail.restoredNeedsSeries')}
+          </p>
+        )}
+
+        {/*
+          Mã đang theo người dùng qua các công thức trong lượt duyệt này.
+
+          Thanh này là ĐIỀU KIỆN để việc tự nạp không thành một bất ngờ: ô nhập vừa được điền bằng
+          số của một mã mà người dùng không bấm gì ở màn này cả, nên màn phải gọi tên mã ấy ra và
+          đưa sẵn đường thoát. Cùng luật mà thị giá đã lưu ở tab Danh mục đang chịu.
+        */}
+        {stickyTicker !== null && (
+          <p className={styles.tickerBar} role="status">
+            <span className={styles.tickerCode}>{stickyTicker}</span>
+            <span className={styles.tickerText}>{t('detail.tickerSticky')}</span>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setPickerMounted(true);
+                setPickerOpen(true);
+              }}
+            >
+              {t('detail.tickerChange')}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={clearTicker}>
+              {t('detail.tickerClear')}
+            </Button>
           </p>
         )}
       </header>
@@ -1345,6 +1498,22 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           hasResult={output.value !== null}
           savedAt={saveStamp}
           onSave={saveCalc}
+        />
+      )}
+
+      {/*
+        Sheet chọn mã — chỉ dựng từ lần bấm "Đổi mã" đầu tiên, và nằm sau ranh giới `next/dynamic`
+        để phần gọi danh sách 1.649 mã không rơi vào gói của cả 111 trang (xem TickerPickerPanel).
+      */}
+      {pickerMounted && (
+        <TickerPickerPanel
+          open={pickerOpen}
+          onClose={() => {
+            setPickerOpen(false);
+          }}
+          onPick={(ticker) => {
+            pickTicker(ticker.code);
+          }}
         />
       )}
 

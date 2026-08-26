@@ -9,10 +9,12 @@ import {
   FORMULA_USAGE_KEY,
   NO_VALUE,
   SAMPLE_DATA,
+  ACTIVE_TICKER_KEY,
   SAVED_CALCS_KEY,
   WARNING_LABELS,
   formatIsoDate,
   parseFormulaUsage,
+  parseActiveTicker,
   parseSavedCalcs,
   t,
 } from '@/application';
@@ -58,6 +60,8 @@ afterEach(() => {
   cleanup();
   // Ca kiểm chế độ Nâng cao gieo tuỳ chọn vào localStorage — dọn để nó không chảy sang ca sau.
   window.localStorage.clear();
+  // Mã dính theo lượt duyệt sống ở sessionStorage; không dọn thì mã của ca trước tự nạp vào ca sau.
+  window.sessionStorage.clear();
   // Ca kiểm `?ma=` đổi URL; trả lại đường trơn để ca sau không vô tình nạp một mã.
   window.history.replaceState({}, '', '/');
   feed.listTickers.mockReset();
@@ -1510,5 +1514,149 @@ describe('ghi nhận lượt dùng', () => {
 
     expect(screen.getByRole('region', { name: t('detail.inputs') })).not.toBeNull();
     vi.restoreAllMocks();
+  });
+});
+
+/*
+ * ── Mã dính theo lượt duyệt ─────────────────────────────────────────────────────────────────
+ *
+ * Người dùng thật xem MỘT mã qua NHIỀU chỉ số, không phải một chỉ số của nhiều mã. Trước đợt
+ * này mã chỉ sống trong state của một màn, nên xem HPG qua 5 công thức là 5 lần nạp mẫu.
+ */
+const FPT_SNAPSHOT = {
+  code: 'FPT',
+  name: 'FPT Corp',
+  priceVnd: 71_400,
+  asOfDate: '2026-08-21',
+  floor: 'HOSE',
+  industry: 'Phần mềm & DV máy tính',
+  fundamentals: {
+    eps: 5867,
+    bookValuePerShare: 23246,
+    sharesOutstanding: 1714326422,
+    dividendPerShare: 2000,
+    netIncome: 9999.4,
+    equity: 39851.2,
+    period: 'BCTC Q2/2026',
+  },
+};
+
+/** Gieo sẵn một mã vào kho phiên, đúng hình dạng `applyPreset()` ghi ra. */
+function seedActiveTicker(): void {
+  window.sessionStorage.setItem(
+    ACTIVE_TICKER_KEY,
+    JSON.stringify({
+      code: 'FPT',
+      preset: {
+        code: 'FPT',
+        name: 'FPT Corp',
+        meta: 'BCTC Q2/2026 · thị giá phiên gần nhất',
+        fundamentals: FPT_SNAPSHOT.fundamentals,
+        bars: [
+          { date: '2026-08-21', open: null, high: null, low: null, close: 71_400, volume: null },
+        ],
+        isDraft: false,
+        fundamentalsAsOf: '2026-08-21',
+      },
+    }),
+  );
+}
+
+describe('WF-03 — mã dính theo lượt duyệt', () => {
+  it('mở công thức khác thì mã tự theo sang, KHÔNG gọi mạng lần nữa', async () => {
+    seedActiveTicker();
+
+    render(<Man spec={specOf('pb')} />);
+
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    // Đây là điểm mấu chốt: preset đã cất từ lượt tra đầu tiên, cả lượt duyệt chỉ tốn một request.
+    expect(feed.snapshots).not.toHaveBeenCalled();
+  });
+
+  it('nói rõ đang dùng mã nào — không tự điền ô trong im lặng', async () => {
+    seedActiveTicker();
+
+    render(<Man spec={specOf('pe')} />);
+
+    const bar = await screen.findByRole('status');
+    expect(bar.textContent).toContain('FPT');
+    expect(bar.textContent).toContain(t('detail.tickerSticky'));
+  });
+
+  it('nạp mẫu ở một công thức thì ghi mã vào kho phiên cho công thức sau', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(
+      (await screen.findAllByRole('button', { name: 'Nạp' }))[0] as HTMLElement,
+    );
+
+    const stored = parseActiveTicker(window.sessionStorage.getItem(ACTIVE_TICKER_KEY));
+    expect(stored).not.toBeNull();
+    expect(stored?.code).toBe(stored?.preset.code);
+  });
+
+  it('bỏ mã thì xoá kho VÀ trả ô nhập về mặc định', async () => {
+    seedActiveTicker();
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    const filled = (oNhap(/Giá thị trường/) as HTMLInputElement).value;
+    expect(filled).toBe('71.400');
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.tickerClear') }));
+
+    expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).toBeNull();
+    // Chỉ xoá kho mà để nguyên số trên màn là bày một bộ số người dùng vừa nói là không muốn nữa.
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+    expect(screen.queryByRole('button', { name: t('detail.tickerClear') })).toBeNull();
+  });
+
+  /* `?ma=` là ý định vừa nói ra, còn kho phiên là ý định của lượt trước — cái mới thắng. */
+  it('`?ma=` trên URL thắng mã đang có trong kho phiên', async () => {
+    seedActiveTicker();
+    feed.snapshots.mockResolvedValue(
+      new Map([['HPG', { ...FPT_SNAPSHOT, code: 'HPG', name: 'Tập đoàn Hoà Phát' }]]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
+
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    expect(feed.snapshots.mock.calls[0]?.[0]).toEqual(['HPG']);
+  });
+
+  it('`?luu=` thắng cả kho phiên — bộ số đã lưu là thứ người dùng tự chốt', async () => {
+    seedActiveTicker();
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-1',
+          formulaId: 'pe',
+          name: 'Bộ số của tôi',
+          inputs: { price: 50_000, eps: 5_000 },
+          resultValue: 10,
+          resultUnit: 'lần',
+          savedAt: Date.now(),
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=pe-1');
+
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByText(/Bộ số của tôi/);
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('50.000');
+  });
+
+  it('kho phiên hỏng thì màn chạy như trước đợt này, không sập', async () => {
+    window.sessionStorage.setItem(ACTIVE_TICKER_KEY, '{"code":"FPT","preset":null}');
+
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByRole('button', { name: t('detail.loadPreset') });
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
   });
 });

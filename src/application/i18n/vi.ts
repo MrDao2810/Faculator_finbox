@@ -182,6 +182,18 @@ export const vi = {
   'detail.export': '↓ Xuất',
 
   /*
+   * ── Mã dính theo lượt duyệt ────────────────────────────────────────────────
+   *
+   * Câu này đứng SAU mã ('HPG · đang dùng…') và là điều kiện để việc tự điền ô nhập không thành
+   * một bất ngờ: số vừa xuất hiện trong ô là của một mã mà người dùng không bấm gì ở màn này cả.
+   * Cùng luật mà thị giá đã lưu ở tab Danh mục đang chịu — được dùng số đã cất, nhưng phải gọi
+   * tên được nguồn của nó.
+   */
+  'detail.tickerSticky': 'đang dùng cho mọi công thức trong lượt xem này',
+  'detail.tickerChange': 'Đổi mã',
+  'detail.tickerClear': 'Bỏ mã',
+
+  /*
    * ── Lưu phép tính vào tab "Công thức" của màn Danh mục ─────────────────────
    *
    * Nút hiện ở CẢ 111 công thức, không riêng nhóm có mã: người dùng tính một khoản vay hay một
@@ -395,6 +407,12 @@ export const vi = {
   'portfolio.priceSession': 'Giá phiên',
   'portfolio.priceRefresh': 'Làm mới',
   'portfolio.priceStale': 'Chưa làm mới được thị giá — đang dùng giá đã lưu.',
+  /*
+   * Nguồn trả lời được nhưng không mã nào có giá. Cố ý KHÁC `portfolio.priceFailed`: ở đây mạng
+   * không hỏng, chỉ là Finbox không có mã người dùng nhập — nên lời khuyên là soát lại mã, không
+   * phải "thử lại". Lý do đầy đủ đã nằm ở ô "Tổng giá trị"; câu này chỉ giữ cho thanh khỏi trống.
+   */
+  'portfolio.priceNone': 'Chưa có mã nào tra được thị giá.',
   'portfolio.formulas': 'Tính công thức',
   'portfolio.formulasTitle': 'Công thức dùng được với mã này',
   'portfolio.formulasSubtitle': 'Mở công thức với số liệu của mã đã điền sẵn',

@@ -698,7 +698,13 @@
       "Bash(node measure-quy.mjs)",
       "Bash(curl -s -X POST \"https://dcs.finbox.vn/data/symbols\" -H \"Content-Type: application/json\" -d '{\"symbols\":[\"MWG\",\"FPT\",\"SSI\"]}' --max-time 45)",
       "Bash(node sweep-codes.mjs pe \"SSI,CEO,HHV,E1VFVN30,FPT,VNM\")",
-      "Bash(node -e *)"
+      "Bash(node -e *)",
+      "Bash(perl -0pi -e \"s/  parseFormulaUsage,\\\\n  parseSavedCalcs,/  parseActiveTicker,\\\\n  parseFormulaUsage,\\\\n  parseSavedCalcs,/\" \"src/app/cong-thuc/[id]/FormulaDetail.tsx\")",
+      "Bash(perl -0pi -e \"s/  serializeFormulaUsage,\\\\n  serializeSavedCalcs,/  serializeActiveTicker,\\\\n  serializeFormulaUsage,\\\\n  serializeSavedCalcs,/\" \"src/app/cong-thuc/[id]/FormulaDetail.tsx\")",
+      "Bash(perl -0pi -e \"s/  const applyPresetRef = useRef<\\\\\\(preset: Preset\\\\\\) => void>\\\\\\(\\\\\\(\\\\\\) => undefined\\\\\\);/  const applyPresetRef = useRef<\\(preset: Preset, fromSession?: boolean\\) => void>\\(\\(\\) => undefined\\);/\" \"src/app/cong-thuc/[id]/FormulaDetail.tsx\")",
+      "Bash(perl -0pi -e \"s/  hasDraftData,\\\\n  needsPriceSeries,/  hasDraftData,\\\\n  isTickerCode,\\\\n  needsPriceSeries,/\" \"src/app/cong-thuc/[id]/FormulaDetail.tsx\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; [PSCustomObject]@{ PID = $_.OwningProcess; Name = $p.Name; Started = $p.StartTime; Cmd = \\(Get-CimInstance Win32_Process -Filter \"ProcessId=$\\($_.OwningProcess\\)\"\\).CommandLine } } | Format-List)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { \"Cổng 3000 đang bị giữ bởi PID $\\($c.OwningProcess\\)\" } else { \"Cổng 3000 trống\" })"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

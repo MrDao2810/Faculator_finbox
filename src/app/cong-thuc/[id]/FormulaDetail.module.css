@@ -161,6 +161,48 @@
 }
 
 /*
+ * Thanh "đang dùng số liệu của mã X" — mã dính theo lượt duyệt.
+ *
+ * Đậm hơn `.pendingNote` có chủ đích: đây không phải một ghi chú, nó giải thích vì sao ô nhập
+ * đang mang số mà người dùng không tự gõ, và mang theo hai nút để thoát. Nền màu nhạt cùng dải
+ * với huy hiệu mã ở các sheet, để mắt nhận ra "đây là chuyện của mã cổ phiếu".
+ *
+ * `flex-wrap` chứ không ép một hàng: ở 360px, mã + câu + hai nút không đủ chỗ, và câu bị cắt cụt
+ * thì mất luôn phần nói rõ phạm vi ("mọi công thức trong lượt xem này").
+ */
+.tickerBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.tickerCode {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+}
+
+/* Chiếm hết chỗ còn lại để hai nút luôn dạt về mép phải khi còn đủ chỗ trên một hàng. */
+.tickerText {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-muted);
+}
+
+/*
  * Lưới ô nhập — bản thiết kế hi-fi xếp ô số thành hai cột.
  *
  * `auto-fit` + `minmax(140px, 1fr)`: ở 360px vừa đúng hai cột, màn hẹp hơn tự rơi về một cột,

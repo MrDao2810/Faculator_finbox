@@ -157,6 +157,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.tickerFailed':
     'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
   'detail.export': '↓ Export',
+  'detail.tickerSticky': 'in use for every formula this visit',
+  'detail.tickerChange': 'Change ticker',
+  'detail.tickerClear': 'Clear ticker',
   'detail.saveToPortfolio': '☆ Save to portfolio',
   'detail.restoredNote': 'saved calculation from',
   'detail.restoredMissing':
@@ -284,6 +287,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.priceSession': 'Session of',
   'portfolio.priceRefresh': 'Refresh',
   'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
+  'portfolio.priceNone': 'No market price found for any ticker yet.',
   'portfolio.formulas': 'Run a formula',
   'portfolio.formulasTitle': 'Formulas this ticker can fill',
   'portfolio.formulasSubtitle': 'Open a formula with this ticker’s data already filled in',

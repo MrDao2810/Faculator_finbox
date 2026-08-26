@@ -138,6 +138,11 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
         key: 'ffb.lastList.v1',
         viSao: 'sessionStorage — tự hết khi đóng tab, không sống qua phiên nên không có gì để xoá',
       },
+      {
+        key: 'ffb.activeTicker.v1',
+        viSao:
+          'sessionStorage — mã dính theo lượt duyệt, tự hết khi đóng tab. Lối xoá nằm ngay tại chỗ nó có tác dụng: nút "Bỏ mã" trên thanh của màn chi tiết công thức',
+      },
     ];
 
     const khai = new Set<string>();

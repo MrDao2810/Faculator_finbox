@@ -1097,3 +1097,35 @@ describe('WF-06 — tab Công thức', () => {
     expect(feed.snapshots).not.toHaveBeenCalled();
   });
 });
+
+/*
+ * ── Thanh thị giá không được để trống ───────────────────────────────────────────────────────
+ *
+ * Chủ dự án chụp lại đúng ca này: danh mục có mã 'VNI' (là chỉ số, không phải cổ phiếu nên Finbox
+ * không có), nguồn trả lời bình thường, và thanh dưới sáu ô chỉ còn mỗi nút "Làm mới" nằm chơ vơ
+ * bên phải một hộp trắng.
+ */
+describe('WF-06 — thanh thị giá luôn nói được điều gì đó', () => {
+  it('nguồn trả lời được nhưng không mã nào có giá: nói lý do thay vì bày một nút trơ', async () => {
+    seedHolding();
+    // Nguồn KHÔNG hỏng — nó trả lời, chỉ là không có mã nào trong danh mục.
+    feed.snapshots.mockResolvedValue(new Map());
+    render(<PortfolioScreen />);
+
+    const bar = await screen.findByRole('status');
+    expect(bar.textContent).toContain('Chưa có mã nào tra được thị giá.');
+    // Và không được mượn câu của ca mất mạng: ở đây mạng vẫn tốt, lời khuyên phải khác.
+    expect(bar.textContent).not.toContain('Không lấy được thị giá từ Finbox.');
+  });
+
+  it('có giá thì thanh nói ngày phiên chứ không nói câu trống', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+
+    const bar = await screen.findByRole('status');
+    await waitFor(() => {
+      expect(bar.textContent).toContain('21/08/2026');
+    });
+    expect(bar.textContent).not.toContain('Chưa có mã nào tra được thị giá.');
+  });
+});

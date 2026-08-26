@@ -19,10 +19,30 @@
   padding: 0 var(--space-3);
 
   background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
+  /*
+   * Viền 1,5px và bo lớn hơn — bản thiết kế đợt 12. Ô nhập là thứ người dùng phải tìm ra trước
+   * tiên trên màn chi tiết, và ở bảng tối một nét 1px màu `border-strong` gần như tan vào nền.
+   * Nửa pixel này không làm ô cao thêm: `min-height` đo cả viền (box-sizing: border-box).
+   *
+   * Màu nhấn thay cho xám ở đợt 13, theo bản thiết kế mobile. Nó nói ra thứ mà xám không nói
+   * được: ô này GÕ VÀO ĐƯỢC. Ở màn chi tiết, khối Số liệu nằm giữa một trang toàn chữ, và một
+   * viền xám nhạt đọc ra là đường kẻ chia phần chứ không phải ô nhập.
+   *
+   * Ba trạng thái WF-16 vẫn đè lên được và vẫn phân biệt được, vì chúng đổi cả KIỂU nét chứ
+   * không chỉ đổi màu: `.tone-invalid` sang đỏ, `.tone-derived` sang vàng nét đứt, `.tone-locked`
+   * nét đứt trên nền chìm — NFR-USA-06.
+   */
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-lg);
 }
 
+/*
+ * Đang gõ: vòng focus 3px là dấu hiệu chính.
+ *
+ * `--color-focus` bằng đúng `--color-accent` ở cả hai bảng, nên từ đợt 13 viền không còn đổi màu
+ * khi nhận tiêu điểm — giữ dòng này vì nó là chỗ khai ý định, và vì ngày `--color-focus` tách ra
+ * thì ô nhập phải đi theo nó chứ không phải theo màu nghỉ.
+ */
 .control:focus-within {
   border-color: var(--color-focus);
   box-shadow: var(--focus-ring);

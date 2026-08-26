@@ -41,14 +41,48 @@ export default function Home() {
   return (
     <div className={styles.page}>
       {/*
-        Tiêu đề cấp một. Bản thiết kế không vẽ nó nên nó ẩn khỏi mắt — nhưng phải TỒN TẠI:
-        trang chủ là URL priority 1.0 của sitemap mà trước đợt này cả tài liệu không có lấy
-        một <h1> nào. Dùng `visually-hidden` chứ không `display: none`, để trình đọc màn hình
-        và bộ máy tìm kiếm vẫn thấy.
+        Dải mở đầu — bản thiết kế đợt 12. Đứng NGOÀI `HomeSearchPanel` có chủ đích: nó do server
+        dựng (0 byte JS), và nó không biến mất khi người dùng bắt đầu gõ tìm.
+
+        Thẻ <h1> gánh hai việc cùng lúc. Phần thấy được là tên bộ công cụ, đúng bản vẽ; phần ẩn
+        là câu mô tả dài mà bộ máy tìm kiếm đọc — trang chủ là URL priority 1.0 của sitemap, và
+        một <h1> chỉ có tên thương hiệu thì không nói gì về nội dung trang. `visually-hidden` chứ
+        không `display: none`, để trình đọc màn hình và Google vẫn thấy.
+
+        `verify-static.mjs` đếm đúng MỘT <h1> trong out/index.html — gộp hai vế vào một thẻ như
+        đây là cách giữ cả hai mà không phá điều đó.
       */}
-      <h1 className="visually-hidden">
-        <T k="home.h1" />
-      </h1>
+      <header className={styles.hero}>
+        <span className={styles.heroIcon} aria-hidden="true">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 3 21 8v8l-9 5-9-5V8l9-5Z" />
+            <path d="M3 8l9 5 9-5M12 13v8" />
+          </svg>
+        </span>
+
+        <span className={styles.heroText}>
+          <h1 className={styles.heroTitle}>
+            <T k="home.hero.title" />
+            <span className="visually-hidden">
+              {' — '}
+              <T k="home.h1" />
+            </span>
+          </h1>
+          <p className={styles.heroSubtitle}>
+            {/* Con số đếm từ Registry lúc dựng, không nằm trong chuỗi dịch. */}
+            {REGISTRY.formulas.length} <T k="home.hero.subtitle" />
+          </p>
+        </span>
+      </header>
 
       {/*
         Ba khối dưới đây là NỘI DUNG LÚC CHƯA TÌM GÌ. Truyền qua children nên chúng vẫn do

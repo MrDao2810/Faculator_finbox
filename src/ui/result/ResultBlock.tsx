@@ -51,10 +51,7 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
 
   return (
     <div className={classes}>
-      <div className={styles.head}>
-        <span className={styles.eyebrow}>{t('result.eyebrow')}</span>
-        <span className={styles.live}>{t('result.live')}</span>
-      </div>
+      <span className={styles.eyebrow}>{t('result.eyebrow')}</span>
 
       <p className={styles.figure} aria-live="polite">
         <span className={styles.value}>{formatNumber(output.value)}</span>
@@ -64,6 +61,13 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
       {interpretation !== undefined && <p className={styles.interpretation}>{interpretation}</p>}
 
       {action}
+
+      {/*
+        Nhãn 'cập nhật tức thì' (FR-05) nay ở góc dưới phải, không còn đứng cùng hàng với chữ
+        KẾT QUẢ — bản thiết kế đợt 12. Nó là ghi chú về CÁCH con số vận hành, nên đứng sau con
+        số đọc thuận hơn là đứng trước.
+      */}
+      <span className={styles.live}>{t('result.live')}</span>
     </div>
   );
 }

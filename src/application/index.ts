@@ -193,20 +193,26 @@ export type {
   ChartPoint,
   ChartTable,
   ChartTick,
+  ChartSeries,
   DrawableChart,
   LineChart,
+  ReferenceLine,
+  SeriesTone,
   SweepOption,
   ViewBoxRect,
   WaterfallChart,
 } from '@/core/chart';
 export {
   CHART_TABLE_ROWS,
+  PRIMARY_SERIES_KEY,
+  areaPath,
   buildChartModel,
   gapsOf,
   linePath,
   linearScale,
   nearestPointByX,
   pointerToViewBox,
+  seriesOf,
   sweepCandidates,
 } from '@/core/chart';
 

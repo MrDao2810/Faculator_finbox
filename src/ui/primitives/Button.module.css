@@ -58,12 +58,20 @@
   transform: translateY(-50%);
 }
 
+/*
+ * Nút hành động chính mang màu cam, không phải xanh nhấn — bản thiết kế đợt 12 tách hai vai:
+ * xanh lo phần "đi tới" (link, tab, đường biểu đồ), cam lo phần "bấm vào đây".
+ *
+ * `primary` là biến thể MẶC ĐỊNH của Button, nên một màn có bao nhiêu nút không khai variant là
+ * có bấy nhiêu chỗ cam. Đúng ý ở các sheet (mỗi sheet chỉ một nút xác nhận), nhưng khi thêm nút
+ * mới thì cân nhắc: thấy hai nút cam cạnh nhau nghĩa là một trong hai đáng ra phải `secondary`.
+ */
 .primary {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
+  background: var(--color-highlight);
+  color: var(--color-on-highlight);
 }
 .primary:hover:not(:disabled) {
-  background: var(--color-accent-strong);
+  background: var(--color-highlight-strong);
 }
 
 .secondary {

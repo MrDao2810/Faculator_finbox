@@ -32,7 +32,13 @@ export interface VirtualListProps<T> {
  * 1. **Cuộn theo cả trang, không tạo khung cuộn lồng.** Khung cuộn trong khung cuộn trên điện
  *    thoại rất khó dùng và đi ngược NFR-USA-02. Ở đây nghe `window.scroll` rồi tự tính phần
  *    danh sách đang lọt vào tầm nhìn.
- * 2. **Chỉ ảo hoá khi vượt ngưỡng.** Dưới 40 mục thì dựng thẳng.
+ * 2. **Chỉ ảo hoá khi vượt ngưỡng.** Ngưỡng hiện tại là `VIRTUALIZE_THRESHOLD = 1000`, mà danh
+ *    sách dài nhất của sản phẩm là 111 công thức — nên trên thực tế nhánh ảo hoá **đang không
+ *    chạy**, mọi màn đều đi nhánh `if (!virtual)` dựng thẳng. Đó là chủ ý, không phải sót: đo lại
+ *    ở cỡ này thì ảo hoá làm việc cuộn TỆ ĐI (27,7 ms mỗi khung so với 10,0 ms khi dựng thẳng),
+ *    nên ngưỡng được nâng từ 40 lên 1000. Lý do đầy đủ và ca kiểm chốt nằm ở
+ *    `src/core/virtual-window.test.ts`. Hạ ngưỡng xuống dưới 111 là bật lại đúng đường đi đã đo
+ *    là chậm hơn — phải là quyết định có người bấm, không phải một lần sửa hằng số.
  * 3. **Dòng cao bao nhiêu thì để nó cao bấy nhiêu.** Xem mục dưới — đây là chỗ hai bản trước
  *    đều sai.
  *

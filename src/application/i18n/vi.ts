@@ -260,6 +260,17 @@ export const vi = {
    */
   'chart.applyHintTimeAxis':
     'Trục đang là thời gian nên bấm không ghi được gì — đổi mục "Xem kết quả đổi theo" ở trên sang một biến số để bấm áp dụng giá trị.',
+  /*
+   * Vế KHẲNG ĐỊNH của câu ngay trên, thêm ở đợt này.
+   *
+   * Trước đó sản phẩm chỉ nói khi tính năng KHÔNG dùng được. Người dùng đổi trục theo đúng lời
+   * khuyên, rồi câu kia biến mất và không còn gì cho biết giờ bấm được — nên lối tương tác duy
+   * nhất của biểu đồ chỉ tự nhắc tới mình vào đúng lúc nó không chạy.
+   *
+   * Nói "ô nhập" chứ không "ô Số liệu": ở khổ điện thoại khối Số liệu nằm ngoài tầm mắt khi đang
+   * xem biểu đồ, nên gọi tên khối là bắt người đọc đi tìm; gọi tên thứ họ sắp thấy nhảy số thì không.
+   */
+  'chart.applyHintReady': 'Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập.',
   'chart.zoom': 'Phóng to',
   'chart.exit': 'Thoát phóng to',
   'chart.rotate': 'Xoay ngang điện thoại để biểu đồ rộng hơn.',
@@ -589,11 +600,17 @@ export const vi = {
 
   // Trang chủ — WF-01, gói 3.1.1
   /*
-   * Tiêu đề cấp một của trang chủ. Bản thiết kế hi-fi không vẽ nó, nên trên màn nó được ẩn
-   * bằng `visually-hidden` — nhưng phải TỒN TẠI: trang chủ là URL priority 1.0 của sitemap mà
-   * trước đợt này cả tài liệu không có lấy một <h1> nào.
+   * Câu mô tả dài của trang chủ. Bản thiết kế không vẽ nó, nên nó nằm trong phần ẩn của thẻ
+   * <h1> — nhưng phải TỒN TẠI: trang chủ là URL priority 1.0 của sitemap, và cụm "công thức
+   * tài chính và chứng khoán Việt Nam" là thứ bộ máy tìm kiếm đọc, còn tên thương hiệu ở dòng
+   * thấy được thì không nói gì về nội dung trang.
    */
   'home.h1': 'Thư viện công thức tài chính và chứng khoán Việt Nam',
+  /* Dải mở đầu trang chủ — bản thiết kế đợt 12. Phần THẤY ĐƯỢC của thẻ <h1>. */
+  'home.hero.title': 'Bộ công cụ tính nhanh của Finbox',
+  /* Ghép sau tổng số công thức: "111 công thức chứng khoán & …". Con số do màn tự đếm từ
+     Registry, không viết vào câu chữ — số chép vào prose thì rữa trong im lặng. */
+  'home.hero.subtitle': 'công thức chứng khoán & tài chính cá nhân, cập nhật tức thì.',
   /* Tiêu đề ẩn của khối kết quả tìm — để trình đọc màn hình biết vừa nhảy sang một vùng khác. */
   'home.search.resultsHeading': 'Kết quả tìm kiếm',
   'home.search.seeAll': 'Xem tất cả',
@@ -662,6 +679,18 @@ export const vi = {
   'data.chars': 'ký tự',
   'data.remove': 'Xoá',
   'data.clearAll': 'Xoá toàn bộ dữ liệu trên máy',
+  /*
+   * Thanh hoàn tác sau khi xoá MỘT kho (đợt 13).
+   *
+   * Bốn mẩu rời chứ không một câu trọn: `t()` không nội suy tham số (xem `i18n/index.ts`), mà
+   * câu này phải ghép cả tên kho lẫn số giây đang đếm ngược. Ghép ở component, đúng nếp đã dùng
+   * cho câu đếm kết quả ở trang chủ.
+   * Ghép ra: "Đã xoá · Từ khoá đã tìm · còn 5 giây".
+   */
+  'data.removed': 'Đã xoá',
+  'data.undo': 'Hoàn tác',
+  'data.undoIn': 'còn',
+  'data.seconds': 'giây',
   'data.clearConfirm':
     'Xoá toàn bộ dữ liệu đã lưu trên máy? Tuỳ chọn, lịch sử tìm, chuỗi giá và danh mục sẽ mất hết. Thao tác này không hoàn tác được.',
 

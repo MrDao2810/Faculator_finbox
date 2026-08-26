@@ -273,6 +273,16 @@ export const SMA_N_PHIEN: FormulaModule = {
         },
       }),
     ],
+    /*
+     * Vẽ kèm đường giá đóng cửa trên trục thời gian: cả `meaning` lẫn `howToRead` ở dưới đều nói
+     * về tương quan giá–SMA (giá nằm trên/dưới đường, giá cắt đường), nên một mình đường SMA là
+     * hình không cho thấy điều chính nó đang dạy. `periodKey` để legend ghi 'SMA 20 phiên' theo
+     * đúng số phiên đang nhập.
+     */
+    priceOverlay: {
+      shortName: { vi: 'SMA', en: 'SMA' },
+      periodKey: 'period',
+    },
     explanation: {
       meaning: {
         vi: 'Mức giá bình quân mà thị trường đã trả trong N phiên vừa qua, làm phẳng các phiên nhiễu để lộ ra chiều đi của giá.',
@@ -719,6 +729,19 @@ export const RSI_WILDER: FormulaModule = {
     isFeatured: true,
     tags: ['rsi', 'suc manh tuong doi', 'wilder', 'qua mua qua ban', 'dao dong'],
     resultUnit: 'điểm',
+    /*
+     * Hai ngưỡng của Wilder, đúng hai con số mà `explanation.howToRead` ngay dưới đang nói bằng
+     * chữ. Trước khi có khai báo này, đoạn ấy nói "trên 70 là quá mua, dưới 30 là quá bán" ngay
+     * dưới một biểu đồ không vẽ 70 và 30 — người đọc phải tự ước lượng hai độ cao đó trên trục.
+     *
+     * Không thêm mốc 50 ("cân bằng") dù câu chữ có nhắc: ba đường kẻ ngang trên một hình 320×200
+     * là hình trông như giấy kẻ ô, và 50 không phải ranh giới ai dùng để ra quyết định — nó chỉ là
+     * điểm giữa thang.
+     */
+    referenceLines: [
+      { value: 30, label: { vi: 'Quá bán', en: 'Oversold' } },
+      { value: 70, label: { vi: 'Quá mua', en: 'Overbought' } },
+    ],
     variables: [
       sliderVar('period', NHAN_SO_PHIEN, 'phiên', 14, 2, 100, 1, {
         description: {

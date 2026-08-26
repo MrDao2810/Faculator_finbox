@@ -9,6 +9,7 @@
  * PDF, và tấm PNG vẽ bằng Canvas.
  */
 
+import type { ReferenceLine } from '../registry/types';
 import type { Bilingual, CalcWarning, WarningCode } from '../types';
 
 /**
@@ -56,13 +57,22 @@ export interface ChartAxis {
  * sáng mắt tra con số chính xác, vừa là hợp đồng để test bám vào thay vì bám vào chuỗi `d`.
  */
 export interface ChartTable {
-  columns: readonly [Bilingual, Bilingual];
+  /**
+   * Cột đầu là trục X, các cột sau là từng chuỗi dữ liệu.
+   *
+   * Kiểu là tuple MỞ (`[Bilingual, ...Bilingual[]]`) chứ không phải mảng trần: nó vừa cho phép
+   * thêm cột khi biểu đồ có nhiều chuỗi, vừa giữ `columns[0]` và `columns[1]` có kiểu chắc chắn —
+   * nhờ đó mọi nơi đang đọc hai cột đầu không phải thêm một phép kiểm `undefined` nào.
+   */
+  columns: readonly [Bilingual, ...Bilingual[]];
   /**
    * `null` là dòng ngắt "…" — cùng nếp `SCHEDULE_GAP` của lịch trả nợ.
    * Cột đầu là nhãn — mang cả hai ngôn ngữ khi nó là chữ (chặng bóc tách); cột số/đơn vị vẫn
    * dùng chung một chuỗi cho cả hai vế vì chưa dịch đơn vị (xem ghi chú ở `build.ts`).
+   *
+   * Số ô của mỗi dòng khớp `columns.length`; biểu đồ một chuỗi vẫn ra đúng hai ô như trước.
    */
-  rows: ReadonlyArray<readonly [Bilingual, string] | null>;
+  rows: ReadonlyArray<readonly [Bilingual, ...string[]] | null>;
 }
 
 /** Một biến có thể đưa lên trục X. */
@@ -70,6 +80,69 @@ export interface SweepOption {
   key: string;
   label: Bilingual;
 }
+
+/**
+ * Tông của một chuỗi dữ liệu — TÊN tông, không phải mã màu.
+ *
+ * Vì sao không cho khai màu tự do, dù "màu" là thứ tự nhiên nhất để nghĩ tới: `tokens.test.ts`
+ * quét `*.module.css` để chặn màu cứng, và docblock đầu `chart.module.css` đã ghi rõ hậu quả —
+ * màu đặt trong THUỘC TÍNH SVG thì lọt lưới kiểm. Một `color: '#0a0'` truyền từ nơi gọi vừa không
+ * có cửa nào gác, vừa mù trong bảng màu tối, vì nó không biết gì về hai bảng.
+ *
+ * Bốn tông dưới đây đều dùng lại token đã có sẵn phép kiểm tương phản ở CẢ HAI bảng. Muốn tông thứ
+ * năm thì mở token mới và thêm ca kiểm — một quyết định có người bấm, không phải một tham số.
+ */
+export type SeriesTone = 'primary' | 'teal' | 'violet' | 'muted';
+
+/**
+ * Một chuỗi dữ liệu trên biểu đồ đường.
+ *
+ * Sinh ra cho ba công thức mà một chuỗi không đủ nghĩa: SMA phải nhìn cùng đường giá, dải Bollinger
+ * cần cả ba dải, MACD cần đường Signal. **SMA đã dùng thật** — nó khai `spec.priceOverlay` và nhận
+ * đường giá đóng cửa dựng bởi `closePriceSeries()`; hai công thức kia còn chờ. Nghĩa là hợp đồng
+ * dưới đây có người dùng đang chạy: đổi mặc định `axis`, đổi nghĩa `width` hay thêm trường bắt buộc
+ * là đổi hình một trang thật, không phải sửa một khả năng chưa ai đụng.
+ *
+ * Chuỗi CHÍNH — giá trị đầu ra của công thức — không nằm trong danh sách này mà vẫn là
+ * `LineChart.points`. Xem `LineChart.overlays` ngay dưới về lý do, và `seriesOf()` về cách hai thứ
+ * được ghép lại thành một danh sách đồng nhất cho tầng vẽ.
+ */
+export interface ChartSeries {
+  /**
+   * Khoá ổn định trong một biểu đồ: `key` của React, hậu tố `id` của dải chuyển màu, và khoá cột
+   * bảng số. Không được trùng nhau, và không được trùng `PRIMARY_SERIES_KEY`.
+   */
+  key: string;
+  label: Bilingual;
+  /**
+   * Điểm của chuỗi này. Phải CÙNG LƯỚI X với chuỗi chính — cùng số điểm, cùng thứ tự.
+   *
+   * Đây là điều kiện của bảng số: nó rút gọn theo chuỗi chính rồi lấy giá trị các chuỗi khác theo
+   * cùng CHỈ SỐ. `buildChartModel()` kiểm và LOẠI chuỗi lệch lưới thay vì vẽ ra một hình lệch nửa
+   * bước mà nhìn thoáng qua vẫn "có vẻ được".
+   */
+  points: ReadonlyArray<ChartPoint>;
+  /**
+   * Đơn vị của chuỗi, ví dụ `'₫'` hay `'điểm'` — cùng quy ước với `FormulaSpec.resultUnit`.
+   *
+   * Dùng khi chuỗi này gánh trục Y phải: nó là thứ quyết định bậc đơn vị của nhãn vạch (tỷ ₫ /
+   * triệu ₫) và số chữ số thập phân. Chuỗi đọc trục trái thì không cần — trục ấy đã có đơn vị của
+   * công thức.
+   */
+  unit?: string;
+  tone: SeriesTone;
+  /** Nét đứt thay vì nét liền. Dấu hiệu thứ hai bên cạnh màu — NFR-USA-06. */
+  dash?: boolean;
+  /** Độ dày nét, đơn vị viewBox. Mặc định 2 như chuỗi chính. */
+  width?: number;
+  /** Tô dải chuyển màu dưới đường. */
+  area?: boolean;
+  /** Đọc theo trục Y nào. Mặc định `'left'` — trục của chuỗi chính. */
+  axis?: 'left' | 'right';
+}
+
+/** Khoá của chuỗi chính trong danh sách `seriesOf()` trả về. */
+export const PRIMARY_SERIES_KEY = '__primary';
 
 /** Đường quét độ nhạy — FR-08. */
 export interface LineChart {
@@ -80,12 +153,61 @@ export interface LineChart {
   summary: Bilingual;
   x: ChartAxis;
   y: ChartAxis;
+  /**
+   * Chuỗi CHÍNH — giá trị đầu ra của công thức. Đây vẫn là nguồn duy nhất cho bốn thứ:
+   * dấu "giá trị hiện tại", bảng số, lối bấm-để-áp-dụng, và vùng gạch chéo miền không tính được.
+   *
+   * Giữ nguyên tên và nguyên chỗ khi mở đường cho nhiều chuỗi, thay vì đổi thành `series[0].points`:
+   * trường này đang là hợp đồng mà hàng chục ca kiểm neo vào, và chính những ca ấy là bằng chứng
+   * "không có gì đổi". Viết lại chúng để chứng minh không đổi là tự phá mất bằng chứng.
+   */
   points: ReadonlyArray<ChartPoint>;
+  /**
+   * Nhãn chuỗi CHÍNH trong legend, khi có tên gọn hơn tên trục Y — 'SMA 20 phiên' thay vì
+   * 'Trung bình động đơn giản (SMA) (₫)'. Legend chỉ hiện khi có từ hai chuỗi trở lên, nên trường
+   * này chỉ có nghĩa khi `overlays` có mặt; cột bảng số của chuỗi chính vẫn lấy `y.title` vì bảng
+   * gọi tên ĐẠI LƯỢNG kèm đơn vị, còn legend gọi tên ĐƯỜNG.
+   *
+   * **Vắng mặt hẳn** khi không dùng — `seriesOf()` rơi về `y.title`, đúng hành xử trước khi có
+   * trường này. Cùng nếp `overlays` ngay dưới.
+   */
+  primaryLabel?: Bilingual;
+  /**
+   * Chuỗi PHỤ vẽ chồng lên — đường giá dưới SMA, hai dải ngoài của Bollinger, đường Signal của MACD.
+   *
+   * **Vắng mặt hẳn** khi không có chuỗi phụ nào, không phải mảng rỗng: bất biến "công thức một
+   * chuỗi dựng ra đúng mô hình như trước" kiểm được bằng `toEqual`, mà một `overlays: []` thừa ra
+   * đã đủ làm nó đỏ. Cùng nếp với `note` và `referenceLines`.
+   *
+   * Tầng vẽ KHÔNG đọc trường này thẳng — nó gọi `seriesOf()` để nhận một danh sách đồng nhất.
+   */
+  overlays?: ReadonlyArray<ChartSeries>;
+  /**
+   * Trục Y thứ hai, bên phải — dùng khi chuỗi phụ có thang giá trị lệch hẳn chuỗi chính (SMA tính
+   * bằng nghìn đồng đứng cạnh RSI 0–100).
+   *
+   * Vắng mặt khi không chuỗi nào khai `axis: 'right'`, và đó cũng là điều kiện để hình học giữ
+   * nguyên: lề phải chỉ nới ra cho nhãn trục khi trường này có mặt.
+   */
+  yRight?: ChartAxis;
   table: ChartTable;
   /** Biến đang nằm trên trục X. */
   sweepKey: string;
   /** Mọi biến đưa lên trục X được — nguồn cho dropdown đổi trục. */
   options: ReadonlyArray<SweepOption>;
+  /**
+   * Mốc ngang cố định trên trục Y — chỉ những mốc CÒN NẰM TRONG `y.domain`.
+   *
+   * Lọc xong ở Domain chứ không để renderer tự hỏi "mốc này có lọt khung không", đúng lời hứa ở
+   * đầu file: tầng vẽ không tính gì. Renderer chỉ việc chiếu `value` qua thang Y rồi kẻ.
+   *
+   * Vắng mặt hẳn khi công thức không khai mốc nào, hoặc khai nhưng mốc nào cũng ngoài miền — nhờ
+   * vậy 110 công thức còn lại dựng ra đúng cái mô hình như trước khi có trường này.
+   *
+   * KHÔNG có ở `WaterfallChart`: trục Y của hình bóc tách là mức tổng đang chạy qua từng chặng,
+   * nên một ngưỡng kẻ ngang qua đó không nói lên điều gì về chặng nào cả.
+   */
+  referenceLines?: ReadonlyArray<ReferenceLine>;
   /** Ghi chú khi có điểm không tính được hoặc miền bị cắt. */
   note?: Bilingual;
 }

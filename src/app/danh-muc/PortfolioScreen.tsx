@@ -129,6 +129,55 @@ function isoDayOf(ms: number): string {
  */
 const ADVANCED_TILES = 2;
 
+/**
+ * Icon của sáu ô chỉ số và hai tab — bản thiết kế đợt 12.
+ *
+ * Vẽ tay như `TabIcon` và `CategoryIcon`, không thêm thư viện (NFR-PER-04). Khai ở màn này chứ
+ * không đẩy vào `@/ui/result`: `StatTile` là component chung, nó không nên biết danh mục có
+ * những chỉ số nào.
+ *
+ * Luôn `aria-hidden` và tuyệt đối không chứa `<title>`/`<desc>` — chúng sẽ chui vào `textContent`
+ * của thẻ, mà nhiều ca kiểm ở màn này dò giá trị qua đúng `textContent`.
+ */
+function StatIcon({ d }: { d: string }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
+const TILE_ICONS = {
+  /* Ví tiền — tổng giá trị đang nắm. */
+  totalValue:
+    'M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm13 4h4v4h-4Z',
+  /* Đồng xu — số vốn đã bỏ ra. */
+  totalCost:
+    'M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Zm0 0v8c0 1.7 3.6 3 8 3s8-1.3 8-3V8',
+  /* Mũi tên lên — lãi/lỗ. */
+  gain: 'M4 17l5-5 3 3 7-7M15 8h5v5',
+  /* Con lắc — beta là độ dao động so với thị trường. */
+  beta: 'M12 4v6M12 10a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM6 6l1.5 1.5M18 6l-1.5 1.5',
+  /* Đồng hồ — XIRR là lợi suất có tính tới thời điểm. */
+  xirr: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2',
+  /* Cột — số mã đang giữ. */
+  count: 'M5 20V11M12 20V4M19 20v-6',
+  /* Danh sách mã. */
+  tabHoldings: 'M4 6h16M4 12h16M4 18h10',
+  /* Ô vuông xếp — các phép tính đã lưu. */
+  tabSaved: 'M4 5h6v6H4V5ZM14 5h6v6h-6V5ZM4 13h6v6H4v-6ZM14 13h6v6h-6v-6Z',
+} as const;
+
 interface FormState {
   code: string;
   name: string;
@@ -597,6 +646,8 @@ export function PortfolioScreen() {
             switchTab('holdings');
           }}
         >
+          {/* Icon `aria-hidden`, nên tên khả truy cập vẫn đúng là 'Mã (1)'. */}
+          <StatIcon d={TILE_ICONS.tabHoldings} />
           {t('portfolio.tabHoldings')} ({holdings.length})
         </button>
         <button
@@ -610,6 +661,7 @@ export function PortfolioScreen() {
             switchTab('saved');
           }}
         >
+          <StatIcon d={TILE_ICONS.tabSaved} />
           {t('portfolio.tabSaved')} ({savedCalcs.length})
         </button>
       </div>
@@ -622,7 +674,12 @@ export function PortfolioScreen() {
           className={styles.block}
         >
           {savedCalcs.length === 0 ? (
-            <p className={styles.empty}>{t('portfolio.savedEmpty')}</p>
+            <div className={styles.empty}>
+              <span className={styles.emptyIcon} aria-hidden="true">
+                <StatIcon d={TILE_ICONS.tabSaved} />
+              </span>
+              <p className={styles.emptyText}>{t('portfolio.savedEmpty')}</p>
+            </div>
           ) : (
             <>
               {/*
@@ -754,18 +811,21 @@ export function PortfolioScreen() {
               output={summary.totalValue}
               showEyebrow={false}
               decimals={0}
+              icon={<StatIcon d={TILE_ICONS.totalValue} />}
             />
             <StatTile
               label={t('portfolio.totalCost')}
               output={summary.totalCost}
               showEyebrow={false}
               decimals={0}
+              icon={<StatIcon d={TILE_ICONS.totalCost} />}
             />
             <StatTile
               label={t('portfolio.gain')}
               output={summary.gain}
               showEyebrow={false}
               decimals={0}
+              icon={<StatIcon d={TILE_ICONS.gain} />}
               /*
                * Phần trăm đi làm dòng phụ của chính ô Lãi/lỗ thay vì chiếm một ô thứ bảy: hai con số
                * là hai cách đọc CÙNG một đại lượng. Chỉ truyền khi nó thật sự tính được — không thì
@@ -783,12 +843,18 @@ export function PortfolioScreen() {
         */}
             {advanced && (
               <>
-                <StatTile label={t('portfolio.beta')} output={summary.beta} showEyebrow={false} />
+                <StatTile
+                  label={t('portfolio.beta')}
+                  output={summary.beta}
+                  showEyebrow={false}
+                  icon={<StatIcon d={TILE_ICONS.beta} />}
+                />
                 <StatTile
                   label={t('portfolio.xirr')}
                   output={summary.xirr}
                   showEyebrow={false}
                   decimals={1}
+                  icon={<StatIcon d={TILE_ICONS.xirr} />}
                 />
               </>
             )}
@@ -797,6 +863,7 @@ export function PortfolioScreen() {
               output={summary.count}
               showEyebrow={false}
               decimals={0}
+              icon={<StatIcon d={TILE_ICONS.count} />}
             />
           </div>
 
@@ -870,7 +937,12 @@ export function PortfolioScreen() {
             </h2>
 
             {holdings.length === 0 ? (
-              <p className={styles.empty}>{t('portfolio.empty')}</p>
+              <div className={styles.empty}>
+                <span className={styles.emptyIcon} aria-hidden="true">
+                  <StatIcon d={TILE_ICONS.count} />
+                </span>
+                <p className={styles.emptyText}>{t('portfolio.empty')}</p>
+              </div>
             ) : (
               <ul className={styles.list}>
                 {summary.rows.map((row) => {
@@ -1183,15 +1255,25 @@ export function PortfolioScreen() {
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
-                className={styles.addButton}
-                onClick={() => {
-                  setFormOpen(true);
-                }}
-              >
-                + {t('portfolio.add')}
-              </button>
+              /*
+                Nút hành động chính của cả màn — nay là nút cam bo tròn có quầng sáng, rộng vừa
+                nội dung và căn giữa (bản thiết kế đợt 12).
+
+                Dấu cộng chuyển từ ký tự trần sang SVG `aria-hidden`: trước đó tên khả truy cập
+                của nút là "+ Thêm mã cổ phiếu", nay đúng bằng nhãn thật.
+              */
+              <div className={styles.addRow}>
+                <button
+                  type="button"
+                  className={styles.addButton}
+                  onClick={() => {
+                    setFormOpen(true);
+                  }}
+                >
+                  <StatIcon d="M12 5v14M5 12h14" />
+                  {t('portfolio.add')}
+                </button>
+              </div>
             )}
           </section>
         </div>
@@ -1202,7 +1284,11 @@ export function PortfolioScreen() {
         tính đã lưu cũng nằm trên máy người dùng y như số lượng và giá vốn.
       */}
       <p className={styles.local}>
-        <span className={styles.localTag}>{t('portfolio.localTag')}</span>
+        <span className={styles.localTag}>
+          {/* Ổ khoá — dấu hiệu thứ hai bên cạnh chữ, cho người lướt nhanh không đọc cả câu. */}
+          <StatIcon d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v9H5v-9Z" />
+          {t('portfolio.localTag')}
+        </span>
         {t('portfolio.localOnly')}
       </p>
 

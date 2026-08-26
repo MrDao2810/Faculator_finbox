@@ -137,6 +137,73 @@ export interface BreakdownStage {
 }
 
 /**
+ * Một mốc ngang cố định trên trục KẾT QUẢ của biểu đồ.
+ *
+ * Sinh ra cho các chỉ báo dao động, nơi bản thân con số không nói hết ý: RSI 67 chỉ có nghĩa khi
+ * người đọc biết 70 là ranh giới quá mua. Đoạn "Cách đọc kết quả" của `rsi-wilder` nói đúng hai
+ * ngưỡng ấy bằng chữ, nhưng hình ngay trên đó lại không vẽ chúng — người đọc phải tự ước lượng
+ * vị trí 30 và 70 trên trục Y.
+ *
+ * Vì sao là METADATA của công thức chứ không phải mã trong renderer: cùng lẽ với `BreakdownStage`
+ * ngay trên. Ngưỡng là kiến thức về CHỈ BÁO, không phải về cách vẽ — Stochastic %K có mốc 20/80,
+ * %B có 0/1, tỷ lệ nợ/vốn có ngưỡng cảnh báo riêng. Viết `if (id === 'rsi-wilder')` vào renderer
+ * là buộc mỗi chỉ báo mới phải sửa tầng vẽ (NFR-MNT-01, LDR-01).
+ *
+ * Ba điều KHÔNG thuộc về khai báo này, để khỏi ai đó trông chờ nhầm:
+ *
+ *   - Nó **không nới trục**. Mốc nằm ngoài miền Y đang hiện thì bị bỏ đi lúc dựng mô hình, không
+ *     kéo trục giãn ra ôm lấy nó. Trục Y bám theo dữ liệu thật; ép nó giãn để chứa một mốc là bóp
+ *     dẹt chính đường đang cần đọc — xem `buildChartModel()`.
+ *   - Nó **không đổi phép tính**. Thuần trang trí có thông tin; `calc` không nhìn tới nó.
+ *   - Nó **không phải vùng tô**. Một đường mảnh nét đứt, không phải dải màu — dải màu ở khổ 320
+ *     đơn vị viewBox sẽ chọi với vùng gạch chéo "không tính được" vốn đã dùng chỗ đó.
+ */
+export interface ReferenceLine {
+  /**
+   * Vị trí trên trục Y, theo ĐƠN VỊ GỐC của kết quả (`resultUnit`) — chưa chia bậc hiển thị.
+   *
+   * Cùng thang với `ChartAxis.domain`, vốn cũng giữ số gốc và chỉ chia lúc dựng nhãn vạch. Khai
+   * theo thang đã chia (ví dụ ghi 0,03 cho mốc 30 triệu) là mốc rơi sai chỗ mỗi khi miền dữ liệu
+   * đổi bậc đơn vị.
+   */
+  value: number;
+  /** Nhãn ngắn đặt sát đường. Ngắn thật: nó nằm gọn trong bề ngang vùng vẽ ở khổ 360px. */
+  label: Bilingual;
+}
+
+/**
+ * Vẽ kèm đường GIÁ ĐÓNG CỬA làm chuỗi phụ trên trục thời gian.
+ *
+ * Sinh ra cho các chỉ báo mà ý nghĩa nằm ở TƯƠNG QUAN với giá: "Cách đọc kết quả" của SMA nói về
+ * giá nằm trên/dưới đường và giá cắt đường, nhưng biểu đồ một chuỗi không cho người đọc thấy điều
+ * vừa đọc. Cùng lẽ với `ReferenceLine` ngay trên: tương quan với giá là kiến thức về CHỈ BÁO,
+ * không phải về cách vẽ, nên nó là metadata chứ không phải `if (id === 'sma-n-phien')` trong
+ * renderer (NFR-MNT-01, LDR-01).
+ *
+ * Ba điều KHÔNG thuộc về khai báo này:
+ *
+ *   - Nó **chỉ sống trên trục thời gian**. Đổi trục X sang một biến số (ví dụ "Số phiên") thì mỗi
+ *     điểm là một mức giả định, không còn là một phiên — đường giá không có nghĩa ở đó, và
+ *     `buildChartModel()` chỉ dựng chuỗi phụ trong nhánh thời gian nên nó tự ẩn.
+ *   - Nó **không đổi phép tính**. `calc` không nhìn tới nó; chuỗi chính vẫn là kết quả công thức.
+ *   - Nó **không phải trục Y phải**. Giá và chỉ báo cùng đơn vị tiền thì đọc chung trục trái;
+ *     miền trục nới ra ôm cả hai chuỗi.
+ */
+export interface PriceOverlaySpec {
+  /**
+   * Tên NGẮN của chỉ báo cho legend — 'SMA', không phải tên đầy đủ của công thức: legend chỉ hiện
+   * khi có từ hai chuỗi trở lên, và ở khổ 360px hai nhãn dài là hai dòng chữ chen nhau.
+   */
+  shortName: Bilingual;
+  /**
+   * Khoá của biến SỐ PHIÊN trong `variables` — legend ghép giá trị đang nhập vào tên: 'SMA 20
+   * phiên', đổi slider thì legend đổi theo. Chỉ dùng cho biến đo bằng phiên; bỏ trống thì legend
+   * chỉ ghi `shortName`.
+   */
+  periodKey?: string;
+}
+
+/**
  * Một cạnh của đồ thị phụ thuộc: đầu ra của công thức khác chảy vào một biến ở đây (FR-15).
  * Gói 5.3.1 đọc chính các cạnh này để sắp xếp topo.
  */
@@ -226,6 +293,21 @@ export interface FormulaSpec extends FormulaSummary {
    * tổng lãi, gắn nhãn 'Lịch trả nợ vay' vào đó là đặt sai tên cho chính con số nó đang bày.
    */
   breakdownTotal?: Bilingual;
+  /**
+   * Các mốc ngang vẽ trên trục kết quả — xem `ReferenceLine`.
+   *
+   * Không khai thì biểu đồ dựng y hệt như trước: `buildChartModel()` chỉ gắn trường tương ứng vào
+   * mô hình khi có ít nhất một mốc CÒN NẰM TRONG miền Y, nên 110 công thức còn lại không nhận thêm
+   * một thẻ SVG nào.
+   */
+  referenceLines?: ReadonlyArray<ReferenceLine>;
+  /**
+   * Vẽ kèm đường giá đóng cửa trên trục thời gian — xem `PriceOverlaySpec`.
+   *
+   * Không khai thì biểu đồ dựng y hệt như trước, kể cả khi công thức vẽ được theo thời gian —
+   * cùng nếp `referenceLines`.
+   */
+  priceOverlay?: PriceOverlaySpec;
 }
 
 /** Cách sắp xếp danh sách công thức ở WF-02. */

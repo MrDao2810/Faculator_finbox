@@ -1024,7 +1024,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         </div>
         <p className={styles.subtitle}>{pick(spec.description)}</p>
 
-        <div className={styles.actions}>
+        <div className={`${styles.actions} ${styles.actionsHead}`}>
           <Button
             variant="secondary"
             size="sm"
@@ -1061,8 +1061,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             Lối sang tab "Công thức" của màn Danh mục. Hiện ở CẢ 111 công thức, không riêng nhóm
             có mã: người tính một khoản vay hay một mức phí cũng muốn giữ lại kết quả y như người
             đang định giá một mã.
+
+            Đây là nút DUY NHẤT trong hàng mang màu chính (cam) — ba nút kia là lối phụ. Trước đợt
+            12 cả bốn đều `secondary`, nên hàng nút không nói được đâu là việc đáng làm sau khi
+            tính xong. Thêm nút mới vào hàng này thì để `secondary`: hai nút cam cạnh nhau là mất
+            đúng cái thứ tự vừa dựng lên.
+
+            Và phải giữ nó ĐỨNG CUỐI hàng: `.actionsHead > :last-child` là thứ cho nó xuống hàng
+            riêng ở khổ dưới 600px (bản thiết kế mobile đợt 13). Chèn nút mới vào sau nó là nút
+            mới chiếm mất chỗ ấy, im lặng, không test nào đỏ.
           */}
-          <Button variant="secondary" size="sm" onClick={openSaveSheet}>
+          <Button size="sm" onClick={openSaveSheet}>
             {t('detail.saveToPortfolio')}
           </Button>
         </div>
@@ -1160,20 +1169,27 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
           `<div>` chứ không `<p>`: MathML là nội dung khối, nhét vào `<p>` là HTML sai cấu trúc.
         */}
-        <div
-          className={styles.formula}
-          // eslint-disable-next-line react/no-danger -- xem chú thích ngay trên
-          dangerouslySetInnerHTML={{ __html: latexHtml }}
-        />
         {/*
-          Bản dạng chữ GIỮ LẠI, không phải bản dự phòng: nó nói cùng công thức bằng tên đầy đủ
-          tiếng Việt ("Lợi nhuận sau thuế ÷ Vốn chủ sở hữu"), thứ mà ký hiệu viết tắt phía trên
-          không nói. Người mới đọc dòng này mới hiểu được ký hiệu kia. Tiện thể nó cũng là lối
-          đọc còn lại nếu trình duyệt quá cũ không dựng được MathML.
+          Hai vế nằm trong MỘT thẻ, ngăn nhau bằng một đường kẻ — bản thiết kế đợt 12. Trước đó
+          chúng là hai khung rời, đọc ra như hai thông tin khác nhau chứ không phải cùng một công
+          thức nói hai lần.
         */}
-        <p className={styles.expression}>
-          {spec.expression === undefined ? spec.latex : pick(spec.expression)}
-        </p>
+        <div className={styles.formulaCard}>
+          <div
+            className={styles.formula}
+            // eslint-disable-next-line react/no-danger -- xem chú thích ngay trên
+            dangerouslySetInnerHTML={{ __html: latexHtml }}
+          />
+          {/*
+            Bản dạng chữ GIỮ LẠI, không phải bản dự phòng: nó nói cùng công thức bằng tên đầy đủ
+            tiếng Việt ("Lợi nhuận sau thuế ÷ Vốn chủ sở hữu"), thứ mà ký hiệu viết tắt phía trên
+            không nói. Người mới đọc dòng này mới hiểu được ký hiệu kia. Tiện thể nó cũng là lối
+            đọc còn lại nếu trình duyệt quá cũ không dựng được MathML.
+          */}
+          <p className={styles.expression}>
+            {spec.expression === undefined ? spec.latex : pick(spec.expression)}
+          </p>
+        </div>
       </section>
 
       {/* ── 4. Số liệu — ô nhập sinh từ VariableSpec (FR-05) ──────────────── */}

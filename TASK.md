@@ -106,6 +106,12 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.4.1 | Lưu phép tính vào Danh mục — tab "Công thức"                 | —       | Xong phần code — xem mục "Lưu phép tính vào Danh mục"          |
 | —     | Mã dính theo lượt duyệt — nạp một lần, xem mọi công thức     | —       | Xong — xem mục "Mã dính theo lượt duyệt"                       |
 | 1.2.1 | Giao diện tối — bảng màu thứ hai + nút ở màn Cài đặt         | —       | Xong phần code — xem mục "Giao diện tối"                       |
+| 1.2.1 | Nâng cấp giao diện theo 5 ảnh thiết kế mới                   | —       | Xong phần code — xem mục "Nâng cấp giao diện theo bản vẽ mới"  |
+| 1.2.1 | Giao diện mobile + hoàn tác khi xoá + độ trễ                 | —       | Xong phần code — xem mục "Đợt 13"                              |
+| 4.x   | Mốc tham chiếu trên biểu đồ — 30 / 70 của RSI                | —       | Xong phần code — xem mục "Mốc tham chiếu trên biểu đồ"         |
+| 4.x   | Ba tín hiệu cho lối bấm-áp-dụng trên biểu đồ                 | —       | Xong phần code — xem mục "Ba tín hiệu cho lối…"                |
+| 4.x   | Mở biểu đồ cho nhiều chuỗi — nền cho SMA/Bollinger/MACD      | —       | Xong phần code — xem mục "Mở biểu đồ cho nhiều chuỗi"          |
+| 4.x   | SMA vẽ kèm đường giá đóng cửa — đợt nối đầu tiên             | —       | Xong phần code — xem mục "SMA vẽ kèm đường giá"                |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -113,6 +119,708 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## SMA vẽ kèm đường giá đóng cửa
+
+Trạng thái: **xong phần code**, nhánh `feat/sma-duong-gia` (chồng lên `feat/chart-nhieu-chuoi`
+đang chưa commit). Chưa commit — chờ chủ dự án rà.
+
+Đợt nối ĐẦU TIÊN của hạ tầng nhiều chuỗi: "Ý nghĩa" và "Cách đọc kết quả" của SMA đều nói về tương
+quan giá–SMA (giá nằm trên/dưới đường, giá cắt đường), nhưng biểu đồ một chuỗi không cho người đọc
+thấy điều vừa đọc. Nay trục thời gian vẽ hai đường: giá đóng cửa mảnh tông trung tính làm bối cảnh,
+SMA đậm màu nhấn làm đầu ra, legend `SMA 20 phiên` / `Giá đóng cửa`.
+
+### Chỗ nối nằm ở Domain, và là một KHAI BÁO chứ không phải if theo id
+
+- `FormulaSpec.priceOverlay?: PriceOverlaySpec` (`shortName` + `periodKey`) — cùng lẽ với
+  `referenceLines` ngay cạnh: tương quan với giá là kiến thức về CHỈ BÁO, không phải về cách vẽ.
+  Chỉ SMA khai; **danh sách công thức khai bị GHIM bằng ca kiểm** — cái mới thêm phải qua một lần
+  nhìn có chủ đích vì nó đổi hình của một trang đang chạy.
+- `closePriceSeries(ctx)` (history.ts) dựng chuỗi giá từ `ctx.bars`, cùng lưới x với
+  `historyPoints()` theo cấu tạo; phiên thiếu giá → `y: null`, đường đứt, không nội suy (FR-06).
+  Nét LIỀN 1.25 (không đứt): dấu hiệu thứ hai ngoài màu là ĐỘ DÀY + dải tô chỉ nằm dưới SMA — nét
+  đứt trên chuỗi vài trăm phiên dao động liên tục thì gạch lẫn vào biên độ, thêm nhiễu chứ không
+  thêm tín hiệu.
+- `buildChartModel()` chỉ dựng companion trong nhánh `onTime` — nhờ vậy ràng buộc "đổi trục sang
+  biến số thì đường giá ẩn" được cấu trúc bảo đảm, không cần cờ nào.
+- **Vá một chỗ hổng đợt trước để lại**: miền trục TRÁI vốn chỉ bám chuỗi chính, mà renderer không
+  cắt hình ngoài khung — giá thô dao động rộng hơn chính đường làm mượt nó nên chắc chắn vẽ tràn.
+  Nay miền trái ôm mọi chuỗi đọc trục trái; không overlay thì `yFull` LÀ `yExtent` (cùng giá trị,
+  không phải "tương đương") nên 100 biểu đồ một chuỗi giữ nguyên miền cũ.
+- Legend đọc `LineChart.primaryLabel?` (mới, vắng mặt khi không dùng) — `'SMA 20 phiên'` theo đúng
+  N đang nhập, kéo slider là legend đổi theo; cột bảng của chuỗi chính vẫn là `y.title` vì bảng
+  gọi tên ĐẠI LƯỢNG kèm đơn vị, legend gọi tên ĐƯỜNG.
+- Câu mô tả thêm `Vẽ kèm: Giá đóng cửa … tới …` — SVG mang `aria-hidden` nên đường không được nói
+  bằng chữ là đường không tồn tại với trình đọc màn hình; câu này cũng đi vào bản in và PNG.
+- Tầng vẽ: thêm `drawOrder` — chuỗi phụ vẽ trước, chuỗi CHÍNH vẽ SAU CÙNG để SMA nổi trên đường
+  giá; `lines` giữ thứ tự chính-trước cho legend. Một chuỗi thì hai mảng là một, DOM không đổi.
+
+### EMA và các MA khác dùng chung code — nói rõ
+
+`ema-n-phien`, hai công thức MACD, `khoang-cach-gia-so-sma`, `giao-cat-hai-duong-ma` cùng nằm trong
+`technical-trend.ts` và cùng chạy qua đúng pipeline `historyPoints()` → `buildChartModel()` →
+`LineChart`. Chúng KHÔNG đổi gì vì cổng bật là khai báo per-formula, và có ca kiểm chốt riêng cho
+EMA. Muốn EMA vẽ kèm giá thì chỉ cần khai `priceOverlay` — nhưng đó là quyết định của chủ dự án,
+ngoài phạm vi đợt này.
+
+### Rà soát đa-agent sau khi code xong — 1 lỗi thật + 4 lỗ hổng test
+
+Chạy một vòng rà ba góc (độ đúng · nếp dự án · lỗ hổng kiểm thử), mỗi phát hiện giao cho một agent
+khác **cố bác bỏ**. Kết quả đáng giá, đã vá hết:
+
+- **Lỗi thật — `closePriceSeries()` nhận giá ≤ 0 là giá thật.** Phép thử ban đầu chỉ là
+  `Number.isFinite`, trong khi `isBadPrice()` bên `price-series.ts` đã chốt "0 hoặc âm không phải
+  giá", và **cả hai đầu ống vào `calc` đều lọc `> 0`**. Bảng /du-lieu/ thì CẢNH BÁO dòng giá ≤ 0
+  mà vẫn lưu — nên một phiên gõ nhầm thành 0 sẽ cho hai đường mâu thuẫn nhau về cùng một phiên:
+  SMA đã bỏ phiên ấy khỏi phép tính, còn đường giá vẽ một cú sập sàn về 0 chưa hề xảy ra, và vì
+  miền trục trái ôm cả chuỗi phụ nên cú sập kéo dẹt cả hai đường. Vá bằng `&& close > 0`, kèm ca
+  kiểm cho cả 0 lẫn số âm.
+- **Doc-rot ×2 (nếp dự án).** Docblock `ChartArgs.overlays` vẫn dạy "đường giá dưới SMA nhận từ NƠI
+  GỌI" — tức chỉ người làm đợt Bollinger/MACD đi tính chuỗi ở `ChartBody`, nghĩa là nhét phép tính
+  tài chính vào tầng UI, ngược đúng khuôn mà đợt này vừa lập. Nay ghi rõ **hai lối** và khi nào
+  dùng lối nào. Docblock `ChartSeries` còn câu "chưa công thức nào dùng" — nay đã có SMA dùng thật,
+  nên sửa để người sau biết hợp đồng ấy đang có trang chạy trên nó.
+- **4 lỗ hổng kiểm thử** (2 nặng): bản **Phóng to** trên SMA không ca nào chạm — mà đó đúng là màn
+  người dùng mở ra để nhìn kỹ hai đường, và `ChartFullscreen` dựng `LineChart` thẳng nên legend đi
+  kèm chỉ vì cùng `model`, không có gì ghim; **bảng số** chỉ được ĐẾM ô chứ không kiểm giá trị ghép
+  đúng phiên, nên một refactor `condensePoints()` trả bản sao sẽ làm `indexOf` trả −1 và **toàn bộ
+  cột giá lặng lẽ thành "—"** mà test vẫn xanh; chuỗi giá **thủng** mới dừng ở unit, chưa đi qua
+  `buildChartModel()` lẫn renderer; **vệt dò** chưa có ca nào trên cấu hình hai chuỗi.
+- Hai "lỗ hổng" khác được chính vòng phản biện bác bỏ (thứ tự vẽ và miền trục trái **đã** có ca
+  chốt), một phát hiện câu chữ cũng bị bác bỏ nhưng chỉ ra một chỗ đáng nói thêm: `lines.slice(1)`
+  ở khối `<defs>` NGẦM dựa vào bất biến "phần tử đầu là chuỗi chính" — đã ghi vào comment.
+- Ca **vệt dò** được kiểm bằng phép thử đột biến: tạm cho snap bám chuỗi giá thì ca đỏ đúng như
+  mong đợi (`49.8112` ≠ `51.22456`), rồi khôi phục file.
+
+### Bằng chứng
+
+1. **1.944/1.944 ca xanh** (1.922 cũ + 22 mới), không sửa khẳng định cũ nào; typecheck, lint,
+   prettier sạch.
+2. Diff HTML tĩnh trước/sau build (chuẩn hoá nhiễu): **110/111 trang giống hệt DOM**;
+   `sma-n-phien` khác đúng MỘT chỗ — trường `priceOverlay` mới trong spec serialize vào RSC
+   payload (bắt buộc: client cần spec để dựng biểu đồ sau khi nạp mẫu). DOM render không đổi.
+3. **Nghiệm thu Chrome thật 14/14** trên bản build, đúng kịch bản chủ dự án nêu: nạp mẫu → hai
+   đường + legend `['SMA 20 phiên','Giá đóng cửa']`, đúng 1 gradient (chỉ tô dưới SMA), marker +
+   gạch chéo còn nguyên, bảng 3 cột, câu "Vẽ kèm"; đổi số phiên 20 → 50 → nét SMA đổi, nét giá
+   GIỐNG TỪNG KÝ TỰ, legend thành `SMA 50 phiên`; đổi trục sang Số phiên → đường giá ẩn, hết
+   legend, bảng về 2 cột; RSI vẫn 1 đường + 2 mốc tham chiếu.
+4. `verify:static` 25/25 · `check:chrome` 29/29.
+5. `npm run size`: đỏ SẴN từ trước (112 trang vượt cửa 180 kB — đã ghi ở đợt trước, chủ dự án chấp
+   nhận); so hai bản build thì con số y hệt (`/danh-muc/` 181,7 kB cả hai bên), đợt này thêm
+   ~0,1 kB vào gói chung do trường spec mới.
+
+### Ca kiểm mới
+
+- Domain (`chart.test.ts`, 12 ca): chuỗi phụ đúng hình dạng (muted, mảnh, không tô, trục trái,
+  không marker); **miền trục trái ôm cả đường giá** (kèm tiền đề giá thật sự vượt dải SMA);
+  legend, cột bảng và câu mô tả; slider đổi N → SMA đổi giá đứng yên; đổi trục → y hệt một chuỗi;
+  EMA không khai thì không mọc gì; phiên thiếu giá → `y null`; ghim `['sma-n-phien']` + khai báo
+  phải sống (vẽ được theo thời gian, `periodKey` là biến thật). Thêm sau vòng rà: **giá 0 / âm là
+  KHÔNG CÓ GIÁ** và không kéo trục về 0; chuỗi thủng đi hết đường tới mô hình (trục + câu mô tả
+  vẫn hữu hạn); **cột giá ghép ĐÚNG PHIÊN** — đối chiếu độc lập qua `condensePoints`, không lặp
+  lại `indexOf`; nhánh rơi-về-tên-ngắn khi khai báo không có `periodKey`.
+- UI (`charts.test.tsx`, 10 ca): hai đường + legend trên dữ liệu FPT thật; nét mảnh + đúng 1
+  gradient; **SMA vẽ sau nên nằm trên giá**; bảng 3 cột đủ ô từng dòng; slider → `d` của giá giữ
+  nguyên từng ký tự; đổi trục → về một chuỗi; marker/gạch chéo/bấm-áp-dụng vẫn theo chuỗi SMA
+  (bấm trên trục thời gian không ghi, đổi trục thì ghi `('period', số)`). Thêm sau vòng rà: **bản
+  Phóng to** đủ hai đường + legend + đúng thứ tự vẽ + hai `id` gradient khác nhau; **vệt dò bám
+  đường SMA** kể cả khi con trỏ sát đường giá (đã kiểm bằng đột biến); phiên thiếu giá → đường giá
+  **đứt thật ở tầng SVG** (đúng 2 lệnh `M`, không `NaN`).
+
+### Còn lại
+
+- [ ] Chủ dự án rà rồi commit — nhánh `feat/sma-duong-gia`.
+- [ ] Hai đợt nối tiếp: ba dải Bollinger, MACD + Signal — hai cái này cần chuỗi phụ TÍNH từ
+      `ctx` + inputs (không phải dữ liệu thô như giá), nên sẽ cần thêm một lối khai thứ hai bên
+      cạnh `priceOverlay`.
+
+---
+
+## Mở biểu đồ cho nhiều chuỗi
+
+Trạng thái: **xong phần code**, nhánh `feat/chart-nhieu-chuoi`. Chưa commit — chờ chủ dự án rà.
+Kế hoạch được duyệt trước khi code: `C:\Users\daoqu\.claude\plans\sau-y-l-m-n-lovely-pearl.md`.
+
+Ba công thức sắp tới cần chuỗi thứ hai mới có nghĩa — SMA phải nhìn cùng đường giá, Bollinger cần
+cả ba dải, MACD cần đường Signal. Đợt này CHỈ mở khả năng ở tầng mô hình và tầng vẽ; chưa công
+thức nào truyền chuỗi phụ, ba đợt sau mới nối vào.
+
+### Thiết kế: mô hình giữ chuỗi chính, tầng vẽ nhận DANH SÁCH
+
+- `ChartSeries` (khoá, nhãn, điểm, `unit`, `tone`, `dash`, `width`, `area`, `axis: left|right`) và
+  `LineChart.overlays?` + `LineChart.yRight?` — cả hai VẮNG MẶT hẳn khi không dùng, để bất biến
+  "một chuỗi thì mô hình y hệt trước" kiểm được bằng `toEqual`.
+- `model.points` GIỮ NGUYÊN làm chuỗi chính: nó là hợp đồng mà hàng chục ca kiểm neo vào, và chính
+  các ca ấy là bằng chứng "không đổi gì" — đổi tên nó là tự phá bằng chứng. Marker, bảng số,
+  bấm-áp-dụng, vùng gạch chéo đều tiếp tục đọc nó, không sửa một dòng.
+- `seriesOf()` (file mới `src/core/chart/series.ts`) là chỗ DUY NHẤT ghép `[chính, ...phụ]`; tầng
+  vẽ lặp trên kết quả, không đọc hai trường rời nhau. `usableOverlays()` LOẠI chuỗi lệch lưới x /
+  trùng khoá — bảng số ghép cột theo chỉ số nên chuỗi lệch lưới sẽ ghép sai hàng mà hình vẫn "có
+  vẻ được" (cùng lẽ FR-06).
+- **Tông thay cho màu tự do**: 4 tông (`primary`/`teal`/`violet`/`muted`) rót vào khe
+  `--series-ink` — không token màu mới, cả 4 đã có phép kiểm tương phản ở hai bảng. Bản đầu dùng
+  `color` + `currentColor` và `tokens.test.ts` bắt ngay (color thừa kế xuống chữ, mà accent-vivid
+  chỉ đạt 3:1) — khe riêng thì không có đường rò nào. Đã ghi lý do ở cả globals.css lẫn
+  chart.module.css.
+- Trục Y phải: `buildAxis()` dùng lại nguyên xi; lề phải chỉ nới (10 → 40) khi `yRight` có mặt,
+  `CHART_GEOMETRY.PLOT` giữ nguyên nghĩa cũ. Legend chỉ dựng khi ≥ 2 chuỗi, đặt trong `LineChart`
+  nên bản phóng to có nó miễn phí; mỗi mục mang MẪU NÉT thật + mũi tên ←/→ chỉ trục khi có hai trục.
+- Bảng số: `columns` thành tuple mở `[Bilingual, ...Bilingual[]]` — chỉ mục `[0]`/`[1]` giữ đúng
+  kiểu nên các khẳng định cũ không đổi; `condensePoints()` không sửa.
+
+### Bằng chứng "không đổi gì" — mạnh hơn cả bộ test
+
+1. **1.922/1.922 ca xanh**, không sửa khẳng định nào ngoài một `?.` do kiểu tuple mở bắt buộc.
+2. **Diff HTML tĩnh trước/sau build**: chụp `out/` TRƯỚC khi sửa làm mốc, build lại, chuẩn hoá
+   nhiễu build (buildId, hash, số hiệu chunk nạp trễ) — **111/111 trang giống hệt DOM**. Khác duy
+   nhất: số hiệu chunk biểu đồ, vì nội dung chunk đó đổi là chủ đích của cả đợt.
+3. **Vân tay lúc chạy thật**: dựng cả hai bản build lên hai cổng, Chrome thật đọc `innerHTML` của
+   `<figure>` ở `pe`, `lai-lo-vi-the-long`, và `rsi-wilder` SAU khi nạp mẫu FPT — cả ba
+   **giống hệt từng byte**.
+4. `verify:static` 25/25 · `check:chrome` 29/29 · chunk biểu đồ (nạp trễ) 31,4 → 35,2 kB thô,
+   First Load JS không đổi.
+
+### Ca kiểm mới
+
+- Domain (`chart.test.ts`, 7 ca): không truyền gì thì không mọc trường; nhận chuỗi cùng lưới +
+  thêm cột; **loại chuỗi lệch lưới và trục KHÔNG giãn**; trùng khoá giữ cái đầu; trục phải bám
+  miền của chính nó, trục trái không bị kéo; không xin thì không có trục phải; `seriesOf()` luôn
+  đặt chuỗi chính ở đầu.
+- UI (`charts.test.tsx`, 6 ca): ví dụ tối thiểu hai chuỗi lệch thang (giá ~20.000 ₫ trục trái, RSI
+  0–100 trục phải) — hai đường, hai trục có tên đơn vị riêng ở hai phía, legend hai mục kèm mẫu
+  nét, nét đứt là nét đứt thật; và cửa gác một-chuỗi: không legend, một đường, bảng hai cột, khung
+  vẽ không bị bóp.
+
+### Còn lại
+
+- [ ] Chủ dự án rà rồi commit — nhánh `feat/chart-nhieu-chuoi`.
+- [ ] Ba đợt nối tiếp: SMA + đường giá, ba dải Bollinger, MACD + Signal — mỗi cái chỉ còn là dựng
+      mảng `ChartArgs.overlays` từ `ctx` ở chỗ gọi `buildChartModel()`.
+
+---
+
+## Ba tín hiệu cho lối "bấm vào biểu đồ để áp dụng giá trị"
+
+Trạng thái: **xong phần code**, nhánh `feat/chart-goi-y-bam`. Chưa commit — chờ chủ dự án rà.
+
+Chủ dự án nêu: tính năng bấm-áp-dụng chạy đúng nhưng gần như không ai tìm ra, vì dấu hiệu **duy
+nhất** là một câu chỉ hiện lúc tính năng KHÔNG dùng được ("trục đang là thời gian nên bấm không ghi
+được gì…"). Người dùng làm đúng theo lời khuyên đó, đổi trục, rồi câu ấy biến mất và màn hình im
+lặng hoàn toàn.
+
+### Đọc code trước: hai trong ba việc đã có sẵn một nửa
+
+- **Vạch dò dọc bám con trỏ kèm giá trị x đã tồn tại từ trước** (`.hoverLine` / `.hoverDot` /
+  `.hoverLabel` trong `LineChart.tsx`), chạy ở cả hai trạng thái trục. Không dựng lại. Nhưng nó có
+  một khiếm khuyết thật, đúng thứ ràng buộc của yêu cầu nói tới — xem mục "Dấu bị che" dưới đây.
+- **Con trỏ đã là `crosshair`, nhưng ở MỌI trạng thái** — kể cả trên trục thời gian nơi bấm không
+  làm gì. Tức dấu hiệu duy nhất mà con trỏ đưa ra là một dấu hiệu sai.
+
+### File sửa
+
+| File                                | Sửa gì                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------- |
+| `src/ui/charts/ApplyHint.tsx`       | **File mới** — dòng gợi ý hai trạng thái, dùng chung cho hai chỗ dựng     |
+| `src/ui/charts/ChartBody.tsx`       | `showApplyHint: boolean` → `applyHint: 'ready' \| 'switch' \| null`       |
+| `src/ui/charts/ChartFullscreen.tsx` | nhận cùng prop, dựng cùng component                                       |
+| `src/ui/charts/LineChart.tsx`       | lớp con trỏ theo trạng thái; dời dấu "giá trị hiện tại" xuống sau vạch dò |
+| `src/ui/charts/chart.module.css`    | `.hoverCaptureReady` · `.applyHintReady` · `.marker`                      |
+| `src/application/i18n/*`            | thêm `chart.applyHintReady`                                               |
+| `src/ui/charts/charts.test.tsx`     | 6 ca mới                                                                  |
+
+### Ba quyết định đáng ghi
+
+**1. Gợi ý là BA trạng thái, không phải một cờ bật/tắt.** `'ready'` (trục là biến thật → nói thẳng
+là bấm được) · `'switch'` (đang ở trục thời gian nhưng đổi sang được → chỉ đường như cũ) · `null`
+(tính năng không bật ở màn này). Tính một lần ở `ChartBody` rồi truyền cả hai bản, để câu trả lời
+cho "khi nào nói gì" chỉ sống ở một chỗ.
+
+Câu khẳng định dùng **màu nhấn + icon bàn tay**, câu kia giữ màu chữ phụ: một bên là lời mời, một
+bên là lời xin lỗi, cùng sắc xám thì hai câu đọc như nhau. `--color-accent` trên `--color-surface`
+chính là cặp của mọi liên kết trong sản phẩm nên đã có sẵn phép kiểm tương phản — không đẻ token mới.
+Icon là dấu hiệu thứ hai, không để màu gánh một mình (NFR-USA-06).
+
+**2. Con trỏ nói ra trạng thái.** `pointer` khi bấm ghi được giá trị, `crosshair` khi chỉ dò đọc.
+Hai luật nằm cùng một file CSS Module nên thắng nhờ thứ tự một cách chắc chắn — khác hẳn cái bẫy
+hai-file-cùng-độ-ưu-tiên đã ghi ở nút xoá màn Cài đặt.
+
+**3. Dấu bị che — sửa bằng thứ tự thẻ, không bằng z-index.** Vạch dò vốn vẽ SAU dấu "giá trị hiện
+tại", nên chấm rỗng của nó đè lên chấm đặc của dấu mỗi lần con trỏ quét ngang qua — tức người dùng
+mất chỗ neo đúng lúc đang so "giá trị hiện tại" với điểm sắp bấm. SVG xếp lớp theo thứ tự thẻ, không
+có `z-index`, nên cách sửa là dời nhóm dấu xuống sau vạch dò. Đổi lại phải thêm `pointer-events: none`
+cho nhóm ấy: nó nay nằm trên vùng bắt sự kiện, thiếu dòng đó thì rê chuột ngang qua chính cái dấu
+là vạch dò tắt ngóm.
+
+**4. Dòng chữ tuyệt đối không bọc trong `@media (hover: hover)`.** Máy cảm ứng không có hover nhưng
+vẫn chạm được, nên dòng chữ là nơi DUY NHẤT người dùng điện thoại biết tới tính năng. Con trỏ và
+vạch dò mới là phần chỉ có ở máy có chuột. Có ca kiểm chốt: dòng chữ phải có mặt ngay khi dựng, không
+đợi một sự kiện con trỏ nào.
+
+### Nghiệm thu trên Chrome thật (`/cong-thuc/rsi-wilder/`, nạp mẫu FPT)
+
+| Bước                  | Đo được                                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| Trục "Theo thời gian" | `cursor: crosshair` · vẫn đúng câu cũ                                                          |
+| Đổi sang "Số phiên"   | `cursor: pointer` · "Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập." · màu `rgb(29,78,216)` |
+| Rê chuột vào vùng vẽ  | vạch dò hiện, chữ "19 phiên · 53,86 điểm" · dấu nằm SAU vạch dò · `pointer-events: none`       |
+| Bấm                   | ô "Số phiên" **và** thanh trượt cùng nhảy 14 → **19**                                          |
+
+6 ca kiểm mới ở `charts.test.tsx`, gồm ca chốt thứ tự tài liệu bằng `compareDocumentPosition` và ca
+mô phỏng máy cảm ứng (không bắn pointer event nào, dòng chữ vẫn phải có).
+
+### Còn lại
+
+- [ ] Chủ dự án rà rồi commit — nhánh `feat/chart-goi-y-bam`.
+- [ ] Soi tay bảng TỐI: đã chụp nhưng chưa đối chiếu kỹ màu `--color-accent` của dòng gợi ý trên
+      nền thẻ tối.
+
+### Ghi nhận ngoài lề: bộ test đang sát trần thời gian trên máy này
+
+Chạy `npm test` đủ bộ **6 lần** thì có **3 lần đỏ một ca**, và mỗi lần một ca KHÁC nhau —
+`FormulaDetail.test.tsx > không còn khung chờ`, `ExampleBlock.test.tsx > mọi công thức đều dựng đủ
+ô gõ được`, `PortfolioScreen.test.tsx > đủ trần số mã`. Cả ba đều xanh khi chạy riêng file, và cả
+ba đều là ca nặng (quét 111 công thức, hoặc chờ chunk `next/dynamic`) chạm trần 5 giây của vitest
+khi cả bộ đang tải nặng. **Không liên quan tới đợt này** — `ExampleBlock.test.tsx` thậm chí không
+import một dòng nào của thư mục biểu đồ. Đáng nâng `testTimeout` hoặc tách file nặng ra, nhưng đó
+là việc riêng.
+
+---
+
+## Mốc tham chiếu trên biểu đồ
+
+Trạng thái: **xong phần code**, nhánh `feat/chart-moc-tham-chieu`. `lint` · `typecheck` ·
+`format:check` sạch, **1.902/1.902 ca xanh**. Chưa commit — chờ chủ dự án rà.
+
+Chủ dự án nêu: trang `rsi-wilder` có đoạn "Cách đọc kết quả" nói 30 là quá bán và 70 là quá mua,
+nhưng biểu đồ ngay trên đó không vẽ hai mốc ấy — người đọc phải tự ước lượng vị trí trên trục Y.
+
+### Thiết kế: metadata của CÔNG THỨC, không phải mã trong renderer
+
+`ReferenceLine` khai ở `src/core/registry/types.ts`, cùng chỗ với `BreakdownStage`, và
+`FormulaSpec.referenceLines` là mảng tuỳ chọn. Ngưỡng là kiến thức về CHỈ BÁO chứ không phải về
+cách vẽ: Stochastic %K có 20/80, %B có 0/1. Viết `if (id === 'rsi-wilder')` vào renderer là buộc
+mỗi chỉ báo mới phải sửa tầng vẽ.
+
+| File                                   | Sửa gì                                                              |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `src/core/registry/types.ts`           | `ReferenceLine` + `FormulaSpec.referenceLines`                      |
+| `src/core/chart/types.ts`              | `LineChart.referenceLines` — chỉ những mốc CÒN NẰM TRONG `y.domain` |
+| `src/core/chart/build.ts`              | lọc theo miền Y, và thêm một câu vào `summary`                      |
+| `src/core/chart/index.ts`              | mở lại kiểu `ReferenceLine`                                         |
+| `src/application/index.ts`             | thêm `ReferenceLine` vào barrel                                     |
+| `src/ui/charts/LineChart.tsx`          | `labelYFor()` + nhóm `<g data-ref-value>` vẽ sau hai trục           |
+| `src/ui/charts/chart.module.css`       | `.refRule` · `.refLabel`                                            |
+| `src/ui/tokens.test.ts`                | thêm `refLabel` vào `SVG_TEXT_CLASSES` (siết, không nới)            |
+| `src/core/formulas/technical-trend.ts` | RSI khai 30 "Quá bán" · 70 "Quá mua"                                |
+
+### Bốn quyết định đáng ghi
+
+1. **Lọc ở DOMAIN, không ở renderer.** `build.ts` bỏ mốc ngoài `y.domain` trước khi gắn vào mô
+   hình, nên `LineChart` chỉ việc chiếu toạ độ — đúng lời hứa ở đầu `chart/types.ts` là tầng vẽ
+   không tính gì. Hỏi lại lần hai ở renderer là dựng nguồn sự thật thứ hai cho cùng một câu hỏi.
+2. **Ngoài khung thì ẨN, tuyệt đối không nới trục.** Đổi "Xem kết quả đổi theo" sang "Số phiên"
+   thì trục Y thu về 52–54,5 điểm; kéo nó ra 30–70 để hai mốc có chỗ đứng là dẹt đường 15 mức
+   thành một vạch ngang — mất đúng thứ người dùng vừa đổi trục để xem. Có ca kiểm chốt cả hai vế:
+   mốc biến mất VÀ `y.domain` không đổi.
+3. **Vắng mặt hẳn khi không có mốc nào**, không phải mảng rỗng — để bất biến "công thức không khai
+   thì mô hình y hệt như trước" kiểm được bằng `toEqual`.
+4. **Câu mô tả cũng phải nói ra hai mốc.** `<svg>` mang `aria-hidden`, nên với trình đọc màn hình
+   hai đường kẻ không tồn tại — bỏ qua chỗ này là làm đúng cái việc tính năng sinh ra để sửa, chỉ
+   khác đối tượng. Câu ấy cũng đi thẳng vào bản in PDF và tấm PNG.
+
+### Phần vẽ
+
+Nhóm `<g>` đặt **sau hai trục, trước vùng tô và đường quét** — SVG xếp lớp theo thứ tự thẻ, nên
+đây là chỗ duy nhất mốc nằm dưới đường dữ liệu. Màu `--color-muted` cho cả nét lẫn chữ: xanh rực
+đang là đường dữ liệu, cam đang là dấu "giá trị hiện tại", và mốc tham chiếu là thứ đứng yên.
+Cặp `--color-muted` / `--color-surface` không phải màu mới — `.tick` và `.axisTitle` đã dùng đúng
+nó, nên nó đã nằm sẵn trong bộ kiểm tương phản của **cả hai** bảng màu.
+
+Nét đứt 4-3, thưa hơn `.markerLine` (3-3) và `.hoverLine` (2-2): ba loại đường đứt trên một hình
+320×200 thì mật độ gạch là thứ phân biệt chúng khi ảnh chuyển sang xám (NFR-USA-06). Nhãn bám mép
+TRÁI vì trên trục thời gian dấu "giá trị hiện tại" luôn rơi vào phiên cuối nên nhãn của nó neo bên
+phải; nhãn có quầng nền cho những lần đường quét đi ngang qua, và tự lật xuống dưới đường khi mốc
+sát mép trên.
+
+### Kiểm chứng trên Chrome thật (dev server, 390px, cả hai bảng màu)
+
+| Bước                        | Kết quả                                                                     |
+| --------------------------- | --------------------------------------------------------------------------- |
+| Nạp mẫu FPT, trục thời gian | Y chạy 19,48–84,94 điểm · hiện đủ `30` và `70`, nhãn "Quá bán" / "Quá mua"  |
+| Đổi sang "Số phiên"         | Y thu về 52–54,5 · **cả hai mốc tự ẩn**, vạch trục vẫn 52 / 53 / 54 / 54,5  |
+| Mở "Phóng to"               | Trong `<dialog>` có đủ `30` và `70`; cả trang đếm được 4 mốc (hai bản hình) |
+| Bảng tối                    | Nét và nhãn đọc rõ trên nền `--color-surface` tối                           |
+
+Ca kiểm mới: **11 ca** ở `src/core/chart/chart.test.ts` (gồm một ca quét cả Registry: không công
+thức nào, không trục nào, nhả ra mốc ngoài miền Y) và **5 ca** ở `src/ui/charts/charts.test.tsx`
+(gồm ca chốt thứ tự tài liệu bằng `compareDocumentPosition`, vì SVG không có `z-index`).
+
+### Còn lại
+
+- [ ] Chủ dự án rà rồi commit — nhánh `feat/chart-moc-tham-chieu`.
+- [ ] `npm run build` → `verify:static` → `size` → `check:chrome`: vẫn vướng dev server ở cổng 3000.
+- [ ] Có mở mốc cho các oscillator khác không (Stochastic %K 20/80, %B 0/1) — chưa khai, chờ chốt.
+
+---
+
+## Đợt 13 — giao diện mobile, hoàn tác khi xoá, và độ trễ
+
+Trạng thái: **xong phần code, 4/4 mảng**. `npm run lint` · `typecheck` · `format:check` sạch;
+**1.885/1.885 ca xanh**. Còn bốn lệnh cần bản build (`build`, `verify:static`, `size`,
+`check:chrome`) — cổng 3000 vẫn có dev server (PID 5944) nên chưa chạy được.
+
+Chủ dự án đưa 2 ảnh thiết kế MOBILE (màn danh sách công thức, màn chi tiết) và nêu thêm hai việc:
+nút xoá ở Cài đặt không cho phản hồi thấy được, và giao diện bị trễ.
+
+### Việc phải làm
+
+- **A. Màn danh sách mobile** — thẻ dạng hàng phải có icon nhóm + badge nhóm màu (nay chỉ là chữ
+  xám); khối "N công thức nâng cao đang ẩn" phải có icon ổ khoá và tách hai dòng. **Xong.**
+- **B. Màn chi tiết mobile** — nút cam "Lưu vào danh mục" xuống hàng riêng ở khổ hẹp; ô nhập viền
+  màu nhấn thay vì viền xám. **Xong.**
+- **C. Cài đặt** — thanh HOÀN TÁC có đếm ngược 5 giây sau khi xoá một kho dữ liệu. **Xong.**
+- **D. Độ trễ** — xem số đo ngay dưới. **Xong phần rẻ và chắc chắn**; ba việc đắt còn chờ duyệt.
+
+### A — màn danh sách mobile
+
+| File                                           | Sửa gì                                                                             |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `src/ui/browse/FormulaCard.tsx`                | nhánh `row`: thêm `toneClass()` lên thẻ + `.rowIcon` chứa `CategoryIcon`           |
+| `src/ui/browse/FormulaCard.module.css`         | `.rowIcon` 32px; `.category` từ chữ xám thành badge tông; `.card:hover` bỏ đổi nền |
+| `src/ui/browse/HiddenByLevelNote.tsx` + `.css` | ổ khoá + tách hai dòng (câu đậm ở trên, nút ở dưới)                                |
+| `src/ui/browse/FormulaCard.test.tsx`           | siết ca cũ (đếm đúng 2 SVG) + 1 ca mới: thẻ phải mang lớp tông                     |
+| `src/ui/browse/HiddenByLevelNote.test.tsx`     | 1 ca mới: ổ khoá có mặt và không mang theo chữ nào                                 |
+
+Hai bẫy đã né, cả hai đều lặng lẽ nếu vấp:
+
+- **Badge nhóm giữ `category.name` đầy đủ**, không đổi sang `shortName` như ô vuông của trang chủ.
+  Hàng ngang đủ chỗ, và `FormulaCard.test.tsx` đang cố ý chốt hai nhánh khác nhau ở đúng điểm này.
+- **`.card:hover` bỏ `background: accent-soft`**, đổi sang viền + bóng — y hệt lý do đã ghi ở
+  `.tile:hover` từ đợt 12: icon và badge nay lấy `--category-soft` làm nền của chúng, nên tô cả
+  thẻ cùng họ màu là hai thứ ấy chìm mất đúng lúc con trỏ đang ở trên.
+
+### B — màn chi tiết mobile
+
+| File                                              | Sửa gì                                                     |
+| ------------------------------------------------- | ---------------------------------------------------------- |
+| `src/app/cong-thuc/[id]/FormulaDetail.module.css` | `.actionsHead > :last-child { flex: 1 1 100% }` dưới 600px |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`        | hàng nút đầu màn nhận thêm lớp `.actionsHead`              |
+| `src/ui/primitives/Input.module.css`              | `.control` viền `--color-border-strong` → `--color-accent` |
+| `src/ui/primitives/Select.module.css`             | `.select` đi theo, vì hai loại ô hay đứng cạnh nhau        |
+
+- `.actions` dùng ở **hai** chỗ trong `FormulaDetail` (dòng ~1027 và ~1264); lớp `.actionsHead`
+  tồn tại để chỉ chạm chỗ đầu. Không nhắm bằng lớp rời truyền qua `className` của `Button`: lớp
+  ấy có độ ưu tiên 0,1,0 đúng bằng `.button` của primitive nên thắng/thua phụ thuộc thứ tự file
+  CSS trong gói. `:last-child` là 0,2,0, thắng chắc.
+- Ba trạng thái WF-16 vẫn phân biệt được sau khi viền nghỉ đổi màu, vì chúng đổi cả **kiểu nét**
+  chứ không chỉ đổi màu (đỏ liền · vàng đứt · nền chìm đứt) — NFR-USA-06.
+
+### C — thanh hoàn tác ở Cài đặt
+
+**Trả lời dứt khoát câu "xoá rồi thì nên biến mất khỏi đó chứ": KHÔNG ẩn dòng.** Ba ca ở
+`SettingsScreen.test.tsx` dựng màn với `localStorage` rỗng rồi đòi thấy đủ tám khoá — trong đó có
+cửa gác **đã thủng hai lần thật** (`ffb.tickers.v1`, `ffb.prices.v1` ghi vào máy người dùng mà
+không có nút xoá nào). Ngoài chuyện test, danh sách tám dòng là một **bản kiểm kê** "app này lưu
+gì trên máy bạn": dòng mất đi đọc thành "kho này không tồn tại", khác hẳn "kho này đang rỗng".
+
+Nên làm đúng vế hai của yêu cầu — thanh hoàn tác có đếm ngược 5 giây.
+
+| File                                        | Sửa gì                                                                      |
+| ------------------------------------------- | --------------------------------------------------------------------------- |
+| `src/app/cai-dat/SettingsScreen.tsx`        | `remove()` đọc chuỗi thô trước khi xoá; state `undo` + `secondsLeft`; thanh |
+| `src/app/cai-dat/SettingsScreen.module.css` | `.undoSlot` (ẩn khi rỗng) + `.undoBar` nền `--color-highlight-soft`         |
+| `src/ui/primitives/Button.tsx`              | khai thêm prop `ref` (React 19 không cần `forwardRef`)                      |
+| `src/application/i18n/vi.ts` + `en.ts`      | 4 khoá: `data.removed` · `data.undo` · `data.undoIn` · `data.seconds`       |
+| `src/app/cai-dat/SettingsScreen.test.tsx`   | 4 ca mới, **không sửa ca cũ nào**                                           |
+
+Năm quyết định đáng ghi:
+
+1. **Xoá THẬT ngay, giữ bản sao trong state.** Không hoãn xoá 5 giây: `localStorage` là thứ mọi
+   màn khác đọc thẳng, nên "đã xoá trên màn nhưng còn trên đĩa" là hai nguồn sự thật lệch nhau
+   trong đúng 5 giây đó. Ca `:187-209` cũng chốt điều này — nó đọc `localStorage` ngay sau cú bấm.
+2. **Chỉ cho xoá TỪNG dòng.** "Xoá toàn bộ" đã hỏi lại bằng `confirm()` rồi `location.reload()`,
+   mà reload giết sạch state React. Nhờ vậy câu `data.clearConfirm` ("không hoàn tác được") vẫn
+   đúng nguyên văn, không phải sửa.
+3. **Vùng `role="status"` luôn có mặt**, rỗng khi chưa xoá gì — sinh vùng live cùng lúc với nội
+   dung thì trình đọc màn hình không đọc lên. Đây là vùng live đầu tiên của màn Cài đặt.
+4. **Đưa tiêu điểm sang nút Hoàn tác.** Nút vừa bấm thành `disabled` ngay trong cùng nhịp dựng
+   lại, và trình duyệt bỏ tiêu điểm khỏi nút bị vô hiệu hoá — người dùng bàn phím rơi về `<body>`.
+   Đây là nửa còn lại của "không thấy gì thay đổi", nửa mà mắt không thấy.
+5. **`setInterval` đầu tiên của repo.** Dọn trong cleanup, và tách "hết giờ thì đóng thanh" ra
+   effect riêng thay vì gọi `setUndo(null)` bên trong hàm cập nhật của `setSecondsLeft` — React
+   được phép chạy hàm cập nhật hai lần (StrictMode).
+
+Đã kiểm trên Chrome thật ở 360px, cả hai bảng màu: bấm xoá → thanh hiện "Đã xoá Từ khoá đã tìm ·
+còn 4 giây", `document.activeElement` là nút Hoàn tác, `localStorage` đã sạch, và dòng tương ứng
+đổi sang "chưa lưu gì" với nút thùng rác mờ đi.
+
+### D — độ trễ: làm phần rẻ và chắc chắn, để lại phần đắt
+
+**Câu hỏi bỏ ngỏ ở lượt khảo sát đã có trả lời: ngưỡng 1000 là CỐ Ý, không phải sót.**
+`src/core/virtual-window.test.ts:39-49` ghi rõ — ngưỡng từng là 40, đo lại thì ảo hoá làm việc
+cuộn **tệ đi** ở cỡ này (27,7 ms mỗi khung so với 10,0 ms khi dựng thẳng), nên nâng lên 1000 và
+chốt bằng một ca kiểm để không ai hạ nó bằng một lần sửa hằng số. **Không hạ.** Thay vào đó đã
+sửa hai docblock nói ngược sự thật (`VirtualList.tsx` và `FormulaBrowser.tsx` vẫn viết "dưới 40
+mục").
+
+| Việc                                                | File                                             | Kết quả                          |
+| --------------------------------------------------- | ------------------------------------------------ | -------------------------------- |
+| **D-1** chỉ mục từ khoá `WeakMap` cho `fieldsOf()`  | `src/core/registry/search.ts`                    | **1,618 → 0,103 ms** mỗi phím    |
+| **D-2** `content-visibility` cho bản tĩnh danh sách | `src/app/cong-thuc/StaticFormulaList.module.css` | bỏ dựng hình phần ngoài tầm nhìn |
+
+**D-1 — số đo tự chạy trên máy này**, `selectFormulas()` trên đủ 111 công thức, 8 phím × 200 lượt,
+so bằng `git stash` để chắc chắn chỉ khác đúng một thay đổi: **1,618 ms → 0,103 ms mỗi phím
+(nhanh 15,7 lần)**. Màn danh sách chạy **bốn** lượt như vậy mỗi phím (`selectFormulas` + hai bộ
+đếm + `countHiddenByLevel`), nên thực tế là ~6,5 ms → ~0,4 ms.
+
+Điều kiện sống còn của nó: **không ai được sao chép `FormulaSummary`** — `WeakMap` khoá theo tham
+chiếu object. Đã kiểm cả `src/core/registry` và `src/application`: chỗ duy nhất có spread là
+`[...formulas]`, sao chép MẢNG chứ không sao chép phần tử. Và đã thêm hẳn 3 ca kiểm gác điều kiện
+ấy (`selectFormulas` / `formulasForLevel` / `searchFormulas` phải trả về đúng object đã truyền
+vào), vì đây là kiểu hỏng không ca nào khác thấy được: kết quả tìm kiếm vẫn đúng từng chữ, chỉ
+mất hết phần nhanh.
+
+**D-2** — `content-visibility: auto` đã có ở `VirtualList.module.css` nhưng thiếu ở bản tĩnh, mà
+bản tĩnh mới là thứ trình duyệt dựng TRƯỚC (nó là fallback của Suspense, có sẵn trong HTML). Đã
+kiểm hai cửa gác đếm "đúng năm khối hoãn dựng hình": cả hai đếm trên **màn chi tiết**
+(`chrome-check.mjs` lọc `section, table`; `FormulaDetail.test.tsx` lọc lớp `deferred` bên trong
+`FormulaDetail`), nên một `<li>` ở màn danh sách không lọt vào phép đếm nào.
+
+**Ba việc đắt CHƯA làm, cần chủ dự án chốt** — mỗi việc là một đợt riêng có phạm vi rõ:
+
+- Cắt `spec.tests` khỏi gói máy khách: **−12,2 kB nén × 111 trang**, nhưng chạm quy ước "spec và
+  calc nằm chung một object".
+- Chỉ nạp spec "gầy" cho 110 công thức không phải công thức đang xem: **−93,4 kB nén**, đưa trang
+  chi tiết từ ~328 kB xuống ~235 kB. Rủi ro cao.
+- Đo lại độ trễ **có hãm mạng** trên bản build. Chẩn đoán cũ đo trên `localhost` nên về bản chất
+  không nhìn thấy được chi phí tải file, và `npm run size` đang đỏ sẵn (chủ dự án đã chọn "chấp
+  nhận CI đỏ trung thực") nên phải đọc **delta**, không đọc pass/fail.
+
+### Ba con số lạc hậu đã sửa nhân thể
+
+- `scripts/verify-static.mjs` — chú thích ghi "29 công thức mức nâng cao"; đếm thật trong
+  `summaries.generated.ts` là **32** (79 cơ bản + 32 nâng cao = 111). Chỉ là chú thích, không phải
+  khẳng định, nên không ai đỏ.
+- `src/ui/browse/VirtualList.tsx` và `src/app/cong-thuc/FormulaBrowser.tsx` — cả hai vẫn viết
+  "dưới 40 mục thì dựng thẳng", trong khi ngưỡng là 1000 và nhánh ảo hoá **không chạy** ở sản
+  phẩm này. Nay ghi thẳng sự thật đó, kèm lý do và trỏ sang ca kiểm chốt nó.
+- `CLAUDE.md` — `check:chrome` ghi 18 khẳng định, đếm thật là **28**.
+
+### Số đo thật, lấy qua CDP trên dev server (Chrome riêng, CPU 4×)
+
+**Cảnh báo khi đọc:** đây là DEV server (React dev build, không minify, compile theo yêu cầu), nên
+mọi con số tuyệt đối đều tệ hơn bản build. Thứ đáng tin là so sánh tương đối và số node DOM.
+
+| Phép đo                       | Kết quả                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| Chuyển trang (trung vị 5 lần) | 226 ms từ trang chủ · 257 ms từ danh sách                                             |
+| Gõ một phím ở ô Số liệu       | 33 ms (trung vị 12 phím)                                                              |
+| Long task lúc nạp             | 175 ms ở trang chi tiết · 142 ms ở trang chủ                                          |
+| `domInteractive`              | `/` 251 ms · **`/cong-thuc/` 790 ms** · `/cong-thuc/pe/` 150 ms · `/danh-muc/` 136 ms |
+
+**Profile CPU nói ngược với kỳ vọng:** top self-time gần như toàn bộ là chi phí React dev build và
+Next devtools, không phải mã dự án. Lúc gõ phím: 596 ms ở `jsxDEV`, chỉ **26 ms** ở `FormulaDetail`.
+Nghĩa là phần lớn "độ trễ" đang nhìn thấy trên dev sẽ biến mất ở bản build — **phải đo lại trên
+`npm run build` trước khi kết luận**.
+
+**Số node DOM — tín hiệu THẬT, không đổi giữa dev và prod:**
+
+| Màn                      | Node      | `<li>` |
+| ------------------------ | --------- | ------ |
+| `/cong-thuc/` (Cơ bản)   | **1.405** | 87     |
+| `/cong-thuc/` (Nâng cao) | **1.722** | 119    |
+| `/`                      | 518       | 39     |
+| `/cong-thuc/pe/`         | 361       | 10     |
+| `/danh-muc/`             | 189       | 8      |
+| `/cai-dat/`              | 251       | 16     |
+
+### Phát hiện chính — ảo hoá danh sách CHƯA TỪNG chạy
+
+`src/core/virtual-window.ts:27` đặt `VIRTUALIZE_THRESHOLD = 1000`, trong khi danh sách dài nhất của
+sản phẩm là **111** công thức. `shouldVirtualize(79)` và `shouldVirtualize(111)` đều trả `false`,
+nên `VirtualList` luôn rơi vào nhánh `if (!virtual)` và dựng thẳng cả danh sách.
+
+Đã xác nhận trên trình duyệt thật, không phải suy đoán: ở `/cong-thuc/` sau khi hydrate xong (ô tìm
+và chip lọc đều có mặt), `document.querySelectorAll('[aria-setsize]').length === 0` và không có khối
+đệm `li[aria-hidden]` nào — hai thứ mà nhánh ảo hoá LUÔN dựng. Cuộn 4.000px, số node vẫn y nguyên
+1.405.
+
+Đây là lý do `/cong-thuc/` có `domInteractive` cao gấp 3–5 lần mọi màn khác. Cả cỗ máy ảo hoá —
+`windowRange()`, đo chiều cao từng dòng, hai khối đệm, cùng docblock dài kể lại hai lần sửa sai
+trước — đang nằm không.
+
+Chưa rõ ngưỡng 1000 là cố ý hay là con số tạm còn sót; phải đọc lịch sử gói 3.1.2 trước khi hạ.
+
+### Còn lại
+
+- [ ] `npm run build` → `verify:static` → `size` → `check:chrome`. Cần chủ dự án tắt dev server ở
+      cổng 3000 (PID 5944) trước; `scripts/check-no-dev.mjs` từ chối build khi cổng còn bị giữ.
+- [ ] Ba việc đắt của mảng D nêu ở trên — chờ chốt có mở hay không.
+- [ ] Soi tay bản in (Ctrl+P) và bản xuất PNG sau khi ô nhập đổi màu viền. Cả hai vốn ghim màu
+      riêng nên **không được** đổi theo, nhưng chưa mở ra nhìn.
+
+---
+
+## Nâng cấp giao diện theo bản vẽ mới
+
+Trạng thái: **xong phần code, 8/8 đợt**. `npm run check` xanh trọn — **1.873/1.873 ca**.
+Còn bốn lệnh cần bản build (`build`, `verify:static`, `size`, `check:chrome`): cổng 3000 đang có
+dev server nên chưa chạy được, và 5 việc soi tay ở cuối mục này.
+
+Chủ dự án đưa 5 ảnh thiết kế (bản tối) cho Trang chủ, Chi tiết công thức, Biểu đồ, Danh mục,
+Cài đặt. Kế hoạch đầy đủ: `C:\Users\daoqu\.claude\plans\sau-y-l-m-n-lovely-pearl.md`.
+
+### Bốn quyết định chốt trước khi làm
+
+1. **Không đổi `--color-accent`** (xanh). Thêm bộ token cam riêng, dùng chỉ cho: nút chính, mục
+   đang chọn của các cặp Cơ bản/Nâng cao · Sáng/Tối · đơn vị, nút "Thêm mã cổ phiếu", marker biểu
+   đồ. Lý do không đổi thẳng accent: `draw-card.ts` ghim 8 mã màu bảng sáng cho ảnh chia sẻ, và
+   logo là xanh — đổi màu nhấn thì sản phẩm lệch tông với chính dấu hiệu của nó.
+2. **Phạm vi đầy đủ theo ảnh** — được sửa markup, thêm khối mới, sửa test đang khoá markup.
+3. **Hai bảng màu song hành**, mọi token mới qua đủ WCAG ở cả hai.
+4. **Kệ trang chủ giữ 18 thẻ**, không thêm dòng "+N công thức khác".
+
+### Đợt 1 — bộ token mới · XONG
+
+Không đổi một pixel nào trên màn; chỉ mở đường cho 7 đợt sau.
+
+- `src/app/globals.css` — thêm vào **cả hai** khối: 4 token cam (`--color-highlight`,
+  `-strong`, `-soft`, `--color-on-highlight`), 4 token tông nhóm (`--color-tint-teal`,
+  `-soft`, `--color-tint-violet`, `-soft`), và `--shadow-highlight` (quầng dưới nút chính —
+  phải khai ở globals vì `box-shadow` buộc nhúng màu mà CSS Module bị cấm viết `rgba(`).
+  Thêm ở riêng `:root` hai **khe** `--category-ink` / `--category-soft`: chúng không phải màu mà
+  là chỗ để lớp tông của từng nhóm rót vào, nên không mang tiền tố `--color-` và không bị luật
+  "bảng tối phải đè đủ" ràng buộc.
+- Cam bảng sáng phải THẪM (`#b23c00`, 5,48:1 trên nền trang) vì nó cũng làm màu chữ — cam tươi
+  như bản vẽ chỉ đạt ~2:1, không qua nổi NFR-USA-06. Bảng tối thì ngược lại (`#ffab70`, 9,56:1).
+- Bảy tông cho 12 nhóm chứ không phải 12 tông: trang chủ bày các nhóm ở hai lưới rời nhau (7 và
+  5 nhóm), nên bảy tông đã đủ để cùng một lưới không có hai ô trùng màu. Nhờ vậy chỉ đẻ 4 token
+  mới thay vì 24, và 5/7 tông dùng lại cặp đã có bộ kiểm tương phản.
+- Màu tông viết bằng hex chứ **không** dựng bằng `color-mix()`: `extractColorTokens()` chỉ đọc
+  `--color-*: #hex;`, nên màu sinh động sẽ không có phép kiểm nào chấm.
+- `src/ui/contrast.test.ts` — thêm `--color-highlight` + 2 tông vào `textTokens` (chúng làm màu
+  chữ, phải chịu 4,5:1 chứ không phải 3:1), thêm 8 token vào `REQUIRED_TOKENS`, thêm 2 ca: chữ
+  trên nền cam **kể cả lúc hover**, và 3 cặp badge tông chưa ai chấm. Từ 27 → **39 phép mỗi bảng**.
+- `src/ui/tokens.test.ts` — `--shadow-highlight` vào `COLOUR_DERIVED` (nó nhúng cứng màu).
+- Đã tự tính lại 26 cặp tương phản bằng đúng công thức của `contrast.ts` trước khi ghi token —
+  tất cả đạt, thấp nhất là teal sáng trên nền teal-soft 5,24:1.
+
+`npm run check` xanh trọn: **1.843/1.843 ca**.
+
+### Đợt 2 — áp màu cam · XONG
+
+`Button.module.css` `.primary`, và `.selected` của `ModeToggle` / `ThemePicker` / `UnitSwitcher`.
+`primary` là biến thể mặc định của `Button` nên 7 nút xác nhận ở các sheet, form danh mục, bảng
+dữ liệu và XIRR đổi cam cùng lúc — đúng ý, mỗi màn vẫn chỉ một chỗ cam. Không sửa test nào.
+
+### Đợt 3 — bản đồ 12 nhóm → icon + tông · XONG
+
+- **File mới** `src/ui/browse/CategoryIcon.tsx` (12 hình SVG vẽ tay + `toneOf` + `toneClass`) và
+  `src/ui/browse/category-tone.module.css` (7 lớp tông).
+- Bản đồ nằm ở tầng PRESENTATION chứ không ở Registry: `Category` mô tả NỘI DUNG của nhóm, còn
+  hình vẽ và màu là chuyện của màn hình — thêm `icon`/`color` vào Domain là buộc lớp tính toán
+  phải biết đến bảng màu.
+- Không `'use client'`, không hook — `FormulaCard` và `CategoryGrid` phải dựng được ở phía server.
+- Mỗi lớp tông chỉ RÓT vào hai khe `--category-*`, không tự đặt `color`/`background`: hai file CSS
+  Module cùng độ ưu tiên, cái nào thắng phụ thuộc thứ tự trong gói — thứ không đoán trước được.
+- **File mới** `CategoryIcon.test.tsx` (21 ca), gồm ca đắt nhất: trong cùng một mảng không hai
+  nhóm nào trùng tông — đó chính là điều kiện để 7 tông đủ cho 12 nhóm.
+
+### Đợt 4 — Trang chủ · XONG
+
+- `src/app/page.tsx` + `page.module.css`: dải mở đầu (icon 44px + tên bộ công cụ + phụ đề đếm từ
+  Registry). Đứng NGOÀI `HomeSearchPanel` nên do server dựng và không biến mất khi gõ tìm. Thẻ
+  `<h1>` gánh hai việc: phần thấy được là tên, phần ẩn là câu SEO cũ — `verify-static.mjs` đếm
+  đúng một `<h1>`, nên gộp vào một thẻ là cách giữ cả hai.
+- `FormulaCard` nhánh ô: thêm icon nhóm 28px + nhãn nhóm thành badge mang tông (bỏ chữ mono xám).
+  Hover đổi sang chỉ đổi viền — tô nền cùng họ màu thì badge chìm mất vào nền.
+- `CategoryGrid`: icon 16px, ô thành pill, số thành badge tông; nới lưới `minmax(150px → 164px)`
+  (2×164 + 8 = 336, vẫn lọt cột 344px của khổ 360 — **phải soi tay**).
+- Hai khoá i18n mới: `home.hero.title`, `home.hero.subtitle` (vi + en).
+- **Sửa 1 test**: `FormulaCard.test.tsx` từng khẳng định ô không có SVG nào; nay đổi thành "đúng
+  1 SVG, và không chứa nét mũi tên của biến thể hàng".
+
+### Đợt 5 — Màn chi tiết · XONG
+
+- Nút "Lưu vào danh mục" thành nút chính (cam); ba nút kia giữ `secondary`.
+- Gộp ký hiệu toán và biểu thức chữ vào MỘT thẻ `.formulaCard`, ngăn bằng đường kẻ, cả hai canh
+  giữa. Giữ `overflow-x: auto` ở cả hai vế (NFR-USA-02).
+- `Input`/`Select`: viền 1,5px, bo `--radius-lg`.
+- `ResultBlock`: bỏ hàng `.head`, "cập nhật tức thì" xuống góc dưới phải; số dùng
+  `clamp(--text-2xl, 9vw, --text-3xl)` — 40px cứng thì ở 360px một số tiền dài đo ~330px, sát mép
+  cột 344px và chỉ thêm một chữ số là trang cuộn ngang.
+- Không sửa test nào.
+
+### Đợt 6 — Biểu đồ · XONG
+
+- **Domain**: thêm `areaPath()` vào `src/core/chart/path.ts` (+ export ở barrel core và
+  application). Mỗi dải liền mạch là một đoạn con ĐÓNG KÍN riêng — đem thẳng chuỗi của `linePath`
+  ra tô `fill` thì SVG tự nối cuối về đầu và vẽ ra hình vô nghĩa. 5 ca kiểm mới.
+- `LineChart`: `<linearGradient id={`${idBase}-area`}>` (KHÔNG `useId()`), vẽ trước nét; nhãn
+  trục X còn hai đầu.
+- Marker (vạch đứt + chấm + nhãn) chuyển sang cam: đường quét vốn đã xanh, cùng họ màu thì hai
+  thứ dính vào nhau.
+- Vùng vẽ bỏ viền và nền, `<figure>` nhận dáng thẻ; `.plotFill` phải TỰ lấy lại nền surface vì
+  `<dialog>` nền paper, mà quầng sau chữ hover tô bằng `stroke: var(--color-surface)`.
+- `ChartFrame`: nút "Phóng to" lên cùng hàng tiêu đề, ô chọn trục xuống hàng riêng; nút thành
+  pill nền `accent-soft` nhưng GIỮ viền accent (ranh giới điều khiển vẫn cần 3:1).
+- **Sửa 1 test** (`charts.test.tsx` — vị trí nút) và **thêm 1 ca** (hai `<linearGradient>` id
+  khác nhau khi mở lớp phủ, đối xứng với ca `<pattern>` sẵn có).
+
+### Đợt 7 — Danh mục · XONG, không sửa test nào
+
+- `StatTile` thêm prop `icon`, dựng làm con TRỰC TIẾP của thẻ — bọc chung với nhãn vào một khối
+  đầu thẻ là 4 ca dò `findByText(nhãn).parentElement` đỏ ngay. Nhãn viết hoa bằng CSS, không bằng
+  `.toUpperCase()` trong JS.
+- Sáu ô có icon; hai tab có icon, tab đang chọn nền chuyển màu xanh (xanh chứ không cam: tab là
+  chỗ chuyển vùng nội dung, không phải một hành động).
+- Khối rỗng có icon lớn; nút "Thêm mã cổ phiếu" thành nút cam pill có quầng, căn giữa, dấu cộng
+  chuyển từ ký tự trần sang SVG nên tên khả truy cập nay đúng bằng nhãn thật; tem "CỤC BỘ" thêm
+  ổ khoá.
+- Luật vàng đã giữ: **không thêm `<ul>`/`<li>` nào vào tab "Mã"** — 6 ca ở đó dùng
+  `getByRole('listitem')` số ít.
+
+### Đợt 8 — Cài đặt · XONG, không sửa test nào
+
+- Bốn `<h2>` thêm icon SVG + đường kẻ dưới. Ba ràng buộc để ca so `textContent` không đỏ: icon là
+  SVG thuần, không `<title>`/`<desc>`, icon và chuỗi trên hai dòng JSX riêng.
+- Nút xoá từng kho thành icon thùng rác nền đỏ nhạt, `aria-label` đúng chuỗi `'Xoá'`. Dựng
+  `<button>` tay thay vì `Button` + lớp đè, vì hai lớp cùng độ ưu tiên thì thứ tự file CSS quyết
+  định — không đoán được.
+
+### Soi tận mắt trên Chrome thật · XONG 3/5
+
+Dev server đang chạy sẵn ở cổng 3000 nên soi được ngay mà không cần bản build: bật một Chrome
+riêng (`--user-data-dir` trong thư mục tạm, chỉ tắt đúng tiến trình mình bật), chụp 4 màn × 2
+bảng màu × 2 khổ (360 và 1280) và đo tràn ngang.
+
+**Không màn nào tràn ngang ở khổ nào, không một cảnh báo console nào.** Phần "thò ra" duy nhất là
+bảng biến ở màn chi tiết, và nó nằm trong vùng cuộn riêng của chính nó — đúng NFR-USA-02.
+
+Hai lỗi thật lộ ra và đã vá:
+
+1. **Lưới nhóm rớt xuống MỘT cột ở 360px.** Kế hoạch tính cột nội dung là 344px nên nới `minmax`
+   lên 164px; thực tế cột chỉ rộng **328px** (360 trừ 16px padding mỗi bên của `AppShell`), mà
+   2×164 + 8 gap = 336. Hạ về **156px** — đo lại: 2 cột ở 360/390px, 4 cột ở 768px, 7 cột ở
+   1280px, không khổ nào tràn. Con số này nay có chú thích ghi rõ nó là trần thật, đừng nới lại.
+2. **Bốn ô chỉ số ở màn Danh mục không trải hết hàng** trên màn rộng — `auto-fill` giữ nguyên các
+   cột rỗng nên bốn ô co về 150px và dồn mép trái. Đổi riêng lưới này sang `auto-fit` (số ô ở đây
+   luôn ít và cố định, khác lưới công thức).
+
+Một lo ngại ghi trong kế hoạch đã tự gỡ: **gradient biểu đồ ở bảng tối hiện rõ ở mức 0,28**,
+không cần nâng.
+
+### Còn lại
+
+Bốn lệnh cần bản build: `build`, `verify:static`, `size`, `check:chrome`. Cổng 3000 đang có dev
+server (PID 5944, không phải tiến trình của phiên này) nên `check-no-dev.mjs` chặn build — cần
+chủ dự án tắt dev server rồi chạy.
+
+Hai việc soi tay còn lại, cả hai đều cần thao tác thật: (1) xuất PNG một công thức, thẻ phải vẫn
+nền sáng và không dính cam (`draw-card.ts` không đổi, nhưng nên nhìn một lần); (2) Ctrl+P một
+trang chi tiết, bản in vẫn đen trắng.
 
 ---
 

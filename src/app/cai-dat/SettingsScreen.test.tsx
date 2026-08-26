@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -229,6 +229,123 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
   it('nói thẳng dữ liệu không rời khỏi máy (COM-03)', () => {
     open();
     expect(screen.getByText(/không được gửi đi đâu/)).not.toBeNull();
+  });
+});
+
+/**
+ * Thanh HOÀN TÁC — đợt 13.
+ *
+ * Chủ dự án báo: bấm nút xoá xong "không thấy có gì thay đổi". Bốn ca dưới gác đúng bốn thứ đã
+ * hứa: có thanh, hoàn tác được nguyên vẹn, thanh tự tắt sau 5 giây, và rời màn giữa chừng không
+ * để lại bộ đếm chạy tiếp.
+ *
+ * `beforeEach` chung của file gọi `localStorage.clear()`, nên mọi ca ở đây phải TỰ ghi dữ liệu:
+ * kho rỗng thì nút xoá bị khoá và không có gì để hoàn tác.
+ */
+describe('hoàn tác sau khi xoá một kho', () => {
+  /** Bấm nút thùng rác của dòng chứa `key`. Trả về đúng nút ấy để ca kiểm soi tiếp nếu cần. */
+  async function xoaDong(key: string): Promise<HTMLButtonElement> {
+    const row = screen.getAllByRole('listitem').find((li) => li.textContent?.includes(key));
+    expect(row, key).toBeDefined();
+    const button = row?.querySelector('button') as HTMLButtonElement;
+    await userEvent.click(button);
+    return button;
+  }
+
+  it('xoá xong thì hiện thanh nói rõ kho nào vừa mất, kèm số giây đếm ngược', async () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, '["roi","pe"]');
+    open();
+
+    await xoaDong(RECENT_SEARCHES_KEY);
+
+    const bar = screen.getByRole('status');
+    // Tên kho phải có trong câu: xoá xong mà chỉ báo "Đã xoá" thì không neo vào đâu cả.
+    expect(bar.textContent).toContain('Từ khoá đã tìm');
+    expect(bar.textContent).toContain('5');
+    expect(screen.getByRole('button', { name: 'Hoàn tác' })).not.toBeNull();
+  });
+
+  /*
+   * Xoá phải là XOÁ THẬT ngay (ca "có dữ liệu thì hiện cỡ thật…" ở trên chốt điều đó), nên hoàn
+   * tác là GHI LẠI. Chuỗi ghi lại phải khớp từng ký tự — ghi lại một chuỗi "tương đương" là làm
+   * hỏng đúng thứ người dùng vừa xin giữ.
+   */
+  it('bấm Hoàn tác thì kho trở lại nguyên chuỗi cũ, và thanh tắt đi', async () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, '["roi","pe"]');
+    open();
+
+    await xoaDong(RECENT_SEARCHES_KEY);
+    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Hoàn tác' }));
+
+    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBe('["roi","pe"]');
+    expect(screen.queryByRole('button', { name: 'Hoàn tác' })).toBeNull();
+    // Con số cỡ kho phải quay lại luôn, không đợi lần mở màn sau.
+    expect(screen.getAllByRole('listitem').some((li) => li.textContent?.includes('12 ký tự'))).toBe(
+      true,
+    );
+  });
+
+  /*
+   * Hai ca dưới dùng ĐỒNG HỒ GIẢ, và cố ý bấm bằng `fireEvent` chứ không `userEvent`:
+   * `userEvent` tự chờ giữa các bước bằng timer, nên chạy chung với đồng hồ giả là nó treo cho
+   * tới khi vitest cắt ở 5 giây — đã thử và đúng như vậy. Ở đây chỉ cần một cú bấm trơn, không
+   * cần chuỗi trỏ/gõ mà `userEvent` dựng ra.
+   */
+  it('quá 5 giây thì thanh tự tắt và dữ liệu vẫn ở trạng thái đã xoá', () => {
+    vi.useFakeTimers();
+    try {
+      window.localStorage.setItem(RECENT_SEARCHES_KEY, '["roi"]');
+      open();
+
+      const row = screen
+        .getAllByRole('listitem')
+        .find((li) => li.textContent?.includes(RECENT_SEARCHES_KEY));
+      fireEvent.click(row?.querySelector('button') as HTMLElement);
+      expect(screen.getByRole('button', { name: 'Hoàn tác' })).not.toBeNull();
+
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      expect(screen.queryByRole('button', { name: 'Hoàn tác' })).toBeNull();
+      expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  /*
+   * `setInterval` là cái đầu tiên trong repo. Bộ đếm sống sót qua unmount sẽ gọi `setState` trên
+   * một cây đã tháo — trong vitest nó ra cảnh báo, trên máy người dùng nó là rò rỉ. Ca này bắt
+   * đúng chỗ đó: rời màn rồi tua gấp đôi cửa sổ 5 giây mà console vẫn sạch.
+   */
+  it('rời màn giữa chừng thì bộ đếm dừng hẳn, không kêu ca gì', () => {
+    vi.useFakeTimers();
+    const noise = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      window.localStorage.setItem(RECENT_SEARCHES_KEY, '["roi"]');
+      const { unmount } = render(
+        <PreferencesProvider>
+          <SettingsScreen />
+        </PreferencesProvider>,
+      );
+
+      const row = screen
+        .getAllByRole('listitem')
+        .find((li) => li.textContent?.includes(RECENT_SEARCHES_KEY));
+      fireEvent.click(row?.querySelector('button') as HTMLElement);
+
+      unmount();
+      act(() => {
+        vi.advanceTimersByTime(10_000);
+      });
+
+      expect(noise).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

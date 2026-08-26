@@ -136,6 +136,7 @@ const SVG_TEXT_CLASSES = [
   'valueLabel',
   'hoverLabel',
   'barValueLabel',
+  'refLabel',
 ] as const;
 
 /** Tên biến khai trong một khối luật, bất kể giá trị là mã màu, `rgba()` hay chuỗi đổ bóng. */
@@ -199,7 +200,7 @@ describe('bảng tối đè đủ token màu của bảng sáng', () => {
   ]);
 
   /** Token không phải màu thuần nhưng nhúng cứng màu bên trong, nên vẫn phải viết lại. */
-  const COLOUR_DERIVED = ['--shadow-sm', '--shadow-md', '--focus-ring'];
+  const COLOUR_DERIVED = ['--shadow-sm', '--shadow-md', '--focus-ring', '--shadow-highlight'];
 
   const light = declaredNames(cssBlock(GLOBALS_CSS, ':root'));
   const dark = declaredNames(cssBlock(GLOBALS_CSS, DARK_SELECTOR));

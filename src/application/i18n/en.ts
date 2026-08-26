@@ -195,6 +195,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.tableCaption': 'Data',
   'chart.applyHintTimeAxis':
     'The axis is time, so clicking won\'t write anything — switch "See how the result changes with" above to a variable to apply a clicked value.',
+  'chart.applyHintReady': 'Click the chart to apply that value to the input field.',
   'chart.zoom': 'Expand',
   'chart.exit': 'Exit full screen',
   'chart.rotate': 'Turn your phone sideways for a wider chart.',
@@ -430,6 +431,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'switch.off': 'Off',
 
   'home.h1': 'Vietnamese stock and personal-finance formula library',
+  'home.hero.title': 'Finbox quick calculators',
+  'home.hero.subtitle': 'stock and personal-finance formulas, updating as you type.',
   'home.search.resultsHeading': 'Search results',
   'home.search.seeAll': 'View all',
   'home.search.results': 'result(s)',
@@ -476,6 +479,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.chars': 'characters',
   'data.remove': 'Delete',
   'data.clearAll': 'Delete all data on this device',
+  'data.removed': 'Deleted',
+  'data.undo': 'Undo',
+  'data.undoIn': 'in',
+  'data.seconds': 's',
   'data.clearConfirm':
     'Delete all data saved on this device? Preferences, search history, price series and the portfolio will all be gone. This cannot be undone.',
 

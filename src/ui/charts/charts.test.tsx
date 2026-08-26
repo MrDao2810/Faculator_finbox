@@ -14,11 +14,18 @@ import {
   scheduleOrDefault,
   t,
 } from '@/application';
-import type { CalcContext, CalcInputs, FormulaModule, Level, SeriesRow } from '@/application';
+import type {
+  CalcContext,
+  CalcInputs,
+  FormulaModule,
+  Level,
+  LineChart as LineChartModel,
+  SeriesRow,
+} from '@/application';
 
 import { ChartBody } from './ChartBody';
 import { hasChart } from './FormulaChart';
-import { CHART_GEOMETRY } from './LineChart';
+import { CHART_GEOMETRY, LineChart } from './LineChart';
 
 /*
  * jsdom chưa cài đặt `<dialog>.showModal()`, và cũng KHÔNG có Fullscreen API hay `screen.orientation`.
@@ -129,6 +136,456 @@ function drawLoaded(id: string, extra: CalcInputs = {}, level: Level = 'basic') 
 function drawLoadedAdvanced(id: string, extra: CalcInputs = {}) {
   return drawLoaded(id, extra, 'advanced');
 }
+
+/**
+ * Nhiều chuỗi trên một biểu đồ — bước mở đường cho SMA, Bollinger và MACD.
+ *
+ * Đây là "ví dụ tối thiểu" của đợt: chưa công thức nào truyền chuỗi phụ, nên chỗ duy nhất chứng
+ * minh khả năng ấy chạy là một mô hình dựng tay. Dựng tay cũng đúng hơn là mượn một công thức thật:
+ * ca kiểm cần hai thang LỆCH HẲN nhau (giá hàng chục nghìn ₫ cạnh RSI 0–100), mà không công thức
+ * nào hôm nay đẻ ra cặp ấy.
+ */
+describe('Biểu đồ nhiều chuỗi', () => {
+  /** Trục dựng tay — `buildAxis()` là nội bộ Domain, và ở đây chỉ cần một miền cùng vài vạch. */
+  function truc(title: string, lo: number, hi: number): LineChartModel['y'] {
+    const step = (hi - lo) / 4;
+    return {
+      title: { vi: title, en: title },
+      domain: [lo, hi],
+      ticks: [0, 1, 2, 3, 4].map((k) => ({ value: lo + k * step, label: String(lo + k * step) })),
+    };
+  }
+
+  function diem(xs: ReadonlyArray<number>, ys: ReadonlyArray<number>, donVi: string) {
+    return xs.map((x, i) => ({
+      x,
+      y: ys[i] ?? null,
+      label: `${String(x)} phiên`,
+      valueLabel: `${String(ys[i] ?? 0)} ${donVi}`,
+    }));
+  }
+
+  const XS = [1, 2, 3, 4, 5];
+
+  /** Giá (₫, trục trái) và RSI (điểm, trục phải) — hai thang cách nhau hơn hai bậc mười. */
+  function moHinhHaiChuoi(): LineChartModel {
+    const gia = diem(XS, [20_000, 21_000, 20_500, 22_000, 23_000], '₫');
+    const rsi = diem(XS, [40, 55, 48, 71, 82], 'điểm');
+
+    return {
+      kind: 'line',
+      title: { vi: 'Giá và RSI', en: 'Price and RSI' },
+      summary: { vi: 'Hai chuỗi, hai trục.', en: 'Two series, two axes.' },
+      x: truc('Số phiên (phiên)', 1, 5),
+      y: truc('Giá (₫)', 20_000, 23_000),
+      yRight: truc('RSI (điểm)', 40, 82),
+      points: gia,
+      overlays: [
+        {
+          key: 'rsi',
+          label: { vi: 'RSI 14', en: 'RSI 14' },
+          points: rsi,
+          unit: 'điểm',
+          tone: 'teal',
+          dash: true,
+          width: 1.5,
+          axis: 'right',
+        },
+      ],
+      table: {
+        columns: [
+          { vi: 'Số phiên', en: 'Sessions' },
+          { vi: 'Giá (₫)', en: 'Price (₫)' },
+          { vi: 'RSI 14', en: 'RSI 14' },
+        ],
+        rows: XS.map((x, i) => [
+          { vi: `${String(x)} phiên`, en: `${String(x)} sessions` },
+          `${String(gia[i]?.y ?? 0)} ₫`,
+          `${String(rsi[i]?.y ?? 0)} điểm`,
+        ]),
+      },
+      sweepKey: 'period',
+      options: [{ key: 'period', label: { vi: 'Số phiên', en: 'Sessions' } }],
+    };
+  }
+
+  it('vẽ đủ hai đường, chuỗi phụ mang khoá riêng để phân biệt với chuỗi chính', () => {
+    const { container } = render(<LineChart model={moHinhHaiChuoi()} idBase="vd" />);
+
+    // Chuỗi chính vẫn là `path[data-points]` như mọi biểu đồ khác — hợp đồng cũ không đổi.
+    expect(container.querySelectorAll('path[data-points]')).toHaveLength(1);
+    // Chuỗi phụ đi lối riêng, đánh dấu bằng khoá của nó.
+    expect(container.querySelector('path[data-series="rsi"]')).not.toBeNull();
+  });
+
+  it('dựng trục Y thứ hai bên phải, có nhãn đơn vị riêng', () => {
+    const { container } = render(<LineChart model={moHinhHaiChuoi()} idBase="vd" />);
+
+    const chu = [...container.querySelectorAll('text')].map((t) => t.textContent);
+    expect(chu).toContain('Giá (₫)');
+    expect(chu).toContain('RSI (điểm)');
+
+    /*
+     * Nhãn của hai trục phải nằm ở HAI PHÍA. Kiểm bằng toạ độ chứ không bằng sự có mặt: một trục
+     * phải vẽ đúng nhưng nhãn dồn hết sang trái thì hai thang chồng lên nhau mà không ai đọc ra.
+     */
+    const nhanTrai = [...container.querySelectorAll('text')].filter(
+      (t) => t.getAttribute('text-anchor') === 'end',
+    );
+    const nhanPhai = [...container.querySelectorAll('text')].filter(
+      (t) => t.getAttribute('text-anchor') === 'start' && Number(t.getAttribute('x')) > 200,
+    );
+    expect(nhanTrai.length).toBeGreaterThan(0);
+    expect(nhanPhai.length).toBeGreaterThan(0);
+  });
+
+  it('có legend hai mục, mỗi mục kèm mẫu nét chứ không chỉ một ô màu', () => {
+    const { container } = render(<LineChart model={moHinhHaiChuoi()} idBase="vd" />);
+
+    const muc = [...container.querySelectorAll('[class*="legendItem"]')];
+    expect(muc).toHaveLength(2);
+    // Mũi tên chỉ trục: chuỗi chính đọc trục TRÁI, chuỗi phụ đọc trục PHẢI.
+    expect(muc.map((m) => m.textContent)).toEqual(['Giá (₫)←', 'RSI 14→']);
+
+    // Mẫu nét thật: mỗi mục có một <line> mang lớp nét của chuỗi.
+    for (const m of muc) {
+      expect(m.querySelector('svg line[class*="seriesLine"]')).not.toBeNull();
+    }
+  });
+
+  it('chuỗi khai nét đứt thì nét đứt thật, không chỉ khác màu — NFR-USA-06', () => {
+    const { container } = render(<LineChart model={moHinhHaiChuoi()} idBase="vd" />);
+
+    const net = container.querySelector('path[data-series="rsi"]');
+    expect(net?.getAttribute('class')).toContain('seriesDashed');
+    expect(net?.getAttribute('stroke-width')).toBe('1.5');
+  });
+});
+
+/**
+ * Cửa gác của cả đợt nhiều-chuỗi: biểu đồ MỘT chuỗi phải dựng ra y hệt như trước.
+ *
+ * Bốn khẳng định dưới là bốn chỗ mà một lần "mở rộng" hớ hênh sẽ lộ ra ngay: mọc thêm node legend,
+ * đường bị tách làm hai thẻ, bảng đẻ thêm cột, hoặc vùng vẽ bị bóp lại để chừa chỗ cho một trục
+ * phải không tồn tại.
+ */
+describe('Một chuỗi — không được đổi gì', () => {
+  it('không có legend, đúng một đường, bảng đúng hai cột', () => {
+    const { container } = draw('pe');
+
+    expect(container.querySelectorAll('[class*="legend"]')).toHaveLength(0);
+    expect(container.querySelectorAll('path[data-points]')).toHaveLength(1);
+    expect(container.querySelectorAll('path[data-series]')).toHaveLength(0);
+    expect(container.querySelectorAll('thead th')).toHaveLength(2);
+  });
+
+  it('vùng vẽ giữ nguyên khung cũ — lề phải KHÔNG nới cho trục thứ hai', () => {
+    const { container } = draw('pe');
+
+    // Trục X đáy chạy hết bề ngang khung cũ: x2 phải bằng `PLOT.x1`, không bị hụt vào 40px.
+    const truc = [...container.querySelectorAll('line[class*="axis"]')];
+    expect(truc.length).toBe(2);
+    expect(Number(truc[0]?.getAttribute('x2'))).toBe(CHART_GEOMETRY.PLOT.x1);
+  });
+});
+
+/**
+ * Trang SMA — công thức ĐẦU TIÊN dùng đường nhiều chuỗi, trên dữ liệu thật của FPT.
+ *
+ * Khối `Biểu đồ nhiều chuỗi` ở trên chứng minh khả năng bằng một mô hình dựng tay; khối này chứng
+ * minh nó chạy đúng qua CẢ đường dẫn thật: Registry khai `priceOverlay` → `buildChartModel()` dựng
+ * chuỗi giá → `LineChart` vẽ. Ba ca nghiệm thu của chủ dự án nằm ở đây.
+ */
+describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
+  it('trục thời gian: hai đường trên một hình, legend gọi tên cả hai', () => {
+    const { container } = drawLoaded('sma-n-phien');
+
+    // Đường SMA vẫn là chuỗi chính; đường giá đi lối chuỗi phụ.
+    expect(container.querySelectorAll('path[data-points]')).toHaveLength(1);
+    expect(container.querySelector('path[data-series="gia-dong-cua"]')).not.toBeNull();
+
+    const muc = [...container.querySelectorAll('[class*="legendItem"]')].map((m) => m.textContent);
+    expect(muc).toEqual(['SMA 20 phiên', 'Giá đóng cửa']);
+
+    // Cùng đơn vị tiền thì chung một trục — không mọc trục phải, không có mũi tên chỉ trục.
+    expect(container.querySelectorAll('line[class*="axis"]')).toHaveLength(2);
+    expect(container.querySelectorAll('[class*="legendAxis"]')).toHaveLength(0);
+  });
+
+  it('đường giá mảnh hơn và KHÔNG tô dải dưới — hai vùng tô chồng nhau là rối', () => {
+    const { container } = drawLoaded('sma-n-phien');
+
+    const gia = container.querySelector('path[data-series="gia-dong-cua"]');
+    expect(Number(gia?.getAttribute('stroke-width'))).toBeLessThan(2);
+    expect(gia?.getAttribute('class')).toContain('toneSeriesMuted');
+
+    /*
+     * Đúng một vùng tô trên hình, và nó thuộc chuỗi chính. Kiểm cả `<path>` lẫn `<linearGradient>`:
+     * một dải chuyển màu thừa ra trong `<defs>` là dấu hiệu chuỗi phụ đã xin tô mà chỉ tình cờ
+     * chưa vẽ ra.
+     */
+    expect(container.querySelectorAll('path[class*="seriesArea"]')).toHaveLength(0);
+    expect(container.querySelectorAll('linearGradient')).toHaveLength(1);
+  });
+
+  /*
+   * Thứ tự vẽ: đường giá nằm DƯỚI đường SMA. SVG xếp lớp theo thứ tự thẻ, nên đây là điều kiểm
+   * được — và nó đáng kiểm, vì để nét giá cắt ngang đè lên đúng đường mà trang đang giải thích là
+   * lấy bối cảnh che mất đầu ra.
+   */
+  it('đường SMA vẽ SAU nên nằm trên đường giá', () => {
+    const { container } = drawLoaded('sma-n-phien');
+
+    const nets = [...container.querySelectorAll('path[data-series], path[data-points]')];
+    expect(nets[0]?.getAttribute('data-series')).toBe('gia-dong-cua');
+    expect(nets[1]?.hasAttribute('data-points')).toBe(true);
+  });
+
+  it('bảng số thêm cột Giá đóng cửa, mọi dòng vẫn đủ ô', () => {
+    const { container } = drawLoaded('sma-n-phien');
+
+    const dau = [...container.querySelectorAll('thead th')].map((th) => th.textContent);
+    expect(dau).toHaveLength(3);
+    expect(dau[2]).toBe('Giá đóng cửa');
+
+    for (const dong of container.querySelectorAll('tbody tr')) {
+      const o = dong.querySelectorAll('th, td');
+      // Dòng ngắt "…" gộp cả hàng; dòng dữ liệu phải đủ ba ô.
+      expect(o.length === 1 || o.length === 3).toBe(true);
+    }
+  });
+
+  /* Ca nghiệm thu: kéo slider số phiên thì SMA đổi, đường giá đứng yên. */
+  it('đổi số phiên: nét SMA đổi, nét giá giữ nguyên từng ký tự', () => {
+    const { container: c20 } = drawLoaded('sma-n-phien', { period: 20 });
+    const sma20 = c20.querySelector('path[data-points]')?.getAttribute('d');
+    const gia20 = c20.querySelector('path[data-series="gia-dong-cua"]')?.getAttribute('d');
+    cleanup();
+
+    const { container: c50 } = drawLoaded('sma-n-phien', { period: 50 });
+    const sma50 = c50.querySelector('path[data-points]')?.getAttribute('d');
+    const gia50 = c50.querySelector('path[data-series="gia-dong-cua"]')?.getAttribute('d');
+
+    expect(sma20).not.toBe(sma50);
+    expect(gia20).toBe(gia50);
+    expect([...c50.querySelectorAll('[class*="legendItem"]')][0]?.textContent).toBe('SMA 50 phiên');
+  });
+
+  /*
+   * Chuỗi giá THỦNG phải vẽ thành đường ĐỨT ở tầng SVG, không nối vắt qua.
+   *
+   * Ca Domain chốt `y: null` tới được mô hình; ca này chốt nốt chặng cuối — `linePath()` phải sinh
+   * hai lệnh `M` cho hai đoạn con. Bộ mẫu FPT không có phiên thiếu giá nên phải tự khoét một phiên;
+   * đó cũng đúng thứ người dùng tạo ra được ở bảng /du-lieu/ (bảng cảnh báo nhưng vẫn lưu).
+   */
+  it('phiên thiếu giá: đường giá ĐỨT thật ở tầng SVG, không nội suy vắt qua', () => {
+    const formula = moduleOf('sma-n-phien');
+    const inputs = defaultInputs(formula.spec);
+    const thung = FPT_BARS.map((bar, i) => (i === 120 ? { ...bar, close: null } : bar));
+    const ctx: CalcContext = {
+      ...WITH_BARS,
+      bars: thung,
+      series: thung
+        .map((bar) => bar.close)
+        .filter((close): close is number => typeof close === 'number' && close > 0),
+    };
+
+    const { container } = render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={ctx}
+        output={runFormula(formula, inputs, ctx)}
+        level="basic"
+        seriesLabel="FPT"
+      />,
+    );
+
+    const d = container.querySelector('path[data-series="gia-dong-cua"]')?.getAttribute('d') ?? '';
+    expect(d).not.toBe('');
+    expect(d).not.toContain('NaN');
+    expect(d.match(/M/g)).toHaveLength(2);
+  });
+
+  /* Ca nghiệm thu: đổi trục sang một biến số thì đường giá không còn nghĩa nên phải ẩn. */
+  it('đổi trục sang Số phiên: đường giá ẩn, hình trở về đúng một chuỗi', async () => {
+    const user = userEvent.setup();
+    const { container } = drawLoaded('sma-n-phien');
+
+    expect(container.querySelector('path[data-series="gia-dong-cua"]')).not.toBeNull();
+
+    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+
+    expect(container.querySelector('path[data-series="gia-dong-cua"]')).toBeNull();
+    expect(container.querySelectorAll('[class*="legend"]')).toHaveLength(0);
+    expect(container.querySelectorAll('thead th')).toHaveLength(2);
+    expect(container.querySelectorAll('path[data-points]')).toHaveLength(1);
+  });
+
+  /*
+   * Bản PHÓNG TO cũng phải có đủ hai đường và legend — và đây là chỗ dễ tuột nhất của cả đợt.
+   *
+   * `ChartFullscreen` dựng `LineChart` THẲNG, không đi qua `ChartFrame`; legend nằm trong
+   * `LineChart` chính vì lý do ấy. Hôm nay bản phóng to hưởng overlay miễn phí vì nó nhận cùng một
+   * `model`, nhưng KHÔNG có gì ghim điều đó: ai dời legend sang `ChartFrame` cho "hợp lý về bố
+   * cục", hay lược overlay khỏi model truyền vào lớp phủ, thì mọi ca khác vẫn xanh còn đúng màn
+   * người dùng mở ra để nhìn kỹ hai đường lại chỉ còn một.
+   */
+  it('bản phóng to có đủ hai đường, legend, và đúng thứ tự vẽ', async () => {
+    const user = userEvent.setup();
+    drawLoaded('sma-n-phien');
+
+    await user.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const lopPhu = screen.getByRole('dialog');
+    expect(lopPhu.querySelectorAll('path[data-points]')).toHaveLength(1);
+    expect(lopPhu.querySelector('path[data-series="gia-dong-cua"]')).not.toBeNull();
+    expect([...lopPhu.querySelectorAll('[class*="legendItem"]')].map((m) => m.textContent)).toEqual(
+      ['SMA 20 phiên', 'Giá đóng cửa'],
+    );
+
+    // Thứ tự vẽ giữ nguyên trong lớp phủ: giá trước, SMA sau nên SMA nằm trên.
+    const nets = [...lopPhu.querySelectorAll('path[data-series], path[data-points]')];
+    expect(nets[0]?.getAttribute('data-series')).toBe('gia-dong-cua');
+    expect(nets[1]?.hasAttribute('data-points')).toBe(true);
+
+    /*
+     * Hai bản cùng nằm trong DOM khi lớp phủ mở, nên `id` dải chuyển màu phải KHÁC nhau — đúng cái
+     * bẫy mà hậu tố `-full` sinh ra để tránh, nay có thêm chuỗi phụ thì lại đáng kiểm một lần nữa.
+     */
+    const ids = [...document.querySelectorAll('linearGradient')].map((g) => g.id);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  /*
+   * Vệt dò bám CHUỖI CHÍNH, không bị đường giá kéo đi.
+   *
+   * `handlePointerMove` snap bằng `nearestPointByX(model.points, …)` — chỉ chuỗi chính, và đó là
+   * chủ đích: hai đường ở đây cùng đơn vị ₫ nên một vệt dò nhảy sang đường giá sẽ hiện một con số
+   * đúng kiểu, đúng đơn vị, mà sai chuỗi — người dùng không có cách nào nhận ra. Mọi ca dò điểm
+   * hiện có đều chạy trên biểu đồ MỘT chuỗi, nên trước ca này hành vi ấy không có gì gác.
+   */
+  it('vệt dò bám đường SMA kể cả khi con trỏ ở sát đường giá', () => {
+    vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: CHART_GEOMETRY.W,
+      height: CHART_GEOMETRY.H,
+      right: CHART_GEOMETRY.W,
+      bottom: CHART_GEOMETRY.H,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+
+    const { container } = drawLoaded('sma-n-phien');
+
+    const dauSma = container.querySelector('[data-testid="chart-marker"] circle');
+    const markerX = Number(
+      container.querySelector('[data-testid="chart-marker"] line')?.getAttribute('x1'),
+    );
+    if (Number.isNaN(markerX) || dauSma === null) {
+      throw new Error('Không đọc được dấu "giá trị hiện tại" — kịch bản test đã đổi.');
+    }
+
+    /*
+     * Rê tới đúng hoành độ của dấu, nhưng đặt tung độ SÁT MÉP DƯỚI vùng vẽ — xa đường SMA. Nếu
+     * phép snap có ngày nào đó xét cả khoảng cách theo y, ca này đỏ.
+     */
+    const vung = screen.getByTestId('chart-sma-n-phien-hover-capture');
+    fireEvent.pointerMove(vung, {
+      pointerType: 'mouse',
+      clientX: markerX,
+      clientY: CHART_GEOMETRY.PLOT.y1 - 1,
+    });
+
+    const veDo = screen.getByTestId('chart-sma-n-phien-hover');
+    const chamDo = veDo.querySelector('circle');
+    // Chấm dò đậu đúng trên đường SMA, tức cùng tung độ với dấu "giá trị hiện tại".
+    expect(chamDo?.getAttribute('cy')).toBe(dauSma.getAttribute('cy'));
+
+    /*
+     * Và con SỐ nó đọc ra là số của SMA, không phải giá đóng cửa. Đây mới là vế cắn thật: hai
+     * đường cùng đơn vị ₫ nên so tung độ thôi vẫn có thể trùng nhau tình cờ, còn hai giá trị thì
+     * khác hẳn — có khẳng định tiền đề ngay dưới để ca không xanh oan.
+     */
+    const nhanSma = container
+      .querySelector('[data-testid="chart-marker"] text')
+      ?.textContent?.trim();
+    const giaCuoi = [...container.querySelectorAll('tbody tr')]
+      .map((tr) => [...tr.querySelectorAll('th, td')].map((o) => o.textContent?.trim()))
+      .filter((o) => o.length === 3)
+      .at(-1);
+
+    expect(nhanSma).toBeTruthy();
+    // Tiền đề: SMA phiên cuối KHÁC giá đóng cửa phiên cuối, nếu không thì ca này không phân biệt gì.
+    expect(giaCuoi).toBeDefined();
+    expect(giaCuoi?.[2]).not.toBe(nhanSma);
+    expect(veDo.querySelector('text')?.textContent).toContain(nhanSma ?? '');
+  });
+
+  /*
+   * Ba thứ của chuỗi CHÍNH phải sống sót nguyên vẹn qua việc thêm một đường nữa: dấu "giá trị hiện
+   * tại", vùng gạch chéo cho dải khởi động, và lối bấm-để-áp-dụng. Cả ba bám `model.points`, nên
+   * đây là ca chốt rằng chuỗi phụ không kéo được chúng đi đâu.
+   */
+  it('marker, vùng gạch chéo và lối bấm-áp-dụng vẫn theo chuỗi SMA', async () => {
+    /*
+     * jsdom trả khung 0×0 cho mọi phần tử, nên `pointerToViewBox()` không chiếu được toạ độ và
+     * không cử chỉ nào tới được điểm dữ liệu. Cùng cách khối `onApplyPoint` bên dưới xử lý.
+     */
+    vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: CHART_GEOMETRY.W,
+      height: CHART_GEOMETRY.H,
+      right: CHART_GEOMETRY.W,
+      bottom: CHART_GEOMETRY.H,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+
+    const user = userEvent.setup();
+    const formula = moduleOf('sma-n-phien');
+    const inputs = { ...defaultInputs(formula.spec), period: 20 };
+    const ap = vi.fn();
+
+    const { container } = render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={WITH_BARS}
+        output={runFormula(formula, inputs, WITH_BARS)}
+        level="basic"
+        seriesLabel="FPT"
+        onApplyPoint={ap}
+      />,
+    );
+
+    // 19 phiên đầu chưa đủ dữ liệu cho SMA-20 — dải khởi động phải được vẽ gạch chéo.
+    expect(container.querySelectorAll('rect[class*="gap"]').length).toBeGreaterThan(0);
+    expect(screen.queryByTestId('chart-marker')).not.toBeNull();
+
+    // Trục đang là thời gian nên bấm KHÔNG ghi gì — hành xử cũ, chuỗi phụ không đổi được điều đó.
+    const vung = screen.getByTestId('chart-sma-n-phien-hover-capture');
+    fireEvent.pointerDown(vung, { clientX: 150, clientY: 100 });
+    fireEvent.pointerUp(vung, { clientX: 150, clientY: 100 });
+    expect(ap).not.toHaveBeenCalled();
+
+    // Đổi sang trục biến số thì bấm ghi được như mọi biểu đồ khác.
+    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+    const vung2 = screen.getByTestId('chart-sma-n-phien-hover-capture');
+    fireEvent.pointerDown(vung2, { clientX: 150, clientY: 100 });
+    fireEvent.pointerUp(vung2, { clientX: 150, clientY: 100 });
+    expect(ap).toHaveBeenCalledWith('period', expect.any(Number));
+  });
+});
 
 describe('hasChart() — phạm vi', () => {
   it('phủ đúng 100 công thức: mọi công thức trừ nhóm khai chartType none', () => {
@@ -483,6 +940,115 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
   });
 });
 
+/**
+ * Mốc tham chiếu — ngưỡng cố định của chỉ báo, vẽ ngay trên hình.
+ *
+ * Ranh giới với `chart/chart.test.ts`: bên Domain đã kiểm phần LỌC (mốc nào lọt miền Y) trên cả
+ * Registry. Ở đây chỉ kiểm đúng ba thứ jsdom mới nói được — mốc có thành thẻ SVG thật không, nó
+ * nằm dưới hay trên đường dữ liệu, và bản trong màn phóng to có nhận được không.
+ *
+ * Chuỗi giá dựng tại chỗ chứ không mượn 248 phiên của FPT: ca kiểm cần một dải RSI chắc chắn ôm
+ * cả 30 lẫn 70, mà dải của FPT là chuyện của bộ số liệu mẫu — nó đổi thì ca này đỏ vì một lý do
+ * chẳng liên quan tới thứ nó đang gác.
+ */
+describe('Mốc tham chiếu trên biểu đồ', () => {
+  const GIA_DAO_DONG = Array.from(
+    { length: 120 },
+    (_, i) => 20_000 + Math.round(2_600 * Math.sin(i / 5)),
+  );
+
+  const CTX_DAO_DONG: CalcContext = {
+    ...CTX,
+    series: GIA_DAO_DONG,
+    bars: GIA_DAO_DONG.map((close, i) => ({
+      date: `2026-01-${String((i % 28) + 1).padStart(2, '0')}`,
+      open: close,
+      high: close,
+      low: close,
+      close,
+      volume: 1_000,
+    })),
+  };
+
+  function drawDaoDong(id: string) {
+    const formula = moduleOf(id);
+    const inputs = defaultInputs(formula.spec);
+
+    return render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={CTX_DAO_DONG}
+        output={runFormula(formula, inputs, CTX_DAO_DONG)}
+        level="basic"
+        seriesLabel="TEST"
+      />,
+    );
+  }
+
+  /** Mọi mốc đang vẽ trong một cây DOM, theo thứ tự tài liệu. */
+  function mocTrong(container: HTMLElement): string[] {
+    return [...container.querySelectorAll('[data-ref-value]')].map(
+      (node) => node.getAttribute('data-ref-value') ?? '',
+    );
+  }
+
+  it('RSI vẽ đủ hai ngưỡng, mỗi ngưỡng kèm nhãn chữ đọc được', () => {
+    const { container } = drawDaoDong('rsi-wilder');
+
+    expect(mocTrong(container)).toEqual(['30', '70']);
+    // Nhãn phải là CHỮ trên hình, không chỉ là một thuộc tính dữ liệu.
+    expect(container.textContent).toContain('Quá bán');
+    expect(container.textContent).toContain('Quá mua');
+  });
+
+  /*
+   * Yêu cầu "z-index nằm dưới đường dữ liệu chính". SVG xếp lớp theo THỨ TỰ THẺ, không có
+   * `z-index`, nên điều duy nhất kiểm được — và cũng là điều duy nhất đúng — là vị trí tương đối
+   * trong tài liệu. `compareDocumentPosition` nói thẳng chuyện đó, không phải đếm chỉ số.
+   */
+  it('mốc vẽ TRƯỚC đường dữ liệu, nên đường luôn nằm trên', () => {
+    const { container } = drawDaoDong('rsi-wilder');
+
+    const moc = container.querySelector('[data-ref-value]');
+    const duong = container.querySelector('path[data-points]');
+    expect(moc).not.toBeNull();
+    expect(duong).not.toBeNull();
+
+    // eslint-disable-next-line no-bitwise -- cờ bit là đúng API của compareDocumentPosition
+    const truoc =
+      (moc?.compareDocumentPosition(duong as Node) ?? 0) & Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(truoc).toBeGreaterThan(0);
+  });
+
+  it('công thức không khai mốc thì không mọc thêm thẻ nào', () => {
+    const { container } = draw('pe');
+    expect(mocTrong(container)).toEqual([]);
+  });
+
+  /*
+   * Đổi sang trục "Số phiên" thu trục Y về một dải hẹp quanh giá trị hiện tại, và ngưỡng rơi ra
+   * ngoài dải phải tự biến mất — không được ép trục giãn ra ôm lấy nó.
+   */
+  it('đổi sang trục Số phiên thì ngưỡng ngoài dải tự ẩn khỏi hình', async () => {
+    const { container } = drawDaoDong('rsi-wilder');
+    expect(mocTrong(container)).toEqual(['30', '70']);
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+
+    expect(mocTrong(container)).not.toContain('70');
+  });
+
+  it('màn phóng to dựng lại đủ mốc, không rơi mất khi nhân đôi hình', async () => {
+    const { container } = drawDaoDong('rsi-wilder');
+
+    await userEvent.click(screen.getByRole('button', { name: t('chart.zoom') }));
+
+    // Hai bản hình cùng nằm trong DOM khi lớp phủ mở, nên hai mốc thành bốn.
+    expect(mocTrong(container)).toEqual(['30', '70', '30', '70']);
+  });
+});
+
 /*
  * Bốn họ vừa mở phạm vi, mỗi họ một ca đại diện — không lặp lại 47 lần.
  *
@@ -553,14 +1119,23 @@ describe('Phóng to biểu đồ toàn màn hình', () => {
     return screen.queryByRole('dialog');
   }
 
-  it('nút phóng to đứng CẠNH ô chọn trục X, trong cùng một hàng', () => {
+  /*
+   * Hợp đồng đổi ở đợt 12: nút phóng to lên đứng cùng hàng với TIÊU ĐỀ, ô chọn trục ở hàng riêng
+   * bên dưới. Trước đó cả hai chung một hàng, và ở khổ 360 chúng xuống dòng thành hai tầng điều
+   * khiển chen giữa tiêu đề và hình.
+   */
+  it('nút phóng to đứng cùng hàng với TIÊU ĐỀ; ô chọn trục X ở hàng riêng', () => {
     const { container } = draw('pe');
+
+    const header = container.querySelector('figcaption')?.parentElement;
+    if (header === null || header === undefined) throw new Error('Thiếu hàng tiêu đề của biểu đồ.');
+    expect(within(header).getByRole('button', { name: /Phóng to/ })).not.toBeNull();
 
     const row = container.querySelector('[class*="controls"]');
     if (row === null) throw new Error('Thiếu hàng điều khiển của biểu đồ.');
-
-    expect(within(row as HTMLElement).getByRole('button', { name: /Phóng to/ })).not.toBeNull();
     expect(within(row as HTMLElement).getByLabelText('Xem kết quả đổi theo')).not.toBeNull();
+    // Nút không được nằm ở cả hai chỗ — đây là chỗ bắt việc dựng lặp.
+    expect(within(row as HTMLElement).queryByRole('button', { name: /Phóng to/ })).toBeNull();
   });
 
   /*
@@ -1133,6 +1708,125 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
   });
 
+  /*
+   * ── Ba tín hiệu cho biết "bấm được ngay bây giờ" ───────────────────────────────────────────
+   *
+   * Bối cảnh: tính năng bấm-áp-dụng chạy đúng nhưng gần như không ai tìm ra, vì dấu hiệu DUY NHẤT
+   * là một câu chỉ hiện lúc tính năng KHÔNG dùng được. Làm theo lời khuyên của câu ấy — đổi trục —
+   * là câu ấy biến mất và màn hình im lặng hoàn toàn.
+   *
+   * Ba ca dưới gác ba tín hiệu thay thế, mỗi tín hiệu cho một kiểu người dùng: dòng chữ (mọi máy,
+   * kể cả cảm ứng không có hover), con trỏ chuột, và vạch dò bám con trỏ.
+   */
+  it('trục là biến số: nói thẳng rằng bấm được, không im lặng', () => {
+    gioKhungKhopViewBox();
+    drawVoiApply(vi.fn());
+
+    expect(screen.getByText(t('chart.applyHintReady'))).not.toBeNull();
+  });
+
+  /*
+   * Dòng chữ phải có mặt NGAY KHI DỰNG, không đợi một sự kiện con trỏ nào — đó chính là điều kiện
+   * để nó còn tác dụng trên máy cảm ứng, nơi không hề có hover. Ca này không bắn pointer event nào
+   * là cố ý: nó mô phỏng đúng một chiếc điện thoại vừa mở trang.
+   */
+  it('máy cảm ứng không có hover: dòng chữ vẫn hiện, vì nó không phụ thuộc rê chuột', () => {
+    gioKhungKhopViewBox();
+    const { container } = drawVoiApply(vi.fn());
+
+    expect(screen.getByText(t('chart.applyHintReady'))).not.toBeNull();
+    // Chưa rê gì nên chưa có vạch dò — đúng như trên máy cảm ứng.
+    expect(container.querySelector('[data-testid="chart-pe-hover"]')).toBeNull();
+  });
+
+  it('con trỏ đổi hình theo trạng thái: bàn tay khi bấm được, chữ thập khi chỉ dò đọc', () => {
+    gioKhungKhopViewBox();
+    drawVoiApply(vi.fn());
+    expect(screen.getByTestId('chart-pe-hover-capture').getAttribute('class')).toContain(
+      'hoverCaptureReady',
+    );
+
+    cleanup();
+
+    // Trục thời gian: bấm không ghi được gì, nên KHÔNG được mời bằng con trỏ bàn tay.
+    const formula = moduleOf('pe');
+    const inputs = defaultInputs(formula.spec);
+    render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={WITH_BARS}
+        output={runFormula(formula, inputs, WITH_BARS)}
+        level="basic"
+        seriesLabel="FPT"
+        onApplyPoint={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('chart-pe-hover-capture').getAttribute('class')).not.toContain(
+      'hoverCaptureReady',
+    );
+  });
+
+  it('rê chuột lúc bấm được: hiện vạch dò kèm GIÁ TRỊ X sắp áp dụng', () => {
+    gioKhungKhopViewBox();
+    const { container } = drawVoiApply(vi.fn());
+
+    fireEvent.pointerMove(screen.getByTestId('chart-pe-hover-capture'), {
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+      pointerType: 'mouse',
+    });
+
+    const doVet = container.querySelector('[data-testid="chart-pe-hover"]');
+    expect(doVet).not.toBeNull();
+    // Vạch dọc bám con trỏ.
+    expect(doVet?.querySelector('line')).not.toBeNull();
+    // Và chữ phải mở đầu bằng nhãn trục X — thứ người dùng sắp ghi vào ô nhập, không phải kết quả.
+    expect(doVet?.querySelector('text')?.textContent).toContain('₫');
+  });
+
+  /*
+   * Ràng buộc rõ trong yêu cầu: vạch dò KHÔNG được che dấu "giá trị hiện tại".
+   *
+   * SVG xếp lớp theo thứ tự thẻ, không có `z-index`, nên điều duy nhất kiểm được — và cũng là điều
+   * duy nhất đúng — là vị trí tương đối trong tài liệu: dấu phải đứng SAU vạch dò. Kèm theo đó là
+   * `pointer-events: none` trên nhóm dấu; thiếu nó thì dấu nay nằm trên vùng bắt sự kiện sẽ nuốt
+   * mất pointer event, và rê chuột ngang qua chính nó là vạch dò tắt ngóm.
+   */
+  it('dấu "giá trị hiện tại" vẽ SAU vạch dò, nên vạch dò không che nó', () => {
+    gioKhungKhopViewBox();
+    const { container } = drawVoiApply(vi.fn());
+
+    fireEvent.pointerMove(screen.getByTestId('chart-pe-hover-capture'), {
+      clientX: diemGiuaKhung.x,
+      clientY: diemGiuaKhung.y,
+      pointerType: 'mouse',
+    });
+
+    const doVet = container.querySelector('[data-testid="chart-pe-hover"]');
+    const dau = container.querySelector('[data-testid="chart-marker"]');
+    expect(doVet).not.toBeNull();
+    expect(dau).not.toBeNull();
+
+    const sau =
+      // eslint-disable-next-line no-bitwise -- cờ bit là đúng API của compareDocumentPosition
+      (doVet?.compareDocumentPosition(dau as Node) ?? 0) & Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(sau).toBeGreaterThan(0);
+    expect(dau?.getAttribute('class')).toContain('marker');
+  });
+
+  it('bản phóng to nhận cùng dòng gợi ý khẳng định, không im lặng riêng', async () => {
+    gioKhungKhopViewBox();
+    drawVoiApply(vi.fn());
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    expect(screen.getAllByText(t('chart.applyHintReady'))).toHaveLength(2);
+    expect(screen.getByTestId('chart-pe-full-hover-capture').getAttribute('class')).toContain(
+      'hoverCaptureReady',
+    );
+  });
+
   it('không truyền onApplyPoint: dù trục là thời gian cũng KHÔNG hiện gợi ý (tính năng không bật ở đây)', () => {
     gioKhungKhopViewBox();
     const formula = moduleOf('pe');
@@ -1263,6 +1957,25 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
     expect(new Set(ids).size).toBe(2);
     expect(ids).toContain('chart-pe-hatch');
     expect(ids).toContain('chart-pe-full-hatch');
+  });
+
+  /*
+   * Vùng tô dưới đường thêm một node mang `id` nữa vào cùng cây, nên nó chịu đúng luật của
+   * `<pattern>` ở ca trên: hai bản cùng nằm trong DOM khi lớp phủ mở, trùng `id` là bản sau tô
+   * bằng dải chuyển màu của bản trước.
+   */
+  it('mở lớp phủ thì có hai dải chuyển màu, và hai id KHÁC nhau', async () => {
+    const { container } = draw('pe');
+
+    expect(container.querySelectorAll('linearGradient')).toHaveLength(1);
+
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const ids = [...container.querySelectorAll('linearGradient')].map((node) => node.id);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+    expect(ids).toContain('chart-pe-area');
+    expect(ids).toContain('chart-pe-full-area');
   });
 
   /*

@@ -7,6 +7,8 @@ import type { CalcContext, CalcInputs, CalcOutput, FormulaModule, Level } from '
 import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
+import { ApplyHint } from './ApplyHint';
+import type { ApplyHintState } from './ApplyHint';
 import { ChartFrame } from './ChartFrame';
 import { ChartFullscreen } from './ChartFullscreen';
 import { LineChart } from './LineChart';
@@ -131,17 +133,28 @@ export function ChartBody({
     model.kind === 'line' && formula.spec.variables.some((v) => v.key === model.sweepKey);
 
   /*
-   * Trục hiện KHÔNG áp dụng được (đang xem theo thời gian) NHƯNG có ít nhất một mục khác trong ô
-   * chọn LÀ một biến thật — vậy thì bấm không câm hẳn, chỉ cần đổi ô chọn. Nói thẳng điều đó ra
-   * thay vì để người dùng tự đoán, vì trải nghiệm mặc định của mọi công thức cần chuỗi giá (nạp mẫu
-   * xong là tự chuyển sang trục thời gian) khiến đây gần như lượt tương tác DUY NHẤT họ gặp trên
-   * biểu đồ đó — không nói gì thì cú bấm trông như tính năng không hoạt động.
+   * Dòng gợi ý về lối bấm-áp-dụng — BA trạng thái, không phải một cờ bật/tắt.
+   *
+   * Bản trước chỉ nói khi tính năng KHÔNG dùng được ("trục đang là thời gian…"), nên người dùng làm
+   * đúng theo lời khuyên, đổi trục, rồi câu ấy biến mất và không còn dấu hiệu nào cho biết giờ bấm
+   * được. Lối tương tác duy nhất của biểu đồ tự giấu mình đi đúng lúc nó bắt đầu chạy.
+   *
+   *   - `'ready'`  — trục X đang là một biến thật: nói thẳng là bấm được.
+   *   - `'switch'` — đang ở trục thời gian nhưng có biến khác đổi sang được: chỉ đường như cũ.
+   *   - `null`     — tính năng không bật ở màn này (`onApplyPoint` vắng), hoặc không trục nào áp
+   *                  dụng được, nên không có gì để mời cũng không có gì để chỉ.
+   *
+   * Tính MỘT lần ở đây rồi truyền cả hai bản (trên trang và phóng to), để câu trả lời cho "khi nào
+   * nói gì" chỉ sống ở một chỗ.
    */
-  const showApplyHint =
-    model.kind === 'line' &&
-    !canApplyPoint &&
-    onApplyPoint !== undefined &&
-    model.options.some((option) => formula.spec.variables.some((v) => v.key === option.key));
+  const applyHint: ApplyHintState | null =
+    model.kind !== 'line' || onApplyPoint === undefined
+      ? null
+      : canApplyPoint
+        ? 'ready'
+        : model.options.some((option) => formula.spec.variables.some((v) => v.key === option.key))
+          ? 'switch'
+          : null;
 
   /*
    * Gốc của mọi `id` trong cây biểu đồ — sinh từ prop, KHÔNG từ `useId()`.
@@ -215,7 +228,7 @@ export function ChartBody({
               idBase={idBase}
               onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
             />
-            {showApplyHint && <p className={styles.applyHint}>{t('chart.applyHintTimeAxis')}</p>}
+            {applyHint !== null && <ApplyHint state={applyHint} />}
           </>
         )}
       </ChartFrame>
@@ -229,7 +242,7 @@ export function ChartBody({
         idBase={`${idBase}-full`}
         controls={pickerVoi(`${idBase}-full`)}
         onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
-        showApplyHint={showApplyHint}
+        applyHint={applyHint}
       />
     </>
   );

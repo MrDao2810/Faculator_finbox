@@ -53,17 +53,20 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
      * màn hình lẫn bộ kiểm không phân biệt được hai vùng.
      */
     <figure className={styles.chart} aria-labelledby={captionId}>
-      <figcaption className={styles.caption} id={captionId}>
-        <strong className={styles.captionTitle}>{pick(model.title)}</strong>
-        <span className={styles.captionText}>{pick(model.summary)}</span>
-      </figcaption>
+      {/*
+        Nút phóng to đứng cùng hàng với tiêu đề, ô chọn trục xuống hàng riêng — bản thiết kế
+        đợt 12. Trước đó cả hai chung một hàng `.controls`, và ở khổ 360 chúng xuống dòng thành
+        hai tầng điều khiển ngay trên hình, đẩy hình xuống quá nếp gấp.
+      */}
+      <div className={styles.captionRow}>
+        <figcaption className={styles.caption} id={captionId}>
+          <strong className={styles.captionTitle}>{pick(model.title)}</strong>
+          <span className={styles.captionText}>{pick(model.summary)}</span>
+        </figcaption>
+        {action}
+      </div>
 
-      {(picker !== undefined || action !== undefined) && (
-        <div className={styles.controls}>
-          {picker}
-          {action}
-        </div>
-      )}
+      {picker !== undefined && <div className={styles.controls}>{picker}</div>}
 
       {children}
 
@@ -98,10 +101,18 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
             <caption className="visually-hidden">
               {t('chart.tableCaption')} — {pick(model.title)}
             </caption>
+            {/*
+              Cột dựng theo MẢNG chứ không viết cứng hai cột: từ đợt nhiều-chuỗi, mỗi chuỗi phụ
+              thêm một cột. Biểu đồ một chuỗi vẫn ra đúng hai cột như trước — `columns` của nó vẫn
+              đúng hai phần tử, không phải "hai cột được suy ra".
+            */}
             <thead>
               <tr>
-                <th scope="col">{pick(model.table.columns[0])}</th>
-                <th scope="col">{pick(model.table.columns[1])}</th>
+                {model.table.columns.map((column, index) => (
+                  <th key={`col-${String(index)}`} scope="col">
+                    {pick(column)}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -110,18 +121,21 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
                   // Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ 240 kỳ.
                   return (
                     <tr key={`gap-${String(index)}`} className={styles.gapRow}>
-                      <td colSpan={2}>…</td>
+                      <td colSpan={model.table.columns.length}>…</td>
                     </tr>
                   );
                 }
-                const label = pick(row[0]);
+                const [head, ...values] = row;
+                const label = pick(head);
                 return (
                   <tr
                     key={`${label}-${String(index)}`}
                     className={label === currentLabel(model) ? styles.currentRow : undefined}
                   >
                     <td>{label}</td>
-                    <td>{row[1]}</td>
+                    {values.map((value, cell) => (
+                      <td key={`cell-${String(cell)}`}>{value}</td>
+                    ))}
                   </tr>
                 );
               })}

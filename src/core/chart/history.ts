@@ -20,9 +20,9 @@
 
 import { needsPriceSeries, runFormula } from '../calc/run';
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
-import { formatCalcOutput, formatIsoDate } from '../format';
+import { NO_VALUE, formatCalcOutput, formatIsoDate, formatValueWithUnit } from '../format';
 import type { SeriesRow } from '../price-series';
-import type { ChartPoint } from './types';
+import type { ChartPoint, ChartSeries } from './types';
 
 /**
  * Khoá của mục "theo thời gian" trong ô chọn trục X.
@@ -174,6 +174,58 @@ export function historyPoints(
     if (out.warning !== undefined) point.reason = out.warning.code;
     return point;
   });
+}
+
+/**
+ * Chuỗi giá đóng cửa làm CHUỖI PHỤ vẽ kèm — cho công thức khai `spec.priceOverlay`.
+ *
+ * Cùng lưới x với `historyPoints()` theo cấu tạo: cả hai map trên cùng `sessionsOf(ctx)` với
+ * `x = chỉ số phiên`, nên `usableOverlays()` không bao giờ loại nó vì lệch lưới.
+ *
+ * **Phiên không có giá dùng được thành `y: null`** — đường đứt tại đó, không nội suy vắt qua
+ * (FR-06). Phép thử là `close > 0`, KHÔNG phải `Number.isFinite` suông, và chỗ này là một cái bẫy
+ * thật chứ không phải cẩn thận thừa: `isBadPrice()` bên `price-series.ts` đã chốt "giá phải dương;
+ * 0 hoặc âm không phải giá", còn bảng WF-05 thì CẢNH BÁO dòng giá ≤ 0 mà vẫn lưu nó. Chuỗi vào
+ * `calc` được lọc `> 0` ở cả hai đầu ống (`FormulaDetail` dựng `ctx.series`, và `historyPoints()`
+ * khi cắt tiền tố), nên nếu đây nhận số 0 là hình vẽ ra hai đường mâu thuẫn nhau về CÙNG một
+ * phiên: SMA đã bỏ phiên ấy khỏi phép tính, còn đường giá thì vẽ một cú sập sàn về 0 chưa hề xảy
+ * ra — và vì miền trục trái ôm cả chuỗi phụ, cả hai đường bị nén dẹt theo. Đúng loại "số sai trông
+ * như thật" mà FR-06 tồn tại để chặn.
+ *
+ * Hình dạng cố định theo yêu cầu của tính năng, không phải tham số: nét MẢNH (1.25 so với 2 của
+ * chuỗi chính) tông trung tính, vì giá là bối cảnh còn chỉ báo mới là đầu ra của công thức; KHÔNG
+ * tô dải dưới đường — hai vùng tô chồng nhau thành một mảng màu không đọc được; trục TRÁI, vì giá
+ * và chỉ báo cùng đơn vị tiền — `buildChartModel()` nới miền trục ôm cả hai.
+ *
+ * Nét LIỀN chứ không đứt, dù `ChartSeries.dash` có sẵn: dấu hiệu thứ hai bên cạnh màu (NFR-USA-06)
+ * ở đây là ĐỘ DÀY cộng dải tô chỉ nằm dưới chuỗi chính — hai thứ đọc được cả khi ảnh chuyển sang
+ * xám. Nét đứt trên một chuỗi vài trăm phiên dao động liên tục thì gạch và khoảng hở lẫn vào chính
+ * biên độ của đường, thành ra thêm nhiễu chứ không thêm tín hiệu.
+ *
+ * KHÔNG đặt `marked` cho phiên cuối: dấu "giá trị hiện tại" là của riêng chuỗi chính.
+ */
+export function closePriceSeries(ctx: CalcContext): ChartSeries | null {
+  const bars = sessionsOf(ctx);
+  if (bars === null) return null;
+
+  return {
+    key: 'gia-dong-cua',
+    label: { vi: 'Giá đóng cửa', en: 'Closing price' },
+    points: bars.map((bar, index) => {
+      const close = bar.close;
+      const ok = close !== null && Number.isFinite(close) && close > 0;
+      return {
+        x: index,
+        y: ok ? close : null,
+        label: formatSessionDate(bar.date),
+        valueLabel: ok ? formatValueWithUnit(close, '₫') : NO_VALUE,
+      };
+    }),
+    unit: '₫',
+    tone: 'muted',
+    width: 1.25,
+    axis: 'left',
+  };
 }
 
 /**

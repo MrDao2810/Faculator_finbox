@@ -1,6 +1,6 @@
 'use client';
 
-import type { ButtonHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, Ref } from 'react';
 
 import styles from './Button.module.css';
 
@@ -11,6 +11,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   fullWidth?: boolean;
+  /**
+   * Tham chiếu tới thẻ `<button>` thật.
+   *
+   * `ButtonHTMLAttributes` KHÔNG mang sẵn `ref` (nó nằm ở `ClassAttributes`), nên phải khai tay.
+   * Không cần `forwardRef`: từ React 19 `ref` là prop thường của function component, và nó đi
+   * theo `...rest` xuống thẻ `<button>` bên dưới.
+   *
+   * Thêm ở đợt 13 cho thanh Hoàn tác của màn Cài đặt — chỗ duy nhất trong repo cần đưa tiêu điểm
+   * tới một nút bằng mã, vì nút vừa bấm bị vô hiệu hoá ngay trong cùng nhịp dựng lại.
+   */
+  ref?: Ref<HTMLButtonElement>;
 }
 
 /**

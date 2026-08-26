@@ -24,6 +24,19 @@
   list-style: none;
 }
 
+/*
+ * `content-visibility` chép đúng từ `VirtualList.module.css` — bản tĩnh này là thứ trình duyệt
+ * dựng TRƯỚC, ngay lúc đọc HTML, còn `VirtualList` chỉ thay chỗ sau khi hydrate xong. Bỏ sót ở
+ * đây là bỏ sót đúng lúc nó đáng giá nhất: `/cong-thuc/` có `domInteractive` cao gấp 3–5 lần mọi
+ * màn khác, vì nó là màn duy nhất dựng cả trăm thẻ trong một lượt.
+ *
+ * KHÔNG đụng hai cửa gác đếm "đúng năm khối hoãn dựng hình" (`chrome-check.mjs` và
+ * `FormulaDetail.test.tsx`): cả hai đếm trên MÀN CHI TIẾT, một cái lọc `section, table`, cái kia
+ * lọc lớp `deferred` bên trong `FormulaDetail`. Đây là `<li>` ở màn danh sách, không lọt vào cả
+ * hai phép đếm.
+ */
 .item {
   padding-bottom: var(--space-2);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 122px;
 }

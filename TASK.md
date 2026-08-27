@@ -122,6 +122,536 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Ba cách sắp xếp mới ở màn danh sách công thức — 3 loại thành 6
+
+**Trạng thái:** code + test xong; `npm run check` xanh (2014 ca, 82 file).
+Chưa chạy `npm run build` → `verify:static` → `size` (dev server đang giữ :3000 nên `prebuild`
+từ chối chạy) — xem mục "Việc còn lại" cuối phần này.
+
+### Vì sao
+
+`<select>` Sắp xếp của WF-02 chỉ có `featured` / `az` / `za`, cả ba đều là thuộc tính TĨNH của
+công thức. Người quay lại lần thứ mười không có cách nào đưa thứ mình hay mở lên đầu, trong khi
+dữ liệu ấy đã được ghi sẵn từ gói FR-20: `ffb.usage.v1` cập nhật ở mọi trang chi tiết
+(`FormulaDetail.tsx`, sau 8 s dừng hoặc cú chạm số liệu đầu tiên) nhưng **chỉ trang chủ đọc**.
+
+Thêm ba loại, thành sáu:
+
+| Giá trị  | Nhãn VI         | Chấm điểm bằng                           |
+| -------- | --------------- | ---------------------------------------- |
+| `recent` | Vừa xem gần đây | `entry.at` — mốc lần mở gần nhất         |
+| `used`   | Hay dùng nhất   | `usageScore()` — số lượt, bán rã 30 ngày |
+| `basic`  | Cơ bản trước    | `level` (79 cơ bản / 32 nâng cao)        |
+
+Đã cân nhắc và **loại**: "Ít số liệu phải nhập trước" (phải mở rộng `FormulaSummary` +
+`gen:summaries`, mà 46/111 công thức hoà nhau ở mức 2 biến), "Có biểu đồ trước" (chỉ 11 công
+thức `chartType: 'none'`, sắp xong thì 100/111 mục không đổi chỗ), và "Mới thêm" — **không có
+field ngày tháng nào** trên formula trong cả repo, muốn có phải bịa `addedAt` cho 111 spec.
+`featured` giữ nguyên vai kép (có từ khoá tìm thì nó là độ liên quan).
+
+### Bốn quyết định, và cái giá của phương án khác
+
+1. **Domain không được biết `FormulaUsage`.** CON-02 cấm `src/core` import lên trên, mà
+   `usageScore()` nằm ở `src/application`. Tầng Application chấm điểm rồi đưa xuống một
+   `ReadonlyMap<string, number>` trung tính (id → điểm, cao lên trước) qua
+   `SelectOptions.usageOrder`. Cùng một cấu trúc phục vụ cả hai cách sắp — Domain không cần
+   phân biệt `recent` với `used`, vì chỗ quyết định "điểm ấy nghĩa là gì" nằm ở
+   `usageOrderMap()`. Phương án chuyển `formula-usage.ts` xuống Domain đã bị loại: nó là
+   trạng thái máy khách, và docblock của nó ghi rõ vì sao nó không được import Registry.
+
+2. **`compareDefault()` tách ra làm mốc phá hoà dùng chung.** `MAX_USAGE_ENTRIES = 24` nên ≥87
+   công thức không có điểm; chúng phải rơi xuống dưới theo nổi-bật-rồi-A→Z chứ không theo thứ
+   tự Registry. Hệ quả cố ý: **map rỗng ⇒ trùng khít thứ tự mặc định**, nên khách mới, trình
+   duyệt chặn `localStorage` và mọi bộ máy tìm kiếm không bao giờ thấy một danh sách lạ.
+
+3. **Không sao chép object `FormulaSummary`.** `FIELD_INDEX` là `WeakMap` khoá theo tham chiếu;
+   viết `.map(f => ({ ...f, score }))` cho tiện là chỉ mục từ khoá trượt 100% mà không ca kiểm
+   nào khác thấy được. `compareByUsage` tra điểm qua `order.get(formula.id)`. Ca kiểm cũ
+   "lọc không được sao chép công thức" đã mở rộng cho cả sáu cách sắp.
+
+4. **`recent`/`used`/`basic` ĐÈ độ liên quan**, y như `az`/`za` — người dùng vừa tự tay chọn nó
+   sau khi đã gõ xong từ khoá. Chỉ `featured` mới nhường.
+
+`compareByLevel` phá hoà bằng `compareName` chứ không phải `compareDefault`: trong một mức, danh
+sách chữ cái liền mạch dễ quét hơn là để 18 công thức nổi bật chen lên rồi mới quay lại bảng chữ
+cái. Ở chế độ Cơ bản nó không đổi gì (danh sách vốn đã chỉ còn mức cơ bản) — cố ý KHÔNG ẩn lựa
+chọn, vì ẩn/hiện mục trong `<select>` theo trạng thái là link `?sort=basic` chia sẻ đi mở ra một
+màn khác.
+
+### Đã đổi file nào
+
+| File                               | Sửa gì                                                                                                                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/registry/types.ts`           | `ListSort` thêm `'recent' \| 'used' \| 'basic'`                                                                                                                              |
+| `core/registry/search.ts`          | `SelectOptions`; tách `compareDefault`; thêm `compareByLevel`, `compareByUsage`, `EMPTY_ORDER`; tham số thứ ba của `selectFormulas` đổi từ `categories` sang object tuỳ chọn |
+| `core/registry/index.ts`           | xuất kiểu `SelectOptions`                                                                                                                                                    |
+| `application/formula-usage.ts`     | thêm `usageOrderMap(usage, by, now)` — hàm thuần, `now` truyền vào                                                                                                           |
+| `application/index.ts`             | mở `usageOrderMap` qua barrel                                                                                                                                                |
+| `application/url-state.ts`         | `SORTS` nhận đủ 6 giá trị; ghi lý do `DEFAULT_LIST_PARAMS.sort` phải tính được lúc build                                                                                     |
+| `application/i18n/vi.ts` + `en.ts` | 3 khoá `sort.recent` / `sort.used` / `sort.basic`                                                                                                                            |
+| `ui/browse/CategoryFilter.tsx`     | 6 mục trong `<select>`, gom theo loại tiêu chí — mặc định → thói quen → cấp độ → chữ cái                                                                                     |
+| `app/cong-thuc/FormulaBrowser.tsx` | đọc `ffb.usage.v1` trong effect (state khởi tạo hằng số `null`), chốt `now` lúc mount, dựng `usageOrder`                                                                     |
+
+`StaticFormulaList.tsx` **không đổi** — vẫn dựng bằng `DEFAULT_LIST_PARAMS`, tức luôn là
+`featured`. Đó là thứ giữ cho `out/cong-thuc/index.html` không đổi. `countHiddenByLevel` và hai
+bộ đếm chip cũng không đổi: chúng ĐẾM, mà thứ tự không đổi được số lượng.
+
+Test thêm: 8 ca ở `search.test.ts` (điểm cao lên trước · mục vô hạng rơi xuống theo thứ tự mặc
+định · ba đường vào "không có lịch sử" đều ra thứ tự mặc định · đè độ liên quan · điểm không kéo
+được mục đã bị lọc quay lại · tất định · "Cơ bản trước" · ca gác `WeakMap` cho cả 6 cách sắp),
+2 ca ở `url-state.test.ts`, 5 ca ở `formula-usage.test.ts`.
+
+### Đánh đổi đã biết
+
+- Link `?sort=recent` chia sẻ đi cho **thứ tự khác nhau ở mỗi máy**. URL chỉ mang TÊN cách sắp,
+  không mang dữ liệu — LDR-04 / NFR-SEC-01 không bị đụng, không có gì rời khỏi máy.
+- Một nhịp sắp lại sau hydrate, chỉ với người **tự chọn** `recent`/`used` và **đã có** lịch sử.
+  Đúng đánh đổi mà `FeaturedFormulas` đã chọn và ghi lý do.
+- Chọn `recent` khi chưa có lịch sử thì không thấy gì đổi. Hướng xử lý nếu sau này thấy vướng:
+  truyền cờ `hasHistory` xuống `CategoryFilter` để `<Select>` hiện `hint` — prop ấy đã có sẵn.
+  Chưa làm.
+- `SearchScreen` và `HomeSearchPanel` cũng gọi `selectFormulas` với `params` có thể mang `sort`
+  mới nhưng không truyền `usageOrder` ⇒ rơi về thứ tự mặc định. Đúng thiết kế, không phải lỗi.
+
+### Việc còn lại
+
+- [ ] `npm run build` → `npm run verify:static` → `npm run size`. Riêng `size` cần soi kỹ:
+      `formula-usage.ts` trước nay chưa nằm trong chunk `/cong-thuc`, nay có. Cửa First Load JS
+      là 180 kB.
+- [ ] `npm run check:chrome` (cần `out/` + Chrome).
+- [ ] Thử tay 6 bước: mở vài trang chi tiết cho `ffb.usage.v1` có dữ liệu → về `/cong-thuc/` thử
+      "Vừa xem gần đây" và "Hay dùng nhất" (hai cách phải cho hai thứ hạng khác nhau) → thử
+      "Cơ bản trước" ở chế độ Nâng cao → xoá `ffb.usage.v1` ở Cài đặt → mở `?sort=recent` ở tab
+      ẩn danh, soi console xem có cảnh báo hydration không.
+
+---
+
+## Hai kho mã hết mâu thuẫn — bỏ ô tìm ở sheet Nạp mẫu, mở lối rẽ sang toàn thị trường
+
+**Trạng thái:** code + test xong; lint / typecheck / format:check / test xanh (1972 ca, 81 file).
+Chưa chạy `npm run build` → `verify:static` → `size` (dev server đang giữ :3000 nên `prebuild`
+từ chối chạy). Thay đổi không thêm route nào và không thêm import nào vào đường đi của 111 trang
+chi tiết.
+
+### Lỗi được báo
+
+Chủ dự án: “Nạp mẫu chỉ có vài mã và không search được mã, mà chọn một mã xong thì bên dưới lại
+hiện Đổi mã — rồi tôi search được một đống. Quá mâu thuẫn.” Đúng: màn chi tiết có **hai kho mã**,
+trình bày như nhau nhưng khác hẳn nguồn lẫn năng lực.
+
+|           | `PresetSheet` (`DataProvider`) | `TickerPickerSheet` (`MarketFeed`) |
+| --------- | ------------------------------ | ---------------------------------- |
+| Số mã     | 4 mã WF-10                     | ~1.649 mã                          |
+| Chuỗi giá | 248 phiên OHLCV                | ĐÚNG 1 phiên                       |
+
+Ba chỗ đẻ ra mâu thuẫn: (1) ô tìm cho đúng 4 dòng — gõ mã thứ năm ra “không có mã nào khớp”;
+(2) `applyPreset()` bật `stickyTicker` cho **cả** preset mẫu, nên nạp mẫu xong là thanh mã mời
+“Đổi mã” và mở ra cả thị trường; (3) đổi sang mã của kho lớn thì `bars` còn 1 phiên, 35 công thức
+ăn chuỗi lặng lẽ quay về “chưa đủ phiên giá” mà màn không nói vì sao.
+
+### Đã sửa — phương án B: giữ hai kho, nói rõ vai trò từng kho
+
+- `src/ui/sheets/PresetSheet.tsx` — bỏ ô tìm; bỏ luôn state `query`/`floor` và phần ghim chiều cao
+  bằng `getBoundingClientRect()` (nó chỉ tồn tại vì lọc làm danh sách co lại giữa lúc đang gõ).
+  Thêm prop `onBrowseMarket?` → nút “Tìm mã khác trong toàn thị trường →”, kèm câu nói rõ kho lớn
+  chỉ có một phiên giá. Docblock ghi lại vì sao ô tìm bị gỡ, để không ai dựng lại.
+- `src/ui/sheets/PresetSheet.module.css` — xoá `.search` / `.results` / `.empty`; thêm `.browse` /
+  `.browseNote`, ngăn với danh sách bằng một đường kẻ.
+- `src/ui/primitives/BottomSheet.tsx` + `.module.css` — prop `dismiss?: 'close' | 'back'`. Dạng
+  `'back'` đổi dấu × ở mép phải thành mũi tên ‹ ở mép TRÁI, nhãn trình đọc màn hình đổi theo
+  (“Quay lại” thay vì “Đóng”). Nút đứng trước tiêu đề trong DOM chứ không đẩy bằng CSS `order`,
+  để thứ tự bàn phím khớp thứ tự trên màn. Mặc định `'close'` nên 4 sheet còn lại không đổi gì.
+- `src/ui/sheets/TickerPickerSheet.tsx` — nhận `dismiss` và chuyển thẳng xuống `BottomSheet`;
+  tab Danh mục không truyền nên vẫn là dấu ×.
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — tách `openTickerPicker(fromPreset)` dùng chung cho
+  nút “Đổi mã” và lối rẽ mới (quên bật `pickerMounted` là sheet không bao giờ hiện); thoát sheet
+  chọn mã khi vào **từ sheet mẫu** thì `closeTickerPicker()` lùi về đúng sheet đó, không quăng
+  người dùng ra màn hình — cờ `pickerFromPreset` là `useRef` chứ không `useState`, vì
+  `TickerPickerSheet` gọi `onPick()` rồi mới `onClose()` trong cùng lượt sự kiện, nên một biến
+  state còn mang giá trị cũ và sheet mẫu sẽ bật lại ngay sau khi vừa chọn xong mã; truyền
+  `onBrowseMarket` vào `PresetSheet`; thêm cảnh báo `detail.liveSeriesShort` khi công thức cần
+  chuỗi mà preset đang nạp có < 2 phiên (ngưỡng < 2 chứ không phải === 1: mã không tra được giá
+  cho `bars: []`).
+- `src/app/cong-thuc/[id]/FormulaDetail.module.css` — thêm `.seriesShortNote`, dải màu cảnh báo,
+  cùng loại với cảnh báo số liệu bản thảo ở `PresetSheet`.
+- `src/application/i18n/vi.ts` + `en.ts` — bỏ 3 khoá của ô tìm (`preset.searchLabel`,
+  `preset.searchPlaceholder`, `preset.noMatch` — cửa gác khoá mồ côi bắt ngay nếu để lại); sửa
+  `preset.subtitle`; thêm `preset.browseMarket`, `preset.browseMarketNote`,
+  `detail.liveSeriesShort`. Cố ý không chép số mã vào câu chữ — con số đó do nguồn quyết.
+- `src/ui/sheets/ExportSheet.test.tsx` — bỏ 3 ca kiểm ô tìm; thêm 3 ca: không còn ô tìm, lối rẽ
+  gọi `onBrowseMarket` + đóng sheet trước, và không truyền prop thì không hiện lối rẽ.
+- `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` — sửa ca “bấm Nạp mẫu thì mở sheet” (không còn
+  dò ô tìm); thêm describe “hai kho mã phải nói cùng một câu chuyện” với 5 ca: rẽ từ sheet mẫu
+  sang sheet toàn thị trường (thấy VCB — mã ngoài bộ mẫu), thoát sheet chọn mã thì lùi về sheet
+  mẫu, chọn được mã thì đóng cả hai, mã 1 phiên hiện cảnh báo và kết quả vẫn trống, bộ mẫu 248
+  phiên thì không có cảnh báo. Trạng thái sheet đọc qua `<dialog>.open` chứ không qua sự có mặt
+  của chữ: sheet đã dựng thì ở lại DOM (cố ý — để không mất danh sách 1.649 mã vừa tải), nên một
+  ca kiểm bám vào chữ sẽ đỗ giả.
+
+### Còn lại
+
+- `DataProvider.search()` (`src/data/types.ts`, `provider.ts`) nay chỉ còn test dùng. Chưa xoá vì
+  đó là API của cổng Data — xoá là đụng hợp đồng tầng. **Chờ chủ dự án quyết: giữ hay dọn.**
+- Chưa soi Chrome thật ở 360×780 (bố cục nút lối rẽ và nút ‹ trong bottom sheet).
+- Chưa chạy build / verify:static / size.
+- **Baseline đang đỏ vì việc của phiên khác, không phải vì đợt này:** `src/app/HomeSearchPanel.tsx`
+  dùng `Button` mà thiếu import (4 lỗi TS + 1 lỗi ESLint, 13 ca `HomeSearchPanel.test.tsx` đỏ), và
+  3 khoá `home.search.resultsHeading` / `seeAll` / `dropFilter` thành mồ côi nên
+  `i18n.test.ts` đỏ theo. Không đụng vào — file đang được sửa dở.
+
+---
+
+## Ô tìm ở trang chủ chỉ lọc kệ "Công thức dùng hằng ngày"
+
+**Trạng thái:** code + test xong, lint/typecheck/format/test xanh (1999 ca, 82 file), đã soi
+Chrome thật ở 390×840 cho cả ba trạng thái. **Còn chờ `npm run build` → `verify:static` → `size`**
+(dev server đang giữ :3000). Chồng tiếp trên nhánh `feat/sma-duong-gia`, chưa commit.
+
+### Lỗi được báo
+
+"Phần tìm kiếm ở màn home đang bị sai cách hoạt động: khi search lại ra công thức trong phần
+Công Thức thay vì search công thức dùng hằng ngày ngoài màn home — làm người dùng khó hiểu."
+
+### Chẩn đoán
+
+Gõ một ký tự vào ô tìm ở trang chủ thì **toàn bộ trang chủ biến mất**, thay bằng bộ chip lọc +
+"Nhóm công thức" + "Sắp xếp" + "Xoá bộ lọc" — tức đúng giao diện tab Công thức — trong khi thanh
+dưới **vẫn sáng mục "Trang chủ"**. Một màn mang nội dung của màn khác dưới cái tab của màn này.
+
+Hai chỗ sai cụ thể, và repo tự nói ngược với chính nó ở cả hai:
+
+1. **Tiêu đề giải thích bị ẩn khỏi mắt người.** `HomeSearchPanel` dựng
+   `<h2 class="visually-hidden">Kết quả tìm kiếm</h2>`. Trình đọc màn hình nghe được; người nhìn
+   bằng mắt không có lời giải thích nào về việc trang vừa đổi.
+2. **Trang chủ dựng lại bộ lọc duyệt**, trong khi docblock của chính nó viết _"Trang chủ là nơi
+   XEM TRƯỚC, không phải danh sách thứ hai"_ (`PREVIEW_LIMIT = 8`).
+
+Và `SearchLink.tsx:17` vẫn ghi vai của ô tìm trang chủ là _"LỌC danh sách đang xem"_ — đúng bằng
+thứ chủ dự án mô tả, và đúng bằng thứ nó không làm.
+
+### Cái giá đã đo trước khi chốt
+
+Đếm trên Registry thật, 11 từ khoá thường gặp, so số kết quả trong 18 ô ghim với cả thư viện:
+
+| từ khoá   | trong 18 ô ghim | cả thư viện |
+| --------- | --------------- | ----------- |
+| sma       | **0**           | 5           |
+| bollinger | **0**           | 4           |
+| macd      | **0**           | 2           |
+| beta      | **0**           | 3           |
+| roe       | **0**           | 1           |
+| pe        | 6               | 42          |
+| định giá  | 5               | 13          |
+
+**5/11 từ khoá ra rỗng dù công thức có thật.** Đã trình bày cùng hai phương án thay thế; chủ dự
+án chốt phương án thu hẹp phạm vi, kèm lối bàn giao sang cả thư viện để không ai cụt đường.
+
+### Quyết định
+
+Ô tìm ở trang chủ **chỉ lọc 18 ô ghim** (`isFeatured`, FR-20), và **không lọc theo cấp độ** —
+`page.tsx` dựng kệ thẳng từ cờ `isFeatured` chứ không qua `formulasForLevel()`, nên lọc một bên
+mà không lọc bên kia thì con số "n / 18" nói dối. Ô ghim mức nâng cao (`ev-ebitda`) là bằng chứng
+sống của luật này và có ca kiểm riêng.
+
+Khối kết quả mang **đúng tiêu đề và đúng lưới ô** của kệ nó đang lọc: gõ vào ô tìm thì kệ thu hẹp
+tại chỗ, chứ không bị thay bằng một màn khác. Tiêu đề **hiện ra cho mắt thấy**, kèm dòng phạm vi
+"6 / 18 công thức".
+
+Hàng bàn giao sang `/cong-thuc/` **luôn hiện khi đang tìm**, không chỉ lúc rỗng, và mang sẵn số
+kết quả của cả thư viện ("Tìm trong cả thư viện · 4 kết quả") — người dùng biết trước bấm sang có
+gì. Con số đó **có** lọc theo cấp độ, cố ý khác với kệ: nó hứa trước thứ `/cong-thuc/` sẽ hiện,
+hứa 5 rồi sang thấy 3 là đúng kiểu sai FR-06 tồn tại để chặn, chỉ khác là ở tầng điều hướng.
+
+Bỏ hẳn khỏi trang chủ: `CategoryFilter`, `HiddenByLevelNote`, nút "Xoá bộ lọc", nút "Bỏ lọc",
+`PREVIEW_LIMIT`.
+
+### File đã đổi
+
+| File                                   | Sửa gì                                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `src/app/HomeSearchPanel.tsx`          | `FEATURED_POOL`; bỏ bộ lọc duyệt; khối kết quả mang hình kệ; hàng bàn giao mới                       |
+| `src/app/HomeSearchPanel.module.css`   | thêm `.resultsBlock` `.resultsTitle` `.scope` `.cards` `.handoff` `.notFound`; bỏ `.list` `.actions` |
+| `src/application/i18n/vi.ts` · `en.ts` | thêm 4 khoá; bỏ 3 khoá đã chết (`resultsHeading`, `seeAll`, `dropFilter`)                            |
+| `src/app/HomeSearchPanel.test.tsx`     | viết lại: 14 ca theo luật mới, thay 8 ca của hành vi cũ                                              |
+
+`.cards` lặp lại giá trị lưới của `FeaturedFormulas.module.css` — cố ý lặp, không gộp: ba file CSS
+này đã tách nhau từ trước và gộp là buộc chúng đổi cùng nhau. Cái phải giữ đồng bộ là DIỆN MẠO,
+việc đó do ca kiểm gác.
+
+### Kiểm chứng
+
+- `npm run lint` · `typecheck` · `format:check` · `npm test` → **1999 ca xanh / 82 file**.
+- **Thử làm hỏng có chủ đích**: đổi `FEATURED_POOL` thành cả `FORMULA_SUMMARIES` → đúng 3 ca đỏ
+  ("không bao giờ lọt một công thức ngoài kệ", dòng "n / 18", và ca kệ-rỗng). Ca kiểm cắn thật.
+- Ca kiểm quét **nhiều** từ khoá chứ không một: một từ khoá tình cờ chỉ khớp ô ghim thì ca xanh mà
+  không chứng minh được gì.
+- Hai hàm dò từ khoá lúc chạy (`tuKhoaTrenKe`, `tuKhoaNgoaiKe`) thay cho từ khoá viết cứng — cùng
+  nếp các hàm dò của bản trước, để ca kiểm không đỏ vào ngày ai đó đổi danh sách ghim.
+- **Chrome thật, 390×840, ba trạng thái**: nhàn 30 link · "pe" → 6/18, 6 ô, có hàng bàn giao ·
+  "sma" → 0/18, khối rỗng nói phạm vi, hàng bàn giao ghi "4 kết quả".
+
+### Việc còn lại
+
+- [ ] `npm run build` → `verify:static` → `size` → `check:chrome` (đang kẹt vì :3000).
+- [ ] Soi mắt thường ở **bảng màu tối**.
+- [ ] **Theo dõi:** nếu người dùng vẫn thấy khó hiểu, bước tiếp là chia kết quả thành hai nhóm có
+      nhãn (kệ trước, phần còn lại của thư viện sau) — phương án đã trình bày và tạm chưa chọn.
+
+---
+
+## Nút Cơ bản / Nâng cao chỉ còn ở màn danh sách công thức
+
+**Trạng thái:** code + test xong, lint/typecheck/format/test xanh (1967 ca, 81 file), đã soi
+Chrome thật ở 360×780 trên 8 route. **Còn chờ `npm run build` → `verify:static` → `size`**
+(dev server đang giữ :3000 nên `prebuild` từ chối chạy). Chồng tiếp trên nhánh
+`feat/sma-duong-gia`, chưa commit.
+
+### Lỗi được báo
+
+"Tabbar Cơ bản + Nâng cao khi thay đổi ở màn Home đang không thấy có gì thay đổi nên cảm giác
+click vào đang thừa thãi và khiến người dùng khó hiểu."
+
+### Đo được gì
+
+Bấm đổi chế độ rồi so DOM từng ký tự trên Chrome thật, khổ 420×900:
+
+| Màn                 | Cơ bản → Nâng cao                               | Trong 900px đầu?       |
+| ------------------- | ----------------------------------------------- | ---------------------- |
+| Trang chủ (nhàn)    | **giống hệt từng ký tự** — 2.304 ký tự, 30 link | không có gì đổi        |
+| Trang chủ (đang gõ) | 1.472 → 1.825px, 6 → 9 link                     | có                     |
+| `/cong-thuc/`       | 79 → 111 công thức, 11.112 → 15.190px           | có, nhưng rất khẽ      |
+| `/cong-thuc/pe/`    | không đổi gì                                    | —                      |
+| `/cong-thuc/wacc/`  | 1 → 5 link (khối chuỗi phụ thuộc)               | **không** — ở ~1.500px |
+| `/danh-muc/`        | thêm ô Beta + XIRR                              | có                     |
+
+Đếm bằng chính Registry (esbuild bundle `FORMULA_MODULES`): 111 công thức, 32 mức `advanced`,
+**10** công thức có biến `level: 'advanced'`, **7** nằm trong chuỗi `chainFor()`. Hợp lại là
+**17/111 trang chi tiết có phản ứng — 94 trang bấm không đổi gì.**
+
+Đã loại trừ hai giả thuyết khác:
+
+- **Không phải lỗi lưu.** Bấm ở trang chủ → sang tab Công thức → F5 → sang Danh mục, khoá
+  `ffb.prefs.v1` giữ `advanced` suốt, `aria-pressed` luôn đúng.
+- **Không phải "không có tác dụng".** Các màn kia đổi thật, chỉ là đổi khẽ: chữ số nhỏ trong
+  chip, một ô thông báo biến mất, thẻ mới mọc dưới tầm nhìn. Ở `/cong-thuc/` hai thẻ đầu
+  (Biên an toàn, CAGR) giống hệt nhau ở cả hai chế độ, mà danh sách thẻ chiếm gần hết màn.
+
+### Quyết định
+
+Bày một nút thường trực ở thanh thương hiệu mà phần lớn lần bấm không trả lời gì thì dạy người
+dùng đúng một điều, và điều đó sai: "nút này hỏng". Họ thôi bấm và mất luôn 32 công thức nâng
+cao mà không biết là có.
+
+Chủ dự án chốt: **chỉ bày ở màn danh sách công thức**, các màn khác gỡ khỏi thanh trên. Ở
+`/cong-thuc/` bấm xong con số ngay phía trên đổi 79 → 111, cách chỗ vừa chạm chưa tới một dòng —
+nguyên nhân dính liền kết quả nên nút tự giải thích, không cần thêm câu thông báo nào.
+
+Khớp **tuyệt đối** `/cong-thuc/`, cố ý không lan xuống trang chi tiết: đó chính là nhóm 94 trang
+bất động ở trên.
+
+### File đã đổi
+
+| File                                     | Sửa gì                                                                |
+| ---------------------------------------- | --------------------------------------------------------------------- |
+| `src/application/routes.ts`              | thêm `showsModeToggle()` + docblock giữ toàn bộ số đo                 |
+| `src/application/index.ts`               | mở lại `showsModeToggle` qua barrel                                   |
+| `src/ui/navigation/HeaderModeToggle.tsx` | **mới** — client leaf đọc `usePathname()`, trả `null` khi không thuộc |
+| `src/ui/navigation/AppHeader.tsx`        | dùng `HeaderModeToggle` thay `ModeToggle`; sửa docblock               |
+| `src/application/routes.test.ts`         | 5 ca cho `showsModeToggle()`                                          |
+| `src/ui/navigation/AppHeader.test.tsx`   | mock `usePathname` thành đổi được; 4 ca cho luật mới                  |
+
+Không đụng `ModeToggle.tsx` — màn Cài đặt vẫn dựng nó nguyên vẹn, và đó là **đường về chế độ Cơ
+bản** cho những màn không còn nút.
+
+### Vì sao là lớp bọc riêng, không phải điều kiện trong `ModeToggle`
+
+`ModeToggle` còn chỗ dùng thứ hai là hàng "Chế độ hiển thị" ở `/cai-dat/` — đúng một trong những
+đường dẫn mà luật này loại. Nhét điều kiện vào trong nó là tự tắt ngay tại màn Cài đặt, tức xoá
+luôn đường về Cơ bản. Và `AppHeader` là server component nên không gọi được `usePathname()`;
+bọc phần cần biết route vào client leaf là đúng nếp `HeaderNav` + `useActiveNavKey` đã có.
+
+### Kiểm chứng
+
+- `npm run lint` · `npm run typecheck` · `npm run format` · `npm test` → **1967 ca xanh / 81 file**.
+- **Thử làm hỏng có chủ đích**: bỏ dòng `return null` trong `HeaderModeToggle` → đúng 3 ca đỏ
+  (trang chủ, trang chi tiết, màn Cài đặt). Ca kiểm có cắn thật, không phải xanh vì rỗng nghĩa.
+- Một ca kiểm tự bắt được chính nó rỗng nghĩa: `formulaListPath({ category: … })` sai tên trường
+  (`categoryId`) nên ra đường dẫn trơn không query — `expect(url).toContain('?')` đỏ ngay.
+- **Chrome thật, 360×780, 8 route**: `/cong-thuc/` và `/cong-thuc/?category=…` có nút; trang chủ,
+  trang chi tiết, `/danh-muc/`, `/cai-dat/`, `/tim-kiem/`, `/du-lieu/` không có. Thanh trên vẫn
+  cao 57px, không phần tử nào tràn mép phải.
+- Đếm trong HTML server: `/` → 0 cụm, `/cong-thuc/` → 1, `/cai-dat/` → 1 (của chính màn ấy),
+  `/danh-muc/` → 0.
+- Phụ thu ngoài dự tính: ở 360px tên thương hiệu từng rút thành "Fac…" trên **mọi** màn vì thanh
+  trên hết chỗ; nay chỉ còn rút ở đúng `/cong-thuc/`, các màn khác hiện đủ "Faculator".
+
+### Việc còn lại
+
+- [ ] `npm run build` → `verify:static` → `size` → `check:chrome` (đang kẹt vì :3000).
+- [ ] Soi mắt thường ở **bảng màu tối** — đợt này không đụng màu nhưng thanh trên đổi bố cục.
+- [ ] **Chưa làm, chưa được duyệt:** trang chủ vẫn quảng cáo "111 công thức · Chứng khoán 98 ·
+      Định giá 20 · Rủi ro 18" trong khi chế độ Cơ bản chỉ có 79 / 68 / 8 / 6. Nay nút đã rời
+      trang chủ nên manh mối "à do chế độ" cũng mất theo — chỗ này càng nên vá.
+- [ ] **Chưa làm:** `ev-ebitda` mức `advanced` vẫn nằm trong kệ "Công thức dùng hằng ngày" ở chế
+      độ Cơ bản (1/18 ô), trong khi tab Công thức ẩn nó.
+- [ ] **Đã biết và chấp nhận:** `HiddenByLevelNote` chỉ đẩy một chiều (`setMode('advanced')`).
+      Ở màn không còn nút, đường về Cơ bản là màn Cài đặt.
+
+---
+
+## Nút quay lại về ĐÚNG màn đã vào, không phải lúc nào cũng về danh sách
+
+**Trạng thái:** code + test xong, đã đo trên Chrome thật (10/10). Cùng cảnh với mục dưới: **chưa
+chạy được `npm run build` → `verify:static` → `size`** vì dev server đang giữ cổng 3000.
+
+### Lỗi được báo
+
+Vào một công thức để thao tác rồi thoát ra thì luôn về `/cong-thuc/` trơn, kể cả khi vừa vào từ
+trang chủ. Nguyên nhân: `last-list-url.ts` cố ý chỉ nhận URL bắt đầu bằng `/cong-thuc/`, và việc
+ghi nhớ nằm trong `FormulaBrowser` — tức **chỉ màn danh sách được nhớ**. Bốn lối vào còn lại
+không được nhớ gì:
+
+- kệ "Công thức dùng hằng ngày" và ô tìm ngay tại **trang chủ**;
+- màn **tìm kiếm** WF-09;
+- **danh mục** WF-06, cả link `?ma=` của sheet chọn công thức lẫn link `?luu=` của phép tính đã lưu.
+
+Tệ hơn "về màn trắng": nếu trong phiên có lần nào ghé danh sách thì nút quay lại đưa người dùng về
+**bộ lọc của lần ghé ấy** — một màn họ chưa từng đứng.
+
+### Hai quyết định của chủ dự án
+
+1. **Nhớ cả vị trí cuộn**, không chỉ đúng màn. Trang chủ có kệ 18 thẻ, hai lưới nhóm rồi khối công
+   cụ; về đỉnh trang là vẫn phải cuộn đi tìm lại.
+2. **Trang chi tiết KHÔNG được làm màn gốc.** Từ công thức này mở sang công thức khác (khối chuỗi
+   WF-04, ô nhập liên kết) thì quay lại vẫn về màn gốc ban đầu, không đi ngược từng bước.
+
+### File đã đổi
+
+| File                                      | Sửa gì                                                                                                          |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `src/application/origin-screen.ts`        | **Mới**, thay `last-list-url.ts` (đã xoá). Danh sách ĐÓNG bốn màn gốc kèm nhãn; `parseOrigin` / `backTarget`.   |
+| `src/ui/layout/OriginTracker.tsx`         | **Mới.** Đảo client không dựng ra gì, đặt trong `AppShell` nên phủ mọi màn. Ghi ở 4 thời điểm + khôi phục cuộn. |
+| `src/ui/layout/AppShell.tsx`              | Gắn `OriginTracker` cạnh `ServiceWorker`.                                                                       |
+| `src/ui/navigation/BackLink.tsx`          | Đọc màn gốc, **nhãn đi theo đích**, đặt cờ quay lại lúc bấm. Prop `rememberList` → `rememberOrigin`.            |
+| `src/app/cong-thuc/FormulaBrowser.tsx`    | Bỏ phần tự ghi, gọi `rememberOrigin()` — vẫn cần vì đổi bộ lọc chỉ thay truy vấn, không thay `pathname`.        |
+| `src/app/du-lieu/DataTableScreen.tsx`     | Đổi tên prop theo `BackLink`.                                                                                   |
+| `src/app/cai-dat/SettingsScreen.test.tsx` | Hai khoá mới vào danh sách miễn trừ, mỗi khoá một lý do — cả hai là `sessionStorage`.                           |
+| 3 file test                               | 20 ca cho module thuần, 13 ca `BackLink`, 11 ca `OriginTracker` (gồm phần khôi phục cuộn).                      |
+
+### Cạm bẫy đã gặp
+
+- **Phải có cờ riêng cho "đây là cú quay lại".** Suy từ việc URL khớp bản ghi là sai: mọi lần mở
+  trang chủ đều khớp, nên bấm mục Trang chủ ở thanh dưới cũng sẽ nhảy cuộn. `ORIGIN_RESTORE_KEY` do
+  `BackLink` đặt trong `onClick`, màn đích đọc rồi xoá ngay.
+- **Khôi phục phải chạy TRƯỚC lần ghi lúc gắn**, không thì `scrollY = 0` của trang vừa mở đè mất
+  con số đang nhớ. Có ca kiểm riêng chốt thứ tự này.
+- **`null` từ `originToStore()` nghĩa là "đừng ghi", không phải "hãy xoá".** Đứng ở trang chi tiết
+  mà xoá bản ghi cũ thì chính nút quay lại của trang ấy mất đích.
+- **Nhãn phải đi theo đích.** Một nút ghi "Danh sách công thức" mà bấm ra trang chủ còn tệ hơn mũi
+  tên trơn — nó nói sai chứ không phải không nói. `backTarget()` trả `href` và `labelKey` cùng lúc.
+- **Không dùng `useSearchParams()` trong `OriginTracker`.** Nó nằm trong `AppShell`, tức bao quanh
+  MỌI màn; hook ấy với `output: 'export'` ép cả cây vào `<Suspense>` và xoá nội dung tĩnh của cả
+  sản phẩm. Đọc `window.location` trong effect, cùng lý do `FormulaDetail` đọc `?ma=`.
+
+### Giới hạn đã biết
+
+Ô tìm ở **trang chủ** giữ trạng thái trong `useState` chứ không lên URL (có chủ đích, xem docblock
+`HomeSearchPanel` kèm số đo). Nên quay về trang chủ thì về đúng màn và đúng chỗ cuộn, nhưng **từ
+khoá vừa gõ không được khôi phục**. Muốn khôi phục cả từ khoá thì phải đưa nó lên URL, và đó là đổi
+một quyết định đã cân nhắc — cần chủ dự án chốt riêng.
+
+### Đo trên Chrome thật (dev server, 390×844)
+
+10/10 đạt: trang chủ ghi được `{url:'/', scrollY:900}`; bấm thẻ ở kệ sang `/cong-thuc/pe/`; nút quay
+lại ghi "Trang chủ" trỏ `/`; bấm vào về trang chủ **ở đúng scrollY = 900**; vào từ
+`/cong-thuc/?category=risk` thì quay lại giữ nguyên bộ lọc; công thức → công thức vẫn về `/`; vào
+thẳng từ ngoài vẫn có đường ra; `/danh-muc/` và `/tim-kiem/` nhớ đúng kèm nhãn riêng.
+
+---
+
+## Nhãn số lớn trên biểu đồ: rút gọn theo bậc tỷ / triệu / nghìn
+
+**Trạng thái:** code + test xong, **còn chờ chạy `npm run build` → `verify:static` → `size` →
+`check:chrome`** (xem "Việc còn lại"). Chồng tiếp trên nhánh hiện tại, chưa commit.
+
+### Lỗi được báo
+
+Nhãn số tràn ra ngoài khung khi giá trị lớn. Đo được ba chỗ:
+
+1. **Lề trái trục Y cố định 41 đơn vị viewBox** (`PAD.left = 46` trừ 5 hở) ở cỡ chữ 10px, tức ~6
+   ký tự. `lich-tra-no` in `2.000.000.000` (13 ký tự) — tràn qua mép `x = 0` rồi bị `<svg>` cắt cụt
+   **im lặng**, kiểu hỏng tệ nhất vì không có gì trên màn nói là đã hỏng.
+2. **`axisUnit()` chỉ nhận đúng chuỗi `'₫'`**, nên bỏ sót `'₫/tháng'` (2 công thức), `'CP'`,
+   `'sản phẩm'`, `'tỷ ₫'` (4 công thức). Docblock của nó còn ghi "dùng lại đúng ba bậc
+   `UNIT_SCALES`" trong khi code chép tay hệ số — nói một đằng làm một nẻo.
+3. **Nhãn giá trị vẽ trên hình không rút gọn gì cả.** Nhãn cột thác nước của `lich-tra-no` là
+   `1.789.691.880,64 ₫` (18 ký tự ≈ 78 đơn vị), canh giữa cột **không kẹp biên** — và chú thích
+   ngay tại chỗ vẽ khẳng định ngược lại là "không bao giờ tràn".
+
+Chỗ thứ tư lộ ra khi đo trên Chrome thật: nhãn vạch **cuối** của thác nước đặt tại
+`plotRight = 308` với `textAnchor="middle"`, nên `15.000` của `ev` chạy tới x = 322,6 trên khung 320. Không ca kiểm nào bắt được vì jsdom trả 0 cho `getBBox()`.
+
+### Cách sửa
+
+Chọn bậc theo **ĐỘ DÀI NHÃN**, không theo mốc thập phân cố định — luật hỏi thẳng ràng buộc thật
+("nhãn có vừa lề không") nên không cần một ngoại lệ nào cho `%`, `lần` hay `tỷ ₫`. Hai bước:
+
+1. Bậc 1 vừa ngân sách thì **dừng luôn** → `pe`, `ev`, `roe`, `co-lenh-rui-ro` không đổi một pixel.
+2. Phải chia thì lấy bậc **lớn nhất** vẫn vừa mà giá trị lớn nhất còn ≥ 1 → tránh
+   `'22.196 nghìn ₫'` (bậc nhỏ nhất vừa đủ) lẫn `'0,03'` (bậc quá lớn).
+
+Ngân sách tách đôi: **trục Y 6 ký tự** (lề trái 41 đơn vị — chỗ chật nhất), **trục X 10 ký tự**
+(nằm ngang dưới đáy, đã thưa còn 2 nhãn nên mỗi nhãn có ~134 đơn vị).
+
+Nhãn vẽ trên hình dùng **cùng bậc với trục** nó nằm cạnh, và **chỉ thay khi thật sự ngắn hơn** —
+so bằng độ dài chuỗi, nên luật tự chọn đúng ở cả hai phía. **Bảng số giữ nguyên số đầy đủ**: đó là
+chỗ tra con số chính xác và nó đã có vùng cuộn ngang riêng.
+
+### File đã đổi
+
+| File                               | Sửa gì                                                                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/format.ts`               | Thêm `COMPACT_PREFIXES` (4 bậc) + `withScalePrefix()`. **Không** đụng `UNIT_SCALES` — đó là 3 nút WF-16 người dùng tự bấm, khác việc.       |
+| `src/core/chart/build.ts`          | Thay `axisUnit()` bằng `pickScale()` theo độ dài; `buildAxis()` trả thêm bậc; gắn nhãn rút gọn cho điểm và cột.                             |
+| `src/core/chart/types.ts`          | Thêm `ChartPoint.shortLabel`, `ChartPoint.shortValueLabel`, `BreakdownBar.shortValueLabel` — đều **vắng mặt hẳn** khi không ngắn hơn.       |
+| `src/ui/charts/ticks.ts`           | **Mới.** `thin()` (tách từ `LineChart`) + `tickAnchor()`. Không xuất ra `index.ts` để giữ ranh giới `next/dynamic`.                         |
+| `src/ui/charts/LineChart.tsx`      | Nhãn dò và dấu "giá trị hiện tại" đọc bản rút gọn; nhãn vạch X kẹp theo mép viewBox.                                                        |
+| `src/ui/charts/WaterfallChart.tsx` | Nhãn cột đọc bản rút gọn + kẹp biên; nhãn vạch **thưa** như đường quét (trước in cả 12 vạch) + kẹp theo mép viewBox; sửa chú thích nói sai. |
+| `scripts/chrome-check.mjs`         | Thêm 4 phép kiểm "không nhãn nào tràn khỏi viewBox" — chỗ **duy nhất** bắt được lớp lỗi này.                                                |
+| `src/core/format.test.ts`          | 5 ca cho bảng bậc và phép ghép tiền tố, gồm cửa chặn `'tỷ tỷ ₫'`.                                                                           |
+| `src/core/chart/chart.test.ts`     | 5 ca, quan trọng nhất là **quét cả 111 công thức**: mọi nhãn vạch phải vừa ngân sách trục mình.                                             |
+| `src/ui/charts/charts.test.tsx`    | 2 ca mới (hình rút gọn ↔ bảng đầy đủ; nhãn vạch thưa mà vạch kẻ vẫn đủ) + ghi lý do vào ca hover cũ.                                       |
+
+### Cạm bẫy đã gặp, ghi lại để khỏi đi lại
+
+- **`'tỷ tỷ ₫'`.** Ghép tiền tố mù lên đơn vị đã mang sẵn bậc (`'tỷ ₫'`, `'triệu CP'`) cho ra chuỗi
+  vô nghĩa. `withScalePrefix()` nay trả `null` cho những phép ghép ấy và `pickScale()` loại thẳng
+  bậc đó; chỉ `'nghìn' + 'tỷ'` được nhận, vì 'nghìn tỷ' là hợp từ duy nhất có thật.
+- **Kẹp nhãn theo mép vùng vẽ là sai đích.** Thứ cắt chữ là `<svg>` (`overflow: hidden` ở gốc),
+  không phải hai đường trục. Bản đầu của `tickAnchor` kẹp theo `plot.x0`/`plot.x1` nên vừa xê dịch
+  nhãn trái vốn không sao, vừa **bỏ sót** nhãn cuối của thác nước.
+- **`points` phải map TRƯỚC khi dựng bảng.** Bảng tra `points.indexOf(point)` bằng tham chiếu; hai
+  mảng cùng tồn tại là cột chuỗi phụ trượt hết.
+- Ca kiểm nhãn thưa ban đầu dùng `ev` — trục nó chỉ có 4 vạch, đúng bằng số nhãn giữ lại, nên ca
+  xanh mà không chứng minh được gì. Đổi sang `ncav-tren-co-phieu` (6 vạch).
+
+### Kết quả đo trên Chrome thật (dev server, 360×780, DSR 2)
+
+14 trang, đo `getBBox()` từng nhãn so với `viewBox`: **không nhãn nào tràn**. Vài chỗ tiêu biểu —
+`lich-tra-no` `(tỷ ₫)` vạch `0…2` và nhãn cột `0,99 tỷ ₫`; `diem-hoa-von`
+`(nghìn sản phẩm)` vạch `0…400`; `lai-kep` `(triệu ₫)` vạch `10…35`; `tra-gop-nien-kim`
+`(triệu ₫/tháng)`; `pe` và `ev` **giữ nguyên** như trước.
+
+### Việc còn lại
+
+- `npm run build` bị chặn: dev server của dự án đang giữ cổng 3000 (PID khác, không phải phiên
+  này bật). Chưa chạy được `verify:static`, `size` và `check:chrome`. Tắt dev rồi chạy lại bốn
+  lệnh ấy.
+- `CLAUDE.md` ghi `check:chrome` có "28 assertions"; thêm 4 phép kiểm thành **32** — sửa con số ấy
+  sau khi chạy thật để xác nhận.
+
+---
+
 ## Màu nhóm công thức: bảy tông rực thành đơn sắc xanh
 
 **Trạng thái:** xong. Nhánh `feat/sma-duong-gia` (chồng tiếp, chưa commit).

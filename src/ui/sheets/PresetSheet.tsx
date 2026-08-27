@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-
 import { SAMPLE_DATA } from '@/application';
 import type { Preset } from '@/application';
 import { useT } from '@/application/preferences-context';
@@ -14,6 +12,13 @@ export interface PresetSheetProps {
   onClose: () => void;
   /** Gọi khi người dùng bấm Nạp ở một mã. Sheet tự đóng sau đó. */
   onLoad: (preset: Preset) => void;
+  /**
+   * Mở sheet chọn mã toàn thị trường (`TickerPickerSheet`).
+   *
+   * Tuỳ chọn: nơi nào không có đường sang thì bỏ, sheet vẫn dùng được như cũ. Màn chi tiết
+   * công thức thì luôn truyền — xem docblock ngay dưới.
+   */
+  onBrowseMarket?: () => void;
 }
 
 /**
@@ -24,131 +29,106 @@ export interface PresetSheetProps {
  * chỉ bắn `onLoad`, còn màn hình quyết định điền vào đâu — nên không có cách nào nó vô tình
  * khoá ô của người dùng.
  *
- * Số liệu đi qua `DataProvider` (FR-17), nên khi có nguồn thật thì sheet này không phải sửa gì.
+ * Số liệu đi qua `DataProvider` (FR-17).
+ *
+ * ── Vì sao KHÔNG còn ô tìm ở đây ────────────────────────────────────────────────────────────
+ *
+ * Sản phẩm có HAI kho mã, và sheet này chỉ là kho nhỏ:
+ *
+ * | | sheet này (`DataProvider`) | `TickerPickerSheet` (`MarketFeed`) |
+ * | Số mã | 4 mã WF-10 | ~1.649 mã đang giao dịch |
+ * | Chuỗi giá | 248 phiên OHLCV | ĐÚNG 1 phiên (`live-preset.ts`) |
+ *
+ * Bản trước có ô tìm cho đúng 4 dòng. Chủ dự án báo đúng mâu thuẫn mà nó tạo ra: gõ một mã
+ * bất kỳ ngoài bốn mã ấy thì ra "không có mã nào khớp" — người dùng kết luận sản phẩm không
+ * biết mã đó — rồi ngay sau khi nạp, thanh mã dưới tiêu đề lại mời "Đổi mã" và mở ra cả
+ * 1.649 mã. Ô tìm hứa một kho mã mà kho ở đây chỉ có bốn.
+ *
+ * Nên: bỏ ô tìm (bốn dòng thì không có gì để tìm), nói thẳng đây là bộ mẫu và điểm mạnh
+ * riêng của nó là CHUỖI PHIÊN GIÁ, rồi đặt ngay lối sang kho lớn. Một cửa vào, hai nhánh
+ * gọi đúng tên mình.
+ *
+ * Bỏ ô tìm cũng gỡ luôn phần ghim chiều cao vùng kết quả bằng `getBoundingClientRect()`:
+ * nó chỉ tồn tại vì lọc làm danh sách ngắn lại giữa lúc người dùng đang gõ, mà giờ danh
+ * sách không co nữa.
  */
-export function PresetSheet({ open, onClose, onLoad }: PresetSheetProps) {
-  const [query, setQuery] = useState('');
-
-  const results = useMemo(() => SAMPLE_DATA.search(query), [query]);
-
-  /*
-   * Cảnh báo số liệu bản thảo xét trên CẢ BỘ, không phải trên phần đang lọc: nó nói về nguồn
-   * dữ liệu chứ không nói về mấy dòng đang hiện. Xét theo phần lọc thì gõ một từ khoá không
-   * khớp gì là câu cảnh báo biến mất — vừa sai nghĩa, vừa làm sheet co thêm một nấc.
-   */
-  const anyDraft = useMemo(() => SAMPLE_DATA.list().some((preset) => preset.isDraft), []);
-
-  /*
-   * ── Vì sao phải ghim chiều cao vùng kết quả ────────────────────────────────────────────
-   *
-   * Gõ vào ô tìm là danh sách ngắn lại, và sheet dán đáy màn hình nên nó co từ dưới lên: ô
-   * tìm cùng mọi thứ bên trên **nhảy xuống** ngay giữa lúc người dùng đang gõ, có khi trượt
-   * cả khỏi ngón tay. Cùng loại phiền với việc bố cục nhảy khi ảnh tải xong.
-   *
-   * Đo một lần lúc mở, khi danh sách còn ĐẦY ĐỦ — đó cũng là lúc vùng này cao nhất, vì lọc
-   * chỉ bớt đi chứ không thêm vào. Từ đó sheet chỉ giãn ra chứ không bao giờ co lại.
-   *
-   * Đo bằng `useEffect` chứ không phải `useLayoutEffect`: `<dialog>` chưa gọi `showModal()`
-   * thì còn `display: none` và đo ra 0. Effect thụ động của con (`BottomSheet`, nơi gọi
-   * `showModal`) chạy trước effect thụ động của cha, nên tới lượt đo thì sheet đã hiện.
-   *
-   * Không viết cứng một số px: số bộ mẫu do `DataProvider` quyết, ngày có nguồn thật thì
-   * khác ngay.
-   */
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const [floor, setFloor] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!open) {
-      // Đóng rồi thì bỏ ghim, để lần mở sau đo lại theo danh sách lúc đó.
-      setFloor(null);
-      return;
-    }
-    const height = resultsRef.current?.getBoundingClientRect().height ?? 0;
-    if (height > 0) setFloor(height);
-  }, [open]);
-
+export function PresetSheet({ open, onClose, onLoad, onBrowseMarket }: PresetSheetProps) {
   const t = useT();
 
-  /** Xoá luôn từ khoá khi đóng, để lần mở sau bắt đầu từ danh sách đầy đủ. */
-  function close(): void {
-    setQuery('');
-    onClose();
-  }
+  /** Mảng hằng của `DataProvider` — cùng một tham chiếu mọi lượt render, không cần ghi nhớ. */
+  const presets = SAMPLE_DATA.list();
+
+  /* Cảnh báo bản thảo xét trên CẢ BỘ: nó nói về nguồn dữ liệu, không về mấy dòng đang hiện. */
+  const anyDraft = presets.some((preset) => preset.isDraft);
 
   return (
     <BottomSheet
       open={open}
-      onClose={close}
+      onClose={onClose}
       title={t('preset.title')}
       subtitle={t('preset.subtitle')}
     >
-      <label className="visually-hidden" htmlFor="preset-search">
-        {t('preset.searchLabel')}
-      </label>
-      <input
-        id="preset-search"
-        className={styles.search}
-        type="search"
-        inputMode="search"
-        autoComplete="off"
-        placeholder={t('preset.searchPlaceholder')}
-        value={query}
-        onChange={(event) => {
-          setQuery(event.target.value);
-        }}
-      />
-
       {anyDraft && (
         <p className={styles.draft} role="note">
           <strong>{t('preset.draftTitle')}</strong> {t('preset.draftDetail')}
         </p>
       )}
 
-      <div
-        ref={resultsRef}
-        className={styles.results}
-        style={floor === null ? undefined : { minHeight: `${String(Math.round(floor))}px` }}
-      >
-        {results.length === 0 ? (
-          <p className={styles.empty}>{t('preset.noMatch')}</p>
-        ) : (
-          <ul className={styles.list}>
-            {results.map((preset) => (
-              <li key={preset.code} className={styles.item}>
-                {/*
-                  Mã đứng riêng thành huy hiệu chữ đều: ở danh sách này người dùng dò theo MÃ
-                  chứ không theo tên doanh nghiệp, nên mã phải là thứ mắt bắt được trước. Chỉ
-                  có MỘT phần tử mang mã — nhân đôi thành huy hiệu + dòng chữ thì trình đọc màn
-                  hình đọc mã hai lần.
-                */}
-                <span className={styles.badge}>{preset.code}</span>
+      <ul className={styles.list}>
+        {presets.map((preset) => (
+          <li key={preset.code} className={styles.item}>
+            {/*
+              Mã đứng riêng thành huy hiệu chữ đều: ở danh sách này người dùng dò theo MÃ
+              chứ không theo tên doanh nghiệp, nên mã phải là thứ mắt bắt được trước. Chỉ
+              có MỘT phần tử mang mã — nhân đôi thành huy hiệu + dòng chữ thì trình đọc màn
+              hình đọc mã hai lần.
+            */}
+            <span className={styles.badge}>{preset.code}</span>
 
-                <span className={styles.info}>
-                  <span className={styles.name}>{preset.name}</span>
-                  <span className={styles.meta}>
-                    {preset.meta}
-                    {preset.isDraft && (
-                      <span className={styles.draftTag}> · {t('preset.draftTag')}</span>
-                    )}
-                  </span>
-                </span>
+            <span className={styles.info}>
+              <span className={styles.name}>{preset.name}</span>
+              <span className={styles.meta}>
+                {preset.meta}
+                {preset.isDraft && (
+                  <span className={styles.draftTag}> · {t('preset.draftTag')}</span>
+                )}
+              </span>
+            </span>
 
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    onLoad(preset);
-                    close();
-                  }}
-                >
-                  {t('preset.load')}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                onLoad(preset);
+                onClose();
+              }}
+            >
+              {t('preset.load')}
+            </Button>
+          </li>
+        ))}
+      </ul>
+
+      {/*
+        Lối sang kho mã lớn. Đặt DƯỚI danh sách chứ không thành ô tìm ở trên: bốn mã này là
+        thứ dùng được ngay cho cả công thức chuỗi, còn kho lớn đổi lại độ phủ bằng chuỗi giá
+        một phiên — nên nó là lối rẽ có điều kiện, không phải mặc định.
+      */}
+      {onBrowseMarket !== undefined && (
+        <div className={styles.browse}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              onClose();
+              onBrowseMarket();
+            }}
+          >
+            {t('preset.browseMarket')}
+          </Button>
+          <p className={styles.browseNote}>{t('preset.browseMarketNote')}</p>
+        </div>
+      )}
 
       <p className={styles.footnote}>{t('preset.editableAfterLoad')}</p>
     </BottomSheet>

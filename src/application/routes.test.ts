@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { NAV_ITEMS, ROUTES, activeRouteKey, formulaListPath, formulaPath } from './routes';
+import {
+  NAV_ITEMS,
+  ROUTES,
+  activeRouteKey,
+  formulaListPath,
+  formulaPath,
+  showsModeToggle,
+} from './routes';
 import { DEFAULT_LIST_PARAMS, parseListParams } from './url-state';
 
 describe('bản đồ đường dẫn (WF-18)', () => {
@@ -14,6 +21,54 @@ describe('bản đồ đường dẫn (WF-18)', () => {
       expect(href.endsWith('/')).toBe(true);
     }
     expect(formulaPath('wacc')).toBe('/cong-thuc/wacc/');
+  });
+});
+
+describe('showsModeToggle()', () => {
+  it('chỉ bật ở màn danh sách công thức', () => {
+    expect(showsModeToggle(ROUTES.formulas)).toBe(true);
+  });
+
+  /*
+   * Cả năm màn còn lại đều tắt, và mỗi màn tắt vì một lý do khác nhau — liệt kê hết chứ không
+   * kiểm mỗi trang chủ, vì luật này sinh ra chính từ chỗ "màn nào cũng bày nút".
+   */
+  it('tắt ở mọi màn khác', () => {
+    expect(showsModeToggle(ROUTES.home), 'trang chủ lúc nhàn không đổi một ký tự nào').toBe(false);
+    expect(showsModeToggle(ROUTES.portfolio), 'Danh mục đã có dòng "2 ô nâng cao đang ẩn"').toBe(
+      false,
+    );
+    expect(showsModeToggle(ROUTES.settings), 'Cài đặt đã có hàng "Chế độ hiển thị" riêng').toBe(
+      false,
+    );
+    expect(showsModeToggle(ROUTES.search)).toBe(false);
+    expect(showsModeToggle(ROUTES.data)).toBe(false);
+  });
+
+  /*
+   * Đây là ca dễ hỏng nhất nếu ai đó đổi sang `startsWith()` cho "gọn": 94 trong 111 trang chi
+   * tiết bấm nút không đổi gì, tức đúng cái cớ sinh ra luật này. Trang chi tiết KHÔNG phải trang
+   * danh sách.
+   */
+  it('KHÔNG lan xuống 111 trang chi tiết', () => {
+    expect(showsModeToggle(formulaPath('wacc'))).toBe(false);
+    expect(showsModeToggle(formulaPath('pe'))).toBe(false);
+  });
+
+  it('chấp nhận đường dẫn thiếu dấu "/" ở cuối', () => {
+    expect(showsModeToggle('/cong-thuc')).toBe(true);
+  });
+
+  /*
+   * Danh sách đã lọc sẵn vẫn là màn danh sách — link từ lưới nhóm ở trang chủ mang theo `?category=`,
+   * và `usePathname()` trả về phần đường dẫn KHÔNG kèm query, nên ca này gác đúng chỗ đó.
+   */
+  it('danh sách đã lọc sẵn vẫn được coi là màn danh sách', () => {
+    const url = formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: 'returns' });
+    const [duongDan] = url.split('?');
+
+    expect(url, 'ví dụ phải thật sự có query, nếu không ca kiểm này rỗng nghĩa').toContain('?');
+    expect(showsModeToggle(String(duongDan))).toBe(true);
   });
 });
 

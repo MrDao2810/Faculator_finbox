@@ -7,6 +7,7 @@ import type { WaterfallChart as WaterfallModel } from '@/application';
 import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
+import { thin, tickAnchor } from './ticks';
 
 /**
  * Biểu đồ bóc tách dạng thác nước — WF-17, gói 5.2.3.
@@ -39,6 +40,18 @@ const ROW = 26;
 const PAD = { top: 8, right: 12, bottom: 26, left: 96 } as const;
 
 const BAR_HEIGHT = 14;
+
+/** Số nhãn vạch giữ lại trên trục giá trị. Vạch KẺ vẫn vẽ hết — xem `thin()`. */
+const VALUE_LABELS = 4;
+
+/**
+ * Nửa bề ngang dự phòng cho nhãn giá trị vẽ đè lên cột, tính bằng đơn vị viewBox.
+ *
+ * Nhãn ấy canh giữa tại tâm cột, nên nửa chữ thò ra mỗi bên. Chữ 9px, nhãn đã rút gọn dài chừng 9–11
+ * ký tự (`1,79 tỷ ₫`) ≈ 44 đơn vị, tức nửa chừng 22. Cột nào có tâm gần mép hơn thế thì ghim nhãn vào
+ * mép và lật anchor vào trong — đúng cách hai nhãn mép của trục X đường quét đang làm.
+ */
+const VALUE_LABEL_HALF = 22;
 
 export interface WaterfallChartProps {
   model: WaterfallModel;
@@ -137,18 +150,41 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
                 }}
               />
 
-              {/* Giá trị cột — chỉ hiện khi đang trỏ/chạm, đặt giữa cột nên không bao giờ tràn
-                  ra ngoài viewBox dù cột ở sát mép trái/phải. */}
-              {hovering && (
-                <text
-                  className={styles.barValueLabel}
-                  x={(xFrom + xTo) / 2}
-                  y={rowTop + ROW / 2}
-                  textAnchor="middle"
-                >
-                  {bar.valueLabel}
-                </text>
-              )}
+              {/*
+                Giá trị cột — chỉ hiện khi đang trỏ/chạm.
+
+                Hai lớp chống tràn, cần cả hai:
+
+                  1. **Bản rút gọn** do Domain dựng (`shortValueLabel`), ở đúng bậc mà trục ngay dưới
+                     đang ghi. Trước đợt này chỗ này in thẳng `valueLabel` đầy đủ, nên `lich-tra-no`
+                     hiện `1.789.700.000 ₫` ≈ 66 đơn vị — vừa dài hơn phần lớn cột, vừa nói một thang
+                     khác với chính cái trục nó nằm trên.
+                  2. **Kẹp biên.** Chú thích cũ ở đây khẳng định canh giữa cột thì "không bao giờ
+                     tràn ra ngoài viewBox" — sai: canh giữa chỉ neo TÂM chữ, nửa còn lại vẫn thò ra,
+                     nên mọi cột có tâm cách mép dưới `VALUE_LABEL_HALF` đều bị cắt cụt.
+              */}
+              {hovering &&
+                (() => {
+                  const mid = (xFrom + xTo) / 2;
+                  const anchor =
+                    mid - plotLeft < VALUE_LABEL_HALF
+                      ? 'start'
+                      : plotRight - mid < VALUE_LABEL_HALF
+                        ? 'end'
+                        : 'middle';
+                  const at = anchor === 'start' ? plotLeft : anchor === 'end' ? plotRight : mid;
+
+                  return (
+                    <text
+                      className={styles.barValueLabel}
+                      x={at}
+                      y={rowTop + ROW / 2}
+                      textAnchor={anchor}
+                    >
+                      {bar.shortValueLabel ?? bar.valueLabel}
+                    </text>
+                  );
+                })()}
 
               {/*
               Đường nối từ đỉnh cột này sang chân cột sau — thứ làm nên hình bậc thang. Không vẽ
@@ -167,14 +203,23 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
           );
         })}
 
-        {/* Nhãn trục giá trị, đặt dưới đáy hình. */}
-        {model.y.ticks.map((tick) => (
+        {/*
+          Nhãn trục giá trị, đặt dưới đáy hình — THƯA bớt như đường quét.
+
+          Trước đợt này chỗ này in cả 12 vạch mà `niceAxis()` cho phép, trên 212 đơn vị bề ngang: một
+          nhãn 5 ký tự đã ~28 đơn vị, nên chúng chồng lên nhau thành vệt đen. Vạch KẺ ở trên vẫn vẽ
+          hết, đúng như `LineChart` — chỉ phần chữ mới thưa.
+
+          `tickAnchor` lo nốt vạch cuối: nó nằm tại `plotRight = 308` trên khung 320, nên canh giữa
+          ở đó là mất đuôi chữ — đo được trên `ev`, nhãn `15.000` chạy tới x = 322,6.
+        */}
+        {thin(model.y.ticks, VALUE_LABELS).map((tick) => (
           <text
             key={`${idBase}-ticklabel-${String(tick.value)}`}
             className={styles.tick}
             x={toX(tick.value)}
             y={height - PAD.bottom + 14}
-            textAnchor="middle"
+            textAnchor={tickAnchor(toX(tick.value), W)}
           >
             {tick.label}
           </text>

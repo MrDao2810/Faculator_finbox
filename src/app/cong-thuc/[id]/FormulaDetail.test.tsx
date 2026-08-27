@@ -472,7 +472,8 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
 
     expect(screen.getByText('FPT')).not.toBeNull();
-    expect(screen.getByLabelText('Tìm mã cổ phiếu')).not.toBeNull();
+    // Sheet mẫu không còn ô tìm (xem `PresetSheet`); dấu hiệu nó đã mở là bốn mã kèm nút Nạp.
+    expect(screen.getAllByRole('button', { name: 'Nạp' })).toHaveLength(4);
   });
 
   /*
@@ -1658,5 +1659,126 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
 
     await screen.findByRole('button', { name: t('detail.loadPreset') });
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+  });
+});
+
+/**
+ * Hai kho mã của sản phẩm — bộ mẫu 4 mã (`DataProvider`) và toàn thị trường (`MarketFeed`) —
+ * gặp nhau trên cùng một màn. Chủ dự án báo đúng chỗ chúng nói ngược nhau: sheet "Nạp mẫu" chỉ
+ * có bốn mã và tìm gì cũng không ra, nhưng nạp xong thì thanh mã lại mời "Đổi mã" và mở ra cả
+ * 1.649 mã. Ba ca dưới chốt bản vá: lối rẽ nằm sẵn trong sheet mẫu, và mã của kho lớn phải tự
+ * nói ra giới hạn chuỗi giá của nó.
+ */
+describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
+  /**
+   * `<dialog>` chứa một đoạn chữ, để hỏi nó ĐANG MỞ hay không.
+   *
+   * Sheet đã dựng một lần thì ở lại DOM (`mountedSheets`, `pickerMounted` — cố ý, để không mất
+   * danh sách 1.649 mã vừa tải), nên "tìm thấy chữ" không chứng minh được sheet đang hiện. Thứ
+   * phân biệt là thuộc tính `open` của thẻ — cũng đúng thứ trình duyệt dùng để vẽ.
+   */
+  function sheetChua(text: string): HTMLDialogElement {
+    const found = screen.getByText(text).closest('dialog');
+    if (found === null) throw new Error(`Đoạn chữ '${text}' không nằm trong <dialog> nào.`);
+    return found;
+  }
+
+  it('từ sheet Nạp mẫu rẽ thẳng sang sheet chọn mã toàn thị trường', async () => {
+    feed.listTickers.mockResolvedValue([
+      { code: 'VCB', name: 'Vietcombank' },
+      { code: 'SSI', name: 'Chứng khoán SSI' },
+    ]);
+
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
+
+    // VCB không nằm trong bốn mã mẫu — thấy được nó tức là đã sang đúng kho lớn.
+    expect(await screen.findByText('VCB')).not.toBeNull();
+    // Và sheet mẫu nhường chỗ hẳn: hai bottom sheet chồng nhau là một cái bẫy tiêu điểm.
+    expect(sheetChua(t('preset.browseMarketNote')).open).toBe(false);
+  });
+
+  /*
+   * Chủ dự án báo tiếp: thoát sheet chọn mã thì rơi thẳng ra màn hình, mất luôn sheet mẫu vừa
+   * mở. Đóng ở đây nghĩa là "thôi, không tìm mã khác nữa" — người dùng vẫn đang giữa việc chọn
+   * mã, nên phải trả họ về đúng chỗ vừa rời đi.
+   */
+  it('thoát sheet chọn mã (vào từ sheet mẫu) thì LÙI về sheet Nạp mẫu, không thoát hẳn', async () => {
+    feed.listTickers.mockResolvedValue([{ code: 'VCB', name: 'Vietcombank' }]);
+
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
+    expect(await screen.findByText('VCB')).not.toBeNull();
+
+    /*
+      Nút thoát của sheet này mang nhãn "Quay lại" chứ không phải "Đóng", và đó là nửa còn lại
+      của bản vá: dấu × ở mép phải hứa "thoát ra màn hình", nên bấm xong lại thấy sheet mẫu hiện
+      lên là một bất ngờ. Mũi tên ‹ bên trái nói trước điều sắp xảy ra.
+    */
+    await userEvent.click(
+      within(sheetChua(t('ticker.subtitle'))).getByRole('button', {
+        name: 'Quay lại',
+      }),
+    );
+
+    expect(sheetChua(t('preset.browseMarketNote')).open).toBe(true);
+    expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
+  });
+
+  it('vào từ nút "Đổi mã" thì nút thoát vẫn là Đóng — ở đó đóng là thoát hẳn', async () => {
+    feed.listTickers.mockResolvedValue([{ code: 'VCB', name: 'Vietcombank' }]);
+    seedActiveTicker();
+
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(await screen.findByRole('button', { name: t('detail.tickerChange') }));
+
+    const sheet = within(sheetChua(t('ticker.subtitle')));
+    expect(sheet.queryByRole('button', { name: 'Quay lại' })).toBeNull();
+    expect(sheet.getByRole('button', { name: 'Đóng' })).not.toBeNull();
+  });
+
+  it('chọn được mã thì đóng cả hai sheet — không lùi về sheet mẫu nữa', async () => {
+    feed.listTickers.mockResolvedValue([{ code: 'VCB', name: 'Vietcombank' }]);
+    feed.snapshots.mockResolvedValue(
+      new Map([['VCB', { ...FPT_SNAPSHOT, code: 'VCB', name: 'Vietcombank' }]]),
+    );
+
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
+    await userEvent.click(await screen.findByRole('button', { name: t('ticker.pick') }));
+
+    await screen.findByRole('button', { name: /Đã nạp VCB/ });
+    expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
+    expect(sheetChua(t('preset.browseMarketNote')).open).toBe(false);
+  });
+
+  it('mã lấy từ kho lớn chỉ có một phiên giá thì nói rõ lý do và lối đi tiếp', async () => {
+    // `seedActiveTicker()` gieo đúng hình dạng preset của kho lớn: một bar duy nhất.
+    seedActiveTicker();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+
+    expect(await screen.findByText(t('detail.liveSeriesShort'))).not.toBeNull();
+    // Và công thức thật sự chưa tính ra gì — câu cảnh báo đang giải thích một màn hình trống.
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+  });
+
+  it('bộ mẫu 248 phiên thì không có cảnh báo đó — nó chỉ nói về kho lớn', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(
+      (await screen.findAllByRole('button', { name: 'Nạp' }))[0] as HTMLElement,
+    );
+
+    expect(screen.getByText(/Đã nạp số phiên giá/)).not.toBeNull();
+    expect(screen.queryByText(t('detail.liveSeriesShort'))).toBeNull();
   });
 });

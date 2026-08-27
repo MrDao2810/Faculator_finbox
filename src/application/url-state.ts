@@ -21,6 +21,13 @@ export type { ListSort, SegmentFilter };
  */
 export type ListParams = FormulaQuery;
 
+/**
+ * `sort` mặc định phải là một cách sắp tính được LÚC BUILD.
+ *
+ * `StaticFormulaList` dựng bản tĩnh của `out/cong-thuc/index.html` bằng chính hằng số này, còn
+ * `recent`/`used` thì chấm điểm từ `localStorage` — đặt một trong hai làm mặc định là HTML tĩnh
+ * và lượt render đầu ở máy khách lệch nhau ngay.
+ */
 export const DEFAULT_LIST_PARAMS: ListParams = {
   q: '',
   segment: 'all',
@@ -36,7 +43,7 @@ const PARAM_SEGMENT = 'segment';
 const PARAM_CATEGORY = 'category';
 const PARAM_SORT = 'sort';
 
-const SORTS: ReadonlyArray<ListSort> = ['featured', 'az', 'za'];
+const SORTS: ReadonlyArray<ListSort> = ['featured', 'az', 'za', 'recent', 'used', 'basic'];
 
 function isSegmentFilter(value: string | null): value is SegmentFilter {
   return value === 'all' || value === 'stock' || value === 'personal';

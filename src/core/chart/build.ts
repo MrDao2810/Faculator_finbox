@@ -20,7 +20,13 @@
  */
 
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
-import { NO_VALUE, formatNumber, formatValueWithUnit } from '../format';
+import {
+  COMPACT_PREFIXES,
+  NO_VALUE,
+  formatNumber,
+  formatValueWithUnit,
+  withScalePrefix,
+} from '../format';
 import type { Bilingual, CalcOutput, Level } from '../types';
 import { WARNING_LABELS, meaningless } from '../warnings';
 import {
@@ -39,6 +45,7 @@ import {
   sessionTicks,
 } from './history';
 import { decimalsOf, extentOf, niceAxis } from './scale';
+import type { NiceAxis } from './scale';
 import { usableOverlays } from './series';
 import { pickSweepVariable, sweepCandidates, sweepPoints } from './sweep';
 import { condensePoints } from './table';
@@ -49,6 +56,7 @@ import type {
   ChartPoint,
   ChartSeries,
   ChartTable,
+  ChartTick,
   SweepOption,
 } from './types';
 
@@ -107,20 +115,138 @@ function shortLabel(text: Bilingual): Bilingual {
 }
 
 /**
- * Bậc thang đơn vị cho nhãn trục tiền.
+ * Bề ngang tối đa của một nhãn vạch, tính bằng KÝ TỰ — hai con số vì hai trục có hai chỗ đứng khác
+ * hẳn nhau, và gộp chúng làm một là hoặc để trục Y tràn, hoặc chia bậc trục X khi không cần.
  *
- * Trục chạy tới 2.000.000.000 thì nhãn vạch dài 13 ký tự và ở khổ 360px chúng chồng lên nhau. Chia
- * bậc rồi ghi đơn vị vào TIÊU ĐỀ trục là cách các báo cáo tài chính vẫn làm, và nó dùng lại đúng
- * ba bậc `UNIT_SCALES` của `format.ts`.
+ *   - **Trục Y** đứng trong lề trái rộng 41 đơn vị viewBox (`PAD.left = 46` trừ 5 đơn vị hở), chữ
+ *     `font-size: 10px` → vừa đúng ~6 ký tự. Đây là chỗ CHẬT NHẤT của cả hình, và cũng là chỗ hỏng
+ *     đã báo: `1.000.000` (9 ký tự) tràn qua mép trái `x = 0` rồi bị `<svg>` cắt cụt IM LẶNG.
+ *   - **Trục X** nằm ngang dưới đáy và đã thưa còn ĐÚNG HAI nhãn (`thin(x.ticks, 2)`), nên mỗi nhãn
+ *     có nửa bề ngang vùng vẽ — chừng 134 đơn vị, tức ~23 ký tự. Ngân sách 10 giữ nhãn dưới ~57 đơn
+ *     vị, còn thừa chỗ ở giữa, mà vẫn cắt được `100.000.000.000 ₫` của `lai-kep`.
+ *
+ * Đổi `PAD.left`, cỡ chữ `.tick`, hay số nhãn giữ lại ở `thin()` thì phải xem lại hai con số này.
  */
-function axisUnit(unit: string, maxAbs: number): { factor: number; label: Bilingual } {
-  if (unit === '₫' && maxAbs >= 1_000_000_000) {
-    return { factor: 1_000_000_000, label: { vi: 'tỷ ₫', en: 'billion ₫' } };
-  }
-  if (unit === '₫' && maxAbs >= 1_000_000) {
-    return { factor: 1_000_000, label: { vi: 'triệu ₫', en: 'million ₫' } };
-  }
-  return { factor: 1, label: { vi: unit, en: unit } };
+const MAX_TICK_CHARS_Y = 6;
+const MAX_TICK_CHARS_X = 10;
+
+/** Bậc hiển thị đã chọn cho một trục, kèm đơn vị đã ghép tiền tố. */
+interface AxisScale {
+  factor: number;
+  /** Đơn vị hiện ở tiêu đề trục, ví dụ `'nghìn tỷ ₫'`. */
+  unit: Bilingual;
+}
+
+/**
+ * Bậc hiển thị của một trục — chọn theo ĐỘ DÀI NHÃN, không theo một mốc thập phân cố định.
+ *
+ * Đây là chỗ đáng đọc kỹ nhất của cả phép rút gọn, vì cách chọn quyết định luật có cần ngoại lệ hay
+ * không. Bản trước hỏi "đơn vị có phải `'₫'` không, và có vượt một tỷ không" — hai câu hỏi sai đích:
+ * nó bỏ sót `'₫/tháng'`, `'CP'`, `'sản phẩm'`, `'tỷ ₫'` (bốn công thức, vốn hoá FPT là 136.160 ở
+ * thang ấy), đồng thời vẫn nổ ở những chỗ nhãn vốn đã vừa.
+ *
+ * Luật ở đây hỏi thẳng ràng buộc thật — **nhãn có vừa lề trái không** — rồi mới hỏi bậc nào đọc
+ * xuôi nhất trong số những bậc vừa. Hai bước, theo đúng thứ tự đó:
+ *
+ *   1. **Bậc 1 vừa ngân sách thì dừng luôn**, không chia gì. Đây là bước giữ cho luật im lặng ở
+ *      `'%'`, `'lần'`, `'điểm'` mà không cần một ngoại lệ nào viết ra; im ở `ev` (11.500 tỷ ₫ →
+ *      nhãn `12.000`, 6 ký tự) trong khi vẫn nổ ở `von-hoa-thi-truong` khi nạp FPT (136.160 tỷ ₫ →
+ *      `150.000`, 7 ký tự) — cùng đơn vị, khác độ lớn, và đó mới là thứ đáng phân biệt; và không bao
+ *      giờ đổi `1.200 ₫` thành `1,2 nghìn ₫`.
+ *   2. Phải chia rồi thì lấy bậc **LỚN NHẤT** vẫn vừa ngân sách mà giá trị lớn nhất còn ≥ 1. Không
+ *      lấy bậc nhỏ nhất vừa đủ: `lai-kep` chạy tới 35 triệu ₫, bậc nghìn đã vừa 6 ký tự nên bậc nhỏ
+ *      nhất dừng ở đó và cho ra `'22.196 nghìn ₫'` — đúng số, nhưng không ai viết tiền kiểu ấy. Điều
+ *      kiện `≥ 1` là thứ chặn chiều ngược lại, kẻo cả trục thành `0,03` ở bậc tỷ.
+ *
+ * Số chữ số thập phân suy từ BƯỚC chia đã đổi bậc, nên nhãn không mọc đuôi lẻ: bước 20.000 chia cho
+ * 1.000 ra 20, vẫn không có số lẻ nào.
+ *
+ * Không bậc nào đạt (miền trải quá rộng để ngân sách ôm hết) thì lấy bậc lớn nhất — vẫn là bản ngắn
+ * nhất có thể, và tuyệt đối không trả `undefined` để nơi gọi phải đoán.
+ */
+function pickScale(
+  nice: NiceAxis,
+  unit: string,
+  maxChars: number,
+): AxisScale & { ticks: ChartTick[] } {
+  const maxAbs = Math.max(Math.abs(nice.domain[0]), Math.abs(nice.domain[1]));
+
+  /*
+   * Bậc nào ghép ra một đơn vị KHÔNG CÓ THẬT thì loại thẳng khỏi danh sách, không phải sửa nhãn sau.
+   * `resultUnit` của bốn công thức là `'tỷ ₫'` và biến `shares` là `'triệu CP'`, nên ghép mù cho ra
+   * `'tỷ tỷ ₫'` — xem `withScalePrefix()`.
+   *
+   * Dựng thẳng ra `ChartTick` chứ không trả riêng một mảng chuỗi để nơi gọi ghép lại theo chỉ số:
+   * ghép theo chỉ số thì `noUncheckedIndexedAccess` bắt phải có một nhánh dự phòng, mà nhánh ấy vừa
+   * không bao giờ chạy vừa định dạng số theo một kiểu khác — đúng loại chữ chết chỉ chờ ngày sai.
+   */
+  const candidates = COMPACT_PREFIXES.flatMap(({ factor, prefix }) => {
+    const scaledUnit = withScalePrefix(unit, prefix);
+    if (scaledUnit === null) return [];
+
+    const decimals = decimalsOf(nice.step / factor);
+    return [
+      {
+        factor,
+        unit: scaledUnit,
+        ticks: nice.ticks.map((value) => ({
+          value,
+          label: formatNumber(value / factor, { maxDecimals: decimals }),
+        })),
+      },
+    ];
+  });
+
+  const vua = candidates.filter((item) =>
+    item.ticks.every((tick) => tick.label.length <= maxChars),
+  );
+
+  // Bậc 1 luôn đứng đầu `COMPACT_PREFIXES`; nó vừa thì không có lý do gì phải chia.
+  const khongChia = vua[0];
+  if (khongChia?.factor === 1) return khongChia;
+
+  const docXuoi = vua.filter((item) => maxAbs / item.factor >= 1);
+
+  return (
+    docXuoi[docXuoi.length - 1] ??
+    vua[0] ??
+    candidates[candidates.length - 1] ?? {
+      factor: 1,
+      unit: { vi: unit, en: unit },
+      ticks: [],
+    }
+  );
+}
+
+/**
+ * Một giá trị đơn lẻ viết ở bậc của trục nó nằm trên — dùng cho chữ VẼ TRÊN HÌNH.
+ *
+ * Số chữ số thập phân KHÔNG lấy theo bước chia như nhãn vạch: bước của một trục chạy tới hai tỷ là
+ * 500 triệu, tức 0 chữ số lẻ ở bậc tỷ, và `1.789.700.000 ₫` sẽ thành `2 tỷ ₫` — sai lệch 12% ngay
+ * trên con số người dùng đang đọc. Ở đây giữ khoảng ba chữ số có nghĩa, nên ra `1,79 tỷ ₫`.
+ */
+function scaledValueLabel(value: number, scale: AxisScale): string {
+  const scaled = value / scale.factor;
+  const magnitude = Math.abs(scaled);
+  const decimals = magnitude >= 100 ? 0 : magnitude >= 10 ? 1 : 2;
+  return formatValueWithUnit(scaled, scale.unit.vi, { maxDecimals: decimals });
+}
+
+/**
+ * Bản rút gọn của một nhãn giá trị — hoặc `undefined` khi rút gọn KHÔNG ngắn hơn bản đầy đủ.
+ *
+ * So bằng độ dài chuỗi chứ không bằng "trục có chia bậc hay không", và đó là điều khiến luật tự chọn
+ * đúng ở cả hai phía: `lich-tra-no` đổi `1.789.700.000 ₫` (15 ký tự) lấy `1,79 tỷ ₫` (9) — đáng;
+ * còn một mức giá `92.000 ₫` (8) thì `92 nghìn ₫` (10) dài hơn, nên giữ nguyên bản gốc.
+ *
+ * Trả `undefined` chứ không trả lại chính chuỗi cũ, vì nơi gọi bỏ hẳn trường khi không dùng: bất biến
+ * "công thức một chuỗi dựng ra ĐÚNG mô hình như trước" kiểm bằng `toEqual`, mà một trường thừa mang
+ * giá trị trùng cũng đủ làm nó đỏ.
+ */
+function shortenLabel(value: number, full: string, scale: AxisScale): string | undefined {
+  if (scale.factor === 1 || !Number.isFinite(value)) return undefined;
+  const short = scaledValueLabel(value, scale);
+  return short.length < full.length ? short : undefined;
 }
 
 /**
@@ -136,10 +262,10 @@ function buildBreakdownModel(
   name: Bilingual,
   options: ReadonlyArray<SweepOption>,
 ): ChartModel {
-  const bars = breakdownBars(spec, inputs, output);
-  const extent = breakdownExtent(bars);
+  const rawBars = breakdownBars(spec, inputs, output);
+  const extent = breakdownExtent(rawBars);
 
-  if (bars.length === 0 || extent === null) {
+  if (rawBars.length === 0 || extent === null) {
     return {
       kind: 'unavailable',
       title: name,
@@ -155,7 +281,25 @@ function buildBreakdownModel(
    * việc cho một số tiền. Công thức không khai `breakdownTotal` thì giữ nguyên nếp cũ của mọi
    * biểu đồ khác, nên thay đổi này chỉ chạm đúng những cái vừa khai.
    */
-  const y = buildAxis(extent[0], extent[1], spec.breakdownTotal ?? name, spec.resultUnit);
+  const { axis: y, scale } = buildAxis(
+    extent[0],
+    extent[1],
+    spec.breakdownTotal ?? name,
+    spec.resultUnit,
+  );
+
+  /*
+   * Nhãn giá trị VẼ TRÊN CỘT nói cùng thang với trục ngay dưới nó.
+   *
+   * Trước đợt này hai chỗ nói hai kiểu: trục `lich-tra-no` ghi '(tỷ ₫)' còn nhãn cột ghi
+   * `1.789.700.000 ₫` — vừa dài quá bề ngang cột, vừa bắt người đọc tự quy đổi giữa hai thang trên
+   * cùng một hình. Bảng số dưới `<details>` KHÔNG đi qua đây: nó vẫn đọc `valueLabel` đầy đủ, vì đó
+   * là chỗ tra con số chính xác.
+   */
+  const bars = rawBars.map((bar) => {
+    const short = shortenLabel(bar.delta, bar.valueLabel, scale);
+    return short === undefined ? bar : { ...bar, shortValueLabel: short };
+  });
   const total = bars[bars.length - 1];
 
   const stages = bars.filter((bar) => bar.isTotal !== true);
@@ -198,22 +342,33 @@ function buildBreakdownModel(
   };
 }
 
-function buildAxis(lo: number, hi: number, name: Bilingual, unit: string): ChartAxis {
+/**
+ * Trục đã chia vạch, KÈM bậc hiển thị đã chọn.
+ *
+ * Trả cả hai trong một hàm vì bậc còn dùng ở chỗ thứ hai: nhãn giá trị vẽ trên hình phải nói cùng
+ * một thang với trục nó đứng cạnh. Tính lại bậc ở nơi thứ hai là dựng lên hai nguồn sự thật cho cùng
+ * một câu hỏi, và chúng sẽ lệch nhau vào ngày ai đó đổi `MAX_TICK_CHARS`.
+ */
+function buildAxis(
+  lo: number,
+  hi: number,
+  name: Bilingual,
+  unit: string,
+  maxChars = MAX_TICK_CHARS_Y,
+): { axis: ChartAxis; scale: AxisScale } {
   const nice = niceAxis(lo, hi);
-  const maxAbs = Math.max(Math.abs(nice.domain[0]), Math.abs(nice.domain[1]));
-  const scale = axisUnit(unit, maxAbs);
-  const decimals = decimalsOf(nice.step / scale.factor);
+  const scale = pickScale(nice, unit, maxChars);
 
   return {
-    title: {
-      vi: scale.label.vi === '' ? name.vi : `${name.vi} (${scale.label.vi})`,
-      en: scale.label.en === '' ? name.en : `${name.en} (${scale.label.en})`,
+    axis: {
+      title: {
+        vi: scale.unit.vi === '' ? name.vi : `${name.vi} (${scale.unit.vi})`,
+        en: scale.unit.en === '' ? name.en : `${name.en} (${scale.unit.en})`,
+      },
+      domain: nice.domain,
+      ticks: scale.ticks,
     },
-    domain: nice.domain,
-    ticks: nice.ticks.map((value) => ({
-      value,
-      label: formatNumber(value / scale.factor, { maxDecimals: decimals }),
-    })),
+    scale: { factor: scale.factor, unit: scale.unit },
   };
 }
 
@@ -358,6 +513,11 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   let x: ChartAxis;
   let activeKey: string;
   let axisName: Bilingual;
+  /*
+   * Bậc hiển thị của trục X — `null` trên trục thời gian, nơi nhãn là ngày tháng chứ không phải một
+   * đại lượng, nên không có gì để chia bậc.
+   */
+  let xScale: AxisScale | null = null;
 
   if (onTime) {
     points = historyPoints(formula, inputs, ctx);
@@ -390,7 +550,9 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     }
 
     axisName = shortLabel(chosen.label);
-    x = buildAxis(xExtent[0], xExtent[1], axisName, chosen.unit);
+    const built = buildAxis(xExtent[0], xExtent[1], axisName, chosen.unit, MAX_TICK_CHARS_X);
+    x = built.axis;
+    xScale = built.scale;
     activeKey = chosen.key;
   }
 
@@ -438,7 +600,29 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       ? yExtent
       : (extentOf([...points.map((point) => point.y), ...leftOverlayYs]) ?? yExtent);
 
-  const y = buildAxis(yFull[0], yFull[1], name, spec.resultUnit);
+  const { axis: y, scale: yScale } = buildAxis(yFull[0], yFull[1], name, spec.resultUnit);
+
+  /*
+   * Nhãn RÚT GỌN của từng điểm, cho chữ vẽ trên hình: vạch dò khi rê chuột và dấu "giá trị hiện tại".
+   *
+   * Gắn ở ĐÂY chứ không ở `sweepPoints()`/`historyPoints()` vì bậc hiển thị là thuộc tính của TRỤC,
+   * mà trục chỉ dựng xong ở dòng ngay trên — nơi sinh điểm không biết miền cuối cùng sẽ là gì.
+   *
+   * Mảng mới này thay hẳn `points` từ đây trở xuống, không dùng song song với mảng cũ: bảng số tra
+   * `points.indexOf(point)` bằng THAM CHIẾU, nên hai mảng cùng tồn tại là bảng tra trượt toàn bộ
+   * chuỗi phụ. Điểm nào không rút gọn được thì giữ NGUYÊN object cũ, nên biểu đồ đơn vị 'lần' hay
+   * '%' dựng ra đúng cùng những object như trước.
+   */
+  points = points.map((point) => {
+    const shortX = xScale === null ? undefined : shortenLabel(point.x, point.label, xScale);
+    const shortY = point.y === null ? undefined : shortenLabel(point.y, point.valueLabel, yScale);
+    if (shortX === undefined && shortY === undefined) return point;
+    return {
+      ...point,
+      ...(shortX === undefined ? {} : { shortLabel: shortX }),
+      ...(shortY === undefined ? {} : { shortValueLabel: shortY }),
+    };
+  });
 
   /*
    * Mốc tham chiếu — lọc theo miền Y ĐANG hiện, không nới trục ra ôm lấy chúng.
@@ -482,7 +666,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const yRight =
     rightExtent === null || rightHead === undefined
       ? undefined
-      : buildAxis(rightExtent[0], rightExtent[1], rightHead.label, rightHead.unit ?? '');
+      : buildAxis(rightExtent[0], rightExtent[1], rightHead.label, rightHead.unit ?? '').axis;
 
   /*
    * Bảng số — thêm một cột cho mỗi chuỗi phụ.

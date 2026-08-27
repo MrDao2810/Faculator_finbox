@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-import { LAST_LIST_URL_KEY, ROUTES, backToListHref } from '@/application';
+import { ORIGIN_KEY, ORIGIN_RESTORE_KEY, ROUTES, backTarget, parseOrigin } from '@/application';
 import type { MessageKey } from '@/application';
 import { useT } from '@/application/preferences-context';
 
@@ -11,17 +11,21 @@ import styles from './BackLink.module.css';
 
 export interface BackLinkProps {
   /**
-   * Nơi quay về khi chưa nhớ được màn danh sách nào. Mặc định là `/cong-thuc/`.
+   * Nơi quay về khi chưa nhớ được màn gốc nào. Mặc định là `/cong-thuc/`.
    * Màn nào không thuộc luồng công thức thì truyền đường dẫn của mình vào.
    */
   fallbackHref?: string;
-  /** Nhãn nói RÕ sẽ về đâu. Mặc định "Danh sách công thức". */
+  /**
+   * Nhãn dùng khi rơi về `fallbackHref`. Mặc định "Danh sách công thức".
+   *
+   * Nhớ được màn gốc thì nhãn KHÔNG lấy từ đây mà lấy theo chính màn ấy — xem `backTarget()`.
+   */
   labelKey?: MessageKey;
   /**
-   * Có đọc màn danh sách đã nhớ trong `sessionStorage` không.
-   * Tắt ở màn không thuộc luồng công thức, ví dụ WF-05 bảng dữ liệu.
+   * Có đọc màn gốc đã nhớ trong `sessionStorage` không.
+   * Tắt ở màn có đường ra riêng, ví dụ bảng dữ liệu WF-05 mở từ một trang công thức.
    */
-  rememberList?: boolean;
+  rememberOrigin?: boolean;
 }
 
 /**
@@ -35,7 +39,7 @@ export interface BackLinkProps {
  * tab "Công thức" ở thanh dưới — mà tab đó không đọc ra là "quay lại", và nó ném người dùng
  * về danh sách trắng trơn, mất sạch bộ lọc vừa đặt.
  *
- * ## Ba quyết định
+ * ## Bốn quyết định
  *
  * 1. **Thẻ `<a>` thật, không phải `history.back()`.** Trang chi tiết được Google lập chỉ mục
  *    (FR-25) nên vào thẳng từ ngoài là đường vào thường xuyên; lúc đó lịch sử không có mục nào
@@ -46,31 +50,54 @@ export interface BackLinkProps {
  *    ấy là thứ chủ dự án tìm không ra. Thêm một chữ ngắn nói rõ sẽ về đâu — vừa dễ thấy, vừa
  *    cho trình đọc màn hình một cái tên tử tế mà không phải bịa `aria-label`.
  *
- * 3. **Nhớ bộ lọc.** `href` khởi tạo là `/cong-thuc/` để HTML tĩnh có sẵn một link đúng; sau
- *    khi gắn vào DOM thì nâng cấp thành màn danh sách vừa rời đi (xem `last-list-url.ts`).
+ * 3. **Nhãn ĐI THEO đích, không cố định.** Hệ quả bắt buộc của (2) từ khi nút này về được cả
+ *    trang chủ, màn tìm kiếm và danh mục: một nút ghi "Danh sách công thức" mà bấm vào ra trang
+ *    chủ thì còn tệ hơn mũi tên trơn, vì nó nói sai chứ không phải không nói. `backTarget()` trả
+ *    `href` và `labelKey` cùng lúc chính vì hai thứ ấy không được rời nhau.
+ *
+ * 4. **Nhớ chỗ đang đứng.** `href` khởi tạo là đường dự phòng để HTML tĩnh có sẵn một link đúng;
+ *    sau khi gắn vào DOM thì nâng cấp thành màn gốc vừa rời đi (xem `origin-screen.ts`).
  *    Đọc trong `useEffect` chứ không lúc khởi tạo state: bản build là HTML tĩnh, đọc
  *    `sessionStorage` lúc render đầu là lệch hydration (bài học đợt 2).
  */
 export function BackLink({
   fallbackHref = ROUTES.formulas,
   labelKey = 'nav.backToList',
-  rememberList = true,
+  rememberOrigin = true,
 }: BackLinkProps) {
-  const [href, setHref] = useState(fallbackHref);
+  const [target, setTarget] = useState({ href: fallbackHref, labelKey });
   const t = useT();
 
   useEffect(() => {
-    if (!rememberList) return;
+    if (!rememberOrigin) return;
     try {
-      const remembered = window.sessionStorage.getItem(LAST_LIST_URL_KEY);
-      setHref(backToListHref(remembered));
+      const origin = parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY));
+      setTarget(backTarget(origin, fallbackHref, labelKey));
     } catch {
       // Trình duyệt chặn sessionStorage (chế độ riêng tư) — giữ nguyên đường dẫn dự phòng.
     }
-  }, [rememberList]);
+  }, [rememberOrigin, fallbackHref, labelKey]);
+
+  /*
+   * Đặt cờ "lượt điều hướng này là một cú quay lại" ngay trước khi đi.
+   *
+   * `OriginTracker` bên màn đích đọc cờ rồi cuộn về đúng chỗ. Cần một cờ riêng chứ không suy từ
+   * việc URL khớp bản ghi: mọi lần mở trang chủ đều khớp, nên thiếu cờ thì bấm mục "Trang chủ" ở
+   * thanh dưới cũng nhảy cuộn — xem `ORIGIN_RESTORE_KEY`.
+   *
+   * Ghi trong `onClick` chứ không trong effect: chỉ CÚ BẤM này mới là quay lại, còn việc component
+   * có mặt trên màn thì không nói lên điều gì.
+   */
+  function markReturning(): void {
+    try {
+      window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, target.href);
+    } catch {
+      // Chặn sessionStorage thì mất phần cuộn về chỗ cũ, còn việc điều hướng vẫn chạy đủ.
+    }
+  }
 
   return (
-    <Link className={styles.back} href={href}>
+    <Link className={styles.back} href={target.href} onClick={markReturning}>
       {/* Mũi tên chỉ là phần nhìn; chữ bên cạnh mới là tên của link. */}
       <svg
         className={styles.icon}
@@ -86,7 +113,7 @@ export function BackLink({
       >
         <path d="M15 5 8 12l7 7" />
       </svg>
-      <span>{t(labelKey)}</span>
+      <span>{t(target.labelKey)}</span>
     </Link>
   );
 }

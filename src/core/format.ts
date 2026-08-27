@@ -10,7 +10,7 @@
  * lúc build phải khớp chuỗi sinh lúc chạy, nếu không sẽ lệch hydration.
  */
 
-import type { CalcOutput } from './types';
+import type { Bilingual, CalcOutput } from './types';
 
 /**
  * Chuỗi hiện ở chỗ đáng ra là kết quả khi không tính được (WF-15).
@@ -189,4 +189,68 @@ export function scaleToUnit(valueInDong: number, id: UnitScaleId): number {
 export function scaleToDong(value: number, id: UnitScaleId): number {
   if (!Number.isFinite(value)) return Number.NaN;
   return value * findUnitScale(id).factor;
+}
+
+/*
+ * ── Rút gọn số lớn cho nhãn trên hình ──────────────────────────────────────────────────
+ */
+
+/**
+ * Bậc rút gọn TỰ ĐỘNG, dùng cho chữ vẽ trên biểu đồ.
+ *
+ * KHÁC `UNIT_SCALES` ngay trên, và khác có chủ đích — đừng gộp hai bảng làm một:
+ *
+ *   - `UNIT_SCALES` là **ba nút WF-16 người dùng tự bấm**, áp cho ô nhập liệu và bảng lịch trả nợ.
+ *     Nó khoá cứng vào tiền (nhãn đã gồm sẵn `₫`), là một `Preferences` được lưu lại, và có một dây
+ *     neo i18n bám vào từng nhãn (`i18n.test.ts`). Mọc thêm một nấc ở đó là mọc thêm một nút trên
+ *     wireframe.
+ *   - Bảng dưới đây là một phép **rút gọn hiển thị**, không ai bấm: nó ghép TIỀN TỐ vào bất kỳ đơn
+ *     vị nào (`'triệu' + 'sản phẩm'`, `'nghìn' + 'tỷ ₫'`), nên nhãn không dính vào tiền; và nó có
+ *     thêm nấc 'nghìn' mà WF-16 không có.
+ *
+ * Bậc cuối `factor: 1` là "không chia" — có mặt trong bảng để nơi chọn bậc chỉ có một vòng lặp, thay
+ * vì một vòng lặp cộng một nhánh mặc định.
+ */
+export const COMPACT_PREFIXES = [
+  { factor: 1, prefix: { vi: '', en: '' } },
+  { factor: 1_000, prefix: { vi: 'nghìn', en: 'thousand' } },
+  { factor: 1_000_000, prefix: { vi: 'triệu', en: 'million' } },
+  { factor: 1_000_000_000, prefix: { vi: 'tỷ', en: 'billion' } },
+] as const;
+
+export type CompactPrefix = (typeof COMPACT_PREFIXES)[number];
+
+/** Những từ chỉ bậc mà một đơn vị có thể MANG SẴN — `'tỷ ₫'`, `'triệu CP'`. */
+const SCALE_WORDS: ReadonlyArray<string> = COMPACT_PREFIXES.map((item) => item.prefix.vi).filter(
+  (word) => word !== '',
+);
+
+/**
+ * Ghép tiền tố bậc vào đơn vị: `'nghìn' + 'tỷ ₫'` ra `'nghìn tỷ ₫'`.
+ *
+ * @returns `null` khi phép ghép không ra một đơn vị có thật — nơi gọi phải BỎ bậc ấy đi, chứ không
+ * nhận về một chuỗi vô nghĩa rồi dán lên tiêu đề trục.
+ *
+ * Cần cửa chặn này vì đơn vị trong dự án không phải lúc nào cũng trần: bốn công thức khai
+ * `resultUnit: 'tỷ ₫'`, và biến `shares` khai `'triệu CP'`. Ghép mù lên chúng cho ra `'tỷ tỷ ₫'` —
+ * đo được, không phải giả định.
+ *
+ * Luật: đơn vị đã mang sẵn bậc thì chỉ nhận thêm `'nghìn'`, và chỉ khi bậc sẵn có là `'tỷ'`. Đó là
+ * hợp từ DUY NHẤT có thật trong tiếng Việt ở nhóm này — 'nghìn tỷ' là cách báo chí tài chính viết
+ * mức 10^12, còn 'triệu tỷ', 'tỷ tỷ', 'nghìn triệu' thì không ai dùng.
+ *
+ * Vế `en` ghép tiền tố tiếng Anh vào ĐƠN VỊ GỐC chưa dịch (`'thousand tỷ ₫'`), đúng giới hạn đã ghi
+ * ở đầu `chart/build.ts`: số và đơn vị chưa nằm trong đợt dịch.
+ *
+ * Tiền tố rỗng (bậc `factor: 1`) trả nguyên đơn vị, kể cả khi đơn vị cũng rỗng — không để lại khoảng
+ * trắng thừa ở đầu chuỗi, thứ sẽ lọt thẳng vào tiêu đề trục thành `' (…)'`.
+ */
+export function withScalePrefix(unit: string, prefix: Bilingual): Bilingual | null {
+  if (prefix.vi === '') return { vi: unit, en: unit };
+  if (unit === '') return { vi: prefix.vi, en: prefix.en };
+
+  const head = unit.split(' ')[0] ?? '';
+  if (SCALE_WORDS.includes(head) && !(head === 'tỷ' && prefix.vi === 'nghìn')) return null;
+
+  return { vi: `${prefix.vi} ${unit}`, en: `${prefix.en} ${unit}` };
 }

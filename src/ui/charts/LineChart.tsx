@@ -12,10 +12,11 @@ import {
   pointerToViewBox,
   seriesOf,
 } from '@/application';
-import type { ChartPoint, ChartTick, LineChart as LineChartModel, SeriesTone } from '@/application';
+import type { ChartPoint, LineChart as LineChartModel, SeriesTone } from '@/application';
 import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
+import { thin, tickAnchor } from './ticks';
 
 /**
  * Đường quét độ nhạy — FR-08.
@@ -100,18 +101,6 @@ const TONE_CLASS: Readonly<Record<SeriesTone, string>> = {
   violet: styles.toneSeriesViolet ?? '',
   muted: styles.toneSeriesMuted ?? '',
 };
-
-/**
- * Giữ lại chừng `keep` nhãn, bỏ bớt phần còn lại.
- *
- * Vạch chia thì vẽ hết cho mắt bám, nhưng nhãn chữ thì không: 12 nhãn `120.000` cạnh nhau trên
- * 268 đơn vị bề ngang là chồng lên nhau thành vệt đen. Luôn giữ vạch đầu và vạch cuối.
- */
-function thin(ticks: ReadonlyArray<ChartTick>, keep: number): ReadonlyArray<ChartTick> {
-  if (ticks.length <= keep) return ticks;
-  const stride = Math.ceil((ticks.length - 1) / (keep - 1));
-  return ticks.filter((_, index) => index % stride === 0 || index === ticks.length - 1);
-}
 
 /**
  * Chiều cao đặt nhãn của một mốc tham chiếu, tính từ chiều cao của chính đường ấy.
@@ -594,14 +583,18 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
               </text>
             ))}
 
-          {/* Nhãn trục X. */}
+          {/*
+            Nhãn trục X. `thin(x.ticks, 2)` giữ đúng vạch đầu và vạch cuối, mà vạch cuối nằm tại
+            `plot.x1 = 310` trên khung 320 — canh giữa ở đó là mất đuôi chữ. `tickAnchor` lật nó
+            vào trong; các vạch giữa không đổi.
+          */}
           {xLabels.map((tick) => (
             <text
               key={`x-${String(tick.value)}`}
               className={styles.tick}
               x={sx(tick.value)}
               y={plot.y1 + 13}
-              textAnchor="middle"
+              textAnchor={tickAnchor(sx(tick.value), W)}
             >
               {tick.label}
             </text>
@@ -691,7 +684,12 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
                 y={plot.y0 + 22}
                 textAnchor={hoverOnRight ? 'end' : 'start'}
               >
-                {hover.label} · {hover.valueLabel}
+                {/*
+                  Bản RÚT GỌN khi Domain có dựng — nhãn này ghép HAI chuỗi đã kèm đơn vị, nên nó là
+                  chữ dài nhất trên cả hình. Rơi về bản đầy đủ khi rút gọn không ngắn hơn (xem
+                  `ChartPoint.shortLabel`), tức đúng những lúc bản đầy đủ vốn đã ngắn.
+                */}
+                {hover.shortLabel ?? hover.label} · {hover.shortValueLabel ?? hover.valueLabel}
               </text>
             </g>
           )}
@@ -725,7 +723,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
                 y={plot.y0 + 10}
                 textAnchor={sx(marked.x) > (plot.x0 + plot.x1) / 2 ? 'end' : 'start'}
               >
-                {marked.valueLabel}
+                {marked.shortValueLabel ?? marked.valueLabel}
               </text>
             </g>
           )}

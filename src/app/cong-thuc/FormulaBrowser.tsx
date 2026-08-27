@@ -1,18 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   FORMULA_SUMMARIES,
-  LAST_LIST_URL_KEY,
+  FORMULA_USAGE_KEY,
   countByCategoryFor,
   countBySegmentFor,
   countHiddenByLevel,
   formulasForLevel,
   isDefaultListParams,
-  listUrlToStore,
+  parseFormulaUsage,
   selectFormulas,
+  usageOrderMap,
 } from '@/application';
+import type { FormulaUsage } from '@/application';
 import { useListParams } from '@/application/use-list-params';
 import { usePreferences, useT } from '@/application/preferences-context';
 import { useQueryDraft } from '@/application/use-query-draft';
@@ -24,6 +26,7 @@ import {
   SearchBox,
   VirtualList,
 } from '@/ui/browse';
+import { rememberOrigin } from '@/ui/layout/OriginTracker';
 import { Button } from '@/ui/primitives';
 
 import styles from './FormulaBrowser.module.css';
@@ -62,7 +65,47 @@ export function FormulaBrowser() {
    */
   const pool = useMemo(() => formulasForLevel(FORMULA_SUMMARIES, mode), [mode]);
 
-  const formulas = useMemo(() => selectFormulas(pool, view), [pool, view]);
+  /*
+   * Lịch sử mở công thức, cho hai cách sắp "Vừa xem gần đây" và "Hay dùng nhất".
+   *
+   * Khởi tạo là hằng số `null` để lượt render đầu ở máy khách dựng ĐÚNG cây mà bản tĩnh
+   * `StaticFormulaList` đã dựng — luật chung của repo, xem docblock `FeaturedFormulas`.
+   * Người chưa có lịch sử không bao giờ đi qua `setState` này, nên không có lượt dựng lại nào.
+   *
+   * `now` chốt luôn tại đây thay vì lấy lúc render: `usageScore` bán rã 30 ngày nên một phiên
+   * làm việc không đổi được thứ hạng, đổi lại `Date.now()` không bao giờ chạy trong lúc render
+   * — đúng ràng buộc mà `formula-usage.ts` ghi ra.
+   */
+  const [history, setHistory] = useState<{
+    usage: ReadonlyArray<FormulaUsage>;
+    now: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let raw: string | null = null;
+    try {
+      raw = window.localStorage.getItem(FORMULA_USAGE_KEY);
+    } catch {
+      // Trình duyệt chặn localStorage — hai cách sắp ấy về đúng thứ tự mặc định.
+      return;
+    }
+
+    const usage = parseFormulaUsage(raw);
+    if (usage.length === 0) return;
+    setHistory({ usage, now: Date.now() });
+  }, []);
+
+  /** Chỉ chấm điểm khi cách sắp đang chọn thật sự cần — hai cách còn lại không đụng tới. */
+  const usageOrder = useMemo(() => {
+    if (history === null) return undefined;
+    if (view.sort !== 'recent' && view.sort !== 'used') return undefined;
+    return usageOrderMap(history.usage, view.sort, history.now);
+  }, [history, view.sort]);
+
+  const formulas = useMemo(
+    () => selectFormulas(pool, view, { usageOrder }),
+    [pool, view, usageOrder],
+  );
   const segmentCounts = useMemo(() => countBySegmentFor(pool, view), [pool, view]);
   const categoryCounts = useMemo(() => countByCategoryFor(pool, view), [pool, view]);
 
@@ -74,19 +117,18 @@ export function FormulaBrowser() {
 
   /*
    * Ghi lại màn danh sách đang đứng, để nút quay lại ở trang chi tiết đưa người dùng về ĐÚNG
-   * bộ lọc này chứ không về một danh sách trắng trơn (xem `last-list-url.ts`).
+   * bộ lọc này chứ không về một danh sách trắng trơn (xem `origin-screen.ts`).
+   *
+   * `OriginTracker` trong `AppShell` đã ghi ở bốn thời điểm chung, nhưng KHÔNG bắt được lần này:
+   * đổi bộ lọc chỉ thay TRUY VẤN chứ không thay `pathname`, nên effect bên ấy không chạy lại.
+   * Đây là chỗ duy nhất biết chuyện đó vừa xảy ra, nên nó gọi thẳng.
    *
    * Chạy theo `params` chứ không theo `draft`: `draft` đổi theo từng phím gõ, mà URL chỉ được
    * ghi sau khoảng nghỉ — bám `draft` là ghi `sessionStorage` mỗi ký tự và nhớ luôn cả những
    * trạng thái URL chưa từng tồn tại.
    */
   useEffect(() => {
-    try {
-      const url = listUrlToStore(window.location.pathname, window.location.search);
-      if (url !== null) window.sessionStorage.setItem(LAST_LIST_URL_KEY, url);
-    } catch {
-      // Trình duyệt chặn sessionStorage — nút quay lại tự lùi về '/cong-thuc/' trơn.
-    }
+    rememberOrigin();
   }, [params]);
 
   const isFiltering = !isDefaultListParams(view);

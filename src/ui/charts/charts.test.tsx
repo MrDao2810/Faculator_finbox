@@ -1871,10 +1871,15 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
  */
 describe('Dò điểm — thác nước (hover từng cột)', () => {
   /*
-   * Bảng số của thác nước KHÔNG rút gọn (khác đường quét — `condensePoints` chỉ áp cho
+   * Bảng số của thác nước KHÔNG rút gọn dòng (khác đường quét — `condensePoints` chỉ áp cho
    * `LineChart`): `table.rows` là `bars.map((bar) => [bar.label, bar.valueLabel])`, đúng thứ tự
    * `model.bars` — nên `<rect>` đầu tiên trong SVG và dòng đầu của bảng LUÔN cùng một cột. Test
    * dựa thẳng vào đối chiếu đó, không đoán giá trị.
+   *
+   * `ev` còn được chọn vì một lý do thứ hai kể từ đợt rút gọn số lớn: nhãn của nó (`9.200 tỷ ₫`)
+   * vốn đã ngắn, nên `shortValueLabel` VẮNG MẶT và hai chỗ vẫn nói đúng một chuỗi. Công thức mà
+   * rút gọn có nổ thì hai chỗ nói hai chuỗi khác nhau một cách CÓ CHỦ ĐÍCH — ca ngay dưới đây chốt
+   * chuyện đó, và nó là lý do ca này không được đổi sang một công thức khác cho tiện.
    */
   it('trỏ vào cột đầu: hiện đúng giá trị CỦA CỘT ĐÓ (khớp dòng đầu bảng), viền đậm lên; rời ra thì tắt lại', () => {
     const { container } = draw('ev');
@@ -1915,6 +1920,59 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
 
     fireEvent.pointerDown(target, { pointerType: 'touch' });
     expect(target.getAttribute('class')).toMatch(/barHover/);
+  });
+
+  /*
+   * Số lớn thì HÌNH và BẢNG cố ý nói hai chuỗi khác nhau — đây là ca chốt chỗ tách ấy.
+   *
+   * `lich-tra-no` vay 800 triệu cho tổng lãi `989.691.880,64 ₫`: 16 ký tự ở cỡ chữ 9px ≈ 70 đơn vị
+   * viewBox, đặt canh giữa một cột trong vùng vẽ rộng 212 — nó tràn, và trước đợt này chú thích
+   * ngay tại chỗ vẽ còn khẳng định là không bao giờ tràn. Trên hình nay là `0,99 tỷ ₫`, cùng bậc
+   * với trục ngay dưới nó; bảng số vẫn giữ trọn từng đồng vì đó là chỗ tra số chính xác.
+   */
+  it('cột giá trị lớn: hình hiện bản rút gọn, bảng số vẫn in đủ chữ số', async () => {
+    const { container } = draw('lich-tra-no', undefined, 'advanced');
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), '__breakdown');
+
+    const bars = container.querySelectorAll('svg rect');
+    const total = bars[bars.length - 1];
+    if (total === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
+
+    fireEvent.pointerEnter(total);
+
+    const onChart = [...container.querySelectorAll('svg text')].map((node) => node.textContent);
+    expect(onChart).toContain('0,99 tỷ ₫');
+    expect(onChart).not.toContain('989.691.880,64 ₫');
+
+    const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+    const lastRow = rows[rows.length - 1];
+    if (lastRow === undefined) throw new Error('Bảng số không có dòng nào — kịch bản test đã đổi.');
+    expect(within(lastRow).getAllByRole('cell')[1]?.textContent).toBe('989.691.880,64 ₫');
+  });
+
+  /*
+   * Nhãn vạch phải THƯA như đường quét. `niceAxis()` cho tới 12 vạch, mà 12 nhãn 5 ký tự trên 212
+   * đơn vị bề ngang là chồng lên nhau thành vệt đen; vạch KẺ thì vẫn vẽ hết để mắt còn chỗ bám.
+   */
+  it('nhãn vạch trục giá trị được thưa bớt, nhưng vạch kẻ vẫn vẽ hết', () => {
+    /*
+     * `ncav-tren-co-phieu` chứ không phải `ev`: trục của `ev` chỉ có 4 vạch, tức đúng bằng số nhãn
+     * giữ lại, nên ca kiểm sẽ xanh mà không chứng minh được gì. Trục này có 6 vạch — thưa thật.
+     */
+    const { container } = draw('ncav-tren-co-phieu');
+
+    /*
+     * Truy vấn trên `container`, KHÔNG trên `container.querySelector('svg')`: thẻ `<svg>` đầu tiên
+     * trong DOM là icon của nút phóng to ở hàng tiêu đề, không phải hình vẽ.
+     */
+    const tickLabels = container.querySelectorAll('text[class*="tick"]');
+    const gridLines = container.querySelectorAll('line[class*="grid"]');
+
+    expect(gridLines.length).toBeGreaterThan(4);
+    expect(tickLabels.length).toBeLessThanOrEqual(4);
+    // Vạch KẺ nhiều hơn nhãn CHỮ — đó chính là chỗ `thin()` cắt, và là điều ca này chứng minh.
+    expect(tickLabels.length).toBeLessThan(gridLines.length);
   });
 });
 

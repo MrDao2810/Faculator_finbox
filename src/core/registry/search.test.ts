@@ -214,6 +214,24 @@ describe('lọc không được sao chép công thức — điều kiện của 
     }
   });
 
+  it('mọi cách sắp xếp cũng vậy — kể cả hai cách chấm điểm từ lịch sử', () => {
+    const order = new Map([
+      ['pe', 9],
+      ['wacc', 3],
+    ]);
+
+    for (const sort of ['featured', 'az', 'za', 'basic', 'recent', 'used'] as const) {
+      const ra = selectFormulas(ALL, { ...BASE_QUERY, sort }, { usageOrder: order });
+      expect(ra.length, sort).toBe(ALL.length);
+      for (const formula of ra) {
+        expect(
+          ALL.some((goc) => goc === formula),
+          `${sort} · ${formula.id}`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it('formulasForLevel cũng vậy', () => {
     for (const formula of formulasForLevel(ALL, 'basic')) {
       expect(
@@ -274,6 +292,96 @@ describe('selectFormulas()', () => {
 
   it('không khớp gì thì trả mảng rỗng chứ không trả cả danh sách', () => {
     expect(selectFormulas(ALL, { ...BASE_QUERY, q: 'tien ma hoa' })).toEqual([]);
+  });
+
+  it('“Cơ bản trước” xếp hết mức cơ bản lên trên, trong mỗi mức vẫn theo chữ cái', () => {
+    const ra = selectFormulas(ALL, { ...BASE_QUERY, sort: 'basic' });
+
+    // Không có mức nâng cao nào chen lên trước một mức cơ bản.
+    const dauTienNangCao = ra.findIndex((f) => f.level === 'advanced');
+    const cuoiCungCoBan = ra.map((f) => f.level).lastIndexOf('basic');
+    expect(dauTienNangCao).toBeGreaterThan(cuoiCungCoBan);
+
+    // Trong mức cơ bản, thứ tự trùng khít A–Z đã lọc lại — nổi bật KHÔNG được chen ngang.
+    const az = selectFormulas(ALL, { ...BASE_QUERY, sort: 'az' });
+    expect(ra.filter((f) => f.level === 'basic').map((f) => f.id)).toEqual(
+      az.filter((f) => f.level === 'basic').map((f) => f.id),
+    );
+  });
+});
+
+/*
+ * Hai cách sắp dựa trên lịch sử dùng. Điểm do tầng Application chấm rồi đưa xuống, nên ở đây
+ * chỉ cần một `Map` dựng tay — chính vì vậy chúng test được bằng Node mà không đụng localStorage.
+ */
+describe('selectFormulas() — sắp theo lịch sử dùng', () => {
+  /** Thứ tự mặc định, dùng làm mốc so cho mọi ca dưới đây. */
+  const MAC_DINH = selectFormulas(ALL, BASE_QUERY).map((f) => f.id);
+
+  it('công thức có điểm lên trước, điểm cao đứng trên', () => {
+    const order = new Map([
+      ['emi', 10],
+      ['wacc', 30],
+    ]);
+    const ids = selectFormulas(ALL, { ...BASE_QUERY, sort: 'recent' }, { usageOrder: order }).map(
+      (f) => f.id,
+    );
+    expect(ids.slice(0, 2)).toEqual(['wacc', 'emi']);
+  });
+
+  it('công thức chưa mở bao giờ rơi xuống dưới theo ĐÚNG thứ tự mặc định', () => {
+    const order = new Map([['emi', 10]]);
+    const ids = selectFormulas(ALL, { ...BASE_QUERY, sort: 'used' }, { usageOrder: order }).map(
+      (f) => f.id,
+    );
+    expect(ids[0]).toBe('emi');
+    expect(ids.slice(1)).toEqual(MAC_DINH.filter((id) => id !== 'emi'));
+  });
+
+  it('không có lịch sử thì trùng khít thứ tự mặc định — khách mới không thấy màn lạ', () => {
+    for (const sort of ['recent', 'used'] as const) {
+      // Cả ba đường vào đều phải ra cùng một kết quả: thiếu options, thiếu map, và map rỗng.
+      expect(selectFormulas(ALL, { ...BASE_QUERY, sort }).map((f) => f.id)).toEqual(MAC_DINH);
+      expect(selectFormulas(ALL, { ...BASE_QUERY, sort }, {}).map((f) => f.id)).toEqual(MAC_DINH);
+      expect(
+        selectFormulas(ALL, { ...BASE_QUERY, sort }, { usageOrder: new Map() }).map((f) => f.id),
+      ).toEqual(MAC_DINH);
+    }
+  });
+
+  it('điểm lịch sử ĐÈ độ liên quan, y như A–Z', () => {
+    // 'gia' khớp thẳng vào TÊN của 'Giá hoà vốn thực' nên nó liên quan hơn 'pe' (chỉ khớp thẻ).
+    const theoLienQuan = selectFormulas(ALL, { ...BASE_QUERY, q: 'gia' }).map((f) => f.id);
+    expect(theoLienQuan).toEqual(['gia-hoa-von', 'pe']);
+
+    // Người dùng vừa tự tay chọn cách sắp này sau khi đã gõ xong, nên lịch sử phải thắng.
+    const order = new Map([['pe', 99]]);
+    const ids = selectFormulas(
+      ALL,
+      { ...BASE_QUERY, q: 'gia', sort: 'recent' },
+      { usageOrder: order },
+    ).map((f) => f.id);
+    expect(ids).toEqual(['pe', 'gia-hoa-von']);
+  });
+
+  it('điểm của công thức bị bộ lọc loại ra không kéo nó quay lại', () => {
+    const order = new Map([['emi', 99]]);
+    const ids = selectFormulas(
+      ALL,
+      { ...BASE_QUERY, segment: 'stock', sort: 'used' },
+      { usageOrder: order },
+    ).map((f) => f.id);
+    expect(ids).not.toContain('emi');
+  });
+
+  it('cùng đầu vào luôn cho cùng thứ tự (NFR-REL-03)', () => {
+    const order = new Map([
+      ['pe', 5],
+      ['emi', 5],
+    ]);
+    const lan1 = selectFormulas(ALL, { ...BASE_QUERY, sort: 'used' }, { usageOrder: order });
+    const lan2 = selectFormulas(ALL, { ...BASE_QUERY, sort: 'used' }, { usageOrder: order });
+    expect(lan1.map((f) => f.id)).toEqual(lan2.map((f) => f.id));
   });
 });
 

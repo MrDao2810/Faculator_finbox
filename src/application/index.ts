@@ -319,7 +319,14 @@ export type { Locale, MessageKey } from './i18n';
 export { LOCALES, isLocale, missingKeys, pick, t } from './i18n';
 
 export type { NavItem, NavKey, RouteKey } from './routes';
-export { NAV_ITEMS, ROUTES, activeRouteKey, formulaListPath, formulaPath } from './routes';
+export {
+  NAV_ITEMS,
+  ROUTES,
+  activeRouteKey,
+  formulaListPath,
+  formulaPath,
+  showsModeToggle,
+} from './routes';
 
 export type { Preferences, Theme } from './preferences';
 export { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from './preferences';
@@ -335,6 +342,7 @@ export {
 } from './recent-searches';
 
 // Lịch sử mở công thức — cá nhân hoá khối "Công thức dùng hằng ngày" của trang chủ (FR-20)
+// và hai cách sắp xếp "Vừa xem gần đây" / "Hay dùng nhất" ở màn danh sách (`usageOrderMap`).
 export type { FormulaUsage, RankFeaturedInput } from './formula-usage';
 export {
   FORMULA_USAGE_KEY,
@@ -348,6 +356,7 @@ export {
   recordFormulaUsage,
   sameOrder,
   serializeFormulaUsage,
+  usageOrderMap,
   usageScore,
 } from './formula-usage';
 
@@ -373,7 +382,15 @@ export {
   serializeSavedCalcs,
 } from './saved-calc-store';
 
-export { LAST_LIST_URL_KEY, backToListHref, listUrlToStore, parseListUrl } from './last-list-url';
+export type { Origin } from './origin-screen';
+export {
+  ORIGIN_KEY,
+  ORIGIN_RESTORE_KEY,
+  backTarget,
+  matchOrigin,
+  originToStore,
+  parseOrigin,
+} from './origin-screen';
 
 export type { ActiveTicker } from './active-ticker';
 export {

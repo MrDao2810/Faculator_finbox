@@ -91,6 +91,10 @@ export const vi = {
   'filter.reset': 'Xoá bộ lọc',
   'sort.label': 'Sắp xếp',
   'sort.featured': 'Thiết thực trước',
+  /* Hai cách sắp dưới đây chấm điểm từ lịch sử mở công thức trên chính máy này. */
+  'sort.recent': 'Vừa xem gần đây',
+  'sort.used': 'Hay dùng nhất',
+  'sort.basic': 'Cơ bản trước',
   'sort.az': 'Tên A → Z',
   'sort.za': 'Tên Z → A',
 
@@ -236,6 +240,14 @@ export const vi = {
   'detail.applyToTable': 'Áp dụng vào bảng dữ liệu',
   'detail.appliedToTable': 'Đã áp dụng ✓',
   'detail.seriesLoaded': 'Đã nạp số phiên giá:',
+  /*
+   * Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`live-preset.ts`) — nguồn Finbox
+   * không cấp chuỗi dài. Công thức cần nhiều phiên mà im lặng thì người dùng đọc ra "nạp mã
+   * xong vẫn không tính được" và tưởng sản phẩm hỏng; phải nói cả nguyên nhân lẫn lối đi tiếp.
+   */
+  'detail.liveSeriesShort':
+    'Mã này chỉ có một phiên giá — nguồn số liệu thật không cấp chuỗi dài. Công thức này cần ' +
+    'nhiều phiên: dán chuỗi giá, hoặc bấm “Nạp mẫu” và chọn một trong bốn mã mẫu.',
   'detail.openDataTable': 'Mở bảng dữ liệu →',
   'detail.chart': 'Biểu đồ',
   /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
@@ -305,11 +317,14 @@ export const vi = {
 
   // Nạp bộ số liệu mẫu — WF-10, gói 2.5.1
   'preset.title': 'Nạp bộ số liệu mẫu',
-  'preset.subtitle': 'Dữ liệu mẫu tĩnh qua DataProvider · bản đầu chưa có giá thời gian thực',
-  'preset.searchLabel': 'Tìm mã cổ phiếu',
-  'preset.searchPlaceholder': 'Tìm mã cổ phiếu…',
+  'preset.subtitle': 'Bốn mã mẫu — mỗi mã có sẵn chuỗi phiên giá, dùng được cho công thức chuỗi',
   'preset.load': 'Nạp',
-  'preset.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
+  /* Lối sang kho mã lớn. Cố ý không chép số mã vào câu: con số đó do nguồn quyết, chép vào
+     đây là để nó rữa trong im lặng. */
+  'preset.browseMarket': 'Tìm mã khác trong toàn thị trường →',
+  'preset.browseMarketNote':
+    'Toàn bộ mã đang giao dịch, số liệu thật của phiên gần nhất — nhưng chỉ có MỘT phiên giá, ' +
+    'nên công thức cần nhiều phiên vẫn phải dán chuỗi riêng.',
   'preset.editableAfterLoad': 'Sau khi nạp, mọi ô vẫn sửa được từng cái một.',
   'preset.draftTag': 'số liệu bản thảo',
   'preset.draftTitle': 'Số liệu tự dựng, chưa đối chiếu báo cáo thật.',
@@ -611,12 +626,20 @@ export const vi = {
   /* Ghép sau tổng số công thức: "111 công thức chứng khoán & …". Con số do màn tự đếm từ
      Registry, không viết vào câu chữ — số chép vào prose thì rữa trong im lặng. */
   'home.hero.subtitle': 'công thức chứng khoán & tài chính cá nhân, cập nhật tức thì.',
-  /* Tiêu đề ẩn của khối kết quả tìm — để trình đọc màn hình biết vừa nhảy sang một vùng khác. */
-  'home.search.resultsHeading': 'Kết quả tìm kiếm',
-  'home.search.seeAll': 'Xem tất cả',
+  /*
+   * Khối kết quả ở trang chủ KHÔNG có tiêu đề riêng: nó dùng lại `home.featured.title` của chính
+   * kệ nó đang lọc, vì nó là kệ ấy thu hẹp lại chứ không phải một khối mới. Khoá
+   * `home.search.resultsHeading` (tiêu đề ẩn) đã bỏ cùng đợt — tiêu đề nay hiện ra cho mắt thấy.
+   */
+  'home.search.featuredEmpty': 'Không ô nào trong khối này khớp',
+  /* Dòng đầu khối rỗng phải nói ra PHẠM VI: rỗng ở đây là chuyện thường, không phải hỏng.
+     Cố ý không viết con số 18 vào câu — số chép vào prose thì rữa trong im lặng. */
+  'home.search.featuredScope':
+    'Ô tìm ở trang chủ chỉ lọc khối “Công thức dùng hằng ngày”, không phải cả thư viện.',
+  'home.search.notFound': 'Không thấy công thức bạn cần?',
+  /* Ghép với số kết quả: "Tìm trong cả thư viện · 5 kết quả". */
+  'home.search.searchWhole': 'Tìm trong cả thư viện',
   'home.search.results': 'kết quả',
-  /* Lối ra khi bộ lọc đang che mất kết quả: "Bỏ lọc · 12 kết quả". */
-  'home.search.dropFilter': 'Bỏ lọc',
   'home.featured.title': 'Công thức dùng hằng ngày',
   /* Chỉ hiện khi lịch sử đã thật sự đổi thứ tự khối — trang chủ tự sắp lại mà im lặng là
      hành vi lén, cùng lý do màn danh mục nói thẳng dữ liệu nằm ở đâu. */

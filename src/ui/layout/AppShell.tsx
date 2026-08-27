@@ -6,6 +6,7 @@ import { BottomTabBar } from '../navigation/BottomTabBar';
 import { DisclaimerBar } from '../navigation/DisclaimerBar';
 import { OfflineBanner } from '../navigation/OfflineBanner';
 import styles from './AppShell.module.css';
+import { OriginTracker } from './OriginTracker';
 import { ServiceWorker } from './ServiceWorker';
 
 /**
@@ -36,8 +37,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       <DisclaimerBar />
       <BottomTabBar />
 
-      {/* Không dựng ra gì — chỉ đăng ký service worker cho phần chạy ngoại tuyến (NFR-REL-02). */}
+      {/* Hai đảo dưới đây không dựng ra gì, chỉ chạy effect — đặt ở đây để phủ mọi màn. */}
+
+      {/* Đăng ký service worker cho phần chạy ngoại tuyến (NFR-REL-02). */}
       <ServiceWorker />
+
+      {/* Nhớ màn vừa rời đi và chỗ đang đứng, để nút quay lại về đúng chỗ đó. */}
+      <OriginTracker />
     </div>
   );
 }

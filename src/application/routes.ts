@@ -74,6 +74,35 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
 ];
 
 /**
+ * Thanh trên có bày cụm nút Cơ bản / Nâng cao ở đường dẫn này không.
+ *
+ * CHỈ màn danh sách công thức. Đây là số đo chứ không phải sở thích: đo trên Chrome ở khổ
+ * 420×900, bấm đổi chế độ rồi so DOM từng ký tự, thì trang chủ lúc nhàn không đổi MỘT ký tự
+ * nào; và trong 111 trang chi tiết chỉ 17 trang đổi gì đó (10 trang có biến `level: 'advanced'`
+ * cộng 7 trang `chainFor()` xếp vào chuỗi phụ thuộc) — 94 trang còn lại bấm không thấy gì.
+ *
+ * Một nút bày thường trực ở thanh thương hiệu mà phần lớn lần bấm không trả lời gì sẽ dạy người
+ * dùng đúng một điều, và điều đó sai: "nút này hỏng". Họ thôi bấm, và mất luôn 32 công thức mức
+ * nâng cao mà họ không hề biết là có.
+ *
+ * Ở '/cong-thuc/' thì ngược hẳn: bấm xong con số ngay phía trên đổi từ 79 sang 111, cách chỗ
+ * ngón tay vừa chạm chưa tới một dòng. Nguyên nhân dính liền kết quả nên nút tự giải thích, không
+ * cần thêm câu thông báo nào.
+ *
+ * Những màn khác VẪN đổi theo chế độ — chỉ là không còn nút ở thanh trên. Lối vào của chúng là
+ * `HiddenByLevelNote`: dòng "N thứ đang ẩn · Bật chế độ Nâng cao" đặt ngay cạnh chỗ bị thiếu và
+ * chỉ hiện khi thật sự có thứ bị giấu. Đường về chế độ Cơ bản ở những màn ấy là hàng "Chế độ
+ * hiển thị" trong màn Cài đặt.
+ *
+ * Khớp TUYỆT ĐỐI, cố ý không khớp trang con: '/cong-thuc/wacc/' là màn chi tiết chứ không phải
+ * màn danh sách, và nó nằm trong nhóm 94 trang nói trên.
+ */
+export function showsModeToggle(pathname: string): boolean {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+  return path === ROUTES.formulas;
+}
+
+/**
  * Mục nào đang được chọn ứng với đường dẫn hiện tại.
  * Trang chủ phải khớp tuyệt đối, các mục khác khớp cả trang con
  * (ví dụ '/cong-thuc/wacc/' vẫn sáng mục Công thức).

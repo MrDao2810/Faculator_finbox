@@ -517,6 +517,57 @@ try {
     noise.slice(0, 2).join(' | '),
   );
 
+  /* ── 1b. Không nhãn SỐ nào tràn ra ngoài viewBox ─────────────────────────── */
+
+  /*
+   * Phép kiểm nhãn chặng ngay trên chỉ nhìn MÉP TRÁI của cột nhãn chữ. Nhãn SỐ thì hỏng ở mép
+   * phải, và hỏng thật: nhãn vạch cuối của thác nước đặt tại `plotRight = 308` với
+   * `textAnchor="middle"`, nên `15.000` của `ev` chạy tới x = 322,6 trên khung 320 — mất đuôi,
+   * im lặng, vì `<svg>` gốc mặc định `overflow: hidden`.
+   *
+   * Chỉ đo được ở đây. jsdom trả 0 cho `getBBox()` nên ca kiểm tương ứng bên `charts.test.tsx`
+   * xanh vô nghĩa; còn `chart.test.ts` chỉ đếm được KÝ TỰ, mà ký tự không nói được chữ rơi vào
+   * đâu trên khung.
+   */
+  const DO_TRAN = `(async () => {
+  const svg = [...document.querySelectorAll('figure svg')].find((s) => s.viewBox.baseVal.width >= 300);
+  if (!svg) return { found: false };
+
+  svg.scrollIntoView({ block: 'center' });
+  await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+
+  const w = svg.viewBox.baseVal.width;
+  const labels = [...svg.querySelectorAll('text')]
+    .filter((t) => (t.textContent ?? '').trim() !== '')
+    .map((t) => {
+      const b = t.getBBox();
+      return { text: t.textContent, x: +b.x.toFixed(1), right: +(b.x + b.width).toFixed(1) };
+    });
+  // Nửa đơn vị dung sai: bbox là số thực, chạm đúng mép không phải tràn.
+  return { found: true, w, soNhan: labels.length, tran: labels.filter((l) => l.x < -0.5 || l.right > w + 0.5) };
+})()`;
+
+  for (const [slug, viSao] of [
+    ['ev', 'thác nước, nhãn vạch cuối sát mép phải'],
+    ['lich-tra-no', 'đường quét đơn vị ₫ tới hàng tỷ'],
+    ['diem-hoa-von', "đơn vị 'sản phẩm', không phải tiền"],
+    ['lai-kep', 'nhãn trục X tới 8 chữ số'],
+  ]) {
+    await open(`/cong-thuc/${slug}/`);
+    await waitFor("document.querySelector('figure svg')");
+    const kq = await evaluate(DO_TRAN);
+
+    check(
+      `${slug}: không nhãn nào tràn khỏi viewBox (${viSao})`,
+      kq?.found === true && kq.tran.length === 0,
+      kq?.found !== true
+        ? 'không thấy biểu đồ'
+        : kq.tran.length === 0
+          ? `${String(kq.soNhan)} nhãn, khung rộng ${String(kq.w)}`
+          : kq.tran.map((l) => `"${l.text}" x=${String(l.x)}..${String(l.right)}`).join(' | '),
+    );
+  }
+
   /* ── 2. Hình nhiều chặng nhất, và nó là hình MẶC ĐỊNH ────────────────────── */
 
   /*

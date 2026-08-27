@@ -1334,6 +1334,111 @@ describe('buildChartModel()', () => {
   });
 
   /*
+   * ── Rút gọn số lớn ─────────────────────────────────────────────────────────────────────
+   *
+   * Bốn ca dưới đây gác một lỗi giao diện ĐO ĐƯỢC: lề trái dành cho nhãn trục Y là 41 đơn vị
+   * viewBox ở cỡ chữ 10px, tức ~6 ký tự, mà `2.000.000.000` dài 13 — nó tràn qua mép `x = 0` rồi bị
+   * `<svg>` cắt cụt IM LẶNG, kiểu hỏng tệ nhất vì không có gì trên màn nói là đã hỏng.
+   *
+   * Ca quét toàn Registry mới là ca giữ được lỗi khỏi quay lại; ba ca lẻ đứng cạnh nó để nói ra
+   * điều một con số không nói được: luật này không còn khoá vào đơn vị `'₫'`, và nó IM khi không
+   * cần.
+   */
+  const NGAN_SACH_Y = 6;
+  const NGAN_SACH_X = 10;
+
+  it('mọi nhãn vạch của cả 111 công thức đều vừa ngân sách của trục mình', () => {
+    for (const formula of FORMULA_MODULES) {
+      const model = modelOf(formula.spec.id, 'advanced');
+      if (model.kind === 'unavailable') continue;
+
+      for (const tick of model.y.ticks) {
+        expect(
+          tick.label.length,
+          `${formula.spec.id}: nhãn trục Y "${tick.label}"`,
+        ).toBeLessThanOrEqual(NGAN_SACH_Y);
+      }
+      /*
+       * Trục X của thác nước là các CHẶNG chứ không phải một đại lượng, nên không có nhãn số nào.
+       * Trục thời gian thì nhãn là `MM/YYYY` — 7 ký tự, không phải một con số để chia bậc, nên nó
+       * nằm ngoài phép hỏi này; ở đây mọi mô hình đều dựng KHÔNG có chuỗi giá nên không gặp.
+       */
+      if (model.kind !== 'line') continue;
+      for (const tick of model.x.ticks) {
+        expect(
+          tick.label.length,
+          `${formula.spec.id}: nhãn trục X "${tick.label}"`,
+        ).toBeLessThanOrEqual(NGAN_SACH_X);
+      }
+    }
+  });
+
+  it('chia bậc theo ĐỘ LỚN, không theo đơn vị — kể cả đơn vị không phải tiền', () => {
+    const tien = modelOf('lich-tra-no');
+    const sanPham = modelOf('diem-hoa-von');
+    const moiThang = modelOf('tra-gop-nien-kim');
+    if (tien.kind !== 'line' || sanPham.kind !== 'line' || moiThang.kind !== 'line') {
+      throw new Error('cả ba phải ra đường quét');
+    }
+
+    expect(tien.y.title.vi).toBe('Lịch trả nợ vay (tỷ ₫)');
+    expect(sanPham.y.title.vi).toBe('Điểm hoà vốn doanh nghiệp (nghìn sản phẩm)');
+    expect(moiThang.y.title.vi).toBe('Trả góp niên kim (triệu ₫/tháng)');
+  });
+
+  /*
+   * Nửa còn lại của luật, và là nửa dễ mất nhất khi ai đó "cải tiến" cách chọn bậc: nó phải IM khi
+   * nhãn vốn đã vừa. `pe` chạy bằng `lần`, `ev` bằng `tỷ ₫` với nhãn 6 ký tự — cả hai không được
+   * đụng tới, nếu không mỗi lần đổi ngưỡng là 100 biểu đồ đổi theo.
+   */
+  it('KHÔNG chia bậc khi nhãn vốn đã vừa', () => {
+    const pe = modelOf('pe');
+    const ev = modelOf('ev');
+    if (pe.kind !== 'line' || ev.kind !== 'waterfall') throw new Error('kịch bản test đã đổi');
+
+    expect(pe.x.title.vi).toBe('Giá thị trường (₫)');
+    expect(pe.y.title.vi).toBe('P/E (lần)');
+    expect(ev.y.title.vi).toBe('EV (tỷ ₫)');
+  });
+
+  /*
+   * Nhãn VẼ TRÊN HÌNH rút gọn, BẢNG SỐ giữ nguyên số đầy đủ — hai vai trò khác nhau của cùng một
+   * con số, và đây là chỗ duy nhất chốt được rằng chúng tách nhau đúng chỗ. Bảng là nơi tra số
+   * chính xác (nó có vùng cuộn ngang riêng); hình là nơi bề ngang tính bằng đơn vị viewBox.
+   */
+  it('rút gọn chỉ chạm nhãn trên hình, bảng số vẫn in đủ chữ số', () => {
+    const formula = moduleOf('lich-tra-no');
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+      sweepKey: BREAKDOWN_KEY,
+    });
+    if (model.kind !== 'waterfall') throw new Error('phải ra thác nước');
+
+    const total = model.bars[model.bars.length - 1];
+    expect(total?.valueLabel).toBe('989.691.880,64 ₫');
+    expect(total?.shortValueLabel).toBe('0,99 tỷ ₫');
+
+    // Bảng số đọc `valueLabel`, không đọc bản rút gọn.
+    const rows = model.table.rows.filter((row) => row !== null);
+    expect(rows[rows.length - 1]?.[1]).toBe('989.691.880,64 ₫');
+  });
+
+  it('bản rút gọn VẮNG MẶT hẳn khi nó không ngắn hơn bản đầy đủ', () => {
+    const model = modelOf('pe');
+    if (model.kind !== 'line') throw new Error('phải ra đường quét');
+
+    for (const point of model.points) {
+      expect(point.shortLabel, point.label).toBeUndefined();
+      expect(point.shortValueLabel, point.valueLabel).toBeUndefined();
+    }
+  });
+
+  /*
    * Ca đắt giá nhất của cả nhánh: quét TOÀN BỘ 111 công thức qua đúng một vòng lặp.
    *
    * Bắt được mọi công thức lệch mà không phải viết 111 ca, và chạy ở tầng Domain nên nhanh gấp

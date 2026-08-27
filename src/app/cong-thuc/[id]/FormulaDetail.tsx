@@ -259,6 +259,26 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    */
   const [pickerMounted, setPickerMounted] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  /**
+   * Sheet chọn mã đang được mở TỪ sheet "Nạp mẫu" — đóng nó thì phải quay lại sheet ấy.
+   *
+   * Người dùng vào đây bằng hai đường khác nhau, và "đóng" ở hai đường ấy có nghĩa khác nhau:
+   * từ nút "Đổi mã" thì đóng là xong việc, còn từ lối rẽ trong sheet mẫu thì đóng nghĩa là
+   * "thôi, không tìm mã khác nữa" — trả họ về đúng chỗ vừa rời đi, không phải quăng thẳng ra
+   * màn hình. Chỉ áp dụng cho lối THOÁT: chọn được mã rồi thì cả hai sheet cùng đóng.
+   *
+   * `useRef` chứ không `useState`, và đó là phần cốt lõi: `TickerPickerSheet` gọi `onPick()`
+   * RỒI mới gọi `onClose()` trong cùng một lượt xử lý sự kiện, nên một biến state sẽ vẫn mang
+   * giá trị cũ (`true`) lúc `closeTickerPicker()` chạy và sheet mẫu bật lại ngay sau khi người
+   * dùng vừa chọn xong mã.
+   *
+   * Kèm theo là `pickerShowsBack` ngay dưới — cùng một sự thật, hai bản, vì cái ref không dựng
+   * lại màn còn nút thoát thì phải ĐỔI HÌNH theo lối vào (mũi tên ‹ bên trái khi lùi được về
+   * sheet mẫu, dấu × khi không). Chúng chỉ được đặt cùng một chỗ, trong `openTickerPicker()`,
+   * nên không có đường nào cho hai bản lệch nhau; bản ref là bản quyết định hành vi.
+   */
+  const pickerFromPreset = useRef(false);
+  const [pickerShowsBack, setPickerShowsBack] = useState(false);
   const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
   const [saveStamp, setSaveStamp] = useState(0);
   /**
@@ -954,6 +974,35 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   }
 
   /**
+   * Mở sheet chọn mã toàn thị trường.
+   *
+   * Hai lối vào cùng gọi hàm này — nút "Đổi mã" ở thanh mã, và lối rẽ cuối `PresetSheet` — nên
+   * chúng không thể lệch nhau ở phần dựng sheet (`pickerMounted` là ranh giới `next/dynamic`,
+   * quên bật là sheet không bao giờ hiện). Chỉ khác nhau ở đường LÙI, xem `pickerFromPreset`.
+   */
+  function openTickerPicker(fromPreset = false): void {
+    pickerFromPreset.current = fromPreset;
+    setPickerShowsBack(fromPreset);
+    setPickerMounted(true);
+    setPickerOpen(true);
+  }
+
+  /**
+   * Thoát sheet chọn mã mà KHÔNG chọn mã nào.
+   *
+   * Vào từ sheet mẫu thì lùi về đúng sheet đó — người dùng bấm "Tìm mã khác" rồi đổi ý, họ đang
+   * ở giữa việc chọn mã chứ không phải đã xong việc. Hai `<dialog>` là hai thẻ riêng nên đóng
+   * cái này mở cái kia trong cùng một lượt render là hợp lệ.
+   */
+  function closeTickerPicker(): void {
+    setPickerOpen(false);
+    if (pickerFromPreset.current) {
+      pickerFromPreset.current = false;
+      openSheet('preset');
+    }
+  }
+
+  /**
    * Đổi sang mã khác từ sheet chọn mã.
    *
    * Đi qua đúng đường của `?ma=` — `loadLivePreset` nằm sau ranh giới `await import()`, nên phần
@@ -964,6 +1013,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     if (!isTickerCode(wanted)) return;
 
     setPickerOpen(false);
+    // Chọn xong là hết việc: đừng lùi về sheet mẫu ở lượt đóng này (xem `closeTickerPicker`).
+    pickerFromPreset.current = false;
     setLiveTicker({ code: wanted, status: 'loading' });
 
     void (async () => {
@@ -1135,12 +1186,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             <span className={styles.tickerCode}>{stickyTicker}</span>
             <span className={styles.tickerText}>{t('detail.tickerSticky')}</span>
 
+            {/* Bọc trong hàm: `onClick` truyền sự kiện chuột vào tham số `fromPreset`. */}
             <Button
               variant="secondary"
               size="sm"
               onClick={() => {
-                setPickerMounted(true);
-                setPickerOpen(true);
+                openTickerPicker();
               }}
             >
               {t('detail.tickerChange')}
@@ -1319,6 +1370,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           </p>
         )}
 
+        {/*
+          Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`presetFromSnapshot()`), nên
+          ở một công thức cần chuỗi thì "nạp mã xong" và "tính được" là hai chuyện khác nhau.
+          Không nói ra thì người dùng đọc màn hình này ra là sản phẩm hỏng — cùng lý do FR-06
+          cấm trả 0 thay cho lỗi. Ngưỡng < 2 chứ không phải === 1: mã không tra được giá cho
+          `bars: []`, và ca đó cũng cần đúng câu này.
+        */}
+        {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
+          <p className={styles.seriesShortNote} role="note">
+            {t('detail.liveSeriesShort')}
+          </p>
+        )}
+
         {/* Chỉ hiện khi số đang bày LÀ chuỗi minh hoạ — đừng để người dùng tưởng nhầm là số thật. */}
         {wantsSeries && exampleLoaded && (
           <p className={styles.pendingNote}>{t('detail.exampleSeriesNote')}</p>
@@ -1449,6 +1513,16 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             setSheet(null);
           }}
           onLoad={applyPreset}
+          /*
+            Lối rẽ sang kho mã lớn ngay trong sheet mẫu. Trước đợt này hai kho mã chỉ gặp nhau
+            ở thanh "Đổi mã", tức là người dùng phải NẠP một mã mẫu mới thấy được đường sang
+            1.649 mã kia — xem docblock `PresetSheet`.
+
+            `true` = vào từ sheet mẫu, nên đóng sheet chọn mã là LÙI về đây chứ không thoát hẳn.
+          */
+          onBrowseMarket={() => {
+            openTickerPicker(true);
+          }}
         />
       )}
 
@@ -1524,9 +1598,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       {pickerMounted && (
         <TickerPickerPanel
           open={pickerOpen}
-          onClose={() => {
-            setPickerOpen(false);
-          }}
+          onClose={closeTickerPicker}
+          // Mũi tên ‹ bên trái khi đóng là LÙI về sheet mẫu; dấu × khi đóng là thoát hẳn.
+          dismiss={pickerShowsBack ? 'back' : 'close'}
           onPick={(ticker) => {
             pickTicker(ticker.code);
           }}

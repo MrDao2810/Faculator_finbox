@@ -126,6 +126,62 @@ function compareName(a: FormulaSummary, b: FormulaSummary): number {
 }
 
 /**
+ * Thứ tự MẶC ĐỊNH của màn danh sách: công thức nổi bật lên trước, rồi tới chữ cái (FR-20).
+ *
+ * Tách riêng vì nó còn là mốc phá hoà của những cách sắp chỉ xếp hạng được MỘT PHẦN thư viện:
+ * `recent`/`used` chỉ chấm điểm được tối đa 24 công thức có trong lịch sử, 87 công thức còn lại
+ * phải rơi xuống dưới theo một thứ tự có nghĩa chứ không phải theo thứ tự Registry.
+ */
+function compareDefault(a: FormulaSummary, b: FormulaSummary): number {
+  const featured = Number(b.isFeatured ?? false) - Number(a.isFeatured ?? false);
+  return featured !== 0 ? featured : compareName(a, b);
+}
+
+/**
+ * Mức cơ bản lên trước, trong mỗi mức thì theo chữ cái.
+ *
+ * Phá hoà bằng `compareName` chứ KHÔNG phải `compareDefault`: người chọn cách sắp này đang muốn
+ * đọc từ dễ tới khó, và trong một mức thì danh sách chữ cái liền mạch dễ quét hơn là để 18 công
+ * thức nổi bật chen lên trên rồi mới quay lại bảng chữ cái.
+ *
+ * Ở chế độ Cơ bản, `formulasForLevel()` đã cắt hết mức nâng cao trước khi tới đây nên cách sắp
+ * này không đổi gì — nó chỉ có tác dụng ở chế độ Nâng cao. Cố ý không ẩn lựa chọn: ẩn/hiện mục
+ * trong `<select>` theo trạng thái là link `?sort=basic` chia sẻ đi mở ra một màn khác.
+ */
+function compareByLevel(a: FormulaSummary, b: FormulaSummary): number {
+  const byLevel = Number(a.level === 'advanced') - Number(b.level === 'advanced');
+  return byLevel !== 0 ? byLevel : compareName(a, b);
+}
+
+/** Không có lịch sử thì mọi công thức đều vô hạng — dùng chung một map rỗng, khỏi cấp phát. */
+const EMPTY_ORDER: ReadonlyMap<string, number> = new Map();
+
+/**
+ * Sắp theo ĐIỂM NGOÀI do tầng trên đưa xuống, cao lên trước.
+ *
+ * Công thức không có điểm xếp xuống dưới theo `compareDefault` chứ không bị loại — danh sách
+ * vẫn phải đủ 111 mục, "chưa từng mở" không phải là điều kiện lọc.
+ *
+ * Hệ quả cố ý: map RỖNG cho ra đúng thứ tự mặc định. Nhờ vậy khách mới, trình duyệt chặn
+ * localStorage và mọi bộ máy tìm kiếm không bao giờ thấy một danh sách lạ, và bản tĩnh
+ * `StaticFormulaList` không cần biết gì về lịch sử dùng.
+ *
+ * KHÔNG bọc `{ formula, score }` rồi sắp: `FIELD_INDEX` khoá theo chính object công thức, sao
+ * chép là chỉ mục từ khoá trượt 100% (xem docblock của nó ở trên).
+ */
+function compareByUsage(order: ReadonlyMap<string, number>) {
+  return (a: FormulaSummary, b: FormulaSummary): number => {
+    const scoreA = order.get(a.id);
+    const scoreB = order.get(b.id);
+
+    if (scoreA === undefined) return scoreB === undefined ? compareDefault(a, b) : 1;
+    if (scoreB === undefined) return -1;
+
+    return scoreB - scoreA || compareDefault(a, b);
+  };
+}
+
+/**
  * Tìm công thức theo chuỗi người dùng gõ, sắp theo độ liên quan.
  * Chuỗi rỗng thì trả về mảng rỗng — nơi gọi tự quyết hiện gì khi chưa gõ gì.
  */
@@ -169,17 +225,38 @@ function applyFacets(
   });
 }
 
+/** Tham số phụ của `selectFormulas` — cả hai đều tuỳ chọn, xem từng trường. */
+export interface SelectOptions {
+  /** Danh sách nhóm; mặc định `CATEGORIES`. Chỗ tiêm cho test, sản phẩm không truyền. */
+  categories?: ReadonlyArray<Category>;
+  /**
+   * Điểm sắp xếp theo lịch sử dùng: id → điểm, CAO lên trước. Chỉ có nghĩa với `sort` là
+   * `'recent'` hoặc `'used'`.
+   *
+   * Vì sao là map điểm chứ không phải chính lịch sử dùng: `FormulaUsage` và `usageScore()` nằm
+   * ở tầng Application, mà CON-02 cấm tầng này import lên trên. Tầng Application chấm điểm rồi
+   * đưa xuống một cấu trúc trung tính — nó cũng là chỗ quyết định điểm ấy là "lần mở gần nhất"
+   * hay "số lượt có suy giảm", nên tầng này không cần phân biệt hai cách sắp.
+   *
+   * Thiếu hoặc rỗng thì hai cách sắp ấy suy biến về đúng thứ tự mặc định — cố ý, xem
+   * `compareByUsage`.
+   */
+  usageOrder?: ReadonlyMap<string, number>;
+}
+
 /**
  * Danh sách cuối cùng của màn WF-02: lọc mảng → lọc nhóm → tìm → sắp xếp.
  *
  * Khi có chuỗi tìm kiếm và người dùng chưa đổi cách sắp xếp, thứ tự là theo độ liên quan.
- * Chọn A–Z hay Z–A thì thứ tự chữ cái được ưu tiên, vì đó là lựa chọn có chủ đích của người dùng.
+ * MỌI cách sắp khác `'featured'` đều ĐÈ độ liên quan, vì đó là lựa chọn có chủ đích của người
+ * dùng — họ vừa tự tay chọn nó sau khi đã gõ xong từ khoá.
  */
 export function selectFormulas(
   formulas: ReadonlyArray<FormulaSummary>,
   query: FormulaQuery,
-  categories: ReadonlyArray<Category> = CATEGORIES,
+  options: SelectOptions = {},
 ): FormulaSummary[] {
+  const categories = options.categories ?? CATEGORIES;
   const faceted = applyFacets(formulas, query, categories);
   const hasQuery = tokenize(query.q).length > 0;
 
@@ -187,13 +264,14 @@ export function selectFormulas(
 
   if (query.sort === 'az') return matched.sort(compareName);
   if (query.sort === 'za') return matched.sort((a, b) => compareName(b, a));
+  if (query.sort === 'basic') return matched.sort(compareByLevel);
+  if (query.sort === 'recent' || query.sort === 'used') {
+    return matched.sort(compareByUsage(options.usageOrder ?? EMPTY_ORDER));
+  }
 
   // 'featured': đang tìm thì giữ thứ tự độ liên quan; chưa tìm thì công thức nổi bật lên trước.
   if (hasQuery) return matched;
-  return matched.sort((a, b) => {
-    const featured = Number(b.isFeatured ?? false) - Number(a.isFeatured ?? false);
-    return featured !== 0 ? featured : compareName(a, b);
-  });
+  return matched.sort(compareDefault);
 }
 
 /**
@@ -231,7 +309,9 @@ export function countHiddenByLevel(
   categories: ReadonlyArray<Category> = CATEGORIES,
 ): number {
   if (mode === 'advanced') return 0;
-  return selectFormulas(formulas, query, categories).filter((f) => f.level === 'advanced').length;
+  // Không truyền `usageOrder`: hàm này ĐẾM, mà thứ tự không đổi được số lượng.
+  return selectFormulas(formulas, query, { categories }).filter((f) => f.level === 'advanced')
+    .length;
 }
 
 /**

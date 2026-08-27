@@ -86,6 +86,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'filter.reset': 'Clear filters',
   'sort.label': 'Sort',
   'sort.featured': 'Most practical first',
+  'sort.recent': 'Recently viewed',
+  'sort.used': 'Most used',
+  'sort.basic': 'Basic first',
   'sort.az': 'Name A → Z',
   'sort.za': 'Name Z → A',
 
@@ -188,6 +191,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.applyToTable': 'Apply to the data table',
   'detail.appliedToTable': 'Applied ✓',
   'detail.seriesLoaded': 'Price sessions loaded:',
+  'detail.liveSeriesShort':
+    'This ticker has a single price session — the live source provides no long history. This ' +
+    'formula needs many sessions: paste a price series, or tap “Load sample” and pick one of ' +
+    'the four sample tickers.',
   'detail.openDataTable': 'Open the data table →',
   'detail.chart': 'Chart',
   'chart.sweepLabel': 'See how the result changes with',
@@ -226,11 +233,13 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'loan.condensed.after': 'periods: the first 12, each year-end, and the last one.',
 
   'preset.title': 'Load a sample dataset',
-  'preset.subtitle': 'Static sample data via DataProvider · no real-time prices in this version',
-  'preset.searchLabel': 'Find a ticker',
-  'preset.searchPlaceholder': 'Find a ticker…',
+  'preset.subtitle':
+    'Four sample tickers — each ships a full price series, so series formulas work',
   'preset.load': 'Load',
-  'preset.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
+  'preset.browseMarket': 'Find another ticker across the market →',
+  'preset.browseMarketNote':
+    'Every tradable ticker, with real figures from the latest session — but only ONE price ' +
+    'session, so formulas that need many sessions still require a pasted series.',
   'preset.editableAfterLoad': 'After loading, every field can still be edited one by one.',
   'preset.draftTag': 'draft data',
   'preset.draftTitle': 'Fabricated numbers, not yet checked against real statements.',
@@ -433,10 +442,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'home.h1': 'Vietnamese stock and personal-finance formula library',
   'home.hero.title': 'Finbox quick calculators',
   'home.hero.subtitle': 'stock and personal-finance formulas, updating as you type.',
-  'home.search.resultsHeading': 'Search results',
-  'home.search.seeAll': 'View all',
+  'home.search.featuredEmpty': 'No card here matches',
+  'home.search.featuredScope':
+    'The home search filters only the “Everyday formulas” block, not the whole library.',
+  'home.search.notFound': 'Not the formula you need?',
+  'home.search.searchWhole': 'Search the whole library',
   'home.search.results': 'result(s)',
-  'home.search.dropFilter': 'Drop the filter',
   'home.featured.title': 'Everyday formulas',
   'home.featured.personalNote':
     'The formulas you open most often have been moved to the front. This history stays on your device and is never sent anywhere.',

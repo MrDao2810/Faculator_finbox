@@ -26,6 +26,7 @@ export type {
   SegmentFilter,
 } from './types';
 
+export type { SelectOptions } from './search';
 export {
   countByCategoryFor,
   countBySegmentFor,

@@ -135,8 +135,14 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
     /** Kho KHÔNG cần nút xoá, kèm lý do. Danh sách này phải luôn có lý do, không được để trống. */
     const CO_Y: ReadonlyArray<{ key: string; viSao: string }> = [
       {
-        key: 'ffb.lastList.v1',
-        viSao: 'sessionStorage — tự hết khi đóng tab, không sống qua phiên nên không có gì để xoá',
+        key: 'ffb.origin.v1',
+        viSao:
+          'sessionStorage — màn vừa rời đi và chỗ đang đứng trên đó, tự hết khi đóng tab. Không sống qua phiên nên không có gì để xoá',
+      },
+      {
+        key: 'ffb.origin.restore.v1',
+        viSao:
+          'sessionStorage — cờ sống đúng MỘT lượt điều hướng: nút quay lại đặt, màn đích đọc rồi xoá ngay. Một nút xoá cho nó là nút không bao giờ có gì để xoá',
       },
       {
         key: 'ffb.activeTicker.v1',

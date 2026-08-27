@@ -49,6 +49,12 @@ describe('parseListParams()', () => {
   it('cách sắp xếp lạ thì rơi về mặc định', () => {
     expect(parseListParams(new URLSearchParams('sort=random')).sort).toBe('featured');
   });
+
+  it('đọc được cả sáu cách sắp xếp', () => {
+    for (const sort of ['featured', 'az', 'za', 'recent', 'used', 'basic'] as const) {
+      expect(parseListParams(new URLSearchParams(`sort=${sort}`)).sort, sort).toBe(sort);
+    }
+  });
 });
 
 describe('serializeListParams()', () => {
@@ -82,6 +88,14 @@ describe('serializeListParams()', () => {
       sort: 'za',
     } as const;
     expect(parseListParams(serializeListParams(state))).toEqual(state);
+  });
+
+  it('cách sắp xếp mới cũng đi vòng được — link chia sẻ mang đúng tên cách sắp', () => {
+    for (const sort of ['recent', 'used', 'basic'] as const) {
+      const state = { ...DEFAULT_LIST_PARAMS, sort };
+      expect(listParamsToQuery(state), sort).toBe(`?sort=${sort}`);
+      expect(parseListParams(serializeListParams(state)), sort).toEqual(state);
+    }
   });
 });
 

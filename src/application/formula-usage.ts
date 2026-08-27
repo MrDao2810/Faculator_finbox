@@ -76,6 +76,34 @@ export function usageScore(entry: FormulaUsage, now: number): number {
   return entry.count * Math.pow(0.5, age / USAGE_HALF_LIFE_MS);
 }
 
+/**
+ * Điểm sắp xếp cho hai cách sắp dựa trên lịch sử ở màn danh sách: id → điểm, CAO lên trước.
+ *
+ * Hai cách sắp khác nhau ở chỗ chấm điểm bằng gì, chứ không ở cách sắp:
+ *
+ *   - `'recent'` lấy thẳng `at`, tức mốc lần mở gần nhất. Mở một lần hôm nay đứng trên mở hai
+ *     mươi lần hồi tháng trước — đúng nghĩa "vừa xem".
+ *   - `'used'` lấy `usageScore()`, tức số lượt có suy giảm nửa sau mỗi 30 ngày. Thói quen thắng
+ *     một cú bấm lẻ, nhưng thói quen cũ vẫn tự nhường chỗ.
+ *
+ * Trả về map chứ không phải mảng đã sắp: bên nhận là `selectFormulas()` ở tầng Domain, nơi còn
+ * phải xếp 87 công thức KHÔNG có trong lịch sử xuống dưới. Đưa xuống một thứ tự dựng sẵn thì
+ * tầng đó vẫn phải tra ngược, còn map thì tra thẳng theo id.
+ *
+ * `now` phải TRUYỀN VÀO như `usageScore` — xem docblock của nó.
+ */
+export function usageOrderMap(
+  usage: ReadonlyArray<FormulaUsage>,
+  by: 'recent' | 'used',
+  now: number,
+): ReadonlyMap<string, number> {
+  const order = new Map<string, number>();
+  for (const entry of usage) {
+    order.set(entry.id, by === 'recent' ? entry.at : usageScore(entry, now));
+  }
+  return order;
+}
+
 /** Một phần tử đọc lên có dùng được không? Trả về bản đã làm sạch, hoặc `null`. */
 function cleanEntry(item: unknown): FormulaUsage | null {
   if (typeof item !== 'object' || item === null || Array.isArray(item)) return null;

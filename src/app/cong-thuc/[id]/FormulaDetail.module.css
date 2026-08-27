@@ -203,6 +203,23 @@
 }
 
 /*
+ * "Mã này chỉ có một phiên giá". Nổi hơn `.pendingNote` có chủ đích: đây không phải một ghi
+ * chú bên lề mà là LÝ DO công thức đang không tính ra gì, kèm lối đi tiếp — cùng dải màu với
+ * cảnh báo số liệu bản thảo ở PresetSheet, để hai câu "số liệu chưa đủ tin" trông cùng một loại.
+ */
+.seriesShortNote {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-sm);
+}
+
+/*
  * Thanh "đang dùng số liệu của mã X" — mã dính theo lượt duyệt.
  *
  * Đậm hơn `.pendingNote` có chủ đích: đây không phải một ghi chú, nó giải thích vì sao ô nhập

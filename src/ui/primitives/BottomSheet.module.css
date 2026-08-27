@@ -104,6 +104,14 @@
   background: var(--color-sunken);
 }
 
+/*
+ * Dạng "quay lại": cùng nút ấy nhưng đứng ở mép TRÁI, nên lề âm phải đổi bên — giữ nguyên
+ * `margin-right` âm thì mũi tên bị kéo sát vào tiêu đề.
+ */
+.back {
+  margin: calc(-1 * var(--space-2)) 0 0 calc(-1 * var(--space-2));
+}
+
 /* Chỉ phần thân cuộn; tiêu đề và hàng nút luôn nhìn thấy. */
 .body {
   flex: 1;

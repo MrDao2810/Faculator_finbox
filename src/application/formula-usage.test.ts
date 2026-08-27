@@ -10,6 +10,7 @@ import {
   recordFormulaUsage,
   sameOrder,
   serializeFormulaUsage,
+  usageOrderMap,
   usageScore,
 } from './formula-usage';
 import type { FormulaUsage } from './formula-usage';
@@ -133,6 +134,44 @@ describe('usageScore() — suy giảm một nửa sau mỗi 30 ngày', () => {
 
   it('mốc ở tương lai (đồng hồ máy chạy trước) thì kẹp tuổi về 0, điểm không nổ', () => {
     expect(usageScore({ id: 'pe', count: 4, at: NOW + 400 * NGAY }, NOW)).toBe(4);
+  });
+});
+
+describe('usageOrderMap() — điểm cho hai cách sắp ở màn danh sách', () => {
+  /** Mở một lần hôm nay, so với mở mười lần cách đây hai chu kỳ bán rã. */
+  const MOI = entry('pe', 1);
+  const CU_MA_NHIEU = entry('wacc', 10, 2 * USAGE_HALF_LIFE_MS);
+
+  it("'recent' lấy thẳng mốc lần mở gần nhất", () => {
+    const order = usageOrderMap([MOI, CU_MA_NHIEU], 'recent', NOW);
+    expect(order.get('pe')).toBe(MOI.at);
+    expect(order.get('wacc')).toBe(CU_MA_NHIEU.at);
+  });
+
+  it("'used' lấy điểm có suy giảm, không lấy số lượt thô", () => {
+    const order = usageOrderMap([MOI, CU_MA_NHIEU], 'used', NOW);
+    expect(order.get('pe')).toBe(1);
+    // 10 lượt qua hai chu kỳ còn 2,5 — không còn là 10.
+    expect(order.get('wacc')).toBeCloseTo(2.5, 10);
+  });
+
+  it('hai cách chấm cho hai thứ hạng KHÁC nhau — đó là lý do có cả hai', () => {
+    const nhieuHonTheoRecent = (by: 'recent' | 'used') => {
+      const order = usageOrderMap([MOI, CU_MA_NHIEU], by, NOW);
+      return (order.get('pe') ?? 0) > (order.get('wacc') ?? 0) ? 'pe' : 'wacc';
+    };
+    expect(nhieuHonTheoRecent('recent')).toBe('pe');
+    expect(nhieuHonTheoRecent('used')).toBe('wacc');
+  });
+
+  it('lịch sử rỗng thì map rỗng — nơi gọi tự suy biến về thứ tự mặc định', () => {
+    expect(usageOrderMap([], 'recent', NOW).size).toBe(0);
+    expect(usageOrderMap([], 'used', NOW).size).toBe(0);
+  });
+
+  it('id nào cũng có mặt, không mục nào bị bỏ qua', () => {
+    const list = [entry('a', 1), entry('b', 2), entry('c', 3)];
+    expect([...usageOrderMap(list, 'used', NOW).keys()]).toEqual(['a', 'b', 'c']);
   });
 });
 

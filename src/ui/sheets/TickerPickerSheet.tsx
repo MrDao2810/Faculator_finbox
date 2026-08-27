@@ -37,6 +37,12 @@ export interface TickerPickerSheetProps {
    * điều đó TRƯỚC khi bấm, nếu không họ tưởng mình vừa tạo một dòng thứ hai.
    */
   heldCodes?: ReadonlySet<string>;
+  /**
+   * `'back'` khi sheet này mở đè lên một sheet khác và đóng nó là QUAY LẠI sheet đó — màn chi
+   * tiết công thức dùng khi người dùng vào đây từ lối rẽ trong `PresetSheet`. Mặc định `'close'`
+   * cho lối vào bình thường (nút "Đổi mã", tab Danh mục), nơi đóng là thoát hẳn ra màn.
+   */
+  dismiss?: 'close' | 'back';
 }
 
 /**
@@ -46,7 +52,13 @@ export interface TickerPickerSheetProps {
  * sản phẩm trông và dùng giống nhau, nhưng nguồn khác hẳn: `PresetSheet` đọc `DataProvider`
  * đồng bộ, còn ở đây là `MarketFeed` bất đồng bộ nên có thêm ba trạng thái đang tải / lỗi / cũ.
  */
-export function TickerPickerSheet({ open, onClose, onPick, heldCodes }: TickerPickerSheetProps) {
+export function TickerPickerSheet({
+  open,
+  onClose,
+  onPick,
+  heldCodes,
+  dismiss = 'close',
+}: TickerPickerSheetProps) {
   const t = useT();
   const [query, setQuery] = useState('');
 
@@ -88,6 +100,7 @@ export function TickerPickerSheet({ open, onClose, onPick, heldCodes }: TickerPi
       onClose={close}
       title={t('ticker.title')}
       subtitle={t('ticker.subtitle')}
+      dismiss={dismiss}
     >
       <label className="visually-hidden" htmlFor="ticker-search">
         {t('ticker.searchLabel')}

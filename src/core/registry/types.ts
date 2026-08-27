@@ -310,8 +310,15 @@ export interface FormulaSpec extends FormulaSummary {
   priceOverlay?: PriceOverlaySpec;
 }
 
-/** Cách sắp xếp danh sách công thức ở WF-02. */
-export type ListSort = 'featured' | 'az' | 'za';
+/**
+ * Cách sắp xếp danh sách công thức ở WF-02.
+ *
+ * Ba giá trị đầu chỉ đọc metadata của chính công thức nên tính được ở bất kỳ đâu.
+ * `recent` và `used` thì KHÔNG: điểm của chúng nằm ở lịch sử dùng trên máy người dùng
+ * (`ffb.usage.v1`, tầng Application), nên tầng này chỉ nhận điểm đã tính sẵn qua
+ * `SelectOptions.usageOrder` — xem docblock ở `search.ts`.
+ */
+export type ListSort = 'featured' | 'az' | 'za' | 'recent' | 'used' | 'basic';
 
 /** 'all' là chip “Tất cả” đứng cạnh chip Chứng khoán và Cá nhân. */
 export type SegmentFilter = Segment | 'all';

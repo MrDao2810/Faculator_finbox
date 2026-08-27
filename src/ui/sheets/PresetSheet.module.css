@@ -1,30 +1,3 @@
-.search {
-  width: 100%;
-  min-height: var(--tap-min);
-  padding: 0 var(--space-3);
-  margin-bottom: var(--space-3);
-
-  font-family: inherit;
-  font-size: var(--text-base);
-  color: var(--color-ink);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  /* Bo 10px cho khớp ô tìm ở thanh trên — đợt 8b đã bỏ dạng viên thuốc trên toàn app. */
-  border-radius: var(--radius-md);
-}
-
-.search::placeholder {
-  color: var(--color-muted);
-}
-
-/* Ẩn nút xoá mặc định của Chrome cho input[type=search] — cùng lý do như SearchBox. */
-.search::-webkit-search-cancel-button,
-.search::-webkit-search-decoration {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
 /*
  * Cảnh báo số liệu bản thảo. Rủi ro R-01 còn mở nên người dùng phải biết đây không phải
  * báo cáo thật, trước khi họ tin vào con số tính ra.
@@ -39,17 +12,6 @@
   background: var(--color-warning-soft);
   border: 1px solid var(--color-warning-line);
   border-radius: var(--radius-sm);
-}
-
-/*
- * Vùng kết quả. Chiều cao tối thiểu được ghim bằng JS lúc mở sheet — xem docblock trong
- * PresetSheet.tsx. Ở đây chỉ căn nội dung lên đầu để chỗ trống dôi ra nằm phía dưới, chứ
- * không đẩy danh sách xuống giữa khung.
- */
-.results {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
 }
 
 .list {
@@ -125,20 +87,24 @@
 }
 
 /*
- * Không khớp gì thì câu nhắn nằm GIỮA vùng đã ghim, không dính lên đầu: chiều cao vùng này
- * cố định nên phần trống dôi ra là thật, để câu nhắn treo trên nóc một khoảng trắng lớn thì
- * nhìn như màn hỏng chứ không như một câu trả lời.
+ * Lối sang sheet chọn mã toàn thị trường. Ngăn với danh sách bằng một đường kẻ: hai kho mã
+ * khác nguồn và khác năng lực (xem docblock PresetSheet.tsx), nên chúng không được đọc ra
+ * như một danh sách nối dài.
  */
-.empty {
-  flex: 1;
+.browse {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
 
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.browseNote {
   margin: 0;
-  padding: var(--space-5) var(--space-3);
-  text-align: center;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--color-muted);
 }
 

@@ -29,20 +29,73 @@
   min-width: 0;
 }
 
-.list {
+/*
+ * Khối kết quả phải TRÔNG y hệt kệ "Công thức dùng hằng ngày" mà nó đang lọc — cùng kiểu tiêu đề,
+ * cùng công thức lưới. Đó là cả điểm của đợt sửa: gõ vào ô tìm thì kệ thu hẹp tại chỗ, chứ không
+ * bị thay bằng giao diện của màn khác.
+ *
+ * Bốn lớp dưới lặp lại giá trị của `page.module.css` (.block, .blockTitle) và
+ * `FeaturedFormulas.module.css` (.cards). Cố ý lặp, không gộp: ba file này đã tách nhau từ trước
+ * (xem chú thích cuối `page.module.css` và đầu `FeaturedFormulas.module.css`), và gộp lại là buộc
+ * chúng phải đổi cùng nhau. Cái phải giữ đồng bộ là DIỆN MẠO, và việc đó do ca kiểm gác.
+ */
+.resultsBlock {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.resultsTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* "3 / 18 công thức" — chữ nhỏ, không tranh chỗ với tiêu đề. */
+.scope {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cards {
+  display: grid;
+  /* Cùng công thức lưới với `FeaturedFormulas`: hai cột ở 360px, tự giãn trên màn rộng. */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: var(--space-2);
 
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/*
+ * Hàng bàn giao sang cả thư viện. Tách khỏi `.resultsBlock` để nó không bị đọc như một phần của
+ * kệ — nó nói về thứ NGOÀI kệ.
+ */
+.handoff {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   min-width: 0;
+}
+
+.notFound {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  text-align: center;
 }
 
 /*
  * Hàng bàn giao sang danh sách đầy đủ. Là một dòng riêng chứ không phải nút nhỏ cuối trang:
- * đây là lối duy nhất từ trang chủ tới một URL chia sẻ được, nên nó phải dễ thấy.
+ * đây là lối duy nhất từ trang chủ tới một URL chia sẻ được, nên nó phải dễ thấy — và từ đợt
+ * thu hẹp phạm vi tìm, nó còn là lối duy nhất tới 93 công thức không nằm trong kệ.
  */
 .seeAll {
   display: flex;
@@ -69,12 +122,4 @@
 .more {
   font-variant-numeric: tabular-nums;
   color: var(--color-ink-soft);
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
 }

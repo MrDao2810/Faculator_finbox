@@ -272,7 +272,7 @@ export function DataTableScreen() {
           công thức — giống hệt trang chi tiết, và cùng nhớ bộ lọc người dùng vừa đặt.
 
           Ngoại lệ: vào từ nút "Mở bảng dữ liệu" của một trang công thức thì về ĐÚNG trang đó.
-          `rememberList={false}` vì lúc này không còn là "về danh sách" nữa — đọc sessionStorage
+          `rememberOrigin={false}` vì lúc này không còn là "về màn gốc" nữa — đọc sessionStorage
           rồi ghi đè bằng href công thức chỉ tổ nhấp nháy một nhịp trước khi đúng.
         */}
         {fromFormula === undefined ? (
@@ -281,7 +281,7 @@ export function DataTableScreen() {
           <BackLink
             fallbackHref={formulaPath(fromFormula.id)}
             labelKey="nav.backToFormula"
-            rememberList={false}
+            rememberOrigin={false}
           />
         )}
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { fail, ok } from './calc-output';
 import {
+  COMPACT_PREFIXES,
   NO_VALUE,
   UNIT_SCALES,
   findUnitScale,
@@ -11,6 +12,7 @@ import {
   parseViNumber,
   scaleToDong,
   scaleToUnit,
+  withScalePrefix,
 } from './format';
 import { divideByZero } from './warnings';
 
@@ -163,5 +165,55 @@ describe('đổi đơn vị tiền (CON-05)', () => {
 
   it('id lạ thì rơi về bậc đồng chứ không ném lỗi', () => {
     expect(findUnitScale('khong-co-that').id).toBe('dong');
+  });
+});
+
+describe('rút gọn số lớn cho nhãn trên hình', () => {
+  function prefixOf(factor: number) {
+    const found = COMPACT_PREFIXES.find((item) => item.factor === factor);
+    if (found === undefined) throw new Error(`Không có bậc ${String(factor)} — bảng đã đổi.`);
+    return found.prefix;
+  }
+
+  const KHONG = prefixOf(1);
+  const NGHIN = prefixOf(1_000);
+  const TRIEU = prefixOf(1_000_000);
+  const TY = prefixOf(1_000_000_000);
+
+  /*
+   * Thứ tự tăng dần KHÔNG phải chuyện thẩm mỹ: `pickScale()` bên `chart/build.ts` dựa vào việc bậc
+   * "không chia" đứng ĐẦU để trả lời "có cần chia không" bằng đúng một phép so sánh, và dựa vào
+   * phần ĐUÔI để lấy bậc lớn nhất còn đọc xuôi. Đảo bảng này là đảo cả hai chỗ đó.
+   */
+  it('bốn bậc xếp tăng dần, mở đầu bằng bậc "không chia"', () => {
+    expect(COMPACT_PREFIXES.map((item) => item.factor)).toEqual([1, 1_000, 1_000_000, 1e9]);
+    expect(KHONG).toEqual({ vi: '', en: '' });
+  });
+
+  it('ghép tiền tố vào bất kỳ đơn vị nào, không riêng tiền', () => {
+    expect(withScalePrefix('₫', TY)).toEqual({ vi: 'tỷ ₫', en: 'billion ₫' });
+    expect(withScalePrefix('₫/tháng', TRIEU)?.vi).toBe('triệu ₫/tháng');
+    expect(withScalePrefix('sản phẩm', NGHIN)?.vi).toBe('nghìn sản phẩm');
+    expect(withScalePrefix('CP', TRIEU)?.vi).toBe('triệu CP');
+  });
+
+  it('bậc "không chia" trả nguyên đơn vị; đơn vị rỗng không để lại khoảng trắng thừa', () => {
+    expect(withScalePrefix('lần', KHONG)).toEqual({ vi: 'lần', en: 'lần' });
+    expect(withScalePrefix('', KHONG)).toEqual({ vi: '', en: '' });
+    expect(withScalePrefix('', TRIEU)).toEqual({ vi: 'triệu', en: 'million' });
+  });
+
+  /*
+   * Cửa chặn quan trọng nhất của hàm này, và nó có từ một lỗi ĐO ĐƯỢC chứ không phải giả định: bốn
+   * công thức khai `resultUnit: 'tỷ ₫'`, biến `shares` khai `'triệu CP'`, nên ghép mù cho ra
+   * `'Vốn hoá thị trường (tỷ tỷ ₫)'`. 'nghìn tỷ' là hợp từ DUY NHẤT có thật trong nhóm này.
+   */
+  it('đơn vị đã mang sẵn bậc: chỉ nhận thêm "nghìn", và chỉ khi bậc sẵn có là "tỷ"', () => {
+    expect(withScalePrefix('tỷ ₫', NGHIN)?.vi).toBe('nghìn tỷ ₫');
+
+    expect(withScalePrefix('tỷ ₫', TRIEU)).toBeNull();
+    expect(withScalePrefix('tỷ ₫', TY)).toBeNull();
+    expect(withScalePrefix('triệu CP', NGHIN)).toBeNull();
+    expect(withScalePrefix('nghìn ₫', NGHIN)).toBeNull();
   });
 });

@@ -1,14 +1,13 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import {
-  CATEGORIES,
   DEFAULT_LIST_PARAMS,
-  FORMULAS,
-  countHiddenByLevel,
+  FORMULA_SUMMARIES,
+  PREFERENCES_STORAGE_KEY,
   formulasForLevel,
   parseListParams,
   selectFormulas,
@@ -34,6 +33,77 @@ function renderPanel() {
 
 const searchBox = (): HTMLElement => screen.getByLabelText('Tìm công thức');
 
+/** Kệ "Công thức dùng hằng ngày" — đúng bộ mà ô tìm ở trang chủ được phép chạm tới. */
+const GHIM = FORMULA_SUMMARIES.filter((formula) => formula.isFeatured === true);
+
+/** Cả thư viện ở chế độ mặc định — bộ mà hàng bàn giao hứa trước con số. */
+const THU_VIEN_CO_BAN = formulasForLevel(FORMULA_SUMMARIES, 'basic');
+
+const timTrong = (pool: typeof FORMULA_SUMMARIES, q: string) =>
+  selectFormulas(pool, { ...DEFAULT_LIST_PARAMS, q });
+
+/**
+ * Một từ khoá CHẮC CHẮN khớp ít nhất một ô trên kệ — dò lúc chạy, không viết cứng.
+ *
+ * Cùng lý do với các hàm dò của bản trước: viết cứng một từ khoá là ca kiểm đỏ vào ngày ai đó
+ * đổi danh sách ghim, dù màn không hề sai. Lấy id (kebab, chỉ chữ và gạch) rồi thay gạch bằng
+ * khoảng trắng — an toàn với `userEvent.type` hơn gõ tên tiếng Việt có dấu.
+ */
+function tuKhoaTrenKe(): { id: string; q: string } {
+  const ungVien = GHIM.map((f) => ({ id: f.id, q: f.id.replace(/-/g, ' ') })).sort(
+    (a, b) => a.q.length - b.q.length,
+  );
+
+  for (const ungCu of ungVien) {
+    if (timTrong(GHIM, ungCu.q).some((f) => f.id === ungCu.id)) return ungCu;
+  }
+
+  throw new Error('Không dò được từ khoá nào khớp kệ ghim — ca kiểm này cần xem lại.');
+}
+
+/**
+ * Một từ khoá mà THƯ VIỆN CÓ nhưng KỆ KHÔNG — tức đúng cái giá của đợt thu hẹp phạm vi.
+ *
+ * Đo thật trên Registry lúc chốt phương án: 5 trong 11 từ khoá thường gặp rơi vào ca này
+ * (`sma`, `bollinger`, `macd`, `beta`, `roe`). Hàm này dò lại lúc chạy để ca kiểm không phụ
+ * thuộc vào việc từ khoá nào cụ thể còn đúng.
+ */
+function tuKhoaNgoaiKe(): string {
+  const ungVien = FORMULA_SUMMARIES.filter((f) => f.isFeatured !== true)
+    .map((f) => f.id.replace(/-/g, ' '))
+    .sort((a, b) => a.length - b.length);
+
+  for (const q of ungVien) {
+    if (timTrong(GHIM, q).length === 0 && timTrong(THU_VIEN_CO_BAN, q).length > 0) return q;
+  }
+
+  throw new Error('Không dò được từ khoá nào ngoài kệ — ca kiểm này cần xem lại.');
+}
+
+/**
+ * Tìm thẻ dẫn tới một công thức trong cây vừa dựng.
+ *
+ * Chấp nhận cả hai dạng có / không gạch chéo cuối: bản build thật giữ gạch chéo
+ * (`trailingSlash: true`, `verify:static` đã đo), còn `next/link` dưới jsdom thì cắt đi. Viết
+ * cứng một dạng là ca kiểm ĐẠT MÀ RỖNG — nó không tìm thấy gì nên khẳng định "không có" luôn
+ * đúng, kể cả khi màn hỏng thật.
+ */
+function theCongThuc(container: HTMLElement, id: string): Element | undefined {
+  return [...container.querySelectorAll('a')].find((a) => {
+    const href = a.getAttribute('href') ?? '';
+    return href === `/cong-thuc/${id}` || href === `/cong-thuc/${id}/`;
+  });
+}
+
+/** Id của mọi thẻ công thức đang dựng — bỏ qua hàng bàn giao vì href của nó có '?'. */
+function idDangHien(container: HTMLElement): ReadonlyArray<string> {
+  return [...container.querySelectorAll('a')]
+    .map((a) => a.getAttribute('href') ?? '')
+    .filter((href) => href.startsWith('/cong-thuc/') && !href.includes('?'))
+    .map((href) => href.replace('/cong-thuc/', '').replace(/\/$/, ''))
+    .filter((id) => id !== '');
+}
+
 describe('HomeSearchPanel — trạng thái nhàn', () => {
   it('chưa gõ gì thì hiện đúng nội dung trang chủ, không hiện bộ lọc', () => {
     renderPanel();
@@ -56,14 +126,38 @@ describe('HomeSearchPanel — trạng thái nhàn', () => {
   });
 });
 
-describe('HomeSearchPanel — gõ để lọc tại chỗ', () => {
-  it('gõ một chữ là khối tĩnh nhường chỗ cho bộ lọc và kết quả', async () => {
+/*
+ * Lỗi được báo: gõ vào ô tìm ở trang chủ thì cả trang chủ biến mất, thay bằng bộ chip lọc +
+ * "Nhóm công thức" + "Sắp xếp" + "Xoá bộ lọc" — tức giao diện tab Công thức — trong khi thanh
+ * dưới vẫn sáng mục "Trang chủ", và không có chữ nào giải thích.
+ *
+ * Bốn ca dưới gác cách chữa: kệ THU HẸP TẠI CHỖ, mang đúng tiêu đề cũ, tiêu đề ấy HIỆN RA cho
+ * mắt thấy, và không dựng lại một mẩu nào của bộ lọc duyệt.
+ */
+describe('HomeSearchPanel — gõ là kệ thu hẹp tại chỗ, không đổi sang màn khác', () => {
+  it('giữ nguyên tiêu đề của kệ, và tiêu đề đó nhìn thấy được', async () => {
     renderPanel();
-    await userEvent.type(searchBox(), 'roi');
+    await userEvent.type(searchBox(), tuKhoaTrenKe().q);
 
-    expect(screen.queryByText('KHỐI TĨNH TRANG CHỦ')).toBeNull();
-    expect(screen.getByRole('group', { name: 'Mảng' })).not.toBeNull();
-    expect(screen.getByRole('heading', { name: 'Kết quả tìm kiếm' })).not.toBeNull();
+    const tieuDe = screen.getByRole('heading', { name: 'Công thức dùng hằng ngày' });
+
+    /*
+     * Bản trước có tiêu đề "Kết quả tìm kiếm" nhưng gắn `visually-hidden`: trình đọc màn hình
+     * nghe được, người nhìn bằng mắt thì không có lời giải thích nào. Đó chính là chỗ khó hiểu
+     * được báo, nên lớp ấy không được quay lại.
+     */
+    expect(String(tieuDe.className)).not.toMatch(/visually-hidden/);
+  });
+
+  it('không dựng lại một mẩu nào của bộ lọc duyệt', async () => {
+    renderPanel();
+    await userEvent.type(searchBox(), tuKhoaTrenKe().q);
+
+    expect(screen.queryByRole('group', { name: 'Mảng' })).toBeNull();
+    expect(screen.queryByLabelText('Nhóm công thức')).toBeNull();
+    expect(screen.queryByLabelText('Sắp xếp')).toBeNull();
+    expect(screen.queryByText('Xoá bộ lọc')).toBeNull();
+    expect(screen.queryByText(/công thức nâng cao đang ẩn/)).toBeNull();
   });
 
   it('xoá hết chữ thì khối tĩnh quay lại', async () => {
@@ -77,63 +171,150 @@ describe('HomeSearchPanel — gõ để lọc tại chỗ', () => {
     expect(screen.getByText('KHỐI TĨNH TRANG CHỦ')).not.toBeNull();
   });
 
-  it('chỉ dựng tối đa 8 thẻ, nhưng hàng "Xem tất cả" nói đúng TỔNG số kết quả', async () => {
-    /*
-     * Đếm trên đúng bộ mà panel đang dùng: mặc định sản phẩm là chế độ Cơ bản, và từ đợt này
-     * chế độ đó lọc bớt công thức mức nâng cao (FR-09). Lấy `FORMULAS` trọn bộ ở đây là ca
-     * kiểm tự đặt ra một kỳ vọng mà màn không hứa.
-     */
-    const wide = selectFormulas(formulasForLevel(FORMULAS, 'basic'), {
-      ...DEFAULT_LIST_PARAMS,
-      q: 'gia',
-    });
-    expect(wide.length, 'ca kiểm này cần một truy vấn ra hơn 8 kết quả').toBeGreaterThan(8);
+  it('nói ra phạm vi bằng con số "n / 18", để không ai tưởng đây là cả thư viện', async () => {
+    const { id, q } = tuKhoaTrenKe();
+    const { container } = renderPanel();
+    await userEvent.type(searchBox(), q);
 
+    const mong = timTrong(GHIM, q);
+    expect(
+      mong.length,
+      'từ khoá dò được phải ra ít nhất một ô, nếu không ca kiểm rỗng nghĩa',
+    ).toBeGreaterThan(0);
+    expect(theCongThuc(container, id)).not.toBeUndefined();
+
+    const dong = screen.getByText(
+      (_, node) =>
+        node?.tagName === 'P' &&
+        new RegExp(`^\\s*${mong.length}\\s*/\\s*${GHIM.length}\\s`).test(node.textContent ?? ''),
+    );
+    expect(dong.textContent).toContain('công thức');
+  });
+});
+
+describe('HomeSearchPanel — phạm vi là kệ ghim, không phải cả thư viện', () => {
+  /*
+   * Bất biến chính của đợt này. Quét nhiều từ khoá chứ không một, vì một từ khoá tình cờ chỉ
+   * khớp ô ghim thì ca kiểm xanh mà không chứng minh được gì.
+   */
+  it('không bao giờ lọt một công thức ngoài kệ', async () => {
+    const ghimIds = new Set(GHIM.map((f) => f.id));
+    const tuKhoa = GHIM.slice(0, 4).map((f) => f.id.replace(/-/g, ' '));
+
+    for (const q of tuKhoa) {
+      cleanup();
+      const { container } = renderPanel();
+      await userEvent.type(searchBox(), q);
+
+      const ids = idDangHien(container);
+      expect(
+        ids.length,
+        `"${q}" phải ra ít nhất một thẻ, nếu không ca kiểm rỗng nghĩa`,
+      ).toBeGreaterThan(0);
+
+      for (const id of ids) {
+        expect(ghimIds.has(id), `"${id}" không nằm trên kệ mà vẫn lọt ra kết quả`).toBe(true);
+      }
+    }
+  });
+
+  /*
+   * Kệ là ghim TAY (FR-20) nên `page.tsx` không lọc nó theo cấp độ. Ô tìm vì vậy cũng không
+   * được lọc — nếu lọc thì con số "n / 18" đếm hai bộ khác nhau, tức nói dối. Ô ghim mức nâng
+   * cao là bằng chứng sống của luật này.
+   */
+  it('không lọc kệ theo cấp độ: ô ghim mức nâng cao vẫn tìm thấy ở chế độ Cơ bản', async () => {
+    const nangCaoTrenKe = GHIM.find((f) => f.level === 'advanced');
+    if (nangCaoTrenKe === undefined) {
+      throw new Error('Ca kiểm cần ít nhất một ô ghim mức nâng cao — kệ đã đổi, xem lại luật.');
+    }
+
+    const { container } = renderPanel();
+    await userEvent.type(searchBox(), nangCaoTrenKe.id.replace(/-/g, ' '));
+
+    expect(theCongThuc(container, nangCaoTrenKe.id)).not.toBeUndefined();
+  });
+});
+
+/*
+ * Cái giá đã đo và đã chấp nhận: 5 trong 11 từ khoá thường gặp không có mặt trên kệ. Nên hàng
+ * bàn giao sang `/cong-thuc/` KHÔNG còn là tuỳ chọn cuối trang — nó luôn hiện khi đang tìm, và
+ * mang sẵn số kết quả của cả thư viện để người dùng biết trước bấm sang có gì.
+ */
+describe('HomeSearchPanel — hàng bàn giao sang cả thư viện', () => {
+  const banGiao = (): HTMLElement => screen.getByRole('link', { name: /Tìm trong cả thư viện/ });
+
+  it('vẫn hiện ngay cả khi kệ có kết quả', async () => {
+    const { q } = tuKhoaTrenKe();
     renderPanel();
-    await userEvent.type(searchBox(), 'gia');
+    await userEvent.type(searchBox(), q);
 
-    const cards = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(cards).toHaveLength(8);
+    expect(banGiao().textContent).toContain(String(timTrong(THU_VIEN_CO_BAN, q).length));
+  });
 
-    // Dòng bàn giao phải nói TỔNG, không phải 8 — nếu không người dùng tưởng chỉ có bấy nhiêu.
-    const seeAll = screen.getByRole('link', { name: /Xem tất cả/ });
-    expect(seeAll.textContent).toContain(String(wide.length));
+  it('kệ rỗng thì nói rõ phạm vi và chỉ đường tiếp, không để người dùng cụt đường', async () => {
+    const q = tuKhoaNgoaiKe();
+    renderPanel();
+    await userEvent.type(searchBox(), q);
+
+    expect(screen.getByText('Không ô nào trong khối này khớp')).not.toBeNull();
+    expect(screen.getByText(/chỉ lọc khối/)).not.toBeNull();
+
+    const soThuVien = timTrong(THU_VIEN_CO_BAN, q).length;
+    expect(
+      soThuVien,
+      'ca kiểm cần từ khoá mà thư viện CÓ, nếu không nó rỗng nghĩa',
+    ).toBeGreaterThan(0);
+    expect(banGiao().textContent).toContain(String(soThuVien));
   });
 
   /* Chặn đúng lỗi ghép chuỗi tay của đợt 7: đi trọn vòng dựng link → đọc lại. */
-  it('link "Xem tất cả" mang đúng từ khoá đang gõ', async () => {
+  it('link mang đúng từ khoá đang gõ', async () => {
     renderPanel();
     await userEvent.type(searchBox(), 'roi');
 
-    const href = screen.getByRole('link', { name: /Xem tất cả/ }).getAttribute('href') ?? '';
+    const href = banGiao().getAttribute('href') ?? '';
 
     /*
      * Chỉ kiểm phần đường dẫn và phần truy vấn, KHÔNG kiểm dấu '/' cuối: `next/link` trong
      * jsdom không đọc `trailingSlash` của next.config.mjs nên nó rút thành '/cong-thuc?q=…',
-     * trong khi bản build thật ra đúng '/cong-thuc/?q=…' (đã kiểm trên out/index.html).
-     * Phần dấu gạch cuối do routes.test.ts giữ, chạy thuần Node nên không dính chuyện này.
+     * trong khi bản build thật ra đúng '/cong-thuc/?q=…'. Phần dấu gạch cuối do routes.test.ts
+     * giữ, chạy thuần Node nên không dính chuyện này.
      */
     expect(href.startsWith('/cong-thuc')).toBe(true);
     const query = href.slice(href.indexOf('?'));
     expect(parseListParams(new URLSearchParams(query)).q).toBe('roi');
   });
-});
 
-describe('HomeSearchPanel — không tìm thấy gì', () => {
-  it('nói rõ phạm vi sản phẩm chứ không để màn trắng', async () => {
-    renderPanel();
-    await userEvent.type(searchBox(), 'bitcoin');
+  /*
+   * Con số này lọc theo cấp độ, khác với kệ ngay trên. Cố ý khác: nó hứa trước thứ người dùng
+   * sẽ thấy ở `/cong-thuc/`, mà màn đó CÓ lọc theo cấp độ. Hứa 5 rồi sang thấy 3 là đúng kiểu
+   * sai mà FR-06 tồn tại để chặn, chỉ khác là ở tầng điều hướng.
+   */
+  it('số kết quả hứa trước đổi theo chế độ, đúng bằng thứ /cong-thuc/ sẽ hiện', async () => {
+    const q = tuKhoaNgoaiKe();
+    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ mode: 'advanced' }));
 
-    expect(screen.getByText('Không tìm thấy công thức nào')).not.toBeNull();
-    expect(screen.getByText(/không có tiền mã hoá/)).not.toBeNull();
-    expect(screen.queryByRole('link', { name: /Xem tất cả/ })).toBeNull();
+    render(
+      <PreferencesProvider>
+        <HomeSearchPanel>
+          <Content />
+        </HomeSearchPanel>
+      </PreferencesProvider>,
+    );
+    await userEvent.type(searchBox(), q);
+
+    const soNangCao = timTrong(formulasForLevel(FORMULA_SUMMARIES, 'advanced'), q).length;
+    expect(banGiao().textContent).toContain(String(soNangCao));
+
+    window.localStorage.clear();
   });
 });
 
 describe('HomeSearchPanel — không đánh rơi tiêu điểm', () => {
   /*
-   * Ba nút dưới đây đều TỰ THÁO MÌNH khỏi DOM ngay sau cú bấm. Không trả tiêu điểm về ô tìm
-   * thì nó rơi về <body>, và người dùng bàn phím phải Tab lại từ đầu tài liệu.
+   * Nút × tự tháo mình khỏi DOM ngay sau cú bấm. Không trả tiêu điểm về ô tìm thì nó rơi về
+   * <body>, và người dùng bàn phím phải Tab lại từ đầu tài liệu.
    */
   it('bấm × của ô tìm thì tiêu điểm quay về ô, không rơi về body', async () => {
     renderPanel();
@@ -141,17 +322,6 @@ describe('HomeSearchPanel — không đánh rơi tiêu điểm', () => {
     await userEvent.type(box, 'roi');
 
     await userEvent.click(screen.getByRole('button', { name: 'Xoá ô tìm kiếm' }));
-
-    expect(document.activeElement).toBe(box);
-    expect(screen.getByText('KHỐI TĨNH TRANG CHỦ')).not.toBeNull();
-  });
-
-  it('bấm "Xoá bộ lọc" thì tiêu điểm quay về ô tìm', async () => {
-    renderPanel();
-    const box = searchBox();
-    await userEvent.type(box, 'roi');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }));
 
     expect(document.activeElement).toBe(box);
     expect(screen.getByText('KHỐI TĨNH TRANG CHỦ')).not.toBeNull();
@@ -166,132 +336,5 @@ describe('HomeSearchPanel — không đánh rơi tiêu điểm', () => {
 
     expect(screen.getByText('KHỐI TĨNH TRANG CHỦ')).not.toBeNull();
     expect(document.activeElement).toBe(box);
-  });
-});
-
-const segmentOf = (categoryId: string): string | undefined =>
-  CATEGORIES.find((c) => c.id === categoryId)?.segment;
-
-/**
- * Một từ khoá chỉ khớp mảng cá nhân, DÒ ngay lúc chạy thay vì viết cứng.
- *
- * Bản trước viết cứng 'lai kep'. Đúng khi thư viện mới có 21 công thức, nhưng tới 107 thì nó
- * khớp cả `gia-tri-tuong-lai` và `loi-suat-nam-hoa` bên mảng chứng khoán, lọc sang Chứng khoán
- * không còn rỗng và ca kiểm đỏ dù màn không hề sai. Dò lúc chạy thì ca kiểm đo đúng hành vi
- * "lọc làm rỗng thì mách lối ra", không đo tình cờ của nội dung Registry.
- *
- * Lấy từ khoá NGẮN NHẤT thoả điều kiện để `userEvent.type` khỏi gõ cả một câu dài.
- */
-function tuKhoaChiThuocCaNhan(): string {
-  const ungVien = FORMULAS.filter((f) => segmentOf(f.categoryId) === 'personal')
-    .map((f) => f.name.vi)
-    .sort((a, b) => a.length - b.length);
-
-  for (const q of ungVien) {
-    const hits = selectFormulas(FORMULAS, { ...DEFAULT_LIST_PARAMS, q });
-    if (hits.length > 0 && hits.every((h) => segmentOf(h.categoryId) === 'personal')) return q;
-  }
-
-  throw new Error('Không còn từ khoá nào chỉ thuộc mảng cá nhân — ca kiểm này cần xem lại.');
-}
-
-/**
- * Một công thức mức NÂNG CAO tìm được bằng chính id của nó, dò lúc chạy.
- *
- * Cùng lý do với `tuKhoaChiThuocCaNhan()`: viết cứng một id là ca kiểm đỏ vào ngày ai đó đổi
- * cấp độ công thức đó, dù màn không hề sai. Gõ id (kebab, chỉ chữ và gạch) an toàn với
- * `userEvent.type` hơn gõ tên tiếng Việt có dấu gạch dài.
- */
-function congThucNangCaoDeTim(): { id: string; q: string } {
-  const ungVien = FORMULAS.filter((f) => f.level === 'advanced')
-    .map((f) => ({ id: f.id, q: f.id.replace(/-/g, ' ') }))
-    .sort((a, b) => a.q.length - b.q.length);
-
-  for (const c of ungVien) {
-    const query = { ...DEFAULT_LIST_PARAMS, q: c.q };
-    const oNangCao = selectFormulas(FORMULAS, query).slice(0, 8);
-    const oCoBan = selectFormulas(formulasForLevel(FORMULAS, 'basic'), query);
-    if (oNangCao.some((f) => f.id === c.id) && !oCoBan.some((f) => f.id === c.id)) return c;
-  }
-
-  throw new Error('Không còn công thức nâng cao nào để dò — ca kiểm này cần xem lại.');
-}
-
-/**
- * Tìm thẻ dẫn tới một công thức trong cây vừa dựng.
- *
- * Chấp nhận cả hai dạng có / không gạch chéo cuối: bản build thật giữ gạch chéo
- * (`trailingSlash: true`, `verify:static` đã đo), còn `next/link` dưới jsdom thì cắt đi. Viết
- * cứng một dạng là ca kiểm ĐẠT MÀ RỖNG — nó không tìm thấy gì nên khẳng định "không có" luôn
- * đúng, kể cả khi màn hỏng thật.
- */
-function theCongThuc(container: HTMLElement, id: string): Element | undefined {
-  return [...container.querySelectorAll('a')].find((a) => {
-    const href = a.getAttribute('href') ?? '';
-    return href === `/cong-thuc/${id}` || href === `/cong-thuc/${id}/`;
-  });
-}
-
-/*
- * Vế thứ hai của FR-09 ("Nâng cao mở toàn bộ tham số VÀ CÔNG THỨC PHỨC TẠP").
- *
- * Trước đợt này nút Cơ bản / Nâng cao nằm ở thanh trên của mọi màn nhưng bấm vào gần như
- * không đổi gì: chỉ 10 / 111 công thức có biến mức nâng cao để mà ẩn. Hai ca dưới chốt việc
- * nút ấy có tác dụng thật ngay trên trang chủ.
- */
-describe('HomeSearchPanel — chế độ hiển thị lọc kết quả (FR-09)', () => {
-  function renderCoPrefs() {
-    return render(
-      <PreferencesProvider>
-        <HomeSearchPanel>
-          <Content />
-        </HomeSearchPanel>
-      </PreferencesProvider>,
-    );
-  }
-
-  it('chế độ Cơ bản giấu công thức nâng cao, và NÓI RA đang giấu bao nhiêu', async () => {
-    window.localStorage.clear();
-    const { id, q } = congThucNangCaoDeTim();
-
-    const { container } = renderCoPrefs();
-    await userEvent.type(searchBox(), q);
-
-    expect(theCongThuc(container, id)).toBeUndefined();
-
-    const dangAn = countHiddenByLevel(FORMULAS, { ...DEFAULT_LIST_PARAMS, q }, 'basic');
-    expect(dangAn).toBeGreaterThan(0);
-    expect(screen.getByText(/công thức nâng cao đang ẩn/).textContent).toContain(String(dangAn));
-  });
-
-  it('bấm "Bật chế độ Nâng cao" ngay trong dòng đó là công thức hiện ra', async () => {
-    window.localStorage.clear();
-    const { id, q } = congThucNangCaoDeTim();
-
-    const { container } = renderCoPrefs();
-    await userEvent.type(searchBox(), q);
-    await userEvent.click(screen.getByRole('button', { name: 'Bật chế độ Nâng cao' }));
-
-    expect(theCongThuc(container, id)).not.toBeUndefined();
-    // Đã hiện đủ thì dòng báo tự biến mất, không để lại một câu nói sai.
-    expect(screen.queryByText(/công thức nâng cao đang ẩn/)).toBeNull();
-  });
-});
-
-describe('HomeSearchPanel — bộ lọc che mất kết quả', () => {
-  it('lọc mảng khiến rỗng thì mách còn bao nhiêu nếu bỏ lọc', async () => {
-    renderPanel();
-    const tuKhoa = tuKhoaChiThuocCaNhan();
-    await userEvent.type(searchBox(), tuKhoa);
-    await userEvent.click(screen.getByRole('button', { name: /Chứng khoán/ }));
-
-    expect(screen.getByText('Không tìm thấy công thức nào')).not.toBeNull();
-
-    const rescue = screen.getByRole('button', { name: /Bỏ lọc · \d+ kết quả/ });
-    await userEvent.click(rescue);
-
-    // Bỏ lọc xong thì có kết quả trở lại, và từ khoá vẫn còn nguyên.
-    expect(screen.queryByText('Không tìm thấy công thức nào')).toBeNull();
-    expect((searchBox() as HTMLInputElement).value).toBe(tuKhoa);
   });
 });

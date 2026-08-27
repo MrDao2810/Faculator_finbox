@@ -5,17 +5,17 @@ import { ROUTES } from '@/application';
 import { T } from '../i18n/T';
 import styles from './AppHeader.module.css';
 import { BrandMark } from './BrandMark';
+import { HeaderModeToggle } from './HeaderModeToggle';
 import { HeaderNav } from './HeaderNav';
 import { LangSwitch } from './LangSwitch';
-import { ModeToggle } from './ModeToggle';
 import { SearchLink } from './SearchLink';
 import { ThemeSwitch } from './ThemeSwitch';
 
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
  *
- * Khối hộp + tên "Faculator", nút chuyển chế độ Cơ bản / Nâng cao, nút đổi giao diện Sáng / Tối
- * (chỉ ở màn PC), nút tìm kiếm, nút ngôn ngữ.
+ * Khối hộp + tên "Faculator", nút chuyển chế độ Cơ bản / Nâng cao (chỉ ở màn danh sách công
+ * thức), nút đổi giao diện Sáng / Tối (chỉ ở màn PC), nút tìm kiếm, nút ngôn ngữ.
  * Dính trên khi cuộn để mấy nút này luôn với tới được trên điện thoại.
  *
  * Tên rút còn "Faculator" chứ không phải "Faculator Finbox": ở 360px, tên đầy đủ cộng hai
@@ -38,7 +38,13 @@ export function AppHeader() {
         <HeaderNav />
 
         <div className={styles.controls}>
-          <ModeToggle />
+          {/*
+            Nút chế độ Cơ bản / Nâng cao — CHỈ hiện ở màn danh sách '/cong-thuc/'. Lý do và số
+            đo nằm trong `showsModeToggle()`; ngắn gọn: ở những màn khác phần lớn lần bấm không
+            đổi gì trong tầm mắt, nên nút dạy người dùng rằng nó hỏng. Các màn ấy vẫn đổi theo
+            chế độ, lối vào là dòng `HiddenByLevelNote` đặt ngay cạnh chỗ bị giấu.
+          */}
+          <HeaderModeToggle />
           {/*
             Nút đổi giao diện, chỉ hiện từ 1024px trở lên — xem `.themeControl`. Đứng ngay cạnh
             nút chế độ vì cả hai là cùng một loại việc ("trang này bày ra như thế nào"), đúng thứ

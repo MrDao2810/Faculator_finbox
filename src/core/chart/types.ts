@@ -26,6 +26,21 @@ export interface ChartPoint {
   label: string;
   /** Nhãn y đã định dạng, hoặc `NO_VALUE` khi `y === null`. */
   valueLabel: string;
+  /**
+   * Bản RÚT GỌN của `label`, ở bậc hiển thị của trục X — `'1,79 tỷ ₫'` thay cho `'1.789.700.000 ₫'`.
+   *
+   * Chỉ dành cho chữ VẼ TRÊN HÌNH (vạch dò, dấu "giá trị hiện tại"), nơi bề ngang tính bằng đơn vị
+   * viewBox và một nhãn 15 ký tự tràn ra ngoài khung. Bảng số dưới `<details>` và câu mô tả vẫn đọc
+   * `label`/`valueLabel` đầy đủ — đó là chỗ tra con số chính xác, và nó đã có vùng cuộn ngang riêng.
+   *
+   * **Vắng mặt hẳn** khi bản rút gọn không NGẮN HƠN bản đầy đủ (mức giá `92.000 ₫` không đáng đổi
+   * lấy `92 nghìn ₫`), không phải bằng chính chuỗi cũ: bất biến "công thức một chuỗi dựng ra đúng mô
+   * hình như trước" kiểm bằng `toEqual`, mà một trường thừa mang giá trị trùng cũng đủ làm nó đỏ.
+   * Cùng nếp `overlays` / `referenceLines` / `note`.
+   */
+  shortLabel?: string;
+  /** Bản rút gọn của `valueLabel`, ở bậc hiển thị của trục Y. Cùng luật với `shortLabel` ngay trên. */
+  shortValueLabel?: string;
   /** Đúng MỘT điểm trong chuỗi mang cờ này: giá trị người dùng đang nhập (FR-08). */
   marked?: boolean;
   /** Vì sao không tính được — để bảng số và câu mô tả nêu đúng nguyên nhân. */
@@ -246,8 +261,17 @@ export interface BreakdownBar {
   delta: number;
   /** Mức tổng đang chạy SAU cột này — đáy và đỉnh cột suy ra từ đây. */
   cumulative: number;
-  /** Giá trị đã định dạng kèm đơn vị, cho bảng số và nhãn trên cột. */
+  /** Giá trị đã định dạng kèm đơn vị, cho BẢNG SỐ — luôn đầy đủ, không rút gọn. */
   valueLabel: string;
+  /**
+   * Bản rút gọn cho nhãn VẼ TRÊN CỘT, ở bậc hiển thị của trục giá trị — cùng luật với
+   * `ChartPoint.shortValueLabel`, kể cả việc vắng mặt hẳn khi không ngắn hơn.
+   *
+   * Riêng ở thác nước còn một lý do thứ hai bên cạnh chuyện tràn khung: nhãn nằm ĐÈ LÊN cột, ngay
+   * phía trên chính cái trục đã ghi bậc của mình, nên hai chỗ nói hai thang là bắt người đọc tự quy
+   * đổi giữa chúng trên cùng một hình.
+   */
+  shortValueLabel?: string;
   /** Cột tổng đứng cuối, vẽ từ 0 lên chứ không nối tiếp cột trước. */
   isTotal?: boolean;
 }

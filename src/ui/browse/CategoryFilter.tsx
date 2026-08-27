@@ -16,12 +16,22 @@ const SEGMENTS: ReadonlyArray<{
   { value: 'personal', labelKey: 'filter.segment.personal' },
 ];
 
-const SORTS: ReadonlyArray<{ value: ListSort; labelKey: 'sort.featured' | 'sort.az' | 'sort.za' }> =
-  [
-    { value: 'featured', labelKey: 'sort.featured' },
-    { value: 'az', labelKey: 'sort.az' },
-    { value: 'za', labelKey: 'sort.za' },
-  ];
+/**
+ * Thứ tự trong `<select>` gom theo LOẠI tiêu chí, không theo thứ tự thêm vào: hai cách sắp bám
+ * thói quen người dùng đứng cạnh nhau ngay sau mặc định, rồi tới cấp độ, cuối cùng là bảng chữ
+ * cái. Người tìm "cái mình vừa xem" không phải quét qua A → Z mới thấy.
+ */
+const SORTS: ReadonlyArray<{
+  value: ListSort;
+  labelKey: 'sort.featured' | 'sort.recent' | 'sort.used' | 'sort.basic' | 'sort.az' | 'sort.za';
+}> = [
+  { value: 'featured', labelKey: 'sort.featured' },
+  { value: 'recent', labelKey: 'sort.recent' },
+  { value: 'used', labelKey: 'sort.used' },
+  { value: 'basic', labelKey: 'sort.basic' },
+  { value: 'az', labelKey: 'sort.az' },
+  { value: 'za', labelKey: 'sort.za' },
+];
 
 export interface CategoryFilterProps {
   params: ListParams;

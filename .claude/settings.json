@@ -791,7 +791,21 @@
       "PowerShell(cd c:\\\\Faculator_finbox; Copy-Item src\\\\ui\\\\charts\\\\LineChart.tsx \"$env:TEMP\\\\LineChart.bak.tsx\"; \\(Get-Content src\\\\ui\\\\charts\\\\LineChart.tsx -Raw\\) -replace 'setHover\\\\\\(nearestPointByX\\\\\\(model\\\\.points, clampedX, sx\\\\\\) \\\\?\\\\? null\\\\\\);', 'setHover\\(nearestPointByX\\(model.overlays?.[0]?.points ?? model.points, clampedX, sx\\) ?? null\\);' | Set-Content -Encoding utf8 src\\\\ui\\\\charts\\\\LineChart.tsx; npx vitest run src/ui/charts/charts.test.tsx -t 'vệt dò bám' 2>&1 | Select-String -Pattern \"Tests  |FAIL|AssertionError\" | Select-Object -First 6; Copy-Item \"$env:TEMP\\\\LineChart.bak.tsx\" src\\\\ui\\\\charts\\\\LineChart.tsx; Remove-Item \"$env:TEMP\\\\LineChart.bak.tsx\")",
       "PowerShell(cd c:\\\\Faculator_finbox; Select-String -Path src\\\\ui\\\\charts\\\\LineChart.tsx -Pattern \"nearestPointByX\\\\\\(model\" | ForEach-Object { $_.Line.Trim\\(\\) })",
       "PowerShell(foreach \\($pid_ in @\\(15800,14672,18936\\)\\) { $p = Get-CimInstance Win32_Process -Filter \"ProcessId=$pid_\" -ErrorAction SilentlyContinue; if \\($p\\) { \"PID $pid_ : $\\($p.Name\\)\"; \"   CMD: $\\($p.CommandLine\\)\"; \"   PARENT: $\\($p.ParentProcessId\\)\" } else { \"PID $pid_ : khong con\" } })",
-      "PowerShell(cd c:\\\\Faculator_finbox; git branch --format='%\\(refname:short\\)'; '--- HEAD ---'; git branch --show-current; '--- so file thay doi ---'; \\(git status --short | Measure-Object\\).Count; '--- stash ---'; \\(git stash list | Measure-Object\\).Count)"
+      "PowerShell(cd c:\\\\Faculator_finbox; git branch --format='%\\(refname:short\\)'; '--- HEAD ---'; git branch --show-current; '--- so file thay doi ---'; \\(git status --short | Measure-Object\\).Count; '--- stash ---'; \\(git stash list | Measure-Object\\).Count)",
+      "Bash(grep -Ev \"^\\\\s*$\")",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"ProcessId = 9176\")",
+      "Bash(node C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/fdeeef05-8420-43f3-9665-cdf2fa26ff00/scratchpad/do-nhan.mjs lich-tra-no diem-hoa-von lai-kep tra-gop-nien-kim ev fcff pe von-hoa-thi-truong co-lenh-rui-ro)",
+      "Bash(node C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/fdeeef05-8420-43f3-9665-cdf2fa26ff00/scratchpad/do-nhan.mjs ev fcff fcfe ncav-tren-co-phieu lich-tra-no diem-hoa-von lai-kep tra-gop-nien-kim tra-gop-goc-deu pe von-hoa-thi-truong co-lenh-rui-ro roe gia-tri-tuong-lai)",
+      "Bash(git --no-pager diff src/core/chart/build.ts)",
+      "Bash(grep -n \"^import type {$\" -A 10 src/core/chart/build.ts)",
+      "Bash(git --no-pager diff --stat -- src/application/routes.test.ts src/core/registry/search.ts src/core/registry/types.ts)",
+      "Bash(git --no-pager diff --stat)",
+      "Bash(git --no-pager diff src/application/index.ts)",
+      "Bash(node C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/fdeeef05-8420-43f3-9665-cdf2fa26ff00/scratchpad/quay-lai.mjs)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { $c | ForEach-Object { $p = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; \"PID $\\($_.OwningProcess\\)  $\\($p.ProcessName\\)  started $\\($p.StartTime\\)\" } } else { \"khong co gi lang nghe o 3000\" })",
+      "Bash(git --no-pager diff --stat -- src/core/registry/search.ts src/core/registry/types.ts src/core/registry/index.ts src/application/formula-usage.ts src/application/url-state.ts src/application/index.ts src/application/i18n src/ui/browse/CategoryFilter.tsx src/app/cong-thuc/FormulaBrowser.tsx)",
+      "Bash(git --no-pager diff -- src/application/i18n/vi.ts)",
+      "Bash(git --no-pager diff -- src/core/registry/search.ts)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

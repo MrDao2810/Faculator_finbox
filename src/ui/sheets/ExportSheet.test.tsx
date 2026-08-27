@@ -129,44 +129,40 @@ describe('PresetSheet — WF-10', () => {
     expect(screen.getByText(/vẫn sửa được từng cái một/)).not.toBeNull();
   });
 
-  it('tìm bỏ dấu được, gõ "hoa phat" ra HPG', async () => {
-    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
-
-    await userEvent.type(screen.getByLabelText('Tìm mã cổ phiếu'), 'hoa phat');
-
-    expect(screen.getByText('HPG')).not.toBeNull();
-    expect(screen.queryByText('FPT')).toBeNull();
-  });
-
   /*
-   * Chủ dự án báo: gõ vào ô tìm thì sheet co lại, ô tìm nhảy xuống ngay giữa lúc đang gõ.
-   * Hai ca dưới chốt hai mảnh của bản vá. Riêng phần ghim chiều cao bằng số đo thì jsdom
-   * không dựng layout nên đo đâu cũng ra 0 — chỗ đó kiểm trên trình duyệt thật.
+   * ── Ô tìm đã bị BỎ, và đó là điểm chính của bản vá ─────────────────────────────────────
+   *
+   * Kho này có đúng bốn mã. Một ô tìm ở đây hứa một kho mã, gõ mã thứ năm thì ra "không có mã
+   * nào khớp", trong khi sheet chọn mã kia có 1.649 mã — chủ dự án báo đúng mâu thuẫn đó. Ba
+   * ca kiểm ô tìm cũ (lọc bỏ dấu, lọc không ra gì, xoá từ khoá lúc đóng) đã bỏ theo; xem
+   * docblock `PresetSheet` để không ai dựng lại ô tìm mà không biết vì sao nó từng bị gỡ.
    */
-  it('cảnh báo số liệu bản thảo xét trên cả bộ, không biến mất khi lọc không ra gì', async () => {
+  it('không còn ô tìm — bốn mã thì không có gì để tìm', () => {
     render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
 
-    await userEvent.type(screen.getByLabelText('Tìm mã cổ phiếu'), 'khongcoma nao');
-
-    expect(screen.getByText(/Không có mã nào khớp/)).not.toBeNull();
-    expect(screen.getByText(/chưa đối chiếu báo cáo thật/)).not.toBeNull();
+    expect(screen.queryByRole('searchbox')).toBeNull();
+    for (const code of ['FPT', 'HPG', 'VNM', 'MWG']) {
+      expect(screen.getByText(code)).not.toBeNull();
+    }
   });
 
-  it('đóng sheet thì xoá từ khoá, lần mở sau bắt đầu từ danh sách đầy đủ', async () => {
+  it('mở sẵn lối sang kho mã toàn thị trường, và nói rõ nó chỉ có một phiên giá', async () => {
     const onClose = vi.fn();
-    const { rerender } = render(<PresetSheet open onClose={onClose} onLoad={vi.fn()} />);
+    const onBrowseMarket = vi.fn();
+    render(<PresetSheet open onClose={onClose} onLoad={vi.fn()} onBrowseMarket={onBrowseMarket} />);
 
-    await userEvent.type(screen.getByLabelText('Tìm mã cổ phiếu'), 'hoa phat');
-    expect(screen.queryByText('FPT')).toBeNull();
+    expect(screen.getByText(/chỉ có MỘT phiên giá/)).not.toBeNull();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(screen.getByRole('button', { name: /toàn thị trường/ }));
+
+    expect(onBrowseMarket).toHaveBeenCalledTimes(1);
+    // Đóng sheet mẫu trước khi mở sheet kia — hai bottom sheet chồng nhau là một cái bẫy focus.
     expect(onClose).toHaveBeenCalled();
+  });
 
-    rerender(<PresetSheet open={false} onClose={onClose} onLoad={vi.fn()} />);
-    rerender(<PresetSheet open onClose={onClose} onLoad={vi.fn()} />);
-
-    expect((screen.getByLabelText('Tìm mã cổ phiếu') as HTMLInputElement).value).toBe('');
-    expect(screen.getByText('FPT')).not.toBeNull();
+  it('không truyền onBrowseMarket thì không hiện lối rẽ nào', () => {
+    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: /toàn thị trường/ })).toBeNull();
   });
 
   it('bấm Nạp thì trả preset lên trên rồi đóng sheet', async () => {

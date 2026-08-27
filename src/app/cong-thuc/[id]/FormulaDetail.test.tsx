@@ -7,6 +7,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import {
   FORMULAS,
   FORMULA_USAGE_KEY,
+  INPUT_DRAFT_KEY,
   NO_VALUE,
   SAMPLE_DATA,
   ACTIVE_TICKER_KEY,
@@ -1780,5 +1781,162 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
 
     expect(screen.getByText(/Đã nạp số phiên giá/)).not.toBeNull();
     expect(screen.queryByText(t('detail.liveSeriesShort'))).toBeNull();
+  });
+});
+
+/**
+ * Số người dùng đã gõ phải sống sót qua cú rời màn — hai lỗi được báo, một gốc.
+ *
+ * Nút "Mở bảng dữ liệu →" là một `<Link>` thật, nên React tháo cả component: `inputs` là
+ * `useState` thuần nên nó bốc hơi, trong khi mã đang chọn nằm ở `sessionStorage` nên nó SỐNG.
+ * Người dùng quay lại và gặp một bộ số thứ ba — không phải mặc định, không phải thứ họ để lại.
+ *
+ * Ở đây không điều hướng thật được (jsdom không chạy router), nên mỗi ca dựng lại component từ
+ * đầu bằng `cleanup()` + `render()` — đúng thứ điều hướng gây ra, và cũng đúng thứ ca kiểm cần
+ * chứng minh: `localStorage` là chỗ duy nhất nối hai lượt dựng ấy với nhau.
+ */
+describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => {
+  /** Gõ một con số vào ô Giá thị trường của `pe`, rồi tháo màn như một cú điều hướng. */
+  async function goRoiRoiMan(gia: string): Promise<void> {
+    await userEvent.clear(oNhap(/Giá thị trường/));
+    await userEvent.type(oNhap(/Giá thị trường/), gia);
+    // Rời ô để chốt giá trị — `commitValue()` chỉ chạy lúc blur.
+    fireEvent.blur(oNhap(/Giá thị trường/));
+    cleanup();
+  }
+
+  it('mở lại thì thấy đúng số đã gõ, không phải số mặc định', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await goRoiRoiMan('77777');
+
+    render(<Man spec={specOf('pe')} />);
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('77.777');
+  });
+
+  it('CHỈ ghi khi người dùng thật sự chạm vào số liệu', async () => {
+    // Mở rồi thoát mà không gõ gì — đây là lượt vào từ Google rồi đi ngay.
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    cleanup();
+
+    expect(window.localStorage.getItem(INPUT_DRAFT_KEY)).toBeNull();
+  });
+
+  it('mỗi công thức một bản nháp riêng — không rò số sang công thức khác', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await goRoiRoiMan('77777');
+
+    render(<Man spec={specOf('pb')} />);
+    // `pb` cũng có ô 'Giá thị trường' nhưng chưa ai gõ gì vào nó ở công thức này.
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+  });
+
+  /*
+   * Ca đắt nhất của khối: `?ma=` nạp BẤT ĐỒNG BỘ nên nó về sau bản nháp và đè lên. Không có
+   * nhánh so mã thì lỗi được báo vẫn còn nguyên trên đúng đường mà tab Danh mục dùng để sang đây.
+   */
+  it('cùng mã thì số đã sửa thắng, dù `?ma=` nạp lại sau', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    // Mã vừa nạp điền 71.400; người dùng sửa tay thành 77.777 rồi rời màn.
+    await goRoiRoiMan('77777');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('77.777');
+  });
+
+  it('khác mã thì mã mới thắng — bấm ƒ trên mã khác là đòi số của mã đó', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await goRoiRoiMan('77777');
+
+    feed.snapshots.mockResolvedValue(
+      new Map([['HPG', { ...FPT_SNAPSHOT, code: 'HPG', name: 'Hoà Phát', priceVnd: 28_500 }]]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('28.500');
+  });
+
+  it('`?luu=` vẫn thắng bản nháp — bộ số đã lưu là thứ người dùng tự chốt', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await goRoiRoiMan('77777');
+
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-1',
+          formulaId: 'pe',
+          name: 'Bộ số của tôi',
+          inputs: { price: 50_000, eps: 5_000 },
+          resultValue: 10,
+          resultUnit: 'lần',
+          savedAt: Date.now(),
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=pe-1');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByText(/Bộ số của tôi/);
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('50.000');
+  });
+
+  /*
+   * "Bỏ mã" đưa mọi ô về mặc định vì người dùng vừa nói rõ họ không muốn bộ số ấy nữa. Để bản
+   * nháp lại thì đúng bộ số vừa bị bỏ quay về ngay lần mở kế — màn hình cãi lại thao tác vừa làm.
+   */
+  it('bỏ mã thì xoá luôn bản nháp, số không quay về ở lần mở sau', async () => {
+    seedActiveTicker();
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await userEvent.clear(oNhap(/Giá thị trường/));
+    await userEvent.type(oNhap(/Giá thị trường/), '77777');
+    fireEvent.blur(oNhap(/Giá thị trường/));
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.tickerClear') }));
+    cleanup();
+    window.sessionStorage.clear();
+
+    render(<Man spec={specOf('pe')} />);
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+  });
+
+  it('bản nháp hỏng trong máy thì màn chạy như trước đợt này, không sập', async () => {
+    window.localStorage.setItem(INPUT_DRAFT_KEY, '{{{ không phải JSON');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+  });
+
+  /*
+   * Vế thứ hai của lỗi được báo: bấm "Về số của ví dụ" ra một kết quả, quay lại ra kết quả khác.
+   * Bản nháp bắt luôn cả cú bấm ấy, nên hai lần xem phải khớp nhau từng con số.
+   */
+  it('"Về số của ví dụ" cũng được giữ — hai lần xem cho cùng một kết quả', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await userEvent.clear(oNhap(/Giá thị trường/));
+    await userEvent.type(oNhap(/Giá thị trường/), '12345');
+    fireEvent.blur(oNhap(/Giá thị trường/));
+
+    await userEvent.click(screen.getByRole('button', { name: t('example.reset') }));
+    const sauKhiVe = (oNhap(/Giá thị trường/) as HTMLInputElement).value;
+    cleanup();
+
+    render(<Man spec={specOf('pe')} />);
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe(sauKhiVe);
   });
 });

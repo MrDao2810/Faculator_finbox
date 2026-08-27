@@ -92,6 +92,25 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     }
   }, [prefs.theme]);
 
+  /*
+   * Chế độ hiển thị, cùng khuôn `data-theme` ngay trên và vì cùng một lý do.
+   *
+   * Khối "Duyệt theo nhóm" ở trang chủ do SERVER dựng nên nó không đọc được chế độ; nó bày sẵn
+   * cả hai con số và để CSS chọn theo thuộc tính này (xem docblock `CategoryGrid`). Thiếu effect
+   * này thì đổi chế độ ở màn Cài đặt xong quay về trang chủ, con số vẫn đứng im cho tới lần tải
+   * cứng tiếp theo — script khởi động chỉ chạy đúng một lần.
+   *
+   * `remove` chứ không ghi `'basic'`: CSS ở cả hai chỗ viết theo hướng "không có thuộc tính là
+   * mặc định", để HTML tĩnh và máy chặn localStorage rơi đúng vào nhánh ấy. Ghi giá trị mặc định
+   * ra DOM thì có hai cách diễn đạt cho cùng một trạng thái, và chỉ cần một chỗ quên `:not()` là
+   * sai lặng lẽ.
+   */
+  useEffect(() => {
+    const root = document.documentElement;
+    if (prefs.mode === 'advanced') root.dataset.mode = 'advanced';
+    else delete root.dataset.mode;
+  }, [prefs.mode]);
+
   const persist = useCallback((next: Preferences) => {
     setPrefs(next);
     try {

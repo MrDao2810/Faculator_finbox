@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /*
  * `t as tVi`: vùng in PDF phía dưới là MỘT PHẦN CỦA FILE XUẤT — tài liệu tiếng Việt trọn vẹn
@@ -125,6 +125,80 @@ export function ExportSheet({
     interpretation,
   );
 
+  /*
+   * Vùng in nhận bản CHÉP của hình biểu đồ đang hiện trên trang, đặt vào bằng tay chứ không dựng
+   * bằng JSX — xem docblock của `chart-snapshot.ts` về việc vì sao chép node thay vì vẽ lại.
+   *
+   * React không dựng con nào vào `<div ref={chartSlot}>`, nên `replaceChildren()` ở đây không
+   * giẫm lên thứ gì React đang quản. Câu dự phòng thì NGƯỢC LẠI — nó là JSX thật, và CSS tự ẩn
+   * nó đi khi khe bên cạnh đã có `<svg>` (`:has()` trong globals.css). Cách ấy tránh hẳn việc
+   * sờ vào node React sở hữu, và tránh luôn một state chỉ để nói "đã có hình hay chưa" — state
+   * ấy sẽ không kịp được React ghi ra DOM trước lúc `window.print()` chạy, vì `print()` chặn
+   * luồng ngay tại chỗ.
+   */
+  const chartSlot = useRef<HTMLDivElement>(null);
+  const cloneChart = useRef<((formulaId: string) => SVGSVGElement | null) | null>(null);
+
+  const fillChart = useCallback(() => {
+    const slot = chartSlot.current;
+    const clone = cloneChart.current;
+    if (slot === null || clone === null) return;
+    const svg = clone(formula.id);
+    if (svg === null) slot.replaceChildren();
+    else slot.replaceChildren(svg);
+  }, [formula.id]);
+
+  /*
+   * Nạp bộ chụp khi sheet mở, không phải lúc dựng trang: `import()` trần nên chunk sinh ra không
+   * bị Next ghi vào HTML của 111 trang chi tiết — cùng lối `draw-card` đã đi, xem chú thích trong
+   * `run()`.
+   */
+  useEffect(() => {
+    if (!open || !includeChart) return;
+
+    let huy = false;
+    void import('./chart-snapshot')
+      .then(({ cloneChartSvg }) => {
+        if (huy) return;
+        cloneChart.current = cloneChartSvg;
+        fillChart();
+      })
+      .catch(() => {
+        // Không nạp được thì vùng in giữ câu dự phòng — không có gì để báo lỗi ở đây.
+      });
+
+    return () => {
+      huy = true;
+    };
+  }, [open, includeChart, fillChart]);
+
+  /**
+   * Hình biểu đồ cho tấm thẻ PNG, hoặc `null` khi không có gì để vẽ.
+   *
+   * Nuốt lỗi có chủ đích, và đây là chỗ duy nhất trong hàm `run()` làm thế: một trình duyệt từ
+   * chối rasterise SVG không phải lý do để chặn cả file xuất — tấm thẻ vẫn mang kết quả, bảng đầu
+   * vào và câu miễn trừ, tức vẫn là một tài liệu đủ nghĩa. Đổi lại, lúc ấy thẻ in ra khung nét đứt
+   * kèm câu "công thức này không có biểu đồ", giống hệt trường hợp công thức thật sự không vẽ hình
+   * — hai cảnh khác nhau nói cùng một câu. Chấp nhận được vì cảnh thứ hai gần như không xảy ra, và
+   * vì câu sai duy nhất nó gây ra là về SỰ TỒN TẠI của hình, không phải về con số nào.
+   */
+  async function chartForCard(): Promise<HTMLImageElement | null> {
+    if (!includeChart) return null;
+
+    try {
+      const { chartImage, chartSvgUrl, cloneChartSvg } = await import('./chart-snapshot');
+      const svg = cloneChartSvg(formula.id);
+      if (svg === null) return null;
+
+      const url = chartSvgUrl(svg);
+      if (url === null) return null;
+
+      return await chartImage(url);
+    } catch {
+      return null;
+    }
+  }
+
   async function run() {
     setFailed(false);
     try {
@@ -138,8 +212,14 @@ export function ExportSheet({
          * khỏi "First Load JS" mà cửa kiểm NFR-PER-04 đo — khác `next/dynamic`, thứ vẫn bị tính.
          */
         const { downloadCardPng } = await import('./draw-card');
-        await downloadCardPng(content, exportFileName(formula, 'png'));
+        await downloadCardPng(content, exportFileName(formula, 'png'), await chartForCard());
       } else {
+        /*
+         * Chụp lại NGAY TRƯỚC khi in, dù effect ở trên đã chụp một lần lúc mở sheet: người dùng
+         * có thể đã đổi trục X hoặc nạp mã khác trong khoảng giữa, và hình cũ nằm im trong vùng
+         * in thì file xuất ra là một tờ nói sai.
+         */
+        fillChart();
         // Vùng in nằm sẵn trong DOM dưới đây; CSS in ở globals.css lo phần ẩn những chỗ khác.
         window.print();
       }
@@ -226,7 +306,12 @@ export function ExportSheet({
         {content.interpretation !== undefined && <p>{content.interpretation}</p>}
 
         {/* Bản build-time (tVi) có chủ đích — xem chú thích ở khối import. */}
-        {content.includeChart && <div className="print-chart">{tVi('export.chartPending')}</div>}
+        {content.includeChart && (
+          <div className="print-chart">
+            <div className="print-chart-plot" ref={chartSlot} />
+            <span className="print-chart-note">{tVi('export.chartNone')}</span>
+          </div>
+        )}
 
         <table>
           <caption>Giá trị đầu vào</caption>

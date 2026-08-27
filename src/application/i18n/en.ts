@@ -62,7 +62,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'disclaimer.text': 'Results are for reference only, not investment advice.',
 
   'search.label': 'Find a formula',
-  'search.placeholder': 'Formula name, e.g. P/E or dinh gia',
+  'search.placeholder': 'Formula name, e.g. P/E or định giá',
   'search.hint':
     'Typing without Vietnamese accents still works: “dinh gia” finds “Định giá”, “p e” finds “P/E”.',
   'search.clear': 'Clear the search box',
@@ -409,7 +409,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'export.pngHint': 'quick to share',
   'export.withChart': 'Include the chart',
   'export.withChartHint': "An image of the formula's chart, if it has one",
-  'export.chartPending': 'The chart will be added in a later release.',
+  'export.chartNone': 'This formula has no chart.',
   'export.withDetails': 'Include variables & explanation',
   'export.withDetailsHint': 'What each variable means, plus the plain-language explanation',
   'export.disclaimerLocked': 'Disclaimer attached automatically',
@@ -483,6 +483,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.series': 'Entered price series',
   'data.portfolio': 'Personal portfolio',
   'data.saved': 'Saved calculations',
+  'data.drafts': 'Numbers in progress',
   'data.usage': 'Formulas you opened',
   'data.tickers': 'Ticker list',
   'data.prices': 'Cached prices',

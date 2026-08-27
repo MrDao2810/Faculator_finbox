@@ -341,6 +341,19 @@ export {
   serializeRecentSearches,
 } from './recent-searches';
 
+// Bản nháp ô nhập — giữ số người dùng đã gõ qua cú điều hướng rời màn chi tiết
+export type { InputDraft } from './input-draft-store';
+export {
+  INPUT_DRAFT_KEY,
+  INPUT_DRAFT_TTL_MS,
+  MAX_DRAFTS,
+  draftFor,
+  parseInputDrafts,
+  putDraft,
+  removeDraft,
+  serializeInputDrafts,
+} from './input-draft-store';
+
 // Lịch sử mở công thức — cá nhân hoá khối "Công thức dùng hằng ngày" của trang chủ (FR-20)
 // và hai cách sắp xếp "Vừa xem gần đây" / "Hay dùng nhất" ở màn danh sách (`usageOrderMap`).
 export type { FormulaUsage, RankFeaturedInput } from './formula-usage';

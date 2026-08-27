@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -69,15 +72,33 @@ describe('CategoryGrid', () => {
 /*
  * Con số đi theo chế độ hiển thị — FR-09, vế thứ ba.
  *
- * Trước gói này ô luôn in `expectedCount`, nên bấm nút Cơ bản / Nâng cao ở trang chủ không đổi
- * lấy một con số. Prop `counts` là đường để trang chủ đưa số THẬT của chế độ đang xem vào.
+ * Trước gói này ô luôn in `expectedCount`, nên trang chủ khoe "111 công thức" cả khi người dùng
+ * đang ở chế độ Cơ bản và chỉ với tới 79. Chủ dự án báo đúng chỗ này.
+ *
+ * ── Vì sao ca kiểm ở đây đọc TỪNG THẺ chứ không đọc `textContent` của cả ô ────────────────────
+ *
+ * Ô mang SẴN cả hai con số; `data-mode` trên `<html>` chọn con số nào hiện, và phép chọn ấy nằm
+ * trong CSS Module. jsdom không áp CSS Module, nên `textContent` ở đây thấy CẢ HAI ('Tiết kiệm55')
+ * — đúng DOM, nhưng không phải thứ người dùng thấy. Đọc từng thẻ mới nói được câu có nghĩa.
+ *
+ * Trên trình duyệt thật `display: none` gỡ luôn khỏi cây khả truy cập, nên trình đọc màn hình
+ * cũng chỉ gặp một con số. Đây đúng là đánh đổi `ThemeSwitch` đã chọn và đã ghi lý do: giữ cả hai
+ * nhánh trong DOM, để CSS quyết, vì lượt render đầu ở máy khách buộc phải khớp HTML tĩnh.
  */
 describe('CategoryGrid — số đếm theo chế độ hiển thị', () => {
   const CA_NHAN = categoriesOf('personal');
 
-  it('có `counts` thì in số truyền vào, không in số dự kiến nữa', () => {
+  /** Chữ của hai badge trong một ô, theo thứ tự [Cơ bản, Nâng cao]. */
+  function badgesOf(link: Element): string[] {
+    return [...link.querySelectorAll('span')]
+      .filter((span) => span.querySelector('span') === null && span.textContent !== '')
+      .map((span) => span.textContent ?? '')
+      .slice(-2);
+  }
+
+  it('có `basicCounts` thì ô mang CẢ HAI con số — Cơ bản trước, Nâng cao sau', () => {
     // Đúng bộ số của chế độ Cơ bản: Tài chính DN có 2/2 công thức đều mức nâng cao.
-    const counts = new Map([
+    const basicCounts = new Map([
       ['savings', 5],
       ['investing', 2],
       ['loans', 3],
@@ -85,17 +106,13 @@ describe('CategoryGrid — số đếm theo chế độ hiển thị', () => {
       ['corporate-finance', 0],
     ]);
 
-    render(<CategoryGrid categories={CA_NHAN} counts={counts} />);
+    render(<CategoryGrid categories={CA_NHAN} basicCounts={basicCounts} />);
 
-    const shown = screen.getAllByRole('link').map((a) => a.textContent);
-    expect(shown).toEqual([
-      'Tiết kiệm5',
-      'Đầu tư2',
-      'Vay nợ3',
-      'Thuế TNCN1',
-      // Không phải 'Tài chính DN0' — xem ca ngay dưới.
-      'Tài chính DNchỉ ở Nâng cao',
-    ]);
+    const links = screen.getAllByRole('link');
+    expect(badgesOf(links[0]!)).toEqual(['5', '5']);
+    expect(badgesOf(links[1]!)).toEqual(['2', '2']);
+    // Nhóm duy nhất hai vế lệch nhau: 0 ở Cơ bản, 2 ở Nâng cao.
+    expect(badgesOf(links[4]!)).toEqual(['chỉ ở Nâng cao', '2']);
   });
 
   /*
@@ -105,21 +122,73 @@ describe('CategoryGrid — số đếm theo chế độ hiển thị', () => {
    * đường vào ở đây là cắt mất lối đi duy nhất tới hai công thức ấy.
    */
   it('nhóm rỗng ở chế độ Cơ bản: nói "chỉ ở Nâng cao", KHÔNG in số 0, và vẫn bấm được', () => {
-    render(<CategoryGrid categories={CA_NHAN} counts={new Map([['corporate-finance', 0]])} />);
+    render(<CategoryGrid categories={CA_NHAN} basicCounts={new Map([['corporate-finance', 0]])} />);
 
     const link = screen.getByRole('link', { name: /Tài chính DN/ });
-    expect(link.textContent).toContain('chỉ ở Nâng cao');
-    expect(link.textContent).not.toContain('0');
+    const [coBan, nangCao] = badgesOf(link);
+    expect(coBan).toBe('chỉ ở Nâng cao');
+    expect(coBan).not.toContain('0');
+    expect(nangCao).toBe('2');
     expect(parseListParams(queryOf(link.getAttribute('href') ?? '')).categoryId).toBe(
       'corporate-finance',
     );
   });
 
-  it('nhóm không có trong `counts` thì rơi về số dự kiến, không rơi về 0', () => {
-    // Bảo vệ hợp đồng cũ: `counts` là tuỳ chọn, thiếu khoá nào thì khoá ấy dùng expectedCount.
-    render(<CategoryGrid categories={CA_NHAN} counts={new Map([['savings', 4]])} />);
+  it('nhóm không có trong `basicCounts` thì chỉ in MỘT số — số dự kiến, không phải 0', () => {
+    // Bảo vệ hợp đồng cũ: `basicCounts` là tuỳ chọn, và thiếu khoá nào thì ô ấy về dáng bản đầu.
+    render(<CategoryGrid categories={CA_NHAN} basicCounts={new Map([['savings', 4]])} />);
+
+    const links = screen.getAllByRole('link');
+    expect(badgesOf(links[0]!)).toEqual(['4', '5']);
+    // 'Đầu tư' không có khoá: đúng một badge, mang số dự kiến.
+    expect(links[1]?.textContent).toBe('Đầu tư2');
+  });
+
+  it('không truyền `basicCounts` thì ô giữ nguyên dáng bản đầu — đúng một con số', () => {
+    render(<CategoryGrid categories={CA_NHAN} />);
 
     const shown = screen.getAllByRole('link').map((a) => a.textContent);
-    expect(shown).toEqual(['Tiết kiệm4', 'Đầu tư2', 'Vay nợ3', 'Thuế TNCN1', 'Tài chính DN2']);
+    expect(shown).toEqual(['Tiết kiệm5', 'Đầu tư2', 'Vay nợ3', 'Thuế TNCN1', 'Tài chính DN2']);
+  });
+});
+
+/*
+ * Phép chọn nằm trong CSS nên ca kiểm DOM không với tới được — quét thẳng file.
+ *
+ * Điều dễ sai nhất và không ca nào khác bắt được: chiều của điều kiện. HTML tĩnh KHÔNG mang
+ * `data-mode` (mặc định là Cơ bản, khớp `DEFAULT_PREFERENCES.mode`), nên luật phải viết theo
+ * hướng `:not([data-mode='advanced'])`. Ai đó đổi thành `[data-mode='basic']` cho "đọc xuôi" là
+ * `out/index.html` và mọi máy chặn localStorage mất sạch con số mà mọi ca kiểm khác vẫn xanh.
+ */
+describe('CategoryGrid.module.css — chiều của phép chọn theo chế độ', () => {
+  /*
+   * Đường dẫn dựng từ `process.cwd()` chứ không từ `import.meta.url`: file này chạy trong môi
+   * trường jsdom (dòng 1), ở đó `import.meta.url` không mang scheme `file:` nên `fileURLToPath`
+   * ném ngay lúc thu thập ca kiểm. Vitest chạy từ gốc dự án — cùng gốc với `vitest.config.ts`.
+   */
+  const raw = readFileSync(join(process.cwd(), 'src/ui/browse/CategoryGrid.module.css'), 'utf8');
+
+  /*
+   * Bỏ chú thích trước khi soi: luật ở đây nói về BỘ CHỌN, mà phần chú thích ngay trên chúng lại
+   * phải nhắc tới `[data-mode='basic']` để giải thích vì sao KHÔNG dùng nó. Quét cả chú thích là
+   * ca "không nhánh nào bám vào" đỏ vì chính câu văn cấm nó.
+   */
+  const css = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('mặc định (không có thuộc tính) là chế độ Cơ bản', () => {
+    expect(css).toContain(":global(html:not([data-mode='advanced'])) .countBasic");
+    expect(css).toContain(":global(html[data-mode='advanced']) .countAdvanced");
+  });
+
+  it('không nhánh nào bám vào data-mode="basic" — ca mặc định sẽ rơi mất', () => {
+    expect(css).not.toContain("[data-mode='basic']");
+  });
+
+  it('cả hai badge cùng ẩn mặc định, để đúng một nhánh bật lên', () => {
+    expect(css).toMatch(/\.countBasic,\s*\n\s*\.countAdvanced\s*\{\s*\n\s*display: none;/);
+  });
+
+  it('dáng mờ của nhóm rỗng chỉ áp ở chế độ Cơ bản', () => {
+    expect(css).toContain(":global(html:not([data-mode='advanced'])) .basicEmpty");
   });
 });

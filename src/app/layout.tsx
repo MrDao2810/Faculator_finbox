@@ -65,24 +65,35 @@ export const viewport: Viewport = {
 };
 
 /*
- * Đặt bảng màu TRƯỚC lượt vẽ đầu tiên.
+ * Đặt bảng màu và chế độ hiển thị TRƯỚC lượt vẽ đầu tiên.
  *
  * Không có nó thì `data-theme` chỉ được đặt sau khi hydrate xong, và người đã chọn Tối phải nhìn
  * một nháy trắng nguyên trang mỗi lần tải cứng — trên nền tối thì cái nháy ấy chói mắt thật sự.
  *
+ * `data-mode` vào cùng script vì cùng một lý do và cùng một kho: trang chủ bày số công thức của
+ * từng nhóm theo chế độ, mà khối ấy do server dựng (xem docblock `CategoryGrid`). Đặt sau hydrate
+ * là người chọn Nâng cao thấy 79 nháy thành 111 ngay dưới mắt. Một lượt đọc `localStorage`, hai
+ * thuộc tính — rẻ hơn hẳn việc thêm một script thứ hai.
+ *
+ * Chỉ ghi thuộc tính khi lựa chọn KHÁC mặc định (`theme: 'light'`, `mode: 'basic'`): HTML tĩnh
+ * không mang thuộc tính nào, nên bỏ trống chính là bày đúng mặc định, và CSS ở cả hai chỗ đều
+ * viết theo hướng "không có thuộc tính = mặc định".
+ *
  * Đây là script inline đầu tiên của dự án. Hai điều đi kèm:
  *   · CSP đã cho phép sẵn — `public/_headers` có `script-src 'self' 'unsafe-inline'`, vốn phải
  *     có vì bản export tĩnh của Next tự bootstrap bằng script inline. Không nới thêm gì.
- *   · `<html>` cần `suppressHydrationWarning`, vì DOM sẽ mang một thuộc tính mà HTML tĩnh không
+ *   · `<html>` cần `suppressHydrationWarning`, vì DOM sẽ mang thuộc tính mà HTML tĩnh không
  *     có. Cờ đó chỉ chặn cảnh báo trên ĐÚNG thẻ `<html>`, không lan xuống cây con — và
  *     `chrome-check.mjs` có 5 ca đòi console sạch tuyệt đối để canh chuyện đó.
  *
- * Chỉ đọc, chỉ đặt một thuộc tính, và nuốt mọi lỗi: trình duyệt chặn localStorage (chế độ riêng
- * tư của Safari) thì trang vẫn chạy bằng bảng sáng chứ không gãy ngay từ thẻ `<head>`.
+ * Chỉ đọc, chỉ đặt thuộc tính, và nuốt mọi lỗi: trình duyệt chặn localStorage (chế độ riêng
+ * tư của Safari) thì trang vẫn chạy bằng bảng sáng và chế độ Cơ bản chứ không gãy ngay từ `<head>`.
  */
 const THEME_BOOT_SCRIPT =
   `try{var p=JSON.parse(localStorage.getItem('${PREFERENCES_STORAGE_KEY}')||'{}');` +
-  `if(p.theme==='dark'){document.documentElement.dataset.theme='dark'}}catch(e){}`;
+  `var d=document.documentElement.dataset;` +
+  `if(p.theme==='dark'){d.theme='dark'}` +
+  `if(p.mode==='advanced'){d.mode='advanced'}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

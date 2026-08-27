@@ -76,16 +76,42 @@
 }
 
 /*
+ * ── Con số đi theo chế độ hiển thị, không cần một byte JS nào ────────────────────────────────
+ *
+ * Ô mang SẴN cả hai badge trong HTML tĩnh; chỗ dưới đây chọn badge nào hiện. Khoá chọn là
+ * `data-mode` trên `<html>`, do `THEME_BOOT_SCRIPT` đặt trước lượt vẽ đầu và `PreferencesProvider`
+ * giữ đồng bộ sau đó. Lý do đầy đủ nằm ở docblock `CategoryGrid.tsx`.
+ *
+ * KHÔNG có thuộc tính nghĩa là **Cơ bản** — khớp `DEFAULT_PREFERENCES.mode`, và cũng là trạng
+ * thái của `out/index.html` lẫn của máy chặn localStorage. Vì vậy điều kiện viết theo hướng
+ * `:not(...)` chứ không liệt kê `[data-mode='basic']`: chỉ liệt kê thì mất hẳn ca mặc định.
+ *
+ * Phải neo vào `html`: `:not([data-mode='advanced'])` để trần khớp gần như mọi tổ tiên.
+ */
+.countBasic,
+.countAdvanced {
+  display: none;
+}
+
+:global(html:not([data-mode='advanced'])) .countBasic {
+  display: inline;
+}
+
+:global(html[data-mode='advanced']) .countAdvanced {
+  display: inline;
+}
+
+/*
  * Nhóm mà chế độ Cơ bản giấu sạch — FR-09.
  *
  * Làm mờ NHẸ thôi (nền lặn xuống, chữ về màu phụ) chứ không hạ tương phản của chính chữ: ô vẫn
  * bấm vào được, nên nó không phải là nút bị khoá. Dấu hiệu phân biệt KHÔNG chỉ nằm ở màu —
  * nhãn "chỉ ở Nâng cao" thay chỗ con số là thứ đọc được cả khi chụp xám hoàn toàn (NFR-USA-06).
+ *
+ * Chỉ áp ở chế độ Cơ bản: sang Nâng cao thì chính nhóm ấy có đủ công thức, nên ô phải trở lại
+ * dáng thường. Không cần luật hoàn nguyên — `.tile` bên trên đã là dáng thường rồi.
  */
-/* `--color-sunken` và `--color-muted` là hai token có thật; hai tên cũ ở đây
-   (`--color-surface-muted`, `--color-ink-muted`) chưa từng được khai, nên ô này thật ra vẫn
-   đang trong suốt và con số vẫn giữ nguyên màu chữ thừa kế. */
-.advancedOnly {
+:global(html:not([data-mode='advanced'])) .basicEmpty {
   background: var(--color-sunken);
   border-style: dashed;
 }
@@ -94,7 +120,7 @@
  * Nhãn "chỉ ở Nâng cao" thay chỗ con số, nên nó bỏ luôn dáng badge: một câu ba chữ nhét trong
  * viên pill nhỏ sẽ chiếm gần trọn ô và đẩy tên nhóm cụt mất.
  */
-.advancedOnly .count {
+:global(html:not([data-mode='advanced'])) .basicEmpty .count {
   padding: 0;
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);

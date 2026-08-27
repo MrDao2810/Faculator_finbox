@@ -435,7 +435,174 @@ try {
     inKhiDaMo.vungIn === 'visible' && inKhiDaMo.tieuDe === 'hidden',
     `vùng in: ${inKhiDaMo.vungIn} · tiêu đề trang: ${inKhiDaMo.tieuDe}`,
   );
+
+  /* ── 0d. Biểu đồ đi vào bản in, và đi kèm bảng màu SÁNG ──────────────────── */
+
+  /*
+   * Trước đợt này bản in ra một khung nét đứt kèm câu "biểu đồ sẽ được bổ sung ở bản sau", dù
+   * màn hình ngay sau lưng đang vẽ hình. Nay `chart-snapshot.ts` chép hình ấy vào vùng in.
+   *
+   * Ba điều chỉ Chrome thật mới kiểm được, và cả ba đều là chỗ từng sai:
+   *
+   * 1. **Bản chép có tới nơi không.** Nó đi qua một `import()` trần rồi một lượt `replaceChildren`
+   *    ngoài tầm React — jsdom chạy được phần ấy, nhưng không chứng minh được nó sống sót cùng
+   *    `next/dynamic` thật của `FormulaChart`.
+   * 2. **Màu.** Đây là lý do phải bật giao diện TỐI trước khi in. Mọi màu trong `chart.module.css`
+   *    đi qua token, mà ở bảng tối `--color-ink` là `#e8edf6` — chữ trắng trên giấy trắng. Khối
+   *    token chép lại ở `.print-region` là thứ chặn điều đó, và không cửa kiểm nào khác thấy nó:
+   *    jsdom không áp CSS, `tokens.test.ts` chỉ đối chiếu được mã màu trong file nguồn.
+   * 3. **Luật `:has()` ẩn câu dự phòng.** Cùng lý do — nó là CSS thuần.
+   *
+   * Hai bản hình đo ở HAI media khác nhau, và đó không phải tiện tay: hình TRÊN TRANG đo ở
+   * `screen`, vì lời khẳng định về nó là lời khẳng định về màn hình; hình TRONG BẢN IN đo ở
+   * `print`, vì đó mới là lúc luật in có hiệu lực. Đo cả hai ở `print` là điều đã làm lần đầu và
+   * nó cho kết quả đánh lừa — Chrome ở chế độ in trả về bảng sáng cho cả hình trên trang, nên
+   * phép so "trang vẫn tối" đỏ dù không có gì sai.
+   */
+  const MAU_CUA = `(goc) => {
+    const ra = new Set();
+    for (const el of goc.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+      ra.add(cs.stroke);
+      ra.add(cs.fill);
+    }
+    return [...ra];
+  }`;
+
   await send('Emulation.setEmulatedMedia', { media: 'screen' });
+  await evaluate(`(() => { document.documentElement.dataset.theme = 'dark'; return true; })()`);
+  await waitFor("document.querySelector('.print-chart-plot > svg')");
+
+  /*
+   * Kéo hình vào tầm nhìn TRƯỚC khi đo, và đây là một cái bẫy đã mất công mới thấy: khối biểu đồ
+   * nằm dưới nếp gấp và mang `content-visibility`, nên Chrome BỎ QUA việc tính lại style cho cả
+   * cây con ấy. `getComputedStyle` lúc đó vẫn trả về `--color-border` mới (biến thừa kế từ `<html>`
+   * nên nó tươi), nhưng `stroke` thì còn là giá trị đã giải cũ — hai con số mâu thuẫn nhau trên
+   * cùng một node. Không kéo vào tầm nhìn thì phép đo này nói dối.
+   */
+  await evaluate(
+    `(() => { document.querySelector('svg[data-chart-svg]')?.scrollIntoView(); return true; })()`,
+  );
+  await new Promise((r) => setTimeout(r, 400));
+
+  const tren = await evaluate(`(() => {
+  const el = document.querySelector('svg[data-chart-svg]');
+  return { co: Boolean(el), mau: el ? (${MAU_CUA})(el) : [] };
+})()`);
+
+  await send('Emulation.setEmulatedMedia', { media: 'print' });
+
+  const hinhIn = await evaluate(`(() => {
+  const inRa = document.querySelector('.print-chart-plot > svg');
+  const note = document.querySelector('.print-chart-note');
+
+  return {
+    co: Boolean(inRa),
+    mau: inRa ? (${MAU_CUA})(inRa) : [],
+    cauDuPhong: note ? getComputedStyle(note).display : null,
+    tuongTac: inRa ? inRa.querySelectorAll('[data-testid$="-hover-capture"]').length : -1,
+  };
+})()`);
+
+  /*
+   * Mã màu của globals.css, dạng Chrome trả về. `--color-accent-vivid` là màu nét đường quét, nên
+   * nó là thứ chắc chắn có mặt trong mọi biểu đồ đường; ba màu tối kia là mực, nét nhấn và chữ mờ.
+   */
+  const SANG_NET = 'rgb(59, 123, 240)'; // --color-accent-vivid bảng sáng (#3b7bf0)
+  const TOI = [
+    'rgb(91, 155, 255)', // --color-accent-vivid (#5b9bff)
+    'rgb(232, 237, 246)', // --color-ink (#e8edf6)
+    'rgb(147, 161, 184)', // --color-muted (#93a1b8)
+    'rgb(49, 61, 82)', // --color-border (#313d52)
+  ];
+
+  check(
+    'bản in mang được hình biểu đồ đang hiện trên trang',
+    hinhIn.co === true,
+    hinhIn.co === true ? 'có <svg> trong vùng in' : 'vùng in vẫn rỗng',
+  );
+
+  const dinhMauToi = TOI.filter((mau) => hinhIn.mau.includes(mau));
+  check(
+    'hình trong bản in dùng bảng SÁNG, dù màn hình đang ở giao diện tối',
+    hinhIn.co === true && dinhMauToi.length === 0 && hinhIn.mau.includes(SANG_NET),
+    dinhMauToi.length > 0
+      ? `dính màu bảng tối: ${dinhMauToi.join(' · ')}`
+      : `${String(hinhIn.mau.length)} màu · nét ${SANG_NET}: ${String(hinhIn.mau.includes(SANG_NET))}`,
+  );
+
+  check(
+    'và hình TRÊN TRANG vẫn theo bảng tối — khối token của vùng in không rò ra ngoài',
+    tren.co === true && TOI.some((mau) => tren.mau.includes(mau)),
+    `màu trên trang: ${tren.mau.filter((m) => m !== 'none' && !m.startsWith('url')).join(' · ')}`,
+  );
+
+  check(
+    'câu dự phòng tự ẩn khi khe đã có hình, và bản chép không mang theo vùng bắt sự kiện',
+    hinhIn.cauDuPhong === 'none' && hinhIn.tuongTac === 0,
+    `câu dự phòng: ${String(hinhIn.cauDuPhong)} · node tương tác còn lại: ${String(hinhIn.tuongTac)}`,
+  );
+
+  await send('Emulation.setEmulatedMedia', { media: 'screen' });
+
+  /* ── 0e. Tấm PNG cũng mang hình, không chỉ bản in ────────────────────────── */
+
+  /*
+   * Đường PNG khác đường in ở chỗ khó nhất: ảnh nạp qua `<img>` là một tài liệu RIÊNG, không thấy
+   * stylesheet của trang, nên `chartSvgUrl()` phải tự gói CSS vào trong file. Nếu bước ấy hỏng thì
+   * `chartImage()` reject, `chartForCard()` nuốt lỗi, và tấm thẻ lặng lẽ quay về khung nét đứt như
+   * cũ — người dùng không thấy lỗi nào, mà cũng không có biểu đồ. Đúng kiểu hỏng mà chỉ số đo bắt
+   * được.
+   *
+   * Cách đo: rình `toBlob` để lấy CHIỀU CAO canvas, rồi xuất hai lần — một lần bật "Kèm biểu đồ",
+   * một lần tắt. Có hình thật thì khung hình cao 420 (trần `CHART_MAX_HEIGHT`), hình hỏng thì rơi
+   * về khung dự phòng cao 260, còn tắt hẳn thì 0. Ba mức cách nhau đủ xa để một ngưỡng phân biệt
+   * được, và không cần giải mã một pixel nào.
+   */
+  await evaluate(`(() => {
+  window.__caoThe = [];
+  const goc = HTMLCanvasElement.prototype.toBlob;
+  HTMLCanvasElement.prototype.toBlob = function (...doiSo) {
+    window.__caoThe.push(this.height);
+    return goc.apply(this, doiSo);
+  };
+  return true;
+})()`);
+
+  /** Bấm một nút theo chữ trên nó, chỉ tìm trong (hoặc ngoài) lớp phủ sheet. */
+  const bam = (chu, trongSheet = true) =>
+    evaluate(`(() => {
+  const nut = [...document.querySelectorAll('button')].filter((b) => ${
+    trongSheet ? 'b.closest("dialog")' : '!b.closest("dialog")'
+  }).find((b) => /${chu}/.test(b.textContent ?? ''));
+  if (!nut) return false;
+  nut.click();
+  return true;
+})()`);
+
+  await bam('^PNG$|PNG');
+  await bam('Xuất PNG');
+  await waitFor('window.__caoThe.length >= 1');
+
+  // Sheet tự đóng sau khi xuất xong — mở lại rồi tắt "Kèm biểu đồ" để có mốc so sánh.
+  await bam('Xuất', false);
+  await evaluate(`(() => {
+  const congTac = [...document.querySelectorAll('[role="switch"]')][0];
+  if (!congTac) return false;
+  congTac.click();
+  return true;
+})()`);
+  await bam('Xuất PNG');
+  await waitFor('window.__caoThe.length >= 2');
+
+  const caoThe = await evaluate('window.__caoThe');
+  const chenh = (caoThe[0] ?? 0) - (caoThe[1] ?? 0);
+
+  check(
+    'tấm PNG nhúng được hình thật, không rơi về khung nét đứt',
+    chenh > 380,
+    `cao khi có hình ${String(caoThe[0])} · khi tắt ${String(caoThe[1])} · chênh ${String(chenh)} (khung dự phòng chỉ chênh ~292)`,
+  );
 
   /* ── 1. Thác nước bóc tách trên màn 360px ────────────────────────────────── */
 
@@ -544,7 +711,14 @@ try {
       return { text: t.textContent, x: +b.x.toFixed(1), right: +(b.x + b.width).toFixed(1) };
     });
   // Nửa đơn vị dung sai: bbox là số thực, chạm đúng mép không phải tràn.
-  return { found: true, w, soNhan: labels.length, tran: labels.filter((l) => l.x < -0.5 || l.right > w + 0.5) };
+  return {
+    found: true,
+    w,
+    soNhan: labels.length,
+    // Mép trái gần nhất — số dự phòng THẬT của lề trái, xem chú thích PAD ở LineChart.tsx.
+    lanTrai: labels.length === 0 ? null : Math.min(...labels.map((l) => l.x)),
+    tran: labels.filter((l) => l.x < -0.5 || l.right > w + 0.5),
+  };
 })()`;
 
   for (const [slug, viSao] of [
@@ -563,7 +737,7 @@ try {
       kq?.found !== true
         ? 'không thấy biểu đồ'
         : kq.tran.length === 0
-          ? `${String(kq.soNhan)} nhãn, khung rộng ${String(kq.w)}`
+          ? `${String(kq.soNhan)} nhãn, khung rộng ${String(kq.w)}, mép trái gần nhất ${String(kq.lanTrai)}`
           : kq.tran.map((l) => `"${l.text}" x=${String(l.x)}..${String(l.right)}`).join(' | '),
     );
   }

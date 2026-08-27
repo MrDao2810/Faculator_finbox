@@ -287,6 +287,25 @@ schedule must break the formula, which catches a declaration the calc never uses
   against `globals.css`. Same reasoning as exports always being Vietnamese while the UI can be
   English: an exported file is a standalone document. `@media print` already hard-coded
   `#000`/`#fff`, so PDF and PNG now agree.
+- **Both export paths now carry the chart, and both do it by _copying the live `<svg>`_** — never by
+  rebuilding one. `src/ui/sheets/chart-snapshot.ts` finds it via the `data-chart-svg={idBase}`
+  attribute that `LineChart`/`WaterfallChart` stamp on their `<svg>` (keyed to `idBase`, so it can
+  never grab the `-full` copy the fullscreen overlay renders), strips the pointer-capture rect and
+  hover trace, and suffixes every `id` with `-xuat` because the copy is the **third** instance in one
+  document and `url(#…)` resolves to the first match. It is loaded through a bare `import()`, exactly
+  like `draw-card` and for the same reason — measured: 0 HTML pages reference its chunk, so First
+  Load JS is untouched. Rebuilding the chart instead would mean importing `@/core/chart` from
+  `ExportSheet`, which `FormulaDetail` imports **statically** — that is the invariant `FormulaChart.tsx`
+  states in capitals. Keeping both copies light follows the bullet above but by two different routes:
+  PDF leans on a 15-token light copy declared on `.print-region` in `globals.css` (pinned by four
+  cases in `tokens.test.ts`, one of which fails when `chart.module.css` starts using a colour the copy
+  lacks), while PNG is light _by construction_ — `chartSvgUrl()` harvests rules from
+  `document.styleSheets` and only ever takes `:root`, never `[data-theme='dark']`. It has to inline
+  them at all because an SVG loaded through `<img>` is a separate document that cannot see the page's
+  stylesheet. Four assertions in `check:chrome` hold the whole chain, and two of them exist because
+  the naive measurement lies: `content-visibility` lets Chrome skip style recalc for the below-the-fold
+  chart (so `getComputedStyle` returns a fresh custom property beside a stale `stroke` — scroll it into
+  view first), and Chrome under `print` media reports the light palette even for the on-page chart.
 - TypeScript is strict with `noUncheckedIndexedAccess` — indexing an array yields `T | undefined`.
 - Every formula is a `FormulaModule` — `spec` (metadata) and `calc` (the maths) in one object, so
   a spec without a calculator is a typecheck error. `runFormula()` in `src/core/calc/` is the only

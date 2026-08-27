@@ -62,6 +62,26 @@ const SVG_HARDCODED_COLOR =
 const VIVID_AS_TEXT =
   /(?:^|[;{\s])(?:-webkit-text-fill-)?color\s*:\s*var\(\s*--color-accent-vivid/m;
 
+/**
+ * `color: transparent` — cách giấu chữ hỏng ở đúng chỗ không ai nghĩ tới.
+ *
+ * Chip "Gán cột" của sheet Dán dữ liệu đặt nó lên một `<select>` nằm phủ kín chip ở dạng
+ * `opacity: 0`. Danh sách lựa chọn bung ra khi bấm được trình duyệt vẽ NGOÀI cây bố cục: nó
+ * không chịu `opacity` — nên vẫn hiện — nhưng KẾ THỪA `color`. Kết quả: nền trắng chữ trắng,
+ * người dùng chỉ đọc được đúng dòng đang rê chuột. Chủ dự án báo lỗi này khi tự thử.
+ *
+ * Chặn cả họ chứ không riêng `<select>`: file CSS Module không biết class của nó gắn vào thẻ
+ * nào, và `opacity: 0` một mình đã đủ giấu chữ ở mọi ca dùng thật của repo này.
+ *
+ * Ngoại lệ hợp lệ có tồn tại — chữ tô gradient qua `-webkit-background-clip: text` là một —
+ * nên đây là danh sách miễn trừ có ghi lý do, đúng nếp `ALLOWED_VARS` bên dưới, chứ không phải
+ * lệnh cấm tuyệt đối. Hiện chưa mục nào cần miễn.
+ */
+const TRANSPARENT_TEXT = /(?:^|[;{\s])(?:-webkit-text-fill-)?color\s*:\s*transparent\s*[;}]/m;
+
+/** File được phép dùng `color: transparent`, kèm lý do. Đường dẫn tính từ `src/`. */
+const TRANSPARENT_TEXT_ALLOWED: ReadonlyMap<string, string> = new Map();
+
 describe('CSS Module chỉ dùng token màu', () => {
   const files = moduleCssFiles();
 
@@ -76,6 +96,33 @@ describe('CSS Module chỉ dùng token màu', () => {
       offenders.map((f) => f.slice(SRC_DIR.length).replace(/\\/g, '/')),
       'xanh rực chỉ dùng cho mảng màu; chữ phải dùng var(--color-accent)',
     ).toEqual([]);
+  });
+
+  it('không file nào giấu chữ bằng color: transparent', () => {
+    const offenders = files
+      .map((file) => ({ file, relative: file.slice(SRC_DIR.length).replace(/\\/g, '/') }))
+      .filter(({ file }) => TRANSPARENT_TEXT.test(readFileSync(file, 'utf8')))
+      .filter(({ relative }) => !TRANSPARENT_TEXT_ALLOWED.has(relative.replace(/^\//, '')));
+
+    expect(
+      offenders.map((o) => o.relative),
+      'danh sách lựa chọn của <select> kế thừa `color` nhưng không chịu `opacity` — ' +
+        'giấu bằng opacity, đừng giấu bằng transparent',
+    ).toEqual([]);
+  });
+
+  it('mọi mục miễn trừ transparent đều còn cần thiết', () => {
+    const stillUses = (relative: string) => {
+      const file = join(SRC_DIR, relative);
+      return files.includes(file) && TRANSPARENT_TEXT.test(readFileSync(file, 'utf8'));
+    };
+
+    for (const [relative, reason] of TRANSPARENT_TEXT_ALLOWED) {
+      expect(
+        stillUses(relative),
+        `${relative} không còn dùng transparent — bỏ khỏi danh sách miễn trừ (${reason})`,
+      ).toBe(true);
+    }
   });
 
   for (const file of files) {
@@ -230,6 +277,66 @@ describe('bảng tối đè đủ token màu của bảng sáng', () => {
 
   it('bảng tối không khai token nào mà bảng sáng không có', () => {
     expect([...dark].filter((name) => !light.has(name))).toEqual([]);
+  });
+});
+
+/**
+ * Vùng in chép lại bảng SÁNG, để bản in không bao giờ ra chữ trắng trên giấy trắng — xem docblock
+ * của `.print-region` trong globals.css.
+ *
+ * Bản chép nào cũng cần người canh, và ca kiểm này canh hai đầu:
+ *
+ * 1. Mã màu chép có đúng bằng `:root` không — đúng cách `draw-card.test.ts` canh `CARD_COLORS`.
+ * 2. Có SÓT token nào biểu đồ đang dùng không. Đây mới là nửa quan trọng: bản chép đủ hôm nay
+ *    không có nghĩa là đủ vào ngày ai đó thêm một màu mới vào `chart.module.css`, và thứ lộ ra
+ *    lúc ấy là một tờ giấy in ra thiếu nét — không ai thấy trong lúc phát triển.
+ */
+describe('vùng in chép đúng bảng sáng', () => {
+  /** Tên biến kèm giá trị, khai trong một khối luật. */
+  function declaredValues(block: string | null): Map<string, string> {
+    if (block === null) return new Map();
+    return new Map(
+      [...block.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/g)].map((match) => [
+        match[1] as string,
+        (match[2] as string).trim(),
+      ]),
+    );
+  }
+
+  const light = declaredValues(cssBlock(GLOBALS_CSS, ':root'));
+  const print = declaredValues(cssBlock(GLOBALS_CSS, '.print-region'));
+
+  const CHART_CSS = readFileSync(
+    fileURLToPath(new URL('./charts/chart.module.css', import.meta.url)),
+    'utf8',
+  );
+
+  it('có khối .print-region khai token trong globals.css', () => {
+    expect(print.size).toBeGreaterThan(0);
+  });
+
+  it('mọi token vùng in chép đều đúng bằng giá trị bảng sáng', () => {
+    const lech = [...print]
+      .filter(([name]) => light.has(name))
+      .filter(([name, value]) => light.get(name) !== value)
+      .map(([name, value]) => `${name}: vùng in ${value}, :root ${String(light.get(name))}`);
+
+    expect(lech, 'chép lại từ :root của globals.css').toEqual([]);
+  });
+
+  it('vùng in không khai token nào bảng sáng không có', () => {
+    expect([...print.keys()].filter((name) => !light.has(name))).toEqual([]);
+  });
+
+  it('mọi token màu chart.module.css dùng đều có trong bản chép của vùng in', () => {
+    const missing = [...usedNames(CHART_CSS)]
+      .filter((name) => name.startsWith('--color-'))
+      .filter((name) => !print.has(name));
+
+    expect(
+      missing,
+      'thêm vào khối .print-region của globals.css, nếu không biểu đồ in ra sẽ mang màu bảng tối',
+    ).toEqual([]);
   });
 });
 

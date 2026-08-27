@@ -456,6 +456,41 @@ a {
  */
 .print-region {
   display: none;
+
+  /*
+   * Bản in luôn dùng BẢNG SÁNG, kể cả khi màn hình đang ở giao diện tối.
+   *
+   * Cần từ khi vùng in mang bản chép của hình biểu đồ (`chart-snapshot.ts`): mọi màu trong
+   * `chart.module.css` đi qua token, mà ở bảng tối `--color-ink` là `#e8edf6` — chữ trắng trên
+   * giấy trắng. Phần chữ của vùng in vốn đã ghim `#000`/`#fff` ở `@media print`, nên trước đợt
+   * này chưa có gì lộ ra.
+   *
+   * Cùng một lẽ với `CARD_COLORS` của `draw-card.ts` và với việc file xuất luôn là tài liệu
+   * tiếng Việt dù giao diện đang tiếng Anh: file rời khỏi màn hình và sống tiếp một mình.
+   *
+   * Đặt Ở ĐÂY chứ không trong `@media print`: vùng này `display: none` trên màn hình nên khai
+   * ngoài không ảnh hưởng gì, và một chỗ khai thì không có hai bản để lệch. Không dùng
+   * `[data-theme='light']` để khỏi phải dựng thêm khối token thứ ba — `contrast.test.ts` bóc
+   * token theo TÊN BỘ CHỌN, và một khối nữa trùng tên là nó bóc nhầm khối.
+   *
+   * Đây là bản CHÉP từ `:root` ngay đầu file; `tokens.test.ts` đối chiếu từng dòng để nó không
+   * lệch âm thầm.
+   */
+  --color-paper: #f4f6fa;
+  --color-surface: #ffffff;
+  --color-ink: #1a2233;
+  --color-ink-soft: #46536b;
+  --color-muted: #58657a;
+  --color-border: #d7dee9;
+  --color-border-strong: #78859a;
+  --color-accent: #1d4ed8;
+  --color-accent-soft: #e3ebfd;
+  --color-accent-vivid: #3b7bf0;
+  --color-focus: #1d4ed8;
+  --color-highlight: #b23c00;
+  --color-warning: #7a5f14;
+  --color-tint-teal: #0f6b6b;
+  --color-tint-violet: #6b3fbf;
 }
 
 @page {
@@ -545,12 +580,39 @@ a {
     margin: 8pt 0;
   }
 
+  /*
+   * Khung biểu đồ trong bản in — từ đợt này nó chứa BẢN CHÉP của hình đang hiện trên trang
+   * (`chart-snapshot.ts`), không còn là một ô trống mang câu hẹn.
+   *
+   * `height` cố định đổi thành `max-height` trên chính `<svg>`: hình giữ tỉ lệ theo `viewBox`,
+   * nên ép chiều cao là ép méo. Thác nước bốn chặng cao gần gấp rưỡi đường quét (đo ở
+   * `check:chrome`: 164 so với 112 đơn vị), nên một con số cứng vừa hình này là cắt cụt hình kia.
+   */
   .print-region .print-chart {
-    height: 45mm;
     margin: 6pt 0;
+    break-inside: avoid;
+  }
+
+  .print-region .print-chart-plot svg {
+    width: 100%;
+    max-height: 70mm;
+  }
+
+  .print-region .print-chart-note {
+    display: block;
     padding: 4pt;
     font-size: 9pt;
     border: 1px dashed #999;
+  }
+
+  /*
+   * Câu dự phòng chỉ hiện khi khe bên cạnh KHÔNG có hình — công thức khai `chartType: 'none'`,
+   * hoặc khối biểu đồ chưa nạp xong. Để CSS quyết định thay vì một state React là có chủ đích:
+   * `window.print()` chặn luồng ngay tại chỗ nên một `setState` gọi ngay trước đó chưa kịp ra
+   * tới DOM. Xem chú thích ở `ExportSheet.tsx`.
+   */
+  .print-region .print-chart:has(.print-chart-plot > svg) .print-chart-note {
+    display: none;
   }
 
   .print-region table {

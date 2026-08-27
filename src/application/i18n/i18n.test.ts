@@ -102,10 +102,12 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
     expect(t('search.noMatch', 'en')).toBe('Nothing found for');
   });
 
-  it('câu tiếng Anh không sót chữ có dấu — trừ hai câu cố ý chứa ví dụ tiếng Việt', () => {
-    // `search.hint` phải nêu ví dụ “Định giá” (đó chính là nội dung của câu), và
-    // `settings.units.scaleHint` gọi tên đơn vị tiền là "đồng".
-    const CO_Y = new Set(['search.hint', 'settings.units.scaleHint']);
+  it('câu tiếng Anh không sót chữ có dấu — trừ ba câu cố ý chứa ví dụ tiếng Việt', () => {
+    // `search.hint` phải nêu ví dụ “Định giá” (đó chính là nội dung của câu),
+    // `search.placeholder` nêu “định giá” làm ví dụ tên công thức — thư viện này là tiếng Việt,
+    // nên ví dụ tên công thức trong câu tiếng Anh vẫn là một cụm tiếng Việt,
+    // và `settings.units.scaleHint` gọi tên đơn vị tiền là "đồng".
+    const CO_Y = new Set(['search.hint', 'search.placeholder', 'settings.units.scaleHint']);
     const chuCoDau = /[À-ʯḀ-ỿ]/u;
     const saiSot = Object.entries(en)
       .filter(([key, text]) => !CO_Y.has(key) && chuCoDau.test(text ?? ''))

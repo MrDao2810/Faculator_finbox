@@ -47,6 +47,22 @@ export interface ChartBodyProps {
   onApplyPoint?: (key: string, value: number) => void;
 }
 
+/**
+ * TẠM ẨN tính năng phóng to — chủ dự án yêu cầu sau buổi tự thử (lỗi 7️⃣).
+ *
+ * Trên điện thoại, nút này không phóng to riêng biểu đồ: `ChartFullscreen` gọi
+ * `requestFullscreen()` trên CẢ tài liệu rồi `orientation.lock('landscape')`, nên máy xoay ngang
+ * mà lớp phủ không nổi lên — bấm xong thấy màn hình quay rồi không có gì xảy ra.
+ *
+ * Bật lại bằng cách đổi hằng này thành `true`. Giữ nguyên `ZoomButton`, `ChartFullscreen` và state
+ * `zoomed` thay vì xoá: yêu cầu là ẩn TẠM, và một dòng bật lại rẻ hơn nhiều so với dựng lại cả lớp
+ * phủ (bẫy nút Back Android, khoá cuộn nền, hậu tố `-full` cho `<pattern id>`).
+ *
+ * Kiểu `boolean` tường minh là cố ý: thiếu nó thì TypeScript thu hẹp về kiểu literal `false` và
+ * mọi nhánh `true` thành mã chết dưới mắt lint.
+ */
+const PHONG_TO_BAT: boolean = false;
+
 export function ChartBody({
   formula,
   inputs,
@@ -207,11 +223,13 @@ export function ChartBody({
         idBase={idBase}
         picker={pickerVoi(idBase)}
         action={
-          <ZoomButton
-            onClick={() => {
-              setZoomed(true);
-            }}
-          />
+          PHONG_TO_BAT ? (
+            <ZoomButton
+              onClick={() => {
+                setZoomed(true);
+              }}
+            />
+          ) : undefined
         }
       >
         {/*
@@ -233,17 +251,19 @@ export function ChartBody({
         )}
       </ChartFrame>
 
-      <ChartFullscreen
-        open={zoomed}
-        onClose={() => {
-          setZoomed(false);
-        }}
-        model={model}
-        idBase={`${idBase}-full`}
-        controls={pickerVoi(`${idBase}-full`)}
-        onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
-        applyHint={applyHint}
-      />
+      {PHONG_TO_BAT ? (
+        <ChartFullscreen
+          open={zoomed}
+          onClose={() => {
+            setZoomed(false);
+          }}
+          model={model}
+          idBase={`${idBase}-full`}
+          controls={pickerVoi(`${idBase}-full`)}
+          onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
+          applyHint={applyHint}
+        />
+      ) : null}
     </>
   );
 }

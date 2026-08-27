@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
+  INPUT_DRAFT_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
@@ -35,7 +36,7 @@ import styles from './SettingsScreen.module.css';
  * liệu thật" cho tới khi được vá cùng đợt cá nhân hoá trang chủ. Nay có ca kiểm quét mọi hằng
  * `'ffb.…'` trong `src/application` để không có lần thứ ba; xem `SettingsScreen.test.tsx`.
  */
-/** Nhãn của một kho. Union chứ không phải `MessageKey` trần — chỉ tám câu này hợp nghĩa ở đây. */
+/** Nhãn của một kho. Union chứ không phải `MessageKey` trần — chỉ chín câu này hợp nghĩa ở đây. */
 type StorageLabelKey =
   | 'data.prefs'
   | 'data.recent'
@@ -43,6 +44,7 @@ type StorageLabelKey =
   | 'data.series'
   | 'data.portfolio'
   | 'data.saved'
+  | 'data.drafts'
   | 'data.tickers'
   | 'data.prices';
 
@@ -57,6 +59,12 @@ const STORAGE_ITEMS: ReadonlyArray<{
   { key: PRICE_SERIES_KEY, labelKey: 'data.series' },
   { key: PORTFOLIO_KEY, labelKey: 'data.portfolio' },
   { key: SAVED_CALCS_KEY, labelKey: 'data.saved' },
+  /*
+   * Bản nháp ô nhập đứng NGAY SAU phép tính đã lưu, vì người dùng dễ nhầm hai thứ này với nhau.
+   * Khác nhau ở chỗ chủ động: "Phép tính đã lưu" là thứ họ tự bấm nút lưu và tự đặt tên; kho này
+   * ghi lặng lẽ mỗi lần họ gõ, chỉ để số không bốc hơi khi rời màn, và tự hết hạn sau bảy ngày.
+   */
+  { key: INPUT_DRAFT_KEY, labelKey: 'data.drafts' },
   // Hai kho tạm của tab Danh mục. Xoá chỉ mất bộ nhớ đệm, lần mở sau tự lấy lại từ nguồn.
   { key: TICKER_LIST_KEY, labelKey: 'data.tickers' },
   { key: PRICE_CACHE_KEY, labelKey: 'data.prices' },

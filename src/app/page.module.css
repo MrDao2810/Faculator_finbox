@@ -138,3 +138,26 @@
   /* Tên đầy đủ có thể dài hơn nửa bề ngang ở 360px — cho xuống dòng chứ đừng tràn. */
   overflow-wrap: anywhere;
 }
+
+/*
+ * ── Con số trong dòng tiêu đề đi theo chế độ hiển thị ────────────────────────────────────────
+ *
+ * Cùng cơ chế với hai badge trên ô nhóm: cả hai con số nằm sẵn trong HTML tĩnh, `data-mode` trên
+ * `<html>` chọn con số nào hiện. Lý do đầy đủ ở docblock `CategoryGrid.tsx`.
+ *
+ * Không có thuộc tính nghĩa là **Cơ bản** (`DEFAULT_PREFERENCES.mode`), nên điều kiện viết theo
+ * hướng `:not()` — liệt kê `[data-mode='basic']` là mất hẳn ca mặc định, tức là mất `out/index.html`
+ * và mất cả máy chặn localStorage.
+ */
+.countBasic,
+.countAdvanced {
+  display: none;
+}
+
+:global(html:not([data-mode='advanced'])) .countBasic {
+  display: inline;
+}
+
+:global(html[data-mode='advanced']) .countAdvanced {
+  display: inline;
+}

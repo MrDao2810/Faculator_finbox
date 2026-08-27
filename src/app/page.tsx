@@ -3,12 +3,15 @@ import Link from 'next/link';
 import {
   CATEGORIES,
   FORMULAS,
+  FORMULA_SUMMARIES,
   ROUTES,
   categoriesOf,
   createRegistry,
   expectedCountOf,
   featuredFormulas,
+  formulasForLevel,
 } from '@/application';
+import type { Category } from '@/application';
 import { CategoryGrid, FormulaCard } from '@/ui/browse';
 import { T } from '@/ui/i18n/T';
 
@@ -36,6 +39,44 @@ const REGISTRY = createRegistry(FORMULAS);
 const FEATURED = featuredFormulas(REGISTRY);
 
 const TOTAL_EXPECTED = CATEGORIES.reduce((sum, c) => sum + c.expectedCount, 0);
+
+/**
+ * Số công thức xem được ở chế độ **Cơ bản**, theo nhóm — dựng một lần lúc build.
+ *
+ * Chế độ Cơ bản với tới 79 / 111 công thức, nên ở chế độ ấy mọi con số `expectedCount` trên màn
+ * này đều nói quá. Cả hai con số được dựng sẵn vào HTML và CSS chọn theo `data-mode` — lý do
+ * đầy đủ ở docblock `CategoryGrid`, và chính `formulasForLevel()` là hàm màn danh sách dùng để
+ * cắt bộ công thức, nên hai màn không thể lệch định nghĩa "xem được".
+ */
+const BASIC_COUNTS: ReadonlyMap<string, number> = (() => {
+  const counts = new Map<string, number>(CATEGORIES.map((c) => [c.id, 0]));
+  for (const formula of formulasForLevel(FORMULA_SUMMARIES, 'basic')) {
+    counts.set(formula.categoryId, (counts.get(formula.categoryId) ?? 0) + 1);
+  }
+  return counts;
+})();
+
+/** Tổng số xem được ở chế độ Cơ bản, cho cả thư viện hoặc một mảng. */
+function basicCountOf(segment?: Category['segment']): number {
+  return CATEGORIES.filter((c) => segment === undefined || c.segment === segment).reduce(
+    (sum, c) => sum + (BASIC_COUNTS.get(c.id) ?? 0),
+    0,
+  );
+}
+
+/**
+ * Cặp con số "Cơ bản / Nâng cao" đứng trong một dòng tiêu đề.
+ *
+ * Cùng cơ chế với hai badge trên ô nhóm, chỉ khác chỗ đặt — xem `page.module.css`.
+ */
+function ModeCount({ basic, advanced }: { basic: number; advanced: number }) {
+  return (
+    <>
+      <span className={styles.countBasic}>{basic}</span>
+      <span className={styles.countAdvanced}>{advanced}</span>
+    </>
+  );
+}
 
 export default function Home() {
   return (
@@ -114,18 +155,22 @@ export default function Home() {
         {/* ── Duyệt theo nhóm — FR-01 ──────────────────────────────────────── */}
         <section className={styles.block} aria-labelledby="home-browse">
           <h2 className={styles.blockTitle} id="home-browse">
-            <T k="home.browse.title" /> · {TOTAL_EXPECTED} <T k="home.browse.unit" />
+            <T k="home.browse.title" /> ·{' '}
+            <ModeCount basic={basicCountOf()} advanced={TOTAL_EXPECTED} />{' '}
+            <T k="home.browse.unit" />
           </h2>
 
           <h3 className={styles.segment}>
-            <T k="home.segment.stock" /> · {expectedCountOf('stock')}
+            <T k="home.segment.stock" /> ·{' '}
+            <ModeCount basic={basicCountOf('stock')} advanced={expectedCountOf('stock')} />
           </h3>
-          <CategoryGrid categories={categoriesOf('stock')} />
+          <CategoryGrid categories={categoriesOf('stock')} basicCounts={BASIC_COUNTS} />
 
           <h3 className={styles.segment}>
-            <T k="home.segment.personal" /> · {expectedCountOf('personal')}
+            <T k="home.segment.personal" /> ·{' '}
+            <ModeCount basic={basicCountOf('personal')} advanced={expectedCountOf('personal')} />
           </h3>
-          <CategoryGrid categories={categoriesOf('personal')} />
+          <CategoryGrid categories={categoriesOf('personal')} basicCounts={BASIC_COUNTS} />
         </section>
 
         {/* ── Công cụ — lối vào những màn không có mục ở thanh dưới ─────────── */}

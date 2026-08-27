@@ -68,10 +68,36 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): st
 }
 
 /**
+ * Chiều cao tối đa của hình biểu đồ trên thẻ.
+ *
+ * Thác nước bốn chặng cao hơn đường quét khá nhiều, và tấm thẻ vốn đã dài (tiêu đề, kết quả, bảng
+ * đầu vào, khung miễn trừ). Trần này giữ hình không nuốt cả thẻ; hình cao hơn thì thu nhỏ theo tỉ
+ * lệ chứ không cắt.
+ */
+const CHART_MAX_HEIGHT = 420;
+
+/** Khổ hình sau khi thu vừa bề ngang trong lề, giữ nguyên tỉ lệ. */
+function fitChart(chart: HTMLImageElement, maxWidth: number): { w: number; h: number } {
+  const w0 = chart.naturalWidth;
+  const h0 = chart.naturalHeight;
+  if (w0 <= 0 || h0 <= 0) return { w: maxWidth, h: 260 };
+
+  const scale = Math.min(maxWidth / w0, CHART_MAX_HEIGHT / h0);
+  return { w: Math.round(w0 * scale), h: Math.round(h0 * scale) };
+}
+
+/**
  * Vẽ thẻ chia sẻ và trả về canvas.
  * Đo trước rồi mới vẽ nên chiều cao vừa khít nội dung, không thừa khoảng trắng ở đáy.
+ *
+ * `chart` là hình biểu đồ ĐÃ NẠP XONG — hàm này đồng bộ nên không tự nạp được, và người gọi
+ * (`downloadCardPng`) là chỗ duy nhất biết chờ. Vắng nó thì chỗ ấy là khung nét đứt kèm câu nói
+ * rõ vì sao trống, chứ không phải một mảng trắng không giải thích.
  */
-export function drawExportCard(content: ExportContent): HTMLCanvasElement {
+export function drawExportCard(
+  content: ExportContent,
+  chart?: HTMLImageElement | null,
+): HTMLCanvasElement {
   const { paper, ink, inkSoft, muted, accent, border, warnBg, warnInk } = CARD_COLORS;
 
   const sans = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
@@ -94,7 +120,9 @@ export function drawExportCard(content: ExportContent): HTMLCanvasElement {
     content.draftNote === undefined ? [] : wrap(probe, content.draftNote, inner - 48);
 
   const rows = content.inputs.length;
-  const chartBox = content.includeChart ? 260 : 0;
+  const chartFit =
+    content.includeChart && chart !== undefined && chart !== null ? fitChart(chart, inner) : null;
+  const chartBox = content.includeChart ? (chartFit?.h ?? 260) : 0;
 
   const height =
     PADDING +
@@ -146,21 +174,26 @@ export function drawExportCard(content: ExportContent): HTMLCanvasElement {
   }
 
   if (chartBox > 0) {
-    ctx.strokeStyle = border;
-    ctx.setLineDash([10, 8]);
-    ctx.strokeRect(PADDING, y, inner, chartBox);
-    ctx.setLineDash([]);
+    if (chartFit !== null && chart !== undefined && chart !== null) {
+      // Căn giữa: hình chạm trần chiều cao sẽ hẹp hơn bề ngang trong lề, và lệch trái trông như lỗi.
+      ctx.drawImage(chart, PADDING + (inner - chartFit.w) / 2, y, chartFit.w, chartFit.h);
+    } else {
+      ctx.strokeStyle = border;
+      ctx.setLineDash([10, 8]);
+      ctx.strokeRect(PADDING, y, inner, chartBox);
+      ctx.setLineDash([]);
 
-    ctx.fillStyle = muted;
-    ctx.font = `400 26px ${sans}`;
-    /*
-     * Cùng câu với vùng in PDF, lấy từ i18n chứ không viết thẳng.
-     *
-     * Trước đợt này chỗ này in "Biểu đồ — gói WBS 3.3" — sổ sách kế hoạch nội bộ đi thẳng vào
-     * tấm PNG người dùng chia sẻ ra ngoài. Đợt 14 đã dọn đường PDF nhưng bỏ sót đường PNG, và
-     * ca kiểm chặn /WBS|nhánh \d|gói \d/ chỉ soi màn chi tiết nên không với tới Canvas.
-     */
-    ctx.fillText(t('export.chartPending'), PADDING + 24, y + 24);
+      ctx.fillStyle = muted;
+      ctx.font = `400 26px ${sans}`;
+      /*
+       * Cùng câu với vùng in PDF, lấy từ i18n chứ không viết thẳng.
+       *
+       * Trước đợt này chỗ này in "Biểu đồ — gói WBS 3.3" — sổ sách kế hoạch nội bộ đi thẳng vào
+       * tấm PNG người dùng chia sẻ ra ngoài. Đợt 14 đã dọn đường PDF nhưng bỏ sót đường PNG, và
+       * ca kiểm chặn /WBS|nhánh \d|gói \d/ chỉ soi màn chi tiết nên không với tới Canvas.
+       */
+      ctx.fillText(t('export.chartNone'), PADDING + 24, y + 24);
+    }
     y += chartBox + 32;
   }
 
@@ -213,8 +246,12 @@ export function drawExportCard(content: ExportContent): HTMLCanvasElement {
 }
 
 /** Tải tấm thẻ về máy. Không có backend nên mọi thứ nằm trọn trên trình duyệt (NFR-SEC-01). */
-export async function downloadCardPng(content: ExportContent, fileName: string): Promise<void> {
-  const canvas = drawExportCard(content);
+export async function downloadCardPng(
+  content: ExportContent,
+  fileName: string,
+  chart?: HTMLImageElement | null,
+): Promise<void> {
+  const canvas = drawExportCard(content, chart);
 
   const blob = await new Promise<Blob | null>((resolve) => {
     canvas.toBlob(resolve, 'image/png');

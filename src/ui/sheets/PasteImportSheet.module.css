@@ -130,6 +130,19 @@
  * <select> thật nằm phủ kín chip nhưng trong suốt: giữ nguyên bánh xe chọn của hệ điều hành,
  * bàn phím và trình đọc màn hình, mà vẫn được hình dáng chip của bản thiết kế.
  * Cao hơn phần nhìn thấy để trùng đúng vùng chạm 44px của lớp ::after.
+ *
+ * ── `color` PHẢI là một màu thật, tuyệt đối không `transparent` ──────────────────────────────
+ *
+ * Danh sách lựa chọn bung ra khi bấm được trình duyệt vẽ NGOÀI cây bố cục của trang. Nó không
+ * chịu `opacity` của thẻ — đó là lý do thẻ giấu đi rồi mà danh sách vẫn hiện — nhưng nó KẾ THỪA
+ * `color`. Đặt `transparent` ở đây là chữ trong danh sách thành trong suốt: nền trắng chữ trắng,
+ * chỉ đọc được đúng dòng đang rê chuột vì lúc ấy hệ điều hành tự tô nền chọn.
+ *
+ * `opacity: 0` một mình đã đủ giấu phần chữ của thẻ, nên không cần `transparent` để làm gì cả.
+ *
+ * Cũng KHÔNG đặt `background` cho `option`: `globals.css` khai `color-scheme` ở cả hai bảng màu,
+ * nên trình duyệt tự sơn nền danh sách theo đúng chủ đề. Ghi đè nền ở đây là giành việc của nó
+ * rồi sai ở bảng màu còn lại.
  */
 .chipSelect {
   position: absolute;
@@ -145,7 +158,7 @@
 
   font-family: inherit;
   font-size: var(--text-base); /* < 16px là iOS Safari tự phóng to trang khi chạm vào */
-  color: transparent;
+  color: var(--color-ink);
 
   background: transparent;
   opacity: 0;

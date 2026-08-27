@@ -112,6 +112,9 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 4.x   | Ba tín hiệu cho lối bấm-áp-dụng trên biểu đồ                 | —       | Xong phần code — xem mục "Ba tín hiệu cho lối…"                |
 | 4.x   | Mở biểu đồ cho nhiều chuỗi — nền cho SMA/Bollinger/MACD      | —       | Xong phần code — xem mục "Mở biểu đồ cho nhiều chuỗi"          |
 | 4.x   | SMA vẽ kèm đường giá đóng cửa — đợt nối đầu tiên             | —       | Xong phần code — xem mục "SMA vẽ kèm đường giá"                |
+| —     | Ba cách sắp xếp mới ở màn danh sách — 3 loại thành 6         | —       | Xong — xem mục "Ba cách sắp xếp mới"                           |
+| —     | Đợt sửa lỗi sau buổi tự thử — 6 trên 10 lỗi đã vá            | —       | Xong 6/10 — xem mục "Đợt sửa lỗi sau buổi tự thử"              |
+| 2.5.3 | Biểu đồ đi vào file xuất PDF và PNG (lỗi 8)                  | —       | Xong — xem mục "8️⃣ Xuất biểu đồ"                               |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -119,6 +122,270 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Đợt sửa lỗi sau buổi tự thử của chủ dự án — 10 lỗi được báo
+
+**Trạng thái:** xong 6️⃣, 🔟, 4️⃣, 1️⃣+5️⃣, 8️⃣ và 7️⃣. `npm run check` xanh (**2.049 ca đạt, 23 hoãn,
+84 file**). Bốn lệnh cần bản build đã chạy đủ — xem mục "Số đo trên bản build thật".
+2️⃣ và 9️⃣ chủ dự án đã tự sửa. **Chỉ còn 3️⃣ chờ repro.**
+
+### Phân loại 10 lỗi
+
+| #   | Lỗi                                         | Kết luận                                         |
+| --- | ------------------------------------------- | ------------------------------------------------ |
+| 1️⃣  | Mất số đã nhập khi mở Bảng dữ liệu rồi Back | **Xong** — cùng gốc với 5️⃣                       |
+| 2️⃣  | Tìm mã lệch giữa Nạp mẫu và Đổi mã          | Đã sửa ở đợt trước, bỏ qua                       |
+| 3️⃣  | Validate số âm / số 0 ngược logic           | Chờ repro; đã tìm ra một bất nhất thật, xem dưới |
+| 4️⃣  | Trang chủ luôn hiện 111 bất kể chế độ       | **Xong**                                         |
+| 5️⃣  | "Về số của ví dụ" rồi Back ra số khác       | **Xong** — cùng gốc với 1️⃣                       |
+| 6️⃣  | Dropdown "Gán cột" chữ trắng nền trắng      | **Xong**                                         |
+| 7️⃣  | Phóng to lỗi                                | **Xong** — chủ dự án chốt ẩn tạm tính năng       |
+| 8️⃣  | Xuất PDF/PNG thiếu biểu đồ                  | **Xong**                                         |
+| 9️⃣  | Giá trị trên biểu đồ lỗi responsive         | Chủ dự án đã tự sửa, bỏ qua                      |
+| 🔟  | Watermark ô tìm thiếu dấu                   | **Xong** — chủ dự án chốt đổi thành có dấu       |
+
+### 6️⃣ Chữ trắng trên nền trắng ở dropdown "Gán cột"
+
+`PasteImportSheet.module.css` đặt `color: transparent` lên `.chipSelect` — thẻ `<select>` nằm
+phủ kín chip ở dạng `opacity: 0`. Danh sách lựa chọn bung ra được trình duyệt vẽ **ngoài** cây bố
+cục: nó không chịu `opacity` (nên vẫn hiện) nhưng **kế thừa `color`** (nên chữ trong suốt). Chỉ
+đọc được dòng đang rê chuột, vì lúc ấy hệ điều hành tự tô nền chọn.
+
+`opacity: 0` một mình đã đủ giấu chữ của thẻ, nên `color: transparent` vừa thừa vừa gây lỗi. Đổi
+thành `var(--color-ink)`. **Không** đặt `background` cho `option`: `globals.css` khai `color-scheme`
+ở cả hai bảng màu nên trình duyệt tự sơn nền danh sách theo đúng chủ đề.
+
+Ca kiểm mới ở `tokens.test.ts`: không CSS Module nào được giấu chữ bằng `color: transparent`, kèm
+`TRANSPARENT_TEXT_ALLOWED` (hiện rỗng) để ngoại lệ hợp lệ về sau phải ghi lý do. Regex đã thử tay:
+bắt bản cũ, bỏ qua bản mới, không nhầm `background-color` / `border-color`.
+
+### 🔟 Watermark ô tìm
+
+`'search.placeholder'` viết "dinh gia" không dấu là **cố ý** — quảng cáo NFR-USA-03. Chủ dự án đọc
+ra thành lỗi chính tả, tức nó không làm được việc mình sinh ra để làm; watermark cũng không phải
+chỗ giải thích vì nó biến mất ngay ký tự đầu tiên. Đổi thành "định giá".
+
+Thông điệp không mất: `search.hint` ngay bên dưới đã nói nguyên câu ("Gõ không dấu vẫn ra đúng:
+'dinh gia' ra 'Định giá'…") và hiện đúng lúc cần — khi tìm không thấy gì.
+
+`i18n.test.ts` có cửa gác "câu tiếng Anh không sót chữ có dấu"; `search.placeholder` vào danh sách
+miễn trừ cùng `search.hint`, vì ví dụ tên công thức trong câu tiếng Anh vẫn là một cụm tiếng Việt.
+
+### 4️⃣ Số ở trang chủ đi theo chế độ hiển thị
+
+Chế độ Cơ bản với tới 79/111 công thức, mà trang chủ in `expectedCount` nên luôn nói 111 — kể cả
+với người **mở lần đầu**, vì `DEFAULT_PREFERENCES.mode` là `'basic'`. Prop `counts` của
+`CategoryGrid` đã có sẵn cho đúng việc này nhưng **chưa chỗ nào truyền vào** — mã chết.
+
+Khó ở chỗ `page.tsx` là server component còn chế độ nằm trong `localStorage`. Ba đường, chọn đường
+thứ ba:
+
+1. Biến `CategoryGrid` thành client component — hỏng ngay, `page.tsx` ghi rõ khối này phải do
+   server dựng để không lọt vào gói máy khách (NFR-PER-04).
+2. Bọc client island đọc `usePreferences()` — chạy được, nhưng lượt vẽ đầu là 111 rồi mới nhảy về 79. Đúng loại nháy mà `THEME_BOOT_SCRIPT` sinh ra để chặn.
+3. **Dựng sẵn cả hai con số, CSS chọn theo `data-mode` trên `<html>`** — 0 byte JS, không nháy,
+   đúng nếp `ThemeSwitch` (giữ cả hai nhánh trong DOM để CSS quyết).
+
+Đã đổi: `CategoryGrid.tsx` (prop `counts` → `basicCounts`, dựng hai badge), `CategoryGrid.module.css`
+(luật chọn theo `data-mode`), `page.tsx` (`BASIC_COUNTS` tính lúc build bằng chính `formulasForLevel()`
+mà màn danh sách dùng, thêm `<ModeCount>` cho ba dòng tiêu đề), `page.module.css`,
+`layout.tsx` (script khởi động đặt thêm `data-mode` — một lượt đọc `localStorage`, hai thuộc tính),
+`preferences-context.tsx` (effect giữ `data-mode` đồng bộ sau hydrate, nếu không đổi chế độ ở màn
+Cài đặt rồi về trang chủ thì số đứng im tới lần tải cứng kế).
+
+**Không có thuộc tính = Cơ bản**, khớp mặc định. Vì vậy mọi luật viết theo hướng
+`:not([data-mode='advanced'])` — liệt kê `[data-mode='basic']` là mất hẳn ca mặc định, tức mất
+`out/index.html` lẫn mọi máy chặn localStorage. Có ca kiểm quét CSS gác đúng chiều này.
+
+Ca kiểm `CategoryGrid.test.tsx` viết lại: đọc TỪNG THẺ chứ không `textContent` cả ô, vì jsdom không
+áp CSS Module nên nó thấy cả hai con số. Trên trình duyệt thật `display: none` gỡ luôn khỏi cây khả
+truy cập nên trình đọc màn hình chỉ gặp một số.
+
+> **Va chạm cần chủ dự án quyết.** `showsModeToggle()` trong `routes.ts` chỉ bày nút Cơ bản/Nâng cao
+> ở màn danh sách, và lý do ghi trong docblock là một **số đo**: "bấm đổi chế độ thì trang chủ lúc
+> nhàn không đổi MỘT ký tự nào". Sau đợt này câu đó **không còn đúng** — trang chủ đổi 4 con số.
+> Có nên trả nút về thanh trên ở trang chủ hay không là quyết định riêng, chưa làm.
+
+### 3️⃣ Chưa đủ thông tin, nhưng đã tìm ra một bất nhất thật
+
+Hai ô nhập hành xử khác nhau với cùng một số ngoài miền:
+
+- `NumberInput` (khối Số liệu) — hiện `! min 0`, **không** sửa số, chỉ kẹp lúc rời ô.
+- `InlineNumber` (khối Ví dụ) — **âm thầm kẹp** qua `commitValue()`, không báo một chữ nào.
+
+Còn "nhập 0 không báo lỗi" thì đang **đúng thiết kế**: 94 biến khai `min: 0` nên 0 hợp lệ ở ô nhập,
+việc chia cho 0 do khối Kết quả cảnh báo (FR-06). Chuỗi "#0" không tìm thấy ở đâu trong mã — cần
+biết công thức nào, ô nào, gõ số gì.
+
+### 1️⃣+5️⃣ Giữ số đã gõ khi rời màn — một gốc, hai triệu chứng
+
+`FormulaDetail` giữ `inputs` bằng `useState` thuần. Nút "Mở bảng dữ liệu →" là `<Link>` thật nên
+component tháo và số mất sạch. Tệ hơn: nó mất **không đều** — mã đang chọn nằm ở `sessionStorage`
+nên nó sống qua cú điều hướng rồi tự nạp lại số của mã. Người dùng quay lại gặp một bộ số thứ ba,
+không phải mặc định cũng không phải thứ họ để lại. Đó chính là 5️⃣.
+
+Kho mới `src/application/input-draft-store.ts`, khuôn theo `price-cache-store.ts`. Chủ dự án chốt
+**`localStorage`** (đề xuất ban đầu là `sessionStorage`), nên phải trả kèm hai thứ và đã trả: hạn
+dùng 7 ngày — cùng mốc `PRICE_CACHE_TTL_MS`, vì một bộ số của tháng trước bày ra như vừa gõ xong là
+đúng loại "số sai mà trông có lý" FR-06 chặn — và trần `MAX_DRAFTS = 40`, đuổi mục cũ nhất.
+
+Thứ ba KHÔNG phải trả vì màn đã có sẵn: `ExampleBlock` bày "Ví dụ gốc cho: …" kèm nút "Về số của
+ví dụ" ngay khi bộ số lệch khỏi ví dụ — tức mỗi lần một bản nháp được khôi phục. Đừng gỡ dòng ấy.
+
+**Thứ tự ưu tiên khi mở trang:** `?luu=` > bản nháp > `?ma=`. Chỗ tinh tế: `?ma=` nạp **bất đồng
+bộ** nên nó về sau và đè lên bản nháp. Đúng khi là mã khác — bấm ƒ trên HPG là đòi số của HPG. Sai
+khi cùng mã. Nên bản nháp cất kèm **mã lúc ghi** (`InputDraft.code`), và nhánh `?ma=` áp lại bản
+nháp sau `applyPreset()` chỉ khi trùng mã. Nút "Đổi mã" đi nhánh khác và cố ý không có đoạn này.
+
+**Chỉ ghi khi người dùng thật sự chạm số liệu** (`editedRef` bật trong `setValue()`), cùng lý lẽ
+`recordedRef`: lấy "ô khác mặc định" làm tín hiệu thì mở 40 trang từ Google là kho đầy 40 bản nháp
+mà chẳng ai gõ chữ số nào. Cờ là `useRef` chứ không `useState` — `setValue` bật cờ rồi gọi
+`setInputs` ngay trong cùng lượt sự kiện, state thì tới lượt render sau mới đổi và effect ghi sẽ bỏ
+lỡ đúng lần sửa đầu. Effect bám `inputs` chứ không ghi thẳng trong `setValue`, vì `setInputs` nhận
+hàm cập nhật nên bộ số mới chỉ tồn tại bên trong hàm ấy.
+
+`clearTicker()` xoá luôn bản nháp và hạ `editedRef` — bắt buộc, không phải dọn cho gọn: để lại thì
+bộ số vừa bị bỏ quay về ngay lần mở kế, màn hình cãi lại thao tác người dùng vừa làm.
+
+Cửa gác LDR-04 ở `SettingsScreen.test.tsx` bắt ngay kho mới chưa có nút xoá → thêm dòng
+`data.drafts` ("Số đang gõ dở") vào `STORAGE_ITEMS`, đứng ngay sau "Phép tính đã lưu" vì người dùng
+dễ nhầm hai thứ: kho kia là thứ họ chủ động bấm lưu và đặt tên, kho này ghi lặng lẽ và tự hết hạn.
+
+Test: 23 ca ở `input-draft-store.test.ts` + 9 ca tích hợp ở `FormulaDetail.test.tsx` (giữ số qua
+lượt dựng lại · chỉ ghi khi thật sự gõ · mỗi công thức một bản nháp · cùng mã thì bản nháp thắng
+`?ma=` · khác mã thì mã thắng · `?luu=` vẫn thắng · bỏ mã thì xoá · kho hỏng không sập · "Về số của
+ví dụ" cũng được giữ).
+
+### 8️⃣ Xuất biểu đồ — XONG, cả PDF lẫn PNG
+
+Lần thử đầu đi theo hướng "dựng lại biểu đồ trong vùng in" và **đã dừng**, vì ba chỗ chặn: nhận
+`ChartModel` rồi tự vẽ là kéo cả động cơ biểu đồ vào gói cơ sở của 111 trang (`ExportSheet` được
+`FormulaDetail` import TĨNH, còn `FormulaChart.tsx` cấm điều đó bằng một bất biến viết hoa);
+`ChartBody` mang theo ô chọn trục, nút phóng to và dòng gợi ý nên nhét nguyên vào vùng in là in
+một cái `<select>` lên giấy; và `draw-card.ts` ghim `CARD_COLORS` ở bảng sáng với
+`draw-card.test.ts` chặn hẳn `getComputedStyle`.
+
+**Hướng đi đúng hoá ra là CHÉP NODE, không dựng lại.** Hình đã nằm sẵn trong DOM; chép nó thì
+chỗ này chỉ cần biết tới DOM, không cần biết biểu đồ là gì — cả ba chỗ chặn tan hết, và file xuất
+mang đúng hình người dùng đang nhìn (trục họ vừa chọn, mã họ vừa nạp, dấu "giá trị hiện tại" ở
+đúng chỗ) thay vì một bản dựng lại có thể lệch.
+
+Module mới `src/ui/sheets/chart-snapshot.ts` (2,2 kB thô), nạp bằng `import()` **trần** như
+`draw-card` nên chunk của nó không bị Next ghi vào HTML — đo được: **0 trang HTML nhắc tới nó**.
+
+| Bước         | Cách làm                                                                                                                                                                                                                                                              |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tìm hình     | `LineChart`/`WaterfallChart` gắn `data-chart-svg={idBase}` lên `<svg>`. Hỏi theo `idBase` nên luôn lấy bản trên trang, không lấy bản `-full` của màn phóng to                                                                                                         |
+| Dọn          | Bỏ vùng bắt sự kiện và vệt dò; GIỮ dấu "giá trị hiện tại" — nó là con số công thức đang trả về                                                                                                                                                                        |
+| Đổi tên `id` | `<pattern>` và `<linearGradient>` được trỏ bằng `url(#…)`, mà `id` phải duy nhất trong CẢ tài liệu. Bản chép là bản THỨ BA, nên mọi `id` thêm hậu tố `-xuat` và mọi `url(#…)` sửa theo                                                                                |
+| PDF          | Đổ thẳng vào `<div class="print-chart-plot">` trong vùng in. Cùng tài liệu nên CSS Module vẫn áp như thường                                                                                                                                                           |
+| PNG          | Ảnh nạp qua `<img>` là tài liệu RIÊNG, không thấy stylesheet trang — nên `chartSvgUrl()` bốc luật từ `document.styleSheets` (những luật nhắc tới lớp bản chép đang dùng, cộng nguyên khối `:root`) nhét vào một `<style>` bên trong SVG, rồi serialise thành data URL |
+
+**Bảng màu là chỗ suýt hỏng.** Mọi màu của `chart.module.css` đi qua token, mà bảng tối có
+`--color-ink: #e8edf6` — chữ trắng trên giấy trắng. Hai đường xuất file chặn theo hai cách, và
+cả hai đều "sáng theo cấu tạo" chứ không theo một cờ ai đó phải nhớ bật:
+
+- **PDF**: `.print-region` trong globals.css chép lại 15 token màu của bảng sáng. Bản chép nào
+  cũng cần người canh → `tokens.test.ts` thêm 4 ca: từng mã màu phải bằng `:root`, không được
+  khai token lạ, và **mọi `--color-*` mà `chart.module.css` dùng đều phải có mặt** — nửa sau mới
+  là nửa quan trọng, vì nó bắt được cái màu mới ai đó thêm vào ngày mai.
+- **PNG**: khối `[data-theme='dark']` không phải `:root` nên không bao giờ được bốc.
+
+Câu `export.chartPending` ("Biểu đồ sẽ được bổ sung ở bản sau") **xoá khỏi cả hai từ điển** — lời
+hẹn ấy nay đã sai. Thay bằng `export.chartNone` ("Công thức này không có biểu đồ."), dùng chung
+cho vùng in và tấm PNG. Việc ẩn nó do CSS lo (`.print-chart:has(.print-chart-plot > svg)`) chứ
+không do React: `window.print()` chặn luồng ngay tại chỗ nên một `setState` gọi ngay trước đó
+chưa kịp ra tới DOM.
+
+Test: 11 ca ở `chart-snapshot.test.ts` + 4 ca tích hợp ở `ExportSheet.test.tsx` + **5 phép đo
+Chrome thật** (xem mục dưới) — jsdom không áp CSS nên nó không chứng minh được gì về màu.
+
+### Nới vùng vẽ của biểu đồ sang trái
+
+Chủ dự án đã tự thu ngắn nhãn số (lỗi 9️⃣), nên lề trái 46 đơn vị của `LineChart` thành chỗ trống
+thừa — nó được đặt từ thời nhãn trục Y còn dài. `buildAxis()` nay ép nhãn xuống tối đa
+`MAX_TICK_CHARS_Y = 6` ký tự, nên **PAD.left 46 → 36**: vùng vẽ rộng thêm 10 đơn vị (+3,8%).
+
+Chỉ nới lề TRÁI. Ba hướng còn lại đã hỏi và chủ dự án không chọn: hình cao hơn (viewBox 200 → 240),
+thêm nhãn trục X (2 → 4 — đợt 12 chốt 2 nhãn có chủ đích), bớt lề phải/lề dưới.
+
+Không ca kiểm nào phải sửa: mọi ca đọc `CHART_GEOMETRY.PLOT` động chứ không viết cứng con số.
+
+Cửa giữ lề này là bốn phép đo "không nhãn nào tràn khỏi viewBox" ở `check:chrome` — chúng quét mọi
+thẻ `<text>` và đỏ khi `x < -0,5`. Nay in thêm **mép trái gần nhất** của từng hình, để số dự phòng
+là con số đọc được chứ không phải một niềm tin: `ev` 54,4 · `lich-tra-no` 18,1 · `lai-kep` 13,9 ·
+`diem-hoa-von` **13,8** (sát nhất). Ước lượng bi quan 4,9 đơn vị/ký tự cho ra ~2 đơn vị dự phòng,
+tức nó rộng tay hơn thực tế khá nhiều — chữ số thật hẹp hơn thế.
+
+`check:chrome` 35/38, `npm run check` xanh (2.049 đạt, 23 hoãn).
+
+### 7️⃣ Phóng to biểu đồ — ẩn tạm theo yêu cầu chủ dự án
+
+Trên điện thoại, nút này không phóng to riêng biểu đồ: `ChartFullscreen` gọi
+`requestFullscreen()` trên CẢ tài liệu rồi `orientation.lock('landscape')`, nên máy xoay ngang
+mà lớp phủ không nổi lên — bấm xong thấy màn hình quay rồi không có gì xảy ra.
+
+Chủ dự án chốt **ẩn tạm**, không sửa. Cách làm: hằng `PHONG_TO_BAT = false` ở đầu
+`ChartBody.tsx`; `ZoomButton` và `ChartFullscreen` không được dựng nữa nhưng **file vẫn còn
+nguyên**, nên bật lại chỉ là đổi một dòng. Kiểu `boolean` tường minh là cố ý — thiếu nó thì
+TypeScript thu hẹp về literal `false` và nhánh kia thành mã chết dưới mắt lint.
+
+23 ca kiểm ở `charts.test.tsx` phải bấm được nút ấy mới chạy, nay mang `.skip` kèm dòng trỏ về
+khối chú thích `PHONG_TO_ĐANG_ẨN` ở đầu file. **Không xoá** — chúng gác đúng những chỗ khó của lớp
+phủ (bẫy nút Back Android, hậu tố `-full` cho `<pattern id>`, vệt dò tách biệt giữa hai bản).
+Một ca giữ lại có sửa: "trục đang là thời gian: hiện gợi ý đổi trục" bỏ vế phóng to, giữ vế trên
+trang vì đó là phần còn kiểm được.
+
+`npm run check` xanh: 84 file, 2.049 ca đạt, 23 hoãn.
+
+### Số đo trên bản build thật
+
+Cổng 3000 có lúc rảnh, có lúc chủ dự án bật lại dev server. Phần đo sau khi dev chạy lại được
+dựng ở một **thư mục sao chép riêng** (`robocopy` + junction `node_modules`), nên
+`FFB_ALLOW_BUILD_WITH_DEV=1` ở đó là an toàn thật — `next build` chỉ ghi vào `.next/` của bản sao,
+không đụng bản đang chạy.
+
+| Phép đo                 | Kết quả                                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `npm run build`         | Xanh, 122 trang                                                                                                              |
+| `npm run verify:static` | **25/25**                                                                                                                    |
+| `npm run check:chrome`  | **35/38** — 3 ca đỏ là cảnh báo preload của service worker, **đỏ SẴN ở HEAD** (dựng lại bản nền để đối chiếu: y hệt 3 ca ấy) |
+| `npm run size`          | Đỏ, nhưng **đỏ sẵn** — nợ đã ghi từ đợt Audit, chủ dự án đã chấp nhận                                                        |
+
+Vì `size` đỏ sẵn nên con số duy nhất có nghĩa là MỨC CHÊNH so với HEAD, đo bằng một bản build nền
+dựng riêng:
+
+|                          | HEAD     | 6️⃣🔟4️⃣1️⃣5️⃣ | + 8️⃣         | Chênh tổng |
+| ------------------------ | -------- | ---------- | ------------ | ---------- |
+| `/cong-thuc/pe/` JS      | 336,5 kB | 337,4 kB   | **337,8 kB** | +1,3 kB    |
+| `/danh-muc/` JS          | 182,8 kB | 183,2 kB   | **182,9 kB** | +0,1 kB    |
+| Gói chung mọi trang      | 158,2 kB | 158,5 kB   | **158,3 kB** | +0,1 kB    |
+| Số trang vượt cửa 180 kB | 112      | 112        | **112**      | 0          |
+
+Không trang nào mới vượt cửa. Chunk `chart-snapshot` không nằm trong First Load JS của trang nào.
+
+### Ba phép đo Chrome đáng ghi lại
+
+1. **`content-visibility` làm `getComputedStyle` nói dối.** Khối biểu đồ nằm dưới nếp gấp, nên
+   Chrome bỏ qua việc tính lại style cho cả cây con: `--color-border` đọc ra giá trị MỚI (biến
+   thừa kế từ `<html>` nên nó tươi) trong khi `stroke` còn là giá trị đã giải CŨ — hai con số mâu
+   thuẫn trên cùng một node. Phải `scrollIntoView()` trước khi đo.
+2. **Chrome ở media `print` trả bảng sáng cho cả hình TRÊN TRANG**, nên đo cả hai bản ở `print` cho
+   một kết quả đánh lừa. Nay hình trên trang đo ở `screen`, hình trong bản in đo ở `print`.
+3. **Tấm PNG đo bằng CHIỀU CAO canvas**, rình `toBlob`: có hình thật thì khung cao 420 (trần
+   `CHART_MAX_HEIGHT`), hình hỏng rơi về khung dự phòng 260, tắt hẳn thì 0. Đo được chênh **452 px**
+   giữa bật và tắt — đúng 420 + 32 khoảng đệm, tức ảnh đã nạp và vẽ được thật. Cần phép đo này vì
+   `chartForCard()` NUỐT lỗi: rasterise hỏng thì tấm thẻ lặng lẽ quay về khung nét đứt, người dùng
+   không thấy lỗi nào mà cũng không có biểu đồ.
+
+### Việc còn lại
+
+- [x] 6️⃣ · 🔟 · 4️⃣ · 1️⃣+5️⃣ · 8️⃣
+- [x] `npm run build` → `verify:static` (25/25) → `size` → `check:chrome` (35/38)
+- [ ] 3️⃣ / 7️⃣ / 9️⃣ chờ repro từ chủ dự án
+- [ ] 3 ca `check:chrome` đỏ sẵn (cảnh báo preload của service worker) — nợ riêng, không thuộc đợt này
 
 ---
 

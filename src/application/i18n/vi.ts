@@ -64,7 +64,18 @@ export const vi = {
 
   // Tìm kiếm — FR-19, NFR-USA-03
   'search.label': 'Tìm công thức',
-  'search.placeholder': 'Tên công thức, ví dụ P/E hay dinh gia',
+  /*
+   * Ví dụ trong watermark viết CÓ DẤU.
+   *
+   * Bản trước cố tình viết "dinh gia" không dấu để quảng cáo NFR-USA-03. Chủ dự án đọc ra thành
+   * lỗi chính tả chứ không ra thông điệp, nên nó không làm được việc mình sinh ra để làm — mà
+   * watermark cũng không phải chỗ giải thích: nó biến mất ngay khi người dùng gõ ký tự đầu tiên.
+   *
+   * Thông điệp không mất đi đâu cả, nó vốn đã nằm nguyên câu ở `search.hint` ngay bên dưới
+   * ("Gõ không dấu vẫn ra đúng: …"), và chính câu đó mới là chỗ hiện ra đúng lúc cần — khi tìm
+   * không thấy gì. Khả năng bỏ dấu thì nằm ở `normalizeVi` tầng Domain, không phụ thuộc câu chữ.
+   */
+  'search.placeholder': 'Tên công thức, ví dụ P/E hay định giá',
   'search.hint': 'Gõ không dấu vẫn ra đúng: “dinh gia” ra “Định giá”, “p e” ra “P/E”.',
   'search.clear': 'Xoá ô tìm kiếm',
 
@@ -571,9 +582,11 @@ export const vi = {
   'export.pngHint': 'chia sẻ nhanh',
   'export.withChart': 'Kèm biểu đồ',
   'export.withChartHint': 'Ảnh biểu đồ của công thức, nếu công thức đó có vẽ',
-  /* Chỗ dành sẵn trong file in khi người dùng chọn kèm biểu đồ mà biểu đồ chưa dựng.
-     Không nhắc sổ sách nội bộ (số gói WBS) — câu này nằm trong file người dùng chia sẻ ra ngoài. */
-  'export.chartPending': 'Biểu đồ sẽ được bổ sung ở bản sau.',
+  /* Câu dự phòng của vùng in và của tấm PNG: người dùng bật "Kèm biểu đồ" nhưng công thức này
+     không vẽ hình nào (11 công thức khai `chartType: 'none'`), hoặc hình chưa nạp xong. Nói ĐÚNG
+     lý do chứ không để một khung rỗng — người mở file không có cách nào khác để biết vì sao chỗ
+     ấy trống. Thay cho `export.chartPending` cũ, câu hẹn "sẽ có ở bản sau" nay đã sai. */
+  'export.chartNone': 'Công thức này không có biểu đồ.',
   'export.withDetails': 'Kèm bảng biến & giải thích',
   'export.withDetailsHint': 'Ý nghĩa từng biến và phần giải thích cho người mới',
   'export.disclaimerLocked': 'Miễn trừ tự động đính kèm',
@@ -695,6 +708,7 @@ export const vi = {
   'data.series': 'Chuỗi giá đã nhập',
   'data.portfolio': 'Danh mục cá nhân',
   'data.saved': 'Phép tính đã lưu',
+  'data.drafts': 'Số đang gõ dở',
   'data.usage': 'Công thức đã mở',
   'data.tickers': 'Danh sách mã',
   'data.prices': 'Giá đã lưu',

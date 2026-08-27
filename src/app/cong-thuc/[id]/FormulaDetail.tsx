@@ -7,6 +7,7 @@ import {
   ACTIVE_TICKER_KEY,
   FORMULA_MODULES,
   FORMULA_USAGE_KEY,
+  INPUT_DRAFT_KEY,
   MARKET_CONFIG,
   MAX_SAVED_CALCS,
   PRICE_SERIES_KEY,
@@ -18,6 +19,7 @@ import {
   chainFor,
   constantsUsedBy,
   defaultInputs,
+  draftFor,
   emptyCashflowRow,
   findFormulaModule,
   formatCalcOutput,
@@ -27,16 +29,20 @@ import {
   needsPriceSeries,
   parseActiveTicker,
   parseFormulaUsage,
+  parseInputDrafts,
   parseSavedCalcs,
   parseStoredSeries,
   presetInputs,
+  putDraft,
   recordFormulaUsage,
+  removeDraft,
   runChain,
   runFormula,
   savedCalcId,
   scheduleOrDefault,
   serializeActiveTicker,
   serializeFormulaUsage,
+  serializeInputDrafts,
   serializeSavedCalcs,
   serializeStoredSeries,
   variablesForLevel,
@@ -442,6 +448,92 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     });
   }, [spec.id]);
 
+  /*
+   * ── Bản nháp ô nhập: giữ số người dùng đã gõ qua cú rời màn ─────────────────────────────────
+   *
+   * Nút "Mở bảng dữ liệu →" là một `<Link>` — điều hướng thật, component tháo, `inputs` (một
+   * `useState` thuần) mất sạch. Bấm Back về thì mọi ô trở lại mặc định. Xem `input-draft-store.ts`
+   * để biết vì sao nó mất KHÔNG ĐỀU và vì sao đó là gốc chung của hai lỗi được báo.
+   *
+   * Thứ tự ưu tiên khi mở trang, và cả ba đều có lý do:
+   *
+   *   1. `?luu=` — người dùng bấm vào ĐÚNG một phép tính đã lưu. Không gì được đè lên nó, nên
+   *      effect này nhường luôn, cùng cách effect `?ma=` ngay dưới đang nhường.
+   *   2. Bản nháp — thứ họ để lại lần trước.
+   *   3. `?ma=` — nạp bất đồng bộ nên tự nhiên về SAU và đè lên bản nháp. Đúng khi là mã khác;
+   *      sai khi cùng mã, và chỗ chữa nằm ở nhánh `applyPresetRef` bên dưới, không ở đây.
+   *
+   * Ref giữ bản nháp cho nhánh ấy đọc: `TickerPickerSheet`/`loadLivePreset` đều bất đồng bộ, mà
+   * một biến state đọc trong callback bất đồng bộ sẽ mang giá trị của lượt render đã đóng gói —
+   * cùng bài học đã ghi ở `pickerFromPreset`.
+   */
+  const draftRef = useRef<{ inputs: Readonly<Record<string, number>>; code: string | null } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if ((new URLSearchParams(window.location.search).get('luu') ?? '').trim() !== '') return;
+
+    let draft: ReturnType<typeof draftFor> = null;
+    try {
+      draft = draftFor(
+        parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), Date.now()),
+        spec.id,
+      );
+    } catch {
+      // Trình duyệt chặn localStorage — màn chạy bằng bộ số mặc định, đúng như trước.
+      return;
+    }
+
+    if (draft === null) return;
+
+    draftRef.current = { inputs: draft.inputs, code: draft.code };
+    // Trộn CHỒNG lên bộ mặc định, cùng lẽ với nhánh `?luu=`: bản nháp cũ có thể thiếu ô mà công
+    // thức nay mới thêm, và ô trống sẽ thành "thiếu đầu vào" thay vì giữ giá trị mặc định.
+    setInputs((current) => ({ ...current, ...draft.inputs }));
+  }, [spec.id]);
+
+  /**
+   * Người dùng đã thật sự chạm vào ô nhập ở lượt mở trang này hay chưa.
+   *
+   * Đây là tín hiệu DUY NHẤT cho phép ghi bản nháp, và nó phải là `useRef` chứ không `useState`:
+   * `setValue()` bật cờ rồi gọi `setInputs()` ngay trong cùng một lượt sự kiện, mà một biến state
+   * thì tới lượt render sau mới mang giá trị mới — effect ghi bên dưới sẽ bỏ lỡ đúng lần sửa đầu.
+   *
+   * KHÔNG lấy "ô khác giá trị mặc định" làm tín hiệu, cùng lý do đã ghi ở `recordedRef` phía
+   * trên: đường `?ma=` tự nạp số vào ô khi mở trang, nên điều kiện đó đúng mà không có hành động
+   * nào của người dùng — và hệ quả ở đây nặng hơn: mở 40 trang từ Google là kho đầy 40 bản nháp
+   * mà chẳng ai từng gõ một chữ số.
+   */
+  const editedRef = useRef(false);
+
+  /*
+   * Ghi bản nháp sau mỗi lần bộ số đổi — nhưng chỉ khi cờ trên đã bật.
+   *
+   * Bám `inputs` chứ không ghi thẳng trong `setValue()`: `setInputs` nhận hàm cập nhật, nên bộ số
+   * MỚI chỉ tồn tại bên trong hàm ấy. Đọc `inputs` trong `setValue` là đọc bộ số của lượt render
+   * trước, tức bản nháp luôn chậm đúng một lần gõ — loại sai chỉ lộ ra khi người dùng sửa một ô
+   * rồi rời màn ngay, mà đó lại chính là kịch bản được báo lỗi.
+   *
+   * Sau lần sửa đầu thì MỌI thay đổi đều được ghi, kể cả thay đổi do nạp mẫu: lúc ấy người dùng
+   * đã tỏ ý muốn giữ màn này, và bộ số cuối cùng mới là thứ họ để lại.
+   */
+  useEffect(() => {
+    if (!editedRef.current) return;
+
+    try {
+      const now = Date.now();
+      const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
+      window.localStorage.setItem(
+        INPUT_DRAFT_KEY,
+        serializeInputDrafts(putDraft(stored, spec.id, inputs, stickyTicker, now)),
+      );
+    } catch {
+      // Trình duyệt chặn localStorage hoặc kho đầy — mất bản nháp thì màn chỉ trở về bộ số mặc
+      // định ở lần mở sau. Không có gì để báo, và tuyệt đối không được làm hỏng lượt tính này.
+    }
+  }, [inputs, spec.id, stickyTicker]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     /*
@@ -470,6 +562,26 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       }
 
       applyPresetRef.current(result.preset);
+
+      /*
+       * Bản nháp thắng LẠI, nhưng chỉ khi nó được ghi lúc đang xem CHÍNH mã này.
+       *
+       * `applyPreset()` vừa ghi số thô của mã đè lên bộ số đã khôi phục ở effect trên. Với mã
+       * khác thì đúng — người dùng vừa đòi mã ấy. Với cùng một mã thì sai: họ đã sửa vài ô rồi
+       * rời màn, và đè lên là xoá đúng phần sửa ấy, tức lỗi ban đầu vẫn còn nguyên trên chính
+       * đường `?ma=` — đường mà tab Danh mục dùng để sang đây.
+       *
+       * Chỉ ghi đè phần ô nhập. Mọi thứ khác `applyPreset()` vừa đặt — chuỗi phiên, ngày số liệu,
+       * thanh mã — vẫn giữ, vì chúng đến từ nguồn chứ không phải từ tay người dùng.
+       *
+       * Nút "Đổi mã" ở thanh mã đi qua một nhánh KHÁC (`pickTicker` phía dưới) và cố ý không có
+       * đoạn này: ở đó người dùng vừa tự chọn một mã, nên số của mã phải thắng.
+       */
+      const draft = draftRef.current;
+      if (draft !== null && draft.code === code) {
+        setInputs((current) => ({ ...current, ...draft.inputs }));
+      }
+
       setLiveTicker(null);
     })();
 
@@ -672,6 +784,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   function setValue(key: string, value: number): void {
     // Chạm vào số liệu là dùng thật, không cần đợi hết ngưỡng ở lại (xem effect ghi lượt dùng).
     markUsed();
+    // …và cũng là tín hiệu duy nhất cho phép ghi bản nháp — xem effect ghi bên dưới.
+    editedRef.current = true;
 
     if (linkedFields.has(key)) {
       setOverride(spec.id, key, value);
@@ -960,6 +1074,30 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
     } catch {
       // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
+    }
+
+    /*
+     * Xoá luôn bản nháp, và đây là phần BẮT BUỘC chứ không phải dọn dẹp cho gọn.
+     *
+     * Hàm này đưa mọi ô về mặc định vì người dùng vừa nói rõ họ không muốn bộ số ấy nữa. Để bản
+     * nháp lại thì đúng bộ số vừa bị bỏ sẽ quay về ngay lần mở kế tiếp — màn hình cãi lại thao
+     * tác người dùng vừa làm, đúng cùng loại lỗi mà cả gói này sinh ra để chữa.
+     *
+     * Cũng phải hạ `editedRef`: không hạ thì effect ghi chạy ngay sau `setInputs(defaultInputs)`
+     * và cất lại một bản nháp mới toanh chứa đúng bộ mặc định — vô hại về con số, nhưng nó chiếm
+     * một suất trong `MAX_DRAFTS` cho một thứ không mang tin gì.
+     */
+    editedRef.current = false;
+    draftRef.current = null;
+    try {
+      const now = Date.now();
+      const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
+      window.localStorage.setItem(
+        INPUT_DRAFT_KEY,
+        serializeInputDrafts(removeDraft(stored, spec.id)),
+      );
+    } catch {
+      // localStorage bị chặn — không có bản nháp nào để xoá.
     }
 
     setStickyTicker(null);

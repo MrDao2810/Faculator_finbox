@@ -1,6 +1,9 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -112,6 +115,79 @@ describe('ExportSheet — FR-24', () => {
     await userEvent.click(screen.getByRole('button', { name: /PNG/ }));
 
     expect(screen.getByRole('button', { name: 'Xuất PNG' })).not.toBeNull();
+  });
+});
+
+/**
+ * Biểu đồ trong file xuất — lỗi 8️⃣ của đợt kiểm thử.
+ *
+ * Trước đợt này cả bản in lẫn tấm PNG đều in ra một khung nét đứt kèm câu hẹn "sẽ có ở bản sau",
+ * dù màn hình ngay phía sau đang vẽ hình. Nay vùng in nhận BẢN CHÉP của chính hình ấy.
+ */
+describe('ExportSheet — biểu đồ trong vùng in', () => {
+  /** Dựng một hình biểu đồ trên trang, đúng dấu mà `cloneChartSvg` đi tìm. */
+  function dungHinh(idBase: string): void {
+    const holder = document.createElement('div');
+    holder.dataset.hinhGia = 'true';
+    holder.innerHTML = `<svg data-chart-svg="${idBase}" viewBox="0 0 320 200"><path class="line" d="M0 0" /></svg>`;
+    document.body.append(holder);
+  }
+
+  afterEach(() => {
+    for (const node of document.querySelectorAll('[data-hinh-gia]')) node.remove();
+  });
+
+  function moSheet(formula: FormulaSpec = PE) {
+    render(
+      <ExportSheet
+        open
+        onClose={vi.fn()}
+        formula={formula}
+        output={ok(15.2, 'lần')}
+        inputs={{ price: 92_000 }}
+      />,
+    );
+  }
+
+  it('đổ bản chép của hình đang hiện vào vùng in', async () => {
+    dungHinh('chart-pe');
+    moSheet();
+
+    // Bộ chụp nạp bằng `import()` nên phải chờ một nhịp — đó chính là cái giá của chunk riêng.
+    await waitFor(() => {
+      expect(document.querySelector('.print-chart-plot > svg')).not.toBeNull();
+    });
+  });
+
+  it('công thức không có biểu đồ thì khe để trống, không dựng hình rỗng', async () => {
+    // Không dựng hình nào — đúng cảnh 11 công thức khai `chartType: 'none'`.
+    moSheet();
+
+    await waitFor(() => {
+      expect(screen.getByText('Công thức này không có biểu đồ.')).not.toBeNull();
+    });
+    expect(document.querySelector('.print-chart-plot > svg')).toBeNull();
+  });
+
+  it('không lấy nhầm hình của công thức khác đang nằm trong DOM', async () => {
+    dungHinh('chart-roe');
+    moSheet();
+
+    await waitFor(() => {
+      expect(screen.getByText('Công thức này không có biểu đồ.')).not.toBeNull();
+    });
+    expect(document.querySelector('.print-chart-plot > svg')).toBeNull();
+  });
+
+  /*
+   * Việc ẩn câu dự phòng do CSS lo, không do React — `window.print()` chặn luồng ngay tại chỗ nên
+   * một `setState` gọi ngay trước đó chưa kịp ra tới DOM. jsdom không áp CSS Module hay globals.css
+   * nên ca kiểm phải soi thẳng file nguồn; đó là cách duy nhất chốt được ràng buộc này.
+   */
+  it('globals.css có luật ẩn câu dự phòng khi khe đã có hình', () => {
+    const css = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8');
+
+    expect(css).toContain('.print-chart:has(.print-chart-plot > svg) .print-chart-note');
   });
 });
 

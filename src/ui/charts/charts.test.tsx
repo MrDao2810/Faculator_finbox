@@ -28,6 +28,18 @@ import { hasChart } from './FormulaChart';
 import { CHART_GEOMETRY, LineChart } from './LineChart';
 
 /*
+ * ── PHONG_TO_ĐANG_ẨN ────────────────────────────────────────────────────────────────────────
+ *
+ * Nút phóng to đang TẮT bằng cờ `PHONG_TO_BAT` ở `ChartBody.tsx` (chủ dự án yêu cầu sau buổi tự
+ * thử — trên điện thoại nó xoay ngang màn hình rồi không hiện gì). Mọi ca kiểm dưới đây phải bấm
+ * được nút ấy mới chạy được, nên chúng mang `.skip` kèm dòng trỏ về đây.
+ *
+ * Bật cờ lại là gỡ hết `.skip` — KHÔNG xoá các ca này đi: chúng gác đúng những chỗ khó của lớp
+ * phủ (bẫy nút Back Android, hậu tố `-full` cho `<pattern id>`, vệt dò tách biệt giữa hai bản), và
+ * viết lại từ đầu đắt hơn nhiều so với gỡ một tiền tố.
+ */
+
+/*
  * jsdom chưa cài đặt `<dialog>.showModal()`, và cũng KHÔNG có Fullscreen API hay `screen.orientation`.
  * Chỉ vá đúng hai hàm của `<dialog>`: hai thứ kia phải để nguyên là vắng mặt, vì đó chính là môi
  * trường của iPhone và ca kiểm cần chứng minh màn phóng to vẫn chạy khi thiếu chúng.
@@ -431,7 +443,8 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
    * cục", hay lược overlay khỏi model truyền vào lớp phủ, thì mọi ca khác vẫn xanh còn đúng màn
    * người dùng mở ra để nhìn kỹ hai đường lại chỉ còn một.
    */
-  it('bản phóng to có đủ hai đường, legend, và đúng thứ tự vẽ', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('bản phóng to có đủ hai đường, legend, và đúng thứ tự vẽ', async () => {
     const user = userEvent.setup();
     drawLoaded('sma-n-phien');
 
@@ -1039,7 +1052,8 @@ describe('Mốc tham chiếu trên biểu đồ', () => {
     expect(mocTrong(container)).not.toContain('70');
   });
 
-  it('màn phóng to dựng lại đủ mốc, không rơi mất khi nhân đôi hình', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('màn phóng to dựng lại đủ mốc, không rơi mất khi nhân đôi hình', async () => {
     const { container } = drawDaoDong('rsi-wilder');
 
     await userEvent.click(screen.getByRole('button', { name: t('chart.zoom') }));
@@ -1113,7 +1127,8 @@ describe('Phạm vi mở rộng — bốn họ công thức mới có biểu đ�
  * trường jsdom nên ca kiểm chứng minh được điều đó mà không phải giả lập gì. Nếu ai đó sau này viết
  * lại phần này dựa vào `requestFullscreen()`, những ca dưới đây đỏ ngay.
  */
-describe('Phóng to biểu đồ toàn màn hình', () => {
+// Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+describe.skip('Phóng to biểu đồ toàn màn hình', () => {
   /** Lớp phủ phóng to — `<dialog>` đang mở, dò bằng vai `dialog`. */
   function manPhongTo(): HTMLElement | null {
     return screen.queryByRole('dialog');
@@ -1394,7 +1409,8 @@ describe('Dò điểm (crosshair)', () => {
     expect(overlay.textContent).toContain('— , —');
   });
 
-  it('vẫn dò được ở bản phóng to, tách biệt hẳn với vệt dò của bản trên trang', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('vẫn dò được ở bản phóng to, tách biệt hẳn với vệt dò của bản trên trang', async () => {
     gioKhungKhopViewBox();
     draw('pe');
 
@@ -1679,7 +1695,7 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
    * thể ghi được (không có ô nào ứng với "một ngày trong quá khứ") — cách xử lý là NÓI RÕ ra sao mới
    * bấm áp dụng được, thay vì cố áp dụng sai chỗ.
    */
-  it('trục đang là thời gian: hiện gợi ý đổi trục để bấm áp dụng được (cả bản trên trang lẫn phóng to)', async () => {
+  it('trục đang là thời gian: hiện gợi ý đổi trục để bấm áp dụng được', () => {
     gioKhungKhopViewBox();
     const formula = moduleOf('pe');
     const inputs = defaultInputs(formula.spec);
@@ -1697,9 +1713,7 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
 
     expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
     expect(screen.getByText(t('chart.applyHintTimeAxis'))).not.toBeNull();
-
-    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
-    expect(screen.getAllByText(t('chart.applyHintTimeAxis'))).toHaveLength(2);
+    // Vế "bản phóng to cũng nói câu ấy" bỏ đi cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN.
   });
 
   it('trục đang là biến số (áp dụng được): KHÔNG hiện gợi ý đổi trục', () => {
@@ -1815,7 +1829,8 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(dau?.getAttribute('class')).toContain('marker');
   });
 
-  it('bản phóng to nhận cùng dòng gợi ý khẳng định, không im lặng riêng', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('bản phóng to nhận cùng dòng gợi ý khẳng định, không im lặng riêng', async () => {
     gioKhungKhopViewBox();
     drawVoiApply(vi.fn());
 
@@ -1844,7 +1859,8 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
   });
 
-  it('bản phóng to: nhả tay cũng ghi được, tách biệt với bản trên trang', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('bản phóng to: nhả tay cũng ghi được, tách biệt với bản trên trang', async () => {
     gioKhungKhopViewBox();
     const onApplyPoint = vi.fn();
     drawVoiApply(onApplyPoint);
@@ -2003,7 +2019,8 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * trong cả tài liệu; trùng thì trình duyệt lấy node đầu và vùng gạch chéo của màn phóng to trỏ
    * nhầm sang hình bên dưới. Hậu tố `-full` là thứ ngăn điều đó.
    */
-  it('mở lớp phủ thì có hai pattern gạch chéo, và hai id KHÁC nhau', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('mở lớp phủ thì có hai pattern gạch chéo, và hai id KHÁC nhau', async () => {
     const { container } = draw('pe');
 
     expect(container.querySelectorAll('pattern')).toHaveLength(1);
@@ -2022,7 +2039,8 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * `<pattern>` ở ca trên: hai bản cùng nằm trong DOM khi lớp phủ mở, trùng `id` là bản sau tô
    * bằng dải chuyển màu của bản trước.
    */
-  it('mở lớp phủ thì có hai dải chuyển màu, và hai id KHÁC nhau', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('mở lớp phủ thì có hai dải chuyển màu, và hai id KHÁC nhau', async () => {
     const { container } = draw('pe');
 
     expect(container.querySelectorAll('linearGradient')).toHaveLength(1);
@@ -2041,7 +2059,8 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * `useId()` — chính ca kiểm này bắt được nó ở lần vá đầu. Quét cả cây thay vì liệt kê từng
    * component là để lần sau ai thêm một primitive mới vào đây thì đỏ ngay, không phải nhớ.
    */
-  it('không id nào trong cây biểu đồ mang hình dạng React tự sinh', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('không id nào trong cây biểu đồ mang hình dạng React tự sinh', async () => {
     const { container } = draw('pe');
     await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
 
@@ -2055,7 +2074,8 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * Bỏ sót nó thì bất biến "không `useId()`" không được gác cho renderer mới, và lớp lỗi
    * 5-cảnh-báo-lệch-hydration-mỗi-trang quay lại lặng lẽ ở đúng những trang có bóc tách.
    */
-  it('cây biểu đồ THÁC NƯỚC cũng không có id nào do React sinh, kể cả khi phóng to', async () => {
+  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+  it.skip('cây biểu đồ THÁC NƯỚC cũng không có id nào do React sinh, kể cả khi phóng to', async () => {
     const { container } = draw('ev');
     await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
 
@@ -2092,7 +2112,8 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
  * Những ca dưới đây kiểm CƠ CHẾ (đẩy mục, nghe popstate, tự dọn). Phần triệu chứng — số đã gõ còn
  * nguyên sau khi bấm Back — phải kiểm trên giả lập mobile, jsdom không có nút Back.
  */
-describe('Nút Back của hệ thống — đóng lớp phủ, không rời trang', () => {
+// Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
+describe.skip('Nút Back của hệ thống — đóng lớp phủ, không rời trang', () => {
   it('chưa bấm phóng to thì không đụng gì tới lịch sử', () => {
     draw('pe');
 

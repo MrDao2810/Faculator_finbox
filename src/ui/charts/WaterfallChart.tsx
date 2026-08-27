@@ -83,6 +83,8 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
     <div className={fill ? `${styles.plot} ${styles.plotFill}` : styles.plot}>
       <svg
         className={fill ? `${styles.svgStack} ${styles.svgFill}` : styles.svgStack}
+        /* Dấu để đường xuất file tìm lại đúng hình này — xem chú thích cùng tên ở `LineChart`. */
+        data-chart-svg={idBase}
         viewBox={`0 0 ${String(W)} ${String(height)}`}
         preserveAspectRatio="xMidYMid meet"
         /*

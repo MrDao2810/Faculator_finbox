@@ -62,10 +62,26 @@ import { thin, tickAnchor } from './ticks';
  *    đồ không áp dụng được sẽ trông như không có chuyện gì xảy ra, dù người dùng vừa bấm thật.
  */
 
-/* Khung vẽ theo đơn vị viewBox. Trục Y chiếm lề trái cho nhãn số. */
+/*
+ * Khung vẽ theo đơn vị viewBox. Trục Y chiếm lề trái cho nhãn số.
+ *
+ * Lề trái 36 chứ không phải 46 như trước: từ khi nhãn vạch trục Y bị `buildAxis()` ép xuống tối đa
+ * `MAX_TICK_CHARS_Y = 6` ký tự (bên `core/chart/build.ts` — nó chọn bậc hiển thị THEO ĐỘ DÀI NHÃN
+ * chứ không theo một mốc thập phân cố định), con số 46 là chỗ trống thừa. Sáu ký tự cỡ chữ 10px đo
+ * ước lượng rộng tay là ~29 đơn vị viewBox (4,9 mỗi ký tự — mốc bi quan dùng cho `HALF_LABEL` ở
+ * `ticks.ts`), nhãn lại canh `end` tại `x0 - 5`. Vùng vẽ nhờ đó rộng thêm 10 đơn vị, tức +3,8%.
+ *
+ * Số dự phòng THẬT thì rộng hơn ước lượng nhiều: bốn phép đo "không nhãn nào tràn khỏi viewBox" ở
+ * `check:chrome` nay in ra mép trái gần nhất của từng hình, và chỗ sát nhất trong bốn hình là
+ * **13,8** đơn vị (`diem-hoa-von`) — chữ số thật hẹp hơn mốc 4,9/ký tự khá nhiều.
+ *
+ * Chính bốn phép đo ấy là cửa giữ lề này: chúng quét MỌI thẻ `<text>` trong hình và đỏ khi
+ * `x < -0,5`. Nới `MAX_TICK_CHARS_Y` mà không nới lại lề trái là nhãn trục Y bị cắt cụt bên mép, và
+ * ba chữ số đầu của một con số tiền là thứ mất đi thầm lặng nhất trên cả biểu đồ.
+ */
 const W = 320;
 const H = 200;
-const PAD = { top: 10, right: 10, bottom: 34, left: 46 } as const;
+const PAD = { top: 10, right: 10, bottom: 34, left: 36 } as const;
 
 const PLOT = {
   x0: PAD.left,
@@ -401,6 +417,15 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
         <svg
           ref={svgRef}
           className={fill ? `${styles.svg} ${styles.svgFill}` : styles.svg}
+          /*
+            Dấu để đường xuất file tìm lại đúng hình NÀY trong DOM (`cloneChartSvg`).
+
+            Giá trị là `idBase` chứ không phải một chuỗi hằng: bản trên trang và bản trong màn
+            phóng to cùng nằm trong DOM khi lớp phủ mở, và chúng khác nhau đúng ở hậu tố `-full`
+            của `idBase`. Hỏi thẳng theo `idBase` thì file xuất luôn lấy bản trên trang, không
+            phụ thuộc thứ tự node hay việc lớp phủ có đang mở hay không.
+          */
+          data-chart-svg={idBase}
           viewBox={`0 0 ${String(W)} ${String(H)}`}
           preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"

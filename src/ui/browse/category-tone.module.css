@@ -1,49 +1,31 @@
 /*
- * Tông màu của một nhóm công thức — bảy lớp, dùng chung cho thẻ công thức và ô lưới nhóm.
+ * Tông màu của nhóm công thức — nay ĐƠN SẮC, chỉ còn một lớp.
  *
- * Mỗi lớp chỉ RÓT vào hai khe `--category-ink` / `--category-soft`; nó cố ý không tự đặt `color`
- * hay `background`. Nhờ vậy nó không bao giờ tranh phần với luật của component đang dùng nó: hai
- * file CSS Module có cùng độ ưu tiên, nên nếu cả hai cùng gán `color` thì cái thắng phụ thuộc
- * thứ tự chúng nằm trong gói CSS — thứ không đoán trước được và đổi theo thứ tự import.
+ * ── Vì sao chỉ còn một ─────────────────────────────────────────────────────────────────────
  *
- * Năm trong bảy tông dùng lại cặp màu đã có sẵn bộ kiểm tương phản; chỉ teal và violet là token
- * mới. Xem docblock của `CategoryIcon.tsx` về việc vì sao bảy tông là đủ cho 12 nhóm.
+ * Bản trước có bảy tông (xanh · mòng két · lục · đỏ · tím · vàng · trung tính) và mỗi thẻ tô
+ * HAI vùng bằng tông ấy: ô icon và nhãn nhóm. Trong lưới 18 ô của "Công thức dùng hằng ngày",
+ * cộng lại là 36 mảng màu thuộc bảy họ khác nhau — chủ dự án đánh giá là loè và khó nhìn, và
+ * đúng: không màu nào dẫn dắt nên mắt bị kéo về mọi hướng cùng lúc. Quyết định (đợt đổi màu
+ * Finbox): lấy xanh dương làm màu chủ đạo duy nhất, để việc phân biệt 12 nhóm dồn về HÌNH ICON
+ * và tên nhóm bằng chữ — hai dấu hiệu vốn đã đủ và không phụ thuộc khả năng phân biệt màu
+ * (NFR-USA-06 khuyến khích đúng chiều này).
  *
- * Tông trung tính dùng `--color-ink-soft` trên `--color-sunken` chứ không phải `--color-muted`:
- * chữ badge cỡ 12px cần 4,5:1 trên nền chìm, và cặp này đạt 6,59 (sáng) / 10,41 (tối).
+ * ── Vì sao lớp này vẫn tồn tại dù chỉ có một tông ─────────────────────────────────────────
+ *
+ * Giá trị nó rót vào hai khe TRÙNG với giá trị mặc định ở `:root`, nên xoá hẳn lớp thì giao
+ * diện không đổi một pixel. Giữ lại vì nó là ĐIỂM NỐI tường minh: quay về đa sắc — hoặc cho
+ * riêng vài nhóm một tông khác — chỉ là thêm lớp vào file này, không phải sửa `FormulaCard`,
+ * `CategoryGrid` và `CategoryIcon`. Không có nó, nơi duy nhất đổi được màu nhóm là khe mặc
+ * định, tức đổi cho tất cả hoặc không cho ai.
+ *
+ * Lớp chỉ RÓT vào hai khe `--category-ink` / `--category-soft`; nó cố ý không tự đặt `color`
+ * hay `background`. Nhờ vậy nó không tranh phần với luật của component đang dùng nó: hai file
+ * CSS Module có cùng độ ưu tiên, nên nếu cả hai cùng gán `color` thì cái thắng phụ thuộc thứ tự
+ * chúng nằm trong gói CSS — thứ không đoán trước được và đổi theo thứ tự import.
  */
 
-.toneBlue {
+.toneBrand {
   --category-ink: var(--color-accent);
   --category-soft: var(--color-accent-soft);
-}
-
-.toneTeal {
-  --category-ink: var(--color-tint-teal);
-  --category-soft: var(--color-tint-teal-soft);
-}
-
-.toneGreen {
-  --category-ink: var(--color-success);
-  --category-soft: var(--color-success-soft);
-}
-
-.toneRed {
-  --category-ink: var(--color-danger);
-  --category-soft: var(--color-danger-soft);
-}
-
-.toneViolet {
-  --category-ink: var(--color-tint-violet);
-  --category-soft: var(--color-tint-violet-soft);
-}
-
-.toneGold {
-  --category-ink: var(--color-warning);
-  --category-soft: var(--color-warning-soft);
-}
-
-.toneNeutral {
-  --category-ink: var(--color-ink-soft);
-  --category-soft: var(--color-sunken);
 }

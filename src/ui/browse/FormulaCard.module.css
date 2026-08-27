@@ -21,9 +21,9 @@
 }
 
 /*
- * Hover chỉ đổi VIỀN, giữ nguyên nền thẻ — cùng lý do đã ghi ở `.tile:hover`: icon và badge nhóm
- * đều lấy `--category-soft` làm nền của chính chúng, nên tô cả thẻ cùng họ màu là hai thứ ấy chìm
- * mất đúng lúc con trỏ đang ở trên chúng.
+ * Hover chỉ đổi VIỀN, giữ nguyên nền thẻ — cùng lý do đã ghi ở `.tile:hover`: ô icon lấy
+ * `--category-soft` làm nền của chính nó, nên tô cả thẻ cùng họ màu là icon chìm mất đúng lúc
+ * con trỏ đang ở trên nó.
  */
 .card:hover {
   border-color: var(--category-ink);
@@ -93,7 +93,14 @@
 }
 
 /*
- * Nhãn nhóm — badge mang tông của nhóm, không còn là dòng chữ xám (bản thiết kế mobile đợt 13).
+ * Nhãn nhóm của biến thể hàng.
+ *
+ * TRUNG TÍNH kể từ đợt đổi màu Finbox: nó KHÔNG còn mang tông của nhóm. Bản trước tô nó bằng
+ * `--category-*` giống ô icon, nên mỗi thẻ có hai mảng màu và lưới 18 ô ở trang chủ thành 36
+ * mảng — nửa còn lại của việc "loè" mà đợt ấy sửa (nửa kia là bảy tông, xem
+ * `category-tone.module.css`). Ô icon giữ màu, nhãn nhóm nhường, vì nhãn chỉ lặp lại bằng chữ
+ * đúng thông tin mà icon đã mang. Chữ vẫn đọc rõ: `--color-ink-soft` trên `--color-sunken`
+ * đạt 6,59:1 (sáng) / 10,41:1 (tối).
  *
  * `display: inline-flex` chứ không để nguyên khối: `.body` là block nên một `<div>` sẽ kéo hết bề
  * ngang, và badge pill dài bằng cả thẻ đọc ra là thanh trạng thái chứ không phải nhãn.
@@ -107,8 +114,8 @@
 
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  color: var(--category-ink);
-  background: var(--category-soft);
+  color: var(--color-ink-soft);
+  background: var(--color-sunken);
   border-radius: var(--radius-pill);
 
   overflow: hidden;
@@ -149,8 +156,10 @@
 /*
  * Hover chỉ đổi VIỀN, giữ nguyên nền thẻ.
  *
- * Bản trước tô nền `--color-accent-soft`; nay badge nhóm đã dùng `--category-soft` làm nền của
- * chính nó, nên tô cả thẻ cùng họ màu là badge chìm mất vào nền đúng lúc con trỏ đang ở trên nó.
+ * Bản trước tô nền `--color-accent-soft`; nay ô icon đã dùng `--category-soft` làm nền của
+ * chính nó, nên tô cả thẻ cùng họ màu là icon chìm mất vào nền đúng lúc con trỏ đang ở trên nó.
+ * Từ đợt đổi màu Finbox lý do này còn chặt hơn: tông chỉ còn một, nên nền thẻ tô theo tông sẽ
+ * cùng màu với ô icon ở MỌI thẻ, không riêng vài nhóm.
  */
 .tile:hover {
   border-color: var(--category-ink);
@@ -199,7 +208,14 @@
 }
 
 /*
- * Nhãn nhóm — badge mang tông của nhóm, không còn là dòng chữ mono xám.
+ * Nhãn nhóm của biến thể ô.
+ *
+ * TRUNG TÍNH kể từ đợt đổi màu Finbox: nó KHÔNG còn mang tông của nhóm. Bản trước tô nó bằng
+ * `--category-*` giống ô icon, nên mỗi thẻ có hai mảng màu và lưới 18 ô ở trang chủ thành 36
+ * mảng — nửa còn lại của việc "loè" mà đợt ấy sửa (nửa kia là bảy tông, xem
+ * `category-tone.module.css`). Ô icon giữ màu, nhãn nhóm nhường, vì nhãn chỉ lặp lại bằng chữ
+ * đúng thông tin mà icon đã mang. Chữ vẫn đọc rõ: `--color-ink-soft` trên `--color-sunken`
+ * đạt 6,59:1 (sáng) / 10,41:1 (tối).
  *
  * `align-self: flex-start` là bắt buộc: thẻ là flex cột nên item mặc định kéo hết bề ngang, và
  * một badge pill dài bằng cả ô đọc ra là thanh trạng thái chứ không phải nhãn.
@@ -214,8 +230,8 @@
 
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  color: var(--category-ink);
-  background: var(--category-soft);
+  color: var(--color-ink-soft);
+  background: var(--color-sunken);
   border-radius: var(--radius-pill);
 
   overflow: hidden;

@@ -122,6 +122,141 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Màu nhóm công thức: bảy tông rực thành đơn sắc xanh
+
+**Trạng thái:** xong. Nhánh `feat/sma-duong-gia` (chồng tiếp, chưa commit).
+
+### Việc
+
+Chủ dự án đánh giá màu nhóm ở lưới "Công thức dùng hằng ngày" và tab Công thức là loè và khó
+nhìn, yêu cầu phối lại lấy xanh dương Finbox_v2 làm chủ đạo, giữ nguyên cách chia nhóm và icon.
+
+### Chẩn đoán: hai nguyên nhân, không phải một
+
+Chụp thật màn hình rồi mới kết luận, và hoá ra "màu quá rực" chỉ là một nửa:
+
+1. **Bảy tông không cùng họ** — xanh · mòng két · lục · đỏ · tím · vàng · xám. Bốn thẻ liên tiếp
+   trong danh sách là bốn màu khác nhau, không màu nào dẫn dắt.
+2. **Mỗi thẻ tô HAI vùng** — ô icon _và_ nhãn nhóm. Lưới 18 ô ở trang chủ thành **36 mảng màu**.
+   Đây mới là phần chiếm diện tích: nhãn nhóm là pill khá rộng nằm ở đáy mỗi thẻ.
+
+Phương án chỉ chạm vào bảng màu mà không chạm số vùng tô sẽ chỉ sửa được một nửa.
+
+### Cách chọn phương án
+
+Dựng **ba** bảng màu, áp bằng CSS chèn thẳng vào trình duyệt (không sửa repo), chụp cùng một lưới
+ở cả bốn trạng thái rồi để chủ dự án so trực tiếp — trang so sánh là một Artifact có ảnh chụp thật.
+Chốt: **đơn sắc xanh**, giữ nguyên 12 hình icon.
+
+### Đã sửa gì
+
+| File                                                       | Sửa gì                                                                                                                |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `category-tone.module.css`                                 | 7 lớp tông → **1** lớp `.toneBrand`; docblock ghi lý do bỏ và vì sao vẫn giữ điểm nối                                 |
+| `CategoryIcon.tsx`                                         | bỏ `CategoryTone`, `toneOf()`, bản đồ `TONE_CLASS` và trường `tone` của 12 mục; `toneClass()` **không còn nhận `id`** |
+| `FormulaCard.module.css`                                   | nhãn nhóm (cả hai biến thể) → trung tính; 2 docblock hover sửa cho khớp                                               |
+| `FormulaCard.tsx` · `CategoryGrid.tsx` · `browse/index.ts` | theo `toneClass()` mới, bỏ export đã mất                                                                              |
+| `CategoryIcon.test.tsx` · `FormulaCard.test.tsx`           | xem mục dưới                                                                                                          |
+
+**Ca kiểm đổi vai, không phải bỏ đi.** Ca cũ gác "hai nhóm cùng một lưới không được trùng TÔNG"
+nay vô nghĩa. Thay bằng ràng buộc mà đơn sắc làm cho **nặng hơn hẳn**: hai nhóm không được trùng
+**HÌNH**, vì hình là dấu hiệu thị giác duy nhất còn lại. So bằng chính chuỗi `d` mà component vẽ
+ra chứ không bằng bản đồ nội bộ, nên nó bắt cả trường hợp hai mục khai khác nhau mà vẽ ra cùng nét.
+
+### Bằng chứng
+
+1. **1.946/1.946 ca xanh**; lint, typecheck, prettier sạch. Ca "không trùng hình" mới xanh ngay —
+   12 nhóm thật sự có 12 nét khác nhau.
+2. **Nhìn thật trên Chrome, cả hai bảng màu**: lưới trang chủ và tab Công thức đều còn đúng một
+   họ xanh; nhãn nhóm xám không tranh chú ý với icon.
+3. `--color-tint-teal` / `--color-tint-violet` **không thành token mồ côi**: chúng vẫn là tông
+   chuỗi phụ của biểu đồ nhiều chuỗi (`chart.module.css`).
+
+### Sự cố trong lúc làm — đã khắc phục, ghi lại để không lặp
+
+Một script vá của tôi dùng regex `[\s\S]*?` để chèn docblock, và nó **nuốt mất 110 dòng** của
+`FormulaCard.module.css` (toàn bộ `.category`, `.chevron`, `.tile`, `.tileIcon`, `.tileName`,
+`.tileDescription`): mốc mở nằm ở docblock của `.category` còn mốc đóng khớp mãi tận
+`.tileCategory`, nên phần giữa bị thay sạch.
+
+Khôi phục được trọn vẹn nhờ ba bước đối chiếu: phần sống sót (dòng 1–95) **giống hệt** bản HEAD;
+các luật đã build trong `out/_next/static/css/` — tức ảnh chụp của working **trước** khi vá —
+khớp từng thuộc tính với HEAD; nên bản HEAD chính là bản đúng, và dấu `M` của git trên file này
+chỉ là chuyện CRLF. Sau khi khôi phục, áp lại thay đổi bằng phép thay **chuỗi cố định có kiểm tra
+"mốc phải xuất hiện đúng 1 lần"**, không dùng regex nuốt nữa.
+
+### Còn lại
+
+- Chưa build lại `out/` (dev server đang giữ :3000 nên `prebuild` từ chối chạy). Cần
+  `npm run build` + `verify:static` trước khi phát hành.
+- Ô lưới **nhóm** ở trang chủ (`CategoryGrid`) đi theo cùng khe nên badge số của nó cũng thành
+  xanh — nhất quán, nhưng chưa được soi mắt riêng.
+
+## Tabbar hai bậc đổi từ gradient cam sang xanh Finbox_v2
+
+**Trạng thái:** xong. Nhánh `feat/sma-duong-gia` (chồng tiếp, chưa commit).
+
+### Việc
+
+Chủ dự án yêu cầu đổi dải chuyển màu của tabbar Cơ bản/Nâng cao từ cam sang xanh dương "giống của
+Finbox_v2", và chốt áp cho **cả ba cụm** dùng chung token.
+
+### Màu lấy từ đâu
+
+Finbox_v2 là dự án Flutter; bảng màu ở `lib/theme/theme_provider.dart`. Dải xanh chủ đạo của nó là
+`gd2` — `#0B408E → #1E60C0`, `begin: topLeft, end: bottomRight`, tức **đúng `135deg` của CSS** nên
+khớp hướng với dải cũ mà không phải đổi gì về hình học. Đó cũng là dải Finbox dùng cho nút và chip
+đang chọn (`survey_screen`, `filter_contain_widget`, các nút sign-up), tức đúng cùng một vai.
+
+Lưu ý `primaryColor` của Finbox là **xanh lá** `#139960`, không phải xanh dương — không dùng nó.
+
+### Hai quyết định
+
+**1. Bộ token RIÊNG, không sửa `--color-highlight`.** Cam vẫn giữ nguyên vai "bấm vào đây" cho nút
+chính, nút thêm mã và vạch giá trị hiện tại trên biểu đồ. Gộp hai vai vào một token thì đổi màu
+tabbar là nút chính đổi theo — đúng thứ mà việc tách `--color-accent` khỏi `--color-highlight` ở
+đợt 12 sinh ra để tránh. Nên thêm `--color-selected` / `--color-selected-strong` /
+`--color-on-selected`, và `--gradient-highlight` trỏ sang bộ mới.
+
+**2. Bảng tối KHÔNG chép nguyên giá trị Finbox.** Finbox dùng đúng một dải `gd2` cho cả hai giao
+diện, nhưng nền cụm nút bảng tối ở đây là `--color-sunken` `#0a0f1a`, và `#0B408E` trên đó chỉ đạt
+**1,95:1** — nút đang chọn chìm hẳn vào nền, mất luôn dấu hiệu "đang ở bậc nào". Nên bảng tối lấy
+dải xanh sáng của Finbox (`gd1`, `#7AB5FC`) làm đầu sáng và kéo đầu kia về `#5b9bff`, chữ đảo thành
+navy thẫm `#04162e` — cùng cách bảng tối đã làm với cam.
+
+### Tương phản (đo bằng chính công thức của `contrast.test.ts`)
+
+|                      | đầu thẫm | đầu nhạt | so với nền cụm |
+| -------------------- | -------- | -------- | -------------- |
+| Bảng sáng, chữ trắng | 9,82     | 6,02     | 8,35 / 5,12    |
+| Bảng tối, chữ navy   | 8,49     | 6,54     | 8,98 / 6,91    |
+
+Cả hai bảng đều tốt hơn dải cam cũ (8,11 / 5,93).
+
+### File đã đổi
+
+| File                                                                           | Sửa gì                                                                                                                 |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `src/app/globals.css`                                                          | 6 token mới (3 mỗi bảng); `--gradient-highlight` trỏ sang bộ mới; docblock ghi nguồn màu và lý do bảng tối lệch Finbox |
+| `ModeToggle.module.css` · `ThemePicker.module.css` · `UnitSwitcher.module.css` | `color` → `--color-on-selected` (mỗi file một dòng)                                                                    |
+| `src/ui/contrast.test.ts`                                                      | 3 token vào `REQUIRED_TOKENS`; ca mới chấm cả hai đầu dải **và** nút so với nền cụm                                    |
+
+### Bằng chứng
+
+1. **1.946/1.946 ca xanh**; lint, prettier, typecheck sạch. `tokens.test.ts` (256 ca) xanh — luật
+   "bảng tối phải đè đủ mọi `--color-*`" tự bắt được bộ token mới, không phải nhớ thêm gì.
+2. **Nhìn thật trên Chrome, cả hai bảng màu**, qua dev server: tabbar sáng `rgb(11,64,142) →
+rgb(30,96,192)` chữ trắng; tabbar tối `rgb(122,181,252) → rgb(91,155,255)` chữ `rgb(4,22,46)`.
+   Ảnh chụp từng cụm trong scratchpad (`tabbar-light/dark.png`, `cum-themepicker.png`,
+   `cum-unit.png`) — cả ba cụm đã đổi, chữ đọc rõ ở mọi điểm của dải.
+3. Thẻ PNG chia sẻ **không đụng tới**: `CARD_COLORS` ghim 8 mã màu và không có mã nào thuộc nhóm
+   highlight/selected.
+
+### Còn lại
+
+- Chưa build lại `out/` sau đợt này (dev server đang giữ :3000 nên `prebuild` từ chối chạy). Cần
+  chạy `npm run build` + `verify:static` trước khi phát hành.
+
 ## SMA vẽ kèm đường giá đóng cửa
 
 Trạng thái: **xong phần code**, nhánh `feat/sma-duong-gia` (chồng lên `feat/chart-nhieu-chuoi`

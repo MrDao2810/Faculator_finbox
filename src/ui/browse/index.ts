@@ -21,8 +21,8 @@ export { CategoryGrid } from './CategoryGrid';
 export type { CategoryGridProps } from './CategoryGrid';
 
 /* Dấu hiệu thị giác của 12 nhóm — bản thiết kế đợt 12. */
-export { CategoryIcon, toneOf, toneClass, drawnCategoryIds } from './CategoryIcon';
-export type { CategoryIconProps, CategoryTone } from './CategoryIcon';
+export { CategoryIcon, toneClass, drawnCategoryIds } from './CategoryIcon';
+export type { CategoryIconProps } from './CategoryIcon';
 
 /* Danh sách WF-02 — gói WBS 3.1.2. */
 export { VirtualList } from './VirtualList';

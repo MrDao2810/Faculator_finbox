@@ -97,16 +97,17 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
   });
 
   /*
-   * Icon và badge nhóm đều tô bằng hai khe `--category-*`, mà khe ấy do lớp tông rót vào TỔ TIÊN.
-   * Quên lớp tông trên thẻ thì cả hai rơi về giá trị mặc định ở `:root` — xanh cho mọi nhóm, tức
-   * là mất sạch thứ mà bản đồ 7 tông dựng lên, mà màn hình vẫn trông "chạy được".
+   * Ô icon tô bằng hai khe `--category-*`, mà khe ấy do lớp tông rót vào TỔ TIÊN. Từ đợt đơn
+   * sắc, giá trị lớp rót vào TRÙNG với mặc định ở `:root`, nên quên lớp thì màn hình không đổi
+   * một pixel — đúng loại hỏng lặng lẽ mà ca này gác: mất lớp là mất luôn chỗ duy nhất đổi được
+   * màu nhóm về sau (xem docblock `category-tone.module.css`).
    */
-  it('thẻ mang lớp tông của nhóm, để icon và badge có màu riêng', () => {
+  it('thẻ mang lớp tông, để ô icon lấy được màu từ khe', () => {
     render(<FormulaCard formula={PE} />);
 
     const link = screen.getByRole('link');
-    expect(link.className).toContain(toneClass('fundamentals'));
-    expect(toneClass('fundamentals')).not.toBe('');
+    expect(link.className).toContain(toneClass());
+    expect(toneClass()).not.toBe('');
   });
 });
 

@@ -5,17 +5,21 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { CATEGORIES, categoriesOf } from '@/application';
 
-import { CategoryIcon, drawnCategoryIds, toneClass, toneOf } from './CategoryIcon';
+import { CategoryIcon, drawnCategoryIds, toneClass } from './CategoryIcon';
 
 afterEach(cleanup);
 
 /**
- * Bản đồ 12 nhóm → icon + tông màu.
+ * Bản đồ 12 nhóm → HÌNH icon.
  *
- * Ba lời hứa được gác ở đây, và cả ba đều hỏng lặng lẽ nếu không có test: nhóm mới thêm vào
- * Registry mà quên vẽ icon thì rơi về khối hộp trung tính và trông y hệt một nhóm khác cũng
- * chưa vẽ; nhóm bị đổi tên id thì mục cũ nằm lại vĩnh viễn không ai gọi tới; và hai nhóm cùng
- * một lưới trùng tông thì màu hết còn phân biệt được gì.
+ * Kể từ đợt đổi màu Finbox, mọi nhóm dùng chung một tông xanh, nên hình icon và tên nhóm là
+ * TOÀN BỘ những gì phân biệt 12 nhóm với nhau. Điều đó làm các ca dưới đây nặng ký hơn hẳn so
+ * với lúc còn bảy tông: trước kia một hình trùng vẫn còn màu đỡ, nay thì không.
+ *
+ * Ba lời hứa được gác ở đây, cả ba đều hỏng lặng lẽ nếu không có test: nhóm mới thêm vào
+ * Registry mà quên vẽ icon thì rơi về khối hộp dự phòng và trông y hệt mọi nhóm chưa vẽ khác;
+ * nhóm bị đổi tên id thì mục cũ nằm lại vĩnh viễn không ai gọi tới; và hai nhóm trùng hình thì
+ * không còn dấu hiệu nào tách chúng ra ngoài dòng chữ.
  */
 
 describe('mọi nhóm trong Registry đều có hình riêng', () => {
@@ -37,29 +41,43 @@ describe('mọi nhóm trong Registry đều có hình riêng', () => {
 });
 
 /*
- * Bảy tông đủ cho 12 nhóm CHỈ KHI hai lưới của trang chủ không có ô nào trùng màu trong cùng
- * một lưới. Đây là điều kiện đó, viết thành ràng buộc thật — thêm nhóm thứ 13 vào một mảng đã
- * dùng đủ bảy tông là ca này đỏ, và câu trả lời lúc ấy là thêm tông chứ không phải dùng lại.
+ * Ràng buộc THAY CHỖ ca "không trùng tông" của bản bảy tông.
+ *
+ * Lúc còn bảy tông, điều phải gác là hai nhóm cùng một lưới không được trùng MÀU. Nay đơn sắc,
+ * câu hỏi ấy vô nghĩa — nhưng câu hỏi thật thì nặng hơn: hai nhóm không được trùng HÌNH, vì
+ * hình là dấu hiệu thị giác duy nhất còn lại. So bằng chính chuỗi `d` mà component vẽ ra, không
+ * bằng bản đồ nội bộ, nên nó bắt cả trường hợp hai mục khai khác nhau mà vẽ ra cùng một nét.
  */
-describe('trong cùng một mảng, không hai nhóm nào trùng tông', () => {
+describe('không hai nhóm nào trùng hình', () => {
+  function netCua(id: string): string {
+    const { container } = render(<CategoryIcon id={id} />);
+    return [...container.querySelectorAll('path')].map((p) => p.getAttribute('d')).join('|');
+  }
+
   for (const segment of ['stock', 'personal'] as const) {
     it(`mảng ${segment}`, () => {
-      const tones = categoriesOf(segment).map((category) => toneOf(category.id));
+      const nets = categoriesOf(segment).map((category) => netCua(category.id));
 
-      expect(new Set(tones).size, `tông đang dùng: ${tones.join(', ')}`).toBe(tones.length);
+      expect(new Set(nets).size, `${segment}: có hai nhóm vẽ ra cùng một nét`).toBe(nets.length);
     });
   }
+
+  it('cả 12 nhóm, không riêng trong từng mảng', () => {
+    const nets = CATEGORIES.map((category) => netCua(category.id));
+
+    expect(new Set(nets).size).toBe(nets.length);
+  });
 });
 
 describe('nhóm lạ vẫn hiện ra được', () => {
-  it('id chưa khai thì rơi về tông trung tính, không ném lỗi', () => {
-    expect(toneOf('nhom-chua-co')).toBe('neutral');
-    expect(toneOf(undefined)).toBe('neutral');
-  });
-
-  it('vẫn trả về một lớp tông thật, không phải chuỗi rỗng', () => {
-    expect(toneClass('nhom-chua-co')).not.toBe('');
-    expect(toneClass('valuation')).not.toBe(toneClass('risk'));
+  /*
+   * Đơn sắc nghĩa là lớp tông KHÔNG còn phụ thuộc nhóm — nó không nhận tham số nữa. Ca này chốt
+   * hai điều còn lại đáng gác: nó vẫn trả một lớp thật (chuỗi rỗng là CSS Module đổi tên lớp mà
+   * không ai biết), và nó vẫn là MỘT lớp cho mọi nơi gọi.
+   */
+  it('lớp tông vẫn là một lớp thật, dùng chung cho mọi nhóm', () => {
+    expect(toneClass()).not.toBe('');
+    expect(toneClass()).toBe(toneClass());
   });
 
   it('vẫn vẽ ra SVG', () => {

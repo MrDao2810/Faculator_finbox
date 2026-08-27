@@ -50,6 +50,6 @@
  */
 .selected {
   font-weight: var(--weight-bold);
-  color: var(--color-on-highlight);
+  color: var(--color-on-selected);
   background: var(--gradient-highlight);
 }

@@ -55,11 +55,7 @@ export function CategoryGrid({ categories, counts }: CategoryGridProps) {
             <Link
               /* Cùng một hàm với hàng "Xem tất cả" của ô tìm trang chủ — xem formulaListPath(). */
               href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
-              className={[
-                styles.tile,
-                toneClass(category.id),
-                advancedOnly ? styles.advancedOnly : '',
-              ]
+              className={[styles.tile, toneClass(), advancedOnly ? styles.advancedOnly : '']
                 .filter(Boolean)
                 .join(' ')}
             >

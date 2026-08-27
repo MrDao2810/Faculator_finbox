@@ -140,6 +140,30 @@ for (const [palette, tokens] of PALETTES) {
     });
 
     /*
+     * Mục ĐANG CHỌN của ba cụm nút hai bậc — dải xanh Finbox_v2. Chấm CẢ HAI đầu dải vì chữ nằm
+     * trên toàn bộ chiều ngang nút: đầu nào trượt là chữ mờ ở đúng nửa đó của nút, một kiểu hỏng
+     * chỉ lộ ra ở nửa hình.
+     *
+     * Và chấm luôn nút so với NỀN CỤM (`--color-sunken`): đây là ranh giới điều khiển, ngưỡng
+     * 3:1. Bảng tối là chỗ nó suýt hỏng thật — dải `gd2` nguyên bản của Finbox chỉ đạt 1,95:1
+     * trên nền chìm bảng tối, tức nút đang chọn chìm hẳn vào nền; ca này là lý do bảng tối phải
+     * lấy dải sáng thay vì chép nguyên giá trị bảng sáng.
+     */
+    it('chữ trên nút đang chọn đạt AA, và nút nổi khỏi nền cụm', () => {
+      expect(meetsContrast(color('--color-on-selected'), color('--color-selected'))).toBe(true);
+      expect(meetsContrast(color('--color-on-selected'), color('--color-selected-strong'))).toBe(
+        true,
+      );
+
+      for (const token of ['--color-selected', '--color-selected-strong']) {
+        const ratio = contrastRatio(color(token), color('--color-sunken'));
+        expect(ratio, `${token} vs nền cụm: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+          AA_NON_TEXT,
+        );
+      }
+    });
+
+    /*
      * Badge nhóm ở thẻ công thức và ô lưới nhóm: chữ tông trên nền tông cùng họ. Bảy tông, nhưng
      * bốn trong số đó (accent · success · danger · warning trên nền -soft của chúng) đã có ca
      * riêng ở trên rồi, nên ở đây chỉ còn ba cặp chưa ai chấm.
@@ -193,6 +217,9 @@ const REQUIRED_TOKENS = [
   '--color-highlight-strong',
   '--color-highlight-soft',
   '--color-on-highlight',
+  '--color-selected',
+  '--color-selected-strong',
+  '--color-on-selected',
   '--color-tint-teal',
   '--color-tint-teal-soft',
   '--color-tint-violet',

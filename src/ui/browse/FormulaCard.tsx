@@ -50,10 +50,7 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
      * `--category-*`, còn hai phần bên trong đọc khe đó. Xem docblock `toneClass()`.
      */
     return (
-      <Link
-        href={formulaPath(formula.id)}
-        className={`${styles.tile} ${toneClass(formula.categoryId)}`}
-      >
+      <Link href={formulaPath(formula.id)} className={`${styles.tile} ${toneClass()}`}>
         <span className={styles.tileIcon} aria-hidden="true">
           <CategoryIcon id={formula.categoryId} />
         </span>
@@ -77,10 +74,7 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
    * `toneClass()`. Icon và badge nhóm bên trong chỉ đọc hai khe `--category-*`.
    */
   return (
-    <Link
-      href={formulaPath(formula.id)}
-      className={`${styles.card} ${toneClass(formula.categoryId)}`}
-    >
+    <Link href={formulaPath(formula.id)} className={`${styles.card} ${toneClass()}`}>
       {/*
         Icon nhóm ở đầu hàng — bản thiết kế mobile đợt 13. Cùng dấu hiệu với nhánh ô của trang
         chủ, nên một công thức mang đúng một hình dù gặp nó ở màn nào.

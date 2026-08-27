@@ -32,6 +32,6 @@
 /* Đang chọn: nền + màu chữ + in đậm — ba dấu hiệu (NFR-USA-06). */
 .selected {
   font-weight: var(--weight-bold);
-  color: var(--color-on-highlight);
+  color: var(--color-on-selected);
   background: var(--gradient-highlight);
 }

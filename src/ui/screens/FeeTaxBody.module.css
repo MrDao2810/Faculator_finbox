@@ -12,14 +12,14 @@
   min-width: 0;
 }
 
-/* Tiêu đề khối màu nhấn, viết hoa — cùng kiểu với tiêu đề khối của trang chủ (đợt 8). */
+/* Tiêu đề khối viết hoa, màu mực — một kiểu duy nhất, xem `section-title.test.ts`. */
 .blockTitle {
   margin: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-ink);
 }
 
 .table {
@@ -52,6 +52,7 @@
 .rowLabel {
   flex: 1;
   font-size: var(--text-sm);
+  color: var(--color-ink-soft);
 }
 
 .rowFormula {
@@ -66,12 +67,23 @@
   text-overflow: ellipsis;
 }
 
+/*
+ * Con số của một dòng phí.
+ *
+ * `--color-ink` chứ không phải `--color-ink-soft`: bản cũ tô nhãn bằng mực đậm còn CON SỐ bằng
+ * mực nhạt, tức số mờ hơn chính cái nhãn gọi tên nó — ngược với mọi mặt khác của sản phẩm và
+ * ngược với vai "số liệu là thứ người ta tới đây để đọc". Bản rà soát báo chung nhóm này là
+ * "thiếu phân cấp rõ giữa primary – secondary – metadata": ở đây số là primary, nhãn là
+ * secondary, và trước đợt này hai vai bị đảo.
+ *
+ * `tabular-nums` thay cho `font-mono` — cùng lý do đã ghi ở `.headline`.
+ */
 .rowValue {
   flex-shrink: 0;
-  font-family: var(--font-mono);
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-ink-soft);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
 }
 
 .total {
@@ -115,17 +127,26 @@
 
 .statValue {
   flex-shrink: 0;
-  font-family: var(--font-mono);
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
 }
 
 /*
- * Thẻ lợi nhuận ròng — nền xanh đặc, đúng bản thiết kế hi-fi.
+ * Thẻ lợi nhuận ròng — CÙNG khuôn với `ResultBlock`, xem `result-card.test.ts`.
  *
- * Chữ trắng trên --color-accent đạt 6,70:1, qua ngưỡng 4,5:1 của chữ thường. Không dùng
- * --color-accent-vivid làm nền ở đây: nó chỉ đạt 3,68:1, đủ cho mảng màu chứ không đủ để
- * đặt chữ lên trên.
+ * Trước đợt rà soát phân cấp, "con số đáp án" của sản phẩm có tới năm kiểu vẽ: `ResultBlock`
+ * chữ sans mực trên nền trắng, thẻ này chữ mono trắng trên nền xanh ĐẶC, lịch trả nợ chữ mono
+ * xanh trên nền chìm, kết quả đã lưu ở Danh mục chữ mono xanh cỡ 20, và `StatTile` chữ sans mực
+ * cỡ 20. Bản rà soát báo đúng thế: "Result card... lặp lại nhưng chưa đồng nhất giữa các màn".
+ *
+ * Nay chọn đúng một khuôn: nền trắng, viền xanh 1,5px, chữ mực. Chọn khuôn của `ResultBlock`
+ * chứ không chọn nền xanh đặc vì hai lẽ — nó phủ 104 trong 111 màn nên là chuẩn thực tế, và bản
+ * rà soát đòi giữ cảm giác "Clean / Professional / Lightweight" mà một mảng màu đặc thì ngược
+ * lại. Xanh vẫn nói "đây là kết quả", nhưng nói bằng KHUNG.
+ *
+ * Bỏ luôn `font-mono`: `tabular-nums` đã cho chữ số đều mà không phải đổi cả mặt chữ, và đó
+ * đúng là cách `ResultBlock` làm.
  */
 .headline {
   display: flex;
@@ -134,23 +155,25 @@
 
   padding: var(--space-4);
 
-  color: var(--color-on-accent);
-  background: var(--color-accent);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-selected);
   border-radius: var(--radius-md);
 }
 
 .headlineLabel {
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--color-selected);
 }
 
 .headlineValue {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xl);
+  font-size: clamp(var(--text-2xl), 9vw, var(--text-3xl));
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
 
   /* Số tiền dài (mười chữ số + đơn vị) không được đẩy thẻ tràn ngang ở 360px. */
   overflow-wrap: anywhere;
@@ -167,8 +190,12 @@
 }
 
 /*
- * Huy hiệu ROI. Nền sáng + chữ đậm chứ không phải chữ màu trên nền xanh: --color-success trên
- * --color-accent chỉ đạt 1,1:1, gần như không đọc được.
+ * Huy hiệu ROI.
+ *
+ * Nền nay là cặp `*-soft` chứ không phải `--color-surface`. Thẻ đã đổi sang nền trắng, nên một
+ * huy hiệu nền trắng đứng trên nền trắng mất hẳn hình khối và chỉ còn phân biệt bằng MÀU CHỮ —
+ * đúng thứ NFR-USA-06 cấm. Cả ba cặp chữ/nền dưới đây đều đã có phép kiểm tương phản riêng
+ * trong `contrast.test.ts` (warning/danger/success trên nền `*-soft`, và ink-soft trên sunken).
  */
 .roi {
   padding: 2px var(--space-2);
@@ -183,20 +210,24 @@
 
 .roiGain {
   color: var(--color-success);
-  background: var(--color-surface);
+  background: var(--color-success-soft);
 }
 
 .roiLoss {
   color: var(--color-danger);
-  background: var(--color-surface);
+  background: var(--color-danger-soft);
 }
 
 /* Chưa tính được thì trung tính — không tô đỏ một ô còn trống. */
 .roiUnknown {
   color: var(--color-ink-soft);
-  background: var(--color-surface);
+  background: var(--color-sunken);
 }
 
+/*
+ * `--color-muted` thay cho `opacity: 0.92`. Độ đục cũ là cách làm mờ chữ TRẮNG trên nền xanh
+ * đặc; trên nền trắng nó gần như không đổi gì, nên dòng ghi chú đứng ngang hàng với con số.
+ */
 .headlineNote {
-  opacity: 0.92;
+  color: var(--color-muted);
 }

@@ -26,7 +26,7 @@
   /* Đi theo `.control` của Input từng con số — hai loại ô hay đứng cạnh nhau trong cùng một hàng,
      nên cả bo góc lẫn màu viền phải đổi cùng nhau (màu nhấn từ đợt 13). */
   border: 1.5px solid var(--color-accent);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
 }
 
 .select:disabled {

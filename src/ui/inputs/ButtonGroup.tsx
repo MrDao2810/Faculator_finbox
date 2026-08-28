@@ -3,6 +3,7 @@
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { Badge } from '@/ui/primitives';
 
 import styles from './ButtonGroup.module.css';
 
@@ -43,7 +44,7 @@ export function ButtonGroup({
         <span className={styles.label} id={`${spec.key}-label`}>
           {pick(spec.label)}
         </span>
-        {locked && <span className={styles.badge}>{t('input.lockedBadge')}</span>}
+        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
       </div>
 
       <div className={styles.group} role="group" aria-labelledby={`${spec.key}-label`}>

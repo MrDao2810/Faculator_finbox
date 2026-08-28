@@ -94,25 +94,7 @@
 }
 
 /* Bề ngang tối thiểu cố định để cột mã thẳng hàng — mã 3 ký tự và mã 8 ký tự (E1VFVN30). */
-.badge {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 72px;
-  min-height: 34px;
-  padding: 0 var(--space-2);
-
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.02em;
-  color: var(--color-accent);
-
-  background: var(--color-accent-soft);
-  border-radius: var(--radius-sm);
-}
+/* Huy hiệu mã nay là primitive `Badge` tone `code` — chung bề rộng với PresetSheet. */
 
 .name {
   flex: 1;

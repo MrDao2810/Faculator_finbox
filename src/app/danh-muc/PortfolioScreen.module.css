@@ -66,7 +66,7 @@
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-ink);
 }
 
 /*
@@ -308,21 +308,77 @@
   min-width: 0;
 }
 
+/*
+ * ── Căn lề: TẤT CẢ căn trái ─────────────────────────────────────────────────
+ *
+ * Đã thử căn phải cho ô số và chủ dự án bác ngay khi nhìn thấy — ghi lại đây để không ai thử lại.
+ *
+ * Bản rà soát thiết kế nêu "số căn phải, text căn trái", và luật ấy đúng cho một BẢNG có cột. Khối
+ * này không phải bảng: nó là lưới `repeat(auto-fill, minmax(104px, 1fr))` gồm những ô nhãn-trên-
+ * giá-trị. `.cell` là flex cột nên `text-align` ăn xuống cả nhãn lẫn giá trị, mà nhãn thì dài ngắn
+ * khác nhau ("SỐ LƯỢNG" · "GIÁ VỐN" · "THỊ GIÁ" · "TỶ TRỌNG" · "NGÀY MUA") — căn phải là mép TRÁI
+ * của chúng so le hết, và ô "TỶ TRỌNG" chỉ có dấu `—` thì con dấu ấy trôi hẳn sang mép kia, rời
+ * khỏi cái nhãn gọi tên nó. Số cột lại đổi theo bề ngang màn, nên không có cột cố định nào để
+ * hàng đơn vị thẳng vào.
+ *
+ * Thứ căn phải thật sự giúp được là bảng có `<th>`/`<td>` — chỗ đó `Table.module.css` lo, bằng
+ * lớp `.numeric`.
+ *
+ * Việc phân biệt NGÀY với TIỀN vẫn giữ, nhưng làm bằng mặt chữ và màu chứ không bằng căn lề.
+ */
+
+/*
+ * Ngày bỏ chữ số đều và nhạt hơn một bậc — hai dấu hiệu để `02/08/2026` không đọc thoáng qua
+ * thành một khoản tiền. `tabular-nums` là thứ khiến nó trông y hệt cột tiền ngay bên cạnh.
+ */
+.cellDate .cellValue {
+  font-variant-numeric: normal;
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Nhãn ô — bậc metadata.
+ *
+ * `font-weight` từng THIẾU HẲN ở đây, nên nhãn vẽ ở 400 trong khi `.gainLabel` ngay trên nó và
+ * `StatTile.label` ở đầu màn — cùng vai, cùng cỡ, cùng màu — đều ở 500. Chữ hoa 12px màu xám ở
+ * 400 là tổ hợp mảnh nhất có thể, và chủ dự án báo đúng thế khi xem trên màn hẹp. Không luật nào
+ * sai một mình; chỉ đặt cạnh nhau mới thấy.
+ *
+ * Đúng bậc metadata của bảng "Ba bậc chữ" trong `src/ui/README.md`: `--text-xs` · medium · muted.
+ */
 .cellLabel {
   font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-muted);
 }
 
+/*
+ * Giá trị — bậc primary trong ô này, nên `bold` chứ không `medium`.
+ *
+ * Con số là thứ người ta mở màn để đọc; nhãn chỉ gọi tên nó. Để cả hai cùng một quãng độ đậm
+ * (400 và 500) thì không bậc nào nổi hơn bậc nào. Nay cách nhau 500 với 700 — đọc ra ngay cả ở
+ * khổ hẹp, nơi mỗi ô chỉ còn nửa bề ngang.
+ */
 .cellValue {
   margin: 0;
 
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   color: var(--color-ink);
   overflow-wrap: anywhere;
+}
+
+/*
+ * "chưa có giá" và "—" đứng đúng chỗ của một khoản tiền.
+ *
+ * Nhạt đi VÀ bỏ độ đậm: hai dấu hiệu, không chỉ màu (NFR-USA-06).
+ */
+.cellAbsent {
+  font-weight: var(--weight-regular);
+  color: var(--color-muted);
 }
 
 /*
@@ -357,6 +413,14 @@
   justify-content: center;
 }
 
+/*
+ * Nút thêm mã — hành động chính của màn, nên đi theo `.primary` của primitive `Button`: xanh
+ * `--color-selected` kể từ đợt rà soát phân cấp, không còn cam.
+ *
+ * Bỏ `--shadow-highlight`: bóng đổ ở đây là thứ duy nhất trong dự án dùng token ấy, và nó khiến
+ * một nút bình thường nổi hơn cả khối Kết quả. Quy tắc mới là thẻ tĩnh không đổ bóng — xem
+ * `ResultBlock.module.css`.
+ */
 .addButton {
   display: inline-flex;
   align-items: center;
@@ -368,17 +432,16 @@
   font-family: inherit;
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
-  color: var(--color-on-highlight);
+  color: var(--color-on-selected);
 
-  background: var(--color-highlight);
+  background: var(--color-selected);
   border: none;
   border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-highlight);
   cursor: pointer;
 }
 
 .addButton:hover {
-  background: var(--color-highlight-strong);
+  background: var(--color-selected-strong);
 }
 
 .form {
@@ -519,13 +582,14 @@
   margin: 0;
   padding: var(--space-2) var(--space-3);
 
-  font-size: var(--text-xs);
+  /* Cùng cỡ chữ và cùng bán kính với mọi mặt cảnh báo vàng — xem `InlineWarning.module.css`. */
+  font-size: var(--text-sm);
   line-height: var(--leading-normal);
   color: var(--color-warning);
 
   background: var(--color-warning-soft);
   border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 
 /* ── Ô chọn mã: một nút mở sheet, không phải <select> ───────────────────────── */
@@ -637,13 +701,16 @@
 /*
  * Tab đang chọn: nền chuyển màu xanh, chữ đảo màu, in đậm — ba dấu hiệu, không chỉ màu.
  *
- * Xanh chứ không cam: hai tab là chỗ CHUYỂN GIỮA hai vùng nội dung, cùng họ với thanh điều hướng,
- * không phải một hành động. Cam của màn này để dành cho đúng một chỗ — nút "Thêm mã cổ phiếu".
+ * Dùng `--gradient-highlight` sẵn có thay vì tự dựng một dải riêng. Trước đợt rà soát phân cấp
+ * đây là dải chuyển màu THỨ HAI của sản phẩm — cùng góc 135°, cùng ý "mục đang chọn", nhưng lấy
+ * cặp `accent`/`accent-strong` trong khi ba cụm nút hai bậc (Cơ bản/Nâng cao · Sáng/Tối · bậc
+ * đơn vị) lấy cặp `selected-strong`/`selected`. Hai dải xanh gần giống nhau trên cùng một sản
+ * phẩm là đúng thứ bản rà soát gọi là "Tab... lặp lại nhưng chưa đồng nhất giữa các màn".
  */
 .tabActive {
-  color: var(--color-on-accent);
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-strong));
-  border-color: var(--color-accent);
+  color: var(--color-on-selected);
+  background: var(--gradient-highlight);
+  border-color: var(--color-selected);
   font-weight: var(--weight-bold);
 }
 
@@ -683,12 +750,19 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Kết quả của một phép tính đã lưu.
+ *
+ * Đây KHÔNG phải "đáp án của màn" nên không lấy khuôn `ResultBlock` — nó là một con số trong
+ * một dòng danh sách, cùng vai với `StatTile.value`, nên lấy đúng kiểu ấy: sans, `--text-lg`,
+ * mực. Bản cũ dùng mono + xanh nhấn, làm nó thành kiểu vẽ "con số đáp án" thứ TƯ của sản phẩm.
+ */
 .savedResult {
   margin: 0;
-  font-family: var(--font-mono);
   font-size: var(--text-lg);
   font-weight: var(--weight-bold);
-  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
 }
 
 /*

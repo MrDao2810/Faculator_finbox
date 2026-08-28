@@ -140,6 +140,11 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
           'sessionStorage — màn vừa rời đi và chỗ đang đứng trên đó, tự hết khi đóng tab. Không sống qua phiên nên không có gì để xoá',
       },
       {
+        key: 'ffb.origin.prev.v1',
+        viSao:
+          'sessionStorage — màn gốc liền trước, cùng vòng đời và cùng lý do với ffb.origin.v1. Tách ô thứ hai vì màn tìm kiếm vừa là màn gốc vừa có nút quay lại của chính nó',
+      },
+      {
         key: 'ffb.origin.restore.v1',
         viSao:
           'sessionStorage — cờ sống đúng MỘT lượt điều hướng: nút quay lại đặt, màn đích đọc rồi xoá ngay. Một nút xoá cho nó là nút không bao giờ có gì để xoá',

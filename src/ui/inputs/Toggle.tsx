@@ -5,6 +5,7 @@ import { useId } from 'react';
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { Badge } from '@/ui/primitives';
 
 import styles from './Toggle.module.css';
 
@@ -66,7 +67,7 @@ export function Toggle({
             {sourceNote}
           </span>
         )}
-        {locked && <span className={styles.badge}>{t('input.lockedBadge')}</span>}
+        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
       </span>
 
       <button

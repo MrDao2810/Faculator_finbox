@@ -21,9 +21,16 @@
   gap: var(--space-2);
 }
 
-/* Chỗ đáng ra là con số lớn, nay là “— , —”. Giữ đúng cỡ chữ để bố cục không nhảy. */
+/*
+ * Chỗ đáng ra là con số lớn, nay là “— , —”. Giữ đúng cỡ chữ để bố cục không nhảy.
+ *
+ * Phải là chính cái `clamp()` của `ResultBlock.value`, không phải `--text-2xl` cố định như bản
+ * cũ: chú thích trên hứa "bố cục không nhảy", nhưng khối kết quả co giãn 32→40px theo bề ngang
+ * còn khối lỗi đứng yên ở 32px, nên từ ~445px trở lên hai trạng thái CAO KHÁC NHAU và trang xê
+ * dịch đúng lúc phép tính chuyển từ ra số sang báo lỗi. Nay lời hứa ấy thành thật.
+ */
 .value {
-  font-size: var(--text-2xl);
+  font-size: clamp(var(--text-2xl), 9vw, var(--text-3xl));
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   color: var(--color-danger);

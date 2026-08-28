@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { normalizeVi, useTickerList } from '@/application';
 import type { TickerRef } from '@/application';
 import { useT } from '@/application/preferences-context';
-import { BottomSheet, Button } from '@/ui/primitives';
+import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
 import styles from './TickerPickerSheet.module.css';
 
@@ -148,7 +148,7 @@ export function TickerPickerSheet({
               {shown.map((ticker) => (
                 <li key={ticker.code} className={styles.item}>
                   {/* Mã đứng riêng thành huy hiệu — cùng lý do như PresetSheet: mắt dò theo mã. */}
-                  <span className={styles.badge}>{ticker.code}</span>
+                  <Badge tone="code">{ticker.code}</Badge>
                   <span className={styles.name}>{ticker.name}</span>
 
                   {/*

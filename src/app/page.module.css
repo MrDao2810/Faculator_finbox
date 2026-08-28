@@ -17,10 +17,10 @@
 
   padding: var(--space-4);
 
+  /* Thẻ tĩnh không đổ bóng, và bo `--radius-md` như mọi thẻ khác — đợt rà soát phân cấp. */
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
 }
 
 .heroIcon {
@@ -67,14 +67,17 @@
   min-width: 0;
 }
 
-/* Tiêu đề khối viết hoa, màu nhấn — bản thiết kế hi-fi WF-01. */
+/*
+ * Tiêu đề khối viết hoa — bản thiết kế hi-fi WF-01, nhưng màu mực chứ không còn màu nhấn: từ
+ * đợt rà soát phân cấp, xanh dành cho hành động và cho khối Kết quả. Xem `section-title.test.ts`.
+ */
 .blockTitle {
   margin: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-ink);
 }
 
 /* Lưới khối "Công thức dùng hằng ngày" đã chuyển sang `FeaturedFormulas.module.css`. */

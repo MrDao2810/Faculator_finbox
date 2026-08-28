@@ -6,10 +6,18 @@
    */
   min-width: 0;
 
+  /*
+   * Không đổ bóng. Quy tắc từ đợt rà soát phân cấp: bóng dành cho lớp NỔI (nút trượt, phản hồi
+   * hover), thẻ tĩnh thì tách nền bằng viền 1px.
+   *
+   * Trước đợt này chỉ `Card`, `ResultBlock` và `.hero` của trang chủ có bóng, còn `StatTile`,
+   * `FormulaCard`, dòng mã của Danh mục, bước của khối chuỗi và thẻ chỉ số của Phí & thuế thì
+   * không — nên "nổi = quan trọng" không đọc ra được, chỉ đọc ra là không nhất quán. Bản rà soát
+   * báo đúng thế: "giảm shadow để giữ cảm giác Clean / Professional / Lightweight".
+   */
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
 }
 
 .padded {

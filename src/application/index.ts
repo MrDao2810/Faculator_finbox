@@ -395,12 +395,14 @@ export {
   serializeSavedCalcs,
 } from './saved-calc-store';
 
-export type { Origin } from './origin-screen';
+export type { BackContext, Origin } from './origin-screen';
 export {
   ORIGIN_KEY,
+  ORIGIN_PREV_KEY,
   ORIGIN_RESTORE_KEY,
   backTarget,
   matchOrigin,
+  originPath,
   originToStore,
   parseOrigin,
 } from './origin-screen';

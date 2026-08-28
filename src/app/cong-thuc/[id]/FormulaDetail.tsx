@@ -1561,20 +1561,42 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       )}
 
       {/* ── 5. Kết quả ───────────────────────────────────────────────────── */}
-      {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
-      {!ownsResult(spec.id) && <ResultBlock output={output} />}
+      {/*
+        Khối Kết quả có tiêu đề riêng kể từ đợt rà soát phân cấp — trước đó nó là khối DUY NHẤT
+        trong chín khối không có tiêu đề nào trong nhịp heading của trang, nên đi bằng phím hay
+        bằng trình đọc màn hình thì cả trang chỉ có một chỗ hụt, đúng ngay chỗ quan trọng nhất.
 
-      {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
-      {hasCustomBody(spec.id) && (
-        <DetailBody
-          id={spec.id}
-          inputs={inputs}
-          ctx={ctx}
-          output={output}
-          cashflowRows={cashflowRows}
-          onCashflowRowsChange={setCashflowRows}
-        />
-      )}
+        Tiêu đề ẩn khỏi mắt chứ không hiện ra: bản thân thẻ đã mang dòng "KẾT QUẢ" ở góc trên
+        (`ResultBlock.eyebrow`), nên một `<h2>` nhìn thấy được sẽ lặp đúng chữ ấy hai lần.
+
+        Đặt NGOÀI thẻ chứ không đổi `.eyebrow` thành `<h2>`: khi phép tính hỏng, `ResultBlock`
+        nhường chỗ cho `ErrorState` vốn không có dòng eyebrow nào — làm cách kia thì cấu trúc
+        tiêu đề của trang tự đổi theo việc con số có tính được hay không.
+
+        `.result` nới thêm khoảng trên: chín khối trước đây cách đều nhau `--space-5`, nên khối
+        Kết quả không tách khỏi phần nhập liệu ngay trên nó. Bản rà soát báo đúng thế —
+        "khoảng cách giữa các khối chưa rõ ràng".
+      */}
+      <section className={styles.result} aria-labelledby="khoi-ket-qua">
+        <h2 className="visually-hidden" id="khoi-ket-qua">
+          {t('result.heading')}
+        </h2>
+
+        {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
+        {!ownsResult(spec.id) && <ResultBlock output={output} />}
+
+        {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
+        {hasCustomBody(spec.id) && (
+          <DetailBody
+            id={spec.id}
+            inputs={inputs}
+            ctx={ctx}
+            output={output}
+            cashflowRows={cashflowRows}
+            onCashflowRowsChange={setCashflowRows}
+          />
+        )}
+      </section>
 
       {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
       {/*

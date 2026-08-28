@@ -1,3 +1,19 @@
+/*
+ * Khối Kết quả — thứ phải nổi nhất màn.
+ *
+ * Bản rà soát thiết kế báo hai điều về khối này: kết quả cuối đang bị cảnh báo và phần giải
+ * thích lấn át, và "Blue = action/result". Nên đổi dấu hiệu chứ không bỏ dấu hiệu:
+ *
+ *  - BỎ `--shadow-sm`. Bóng ở đây không còn phân biệt được gì: `StatTile`, `FormulaCard`, dòng
+ *    mã của Danh mục và thẻ chỉ số của Phí & thuế đều không có bóng, nên bóng chỉ nói "thẻ này
+ *    khác mấy thẻ kia" chứ không nói "thẻ này quan trọng hơn".
+ *  - THÊM viền xanh `--color-selected` 1,5px. Viền đậm màu là dấu hiệu đọc được ở cả hai bảng
+ *    màu và ở cả bản in, còn bóng thì bản in nuốt mất. Cùng sắc xanh với nút hành động chính,
+ *    đúng cặp "action/result" của bản rà soát.
+ *
+ * Con số vẫn giữ `--color-ink`: nó là thứ phải đọc được nhanh nhất trên màn, và chữ đen trên
+ * nền trắng vẫn hơn mọi màu khác. Xanh làm KHUNG, không làm chữ.
+ */
 .block {
   display: flex;
   flex-direction: column;
@@ -6,9 +22,8 @@
   padding: var(--space-4);
 
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-selected);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
 }
 
 .eyebrow {
@@ -16,7 +31,7 @@
   font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-selected);
 }
 
 .live {

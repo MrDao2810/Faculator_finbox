@@ -5,6 +5,29 @@
   min-width: 0;
 }
 
+/*
+ * Khối Kết quả — cùng ruột với các khối khác, nhưng có nhiều khoảng thở hơn ở PHÍA TRÊN.
+ *
+ * `--space-5` cách đều chín khối là thứ bản rà soát gọi là "khoảng cách giữa các khối chưa rõ
+ * ràng": mọi ranh giới nặng như nhau, nên trang đọc ra một dải liền chứ không ra các chặng
+ * Nhập → Giả định → Tính → Kết quả → Giải thích. Cộng thêm `--space-2` ở đây cho tổng bằng
+ * `--space-7`, đủ để mắt thấy phần nhập liệu đã kết thúc và đáp án bắt đầu.
+ *
+ * Chỉ nới phía trên, không nới phía dưới: biểu đồ ngay dưới là phần đọc TIẾP con số này, tách nó
+ * ra xa nữa là cắt đứt quan hệ ấy.
+ *
+ * `gap` giữ nguyên bên trong để thẻ kết quả chung và thân riêng của WF-08/WF-14 dính liền nhau
+ * khi cả hai cùng có mặt.
+ */
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+
+  margin-top: var(--space-2);
+}
+
 /* ── Đầu màn ─────────────────────────────────────────────────────────────── */
 
 .head {
@@ -105,13 +128,24 @@
   gap: var(--space-2);
 }
 
+/*
+ * Tiêu đề khối — MỘT kiểu duy nhất cho cả sản phẩm, xem `section-title.test.ts`.
+ *
+ * Bản cũ ở đây là 12px/medium/xám, trong khi bảy màn khác dùng 13px/bold/xanh cho cùng một cấp.
+ * Trên màn chi tiết hệ quả nặng nhất: tiêu đề khối MỜ HƠN và NHỎ HƠN chữ thân bài, nên chín khối
+ * của WF-03 đọc ra như một dải chữ liền chứ không ra chín phần — đúng thứ bản rà soát gọi là
+ * "khoảng cách giữa các khối chưa rõ ràng".
+ *
+ * Màu là `--color-ink` chứ không phải `--color-accent`: xanh nay dành cho hành động và cho khối
+ * Kết quả (xem `ResultBlock.module.css`). Tiêu đề khối là kết cấu, không phải thứ bấm được.
+ */
 .blockTitle {
   margin: 0;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: 0.06em;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-ink);
 }
 
 .prose {
@@ -141,7 +175,8 @@
 
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  /* `--radius-md` như mọi thẻ khác — đợt rà soát phân cấp. */
+  border-radius: var(--radius-md);
 
   /* Không có dòng này thì công thức dài đẩy phình cả thẻ thay vì cuộn bên trong. */
   min-width: 0;
@@ -211,12 +246,13 @@
   margin: 0;
   padding: var(--space-2) var(--space-3);
 
-  font-size: var(--text-xs);
+  /* Cùng cỡ chữ và cùng bán kính với mọi mặt cảnh báo vàng — xem `InlineWarning.module.css`. */
+  font-size: var(--text-sm);
   color: var(--color-warning);
 
   background: var(--color-warning-soft);
   border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 
 /*

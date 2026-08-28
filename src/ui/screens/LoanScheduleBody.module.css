@@ -6,9 +6,12 @@
 }
 
 /*
- * Thẻ tóm tắt — một thẻ gộp theo bản thiết kế hi-fi.
- * Nền chìm chứ không nền xanh đặc: màn này còn một bảng dài ngay bên dưới, thẻ đặc màu sẽ
- * hút hết sự chú ý khỏi bảng. Chỗ dùng nền xanh đặc là WF-08, nơi con số LÀ toàn bộ màn.
+ * Thẻ tóm tắt — CÙNG khuôn với `ResultBlock`, xem `result-card.test.ts`.
+ *
+ * Bản cũ là nền chìm + chữ mono xanh, tức kiểu vẽ "con số đáp án" thứ BA của sản phẩm. Lý do
+ * ghi lại hồi ấy — "nền xanh đặc sẽ hút hết chú ý khỏi bảng ngay dưới" — vẫn đúng, và nay
+ * không còn phải đánh đổi: khuôn chung đã bỏ nền đặc, chỉ còn viền xanh trên nền trắng, nên
+ * thẻ này vừa cùng họ với 104 màn kia vừa không lấn át bảng lịch trả nợ.
  */
 .summary {
   display: flex;
@@ -17,25 +20,25 @@
 
   padding: var(--space-4);
 
-  background: var(--color-sunken);
-  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-selected);
   border-radius: var(--radius-md);
 }
 
 .summaryLabel {
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: var(--color-selected);
 }
 
 .summaryValue {
-  font-family: var(--font-mono);
-  font-size: var(--text-2xl);
+  font-size: clamp(var(--text-2xl), 9vw, var(--text-3xl));
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
-  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
   overflow-wrap: anywhere;
 }
 
@@ -96,7 +99,7 @@
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-ink);
 }
 
 .unitNote {

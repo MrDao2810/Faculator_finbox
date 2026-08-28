@@ -14,7 +14,11 @@
 
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-pill);
+  /*
+   * `--radius-md` như mọi điều khiển khác, thay cho bo tròn hẳn — đợt rà soát phân cấp.
+   * Ô tìm kiếm trước đây là ô nhập DUY NHẤT bo tròn trong cả sản phẩm.
+   */
+  border-radius: var(--radius-md);
 }
 
 .control:focus-within {

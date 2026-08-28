@@ -45,7 +45,8 @@ function draw(spec: VariableSpec, value: number, level: 'basic' | 'advanced' = '
 const box = (): HTMLInputElement => screen.getByRole('textbox') as HTMLInputElement;
 const slider = (): HTMLInputElement => screen.getByRole('slider') as HTMLInputElement;
 
-describe('SliderInput — con số cạnh nhãn gõ được', () => {
+// Tắt cùng đợt tắt lối gõ thẳng vào con số — xem GO_SO_TRUC_TIEP ở SliderInput.tsx.
+describe.skip('SliderInput — con số cạnh nhãn gõ được', () => {
   it('có hai điều khiển cùng một tên: một thanh trượt và một ô nhập', () => {
     draw(RATE, 12);
 
@@ -78,7 +79,8 @@ describe('SliderInput — con số cạnh nhãn gõ được', () => {
  * `<output>` chỉ để đọc, nên 97 biến kiểu slider trên toàn Registry chỉ nhập được bằng cách kéo —
  * và kéo thì bám lưới bước. Người dùng lấy số thật của một mã đưa vào thì không đưa được.
  */
-describe('SliderInput — gõ KHÔNG bám lưới bước', () => {
+// Tắt cùng đợt tắt lối gõ thẳng vào con số — xem GO_SO_TRUC_TIEP ở SliderInput.tsx.
+describe.skip('SliderInput — gõ KHÔNG bám lưới bước', () => {
   it('gõ 12,37 với bước 0,1 thì giữ đúng 12,37', async () => {
     const { onChange } = draw(RATE, 12);
 
@@ -192,15 +194,15 @@ describe('SliderInput — thanh trượt không được nói khác ô nhập', 
 describe('SliderInput — ô khoá ở chế độ Cơ bản', () => {
   const ADVANCED: VariableSpec = { ...RATE, level: 'advanced' };
 
-  it('biến nâng cao trong chế độ Cơ bản thì không gõ được và không kéo được', async () => {
-    const { onChange } = draw(ADVANCED, 12, 'basic');
+  /*
+   * Vế "không gõ được" bỏ đi cùng đợt tắt lối gõ thẳng (xem GO_SO_TRUC_TIEP ở SliderInput.tsx) —
+   * con số nay là <output>, không còn ô nhập nào để thử gõ. Vế "không kéo được" thì KHÔNG liên
+   * quan tới đợt ấy và vẫn là điều phải giữ, nên ca kiểm ở lại với đúng phần đó.
+   */
+  it('biến nâng cao trong chế độ Cơ bản thì không kéo được', () => {
+    draw(ADVANCED, 12, 'basic');
 
-    expect(box().readOnly).toBe(true);
     expect(slider().disabled).toBe(true);
-
-    await userEvent.type(box(), '99');
-
-    expect(onChange).not.toHaveBeenCalled();
   });
 
   it('có nhãn chữ "nâng cao" chứ không chỉ mờ đi (NFR-USA-06)', () => {
@@ -209,7 +211,8 @@ describe('SliderInput — ô khoá ở chế độ Cơ bản', () => {
     expect(screen.getByText('nâng cao')).not.toBeNull();
   });
 
-  it('cùng biến ấy ở chế độ Nâng cao thì gõ được', async () => {
+  // Tắt cùng đợt tắt lối gõ thẳng vào con số — xem GO_SO_TRUC_TIEP ở SliderInput.tsx.
+  it.skip('cùng biến ấy ở chế độ Nâng cao thì gõ được', async () => {
     const { onChange } = draw(ADVANCED, 12, 'advanced');
 
     expect(box().readOnly).toBe(false);

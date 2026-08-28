@@ -7,6 +7,8 @@ import type { FormulaSummary } from '@/application';
 import { usePick } from '@/application/preferences-context';
 
 import { T } from '../i18n/T';
+/* Nhập thẳng từ file chứ không qua barrel — cùng lý do đã ghi ở `FormulaCard.tsx`. */
+import { Badge } from '../primitives/Badge';
 import { Highlight } from './Highlight';
 import styles from './SearchResults.module.css';
 
@@ -74,9 +76,9 @@ export function SearchResults({ formulas, query = '' }: SearchResultsProps) {
                     </span>
                   </span>
 
-                  <span className={styles.level}>
+                  <Badge tone={formula.level === 'basic' ? 'basic' : 'advanced'}>
                     <T k={formula.level === 'basic' ? 'level.basic' : 'level.advanced'} />
-                  </span>
+                  </Badge>
 
                   <svg
                     className={styles.chevron}

@@ -5,6 +5,7 @@ import { useId } from 'react';
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { Badge } from '@/ui/primitives';
 
 import styles from './RadioGroup.module.css';
 
@@ -44,7 +45,7 @@ export function RadioGroup({
     <fieldset className={classes} disabled={locked}>
       <legend className={styles.legend}>
         {pick(spec.label)}
-        {locked && <span className={styles.badge}>{t('input.lockedBadge')}</span>}
+        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
       </legend>
 
       {options.map((option) => {

@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-import { ORIGIN_KEY, ORIGIN_RESTORE_KEY, ROUTES, backTarget, parseOrigin } from '@/application';
+import {
+  ORIGIN_KEY,
+  ORIGIN_PREV_KEY,
+  ORIGIN_RESTORE_KEY,
+  ROUTES,
+  backTarget,
+  parseOrigin,
+} from '@/application';
 import type { MessageKey } from '@/application';
 import { useT } from '@/application/preferences-context';
 
@@ -39,7 +46,7 @@ export interface BackLinkProps {
  * tab "Công thức" ở thanh dưới — mà tab đó không đọc ra là "quay lại", và nó ném người dùng
  * về danh sách trắng trơn, mất sạch bộ lọc vừa đặt.
  *
- * ## Bốn quyết định
+ * ## Năm quyết định
  *
  * 1. **Thẻ `<a>` thật, không phải `history.back()`.** Trang chi tiết được Google lập chỉ mục
  *    (FR-25) nên vào thẳng từ ngoài là đường vào thường xuyên; lúc đó lịch sử không có mục nào
@@ -59,6 +66,12 @@ export interface BackLinkProps {
  *    sau khi gắn vào DOM thì nâng cấp thành màn gốc vừa rời đi (xem `origin-screen.ts`).
  *    Đọc trong `useEffect` chứ không lúc khởi tạo state: bản build là HTML tĩnh, đọc
  *    `sessionStorage` lúc render đầu là lệch hydration (bài học đợt 2).
+ *
+ * 5. **Không bao giờ trỏ về chính màn đang đứng.** Màn tìm kiếm vừa là màn gốc của trang chi tiết
+ *    vừa mang nút này, nên chỗ đã nhớ có lúc CHÍNH LÀ nó — lúc ấy nút hiện nhãn "Tìm công thức"
+ *    và bấm vào không đi đâu cả (chủ dự án báo, đường đi: Danh mục → kính lúp → quay lại). Nên
+ *    đọc cả hai ô nhớ và để `backTarget()` bỏ qua bản trùng màn hiện tại; `here` phải truyền vào
+ *    vì phần thuần không được đọc `window`.
  */
 export function BackLink({
   fallbackHref = ROUTES.formulas,
@@ -71,8 +84,17 @@ export function BackLink({
   useEffect(() => {
     if (!rememberOrigin) return;
     try {
-      const origin = parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY));
-      setTarget(backTarget(origin, fallbackHref, labelKey));
+      setTarget(
+        backTarget(
+          {
+            origin: parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY)),
+            prev: parseOrigin(window.sessionStorage.getItem(ORIGIN_PREV_KEY)),
+            here: window.location.pathname,
+          },
+          fallbackHref,
+          labelKey,
+        ),
+      );
     } catch {
       // Trình duyệt chặn sessionStorage (chế độ riêng tư) — giữ nguyên đường dẫn dự phòng.
     }

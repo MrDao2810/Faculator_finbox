@@ -3,7 +3,15 @@
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { ORIGIN_KEY, ORIGIN_RESTORE_KEY, originToStore, parseOrigin } from '@/application';
+import type { Origin } from '@/application';
+import {
+  ORIGIN_KEY,
+  ORIGIN_PREV_KEY,
+  ORIGIN_RESTORE_KEY,
+  originPath,
+  originToStore,
+  parseOrigin,
+} from '@/application';
 
 /**
  * Ghi nhớ màn người dùng đang đứng, và cuộn về đúng chỗ ấy khi họ bấm quay lại.
@@ -28,6 +36,13 @@ import { ORIGIN_KEY, ORIGIN_RESTORE_KEY, originToStore, parseOrigin } from '@/ap
  * Cả bốn đều đi qua `originToStore()`, và hàm ấy trả `null` ở màn không phải gốc — trang chi tiết
  * công thức chẳng hạn. Lúc đó KHÔNG ghi và cũng không xoá bản ghi cũ: xoá là chính nút quay lại
  * của trang đang đứng mất đích.
+ *
+ * ## Hai ô nhớ, không phải một
+ *
+ * Màn gốc mới nhất nằm ở `ORIGIN_KEY`, màn gốc liền trước ở `ORIGIN_PREV_KEY`. Ô thứ hai chỉ nhận
+ * bản cũ khi ĐƯỜNG DẪN đổi — lý do đầy đủ nằm ở docblock của `ORIGIN_PREV_KEY`, gọn lại là:
+ * `/tim-kiem/` vừa là màn gốc của trang chi tiết vừa có nút quay lại của riêng nó, nên một ô nhớ
+ * thì vai này đè chết vai kia và nút ấy tự trỏ về chính trang đang mở.
  *
  * ## Vì sao đọc `window.location` chứ không `useSearchParams()`
  *
@@ -78,8 +93,20 @@ const SCROLL_SETTLE_MS = 150;
  */
 export function rememberOrigin(): void {
   try {
-    const origin = originToStore(window.location.pathname, window.location.search, window.scrollY);
-    if (origin !== null) window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify(origin));
+    const next = originToStore(window.location.pathname, window.location.search, window.scrollY);
+    if (next === null) return;
+
+    /*
+     * Đẩy bản cũ xuống ô thứ hai, nhưng CHỈ khi đường dẫn đổi. Cùng đường dẫn mà khác truy vấn là
+     * vẫn đứng nguyên một màn — gõ ô tìm, đổi chip lọc, cuộn — và đẩy nó xuống là biến ô thứ hai
+     * thành bản sao của ô thứ nhất, tức mất hẳn thứ vừa thêm nó vào để có.
+     */
+    const current = parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY));
+    if (current !== null && originPath(current.url) !== originPath(next.url)) {
+      window.sessionStorage.setItem(ORIGIN_PREV_KEY, JSON.stringify(current));
+    }
+
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify(next));
   } catch {
     // Trình duyệt chặn sessionStorage (chế độ riêng tư) — nút quay lại tự lùi về đường dự phòng.
   }
@@ -101,6 +128,10 @@ function remember(): void {
  * Cuộn trong `requestAnimationFrame` lồng hai lớp: khung đầu để trình duyệt bố trí xong nội dung
  * (trang chủ mang `content-visibility` và kệ thẻ tự sắp lại sau khi hydrate), khung sau mới cuộn
  * — cuộn trước lúc trang đủ cao thì trình duyệt tự kẹp về đáy hiện có và trượt mất chỗ.
+ *
+ * Chỗ cuộn được tìm trong CẢ HAI ô nhớ. Quay lại từ màn tìm kiếm là đúng ca ấy: `ORIGIN_KEY` lúc
+ * đó giữ `/tim-kiem/`, còn con số cần tìm nằm ở `ORIGIN_PREV_KEY`. Chỉ đọc ô thứ nhất thì về đúng
+ * màn nhưng đứng ở đỉnh trang — tức mất đúng thứ `Origin.scrollY` sinh ra để giữ.
  */
 function restoreScroll(): void {
   let target: number | null = null;
@@ -110,13 +141,16 @@ function restoreScroll(): void {
     window.sessionStorage.removeItem(ORIGIN_RESTORE_KEY);
     if (wanted === null) return;
 
-    const origin = parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY));
-    if (origin === null) return;
-
     const here = `${window.location.pathname}${window.location.search}`;
-    if (wanted !== origin.url || here !== origin.url) return;
+    if (here !== wanted) return;
 
-    target = origin.scrollY;
+    const saved = [
+      parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY)),
+      parseOrigin(window.sessionStorage.getItem(ORIGIN_PREV_KEY)),
+    ].find((origin): origin is Origin => origin !== null && origin.url === wanted);
+    if (saved === undefined) return;
+
+    target = saved.scrollY;
   } catch {
     return;
   }

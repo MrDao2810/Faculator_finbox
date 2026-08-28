@@ -39,25 +39,7 @@
  * Huy hiệu mã. Chữ đều và bề ngang tối thiểu cố định để cột mã thẳng hàng qua các dòng —
  * mã ba ký tự và mã bốn ký tự không được làm lệch phần tên bên phải.
  */
-.badge {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 52px;
-  min-height: 34px;
-  padding: 0 var(--space-2);
-
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.02em;
-  color: var(--color-accent);
-
-  background: var(--color-accent-soft);
-  border-radius: var(--radius-sm);
-}
+/* Huy hiệu mã nay là primitive `Badge` tone `code` — chung bề rộng với TickerPickerSheet. */
 
 .info {
   display: flex;

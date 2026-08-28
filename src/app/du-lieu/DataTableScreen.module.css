@@ -128,7 +128,8 @@
 
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
+  /* `--radius-md` như mọi điều khiển khác — đợt rà soát phân cấp. */
+  border-radius: var(--radius-md);
   /* Con trỏ chữ I: dấu hiệu "gõ được" thứ hai, cho người dùng chuột. */
   cursor: text;
 }

@@ -33,7 +33,17 @@
    * nét đứt trên nền chìm — NFR-USA-06.
    */
   border: 1.5px solid var(--color-accent);
-  border-radius: var(--radius-lg);
+  /*
+   * `--radius-md` từ đợt rà soát phân cấp, thay cho `--radius-lg` của đợt 12.
+   *
+   * Bản rà soát yêu cầu "chuẩn hoá radius", và chỗ lệch đo được là các điều khiển ĐỨNG CẠNH
+   * NHAU trong cùng một hàng lại bo bốn kiểu: ô nhập và ô chọn 16px, ô tìm kiếm bo tròn hẳn,
+   * ô trong bảng dữ liệu 6px, còn nút bấm ngay bên cạnh 10px. Nay mọi điều khiển đều 10px.
+   *
+   * Viền 1,5px màu nhấn GIỮ NGUYÊN — đó mới là thứ nói "ô này gõ vào được", và nó không liên
+   * quan gì tới bo góc. `--radius-lg` nay chỉ còn dành cho mép trên của bottom sheet.
+   */
+  border-radius: var(--radius-md);
 }
 
 /*

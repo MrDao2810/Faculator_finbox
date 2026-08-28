@@ -62,6 +62,22 @@ export const ORIGIN_KEY = 'ffb.origin.v1';
 export const ORIGIN_RESTORE_KEY = 'ffb.origin.restore.v1';
 
 /**
+ * Màn gốc TRƯỚC màn gốc đang nhớ — ô nhớ thứ hai, và vì sao một ô là không đủ.
+ *
+ * `/tim-kiem/` mang hai vai cùng lúc: nó nằm trong `ORIGINS` (để từ một kết quả tìm mở vào trang
+ * chi tiết thì nút quay lại ở đó biết đường về đúng kết quả ấy), nhưng bản thân nó cũng có một
+ * `BackLink` và cần biết CHÍNH NÓ được mở từ đâu. Với một ô nhớ duy nhất thì vai thứ nhất đè chết
+ * vai thứ hai: vào `/tim-kiem/` từ danh mục, `OriginTracker` ghi đè ngay `/danh-muc/` bằng
+ * `/tim-kiem/`, nút quay lại đọc lên thấy chính trang đang đứng và bấm vào không đi đâu cả — đúng
+ * lỗi chủ dự án báo.
+ *
+ * Ô này chỉ nhận bản cũ khi ĐƯỜNG DẪN đổi. Đổi mỗi truy vấn — gõ ô tìm, đổi chip lọc, cuộn — thì
+ * nó đứng yên; nếu không, mỗi ký tự gõ ở màn tìm sẽ đẩy chính `/tim-kiem/` vào đây và ô thứ hai
+ * hỏng y như ô thứ nhất.
+ */
+export const ORIGIN_PREV_KEY = 'ffb.origin.prev.v1';
+
+/**
  * Trần độ dài URL. Dài hơn mức này là dấu hiệu có người nhét rác vào `sessionStorage`;
  * `parseOrigin()` bỏ qua thay vì dựng một link khổng lồ lên màn.
  */
@@ -99,24 +115,35 @@ const ORIGINS: ReadonlyArray<{ path: string; labelKey: MessageKey }> = [
 ];
 
 /**
+ * Phần ĐƯỜNG DẪN của một URL nội bộ, luôn có dấu `/` ở cuối — bỏ truy vấn đi.
+ *
+ * Tách riêng vì hai chỗ cần đúng một cách chuẩn hoá: `matchOrigin()` để so với `ORIGINS`, và
+ * `backTarget()` để trả lời "bản ghi này có phải chính màn đang đứng không". Hai bản chuẩn hoá
+ * lệch nhau một dấu `/` là đủ để nút quay lại tự trỏ về chỗ cũ mà không ai nhìn ra vì sao.
+ */
+export function originPath(url: string): string {
+  const rawPath = url.split('?')[0] ?? '';
+  return rawPath.endsWith('/') ? rawPath : `${rawPath}/`;
+}
+
+/**
  * Màn gốc ứng với một URL, hoặc `null` nếu URL ấy không phải màn gốc nào.
  *
  * Ba phép loại, theo thứ tự:
  *
  * 1. `//` ở đầu — trình duyệt hiểu đó là URL tuyệt đối theo giao thức hiện tại, tức vẫn dẫn sang
  *    tên miền khác dù nhìn như đường dẫn nội bộ. Phải chặn TRƯỚC khi so khớp.
- * 2. Nhiều hơn một dấu `?` — chuỗi méo, không phải thứ `listParamsToQuery()` sinh ra.
+ * 2. Nhiều hơn một dấu `?` — chuỗi méo, không phải thứ `listParamsToQuery()` sinh ra. Kiểm trước
+ *    khi chuẩn hoá, vì `originPath()` chỉ lấy phần đầu nên nó nuốt mất dấu hiệu ấy.
  * 3. Phần đường dẫn phải khớp TUYỆT ĐỐI một mục trong `ORIGINS`, nên `/cong-thuc/pe/` rớt (khác
  *    `/cong-thuc/`) còn `/cong-thuc/?category=risk` thì đạt.
  */
 export function matchOrigin(url: string): { path: string; labelKey: MessageKey } | null {
   if (url === '' || url.length > MAX_URL_LENGTH) return null;
   if (url.startsWith('//') || !url.startsWith('/')) return null;
+  if (url.split('?').length > 2) return null;
 
-  const [rawPath, ...queryParts] = url.split('?');
-  if (queryParts.length > 1 || rawPath === undefined) return null;
-
-  const path = rawPath.endsWith('/') ? rawPath : `${rawPath}/`;
+  const path = originPath(url);
   return ORIGINS.find((origin) => origin.path === path) ?? null;
 }
 
@@ -158,22 +185,48 @@ export function originToStore(pathname: string, search: string, scrollY: number)
   return { url, scrollY: Number.isFinite(scrollY) ? Math.max(0, Math.floor(scrollY)) : 0 };
 }
 
+/** Những gì nút quay lại biết được về lượt duyệt hiện tại, gom lại để không lẫn hai tham số chuỗi. */
+export interface BackContext {
+  /** Bản ghi trong `ORIGIN_KEY` — màn gốc mới nhất. */
+  origin: Origin | null;
+  /** Bản ghi trong `ORIGIN_PREV_KEY` — màn gốc liền trước, dùng khi `origin` chính là màn đang đứng. */
+  prev: Origin | null;
+  /** Đường dẫn màn đang đứng, tức `window.location.pathname`. Truy vấn không cần và không dùng. */
+  here: string;
+}
+
 /**
  * Đích của nút quay lại: màn đã nhớ nếu có, không thì đường dẫn dự phòng nơi gọi đưa vào.
  *
  * Trả cả `labelKey` chứ không riêng `href`, vì nhãn phải NÓI ĐÚNG đích — đó là quyết định số 2
  * trong docblock của `BackLink` ("có chữ chứ không chỉ mỗi mũi tên"), và một nút ghi "Danh sách
  * công thức" mà bấm vào ra trang chủ thì còn tệ hơn mũi tên trơn.
+ *
+ * ## Vì sao phải loại bản ghi trùng màn đang đứng
+ *
+ * Một màn gốc có thể có nút quay lại của chính nó — `/tim-kiem/` là đúng ca ấy, xem
+ * `ORIGIN_PREV_KEY`. Lúc đó `ORIGIN_KEY` đang giữ chính nó, và trả nó ra là dựng một cái link
+ * trỏ về trang đang mở: bấm vào không đi đâu, mà nhãn thì vẫn hứa hẹn một đường ra. Nên hai ô nhớ
+ * được thử lần lượt, ô nào trỏ ra khỏi màn này thì ô ấy thắng; hết cả hai mới rơi về dự phòng.
+ *
+ * So bằng ĐƯỜNG DẪN chứ không bằng cả URL: `/tim-kiem/?q=roe` và `/tim-kiem/` là cùng một màn,
+ * và một cái link đổi mỗi truy vấn thì vẫn không phải đường ra.
  */
 export function backTarget(
-  origin: Origin | null,
+  context: BackContext,
   fallbackHref: string,
   fallbackLabelKey: MessageKey,
 ): { href: string; labelKey: MessageKey } {
-  if (origin === null) return { href: fallbackHref, labelKey: fallbackLabelKey };
+  const herePath = originPath(context.here);
 
-  const matched = matchOrigin(origin.url);
-  if (matched === null) return { href: fallbackHref, labelKey: fallbackLabelKey };
+  for (const candidate of [context.origin, context.prev]) {
+    if (candidate === null) continue;
 
-  return { href: origin.url, labelKey: matched.labelKey };
+    const matched = matchOrigin(candidate.url);
+    if (matched === null || matched.path === herePath) continue;
+
+    return { href: candidate.url, labelKey: matched.labelKey };
+  }
+
+  return { href: fallbackHref, labelKey: fallbackLabelKey };
 }

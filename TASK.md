@@ -115,6 +115,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Ba cách sắp xếp mới ở màn danh sách — 3 loại thành 6         | —       | Xong — xem mục "Ba cách sắp xếp mới"                           |
 | —     | Đợt sửa lỗi sau buổi tự thử — 6 trên 10 lỗi đã vá            | —       | Xong 6/10 — xem mục "Đợt sửa lỗi sau buổi tự thử"              |
 | 2.5.3 | Biểu đồ đi vào file xuất PDF và PNG (lỗi 8)                  | —       | Xong — xem mục "8️⃣ Xuất biểu đồ"                               |
+| —     | Icon Trang chủ nhảy hình khi bấm chọn/bỏ chọn                | —       | Xong — xem mục "Icon Trang chủ hết nhảy hình khi bấm"          |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -122,6 +123,345 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Nút quay lại ở màn Tìm kiếm hết tự trỏ về chính nó
+
+**Trạng thái:** xong. `npm run check` xanh (**91 file, 2.099 ca đạt, 37 hoãn** — tăng 19 ca, không
+thêm file test mới). Kiểm thêm 7 phép đo trên Chrome thật qua dev server, đạt cả 7.
+
+Chủ dự án báo, nguyên văn đường đi: _"đang ở trong phần Danh mục mà bấm vào search ở top rồi sau đó
+back ra bằng button Tìm công thức nhưng không back được"_ — và yêu cầu quay lại phải về màn Danh mục.
+
+### Nguyên nhân gốc: hai vai trên một ô nhớ
+
+`/tim-kiem/` mang hai vai mâu thuẫn nhau, mà `sessionStorage` chỉ có **một** ô `ffb.origin.v1`:
+
+1. Nó nằm trong `ORIGINS` ([origin-screen.ts](src/application/origin-screen.ts)) để từ một kết quả
+   tìm mở vào trang chi tiết thì nút quay lại ở **đó** biết đường về đúng kết quả ấy. Vai này đúng.
+2. Nhưng chính nó cũng mang `<BackLink />`
+   ([SearchScreen.tsx:145](src/app/tim-kiem/SearchScreen.tsx#L145)), nên nó cần biết **nó** được mở
+   từ đâu.
+
+`OriginTracker` trong `AppShell` ghi đè ô ấy bằng `/tim-kiem/` ngay lúc vào màn, xoá mất
+`/danh-muc/`. `BackLink` đọc lên thấy chính trang đang đứng → `href="/tim-kiem/"`, nhãn
+`search.label` = "Tìm công thức", bấm không đi đâu. Không phải lỗi riêng của Danh mục: vào màn tìm
+từ **bất kỳ** màn nào cũng hỏng y hệt.
+
+Vì sao tái hiện chắc chắn chứ không phải đua tiến trình: `useListParams()` dùng `useSearchParams()`
+nên `tim-kiem/page.tsx` phải bọc `<Suspense>`, Next đẩy cây con sang client-only và `SearchScreen`
+mount **sau** effect của `OriginTracker`. Ba nguồn ghi còn lại khoá chặt thêm — màn này tự đặt con
+trỏ vào ô nhập nên `keydown` nổ ngay ký tự đầu.
+
+### Sửa: thêm ô nhớ thứ hai, không đụng `ORIGINS`
+
+Loại `/tim-kiem/` khỏi `ORIGINS` thì hết lỗi nhưng mất vai 1 — vào một công thức từ kết quả tìm rồi
+quay ra sẽ bị ném về Danh mục. Nên giữ nguyên danh sách và thêm `ffb.origin.prev.v1`.
+
+Luật dịch chuyển: `rememberOrigin()` chỉ đẩy bản cũ xuống ô hai khi **đường dẫn** đổi. Đổi mỗi truy
+vấn (gõ ô tìm, đổi chip lọc, cuộn) thì ô hai đứng yên — nếu không, một ký tự gõ ở màn tìm là đủ đẩy
+chính `/tim-kiem/` vào đó và ô hai hỏng y như ô một.
+
+`backTarget()` nay nhận `{origin, prev, here}` và thử hai ô lần lượt, bỏ qua ô nào trỏ về chính màn
+đang đứng. So bằng **đường dẫn** chứ không bằng cả URL: `/tim-kiem/?q=roe` vẫn là màn ấy.
+
+| Đường đi                                                  | `prev`       | `origin`     | Nút ở màn tìm       |
+| --------------------------------------------------------- | ------------ | ------------ | ------------------- |
+| `/danh-muc/` → `/tim-kiem/`                               | `/danh-muc/` | `/tim-kiem/` | **Danh mục**        |
+| `/danh-muc/` → `/tim-kiem/` → `/cong-thuc/roi/` → quay ra | `/danh-muc/` | `/tim-kiem/` | **Danh mục**        |
+| `/` → `/tim-kiem/`                                        | `/`          | `/tim-kiem/` | Trang chủ           |
+| Vào thẳng `/tim-kiem/` bằng URL                           | —            | `/tim-kiem/` | Danh sách công thức |
+
+Hàng 2 là hàng đáng chú ý: trang chi tiết khiến `originToStore()` trả `null` nên không ghi gì, rồi
+lúc quay về `/tim-kiem/` đường dẫn trùng `origin` nên `prev` không bị đẩy — `/danh-muc/` sống sót.
+
+### Đã đổi những file nào
+
+| File                                                               | Sửa gì                                                                                                     |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| [origin-screen.ts](src/application/origin-screen.ts)               | thêm `ORIGIN_PREV_KEY` và `originPath()`; `backTarget()` đổi sang nhận `BackContext` và loại bản trùng màn |
+| [OriginTracker.tsx](src/ui/layout/OriginTracker.tsx)               | `rememberOrigin()` đẩy bản cũ xuống ô hai khi đường dẫn đổi; `restoreScroll()` tìm chỗ cuộn ở **cả hai** ô |
+| [BackLink.tsx](src/ui/navigation/BackLink.tsx)                     | đọc thêm ô hai, truyền `window.location.pathname`; docblock lên **năm** quyết định                         |
+| [index.ts](src/application/index.ts)                               | barrel chọn tay — thêm `ORIGIN_PREV_KEY`, `originPath`, type `BackContext`                                 |
+| [SettingsScreen.test.tsx](src/app/cai-dat/SettingsScreen.test.tsx) | cửa gác đòi mọi khoá `ffb.*` có nút xoá hoặc một lý do bằng chữ — thêm lý do cho khoá mới                  |
+
+`originPath()` tách ra vì `matchOrigin()` và `backTarget()` phải chuẩn hoá **giống hệt nhau**; lệch
+một dấu `/` là đủ để nút quay lại tự trỏ về chỗ cũ mà không ai nhìn ra vì sao. `matchOrigin()` nay
+kiểm "nhiều hơn một dấu `?`" **trước** khi chuẩn hoá, vì `originPath()` chỉ lấy phần đầu nên nó nuốt
+mất dấu hiệu ấy.
+
+### Test — 19 ca thêm, và đã kiểm ngược
+
+- `origin-screen.test.ts` 20 → **30 ca**: nhóm mới "không bao giờ trỏ về chính màn đang đứng"
+  (6 ca), `originPath()` (3 ca), ô hai là dự bị (1 ca). Ba ca `backTarget()` cũ đổi theo chữ ký mới.
+- `BackLink.test.tsx` 13 → **18 ca**: nhóm mới "ở màn tìm kiếm, nơi màn gốc có thể là chính nó",
+  gồm ca hồi quy đúng lời chủ dự án báo và ca "hành vi cũ không đổi" cho nút ở trang chi tiết.
+- `OriginTracker.test.tsx` 11 → **15 ca**: đẩy ô hai khi đổi màn; **không** đẩy khi chỉ đổi truy vấn;
+  ghé trang chi tiết rồi quay lại màn tìm vẫn giữ được màn gốc ban đầu; khôi phục cuộn từ ô hai.
+
+> **Cạm bẫy trong chính bộ test:** `BackLink.test.tsx` trước đây không đặt URL nên jsdom để mặc định
+> `/`, và mọi ca dùng `nho('/')` vô tình dựng đúng tình huống "màn gốc trùng màn đang đứng" — ba ca
+> đỏ ngay khi bản vá vào. `beforeEach` nay đứng ở `/cong-thuc/pe/`, là màn `BackLink` thật sự có mặt.
+
+**Kiểm ngược** (gỡ bản vá xem test có đỏ đúng chỗ không):
+
+- Bỏ điều kiện loại bản trùng trong `backTarget()` → **10 ca đỏ**, tất cả nằm trong hai nhóm mới,
+  không ca cũ nào báo nhầm. Ca "hành vi cũ không đổi" vẫn xanh — đúng như thiết kế.
+- Bỏ lệnh ghi ô hai trong `rememberOrigin()` → **3 ca đỏ**, đúng ba ca mới của `OriginTracker`.
+
+### Đo trên Chrome thật
+
+Chạy tay qua dev server ở `:3000`, Chrome headless riêng với hồ sơ tạm (khuôn của
+`scripts/chrome-check.mjs`, chỉ tắt đúng tiến trình mình bật). **7/7 đạt:**
+
+| Phép đo                                              | Kết quả                        |
+| ---------------------------------------------------- | ------------------------------ |
+| Nhãn nút quay lại ở màn tìm                          | "Danh mục"                     |
+| `href` trỏ về `/danh-muc/`, không phải chính màn tìm | `/danh-muc/`                   |
+| Bấm vào thì về đúng màn Danh mục                     | `/danh-muc/`                   |
+| Về đúng chỗ đã cuộn                                  | rời ở 278, về ở 278            |
+| Gõ vào ô tìm không đổi đích                          | vẫn "Danh mục"                 |
+| Nút ở trang chi tiết vẫn về màn tìm — không hồi quy  | "Tìm công thức" → `/tim-kiem/` |
+| Vào thẳng bằng URL, phiên sạch                       | "Danh sách công thức"          |
+
+### Việc còn lại
+
+- [ ] `npm run build` → `verify:static` → `size` → `check:chrome` — **chưa chạy**, dev server đang
+      giữ `:3000` nên `prebuild` chặn. Thay đổi nằm trọn trong logic client, không đụng HTML tĩnh
+      hay kích thước gói, nên rủi ro thấp; vẫn nên chạy khi chủ dự án tắt dev server.
+
+---
+
+## Icon Trang chủ hết nhảy hình khi bấm chọn/bỏ chọn
+
+**Trạng thái:** xong. `npm run check` xanh (91 file, 2.080 ca đạt, 37 hoãn — không đổi số ca, chỉ
+đổi hai chuỗi `d` trong `TabIcon.tsx`).
+
+Chủ dự án báo icon Trang chủ ở thanh điều hướng dưới "trước và sau khi click vào thì thay đổi liên
+tục" — tức không chỉ đổi màu như ba mục còn lại mà còn đổi cả hình dạng, gây cảm giác nhấp nháy.
+
+**Đo bằng `getBBox()` trong Chrome thật** (không dùng jsdom vì mọi phép đo hình học ở đó trả 0):
+ba mục `formulas`/`portfolio`/`settings` giữ nguyên tâm hộp bao tuyệt đối khi đổi nét ↔ đặc
+(Δcx = Δcy = 0,00), chỉ co giãn kích thước. Riêng `home` lệch tâm dọc **+0,8 đơn vị** và lệch đáy
+**+1,1 đơn vị** — vì hai bản `OUTLINE.home`/`SOLID.home` trong
+[TabIcon.tsx](src/ui/navigation/TabIcon.tsx) là **hai khối hình khác nhau**: bản nét vẽ mái nhà
+đua ra ngoài tường (kiểu mái cổ điển, mái rộng hơn thân nhà), bản đặc thu mái khít tường và thêm
+một ô cửa cắt ở đáy. Không phải cùng một khối phóng to/thu nhỏ quanh một tâm — nên khi
+`isActive` đổi, icon "nhảy" cả hình dạng lẫn vị trí đúng như chủ dự án mô tả.
+
+**Sửa:** thay cả hai bằng một khối ngũ giác duy nhất, cùng toạ độ ở hai trạng thái —
+`'M12 3.6 20.4 11V20.4H3.6V11Z'` — bỏ mái đua và ô cửa. Kiểm lại bằng đúng phép đo `getBBox()`
+trên file đã sửa: `home` co 1,8 đơn vị khi chuyển nét → đặc, Δcx = Δcy = 0,00 — khớp đúng mức của
+`portfolio`. Không ca kiểm nào trong repo ghim chuỗi `d` cũ của icon này nên không có test nào cần
+sửa theo; đã quét `src/**/*.test.ts(x)` xác nhận.
+
+---
+
+## Đợt rà soát phân cấp thị giác — 10 điểm từ bản đối chiếu Figma
+
+**Trạng thái:** xong. `npm run check` xanh (**2.078 ca đạt, 37 hoãn, 91 file** — tăng 6 file test và
+43 ca so với mốc đầu đợt). Bốn lệnh cần bản build đã chạy đủ sau khi chủ dự án tắt dev server — xem
+"Số đo trên bản build thật".
+
+### Ràng buộc của đợt
+
+Link Figma chủ dự án cung cấp (`FINBOX VERSION 2 (Draft)`) chỉ có **quyền xem**. Figma MCP đòi
+quyền edit cho cả ba tool đọc (`get_variable_defs`, `get_metadata`, `get_screenshot`) nên không
+đọc được token, thang chữ hay icon từ bản vẽ. Chủ dự án chốt: không sửa gì trên file đó, làm phần
+đo được trong code trước.
+
+### Bốn quyết định chủ dự án chốt
+
+| Việc            | Chốt                                                                |
+| --------------- | ------------------------------------------------------------------- |
+| Màu hành động   | Cam → **xanh `--color-selected` #1e60c0** (đảo quyết định "đợt 12") |
+| Phạm vi         | Nền tảng + 4 màn được nêu                                           |
+| Bảng Danh mục   | Giữ dạng thẻ, chỉ chuẩn hoá căn chỉnh bên trong                     |
+| Sắc xanh cụ thể | Dùng lại `--color-selected` sẵn có, không đẻ token mới              |
+
+### Nguyên nhân gốc đo được
+
+1. **Thang chữ dồn cục** — `--text-xs` 12px và `--text-sm` 13px cách nhau **1px** nhưng chiếm
+   **231/291** khai báo `font-size` toàn dự án. Phân cấp phẳng là do thang chữ, không do từng màn.
+2. **`.badge` chép 7 lần**, 4 bản của cùng huy hiệu "nâng cao" render khác nhau (`SliderInput`
+   thiếu hẳn `font-size` nên to hơn ba bản kia).
+3. **Tiêu đề khối 3 kiểu** cho cùng một cấp; 6/8 khai báo vốn đã giống hệt nhau, chỉ 2 cái lệch.
+4. **"Con số đáp án" 5 kiểu** — sans/mono, mực/xanh/trắng, nền trắng/xanh đặc/chìm.
+5. **LỖI THẬT: `.numeric` không bao giờ ăn.** `Table.module.css` khai `.table .numeric` trong CSS
+   Module (bị băm tên) còn nơi gọi truyền chuỗi thô `className="numeric"`. Đối chiếu bản build:
+   CSS ra `.Table_numeric___vRFF`, HTML ra `class="numeric"` → **3 cột tiền của lịch trả nợ căn
+   trái suốt từ ngày có tính năng.** Đúng điểm 5 của bản rà soát.
+6. **4 bán kính cho các điều khiển đứng cạnh nhau** — `lg` 16px, `pill`, `sm` 6px, `md` 10px.
+7. **5 mặt cảnh báo vàng**, 2 bán kính và 2 cỡ chữ.
+8. **Shadow gán không nhất quán** — 3 thẻ tĩnh có, 5 thẻ cùng vai không; `--shadow-md` khai mà
+   **0 nơi dùng**.
+
+### Đã đổi những file nào, và vì sao
+
+**Token — `src/app/globals.css`**
+
+- Giãn đáy thang chữ: `sm` 13→14, `base` 15→16, `md` 17→18. Bốn bậc đáy nay đều cách 2px. Phần
+  trên (`lg` trở lên) giữ nguyên để không phải đo lại hình học con số kết quả cỡ lớn.
+- Bỏ `--shadow-md` (0 nơi dùng) và `--shadow-highlight` (1 nơi dùng, làm một nút thường nổi hơn
+  cả khối Kết quả). `COLOUR_DERIVED` trong `tokens.test.ts` gỡ theo, còn hai.
+
+**Primitive**
+
+- `primitives/Badge.tsx` + `.module.css` — **mới**. Hai họ: `basic`/`advanced` và `code`. Thay ở
+  7 nơi (`FormulaCard`, `ButtonGroup`, `RadioGroup`, `SliderInput`, `Toggle`, `PresetSheet`,
+  `TickerPickerSheet`) và thêm một nơi mới (`SearchResults`, vốn để cấp độ là chữ xám trần). Bề
+  rộng cột mã gộp 52px/72px về 64px.
+- `primitives/Table.module.css` — `.table .numeric` → `.table :global(.numeric)`. Sửa lỗi số 5.
+- `primitives/Button.module.css` — `.primary` cam → xanh `--color-selected`.
+- `primitives/Input.module.css`, `Select.module.css` — `--radius-lg` → `--radius-md`. Viền 1,5px
+  màu nhấn giữ nguyên (đó là dấu hiệu "gõ được", không liên quan bo góc).
+- `primitives/Card.module.css` — bỏ `box-shadow`.
+
+**Khuôn thẻ kết quả** — `ResultBlock`, `FeeTaxBody.headline`, `LoanScheduleBody.summary` nay cùng
+một khuôn: nền trắng, viền xanh 1,5px, nhãn xanh viết hoa, số mực, `tabular-nums` thay `font-mono`.
+Bỏ bóng ở `ResultBlock` và thay bằng viền xanh — bóng không phân biệt được gì khi 5 thẻ cùng vai
+không có bóng. `ErrorState.value` lấy đúng `clamp()` của `ResultBlock` để trang không xê dịch khi
+phép tính chuyển từ ra số sang báo lỗi (chú thích cũ hứa thế nhưng không đúng).
+`PortfolioScreen.savedResult` **cố ý ở ngoài** khuôn ấy — nó là số trong một dòng danh sách, đi
+theo `StatTile.value`.
+
+**Tiêu đề khối** — 8 nơi về một kiểu: `--text-sm` · bold · in hoa · **`--color-ink`** (bỏ xanh, để
+dành xanh cho hành động và Kết quả). `FormulaDetail` và `ChainBody` là hai cái lệch, trước đây
+12px/medium/xám — tức tiêu đề khối MỜ HƠN và NHỎ HƠN chữ thân bài.
+
+**Màn chi tiết** — khối Kết quả nay có `<h2>` ẩn (`result.heading`, khoá i18n mới ở cả `vi`/`en`)
+và nới thêm `--space-2` phía trên. Trước đó nó là khối duy nhất trong chín khối không có tiêu đề
+nào trong nhịp heading của trang. Tiêu đề đặt NGOÀI thẻ để cấu trúc không đổi khi `ErrorState`
+thay chỗ. Khoá riêng chứ không dùng lại `result.eyebrow` vì ba ca kiểm dò đúng chuỗi 'KẾT QUẢ' để
+biết khối chung có mặt hay không. `ConstantsNote.title` đậm lên để chặng "Giả định" đọc ra được.
+
+**Danh mục** — thêm `PortfolioCell.kind` (`number`/`date`) và `absent`. **Ngày bỏ chữ số đều và nhạt
+đi một bậc** để `02/08/2026` không đọc thoáng qua thành một khoản tiền; "chưa có giá" nhạt đi và bỏ
+độ đậm. `.tabActive` dùng `--gradient-highlight` sẵn có thay vì tự dựng dải chuyển màu thứ hai. Nút
+thêm mã sang xanh, bỏ quầng sáng.
+
+**Nhãn ô số liệu quá mảnh — chủ dự án báo khi xem thẻ mã ở khổ hẹp.** `.cellLabel` **thiếu HẲN**
+`font-weight`, nên nó vẽ ở 400 trong khi `.gainLabel` ngay trên nó và `StatTile.label` ở đầu cùng
+màn — cùng vai, cùng cỡ `--text-xs`, cùng màu `--color-muted`, cùng viết hoa — đều ở 500. Chữ hoa
+12px màu xám ở 400 là tổ hợp mảnh nhất có thể. Luật ấy tự nó hợp lệ nên không cửa nào bắt được;
+quét cả `src/` thì đây là chỗ DUY NHẤT bị. Đã thêm `medium` cho nhãn, và nâng `.cellValue` từ
+`medium` lên `bold` — giá trị là bậc primary trong ô, để cả hai ở 400/500 thì không bậc nào nổi
+hơn bậc nào; nay 500/700, đọc ra ngay cả khi mỗi ô chỉ còn nửa bề ngang. `.cellAbsent` giữ
+`regular`, nên "chưa có giá" càng tách khỏi một giá trị thật.
+
+> **Đã thử căn phải cho ô số và chủ dự án bác ngay khi nhìn thấy.** Luật "số căn phải" của bản rà
+> soát đúng cho một BẢNG có cột, nhưng khối này là lưới `repeat(auto-fill, minmax(104px, 1fr))` gồm
+> những ô nhãn-trên-giá-trị. `.cell` là flex cột nên `text-align` ăn xuống cả nhãn, mà năm nhãn dài
+> ngắn khác nhau ("SỐ LƯỢNG" · "GIÁ VỐN" · "THỊ GIÁ" · "TỶ TRỌNG" · "NGÀY MUA") — căn phải là mép
+> TRÁI của chúng so le hết, và ô "TỶ TRỌNG" chỉ có dấu `—` thì con dấu ấy trôi hẳn sang mép kia,
+> rời khỏi nhãn gọi tên nó. Số cột lại đổi theo bề ngang màn nên không có cột cố định nào để hàng
+> đơn vị thẳng vào. Đã trả về căn trái toàn bộ; lý do ghi luôn trong `PortfolioScreen.module.css`
+> để không ai thử lại. Chỗ căn phải thật sự giúp được là bảng `<th>`/`<td>` — `Table.module.css` lo
+> bằng lớp `.numeric`.
+
+**Phí & thuế** — `.rowValue` đang là `--color-ink-soft` trong khi `.rowLabel` là `--color-ink`, tức
+con số mờ hơn chính cái nhãn gọi tên nó; đảo lại. Huy hiệu ROI đổi nền sang cặp `*-soft` vì thẻ đã
+hết nền xanh đặc, nền trắng trên nền trắng thì chỉ còn màu chữ làm dấu hiệu (NFR-USA-06).
+
+**Thẻ công thức** — `.tileName` 13px xanh → 16px mực, khớp `.name` của biến thể hàng; trước đó tên
+ở ô còn nhỏ hơn mô tả ở hàng. `SearchResults.name` medium → bold, `.hint` 12px xám → 14px ink-soft.
+
+**Cảnh báo** — 5 mặt vàng về cùng `--radius-md` và cùng `--text-sm`.
+
+**Điều hướng** — `BottomTabBar.link` regular → medium, khớp `HeaderNav.link`. Đây là phần bất nhất
+**nội tại** đo được của điểm 10; hình icon và mã màu so với bản vẽ thì chờ bản vẽ đọc được.
+
+**Tài liệu** — `src/ui/README.md` thêm mục "Ba bậc chữ" và "Màu nói gì".
+
+### Sáu cửa gác mới
+
+Tất cả đọc thẳng file nguồn, vì CSS Module không được áp trong jsdom nên so bằng
+`getComputedStyle` sẽ xanh ở cả hai phía kể cả khi hỏng thật.
+
+| File                         | Gác gì                                                                                              |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| `primitives/Table.test.ts`   | `.numeric` phải bọc `:global`, và nơi gọi vẫn truyền chuỗi thô                                      |
+| `primitives/Badge.test.ts`   | không CSS Module nào khác còn tự khai `.badge`                                                      |
+| `ui/typography.test.ts`      | hai bậc chữ liền nhau ở đáy thang cách ≥ 2px; **luật viết hoa nào cũng phải tự khai `font-weight`** |
+| `ui/section-title.test.ts`   | 8 nơi khai tiêu đề khối giống nhau từng thuộc tính                                                  |
+| `ui/result-card.test.ts`     | 3 thẻ đáp án cùng khuôn; `savedResult` cố ý ở ngoài                                                 |
+| `ui/warning-surface.test.ts` | 5 mặt cảnh báo cùng nền/viền/bo góc, không mặt nào cỡ `xs`                                          |
+| `ui/radius.test.ts`          | `--radius-lg` chỉ cho bottom sheet; điều khiển bo `md`                                              |
+
+Vế "luật viết hoa phải khai `font-weight`" thêm sau, từ một lỗi chủ dự án báo — xem mục dưới. Đã
+kiểm ngược: gỡ lại `font-weight` khỏi `.cellLabel` thì ca kiểm đỏ và chỉ đúng tên nó, không báo
+nhầm chỗ nào khác.
+
+`contrast.test.ts` thêm `--color-selected` vào danh sách token CHỮ — nó vốn chỉ làm nền nên chỉ
+được kiểm cặp với `--color-on-selected`, nay còn là chữ và viền của khối Kết quả. Đây đúng là lỗ
+mà việc thêm chỗ dùng mới không tự sinh phép kiểm để lại. 78 ca (trước: 74), xanh cả hai bảng màu.
+
+### Lệch so với kế hoạch, và vì sao
+
+- **KHÔNG đảo thứ tự màn Phí & thuế.** Kế hoạch ghi "đưa khối kết quả lên trước phần bóc tách",
+  nhưng điểm 6 của chính bản rà soát đòi luồng `Input → Assumption/Phí → Calculation → Result →
+Explanation`. Đảo lên trước là phá đúng luồng ấy. Giữ thứ tự, làm kết quả nổi bằng KHUÔN.
+- **KHÔNG gom tiêu đề khối thành component.** 6/8 khai báo vốn đã giống hệt nhau; chỗ hỏng là hai
+  cái lệch. Gom thành component phải sửa 11 file TSX và thêm một ranh giới gói, đổi lại không chặn
+  được gì mà ca kiểm neo không chặn. Cùng lối dự án đã dùng cho `UNIT_SCALES[].label` với khoá i18n.
+- **KHÔNG dùng lại primitive `Card`.** Kế hoạch định đưa nó vào 4 chỗ, nhưng API
+  `eyebrow`/`title`/`subtitle` không khớp chỗ nào: `StatTile` đặt số bên PHẢI nhãn,
+  `ChainBody.step` là `<details>`, dòng mã Danh mục là `<li>`, `FeeTaxBody.stat` là hàng ngang.
+  Hợp đồng phân cấp mà `Card` mã hoá đã chuyển sang bảng "Ba bậc chữ" + 6 cửa gác. **`Card` vẫn
+  0 nơi dùng** — cần chủ dự án quyết giữ hay bỏ.
+- **`VariableTable` không cần `numeric`** — ba cột của nó (BIẾN · ĐƠN VỊ · MÔ TẢ) đều là chữ.
+
+### Số đo trên bản build thật
+
+Đo hai lượt. Lượt đầu chạy thẳng trong repo, lúc chủ dự án tắt dev server. Lượt sau — sau khi trả
+căn lề ô Danh mục về căn trái — dev server đã bật lại, nên dựng ở **thư mục sao chép riêng** đúng
+cách đợt trước đã ghi: `robocopy /XD node_modules .next out .git` + junction `node_modules`, rồi
+`FFB_ALLOW_BUILD_WITH_DEV=1`. Ở đó `next build` chỉ ghi vào `.next/` của bản sao nên bản đang chạy
+không hề bị đụng. Dọn xong phải gỡ junction bằng `cmd /c rmdir` TRƯỚC, rồi mới `Remove-Item
+-Recurse` phần còn lại — xoá đệ quy khi junction còn đó là xoá xuyên qua nó vào `node_modules` thật.
+
+Số dưới đây là của lượt sau, tức bản build khớp đúng mã nguồn hiện tại.
+
+| Phép đo                 | Kết quả                                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| `npm run build`         | Xanh, 122 trang                                                                               |
+| `npm run verify:static` | **25/25**                                                                                     |
+| `npm run check:chrome`  | **35/38** — đúng 3 ca cảnh báo preload service worker đã ghi là **đỏ sẵn ở HEAD** ở đợt trước |
+| `npm run size`          | Đỏ, **đỏ sẵn** — nợ đã ghi từ đợt Audit, chủ dự án đã chấp nhận                               |
+
+**`check:chrome` là cửa gác quan trọng nhất đợt này** và nó xanh ở đúng chỗ đáng lo: giãn thang chữ
+làm mọi thứ rộng ra, nhưng cả 4 ca "nhãn không tràn khỏi viewBox" (`ev`, `lich-tra-no`,
+`diem-hoa-von`, `lai-kep`), ca "ô nhập cùng hàng thẳng nhau ở 360px", ca "mọi thanh trượt chiếm trọn
+một hàng lưới" và cả bốn ca "trang không cuộn ngang ở 360px" đều đạt. Ba ca đỏ là cảnh báo console
+về preload chunk vs service worker — không phải phép đo hình học nào.
+
+Vì `size` đỏ sẵn nên con số duy nhất có nghĩa là MỨC CHÊNH so với HEAD. Đã dựng lại bản nền bằng
+`git stash` để đo, rồi khôi phục và đối chiếu `git status` khớp từng dòng:
+
+|                                    | HEAD     | Sau đợt này  | Chênh   |
+| ---------------------------------- | -------- | ------------ | ------- |
+| `/cong-thuc/lich-tra-no/`          | 337,8 kB | **338,2 kB** | +0,4 kB |
+| `/cong-thuc/loi-nhuan-rong/`       | 337,7 kB | **337,9 kB** | +0,2 kB |
+| `/cong-thuc/gia-tri-noi-tai-fcff/` | 336,6 kB | **336,9 kB** | +0,3 kB |
+| Số trang vượt cửa 180 kB           | 112      | **112**      | 0       |
+
+Không trang nào mới vượt cửa. Thêm `Badge` nhưng bỏ 7 bản chép CSS, nên phần CSS gần như hoà.
+
+> **Cạm bẫy đã gặp:** `git stash pop` báo thành công nhưng CHỈ khôi phục 9 file untracked, bỏ hết 50
+> file tracked, và giữ lại stash entry. `git stash apply` lặp lại y hệt. Cách gỡ là lấy thẳng từ cây
+> của stash: `git checkout stash@{0} -- .` rồi `git reset`. Trước khi stash thì ghi
+> `git status --porcelain | sort` ra file để đối chiếu sau — không có nó thì không cách nào biết
+> việc khôi phục đã đủ hay chưa.
+
+### Việc còn lại
+
+- [x] `npm run build` → `verify:static` (25/25) → `size` → `check:chrome` (35/38)
+- [ ] **Điểm 10 (menubar icon/màu so với bản vẽ)** — chờ quyền đọc Figma, hoặc chủ dự án xuất PNG.
+      Phần bất nhất nội tại đã sửa (độ đậm nhãn tab), phần hình icon và mã màu thì chưa có mốc để so.
+- [ ] **`Card` primitive 0 nơi dùng** — giữ hay bỏ, cần chủ dự án quyết.
+- [ ] 3 ca `check:chrome` đỏ sẵn (cảnh báo preload service worker) — nợ riêng, không thuộc đợt này.
+- [ ] `npm run size` đỏ sẵn — nợ riêng, chủ dự án đã chấp nhận từ đợt Audit.
 
 ---
 
@@ -301,6 +641,35 @@ chưa kịp ra tới DOM.
 
 Test: 11 ca ở `chart-snapshot.test.ts` + 4 ca tích hợp ở `ExportSheet.test.tsx` + **5 phép đo
 Chrome thật** (xem mục dưới) — jsdom không áp CSS nên nó không chứng minh được gì về màu.
+
+### Tắt lối gõ thẳng vào con số cạnh thanh trượt
+
+Chủ dự án báo: con số bên phải nhãn (ví dụ "60 phiên" của `sessions`) sửa được bằng cách bấm vào,
+nhưng **không có dấu hiệu nào cho biết điều đó**. Viền chỉ hiện khi có tiêu điểm — cố ý, để một
+dòng đọc được không biến thành hàng biểu mẫu (`InlineNumber.module.css`) — nhưng cái giá là người
+dùng không đoán ra nó là ô nhập. Chốt: tắt trước, tính lại dấu hiệu sau.
+
+Cờ `GO_SO_TRUC_TIEP = false` ở đầu `SliderInput.tsx`. `InlineNumber` nhận thêm prop `editable`;
+tắt thì nó dựng chữ thay vì ô nhập, giữ nguyên `.box`/`.input` nên **không xê dịch một pixel nào**.
+Chỉ tắt phần GÕ — thanh trượt ngay dưới vẫn kéo được như thường. Nhãn `htmlFor` chuyển sang trỏ
+thanh trượt, vì lúc ấy nó là điều khiển duy nhất.
+
+**`<output>` là lựa chọn đầu tiên và nó SAI** — thẻ ấy mang role ngầm `status`, nên nó vừa biến
+con số thành live region (trình đọc màn hình xướng lại giá trị mỗi lần kéo, chồng lên lời xướng của
+chính thanh trượt), vừa chiếm mất vai `status` của khối "chờ chuỗi giá" ở màn chi tiết. Ca kiểm
+`findByRole('status')` bắt được ngay. Dùng `<span>` trơn: giá trị đã nằm trong chính thanh trượt,
+không cần vai trò trợ năng thứ hai.
+
+Cái mất đi là số lệch lưới bước — đúng nguyên do tính năng này ra đời (lãi suất 12,37% không kéo
+tới được khi bước là 0,1). Ghi lại ở docblock của cờ để lần bật lại biết mình đang đánh đổi gì.
+
+14 ca kiểm phải gõ vào ô ấy mới chạy được → `.skip` kèm dòng trỏ về cờ. Một ca giữ lại có sửa:
+"biến nâng cao trong chế độ Cơ bản thì không gõ được và không kéo được" bỏ vế gõ, giữ vế kéo — vế
+ấy không liên quan tới đợt này.
+
+`npm run check` xanh (2.035 đạt, 37 hoãn) · `check:chrome` 35/38, trong đó phép đo "mọi thanh
+trượt chiếm trọn một hàng lưới" vẫn đạt (6 thanh trượt, không cái nào bị bóp) — đó là cửa gác bố cục
+của đúng hàng vừa đổi markup.
 
 ### Nới vùng vẽ của biểu đồ sang trái
 

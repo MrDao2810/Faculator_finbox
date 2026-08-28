@@ -3,8 +3,13 @@
 ## Đã có
 
 - `primitives/` — gói WBS 1.2.1, 2.3.3 và 2.5: `Button`, `Input`, `Select`, `Card`, `Chip`,
-  `Table` (khung bảng có vùng cuộn ngang riêng), `BottomSheet` (dựng trên `<dialog>` gốc).
+  `Badge`, `Table` (khung bảng có vùng cuộn ngang riêng), `BottomSheet` (dựng trên `<dialog>` gốc).
   Mọi kiểu dáng đọc token từ `src/app/globals.css`, không hard-code màu.
+  `Badge` gom bảy bản chép của đợt rà soát phân cấp — hai họ, `basic`/`advanced` cho cấp độ và
+  `code` cho mã chứng khoán. `Card` hiện **chưa có nơi dùng**: API `eyebrow`/`title`/`subtitle`
+  của nó không khớp mặt nào đang có (`StatTile` đặt con số bên phải nhãn, `ChainBody.step` là
+  `<details>`, dòng mã của Danh mục là `<li>`), nên hợp đồng phân cấp mà nó mã hoá đã chuyển sang
+  bảng "Ba bậc chữ" dưới đây cùng các cửa gác đi kèm.
 - `navigation/` — gói 2.1: `AppHeader`, `OfflineBanner`, `ModeToggle`, `LangSwitch`,
   `BottomTabBar`, `DisclaimerBar`.
 - `layout/` — gói 1.4.2: `AppShell`.
@@ -53,6 +58,42 @@ nhập dựng `LinkedInput` thay cho `VariableField`.
 xuất là cả 111 trang chi tiết cùng gánh trong khi chỉ **7 công thức** dùng tới (`capm`, `wacc`,
 `mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), và chỉ khi bật chế độ
 Nâng cao.
+
+## Ba bậc chữ
+
+Mọi khối chữ trên màn phải rơi vào **đúng một** trong ba bậc dưới đây. Đây là hợp đồng của đợt rà
+soát phân cấp thị giác — bản rà soát báo "nhiều màn thiếu phân cấp rõ giữa primary – secondary –
+metadata", và nguyên nhân đo được là 231 trên 291 khai báo `font-size` dồn vào hai bậc cách nhau
+đúng 1px.
+
+| Bậc           | Cỡ / đậm / màu                                            | Dùng cho                                  |
+| ------------- | --------------------------------------------------------- | ----------------------------------------- |
+| **primary**   | `--text-base` · `--weight-bold` · `--color-ink`           | tên công thức, mã CK, con số của một dòng |
+| **secondary** | `--text-sm` · `--weight-regular` · `--color-ink-soft`     | mô tả, câu diễn giải, câu cảnh báo        |
+| **metadata**  | `--text-xs` · `--weight-medium` · `--color-muted`, in hoa | nhóm, huy hiệu, nhãn ô, đơn vị            |
+
+Hai bậc nằm ngoài bảng vì chúng chỉ có một chỗ dùng: **tiêu đề khối** (`--text-sm` · bold · in hoa ·
+`--color-ink`) và **con số kết quả** (`clamp(--text-2xl, 9vw, --text-3xl)` · bold · `--color-ink`).
+
+Năm cửa gác giữ những thứ này khỏi trôi, tất cả đọc thẳng file nguồn vì CSS Module không được áp
+trong jsdom:
+
+- `typography.test.ts` — hai bậc chữ liền nhau ở đáy thang phải cách ít nhất 2px.
+- `section-title.test.ts` — 8 nơi khai tiêu đề khối phải giống nhau từng thuộc tính.
+- `result-card.test.ts` — 3 thẻ mang đáp án của cả màn phải cùng một khuôn.
+- `warning-surface.test.ts` — 5 mặt cảnh báo vàng phải cùng nền, viền, bo góc.
+- `radius.test.ts` — `--radius-lg` chỉ dành cho bottom sheet; mọi điều khiển bo `--radius-md`.
+
+## Màu nói gì
+
+- **Xanh `--color-selected`** — hành động chính (`Button.primary`, nút thêm mã) và khối **Kết quả**.
+  Đổi từ cam sang xanh ở đợt rà soát phân cấp, theo bản rà soát ("Blue = action/result").
+- **Xanh `--color-accent`** — đi tới: link, tab, thanh điều hướng, đường biểu đồ.
+- **Cam `--color-highlight`** — nay CHỈ còn là mốc dữ liệu: vạch giá trị hiện tại trên biểu đồ và
+  thanh Hoàn tác. Không còn nút bấm nào màu cam.
+- **Xám** — mọi thứ hạng phụ. **Vàng** — cảnh báo. **Đỏ** — hỏng. **Xanh lá** — lãi.
+
+Bóng đổ chỉ dành cho lớp **nổi** (nút trượt, phản hồi hover). Thẻ tĩnh tách nền bằng viền 1px.
 
 ## Cách viết component ở đây
 

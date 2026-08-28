@@ -126,6 +126,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'input.autoFrom': 'Auto-filled from',
 
   'result.eyebrow': 'RESULT',
+  /* Tiêu đề ẩn của khối Kết quả — vì sao tách khoá, xem chú thích ở `vi.ts`. */
+  'result.heading': 'Result',
   'result.live': 'updates as you type',
   'result.unavailable': 'Cannot compute yet',
   'result.fixPrefix': '↳',

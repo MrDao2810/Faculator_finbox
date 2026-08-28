@@ -20,6 +20,9 @@ export type { BottomSheetProps } from './BottomSheet';
 export { Card } from './Card';
 export type { CardProps } from './Card';
 
+export { Badge } from './Badge';
+export type { BadgeProps, BadgeTone } from './Badge';
+
 export { Chip } from './Chip';
 export type { ChipProps } from './Chip';
 

@@ -33,7 +33,14 @@
   padding: var(--space-1) var(--space-1);
 
   font-size: var(--text-xs);
-  font-weight: var(--weight-regular);
+  /*
+   * `medium` chứ không `regular` — cùng độ đậm với `HeaderNav.link`, vốn là chính bốn mục này ở
+   * khổ desktop. Trước đợt rà soát phân cấp, cùng một mục điều hướng có hai độ đậm tuỳ bề ngang
+   * màn hình; đó là phần bất nhất NỘI TẠI đo được của mục "menubar chưa đồng bộ" trong bản rà
+   * soát. Cỡ chữ vẫn khác nhau có chủ đích (12px dưới icon ở khổ điện thoại, 14px cho hàng chữ
+   * trần ở desktop) — phần hình icon và mã màu so với bản vẽ thì chờ có bản vẽ đọc được.
+   */
+  font-weight: var(--weight-medium);
   color: var(--color-muted);
   text-decoration: none;
 }

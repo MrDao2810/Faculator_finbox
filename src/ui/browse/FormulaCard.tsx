@@ -6,6 +6,14 @@ import type { FormulaSummary } from '@/application';
 
 import { Pick } from '../i18n/Pick';
 import { T } from '../i18n/T';
+/*
+ * Nhập THẲNG từ file chứ không qua barrel `@/ui/primitives`, cùng cách hai dòng trên nhập
+ * `Pick`/`T`. Thẻ này được dựng từ CẢ hai phía — `FormulaBrowser` phía máy khách và
+ * `StaticFormulaList` phía máy chủ — nên đi qua barrel là kéo theo `Button`, `Input`, `Select`,
+ * `BottomSheet`, `Switch` (đều mang `'use client'`) vào đồ thị của trang chủ và của danh sách
+ * tĩnh, chỉ để lấy một `<span>`. `Badge` không có `'use client'` và không gọi hook nào.
+ */
+import { Badge } from '../primitives/Badge';
 import { CategoryIcon, toneClass } from './CategoryIcon';
 import styles from './FormulaCard.module.css';
 
@@ -88,9 +96,9 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
           <span className={styles.name}>
             <Pick value={formula.name} />
           </span>
-          <span className={`${styles.badge} ${isBasic ? styles.basic : styles.advanced}`}>
+          <Badge tone={isBasic ? 'basic' : 'advanced'}>
             <T k={isBasic ? 'level.basic' : 'level.advanced'} />
-          </span>
+          </Badge>
         </div>
 
         <p className={styles.description}>

@@ -59,19 +59,30 @@
 }
 
 /*
- * Nút hành động chính mang màu cam, không phải xanh nhấn — bản thiết kế đợt 12 tách hai vai:
- * xanh lo phần "đi tới" (link, tab, đường biểu đồ), cam lo phần "bấm vào đây".
+ * Nút hành động chính mang màu XANH kể từ đợt rà soát phân cấp thị giác — chủ dự án chốt theo
+ * bản rà soát thiết kế ("Blue = action/result"). Đây là việc ĐẢO lại quyết định đợt 12, vốn tách
+ * xanh lo "đi tới" khỏi cam lo "bấm vào đây".
+ *
+ * Dùng `--color-selected` (#1e60c0, dải gd2 của Finbox_v2) chứ không dùng `--color-accent`:
+ * thẫm hơn hẳn nên nút đặc không lẫn với link và tab điều hướng dù cùng sắc xanh. Đây cũng là
+ * bộ token DUY NHẤT đã có sẵn cả bản tối lẫn phép kiểm tương phản (chữ trắng 6,02:1 bảng sáng,
+ * 9,82:1 ở đầu thẫm), nên đổi không đẻ thêm token nào.
+ *
+ * Vai cũ của cam vẫn còn, nhưng thu về đúng nghĩa "mốc dữ liệu": vạch giá trị hiện tại trên biểu
+ * đồ (`chart.module.css`) và thanh Hoàn tác (`SettingsScreen.undoBar`). Không còn chỗ cam nào là
+ * nút bấm.
  *
  * `primary` là biến thể MẶC ĐỊNH của Button, nên một màn có bao nhiêu nút không khai variant là
- * có bấy nhiêu chỗ cam. Đúng ý ở các sheet (mỗi sheet chỉ một nút xác nhận), nhưng khi thêm nút
- * mới thì cân nhắc: thấy hai nút cam cạnh nhau nghĩa là một trong hai đáng ra phải `secondary`.
+ * có bấy nhiêu chỗ xanh đặc. Đúng ý ở các sheet (mỗi sheet chỉ một nút xác nhận), nhưng khi thêm
+ * nút mới thì cân nhắc: thấy hai nút đặc cạnh nhau nghĩa là một trong hai đáng ra phải
+ * `secondary`.
  */
 .primary {
-  background: var(--color-highlight);
-  color: var(--color-on-highlight);
+  background: var(--color-selected);
+  color: var(--color-on-selected);
 }
 .primary:hover:not(:disabled) {
-  background: var(--color-highlight-strong);
+  background: var(--color-selected-strong);
 }
 
 .secondary {

@@ -160,6 +160,16 @@ export const vi = {
 
   // Kết quả & diễn giải — WF-03, WF-15, gói 2.4
   'result.eyebrow': 'KẾT QUẢ',
+  /*
+   * Tiêu đề khối Kết quả, ẩn khỏi mắt và chỉ dành cho trình đọc màn hình / điều hướng bằng phím.
+   *
+   * Là khoá RIÊNG chứ không dùng lại `result.eyebrow`, dù hai chữ gần như nhau. Lý do đo được:
+   * `result.eyebrow` viết hoa toàn bộ ngay trong từ điển, và ba ca kiểm ở `FormulaDetail.test.tsx`
+   * dò đúng chuỗi 'KẾT QUẢ' để biết khối kết quả CHUNG có mặt hay không — công thức nào tự bày
+   * kết quả trong thân riêng thì khối chung phải vắng. Dùng chung một khoá là tiêu đề ẩn luôn
+   * khớp, và ba ca kiểm ấy mất hiệu lực trong im lặng.
+   */
+  'result.heading': 'Kết quả',
   'result.live': 'cập nhật tức thì',
   'result.unavailable': 'Chưa tính được',
   'result.fixPrefix': '↳',

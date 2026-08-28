@@ -1,3 +1,14 @@
+/*
+ * Mặt phẳng cảnh báo vàng — MỘT kiểu duy nhất, xem `warning-surface.test.ts`.
+ *
+ * Bản rà soát thiết kế xếp "Warning/Disclaimer" vào nhóm "lặp lại nhưng chưa đồng nhất giữa các
+ * màn", và đo được đúng thế: cùng bộ ba token vàng (`warning` trên `warning-soft`, viền
+ * `warning-line`) được dựng lại ở năm chỗ với hai bán kính và hai cỡ chữ khác nhau —
+ * `InlineWarning` bo `sm`, `DisclaimerBar.notice` bo `md`, `PortfolioScreen.priceError` bo `sm`
+ * cỡ 12, `FormulaDetail.seriesShortNote` bo `sm` cỡ 12, `XirrBody.issues` bo `md` cỡ 13.
+ *
+ * Nay tất cả bo `--radius-md`, cùng bậc với thẻ và điều khiển.
+ */
 .warning {
   display: flex;
   align-items: flex-start;
@@ -7,7 +18,7 @@
 
   background: var(--color-warning-soft);
   border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 
 .icon {

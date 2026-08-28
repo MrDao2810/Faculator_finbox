@@ -76,14 +76,20 @@ for (const [palette, tokens] of PALETTES) {
 
     /*
      * `--color-highlight` và hai tông nhóm nằm ở đây chứ không ở `nonTextTokens`: cả ba đều được
-     * dùng làm màu CHỮ — cam là nhãn của nút chính và của vạch giá trị hiện tại trên biểu đồ,
-     * hai tông kia là chữ trong badge nhóm. Chúng phải chịu ngưỡng 4,5:1, không phải 3:1.
+     * dùng làm màu CHỮ — cam là nhãn của vạch giá trị hiện tại trên biểu đồ, hai tông kia là chữ
+     * trong badge nhóm. Chúng phải chịu ngưỡng 4,5:1, không phải 3:1.
+     *
+     * `--color-selected` vào danh sách từ đợt rà soát phân cấp: trước đó nó chỉ làm NỀN của mục
+     * đang chọn nên chỉ được kiểm cặp với `--color-on-selected`, nay nó còn là chữ của dòng
+     * "KẾT QUẢ" và viền của khối ấy (`ResultBlock.module.css`). Đây đúng là lỗ mà việc thêm token
+     * không tự động sinh phép kiểm để lại — thêm chỗ dùng mới thì phải thêm tên vào đây.
      */
     const textTokens = [
       '--color-ink',
       '--color-ink-soft',
       '--color-muted',
       '--color-accent',
+      '--color-selected',
       '--color-highlight',
       '--color-tint-teal',
       '--color-tint-violet',

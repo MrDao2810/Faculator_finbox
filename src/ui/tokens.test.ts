@@ -246,8 +246,13 @@ describe('bảng tối đè đủ token màu của bảng sáng', () => {
     ['--color-brand-to', 'cùng lý do với --color-brand-from'],
   ]);
 
-  /** Token không phải màu thuần nhưng nhúng cứng màu bên trong, nên vẫn phải viết lại. */
-  const COLOUR_DERIVED = ['--shadow-sm', '--shadow-md', '--focus-ring', '--shadow-highlight'];
+  /**
+   * Token không phải màu thuần nhưng nhúng cứng màu bên trong, nên vẫn phải viết lại.
+   *
+   * Còn hai từ đợt rà soát phân cấp: `--shadow-md` bỏ vì khai mà không nơi nào dùng, và
+   * `--shadow-highlight` bỏ cùng lúc nút thêm mã của Danh mục thôi đổ quầng.
+   */
+  const COLOUR_DERIVED = ['--shadow-sm', '--focus-ring'];
 
   const light = declaredNames(cssBlock(GLOBALS_CSS, ':root'));
   const dark = declaredNames(cssBlock(GLOBALS_CSS, DARK_SELECTOR));

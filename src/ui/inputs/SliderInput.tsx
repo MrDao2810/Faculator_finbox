@@ -5,6 +5,7 @@ import { useId, type CSSProperties } from 'react';
 import { formatValueWithUnit, isLockedForMode, snapToStep } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { Badge } from '@/ui/primitives';
 
 import { InlineNumber } from './InlineNumber';
 import styles from './SliderInput.module.css';
@@ -16,6 +17,26 @@ export interface SliderInputProps {
   mode?: Level;
   className?: string;
 }
+
+/**
+ * TẠM TẮT lối gõ thẳng vào con số cạnh nhãn — chủ dự án yêu cầu sau buổi tự thử.
+ *
+ * Lý do: con số ấy không có dấu hiệu nào cho biết nó bấm vào sửa được. Viền chỉ hiện khi có tiêu
+ * điểm — cố ý, để một dòng đọc được không biến thành hàng biểu mẫu (xem `InlineNumber.module.css`)
+ * — nhưng cái giá là người dùng không đoán ra nó là ô nhập. Chủ dự án chốt tắt trước, tính lại
+ * dấu hiệu sau.
+ *
+ * Tắt phần GÕ chứ không tắt việc đổi giá trị: thanh trượt ngay dưới vẫn kéo được như thường, và
+ * `<output>` thay chỗ vẫn hiện đúng con số ở đúng vị trí cũ.
+ *
+ * Cái mất đi là số lệch lưới bước — nguyên do sinh ra tính năng này, ghi trong docblock của
+ * `SliderInput` ngay dưới: lãi suất 12,37% không kéo tới được khi bước là 0,1. Bật lại là đổi hằng
+ * này thành `true`, và gỡ `.skip` ở hai ca kiểm trỏ về đây.
+ *
+ * Kiểu `boolean` tường minh là cố ý — thiếu nó thì TypeScript thu hẹp về literal `false` và nhánh
+ * kia thành mã chết dưới mắt lint.
+ */
+const GO_SO_TRUC_TIEP: boolean = false;
 
 /** Giá trị có nằm đúng trên lưới bước của thanh trượt hay không. */
 function onStepGrid(value: number, spec: VariableSpec): boolean {
@@ -89,8 +110,11 @@ export function SliderInput({
           Nhãn trỏ vào Ô NHẬP, còn thanh trượt dùng lại đúng nhãn ấy qua `aria-labelledby`.
           Hai điều khiển cùng một tên là đúng — chúng sửa cùng một con số — và trình đọc màn hình
           phân biệt được bằng vai: một cái là `slider`, một cái là `textbox`.
+
+          Khi `GO_SO_TRUC_TIEP` tắt thì nhãn trỏ thẳng vào thanh trượt: lúc ấy nó là điều khiển DUY
+          NHẤT, nên bấm vào nhãn phải đưa tiêu điểm tới đúng chỗ sửa được.
         */}
-        <label className={styles.label} id={labelId} htmlFor={boxId}>
+        <label className={styles.label} id={labelId} htmlFor={GO_SO_TRUC_TIEP ? boxId : inputId}>
           {pick(spec.label)}
         </label>
 
@@ -99,6 +123,7 @@ export function SliderInput({
           value={value}
           onChange={onChange}
           readOnly={locked}
+          editable={GO_SO_TRUC_TIEP}
           id={boxId}
           describedBy={marksId}
           className={styles.valueBox}
@@ -139,7 +164,7 @@ export function SliderInput({
         <span>
           {t('input.sliderMax')} {formatValueWithUnit(max, spec.unit, { maxDecimals: 4 })}
         </span>
-        {locked && <span className={styles.badge}>{t('input.lockedBadge')}</span>}
+        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
       </p>
     </div>
   );

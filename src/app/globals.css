@@ -194,10 +194,27 @@
   --color-scrim: rgba(26, 34, 51, 0.45);
 
   /* ── Thang chữ ───────────────────────────────────────────────────────── */
+  /*
+   * Đáy thang giãn ra ở đợt rà soát phân cấp: `xs` 12 · `sm` 13 · `base` 15 thành 12 · 14 · 16.
+   *
+   * Lý do là số đo, không phải khẩu vị. `--text-xs` và `--text-sm` cũ cách nhau ĐÚNG 1px, mà hai
+   * bậc đó chiếm 231 trên 291 khai báo `font-size` của cả dự án — tức gần như mọi thứ trên màn
+   * được vẽ bằng hai cỡ chữ mắt không phân biệt nổi. Bản rà soát thiết kế báo "thiếu phân cấp rõ
+   * giữa primary – secondary – metadata"; nguyên nhân nằm ở đây chứ không ở từng màn, nên chữa ở
+   * đây thì phần lớn các màn tự hết.
+   *
+   * Nay bốn bậc đáy đều cách nhau 2px (12 · 14 · 16 · 18), đủ để ba vai đọc ra được bằng riêng
+   * cỡ chữ. Xem bảng "Ba bậc chữ" trong `src/ui/README.md` để biết vai nào lấy bậc nào.
+   *
+   * Phần trên của thang (`lg` trở lên) giữ nguyên: nó vốn đã thưa, và đổi thì con số kết quả cỡ
+   * lớn cùng tiêu đề trang phải đo lại hình học ở khổ 360px mà không được lợi gì.
+   *
+   * `typography.test.ts` ghim khoảng cách tối thiểu 2px giữa hai bậc liền nhau ở đáy thang.
+   */
   --text-xs: 12px;
-  --text-sm: 13px;
-  --text-base: 15px;
-  --text-md: 17px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-md: 18px;
   --text-lg: 20px;
   --text-xl: 26px;
   --text-2xl: 32px; /* số kết quả lớn ở ResultBlock */
@@ -230,14 +247,19 @@
   --radius-lg: 16px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(26, 34, 51, 0.08);
-  --shadow-md: 0 2px 8px rgba(26, 34, 51, 0.12);
   /*
-   * Quầng sáng dưới nút hành động chính. Khai ở đây chứ không viết thẳng vào CSS Module vì
-   * `box-shadow` buộc phải nhúng màu, mà `tokens.test.ts` cấm `rgba(` trong file `.module.css`.
-   * Nhúng cứng màu nên nó nằm trong `COLOUR_DERIVED` và phải có bản tối, như hai dòng trên.
+   * MỘT bậc bóng duy nhất, và nó chỉ dành cho lớp NỔI: nút trượt, và phản hồi hover của thẻ bấm
+   * được. Thẻ tĩnh tách nền bằng viền 1px — xem `Card.module.css`.
+   *
+   * Khai ở đây chứ không viết thẳng vào CSS Module vì `box-shadow` buộc phải nhúng màu, mà
+   * `tokens.test.ts` cấm `rgba(` trong file `.module.css`. Nhúng cứng màu nên nó nằm trong
+   * `COLOUR_DERIVED` và phải có bản tối.
+   *
+   * `--shadow-md` và `--shadow-highlight` bỏ ở đợt rà soát phân cấp: cái đầu khai từ đầu mà
+   * KHÔNG nơi nào dùng, cái sau chỉ có một nơi dùng (quầng dưới nút thêm mã của Danh mục) và nó
+   * làm một nút thường nổi hơn cả khối Kết quả.
    */
-  --shadow-highlight: 0 6px 18px rgba(178, 60, 0, 0.32);
+  --shadow-sm: 0 1px 2px rgba(26, 34, 51, 0.08);
 
   /* ── Trạng thái focus — bắt buộc thấy rõ, không được tắt (NFR-USA-06) ── */
   --focus-width: 3px;
@@ -363,11 +385,7 @@
    * Bóng trên nền tối cần đậm hơn hẳn: nền càng tối thì một mảng đen mờ càng khó thấy.
    */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.6);
   --focus-ring: 0 0 0 var(--focus-width) rgba(138, 180, 248, 0.4);
-  /* Quầng của nút chính lấy chính màu cam đang dùng, không lấy màu đen: trên nền tối một mảng
-     đen mờ không đọc ra là quầng sáng, nó chỉ làm nút trông bẩn. */
-  --shadow-highlight: 0 6px 20px rgba(255, 171, 112, 0.28);
 }
 
 * {

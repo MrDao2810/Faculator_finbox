@@ -63,28 +63,9 @@
 }
 
 /*
- * Badge cấp độ: chữ + viền + nền, không phải chỉ màu — NFR-USA-06.
- * Cơ bản dùng màu nhấn, Nâng cao dùng màu vàng của wireframe.
+ * Badge cấp độ chuyển sang primitive `Badge` (tone `basic`/`advanced`) ở đợt rà soát phân cấp —
+ * cùng huy hiệu ấy trước đây được chép ở năm file với bốn cách vẽ khác nhau.
  */
-.badge {
-  padding: 1px var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  border: 1px solid;
-  border-radius: var(--radius-pill);
-}
-
-.basic {
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-}
-
-.advanced {
-  color: var(--color-warning);
-  background: var(--color-warning-soft);
-  border-color: var(--color-warning-line);
-}
 
 .description {
   margin: var(--space-1) 0 0;
@@ -185,18 +166,29 @@
   border-radius: var(--radius-sm);
 }
 
+/*
+ * Tên công thức ở biến thể ô — CÙNG bậc với `.name` của biến thể hàng.
+ *
+ * Bản cũ là 13px trên nền xanh đậm, trong khi biến thể hàng để 15px mực. Hệ quả đo được: tên
+ * công thức ở ô còn NHỎ HƠN câu mô tả ở hàng, tức cùng một thứ mang hai bậc khác nhau tuỳ chỗ
+ * gặp nó. Bản rà soát thiết kế nêu đúng nhóm này — "tên/kết quả chính = primary, mô tả =
+ * secondary, category/badge = metadata", áp nhất quán.
+ *
+ * Màu mực chứ không màu nhấn: cả thẻ đã là một link, nên tên không cần tự xưng là link nữa, và
+ * xanh nay dành cho hành động với khối Kết quả. Biến thể hàng vốn đã làm đúng thế.
+ */
 .tileName {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
-  /* Xanh đậm hơn tiêu đề khối, đúng bản thiết kế — và đạt 9,6:1 trên nền thẻ. */
-  color: var(--color-accent-strong);
+  color: var(--color-ink);
   /* Tên đầy đủ kiểu "P/E — hệ số giá trên lợi nhuận" phải xuống dòng được trong ô 150px. */
   overflow-wrap: anywhere;
 }
 
+/* Bậc secondary, cùng `--text-sm` với `.description` của biến thể hàng. */
 .tileDescription {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   line-height: var(--leading-normal);
   color: var(--color-ink-soft);
 

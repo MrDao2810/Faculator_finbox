@@ -808,7 +808,8 @@ describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
   });
 });
 
-describe('WF-03 — người dùng gõ được số cụ thể của mã họ đang xem', () => {
+// Tắt cùng đợt tắt lối gõ thẳng vào con số — xem GO_SO_TRUC_TIEP ở SliderInput.tsx.
+describe.skip('WF-03 — người dùng gõ được số cụ thể của mã họ đang xem', () => {
   /*
    * Rào đo được trước đợt này: 97 biến kiểu `slider` trên toàn Registry chỉ nhập được bằng cách
    * kéo, và kéo thì bám lưới `step`. 39 trên 78 công thức nhóm Cơ bản có ít nhất một ô như vậy,

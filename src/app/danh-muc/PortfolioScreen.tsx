@@ -209,6 +209,27 @@ interface FormErrors {
 type SheetKind = 'ticker' | 'formulas';
 
 /**
+ * Một ô số liệu trong thẻ của một mã.
+ *
+ * `kind` có mặt vì bản rà soát thiết kế bắt được rằng NGÀY MUA đang hiện y hệt một khoản tiền:
+ * cùng cỡ chữ, cùng độ đậm, cùng `tabular-nums`. Trước đợt này ô nào cũng là một cặp nhãn–giá trị
+ * vô danh, nên CSS không có cách nào biết ô nào là số ô nào là ngày.
+ *
+ * Phân biệt bằng MẶT CHỮ và MÀU, không bằng căn lề: một bản thử căn phải cho ô số đã bị chủ dự án
+ * bác ngay khi nhìn thấy — lý do đầy đủ ở chú thích "Căn lề: TẤT CẢ căn trái" trong
+ * `PortfolioScreen.module.css`.
+ *
+ * `absent` tách "chưa có giá" và "—" khỏi một giá trị thật. Chúng chiếm đúng chỗ của một con số
+ * nên phải trông khác một con số (FR-06: thiếu dữ liệu thì nói ra, không hiện 0).
+ */
+interface PortfolioCell {
+  label: string;
+  value: string;
+  kind: 'number' | 'date';
+  absent?: boolean;
+}
+
+/**
  * Hai tab của màn: mã đang nắm giữ, và phép tính đã lưu từ màn chi tiết công thức.
  *
  * Tab thứ hai KHÔNG tính lại con số nào. Tính lại đòi `FORMULA_MODULES`, tức cả Registry, trong
@@ -962,14 +983,16 @@ export function PortfolioScreen() {
                    * năm là đúng cái bẫy mà luật `MODEL_VIOLATION` ở `summarisePortfolio()` dựng ra
                    * để chặn, mà người dùng lại không có cách nào nhìn thấy ngày đang lưu để sửa.
                    */
-                  const cells: ReadonlyArray<{ label: string; value: string }> = [
+                  const cells: ReadonlyArray<PortfolioCell> = [
                     {
                       label: t('portfolio.cellQuantity'),
                       value: `${formatNumber(holding.quantity) ?? holding.quantity} ${t('portfolio.shares')}`,
+                      kind: 'number',
                     },
                     {
                       label: t('portfolio.costPrice'),
                       value: `${formatNumber(holding.costPrice) ?? '—'} ₫`,
+                      kind: 'number',
                     },
                     {
                       label: t('portfolio.marketPrice'),
@@ -978,6 +1001,12 @@ export function PortfolioScreen() {
                         row.marketPrice === null
                           ? t('portfolio.priceMissing')
                           : `${formatNumber(row.marketPrice) ?? '—'} ₫`,
+                      kind: 'number',
+                      /*
+                       * Chữ "chưa có giá" ĐỨNG ĐÚNG CHỖ của một khoản tiền, nên phải trông khác
+                       * một khoản tiền — nếu không nó đọc ra như một giá trị thật.
+                       */
+                      absent: row.marketPrice === null,
                     },
                     {
                       label: t('portfolio.weight'),
@@ -985,6 +1014,8 @@ export function PortfolioScreen() {
                         row.weight === null
                           ? '—'
                           : `${formatNumber(row.weight, { maxDecimals: 0 }) ?? '—'}%`,
+                      kind: 'number',
+                      absent: row.weight === null,
                     },
                     ...(holding.buyDate === ''
                       ? []
@@ -992,6 +1023,12 @@ export function PortfolioScreen() {
                           {
                             label: t('portfolio.formBuyDate'),
                             value: formatIsoDate(holding.buyDate),
+                            /*
+                             * NGÀY, không phải số. Bản rà soát thiết kế bắt đúng chỗ này: ngày mua
+                             * trước đây hiện y hệt một khoản tiền — cùng cỡ, cùng độ đậm, cùng
+                             * `tabular-nums` — nên `02/08/2026` đọc thoáng qua ra một con số.
+                             */
+                            kind: 'date' as const,
                           },
                         ]),
                     /*
@@ -1007,6 +1044,7 @@ export function PortfolioScreen() {
                             value:
                               formatNumber(holding.beta, { maxDecimals: 4 }) ??
                               String(holding.beta),
+                            kind: 'number' as const,
                           },
                         ]),
                   ];
@@ -1087,9 +1125,20 @@ export function PortfolioScreen() {
 
                       <dl className={styles.cells}>
                         {cells.map((cell) => (
-                          <div key={cell.label} className={styles.cell}>
+                          /*
+                            Chỉ ô NGÀY mang lớp riêng. Ô số không cần lớp nào — mọi ô căn trái như
+                            nhau, xem chú thích "Căn lề: TẤT CẢ căn trái" ở `PortfolioScreen.module.css`.
+                          */
+                          <div
+                            key={cell.label}
+                            className={`${styles.cell} ${cell.kind === 'date' ? styles.cellDate : ''}`.trimEnd()}
+                          >
                             <dt className={styles.cellLabel}>{cell.label}</dt>
-                            <dd className={styles.cellValue}>{cell.value}</dd>
+                            <dd
+                              className={`${styles.cellValue} ${cell.absent === true ? styles.cellAbsent : ''}`.trimEnd()}
+                            >
+                              {cell.value}
+                            </dd>
                           </div>
                         ))}
                       </dl>

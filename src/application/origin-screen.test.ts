@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { backTarget, matchOrigin, originToStore, parseOrigin } from './origin-screen';
+import type { Origin } from './origin-screen';
+import { backTarget, matchOrigin, originPath, originToStore, parseOrigin } from './origin-screen';
 
 /** Chuỗi đúng dạng `OriginTracker` ghi vào `sessionStorage`. */
 function ghi(url: string, scrollY = 0): string {
   return JSON.stringify({ url, scrollY });
+}
+
+/** Bản ghi đã đọc xong, dạng `backTarget()` nhận. */
+function ban(url: string, scrollY = 0): Origin {
+  return { url, scrollY };
 }
 
 describe('matchOrigin() — bốn màn được phép làm gốc', () => {
@@ -117,27 +123,122 @@ describe('originToStore() — có đáng ghi không', () => {
   });
 });
 
+describe('originPath() — một cách chuẩn hoá duy nhất', () => {
+  it('bỏ truy vấn, giữ đường dẫn', () => {
+    expect(originPath('/danh-muc/?tab=cong-thuc')).toBe('/danh-muc/');
+    expect(originPath('/cong-thuc/?q=rui+ro&category=risk')).toBe('/cong-thuc/');
+  });
+
+  it('thiếu dấu / cuối thì thêm vào — router không phải lúc nào cũng đưa nó', () => {
+    expect(originPath('/danh-muc')).toBe('/danh-muc/');
+    expect(originPath('/danh-muc?tab=cong-thuc')).toBe('/danh-muc/');
+  });
+
+  it('trang chủ giữ nguyên một dấu /', () => {
+    expect(originPath('/')).toBe('/');
+  });
+});
+
 describe('backTarget() — đích và nhãn không được rời nhau', () => {
+  /** Màn đang đứng mặc định là trang chi tiết: nơi nút quay lại vốn hay có mặt nhất. */
+  const O_CHI_TIET = '/cong-thuc/pe/';
+
   it('chưa nhớ gì thì dùng đường dẫn dự phòng kèm nhãn dự phòng', () => {
-    expect(backTarget(null, '/cong-thuc/', 'nav.backToList')).toEqual({
-      href: '/cong-thuc/',
-      labelKey: 'nav.backToList',
-    });
+    expect(
+      backTarget({ origin: null, prev: null, here: O_CHI_TIET }, '/cong-thuc/', 'nav.backToList'),
+    ).toEqual({ href: '/cong-thuc/', labelKey: 'nav.backToList' });
   });
 
   it('nhớ được thì nhãn ĐI THEO màn gốc, không giữ nhãn dự phòng', () => {
-    expect(backTarget({ url: '/', scrollY: 0 }, '/cong-thuc/', 'nav.backToList')).toEqual({
-      href: '/',
-      labelKey: 'nav.home',
-    });
+    expect(
+      backTarget(
+        { origin: ban('/'), prev: null, here: O_CHI_TIET },
+        '/cong-thuc/',
+        'nav.backToList',
+      ),
+    ).toEqual({ href: '/', labelKey: 'nav.home' });
   });
 
   it('màn gốc là danh sách đã lọc thì giữ nguyên bộ lọc trong href', () => {
     const target = backTarget(
-      { url: '/cong-thuc/?category=risk', scrollY: 0 },
+      { origin: ban('/cong-thuc/?category=risk'), prev: null, here: O_CHI_TIET },
       '/cong-thuc/',
       'nav.backToList',
     );
     expect(target.href).toBe('/cong-thuc/?category=risk');
+  });
+
+  it('ô thứ hai chỉ là dự bị — còn dùng được ô thứ nhất thì không đụng tới nó', () => {
+    const target = backTarget(
+      { origin: ban('/danh-muc/'), prev: ban('/'), here: O_CHI_TIET },
+      '/cong-thuc/',
+      'nav.backToList',
+    );
+    expect(target).toEqual({ href: '/danh-muc/', labelKey: 'nav.portfolio' });
+  });
+});
+
+/*
+ * Đúng lỗi chủ dự án báo: đứng ở Danh mục, bấm kính lúp sang màn tìm, rồi bấm quay lại thì không
+ * đi đâu cả. `/tim-kiem/` vừa là màn gốc của trang chi tiết vừa mang nút quay lại của chính nó,
+ * nên `ORIGIN_KEY` lúc ấy giữ chính nó và nút tự trỏ về trang đang mở.
+ */
+describe('backTarget() — không bao giờ trỏ về chính màn đang đứng', () => {
+  it('màn gốc CHÍNH LÀ màn đang đứng thì lùi sang ô thứ hai', () => {
+    expect(
+      backTarget(
+        { origin: ban('/tim-kiem/'), prev: ban('/danh-muc/'), here: '/tim-kiem/' },
+        '/cong-thuc/',
+        'nav.backToList',
+      ),
+    ).toEqual({ href: '/danh-muc/', labelKey: 'nav.portfolio' });
+  });
+
+  it('so bằng ĐƯỜNG DẪN — khác mỗi truy vấn thì vẫn là màn ấy, không phải đường ra', () => {
+    const target = backTarget(
+      { origin: ban('/tim-kiem/?q=roe'), prev: ban('/'), here: '/tim-kiem/' },
+      '/cong-thuc/',
+      'nav.backToList',
+    );
+    expect(target).toEqual({ href: '/', labelKey: 'nav.home' });
+  });
+
+  it('thiếu dấu / cuối ở màn đang đứng vẫn nhận ra là trùng', () => {
+    const target = backTarget(
+      { origin: ban('/tim-kiem/'), prev: ban('/danh-muc/'), here: '/tim-kiem' },
+      '/cong-thuc/',
+      'nav.backToList',
+    );
+    expect(target.href).toBe('/danh-muc/');
+  });
+
+  it('cả hai ô đều trùng màn đang đứng thì rơi về dự phòng', () => {
+    expect(
+      backTarget(
+        { origin: ban('/tim-kiem/?q=roe'), prev: ban('/tim-kiem/'), here: '/tim-kiem/' },
+        '/cong-thuc/',
+        'nav.backToList',
+      ),
+    ).toEqual({ href: '/cong-thuc/', labelKey: 'nav.backToList' });
+  });
+
+  it('vào thẳng màn tìm bằng URL — chưa có ô thứ hai thì cũng rơi về dự phòng', () => {
+    expect(
+      backTarget(
+        { origin: ban('/tim-kiem/'), prev: null, here: '/tim-kiem/' },
+        '/cong-thuc/',
+        'nav.backToList',
+      ),
+    ).toEqual({ href: '/cong-thuc/', labelKey: 'nav.backToList' });
+  });
+
+  it('ô thứ hai chứa rác thì bỏ qua nó chứ không dựng href từ rác', () => {
+    expect(
+      backTarget(
+        { origin: ban('/tim-kiem/'), prev: ban('/cong-thuc/pe/'), here: '/tim-kiem/' },
+        '/cong-thuc/',
+        'nav.backToList',
+      ),
+    ).toEqual({ href: '/cong-thuc/', labelKey: 'nav.backToList' });
   });
 });

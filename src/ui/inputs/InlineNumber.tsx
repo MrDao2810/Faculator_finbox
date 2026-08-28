@@ -14,6 +14,14 @@ export interface InlineNumberProps {
   /** Gọi khi giá trị đã CHỐT (rời ô hoặc Enter), đã kẹp về miền hợp lệ. */
   onChange: (value: number) => void;
   readOnly?: boolean;
+  /**
+   * Cho gõ thẳng vào con số hay không.
+   *
+   * Khác hẳn `readOnly`, dù nghe giống: `readOnly` là "ô này KHOÁ vì đang ở chế độ Cơ bản" — nó tô
+   * chữ mờ đi và mách "chuyển sang Nâng cao để sửa". `editable={false}` thì ngược lại, con số hiện
+   * y nguyên như cũ, chỉ là không còn là ô nhập nữa; nơi gọi có điều khiển khác cho việc đổi giá trị.
+   */
+  editable?: boolean;
   /** Có hiện đơn vị bên phải con số hay không. */
   showUnit?: boolean;
   id?: string;
@@ -47,6 +55,7 @@ export function InlineNumber({
   value,
   onChange,
   readOnly = false,
+  editable = true,
   showUnit = true,
   id,
   ariaLabel,
@@ -66,6 +75,37 @@ export function InlineNumber({
     const next = commitValue(draft, spec);
     setDraft(null);
     if (next !== value) onChange(next);
+  }
+
+  /*
+   * Bản CHỈ ĐỌC: một `<span>` trơn, không phải `<input readonly>` và cũng không phải `<output>`.
+   *
+   * Vấn đề mà nhánh này sinh ra để giải là con số trông như chữ nhưng lại gõ được — không có dấu
+   * hiệu nào nói ra điều đó (viền chỉ hiện khi có tiêu điểm, theo đúng chủ đích ghi ở
+   * `InlineNumber.module.css`). Một `<input readonly>` vẫn nhận tiêu điểm và vẫn đổi con trỏ chuột
+   * thành dấu nhập chữ, tức vẫn mời gọi đúng cú bấm vừa bị gỡ bỏ.
+   *
+   * `<output>` là lựa chọn đầu tiên và nó SAI, theo hai đường: thẻ ấy mang role ngầm `status`, nên
+   * (1) nó biến một con số đọc thầm thành live region — trình đọc màn hình xướng lại giá trị mỗi
+   * lần người dùng kéo thanh trượt, chồng lên chính lời xướng của thanh trượt; và (2) nó chiếm mất
+   * vai `status` của khối "chờ chuỗi giá" ở màn chi tiết, chỗ mà `findByRole('status')` đang trỏ
+   * vào — một ca kiểm bắt được ngay.
+   *
+   * Không cần vai trò trợ năng nào: giá trị đã nằm trong chính thanh trượt cạnh đó, và thanh trượt
+   * mới là thứ trình đọc màn hình xướng ra khi người dùng chạm tới.
+   *
+   * Giữ nguyên `.box` và `.input`, nên bề rộng ghim 14ch, canh phải và `tabular-nums` không đổi —
+   * bật tắt nhánh này không xê dịch một pixel nào của bố cục.
+   */
+  if (!editable) {
+    return (
+      <span className={classes}>
+        <span id={id} className={styles.input}>
+          {formatNumber(value, { maxDecimals: 4 })}
+        </span>
+        {showUnit && spec.unit !== '' && <span className={styles.unit}>{spec.unit}</span>}
+      </span>
+    );
   }
 
   return (

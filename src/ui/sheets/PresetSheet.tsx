@@ -3,7 +3,7 @@
 import { SAMPLE_DATA } from '@/application';
 import type { Preset } from '@/application';
 import { useT } from '@/application/preferences-context';
-import { BottomSheet, Button } from '@/ui/primitives';
+import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
 import styles from './PresetSheet.module.css';
 
@@ -83,7 +83,7 @@ export function PresetSheet({ open, onClose, onLoad, onBrowseMarket }: PresetShe
               có MỘT phần tử mang mã — nhân đôi thành huy hiệu + dòng chữ thì trình đọc màn
               hình đọc mã hai lần.
             */}
-            <span className={styles.badge}>{preset.code}</span>
+            <Badge tone="code">{preset.code}</Badge>
 
             <span className={styles.info}>
               <span className={styles.name}>{preset.name}</span>

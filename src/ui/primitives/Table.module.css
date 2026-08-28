@@ -70,8 +70,22 @@
   border-bottom: none;
 }
 
-/* Cột số căn phải và dùng chữ số đều để hàng đơn vị thẳng nhau. */
-.table .numeric {
+/*
+ * Cột số căn phải và dùng chữ số đều để hàng đơn vị thẳng nhau.
+ *
+ * `:global` là BẮT BUỘC, không phải tuỳ chọn. Nơi gọi truyền chuỗi thô `className="numeric"`
+ * (đó là hợp đồng ghi ở docblock của `Table.tsx`), trong khi CSS Module băm mọi tên lớp khai ở
+ * đây thành `Table_numeric___vRFF`. Thiếu `:global` thì bộ chọn KHÔNG BAO GIỜ khớp: đã đối
+ * chiếu bản build — CSS ra tên băm còn `out/cong-thuc/lich-tra-no/index.html` ra `class="numeric"`,
+ * nên ba cột tiền của lịch trả nợ căn trái suốt và chữ số không đều.
+ *
+ * Cùng cách `.formula :global(.katex)` ở `FormulaDetail.module.css` xử lý tên lớp do bên ngoài
+ * đặt, và cùng họ với lớp toàn cục `.visually-hidden` khai trong `globals.css`. Vẫn bó trong
+ * `.table` nên tên `numeric` không rò ra ngoài bảng.
+ *
+ * `Table.test.tsx` ghim lại điều này để nó không hỏng lặng lẽ lần nữa.
+ */
+.table :global(.numeric) {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }

@@ -66,34 +66,36 @@ interface Finding {
   chiTiet: string;
 }
 
+type Ngon = 'vi' | 'en';
+
 /**
  * Bốn mục diễn giải bắt buộc của FR-03.
  *
- * Mỗi mục nay là `Bilingual` (gói dịch tiếng Anh) — cửa gác này soi phần tiếng Việt vì đó là nội
- * dung đã được rà soát nội dung / là nguồn sự thật (xem docblock đầu file); nó KHÔNG mở rộng sang
- * kiểm câu tiếng Anh.
+ * Mỗi mục nay là `Bilingual` (gói dịch tiếng Anh). Mặc định soi phần tiếng Việt vì đó là nội dung
+ * đã được rà soát / là nguồn sự thật (xem docblock đầu file); chỉ phép kiểm P đọc thêm bản tiếng
+ * Anh, và chỉ vì ràng buộc nó gác (CON-11) không phân biệt ngôn ngữ.
  */
-function dienGiai(spec: FormulaSpec): Array<readonly [string, string]> {
+function dienGiai(spec: FormulaSpec, ngon: Ngon = 'vi'): Array<readonly [string, string]> {
   return [
-    ['explanation.meaning', spec.explanation.meaning.vi],
-    ['explanation.whenToUse', spec.explanation.whenToUse.vi],
-    ['explanation.howToRead', spec.explanation.howToRead.vi],
-    ['explanation.commonMistakes', spec.explanation.commonMistakes.vi],
+    ['explanation.meaning', spec.explanation.meaning[ngon]],
+    ['explanation.whenToUse', spec.explanation.whenToUse[ngon]],
+    ['explanation.howToRead', spec.explanation.howToRead[ngon]],
+    ['explanation.commonMistakes', spec.explanation.commonMistakes[ngon]],
   ];
 }
 
-/** Mọi đoạn prose người dùng đọc được trên màn chi tiết — luôn đọc `.vi`, lý do xem `dienGiai()`. */
-function proseOf(spec: FormulaSpec): Array<readonly [string, string]> {
+/** Mọi đoạn prose người dùng đọc được trên màn chi tiết — mặc định `.vi`, lý do xem `dienGiai()`. */
+function proseOf(spec: FormulaSpec, ngon: Ngon = 'vi'): Array<readonly [string, string]> {
   const out: Array<readonly [string, string]> = [
-    ['description', spec.description.vi],
-    ...dienGiai(spec),
-    ['example.title', spec.example.title.vi],
+    ['description', spec.description[ngon]],
+    ...dienGiai(spec, ngon),
+    ['example.title', spec.example.title[ngon]],
   ];
-  if (spec.example.note !== undefined) out.push(['example.note', spec.example.note.vi]);
-  if (spec.note !== undefined) out.push(['note', spec.note.vi]);
+  if (spec.example.note !== undefined) out.push(['example.note', spec.example.note[ngon]]);
+  if (spec.note !== undefined) out.push(['note', spec.note[ngon]]);
   for (const v of spec.variables) {
     if (v.description !== undefined) {
-      out.push([`variables.${v.key}.description`, v.description.vi]);
+      out.push([`variables.${v.key}.description`, v.description[ngon]]);
     }
   }
   return out;
@@ -428,6 +430,93 @@ function nguongNgoaiVungVeDuoc(): Finding[] {
   return out;
 }
 
+/* ── P ─────────────────────────────────────────────────────────────────────── */
+
+/**
+ * CON-11 và FR-24: sản phẩm không được khuyến nghị mua/bán **dưới bất kỳ hình thức nào**. Đây là
+ * ràng buộc pháp lý, không phải sở thích văn phong — nên nó cần một cửa gác chạy máy chứ không chỉ
+ * một câu trong tài liệu.
+ *
+ * ## Vì sao danh sách hẹp đến vậy
+ *
+ * Nội dung tài chính buộc phải nói về mua và bán: `cỡ lệnh theo mức cắt lỗ` là tên một công thức
+ * thật, "vào lệnh", "chốt lời", "cắt lỗ" nằm trong 50 chỗ hợp lệ, và `fees` có câu "…nên mua rồi
+ * bán ngay vẫn mất phí" trong đó "nên" là liên từ chứ không phải lời khuyên. Một regex rộng sẽ lặp
+ * lại đúng sai lầm của ba phép kiểm đã bị bỏ ở docblock đầu file. Vì vậy chỉ bắt dạng **ra lệnh cho
+ * người đọc**: có chủ ngữ người, hoặc có động từ khuyên đứng ngay trước "mua"/"bán".
+ *
+ * Ranh giới đã cân nhắc và CỐ Ý để ngoài: "tín hiệu bán đã hình thành", "coi chạm dải trên là tín
+ * hiệu bán" — hai câu này mô tả quy ước của chỉ báo (và câu thứ hai còn là câu cảnh báo sai lầm),
+ * không bảo ai làm gì. Cấm chúng là cấm mô tả chính đối tượng mà công thức tính ra.
+ */
+const RA_LENH_VI: readonly RegExp[] = [
+  /(?:khuyến nghị|gợi ý|khuyên)\s+(?:mua|bán)/gi,
+  /(?:bạn|nhà đầu tư|người dùng|nhà giao dịch)\s+nên\s+(?:mua|bán|giải ngân|vào lệnh|xuống tiền)/gi,
+  /nên\s+(?:mua|bán)\s+(?:ngay|vào|ra|thêm)/gi,
+  /đáng\s+(?:mua|đầu tư|giải ngân|xuống tiền)/gi,
+  /cơ hội\s+(?:đầu tư|mua vào|giải ngân)/gi,
+  /chắc chắn\s+(?:tăng|lãi|sinh lời|thắng)/gi,
+];
+
+const RA_LENH_EN: readonly RegExp[] = [
+  /(?:suggests?|recommends?|advises?)\s+(?:a\s+)?(?:buy|sell|buying|selling)/gi,
+  /you should\s+(?:buy|sell)/gi,
+  /worth\s+(?:buying|investing in)/gi,
+];
+
+/**
+ * Miễn trừ, khoá theo `<id>|<cụm đã hạ chữ thường>`.
+ *
+ * Đang rỗng, và giữ rỗng là mục tiêu. Một câu hợp lệ mà dính bẫy thì thêm vào đây **kèm lý do viết
+ * ra**, đúng nếp `TEN_RIENG_CHO_PHEP` ở trên — không nới regex, vì nới một lần là mất luôn cả nhóm.
+ */
+const RA_LENH_CHO_PHEP: ReadonlySet<string> = new Set<string>([]);
+
+function raLenhMuaBan(): Finding[] {
+  const out: Finding[] = [];
+  for (const { spec } of FORMULA_MODULES) {
+    for (const [ngon, mau] of [
+      ['vi', RA_LENH_VI],
+      ['en', RA_LENH_EN],
+    ] as const) {
+      for (const [truong, text] of proseOf(spec, ngon)) {
+        for (const re of mau) {
+          for (const m of text.matchAll(re)) {
+            const cum = (m[0] ?? '').toLowerCase();
+            if (RA_LENH_CHO_PHEP.has(`${spec.id}|${cum}`)) continue;
+            out.push({
+              id: spec.id,
+              truong: `${truong}.${ngon}`,
+              chiTiet: `ra lệnh mua/bán: "${m[0]}"`,
+            });
+          }
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/** Mục miễn trừ nào không còn khớp câu nào thì phải xoá — danh sách không được phép mọc rêu. */
+function mienTruHetHan(): string[] {
+  const dangCo = new Set<string>();
+  for (const { spec } of FORMULA_MODULES) {
+    for (const [ngon, mau] of [
+      ['vi', RA_LENH_VI],
+      ['en', RA_LENH_EN],
+    ] as const) {
+      for (const [, text] of proseOf(spec, ngon)) {
+        for (const re of mau) {
+          for (const m of text.matchAll(re)) {
+            dangCo.add(`${spec.id}|${(m[0] ?? '').toLowerCase()}`);
+          }
+        }
+      }
+    }
+  }
+  return [...RA_LENH_CHO_PHEP].filter((khoa) => !dangCo.has(khoa));
+}
+
 /* ── Cửa gác ───────────────────────────────────────────────────────────────── */
 
 describe('diễn giải phải nhất quán với chính công thức (FR-02, FR-03)', () => {
@@ -492,6 +581,22 @@ describe('diễn giải phải nhất quán với chính công thức (FR-02, FR
    */
   it('ngưỡng nêu trong diễn giải đều nằm trong vùng biểu đồ tới được', () => {
     const found = nguongNgoaiVungVeDuoc();
+    expect(found, moTa(found)).toHaveLength(0);
+  });
+
+  /*
+   * Cửa gác pháp lý, không phải văn phong: CON-11 cấm khuyến nghị mua/bán dưới mọi hình thức, và
+   * FR-24 bắt nói rõ "không phải khuyến nghị đầu tư" ở mọi màn có kết quả. Câu miễn trừ ấy thành
+   * lời nói dối ngay khi một đoạn diễn giải bảo người đọc nên mua gì.
+   */
+  it('không câu nào ra lệnh mua/bán cho người đọc (CON-11, FR-24)', () => {
+    const hetHan = mienTruHetHan();
+    expect(
+      hetHan,
+      `miễn trừ không còn khớp câu nào — xoá khỏi RA_LENH_CHO_PHEP: ${hetHan.join(', ')}`,
+    ).toHaveLength(0);
+
+    const found = raLenhMuaBan();
     expect(found, moTa(found)).toHaveLength(0);
   });
 });

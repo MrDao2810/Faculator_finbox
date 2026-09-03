@@ -9,7 +9,7 @@
  *
  * ── Hai tầng nguồn ──────────────────────────────────────────────────────────────────────────
  *
- * 1. **localStorage** — hiện ngay danh sách của lần trước, kể cả khi đang mất mạng (NFR-REL-02).
+ * 1. **localStorage** — hiện ngay danh sách của lần trước, kể cả khi đang mất mạng (NFR-POR-03).
  * 2. **Mạng** — chỉ gọi khi cache hết hạn hoặc trống.
  *
  * Có cache thì **hiện cache trước rồi mới làm mới ngầm**. Bắt người dùng nhìn vòng quay 82 kB

@@ -155,6 +155,29 @@ function isThousandGrouped(text: string): boolean {
   return /^-?\d{1,3}(\.\d{3})+$/.test(text);
 }
 
+/**
+ * Số thành chuỗi để ĐẶT VÀO ô nhập — không phải để đọc, nên không có dấu ngăn nghìn.
+ *
+ * Bắt buộc phải là vòng ngược của `parseViNumber()`, và `String(value)` thì không:
+ * `String(100.449)` ra '100.449', chuỗi ấy khớp `isThousandGrouped()` nên đọc ngược lại thành
+ * **100.449** — giá 100,449 nghìn ₫ hoá thành hơn một trăm nghìn chỉ vì người dùng chạm vào ô rồi
+ * bấm ra chỗ khác. Đó là lỗi đã thấy trên màn WF-05. Ở đây dấu thập phân luôn là dấu **phẩy**, nên
+ * `parseViNumber()` đi nhánh có phẩy và không còn chỗ nào để nhầm.
+ *
+ * Kèm theo là khử nhiễu dấu phẩy động: `String(100.45 - 0.001 + 0.001)` ra '100.44999999999997',
+ * cũng đã thấy nguyên văn trong ô nhập của bảng dữ liệu. `toPrecision(12)` cắt đúng phần nhiễu mà
+ * không đụng tới chữ số có nghĩa của mọi con số sản phẩm dùng (giá, khối lượng, tỷ lệ).
+ *
+ * Giá trị không hữu hạn trả chuỗi rỗng — ô trống, không bao giờ là 'NaN' (FR-06).
+ */
+export function rawViNumber(value: number): string {
+  if (!Number.isFinite(value)) return '';
+
+  const text = String(Number(value.toPrecision(12)));
+  // Số quá lớn/quá nhỏ ra dạng mũ ('1e+21'); giữ nguyên vì đổi dấu ở đó là làm hỏng chuỗi.
+  return text.includes('e') ? text : text.replace('.', ',');
+}
+
 /*
  * ── Đổi đơn vị tiền — UnitSwitcher của gói 2.3.3 ───────────────────────────────────────
  */

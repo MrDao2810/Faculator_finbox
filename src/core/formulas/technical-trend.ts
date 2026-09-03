@@ -626,8 +626,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         en: 'A smoothed version of the MACD line. Because it is smoothed it always lags, and the point where the two lines cross is exactly when momentum has just shifted.',
       },
       whenToUse: {
-        vi: 'Khi cần một tín hiệu mua bán cụ thể thay vì chỉ nhìn xu hướng: MACD cắt lên trên đường tín hiệu là gợi ý mua, cắt xuống là gợi ý bán.',
-        en: 'When you need a concrete buy/sell signal rather than just reading the trend: MACD crossing above the signal line suggests a buy, crossing below suggests a sell.',
+        vi: 'Khi cần một mốc cụ thể để đọc đà giá thay vì chỉ nhìn xu hướng: theo quy ước MACD của Gerald Appel, MACD cắt lên trên đường tín hiệu là đà chuyển sang tăng, cắt xuống là đà chuyển sang giảm.',
+        en: 'When you need a concrete marker for reading momentum rather than just the trend: by Gerald Appel’s MACD convention, the MACD crossing above the signal line means momentum has turned upward, crossing below means it has turned downward.',
       },
       howToRead: {
         vi: 'Khoảng cách MACD trừ đường tín hiệu chính là cột histogram quen thuộc, trả kèm trong phần kết quả phụ. Histogram âm và đang doãng ra nghĩa là đà giảm còn mạnh lên.',

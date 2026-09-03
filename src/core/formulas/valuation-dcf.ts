@@ -8,7 +8,7 @@
  * thể có beta từ một nguồn khác (công ty chứng khoán, báo cáo quỹ) chứ không bắt buộc phải
  * tính lại bằng công thức trong thư viện này.
  *
- * ── Bốn cạnh `dependsOn` của cả Registry đều nằm trong file này (FR-15, gói 5.2.3) ──────────
+ * ── Sáu cạnh `dependsOn` của cả Registry đều nằm trong file này (FR-15, gói 5.2.3) ──────────
  *
  *   capm ──► mo-hinh-gordon.requiredReturn ──► bien-an-toan.intrinsic
  *   capm ──► wacc.costEquity ──► gia-tri-noi-tai-fcff.wacc ◄── fcff.fcff  ·  fcff ──► fcfe.fcff
@@ -17,7 +17,7 @@
  * HAI công thức khác nhau vào HAI biến khác nhau — đó là hình thoi, không phải hai nguồn cho
  * cùng một ô (trường hợp ấy `runChain()` cũng xử được, xem docblock của nó).
  *
- * Đơn vị hai đầu mỗi cạnh phải khớp nhau; `formulas.test.ts` gác điều đó cho cả bốn cạnh.
+ * Đơn vị hai đầu mỗi cạnh phải khớp nhau; `formulas.test.ts` gác điều đó cho cả sáu cạnh.
  *
  * Thuế suất TNDN trong WACC và FCFF là Ô NHẬP chứ không tra MarketConfig: biểu phí
  * hiện hành (`market/schedules.ts`) chưa có key thuế TNDN, và mức thuế thực nộp của

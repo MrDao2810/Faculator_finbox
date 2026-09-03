@@ -24,6 +24,7 @@
  */
 
 import { LIVE_FUNDAMENTALS, LIVE_FUNDAMENTALS_FETCHED_AT } from './live-fundamentals.generated';
+import { PRESET_CONTRACT_VERSION } from './types';
 import type { DailyBar, Fundamentals, Preset } from './types';
 
 /** Phiên gần nhất của bộ mẫu. Cố định, không lấy ngày hệ thống. */
@@ -101,6 +102,7 @@ function round(value: number): number {
 
 function preset(code: string, name: string, basePrice: number, fundamentals: Fundamentals): Preset {
   return {
+    version: PRESET_CONTRACT_VERSION,
     code,
     name,
     meta: `${fundamentals.period} · ${SESSION_COUNT} phiên giá`,

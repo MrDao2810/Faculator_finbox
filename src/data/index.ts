@@ -5,7 +5,8 @@
  */
 
 export type { DailyBar, DataProvider, Fundamentals, Preset } from './types';
-export { SAMPLE_DATA, createStaticProvider, hasDraftData } from './provider';
+export { PRESET_CONTRACT_VERSION } from './types';
+export { SAMPLE_DATA, createStaticProvider, hasDraftData, hasDraftMarketSeries } from './provider';
 export { SAMPLE_PRESETS } from './samples';
 export { presetFillableKeys, presetInputs } from './preset-inputs';
 

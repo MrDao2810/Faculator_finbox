@@ -609,6 +609,13 @@ export const XIRR: FormulaModule = {
     },
     chartType: 'none',
     level: 'advanced',
+    /*
+     * FR-20 liệt kê đích danh chín thứ phải lên trang chủ — "phí & thuế giao dịch, giá hoà vốn,
+     * ROI, CAGR, XIRR, P/E, P/B, tỷ suất cổ tức, cỡ lệnh" — và tám thứ kia đều đã có đại diện
+     * ghim, chỉ XIRR trống. Khối FR-20 cố ý KHÔNG lọc theo chế độ (xem `rankFeaturedIds`), nên
+     * `level: 'advanced'` không cản; `ev-ebitda` đã là tiền lệ của đúng cặp này.
+     */
+    isFeatured: true,
     tags: ['xirr', 'suat sinh loi noi tai', 'dong tien khong deu', 'irr thuc te'],
     resultUnit: '%/năm',
     variables: [XIRR_GUESS_VAR],

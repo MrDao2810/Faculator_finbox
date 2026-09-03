@@ -124,6 +124,22 @@ describe('gõ và chốt giá trị', () => {
 
     expect(onChange).toHaveBeenCalledWith(92_000);
   });
+
+  /*
+   * Chạm vào ô rồi bấm ra chỗ khác KHÔNG được đổi con số. Trước đây `onFocus` đặt draft bằng
+   * `String(value)`, nên 100,449 thành chuỗi '100.449' — chuỗi ấy đọc ngược lại là 100449 vì
+   * trông y hệt ngăn nghìn, và người dùng mất giá gấp nghìn lần mà không đụng phím nào.
+   */
+  it('chạm vào ô có số lẻ rồi rời ra không làm giá nhân lên nghìn lần', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={100.449} onChange={onChange} />);
+
+    await userEvent.click(box());
+    expect(box().value).toBe('100,449');
+
+    await userEvent.tab();
+    expect(onChange).toHaveBeenLastCalledWith(100.449);
+  });
 });
 
 /*

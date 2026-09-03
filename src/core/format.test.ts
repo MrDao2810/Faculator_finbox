@@ -10,6 +10,7 @@ import {
   formatNumber,
   formatValueWithUnit,
   parseViNumber,
+  rawViNumber,
   scaleToDong,
   scaleToUnit,
   withScalePrefix,
@@ -140,6 +141,35 @@ describe('parseViNumber()', () => {
     for (const value of [0, 1, -4, 92_000, 1_234_567, 15.21, -0.5]) {
       expect(parseViNumber(formatNumber(value)), `giá trị ${value}`).toBe(value);
     }
+  });
+});
+
+describe('rawViNumber()', () => {
+  /*
+   * Bất biến duy nhất đáng nhớ của hàm này. `String()` KHÔNG có tính chất ấy — '100.449' đọc
+   * ngược ra 100449 vì trông y hệt một chuỗi ngăn nghìn — và đó chính là lỗi "sửa một ô, giá
+   * nhân lên nghìn lần" ở màn WF-05.
+   */
+  it('đọc ngược lại đúng bằng chính con số đưa vào', () => {
+    for (const value of [0, 1, -4, 92_000, 1_234_567, 100.449, 15.21, -0.5, 0.15, 1.2345]) {
+      expect(parseViNumber(rawViNumber(value)), `giá trị ${value}`).toBe(value);
+    }
+  });
+
+  it('dấu thập phân là dấu phẩy, và không có dấu ngăn nghìn', () => {
+    expect(rawViNumber(100.449)).toBe('100,449');
+    expect(rawViNumber(92_000)).toBe('92000');
+    expect(rawViNumber(-0.5)).toBe('-0,5');
+  });
+
+  it('cắt nhiễu dấu phẩy động thay vì bày nguyên vào ô nhập', () => {
+    expect(rawViNumber(100.45 - 0.001 + 0.001)).toBe('100,45');
+    expect(rawViNumber(0.1 + 0.2)).toBe('0,3');
+  });
+
+  it('giá trị không hữu hạn cho ô TRỐNG, không bao giờ ra chuỗi NaN (FR-06)', () => {
+    expect(rawViNumber(Number.NaN)).toBe('');
+    expect(rawViNumber(Number.POSITIVE_INFINITY)).toBe('');
   });
 });
 

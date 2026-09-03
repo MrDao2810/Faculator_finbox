@@ -11,6 +11,7 @@ import {
   NO_VALUE,
   SAMPLE_DATA,
   ACTIVE_TICKER_KEY,
+  PRESET_CONTRACT_VERSION,
   SAVED_CALCS_KEY,
   WARNING_LABELS,
   formatIsoDate,
@@ -393,6 +394,25 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
   it('công thức không tra hằng số nào thì không mọc thêm khối — P/E phải sạch', () => {
     render(<Man spec={specOf('pe')} />);
     expect(screen.queryByText(t('detail.constantsInUse'))).toBeNull();
+  });
+
+  /*
+   * Chuỗi VN-Index trong bộ mẫu là PRNG, và bốn mã mẫu cũng là PRNG ĐỘC LẬP với nó — beta hồi quy
+   * từ chúng rơi về gần 0. Khác mọi ca "số liệu mẫu" khác ở một điểm quyết định: chuỗi này luôn
+   * nằm sẵn trong `ctx.marketSeries`, người dùng không bấm "Nạp mẫu" lần nào, nên trước đợt này
+   * không có MỘT dấu hiệu nào trên màn cho biết vế thị trường là số bịa. Đó là ca FR-06 rõ nhất
+   * còn lại: một con số sai trông hoàn toàn hợp lệ.
+   */
+  it('công thức hồi quy với VN-Index nói rõ chuỗi chỉ số đang là số tự dựng (FR-06)', () => {
+    render(<Man spec={specOf('beta')} />);
+
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(within(khoi).getByText(t('detail.draftMarketSeries'))).not.toBeNull();
+  });
+
+  it('công thức không đụng chuỗi chỉ số thì không mang dòng ấy — P/E phải sạch', () => {
+    render(<Man spec={specOf('pe')} />);
+    expect(screen.queryByText(t('detail.draftMarketSeries'))).toBeNull();
   });
 
   it('hệ số nhân VN30F hiện bằng trị số thật, không phải chữ "hệ số nhân" suông', () => {
@@ -1551,6 +1571,9 @@ function seedActiveTicker(): void {
     JSON.stringify({
       code: 'FPT',
       preset: {
+        // Bản cất phải khai phiên bản hợp đồng, nếu không `parseActiveTicker()` bỏ nó — đó chính
+        // là điều nó sinh ra để làm với bản ghi do một BẢN CŨ của trang để lại (SW-05 · LDR-05).
+        version: PRESET_CONTRACT_VERSION,
         code: 'FPT',
         name: 'FPT Corp',
         meta: 'BCTC Q2/2026 · thị giá phiên gần nhất',

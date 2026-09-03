@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { PRESET_CONTRACT_VERSION } from '@/data';
+
 import { isTickerCode, parseActiveTicker, serializeActiveTicker } from './active-ticker';
 import type { ActiveTicker } from './active-ticker';
 
@@ -7,6 +9,7 @@ function active(patch: Record<string, unknown> = {}): ActiveTicker {
   return {
     code: 'HPG',
     preset: {
+      version: PRESET_CONTRACT_VERSION,
       code: 'HPG',
       name: 'Tập đoàn Hoà Phát',
       meta: 'BCTC Q2/2026 · thị giá phiên gần nhất',

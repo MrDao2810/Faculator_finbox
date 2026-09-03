@@ -32,8 +32,24 @@ describe('checkRow — một phiên', () => {
   it('bắt giá cao nhỏ hơn giá thấp — đúng ca của wireframe WF-05', () => {
     const issues = checkRow(row({ open: 25.05, high: 25.1, low: 25.2, close: 25.15 }));
     expect(issues.map((i) => i.code)).toContain('HIGH_BELOW_LOW');
-    expect(issues[0]?.message).toContain('25.1');
-    expect(issues[0]?.message).toContain('25.2');
+    expect(issues[0]?.message).toContain('25,1');
+    expect(issues[0]?.message).toContain('25,2');
+  });
+
+  /*
+   * Câu cảnh báo đứng ngay cạnh ô nhập, mà ô nhập viết '25,1'. In ra '25.1' là bày hai lối viết
+   * cho cùng một con số trong cùng một dòng, và người đọc phải tự đoán dấu chấm ấy là thập phân
+   * hay ngăn nghìn — đúng chỗ đã báo lỗi từ màn WF-05 (CON-05).
+   */
+  it('số trong câu cảnh báo viết theo quy ước Việt Nam, không lẫn dấu chấm thập phân', () => {
+    const issues = [
+      ...checkRow(row({ open: 25.05, high: 25.1, low: 25.2, close: 25.15 })),
+      ...checkRow(row({ high: 25.2, low: 25, close: 25.5 })),
+      ...checkRow(row({ open: 24.9, low: 25.05, high: 25.7 })),
+    ];
+    for (const issue of issues) {
+      expect(issue.message, issue.code).not.toMatch(/\d\.\d/);
+    }
   });
 
   it('bắt giá cao nhỏ hơn giá đóng cửa của chính phiên đó', () => {

@@ -34,6 +34,19 @@ vi.mock('@/data', async (importOriginal) => {
   return { ...actual, MARKET_FEED: feed };
 });
 
+/**
+ * Bộ định tuyến giả — màn gọi `router.push()` sau khi lưu một mã có chọn công thức.
+ *
+ * Bản thật ném `invariant expected app router to be mounted` ngoài cây App Router, nên thiếu bản
+ * giả này là **cả 68 ca** đỏ chứ không riêng ca điều hướng. Cùng lối `HeaderNav.test.tsx` đã dùng
+ * cho `usePathname`.
+ */
+const router = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => router,
+}));
+
 /** jsdom chưa cài đặt <dialog>.showModal(); hai sheet của màn cần hai hàm này mới mở được. */
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -95,11 +108,58 @@ async function moManNangCao(): Promise<void> {
   await screen.findByText('Beta danh mục');
 }
 
-/** Gieo một mã rồi mở sheet công thức của nó — ba ca dưới đây đều bắt đầu từ đúng chỗ này. */
+/**
+ * Mở khối chi tiết của một mã.
+ *
+ * Từ đợt dựng lại theo bản vẽ WF-06, dòng mã là một dòng gọn ba cột (mã · số lượng/giá vốn ·
+ * tỷ trọng/lãi lỗ) và cả dòng là một nút mở khối chi tiết. Thị giá, phần trăm lãi/lỗ, ngày mua,
+ * beta, tên doanh nghiệp và hai nút Sửa · Bỏ mã đều nằm trong khối ấy — nên mọi ca kiểm chạm tới
+ * chúng phải đi qua đây trước.
+ */
+async function moChiTiet(code = 'FPT'): Promise<void> {
+  await userEvent.click(
+    await screen.findByRole('button', { name: new RegExp(`^Chi tiết ${code}`) }),
+  );
+}
+
+/**
+ * Mở form thêm mã rồi chọn một mã trong sheet. Màn phải đã render trước khi gọi.
+ *
+ * Tìm dòng theo MÃ chứ không lấy `getAllByRole('button', { name: 'Chọn' })[0]`: mã đang giữ có
+ * nhãn nút khác ("Chọn thêm"), nên khi danh mục đã có FPT thì nút 'Chọn' đầu tiên lại là của HPG
+ * — chọn nhầm mã, và mọi khẳng định sau đó sai theo một cách rất khó đoán.
+ */
+async function chonMaTrongForm(code = 'FPT'): Promise<void> {
+  await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+  await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
+  const sheet = await screen.findByRole('dialog');
+  const dong = within(sheet)
+    .getAllByRole('listitem')
+    .find((item) => item.textContent?.startsWith(code) === true);
+
+  await userEvent.click(within(dong as HTMLElement).getByRole('button'));
+}
+
+/**
+ * Mở sheet chọn công thức — nay là một Ô TRONG FORM, không còn là nút ở dòng mã.
+ *
+ * Vẫn gieo sẵn FPT vào danh mục trước khi render, dù form thêm mã không cần: sheet in ra tỷ lệ
+ * "2/2 ô điền sẵn" của từng công thức, mà tỷ lệ ấy phụ thuộc mã có thị giá hay không. Danh mục
+ * rỗng thì màn KHÔNG gọi mạng lần nào (đúng thiết kế, có ca kiểm riêng), nên `quotes` rỗng và
+ * mọi dòng sẽ tụt một ô. Gieo trước là cách để sheet thấy đúng ca thường gặp.
+ */
 async function moSheetCongThuc(): Promise<HTMLElement> {
   seedHolding();
   render(<PortfolioScreen />);
-  await userEvent.click(await screen.findByRole('button', { name: 'Tính công thức FPT' }));
+  /*
+   * Chờ lượt tra thị giá xong HẲN rồi mới mở form. Thiếu bước này thì `quotes` còn rỗng lúc sheet
+   * dựng, `hasPrice` thành false, và danh sách rụng 8 dòng — ca "hiện đủ 31 công thức" đỏ vì một
+   * lý do không liên quan gì tới thứ nó đang kiểm. Dòng "Giá phiên" có ở cả hai ca (có giá và
+   * `priceVnd: null`), nên nó là mốc chờ dùng được cho mọi ca trong nhóm này.
+   */
+  await screen.findByText(/Giá phiên/);
+  await chonMaTrongForm();
+  await userEvent.click(screen.getByRole('button', { name: 'Tính công thức' }));
   return screen.findByRole('dialog');
 }
 
@@ -113,6 +173,7 @@ beforeEach(() => {
    * khởi động ngay ở tab Công thức và không tìm thấy gì của tab Mã.
    */
   window.history.replaceState(null, '', '/');
+  router.push.mockReset();
   feed.listTickers.mockReset();
   feed.snapshots.mockReset();
   feed.listTickers.mockResolvedValue([
@@ -131,6 +192,25 @@ describe('WF-06 — danh mục rỗng', () => {
     // Chờ effect đọc localStorage chạy xong rồi mới khẳng định — nếu không thì ca này luôn xanh.
     await screen.findByText('Nắm giữ');
     expect(feed.snapshots).not.toHaveBeenCalled();
+  });
+
+  /*
+   * UI-04 (mức M) đòi câu miễn trừ nằm trong TẦM NHÌN ĐẦU TIÊN của trang có kết quả. Màn này bày
+   * sáu ô tiền ngay đầu màn — trong đó có lãi/lỗ của chính người dùng, con số dễ bị đọc thành lời
+   * khuyên nhất trong cả sản phẩm (rủi ro R-06 của SRS). Trước đợt này câu miễn trừ duy nhất ở đây
+   * là dải chân trang của AppShell, nằm sau cả danh sách nắm giữ.
+   */
+  it('câu miễn trừ đứng TRƯỚC lưới sáu ô tiền, không đợi cuộn hết màn (UI-04)', async () => {
+    const { container } = render(<PortfolioScreen />);
+    await screen.findByText('Nắm giữ');
+
+    const note = container.querySelector('[role="note"]');
+    const stats = container.querySelector('[class*="stats"]');
+    if (note === null || stats === null) throw new Error('thiếu dải miễn trừ hoặc lưới ô số');
+
+    // compareDocumentPosition thay vì so toạ độ: jsdom không dựng bố cục, nhưng thứ tự trong cây
+    // đúng là thứ quyết định cái nào đọc trước trên màn hình và với trình đọc màn hình.
+    expect(note.compareDocumentPosition(stats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('mọi ô nói rõ chưa có mã nào, KHÔNG ô nào hiện 0 (FR-06)', async () => {
@@ -257,31 +337,94 @@ describe('WF-06 — chọn mã trong toàn thị trường', () => {
 });
 
 describe('WF-06 — từ mã sang công thức', () => {
-  it('nút ƒ mở danh sách công thức, link mang theo mã trên URL', async () => {
-    seedHolding();
-    render(<PortfolioScreen />);
+  /*
+   * Ca trung tâm của đợt gộp luồng: MỘT nút vừa lưu mã vừa mở công thức.
+   *
+   * Bản trước là hai việc rời — thêm mã, rồi tìm lại dòng mã, mở khối chi tiết, bấm "Tính công
+   * thức". Nay chọn công thức ngay trong form và nút lưu đổi nhãn theo. Ca này khoá cả ba vế:
+   * nhãn nút đổi, mã thật sự được lưu, và điều hướng mang theo `?ma=`.
+   */
+  it('chọn công thức trong form: một nút vừa lưu mã vừa mở đúng trang công thức', async () => {
+    const sheet = await moSheetCongThuc();
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Tính công thức FPT' }));
+    // Nhãn nút phải nói ra việc nó sắp làm, không còn là "Thêm vào danh mục" trơn.
+    expect(screen.queryByRole('button', { name: 'Thêm vào danh mục' })).toBeNull();
+    const nutLuu = screen.getByRole('button', { name: /^(Thêm|Cộng thêm).*công thức$/ });
 
-    const sheet = await screen.findByRole('dialog');
-    const link = within(sheet).getByRole('link', { name: /P\/E/ });
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '100');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
+    await userEvent.click(nutLuu);
 
     /*
      * `?ma=FPT` là thứ FormulaDetail đọc để tự nạp số liệu của mã.
      *
-     * Bỏ dấu "/" cuối trước khi so, cùng cách `HeaderNav.test.tsx` làm: `next/link` trong môi
-     * trường test không đọc `next.config.mjs` nên nó cắt dấu gạch mà `trailingSlash: true` giữ
-     * lại ở bản build thật. Phần đáng kiểm ở đây là tham số, không phải dấu gạch.
+     * Điều hướng bằng `router.push` chứ không bằng `<Link>`: mã phải được LƯU trước đã, và lệnh
+     * mở nằm trong một effect khai sau effect ghi localStorage — xem docblock ở `pendingOpen`.
      */
-    expect(link.getAttribute('href')?.replace('/?', '?')).toBe('/cong-thuc/pe?ma=FPT');
+    await waitFor(() => {
+      expect(router.push).toHaveBeenCalledWith('/cong-thuc/pe/?ma=FPT');
+    });
+  });
+
+  /*
+   * Chọn công thức là TUỲ CHỌN. Không chọn thì nút giữ nhãn cũ và không đi đâu cả — có người chỉ
+   * theo dõi danh mục, và bắt họ chọn công thức mới lưu được là dựng ra một cửa ải mới.
+   */
+  it('không chọn công thức thì chỉ lưu, không điều hướng đi đâu', async () => {
+    render(<PortfolioScreen />);
+    await chonMaTrongForm();
+
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '100');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+
+    await screen.findByRole('listitem');
+    expect(router.push).not.toHaveBeenCalled();
+  });
+
+  /*
+   * Chưa có mã thì chưa chọn được công thức — tỷ lệ "2/2 ô điền sẵn" của mỗi dòng phụ thuộc mã có
+   * thị giá hay không, nên mở sheet lúc chưa biết mã là in ra 31 con số chưa chắc đúng (FR-06).
+   *
+   * Nhưng ràng buộc ấy KHÔNG được biến ô thành ngõ cụt. Bản đầu để `disabled` và chủ dự án báo
+   * ngay: "bấm vào chọn công thức không thấy hiệu ứng gì". Ca này khoá cách chữa: nút nói đúng
+   * thứ nó sắp làm, và bấm vào là mở sheet chọn mã thật.
+   */
+  it('chưa chọn mã: ô công thức nói cần mã, và bấm vào thì mở sheet chọn mã', async () => {
+    render(<PortfolioScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
+    const o = screen.getByRole('button', { name: 'Tính công thức' }) as HTMLButtonElement;
+
+    // Không khoá: một nút hứa một việc rồi im lặng là hỏng, dù câu gợi ý bên dưới có nói lý do.
+    expect(o.disabled).toBe(false);
+    expect(o.textContent).toBe('Chọn mã cổ phiếu trước');
+    expect(screen.getByText(/phải có mã rồi mới chọn được/)).toBeTruthy();
+
+    await userEvent.click(o);
+
+    const sheet = await screen.findByRole('dialog');
+    expect(within(sheet).getByText('Chọn mã cổ phiếu')).toBeTruthy();
+  });
+
+  it('bỏ chọn được công thức đã chọn, và nhãn nút trở lại như cũ', async () => {
+    const sheet = await moSheetCongThuc();
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Bỏ chọn công thức' }));
+
+    /*
+     * Tra bằng CHỮ chứ không bằng tên nút: ô này lấy tên khả truy cập từ `aria-labelledby` trỏ vào
+     * nhãn "Tính công thức", nên tên nút không đổi theo nội dung bên trong — y hệt ô chọn mã.
+     */
+    expect(screen.getByText('Chọn công thức')).toBeTruthy();
+    // FPT đã có sẵn trong danh mục nên nhãn là bản "cộng dồn", không phải "Thêm vào danh mục".
+    expect(screen.getByRole('button', { name: 'Cộng thêm vào mã đã có' })).toBeTruthy();
   });
 
   it('không gọi mạng để dựng danh sách công thức', async () => {
-    seedHolding();
-    render(<PortfolioScreen />);
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Tính công thức FPT' }));
-    await screen.findByRole('dialog');
+    await moSheetCongThuc();
 
     // Chỉ đúng một lần gọi cho THỊ GIÁ lúc vào màn; sheet công thức không thêm lần nào.
     expect(feed.snapshots).toHaveBeenCalledTimes(1);
@@ -322,7 +465,7 @@ describe('WF-06 — từ mã sang công thức', () => {
 
     await userEvent.type(box, 'roe');
     expect(within(sheet).getAllByRole('listitem')).toHaveLength(1);
-    expect(within(sheet).getByRole('link', { name: /ROE/ })).toBeTruthy();
+    expect(within(sheet).getByRole('button', { name: /ROE/ })).toBeTruthy();
 
     /*
      * Lọc bằng chính `scoreFormula` + `tokenize` của ô tìm toàn cục, nên gõ KHÔNG DẤU vẫn ra
@@ -333,8 +476,8 @@ describe('WF-06 — từ mã sang công thức', () => {
      */
     await userEvent.clear(box);
     await userEvent.type(box, 'co tuc');
-    expect(within(sheet).getByRole('link', { name: /Tỷ suất cổ tức/ })).toBeTruthy();
-    expect(within(sheet).queryByRole('link', { name: /ROE/ })).toBeNull();
+    expect(within(sheet).getByRole('button', { name: /Tỷ suất cổ tức/ })).toBeTruthy();
+    expect(within(sheet).queryByRole('button', { name: /ROE/ })).toBeNull();
   });
 
   it('gõ từ khoá không khớp gì thì nói rõ, không để danh sách trống câm', async () => {
@@ -359,14 +502,14 @@ describe('WF-06 — từ mã sang công thức', () => {
     // 31 − 8 công thức chỉ điền được đúng ô thị giá.
     expect(within(sheet).getAllByRole('listitem')).toHaveLength(LIVE_PRESET_FORMULAS.length - 8);
     // `bien-an-toan` chỉ điền được mỗi thị giá → phải biến mất hẳn.
-    expect(within(sheet).queryByRole('link', { name: /[Bb]iên an toàn/ })).toBeNull();
+    expect(within(sheet).queryByRole('button', { name: /[Bb]iên an toàn/ })).toBeNull();
   });
 
   it('mã thiếu thị giá: P/E hạ từ 2/2 xuống 1/2 ô, không hứa quá', async () => {
     feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
     const sheet = await moSheetCongThuc();
 
-    expect(within(sheet).getByRole('link', { name: /P\/E/ }).textContent).toContain('1/2');
+    expect(within(sheet).getByRole('button', { name: /P\/E/ }).textContent).toContain('1/2');
   });
 
   it('công thức nâng cao nằm trong nhóm Nâng cao', async () => {
@@ -376,9 +519,9 @@ describe('WF-06 — từ mã sang công thức', () => {
     // luôn cả việc `aria-labelledby` nối đúng vào tiêu đề nhóm.
     const nangCao = within(sheet).getByRole('region', { name: 'Nâng cao' });
 
-    expect(within(nangCao).getByRole('link', { name: /WACC/ })).toBeTruthy();
+    expect(within(nangCao).getByRole('button', { name: /WACC/ })).toBeTruthy();
     // Và công thức cơ bản thì KHÔNG được lọt vào nhóm nâng cao.
-    expect(within(nangCao).queryByRole('link', { name: /P\/E/ })).toBeNull();
+    expect(within(nangCao).queryByRole('button', { name: /P\/E/ })).toBeNull();
   });
 });
 
@@ -387,6 +530,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
     seedHolding();
     render(<PortfolioScreen />);
 
+    await moChiTiet();
     await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
 
     expect((screen.getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement).value).toBe('100');
@@ -406,6 +550,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
     seedHolding();
     render(<PortfolioScreen />);
 
+    await moChiTiet();
     await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
     const quantity = screen.getByLabelText('Số cổ phiếu nắm giữ');
     await userEvent.clear(quantity);
@@ -421,6 +566,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
     seedHolding();
     render(<PortfolioScreen />);
 
+    await moChiTiet();
     await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
 
     expect(
@@ -439,6 +585,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
 
     expect(await screen.findByText(/Chưa có beta của FPT/)).toBeTruthy();
 
+    await moChiTiet();
     await userEvent.click(screen.getByRole('button', { name: 'Sửa FPT' }));
     await userEvent.type(screen.getByLabelText('Beta (để trống nếu chưa biết)'), '1,1');
     await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
@@ -544,6 +691,7 @@ describe('WF-06 — chế độ hiển thị giấu bớt ô nâng cao (FR-09)',
     );
 
     render(<PortfolioScreen />);
+    await moChiTiet();
     await userEvent.click(await screen.findByRole('button', { name: /^Sửa FPT/ }));
 
     const quantity = screen.getByLabelText('Số cổ phiếu nắm giữ');
@@ -607,18 +755,45 @@ describe('WF-06 — thêm lại mã đang giữ thì phải nói rõ là cộng 
   });
 
   /*
-   * Nút Sửa phải có tín hiệu nhìn thấy được, không chỉ đổi màu lúc rê chuột: màn này thiết kế
-   * cho 360px, mà điện thoại không có trạng thái rê chuột. Chủ dự án không tìm ra nút vì đúng
-   * lý do đó.
+   * Dòng mã phải có tín hiệu nhìn thấy được là bấm được, không chỉ đổi màu lúc rê chuột: màn này
+   * thiết kế cho 360px, mà điện thoại không có trạng thái rê chuột. Chủ dự án không tìm ra nút
+   * Sửa của bản trước vì đúng lý do đó, và bản dựng theo bản vẽ WF-06 thừa hưởng nguyên bài học
+   * ấy — chỉ đổi ký hiệu, từ dấu bút chì sang mũi tên của khối mở ra.
    */
-  it('nút Sửa mang dấu bút chì, và trình đọc màn hình không đọc ký hiệu ấy', async () => {
+  it('dòng mã mang mũi tên, và trình đọc màn hình không đọc ký hiệu ấy', async () => {
     seedHolding();
     render(<PortfolioScreen />);
 
-    const nutSua = await screen.findByRole('button', { name: 'Sửa FPT' });
-    const dau = nutSua.querySelector('[aria-hidden="true"]');
+    const dong = (await screen.findByRole('listitem')).firstElementChild;
+    const dau = dong?.querySelector('[aria-hidden="true"] svg');
 
-    expect(dau?.textContent).toBe('✎');
+    expect(dau).toBeTruthy();
+    // `aria-hidden` là thứ giữ mũi tên khỏi bản đọc; tên nút phủ đã nói "Chi tiết FPT".
+    expect(dau?.closest('[aria-hidden="true"]')?.textContent).toBe('');
+  });
+
+  /*
+   * Nút phủ lên dòng phải nói ĐÚNG việc nó làm.
+   *
+   * Bản trước cả dòng là nút Sửa, nên bấm vào dòng là nhảy thẳng vào form. Nay dòng mở khối chi
+   * tiết, và Sửa là một nút trong khối ấy — tên nút phải đi theo, nếu không người dùng bàn phím
+   * nghe "Sửa FPT" rồi nhận được một khối số.
+   */
+  it('cả dòng là một nút mở khối chi tiết, và nói rõ trạng thái đóng/mở', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+
+    const nut = await screen.findByRole('button', { name: 'Chi tiết FPT' });
+    expect(nut.getAttribute('aria-expanded')).toBe('false');
+
+    await userEvent.click(nut);
+    expect(nut.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Sửa FPT' })).toBeTruthy();
+
+    // Bấm lần nữa thì đóng lại — và ba nút hành động biến mất cùng khối.
+    await userEvent.click(nut);
+    expect(nut.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
   });
 });
 
@@ -726,36 +901,61 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
     expect(lai?.textContent).toContain('19');
   });
 
-  it('dòng mã hiện thị giá đang dùng, ngày mua và lãi/lỗ kèm dấu', async () => {
+  /*
+   * Dòng gọn theo bản vẽ WF-06 mang bốn con số: số lượng, giá vốn, tỷ trọng, lãi/lỗ. Thị giá,
+   * phần trăm lãi/lỗ, ngày mua và beta xuống khối chi tiết — không mất, chỉ đổi chỗ. Ca này khoá
+   * cả hai vế để không ai lặng lẽ bỏ bớt một vế nào.
+   */
+  it('dòng gọn mang số lượng, giá vốn, tỷ trọng và lãi/lỗ kèm dấu', async () => {
     seedHolding();
     render(<PortfolioScreen />);
 
     const row = await screen.findByRole('listitem');
 
     await waitFor(() => {
-      expect(row.textContent).toContain('71.400');
+      // 100 CP × 71.400 ₫ = 7.140.000 ₫, tức toàn bộ danh mục → tỷ trọng 100%.
+      expect(row.textContent).toContain('100%');
     });
-    expect(row.textContent).toContain('02/01/2026');
+    expect(row.textContent).toContain('100 CP');
+    expect(row.textContent).toContain('60.000');
     // Dấu + mang tin chứ không chỉ có màu — NFR-USA-06.
     expect(row.textContent).toContain('+1.140.000');
   });
 
+  it('khối chi tiết mang thị giá, phần trăm lãi/lỗ và ngày mua', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await moChiTiet();
+
+    const row = screen.getByRole('listitem');
+
+    await waitFor(() => {
+      expect(row.textContent).toContain('71.400');
+    });
+    expect(row.textContent).toContain('02/01/2026');
+    expect(row.textContent).toContain('+19');
+  });
+
   /*
-   * Nút "Sửa" cố ý CHỈ bao dòng đầu (mã + tên), không bao khối số.
+   * Nút bấm của dòng là một nút PHỦ trống rỗng, không phải một nút bọc quanh nội dung.
    *
-   * `aria-label` nuốt toàn bộ nội dung bên trong nút với trình đọc màn hình, nên bọc cả khối số
-   * vào nút là làm số lượng, giá vốn, thị giá, lãi/lỗ và ngày mua biến mất khỏi bản đọc — đúng
-   * những con số gói này vừa đưa lên màn. Ai nới nút ra bao cả dòng sẽ làm ca này đỏ.
+   * `aria-label` nuốt toàn bộ nội dung bên trong nút với trình đọc màn hình, nên bọc cả dòng vào
+   * nút là làm số lượng, giá vốn, tỷ trọng và lãi/lỗ biến mất khỏi bản đọc. Ai đổi nút phủ thành
+   * nút bọc sẽ làm ca này đỏ.
    */
-  it('khối số nằm NGOÀI nút sửa, để trình đọc màn hình không bị nuốt mất', async () => {
+  it('khối số nằm NGOÀI nút bấm của dòng, để trình đọc màn hình không bị nuốt mất', async () => {
     seedHolding();
     render(<PortfolioScreen />);
 
-    const nutSua = await screen.findByRole('button', { name: 'Sửa FPT' });
+    const nut = await screen.findByRole('button', { name: 'Chi tiết FPT' });
 
-    expect(nutSua.textContent).toContain('FPT');
-    expect(nutSua.textContent).not.toContain('CP');
-    expect(nutSua.textContent).not.toContain('giá vốn');
+    expect(nut.textContent).toBe('');
+
+    // Nhưng các con số vẫn có mặt trong mục danh sách, ngoài nút.
+    const row = screen.getByRole('listitem');
+    expect(row.textContent).toContain('FPT');
+    expect(row.textContent).toContain('100 CP');
+    expect(row.textContent).toContain('giá vốn');
   });
 
   it('thiếu thị giá: dòng mã nói “chưa có giá”, KHÔNG hiện lãi/lỗ bằng 0', async () => {
@@ -773,36 +973,79 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
   /*
    * Chủ dự án báo khối số trong thẻ "khó hình dung": bản trước ghép tất cả thành một câu nối bằng
    * dấu chấm, cùng cỡ chữ nhỏ nhất và cùng màu xám, nên nhãn lẫn giá trị trông y hệt nhau. Nay
-   * mỗi mẩu là một ô NHÃN–GIÁ TRỊ riêng. Ca này khoá việc nhãn thật sự tồn tại thành phần tử.
+   * mỗi mẩu có nhãn riêng. Ca này khoá việc nhãn thật sự tồn tại thành phần tử — cả nhãn trên
+   * dòng gọn lẫn nhãn trong khối chi tiết.
    */
   it('mỗi số liệu có nhãn riêng, không còn là một câu nối bằng dấu chấm', async () => {
     seedHolding();
     render(<PortfolioScreen />);
+    await moChiTiet();
 
-    const row = await screen.findByRole('listitem');
+    const row = screen.getByRole('listitem');
 
-    for (const label of ['Số lượng', 'giá vốn', 'Thị giá', 'tỷ trọng', 'Ngày mua']) {
+    // Trong khối chi tiết: nhãn là một thẻ <dt> riêng, tra khớp đúng chuỗi.
+    for (const label of ['Thị giá', 'Lãi/lỗ', 'Ngày mua']) {
       expect(within(row).getByText(label)).toBeTruthy();
     }
+
+    /*
+     * Trên dòng gọn thì khác: "giá vốn 60.000 ₫" là MỘT mẩu chữ chứ không phải nhãn rời — đúng
+     * bản vẽ WF-06, và đúng chỗ nó cần đứng, ngay dưới số lượng. Nên tra bằng biểu thức.
+     */
+    expect(within(row).getByText(/^giá vốn /)).toBeTruthy();
+    expect(within(row).getByText('tỷ trọng')).toBeTruthy();
   });
 
   /*
-   * Hai nút cuối thẻ từng là ký tự `ƒ` và `×` trần trên nền trong suốt — chủ dự án báo là nhìn
-   * không biết bấm được. Nay là nút thật, có chữ đọc được chứ không phải một ký hiệu.
+   * Hai nút cuối khối chi tiết từng là ký tự `ƒ` và `×` trần trên nền trong suốt — chủ dự án báo
+   * là nhìn không biết bấm được. Nay là nút thật, có chữ đọc được chứ không phải một ký hiệu.
+   *
+   * Từng có nút thứ ba, "Tính công thức", và nó đã bỏ ở đợt gộp luồng thêm mã: chọn công thức nay
+   * là một ô TRONG FORM. Ca này khoá luôn việc nó không quay lại — hai lối cho cùng một việc là
+   * đúng thứ đợt ấy dọn đi.
    */
-  it('hai nút cuối thẻ mang chữ, không phải ký tự trần', async () => {
+  it('hai nút cuối khối chi tiết mang chữ, không phải ký tự trần', async () => {
     seedHolding();
     render(<PortfolioScreen />);
+    await moChiTiet();
 
-    const congThuc = await screen.findByRole('button', { name: 'Tính công thức FPT' });
+    const sua = screen.getByRole('button', { name: 'Sửa FPT' });
     const boMa = screen.getByRole('button', { name: 'Bỏ mã FPT' });
 
-    expect(congThuc.textContent).toBe('Tính công thức');
+    expect(sua.textContent).toBe('Sửa');
     expect(boMa.textContent).toBe('Bỏ mã');
-    expect(congThuc.textContent).not.toBe('ƒ');
+    expect(sua.textContent).not.toBe('ƒ');
+    expect(screen.queryByRole('button', { name: 'Tính công thức FPT' })).toBeNull();
   });
 
-  it('tên doanh nghiệp chọn ở sheet được giữ lại và hiện trên dòng mã', async () => {
+  /*
+   * Mã đã nằm sẵn trong danh mục vẫn tính được công thức — điều kiện để nút "Tính công thức" ở
+   * dòng mã được phép bỏ đi. Đường đi là Sửa → chọn công thức → "Lưu và mở công thức".
+   */
+  it('mã đã có vẫn mở được công thức, qua form Sửa', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await moChiTiet();
+    await userEvent.click(screen.getByRole('button', { name: 'Sửa FPT' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Tính công thức' }));
+    const sheet = await screen.findByRole('dialog');
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu và mở công thức' }));
+
+    await waitFor(() => {
+      expect(router.push).toHaveBeenCalledWith('/cong-thuc/pe/?ma=FPT');
+    });
+  });
+
+  /*
+   * Tên doanh nghiệp xuống khối chi tiết: cột mã trên dòng gọn chỉ rộng đúng ba đến bốn ký tự.
+   *
+   * Nó vẫn phải có mặt ở HAI chỗ — trong tên khả truy cập của nút phủ (để người dùng bàn phím
+   * biết mình đang ở dòng nào mà không phải mở ra), và thành chữ đọc được trong khối chi tiết.
+   */
+  it('tên doanh nghiệp chọn ở sheet được giữ lại, ở tên nút và trong khối chi tiết', async () => {
     render(<PortfolioScreen />);
 
     await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
@@ -814,8 +1057,9 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
     await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
     await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
 
-    const nutSua = await screen.findByRole('button', { name: 'Sửa FPT FPT Corp' });
-    expect(nutSua.textContent).toContain('FPT Corp');
+    await userEvent.click(await screen.findByRole('button', { name: 'Chi tiết FPT FPT Corp' }));
+
+    expect(within(screen.getByRole('listitem')).getByText('FPT Corp')).toBeTruthy();
   });
 });
 
@@ -973,6 +1217,68 @@ function seedSaved(): void {
     ]),
   );
 }
+
+/*
+ * Chủ dự án báo: ở tab Mã đang cuộn dở mà bấm sang tab Công thức thì "giao diện bật to ra, cảm
+ * giác bị giật". Đo trên Chrome thật với 3 mã và 1 phép tính đã lưu, ra HAI nguyên nhân rời nhau:
+ *
+ *   1. Thanh cuộn biến mất khi trang hết đủ dài → vùng nhìn rộng thêm 15px → thanh trên giãn từ
+ *      1249 lên 1264 và mép trái cụm tab dịch 7,5px. ĐỂ NGUYÊN, có chủ đích: cách chặn duy nhất
+ *      (`scrollbar-gutter: stable`) để lại một vệt 15px khác màu chạy dọc mép phải mà không gì
+ *      vẽ vào được, và chủ dự án thấy vệt ấy phiền hơn cú giãn — lý lẽ đầy đủ nằm trong docblock
+ *      cạnh khối `body { overflow-x: clip }` của `globals.css`. Dù có chặn thì cũng KHÔNG kiểm
+ *      được ở đây: jsdom không có bộ dựng hình nên không có thanh cuộn nào để mất.
+ *   2. Trang co 1916 → 780px làm trình duyệt kẹp vị trí cuộn 700 → 0.
+ *
+ * Nguyên nhân 2 là phần sửa được mà không kèm tác dụng phụ, và cũng là phần kiểm được: đổi tab
+ * phải chủ động kéo cụm tab trở lại tầm mắt, thay vì phó mặc cho cú kẹp của trình duyệt.
+ */
+describe('WF-06 — đổi tab không ném người dùng đi chỗ khác', () => {
+  /** jsdom chưa cài đặt `scrollIntoView`; gắn bản giả rồi gỡ để không rò sang file test khác. */
+  function bayScrollIntoView(): { goi: ReturnType<typeof vi.fn>; go: () => void } {
+    const goi = vi.fn();
+    const cu = Element.prototype.scrollIntoView as unknown;
+    Element.prototype.scrollIntoView = goi;
+    return {
+      goi,
+      go: () => {
+        Element.prototype.scrollIntoView = cu as typeof Element.prototype.scrollIntoView;
+      },
+    };
+  }
+
+  it('bấm đổi tab thì kéo cụm tab trở lại tầm mắt', async () => {
+    const bay = bayScrollIntoView();
+    seedHolding();
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    expect(bay.goi).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(bay.goi).toHaveBeenCalledTimes(1);
+    /*
+     * `nearest` chứ không `start`: đứng sẵn ở đầu trang mà bấm tab thì màn hình phải ĐỨNG YÊN.
+     * `start` sẽ cuộn xuống để đẩy cụm tab lên đỉnh — một cú giật khác, do chính bản vá gây ra.
+     */
+    expect(bay.goi.mock.calls[0]?.[0]).toMatchObject({ block: 'nearest' });
+    bay.go();
+  });
+
+  it('mở màn sẵn ở tab Công thức bằng `?tab=` thì KHÔNG tự cuộn — người dùng chưa bấm gì', async () => {
+    const bay = bayScrollIntoView();
+    window.history.replaceState(null, '', '/danh-muc/?tab=cong-thuc');
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText(/không tính lại/);
+
+    expect(bay.goi).not.toHaveBeenCalled();
+    bay.go();
+  });
+});
 
 describe('WF-06 — tab Công thức', () => {
   it('mặc định mở tab Mã; chưa lưu gì thì tab kia mời lưu chứ không để trống', async () => {

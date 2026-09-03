@@ -197,6 +197,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'This ticker has a single price session — the live source provides no long history. This ' +
     'formula needs many sessions: paste a price series, or tap “Load sample” and pick one of ' +
     'the four sample tickers.',
+  'detail.draftMarketSeries':
+    'The VN-Index series used for comparison is still self-generated sample data, not the real ' +
+    'index — the number here is only for learning how to read it, not for a real decision.',
   'detail.openDataTable': 'Open the data table →',
   'detail.chart': 'Chart',
   'chart.sweepLabel': 'See how the result changes with',
@@ -284,11 +287,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.totalCost': 'Invested',
   'portfolio.gain': 'Gain / loss',
 
-  'portfolio.cellQuantity': 'Quantity',
   'portfolio.marketPrice': 'Market price',
   'portfolio.priceMissing': 'no price yet',
   'portfolio.betaShort': 'beta',
   'portfolio.edit': 'Edit',
+  'portfolio.details': 'Details',
   'portfolio.editHint':
     'Change the quantity, cost price, purchase date or beta. To change the ticker itself, remove it and add it again.',
   'portfolio.formSave': 'Save changes',
@@ -307,6 +310,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
   'portfolio.priceNone': 'No market price found for any ticker yet.',
   'portfolio.formulas': 'Run a formula',
+  'portfolio.pickFormula': 'Pick a formula',
+  'portfolio.formulaHint':
+    'Optional. Pick one and saving takes you straight to it, with this ticker already filled in.',
+  'portfolio.pickCodeFirst': 'Pick a ticker first',
+  'portfolio.formulaNeedsCode':
+    'How many fields each formula can fill depends on the ticker, so pick one first. Tap here to choose it.',
+  'portfolio.formulaClear': 'Clear the formula',
+  'portfolio.formSubmitOpen': 'Add and open the formula',
+  'portfolio.formSaveOpen': 'Save and open the formula',
   'portfolio.formulasTitle': 'Formulas this ticker can fill',
   'portfolio.formulasSubtitle': 'Open a formula with this ticker’s data already filled in',
   'portfolio.formulasFilled': 'fields prefilled',

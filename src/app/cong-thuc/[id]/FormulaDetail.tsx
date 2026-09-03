@@ -25,6 +25,7 @@ import {
   formatCalcOutput,
   formatIsoDate,
   hasDraftData,
+  hasDraftMarketSeries,
   isTickerCode,
   needsPriceSeries,
   parseActiveTicker,
@@ -727,6 +728,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     () => (formula === undefined ? false : needsPriceSeries(formula, asOf)),
     [formula, asOf],
   );
+
+  /**
+   * Công thức có hồi quy với chuỗi thị trường hay không.
+   *
+   * Đọc `example.marketSeries` chứ không so id: trường ấy tồn tại ĐÚNG cho nhóm công thức đọc
+   * `ctx.marketSeries` (xem `SpecExample.marketSeries` — "riêng cho Beta"), nên nó là siêu dữ liệu
+   * sẵn có chứ không phải một danh sách id chép tay sẽ mục theo thời gian. Không dò bằng cách chạy
+   * thử như `needsPriceSeries()`: chuỗi VN-Index luôn nằm trong `ctx` nên không có ca "thiếu" nào
+   * để dò ra.
+   */
+  const usesMarketSeries = spec.example.marketSeries !== undefined;
 
   /**
    * Chuỗi giá hiện có KHÔNG khớp chuỗi lúc lưu, ở một phép tính vừa mở lại.
@@ -1524,6 +1536,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         {/* Chỉ hiện khi số đang bày LÀ chuỗi minh hoạ — đừng để người dùng tưởng nhầm là số thật. */}
         {wantsSeries && exampleLoaded && (
           <p className={styles.pendingNote}>{t('detail.exampleSeriesNote')}</p>
+        )}
+
+        {/*
+          Công thức hồi quy với thị trường (hiện chỉ Beta) đọc `ctx.marketSeries` mà KHÔNG ai bấm
+          nạp gì cả — chuỗi VN-Index luôn có sẵn. Chừng nào chuỗi ấy còn là PRNG, con số ra là một
+          con số sai trông hoàn toàn hợp lệ, và bốn mã mẫu lại là PRNG ĐỘC LẬP với nó nên beta rơi
+          về gần 0. Đây là ca FR-06 rõ nhất còn lại trong sản phẩm, và cách chữa duy nhất trong tầm
+          tay là NÓI RA. Cờ đọc từ tầng Data nên ngày có chuỗi thật, dòng này tự biến mất.
+        */}
+        {usesMarketSeries && hasDraftMarketSeries() && (
+          <p className={styles.seriesShortNote} role="note">
+            {t('detail.draftMarketSeries')}
+          </p>
         )}
 
         {/*

@@ -389,6 +389,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
     name: { vi: 'XIRR — suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
     description: { vi: 'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.', en: 'The annualized rate of return from a series of irregularly timed cash inflows and outflows, computed on actual dates.' },
     level: 'advanced',
+    isFeatured: true,
     tags: ['xirr', 'suat sinh loi noi tai', 'dong tien khong deu', 'irr thuc te'],
   },
   {

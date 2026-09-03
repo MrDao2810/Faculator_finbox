@@ -33,6 +33,11 @@ const PHI_MOI_GIOI: TypedMarketConstant = {
     vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch',
     en: 'Circular 102/2021/TT-BTC — brokerage fee cap of 0.45% of transaction value',
   },
+  // Cùng câu mà bản ghi thật trong `schedules.ts` mang — xem ca kiểm về ghi chú ở cuối file.
+  note: {
+    vi: 'Mức phổ biến trên thị trường, không phải mức luật định. Sửa được ở màn Cài đặt.',
+    en: 'A common market rate, not a statutory rate. Editable in Settings.',
+  },
 };
 
 const PHI_LUU_KY: TypedMarketConstant = {
@@ -79,6 +84,28 @@ describe('ConstantsNote', () => {
   it('nhiều hằng số thì mỗi cái một dòng — gia-hoa-von tra tới bốn mức', () => {
     render(<ConstantsNote constants={[PHI_MOI_GIOI, PHI_LUU_KY]} />);
     expect(screen.getAllByRole('term')).toHaveLength(2);
+  });
+
+  /*
+   * Ghi chú của bản ghi là câu ĐÍNH CHÍNH, không phải chữ trang trí: 0,15% là mức phổ biến trên
+   * thị trường (thực tế 0,1%–0,35%), mà nó in ra ngay cạnh dòng "Thông tư 102/2021/TT-BTC" vốn
+   * chỉ đặt TRẦN 0,45%. Ghép hai mảnh ấy lại mà thiếu câu này thì người đọc kết luận 0,15% là
+   * con số luật định — và câu ấy đã nằm sẵn trong `schedules.ts` từ đầu, chỉ là không ai in.
+   */
+  it('bày ghi chú của bản ghi — nếu không, mức phổ biến đọc lên như mức luật định', () => {
+    render(<ConstantsNote constants={[PHI_MOI_GIOI]} />);
+    expect(screen.getByText(/không phải mức luật định/)).toBeTruthy();
+  });
+
+  it('bản ghi không có ghi chú thì không mọc thêm dòng trống', () => {
+    const khongGhiChu: TypedMarketConstant = { ...PHI_MOI_GIOI };
+    delete (khongGhiChu as { note?: unknown }).note;
+
+    const { container } = render(<ConstantsNote constants={[khongGhiChu]} />);
+
+    expect(screen.queryByText(/không phải mức luật định/)).toBeNull();
+    // Ba mảnh còn lại: trị số, ngày hiệu lực, căn cứ pháp lý.
+    expect(container.querySelectorAll('dd > span')).toHaveLength(3);
   });
 
   it('bản ghi THẬT trong MARKET_CONFIG hiện đúng, không chỉ bản ghi dựng trong test', () => {

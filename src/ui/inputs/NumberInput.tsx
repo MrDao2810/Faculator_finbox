@@ -2,7 +2,13 @@
 
 import { useState } from 'react';
 
-import { commitValue, formatNumber, parseViNumber, resolveInputState } from '@/application';
+import {
+  commitValue,
+  formatNumber,
+  parseViNumber,
+  rawViNumber,
+  resolveInputState,
+} from '@/application';
 import type { InputState, Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Input, type InputTone } from '@/ui/primitives';
@@ -114,8 +120,10 @@ export function NumberInput({
       title={locked ? t('input.lockedHint') : undefined}
       onFocus={() => {
         setFocused(true);
-        // Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '92.000' thành '92000'.
-        setDraft(String(value));
+        /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '92.000' thành '92000'. Qua `rawViNumber()`
+           chứ không `String()`: `String(100.449)` ra '100.449', mà chuỗi ấy đọc ngược lại thành
+           100449 — chạm vào ô rồi bấm ra chỗ khác là giá nhân lên nghìn lần. */
+        setDraft(rawViNumber(value));
       }}
       onChange={(event) => {
         const next = event.target.value;

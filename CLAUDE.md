@@ -52,7 +52,7 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 25 assertions against a built out/ — run after build
+npm run verify:static  # 26 assertions against a built out/ — run after build
 npm run check:chrome   # 28 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts

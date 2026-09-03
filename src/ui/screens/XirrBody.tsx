@@ -1,8 +1,9 @@
 'use client';
 
-import { cashflowsOf, checkCashflowSeries, emptyCashflowRow, parseViNumber } from '@/application';
+import { cashflowsOf, checkCashflowSeries, emptyCashflowRow } from '@/application';
 import type { CalcOutput, CashflowRow } from '@/application';
 import { useT } from '@/application/preferences-context';
+import { NumberCell } from '@/ui/inputs';
 import { Button, Table } from '@/ui/primitives';
 import { ResultBlock } from '@/ui/result';
 
@@ -16,11 +17,6 @@ export interface XirrBodyProps {
 
 /** Trần số dòng — XIRR đọc vài giao dịch, không phải chuỗi giá hàng trăm phiên như WF-05. */
 const MAX_ROWS = 200;
-
-/** Hiện số trong ô nhập. Chưa nhập thì để ô trống chứ không hiện 0. */
-function showAmount(value: number | null): string {
-  return value === null ? '' : String(value);
-}
 
 /**
  * Thân riêng của XIRR — công thức duy nhất trong Registry mà đầu vào chính là một BẢNG có độ
@@ -103,13 +99,14 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
                     />
                   </td>
                   <td>
-                    <input
+                    {/* Cùng `NumberCell` với bảng WF-05 — dòng tiền có số lẻ nhiều hơn cả chuỗi
+                        giá, nên đây đúng là chỗ lỗi "nuốt dấu phẩy" cắn đau nhất. */}
+                    <NumberCell
                       className={styles.cell}
-                      inputMode="decimal"
-                      aria-label={`${t('xirr.rowLabel')} ${String(index + 1)} · ${t('xirr.colAmount')}`}
-                      value={showAmount(row.amount)}
-                      onChange={(event) => {
-                        setCell(index, { amount: parseViNumber(event.target.value) });
+                      ariaLabel={`${t('xirr.rowLabel')} ${String(index + 1)} · ${t('xirr.colAmount')}`}
+                      value={row.amount}
+                      onChange={(next) => {
+                        setCell(index, { amount: next });
                       }}
                     />
                   </td>

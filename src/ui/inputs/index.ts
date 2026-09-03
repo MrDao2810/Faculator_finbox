@@ -15,6 +15,9 @@ export type { NumberInputProps } from './NumberInput';
 export { InlineNumber } from './InlineNumber';
 export type { InlineNumberProps } from './InlineNumber';
 
+export { NumberCell } from './NumberCell';
+export type { NumberCellProps } from './NumberCell';
+
 export { SliderInput } from './SliderInput';
 export type { SliderInputProps } from './SliderInput';
 

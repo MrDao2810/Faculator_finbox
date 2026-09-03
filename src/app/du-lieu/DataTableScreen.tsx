@@ -13,7 +13,6 @@ import {
   formatNumber,
   formulaPath,
   parseStoredSeries,
-  parseViNumber,
   removeRow,
   serializeStoredSeries,
   toCsv,
@@ -21,6 +20,7 @@ import {
 } from '@/application';
 import type { PasteResult, Preset, SeriesRow } from '@/application';
 import { useT } from '@/application/preferences-context';
+import { NumberCell } from '@/ui/inputs';
 import { BackLink } from '@/ui/navigation';
 import { Button } from '@/ui/primitives';
 import { PasteImportSheet, PresetSheet } from '@/ui/sheets';
@@ -56,11 +56,6 @@ const COLUMNS = [
 
 /** Số phiên tối thiểu để Beta và Sharpe có ý nghĩa thống kê — cùng ngưỡng với cảnh báo WF-15. */
 const MIN_USABLE_ROWS = 60;
-
-/** Hiện số trong ô nhập. Chưa nhập thì để ô trống chứ không hiện 0. */
-function showNumber(value: number | null): string {
-  return value === null ? '' : String(value);
-}
 
 interface SeriesRowFieldsProps {
   row: SeriesRow;
@@ -99,24 +94,35 @@ const SeriesRowFields = memo(function SeriesRowFields({
 
       {COLUMNS.map((column) => (
         <td key={column.key}>
-          <input
-            className={column.key === 'date' ? `${styles.cell} ${styles.dateCell}` : styles.cell}
-            inputMode={column.key === 'date' ? 'text' : 'decimal'}
-            aria-label={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
-            /* Ô số chưa điền hiện dấu gạch chứ không để trắng trơn: bốn cột Mở/Cao/Thấp/Khối
-               lượng thường trống cả bảng (chuỗi minh hoạ chỉ có giá đóng cửa), mà trắng trơn thì
-               đọc ra là ô khoá. Ký tự thuần nên không qua i18n — cùng loại với '×' của nút xoá
-               và '!' của cờ báo lỗi ngay dưới. */
-            placeholder={column.key === 'date' ? undefined : '—'}
-            value={column.key === 'date' ? row.date : showNumber(row[column.key])}
-            onChange={(event) => {
-              const raw = event.target.value;
-              onChange(
-                index,
-                column.key === 'date' ? { date: raw } : { [column.key]: parseViNumber(raw) },
-              );
-            }}
-          />
+          {column.key === 'date' ? (
+            <input
+              className={`${styles.cell} ${styles.dateCell}`}
+              inputMode="text"
+              aria-label={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
+              value={row.date}
+              onChange={(event) => {
+                onChange(index, { date: event.target.value });
+              }}
+            />
+          ) : (
+            /* Năm cột số đi qua `NumberCell` — nó giữ chuỗi thô trong lúc gõ, nếu không thì dấu
+               phẩy bị nuốt ngay khi vừa gõ và một lần chạm vào ô có thể nhân giá lên nghìn lần
+               (lý do đầy đủ ở docblock của nó).
+
+               Ô chưa điền hiện dấu gạch chứ không để trắng trơn: bốn cột Mở/Cao/Thấp/Khối lượng
+               thường trống cả bảng (chuỗi minh hoạ chỉ có giá đóng cửa), mà trắng trơn thì đọc ra
+               là ô khoá. Ký tự thuần nên không qua i18n — cùng loại với '×' của nút xoá và '!'
+               của cờ báo lỗi ngay dưới. */
+            <NumberCell
+              className={styles.cell}
+              ariaLabel={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
+              placeholder="—"
+              value={row[column.key]}
+              onChange={(next) => {
+                onChange(index, { [column.key]: next });
+              }}
+            />
+          )}
         </td>
       ))}
 
@@ -386,8 +392,9 @@ export function DataTableScreen() {
           )}
 
           <p className={styles.summary}>
-            {formatNumber(check.usableCount) ?? check.usableCount} / {check.total}{' '}
-            {t('series.usable')}
+            {/* `formatNumber` khai trả `string` nên `?? check.usableCount` từng đứng đây không
+                bao giờ chạy — một đường dự phòng giả, đọc vào tưởng có xử lý ca lỗi. */}
+            {formatNumber(check.usableCount)} / {check.total} {t('series.usable')}
             {check.usableCount > 0 && check.usableCount < MIN_USABLE_ROWS
               ? ` — ${t('series.needMore')}`
               : ''}

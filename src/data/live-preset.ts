@@ -10,6 +10,7 @@
  */
 
 import type { TickerSnapshot } from './finbox/types';
+import { PRESET_CONTRACT_VERSION } from './types';
 import type { DailyBar, Preset } from './types';
 
 /**
@@ -51,6 +52,7 @@ export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Pres
         ];
 
   return {
+    version: PRESET_CONTRACT_VERSION,
     code: snapshot.code,
     name: snapshot.name,
     // Cùng khuôn dòng mô tả nguồn của WF-10: kỳ báo cáo trước, phạm vi chuỗi giá sau.

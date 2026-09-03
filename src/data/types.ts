@@ -54,8 +54,25 @@ export interface Fundamentals {
   period: string;
 }
 
+/**
+ * Phiên bản hợp đồng dữ liệu mẫu (SW-05 · LDR-05).
+ *
+ * Tăng số này khi hình dạng `Preset` đổi theo cách một bộ số liệu cũ không còn đọc đúng được —
+ * thêm trường tuỳ chọn thì KHÔNG tăng, bỏ hay đổi nghĩa một trường thì có. `createStaticProvider()`
+ * đối chiếu từng bộ khi dựng, nên một bộ số liệu sinh bởi phiên bản khác không thể lặng lẽ đi
+ * tiếp vào công thức.
+ *
+ * Vì sao cần dù `samples.ts` nằm ngay trong repo và typecheck đã gác hình dạng: fundamentals của
+ * bốn mã nay do `npm run gen:live-fundamentals` sinh từ API, và SW-05 chốt rằng dữ liệu mẫu từ
+ * Finbox đi theo "hợp đồng dữ liệu có phiên bản". Typecheck chỉ thấy được file đang có trong cây
+ * mã; nó không thấy một bộ số liệu người khác gửi sang.
+ */
+export const PRESET_CONTRACT_VERSION = 1;
+
 /** Một bộ số liệu mẫu chọn được ở sheet WF-10. */
 export interface Preset {
+  /** Phiên bản hợp đồng dữ liệu — xem `PRESET_CONTRACT_VERSION`. */
+  version: number;
   /** Mã cổ phiếu, ví dụ 'FPT'. */
   code: string;
   /** Tên doanh nghiệp hiện dưới mã. */
@@ -98,8 +115,21 @@ export interface DataProvider {
   search(query: string): ReadonlyArray<Preset>;
   /**
    * Chuỗi phiên của VN-Index — riêng cho công thức Beta (FR-17: "gắn được mã cổ phiếu và chỉ
-   * số VN-Index thật qua DataProvider"). Không phải một `Preset`: không có mã, không isDraft
-   * riêng, không hiện ở PresetSheet — chỉ nạp thẳng vào `ctx.marketSeries`.
+   * số VN-Index thật qua DataProvider"). Không phải một `Preset`: không có mã, không hiện ở
+   * PresetSheet — chỉ nạp thẳng vào `ctx.marketSeries`.
    */
   vnIndex(): ReadonlyArray<DailyBar>;
+  /**
+   * Chuỗi VN-Index ở trên có phải số tự dựng hay không.
+   *
+   * `Preset` mang cờ `isDraft` của riêng nó, còn chuỗi chỉ số thì trước đây không có chỗ nào để
+   * nói ra điều tương tự — và đó là một lỗ FR-06 thật, không phải chuyện siêu dữ liệu: Beta hồi
+   * quy lợi suất cổ phiếu theo lợi suất thị trường, nên khi vế thị trường là PRNG, con số ra là
+   * một con số SAI trông rất có lý. Nặng hơn nữa vì chuỗi này luôn nằm sẵn trong `ctx`, người
+   * dùng không phải bấm "Nạp mẫu" lần nào, nên không có một dấu hiệu nào cho họ biết.
+   *
+   * Khi thay bằng chuỗi chỉ số thật thì trả `false` — một chỗ duy nhất, và câu cảnh báo trên màn
+   * tự biến mất.
+   */
+  vnIndexIsDraft(): boolean;
 }

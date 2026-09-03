@@ -269,6 +269,15 @@ export const vi = {
   'detail.liveSeriesShort':
     'Mã này chỉ có một phiên giá — nguồn số liệu thật không cấp chuỗi dài. Công thức này cần ' +
     'nhiều phiên: dán chuỗi giá, hoặc bấm “Nạp mẫu” và chọn một trong bốn mã mẫu.',
+  /*
+   * Chuỗi VN-Index trong bộ mẫu là PRNG (`samples.ts`), mà công thức hồi quy với thị trường thì
+   * LUÔN đọc nó qua `ctx.marketSeries` — không ai bấm "Nạp mẫu" cho nó cả. Không có câu này thì
+   * người dùng nhận một hệ số beta gần 0 trông hoàn toàn hợp lệ: đúng loại "số sai mà trông có
+   * lý" mà FR-06 tồn tại để chặn. Nói cả nguyên nhân lẫn cách đọc con số đang thấy.
+   */
+  'detail.draftMarketSeries':
+    'Chuỗi VN-Index dùng để so sánh hiện là số liệu mẫu tự dựng, chưa phải chỉ số thật — con số ' +
+    'ra đây chỉ để xem cách đọc, đừng dùng cho quyết định thật.',
   'detail.openDataTable': 'Mở bảng dữ liệu →',
   'detail.chart': 'Biểu đồ',
   /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
@@ -416,20 +425,29 @@ export const vi = {
   'portfolio.gain': 'Lãi/lỗ',
 
   /*
-   * ── Nhãn của lưới số liệu trong thẻ mã ────────────────────────────────────
+   * ── Nhãn của lưới số liệu trong khối chi tiết ─────────────────────────────
    *
    * Đây là NHÃN đứng riêng một dòng phía trên giá trị, không phải mảnh ghép giữa câu, nên viết
    * hoa chữ đầu và đủ nghĩa khi đứng một mình. Bản trước là mảnh câu viết thường ('giá', 'mua')
    * ghép thành `100 CP · giá vốn 21 ₫ · chưa có giá` — đọc được nhưng không dò được.
    *
-   * `portfolio.costPrice` và `portfolio.weight` vẫn viết thường vì CSS đã `text-transform:
-   * uppercase`; hai khoá ấy có từ trước và không đổi để khỏi động vào chỗ khác.
+   * `portfolio.costPrice` và `portfolio.weight` vẫn viết thường: từ đợt dựng lại theo bản vẽ
+   * WF-06 chúng KHÔNG còn là nhãn của lưới nữa mà là chữ đi liền con số ngay trên dòng gọn
+   * ('giá vốn 60.000 ₫' · 'tỷ trọng'), nên chữ thường là đúng chỗ chứ không còn là chuyện CSS.
+   *
+   * `portfolio.cellQuantity` ('Số lượng') đã bỏ ở đợt ấy: số lượng lên dòng gọn, nơi đơn vị 'CP'
+   * ngay sau con số đã nói đủ, nên nhãn thành thừa. Cửa "khoá mồ côi" ở `i18n.test.ts` bắt được
+   * ngay lúc nó thành thừa.
    */
-  'portfolio.cellQuantity': 'Số lượng',
   'portfolio.marketPrice': 'Thị giá',
   'portfolio.priceMissing': 'chưa có giá',
   'portfolio.betaShort': 'beta',
   'portfolio.edit': 'Sửa',
+  /*
+   * Nhãn của nút phủ lên cả dòng mã — nút mở khối chi tiết. Không hiện thành chữ trên màn (dòng
+   * đã có mũi tên), nhưng là toàn bộ tên khả truy cập của nút nên phải nói đúng việc nó làm.
+   */
+  'portfolio.details': 'Chi tiết',
   'portfolio.editHint':
     'Đổi số lượng, giá vốn, ngày mua hoặc beta. Muốn đổi mã thì bỏ rồi thêm lại.',
   'portfolio.formSave': 'Lưu thay đổi',
@@ -469,7 +487,28 @@ export const vi = {
    * phải "thử lại". Lý do đầy đủ đã nằm ở ô "Tổng giá trị"; câu này chỉ giữ cho thanh khỏi trống.
    */
   'portfolio.priceNone': 'Chưa có mã nào tra được thị giá.',
+  /*
+   * ── Ô chọn công thức trong form thêm/sửa mã ───────────────────────────────
+   *
+   * `portfolio.formulas` từng là nhãn của một NÚT ở dòng mã; từ đợt gộp luồng thêm mã nó là nhãn
+   * của một Ô NHẬP trong form. Giữ nguyên chuỗi vì nó vẫn gọi đúng tên việc, chỉ đổi vai.
+   */
   'portfolio.formulas': 'Tính công thức',
+  'portfolio.pickFormula': 'Chọn công thức',
+  'portfolio.formulaHint':
+    'Tuỳ chọn. Chọn rồi thì lưu xong sẽ mở thẳng công thức đó với số liệu của mã đã điền sẵn.',
+  /*
+   * Chữ trên NÚT khi chưa có mã, và bấm vào nó là mở sheet chọn mã thật.
+   *
+   * Từng để nút `disabled` với chữ "Chọn công thức", và chủ dự án báo "bấm vào không thấy hiệu ứng
+   * gì" — một nút hứa một việc rồi im lặng. Nút phải nói đúng thứ nó sắp làm.
+   */
+  'portfolio.pickCodeFirst': 'Chọn mã cổ phiếu trước',
+  'portfolio.formulaNeedsCode':
+    'Số ô điền sẵn của mỗi công thức phụ thuộc mã, nên phải có mã rồi mới chọn được. Bấm vào ô này để chọn mã.',
+  'portfolio.formulaClear': 'Bỏ chọn công thức',
+  'portfolio.formSubmitOpen': 'Thêm và mở công thức',
+  'portfolio.formSaveOpen': 'Lưu và mở công thức',
   'portfolio.formulasTitle': 'Công thức dùng được với mã này',
   'portfolio.formulasSubtitle': 'Mở công thức với số liệu của mã đã điền sẵn',
   // Đứng SAU cặp số "2/2", nên viết thường và mở đầu bằng đơn vị.

@@ -404,6 +404,35 @@ body {
 }
 
 /*
+ * ## Vì sao KHÔNG có `scrollbar-gutter: stable` ở đây
+ *
+ * Đã thử và đã gỡ. Ghi lại để không ai thêm lại mà không biết mình đang đổi gì lấy gì.
+ *
+ * Bệnh nó chữa có thật: trên máy tính thanh cuộn cổ điển CHIẾM CHỖ trong vùng nhìn, nên một màn
+ * hết cuộn được thì thanh biến mất, vùng nhìn rộng thêm đúng bề rộng ấy và cả giao diện giãn ra.
+ * Đo trên Chrome thật ở màn Danh mục, đổi từ tab Mã sang tab Công thức: thanh trên 1249 → 1264
+ * (+15px), mép trái cụm tab dịch 7,5px.
+ *
+ * Nhưng thuốc nặng hơn bệnh, và lý do là hình học chứ không phải thẩm mỹ: dải chừa nằm NGOÀI hộp
+ * nội dung của `html` (đo được: `documentElement.clientWidth` 504 trong khi `body` rộng 489), nên
+ * KHÔNG phần tử nào trong trang vẽ vào đó được. Thanh trên, thanh điều hướng dưới và dải miễn trừ
+ * đều mang nền `--color-surface` và đều dừng ở mốc 489, nên cạnh chúng luôn còn một vệt 15px khác
+ * màu chạy suốt chiều cao trang. Chủ dự án khoanh đúng vệt ấy và gọi là "thừa ra padding bên phải".
+ *
+ * Bốn hướng chữa đã cân nhắc rồi bỏ, không hướng nào xoá được vệt:
+ *   - `stable both-edges` — chỉ làm vệt đối xứng hai bên, mất 30px thay vì 15px.
+ *   - `html { overflow-y: scroll }` — vẫn đúng 15px ấy, chỉ đổi nền trống thành một máng cuộn
+ *     kéo không được. Vệt còn dễ thấy hơn ở bảng tối.
+ *   - Bù lề bằng `calc(100vw - 100%)` — khi `stable` đang bật thì hiệu ấy là HẰNG SỐ 15px ở cả
+ *     hai trạng thái, nên nó chỉ dịch cột nội dung chứ không bù có điều kiện.
+ *   - Đo bằng JS rồi chừa bằng `padding` — sai hình học: `padding` là chỗ chừa CỘNG THÊM, còn
+ *     thanh cuộn đã bị trừ khỏi `clientWidth` từ trước, nên cú giãn 15px quay lại nguyên vẹn.
+ *
+ * Kết luận: giữ bề rộng ổn định và xoá vệt là hai điều loại trừ nhau. Chủ dự án chốt bỏ vệt.
+ * Cú giãn 15px khi trang đổi từ dài sang ngắn vẫn còn, và đó là hành vi mặc định của trình duyệt.
+ */
+
+/*
  * Lưới an toàn cho NFR-USA-02: bảng nhiều cột phải cuộn trong khung riêng, không kéo cả trang.
  * Dùng `clip` chứ KHÔNG dùng `hidden` — `hidden` biến body thành vùng cuộn và làm hỏng
  * position: sticky của thanh trên với thanh điều hướng dưới.

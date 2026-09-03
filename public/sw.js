@@ -1,5 +1,10 @@
 /*
- * Service worker — gói WBS 3.6.2 (PWA), NFR-REL-02 "dùng được khi mất mạng".
+ * Service worker — gói WBS 3.6.2 (PWA), FR-23 · SW-06 · NFR-POR-03 "sau lần tải đầu, hoạt động
+ * ngoại tuyến đầy đủ chức năng tính toán".
+ *
+ * (Trước đây bốn chỗ trong repo gán việc chạy ngoại tuyến cho NFR-REL-02. Mã ấy là "hệ thống phải
+ * TỰ KIỂM TRA CHÉO tính nhất quán giữa các công thức liên quan" — một yêu cầu hoàn toàn khác và
+ * hiện chưa có dòng code nào. Trích sai mã làm cả hai bên cùng mất dấu.)
  *
  * Viết tay, KHÔNG thêm thư viện. Lý do không dùng next-pwa / Workbox: sản phẩm là bản xuất
  * tĩnh không có backend, toàn bộ nhu cầu gói gọn trong "giữ lại thứ vừa tải và dùng lại khi

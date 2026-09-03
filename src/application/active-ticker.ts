@@ -33,6 +33,7 @@
  * màn gọi trong `useEffect`, cùng khuôn `price-series-store.ts`.
  */
 
+import { PRESET_CONTRACT_VERSION } from '@/data';
 import type { Preset } from '@/data';
 
 /** Đổi khoá khi cấu trúc đổi, để bản cũ trong máy không làm hỏng bản mới. */
@@ -157,11 +158,21 @@ export function parseActiveTicker(raw: string | null | undefined): ActiveTicker 
   // Hai mã lệch nhau nghĩa là bản cất đã hỏng; nạp vào sẽ điền số của mã này dưới tên mã kia.
   if (presetCode !== code) return null;
 
+  /*
+   * Phiên bản hợp đồng (SW-05 · LDR-05). Đây là chỗ phép kiểm ấy đáng giá nhất trong cả sản phẩm:
+   * bản cất nằm trong `sessionStorage` của người dùng, nên nó có thể do một BẢN CŨ của trang ghi
+   * ra rồi sống sót qua lần cập nhật. Bản ghi thiếu trường này là bản ghi trước khi hợp đồng có
+   * phiên bản, và cách xử đúng vẫn là cách file này dùng cho mọi ca đáng ngờ: bỏ qua, coi như
+   * chưa có mã nào — chứ không nạp một hình dạng cũ vào công thức rồi đoán phần thiếu.
+   */
+  if (source.version !== PRESET_CONTRACT_VERSION) return null;
+
   const asOf = typeof source.fundamentalsAsOf === 'string' ? source.fundamentalsAsOf.trim() : '';
 
   return {
     code,
     preset: {
+      version: PRESET_CONTRACT_VERSION,
       code,
       name: typeof source.name === 'string' ? source.name.trim().slice(0, 80) : code,
       meta: typeof source.meta === 'string' ? source.meta.trim().slice(0, 120) : '',

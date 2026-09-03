@@ -117,55 +117,110 @@
 }
 
 /*
- * Mỗi mã là một THẺ có viền bọc trọn — mã, tên, số liệu, lãi/lỗ, tỷ trọng và hai nút cuối dòng.
+ * ── Danh sách nắm giữ: dòng gọn ba cột ──────────────────────────────────────
  *
- * Trước đây các dòng chỉ ngăn nhau bằng một gạch chân. Đủ khi mỗi dòng có hai dòng chữ, nhưng nay
- * một mã chiếm tới bốn dòng, và gạch chân không nói được đâu là ranh giới giữa hai mã — mắt đọc
- * thành một khối chữ liên tục. Viền bọc trả lại ranh giới ấy, cùng khuôn với `.form` và `.empty`
- * ngay bên dưới nên cả màn vẫn là một họ.
- */
-/*
- * Xếp DỌC, không phải ngang.
+ * Bản vẽ WF-06 xếp mỗi mã thành MỘT dòng ngăn nhau bằng gạch chân, không phải một thẻ có viền:
+ * mã · số lượng/giá vốn · tỷ trọng/lãi lỗ. Bốn mã lọt trọn một màn 360px thay vì một mã rưỡi.
  *
- * Bản trước xếp ngang: cột số liệu bên trái, ô tỷ trọng và hai nút dồn sang phải, canh giữa theo
- * chiều đứng. Ở 360px nó ép cột trái xuống còn hơn nửa bề ngang, nên bốn dòng số phải xuống hàng
- * lung tung; còn "tỷ trọng" thì trôi ra giữa thẻ, xa hẳn cái ô số mà nó gọi tên. Xếp dọc cho mỗi
- * phần trọn bề ngang: mã → lãi/lỗ → lưới số liệu → hai nút.
+ * Bản trước là thẻ có viền bọc trọn cho TỪNG mã, và lý do của nó vẫn đúng ở chỗ nó ra đời: một
+ * mã khi ấy chiếm tới bốn dòng, mà gạch chân không nói được đâu là ranh giới giữa hai mã. Nay mỗi
+ * mã chỉ còn hai dòng chữ, nên gạch chân đủ — còn thứ từng chiếm bốn dòng ấy chuyển xuống
+ * `.holdDetail`, khối mở ra khi bấm vào dòng. Không mất số nào, chỉ đổi chỗ.
+ *
+ * ── Viền bọc CẢ DANH SÁCH, không bọc từng mã ────────────────────────────────
+ *
+ * Lượt đầu dựng theo bản vẽ thì danh sách trôi tự do trên nền trang, và chủ dự án báo đúng: "trống
+ * trải, cần gì đó bọc xung quanh để phân biệt khi có nhiều mã". Bản vẽ vẽ được như vậy vì nó là
+ * ảnh tĩnh có sẵn khung điện thoại làm mép; trên màn thật thì dải "Giá phiên" ở trên và nút "Thêm
+ * mã" ở dưới đều có viền, nên đúng cái khối chính giữa lại là thứ duy nhất không có mép nào.
+ *
+ * Trả lại viền cho CẢ danh sách chứ không cho từng mã: bọc từng mã là quay về bản thẻ cũ, và ở đó
+ * mười mã thành mười khung — đúng thứ đợt này bỏ đi. Một khung, các dòng là băng bên trong, gạch
+ * chân chạy hết bề ngang khung. Cùng khuôn `.empty` và `.form` ngay dưới nên cả màn vẫn một họ.
+ *
+ * `overflow: hidden` là bắt buộc, không phải cho đẹp: nền hover của dòng đầu và dòng cuối là hình
+ * chữ nhật vuông góc, không có nó thì hai góc bo của khung bị lấp vuông lại đúng lúc rê chuột.
+ *
+ * `.list` · `.row` · `.actions` KHÔNG bị bỏ: tab "Công thức" (phép tính đã lưu) vẫn dùng chúng,
+ * và ở đó mỗi mục vẫn là một thẻ nhiều dòng. Hai tab từ đây có hai kiểu danh sách khác nhau, nên
+ * ai sửa `.row` phải nhớ mình đang sửa tab nào.
  */
-.row {
+.holdList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
 
-  padding: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
 
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
 
+/* Gạch chân giữa hai mã. Mã cuối không có: dấu hết danh sách là chỗ trống, không phải một nét. */
+.holdRow {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.holdRow:last-child {
+  border-bottom: none;
+}
+
 /*
- * Dòng đầu (mã + tên) là nút mở form sửa, nên phải tự gỡ hết dáng nút mặc định của trình duyệt:
- * nền, viền, canh giữa, cỡ chữ. Vẫn là <button> thật để bàn phím và trình đọc màn hình dùng
- * được — vòng focus lấy từ globals.css.
+ * Dòng gọn. `position: relative` là chỗ neo cho nút phủ ngay dưới.
  *
- * Rộng hết cột và cao tối thiểu 44px (NFR-USA-01) để thành đích chạm tử tế, chứ không phải một
- * mẩu chữ ba ký tự.
+ * `min-height` bằng vùng chạm tối thiểu (NFR-USA-01): hai dòng chữ chỉ cao chừng 38px, mà cả
+ * dòng này là một đích bấm.
  */
-.editButton {
+/*
+ * `align-items: baseline` chứ không `center`: ba cột cao khác nhau (mã một dòng, cột giữa hai,
+ * cột phải ba), nên canh giữa làm dòng đầu của mỗi cột lệch nhau — mã tụt xuống giữa, "500 CP"
+ * nằm thấp hơn "39%". Canh theo đường chân chữ kéo mã, số lượng và tỷ trọng về đúng một hàng,
+ * đúng bản vẽ. Với cột là flex dọc thì đường chân chữ của cột là của DÒNG ĐẦU trong nó.
+ */
+.holdSummary {
+  position: relative;
   display: flex;
   align-items: baseline;
-  gap: var(--space-2);
+  gap: var(--space-3);
 
-  width: 100%;
   min-height: var(--tap-min);
-  min-width: 0;
-  padding: 0;
+  padding: var(--space-2) var(--space-3);
+}
 
-  font-family: inherit;
-  font-size: inherit;
-  text-align: left;
-  color: inherit;
+/*
+ * Nền hover đặt ở DÒNG chứ không ở nút phủ, dù chính nút mới là thứ bắt chuột.
+ *
+ * Nút phủ là phần tử định vị tuyệt đối, nên nền của nó vẽ SAU chữ trong cùng ngữ cảnh xếp chồng
+ * — tô nền vào đấy là phủ một lớp đục lên đúng những con số vừa đưa lên dòng. Kéo xuống bằng
+ * `z-index: -1` thì nó chui qua cả nền trang. Hover cả dòng cho cùng kết quả mà không phải đụng
+ * tới thứ tự vẽ: rê vào nút cũng là rê vào dòng, vì nút nằm trong dòng.
+ */
+/*
+ * Nền hover là `--color-paper` vì khung danh sách đã là `--color-surface`. Đây là chiều NGƯỢC
+ * lại với bản chưa có khung, nơi dòng nằm thẳng trên nền trang: ở đó tô paper là không thấy gì
+ * đổi, nên phải tô trắng. Đổi nền của khung là phải đổi cả hai chỗ này, nếu không hover tàng hình.
+ */
+.holdSummary:hover {
+  background: var(--color-paper);
+}
+
+/*
+ * Nút PHỦ lên cả dòng — thứ duy nhất bấm được ở đây.
+ *
+ * Trống rỗng và trong suốt: nội dung dòng nằm NGOÀI nó, nên `aria-label` không nuốt mất con số
+ * nào. Lý do đầy đủ ở chú thích trong `PortfolioScreen.tsx`.
+ *
+ * Vòng focus vẽ vào TRONG (`outline-offset` âm) vì nút trùng khít mép dòng; để mặc định thì vòng
+ * focus tràn ra ngoài và bị gạch chân của dòng bên cạnh cắt mất một nửa.
+ */
+.holdToggle {
+  position: absolute;
+  inset: 0;
+
+  padding: 0;
 
   background: transparent;
   border: none;
@@ -173,114 +228,148 @@
   cursor: pointer;
 }
 
-.editButton:hover .code {
-  color: var(--color-accent);
+.holdToggle:focus-visible {
+  outline-offset: -2px;
 }
 
 /*
- * Dấu bút chì — tín hiệu "chỗ này bấm được để sửa".
- *
- * Đứng NGAY SAU tên mã, không đẩy ra lề phải. Bản trước để `margin-left: auto` nên nó trôi sang
- * tận mép kia của dòng, rời hẳn khỏi cái mã mà nó sửa — nhìn không đoán ra nó dùng để làm gì.
- * Đặt cạnh tên thì quan hệ "sửa CÁI NÀY" đọc được ngay, không cần chú thích.
- *
- * Vẽ thành huy hiệu nhỏ có nền chứ không phải một ký tự trần, và luôn hiện chứ không đợi rê
- * chuột: màn thiết kế cho 360px, mà điện thoại không có trạng thái rê chuột.
+ * Cột mã. `min-width` 44px cho mã bốn ký tự, đúng bề rộng bản vẽ chừa — nhờ nó ba cột thẳng hàng
+ * giữa các dòng thay vì so le theo độ dài từng mã.
  */
-.editMark {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.holdCode {
+  flex: none;
+  min-width: 44px;
 
-  width: 22px;
-  height: 22px;
-
-  font-size: var(--text-xs);
-  line-height: 1;
-  color: var(--color-accent);
-
-  background: var(--color-accent-soft);
-  border-radius: var(--radius-sm);
-}
-
-.editButton:hover .editMark {
-  color: var(--color-on-accent);
-  background: var(--color-accent);
-}
-
-.code {
-  flex-shrink: 0;
-
-  font-size: var(--text-md);
+  font-size: var(--text-base);
   font-weight: var(--weight-bold);
 }
 
-/*
- * Tên doanh nghiệp: cắt bằng dấu ba chấm chứ không xuống dòng. Ô chọn mã cho tìm theo tên nên
- * tên phải có mặt ở đây, nhưng nó là thứ để NHẬN RA mã chứ không phải thứ để đọc kỹ — cho nó
- * đẩy ba dòng số liệu xuống dưới là đánh đổi sai.
- */
-.name {
-  min-width: 0;
-  overflow: hidden;
-
-  font-size: var(--text-xs);
-  color: var(--color-muted);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/*
- * ── Dải lãi/lỗ ──────────────────────────────────────────────────────────────
- *
- * Con số người ta mở màn để xem, nên nó được một dải riêng có nền, không lẫn vào lưới số liệu.
- * Màu chỉ là lớp thứ hai — dấu +/− ngay trước con số mới là thứ mang tin, để người không phân
- * biệt được màu vẫn đọc đúng (NFR-USA-06). Nền nhạt cũng theo chiều lãi/lỗ nhưng vẫn nhạt đủ để
- * chữ đạt tương phản.
- */
-.gainBand {
+/* Cột giữa: "cái đang nắm" — số lượng ở bậc secondary, giá vốn ở bậc metadata. */
+.holdMid {
+  flex: 1;
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
-
-  margin: 0;
-  padding: var(--space-2);
-
-  border-radius: var(--radius-sm);
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
-.gainLabel {
-  flex-shrink: 0;
-
-  font-size: var(--text-xs);
+.holdQuantity {
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-soft);
+}
+
+/* Nhãn "giá vốn" và con số đi liền thành một mẩu, đúng bản vẽ — không tách nhãn ra chữ hoa. */
+.holdCost {
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
   color: var(--color-muted);
 }
 
-.gainValue {
-  font-size: var(--text-md);
+/* Cột phải: "phần của nó trong danh mục" — tỷ trọng trên, lãi/lỗ dưới. */
+.holdRight {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+
+  text-align: right;
+}
+
+.holdWeight {
+  font-size: var(--text-base);
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
 }
 
-.gainPercent {
+.holdWeightLabel {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * Lãi/lỗ. Màu chỉ là lớp thứ hai — dấu +/− ngay trước con số mới là thứ mang tin (NFR-USA-06).
+ *
+ * KHÔNG tô nền như dải lãi/lỗ của bản thẻ cũ: ở đây nó đứng ngay dưới con số tỷ trọng, và một
+ * mảng màu cao 20px cạnh một con số khác đọc ra thành nền của cả cụm.
+ */
+.holdGain {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   font-variant-numeric: tabular-nums;
 }
 
-.gainUp {
+.holdGainUp {
   color: var(--color-success);
-  background: var(--color-success-soft);
 }
 
-.gainDown {
+.holdGainDown {
   color: var(--color-danger);
-  background: var(--color-danger-soft);
+}
+
+/*
+ * "chưa có giá" đứng đúng chỗ của tỷ trọng và lãi/lỗ, nên phải trông khác một con số: nhạt VÀ
+ * bỏ độ đậm — hai dấu hiệu, không chỉ màu. Cùng lẽ với `.cellAbsent` ở khối chi tiết.
+ */
+.holdMissing {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--color-muted);
+}
+
+/*
+ * Mũi tên — tay nắm của khối chi tiết, và là thứ DUY NHẤT nói cho người dùng biết dòng bấm được.
+ *
+ * Luôn hiện chứ không đợi rê chuột: bài học của dấu bút chì ở bản thẻ cũ, mà màn này thiết kế
+ * cho 360px nơi không có trạng thái rê chuột. Bản vẽ WF-06 không có mũi tên vì bản vẽ cũng không
+ * có khối mở ra — có khối thì phải có tay nắm.
+ */
+.holdMark {
+  flex: none;
+  /* Đứng ngoài luật canh chân chữ của dòng: nó là ký hiệu, không phải một dòng chữ nữa. */
+  align-self: center;
+  display: inline-flex;
+  color: var(--color-muted);
+}
+
+.holdMarkOpen {
+  transform: rotate(180deg);
+}
+
+/*
+ * Khối chi tiết — thị giá, lãi/lỗ phần trăm, ngày mua, beta, và ba nút hành động.
+ *
+ * Mặt phẳng CHÌM (`--color-paper`) trong khung trắng của danh sách — cùng thủ pháp `.mergeNote`
+ * dùng trong `.form`, nên không đẻ ra kiểu mới nào.
+ *
+ * Đã đi qua hai bản sai trước khi tới đây, và cả hai đều là **cùng một lỗi**: tô khối này bằng
+ * đúng token nền của thứ đang bọc nó, nên nó tàng hình. Lần đầu là paper trên nền trang (cũng
+ * paper); lần sau đổi sang surface + viền, đúng lúc ấy — nhưng khi danh sách có khung trắng thì
+ * surface lại thành tàng hình. Luật rút ra: nền của khối này luôn phải là token NGƯỢC với nền của
+ * khung bọc, và hai chỗ ấy đổi kèm nhau.
+ *
+ * Thụt vào hai bên bằng đúng lề ngang của dòng để nó nằm gọn trong khung; thụt thêm cho thẳng cột
+ * mã thì lưới `.cells` rớt từ ba cột xuống hai ở khổ 360px, đổi lại một manh mối bố cục mà cái
+ * nền đã nói rồi.
+ */
+.holdDetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  margin: 0 var(--space-3) var(--space-3);
+  padding: var(--space-3);
+
+  background: var(--color-paper);
+  border-radius: var(--radius-sm);
+}
+
+.holdName {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
 }
 
 /*
@@ -382,7 +471,10 @@
 }
 
 /*
- * ── Hai nút cuối thẻ ────────────────────────────────────────────────────────
+ * ── Hàng nút cuối khối ──────────────────────────────────────────────────────
+ *
+ * Dùng ở hai chỗ: cuối khối chi tiết của một mã (Sửa · Tính công thức · Bỏ mã) và cuối thẻ của
+ * một phép tính đã lưu ở tab "Công thức".
  *
  * Trước đây là hai ký tự `ƒ` và `×` trên nền trong suốt, không viền, màu chữ mờ — chủ dự án báo
  * là nhìn không biết bấm được. Nay dùng primitive `Button` nên có sẵn viền, vòng focus và vùng
@@ -401,47 +493,51 @@
   border-top: 1px solid var(--color-border);
 }
 
-/*
- * Nút thêm mã — hành động chính của cả màn, nên nó mang màu cam và quầng sáng (đợt 12).
- *
- * Trước đó là một ô viền đứt rộng hết hàng, đọc ra như một chỗ trống chờ điền chứ không phải một
- * nút bấm. Nay rộng vừa nội dung và căn giữa, để nó là thứ duy nhất mắt dừng lại khi danh mục
- * còn rỗng.
- */
 .addRow {
   display: flex;
-  justify-content: center;
 }
 
 /*
- * Nút thêm mã — hành động chính của màn, nên đi theo `.primary` của primitive `Button`: xanh
- * `--color-selected` kể từ đợt rà soát phân cấp, không còn cam.
+ * Nút thêm mã — khung nét đứt rộng hết hàng, đúng bản vẽ WF-06.
  *
- * Bỏ `--shadow-highlight`: bóng đổ ở đây là thứ duy nhất trong dự án dùng token ấy, và nó khiến
- * một nút bình thường nổi hơn cả khối Kết quả. Quy tắc mới là thẻ tĩnh không đổ bóng — xem
- * `ResultBlock.module.css`.
+ * Đây là lần thứ HAI kiểu nét đứt được dùng ở đây. Lần trước nó bị bỏ vì "đọc ra như một chỗ
+ * trống chờ điền chứ không phải một nút bấm", rồi thành nút cam bo tròn (đợt 12), rồi thành nút
+ * xanh `--color-selected` (đợt rà soát phân cấp). Chủ dự án chọn lại kiểu nét đứt khi đối chiếu
+ * với bản vẽ.
+ *
+ * Hai thứ giữ lại từ bài học cũ, để nó không trượt về "ô trống" một lần nữa: chữ ĐẬM màu nhấn,
+ * và mặt phẳng có màu (`--color-accent-soft`). Một khung nét đứt trên nền trắng với chữ xám mới
+ * là thứ từng hỏng; khung nét đứt trên nền xanh nhạt với chữ xanh đậm thì đọc ra là một nút.
+ * Hover chuyển sang nét liền và nền đặc — nét đứt biến mất đúng lúc con trỏ nói "cái này bấm được".
+ *
+ * Rộng hết hàng chứ không vừa nội dung: nó là thứ duy nhất đứng dưới danh sách, và ở khổ 360px
+ * một nút căn giữa hẹp hơn mọi dòng phía trên trông như chú thích chứ không như hành động.
  */
 .addButton {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
 
+  width: 100%;
   min-height: var(--tap-min);
-  padding: 0 var(--space-6);
+  padding: 0 var(--space-4);
 
   font-family: inherit;
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
-  color: var(--color-on-selected);
+  color: var(--color-accent);
 
-  background: var(--color-selected);
-  border: none;
-  border-radius: var(--radius-pill);
+  background: var(--color-accent-soft);
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 
 .addButton:hover {
-  background: var(--color-selected-strong);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-style: solid;
 }
 
 .form {
@@ -658,10 +754,57 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Tên công thức đã chọn. KHÔNG dùng lại `.codeName`, dù cùng nằm trong một `.codeButton`.
+ *
+ * `.codeName` mờ vì nó là vế PHỤ đứng cạnh mã ("FPT · FPT Corp") — mã mới là thứ được chọn. Ở ô
+ * công thức thì tên chính là thứ được chọn, và nó đứng một mình: để nguyên màu mờ thì ô đã điền
+ * trông y hệt ô còn trống, chỉ khác chữ.
+ */
+.formulaName {
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
 .codeHint {
   font-size: var(--text-xs);
   line-height: var(--leading-normal);
   color: var(--color-muted);
+}
+
+/*
+ * "Bỏ chọn công thức" — chỉ hiện khi đã chọn, nên nó không được chiếm chỗ như một hành động
+ * ngang hàng với nút lưu.
+ *
+ * Dựng `<button>` tay thay vì primitive `Button` + lớp đè: hai lớp CSS Module cùng độ ưu tiên thì
+ * thứ tự file trong gói quyết định cái nào thắng — thứ không đoán trước được. Cùng lý do đã ghi ở
+ * nút xoá từng kho của màn Cài đặt.
+ *
+ * Căn trái và tự co lại bằng `align-self`: `.codeField` là flex cột `stretch`, để mặc định thì
+ * một chữ "Bỏ chọn" kéo dài hết bề ngang và vùng chạm của nó nuốt cả hàng.
+ */
+.clearFormula {
+  align-self: flex-start;
+
+  min-height: var(--tap-min);
+  padding: 0;
+
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  text-decoration: underline;
+
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.clearFormula:hover {
+  color: var(--color-accent-strong);
 }
 
 /*
@@ -674,6 +817,12 @@
   display: flex;
   gap: var(--space-2);
   margin-bottom: var(--space-1);
+
+  /*
+   * Chỗ chừa khi `scrollIntoView()` đưa cụm này trở lại tầm mắt sau khi đổi tab. Thanh trên
+   * `position: sticky` nên thiếu dòng này thì cụm tab bị nó che đúng bằng chiều cao ấy.
+   */
+  scroll-margin-top: calc(var(--header-height) + var(--space-2));
 }
 
 .tab {

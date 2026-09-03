@@ -8,7 +8,7 @@
  *
  * `handles()` trong `public/sw.js` loại thẳng mọi request khác origin, nên danh sách mã tải từ
  * `dcs.finbox.vn` KHÔNG nằm trong kho của service worker. Không có lớp này thì mở màn lúc mất
- * mạng là ô chọn mã rỗng trơn — trái NFR-REL-02 ("dùng được khi mất mạng").
+ * mạng là ô chọn mã rỗng trơn — trái NFR-POR-03 ("sau lần tải đầu vẫn dùng được khi ngoại tuyến").
  *
  * Hạn dùng ở đây rộng tay (24 h) vì danh sách mã đổi vài lần một năm, còn giá thì đổi từng
  * phiên — nên thị giá có kho riêng, luật riêng: xem `price-cache-store.ts`.

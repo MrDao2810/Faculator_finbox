@@ -38,6 +38,7 @@ export {
   formatNumber,
   formatValueWithUnit,
   parseViNumber,
+  rawViNumber,
   scaleToDong,
   scaleToUnit,
 } from '@/core/format';
@@ -123,9 +124,11 @@ export { DISCLAIMER_VI, buildExportContent, exportFileName } from '@/core/export
 // ── Bộ số liệu mẫu qua DataProvider — WF-10 (gói 2.5.1, FR-17) ──────────────
 export type { DailyBar, DataProvider, Fundamentals, Preset } from '@/data';
 export {
+  PRESET_CONTRACT_VERSION,
   SAMPLE_DATA,
   createStaticProvider,
   hasDraftData,
+  hasDraftMarketSeries,
   presetFillableKeys,
   presetInputs,
 } from '@/data';

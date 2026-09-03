@@ -62,3 +62,18 @@
   color: var(--color-muted);
   cursor: not-allowed;
 }
+
+/*
+ * Ngoài miền — đây là ngoại lệ DUY NHẤT của luật "viền chỉ hiện khi có tiêu điểm" ở đầu file.
+ * Lý do: cảnh báo mà chỉ thấy lúc đang gõ thì biến mất đúng lúc người dùng rời ô để đọc lại con
+ * số. Dấu `!` trong markup gánh phần phi màu của NFR-USA-06; viền chỉ là lớp thứ hai.
+ */
+.invalid {
+  border-color: var(--color-danger);
+}
+
+.flag {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-danger);
+}

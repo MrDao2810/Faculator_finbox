@@ -73,3 +73,16 @@
   line-height: 1.45;
   color: var(--color-muted);
 }
+
+/*
+ * Ghi chú đứng NGAY DƯỚI căn cứ pháp lý và phải đọc được như một câu đính chính, không phải một
+ * dòng phụ mờ hơn nữa: nội dung của nó là "mức này KHÔNG phải mức luật định" đặt cạnh một dòng
+ * trích thông tư. Dùng `--color-ink` chứ không `--color-muted` vì cùng màu với căn cứ pháp lý thì
+ * hai câu đọc như một, mà chúng nói ngược nhau.
+ */
+.note {
+  flex-basis: 100%;
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--color-ink);
+}

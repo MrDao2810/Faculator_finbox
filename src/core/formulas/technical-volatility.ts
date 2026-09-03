@@ -759,6 +759,16 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
     level: 'basic',
     tags: ['bollinger', 'phan tram b', 'percent b', 'vi tri gia', 'ky thuat'],
     resultUnit: '%',
+    /*
+     * 0% và 100% ở đây KHÔNG phải hai đầu thang mà là hai dải Bollinger thật — chính là thứ chỉ
+     * báo này đo. Giá ra ngoài dải cho %B âm hoặc trên 100, nên hai mốc này là ranh giới đọc kết
+     * quả chứ không phải viền hình: `buildChartModel()` tự bỏ mốc nào nằm ngoài miền Y, nên khi
+     * đường quét không chạm tới chúng thì hình vẫn sạch như cũ.
+     */
+    referenceLines: [
+      { value: 0, label: { vi: 'Dải dưới', en: 'Lower band' } },
+      { value: 100, label: { vi: 'Dải trên', en: 'Upper band' } },
+    ],
     variables: [BOLLINGER_PERIOD, BOLLINGER_K],
     explanation: {
       meaning: {
@@ -892,6 +902,16 @@ export const STOCHASTIC_K: FormulaModule = {
     level: 'basic',
     tags: ['stochastic', 'phan tram k', 'dao dong', 'qua mua', 'qua ban', 'ky thuat'],
     resultUnit: '%',
+    /*
+     * Cùng lý do mốc 30/70 của RSI: mục "Cách đọc kết quả" ngay dưới hình đang dạy "trên 80% là
+     * đóng cửa sát đỉnh, dưới 20% là sát đáy", mà hình không kẻ hai độ cao ấy thì người đọc phải
+     * tự ước lượng trên trục. Hai chỉ báo cùng nhóm, cùng thang 0–100, không có cớ gì hành xử
+     * khác nhau. Không thêm mốc 50 — cùng lý lẽ đã ghi ở `rsi-wilder`.
+     */
+    referenceLines: [
+      { value: 20, label: { vi: 'Sát đáy', en: 'Near the low' } },
+      { value: 80, label: { vi: 'Sát đỉnh', en: 'Near the high' } },
+    ],
     variables: [
       sliderVar(
         'period',

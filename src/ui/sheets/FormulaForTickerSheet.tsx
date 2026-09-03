@@ -1,15 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
-import {
-  FORMULA_SUMMARIES,
-  LIVE_PRESET_FORMULAS,
-  formulaPath,
-  scoreFormula,
-  tokenize,
-} from '@/application';
+import { FORMULA_SUMMARIES, LIVE_PRESET_FORMULAS, scoreFormula, tokenize } from '@/application';
 import type { Level } from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
 import { BottomSheet } from '@/ui/primitives';
@@ -28,7 +21,17 @@ const LEVELS: ReadonlyArray<Level> = ['basic', 'advanced'];
 export interface FormulaForTickerSheetProps {
   open: boolean;
   onClose: () => void;
-  /** Mã đang chọn. `null` khi chưa mở sheet lần nào. */
+  /**
+   * Nhận id công thức người dùng chọn. Sheet tự đóng sau đó.
+   *
+   * Sheet là bộ CHỌN, không phải một danh sách link. Bản trước mỗi dòng là `<Link>` đi thẳng tới
+   * `/cong-thuc/<id>?ma=<mã>`, đúng khi nó được mở từ một mã đã nằm sẵn trong danh mục. Từ đợt gộp
+   * luồng thêm mã, nó mở từ giữa form nhập — lúc ấy mã CHƯA được lưu, nên đi thẳng là bỏ rơi
+   * những gì người dùng vừa gõ. Nay nó trả lại lựa chọn cho form, và chính form lưu xong mới điều
+   * hướng.
+   */
+  onPick: (id: string) => void;
+  /** Mã đang chọn. `null` khi chưa chọn mã nào. */
   code: string | null;
   /**
    * Mã này có tra được thị giá hay không.
@@ -77,6 +80,7 @@ export interface FormulaForTickerSheetProps {
 export function FormulaForTickerSheet({
   open,
   onClose,
+  onPick,
   code,
   hasPrice = true,
 }: FormulaForTickerSheetProps) {
@@ -196,19 +200,19 @@ export function FormulaForTickerSheet({
               <ul className={styles.list}>
                 {group.map((row) => (
                   <li key={row.id} className={styles.item}>
-                    <Link
+                    <button
+                      type="button"
                       className={styles.link}
-                      // `?ma=` là thứ `FormulaDetail` đọc để tự nạp số liệu của mã — xem docblock ở đó.
-                      href={
-                        code === null ? formulaPath(row.id) : `${formulaPath(row.id)}?ma=${code}`
-                      }
-                      onClick={close}
+                      onClick={() => {
+                        onPick(row.id);
+                        close();
+                      }}
                     >
                       <span className={styles.name}>{pick(row.summary.name)}</span>
                       <span className={styles.fill}>
                         {row.filled}/{row.total} {t('portfolio.formulasFilled')}
                       </span>
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>

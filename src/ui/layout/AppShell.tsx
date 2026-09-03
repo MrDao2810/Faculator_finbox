@@ -39,7 +39,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Hai đảo dưới đây không dựng ra gì, chỉ chạy effect — đặt ở đây để phủ mọi màn. */}
 
-      {/* Đăng ký service worker cho phần chạy ngoại tuyến (NFR-REL-02). */}
+      {/* Đăng ký service worker cho phần chạy ngoại tuyến (FR-23 · NFR-POR-03). */}
       <ServiceWorker />
 
       {/* Nhớ màn vừa rời đi và chỗ đang đứng, để nút quay lại về đúng chỗ đó. */}

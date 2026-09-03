@@ -11,6 +11,8 @@
  * còn hơn im lặng tính ra một con số sai.
  */
 
+import { formatNumber } from './format';
+
 /**
  * Một phiên trong bảng sửa tay.
  *
@@ -72,6 +74,18 @@ function isBadPrice(value: number | null): boolean {
 }
 
 /**
+ * Giá trong câu cảnh báo, viết theo quy ước Việt Nam (CON-05).
+ *
+ * Trước đây nội suy thẳng con số, nên câu hiện ra là "Giá cao nhất (97) nhỏ hơn giá thấp nhất
+ * (99.5)" ngay bên cạnh ô nhập viết "99,5" — hai lối viết cho cùng một con số, trong cùng một
+ * dòng. Người đọc phải tự đoán dấu chấm ấy là thập phân hay ngăn nghìn, đúng thứ mà cả
+ * `parseViNumber()` lẫn `rawViNumber()` sinh ra để khỏi phải đoán.
+ */
+function gia(value: number): string {
+  return formatNumber(value, { maxDecimals: 4 });
+}
+
+/**
  * Kiểm một dòng.
  *
  * Thứ tự kiểm có chủ ý: thiếu dữ liệu trước, mâu thuẫn giữa các cột sau. Dòng thiếu giá cao
@@ -105,7 +119,7 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
     if (high < low) {
       issues.push({
         code: 'HIGH_BELOW_LOW',
-        message: `Giá cao nhất (${high}) nhỏ hơn giá thấp nhất (${low}) — vui lòng kiểm tra lại.`,
+        message: `Giá cao nhất (${gia(high)}) nhỏ hơn giá thấp nhất (${gia(low)}) — vui lòng kiểm tra lại.`,
       });
     }
   }
@@ -122,7 +136,7 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
     if (higher.length > 0) {
       issues.push({
         code: 'HIGH_NOT_HIGHEST',
-        message: `Giá cao nhất (${high}) đang nhỏ hơn giá mở hoặc giá đóng cửa của chính phiên đó.`,
+        message: `Giá cao nhất (${gia(high)}) đang nhỏ hơn giá mở hoặc giá đóng cửa của chính phiên đó.`,
       });
     }
   }
@@ -134,7 +148,7 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
     if (lower.length > 0) {
       issues.push({
         code: 'LOW_NOT_LOWEST',
-        message: `Giá thấp nhất (${low}) đang lớn hơn giá mở hoặc giá đóng cửa của chính phiên đó.`,
+        message: `Giá thấp nhất (${gia(low)}) đang lớn hơn giá mở hoặc giá đóng cửa của chính phiên đó.`,
       });
     }
   }

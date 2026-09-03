@@ -2,7 +2,13 @@
 
 import { useState } from 'react';
 
-import { commitValue, formatNumber, parseViNumber } from '@/application';
+import {
+  commitValue,
+  formatNumber,
+  parseViNumber,
+  rawViNumber,
+  resolveInputState,
+} from '@/application';
 import type { VariableSpec } from '@/application';
 import { useT } from '@/application/preferences-context';
 
@@ -49,6 +55,13 @@ export interface InlineNumberProps {
  *   3. **KHÔNG bám lưới `step`.** Bước là độ phân giải của ngón tay khi kéo, không phải luật của
  *      con số. Miền `[min, max]` mới là luật, và `commitValue()` giữ nó.
  *   4. `type="text"` chứ không `type="number"`: `number` chặn dấu phẩy thập phân kiểu Việt Nam.
+ *   5. **Ngoài miền thì NÓI RA trước khi kẹp.** Trước đây ô này âm thầm kẹp trong `commit()`: gõ
+ *      −4 vào biến `min: 0` thì rời ô là con số nhảy về 0, không một chữ giải thích, trong khi
+ *      `NumberInput` cùng ca ấy hiện '! min 0'. Cùng một luật miền mà hai ô cư xử khác nhau là
+ *      chính chỗ người dùng kết luận "máy tính sai". Nay cả hai đọc chung `resolveInputState()`
+ *      của Domain; khác biệt còn lại chỉ là chỗ đặt lời cảnh báo — `NumberInput` có dòng `error`
+ *      của primitive, ô này nằm lẫn trong dòng chữ nên chỉ có viền, dấu `!` và câu cho trình đọc
+ *      màn hình. Kẹp vẫn xảy ra đúng một chỗ, lúc chốt (quy tắc 1).
  */
 export function InlineNumber({
   spec,
@@ -66,7 +79,21 @@ export function InlineNumber({
   const [draft, setDraft] = useState<string | null>(null);
   const t = useT();
 
-  const classes = [styles.box, readOnly ? styles.locked : undefined, className]
+  const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
+  /*
+   * `focused: false` và `mode: 'advanced'` là cố ý: ô này không vẽ trạng thái 'editing' (không có
+   * viền thường trực để đổi) và việc khoá theo chế độ đã do prop `readOnly` của nơi gọi quyết —
+   * truyền `mode` thật vào sẽ sinh ra một đường khoá thứ hai, lệch với đường thứ nhất.
+   */
+  const { state, note } = resolveInputState({ raw, spec, focused: false, mode: 'advanced' });
+  const outOfRange = editable && !readOnly && state === 'outOfRange';
+
+  const classes = [
+    styles.box,
+    readOnly ? styles.locked : undefined,
+    outOfRange ? styles.invalid : undefined,
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -110,6 +137,13 @@ export function InlineNumber({
 
   return (
     <span className={classes}>
+      {outOfRange && (
+        /* Dấu chữ đứng cạnh viền đỏ — NFR-USA-06 cấm truyền đạt bằng riêng màu sắc. Ký tự thuần
+           nên không qua i18n, cùng loại với '!' của cờ báo lỗi ở bảng dữ liệu WF-05. */
+        <span className={styles.flag} aria-hidden="true">
+          !
+        </span>
+      )}
       <input
         id={id}
         className={styles.input}
@@ -118,15 +152,18 @@ export function InlineNumber({
         autoComplete="off"
         // Dự phòng cho lúc CSS chưa tải; bề rộng thật do `.input` quyết.
         size={14}
-        value={draft ?? formatNumber(value, { maxDecimals: 4 })}
+        value={raw}
         readOnly={readOnly}
         aria-readonly={readOnly || undefined}
+        aria-invalid={outOfRange || undefined}
         aria-label={ariaLabel}
         aria-describedby={describedBy}
-        title={readOnly ? t('input.lockedHint') : undefined}
+        title={readOnly ? t('input.lockedHint') : outOfRange ? note : undefined}
         onFocus={() => {
-          // Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '10.000.000' thành '10000000'.
-          setDraft(String(value));
+          /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '10.000.000' thành '10000000'. Qua
+             `rawViNumber()` chứ không `String()` — lý do ghi ở `NumberInput` và ở chính hàm ấy:
+             `String(100.449)` đọc ngược lại thành 100449. */
+          setDraft(rawViNumber(value));
         }}
         onChange={(event) => {
           const next = event.target.value;
@@ -145,6 +182,13 @@ export function InlineNumber({
         }}
       />
       {showUnit && spec.unit !== '' && <span className={styles.unit}>{spec.unit}</span>}
+      {outOfRange && note !== undefined && (
+        /* Cùng vai `alert` mà `NumberInput` dùng cho dòng lỗi miền của nó — ô này không có chỗ
+           bày một dòng chữ nên câu ấy chỉ dành cho trình đọc màn hình. */
+        <span className="visually-hidden" role="alert">
+          {note}
+        </span>
+      )}
     </span>
   );
 }

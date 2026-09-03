@@ -84,6 +84,24 @@ check(
   `đếm được ${String((html.match(/<h1[\s>]/g) ?? []).length)}`,
 );
 
+/*
+ * Dải mở đầu phải mang CẢ HAI con số, y như ba dòng tiêu đề bên dưới nó.
+ *
+ * Trước đây chỗ này in thẳng `REGISTRY.formulas.length` = 111, trong khi chế độ Cơ bản — mặc định
+ * của người mở lần đầu — chỉ với tới 79. Hai con số nói về cùng một thư viện cãi nhau trong cùng
+ * một màn hình, và bản build tĩnh là chỗ duy nhất thấy được điều đó: ca kiểm DOM không chạy trang
+ * chủ, còn phép chọn thì nằm trong CSS theo `data-mode`.
+ *
+ * Khoanh vùng trong <header> chứ không quét cả trang: `countBasic` cũng có ở dòng tiêu đề khác,
+ * nên một phép kiểm trần vẫn xanh sau khi hero quay về in cứng.
+ */
+const hero = html.match(/<header[^>]*hero[^>]*>[\s\S]*?<\/header>/);
+check(
+  'dải mở đầu đếm theo chế độ (Cơ bản / Nâng cao), không in cứng tổng số',
+  hero !== null && hero[0].includes('countBasic') && hero[0].includes('countAdvanced'),
+  hero === null ? 'không tìm thấy <header> hero' : 'thiếu một trong hai nhánh con số',
+);
+
 check('trang chủ có link tới trang công thức', /href="\/cong-thuc\/[a-z0-9-]+\/"/.test(html));
 
 check(

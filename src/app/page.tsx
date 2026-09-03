@@ -119,8 +119,15 @@ export default function Home() {
             </span>
           </h1>
           <p className={styles.heroSubtitle}>
-            {/* Con số đếm từ Registry lúc dựng, không nằm trong chuỗi dịch. */}
-            {REGISTRY.formulas.length} <T k="home.hero.subtitle" />
+            {/*
+              Con số đếm từ Registry lúc dựng, không nằm trong chuỗi dịch — và nó phải ĐI THEO CHẾ
+              ĐỘ như ba dòng tiêu đề bên dưới. Trước đây chỗ này in cứng 111 trong khi chế độ Cơ
+              bản (mặc định của người mở lần đầu) chỉ với tới 79, nên ngay trong một màn hình có
+              hai con số cãi nhau về cùng một thư viện. Cùng cơ chế 0 byte JS: dựng sẵn cả hai,
+              CSS chọn theo `data-mode` trên <html>.
+            */}
+            <ModeCount basic={basicCountOf()} advanced={REGISTRY.formulas.length} />{' '}
+            <T k="home.hero.subtitle" />
           </p>
         </span>
       </header>

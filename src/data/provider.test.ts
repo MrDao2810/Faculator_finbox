@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { SAMPLE_DATA, createStaticProvider, hasDraftData } from './provider';
-import { SAMPLE_PRESETS } from './samples';
+import { SAMPLE_DATA, createStaticProvider, hasDraftData, hasDraftMarketSeries } from './provider';
+import { SAMPLE_PRESETS, VN_INDEX_BARS } from './samples';
+import { PRESET_CONTRACT_VERSION } from './types';
 
 describe('bộ số liệu mẫu', () => {
   it('có đúng bốn mã của WF-10', () => {
@@ -116,5 +117,58 @@ describe('DataProvider', () => {
 
     expect(fake.list()).toHaveLength(1);
     expect(fake.byCode('XYZ')?.code).toBe('XYZ');
+  });
+});
+
+describe('hợp đồng dữ liệu mẫu có phiên bản (SW-05, LDR-05)', () => {
+  const mau = SAMPLE_PRESETS[0] as NonNullable<(typeof SAMPLE_PRESETS)[number]>;
+
+  it('bốn bộ số liệu đang dùng đều khai đúng phiên bản đang đọc', () => {
+    for (const preset of SAMPLE_PRESETS) {
+      expect(preset.version, preset.code).toBe(PRESET_CONTRACT_VERSION);
+    }
+  });
+
+  /*
+   * NÉM chứ không lặng lẽ bỏ bộ sai phiên bản: provider dựng ở phạm vi module nên lỗi lộ ra lúc
+   * build và ở CI. Lọc im lặng thì triệu chứng duy nhất là sheet "Nạp mẫu" thiếu vài mã, không
+   * ai lần ra vì sao.
+   */
+  it('bộ số liệu sai phiên bản làm hỏng lúc dựng, kèm câu nói rõ lệch ở đâu', () => {
+    expect(() => createStaticProvider([{ ...mau, version: PRESET_CONTRACT_VERSION + 1 }])).toThrow(
+      /sai phiên bản hợp đồng/,
+    );
+  });
+
+  it('câu lỗi gọi tên mã và cả hai con số phiên bản', () => {
+    let thongDiep = '';
+    try {
+      createStaticProvider([{ ...mau, code: 'XYZ', version: 99 }]);
+    } catch (error) {
+      thongDiep = error instanceof Error ? error.message : '';
+    }
+
+    expect(thongDiep).toContain('XYZ');
+    expect(thongDiep).toContain('v99');
+    expect(thongDiep).toContain(`v${String(PRESET_CONTRACT_VERSION)}`);
+  });
+});
+
+describe('chuỗi VN-Index tự nói ra mình là số tự dựng (FR-06)', () => {
+  /*
+   * Cờ này là thứ duy nhất cho người dùng biết vế THỊ TRƯỜNG của phép hồi quy Beta là số bịa.
+   * Chuỗi ấy luôn nằm sẵn trong `ctx.marketSeries` nên không có thao tác nào ("Nạp mẫu"…) để họ
+   * nhận ra, khác hẳn bộ mẫu bốn mã.
+   */
+  it('bộ đang dùng trong sản phẩm khai là bản thảo, vì VN_INDEX_BARS còn là PRNG', () => {
+    expect(SAMPLE_DATA.vnIndexIsDraft()).toBe(true);
+    expect(hasDraftMarketSeries()).toBe(true);
+  });
+
+  it('nguồn thật thì tắt được cờ ở đúng một chỗ, không phải sửa giao diện', () => {
+    const that = createStaticProvider(SAMPLE_PRESETS, VN_INDEX_BARS, false);
+
+    expect(that.vnIndexIsDraft()).toBe(false);
+    expect(hasDraftMarketSeries(that)).toBe(false);
   });
 });

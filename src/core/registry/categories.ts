@@ -74,19 +74,29 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     name: { vi: 'Phân tích kỹ thuật', en: 'Technical analysis' },
     shortName: { vi: 'Kỹ thuật', en: 'Technical' },
     description: {
-      vi: 'Chỉ báo đọc từ chuỗi giá: MA, RSI, MACD, Bollinger, ATR, ADX.',
-      en: 'Indicators read from the price series: MA, RSI, MACD, Bollinger, ATR, ADX.',
+      // Kể đúng chỉ báo Registry CÓ. 'ADX' từng đứng ở đây và không có công thức nào tên vậy —
+      // mô tả nhóm là chỗ người dùng đọc trước khi bấm vào, hứa một chỉ báo không tồn tại là gửi
+      // họ đi tìm thứ không có (cùng lớp lỗi mà `prose-audit` phép A gác cho phần diễn giải).
+      vi: 'Chỉ báo đọc từ chuỗi giá: MA, RSI, MACD, Bollinger, ATR, Stochastic.',
+      en: 'Indicators read from the price series: MA, RSI, MACD, Bollinger, ATR, Stochastic.',
     },
     expectedCount: 18,
   },
   {
     id: 'derivatives',
     segment: 'stock',
-    name: { vi: 'Phái sinh & quyền chọn', en: 'Derivatives & options' },
+    /*
+     * Tên nhóm bỏ vế "& quyền chọn", và đó là sửa cho khớp THỰC TẾ chứ không phải cắt phạm vi:
+     * thị trường Việt Nam mới có hợp đồng tương lai chỉ số niêm yết, chưa có quyền chọn — lý do
+     * ghi ở docblock `derivatives.ts`. Cả 7/7 công thức của nhóm xoay quanh VN30F. Bảng SRS mục
+     * 3.8 cũng chỉ ghi "Phái sinh". Tên cũ hiện trên ô lọc và trên mọi thẻ công thức, tức nó hứa
+     * với người dùng một mảng nội dung không tồn tại.
+     */
+    name: { vi: 'Phái sinh', en: 'Derivatives' },
     shortName: { vi: 'Phái sinh', en: 'Derivatives' },
     description: {
-      vi: 'Hợp đồng tương lai VN30F, quyền chọn, ký quỹ, đòn bẩy.',
-      en: 'VN30F futures contracts, options, margin, leverage.',
+      vi: 'Hợp đồng tương lai VN30F: giá lý thuyết, basis, lãi lỗ vị thế, ký quỹ, đòn bẩy.',
+      en: 'VN30F index futures: theoretical price, basis, position P&L, margin, leverage.',
     },
     expectedCount: 7,
   },

@@ -326,6 +326,8 @@ export function PortfolioScreen() {
   const tablistRef = useRef<HTMLDivElement>(null);
   /** Bật khi NGƯỜI DÙNG bấm tab, để lần mở màn với `?tab=` không tự cuộn. */
   const tabJustClicked = useRef(false);
+  /** Form thêm/sửa mã, để đưa nó vào tầm mắt khi mở — xem effect dưới `formOpen`. */
+  const formRef = useRef<HTMLDivElement>(null);
   const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
   /** Id mục đang đổi tên tại chỗ. `null` nghĩa là không có mục nào đang sửa. */
   const [renaming, setRenaming] = useState<string | null>(null);
@@ -428,6 +430,33 @@ export function PortfolioScreen() {
     tabJustClicked.current = false;
     tablistRef.current?.scrollIntoView?.({ block: 'nearest', behavior: 'auto' });
   }, [tab]);
+
+  /*
+   * Đưa form vào tầm mắt khi nó vừa mở.
+   *
+   * Chủ dự án báo bấm "Sửa" xong "cảm giác không có gì thay đổi": nút Sửa nằm trong khối chi
+   * tiết của MỘT dòng, mà form luôn dựng ở cuối cả danh sách — dòng đang sửa càng ở trên thì form
+   * càng xa khỏi tầm nhìn, nên màn hình đứng yên trong khi form đã mở ra ở rất xa bên dưới.
+   *
+   * `formOpen` không bao giờ bật ngoài hai cú bấm của người dùng (nút Sửa và nút "Thêm mã cổ
+   * phiếu"), khác `tab` — nó không có đường bật tự động nào cần một cờ "vừa bấm" để phân biệt.
+   *
+   * `block: 'start'` chứ không `'nearest'` như cụm tab: ở đây form là đích để THAO TÁC tiếp
+   * (gõ số, chọn công thức), nên cần đưa hẳn lên đầu màn hình cho các ô nhập lộ ra trọn vẹn, chứ
+   * không chỉ "vừa lọt vào tầm nhìn" — form dài hơn nhiều so với một mép khối vừa ló ra.
+   *
+   * Cùng khuôn `scrollToExample()` của `FormulaDetail.tsx`: kiểm `typeof` trước khi gọi
+   * `matchMedia` lẫn `scrollIntoView` vì jsdom (môi trường test) không cài `matchMedia`.
+   */
+  useEffect(() => {
+    if (!formOpen) return;
+    const target = formRef.current;
+    if (target === null || typeof target.scrollIntoView !== 'function') return;
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }, [formOpen]);
 
   /** Ghi lại kho phép tính đã lưu sau mỗi lần đổi tên hoặc xoá. */
   const persistSaved = useCallback((next: ReadonlyArray<SavedCalc>): void => {
@@ -1417,7 +1446,7 @@ export function PortfolioScreen() {
             )}
 
             {formOpen ? (
-              <div className={styles.form}>
+              <div ref={formRef} className={styles.form}>
                 {/*
               Ô chọn mã là một NÚT mở sheet, không phải <select>: danh sách có ~1.649 mã, mà một
               <select> chừng ấy option thì không gõ tìm được và dựng ra 1.649 nút DOM.

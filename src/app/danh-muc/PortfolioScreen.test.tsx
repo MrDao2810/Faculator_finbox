@@ -122,6 +122,19 @@ async function moChiTiet(code = 'FPT'): Promise<void> {
   );
 }
 
+/** jsdom chưa cài đặt `scrollIntoView`; gắn bản giả rồi gỡ để không rò sang file test khác. */
+function bayScrollIntoView(): { goi: ReturnType<typeof vi.fn>; go: () => void } {
+  const goi = vi.fn();
+  const cu = Element.prototype.scrollIntoView as unknown;
+  Element.prototype.scrollIntoView = goi;
+  return {
+    goi,
+    go: () => {
+      Element.prototype.scrollIntoView = cu as typeof Element.prototype.scrollIntoView;
+    },
+  };
+}
+
 /**
  * Mở form thêm mã rồi chọn một mã trong sheet. Màn phải đã render trước khi gọi.
  *
@@ -1249,19 +1262,6 @@ function seedSaved(): void {
  * phải chủ động kéo cụm tab trở lại tầm mắt, thay vì phó mặc cho cú kẹp của trình duyệt.
  */
 describe('WF-06 — đổi tab không ném người dùng đi chỗ khác', () => {
-  /** jsdom chưa cài đặt `scrollIntoView`; gắn bản giả rồi gỡ để không rò sang file test khác. */
-  function bayScrollIntoView(): { goi: ReturnType<typeof vi.fn>; go: () => void } {
-    const goi = vi.fn();
-    const cu = Element.prototype.scrollIntoView as unknown;
-    Element.prototype.scrollIntoView = goi;
-    return {
-      goi,
-      go: () => {
-        Element.prototype.scrollIntoView = cu as typeof Element.prototype.scrollIntoView;
-      },
-    };
-  }
-
   it('bấm đổi tab thì kéo cụm tab trở lại tầm mắt', async () => {
     const bay = bayScrollIntoView();
     seedHolding();
@@ -1291,6 +1291,41 @@ describe('WF-06 — đổi tab không ném người dùng đi chỗ khác', () =
     await screen.findByText(/không tính lại/);
 
     expect(bay.goi).not.toHaveBeenCalled();
+    bay.go();
+  });
+});
+
+/*
+ * Chủ dự án báo bấm "Sửa" xong "cảm giác không có gì thay đổi" — nút Sửa nằm trong khối chi tiết
+ * của một dòng, mà form luôn dựng ở CUỐI cả danh sách, nên dòng đang sửa càng ở trên thì form
+ * càng xa tầm nhìn: form đã mở, chỉ là ngoài màn hình.
+ */
+describe('WF-06 — mở form thì kéo nó vào tầm mắt', () => {
+  it('bấm Sửa thì kéo form vào tầm mắt để thao tác tiếp', async () => {
+    const bay = bayScrollIntoView();
+    seedHolding();
+    render(<PortfolioScreen />);
+    await moChiTiet('FPT');
+
+    expect(bay.goi).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Sửa FPT' }));
+
+    expect(bay.goi).toHaveBeenCalledTimes(1);
+    /*
+     * `start` chứ không `nearest` như cụm tab: form là đích để THAO TÁC tiếp (gõ số, chọn công
+     * thức) nên phải lộ trọn các ô nhập, không chỉ "vừa lọt vào tầm nhìn" như cụm tab gọn.
+     */
+    expect(bay.goi.mock.calls[0]?.[0]).toMatchObject({ block: 'start' });
+    bay.go();
+  });
+
+  it('bấm "Thêm mã cổ phiếu" cũng kéo form vào tầm mắt — cùng một cơ chế', async () => {
+    const bay = bayScrollIntoView();
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
+    expect(bay.goi).toHaveBeenCalledTimes(1);
     bay.go();
   });
 });

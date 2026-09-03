@@ -4,7 +4,8 @@
  * Cùng khuôn với `preferences.ts`: phần thuần nằm ở đây, không import React, nên test được
  * bằng Node; phần chạm localStorage do màn tìm kiếm gọi trong `useEffect`.
  *
- * LDR-04 · NFR-SEC-01: chỉ lưu đúng chuỗi người dùng đã gõ, nằm trên máy, không gửi đi đâu.
+ * LDR-04 · NFR-SEC-01: chỉ lưu tên công thức người dùng đã CHỌN từ kết quả tìm (không phải chuỗi
+ * đã gõ), nằm trên máy, không gửi đi đâu.
  */
 
 /** Đổi khoá khi cấu trúc đổi, để bản cũ trong máy không làm hỏng bản mới. */
@@ -13,7 +14,11 @@ export const RECENT_SEARCHES_KEY = 'ffb.recent.v1';
 /** WF-09 vẽ ba chip; giữ dư một ít để người dùng còn thấy lịch sử. */
 export const MAX_RECENT_SEARCHES = 6;
 
-/** Dài hơn mức này thì không phải từ khoá nữa, có khi là cả đoạn dán nhầm. */
+/**
+ * Chặn trên cho một mục — mốc an toàn phòng dữ liệu hỏng chứ không phải giới hạn thường gặp:
+ * chuỗi ghi vào đây là tên công thức do `SearchScreen` truyền, tên dài nhất trong Registry cũng
+ * chưa tới phân nửa mức này.
+ */
 const MAX_TERM_LENGTH = 60;
 
 /**

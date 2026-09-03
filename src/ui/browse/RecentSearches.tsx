@@ -16,7 +16,8 @@ export interface RecentSearchesProps {
  * Không tự đọc localStorage: màn tìm kiếm đọc trong `useEffect` rồi truyền xuống. Đọc ngay
  * lúc khởi tạo state sẽ lệch hydration vì bản build là HTML tĩnh — bài học của đợt 2.
  *
- * LDR-04: chỉ là những chuỗi chính người dùng đã gõ, nằm trên máy họ, có nút xoá hết.
+ * LDR-04: chỉ là tên những công thức chính người dùng đã CHỌN trong kết quả tìm, nằm trên máy
+ * họ, có nút xoá hết.
  */
 export function RecentSearches({ terms, onPick, onClear }: RecentSearchesProps) {
   const t = useT();

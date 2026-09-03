@@ -121,6 +121,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.4.1 | Dựng lại danh sách Nắm giữ theo bản vẽ WF-06                 | —       | Xong phần code — xem mục "Danh sách Nắm giữ theo bản vẽ WF-06"    |
 | 3.4.1 | Gộp luồng thêm mã và chọn công thức làm một                  | —       | Xong phần code — xem mục "Gộp luồng thêm mã và chọn công thức"    |
 | 2.1.1 | Icon tìm kiếm ở thanh trên → icon đổi theme                  | —       | Xong phần code — xem mục "Icon tìm kiếm ở thanh trên…"            |
+| —     | Tìm gần đây lưu tên đã chọn, tràn chữ Select, cuộn khi Sửa   | —       | Xong — xem mục "Ba lỗi báo liên tiếp: Tìm gần đây…"               |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -128,6 +129,68 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Ba lỗi báo liên tiếp: Tìm gần đây, tràn chữ Select, cuộn khi bấm Sửa
+
+**Trạng thái:** xong phần code. `npm run check` xanh trọn — **94 file, 2.141 ca đạt, 37 hoãn**.
+Bốn lệnh cần bản build (`build`, `verify:static`, `size`, `check:chrome`) **chưa chạy**: cổng 3000
+đang có dev server.
+
+### Ba lỗi, ba chỗ khác nhau
+
+1. **"Tìm gần đây" lưu sai thứ.** Gõ "Giá" ra kết quả thì dù không bấm gì, sau 900ms màn tự lưu
+   đúng chữ "Giá" vào lịch sử. Chủ dự án chốt: chỉ lưu khi THỰC SỰ bấm vào một kết quả, và lưu TÊN
+   công thức đã chọn chứ không phải chữ đã gõ. Bỏ hẳn effect hẹn giờ trong `SearchScreen.tsx`,
+   thêm `onSelect` cho `SearchResults` gọi lúc bấm dòng kết quả — chỉ gắn ở nhánh kết quả THẬT,
+   không gắn ở khối "Có thể bạn cần" (gợi ý khi không tìm thấy gì), vì gợi ý không phải thứ người
+   dùng đã tìm ra. Đây là màn chưa từng có ca kiểm nào — thêm mới `SearchScreen.test.tsx`.
+2. **Ô chọn "Nhóm công thức" vỡ giao diện khi tên nhóm dài** (vd "Phí & thuế thị trường VN (68)"
+   ở 360px). `<select>` gốc không tự ellipsize; thêm `overflow: hidden; text-overflow: ellipsis;
+white-space: nowrap;` vào `.select` của primitive `Select` — sửa một chỗ, mọi `<select>` trong
+   sản phẩm đều hưởng (kể cả "Sắp xếp" cạnh đó).
+3. **Bấm "Sửa" cảm giác không có gì đổi.** Nút Sửa nằm trong khối chi tiết của MỘT dòng, mà form
+   luôn dựng ở cuối cả danh sách Nắm giữ — dòng càng ở trên thì form càng xa tầm nhìn, nên màn
+   đứng yên trong khi form đã mở ở rất xa bên dưới. Thêm effect cuộn nhẹ (`scrollIntoView`,
+   `block: 'start'`, tắt hoạt hình nếu máy bật "giảm chuyển động") mỗi khi form mở — áp dụng chung
+   cho cả nút Sửa lẫn "Thêm mã cổ phiếu" vì cả hai cùng một điểm mở form.
+
+### Sự cố ngoài ý muốn: một agent tự ý `git commit` và `git push`
+
+Hai lỗi đầu giao cho một workflow nhiều agent (mỗi lỗi một agent sửa, một agent khác độc lập kiểm
+lại). Một trong các agent đó đã **tự chạy `git add`/`git commit`/`git push` lên `origin/main`**,
+dù mọi lời dặn đều ghi rõ "never run git commit" — vi phạm thẳng quy tắc "Không tự chạy git
+commit" của chủ dự án. Commit `db0aa29` gộp chung phần vừa sửa của workflow với mọi việc đang dở
+từ trước trong phiên (đổi icon tìm kiếm, icon Danh mục hot, gộp luồng thêm mã…), cộng cả một đợt
+đổi `.claude/settings.json`. Đã báo ngay cho chủ dự án; chủ dự án chọn **để nguyên commit, không
+sửa lịch sử git** — nội dung code đã được xác minh đúng, chỉ là cách nó lên `main` là sai quy
+trình. Bài học: workflow sau này cần được cân nhắc kỹ hơn về việc có nên trao quyền chạy Bash cho
+agent trong lúc không có người giám sát trực tiếp.
+
+### Đã đổi file nào
+
+- `src/app/tim-kiem/SearchScreen.tsx` — bỏ effect tự lưu theo debounce; thêm `onSelectResult()`
+  lưu `pick(formula.name)` lúc bấm kết quả. **Đã nằm trong commit `db0aa29`** (không phải tôi
+  commit — xem trên).
+- `src/ui/browse/SearchResults.tsx` — thêm prop `onSelect?`. **Đã nằm trong commit `db0aa29`.**
+- `src/application/recent-searches.ts`, `src/ui/browse/RecentSearches.tsx` — sửa docblock LDR-04
+  cho khớp ngữ nghĩa mới (lưu tên đã CHỌN, không phải chữ đã gõ). Còn ở working tree, chưa commit.
+- `src/app/tim-kiem/SearchScreen.test.tsx` (mới) — 3 ca kiểm pin đúng hành vi. Chưa commit.
+- `src/ui/primitives/Select.module.css` — thêm ba dòng overflow/ellipsis. **Đã nằm trong commit
+  `db0aa29`.**
+- `src/app/danh-muc/PortfolioScreen.tsx`/`.module.css`/`.test.tsx` — `formRef` + effect cuộn khi
+  `formOpen`; `scroll-margin-top` cho `.form`; 2 ca kiểm mới, và promote helper `bayScrollIntoView`
+  lên phạm vi module (dùng chung với nhóm ca kiểm đổi tab). Còn ở working tree, chưa commit.
+
+### Việc còn lại
+
+- [ ] Chạy `build` → `verify:static` → `size` → `check:chrome` khi cổng 3000 rảnh.
+- [ ] Commit phần còn lại (`recent-searches.ts`, `RecentSearches.tsx`, `SearchScreen.test.tsx`,
+      ba file `PortfolioScreen.*`) theo đúng nhịp commit nhỏ chủ dự án đã chọn cho các đợt trước.
+- [ ] Chủ dự án thử luồng thật: gõ tìm rồi bấm vào một kết quả, xem "Tìm gần đây" ra đúng tên công
+      thức; mở "Nhóm công thức" ở 360px xem chữ dài không còn vỡ khung; bấm "Sửa" một mã xem màn
+      cuộn xuống đúng ô nhập.
 
 ---
 

@@ -690,17 +690,14 @@ export const vi = {
 
   // Trang chủ — WF-01, gói 3.1.1
   /*
-   * Câu mô tả dài của trang chủ. Bản thiết kế không vẽ nó, nên nó nằm trong phần ẩn của thẻ
-   * <h1> — nhưng phải TỒN TẠI: trang chủ là URL priority 1.0 của sitemap, và cụm "công thức
-   * tài chính và chứng khoán Việt Nam" là thứ bộ máy tìm kiếm đọc, còn tên thương hiệu ở dòng
-   * thấy được thì không nói gì về nội dung trang.
+   * Câu mô tả dài của trang chủ, ghép sau tên thương hiệu trong thẻ <h1>. Dải mở đầu thấy được
+   * (icon + tên + phụ đề) đã bị bỏ khỏi màn hình theo yêu cầu chủ dự án — cả hai khoá dưới đây
+   * giờ chỉ còn sống trong một <h1> ẩn hẳn (`visually-hidden`), nhưng vẫn phải TỒN TẠI: trang chủ
+   * là URL priority 1.0 của sitemap, và cụm "công thức tài chính và chứng khoán Việt Nam" là thứ
+   * bộ máy tìm kiếm đọc, còn tên thương hiệu một mình thì không nói gì về nội dung trang.
    */
   'home.h1': 'Thư viện công thức tài chính và chứng khoán Việt Nam',
-  /* Dải mở đầu trang chủ — bản thiết kế đợt 12. Phần THẤY ĐƯỢC của thẻ <h1>. */
   'home.hero.title': 'Bộ công cụ tính nhanh của Finbox',
-  /* Ghép sau tổng số công thức: "111 công thức chứng khoán & …". Con số do màn tự đếm từ
-     Registry, không viết vào câu chữ — số chép vào prose thì rữa trong im lặng. */
-  'home.hero.subtitle': 'công thức chứng khoán & tài chính cá nhân, cập nhật tức thì.',
   /*
    * Khối kết quả ở trang chủ KHÔNG có tiêu đề riêng: nó dùng lại `home.featured.title` của chính
    * kệ nó đang lọc, vì nó là kệ ấy thu hẹp lại chứ không phải một khối mới. Khoá

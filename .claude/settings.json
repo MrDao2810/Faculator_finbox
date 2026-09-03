@@ -1018,7 +1018,10 @@
       "Bash(TARGET_PATH=\"/cong-thuc/\" EXPR=\"JSON.stringify\\({hasPE: document.body.textContent.includes\\('P/E'\\), bodyLen: document.body.innerHTML.length, allAhrefs: Array.from\\(document.querySelectorAll\\('a'\\)\\).map\\(a=>a.getAttribute\\('href'\\)\\).filter\\(h => h && h.includes\\('tim-kiem'\\)\\)}\\)\" node inspect.mjs)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://127.0.0.1:3000/cong-thuc/ --max-time 15)",
       "Bash(tasklist //FI \"IMAGENAME eq chrome.exe\")",
-      "Bash(node \"C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/21b13136-a245-462e-be75-99a4b0436843/scratchpad/check-names.mjs\")"
+      "Bash(node \"C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/21b13136-a245-462e-be75-99a4b0436843/scratchpad/check-names.mjs\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:3000/ --max-time 5)",
+      "Bash(curl -s http://127.0.0.1:3000/ --max-time 5)",
+      "Bash(grep -o '<h1[^>]*>.\\\\{0,120\\\\}')"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

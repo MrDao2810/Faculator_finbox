@@ -457,7 +457,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'home.h1': 'Vietnamese stock and personal-finance formula library',
   'home.hero.title': 'Finbox quick calculators',
-  'home.hero.subtitle': 'stock and personal-finance formulas, updating as you type.',
   'home.search.featuredEmpty': 'No card here matches',
   'home.search.featuredScope':
     'The home search filters only the “Everyday formulas” block, not the whole library.',

@@ -3,6 +3,9 @@
 export { SearchBox } from './SearchBox';
 export type { SearchBoxProps } from './SearchBox';
 
+/* Ô tìm ở /cong-thuc/ — không gõ được, bấm là nhảy sang /tim-kiem/. */
+export { SearchBoxLink } from './SearchBoxLink';
+
 export { CategoryFilter } from './CategoryFilter';
 export type { CategoryFilterProps } from './CategoryFilter';
 

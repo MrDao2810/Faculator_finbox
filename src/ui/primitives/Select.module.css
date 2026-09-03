@@ -18,6 +18,10 @@
   min-height: var(--tap-min);
   padding: 0 var(--space-3);
 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
   font-family: inherit;
   font-size: var(--text-base);
   color: var(--color-ink);

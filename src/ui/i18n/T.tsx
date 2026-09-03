@@ -14,7 +14,7 @@ import { useT } from '@/application/preferences-context';
  *
  * Chỉ dùng cho chữ đứng giữa JSX. Chữ nằm trong THUỘC TÍNH (title, aria-label, placeholder)
  * không bọc được — component chứa thuộc tính đó phải tự thành client và dùng `useT()`,
- * như `SearchLink` đã làm.
+ * như `ThemeSwitch` đã làm.
  */
 export function T({ k }: { k: MessageKey }) {
   const t = useT();

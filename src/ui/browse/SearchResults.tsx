@@ -20,6 +20,12 @@ export interface SearchResultsProps {
    * chính component này mà không có gì để tô.
    */
   query?: string;
+  /**
+   * Gọi khi bấm vào một dòng kết quả — nơi gọi dùng để ghi "Tìm gần đây" (WF-09).
+   * Không truyền thì không có gì thêm ngoài điều hướng bình thường; khối "Có thể bạn cần" của
+   * trạng thái không-tìm-thấy cố tình không truyền, vì đó là gợi ý chứ không phải thứ vừa tìm ra.
+   */
+  onSelect?: (formula: FormulaSummary) => void;
 }
 
 interface Group {
@@ -37,7 +43,7 @@ interface Group {
  * Thứ tự nhóm bám theo thứ tự kết quả do `selectFormulas()` chấm điểm, KHÔNG sắp lại theo
  * bảng chữ cái — kết quả khớp nhất phải nằm trên cùng.
  */
-export function SearchResults({ formulas, query = '' }: SearchResultsProps) {
+export function SearchResults({ formulas, query = '', onSelect }: SearchResultsProps) {
   const pick = usePick();
   const groups: Group[] = [];
   const byId = new Map<string, Group>();
@@ -66,7 +72,13 @@ export function SearchResults({ formulas, query = '' }: SearchResultsProps) {
           <ul className={styles.list}>
             {group.formulas.map((formula) => (
               <li key={formula.id}>
-                <Link href={formulaPath(formula.id)} className={styles.row}>
+                <Link
+                  href={formulaPath(formula.id)}
+                  className={styles.row}
+                  onClick={() => {
+                    onSelect?.(formula);
+                  }}
+                >
                   <span className={styles.body}>
                     <span className={styles.name}>
                       <Highlight text={pick(formula.name)} query={query} />

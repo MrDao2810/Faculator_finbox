@@ -46,7 +46,22 @@
 }
 
 .tile:hover {
-  border-color: var(--color-accent);
+  border-color: var(--category-ink);
+}
+
+/* Icon nhóm — ô vuông bo góc, cùng mẫu với `.tileIcon` của FormulaCard. */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+  margin-bottom: var(--space-1);
+
+  color: var(--category-ink);
+  background: var(--category-soft);
+  border-radius: var(--radius-sm);
 }
 
 .name {

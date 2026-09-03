@@ -296,8 +296,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'Change the quantity, cost price, purchase date or beta. To change the ticker itself, remove it and add it again.',
   'portfolio.formSave': 'Save changes',
   'portfolio.mergeNote':
-    'This ticker is already in the portfolio. Adding again will add up the quantity and recalculate the average cost price — it will not create a second row. To correct the existing numbers instead, cancel this form and tap the ticker in the list.',
+    'This ticker is already in the portfolio. Adding again will add up the quantity and recalculate the average cost price — it will not create a second row. To correct the existing numbers instead, cancel this form, tap the ticker in the list, then tap Edit.',
   'portfolio.formMerge': 'Add to the existing holding',
+  'portfolio.formMergeOpen': 'Add to it and open the formula',
 
   'portfolio.errCode': 'Pick a ticker first.',
   'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
@@ -320,7 +321,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formSubmitOpen': 'Add and open the formula',
   'portfolio.formSaveOpen': 'Save and open the formula',
   'portfolio.formulasTitle': 'Formulas this ticker can fill',
-  'portfolio.formulasSubtitle': 'Open a formula with this ticker’s data already filled in',
+  'portfolio.formulasSubtitle':
+    'Pick one — saving opens it with this ticker’s data already filled in',
   'portfolio.formulasFilled': 'fields prefilled',
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',

@@ -617,6 +617,23 @@ export function PortfolioScreen() {
     });
   }, []);
 
+  /**
+   * Đóng khối chi tiết của một mã, dù nó đang mở hay không.
+   *
+   * Tách khỏi `toggleDetail` chứ không gọi lại nó: "đóng" và "đảo trạng thái" chỉ trùng nhau khi
+   * dòng đang mở. Chỗ dùng là lúc BỎ một mã — hôm nay nút Bỏ chỉ với tới được từ trong khối đang
+   * mở nên hai hàm cho cùng kết quả, nhưng ai đưa nút Bỏ ra chỗ khác (vuốt ngang, menu…) sẽ khiến
+   * `toggleDetail` THÊM mã vừa xoá vào tập đang mở, và mã ấy thêm lại sau này sẽ tự bung sẵn.
+   */
+  const collapseDetail = useCallback((code: string): void => {
+    setExpanded((current) => {
+      if (!current.has(code)) return current;
+      const next = new Set(current);
+      next.delete(code);
+      return next;
+    });
+  }, []);
+
   /** Mở form ở chế độ SỬA, đổ sẵn số đang lưu. */
   const startEdit = useCallback((holding: Holding): void => {
     setForm({
@@ -746,6 +763,24 @@ export function PortfolioScreen() {
    * dựng ra để chặn.
    */
   const formulaLocked = formCode === null;
+
+  /**
+   * Nhãn nút lưu — SÁU tổ hợp của hai câu hỏi độc lập.
+   *
+   * Câu một: nút sắp làm gì với danh mục (thêm dòng mới · cộng dồn vào dòng đã có · lưu bản sửa).
+   * Câu hai: xong rồi có mở công thức không.
+   *
+   * Bảng tra thay vì ba tầng toán tử ba ngôi lồng nhau: bản lồng nhau đã ĐỂ LỌT một tổ hợp — chọn
+   * một mã đang giữ RỒI chọn công thức thì nhãn ra "Thêm và mở công thức", trong khi việc sắp xảy
+   * ra là cộng dồn. Đó đúng là lỗi mà `portfolio.formMerge` sinh ra để chữa (hứa sai ngay trên
+   * đích bấm), và nhánh mới đã lặng lẽ dựng nó lại. Viết thành bảng thì chỗ hổng lộ ra bằng mắt.
+   */
+  const submitLabel = useMemo(() => {
+    const open = plannedFormula !== null;
+    if (editing !== null) return t(open ? 'portfolio.formSaveOpen' : 'portfolio.formSave');
+    if (mergingInto !== null) return t(open ? 'portfolio.formMergeOpen' : 'portfolio.formMerge');
+    return t(open ? 'portfolio.formSubmitOpen' : 'portfolio.formSubmit');
+  }, [plannedFormula, editing, mergingInto, t]);
 
   /**
    * Tên công thức đang chọn ở form. `null` khi chưa chọn.
@@ -1367,7 +1402,7 @@ export function PortfolioScreen() {
                                  * sẽ hiện ra với khối chi tiết bung sẵn — dấu vết của một thao tác
                                  * người dùng đã quên từ lâu.
                                  */
-                                toggleDetail(holding.code);
+                                collapseDetail(holding.code);
                               }}
                             >
                               {t('portfolio.remove')}
@@ -1547,17 +1582,7 @@ export function PortfolioScreen() {
                 Nhãn nút đổi theo việc nút sắp làm. "Thêm vào danh mục" khi thật ra là cộng dồn
                 vào một dòng đã có là hứa sai ngay trên đích bấm — chỗ người dùng đọc kỹ nhất.
               */}
-                  <Button onClick={submit}>
-                    {plannedFormula !== null
-                      ? editing !== null
-                        ? t('portfolio.formSaveOpen')
-                        : t('portfolio.formSubmitOpen')
-                      : editing !== null
-                        ? t('portfolio.formSave')
-                        : mergingInto !== null
-                          ? t('portfolio.formMerge')
-                          : t('portfolio.formSubmit')}
-                  </Button>
+                  <Button onClick={submit}>{submitLabel}</Button>
                   <Button variant="ghost" onClick={closeForm}>
                     {t('portfolio.formCancel')}
                   </Button>

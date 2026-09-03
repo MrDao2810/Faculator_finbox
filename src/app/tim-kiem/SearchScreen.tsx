@@ -15,8 +15,9 @@ import {
   selectFormulas,
   serializeRecentSearches,
 } from '@/application';
+import type { FormulaSummary } from '@/application';
 import { useListParams } from '@/application/use-list-params';
-import { usePreferences, useT } from '@/application/preferences-context';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { useQueryDraft } from '@/application/use-query-draft';
 import {
   EmptyState,
@@ -49,6 +50,7 @@ export function SearchScreen() {
   const { params, setParams } = useListParams();
   const { mode } = usePreferences();
   const t = useT();
+  const pick = usePick();
   const [recent, setRecent] = useState<ReadonlyArray<string>>([]);
   const inputRef = useRef<HTMLDivElement>(null);
 
@@ -98,27 +100,26 @@ export function SearchScreen() {
     [params, trimmed, mode],
   );
 
-  /** Ghi lại từ khoá đã dùng — chỉ khi nó thật sự ra kết quả, để lịch sử không đầy rác. */
-  useEffect(() => {
-    if (trimmed === '' || results.length === 0) return;
-
-    // Chờ người dùng ngừng gõ rồi mới ghi, nếu không mỗi ký tự thành một mục lịch sử.
-    const timer = setTimeout(() => {
-      setRecent((current) => {
-        const next = addRecentSearch(current, trimmed, MAX_RECENT_SEARCHES);
-        try {
-          window.localStorage.setItem(RECENT_SEARCHES_KEY, serializeRecentSearches(next));
-        } catch {
-          // Không ghi được thì thôi, đừng làm hỏng màn.
-        }
-        return next;
-      });
-    }, 900);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [trimmed, results.length]);
+  /**
+   * Ghi "Tìm gần đây" khi người dùng THỰC SỰ chọn một kết quả — không phải cứ gõ ra kết quả là
+   * ghi. Bản trước tự ghi ngay khi có kết quả (debounce 900ms sau khi ngừng gõ), nên gõ "Giá"
+   * rồi không bấm gì vẫn ra một mục "Giá" trong lịch sử — sai với điều người dùng mong đợi:
+   * lịch sử phải là công thức đã CHỌN, không phải chữ đã GÕ.
+   *
+   * Vì vậy lưu lại TÊN công thức (`pick(formula.name)`) chứ không phải `trimmed`, và chỉ gọi từ
+   * `onClick` của dòng kết quả (`SearchResults`'s `onSelect`) — xem chỗ gọi bên dưới.
+   */
+  function onSelectResult(formula: FormulaSummary): void {
+    setRecent((current) => {
+      const next = addRecentSearch(current, pick(formula.name), MAX_RECENT_SEARCHES);
+      try {
+        window.localStorage.setItem(RECENT_SEARCHES_KEY, serializeRecentSearches(next));
+      } catch {
+        // Không ghi được thì thôi, đừng làm hỏng màn.
+      }
+      return next;
+    });
+  }
 
   function clearRecent(): void {
     setRecent([]);
@@ -174,7 +175,7 @@ export function SearchScreen() {
 
           <HiddenByLevelNote count={hiddenByLevel} />
 
-          <SearchResults formulas={results} query={trimmed} />
+          <SearchResults formulas={results} query={trimmed} onSelect={onSelectResult} />
         </>
       ) : (
         <>

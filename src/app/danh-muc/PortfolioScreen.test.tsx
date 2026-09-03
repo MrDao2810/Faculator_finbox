@@ -423,6 +423,21 @@ describe('WF-06 — từ mã sang công thức', () => {
     expect(screen.getByRole('button', { name: 'Cộng thêm vào mã đã có' })).toBeTruthy();
   });
 
+  /*
+   * Nhãn nút phải nói đúng CẢ HAI việc nó sắp làm.
+   *
+   * Chọn một mã đang giữ là cộng dồn, không phải thêm dòng mới — đó là lý do `portfolio.formMerge`
+   * ra đời. Bản đầu của nhánh có công thức đã lặng lẽ dựng lại đúng lỗi ấy: ba tầng toán tử ba
+   * ngôi lồng nhau để lọt tổ hợp "cộng dồn + mở công thức" và nhãn ra "Thêm và mở công thức".
+   */
+  it('cộng dồn mà có chọn công thức: nhãn nút nói cả hai việc, không hứa một dòng mới', async () => {
+    const sheet = await moSheetCongThuc();
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+
+    expect(screen.getByRole('button', { name: 'Cộng thêm và mở công thức' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Thêm và mở công thức' })).toBeNull();
+  });
+
   it('không gọi mạng để dựng danh sách công thức', async () => {
     await moSheetCongThuc();
 

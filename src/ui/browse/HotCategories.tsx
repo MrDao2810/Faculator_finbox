@@ -6,6 +6,7 @@ import { CATEGORIES, DEFAULT_LIST_PARAMS, formulaListPath } from '@/application'
 import type { FormulaSummary } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { CategoryIcon, toneClass } from './CategoryIcon';
 import styles from './HotCategories.module.css';
 
 export interface HotCategoriesProps {
@@ -27,6 +28,10 @@ const DEFAULT_LIMIT = 6;
  *
  * Là client component (được render trong SearchScreen vốn đã là client) và dùng `useT()` để
  * chữ đổi theo locale người dùng chọn.
+ *
+ * Icon + tông màu dùng đúng cặp `CategoryIcon`/`toneClass()` mà `CategoryGrid`/`FormulaCard`
+ * đã dùng — cùng một tông xanh cho mọi nhóm kể từ đợt đổi màu Finbox, không phục dựng bảng màu
+ * riêng cho từng nhóm ở đây.
  */
 export function HotCategories({ formulas, limit = DEFAULT_LIMIT }: HotCategoriesProps) {
   const t = useT();
@@ -56,9 +61,12 @@ export function HotCategories({ formulas, limit = DEFAULT_LIMIT }: HotCategories
         {hot.map(({ category, count }) => (
           <li key={category.id}>
             <Link
-              className={styles.tile}
+              className={`${styles.tile} ${toneClass()}`}
               href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
             >
+              <span className={styles.icon} aria-hidden="true">
+                <CategoryIcon id={category.id} size={16} />
+              </span>
               <span className={styles.name}>{pick(category.shortName)}</span>
               <span className={styles.count}>{count}</span>
             </Link>

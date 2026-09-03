@@ -35,8 +35,8 @@ export interface HomeSearchPanelProps {
  * Công thức, trong khi thanh dưới vẫn sáng mục "Trang chủ". Một màn mang nội dung của màn khác
  * dưới cái tab của màn này, và không có chữ nào giải thích. Chủ dự án báo đúng chỗ đó.
  *
- * Nay ô tìm làm đúng vai mà `SearchLink.tsx` vẫn ghi cho nó: **lọc danh sách đang xem**. Danh
- * sách đang xem ở trang chủ là kệ 18 ô, nên tìm trong 18 ô.
+ * Nay ô tìm làm đúng vai đã định cho nó từ đầu: **lọc danh sách đang xem**. Danh sách đang xem
+ * ở trang chủ là kệ 18 ô, nên tìm trong 18 ô.
  *
  * ── Giá phải trả, đã đo và đã chấp nhận ───────────────────────────────────────────────────
  *

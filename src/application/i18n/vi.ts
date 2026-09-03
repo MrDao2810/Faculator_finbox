@@ -459,8 +459,16 @@ export const vi = {
    * ngay tại chỗ người ta đọc kỹ nhất.
    */
   'portfolio.mergeNote':
-    'Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng và tính lại giá vốn bình quân, không tạo dòng thứ hai. Muốn sửa số đang có thì huỷ form rồi bấm vào mã trong danh sách.',
+    'Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng và tính lại giá vốn bình quân, không tạo dòng thứ hai. Muốn sửa số đang có thì huỷ form, bấm vào mã trong danh sách rồi bấm Sửa.',
   'portfolio.formMerge': 'Cộng thêm vào mã đã có',
+  /*
+   * Nhãn nút khi VỪA cộng dồn VỪA mở công thức.
+   *
+   * Không gộp vào `formSubmitOpen` ("Thêm và mở công thức"): chữ "Thêm" ở đó hứa một dòng mới,
+   * mà việc sắp xảy ra là cộng vào dòng đã có. Đây đúng là lý do `formMerge` ra đời — hứa sai
+   * ngay trên đích bấm, chỗ người ta đọc kỹ nhất — nên nhánh có công thức phải giữ nguyên luật ấy.
+   */
+  'portfolio.formMergeOpen': 'Cộng thêm và mở công thức',
 
   /*
    * Câu lỗi của form.
@@ -510,7 +518,12 @@ export const vi = {
   'portfolio.formSubmitOpen': 'Thêm và mở công thức',
   'portfolio.formSaveOpen': 'Lưu và mở công thức',
   'portfolio.formulasTitle': 'Công thức dùng được với mã này',
-  'portfolio.formulasSubtitle': 'Mở công thức với số liệu của mã đã điền sẵn',
+  /*
+   * Nói CHỌN chứ không nói MỞ. Sheet từng đi thẳng tới trang công thức khi bấm một dòng; từ đợt
+   * gộp luồng thêm mã nó trả lựa chọn về form, và form lưu xong mới mở. Hứa "mở" ở đây là hứa sai
+   * một nhịp — người dùng bấm rồi thấy mình quay lại form và tưởng thao tác hỏng.
+   */
+  'portfolio.formulasSubtitle': 'Chọn một công thức — lưu xong sẽ mở với số liệu của mã điền sẵn',
   // Đứng SAU cặp số "2/2", nên viết thường và mở đầu bằng đơn vị.
   'portfolio.formulasFilled': 'ô điền sẵn',
   'portfolio.formulasNoPrice':

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   FORMULA_SUMMARIES,
@@ -17,13 +17,12 @@ import {
 import type { FormulaUsage } from '@/application';
 import { useListParams } from '@/application/use-list-params';
 import { usePreferences, useT } from '@/application/preferences-context';
-import { useQueryDraft } from '@/application/use-query-draft';
 import {
   CategoryFilter,
   EmptyState,
   FormulaCard,
   HiddenByLevelNote,
-  SearchBox,
+  SearchBoxLink,
   VirtualList,
 } from '@/ui/browse';
 import { rememberOrigin } from '@/ui/layout/OriginTracker';
@@ -39,24 +38,15 @@ import styles from './FormulaBrowser.module.css';
  *
  * Danh sách đi qua `VirtualList`, nhưng ở cỡ 111 công thức nó dựng THẲNG cả danh sách: ngưỡng
  * ảo hoá là 1000 vì đo lại thấy ảo hoá làm việc cuộn tệ đi ở cỡ này. Xem docblock `VirtualList`.
+ *
+ * Ô tìm ở đầu màn KHÔNG gõ được — bấm vào là nhảy sang `/tim-kiem/` (xem `SearchBoxLink`), nơi
+ * mới thật sự gõ-lọc-tại-chỗ. Vì vậy `params.q` chỉ còn đọc từ URL (link chia sẻ, hoặc gõ tay),
+ * không còn cơ chế bản nháp `useQueryDraft` như trước.
  */
 export function FormulaBrowser() {
   const { params, setParams, reset } = useListParams();
   const { mode, setMode } = usePreferences();
   const t = useT();
-
-  // Ô nhập đi qua bản nháp cục bộ, không ghi thẳng URL từng phím — xem use-query-draft.ts.
-  const commitQuery = useCallback(
-    (q: string) => {
-      setParams({ q });
-    },
-    [setParams],
-  );
-  const { draft, setDraft, resetDraft } = useQueryDraft(params.q, commitQuery);
-
-  // Danh sách và các bộ đếm chạy theo bản nháp để gõ tới đâu thấy tới đó; các bộ lọc còn lại
-  // vẫn lấy từ `params` vì chúng đổi theo cú bấm, không theo từng phím.
-  const view = useMemo(() => ({ ...params, q: draft }), [params, draft]);
 
   /*
    * Chế độ Cơ bản cắt bớt danh sách trước khi lọc — FR-09 vế "công thức phức tạp".
@@ -98,21 +88,21 @@ export function FormulaBrowser() {
   /** Chỉ chấm điểm khi cách sắp đang chọn thật sự cần — hai cách còn lại không đụng tới. */
   const usageOrder = useMemo(() => {
     if (history === null) return undefined;
-    if (view.sort !== 'recent' && view.sort !== 'used') return undefined;
-    return usageOrderMap(history.usage, view.sort, history.now);
-  }, [history, view.sort]);
+    if (params.sort !== 'recent' && params.sort !== 'used') return undefined;
+    return usageOrderMap(history.usage, params.sort, history.now);
+  }, [history, params.sort]);
 
   const formulas = useMemo(
-    () => selectFormulas(pool, view, { usageOrder }),
-    [pool, view, usageOrder],
+    () => selectFormulas(pool, params, { usageOrder }),
+    [pool, params, usageOrder],
   );
-  const segmentCounts = useMemo(() => countBySegmentFor(pool, view), [pool, view]);
-  const categoryCounts = useMemo(() => countByCategoryFor(pool, view), [pool, view]);
+  const segmentCounts = useMemo(() => countBySegmentFor(pool, params), [pool, params]);
+  const categoryCounts = useMemo(() => countByCategoryFor(pool, params), [pool, params]);
 
   /** Bao nhiêu công thức khớp bộ lọc này nhưng chế độ Cơ bản đang giấu đi. */
   const hiddenByLevel = useMemo(
-    () => countHiddenByLevel(FORMULA_SUMMARIES, view, mode),
-    [view, mode],
+    () => countHiddenByLevel(FORMULA_SUMMARIES, params, mode),
+    [params, mode],
   );
 
   /*
@@ -122,38 +112,28 @@ export function FormulaBrowser() {
    * `OriginTracker` trong `AppShell` đã ghi ở bốn thời điểm chung, nhưng KHÔNG bắt được lần này:
    * đổi bộ lọc chỉ thay TRUY VẤN chứ không thay `pathname`, nên effect bên ấy không chạy lại.
    * Đây là chỗ duy nhất biết chuyện đó vừa xảy ra, nên nó gọi thẳng.
-   *
-   * Chạy theo `params` chứ không theo `draft`: `draft` đổi theo từng phím gõ, mà URL chỉ được
-   * ghi sau khoảng nghỉ — bám `draft` là ghi `sessionStorage` mỗi ký tự và nhớ luôn cả những
-   * trạng thái URL chưa từng tồn tại.
    */
   useEffect(() => {
     rememberOrigin();
   }, [params]);
 
-  const isFiltering = !isDefaultListParams(view);
+  const isFiltering = !isDefaultListParams(params);
   const registryEmpty = FORMULA_SUMMARIES.length === 0;
-
-  /** Nút "Xoá bộ lọc": dọn cả bản nháp lẫn URL, nếu không từ khoá vừa gõ sẽ hiện lại. */
-  const resetAll = useCallback(() => {
-    resetDraft();
-    reset();
-  }, [resetDraft, reset]);
 
   return (
     <div className={styles.browser}>
-      <SearchBox value={draft} onChange={setDraft} showHint={formulas.length === 0} />
+      <SearchBoxLink />
 
       <CategoryFilter
-        params={view}
+        params={params}
         onChange={setParams}
-        onReset={resetAll}
+        onReset={reset}
         segmentCounts={segmentCounts}
         categoryCounts={categoryCounts}
         showReset={isFiltering}
       />
 
-      {/* aria-live để trình đọc màn hình biết số kết quả đổi sau mỗi lần gõ. */}
+      {/* aria-live để trình đọc màn hình biết số kết quả đổi sau mỗi lần đổi bộ lọc. */}
       <p className={styles.count} aria-live="polite">
         {formulas.length} {t('list.count')}
       </p>
@@ -199,7 +179,7 @@ export function FormulaBrowser() {
           lines={[t('list.empty.noMatch.scope'), t('list.empty.noMatch.hint')]}
           action={
             isFiltering ? (
-              <Button variant="secondary" size="sm" onClick={resetAll}>
+              <Button variant="secondary" size="sm" onClick={reset}>
                 {t('filter.reset')}
               </Button>
             ) : undefined

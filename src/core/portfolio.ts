@@ -338,9 +338,14 @@ export function summarisePortfolio(
         vi: `Chưa có beta của ${missingBeta.join(', ')}. Beta danh mục là bình quân gia quyền nên thiếu một mã là chưa tính được.`,
         en: `Missing beta for ${missingBeta.join(', ')}. Portfolio beta is a weighted average, so a missing ticker means it cannot be calculated.`,
       },
+      /*
+       * Câu này phải mô tả ĐÚNG số thao tác. Từ đợt dựng lại danh sách theo bản vẽ WF-06, bấm vào
+       * một dòng mã KHÔNG còn mở form sửa nữa mà mở khối chi tiết; nút Sửa nằm trong khối ấy. Bản
+       * cũ ("bấm vào mã ... để sửa") chỉ tới một thao tác không còn tồn tại.
+       */
       fix: {
-        vi: 'Bấm vào mã còn thiếu trong danh sách dưới đây để sửa và nhập beta.',
-        en: 'Tap the ticker below that is missing a beta to edit it and enter one.',
+        vi: 'Bấm vào mã còn thiếu trong danh sách dưới đây, rồi bấm Sửa để nhập beta.',
+        en: 'Tap the ticker below that is missing a beta, then tap Edit to enter one.',
       },
     });
   } else if (totalValue.value === null || totalValue.value <= 0) {

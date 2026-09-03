@@ -120,6 +120,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Kiểm kê chức năng còn thiếu (62 lỗ hổng) + vá lô việc nhỏ    | —       | Xong phần code — xem mục "Kiểm kê chức năng còn thiếu"            |
 | 3.4.1 | Dựng lại danh sách Nắm giữ theo bản vẽ WF-06                 | —       | Xong phần code — xem mục "Danh sách Nắm giữ theo bản vẽ WF-06"    |
 | 3.4.1 | Gộp luồng thêm mã và chọn công thức làm một                  | —       | Xong phần code — xem mục "Gộp luồng thêm mã và chọn công thức"    |
+| 2.1.1 | Icon tìm kiếm ở thanh trên → icon đổi theme                  | —       | Xong phần code — xem mục "Icon tìm kiếm ở thanh trên…"            |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -127,6 +128,69 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Icon tìm kiếm ở thanh trên → icon đổi theme
+
+**Trạng thái:** xong phần code. `npm run check` xanh trọn — **93 file, 2.136 ca đạt, 37 hoãn**.
+Bốn lệnh cần bản build (`build`, `verify:static`, `size`, `check:chrome`) **chưa chạy**: cổng 3000
+đang có dev server.
+
+### Vì sao có đợt này
+
+Chủ dự án gửi ảnh thanh trên và yêu cầu đổi icon tìm kiếm thành icon đổi giao diện Sáng/Tối
+(`ThemeSwitch` đã có sẵn nhưng bị ẩn dưới 1024px). Icon tìm kiếm (`SearchLink`) là lối vào **duy
+nhất** tới `/tim-kiem/` trên mọi khổ màn, nên bỏ nó cần một lối thay thế. Chủ dự án chốt: lối thay
+thế là chính ô tìm ở `/cong-thuc/` — bấm vào ô đó (thay vì gõ-lọc-tại-chỗ như trước) sẽ nhảy sang
+`/tim-kiem/`. Kèm theo: bỏ dòng gợi ý "Gõ không dấu…" dưới ô đó, và thêm icon cho các ô "Danh mục
+hot" ở `/tim-kiem/` — dùng đúng hệ icon đơn sắc (`CategoryIcon` + `toneClass()`) đã dùng cho
+`CategoryGrid`/`FormulaCard`, xác nhận qua câu hỏi riêng, không phục dựng bảng bảy tông của ảnh
+tham khảo. Phạm vi áp dụng: **mọi khổ màn**, kể cả desktop ≥1024px (không có nhánh responsive kép
+— desktop trước đây cũng không có lối vào `/tim-kiem/` nào khác ngoài icon này).
+
+### Ba việc chính
+
+1. **`AppHeader`** — bỏ `<SearchLink />`, gỡ lớp bọc `.themeControl` (từng ẩn `ThemeSwitch` dưới
+   1024px) nên nút đổi theme nay đứng đúng chỗ icon tìm kiếm cũ, hiện ở mọi khổ màn. Xoá hẳn
+   `SearchLink.tsx`/`.module.css`, và sửa bốn chỗ docblock chỉ còn nhắc tên file đã xoá
+   (`ThemeSwitch.module.css`, `HomeSearchPanel.tsx`, `T.tsx`, `HeaderModeToggle.tsx`).
+2. **`FormulaBrowser`** — ô tìm đổi từ `SearchBox` (gõ-lọc-tại-chỗ qua `useQueryDraft`) sang
+   `SearchBoxLink` mới (`src/ui/browse/`): một `<Link href={ROUTES.search}>` trông giống ô tìm
+   nhưng không gõ được. Bỏ hẳn cơ chế bản nháp `draft`/`view`, dùng thẳng `params` từ
+   `useListParams()`. CSS chép nhỏ từ `SearchBox.module.css` chứ không import chéo — file đó bị
+   `radius.test.ts` khoá cứng theo đúng lớp `.control` của riêng nó.
+3. **`HotCategories`** — thêm `<CategoryIcon>` + `toneClass()` vào mỗi ô, đúng khuôn
+   `CategoryGrid.tsx`/`FormulaCard.tsx` (chip vuông bo góc `--category-soft`/`--category-ink`,
+   cùng mẫu `.tileIcon`). Ca kiểm cũ lấy tên/số theo chỉ số span cứng (`querySelectorAll('span')[1]`)
+   vỡ khi icon chen vào trước — sửa bằng đúng bộ lọc span lá có chữ đã dùng ở `CategoryGrid.test.tsx`.
+
+### Một bất biến toàn repo suýt bị bỏ sót
+
+Agent thiết kế phản biện chỉ ra bốn bài kiểm quét TOÀN REPO không tự động soi file mới:
+`radius.test.ts`/`tokens.test.ts`/`typography.test.ts` (bo góc, màu qua token, chữ hoa+độ đậm) và
+`i18n.test.ts` (khoá mồ côi). Bốn file này được chạy tường minh trước khi tin `npm run check`
+xanh — đúng chỗ dễ quên khi thêm CSS Module mới.
+
+### Đã đổi file nào
+
+- `src/ui/navigation/AppHeader.tsx`/`.module.css`/`.test.tsx` — bỏ `SearchLink`, `ThemeSwitch` hiện
+  mọi khổ màn; sửa 4 ca kiểm dùng link tìm kiếm làm tín hiệu chờ mount, đổi sang nút đổi theme.
+- Xoá `src/ui/navigation/SearchLink.tsx`/`.module.css`; bỏ export khỏi
+  `src/ui/navigation/index.ts`.
+- `src/ui/navigation/ThemeSwitch.module.css`, `src/app/HomeSearchPanel.tsx`, `src/ui/i18n/T.tsx`,
+  `src/ui/navigation/HeaderModeToggle.tsx` — sửa docblock còn trích tên `SearchLink`.
+- Thêm `src/ui/browse/SearchBoxLink.tsx`/`.module.css`, export qua `src/ui/browse/index.ts`.
+- `src/app/cong-thuc/FormulaBrowser.tsx` — bỏ `useQueryDraft`, dùng thẳng `params`; đổi
+  `SearchBox` → `SearchBoxLink` (tự bỏ luôn dòng gợi ý "Gõ không dấu…").
+- `src/ui/browse/HotCategories.tsx`/`.module.css`/`.test.tsx` — thêm icon + tông màu; sửa 2 ca kiểm
+  lấy chữ theo chỉ số span cứng.
+
+### Việc còn lại
+
+- [ ] Chạy `build` → `verify:static` → `size` → `check:chrome` khi cổng 3000 rảnh.
+- [ ] Chủ dự án thử luồng thật trên điện thoại: đổi theme từ thanh trên, bấm ô tìm ở `/cong-thuc/`
+      để sang `/tim-kiem/`, và nhìn icon ở khối "Danh mục hot".
 
 ---
 
@@ -187,10 +251,36 @@ Thêm một chi tiết nhỏ mà đắt: **bản giả `next/navigation` là b�
 `useRouter()` thật ném `invariant expected app router to be mounted` ngoài cây App Router, nên
 thiếu nó là **cả 68 ca đỏ** chứ không riêng ca điều hướng.
 
+### Vòng hai — bốn chỗ tự rà ra sau khi chủ dự án báo lỗi nút khoá
+
+Lỗi nút khoá lộ ra là dấu hiệu đợt này chưa được soi kỹ, nên rà lại trọn luồng. Bốn chỗ, và ba
+trong số đó là **câu chữ nói về một thao tác không còn tồn tại** — loại lỗi lint không thấy được.
+
+1. **Nhãn nút nuốt mất nhánh cộng dồn.** Chọn một mã ĐANG GIỮ rồi chọn công thức thì nhãn ra
+   "Thêm và mở công thức", trong khi việc sắp xảy ra là cộng dồn vào dòng cũ. Đó đúng là lỗi mà
+   `portfolio.formMerge` sinh ra để chữa — hứa sai ngay trên đích bấm — và nhánh mới đã lặng lẽ
+   dựng lại nó. Gốc là ba tầng toán tử ba ngôi lồng nhau để lọt một trong sáu tổ hợp; viết lại
+   thành `submitLabel` dạng bảng tra (hai câu hỏi độc lập: làm gì với danh mục · có mở công thức
+   không) thì chỗ hổng lộ ra bằng mắt. Thêm khoá `portfolio.formMergeOpen` và một ca kiểm.
+2. **Câu gợi ý của cảnh báo beta chỉ tới thao tác đã biến mất** — `src/core/portfolio.ts` ghi
+   "Bấm vào mã còn thiếu … để sửa", nhưng từ đợt WF-06 bấm vào dòng mở khối chi tiết, nút Sửa nằm
+   trong khối ấy. Sửa thành "… rồi bấm Sửa".
+3. **`portfolio.mergeNote` cũng vậy** — "huỷ form rồi bấm vào mã trong danh sách" nay thiếu một
+   nhịp.
+4. **Phụ đề sheet hứa sai một nhịp** — "Mở công thức với số liệu của mã đã điền sẵn", trong khi
+   bấm một dòng nay là CHỌN rồi quay lại form. Người dùng bấm xong thấy mình quay lại form là
+   tưởng thao tác hỏng. Đổi thành "Chọn một công thức — lưu xong sẽ mở…".
+
+Cộng thêm một chỗ dọn không phải lỗi hôm nay nhưng là bẫy đặt sẵn: nút Bỏ mã gọi `toggleDetail()`
+để gỡ mã khỏi tập đang mở. Hai hàm cho cùng kết quả **chỉ vì** nút Bỏ hiện chỉ với tới được từ
+trong khối đang mở; ai đưa nó ra chỗ khác (vuốt ngang, menu…) sẽ khiến `toggleDetail` THÊM mã vừa
+xoá vào tập, và mã ấy thêm lại sau này tự bung sẵn. Tách hẳn `collapseDetail()`.
+
 ### Đã đổi file nào
 
 - `src/ui/sheets/FormulaForTickerSheet.tsx` — thêm prop bắt buộc `onPick`; dòng công thức từ
   `<Link>` thành `<button>`; bỏ `Link` và `formulaPath` khỏi import.
+- `src/core/portfolio.ts` — câu `fix` của cảnh báo thiếu beta (vi + en).
 - `src/ui/sheets/FormulaForTickerSheet.module.css` — `.link` phải tự gỡ dáng nút mặc định
   (`font: inherit` · `text-align` · `cursor` · `width`). Tên lớp giữ nguyên: nó mô tả VAI, không
   mô tả thẻ.

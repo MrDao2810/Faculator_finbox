@@ -26,6 +26,16 @@ const HAI_NHOM = ['valuation', 'returns'] as const;
 /** Vài công thức của đúng hai nhóm — cố ý ÍT hơn `expectedCount` của chúng. */
 const RUT_GON = HAI_NHOM.flatMap((id) => FORMULAS.filter((f) => f.categoryId === id).slice(0, 3));
 
+/**
+ * Chữ của tên nhóm và số đếm trong một ô, bỏ qua span icon (`CategoryIcon` không mang chữ).
+ * Cùng cách lọc với `CategoryGrid.test.tsx`: chỉ giữ span lá (không lồng span khác) và có chữ.
+ */
+function chuTrenO(link: Element): string[] {
+  return [...link.querySelectorAll('span')]
+    .filter((span) => span.querySelector('span') === null && span.textContent !== '')
+    .map((span) => span.textContent ?? '');
+}
+
 describe('HotCategories — WF-09 khối lối tắt', () => {
   it('chỉ hiện nhóm ĐÃ có công thức, không dẫn vào danh sách rỗng', () => {
     render(<HotCategories formulas={RUT_GON} />);
@@ -51,11 +61,11 @@ describe('HotCategories — WF-09 khối lối tắt', () => {
     let differsFromExpected = 0;
 
     for (const link of screen.getAllByRole('link')) {
-      const name = link.querySelector('span')?.textContent ?? '';
+      const [name, countText] = chuTrenO(link);
       const category = CATEGORIES.find((c) => c.shortName.vi === name);
-      expect(category, `không tra được nhóm "${name}"`).toBeDefined();
+      expect(category, `không tra được nhóm "${name ?? ''}"`).toBeDefined();
 
-      const shown = Number(link.querySelectorAll('span')[1]?.textContent);
+      const shown = Number(countText);
       expect(shown).toBe(counts.get(category?.id ?? ''));
       if (shown !== category?.expectedCount) differsFromExpected += 1;
     }
@@ -71,9 +81,9 @@ describe('HotCategories — WF-09 khối lối tắt', () => {
     render(<HotCategories formulas={FORMULAS} />);
 
     for (const link of screen.getAllByRole('link')) {
-      const name = link.querySelector('span')?.textContent ?? '';
+      const [name, countText] = chuTrenO(link);
       const category = CATEGORIES.find((c) => c.shortName.vi === name);
-      const shown = Number(link.querySelectorAll('span')[1]?.textContent);
+      const shown = Number(countText);
       expect(shown, name).toBe(FORMULAS.filter((f) => f.categoryId === category?.id).length);
     }
   });

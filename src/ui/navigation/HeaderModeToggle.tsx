@@ -23,8 +23,8 @@ import { ModeToggle } from './ModeToggle';
  * `AppHeader` là server component (không có `'use client'`), nên nó không gọi được
  * `usePathname()`. Bọc phần cần biết route vào một client leaf là cách `HeaderNav` đã làm với
  * `useActiveNavKey`, và cũng là cách giữ cho phần còn lại của thanh trên tiếp tục do server
- * dựng — nếu chuyển cả `AppHeader` sang client thì `BrandMark`, `HeaderNav` và `SearchLink`
- * đều rơi vào gói máy khách của cả 111 trang.
+ * dựng — nếu chuyển cả `AppHeader` sang client thì `BrandMark` và `HeaderNav` cũng rơi vào gói
+ * máy khách của cả 111 trang.
  *
  * Trả `null` chứ không phải một thẻ rỗng: `.controls` là flex có `gap`, một thẻ rỗng vẫn ăn một
  * nhịp gap và đẩy cụm nút lệch khỏi mép phải ở 360px.

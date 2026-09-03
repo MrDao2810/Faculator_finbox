@@ -1,6 +1,6 @@
 /*
- * Cùng ngôn ngữ hình với `LangSwitch` và `SearchLink` đứng cạnh: khung bo nhẹ, nền nhấn nhạt,
- * cao 32px. Vùng chạm thật 44px nằm ở lớp phủ ::after — NFR-USA-01.
+ * Cùng ngôn ngữ hình với `LangSwitch` đứng cạnh: khung bo nhẹ, nền nhấn nhạt, cao 32px. Vùng
+ * chạm thật 44px nằm ở lớp phủ ::after — NFR-USA-01.
  */
 .button {
   position: relative;

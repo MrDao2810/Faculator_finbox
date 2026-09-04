@@ -83,7 +83,7 @@
 /* Đệm 3px là rãnh giữa các ô nhập — xem chú thích ở .cell về việc mỗi ô là một hộp riêng. */
 .table td {
   padding: 3px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .table tr:last-child td {

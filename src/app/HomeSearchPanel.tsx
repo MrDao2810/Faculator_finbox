@@ -6,14 +6,16 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   DEFAULT_LIST_PARAMS,
   FORMULA_SUMMARIES,
+  RECENT_SEARCHES_KEY,
   formulaListPath,
   formulasForLevel,
   isDefaultListParams,
+  parseRecentSearches,
   selectFormulas,
 } from '@/application';
 import type { ListParams } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
-import { EmptyState, FormulaCard, SearchBox } from '@/ui/browse';
+import { EmptyState, FormulaCard, RecentSearches, SearchBox } from '@/ui/browse';
 
 import styles from './HomeSearchPanel.module.css';
 
@@ -99,6 +101,25 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   /*
+   * Chip "Tìm gần đây" ngay dưới ô tìm — bản thiết kế Figma "FINBOX VERSION 2".
+   *
+   * Khởi tạo bằng HẰNG SỐ rỗng rồi mới đọc localStorage trong effect, y như `SearchScreen`: lần
+   * render đầu ở máy khách phải giống hệt `out/index.html`, mà trang chủ là URL priority 1.0 nên
+   * một lệch hydration ở đây đắt hơn ở bất kỳ màn nào khác. `RecentSearches` trả `null` khi danh
+   * sách rỗng, nên lượt đầu không dựng thêm một nút DOM nào.
+   */
+  const [recent, setRecent] = useState<ReadonlyArray<string>>([]);
+
+  useEffect(() => {
+    try {
+      setRecent(parseRecentSearches(window.localStorage.getItem(RECENT_SEARCHES_KEY)));
+    } catch {
+      // Trình duyệt chặn localStorage (chế độ riêng tư chẳng hạn) thì coi như chưa tìm gì.
+      setRecent([]);
+    }
+  }, []);
+
+  /*
    * Kết quả CHÍNH — lọc đúng kệ đang bày trên màn, không lọc theo cấp độ. Xem `FEATURED_POOL`.
    *
    * Không ảnh hưởng HTML tĩnh: lúc chưa gõ gì thì cả nhánh này không dựng, trang chủ hiện
@@ -147,6 +168,28 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
     inputRef.current?.focus();
   }
 
+  /**
+   * Chip trỏ THẲNG sang `/cong-thuc/`, không lọc kệ tại chỗ.
+   *
+   * Lịch sử ghi TÊN công thức người dùng đã chọn ở màn tìm (xem `onSelectResult` của
+   * `SearchScreen`), mà màn tìm chạy trên cả thư viện còn ô tìm ở đây chỉ với tới kệ ghim
+   * (`FEATURED_POOL`). Đổ chip vào ô tìm tại chỗ thì mọi công thức ngoài kệ — `sma`, `beta`,
+   * `roe`… — ra rỗng ngay lần bấm đầu: chip nói "bạn đã xem cái này" rồi dẫn tới một khối trống.
+   * Cho nó đi đúng nơi có kết quả, dựng đường bằng hàm dùng chung chứ không ghép chuỗi tay.
+   */
+  function hrefForRecent(term: string): string {
+    return formulaListPath({ ...DEFAULT_LIST_PARAMS, q: term });
+  }
+
+  function clearRecent(): void {
+    setRecent([]);
+    try {
+      window.localStorage.removeItem(RECENT_SEARCHES_KEY);
+    } catch {
+      // Xoá không được thì hàng chip trên màn vẫn sạch; lần mở sau sẽ hiện lại.
+    }
+  }
+
   return (
     <div className={styles.panel}>
       <SearchBox
@@ -163,6 +206,20 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
         showHint={false}
         onCancel={reset}
       />
+
+      {/*
+        Hàng chip đứng NGAY DƯỚI ô tìm và chỉ ở trạng thái nhàn — đúng chỗ bản thiết kế đặt nó.
+        Đang tìm thì ẩn: lúc ấy khối kết quả mới là thứ cần đọc, còn lịch sử chỉ chen vào giữa ô
+        đang gõ và kết quả của chính nó.
+      */}
+      {!searching && (
+        <RecentSearches
+          variant="inline"
+          terms={recent}
+          hrefFor={hrefForRecent}
+          onClear={clearRecent}
+        />
+      )}
 
       {/*
         Vùng thông báo dựng NGAY TỪ LẦN RENDER ĐẦU và không bao giờ tháo, chỉ đổi chữ bên trong.

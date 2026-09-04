@@ -732,7 +732,6 @@ export const vi = {
   /* Nhãn mảng ở trang chủ. Rộng rãi hơn chip lọc nên viết đủ chữ, không dùng `filter.segment.*`. */
   'home.segment.stock': 'Chứng khoán',
   'home.segment.personal': 'Tài chính cá nhân',
-  'home.progress': 'Thư viện đang hoàn thiện dần — hiện có',
   /* Khối "Công cụ": lối vào những màn không có mục riêng ở thanh dưới. */
   'home.tools.title': 'Công cụ',
   'home.tools.data': 'Bảng dữ liệu',

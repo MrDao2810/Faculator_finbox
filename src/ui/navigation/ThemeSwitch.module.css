@@ -1,6 +1,13 @@
 /*
- * Cùng ngôn ngữ hình với `LangSwitch` đứng cạnh: khung bo nhẹ, nền nhấn nhạt, cao 32px. Vùng
- * chạm thật 44px nằm ở lớp phủ ::after — NFR-USA-01.
+ * Cùng ngôn ngữ hình với `LangSwitch` đứng cạnh: khung bo nhẹ, cao 32px. Vùng chạm thật 44px nằm
+ * ở lớp phủ ::after — NFR-USA-01.
+ *
+ * VIỀN NGOÀI, nền trong — bản thiết kế Figma "FINBOX VERSION 2". Bản trước tô nền
+ * `--color-accent-soft`, nên hai nút này là hai mảng xanh nhạt duy nhất trên thanh trên và mắt
+ * đọc chúng ngang hàng với logo. Viền `--color-border` (trang trí) chứ không `--color-border-strong`
+ * (ranh giới ≥ 3:1): thứ nhận diện nút ở đây là chính cái icon/chữ xanh đậm bên trong, viền chỉ
+ * đóng khung — và mức tương phản chữ còn TĂNG so với bản cũ (accent trên nền thẻ thay vì trên
+ * nền nhấn nhạt).
  */
 .button {
   position: relative;
@@ -14,8 +21,8 @@
 
   color: var(--color-accent);
 
-  background: var(--color-accent-soft);
-  border: 1px solid var(--color-accent-soft);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }

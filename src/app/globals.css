@@ -23,7 +23,7 @@
   color-scheme: light;
 
   /* ── Màu nền ─────────────────────────────────────────────────────────── */
-  --color-paper: #f4f6fa; /* nền trang */
+  --color-paper: #f8fafc; /* nền trang — mã của bản Figma "FINBOX VERSION 2" */
   --color-surface: #ffffff; /* nền thẻ, nền ô nhập */
   --color-sunken: #e8edf4; /* vùng chìm: thanh trượt, ô khoá */
 
@@ -32,13 +32,42 @@
   --color-ink-soft: #46536b; /* chữ phụ, nhãn */
   --color-muted: #58657a; /* chữ mờ nhất còn đọc được — vẫn đạt AA cả trên vùng chìm */
 
-  /* ── Đường kẻ ────────────────────────────────────────────────────────── */
-  --color-border: #d7dee9; /* kẻ trang trí, chia dòng bảng */
+  /* ── Đường kẻ — BA bậc, đừng gộp lại ─────────────────────────────────── */
+  /*
+   * Bậc mảnh nhất, mã của bản Figma "FINBOX VERSION 2". CHỈ dùng cho kẻ chia BÊN TRONG một khối
+   * đã có viền ngoài: dòng bảng, hai hàng kề nhau trong cùng một thẻ, vạch ngăn hai vùng của một
+   * sheet. Ở những chỗ ấy ranh giới của khối do `--color-border` lo rồi, nên kẻ bên trong chỉ cần
+   * gợi ý chứ không cần đứng vững một mình.
+   *
+   * TUYỆT ĐỐI KHÔNG dùng nó thay `--color-border` ở ba nhóm sau — đã đo, và không cửa gác nào bắt
+   * được vì `contrast.test.ts` chỉ chấm 3:1 cho `--color-border-strong` với `--color-focus`:
+   *   · Viền THẺ. Thẻ nền trắng đặt trên nền trang #f8fafc chỉ chênh 1,046:1, viền này 1,070:1 —
+   *     cộng lại là thẻ biến mất. `Card.module.css` còn cố ý bỏ shadow vì "thẻ tĩnh tách nền bằng
+   *     viền 1px", nên không còn dấu hiệu dự phòng nào.
+   *   · Mép hai thanh dính (AppHeader, BottomTabBar) và kẻ chia các DÒNG BẤM ĐƯỢC (kết quả tìm,
+   *     danh sách mã) — ở đó đường kẻ là thứ duy nhất tách hai vùng, mất kẻ là dính thành một khối.
+   *   · Bất kỳ chỗ nào nền là `--color-sunken` (#e8edf4): #f2f2f2 SÁNG HƠN nền của chính nó, viền
+   *     đọc ra thành quầng sáng chứ không phải mép.
+   */
+  --color-hairline: #f2f2f2;
+  --color-border: #d7dee9; /* viền thẻ, mép thanh dính, kẻ chia dòng bấm được */
   --color-border-strong: #78859a; /* viền ô nhập và ranh giới điều khiển — cần ≥ 3:1 */
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
-  --color-accent: #1d4ed8; /* xanh dương — dùng cho cả chữ lẫn nền nút */
-  --color-accent-strong: #1739a8; /* trạng thái hover / nhấn giữ */
+  /*
+   * Xanh navy của bản Figma "FINBOX VERSION 2" — dùng cho cả chữ lẫn nền nút.
+   *
+   * Thẫm hơn hẳn bản cũ `#1d4ed8`, nên mọi cặp có nó đều khá lên: trên nền thẻ 6,70 → 9,66; trên
+   * nền trang 6,19 → 9,23; chữ trắng trên nền nút 6,70 → 9,66; trên `--color-accent-soft`
+   * 5,61 → 8,08. Không cặp nào trong `contrast.test.ts` đi xuống.
+   *
+   * Hệ quả phải sửa KÈM, vì không cửa gác nào bắt: `--color-accent-strong` bản cũ (`#1739a8`,
+   * 9,18:1) hoá ra NHẠT hơn màu này, nên rê chuột lên nút sẽ thấy nó sáng lên thay vì thẫm đi.
+   * Vì thế hover chuyển xuống `#102f5a` — cũng chính là `--color-brand-to`, đầu thẫm của dải màu
+   * logo, nên hover không phải một sắc xanh thứ ba lạc khỏi hệ.
+   */
+  --color-accent: #1b447e; /* xanh dương — dùng cho cả chữ lẫn nền nút */
+  --color-accent-strong: #102f5a; /* trạng thái hover / nhấn giữ — 13,32:1 trên nền thẻ */
   --color-accent-soft: #e3ebfd; /* nền nhạt của chip đang chọn */
   --color-on-accent: #ffffff;
 
@@ -81,8 +110,12 @@
    * thì đổi màu tabbar là nút chính đổi theo — đúng thứ mà việc tách `--color-accent` khỏi
    * `--color-highlight` ở đợt 12 sinh ra để tránh.
    *
-   * Thẫm hơn hẳn `--color-accent` (#1d4ed8) nên nút đang chọn không lẫn với link và tab điều
-   * hướng, dù cùng sắc xanh.
+   * ĐÃ ĐẢO CHIỀU ở đợt lấy mã màu Figma: bản trước lập luận "thẫm hơn hẳn `--color-accent`
+   * (#1d4ed8) nên nút đang chọn không lẫn với link". Nay `--color-accent` là `#1b447e` — THẪM HƠN
+   * `--color-selected`, và hai màu chỉ còn cách nhau 1,60:1 vì cùng họ navy. Thứ phân biệt nút
+   * đang chọn với link nay KHÔNG còn là độ thẫm mà là DẢI MÀU và chữ trắng trên nền đặc: nút đang
+   * chọn có nền `--color-selected` với `--color-on-selected`, link chỉ là chữ trên nền trang.
+   * Nếu đợt sau cần tách lại bằng màu, chỗ phải sửa là token này chứ không phải `--color-accent`.
    */
   --color-selected: #1e60c0; /* chữ trắng trên nền này: 6,02:1 */
   --color-selected-strong: #0b408e; /* đầu thẫm của dải — chữ trắng 9,82:1 */
@@ -182,7 +215,8 @@
   /* Vàng đủ đậm để dải miễn trừ (FR-24) không hoà vào nền trang. */
   --color-warning-soft: #f8e7b4;
 
-  --color-focus: #1d4ed8;
+  /* Đi theo `--color-accent` — hai token này trùng khít từ đầu, đổi một thì phải đổi cả hai. */
+  --color-focus: #1b447e;
 
   /*
    * Nền mờ sau bottom sheet.
@@ -263,7 +297,9 @@
 
   /* ── Trạng thái focus — bắt buộc thấy rõ, không được tắt (NFR-USA-06) ── */
   --focus-width: 3px;
-  --focus-ring: 0 0 0 var(--focus-width) rgba(29, 78, 216, 0.35);
+  /* rgba của chính `--color-focus` (#1b447e = 27, 68, 126) — không test nào ghim cặp này, nên
+     đổi màu focus mà quên dòng dưới là quầng focus lệch màu với vòng focus, âm thầm. */
+  --focus-ring: 0 0 0 var(--focus-width) rgba(27, 68, 126, 0.35);
 
   /* ── Bố cục ──────────────────────────────────────────────────────────── */
   --tap-min: 44px; /* vùng chạm tối thiểu trên điện thoại — NFR-USA-01 */
@@ -310,7 +346,17 @@
   --color-muted: #93a1b8; /* 6,78:1 — trên vùng chìm vẫn 7,33:1 */
 
   /* ── Đường kẻ ────────────────────────────────────────────────────────── */
-  --color-border: #313d52; /* kẻ trang trí, giữ đúng dải ~1,4:1 nhạt như bảng sáng */
+  /*
+   * Bậc mảnh nhất. Figma KHÔNG đưa mã bảng tối, nên giá trị này dựng theo TỈ SỐ chứ không đoán
+   * mắt: bảng sáng có #f2f2f2 trên nền thẻ trắng = 1,12:1, và #232c3e trên nền thẻ tối #1b2435
+   * cho 1,11:1 — cùng một mức "thấy được nhưng không cắt ngang". Ép thẳng #f2f2f2 vào đây thì nó
+   * cho 15,85:1, tức một vạch trắng chói cắt ngang trang tối; và KHÔNG ca kiểm nào bắt được, vì
+   * `contrast.test.ts` không chấm cặp nào có `--color-border`.
+   *
+   * Thứ tự ba bậc giữ đúng như bảng sáng: hairline #232c3e → border #313d52 → strong #6b7a93.
+   */
+  --color-hairline: #232c3e;
+  --color-border: #313d52; /* viền thẻ, mép thanh dính — giữ dải ~1,4:1 như bảng sáng */
   --color-border-strong: #6b7a93; /* 4,08 / 3,58 — vẫn qua ngưỡng 3:1 */
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
@@ -523,17 +569,18 @@ a {
    * Đây là bản CHÉP từ `:root` ngay đầu file; `tokens.test.ts` đối chiếu từng dòng để nó không
    * lệch âm thầm.
    */
-  --color-paper: #f4f6fa;
+  --color-paper: #f8fafc;
   --color-surface: #ffffff;
   --color-ink: #1a2233;
   --color-ink-soft: #46536b;
   --color-muted: #58657a;
+  --color-hairline: #f2f2f2;
   --color-border: #d7dee9;
   --color-border-strong: #78859a;
-  --color-accent: #1d4ed8;
+  --color-accent: #1b447e;
   --color-accent-soft: #e3ebfd;
   --color-accent-vivid: #3b7bf0;
-  --color-focus: #1d4ed8;
+  --color-focus: #1b447e;
   --color-highlight: #b23c00;
   --color-warning: #7a5f14;
   --color-tint-teal: #0f6b6b;

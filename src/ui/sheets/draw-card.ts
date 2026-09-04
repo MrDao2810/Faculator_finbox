@@ -42,7 +42,7 @@ const CARD_COLORS = {
   ink: '#1a2233', // --color-ink
   inkSoft: '#46536b', // --color-ink-soft
   muted: '#58657a', // --color-muted
-  accent: '#1d4ed8', // --color-accent
+  accent: '#1b447e', // --color-accent
   border: '#d7dee9', // --color-border
   warnBg: '#f8e7b4', // --color-warning-soft
   warnInk: '#7a5f14', // --color-warning

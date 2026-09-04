@@ -1,5 +1,8 @@
 /*
- * Ô ngôn ngữ theo bản thiết kế: chữ nhỏ trong khung bo nhẹ, nền nhấn nhạt.
+ * Ô ngôn ngữ theo bản thiết kế: chữ nhỏ trong khung bo nhẹ, VIỀN NGOÀI và nền trong — bản Figma
+ * "FINBOX VERSION 2". Lý do đầy đủ ở docblock `ThemeSwitch.module.css`, nút anh em đứng cạnh;
+ * hai nút phải đổi cùng nhau, lệch một cái là thanh trên có hai kiểu nút.
+ *
  * Nhìn cao 32px nhưng vùng chạm thật vẫn 44px nhờ lớp phủ ::after — NFR-USA-01.
  */
 .button {
@@ -17,8 +20,8 @@
   font-weight: var(--weight-bold);
   color: var(--color-accent);
 
-  background: var(--color-accent-soft);
-  border: 1px solid var(--color-accent-soft);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }

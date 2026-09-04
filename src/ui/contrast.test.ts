@@ -258,7 +258,7 @@ describe('globals.css khai báo đủ token màu', () => {
   it('bóc token theo đúng khối, không lẫn giữa hai bảng', () => {
     const darkOnly = extractColorTokens(css, DARK_SELECTOR);
 
-    expect(LIGHT['--color-paper']).toBe('#f4f6fa');
+    expect(LIGHT['--color-paper']).toBe('#f8fafc');
     expect(darkOnly['--color-paper']).toBe('#111827');
     expect(DARK['--color-paper']).toBe('#111827');
 

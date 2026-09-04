@@ -471,7 +471,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'home.browse.advancedOnly': 'Advanced only',
   'home.segment.stock': 'Stocks',
   'home.segment.personal': 'Personal finance',
-  'home.progress': 'The library is filling in step by step — now at',
   'home.tools.title': 'Tools',
   'home.tools.data': 'Data table',
   'home.tools.dataHint': 'Enter or paste OHLCV price series used for Beta, Sharpe, VaR',

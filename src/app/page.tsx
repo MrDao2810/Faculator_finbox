@@ -122,10 +122,21 @@ export default function Home() {
 
         {/* ── Duyệt theo nhóm — FR-01 ──────────────────────────────────────── */}
         <section className={styles.block} aria-labelledby="home-browse">
+          {/*
+            Phần ĐẾM tách ra một `<span>` riêng mang màu nhấn — bản thiết kế Figma "FINBOX
+            VERSION 2" vẽ đúng dòng này hai màu: tên khối màu mực, "· 111 công thức" màu xanh.
+
+            Vì sao không tô cả `<h2>`: `section-title.test.ts` chốt mọi tiêu đề khối dùng
+            `--color-ink`, và đó là kết luận của đợt rà soát phân cấp ("xanh dành cho hành động
+            và cho khối Kết quả"). Con số ở đây không phải tiêu đề mà là số liệu đi kèm, nên nó
+            được phép mang màu nhấn mà không đụng vào luật ấy — luật vẫn nguyên trên `.blockTitle`.
+          */}
           <h2 className={styles.blockTitle} id="home-browse">
-            <T k="home.browse.title" /> ·{' '}
-            <ModeCount basic={basicCountOf()} advanced={TOTAL_EXPECTED} />{' '}
-            <T k="home.browse.unit" />
+            <T k="home.browse.title" />{' '}
+            <span className={styles.blockCount}>
+              · <ModeCount basic={basicCountOf()} advanced={TOTAL_EXPECTED} />{' '}
+              <T k="home.browse.unit" />
+            </span>
           </h2>
 
           <h3 className={styles.segment}>
@@ -165,16 +176,16 @@ export default function Home() {
             </li>
           </ul>
         </section>
-
         {/*
-          Số trên ô nhóm là số công thức DỰ KIẾN của SRS 3.8, không phải số đang bấm vào được.
-          Từ đợt 8 lưới không còn nhãn "sắp có" nên đây là chỗ duy nhất còn nói thật tiến độ.
-          Nhánh 5 nay đủ 111/111 nên hai vế trùng nhau, nhưng ĐỪNG xoá: chúng lệch lại ngay lần
-          `expectedCount` được nâng tiếp — Beta của gói 3.3.2 là lần gần nhất đang chờ.
+          Dòng "Thư viện đang hoàn thiện dần — hiện có 111/111" đã BỎ ở đợt theo bản thiết kế
+          Figma "FINBOX VERSION 2", nơi trang chủ kết thúc ngay sau khối cuối.
+
+          Bản trước giữ nó với lý do "hai vế sẽ lệch lại khi `expectedCount` được nâng tiếp".
+          Lý do ấy không còn đứng được: nhánh 5 đã đủ 111/111, nên suốt từ đó tới nay dòng này in
+          ra một phân số luôn bằng 1 — nó không báo tiến độ nào cả, chỉ chiếm một dòng ở đáy mọi
+          lượt vào trang chủ. Ngày `expectedCount` được nâng thật thì `registry.test.ts` (chốt
+          cứng 98 / 13 / 111) đỏ ngay, và đó mới là chỗ báo đúng người đúng lúc.
         */}
-        <p className={styles.progress}>
-          <T k="home.progress" /> {REGISTRY.formulas.length}/{TOTAL_EXPECTED}.
-        </p>
       </HomeSearchPanel>
     </div>
   );

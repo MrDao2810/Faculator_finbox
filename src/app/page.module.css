@@ -28,17 +28,24 @@
 
 /* Lưới khối "Công thức dùng hằng ngày" đã chuyển sang `FeaturedFormulas.module.css`. */
 
+/*
+ * Phần "· 111 công thức" đứng trong dòng tiêu đề "Duyệt theo nhóm" — bản thiết kế Figma "FINBOX
+ * VERSION 2" vẽ dòng ấy hai màu.
+ *
+ * Nằm ở lớp RIÊNG chứ không sửa `.blockTitle`: luật của `.blockTitle` là kết luận đợt rà soát
+ * phân cấp và có `section-title.test.ts` gác (mọi tiêu đề khối phải `--color-ink`, không được
+ * `--color-accent`). Cái được tô ở đây là SỐ LIỆU đi kèm tiêu đề, không phải tiêu đề — cùng loại
+ * với `.segment` ngay dưới, vốn đã mang màu nhấn từ trước đợt này.
+ */
+.blockCount {
+  color: var(--color-accent);
+}
+
 .segment {
   margin: var(--space-2) 0 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   color: var(--color-accent);
-}
-
-.progress {
-  margin: 0;
-  font-size: var(--text-xs);
-  color: var(--color-muted);
 }
 
 /*

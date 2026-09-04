@@ -61,7 +61,7 @@ export const viewport: Viewport = {
    * vá lại thẻ này lúc chạy, đọc thẳng token đang áp — xem effect bảng màu ở đó. Metadata của
    * Next dựng lúc build nên không có cách nào biết lựa chọn nằm trong máy người dùng.
    */
-  themeColor: '#f4f6fa',
+  themeColor: '#f8fafc',
 };
 
 /*

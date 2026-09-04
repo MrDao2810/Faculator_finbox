@@ -122,6 +122,8 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.4.1 | Gộp luồng thêm mã và chọn công thức làm một                  | —       | Xong phần code — xem mục "Gộp luồng thêm mã và chọn công thức"    |
 | 2.1.1 | Icon tìm kiếm ở thanh trên → icon đổi theme                  | —       | Xong phần code — xem mục "Icon tìm kiếm ở thanh trên…"            |
 | —     | Tìm gần đây lưu tên đã chọn, tràn chữ Select, cuộn khi Sửa   | —       | Xong — xem mục "Ba lỗi báo liên tiếp: Tìm gần đây…"               |
+| 1.2.1 | Trang chủ theo bản Figma "FINBOX VERSION 2" — 8 điểm         | —       | Xong phần code — xem mục "Trang chủ theo bản Figma…"              |
+| 1.2.1 | Ba mã màu Figma vào lớp token + tách `--color-hairline`      | —       | Xong phần code — xem mục "Ba mã màu Figma vào lớp token"          |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -129,6 +131,218 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Ba mã màu Figma vào lớp token
+
+**Trạng thái:** xong phần code. `npm run check` xanh trọn — **96 file, 2.156 ca đạt, 37 hoãn**
+(thêm `hairline.test.ts`). Bốn lệnh cần bản build vẫn **chưa chạy**: cổng 3000 còn dev server. Đã
+đối chiếu bằng Chrome thật ở khổ 390px, cả hai bảng màu.
+
+### Yêu cầu
+
+> Chủ dự án: "một số màu ở một số chỗ đang khác với màu của thiết kế. #1B447E, border vài chỗ là
+> #F2F2F2 và màu nền #F8FAFC"
+
+### "Chỉ đổi màu" hoá ra không chỉ đổi màu
+
+Sửa mỗi khối `:root` là **đỏ ba ca kiểm** và lệch âm thầm ở ba chỗ nữa. Đã dò ra trước khi sửa:
+
+| Chỗ                                         | Vì sao bắt buộc                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------------------ |
+| `.print-region` (bản chép 15 token, nay 16) | `tokens.test.ts` đối chiếu **từng chữ** với `:root`                            |
+| `draw-card.ts` `CARD_COLORS.accent`         | `draw-card.test.ts` so tám mã hex với `globals.css`                            |
+| `contrast.test.ts` dòng 261                 | ghim cứng `expect(LIGHT['--color-paper']).toBe('#f4f6fa')`                     |
+| `layout.tsx` `themeColor`                   | bản chép tay, **không** test nào canh                                          |
+| `manifest.webmanifest` × 2                  | bản chép tay, **không** test nào canh                                          |
+| `--focus-ring`                              | `rgba(29, 78, 216, .35)` chính là accent cũ dạng rgba, **không** test nào canh |
+
+### Hai cái bẫy không tự nghĩ ra được
+
+1. **Hover chết.** `--color-accent-strong` cũ (`#1739a8`) đạt 9,18:1, còn accent MỚI đạt 9,23:1 —
+   tức accent thẫm hơn cả hover, rê chuột sẽ thấy nút _sáng lên_ và chênh 0,05 thì không ai nhìn
+   ra. Chuyển hover xuống `#102f5a`, cũng chính là `--color-brand-to` (đầu thẫm của dải màu logo),
+   nên hover không phải một sắc xanh thứ ba lạc khỏi hệ. 13,32:1 trên nền thẻ.
+2. **`#f2f2f2` ĐẢO CHIỀU trên nền chìm.** Nó **sáng hơn** `--color-sunken` (#e8edf4), nên đặt lên
+   nhau thì viền đọc ra là quầng sáng chứ không phải mép. Ba chỗ dính: `DisclaimerBar .bar`,
+   `PasteImportSheet .preview thead th`, `DataTableScreen .table th`.
+
+### Vì sao KHÔNG hạ `--color-border` toàn cục
+
+Quét được **64 nơi dùng**: 28 kẻ trang trí · 27 viền thẻ · 9 ranh giới điều khiển. Hạ toàn cục
+xuống `#f2f2f2` thì viền thẻ còn **1,07:1** trên nền trang mới, mà nền trang `#f8fafc` với nền thẻ
+trắng cũng chỉ chênh **1,046:1** — cộng lại là 27 thẻ biến mất. `Card.module.css` còn cố ý bỏ
+shadow vì "thẻ tĩnh tách nền bằng viền 1px", nên không còn dấu hiệu dự phòng. **Không cửa gác nào
+bắt được**: `contrast.test.ts` chỉ chấm 3:1 cho `--color-border-strong` và `--color-focus`,
+`--color-border` chỉ bị kiểm là CÓ MẶT.
+
+Nên tách **ba bậc**: `--color-hairline` (kẻ chia bên trong khối) → `--color-border` (viền thẻ, mép
+thanh dính, kẻ chia dòng bấm được) → `--color-border-strong` (ranh giới điều khiển). Khớp đúng
+chữ chủ dự án dùng: "border **vài chỗ**".
+
+### Bảng tối: chỉ thêm một token, không đổi gì khác
+
+Figma không đưa mã bảng tối. Ép ba mã bảng sáng vào đó thì `#1b447e` trên nền tối chỉ **1,84:1**
+và `#f2f2f2` thành vạch trắng chói **15,85:1**. Giá trị `--color-hairline` tối (`#232c3e`) dựng
+theo **tỉ số** chứ không đoán mắt: nó cho 1,11:1 trên nền thẻ tối, khớp mức 1,12:1 của bảng sáng.
+Thứ tự ba bậc giữ đối xứng: `#232c3e` → `#313d52` → `#6b7a93`.
+
+### Một việc CỐ Ý không làm
+
+Phương án ban đầu có vế "chuyển 9 ranh giới điều khiển sang `--color-border-strong`". **Không
+làm.** Vì `--color-border` giữ nguyên `#d7dee9`, 9 chỗ đó không hề xấu đi so với trước đợt này;
+còn đổi sang `#78859a` sẽ làm viền nút ☀/VI đậm hẳn — mà viền nhạt ở hai nút ấy đúng là thứ
+**chính bản Figma này** yêu cầu ở đợt trước. Đây là vấn đề a11y **có sẵn** (1,354:1 vốn đã dưới
+ngưỡng 3:1 của WCAG 1.4.11), tách thành việc riêng chứ không gói vào đợt màu.
+
+### Đã đổi file nào
+
+- `src/app/globals.css` — `:root`: paper `#f8fafc`, accent `#1b447e`, accent-strong `#102f5a`,
+  focus `#1b447e`, `--focus-ring` rgba theo, **thêm** `--color-hairline: #f2f2f2`. Khối
+  `[data-theme='dark']`: **chỉ thêm** `--color-hairline: #232c3e`. `.print-region`: chép lại ba
+  giá trị đổi + thêm hairline. Sửa cả docblock `--color-selected` vì lập luận cũ ("thẫm hơn hẳn
+  `--color-accent`") nay **đảo chiều**.
+- 15 CSS Module — 20 kẻ chia bên trong khối chuyển sang `var(--color-hairline)`.
+- `src/ui/hairline.test.ts` — **mới**, 4 ca: chặn dùng hairline cho viền 4 phía, chặn dùng trên
+  nền chìm, **ghim danh sách 7 ngoại lệ kèm lý do**, và bắt lý do phải viết ra chứ không để trống.
+  Đã kiểm chính cửa gác bằng 6 ca đối chứng (viền 4 phía / một phía / `border-color` riêng) để nó
+  không phải ca đỗ giả.
+- `src/ui/sheets/draw-card.ts`, `src/ui/contrast.test.ts`, `src/app/layout.tsx`,
+  `public/manifest.webmanifest` — bốn bản chép tay đi theo.
+
+### Còn lại
+
+- [ ] Bốn lệnh cần bản build — chờ tắt dev server ở cổng 3000.
+- [ ] **9 ranh giới điều khiển vẫn dưới ngưỡng 3:1** (WCAG 1.4.11). Có sẵn từ trước, không phải
+      lỗi đợt này. Cần chủ dự án chốt: nâng lên `--color-border-strong` (đậm, lệch bản vẽ) hay xin
+      thêm một mã màu viền-điều-khiển riêng từ Figma.
+- [ ] Nền biểu tượng PWA (`public/icon.svg`, `icon-maskable.svg`, `scripts/gen-icons.mjs`) vẫn
+      `#f4f6fa`, nay lệch 1,04:1 với nền trang mới — gần như không thấy. Đổi thì phải sửa cả ba
+      chỗ rồi chạy `npm run gen:icons`, nếu không PNG lệch SVG.
+
+---
+
+## Trang chủ theo bản Figma "FINBOX VERSION 2"
+
+**Trạng thái:** xong phần code. `npm run check` xanh trọn — **95 file, 2.152 ca đạt, 37 hoãn**
+(tăng 1 file test và 11 ca so với đợt trước). Bốn lệnh cần bản build (`build`, `verify:static`,
+`size`, `check:chrome`) **chưa chạy**: cổng 3000 vẫn có dev server, `prebuild` chặn đúng như thiết
+kế. Đã đối chiếu bằng mắt trên Chrome thật (headless riêng, hồ sơ tạm) ở khổ 390px, **cả hai bảng
+màu**.
+
+### Nguồn của đợt, và vì sao lần này đọc được bản vẽ
+
+Ba đợt trước đều tắc ở chỗ quyền: link Figma `FINBOX VERSION 2 (Draft)` chỉ có **quyền xem**, mà
+Figma MCP đòi **quyền edit** cho cả `get_metadata`, `get_screenshot` lẫn `get_variable_defs`. Đợt
+này thử lại hai node (`24566:13255`, `24609:32845`) vẫn hỏng y nguyên; `whoami` xác nhận seat là
+**View** trên team Starter. Lối ra là chủ dự án **gửi thẳng ảnh chụp màn trang chủ vào chat** —
+đúng cách đã dùng nhiều lần trước đây. Hệ quả còn nguyên: **vẫn chưa đọc được token màu/thang chữ
+thật từ bản vẽ**, nên đợt này cố ý KHÔNG đụng vào bảng màu (xem "Bốn điều đã hỏi và đã chốt").
+
+### Bản vẽ có bốn chỗ SAI, không áp
+
+Bản Figma là bản nháp gõ tay nên chữ trong đó không phải nguồn đáng tin. Bốn chỗ đã đối chiếu với
+Registry và **giữ theo repo**, không theo bản vẽ:
+
+1. **"Falculator"** — tên đúng là **Faculator**, chữ thừa `l` từng bị quét sạch cả repo một lần
+   (xem mục "Sửa tên sản phẩm"). Áp theo bản vẽ là mời lỗi ấy quay lại.
+2. **"Phát sinh"** — nhóm `derivatives` tên đúng là **"Phái sinh"**.
+3. **"CAD" / "FE" / "Cổ lệnh" / "Phí TCCN"** — Registry ghi **CAGR**, **P/E**, **Cỡ lệnh**, **TNCN**.
+4. **"107 công thức · Chứng khoán 97"** — số thật là **111 · 98 · 13**. Số từng nhóm trong bản vẽ
+   cũng là số giả: phần "Tài chính cá nhân" cộng lại ra 69, trong khi đầu mục ghi 13.
+
+### Bốn điều đã hỏi và đã chốt
+
+| Điều                                                                                                  | Chủ dự án chốt                                     |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Bản vẽ tô tiêu đề khối màu xanh, nhưng `section-title.test.ts` chốt mọi tiêu đề khối là `--color-ink` | **Giữ mực, chỉ tách phần ĐẾM sang xanh**           |
+| Bản vẽ không có khối "Công cụ" lẫn dòng tiến độ                                                       | **Bỏ dòng tiến độ, giữ "Công cụ"**                 |
+| Bản vẽ 9 ô nổi bật, hiện có 19                                                                        | **Giữ 19** — con số 9 chỉ là ảnh cắt cho vừa khung |
+| Bản vẽ nền trang trắng / thẻ xám, hiện đang ngược                                                     | **Giữ nguyên bảng màu**, đợi đọc được token thật   |
+
+Hai điều giữa quan trọng ở chỗ hệ quả: khối "Công cụ" là lối vào **DUY NHẤT** tới `/du-lieu/` trong
+cả giao diện (thanh dưới chốt bốn mục theo WF-18), bỏ nó là biến WF-05 thành trang mồ côi.
+
+### Tám điểm đã sửa
+
+1. **Chip "Tìm gần đây" lên trang chủ** — khối vốn chỉ có ở `/tim-kiem/`, nay dùng lại qua dạng
+   `inline` mới. Xem mục con ngay dưới, đây là điểm tốn nhất.
+2. **Ô nhóm: viên thuốc → chữ nhật bo góc** (`--radius-pill` → `--radius-md`, cùng bán kính với
+   thẻ công thức ngay trên nó), padding dọc 8px → 12px.
+3. **Số công thức mỗi nhóm bỏ nền badge** — `--category-soft`/`--category-ink` → chữ trơn
+   `--color-ink-soft`. Ô nhóm chỉ có ba thứ (icon, tên, số); tô nền một trong ba là đẩy nó lên
+   trước tên, trong khi tên mới là thứ người dùng đọc để bấm.
+4. **Icon thẻ công thức về cùng dòng với tên**, bỏ hộp nền 28×28. Chiều cao ô icon đặt đúng bằng
+   một dòng tên (`calc(--text-base * --leading-tight)` = 20px) rồi căn giữa icon 18px trong đó —
+   `align-items: flex-start` suông thì icon dính mép trên và lệch thấy rõ so với chữ.
+5. **Nhãn nhóm ở đáy thẻ bỏ viên pill** → chữ xám trơn. Mốc tương phản đổi theo: nay là
+   `--color-ink-soft` trên `--color-surface`, 8,03:1 (sáng) / 7,74:1 (tối) — rộng hơn mức cũ trên
+   nền chìm.
+6. **Nút ☀ và VI trên thanh trên: nền đặc → viền ngoài.** Bản trước tô `--color-accent-soft` nên
+   hai nút này là hai mảng xanh nhạt duy nhất trên thanh trên, đọc ngang hàng với logo.
+7. **Tiêu đề "DUYỆT THEO NHÓM · N CÔNG THỨC" tách hai màu** — tên khối mực, phần đếm xanh, qua lớp
+   `.blockCount` riêng. Không sửa `.blockTitle`, nên `section-title.test.ts` vẫn gác nguyên luật cũ.
+8. **Bỏ dòng "Thư viện đang hoàn thiện dần — hiện có 111/111".**
+
+### Vì sao chip là `<a>` chứ không phải nút gọi `router.push`
+
+Bản đầu cho chip gọi `useRouter().push()`. Kết quả: **14 ca `HomeSearchPanel.test.tsx` đỏ ngay** —
+`invariant expected app router to be mounted`, vì file đó `render()` trần trong jsdom chứ không
+bọc router. Đổi sang link thật thì hết, và còn được ba thứ miễn phí: mở tab mới được, điều hướng
+được cả khi JS chưa tải xong, không cần một provider giả trong test.
+
+Prop mới là **kiểu union** (`{ onPick } | { hrefFor }`) chứ không phải hai prop tuỳ chọn: hai màn
+dùng khối này muốn hai chuyện khác hẳn nhau, và union bắt phải chọn đúng một — truyền cả hai hay
+không truyền gì đều là lỗi typecheck, không phải lỗi lúc chạy.
+
+Chip **trỏ sang `/cong-thuc/?q=…`, không lọc kệ tại chỗ**. Lý do đo được: lịch sử ghi TÊN công thức
+đã chọn ở màn tìm, mà màn tìm chạy trên cả thư viện còn ô tìm ở trang chủ chỉ với tới kệ ghim
+(`FEATURED_POOL`). Đổ chip vào ô tìm tại chỗ thì `sma`, `beta`, `roe`… ra rỗng ngay lần bấm đầu —
+chip nói "bạn đã xem cái này" rồi dẫn tới một khối trống.
+
+### Một chỗ cố ý lệch bản vẽ
+
+Chip trong bản Figma cao khoảng **17pt**, dưới hẳn ngưỡng vùng chạm 44px. Giữ `--tap-min`:
+NFR-USA-01 nằm trong nhóm "không bao giờ được cắt" của SRS, cùng với FR-06 và FR-24. Đã ghi lý do
+thẳng vào `RecentSearches.module.css` để người sau không tưởng là chỗ quên sửa.
+
+### Đã đổi file nào
+
+- `src/ui/browse/RecentSearches.tsx` — thêm `variant: 'block' | 'inline'` và union
+  `{ onPick } | { hrefFor }`; dạng `inline` bỏ `<h2>` (nhãn chuyển lên `aria-label` của
+  `<section>`) và thu nút xoá về icon thùng rác đứng cuối hàng chip.
+- `src/ui/browse/RecentSearches.module.css` — chip `--radius-pill` → `--radius-sm`, thêm
+  `inline-flex` + `text-decoration: none` để dạng `<a>` và dạng `<button>` ra đúng một hình; thêm
+  `.clearIcon`.
+- `src/ui/browse/RecentSearches.test.tsx` — **mới**, 7 ca: dạng rỗng không dựng DOM (ca quan trọng
+  nhất với hydration trang chủ), dạng `block` giữ nguyên hợp đồng cũ, dạng `inline` không tiêu đề
+  / vùng vẫn có tên / nút icon vẫn đọc được / chip là link thật.
+- `src/app/HomeSearchPanel.tsx` — đọc `ffb.recent.v1` trong `useEffect` (state khởi tạo bằng hằng
+  số rỗng), dựng `hrefForRecent()` bằng `formulaListPath()`, `clearRecent()`; render hàng chip
+  ngay dưới `SearchBox` và **chỉ khi chưa gõ gì**.
+- `src/app/HomeSearchPanel.test.tsx` — thêm 4 ca cho phần đấu nối ở trang chủ.
+- `src/ui/browse/FormulaCard.tsx` + `.module.css` — bọc icon và tên vào `.tileHead`; `.tileIcon` bỏ
+  khung nền; `.tileCategory` bỏ viên pill. **Chỉ nhánh `tile`** — nhánh `row` của `/cong-thuc/`
+  không có trong bản vẽ nên không đụng tới.
+- `src/ui/browse/CategoryGrid.module.css` — ô chữ nhật bo góc, số trơn không nền, dọn hai khai báo
+  thừa trong nhánh `.basicEmpty .count`.
+- `src/ui/navigation/ThemeSwitch.module.css`, `LangSwitch.module.css` — viền ngoài thay nền đặc.
+- `src/app/page.tsx` + `page.module.css` — bọc phần đếm vào `.blockCount`; bỏ dòng tiến độ và lớp
+  `.progress`.
+- `src/application/i18n/vi.ts`, `en.ts` — xoá khoá `home.progress`. **Bắt buộc**: ca
+  "từ điển không được có khoá mồ côi" đỏ ngay nếu để lại khoá không còn nơi dùng.
+
+### Còn lại
+
+- [ ] Bốn lệnh cần bản build — chờ tắt dev server ở cổng 3000. Đáng chú ý nhất là `npm run size`:
+      đợt này thêm `RecentSearches` vào gói máy khách của trang chủ (nhỏ, `next/link` vốn đã có sẵn
+      trong gói đó), nhưng cổng chặn 180 kB thì phải đo mới biết.
+- [ ] **Ô "Tài chính DN" cụt thành "Tài ..."** ở chế độ Cơ bản, vì nhãn "chỉ ở Nâng cao" chiếm gần
+      hết ô. **Lỗi có từ trước đợt này** (bề ngang khả dụng không đổi: padding ngang vẫn 12px, nhãn
+      vẫn không có padding) — thấy trong lúc đối chiếu ảnh chụp, chưa sửa vì ngoài phạm vi bản vẽ.
+- [ ] Nhánh `row` của `FormulaCard` ở `/cong-thuc/` vẫn giữ hộp icon có nền và nhãn nhóm dạng pill,
+      nay khác nhánh `tile`. Chủ dự án quyết có đồng bộ hay không — cần bản vẽ của màn đó.
 
 ---
 

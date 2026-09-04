@@ -59,11 +59,18 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
      */
     return (
       <Link href={formulaPath(formula.id)} className={`${styles.tile} ${toneClass()}`}>
-        <span className={styles.tileIcon} aria-hidden="true">
-          <CategoryIcon id={formula.categoryId} />
-        </span>
-        <span className={styles.tileName}>
-          <Pick value={formula.name} />
+        {/*
+          Icon đứng CÙNG DÒNG với tên — bản thiết kế Figma "FINBOX VERSION 2". Bản trước để icon
+          một dòng riêng phía trên, nên ô cao thêm gần 40px mà không nói thêm gì; gộp lại thì lưới
+          19 ô ở trang chủ ngắn hẳn đi.
+        */}
+        <span className={styles.tileHead}>
+          <span className={styles.tileIcon} aria-hidden="true">
+            <CategoryIcon id={formula.categoryId} />
+          </span>
+          <span className={styles.tileName}>
+            <Pick value={formula.name} />
+          </span>
         </span>
         <span className={styles.tileDescription}>
           <Pick value={formula.description} />

@@ -59,21 +59,61 @@
   list-style: none;
 }
 
+/*
+ * Chip vuông bo nhẹ, không còn viên thuốc — bản thiết kế Figma "FINBOX VERSION 2".
+ *
+ * Chiều cao GIỮ NGUYÊN 44px dù bản vẽ vẽ chip thấp hơn hẳn (đo trên ảnh ra khoảng 17pt): đây là
+ * nút bấm bằng ngón tay, nên NFR-USA-01 thắng độ trung thành với bản vẽ. Đây là chỗ cố ý lệch
+ * bản thiết kế, không phải chỗ quên sửa.
+ */
 .chip {
+  /* Chip là `<button>` ở màn tìm và `<a>` ở trang chủ; `<a>` mặc định là inline nên
+     `min-height` không ăn — khai `inline-flex` để hai dạng ra đúng một hình. */
+  display: inline-flex;
+  align-items: center;
+
   min-height: var(--tap-min);
   padding: 0 var(--space-3);
 
   font-family: inherit;
   font-size: var(--text-sm);
   color: var(--color-ink);
+  text-decoration: none;
 
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
 .chip:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+/*
+ * Nút xoá của dạng `inline` — cùng khổ, cùng viền với chip bên cạnh nó, chỉ khác là mang icon.
+ * Vuông chứ không chữ nhật: nó không có chữ nên bề ngang không có gì để đo theo.
+ */
+.clearIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: 0;
+
+  color: var(--color-muted);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.clearIcon:hover {
+  color: var(--color-accent);
   border-color: var(--color-accent);
   background: var(--color-accent-soft);
 }

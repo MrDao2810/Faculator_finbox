@@ -8,9 +8,11 @@ import {
   DEFAULT_LIST_PARAMS,
   FORMULA_SUMMARIES,
   PREFERENCES_STORAGE_KEY,
+  RECENT_SEARCHES_KEY,
   formulasForLevel,
   parseListParams,
   selectFormulas,
+  serializeRecentSearches,
 } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
@@ -336,5 +338,69 @@ describe('HomeSearchPanel — không đánh rơi tiêu điểm', () => {
 
     expect(screen.getByText('KHỐI TĨNH TRANG CHỦ')).not.toBeNull();
     expect(document.activeElement).toBe(box);
+  });
+});
+
+/*
+ * Hàng chip "Tìm gần đây" ngay dưới ô tìm — bản thiết kế Figma "FINBOX VERSION 2".
+ *
+ * Hình dáng của chính khối chip do `RecentSearches.test.tsx` gác; bốn ca dưới gác phần ĐẤU NỐI ở
+ * trang chủ, vốn là chỗ dễ sai hơn: đọc localStorage đúng lúc, ẩn đúng lúc, và chip dẫn sang cả
+ * thư viện chứ không lọc kệ tại chỗ.
+ */
+describe('HomeSearchPanel — chip "Tìm gần đây"', () => {
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
+  function coLichSu(...terms: ReadonlyArray<string>): void {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, serializeRecentSearches(terms));
+  }
+
+  /*
+   * Trang chủ là HTML tĩnh và là URL priority 1.0 của sitemap. Chưa có lịch sử mà đã dựng ra một
+   * nút DOM nào thì lượt render đầu ở máy khách khác `out/index.html` — lệch hydration.
+   */
+  it('chưa có lịch sử thì không dựng hàng chip nào', () => {
+    renderPanel();
+    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
+  });
+
+  /*
+   * Lịch sử ghi TÊN công thức đã chọn ở màn tìm, mà màn tìm chạy trên CẢ THƯ VIỆN còn ô tìm ở
+   * trang chủ chỉ với tới kệ ghim. Nên chip phải rời trang chủ, không đổ ngược vào ô tìm tại chỗ:
+   * `beta` không nằm trên kệ, đổ vào ô tìm là ra ngay một khối rỗng.
+   */
+  it('chip là link sang cả thư viện, mang đúng từ khoá — không lọc kệ tại chỗ', async () => {
+    coLichSu('Beta');
+    renderPanel();
+
+    const chip = await screen.findByRole('link', { name: 'Beta' });
+    const href = chip.getAttribute('href') ?? '';
+
+    // Không kiểm dấu '/' cuối, cùng lý do đã ghi ở ca hàng bàn giao phía trên.
+    expect(href.startsWith('/cong-thuc')).toBe(true);
+    expect(parseListParams(new URLSearchParams(href.slice(href.indexOf('?')))).q).toBe('Beta');
+  });
+
+  it('đang gõ thì hàng chip ẩn đi, nhường chỗ cho kết quả', async () => {
+    coLichSu('Beta');
+    renderPanel();
+    await screen.findByRole('link', { name: 'Beta' });
+
+    await userEvent.type(searchBox(), tuKhoaTrenKe().q);
+
+    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
+  });
+
+  it('bấm nút xoá thì hàng chip biến mất và lịch sử trên máy cũng sạch', async () => {
+    coLichSu('Beta', 'WACC');
+    renderPanel();
+    await screen.findByRole('link', { name: 'Beta' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá lịch sử' }));
+
+    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
+    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
   });
 });

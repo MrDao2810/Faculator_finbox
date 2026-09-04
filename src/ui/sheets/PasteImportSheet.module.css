@@ -224,7 +224,7 @@
 .preview tbody td {
   font-family: var(--font-mono);
   color: var(--color-ink);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .preview tbody tr:last-child td {

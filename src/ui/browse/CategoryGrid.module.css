@@ -16,7 +16,13 @@
   list-style: none;
 }
 
-/* Một hàng: icon + tên bên trái, badge số bên phải — bản thiết kế đợt 12. */
+/*
+ * Một hàng: icon + tên bên trái, số bên phải.
+ *
+ * Ô CHỮ NHẬT BO GÓC chứ không còn viên thuốc — bản thiết kế Figma "FINBOX VERSION 2". Cùng bán
+ * kính `--radius-md` với thẻ công thức ngay phía trên nó, nên hai lưới của trang chủ đọc thành
+ * một hệ thay vì hai hình khác nhau chồng lên nhau.
+ */
 .tile {
   display: flex;
   align-items: center;
@@ -26,14 +32,14 @@
   /* Vùng chạm 44px của NFR-USA-01, đo cả ô chứ không chỉ phần chữ. */
   min-height: var(--tap-min);
   height: 100%;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3);
 
   color: var(--color-ink);
   text-decoration: none;
 
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
 }
 
 /* Hover đổi viền theo tông nhóm; nền giữ nguyên để badge số không chìm vào nó. */
@@ -63,16 +69,22 @@
   line-height: var(--leading-tight);
 }
 
-/* Badge số — mang tông của nhóm, cùng hình với nhãn nhóm trên thẻ công thức. */
+/*
+ * Số công thức — CHỮ TRƠN, không còn badge có nền, theo bản thiết kế Figma đợt này.
+ *
+ * Cùng một bước với nhãn nhóm trên thẻ công thức (xem `.tileCategory` ở `FormulaCard.module.css`):
+ * ô nhóm chỉ có ba thứ — icon, tên, số — nên tô nền cho một trong ba là đẩy nó lên trước tên,
+ * trong khi tên mới là thứ người dùng đọc để bấm.
+ *
+ * Màu về `--color-ink-soft` chứ không giữ `--category-ink`: xanh ở đây đọc ra là link, mà cả ô
+ * vốn đã là link rồi — cùng lẽ với `.tileName`. Đạt 8,03:1 (sáng) / 7,74:1 (tối) trên nền thẻ.
+ */
 .count {
   flex-shrink: 0;
-  padding: 0 var(--space-2);
 
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  color: var(--category-ink);
-  background: var(--category-soft);
-  border-radius: var(--radius-pill);
+  color: var(--color-ink-soft);
 }
 
 /*
@@ -117,13 +129,11 @@
 }
 
 /*
- * Nhãn "chỉ ở Nâng cao" thay chỗ con số, nên nó bỏ luôn dáng badge: một câu ba chữ nhét trong
- * viên pill nhỏ sẽ chiếm gần trọn ô và đẩy tên nhóm cụt mất.
+ * Nhãn "chỉ ở Nâng cao" thay chỗ con số: ba chữ chứ không phải một số, nên nó hạ một bậc cỡ chữ
+ * và nhạt đi, để không giành chỗ đọc với tên nhóm bên trái.
  */
 :global(html:not([data-mode='advanced'])) .basicEmpty .count {
-  padding: 0;
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-muted);
-  background: transparent;
 }

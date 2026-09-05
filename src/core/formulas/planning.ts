@@ -57,6 +57,14 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số tháng đã gửi ÷ 12',
       en: 'Interest received = Deposit amount × Annual demand-deposit rate × Months held ÷ 12',
     },
+    /*
+     * Tích của ba đầu vào với một hằng — quét biến nào cũng ra đoạn thẳng qua gốc. Cùng luật với
+     * nhóm phí & thuế (xem docblock đầu `fees.ts`).
+     *
+     * Điều đáng nói của công thức này KHÔNG nằm ở hình mà ở chỗ so sánh: rút trước hạn thì lãi
+     * tính theo lãi suất KHÔNG KỲ HẠN chứ không theo lãi suất đã cam kết. Việc ấy do `explanation`
+     * và `commonMistakes` lo, một đường thẳng không nói thêm được gì.
+     */
     chartType: 'none',
     level: 'basic',
     tags: ['rut truoc han', 'lai khong ky han', 'tiet kiem', 'early withdrawal'],
@@ -462,7 +470,16 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       vi: 'Giá vốn trung bình = Tổng tiền đã mua ÷ Tổng số cổ phiếu mua được',
       en: 'Average cost = Total amount invested ÷ Total shares acquired',
     },
-    chartType: 'none',
+    /*
+     * MỞ biểu đồ ở đợt kiểm kê — trước đó khai `'none'`. Luật chung "hàm bậc nhất thì đừng vẽ"
+     * không áp được: giá vốn bình quân có ẩn số ở MẪU (`Σ Cᵢ/Pᵢ`), nên quét giá một đợt mua ra
+     * ĐƯỜNG CONG chứ không phải đường thẳng. Đo trên Registry: 41 điểm cho 40 bước khác nhau, giảm
+     * dần 754 → 728 → 703 → 679…
+     *
+     * Đường cong ấy chính là điều khó thấy nhất của DCA: mua thêm ở giá cao thì giá vốn nhích lên
+     * NGÀY CÀNG CHẬM, chứ không tăng đều theo giá.
+     */
+    chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
     tags: ['dca', 'gia von trung binh', 'trung binh gia', 'average cost', 'dau tu dinh ky'],

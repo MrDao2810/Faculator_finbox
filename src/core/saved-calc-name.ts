@@ -99,6 +99,85 @@ function dedupe(name: string, taken: ReadonlySet<string>): string {
  *   2. Tên công thức + kết quả ('P/E · 12,3 lần') — phân biệt hai lần tính cùng một mã.
  *   3. Tên công thức + ngày ('P/E · 25/08/2026') — luôn dựng được, kể cả khi thiếu cả hai thứ trên.
  */
+export interface DisplayCalcNameInput {
+  /** Tên đang nằm trong kho. */
+  stored: string;
+  /** Tên công thức bằng TIẾNG VIỆT — ngôn ngữ mà mọi bản lưu trước đây được đặt tên. */
+  viName: string;
+  /** Tên công thức theo ngôn ngữ ĐANG XEM. */
+  localName: string;
+  code?: string;
+  /** Kết quả đã định dạng, bản tiếng Việt — dùng để nhận ra gợi ý số 2. */
+  viResult?: string;
+  /** Cùng kết quả ấy theo ngôn ngữ đang xem. */
+  localResult?: string;
+  savedAt: number;
+}
+
+/**
+ * Tên HIỂN THỊ của một phép tính đã lưu — dịch lại nếu nó vốn là gợi ý, giữ nguyên nếu người
+ * dùng tự gõ.
+ *
+ * ── Vấn đề ──────────────────────────────────────────────────────────────────────────────────
+ *
+ * `SavedCalc.name` là chuỗi ĐÃ GHÉP, cất vào localStorage lúc bấm Lưu. Nếu lúc ấy giao diện đang
+ * chạy tiếng Việt thì cái tên đóng băng vĩnh viễn bằng tiếng Việt, và chuyển sang EN nó vẫn là
+ * "AAA · Giá hoà vốn thực" trong khi dòng phụ ngay dưới đã là "AAA · True break-even price".
+ * Chủ dự án báo đúng chỗ này. Nó cũng đi ngược nguyên tắc `saved-calc-store.ts` tự nêu: **không
+ * cất chữ đã dịch** — kho đã cất `resultValue` + `resultUnit` thô thay vì chuỗi kết quả, chính vì
+ * lý do đó; riêng cái tên thì lọt.
+ *
+ * ── Vì sao NHẬN RA thay vì thêm một trường cờ ───────────────────────────────────────────────
+ *
+ * Thêm `nameIsAuto` vào `SavedCalc` chỉ cứu được những bản lưu TỪ NAY TRỞ ĐI — hai mục trong ảnh
+ * chủ dự án gửi vẫn tiếng Việt mãi, vì không có gì để biết chúng là tên tự gợi ý hay tên tự gõ.
+ * Ở đây thì biết được: dựng lại đúng bộ gợi ý bằng tiếng Việt rồi so. Khớp nghĩa là người dùng đã
+ * NHẬN gợi ý — trả về gợi ý cùng vị trí ở ngôn ngữ đang xem. Không khớp nghĩa là tên tự gõ, giữ
+ * nguyên từng chữ. Không cần migration, không cần trường mới, và bản lưu cũ cũng được cứu.
+ *
+ * Giá phải trả, nhận có ý thức: ai đó GÕ TAY đúng y một chuỗi gợi ý thì tên ấy cũng sẽ dịch theo.
+ * Kết quả giống hệt thứ họ sẽ nhận nếu bấm chọn gợi ý đó, nên không mất gì.
+ *
+ * Ở locale tiếng Việt thì `viName === localName`, hàm trả lại đúng chuỗi cũ — không phải ca đặc
+ * biệt nào cả, nó rơi ra từ chính phép so.
+ */
+export function displayCalcName(input: DisplayCalcNameInput): string {
+  const stored = input.stored.trim();
+  if (stored === '' || input.viName === input.localName) return input.stored;
+
+  /*
+   * Tách hậu tố né trùng ' (2)' ra trước khi so: nó do `dedupe()` gắn thêm SAU khi ghép, nên nó
+   * không có trong bộ gợi ý gốc. Không tách thì mọi mục trùng tên đều trượt và ở lại tiếng Việt.
+   */
+  const found = /\s\((\d+)\)$/.exec(stored);
+  const base = found === null ? stored : stored.slice(0, found.index).trim();
+  const suffix = found === null ? '' : found[0];
+
+  const viNames = suggestCalcNames({
+    formulaName: input.viName,
+    ...(input.code === undefined ? {} : { code: input.code }),
+    ...(input.viResult === undefined ? {} : { resultText: input.viResult }),
+    savedAt: input.savedAt,
+  });
+
+  const at = viNames.findIndex((name) => key(name) === key(base));
+  if (at < 0) return input.stored;
+
+  const localNames = suggestCalcNames({
+    formulaName: input.localName,
+    ...(input.code === undefined ? {} : { code: input.code }),
+    ...(input.localResult === undefined ? {} : { resultText: input.localResult }),
+    savedAt: input.savedAt,
+  });
+
+  const replacement = localNames[at];
+  if (replacement === undefined) return input.stored;
+  if (suffix === '') return replacement;
+
+  // Cắt phần THÂN chứ không cắt hậu tố — cùng luật với `dedupe()`, vì hậu tố mới là thứ phân biệt.
+  return `${replacement.slice(0, MAX_SAVED_NAME - suffix.length).trim()}${suffix}`;
+}
+
 export function suggestCalcNames(input: SuggestCalcNameInput): string[] {
   const formulaName = input.formulaName.trim();
   const code = input.code?.trim().toUpperCase() ?? '';

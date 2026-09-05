@@ -195,7 +195,7 @@ describe('bảng ánh xạ không có khoá chết', () => {
    * hoặc ô thuộc quyết định của người dùng (số lượng mua, số tháng giữ, giá cắt lỗ). 25 công thức
    * cuối thì không mã nào điền thay được, vì đầu vào là tiền và giả định của chính người dùng.
    */
-  it('phủ của bộ mẫu trên 51 công thức có biểu đồ: 22 điền một phần, 9 điền trọn', () => {
+  it('phủ của bộ mẫu trên 53 công thức có biểu đồ: 22 điền một phần, 9 điền trọn', () => {
     const withChart = FORMULA_MODULES.filter(
       (formula) => formula.spec.chartType === 'sensitivity' && formula.spec.level === 'basic',
     );
@@ -207,7 +207,7 @@ describe('bảng ánh xạ không có khoá chết', () => {
         Object.keys(presetInputs(FPT, formula.spec)).length === formula.spec.variables.length,
     );
 
-    expect(withChart).toHaveLength(51);
+    expect(withChart).toHaveLength(53);
     expect(some).toHaveLength(22);
     expect(all).toHaveLength(9);
   });

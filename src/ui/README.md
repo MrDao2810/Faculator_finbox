@@ -38,7 +38,7 @@ build mới không tốn byte JS nào của trình duyệt, mà mọi thứ tron
 phía máy khách. Chỗ dựng nằm ở `src/app/cong-thuc/[id]/latex-html.ts`, gọi từ `page.tsx` — server
 component. Đừng bọc lại thành một `FormulaLatex` ở đây; làm thế là kéo ~280 kB `katex` vào gói.
 
-Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 100/111 công thức, kèm màn phóng to toàn màn hình.
+Nhánh 4 biểu đồ **đã xong** — `charts/` phủ 102/111 công thức, kèm màn phóng to toàn màn hình.
 Từ gói 5.2.3 có thêm `charts/WaterfallChart` cho biểu đồ bóc tách, nay phủ **đủ 10** công thức khai
 `waterfall`/`stackedBar`. Khai `chartType: 'waterfall'` thì bóc tách là hình MẶC ĐỊNH — bốn cái
 (`ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`), đều là những công thức có đường quét thẳng nên hình

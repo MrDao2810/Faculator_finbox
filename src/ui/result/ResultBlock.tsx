@@ -2,9 +2,9 @@
 
 import type { ReactNode } from 'react';
 
-import { formatNumber, isCalculated } from '@/application';
+import { formatNumber, isCalculated, unitLabel } from '@/application';
 import type { CalcOutput } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import { ErrorState } from './ErrorState';
 import styles from './ResultBlock.module.css';
@@ -32,6 +32,10 @@ export interface ResultBlockProps {
  */
 export function ResultBlock({ output, interpretation, action, className }: ResultBlockProps) {
   const t = useT();
+  const pick = usePick();
+  /* Đơn vị Domain là chuỗi tiếng Việt trần; dịch MỘT lần rồi dùng cho cả hai nhánh dưới. */
+  const donVi = pick(unitLabel(output.unit));
+
   if (!isCalculated(output)) {
     const warning = output.warning;
     // fail() luôn kèm warning, nhưng CalcOutput dựng tay có thể thiếu — vẫn phải không vỡ.
@@ -42,9 +46,7 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
         </div>
       );
     }
-    return (
-      <ErrorState warning={warning} unit={output.unit} action={action} className={className} />
-    );
+    return <ErrorState warning={warning} unit={donVi} action={action} className={className} />;
   }
 
   const classes = [styles.block, className].filter(Boolean).join(' ');
@@ -55,7 +57,7 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
 
       <p className={styles.figure} aria-live="polite">
         <span className={styles.value}>{formatNumber(output.value)}</span>
-        {output.unit.trim() !== '' && <span className={styles.unit}> {output.unit}</span>}
+        {donVi.trim() !== '' && <span className={styles.unit}> {donVi}</span>}
       </p>
 
       {interpretation !== undefined && <p className={styles.interpretation}>{interpretation}</p>}

@@ -198,12 +198,6 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
         onChange={(q) => {
           setParams((current) => ({ ...current, q }));
         }}
-        /*
-         * Tắt hẳn dòng nhắc: bật/tắt nó nghĩa là bật/tắt `aria-describedby` NGAY TRÊN ô đang có
-         * tiêu điểm, khiến trình đọc màn hình đọc lại nhãn giữa lúc gõ, và làm nhảy bố cục.
-         * Câu "gõ không dấu vẫn ra đúng" chuyển xuống khối rỗng, chỗ nó thật sự cần thiết.
-         */
-        showHint={false}
         onCancel={reset}
       />
 
@@ -269,7 +263,7 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
               */
               <EmptyState
                 title={t('home.search.featuredEmpty')}
-                lines={[t('home.search.featuredScope'), t('search.hint')]}
+                lines={[t('home.search.featuredScope')]}
               />
             )}
           </section>

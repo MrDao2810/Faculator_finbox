@@ -1,6 +1,6 @@
 'use client';
 
-import { variablesForLevel } from '@/application';
+import { unitLabel, variablesForLevel } from '@/application';
 import type { FormulaSpec, Level } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Table } from '@/ui/primitives';
@@ -39,7 +39,7 @@ export function VariableTable({ formula, mode = 'advanced', className }: Variabl
         {variables.map((variable) => (
           <tr key={variable.key}>
             <th scope="row">{pick(variable.label)}</th>
-            <td>{variable.unit}</td>
+            <td>{pick(unitLabel(variable.unit))}</td>
             <td>
               {variable.description !== undefined
                 ? pick(variable.description)

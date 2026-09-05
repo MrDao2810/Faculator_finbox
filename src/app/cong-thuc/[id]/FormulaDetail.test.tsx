@@ -1372,6 +1372,81 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     expect(screen.getByTestId('result-text').textContent).toBe('10 lần');
   });
 
+  /*
+   * Hai màn phải nói CÙNG MỘT cái tên cho cùng một bản lưu.
+   *
+   * Chủ dự án báo: chuyển sang tiếng Anh thì bên công thức đã dịch, mà tên bản lưu lại nói kiểu
+   * khác. Nguyên nhân: `SavedCalc.name` là chuỗi đã ghép ở ngôn ngữ lúc bấm Lưu, và cả hai màn
+   * đều bày thẳng chuỗi ấy. Nay cả hai cùng đi qua `displayCalcName()`.
+   *
+   * Ca này chốt chiều MÀN CÔNG THỨC; tab Danh mục có ca riêng ở `check:chrome`. Dùng `pe` vì tên
+   * hai ngôn ngữ khác hẳn nhau ('P/E' giữ nguyên thì ca kiểm không chứng minh được gì) — kiểm lại
+   * bằng chính Registry ngay trong ca, không viết cứng bản dịch.
+   */
+  it('mở lại bản lưu ở chế độ EN: dải chữ nói tên ĐÃ DỊCH, không phải tên tiếng Việt lúc lưu', async () => {
+    const spec = specOf('bien-an-toan');
+    const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
+    const tenViLucLuu = `${spec.name.vi} · 25/08/2026`;
+
+    window.localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' }));
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'bien-an-toan-1',
+          formulaId: 'bien-an-toan',
+          name: tenViLucLuu,
+          inputs: {},
+          resultValue: -15.71,
+          resultUnit: '%',
+          savedAt,
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/bien-an-toan/?luu=bien-an-toan-1');
+
+    render(
+      <PreferencesProvider>
+        <Man spec={spec} />
+      </PreferencesProvider>,
+    );
+
+    expect(await screen.findByText(new RegExp(`${spec.name.en} · 25/08/2026`))).not.toBeNull();
+    expect(screen.queryByText(new RegExp(tenViLucLuu))).toBeNull();
+  });
+
+  /* Nửa còn lại của cùng một luật: tên NGƯỜI DÙNG TỰ GÕ là dữ liệu của họ, không được viết lại. */
+  it('mở lại bản lưu ở chế độ EN: tên tự gõ giữ nguyên từng chữ', async () => {
+    const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
+
+    window.localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' }));
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-2',
+          formulaId: 'pe',
+          name: 'Mua đợt 2 nếu về vùng này',
+          inputs: { price: 50_000, eps: 5_000 },
+          resultValue: 10,
+          resultUnit: 'lần',
+          savedAt,
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=pe-2');
+
+    render(
+      <PreferencesProvider>
+        <Man spec={specOf('pe')} />
+      </PreferencesProvider>,
+    );
+
+    expect(await screen.findByText(/Mua đợt 2 nếu về vùng này/)).not.toBeNull();
+  });
+
   it('id lạ thì nói ra, không lặng lẽ bày bộ số mặc định', async () => {
     window.history.replaceState({}, '', '/cong-thuc/pe/?luu=khong-co-that');
     render(<Man spec={specOf('pe')} />);

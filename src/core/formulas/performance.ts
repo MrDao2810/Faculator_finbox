@@ -1178,6 +1178,11 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
       vi: 'Lợi suất vượt chuẩn = Lợi suất danh mục − Lợi suất chuẩn so sánh',
       en: 'Excess return = Portfolio return − Benchmark return',
     },
+    /*
+     * Kết quả là HIỆU của đúng hai đầu vào, nên quét biến nào cũng ra đoạn thẳng hệ số góc ±1 —
+     * hình mà dòng `expression` ngay trên đã nói trọn. Cùng luật với nhóm phí & thuế (xem docblock
+     * đầu `fees.ts`): điều kiện là "đường quét thẳng", không phải "công thức đơn giản".
+     */
     chartType: 'none',
     level: 'basic',
     tags: ['vuot chuan', 'excess return', 'benchmark', 'so voi vn index', 'chenh lech'],

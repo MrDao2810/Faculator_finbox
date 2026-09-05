@@ -89,12 +89,21 @@ export function formatValueWithUnit(
  * Chuỗi hiển thị của một CalcOutput.
  * Không tính được thì ra NO_VALUE kèm đơn vị — người dùng vẫn biết đang đọc đại lượng gì,
  * mà không bao giờ thấy NaN, Infinity hay 0 thay cho lỗi (FR-06).
+ *
+ * `unitText` cho nơi gọi thay chuỗi đơn vị bằng bản đã dịch (`useCalcText()` ở tầng UI truyền
+ * `pick(unitLabel(out.unit))` vào đây). Mặc định giữ nguyên `out.unit`, tức tiếng Việt — đúng thứ
+ * bản in và file xuất cần, nên chúng không phải sửa gì.
  */
-export function formatCalcOutput(out: CalcOutput, options?: FormatNumberOptions): string {
+export function formatCalcOutput(
+  out: CalcOutput,
+  options?: FormatNumberOptions,
+  unitText?: string,
+): string {
+  const unit = unitText ?? out.unit;
   if (out.value === null) {
-    return out.unit.trim() === '' ? NO_VALUE : `${NO_VALUE} ${out.unit}`;
+    return unit.trim() === '' ? NO_VALUE : `${NO_VALUE} ${unit}`;
   }
-  return formatValueWithUnit(out.value, out.unit, options);
+  return formatValueWithUnit(out.value, unit, options);
 }
 
 /**
@@ -243,6 +252,70 @@ export const COMPACT_PREFIXES = [
 
 export type CompactPrefix = (typeof COMPACT_PREFIXES)[number];
 
+/**
+ * Bản tiếng Anh của từng đơn vị — khoá CHÍNH LÀ chuỗi tiếng Việt mà spec đang khai.
+ *
+ * ── Vì sao bảng tra chứ không đổi `unit` thành `Bilingual` ───────────────────────────────────
+ *
+ * Đơn vị là một tập ĐÓNG và NHỎ: đo trên Registry thật được đúng 21 chuỗi khác nhau trên 111 công
+ * thức (`₫` 106 lần, `%` 83, `tỷ ₫` 44…), cộng vài chuỗi của hằng số thị trường và màn Danh mục.
+ * Đổi kiểu trường `unit` thì phải sửa ~250 chỗ khai báo để nói lại đúng 24 điều — và mỗi chỗ khai
+ * là một cơ hội gõ nhầm bản dịch. Bảng tra nói mỗi điều đúng một lần.
+ *
+ * Đây cũng đúng lối dự án đã dùng cho `UNIT_SCALES[].label` với `UNIT_SCALE_KEYS` ở tầng UI: bản
+ * gốc ở Domain, bản dịch tra theo locale, một ca kiểm neo hai bên không trôi khỏi nhau. Khác một
+ * điểm: bảng này nằm ở Domain chứ không ở i18n, vì `withScalePrefix()` ngay dưới — mã Domain —
+ * cũng cần vế `en`, mà CON-02 cấm `src/core` đọc i18n. Nó không phải hạ tầng i18n; nó là dữ liệu
+ * Domain, cùng loại với `Bilingual` mà tên và diễn giải công thức vẫn dùng.
+ *
+ * Vế `vi` KHÔNG lặp lại ở đây: nó chính là khoá. `unitLabel()` dựng ra, nên hai bên không thể lệch.
+ *
+ * `''` (đơn vị rỗng) có mặt để `unitLabel('')` không rơi vào nhánh dự phòng — nó là một đơn vị hợp
+ * lệ thật (hệ số không thứ nguyên), không phải chuỗi thiếu.
+ */
+const UNIT_EN: Readonly<Record<string, string>> = {
+  '': '',
+  '₫': '₫',
+  '%': '%',
+  'tỷ ₫': 'billion ₫',
+  'triệu CP': 'million shares',
+  phiên: 'sessions',
+  lần: 'times',
+  điểm: 'points',
+  CP: 'shares',
+  tháng: 'months',
+  năm: 'years',
+  ngày: 'days',
+  kỳ: 'periods',
+  vòng: 'turns',
+  mã: 'tickers',
+  HĐ: 'contracts',
+  'sản phẩm': 'units',
+  '%/năm': '%/year',
+  '%/phiên': '%/session',
+  '%/kỳ': '%/period',
+  '₫/CP': '₫/share',
+  '₫/tháng': '₫/month',
+  '₫/điểm': '₫/point',
+  '₫/CP/tháng': '₫/share/month',
+};
+
+/**
+ * Đơn vị dưới dạng song ngữ. Chuỗi lạ thì trả về chính nó cho cả hai vế.
+ *
+ * KHÔNG ném lỗi khi gặp đơn vị chưa có trong bảng: một đơn vị thiếu bản dịch phải làm màn hình
+ * hiện chữ tiếng Việt, không được làm màn hình trắng — cùng tinh thần FR-06. Chỗ bắt lỗi đó là
+ * `format.test.ts`, nơi quét toàn Registry và đỏ ngay khi có đơn vị mới chưa khai.
+ */
+export function unitLabel(unit: string): Bilingual {
+  return { vi: unit, en: UNIT_EN[unit] ?? unit };
+}
+
+/** Đơn vị đã có bản dịch chưa — dành cho ca kiểm quét Registry, không dùng lúc hiển thị. */
+export function hasUnitLabel(unit: string): boolean {
+  return unit in UNIT_EN;
+}
+
 /** Những từ chỉ bậc mà một đơn vị có thể MANG SẴN — `'tỷ ₫'`, `'triệu CP'`. */
 const SCALE_WORDS: ReadonlyArray<string> = COMPACT_PREFIXES.map((item) => item.prefix.vi).filter(
   (word) => word !== '',
@@ -262,18 +335,23 @@ const SCALE_WORDS: ReadonlyArray<string> = COMPACT_PREFIXES.map((item) => item.p
  * hợp từ DUY NHẤT có thật trong tiếng Việt ở nhóm này — 'nghìn tỷ' là cách báo chí tài chính viết
  * mức 10^12, còn 'triệu tỷ', 'tỷ tỷ', 'nghìn triệu' thì không ai dùng.
  *
- * Vế `en` ghép tiền tố tiếng Anh vào ĐƠN VỊ GỐC chưa dịch (`'thousand tỷ ₫'`), đúng giới hạn đã ghi
- * ở đầu `chart/build.ts`: số và đơn vị chưa nằm trong đợt dịch.
+ * Vế `en` ghép tiền tố tiếng Anh vào ĐƠN VỊ ĐÃ DỊCH (`'thousand billion ₫'`), qua `unitLabel()`.
+ * Trước đợt này nó ghép vào đơn vị gốc và cho ra `'thousand tỷ ₫'` — nửa Anh nửa Việt ngay trên
+ * tiêu đề trục, đúng chỗ chủ dự án báo "chuyển ngôn ngữ mà vài chỗ chưa đổi".
+ *
+ * Phép LOẠI BẬC vẫn xét vế tiếng Việt: `SCALE_WORDS` là các từ chỉ bậc trong tiếng Việt, và spec
+ * khai đơn vị bằng tiếng Việt, nên đó mới là chuỗi mang thông tin "đã có sẵn bậc hay chưa". Xét vế
+ * `en` thì `'billion ₫'` không khớp từ nào và bậc `'tỷ'` sẽ lọt qua thành `'billion billion ₫'`.
  *
  * Tiền tố rỗng (bậc `factor: 1`) trả nguyên đơn vị, kể cả khi đơn vị cũng rỗng — không để lại khoảng
  * trắng thừa ở đầu chuỗi, thứ sẽ lọt thẳng vào tiêu đề trục thành `' (…)'`.
  */
 export function withScalePrefix(unit: string, prefix: Bilingual): Bilingual | null {
-  if (prefix.vi === '') return { vi: unit, en: unit };
+  if (prefix.vi === '') return unitLabel(unit);
   if (unit === '') return { vi: prefix.vi, en: prefix.en };
 
   const head = unit.split(' ')[0] ?? '';
   if (SCALE_WORDS.includes(head) && !(head === 'tỷ' && prefix.vi === 'nghìn')) return null;
 
-  return { vi: `${prefix.vi} ${unit}`, en: `${prefix.en} ${unit}` };
+  return { vi: `${prefix.vi} ${unit}`, en: `${prefix.en} ${unitLabel(unit).en}` };
 }

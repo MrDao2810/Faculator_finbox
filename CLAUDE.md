@@ -23,8 +23,14 @@ section 3.8 still says 94 / 13 / 107 and has to be corrected to 98 / 13 / 111.**
 
 WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as are
 packages 2.4.3 (maths notation) and **3.2.2 + 5.2.3** (the valuation chain and the WF-04 advanced
-screen). Charts cover **100 of 111** formulas; the other 11 declare `chartType: 'none'` deliberately —
-their output is a monotone function of one input, so a chart would say nothing.
+screen). Charts cover **102 of 111** formulas; the other 9 declare `chartType: 'none'` deliberately.
+The test is **"is the sweep a straight line"**, not "is the formula simple": the 9 are all a product
+or a difference of their inputs, so the sweep is a line through the origin that the `expression`
+line above it already tells you. An audit re-derived this from the Registry and moved two formulas
+out of that group — `so-hop-dong-toi-da` (a floor division, so the sweep is a **staircase**) and
+`gia-von-trung-binh-dca` (the unknown sits in the denominator, so the sweep is a **curve**). Each of
+the 9 now carries its reason at the declaration; the shared one for the five fee/tax formulas is in
+`fees.ts`'s file docblock.
 
 The remaining work plan lives in the external "WBS v7" estimate and the SRS, referenced throughout
 the code by requirement IDs (FR-xx, NFR-xx, CON-xx, LDR-xx, WF-xx wireframe screens). Progress log:
@@ -53,7 +59,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 26 assertions against a built out/ — run after build
-npm run check:chrome   # 28 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
+npm run check:chrome   # 29 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -222,7 +228,9 @@ exactly what `chartType: 'none'` exists to reject, so for them the breakdown _is
 six `stackedBar` ones keep the sweep as the default because it still says something: total interest
 against term is a convex curve, and it is precisely what `lich-tra-no`'s own `commonMistakes` warns
 about. Never promote a `stackedBar` formula to breakdown-by-default without checking what its sweep
-would lose. Current split: 60 sweeps + 4 waterfalls + 34 waiting on a price series.
+would lose. Current split of the 102 that have a chart: **63 sweeps + 4 waterfalls that draw at
+once, + 35 waiting on a price series** — and those 35 all draw the moment a series is loaded, which
+`history.test.ts` pins. Plus the 9 `none` that makes 111.
 
 Two invariants hold it honest: the stages must sum to the formula's own result — a registry-wide
 sweep in `chart.test.ts` enforces this for **every** formula that declares stages, and pins the

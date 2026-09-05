@@ -163,7 +163,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'von-hoa-thi-truong',
     categoryId: 'valuation',
-    name: { vi: 'Vốn hoá thị trường', en: 'Market capitalisation' },
+    name: { vi: 'Vốn hoá thị trường', en: 'Market capitalization' },
     description: { vi: 'Tổng giá trị thị trường của toàn bộ cổ phiếu đang lưu hành.', en: 'The total market value of all outstanding shares.' },
     level: 'basic',
     isFeatured: true,
@@ -832,11 +832,11 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'lich-tra-no',
     categoryId: 'loans',
-    name: { vi: 'Lịch trả nợ vay', en: 'Loan amortisation schedule' },
+    name: { vi: 'Lịch trả nợ vay', en: 'Loan amortization schedule' },
     description: { vi: 'Tổng số tiền lãi phải trả trong cả kỳ hạn, kèm bảng chi tiết từng kỳ.', en: 'The total interest payable over the whole term, with a detailed period-by-period table.' },
     level: 'basic',
     isFeatured: true,
-    tags: ['lich tra no', 'tong lai', 'bang tra no', 'amortisation'],
+    tags: ['lich tra no', 'tong lai', 'bang tra no', 'amortization'],
   },
   {
     id: 'lai-kep',

@@ -19,11 +19,12 @@ import {
   chainFor,
   constantsUsedBy,
   defaultInputs,
+  displayCalcName,
   draftFor,
   emptyCashflowRow,
   findFormulaModule,
-  formatCalcOutput,
   formatIsoDate,
+  formatValueWithUnit,
   hasDraftData,
   hasDraftMarketSeries,
   isTickerCode,
@@ -62,6 +63,7 @@ import type {
   SeriesRow,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
+import { useCalcText, useValueText } from '@/ui/i18n/units';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 import {
@@ -162,7 +164,20 @@ type SheetKind = 'preset' | 'paste' | 'export' | 'save';
 
 /** Thứ màn cần nhớ về một phép tính vừa mở lại từ `?luu=`. */
 interface RestoredCalc {
+  /**
+   * Tên NHƯ ĐANG NẰM TRONG KHO. Không phải tên đem hiện thẳng.
+   *
+   * Tên đó là chuỗi đã ghép ở ngôn ngữ lúc bấm Lưu, nên mở lại ở chế độ EN thì dải "đang mở bản
+   * lưu" bày tiếng Việt trong khi cả màn quanh nó đã dịch — chủ dự án báo đúng chỗ lệch này.
+   * `displayCalcName()` dựng lại lúc RENDER (không phải lúc mount), nên đổi ngôn ngữ giữa chừng
+   * thì dải chữ đổi theo ngay. Vì vậy ba trường dưới đây phải giữ lại: chúng là nguyên liệu.
+   */
   name: string;
+  /** Mã gắn kèm — vế đầu của gợi ý tên 'AAA · …'. */
+  code?: string;
+  /** Kết quả lúc lưu, số thô — vế sau của gợi ý tên 'Tên · 92.370,28 ₫'. */
+  resultValue: number | null;
+  resultUnit: string;
   savedAt: number;
   needsSeries: boolean;
   /** Số phiên của chuỗi giá lúc lưu — `null` khi bản lưu không ghi. */
@@ -183,6 +198,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
   const pick = usePick();
+  const calcText = useCalcText();
+  const valueText = useValueText();
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
   const [sheet, setSheet] = useState<SheetKind | null>(null);
@@ -443,6 +460,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     if (saved.code !== undefined) setLoadedPreset(saved.code);
     setRestored({
       name: saved.name,
+      ...(saved.code === undefined ? {} : { code: saved.code }),
+      resultValue: saved.resultValue,
+      resultUnit: saved.resultUnit,
       savedAt: saved.savedAt,
       needsSeries: saved.needsSeries,
       seriesCount: saved.seriesCount ?? null,
@@ -755,6 +775,30 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     restored !== 'missing' &&
     restored.needsSeries &&
     (bars?.length ?? 0) !== (restored.seriesCount ?? 0);
+
+  /**
+   * Tên bản lưu như NGƯỜI DÙNG PHẢI THẤY — dịch lại nếu nó vốn là gợi ý, giữ nguyên nếu tự gõ.
+   *
+   * Tính ở đây chứ không lúc mount: `restored.name` là chuỗi đã ghép ở ngôn ngữ lúc bấm Lưu, nên
+   * đóng băng nó vào state là dải chữ này đứng im khi người dùng bấm nút EN. Cùng hàm mà tab Danh
+   * mục đang dùng, nên hai màn không thể nói hai cái tên cho cùng một bản lưu.
+   */
+  const restoredName =
+    restored === null || restored === 'missing'
+      ? ''
+      : displayCalcName({
+          stored: restored.name,
+          viName: spec.name.vi,
+          localName: pick(spec.name),
+          ...(restored.code === undefined ? {} : { code: restored.code }),
+          ...(restored.resultValue === null
+            ? {}
+            : {
+                viResult: formatValueWithUnit(restored.resultValue, restored.resultUnit),
+                localResult: valueText(restored.resultValue, restored.resultUnit),
+              }),
+          savedAt: restored.savedAt,
+        });
 
   /** Công thức này đã có biểu đồ thật, hay còn đứng ở khung chờ. */
   const showChart = hasChart(spec);
@@ -1314,7 +1358,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         )}
         {restored !== null && restored !== 'missing' && (
           <p className={styles.pendingNote} role="status">
-            ☆ {restored.name} · {t('detail.restoredNote')}{' '}
+            ☆ {restoredName} · {t('detail.restoredNote')}{' '}
             {formatIsoDate(isoDayOf(restored.savedAt))}
           </p>
         )}
@@ -1625,7 +1669,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
       {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
       {/*
-        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 100 trên 111 công thức, và 11
+        Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 102 trên 111 công thức, và 9
         công thức còn lại khai `chartType: 'none'` nên chúng KHÔNG dựng khối này chút nào — không có
         trạng thái thứ ba nào để bày.
 
@@ -1765,7 +1809,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             setSheet(null);
           }}
           formulaName={pick(spec.name)}
-          resultText={formatCalcOutput(output)}
+          resultText={calcText(output)}
           {...(loadedPreset === null ? {} : { code: loadedPreset })}
           existingNames={savedCalcs.map((item) => item.name)}
           full={savedCalcs.length >= MAX_SAVED_CALCS}
@@ -1794,7 +1838,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
       {/* Chuỗi kết quả dạng chữ, để bộ kiểm tự động soi được mà không phải đọc DOM lồng nhau. */}
       <span className="visually-hidden" data-testid="result-text">
-        {formatCalcOutput(output)}
+        {calcText(output)}
       </span>
     </div>
   );

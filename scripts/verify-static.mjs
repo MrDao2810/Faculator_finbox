@@ -85,21 +85,35 @@ check(
 );
 
 /*
- * Dải mở đầu phải mang CẢ HAI con số, y như ba dòng tiêu đề bên dưới nó.
+ * Dòng tiêu đề mang tổng số phải đếm theo CẢ HAI chế độ, không in cứng một con số.
  *
  * Trước đây chỗ này in thẳng `REGISTRY.formulas.length` = 111, trong khi chế độ Cơ bản — mặc định
  * của người mở lần đầu — chỉ với tới 79. Hai con số nói về cùng một thư viện cãi nhau trong cùng
  * một màn hình, và bản build tĩnh là chỗ duy nhất thấy được điều đó: ca kiểm DOM không chạy trang
  * chủ, còn phép chọn thì nằm trong CSS theo `data-mode`.
  *
- * Khoanh vùng trong <header> chứ không quét cả trang: `countBasic` cũng có ở dòng tiêu đề khác,
- * nên một phép kiểm trần vẫn xanh sau khi hero quay về in cứng.
+ * ĐỔI CHỖ ĐO, KHÔNG ĐỔI Ý ĐỊNH: bản đầu khoanh trong `<header class="…hero…">`, nhưng dải mở đầu
+ * đã bị bỏ khỏi trang chủ theo yêu cầu chủ dự án (xem chú thích trong `src/app/page.tsx`), nên
+ * phép kiểm cũ đỏ vì KHÔNG CÒN THẺ để đọc — chứ không phải vì con số sai. Chỗ duy nhất còn in
+ * tổng số nay là `<h2 id="home-browse">`, nên cửa kiểm dời theo về đúng đó.
+ *
+ * Vẫn khoanh vùng chứ không quét cả trang: `countBasic` còn có ở hai dòng phân mảng và ở mọi ô
+ * nhóm, nên một phép kiểm trần vẫn xanh sau khi riêng dòng này quay về in cứng.
  */
-const hero = html.match(/<header[^>]*hero[^>]*>[\s\S]*?<\/header>/);
+const dongTong = html.match(/<h2[^>]*id="home-browse"[\s\S]*?<\/h2>/);
+const coCaHaiSo =
+  dongTong !== null && dongTong[0].includes('countBasic') && dongTong[0].includes('countAdvanced');
+
 check(
-  'dải mở đầu đếm theo chế độ (Cơ bản / Nâng cao), không in cứng tổng số',
-  hero !== null && hero[0].includes('countBasic') && hero[0].includes('countAdvanced'),
-  hero === null ? 'không tìm thấy <header> hero' : 'thiếu một trong hai nhánh con số',
+  'dòng tổng số đếm theo chế độ (Cơ bản / Nâng cao), không in cứng tổng số',
+  coCaHaiSo,
+  // `check()` in `detail` cả khi ĐẠT, nên câu này phải đọc xuôi ở cả hai chiều — bản đầu để
+  // nguyên lý do thất bại và hoá ra in "thiếu một trong hai nhánh" ngay cạnh chữ OK.
+  coCaHaiSo
+    ? '<h2 id="home-browse"> mang cả hai nhánh'
+    : dongTong === null
+      ? 'không tìm thấy <h2 id="home-browse">'
+      : 'thiếu một trong hai nhánh con số',
 );
 
 check('trang chủ có link tới trang công thức', /href="\/cong-thuc\/[a-z0-9-]+\/"/.test(html));
@@ -112,19 +126,16 @@ check(
 
 /*
  * Hai màn KHÔNG có mục ở thanh dưới (WF-18 chốt đúng bốn mục), nên lối vào duy nhất của chúng
- * là hai link dưới đây. Trước đợt 12 cả hai màn đã dựng xong mà không có link nào trỏ tới —
+ * là link trong nội dung. Trước đợt 12 cả hai màn đã dựng xong mà không có link nào trỏ tới —
  * chỉ gõ URL tay mới mở được, và không test nào đỏ. Đây là chỗ chặn việc đó tái diễn.
+ *
+ * `/du-lieu/` giữ nguyên ở đây. Lối vào `/tim-kiem/` đã dời sang màn `/cong-thuc/` nên phép kiểm
+ * của nó cũng dời xuống mục dưới — lý do đầy đủ ghi tại chỗ.
  */
 check(
   'trang chủ có lối vào màn bảng dữ liệu /du-lieu/',
   html.includes('href="/du-lieu/"'),
   'khối "Công cụ"',
-);
-
-check(
-  'thanh trên có lối vào màn tìm kiếm /tim-kiem/',
-  html.includes('href="/tim-kiem/"'),
-  'nút kính lúp',
 );
 
 /* ── /cong-thuc/ — URL chính danh của danh sách, sitemap khai priority 0.9 ── */
@@ -164,10 +175,45 @@ check(
   `${String(formulaLinks.size)} / ${String(TONG_CONG_THUC)} link công thức khác nhau`,
 );
 
+/*
+ * React chèn `<!-- -->` giữa hai text node liền nhau khi dựng ở server, nên `{n} {t('list.count')}`
+ * ra HTML là `111<!-- --> <!-- -->công thức`. Phép kiểm bản đầu tìm ` công thức<` nên đỏ vì ký tự
+ * ngay trước "công" là `>` chứ không phải dấu cách — dòng đếm vẫn đúng, chỉ regex là quá chặt.
+ * Gỡ marker trước rồi mới đối chiếu: chuỗi cần kiểm là chuỗi NGƯỜI ĐỌC thấy, không phải chuỗi byte.
+ */
+const listHtmlPhang = listHtml.replaceAll('<!-- -->', '');
+
 check(
   '/cong-thuc/ có dòng đếm trong HTML tĩnh',
-  / công thức</.test(listHtml),
+  / công thức</.test(listHtmlPhang),
   'dòng "N công thức"',
+);
+
+/*
+ * Lối vào màn tìm kiếm `/tim-kiem/` — WF-18 không cho nó một mục ở thanh dưới.
+ *
+ * Lối vào cũ là nút kính lúp ở thanh trên, và phép kiểm cũ đọc `out/index.html`. Nút đó đã nhường
+ * chỗ cho nút đổi theme; chủ dự án chốt lối vào mới là chính ô tìm ở màn `/cong-thuc/` — xem
+ * docblock `SearchBoxLink`. Nên phép kiểm dời cả TRANG lẫn CÁCH ĐỌC.
+ *
+ * Vì sao không tìm trong HTML tĩnh: `SearchBoxLink` nằm trong `FormulaBrowser`, tức bên trong
+ * ranh giới `<Suspense>` mà `useSearchParams()` dựng lên, nên nó KHÔNG vào HTML tĩnh — chỗ đó là
+ * `StaticFormulaList`. Đòi `href="/tim-kiem/"` trong HTML là đòi một điều kiến trúc hiện tại
+ * không cho phép, và cũng không phải điều cần: yêu cầu thật là "có link bấm được trong sản phẩm,
+ * không phải chỉ gõ URL tay". Vì vậy đọc chính những chunk JS mà trang này tham chiếu.
+ */
+const listAssets = [...listHtml.matchAll(/["'(](\/_next\/static\/[^"')]+?\.js)["')]/g)].map((m) =>
+  decodeURIComponent((m[1] ?? '').slice(1)),
+);
+const coLoiVaoTim = listAssets.some(
+  (asset) =>
+    existsSync(`out/${asset}`) && readFileSync(`out/${asset}`, 'utf8').includes('/tim-kiem/'),
+);
+
+check(
+  '/cong-thuc/ có lối vào màn tìm kiếm /tim-kiem/',
+  coLoiVaoTim,
+  `ô tìm SearchBoxLink · quét ${String(listAssets.length)} chunk trang này tham chiếu`,
 );
 
 /* ── Ký hiệu toán học trong HTML tĩnh — gói 2.4.3 ────────────────────────── */

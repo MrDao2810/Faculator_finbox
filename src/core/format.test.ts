@@ -9,12 +9,15 @@ import {
   formatCalcOutput,
   formatNumber,
   formatValueWithUnit,
+  hasUnitLabel,
   parseViNumber,
   rawViNumber,
   scaleToDong,
   scaleToUnit,
+  unitLabel,
   withScalePrefix,
 } from './format';
+import { FORMULA_MODULES } from './formulas';
 import { divideByZero } from './warnings';
 
 describe('formatNumber()', () => {
@@ -227,10 +230,25 @@ describe('rút gọn số lớn cho nhãn trên hình', () => {
     expect(withScalePrefix('CP', TRIEU)?.vi).toBe('triệu CP');
   });
 
-  it('bậc "không chia" trả nguyên đơn vị; đơn vị rỗng không để lại khoảng trắng thừa', () => {
-    expect(withScalePrefix('lần', KHONG)).toEqual({ vi: 'lần', en: 'lần' });
+  it('bậc "không chia" trả nguyên đơn vị ĐÃ DỊCH; đơn vị rỗng không để lại khoảng trắng thừa', () => {
+    expect(withScalePrefix('lần', KHONG)).toEqual({ vi: 'lần', en: 'times' });
     expect(withScalePrefix('', KHONG)).toEqual({ vi: '', en: '' });
     expect(withScalePrefix('', TRIEU)).toEqual({ vi: 'triệu', en: 'million' });
+  });
+
+  /*
+   * Vế `en` phải ghép tiền tố tiếng Anh vào ĐƠN VỊ ĐÃ DỊCH. Trước đợt này nó ghép vào đơn vị gốc
+   * và cho ra `'thousand tỷ ₫'` — nửa Anh nửa Việt ngay trên tiêu đề trục.
+   */
+  it('ghép tiền tố: vế en dùng đơn vị đã dịch, không phải chuỗi tiếng Việt', () => {
+    expect(withScalePrefix('tỷ ₫', NGHIN)).toEqual({
+      vi: 'nghìn tỷ ₫',
+      en: 'thousand billion ₫',
+    });
+    expect(withScalePrefix('sản phẩm', TRIEU)).toEqual({
+      vi: 'triệu sản phẩm',
+      en: 'million units',
+    });
   });
 
   /*
@@ -245,5 +263,57 @@ describe('rút gọn số lớn cho nhãn trên hình', () => {
     expect(withScalePrefix('tỷ ₫', TY)).toBeNull();
     expect(withScalePrefix('triệu CP', NGHIN)).toBeNull();
     expect(withScalePrefix('nghìn ₫', NGHIN)).toBeNull();
+  });
+});
+
+/*
+ * ── Neo giữ bảng đơn vị song ngữ ────────────────────────────────────────────────────────────
+ *
+ * Chủ dự án báo "chuyển ngôn ngữ mà vài chỗ chưa đổi". Đo trên Chrome thật ở chế độ EN: gần như
+ * mọi chỗ còn tiếng Việt đều là ĐƠN VỊ — chip cạnh ô nhập ("tỷ ₫", "triệu CP"), đơn vị kết quả
+ * ("lần"), tiêu đề trục ("Price to earnings ratio (lần)"), ô Danh mục ("0 mã", "%/năm").
+ *
+ * Nguyên nhân gốc là một: `unit` trong spec là chuỗi tiếng Việt trần. `UNIT_EN` dịch tập đóng ấy.
+ * Hai ca dưới đây là thứ giữ cho nó không mục: một ca chặn đơn vị MỚI lọt vào mà quên bản dịch,
+ * một ca chặn bản dịch thừa nằm lại sau khi đơn vị bị bỏ.
+ */
+describe('unitLabel() — bảng đơn vị song ngữ', () => {
+  /** Mọi chuỗi đơn vị đang thật sự có trong Registry, đọc trực tiếp chứ không viết cứng. */
+  const DUNG_THAT = (() => {
+    const set = new Set<string>();
+    for (const formula of FORMULA_MODULES) {
+      set.add(formula.spec.resultUnit);
+      for (const variable of formula.spec.variables) set.add(variable.unit);
+    }
+    return [...set].sort();
+  })();
+
+  it('vế vi LUÔN là chính chuỗi spec khai — bản in và file xuất không được đổi', () => {
+    for (const unit of DUNG_THAT) {
+      expect(unitLabel(unit).vi).toBe(unit);
+    }
+  });
+
+  it('mọi đơn vị trong Registry đều có bản dịch — thêm đơn vị mới là phải khai', () => {
+    const thieu = DUNG_THAT.filter((unit) => !hasUnitLabel(unit));
+    expect(thieu, `Đơn vị chưa có trong UNIT_EN: ${thieu.join(', ')}`).toEqual([]);
+  });
+
+  /*
+   * Đơn vị lạ KHÔNG được ném lỗi: thiếu bản dịch thì màn hình hiện chữ tiếng Việt, chứ không
+   * hiện màn trắng. Cùng tinh thần FR-06 — hỏng thì phải hỏng một cách nói ra được.
+   */
+  it('đơn vị lạ trả về chính nó cho cả hai vế, không ném lỗi', () => {
+    expect(unitLabel('đơn vị chưa có')).toEqual({ vi: 'đơn vị chưa có', en: 'đơn vị chưa có' });
+  });
+
+  it('dịch đúng vài đơn vị hay gặp nhất', () => {
+    expect(unitLabel('lần').en).toBe('times');
+    expect(unitLabel('tỷ ₫').en).toBe('billion ₫');
+    expect(unitLabel('phiên').en).toBe('sessions');
+    expect(unitLabel('%/năm').en).toBe('%/year');
+    // Ký hiệu tiền và phần trăm giữ nguyên — chúng không phải chữ tiếng Việt.
+    expect(unitLabel('₫').en).toBe('₫');
+    expect(unitLabel('%').en).toBe('%');
   });
 });

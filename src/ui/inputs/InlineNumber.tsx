@@ -8,9 +8,10 @@ import {
   parseViNumber,
   rawViNumber,
   resolveInputState,
+  unitLabel,
 } from '@/application';
 import type { VariableSpec } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 
 import styles from './InlineNumber.module.css';
 
@@ -78,6 +79,9 @@ export function InlineNumber({
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
   const [draft, setDraft] = useState<string | null>(null);
   const t = useT();
+  const pick = usePick();
+  /* Đơn vị Domain là chuỗi tiếng Việt trần — dịch một lần, dùng cho cả hai nhánh dựng bên dưới. */
+  const donVi = pick(unitLabel(spec.unit));
 
   const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
   /*
@@ -130,7 +134,7 @@ export function InlineNumber({
         <span id={id} className={styles.input}>
           {formatNumber(value, { maxDecimals: 4 })}
         </span>
-        {showUnit && spec.unit !== '' && <span className={styles.unit}>{spec.unit}</span>}
+        {showUnit && donVi !== '' && <span className={styles.unit}>{donVi}</span>}
       </span>
     );
   }
@@ -181,7 +185,7 @@ export function InlineNumber({
           event.currentTarget.blur();
         }}
       />
-      {showUnit && spec.unit !== '' && <span className={styles.unit}>{spec.unit}</span>}
+      {showUnit && donVi !== '' && <span className={styles.unit}>{donVi}</span>}
       {outOfRange && note !== undefined && (
         /* Cùng vai `alert` mà `NumberInput` dùng cho dòng lỗi miền của nó — ô này không có chỗ
            bày một dòng chữ nên câu ấy chỉ dành cho trình đọc màn hình. */

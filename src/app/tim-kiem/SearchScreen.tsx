@@ -153,7 +153,6 @@ export function SearchScreen() {
             // Enter là dấu hiệu người dùng gõ xong: chốt URL ngay để link chia sẻ được luôn.
             commitDraft(draft);
           }}
-          showHint={trimmed === ''}
         />
       </div>
 
@@ -191,9 +190,7 @@ export function SearchScreen() {
                 : `${t('search.noMatch')} “${trimmed}”`
             }
             lines={
-              hiddenByLevel > 0
-                ? [t('list.empty.basicOnly.hint')]
-                : [t('list.empty.noMatch.scope'), t('search.hint')]
+              hiddenByLevel > 0 ? [t('list.empty.basicOnly.hint')] : [t('list.empty.noMatch.scope')]
             }
           />
 

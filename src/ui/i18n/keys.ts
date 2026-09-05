@@ -12,10 +12,10 @@ import type { MessageKey, UnitScaleId } from '@/application';
  * nợ (WF-14); trước đợt 9 cả hai in thẳng `scale.label` nên màn EN hiện
  * "Total interest … million ₫" ngay trên "Unit: triệu ₫".
  *
- * CÒN MỘT CHỖ NỮA CHƯA QUA ĐƯỜNG NÀY: tiêu đề trục biểu đồ (`src/core/chart/build.ts`) ghép
- * `${tên} (${scale.label})` ngay trong `ChartModel`. Đó là chuỗi do Domain dựng, và nó còn chứa
- * cả TÊN CÔNG THỨC — thứ chỉ dịch được sau khi duyệt nội dung — nên để nguyên tới lượt dịch
- * nội dung, không vá nửa vời ở đây.
+ * Ghi chú cũ ở đây nói tiêu đề trục biểu đồ "chưa qua đường này" vì nó do Domain ghép sẵn và còn
+ * chứa cả tên công thức. **Không còn đúng**: tên công thức nay là `Bilingual`, và đơn vị đi qua
+ * `unitLabel()` ở `src/core/format.ts` — một bảng tra song ngữ nằm luôn trong Domain, vì
+ * `withScalePrefix()` cũng cần vế `en` mà CON-02 cấm `src/core` đọc i18n. Xem `units.ts` cạnh đây.
  */
 export const UNIT_SCALE_KEYS: Readonly<Record<UnitScaleId, MessageKey>> = {
   billion: 'unit.scale.billion',

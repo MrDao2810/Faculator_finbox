@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 
-import { linearScale } from '@/application';
+import { linearScale, pointerToViewBox } from '@/application';
 import type { WaterfallChart as WaterfallModel } from '@/application';
 import { usePick } from '@/application/preferences-context';
 
@@ -29,9 +29,31 @@ import { thin, tickAnchor } from './ticks';
  *
  * ── Hover từng cột ──────────────────────────────────────────────────────────────────────────
  *
- * Không dùng cơ chế dò điểm liên tục như `LineChart` (không có "điểm giữa hai cột" để snap —
- * cột rời rạc). Thay vào đó, trỏ/chạm vào MỘT cột thì viền cột đó đậm lên và hiện `valueLabel`
- * ngay trên hình — vốn trước giờ chỉ có trong bảng số dưới `<details>`, phải mở ra mới tra được.
+ * Trỏ/chạm vào một HÀNG thì viền cột của hàng đó đậm lên và hiện `valueLabel` ngay trên hình —
+ * vốn trước giờ chỉ có trong bảng số dưới `<details>`, phải mở ra mới tra được.
+ *
+ * Vẫn không snap liên tục như `LineChart` (cột rời rạc, không có "điểm giữa hai cột"), nhưng
+ * **cách BẮT sự kiện thì đã đổi sang y hệt `LineChart`**: một `<rect>` trong suốt phủ cả vùng
+ * hàng, vẽ SAU cùng nên luôn là đích nhận pointer event, rồi suy ra hàng từ toạ độ y.
+ *
+ * Bản đầu gắn `onPointerEnter`/`onPointerLeave` lên CHÍNH từng cột. Chủ dự án báo "hover vào thì
+ * lúc được lúc không", và đo lại thì có đúng bốn nguyên nhân, cả bốn đều nằm ở cách bắt sự kiện:
+ *
+ *   1. **Nhãn giá trị tự cắn vào chân mình.** `.barValueLabel` là thẻ ANH EM vẽ sau cột, canh giữa
+ *      tại tâm cột — tức đúng chỗ con trỏ vừa dừng. Rê tới đó là `pointerleave` của cột bắn ra,
+ *      nhãn tắt, con trỏ lại nằm trên cột, `pointerenter` bắn ra, nhãn bật. Nhấp nháy vô hạn ở
+ *      đúng chỗ người ta nhắm tới. Đây là nguyên nhân chính của "lúc được lúc không".
+ *   2. **Đích quá nhỏ.** Vùng bắt là chính cột: cao 14/26 của hàng, và rộng đúng bằng giá trị.
+ *      Cột `Lãi vay sau thuế` của `fcfe` chỉ vài đơn vị bề ngang — trượt là chuyện thường.
+ *   3. **Chạm bị dính vào cột đầu.** Trình duyệt tự đặt implicit pointer capture lên phần tử nhận
+ *      `pointerdown`, nên kéo ngón tay sang cột khác vẫn không có `pointerenter` nào bắn ra.
+ *   4. **Nhấc ngón tay là mất số.** `pointerup` kéo theo `pointerleave`, nên một cú chạm chỉ loé
+ *      lên rồi tắt — đúng lúc người ta vừa nhấc tay ra để nhìn.
+ *
+ * Một vùng bắt duy nhất gỡ cả bốn: nhãn nằm DƯỚI nó nên không cướp được sự kiện (1), đích rộng
+ * cả hàng kể cả phần lề trái mang tên chặng (2), mọi sự kiện về cùng một phần tử nên capture
+ * không còn hại (3), và `pointerup` không xoá gì cả (4) — cùng lẽ với `LineChart`: ngón tay vừa
+ * che mất chỗ cần đọc, tắt ngay thì chạm xong không đọc được gì.
  */
 
 /* Khung vẽ theo đơn vị viewBox. Lề trái rộng cho nhãn chặng đọc ngang. */
@@ -63,9 +85,19 @@ export interface WaterfallChartProps {
 
 export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartProps) {
   const pick = usePick();
+  const svgRef = useRef<SVGSVGElement>(null);
 
   /** Cột đang trỏ/chạm — `null` là không cột nào. Cục bộ, không đồng bộ với bản phóng to. */
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  /**
+   * Giữ nhãn lại sau khi NHẤC NGÓN TAY — chỉ bật cho cử chỉ chạm, không bật cho chuột.
+   *
+   * Cùng lý do `LineChart` giữ vệt dò: ngón tay che mất đúng chỗ cần đọc, nên số phải còn đó sau
+   * khi nhấc ra. Với chuột thì không cần — chuột không che gì, và người dùng mong rê ra là tắt.
+   * Đặt lại `false` ở đầu mỗi cử chỉ mới, nên chỉ giữ đúng một lượt chạm.
+   */
+  const [pinned, setPinned] = useState(false);
 
   /*
    * Chiều cao theo SỐ CHẶNG, không phải tỉ lệ cố định như đường quét: ba chặng và tám chặng cần
@@ -79,9 +111,67 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
   const toX = linearScale(model.y.domain, [plotLeft, plotRight]);
   const zeroX = toX(0);
 
+  /**
+   * Hàng nào đang nằm dưới con trỏ — `null` khi ở ngoài vùng hàng.
+   *
+   * Đọc DOM trong handler là hợp lệ: nó chỉ chạy sau một sự kiện con trỏ thật, tức luôn sau khi
+   * hydrate đã khớp xong. Cùng lập luận đã ghi ở quyết định 2 trong docblock `LineChart`.
+   */
+  function rowAt(event: ReactPointerEvent<SVGRectElement>): number | null {
+    const svg = svgRef.current;
+    if (svg === null) return null;
+
+    const point = pointerToViewBox(
+      svg.getBoundingClientRect(),
+      event.clientX,
+      event.clientY,
+      W,
+      height,
+    );
+    if (point === null) return null;
+
+    const index = Math.floor((point.y - PAD.top) / ROW);
+    return index >= 0 && index < model.bars.length ? index : null;
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<SVGRectElement>) {
+    setHoverIndex(rowAt(event));
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<SVGRectElement>) {
+    try {
+      /*
+       * Bắt con trỏ về CHÍNH vùng bắt này. Với chạm, trình duyệt vốn đã tự đặt implicit capture
+       * lên phần tử nhận `pointerdown` — gọi tường minh không đổi gì cho ca ấy, nhưng nó giữ cho
+       * chuột kéo ra ngoài khung vẫn còn sự kiện, đúng như đường quét.
+       */
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Trình duyệt cũ hoặc jsdom không có API này — bỏ qua an toàn, cùng nếp `LineChart`.
+    }
+    setPinned(false);
+    setHoverIndex(rowAt(event));
+  }
+
+  function handlePointerUp(event: ReactPointerEvent<SVGRectElement>) {
+    // Chạm thì GIỮ số lại (ngón tay vừa che mất chỗ đọc); chuột thì không, rê ra là tắt.
+    if (event.pointerType !== 'mouse') setPinned(true);
+  }
+
+  function handlePointerLeave() {
+    if (!pinned) setHoverIndex(null);
+  }
+
+  function handlePointerCancel() {
+    // Trình duyệt tự huỷ cử chỉ (nhận nhầm thành cuộn trang) — không phải một lượt đọc, dọn sạch.
+    setPinned(false);
+    setHoverIndex(null);
+  }
+
   return (
     <div className={fill ? `${styles.plot} ${styles.plotFill}` : styles.plot}>
       <svg
+        ref={svgRef}
         className={fill ? `${styles.svgStack} ${styles.svgFill}` : styles.svgStack}
         /* Dấu để đường xuất file tìm lại đúng hình này — xem chú thích cùng tên ở `LineChart`. */
         data-chart-svg={idBase}
@@ -135,21 +225,16 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
                 {pick(bar.label)}
               </text>
 
+              {/*
+                Cột KHÔNG tự bắt sự kiện nữa — vùng bắt chung ở cuối `<svg>` lo việc đó. Xem mục
+                "Hover từng cột" ở đầu file: bắt trên chính cột là nguồn của cả bốn lỗi cũ.
+              */}
               <rect
                 className={hovering ? `${kindClass} ${styles.barHover}` : kindClass}
                 x={left}
                 y={barTop}
                 width={width}
                 height={BAR_HEIGHT}
-                onPointerEnter={() => {
-                  setHoverIndex(index);
-                }}
-                onPointerLeave={() => {
-                  setHoverIndex((current) => (current === index ? null : current));
-                }}
-                onPointerDown={() => {
-                  setHoverIndex(index);
-                }}
               />
 
               {/*
@@ -230,7 +315,46 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
         <text className={styles.axisTitle} x={(plotLeft + plotRight) / 2} y={height - 4}>
           {pick(model.y.title)}
         </text>
+
+        {/*
+          Vùng bắt sự kiện — trong suốt, vẽ SAU CÙNG nên luôn là đích nhận pointer event dù cột hay
+          nhãn nào đang nằm dưới. `pointer-events: all` trong `.hoverCapture` là bắt buộc: mặc định
+          SVG chỉ bắt ở phần THẬT SỰ tô màu, mà `fill: transparent` không tô gì cả.
+
+          Phủ TRỌN bề ngang (0 → W) chứ không chỉ vùng vẽ: lề trái mang tên chặng, và trỏ vào tên
+          để đọc giá trị của chính chặng ấy là phản xạ tự nhiên. Chiều dọc thì đúng vùng hàng, nên
+          nhãn vạch và tiêu đề trục ở đáy vẫn chọn bôi được như chữ thường.
+
+          `data-testid` kết thúc bằng `-hover-capture` KHÔNG phải để test: `chart-snapshot.ts` lọc
+          theo đúng hậu tố ấy để bỏ node này khỏi bản chép đem đi xuất file — thiếu nó thì tấm PNG
+          nhận một hình chữ nhật không có `fill` từ CSS Module và hoá thành mảng đen phủ kín hình.
+        */}
+        <rect
+          className={styles.hoverCapture}
+          data-testid={`${idBase}-hover-capture`}
+          x={0}
+          y={PAD.top}
+          width={W}
+          height={model.bars.length * ROW}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          onPointerLeave={handlePointerLeave}
+        />
       </svg>
     </div>
   );
 }
+
+/**
+ * Hình học của thác nước — cho test dùng, không đoán lại. Cùng vai trò với `CHART_GEOMETRY`.
+ *
+ * `heightOf()` chứ không phải một hằng `H`: khác đường quét, khung thác nước cao theo SỐ CHẶNG.
+ */
+export const WATERFALL_GEOMETRY = {
+  W,
+  ROW,
+  PAD,
+  heightOf: (barCount: number) => PAD.top + barCount * ROW + PAD.bottom,
+} as const;

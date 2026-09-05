@@ -8,6 +8,7 @@ import {
   parseViNumber,
   rawViNumber,
   resolveInputState,
+  unitLabel,
 } from '@/application';
 import type { InputState, Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
@@ -104,7 +105,8 @@ export function NumberInput({
       className={className}
       label={pick(spec.label)}
       hideLabel={hideLabel}
-      unit={spec.unit}
+      // `Input` là primitive nhận chuỗi đã sẵn sàng hiển thị, nên đơn vị dịch ở đây.
+      unit={pick(unitLabel(spec.unit))}
       tone={TONE_BY_STATE[state]}
       hint={hint}
       error={error}

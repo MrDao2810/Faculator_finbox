@@ -122,8 +122,14 @@
  *
  * Chỉ áp ở chế độ Cơ bản: sang Nâng cao thì chính nhóm ấy có đủ công thức, nên ô phải trở lại
  * dáng thường. Không cần luật hoàn nguyên — `.tile` bên trên đã là dáng thường rồi.
+ *
+ * `flex-wrap` đi cùng `flex-basis: 100%` ở `.count` ngay dưới — đó là cặp đẩy nhãn xuống hàng
+ * riêng; lý do và số đo nằm ở docblock của `.count`. Để chung một khối chứ không tách khối thứ
+ * hai cùng selector: repo đã có bài học về bộ trích CSS chỉ lấy khối KHỚP ĐẦU TIÊN.
  */
 :global(html:not([data-mode='advanced'])) .basicEmpty {
+  flex-wrap: wrap;
+
   background: var(--color-sunken);
   border-style: dashed;
 }
@@ -131,8 +137,29 @@
 /*
  * Nhãn "chỉ ở Nâng cao" thay chỗ con số: ba chữ chứ không phải một số, nên nó hạ một bậc cỡ chữ
  * và nhạt đi, để không giành chỗ đọc với tên nhóm bên trái.
+ *
+ * ── Vì sao nhãn PHẢI xuống hàng riêng ────────────────────────────────────────────────────────
+ *
+ * Đo trên Chrome thật ở khổ 360px, chế độ Cơ bản: ô rộng 160px, trừ padding 2×12, viền 2×1, icon
+ * 16 và hai khe 2×8 thì tên và nhãn chia nhau đúng **102px**. Riêng "Tài chính DN" cần 81px, còn
+ * nhãn chiếm 82px — mà `.count` khai `flex-shrink: 0`, nên tên bị bóp còn **20px** và hiện ra
+ * "Tà…". Mười một ô kia không dính vì con số chỉ tốn 8–16px.
+ *
+ * Rút gọn câu chữ KHÔNG cứu được: "Nâng cao" vẫn ~47px, cộng 81px của tên là 128 > 102. Muốn vừa
+ * một hàng thì nhãn phải ngắn cỡ "NC" — hết đọc được, mà đọc được chính là lý do nhãn tồn tại
+ * (NFR-USA-06: dấu hiệu không được chỉ nằm ở màu). Nên đổi chỗ, không đổi chữ.
+ *
+ * `flex-basis: 100%` cộng `flex-wrap: wrap` đẩy nhãn xuống hàng dưới, trả cả 110px của hàng trên
+ * cho tên. Ô cao thêm một dòng, và vì `.tile` khai `height: 100%` nên ô cùng hàng lưới cao theo —
+ * chấp nhận có ý thức: một hàng cao hơn vẫn đọc được, còn một cái tên cụt thì không.
+ *
+ * Chỉ áp ở chế độ Cơ bản, đúng phạm vi của `.basicEmpty` — sang Nâng cao thì ô lại in con số
+ * `expectedCount` bình thường và trở về đúng một hàng. Vế `flex-wrap` nằm ở khối `.basicEmpty`
+ * phía trên; thiếu một trong hai thì nhãn không xuống hàng.
  */
 :global(html:not([data-mode='advanced'])) .basicEmpty .count {
+  flex-basis: 100%;
+
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-muted);

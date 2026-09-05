@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MAX_SAVED_NAME, suggestCalcNames } from './saved-calc-name';
+import { MAX_SAVED_NAME, displayCalcName, suggestCalcNames } from './saved-calc-name';
 
 /** 25/08/2026 lúc 10 giờ sáng giờ địa phương — đủ xa nửa đêm để không lệch ngày vì múi giờ. */
 const SAVED_AT = new Date(2026, 7, 25, 10, 0, 0).getTime();
@@ -101,5 +101,82 @@ describe('suggestCalcNames', () => {
     const names = suggestCalcNames({ formulaName: 'P/E', savedAt: Number.NaN });
     expect(names).toEqual(['P/E']);
     expect(names.every((name) => name.trim() !== '')).toBe(true);
+  });
+});
+
+/*
+ * Chủ dự án gửi ảnh tab "Formulas" ở chế độ EN: dòng phụ đã là "AAA · True break-even price" mà
+ * tên ngay trên vẫn "AAA · Giá hoà vốn thực". Nguyên nhân: tên là chuỗi ĐÃ GHÉP, cất vào
+ * localStorage ở ngôn ngữ lúc bấm Lưu. Bộ ca dưới đây chốt cách gỡ — xem docblock của hàm.
+ */
+describe('displayCalcName', () => {
+  const CHUNG = {
+    viName: 'Giá hoà vốn thực',
+    localName: 'True break-even price',
+    savedAt: SAVED_AT,
+  };
+
+  it('tên vốn là GỢI Ý thì dựng lại ở ngôn ngữ đang xem', () => {
+    expect(displayCalcName({ ...CHUNG, stored: 'AAA · Giá hoà vốn thực', code: 'AAA' })).toBe(
+      'AAA · True break-even price',
+    );
+  });
+
+  it('gợi ý dạng ngày (không có mã) cũng dịch được', () => {
+    expect(displayCalcName({ ...CHUNG, stored: 'Giá hoà vốn thực · 25/08/2026' })).toBe(
+      'True break-even price · 25/08/2026',
+    );
+  });
+
+  /*
+   * Gợi ý số 2 ghép KẾT QUẢ, mà chuỗi kết quả cũng đổi theo ngôn ngữ (đơn vị). Nhận ra bằng bản
+   * tiếng Việt, dựng lại bằng bản đang xem — hai vế phải đi thành cặp, thiếu một là trượt.
+   */
+  it('gợi ý ghép kết quả: nhận ra bằng bản vi, dựng lại bằng bản đang xem', () => {
+    expect(
+      displayCalcName({
+        ...CHUNG,
+        stored: 'Giá hoà vốn thực · 92.370,28 ₫',
+        viResult: '92.370,28 ₫',
+        localResult: '92.370,28 ₫',
+      }),
+    ).toBe('True break-even price · 92.370,28 ₫');
+  });
+
+  /*
+   * Đây là nửa quan trọng hơn của hàm: tên NGƯỜI DÙNG TỰ GÕ là dữ liệu của họ, không phải chữ
+   * giao diện. Đổi ngôn ngữ mà nó bị viết lại thì đó mới là lỗi thật.
+   */
+  it('tên tự gõ giữ nguyên từng chữ', () => {
+    expect(displayCalcName({ ...CHUNG, stored: 'Mua đợt 2 nếu về vùng này' })).toBe(
+      'Mua đợt 2 nếu về vùng này',
+    );
+  });
+
+  /*
+   * Hậu tố né trùng ' (2)' do `dedupe()` gắn SAU khi ghép nên nó không có trong bộ gợi ý gốc.
+   * Không tách ra trước khi so thì mọi mục trùng tên đều trượt và ở lại tiếng Việt.
+   */
+  it('tách hậu tố né trùng trước khi so, rồi gắn lại', () => {
+    expect(displayCalcName({ ...CHUNG, stored: 'AAA · Giá hoà vốn thực (2)', code: 'AAA' })).toBe(
+      'AAA · True break-even price (2)',
+    );
+  });
+
+  it('đang ở tiếng Việt thì trả lại đúng chuỗi cũ, không đụng gì', () => {
+    const stored = 'AAA · Giá hoà vốn thực';
+    expect(
+      displayCalcName({
+        stored,
+        viName: 'Giá hoà vốn thực',
+        localName: 'Giá hoà vốn thực',
+        code: 'AAA',
+        savedAt: SAVED_AT,
+      }),
+    ).toBe(stored);
+  });
+
+  it('tên rỗng không làm hàm ném lỗi', () => {
+    expect(displayCalcName({ ...CHUNG, stored: '' })).toBe('');
   });
 });

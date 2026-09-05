@@ -13,7 +13,7 @@ import {
   PRICE_CACHE_KEY,
   SAVED_CALCS_KEY,
   addHolding,
-  formatCalcOutput,
+  displayCalcName,
   formatIsoDate,
   formatNumber,
   formatValueWithUnit,
@@ -46,6 +46,7 @@ import type {
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { HiddenByLevelNote } from '@/ui/browse';
+import { useCalcText, useValueText } from '@/ui/i18n/units';
 import { DisclaimerBar } from '@/ui/navigation';
 import { Button, Input } from '@/ui/primitives';
 import { StatTile } from '@/ui/result';
@@ -267,6 +268,8 @@ function snapshotFromCache(quote: CachedQuote): TickerSnapshot {
 export function PortfolioScreen() {
   const t = useT();
   const pick = usePick();
+  const calcText = useCalcText();
+  const valueText = useValueText();
   const router = useRouter();
   const { mode } = usePreferences();
   /** Chế độ Nâng cao mở thêm ô Beta, ô XIRR và ô nhập beta — FR-09. */
@@ -918,6 +921,29 @@ export function PortfolioScreen() {
                   const formulaName =
                     summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
 
+                  /*
+                    Tên đã cất là chuỗi ĐÃ GHÉP ở ngôn ngữ lúc bấm Lưu, nên đổi sang EN nó vẫn
+                    tiếng Việt trong khi dòng phụ ngay dưới đã dịch. `displayCalcName()` nhận ra
+                    tên nào vốn là GỢI Ý rồi dựng lại ở ngôn ngữ đang xem; tên người dùng tự gõ
+                    giữ nguyên từng chữ. Lý do đầy đủ ở docblock của hàm.
+                  */
+                  const savedName =
+                    summaryOf === undefined
+                      ? saved.name
+                      : displayCalcName({
+                          stored: saved.name,
+                          viName: summaryOf.name.vi,
+                          localName: formulaName,
+                          ...(saved.code === undefined ? {} : { code: saved.code }),
+                          ...(saved.resultValue === null
+                            ? {}
+                            : {
+                                viResult: formatValueWithUnit(saved.resultValue, saved.resultUnit),
+                                localResult: valueText(saved.resultValue, saved.resultUnit),
+                              }),
+                          savedAt: saved.savedAt,
+                        });
+
                   return (
                     <li key={saved.id} className={styles.row}>
                       {renaming === saved.id ? (
@@ -954,7 +980,7 @@ export function PortfolioScreen() {
                         </div>
                       ) : (
                         <>
-                          <p className={styles.savedName}>{saved.name}</p>
+                          <p className={styles.savedName}>{savedName}</p>
                           <p className={styles.savedMeta}>
                             {saved.code === undefined
                               ? formulaName
@@ -971,7 +997,7 @@ export function PortfolioScreen() {
                           <p className={styles.savedResult}>
                             {saved.resultValue === null
                               ? '—'
-                              : formatValueWithUnit(saved.resultValue, saved.resultUnit)}
+                              : valueText(saved.resultValue, saved.resultUnit)}
                           </p>
 
                           <div className={styles.actions}>
@@ -1062,7 +1088,7 @@ export function PortfolioScreen() {
                */
               note={
                 isCalculated(summary.gainPercent)
-                  ? formatCalcOutput(summary.gainPercent, { maxDecimals: 1 })
+                  ? calcText(summary.gainPercent, { maxDecimals: 1 })
                   : undefined
               }
             />

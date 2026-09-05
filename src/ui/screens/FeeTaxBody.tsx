@@ -1,10 +1,11 @@
 'use client';
 
-import { buildFeeBreakdown, formatCalcOutput, formatNumber } from '@/application';
+import { buildFeeBreakdown, formatNumber } from '@/application';
 import type { CalcContext } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
+import { useCalcText } from '../i18n/units';
 import styles from './FeeTaxBody.module.css';
 
 export interface FeeTaxBodyProps {
@@ -25,6 +26,7 @@ export interface FeeTaxBodyProps {
 export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
   const t = useT();
   const pick = usePick();
+  const calcText = useCalcText();
   const breakdown = buildFeeBreakdown(inputs, ctx);
 
   return (
@@ -39,13 +41,13 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
                 <span className={styles.rowLabel}>{pick(row.label)}</span>
                 <span className={styles.rowFormula}>{pick(row.formula)}</span>
               </div>
-              <span className={styles.rowValue}>{formatCalcOutput(row.output)}</span>
+              <span className={styles.rowValue}>{calcText(row.output)}</span>
             </div>
           ))}
 
           <div className={`${styles.row} ${styles.total}`}>
             <span className={styles.rowLabel}>{t('fee.totalCost')}</span>
-            <span className={styles.rowValue}>{formatCalcOutput(breakdown.totalCost)}</span>
+            <span className={styles.rowValue}>{calcText(breakdown.totalCost)}</span>
           </div>
         </div>
 
@@ -62,7 +64,7 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
           <span className={styles.statNote}>{t('fee.breakEvenNote')}</span>
         </div>
         <span className={styles.statValue}>
-          {formatCalcOutput(breakdown.breakEven, { maxDecimals: 0 })}
+          {calcText(breakdown.breakEven, { maxDecimals: 0 })}
         </span>
       </div>
 
@@ -75,7 +77,7 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
         <span className={styles.headlineLabel}>{t('fee.netProfit')}</span>
         <span className={styles.headlineValue}>
           {breakdown.netProfit.value === null
-            ? formatCalcOutput(breakdown.netProfit)
+            ? calcText(breakdown.netProfit)
             : `${formatNumber(breakdown.netProfit.value, { maxDecimals: 0, signed: true })} ₫`}
         </span>
 
@@ -84,12 +86,12 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
             <span className={styles.roiLabel}>{t('fee.netRoi')}</span>{' '}
             <span>
               {breakdown.netRoi.value === null
-                ? formatCalcOutput(breakdown.netRoi)
+                ? calcText(breakdown.netRoi)
                 : `${formatNumber(breakdown.netRoi.value, { minDecimals: 2, maxDecimals: 2, signed: true })} %`}
             </span>
           </span>
           <span className={styles.headlineNote}>
-            {t('fee.grossProfit')} {formatCalcOutput(breakdown.grossProfit, { maxDecimals: 0 })}
+            {t('fee.grossProfit')} {calcText(breakdown.grossProfit, { maxDecimals: 0 })}
           </span>
         </span>
       </section>

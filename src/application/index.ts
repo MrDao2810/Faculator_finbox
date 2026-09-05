@@ -41,6 +41,7 @@ export {
   rawViNumber,
   scaleToDong,
   scaleToUnit,
+  unitLabel,
 } from '@/core/format';
 
 // ── Trạng thái ô nhập — 5 trạng thái WF-16 (gói 2.3.1) ──────────────────────
@@ -82,8 +83,8 @@ export type { Holding, HoldingValue, PortfolioSummary, PriceState } from '@/core
 export { summarisePortfolio, valueHoldings } from '@/core/portfolio';
 
 // ── Phép tính đã lưu — tab "Công thức" của WF-06 ────────────────────────────
-export type { SuggestCalcNameInput } from '@/core/saved-calc-name';
-export { MAX_SAVED_NAME, suggestCalcNames } from '@/core/saved-calc-name';
+export type { DisplayCalcNameInput, SuggestCalcNameInput } from '@/core/saved-calc-name';
+export { MAX_SAVED_NAME, displayCalcName, suggestCalcNames } from '@/core/saved-calc-name';
 
 // ── Chuỗi giá OHLCV sửa tay — WF-05 (gói 3.3.1) ─────────────────────────────
 export type { RowCheck, RowIssue, RowIssueCode, SeriesCheck, SeriesRow } from '@/core/price-series';

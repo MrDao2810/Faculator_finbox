@@ -30,11 +30,10 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('LangSwitch', () => {
-  it('mặc định hiện VI, nhãn nói rõ hành động, và báo trước bản EN còn dịch dở', () => {
+  it('mặc định hiện VI, nhãn nói rõ hành động', () => {
     dungNut();
     const nut = screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' });
     expect(nut.textContent).toBe('VI');
-    expect(nut.getAttribute('title')).toContain('đang dịch dở');
   });
 
   it('bấm một lần: sang EN, và chính nút nói tiếng Anh', async () => {
@@ -45,8 +44,30 @@ describe('LangSwitch', () => {
 
     const nut = screen.getByRole('button', { name: 'Switch to Vietnamese' });
     expect(nut.textContent).toBe('EN');
-    // Câu "bản EN dịch dở" chỉ nhắc khi SẮP chuyển sang EN — đã ở EN rồi thì thôi.
-    expect(nut.getAttribute('title')).toBeNull();
+  });
+
+  /*
+   * Nút KHÔNG được mang `title` ở bất kỳ chiều nào.
+   *
+   * Trước đây chiều VI→EN mang câu "Bản tiếng Anh đang dịch dở — câu chưa dịch vẫn hiện tiếng
+   * Việt", hiện ra khi rê chuột. Chủ dự án yêu cầu bỏ, và câu ấy cũng đã sai: `missingKeys('en')`
+   * rỗng, nội dung công thức đã dịch trọn dưới dạng `Bilingual`, còn mấy khối vẫn tiếng Việt là
+   * cố ý theo thiết kế chứ không phải nợ dịch — xem docblock đầu `en.ts`.
+   *
+   * Kiểm CẢ HAI chiều: bản cũ vốn chỉ gắn `title` ở chiều VI→EN, nên một phép kiểm một chiều sẽ
+   * xanh sẵn ở chiều kia và không chứng minh được gì.
+   */
+  it('không chiều nào mang tooltip — câu "bản EN đang dịch dở" đã gỡ hẳn', async () => {
+    const user = userEvent.setup();
+    dungNut();
+
+    const nutVi = screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' });
+    expect(nutVi.getAttribute('title')).toBeNull();
+
+    await user.click(nutVi);
+    expect(screen.getByRole('button', { name: 'Switch to Vietnamese' }).getAttribute('title')).toBe(
+      null,
+    );
   });
 
   it('bấm hai lần: quay về VI — công tắc hai chiều thật', async () => {

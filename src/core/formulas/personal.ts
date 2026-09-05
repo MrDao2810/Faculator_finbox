@@ -324,7 +324,7 @@ export const LICH_TRA_NO: FormulaModule = {
   spec: {
     id: 'lich-tra-no',
     categoryId: 'loans',
-    name: { vi: 'Lịch trả nợ vay', en: 'Loan amortisation schedule' },
+    name: { vi: 'Lịch trả nợ vay', en: 'Loan amortization schedule' },
     description: {
       vi: 'Tổng số tiền lãi phải trả trong cả kỳ hạn, kèm bảng chi tiết từng kỳ.',
       en: 'The total interest payable over the whole term, with a detailed period-by-period table.',
@@ -356,7 +356,7 @@ export const LICH_TRA_NO: FormulaModule = {
     breakdownTotal: { vi: 'Tổng lãi', en: 'Total interest' },
     level: 'basic',
     isFeatured: true,
-    tags: ['lich tra no', 'tong lai', 'bang tra no', 'amortisation'],
+    tags: ['lich tra no', 'tong lai', 'bang tra no', 'amortization'],
     resultUnit: '₫',
     variables: [loanAmount, loanRate, loanYears, loanMethod],
     explanation: {
@@ -418,7 +418,7 @@ export const LICH_TRA_NO: FormulaModule = {
         value: null,
         unit: '₫',
         warning: divideByZero(
-          { vi: 'lịch trả nợ', en: 'the amortisation schedule' },
+          { vi: 'lịch trả nợ', en: 'the amortization schedule' },
           { vi: 'Kỳ hạn', en: 'Term' },
           { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
         ),

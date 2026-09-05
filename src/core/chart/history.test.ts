@@ -456,9 +456,9 @@ describe('trục thời gian — quét toàn Registry', () => {
    * ẩn biến nâng cao khỏi ô chọn trục X (FR-09) — một công thức mà mọi biến đều là nâng cao sẽ không
    * còn ứng viên nào ở chế độ Cơ bản, và đó đúng là kiểu hụt mà ca này canh.
    */
-  it('nạp chuỗi giá rồi thì CẢ 100 công thức đều dựng được mô hình, ở cả hai chế độ', () => {
+  it('nạp chuỗi giá rồi thì CẢ 102 công thức đều dựng được mô hình, ở cả hai chế độ', () => {
     const wanted = FORMULA_MODULES.filter((formula) => formula.spec.chartType !== 'none');
-    expect(wanted).toHaveLength(100);
+    expect(wanted).toHaveLength(102);
 
     for (const level of ['basic', 'advanced'] as const) {
       for (const formula of wanted) {

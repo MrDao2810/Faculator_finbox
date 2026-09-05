@@ -273,6 +273,11 @@ export const BASIS_VN30F: FormulaModule = {
       vi: 'Basis = Giá hợp đồng tương lai − Chỉ số cơ sở',
       en: 'Basis = Futures contract price − Underlying index',
     },
+    /*
+     * Hiệu của đúng hai đầu vào — đường quét là đoạn thẳng hệ số góc ±1. Cùng luật với nhóm phí &
+     * thuế (xem docblock đầu `fees.ts`). So với `so-hop-dong-toi-da` ngay dưới trong cùng file:
+     * cái kia có hàm làm tròn xuống nên thành bậc thang và ĐÃ được mở biểu đồ.
+     */
     chartType: 'none',
     level: 'basic',
     tags: ['basis', 'vn30f', 'chenh gia', 'premium', 'discount', 'phai sinh'],
@@ -639,7 +644,16 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       vi: 'Số hợp đồng tối đa = Vốn ký quỹ ÷ (Điểm hợp đồng × Hệ số nhân × Tỷ lệ ký quỹ ÷ 100), làm tròn xuống',
       en: 'Maximum contracts = Margin capital ÷ (Contract points × Multiplier × Margin ratio ÷ 100), rounded down',
     },
-    chartType: 'none',
+    /*
+     * MỞ biểu đồ ở đợt kiểm kê — trước đó khai `'none'` theo luật chung "kết quả là hàm bậc nhất
+     * của một đầu vào thì hình không nói gì". Luật ấy KHÔNG áp được ở đây: hàm làm tròn xuống của
+     * `latex` biến đường quét thành BẬC THANG, không phải đoạn thẳng. Đo trên chính Registry: quét
+     * vốn ký quỹ qua 41 mức cho y chạy 4→13 HĐ với bước chỉ nhận hai giá trị 0 và 1.
+     *
+     * Và bậc thang ấy nói đúng thứ người dùng cần: còn thiếu bao nhiêu tiền nữa thì lên được thêm
+     * một hợp đồng — thông tin mà con số đơn lẻ ở khối Kết quả không mang được.
+     */
+    chartType: 'sensitivity',
     level: 'basic',
     tags: ['ky quy', 'so hop dong', 'margin', 'vn30f', 'ky quy ban dau', 'phai sinh'],
     resultUnit: 'HĐ',

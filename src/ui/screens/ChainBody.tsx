@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-import { formatCalcOutput, formulaPath, variablesForLevel } from '@/application';
+import { formulaPath, variablesForLevel } from '@/application';
 import type { ChainInputs, ChainOverrides, ChainResult, FormulaSpec, Level } from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { FlowChainStrip, InlineWarning } from '@/ui/result';
 import type { FlowStatus } from '@/ui/result';
 
+import { useCalcText } from '../i18n/units';
 import styles from './ChainBody.module.css';
 
 export interface ChainBodyProps {
@@ -67,6 +68,7 @@ export function ChainBody({
   );
   const t = useT();
   const pick = usePick();
+  const calcText = useCalcText();
 
   const currentIndex = chain.steps.findIndex((step) => step.formulaId === currentId);
   if (currentIndex === -1) return null;
@@ -114,7 +116,7 @@ export function ChainBody({
                 : styles.stepValue
             }
           >
-            {formatCalcOutput(step.output)}
+            {calcText(step.output)}
           </span>
         </summary>
 

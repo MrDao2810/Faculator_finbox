@@ -229,7 +229,7 @@ export const EV: FormulaModule = {
     latex: 'EV = \\text{Vốn hoá} + \\text{Nợ vay} - \\text{Tiền mặt}',
     expression: {
       vi: 'EV = Vốn hoá thị trường + Nợ vay − Tiền và tương đương tiền',
-      en: 'EV = Market capitalisation + Debt − Cash and cash equivalents',
+      en: 'EV = Market capitalization + Debt − Cash and cash equivalents',
     },
     chartType: 'waterfall',
     level: 'basic',
@@ -238,7 +238,7 @@ export const EV: FormulaModule = {
     variables: [
       numberVar(
         'marketCap',
-        { vi: 'Vốn hoá thị trường', en: 'Market capitalisation' },
+        { vi: 'Vốn hoá thị trường', en: 'Market capitalization' },
         'tỷ ₫',
         9_200,
         {
@@ -346,7 +346,7 @@ export const EV: FormulaModule = {
           },
           {
             vi: 'Tính vốn hoá trước bằng công thức Vốn hoá thị trường trong nhóm này.',
-            en: 'Calculate market cap first, using the Market capitalisation formula in this group.',
+            en: 'Calculate market cap first, using the Market capitalization formula in this group.',
           },
         ),
       };
@@ -767,7 +767,7 @@ export const VON_HOA: FormulaModule = {
   spec: {
     id: 'von-hoa-thi-truong',
     categoryId: 'valuation',
-    name: { vi: 'Vốn hoá thị trường', en: 'Market capitalisation' },
+    name: { vi: 'Vốn hoá thị trường', en: 'Market capitalization' },
     description: {
       vi: 'Tổng giá trị thị trường của toàn bộ cổ phiếu đang lưu hành.',
       en: 'The total market value of all outstanding shares.',

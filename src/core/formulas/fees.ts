@@ -9,6 +9,23 @@
  *
  * Bộ số kiểm chứng lấy đúng ví dụ WF-08: 1.000 CP, giữ 5 tháng, mua 92.000 ₫, bán 97.000 ₫,
  * biểu phí "Mặc định HOSE 2026".
+ *
+ * ## Vì sao năm công thức ở nhóm này khai `chartType: 'none'`
+ *
+ * Lý do viết MỘT LẦN ở đây thay vì chép năm lần xuống dưới, vì cả năm cùng đúng một lẽ:
+ * `phi-giao-dich-mua`, `phi-giao-dich-ban`, `thue-chuyen-nhuong`, `thue-co-tuc`, `phi-luu-ky` đều
+ * có dạng **tích của các đầu vào với một tỉ lệ hằng** (`Q × P × r`, `Q × M × c`). Quét bất kỳ biến
+ * nào trong đó cũng ra một ĐOẠN THẲNG đi qua gốc — hình mà người đọc đoán trước được trọn vẹn từ
+ * chính dòng `expression` ngay trên nó, nên vẽ ra là thêm một khối chiếm nửa màn mà không thêm
+ * một thông tin nào.
+ *
+ * Đây là ranh giới cần đọc kỹ trước khi mở thêm cái nào: điều kiện KHÔNG phải "công thức đơn
+ * giản" mà là "đường quét thẳng". Đợt kiểm kê đã mở `so-hop-dong-toi-da` (có hàm làm tròn xuống →
+ * bậc thang) và `gia-von-trung-binh-dca` (ẩn số nằm ở mẫu → đường cong) đúng theo ranh giới đó.
+ * Ba công thức còn lại của nhóm — `gia-hoa-von`, `loi-nhuan-rong`, `roi-rong` — đều khai
+ * `'sensitivity'`, và đúng theo cùng ranh giới ấy: cả ba cộng/trừ nhiều khoản phí rồi mới chia,
+ * nên đường quét không còn đi qua gốc (`gia-hoa-von` có tổng phí ở tử và một hiệu ở mẫu,
+ * `roi-rong` có ẩn số ở cả tử lẫn mẫu).
  */
 
 import { ok } from '../calc-output';
@@ -105,6 +122,7 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
       vi: 'Phí mua = Khối lượng × Giá mua × Tỷ lệ phí mua',
       en: 'Buy fee = Quantity × Buy price × Buy fee rate',
     },
+    // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
     tags: ['phi mua', 'phi moi gioi', 'phi giao dich'],
@@ -177,6 +195,7 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
       vi: 'Phí bán = Khối lượng × Giá bán × Tỷ lệ phí bán',
       en: 'Sell fee = Quantity × Sell price × Sell fee rate',
     },
+    // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
     tags: ['phi ban', 'phi moi gioi', 'phi giao dich'],
@@ -244,6 +263,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       vi: 'Thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng',
       en: 'Tax = Quantity × Sell price × Transfer tax rate',
     },
+    // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
     tags: ['thue', 'thue cnck', 'chuyen nhuong'],
@@ -311,6 +331,7 @@ export const THUE_CO_TUC: FormulaModule = {
       vi: 'Thuế cổ tức = Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
       en: 'Dividend tax = Quantity × Dividend per share × Dividend tax rate',
     },
+    // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
     tags: ['thue co tuc', 'co tuc', 'dividend'],
@@ -384,6 +405,7 @@ export const PHI_LUU_KY: FormulaModule = {
       vi: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
       en: 'Custody fee = Quantity × Holding period × Rate per share per month',
     },
+    // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
     tags: ['phi luu ky', 'vsd', 'custody'],

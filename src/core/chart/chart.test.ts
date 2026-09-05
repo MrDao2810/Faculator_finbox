@@ -81,7 +81,7 @@ describe('decimalsOf()', () => {
   });
 });
 
-describe('niceAxis() — bốn lưới an toàn', () => {
+describe('niceAxis() — năm lưới an toàn', () => {
   const DOMAINS: ReadonlyArray<readonly [number, number]> = [
     [0, 1],
     [0, 100],
@@ -91,6 +91,16 @@ describe('niceAxis() — bốn lưới an toàn', () => {
     [55_200, 128_800],
     [0.667, 2],
     [-120, -30],
+    /*
+     * Bốn miền HẸP tới mức `decimalsOf()` (trần 6 chữ số) không viết ra chữ nổi. Trước lưới thứ ba
+     * mở rộng, `round()` ép cả hai đầu miền lẫn mọi vạch về cùng một số: ca ngay dưới đây đỏ ở
+     * "vạch tăng ngặt", còn trên màn thì trục Y in ra một cột toàn `0`.
+     */
+    [1e-9, 5e-9],
+    [0, 1e-7],
+    [3e-7, 3.2e-7],
+    // Miền hẹp so với ĐỘ LỚN, không hẹp tuyệt đối — chỗ `Math.round()` chạm trần 2^53.
+    [1e12, 1e12 + 0.001],
   ];
 
   it('giữ đủ tính chất trên mọi miền thường gặp', () => {
@@ -124,6 +134,61 @@ describe('niceAxis() — bốn lưới an toàn', () => {
     expect(axis.domain[0]).toBeLessThan(15.21);
     expect(axis.domain[1]).toBeGreaterThan(15.21);
     expect(axis.ticks.length).toBeGreaterThanOrEqual(2);
+  });
+
+  /*
+   * Bất biến ĐẮT NHẤT của hàm này, và là chỗ đã hỏng thật: miền phải bọc trọn dữ liệu.
+   *
+   * Điểm nằm ngoài miền bị `linearScale()` chiếu ra ngoài vùng vẽ — đo được trên `ev-ebitda`:
+   * 9/41 điểm rơi xuống toạ độ 189,6 trong khi đáy vùng vẽ ở 166. Ở đó đường vừa không đọc được,
+   * vừa nằm ngoài vùng bắt sự kiện nên không rê/bấm được. Nguyên nhân là phép "cắt đuôi dấu phẩy
+   * động" khi ấy làm tròn theo trần 6 chữ số THẬP PHÂN: `round(5e-7, 6)` cho `1e-6`, cao hơn giá
+   * trị nhỏ nhất của dữ liệu.
+   *
+   * Quét thay vì kể ca: bản cũ vi phạm 450 trong 21.320 cặp, mà không cặp nào trong số đó nằm
+   * trong tám miền mẫu ở trên — kể ca lẻ thì lần sau lại lọt đúng như vậy.
+   */
+  it('miền luôn bọc TRỌN dữ liệu và vạch luôn tăng ngặt — quét khắp mọi thang', () => {
+    const viPham: string[] = [];
+
+    for (let mu = -9; mu <= 3; mu += 1) {
+      for (let a = 1; a <= 30; a += 1) {
+        for (let b = a; b <= 30; b += 1) {
+          for (const dau of [1, -1]) {
+            const lo = dau > 0 ? 10 ** mu * a * 0.1 : -(10 ** mu) * b * 0.1;
+            const hi = dau > 0 ? 10 ** mu * b * 0.1 : -(10 ** mu) * a * 0.1;
+            const axis = niceAxis(lo, hi);
+            const tangNgat = axis.ticks.every(
+              (tick, index) => index === 0 || tick > (axis.ticks[index - 1] ?? 0),
+            );
+
+            if (axis.domain[0] > lo || axis.domain[1] < hi || !tangNgat || axis.ticks.length < 2) {
+              viPham.push(`[${lo.toExponential(2)}, ${hi.toExponential(2)}]`);
+            }
+          }
+        }
+      }
+    }
+
+    expect(viPham.slice(0, 10)).toEqual([]);
+  });
+
+  // Cặp thật lấy từ `ev-ebitda` khi EV = 0,002 tỷ ₫ — chính ảnh chụp mà chủ dự án gửi.
+  it('bước nhỏ hơn 1e-6 vẫn không đẩy mép miền lên trên giá trị nhỏ nhất', () => {
+    const axis = niceAxis(6.896551724137931e-7, 2.068965517241379e-6);
+
+    expect(axis.domain[0]).toBeLessThanOrEqual(6.896551724137931e-7);
+    expect(axis.domain[1]).toBeGreaterThanOrEqual(2.068965517241379e-6);
+  });
+
+  it('miền hẹp tới mức không viết ra chữ được thì nới ra, KHÔNG trả một cột vạch trùng nhau', () => {
+    const axis = niceAxis(3e-7, 3.2e-7);
+
+    expect(axis.domain[0]).toBeLessThan(axis.domain[1]);
+    expect(new Set(axis.ticks).size).toBe(axis.ticks.length);
+    // Nới quanh TÂM, nên dữ liệu nằm trong lòng miền chứ không dính một mép.
+    expect(axis.domain[0]).toBeLessThan(3e-7);
+    expect(axis.domain[1]).toBeGreaterThan(3.2e-7);
   });
 
   it('hi < lo thì hoán vị chứ không trả miền âm', () => {
@@ -551,6 +616,67 @@ describe('buildChartModel()', () => {
     expect(model.title.vi).toBe('P/E theo Giá thị trường');
     expect(model.x.title.vi).toBe('Giá thị trường (₫)');
     expect(model.y.title.vi).toBe('P/E (lần)');
+  });
+
+  /*
+   * Chỗ hỏng đã báo, dựng lại từ đầu kia của đường ống: kết quả siêu nhỏ ở MỌI mức quét làm miền
+   * hẹp hơn thứ `decimalsOf()` viết ra nổi, và trước lưới an toàn thứ ba, `niceAxis()` trả về một
+   * cột vạch trùng nhau. `pickScale()` không thấy gì bất thường — nhãn `'0'` vừa khít ngân sách 6
+   * ký tự — nên trục vẫn ghi `(lần)` và trông hoàn toàn hợp lệ. Hai câu dưới chốt cả hai đầu: nhãn
+   * phải phân biệt được, mà đơn vị cũng không được trôi sang một bậc vô nghĩa như `'nghìn lần'`.
+   */
+  it('kết quả siêu nhỏ ở mọi mức: nhãn trục Y vẫn PHÂN BIỆT, đơn vị không trôi sang bậc lớn hơn', () => {
+    const formula = moduleOf('ev-sales');
+    const inputs = { ev: 0.00001, revenue: 9_800 };
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+    });
+
+    if (model.kind !== 'line') throw new Error('phải ra đường quét');
+
+    const labels = model.y.ticks.map((tick) => tick.label);
+    expect(labels.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(model.y.title.vi).toBe('EV/Sales (lần)');
+  });
+
+  /*
+   * Chỗ hỏng thứ hai của cùng ảnh chụp, và nó ĐỘC LẬP với miền: `pickScale()` chọn bậc hiển thị
+   * theo ĐỘ DÀI NHÃN, mà `COMPACT_PREFIXES` chỉ có bậc PHÓNG TO. Đem chia một giá trị vốn đã siêu
+   * nhỏ thì mọi nhãn co về `'0'` — dài đúng 1 ký tự, tức luôn "vừa" ngân sách và luôn thắng. Trục
+   * ra `'EV/EBITDA (nghìn lần)'`: một đơn vị không có thật, với ba nhãn giống hệt nhau.
+   *
+   * Ca này chốt cả hai nửa của luật mới: nhãn phải phân biệt, và khi phải chọn giữa "ngắn nhưng
+   * sai" với "dài nhưng đúng" thì lấy cái đúng.
+   */
+  it('kết quả siêu nhỏ: đơn vị trục KHÔNG trôi sang bậc phóng to vô nghĩa', () => {
+    const formula = moduleOf('ev-ebitda');
+    const inputs = { ...defaultInputs(formula.spec), ev: 0.002 };
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+    });
+
+    if (model.kind !== 'line') throw new Error('phải ra đường quét');
+
+    expect(model.y.title.vi).toBe('EV/EBITDA (lần)');
+
+    const labels = model.y.ticks.map((tick) => tick.label);
+    expect(new Set(labels).size).toBe(labels.length);
+
+    // Và miền phải ôm hết đường — không điểm nào bị đẩy ra ngoài khung vẽ.
+    for (const point of model.points) {
+      if (point.y === null) continue;
+      expect(point.y).toBeGreaterThanOrEqual(model.y.domain[0]);
+      expect(point.y).toBeLessThanOrEqual(model.y.domain[1]);
+    }
   });
 
   it('câu mô tả nói đủ dải, khoảng kết quả và giá trị hiện tại — đây là lối đọc của trình đọc màn hình', () => {
@@ -1510,11 +1636,15 @@ describe('buildChartModel()', () => {
   /*
    * Phủ khi CHƯA nạp dữ liệu — trạng thái người dùng gặp lúc mới mở màn.
    *
-   * 63 công thức vẽ được ngay bằng đường quét độ nhạy; 34 công thức còn lại ăn chuỗi giá nên đứng ở
+   * 63 công thức vẽ được ngay bằng đường quét độ nhạy; 35 công thức còn lại ăn chuỗi giá nên đứng ở
    * câu "chưa có phiên giá" kèm câu chỉ đường, và đó là trạng thái ĐÚNG chứ không phải thiếu sót.
    * Chốt cả hai con số: nếu một công thức tuột khỏi nhóm vẽ được vì lý do khác thì ca này đỏ.
+   *
+   * 61 → 63 ở đợt kiểm kê: `so-hop-dong-toi-da` và `gia-von-trung-binh-dca` rời nhóm `'none'` vì
+   * đường quét của chúng KHÔNG thẳng (bậc thang do làm tròn xuống, và đường cong do ẩn số nằm ở
+   * mẫu). Lý do nằm ngay tại chỗ khai của từng công thức.
    */
-  it('chưa nạp dữ liệu: 61 đường quét + 4 bóc tách, 35 công thức chờ chuỗi giá', () => {
+  it('chưa nạp dữ liệu: 63 đường quét + 4 bóc tách, 35 công thức chờ chuỗi giá', () => {
     const wanted = FORMULA_MODULES.filter((f) => f.spec.chartType !== 'none');
     const drawn = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'line');
     const bocTach = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'waterfall');
@@ -1523,8 +1653,8 @@ describe('buildChartModel()', () => {
       return model.kind === 'unavailable' && model.warning.code === 'MISSING_SERIES';
     });
 
-    expect(wanted).toHaveLength(100);
-    expect(drawn).toHaveLength(61);
+    expect(wanted).toHaveLength(102);
+    expect(drawn).toHaveLength(63);
     /*
      * BỐN công thức bày thác nước NGAY khi mở màn — đúng bốn cái khai `chartType: 'waterfall'`:
      * `ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`. Điểm chung của chúng không phải là tình cờ:
@@ -1542,16 +1672,39 @@ describe('buildChartModel()', () => {
   });
 
   /*
-   * Mười công thức `chartType: 'none'` KHÔNG phải việc còn nợ.
+   * Chín công thức `chartType: 'none'` KHÔNG phải việc còn nợ.
    *
-   * Phí giao dịch bằng giá × khối lượng × tỉ lệ: đường quét của nó là một đoạn thẳng mà người đọc
-   * đoán trước được, vẽ ra chỉ thêm một hình không nói gì. Ca này chốt rằng nhãn ấy là một quyết
-   * định về ý nghĩa, và giao diện tôn trọng nó bằng cách không dựng khối biểu đồ nào.
+   * Phép thử là **"đường quét có thẳng không"**, không phải "công thức có đơn giản không". Phí giao
+   * dịch bằng giá × khối lượng × tỉ lệ: đường quét là một đoạn thẳng qua gốc mà chính dòng
+   * `expression` ngay trên nó đã nói trọn, vẽ ra chỉ thêm một khối không nói gì.
+   *
+   * 11 → 9 ở đợt kiểm kê, và đó là bằng chứng phép thử ấy có răng: `so-hop-dong-toi-da` với
+   * `gia-von-trung-binh-dca` từng nằm trong nhóm này vì trông "đơn giản", nhưng đo trên Registry
+   * thì một cái ra bậc thang (hàm làm tròn xuống) còn cái kia ra đường cong (ẩn số ở mẫu).
+   *
+   * GHIM DANH SÁCH chứ không chỉ đếm: đếm thì bỏ một cái rồi thêm một cái khác là hoà, và ca kiểm
+   * im lặng. Muốn đổi thì phải sửa danh sách, và lúc đó sẽ đọc lý do viết tại chỗ khai.
    */
-  it('nhóm chartType none — nay 11 công thức, thêm xirr', () => {
-    const none = FORMULA_MODULES.filter((f) => f.spec.chartType === 'none');
+  it('nhóm chartType none — đúng 9 công thức, đều có đường quét thẳng', () => {
+    const none = FORMULA_MODULES.filter((f) => f.spec.chartType === 'none').map((f) => f.spec.id);
 
-    expect(none).toHaveLength(11);
+    expect([...none].sort()).toEqual(
+      [
+        // Tích của các đầu vào với một tỉ lệ hằng — xem docblock đầu `fees.ts`.
+        'phi-giao-dich-mua',
+        'phi-giao-dich-ban',
+        'thue-chuyen-nhuong',
+        'thue-co-tuc',
+        'phi-luu-ky',
+        // Cũng là tích, ở nhóm tiết kiệm.
+        'rut-truoc-han',
+        // Hiệu của đúng hai đầu vào — hệ số góc ±1.
+        'loi-suat-vuot-chuan',
+        'basis-vn30f',
+        // Biến quét được duy nhất là điểm xuất phát Newton-Raphson — xem `returns.ts`.
+        'xirr',
+      ].sort(),
+    );
     expect(FORMULA_MODULES).toHaveLength(111);
   });
 });

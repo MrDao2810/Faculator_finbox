@@ -25,6 +25,7 @@ import {
   NO_VALUE,
   formatNumber,
   formatValueWithUnit,
+  unitLabel,
   withScalePrefix,
 } from '../format';
 import type { Bilingual, CalcOutput, Level } from '../types';
@@ -118,7 +119,7 @@ function shortLabel(text: Bilingual): Bilingual {
  * Bề ngang tối đa của một nhãn vạch, tính bằng KÝ TỰ — hai con số vì hai trục có hai chỗ đứng khác
  * hẳn nhau, và gộp chúng làm một là hoặc để trục Y tràn, hoặc chia bậc trục X khi không cần.
  *
- *   - **Trục Y** đứng trong lề trái rộng 41 đơn vị viewBox (`PAD.left = 46` trừ 5 đơn vị hở), chữ
+ *   - **Trục Y** đứng trong lề trái rộng 31 đơn vị viewBox (`PAD.left = 36` trừ 5 đơn vị hở), chữ
  *     `font-size: 10px` → vừa đúng ~6 ký tự. Đây là chỗ CHẬT NHẤT của cả hình, và cũng là chỗ hỏng
  *     đã báo: `1.000.000` (9 ký tự) tràn qua mép trái `x = 0` rồi bị `<svg>` cắt cụt IM LẶNG.
  *   - **Trục X** nằm ngang dưới đáy và đã thưa còn ĐÚNG HAI nhãn (`thin(x.ticks, 2)`), nên mỗi nhãn
@@ -126,6 +127,11 @@ function shortLabel(text: Bilingual): Bilingual {
  *     vị, còn thừa chỗ ở giữa, mà vẫn cắt được `100.000.000.000 ₫` của `lai-kep`.
  *
  * Đổi `PAD.left`, cỡ chữ `.tick`, hay số nhãn giữ lại ở `thin()` thì phải xem lại hai con số này.
+ *
+ * NGÂN SÁCH ƯU TIÊN, không phải trần cứng — khác với bản đầu. Ở đầu NHỎ của thang, mọi bậc hiển
+ * thị đều làm nhãn co về `'0'` (xem `pickScale()`), nên một trần cứng ở đây có nghĩa là chọn nhãn
+ * ngắn mà sai. Nay nhãn phải phân biệt được trước đã; không bậc nào vừa cả hai thì nhãn được phép
+ * dài hơn, và `plotOf()` bên `ui/charts/LineChart.tsx` nới lề trái theo bề ngang nhãn thật.
  */
 const MAX_TICK_CHARS_Y = 6;
 const MAX_TICK_CHARS_X = 10;
@@ -197,9 +203,21 @@ function pickScale(
     ];
   });
 
-  const vua = candidates.filter((item) =>
-    item.ticks.every((tick) => tick.label.length <= maxChars),
+  /*
+   * Điều kiện ĐỨNG TRƯỚC ngân sách độ dài: nhãn phải PHÂN BIỆT được nhau.
+   *
+   * `niceAxis()` đã bảo đảm các vạch khác nhau về giá trị, nên hai vạch in ra cùng một chuỗi chỉ có
+   * một nghĩa: bậc này làm mất thông tin. Thiếu câu hỏi ấy, luật chọn theo độ dài tự lật ngược ở
+   * đầu nhỏ của thang — `COMPACT_PREFIXES` chỉ có bậc PHÓNG TO (1 / nghìn / triệu / tỷ), nên đem
+   * chia một giá trị vốn đã siêu nhỏ thì mọi nhãn co về `'0'`, dài đúng 1 ký tự, tức LUÔN "vừa"
+   * ngân sách và luôn thắng. Đó là chỗ hỏng đã báo: `EV/EBITDA` với EV = 0,002 tỷ ₫ ra trục
+   * `'(nghìn lần)'` — một đơn vị không có thật — với ba nhãn `'0'` giống hệt nhau.
+   */
+  const phanBiet = candidates.filter(
+    (item) => new Set(item.ticks.map((tick) => tick.label)).size === item.ticks.length,
   );
+
+  const vua = phanBiet.filter((item) => item.ticks.every((tick) => tick.label.length <= maxChars));
 
   // Bậc 1 luôn đứng đầu `COMPACT_PREFIXES`; nó vừa thì không có lý do gì phải chia.
   const khongChia = vua[0];
@@ -207,9 +225,22 @@ function pickScale(
 
   const docXuoi = vua.filter((item) => maxAbs / item.factor >= 1);
 
+  /*
+   * Không bậc nào vừa ngân sách thì thà NHÃN DÀI còn hơn nhãn sai: lấy bậc phân biệt được có nhãn
+   * ngắn nhất. Ngân sách 6 ký tự vốn là ước lượng bi quan (4,9 đơn vị/ký tự, trong khi chữ số thật
+   * đo được ~2,9), nên một nhãn 8–9 ký tự vẫn nằm trong lề trái 31 đơn vị — đổi lại là trục nói
+   * đúng con số thay vì một cột `'0'`.
+   */
+  const ngonNhat = [...phanBiet].sort(
+    (a, b) =>
+      Math.max(...a.ticks.map((t) => t.label.length)) -
+      Math.max(...b.ticks.map((t) => t.label.length)),
+  )[0];
+
   return (
     docXuoi[docXuoi.length - 1] ??
     vua[0] ??
+    ngonNhat ??
     candidates[candidates.length - 1] ?? {
       factor: 1,
       unit: { vi: unit, en: unit },
@@ -772,13 +803,13 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       : onTime
         ? `${name.en}${seriesLabel === undefined ? '' : ` for ${seriesLabel}`} over ${String(points.length)} sessions, from ${first.label} to ${last.label}.`
         : `Sweeping ${axisName.en} from ${first.label} to ${last.label} across ${String(points.length)} levels.`,
-    `${name.en} ranges from ${formatValueWithUnit(yExtent[0], spec.resultUnit)} to ${formatValueWithUnit(yExtent[1], spec.resultUnit)}.`,
+    `${name.en} ranges from ${formatValueWithUnit(yExtent[0], unitLabel(spec.resultUnit).en)} to ${formatValueWithUnit(yExtent[1], unitLabel(spec.resultUnit).en)}.`,
     overlayRanges.length === 0
       ? ''
       : `Also drawn: ${overlayRanges
           .map(
             (range) =>
-              `${range.label.en} ${formatValueWithUnit(range.lo, range.unit)} to ${formatValueWithUnit(range.hi, range.unit)}`,
+              `${range.label.en} ${formatValueWithUnit(range.lo, unitLabel(range.unit).en)} to ${formatValueWithUnit(range.hi, unitLabel(range.unit).en)}`,
           )
           .join(' · ')}.`,
     marked === undefined
@@ -794,7 +825,10 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     referenceLines.length === 0
       ? ''
       : `Reference levels: ${referenceLines
-          .map((line) => `${line.label.en} ${formatValueWithUnit(line.value, spec.resultUnit)}`)
+          .map(
+            (line) =>
+              `${line.label.en} ${formatValueWithUnit(line.value, unitLabel(spec.resultUnit).en)}`,
+          )
           .join(' · ')}.`,
   ];
 

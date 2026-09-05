@@ -50,3 +50,57 @@ export function tickAnchor(x: number, viewWidth: number): 'start' | 'middle' | '
   if (viewWidth - x < HALF_LABEL) return 'end';
   return 'middle';
 }
+
+/**
+ * Bề ngang ƯỚC LƯỢNG của một chuỗi, tính bằng đơn vị viewBox.
+ *
+ * Suy thẳng từ phép đo đứng sau `HALF_LABEL`: 4,9 đơn vị mỗi ký tự ở cỡ chữ 10px, tức 0,49 đơn vị
+ * cho mỗi px cỡ chữ. Ước lượng chứ không đo thật, và đó là điều kiện chứ không phải hạn chế — cả
+ * file này chạy ở hai phía ranh giới `next/dynamic`, nơi một phép đo DOM lúc dựng là một đường
+ * lệch hydration. Mốc cố tình rộng tay: một nhãn bị đẩy vào trong sớm hơn cần thiết thì không ai
+ * nhận ra, một nhãn bị cắt cụt thì mất chữ thật.
+ */
+export function textWidth(text: string, fontSize: number): number {
+  return text.length * fontSize * 0.49;
+}
+
+/** Khoảng hở giữa nhãn và vạch nó bám theo — cùng con số ở cả hai nơi gọi. */
+const LABEL_GAP = 6;
+
+/** Nhãn nằm trọn trong khung chưa? */
+function vuaKhung(x: number, anchor: 'start' | 'end', width: number, viewWidth: number): boolean {
+  const left = anchor === 'end' ? x - width : x;
+  return left >= 0 && left + width <= viewWidth;
+}
+
+/**
+ * Chỗ đứng của một nhãn BÁM THEO một vạch dọc — vạch dò và dấu "giá trị hiện tại" của `LineChart`.
+ *
+ * `tickAnchor()` ở trên không dùng được cho hai nhãn ấy: nó kẹp theo một nửa bề ngang DỰ PHÒNG cố
+ * định, hợp với nhãn vạch (độ dài có ngân sách, do `build.ts` ép xuống 6/10 ký tự), còn nhãn vạch
+ * dò ghép HAI chuỗi đã kèm đơn vị nên là chữ dài nhất trên cả hình và không có trần nào cả.
+ *
+ * Ba nước, theo thứ tự:
+ *   1. bên `prefer` — nơi gọi tự chọn, và nó giữ nguyên luật cũ (trái của vạch khi vạch ở nửa phải
+ *      VÙNG VẼ), nên nhãn nào vốn đã vừa thì không xê dịch một đơn vị nào;
+ *   2. không vừa thì LẬT sang bên kia — nhãn vẫn dính vạch, chỉ đổi phía;
+ *   3. cả hai bên đều không đủ chỗ thì dán vào mép trái và giữ ĐẦU chuỗi. Mất đuôi còn đọc được;
+ *      mất đầu thì `'16.000 tỷ ₫ · 0 lần'` chỉ còn đúng một mẩu `'ần'` — chính là chỗ hỏng đã báo.
+ */
+export function floatingLabel(
+  anchorX: number,
+  prefer: 'start' | 'end',
+  text: string,
+  fontSize: number,
+  viewWidth: number,
+): { x: number; anchor: 'start' | 'end' } {
+  const width = textWidth(text, fontSize);
+  const uuTien = { x: anchorX + (prefer === 'end' ? -LABEL_GAP : LABEL_GAP), anchor: prefer };
+  if (vuaKhung(uuTien.x, uuTien.anchor, width, viewWidth)) return uuTien;
+
+  const benKia: 'start' | 'end' = prefer === 'end' ? 'start' : 'end';
+  const lat = { x: anchorX + (benKia === 'end' ? -LABEL_GAP : LABEL_GAP), anchor: benKia };
+  if (vuaKhung(lat.x, lat.anchor, width, viewWidth)) return lat;
+
+  return { x: 0, anchor: 'start' };
+}

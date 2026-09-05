@@ -48,8 +48,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'lang.en': 'EN',
   'lang.switchToEn': 'Switch to English',
   'lang.switchToVi': 'Switch to Vietnamese',
-  'lang.enPartial':
-    'The English version is a work in progress — untranslated text stays in Vietnamese',
 
   'offline.title': 'Working offline',
   'offline.detail':
@@ -62,9 +60,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'disclaimer.text': 'Results are for reference only, not investment advice.',
 
   'search.label': 'Find a formula',
-  'search.placeholder': 'Formula name, e.g. P/E or định giá',
-  'search.hint':
-    'Typing without Vietnamese accents still works: “dinh gia” finds “Định giá”, “p e” finds “P/E”.',
+  /* Ví dụ phải là chữ tìm ĐƯỢC ở bản EN: `search.ts` chấm cả `name.en`, và "Sharpe" trúng
+     'Sharpe ratio'. Để nguyên "định giá" thì ô gợi ý ở màn tiếng Anh lại là tiếng Việt. */
+  'search.placeholder': 'Formula name, e.g. P/E or Sharpe',
   'search.clear': 'Clear the search box',
 
   'search.recent.title': 'Recent searches',
@@ -120,7 +118,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'unit.scale.million': 'million ₫',
   'unit.scale.dong': '₫',
   'input.override': 'Override',
-  'input.revert': 'Undo',
+  /* Không phải "Undo": nút trả ô về giá trị tự điền từ công thức trên, không phải lùi một thao tác. */
+  'input.revert': 'Reset',
   'input.overridden': 'overridden',
   'input.openUpstream': 'Open the source formula',
   'input.autoFrom': 'Auto-filled from',
@@ -226,7 +225,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'loan.monthly': 'Monthly payment',
   'loan.totalInterest': 'Total interest',
   'loan.totalPaid': 'Total paid',
-  'loan.schedule': 'Repayment schedule',
+  /* Cùng khái niệm với tên công thức `lich-tra-no` — hai chỗ phải gọi đúng một tên. */
+  'loan.schedule': 'Amortization schedule',
   'loan.tableUnit': 'Unit:',
   'loan.gapRow': 'periods in between omitted',
   'loan.colPeriod': 'PERIOD',
@@ -261,7 +261,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.hiddenByLevel': 'advanced tile(s) hidden',
   'portfolio.holdings': 'Holdings',
   'portfolio.shares': 'sh',
-  'portfolio.costPrice': 'cost',
+  'portfolio.costPrice': 'avg cost',
   'portfolio.weight': 'weight',
   'portfolio.add': 'Add a ticker',
   'portfolio.remove': 'Remove',
@@ -278,14 +278,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formCancel': 'Cancel',
   'portfolio.betaHint':
     'Beta cannot be computed automatically yet — it needs return series for both the stock and the market index. Enter it by hand if you already have it.',
-  'portfolio.priceNote': 'Market prices come from Finbox at the latest session, not live quotes.',
+  'portfolio.priceNote':
+    'Market prices come from Finbox at the latest session, not real-time quotes.',
   'portfolio.pickCode': 'Pick a ticker',
   'portfolio.priceLoading': 'Fetching market prices…',
   'portfolio.priceFailed': 'Could not fetch market prices from Finbox.',
   'portfolio.priceRetry': 'Try again',
 
   'portfolio.totalCost': 'Invested',
-  'portfolio.gain': 'Gain / loss',
+  'portfolio.gain': 'Gain/loss',
 
   'portfolio.marketPrice': 'Market price',
   'portfolio.priceMissing': 'no price yet',
@@ -306,7 +307,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 — or leave it blank if unknown.',
   'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
 
-  'portfolio.priceSession': 'Session of',
+  /* Ghép ngay trước ngày phiên: "Prices as of 03/09/2026". */
+  'portfolio.priceSession': 'Prices as of',
   'portfolio.priceRefresh': 'Refresh',
   'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
   'portfolio.priceNone': 'No market price found for any ticker yet.',
@@ -483,9 +485,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'settings.theme.hint':
     'Kept on this device and only changes the interface. Exported PNGs and printouts always stay on a light background.',
   'settings.units.title': 'Units & display',
-  'settings.units.scale': 'Money unit in tables',
+  'settings.units.scale': 'Currency unit in tables',
   'settings.units.scaleHint':
-    'Only changes how numbers are shown in tables. The maths still runs in đồng, and input fields keep the Vietnamese convention.',
+    'Only changes how numbers are shown in tables. The math still runs in đồng, and input fields keep the Vietnamese convention.',
   'settings.units.schedule': 'Trading fee schedule',
   'settings.units.scheduleHint': 'Used by the net-profit-after-fees screen. Source: Market Config.',
   'settings.data.title': 'Data on this device',
@@ -497,7 +499,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.series': 'Entered price series',
   'data.portfolio': 'Personal portfolio',
   'data.saved': 'Saved calculations',
-  'data.drafts': 'Numbers in progress',
+  'data.drafts': 'Unsaved inputs',
   'data.usage': 'Formulas you opened',
   'data.tickers': 'Ticker list',
   'data.prices': 'Cached prices',

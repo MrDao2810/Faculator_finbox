@@ -54,8 +54,9 @@ export function AppHeader() {
           <ThemeSwitch />
           {/*
             Gắn lại từ đợt 8: hai điều kiện của quyết định đợt 14 (có bản dịch + luồng locale
-            thông qua useT()) đều đã đạt, nút bấm là chữ trên màn đổi thật. Chữ chưa dịch —
-            nội dung công thức, câu miễn trừ — vẫn hiện tiếng Việt, đúng lời `lang.enPartial`.
+            thông qua useT()) đều đã đạt, nút bấm là chữ trên màn đổi thật. Từ điển nay đã đủ
+            (`missingKeys('en')` rỗng) và nội dung công thức cũng đã dịch trọn dưới dạng
+            `Bilingual`; mấy khối còn tiếng Việt là cố ý theo thiết kế — xem docblock đầu `en.ts`.
           */}
           <LangSwitch />
         </div>

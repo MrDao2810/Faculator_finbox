@@ -199,7 +199,7 @@ test → build. Hỏng ở bước nào thì chặn merge ở bước đó.
   công thức "cố ý chưa đăng ký" (`gia-muc-tieu`, `beta`, `xirr`) khép nốt 108 → 111 — chi tiết ở
   docblock `src/core/registry/categories.ts`, nên **bảng SRS mục 3.8 ngoài repo phải sửa
   94 / 13 / 107 thành 98 / 13 / 111**.
-- **Nhánh 4** biểu đồ — xong, phủ 100/111, kèm thác nước bóc tách cho **đủ 10** công thức khai
+- **Nhánh 4** biểu đồ — xong, phủ 102/111, kèm thác nước bóc tách cho **đủ 10** công thức khai
   `waterfall`/`stackedBar`; không còn cái nào chờ. Bốn cái bày bóc tách ngay khi mở màn (đường quét
   của chúng là đường thẳng), sáu cái còn lại giữ đường quét làm mặc định và bóc tách nằm trong ô
   chọn trục. Việc còn của nhánh: nhiều đường trên một hình cho nhóm chỉ báo kỹ thuật.

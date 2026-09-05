@@ -262,10 +262,14 @@ function docThacNuoc() {
   const labels = [...svg.querySelectorAll('text')]
     .map((t) => ({ text: t.textContent, x: t.getBBox().x, right: t.getBBox().x + t.getBBox().width }))
     .filter((l) => l.text && l.right <= 100);
-  const rects = [...svg.querySelectorAll('rect')].map((r) => ({
-    x: r.x.baseVal.value,
-    w: r.width.baseVal.value,
-  }));
+  const rects = [...svg.querySelectorAll('rect')]
+    // Bỏ vùng bắt sự kiện: nó cũng là <rect> nhưng phủ kín khung, nên để lẫn vào thì phép kiểm
+    // "không cột nào bẹp" có thêm một cột rộng 320 luôn đạt, và số cột đếm ra thừa một.
+    .filter((r) => r.getAttribute('data-testid') === null)
+    .map((r) => ({
+      x: r.x.baseVal.value,
+      w: r.width.baseVal.value,
+    }));
   return {
     found: true,
     viewBox: { w: box.width, h: box.height },
@@ -696,20 +700,52 @@ try {
    * xanh vô nghĩa; còn `chart.test.ts` chỉ đếm được KÝ TỰ, mà ký tự không nói được chữ rơi vào
    * đâu trên khung.
    */
-  const DO_TRAN = `(async () => {
+  /*
+   * `hovers` là danh sách vị trí (tỉ lệ 0…1 theo bề ngang khung) cần RÊ CHUỘT tới trước khi đo.
+   * Rỗng thì chỉ đo trạng thái tĩnh như trước.
+   *
+   * Có nó vì nhãn vạch dò chỉ tồn tại khi đang rê, mà nó lại là chữ DÀI NHẤT trên hình: hai chuỗi
+   * đã kèm đơn vị ghép lại, canh `end` ở nửa phải, nên chuỗi dài thì phần ĐẦU chạy qua mép trái và
+   * bị `<svg>` cắt — trên màn còn đúng một mẩu như `'ần'`, mà nhãn cụt đầu vẫn trông như nhãn.
+   */
+  const doTran = (hovers = []) => `(async () => {
+  const nhip = () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
   const svg = [...document.querySelectorAll('figure svg')].find((s) => s.viewBox.baseVal.width >= 300);
   if (!svg) return { found: false };
 
   svg.scrollIntoView({ block: 'center' });
-  await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+  await nhip();
 
   const w = svg.viewBox.baseVal.width;
-  const labels = [...svg.querySelectorAll('text')]
+  const h = svg.viewBox.baseVal.height;
+  const dem = () => [...svg.querySelectorAll('text')]
     .filter((t) => (t.textContent ?? '').trim() !== '')
     .map((t) => {
       const b = t.getBBox();
-      return { text: t.textContent, x: +b.x.toFixed(1), right: +(b.x + b.width).toFixed(1) };
+      return {
+        text: t.textContent,
+        x: +b.x.toFixed(1),
+        right: +(b.x + b.width).toFixed(1),
+        top: +b.y.toFixed(1),
+        bottom: +(b.y + b.height).toFixed(1),
+      };
     });
+
+  let labels = dem();
+  for (const ti of ${JSON.stringify(hovers)}) {
+    const bat = svg.querySelector('[data-testid$="-hover-capture"]');
+    if (!bat) return { found: false };
+    const khung = svg.getBoundingClientRect();
+    bat.dispatchEvent(new PointerEvent('pointermove', {
+      pointerType: 'mouse',
+      clientX: khung.left + ti * khung.width,
+      clientY: khung.top + khung.height / 2,
+      bubbles: true,
+    }));
+    await nhip();
+    labels = labels.concat(dem());
+  }
+
   // Nửa đơn vị dung sai: bbox là số thực, chạm đúng mép không phải tràn.
   return {
     found: true,
@@ -717,7 +753,9 @@ try {
     soNhan: labels.length,
     // Mép trái gần nhất — số dự phòng THẬT của lề trái, xem chú thích PAD ở LineChart.tsx.
     lanTrai: labels.length === 0 ? null : Math.min(...labels.map((l) => l.x)),
-    tran: labels.filter((l) => l.x < -0.5 || l.right > w + 0.5),
+    // Mép trên gần nhất — số dự phòng của PAD.top, nơi tên trục Y đứng.
+    lanTren: labels.length === 0 ? null : Math.min(...labels.map((l) => l.top)),
+    tran: labels.filter((l) => l.x < -0.5 || l.right > w + 0.5 || l.top < -0.5 || l.bottom > h + 0.5),
   };
 })()`;
 
@@ -729,7 +767,7 @@ try {
   ]) {
     await open(`/cong-thuc/${slug}/`);
     await waitFor("document.querySelector('figure svg')");
-    const kq = await evaluate(DO_TRAN);
+    const kq = await evaluate(doTran());
 
     check(
       `${slug}: không nhãn nào tràn khỏi viewBox (${viSao})`,
@@ -737,10 +775,31 @@ try {
       kq?.found !== true
         ? 'không thấy biểu đồ'
         : kq.tran.length === 0
-          ? `${String(kq.soNhan)} nhãn, khung rộng ${String(kq.w)}, mép trái gần nhất ${String(kq.lanTrai)}`
+          ? `${String(kq.soNhan)} nhãn, khung rộng ${String(kq.w)}, mép trái gần nhất ${String(kq.lanTrai)}, mép trên gần nhất ${String(kq.lanTren)}`
           : kq.tran.map((l) => `"${l.text}" x=${String(l.x)}..${String(l.right)}`).join(' | '),
     );
   }
+
+  /*
+   * Cùng phép đo, nhưng ĐANG RÊ CHUỘT — ba vị trí trải khắp bề ngang, đủ để đi qua cả ba nước của
+   * `floatingLabel()`: bên ưu tiên còn chỗ, phải lật sang bên kia, và không bên nào đủ chỗ.
+   *
+   * `lai-kep` vì nó chạy tới 35 triệu ₫: nhãn vạch dò của nó không vừa nửa nào của khung, nên đây
+   * là công thức duy nhất trong bốn cái trên thật sự ép được luật đặt nhãn.
+   */
+  await open('/cong-thuc/lai-kep/');
+  await waitFor("document.querySelector('figure svg')");
+  const keo = await evaluate(doTran([0.15, 0.5, 0.95]));
+
+  check(
+    'lai-kep: nhãn vạch dò không tràn khỏi viewBox ở bất kỳ chỗ nào đang rê',
+    keo?.found === true && keo.tran.length === 0,
+    keo?.found !== true
+      ? 'không thấy biểu đồ hoặc vùng bắt sự kiện'
+      : keo.tran.length === 0
+        ? `${String(keo.soNhan)} nhãn qua 3 vị trí rê, mép trái gần nhất ${String(keo.lanTrai)}`
+        : keo.tran.map((l) => `"${l.text}" x=${String(l.x)}..${String(l.right)}`).join(' | '),
+  );
 
   /* ── 2. Hình nhiều chặng nhất, và nó là hình MẶC ĐỊNH ────────────────────── */
 
@@ -780,6 +839,79 @@ try {
     'hình bốn chặng cao hơn hình ba chặng mà trang vẫn không tràn ngang',
     (fcff.viewBox?.h ?? 0) > (waterfall.viewBox?.h ?? 0) && tranNgang === false,
     `cao ${String(fcff.viewBox?.h ?? 0)} so với ${String(waterfall.viewBox?.h ?? 0)} đơn vị`,
+  );
+
+  /*
+   * ── Rê chuột THẬT lên hình bóc tách ────────────────────────────────────────────────────────
+   *
+   * Chủ dự án báo "trỏ vào biểu đồ thì số liệu lúc hiện lúc không". Nguyên nhân và cách sửa nằm ở
+   * docblock `WaterfallChart`; bốn ca vitest đã khoá từng nguyên nhân một. Nhưng vitest bắn sự
+   * kiện THẲNG vào phần tử nó tự chọn — nó không hề dò xem con trỏ ở toạ độ ấy thật sự rơi trúng
+   * node nào. Mà lỗi gốc chính là chuyện đó: nhãn giá trị vẽ đè lên đúng chỗ con trỏ đang đứng và
+   * cướp mất sự kiện của cột. Chỉ Chrome thật, với phép dò trúng đích thật, mới trả lời được.
+   *
+   * Chọn điểm trong LỀ TRÁI (x = 20 < 96): ở đó không có cột nào, chỉ có tên chặng. Cơ chế cũ —
+   * bắt sự kiện trên từng cột — không thể nào đạt ca này, nên nó phân biệt được hai bản.
+   */
+  async function toaDoTrenMan(viewX, viewY) {
+    return evaluate(`(async () => {
+    const svg = document.querySelector('svg[data-chart-svg]');
+    if (!svg) return null;
+    svg.scrollIntoView({ block: 'center' });
+    await new Promise((d) => requestAnimationFrame(() => requestAnimationFrame(d)));
+    const r = svg.getBoundingClientRect();
+    const vb = svg.viewBox.baseVal;
+    if (!r.width || !r.height || !vb.width || !vb.height) return null;
+    // Cùng phép letterbox của \`preserveAspectRatio="xMidYMid meet"\`, chiều ngược lại.
+    const scale = Math.min(r.width / vb.width, r.height / vb.height);
+    return {
+      x: r.left + (r.width - vb.width * scale) / 2 + ${String(viewX)} * scale,
+      y: r.top + (r.height - vb.height * scale) / 2 + ${String(viewY)} * scale,
+    };
+  })()`);
+  }
+
+  const nhanGiaTri = () =>
+    evaluate(
+      `[...document.querySelectorAll('svg text')]
+        .filter((t) => (t.getAttribute('class') ?? '').includes('barValueLabel'))
+        .map((t) => t.textContent)`,
+    );
+
+  async function reChuotToi(viewX, viewY) {
+    const at = await toaDoTrenMan(viewX, viewY);
+    if (at === null) return;
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: at.x,
+      y: at.y,
+      button: 'none',
+      buttons: 0,
+    });
+    await new Promise((r) => setTimeout(r, 120));
+  }
+
+  // Tâm hàng thứ hai: PAD.top 8 + ROW 26 + nửa ROW 13 = 47. x = 20 nằm hẳn trong lề trái.
+  await reChuotToi(20, 47);
+  const nhanKhiTro = await nhanGiaTri();
+
+  check(
+    'rê chuột lên hàng của thác nước thì hiện số — kể cả khi con trỏ ở lề trái, ngoài mọi cột',
+    Array.isArray(nhanKhiTro) && nhanKhiTro.length === 1,
+    `nhãn đang hiện: ${JSON.stringify(nhanKhiTro)}`,
+  );
+
+  /*
+   * Giữ số cho tới khi RỜI HẲN, đúng lời yêu cầu. Điểm này nằm dưới đáy khung (y = viewBox.h + 40)
+   * nên chắc chắn ngoài vùng bắt sự kiện.
+   */
+  await reChuotToi(20, (fcff.viewBox?.h ?? 0) + 40);
+  const nhanKhiRoi = await nhanGiaTri();
+
+  check(
+    'rời con trỏ khỏi hình thì số tắt — không dính lại',
+    Array.isArray(nhanKhiRoi) && nhanKhiRoi.length === 0,
+    `nhãn còn lại: ${JSON.stringify(nhanKhiRoi)}`,
   );
 
   check('trang fcff không kêu lỗi hay cảnh báo nào ra console', noise.length === 0, noise[0] ?? '');
@@ -989,6 +1121,261 @@ try {
     noise.length === 0,
     noise.slice(0, 2).join(' | '),
   );
+
+  /* ── 6. Tên nhóm không bị cắt ở khổ 360px (cả hai chế độ) ────────────────── */
+
+  /**
+   * Đọc 12 ô "Duyệt theo nhóm": tên có bị cắt không, và badge bên phải đang chiếm bao nhiêu.
+   *
+   * Đo `scrollWidth > clientWidth` chứ không so chuỗi: `.name` cắt bằng `text-overflow: ellipsis`,
+   * mà `textContent` vẫn trả về tên ĐẦY ĐỦ dù trên màn chỉ còn "Tà…". Không phép kiểm nào của
+   * vitest thấy được chuyện này — jsdom không tính bố cục, nên `scrollWidth` ở đó luôn bằng 0.
+   *
+   * Cuộn tới khối trước khi đo, cùng lý do như `docThacNuoc()`.
+   */
+  function doONhom() {
+    return evaluate(`(async () => {
+    const khoi = document.querySelector('#home-browse')?.closest('section');
+    if (!khoi) return [];
+    khoi.scrollIntoView({ block: 'center' });
+    await new Promise((d) => requestAnimationFrame(() => requestAnimationFrame(d)));
+    return [...khoi.querySelectorAll('li a')].map((a) => {
+      const ten = a.children[1];
+      const badge = [...a.children].slice(2).find((s) => getComputedStyle(s).display !== 'none');
+      return {
+        ten: ten?.textContent ?? '',
+        cut: ten ? ten.scrollWidth > ten.clientWidth + 1 : false,
+        rong: ten ? Math.round(ten.clientWidth) : 0,
+        can: ten ? Math.round(ten.scrollWidth) : 0,
+        badge: badge?.textContent ?? '',
+      };
+    });
+  })()`);
+  }
+
+  /*
+   * Ô 'Tài chính DN' là ô duy nhất mà chế độ Cơ bản giấu sạch công thức, nên badge bên phải của nó
+   * là NHÃN CHỮ ("chỉ ở Nâng cao") chứ không phải một con số hai chữ số. Đo được: nhãn chiếm 82px
+   * trong khi tên và badge chỉ có 102px để chia nhau, mà `.count` khai `flex-shrink: 0` — tên bị
+   * bóp còn 20px và hiện ra "Tà…". Đây là chỗ chặn, và nó chỉ chặn được từ Chrome thật.
+   */
+  await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
+  await open('/');
+  const oCoBan = await doONhom();
+  const cutCoBan = oCoBan.filter((o) => o.cut);
+
+  check(
+    'chế độ Cơ bản: không tên nhóm nào bị cắt ở khổ 360px — kể cả ô mang nhãn chữ',
+    oCoBan.length === 12 && cutCoBan.length === 0,
+    // Không in "còn dư bao nhiêu px": chữ vừa khung thì `scrollWidth` LUÔN bằng `clientWidth`,
+    // nên hiệu số đó là 0 ở mọi ô lành lặn và đọc ra như thể ô nào cũng sát nút.
+    cutCoBan.length > 0
+      ? cutCoBan.map((o) => `"${o.ten}" chỉ được ${String(o.rong)}/${String(o.can)}px`).join(' · ')
+      : `${String(oCoBan.length)} ô, ô mang nhãn chữ là "${
+          oCoBan.find((o) => !/^\d+$/.test(o.badge))?.ten ?? '—'
+        }"`,
+  );
+
+  await evaluate(
+    `localStorage.setItem('ffb.prefs.v1', JSON.stringify({ mode: 'advanced' })), true`,
+  );
+  await open('/');
+  const oNangCao = await doONhom();
+  const cutNangCao = oNangCao.filter((o) => o.cut);
+
+  check(
+    'chế độ Nâng cao: không tên nhóm nào bị cắt — badge quay về con số nên ô về lại một hàng',
+    oNangCao.length === 12 && cutNangCao.length === 0,
+    cutNangCao.length > 0
+      ? cutNangCao.map((o) => `"${o.ten}" ${String(o.rong)}/${String(o.can)}px`).join(' · ')
+      : `${String(oNangCao.length)} ô, badge dài nhất "${
+          oNangCao.map((o) => o.badge).sort((a, b) => b.length - a.length)[0] ?? ''
+        }"`,
+  );
+
+  await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
+
+  /* ── 7. Chuyển sang EN thì KHÔNG còn chữ tiếng Việt ngoài danh sách đã biết ── */
+
+  /*
+   * Chủ dự án báo "vài chỗ chưa chuyển sang tiếng Anh". Đo trên Chrome thật ở chế độ EN: quét mọi
+   * text node và bốn thuộc tính chữ, bắt những chuỗi có dấu tiếng Việt. Không phép kiểm vitest nào
+   * làm được việc này — nó cần cả trang thật, cả locale thật, và cả những khối nạp trễ.
+   *
+   * Ba nhóm ngoại lệ dưới đây là CÓ CHỦ ĐÍCH hoặc là nợ đã ghi sổ; mọi chuỗi khác là lỗi.
+   */
+  const MAN = [
+    '/',
+    '/cong-thuc/',
+    '/tim-kiem/',
+    '/cong-thuc/pe/',
+    '/cong-thuc/fcff/',
+    '/cong-thuc/lich-tra-no/',
+    '/danh-muc/',
+    '/du-lieu/',
+    '/cai-dat/',
+  ];
+
+  /**
+   * NHÓM 1 — khoá i18n cố ý giữ một cụm tiếng Việt trong câu tiếng Anh.
+   *
+   * Nay chỉ còn một: `settings.units.scaleHint` gọi tên đơn vị tiền là "đồng". Cùng danh sách với
+   * `CO_Y` ở `src/application/i18n/i18n.test.ts`, lý do ghi ở đó. Ghim theo mảnh chữ đặc trưng chứ
+   * không theo cả câu — câu còn có thể sửa, mảnh chữ mới là thứ ngoại lệ nói về.
+   *
+   * Ba mảnh 'định giá' / 'Định giá' / 'dinh gia' đã bỏ khỏi đây: `search.placeholder` đổi ví dụ
+   * sang "Sharpe", còn `search.hint` bỏ hẳn khoá. Ngoại lệ chết là ngoại lệ che mất lỗi thật.
+   */
+  const CO_Y = ['đồng'];
+
+  /**
+   * NHÓM 2 — số kèm đơn vị do Domain ghép sẵn. **Nợ đã ghi sổ, chưa xong.**
+   *
+   * `ChartPoint.label` / `valueLabel` (bảng số và vệt dò của biểu đồ) là chuỗi ĐƠN, dựng ở
+   * `sweep.ts` / `breakdown.ts` / `history.ts` bằng `formatValueWithUnit(x, spec.resultUnit)` —
+   * một chuỗi cho cả hai ngôn ngữ. Dịch được thì phải đổi bốn trường ấy thành `Bilingual`, kéo
+   * theo `ChartFrame`, `LineChart`, `WaterfallChart` và bản chép đem xuất file. Đó là đợt riêng.
+   *
+   * Ghim theo KHUÔN chứ không theo chuỗi cụ thể: con số đổi theo từng công thức và từng ô nhập,
+   * nên một danh sách chuỗi ở đây sẽ đỏ ngay lần ai đó sửa một giá trị mẫu.
+   *
+   * Khớp Ở BẤT KỲ ĐÂU trong chuỗi, không chỉ trọn chuỗi — và đó mới là chỗ phép kiểm này sắc.
+   * Câu mô tả biểu đồ do `build.ts` dựng là câu TIẾNG ANH có nhúng `marked.valueLabel`: "At the
+   * current value 46.000 ₫, the result is 15,21 lần." Bỏ các cụm số-kèm-đơn-vị ra rồi mới hỏi
+   * phần còn lại có dấu tiếng Việt không, nên câu ấy đi qua, còn một câu THẬT SỰ chưa dịch thì
+   * vẫn đỏ. Ghim trọn chuỗi thì cả câu ấy bị coi là lỗi và ngoại lệ phải nới rộng ra cả khối
+   * biểu đồ — lúc đó phép kiểm không còn gác được gì bên trong khối.
+   */
+  const DON_VI_VN =
+    '(lần|tỷ ₫|triệu CP|phiên|điểm|năm|tháng|ngày|kỳ|vòng|mã|HĐ|CP|sản phẩm|%\\/năm|%\\/phiên|%\\/kỳ|₫\\/CP\\/tháng|₫\\/CP|₫\\/tháng|₫\\/điểm)';
+  const SO_KEM_DON_VI = new RegExp(`[+\\-−]?[\\d.,\\s—]+${DON_VI_VN}`, 'g');
+
+  /**
+   * NHÓM 3 — ký hiệu toán học. Cố ý, và không sửa được ở tầng này.
+   *
+   * KaTeX chạy LÚC BUILD trong server component (xem `latex-html.ts`), nên MathML của cả 111 trang
+   * được nướng vào HTML tĩnh bằng đúng một ngôn ngữ. Dịch được thì phải dựng hai bản MathML cho
+   * mỗi trang rồi chọn ở máy khách — đắt hơn hẳn thứ nó đổi lại, và đánh vào chính lý do gói 2.4.3
+   * chọn build-time: máy khách tải 0 byte KaTeX.
+   */
+  /** Cùng bộ dấu tiếng Việt mà khối dò bên trong trang đang dùng. */
+  const VN = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+
+  /*
+   * Bóc hết phần ĐÃ BIẾT ra rồi mới hỏi phần còn lại có dấu tiếng Việt không. Làm ngược lại —
+   * hỏi "chuỗi này có khớp ngoại lệ nào không" — thì một câu tiếng Anh nhúng đúng một cụm
+   * số-kèm-đơn-vị sẽ trượt, và ngoại lệ buộc phải nới ra cả câu.
+   */
+  const daBiet = (c) => {
+    if (c.loai === 'mathml') return true;
+    let conLai = c.t.replace(SO_KEM_DON_VI, ' ');
+    for (const manh of CO_Y) conLai = conLai.split(manh).join(' ');
+    return !VN.test(conLai);
+  };
+
+  const conSot = [];
+
+  await evaluate(
+    `localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en', mode: 'advanced' })), true`,
+  );
+
+  for (const duongDan of MAN) {
+    await open(duongDan);
+    const con = await evaluate(`(async () => {
+      window.scrollTo(0, document.body.scrollHeight);
+      await new Promise((d) => requestAnimationFrame(() => requestAnimationFrame(d)));
+      window.scrollTo(0, 0);
+      await new Promise((d) => setTimeout(d, 400));
+
+      const VN = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+      const ra = [];
+      const hien = (el) => {
+        for (let n = el; n; n = n.parentElement) {
+          const cs = getComputedStyle(n);
+          if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+        }
+        return true;
+      };
+
+      const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      while (w.nextNode()) {
+        const t = (w.currentNode.textContent ?? '').trim();
+        const el = w.currentNode.parentElement;
+        if (!t || !VN.test(t) || !el) continue;
+        if (el.closest('.print-region')) continue;
+        if (!hien(el)) continue;
+        ra.push({ loai: el.closest('math') ? 'mathml' : 'chữ', tag: el.tagName.toLowerCase(), cls: (el.getAttribute('class') ?? '').slice(0, 34), t: t.slice(0, 300) });
+      }
+
+      for (const attr of ['aria-label', 'title', 'placeholder', 'alt']) {
+        for (const el of document.querySelectorAll('[' + attr + ']')) {
+          const t = (el.getAttribute(attr) ?? '').trim();
+          if (!t || !VN.test(t) || !hien(el)) continue;
+          ra.push({ loai: attr, tag: el.tagName.toLowerCase(), cls: (el.getAttribute('class') ?? '').slice(0, 34), t: t.slice(0, 300) });
+        }
+      }
+      return ra;
+    })()`);
+
+    for (const c of con) {
+      // Cắt CHỈ ĐỂ IN. Cắt trước khi đối chiếu thì "đồng" cụt thành "đồ" và ngoại lệ trượt.
+      if (!daBiet(c)) conSot.push(`${duongDan} · <${c.tag}> "${c.t.slice(0, 70)}"`);
+    }
+  }
+
+  check(
+    'chế độ EN: không còn chữ tiếng Việt nào ngoài ba nhóm ngoại lệ đã ghi',
+    conSot.length === 0,
+    conSot.length === 0
+      ? `quét ${String(MAN.length)} màn, mọi chuỗi còn lại đều nằm trong danh sách ngoại lệ`
+      : conSot.slice(0, 4).join(' | '),
+  );
+
+  /*
+   * ── Tên phép tính đã lưu cũng phải đổi theo ngôn ngữ ───────────────────────────────────────
+   *
+   * Chủ dự án gửi ảnh tab "Formulas" ở chế độ EN: dòng phụ đã là "Margin of safety" mà tên ngay
+   * trên vẫn "Biên an toàn · 25/08/2026". `SavedCalc.name` là chuỗi ĐÃ GHÉP, cất vào localStorage
+   * ở ngôn ngữ lúc bấm Lưu — `displayCalcName()` nhận ra tên nào vốn là gợi ý rồi dựng lại.
+   *
+   * Phép kiểm này gieo thẳng một bản lưu mang tên TIẾNG VIỆT vào kho, đúng như bản lưu cũ nằm sẵn
+   * trên máy người dùng. Khối dò ở trên không thấy được ca này: máy Chrome của nó có kho rỗng.
+   */
+  await evaluate(`(() => {
+    const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
+    localStorage.setItem('ffb.saved.v1', JSON.stringify([{
+      id: 'bien-an-toan-' + savedAt,
+      formulaId: 'bien-an-toan',
+      name: 'Biên an toàn · 25/08/2026',
+      inputs: {},
+      resultValue: -15.71,
+      resultUnit: '%',
+      savedAt,
+      needsSeries: false,
+    }]));
+    return true;
+  })()`);
+  await open('/danh-muc/');
+
+  const tenDaLuu = await evaluate(`(async () => {
+    const tab = [...document.querySelectorAll('button, [role="tab"]')]
+      .find((el) => /Formulas|Công thức/.test(el.textContent ?? ''));
+    tab?.click();
+    await new Promise((d) => setTimeout(d, 300));
+    return [...document.querySelectorAll('p')].map((p) => p.textContent ?? '');
+  })()`);
+
+  const coTenEn = (tenDaLuu ?? []).some((line) => line.includes('Margin of safety · 25/08/2026'));
+  const conTenVi = (tenDaLuu ?? []).some((line) => line.trim() === 'Biên an toàn · 25/08/2026');
+
+  check(
+    'tên phép tính đã lưu dựng lại theo ngôn ngữ — bản lưu cũ bằng tiếng Việt cũng đổi',
+    coTenEn && !conTenVi,
+    coTenEn ? 'hiện "Margin of safety · 25/08/2026"' : 'không thấy tên đã dịch trong danh sách',
+  );
+
+  await evaluate(`localStorage.removeItem('ffb.saved.v1'), true`);
+  await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
 
   /* ── Hết phép kiểm ─────────────────────────────────────────────────────── */
 } finally {

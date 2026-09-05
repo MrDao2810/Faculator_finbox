@@ -31,7 +31,7 @@ const ChartBody = dynamic(async () => (await import('./ChartBody')).ChartBody);
 /**
  * Công thức này có biểu đồ hay chưa.
  *
- * **Phủ 100 trên 111 công thức** — mọi công thức trừ 11 cái khai `chartType: 'none'`.
+ * **Phủ 102 trên 111 công thức** — mọi công thức trừ 9 cái khai `chartType: 'none'`.
  *
  * Vì sao mở được rộng thế mà không phải viết thêm renderer nào: động cơ ở `@/core/chart` sinh điểm
  * từ hai lối, và giữa hai lối thì không công thức nào lọt. Đường quét độ nhạy chỉ cần một biến vô

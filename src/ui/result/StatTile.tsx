@@ -2,10 +2,11 @@
 
 import type { ReactNode } from 'react';
 
-import { formatCalcOutput, isCalculated } from '@/application';
+import { isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { useCalcText } from '../i18n/units';
 import styles from './StatTile.module.css';
 
 export interface StatTileProps {
@@ -49,6 +50,7 @@ export function StatTile({
 }: StatTileProps) {
   const t = useT();
   const pick = usePick();
+  const calcText = useCalcText();
   const classes = [styles.tile, isCalculated(output) ? undefined : styles.empty, className]
     .filter(Boolean)
     .join(' ');
@@ -68,7 +70,7 @@ export function StatTile({
       )}
       {showEyebrow && <span className={styles.eyebrow}>{t('stat.eyebrow')}</span>}
       <span className={styles.label}>{label}</span>
-      <span className={styles.value}>{formatCalcOutput(output, { maxDecimals: decimals })}</span>
+      <span className={styles.value}>{calcText(output, { maxDecimals: decimals })}</span>
       {/* Không tính được thì lý do quan trọng hơn dòng phụ — thay chỗ luôn. */}
       {output.warning !== undefined ? (
         <span className={styles.warning}>{pick(output.warning.message)}</span>

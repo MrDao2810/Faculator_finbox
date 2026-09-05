@@ -26,6 +26,8 @@ import type {
 import { ChartBody } from './ChartBody';
 import { hasChart } from './FormulaChart';
 import { CHART_GEOMETRY, LineChart } from './LineChart';
+import { textWidth } from './ticks';
+import { WATERFALL_GEOMETRY } from './WaterfallChart';
 
 /*
  * ── PHONG_TO_ĐANG_ẨN ────────────────────────────────────────────────────────────────────────
@@ -601,13 +603,13 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
 });
 
 describe('hasChart() — phạm vi', () => {
-  it('phủ đúng 100 công thức: mọi công thức trừ nhóm khai chartType none', () => {
+  it('phủ đúng 102 công thức: mọi công thức trừ nhóm khai chartType none', () => {
     const drawn = FORMULAS.filter((spec) => hasChart(spec));
     const skipped = FORMULAS.filter((spec) => !hasChart(spec));
 
     expect(FORMULAS).toHaveLength(111);
-    expect(drawn).toHaveLength(100);
-    expect(skipped).toHaveLength(11);
+    expect(drawn).toHaveLength(102);
+    expect(skipped).toHaveLength(9);
     // Bỏ qua thì phải vì chính cái nhãn ấy, không vì lý do nào khác lẫn vào.
     expect(skipped.every((spec) => spec.chartType === 'none')).toBe(true);
   });
@@ -1426,6 +1428,92 @@ describe('Dò điểm (crosshair)', () => {
     // Bản trên trang không có pointer nào đi qua nó — vệt dò không tự lan sang.
     expect(screen.queryByTestId('chart-pe-hover')).toBeNull();
   });
+
+  /*
+   * Chỗ hỏng đã báo. Nhãn vạch dò ghép HAI chuỗi đã kèm đơn vị nên là chữ dài nhất trên hình, và ở
+   * nửa phải nó canh `end`: chuỗi dài thì phần ĐẦU chạy qua mép trái rồi bị `<svg>` cắt cụt im
+   * lặng — trên màn còn đúng một mẩu như `'ần'`, mà một nhãn cụt đầu vẫn trông như một nhãn.
+   *
+   * Quét cả bề ngang vùng vẽ chứ không chỉ điểm giữa: `lai-kep` chạy tới 35 triệu ₫ nên nhãn của
+   * nó không vừa nửa nào của khung, tức ca này đi qua cả ba nước của `floatingLabel()`.
+   *
+   * Bề ngang chữ ở đây là ƯỚC LƯỢNG (`textWidth`), không phải số đo — jsdom trả `0` cho
+   * `getBBox()`. Phép đo thật nằm ở `npm run check:chrome`.
+   */
+  /*
+   * Lề trái co giãn. Từ khi `pickScale()` được phép trả nhãn vượt ngân sách 6 ký tự (thà nhãn dài
+   * còn hơn một cột `'0'` giống hệt nhau), lề 36 cố định không còn đủ: `ev-ebitda` với EV = 0,002
+   * tỷ ₫ cho nhãn `'0,0000005'` — 9 ký tự — và nó tràn qua `x = 0` rồi bị `<svg>` cắt IM LẶNG,
+   * mất đúng những chữ số đầu.
+   *
+   * Ca này chốt cả hai chiều: nhãn dài thì lề phải nới ra, nhãn thường thì lề KHÔNG được xê dịch
+   * (nếu không, 111 biểu đồ hiện có tự nhiên hẹp lại vì một trường hợp biên).
+   */
+  /*
+   * Nhãn trục Y, tách khỏi nhãn trục X. Không lọc theo `text-anchor`: nhãn vạch X sát mép phải
+   * cũng canh `end` (xem `tickAnchor`). Cả hàng nhãn X nằm đúng một độ cao — `plot.y1 + 13` —
+   * nên đó mới là dấu hiệu phân biệt chắc chắn.
+   */
+  function nhanTrucY(container: HTMLElement) {
+    return [...container.querySelectorAll('[class*="tick"]')].filter(
+      (el) => Number(el.getAttribute('y')) !== CHART_GEOMETRY.PLOT.y1 + 13,
+    );
+  }
+
+  it('nhãn trục Y dài thì lề trái nới ra, không nhãn nào bị cắt ở mép', () => {
+    const { container } = draw('ev-ebitda', { ev: 0.002 }, 'advanced');
+
+    const nhan = nhanTrucY(container);
+    expect(nhan.length).toBeGreaterThan(0);
+    // Tiền đề: ca này chỉ có nghĩa nếu nhãn thật sự vượt ngân sách 6 ký tự.
+    expect(Math.max(...nhan.map((el) => (el.textContent ?? '').length))).toBeGreaterThan(6);
+
+    for (const el of nhan) {
+      const chu = el.textContent ?? '';
+      const trai = Number(el.getAttribute('x')) - textWidth(chu, 10);
+      expect(trai, `nhãn "${chu}"`).toBeGreaterThanOrEqual(0);
+    }
+
+    // Đơn vị trục không được trôi sang một bậc không có thật.
+    expect(container.textContent).not.toContain('nghìn lần');
+  });
+
+  it('nhãn trục Y ngắn thì lề trái giữ nguyên — 111 biểu đồ hiện có không hẹp lại', () => {
+    const { container } = draw('pe');
+
+    const nhan = nhanTrucY(container);
+    expect(nhan.length).toBeGreaterThan(0);
+
+    for (const el of nhan) {
+      expect(Number(el.getAttribute('x'))).toBe(CHART_GEOMETRY.PLOT.x0 - 5);
+    }
+  });
+
+  it('nhãn vạch dò không thò ra ngoài viewBox ở bất kỳ chỗ nào trên vùng vẽ', () => {
+    gioKhungKhopViewBox();
+    const { container } = draw('lai-kep');
+
+    const capture = screen.getByTestId('chart-lai-kep-hover-capture');
+    const { x0, x1 } = CHART_GEOMETRY.PLOT;
+
+    for (const x of [x0 + 1, x0 + 40, giuaVungVe.x, x1 - 40, x1 - 1]) {
+      fireEvent.pointerMove(capture, { pointerType: 'mouse', clientX: x, clientY: giuaVungVe.y });
+
+      const nhan = container.querySelector('[class*="hoverLabel"]');
+      if (nhan === null) throw new Error('Không thấy nhãn vạch dò — kịch bản test đã đổi.');
+
+      const chu = nhan.textContent ?? '';
+      const rong = textWidth(chu, 11);
+      const trai =
+        nhan.getAttribute('text-anchor') === 'end'
+          ? Number(nhan.getAttribute('x')) - rong
+          : Number(nhan.getAttribute('x'));
+      const o = `"${chu}" tại x=${String(x)}`;
+
+      expect(trai, o).toBeGreaterThanOrEqual(0);
+      expect(trai + rong, o).toBeLessThanOrEqual(CHART_GEOMETRY.W);
+    }
+  });
 });
 
 /*
@@ -1886,6 +1974,43 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
  * ở trên.
  */
 describe('Dò điểm — thác nước (hover từng cột)', () => {
+  /**
+   * Giả khung `<svg>` khớp ĐÚNG `viewBox` của hình thác nước đang hiện.
+   *
+   * jsdom trả khung 0×0 cho mọi phần tử, nên `pointerToViewBox()` không chiếu được toạ độ nào.
+   * Đọc `viewBox` từ chính DOM chứ không viết cứng: khung thác nước cao theo SỐ CHẶNG, nên một
+   * hằng số ở đây sẽ đúng cho `ev` rồi sai lặng lẽ cho mọi công thức có số chặng khác.
+   */
+  function gioKhungThacNuoc(container: HTMLElement): void {
+    const svg = container.querySelector('svg[data-chart-svg]');
+    const [, , w = 0, h = 0] = (svg?.getAttribute('viewBox') ?? '').split(/\s+/).map(Number);
+
+    vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: w,
+      height: h,
+      right: w,
+      bottom: h,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect);
+  }
+
+  /** Toạ độ tâm hàng thứ `index`, theo đơn vị viewBox (khung giả ở trên có hệ số phóng = 1). */
+  function tamHang(index: number): { clientX: number; clientY: number } {
+    const { W, ROW, PAD } = WATERFALL_GEOMETRY;
+    return { clientX: W / 2, clientY: PAD.top + index * ROW + ROW / 2 };
+  }
+
+  /** Mọi `<rect>` là CỘT — bỏ vùng bắt sự kiện, vốn cũng là một `<rect>` và nằm cuối danh sách. */
+  function cacCot(container: HTMLElement): Element[] {
+    return [...container.querySelectorAll('svg rect')].filter(
+      (node) => node.getAttribute('data-testid') === null,
+    );
+  }
+
   /*
    * Bảng số của thác nước KHÔNG rút gọn dòng (khác đường quét — `condensePoints` chỉ áp cho
    * `LineChart`): `table.rows` là `bars.map((bar) => [bar.label, bar.valueLabel])`, đúng thứ tự
@@ -1897,10 +2022,11 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
    * rút gọn có nổ thì hai chỗ nói hai chuỗi khác nhau một cách CÓ CHỦ ĐÍCH — ca ngay dưới đây chốt
    * chuyện đó, và nó là lý do ca này không được đổi sang một công thức khác cho tiện.
    */
-  it('trỏ vào cột đầu: hiện đúng giá trị CỦA CỘT ĐÓ (khớp dòng đầu bảng), viền đậm lên; rời ra thì tắt lại', () => {
+  it('trỏ vào hàng đầu: hiện đúng giá trị CỦA CỘT ĐÓ (khớp dòng đầu bảng), viền đậm lên; rời ra thì tắt lại', () => {
     const { container } = draw('ev');
+    gioKhungThacNuoc(container);
 
-    const target = container.querySelectorAll('svg rect')[0];
+    const target = cacCot(container)[0];
     if (target === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
 
     const table = screen.getByRole('table');
@@ -1919,23 +2045,113 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
 
     expect(coGiaTriTrenHinh()).toBe(false);
 
-    fireEvent.pointerEnter(target);
+    const capture = screen.getByTestId('chart-ev-hover-capture');
+    fireEvent.pointerMove(capture, { pointerType: 'mouse', ...tamHang(0) });
     expect(target.getAttribute('class')).toMatch(/barHover/);
     expect(coGiaTriTrenHinh()).toBe(true);
 
-    fireEvent.pointerLeave(target);
+    fireEvent.pointerLeave(capture, { pointerType: 'mouse' });
     expect(coGiaTriTrenHinh()).toBe(false);
   });
 
-  it('chạm vào cột (pointerdown) cũng viền đậm ngay, không cần rê trước', () => {
+  it('chạm vào hàng (pointerdown) cũng viền đậm ngay, không cần rê trước', () => {
     const { container } = draw('ev');
+    gioKhungThacNuoc(container);
 
-    const bars = container.querySelectorAll('svg rect');
-    const target = bars[1] ?? bars[0];
+    const target = cacCot(container)[1];
     if (target === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
 
-    fireEvent.pointerDown(target, { pointerType: 'touch' });
+    fireEvent.pointerDown(screen.getByTestId('chart-ev-hover-capture'), {
+      pointerType: 'touch',
+      ...tamHang(1),
+    });
     expect(target.getAttribute('class')).toMatch(/barHover/);
+  });
+
+  /*
+   * ── Bốn ca dưới đây chốt bốn nguyên nhân của lỗi "hover lúc được lúc không" ────────────────
+   *
+   * Chủ dự án báo trỏ vào biểu đồ bóc tách thì số liệu chỉ hiện chập chờn. Bản đầu gắn
+   * `onPointerEnter`/`onPointerLeave` lên CHÍNH từng cột; danh sách nguyên nhân đầy đủ nằm ở
+   * docblock `WaterfallChart`. Mỗi ca ở đây khoá đúng một nguyên nhân.
+   */
+
+  /*
+   * Nguyên nhân 1 — nhãn giá trị vẽ đè lên tâm cột, tức đúng chỗ con trỏ vừa dừng. Là thẻ ANH EM
+   * của cột nên rê tới đó là `pointerleave` bắn ra, nhãn tắt, con trỏ lại trên cột, nhãn bật —
+   * nhấp nháy vô hạn. jsdom không dò trúng đích thật nên không tái hiện được vòng lặp ấy; thứ
+   * kiểm được, và cũng là thứ THẬT SỰ chặn nó, là vùng bắt sự kiện phải nằm TRÊN CÙNG.
+   */
+  it('vùng bắt sự kiện là node CUỐI trong <svg> — không nhãn nào cướp được sự kiện của chỗ nó vẽ đè', () => {
+    const { container } = draw('ev');
+
+    const svg = container.querySelector('svg[data-chart-svg]');
+    if (svg === null) throw new Error('Không tìm thấy hình — kịch bản test đã đổi.');
+
+    expect(svg.lastElementChild?.getAttribute('data-testid')).toBe('chart-ev-hover-capture');
+  });
+
+  /*
+   * Nguyên nhân 2 — đích quá nhỏ. Vùng bắt cũ là chính cột: cao 14/26 của hàng và rộng đúng bằng
+   * giá trị, nên cột delta nhỏ gần như không trỏ trúng. Nay phủ trọn bề ngang, kể cả lề trái mang
+   * TÊN CHẶNG — trỏ vào tên để đọc giá trị của chính chặng ấy là phản xạ tự nhiên.
+   */
+  it('trỏ vào phần lề trái mang tên chặng cũng hiện số của hàng đó', () => {
+    const { container } = draw('ev');
+    gioKhungThacNuoc(container);
+
+    const target = cacCot(container)[1];
+    if (target === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
+
+    fireEvent.pointerMove(screen.getByTestId('chart-ev-hover-capture'), {
+      pointerType: 'mouse',
+      // x = 8: nằm hẳn trong lề trái 96 đơn vị, ngoài mọi cột.
+      clientX: 8,
+      clientY: tamHang(1).clientY,
+    });
+
+    expect(target.getAttribute('class')).toMatch(/barHover/);
+  });
+
+  /*
+   * Nguyên nhân 3 — implicit pointer capture. Trình duyệt tự bắt con trỏ về phần tử nhận
+   * `pointerdown`, nên với vùng bắt CŨ (mỗi cột một vùng) kéo ngón tay sang cột khác không có
+   * `pointerenter` nào bắn ra: số đứng im ở cột chạm đầu tiên. Một vùng bắt duy nhất thì mọi sự
+   * kiện vốn đã về cùng một phần tử, nên kéo qua hàng khác là số đổi theo.
+   */
+  it('chạm rồi kéo sang hàng khác: số đổi theo hàng, không dính ở hàng chạm đầu', () => {
+    const { container } = draw('ev');
+    gioKhungThacNuoc(container);
+
+    const cot = cacCot(container);
+    const capture = screen.getByTestId('chart-ev-hover-capture');
+
+    fireEvent.pointerDown(capture, { pointerType: 'touch', ...tamHang(0) });
+    expect(cot[0]?.getAttribute('class')).toMatch(/barHover/);
+
+    fireEvent.pointerMove(capture, { pointerType: 'touch', ...tamHang(2) });
+    expect(cot[0]?.getAttribute('class')).not.toMatch(/barHover/);
+    expect(cot[2]?.getAttribute('class')).toMatch(/barHover/);
+  });
+
+  /*
+   * Nguyên nhân 4 — nhấc ngón tay là mất số. `pointerup` kéo theo `pointerleave`, nên một cú chạm
+   * chỉ loé lên rồi tắt, đúng lúc người ta vừa nhấc tay ra để nhìn. Cùng quyết định `LineChart` đã
+   * ghi cho vệt dò: ngón tay che mất chỗ cần đọc. Chuột thì KHÔNG giữ — ca đầu tiên của khối này
+   * chốt chiều ngược lại.
+   */
+  it('nhấc ngón tay: số vẫn còn trên hình — ngón tay vừa che mất chỗ cần đọc', () => {
+    const { container } = draw('ev');
+    gioKhungThacNuoc(container);
+
+    const target = cacCot(container)[0];
+    const capture = screen.getByTestId('chart-ev-hover-capture');
+
+    fireEvent.pointerDown(capture, { pointerType: 'touch', ...tamHang(0) });
+    fireEvent.pointerUp(capture, { pointerType: 'touch' });
+    fireEvent.pointerLeave(capture, { pointerType: 'touch' });
+
+    expect(target?.getAttribute('class')).toMatch(/barHover/);
   });
 
   /*
@@ -1950,12 +2166,15 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
     const { container } = draw('lich-tra-no', undefined, 'advanced');
 
     await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), '__breakdown');
+    gioKhungThacNuoc(container);
 
-    const bars = container.querySelectorAll('svg rect');
-    const total = bars[bars.length - 1];
-    if (total === undefined) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
+    const bars = cacCot(container);
+    if (bars.length === 0) throw new Error('Không tìm thấy cột nào — kịch bản test đã đổi.');
 
-    fireEvent.pointerEnter(total);
+    fireEvent.pointerMove(screen.getByTestId('chart-lich-tra-no-hover-capture'), {
+      pointerType: 'mouse',
+      ...tamHang(bars.length - 1),
+    });
 
     const onChart = [...container.querySelectorAll('svg text')].map((node) => node.textContent);
     expect(onChart).toContain('0,99 tỷ ₫');

@@ -9,8 +9,6 @@ import styles from './SearchBox.module.css';
 export interface SearchBoxProps {
   value: string;
   onChange: (value: string) => void;
-  /** Hiện dòng nhắc “gõ không dấu vẫn ra đúng”. Tắt đi khi đã có kết quả. */
-  showHint?: boolean;
   /** Phím Esc. Không truyền thì Esc không làm gì thêm ngoài hành vi mặc định của ô. */
   onCancel?: () => void;
   /** Phím Enter. */
@@ -30,19 +28,15 @@ export interface SearchBoxProps {
  * FR-19 · NFR-USA-03: gõ không dấu vẫn ra đúng. Việc bỏ dấu do
  * `normalizeVi()` ở tầng Domain lo; ở đây chỉ là ô nhập và nút xoá.
  *
+ * Từng có một dòng nhắc dưới ô ("Gõ không dấu vẫn ra đúng: …") kèm prop `showHint`. Chủ dự án gỡ
+ * nó: câu ấy giải thích một tính năng mà người dùng KHÔNG cần biết để dùng được — cứ gõ là ra —
+ * nên nó chỉ chiếm chỗ. Khả năng bỏ dấu không mất đi đâu, nó nằm ở `normalizeVi()`, không ở câu chữ.
+ *
  * Không tự giữ state: nơi gọi quyết định giá trị đi đâu — `/cong-thuc/` và `/tim-kiem/` đẩy
  * lên URL qua `useListParams()`, còn trang chủ giữ trong state cục bộ (xem HomeSearchPanel).
  */
-export function SearchBox({
-  value,
-  onChange,
-  showHint = true,
-  onCancel,
-  onSubmit,
-  inputRef,
-}: SearchBoxProps) {
+export function SearchBox({ value, onChange, onCancel, onSubmit, inputRef }: SearchBoxProps) {
   const inputId = useId();
-  const hintId = `${inputId}-hint`;
   const ownRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? ownRef;
   const t = useT();
@@ -78,7 +72,6 @@ export function SearchBox({
           autoComplete="off"
           spellCheck={false}
           placeholder={t('search.placeholder')}
-          aria-describedby={showHint ? hintId : undefined}
           value={value}
           onChange={(event) => {
             onChange(event.target.value);
@@ -127,12 +120,6 @@ export function SearchBox({
           </button>
         )}
       </div>
-
-      {showHint && (
-        <span id={hintId} className={styles.hint}>
-          {t('search.hint')}
-        </span>
-      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useId, type CSSProperties } from 'react';
 
-import { formatValueWithUnit, isLockedForMode, snapToStep } from '@/application';
+import { formatValueWithUnit, isLockedForMode, snapToStep, unitLabel } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Badge } from '@/ui/primitives';
@@ -156,13 +156,16 @@ export function SliderInput({
       */}
       <p id={marksId} className={styles.marks}>
         <span>
-          {t('input.sliderMin')} {formatValueWithUnit(min, spec.unit, { maxDecimals: 4 })}
+          {t('input.sliderMin')}{' '}
+          {formatValueWithUnit(min, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
         <span className="visually-hidden">
-          {t('input.sliderStep')} {formatValueWithUnit(step, spec.unit, { maxDecimals: 4 })}
+          {t('input.sliderStep')}{' '}
+          {formatValueWithUnit(step, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
         <span>
-          {t('input.sliderMax')} {formatValueWithUnit(max, spec.unit, { maxDecimals: 4 })}
+          {t('input.sliderMax')}{' '}
+          {formatValueWithUnit(max, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
         {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
       </p>

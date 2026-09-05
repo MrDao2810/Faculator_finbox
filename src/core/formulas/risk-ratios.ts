@@ -157,7 +157,7 @@ function perSessionRate(annualPercent: number, sessionsPerYear: number): number 
 function invalidSessionsPerYear(sessionsPerYear: number): CalcWarning | null {
   if (sessionsPerYear > 0) return null;
   return divideByZero(
-    { vi: 'kết quả quy năm', en: 'the annualised result' },
+    { vi: 'kết quả quy năm', en: 'the annualized result' },
     { vi: 'Số phiên trong một năm', en: 'sessions per year' },
     {
       vi: 'Nhập ít nhất 1 phiên mỗi năm — chuỗi theo ngày thường là 250.',

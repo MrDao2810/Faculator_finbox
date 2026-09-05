@@ -1,9 +1,10 @@
 'use client';
 
 import type { TypedMarketConstant } from '@/application';
-import { formatIsoDate, formatValueWithUnit } from '@/application';
+import { formatIsoDate } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { useValueText } from '../i18n/units';
 import styles from './ConstantsNote.module.css';
 
 export interface ConstantsNoteProps {
@@ -38,6 +39,7 @@ export interface ConstantsNoteProps {
 export function ConstantsNote({ constants }: ConstantsNoteProps) {
   const t = useT();
   const pick = usePick();
+  const valueText = useValueText();
   if (constants.length === 0) return null;
 
   return (
@@ -54,7 +56,7 @@ export function ConstantsNote({ constants }: ConstantsNoteProps) {
                 2 số là làm tròn mất một mức phí thật.
               */}
               <span className={styles.amount}>
-                {formatValueWithUnit(constant.value, constant.unit, { maxDecimals: 3 })}
+                {valueText(constant.value, constant.unit, { maxDecimals: 3 })}
               </span>
               <span className={styles.since}>
                 {t('detail.constantSince')} {formatIsoDate(constant.effectiveFrom)}

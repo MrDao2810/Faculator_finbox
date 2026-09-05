@@ -51,7 +51,6 @@ export const vi = {
   /* Nhãn cho trình đọc màn hình: nút là công tắc hai chiều, chữ trên nút chỉ ghi mã ngôn ngữ. */
   'lang.switchToEn': 'Chuyển sang tiếng Anh',
   'lang.switchToVi': 'Chuyển sang tiếng Việt',
-  'lang.enPartial': 'Bản tiếng Anh đang dịch dở — câu chưa dịch vẫn hiện tiếng Việt',
 
   // Trạng thái mạng — FR-23
   'offline.title': 'Hoạt động ngoại tuyến',
@@ -71,12 +70,12 @@ export const vi = {
    * lỗi chính tả chứ không ra thông điệp, nên nó không làm được việc mình sinh ra để làm — mà
    * watermark cũng không phải chỗ giải thích: nó biến mất ngay khi người dùng gõ ký tự đầu tiên.
    *
-   * Thông điệp không mất đi đâu cả, nó vốn đã nằm nguyên câu ở `search.hint` ngay bên dưới
-   * ("Gõ không dấu vẫn ra đúng: …"), và chính câu đó mới là chỗ hiện ra đúng lúc cần — khi tìm
-   * không thấy gì. Khả năng bỏ dấu thì nằm ở `normalizeVi` tầng Domain, không phụ thuộc câu chữ.
+   * `search.hint` — câu "Gõ không dấu vẫn ra đúng: “dinh gia” ra “Định giá”…" từng đứng dưới ô và
+   * trong hai khối rỗng — đã BỎ HẲN theo yêu cầu chủ dự án: nó giải thích một tính năng người dùng
+   * không cần biết mới dùng được, cứ gõ là ra. Khả năng bỏ dấu nằm ở `normalizeVi()` tầng Domain,
+   * không phụ thuộc câu chữ nào cả.
    */
   'search.placeholder': 'Tên công thức, ví dụ P/E hay định giá',
-  'search.hint': 'Gõ không dấu vẫn ra đúng: “dinh gia” ra “Định giá”, “p e” ra “P/E”.',
   'search.clear': 'Xoá ô tìm kiếm',
 
   // Màn tìm kiếm WF-09 — gói 3.1.3

@@ -102,12 +102,11 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
     expect(t('search.noMatch', 'en')).toBe('Nothing found for');
   });
 
-  it('câu tiếng Anh không sót chữ có dấu — trừ ba câu cố ý chứa ví dụ tiếng Việt', () => {
-    // `search.hint` phải nêu ví dụ “Định giá” (đó chính là nội dung của câu),
-    // `search.placeholder` nêu “định giá” làm ví dụ tên công thức — thư viện này là tiếng Việt,
-    // nên ví dụ tên công thức trong câu tiếng Anh vẫn là một cụm tiếng Việt,
-    // và `settings.units.scaleHint` gọi tên đơn vị tiền là "đồng".
-    const CO_Y = new Set(['search.hint', 'search.placeholder', 'settings.units.scaleHint']);
+  it('câu tiếng Anh không sót chữ có dấu — trừ một câu cố ý gọi tên đơn vị tiền Việt', () => {
+    // `settings.units.scaleHint` gọi tên đơn vị tiền là "đồng" — đó chính là nội dung của câu.
+    // Hai mục kia đã rời danh sách chứ không nằm lại cho mọc rêu: `search.placeholder` nay lấy ví
+    // dụ "Sharpe" (chữ tìm được ở cả hai ngôn ngữ), còn `search.hint` thì bỏ hẳn khoá.
+    const CO_Y = new Set(['settings.units.scaleHint']);
     const chuCoDau = /[À-ʯḀ-ỿ]/u;
     const saiSot = Object.entries(en)
       .filter(([key, text]) => !CO_Y.has(key) && chuCoDau.test(text ?? ''))
@@ -210,6 +209,112 @@ describe('chữ trên màn không được đóng băng lúc build', () => {
       thua.map((m) => m.duoi),
       'mục miễn trừ không còn cần thiết — xoá khỏi CO_Y',
     ).toEqual([]);
+  });
+});
+
+/**
+ * Chính tả tiếng Anh phải theo MỘT chuẩn — dự án chọn bản Mỹ.
+ *
+ * Không phải chuyện thẩm mỹ. Chữ tiếng Anh của sản phẩm nằm ở hai nơi rất xa nhau — từ điển này và
+ * hàng trăm trường `Bilingual` rải khắp `src/core` — nên hai người viết hai lúc là ra hai lối viết
+ * mà chẳng cửa nào đỏ. Đo lúc dựng cửa gác này: `annualized` 36 lần, `annualised` 1; `capitalization`
+ * 2 lần ở `valuation-dcf.ts`, `capitalisation` 4 lần ở `valuation-multiples.ts` — cùng một khái niệm,
+ * hai cách viết, trong hai file cạnh nhau. Bản Mỹ được chọn vì nó đã là đa số sẵn, và vì tiếng Anh
+ * tài chính (Investopedia, Bloomberg, hầu hết fintech) viết như vậy.
+ *
+ * Danh sách là danh sách CẤM, liệt kê từng từ một, KHÔNG phải regex `-ise`/`-isation`: quét kiểu ấy
+ * nuốt luôn "rising", "raising", "comprising", "advertise"… Cùng bài học với ba phép kiểm đã bỏ ở
+ * `prose-audit.test.ts`. Mục nào không còn khớp câu nào thì cứ để yên — đây là danh sách cấm, mục
+ * chết chính là mục đang làm đúng việc của nó, khác hẳn danh sách miễn trừ ở trên.
+ *
+ * Chỉ soi chuỗi trong `en: '…'`, không soi cả file: định danh mã nguồn `buildAmortisation()` ở
+ * `personal.ts` viết theo lối Anh và không phải chữ người dùng đọc — quét cả file là báo nhầm nó.
+ */
+describe('chính tả tiếng Anh theo một chuẩn duy nhất', () => {
+  /*
+   * Khoá là PHẦN GỐC, không phải từ đủ — "annualis" một dòng thay cho annualise / annualised /
+   * annualising. Cố ý KHÔNG có "analys": "analyses", "analysis" viết s ở cả hai bản, gốc ấy sẽ báo
+   * nhầm chữ đúng. Cũng cố ý không có gốc trần "-ise"/"-our": xem docblock.
+   */
+  const ANH_MY: Readonly<Record<string, string>> = {
+    amortis: 'amortiz',
+    annualis: 'annualiz',
+    capitalis: 'capitaliz',
+    normalis: 'normaliz',
+    organis: 'organiz',
+    utilis: 'utiliz',
+    behaviour: 'behavior',
+    colour: 'color',
+    favour: 'favor',
+    labour: 'labor',
+    centre: 'center',
+    licence: 'license',
+    modelling: 'modeling',
+    cancelled: 'canceled',
+    practise: 'practice',
+    maths: 'math',
+    whilst: 'while',
+  };
+
+  /** Báo đúng chữ đã bắt được kèm bản Mỹ của chính nó: "capitalisation → capitalization". */
+  function viPham(text: string): string[] {
+    const out: string[] = [];
+    for (const [anh, my] of Object.entries(ANH_MY)) {
+      for (const m of text.matchAll(new RegExp(`\\b\\w*${anh}\\w*\\b`, 'gi'))) {
+        const chu = (m[0] ?? '').toLowerCase();
+        out.push(`${chu} → ${chu.replace(anh, my)}`);
+      }
+    }
+    return out;
+  }
+
+  /*
+   * Hai ca dưới đều đang xanh vì KHÔNG tìm thấy gì — kiểu đỗ dễ giả nhất trong cả bộ. Ca này soi
+   * chính cái máy dò: nó phải bắt được đúng những chuỗi đã sửa trong đợt này, và phải im trước
+   * những chữ tiếng Anh hợp lệ mà một regex `-ise`/`-our` tham lam sẽ nuốt nhầm.
+   */
+  it('máy dò bắt đúng chuỗi lỗi và không báo nhầm chữ hợp lệ', () => {
+    expect(viPham('Market capitalisation + Debt')).toEqual(['capitalisation → capitalization']);
+    expect(viPham('Loan amortisation schedule')).toEqual(['amortisation → amortization']);
+    expect(viPham('the annualised result')).toEqual(['annualised → annualized']);
+
+    for (const sach of [
+      'A stable or rising gross margin signals the company is holding its selling price',
+      'The figure banks advertise, before accounting for the compounding effect.',
+      'Comprising 97,000 VND transfer tax and 100,000 VND dividend tax.',
+      'Market capitalization multiplied by shares outstanding',
+      'Annualized historical volatility',
+      // "analysis"/"analyses" viết s ở cả hai bản — đây là chữ đúng, không được đỏ.
+      'The analyses in this section rest on one assumption.',
+    ]) {
+      expect(viPham(sach), sach).toEqual([]);
+    }
+  });
+
+  it('từ điển giao diện không còn lối viết Anh', () => {
+    const saiSot = Object.entries(en)
+      .flatMap(([key, text]) => viPham(text ?? '').map((loi) => `${key}: ${loi}`))
+      .sort();
+
+    expect(saiSot, saiSot.join(' · ')).toEqual([]);
+  });
+
+  it('mọi chuỗi en: trong Domain không còn lối viết Anh', () => {
+    const files = walk(join(SRC, 'core')).filter((path) => !path.includes('.test.'));
+    // Đường dẫn hỏng thì `files` rỗng và ca kiểm đỗ vì KHÔNG có gì để soi — chặn kiểu đỗ giả đó.
+    expect(files.length, `không quét được src/core từ ${SRC}`).toBeGreaterThan(20);
+
+    const saiSot: string[] = [];
+    for (const path of files) {
+      const src = readFileSync(path, 'utf8');
+      for (const m of src.matchAll(/\ben:\s*(['"])((?:[^\\]|\\.)*?)\1/g)) {
+        for (const loi of viPham(m[2] ?? '')) {
+          saiSot.push(`${path.slice(SRC.length)}: ${loi}`);
+        }
+      }
+    }
+
+    expect([...new Set(saiSot)].sort(), saiSot.join(' · ')).toEqual([]);
   });
 });
 

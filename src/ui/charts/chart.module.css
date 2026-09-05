@@ -350,9 +350,18 @@
   font-size: 10px;
 }
 
+/*
+ * Tên trục nằm trong lề, nhưng lề chỉ rộng bằng đúng một dòng chữ — nên nó vẫn là thẻ chữ sát nét
+ * vẽ nhất trên hình. Halo giống `.refLabel`/`.hoverLabel`: viền màu nền vẽ TRƯỚC chữ, nên chỗ nào
+ * chạm đường lưới thì chữ vẫn tách ra khỏi nét, không cần vẽ thêm một hình chữ nhật nền nào.
+ */
 .axisTitle {
   fill: var(--color-muted);
   font-size: 10px;
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
 }
 
 /* ── Dò điểm (crosshair) — rê chuột / chạm-kéo, tách hẳn khỏi `.marker*` ─── */

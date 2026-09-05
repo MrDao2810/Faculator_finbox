@@ -16,7 +16,7 @@ import type { ChartPoint, LineChart as LineChartModel, SeriesTone } from '@/appl
 import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
-import { thin, tickAnchor } from './ticks';
+import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
 
 /**
  * Đường quét độ nhạy — FR-08.
@@ -79,9 +79,24 @@ import { thin, tickAnchor } from './ticks';
  * `x < -0,5`. Nới `MAX_TICK_CHARS_Y` mà không nới lại lề trái là nhãn trục Y bị cắt cụt bên mép, và
  * ba chữ số đầu của một con số tiền là thứ mất đi thầm lặng nhất trên cả biểu đồ.
  */
+/*
+ * Lề TRÊN 14 chứ không phải 10: tên trục Y đứng trong lề này (xem chỗ vẽ nó bên dưới), cỡ chữ
+ * 10px, nên với lề 10 thì phần trên của chữ vượt qua `y = 0` và bị `<svg>` cắt, còn descender của
+ * cặp ngoặc trong `'EV/Sales (lần)'` thì chạm đúng đường lưới trên cùng. Bốn đơn vị đổi lấy chỗ
+ * đứng thật cho một dòng chữ 10px — vùng vẽ hẹp đi 2,5%, tên trục thôi đè lên hình.
+ */
 const W = 320;
 const H = 200;
-const PAD = { top: 10, right: 10, bottom: 34, left: 36 } as const;
+const PAD = { top: 14, right: 10, bottom: 34, left: 36 } as const;
+
+/**
+ * Cỡ chữ của hai nhãn NỔI — vạch dò và dấu "giá trị hiện tại".
+ *
+ * Chép từ `.hoverLabel` / `.markerLabel` trong `chart.module.css` (cả hai đều 11px) vì `floatingLabel()`
+ * phải ước lượng bề ngang chuỗi mà không được đọc DOM. Đổi cỡ chữ bên CSS thì đổi cả con số này,
+ * kẻo nhãn dài lại tràn ra ngoài khung đúng như cũ.
+ */
+const FLOAT_LABEL_SIZE = 11;
 
 const PLOT = {
   x0: PAD.left,
@@ -98,10 +113,42 @@ const PLOT = {
  */
 const PAD_RIGHT_AXIS = 40;
 
-/** Khung vẽ ứng với việc có hay không có trục Y phải. */
-function plotOf(hasRightAxis: boolean) {
-  if (!hasRightAxis) return PLOT;
-  return { x0: PAD.left, x1: W - PAD_RIGHT_AXIS, y0: PAD.top, y1: H - PAD.bottom } as const;
+/** Cỡ chữ nhãn vạch, khớp `.tick` trong `chart.module.css`. */
+const TICK_FONT_SIZE = 10;
+
+/** Khoảng hở giữa nhãn vạch Y và trục — nhãn canh `end` tại `x0 - 5`. */
+const TICK_GAP = 5;
+
+/**
+ * Trần của lề trái co giãn.
+ *
+ * Lề nuốt vùng vẽ, nên phải có điểm dừng: 80 đơn vị là một phần tư khung, đủ cho nhãn 15 ký tự
+ * (`decimalsOf()` chặn ở 12 chữ số thập phân, cộng `'0,'` là 14). Chạm trần rồi thì thà để một
+ * nhãn cực đoan bị cắt còn hơn bóp vùng vẽ xuống dưới mức đọc được.
+ */
+const MAX_PAD_LEFT = 80;
+
+/**
+ * Khung vẽ, tính theo trục Y phải có hay không VÀ theo bề ngang nhãn trục Y thật.
+ *
+ * Lề trái co giãn kể từ khi `pickScale()` được phép trả nhãn vượt ngân sách 6 ký tự (bên
+ * `core/chart/build.ts`): với kết quả siêu nhỏ, mọi bậc hiển thị đều làm nhãn co về `'0'`, nên luật
+ * ở đó nay chọn "nhãn dài nhưng phân biệt" thay vì "nhãn ngắn nhưng sai". Đổi lại, lề 36 cố định
+ * không còn đủ, và một nhãn tràn qua `x = 0` bị `<svg>` cắt IM LẶNG — mất đúng những chữ số đầu.
+ *
+ * `PAD.left = 36` vẫn là sàn, nên 111 công thức ở số mặc định (nhãn tối đa 6 ký tự) không xê dịch
+ * một đơn vị nào — đo được: `textWidth('123456', 10) + 5 = 34,4`, dưới sàn.
+ */
+function plotOf(hasRightAxis: boolean, yLabels: ReadonlyArray<{ label: string }> = []) {
+  const rongNhat = Math.max(0, ...yLabels.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
+  const x0 = Math.min(MAX_PAD_LEFT, Math.max(PAD.left, Math.ceil(rongNhat) + TICK_GAP));
+
+  return {
+    x0,
+    x1: hasRightAxis ? W - PAD_RIGHT_AXIS : W - PAD.right,
+    y0: PAD.top,
+    y1: H - PAD.bottom,
+  } as const;
 }
 
 /**
@@ -201,7 +248,12 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
     yLabels,
     yRightLabels,
   } = useMemo(() => {
-    const box = plotOf(model.yRight !== undefined);
+    /*
+     * Nhãn trục Y phải thưa TRƯỚC khi dựng khung: lề trái co theo bề ngang nhãn thật, mà nhãn thật
+     * là tập đã thưa chứ không phải toàn bộ vạch — thưa xong mới đo là đo đúng thứ sắp vẽ.
+     */
+    const nhanY = thin(model.y.ticks, 5);
+    const box = plotOf(model.yRight !== undefined, nhanY);
     const scaleX = linearScale(model.x.domain, [box.x0, box.x1]);
     // Trục Y lật chiều: toạ độ SVG đi xuống, giá trị đi lên.
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
@@ -276,7 +328,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
        * dưới hình. `thin()` luôn giữ vạch đầu và vạch cuối, nên hai đầu miền vẫn đọc được.
        */
       xLabels: thin(model.x.ticks, 2),
-      yLabels: thin(model.y.ticks, 5),
+      yLabels: nhanY,
       /* Trục Y phải: cùng số nhãn với trục trái để hai bên đọc ngang hàng nhau. */
       yRightLabels: model.yRight === undefined ? [] : thin(model.yRight.ticks, 5),
     };
@@ -358,6 +410,33 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
 
   const hoverX = hover !== null ? sx(hover.x) : null;
   const hoverOnRight = hoverX !== null && hoverX > (plot.x0 + plot.x1) / 2;
+
+  /*
+   * Chỗ đứng của hai nhãn NỔI, tính trước JSX vì `floatingLabel()` cần đọc chính chuỗi sắp vẽ.
+   *
+   * Luật chọn bên giữ nguyên — trái của vạch khi vạch ở nửa phải VÙNG VẼ — nên nhãn nào vốn đã vừa
+   * thì không nhúc nhích; `floatingLabel()` chỉ can thiệp đúng lúc chuỗi sắp chạy qua mép khung.
+   */
+  const hoverText =
+    hover === null
+      ? ''
+      : `${hover.shortLabel ?? hover.label} · ${hover.shortValueLabel ?? hover.valueLabel}`;
+  const hoverPlace =
+    hoverX === null
+      ? null
+      : floatingLabel(hoverX, hoverOnRight ? 'end' : 'start', hoverText, FLOAT_LABEL_SIZE, W);
+
+  const markedText = marked === undefined ? '' : (marked.shortValueLabel ?? marked.valueLabel);
+  const markedPlace =
+    marked === undefined
+      ? null
+      : floatingLabel(
+          sx(marked.x),
+          sx(marked.x) > (plot.x0 + plot.x1) / 2 ? 'end' : 'start',
+          markedText,
+          FLOAT_LABEL_SIZE,
+          W,
+        );
 
   /*
    * Legend — CHỈ khi có từ hai chuỗi trở lên.
@@ -628,8 +707,12 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
           {/*
           Tên hai trục bằng chữ, không xoay dọc: chữ xoay 90 độ ở khổ 360 vừa khó đọc vừa ăn thêm
           lề trái. Tên trục Y đặt trên góc trái, tên trục X ở giữa đáy — đúng lối các báo cáo in.
+
+          `y = plot.y0 - 4` chứ không phải `- 2`: baseline lùi xuống 4 đơn vị thì cả dòng chữ 10px
+          nằm gọn giữa `y = 0` và đường lưới trên cùng, thay vì thò lên trên khung và tì xuống lưới
+          cùng một lúc. Đi kèm `PAD.top = 14` ở đầu file — hai con số này là một cặp.
         */}
-          <text className={styles.axisTitle} x={plot.x0 - 2} y={plot.y0 - 2}>
+          <text className={styles.axisTitle} x={plot.x0 - 2} y={plot.y0 - 4}>
             {pick(model.y.title)}
           </text>
 
@@ -645,7 +728,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
             cùng cách tên trục trái đang làm.
           */}
           {model.yRight !== undefined && (
-            <text className={styles.axisTitle} x={W - 2} y={plot.y0 - 2} textAnchor="end">
+            <text className={styles.axisTitle} x={W - 2} y={plot.y0 - 4} textAnchor="end">
               {pick(model.yRight.title)}
             </text>
           )}
@@ -691,7 +774,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
           Vạch dò: vẽ SAU vùng bắt sự kiện nên luôn nổi trên cùng, nhưng `pointer-events: none`
           (CSS) để không tự chặn mất pointer event của chính vùng bắt bên trên nó.
         */}
-          {hover !== null && hoverX !== null && (
+          {hover !== null && hoverX !== null && hoverPlace !== null && (
             <g className={styles.hoverOverlay} data-testid={`${idBase}-hover`}>
               <line
                 className={styles.hoverLine}
@@ -703,18 +786,20 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
               {hover.y !== null && (
                 <circle className={styles.hoverDot} cx={hoverX} cy={sy(hover.y)} r="3.5" />
               )}
+              {/*
+                Bản RÚT GỌN khi Domain có dựng — nhãn này ghép HAI chuỗi đã kèm đơn vị, nên nó là
+                chữ dài nhất trên cả hình (xem `hoverText` bên trên). Rơi về bản đầy đủ khi rút gọn
+                không ngắn hơn (xem `ChartPoint.shortLabel`), tức đúng những lúc bản đầy đủ vốn đã
+                ngắn. Chính vì là chuỗi dài nhất mà nó phải đi qua `floatingLabel()`: canh `end` sát
+                mép trái là mất ĐẦU chuỗi, và một nhãn cụt đầu vẫn trông như một nhãn.
+              */}
               <text
                 className={styles.hoverLabel}
-                x={hoverOnRight ? hoverX - 6 : hoverX + 6}
+                x={hoverPlace.x}
                 y={plot.y0 + 22}
-                textAnchor={hoverOnRight ? 'end' : 'start'}
+                textAnchor={hoverPlace.anchor}
               >
-                {/*
-                  Bản RÚT GỌN khi Domain có dựng — nhãn này ghép HAI chuỗi đã kèm đơn vị, nên nó là
-                  chữ dài nhất trên cả hình. Rơi về bản đầy đủ khi rút gọn không ngắn hơn (xem
-                  `ChartPoint.shortLabel`), tức đúng những lúc bản đầy đủ vốn đã ngắn.
-                */}
-                {hover.shortLabel ?? hover.label} · {hover.shortValueLabel ?? hover.valueLabel}
+                {hoverText}
               </text>
             </g>
           )}
@@ -730,7 +815,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
           Đổi lại phải có `pointer-events: none` (lớp `.marker`): nó nay nằm TRÊN vùng bắt sự kiện,
           nên thiếu dòng đó thì rê chuột ngang qua chính cái dấu này sẽ mất luôn vạch dò.
         */}
-          {marked !== undefined && (
+          {marked !== undefined && markedPlace !== null && (
             <g className={styles.marker} data-testid="chart-marker">
               <line
                 className={styles.markerLine}
@@ -744,11 +829,11 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
               )}
               <text
                 className={styles.markerLabel}
-                x={sx(marked.x) > (plot.x0 + plot.x1) / 2 ? sx(marked.x) - 6 : sx(marked.x) + 6}
+                x={markedPlace.x}
                 y={plot.y0 + 10}
-                textAnchor={sx(marked.x) > (plot.x0 + plot.x1) / 2 ? 'end' : 'start'}
+                textAnchor={markedPlace.anchor}
               >
-                {marked.shortValueLabel ?? marked.valueLabel}
+                {markedText}
               </text>
             </g>
           )}

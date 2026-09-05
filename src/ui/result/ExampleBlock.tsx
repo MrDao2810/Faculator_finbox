@@ -1,11 +1,11 @@
 'use client';
 
-import { formatCalcOutput, formatValueWithUnit } from '@/application';
 import type { CalcInputs, CalcOutput, FormulaSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { InlineNumber } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 
+import { useCalcText, useValueText } from '../i18n/units';
 import styles from './ExampleBlock.module.css';
 
 export interface ExampleBlockProps {
@@ -49,6 +49,8 @@ export interface ExampleBlockProps {
 export function ExampleBlock({ formula, inputs, output, onChange, className }: ExampleBlockProps) {
   const t = useT();
   const pick = usePick();
+  const calcText = useCalcText();
+  const valueText = useValueText();
   const { example } = formula;
   const classes = [styles.block, className].filter(Boolean).join(' ');
 
@@ -103,7 +105,7 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
                   ariaLabel={row.label}
                 />
               ) : (
-                formatValueWithUnit(row.exampleValue, row.variable?.unit ?? '')
+                valueText(row.exampleValue, row.variable?.unit ?? '')
               )}
             </dd>
           </div>
@@ -115,8 +117,8 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
         {pick(formula.name)} ≈{' '}
         <strong>
           {editable && output !== undefined
-            ? formatCalcOutput(output)
-            : formatValueWithUnit(example.expected, formula.resultUnit)}
+            ? calcText(output)
+            : valueText(example.expected, formula.resultUnit)}
         </strong>
       </p>
 
@@ -125,7 +127,7 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
       {editable && !onExample && (
         <div className={styles.action}>
           <p className={styles.note}>
-            {t('example.original')} {formatValueWithUnit(example.expected, formula.resultUnit)}
+            {t('example.original')} {valueText(example.expected, formula.resultUnit)}
           </p>
           <Button
             variant="secondary"

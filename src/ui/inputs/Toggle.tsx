@@ -19,6 +19,14 @@ export interface ToggleProps {
    * WF-16 yêu cầu toggle liên quan tới thuế/phí phải nói rõ số liệu lấy từ đâu (CON-10).
    */
   sourceNote?: string;
+  /**
+   * Ô bị khoá vì một lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('AAA không có').
+   *
+   * Cộng vào `isLockedForMode()` chứ không thay nó: hai lý do khoá độc lập nhau, và một biến
+   * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
+   */
+  lockedNote?: string;
+
   className?: string;
 }
 
@@ -37,6 +45,7 @@ export function Toggle({
   value,
   onChange,
   mode = 'advanced',
+  lockedNote,
   sourceNote,
   className,
 }: ToggleProps) {
@@ -48,7 +57,11 @@ export function Toggle({
   const options = spec.options ?? [];
   const off = options[0];
   const on = options[1];
-  const locked = isLockedForMode(spec, mode);
+  const khoaTheoChe = isLockedForMode(spec, mode);
+  const locked = khoaTheoChe || (lockedNote !== undefined && lockedNote.trim() !== '');
+  // Hai lý do khoá, hai câu khác nhau. "nâng cao" thắng khi cả hai cùng đúng — xem
+  // `resolveInputState()`, nơi ô số giữ đúng thứ tự ấy.
+  const lyDo = khoaTheoChe ? t('input.lockedBadge') : lockedNote;
 
   // Biến khai thiếu lựa chọn thì không vẽ gì còn hơn vẽ một công tắc không bấm được.
   if (off === undefined || on === undefined) return null;
@@ -67,7 +80,7 @@ export function Toggle({
             {sourceNote}
           </span>
         )}
-        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
+        {locked && lyDo !== undefined && <Badge tone="advanced">{lyDo}</Badge>}
       </span>
 
       <button

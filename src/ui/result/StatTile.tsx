@@ -36,7 +36,7 @@ export interface StatTileProps {
  * Bốn thẻ đầu màn danh mục WF-06: tổng giá trị, beta danh mục, XIRR, số mã.
  * WBS xếp gói này ở bản "Sau v0.2" nên đây mới là component, màn dùng nó là gói 3.4.1.
  *
- * Không tính được thì hiện `— , —` qua `formatCalcOutput()` chứ không hiện 0 — một danh mục
+ * Không tính được thì hiện `_ _` qua `formatCalcOutput()` chứ không hiện 0 — một danh mục
  * chưa đủ dữ liệu để tính XIRR mà hiện '0%' là nói dối người dùng (FR-06).
  */
 export function StatTile({

@@ -25,6 +25,16 @@ export interface VariableFieldProps {
    * `numberVar`, và `preset-inputs.test.ts` ghim điều đó.
    */
   derivedFrom?: string;
+  /** Thay hẳn dòng phụ `↳ <nguồn>` bằng câu tự nói được nghĩa ('dữ liệu của VHM'). */
+  derivedNote?: string;
+  /**
+   * Ô bị khoá vì lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('dữ liệu mẫu').
+   *
+   * Khác `derivedFrom` ở chỗ chuyền cho **mọi** kiểu điều khiển, không riêng ô số: những ô mã
+   * không cấp được số có cả thanh trượt (`riskPercent`) lẫn danh sách chọn, và khoá sót một
+   * kiểu là để lọt đúng thứ vừa hứa là đã khoá.
+   */
+  lockedNote?: string;
   className?: string;
 }
 
@@ -61,9 +71,11 @@ export function VariableField({
   mode,
   sourceNote,
   derivedFrom,
+  derivedNote,
+  lockedNote,
   className,
 }: VariableFieldProps) {
-  const shared = { spec, value, onChange, mode, className };
+  const shared = { spec, value, onChange, mode, lockedNote, className };
 
   switch (spec.type) {
     case 'slider':
@@ -77,6 +89,6 @@ export function VariableField({
     case 'toggle':
       return <Toggle {...shared} sourceNote={sourceNote} />;
     case 'number':
-      return <NumberInput {...shared} derivedFrom={derivedFrom} />;
+      return <NumberInput {...shared} derivedFrom={derivedFrom} derivedNote={derivedNote} />;
   }
 }

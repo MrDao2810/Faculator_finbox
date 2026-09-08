@@ -11,7 +11,7 @@
  * Vì sao HAI ĐẦU quãng chứ không phải mọi điểm `null` — luật cũ của đợt trước: một quãng đứt là MỘT
  * sự việc ("từ đây tới đây không tính được"), không phải N sự việc. Đường quét 42 mức thì hai cách
  * gần như bằng nhau, nhưng đường theo thời gian phơi ngay chỗ hỏng: RSI-14 chưa đủ phiên nên 14
- * phiên đầu đúng ra là `null`, và luật cũ đẩy 14 dòng "— , —" giống hệt nhau lên đầu bảng rồi dồn
+ * phiên đầu đúng ra là `null`, và luật cũ đẩy 14 dòng "_ _" giống hệt nhau lên đầu bảng rồi dồn
  * toàn bộ 234 phiên có số thật vào đúng một dòng cuối. Giữ hai đầu thì vẫn đọc được "trống từ phiên
  * nào tới phiên nào", mà phần có số vẫn còn chỗ.
  */

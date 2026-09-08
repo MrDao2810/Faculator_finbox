@@ -15,6 +15,14 @@ export interface SliderInputProps {
   value: number;
   onChange: (value: number) => void;
   mode?: Level;
+  /**
+   * Ô bị khoá vì một lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('AAA không có').
+   *
+   * Cộng vào `isLockedForMode()` chứ không thay nó: hai lý do khoá độc lập nhau, và một biến
+   * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
+   */
+  lockedNote?: string;
+
   className?: string;
 }
 
@@ -77,6 +85,7 @@ export function SliderInput({
   value,
   onChange,
   mode = 'advanced',
+  lockedNote,
   className,
 }: SliderInputProps) {
   const inputId = useId();
@@ -85,7 +94,11 @@ export function SliderInput({
   const boxId = `${inputId}-box`;
   const labelId = `${inputId}-label`;
   const marksId = `${inputId}-marks`;
-  const locked = isLockedForMode(spec, mode);
+  const khoaTheoChe = isLockedForMode(spec, mode);
+  const locked = khoaTheoChe || (lockedNote !== undefined && lockedNote.trim() !== '');
+  // Hai lý do khoá, hai câu khác nhau. "nâng cao" thắng khi cả hai cùng đúng — xem
+  // `resolveInputState()`, nơi ô số giữ đúng thứ tự ấy.
+  const lyDo = khoaTheoChe ? t('input.lockedBadge') : lockedNote;
 
   const min = spec.min ?? 0;
   const max = spec.max ?? 100;
@@ -167,7 +180,7 @@ export function SliderInput({
           {t('input.sliderMax')}{' '}
           {formatValueWithUnit(max, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
-        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
+        {locked && lyDo !== undefined && <Badge tone="advanced">{lyDo}</Badge>}
       </p>
     </div>
   );

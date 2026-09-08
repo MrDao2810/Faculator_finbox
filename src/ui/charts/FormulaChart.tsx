@@ -69,6 +69,12 @@ export interface FormulaChartProps {
    * thích trong docblock của `memo`.
    */
   onApplyPoint?: (key: string, value: number) => void;
+  /**
+   * Khoá biến màn đang KHOÁ — bấm/nhả không ghi vào đó được, nên đừng mời.
+   *
+   * Cùng ràng buộc tham chiếu ổn định như `onApplyPoint` ngay trên: prop này đi qua `memo`.
+   */
+  lockedKeys?: ReadonlySet<string>;
 }
 
 /**

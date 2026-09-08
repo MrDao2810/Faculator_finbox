@@ -15,8 +15,36 @@ import type { Bilingual, CalcOutput } from './types';
 /**
  * Chuỗi hiện ở chỗ đáng ra là kết quả khi không tính được (WF-15).
  * KHÔNG phải '0', không phải chuỗi rỗng — đó chính là bất biến FR-06 ở lớp hiển thị.
+ *
+ * ── Vì sao GẠCH DƯỚI, không phải `— , —` như bản trước ───────────────────────────────────────
+ *
+ * Bản gốc bắt chước HÌNH của một con số Việt Nam (`92.000 , 5` với phần chữ số bị xoá), ý là để
+ * người đọc thấy "chỗ này đáng ra có một con số". Không ai đọc ra được ý đó: chủ dự án nhìn và
+ * hỏi thẳng *"icon này là gì? chưa hiểu và rất xấu"* — cùng loại lỗi với `↳` và `[object Object]`
+ * của mấy đợt trước, tức một ký hiệu bắt người đọc suy diễn.
+ *
+ * Chủ dự án chốt luôn dấu thay thế: *"để nó thành gạch dưới đi"*, rồi *"đổi lại cho tôi thành
+ * `_ _`"*. Và nó nói đúng thứ `— , —` cố nói mà không nói được: gạch dưới là **chỗ trống chờ
+ * điền**, một quy ước ai cũng biết từ tờ giấy có ô để trống, không cần học.
+ *
+ * HAI gạch, không phải một: một gạch trần ở cỡ chữ 40px của khối kết quả là một vệt ngắn trông
+ * như lỗi hiển thị. Hai gạch cách nhau đọc ra ngay là một khoảng để điền.
+ *
+ * ── Ranh giới với `—`, vì sản phẩm dùng CẢ HAI ────────────────────────────────────────────────
+ *
+ *   `_ _`  chỗ của một CON SỐ chưa có  — hằng số này, ô giá màn Danh mục, ô trống bảng dữ liệu,
+ *                                        bảng xem trước khi dán
+ *   `—`    ô CHỮ không có gì để nói    — `variable.noDescription`, dòng phí không tra được mức
+ *                                        (`fees.ts`), mô tả biến trống trong file xuất
+ *
+ * Ranh giới ấy là: gạch dưới MỜI người dùng điền vào, nên chỉ được đặt ở chỗ họ điền được. Cột
+ * "Mô tả" của bảng biến thì không ai điền, nên nó giữ gạch ngang.
+ *
+ * Không mất gì so với bản `— , —`: chỗ nào cần nói lý do đã có sẵn nhãn mã lỗi + câu giải thích
+ * ngay bên cạnh (`ErrorState`), và bố cục không nhảy là việc của cỡ chữ trong CSS chứ không phải
+ * của độ dài chuỗi này.
  */
-export const NO_VALUE = '— , —';
+export const NO_VALUE = '_ _';
 
 const LOCALE = 'vi-VN';
 

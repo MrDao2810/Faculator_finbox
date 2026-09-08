@@ -17,6 +17,8 @@ import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
+import { useChartSize } from './use-chart-size';
+import type { ChartSize } from './use-chart-size';
 
 /**
  * Đường quét độ nhạy — FR-08.
@@ -85,8 +87,30 @@ import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
  * cặp ngoặc trong `'EV/Sales (lần)'` thì chạm đúng đường lưới trên cùng. Bốn đơn vị đổi lấy chỗ
  * đứng thật cho một dòng chữ 10px — vùng vẽ hẹp đi 2,5%, tên trục thôi đè lên hình.
  */
-const W = 320;
-const H = 200;
+/*
+ * HAI khổ khung vẽ, không phải một — xem `use-chart-size.ts` về lý do đầy đủ.
+ *
+ * Tóm tắt: chữ SVG đo bằng đơn vị viewBox nên phóng y hệt hình, và mọi khoảng cách quanh chữ ở
+ * file này đều tính theo chữ 10 đơn vị. Muốn hình to hơn mà chữ vẫn đúng cỡ đọc thì phải NỚI KHUNG
+ * (chữ nhỏ đi theo tỉ lệ), không phải thu chữ (khoảng cách trôi hết).
+ *
+ * `wide` nhân đôi đúng hai con số này và KHÔNG đụng `PAD` — lề vẫn phải đủ chỗ cho chữ 10 đơn vị,
+ * mà chữ thì không đổi. Nên toàn bộ phần nới ra rơi vào VÙNG VẼ: rộng 274 → 594, cao 152 → 352.
+ */
+const SIZES = {
+  compact: { W: 320, H: 240 },
+  wide: { W: 640, H: 400 },
+} as const;
+
+/*
+ * Chiều cao khổ `compact` là 240 chứ không phải 200 như trước.
+ *
+ * Lề trên/dưới cộng lại đã ăn 48 đơn vị, nên khung 200 chỉ còn 152 cho vùng vẽ — hình bẹt, và bẹt
+ * nhất đúng ở chỗ nó cần cao nhất: điện thoại, nơi khung chỉ rộng bằng bề ngang màn. Nới lên 240
+ * cho vùng vẽ 192 đơn vị (+26%) mà KHÔNG đụng bề ngang, nên cỡ chữ hiện ra trên điện thoại không
+ * đổi một pixel nào. Tỉ lệ khung thành 4/3 — `chart.module.css` phải đổi `aspect-ratio` theo, kẻo
+ * `preserveAspectRatio` để lại viền trống trên dưới.
+ */
 const PAD = { top: 14, right: 10, bottom: 34, left: 36 } as const;
 
 /**
@@ -98,11 +122,17 @@ const PAD = { top: 14, right: 10, bottom: 34, left: 36 } as const;
  */
 const FLOAT_LABEL_SIZE = 11;
 
+/**
+ * Vùng vẽ của khổ `compact` — mốc tĩnh cho `labelYFor()` và cho `CHART_GEOMETRY` mà test đọc.
+ *
+ * Chỉ đúng cho khổ `compact`. Thân component KHÔNG dùng hằng này mà gọi `plotOf()`, vì lề trái còn
+ * co theo bề ngang nhãn trục Y thật.
+ */
 const PLOT = {
   x0: PAD.left,
-  x1: W - PAD.right,
+  x1: SIZES.compact.W - PAD.right,
   y0: PAD.top,
-  y1: H - PAD.bottom,
+  y1: SIZES.compact.H - PAD.bottom,
 } as const;
 
 /**
@@ -139,7 +169,12 @@ const MAX_PAD_LEFT = 80;
  * `PAD.left = 36` vẫn là sàn, nên 111 công thức ở số mặc định (nhãn tối đa 6 ký tự) không xê dịch
  * một đơn vị nào — đo được: `textWidth('123456', 10) + 5 = 34,4`, dưới sàn.
  */
-function plotOf(hasRightAxis: boolean, yLabels: ReadonlyArray<{ label: string }> = []) {
+function plotOf(
+  size: ChartSize,
+  hasRightAxis: boolean,
+  yLabels: ReadonlyArray<{ label: string }> = [],
+) {
+  const { W, H } = SIZES[size];
   const rongNhat = Math.max(0, ...yLabels.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
   const x0 = Math.min(MAX_PAD_LEFT, Math.max(PAD.left, Math.ceil(rongNhat) + TICK_GAP));
 
@@ -150,6 +185,38 @@ function plotOf(hasRightAxis: boolean, yLabels: ReadonlyArray<{ label: string }>
     y1: H - PAD.bottom,
   } as const;
 }
+
+/**
+ * Số nhãn vạch giữ lại trên mỗi trục, theo khổ khung.
+ *
+ * Khổ `compact` giữ 3 nhãn trục X chứ không phải 2 như bản đợt 12. Lý do bản ấy hạ xuống 2 là hàng
+ * nhãn dày trở thành thứ nặng nhất dưới hình sau khi bỏ nền và viền vùng vẽ — đúng, nhưng 2 nhãn
+ * thì chỉ còn hai đầu miền, và người đọc mất luôn mốc giữa để ước lượng. `thin()` luôn giữ vạch đầu
+ * và vạch cuối, nên 3 là "hai đầu cộng một mốc giữa": rẻ nhất mà đọc được.
+ *
+ * Khổ `wide` có vùng vẽ rộng 594 đơn vị trong khi nhãn vẫn 10 đơn vị chữ, tức thưa gấp đôi ở cùng
+ * số nhãn — nên nâng lên 5. Trục Y cũng vậy: vùng vẽ cao 352 thay vì 192.
+ */
+const LABEL_BUDGET = {
+  compact: { x: 3, y: 6 },
+  wide: { x: 5, y: 8 },
+} as const;
+
+/**
+ * Phần bề rộng một bậc mà thân cột chiếm, ở lối vẽ CỘT. Phần dư là khe giữa hai cột.
+ *
+ * 0,7 chứ không phải 1: cột dính liền nhau đọc thành một mảng đặc, mất luôn thứ khiến người ta chọn
+ * lối cột — đếm được từng mức một.
+ */
+const BAR_FILL = 0.7;
+
+/**
+ * Trần bề rộng một cột.
+ *
+ * Đường quét ít điểm (một biến chỉ có 5 mức chẳng hạn) sẽ cho bậc rất rộng, và cột rộng 100 đơn vị
+ * trông như một khối hộp chứ không như dữ liệu. Chặn lại để hình còn ra hình.
+ */
+const BAR_MAX_WIDTH = 28;
 
 /**
  * Lớp CSS của một tông chuỗi.
@@ -201,10 +268,41 @@ export interface LineChartProps {
    * cũ, không ghi gì.
    */
   onApplyPoint?: (key: string, value: number) => void;
+  /**
+   * Ép một khổ khung cụ thể thay vì để hook tự đo bề ngang màn hình.
+   *
+   * Màn phóng to truyền `'wide'`: lớp phủ chiếm trọn màn ở MỌI bề ngang, kể cả điện thoại xoay
+   * ngang, nên nó không được ăn theo mốc 1024px vốn dành cho biểu đồ nằm trong dòng chảy trang.
+   */
+  size?: ChartSize;
+  /**
+   * Lối vẽ chuỗi CHÍNH — đường liền (mặc định) hay cột đứng.
+   *
+   * Chỉ đổi cách vẽ, không đổi dữ liệu: cùng `model.points`, cùng trục, cùng vạch dò, cùng lối
+   * bấm-áp-dụng. Người gọi (`ChartBody`) chịu trách nhiệm hai điều kiện mà component này không tự
+   * kiểm được: chỉ mời lối cột khi biểu đồ có ĐÚNG MỘT chuỗi (chồng cột với đường phụ thì không
+   * đọc được), và dựng model với `zeroBaseline` để cột có mốc 0 mà đứng.
+   */
+  variant?: 'line' | 'bar';
 }
 
-export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineChartProps) {
+export function LineChart({
+  model,
+  idBase,
+  fill = false,
+  onApplyPoint,
+  size: sizeProp,
+  variant = 'line',
+}: LineChartProps) {
   const pick = usePick();
+
+  /*
+   * Hook LUÔN được gọi, kể cả khi `sizeProp` đã quyết định tất cả — quy tắc hook của React không
+   * cho gọi có điều kiện. Rẻ: nó chỉ giữ một chuỗi và đăng ký một `matchMedia`.
+   */
+  const sizeTuDo = useChartSize();
+  const size = sizeProp ?? sizeTuDo;
+  const { W, H } = SIZES[size];
   const hatchId = `${idBase}-hatch`;
   const areaId = `${idBase}-area`;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -244,6 +342,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
     gaps,
     marked,
     refs,
+    bars,
     xLabels,
     yLabels,
     yRightLabels,
@@ -252,8 +351,9 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
      * Nhãn trục Y phải thưa TRƯỚC khi dựng khung: lề trái co theo bề ngang nhãn thật, mà nhãn thật
      * là tập đã thưa chứ không phải toàn bộ vạch — thưa xong mới đo là đo đúng thứ sắp vẽ.
      */
-    const nhanY = thin(model.y.ticks, 5);
-    const box = plotOf(model.yRight !== undefined, nhanY);
+    const budget = LABEL_BUDGET[size];
+    const nhanY = thin(model.y.ticks, budget.y);
+    const box = plotOf(size, model.yRight !== undefined, nhanY);
     const scaleX = linearScale(model.x.domain, [box.x0, box.x1]);
     // Trục Y lật chiều: toạ độ SVG đi xuống, giá trị đi lên.
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
@@ -323,16 +423,48 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
         return { value: line.value, label: line.label, y: yPos, labelY: labelYFor(yPos) };
       }),
       /*
-       * Chỉ hai nhãn đầu–cuối trên trục X, đúng bản thiết kế đợt 12. Bốn nhãn là đủ để đọc, nhưng
-       * bản vẽ mới bỏ nền và viền của vùng vẽ, nên hàng nhãn dày trở thành thứ nặng nhất còn lại
-       * dưới hình. `thin()` luôn giữ vạch đầu và vạch cuối, nên hai đầu miền vẫn đọc được.
+       * Cột của lối vẽ CỘT — mảng rỗng ở lối đường, nên nhánh render không phải hỏi lại `variant`.
+       *
+       * Chân cột là toạ độ của SỐ 0, kẹp vào trong vùng vẽ. Kẹp là lớp phòng thân, không phải luật:
+       * `ChartBody` chỉ bật lối cột kèm `zeroBaseline`, nên 0 luôn nằm trong miền. Nhưng nếu một
+       * ngày nào đó ai đó gọi thẳng component này mà quên cờ ấy, kẹp giữ cột nằm trong khung thay
+       * vì cho nó chạy ra ngoài rồi bị `<svg>` cắt im lặng.
+       *
+       * Điểm `y === null` (chỗ không tính được, đang vẽ gạch chéo) bị loại hẳn — vẽ một cột cao 0
+       * ở đó là nói "giá trị bằng không", đúng thứ FR-06 cấm.
        */
-      xLabels: thin(model.x.ticks, 2),
+      bars:
+        variant !== 'bar'
+          ? []
+          : (() => {
+              const soDiem = model.points.length;
+              const buoc = soDiem > 1 ? (box.x1 - box.x0) / (soDiem - 1) : box.x1 - box.x0;
+              const rong = Math.max(1, Math.min(BAR_MAX_WIDTH, buoc * BAR_FILL));
+              const chanY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
+
+              return model.points.flatMap((point) => {
+                if (point.y === null) return [];
+                const dinhY = scaleY(point.y);
+                return [
+                  {
+                    key: point.label,
+                    x: scaleX(point.x) - rong / 2,
+                    y: Math.min(dinhY, chanY),
+                    w: rong,
+                    /* Sàn 1 đơn vị: giá trị bằng đúng 0 vẫn phải để lại một vệt, không biến mất. */
+                    h: Math.max(1, Math.abs(dinhY - chanY)),
+                    marked: point.marked === true,
+                  },
+                ];
+              });
+            })(),
+      /* Số nhãn theo khổ khung — xem `LABEL_BUDGET` về lý do 3 chứ không phải 2. */
+      xLabels: thin(model.x.ticks, budget.x),
       yLabels: nhanY,
       /* Trục Y phải: cùng số nhãn với trục trái để hai bên đọc ngang hàng nhau. */
-      yRightLabels: model.yRight === undefined ? [] : thin(model.yRight.ticks, 5),
+      yRightLabels: model.yRight === undefined ? [] : thin(model.yRight.ticks, budget.y),
     };
-  }, [model]);
+  }, [model, size, variant]);
 
   function handlePointerMove(event: ReactPointerEvent<SVGRectElement>) {
     const svg = svgRef.current;
@@ -628,8 +760,29 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
           cũ với `id` dải chuyển màu cũ, nên biểu đồ một chuỗi ra đúng cùng chuỗi HTML như trước
           khi mở đường cho nhiều chuỗi. Chuỗi phụ đi lối `.seriesLine`, màu theo lớp tông.
         */}
+          {/*
+            Lối vẽ CỘT thay hẳn hai vòng dưới, không vẽ chồng lên chúng.
+
+            Một cột mang đúng thông tin mà một điểm trên đường mang, nên vẽ cả hai là in dữ liệu hai
+            lần. Vạch dò, dấu "giá trị hiện tại", mốc tham chiếu và lối bấm-áp-dụng đều nằm NGOÀI
+            nhánh này nên chúng chạy y nguyên ở cả hai lối — đó là cả lý do lối cột chỉ là một cách
+            vẽ khác, không phải một biểu đồ khác.
+          */}
+          {bars.map((bar) => (
+            <rect
+              key={`bar-${bar.key}`}
+              className={
+                bar.marked ? `${String(styles.bar)} ${String(styles.barMarked)}` : styles.bar
+              }
+              x={bar.x}
+              y={bar.y}
+              width={bar.w}
+              height={bar.h}
+            />
+          ))}
+
           {drawOrder.map((series) =>
-            series.area === '' ? null : (
+            variant === 'bar' || series.area === '' ? null : (
               <path
                 key={`area-${series.key}`}
                 className={series.primary ? styles.area : styles.seriesArea}
@@ -640,7 +793,7 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
           )}
 
           {drawOrder.map((series) =>
-            series.d === '' ? null : series.primary ? (
+            variant === 'bar' || series.d === '' ? null : series.primary ? (
               <path
                 key={`line-${series.key}`}
                 className={styles.line}
@@ -843,5 +996,11 @@ export function LineChart({ model, idBase, fill = false, onApplyPoint }: LineCha
   );
 }
 
-/** Dùng cho test và cho bản in — cùng một hình học, không đoán lại. */
-export const CHART_GEOMETRY = { W, H, PLOT } as const;
+/**
+ * Dùng cho test và cho bản in — cùng một hình học, không đoán lại.
+ *
+ * Là khổ `compact`, và đó là khổ ĐÚNG cho cả hai chỗ dùng: jsdom không cài `matchMedia` nên
+ * `useChartSize()` ở lại `'compact'` trong mọi ca kiểm, còn bản in thì `@media print` vốn dựng
+ * theo khổ giấy hẹp. Chỗ nào cần khổ rộng thì đọc thẳng `SIZES.wide`, đừng suy từ hằng này.
+ */
+export const CHART_GEOMETRY = { ...SIZES.compact, PLOT } as const;

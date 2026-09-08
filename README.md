@@ -113,7 +113,7 @@ trong `src/core/warnings.ts` — công thức không tự chế câu chữ, đ�
 | Bất biến                                | Cách giữ                                            | Hỏng thì biết ngay ở đâu              |
 | --------------------------------------- | --------------------------------------------------- | ------------------------------------- |
 | Không hiện NaN / ∞ (FR-06)              | `ok()` tự chuyển thành `fail`                       | `src/core/calc-output.test.ts`        |
-| Lỗi hiện `— , —`, không hiện 0 (FR-06)  | `ResultBlock` giao hẳn cho `ErrorState`, một khuôn  | `src/ui/result/ErrorState.test.tsx`   |
+| Lỗi hiện `_ _`, không hiện 0 (FR-06)    | `ResultBlock` giao hẳn cho `ErrorState`, một khuôn  | `src/ui/result/ErrorState.test.tsx`   |
 | Chuỗi người gõ không thành NaN          | `parseViNumber()` trả `null` chứ không trả NaN      | `src/core/format.test.ts`             |
 | Ghi đè thắng cả khi thượng nguồn lỗi    | `resolveLinked()` xét `override` trước cảnh báo     | `src/core/linked-input.test.ts`       |
 | File xuất luôn có miễn trừ (FR-24)      | `buildExportContent()` không nhận cờ tắt            | `src/core/export-content.test.ts`     |
@@ -154,7 +154,7 @@ Ba điều đi kèm, đừng nới ra khi chưa hỏi chủ dự án:
   nguyên trong `localStorage` và không bao giờ đi vào tham số của lời gọi nào.
 - Mất mạng thì không ô nào được hiện `0`. Danh sách mã rơi về bản cache 24 giờ; thị giá rơi về bản
   cache 7 ngày và màn **phải** ghi rõ đang dùng giá phiên nào — đó là điều kiện để được phép giữ
-  giá cũ. Không còn giá nào dùng được thì các ô hiện "—" kèm lời khuyên **thử lại** (không phải
+  giá cũ. Không còn giá nào dùng được thì các ô hiện "\_ \_" kèm lời khuyên **thử lại** (không phải
   "bỏ mã khỏi danh mục"). Riêng ô **Vốn đã bỏ ra** vẫn ra số vì nó không cần thị giá.
 
 Chi tiết kỹ thuật: [`src/data/README.md`](src/data/README.md).

@@ -3,12 +3,13 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { MARKET_CONFIG, scheduleOrDefault } from '@/application';
-import type { CalcContext } from '@/application';
+import { MARKET_CONFIG, emptyCashflowRow, fail, scheduleOrDefault } from '@/application';
+import type { CalcContext, CalcOutput } from '@/application';
 
 import { FeeScheduleField } from './FeeScheduleField';
 import { FeeTaxBody } from './FeeTaxBody';
 import { LoanScheduleBody } from './LoanScheduleBody';
+import { XirrBody } from './XirrBody';
 import { hasConfigBlock, hasCustomBody } from './DetailBody';
 
 afterEach(cleanup);
@@ -58,6 +59,61 @@ describe('FeeScheduleField — ô chọn biểu phí của WF-08', () => {
   });
 });
 
+/*
+ * ── Câu lỗi từng dòng của bảng XIRR phải là CHỮ, không phải hình dạng object ────────────────────
+ *
+ * Chủ dự án chụp lại đúng dải này trên màn: *"Dòng 1: [object Object] [object Object]"*, kèm câu
+ * *"object cái gì đây. người dùng có phải là coder đâu"*.
+ *
+ * Gốc: `CashflowRowIssue.message` là `Bilingual` (`{vi, en}`), mà chỗ dựng lại nối thẳng nó vào
+ * chuỗi. TypeScript im lặng vì `Array.join()` khai trả `string` với mọi kiểu phần tử — dựng object
+ * thẳng vào JSX thì nó báo ngay, nhưng `join()` đã kịp nuốt lỗi trước đó.
+ *
+ * Nên ca này ghim CẢ HAI chiều: câu thật hiện ra, và không mẩu `[object` nào lọt lên màn. Vế thứ
+ * hai mới là cửa chặn — nó bắt được mọi kiểu ép object thành chuỗi, kể cả ở chỗ khác trong thân
+ * này, chứ không riêng một câu cụ thể.
+ */
+describe('XirrBody — dải lỗi từng dòng', () => {
+  const KHONG_TINH_DUOC: CalcOutput = fail('%', {
+    code: 'INCOMPLETE_INPUT',
+    message: { vi: 'Chưa đủ dòng tiền.', en: 'Not enough cash flows.' },
+  });
+
+  it('nói thành câu, không để lọt hình dạng object lên màn', () => {
+    const { container } = render(
+      <XirrBody
+        output={KHONG_TINH_DUOC}
+        rows={[emptyCashflowRow()]}
+        onRowsChange={() => undefined}
+      />,
+    );
+
+    expect(container.textContent).not.toContain('[object');
+    expect(screen.getByText(/Thiếu ngày của dòng tiền này/)).not.toBeNull();
+    expect(screen.getByText(/Thiếu số tiền/)).not.toBeNull();
+  });
+
+  /*
+   * Ca thứ hai vì câu "ngày trùng" dựng ở tầng BẢNG (`checkCashflowSeries`) chứ không ở tầng dòng,
+   * tức một nhánh `message` khác hẳn — nhánh duy nhất có nội suy số vào câu.
+   */
+  it('câu "ngày trùng" cũng là chữ, kể cả khi có nội suy số dòng', () => {
+    const { container } = render(
+      <XirrBody
+        output={KHONG_TINH_DUOC}
+        rows={[
+          { date: '2026-01-05', amount: -100 },
+          { date: '2026-01-05', amount: 50 },
+        ]}
+        onRowsChange={() => undefined}
+      />,
+    );
+
+    expect(container.textContent).not.toContain('[object');
+    expect(screen.getByText(/đã có ở dòng 1/)).not.toBeNull();
+  });
+});
+
 describe('FeeTaxBody — WF-08', () => {
   it('hiện đủ bốn dòng bóc tách kèm công thức trong dòng', () => {
     render(<FeeTaxBody inputs={WF08} ctx={CTX} />);
@@ -104,8 +160,8 @@ describe('FeeTaxBody — WF-08', () => {
     expect(screen.getByText('138.000 ₫')).not.toBeNull();
     expect(screen.getByText('1.350 ₫')).not.toBeNull();
 
-    // Dòng cần giá bán thì hiện “— , —” kèm tên ô còn thiếu.
-    expect(screen.getAllByText(/— , —/).length).toBeGreaterThan(0);
+    // Dòng cần giá bán thì hiện “_ _” kèm tên ô còn thiếu.
+    expect(screen.getAllByText(/_ _/).length).toBeGreaterThan(0);
     expect(container.textContent).toContain('Giá bán');
     expect(container.textContent).not.toContain('NaN');
   });

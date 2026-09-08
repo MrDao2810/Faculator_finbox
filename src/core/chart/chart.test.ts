@@ -32,7 +32,7 @@ function moduleOf(id: string) {
 }
 
 function point(x: number, y: number | null): ChartPoint {
-  return { x, y, label: String(x), valueLabel: y === null ? '— , —' : String(y) };
+  return { x, y, label: String(x), valueLabel: y === null ? '_ _' : String(y) };
 }
 
 /* ── scale.ts ────────────────────────────────────────────────────────────── */
@@ -543,7 +543,7 @@ describe('sweepPoints()', () => {
     expect(points.every((p) => p.y === null || Number.isFinite(p.y))).toBe(true);
 
     const nulls = points.filter((p) => p.y === null);
-    expect(nulls.every((p) => p.valueLabel.includes('— , —'))).toBe(true);
+    expect(nulls.every((p) => p.valueLabel.includes('_ _'))).toBe(true);
     expect(nulls.some((p) => p.reason === 'DIVIDE_BY_ZERO' || p.reason === 'MEANINGLESS')).toBe(
       true,
     );
@@ -720,7 +720,7 @@ describe('buildChartModel()', () => {
     expect(model.note?.vi).toContain('không tính được');
     // `?.` thứ hai là hệ quả của việc `rows` nay là tuple mở (nhiều chuỗi): ô số có kiểu
     // `string | undefined`. Ý nghĩa của ca kiểm không đổi.
-    expect(model.table.rows.some((row) => row?.[1]?.includes('— , —') === true)).toBe(true);
+    expect(model.table.rows.some((row) => row?.[1]?.includes('_ _') === true)).toBe(true);
   });
 
   /*
@@ -1353,7 +1353,7 @@ describe('buildChartModel()', () => {
      * Bảng ghép cột overlay theo CHỈ SỐ của điểm đã giữ (`points.indexOf(point)` trên kết quả
      * `condensePoints`), và phép ấy chạy được CHỈ vì `condensePoints()` trả về đúng tham chiếu
      * phần tử gốc. Ca này đối chiếu ĐỘC LẬP — tự rút gọn lại rồi tra chỉ số gốc — nên nó bắt được
-     * cả hai kiểu hỏng: `indexOf` trả -1 (mọi ô thành '—' mà bảng vẫn đủ 3 cột), và ghép theo vị
+     * cả hai kiểu hỏng: `indexOf` trả -1 (mọi ô thành '_ _' mà bảng vẫn đủ 3 cột), và ghép theo vị
      * trí DÒNG thay vì chỉ số gốc (dòng mang giá của phiên khác — số sai trông như đúng).
      */
     it('cột giá ghép ĐÚNG PHIÊN, không chỉ đủ số ô', () => {
@@ -1377,8 +1377,8 @@ describe('buildChartModel()', () => {
         }
         const goc = model.points.indexOf(point);
         expect(row[2]).toBe(giaPoints[goc]?.valueLabel);
-        // Và ô ấy là một con số thật, không phải '—' của nhánh không tìm thấy chỉ số.
-        expect(row[2]).not.toBe('—');
+        // Và ô ấy là một con số thật, không phải '_ _' của nhánh không tìm thấy chỉ số.
+        expect(row[2]).not.toBe('_ _');
         daDoi += 1;
       }
       expect(daDoi).toBeGreaterThan(3);

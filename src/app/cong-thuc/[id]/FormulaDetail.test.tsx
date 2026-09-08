@@ -518,7 +518,7 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
     expect(screen.getByTestId('result-text').textContent).toBe('19,83 lần');
   });
 
-  it('EPS bằng 0 thì ra “— , —” kèm lý do, TUYỆT ĐỐI không ra 0 (FR-06)', async () => {
+  it('EPS bằng 0 thì ra “_ _” kèm lý do, TUYỆT ĐỐI không ra 0 (FR-06)', async () => {
     const { container } = render(<Man spec={specOf('pe')} />);
 
     const eps = oNhap(/EPS/);
@@ -526,7 +526,7 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
     await userEvent.type(eps, '0');
     await userEvent.tab();
 
-    expect(screen.getByTestId('result-text').textContent).toContain('— , —');
+    expect(screen.getByTestId('result-text').textContent).toContain('_ _');
     expect(container.textContent).toContain('EPS bằng 0');
     expect(container.textContent).not.toContain('NaN');
     expect(container.textContent).not.toContain('Infinity');
@@ -540,7 +540,7 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
     await userEvent.type(eps, '-1200');
     await userEvent.tab();
 
-    expect(screen.getByTestId('result-text').textContent).toContain('— , —');
+    expect(screen.getByTestId('result-text').textContent).toContain('_ _');
     expect(container.textContent).toContain('P/B');
   });
 });
@@ -1659,8 +1659,16 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
 
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).not.toBe('92.000');
     expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
-    // `pe` điền cả hai ô nên KHÔNG được có câu "điền được N/M ô" — không có gì để cảnh báo.
-    expect(screen.queryByText(new RegExp(t('detail.presetPartialFix')))).toBeNull();
+    /*
+     * `pe` điền cả hai ô nên KHÔNG ô nào bị khoá.
+     *
+     * Soi TRONG khối Số liệu chứ không cả màn: 'dữ liệu mẫu' là một cụm chữ đời thường, và màn
+     * này còn cả sheet Nạp mẫu lẫn khối Ví dụ minh hoạ nói quanh chủ đề ấy. Giới hạn phạm vi cho
+     * đúng thứ ca này khẳng định — dòng phụ dưới các ô nhập.
+     */
+    const khoiSo = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(within(khoiSo).queryByText(new RegExp(t('input.sampleData')))).toBeNull();
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).readOnly).toBe(false);
   });
 
   /*
@@ -1674,28 +1682,33 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
    * `gia-muc-tieu` là ca thật: bộ mẫu điền được `eps` từ báo cáo, nhưng `targetPe` là một LỰA CHỌN
    * của người dùng — không báo cáo tài chính nào có sẵn P/E mục tiêu.
    */
-  it('mẫu điền MỘT PHẦN: gọi tên đúng ô còn lại, không để nó lẫn vào số của mã', async () => {
+  it('mẫu điền MỘT PHẦN: ô mã cấp được thì mở, ô mã không cấp được thì khoá', async () => {
     render(<Man spec={specOf('gia-muc-tieu')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
     await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
 
     /*
-     * Đọc qua `role="status"` chứ không `getByText`: câu báo chèn `<strong>{mã}</strong>` vào giữa
-     * nên nó nằm rải trên nhiều node, và matcher mặc định của Testing Library bỏ qua element có
-     * element con. Gộp `textContent` là đúng thứ người dùng đọc được.
+     * Ô mã KHÔNG cấp được số thì KHOÁ, và khoá bằng `disabled` chứ KHÔNG phải `readOnly`.
+     *
+     * Chủ dự án báo đúng triệu chứng của bản trước: *"bên trên không thể nhập liệu thì … không cho
+     * bấm vào được ô đó mà hiện tại vẫn đang cho bấm vào được"*. `readOnly` vẫn nhận con trỏ nháy —
+     * mời gõ rồi nuốt mọi phím. Ô khoá theo CHẾ ĐỘ (FR-09) thì vẫn `readOnly`, và đó là khác biệt
+     * có lý do: ở đó người dùng mở được ngay tại chỗ, nên ô phải còn tới được bằng bàn phím để đọc
+     * lời chỉ đường.
      */
-    const dai = screen
-      .getAllByRole('status')
-      .map((el) => el.textContent ?? '')
-      .join(' | ');
+    expect((oNhap(/P\/E mục tiêu/) as HTMLInputElement).disabled).toBe(true);
+    expect((oNhap(/P\/E mục tiêu/) as HTMLInputElement).readOnly).toBe(false);
+    // Soi TRONG khối Số liệu — 'dữ liệu mẫu' là cụm chữ đời thường, mà màn còn sheet Nạp mẫu và
+    // khối Ví dụ minh hoạ nói quanh chủ đề ấy.
+    const khoiSoLieu = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(within(khoiSoLieu).getAllByText(new RegExp(t('input.sampleData')))).toHaveLength(1);
 
-    // Câu báo phải có, và phải gọi ĐÚNG TÊN ô mà mã không cấp được.
-    expect(dai).toContain(t('detail.presetPartialFix'));
-    expect(dai).toContain('P/E mục tiêu');
-    expect(dai).toContain('1/2');
-    // Nhưng KHÔNG phải câu "không dùng số liệu của mã" — mã có cấp được số, chỉ là chưa đủ.
-    expect(dai).not.toContain(t('detail.presetNoData'));
+    // Ô mã CÓ cấp số thì MỞ — đúng nửa còn lại của luật: "ô nào điền được thì cho phép điền".
+    expect((oNhap(/EPS/) as HTMLInputElement).disabled).toBe(false);
+
+    // Và KHÔNG phải câu "không dùng số liệu của mã" — mã có cấp được số, chỉ là chưa đủ.
+    expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
   });
 
   /*
@@ -1717,19 +1730,56 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
       .map((el) => el.textContent ?? '')
       .join(' | ');
 
-    expect(dai).not.toContain(t('detail.presetPartialFix'));
+    expect(dai).not.toContain(t('input.sampleData'));
     expect(dai).not.toContain('Cổ tức ưu đãi');
   });
 
-  it('ô nạp từ mã mang dấu nguồn `↳ <mã>`, ô không nạp được thì không', async () => {
+  /*
+   * Dòng phụ của màn nạp mã là CHỮ, không phải ký hiệu — và ô khoá gọi tên CON SỐ, không nói về mã.
+   *
+   * Chủ dự án nhìn `↳ VHM` rồi hỏi *'ký hiệu này nghĩa là gì? ký hiệu có thể nhập liệu hả?'*.
+   * Mũi tên đọc được ở chuỗi công thức FR-15 (khối chuỗi ngay trên đã vẽ ra ai cấp cho ai),
+   * còn ở đây thì không có gì giải thích nó.
+   *
+   * Câu của ô khoá rồi đổi thêm hai lần nữa — 'không phải số của FPT' → **'dữ liệu mẫu'** — và
+   * lần thứ hai kéo theo cả vế bên kia: chủ dự án đọc 'số của FPT' đứng cạnh 'dữ liệu mẫu' rồi
+   * hỏi *"nếu là dữ liệu của mã thì phải ghi là 'dữ liệu của …' chứ? cứ ghi là 'số của …' nghĩa
+   * là gì. ko hiểu"*. Nên ca này ghim BA điều:
+   *
+   *   · cả hai câu có mặt, đúng một ô mỗi loại;
+   *   · **chung một danh từ** — đây là cửa chặn thật sự, vì hai vế nằm ở hai chỗ khác nhau trong
+   *     mã nguồn nên rất dễ đổi một vế mà quên vế kia (đã sập đúng một lần);
+   *   · tên mã **không** được ghép vào câu của ô khoá — đó là bản bị chê ở đời thứ hai.
+   *
+   * Ca này cũng là cửa chặn cho `↳` quay lại: `resolveInputState()` vẫn dựng `↳ <nguồn>` làm
+   * MẶC ĐỊNH cho chuỗi FR-15, nên quên truyền `derivedNote` là mũi tên hiện lại ở đây.
+   */
+  it('dòng phụ nói thành chữ: ô mở là "dữ liệu của <mã>", ô khoá là "dữ liệu mẫu"', async () => {
     render(<Man spec={specOf('gia-muc-tieu')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
-    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+    const ma = await napDongDau();
 
-    // Trạng thái `derived` của WF-16 in dòng phụ `↳ <nguồn>` — xem `resolveInputState()`.
-    // Đúng một ô: `eps` điền được, `targetPe` thì không.
-    expect(screen.getAllByText(/^↳ /)).toHaveLength(1);
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    // Đúng một ô mỗi loại: `eps` điền được, `targetPe` thì không.
+    expect(within(khoi).getAllByText(`${t('input.fromTicker')} ${ma}`)).toHaveLength(1);
+    expect(within(khoi).getAllByText(t('input.sampleData'))).toHaveLength(1);
+
+    /*
+     * Hai câu phải mở đầu bằng CÙNG MỘT DANH TỪ, khác nhau đúng ở vế sau ('của <mã>' ↔ 'mẫu').
+     *
+     * Đây là cửa chặn thật sự của ca này. Hai vế nằm ở hai khoá i18n khác nhau, nên đổi một vế mà
+     * quên vế kia là chuyện ĐÃ xảy ra một lần; mà triệu chứng — 'số của FPT' đứng cạnh 'dữ liệu
+     * mẫu' — thì chỉ người đọc mới thấy, không ca nào khác bắt được.
+     */
+    const DANH_TU = 'dữ liệu';
+    expect(t('input.fromTicker').startsWith(DANH_TU)).toBe(true);
+    expect(t('input.sampleData').startsWith(DANH_TU)).toBe(true);
+
+    // Câu của ô khoá đứng MỘT MÌNH — không tên mã, không phủ định.
+    expect(within(khoi).queryByText(new RegExp(`${t('input.sampleData')}.*${ma}`))).toBeNull();
+    // Và KHÔNG còn ký hiệu nào phải đoán.
+    expect(within(khoi).queryAllByText(/^↳ /)).toHaveLength(0);
   });
 
   /*
@@ -1748,41 +1798,39 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
     await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
 
-    // Đúng một dấu `↳`: "Giá bán" (phiên cuối = thị giá thật). "Giá mua" thì không.
-    expect(screen.getAllByText(/^↳ /)).toHaveLength(1);
+    // Đúng một ô mang nhãn "dữ liệu của <mã>": "Giá bán" (phiên cuối = thị giá thật). "Giá mua" thì
+    // không — nó là phiên PRNG, xem `presetRealKeys()`.
+    const khoiSo = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(within(khoiSo).getAllByText(new RegExp(`^${t('input.fromTicker')} `))).toHaveLength(1);
 
-    const dai = screen
-      .getAllByRole('status')
-      .map((el) => el.textContent ?? '')
-      .join(' | ');
-
-    // Dải gọi tên cả ô mặc định LẪN ô mang giá dựng — điểm chung: chưa phải số thật của mã.
-    expect(dai).toContain(t('detail.presetPartialFix'));
-    expect(dai).toContain('Giá mua');
-    expect(dai).toContain('Khối lượng');
-    expect(dai).toContain('1/4');
+    // Khoá cả ô mặc định LẪN ô mang giá dựng — điểm chung: không có số của mã.
+    expect((oNhap(/Giá mua/) as HTMLInputElement).disabled).toBe(true);
+    expect((oNhap(/Khối lượng/) as HTMLInputElement).disabled).toBe(true);
+    // Ô "Giá bán" là thị giá thật của mã nên vẫn mở.
+    expect((oNhap(/Giá bán/) as HTMLInputElement).disabled).toBe(false);
   });
 
   /*
-   * Dải "điền được N/M ô" phải ở TRONG khối Số liệu, cạnh đúng những ô nó nói tới.
+   * ── Dải văn "điền được N/M ô" đã BỎ HẲN, và ca này là cửa chặn để nó không quay lại ─────────
    *
-   * Ở header thì nó trôi khỏi tầm nhìn đúng lúc người dùng cuộn xuống chỗ cần sửa — chủ dự án bắt
-   * đúng chỗ này. Dải "không dùng số liệu của mã" thì ở LẠI header: nó nói về cả công thức, và
-   * không có ô nào để đứng cạnh vì không giá trị nào đổi.
+   * Chủ dự án bỏ nó vì tốn không gian mà đặt thông tin sai chỗ: kể tên vài ô rồi để người dùng tự
+   * dò xuống dưới xem ô nào là ô nào. Lời giải thích nay nằm trên chính cái ô nó nói tới, và ô ấy
+   * khoá lại luôn — ca ngay trên đã kiểm phần đó.
+   *
+   * Ở đây kiểm phần NGƯỢC LẠI: khối Số liệu không được mọc thêm một dải chữ nào. `loi-nhuan-rong`
+   * là ca nặng nhất (3 trên 4 ô bị khoá), nên nếu chỗ nào còn sót một câu tổng kết thì nó lộ ở đây.
    */
-  it('dải "điền được N/M ô" nằm trong khối Số liệu, không ở đầu màn', async () => {
+  it('khối Số liệu KHÔNG còn dải văn nào — lời giải thích nằm trên chính ô bị khoá', async () => {
     render(<Man spec={specOf('loi-nhuan-rong')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
     await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
 
     const khoi = screen.getByRole('region', { name: t('detail.inputs') });
-    const trongKhoi = within(khoi)
-      .getAllByRole('status')
-      .map((el) => el.textContent ?? '')
-      .join(' | ');
+    expect(within(khoi).queryAllByRole('status')).toHaveLength(0);
 
-    expect(trongKhoi).toContain(t('detail.presetPartialFix'));
+    // Nhưng ô bị khoá thì vẫn nói được lý do, ngay tại chỗ.
+    expect(within(khoi).getAllByText(new RegExp(t('input.sampleData'))).length).toBeGreaterThan(0);
   });
 
   it('gõ đè lên ô đang mang số của mã thì ô đó thôi là số của mã', async () => {
@@ -1790,14 +1838,15 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
     await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
-    expect(screen.getAllByText(/^↳ /)).toHaveLength(2);
+    const khoiGo = screen.getByRole('region', { name: t('detail.inputs') });
+    expect(within(khoiGo).getAllByText(new RegExp(`^${t('input.fromTicker')} `))).toHaveLength(2);
 
     const o = oNhap(/Giá thị trường/) as HTMLInputElement;
     await userEvent.clear(o);
     await userEvent.type(o, '50000');
 
     // Ô vừa gõ mất dấu nguồn; ô kia giữ nguyên. Không gỡ thì màn nói dối về gốc con số ấy.
-    expect(screen.getAllByText(/^↳ /)).toHaveLength(1);
+    expect(within(khoiGo).getAllByText(new RegExp(`^${t('input.fromTicker')} `))).toHaveLength(1);
   });
 
   it('bấm Huỷ thì rời màn, về đúng chỗ nút "Quay lại" đầu màn trỏ tới', async () => {

@@ -22,18 +22,28 @@
 }
 
 /*
- * Chỗ đáng ra là con số lớn, nay là “— , —”. Giữ đúng cỡ chữ để bố cục không nhảy.
+ * Chỗ đáng ra là con số lớn, nay là “_ _”. Giữ đúng cỡ chữ để bố cục không nhảy.
  *
  * Phải là chính cái `clamp()` của `ResultBlock.value`, không phải `--text-2xl` cố định như bản
  * cũ: chú thích trên hứa "bố cục không nhảy", nhưng khối kết quả co giãn 32→40px theo bề ngang
  * còn khối lỗi đứng yên ở 32px, nên từ ~445px trở lên hai trạng thái CAO KHÁC NHAU và trang xê
  * dịch đúng lúc phép tính chuyển từ ra số sang báo lỗi. Nay lời hứa ấy thành thật.
+ *
+ * ── Màu: cùng `--color-ink-soft` với `.unit`, KHÔNG còn đỏ ──────────────────────────────────
+ *
+ * Chủ dự án chốt: *"không cần để `_` màu đỏ, để cùng màu với `%/năm`"*. Đúng — chỗ trống không
+ * phải là cái sai; cái sai là điều `.chip` và `.message` đang nói. Một khoảng để điền tô đỏ đậm
+ * ở cỡ 40px thì hét to hơn cả câu giải thích ngay dưới nó.
+ *
+ * NFR-USA-06 (không lấy màu làm dấu hiệu duy nhất) vẫn nguyên: khối này còn viền đứt màu cảnh
+ * báo, nền `--color-danger-soft`, và `.chip` mang **tên mã lỗi bằng chữ**. Bỏ đỏ ở đây không bỏ
+ * dấu hiệu nào cả — chỉ bớt một chỗ hét.
  */
 .value {
   font-size: clamp(var(--text-2xl), 9vw, var(--text-3xl));
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
-  color: var(--color-danger);
+  color: var(--color-ink-soft);
 }
 
 .unit {

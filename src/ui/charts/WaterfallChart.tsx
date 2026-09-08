@@ -8,6 +8,8 @@ import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
 import { thin, tickAnchor } from './ticks';
+import { useChartSize } from './use-chart-size';
+import type { ChartSize } from './use-chart-size';
 
 /**
  * Biểu đồ bóc tách dạng thác nước — WF-17, gói 5.2.3.
@@ -56,12 +58,22 @@ import { thin, tickAnchor } from './ticks';
  * che mất chỗ cần đọc, tắt ngay thì chạm xong không đọc được gì.
  */
 
-/* Khung vẽ theo đơn vị viewBox. Lề trái rộng cho nhãn chặng đọc ngang. */
-const W = 320;
-const ROW = 26;
-const PAD = { top: 8, right: 12, bottom: 26, left: 96 } as const;
+/*
+ * Khung vẽ theo đơn vị viewBox — HAI khổ, cùng lẽ với `LineChart`. Xem `use-chart-size.ts`.
+ *
+ * Ở đây nhân đôi CẢ `ROW` lẫn `BAR` chứ không riêng `W`, khác với đường quét. Lý do: chiều cao thác
+ * nước tính theo SỐ CHẶNG (`PAD.top + số cột × ROW + PAD.bottom`), nên nới mỗi bề ngang là hình
+ * càng lúc càng bẹt — 5 chặng ở khổ rộng sẽ ra tỉ lệ gần 4:1. Nhân đôi cả hai chiều thì tỉ lệ khung
+ * giữ nguyên, chỉ chữ là nhỏ đi một nửa so với hình, đúng thứ cần.
+ *
+ * `PAD` KHÔNG nhân đôi ở cả hai khổ: lề trái 96 là chỗ cho nhãn chặng đọc ngang, mà cỡ chữ không đổi.
+ */
+const SIZES = {
+  compact: { W: 320, ROW: 26, BAR: 14 },
+  wide: { W: 640, ROW: 52, BAR: 28 },
+} as const;
 
-const BAR_HEIGHT = 14;
+const PAD = { top: 8, right: 12, bottom: 26, left: 96 } as const;
 
 /** Số nhãn vạch giữ lại trên trục giá trị. Vạch KẺ vẫn vẽ hết — xem `thin()`. */
 const VALUE_LABELS = 4;
@@ -81,11 +93,21 @@ export interface WaterfallChartProps {
   idBase: string;
   /** Bản trong màn phóng to: chiếm trọn chiều cao thay vì giữ tỉ lệ. */
   fill?: boolean;
+  /** Ép khổ khung thay vì để hook tự đo — màn phóng to truyền `'wide'`. Xem `LineChart`. */
+  size?: ChartSize;
 }
 
-export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartProps) {
+export function WaterfallChart({
+  model,
+  idBase,
+  fill = false,
+  size: sizeProp,
+}: WaterfallChartProps) {
   const pick = usePick();
   const svgRef = useRef<SVGSVGElement>(null);
+
+  const sizeTuDo = useChartSize();
+  const { W, ROW, BAR: BAR_HEIGHT } = SIZES[sizeProp ?? sizeTuDo];
 
   /** Cột đang trỏ/chạm — `null` là không cột nào. Cục bộ, không đồng bộ với bản phóng to. */
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -351,10 +373,13 @@ export function WaterfallChart({ model, idBase, fill = false }: WaterfallChartPr
  * Hình học của thác nước — cho test dùng, không đoán lại. Cùng vai trò với `CHART_GEOMETRY`.
  *
  * `heightOf()` chứ không phải một hằng `H`: khác đường quét, khung thác nước cao theo SỐ CHẶNG.
+ *
+ * Là khổ `compact`, cùng lẽ với `CHART_GEOMETRY`: jsdom không cài `matchMedia` nên mọi ca kiểm đứng
+ * ở khổ ấy.
  */
 export const WATERFALL_GEOMETRY = {
-  W,
-  ROW,
+  W: SIZES.compact.W,
+  ROW: SIZES.compact.ROW,
   PAD,
-  heightOf: (barCount: number) => PAD.top + barCount * ROW + PAD.bottom,
+  heightOf: (barCount: number) => PAD.top + barCount * SIZES.compact.ROW + PAD.bottom,
 } as const;

@@ -11,6 +11,14 @@ export interface SelectInputProps {
   onChange: (value: number) => void;
   mode?: Level;
   hideLabel?: boolean;
+  /**
+   * Ô bị khoá vì một lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('AAA không có').
+   *
+   * Cộng vào `isLockedForMode()` chứ không thay nó: hai lý do khoá độc lập nhau, và một biến
+   * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
+   */
+  lockedNote?: string;
+
   className?: string;
 }
 
@@ -25,6 +33,7 @@ export function SelectInput({
   value,
   onChange,
   mode = 'advanced',
+  lockedNote,
   hideLabel = false,
   className,
 }: SelectInputProps) {
@@ -38,7 +47,9 @@ export function SelectInput({
       hideLabel={hideLabel}
       hint={spec.description === undefined ? undefined : pick(spec.description)}
       value={String(value)}
-      disabled={isLockedForMode(spec, mode)}
+      disabled={
+        isLockedForMode(spec, mode) || (lockedNote !== undefined && lockedNote.trim() !== '')
+      }
       onChange={(event) => {
         const next = Number(event.target.value);
         // Giá trị luôn đến từ chính danh sách options nên chắc chắn là số hữu hạn;

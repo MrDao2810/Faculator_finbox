@@ -2,7 +2,7 @@
  * Hiển thị kết quả & diễn giải — gói WBS 2.4.
  *
  * Bất biến của nhánh này: không màn nào tự vẽ lấy trạng thái lỗi. Kết quả không tính được thì
- * `ResultBlock` giao cho `ErrorState`, và khuôn `— , —` + nguyên nhân + gợi ý sửa của WF-15
+ * `ResultBlock` giao cho `ErrorState`, và khuôn `_ _` + nguyên nhân + gợi ý sửa của WF-15
  * chỉ có MỘT chỗ định nghĩa. Nhờ vậy FR-06 không phụ thuộc việc người viết màn có nhớ kiểm
  * `value === null` hay không — cùng cách nghĩ với `ok()` ở tầng Domain.
  *

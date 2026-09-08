@@ -80,6 +80,22 @@ export interface ChartArgs {
    */
   seriesLabel?: string;
   /**
+   * Ép trục giá trị CHỨA mốc 0. Bật khi màn đang vẽ CỘT thay vì đường.
+   *
+   * Không phải một tuỳ chọn thẩm mỹ, mà là điều kiện để hình cột không nói dối. Cột đứng trên đáy
+   * vùng vẽ, nên chiều cao của nó chỉ đọc được thành "lớn gấp mấy lần" khi đáy ấy LÀ số 0. Trục
+   * chạy từ 11 tới 33 triệu vẽ thành cột thì cột 33 cao gấp… vô cùng lần cột 11, vì cột 11 cao 0 —
+   * mắt đọc ra một chênh lệch không có thật. Đường thì không mắc lỗi ấy: nó nói về ĐỘ DỐC, thứ
+   * không cần gốc toạ độ.
+   *
+   * Đây đúng là bất biến mà biểu đồ thác nước đã giữ từ trước ("trục giá trị phải chứa 0, vì cột
+   * cần chỗ để đứng"). Vẽ cột trên một trục không chứa 0 là mở lại đúng cái lỗ ấy ở chỗ khác.
+   *
+   * Chỉ nới MIỀN, không đụng dữ liệu: `niceAxis()` vẫn tự chia vạch trên miền đã nới, nên nhãn vạch
+   * và đường vẽ vẫn do một nguồn sinh ra.
+   */
+  zeroBaseline?: boolean;
+  /**
    * Chuỗi PHỤ do NƠI GỌI truyền vào — mối nối còn để ngỏ, hiện chưa ai dùng.
    *
    * Đọc kỹ trước khi nối một công thức mới vào đây, vì có HAI lối và lối này không phải lối mặc
@@ -490,6 +506,7 @@ function warmUpLength(points: ReadonlyArray<ChartPoint>): number {
  */
 export function buildChartModel(args: ChartArgs): ChartModel {
   const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel, overlays } = args;
+  const zeroBaseline = args.zeroBaseline === true;
   const { spec } = formula;
   const name = shortLabel(spec.name);
 
@@ -631,7 +648,17 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       ? yExtent
       : (extentOf([...points.map((point) => point.y), ...leftOverlayYs]) ?? yExtent);
 
-  const { axis: y, scale: yScale } = buildAxis(yFull[0], yFull[1], name, spec.resultUnit);
+  /*
+   * Nới miền để chứa 0 khi màn đang vẽ cột — xem `ChartArgs.zeroBaseline` về lý do.
+   *
+   * Nới cả hai đầu chứ không riêng đầu dưới: chuỗi toàn số ÂM (lỗ, dòng tiền ra) cần mốc 0 ở đầu
+   * TRÊN thì cột mới có chỗ treo xuống.
+   */
+  const yBase: readonly [number, number] = zeroBaseline
+    ? [Math.min(0, yFull[0]), Math.max(0, yFull[1])]
+    : yFull;
+
+  const { axis: y, scale: yScale } = buildAxis(yBase[0], yBase[1], name, spec.resultUnit);
 
   /*
    * Nhãn RÚT GỌN của từng điểm, cho chữ vẽ trên hình: vạch dò khi rê chuột và dấu "giá trị hiện tại".

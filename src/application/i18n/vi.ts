@@ -140,6 +140,37 @@ export const vi = {
   // ghép, mà tầng Domain không được đọc i18n (CON-02).
   'input.lockedBadge': 'nâng cao',
   'input.lockedHint': 'Chuyển sang chế độ Nâng cao để sửa ô này.',
+  /*
+   * ── Hai dòng phụ của màn nạp mã, và chúng phải dùng CHUNG MỘT DANH TỪ ────────────────
+   *
+   *   ô mở  → 'dữ liệu của VHM'   (ghép trước tên mã)
+   *   ô khoá → 'dữ liệu mẫu'      (đứng một mình: không tên mã, không phủ định)
+   *
+   * Cùng chữ "dữ liệu", chỉ khác vế sau. Đó là toàn bộ thiết kế của cặp câu này: người đọc
+   * so đúng MỘT chỗ khác nhau ('của VHM' ↔ 'mẫu') thay vì phải dịch hai danh từ về cùng một
+   * nghĩa trước đã.
+   *
+   * ── Lịch sử, vì cả hai vế đều đã sai một lần ────────────────────────────────────────
+   *
+   * Vế ô khoá đổi ba đời, mỗi lần đều vì nó cố nói về MÃ thay vì nói về CON SỐ:
+   *
+   *   'VHM không có'          → cụt: không có GÌ?
+   *   'không phải số của VHM' → đủ nghĩa nhưng là một mệnh đề phủ định; chủ dự án chốt
+   *                             *"không cần phải giải thích… ghi là 'dữ liệu mẫu' là được rồi"*.
+   *   'dữ liệu mẫu'           → gọi thẳng tên thứ đang nằm trong ô: số của ví dụ minh hoạ
+   *                             trong Registry.
+   *
+   * Vế ô mở thì trước là 'số của VHM', và chính vì vế kia đã đổi sang "dữ liệu" mà nó hỏng
+   * theo: chủ dự án đọc hai câu cạnh nhau rồi hỏi *"nếu là dữ liệu của mã thì phải ghi là
+   * 'dữ liệu của …' chứ? cứ ghi là 'số của …' nghĩa là gì. ko hiểu"*. Hai danh từ khác nhau
+   * cho hai thứ cùng loại đọc ra như hai khái niệm khác nhau.
+   *
+   * ⚠ Hai vế này sống hay chết cùng nhau. Đổi chữ ở một vế thì phải soi lại vế kia — đúng
+   * cái bẫy vừa sập một lần.
+   * ⚠ Và đừng ghép tên mã vào 'dữ liệu mẫu' cho "cân". Đó là bản đã bị chê ở đời thứ hai.
+   */
+  'input.fromTicker': 'dữ liệu của',
+  'input.sampleData': 'dữ liệu mẫu',
   'input.sliderMin': 'min',
   'input.sliderMax': 'max',
   'input.sliderStep': 'step',
@@ -257,22 +288,15 @@ export const vi = {
     'Nó chạy bằng số của chính bạn — gõ thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ minh hoạ" để ' +
     'lấy một bộ số mẫu.',
   /*
-   * Nạp một mã điền được MỘT PHẦN. Ba khoá tách rời vì câu chèn hai thứ động ở giữa: mã
-   * (`<strong>`) và danh sách tên ô còn thiếu — cùng lý do cặp khoá ngay trên.
+   * ── Dải "AAA điền được 2 trong 4 ô…" ĐÃ BỎ, cùng cả cụm khoá `detail.presetPartial*` ──────
    *
-   * Câu phải gọi TÊN những ô kia chứ không chỉ đếm: "điền được 1/2 ô" để người dùng tự đi tìm ô nào
-   * là bắt họ làm việc mà màn đã biết câu trả lời.
+   * Chủ dự án bỏ đoạn văn ấy vì nó tốn không gian mà nói một điều đặt sai chỗ: kể tên vài ô rồi
+   * để người dùng tự dò xuống dưới xem ô nào là ô nào. Thay bằng `input.sampleData` ngay
+   * trên — dòng phụ nằm trên chính cái ô nó nói tới, và ô ấy khoá lại luôn.
    *
-   * "chưa phải số thật của mã" chứ KHÔNG phải "đang là số mặc định của ví dụ" — bản đầu viết thế và
-   * sai với một nửa số ca. Danh sách này gộp hai loại ô: ô chưa ai đụng tới (số mặc định) và ô mà
-   * bộ mẫu CÓ điền nhưng bằng giá tự dựng — chân "Giá mua" lấy phiên đầu chuỗi 248 phiên, mà 247
-   * phiên trước phiên cuối là PRNG (xem `presetRealKeys()`). Gọi cả hai là "số mặc định" thì câu
-   * nói sai về loại thứ hai. Điểm chung duy nhất, và cũng là điều người dùng cần biết: không cái
-   * nào là số thật của mã.
+   * Đừng dựng lại cụm khoá này. Thiếu lời giải thích thì sửa dòng phụ trên ô, không thêm một
+   * đoạn văn thứ hai nói cùng một điều ở xa hơn.
    */
-  'detail.presetPartial': 'điền được',
-  'detail.presetPartialUnit': 'ô',
-  'detail.presetPartialFix': 'những ô này chưa phải số thật của mã. Sửa lại trước khi tin kết quả.',
   // Hai câu dưới đứng SAU tên phép tính đã lưu, nên viết thường.
   'detail.restoredNote': 'phép tính đã lưu ngày',
   'detail.restoredMissing': 'không tìm thấy phép tính đã lưu — có thể nó đã bị xoá khỏi máy này.',
@@ -321,6 +345,13 @@ export const vi = {
   'detail.chart': 'Biểu đồ',
   /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
   'chart.sweepLabel': 'Xem kết quả đổi theo',
+  /*
+   * Nhóm nút đổi lối vẽ. Nhãn nói VIỆC ('Kiểu hình') chứ không nói cơ chế ('Loại biểu đồ') — người
+   * dùng đang chọn cách nhìn cùng một bộ số, không chọn một biểu đồ khác.
+   */
+  'chart.kindLabel': 'Kiểu hình',
+  'chart.kindLine': 'Đường',
+  'chart.kindBar': 'Cột',
   /*
    * Bảng số liệu tương đương, gói trong <details>. HIỆN chứ không giấu bằng .visually-hidden:
    * người sáng mắt cũng cần con số chính xác, mắt đọc biểu đồ chỉ ra được xu hướng.
@@ -417,7 +448,19 @@ export const vi = {
   'preset.browseMarketNote':
     'Toàn bộ mã đang giao dịch, số liệu thật của phiên gần nhất — nhưng chỉ có MỘT phiên giá, ' +
     'nên công thức cần nhiều phiên vẫn phải dán chuỗi riêng.',
-  'preset.editableAfterLoad': 'Sau khi nạp, mọi ô vẫn sửa được từng cái một.',
+  /*
+   * Bản trước: "Sau khi nạp, mọi ô vẫn sửa được từng cái một." — nay NÓI QUÁ.
+   *
+   * Từ đợt khoá ô (chủ dự án chốt), nạp một mã thì chỉ ô mã cấp được số mới gõ vào được; ô mã
+   * không có thì khoá lại. Câu cũ hứa một điều màn không còn làm — mà đây lại là câu người
+   * dùng đọc NGAY TRƯỚC khi bấm Nạp, tức lời hứa được đọc đúng lúc nó sắp bị phá.
+   *
+   * FR-10 vẫn còn nguyên vế của nó, chỉ hẹp lại: "Bỏ mã" là lối mở khoá, và câu mới nói ra
+   * lối ấy thay vì im lặng về nó.
+   */
+  'preset.editableAfterLoad':
+    'Sau khi nạp, ô nào mã có số thì vẫn sửa được; ô mã không có thì khoá lại — bấm "Bỏ mã" ' +
+    'để gõ tự do trở lại.',
   /*
    * Nhãn bản thảo nay nói ĐÚNG NỬA nào là số tự dựng.
    *
@@ -474,9 +517,14 @@ export const vi = {
    * Câu này từng ghi "Không gửi lên máy chủ." và điều đó KHÔNG còn đúng kể từ gói lấy thị giá
    * thật: mã cổ phiếu phải rời máy thì mới tra được giá. Số lượng nắm giữ và giá vốn — hai thứ
    * riêng tư thật sự — vẫn không đi đâu cả, và câu mới nói đúng ranh giới đó thay vì hứa suông.
+   *
+   * Bỏ chú "(localStorage)" (08/09/2026): đó là tên một thứ trong mã nguồn, không phải chữ của
+   * người đọc — cùng loại với `[object Object]` mà chủ dự án vừa bắt được ở bảng XIRR. Câu không
+   * mất gì: "chỉ lưu trên thiết bị này" đã nói trọn cam kết, và người cần biết cơ chế thì không
+   * đọc dòng này để biết.
    */
   'portfolio.localOnly':
-    'Số lượng và giá vốn chỉ lưu trên thiết bị này (localStorage). Chỉ mã cổ phiếu được gửi tới Finbox để tra thị giá.',
+    'Số lượng và giá vốn chỉ lưu trên thiết bị này. Chỉ mã cổ phiếu được gửi tới Finbox để tra thị giá.',
   'portfolio.formCode': 'Mã cổ phiếu',
   // "Số cổ phiếu" trần bị đọc nhầm thành số CP LƯU HÀNH — cụm mà Domain dùng cho
   // `sharesOutstanding`. Thêm "nắm giữ" để hai khái niệm không còn trùng chữ.

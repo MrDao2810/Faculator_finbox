@@ -83,7 +83,7 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
     const oNgay = await screen.findByLabelText('Dòng 1 · Ngày');
 
     // Trắng trơn thì đọc ra là ô khoá — đúng thứ chủ dự án báo là "quá mờ nhạt".
-    expect(oMo.getAttribute('placeholder')).toBe('—');
+    expect(oMo.getAttribute('placeholder')).toBe('_ _');
     expect(oNgay.getAttribute('placeholder')).toBeNull();
   });
 

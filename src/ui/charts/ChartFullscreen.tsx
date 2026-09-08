@@ -12,22 +12,24 @@ import { WaterfallChart } from './WaterfallChart';
 import styles from './chart.module.css';
 
 /**
- * Xem biểu đồ toàn màn hình — phóng to và xoay ngang.
+ * Xem biểu đồ toàn màn hình.
  *
- * ── Vì sao lớp phủ `<dialog>` là cơ chế CHÍNH, còn Fullscreen API chỉ là phần thêm ─────────────
+ * ── Lớp phủ `<dialog>` là cơ chế DUY NHẤT. Fullscreen API đã bị gỡ ─────────────────────────────
  *
- * Cách hiển nhiên là gọi `element.requestFullscreen()`. Nhưng **Safari trên iPhone không hỗ trợ
- * `requestFullscreen` cho phần tử thường** — chỉ `<video>` mới vào được toàn màn hình. Nếu dựa vào
- * nó thì nút này chết hẳn trên iPhone, mà đó là phần lớn người dùng Việt Nam.
+ * Bản trước gọi thêm `document.documentElement.requestFullscreen()` rồi `orientation.lock()` như
+ * "phần thêm best-effort". Nó hỏng thật, và tính năng đã phải TẮT sau buổi tự thử của chủ dự án:
+ * trên điện thoại, bấm nút thì máy xoay ngang mà lớp phủ không nổi lên — bấm xong không thấy gì
+ * xảy ra.
  *
- * Nên cơ chế chính là một `<dialog>` phủ kín khung nhìn (`inset: 0`), chạy ở mọi máy. Fullscreen API
- * và khoá xoay là **phần thêm best-effort**: chạy được thì ẩn luôn thanh địa chỉ và tự xoay ngang;
- * không chạy được thì lớp phủ vẫn đầy màn và người dùng nhận đúng câu nhờ xoay tay. Không nhánh nào
- * là ngõ cụt.
+ * Nguyên nhân: `<dialog>` modal và phần tử fullscreen dùng CHUNG lớp trên cùng (top layer) của
+ * trình duyệt. Xin fullscreen cho `<html>` là đẩy chính tổ tiên của dialog lên trên nó, và dialog
+ * biến mất khỏi tầm nhìn dù vẫn đang mở. Đó không phải một "phần thêm hỏng thì thôi" — nó phá đúng
+ * cơ chế chính.
  *
- * `screen.orientation.lock()` cũng vậy: Chrome trên Android đòi phải đang ở fullscreen mới cho khoá,
- * còn iOS không có API này. Thứ tự trong effect là fullscreen trước, khoá xoay sau, và cả hai đều bọc
- * `catch` — một lời hứa bị từ chối ở đây không được làm sập cả biểu đồ.
+ * Nên nay chỉ còn `<dialog>` phủ kín khung nhìn (`inset: 0`), chạy ở mọi máy, kể cả Safari iPhone —
+ * nơi `requestFullscreen` vốn không dùng được cho phần tử thường. Không xin fullscreen, không khoá
+ * xoay: câu nhờ người dùng tự xoay ngang vẫn còn, và nay nó luôn đúng chứ không phải chỉ đúng khi
+ * khoá xoay thất bại.
  *
  * Dùng `<dialog>` gốc thay vì tự dựng modal, đúng lý do đã ghi ở `BottomSheet`: có sẵn bẫy tiêu
  * điểm, phím Esc, `inert` cho phần trang phía sau, và không tốn thêm dung lượng gói.
@@ -66,6 +68,13 @@ export interface ChartFullscreenProps {
    * bản phóng to và bản trên trang nói khác nhau là người dùng đọc ra hai sự thật về cùng một hình.
    */
   applyHint?: ApplyHintState | null;
+  /**
+   * Lối vẽ chuỗi chính, chuyển thẳng xuống `LineChart`.
+   *
+   * `ChartBody` giữ state và truyền cho cả hai bản: bản trên trang đang là cột mà bản phóng to ra
+   * đường thì người dùng bấm phóng to xong thấy một hình khác hẳn hình họ vừa xem.
+   */
+  variant?: 'line' | 'bar';
 }
 
 /**
@@ -117,14 +126,13 @@ export function ChartFullscreen({
   controls,
   onApplyPoint,
   applyHint = null,
+  variant = 'line',
 }: ChartFullscreenProps) {
   const t = useT();
   const pick = usePick();
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = `${idBase}-title`;
 
-  /** Khoá xoay đã ăn hay chưa — quyết định có phải nhờ người dùng xoay tay không. */
-  const [locked, setLocked] = useState(false);
   const portrait = usePortrait(open);
 
   /*
@@ -171,10 +179,9 @@ export function ChartFullscreen({
    * Cách vá: mở lớp phủ thì đẩy một mục lịch sử, nghe `popstate` để đóng, và khi đóng bằng nút X
    * hay phím Esc thì tự gỡ mục ấy đi để không để rác lại.
    *
-   * Chưa kiểm được, cần máy Android THẬT: Chrome ăn cú Back đầu tiên để thoát fullscreen trước,
-   * nên lần đầu người dùng có thể thấy thanh trạng thái quay lại mà lớp phủ vẫn nguyên. Cách bù
-   * hiển nhiên là nghe `fullscreenchange` rồi đóng lớp phủ khi `fullscreenElement` thành null —
-   * nhưng giả lập không tái tạo được lớp ấy, nên đó sẽ là vá mù. Để nguyên, ghi lại ở TASK.md.
+   * Ghi chú cũ ở đây nói cú Back đầu tiên bị Chrome ăn mất để thoát fullscreen, nên lớp phủ không
+   * đóng ngay. Điều đó KHÔNG còn đúng từ khi bỏ hẳn lời gọi fullscreen: nay chỉ còn một mục lịch sử
+   * do chính effect này đẩy vào, và cú Back đầu tiên rơi thẳng vào `popstate` bên dưới.
    */
   useEffect(() => {
     if (!open) return;
@@ -221,53 +228,6 @@ export function ChartFullscreen({
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    let alive = true;
-
-    void (async () => {
-      try {
-        if (typeof document.documentElement.requestFullscreen === 'function') {
-          await document.documentElement.requestFullscreen();
-        }
-      } catch {
-        // iPhone và mọi ca mất quyền từ cử chỉ người dùng rơi vào đây — lớp phủ vẫn đầy màn.
-      }
-
-      try {
-        const orientation = window.screen?.orientation as
-          | (ScreenOrientation & { lock?: (value: string) => Promise<void> })
-          | undefined;
-        if (orientation?.lock !== undefined) {
-          await orientation.lock('landscape');
-          if (alive) setLocked(true);
-        }
-      } catch {
-        // Không khoá được thì nhờ người dùng xoay tay — câu nhắc ngay dưới hình.
-      }
-    })();
-
-    /*
-     * Dọn phải tự phòng thân: `screen.orientation`, `fullscreenElement` và `exitFullscreen` đều là
-     * thứ có thể KHÔNG tồn tại — jsdom không có cái nào, iPhone không có khoá xoay. Đọc thẳng rồi gọi
-     * là ném `TypeError` ngay trong hàm dọn của effect, mà lỗi ở đó React không hứng, nên cả màn
-     * trắng chỉ vì một cú đóng biểu đồ.
-     */
-    return () => {
-      alive = false;
-      setLocked(false);
-      try {
-        window.screen?.orientation?.unlock?.();
-      } catch {
-        // Chưa khoá thì unlock cũng vô hại; không có gì để xử.
-      }
-      if (typeof document.exitFullscreen === 'function' && document.fullscreenElement !== null) {
-        void document.exitFullscreen().catch(() => undefined);
-      }
-    };
-  }, [open]);
-
   return (
     <dialog
       ref={ref}
@@ -307,10 +267,22 @@ export function ChartFullscreen({
             </button>
           </header>
 
+          {/*
+            `size="wide"` ép khổ khung rộng, KHÔNG để hook tự đo: lớp phủ chiếm trọn màn ở mọi bề
+            ngang, kể cả điện thoại đang xoay ngang — nơi hook vẫn trả `'compact'` vì mốc 768px tính
+            cho biểu đồ nằm trong dòng chảy trang, không cho một lớp phủ toàn màn.
+          */}
           {model.kind === 'waterfall' ? (
-            <WaterfallChart model={model} idBase={idBase} fill />
+            <WaterfallChart model={model} idBase={idBase} fill size="wide" />
           ) : (
-            <LineChart model={model} idBase={idBase} fill onApplyPoint={onApplyPoint} />
+            <LineChart
+              model={model}
+              idBase={idBase}
+              fill
+              size="wide"
+              variant={variant}
+              onApplyPoint={onApplyPoint}
+            />
           )}
 
           <div className={styles.fullFoot}>
@@ -323,13 +295,16 @@ export function ChartFullscreen({
             )}
             {applyHint !== null && <ApplyHint state={applyHint} />}
             {/*
-              Câu nhờ xoay chỉ hiện khi máy ĐANG dọc. Khoá xoay ăn thì trình duyệt tự xoay sang ngang,
-              `portrait` thành false và câu tự biến mất — một điều kiện lo cả hai nhánh.
+              Câu nhờ xoay chỉ hiện khi máy ĐANG dọc; người dùng xoay thật thì `portrait` thành
+              false và câu tự biến mất.
+
+              Nay in CẢ hai vế, không còn nhánh `locked`. Từ khi bỏ `orientation.lock()`, sản phẩm
+              không bao giờ tự xoay được máy nữa — nên lời nhắc "máy đang khoá xoay thì bật lại"
+              luôn đúng, chứ không chỉ đúng ở nhánh khoá thất bại.
             */}
             {portrait === true && (
               <p className={styles.fullRotate} role="status">
-                {t('chart.rotate')}
-                {!locked && ` ${t('chart.rotateUnlock')}`}
+                {t('chart.rotate')} {t('chart.rotateUnlock')}
               </p>
             )}
           </div>

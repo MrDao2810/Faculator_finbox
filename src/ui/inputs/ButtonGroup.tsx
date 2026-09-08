@@ -12,6 +12,14 @@ export interface ButtonGroupProps {
   value: number;
   onChange: (value: number) => void;
   mode?: Level;
+  /**
+   * Ô bị khoá vì một lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('AAA không có').
+   *
+   * Cộng vào `isLockedForMode()` chứ không thay nó: hai lý do khoá độc lập nhau, và một biến
+   * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
+   */
+  lockedNote?: string;
+
   className?: string;
 }
 
@@ -29,12 +37,17 @@ export function ButtonGroup({
   value,
   onChange,
   mode = 'advanced',
+  lockedNote,
   className,
 }: ButtonGroupProps) {
   const t = useT();
   const pick = usePick();
   const options = spec.options ?? [];
-  const locked = isLockedForMode(spec, mode);
+  const khoaTheoChe = isLockedForMode(spec, mode);
+  const locked = khoaTheoChe || (lockedNote !== undefined && lockedNote.trim() !== '');
+  // Hai lý do khoá, hai câu khác nhau. "nâng cao" thắng khi cả hai cùng đúng — xem
+  // `resolveInputState()`, nơi ô số giữ đúng thứ tự ấy.
+  const lyDo = khoaTheoChe ? t('input.lockedBadge') : lockedNote;
 
   const classes = [styles.wrap, className].filter(Boolean).join(' ');
 
@@ -44,7 +57,7 @@ export function ButtonGroup({
         <span className={styles.label} id={`${spec.key}-label`}>
           {pick(spec.label)}
         </span>
-        {locked && <Badge tone="advanced">{t('input.lockedBadge')}</Badge>}
+        {locked && lyDo !== undefined && <Badge tone="advanced">{lyDo}</Badge>}
       </div>
 
       <div className={styles.group} role="group" aria-labelledby={`${spec.key}-label`}>

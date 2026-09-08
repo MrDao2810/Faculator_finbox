@@ -109,38 +109,51 @@
   height: 0;
 }
 
+/*
+ * Tỉ lệ khung PHẢI khớp `viewBox` đang vẽ, và `viewBox` nay có HAI khổ (xem `use-chart-size.ts`):
+ *
+ *   compact  320 × 240 → 4/3     · dưới 768px
+ *   wide     640 × 400 → 16/10   · từ 768px
+ *
+ * Khớp sai thì `preserveAspectRatio="meet"` co hình theo chiều thiếu, để dư khoảng trắng hai bên
+ * VÀ phóng nội dung theo chiều dư — bản trước đặt 16/7 ở 640px trong khi viewBox là 16/10, và hệ số
+ * phóng đo được lên tới 2,5×–3,65×, chữ trục 10px hiện ra to như tiêu đề. Ghim cứng tỉ lệ ở đây còn
+ * để khung chiếm đúng chỗ ngay lần dựng đầu, không giật bố cục.
+ */
 .svg {
   display: block;
   width: 100%;
   height: auto;
-  /* Tỉ lệ ghim cứng nên khung chiếm đúng chỗ ngay từ lần dựng đầu — không giật bố cục. */
-  aspect-ratio: 16 / 10;
-}
-
-@media (min-width: 640px) {
-  .svg {
-    aspect-ratio: 16 / 7;
-  }
+  aspect-ratio: 4 / 3;
 }
 
 /*
- * Ở PC, tỉ lệ 16/7 của breakpoint trên khớp SAI với viewBox gốc (16/10 — 320×200), nên
- * `preserveAspectRatio="meet"` phải co theo chiều cao để vừa khung, để dư khoảng trắng hai bên
- * VÀ phóng to nội dung theo chiều dư đó. Cộng thêm khung rộng cỡ `--desktop-max` (1200px) thì
- * hệ số phóng đo được tới 2,5×–3,65× — chữ trục vốn 10px hiện ra to như tiêu đề.
+ * TRẦN BỀ NGANG — thứ giữ cho cỡ chữ SVG không trôi.
  *
- * Sửa hai lỗi cùng lúc: trả `aspect-ratio` về đúng tỉ lệ viewBox (hết letterbox), và chặn
- * `.plot` không rộng quá 480px (~1,5× khổ mobile 320px) để chữ SVG không phóng vượt mức đọc
- * được. `.plotFill` (màn phóng to, ngay dưới) phải huỷ lại giới hạn này — nó CỐ Ý chiếm hết chỗ.
+ * Chữ đo bằng đơn vị viewBox nên cỡ hiện ra = 10 × (bề ngang thật ÷ bề ngang viewBox). Trần đặt sao
+ * cho hệ số ấy không quá ~1,45 ở cả hai khổ, tức chữ trục luôn nằm trong khoảng 10–15px:
+ *
+ *   compact  460 ÷ 320 = 1,44  → 14,4px
+ *   wide     940 ÷ 640 = 1,47  → 14,7px
+ *
+ * Nhờ khổ `wide`, trần trên PC nới từ 480px lên 940px — hình gần gấp đôi mà chữ vẫn y nguyên cỡ đọc.
+ * Đó là cả lý do khổ thứ hai tồn tại. Trên điện thoại 360px thì cột nội dung đã hẹp hơn trần, nên hai
+ * dòng này không đụng gì tới khổ mobile.
+ *
+ * `.plotFill` (màn phóng to, ngay dưới) PHẢI huỷ lại trần này — nó cố ý chiếm hết chỗ.
  */
-@media (min-width: 1024px) {
+.plot {
+  max-width: 460px;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
   .svg {
     aspect-ratio: 16 / 10;
   }
 
   .plot {
-    max-width: 480px;
-    margin-inline: auto;
+    max-width: 940px;
   }
 }
 
@@ -162,6 +175,31 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/*
+ * Cột của lối vẽ CỘT.
+ *
+ * Cùng màu nhấn với `.line` nhưng dịu hơn: cột là MẢNG ĐẶC, mà một mảng đặc ở đúng độ đậm của một
+ * nét 2 đơn vị thì nặng hơn hẳn nét ấy trên cùng một hình. Dấu "giá trị hiện tại" nhờ vậy vẫn nổi
+ * lên trên nền cột thay vì chìm vào.
+ *
+ * KHÔNG `pointer-events: none`: cột nằm DƯỚI lớp bắt sự kiện (`.capture` vẽ sau cùng), nên nó không
+ * chắn gì — khác `.marker`, thứ nằm trên và phải tự nhường.
+ */
+.bar {
+  fill: var(--color-accent-vivid);
+  fill-opacity: 0.55;
+}
+
+/*
+ * Cột mang giá trị người dùng ĐANG nhập — tô đặc để tách khỏi phần còn lại.
+ *
+ * Ở lối đường, vai trò này do chấm đặc và vạch đứt của `.marker` đảm nhiệm. Lối cột vẫn có cả hai,
+ * nhưng chúng chồng lên một hàng cột cùng màu nên riêng chúng thì chưa đủ để mắt bắt được cột nào.
+ */
+.barMarked {
+  fill-opacity: 1;
 }
 
 /*

@@ -64,7 +64,7 @@ describe('sáu loại lỗi của WF-15', () => {
 });
 
 describe('bất biến FR-06 ở lớp hiển thị', () => {
-  it('hiện đúng chuỗi “— , —” thay cho con số', () => {
+  it('hiện đúng chuỗi “_ _” thay cho con số', () => {
     render(<ErrorState warning={WF15.DIVIDE_BY_ZERO} unit="lần" />);
     expect(screen.getByText(NO_VALUE)).not.toBeNull();
   });

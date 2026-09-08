@@ -46,7 +46,7 @@ export interface ExportLine {
 export interface ExportContent {
   title: string;
   subtitle: string;
-  /** Dòng kết quả đã định dạng, hoặc '— , —' kèm đơn vị khi không tính được (FR-06). */
+  /** Dòng kết quả đã định dạng, hoặc `NO_VALUE` kèm đơn vị khi không tính được (FR-06). */
   result: string;
   /** Câu diễn giải, có thì mới hiện. */
   interpretation?: string;
@@ -96,6 +96,8 @@ export function buildExportContent(
   const variableLines: ExportLine[] = options.includeDetails
     ? shown.map((variable) => ({
         label: `${variable.label.vi} (${variable.unit})`,
+        // Gạch NGANG, không phải `NO_VALUE`: đây là ô chữ trống, không phải con số còn thiếu —
+        // gạch dưới ở đây sẽ mời người đọc điền vào một cột họ không điền được. Xem `NO_VALUE`.
         value: variable.description?.vi ?? '—',
       }))
     : [];

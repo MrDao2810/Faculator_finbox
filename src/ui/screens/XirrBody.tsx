@@ -2,7 +2,7 @@
 
 import { cashflowsOf, checkCashflowSeries, emptyCashflowRow } from '@/application';
 import type { CalcOutput, CashflowRow } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useT, usePick } from '@/application/preferences-context';
 import { NumberCell } from '@/ui/inputs';
 import { Button, Table } from '@/ui/primitives';
 import { ResultBlock } from '@/ui/result';
@@ -29,6 +29,18 @@ const MAX_ROWS = 200;
  */
 export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
   const t = useT();
+  /*
+   * BẮT BUỘC cho câu lỗi từng dòng: `CashflowRowIssue.message` là `Bilingual` (`{vi, en}`), không
+   * phải chuỗi. Nối thẳng một object vào chuỗi thì JavaScript cho ra `[object Object]` — và đó là
+   * đúng thứ đã hiện trên màn: *"Dòng 1: [object Object] [object Object]"*.
+   *
+   * TypeScript không bắt được: `Array.join()` khai trả `string` với MỌI kiểu phần tử. Chỉ khi
+   * dựng thẳng object vào JSX nó mới báo, mà `join()` thì đã kịp nuốt mất lỗi ấy.
+   *
+   * Bảng chuỗi giá (`DataTableScreen`) không dính vì `RowIssue.message` bên đó là `string` thuần.
+   * Hai bảng trông giống nhau nhưng hai kiểu khác nhau — đừng chép qua lại mà không xem kiểu.
+   */
+  const pick = usePick();
 
   const check = checkCashflowSeries(rows);
   const issueByIndex = new Map(check.rows.map((row) => [row.index, row.issues]));
@@ -140,7 +152,7 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
                   <strong>
                     {t('xirr.rowLabel')} {row.index + 1}:
                   </strong>{' '}
-                  {row.issues.map((issue) => issue.message).join(' ')}
+                  {row.issues.map((issue) => pick(issue.message)).join(' ')}
                 </span>
               </li>
             ))}

@@ -10,7 +10,7 @@ export interface NumberCellProps {
   /** Gọi từng phím gõ. `null` nghĩa là ô đang trống hoặc chuỗi chưa ra số. */
   onChange: (value: number | null) => void;
   ariaLabel: string;
-  /** Chữ mờ khi ô trống — bảng WF-05 dùng '—' để ô trống không đọc ra là ô khoá. */
+  /** Chữ mờ khi ô trống — bảng WF-05 dùng '_ _' để ô trống không đọc ra là ô khoá. */
   placeholder?: string;
   className?: string;
 }

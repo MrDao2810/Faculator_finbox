@@ -83,6 +83,27 @@
   outline: none;
 }
 
+/*
+ * Ô khoá cứng (`disabled`) — dùng cho ô mà mã đang nạp không có số.
+ *
+ * Ghi đè kiểu mặc định của trình duyệt, vì mặc định ấy làm chữ xám tới mức đọc không ra: con số
+ * trong ô VẪN phải đọc được. Nó là số của ví dụ, và dòng phụ ngay dưới đã gọi đúng tên nó là
+ * "dữ liệu mẫu" — người dùng cần đọc được để hiểu kết quả đang dựa trên cái gì.
+ *
+ * `--color-muted` chứ không `--color-ink`: chìm hơn ô gõ được là dấu hiệu THỨ HAI bên cạnh nền
+ * chìm và viền đứt của `.tone-locked` (NFR-USA-06), nhưng vẫn là một token đã qua cửa kiểm tương
+ * phản ở `contrast.test.ts`.
+ *
+ * `-webkit-text-fill-color` là bắt buộc trên Safari/iOS: chỉ đặt `color` thì WebKit vẫn tự tô mờ
+ * chữ của ô `disabled`, và đó chính là ca khổ 360px mà `check:chrome` đang canh.
+ */
+.input:disabled {
+  color: var(--color-muted);
+  -webkit-text-fill-color: var(--color-muted);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
 .unit {
   flex-shrink: 0;
   font-size: var(--text-sm);

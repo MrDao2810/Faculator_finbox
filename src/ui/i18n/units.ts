@@ -11,7 +11,7 @@ import { usePick } from '@/application/preferences-context';
  *
  * `FormulaSpec.resultUnit` và `VariableSpec.unit` là chuỗi tiếng Việt trần (`'lần'`, `'tỷ ₫'`,
  * `'phiên'`). Đo trên Chrome thật ở chế độ EN: gần như mọi chỗ còn tiếng Việt trên màn đều là
- * đơn vị — chip cạnh ô nhập, đơn vị kết quả, ô Danh mục ("0 mã", "— , — %/năm"), thẻ bước của
+ * đơn vị — chip cạnh ô nhập, đơn vị kết quả, ô Danh mục ("0 mã", "— %/năm"), thẻ bước của
  * chuỗi định giá. Bản dịch nằm ở `unitLabel()` (Domain); hai hook này là đường đưa nó ra màn.
  *
  * ── Vì sao KHÔNG sửa `formatCalcOutput()` để nó tự dịch ─────────────────────────────────────
@@ -32,7 +32,7 @@ export function useUnitText(): (unit: string) => string {
 /**
  * `formatCalcOutput()` nhưng đơn vị theo locale.
  *
- * Giữ nguyên mọi hành vi FR-06 của bản gốc: không tính được thì ra `— , —` kèm đơn vị, không bao
+ * Giữ nguyên mọi hành vi FR-06 của bản gốc: không tính được thì ra `_ _` kèm đơn vị, không bao
  * giờ ra NaN hay 0.
  */
 export function useCalcText(): (out: CalcOutput, options?: FormatNumberOptions) => string {

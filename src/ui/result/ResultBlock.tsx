@@ -23,7 +23,7 @@ export interface ResultBlockProps {
  *
  * WF-03 khối 4: số lớn + đơn vị + một câu diễn giải, kèm nhãn 'cập nhật tức thì' (FR-05).
  *
- * Không tính được thì KHÔNG tự vẽ lấy: giao cho ErrorState, để khuôn `— , —` + nguyên nhân +
+ * Không tính được thì KHÔNG tự vẽ lấy: giao cho ErrorState, để khuôn `_ _` + nguyên nhân +
  * gợi ý sửa của WF-15 chỉ có một chỗ định nghĩa. Bất biến FR-06 nhờ vậy không phụ thuộc việc
  * người viết màn có nhớ kiểm `value === null` hay không.
  *

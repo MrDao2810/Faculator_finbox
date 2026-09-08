@@ -60,7 +60,7 @@ interface PresetValue {
    * 243.500 ₫, tức một mức giá VIC chưa từng có.
    *
    * Số ấy vẫn ĐIỀN vào ô (bộ mẫu bày ra tình huống "mua đầu kỳ, bán phiên gần nhất" cho người đọc
-   * hình dung), nhưng màn không được gắn nhãn "số của VIC" lên nó — làm vậy là khẳng định một sự
+   * hình dung), nhưng màn không được gắn nhãn "dữ liệu của VIC" lên nó — làm vậy là khẳng định một sự
    * kiện thị trường không có thật, đúng loại sai FR-06 sinh ra để chặn, chỉ khác là nằm ở nhãn chứ
    * không ở số. `presetRealKeys()` là thứ tách hai loại ra.
    */

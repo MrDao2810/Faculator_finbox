@@ -256,6 +256,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     /** Ô mang số THẬT của mã — `presetRealKeys()`, KHÔNG phải mọi ô preset vừa chạm vào. */
     filled: ReadonlySet<string>;
     /**
+     * Ô người dùng đã tự gõ đè lên KỂ TỪ lượt nạp này.
+     *
+     * Tách hẳn khỏi `filled`, và đó là điều bắt buộc kể từ khi ô mã không cấp được bị KHOÁ. Bản
+     * trước gỡ khoá đã sửa ra khỏi `filled` cho dấu `↳ AAA` thôi nói dối về nguồn con số — nhưng
+     * nay `filled` còn quyết định ô nào khoá, nên gỡ như thế là ô vừa gõ xong TỰ KHOÁ lại ngay
+     * dưới tay người dùng.
+     *
+     * Hai tập, hai việc: `filled` trả lời "mã có cấp số cho ô này không" (không đổi suốt lượt
+     * nạp, quyết định KHOÁ), `edited` trả lời "con số đang hiện có còn là của mã không" (quyết
+     * định NHÃN `↳`).
+     */
+    edited: ReadonlySet<string>;
+    /**
      * Lượt nạp này có đổi được gì trên màn không (`napDuocGi`).
      *
      * Tách khỏi `filled.size > 0` vì hai thứ đã hết trùng nhau từ lúc chân giá vào bị coi là số
@@ -962,16 +975,48 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const hiddenCount = spec.variables.length - shown.length;
 
   /**
-   * Những ô mà mã vừa nạp KHÔNG cấp được — tính trên các ô ĐANG HIỆN, không trên toàn bộ biến.
+   * Dòng phụ khoá của một ô, hoặc `undefined` nếu ô ấy mở.
    *
-   * Lọc theo `shown` vì chế độ Cơ bản ẩn bớt biến nâng cao (FR-09): kể tên một ô người dùng không
-   * nhìn thấy thì câu báo thành lời trách vô cớ về thứ họ không sửa được. Đổi chế độ là danh sách
-   * tự tính lại, không cần state riêng.
+   * ── Luật: đang nạp mã thì CHỈ những ô mã cấp được số mới gõ vào được ────────────────────────
    *
-   * `null` khi chưa nạp mã nào — khác hẳn mảng rỗng, vốn nghĩa "đã nạp và điền trọn".
+   * Chủ dự án chốt, thay cho dải văn "AAA điền được 2 trong 4 ô…" đã bỏ: *"với những mã nào điền
+   * được ô nào thì ô đó cho phép điền thôi, còn ô nào không điền được thì không cho điền"*.
+   * Thông tin cũ nằm trong một đoạn văn nay nằm ngay trên chính cái ô nó nói tới — người dùng
+   * không phải đọc một danh sách tên rồi tự dò xuống dưới xem ô nào là ô nào.
+   *
+   * Khoá **theo `filled`, không theo `edited`**: `filled` là "mã có cấp số cho ô này không", một
+   * sự thật của lượt nạp và không đổi trong suốt lượt ấy. Bám vào `edited` thì ô vừa gõ xong sẽ
+   * tự khoá lại dưới tay người dùng.
+   *
+   * ⚠ Khoá chỉ sống khi đang nạp mã. Không nạp mã nào (`presetFill === null`) hay lượt nạp không
+   * đổi được gì (`touched === false`) thì mọi ô mở như trước — và **"Bỏ mã" là lối mở khoá**: nó
+   * xoá `presetFill`, nên màn về đúng trạng thái tự do gõ mọi ô.
+   *
+   * ⚠ Đây là chỗ FR-10 bị THU HẸP. Điều khoản ấy hứa "nạp xong vẫn sửa được từng ô", và sheet
+   * "Nạp mẫu" in lời hứa ấy ra màn. Câu trên sheet đã sửa theo. Cái mất đi, đã đo và đã báo: ở
+   * `wacc` và `ddm-hai-giai-doan` mã chỉ cấp 1 trên 5 ô, nên bốn ô còn lại khoá hết — muốn thử
+   * giả định khác thì phải bỏ mã trước.
    */
-  const presetGaps =
-    presetFill === null ? null : shown.filter((variable) => !presetFill.filled.has(variable.key));
+  function lockedNoteFor(key: string): string | undefined {
+    if (presetFill === null || !presetFill.touched) return undefined;
+    if (presetFill.filled.has(key)) return undefined;
+    return t('input.sampleData');
+  }
+
+  /**
+   * Cùng tập ô ấy, ở dạng biểu đồ đọc được — để nó thôi mời "bấm để áp dụng" lên một trục khoá.
+   *
+   * `useMemo` là BẮT BUỘC, không phải tối ưu: prop này đi qua `memo(FormulaChart)`, và một `Set`
+   * dựng lại mỗi lượt render sẽ vô hiệu hoá đúng cơ chế giữ cho gõ phím không dựng lại cả cây SVG
+   * (xem docblock `memo` ở `FormulaChart.tsx`).
+   */
+  const chartLockedKeys = useMemo(
+    () =>
+      presetFill === null || !presetFill.touched
+        ? undefined
+        : new Set(spec.variables.map((v) => v.key).filter((key) => !presetFill.filled.has(key))),
+    [presetFill, spec.variables],
+  );
 
   /** Ô nào của công thức đang xem đang nhận giá trị từ bước trước. */
   const linkedFields = new Map(chainStep?.fields.map((field) => [field.spec.key, field]) ?? []);
@@ -985,6 +1030,15 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * này) không phải biết ô nào là ô móc nối.
    */
   function setValue(key: string, value: number): void {
+    /*
+     * Ô đang khoá thì KHÔNG đường nào ghi vào được.
+     *
+     * Cửa đặt ở đây chứ không ở `VariableField`, vì hai lối ghi khác KHÔNG đi qua component ấy nên
+     * không thấy prop `lockedNote`: lối bấm/nhả trên biểu đồ (`onChartApplyPoint`) và khối "Ví dụ
+     * thực tế" ở cuối màn. Một cửa cho cả ba lối, thay vì ba nơi phải nhớ cùng một luật.
+     */
+    if (lockedNoteFor(key) !== undefined) return;
+
     // Chạm vào số liệu là dùng thật, không cần đợi hết ngưỡng ở lại (xem effect ghi lượt dùng).
     markUsed();
     // …và cũng là tín hiệu duy nhất cho phép ghi bản nháp — xem effect ghi bên dưới.
@@ -993,14 +1047,18 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     /*
      * Gõ đè lên một ô đang mang số của mã thì ô đó THÔI là số của mã.
      *
-     * Không gỡ thì viền đứt `↳ HPG` vẫn đứng trên một con số người dùng vừa tự nhập — màn nói dối
-     * về nguồn gốc con số ấy. Cùng luật mà ô móc nối FR-15 đã đặt cho thao tác ghi đè.
+     * Không ghi nhận thì viền đứt `↳ HPG` vẫn đứng trên một con số người dùng vừa tự nhập — màn
+     * nói dối về nguồn gốc con số ấy. Cùng luật mà ô móc nối FR-15 đã đặt cho thao tác ghi đè.
+     *
+     * ⚠ Ghi vào `edited`, KHÔNG gỡ khỏi `filled` như bản trước. Từ khi ô mã không cấp được bị
+     * khoá, `filled` là thứ quyết định ô nào mở — gỡ khoá vừa sửa ra khỏi nó là ô ấy tự khoá lại
+     * ngay sau phím đầu tiên, và người dùng mất quyền sửa đúng lúc họ vừa bắt đầu sửa.
      */
     setPresetFill((current) => {
-      if (current === null || !current.filled.has(key)) return current;
-      const filled = new Set(current.filled);
-      filled.delete(key);
-      return { ...current, filled };
+      if (current === null || !current.filled.has(key) || current.edited.has(key)) return current;
+      const edited = new Set(current.edited);
+      edited.add(key);
+      return { ...current, edited };
     });
 
     if (linkedFields.has(key)) {
@@ -1103,6 +1161,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setPresetFill({
       code: preset.code,
       filled: presetRealKeys(preset, spec),
+      // Lượt nạp mới thì chưa ai sửa gì — kể cả khi lượt trước đã sửa vài ô.
+      edited: new Set(),
       touched: napDuocGi,
     });
 
@@ -1763,33 +1823,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         </div>
 
         {/*
-          Mã điền được MỘT PHẦN — gọi tên đúng những ô chưa phải số thật của mã.
+          ── Dải "AAA điền được 2 trong 4 ô…" đã BỎ HẲN ────────────────────────────────────────
 
-          Đây là khe hở mà gói này bịt: ô nhập khởi tạo bằng `defaultInputs(spec)` rồi `applyPreset`
-          chỉ trộn ĐÈ LÊN, nên ô nào mã không cấp được vẫn giữ số mặc định của ví dụ — kết quả là
-          một con số nửa thật nửa bịa mà trông hoàn toàn hợp lệ. Danh sách còn kể cả chân giá vào
-          của bộ mẫu bản thảo: nó CÓ đổi số, nhưng số ấy do PRNG dựng (xem `presetRealKeys()`).
+          Chủ dự án: *"không cần phải giải thích … cho tốn không gian. bỏ đi. thay vào đó các ô kia
+          ô nào nhập được thì cho phép nhập. những ô không nhập được thì không cho click được vào
+          để thay đổi"*.
 
-          Kết quả vẫn tính và vẫn hiện — FR-06 cấm "hiện số THAY CHO lỗi", còn ở đây không có lỗi
-          nào: có một bộ số hợp lệ mà màn đã gọi tên đúng phần chưa phải của mã. Cùng lập luận mà ô
-          móc nối FR-15 đã dùng.
+          Cùng một thông tin, đổi chỗ đứng: thay vì một đoạn văn kể tên các ô rồi để người dùng tự
+          dò xuống dưới xem ô nào là ô nào, nay chính cái ô ấy khoá lại và mang dòng phụ "AAA không
+          có" — xem `lockedNoteFor()`. Đọc tại chỗ cần đọc, và không tốn dòng nào.
 
-          ĐẶT Ở ĐÂY, không ở header như dải "không dùng số liệu của mã" phía trên: câu này nói về
-          những Ô CỤ THỂ, và người dùng đọc nó xong là phải sửa ngay ô bên dưới. Ở đầu màn thì nó
-          trôi khỏi tầm nhìn đúng lúc họ cuộn xuống chỗ cần sửa — chủ dự án bắt đúng chỗ này.
-
-          `role="status"` chứ không `alert`: không có gì hỏng, đây là câu trả lời cho thao tác nạp.
+          ĐỪNG dựng lại dải này. Nếu thấy thiếu lời giải thích thì sửa dòng phụ trên ô, không thêm
+          một đoạn văn thứ hai nói cùng một điều ở xa hơn.
         */}
-        {presetFill !== null &&
-          presetFill.touched &&
-          presetGaps !== null &&
-          presetGaps.length > 0 && (
-            <p className={styles.presetMismatch} role="status">
-              <strong>{presetFill.code}</strong> {t('detail.presetPartial')}{' '}
-              {presetFill.filled.size}/{shown.length} {t('detail.presetPartialUnit')} —{' '}
-              {presetGaps.map((v) => pick(v.label)).join(', ')} — {t('detail.presetPartialFix')}
-            </p>
-          )}
 
         {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
         {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
@@ -1821,15 +1867,33 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
                 sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
                 /*
                   Ô này đang mang số của mã vừa nạp → trạng thái `derived` của WF-16: viền đứt +
-                  dòng phụ `↳ HPG`. Dải ở đầu màn gọi tên những ô KHÔNG có dấu này; hai thứ là hai
-                  nửa của cùng một câu trả lời, và nửa ở đây là nửa người dùng nhìn thấy ngay tại
-                  chỗ họ sắp gõ vào.
+                  dòng phụ `↳ HPG`.
+
+                  Đọc `edited` chứ không gỡ khoá khỏi `filled`: gõ đè lên thì dấu `↳ HPG` phải tắt
+                  (nếu không màn nói dối về nguồn con số), nhưng ô vẫn phải MỞ — mà `filled` nay là
+                  thứ quyết định khoá. Xem docblock của `presetFill`.
                 */
                 derivedFrom={
-                  presetFill !== null && presetFill.filled.has(variable.key)
+                  presetFill !== null &&
+                  presetFill.filled.has(variable.key) &&
+                  !presetFill.edited.has(variable.key)
                     ? presetFill.code
                     : undefined
                 }
+                /*
+                  Dòng phụ viết thành chữ, KHÔNG để mặc định `↳ VHM`.
+
+                  Chủ dự án nhìn `↳ VHM` và hỏi *"ký hiệu này nghĩa là gì? ký hiệu có thể nhập liệu
+                  hả?"* — một ký hiệu phải đoán là một ký hiệu hỏng. Mũi tên đọc được ở chuỗi công
+                  thức FR-15 vì khối chuỗi ngay trên đã vẽ ra ai cấp cho ai; ở đây thì không có gì
+                  giải thích nó. Nay ô mở nói 'dữ liệu của VHM', ô khoá nói 'dữ liệu mẫu' — chung
+                  một danh từ, khác đúng một vế, nên liếc một cái là phân được.
+                */
+                derivedNote={
+                  presetFill === null ? undefined : `${t('input.fromTicker')} ${presetFill.code}`
+                }
+                // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
+                lockedNote={lockedNoteFor(variable.key)}
                 className={className}
               />
             ) : (
@@ -2034,6 +2098,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             {...(chartSeriesLabel === undefined ? {} : { seriesLabel: chartSeriesLabel })}
             // KHÔNG thay bằng closure viết trực tiếp ở đây — xem docblock `onApplyPoint` ở trên.
             onApplyPoint={onChartApplyPoint}
+            lockedKeys={chartLockedKeys}
           />
         </section>
       )}

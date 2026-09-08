@@ -66,7 +66,7 @@ const PREVIEW_COLUMNS: ReadonlyArray<{ kind: Exclude<ColumnKind, 'ignore'>; key:
 function previewCell(bar: PriceBar, key: keyof PriceBar): string {
   const value = bar[key];
   if (typeof value === 'string') return value;
-  if (typeof value !== 'number' || !Number.isFinite(value)) return '—';
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '_ _';
   return formatNumber(value);
 }
 

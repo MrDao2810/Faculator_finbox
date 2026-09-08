@@ -213,7 +213,7 @@ describe('PresetSheet — WF-10', () => {
 
   it('hứa rõ với người dùng là nạp xong vẫn sửa được — FR-10', () => {
     render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
-    expect(screen.getByText(/vẫn sửa được từng cái một/)).not.toBeNull();
+    expect(screen.getByText(/ô nào mã có số thì vẫn sửa được/)).not.toBeNull();
   });
 
   /*
@@ -455,6 +455,6 @@ describe('PasteImportSheet — WF-11', () => {
     const preview = screen.getByRole('table', { name: /Vài phiên đầu đọc được/ });
     expect(preview.textContent).not.toContain('NaN');
     expect(preview.textContent).not.toContain('undefined');
-    expect(preview.textContent).toContain('—');
+    expect(preview.textContent).toContain('_ _');
   });
 });

@@ -1,0 +1,103 @@
+/*
+ * Nút đổi lối vẽ biểu đồ — Đường / Cột.
+ *
+ * File CSS RIÊNG, không nằm trong `chart.module.css`, và đó không phải chuyện sắp xếp cho gọn.
+ * `tokens.test.ts` có một ca kiểm quét mọi token màu mà `chart.module.css` dùng và đòi khối
+ * `.print-region` của `globals.css` phải chép đủ chúng — vì bản in PDF luôn dùng bảng sáng, và
+ * một token thiếu ở đó là biểu đồ in ra mang màu bảng tối. Hợp đồng ấy chỉ có nghĩa với NÉT VẼ.
+ * Nút bấm không bao giờ được in, nên nhét màu nút vào file kia là bắt bản in gánh thêm hai token
+ * nó không dùng, và làm loãng đúng ca kiểm đang gác chuyện thật.
+ */
+/*
+ * Nhóm nút Đường / Cột — cùng ngôn ngữ hình với `ButtonGroup` của khối Số liệu, để người dùng nhận
+ * ra ngay đây là "chọn một trong hai" chứ không phải hai nút bấm rời.
+ *
+ * KHÔNG dùng lại chính `ButtonGroup`: component ấy nhận `VariableSpec` và đọc `spec.options`, tức
+ * nó là ô nhập của một BIẾN công thức. Lối vẽ không phải một biến — ép nó vào khuôn ấy là phải bịa
+ * ra một spec giả chỉ để mượn cái vỏ.
+ */
+.kind {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  /*
+   * Ôm sát nội dung, không giãn theo hàng chứa.
+   *
+   * `.kindGroup` là `inline-flex`, nhưng điều đó chỉ quyết định cách nó xếp CON nó — bề ngang của
+   * chính nó vẫn do hàng cha định. Trong màn phóng to, `.fullFoot` là flex CỘT nên mặc định
+   * `align-items: stretch` kéo nhóm hai nút chạy hết bề ngang màn. Cùng loại bẫy mà `.controls
+   * .picker` đã ghi lại: thuộc tính của hàng, không phải của ô.
+   */
+  align-items: flex-start;
+}
+
+.kindLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+.kindGroup {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * Nút NHỎ, nhưng vùng chạm vẫn 44px — hai chuyện tách rời nhau, xem `::after` ngay dưới.
+ *
+ * Bản đầu đặt thẳng `min-height: var(--tap-min)` như `ButtonGroup`, và chủ dự án trả lại vì nút to
+ * quá. Đúng: `ButtonGroup` là ô NHẬP LIỆU của một biến công thức, nó xứng đáng chiếm chỗ ngang các
+ * ô nhập khác. Nhóm này chỉ đổi CÁCH NHÌN cùng một bộ số — nó là điều khiển phụ của biểu đồ, đứng
+ * cạnh ô chọn trục, và bày nó to bằng ô nhập là nói sai thứ bậc.
+ */
+.kindOption {
+  position: relative;
+
+  min-height: 30px;
+  padding: 0 var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--color-ink-soft);
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/*
+ * Vùng chạm 44px VÔ HÌNH, phủ ra ngoài thân nút — NFR-USA-01 nói về chỗ ngón tay chạm được, không
+ * nói về chỗ có màu.
+ *
+ * Nút cao 30px, ô phủ cao 44px canh giữa, tức thò 7px mỗi phía. Bảy pixel ấy nằm gọn trong khe
+ * `gap: var(--space-2)` (8px) của hàng `.controls` bên trên và bên dưới, nên nó KHÔNG ăn cướp cú
+ * bấm của thứ gì khác — đặc biệt là lớp bắt sự kiện của chính biểu đồ ngay dưới, thứ mà lối
+ * bấm-áp-dụng đang dựa vào. Nới nút cao hơn 30px thì phải xét lại con số này.
+ */
+.kindOption::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+.kindOption:hover:not(.kindSelected) {
+  color: var(--color-ink);
+}
+
+/* Đang chọn: nền, màu chữ VÀ in đậm — ba dấu hiệu, không riêng màu (NFR-USA-06). */
+.kindSelected {
+  font-weight: var(--weight-bold);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}

@@ -18,12 +18,13 @@ export interface ErrorStateProps {
 /**
  * Trạng thái lỗi đặt ở đúng chỗ đáng ra là kết quả — gói WBS 2.4.2.
  *
- * WF-15 chốt khuôn hiển thị: giá trị hiện `— , —`, dưới là câu nêu nguyên nhân, dòng cuối là
+ * WF-15 chốt khuôn hiển thị: giá trị hiện `_ _`, dưới là câu nêu nguyên nhân, dòng cuối là
  * gợi ý sửa sau mũi tên ↳. Sáu mã lỗi chuẩn đều đi qua đây, câu chữ lấy từ chính `CalcWarning`
  * do tầng Domain dựng — component không tự chế lời (NFR-USA-04).
  *
  * Quy tắc nguyên văn của WF-15: "tuyệt đối không hiện NaN, Infinity, hay 0 thay cho lỗi".
- * Ở đây `— , —` là hằng số `NO_VALUE`, dùng chung với `formatCalcOutput()`.
+ * Ở đây `_ _` là hằng số `NO_VALUE`, dùng chung với `formatCalcOutput()` — bản vẽ ghi `— , —`, và
+ * chuỗi ấy đã đổi thành hai gạch dưới; lý do đầy đủ ở docblock của `NO_VALUE` trong `format.ts`.
  */
 export function ErrorState({ warning, unit, action, className }: ErrorStateProps) {
   const t = useT();

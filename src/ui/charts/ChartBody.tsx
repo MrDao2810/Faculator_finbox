@@ -11,6 +11,8 @@ import { ApplyHint } from './ApplyHint';
 import type { ApplyHintState } from './ApplyHint';
 import { ChartFrame } from './ChartFrame';
 import { ChartFullscreen } from './ChartFullscreen';
+import { ChartKindToggle } from './ChartKindToggle';
+import type { ChartKind } from './ChartKindToggle';
 import { LineChart } from './LineChart';
 import { SweepPicker } from './SweepPicker';
 import { WaterfallChart } from './WaterfallChart';
@@ -45,21 +47,34 @@ export interface ChartBodyProps {
    * là một THÀNH PHẦN khác nhau của phép bóc tách, không phải các mức khác nhau của một biến.
    */
   onApplyPoint?: (key: string, value: number) => void;
+  /**
+   * Khoá biến mà màn đang KHOÁ, nên bấm/nhả không ghi được gì vào đó.
+   *
+   * Màn chi tiết khoá những ô mà mã đang nạp không cấp được số. Không biết tập ấy thì biểu đồ
+   * vẫn mời "bấm để áp dụng" trên một trục ghi vào đâu cũng không đổi — một lời mời không giữ
+   * lời. `setValue()` bên màn đã chặn cú ghi, đây là chặn nốt lời mời.
+   *
+   * PHẢI có tham chiếu ổn định giữa các lượt render — prop này đi qua `memo(FormulaChart)`.
+   */
+  lockedKeys?: ReadonlySet<string>;
 }
 
 /**
- * TẠM ẨN tính năng phóng to — chủ dự án yêu cầu sau buổi tự thử (lỗi 7️⃣).
+ * TẠM ẨN nút phóng to — chủ dự án chốt "chưa cần".
  *
- * Trên điện thoại, nút này không phóng to riêng biểu đồ: `ChartFullscreen` gọi
- * `requestFullscreen()` trên CẢ tài liệu rồi `orientation.lock('landscape')`, nên máy xoay ngang
- * mà lớp phủ không nổi lên — bấm xong thấy màn hình quay rồi không có gì xảy ra.
+ * Lần ẩn trước là vì HỎNG: lớp phủ không nổi lên trên điện thoại. Lần này KHÔNG phải thế, và phân
+ * biệt hai lý do là điều đáng ghi lại. Lỗi ấy đã tìm ra nguyên nhân (`ChartFullscreen` xin
+ * fullscreen cho `<html>`, đẩy tổ tiên của `<dialog>` lên trên chính nó trong lớp trên cùng của
+ * trình duyệt) và đã sửa hẳn; lớp phủ nay chạy đúng ở cả điện thoại lẫn PC, đã chụp màn xác nhận.
+ * Nó bị ẩn thuần vì thứ tự ưu tiên sản phẩm.
  *
- * Bật lại bằng cách đổi hằng này thành `true`. Giữ nguyên `ZoomButton`, `ChartFullscreen` và state
- * `zoomed` thay vì xoá: yêu cầu là ẩn TẠM, và một dòng bật lại rẻ hơn nhiều so với dựng lại cả lớp
- * phủ (bẫy nút Back Android, khoá cuộn nền, hậu tố `-full` cho `<pattern id>`).
+ * Bật lại là đổi hằng này thành `true` rồi gỡ `.skip` ở `charts.test.tsx`. Giữ nguyên `ZoomButton`,
+ * `ChartFullscreen` và state `zoomed` thay vì xoá — 340 dòng lớp phủ ấy gánh những chỗ khó không
+ * dựng lại nhanh được: bẫy nút Back của Android, khoá cuộn nền, hậu tố `-full` cho `<pattern id>`,
+ * và vệt dò tách biệt giữa hai bản.
  *
- * Kiểu `boolean` tường minh là cố ý: thiếu nó thì TypeScript thu hẹp về kiểu literal `false` và
- * mọi nhánh `true` thành mã chết dưới mắt lint.
+ * Kiểu `boolean` tường minh là cố ý: thiếu nó thì TypeScript thu hẹp về kiểu literal `false` và mọi
+ * nhánh `true` thành mã chết dưới mắt lint.
  */
 const PHONG_TO_BAT: boolean = false;
 
@@ -71,6 +86,7 @@ export function ChartBody({
   level,
   seriesLabel,
   onApplyPoint,
+  lockedKeys,
 }: ChartBodyProps) {
   const t = useT();
 
@@ -89,6 +105,18 @@ export function ChartBody({
   const [zoomed, setZoomed] = useState(false);
 
   /*
+   * Lối vẽ chuỗi chính. Mặc định ĐƯỜNG, và giữ nguyên như thế qua mọi lần đổi trục.
+   *
+   * Không đặt lại về `'line'` khi người dùng đổi trục: lối vẽ là sở thích ĐỌC của họ, không phải
+   * thuộc tính của trục đang xem. Bắt chọn lại cột sau mỗi lần đổi trục là bắt nói lại một ý đã nói.
+   *
+   * Cột chỉ vẽ được khi model chấp nhận — xem `coCotDuoc` bên dưới. State vẫn giữ `'bar'` cả khi
+   * điều kiện tạm mất (người dùng đổi sang trục thời gian có đường giá chồng lên chẳng hạn), nên
+   * đổi về trục cũ là cột quay lại đúng như họ để.
+   */
+  const [kind, setKind] = useState<ChartKind>('line');
+
+  /*
    * Một lượt dựng đường quét là khoảng 42 lần gọi `runFormula`, cỡ vài chục micro giây; đường theo
    * thời gian nặng nhất là 248 lần có cắt tiền tố chuỗi, đo được 1,76ms. Cộng cả phần xếp hạng biến
    * vẫn xa ngưỡng 100ms của NFR-PER-02, nên không cần debounce, không cần `requestAnimationFrame`,
@@ -104,8 +132,20 @@ export function ChartBody({
         level,
         ...(sweepKey === null ? {} : { sweepKey }),
         ...(seriesLabel === undefined ? {} : { seriesLabel }),
+        /*
+         * Xin trục chứa mốc 0 khi người dùng đang xem CỘT.
+         *
+         * Phải xin ở đây, lúc DỰNG model, chứ không nới miền ở tầng vẽ: nhãn vạch do Domain sinh
+         * cùng lúc với miền, nên nới miền một mình bên kia là nhãn nói một đằng, hình vẽ một nẻo.
+         * Lý do vì sao cột bắt buộc phải có mốc 0 nằm ở `ChartArgs.zeroBaseline`.
+         *
+         * Xin cả khi model hoá ra không vẽ cột được (nhiều chuỗi chẳng hạn) là vô hại: lúc ấy
+         * `coCotDuoc` false, hình vẫn vẽ đường, chỉ là trục rộng thêm tới 0. Nhưng nó KHÔNG xảy ra
+         * — `kind` chỉ lên `'bar'` qua nút bấm, mà nút chỉ hiện khi điều kiện đã đủ.
+         */
+        ...(kind === 'bar' ? { zeroBaseline: true } : {}),
       }),
-    [formula, inputs, ctx, output, level, sweepKey, seriesLabel],
+    [formula, inputs, ctx, output, level, sweepKey, seriesLabel, kind],
   );
 
   if (model.kind === 'unavailable') {
@@ -146,7 +186,9 @@ export function ChartBody({
    * là một `VariableSpec.key` thật (xem `core/chart/sweep.ts`), nên chỉ cần hỏi thẳng Registry.
    */
   const canApplyPoint =
-    model.kind === 'line' && formula.spec.variables.some((v) => v.key === model.sweepKey);
+    model.kind === 'line' &&
+    formula.spec.variables.some((v) => v.key === model.sweepKey) &&
+    lockedKeys?.has(model.sweepKey) !== true;
 
   /*
    * Dòng gợi ý về lối bấm-áp-dụng — BA trạng thái, không phải một cờ bật/tắt.
@@ -168,7 +210,11 @@ export function ChartBody({
       ? null
       : canApplyPoint
         ? 'ready'
-        : model.options.some((option) => formula.spec.variables.some((v) => v.key === option.key))
+        : model.options.some(
+              (option) =>
+                formula.spec.variables.some((v) => v.key === option.key) &&
+                lockedKeys?.has(option.key) !== true,
+            )
           ? 'switch'
           : null;
 
@@ -207,13 +253,40 @@ export function ChartBody({
    * hai bản cùng nằm trong DOM khi lớp phủ mở, và `<label for>` trỏ vào node đầu tiên trùng `id`.
    * Dùng chung một element là ô chọn trong màn phóng to mất nhãn.
    */
+  /*
+   * Có mời người dùng đổi sang lối CỘT hay không.
+   *
+   * Hai điều kiện, cả hai đều là "vẽ ra sẽ đọc sai" chứ không phải "vẽ ra sẽ xấu":
+   *
+   *   - Thác nước VỐN ĐÃ là cột, với ý nghĩa khác hẳn (mỗi cột một THÀNH PHẦN của phép bóc tách,
+   *     không phải một mức của cùng một biến). Bày thêm nút "Cột" ở đó là hỏi một câu vô nghĩa.
+   *   - Nhiều chuỗi thì cột của chuỗi chính che mất đường phụ, mà đường phụ là bối cảnh người ta
+   *     cần để đọc chuỗi chính (giá đóng cửa dưới đường SMA chẳng hạn). Vẽ được, nhưng đọc thành
+   *     một hình khác với hình nó đang nói.
+   *
+   * Nút VẮNG MẶT chứ không phải bị làm mờ: một nút không bao giờ bấm được ở màn này thì bày ra chỉ
+   * để người dùng thử rồi thất vọng.
+   */
+  const coCotDuoc =
+    model.kind === 'line' && (model.overlays === undefined || model.overlays.length === 0);
+
+  /* Lối vẽ THẬT SỰ đang dùng — `kind` là ý muốn, còn đây là ý muốn đã lọc qua điều kiện. */
+  const variant: ChartKind = coCotDuoc ? kind : 'line';
+
+  /*
+   * MỘT ô chọn trục và MỘT nhóm nút lối vẽ, dựng hai lần ở hai chỗ — cùng lý do đã ghi ngay dưới:
+   * `id` phải khác nhau nên đây là hàm dựng, không phải element giữ sẵn.
+   */
   const pickerVoi = (base: string) => (
-    <SweepPicker
-      idBase={base}
-      options={model.options}
-      value={model.sweepKey}
-      onChange={setSweepKey}
-    />
+    <>
+      <SweepPicker
+        idBase={base}
+        options={model.options}
+        value={model.sweepKey}
+        onChange={setSweepKey}
+      />
+      {coCotDuoc && <ChartKindToggle idBase={base} value={kind} onChange={setKind} />}
+    </>
   );
 
   return (
@@ -222,6 +295,12 @@ export function ChartBody({
         model={model}
         idBase={idBase}
         picker={pickerVoi(idBase)}
+        /*
+         * Nút phóng to BẬT LẠI từ đợt này. Nó từng bị tắt vì trên điện thoại bấm xong máy xoay
+         * ngang mà lớp phủ không nổi lên; nguyên nhân là `ChartFullscreen` xin fullscreen cho
+         * `<html>`, đẩy chính tổ tiên của `<dialog>` lên trên nó trong lớp trên cùng của trình
+         * duyệt. Lời gọi ấy đã gỡ hẳn — xem docblock `ChartFullscreen`.
+         */
         action={
           PHONG_TO_BAT ? (
             <ZoomButton
@@ -244,6 +323,7 @@ export function ChartBody({
             <LineChart
               model={model}
               idBase={idBase}
+              variant={variant}
               onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
             />
             {applyHint !== null && <ApplyHint state={applyHint} />}
@@ -262,6 +342,7 @@ export function ChartBody({
           controls={pickerVoi(`${idBase}-full`)}
           onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
           applyHint={applyHint}
+          variant={variant}
         />
       ) : null}
     </>

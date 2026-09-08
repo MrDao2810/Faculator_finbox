@@ -33,6 +33,16 @@ export interface NumberInputProps {
   mode?: Level;
   /** Tên công thức thượng nguồn nếu ô đang nhận giá trị tự động, ví dụ 'CAPM'. */
   derivedFrom?: string;
+  /** Thay hẳn dòng phụ `↳ <nguồn>` bằng câu tự nói được nghĩa — xem `InputStateArgs`. */
+  derivedNote?: string;
+  /**
+   * Ô bị khoá vì lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('AAA không có').
+   *
+   * Chuyền thẳng xuống `resolveInputState()`, nơi WF-16 đã có sẵn trạng thái `locked` — nên ô
+   * này dùng đúng nền chìm, đúng `readOnly`, đúng `aria-readonly` như ô khoá theo chế độ. Không
+   * dựng kiểu khoá thứ hai: hai kiểu khoá trông khác nhau là hai thứ người dùng phải học.
+   */
+  lockedNote?: string;
   /** Ẩn nhãn khi ô nằm trong bảng đã có tiêu đề cột. */
   hideLabel?: boolean;
   className?: string;
@@ -80,6 +90,8 @@ export function NumberInput({
   onChange,
   mode = 'advanced',
   derivedFrom,
+  derivedNote,
+  lockedNote,
   hideLabel = false,
   className,
 }: NumberInputProps) {
@@ -90,9 +102,28 @@ export function NumberInput({
   const pick = usePick();
 
   const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
-  const { state, note } = resolveInputState({ raw, spec, focused, derivedFrom, mode });
+  const { state, note } = resolveInputState({
+    raw,
+    spec,
+    focused,
+    derivedFrom,
+    derivedNote,
+    mode,
+    lockedNote,
+  });
 
   const locked = state === 'locked';
+  /*
+   * Hai kiểu khoá, hai mức chặn khác nhau — và khác nhau là ĐÚNG, không phải thiếu nhất quán.
+   *
+   * · Khoá theo chế độ (FR-09): `readOnly`. Người dùng MỞ ĐƯỢC ngay tại chỗ — bật Nâng cao là
+   *   gõ được — nên ô phải còn nhận tiêu điểm để bàn phím tới được và đọc được lời chỉ đường.
+   * · Khoá theo mã: `disabled`. Ở đây không có gì để mở tại chỗ, và chủ dự án báo đúng triệu
+   *   chứng: *"bên trên không thể nhập liệu thì … không cho bấm vào được ô đó mà hiện tại vẫn
+   *   đang cho bấm vào được"*. `readOnly` vẫn nhận con trỏ nháy — mời gõ rồi nuốt mọi phím,
+   *   tức là mời một thao tác rồi từ chối nó, đúng thứ đợt này đang dọn.
+   */
+  const lockedByTicker = locked && lockedNote !== undefined && lockedNote.trim() !== '';
   const description = spec.description === undefined ? undefined : pick(spec.description);
 
   // Ngoài miền là lỗi thật sự nên đi đường `error` (có role="alert"); các dòng phụ khác
@@ -117,9 +148,10 @@ export function NumberInput({
       type="text"
       autoComplete="off"
       value={raw}
-      readOnly={locked}
-      aria-readonly={locked || undefined}
-      title={locked ? t('input.lockedHint') : undefined}
+      readOnly={locked && !lockedByTicker}
+      aria-readonly={(locked && !lockedByTicker) || undefined}
+      disabled={lockedByTicker}
+      title={locked && !lockedByTicker ? t('input.lockedHint') : undefined}
       onFocus={() => {
         setFocused(true);
         /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '92.000' thành '92000'. Qua `rawViNumber()`

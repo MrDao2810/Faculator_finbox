@@ -117,7 +117,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
             <NumberCell
               className={styles.cell}
               ariaLabel={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
-              placeholder="—"
+              placeholder="_ _"
               value={row[column.key]}
               onChange={(next) => {
                 onChange(index, { [column.key]: next });

@@ -324,8 +324,8 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
     const rows = built.table.rows.filter(
       (row): row is readonly [Bilingual, string] => row !== null,
     );
-    // `valueLabel` mang cả đơn vị — '— , — điểm' — nên so bằng `includes`, không so bằng dấu bằng.
-    const blanks = rows.filter((row) => row[1].includes('— , —'));
+    // `valueLabel` mang cả đơn vị — '— điểm' — nên so bằng `includes`, không so bằng dấu bằng.
+    const blanks = rows.filter((row) => row[1].includes('_ _'));
 
     // Quãng đứt vẫn nói ra được, nhưng chỉ bằng hai đầu của nó.
     expect(blanks.length).toBeGreaterThan(0);

@@ -1471,7 +1471,7 @@ describe('WF-06 — tab Công thức', () => {
     await screen.findByText('Nắm giữ');
     await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
 
-    expect(screen.getByText('—')).not.toBeNull();
+    expect(screen.getByText('_ _')).not.toBeNull();
     expect(screen.queryByText('0 lần')).toBeNull();
   });
 

@@ -110,6 +110,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'input.lockedBadge': 'advanced',
   'input.lockedHint': 'Switch to Advanced mode to edit this field.',
+  // Chung danh từ 'data': ô mở ghép TRƯỚC tên mã ('data from VHM'), ô khoá đứng một mình
+  // ('sample data'). Xem docblock ở `vi.ts` — đổi một vế là phải soi lại vế kia.
+  'input.fromTicker': 'data from',
+  'input.sampleData': 'sample data',
   'input.sliderMin': 'min',
   'input.sliderMax': 'max',
   'input.sliderStep': 'step',
@@ -177,10 +181,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.presetNoDataFix':
     'It runs on your own numbers — type them into the fields above, or tap "See the worked ' +
     'example" for a ready-made set.',
-  'detail.presetPartial': 'filled',
-  'detail.presetPartialUnit': 'fields',
-  'detail.presetPartialFix':
-    'these fields are not this ticker’s real numbers yet. Adjust them before trusting the result.',
   'detail.restoredNote': 'saved calculation from',
   'detail.restoredMissing':
     'saved calculation not found — it may have been deleted on this device.',
@@ -212,6 +212,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.openDataTable': 'Open the data table →',
   'detail.chart': 'Chart',
   'chart.sweepLabel': 'See how the result changes with',
+  'chart.kindLabel': 'Shape',
+  'chart.kindLine': 'Line',
+  'chart.kindBar': 'Bars',
   'chart.showData': 'View the numbers',
   'chart.tableCaption': 'Data',
   'chart.applyHintTimeAxis':
@@ -267,7 +270,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'preset.browseMarketNote':
     'Every tradable ticker, with real figures from the latest session — but only ONE price ' +
     'session, so formulas that need many sessions still require a pasted series.',
-  'preset.editableAfterLoad': 'After loading, every field can still be edited one by one.',
+  'preset.editableAfterLoad':
+    'After loading, fields the ticker has a figure for stay editable; the rest are locked — tap ' +
+    '"Clear ticker" to type freely again.',
   'preset.draftTag': 'fabricated price history',
   'preset.draftTitle': 'The fundamentals and the market price are real; the price history is not.',
   'preset.draftDetail':
@@ -292,8 +297,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.remove': 'Remove',
   'portfolio.empty': 'Nothing here yet. Add your first ticker to see total value and weights.',
   'portfolio.localTag': 'LOCAL',
+  // Bỏ chú "(localStorage)" cùng lúc với bản Việt — xem docblock ở `vi.ts`.
   'portfolio.localOnly':
-    'Quantities and cost prices stay on this device only (localStorage). Only the ticker codes are sent to Finbox to look up market prices.',
+    'Quantities and cost prices stay on this device only. Only the ticker codes are sent to Finbox to look up market prices.',
   'portfolio.formCode': 'Ticker',
   'portfolio.formQuantity': 'Shares held',
   'portfolio.formCostPrice': 'Cost per share (₫)',

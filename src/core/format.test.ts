@@ -71,7 +71,7 @@ describe('formatCalcOutput()', () => {
     expect(formatCalcOutput(ok(15.21, 'lần'))).toBe('15,21 lần');
   });
 
-  it('không tính được thì hiện đúng chuỗi “— , —” của WF-15, không phải 0', () => {
+  it('không tính được thì hiện đúng chuỗi “_ _” của WF-15, không phải 0', () => {
     const out = fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' }));
     const text = formatCalcOutput(out);
 

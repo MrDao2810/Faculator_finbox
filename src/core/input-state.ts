@@ -53,8 +53,29 @@ export interface InputStateArgs {
   focused: boolean;
   /** Tên công thức thượng nguồn đang cấp giá trị, ví dụ 'CAPM'. Không có thì ô là nhập tay. */
   derivedFrom?: string;
+  /**
+   * Thay hẳn dòng phụ mặc định `↳ <nguồn>` bằng một câu tự nói được nghĩa ('dữ liệu của VHM').
+   *
+   * Mũi tên `↳` đọc được trong chuỗi công thức FR-15, nơi khối chuỗi ngay trên đã vẽ ra ai
+   * cấp cho ai. Ở màn nạp mã thì không: chủ dự án nhìn `↳ VHM` và hỏi thẳng *'ký hiệu này
+   * nghĩa là gì? ký hiệu có thể nhập liệu hả?'* — một ký hiệu phải đoán là một ký hiệu hỏng.
+   *
+   * Không đổi mặc định: `↳ CAPM` giữ nguyên cho chuỗi, chỉ nơi nào có câu rõ hơn thì truyền vào.
+   */
+  derivedNote?: string;
   /** Chế độ hiển thị hiện tại (FR-09). */
   mode: Level;
+  /**
+   * Ô bị khoá vì một lý do NGOÀI chế độ hiển thị, kèm dòng phụ nói lý do ('dữ liệu mẫu').
+   *
+   * Lý do thứ hai của trạng thái `locked`, và hiện có đúng một nơi dùng: màn chi tiết khoá những
+   * ô mà mã đang nạp KHÔNG cấp được số (chủ dự án chốt). Chuỗi do tầng trên truyền xuống chứ
+   * không dựng ở đây — CON-02 cấm `src/core` đọc i18n, và chuỗi này có tên mã ghép vào.
+   *
+   * Không đặt tên là `locked: boolean` kèm một khoá i18n riêng: một ô khoá mà không nói vì sao thì
+   * người dùng chỉ thấy ô xám bấm không được. Bắt buộc có chuỗi lý do là bắt buộc phải giải thích.
+   */
+  lockedNote?: string;
 }
 
 export interface InputStateResult {
@@ -100,11 +121,18 @@ export function outOfRangeNote(value: number, spec: VariableSpec): string | unde
  * (rời ô hoặc Enter) — xem `commitValue()` bên dưới.
  */
 export function resolveInputState(args: InputStateArgs): InputStateResult {
-  const { raw, spec, focused, derivedFrom, mode } = args;
+  const { raw, spec, focused, derivedFrom, derivedNote, mode, lockedNote } = args;
   const value = parseViNumber(raw);
 
   if (isLockedForMode(spec, mode)) {
     return { state: 'locked', note: 'nâng cao', value };
+  }
+
+  // Khoá vì lý do ngoài chế độ hiển thị. Đứng SAU `isLockedForMode` chỉ để giữ dòng phụ 'nâng
+  // cao': cả hai đều cho ra `locked`, nên thứ tự không đổi trạng thái, chỉ đổi câu giải thích —
+  // và "ô này thuộc chế độ Nâng cao" là câu đúng hơn khi cả hai lý do cùng đúng.
+  if (lockedNote !== undefined && lockedNote.trim() !== '') {
+    return { state: 'locked', note: lockedNote, value };
   }
 
   if (value !== null && isOutOfRange(value, spec)) {
@@ -112,7 +140,7 @@ export function resolveInputState(args: InputStateArgs): InputStateResult {
   }
 
   if (derivedFrom !== undefined && derivedFrom.trim() !== '') {
-    return { state: 'derived', note: `↳ ${derivedFrom}`, value };
+    return { state: 'derived', note: derivedNote ?? `↳ ${derivedFrom}`, value };
   }
 
   if (focused) return { state: 'editing', value };

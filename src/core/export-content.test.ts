@@ -123,7 +123,7 @@ describe('nội dung file xuất', () => {
     expect(buildExportContent(PE, ok(15.21, 'lần'), INPUTS, options()).result).toBe('15,21 lần');
   });
 
-  it('không tính được thì ghi “— , —”, tuyệt đối không ghi 0 (FR-06)', () => {
+  it('không tính được thì ghi “_ _”, tuyệt đối không ghi 0 (FR-06)', () => {
     const content = buildExportContent(
       PE,
       fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' })),
@@ -131,7 +131,7 @@ describe('nội dung file xuất', () => {
       options(),
     );
 
-    expect(content.result).toContain('— , —');
+    expect(content.result).toContain('_ _');
     expect(content.result).not.toContain('NaN');
   });
 
@@ -144,9 +144,9 @@ describe('nội dung file xuất', () => {
     ]);
   });
 
-  it('ô chưa nhập thì ghi “— , —” chứ không ghi 0', () => {
+  it('ô chưa nhập thì ghi “_ _” chứ không ghi 0', () => {
     const content = buildExportContent(PE, ok(15.2, 'lần'), { price: 92_000 }, options());
-    expect(content.inputs[1]?.value).toContain('— , —');
+    expect(content.inputs[1]?.value).toContain('_ _');
   });
 
   it('biến kiểu chọn xuất ra NHÃN chứ không xuất con số', () => {

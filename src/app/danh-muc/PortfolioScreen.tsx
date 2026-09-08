@@ -59,13 +59,13 @@ import styles from './PortfolioScreen.module.css';
  * gói "Tám đề mục còn hở".
  *
  * Sáu con số đầu màn đều là **kết quả tính** nên đi qua `StatTile` nhận thẳng `CalcOutput`:
- * thiếu dữ liệu thì ô hiện "— , —" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm
+ * thiếu dữ liệu thì ô hiện "_ _" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm
  * nhất trong cả sản phẩm — một danh mục mới toanh có tổng giá trị chưa xác định, không phải 0 ₫.
  *
  * ── Sáu ô ở chế độ Nâng cao, bốn ô ở Cơ bản (FR-09) ─────────────────────────────────────────
  *
  * Beta và XIRR là hai khái niệm nâng cao thật, và với người dùng F0 chúng gần như **luôn** ở
- * trạng thái "— , —": beta là bình quân gia quyền nên thiếu beta của một mã là hỏng cả ô, mà
+ * trạng thái "_ _": beta là bình quân gia quyền nên thiếu beta của một mã là hỏng cả ô, mà
  * beta thì phải nhập tay; XIRR đòi ngày mua hợp lệ ở mọi mã. Bốn trên sáu ô nói được điều gì
  * đó ngay sau khi thêm mã đầu tiên, hai ô còn lại thì không — nên chế độ Cơ bản (mặc định của
  * sản phẩm, SRS 1.3.3) chỉ dựng bốn ô ấy, kèm dòng nói ra là đang giấu hai ô.
@@ -222,7 +222,7 @@ type SheetKind = 'ticker' | 'formulas';
  * bác ngay khi nhìn thấy — lý do đầy đủ ở chú thích "Căn lề: TẤT CẢ căn trái" trong
  * `PortfolioScreen.module.css`.
  *
- * `absent` tách "chưa có giá" và "—" khỏi một giá trị thật. Chúng chiếm đúng chỗ của một con số
+ * `absent` tách "chưa có giá" và "_ _" khỏi một giá trị thật. Chúng chiếm đúng chỗ của một con số
  * nên phải trông khác một con số (FR-06: thiếu dữ liệu thì nói ra, không hiện 0).
  */
 interface PortfolioCell {
@@ -562,7 +562,7 @@ export function PortfolioScreen() {
          *
          * 1. Giá đã tra được trong chính phiên làm việc này — mới nhất, giữ nguyên.
          * 2. Giá đã lưu ở lần mở app trước, nếu còn trong hạn.
-         * 3. Không có gì cả → `'failed'`, màn hiện "— , —" kèm lý do.
+         * 3. Không có gì cả → `'failed'`, màn hiện "_ _" kèm lý do.
          *
          * Hai ca đầu đều là `'stale'`, và `'stale'` BẮT BUỘC đi kèm ngày phiên hiện trên màn —
          * đó là điều kiện để việc dùng giá cũ không thành nói dối (xem `price-cache-store.ts`).
@@ -996,7 +996,7 @@ export function PortfolioScreen() {
                           */}
                           <p className={styles.savedResult}>
                             {saved.resultValue === null
-                              ? '—'
+                              ? '_ _'
                               : valueText(saved.resultValue, saved.resultUnit)}
                           </p>
 
@@ -1229,7 +1229,7 @@ export function PortfolioScreen() {
                       value:
                         row.marketPrice === null
                           ? t('portfolio.priceMissing')
-                          : `${formatNumber(row.marketPrice) ?? '—'} ₫`,
+                          : `${formatNumber(row.marketPrice) ?? '_ _'} ₫`,
                       kind: 'number',
                       /*
                        * Chữ "chưa có giá" ĐỨNG ĐÚNG CHỖ của một khoản tiền, nên phải trông khác
@@ -1246,9 +1246,9 @@ export function PortfolioScreen() {
                       label: t('portfolio.gain'),
                       value:
                         row.gainPercent === null
-                          ? '—'
+                          ? '_ _'
                           : `${row.gainPercent >= 0 ? '+' : '−'}${
-                              formatNumber(Math.abs(row.gainPercent), { maxDecimals: 1 }) ?? '—'
+                              formatNumber(Math.abs(row.gainPercent), { maxDecimals: 1 }) ?? '_ _'
                             }%`,
                       kind: 'number',
                       absent: row.gainPercent === null,
@@ -1324,7 +1324,7 @@ export function PortfolioScreen() {
                             {t('portfolio.shares')}
                           </span>
                           <span className={styles.holdCost}>
-                            {t('portfolio.costPrice')} {formatNumber(holding.costPrice) ?? '—'} ₫
+                            {t('portfolio.costPrice')} {formatNumber(holding.costPrice) ?? '_ _'} ₫
                           </span>
                         </span>
 
@@ -1345,8 +1345,8 @@ export function PortfolioScreen() {
                             <>
                               <span className={styles.holdWeight}>
                                 {row.weight === null
-                                  ? '—'
-                                  : `${formatNumber(row.weight, { maxDecimals: 0 }) ?? '—'}%`}
+                                  ? '_ _'
+                                  : `${formatNumber(row.weight, { maxDecimals: 0 }) ?? '_ _'}%`}
                               </span>
                               <span className={styles.holdWeightLabel}>
                                 {t('portfolio.weight')}
@@ -1359,7 +1359,7 @@ export function PortfolioScreen() {
                                   ].join(' ')}
                                 >
                                   {up ? '+' : '−'}
-                                  {formatNumber(Math.abs(row.gain), { maxDecimals: 0 }) ?? '—'} ₫
+                                  {formatNumber(Math.abs(row.gain), { maxDecimals: 0 }) ?? '_ _'} ₫
                                 </span>
                               )}
                             </>

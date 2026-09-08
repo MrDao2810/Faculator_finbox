@@ -32,13 +32,18 @@ import { WATERFALL_GEOMETRY } from './WaterfallChart';
 /*
  * ── PHONG_TO_ĐANG_ẨN ────────────────────────────────────────────────────────────────────────
  *
- * Nút phóng to đang TẮT bằng cờ `PHONG_TO_BAT` ở `ChartBody.tsx` (chủ dự án yêu cầu sau buổi tự
- * thử — trên điện thoại nó xoay ngang màn hình rồi không hiện gì). Mọi ca kiểm dưới đây phải bấm
+ * Nút phóng to đang TẮT bằng cờ `PHONG_TO_BAT` ở `ChartBody.tsx`. Mọi ca kiểm dưới đây phải bấm
  * được nút ấy mới chạy được, nên chúng mang `.skip` kèm dòng trỏ về đây.
  *
- * Bật cờ lại là gỡ hết `.skip` — KHÔNG xoá các ca này đi: chúng gác đúng những chỗ khó của lớp
- * phủ (bẫy nút Back Android, hậu tố `-full` cho `<pattern id>`, vệt dò tách biệt giữa hai bản), và
- * viết lại từ đầu đắt hơn nhiều so với gỡ một tiền tố.
+ * LÝ DO ẨN nay khác lần trước, và phân biệt hai lý do là điều đáng giữ. Lần trước là vì HỎNG: lớp
+ * phủ không nổi lên trên điện thoại. Nguyên nhân ấy đã tìm ra và sửa hẳn — `ChartFullscreen` xin
+ * fullscreen cho `<html>`, đẩy chính tổ tiên của `<dialog>` lên trên nó trong lớp trên cùng của
+ * trình duyệt; lời gọi đó đã gỡ. Toàn bộ 23 ca dưới đây ĐÃ CHẠY XANH sau khi sửa, rồi mới bị skip
+ * lại vì chủ dự án chốt "chưa cần" tính năng này. Chúng đang gác code CHẠY ĐƯỢC, không phải code hỏng.
+ *
+ * Bật cờ lại là gỡ hết `.skip` — KHÔNG xoá các ca này đi: chúng gác đúng những chỗ khó của lớp phủ
+ * (bẫy nút Back Android, hậu tố `-full` cho `<pattern id>`, vệt dò tách biệt giữa hai bản), và viết
+ * lại từ đầu đắt hơn nhiều so với gỡ một tiền tố.
  */
 
 /*
@@ -445,7 +450,6 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
    * cục", hay lược overlay khỏi model truyền vào lớp phủ, thì mọi ca khác vẫn xanh còn đúng màn
    * người dùng mở ra để nhìn kỹ hai đường lại chỉ còn một.
    */
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('bản phóng to có đủ hai đường, legend, và đúng thứ tự vẽ', async () => {
     const user = userEvent.setup();
     drawLoaded('sma-n-phien');
@@ -701,7 +705,7 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
    * Một cái `?? 0` ở bất kỳ đâu trên đường vẽ là biểu đồ nói "P/E bằng 0" ở chỗ đúng ra bỏ trống —
    * sai nguy hiểm hơn không vẽ gì, vì nó trông như một câu trả lời.
    */
-  it('quét EPS qua 0: có vùng gạch chéo, bảng ghi “— , —”, kèm ghi chú vì sao ngắt', async () => {
+  it('quét EPS qua 0: có vùng gạch chéo, bảng ghi “_ _”, kèm ghi chú vì sao ngắt', async () => {
     const pe = moduleOf('pe');
     const good = defaultInputs(pe.spec);
     const zero = { ...good, eps: 0 };
@@ -727,7 +731,7 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     // ...và vùng gạch chéo đánh dấu nửa không tính được.
     expect(container.querySelectorAll('rect[fill^="url(#"]').length).toBeGreaterThan(0);
 
-    expect(screen.getByRole('table').textContent).toContain('— , —');
+    expect(screen.getByRole('table').textContent).toContain('_ _');
     expect(screen.getByRole('note').textContent).toContain('không tính được');
     // Và tuyệt đối không có mức nào hiện thành 0 lần.
     expect(screen.getByRole('table').textContent).not.toContain('0 lần');
@@ -896,11 +900,11 @@ describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số li�
     expect(screen.getByRole('note').textContent).toContain('không tính được');
   });
 
-  it('phiên đầu chưa đủ dữ liệu thì bảng ghi "— , —", tuyệt đối không ghi 0', () => {
+  it('phiên đầu chưa đủ dữ liệu thì bảng ghi "_ _", tuyệt đối không ghi 0', () => {
     const { container } = drawLoaded('rsi-wilder');
     const table = screen.getByRole('table').textContent ?? '';
 
-    expect(table).toContain('— , —');
+    expect(table).toContain('_ _');
     expect(table).not.toContain('0,00 điểm');
     // Và vùng gạch chéo đánh dấu đúng quãng ấy trên hình.
     expect(container.querySelectorAll('rect[fill^="url(#"]').length).toBeGreaterThan(0);
@@ -1054,7 +1058,6 @@ describe('Mốc tham chiếu trên biểu đồ', () => {
     expect(mocTrong(container)).not.toContain('70');
   });
 
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('màn phóng to dựng lại đủ mốc, không rơi mất khi nhân đôi hình', async () => {
     const { container } = drawDaoDong('rsi-wilder');
 
@@ -1093,7 +1096,7 @@ describe('Phạm vi mở rộng — bốn họ công thức mới có biểu đ�
 
     const figure = screen.getByRole('figure');
     expect(figure.textContent).toContain('phiên đầu chưa đủ dữ liệu');
-    expect(screen.getByRole('table').textContent).toContain('— , —');
+    expect(screen.getByRole('table').textContent).toContain('_ _');
   });
 
   /*
@@ -1129,7 +1132,6 @@ describe('Phạm vi mở rộng — bốn họ công thức mới có biểu đ�
  * trường jsdom nên ca kiểm chứng minh được điều đó mà không phải giả lập gì. Nếu ai đó sau này viết
  * lại phần này dựa vào `requestFullscreen()`, những ca dưới đây đỏ ngay.
  */
-// Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
 describe.skip('Phóng to biểu đồ toàn màn hình', () => {
   /** Lớp phủ phóng to — `<dialog>` đang mở, dò bằng vai `dialog`. */
   function manPhongTo(): HTMLElement | null {
@@ -1408,10 +1410,9 @@ describe('Dò điểm (crosshair)', () => {
 
     const overlay = screen.getByTestId('chart-pe-hover');
     expect(overlay.querySelector('circle')).toBeNull();
-    expect(overlay.textContent).toContain('— , —');
+    expect(overlay.textContent).toContain('_ _');
   });
 
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('vẫn dò được ở bản phóng to, tách biệt hẳn với vệt dò của bản trên trang', async () => {
     gioKhungKhopViewBox();
     draw('pe');
@@ -1801,7 +1802,6 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
 
     expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
     expect(screen.getByText(t('chart.applyHintTimeAxis'))).not.toBeNull();
-    // Vế "bản phóng to cũng nói câu ấy" bỏ đi cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN.
   });
 
   it('trục đang là biến số (áp dụng được): KHÔNG hiện gợi ý đổi trục', () => {
@@ -1917,7 +1917,6 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(dau?.getAttribute('class')).toContain('marker');
   });
 
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('bản phóng to nhận cùng dòng gợi ý khẳng định, không im lặng riêng', async () => {
     gioKhungKhopViewBox();
     drawVoiApply(vi.fn());
@@ -1947,7 +1946,6 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
   });
 
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('bản phóng to: nhả tay cũng ghi được, tách biệt với bản trên trang', async () => {
     gioKhungKhopViewBox();
     const onApplyPoint = vi.fn();
@@ -2238,7 +2236,6 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * trong cả tài liệu; trùng thì trình duyệt lấy node đầu và vùng gạch chéo của màn phóng to trỏ
    * nhầm sang hình bên dưới. Hậu tố `-full` là thứ ngăn điều đó.
    */
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('mở lớp phủ thì có hai pattern gạch chéo, và hai id KHÁC nhau', async () => {
     const { container } = draw('pe');
 
@@ -2258,7 +2255,6 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * `<pattern>` ở ca trên: hai bản cùng nằm trong DOM khi lớp phủ mở, trùng `id` là bản sau tô
    * bằng dải chuyển màu của bản trước.
    */
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('mở lớp phủ thì có hai dải chuyển màu, và hai id KHÁC nhau', async () => {
     const { container } = draw('pe');
 
@@ -2278,7 +2274,6 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * `useId()` — chính ca kiểm này bắt được nó ở lần vá đầu. Quét cả cây thay vì liệt kê từng
    * component là để lần sau ai thêm một primitive mới vào đây thì đỏ ngay, không phải nhớ.
    */
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('không id nào trong cây biểu đồ mang hình dạng React tự sinh', async () => {
     const { container } = draw('pe');
     await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
@@ -2293,7 +2288,6 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
    * Bỏ sót nó thì bất biến "không `useId()`" không được gác cho renderer mới, và lớp lỗi
    * 5-cảnh-báo-lệch-hydration-mỗi-trang quay lại lặng lẽ ở đúng những trang có bóc tách.
    */
-  // Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
   it.skip('cây biểu đồ THÁC NƯỚC cũng không có id nào do React sinh, kể cả khi phóng to', async () => {
     const { container } = draw('ev');
     await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
@@ -2331,7 +2325,6 @@ describe('id của biểu đồ — tất định, không do React sinh', () => 
  * Những ca dưới đây kiểm CƠ CHẾ (đẩy mục, nghe popstate, tự dọn). Phần triệu chứng — số đã gõ còn
  * nguyên sau khi bấm Back — phải kiểm trên giả lập mobile, jsdom không có nút Back.
  */
-// Tắt cùng đợt ẩn nút phóng to — xem PHONG_TO_ĐANG_ẨN ở đầu file.
 describe.skip('Nút Back của hệ thống — đóng lớp phủ, không rời trang', () => {
   it('chưa bấm phóng to thì không đụng gì tới lịch sử', () => {
     draw('pe');
@@ -2389,3 +2382,93 @@ describe.skip('Nút Back của hệ thống — đóng lớp phủ, không rời
     expect(screen.queryByRole('dialog')).not.toBeNull();
   });
 });
+
+/*
+ * Lối vẽ CỘT — nút "Kiểu hình" (Đường / Cột).
+ *
+ * Điều đáng gác ở đây KHÔNG phải chuyện vẽ ra được hình cột, mà là ba lời hứa quanh nó, cả ba đều
+ * hỏng lặng lẽ nếu không có test:
+ *
+ *   1. Cột phải đứng trên mốc 0. Trục không chứa 0 mà vẽ cột là phóng đại chênh lệch — đúng bất
+ *      biến biểu đồ thác nước đã giữ từ trước ("cột cần chỗ để đứng").
+ *   2. Đổi lối vẽ KHÔNG được đổi dữ liệu. Bảng số phải nói y nguyên những con số cũ.
+ *   3. Nút chỉ hiện ở chỗ nó có nghĩa — không hiện trên thác nước (vốn đã là cột, ý nghĩa khác).
+ */
+describe('Kiểu hình — đổi giữa Đường và Cột', () => {
+  /** Bấm sang lối cột trên biểu đồ đang hiện. */
+  async function bamCot() {
+    await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
+  }
+
+  it('mặc định là Đường: có đường vẽ, chưa có cột nào', () => {
+    const { container } = draw('lai-kep');
+
+    expect(container.querySelector('path[data-points]')).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Đường' }).getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('bấm Cột thì đường biến mất và cột hiện ra — không vẽ chồng cả hai', async () => {
+    const { container } = draw('lai-kep');
+    const soDiem = container.querySelectorAll('path[data-points]').length;
+    expect(soDiem).toBe(1);
+
+    await bamCot();
+
+    expect(container.querySelector('path[data-points]')).toBeNull();
+    expect(container.querySelectorAll('rect[class*="bar"]').length).toBeGreaterThan(5);
+  });
+
+  /*
+   * Lời hứa 1 — và là lý do `ChartArgs.zeroBaseline` tồn tại.
+   *
+   * `lai-kep` ở số mặc định cho miền Y khoảng 11–33 triệu, tức KHÔNG chứa 0. Vẽ cột trên miền ấy
+   * thì cột thấp nhất cao 0 pixel còn cột cao nhất chiếm trọn khung — mắt đọc ra một chênh lệch
+   * không có thật. Ca này ghim rằng bấm Cột là trục tự nới xuống 0.
+   */
+  it('bấm Cột thì trục giá trị nới xuống chứa mốc 0', async () => {
+    draw('lai-kep');
+
+    const truocKhiBam = nhanTrucY();
+    expect(truocKhiBam.includes('0')).toBe(false);
+
+    await bamCot();
+
+    expect(nhanTrucY().includes('0')).toBe(true);
+  });
+
+  /* Lời hứa 2: đổi cách VẼ, không đổi số. */
+  it('đổi lối vẽ không đụng tới bảng số', async () => {
+    draw('lai-kep');
+    const truoc = screen.getByRole('table').textContent;
+
+    await bamCot();
+
+    expect(screen.getByRole('table').textContent).toBe(truoc);
+  });
+
+  /* Lời hứa 3: thác nước vốn đã là cột, hỏi thêm "muốn cột không" là câu vô nghĩa. */
+  it('thác nước KHÔNG có nút Kiểu hình', () => {
+    draw('ev');
+
+    expect(screen.queryByRole('button', { name: 'Cột' })).toBeNull();
+  });
+
+  it.skip('lối vẽ giữ nguyên khi mở màn phóng to — không lặng lẽ về Đường', async () => {
+    draw('lai-kep');
+    await bamCot();
+    await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
+
+    const lopPhu = screen.getByRole('dialog');
+    expect(within(lopPhu).getByRole('button', { name: 'Cột' }).getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+    expect(lopPhu.querySelector('rect[class*="bar"]')).not.toBeNull();
+  });
+});
+
+/** Mọi nhãn vạch đang hiện trên trục Y của biểu đồ trên trang. */
+function nhanTrucY(): string[] {
+  return [...document.querySelectorAll('text[class*="tick"]')]
+    .filter((el) => el.getAttribute('text-anchor') === 'end')
+    .map((el) => el.textContent ?? '');
+}

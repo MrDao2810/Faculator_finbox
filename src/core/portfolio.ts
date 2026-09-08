@@ -3,7 +3,7 @@
  *
  * Các con số ở đầu màn (tổng giá trị · vốn đã bỏ ra · lãi/lỗ ₫ và % · beta danh mục · XIRR toàn
  * danh mục · số mã) đều là KẾT QUẢ TÍNH, nên tất cả đi qua `CalcOutput` chứ không trả số trần —
- * FR-06 áp cho màn này y như cho mọi công thức. Thiếu dữ liệu thì hiện "— , —" kèm lý do,
+ * FR-06 áp cho màn này y như cho mọi công thức. Thiếu dữ liệu thì hiện "_ _" kèm lý do,
  * không hiện 0.
  *
  * Danh mục nằm trên máy người dùng (NFR-SEC-01, COM-03); phần cất giữ do tầng Application lo,

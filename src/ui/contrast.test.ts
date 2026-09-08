@@ -216,6 +216,12 @@ for (const [palette, tokens] of PALETTES) {
     it('chữ cảnh báo đọc được trên nền cảnh báo nhạt', () => {
       expect(meetsContrast(color('--color-warning'), color('--color-warning-soft'))).toBe(true);
       expect(meetsContrast(color('--color-danger'), color('--color-danger-soft'))).toBe(true);
+      /*
+       * Cặp MỚI kể từ lúc `_ _` thôi tô đỏ: `ErrorState.value` nay là `--color-ink-soft` đứng
+       * trên chính nền `--color-danger-soft` của khối. Chưa ca nào chấm cặp này, mà nó là chữ
+       * to nhất của khối lỗi.
+       */
+      expect(meetsContrast(color('--color-ink-soft'), color('--color-danger-soft'))).toBe(true);
     });
 
     it('chữ báo thành công đọc được trên nền xanh lá nhạt — khối báo cáo WF-11', () => {

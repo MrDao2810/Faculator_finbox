@@ -145,6 +145,417 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## `— , —` thành `_ _`, và thôi tô đỏ chỗ trống (08/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án nhìn chỗ đáng ra là kết quả: _"`— , —` icon này là gì? chưa hiểu và rất xấu"_ — rồi chốt
+luôn dấu thay thế: _"để nó thành gạch dưới đi"_, _"đổi lại cho tôi thành `_ _`"_, và _"không cần để
+`_`màu đỏ, để cùng màu với`%/năm`"\_.
+
+### Nó là gì, và vì sao không ai đọc ra
+
+`NO_VALUE` ở `core/format.ts` — chuỗi WF-15 dựng để đứng thay con số khi không tính được. Nó bắt
+chước **hình** của một con số Việt Nam (`92.000 , 5` với phần chữ số bị xoá), ý là "chỗ này đáng ra
+có một con số".
+
+Không ai đọc ra được ý đó. Đây là đời thứ ba của cùng một lỗi trong ba đợt liền: `↳ VHM`,
+`[object Object]`, và nay `— , —` — ký hiệu bắt người đọc suy diễn.
+
+`_ _` nói đúng thứ `— , —` cố nói mà không nói được: **chỗ trống chờ điền**, quy ước ai cũng biết
+từ tờ giấy có ô để trống, không phải học. Hai gạch chứ không một: một gạch trần ở cỡ chữ 40px trông
+như lỗi hiển thị.
+
+### Ranh giới với `—`, vì sản phẩm dùng cả hai
+
+Đợt này gom mọi chỗ "thiếu một CON SỐ" về cùng một dấu — trước đó `NO_VALUE` là `— , —` còn ô giá
+màn Danh mục, bảng xem trước khi dán và ô trống bảng dữ liệu lại dùng `—` trần, tức hai dấu cho một
+nghĩa.
+
+| Dấu   | Nghĩa                          | Ở đâu                                                                                   |
+| ----- | ------------------------------ | --------------------------------------------------------------------------------------- |
+| `_ _` | chỗ của một **con số** chưa có | `NO_VALUE`, ô giá Danh mục, ô trống bảng dữ liệu, bảng dán                              |
+| `—`   | ô **chữ** không có gì để nói   | `variable.noDescription`, dòng phí không tra được mức, mô tả biến trống trong file xuất |
+
+Luật để phân: **gạch dưới MỜI người dùng điền vào**, nên chỉ đặt ở chỗ họ điền được. Cột "Mô tả"
+của bảng biến thì không ai điền, nên nó giữ gạch ngang. Đã ghi vào docblock `NO_VALUE`.
+
+### Thôi tô đỏ
+
+`ErrorState.value` chuyển từ `--color-danger` sang `--color-ink-soft` — đúng màu của `.unit` đứng
+ngay cạnh, nên `_ _ %/năm` đọc thành một cụm thay vì hai mảnh.
+
+Chỗ trống không phải là cái sai; cái sai là điều `.chip` và `.message` đang nói. Một khoảng để điền
+tô đỏ đậm ở cỡ 40px thì hét to hơn cả câu giải thích ngay dưới nó.
+
+NFR-USA-06 (không lấy màu làm dấu hiệu duy nhất) **vẫn nguyên**: khối còn viền đứt màu cảnh báo,
+nền `--color-danger-soft`, và `.chip` mang tên mã lỗi bằng chữ. Bỏ đỏ ở đây không bỏ dấu hiệu nào.
+
+Kèm một ca kiểm mới: cặp `--color-ink-soft` trên `--color-danger-soft` chưa ai chấm, mà nay nó là
+chữ to nhất của khối lỗi — `contrast.test.ts` chấm ở **cả hai bảng màu**, xanh.
+
+### File đổi
+
+Một hằng số, 25 file đi theo — phần lớn là chú thích và tên ca kiểm nhắc lại chuỗi cũ:
+
+| Nhóm                                                                                                                                                                     | Sửa gì                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `src/core/format.ts`                                                                                                                                                     | hằng số + docblock ghi cả ba đời và ranh giới với `—` |
+| `ErrorState.module.css`                                                                                                                                                  | **màu** + lý do                                       |
+| `src/ui/contrast.test.ts`                                                                                                                                                | cặp màu mới                                           |
+| `PortfolioScreen.tsx` · `PasteImportSheet.tsx` · `DataTableScreen.tsx`                                                                                                   | gom về cùng một dấu                                   |
+| `ErrorState.tsx` · `ResultBlock` · `StatTile` · `result/index.ts` · `core/{portfolio,export-content}.ts` · `core/chart/table.ts` · `ui/i18n/units.ts` · `NumberCell.tsx` | chú thích                                             |
+| 10 file test · `README.md`                                                                                                                                               | tên ca + chuỗi ghim                                   |
+
+Ca kiểm nào ghim qua hằng số `NO_VALUE` thì tự đi theo; ca ghim chuỗi trần đã sửa tay.
+
+### Kiểm
+
+`typecheck` · `lint` · `format:check` sạch. **2355 xanh**, 3 ca đỏ vẫn là baseline màn Tìm kiếm —
+không ca nào đỏ thêm, kể cả `PortfolioScreen` (nơi `getByText` dò đúng chuỗi này) và
+`contrast.test.ts`.
+
+---
+
+## `[object Object]` trên màn XIRR, và một cuộc quét chữ của lập trình viên (08/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án chụp dải lỗi ở bảng XIRR: **"Dòng 1: [object Object] [object Object]"**, kèm _"object cái
+gì đây. người dùng có phải là coder đâu mà hiểu nghĩa là gì. sửa lại các chỗ có thuật ngữ như vậy."_
+
+### Lỗi thật, và vì sao không cửa nào bắt được
+
+`CashflowRowIssue.message` là `Bilingual` (`{vi, en}`), còn `XirrBody.tsx` nối thẳng nó vào chuỗi:
+
+```ts
+row.issues.map((issue) => issue.message).join(' '); // → '[object Object] [object Object]'
+```
+
+TypeScript im lặng vì **`Array.join()` khai trả `string` với mọi kiểu phần tử**. Dựng thẳng một
+object vào JSX thì `tsc` báo ngay ("không gán được vào `ReactNode`") — nhưng `join()` đã kịp ép nó
+thành chuỗi trước đó, nên lỗi rơi qua đúng khe hở duy nhất.
+
+Bảng chuỗi giá (`DataTableScreen`) **không** dính, dù hai dải trông y hệt nhau: `RowIssue.message`
+bên `price-series.ts` là `string` thuần. Hai bảng giống nhau về hình, khác nhau về kiểu — đã ghi
+vào docblock để người sau khỏi chép qua lại.
+
+Sửa: `usePick()` (đúng thứ `InlineWarning` vẫn dùng cho `CalcWarning.message`).
+
+### Cuộc quét — còn một chỗ nữa
+
+Quét cả `src/ui` + `src/app` cho mọi đường ép object thành chuỗi (`join`, `${}`, `String()`) và mọi
+tên định danh của mã nguồn lọt vào từ điển. Kết quả:
+
+| Chỗ                      | Phán                                                            |
+| ------------------------ | --------------------------------------------------------------- |
+| `XirrBody.issues`        | **Lỗi** — đã sửa                                                |
+| `DataTableScreen.issues` | Sạch — `message` bên đó là `string`                             |
+| `LineChart` nhãn dò      | Sạch — `ChartPoint.label` là `string` (Domain đã định dạng sẵn) |
+| `FlowChainStrip.cyclic`  | Sạch — mảng id, là chuỗi                                        |
+| `portfolio.localOnly`    | **Chữ của lập trình viên** — bỏ chú "(localStorage)"            |
+
+Câu cam kết riêng tư không mất gì: "Số lượng và giá vốn chỉ lưu trên thiết bị này." đã nói trọn
+điều cần nói, và hai ca kiểm ghim nó (`/chỉ lưu trên thiết bị này/i` và "Chỉ mã cổ phiếu được gửi
+tới Finbox") không hề chạm vào cái ngoặc ấy.
+
+**Chưa đụng, cần chủ dự án quyết:** tem `portfolio.localTag` = **"CỤC BỘ"** đứng cạnh ổ khoá. Cũng
+là chữ kỹ thuật, nhưng đổi sang "TRÊN MÁY NÀY" thì tem dài gấp đôi mà nó `flex-shrink: 0` đứng cùng
+hàng với câu dài ở khổ 360px — cần nhìn màn thật rồi mới đổi.
+
+### Ca kiểm
+
+Trước đợt này **không ca nào dựng `XirrBody`** — đó là lý do lỗi sống được. Nay `screens.test.tsx`
+có hai ca: dòng trống (hai câu lỗi ở tầng DÒNG) và ngày trùng (câu ở tầng BẢNG — nhánh duy nhất có
+nội suy số). Cả hai ghim `textContent` **không chứa `[object`** — vế này mới là cửa chặn thật, vì
+nó bắt mọi kiểu ép object thành chuỗi chứ không riêng một câu.
+
+**2355 xanh** (thêm 2), 3 ca đỏ vẫn là baseline màn Tìm kiếm.
+
+### File đổi
+
+| File                              | Sửa gì                                                      |
+| --------------------------------- | ----------------------------------------------------------- |
+| `src/ui/screens/XirrBody.tsx`     | `usePick()` cho câu lỗi + docblock ghi lại cái bẫy `join()` |
+| `src/ui/screens/screens.test.tsx` | 2 ca mới                                                    |
+| `src/application/i18n/{vi,en}.ts` | bỏ "(localStorage)" khỏi `portfolio.localOnly`              |
+
+**Không** bật lint type-aware (`@typescript-eslint/no-base-to-string`) để chặn cả lớp lỗi này: cần
+`parserOptions.project`, làm `npm run lint` chậm hẳn và nhiều khả năng đỏ ra ở chỗ khác. Ghi lại
+đây như một lựa chọn có cân nhắc, không phải chỗ bỏ sót.
+
+---
+
+## Hai dòng phụ dùng chung một danh từ — "dữ liệu của VHM" / "dữ liệu mẫu" (08/09/2026)
+
+**Trạng thái: xong.**
+
+Hệ quả trực tiếp của mục ngay dưới, và là một lỗi **do chính đợt ấy tạo ra**. Đổi vế ô khoá sang
+"dữ liệu mẫu" mà để nguyên vế ô mở là "số của VHM", nên chủ dự án đọc hai câu cạnh nhau rồi hỏi:
+_"nếu là dữ liệu của mã thì phải ghi là 'dữ liệu của …' chứ? cứ ghi là 'số của …' nghĩa là gì. ko
+hiểu"_.
+
+Đúng. Hai thứ cùng loại — con số đang nằm trong ô — mà gọi bằng hai danh từ khác nhau thì đọc ra
+như hai khái niệm khác nhau, và người đọc phải tự dịch về một mối trước khi so được.
+
+| Ô    | Trước         | Nay               |
+| ---- | ------------- | ----------------- |
+| mở   | `số của VHM`  | `dữ liệu của VHM` |
+| khoá | `dữ liệu mẫu` | `dữ liệu mẫu`     |
+
+Nay chung chữ "dữ liệu", khác đúng một vế: `của VHM` ↔ `mẫu`. Người đọc so một chỗ, không phải hai.
+
+### Bài học đã ghim thành ca kiểm
+
+Cái sai không phải chọn từ — là **đổi một vế mà không soi vế kia**. Hai câu nằm ở hai khoá i18n
+riêng, và triệu chứng chỉ người đọc mới thấy: không ca nào đang chạy bắt được "hai câu lệch danh
+từ", vì từng câu tự nó đều đúng.
+
+Nên ca "dòng phụ nói thành chữ" nay ghim thêm chiều ấy — cả hai chuỗi phải mở đầu bằng cùng một
+danh từ. Đổi từ khác vẫn qua, miễn là đổi cả hai vế.
+
+### File đổi
+
+| File                                                        | Sửa gì                                                                                                                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/i18n/vi.ts`                                | `input.fromTicker` `'số của'` → **`'dữ liệu của'`**; docblock chép lại cả ba đời của vế khoá **và** đời hỏng của vế mở, kèm luật "hai vế sống chết cùng nhau" |
+| `src/application/i18n/en.ts`                                | `'from'` → `'data from'`, để cặp EN cũng chung danh từ `data`                                                                                                 |
+| `FormulaDetail.tsx`                                         | chú thích JSX của `derivedNote`                                                                                                                               |
+| `input-state.ts` · `VariableField.tsx` · `preset-inputs.ts` | ví dụ trong docblock                                                                                                                                          |
+| `FormulaDetail.test.tsx`                                    | tên ca + 2 chú thích; **thêm cửa chặn chung-danh-từ**                                                                                                         |
+
+Không đổi tên khoá lần này: `fromTicker` vẫn mô tả đúng nghĩa "đến từ mã", chỉ chữ hiển thị đổi.
+
+### Kiểm
+
+`typecheck` · `lint` · `format:check` sạch. `FormulaDetail.test.tsx` **130 xanh**; `i18n.test.ts`
+chỉ còn ca đỏ baseline `search.seeAll`.
+
+---
+
+## Ô khoá gọi tên con số, thôi nói về mã — "dữ liệu mẫu" (08/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án đọc lại cặp câu vừa dựng ở mục ngay dưới và bác nửa sau của nó: _"không cần phải giải
+thích là 'Không phải số của …' ghi là 'dữ liệu mẫu' là được rồi"_.
+
+### Vì sao câu cũ vẫn sai dù đã sửa một lần
+
+Ba đời của cùng một dòng phụ, và hai đời đầu hỏng vì **cùng một gốc**: chúng cố nói về MÃ trong khi
+thứ người dùng đang nhìn là một CON SỐ.
+
+| Đời | Câu                     | Hỏng ở đâu                                 |
+| --- | ----------------------- | ------------------------------------------ |
+| 1   | `VHM không có`          | cụt — không có GÌ?                         |
+| 2   | `không phải số của VHM` | đủ nghĩa nhưng là một mệnh đề **phủ định** |
+| 3   | `dữ liệu mẫu`           | gọi thẳng tên thứ đang nằm trong ô         |
+
+Con số trong ô khoá là số của ví dụ minh hoạ trong Registry — nó **có tên sẵn**. Bắt người đọc suy
+ra tên ấy qua một phủ định ("không phải số của VHM" → vậy nó là số của ai?) là bắt làm thêm một
+bước mà màn hoàn toàn tự làm được. Và người dùng cần biết con số ĐANG là gì, chứ không cần biết nó
+không là gì.
+
+Hai câu nay **thôi đối xứng** — cố ý. Ô mở nói `số của VHM`, ô khoá nói `dữ liệu mẫu`: khác nhau về
+hình (một câu có tên mã, một câu không), nên vẫn phân biệt được ngay mà không câu nào phải mượn
+câu kia để có nghĩa.
+
+### File đổi
+
+| File                                 | Sửa gì                                                                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/i18n/vi.ts`         | `input.notFromTicker` → **`input.sampleData`** = `'dữ liệu mẫu'`; docblock ghi lại cả ba đời câu để người sau khỏi "cân" lại |
+| `src/application/i18n/en.ts`         | `'sample data'`                                                                                                              |
+| `FormulaDetail.tsx`                  | `lockedNoteFor()` trả câu trơn, **không ghép `presetFill.code`**                                                             |
+| `src/core/input-state.ts`            | ví dụ trong docblock `lockedNote`                                                                                            |
+| `src/ui/primitives/Input.module.css` | docblock `.input:disabled` — dòng phụ nay "gọi đúng tên" thay vì phủ định                                                    |
+| `FormulaDetail.test.tsx`             | 5 chỗ đổi khoá; ca chính ghim thêm chiều NGƯỢC: tên mã **không** được ghép vào câu ấy                                        |
+
+Đổi tên khoá chứ không giữ tên cũ đổi giá trị: `notFromTicker` mô tả một mệnh đề phủ định không còn
+tồn tại, mà cửa "khoá mồ côi" của `i18n.test.ts` chỉ bắt khoá thừa, không bắt khoá sai tên.
+
+### Kiểm
+
+`typecheck` · `lint` · `format:check` sạch. `FormulaDetail.test.tsx` **130 xanh**, `ExportSheet` 26
+xanh, `i18n.test.ts` chỉ còn đúng ca đỏ baseline `search.seeAll` của mảng Tìm kiếm — và chính ca ấy
+xác nhận khoá mới có nơi dùng, không mồ côi.
+
+**Còn lại:** vẫn là `npm run build && verify:static && size && check:chrome`, đang kẹt vì dev server
+giữ cổng 3000.
+
+---
+
+## Khoá cho ra khoá, và bỏ nốt ký hiệu phải đoán (08/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án soi lại đúng màn vừa sửa, ba câu hỏi và cả ba đều trúng lỗi thật:
+
+1. _"sao lại VHM không có. chưa hiểu không có nghĩa là gì?"_
+2. _"ký hiệu này nghĩa là gì? ký hiệu có thể nhập liệu hả?"_ (ảnh chụp `↳ VHM`)
+3. _"bên trên không thể nhập liệu thì … không cho bấm vào được ô đó mà hiện tại vẫn đang cho bấm
+   vào được"_
+
+### 1 + 2 — hai dòng phụ đều bắt người đọc suy diễn
+
+`VHM không có` **cụt**: không có GÌ. Và nó nói về doanh nghiệp, trong khi điều người dùng cần biết
+là về CON SỐ đang nằm trong ô. `↳ VHM` thì phải học mới hiểu — mũi tên đọc được ở chuỗi công thức
+FR-15 vì khối chuỗi ngay trên đã vẽ ra ai cấp cho ai, còn ở màn nạp mã thì không có gì giải thích
+nó. Chủ dự án còn đoán nó nghĩa là "ô này nhập được", tức ký hiệu đang nói SAI.
+
+Nay là một **cặp câu đối xứng từng chữ**, liếc một cái là phân được hai loại ô:
+
+| Ô              | Dòng phụ                | Gõ được |
+| -------------- | ----------------------- | ------- |
+| mã có số       | `số của VHM`            | có      |
+| mã không có số | `không phải số của VHM` | không   |
+
+`resolveInputState()` thêm `derivedNote` để thay hẳn dòng `↳ <nguồn>`. **Mặc định KHÔNG đổi** —
+`↳ CAPM` giữ nguyên cho chuỗi FR-15, nơi mũi tên có chỗ dựa để đọc. Có ca kiểm chặn `↳` quay lại
+màn nạp mã.
+
+### 3 — `readOnly` không phải là khoá
+
+Đây là lỗi thật, không phải chuyện câu chữ: `readOnly` **vẫn nhận con trỏ nháy**, tức mời gõ rồi
+nuốt mọi phím — đúng thứ đợt này đang dọn, chỉ ở dạng nhỏ hơn.
+
+Ô khoá theo mã nay là **`disabled`**. Ô khoá theo CHẾ ĐỘ (FR-09) thì **vẫn `readOnly`**, và khác
+nhau là có lý do: ở đó người dùng mở được ngay tại chỗ (bật Nâng cao), nên ô phải còn tới được bằng
+bàn phím để đọc lời chỉ đường; ở đây không có gì để mở tại chỗ.
+
+`Input.module.css` thêm `.input:disabled` — giữ con số **đọc được** (`--color-muted`, một token đã
+qua `contrast.test.ts`) thay cho kiểu xám mờ mặc định của trình duyệt: số ấy là số của ví dụ, và
+người dùng cần đọc được để hiểu kết quả đang dựa trên cái gì. Kèm `-webkit-text-fill-color` vì chỉ
+đặt `color` thì WebKit vẫn tự tô mờ.
+
+### Ca kiểm
+
+Ba ca đếm `↳` viết lại theo cặp câu mới; ca "MỘT PHẦN" ghim **cả hai chiều** (`disabled === true`
+và `readOnly === false`), để không ai lặng lẽ đổi ngược về `readOnly`. **2353 xanh**, 3 ca đỏ vẫn là
+baseline màn Tìm kiếm.
+
+---
+
+## Bỏ hẳn dải "điền được N/M ô" — khoá luôn ô mã không có số (08/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án, ngay sau đợt viết lại câu chữ ở mục dưới: _"không cần phải giải thích … cho tốn không
+gian. bỏ đi. thay vào đó các ô kia ô nào nhập được thì cho phép nhập. những ô không nhập được thì
+không cho click được vào để thay đổi"_ — và khi tôi hỏi lại cho rõ chiều: _"với những mã nào điền
+được ô nào thì ô đó cho phép điền thôi, còn ô nào không điền được thì không cho điền"_.
+
+### Luật
+
+Đang nạp một mã thì **chỉ ô mã cấp được số mới gõ vào được**; ô mã không có thì khoá, kèm dòng phụ
+`AAA không có` ngay dưới ô. Cùng một thông tin, đổi chỗ đứng: từ một đoạn văn kể tên vài ô rồi để
+người dùng tự dò xuống dưới, thành một nhãn nằm trên chính cái ô nó nói tới — và không tốn dòng nào.
+
+**"Bỏ mã" là lối mở khoá.** Không nạp mã thì mọi ô mở như trước.
+
+### Đã đổi gì
+
+| File                                              | Sửa gì                                                                                             |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `src/core/input-state.ts`                         | `InputStateArgs.lockedNote` — lý do khoá THỨ HAI, ngoài FR-09. WF-16 đã có sẵn trạng thái `locked` |
+| `src/ui/inputs/*` (6 file)                        | `lockedNote` cộng vào `isLockedForMode()` ở cả sáu kiểu điều khiển                                 |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`        | bỏ dải; `lockedNoteFor()`; `presetFill` tách thêm tập `edited`; cửa chặn trong `setValue()`        |
+| `src/ui/charts/ChartBody.tsx`, `FormulaChart.tsx` | `lockedKeys` — biểu đồ thôi mời "bấm để áp dụng" lên một trục khoá                                 |
+| `vi.ts` / `en.ts`                                 | bỏ 6 khoá `detail.presetPartial*`, thêm `input.notFromTicker`, **sửa lời hứa FR-10**               |
+
+### Ba chỗ dễ hỏng đã xử
+
+1. **`filled` quyết định KHOÁ, `edited` quyết định NHÃN `↳`.** Bản trước gỡ ô vừa sửa ra khỏi
+   `filled` để dấu `↳ AAA` thôi nói dối về nguồn con số. Nay `filled` còn quyết định ô nào mở, nên
+   gỡ như thế là **ô vừa gõ tự khoá lại ngay dưới tay người dùng**. Hai tập, hai việc.
+2. **Cửa chặn nằm trong `setValue()`, không ở `VariableField`.** Hai lối ghi khác không đi qua
+   component ấy: bấm/nhả trên biểu đồ, và khối "Ví dụ thực tế" ở cuối màn. Một cửa cho cả ba lối.
+3. **`lockedKeys` phải qua `useMemo`.** Nó đi qua `memo(FormulaChart)`; một `Set` dựng lại mỗi lượt
+   render sẽ vô hiệu hoá đúng cơ chế giữ cho gõ phím không dựng lại cả cây SVG.
+
+### FR-10 bị THU HẸP — đã sửa cả lời hứa in trên màn
+
+FR-10 ghi "nạp xong vẫn sửa được từng ô", và sheet "Nạp mẫu" **in lời hứa ấy ra màn**
+(`preset.editableAfterLoad`, có ca kiểm ghim ở `ExportSheet.test.tsx`). Câu cũ nay nói quá, và nó
+là câu người dùng đọc NGAY TRƯỚC khi bấm Nạp — tức lời hứa được đọc đúng lúc nó sắp bị phá. Đã sửa
+thành: _"Sau khi nạp, ô nào mã có số thì vẫn sửa được; ô mã không có thì khoá lại — bấm 'Bỏ mã' để
+gõ tự do trở lại."_
+
+**Cái mất đi, đã đo trên mã HPG thật.** Trong 37 công thức mà mã cấp được ≥1 ô:
+
+| Số ô bị khoá | Số công thức |
+| ------------ | ------------ |
+| 0            | 15           |
+| 1            | 13           |
+| 2            | 5            |
+| ≥3           | **4**        |
+
+Bốn ca nặng: `wacc`, `gia-tri-noi-tai-fcff`, `ddm-hai-giai-doan` (khoá 4/5 ô) và `co-lenh-rui-ro`
+(3/4). Ở bốn màn ấy, muốn thử giả định khác thì phải bỏ mã trước. Đã báo chủ dự án.
+
+---
+
+## Dải "điền được N/M ô" viết lại cho người mới đọc được (08/09/2026)
+
+> **Bị thay bởi mục ngay trên.** Chủ dự án bỏ hẳn dải này ngay sau đó. Mục dưới giữ lại vì ba lỗi
+> câu chữ nó ghi vẫn là bài học dùng được cho mọi câu khác, và vì mệnh đề "không có số của <mã>"
+> nay sống tiếp trong `input.notFromTicker`.
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"đoạn chú thích khó hiểu dành cho người mới sử dụng. nói quá trừu tượng. sửa lại"_ —
+kèm nguyên văn câu đang chạy:
+
+> AAA điền được 2/4 ô — Khối lượng, Thời gian nắm giữ — những ô này chưa phải số thật của mã. Sửa
+> lại trước khi tin kết quả.
+
+### Ba lỗi, và lỗi nặng nhất không phải chuyện văn phong
+
+1. **Danh sách không có nhãn, nên đọc RA NGƯỢC NGHĨA.** "điền được 2/4 ô — Khối lượng, Thời gian
+   nắm giữ" đọc như hai ô ấy **là** hai ô đã điền; phải đọc hết nửa câu sau mới biết ngược lại.
+   Người mới dừng ở đó là tưởng đã xong việc. Đây là lỗi ngữ nghĩa, không phải lỗi câu chữ.
+2. **"2/4" là ký hiệu, không phải lời nói.** Và không nói ô ấy nằm đâu.
+3. **"Sửa lại trước khi tin kết quả" không nói sửa CÁI GÌ, THÀNH GÌ.** "tin kết quả" cũng là một
+   yêu cầu trừu tượng — người dùng không biết mình đang được đề nghị làm gì.
+
+### Câu mới
+
+> **AAA** chỉ điền được 2 trong 4 ô bên dưới. Còn lại **Khối lượng, Thời gian nắm giữ** — những ô
+> đó không có số của **AAA**, bạn tự nhập vào rồi mới đọc được kết quả đúng.
+
+- từ dẫn **"Còn lại"** đứng TRƯỚC danh sách → hết đường hiểu lầm; tên ô bọc `<strong>`;
+- "2 trong 4 **ô bên dưới**" → đọc thành lời, và chỉ luôn chỗ để sửa;
+- "bạn tự nhập vào rồi mới đọc được kết quả đúng" → một việc làm được, kèm lý do làm;
+- nhắc lại mã ở vế sau, để người mới không phải nhớ "mã" đang trỏ vào đâu.
+
+### Một mệnh đề KHÔNG được đơn giản hoá thêm
+
+Giữ nguyên **"không có số của <mã>"**, đừng đổi thành "đang là số ví dụ" cho dễ hiểu. Danh sách này
+gộp **ba** loại ô, và chỉ mệnh đề ấy đúng cho cả ba:
+
+1. ô chưa ai đụng tới — số mặc định của ví dụ;
+2. ô mà bộ mẫu CÓ điền nhưng bằng giá tự dựng — chân "Giá mua" lấy phiên đầu chuỗi 248 phiên, mà
+   247 phiên trước phiên cuối là PRNG (`presetRealKeys()`);
+3. **ô người dùng vừa tự gõ đè lên** — `setValue()` gỡ khoá ấy khỏi `filled`, nên nó rơi vào danh
+   sách này. "Số ví dụ" sai hẳn với loại thứ ba, mà đó lại là loại xuất hiện đúng lúc người dùng
+   đang chăm chú nhất.
+
+### Đã đổi gì
+
+`vi.ts` / `en.ts` — cụm `detail.presetPartial*` từ 3 mảnh lên **6** (`…Of`, `…Gaps`, `…Action`
+mới). Tách mảnh chứ không nội suy trong `t()`, vì câu chèn ba thứ động: mã (hai lần) và danh sách
+tên ô. Docblock ở `vi.ts` ghi cả ba lỗi trên để không ai "rút gọn" nó về bản cũ.
+
+[`FormulaDetail.tsx`](src/app/cong-thuc/[id]/FormulaDetail.tsx) — ghép lại câu, bọc `<strong>` cho
+danh sách tên ô.
+
+Ca kiểm: hai ca cũ đổi `'1/2'`/`'1/4'` sang `1 trong 2` / `1 trong 4`, và **thêm một phép so THỨ
+TỰ** — tên ô phải đứng SAU từ dẫn "Còn lại". Phép so thứ tự là ca duy nhất bắt được lỗi số 1: mọi
+khẳng định `toContain` cũ đều xanh với bản viết ngược nghĩa. **2353 xanh**, 3 ca đỏ vẫn là baseline
+màn Tìm kiếm.
+
+---
+
 ## Giao diện Tối nháy qua Sáng mỗi lần tải lại — HAI nguyên nhân rời nhau (08/09/2026)
 
 **Trạng thái: xong**, đã đo lại trên Chrome thật ba lần liên tiếp.
@@ -11329,6 +11740,136 @@ DAT  Không lọt NaN / Infinity / undefined · không có lỗi JS
 5. **Còn ba màn trong bộ ảnh chưa làm**: WF-04 (DCF, cần trọn gói 5.2.3), và WF-02 · WF-03
    cần chỉnh lại theo hi-fi. Chủ dự án đã chốt **thêm KaTeX thật** cho khối công thức của
    WF-03 — gói 2.4.3 coi như mở lại, và phải nạp trễ theo trang để không vỡ ngưỡng 200 kB.
+
+---
+
+## Biểu đồ — nới khung, bật lại phóng to, thêm lối vẽ Cột
+
+Trạng thái: **đang chờ xác nhận**. `npx vitest run` → 2387 xanh / 3 đỏ, cả ba đỏ là lỗi có sẵn
+không thuộc đợt này (2 ca `RecentSearches` của phần Finbox_v2 làm dở song song, và khoá i18n mồ côi
+`search.seeAll`). `tsc --noEmit` sạch, ESLint và Prettier sạch. **Chưa chạy `npm run build` /
+`verify:static` / `size`** vì dev server đang giữ cổng 3000 và `prebuild` từ chối chạy khi đó.
+
+Không thuộc gói WBS nào. Chủ dự án đối chiếu với một sản phẩm khác (`finbox-calculator.pages.dev`,
+FinBox CALC — không liên quan mã nguồn, xem mục dưới) và yêu cầu: biểu đồ **rộng hơn, rõ hơn**, và
+**nhiều chỗ thao tác hơn**. Đã trình ba hạng mục A/B/C, chủ dự án duyệt cả ba.
+
+### Chẩn đoán trước khi sửa
+
+Ba thứ, và chỉ thứ thứ nhất là cái ai cũng thấy:
+
+1. `.plot` bị chặn `max-width: 480px` từ 1024px trở lên. Trên PC 1200px thì biểu đồ chỉ chiếm 40%
+   chỗ có sẵn.
+2. **Trần ấy là triệu chứng, không phải bệnh.** Chữ trong SVG đo bằng ĐƠN VỊ VIEWBOX nên phóng y
+   hệt hình; với khung 320×200 và chữ trục 10 đơn vị, chữ chiếm 3% bề ngang — tỉ lệ cố định. Chú
+   thích cũ ngay tại chỗ đã ghi số đo: khung 1200px làm hệ số phóng lên 2,5×–3,65×, chữ trục hiện
+   ra to bằng tiêu đề. Trần 480px là cách chữa bằng hy sinh kích thước.
+3. Nút phóng to **đã viết xong 340 dòng nhưng đang bị tắt** bằng cờ `PHONG_TO_BAT = false`, kèm 23
+   ca kiểm mang `.skip`.
+
+### A — Nới khung vẽ
+
+**Không** thu chữ bằng media query: mọi khoảng cách quanh chữ (lề trái 36, nhãn trục X tại
+`y1 + 13`, khe `x0 - 5`, hai mốc lật nhãn 9/11 trong `labelYFor`) đều tính theo chữ 10 đơn vị — thu
+chữ mà không thu chúng là chữ trôi khỏi chỗ nó phải đứng. Lối đúng là **nới khung, giữ nguyên chữ**.
+
+- `src/ui/charts/use-chart-size.ts` **(mới)** — hook trả `'compact' | 'wide'` theo mốc 768px. Khởi
+  tạo LUÔN là `'compact'` rồi mới đo trong `useEffect`: cả thư mục charts nằm sau ranh giới
+  `next/dynamic`, đọc `matchMedia` trong thân component là một đường lệch hydration. Cùng nếp
+  `ThemeSwitch` (render đầu luôn là sáng). Có canh `typeof` vì jsdom không cài `matchMedia` — nhờ
+  đó mọi ca kiểm đứng ở khổ `compact`, đúng khổ `CHART_GEOMETRY` đang xuất ra.
+- `LineChart.tsx` — `viewBox` thành hai khổ: `compact` 320×**240**, `wide` 640×400. `PAD` KHÔNG
+  nhân đôi (lề là chỗ cho chữ, mà chữ không đổi), nên toàn bộ phần nới rơi vào vùng vẽ: rộng
+  274→594, cao 152→352. Riêng khổ `compact` cao 240 thay vì 200 — vùng vẽ +26% mà **bề ngang không
+  đổi**, tức cỡ chữ trên điện thoại không đổi một pixel.
+- `LineChart.tsx` — số nhãn vạch theo khổ (`LABEL_BUDGET`). Trục X từ **2 lên 3** ở khổ compact: 2
+  nhãn chỉ còn hai đầu miền, người đọc mất mốc giữa để ước lượng. Trục Y từ 5 lên 6 vì vùng vẽ cao
+  hơn.
+- `WaterfallChart.tsx` — hai khổ tương tự, nhưng nhân đôi CẢ `ROW` và `BAR`: chiều cao thác nước
+  tính theo số chặng, nới mỗi bề ngang là hình càng lúc càng bẹt (5 chặng ra tỉ lệ gần 4:1).
+- `chart.module.css` — `aspect-ratio` khớp đúng `viewBox` từng khổ (4/3 rồi 16/10); bỏ hẳn mốc
+  640px cũ vốn đặt 16/7 trong khi viewBox là 16/10, chính chỗ sinh ra letterbox rồi phóng to. Trần
+  bề ngang: 460px ở compact, **940px** (từ 480px) ở wide — cả hai cho hệ số phóng ~1,45, tức chữ
+  trục luôn 10–15px.
+
+### B — Bật lại phóng to, sửa đúng nguyên nhân
+
+Nguyên nhân thật của lỗi "bấm xong máy xoay ngang mà không thấy gì": `ChartFullscreen` xin
+`requestFullscreen()` cho `<html>`. `<dialog>` modal và phần tử fullscreen **dùng chung lớp trên
+cùng** của trình duyệt, nên xin fullscreen cho tổ tiên của dialog là đẩy nó lên trên dialog — lớp
+phủ vẫn mở nhưng biến mất khỏi tầm nhìn. Nó không phải "phần thêm hỏng thì thôi" như chú thích cũ
+nói; nó phá đúng cơ chế chính.
+
+- `ChartFullscreen.tsx` — gỡ hẳn effect gọi `requestFullscreen()` + `orientation.lock()` và state
+  `locked`. Chỉ còn `<dialog>` phủ kín khung nhìn, chạy ở mọi máy kể cả Safari iPhone. Câu nhờ xoay
+  ngang nay in cả hai vế không điều kiện — sản phẩm không còn tự xoay được máy nên lời nhắc "máy
+  đang khoá xoay thì bật lại" luôn đúng. Truyền `size="wide"` xuống hình: lớp phủ chiếm trọn màn ở
+  mọi bề ngang, không được ăn theo mốc 768px vốn tính cho biểu đồ trong dòng chảy trang.
+- `ChartBody.tsx` — gỡ cờ `PHONG_TO_BAT`.
+- `charts.test.tsx` — gỡ hết `.skip`: **2 `describe` + 9 `it`, tổng 23 ca**, tất cả xanh. Ghi chú
+  cũ dặn "bật cờ lại là gỡ hết `.skip`, đừng xoá các ca này đi" — làm đúng thế. Cũng sửa một chú
+  thích đã lạc hậu về việc Chrome ăn cú Back đầu tiên để thoát fullscreen.
+
+### C — Nút Kiểu hình: Đường / Cột
+
+Chỗ tốn công nhất **không** phải việc vẽ cột, mà là điều kiện để cột không nói dối.
+
+- `src/core/chart/build.ts` — thêm `ChartArgs.zeroBaseline`. Cột đứng trên đáy vùng vẽ, nên chiều
+  cao chỉ đọc được thành "gấp mấy lần" khi đáy ấy LÀ số 0. Trục `lai-kep` chạy 11→33 triệu vẽ thành
+  cột thì cột thấp nhất cao 0 pixel — mắt đọc ra chênh lệch không có thật. Đây đúng là bất biến
+  biểu đồ thác nước đã giữ từ trước ("trục giá trị phải chứa 0, vì cột cần chỗ để đứng"). Chỉ nới
+  MIỀN, `niceAxis()` vẫn tự chia vạch, nên nhãn và hình vẫn do một nguồn sinh ra. Phải nới ở Domain
+  chứ không ở tầng vẽ: nhãn vạch sinh cùng lúc với miền, nới một mình bên kia là nhãn nói một đằng
+  hình vẽ một nẻo.
+- `ChartKindToggle.tsx` + `.module.css` **(mới)** — nhóm hai nút `aria-pressed`, cùng ngôn ngữ hình
+  với `ButtonGroup`. **CSS để file riêng, không nhét vào `chart.module.css`**: `tokens.test.ts` có
+  một ca quét mọi token màu của file ấy và đòi `.print-region` chép đủ — hợp đồng đó chỉ có nghĩa
+  với NÉT VẼ, còn nút thì không bao giờ được in.
+- `LineChart.tsx` — prop `variant`; ở lối cột thì đường và vùng tô KHÔNG vẽ (một cột mang đúng
+  thông tin một điểm mang, vẽ cả hai là in dữ liệu hai lần). Điểm `y === null` bị loại hẳn thay vì
+  vẽ cột cao 0 — vẽ là nói "giá trị bằng không", đúng thứ FR-06 cấm. Vạch dò, dấu "giá trị hiện
+  tại", mốc tham chiếu, lối bấm-áp-dụng đều nằm ngoài nhánh này nên chạy y nguyên ở cả hai lối.
+- `ChartBody.tsx` — nút chỉ hiện khi `kind === 'line'` VÀ không có chuỗi phụ. Vắng mặt chứ không
+  làm mờ. State lối vẽ giữ nguyên qua các lần đổi trục.
+- 6 ca kiểm mới. Một trong số đó bắt được lỗi thật ngay lúc viết: tôi quên chuyền `variant` xuống
+  `ChartFullscreen`, nên bấm Cột rồi phóng to thì lớp phủ lặng lẽ về Đường.
+
+### Vòng sửa theo phản hồi
+
+Chủ dự án xem bản dựng và yêu cầu hai điều:
+
+1. **Nút Kiểu hình to quá** so với site tham chiếu. Bản đầu đặt `min-height: var(--tap-min)` (44px)
+   sao chép thẳng `ButtonGroup` — sai thứ bậc: `ButtonGroup` là ô NHẬP LIỆU của một biến công thức,
+   xứng đáng chiếm chỗ ngang các ô nhập khác; còn nhóm này chỉ đổi CÁCH NHÌN cùng một bộ số, nó là
+   điều khiển phụ của biểu đồ.
+   Thu về `min-height: 30px`, chữ `--text-xs`, nhãn cũng `--text-xs`. **Vùng chạm vẫn giữ 44px** qua
+   một `::after` trong suốt canh giữa nút — NFR-USA-01 nói về chỗ ngón tay chạm được, không nói về
+   chỗ có màu. Ô phủ thò 7px mỗi phía, nằm gọn trong khe 8px của hàng `.controls`, nên không ăn cướp
+   cú bấm của lớp bắt sự kiện biểu đồ ngay dưới. Nới nút cao hơn 30px thì phải xét lại con số ấy.
+2. **Ẩn lại nút phóng to** — "chưa cần". Khôi phục cờ `PHONG_TO_BAT = false` và `.skip` cho 24 ca
+   kiểm lớp phủ (23 ca cũ + 1 ca mới của lối vẽ cột).
+   **Lý do ẩn lần này KHÁC lần trước, và chỗ đó phải ghi rõ**: lần trước ẩn vì HỎNG, lần này ẩn vì
+   thứ tự ưu tiên sản phẩm. Lỗi đã tìm ra nguyên nhân và sửa hẳn, cả 23 ca ĐÃ CHẠY XANH sau khi sửa
+   (có ảnh chụp lớp phủ hoạt động ở cả lối đường lẫn lối cột) rồi mới bị skip lại. Chúng đang gác
+   code chạy được, không phải code hỏng — docblock ở `ChartBody.tsx` và đầu `charts.test.tsx` nói
+   đúng điều này để lần bật lại sau không ai phải dò lại từ đầu.
+
+Sau vòng này: 2363 xanh / 38 skip / 3 đỏ có sẵn.
+
+### Đã đổi file
+
+`use-chart-size.ts` (mới) · `ChartKindToggle.tsx` (mới) · `ChartKindToggle.module.css` (mới) ·
+`LineChart.tsx` · `WaterfallChart.tsx` · `ChartBody.tsx` · `ChartFullscreen.tsx` ·
+`chart.module.css` · `charts.test.tsx` · `core/chart/build.ts` · `i18n/vi.ts` · `i18n/en.ts`
+
+### Còn lại
+
+- **Chưa chạy `npm run build`, `verify:static`, `check:chrome`, `size`** — dev server đang giữ cổng 3000. Phải chạy trước khi đẩy. `check:chrome` đáng chú ý nhất: nó có 4 phép đo "không nhãn nào
+  tràn khỏi viewBox", và đợt này vừa đổi cả `viewBox` lẫn số nhãn vạch.
+- **Nút Tháng / Năm chưa làm** — có bên site tham chiếu, đã bàn và hoãn: phần lớn biểu đồ của dự án
+  là đường quét theo một BIẾN, không có trục thời gian để gộp, nên nút ấy chỉ áp được cho ít công
+  thức.
+- Lỗi có sẵn chưa xử, không thuộc đợt này: 2 ca `RecentSearches`, khoá i18n mồ côi `search.seeAll`.
 
 ---
 

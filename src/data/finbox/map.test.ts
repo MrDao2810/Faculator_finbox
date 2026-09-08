@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { LIVE_FUNDAMENTALS } from '../live-fundamentals.generated';
 import { parseSnapshots, parseTickerList, toFundamentals, toIsoDate, toSnapshot } from './map';
+import type { Fundamentals } from '../types';
 
 /**
  * Đây là bản CẮT GỌN của phản hồi thật `POST https://dcs.finbox.vn/data/symbols`, lấy ngày
- * 24/08/2026. Bản đầy đủ có 346 field mỗi mã; giữ lại đúng những field `map.ts` đọc, cộng
- * `ln_y2026` — field bẫy, xem dưới.
+ * 08/09/2026. Bản đầy đủ có 346 field mỗi mã; giữ lại đúng những field `map.ts` đọc, cộng
+ * `ln_y2026`/`dt_y2026` — hai field bẫy, xem dưới.
  *
  * Vì sao dán số vào file test thay vì để test tự gọi mạng: `npm test` phải chạy được khi rớt
  * mạng và phải cho cùng kết quả mọi lúc, cùng lý do `check:chrome` và `gen:live-fundamentals`
@@ -14,7 +15,11 @@ import { parseSnapshots, parseTickerList, toFundamentals, toIsoDate, toSnapshot 
  *
  * Hai mã này không chọn ngẫu nhiên. **MWG là ca bẫy**: `ln_y2026 = 6017` là luỹ kế từ đầu năm,
  * còn lợi nhuận 12 tháng gần nhất là 9.856,5 — lệch 63%. Bản kế hoạch đầu tiên của script sinh
- * số đã mắc đúng bẫy này.
+ * số đã mắc đúng bẫy này. `dt_y2026` bày đúng cái bẫy ấy cho doanh thu.
+ *
+ * ⚠ `priceFlat`, `pe`, `vonhoa` phải cùng MỘT phiên với nhau, nếu không `toFundamentals()` tự loại
+ * bản ghi — ba con số ấy ràng buộc nhau qua hai phép đối chiếu. Cập nhật một cái là phải cập nhật
+ * cả ba.
  */
 const FPT_ROW = {
   ticker: 'FPT',
@@ -22,9 +27,12 @@ const FPT_ROW = {
   floor: 'HOSE',
   category: 'Cổ phiếu',
   industry: 'Phần mềm & DV máy tính',
-  priceFlat: 71.4,
-  pe: 12.17,
-  pb: 3.072,
+  priceFlat: 72.3,
+  pe: 12.306,
+  pb: 3.106,
+  vonhoa: 123774,
+  noVCSH: 0.8,
+  roa: 0.128,
   eps_pha_loang: 5.867,
   gia_tri_so_sach: 23.246,
   slcp: 1714326422,
@@ -39,6 +47,16 @@ const FPT_ROW = {
   ln_quygannhat: 2567.7,
   ln_quygannhi: 2487.4,
   ln_y2026: 5055,
+  'dt_q2/2026': 13788.5,
+  'dt_q1/2026': 12480,
+  'dt_q4/2025': 20225.4,
+  'dt_q3/2025': 17204.5,
+  'dt_q2/2025': 16624.7,
+  'dt_q1/2025': 16058.1,
+  dt_quygannhat: 13788.5,
+  dt_quygannhi: 12480,
+  // Bẫy của doanh thu, y hệt `ln_y2026`: luỹ kế từ đầu năm, không phải 12 tháng.
+  dt_y2026: 26268.5,
   ct_ct_tm_2025: 2,
   ct_ct_tm_2024: 2,
 };
@@ -49,9 +67,12 @@ const MWG_ROW = {
   floor: 'HOSE',
   category: 'Cổ phiếu',
   industry: 'Bán lẻ',
-  priceFlat: 75.1,
-  pe: 11.264,
-  pb: 3.106,
+  priceFlat: 71.6,
+  pe: 10.74,
+  pb: 2.962,
+  vonhoa: 105665,
+  noVCSH: 1.9,
+  roa: 0.112,
   eps_pha_loang: 6.667,
   gia_tri_so_sach: 24.177,
   slcp: 1475765646,
@@ -65,6 +86,15 @@ const MWG_ROW = {
   ln_quygannhat: 3302.5,
   ln_quygannhi: 2714.4,
   ln_y2026: 6017,
+  'dt_q2/2026': 48751.3,
+  'dt_q1/2026': 46462,
+  'dt_q4/2025': 42320.7,
+  'dt_q3/2025': 39852.5,
+  'dt_q2/2025': 37620,
+  'dt_q1/2025': 36135,
+  dt_quygannhat: 48751.3,
+  dt_quygannhi: 46462,
+  dt_y2026: 95213.2,
   // Không có ct_ct_tm_2025 trong phản hồi thật — năm gần nhất có số là 2024.
   ct_ct_tm_2024: 1,
   ct_ct_tm_2023: 0.5,
@@ -84,9 +114,12 @@ const SSI_ROW = {
   ticker: 'SSI',
   company: 'Chứng khoán SSI',
   floor: 'HOSE',
-  priceFlat: 21.25,
-  pe: 9.916,
-  pb: 1.309,
+  priceFlat: 20.95,
+  pe: 9.776,
+  pb: 1.291,
+  vonhoa: 52398,
+  noVCSH: 1.4,
+  roa: 0.05,
   eps_pha_loang: 2.143,
   gia_tri_so_sach: 16.23,
   slcp: 2501097752,
@@ -97,8 +130,23 @@ const SSI_ROW = {
   'ln_q3/2025': 1475.1,
   ln_quygannhat: 1231.1,
   ln_quygannhi: 1277.9,
+  'dt_q2/2026': 3318.6,
+  'dt_q1/2026': 3178.1,
+  'dt_q4/2025': 3601.8,
+  'dt_q3/2025': 4176.7,
+  dt_quygannhat: 3318.6,
+  dt_quygannhi: 3178.1,
   ct_ct_tm_2024: 1,
 };
+
+/**
+ * Bỏ hai trường phụ thuộc thị giá trước khi so với file sinh — xem ca "vốn hoá và P/E" phía dưới.
+ */
+function boBienDongTheoGia(f: Fundamentals | null | undefined): Partial<Fundamentals> | null {
+  if (f === null || f === undefined) return null;
+  const { marketCap: _cap, pe: _pe, ...conLai } = f;
+  return conLai;
+}
 
 describe('mã có phát hành thêm cổ phiếu vẫn nạp được số liệu', () => {
   it('SSI: nhận bản ghi, không bỏ vì EPS lệch số CP bình quân gia quyền', () => {
@@ -133,8 +181,79 @@ describe('đọc số liệu cơ bản từ phản hồi Finbox_v2', () => {
    * `live-fundamentals.generated.ts`.
    */
   it('cho ra đúng con số mà script sinh lúc build đã ghi', () => {
-    expect(toFundamentals(FPT_ROW)).toEqual(LIVE_FUNDAMENTALS.FPT);
-    expect(toFundamentals(MWG_ROW)).toEqual(LIVE_FUNDAMENTALS.MWG);
+    expect(boBienDongTheoGia(toFundamentals(FPT_ROW))).toEqual(
+      boBienDongTheoGia(LIVE_FUNDAMENTALS.FPT),
+    );
+    expect(boBienDongTheoGia(toFundamentals(MWG_ROW))).toEqual(
+      boBienDongTheoGia(LIVE_FUNDAMENTALS.MWG),
+    );
+  });
+
+  /*
+   * Hai trường phụ thuộc thị giá phải kiểm RIÊNG, không so được với file sinh.
+   *
+   * `marketCap` và `pe` đổi theo từng phiên — thậm chí trong cùng một ngày: file sinh lúc 03:12
+   * ngày 08/09 ghi `marketCap: 123946` cho FPT, còn phản hồi lúc 10:15 cùng ngày trả 123.774. Ca ở
+   * trên so `toEqual` với file sinh nên nếu để hai trường ấy vào, nó sẽ đỏ mỗi lần ai đó chạy
+   * `npm run gen:live-fundamentals` — một ca test đỏ theo đồng hồ chứ không theo lỗi.
+   *
+   * Nên chúng được kiểm bằng CHÍNH fixture: `marketCap` phải đúng field `vonhoa` của bản ghi, và
+   * phải qua được phép đối chiếu `thị giá × số CP` mà `extendedFields()` áp.
+   */
+  it('vốn hoá và P/E đọc thẳng từ chính bản ghi, không suy ra từ thị giá', () => {
+    const fpt = toFundamentals(FPT_ROW);
+
+    expect(fpt?.marketCap).toBe(FPT_ROW.vonhoa);
+    expect(fpt?.pe).toBe(FPT_ROW.pe);
+    // Phép đối chiếu bắt lỗi đơn vị: thị giá × số CP phải ra xấp xỉ vốn hoá API công bố.
+    expect(
+      Math.abs((FPT_ROW.priceFlat * 1000 * FPT_ROW.slcp) / 1e9 - FPT_ROW.vonhoa) / FPT_ROW.vonhoa,
+    ).toBeLessThan(0.01);
+  });
+
+  it('vốn hoá lệch quá ngưỡng thì chỉ MẤT vốn hoá, phần còn lại giữ nguyên', () => {
+    // Sai đúng 1000 lần — lỗi đơn vị kinh điển mà phép đối chiếu sinh ra để bắt.
+    const lech = toFundamentals({ ...FPT_ROW, vonhoa: FPT_ROW.vonhoa * 1000 });
+
+    expect(lech).not.toBeNull();
+    expect(lech?.marketCap).toBeUndefined();
+    // Xương sống của bản ghi không hề hấn gì — đây là điểm khác với ba phép đối chiếu bắt buộc.
+    expect(lech?.eps).toBe(5867);
+    expect(lech?.netIncome).toBe(9999.4);
+    expect(lech?.revenue).toBe(63698.4);
+  });
+
+  it('doanh thu là 12 tháng gần nhất, không phải luỹ kế từ đầu năm', () => {
+    // 13.788,5 + 12.480 + 20.225,4 + 17.204,5 — bốn quý liền nhau.
+    expect(toFundamentals(FPT_ROW)?.revenue).toBe(63698.4);
+    // `dt_y2026 = 26.268,5` là luỹ kế nửa đầu năm; lấy nhầm là hụt hơn một nửa.
+    expect(toFundamentals(FPT_ROW)?.revenue).not.toBe(FPT_ROW.dt_y2026);
+  });
+
+  it('bảng cân đối suy ra thành tam giác kín: tài sản = vốn chủ + nợ phải trả', () => {
+    const fpt = toFundamentals(FPT_ROW);
+
+    expect(fpt?.totalLiabilities).toBe(31881);
+    expect(fpt?.totalAssets).toBe(71732.2);
+    expect(fpt?.totalAssets).toBeCloseTo((fpt?.equity ?? 0) + (fpt?.totalLiabilities ?? 0), 6);
+    // Và tỷ số nợ/vốn chủ dựng lại được đúng field API đã cho.
+    expect((fpt?.totalLiabilities ?? 0) / (fpt?.equity ?? 1)).toBeCloseTo(FPT_ROW.noVCSH, 4);
+  });
+
+  it('thiếu `dt_q*` thì chỉ mất doanh thu, không mất cả bản ghi', () => {
+    const {
+      'dt_q2/2026': _q2,
+      'dt_q1/2026': _q1,
+      'dt_q4/2025': _q4,
+      'dt_q3/2025': _q3,
+      ...khongDoanhThu
+    } = FPT_ROW;
+    const fpt = toFundamentals(khongDoanhThu);
+
+    expect(fpt).not.toBeNull();
+    expect(fpt?.revenue).toBeUndefined();
+    expect(fpt?.eps).toBe(5867);
+    expect(fpt?.totalAssets).toBe(71732.2);
   });
 
   it('lấy lợi nhuận 12 tháng gần nhất, không lấy luỹ kế từ đầu năm', () => {
@@ -215,14 +334,14 @@ describe('đọc số liệu cơ bản từ phản hồi Finbox_v2', () => {
 
 describe('ảnh chụp một mã', () => {
   it('đổi thị giá nghìn ₫ sang ₫', () => {
-    expect(toSnapshot(FPT_ROW)?.priceVnd).toBe(71_400);
+    expect(toSnapshot(FPT_ROW)?.priceVnd).toBe(72_300);
   });
 
   it('giữ được thị giá kể cả khi số liệu cơ bản không qua đối chiếu', () => {
     // Đây là lý do `priceVnd` và `fundamentals` tách rời nhau: màn Danh mục chỉ cần giá.
     const hong = toSnapshot({ ...FPT_ROW, eps_pha_loang: 5867 });
 
-    expect(hong?.priceVnd).toBe(71_400);
+    expect(hong?.priceVnd).toBe(72_300);
     expect(hong?.fundamentals).toBeNull();
   });
 
@@ -267,7 +386,7 @@ describe('ngày phiên của ảnh chụp', () => {
     const snapshot = toSnapshot(FPT_ROW);
 
     expect(snapshot?.asOfDate).toBeNull();
-    expect(snapshot?.priceVnd).toBe(71_400);
+    expect(snapshot?.priceVnd).toBe(72_300);
   });
 
   it('số rác không thành ngày', () => {

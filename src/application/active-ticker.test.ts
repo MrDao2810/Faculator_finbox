@@ -104,6 +104,42 @@ describe('parseActiveTicker', () => {
     expect(parseActiveTicker(raw)).toBeNull();
   });
 
+  /*
+   * ── Năm trường mở rộng: đọc lại đủ, và thiếu thì KHÔNG huỷ bản cất ─────────────────────────
+   *
+   * `readFundamentals()` dựng lại object bằng tay, nên đây là chỗ một trường mới biến mất im lặng
+   * dễ nhất: đường `?ma=` nạp đủ 14 công thức trọn, còn đường mã dính theo lượt duyệt chỉ nạp 8, mà
+   * chẳng có gì báo. Hai ca dưới giữ cả hai chiều.
+   */
+  it('đọc lại đủ năm trường mở rộng của số liệu cơ bản', () => {
+    const stored = active({
+      fundamentals: {
+        ...active().preset.fundamentals,
+        revenue: 190_643.6,
+        totalLiabilities: 115_200,
+        totalAssets: 230_400,
+        marketCap: 160_000,
+        pe: 12.5,
+      },
+    });
+
+    const doc = parseActiveTicker(JSON.stringify(stored))?.preset.fundamentals;
+
+    expect(doc?.revenue).toBe(190_643.6);
+    expect(doc?.totalLiabilities).toBe(115_200);
+    expect(doc?.totalAssets).toBe(230_400);
+    expect(doc?.marketCap).toBe(160_000);
+    expect(doc?.pe).toBe(12.5);
+  });
+
+  it('bản cất CŨ, chưa có trường mở rộng nào, vẫn đọc được nguyên vẹn', () => {
+    const doc = parseActiveTicker(JSON.stringify(active()))?.preset.fundamentals;
+
+    expect(doc?.eps).toBe(2_000);
+    expect(doc?.revenue).toBeUndefined();
+    expect(doc?.marketCap).toBeUndefined();
+  });
+
   it('bỏ phiên thiếu giá đóng thay vì để giá 0 lọt vào phép chia', () => {
     const raw = JSON.stringify({
       code: 'HPG',

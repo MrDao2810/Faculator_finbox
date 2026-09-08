@@ -1,0 +1,779 @@
+[
+  {
+    "file": "corporate.ts",
+    "id": "diem-hoa-von",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["fixedCost", "price", "variableCost"]
+  },
+  {
+    "file": "corporate.ts",
+    "id": "don-bay-tong-hop",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["revenue", "variableCost", "fixedCost", "interest"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "gia-ly-thuyet-vn30f",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["indexValue", "riskFreeRate", "dividendYield", "days"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "basis-vn30f",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["futuresPoints", "indexValue"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "lai-lo-vi-the-long",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["entryPoints", "exitPoints", "contracts"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "lai-lo-vi-the-short",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["entryPoints", "exitPoints", "contracts"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "so-hop-dong-toi-da",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["capital", "futuresPoints", "marginRatio"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "co-vi-the-phai-sinh",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["capital", "riskPercent", "stopPoints"]
+  },
+  {
+    "file": "derivatives.ts",
+    "id": "don-bay-hieu-dung",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["futuresPoints", "contracts", "equity"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "phi-giao-dich-mua",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["quantity", "buyPrice"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "phi-giao-dich-ban",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["quantity", "sellPrice"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "thue-chuyen-nhuong",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["quantity", "sellPrice"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "thue-co-tuc",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["quantity", "dividendPerShare"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "phi-luu-ky",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["quantity", "months"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "gia-hoa-von",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["quantity", "months", "buyPrice"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "loi-nhuan-rong",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["quantity", "months", "buyPrice", "sellPrice"]
+  },
+  {
+    "file": "fees.ts",
+    "id": "roi-rong",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["quantity", "months", "buyPrice", "sellPrice"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "eps-co-ban",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["netIncome", "preferredDividend", "sharesOutstanding"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "bvps",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["equity", "sharesOutstanding"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "roe",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["netIncome", "equity"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "roa",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["netIncome", "totalAssets"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "bien-loi-nhuan-rong",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["netIncome", "revenue"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "bien-loi-nhuan-gop",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["revenue", "cogs"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "no-tren-von-chu",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["totalDebt", "equity"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "thanh-toan-hien-hanh",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["currentAssets", "currentLiabilities"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "thanh-toan-nhanh",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["currentAssets", "inventory", "currentLiabilities"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "vong-quay-tong-tai-san",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["revenue", "totalAssets"]
+  },
+  {
+    "file": "fundamentals.ts",
+    "id": "ty-le-chi-tra-co-tuc",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["dividendPerShare", "eps"]
+  },
+  {
+    "file": "multiples.ts",
+    "id": "pe",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["price", "eps"]
+  },
+  {
+    "file": "multiples.ts",
+    "id": "pb",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["price", "bookValuePerShare"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "loi-suat-nam-hoa",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["periodReturn", "periodsPerYear"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "loi-suat-thuc",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["nominal", "inflation"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "lai-suat-hieu-dung",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["rate", "?x"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "tong-loi-suat-tai-dau-tu",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["priceGrowth", "dividendYield", "years"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "loi-suat-trung-binh-hinh-hoc",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["?geoPeriodCount", "r1", "r2", "r3"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "irr-nien-kim",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["investment", "payment", "periods"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "thoi-gian-nhan-doi",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["rate"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "loi-suat-quy-nam-theo-ngay",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["buyPrice", "sellPrice", "days"]
+  },
+  {
+    "file": "performance.ts",
+    "id": "loi-suat-vuot-chuan",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["portfolioReturn", "benchmarkReturn"]
+  },
+  {
+    "file": "personal.ts",
+    "id": "tra-gop-nien-kim",
+    "chartType": "stackedBar",
+    "level": "basic",
+    "keys": ["amount", "rate", "years"]
+  },
+  {
+    "file": "personal.ts",
+    "id": "tra-gop-goc-deu",
+    "chartType": "stackedBar",
+    "level": "basic",
+    "keys": ["amount", "rate", "years"]
+  },
+  {
+    "file": "personal.ts",
+    "id": "lich-tra-no",
+    "chartType": "stackedBar",
+    "level": "basic",
+    "keys": ["amount", "rate", "years", "?loanMethod"]
+  },
+  {
+    "file": "personal.ts",
+    "id": "lai-kep",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["principal", "rate", "years", "?x"]
+  },
+  {
+    "file": "personal.ts",
+    "id": "lai-tien-gui",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["principal", "rate", "months"]
+  },
+  {
+    "file": "personal.ts",
+    "id": "tiet-kiem-muc-tieu",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["target", "rate", "months"]
+  },
+  {
+    "file": "planning.ts",
+    "id": "rut-truoc-han",
+    "chartType": "none",
+    "level": "basic",
+    "keys": ["principal", "contractRate", "termMonths", "monthsHeld", "demandRate"]
+  },
+  {
+    "file": "planning.ts",
+    "id": "gui-quay-vong",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["principal", "shortRate", "shortMonths", "longRate", "totalMonths"]
+  },
+  {
+    "file": "planning.ts",
+    "id": "gia-von-trung-binh-dca",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["amount1", "price1", "amount2", "price2", "amount3", "price3"]
+  },
+  {
+    "file": "planning.ts",
+    "id": "so-ky-dca",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["target", "contribution", "rate"]
+  },
+  {
+    "file": "planning.ts",
+    "id": "thue-tncn-dau-tu",
+    "chartType": "stackedBar",
+    "level": "basic",
+    "keys": ["quantity", "sellPrice", "dividendPerShare"]
+  },
+  {
+    "file": "returns.ts",
+    "id": "roi",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["cost", "current"]
+  },
+  {
+    "file": "returns.ts",
+    "id": "hpr",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["startPrice", "endPrice", "dividend"]
+  },
+  {
+    "file": "returns.ts",
+    "id": "cagr",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["start", "end", "years"]
+  },
+  {
+    "file": "returns.ts",
+    "id": "ty-suat-co-tuc",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["price", "dividendPerShare"]
+  },
+  {
+    "file": "returns.ts",
+    "id": "xirr",
+    "chartType": "none",
+    "level": "advanced",
+    "keys": ["guess"]
+  },
+  {
+    "file": "risk-drawdown.ts",
+    "id": "sut-giam-sau-nhat",
+    "chartType": "underwater",
+    "level": "basic",
+    "keys": ["?drawdownLookback"]
+  },
+  {
+    "file": "risk-drawdown.ts",
+    "id": "sut-giam-hien-tai",
+    "chartType": "underwater",
+    "level": "basic",
+    "keys": ["?drawdownLookback"]
+  },
+  {
+    "file": "risk-drawdown.ts",
+    "id": "var-lich-su",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["?confidenceVar", "?varLookback"]
+  },
+  {
+    "file": "risk-drawdown.ts",
+    "id": "cvar-lich-su",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["?confidenceVar", "?varLookback"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "beta",
+    "chartType": "scatter",
+    "level": "advanced",
+    "keys": ["sessions"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "ty-so-sharpe",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["riskFree", "sessionsPerYear"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "ty-so-sortino",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["riskFree", "sessionsPerYear"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "ty-so-treynor",
+    "chartType": "scatter",
+    "level": "advanced",
+    "keys": ["riskFree", "sessionsPerYear", "beta"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "ty-so-thong-tin",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["benchmarkReturn", "sessionsPerYear"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "ty-so-calmar",
+    "chartType": "underwater",
+    "level": "advanced",
+    "keys": ["sessionsPerYear"]
+  },
+  {
+    "file": "risk-ratios.ts",
+    "id": "ty-so-thang-thua",
+    "chartType": "histogram",
+    "level": "basic",
+    "keys": ["threshold"]
+  },
+  {
+    "file": "risk-volatility.ts",
+    "id": "do-lech-chuan-loi-suat-phien",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["?stdDevWindowVar"]
+  },
+  {
+    "file": "risk-volatility.ts",
+    "id": "do-bien-dong-nam-hoa",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["?stdDevWindowVar", "tradingDays"]
+  },
+  {
+    "file": "risk-volatility.ts",
+    "id": "do-lech-chuan-ban-phan",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["?stdDevWindowVar", "threshold"]
+  },
+  {
+    "file": "risk-volatility.ts",
+    "id": "he-so-bien-thien",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["?stdDevWindowVar"]
+  },
+  {
+    "file": "risk-volatility.ts",
+    "id": "bien-do-dao-dong-lon-nhat",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["?countWindowVar"]
+  },
+  {
+    "file": "risk-volatility.ts",
+    "id": "chuoi-phien-giam-dai-nhat",
+    "chartType": "underwater",
+    "level": "basic",
+    "keys": ["?countWindowVar"]
+  },
+  {
+    "file": "risk.ts",
+    "id": "co-lenh-rui-ro",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["capital", "riskPercent", "entryPrice", "stopPrice"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "sma-n-phien",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "ema-n-phien",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "macd-duong-chinh",
+    "chartType": "candlestick",
+    "level": "advanced",
+    "keys": ["fastPeriod", "slowPeriod"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "macd-duong-tin-hieu",
+    "chartType": "candlestick",
+    "level": "advanced",
+    "keys": ["fastPeriod", "slowPeriod", "signalPeriod"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "rsi-wilder",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "roc-toc-do-thay-doi",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "dong-luong-momentum",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "khoang-cach-gia-so-sma",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-trend.ts",
+    "id": "giao-cat-hai-duong-ma",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["shortPeriod", "longPeriod"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "dai-bollinger-tren",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["?BOLLINGER_PERIOD", "?BOLLINGER_K"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "dai-bollinger-duoi",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["?BOLLINGER_PERIOD", "?BOLLINGER_K"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "do-rong-dai-bollinger",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["?BOLLINGER_PERIOD", "?BOLLINGER_K"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "atr-dao-dong-thuc",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "phan-tram-b-bollinger",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["?BOLLINGER_PERIOD", "?BOLLINGER_K"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "stochastic-k",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "vwap",
+    "chartType": "candlestick",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "do-bien-dong-lich-su",
+    "chartType": "histogram",
+    "level": "advanced",
+    "keys": ["sample", "tradingDays"]
+  },
+  {
+    "file": "technical-volatility.ts",
+    "id": "ty-le-khoi-luong",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["period"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "mo-hinh-gordon",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["dividend", "growth", "requiredReturn"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "ddm-hai-giai-doan",
+    "chartType": "stackedBar",
+    "level": "advanced",
+    "keys": ["dividend", "growthStage1", "years", "growthTerminal", "requiredReturn"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "capm",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["riskFree", "beta", "erp"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "wacc",
+    "chartType": "stackedBar",
+    "level": "advanced",
+    "keys": ["equity", "debt", "costEquity", "costDebt", "taxRate"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "fcff",
+    "chartType": "waterfall",
+    "level": "advanced",
+    "keys": ["ebit", "taxRate", "depreciation", "capex", "nwcChange"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "fcfe",
+    "chartType": "waterfall",
+    "level": "advanced",
+    "keys": ["fcff", "interest", "taxRate", "netBorrowing"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "gia-tri-noi-tai-fcff",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["fcff", "growth", "wacc", "netDebt", "shares"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "gia-tri-hien-tai",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["futureValue", "rate", "years"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "gia-tri-tuong-lai",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["presentValue", "rate", "years"]
+  },
+  {
+    "file": "valuation-dcf.ts",
+    "id": "bien-an-toan",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["intrinsic", "price"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "ps",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["price", "salesPerShare"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "ev",
+    "chartType": "waterfall",
+    "level": "basic",
+    "keys": ["marketCap", "totalDebt", "cash"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "ev-ebitda",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["ev", "ebitda"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "ev-sales",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["ev", "revenue"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "peg",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["pe", "growth"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "von-hoa-thi-truong",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["price", "shares"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "so-graham",
+    "chartType": "sensitivity",
+    "level": "advanced",
+    "keys": ["eps", "bvps"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "ncav-tren-co-phieu",
+    "chartType": "waterfall",
+    "level": "advanced",
+    "keys": ["currentAssets", "totalLiabilities", "shares"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "ty-suat-loi-nhuan-tren-gia",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["eps", "price"]
+  },
+  {
+    "file": "valuation-multiples.ts",
+    "id": "gia-muc-tieu",
+    "chartType": "sensitivity",
+    "level": "basic",
+    "keys": ["targetPe", "eps"]
+  }
+]

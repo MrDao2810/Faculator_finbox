@@ -51,8 +51,16 @@ export const DIEM_HOA_VON: FormulaModule = {
           en: 'Cost that does not change with output volume: rent, depreciation, fixed salaries.',
         },
       }),
+      /*
+       * Khoá `unitPrice`, KHÔNG phải `price`.
+       *
+       * Bảy công thức khác dùng khoá `price` với nghĩa "thị giá cổ phiếu", cùng đơn vị ₫. Khi khoá
+       * ở đây còn tên `price`, `presetInputs()` (tầng Data) khớp theo tên rồi đổ thị giá HPG vào ô
+       * "Giá bán một sản phẩm" — một con số vô nghĩa đội lốt dữ liệu thật, và cửa đơn vị không cứu
+       * được vì hai nghĩa trùng cả đơn vị. Tên riêng là cách duy nhất tách được.
+       */
       numberVar(
-        'price',
+        'unitPrice',
         { vi: 'Giá bán một sản phẩm', en: 'Selling price per unit' },
         '₫',
         50_000,
@@ -103,7 +111,7 @@ export const DIEM_HOA_VON: FormulaModule = {
         vi: 'Định phí 500 triệu ₫, giá bán 50.000 ₫, biến phí 30.000 ₫/sản phẩm',
         en: 'Fixed cost 500 million VND, selling price 50,000 VND, variable cost 30,000 VND per unit',
       },
-      inputs: { fixedCost: 500_000_000, price: 50_000, variableCost: 30_000 },
+      inputs: { fixedCost: 500_000_000, unitPrice: 50_000, variableCost: 30_000 },
       expected: 25_000,
       note: {
         vi: 'Doanh thu hoà vốn tương ứng 1,25 tỷ ₫.',
@@ -113,28 +121,28 @@ export const DIEM_HOA_VON: FormulaModule = {
     tests: [
       {
         name: 'ca thường — mỗi sản phẩm dư 20.000 ₫ đảm phí',
-        inputs: { fixedCost: 500_000_000, price: 50_000, variableCost: 30_000 },
+        inputs: { fixedCost: 500_000_000, unitPrice: 50_000, variableCost: 30_000 },
         expected: 25_000,
       },
       {
         name: 'định phí 200 triệu, đảm phí 40.000 ₫ thì hoà vốn ở 5.000 sản phẩm',
-        inputs: { fixedCost: 200_000_000, price: 120_000, variableCost: 80_000 },
+        inputs: { fixedCost: 200_000_000, unitPrice: 120_000, variableCost: 80_000 },
         expected: 5_000,
       },
       {
         name: 'không có định phí thì hoà vốn ngay từ sản phẩm đầu tiên',
-        inputs: { fixedCost: 0, price: 50_000, variableCost: 30_000 },
+        inputs: { fixedCost: 0, unitPrice: 50_000, variableCost: 30_000 },
         expected: 0,
       },
       {
         name: 'giá bán bằng biến phí — mẫu số bằng 0, ca chia cho 0 của WF-15',
-        inputs: { fixedCost: 500_000_000, price: 30_000, variableCost: 30_000 },
+        inputs: { fixedCost: 500_000_000, unitPrice: 30_000, variableCost: 30_000 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
         name: 'giá bán thấp hơn biến phí — bán càng nhiều càng lỗ',
-        inputs: { fixedCost: 500_000_000, price: 25_000, variableCost: 30_000 },
+        inputs: { fixedCost: 500_000_000, unitPrice: 25_000, variableCost: 30_000 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
@@ -142,9 +150,9 @@ export const DIEM_HOA_VON: FormulaModule = {
     source: [SOURCE_CORPORATE_FINANCE, SOURCE_CFA],
   },
   calc: (v) => {
-    const price = v('price');
+    const unitPrice = v('unitPrice');
     const variableCost = v('variableCost');
-    const margin = price - variableCost;
+    const margin = unitPrice - variableCost;
 
     if (margin === 0) {
       return {
@@ -181,7 +189,7 @@ export const DIEM_HOA_VON: FormulaModule = {
     const quantity = v('fixedCost') / margin;
     return ok(quantity, 'sản phẩm', {
       extras: {
-        breakEvenRevenue: quantity * price,
+        breakEvenRevenue: quantity * unitPrice,
         unitMargin: margin,
       },
     });

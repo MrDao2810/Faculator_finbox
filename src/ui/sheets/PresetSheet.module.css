@@ -14,6 +14,16 @@
   border-radius: var(--radius-sm);
 }
 
+/*
+ * Câu dẫn nói vì sao đúng bốn mã này. Không phải cảnh báo nên không mang mặt phẳng vàng —
+ * `warning-surface.test.ts` neo bộ mặt ấy cho đúng nhóm câu nói phép tính hỏng ở đâu.
+ */
+.lead {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
 .list {
   display: flex;
   flex-direction: column;
@@ -58,7 +68,39 @@
   overflow-wrap: anywhere;
 }
 
+/* Ngành đứng sau tên, nhạt hơn: nó là thứ để phân biệt, không phải thứ để đọc trước. */
+.industry {
+  font-weight: var(--weight-regular);
+  color: var(--color-muted);
+}
+
 .meta {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * Một ô số của mã. `nowrap` giữ con số dính với đơn vị — ở khổ 390px, để tự xuống dòng thì "₫"
+ * rơi xuống dòng riêng và đọc ra như một dòng thừa.
+ */
+.field {
+  white-space: nowrap;
+}
+
+/*
+ * Kết quả của công thức với mã này — thứ người dùng thật sự chọn theo, nên đậm hơn dòng ô nhập
+ * ngay trên nó và dùng màu chữ chính chứ không màu phụ.
+ */
+.result {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Không tính được thì vẫn phải hiện một dòng — im lặng ở đây đọc ra là "mã này hỏng". */
+.noResult {
+  font-weight: var(--weight-regular);
   font-size: var(--text-xs);
   color: var(--color-muted);
 }

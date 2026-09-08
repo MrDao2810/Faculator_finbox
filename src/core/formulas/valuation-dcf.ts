@@ -1818,7 +1818,7 @@ export const BIEN_AN_TOAN: FormulaModule = {
      * ra đơn vị '₫' cho mỗi cổ phiếu, và cả hai mắt xích trước nó đều đã có sẵn — chuỗi chạy được
      * ngay mà không phải thêm công thức nào vào nhóm Định giá vốn đã đủ 18/18.
      *
-     * Ô này vẫn nhập tay được: ai định giá bằng DDM hai giai đoạn hay bằng bội số thì bấm Ghi đè.
+     * Ô này vẫn nhập tay được: ai định giá bằng DDM hai giai đoạn hay bằng bội số thì gõ đè lên.
      * Đó là lối thoát mà WF-15 hứa, và `resolveLinked()` cho ghi đè thắng cả khi Gordon đang lỗi.
      */
     dependsOn: [{ formulaId: 'mo-hinh-gordon', variableKey: 'intrinsic' }],

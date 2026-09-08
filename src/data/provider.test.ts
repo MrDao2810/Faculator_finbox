@@ -1,12 +1,31 @@
 import { describe, expect, it } from 'vitest';
 
 import { SAMPLE_DATA, createStaticProvider, hasDraftData, hasDraftMarketSeries } from './provider';
-import { SAMPLE_PRESETS, VN_INDEX_BARS } from './samples';
+import { SAMPLE_PRESETS, VN_INDEX_BARS, WF10_CODES } from './samples';
 import { PRESET_CONTRACT_VERSION } from './types';
 
 describe('bộ số liệu mẫu', () => {
-  it('có đúng bốn mã của WF-10', () => {
-    expect(SAMPLE_PRESETS.map((p) => p.code)).toEqual(['FPT', 'HPG', 'VNM', 'MWG']);
+  /*
+   * Bốn mã WF-10 đứng ĐẦU, không còn đứng một mình.
+   *
+   * Kho mở rộng ở đợt "4 mẫu ví dụ trùng thông số": sheet nay chọn 4 mã theo từng công thức
+   * (`preset-pick.ts`), mà chọn 4 trên 4 thì không có gì để chọn. Bốn mã này vẫn phải sống sót và
+   * đứng đầu — chúng là bộ dự phòng cho công thức không ăn số liệu của mã nào, và bị ghim ở
+   * `charts.test.tsx`.
+   *
+   * KHÔNG ghim tổng số mã: danh sách do `gen:live-fundamentals` quyết, và bộ sinh tự loại mã có
+   * bộ số tự mâu thuẫn (lệch EPS quá 2% — xem `checkSelfConsistent()`), nên con số ấy đổi theo
+   * từng kỳ báo cáo. Ghim cứng là hẹn một ngày test đỏ vì một doanh nghiệp đổi cơ cấu sở hữu.
+   */
+  it('bốn mã WF-10 đứng đầu kho, và kho rộng hơn bốn để còn cái mà chọn', () => {
+    expect(SAMPLE_PRESETS.slice(0, 4).map((p) => p.code)).toEqual(WF10_CODES);
+    expect(SAMPLE_PRESETS.length).toBeGreaterThanOrEqual(12);
+  });
+
+  it('không mã nào lặp lại', () => {
+    const codes = SAMPLE_PRESETS.map((p) => p.code);
+
+    expect(new Set(codes).size).toBe(codes.length);
   });
 
   it('mã nào cũng ghi rõ nguồn theo khuôn "BCTC <kỳ> · 248 phiên giá"', () => {
@@ -79,7 +98,7 @@ describe('bộ số liệu mẫu', () => {
 
 describe('DataProvider', () => {
   it('liệt kê đủ bộ mẫu', () => {
-    expect(SAMPLE_DATA.list()).toHaveLength(4);
+    expect(SAMPLE_DATA.list()).toHaveLength(SAMPLE_PRESETS.length);
   });
 
   it('tra theo mã, không phân biệt hoa thường và khoảng trắng thừa', () => {
@@ -102,8 +121,8 @@ describe('DataProvider', () => {
   });
 
   it('chuỗi rỗng thì trả toàn bộ danh sách', () => {
-    expect(SAMPLE_DATA.search('')).toHaveLength(4);
-    expect(SAMPLE_DATA.search('   ')).toHaveLength(4);
+    expect(SAMPLE_DATA.search('')).toHaveLength(SAMPLE_PRESETS.length);
+    expect(SAMPLE_DATA.search('   ')).toHaveLength(SAMPLE_PRESETS.length);
   });
 
   it('không khớp gì thì trả mảng rỗng', () => {

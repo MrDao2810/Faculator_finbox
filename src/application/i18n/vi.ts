@@ -151,10 +151,8 @@ export const vi = {
   'unit.scale.billion': 'tỷ ₫',
   'unit.scale.million': 'triệu ₫',
   'unit.scale.dong': '₫',
-  'input.override': 'Ghi đè',
-  'input.revert': 'Hoàn tác',
-  'input.overridden': 'đã ghi đè',
-  'input.openUpstream': 'Mở công thức nguồn',
+  'input.revert': 'Nhận tự động',
+  'input.overridden': 'đã nhập tay',
   'input.autoFrom': 'Nhận tự động từ',
 
   // Kết quả & diễn giải — WF-03, WF-15, gói 2.4
@@ -208,10 +206,20 @@ export const vi = {
   'detail.jumpToExample': 'Xem ví dụ thực tế ↓',
   'detail.fundamentalsSource':
     'Số liệu cơ bản (EPS, giá trị sổ sách, số CP, cổ tức…) của mã này lấy thật từ Finbox_v2, đối chiếu lúc',
-  // Hai câu dưới đứng SAU mã (“FPT · …”), nên viết thường.
+  /*
+   * Ba câu dưới đứng SAU mã (“FPT · …”), nên viết thường.
+   *
+   * `tickerFailed` và `tickerNoData` là hai ca KHÁC HẲN nhau, và trước đợt này chúng dùng chung
+   * một câu. Mất mạng thì thử lại là hợp lý; còn mã không có số liệu cơ bản (khoảng 100 trên 1.005
+   * mã — báo cáo chưa đủ bốn quý liền nhau, hoặc bộ số không tự khớp) thì thử lại bao nhiêu lần
+   * cũng vậy. Một câu chung khiến người dùng bấm lại mãi một thứ không bao giờ chạy.
+   */
   'detail.tickerLoading': 'đang lấy số liệu thật của mã…',
   'detail.tickerFailed':
     'không lấy được số liệu của mã — nhập tay, hoặc bấm “Nạp mẫu” để dùng bộ số liệu sẵn có.',
+  'detail.tickerNoData':
+    'mã này chưa có đủ số liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
+    'không khớp nhau). Thử lại cũng vậy — chọn mã khác, hoặc nhập tay.',
   'detail.export': '↓ Xuất',
 
   /*
@@ -233,6 +241,38 @@ export const vi = {
    * mức phí cũng muốn giữ lại kết quả y như khi định giá một mã.
    */
   'detail.saveToPortfolio': '☆ Lưu vào danh mục',
+  /*
+   * Nút bỏ thay đổi, đứng BÊN TRÁI nút lưu ở cuối trang. "Huỷ và thoát" chứ không chỉ "Huỷ": nó
+   * làm hai việc — trả mọi ô về mặc định, xoá bản nháp, rồi rời màn — nên tên nút phải nói cả hai,
+   * không thì người dùng tưởng chỉ hoàn tác tại chỗ.
+   */
+  'detail.cancel': 'Huỷ và thoát',
+  /*
+   * Nạp một mã cho công thức KHÔNG dùng số liệu của mã nào (41 công thức: vay, tiết kiệm, phái
+   * sinh, lãi kép…). Hai khoá tách rời vì giữa chúng có `<strong>{mã}</strong>` — ghép một chuỗi
+   * rồi cắt lại theo dấu là kiểu vỡ ngay khi dịch sang ngôn ngữ khác trật tự.
+   */
+  'detail.presetNoData': 'Công thức này không dùng số liệu của mã',
+  'detail.presetNoDataFix':
+    'Nó chạy bằng số của chính bạn — gõ thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ minh hoạ" để ' +
+    'lấy một bộ số mẫu.',
+  /*
+   * Nạp một mã điền được MỘT PHẦN. Ba khoá tách rời vì câu chèn hai thứ động ở giữa: mã
+   * (`<strong>`) và danh sách tên ô còn thiếu — cùng lý do cặp khoá ngay trên.
+   *
+   * Câu phải gọi TÊN những ô kia chứ không chỉ đếm: "điền được 1/2 ô" để người dùng tự đi tìm ô nào
+   * là bắt họ làm việc mà màn đã biết câu trả lời.
+   *
+   * "chưa phải số thật của mã" chứ KHÔNG phải "đang là số mặc định của ví dụ" — bản đầu viết thế và
+   * sai với một nửa số ca. Danh sách này gộp hai loại ô: ô chưa ai đụng tới (số mặc định) và ô mà
+   * bộ mẫu CÓ điền nhưng bằng giá tự dựng — chân "Giá mua" lấy phiên đầu chuỗi 248 phiên, mà 247
+   * phiên trước phiên cuối là PRNG (xem `presetRealKeys()`). Gọi cả hai là "số mặc định" thì câu
+   * nói sai về loại thứ hai. Điểm chung duy nhất, và cũng là điều người dùng cần biết: không cái
+   * nào là số thật của mã.
+   */
+  'detail.presetPartial': 'điền được',
+  'detail.presetPartialUnit': 'ô',
+  'detail.presetPartialFix': 'những ô này chưa phải số thật của mã. Sửa lại trước khi tin kết quả.',
   // Hai câu dưới đứng SAU tên phép tính đã lưu, nên viết thường.
   'detail.restoredNote': 'phép tính đã lưu ngày',
   'detail.restoredMissing': 'không tìm thấy phép tính đã lưu — có thể nó đã bị xoá khỏi máy này.',
@@ -346,8 +386,31 @@ export const vi = {
 
   // Nạp bộ số liệu mẫu — WF-10, gói 2.5.1
   'preset.title': 'Nạp bộ số liệu mẫu',
-  'preset.subtitle': 'Bốn mã mẫu — mỗi mã có sẵn chuỗi phiên giá, dùng được cho công thức chuỗi',
+  'preset.subtitle': 'Kho mã mẫu — mã nào cũng có sẵn 248 phiên giá, dùng được cho công thức chuỗi',
   'preset.load': 'Nạp',
+  /*
+   * Ba câu dẫn cho ba trạng thái của sheet — xem `PresetSheet`. Tách riêng chứ không gộp: gộp
+   * lại thì câu chung phải mờ tới mức không nói được gì, mà đây đúng chỗ người dùng cần biết
+   * bấm Nạp xong sẽ đổi cái gì.
+   */
+  'preset.rankedNote':
+    'Bốn mã chọn theo kết quả của chính công thức này, xếp từ thấp đến cao — nhìn một lượt là ' +
+    'thấy biên độ.',
+  'preset.seriesOnlyNote':
+    'Công thức này chạy bằng chuỗi phiên giá. Chỉ phiên gần nhất là giá thật; đường đi trước đó ' +
+    'là số tự dựng, nên đọc bốn con số dưới đây như ví dụ, đừng như so sánh thị trường.',
+  /*
+   * Cố ý KHÔNG mở đầu bằng "Công thức này không dùng số liệu của mã" như `detail.presetNoData`.
+   * Sheet vẫn nằm trong DOM sau khi đóng, nên hai câu gần trùng làm mọi truy vấn theo chữ trả về
+   * hai phần tử — và người dùng nạp xong cũng đọc đúng một câu hai lần. Sheet trả lời "vì sao lại
+   * là bốn mã này", còn câu kia trả lời "vừa bấm Nạp thì có gì đổi": hai câu hỏi khác nhau.
+   */
+  'preset.noTickerNote':
+    'Bốn mã dưới đây không đổi được ô nào của công thức này — nó chạy bằng số của chính bạn. Nạp ' +
+    'một mã ở đây chỉ để mã đó theo bạn sang những công thức có dùng tới.',
+  'preset.cannotCompute': 'không ra kết quả với mã này',
+  /* Dòng phụ cho công thức chỉ ăn chuỗi giá: mức giá là thứ duy nhất khác nhau giữa các mã. */
+  'preset.lastPrice': 'Giá phiên gần nhất',
   /* Lối sang kho mã lớn. Cố ý không chép số mã vào câu: con số đó do nguồn quyết, chép vào
      đây là để nó rữa trong im lặng. */
   'preset.browseMarket': 'Tìm mã khác trong toàn thị trường →',
@@ -355,10 +418,22 @@ export const vi = {
     'Toàn bộ mã đang giao dịch, số liệu thật của phiên gần nhất — nhưng chỉ có MỘT phiên giá, ' +
     'nên công thức cần nhiều phiên vẫn phải dán chuỗi riêng.',
   'preset.editableAfterLoad': 'Sau khi nạp, mọi ô vẫn sửa được từng cái một.',
-  'preset.draftTag': 'số liệu bản thảo',
-  'preset.draftTitle': 'Số liệu tự dựng, chưa đối chiếu báo cáo thật.',
+  /*
+   * Nhãn bản thảo nay nói ĐÚNG NỬA nào là số tự dựng.
+   *
+   * Trước đợt mở kho mã, câu này là "Số liệu tự dựng, chưa đối chiếu báo cáo thật" — đúng lúc
+   * viết, sai từ lúc `gen:live-fundamentals` có mặt: EPS, giá trị sổ sách, số CP, lợi nhuận và
+   * cổ tức đọc thẳng từ Finbox_v2, và nay thị giá phiên gần nhất cũng vậy. Phần còn tự dựng là
+   * ĐƯỜNG ĐI của giá qua 247 phiên trước đó, vì Finbox_v2 không có lịch sử giá dài.
+   *
+   * Nói quá cũng hỏng như nói thiếu: dán "chưa đối chiếu báo cáo thật" lên một con số vừa lấy
+   * từ báo cáo thật thì lần sau người dùng không tin cả cảnh báo lẫn con số.
+   */
+  'preset.draftTag': 'giá quá khứ tự dựng',
+  'preset.draftTitle': 'Số liệu cơ bản và thị giá là số thật; đường đi của giá thì không.',
   'preset.draftDetail':
-    'Dùng để thử đường đi của tính năng. Đừng dựa vào con số tính ra để ra quyết định.',
+    'EPS, giá trị sổ sách, số cổ phiếu và giá phiên gần nhất lấy từ Finbox. 247 phiên trước đó ' +
+    'là chuỗi tự dựng, nên công thức đọc cả chuỗi (RSI, độ biến động, Beta…) chỉ nên xem là ví dụ.',
   /* Câu ngắn đi kèm ngay CẠNH CON SỐ tiền — dùng ở màn Danh mục và trong file xuất ra.
      Khác `preset.draftDetail` ở chỗ nó phải đọc lọt trong một dòng hẹp. */
   /*
@@ -560,6 +635,16 @@ export const vi = {
   'ticker.pick': 'Chọn',
   // Mã đang giữ vẫn chọn được (sẽ cộng dồn), nên đây là NHÃN chứ không phải lời từ chối.
   'ticker.held': 'đã có',
+  /*
+   * Nhãn cạnh mã chưa có báo cáo dùng được. Ngắn hết mức: nó đứng trong một dòng đã có mã, tên
+   * doanh nghiệp và nút chọn, ở khổ 360px.
+   *
+   * Hai bản vì bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo. Còn mới thì nói thẳng "chưa có số
+   * liệu"; quá một kỳ rồi thì hạ giọng thành "có thể chưa có" — khẳng định một mã hợp lệ là không
+   * dùng được thì người dùng bỏ qua nó, và đó là cái giá đắt hơn hẳn một cú bấm thừa.
+   */
+  'ticker.noData': 'chưa có số liệu',
+  'ticker.noDataStale': 'có thể chưa có số liệu',
   'ticker.pickHeld': 'Cộng thêm',
   'ticker.loading': 'Đang tải danh sách mã…',
   'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
@@ -762,6 +847,8 @@ export const vi = {
 
   'data.prefs': 'Tuỳ chọn hiển thị',
   'data.recent': 'Từ khoá đã tìm',
+  /* Kho lịch sử tìm của ô tìm ở TRANG CHỦ — kho riêng, xem chú thích ở `SettingsScreen`. */
+  'data.recentHome': 'Từ khoá đã tìm ở trang chủ',
   'data.series': 'Chuỗi giá đã nhập',
   'data.portfolio': 'Danh mục cá nhân',
   'data.saved': 'Phép tính đã lưu',

@@ -1,20 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
-import {
-  ORIGIN_KEY,
-  ORIGIN_PREV_KEY,
-  ORIGIN_RESTORE_KEY,
-  ROUTES,
-  backTarget,
-  parseOrigin,
-} from '@/application';
+import { ROUTES } from '@/application';
 import type { MessageKey } from '@/application';
 import { useT } from '@/application/preferences-context';
 
 import styles from './BackLink.module.css';
+import { useBackTarget } from './useBackTarget';
 
 export interface BackLinkProps {
   /**
@@ -78,48 +71,18 @@ export function BackLink({
   labelKey = 'nav.backToList',
   rememberOrigin = true,
 }: BackLinkProps) {
-  const [target, setTarget] = useState({ href: fallbackHref, labelKey });
   const t = useT();
-
-  useEffect(() => {
-    if (!rememberOrigin) return;
-    try {
-      setTarget(
-        backTarget(
-          {
-            origin: parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY)),
-            prev: parseOrigin(window.sessionStorage.getItem(ORIGIN_PREV_KEY)),
-            here: window.location.pathname,
-          },
-          fallbackHref,
-          labelKey,
-        ),
-      );
-    } catch {
-      // Trình duyệt chặn sessionStorage (chế độ riêng tư) — giữ nguyên đường dẫn dự phòng.
-    }
-  }, [rememberOrigin, fallbackHref, labelKey]);
-
   /*
-   * Đặt cờ "lượt điều hướng này là một cú quay lại" ngay trước khi đi.
+   * Cả phần "về đâu" lẫn cờ cuộn-về-chỗ-cũ nay nằm ở `useBackTarget()`, dùng chung với nút "Huỷ"
+   * cuối màn chi tiết — đọc docblock ở đó để biết vì sao tách chứ không chép.
    *
-   * `OriginTracker` bên màn đích đọc cờ rồi cuộn về đúng chỗ. Cần một cờ riêng chứ không suy từ
-   * việc URL khớp bản ghi: mọi lần mở trang chủ đều khớp, nên thiếu cờ thì bấm mục "Trang chủ" ở
-   * thanh dưới cũng nhảy cuộn — xem `ORIGIN_RESTORE_KEY`.
-   *
-   * Ghi trong `onClick` chứ không trong effect: chỉ CÚ BẤM này mới là quay lại, còn việc component
-   * có mặt trên màn thì không nói lên điều gì.
+   * `markReturning` gọi trong `onClick` chứ không trong effect: chỉ CÚ BẤM này mới là quay lại,
+   * còn việc component có mặt trên màn thì không nói lên điều gì.
    */
-  function markReturning(): void {
-    try {
-      window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, target.href);
-    } catch {
-      // Chặn sessionStorage thì mất phần cuộn về chỗ cũ, còn việc điều hướng vẫn chạy đủ.
-    }
-  }
+  const target = useBackTarget(fallbackHref, labelKey, rememberOrigin);
 
   return (
-    <Link className={styles.back} href={target.href} onClick={markReturning}>
+    <Link className={styles.back} href={target.href} onClick={target.markReturning}>
       {/* Mũi tên chỉ là phần nhìn; chữ bên cạnh mới là tên của link. */}
       <svg
         className={styles.icon}

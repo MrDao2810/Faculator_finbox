@@ -140,10 +140,16 @@
  * xanh trên nền chìm, kết quả đã lưu ở Danh mục chữ mono xanh cỡ 20, và `StatTile` chữ sans mực
  * cỡ 20. Bản rà soát báo đúng thế: "Result card... lặp lại nhưng chưa đồng nhất giữa các màn".
  *
- * Nay chọn đúng một khuôn: nền trắng, viền xanh 1,5px, chữ mực. Chọn khuôn của `ResultBlock`
+ * Đợt ấy chọn đúng một khuôn: nền trắng, viền xanh 1,5px, chữ mực. Chọn khuôn của `ResultBlock`
  * chứ không chọn nền xanh đặc vì hai lẽ — nó phủ 104 trong 111 màn nên là chuẩn thực tế, và bản
  * rà soát đòi giữ cảm giác "Clean / Professional / Lightweight" mà một mảng màu đặc thì ngược
  * lại. Xanh vẫn nói "đây là kết quả", nhưng nói bằng KHUNG.
+ *
+ * NAY ĐÃ ĐẢO: chủ dự án đối chiếu màn thật với bản vẽ Finbox_v2 và chốt thẻ đáp án mang dải
+ * xanh `--gradient-result`, chữ trắng — tức gần trở lại nền xanh đặc mà thẻ này từng có, chỉ
+ * khác là dải thay cho màu đặc và cả ba thẻ cùng đi. Lập luận "Clean / Professional /
+ * Lightweight" ở trên giữ nguyên trong văn bản để đợt sau biết nó đã bị cân nhắc rồi mới bỏ.
+ * Điều KHÔNG đảo là "một khuôn duy nhất": ba thẻ vẫn phải đổi cùng nhau, xem `result-card.test.ts`.
  *
  * Bỏ luôn `font-mono`: `tabular-nums` đã cho chữ số đều mà không phải đổi cả mặt chữ, và đó
  * đúng là cách `ResultBlock` làm.
@@ -155,8 +161,8 @@
 
   padding: var(--space-4);
 
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-selected);
+  background: var(--gradient-result);
+  color: var(--color-on-result);
   border-radius: var(--radius-md);
 }
 
@@ -165,7 +171,7 @@
   font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-selected);
+  color: var(--color-on-result);
 }
 
 .headlineValue {
@@ -173,7 +179,7 @@
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
+  color: var(--color-on-result);
 
   /* Số tiền dài (mười chữ số + đơn vị) không được đẩy thẻ tràn ngang ở 360px. */
   overflow-wrap: anywhere;
@@ -192,10 +198,12 @@
 /*
  * Huy hiệu ROI.
  *
- * Nền nay là cặp `*-soft` chứ không phải `--color-surface`. Thẻ đã đổi sang nền trắng, nên một
- * huy hiệu nền trắng đứng trên nền trắng mất hẳn hình khối và chỉ còn phân biệt bằng MÀU CHỮ —
- * đúng thứ NFR-USA-06 cấm. Cả ba cặp chữ/nền dưới đây đều đã có phép kiểm tương phản riêng
- * trong `contrast.test.ts` (warning/danger/success trên nền `*-soft`, và ink-soft trên sunken).
+ * Nền là cặp `*-soft` chứ không phải `--color-surface`, và điều đó nay còn đúng hơn: ba mảng
+ * pastel đặc đứng trên dải xanh vẫn giữ nguyên hình khối, còn một huy hiệu nền trong suốt thì
+ * chỉ còn phân biệt bằng MÀU CHỮ — đúng thứ NFR-USA-06 cấm. Ba cặp chữ/nền dưới đây tự đủ
+ * tương phản với NHAU và đã có phép kiểm riêng trong `contrast.test.ts` (warning/danger/success
+ * trên nền `*-soft`, và ink-soft trên sunken); chúng không đọc màu của thẻ nên đổi nền thẻ
+ * không kéo chúng theo.
  */
 .roi {
   padding: 2px var(--space-2);
@@ -229,5 +237,26 @@
  * đặc; trên nền trắng nó gần như không đổi gì, nên dòng ghi chú đứng ngang hàng với con số.
  */
 .headlineNote {
-  color: var(--color-muted);
+  color: var(--color-on-result);
+}
+
+/* Bản in trả thẻ về khuôn nền trắng viền xanh — xem docblock ở `ResultBlock.module.css`. */
+@media print {
+  .headline {
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-selected);
+    color: var(--color-ink);
+  }
+
+  .headlineLabel {
+    color: var(--color-selected);
+  }
+
+  .headlineValue {
+    color: var(--color-ink);
+  }
+
+  .headlineNote {
+    color: var(--color-muted);
+  }
 }

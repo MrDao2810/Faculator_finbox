@@ -8,6 +8,12 @@
   border-left-width: 3px;
   border-radius: var(--radius-md);
   background: var(--color-surface);
+
+  /* Ghi đè/Hoàn tác đổi cả viền lẫn nền cùng lúc — chuyển động nhẹ giúp mắt bắt được thay đổi
+     dù con số trong ô không nhảy (bắt đầu từ đúng giá trị đang hiện, xem LinkedInput.tsx). */
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
 }
 
 /*
@@ -26,6 +32,9 @@
 
 .overridden {
   border-left-color: var(--color-accent);
+  /* Viền trái 3px một mình quá mảnh để nhận ra ngay — thêm nền nhạt giống cách .inheritedError
+     đã làm, để cả khối đổi diện mạo chứ không chỉ một cạnh. */
+  background: var(--color-accent-soft);
 }
 
 .inheritedError {
@@ -47,25 +56,27 @@
   min-width: 0;
 }
 
-/* Nhãn chữ "đã ghi đè" — đây mới là dấu hiệu chính, màu chỉ là phụ. */
+/*
+ * Nhãn chữ "đã nhập tay" — đây mới là dấu hiệu chính, màu chỉ là phụ.
+ * Vẽ thành huy hiệu (viền + nền + chữ, cùng công thức với Badge tone="basic") thay vì chỉ tô
+ * đậm chữ: chữ thường ở giữa một câu dài rất dễ bị mắt lướt qua, huy hiệu thì không.
+ */
 .overriddenTag {
-  font-weight: var(--weight-bold);
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--space-2);
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-pill);
 }
 
 .source {
   color: var(--color-muted);
-}
-
-/*
- * Link chữ nhỏ nhưng vẫn phải đủ vùng chạm 44px — NFR-USA-01. Dùng inline-flex + min-height
- * chứ không nới đệm, để nó không đội chiều cao cả hàng lên.
- */
-.upstreamLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--tap-min);
-  font-size: var(--text-xs);
 }
 
 .actions {

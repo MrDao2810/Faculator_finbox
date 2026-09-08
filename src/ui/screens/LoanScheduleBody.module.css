@@ -9,9 +9,11 @@
  * Thẻ tóm tắt — CÙNG khuôn với `ResultBlock`, xem `result-card.test.ts`.
  *
  * Bản cũ là nền chìm + chữ mono xanh, tức kiểu vẽ "con số đáp án" thứ BA của sản phẩm. Lý do
- * ghi lại hồi ấy — "nền xanh đặc sẽ hút hết chú ý khỏi bảng ngay dưới" — vẫn đúng, và nay
- * không còn phải đánh đổi: khuôn chung đã bỏ nền đặc, chỉ còn viền xanh trên nền trắng, nên
- * thẻ này vừa cùng họ với 104 màn kia vừa không lấn át bảng lịch trả nợ.
+ * ghi lại hồi ấy — "nền xanh đặc sẽ hút hết chú ý khỏi bảng ngay dưới" — nay chủ dự án đã cân
+ * và bỏ: khuôn chung mang dải xanh theo bản vẽ Finbox_v2, và thẻ này đi cùng. Đúng là nó hút
+ * chú ý hơn bảng lịch ngay dưới, nhưng đó chính là điều bản rà soát đòi ("kết quả cuối phải là
+ * điểm nổi bật nhất") — khoản trả hằng tháng là con số người vay quyết định theo, còn bảng lịch
+ * là chỗ tra sau.
  */
 .summary {
   display: flex;
@@ -20,8 +22,8 @@
 
   padding: var(--space-4);
 
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-selected);
+  background: var(--gradient-result);
+  color: var(--color-on-result);
   border-radius: var(--radius-md);
 }
 
@@ -30,7 +32,7 @@
   font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-selected);
+  color: var(--color-on-result);
 }
 
 .summaryValue {
@@ -38,10 +40,21 @@
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
+  color: var(--color-on-result);
   overflow-wrap: anywhere;
 }
 
+/*
+ * Hai vạch ngăn dùng `--color-result-from`, KHÔNG dùng `--color-hairline`.
+ *
+ * `--color-hairline` là bậc mảnh nhất trên NỀN THẺ TRẮNG (#f2f2f2). Trên dải xanh nó thành một
+ * vệt gần trắng, tức bậc ĐẬM NHẤT — ngược hẳn vai của nó. Đầu thẫm của chính dải thẻ mới là thứ
+ * cho một vạch chìm, ở cả hai bảng màu: nó luôn thẫm hơn vùng nó nằm lên, đúng nghĩa "thấy được
+ * nhưng không cắt ngang".
+ *
+ * Không dùng `--color-selected-strong` như bản đầu: ở bảng tối token ấy là #7ab5fc, tức một vạch
+ * xanh sáng chói kẻ ngang thẻ.
+ */
 .subStats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -49,13 +62,13 @@
 
   margin-top: var(--space-3);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-hairline);
+  border-top: 1px solid var(--color-result-from);
 }
 
 /* Vạch ngăn giữa hai số phụ, đúng bản thiết kế. */
 .subStat + .subStat {
   padding-left: var(--space-3);
-  border-left: 1px solid var(--color-hairline);
+  border-left: 1px solid var(--color-result-from);
 }
 
 .subStat {
@@ -67,15 +80,48 @@
 
 .subLabel {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-on-result);
 }
 
 .subValue {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  color: var(--color-accent);
+  color: var(--color-on-result);
   overflow-wrap: anywhere;
+}
+
+/* Bản in trả thẻ về khuôn nền trắng viền xanh — xem docblock ở `ResultBlock.module.css`. */
+@media print {
+  .summary {
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-selected);
+    color: var(--color-ink);
+  }
+
+  .summaryLabel {
+    color: var(--color-selected);
+  }
+
+  .summaryValue {
+    color: var(--color-ink);
+  }
+
+  .subStats {
+    border-top-color: var(--color-hairline);
+  }
+
+  .subStat + .subStat {
+    border-left-color: var(--color-hairline);
+  }
+
+  .subLabel {
+    color: var(--color-muted);
+  }
+
+  .subValue {
+    color: var(--color-accent);
+  }
 }
 
 .block {

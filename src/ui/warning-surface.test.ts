@@ -32,6 +32,8 @@ const SURFACES: ReadonlyArray<readonly [file: string, className: string]> = [
   ['ui/screens/XirrBody.module.css', 'issues'],
   ['app/danh-muc/PortfolioScreen.module.css', 'priceError'],
   ['app/cong-thuc/[id]/FormulaDetail.module.css', 'seriesShortNote'],
+  /* "Công thức này không dùng số liệu của mã X" — thêm ở đợt sửa nút Nạp mẫu hứa suông. */
+  ['app/cong-thuc/[id]/FormulaDetail.module.css', 'presetMismatch'],
 ];
 
 const EXPECTED = {

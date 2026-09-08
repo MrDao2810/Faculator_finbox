@@ -2,14 +2,34 @@
  * Tầng APPLICATION — chip "Tìm gần đây" của WF-09 (gói WBS 3.1.3).
  *
  * Cùng khuôn với `preferences.ts`: phần thuần nằm ở đây, không import React, nên test được
- * bằng Node; phần chạm localStorage do màn tìm kiếm gọi trong `useEffect`.
+ * bằng Node; phần chạm localStorage do hook `use-recent-searches.ts` gọi trong `useEffect`.
  *
  * LDR-04 · NFR-SEC-01: chỉ lưu tên công thức người dùng đã CHỌN từ kết quả tìm (không phải chuỗi
  * đã gõ), nằm trên máy, không gửi đi đâu.
+ *
+ * ── HAI kho, không phải một ───────────────────────────────────────────────────────────────
+ *
+ * App có hai ô tìm, và chúng chạy trên hai phạm vi khác hẳn nhau: ô ở trang chủ chỉ với tới 18 ô
+ * ghim của khối "Công thức dùng hằng ngày" (`FEATURED_POOL` trong `HomeSearchPanel`), còn màn tìm
+ * WF-09 chạy trên cả thư viện. Dùng chung một kho thì một chip sinh ra ở màn này lại hiện ở màn
+ * kia — nó nói với người dùng rằng họ đã tìm thứ đó Ở ĐÂY, trong khi không phải. Chuyện đó đã
+ * xảy ra thật cho tới đợt này: trang chủ chỉ ĐỌC và XOÁ kho, không hề ghi, nên toàn bộ chip nó
+ * bày ra là do màn tìm ghi hộ.
+ *
+ * Nên mỗi ô tìm một khoá, và chỉ màn nào ghi thì màn ấy đọc. Phần thuần bên dưới không biết gì
+ * về khoá — nơi gọi truyền khoá vào `useRecentSearches()`.
  */
 
-/** Đổi khoá khi cấu trúc đổi, để bản cũ trong máy không làm hỏng bản mới. */
+/**
+ * Lịch sử của màn tìm WF-09 (`/tim-kiem/`).
+ *
+ * Khoá GIỮ NGUYÊN qua đợt tách: lịch sử người dùng đang có được ghi từ đúng màn này, nên nó ở
+ * lại đúng chỗ của nó. Đổi khoá khi CẤU TRÚC dữ liệu đổi — ở đây cấu trúc không đổi.
+ */
 export const RECENT_SEARCHES_KEY = 'ffb.recent.v1';
+
+/** Lịch sử RIÊNG của ô tìm trang chủ — xem docblock đầu file về vì sao hai kho. */
+export const HOME_RECENT_SEARCHES_KEY = 'ffb.recent.home.v1';
 
 /** WF-09 vẽ ba chip; giữ dư một ít để người dùng còn thấy lịch sử. */
 export const MAX_RECENT_SEARCHES = 6;

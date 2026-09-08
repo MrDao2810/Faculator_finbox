@@ -41,7 +41,10 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
     // fail() luôn kèm warning, nhưng CalcOutput dựng tay có thể thiếu — vẫn phải không vỡ.
     if (warning === undefined) {
       return (
-        <div className={[styles.block, className].filter(Boolean).join(' ')} role="alert">
+        <div
+          className={[styles.block, styles.blockPlain, className].filter(Boolean).join(' ')}
+          role="alert"
+        >
           <span className={styles.value}>{t('result.unavailable')}</span>
         </div>
       );
@@ -53,7 +56,18 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
 
   return (
     <div className={classes}>
-      <span className={styles.eyebrow}>{t('result.eyebrow')}</span>
+      {/*
+        Nhãn FR-05 'cập nhật tức thì' đứng CÙNG HÀNG với chữ KẾT QUẢ, đúng bản vẽ Finbox_v2 —
+        trước đó nó nằm riêng ở góc dưới phải thẻ. Nó là ghi chú về CÁCH con số vận hành nên nó
+        thuộc về dòng nhãn chứ không phải một dòng riêng dưới đáy.
+
+        Hai `<span>` lồng chứ không một chuỗi ghép, và dấu chấm giữa do CSS sinh: xem docblock
+        `.eyebrow` trong `ResultBlock.module.css`.
+      */}
+      <span className={styles.eyebrow}>
+        <span>{t('result.eyebrow')}</span>
+        <span className={styles.live}>{t('result.live')}</span>
+      </span>
 
       <p className={styles.figure} aria-live="polite">
         <span className={styles.value}>{formatNumber(output.value)}</span>
@@ -63,13 +77,6 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
       {interpretation !== undefined && <p className={styles.interpretation}>{interpretation}</p>}
 
       {action}
-
-      {/*
-        Nhãn 'cập nhật tức thì' (FR-05) nay ở góc dưới phải, không còn đứng cùng hàng với chữ
-        KẾT QUẢ — bản thiết kế đợt 12. Nó là ghi chú về CÁCH con số vận hành, nên đứng sau con
-        số đọc thuận hơn là đứng trước.
-      */}
-      <span className={styles.live}>{t('result.live')}</span>
     </div>
   );
 }

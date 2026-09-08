@@ -76,25 +76,55 @@
 }
 
 /*
- * Hàng nút đầu màn: nút chính xuống hàng riêng và trải hết bề ngang ở khổ điện thoại — bản
- * thiết kế mobile đợt 13.
+ * ── Hàng nút đầu màn không còn luật riêng nào ────────────────────────────────
  *
- * Vì sao chỉ ở khổ hẹp: ở 360px bốn nút `sm` xếp thành hai hàng so le, và "Lưu vào danh mục"
- * rơi vào chỗ nào là tuỳ độ dài ba nhãn trước nó — có công thức nó nằm cuối hàng một, có công
- * thức nằm đầu hàng hai. Nút quan trọng nhất của màn mà đứng ở chỗ đoán không ra. Từ 600px trở
- * lên cả bốn nằm gọn một hàng nên không có gì phải sửa.
+ * Ở đây từng có `@media (max-width: 599px) { .actionsHead > :last-child { flex: 1 1 100% } }`,
+ * cho "Lưu vào danh mục" xuống hàng riêng trải hết bề ngang ở khổ điện thoại (bản thiết kế
+ * mobile đợt 13). Lý do khi ấy: ở 360px bốn nút `sm` xếp thành hai hàng so le, nên nút quan
+ * trọng nhất rơi vào chỗ đoán không ra — cuối hàng một hay đầu hàng hai là tuỳ độ dài ba nhãn
+ * trước nó.
  *
- * Nhắm `.actionsHead > :last-child` chứ không truyền `className` cho riêng nút: một lớp rời có
- * độ ưu tiên 0,1,0 đúng bằng `.button` của primitive, nên cái nào thắng phụ thuộc thứ tự hai file
- * CSS Module trong gói — thứ không đoán trước được (cùng cái bẫy đã ghi ở nút xoá màn Cài đặt).
- * Thêm `:last-child` là 0,2,0, thắng chắc chắn ở mọi thứ tự.
+ * Luật ấy đi theo chính cái nút: nút đã xuống bệ dính đáy (`.saveDock`), nên vấn đề "đứng ở chỗ
+ * đoán không ra" tự hết. Phải GỠ chứ không được để lại: `:last-child` nay trỏ vào nút "Xuất", và
+ * để nguyên là nút ấy tự dưng trải hết bề ngang ở khổ hẹp — im lặng, không test nào đỏ, đúng
+ * kiểu lỗi mà chính chú thích cũ đã cảnh báo khi nói "chèn nút mới vào sau nó là nút mới chiếm
+ * mất chỗ ấy".
  *
- * KHÔNG dùng prop `fullWidth` của Button: nó trải hết bề ngang ở MỌI khổ, kể cả màn rộng nơi cả
- * bốn nút vốn nằm gọn một hàng.
+ * Ba nút còn lại đều `secondary` và tự xuống hàng theo `flex-wrap`, không cần luật gì thêm.
  */
-@media (max-width: 599px) {
-  .actionsHead > :last-child {
-    flex: 1 1 100%;
+
+/*
+ * ── Hai lối ra ở cuối màn: "Huỷ và thoát" · "Lưu vào danh mục" ───────────────
+ *
+ * Khuôn một form: việc phụ bên trái, việc chính bên phải, cùng nằm ở điểm dừng của trang.
+ *
+ * Nép phải và để mỗi nút rộng đúng bằng nhãn của nó — KHÔNG chia đôi hàng, đã thử và đã bỏ. Ở
+ * 360px chia đôi cho mỗi nút 158px, mà "☆ Lưu vào danh mục" cần 186px: nhãn vỡ thành hai dòng bó
+ * trong hộp cao 44px. Để rộng tự nhiên thì 127 + 12 + 186 = 325px, vừa đúng trong 328px của cột
+ * nội dung ở khổ hẹp nhất sản phẩm hứa đỡ (NFR-USA-01).
+ *
+ * Mép trái của cụm không nhảy như hàng nút đầu màn: hai nhãn này giống hệt nhau ở cả 111 trang,
+ * khác hẳn "Nạp mẫu" vốn đổi thành "Đã nạp FPT" sau khi nạp.
+ *
+ * `flex-wrap` là lưới an toàn cho bản dịch dài hơn: hết chỗ thì nút Lưu rơi xuống dòng dưới,
+ * vẫn nép phải, chứ không bị bóp cho vỡ chữ.
+ *
+ * KHÔNG dùng prop `fullWidth` của Button: nó trải hết bề ngang ở MỌI khổ, kể cả màn rộng.
+ */
+.endActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/*
+ * Bản in không có nút bấm. `header`/`nav` đã được `globals.css` ẩn sẵn ở `@media print`, nhưng
+ * hàng này là `<div>` nên phải tự khai.
+ */
+@media print {
+  .endActions {
+    display: none;
   }
 }
 
@@ -188,6 +218,82 @@
 
   /* Công thức dài (DDM hai giai đoạn, Sortino) cuộn ngang trong khung riêng — NFR-USA-02. */
   overflow-x: auto;
+  /*
+   * Bắt buộc phải có, không phải trang trí thừa.
+   *
+   * CSS chỉ cho `overflow-x` khác `visible` mà bỏ mặc định `overflow-y` — trình duyệt tự đổi
+   * `overflow-y` thành `auto`, không phải `visible` như người viết tưởng. Khung này không có
+   * chiều cao cố định nên chẳng bao giờ thật sự cần cuộn dọc, nhưng CHỈ CẦN nội dung lệch 1px so
+   * với khung do làm tròn subpixel (rất hay gặp ở màn hình Windows chia tỷ lệ 125%/150%) là
+   * thanh cuộn dọc ấy vẫn hiện ra — kiểu Windows Chrome cũ còn vẽ cả hai nút mũi tên lên/xuống ở
+   * hai đầu, trông như một điều khiển thật. Không có gì bị cắt, chỉ là thanh cuộn thừa gây rối.
+   * `overflow-y: hidden` khoá đúng trục không cần cuộn, không đụng gì đến `overflow-x: auto` bên
+   * trên. `.expression` ngay dưới dính cùng lỗi vì cùng khai báo.
+   */
+  overflow-y: hidden;
+}
+
+/*
+ * Thanh cuộn mảnh, không nút mũi tên, và dải mờ ở mép khi còn cuộn được — dùng chung một mảng quy
+ * tắc cho `.formula` và `.expression` vì cả hai chung một lỗi (xem chú thích trên `.formula`) và
+ * chung một khung cha `.formulaCard` (nền `--color-surface`). Không viết mixin/`@apply` vì CSS
+ * Modules ở dự án này không dùng tiền xử lý — lặp lại có chú thích trỏ nhau, đúng quy ước đã thấy
+ * ở `.expression` bên dưới.
+ *
+ * `background-attachment: local` cho hai dải phủ màu nền và `scroll` cho hai dải bóng mờ là điểm
+ * mấu chốt: dải phủ trôi CÙNG nội dung khi cuộn, còn bóng mờ đứng yên theo khung nhìn. Nội dung
+ * vừa khung (không cuộn được) thì dải phủ luôn che kín bóng mờ — mép sạch, không cần đo
+ * `scrollWidth` bằng JS để biết khi nào ẩn dấu mờ.
+ */
+.formula,
+.expression {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.formula::-webkit-scrollbar,
+.expression::-webkit-scrollbar {
+  height: 6px;
+}
+
+.formula::-webkit-scrollbar-track,
+.expression::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.formula::-webkit-scrollbar-thumb,
+.expression::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+/* Nút mũi tên hai đầu — đúng thứ hiện trong ảnh chụp màn hình nhỏ, xoá hẳn ở đây. */
+.formula::-webkit-scrollbar-button,
+.expression::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.formula,
+.expression {
+  background:
+    linear-gradient(to right, var(--color-surface), var(--color-surface)) left / 20px 100% no-repeat
+      local,
+    linear-gradient(to left, var(--color-surface), var(--color-surface)) right / 20px 100% no-repeat
+      local,
+    linear-gradient(
+        to right,
+        color-mix(in srgb, var(--color-border-strong) 45%, transparent),
+        transparent
+      )
+      left / 10px 100% no-repeat scroll,
+    linear-gradient(
+        to left,
+        color-mix(in srgb, var(--color-border-strong) 45%, transparent),
+        transparent
+      )
+      right / 10px 100% no-repeat scroll;
 }
 
 /*
@@ -204,6 +310,10 @@
  * Vế thứ hai, ngăn với ký hiệu toán bằng một đường kẻ thay vì bằng một khung riêng.
  * `white-space: nowrap` giữ nguyên: biểu thức đầy đủ tiếng Việt bẻ dòng giữa chừng thì đọc ra
  * hai phép tính khác nhau — nó cuộn ngang trong khung riêng, đúng NFR-USA-02.
+ *
+ * Cỡ chữ tự co ở màn hẹp — cùng công thức `clamp()` không cần media query của `.value` trong
+ * `ResultBlock.module.css` — để bớt công thức phải cuộn mà KHÔNG bỏ `nowrap`: chữ nhỏ lại thì cả
+ * câu vừa khung hơn, còn công thức thật sự quá dài vẫn cuộn như cũ, không đổi ý nghĩa.
  */
 .expression {
   margin: var(--space-3) 0 0;
@@ -211,11 +321,13 @@
   border-top: 1px solid var(--color-hairline);
 
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font-size: clamp(var(--text-xs), 3.3vw, var(--text-sm));
   color: var(--color-ink-soft);
   text-align: center;
 
   overflow-x: auto;
+  /* Cùng lỗi và cùng cách sửa như `.formula` phía trên — đọc chú thích ở đó. */
+  overflow-y: hidden;
   white-space: nowrap;
 }
 
@@ -247,6 +359,28 @@
   padding: var(--space-2) var(--space-3);
 
   /* Cùng cỡ chữ và cùng bán kính với mọi mặt cảnh báo vàng — xem `InlineWarning.module.css`. */
+  font-size: var(--text-sm);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * "Công thức này không dùng số liệu của mã X" — trả lời cho một cú bấm Nạp mẫu không nạp được gì
+ * (xem `applyPreset()`).
+ *
+ * Cùng MẶT PHẲNG cảnh báo vàng với `.seriesShortNote` ngay trên, và cũng cùng họ với nó về vai:
+ * không phải ghi chú bên lề mà là LÝ DO màn hình vừa đứng im, kèm lối đi tiếp. Khai riêng chứ
+ * không dùng chung một class — đúng lẽ đã ghi ở `warning-surface.test.ts`: năm mặt phẳng ấy có
+ * cấu trúc bên trong khác nhau, thứ phải giống nhau là nền/viền/bo góc, và ca kiểm ở đó neo lại.
+ * Nhớ thêm class này vào danh sách `SURFACES` của ca kiểm ấy.
+ */
+.presetMismatch {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+
   font-size: var(--text-sm);
   color: var(--color-warning);
 
@@ -348,7 +482,7 @@
  * Thanh trượt, nhóm nút và công tắc chiếm trọn hàng — xem `isWideControl()` ở `@/ui/inputs`.
  *
  * KHÔNG subgrid ở đây: ô rộng chiếm cả bề ngang nên không có ô nào bên cạnh để mà thẳng hàng, và
- * số phần bên trong không cố định — `LinkedInput` còn mang thêm hàng nút Ghi đè / Hoàn tác.
+ * số phần bên trong không cố định — `LinkedInput` còn mang thêm hàng nút Nhận tự động (khi đã ghi đè).
  * Vẫn phải span 4 hàng để không chen vào bộ hàng của các ô hẹp đứng cạnh.
  */
 .fieldWide {

@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import type { ReactElement } from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { FormulaSpec } from '@/application';
 
@@ -143,5 +145,43 @@ describe('biến thể tile — lưới trang chủ WF-01', () => {
   it('showCategory=false thì bỏ hẳn dòng nhóm', () => {
     render(<FormulaCard formula={PE} variant="tile" showCategory={false} />);
     expect(screen.queryByText('Chỉ số DN')).toBeNull();
+  });
+});
+
+/**
+ * `onSelect` — nơi gọi dùng để ghi lịch sử tìm. Ca thứ hai là CỬA GÁC, và nó có mặt vì một lỗi
+ * thật đã làm sập trang chủ.
+ *
+ * File này KHÔNG mang `'use client'` và được `page.tsx` cùng `StaticFormulaList` dựng ở phía
+ * SERVER, còn `<Link>` là client component. Bản đầu gắn cứng `onClick={handleClick}` với
+ * `handleClick` luôn tồn tại (bên trong gọi `onSelect?.()`), nên ở lượt dựng server có một hàm bị
+ * đẩy qua ranh giới RSC và Next dừng hẳn trang: "Event handlers cannot be passed to Client
+ * Component props".
+ *
+ * Không ca kiểm jsdom nào bắt được lỗi ĐÓ — chúng dựng thẳng ở máy khách, không qua ranh giới.
+ * Cái bắt được là điều kiện đủ để lỗi không thể xảy ra: **không truyền `onSelect` thì `onClick`
+ * phải là `undefined`**, chứ không phải một hàm rỗng. Nên ca này soi thẳng React element thay vì
+ * DOM, vì React gắn sự kiện ở gốc cây chứ không đặt thuộc tính lên chính thẻ `<a>`.
+ */
+describe('FormulaCard — onSelect và ranh giới server/client', () => {
+  /** Dựng element mà KHÔNG render, để đọc được `props` đúng như React sẽ thấy. */
+  function linkProps(props: Parameters<typeof FormulaCard>[0]) {
+    const inner = (FormulaCard as unknown as { type: (p: unknown) => ReactElement }).type;
+    return inner(props).props as { onClick?: unknown };
+  }
+
+  it('không truyền onSelect thì onClick là undefined, không phải hàm rỗng', () => {
+    for (const variant of ['row', 'tile'] as const) {
+      expect(linkProps({ formula: PE, variant }).onClick, variant).toBeUndefined();
+    }
+  });
+
+  it('có truyền onSelect thì bấm vào thẻ gọi lại đúng công thức đó', async () => {
+    const onSelect = vi.fn();
+    render(<FormulaCard formula={PE} onSelect={onSelect} />);
+
+    await userEvent.click(screen.getByRole('link'));
+
+    expect(onSelect).toHaveBeenCalledWith(PE);
   });
 });

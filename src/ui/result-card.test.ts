@@ -16,11 +16,19 @@ import { describe, expect, it } from 'vitest';
  *   `StatTile.value`              sans, 20, mực
  *
  * Bản rà soát thiết kế báo "Result card... lặp lại nhưng chưa đồng nhất giữa các màn" và "kết
- * quả cuối phải là điểm nổi bật nhất". Ba cái đầu là "đáp án của cả màn" nên gom về một khuôn:
- * nền trắng, viền xanh `--color-selected` 1,5px, nhãn xanh viết hoa, con số mực.
+ * quả cuối phải là điểm nổi bật nhất". Ba cái đầu là "đáp án của cả màn" nên gom về một khuôn.
  *
  * Hai cái sau CỐ Ý ở ngoài: chúng là con số trong một dòng danh sách chứ không phải đáp án của
  * màn. Chúng đi theo `StatTile.value` — ca kiểm cuối giữ đúng điều đó.
+ *
+ * ── Khuôn đã ĐỔI một lần, và ca kiểm này là chỗ đổi ─────────────────────────────────────────
+ *
+ * Đợt gom ban đầu chọn "nền trắng, viền xanh 1,5px, nhãn xanh, con số mực". Chủ dự án sau đó đối
+ * chiếu màn thật với bản vẽ Finbox_v2 và chốt dải xanh `--gradient-result` với chữ trắng.
+ *
+ * Thứ KHÔNG đổi là chính cái luật: ba thẻ phải cùng một khuôn. Đổi màu một thẻ mà bỏ hai thẻ kia
+ * là quay về đúng cảnh năm kiểu vẽ ở trên. Nên chỗ sửa khi khuôn đổi lần nữa là BA hằng số dưới
+ * đây, sửa một lần rồi chạy — ca kiểm sẽ chỉ ra file nào chưa theo.
  *
  * Đọc file nguồn chứ không render, cùng lý do đã ghi ở `Table.test.ts`.
  */
@@ -36,9 +44,14 @@ const ANSWER_CARDS: ReadonlyArray<
   ['ui/screens/LoanScheduleBody.module.css', 'summary', 'summaryLabel', 'summaryValue'],
 ];
 
+/*
+ * `color` nằm ở KHUNG chứ không chỉ ở nhãn và con số: thẻ nay có nền đậm, nên mọi chữ con không
+ * tự khai màu (dòng ghi chú, nhãn số phụ) phải thừa kế được màu đọc được. Thiếu dòng này thì
+ * chúng rơi về `--color-ink` của trang, tức chữ thẫm trên nền xanh thẫm.
+ */
 const FRAME = {
-  background: 'var(--color-surface)',
-  border: '1.5px solid var(--color-selected)',
+  background: 'var(--gradient-result)',
+  color: 'var(--color-on-result)',
   'border-radius': 'var(--radius-md)',
 } as const;
 
@@ -47,7 +60,7 @@ const LABEL = {
   'font-weight': 'var(--weight-medium)',
   'letter-spacing': '0.08em',
   'text-transform': 'uppercase',
-  color: 'var(--color-selected)',
+  color: 'var(--color-on-result)',
 } as const;
 
 const VALUE = {
@@ -55,7 +68,7 @@ const VALUE = {
   'font-weight': 'var(--weight-bold)',
   'line-height': 'var(--leading-tight)',
   'font-variant-numeric': 'tabular-nums',
-  color: 'var(--color-ink)',
+  color: 'var(--color-on-result)',
 } as const;
 
 function ruleBody(css: string, className: string): string | null {
@@ -98,6 +111,24 @@ describe('Thẻ kết quả — một khuôn duy nhất', () => {
 
       expect(body, `${file} .${value}`).not.toMatch(/font-family/);
     }
+  });
+
+  /*
+   * Nền đậm phải có đường lui cho bản in, ở CẢ BA thẻ.
+   *
+   * Trình duyệt mặc định không in nền, nên dải xanh biến mất mà chữ vẫn trắng — con số đáp án
+   * rơi xuống giấy trắng và mất hẳn. Đây là kiểu hỏng không ca kiểm DOM nào thấy được và cũng
+   * không ai thấy khi xem màn, chỉ lộ ra lúc cầm tờ giấy. Ghim ở mức nguồn: thẻ nào mang nền
+   * gradient thì file ấy phải có một khối `@media print` đặt lại `background`.
+   */
+  it.each(ANSWER_CARDS)('%s — có đường lui cho bản in', (file, frame) => {
+    const css = readFileSync(join(SRC_DIR, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const print = /@media print\s*\{([\s\S]*)\}/.exec(css)?.[1] ?? null;
+
+    expect(print, `${file} — thiếu khối @media print`).not.toBeNull();
+    expect(print ?? '', `${file} — @media print phải đặt lại nền của .${frame}`).toMatch(
+      new RegExp(`\\.${frame}\\s*\\{[^}]*background\\s*:\\s*var\\(--color-surface\\)\\s*;`),
+    );
   });
 
   it('khối lỗi cao bằng khối kết quả, nên trang không xê dịch khi chuyển trạng thái', () => {

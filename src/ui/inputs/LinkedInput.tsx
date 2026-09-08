@@ -1,8 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-
-import { formulaPath, resolveLinked, startOverrideValue } from '@/application';
+import { resolveLinked } from '@/application';
 import type { Level, LinkedUpstream, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Button } from '@/ui/primitives';
@@ -45,8 +43,7 @@ export function LinkedInput({
 }: LinkedInputProps) {
   const t = useT();
   const pick = usePick();
-  const args = { spec, upstream, override };
-  const linked = resolveLinked(args);
+  const linked = resolveLinked({ spec, upstream, override });
 
   const classes = [styles.wrap, styles[linked.mode], className].filter(Boolean).join(' ');
 
@@ -56,8 +53,7 @@ export function LinkedInput({
         spec={spec}
         /*
          * Thượng nguồn lỗi thì chưa có số dùng được, nhưng ô nhập vẫn phải có một số hợp lệ
-         * để không hiện NaN. Dùng `defaultValue` — đúng con số mà nút Ghi đè sẽ khởi đầu, nên
-         * hai chỗ khớp nhau.
+         * để không hiện NaN. Dùng `defaultValue` — người dùng gõ đè lên đúng con số này.
          *
          * Đây KHÔNG phá FR-06: bất biến đó cấm hiện số thay cho lỗi ở chỗ đáng ra là KẾT QUẢ.
          * Ở đây con số nằm trong ô nhập, còn lỗi hiện ngay dưới bằng InlineWarning kèm viền
@@ -91,25 +87,9 @@ export function LinkedInput({
               )}
             </>
           )}
-          {upstream !== undefined && linked.mode !== 'overridden' && (
-            <Link className={styles.upstreamLink} href={formulaPath(upstream.formulaId)}>
-              {t('input.openUpstream')}
-            </Link>
-          )}
         </span>
 
         <span className={styles.actions}>
-          {linked.canOverride && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                onOverrideChange(startOverrideValue(args));
-              }}
-            >
-              {t('input.override')}
-            </Button>
-          )}
           {linked.canRevert && (
             <Button
               variant="ghost"

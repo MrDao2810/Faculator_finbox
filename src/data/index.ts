@@ -7,8 +7,11 @@
 export type { DailyBar, DataProvider, Fundamentals, Preset } from './types';
 export { PRESET_CONTRACT_VERSION } from './types';
 export { SAMPLE_DATA, createStaticProvider, hasDraftData, hasDraftMarketSeries } from './provider';
-export { SAMPLE_PRESETS } from './samples';
-export { presetFillableKeys, presetInputs } from './preset-inputs';
+export { SAMPLE_PRESETS, WF10_CODES } from './samples';
+export { presetFillableKeys, presetInputs, presetRealKeys } from './preset-inputs';
+
+export type { PresetPick } from './preset-pick';
+export { PICK_COUNT, defaultPresetPicks, pickPresetsFor } from './preset-pick';
 
 // Cổng số liệu thị trường lúc chạy — gói "Danh mục dùng số liệu thật".
 export type { FeedFailureKind, MarketFeed, TickerRef, TickerSnapshot } from './finbox';

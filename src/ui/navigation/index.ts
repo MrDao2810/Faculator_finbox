@@ -13,3 +13,6 @@ export { OfflineBanner } from './OfflineBanner';
 /* Hai hình cho cùng một tuỳ chọn: icon gọn cho thanh trên, hai ô có chữ cho màn Cài đặt. */
 export { ThemePicker } from './ThemePicker';
 export { ThemeSwitch } from './ThemeSwitch';
+/* Phần "quay về đâu" của `BackLink`, tách ra để nút "Huỷ" cuối màn chi tiết dùng chung. */
+export { useBackTarget } from './useBackTarget';
+export type { BackTarget } from './useBackTarget';

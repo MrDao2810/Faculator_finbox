@@ -123,15 +123,20 @@ export type { ExportContent, ExportFormat, ExportLine, ExportOptions } from '@/c
 export { DISCLAIMER_VI, buildExportContent, exportFileName } from '@/core/export-content';
 
 // ── Bộ số liệu mẫu qua DataProvider — WF-10 (gói 2.5.1, FR-17) ──────────────
-export type { DailyBar, DataProvider, Fundamentals, Preset } from '@/data';
+export type { DailyBar, DataProvider, Fundamentals, Preset, PresetPick } from '@/data';
 export {
+  PICK_COUNT,
   PRESET_CONTRACT_VERSION,
   SAMPLE_DATA,
+  WF10_CODES,
   createStaticProvider,
+  defaultPresetPicks,
   hasDraftData,
   hasDraftMarketSeries,
+  pickPresetsFor,
   presetFillableKeys,
   presetInputs,
+  presetRealKeys,
 } from '@/data';
 
 // ── Số liệu thị trường lúc chạy — gói "Danh mục dùng số liệu thật" ──────────
@@ -335,8 +340,9 @@ export {
 export type { Preferences, Theme } from './preferences';
 export { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from './preferences';
 
-// Chip “Tìm gần đây” của WF-09 (gói 3.1.3)
+// Chip “Tìm gần đây” — hai kho riêng, mỗi ô tìm một khoá (xem docblock `recent-searches.ts`)
 export {
+  HOME_RECENT_SEARCHES_KEY,
   MAX_RECENT_SEARCHES,
   RECENT_SEARCHES_KEY,
   addRecentSearch,

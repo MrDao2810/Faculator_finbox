@@ -281,16 +281,20 @@ export function PortfolioScreen() {
   /** Mã đang được SỬA. `null` nghĩa là form đang ở chế độ thêm mới. */
   const [editing, setEditing] = useState<string | null>(null);
   /**
-   * Những mã đang MỞ khối chi tiết.
+   * Mã đang MỞ khối chi tiết. `null` nghĩa là mọi dòng đều đang đóng.
    *
    * Danh sách nay là dòng gọn ba cột đúng bản vẽ WF-06 — mã · số lượng/giá vốn · tỷ trọng/lãi lỗ
    * — nên thị giá, ngày mua, beta và ba nút hành động chuyển xuống khối mở ra khi bấm vào dòng.
    * Không thứ nào bị bỏ đi, chỉ đổi chỗ.
    *
-   * Là một TẬP HỢP chứ không phải một mã: so hai mã cạnh nhau là việc thật, mà kiểu accordion
-   * (mở cái này thì đóng cái kia) làm đúng việc ấy không làm được.
+   * Là MỘT mã chứ không phải một tập hợp: kiểu accordion, mở dòng này thì dòng đang mở tự đóng.
+   * Bản trước giữ một `Set` với lập luận "so hai mã cạnh nhau là việc thật" — chủ dự án đã bác lập
+   * luận ấy trên màn hình thật: mỗi khối chi tiết cao gần bằng ba dòng gọn, nên hai khối cùng mở
+   * đẩy mã thứ hai xuống dưới nếp gấp và cái người dùng nhìn thấy không còn là hai mã cạnh nhau,
+   * mà là một khối số lơ lửng không rõ thuộc về ai. So sánh vốn đã có chỗ riêng và chỗ ấy làm tốt
+   * hơn: dòng gọn ba cột luôn bày sẵn tỷ trọng và lãi/lỗ của MỌI mã cùng lúc.
    */
-  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [asOf, setAsOf] = useState('');
   const [loaded, setLoaded] = useState(false);
 
@@ -639,14 +643,15 @@ export function PortfolioScreen() {
     setPlannedFormula(null);
   }, []);
 
-  /** Đóng/mở khối chi tiết của một mã. */
+  /**
+   * Đóng/mở khối chi tiết của một mã, kiểu accordion.
+   *
+   * Mở một mã khác thì mã đang mở tự đóng — đó là toàn bộ việc phép gán này làm, chứ không cần một
+   * bước "đóng cái cũ" riêng: trạng thái chỉ giữ được một mã nên không có cách nào để hai khối cùng
+   * mở. Bấm lại đúng mã đang mở thì về `null`, tức đóng.
+   */
   const toggleDetail = useCallback((code: string): void => {
-    setExpanded((current) => {
-      const next = new Set(current);
-      // `delete` trả false khi mã chưa có trong tập — tức dòng đang đóng, nên mở ra.
-      if (!next.delete(code)) next.add(code);
-      return next;
-    });
+    setExpanded((current) => (current === code ? null : code));
   }, []);
 
   /**
@@ -655,15 +660,10 @@ export function PortfolioScreen() {
    * Tách khỏi `toggleDetail` chứ không gọi lại nó: "đóng" và "đảo trạng thái" chỉ trùng nhau khi
    * dòng đang mở. Chỗ dùng là lúc BỎ một mã — hôm nay nút Bỏ chỉ với tới được từ trong khối đang
    * mở nên hai hàm cho cùng kết quả, nhưng ai đưa nút Bỏ ra chỗ khác (vuốt ngang, menu…) sẽ khiến
-   * `toggleDetail` THÊM mã vừa xoá vào tập đang mở, và mã ấy thêm lại sau này sẽ tự bung sẵn.
+   * `toggleDetail` MỞ khối chi tiết của đúng mã vừa xoá.
    */
   const collapseDetail = useCallback((code: string): void => {
-    setExpanded((current) => {
-      if (!current.has(code)) return current;
-      const next = new Set(current);
-      next.delete(code);
-      return next;
-    });
+    setExpanded((current) => (current === code ? null : current));
   }, []);
 
   /** Mở form ở chế độ SỬA, đổ sẵn số đang lưu. */
@@ -1202,7 +1202,7 @@ export function PortfolioScreen() {
               <ul className={styles.holdList}>
                 {summary.rows.map((row) => {
                   const { holding } = row;
-                  const open = expanded.has(holding.code);
+                  const open = expanded === holding.code;
 
                   /*
                    * Số liệu của KHỐI CHI TIẾT, dựng thành các ô NHÃN–GIÁ TRỊ thay vì một câu nối

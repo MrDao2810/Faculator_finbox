@@ -80,9 +80,11 @@ for (const [palette, tokens] of PALETTES) {
      * trong badge nhóm. Chúng phải chịu ngưỡng 4,5:1, không phải 3:1.
      *
      * `--color-selected` vào danh sách từ đợt rà soát phân cấp: trước đó nó chỉ làm NỀN của mục
-     * đang chọn nên chỉ được kiểm cặp với `--color-on-selected`, nay nó còn là chữ của dòng
-     * "KẾT QUẢ" và viền của khối ấy (`ResultBlock.module.css`). Đây đúng là lỗ mà việc thêm token
-     * không tự động sinh phép kiểm để lại — thêm chỗ dùng mới thì phải thêm tên vào đây.
+     * đang chọn nên chỉ được kiểm cặp với `--color-on-selected`, nay nó còn làm chữ. Chỗ dùng cũ
+     * — dòng "KẾT QUẢ" và viền thẻ đáp án — đã chuyển sang nền gradient, nhưng ca này vẫn phải
+     * ở lại: khối `@media print` của cả ba thẻ ấy dựng lại đúng khuôn cũ, tức chữ
+     * `--color-selected` trên nền `--color-surface`. Đây đúng là lỗ mà việc thêm token không tự
+     * động sinh phép kiểm để lại — thêm chỗ dùng mới thì phải thêm tên vào đây.
      */
     const textTokens = [
       '--color-ink',
@@ -150,6 +152,10 @@ for (const [palette, tokens] of PALETTES) {
      * trên toàn bộ chiều ngang nút: đầu nào trượt là chữ mờ ở đúng nửa đó của nút, một kiểu hỏng
      * chỉ lộ ra ở nửa hình.
      *
+     * Ba thẻ đáp án KHÔNG nằm trong ca này dù trông cũng là "dải xanh chữ sáng": chúng có bộ
+     * token riêng `--color-result-*` và ca riêng ngay dưới. Lý do tách ở docblock
+     * `--gradient-result` trong `globals.css`.
+     *
      * Và chấm luôn nút so với NỀN CỤM (`--color-sunken`): đây là ranh giới điều khiển, ngưỡng
      * 3:1. Bảng tối là chỗ nó suýt hỏng thật — dải `gd2` nguyên bản của Finbox chỉ đạt 1,95:1
      * trên nền chìm bảng tối, tức nút đang chọn chìm hẳn vào nền; ca này là lý do bảng tối phải
@@ -167,6 +173,29 @@ for (const [palette, tokens] of PALETTES) {
           AA_NON_TEXT,
         );
       }
+    });
+
+    /*
+     * THẺ ĐÁP ÁN — `ResultBlock`, thẻ lợi nhuận ròng của Phí & thuế, thẻ tóm tắt của Lịch trả nợ.
+     *
+     * Chấm cả hai đầu dải vì cùng lẽ với nút đang chọn: chữ trải hết bề ngang thẻ, đầu nào trượt
+     * là chữ mờ ở đúng nửa đó. Đây là chỗ chốt của cả thẻ — mọi chữ bên trong dùng đúng token
+     * `--color-on-result` chứ không có sắc "dịu bớt" nào cho dòng nhãn, chính vì biên độ ở đầu
+     * nhạt đã hẹp (5,31:1 ở bảng tối).
+     *
+     * Và chấm RANH GIỚI của thẻ so với nền trang, ngưỡng 3:1. Chỉ chấm đầu NHẠT: thẻ là một mảng
+     * gradient nên chỉ cần một góc tách ra là hình khối đọc được, còn ép cả góc thẫm qua 3:1 thì
+     * bảng tối phải sáng lên đúng bằng mức chủ dự án vừa báo là chói. Con số của góc thẫm được
+     * ghi lại ở khối `[data-theme='dark']` để lần sau không ai tưởng nó bị bỏ sót.
+     */
+    it('chữ trên thẻ đáp án đạt AA, và thẻ nổi khỏi nền trang', () => {
+      expect(meetsContrast(color('--color-on-result'), color('--color-result-from'))).toBe(true);
+      expect(meetsContrast(color('--color-on-result'), color('--color-result-to'))).toBe(true);
+
+      const ratio = contrastRatio(color('--color-result-to'), color('--color-paper'));
+      expect(ratio, `mép thẻ so với nền trang: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+        AA_NON_TEXT,
+      );
     });
 
     /*
@@ -226,6 +255,9 @@ const REQUIRED_TOKENS = [
   '--color-selected',
   '--color-selected-strong',
   '--color-on-selected',
+  '--color-result-from',
+  '--color-result-to',
+  '--color-on-result',
   '--color-tint-teal',
   '--color-tint-teal-soft',
   '--color-tint-violet',

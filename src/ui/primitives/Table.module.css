@@ -26,7 +26,64 @@
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+
+  /*
+   * Thanh cuộn mảnh, không nút mũi tên (kiểu Windows Chrome cũ vẽ ra trông như một điều khiển
+   * thật — xem chú thích tương tự ở `.formula` của `FormulaDetail.module.css`), cộng dải mờ ở
+   * mép báo còn cuộn được. `background-attachment: local` cho hai dải phủ màu nền và `scroll`
+   * cho hai dải bóng mờ là điểm mấu chốt: dải phủ trôi CÙNG nội dung khi cuộn nên chỉ để lộ bóng
+   * mờ khi bảng còn dư bề rộng; bảng vừa khung (không cuộn được) thì dải phủ luôn che kín, mép
+   * sạch mà không cần đo `scrollWidth` bằng JS.
+   */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+  background:
+    linear-gradient(to right, var(--color-surface), var(--color-surface)) left / 20px 100% no-repeat
+      local,
+    linear-gradient(to left, var(--color-surface), var(--color-surface)) right / 20px 100% no-repeat
+      local,
+    linear-gradient(
+        to right,
+        color-mix(in srgb, var(--color-border-strong) 45%, transparent),
+        transparent
+      )
+      left / 10px 100% no-repeat scroll,
+    linear-gradient(
+        to left,
+        color-mix(in srgb, var(--color-border-strong) 45%, transparent),
+        transparent
+      )
+      right / 10px 100% no-repeat scroll;
+
+  /*
+   * BẮT BUỘC phải đứng SAU `background` ở trên, và bắt buộc phải có.
+   *
+   * Shorthand `background` đặt lại `background-color` về `transparent`, nên bốn lớp gradient kia
+   * chỉ tô đúng 20px mỗi mép: khoảng giữa bảng hở ra, lộ nền TRANG (`--color-paper`) xuyên qua.
+   * Ở bảng sáng gần như không thấy (#ffffff so với #f8fafc), nhưng ở bảng tối thì lệch hẳn
+   * (#1b2435 so với #111827) — đúng lỗi chủ dự án bắt được ở bảng biến.
+   */
+  background-color: var(--color-surface);
+}
+
+.scroller::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+/* Nút mũi tên hai đầu — đúng thứ hiện trong ảnh chụp màn hình nhỏ, xoá hẳn ở đây. */
+.scroller::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Vùng cuộn phải nhận được tiêu điểm để lăn được bằng bàn phím. */
@@ -88,4 +145,20 @@
 .table :global(.numeric) {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Cột chữ dài (tên biến, mô tả) được PHÉP xuống dòng — ngược hẳn mặc định `nowrap` ở trên.
+ *
+ * Mặc định `nowrap` đúng cho bảng số (lịch trả nợ, chuỗi giá): một con số bị bẻ dòng giữa chừng
+ * là đọc sai. Nhưng `VariableTable` (WF-03 khối 7) có cột "Mô tả" chứa cả câu, ép nowrap thì MỘT
+ * câu mô tả dài tự kéo cả bảng rộng hơn khung 344px và bắt cuộn ngang chỉ vì đúng một ô — trong
+ * khi xuống dòng ở đây không đổi nghĩa, khác hẳn rủi ro của dòng biểu thức thay số ở
+ * `FormulaDetail.module.css` (`.expression` cố ý giữ `nowrap`, đọc chú thích ở đó).
+ *
+ * Cùng cơ chế `:global` với `.numeric` ngay trên — nơi gọi truyền chuỗi thô `className="wrap"`.
+ */
+.table :global(.wrap) {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

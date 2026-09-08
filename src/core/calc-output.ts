@@ -41,7 +41,7 @@ export function fail(unit: string, warning: CalcWarning): CalcOutput {
  * Cảnh báo kế thừa: thượng nguồn lỗi thì hạ nguồn không được âm thầm cho ra số (FR-15).
  *
  * @param upstreamLabel tên công thức thượng nguồn đang lỗi, ví dụ 'Beta'
- * @param selfLabel     tên biến tại chỗ, để gợi ý sửa chỉ đúng nút Ghi đè (WF-15)
+ * @param selfLabel     tên biến tại chỗ, để gợi ý sửa chỉ đúng biến cần tự nhập (WF-15)
  */
 export function inherited(
   unit: string,

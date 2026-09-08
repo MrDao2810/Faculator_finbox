@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
+  HOME_RECENT_SEARCHES_KEY,
   INPUT_DRAFT_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
@@ -36,10 +37,11 @@ import styles from './SettingsScreen.module.css';
  * liệu thật" cho tới khi được vá cùng đợt cá nhân hoá trang chủ. Nay có ca kiểm quét mọi hằng
  * `'ffb.…'` trong `src/application` để không có lần thứ ba; xem `SettingsScreen.test.tsx`.
  */
-/** Nhãn của một kho. Union chứ không phải `MessageKey` trần — chỉ chín câu này hợp nghĩa ở đây. */
+/** Nhãn của một kho. Union chứ không phải `MessageKey` trần — chỉ mười câu này hợp nghĩa ở đây. */
 type StorageLabelKey =
   | 'data.prefs'
   | 'data.recent'
+  | 'data.recentHome'
   | 'data.usage'
   | 'data.series'
   | 'data.portfolio'
@@ -53,8 +55,15 @@ const STORAGE_ITEMS: ReadonlyArray<{
   labelKey: StorageLabelKey;
 }> = [
   { key: PREFERENCES_STORAGE_KEY, labelKey: 'data.prefs' },
+  /*
+   * Ba kho "lịch sử" đứng cạnh nhau: cùng loại dữ liệu, cùng lý do người dùng muốn xoá.
+   *
+   * Hai dòng đầu là lịch sử tìm của HAI ô tìm khác nhau — mỗi ô một kho riêng để chip của màn
+   * này không lẫn sang màn kia (xem docblock `recent-searches.ts`). Nhãn phải nói ra màn nào,
+   * nếu không ở đây hiện hai dòng trông y hệt nhau mà xoá ra hai kết quả khác.
+   */
   { key: RECENT_SEARCHES_KEY, labelKey: 'data.recent' },
-  // Hai kho "lịch sử" đứng cạnh nhau: cùng loại dữ liệu, cùng lý do người dùng muốn xoá.
+  { key: HOME_RECENT_SEARCHES_KEY, labelKey: 'data.recentHome' },
   { key: FORMULA_USAGE_KEY, labelKey: 'data.usage' },
   { key: PRICE_SERIES_KEY, labelKey: 'data.series' },
   { key: PORTFOLIO_KEY, labelKey: 'data.portfolio' },

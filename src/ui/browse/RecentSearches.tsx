@@ -24,19 +24,48 @@ export type RecentSearchesProps = {
   terms: ReadonlyArray<string>;
   onClear: () => void;
   /**
-   * `block` — có tiêu đề "TÌM GẦN ĐÂY" và nút chữ "Xoá lịch sử" trên một hàng riêng. Dùng ở màn
-   * tìm WF-09, nơi khối này là NỘI DUNG CHÍNH của trạng thái nhàn nên xứng đáng một tiêu đề.
+   * `block` — có tiêu đề "LỊCH SỬ TÌM KIẾM" và nút xoá dạng icon nằm cuối hàng tiêu đề. Dùng ở
+   * màn tìm WF-09, nơi khối này là NỘI DUNG CHÍNH của trạng thái nhàn nên xứng đáng một tiêu đề.
    *
-   * `inline` — bỏ tiêu đề, nút xoá thu về một icon thùng rác đứng cuối hàng chip. Dùng ngay dưới
-   * ô tìm ở trang chủ (bản thiết kế Figma đợt này), nơi hàng chip chỉ là phụ trợ của ô tìm chứ
+   * `inline` — bỏ tiêu đề, nút xoá thu về icon thùng rác đứng cuối hàng chip. Dùng ngay dưới ô
+   * tìm ở trang chủ (bản thiết kế Figma đợt này), nơi hàng chip chỉ là phụ trợ của ô tìm chứ
    * không phải một mục ngang hàng với "Công thức dùng hằng ngày" — cho nó một `<h2>` nữa là dựng
    * thêm một cấp tiêu đề giả giữa ô tìm và kệ.
+   *
+   * Cả hai dạng nay dùng CHUNG một icon thùng rác: bản trước dạng `block` là nút chữ "Xoá lịch
+   * sử" chiếm trọn bề ngang còn lại của hàng tiêu đề, mà nó chỉ làm đúng một việc mà icon cũng
+   * nói được — chủ dự án báo khối này chiếm nhiều chỗ quá.
    */
   variant?: 'block' | 'inline';
 } & RecentSearchesAction;
 
 /**
- * Chip "Tìm gần đây" — WF-09 trạng thái A (gói WBS 3.1.3).
+ * Icon thùng rác của nút xoá, dùng cho cả hai dạng.
+ *
+ * Tách ra vì hai dạng đặt nút ở hai chỗ khác nhau (cuối hàng chip / cuối hàng tiêu đề) nhưng phải
+ * là cùng một hình — chép hai bản là mở đường cho hai hình khác nhau của cùng một hành động.
+ */
+function TrashIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 7h16M9 7V4h6v3" />
+      <path d="M6.5 7l1 13h9l1-13M10 11v5M14 11v5" />
+    </svg>
+  );
+}
+
+/**
+ * Chip "Lịch sử tìm kiếm" — WF-09 trạng thái A (gói WBS 3.1.3).
  *
  * Không tự đọc localStorage: màn gọi nó đọc trong `useEffect` rồi truyền xuống. Đọc ngay lúc
  * khởi tạo state sẽ lệch hydration vì bản build là HTML tĩnh — bài học của đợt 2. Điều này càng
@@ -81,7 +110,7 @@ export function RecentSearches({
 
       {variant === 'inline' && (
         <li>
-          {/* Nút xoá ở dạng inline là icon, nên nhãn phải nằm ở `aria-label` — NFR-USA-06. */}
+          {/* Nút xoá chỉ có icon, nên nhãn phải nằm ở `aria-label` — NFR-USA-06. */}
           <button
             type="button"
             className={styles.clearIcon}
@@ -89,20 +118,7 @@ export function RecentSearches({
             aria-label={t('search.recent.clear')}
             title={t('search.recent.clear')}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 7h16M9 7V4h6v3" />
-              <path d="M6.5 7l1 13h9l1-13M10 11v5M14 11v5" />
-            </svg>
+            <TrashIcon />
           </button>
         </li>
       )}
@@ -124,8 +140,15 @@ export function RecentSearches({
         <h2 className={styles.title} id="recent-title">
           {t('search.recent.title')}
         </h2>
-        <button type="button" className={styles.clear} onClick={onClear}>
-          {t('search.recent.clear')}
+        {/* Cùng icon, cùng nhãn ẩn với dạng inline — chỉ khác chỗ đứng. */}
+        <button
+          type="button"
+          className={styles.clear}
+          onClick={onClear}
+          aria-label={t('search.recent.clear')}
+          title={t('search.recent.clear')}
+        >
+          <TrashIcon />
         </button>
       </div>
 

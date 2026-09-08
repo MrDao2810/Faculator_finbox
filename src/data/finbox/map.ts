@@ -127,9 +127,16 @@ interface Quarter {
   value: number;
 }
 
-/** Các quý `ln_q{quý}/{năm}` có số, MỚI NHẤT TRƯỚC. Đơn vị tỷ ₫. */
-function latestQuarters(record: Record<string, unknown>): Quarter[] {
-  const re = /^ln_q(\d)\/(\d{4})$/;
+/**
+ * Các quý `{prefix}q{quý}/{năm}` có số, MỚI NHẤT TRƯỚC. Đơn vị tỷ ₫.
+ *
+ * Nhận `prefix` chứ không cứng `'ln_'` vì API bày doanh thu (`dt_q2/2026`) theo đúng khuôn tên và
+ * đúng thang đơn vị với lợi nhuận (`ln_q2/2026`) — cùng một phép cộng TTM, cùng một luật "bốn quý
+ * phải liền nhau". Chép hàm ra làm hai bản thì hai bản ấy sẽ trôi khỏi nhau đúng ở chỗ khó thấy
+ * nhất.
+ */
+function latestQuarters(record: Record<string, unknown>, prefix: string): Quarter[] {
+  const re = new RegExp(`^${prefix}q(\\d)\\/(\\d{4})$`);
   return (
     periodicKeys(record)
       .map((key) => {
@@ -158,14 +165,21 @@ function latestQuarters(record: Record<string, unknown>): Quarter[] {
  * làm tròn tới một chữ số thập phân, nên chênh lệch hợp lệ duy nhất là chênh lệch làm tròn. Sai số
  * tương đối sẽ nới rộng vô nghĩa với doanh nghiệp lớn và bóp nghẹt với doanh nghiệp lãi gần 0.
  *
+ * Dùng chung cho cả `'ln_'` (lợi nhuận) và `'dt_'` (doanh thu): API bày `dt_quygannhat`/`dt_quygannhi`
+ * theo đúng khuôn, nên doanh thu được đối chiếu bằng chính phép kiểm đã chạy đúng cho lợi nhuận.
+ *
  * Thiếu trường để so thì coi như ĐẠT — cùng luật `withinTolerance()` đang dùng, và đo được là 27
  * trên 1.005 bản ghi rơi vào ca này.
  */
-function latestQuartersAgree(record: Record<string, unknown>, quarters: Quarter[]): boolean {
+function latestQuartersAgree(
+  record: Record<string, unknown>,
+  quarters: Quarter[],
+  prefix: string,
+): boolean {
   const EPSILON = 0.05;
   const expected = [
-    periodicNumber(record, 'ln_quygannhat'),
-    periodicNumber(record, 'ln_quygannhi'),
+    periodicNumber(record, `${prefix}quygannhat`),
+    periodicNumber(record, `${prefix}quygannhi`),
   ];
 
   return expected.every((value, index) => {
@@ -199,11 +213,38 @@ function withinTolerance(computed: number, expected: number | null): boolean {
 }
 
 /**
+ * Ngưỡng RỘNG cho các trường suy ra từ tỷ số — và rộng là có chủ đích, không phải buông lỏng.
+ *
+ * `roa`, `roe`, `bienloinhuan` do Finbox công bố tính trên số **bình quân kỳ** và trên phạm vi hợp
+ * nhất **toàn tập đoàn**, còn `equity` của ta suy từ `bvps × slcp` nên là số **cuối kỳ** của phần
+ * **công ty mẹ**. Hai vế lệch nhau một cách hợp lệ: đo trên HPG, `roe` API là 0,174 còn
+ * `netIncome ÷ equity` cuối kỳ là 0,1648 — lệch 5,5%, đúng chiều mà hiện tượng bình quân dự đoán.
+ *
+ * Đây đúng là bài học `docblock` đầu file đã trả giá một lần: một phép đối chiếu CHẶT giữa hai đại
+ * lượng khác kỳ / khác phạm vi hợp nhất đã loại oan 268/1.005 mã. Ngưỡng 25% vì thế không nhằm bắt
+ * lỗi kế toán — nó chỉ nhằm bắt lỗi **đơn vị và chi thể**: nhầm phân số với phần trăm (sai 100
+ * lần), nhầm tỷ ₫ với ₫ (sai một tỷ lần), sai dấu. Những lỗi ấy vượt 25% rất xa.
+ */
+const LOOSE_TOLERANCE = 0.25;
+
+function withinLooseTolerance(computed: number, expected: number | null): boolean {
+  if (expected === null || expected === 0) return true;
+  return Math.abs(computed - expected) / Math.abs(expected) <= LOOSE_TOLERANCE;
+}
+
+/**
  * Số liệu cơ bản của một bản ghi, hoặc `null` nếu thiếu field bắt buộc / không qua đối chiếu.
  *
  * Ba phép đối chiếu bắt ba loại lỗi khác nhau, nên giữ đủ cả ba: P/E và P/B bắt lỗi đơn vị (nhân
  * hụt hoặc nhân thừa 1000), còn phép quý gần nhất bắt lỗi lệch kỳ báo cáo mà hai phép kia không
  * thấy vì chúng đọc field khác.
+ *
+ * ── Luật của năm trường mở rộng: TRƯỜNG lệch thì bỏ RIÊNG trường, không bỏ cả bản ghi ────────
+ *
+ * Ba phép đối chiếu ở trên gác `eps`/`bookValuePerShare`/`netIncome` — xương sống của bản ghi, hỏng
+ * một cái là mọi thứ dựng trên nó đều sai, nên `null` cả cụm là đúng. Năm trường mở rộng thì khác:
+ * `marketCap` lệch không làm `eps` sai đi chút nào. Bỏ cả mã vì một trường phụ là quay lại đúng cái
+ * bẫy đã loại oan 268/1.005 mã mà docblock đầu file kể.
  */
 export function toFundamentals(record: Record<string, unknown>): Fundamentals | null {
   const epsRaw = num(record.eps_pha_loang);
@@ -224,8 +265,8 @@ export function toFundamentals(record: Record<string, unknown>): Fundamentals | 
     return null;
   }
 
-  const quarters = latestQuarters(record);
-  if (!latestQuartersAgree(record, quarters)) return null;
+  const quarters = latestQuarters(record, 'ln_');
+  if (!latestQuartersAgree(record, quarters, 'ln_')) return null;
 
   const netIncomeTtm = trailingTwelveMonths(quarters);
   if (netIncomeTtm === null) return null;
@@ -234,6 +275,8 @@ export function toFundamentals(record: Record<string, unknown>): Fundamentals | 
   const bookValuePerShare = round(bookRaw * THOUSAND, 0);
 
   const dividendRaw = latestNonZero(record, 'ct_ct_tm_');
+  // Suy ra như `wholeCompany()` trong `samples.ts` — API không có vốn chủ sở hữu tuyệt đối.
+  const equity = round((bookValuePerShare * shares) / BILLION, 1);
 
   return {
     eps,
@@ -241,10 +284,80 @@ export function toFundamentals(record: Record<string, unknown>): Fundamentals | 
     sharesOutstanding: shares,
     dividendPerShare: dividendRaw === null ? 0 : round(dividendRaw * THOUSAND, 0),
     netIncome: round(netIncomeTtm, 1),
-    // Suy ra như `wholeCompany()` trong `samples.ts` — API không có vốn chủ sở hữu tuyệt đối.
-    equity: round((bookValuePerShare * shares) / BILLION, 1),
+    equity,
     period: bctc.startsWith('BCTC') ? bctc : `BCTC ${bctc}`,
+    ...extendedFields(record, { shares, equity, netIncome: round(netIncomeTtm, 1), priceRaw }),
   };
+}
+
+/** Neo của các trường mở rộng — đều đã qua đối chiếu ở `toFundamentals()`. */
+interface Anchor {
+  shares: number;
+  equity: number;
+  netIncome: number;
+  priceRaw: number | null;
+}
+
+/**
+ * Năm trường mở rộng, mỗi trường tự đứng tự ngã.
+ *
+ * Trả về object thưa để nơi gọi trải thẳng vào: trường nào không dựng được thì vắng mặt, chứ không
+ * mang giá trị 0 — một `revenue` bằng 0 sẽ cho biên lợi nhuận vô cực rồi rơi về `fail`, còn tệ hơn
+ * là một `totalAssets` bằng 0 kéo ROA về vô cực mà trông vẫn như số thật (FR-06).
+ */
+function extendedFields(record: Record<string, unknown>, anchor: Anchor): Partial<Fundamentals> {
+  const out: Partial<Fundamentals> = {};
+
+  /*
+   * ── Doanh thu TTM: cùng phép cộng, cùng phép đối chiếu, chỉ khác tiền tố ───────────────────
+   *
+   * Hai phép gác giống hệt `netIncome`: `latestQuartersAgree()` (hai quý ta chọn phải khớp
+   * `dt_quygannhat`/`dt_quygannhi` — hai field độc lập của cùng phản hồi, cùng thang tỷ ₫) và
+   * điều kiện bốn quý liền nhau trong `trailingTwelveMonths()`. Chúng bắt đúng thứ `latestQuarters()`
+   * có thể làm sai: chọn nhầm kỳ, sắp nhầm thứ tự, đọc nhầm thang.
+   *
+   * ⚠ KHÔNG đối chiếu với `bienloinhuan` — bản đầu có phép ấy và nó loại 19 trên 27 mã của bộ mẫu.
+   * Đo ngày 08/09/2026 trên 14 mã lớn: biên ròng tự tính lệch `bienloinhuan` từ **13% tới 86%**,
+   * không một mã nào khớp — FPT 0,157 so với 0,347; MWG 0,056 so với 0,207. `bienloinhuan` đơn giản
+   * không phải "lợi nhuận sau thuế ÷ doanh thu thuần"; nó là một đại lượng khác của Finbox. Sai
+   * BẢN CHẤT chứ không sai ngưỡng, nên nới ngưỡng không cứu được — đúng bài học mà docblock đầu
+   * file đã trả giá một lần với phép "TTM phải sinh lại đúng EPS".
+   */
+  const revenueQuarters = latestQuarters(record, 'dt_');
+  if (latestQuartersAgree(record, revenueQuarters, 'dt_')) {
+    const revenueTtm = trailingTwelveMonths(revenueQuarters);
+    if (revenueTtm !== null && revenueTtm > 0) out.revenue = round(revenueTtm, 1);
+  }
+
+  // ── Bảng cân đối: tam giác kín A = E + L, chỉ tiêu thụ một field API ──────────────────────
+  const debtToEquity = num(record.noVCSH);
+  if (debtToEquity !== null && debtToEquity >= 0 && anchor.equity > 0) {
+    const liabilities = round(debtToEquity * anchor.equity, 1);
+    const assets = round(anchor.equity + liabilities, 1);
+
+    // `roa` API tính trên tài sản BÌNH QUÂN, `equity` của ta là cuối kỳ — ngưỡng phải rộng.
+    if (assets > 0 && withinLooseTolerance(anchor.netIncome / assets, num(record.roa))) {
+      out.totalLiabilities = liabilities;
+      out.totalAssets = assets;
+    }
+  }
+
+  // ── Hai trường đọc thẳng ──────────────────────────────────────────────────────────────────
+  const marketCap = num(record.vonhoa);
+  if (
+    marketCap !== null &&
+    marketCap > 0 &&
+    // Vốn hoá phải khớp `thị giá × số CP`; đây là phép bắt lỗi đơn vị, nên vẫn dùng ngưỡng chặt.
+    (anchor.priceRaw === null ||
+      withinTolerance((anchor.priceRaw * THOUSAND * anchor.shares) / BILLION, marketCap))
+  ) {
+    out.marketCap = marketCap;
+  }
+
+  const pe = num(record.pe);
+  if (pe !== null && pe > 0) out.pe = pe;
+
+  return out;
 }
 
 /**

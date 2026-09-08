@@ -72,11 +72,30 @@ describe('thẻ PNG ghim ở bảng màu sáng', () => {
     }
   });
 
-  it('không lấy màu của bảng tối', () => {
+  /*
+   * Cấm mã màu RIÊNG của bảng tối, không cấm mọi mã bảng tối khai ra.
+   *
+   * Hai tập hợp ấy trùng nhau cho tới khi có token đầu tiên mang CÙNG một giá trị ở cả hai bảng
+   * — `--color-on-result` (#ffffff, chữ trên thẻ đáp án, xem `globals.css`). Từ lúc đó bản cũ
+   * của ca này báo lỗi giả: nó thấy #ffffff trong khối tối rồi kết luận nền thẻ PNG là màu bảng
+   * tối, trong khi #ffffff cũng chính là `--color-surface` của bảng sáng.
+   *
+   * Lọc theo bảng sáng giữ đúng ý ban đầu và chặt hơn một chút: thứ phải chặn là màu chỉ tồn tại
+   * ở bảng tối, vì đó mới là màu kéo tấm PNG lệch khỏi bảng sáng.
+   */
+  it('không lấy màu RIÊNG của bảng tối', () => {
     const dark = extractColorTokens(GLOBALS_CSS, "[data-theme='dark']");
+    const light = new Set(
+      Object.values(extractColorTokens(GLOBALS_CSS)).map((value) => value.toLowerCase()),
+    );
 
-    for (const value of Object.values(dark)) {
-      expect(CODE.toLowerCase(), `mã màu ${value} là của bảng tối`).not.toContain(
+    const darkOnly = Object.values(dark).filter((value) => !light.has(value.toLowerCase()));
+    expect(darkOnly.length, 'không bóc được mã màu nào — ca kiểm thành vô nghĩa').toBeGreaterThan(
+      0,
+    );
+
+    for (const value of darkOnly) {
+      expect(CODE.toLowerCase(), `mã màu ${value} chỉ có ở bảng tối`).not.toContain(
         value.toLowerCase(),
       );
     }

@@ -80,6 +80,33 @@
    * Không viền, không nền riêng: thẻ `.chart` bao ngoài đã lo cả hai. Giữ `contain` và
    * `overflow-x` vì chúng là phần chống tràn ngang, không phải phần trang trí.
    */
+
+  /*
+   * Thanh cuộn mảnh, không nút mũi tên — cùng lý do với `.formula` của `FormulaDetail.module.css`.
+   * Không thêm dải mờ ở mép như `.scroller` của `primitives/Table`: khung này cố ý không tự có
+   * nền (dòng trên), nên không có màu nền chắc chắn để làm "màu phủ" cho kỹ thuật đó.
+   */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.plot::-webkit-scrollbar {
+  height: 6px;
+}
+
+.plot::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.plot::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.plot::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .svg {
@@ -580,6 +607,34 @@
 
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+
+  /*
+   * Thanh cuộn mảnh, không nút mũi tên — cùng lý do với `.formula` của `FormulaDetail.module.css`.
+   * Không thêm dải mờ ở mép như `.scroller` của `primitives/Table`: khung này cố ý không tự có
+   * nền (dòng cha `<details>` lo, xem docblock trên), nên không có màu nền chắc chắn để làm
+   * "màu phủ" cho kỹ thuật đó.
+   */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.tableScroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tableScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tableScroll::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.tableScroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Vùng cuộn phải nhận được tiêu điểm để lăn được bằng bàn phím. */

@@ -354,6 +354,54 @@ try {
     );
   }
 
+  /* ── 0a2. Khối Công thức không có thanh cuộn dọc ẩn ──────────────────────── */
+
+  /*
+   * Chủ dự án chụp màn `ev-ebitda`: khung ký hiệu toán có hai nút mũi tên lên/xuống ở mép phải,
+   * y hệt một thanh cuộn dọc kiểu Windows cũ, dù không có gì đáng để cuộn.
+   *
+   * Gốc lỗi nằm ở CSS, không phải ở KaTeX: `.formula`/`.expression` trong `FormulaDetail.module.css`
+   * chỉ khai `overflow-x: auto` để cuộn NGANG cho công thức dài (NFR-USA-02), nhưng bỏ trống
+   * `overflow-y`. Theo đúng đặc tả CSS, một trục khác `visible` mà trục kia bỏ mặc định thì trình
+   * duyệt tự đổi trục còn lại thành `auto` — không phải `visible` như người viết tưởng. Khung này
+   * không có chiều cao cố định nên chẳng bao giờ THẬT SỰ cần cuộn dọc, nhưng chỉ cần nội dung lệch
+   * 1px so với khung do làm tròn subpixel (rất hay gặp ở Windows chia tỷ lệ 125%/150%) là thanh
+   * cuộn dọc ấy vẫn hiện ra, kèm hai nút mũi tên của thanh cuộn kiểu cũ.
+   *
+   * Chỉ đo được ở đây. jsdom không tính style từ CSS Module — `getComputedStyle` trong ca vitest sẽ
+   * luôn trả `overflowY: 'visible'` bất kể `FormulaDetail.module.css` viết gì, nên một ca kiểm ở đó
+   * xanh mà không chứng minh được gì. Đo giá trị COMPUTED chứ không đo `scrollHeight`: kích thước
+   * thật phụ thuộc font hệ điều hành và tỉ lệ màn hình của từng máy, còn `overflow-y` thì đúng hoặc
+   * sai không phụ thuộc máy nào.
+   *
+   * `.katex` là mốc chắc chắn: KaTeX luôn bọc kết quả trong `<span class="katex">`, bất kể
+   * `output: 'mathml'` hay không — cha trực tiếp của nó chính là `.formula`, và anh em kế tiếp của
+   * `.formula` chính là `.expression` (xem cấu trúc JSX ở `FormulaDetail.tsx`). Không dò theo tên
+   * lớp CSS Module vì tên ấy bị băm lúc build.
+   */
+  await open('/cong-thuc/ev-ebitda/');
+
+  const cuonCongThuc = await evaluate(`(() => {
+  const katex = document.querySelector('.katex');
+  const formula = katex ? katex.parentElement : null;
+  const expression = formula ? formula.nextElementSibling : null;
+  if (!formula || !expression) return null;
+  return {
+    formulaY: getComputedStyle(formula).overflowY,
+    expressionY: getComputedStyle(expression).overflowY,
+  };
+})()`);
+
+  check(
+    'khối Công thức khoá cuộn dọc — không còn thanh cuộn ẩn kèm nút mũi tên lên/xuống',
+    cuonCongThuc !== null &&
+      cuonCongThuc.formulaY === 'hidden' &&
+      cuonCongThuc.expressionY === 'hidden',
+    cuonCongThuc === null
+      ? 'không thấy khối Công thức'
+      : `formula overflow-y: ${cuonCongThuc.formulaY} · expression overflow-y: ${cuonCongThuc.expressionY}`,
+  );
+
   /* ── 0b. Khối dưới nếp gấp thật sự được hoãn dựng hình ───────────────────── */
 
   /*

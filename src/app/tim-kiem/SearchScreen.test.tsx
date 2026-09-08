@@ -3,7 +3,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FORMULA_SUMMARIES, RECENT_SEARCHES_KEY } from '@/application';
+import { FORMULA_SUMMARIES, HOME_RECENT_SEARCHES_KEY, RECENT_SEARCHES_KEY } from '@/application';
 import type { FormulaSummary } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
@@ -119,5 +119,49 @@ describe('SearchScreen — "Tìm gần đây" chỉ ghi khi CHỌN kết quả, 
     fireEvent.change(oTim(), { target: { value: '' } });
 
     expect(screen.getByRole('button', { name: PE.name.vi })).not.toBeNull();
+  });
+});
+
+/**
+ * Vế đối xứng của ca gác ở `HomeSearchPanel.test.tsx`: hai ô tìm có hai kho riêng, và không kho
+ * nào nhìn thấy kho kia. Trước đợt sửa cả hai đọc chung `ffb.recent.v1` nên cả hai ca đều đỏ.
+ */
+describe('SearchScreen — lịch sử là kho RIÊNG của màn tìm', () => {
+  it('lịch sử ghi ở trang chủ KHÔNG hiện ở màn tìm', () => {
+    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['Beta', 'WACC']));
+
+    moMan();
+
+    // Vào màn là ô tìm đang rỗng, tức đúng trạng thái khối "Tìm gần đây" hiện ra — nếu có gì.
+    expect(screen.queryByRole('button', { name: 'Beta' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Lịch sử tìm kiếm' })).toBeNull();
+  });
+
+  it('chọn kết quả ở đây thì chỉ kho của màn này đổi, kho trang chủ vẫn nguyên', () => {
+    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['Beta']));
+
+    moMan();
+    fireEvent.change(oTim(), { target: { value: 'P/E' } });
+    fireEvent.click(dongKetQua(PE.id));
+
+    expect(JSON.parse(window.localStorage.getItem(RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
+      PE.name.vi,
+    ]);
+    expect(JSON.parse(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
+      'Beta',
+    ]);
+  });
+
+  it('xoá lịch sử ở đây thì kho trang chủ không bị đụng', () => {
+    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['Beta']));
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(['P/E']));
+
+    moMan();
+    fireEvent.click(screen.getByRole('button', { name: 'Xoá lịch sử' }));
+
+    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
+    expect(JSON.parse(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
+      'Beta',
+    ]);
   });
 });

@@ -478,14 +478,27 @@ describe('trục thời gian — quét toàn Registry', () => {
     }
   });
 
-  it('vẽ theo thời gian được cho 18 công thức nhóm Cơ bản, 50 trên toàn Registry', () => {
+  /*
+   * Con số toàn Registry TỤT từ 50 xuống 49 ở đợt tách khoá `unitPrice`, và tụt là đúng.
+   *
+   * `historyPlan()` nhận diện "công thức ăn thị giá" bằng cách tìm khoá trong `CURRENT_LEG`. Khi
+   * `diem-hoa-von` còn đặt tên ô "Giá bán một sản phẩm" là `price`, nó lọt vào danh sách này — tức
+   * màn từng vẽ được một đường "điểm hoà vốn doanh nghiệp qua 248 phiên", dựng bằng cách thay giá
+   * bán sản phẩm bằng THỊ GIÁ CỔ PHIẾU từng phiên. Một đường hoàn toàn vô nghĩa, mà lại trông
+   * thuyết phục vì nó có trục thời gian thật.
+   *
+   * Cùng gốc với lỗi bộ mẫu đổ thị giá vào ô ấy (xem `preset-inputs.ts`), chỉ khác nơi phát tác —
+   * bằng chứng rằng khoá trùng tên khác nghĩa rò ra nhiều chỗ, không riêng một chỗ.
+   */
+  it('vẽ theo thời gian được cho 18 công thức nhóm Cơ bản, 49 trên toàn Registry', () => {
     const able = FORMULA_MODULES.filter((formula) => canDrawHistory(formula, WITH_BARS));
     const basicChart = able.filter(
       (formula) => formula.spec.chartType === 'sensitivity' && formula.spec.level === 'basic',
     );
 
     expect(basicChart).toHaveLength(18);
-    expect(able).toHaveLength(50);
+    expect(able).toHaveLength(49);
+    expect(able.map((formula) => formula.spec.id)).not.toContain('diem-hoa-von');
   });
 
   it('dựng hai lần ra kết quả y hệt — không có nguồn ngẫu nhiên nào trong đường vẽ', () => {

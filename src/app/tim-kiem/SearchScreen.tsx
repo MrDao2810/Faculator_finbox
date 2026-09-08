@@ -1,24 +1,19 @@
 'use client';
 
-import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
   FORMULA_SUMMARIES,
-  MAX_RECENT_SEARCHES,
   RECENT_SEARCHES_KEY,
-  ROUTES,
-  addRecentSearch,
   countHiddenByLevel,
   formulasForLevel,
-  parseRecentSearches,
   selectFormulas,
-  serializeRecentSearches,
 } from '@/application';
 import type { FormulaSummary } from '@/application';
 import { useListParams } from '@/application/use-list-params';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { useQueryDraft } from '@/application/use-query-draft';
+import { useRecentSearches } from '@/application/use-recent-searches';
 import {
   EmptyState,
   HiddenByLevelNote,
@@ -51,8 +46,13 @@ export function SearchScreen() {
   const { mode } = usePreferences();
   const t = useT();
   const pick = usePick();
-  const [recent, setRecent] = useState<ReadonlyArray<string>>([]);
   const inputRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * Kho RIÊNG của màn này — chip ghi ở trang chủ không lọt sang đây và ngược lại. Xem docblock
+   * `recent-searches.ts` về vì sao hai kho.
+   */
+  const { terms: recent, remember, clear: clearRecent } = useRecentSearches(RECENT_SEARCHES_KEY);
 
   // Ô nhập đi qua bản nháp cục bộ, không ghi thẳng URL từng phím — xem use-query-draft.ts.
   const commitQuery = useCallback(
@@ -62,17 +62,6 @@ export function SearchScreen() {
     [setParams],
   );
   const { draft, setDraft, commitDraft } = useQueryDraft(params.q, commitQuery);
-
-  // Đọc localStorage trong effect, KHÔNG đọc lúc khởi tạo state: bản build là HTML tĩnh nên
-  // lần render đầu ở máy khách phải giống hệt lúc build, nếu không lệch hydration (bài học đợt 2).
-  useEffect(() => {
-    try {
-      setRecent(parseRecentSearches(window.localStorage.getItem(RECENT_SEARCHES_KEY)));
-    } catch {
-      // Trình duyệt chặn localStorage (chế độ riêng tư chẳng hạn) thì coi như chưa tìm gì.
-      setRecent([]);
-    }
-  }, []);
 
   // Đặt con trỏ vào ô nhập khi vào màn: người dùng bấm sang đây là để gõ.
   useEffect(() => {
@@ -110,24 +99,7 @@ export function SearchScreen() {
    * `onClick` của dòng kết quả (`SearchResults`'s `onSelect`) — xem chỗ gọi bên dưới.
    */
   function onSelectResult(formula: FormulaSummary): void {
-    setRecent((current) => {
-      const next = addRecentSearch(current, pick(formula.name), MAX_RECENT_SEARCHES);
-      try {
-        window.localStorage.setItem(RECENT_SEARCHES_KEY, serializeRecentSearches(next));
-      } catch {
-        // Không ghi được thì thôi, đừng làm hỏng màn.
-      }
-      return next;
-    });
-  }
-
-  function clearRecent(): void {
-    setRecent([]);
-    try {
-      window.localStorage.removeItem(RECENT_SEARCHES_KEY);
-    } catch {
-      // Xoá không được thì danh sách trên màn vẫn sạch; lần sau mở lại sẽ hiện lại.
-    }
+    remember(pick(formula.name));
   }
 
   // Giữ đúng thứ tự đã chọn, không theo thứ tự Registry — id lạ thì bỏ qua chứ không vỡ màn.
@@ -204,14 +176,14 @@ export function SearchScreen() {
           )}
 
           {/*
-            Không tìm thấy thì lối ra không chỉ có một link "xem tất cả": khối nhóm cho người
-            dùng nhảy thẳng vào vùng mình quan tâm, thay vì phải nghĩ ra từ khoá khác.
+            Lối ra khi không tìm thấy: khối nhóm cho người dùng nhảy thẳng vào vùng mình quan tâm,
+            thay vì phải nghĩ ra từ khoá khác.
+
+            Từng có thêm một link "Xoá tìm kiếm · xem tất cả 111" ngay dưới đây — chủ dự án cho bỏ.
+            Thanh nav dưới đã có mục "Công thức" dẫn đúng chỗ đó, nên nó là lối ra thứ hai cho cùng
+            một nơi, đặt ở cuối một màn vốn đã dài.
           */}
           <HotCategories formulas={pool} />
-
-          <Link className={styles.seeAll} href={ROUTES.formulas}>
-            {t('search.seeAll')} {pool.length}
-          </Link>
         </>
       )}
     </div>

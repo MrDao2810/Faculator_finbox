@@ -100,12 +100,47 @@ describe('icon là phần nhìn, không phải phần đọc', () => {
     expect(container.textContent).toBe('');
   });
 
-  it('không đặt màu vào thuộc tính SVG — màu đi qua currentColor', () => {
+  /*
+   * Bộ icon chép nguyên từ Iconify gồm CẢ HAI lối vẽ, và hai lối ấy loại trừ nhau: bộ vẽ bằng
+   * nét phải `fill="none"` (không thì phần trong đường khép kín bị tô kín, icon thành mảng đặc),
+   * bộ tô đặc phải không có `stroke` (không thì nét thừa bịt các lỗ nhỏ như dấu %, cửa sổ).
+   * Lẫn hai bên là kiểu hỏng chỉ nhìn mới thấy, nên ghim ở đây.
+   *
+   * Điểm chung của cả hai: màu KHÔNG nằm trong thuộc tính SVG mà đi qua `currentColor`, vì
+   * `toneClass()` rót màu từ tổ tiên xuống và theme tối đổi màu ngay chỗ đó.
+   */
+  it('bộ vẽ bằng nét: fill none, màu đi qua stroke=currentColor', () => {
     const { container } = render(<CategoryIcon id="risk" />);
     const svg = container.querySelector('svg');
 
-    expect(svg?.getAttribute('stroke')).toBe('currentColor');
     expect(svg?.getAttribute('fill')).toBe('none');
+    expect(svg?.getAttribute('stroke')).toBe('currentColor');
+    expect(svg?.getAttribute('stroke-width')).not.toBeNull();
+  });
+
+  it('bộ tô đặc: fill=currentColor và không có nét thừa', () => {
+    const { container } = render(<CategoryIcon id="valuation" />);
+    const svg = container.querySelector('svg');
+
+    expect(svg?.getAttribute('fill')).toBe('currentColor');
+    expect(svg?.getAttribute('stroke')).toBeNull();
+  });
+
+  /*
+   * Mỗi bộ icon vẽ trên lưới riêng — charm 16, fluent 20, icons8 32 — nên `viewBox` đi theo
+   * từng hình. Ép hết về 24×24 là méo hình, đúng cái lỗi mà việc chép nguyên sinh ra để tránh.
+   */
+  it('giữ khung vẽ gốc của từng bộ, không quy hết về 24', () => {
+    const khung = (id: string) => {
+      const { container } = render(<CategoryIcon id={id} />);
+      const box = container.querySelector('svg')?.getAttribute('viewBox');
+      cleanup();
+      return box;
+    };
+
+    expect(khung('investing')).toBe('0 0 16 16');
+    expect(khung('personal-tax')).toBe('0 0 20 20');
+    expect(khung('fundamentals')).toBe('0 0 32 32');
   });
 
   it('kích thước đổi được, mặc định 18px', () => {

@@ -27,6 +27,29 @@ export interface FlowChainStripProps {
    * giữa trang, trong khi dải ngang cuộn được vẫn đọc tốt ở mọi bề ngang.
    */
   column?: boolean;
+  /**
+   * Bấm vào một bước KHÁC bước đang xem — nơi gọi (`ChainBody`) dùng để cuộn tới và mở khối
+   * tương ứng bên dưới dải. Không truyền thì dải chỉ để xem, đúng hành vi cũ (mọi test hiện có
+   * không truyền prop này).
+   *
+   * Bước đang xem (`currentId`) KHÔNG bao giờ bấm được dù có truyền prop: nó không có khối nào
+   * ở dưới để cuộn tới — số liệu của chính nó đã nằm ở khối "Số liệu" phía trên rồi.
+   */
+  onStepClick?: (formulaId: string) => void;
+  /**
+   * Id bước VỪA bấm gần nhất. Dải luôn tô xanh ĐÚNG MỘT pill, và pill đó là `activeId ?? currentId`:
+   * chưa bấm gì thì xanh ở bước đang xem, bấm rồi thì màu chuyển hẳn sang bước vừa bấm và bước cũ
+   * (kể cả bước đang xem) tắt màu ngay. Chủ dự án chốt luật này sau khi thấy hai pill cùng xanh —
+   * một vì là công thức của trang, một vì vừa bấm — đọc ra như "nút cũ chưa tắt".
+   *
+   * Màu là chuyện CHỌN, không phải chuyện khối `<details>` bên dưới đang mở hay đóng: một khối vẫn
+   * có thể đang mở dù pill của nó đã hết xanh vì người dùng bấm sang bước khác.
+   *
+   * `aria-current="step"` vẫn nằm nguyên ở `currentId` dù màu đã chuyển đi: với trình đọc màn
+   * hình, "bước hiện tại" là công thức của TRANG, không đổi theo lượt bấm. Trạng thái chọn báo
+   * riêng bằng `aria-pressed` trên chính nút.
+   */
+  activeId?: string;
   className?: string;
 }
 
@@ -54,6 +77,8 @@ export function FlowChainStrip({
   currentId,
   statuses,
   column = false,
+  onStepClick,
+  activeId,
   className,
 }: FlowChainStripProps) {
   const t = useT();
@@ -68,13 +93,15 @@ export function FlowChainStrip({
       <ol className={styles.list}>
         {chain.steps.map((step, index) => {
           const current = step.formulaId === currentId;
+          // Đúng MỘT pill tô xanh trong cả dải — xem docblock của prop `activeId`.
+          const highlighted = step.formulaId === (activeId ?? currentId);
           const status = statuses?.[step.formulaId];
           const previous = chain.steps[index - 1];
           const noiTiep = previous !== undefined && step.dependsOn.includes(previous.formulaId);
 
           const stepClasses = [
             styles.step,
-            current ? styles.current : '',
+            highlighted ? styles.current : '',
             status === 'error' ? styles.error : '',
           ]
             .filter(Boolean)
@@ -95,15 +122,29 @@ export function FlowChainStrip({
                   </span>
                 ))}
 
-              <span className={stepClasses} aria-current={current ? 'step' : undefined}>
-                {pick(step.label)}
-                {/*
-                  Trạng thái lỗi phải đọc được bằng CHỮ, không chỉ bằng màu và viền (NFR-USA-06).
-                  Đây cũng là thứ khiến dải có ích trên màn nâng cao: nó chỉ thẳng vào bước đang
-                  làm gãy chuỗi, thay vì bắt người dùng dò từng công thức.
-                */}
-                {status === 'error' && <span className={styles.tag}>{t('flow.stepError')}</span>}
-              </span>
+              {/*
+                Trạng thái lỗi phải đọc được bằng CHỮ, không chỉ bằng màu và viền (NFR-USA-06).
+                Đây cũng là thứ khiến dải có ích trên màn nâng cao: nó chỉ thẳng vào bước đang
+                làm gãy chuỗi, thay vì bắt người dùng dò từng công thức.
+              */}
+              {!current && onStepClick !== undefined ? (
+                <button
+                  type="button"
+                  className={stepClasses}
+                  aria-pressed={highlighted}
+                  onClick={() => {
+                    onStepClick(step.formulaId);
+                  }}
+                >
+                  {pick(step.label)}
+                  {status === 'error' && <span className={styles.tag}>{t('flow.stepError')}</span>}
+                </button>
+              ) : (
+                <span className={stepClasses} aria-current={current ? 'step' : undefined}>
+                  {pick(step.label)}
+                  {status === 'error' && <span className={styles.tag}>{t('flow.stepError')}</span>}
+                </span>
+              )}
             </li>
           );
         })}

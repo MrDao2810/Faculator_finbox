@@ -4,8 +4,7 @@
  */
 .card {
   display: flex;
-  /* Icon thẳng hàng với TÊN chứ không với giữa thẻ: thẻ cao 100–195px tuỳ độ dài tên, nên căn
-     giữa là icon trôi xuống đâu đó cạnh dòng mô tả. Mũi tên tự căn giữa lại ở dưới. */
+  /* Chỉ còn hai ô ở bậc này: khối chữ và mũi tên. Icon đã chuyển vào trong `.body` — xem đó. */
   align-items: flex-start;
   gap: var(--space-3);
 
@@ -21,17 +20,26 @@
 }
 
 /*
- * Hover chỉ đổi VIỀN, giữ nguyên nền thẻ — cùng lý do đã ghi ở `.tile:hover`: ô icon lấy
- * `--category-soft` làm nền của chính nó, nên tô cả thẻ cùng họ màu là icon chìm mất đúng lúc
- * con trỏ đang ở trên nó.
+ * Hover chỉ đổi VIỀN, giữ nguyên nền thẻ — cùng lý do đã ghi ở `.tile:hover`: icon nay là nét
+ * đặc màu tông trên nền thẻ, nên tô nền thẻ cùng họ màu là icon chìm mất đúng lúc con trỏ đang
+ * ở trên nó.
  */
 .card:hover {
   border-color: var(--category-ink);
   box-shadow: var(--shadow-sm);
 }
 
-/* Icon nhóm — cùng hình, cùng cặp màu với `.tileIcon`, chỉ to hơn một bậc cho khổ hàng. */
+/*
+ * Icon nhóm — cùng hình, cùng màu, cùng khổ 24px với `.tileIcon`.
+ *
+ * KHÔNG ô nền: chủ dự án chốt theo bản thiết kế — quanh icon không có mảng xanh nào, chỉ còn
+ * nét hình. Khung 32px vẫn giữ vì nó là ô hàng-1/cột-1 của lưới thẻ, thứ giữ icon thẳng hàng
+ * với dòng tên; bỏ khung là icon dính mép và mô tả bên dưới lệch theo.
+ */
 .rowIcon {
+  grid-column: 1;
+  grid-row: 1;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -41,20 +49,44 @@
   height: 32px;
 
   color: var(--category-ink);
-  background: var(--category-soft);
-  border-radius: var(--radius-sm);
 }
 
+/*
+ * LƯỚI hai cột, không phải một khối chữ đứng cạnh icon — và đây là điểm khác bản trước.
+ *
+ * Bản trước `.card` là flex ba ô: icon · khối chữ · mũi tên. Hệ quả: icon chiếm hẳn một CỘT
+ * riêng suốt chiều cao thẻ, mà nó chỉ cao 32px trong khi thẻ cao 100–195px — nên bên dưới icon
+ * là một khoảng trống rộng 44px chạy dài hết phần còn lại của thẻ, và mô tả bị ép vào cột hẹp
+ * bên phải. Chủ dự án báo đúng chỗ đó: "ngay bên dưới icon đang bị dư ra khoảng trống khá lớn".
+ *
+ * Nay icon vào trong lưới và chỉ giữ ô hàng-1/cột-1; mô tả và nhãn nhóm khai `grid-column: 1/-1`
+ * nên chúng bắt đầu từ ĐÚNG mép trái thẻ, thẳng hàng với icon, và dùng trọn bề ngang.
+ *
+ * Dùng lưới chứ không `float: left` như `.tileIcon` bên dưới, dù hai bên cùng muốn một kết quả:
+ * icon ở đây có Ô NỀN 32px, cao hơn hẳn dòng tên 20px. Hộp float cao 32px sẽ đẩy luôn dòng đầu
+ * của mô tả; hộp float cao 20px thì ô nền tràn 6px xuống đè lên chính dòng ấy. Lưới không có
+ * chuyện đó vì hàng 1 tự cao 32px và hàng 2 bắt đầu sau nó. Nhánh ô dùng được float vì icon bên
+ * ấy chỉ là nét, không nền, tràn đúng 1px.
+ */
 .body {
   flex: 1;
   min-width: 0;
+
+  display: grid;
+  /* `minmax(0, 1fr)` chứ không `1fr`: ô lưới mặc định không co dưới nội dung, nên tên dài không
+     xuống dòng mà đẩy rộng cả thẻ. Cùng vai trò với `min-width: 0` của một flex item. */
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-3);
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+/*
+ * Ô lưới chứa tên + huy hiệu cấp độ. Là `<span>` thường, KHÔNG phải flex — xem `.levelBadge`.
+ */
+.heading {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
 }
 
 .name {
@@ -63,11 +95,31 @@
 }
 
 /*
+ * Huy hiệu cấp độ bám NGAY SAU chữ cuối của tên, trong cùng một dòng chữ.
+ *
+ * Bản trước bọc tên và huy hiệu trong một `.head` khai `display: flex; flex-wrap: wrap`. Hệ quả:
+ * tên là MỘT ô flex, nên tên dài chiếm trọn dòng flex đầu và huy hiệu bị đẩy hẳn xuống dòng
+ * riêng — ăn thêm ~24px chiều cao dù cuối dòng tên vẫn còn thừa chỗ. Thấy rõ nhất ở "XIRR — suất
+ * sinh lợi nội tại theo ngày thực": chữ "thực" kết thúc ở lưng chừng dòng hai mà huy hiệu vẫn
+ * nằm mãi dòng ba.
+ *
+ * Bỏ hẳn lớp bọc: tên và huy hiệu nay là hộp inline trong dòng chữ bình thường của `.body`. Huy
+ * hiệu vốn đã `display: inline-flex` (xem `Badge.module.css`) nên nó chạy tiếp ngay sau chữ, và
+ * chỉ xuống dòng khi phần còn lại của dòng thật sự không đủ chỗ — đúng luật xuống dòng của chữ.
+ */
+.levelBadge {
+  margin-left: var(--space-2);
+}
+
+/*
  * Badge cấp độ chuyển sang primitive `Badge` (tone `basic`/`advanced`) ở đợt rà soát phân cấp —
  * cùng huy hiệu ấy trước đây được chép ở năm file với bốn cách vẽ khác nhau.
  */
 
+/* Trải cả hai cột, tức bắt đầu từ mép trái thẻ và chạy xuống dưới icon — xem `.body`. */
 .description {
+  grid-column: 1 / -1;
+
   margin: var(--space-1) 0 0;
   font-size: var(--text-sm);
   color: var(--color-ink-soft);
@@ -87,6 +139,10 @@
  * ngang, và badge pill dài bằng cả thẻ đọc ra là thanh trạng thái chứ không phải nhãn.
  */
 .category {
+  /* Cùng lý do với `.description`: bắt đầu từ mép trái thẻ, không chừa cột icon. */
+  grid-column: 1 / -1;
+  justify-self: start;
+
   display: inline-flex;
   max-width: 100%;
 
@@ -137,10 +193,10 @@
 /*
  * Hover chỉ đổi VIỀN, giữ nguyên nền thẻ.
  *
- * Bản trước tô nền `--color-accent-soft`; nay ô icon đã dùng `--category-soft` làm nền của
- * chính nó, nên tô cả thẻ cùng họ màu là icon chìm mất vào nền đúng lúc con trỏ đang ở trên nó.
- * Từ đợt đổi màu Finbox lý do này còn chặt hơn: tông chỉ còn một, nên nền thẻ tô theo tông sẽ
- * cùng màu với ô icon ở MỌI thẻ, không riêng vài nhóm.
+ * Bản trước tô nền `--color-accent-soft`; nay icon là nét ĐẶC màu tông đứng thẳng trên nền thẻ
+ * (không còn ô nền riêng), nên tô cả thẻ cùng họ màu là icon chìm mất vào nền đúng lúc con trỏ
+ * đang ở trên nó. Từ đợt đổi màu Finbox lý do này còn chặt hơn: tông chỉ còn một, nên nền thẻ tô
+ * theo tông sẽ cùng màu với icon ở MỌI thẻ, không riêng vài nhóm.
  */
 .tile:hover {
   border-color: var(--category-ink);
@@ -148,33 +204,43 @@
 }
 
 /*
- * Hàng đầu của ô: icon nhóm rồi tới tên, trên CÙNG một dòng — bản thiết kế Figma đợt này.
- *
- * Căn theo mép trên chứ không theo giữa: tên dài kiểu "Phí thu nhập cá nhân và thuế giao dịch"
- * xuống ba dòng ở khổ ô 150px, mà căn giữa thì icon trôi xuống cạnh dòng thứ hai.
- */
-.tileHead {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-/*
  * Icon nhóm — chỉ còn nét, không còn ô nền, đúng bản thiết kế Figma "FINBOX VERSION 2". Màu vẫn
  * lấy từ khe tông mà lớp `.tone*` rót vào thẻ, nên nó không tự biết mình thuộc nhóm nào.
  *
- * Chiều cao đặt đúng bằng MỘT DÒNG tên (16px × 1,25 = 20px) rồi căn giữa icon 18px trong đó: có
- * thế icon mới ngang hàng với dòng chữ đầu tiên. Để `align-items: flex-start` suông thì icon dính
- * mép trên của dòng, cao hơn chữ vài px và nhìn ra ngay là lệch.
+ * `float: left` chứ KHÔNG phải một ô flex đứng cạnh tên, và đây là điểm khác bản trước.
+ *
+ * Bản trước bọc icon và tên trong một `.tileHead` flex hai ô. Hệ quả: icon chiếm hẳn một CỘT
+ * riêng suốt chiều cao khối tên, nên tên dài xuống dòng bị thụt vào đúng 26px (icon 18px + khe
+ * 8px) ở MỌI dòng — ở khổ ô ~164px thì phần chữ chỉ còn ~138px và tên vỡ thành cột hẹp lêu nghêu.
+ * Bản thiết kế cho dòng thứ hai chạy hết bề ngang thẻ, chui xuống dưới icon.
+ *
+ * Float làm đúng việc đó: icon nằm trong dòng đầu, các dòng sau vượt qua nó vì hộp float chỉ cao
+ * đúng MỘT DÒNG (16px × 1,25 = 20px). Chiều cao ấy cũng là thứ giữ icon ngang hàng với dòng chữ
+ * đầu — bỏ nó ra là icon dính mép trên, cao hơn chữ vài px và nhìn ra ngay là lệch.
+ *
+ * Hình icon 24px CỐ Ý to hơn hộp 20px, tràn 2px mỗi phía và không sao: hộp float mới là thứ đẩy
+ * dòng, nên dòng thứ hai vẫn bắt đầu ở mốc 20px và vẫn chạy hết bề ngang. Phần tràn 2px rơi vào
+ * khoảng đệm trên của dòng hai (hộp dòng 20px, chữ 16px chỉ ăn hết ~18px), nên chưa chạm chữ —
+ * đã đo bằng ảnh chụp trang chủ ở 360px.
+ *
+ * 24px là TRẦN. To hơn nữa thì phần tràn chạm vùng chữ của dòng hai, và lối sửa lúc ấy là nới
+ * `line-height` của `.tileName` lên `--leading-normal` rồi cho chiều cao hộp này đi theo cùng
+ * token — chứ KHÔNG phải nới riêng icon, vì hộp float và dòng chữ phải cao bằng nhau thì icon
+ * mới thẳng hàng với dòng đầu.
+ *
+ * Không cần dọn float: `.tileName` là flex item của `.tile`, mà flex item luôn tự mở một ngữ cảnh
+ * định dạng riêng, nên float không bao giờ tràn ra ngoài khối tên.
  */
 .tileIcon {
+  float: left;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
   height: calc(var(--text-base) * var(--leading-tight));
+  margin-right: var(--space-2);
 
   color: var(--category-ink);
 }

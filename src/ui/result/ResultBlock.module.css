@@ -1,18 +1,32 @@
 /*
  * Khối Kết quả — thứ phải nổi nhất màn.
  *
- * Bản rà soát thiết kế báo hai điều về khối này: kết quả cuối đang bị cảnh báo và phần giải
- * thích lấn át, và "Blue = action/result". Nên đổi dấu hiệu chứ không bỏ dấu hiệu:
+ * ── Nền GRADIENT, không phải nền trắng viền xanh ────────────────────────────────────────────
  *
- *  - BỎ `--shadow-sm`. Bóng ở đây không còn phân biệt được gì: `StatTile`, `FormulaCard`, dòng
- *    mã của Danh mục và thẻ chỉ số của Phí & thuế đều không có bóng, nên bóng chỉ nói "thẻ này
- *    khác mấy thẻ kia" chứ không nói "thẻ này quan trọng hơn".
- *  - THÊM viền xanh `--color-selected` 1,5px. Viền đậm màu là dấu hiệu đọc được ở cả hai bảng
- *    màu và ở cả bản in, còn bóng thì bản in nuốt mất. Cùng sắc xanh với nút hành động chính,
- *    đúng cặp "action/result" của bản rà soát.
+ * Chủ dự án đối chiếu màn thật với bản vẽ Finbox_v2 và chốt: thẻ đáp án mang dải xanh, chữ
+ * trắng. Đây là ĐẢO lại quyết định của đợt rà soát phân cấp, vốn đã kéo cả ba thẻ đáp án về nền
+ * trắng viền xanh 1,5px vì bản rà soát khi ấy đòi giữ cảm giác "Clean / Professional /
+ * Lightweight". Lập luận cũ nằm ở docblock `FeeTaxBody.module.css` và vẫn đọc được ở đó.
  *
- * Con số vẫn giữ `--color-ink`: nó là thứ phải đọc được nhanh nhất trên màn, và chữ đen trên
- * nền trắng vẫn hơn mọi màu khác. Xanh làm KHUNG, không làm chữ.
+ * Dải là `--gradient-result`, bộ token RIÊNG của thẻ đáp án. Bản đầu dùng lại
+ * `--gradient-highlight` của nút đang chọn — bảng sáng hai dải trùng nhau từng mã màu nên không
+ * thấy gì sai, nhưng bảng TỐI đảo dải ấy sang xanh sáng #5b9bff để nút nổi khỏi nền cụm, và cùng
+ * sắc ấy trải trên một mảng choán gần hết bề ngang màn thì thành khối chói. Lý do đầy đủ ở
+ * docblock `--gradient-result` trong `globals.css`.
+ *
+ * Ba thẻ đáp án phải đổi CÙNG NHAU — `result-card.test.ts` giữ điều đó, và lý do nó tồn tại là
+ * sản phẩm từng có năm kiểu vẽ cho cùng một vai.
+ *
+ * Viền biến mất: viền xanh trên nền xanh không còn phân biệt được gì. Hình khối nay do chính
+ * mảng màu lo.
+ *
+ * ── Vì sao MỌI chữ trong thẻ đều là `--color-on-result`, kể cả dòng nhãn nhỏ ─────────────────
+ *
+ * Đầu nhạt của dải chốt ngưỡng, và chữ trắng trên nó chỉ được 6,02:1 (bảng sáng) hay 5,31:1
+ * (bảng tối). Một sắc trắng "dịu bớt" cho dòng nhãn — kiểu #D6E2F5 — rơi xuống 4,60:1 ngay ở
+ * bảng sáng, tức sát ngưỡng AA đến mức lần chỉnh màu sau là trượt, mà `contrast.test.ts` lại
+ * không thấy được vì nó chấm TOKEN chứ không chấm màu pha. Nên phân cấp ở đây đi bằng CỠ CHỮ và
+ * ĐỘ ĐẬM, không đi bằng độ mờ.
  */
 .block {
   display: flex;
@@ -21,23 +35,45 @@
 
   padding: var(--space-4);
 
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-selected);
+  background: var(--gradient-result);
+  color: var(--color-on-result);
   border-radius: var(--radius-md);
 }
 
+/*
+ * Nhánh dự phòng của `ResultBlock`: `CalcOutput` dựng tay, hỏng mà không kèm `warning`.
+ *
+ * Trả thẻ về nền trắng chứ không để nó mang dải xanh: dải xanh nay là dấu hiệu "đây là đáp án",
+ * nên một lời báo KHÔNG TÍNH ĐƯỢC nằm trên đó là nói ngược điều FR-06 muốn. `ErrorState` cũng
+ * nền trắng, nên hai nhánh hỏng trông như nhau.
+ */
+.blockPlain {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-ink);
+}
+
+/*
+ * Nhãn gộp "KẾT QUẢ · CẬP NHẬT TỨC THÌ" trên một dòng, đúng bản vẽ.
+ *
+ * Bản trước tách đôi: "KẾT QUẢ" ở trên, "cập nhật tức thì" ở góc dưới phải. Nhãn FR-05 ấy nói
+ * về CÁCH con số vận hành nên nó thuộc về dòng nhãn, không phải một dòng riêng dưới đáy thẻ.
+ *
+ * Hai `<span>` lồng chứ không một chuỗi ghép: ba ca kiểm ở `FormulaDetail.test.tsx` dò đúng
+ * chuỗi 'KẾT QUẢ' để biết khối kết quả CHUNG có mặt hay không, mà `getByText` khớp trọn nội
+ * dung của một thẻ — ghép thành một chuỗi là ba ca ấy hỏng. Xem thêm `vi.ts` chỗ `result.live`.
+ */
 .eyebrow {
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-selected);
+  color: var(--color-on-result);
 }
 
-.live {
-  align-self: flex-end;
-  font-size: var(--text-xs);
-  color: var(--color-muted);
+/* Dấu chấm giữa là trang trí — để CSS sinh ra thì nó không lọt vào bản đọc màn hình. */
+.live::before {
+  content: ' · ';
 }
 
 .figure {
@@ -61,18 +97,52 @@
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
+  color: var(--color-on-result);
 }
 
 .unit {
   font-size: var(--text-md);
   font-weight: var(--weight-regular);
-  color: var(--color-ink-soft);
+  color: var(--color-on-result);
 }
 
 /* Câu diễn giải kết quả — khối 4 của WF-03. */
 .interpretation {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--color-ink-soft);
+  color: var(--color-on-result);
+}
+
+/*
+ * Bản in trả thẻ về khuôn nền trắng viền xanh.
+ *
+ * Trình duyệt mặc định KHÔNG in nền, nên dải xanh biến mất còn chữ vẫn trắng — con số đáp án
+ * rơi xuống giấy trắng và mất hẳn. Đúng kiểu hỏng im lặng mà FR-06 tồn tại để chặn, chỉ khác là
+ * ở tầng giấy. Không dùng `print-color-adjust: exact` để ép in nền: bản in của sản phẩm này
+ * luôn là giấy trắng mực đen, xem docblock `@media print` ở `globals.css`.
+ *
+ * Đây đúng bằng khuôn thẻ TRƯỚC đợt đổi màu, nên bản in không đổi gì so với trước.
+ *
+ * Chỉ chạm tới khi người dùng bấm Ctrl+P thẳng trên trang. Đi qua sheet Xuất thì `.print-region`
+ * đã ẩn hết phần còn lại, thẻ này không có mặt trong bản in.
+ */
+@media print {
+  .block {
+    background: var(--color-surface);
+    border: 1.5px solid var(--color-selected);
+    color: var(--color-ink);
+  }
+
+  .eyebrow {
+    color: var(--color-selected);
+  }
+
+  .value {
+    color: var(--color-ink);
+  }
+
+  .unit,
+  .interpretation {
+    color: var(--color-ink-soft);
+  }
 }

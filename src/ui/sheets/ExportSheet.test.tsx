@@ -7,7 +7,14 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { DISCLAIMER_VI, ok } from '@/application';
+import {
+  DISCLAIMER_VI,
+  SAMPLE_DATA,
+  defaultPresetPicks,
+  findFormulaModule,
+  ok,
+  pickPresetsFor,
+} from '@/application';
 import type { FormulaSpec } from '@/application';
 
 import { ExportSheet } from './ExportSheet';
@@ -192,17 +199,100 @@ describe('ExportSheet — biểu đồ trong vùng in', () => {
 });
 
 describe('PresetSheet — WF-10', () => {
-  it('liệt kê bốn mã mẫu và nói rõ số liệu là bản thảo', () => {
-    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
+  /** Hình dạng "không có công thức nào" — đúng thứ màn bảng dữ liệu WF-05 truyền vào. */
+  const noFormula = defaultPresetPicks();
+
+  it('liệt kê bốn mã mẫu và nói rõ phần nào của số liệu là tự dựng', () => {
+    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
 
     expect(screen.getByText('FPT')).not.toBeNull();
-    expect(screen.getByText('Tập đoàn Hoà Phát')).not.toBeNull();
-    expect(screen.getByText(/chưa đối chiếu báo cáo thật/)).not.toBeNull();
+    expect(screen.getByText(/Hòa Phát/)).not.toBeNull();
+    // Nhãn phải nói ĐÚNG nửa nào là số tự dựng: fundamentals và thị giá là số thật từ Finbox.
+    expect(screen.getByText(/đường đi của giá thì không/)).not.toBeNull();
   });
 
   it('hứa rõ với người dùng là nạp xong vẫn sửa được — FR-10', () => {
-    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
+    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
     expect(screen.getByText(/vẫn sửa được từng cái một/)).not.toBeNull();
+  });
+
+  /*
+   * ── Bốn dòng phải KHÁC NHAU ────────────────────────────────────────────────────────────
+   *
+   * Bản trước in `preset.meta` dưới mỗi mã — chuỗi `BCTC <kỳ> · 248 phiên giá` dựng từ kỳ báo
+   * cáo và một hằng số, mà mọi mã lấy cùng một lượt nên cùng một kỳ. Bốn dòng đọc y hệt nhau,
+   * đúng như chủ dự án báo. Ca kiểm này là cửa chặn: dòng mô tả của bốn mã không được trùng.
+   */
+  it('mỗi dòng nói số của chính mã đó, không nói nguồn — bốn dòng không trùng nhau', () => {
+    const formula = findFormulaModule('pe');
+    if (formula === undefined) throw new Error('Không tìm thấy công thức P/E.');
+
+    const picks = pickPresetsFor(formula, SAMPLE_DATA.list(), { asOf: '2026-09-07' });
+    render(
+      <PresetSheet
+        open
+        onClose={vi.fn()}
+        onLoad={vi.fn()}
+        picks={picks}
+        spec={formula.spec}
+        wantsSeries={false}
+      />,
+    );
+
+    const lines = screen
+      .getAllByRole('listitem')
+      .map((item) => item.textContent?.replace(/\s+/g, ' ').trim() ?? '');
+
+    expect(lines).toHaveLength(4);
+    expect(new Set(lines).size).toBe(4);
+    // Dòng nguồn cũ không được xuất hiện ở ca có xếp hạng — nó chính là chuỗi trùng lặp.
+    for (const line of lines) expect(line).not.toContain('248 phiên giá');
+  });
+
+  it('xếp bốn mã theo kết quả tăng dần, để nhìn một lượt là thấy biên độ', () => {
+    const formula = findFormulaModule('pb');
+    if (formula === undefined) throw new Error('Không tìm thấy công thức P/B.');
+
+    const picks = pickPresetsFor(formula, SAMPLE_DATA.list(), { asOf: '2026-09-07' });
+    const values = picks.map((item) => item.output.value ?? Number.NaN);
+
+    expect(values).toHaveLength(4);
+    for (let i = 1; i < values.length; i += 1) {
+      expect(values[i] ?? 0).toBeGreaterThan(values[i - 1] ?? 0);
+    }
+  });
+
+  it('công thức không dùng số liệu của mã nào thì nói thẳng, không bịa ra thứ hạng', () => {
+    const formula = findFormulaModule('lai-kep');
+    if (formula === undefined) throw new Error('Không tìm thấy công thức lãi kép.');
+
+    const picks = pickPresetsFor(formula, SAMPLE_DATA.list(), { asOf: '2026-09-07' });
+    render(
+      <PresetSheet
+        open
+        onClose={vi.fn()}
+        onLoad={vi.fn()}
+        picks={picks}
+        spec={formula.spec}
+        wantsSeries={false}
+      />,
+    );
+
+    expect(picks.map((item) => item.preset.code)).toEqual(['FPT', 'HPG', 'VNM', 'MWG']);
+    expect(screen.getByText(/không đổi được ô nào của công thức này/)).not.toBeNull();
+
+    /*
+     * Kể cả ở ca này bốn dòng vẫn phải khác nhau. Bản đầu của đợt sửa vẫn in `preset.meta` xuống
+     * đây, nên "Trả góp gốc đều" mở ra vẫn thấy bốn dòng `BCTC Q2/2026 · 248 phiên giá` y hệt —
+     * đúng triệu chứng ban đầu, chỉ là ở một nhánh khác. Không có số nào của mã đi vào công thức
+     * thì dòng phụ để TRỐNG, tên và ngành đã đủ phân biệt.
+     */
+    const lines = screen
+      .getAllByRole('listitem')
+      .map((item) => item.textContent?.replace(/\s+/g, ' ').trim() ?? '');
+
+    expect(new Set(lines).size).toBe(4);
+    for (const line of lines) expect(line).not.toContain('248 phiên giá');
   });
 
   /*
@@ -214,7 +304,7 @@ describe('PresetSheet — WF-10', () => {
    * docblock `PresetSheet` để không ai dựng lại ô tìm mà không biết vì sao nó từng bị gỡ.
    */
   it('không còn ô tìm — bốn mã thì không có gì để tìm', () => {
-    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
+    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
 
     expect(screen.queryByRole('searchbox')).toBeNull();
     for (const code of ['FPT', 'HPG', 'VNM', 'MWG']) {
@@ -225,7 +315,15 @@ describe('PresetSheet — WF-10', () => {
   it('mở sẵn lối sang kho mã toàn thị trường, và nói rõ nó chỉ có một phiên giá', async () => {
     const onClose = vi.fn();
     const onBrowseMarket = vi.fn();
-    render(<PresetSheet open onClose={onClose} onLoad={vi.fn()} onBrowseMarket={onBrowseMarket} />);
+    render(
+      <PresetSheet
+        open
+        onClose={onClose}
+        onLoad={vi.fn()}
+        picks={noFormula}
+        onBrowseMarket={onBrowseMarket}
+      />,
+    );
 
     expect(screen.getByText(/chỉ có MỘT phiên giá/)).not.toBeNull();
 
@@ -237,14 +335,14 @@ describe('PresetSheet — WF-10', () => {
   });
 
   it('không truyền onBrowseMarket thì không hiện lối rẽ nào', () => {
-    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} />);
+    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
     expect(screen.queryByRole('button', { name: /toàn thị trường/ })).toBeNull();
   });
 
   it('bấm Nạp thì trả preset lên trên rồi đóng sheet', async () => {
     const onLoad = vi.fn();
     const onClose = vi.fn();
-    render(<PresetSheet open onClose={onClose} onLoad={onLoad} />);
+    render(<PresetSheet open onClose={onClose} onLoad={onLoad} picks={noFormula} />);
 
     await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
 

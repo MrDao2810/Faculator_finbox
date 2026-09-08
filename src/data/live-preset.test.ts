@@ -2,12 +2,22 @@ import { describe, expect, it } from 'vitest';
 
 import { FORMULA_MODULES } from '@/core/formulas';
 
+import { LIVE_FUNDAMENTALS } from './live-fundamentals.generated';
 import { LIVE_PRESET_FORMULAS, presetFromSnapshot } from './live-preset';
 import { presetInputs } from './preset-inputs';
 import type { TickerSnapshot } from './finbox/types';
 
 const ASOF = '2026-08-24';
 
+/**
+ * Ảnh chụp FPT, số thật.
+ *
+ * `fundamentals` **đọc từ chính file sinh** chứ không chép tay: ca "khớp Registry" dưới đây tính
+ * lại `LIVE_PRESET_FORMULAS` từ ảnh chụp này, nên nếu bản chép tay thiếu một trường mở rộng thì
+ * bảng ghim sẽ bị tính hụt — và ca test sẽ đòi ta ghi vào `live-preset.ts` một danh sách nghèo hơn
+ * thực tế mà chẳng có gì báo là đã nghèo đi. Đọc thẳng file sinh thì thêm trường vào `Fundamentals`
+ * là ca này tự bắt kịp.
+ */
 const SNAPSHOT: TickerSnapshot = {
   code: 'FPT',
   name: 'FPT Corp',
@@ -15,15 +25,11 @@ const SNAPSHOT: TickerSnapshot = {
   asOfDate: '2026-08-21',
   floor: 'HOSE',
   industry: 'Phần mềm & DV máy tính',
-  fundamentals: {
-    eps: 5867,
-    bookValuePerShare: 23246,
-    sharesOutstanding: 1714326422,
-    dividendPerShare: 2000,
-    netIncome: 9999.4,
-    equity: 39851.2,
-    period: 'BCTC Q2/2026',
-  },
+  fundamentals:
+    LIVE_FUNDAMENTALS.FPT ??
+    (() => {
+      throw new Error('file sinh thiếu FPT');
+    })(),
 };
 
 describe('dựng Preset từ ảnh chụp thị trường', () => {
@@ -140,14 +146,43 @@ describe('danh sách công thức ghim sẵn', () => {
 
   /*
    * Ca này ghim ĐỘ LỚN của vấn đề, không chỉ ghim dữ liệu: nếu ai đó lỡ đặt `priceFields: 0` cho
-   * cả 31 dòng thì ca "khớp Registry" ở trên đã đỏ, nhưng ca này nói rõ vì sao cột đó tồn tại —
-   * một phần ba danh sách nói sai khi mã chưa có thị giá.
+   * cả 34 dòng thì ca "khớp Registry" ở trên đã đỏ, nhưng ca này nói rõ vì sao cột đó tồn tại —
+   * hơn một phần ba danh sách nói sai khi mã chưa có thị giá.
    */
-  it('15 công thức phụ thuộc thị giá, 8 trong đó về 0 ô khi thiếu giá', () => {
+  it('14 công thức phụ thuộc thị giá, 6 trong đó về 0 ô khi thiếu giá', () => {
     const phuThuoc = LIVE_PRESET_FORMULAS.filter((row) => row.priceFields > 0);
     const veKhong = LIVE_PRESET_FORMULAS.filter((row) => row.filled - row.priceFields === 0);
 
-    expect(phuThuoc).toHaveLength(15);
-    expect(veKhong).toHaveLength(8);
+    expect(phuThuoc).toHaveLength(14);
+    expect(veKhong).toHaveLength(6);
+  });
+
+  /*
+   * Con số mà cả đợt này nhắm tới, ghim lại để không ai lặng lẽ làm nó tụt.
+   *
+   * "Nạp trọn" nghĩa là mở màn ra có ngay kết quả tính trên số thật của mã, người dùng không phải
+   * gõ ô nào. Trước đợt mở rộng `Fundamentals` con số này là 8; sáu cái vừa thêm đều nhờ ba dòng
+   * báo cáo mới (`revenue`, `totalAssets`, `totalLiabilities`) cộng hai alias `bvps`/`salesPerShare`
+   * và trường `pe` đọc thẳng.
+   */
+  it('14 công thức nạp TRỌN — mở màn là có ngay kết quả trên số thật của mã', () => {
+    const tron = LIVE_PRESET_FORMULAS.filter((row) => row.filled === row.total);
+
+    expect(tron.map((row) => row.id)).toEqual([
+      'bien-loi-nhuan-rong',
+      'bvps',
+      'no-tren-von-chu',
+      'pb',
+      'pe',
+      'ps',
+      'roa',
+      'roe',
+      'so-graham',
+      'ty-le-chi-tra-co-tuc',
+      'ty-suat-co-tuc',
+      'ty-suat-loi-nhuan-tren-gia',
+      'von-hoa-thi-truong',
+      'vong-quay-tong-tai-san',
+    ]);
   });
 });

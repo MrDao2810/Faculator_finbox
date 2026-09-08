@@ -125,6 +125,36 @@
   border-radius: var(--radius-sm);
 }
 
+/*
+ * Dòng của mã chưa có báo cáo dùng được.
+ *
+ * Làm mờ chứ KHÔNG ẩn và KHÔNG khoá nút: bảng mã sinh lúc build, một mã hôm nay thiếu quý liền
+ * nhau thì quý sau công bố thêm là dùng được — ẩn vĩnh viễn một mã hợp lệ vì một file cũ là đúng
+ * kiểu "im lặng bớt đi" mà FR-06 cấm. Mờ đủ để mắt lướt qua, không mờ đến mức đọc không nổi.
+ */
+.itemMuted {
+  composes: item;
+  opacity: 0.62;
+}
+
+/*
+ * Nhãn "chưa có số liệu" — cùng hình dạng nhãn `.held` để hai loại đọc như một hệ, khác ở màu.
+ *
+ * Dùng bộ token `warning` chứ không `danger`: mã thiếu báo cáo không phải một lỗi, và người dùng
+ * vẫn chọn được. Đây cũng đúng bộ màu mà ô nhận giá trị tự động ở màn chi tiết đang dùng.
+ */
+.unusable {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-sm);
+}
+
 /* Dòng "60/1.649 mã · gõ thêm…". Phải đọc được, nhưng không tranh chỗ với danh sách. */
 .footnote {
   margin: var(--space-3) 0 0;

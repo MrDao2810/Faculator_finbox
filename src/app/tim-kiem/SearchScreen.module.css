@@ -22,19 +22,3 @@
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
 }
-
-.seeAll {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-
-  min-height: var(--tap-min);
-
-  font-size: var(--text-sm);
-  color: var(--color-accent);
-  text-decoration: none;
-}
-
-.seeAll:hover {
-  text-decoration: underline;
-}

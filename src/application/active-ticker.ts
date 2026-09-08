@@ -58,6 +58,15 @@ function numberOrNull(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+/** Các trường tuỳ chọn của `Fundamentals` — thiếu thì vắng mặt, KHÔNG thành 0. */
+const OPTIONAL_FIELDS = [
+  'revenue',
+  'totalLiabilities',
+  'totalAssets',
+  'marketCap',
+  'pe',
+] as const satisfies ReadonlyArray<keyof Preset['fundamentals']>;
+
 /**
  * Đọc lại `Fundamentals` từ JSON.
  *
@@ -65,6 +74,16 @@ function numberOrNull(value: unknown): number | null {
  * điền 0 vào chỗ trống. Một `eps` bằng 0 lọt vào sẽ cho P/E vô cực rồi rơi về `fail`, còn một
  * `sharesOutstanding` bằng 0 thì kéo vốn hoá về 0 mà trông vẫn như một con số thật — đúng loại
  * sai mà FR-06 sinh ra để chặn, và lần này ở nơi người dùng không thấy nguyên nhân.
+ *
+ * Năm trường mở rộng thì ngược lại: thiếu một trường **không** được huỷ bản cất. Chúng vốn tuỳ
+ * chọn ở nguồn (một mã thiếu `dt_q*` vẫn hợp lệ), và bản cất từ phiên trước đợt này thì không có
+ * trường nào trong năm cả. Bỏ cả bản vì chúng nghĩa là mã dính theo lượt duyệt lặng lẽ ngừng chạy
+ * cho mọi người đang mở dở một phiên — một lỗi không ai thấy nguyên nhân.
+ *
+ * ⚠ Hàm này dựng lại object bằng tay, nên **thêm trường mới vào `Fundamentals` mà quên chỗ này là
+ * trường ấy biến mất im lặng**: đường `?ma=` nạp đủ, còn đường mã dính lại nạp thiếu, hai đường nói
+ * hai chuyện về cùng một mã. `OPTIONAL_FIELDS` khai bằng `satisfies` để ít nhất tên trường sai thì
+ * typecheck bắt được.
  */
 function readFundamentals(value: unknown): Preset['fundamentals'] | null {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
@@ -88,6 +107,12 @@ function readFundamentals(value: unknown): Preset['fundamentals'] | null {
     return null;
   }
 
+  const optional: Partial<Preset['fundamentals']> = {};
+  for (const field of OPTIONAL_FIELDS) {
+    const parsed = numberOrNull(record[field]);
+    if (parsed !== null) optional[field] = parsed;
+  }
+
   return {
     eps,
     bookValuePerShare,
@@ -96,6 +121,7 @@ function readFundamentals(value: unknown): Preset['fundamentals'] | null {
     netIncome,
     equity,
     period: typeof record.period === 'string' ? record.period.slice(0, 40) : '',
+    ...optional,
   };
 }
 

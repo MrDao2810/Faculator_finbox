@@ -20,6 +20,11 @@ export interface VariableTableProps {
  *
  * Dựng trên primitive `Table` nên đã có sẵn vùng cuộn ngang riêng — bảng dài không kéo cả
  * trang cuộn ngang (NFR-USA-02).
+ *
+ * Cột Biến và Mô tả mang `className="wrap"` (xem `:global(.wrap)` trong `Table.module.css`):
+ * đây là câu chữ, xuống dòng không đổi nghĩa, nên khỏi ép `nowrap` mặc định của primitive — một
+ * mô tả dài không còn tự kéo rộng cả bảng và bắt cuộn ngang ở khổ điện thoại. Cột Đơn vị vẫn
+ * nowrap mặc định vì luôn là nhãn ngắn ("%", "lần"...).
  */
 export function VariableTable({ formula, mode = 'advanced', className }: VariableTableProps) {
   const t = useT();
@@ -38,9 +43,11 @@ export function VariableTable({ formula, mode = 'advanced', className }: Variabl
       <tbody>
         {variables.map((variable) => (
           <tr key={variable.key}>
-            <th scope="row">{pick(variable.label)}</th>
+            <th scope="row" className="wrap">
+              {pick(variable.label)}
+            </th>
             <td>{pick(unitLabel(variable.unit))}</td>
-            <td>
+            <td className="wrap">
               {variable.description !== undefined
                 ? pick(variable.description)
                 : t('variable.noDescription')}

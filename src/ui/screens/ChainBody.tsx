@@ -45,6 +45,19 @@ export interface ChainBodyProps {
  * `chainFor()` chỉ lấy tổ tiên và hậu duệ của công thức đang xem, không lấy nhánh song song.
  * Nên trong thứ tự topo, mọi bước đứng TRƯỚC công thức đang xem đều là thứ cấp số liệu cho nó,
  * và mọi bước đứng SAU đều là thứ tiêu thụ kết quả của nó. Không cần so `depth`.
+ *
+ * ── Pill trên dải bấm được, trỏ thẳng xuống khối tương ứng ──────────────────────────────────
+ *
+ * `moToiBuoc()` là `onStepClick` của `FlowChainStrip`: bấm một bước KHÁC bước đang xem thì mở
+ * khối `<details>` của bước đó (id `chain-step-<formulaId>`, đặt ở `theBuoc()`) rồi cuộn tới —
+ * không thì dải chỉ để xem, người bấm không biết khối tương ứng nằm chỗ nào trong hai danh sách
+ * trước/sau. Bước đang xem không có pill bấm được vì nó không có khối nào ở đây để cuộn tới.
+ *
+ * `activeId` là state RIÊNG, tách khỏi `openIds`: dải luôn tô xanh đúng MỘT pill — bước vừa bấm,
+ * hoặc bước đang xem khi chưa bấm gì (`activeId ?? currentId` bên trong `FlowChainStrip`). Còn
+ * `openIds` quyết định khối nào đang mở, và có thể có nhiều khối mở cùng lúc. Gộp chung một state
+ * thì bước cấp trực tiếp (mở sẵn từ đầu) cùng mọi bước đã từng bấm qua sẽ xanh cùng lúc mãi mãi,
+ * đúng cái cảnh "hai nút cùng xanh, nhìn như nút cũ chưa tắt" mà chủ dự án đã báo.
  */
 export function ChainBody({
   formulas,
@@ -66,6 +79,8 @@ export function ChainBody({
   const [openIds, setOpenIds] = useState<ReadonlySet<string>>(
     () => new Set(chain.byId.get(currentId)?.dependsOn ?? []),
   );
+  /** Bước vừa bấm gần nhất trên `FlowChainStrip` — chỉ MỘT pill tô xanh tại một thời điểm. */
+  const [activeId, setActiveId] = useState<string | undefined>(undefined);
   const t = useT();
   const pick = usePick();
   const calcText = useCalcText();
@@ -87,6 +102,25 @@ export function ChainBody({
     });
   }
 
+  /**
+   * Bấm một pill khác trên `FlowChainStrip` thì mở khối của bước đó ra (kể cả đang gập) rồi cuộn
+   * tới — không thì người bấm chỉ thấy khối bật mở ở ngoài tầm mắt, dưới rất xa dải.
+   *
+   * Cùng khuôn `matchMedia`/`scrollIntoView` với `scrollToExample()` trong `FormulaDetail.tsx`:
+   * kiểm `typeof` trước khi gọi cả hai vì jsdom (môi trường test) không cài `matchMedia`.
+   */
+  function moToiBuoc(formulaId: string): void {
+    toggle(formulaId, true);
+    setActiveId(formulaId);
+
+    const target = document.getElementById(`chain-step-${formulaId}`);
+    if (target === null || typeof target.scrollIntoView !== 'function') return;
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
   function theBuoc(index: number) {
     const step = chain.steps[index];
     if (step === undefined) return null;
@@ -101,6 +135,7 @@ export function ChainBody({
     return (
       <details
         key={step.formulaId}
+        id={`chain-step-${step.formulaId}`}
         className={styles.step}
         open={openIds.has(step.formulaId)}
         onToggle={(event) => {
@@ -125,8 +160,9 @@ export function ChainBody({
             {variablesForLevel(spec, mode).map((variable) => {
               const field = step.fields.find((f) => f.spec.key === variable.key);
 
-              // Ô nhận giá trị từ bước trước: dựng LinkedInput để có nhãn nguồn, nút Ghi đè và
-              // cảnh báo kế thừa (FR-15). Ô thường thì vẫn là điều khiển sinh từ VariableSpec.
+              // Ô nhận giá trị từ bước trước: dựng LinkedInput để có nhãn nguồn, cảnh báo kế
+              // thừa (FR-15) và nút Nhận tự động khi đã ghi đè. Ô thường thì vẫn là điều khiển
+              // sinh từ VariableSpec.
               if (field !== undefined && linkedKeys.has(variable.key)) {
                 return (
                   <LinkedInput
@@ -189,7 +225,13 @@ export function ChainBody({
       </h2>
       <p className={styles.intro}>{t('chain.intro')}</p>
 
-      <FlowChainStrip formulas={formulas} currentId={currentId} statuses={statuses} />
+      <FlowChainStrip
+        formulas={formulas}
+        currentId={currentId}
+        statuses={statuses}
+        onStepClick={moToiBuoc}
+        activeId={activeId}
+      />
 
       {truoc.length > 0 && (
         <>

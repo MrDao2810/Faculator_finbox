@@ -1,20 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import {
   DEFAULT_LIST_PARAMS,
   FORMULA_SUMMARIES,
-  RECENT_SEARCHES_KEY,
+  HOME_RECENT_SEARCHES_KEY,
   formulaListPath,
   formulasForLevel,
   isDefaultListParams,
-  parseRecentSearches,
   selectFormulas,
 } from '@/application';
-import type { ListParams } from '@/application';
-import { usePreferences, useT } from '@/application/preferences-context';
+import type { FormulaSummary, ListParams } from '@/application';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
+import { useRecentSearches } from '@/application/use-recent-searches';
 import { EmptyState, FormulaCard, RecentSearches, SearchBox } from '@/ui/browse';
 
 import styles from './HomeSearchPanel.module.css';
@@ -98,26 +98,39 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
   const [params, setParams] = useState<ListParams>(DEFAULT_LIST_PARAMS);
   const { mode } = usePreferences();
   const t = useT();
+  const pick = usePick();
   const inputRef = useRef<HTMLInputElement>(null);
 
   /*
-   * Chip "Tìm gần đây" ngay dưới ô tìm — bản thiết kế Figma "FINBOX VERSION 2".
+   * Chip "Lịch sử tìm kiếm" ngay dưới ô tìm — bản thiết kế Figma "FINBOX VERSION 2".
    *
-   * Khởi tạo bằng HẰNG SỐ rỗng rồi mới đọc localStorage trong effect, y như `SearchScreen`: lần
-   * render đầu ở máy khách phải giống hệt `out/index.html`, mà trang chủ là URL priority 1.0 nên
-   * một lệch hydration ở đây đắt hơn ở bất kỳ màn nào khác. `RecentSearches` trả `null` khi danh
-   * sách rỗng, nên lượt đầu không dựng thêm một nút DOM nào.
+   * Kho RIÊNG của trang chủ, không dùng chung với màn tìm WF-09: hai ô tìm chạy trên hai phạm vi
+   * khác nhau nên chip của màn này không được lẫn sang màn kia (xem docblock `recent-searches.ts`).
+   * Hook lo phần khởi tạo bằng hằng số rỗng rồi mới đọc localStorage trong effect —
+   * `RecentSearches` trả `null` khi danh sách rỗng, nên lượt render đầu không dựng thêm một nút
+   * DOM nào và vẫn giống hệt `out/index.html`.
    */
-  const [recent, setRecent] = useState<ReadonlyArray<string>>([]);
+  const {
+    terms: recent,
+    remember,
+    clear: clearRecent,
+  } = useRecentSearches(HOME_RECENT_SEARCHES_KEY);
 
-  useEffect(() => {
-    try {
-      setRecent(parseRecentSearches(window.localStorage.getItem(RECENT_SEARCHES_KEY)));
-    } catch {
-      // Trình duyệt chặn localStorage (chế độ riêng tư chẳng hạn) thì coi như chưa tìm gì.
-      setRecent([]);
-    }
-  }, []);
+  /**
+   * Ghi lịch sử khi người dùng bấm vào một KẾT QUẢ TÌM — không phải mỗi lần họ mở một công thức.
+   *
+   * Vì vậy nó chỉ được nối vào lưới kết quả bên dưới, chứ không vào kệ 18 ô lúc chưa gõ gì: kệ đó
+   * đi qua `children` do server dựng nên không có đường nào chạm tới nó, và đó là chủ ý.
+   *
+   * `useCallback` là bắt buộc chứ không phải tối ưu vặt: `FormulaCard` là `memo`, truyền hàm mới
+   * mỗi lượt gõ thì cả lưới dựng lại theo từng phím.
+   */
+  const rememberResult = useCallback(
+    (formula: FormulaSummary) => {
+      remember(pick(formula.name));
+    },
+    [remember, pick],
+  );
 
   /*
    * Kết quả CHÍNH — lọc đúng kệ đang bày trên màn, không lọc theo cấp độ. Xem `FEATURED_POOL`.
@@ -171,23 +184,16 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
   /**
    * Chip trỏ THẲNG sang `/cong-thuc/`, không lọc kệ tại chỗ.
    *
-   * Lịch sử ghi TÊN công thức người dùng đã chọn ở màn tìm (xem `onSelectResult` của
-   * `SearchScreen`), mà màn tìm chạy trên cả thư viện còn ô tìm ở đây chỉ với tới kệ ghim
-   * (`FEATURED_POOL`). Đổ chip vào ô tìm tại chỗ thì mọi công thức ngoài kệ — `sma`, `beta`,
-   * `roe`… — ra rỗng ngay lần bấm đầu: chip nói "bạn đã xem cái này" rồi dẫn tới một khối trống.
-   * Cho nó đi đúng nơi có kết quả, dựng đường bằng hàm dùng chung chứ không ghép chuỗi tay.
+   * Đây là lựa chọn của chủ dự án, không phải hệ quả kỹ thuật — và lý do CŨ ghi ở đây đã hết
+   * đúng, nên không giữ lại: hồi kho còn dùng chung với màn tìm, chip có thể mang tên một công
+   * thức ngoài kệ (`sma`, `beta`, `roe`…) nên đổ vào ô tìm tại chỗ là ra ngay một khối rỗng. Nay
+   * kho của trang chủ chỉ sinh ra từ chính kệ 18 ô nên chuyện đó không còn xảy ra được; giữ chip
+   * là link vì bấm lại một thứ đã tìm thì người dùng muốn danh sách ĐẦY ĐỦ, không phải 18 ô.
+   *
+   * Dựng đường bằng hàm dùng chung chứ không ghép chuỗi tay (lỗi thật đợt 7).
    */
   function hrefForRecent(term: string): string {
     return formulaListPath({ ...DEFAULT_LIST_PARAMS, q: term });
-  }
-
-  function clearRecent(): void {
-    setRecent([]);
-    try {
-      window.localStorage.removeItem(RECENT_SEARCHES_KEY);
-    } catch {
-      // Xoá không được thì hàng chip trên màn vẫn sạch; lần mở sau sẽ hiện lại.
-    }
   }
 
   return (
@@ -251,7 +257,12 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
               <ul className={styles.cards}>
                 {results.map((formula) => (
                   <li key={formula.id}>
-                    <FormulaCard formula={formula} variant="tile" />
+                    {/*
+                      `onSelect` CHỈ có ở đây, trong lưới kết quả. Kệ 18 ô lúc chưa gõ nằm trong
+                      `children` do server dựng và không nhận nó — lịch sử tìm phải là thứ người
+                      dùng tìm ra rồi bấm, không phải mọi công thức họ mở.
+                    */}
+                    <FormulaCard formula={formula} variant="tile" onSelect={rememberResult} />
                   </li>
                 ))}
               </ul>

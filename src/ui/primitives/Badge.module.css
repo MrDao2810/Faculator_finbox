@@ -18,14 +18,15 @@
 
 /*
  * ── Hai vai cấp độ ────────────────────────────────────────────────────────────
- * Viền + nền + màu chữ, không phải chỉ màu chữ — NFR-USA-06.
+ * Viền + màu chữ là hai tín hiệu chính (NFR-USA-06); chữ đậm hẳn (`--weight-bold`) để không
+ * lẫn với chữ thường quanh nó ở cỡ `--text-xs`.
  */
 .basic,
 .advanced {
   padding: 1px var(--space-2);
 
   font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-bold);
 
   border: 1px solid;
   border-radius: var(--radius-pill);
@@ -33,13 +34,18 @@
 
 .basic {
   color: var(--color-accent);
-  background: var(--color-accent-soft);
   border-color: var(--color-accent);
 }
 
+/*
+ * Nền dải vàng sang cam — chỉ riêng vai "nâng cao" mới tô nền, để nó nổi hơn "cơ bản" (đúng thứ
+ * bậc: nâng cao là thứ cần chú ý). Hai đầu dải lấy đúng token nhạt sẵn có, không bày thêm mã màu
+ * mới: `--color-warning-soft` (vàng) → `--color-highlight-soft` (cam). Chữ `--color-warning` vẫn
+ * đủ 4,5:1 ở cả hai đầu dải, cả hai bảng màu (xem contrast.test.ts phần token chữ).
+ */
 .advanced {
   color: var(--color-warning);
-  background: var(--color-warning-soft);
+  background: linear-gradient(135deg, var(--color-warning-soft), var(--color-highlight-soft));
   border-color: var(--color-warning-line);
 }
 

@@ -7,14 +7,18 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   DEFAULT_LIST_PARAMS,
   FORMULA_SUMMARIES,
+  HOME_RECENT_SEARCHES_KEY,
   PREFERENCES_STORAGE_KEY,
   RECENT_SEARCHES_KEY,
   formulasForLevel,
   parseListParams,
+  parseRecentSearches,
   selectFormulas,
   serializeRecentSearches,
 } from '@/application';
+import type { FormulaSummary } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
+import { FormulaCard } from '@/ui/browse';
 
 import { HomeSearchPanel } from './HomeSearchPanel';
 
@@ -96,6 +100,10 @@ function theCongThuc(container: HTMLElement, id: string): Element | undefined {
     return href === `/cong-thuc/${id}` || href === `/cong-thuc/${id}/`;
   });
 }
+
+/** Kho lịch sử RIÊNG của trang chủ, đọc lại từ localStorage. */
+const khoTrangChu = (): ReadonlyArray<string> =>
+  parseRecentSearches(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY));
 
 /** Id của mọi thẻ công thức đang dựng — bỏ qua hàng bàn giao vì href của nó có '?'. */
 function idDangHien(container: HTMLElement): ReadonlyArray<string> {
@@ -344,8 +352,8 @@ describe('HomeSearchPanel — không đánh rơi tiêu điểm', () => {
 /*
  * Hàng chip "Tìm gần đây" ngay dưới ô tìm — bản thiết kế Figma "FINBOX VERSION 2".
  *
- * Hình dáng của chính khối chip do `RecentSearches.test.tsx` gác; bốn ca dưới gác phần ĐẤU NỐI ở
- * trang chủ, vốn là chỗ dễ sai hơn: đọc localStorage đúng lúc, ẩn đúng lúc, và chip dẫn sang cả
+ * Hình dáng của chính khối chip do `RecentSearches.test.tsx` gác; các ca dưới gác phần ĐẤU NỐI ở
+ * trang chủ, vốn là chỗ dễ sai hơn: đọc ĐÚNG KHO, ghi đúng lúc, ẩn đúng lúc, và chip dẫn sang cả
  * thư viện chứ không lọc kệ tại chỗ.
  */
 describe('HomeSearchPanel — chip "Tìm gần đây"', () => {
@@ -353,8 +361,9 @@ describe('HomeSearchPanel — chip "Tìm gần đây"', () => {
     window.localStorage.clear();
   });
 
+  /** Dựng sẵn lịch sử của TRANG CHỦ — kho riêng, không phải kho của màn tìm WF-09. */
   function coLichSu(...terms: ReadonlyArray<string>): void {
-    window.localStorage.setItem(RECENT_SEARCHES_KEY, serializeRecentSearches(terms));
+    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, serializeRecentSearches(terms));
   }
 
   /*
@@ -363,13 +372,13 @@ describe('HomeSearchPanel — chip "Tìm gần đây"', () => {
    */
   it('chưa có lịch sử thì không dựng hàng chip nào', () => {
     renderPanel();
-    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Lịch sử tìm kiếm' })).toBeNull();
   });
 
   /*
-   * Lịch sử ghi TÊN công thức đã chọn ở màn tìm, mà màn tìm chạy trên CẢ THƯ VIỆN còn ô tìm ở
-   * trang chủ chỉ với tới kệ ghim. Nên chip phải rời trang chủ, không đổ ngược vào ô tìm tại chỗ:
-   * `beta` không nằm trên kệ, đổ vào ô tìm là ra ngay một khối rỗng.
+   * Bấm lại một thứ đã tìm thì người dùng muốn danh sách ĐẦY ĐỦ, không phải 18 ô ghim — nên chip
+   * rời trang chủ chứ không đổ ngược vào ô tìm tại chỗ. Đây là lựa chọn của chủ dự án; xem
+   * docblock `hrefForRecent` về lý do cũ (kho dùng chung) nay đã hết đúng.
    */
   it('chip là link sang cả thư viện, mang đúng từ khoá — không lọc kệ tại chỗ', async () => {
     coLichSu('Beta');
@@ -390,7 +399,7 @@ describe('HomeSearchPanel — chip "Tìm gần đây"', () => {
 
     await userEvent.type(searchBox(), tuKhoaTrenKe().q);
 
-    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Lịch sử tìm kiếm' })).toBeNull();
   });
 
   it('bấm nút xoá thì hàng chip biến mất và lịch sử trên máy cũng sạch', async () => {
@@ -400,7 +409,87 @@ describe('HomeSearchPanel — chip "Tìm gần đây"', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Xoá lịch sử' }));
 
-    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Lịch sử tìm kiếm' })).toBeNull();
+    expect(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY)).toBeNull();
+  });
+});
+
+/**
+ * Lỗi được báo: hai ô tìm dùng chung một kho `ffb.recent.v1`, nên chip sinh ra ở màn này lại hiện
+ * ở màn kia — và trang chủ thì chỉ ĐỌC kho, không hề ghi, nên tìm ở trang chủ bao nhiêu lần cũng
+ * không ra một chip nào. Toàn bộ thứ nó bày ra là do màn tìm WF-09 ghi hộ.
+ *
+ * Bốn ca dưới gác cách chữa: mỗi ô tìm một kho, ghi ĐÚNG lúc bấm một kết quả, và hai kho không
+ * nhìn thấy nhau. Ca cuối là cửa gác chính của cả đợt sửa.
+ */
+describe('HomeSearchPanel — lịch sử là kho RIÊNG của trang chủ', () => {
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('gõ ra kết quả rồi bấm một ô thì ghi TÊN công thức đó vào kho trang chủ', async () => {
+    const { id, q } = tuKhoaTrenKe();
+    const { container } = renderPanel();
+
+    await userEvent.type(searchBox(), q);
+    const the = theCongThuc(container, id);
+    expect(the, 'từ khoá dò được phải dựng ra thẻ của chính công thức ấy').not.toBeUndefined();
+
+    await userEvent.click(the as HTMLElement);
+
+    const ten = FORMULA_SUMMARIES.find((f) => f.id === id)?.name.vi;
+    expect(parseRecentSearches(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY))).toEqual([
+      ten,
+    ]);
+    // Và tuyệt đối không lọt sang kho của màn tìm.
     expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
+  });
+
+  /*
+   * "Bấm một công thức" và "bấm một KẾT QUẢ TÌM" là hai chuyện khác nhau — chủ dự án chốt chỉ
+   * chuyện sau mới vào lịch sử. Kệ 18 ô lúc nhàn đi qua `children` do server dựng nên không được
+   * nối `onSelect`; ca này gác đúng chỗ đó.
+   */
+  it('chưa gõ gì mà bấm thẳng một ô trên kệ thì KHÔNG ghi gì', async () => {
+    const { container } = render(
+      <HomeSearchPanel>
+        <FormulaCard formula={GHIM[0] as FormulaSummary} variant="tile" />
+      </HomeSearchPanel>,
+    );
+
+    const the = theCongThuc(container, (GHIM[0] as FormulaSummary).id);
+    await userEvent.click(the as HTMLElement);
+
+    expect(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY)).toBeNull();
+    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
+  });
+
+  /* Đường đi trọn vẹn: tìm → bấm → xoá ô tìm → chip của chính lần tìm ấy có mặt. */
+  it('bấm xong rồi xoá ô tìm thì chip mang đúng tên công thức vừa bấm', async () => {
+    const { id, q } = tuKhoaTrenKe();
+    const { container } = renderPanel();
+
+    await userEvent.type(searchBox(), q);
+    await userEvent.click(theCongThuc(container, id) as HTMLElement);
+    await userEvent.clear(searchBox());
+
+    const ten = FORMULA_SUMMARIES.find((f) => f.id === id)?.name.vi ?? '';
+    expect(await screen.findByRole('link', { name: ten })).not.toBeNull();
+    expect(khoTrangChu()).toEqual([ten]);
+  });
+
+  /*
+   * CỬA GÁC CHÍNH: lịch sử của màn tìm WF-09 không được hiện ở trang chủ. Trước đợt sửa ca này đỏ
+   * — hai màn đọc chung một khoá nên chip "Beta" ghi ở màn tìm hiện nguyên trên trang chủ.
+   */
+  it('lịch sử ghi ở màn Tìm kiếm KHÔNG hiện ở trang chủ', async () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, serializeRecentSearches(['Beta', 'WACC']));
+
+    renderPanel();
+    // Chờ qua lượt effect đọc kho, để ca kiểm không xanh chỉ vì nó nhìn quá sớm.
+    await screen.findByText('KHỐI TĨNH TRANG CHỦ');
+
+    expect(screen.queryByRole('region', { name: 'Lịch sử tìm kiếm' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Beta' })).toBeNull();
   });
 });

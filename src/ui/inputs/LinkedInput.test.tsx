@@ -52,38 +52,18 @@ describe('đang nhận giá trị tự động', () => {
     expect(screen.getByText('↳ CAPM')).not.toBeNull();
   });
 
-  it('có nút Ghi đè, chưa có nút Hoàn tác', () => {
+  it('chưa có nút Nhận tự động — chưa ghi đè thì chưa có gì để hoàn tác', () => {
     render(<LinkedInput spec={wacc} upstream={capmOk} onOverrideChange={vi.fn()} />);
 
-    expect(screen.getByRole('button', { name: 'Ghi đè' })).not.toBeNull();
-    expect(screen.queryByRole('button', { name: 'Hoàn tác' })).toBeNull();
-  });
-
-  it('có lối mở công thức thượng nguồn để sửa tận gốc', () => {
-    render(<LinkedInput spec={wacc} upstream={capmOk} onOverrideChange={vi.fn()} />);
-
-    const link = screen.getByRole('link', { name: 'Mở công thức nguồn' });
-    // Chỉ kiểm link trỏ đúng công thức. Dấu '/' cuối KHÔNG kiểm ở đây: test không nạp
-    // next.config.mjs nên <Link> chuẩn hoá bỏ dấu này, khác với bản build thật đang đặt
-    // trailingSlash: true. Luật dấu '/' cuối do routes.test.ts canh.
-    expect(link.getAttribute('href')).toContain('/cong-thuc/capm');
-  });
-
-  it('bấm Ghi đè thì bắt đầu từ giá trị đang hiện, không bắt gõ lại từ đầu', async () => {
-    const onOverrideChange = vi.fn();
-    render(<LinkedInput spec={wacc} upstream={capmOk} onOverrideChange={onOverrideChange} />);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Ghi đè' }));
-
-    expect(onOverrideChange).toHaveBeenCalledWith(14.3);
+    expect(screen.queryByRole('button', { name: 'Nhận tự động' })).toBeNull();
   });
 });
 
-describe('đã ghi đè', () => {
-  it('hiện nhãn chữ “đã ghi đè” chứ không chỉ đổi màu (FR-15, NFR-USA-06)', () => {
+describe('đã nhập tay', () => {
+  it('hiện nhãn chữ “đã nhập tay” chứ không chỉ đổi màu (FR-15, NFR-USA-06)', () => {
     render(<LinkedInput spec={wacc} upstream={capmOk} override={11} onOverrideChange={vi.fn()} />);
 
-    expect(screen.getByText('đã ghi đè')).not.toBeNull();
+    expect(screen.getByText('đã nhập tay')).not.toBeNull();
     expect((screen.getByLabelText('WACC') as HTMLInputElement).value).toBe('11');
   });
 
@@ -103,7 +83,7 @@ describe('đã ghi đè', () => {
       />,
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Hoàn tác' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nhận tự động' }));
 
     expect(onOverrideChange).toHaveBeenCalledWith(undefined);
   });
@@ -129,25 +109,25 @@ describe('thượng nguồn lỗi — cảnh báo kế thừa', () => {
     expect(screen.getByText(/Nạp bộ số liệu mẫu/)).not.toBeNull();
   });
 
-  it('vẫn mở nút Ghi đè — đó là lối thoát WF-15 hứa với người dùng', () => {
-    render(<LinkedInput spec={wacc} upstream={capmLoi} onOverrideChange={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'Ghi đè' })).not.toBeNull();
-  });
-
-  it('bấm Ghi đè khi không có số nào để lấy thì bắt đầu từ mặc định của biến', async () => {
+  it('ô vẫn hiện mặc định của biến và gõ đè lên được — đó là lối thoát WF-15 hứa với người dùng', async () => {
     const onOverrideChange = vi.fn();
     render(<LinkedInput spec={wacc} upstream={capmLoi} onOverrideChange={onOverrideChange} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Ghi đè' }));
+    const input = screen.getByLabelText('WACC') as HTMLInputElement;
+    expect(input.value).toBe('12,1');
 
-    expect(onOverrideChange).toHaveBeenCalledWith(12.1);
+    await userEvent.clear(input);
+    await userEvent.type(input, '9');
+    await userEvent.tab();
+
+    expect(onOverrideChange).toHaveBeenCalledWith(9);
   });
 
   it('CA THEN CHỐT — ghi đè xong thì thoát hẳn cảnh báo kế thừa', () => {
     render(<LinkedInput spec={wacc} upstream={capmLoi} override={11} onOverrideChange={vi.fn()} />);
 
     expect(screen.queryByText(/Cần ít nhất 60 phiên giá/)).toBeNull();
-    expect(screen.getByText('đã ghi đè')).not.toBeNull();
+    expect(screen.getByText('đã nhập tay')).not.toBeNull();
     expect((screen.getByLabelText('WACC') as HTMLInputElement).value).toBe('11');
   });
 
@@ -162,11 +142,9 @@ describe('thượng nguồn lỗi — cảnh báo kế thừa', () => {
 });
 
 describe('ô nhập tay — không móc nối', () => {
-  it('không có nút Ghi đè lẫn Hoàn tác, không có dòng ghi nguồn', () => {
+  it('không có nút Nhận tự động — không có gì để hoàn tác', () => {
     render(<LinkedInput spec={wacc} onOverrideChange={vi.fn()} />);
 
-    expect(screen.queryByRole('button', { name: 'Ghi đè' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Hoàn tác' })).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Mở công thức nguồn' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Nhận tự động' })).toBeNull();
   });
 });

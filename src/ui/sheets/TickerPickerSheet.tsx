@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { normalizeVi, useTickerList } from '@/application';
 import type { TickerRef } from '@/application';
 import { useT } from '@/application/preferences-context';
+import type { TickerCoverage } from '@/application/ticker-coverage';
 import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
 import styles from './TickerPickerSheet.module.css';
@@ -43,6 +44,19 @@ export interface TickerPickerSheetProps {
    * cho lối vào bình thường (nút "Đổi mã", tab Danh mục), nơi đóng là thoát hẳn ra màn.
    */
   dismiss?: 'close' | 'back';
+  /**
+   * Ngày ISO của màn — bật phần đánh dấu "mã này chưa có số liệu cơ bản".
+   *
+   * Có mặt thì sheet nạp trễ bảng mã (`@/application/ticker-coverage`) và dán nhãn lên những mã
+   * `toFundamentals()` sẽ từ chối; vắng mặt thì sheet chạy y như trước. Là **opt-in** vì hai lối
+   * vào cần hai thứ khác nhau: màn chi tiết công thức cần nạp được số liệu nên mã thiếu báo cáo là
+   * vô dụng, còn tab Danh mục chỉ cần THỊ GIÁ — thêm một mã không có báo cáo vào danh mục là
+   * chuyện hoàn toàn hợp lệ, và dán nhãn "không dùng được" ở đó là nói sai.
+   *
+   * Truyền ngày chứ không truyền cờ: bảng mã cũ đi mỗi kỳ báo cáo và câu chữ phải hạ giọng theo —
+   * xem `TickerCoverage.stale`. Application không được tự lấy đồng hồ hệ thống (NFR-REL-03).
+   */
+  markUnusableAsOf?: string;
 }
 
 /**
@@ -58,12 +72,45 @@ export function TickerPickerSheet({
   onPick,
   heldCodes,
   dismiss = 'close',
+  markUnusableAsOf,
 }: TickerPickerSheetProps) {
   const t = useT();
   const [query, setQuery] = useState('');
 
   // Chỉ chạm mạng khi sheet thật sự mở — xem docblock `useTickerList`.
   const { items, status, failure, stale, reload } = useTickerList(open);
+
+  /**
+   * Bảng mã có số liệu cơ bản — nạp TRỄ, và chỉ khi sheet mở với `markUnusableAsOf`.
+   *
+   * `null` là trạng thái bình thường ở lượt render đầu và ở mọi lối vào không bật đánh dấu. Nạp
+   * hỏng (mất mạng giữa chừng, chunk lỗi) thì nó ở lại `null` và sheet chạy y như trước — **không**
+   * dán nhãn gì cả. Đó là chiều an toàn duy nhất: nhãn sai làm người dùng bỏ qua một mã hoàn toàn
+   * hợp lệ, còn thiếu nhãn thì họ chỉ mất một cú bấm và nhận đúng câu giải thích ở màn.
+   */
+  const [coverage, setCoverage] = useState<TickerCoverage | null>(null);
+
+  useEffect(() => {
+    if (!open || markUnusableAsOf === undefined) return;
+
+    let huy = false;
+    void (async () => {
+      try {
+        const { tickerCoverage } = await import('@/application/ticker-coverage');
+        if (!huy) setCoverage(tickerCoverage(markUnusableAsOf));
+      } catch {
+        // Không nạp được bảng thì thôi đánh dấu — xem docblock của `coverage`.
+      }
+    })();
+
+    return () => {
+      huy = true;
+    };
+  }, [open, markUnusableAsOf]);
+
+  /** Mã này chắc chắn KHÔNG nạp được số liệu — chỉ trả `true` khi đã có bảng để mà chắc. */
+  const khongDungDuoc = (code: string): boolean =>
+    coverage !== null && !coverage.codes.has(code.toUpperCase());
 
   /**
    * Lọc bỏ dấu, và **mã khớp đầu chuỗi đứng trước**.
@@ -146,7 +193,10 @@ export function TickerPickerSheet({
           ) : (
             <ul className={styles.list}>
               {shown.map((ticker) => (
-                <li key={ticker.code} className={styles.item}>
+                <li
+                  key={ticker.code}
+                  className={khongDungDuoc(ticker.code) ? styles.itemMuted : styles.item}
+                >
                   {/* Mã đứng riêng thành huy hiệu — cùng lý do như PresetSheet: mắt dò theo mã. */}
                   <Badge tone="code">{ticker.code}</Badge>
                   <span className={styles.name}>{ticker.name}</span>
@@ -158,6 +208,21 @@ export function TickerPickerSheet({
                   */}
                   {heldCodes?.has(ticker.code) === true && (
                     <span className={styles.held}>{t('ticker.held')}</span>
+                  )}
+
+                  {/*
+                    Mã không có báo cáo dùng được — nói TRƯỚC khi bấm, thay vì để họ chọn rồi mới
+                    nhận câu "chưa có đủ số liệu cơ bản" ở màn.
+
+                    Vẫn CHỌN ĐƯỢC, không khoá nút: bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo,
+                    nên một mã bị dán nhãn hôm nay hoàn toàn có thể đã công bố thêm quý và dùng
+                    được rồi. Khoá lại là biến một dự đoán thành một lệnh cấm. Khi bảng đã quá một
+                    kỳ, câu chữ hạ giọng theo (`stale`) chứ không khẳng định.
+                  */}
+                  {khongDungDuoc(ticker.code) && (
+                    <span className={styles.unusable}>
+                      {coverage?.stale === true ? t('ticker.noDataStale') : t('ticker.noData')}
+                    </span>
                   )}
 
                   <Button

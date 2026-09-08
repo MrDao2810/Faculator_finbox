@@ -65,7 +65,7 @@ export function HotCategories({ formulas, limit = DEFAULT_LIMIT }: HotCategories
               href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
             >
               <span className={styles.icon} aria-hidden="true">
-                <CategoryIcon id={category.id} size={16} />
+                <CategoryIcon id={category.id} size={20} />
               </span>
               <span className={styles.name}>{pick(category.shortName)}</span>
               <span className={styles.count}>{count}</span>

@@ -117,11 +117,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'unit.scale.billion': 'billion ₫',
   'unit.scale.million': 'million ₫',
   'unit.scale.dong': '₫',
-  'input.override': 'Override',
   /* Không phải "Undo": nút trả ô về giá trị tự điền từ công thức trên, không phải lùi một thao tác. */
   'input.revert': 'Reset',
   'input.overridden': 'overridden',
-  'input.openUpstream': 'Open the source formula',
   'input.autoFrom': 'Auto-filled from',
 
   'result.eyebrow': 'RESULT',
@@ -166,11 +164,23 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.tickerLoading': 'fetching live data for this ticker…',
   'detail.tickerFailed':
     'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
+  'detail.tickerNoData':
+    'this ticker has no usable fundamentals yet (its reports lack four consecutive quarters, or the ' +
+    'figures do not agree). Retrying will not help — pick another ticker, or enter values by hand.',
   'detail.export': '↓ Export',
   'detail.tickerSticky': 'in use for every formula this visit',
   'detail.tickerChange': 'Change ticker',
   'detail.tickerClear': 'Clear ticker',
   'detail.saveToPortfolio': '☆ Save to portfolio',
+  'detail.cancel': 'Discard and leave',
+  'detail.presetNoData': 'This formula uses no data from ticker',
+  'detail.presetNoDataFix':
+    'It runs on your own numbers — type them into the fields above, or tap "See the worked ' +
+    'example" for a ready-made set.',
+  'detail.presetPartial': 'filled',
+  'detail.presetPartialUnit': 'fields',
+  'detail.presetPartialFix':
+    'these fields are not this ticker’s real numbers yet. Adjust them before trusting the result.',
   'detail.restoredNote': 'saved calculation from',
   'detail.restoredMissing':
     'saved calculation not found — it may have been deleted on this device.',
@@ -239,16 +249,31 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'preset.title': 'Load a sample dataset',
   'preset.subtitle':
-    'Four sample tickers — each ships a full price series, so series formulas work',
+    'A pool of sample tickers — each ships a full 248-session price series, so series formulas work',
   'preset.load': 'Load',
+  'preset.rankedNote':
+    'Four tickers picked by what this very formula returns, lowest to highest — one glance ' +
+    'shows the range.',
+  'preset.seriesOnlyNote':
+    'This formula runs on a price series. Only the latest session is a real price; the path ' +
+    'before it is fabricated, so read the four numbers below as examples, not as a market ' +
+    'comparison.',
+  'preset.noTickerNote':
+    'None of the four tickers below changes a field of this formula — it runs on your own ' +
+    'numbers. Loading one here only carries it over to the formulas that do use a ticker.',
+  'preset.cannotCompute': 'no result with this ticker',
+  'preset.lastPrice': 'Latest session price',
   'preset.browseMarket': 'Find another ticker across the market →',
   'preset.browseMarketNote':
     'Every tradable ticker, with real figures from the latest session — but only ONE price ' +
     'session, so formulas that need many sessions still require a pasted series.',
   'preset.editableAfterLoad': 'After loading, every field can still be edited one by one.',
-  'preset.draftTag': 'draft data',
-  'preset.draftTitle': 'Fabricated numbers, not yet checked against real statements.',
-  'preset.draftDetail': 'For trying the feature out only. Do not base decisions on the results.',
+  'preset.draftTag': 'fabricated price history',
+  'preset.draftTitle': 'The fundamentals and the market price are real; the price history is not.',
+  'preset.draftDetail':
+    'EPS, book value, share count and the latest session price come from Finbox. The 247 ' +
+    'sessions before that are a fabricated series, so formulas reading the whole series (RSI, ' +
+    'volatility, Beta…) should be treated as examples only.',
   'preset.draftExport':
     'Input numbers come from a fabricated sample dataset, not yet checked against real statements.',
 
@@ -349,6 +374,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.searchPlaceholder': 'FPT, Hoa Phat…',
   'ticker.pick': 'Pick',
   'ticker.held': 'already held',
+  'ticker.noData': 'no fundamentals',
+  'ticker.noDataStale': 'may lack fundamentals',
   'ticker.pickHeld': 'Add more',
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
@@ -496,6 +523,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'data.prefs': 'Display preferences',
   'data.recent': 'Search history',
+  'data.recentHome': 'Home search history',
   'data.series': 'Entered price series',
   'data.portfolio': 'Personal portfolio',
   'data.saved': 'Saved calculations',

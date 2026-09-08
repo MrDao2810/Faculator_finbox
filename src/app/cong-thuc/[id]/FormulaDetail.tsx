@@ -1,6 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+/*
+ * `useRouter` an toàn với `output: 'export'`; thứ KHÔNG được dùng ở màn này là `useSearchParams`
+ * — nó đẩy cả cây con vào `<Suspense>` và Next bỏ phần ấy khỏi HTML tĩnh, làm 111 trang chi tiết
+ * mất phần MathML dựng sẵn (xem chú thích chỗ đọc `?ma=` bằng `window.location.search`).
+ */
+import { useRouter } from 'next/navigation';
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -34,7 +40,9 @@ import {
   parseInputDrafts,
   parseSavedCalcs,
   parseStoredSeries,
+  pickPresetsFor,
   presetInputs,
+  presetRealKeys,
   putDraft,
   recordFormulaUsage,
   removeDraft,
@@ -76,7 +84,7 @@ import {
   VariableTable,
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
-import { BackLink, DisclaimerBar } from '@/ui/navigation';
+import { BackLink, DisclaimerBar, useBackTarget } from '@/ui/navigation';
 import { ExportSheet, PasteImportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
   ChainPanel,
@@ -200,6 +208,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const pick = usePick();
   const calcText = useCalcText();
   const valueText = useValueText();
+  const router = useRouter();
+  /* Cùng đích với nút "‹ Quay lại" đầu màn — xem `cancelAndLeave()`. */
+  const back = useBackTarget();
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
   const [sheet, setSheet] = useState<SheetKind | null>(null);
@@ -222,6 +233,38 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   /** Ngày đối chiếu số liệu cơ bản của preset đang nạp — đặt và xoá cùng lúc với `loadedPreset`. */
   const [fundamentalsAsOf, setFundamentalsAsOf] = useState<string | null>(null);
+  /**
+   * Lượt nạp mẫu gần nhất: mã nào, và mã đó điền được ĐÚNG những ô nào.
+   *
+   * Giữ mã chứ không giữ cờ đúng/sai: câu báo phải gọi đúng tên mã người dùng vừa chọn, không thì
+   * nó đọc ra như một lỗi chung chung của màn.
+   *
+   * Giữ cả tập khoá điền được, chứ không chỉ một cờ "có nạp được gì không", vì hai ca dưới đây là
+   * MỘT ca ở hai độ lớn khác nhau và trước đợt này màn chỉ nhìn thấy ca đầu:
+   *
+   *   · `filled.size === 0` — mã không cấp được ô nào (vay, tiết kiệm, phái sinh). Màn đã nói.
+   *   · `0 < filled.size < số biến` — mã cấp được MỘT PHẦN. Màn im lặng, và đó là chỗ hỏng: ô nhập
+   *     khởi tạo bằng `defaultInputs(spec)` rồi `applyPreset()` trộn preset ĐÈ LÊN, nên những ô mã
+   *     không cấp được vẫn mang số mặc định của ví dụ. Nạp HPG vào `roa` trước khi có `totalAssets`
+   *     cho ra lợi nhuận thật của HPG chia tổng tài sản bịa — một con số trông hoàn toàn hợp lệ.
+   *     Đúng loại sai mà FR-06 sinh ra để chặn.
+   *
+   * Một state cho cả hai ca nghĩa là khe hở ấy đóng lại theo CẤU TRÚC, không nhờ ai nhớ.
+   */
+  const [presetFill, setPresetFill] = useState<{
+    code: string;
+    /** Ô mang số THẬT của mã — `presetRealKeys()`, KHÔNG phải mọi ô preset vừa chạm vào. */
+    filled: ReadonlySet<string>;
+    /**
+     * Lượt nạp này có đổi được gì trên màn không (`napDuocGi`).
+     *
+     * Tách khỏi `filled.size > 0` vì hai thứ đã hết trùng nhau từ lúc chân giá vào bị coi là số
+     * dựng: `phi-giao-dich-mua` nạp VIC thì ô "Giá mua" ĐỔI số nhưng `filled` rỗng. Dùng
+     * `filled.size` làm điều kiện thì màn báo "công thức này không dùng số liệu của mã" ngay bên
+     * trên một ô vừa đổi giá trị — tự mâu thuẫn ngay trong một khung hình.
+     */
+    touched: boolean;
+  } | null>(null);
   const [seriesCount, setSeriesCount] = useState<number | null>(null);
   const [bars, setBars] = useState<ReadonlyArray<SeriesRow> | null>(null);
   /**
@@ -255,7 +298,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    */
   const [liveTicker, setLiveTicker] = useState<{
     code: string;
-    status: 'loading' | 'failed';
+    /**
+     * `'no-data'` tách khỏi `'failed'` vì hai ca đòi hai lời khuyên NGƯỢC nhau: mất mạng thì "thử
+     * lại", còn mã không có số liệu cơ bản thì thử lại bao nhiêu lần cũng vậy — phải chọn mã khác.
+     * Xem `live-preset-loader.ts`.
+     */
+    status: 'loading' | 'failed' | 'no-data';
   } | null>(null);
 
   /*
@@ -302,6 +350,14 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * nên không có đường nào cho hai bản lệch nhau; bản ref là bản quyết định hành vi.
    */
   const pickerFromPreset = useRef(false);
+  /**
+   * Số thứ tự lượt chọn mã, và bộ huỷ của lượt đang chạy — chống đua trong `pickTicker()`.
+   *
+   * `useRef` chứ không `useState`: cả hai chỉ được đọc bên trong một hàm async, không có gì trên
+   * màn phụ thuộc vào chúng, nên một lần dựng lại màn cho mỗi lượt bấm là phí không đổi lấy gì.
+   */
+  const pickRunId = useRef(0);
+  const pickAbort = useRef<AbortController | null>(null);
   const [pickerShowsBack, setPickerShowsBack] = useState(false);
   const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
   const [saveStamp, setSaveStamp] = useState(0);
@@ -577,8 +633,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       const result = await loadLivePreset(code, asOf, controller.signal);
 
       if (result.status === 'cancelled' || controller.signal.aborted) return;
-      if (result.status === 'failed') {
-        setLiveTicker({ code, status: 'failed' });
+      if (result.status !== 'ok') {
+        setLiveTicker({ code, status: result.status });
         return;
       }
 
@@ -750,6 +806,64 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   );
 
   /**
+   * Nạp một mã có đổi được gì trên màn này không — thuộc tính TĨNH của công thức.
+   *
+   * Đo trên toàn Registry: 37 công thức điền được ô từ số liệu mã, 36 công thức nữa không điền ô
+   * nhưng **ăn chuỗi giá** (nạp mẫu là cách duy nhất để RSI/SMA ra số), và **38 công thức còn lại
+   * thì nạp mã không đổi một thứ gì** — vay, tiết kiệm, lãi kép, phái sinh, trả góp. Đầu vào của
+   * chúng là tiền và giả định của chính người dùng.
+   *
+   * Với 38 màn ấy, nút "Nạp mẫu" bị ẩn hẳn (chủ dự án chốt): mời người dùng bấm vào một thứ không
+   * làm gì rồi giải thích sau đó là bắt họ trả một cú bấm để nhận một lời từ chối. Cái giá đã biết
+   * và chấp nhận: không đặt được "mã dính theo lượt duyệt" từ 38 màn này — vẫn đặt được từ 73 màn
+   * kia, và mã đã đặt thì vẫn theo sang đây bình thường.
+   *
+   * Dùng chính `presetInputs()` chứ không dựng danh sách id: thêm một khoá vào bảng ánh xạ ở tầng
+   * Data là nút tự hiện lại ở đúng những màn vừa dùng được, không cần ai nhớ cập nhật gì.
+   */
+  const presetHelps = useMemo(() => {
+    if (formula === undefined) return false;
+    if (wantsSeries || spec.id === 'xirr') return true;
+
+    const mau = SAMPLE_DATA.list()[0];
+    return mau !== undefined && Object.keys(presetInputs(mau, spec)).length > 0;
+  }, [formula, wantsSeries, spec]);
+
+  /**
+   * Bốn mã mẫu đáng thử nhất cho công thức này, kèm kết quả của từng mã (xem `pickPresetsFor()`).
+   *
+   * ── Vì sao chờ sheet được dựng mới tính ─────────────────────────────────────────────────────
+   *
+   * Phép chọn chạy thật công thức với CẢ KHO mã, nên nó là 24 lượt `runFormula()`. Tính sẵn lúc
+   * gắn màn thì cả 111 trang chi tiết phải trả cái giá ấy, kể cả trang người dùng không hề mở
+   * sheet — mà sheet vốn đã nạp trễ đúng vì lý do đó. `mountedSheets` bật lên ở lần mở đầu tiên
+   * và không tắt lại, nên tính đúng một lần rồi nhớ.
+   *
+   * ── Vì sao KHÔNG dùng `ctx` của màn ────────────────────────────────────────────────────────
+   *
+   * `ctx` phụ thuộc `bars` và `cashflowRows`, tức đổi theo từng phím gõ — bám vào nó là 24 lượt
+   * chạy công thức cho mỗi ký tự. Bối cảnh riêng dưới đây chỉ giữ phần KHÔNG đổi theo thao tác
+   * (ngày tra hằng số, biểu phí, chuỗi VN-Index); chuỗi phiên thì `pickPresetsFor()` tự lắp của
+   * từng mã vào, nên không mất gì.
+   */
+  const presetPickCtx = useMemo<CalcContext>(
+    () => ({
+      asOf,
+      schedule: scheduleOrDefault(MARKET_CONFIG, feeScheduleId),
+      marketSeries: VN_INDEX_CLOSES,
+    }),
+    [asOf, feeScheduleId],
+  );
+
+  const presetPicks = useMemo(
+    () =>
+      formula === undefined || !mountedSheets.has('preset')
+        ? []
+        : pickPresetsFor(formula, SAMPLE_DATA.list(), presetPickCtx),
+    [formula, mountedSheets, presetPickCtx],
+  );
+
+  /**
    * Công thức có hồi quy với chuỗi thị trường hay không.
    *
    * Đọc `example.marketSeries` chứ không so id: trường ấy tồn tại ĐÚNG cho nhóm công thức đọc
@@ -826,6 +940,18 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
 
+  /**
+   * Những ô mà mã vừa nạp KHÔNG cấp được — tính trên các ô ĐANG HIỆN, không trên toàn bộ biến.
+   *
+   * Lọc theo `shown` vì chế độ Cơ bản ẩn bớt biến nâng cao (FR-09): kể tên một ô người dùng không
+   * nhìn thấy thì câu báo thành lời trách vô cớ về thứ họ không sửa được. Đổi chế độ là danh sách
+   * tự tính lại, không cần state riêng.
+   *
+   * `null` khi chưa nạp mã nào — khác hẳn mảng rỗng, vốn nghĩa "đã nạp và điền trọn".
+   */
+  const presetGaps =
+    presetFill === null ? null : shown.filter((variable) => !presetFill.filled.has(variable.key));
+
   /** Ô nào của công thức đang xem đang nhận giá trị từ bước trước. */
   const linkedFields = new Map(chainStep?.fields.map((field) => [field.spec.key, field]) ?? []);
 
@@ -842,6 +968,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     markUsed();
     // …và cũng là tín hiệu duy nhất cho phép ghi bản nháp — xem effect ghi bên dưới.
     editedRef.current = true;
+
+    /*
+     * Gõ đè lên một ô đang mang số của mã thì ô đó THÔI là số của mã.
+     *
+     * Không gỡ thì viền đứt `↳ HPG` vẫn đứng trên một con số người dùng vừa tự nhập — màn nói dối
+     * về nguồn gốc con số ấy. Cùng luật mà ô móc nối FR-15 đã đặt cho thao tác ghi đè.
+     */
+    setPresetFill((current) => {
+      if (current === null || !current.filled.has(key)) return current;
+      const filled = new Set(current.filled);
+      filled.delete(key);
+      return { ...current, filled };
+    });
 
     if (linkedFields.has(key)) {
       setOverride(spec.id, key, value);
@@ -903,9 +1042,61 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   function applyPreset(preset: Preset, fromSession = false): void {
     const fromPreset = presetInputs(preset, spec);
 
-    setInputs((current) => ({ ...current, ...fromPreset }));
-    setLoadedPreset(preset.code);
-    setFundamentalsAsOf(preset.fundamentalsAsOf ?? null);
+    /*
+     * ── Nạp mẫu mà không nạp đủ thì phải nói ra, ở CẢ HAI độ lớn ───────────────────────────
+     *
+     * Đo trên toàn Registry (bộ mẫu 248 phiên): điền được ô cho 37 công thức, trong đó **15 công
+     * thức điền TRỌN**; nạp được chuỗi giá cho 35 công thức nữa; và **không cấp được gì** cho phần
+     * còn lại — vay, tiết kiệm, phái sinh, ROI/CAGR/lãi kép. Đầu vào của chúng là tiền và giả định
+     * của chính người dùng, không mã nào cấp thay được; `presetInputs()` trả object rỗng, và
+     * docblock ở tầng Data nói rõ đó là câu trả lời ĐÚNG chứ không phải thiếu sót.
+     *
+     * Cái sai từng nằm ở đây, tại màn, và có hai tầng:
+     *
+     * 1. Trước gói trước, nó `setLoadedPreset(preset.code)` bất kể có điền được ô nào không, nên
+     *    nút đổi thành "Đã nạp FPT" và dòng "Số liệu cơ bản … lấy thật từ Finbox_v2" hiện lên
+     *    trong khi KHÔNG một con số nào đổi. Chủ dự án báo đúng chỗ này ở "Trả góp gốc đều".
+     * 2. Ca ĐIỀN MỘT PHẦN thì màn vẫn im. Ô nhập khởi tạo bằng `defaultInputs(spec)` và dòng dưới
+     *    trộn preset ĐÈ LÊN, nên ô nào mã không cấp được vẫn giữ số mặc định của ví dụ — kết quả
+     *    là một con số nửa thật nửa bịa, trông hoàn toàn hợp lệ. `presetFill` giữ tập khoá điền
+     *    được để khối Số liệu gọi tên đúng phần chưa phải của mã.
+     *
+     * `xirr` KHÔNG thuộc nhóm "không cấp được gì" dù `presetInputs()` cũng trả rỗng: nó có nhánh
+     * riêng phía dưới dựng hai dòng tiền từ chính chuỗi giá của mã. Quên nó ở đây là báo "không có
+     * số liệu" ngay trên màn vừa nạp số liệu xong.
+     */
+    const napDuocGi = Object.keys(fromPreset).length > 0 || wantsSeries || spec.id === 'xirr';
+
+    /*
+     * `presetRealKeys()` chứ KHÔNG phải `Object.keys(fromPreset)`.
+     *
+     * Hai tập lệch nhau đúng ở chân giá VÀO của bộ mẫu bản thảo: ô "Giá mua" nhận `bars[0].close`,
+     * mà 247 phiên trước phiên cuối là PRNG tự dựng (`makeBars()` chỉ neo phiên CUỐI vào thị giá
+     * thật). Nạp VIC cho ra 318.750 ₫ trong khi thị giá thật là 243.500 — gắn nhãn "↳ VIC" lên số
+     * ấy là khẳng định một mức giá VIC chưa từng có. Bảy công thức đi qua chân giá vào.
+     *
+     * Số vẫn được điền vào ô (dòng dưới) để bộ mẫu bày ra tình huống "mua đầu kỳ, bán phiên gần
+     * nhất"; nó chỉ không được tính là số của mã, nên dải cảnh báo gọi tên nó cùng với các ô mặc
+     * định — đúng một câu: mấy ô này chưa phải số thật của mã, sửa đi trước khi tin kết quả.
+     */
+    setPresetFill({
+      code: preset.code,
+      filled: presetRealKeys(preset, spec),
+      touched: napDuocGi,
+    });
+
+    if (napDuocGi) {
+      setInputs((current) => ({ ...current, ...fromPreset }));
+      setLoadedPreset(preset.code);
+      setFundamentalsAsOf(preset.fundamentalsAsOf ?? null);
+    }
+    /*
+     * Ca không nạp được gì: không đụng ô nhập, không dựng dải "đã nạp" — nhưng VẪN ghi mã vào kho
+     * phiên như một lượt nạp bình thường (phần dưới), vì mã dính theo lượt duyệt là chuyện của cả
+     * lượt xem chứ không phải của riêng công thức này: mở tiếp một công thức ăn số của mã thì nó
+     * vẫn tự nạp.
+     */
+
     setStickyTicker(preset.code);
 
     /*
@@ -1047,6 +1238,8 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setMarketSeriesOverride(spec.example.marketSeries ?? null);
     setLoadedPreset(null);
     setFundamentalsAsOf(null);
+    // Số của ví dụ minh hoạ không phải số của mã nào — viền `↳ HPG` phải tắt cùng lúc.
+    setPresetFill(null);
     setExampleLoaded(true);
     setAppliedToTable(false);
   }
@@ -1120,12 +1313,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   }
 
   /**
-   * Thôi theo dõi mã: xoá kho phiên **và** trả ô nhập về bộ mặc định của công thức.
+   * Đưa cả màn về trạng thái sạch: xoá mã đang theo dõi, trả mọi ô nhập về bộ mặc định của công
+   * thức, và xoá bản nháp.
    *
-   * Phải làm cả hai. Chỉ xoá kho thì màn vẫn còn nguyên số của mã vừa bỏ, và người dùng đang
-   * nhìn một bộ số họ vừa nói là không muốn nữa; chỉ xoá ô thì mã quay lại ngay ở công thức kế.
+   * HAI nơi gọi, cùng một ý "bộ số đang có trên màn không còn được muốn nữa":
+   * nút "Bỏ mã" ở thanh mã, và nút "Huỷ và thoát" ở cuối màn.
+   *
+   * Phải làm ĐỦ ba việc. Chỉ xoá kho phiên thì màn vẫn còn nguyên số của mã vừa bỏ, và người dùng
+   * đang nhìn một bộ số họ vừa nói là không muốn nữa; chỉ xoá ô thì mã quay lại ngay ở công thức
+   * kế; còn để bản nháp lại thì đúng bộ số vừa bị bỏ sẽ quay về ở lần mở sau.
    */
-  function clearTicker(): void {
+  function resetAll(): void {
     try {
       window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
     } catch {
@@ -1159,12 +1357,36 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setStickyTicker(null);
     setLoadedPreset(null);
     setFundamentalsAsOf(null);
+    setPresetFill(null);
     setInputs(defaultInputs(spec));
     setBars(null);
     setSeriesCount(null);
     setMarketSeriesOverride(null);
     setExampleLoaded(false);
     setAppliedToTable(false);
+  }
+
+  /**
+   * "Huỷ và thoát": bỏ mọi thay đổi trên màn rồi quay về màn trước đó.
+   *
+   * Đi qua ĐÚNG đường mà nút "‹ Quay lại" đầu màn đi (`useBackTarget()`), kể cả cờ cuộn-về-chỗ-cũ
+   * — không thì cùng một hành động "rời màn này" lại đưa người dùng tới hai chỗ khác nhau tuỳ họ
+   * bấm nút nào.
+   *
+   * Là `<button>` chứ không phải link thật, khác hẳn `BackLink` — có lý do. `BackLink` phải là
+   * `<a>` vì nó là đường ra DUY NHẤT và phải chạy được cả khi JavaScript chưa tải xong (trang chi
+   * tiết được Google lập chỉ mục, vào thẳng từ ngoài là đường vào thường xuyên). Nút này thì việc
+   * chính của nó — xoá bộ số và bản nháp — vốn đã cần JavaScript mới làm được, nên một `<a>` ở
+   * đây chỉ là cái vỏ hứa suông: không có JS thì bấm vào là rời màn mà KHÔNG huỷ gì cả.
+   *
+   * Thứ tự bắt buộc: dọn sạch TRƯỚC, điều hướng SAU. `resetAll()` ghi thẳng vào localStorage
+   * trong cùng nhịp sự kiện nên xong hẳn trước khi rời màn; đảo lại thì component tháo đi giữa
+   * chừng và bản nháp còn nguyên.
+   */
+  function cancelAndLeave(): void {
+    resetAll();
+    back.markReturning();
+    router.push(back.href);
   }
 
   /**
@@ -1201,6 +1423,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    *
    * Đi qua đúng đường của `?ma=` — `loadLivePreset` nằm sau ranh giới `await import()`, nên phần
    * gọi mạng vẫn không nằm trong gói của 111 trang chi tiết.
+   *
+   * ── Chống đua: lượt cũ không được đè lên lượt mới ────────────────────────────────────────
+   *
+   * Sheet đóng ngay khi bấm, nên người dùng chọn A rồi mở lại chọn B trong vài giây là chuyện
+   * thường. Hai lượt gọi mạng chạy song song và **không có gì bảo đảm A về trước B**: nếu A về sau,
+   * nó `applyPreset(A)` đè lên số của B, hoặc `setLiveTicker(null)` xoá mất dải "đang tải" của B.
+   * Người dùng thấy màn hình đổi sang mã mình vừa bỏ chọn.
+   *
+   * `pickRunId` là số thứ tự lượt: mỗi lần bấm tăng một, và lượt nào về mà số của nó không còn là
+   * số hiện tại thì im lặng bỏ kết quả. Cùng khuôn `runId` mà `use-ticker-list.ts` đang dùng.
+   * `AbortController` thì huỷ hẳn phần mạng của lượt cũ để khỏi tốn băng thông.
    */
   function pickTicker(code: string): void {
     const wanted = code.trim().toUpperCase();
@@ -1211,13 +1444,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     pickerFromPreset.current = false;
     setLiveTicker({ code: wanted, status: 'loading' });
 
+    pickAbort.current?.abort();
+    const controller = new AbortController();
+    pickAbort.current = controller;
+    const runId = ++pickRunId.current;
+
     void (async () => {
       const { loadLivePreset } = await import('@/application/live-preset-loader');
-      const result = await loadLivePreset(wanted, asOf);
+      const result = await loadLivePreset(wanted, asOf, controller.signal);
+
+      if (runId !== pickRunId.current || result.status === 'cancelled') return;
 
       if (result.status !== 'ok') {
-        // 'cancelled' không xảy ra ở đây (không truyền signal), nên mọi ngả còn lại là hỏng thật.
-        setLiveTicker({ code: wanted, status: 'failed' });
+        setLiveTicker({ code: wanted, status: result.status });
         return;
       }
 
@@ -1270,17 +1509,24 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         <p className={styles.subtitle}>{pick(spec.description)}</p>
 
         <div className={`${styles.actions} ${styles.actionsHead}`}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              openSheet('preset');
-            }}
-          >
-            {loadedPreset === null
-              ? t('detail.loadPreset')
-              : `${t('detail.preset')} ${loadedPreset}`}
-          </Button>
+          {/*
+            Ẩn hẳn với 38 công thức mà nạp mã không đổi được gì — xem `presetHelps`. Ẩn chứ không
+            vô hiệu hoá: một nút mờ vẫn chiếm chỗ và vẫn mời người ta thử bấm, mà câu trả lời thì
+            luôn là "không". Nút "Xem ví dụ thực tế" ngay cạnh vẫn còn, nên màn không hụt lối vào.
+          */}
+          {presetHelps && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                openSheet('preset');
+              }}
+            >
+              {loadedPreset === null
+                ? t('detail.loadPreset')
+                : `${t('detail.preset')} ${loadedPreset}`}
+            </Button>
+          )}
 
           {/*
             Lối tắt cho người vừa vào màn, chưa hiểu công thức và chưa có số liệu riêng — chung
@@ -1303,22 +1549,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           </Button>
 
           {/*
-            Lối sang tab "Công thức" của màn Danh mục. Hiện ở CẢ 111 công thức, không riêng nhóm
-            có mã: người tính một khoản vay hay một mức phí cũng muốn giữ lại kết quả y như người
-            đang định giá một mã.
+            "Lưu vào danh mục" KHÔNG còn nằm ở hàng này — nó đã xuống bệ dính đáy khung nhìn ở
+            cuối `.detail` (xem `.saveDock`). Ba nút còn lại đều `secondary` và đều là lối phụ.
 
-            Đây là nút DUY NHẤT trong hàng mang màu chính (cam) — ba nút kia là lối phụ. Trước đợt
-            12 cả bốn đều `secondary`, nên hàng nút không nói được đâu là việc đáng làm sau khi
-            tính xong. Thêm nút mới vào hàng này thì để `secondary`: hai nút cam cạnh nhau là mất
-            đúng cái thứ tự vừa dựng lên.
-
-            Và phải giữ nó ĐỨNG CUỐI hàng: `.actionsHead > :last-child` là thứ cho nó xuống hàng
-            riêng ở khổ dưới 600px (bản thiết kế mobile đợt 13). Chèn nút mới vào sau nó là nút
-            mới chiếm mất chỗ ấy, im lặng, không test nào đỏ.
+            Thêm nút mới vào hàng này thì cứ để `secondary`: hàng này cố ý không có nút màu chính
+            nào nữa, vì việc đáng làm sau khi tính xong đã có chỗ đứng riêng, luôn với tới được.
           */}
-          <Button size="sm" onClick={openSaveSheet}>
-            {t('detail.saveToPortfolio')}
-          </Button>
         </div>
 
         {/*
@@ -1333,16 +1569,57 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         )}
 
         {/*
+          Mẫu vừa chọn không cấp được số nào cho công thức này — xem `applyPreset()`.
+
+          `role="status"` chứ không `alert`: không có gì hỏng cả, đây là câu trả lời cho một thao
+          tác vừa xảy ra. Nói luôn công thức này chạy bằng gì, không thì người dùng chỉ biết "không
+          được" mà không biết phải làm gì tiếp.
+
+          Dải này ở LẠI header, khác dải "điền được N/M ô" đã xuống khối Số liệu: nó nói về cả công
+          thức chứ không về ô nào, và không có ô nào để đứng cạnh — không một giá trị nào đổi.
+        */}
+        {presetFill !== null && !presetFill.touched && (
+          <p className={styles.presetMismatch} role="status">
+            {t('detail.presetNoData')} <strong>{presetFill.code}</strong>.{' '}
+            {t('detail.presetNoDataFix')}
+          </p>
+        )}
+
+        {/*
           Trạng thái của mã đến từ `?ma=` trên URL. Nạp xong thì `liveTicker` về null và dòng
           nguồn số liệu ngay trên đã nói thay — không cần một dòng "đã xong" nữa.
         */}
         {liveTicker !== null && (
           <p
             className={styles.pendingNote}
-            role={liveTicker.status === 'failed' ? 'alert' : 'status'}
+            role={liveTicker.status === 'loading' ? 'status' : 'alert'}
           >
             {liveTicker.code} ·{' '}
-            {liveTicker.status === 'loading' ? t('detail.tickerLoading') : t('detail.tickerFailed')}
+            {liveTicker.status === 'loading'
+              ? t('detail.tickerLoading')
+              : liveTicker.status === 'no-data'
+                ? t('detail.tickerNoData')
+                : t('detail.tickerFailed')}
+            {/*
+              Ca `no-data` là ca duy nhất có nút, và có là vì lời khuyên của nó khác hẳn: mã này
+              sẽ KHÔNG BAO GIỜ nạp được, nên việc tiếp theo là chọn mã khác chứ không phải thử lại.
+              Bắt người dùng tự tìm lại đường tới bảng chọn mã sau khi màn vừa bảo họ đổi mã là
+              đưa ra một lời khuyên rồi giấu mất công cụ để làm theo.
+            */}
+            {liveTicker.status === 'no-data' && (
+              <>
+                {' '}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    openTickerPicker();
+                  }}
+                >
+                  {t('detail.tickerChange')}
+                </Button>
+              </>
+            )}
           </p>
         )}
 
@@ -1390,7 +1667,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             >
               {t('detail.tickerChange')}
             </Button>
-            <Button variant="ghost" size="sm" onClick={clearTicker}>
+            <Button variant="ghost" size="sm" onClick={resetAll}>
               {t('detail.tickerClear')}
             </Button>
           </p>
@@ -1457,6 +1734,35 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           )}
         </div>
 
+        {/*
+          Mã điền được MỘT PHẦN — gọi tên đúng những ô chưa phải số thật của mã.
+
+          Đây là khe hở mà gói này bịt: ô nhập khởi tạo bằng `defaultInputs(spec)` rồi `applyPreset`
+          chỉ trộn ĐÈ LÊN, nên ô nào mã không cấp được vẫn giữ số mặc định của ví dụ — kết quả là
+          một con số nửa thật nửa bịa mà trông hoàn toàn hợp lệ. Danh sách còn kể cả chân giá vào
+          của bộ mẫu bản thảo: nó CÓ đổi số, nhưng số ấy do PRNG dựng (xem `presetRealKeys()`).
+
+          Kết quả vẫn tính và vẫn hiện — FR-06 cấm "hiện số THAY CHO lỗi", còn ở đây không có lỗi
+          nào: có một bộ số hợp lệ mà màn đã gọi tên đúng phần chưa phải của mã. Cùng lập luận mà ô
+          móc nối FR-15 đã dùng.
+
+          ĐẶT Ở ĐÂY, không ở header như dải "không dùng số liệu của mã" phía trên: câu này nói về
+          những Ô CỤ THỂ, và người dùng đọc nó xong là phải sửa ngay ô bên dưới. Ở đầu màn thì nó
+          trôi khỏi tầm nhìn đúng lúc họ cuộn xuống chỗ cần sửa — chủ dự án bắt đúng chỗ này.
+
+          `role="status"` chứ không `alert`: không có gì hỏng, đây là câu trả lời cho thao tác nạp.
+        */}
+        {presetFill !== null &&
+          presetFill.touched &&
+          presetGaps !== null &&
+          presetGaps.length > 0 && (
+            <p className={styles.presetMismatch} role="status">
+              <strong>{presetFill.code}</strong> {t('detail.presetPartial')}{' '}
+              {presetFill.filled.size}/{shown.length} {t('detail.presetPartialUnit')} —{' '}
+              {presetGaps.map((v) => pick(v.label)).join(', ')} — {t('detail.presetPartialFix')}
+            </p>
+          )}
+
         {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
         {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
 
@@ -1485,6 +1791,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
                 }}
                 mode={mode}
                 sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
+                /*
+                  Ô này đang mang số của mã vừa nạp → trạng thái `derived` của WF-16: viền đứt +
+                  dòng phụ `↳ HPG`. Dải ở đầu màn gọi tên những ô KHÔNG có dấu này; hai thứ là hai
+                  nửa của cùng một câu trả lời, và nửa ở đây là nửa người dùng nhìn thấy ngay tại
+                  chỗ họ sắp gõ vào.
+                */
+                derivedFrom={
+                  presetFill !== null && presetFill.filled.has(variable.key)
+                    ? presetFill.code
+                    : undefined
+                }
                 className={className}
               />
             ) : (
@@ -1734,6 +2051,30 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       />
       <SourceBlock sources={spec.source} className={styles.deferred} />
 
+      {/*
+        Hai lối ra của màn, đứng cạnh nhau ở cuối trang theo khuôn một form: huỷ bên trái, việc
+        chính bên phải.
+
+        "Lưu vào danh mục" là lối sang tab "Công thức" của màn Danh mục, hiện ở CẢ 111 công thức
+        chứ không riêng nhóm có mã: người tính một khoản vay hay một mức phí cũng muốn giữ lại
+        kết quả y như người đang định giá một mã.
+
+        Nút Lưu CHUYỂN xuống đây chứ không nhân bản thêm một cái, và đó là điều kiện chứ không
+        phải sở thích: `FormulaDetail` có nhiều ca kiểm gọi
+        `getByRole('button', { name: t('detail.saveToPortfolio') })` — truy vấn SỐ ÍT. Dựng nút
+        thứ hai cùng tên khả truy cập là chúng đỏ hàng loạt vì "found multiple elements", và nặng
+        hơn thế: hai nút cùng tên cho cùng một việc là thứ trình đọc màn hình đọc ra hai lần.
+
+        Cỡ mặc định chứ không `sm` như hồi ở hàng nút đầu màn: hai nút này là điểm dừng của cả
+        trang, và vùng chạm lấy trọn `--tap-min` thay vì dựa vào `::after` nới ra.
+      */}
+      <div className={styles.endActions}>
+        <Button variant="secondary" onClick={cancelAndLeave}>
+          {t('detail.cancel')}
+        </Button>
+        <Button onClick={openSaveSheet}>{t('detail.saveToPortfolio')}</Button>
+      </div>
+
       {/* ── Ba bottom sheet của gói 2.5 — chỉ dựng từ lần mở đầu tiên ────── */}
       {mountedSheets.has('preset') && (
         <PresetSheet
@@ -1742,6 +2083,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             setSheet(null);
           }}
           onLoad={applyPreset}
+          picks={presetPicks}
+          spec={spec}
+          wantsSeries={wantsSeries}
           /*
             Lối rẽ sang kho mã lớn ngay trong sheet mẫu. Trước đợt này hai kho mã chỉ gặp nhau
             ở thanh "Đổi mã", tức là người dùng phải NẠP một mã mẫu mới thấy được đường sang
@@ -1830,6 +2174,13 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           onClose={closeTickerPicker}
           // Mũi tên ‹ bên trái khi đóng là LÙI về sheet mẫu; dấu × khi đóng là thoát hẳn.
           dismiss={pickerShowsBack ? 'back' : 'close'}
+          /*
+            Bật đánh dấu "chưa có số liệu" — chỉ ở màn này, KHÔNG ở tab Danh mục.
+            Ở đây người dùng chọn mã để NẠP SỐ LIỆU vào công thức, nên mã thiếu báo cáo là vô dụng
+            và phải nói trước khi họ bấm. Ở Danh mục thì họ chỉ cần THỊ GIÁ — thêm một mã không có
+            báo cáo vào danh mục là hoàn toàn hợp lệ, dán nhãn ở đó là nói sai.
+          */
+          markUnusableAsOf={asOf}
           onPick={(ticker) => {
             pickTicker(ticker.code);
           }}

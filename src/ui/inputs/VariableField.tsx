@@ -16,6 +16,15 @@ export interface VariableFieldProps {
   mode?: Level;
   /** Dòng phụ ghi nguồn hằng số, chỉ dùng cho toggle liên quan thuế/phí (CON-10). */
   sourceNote?: string;
+  /**
+   * Nguồn của giá trị đang hiện, khi nó KHÔNG do người dùng gõ — mã cổ phiếu vừa nạp ('HPG'), hay
+   * tên công thức thượng nguồn trong chuỗi FR-15 ('CAPM').
+   *
+   * Chuyền thẳng xuống `NumberInput`, nơi `resolveInputState()` đổi nó thành trạng thái `derived`
+   * của WF-16: viền đứt + dòng phụ `↳ <nguồn>`. Chỉ ô số nhận — mọi khoá mà bộ mẫu điền được đều là
+   * `numberVar`, và `preset-inputs.test.ts` ghim điều đó.
+   */
+  derivedFrom?: string;
   className?: string;
 }
 
@@ -51,6 +60,7 @@ export function VariableField({
   onChange,
   mode,
   sourceNote,
+  derivedFrom,
   className,
 }: VariableFieldProps) {
   const shared = { spec, value, onChange, mode, className };
@@ -67,6 +77,6 @@ export function VariableField({
     case 'toggle':
       return <Toggle {...shared} sourceNote={sourceNote} />;
     case 'number':
-      return <NumberInput {...shared} />;
+      return <NumberInput {...shared} derivedFrom={derivedFrom} />;
   }
 }

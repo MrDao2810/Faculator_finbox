@@ -55,6 +55,7 @@ export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Pres
     version: PRESET_CONTRACT_VERSION,
     code: snapshot.code,
     name: snapshot.name,
+    industry: snapshot.industry ?? undefined,
     // Cùng khuôn dòng mô tả nguồn của WF-10: kỳ báo cáo trước, phạm vi chuỗi giá sau.
     meta: `${fundamentals.period} · thị giá phiên gần nhất`,
     fundamentals,
@@ -87,7 +88,15 @@ export interface LivePresetFormula {
 }
 
 /**
- * 31 công thức mà một mã lấy từ API điền được ô, xếp theo tỷ lệ điền giảm dần.
+ * 34 công thức mà một mã lấy từ API điền được ô, xếp theo tỷ lệ điền giảm dần.
+ *
+ * **14 trong số đó nạp TRỌN** — mở màn ra là có ngay kết quả tính trên số thật của mã, không phải
+ * gõ ô nào: `bien-loi-nhuan-rong`, `bvps`, `no-tren-von-chu`, `pb`, `pe`, `ps`, `roa`, `roe`,
+ * `so-graham`, `ty-le-chi-tra-co-tuc`, `ty-suat-co-tuc`, `ty-suat-loi-nhuan-tren-gia`,
+ * `von-hoa-thi-truong`, `vong-quay-tong-tai-san`. Trước đợt mở rộng `Fundamentals` chỉ có 8.
+ *
+ * 20 dòng còn lại điền được một phần; màn chi tiết gọi tên những ô chưa phải số của mã thay vì để
+ * chúng lẫn vào số mặc định.
  *
  * ── Vì sao GHIM SẴN thay vì tính lúc chạy ───────────────────────────────────────────────────
  *
@@ -107,32 +116,35 @@ export interface LivePresetFormula {
  * `summaries.generated.ts` — chỉ mục nhẹ tách khỏi Registry nặng.
  */
 export const LIVE_PRESET_FORMULAS: ReadonlyArray<LivePresetFormula> = [
+  { id: 'bien-loi-nhuan-rong', filled: 2, total: 2, priceFields: 0 },
   { id: 'bvps', filled: 2, total: 2, priceFields: 0 },
+  { id: 'no-tren-von-chu', filled: 2, total: 2, priceFields: 0 },
   { id: 'pb', filled: 2, total: 2, priceFields: 1 },
   { id: 'pe', filled: 2, total: 2, priceFields: 1 },
+  { id: 'ps', filled: 2, total: 2, priceFields: 1 },
+  { id: 'roa', filled: 2, total: 2, priceFields: 0 },
   { id: 'roe', filled: 2, total: 2, priceFields: 0 },
+  { id: 'so-graham', filled: 2, total: 2, priceFields: 0 },
   { id: 'ty-le-chi-tra-co-tuc', filled: 2, total: 2, priceFields: 0 },
   { id: 'ty-suat-co-tuc', filled: 2, total: 2, priceFields: 1 },
   { id: 'ty-suat-loi-nhuan-tren-gia', filled: 2, total: 2, priceFields: 1 },
   { id: 'von-hoa-thi-truong', filled: 2, total: 2, priceFields: 1 },
+  { id: 'vong-quay-tong-tai-san', filled: 2, total: 2, priceFields: 0 },
   { id: 'eps-co-ban', filled: 2, total: 3, priceFields: 0 },
   { id: 'hpr', filled: 2, total: 3, priceFields: 1 },
+  { id: 'ncav-tren-co-phieu', filled: 2, total: 3, priceFields: 0 },
   { id: 'thue-tncn-dau-tu', filled: 2, total: 3, priceFields: 1 },
   { id: 'bien-an-toan', filled: 1, total: 2, priceFields: 1 },
-  { id: 'bien-loi-nhuan-rong', filled: 1, total: 2, priceFields: 0 },
+  { id: 'bien-loi-nhuan-gop', filled: 1, total: 2, priceFields: 0 },
+  { id: 'ev-sales', filled: 1, total: 2, priceFields: 0 },
   { id: 'gia-muc-tieu', filled: 1, total: 2, priceFields: 0 },
-  { id: 'no-tren-von-chu', filled: 1, total: 2, priceFields: 0 },
+  { id: 'peg', filled: 1, total: 2, priceFields: 0 },
   { id: 'phi-giao-dich-ban', filled: 1, total: 2, priceFields: 1 },
-  { id: 'ps', filled: 1, total: 2, priceFields: 1 },
-  { id: 'roa', filled: 1, total: 2, priceFields: 0 },
-  { id: 'so-graham', filled: 1, total: 2, priceFields: 0 },
   { id: 'thue-chuyen-nhuong', filled: 1, total: 2, priceFields: 1 },
   { id: 'thue-co-tuc', filled: 1, total: 2, priceFields: 0 },
-  { id: 'diem-hoa-von', filled: 1, total: 3, priceFields: 1 },
-  { id: 'don-bay-hieu-dung', filled: 1, total: 3, priceFields: 0 },
+  { id: 'ev', filled: 1, total: 3, priceFields: 0 },
   { id: 'loi-suat-quy-nam-theo-ngay', filled: 1, total: 3, priceFields: 1 },
   { id: 'mo-hinh-gordon', filled: 1, total: 3, priceFields: 0 },
-  { id: 'ncav-tren-co-phieu', filled: 1, total: 3, priceFields: 0 },
   { id: 'loi-nhuan-rong', filled: 1, total: 4, priceFields: 1 },
   { id: 'roi-rong', filled: 1, total: 4, priceFields: 1 },
   { id: 'ddm-hai-giai-doan', filled: 1, total: 5, priceFields: 0 },

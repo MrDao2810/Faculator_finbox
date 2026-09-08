@@ -12,6 +12,7 @@ import {
   SAMPLE_DATA,
   ACTIVE_TICKER_KEY,
   PRESET_CONTRACT_VERSION,
+  ROUTES,
   SAVED_CALCS_KEY,
   WARNING_LABELS,
   formatIsoDate,
@@ -48,6 +49,18 @@ vi.mock('@/data', async (importOriginal) => {
   return { ...actual, MARKET_FEED: feed };
 });
 
+/**
+ * App router giả — `useRouter()` thật đòi router đã mount, mà màn này được kiểm bằng `render()`
+ * trần trong jsdom. Cùng cách `PortfolioScreen.test.tsx` đang làm, và cùng lý do đã ghi ở docblock
+ * `RecentSearches`.
+ *
+ * Màn dùng router đúng MỘT chỗ: nút "Huỷ và thoát" ở cuối trang (xem `cancelAndLeave()`), nên
+ * `router.push` ở đây vừa là bản giả vừa là chỗ soi xem nút ấy đưa người dùng đi đâu.
+ */
+const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }));
+
+vi.mock('next/navigation', () => ({ useRouter: () => router }));
+
 /** jsdom chưa cài đặt <dialog>.showModal(); ba bottom sheet cần hai hàm này để mở ra được. */
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -68,6 +81,7 @@ afterEach(() => {
   window.history.replaceState({}, '', '/');
   feed.listTickers.mockReset();
   feed.snapshots.mockReset();
+  router.push.mockReset();
 });
 
 const AS_OF = '2026-08-04';
@@ -103,6 +117,33 @@ function Man({ spec }: { spec: FormulaSpec }) {
 function oNhap(name: RegExp): HTMLElement {
   const khoi = screen.getByRole('region', { name: t('detail.inputs') });
   return within(khoi).getByRole('textbox', { name });
+}
+
+/** Bottom sheet đang mở — chỉ có một tại một thời điểm, hai sheet chồng nhau là bẫy focus. */
+function sheetDangMo(): HTMLElement {
+  const dialog = document.querySelector('dialog[open]');
+  if (dialog === null) throw new Error('Không có bottom sheet nào đang mở.');
+  return dialog as HTMLElement;
+}
+
+/**
+ * Bấm nút "Nạp" ở ĐÚNG dòng của một mã trong sheet mẫu.
+ *
+ * Từ đợt "4 mẫu ví dụ trùng thông số", thứ tự bốn dòng do CÔNG THỨC quyết: sheet xếp mã theo kết
+ * quả tăng dần (`pickPresetsFor()`), nên dòng đầu của P/E là mã P/E thấp nhất chứ không còn luôn
+ * là FPT. Ca kiểm nào cần đúng một mã thì phải gọi tên nó ra, không đếm theo vị trí.
+ */
+async function napDongDau(): Promise<string> {
+  const dong = within(sheetDangMo()).getAllByRole('listitem')[0];
+  if (dong === undefined) throw new Error('Sheet mẫu không bày dòng nào.');
+
+  // Đọc `data-ma` chứ không dò chữ trong dòng: nhãn ô ("EPS") trông y hệt một mã ba chữ cái.
+  const ma = dong.getAttribute('data-ma');
+  if (ma === null)
+    throw new Error(`Dòng đầu sheet mẫu không mang data-ma: ${dong.textContent ?? ''}`);
+
+  await userEvent.click(within(dong).getByRole('button', { name: 'Nạp' }));
+  return ma;
 }
 
 /** Ô gõ số trong khối **Ví dụ thực tế**. */
@@ -492,9 +533,19 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
 
-    expect(screen.getByText('FPT')).not.toBeNull();
     // Sheet mẫu không còn ô tìm (xem `PresetSheet`); dấu hiệu nó đã mở là bốn mã kèm nút Nạp.
+    const dong = within(sheetDangMo()).getAllByRole('listitem');
+    expect(dong).toHaveLength(4);
     expect(screen.getAllByRole('button', { name: 'Nạp' })).toHaveLength(4);
+
+    /*
+     * Bốn dòng phải KHÁC NHAU — đây là cửa chặn của lỗi "4 mẫu ví dụ trùng thông số". Bản trước in
+     * `preset.meta` (`BCTC <kỳ> · 248 phiên giá`) dưới mọi mã, mà chuỗi đó dựng từ kỳ báo cáo
+     * chung nên bốn dòng đọc y hệt nhau.
+     */
+    const chu = dong.map((item) => item.textContent?.replace(/\s+/g, ' ').trim() ?? '');
+    expect(new Set(chu).size).toBe(4);
+    for (const line of chu) expect(line).not.toContain('248 phiên giá');
   });
 
   /*
@@ -571,17 +622,52 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     expect(screen.getByRole('button', { name: 'Nạp mẫu' })).not.toBeNull();
   });
 
+  /*
+   * ── "Mã không có số liệu" KHÁC "mất mạng" ──────────────────────────────────────────────────
+   *
+   * Trước đợt này hai ca dùng chung một câu. Người dùng chọn nhầm một chứng chỉ quỹ trong bảng
+   * 1.649 mã nhận đúng câu mà họ nhận khi rớt wifi, nên họ bấm thử lại — mãi mãi, vì khoảng 100
+   * trên 1.005 mã sẽ KHÔNG BAO GIỜ nạp được (`toFundamentals()` từ chối bộ số không tự khớp).
+   *
+   * Phân biệt được vì máy chủ CÓ trả lời, chỉ `fundamentals` là `null`.
+   */
+  it('mã có trong phản hồi nhưng thiếu số liệu cơ bản: nói đúng nguyên nhân, khác câu lỗi mạng', async () => {
+    feed.snapshots.mockResolvedValue(
+      new Map([
+        [
+          'FPT',
+          {
+            code: 'FPT',
+            name: 'FPT Corp',
+            priceVnd: 71_400,
+            floor: 'HOSE',
+            industry: 'Phần mềm & DV máy tính',
+            // Máy chủ trả lời đầy đủ, chỉ số liệu cơ bản là không qua được đối chiếu.
+            fundamentals: null,
+          },
+        ],
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByText(/chưa có đủ số liệu cơ bản để nạp/);
+    // Và tuyệt đối KHÔNG được nói câu của lỗi mạng — lời khuyên của hai ca ngược nhau.
+    expect(screen.queryByText(/không lấy được số liệu của mã/)).toBeNull();
+  });
+
   it('nạp preset thì giá trị chảy về ô nhập và kết quả tính lại (FR-10)', async () => {
     render(<Man spec={specOf('pe')} />);
 
     const before = screen.getByTestId('result-text').textContent;
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
 
     expect(screen.getByTestId('result-text').textContent).not.toBe(before);
     // Nút đổi nhãn để người dùng biết đang xem số liệu của mã nào.
-    expect(screen.getByRole('button', { name: /Đã nạp FPT/ })).not.toBeNull();
+    expect(screen.getByRole('button', { name: new RegExp(`Đã nạp ${maVuaNap}`) })).not.toBeNull();
   });
 
   /*
@@ -599,16 +685,16 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     expect(screen.queryByText(t('detail.fundamentalsSource'), { exact: false })).toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
 
-    const fpt = SAMPLE_DATA.byCode('FPT');
-    if (fpt?.fundamentalsAsOf === undefined) {
-      throw new Error('Bộ mẫu WF-10 thiếu fundamentalsAsOf cho FPT.');
+    const nap = SAMPLE_DATA.byCode(maVuaNap);
+    if (nap?.fundamentalsAsOf === undefined) {
+      throw new Error(`Bộ mẫu thiếu fundamentalsAsOf cho ${maVuaNap}.`);
     }
 
     const note = screen.getByText(t('detail.fundamentalsSource'), { exact: false });
     expect(note.textContent).toContain('Finbox_v2');
-    expect(note.textContent).toContain(formatIsoDate(fpt.fundamentalsAsOf.slice(0, 10)));
+    expect(note.textContent).toContain(formatIsoDate(nap.fundamentalsAsOf.slice(0, 10)));
   });
 
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
@@ -711,7 +797,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
 
     /*
      * Trước đợt này `applyPreset()` chỉ đặt các ô VÔ HƯỚNG, nên nạp FPT cho một công thức chuỗi
@@ -818,13 +904,13 @@ describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
     expect(waiting.textContent).toContain('phiên giá');
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
 
     const figure = await screen.findByRole('figure');
     expect(figure.textContent).toContain('theo thời gian');
     // Trục X là ngày thật, và câu mô tả nói rõ đường vẽ theo phiên của mã nào.
     expect(within(figure).getByRole('columnheader', { name: 'Ngày' })).not.toBeNull();
-    expect(figure.textContent).toContain('FPT');
+    expect(figure.textContent).toContain(maVuaNap);
   });
 });
 
@@ -971,11 +1057,11 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
     expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
 
     const figure = await screen.findByRole('figure');
     expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
-    expect(figure.textContent).toContain('P/E của FPT qua 248 phiên');
+    expect(figure.textContent).toContain(`P/E của ${maVuaNap} qua 248 phiên`);
     expect(within(figure).getByRole('columnheader', { name: 'Ngày' })).not.toBeNull();
   });
 
@@ -984,7 +1070,7 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
     await screen.findByRole('figure');
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
     await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
 
     expect(screen.getByText('P/E theo EPS')).not.toBeNull();
@@ -1003,14 +1089,14 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
     expect((shares as HTMLInputElement).value).toBe('118');
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Nạp' })[0] as HTMLElement);
+    const maVuaNap = await napDongDau();
 
     // Không ghim cứng chuỗi hiển thị: `sharesOutstanding` đọc từ số thật (LIVE_FUNDAMENTALS,
     // Finbox_v2), đổi mỗi lần chạy `npm run gen:live-fundamentals`. So bằng số sau khi đổi
     // định dạng vi-VN ('.' phân nghìn, ',' thập phân) ngược lại thành number.
-    const fpt = SAMPLE_DATA.byCode('FPT');
-    if (fpt === undefined) throw new Error('Bộ mẫu thiếu FPT.');
-    const expectedShares = fpt.fundamentals.sharesOutstanding / 1_000_000;
+    const nap = SAMPLE_DATA.byCode(maVuaNap);
+    if (nap === undefined) throw new Error(`Bộ mẫu thiếu ${maVuaNap}.`);
+    const expectedShares = nap.fundamentals.sharesOutstanding / 1_000_000;
 
     const shown = (oNhap(/Số cổ phiếu lưu hành/) as HTMLInputElement).value;
     expect(shown).not.toBe('118');
@@ -1153,8 +1239,8 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     render(<Man spec={specOf('mo-hinh-gordon')} />);
 
     expect(screen.queryByRole('region', { name: t('chain.title') })).toBeNull();
-    // Và ô r vẫn là thanh trượt nhập tay như trước đợt này.
-    expect(screen.queryByRole('button', { name: t('input.override') })).toBeNull();
+    // Và ô r vẫn là thanh trượt nhập tay như trước đợt này — không có bộ máy ghi đè nào cả.
+    expect(screen.queryByRole('button', { name: t('input.revert') })).toBeNull();
   });
 
   it('công thức không dính cạnh nào thì Nâng cao cũng không có khối chuỗi', async () => {
@@ -1220,16 +1306,21 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     expect(screen.queryByText(/Còn thiếu/)).toBeNull();
   });
 
-  it('bấm Ghi đè thì ô thành của người dùng và chuỗi chạy tiếp', async () => {
+  it('gõ thẳng vào ô nhận tự động thì ô thành của người dùng và chuỗi chạy tiếp', async () => {
     manNangCao(specOf('mo-hinh-gordon'));
     await screen.findByText(/↳ CAPM/);
 
+    // Không có nút "Ghi đè" riêng — gõ lại đúng số đang hiện (13,1) cũng đủ để ô tự chuyển
+    // thành ghi đè, vì ô móc nối luôn gõ được ngay, không bắt bấm nút trước.
     const khoiSoLieu = screen.getByRole('region', { name: t('detail.inputs') });
-    await userEvent.click(within(khoiSoLieu).getByRole('button', { name: t('input.override') }));
+    const o = within(khoiSoLieu).getByRole('textbox', { name: /Suất sinh lợi yêu cầu/ });
+    await userEvent.clear(o);
+    await userEvent.type(o, '13,1');
+    await userEvent.tab();
 
     expect(within(khoiSoLieu).getByText(t('input.overridden'))).not.toBeNull();
     expect(within(khoiSoLieu).getByRole('button', { name: t('input.revert') })).not.toBeNull();
-    // Ghi đè bắt đầu từ chính giá trị đang hiện nên kết quả không nhảy lung tung.
+    // Ghi đè bằng chính giá trị đang hiện nên kết quả không nhảy lung tung.
     expect(screen.getByTestId('result-text').textContent).toContain('25.925');
   });
 
@@ -1327,6 +1418,236 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
       render(<Man spec={specOf(id)} />);
       expect(screen.getByRole('button', { name: t('detail.saveToPortfolio') })).not.toBeNull();
     }
+  });
+
+  /*
+   * Nút Lưu đã CHUYỂN xuống cuối màn chứ không nhân bản thêm một cái ở hàng nút đầu — hai nút
+   * cùng tên khả truy cập là thứ trình đọc màn hình đọc ra hai lần, và cũng làm mọi truy vấn
+   * `getByRole` số ít ở file này đỏ vì "found multiple elements".
+   */
+  it('cả màn chỉ có ĐÚNG MỘT nút Lưu', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    expect(screen.getAllByRole('button', { name: t('detail.saveToPortfolio') })).toHaveLength(1);
+  });
+
+  /*
+   * ── Nút "Huỷ và thoát" đứng cạnh nút Lưu ──────────────────────────────────────────────────
+   *
+   * Một cú bấm làm HAI việc, và cả hai đều phải xảy ra: bỏ bộ số đang có (kể cả bản nháp trên
+   * đĩa, không thì số cũ quay về ở lần mở sau) rồi rời màn. Làm nửa vời là màn hình cãi lại thao
+   * tác người dùng vừa làm.
+   */
+  it('bấm Huỷ thì ô nhập về số mặc định VÀ bản nháp bị xoá', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.clear(oNhap(/Giá thị trường/));
+    await userEvent.type(oNhap(/Giá thị trường/), '55555');
+    fireEvent.blur(oNhap(/Giá thị trường/));
+    // Có gõ thì mới có bản nháp để mà xoá — nếu không ca này không chứng minh được gì.
+    expect(window.localStorage.getItem(INPUT_DRAFT_KEY)).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.cancel') }));
+
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+    expect(window.localStorage.getItem(INPUT_DRAFT_KEY) ?? '').not.toContain('55555');
+  });
+
+  /*
+   * ── Nạp mẫu cho công thức mà mã không cấp được số nào ──────────────────────────────────────
+   *
+   * Chủ dự án báo ở "Trả góp gốc đều": bấm Nạp xong không ô nào đổi, mà nút vẫn đổi thành "Đã nạp
+   * FPT" và dòng nguồn Finbox vẫn hiện. Đo trên toàn Registry lúc sửa: 34 công thức được điền ô,
+   * 35 công thức được nạp chuỗi 248 phiên, 41 công thức còn lại không nhận được gì.
+   */
+  /*
+   * Nút "Nạp mẫu" ẩn hẳn ở 38 công thức mà nạp mã không đổi được gì — mời người dùng bấm vào một
+   * thứ không làm gì rồi từ chối họ sau đó là bắt họ trả một cú bấm để nhận một lời "không".
+   */
+  it('công thức nạp mã không đổi gì thì KHÔNG có nút "Nạp mẫu"', () => {
+    render(<Man spec={specOf('tra-gop-goc-deu')} />);
+
+    expect(screen.queryByRole('button', { name: t('detail.loadPreset') })).toBeNull();
+    // Lối vào khác vẫn còn, màn không hụt chỗ để bắt đầu.
+    expect(screen.getByRole('button', { name: t('detail.jumpToExample') })).not.toBeNull();
+  });
+
+  it('công thức ĂN CHUỖI GIÁ thì vẫn có nút — nạp mẫu là cách duy nhất để nó ra số', () => {
+    render(<Man spec={specOf('rsi-wilder')} />);
+
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+  });
+
+  /*
+   * Dải "không dùng số liệu của mã" vẫn còn đường xảy ra sau khi nút bị ẩn: mã dính theo lượt
+   * duyệt. Người dùng đặt mã ở màn P/E rồi mở "Trả góp gốc đều" — mã theo sang, `applyPreset()`
+   * chạy, và không ô nào đổi. Đó đúng là lúc phải nói ra.
+   */
+  it('mã dính sang công thức không dùng số liệu mã: nói thẳng, KHÔNG khoe "đã nạp"', async () => {
+    seedActiveTicker();
+
+    render(<Man spec={specOf('tra-gop-goc-deu')} />);
+
+    expect(await screen.findByText(new RegExp(t('detail.presetNoData')))).not.toBeNull();
+    expect(screen.queryByText(new RegExp(t('detail.fundamentalsSource')))).toBeNull();
+  });
+
+  it('mẫu điền TRỌN thì vẫn nạp như cũ, không có câu báo nào', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).not.toBe('92.000');
+    expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
+    // `pe` điền cả hai ô nên KHÔNG được có câu "điền được N/M ô" — không có gì để cảnh báo.
+    expect(screen.queryByText(new RegExp(t('detail.presetPartialFix')))).toBeNull();
+  });
+
+  /*
+   * ── Nạp mẫu điền được MỘT PHẦN ─────────────────────────────────────────────────────────────
+   *
+   * Khe hở mà gói này bịt, và nó nguy hiểm hơn ca "không cấp được gì" ở trên vì màn KHÔNG im lặng
+   * mà còn bày ra một con số: ô nhập khởi tạo bằng `defaultInputs(spec)` rồi `applyPreset()` trộn
+   * preset đè lên, nên ô mã không cấp được vẫn giữ số mặc định của ví dụ. Kết quả là lợi nhuận
+   * thật của mã chia một mẫu số bịa — trông hoàn toàn hợp lệ.
+   *
+   * `gia-muc-tieu` là ca thật: bộ mẫu điền được `eps` từ báo cáo, nhưng `targetPe` là một LỰA CHỌN
+   * của người dùng — không báo cáo tài chính nào có sẵn P/E mục tiêu.
+   */
+  it('mẫu điền MỘT PHẦN: gọi tên đúng ô còn lại, không để nó lẫn vào số của mã', async () => {
+    render(<Man spec={specOf('gia-muc-tieu')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+
+    /*
+     * Đọc qua `role="status"` chứ không `getByText`: câu báo chèn `<strong>{mã}</strong>` vào giữa
+     * nên nó nằm rải trên nhiều node, và matcher mặc định của Testing Library bỏ qua element có
+     * element con. Gộp `textContent` là đúng thứ người dùng đọc được.
+     */
+    const dai = screen
+      .getAllByRole('status')
+      .map((el) => el.textContent ?? '')
+      .join(' | ');
+
+    // Câu báo phải có, và phải gọi ĐÚNG TÊN ô mà mã không cấp được.
+    expect(dai).toContain(t('detail.presetPartialFix'));
+    expect(dai).toContain('P/E mục tiêu');
+    expect(dai).toContain('1/2');
+    // Nhưng KHÔNG phải câu "không dùng số liệu của mã" — mã có cấp được số, chỉ là chưa đủ.
+    expect(dai).not.toContain(t('detail.presetNoData'));
+  });
+
+  /*
+   * Đối chứng của ca trên, và là lý do `presetGaps` lọc theo `shown` chứ không theo `spec.variables`.
+   *
+   * `eps-co-ban` có ba biến, bộ mẫu điền hai; ô thứ ba (`preferredDividend`) khai `level: 'advanced'`
+   * nên chế độ Cơ bản ẩn hẳn nó (FR-09). Kể tên một ô người dùng không nhìn thấy thì câu báo thành
+   * lời trách vô cớ về thứ họ không sửa được — mà tệ hơn, nó bảo họ "sửa lại trước khi tin kết quả"
+   * trong khi trên màn chẳng có gì để sửa.
+   */
+  it('chế độ Cơ bản: không kể tên ô đang bị ẩn', async () => {
+    render(<Man spec={specOf('eps-co-ban')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+
+    const dai = screen
+      .getAllByRole('status')
+      .map((el) => el.textContent ?? '')
+      .join(' | ');
+
+    expect(dai).not.toContain(t('detail.presetPartialFix'));
+    expect(dai).not.toContain('Cổ tức ưu đãi');
+  });
+
+  it('ô nạp từ mã mang dấu nguồn `↳ <mã>`, ô không nạp được thì không', async () => {
+    render(<Man spec={specOf('gia-muc-tieu')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+
+    // Trạng thái `derived` của WF-16 in dòng phụ `↳ <nguồn>` — xem `resolveInputState()`.
+    // Đúng một ô: `eps` điền được, `targetPe` thì không.
+    expect(screen.getAllByText(/^↳ /)).toHaveLength(1);
+  });
+
+  /*
+   * ── Ô "Giá mua" mang GIÁ DỰNG thì không được đeo nhãn của mã ───────────────────────────────
+   *
+   * Chủ dự án bắt được ca này trên màn `loi-nhuan-rong`: nạp VIC thì ô "Giá mua" hiện 318.750 ₫ kèm
+   * dấu "↳ VIC", trong khi thị giá thật của VIC là 243.500 ₫. `makeBars()` neo chuỗi ở phiên CUỐI
+   * nên `bars[0].close` là phiên PRNG — màn đang khẳng định một mức giá VIC chưa từng có.
+   *
+   * Ô vẫn giữ số (bộ mẫu bày ra tình huống "mua đầu kỳ, bán phiên gần nhất"), chỉ mất nhãn và bị
+   * dải cảnh báo gọi tên cùng những ô mặc định.
+   */
+  it('chân giá vào của bộ mẫu: giữ số nhưng KHÔNG đeo nhãn của mã, và bị gọi tên', async () => {
+    render(<Man spec={specOf('loi-nhuan-rong')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+
+    // Đúng một dấu `↳`: "Giá bán" (phiên cuối = thị giá thật). "Giá mua" thì không.
+    expect(screen.getAllByText(/^↳ /)).toHaveLength(1);
+
+    const dai = screen
+      .getAllByRole('status')
+      .map((el) => el.textContent ?? '')
+      .join(' | ');
+
+    // Dải gọi tên cả ô mặc định LẪN ô mang giá dựng — điểm chung: chưa phải số thật của mã.
+    expect(dai).toContain(t('detail.presetPartialFix'));
+    expect(dai).toContain('Giá mua');
+    expect(dai).toContain('Khối lượng');
+    expect(dai).toContain('1/4');
+  });
+
+  /*
+   * Dải "điền được N/M ô" phải ở TRONG khối Số liệu, cạnh đúng những ô nó nói tới.
+   *
+   * Ở header thì nó trôi khỏi tầm nhìn đúng lúc người dùng cuộn xuống chỗ cần sửa — chủ dự án bắt
+   * đúng chỗ này. Dải "không dùng số liệu của mã" thì ở LẠI header: nó nói về cả công thức, và
+   * không có ô nào để đứng cạnh vì không giá trị nào đổi.
+   */
+  it('dải "điền được N/M ô" nằm trong khối Số liệu, không ở đầu màn', async () => {
+    render(<Man spec={specOf('loi-nhuan-rong')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+
+    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    const trongKhoi = within(khoi)
+      .getAllByRole('status')
+      .map((el) => el.textContent ?? '')
+      .join(' | ');
+
+    expect(trongKhoi).toContain(t('detail.presetPartialFix'));
+  });
+
+  it('gõ đè lên ô đang mang số của mã thì ô đó thôi là số của mã', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(screen.getAllByRole('button', { name: t('preset.load') })[0]!);
+    expect(screen.getAllByText(/^↳ /)).toHaveLength(2);
+
+    const o = oNhap(/Giá thị trường/) as HTMLInputElement;
+    await userEvent.clear(o);
+    await userEvent.type(o, '50000');
+
+    // Ô vừa gõ mất dấu nguồn; ô kia giữ nguyên. Không gỡ thì màn nói dối về gốc con số ấy.
+    expect(screen.getAllByText(/^↳ /)).toHaveLength(1);
+  });
+
+  it('bấm Huỷ thì rời màn, về đúng chỗ nút "Quay lại" đầu màn trỏ tới', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.cancel') }));
+
+    // Chưa nhớ màn gốc nào thì cả hai cùng rơi về đường dự phòng của `useBackTarget()`.
+    expect(router.push).toHaveBeenCalledWith(ROUTES.formulas);
   });
 
   it('lưu xong thì phép tính nằm trong localStorage kèm bộ số đang nhập', async () => {
@@ -1785,8 +2106,8 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
 
   it('từ sheet Nạp mẫu rẽ thẳng sang sheet chọn mã toàn thị trường', async () => {
     feed.listTickers.mockResolvedValue([
-      { code: 'VCB', name: 'Vietcombank' },
-      { code: 'SSI', name: 'Chứng khoán SSI' },
+      { code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' },
+      { code: 'HDB', name: 'HDBank' },
     ]);
 
     render(<Man spec={specOf('pe')} />);
@@ -1794,8 +2115,17 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
     await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
 
-    // VCB không nằm trong bốn mã mẫu — thấy được nó tức là đã sang đúng kho lớn.
-    expect(await screen.findByText('VCB')).not.toBeNull();
+    /*
+     * Mã dùng ở đây phải NẰM NGOÀI kho mẫu — thấy được nó tức là đã sang đúng kho lớn. Trước đợt
+     * mở rộng kho, ca kiểm này dùng VCB với lý do "VCB không nằm trong bốn mã mẫu"; nay VCB đã là
+     * một mã mẫu nên lý do ấy hết đúng. Khẳng định ngay dưới là cái chốt: thêm SHB vào kho thì
+     * test đỏ kèm câu nói rõ phải làm gì, chứ không âm thầm mất hiệu lực.
+     */
+    expect(
+      SAMPLE_DATA.byCode('SHB'),
+      'SHB đã vào kho mẫu — đổi ca kiểm sang một mã còn ngoài kho',
+    ).toBeUndefined();
+    expect(await screen.findByText('SHB')).not.toBeNull();
     // Và sheet mẫu nhường chỗ hẳn: hai bottom sheet chồng nhau là một cái bẫy tiêu điểm.
     expect(sheetChua(t('preset.browseMarketNote')).open).toBe(false);
   });
@@ -1806,13 +2136,13 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
    * mã, nên phải trả họ về đúng chỗ vừa rời đi.
    */
   it('thoát sheet chọn mã (vào từ sheet mẫu) thì LÙI về sheet Nạp mẫu, không thoát hẳn', async () => {
-    feed.listTickers.mockResolvedValue([{ code: 'VCB', name: 'Vietcombank' }]);
+    feed.listTickers.mockResolvedValue([{ code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' }]);
 
     render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
     await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
-    expect(await screen.findByText('VCB')).not.toBeNull();
+    expect(await screen.findByText('SHB')).not.toBeNull();
 
     /*
       Nút thoát của sheet này mang nhãn "Quay lại" chứ không phải "Đóng", và đó là nửa còn lại
@@ -1830,7 +2160,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
   });
 
   it('vào từ nút "Đổi mã" thì nút thoát vẫn là Đóng — ở đó đóng là thoát hẳn', async () => {
-    feed.listTickers.mockResolvedValue([{ code: 'VCB', name: 'Vietcombank' }]);
+    feed.listTickers.mockResolvedValue([{ code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' }]);
     seedActiveTicker();
 
     render(<Man spec={specOf('pe')} />);
@@ -1843,9 +2173,9 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
   });
 
   it('chọn được mã thì đóng cả hai sheet — không lùi về sheet mẫu nữa', async () => {
-    feed.listTickers.mockResolvedValue([{ code: 'VCB', name: 'Vietcombank' }]);
+    feed.listTickers.mockResolvedValue([{ code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' }]);
     feed.snapshots.mockResolvedValue(
-      new Map([['VCB', { ...FPT_SNAPSHOT, code: 'VCB', name: 'Vietcombank' }]]),
+      new Map([['SHB', { ...FPT_SNAPSHOT, code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' }]]),
     );
 
     render(<Man spec={specOf('pe')} />);
@@ -1854,7 +2184,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
     await userEvent.click(await screen.findByRole('button', { name: t('ticker.pick') }));
 
-    await screen.findByRole('button', { name: /Đã nạp VCB/ });
+    await screen.findByRole('button', { name: /Đã nạp SHB/ });
     expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
     expect(sheetChua(t('preset.browseMarketNote')).open).toBe(false);
   });

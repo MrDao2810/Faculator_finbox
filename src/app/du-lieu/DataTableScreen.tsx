@@ -9,6 +9,7 @@ import {
   PRICE_SERIES_KEY,
   appendRow,
   checkSeries,
+  defaultPresetPicks,
   emptyRow,
   formatNumber,
   formulaPath,
@@ -410,6 +411,12 @@ export function DataTableScreen() {
           setSheet(null);
         }}
         onLoad={loadPreset}
+        /*
+          Không truyền `spec`: màn này mở sheet để lấy CHUỖI PHIÊN GIÁ vào bảng, không tính công
+          thức nào. Không có công thức thì không xếp hạng được mã, nên sheet giữ đúng hình dạng
+          cũ — xem docblock `PresetSheet`.
+        */
+        picks={defaultPresetPicks()}
       />
 
       <PasteImportSheet

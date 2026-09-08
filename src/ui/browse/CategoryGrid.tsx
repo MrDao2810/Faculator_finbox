@@ -82,7 +82,7 @@ export function CategoryGrid({ categories, basicCounts }: CategoryGridProps) {
                 .join(' ')}
             >
               <span className={styles.icon} aria-hidden="true">
-                <CategoryIcon id={category.id} size={16} />
+                <CategoryIcon id={category.id} size={20} />
               </span>
               <span className={styles.name}>
                 <Pick value={category.shortName} />

@@ -22,14 +22,30 @@ export type LivePresetResult =
   | { status: 'ok'; preset: Preset }
   /** Nơi gọi đã huỷ (rời trang, đổi mã) — không phải lỗi, đừng bày gì lên màn. */
   | { status: 'cancelled' }
-  /** Không tra được: mất mạng, mã không có, hoặc số liệu không qua được đối chiếu. */
+  /**
+   * Gọi được, máy chủ có trả lời, nhưng mã này KHÔNG có số liệu cơ bản dùng được — báo cáo chưa đủ
+   * bốn quý liền nhau, hoặc bộ số không tự khớp (xem `finbox/map.ts`). **Thử lại là vô ích.**
+   */
+  | { status: 'no-data' }
+  /** Mất mạng, HTTP lỗi, hình dạng phản hồi lạ. **Thử lại thì có thể được.** */
   | { status: 'failed' };
 
 /**
  * Tra một mã rồi dựng `Preset` để `applyPreset()` nạp vào ô nhập.
  *
- * KHÔNG ném: mọi ngả hỏng đều quy về `'failed'`, vì nơi gọi là một effect trong React và FR-06
+ * KHÔNG ném: mọi ngả hỏng đều quy về một `status`, vì nơi gọi là một effect trong React và FR-06
  * đòi màn phải nói rõ nguyên nhân chứ không được chết lặng.
+ *
+ * ── Vì sao `'no-data'` phải tách khỏi `'failed'` ────────────────────────────────────────────
+ *
+ * Trước đợt này ba nguyên nhân khác hẳn nhau cùng quy về `'failed'`, nên màn chỉ nói được một câu
+ * "không lấy được số liệu của mã" cho cả ba. Người dùng chọn nhầm một chứng chỉ quỹ trong bảng
+ * 1.649 mã nhận đúng câu mà họ nhận khi rớt wifi — và họ sẽ bấm thử lại, mãi mãi, vì câu ấy nghe
+ * như một trục trặc tạm thời. Chỉ khoảng 903 trên 1.005 mã qua được `toFundamentals()`; số còn lại
+ * sẽ KHÔNG BAO GIỜ nạp được, và màn phải nói ra điều đó thay vì mời họ thử lại.
+ *
+ * Phân biệt được vì `snapshots.get(code)` **có** trả về ảnh chụp — máy chủ đã trả lời, chỉ
+ * `snapshot.fundamentals` là `null`. Hai ca ấy trước đây bị gộp ở cùng một dòng.
  */
 export async function loadLivePreset(
   code: string,
@@ -41,10 +57,12 @@ export async function loadLivePreset(
     if (signal?.aborted === true) return { status: 'cancelled' };
 
     const snapshot = snapshots.get(code.trim().toUpperCase());
+    // Máy chủ trả lời mà không có mã này trong phản hồi — bất thường về phía nguồn, không phải
+    // "mã thiếu số liệu". Thử lại có thể được, nên vẫn là `'failed'`.
     if (snapshot === undefined) return { status: 'failed' };
 
     const preset = presetFromSnapshot(snapshot, asOf);
-    return preset === undefined ? { status: 'failed' } : { status: 'ok', preset };
+    return preset === undefined ? { status: 'no-data' } : { status: 'ok', preset };
   } catch (error) {
     return isAbortError(error) ? { status: 'cancelled' } : { status: 'failed' };
   }

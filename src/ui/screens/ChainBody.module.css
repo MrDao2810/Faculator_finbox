@@ -131,7 +131,7 @@
 }
 
 /*
- * Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng — cùng luật với thanh
+ * Ô móc nối mang thêm hàng nút Nhận tự động (khi đã ghi đè) nên luôn chiếm trọn hàng — cùng luật với thanh
  * trượt và nhóm nút, xem `isWideControl()`. Không subgrid: chiếm cả bề ngang thì không có ô nào
  * bên cạnh để mà thẳng hàng, và số phần bên trong không cố định.
  */

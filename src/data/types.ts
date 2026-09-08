@@ -52,6 +52,72 @@ export interface Fundamentals {
   equity: number;
   /** Kỳ báo cáo, ví dụ 'BCTC 2025'. */
   period: string;
+
+  /*
+   * ── Năm trường mở rộng, tất cả TUỲ CHỌN ───────────────────────────────────────────────────
+   *
+   * Tuỳ chọn vì hai lẽ, và cả hai đều quan trọng hơn vẻ gọn gàng của một kiểu bắt buộc:
+   *
+   * 1. `PRESET_CONTRACT_VERSION` giữ nguyên 1 — thêm trường tuỳ chọn thì KHÔNG tăng, theo đúng
+   *    luật đã ghi ở hằng số ấy. Bộ số liệu cũ vẫn đọc được.
+   * 2. Một mã thiếu `dt_q*` vẫn phải nạp được sáu trường kia. Bỏ cả bản ghi vì một dòng báo cáo
+   *    khuyết là quay lại đúng cái bẫy đã loại oan 268/1.005 mã (xem `finbox/map.ts`).
+   *
+   * HAI TRONG NĂM TRƯỜNG LÀ SỐ **SUY RA**, không phải dòng đọc thẳng từ báo cáo —
+   * `totalLiabilities` và `totalAssets`. Docblock từng trường nói rõ phép suy và nguồn thật nếu sau
+   * này có API tốt hơn. Đừng đọc chúng như thể là số trên bảng cân đối kế toán.
+   *
+   * Hai khoá ô nhập nữa — `bvps` và `salesPerShare` — KHÔNG nằm ở đây dù công thức có dùng: chúng
+   * tính lại được từ các trường trên (`bvps` chính là `bookValuePerShare`; `salesPerShare` là
+   * `revenue × 1e9 ÷ sharesOutstanding`), nên chỗ của chúng là bảng ánh xạ trong `preset-inputs.ts`,
+   * không phải kiểu dữ liệu. Lưu một con số ở hai nơi là mời hai nơi ấy lệch nhau.
+   *
+   * ⚠ Phạm vi hợp nhất lệch nhau, và chỗ này là nơi duy nhất ghi lại: `equity` suy ra từ
+   * `bookValuePerShare × sharesOutstanding`, tức phần thuộc **công ty mẹ**, còn `noVCSH` do Finbox
+   * công bố nhiều khả năng tính trên **toàn tập đoàn**. Doanh nghiệp có lợi ích cổ đông thiểu số
+   * lớn thì `totalLiabilities`/`totalAssets` lệch theo. Bộ sinh của bộ mẫu lọc ca này bằng
+   * `checkSelfConsistent()`; đường LIVE cố ý không lọc, lý do ở `finbox/map.ts`.
+   */
+
+  /**
+   * Doanh thu thuần 12 tháng gần nhất, đơn vị **tỷ ₫**.
+   *
+   * Cộng 4 quý `dt_q{quý}/{năm}` liền nhau — cùng thuật toán `trailingTwelveMonths()` đang dùng cho
+   * `ln_`, chỉ khác tiền tố. Không lấy `dt_y{năm}` vì với năm chưa kết thúc thì đó là luỹ kế từ đầu
+   * năm, khác kỳ với `netIncome` — đúng cái bẫy đã vá cho lợi nhuận.
+   */
+  revenue?: number;
+  /**
+   * Tổng nợ phải trả cuối kỳ, đơn vị **tỷ ₫**. **Suy ra**: `noVCSH × equity`.
+   *
+   * `noVCSH` là tỷ số nợ trên vốn chủ do Finbox công bố. Đây là TOÀN BỘ nợ phải trả, không riêng nợ
+   * vay có lãi — nên nó điền được ô của `no-tren-von-chu` và `ncav-tren-co-phieu`, nhưng KHÔNG điền
+   * ô "Nợ vay" của `ev` (khoá `totalDebt`, nghĩa hẹp hơn).
+   */
+  totalLiabilities?: number;
+  /**
+   * Tổng tài sản cuối kỳ, đơn vị **tỷ ₫**. **Suy ra**: `equity + totalLiabilities`.
+   *
+   * KHÔNG lấy `netIncome ÷ roa` dù API có sẵn `roa`, vì `roa` của Finbox tính trên tài sản **bình
+   * quân** còn `equity` của ta là số **cuối kỳ** — trộn hai kỳ vào một bảng cân đối là đúng loại lỗi
+   * mà `finbox/map.ts` đã viết cả một docblock để cảnh báo. Đo trên FPT: hai cách lệch 9%.
+   *
+   * Lấy `equity + totalLiabilities` thì ba trường tạo thành một tam giác kín `A = E + L`, chỉ tiêu
+   * thụ **một** field API (`noVCSH`), và `roa`/`roe` của API trở thành phép đối chiếu ĐỘC LẬP thay vì
+   * nguồn — đúng vai `pe`/`pb` đang giữ.
+   */
+  totalAssets?: number;
+  /**
+   * Vốn hoá thị trường, đơn vị **tỷ ₫**. Đọc thẳng field `vonhoa`.
+   *
+   * Không suy ra từ `priceVnd × sharesOutstanding`: `TickerSnapshot.priceVnd` được đối chiếu ĐỘC LẬP
+   * với `fundamentals`, nên một mã có thể có số liệu cơ bản hợp lệ mà không có thị giá. Nếu vốn hoá
+   * phụ thuộc thị giá thì cột `priceFields` của `LIVE_PRESET_FORMULAS` nói sai và sheet "công thức
+   * cho mã này" hứa sai với đúng nhóm mã ấy.
+   */
+  marketCap?: number;
+  /** P/E hiện tại, đơn vị **lần**. Đọc thẳng field `pe` — cùng field vẫn đang dùng để đối chiếu. */
+  pe?: number;
 }
 
 /**
@@ -77,6 +143,14 @@ export interface Preset {
   code: string;
   /** Tên doanh nghiệp hiện dưới mã. */
   name: string;
+  /**
+   * Ngành, ví dụ 'Ngân hàng'. `undefined` khi nguồn không nói.
+   *
+   * Có mặt vì sheet "Nạp mẫu" nay chọn 4 mã theo công thức đang xem, và ngành là thứ trả lời
+   * nhanh nhất câu "vì sao bốn mã này lại cho ra bốn kết quả khác nhau đến vậy" — một P/B dưới 1
+   * của ngân hàng đứng cạnh P/B trên 3 của bán lẻ đọc ra ngay, còn hai con số trần thì không.
+   */
+  industry?: string;
   /** Dòng mô tả nguồn, đúng khuôn WF-10: 'BCTC 2025 · 248 phiên giá'. */
   meta: string;
   fundamentals: Fundamentals;

@@ -740,14 +740,31 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     tags: ['de', 'd e', 'no tren von chu', 'don bay', 'debt to equity', 'chi so dn'],
     resultUnit: 'lần',
     variables: [
-      numberVar('totalDebt', { vi: 'Tổng nợ phải trả', en: 'Total liabilities' }, 'tỷ ₫', 22_500, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Toàn bộ nợ ngắn hạn và dài hạn trên bảng cân đối kế toán.',
-          en: 'All short-term and long-term debt on the balance sheet.',
+      /*
+       * Khoá `totalLiabilities`, KHÔNG phải `totalDebt`.
+       *
+       * `ev` cũng có khoá `totalDebt`, cùng đơn vị tỷ ₫, nhưng nghĩa hẹp hơn hẳn — nhãn của nó là
+       * "Nợ vay", tức chỉ nợ vay có lãi. Ô ở đây là TOÀN BỘ nợ phải trả. Hai nghĩa khác nhau mà
+       * trùng cả tên lẫn đơn vị thì `presetInputs()` không tách được, nên bộ mẫu đổ tổng nợ phải
+       * trả vào ô "Nợ vay" của `ev` và ra một giá trị doanh nghiệp thổi phồng.
+       *
+       * `ncav-tren-co-phieu` đã có sẵn khoá `totalLiabilities` với đúng nghĩa này (và mô tả cũng
+       * ghi rõ "không riêng nợ vay"), nên đây là gộp về khoá đã có chứ không phải đặt tên mới.
+       */
+      numberVar(
+        'totalLiabilities',
+        { vi: 'Tổng nợ phải trả', en: 'Total liabilities' },
+        'tỷ ₫',
+        22_500,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Toàn bộ nợ ngắn hạn và dài hạn trên bảng cân đối kế toán.',
+            en: 'All short-term and long-term debt on the balance sheet.',
+          },
         },
-      }),
+      ),
       equity,
     ],
     explanation: {
@@ -773,25 +790,25 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         vi: 'Nợ phải trả 22.500 tỷ ₫, vốn chủ 36.456 tỷ ₫',
         en: 'Liabilities 22,500 billion ₫, equity 36,456 billion ₫',
       },
-      inputs: { totalDebt: 22_500, equity: 36_456 },
+      inputs: { totalLiabilities: 22_500, equity: 36_456 },
       expected: 0.6172,
     },
     tests: [
-      { name: 'ca thường', inputs: { totalDebt: 22_500, equity: 36_456 }, expected: 0.6172 },
+      { name: 'ca thường', inputs: { totalLiabilities: 22_500, equity: 36_456 }, expected: 0.6172 },
       {
         name: 'đòn bẩy cao — nợ gấp hơn 3 lần vốn chủ',
-        inputs: { totalDebt: 80_000, equity: 25_000 },
+        inputs: { totalLiabilities: 80_000, equity: 25_000 },
         expected: 3.2,
       },
       {
         name: 'vốn chủ bằng 0 thì không chia được',
-        inputs: { totalDebt: 22_500, equity: 0 },
+        inputs: { totalLiabilities: 22_500, equity: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
         name: 'vốn chủ âm thì hệ số nợ vô nghĩa — ca kinh điển của nhóm',
-        inputs: { totalDebt: 22_500, equity: -3_000 },
+        inputs: { totalLiabilities: 22_500, equity: -3_000 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
@@ -825,7 +842,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         ),
       );
     }
-    return ok(v('totalDebt') / eq, 'lần');
+    return ok(v('totalLiabilities') / eq, 'lần');
   },
 };
 

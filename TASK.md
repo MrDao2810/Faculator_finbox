@@ -145,6 +145,724 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Nạp mã thật vào ô công thức — 5 gói (08/09/2026)
+
+**Trạng thái: đang làm** — Gói 1 xong, Gói 2–5 còn lại.
+
+Chủ dự án báo: nạp mã HPG xong màn hiện "Công thức này không dùng số liệu của mã HPG", tưởng API
+chỉ trả về ticker mà không có thông số. Trace và **đo thật** (chạy `vite-node` trên Registry thật):
+dữ liệu đã về đủ, nhưng chỉ **8/111 công thức** nạp mã là ra kết quả trọn; 23 công thức nạp một
+phần rồi âm thầm trộn với số mặc định; 80 công thức không có ô nào khớp.
+
+Ba nguyên nhân, hai trong đó là lỗi đang sống:
+
+1. `Fundamentals` chỉ có 7 trường nên `candidates()` chỉ cấp 14 khoá — trong khi API Finbox **có**
+   doanh thu theo quý đủ 10 năm (`dt_q*`), vốn hoá (`vonhoa`), ROE/ROA, nợ/VCSH (`noVCSH`), P/E.
+   Đã gọi thật cả hai endpoint ngày 08/09/2026 để xác nhận.
+2. Nạp một phần thì `FormulaDetail` trộn preset lên `defaultInputs(spec)` mà không nói gì — nạp HPG
+   vào `roa` cho một con số trông hợp lệ nhưng vô nghĩa.
+3. Hai khoá trùng tên khác nghĩa đang bị đổ số sai: `equity` (tỷ ₫ vốn chủ ↔ ₫ vốn tài khoản) và
+   `price` (thị giá cổ phiếu ↔ giá bán một sản phẩm).
+
+Kế hoạch 5 gói, chủ dự án đã duyệt: cửa đơn vị → đổi tên 2 khoá → mở rộng `Fundamentals` 7 trường →
+nói rõ ô nào chưa phải số của mã → tách "mã không có số liệu" khỏi "lỗi mạng". Đích: **14/111 nạp
+trọn, 34/111 nhận ≥1 ô** — gần trần của API (không có chuỗi giá lịch sử dài, không có dòng bảng cân
+đối/lưu chuyển tiền tệ).
+
+### Gói 1 — cửa đơn vị trong `presetInputs()` (xong)
+
+Đổi file:
+
+- `src/data/preset-inputs.ts` — `candidates()` trả `PresetValue { value, units }` thay vì số trần;
+  `presetInputs()` thêm cửa `if (!candidate.units.includes(variable.unit)) continue;`. Thêm
+  `presetFillableUnits()` cho ca kiểm. Xoá hằng `BILLION` không ai dùng. `units` là **mảng** vì
+  Registry có hai cách viết cho cùng một đại lượng (`dividendPerShare` là `'₫'` ở
+  `ty-le-chi-tra-co-tuc` và `'₫/CP'` ở ba công thức khác).
+- `src/data/live-preset.ts` — `LIVE_PRESET_FORMULAS` bỏ dòng `don-bay-hieu-dung`, còn **30 dòng**.
+- `src/data/preset-inputs.test.ts` — 3 ca mới (khoá trùng tên khác đơn vị thì không điền; cùng khoá
+  đúng đơn vị vẫn điền; không có đơn vị chết). Con số phủ `some` 22 → **21**, kèm viết lại docblock.
+- `src/data/live-preset.test.ts` — sửa chú thích "31 dòng" → 30. Số 15/8 giữ nguyên (`don-bay-hieu-dung`
+  có `priceFields: 0` nên không thuộc nhóm nào trong hai nhóm ấy).
+
+Vì sao chọn cửa đơn vị chứ không đổi tên `derivatives.equity`: cửa đơn vị là **luật** chặn cả lớp
+lỗi và đặt đúng tầng đang giữ kiến thức đơn vị; thêm công thức mới dùng lại khoá `equity` với đơn
+vị ₫ thì tự động không được điền, không cần ai nhớ. Nó cũng chặn sẵn bẫy `revenue` của Gói 3
+(`fundamentals.ts` + `valuation-multiples.ts` là tỷ ₫, `corporate.ts` là ₫).
+
+Kiểm chứng: `npx vitest run src/data/preset-inputs.test.ts src/data/live-preset.test.ts
+src/data/provider.test.ts` → 131 xanh (từ 128, thêm 3 ca mới). `npm run typecheck` sạch, eslint sạch.
+
+### Gói 2 — tách hai khoá trùng tên khác nghĩa (xong)
+
+Cửa đơn vị của Gói 1 không bắt được ca hai nghĩa **cùng đơn vị**, nên hai khoá này phải tách bằng
+tên. Chủ dự án đã đồng ý cái giá: bản `SavedCalc`/nháp cũ của đúng 2 công thức này mất giá trị ô bị
+đổi tên, rơi về `defaultValue` khi mở lại (không vỡ, không mất bản lưu).
+
+- `src/core/formulas/corporate.ts` — `diem-hoa-von.price` → **`unitPrice`** (7 chỗ: `variables[].key`,
+  `example.inputs`, 5 `tests[].inputs`, thân `calc`). Ô ấy tên đầy đủ là "Giá bán một sản phẩm";
+  bảy công thức khác dùng `price` với nghĩa thị giá cổ phiếu, cùng đơn vị ₫.
+- `src/core/formulas/fundamentals.ts` — `no-tren-von-chu.totalDebt` → **`totalLiabilities`** (7 chỗ).
+  Gộp về khoá **đã tồn tại** ở `ncav-tren-co-phieu` cùng nghĩa; `ev.totalDebt` giữ nguyên vì nhãn
+  của nó là "Nợ vay" — nghĩa hẹp hơn hẳn.
+- `src/data/live-preset.ts` — bảng ghim còn **29 dòng** (`diem-hoa-von` rụng hẳn; `no-tren-von-chu`
+  ở lại với 1 ô nhờ `equity`).
+- `src/data/live-preset.test.ts` — 15/8 → **14/7**. `src/app/danh-muc/PortfolioScreen.test.tsx` —
+  `- 8` → `- 7`.
+
+**Phát hiện thêm, chưa có trong kế hoạch:** `src/core/chart/history.test.ts` đỏ theo, và đỏ là đúng.
+`historyPlan()` nhận diện "công thức ăn thị giá" bằng cách tìm khoá trong `CURRENT_LEG`, nên khi
+`diem-hoa-von` còn tên khoá `price` thì màn **vẽ được một đường "điểm hoà vốn doanh nghiệp qua 248
+phiên"**, dựng bằng cách thay giá bán sản phẩm bằng thị giá cổ phiếu từng phiên — vô nghĩa nhưng
+trông thuyết phục vì có trục thời gian thật. Con số toàn Registry 50 → **49**, kèm một assertion mới
+ghim `diem-hoa-von` không được nằm trong danh sách. Cùng một lỗi khoá trùng tên, phát tác ở chỗ thứ
+hai mà kế hoạch chưa lường.
+
+Kiểm chứng: toàn suite về đúng baseline — 2297 xanh / 3 đỏ (baseline) / 37 skip. Typecheck sạch,
+eslint sạch.
+
+### Gói 3 — mở rộng `Fundamentals` (xong)
+
+Thêm **5 trường tuỳ chọn** (`PRESET_CONTRACT_VERSION` giữ nguyên 1): `revenue` (TTM 4 quý `dt_q*`),
+`totalLiabilities` (suy ra `noVCSH × equity`), `totalAssets` (suy ra `equity + totalLiabilities`),
+`marketCap` (`vonhoa` đọc thẳng), `pe` (đọc thẳng). Hai khoá ô nhập nữa — `bvps` và `salesPerShare`
+— cố ý **không** vào kiểu dữ liệu mà là alias/suy ra trong `candidates()`: chúng tính lại được từ
+trường đã có, lưu hai bản là mời hai bản lệch nhau.
+
+Đổi file: `src/data/types.ts`, `src/data/finbox/map.ts` (+`extendedFields()`, tổng quát hoá
+`latestQuarters`/`latestQuartersAgree` theo `prefix`), `src/data/finbox/map.test.ts`,
+`scripts/gen-live-fundamentals.mjs` (+`buildExtended()`), `src/data/live-fundamentals.generated.ts`
+(sinh lại, 27/27 mã có đủ 5 trường), `src/data/preset-inputs.ts`, `src/data/live-preset.ts`,
+`src/application/active-ticker.ts`, cùng 4 file test.
+
+**Hai quyết định phải giữ** (đã ghi vào docblock từng chỗ):
+
+1. `totalAssets` = `equity + totalLiabilities`, **không** = `netIncome ÷ roa`. Finbox tính `roa`
+   trên tài sản bình quân còn `equity` của ta là cuối kỳ; đo trên FPT hai cách lệch 9%. Cách đã
+   chọn tạo tam giác kín `A = E + L`, chỉ tiêu thụ một field API, và biến `roa`/`roe` thành phép
+   đối chiếu độc lập.
+2. **Trường lệch thì bỏ riêng trường, không bỏ cả bản ghi** — `marketCap` lệch không làm `eps` sai.
+
+**Một phép đối chiếu đã thử rồi BỎ, và đây là phần đáng nhớ nhất của gói:** bản đầu đối chiếu
+`netIncome ÷ revenue` với field `bienloinhuan`, và nó loại **19 trên 27 mã**. Đo thật ngày
+08/09/2026 trên 14 mã lớn: biên ròng tự tính lệch `bienloinhuan` từ **13% tới 86%**, không một mã
+nào khớp — FPT 0,157 so với 0,347; MWG 0,056 so với 0,207. `bienloinhuan` đơn giản không phải "lợi
+nhuận sau thuế ÷ doanh thu thuần". Sai **bản chất** chứ không sai ngưỡng, đúng bài học mà
+`map.ts` đã trả giá một lần với phép "TTM phải sinh lại đúng EPS" (loại oan 268/1.005 mã). Phép gác
+đúng cho `revenue` là `dt_quygannhat`/`dt_quygannhi` + bốn quý liền nhau — chính hai phép mà `ln_`
+đang dùng.
+
+Một điểm về test: `map.test.ts` không so `marketCap`/`pe` với file sinh nữa. Hai trường ấy đổi
+**trong ngày** (file sinh lúc 03:12 ghi `marketCap: 123946` cho FPT, API lúc 10:15 trả 123.774), nên
+để chúng trong `toEqual` là ca test đỏ theo đồng hồ. Chúng được kiểm riêng bằng chính fixture.
+
+**Kết quả đo, nạp mã HPG thật:** 14/111 công thức nạp TRỌN (từ 8), 34/111 nhận ≥1 ô (từ 31). Số ra
+khớp Finbox: P/E 7,873 = đúng field `pe`; vốn hoá 182.790 tỷ = đúng `vonhoa`; nợ/VCSH 1,0 = đúng
+`noVCSH`; ROA 8,24% so với 8,9% API công bố (lệch 7,4% — hiện tượng bình quân đã ghi trong docblock).
+Bộ mẫu 248 phiên: 15/111 trọn, 37/111 nhận ≥1 ô.
+
+Số pin đã cập nhật: `LIVE_PRESET_FORMULAS` **34 dòng**, `live-preset.test.ts` 14/6 + ca mới ghim
+danh sách 14 công thức trọn, `preset-inputs.test.ts` 53/23/14 + 4 ca mới,
+`PortfolioScreen.test.tsx` `- 6` và 6 regex `/P\/E/` neo lại thành `/P\/E — hệ số/` (`peg` mới vào
+danh sách, tên nó là "PEG — P/E trên tăng trưởng" nên khớp cùng regex).
+
+### Gói 4 — nói rõ ô nào chưa phải số của mã (xong)
+
+Khe hở nguy hiểm hơn ca "không cấp được gì": màn KHÔNG im lặng mà còn bày ra một con số. Ô nhập
+khởi tạo bằng `defaultInputs(spec)` rồi `applyPreset()` trộn preset đè lên, nên ô mã không cấp được
+vẫn giữ số mặc định của ví dụ — lợi nhuận thật của mã chia một mẫu số bịa, trông hoàn toàn hợp lệ.
+
+- `FormulaDetail.tsx` — `presetMismatch: string | null` gộp thành
+  `presetFill: { code, filled: ReadonlySet<string> } | null`. Ca 0 ô thành `filled.size === 0`, ca
+  một phần thành `filled.size > 0 && presetGaps.length > 0` — **một state cho cả hai ca**, nên khe
+  hở đóng theo cấu trúc chứ không nhờ ai nhớ. `setValue()` gỡ khoá vừa gõ khỏi `filled` (gõ đè thì
+  ô đó thôi là số của mã). `resetAll()` và `loadIllustrativeExample()` xoá cả state.
+- `presetGaps` lọc theo `shown` (`variablesForLevel`) chứ không theo `spec.variables`: chế độ Cơ bản
+  ẩn biến nâng cao (FR-09), kể tên ô người dùng không thấy là lời trách vô cớ. Có ca test đối chứng.
+- `src/ui/inputs/VariableField.tsx` — thêm `derivedFrom`, chuyền vào `NumberInput`. Khuôn `derived`
+  của WF-16 (viền đứt + `↳ HPG`) đã có sẵn trong `resolveInputState()`, không dựng mới gì.
+- 3 khoá i18n mới ở cả `vi.ts` và `en.ts`: `detail.presetPartial`, `detail.presetPartialUnit`,
+  `detail.presetPartialFix`.
+
+Kết quả vẫn tính và vẫn hiện — FR-06 cấm "hiện số THAY CHO lỗi", còn ở đây không có lỗi: có một bộ
+số hợp lệ mà màn đã gọi tên đúng phần chưa phải của mã. Cùng lập luận ô móc nối FR-15.
+
+4 ca test mới trong `FormulaDetail.test.tsx`. Ghi chú: đọc câu báo qua `getAllByRole('status')` rồi
+gộp `textContent`, không `getByText` — câu chèn `<strong>{mã}</strong>` vào giữa nên nằm rải trên
+nhiều node và matcher mặc định bỏ qua element có element con.
+
+### Gói 5A — tách "mã không có số liệu" khỏi "lỗi mạng" (xong)
+
+- `src/application/live-preset-loader.ts` — `LivePresetResult` thêm nhánh **`'no-data'`** (gọi được,
+  máy chủ có trả lời, nhưng `fundamentals === null`). Phân biệt được vì `snapshots.get(code)` **có**
+  trả về ảnh chụp; trước đây hai ca ấy gộp ở cùng một dòng.
+- `FormulaDetail.tsx` — `liveTicker.status` thêm `'no-data'`, dải hiện câu riêng kèm nút "Đổi mã".
+  Nút chỉ có ở ca này vì lời khuyên khác hẳn: mã này sẽ không bao giờ nạp được, việc tiếp theo là
+  chọn mã khác chứ không phải thử lại.
+- `pickTicker()` — thêm `AbortSignal` (như nhánh `?ma=`) và `pickRunId` chống đua. Sheet đóng ngay
+  khi bấm nên chọn A rồi B trong vài giây là chuyện thường; không có gì bảo đảm A về trước B, và A
+  về sau sẽ đè `applyPreset(A)` lên số của B.
+- 2 khoá i18n mới: `detail.tickerNoData` (vi + en).
+
+Khoảng 100 trên 1.005 mã sẽ không bao giờ nạp được. Trước đợt này họ nhận đúng câu của lỗi mạng nên
+sẽ bấm thử lại mãi.
+
+### Gói 6 — ô "Giá mua" đeo nhãn của mã dù là giá tự dựng (xong)
+
+Chủ dự án gửi ảnh màn `loi-nhuan-rong` nạp VIC: ô **Giá mua 318.750 ₫ mang dấu `↳ VIC`**, trong khi
+thị giá thật của VIC là 243.500 ₫. `makeBars()` neo chuỗi ở phiên **cuối** (`samples.ts:108-110`),
+nên `bars[0].close` là một phiên PRNG — màn đang khẳng định một mức giá VIC **chưa từng có**. Cùng
+loại sai FR-06 chặn, chỉ khác là nằm ở **nhãn** chứ không ở **số**.
+
+Quét toàn Registry: **7 công thức** đi qua chân giá vào — `phi-giao-dich-mua`, `gia-hoa-von`,
+`loi-nhuan-rong`, `roi-rong`, `hpr`, `loi-suat-quy-nam-theo-ngay`, `co-lenh-rui-ro`. Chỉ xảy ra với
+bộ mẫu 248 phiên; preset live 1 phiên vốn đã bỏ trống chân giá vào.
+
+Chủ dự án chốt: **giữ số trong ô, bỏ nhãn**.
+
+- `src/data/preset-inputs.ts` — `PresetValue` thêm cờ `synthetic`; `candidates()` nhận thêm
+  `isDraft` và gắn cờ cho chân giá vào. Thêm **`presetRealKeys()`** trả về tập khoá mang số THẬT —
+  tập con của `presetInputs()`, và là thứ giao diện phải dùng để gắn nhãn `↳ <mã>`. Gom phần khớp
+  khoá + cửa đơn vị vào `matched()` để hai hàm không lệch nhau.
+- `FormulaDetail.tsx` — `presetFill.filled` đọc `presetRealKeys()`; thêm `presetFill.touched`
+  (`napDuocGi`). Cần `touched` vì `filled.size > 0` đã hết trùng với "có đổi gì không":
+  `phi-giao-dich-mua` nạp VIC thì ô Giá mua **đổi số** nhưng `filled` rỗng — dùng `filled.size` làm
+  điều kiện thì màn báo "công thức này không dùng số liệu của mã" ngay trên một ô vừa đổi giá trị.
+- **Dải "điền được N/M ô" chuyển xuống đầu khối SỐ LIỆU** (chủ dự án chốt). Ở header nó trôi khỏi
+  tầm nhìn đúng lúc người dùng cuộn xuống chỗ cần sửa. Dải "không dùng số liệu của mã" ở **lại**
+  header: nó nói về cả công thức, và không có ô nào để đứng cạnh vì không giá trị nào đổi.
+- `detail.presetPartialFix` viết lại: "những ô này chưa phải số thật của mã" thay cho "đang là số
+  mặc định của ví dụ" — bản đầu sai với một nửa số ca, vì danh sách giờ gộp hai loại ô (số mặc định
+  và giá tự dựng). Điểm chung duy nhất, cũng là điều người dùng cần biết: không cái nào là số thật.
+
+5 ca test mới (3 ở `preset-inputs.test.ts` gồm một ca ghim đúng 7 id, 2 ở `FormulaDetail.test.tsx`
+dựng lại đúng màn trong ảnh). Số pin cũ **không đổi** — chúng đo `presetInputs()`, mà hàm ấy giữ
+nguyên hành vi điền.
+
+### Gói 7 — không gợi ý mã vô dụng, và đánh dấu mã thiếu số liệu (xong)
+
+Chủ dự án yêu cầu hai việc: mã không áp dụng được vào công thức thì **không gợi ý** ở popup Nạp
+mẫu; còn ở popup "Tìm mã khác trong thị trường" thì **đánh dấu cạnh mã**.
+
+Đo trước đã, vì "không áp dụng được" có ba nghĩa rất khác nhau:
+
+| Nhóm | Số công thức | Nạp mẫu làm gì                                                               |
+| ---- | ------------ | ---------------------------------------------------------------------------- |
+| A    | 37           | Điền ô từ số liệu mã                                                         |
+| B    | 36           | Không điền ô, nhưng **nạp chuỗi 248 phiên** — cách duy nhất để RSI/SMA ra số |
+| C    | **38**       | **Không đổi gì cả** — vay, tiết kiệm, lãi kép, phái sinh, trả góp            |
+
+Chỉ nhóm C mới đáng ẩn. Ẩn nhóm B là làm hỏng 36 công thức đang chạy tốt. Cũng đo được: phần "bù
+cho đủ 4 mã" trong `pickPresetsFor()` **chưa bao giờ chạy** (0/111 công thức có dòng không tính được
+hay không điền được ô), nên không cần đụng tới.
+
+**Phần 1 — ẩn nút "Nạp mẫu" ở 38 công thức nhóm C** (chủ dự án chọn ẩn nút, không phải mở sheet
+rỗng): `FormulaDetail.tsx` thêm `presetHelps` — dùng chính `presetInputs()` chứ không dựng danh sách
+id, nên thêm một khoá vào bảng ánh xạ ở tầng Data là nút tự hiện lại ở đúng những màn vừa dùng được.
+Cái giá đã biết và chấp nhận: không đặt được "mã dính theo lượt duyệt" từ 38 màn này (vẫn đặt được
+từ 73 màn kia, và mã đã đặt vẫn theo sang đây bình thường — có ca test).
+
+**Phần 2 — đánh dấu theo TỪNG MÃ ở sheet chọn mã** (chủ dự án chọn, tức gói 5B từng hoãn):
+
+- `scripts/lib/finbox-quarters.mjs` — **tách phần dùng chung** thay vì chép bản thứ ba. Trước đó có
+  hai bản (`map.ts` TypeScript chạy lúc mở trang, `gen-live-fundamentals.mjs` chạy lúc build vì Node
+  trần không import được TS); script mới cần đúng luật ấy nữa. `gen-live-fundamentals.mjs` nay import
+  từ lib, đã chạy lại và vẫn ra đúng 27 mã.
+- `scripts/gen-ticker-coverage.mjs` + `npm run gen:ticker-coverage` — quét cả thị trường theo lô 100
+  mã. **Kết quả: 1.104/1.649 mã có số liệu dùng được, 545 mã không** (42 mã API không trả bản ghi).
+  File sinh 5,3 kB thô / **3,3 kB gzip**, ghi thành một chuỗi cách nhau dấu cách (rẻ hơn mảng ~40%).
+  ⚠ KHÔNG áp `checkSelfConsistent()` ở đây: phép ấy là luật CHỌN MẪU (ta tự quyết bày mã nào), còn
+  đây là dự đoán cho mã người dùng sắp hỏi — dán nhãn "không dùng được" lên PLX/SSI/HCM là nói dối
+  theo chiều ngược lại.
+- `src/application/ticker-coverage.ts` — cửa vào, **không** re-export từ barrel (cùng luật
+  `live-preset-loader.ts`). `TickerPickerSheet` nạp trễ qua `await import()` chỉ khi sheet mở với
+  `markUnusableAsOf`.
+- `TickerPickerSheet` — prop `markUnusableAsOf?: string`, **opt-in**: màn chi tiết công thức bật (ở
+  đó mã thiếu báo cáo là vô dụng), tab Danh mục **không** bật (ở đó chỉ cần thị giá, thêm mã không
+  có báo cáo là hoàn toàn hợp lệ). Dòng bị làm mờ + nhãn "chưa có số liệu", nhưng **vẫn chọn được**:
+  bảng sinh lúc build và cũ đi mỗi kỳ báo cáo, khoá nút là biến một dự đoán thành lệnh cấm. Quá 100
+  ngày thì câu chữ hạ giọng thành "có thể chưa có số liệu". Nạp bảng hỏng → không dán nhãn gì cả.
+- 2 khoá i18n mới (`ticker.noData`, `ticker.noDataStale`), CSS `.itemMuted` + `.unusable` dùng bộ
+  token `warning` (không phải `danger` — mã thiếu báo cáo không phải lỗi).
+
+`src/ui/sheets/TickerPickerSheet.test.tsx` mới, 4 ca. Bảng mã bị mock trong test: file sinh thật đổi
+mỗi lần chạy script, ghim mã cụ thể của nó là ghim ca test vào lịch công bố báo cáo của doanh nghiệp.
+
+### Việc còn lại
+
+- **Chưa chạy `npm run build && verify:static && size && check:chrome`** — `prebuild` từ chối vì dev
+  server đang giữ cổng 3000. Cần tắt dev rồi chạy. Đặc biệt cần `npm run size` để xác nhận
+  `ticker-coverage.generated.ts` KHÔNG lọt vào First Load JS: nếu `/danh-muc/` hay `/cong-thuc/pe/`
+  tăng dù chỉ 1 kB thì `import()` đã bị gộp.
+- Chạy lại `npm run gen:ticker-coverage` sau mỗi mùa công bố báo cáo (khoảng mỗi quý).
+- Chưa kiểm bằng tay trên Chrome thật: nạp HPG ở `/cong-thuc/roa/`, `/cong-thuc/ps/`,
+  `/cong-thuc/so-graham/`, `/cong-thuc/no-tren-von-chu/`, `/cong-thuc/vong-quay-tong-tai-san/` phải
+  ra kết quả trọn; `/cong-thuc/don-bay-hieu-dung/` phải GIỮ 30 triệu ₫ mặc định; `/cong-thuc/ev/`
+  phải hiện dải "điền được 1/3 ô" và gọi tên "Nợ vay", "Tiền mặt".
+
+**Baseline đỏ sẵn, KHÔNG thuộc đợt này** (đã có từ trước, thuộc luồng sửa màn tìm kiếm chạy song
+song): `i18n.test.ts` (khoá mồ côi `search.seeAll`) + 2 ca `RecentSearches.test.tsx`. Toàn bộ suite:
+2297 xanh / 3 đỏ / 37 skip.
+
+---
+
+## Thẻ công thức ở /cong-thuc/: bỏ cột trống dưới icon (07/09/2026)
+
+**Trạng thái: xong**, đã xem lại bằng Chrome thật ở 360×780.
+
+Chủ dự án báo: "ngay bên dưới icon đang bị dư ra khoảng trống khá lớn", và chốt cách sửa là cho mô
+tả "thụt sang trái bằng với icon bên trên".
+
+**Nguyên nhân.** `.card` (biến thể hàng) là flex ba ô: icon · khối chữ · mũi tên. Icon chỉ cao 32px
+trong khi thẻ cao 100–195px, nên bên dưới nó là một cột trống rộng 44px chạy dài hết phần còn lại
+của thẻ, và mô tả bị ép vào cột hẹp bên phải.
+
+**Cách sửa.** `.body` thành LƯỚI hai cột thay vì một khối chữ. Icon chuyển vào trong `.body` và chỉ
+giữ ô hàng-1/cột-1; `.description` và `.category` khai `grid-column: 1 / -1` nên bắt đầu từ đúng mép
+trái thẻ và dùng trọn bề ngang. Tên + huy hiệu cấp độ gom vào một ô lưới mới `.heading` — bên trong
+ô đó KHÔNG có flex nào, nên huy hiệu vẫn bám sau chữ cuối của tên đúng như `.levelBadge` đã ghi.
+
+Dùng lưới chứ không `float: left` như `.tileIcon` của biến thể ô, dù hai bên cùng muốn một kết quả:
+icon ở hàng có Ô NỀN 32px, cao hơn hẳn dòng tên 20px. Hộp float cao 32px sẽ đẩy luôn dòng đầu của
+mô tả; hộp float cao 20px thì ô nền tràn 6px xuống đè lên chính dòng ấy. Lưới không có chuyện đó.
+Nhánh ô dùng được float vì icon bên ấy chỉ là nét, không nền, tràn đúng 1px — đã ghi ở docblock
+`.body`.
+
+| File                                   | Sửa gì                                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `src/ui/browse/FormulaCard.tsx`        | Nhánh `row`: icon vào trong `.body`; tên + huy hiệu gom vào `.heading`.                              |
+| `src/ui/browse/FormulaCard.module.css` | `.body` thành grid `auto minmax(0, 1fr)`; thêm `.heading`; `.description`/`.category` trải `1 / -1`. |
+
+Biến thể ô (trang chủ) KHÔNG đụng — nó đã chạy hết bề ngang sẵn bằng float.
+
+**Kiểm chứng:** `lint` sạch, `typecheck` sạch, và 51/51 ca xanh ở mọi nơi dựng `FormulaCard`
+(`FormulaCard` · `HomeSearchPanel` · `FeaturedFormulas` · `cong-thuc/page` · `VirtualList`). Chụp
+`/cong-thuc/` trước–sau cùng khung 360×780 để đối chiếu thẻ "Biên an toàn".
+
+**Ghi lại về môi trường lúc làm việc này:** có luồng sửa code khác chạy song song trong cùng khoảng
+thời gian — hai file i18n bị viết lại (khôi phục `search.recent.title` = "Tìm gần đây" và khoá
+`search.seeAll`, đổi chuỗi `data.recentHome`), `src/ui/primitives/Badge.module.css` bị sửa, và
+`npm run format:check` chuyển sang đỏ hàng loạt vì nhiều file trên đĩa thành CRLF trong khi
+`core.autocrlf=true` còn prettier muốn LF. Ba ca test đang đỏ (`i18n.test.ts` khoá `search.seeAll`
+mồ côi; hai ca `RecentSearches.test.tsx` về tiêu đề chip) **thuộc về sự lệch đó, không phải đợt sửa
+này** — chủ dự án cho để nguyên, tự xử lý sau.
+
+---
+
+## Sheet "Nạp mẫu": 4 mã trùng thông số → chọn 4 mã theo từng công thức (07/09/2026)
+
+**Trạng thái: xong.**
+
+### Chủ dự án báo
+
+"Khi bật popup nạp mẫu thì bên dưới các mẫu đều có chung text `BCTC Q2/2026 · 248 phiên giá`
+— đang thừa hay lỗi?" và trước đó: "4 mẫu ví dụ đang bị trùng thông số để test".
+
+### Chẩn đoán
+
+**Thừa, không phải lỗi dữ liệu.** Dòng dưới mỗi mã là `preset.meta`, một khuôn cố định
+`${fundamentals.period} · ${SESSION_COUNT} phiên giá`. Mọi mã lấy cùng một lượt từ Finbox nên cùng
+kỳ báo cáo, còn `248` là hằng số — chuỗi ấy **không thể khác nhau giữa các dòng**. Sheet đang mô tả
+CÁI NGUỒN thay vì mô tả CÁI MẪU: không một con số nào của riêng mã lọt lên màn, trong khi số bên
+dưới khác nhau hẳn (EPS 5.867 / 2.750 / 5.246 / 6.667 ₫).
+
+### Đã làm
+
+Chủ dự án chọn: mở kho mã và cho mỗi công thức tự chọn 4 mã **trải rộng kết quả**.
+
+1. **Kho mã 4 → 27** (`scripts/gen-live-fundamentals.mjs`, gọi API thật). Danh sách ứng viên 35 mã
+   trải đều ngành; ngân hàng có mặt vì thiếu nhóm đó thì P/B không bao giờ xuống dưới 1.
+2. **Thị giá nay là số thật.** Trước đây giá mở chuỗi là con số viết tay trong `samples.ts` (FPT
+   92.000 ₫), nên mọi công thức ăn `price` chạy trên giá bịa cạnh một EPS thật. Nay `makeBars()`
+   NEO chuỗi vào `priceFlat` của phiên gần nhất; 247 phiên trước đó vẫn tự dựng (Finbox không có
+   lịch sử dài) nên `isDraft` giữ nguyên.
+3. **`src/data/preset-pick.ts` (mới)** — chạy thật công thức với cả kho rồi lấy 4 mã ở 4 mức kết
+   quả cách xa nhau. Chỉ xếp hạng khi số liệu của mã thật sự vào công thức; công thức chỉ ăn chuỗi
+   giá hoặc không ăn gì thì lùi về bộ WF-10 (xếp hạng theo chuỗi PRNG là xếp hạng số bịa).
+4. **`PresetSheet` in số của chính mã**, ba trạng thái ba câu dẫn khác nhau. Không dòng nào còn
+   trùng ở cả ba nhánh — hai ca kiểm chốt điều đó.
+5. **Nhãn "số liệu bản thảo" nói đúng nửa nào là tự dựng** — nó đang nói quá: fundamentals và thị
+   giá là số thật từ Finbox. Nhãn theo dòng chỉ hiện khi bộ mã TRỘN hai loại.
+
+### Phát hiện kèm theo — ROE sai vì lợi ích cổ đông thiểu số
+
+Mở kho ra thì `preset-inputs.test.ts` đỏ ở 5 mã: `netIncome ÷ số CP` lệch khỏi `eps` tới **81%**
+(PLX), 25,8% (HCM), 10,4% (SSI)… `ln_q*` là lợi nhuận toàn tập đoàn, còn `eps_pha_loang` và
+`equity` (suy ra từ `bvps × số CP`) chỉ là phần công ty mẹ. Để lọt thì ROE lấy tử số toàn tập đoàn
+chia mẫu số công ty mẹ — một con số sai trông rất có lý, đúng loại FR-06 tồn tại để chặn, và sheet
+mới lại xếp hạng mã THEO chính con số đó.
+
+Vá ở gốc: `checkSelfConsistent()` trong bộ sinh loại mã lệch quá 2%. **8 trên 35 mã bị loại**
+(MSN, BID, SSI, HCM, NLG, POW, PLX, VTP). Khác hẳn phép đã gỡ khỏi `finbox/map.ts`: ở đó mã bị
+loại là mã người dùng vừa hỏi; ở đây là chọn mẫu, ta tự quyết bày mã nào.
+
+### File đã đổi
+
+`scripts/gen-live-fundamentals.mjs`, `src/data/live-fundamentals.generated.ts` (sinh lại),
+`src/data/samples.ts`, `src/data/types.ts` (`Preset.industry`), `src/data/live-preset.ts`,
+`src/data/preset-pick.ts` (mới), `src/data/index.ts`, `src/application/index.ts`,
+`src/application/i18n/{vi,en}.ts`, `src/ui/sheets/PresetSheet.{tsx,module.css}`,
+`src/app/cong-thuc/[id]/FormulaDetail.tsx`, `src/app/du-lieu/DataTableScreen.tsx`.
+Ca kiểm: `provider.test.ts`, `preset-inputs.test.ts`, `ExportSheet.test.tsx`,
+`FormulaDetail.test.tsx`.
+
+### Còn lại
+
+- Ba ca kiểm đỏ **không thuộc đợt này**, đến từ việc đang làm song song ở màn tìm kiếm:
+  `i18n.test.ts` (khoá mồ côi `search.seeAll`) và hai ca `RecentSearches.test.tsx`. 42 file chưa
+  format cũng thuộc baseline đó — không file nào của đợt này nằm trong danh sách.
+- Đã bù hai khoá i18n mà `FormulaDetail.tsx`/`SettingsScreen.tsx` đang gọi mà từ điển không có
+  (`detail.cancel`, `detail.presetNoData`, `detail.presetNoDataFix`, `data.recentHome`) — thiếu
+  chúng thì typecheck đỏ.
+- Chưa chạy `npm run build && verify:static && check:chrome`: dev server đang giữ cổng 3000 nên
+  `prebuild` từ chối chạy.
+
+---
+
+## Bỏ link "Xoá tìm kiếm · xem tất cả 111" ở màn tìm (07/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án cho bỏ hẳn link cuối trạng thái không-tìm-thấy của `/tim-kiem/`. Nó là lối ra thứ hai
+dẫn tới đúng nơi mà mục "Công thức" trên thanh nav dưới đã dẫn tới, đặt ở cuối một màn vốn đã dài.
+
+| File                                       | Sửa gì                                                                                                                                                                                                                        |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/tim-kiem/SearchScreen.tsx`        | Bỏ khối `<Link>`, bỏ luôn import `Link` và `ROUTES` (chỉ khối đó dùng). Chú thích của khối "Danh mục hot" ngay trên viết lại — bản cũ mở đầu bằng "lối ra không chỉ có một link xem tất cả", mà nay không còn link nào để so. |
+| `src/app/tim-kiem/SearchScreen.module.css` | Bỏ `.seeAll` và `.seeAll:hover`. (`.seeAll` ở `HomeSearchPanel.module.css` là lớp KHÁC — hàng bàn giao của trang chủ, không đụng.)                                                                                            |
+| `src/application/i18n/vi.ts` · `en.ts`     | Bỏ khoá `search.seeAll` ở cả hai — `i18n.test.ts` chốt hai từ điển cùng bộ khoá, xoá một bên là đỏ.                                                                                                                           |
+
+Lối ra khi không tìm thấy nay còn: khối rỗng nói rõ phạm vi sản phẩm · "Có thể bạn cần" (3 gợi ý)
+· "Danh mục hot" · và mục "Công thức" ở thanh nav dưới.
+
+**Kiểm chứng:** `npm run check` sạch trọn, 2227/2227 ca đỗ. Xem lại bằng Chrome thật ở 360×780,
+đúng trạng thái không-tìm-thấy (`?q=zzzkhongco`).
+
+---
+
+## Khối "Lịch sử tìm kiếm" thu gọn — và một lỗi RSC làm sập trang chủ (07/09/2026)
+
+**Trạng thái: xong**, đã xem lại bằng Chrome thật ở 360×780.
+
+Chủ dự án báo khối lịch sử ở `/tim-kiem/` chiếm nhiều không gian quá, và chốt cách sửa: đổi tiêu đề
+thành "Lịch sử tìm kiếm", bên phải là **icon** xoá thay cho nút chữ, chip vẫn xếp kiểu cũ nhưng bo
+tròn hơn · thấp hơn · chữ nhỏ hơn · in đậm.
+
+**Đo trước khi sửa:** sáu chip tên công thức tiếng Việt xuống ba hàng 44px, cộng hàng tiêu đề có
+nút chữ "Xoá lịch sử" chiếm trọn bề ngang còn lại → khoảng 184px. Sau khi sửa còn khoảng 152px.
+
+| File                                      | Sửa gì                                                                                                                                                      |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/browse/RecentSearches.tsx`        | Tách `TrashIcon` dùng chung cho cả hai dạng; dạng `block` đổi nút chữ → nút icon ở cuối hàng tiêu đề, nhãn về `aria-label`.                                 |
+| `src/ui/browse/RecentSearches.module.css` | Chip: cao 44 → 32px, `--radius-sm` → `--radius-md`, `--text-sm` → `--text-xs`, thêm `--weight-bold`. `.clear` thành ô icon 24px. `.clearIcon` hạ theo chip. |
+| `src/application/i18n/vi.ts` · `en.ts`    | `search.recent.title`: "Tìm gần đây" → "Lịch sử tìm kiếm" / "Search history".                                                                               |
+
+**Vùng chạm vẫn đủ 44px** dù chip chỉ còn cao 32px — mở bằng `::after`, đúng kỹ thuật nút xoá cũ
+trong chính file này đã dùng. Kèm theo, `row-gap` của hàng chip nới 8 → 12px: để 8px thì vùng chạm
+hai hàng chồng nhau 4px và mép chip hàng dưới ăn mất cú chạm của hàng trên. Ba con số 32 · 44 · 12
+ăn khớp nhau, đã ghi ở docblock `.chip` — đừng hạ tiếp một con số mà không xem lại hai con số kia.
+
+### Lỗi thật lộ ra khi chụp màn — đáng ghi lại
+
+Ảnh trang chủ chụp giữa chừng ra **màn lỗi đỏ của Next**, không phải trang chủ:
+_"Event handlers cannot be passed to Client Component props"_ tại `HomeSearchPanel.tsx`.
+
+Nguyên nhân là prop `onSelect` thêm vào `FormulaCard` ở mục ngay dưới: bản đầu gắn cứng
+`onClick={handleClick}` với `handleClick` LUÔN tồn tại (bên trong gọi `onSelect?.()`). Mà
+`FormulaCard.tsx` không mang `'use client'` và được `page.tsx` cùng `StaticFormulaList` dựng ở phía
+**server**, còn `<Link>` là client component — nên ở lượt dựng server có một hàm bị đẩy qua ranh
+giới RSC và Next dừng hẳn trang.
+
+**`npm run check` không hề đỏ.** 2225 ca đều xanh, vì ca kiểm jsdom dựng thẳng ở máy khách, không
+đi qua ranh giới RSC. Chỉ `npm run build` hoặc mở dev server mới thấy — và lần này là tấm ảnh thấy
+trước.
+
+Vá: `onClick` phải là `undefined` khi không ai truyền `onSelect`, chứ không phải một hàm rỗng.
+Thêm cửa gác ở `FormulaCard.test.tsx` — soi thẳng React element (React gắn sự kiện ở gốc cây nên
+DOM không có gì để đọc) và khẳng định `onClick === undefined` ở cả hai biến thể. **Đã thử khôi phục
+bản lỗi để xác nhận ca này đỏ đúng lúc cần**, rồi hoàn nguyên.
+
+Bài học ghi lại cho lần sau: thêm một prop hàm vào component nào KHÔNG có `'use client'` là chạm
+vào ranh giới RSC, và bộ test hiện tại mù với chuyện đó.
+
+**Kiểm chứng:** `npm run check` sạch trọn, 2227/2227 ca đỗ (98 file, 37 skip cũ). Chụp lại
+`/tim-kiem/` và `/` bằng Chrome headless ở 360×780 qua CDP — cùng khuôn `scripts/chrome-check.mjs`,
+kể cả luật chỉ tắt đúng PID mình bật. Vẫn chưa chạy được `npm run build` (cổng 3000 do `next dev`
+giữ), nhưng lỗi RSC nói trên đã được dev server xác nhận là hết.
+
+---
+
+## Lịch sử tìm kiếm dùng chung một kho cho hai ô tìm (07/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án báo: "logic của 2 ô search ở màn Trang chủ và màn Công thức đang bị sai, đồng thời logic
+lưu lịch sử của 2 phần này cũng đang sai. Lịch sử của 2 phần này phải khác nhau và chỉ ở phần đó
+mới hiển thị."
+
+**Nguyên nhân — một kho cho hai ô tìm.** Cả `HomeSearchPanel` (trang chủ) và `SearchScreen`
+(`/tim-kiem/`, nơi ô tìm ở `/cong-thuc/` dẫn tới) đều đọc/ghi `ffb.recent.v1`. Hai hệ quả:
+
+1. Chip sinh ra ở màn tìm hiện nguyên trên trang chủ và ngược lại — nó nói với người dùng rằng họ
+   đã tìm thứ đó **ở đây**, trong khi không phải.
+2. **Trang chủ chỉ ĐỌC và XOÁ kho, không hề GHI.** Tìm ở trang chủ bao nhiêu lần cũng không sinh
+   ra một chip; toàn bộ thứ nó bày ra là do màn tìm ghi hộ.
+
+Cộng thêm: khối `useEffect` đọc kho và `clearRecent()` bị chép hai bản gần như y hệt ở hai màn.
+
+**Đã chốt với chủ dự án trước khi sửa** (hai vòng hỏi): logic TÌM KIẾM giữ nguyên hoàn toàn — trang
+chủ vẫn chỉ lọc trong 18 ô ghim, ô ở `/cong-thuc/` vẫn nhảy sang `/tim-kiem/`; chip lưu **tên công
+thức đã bấm** chứ không phải chuỗi đã gõ; chỉ ghi khi **đang tìm VÀ bấm vào một kết quả tìm** —
+bấm một công thức ở nơi khác (kệ 18 ô lúc nhàn, danh sách `/cong-thuc/`, khối "Có thể bạn cần")
+thì không ghi; chip ở trang chủ vẫn là link rời trang sang `/cong-thuc/?q=…`.
+
+| File                                     | Sửa gì                                                                                                                                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/application/recent-searches.ts`     | Thêm `HOME_RECENT_SEARCHES_KEY = 'ffb.recent.home.v1'`. `RECENT_SEARCHES_KEY` giữ nguyên cho màn tìm — lịch sử đang có ở lại đúng chỗ. Docblock ghi vì sao hai kho. Phần thuần không đụng. |
+| `src/application/use-recent-searches.ts` | **Mới.** Hook một-kho, **khoá là tham số** — đó chính là chỗ tách. Gộp ba mẩu đang chép hai bản, giữ nguyên luật đọc-trong-effect và `try/catch`.                                          |
+| `src/application/index.ts`               | Xuất `HOME_RECENT_SEARCHES_KEY`.                                                                                                                                                           |
+| `src/ui/browse/FormulaCard.tsx`          | Thêm prop tuỳ chọn `onSelect`, cùng khuôn với `SearchResults.onSelect` đã có. Gắn vào `onClick` của `<Link>` ở cả hai nhánh `tile`/`row`.                                                  |
+| `src/app/HomeSearchPanel.tsx`            | Dùng hook với kho riêng; thêm `rememberResult` (bọc `useCallback` vì `FormulaCard` là `memo`) và **chỉ** nối vào lưới kết quả. Viết lại docblock `hrefForRecent` — lý do cũ đã hết đúng.   |
+| `src/app/tim-kiem/SearchScreen.tsx`      | Dùng hook với kho cũ; `onSelectResult` rút còn một dòng. Hành vi trên màn không đổi điểm nào.                                                                                              |
+| `src/app/cai-dat/SettingsScreen.tsx`     | Thêm dòng xoá cho kho mới — bắt buộc, ca quét mọi hằng `'ffb.…'` sẽ đỏ nếu thiếu.                                                                                                          |
+| `src/application/i18n/vi.ts` · `en.ts`   | Thêm `data.recentHome`; `data.recent` nói rõ là của màn Tìm kiếm — hai dòng trông y hệt mà xoá ra hai kết quả khác là sai.                                                                 |
+
+**Test:** thêm `src/application/use-recent-searches.test.ts` (10 ca, có ca "hai kho không đụng vào
+nhau"); `HomeSearchPanel.test.tsx` +4 ca (ghi khi bấm kết quả, **không** ghi khi bấm ô trên kệ,
+đường đi trọn vẹn tìm→bấm→xoá ô tìm, và cửa gác "lịch sử màn Tìm kiếm không hiện ở trang chủ");
+`SearchScreen.test.tsx` +3 ca đối xứng; `SettingsScreen.test.tsx` thêm khoá mới vào ca liệt kê.
+
+**Kiểm chứng:** `npm run check` sạch trọn — lint, typecheck, format:check, và 2222/2222 ca test đỗ
+(98 file, 37 skip cũ). Chưa chạy `npm run build`/`check:chrome` vì cổng 3000 đang bị `next dev`
+giữ; đợt này không đụng HTML tĩnh nên không có assertion nào của `verify:static` liên quan.
+
+**Hệ quả đã lường:** người dùng đang có lịch sử sẽ thấy trang chủ trống chip ở lần mở đầu — kho
+trang chủ là mới nên rỗng, còn `ffb.recent.v1` vẫn nguyên và vẫn hiện ở `/tim-kiem/`. Đây là hệ quả
+đúng của việc tách, không phải mất dữ liệu, nên không viết bước di trú.
+
+---
+
+## Khối Công thức hiện thanh cuộn dọc ẩn — lỗi CSS `overflow-x`/`overflow-y` (07/09/2026)
+
+**Trạng thái: sửa xong ở mã nguồn, chưa xác nhận lại bằng Chrome thật** (còn một việc chờ, ghi ở
+cuối mục).
+
+Chủ dự án gửi ảnh `ev-ebitda`: khung ký hiệu toán (`EV/EBITDA = EV ÷ EBITDA`) có hai nút mũi tên
+lên/xuống ở mép phải, giống một thanh cuộn dọc kiểu Windows cũ, dù không có gì đáng để cuộn. Yêu
+cầu: bỏ lỗi này ở mọi trang công thức.
+
+**Nguyên nhân — một luật CSS ít ai để ý:** `.formula` và `.expression` trong
+`FormulaDetail.module.css` chỉ khai `overflow-x: auto` để cuộn NGANG cho công thức dài
+(NFR-USA-02), bỏ trống `overflow-y`. Theo đúng đặc tả CSS, khi một trục đã khác `visible` mà trục
+kia bỏ mặc định, trình duyệt **tự đổi trục còn lại thành `auto`** — không phải `visible` như người
+viết tưởng. Khung này không có chiều cao cố định nên chẳng bao giờ THẬT SỰ cần cuộn dọc, nhưng chỉ
+cần nội dung lệch 1px so với khung do làm tròn subpixel (rất hay gặp ở Windows chia tỷ lệ
+125%/150%) là thanh cuộn dọc ấy vẫn hiện ra — kèm hai nút mũi tên của thanh cuộn kiểu cũ. Không có
+gì bị cắt cả, chỉ là thanh cuộn thừa gây rối mắt.
+
+Hai lớp này là **một component dùng chung cho cả 111 trang công thức** (khối "Công thức" của
+`FormulaDetail.tsx`), nên sửa một chỗ là hết lỗi ở "tất cả các phần công thức" đúng như yêu cầu —
+không phải sửa từng trang.
+
+| File                                              | Sửa gì                                                                                          |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `src/app/cong-thuc/[id]/FormulaDetail.module.css` | Thêm `overflow-y: hidden` vào `.formula` và `.expression`, cạnh `overflow-x: auto` đã có.       |
+| `scripts/chrome-check.mjs`                        | Thêm phép kiểm mới (mục 0a2): mở `ev-ebitda`, đọc `getComputedStyle(...).overflowY` của cả hai. |
+
+Đã dò các chỗ dùng KaTeX/công thức khác — `ChainBody.tsx` (khối chuỗi WF-04, 7 công thức) không
+dựng MathML và không có CSS `overflow` nào, nên không dính lỗi này.
+
+Cân nhắc phạm vi: cùng kiểu khai báo (`overflow-x` mà bỏ trống `overflow-y`) còn xuất hiện ở
+`primitives/Table.module.css`, `charts/chart.module.css` (hai chỗ), `sheets/PasteImportSheet.module.css`
+(hai chỗ), `result/FlowChainStrip.module.css`, `app/du-lieu/DataTableScreen.module.css` — về lý
+thuyết cùng dính luật CSS này. Không đụng vào vì chưa ai báo lỗi ở đó và mỗi file đều có docblock
+giải thích riêng, sửa không xin phép là tự ý mở rộng việc. Nếu sau này thấy thanh cuộn thừa ở bảng
+hay biểu đồ, quay lại đúng danh sách này trước.
+
+**Việc còn lại:** không chạy được `npm run build` → `npm run check:chrome` để xác nhận bằng Chrome
+thật, vì cổng 3000 đang bị `next dev` giữ (không tự tắt dev server của người dùng). Ca kiểm mới đã
+viết sẵn và sẽ tự chạy lần build kế tiếp — cùng lượt với việc chốt bản vá biểu đồ đang treo.
+
+Kiểm chứng đã chạy được: `FormulaDetail.test.tsx` 108/108 đỗ (3 skip cũ), `lint` sạch, `typecheck`
+sạch, `prettier` không đổi gì.
+
+---
+
+## Thẻ đáp án đổi sang nền gradient theo bản vẽ Finbox_v2 (07/09/2026)
+
+**Trạng thái: xong** (còn một việc chưa chạy được, ghi ở cuối mục).
+
+Chủ dự án gửi ảnh màn thật cạnh ảnh bản vẽ: thẻ Kết quả trên bản vẽ là **dải xanh, chữ trắng**,
+còn màn thật đang là nền trắng viền xanh. Quyết định: đổi theo bản vẽ.
+
+Đây là **đảo lại đợt rà soát phân cấp thị giác**. Đợt ấy kéo cả ba thẻ đáp án về nền trắng vì bản
+rà soát khi đó đòi giữ cảm giác "Clean / Professional / Lightweight", và thẻ Phí & thuế **vốn
+chính là chữ trắng trên nền xanh đặc** đã bị đổi đi vì lý do ấy. Lập luận cũ được giữ nguyên trong
+docblock `FeeTaxBody.module.css` để đợt sau biết nó đã được cân rồi mới bỏ.
+
+Chủ dự án chốt hai điểm khi được hỏi: **đổi cả ba thẻ** (giữ luật "một khuôn duy nhất") và **gộp
+nhãn "cập nhật tức thì" lên dòng KẾT QUẢ** theo bản vẽ.
+
+| File                                         | Sửa gì                                                                                                                                                       |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/ui/result/ResultBlock.module.css`       | Nền `--gradient-highlight`, bỏ viền, mọi chữ `--color-on-selected`. Thêm `.blockPlain` cho nhánh dự phòng và khối `@media print`.                            |
+| `src/ui/result/ResultBlock.tsx`              | Gộp `result.eyebrow` + `result.live` thành một dòng nhãn (hai `<span>` lồng). Nhánh `CalcOutput` hỏng-không-warning dùng `.blockPlain`.                      |
+| `src/ui/screens/FeeTaxBody.module.css`       | Cùng khuôn. `.headlineNote` từ `--color-muted` sang `--color-on-selected`. Thêm `@media print`.                                                              |
+| `src/ui/screens/LoanScheduleBody.module.css` | Cùng khuôn. `.subLabel`/`.subValue` sang `--color-on-selected`; hai vạch ngăn đổi từ `--color-hairline` sang `--color-selected-strong`. Thêm `@media print`. |
+| `src/ui/result-card.test.ts`                 | Cập nhật ba hằng số `FRAME`/`LABEL`/`VALUE` — đây là chỗ định nghĩa khuôn. Thêm ca mới: cả ba file phải có `@media print` đặt lại nền.                       |
+| `src/ui/contrast.test.ts`                    | Sửa hai chú thích đã lạc; ghi rõ ca "chữ trên nút đang chọn" nay gánh thêm ba thẻ đáp án.                                                                    |
+
+**Ba điều đáng ghi lại**
+
+1. **Không có token màu mới, và đó là chủ ý.** Đầu sáng của dải (`--color-selected`) chỉ cho chữ
+   trắng 6,02:1. Một sắc trắng "dịu bớt" cho dòng nhãn — kiểu `#D6E2F5` — rơi xuống 4,60:1, sát
+   ngưỡng AA đến mức lần chỉnh màu sau là trượt, mà `contrast.test.ts` **không thấy được** vì nó
+   chấm token chứ không chấm màu pha. Nên phân cấp trong thẻ đi bằng cỡ chữ và độ đậm.
+2. **Bản in.** Trình duyệt mặc định không in nền → dải xanh biến mất, chữ vẫn trắng, con số đáp án
+   rơi xuống giấy trắng. Ba khối `@media print` dựng lại đúng khuôn cũ nên bản in không đổi gì so
+   với trước. Có ca kiểm ghim, vì đây là kiểu hỏng không ca kiểm DOM nào thấy và chỉ lộ ra lúc cầm
+   tờ giấy.
+3. **Vạch ngăn của Lịch trả nợ.** `--color-hairline` là bậc mảnh nhất **trên nền thẻ trắng**;
+   trên dải xanh nó thành vệt gần trắng, tức bậc đậm nhất — ngược vai. Đổi sang
+   `--color-selected-strong`, tự lật đúng chiều ở cả hai bảng màu.
+
+### Vòng hai — bảng tối chói, phải tách token riêng
+
+Chủ dự án xem lại: bảng sáng đạt, **bảng tối sáng quá**. Đúng chỗ mục "việc còn lại" ở trên đã ngờ.
+
+Nguyên nhân: dùng lại `--gradient-highlight` của **nút đang chọn**. Bảng sáng hai vai trùng nhau
+từng mã màu nên không lộ gì, nhưng bảng tối **đảo** dải ấy sang xanh sáng `#5b9bff` để nút nổi
+khỏi nền cụm gần đen — và có ca kiểm 3:1 giữ đúng điều đó, nên không được đụng vào. Cùng sắc ấy
+trải trên một mảng choán gần hết bề ngang màn thì thành khối chói: đo được **6,40:1 so với nền
+trang**, tức thẻ sáng hơn nền tới mức của một nút bấm.
+
+Cách sửa: **bộ token riêng cho thẻ đáp án**, vì đây thật sự là hai vai khác nhau — nút thì nhỏ
+nên phải sáng mới thấy, thẻ thì lớn nên sáng là chói.
+
+| Token                 | Bảng sáng | Bảng tối  |
+| --------------------- | --------- | --------- |
+| `--color-result-from` | `#0b408e` | `#134a9e` |
+| `--color-result-to`   | `#1e60c0` | `#2668ce` |
+| `--color-on-result`   | `#ffffff` | `#ffffff` |
+
+`--color-on-result` **trắng ở cả hai bảng** — đó chính là điều buộc nó phải là token riêng, vì
+`--color-on-selected` đảo thành navy thẫm ở bảng tối.
+
+Bảng sáng giữ nguyên mã màu cũ nên **không đổi gì trên màn sáng**. Bảng tối: thẻ còn **3,34:1** so
+với nền trang — vẫn tách rõ thành một mảng, hết chói. Bốn tỉ số đã đo lại bằng công thức WCAG và
+ghi thẳng vào docblock: chữ trắng 8,40:1 (góc thẫm) và 5,31:1 (góc nhạt), mép thẻ 3,34:1, góc thẫm
+so với nền trang 2,11:1 — con số cuối dưới 3 và được chấp nhận có ghi lý do, vì ranh giới thẻ do
+góc sáng lo.
+
+Kèm theo:
+
+- Hai vạch ngăn ở thẻ Lịch trả nợ đổi từ `--color-selected-strong` sang `--color-result-from`. Ở
+  bảng tối token cũ là `#7ab5fc`, tức một vạch xanh chói kẻ ngang thẻ.
+- `src/ui/contrast.test.ts` — thêm ca riêng cho thẻ đáp án (chữ trên cả hai đầu dải + mép thẻ so
+  với nền trang), thêm ba token vào `REQUIRED_TOKENS`.
+- `src/ui/sheets/draw-card.test.ts` — **ca kiểm này bắt được một lỗi thật của tôi**. Nó cấm
+  `draw-card.ts` dùng màu của bảng tối, và `--color-on-result: #ffffff` là token ĐẦU TIÊN mang
+  cùng giá trị ở cả hai bảng, nên nó báo `#ffffff` là "màu bảng tối" trong khi đó cũng là
+  `--color-surface` của bảng sáng. Sửa thành cấm màu **riêng** của bảng tối — đúng ý ban đầu và
+  chặt hơn.
+
+Kiểm chứng: `npm run check` sạch — 97 file, 2.202 ca đỗ, lint/typecheck/format sạch.
+
+**Việc còn lại:** chưa nhìn được bằng mắt ở Chrome thật (`check:chrome` cần `out/`, mà `prebuild`
+từ chối chạy khi dev server đang giữ cổng 3000). Chỗ đáng xem khi có dịp build: huy hiệu ROI pastel
+đứng trên dải xanh ở màn Phí & thuế.
+
+---
+
+## Danh mục: khối chi tiết chuyển sang kiểu accordion (05/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án báo trên màn thật: đang mở khối chi tiết của một mã mà bấm mở mã khác thì cả hai cùng
+bung, phải tự tay đóng cái cũ. Yêu cầu: mở cái mới thì đóng cái cũ trước.
+
+Đây là **đảo lại một quyết định có ghi lý do tại chỗ khai báo** — `expanded` cố ý là một `Set` với
+lập luận "so hai mã cạnh nhau là việc thật, kiểu accordion làm việc ấy không được". Lập luận ấy bị
+bác bằng chính màn hình: khối chi tiết cao gần ba dòng gọn, nên hai khối cùng mở đẩy mã thứ hai
+xuống dưới nếp gấp — cái nhìn thấy không còn là hai mã cạnh nhau mà là một khối số không rõ thuộc
+về ai. Việc so sánh vốn đã có chỗ riêng và chỗ ấy làm tốt hơn: dòng gọn ba cột bày sẵn tỷ trọng và
+lãi/lỗ của **mọi** mã cùng lúc. Lý do đảo đã ghi ngay tại chỗ khai báo, không để trong TASK.md.
+
+| File                                        | Sửa gì                                                                                                                                                                |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx`      | `expanded`: `ReadonlySet<string>` → `string \| null`. `toggleDetail` thành phép gán một dòng; `collapseDetail` giữ nguyên vai trò riêng. `open` so bằng `===`.        |
+| `src/app/danh-muc/PortfolioScreen.test.tsx` | Thêm ca "mở khối chi tiết của mã khác thì khối đang mở tự đóng" — ghim **cả hai vế** (mã mới mở ra _và_ mã cũ đóng lại), vì chỉ ghim vế đầu thì bản `Set` cũ cũng đỗ. |
+
+Không có cách nào để hai khối cùng mở nữa: trạng thái chỉ giữ được một mã, nên không cần bước
+"đóng cái cũ" riêng và cũng không có đường nào lách qua.
+
+Kiểm chứng: `PortfolioScreen.test.tsx` 76/76 đỗ, `typecheck` sạch, `eslint` sạch, `prettier` không
+đổi gì.
+
+---
+
+## Rà soát SRS v2.0 và quyết định của chủ dự án (05/09/2026)
+
+**Trạng thái:** đã rà xong, **chưa áp bản sửa nào vào tài liệu**. Chủ dự án đã chốt 4 trong 15 câu
+hỏi; 11 câu còn lại chờ trả lời.
+
+Chủ dự án gửi `Faculator__SRS.docx` (v2.0, ban hành 24/07/2026, ISO/IEC/IEEE 29148:2018). Hai đợt
+rà chạy song song, mỗi đợt 13 agent có vòng phản biện đối kháng.
+
+### Kết quả rà
+
+| Đợt                 | Kết quả                                                                                                                                                                     |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SRS lệch thực tế    | **97 mục sửa** (25 số liệu · 57 nội dung · 15 cần chốt) + **29 đoạn chèn mới**, gồm 11 FR mới đề nghị dải FR-26…FR-36. 100/100 neo tìm-thay đã kiểm là tồn tại và duy nhất. |
+| SRS còn gì chưa làm | **47 mục**: 6 chưa làm, 29 làm một phần, 12 làm khác cách SRS mô tả. **16 mục mức M** — đó là thứ chặn phát hành.                                                           |
+
+### BỐN QUYẾT ĐỊNH ĐÃ CHỐT
+
+1. **Zero Backend → dựng proxy thật.** KHÔNG sửa CON-08. Thay vào đó làm cho đúng điều CON-08 đã
+   viết: thêm một **Cloudflare Worker làm lớp proxy/cache mỏng** trước `dcs.finbox.vn`, thay cho
+   lối gọi thẳng từ trình duyệt hiện nay. Đây là **hạng mục công việc mới**, không phải sửa tài
+   liệu. Kéo theo: `public/_headers` đổi `connect-src` về origin của Worker; `src/data/finbox/client.ts`
+   đổi base URL; CLAUDE.md mục "The one network call" phải viết lại.
+2. **COM-03 thu hẹp.** Ghi rõ: số lượng, giá vốn, ngày mua không rời thiết bị; **danh sách mã là
+   ngoại lệ duy nhất**, đã nói rõ trên màn. Phải thêm một ca kiểm ghim thân request.
+3. **NFR-PER-04 giữ ngân sách 200 KB**, kèm **miễn trừ có thời hạn** cho nhóm trang chi tiết (hiện
+   326–338 kB), ghi rõ lý do và hướng đóng. Ngưỡng không được nâng.
+4. **FR-07 thu phạm vi.** Bỏ heatmap, tornado và mây Ichimoku khỏi lời hứa; dọn hai nhãn thừa khỏi
+   kiểu `ChartType`. Ghi rõ 26 công thức đang khai `candlestick`/`histogram`/`underwater`/`scatter`
+   là **gợi ý hình dạng chưa hiện thực hoá** — chúng đang dùng chung cỗ máy vẽ đường.
+
+### 11 câu hỏi còn chờ chốt
+
+Q2 (SW-03 nhập file CSV) · Q4 (FR-25 JSON-LD) · Q6 (FR-13 bảng dự phóng dòng tiền) · Q7 (FR-17
+phạm vi VN-Index) · Q10 (NFR-SEC-01/02) · Q11 (giả định A1 — nguồn chuỗi giá dài) · Q12 (hạ mức
+R-02) · Q13 (bảng cắt lát phát hành) · Q14 (duyệt dải FR-26…FR-36) · Q15 (chỗ đặt yêu cầu bảng màu
+Sáng/Tối) · và câu Q9 nay đã bị quyết định 1 thay thế.
+
+Nội dung đầy đủ: `scratchpad/srs/bao-cao-sua-srs.md` (885 dòng) và
+`tasks/w93dfvc4r.output`. Công cụ áp bản sửa: `scratchpad/srs/ap-sua.mjs` — thay ở mức `<w:t>` nên
+giữ nguyên định dạng Word, có chế độ **neo** cho các ô bảng, và **dừng hẳn** nếu bất kỳ cụm nào
+không tìm thấy hoặc trùng nhiều chỗ.
+
+### Bốn con số trong CLAUDE.md đã lạc hậu
+
+432 → **444** đoạn diễn giải · 18 → **19** công thức `isFeatured` (kéo theo "ít nhất 12" → **13**) ·
+`ThemeSwitch` nay hiện ở **mọi khổ màn**, không còn ẩn dưới 1024px · `contrast.test.ts` có **78** ca
+chứ không phải 27. Số khẳng định của `verify-static.mjs` (26 → 28) và `check:chrome` (28 → 41) cũng
+đã trôi — **cố ý không ghim hai số này vào SRS**, chúng đổi theo từng đợt.
+
+### Việc còn lại
+
+- Trả lời 11 câu còn lại, rồi áp 82 mục an toàn và xuất `.docx` v2.1.
+- Mở gói việc **dựng Cloudflare Worker proxy** theo quyết định 1.
+- **FR-24 (mức M, SRS ghi "không được cắt ở bất kỳ bản nào"): file CSV tải từ `/du-lieu/` là file
+  duy nhất rời ứng dụng mà KHÔNG mang câu miễn trừ.** Việc nhỏ nhất trong danh sách mà lại chặn
+  v0.1 — xem `src/core/price-series.ts:225-251`.
+- **NFR-REL-02 là yêu cầu không thể thực hiện như đã viết**: cả bốn phép kiểm chéo đều cần công
+  thức không tồn tại (không có DuPont, không có Williams %R, không có quyền chọn nên không có
+  Black-Scholes lẫn ngang giá Call-Put). Lý do đã ghi sẵn ở `derivatives.ts:4-6` — thị trường VN
+  chưa có quyền chọn niêm yết. Cần chủ dự án quyết: bỏ, hay thay bằng phép kiểm chéo khả thi.
+
+---
+
 ## Biểu đồ hỏng khi dữ liệu quá nhỏ — trục toàn "0" và chữ bị cắt còn "ần"
 
 **Trạng thái:** xong phần code, **hai vòng**. `npm test` **97 file, 2.196 ca** (2.178 → 2.196, thêm
@@ -10375,6 +11093,83 @@ DAT  Không lọt NaN / Infinity / undefined · không có lỗi JS
 5. **Còn ba màn trong bộ ảnh chưa làm**: WF-04 (DCF, cần trọn gói 5.2.3), và WF-02 · WF-03
    cần chỉnh lại theo hi-fi. Chủ dự án đã chốt **thêm KaTeX thật** cho khối công thức của
    WF-03 — gói 2.4.3 coi như mở lại, và phải nạp trễ theo trang để không vỡ ngưỡng 200 kB.
+
+---
+
+## Icon 12 nhóm — chép nguyên bộ Iconify chủ dự án chọn
+
+Trạng thái: **đang chờ xác nhận**. `npx vitest run src/ui/browse` xanh phần icon (78/80; 2 lỗi
+còn lại nằm ở `RecentSearches.test.tsx`, thuộc phần việc Finbox_v2 đang làm dở song song).
+ESLint, Prettier, `tsc --noEmit` sạch trên hai file vừa sửa.
+
+Không thuộc gói WBS nào. Chủ dự án gửi 12 ảnh icon và yêu cầu dùng đúng chúng.
+
+**Vì sao phải làm lại lần hai.** Lượt trước tôi NHÌN 12 ảnh rồi vẽ tay lại bằng đường SVG. Kết
+quả "trông na ná" chứ không trùng, và bị trả lại đúng vì lý do đó. Ảnh dán trong khung chat
+không phải file, không rút vector ra được — nhưng 12 file PNG có thật trong `Downloads`, và tên
+file chính là địa chỉ Iconify của icon (`heroicons_receipt-percent.png` → `heroicons:receipt-percent`).
+Lấy vector gốc qua `https://api.iconify.design/<prefix>/<name>.svg` rồi chép nguyên vào code.
+
+| Nhóm              | Nguồn Iconify                        | Lối vẽ         |
+| ----------------- | ------------------------------------ | -------------- |
+| fundamentals      | `icons8:bar-chart`                   | tô đặc, vb 32  |
+| returns           | `akar-icons:statistic-up`            | nét 2, vb 24   |
+| valuation         | `ic:outline-balance`                 | tô đặc, vb 24  |
+| risk              | `tabler:alert-triangle`              | nét 2, vb 24   |
+| technical         | `boxicons:candlestick`               | tô đặc, vb 24  |
+| derivatives       | `mdi:file-arrow-left-right-outline`  | tô đặc, vb 24  |
+| fees-tax          | `heroicons:receipt-percent`          | nét 1.5, vb 24 |
+| savings           | `fluent:savings-24-regular`          | tô đặc, vb 24  |
+| investing         | `charm:plant-pot`                    | nét 1.5, vb 16 |
+| loans             | `griddy-icons:loan`                  | tô đặc, vb 24  |
+| personal-tax      | `fluent:document-percent-20-regular` | tô đặc, vb 20  |
+| corporate-finance | `griddy-icons:building-alt-02`       | tô đặc, vb 24  |
+
+**Đã đổi file**
+
+1. `src/ui/browse/CategoryIcon.tsx` — `CategoryVisual` đổi hình dạng: thay ba khe cố định
+   (`path`/`extra`/`line`) bằng `viewBox` + `paths[]` + `strokeWidth?` + `source`. Ba thay đổi
+   đáng ghi lại lý do:
+   - **`viewBox` đi theo từng icon.** Mỗi bộ vẽ trên lưới riêng (charm 16, fluent 20, icons8 32).
+     Quy hết về 24×24 là méo hình — đúng cái lỗi mà việc chép nguyên sinh ra để tránh.
+   - **Hai lối vẽ loại trừ nhau.** `strokeWidth` có mặt ⇒ vẽ nét, bắt buộc `fill="none"`; vắng ⇒
+     tô đặc, bắt buộc không có `stroke`. Lẫn hai bên thì hoặc icon thành mảng đặc, hoặc các lỗ
+     nhỏ (dấu %, cửa sổ) bị nét bịt lại.
+   - **`evenOdd` khai theo từng đường, không đặt chung cho cả SVG** như bản trước. Chỉ hai icon
+     griddy khai nó ở bộ gốc; ép `evenodd` lên các icon còn lại thì phần chồng nhau bị khoét rỗng.
+2. `src/ui/browse/CategoryIcon.test.tsx` — ca ghim thuộc tính SVG tách làm hai (một cho lối nét,
+   một cho lối tô đặc) vì bộ mới có cả hai; thêm một ca ghim `viewBox` gốc của ba cỡ lưới khác
+   nhau. Ca "không hai nhóm nào trùng hình" giữ nguyên, vẫn so bằng chuỗi `d` component vẽ ra.
+
+**Nới khổ icon (yêu cầu tiếp theo của chủ dự án).** Bốn chỗ gọi `CategoryIcon` đều lên một bậc:
+
+| Chỗ gọi                          | Cũ   | Mới  | Hộp chứa    |
+| -------------------------------- | ---- | ---- | ----------- |
+| `FormulaCard` nhánh ô            | 22px | 24px | float 20px  |
+| `FormulaCard` nhánh hàng         | 20px | 24px | ô lưới 32px |
+| `CategoryGrid` (duyệt theo nhóm) | 16px | 20px | pill, tự co |
+| `HotCategories`                  | 16px | 20px | ô 28px      |
+
+Chỗ duy nhất có ràng buộc là nhánh ô: hộp float chỉ cao đúng một dòng (20px), nên icon 24px tràn
+2px mỗi phía. Docblock cũ ghi trần là 22px, nay dời lên 24px — **có đo, không đoán**: chụp trang
+chủ thật ở 360px, phần tràn rơi vào khoảng đệm trên của dòng hai (hộp dòng 20px, chữ 16px chỉ ăn
+~18px) nên chưa chạm chữ, và tên hai/ba dòng vẫn chạy hết bề ngang thẻ. Docblock ghi luôn lối sửa
+nếu sau này còn muốn to hơn: nới `line-height` của `.tileName` lên `--leading-normal` rồi cho
+chiều cao hộp float đi theo cùng token, chứ không nới riêng icon.
+
+**Giấy phép.** Cả 10 bộ đang dùng là MIT hoặc Apache-2.0 — cho phép nhúng, chỉ cần giữ dòng ghi
+nguồn. Docblock của `CategoryIcon.tsx` liệt kê đủ 10 bộ và cách tra lại bản gốc.
+
+**Không đổi.** `.rowIcon` (`FormulaCard.module.css`) và `.icon` (`HotCategories.module.css`) đã bỏ
+nền xanh từ lượt trước, giữ nguyên. `toneClass()` và `drawnCategoryIds()` giữ nguyên chữ ký.
+
+**Còn lại**
+
+- Icon `risk` là **suy đoán**: file gốc tên `Group.png`, không mang tên bộ nào. Đã render sáu ứng
+  viên so với ảnh và chọn `tabler:alert-triangle` vì gần nhất. Nếu chủ dự án còn nhớ tên icon
+  thật thì đổi một dòng `source` + `d` là xong.
+- Bề dày nét giữa các bộ không đều (heroicons 1.5/24 mảnh hơn tabler 2/24, charm 1.5/16 đậm hơn
+  cả hai). Đây là hệ quả của việc lấy icon từ chín bộ khác nhau, không phải lỗi cài đặt.
 
 ---
 

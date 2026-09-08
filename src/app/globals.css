@@ -189,6 +189,37 @@
   );
 
   /*
+   * Dải chuyển màu của THẺ ĐÁP ÁN — ba thẻ ở `result-card.test.ts`.
+   *
+   * ── Vì sao là bộ token RIÊNG chứ không dùng lại `--gradient-highlight` ───────────────────────
+   *
+   * Bảng sáng thì hai dải trùng nhau từng mã màu, nên lần đầu thẻ đáp án dùng thẳng dải của nút.
+   * Bảng TỐI phơi ra rằng đó là hai vai khác nhau:
+   *
+   *  - Nút đang chọn nằm trên nền cụm `--color-sunken` #0a0f1a, nên nó phải SÁNG mới nổi — đó là
+   *    lý do bảng tối đảo `--color-selected` thành #5b9bff, có ca kiểm 3:1 giữ.
+   *  - Thẻ đáp án là một MẢNG LỚN choán gần hết bề ngang màn. Cùng sắc xanh sáng ấy trải trên
+   *    diện tích đó thành một khối chói giữa trang tối — chủ dự án báo đúng chỗ này.
+   *
+   * Nên thẻ giữ xanh THẪM ở cả hai bảng, chỉ nhích sáng lên chút ở bảng tối cho đủ tách khỏi nền
+   * trang. Bảng sáng lấy đúng hai mã của dải `gd2`, tức trùng `--color-selected*` hôm nay; bảng
+   * tối ghi mã riêng, xem lý do ở khối `[data-theme='dark']`.
+   *
+   * Ghi MÃ MÀU chứ không `var(--color-selected-strong)`: `contrast.test.ts` bóc giá trị token
+   * thẳng từ chuỗi CSS rồi tính tỉ số, nên một token trỏ sang token khác là nó nhận về chuỗi
+   * `var(…)` chứ không phải màu. Cái giá phải trả là nếu thương hiệu chỉnh dải `gd2` thì phải sửa
+   * hai chỗ — đổi lại, ba mã màu của thẻ đều chịu phép kiểm tương phản thật.
+   *
+   * `--color-on-result` là màu chữ đi kèm và nó TRẮNG ở CẢ HAI bảng — khác hẳn
+   * `--color-on-selected` vốn đảo thành navy thẫm. Đó chính là điều làm nó phải là token riêng.
+   */
+  --color-result-from: #0b408e; /* chữ trắng trên nền này: 9,82:1 */
+  --color-result-to: #1e60c0; /* 6,02:1 — đầu nhạt hơn, nên nó chốt ngưỡng của cả dải */
+  --color-on-result: #ffffff;
+
+  --gradient-result: linear-gradient(135deg, var(--color-result-from), var(--color-result-to));
+
+  /*
    * Màu của dấu hiệu thương hiệu (khối hộp) — dải chuyển từ góc trên-trái xuống góc dưới-phải.
    *
    * Tách khỏi `--color-accent` có chủ đích: màu nhấn phục vụ giao diện và bị ràng buộc bởi
@@ -405,6 +436,27 @@
   --color-selected: #5b9bff; /* chữ navy thẫm trên nền này: 6,54:1 */
   --color-selected-strong: #7ab5fc; /* sáng hơn — chữ navy thẫm 8,49:1 */
   --color-on-selected: #04162e; /* trên xanh sáng: 8,49 / 6,54 */
+
+  /*
+   * Thẻ đáp án KHÔNG đi theo phép đảo ở trên, và đây là chỗ khác nhau giữa hai vai.
+   *
+   * Nút đang chọn phải sáng vì nó nhỏ và nằm trên nền cụm gần đen. Thẻ đáp án thì choán gần hết
+   * bề ngang màn: cùng sắc #5b9bff trải trên diện tích đó thành một khối chói giữa trang tối —
+   * chủ dự án báo đúng chỗ này sau khi xem màn thật. Nên thẻ giữ xanh THẪM như bảng sáng, chỉ
+   * nhích lên một bậc để tách khỏi nền trang #111827.
+   *
+   * Ba con số phải đứng cùng lúc, và đó là lý do không nhích thêm nữa:
+   *
+   *   chữ trắng trên #134a9e   8,40:1  ✔ AA
+   *   chữ trắng trên #2668ce   5,31:1  ✔ AA — đầu này chốt ngưỡng của cả dải
+   *   #2668ce trên nền trang   3,34:1  ✔ 3:1, thẻ nổi rõ thành một mảng
+   *
+   * Góc thẫm #134a9e chỉ đạt 2,11:1 so với nền trang, và đó là chấp nhận được: ranh giới của thẻ
+   * do góc sáng lo, còn thứ mang thông tin là chữ bên trong thì đã có 8,40 và 5,31.
+   */
+  --color-result-from: #134a9e;
+  --color-result-to: #2668ce;
+  --color-on-result: #ffffff;
 
   /* ── Tông nhóm công thức ─────────────────────────────────────────────── */
   --color-tint-teal: #5fd4cd; /* 9,96 / 8,73 */

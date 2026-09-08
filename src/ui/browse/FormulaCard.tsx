@@ -29,6 +29,18 @@ export interface FormulaCardProps {
    * không nói thêm được gì.
    */
   variant?: 'row' | 'tile';
+  /**
+   * Gọi khi bấm vào thẻ — nơi gọi dùng để ghi "Tìm gần đây", cùng khuôn với `onSelect` của
+   * `SearchResults`. Không truyền thì bấm vào chỉ điều hướng như thường.
+   *
+   * Cố tình KHÔNG truyền ở: kệ 18 ô của trang chủ lúc chưa gõ gì, và danh sách `/cong-thuc/`.
+   * Lịch sử tìm chỉ được ghi khi người dùng bấm vào một KẾT QUẢ TÌM, không phải mỗi lần họ mở
+   * một công thức — thứ sau đã có kho riêng (`ffb.usage.v1`) với mục đích khác hẳn.
+   *
+   * Nơi gọi phải bọc `useCallback`: thẻ này là `memo`, truyền hàm mới mỗi lượt gõ là cả lưới
+   * dựng lại theo từng phím.
+   */
+  onSelect?: (formula: FormulaSummary) => void;
 }
 
 /**
@@ -48,9 +60,33 @@ export interface FormulaCardProps {
  * lẫn server (StaticFormulaList, fallback SEO) — nên gọi hook thẳng sẽ ném lỗi ở lượt dựng
  * server. Hai lá này chạy được cả hai chỗ (xem docblock `Pick.tsx`).
  */
-function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: FormulaCardProps) {
+function FormulaCardBase({
+  formula,
+  showCategory = true,
+  variant = 'row',
+  onSelect,
+}: FormulaCardProps) {
   const category = findCategory(formula.categoryId);
   const isBasic = formula.level === 'basic';
+
+  /*
+   * Chỉ là việc phụ bám theo cú bấm, KHÔNG chặn điều hướng: thẻ vẫn là `<a>` thật nên mở tab
+   * mới, bấm giữa chuột hay Enter đều chạy đúng như trước.
+   *
+   * PHẢI là `undefined` khi không ai truyền `onSelect`, không được là một hàm luôn tồn tại gọi
+   * `onSelect?.()` bên trong. Lý do là ranh giới RSC: file này KHÔNG mang `'use client'` và được
+   * `StaticFormulaList` cùng `page.tsx` dựng ở phía SERVER, mà `<Link>` thì là client component —
+   * nên một hàm gắn cứng vào `onClick` là hàm bị đẩy qua ranh giới, và Next dừng hẳn trang với
+   * "Event handlers cannot be passed to Client Component props". Đã xảy ra thật ở trang chủ.
+   * Không ca kiểm jsdom nào bắt được chuyện này vì chúng không dựng qua ranh giới RSC — chỉ
+   * `npm run build` (hoặc mở dev server) mới thấy.
+   */
+  const handleClick =
+    onSelect === undefined
+      ? undefined
+      : () => {
+          onSelect(formula);
+        };
 
   if (variant === 'tile') {
     /*
@@ -58,19 +94,25 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
      * `--category-*`, còn hai phần bên trong đọc khe đó. Xem docblock `toneClass()`.
      */
     return (
-      <Link href={formulaPath(formula.id)} className={`${styles.tile} ${toneClass()}`}>
+      <Link
+        href={formulaPath(formula.id)}
+        className={`${styles.tile} ${toneClass()}`}
+        onClick={handleClick}
+      >
         {/*
           Icon đứng CÙNG DÒNG với tên — bản thiết kế Figma "FINBOX VERSION 2". Bản trước để icon
           một dòng riêng phía trên, nên ô cao thêm gần 40px mà không nói thêm gì; gộp lại thì lưới
           19 ô ở trang chủ ngắn hẳn đi.
+
+          Icon nằm BÊN TRONG khối tên, không phải một ô flex đứng cạnh: có thế tên dài mới xuống
+          dòng chạy hết bề ngang thẻ, đúng bản thiết kế — xem chú thích `.tileIcon`.
         */}
-        <span className={styles.tileHead}>
+        <span className={styles.tileName}>
           <span className={styles.tileIcon} aria-hidden="true">
-            <CategoryIcon id={formula.categoryId} />
+            {/* To hơn khổ mặc định 18px hai bậc — xem chú thích `.tileIcon` về mức trần 24px. */}
+            <CategoryIcon id={formula.categoryId} size={24} />
           </span>
-          <span className={styles.tileName}>
-            <Pick value={formula.name} />
-          </span>
+          <Pick value={formula.name} />
         </span>
         <span className={styles.tileDescription}>
           <Pick value={formula.description} />
@@ -89,24 +131,34 @@ function FormulaCardBase({ formula, showCategory = true, variant = 'row' }: Form
    * `toneClass()`. Icon và badge nhóm bên trong chỉ đọc hai khe `--category-*`.
    */
   return (
-    <Link href={formulaPath(formula.id)} className={`${styles.card} ${toneClass()}`}>
+    <Link
+      href={formulaPath(formula.id)}
+      className={`${styles.card} ${toneClass()}`}
+      onClick={handleClick}
+    >
       {/*
-        Icon nhóm ở đầu hàng — bản thiết kế mobile đợt 13. Cùng dấu hiệu với nhánh ô của trang
-        chủ, nên một công thức mang đúng một hình dù gặp nó ở màn nào.
+        Icon nhóm nằm TRONG `.body`, không đứng ngoài như một ô flex riêng — xem chú thích
+        `.body`. Nó chỉ chiếm ô hàng-1/cột-1 của lưới, nên mô tả và nhãn nhóm bên dưới chạy
+        thẳng ra mép trái thẻ thay vì để trống một cột suốt chiều cao còn lại.
       */}
-      <span className={styles.rowIcon} aria-hidden="true">
-        <CategoryIcon id={formula.categoryId} size={20} />
-      </span>
-
       <div className={styles.body}>
-        <div className={styles.head}>
+        <span className={styles.rowIcon} aria-hidden="true">
+          <CategoryIcon id={formula.categoryId} size={24} />
+        </span>
+
+        {/*
+          Tên và huy hiệu nằm chung MỘT ô lưới, và bên trong ô đó không có flex nào: cả hai vẫn
+          là hộp inline trong cùng một dòng chữ, nên huy hiệu bám ngay sau chữ cuối của tên và
+          chỉ xuống dòng khi hết chỗ thật — xem chú thích `.levelBadge`.
+        */}
+        <span className={styles.heading}>
           <span className={styles.name}>
             <Pick value={formula.name} />
           </span>
-          <Badge tone={isBasic ? 'basic' : 'advanced'}>
+          <Badge tone={isBasic ? 'basic' : 'advanced'} className={styles.levelBadge}>
             <T k={isBasic ? 'level.basic' : 'level.advanced'} />
           </Badge>
-        </div>
+        </span>
 
         <p className={styles.description}>
           <Pick value={formula.description} />

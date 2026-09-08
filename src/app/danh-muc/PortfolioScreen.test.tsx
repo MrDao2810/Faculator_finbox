@@ -359,7 +359,7 @@ describe('WF-06 — từ mã sang công thức', () => {
    */
   it('chọn công thức trong form: một nút vừa lưu mã vừa mở đúng trang công thức', async () => {
     const sheet = await moSheetCongThuc();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
 
     // Nhãn nút phải nói ra việc nó sắp làm, không còn là "Thêm vào danh mục" trơn.
     expect(screen.queryByRole('button', { name: 'Thêm vào danh mục' })).toBeNull();
@@ -423,7 +423,7 @@ describe('WF-06 — từ mã sang công thức', () => {
 
   it('bỏ chọn được công thức đã chọn, và nhãn nút trở lại như cũ', async () => {
     const sheet = await moSheetCongThuc();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Bỏ chọn công thức' }));
 
@@ -445,7 +445,7 @@ describe('WF-06 — từ mã sang công thức', () => {
    */
   it('cộng dồn mà có chọn công thức: nhãn nút nói cả hai việc, không hứa một dòng mới', async () => {
     const sheet = await moSheetCongThuc();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
 
     expect(screen.getByRole('button', { name: 'Cộng thêm và mở công thức' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Thêm và mở công thức' })).toBeNull();
@@ -519,7 +519,7 @@ describe('WF-06 — từ mã sang công thức', () => {
 
   /*
    * Mã tra được số liệu cơ bản nhưng KHÔNG có thị giá là ca có thật — `finbox/map.ts` đối chiếu
-   * hai thứ đó độc lập nhau. Khi đó 15 công thức điền hụt một ô và 8 công thức không điền được ô
+   * hai thứ đó độc lập nhau. Khi đó 14 công thức điền hụt một ô và 6 công thức không điền được ô
    * nào, nên sheet phải nói khác đi thay vì cứ in con số ghim ra.
    */
   it('mã thiếu thị giá: bỏ công thức không điền được ô nào và nói rõ lý do', async () => {
@@ -527,8 +527,8 @@ describe('WF-06 — từ mã sang công thức', () => {
     const sheet = await moSheetCongThuc();
 
     expect(within(sheet).getByText(/Chưa tra được thị giá của mã này/)).toBeTruthy();
-    // 31 − 8 công thức chỉ điền được đúng ô thị giá.
-    expect(within(sheet).getAllByRole('listitem')).toHaveLength(LIVE_PRESET_FORMULAS.length - 8);
+    // 34 − 6 công thức chỉ điền được đúng ô thị giá.
+    expect(within(sheet).getAllByRole('listitem')).toHaveLength(LIVE_PRESET_FORMULAS.length - 6);
     // `bien-an-toan` chỉ điền được mỗi thị giá → phải biến mất hẳn.
     expect(within(sheet).queryByRole('button', { name: /[Bb]iên an toàn/ })).toBeNull();
   });
@@ -537,7 +537,9 @@ describe('WF-06 — từ mã sang công thức', () => {
     feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
     const sheet = await moSheetCongThuc();
 
-    expect(within(sheet).getByRole('button', { name: /P\/E/ }).textContent).toContain('1/2');
+    expect(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }).textContent).toContain(
+      '1/2',
+    );
   });
 
   it('công thức nâng cao nằm trong nhóm Nâng cao', async () => {
@@ -549,7 +551,7 @@ describe('WF-06 — từ mã sang công thức', () => {
 
     expect(within(nangCao).getByRole('button', { name: /WACC/ })).toBeTruthy();
     // Và công thức cơ bản thì KHÔNG được lọt vào nhóm nâng cao.
-    expect(within(nangCao).queryByRole('button', { name: /P\/E/ })).toBeNull();
+    expect(within(nangCao).queryByRole('button', { name: /P\/E — hệ số/ })).toBeNull();
   });
 });
 
@@ -823,6 +825,36 @@ describe('WF-06 — thêm lại mã đang giữ thì phải nói rõ là cộng 
     expect(nut.getAttribute('aria-expanded')).toBe('false');
     expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
   });
+
+  /*
+   * Chỉ MỘT khối chi tiết được mở tại một thời điểm.
+   *
+   * Mỗi khối cao gần ba dòng gọn, nên hai khối cùng mở đẩy mã dưới xuống khuất và khối số nổi
+   * lên giữa màn không còn rõ thuộc về mã nào. Ghim cả hai vế — mã mới mở RA và mã cũ đóng LẠI —
+   * vì chỉ ghim vế đầu thì ca kiểm vẫn xanh với bản `Set` cũ.
+   */
+  it('mở khối chi tiết của mã khác thì khối đang mở tự đóng', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '2026-01-02', beta: null },
+        { code: 'HPG', quantity: 200, costPrice: 25_000, buyDate: '2026-01-03', beta: null },
+      ]),
+    );
+    render(<PortfolioScreen />);
+
+    const fpt = await screen.findByRole('button', { name: 'Chi tiết FPT' });
+    const hpg = await screen.findByRole('button', { name: 'Chi tiết HPG' });
+
+    await userEvent.click(fpt);
+    expect(fpt.getAttribute('aria-expanded')).toBe('true');
+
+    await userEvent.click(hpg);
+    expect(hpg.getAttribute('aria-expanded')).toBe('true');
+    expect(fpt.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Sửa HPG' })).toBeTruthy();
+  });
 });
 
 describe('WF-06 — form không được hỏng trong im lặng', () => {
@@ -1058,7 +1090,7 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
 
     await userEvent.click(screen.getByRole('button', { name: 'Tính công thức' }));
     const sheet = await screen.findByRole('dialog');
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Lưu và mở công thức' }));
 

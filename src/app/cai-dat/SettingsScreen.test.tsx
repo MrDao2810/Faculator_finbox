@@ -10,6 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FORMULAS,
   FORMULA_USAGE_KEY,
+  HOME_RECENT_SEARCHES_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
@@ -104,6 +105,7 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
     for (const key of [
       PREFERENCES_STORAGE_KEY,
       RECENT_SEARCHES_KEY,
+      HOME_RECENT_SEARCHES_KEY,
       FORMULA_USAGE_KEY,
       PRICE_SERIES_KEY,
       PORTFOLIO_KEY,

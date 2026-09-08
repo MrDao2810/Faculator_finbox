@@ -95,10 +95,43 @@ const THEME_BOOT_SCRIPT =
   `if(p.theme==='dark'){d.theme='dark'}` +
   `if(p.mode==='advanced'){d.mode='advanced'}}catch(e){}`;
 
+/*
+ * Một luật CSS duy nhất, nằm THẲNG trong `<head>` — nửa còn lại của việc chặn nháy.
+ *
+ * ── Đo được, không phải phỏng đoán ────────────────────────────────────────────────────────
+ *
+ * Script trên đặt `data-theme='dark'` rất sớm, nhưng `color-scheme: dark` đi kèm thì nằm trong
+ * `globals.css`, tức một file NGOÀI. Đo trên Chrome thật (quan sát viên cài qua CDP trước mọi
+ * script của trang, người dùng đã chọn Tối, tải lại cứng):
+ *
+ *   t=131ms  chưa có stylesheet nào   data-theme=null    nền <html> = rgba(0,0,0,0)
+ *   t=142ms  stylesheet đã tải        data-theme=dark    nền <html> = rgb(17,24,39)
+ *
+ * Trong quãng đầu ấy `<html>` không có `color-scheme` nào cả, nên trình duyệt vẽ canvas bằng
+ * TRẮNG mặc định của nó — chính là cái nháy chủ dự án báo. Nó không do React ghi đè: `data-theme`
+ * đo được không hề đi qua `'light'` lấy một lần. Quãng đo được ở đây chỉ 11ms vì máy nhanh và
+ * CSS nằm sẵn trong bộ nhớ đệm; máy chậm hoặc lần tải nguội thì dài hơn hẳn, và đó là lúc nhìn
+ * thấy rõ.
+ *
+ * `color-scheme: dark` khiến trình duyệt tự vẽ canvas bằng nền tối ngay cả khi chưa có luật màu
+ * nào của ta — nên chỉ cần nó có mặt SỚM là hết nháy. Không chép mã màu vào đây: mã màu chỉ được
+ * sống trong `globals.css` (CON-05, `tokens.test.ts` gác), mà cũng không cần.
+ *
+ * ── Vì sao bọc trong `@media screen` ──────────────────────────────────────────────────────
+ *
+ * `globals.css` có `@media print { [data-theme] { color-scheme: light } }` để bản in luôn sáng,
+ * và luật ấy thắng được nhờ đứng SAU với cùng độ ưu tiên (0,1,0) — docblock ở đó ghi rõ chuyện
+ * này đã đo và đã sửa một lần. Thẻ `<style>` này thì không kiểm soát được mình đứng trước hay sau
+ * `<link>` của Next, nên nếu để trần thì nó có thể thắng ngược luật in ra. `@media screen` cắt
+ * đứt khả năng đó ngay từ gốc: nó không bao giờ áp khi in, bất kể thứ tự.
+ */
+const THEME_BOOT_STYLE = `@media screen{[data-theme='dark']{color-scheme:dark}}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
+        <style dangerouslySetInnerHTML={{ __html: THEME_BOOT_STYLE }} />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body>

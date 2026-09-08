@@ -354,6 +354,86 @@ try {
     );
   }
 
+  /* ── 0a3. Bảng màu Tối không nháy qua Sáng khi tải lại ───────────────────── */
+
+  /*
+   * Chủ dự án báo: đang ở giao diện Tối mà tải lại toàn trang thì "nháy nhanh qua theme sáng rồi
+   * mới chuyển sang theme tối".
+   *
+   * Đo được, và có HAI nguyên nhân rời nhau — cả hai đã vá:
+   *
+   *   1. `PreferencesProvider` khởi tạo `prefs` bằng `DEFAULT_PREFERENCES` (`theme: 'light'`) để
+   *      lượt render đầu khớp HTML tĩnh, rồi effect ghi `data-theme` chạy ngay lượt mount với
+   *      đúng giá trị mặc định ấy — đè lên chữ `'dark'` mà script chặn nháy trong `layout.tsx`
+   *      vừa đặt. Vá bằng cửa `hydrated` ở cả hai effect ghi `<html>`.
+   *   2. `color-scheme: dark` chỉ sống trong `globals.css`, tức một file NGOÀI; trước khi nó tải
+   *      xong thì `<html>` không có `color-scheme` nào và trình duyệt vẽ canvas bằng TRẮNG mặc
+   *      định. Vá bằng một luật `@media screen` đặt thẳng trong `<head>` của `layout.tsx`.
+   *
+   * Chỉ đo được ở đây, không đo được bằng vitest: đã thử một ca jsdom dùng `MutationObserver` ghi
+   * lại mọi giá trị `data-theme` từng mang, và nó XANH cả khi gỡ bản vá — `render()` của
+   * testing-library gói cả lượt mount trong một `act()` nên hai lượt commit của trình duyệt thật
+   * bị nhập làm một, đúng chỗ cái nháy sống. Xem docblock `preferences-context.test.tsx`.
+   *
+   * Cách đo: cài quan sát viên TRƯỚC mọi script của trang bằng `Page.addScriptToEvaluateOnNewDocument`,
+   * ghi lại từng lần `data-theme` đổi, rồi tải lại. Bản hỏng đi qua `'light'` ở giữa; bản đúng thì
+   * mọi giá trị nó từng mang đều là `'dark'`.
+   */
+
+  const THEME_WATCHER = `
+window.__themeLog = [];
+(function () {
+  function watch() {
+    window.__themeLog.push(document.documentElement.getAttribute('data-theme'));
+    new MutationObserver(function () {
+      window.__themeLog.push(document.documentElement.getAttribute('data-theme'));
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+  if (document.documentElement) watch();
+  else
+    new MutationObserver(function (r, o) {
+      if (document.documentElement) {
+        o.disconnect();
+        watch();
+      }
+    }).observe(document, { childList: true, subtree: true });
+})();`;
+
+  // Ghi lựa chọn Tối vào kho, rồi tải lại với quan sát viên đã cài sẵn.
+  await open('/');
+  await evaluate(`localStorage.setItem('ffb.prefs.v1', JSON.stringify({ theme: 'dark' }))`);
+  const watcherId = await send('Page.addScriptToEvaluateOnNewDocument', { source: THEME_WATCHER });
+  await open('/');
+  // Đợi qua cả lượt hydrate: nguyên nhân 1 chỉ lộ ra sau khi React gắn xong.
+  await waitFor(`document.documentElement.dataset.theme === 'dark'`);
+  await new Promise((r) => setTimeout(r, 800));
+
+  const daQua = await evaluate('JSON.stringify(window.__themeLog)');
+  const buoc = JSON.parse(daQua ?? '[]');
+  // Giá trị đầu là `null` khi quan sát viên chạy trước cả script chặn nháy — đó là bình thường.
+  const nhay = buoc.filter((value) => value !== null && value !== 'dark');
+  check(
+    'giao diện Tối: tải lại không nháy qua bảng Sáng',
+    nhay.length === 0,
+    nhay.length === 0
+      ? `data-theme đi qua ${JSON.stringify(buoc)}`
+      : `nháy qua ${JSON.stringify(nhay)} — chuỗi đầy đủ ${JSON.stringify(buoc)}`,
+  );
+
+  const colorScheme = await evaluate(`getComputedStyle(document.documentElement).colorScheme`);
+  check(
+    'giao diện Tối: color-scheme là dark, để canvas không trắng trước khi CSS tới',
+    colorScheme === 'dark',
+    `đọc được "${String(colorScheme)}"`,
+  );
+
+  // Trả máy về Sáng cho các phép kiểm sau, và gỡ quan sát viên.
+  await send('Page.removeScriptToEvaluateOnNewDocument', {
+    identifier: watcherId.result?.identifier ?? watcherId.identifier,
+  });
+  await evaluate(`localStorage.removeItem('ffb.prefs.v1')`);
+  await open('/');
+
   /* ── 0a2. Khối Công thức không có thanh cuộn dọc ẩn ──────────────────────── */
 
   /*

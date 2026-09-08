@@ -1235,7 +1235,14 @@
       "Bash(node .scratch/soi-api.mjs)",
       "WebFetch(domain:finbox-calculator.pages.dev)",
       "Bash(curl -s --max-time 25 \"https://finbox-calculator.pages.dev/\")",
-      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\('name:',p.name\\);console.log\\('deps:',Object.keys\\({...p.dependencies,...p.devDependencies}\\).join\\(', '\\)\\)\")"
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\('name:',p.name\\);console.log\\('deps:',Object.keys\\({...p.dependencies,...p.devDependencies}\\).join\\(', '\\)\\)\")",
+      "Bash(perl -0pi -e 's/    if \\\\\\(!hydrated\\\\\\) return;\\\\n    document\\\\.documentElement\\\\.dataset\\\\.theme/    document.documentElement.dataset.theme/; s/    if \\\\\\(!hydrated\\\\\\) return;\\\\n    const root = document\\\\.documentElement;/    const root = document.documentElement;/' src/application/preferences-context.tsx)",
+      "Bash(python -c \"import sys,json;[print\\(json.dumps\\(json.loads\\(l\\),ensure_ascii=False,indent=1\\)\\) for l in sys.stdin if l.strip\\(\\).startswith\\('['\\)]\")",
+      "Bash(sed -i \"s#expression: 'JSON.stringify\\(window.__log\\)'#expression: 'JSON.stringify\\({log:window.__log,err:window.__err}\\)'#\" probe.mjs)",
+      "Bash(sed -i \"s#colorScheme: null,#x:0,#\" probe.mjs)",
+      "Bash(sed -i \"s#sheets: document.styleSheets.length,#sheets: document.styleSheets.length, cs: el ? getComputedStyle\\(el\\).colorScheme : null,#\" probe.mjs)",
+      "Bash(perl -pi -e \"s#\\\\Q\\\\`\\\\${process.env.ProgramFiles ?? ''}\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Google\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Chrome\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Application\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\chrome.exe\\\\`\\\\E#\\\\`\\\\${process.env.ProgramFiles ?? ''}\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Google\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Chrome\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Application\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\chrome.exe\\\\`, \\\\`\\\\${process.env['ProgramFiles\\(x86\\)'] ?? ''}\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Google\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Chrome\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Application\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\chrome.exe\\\\`#\" smoke.mjs)",
+      "Bash(CHROME_PATH=\"C:\\\\\\\\Program Files\\\\\\\\Google\\\\\\\\Chrome\\\\\\\\Application\\\\\\\\chrome.exe\" node smoke.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

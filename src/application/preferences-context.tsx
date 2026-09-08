@@ -71,17 +71,30 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   }, [prefs.locale]);
 
   /*
-   * Bảng màu, cùng cách với `lang` ngay trên: ghi vào `<html>` sau khi hydrate xong.
+   * Bảng màu — ghi vào `<html>`, nhưng CHỈ SAU KHI đã đọc xong `localStorage`.
    *
-   * HTML tĩnh không mang `data-theme` (mặc định là bảng sáng), nên lượt render đầu vẫn khớp.
-   * Người đã chọn Tối được script chặn nháy trong `layout.tsx` đặt thuộc tính này TRƯỚC lượt vẽ
-   * đầu; effect ở đây ghi lại đúng giá trị ấy, nên hai chỗ không đánh nhau.
+   * ── Vì sao có cửa `hydrated`, và bỏ nó ra thì hỏng thế nào ────────────────────────────────
+   *
+   * `prefs` khởi tạo bằng `DEFAULT_PREFERENCES`, tức `theme: 'light'` — bắt buộc phải thế, vì
+   * lượt render đầu ở máy khách phải khớp HTML tĩnh. Không có cửa này thì effect chạy ngay lượt
+   * mount với đúng giá trị mặc định ấy và ghi đè `data-theme='light'` lên chữ `'dark'` mà script
+   * chặn nháy trong `layout.tsx` vừa đặt trước lượt vẽ đầu; đọc xong `localStorage` thì state đổi
+   * và effect chạy lại, trả về `'dark'`.
+   *
+   * Kết quả trên màn đúng bằng thứ script kia sinh ra để chặn, chỉ dời đi vài mili giây: người
+   * chọn Tối tải lại trang thì thấy tối → NHÁY SÁNG → tối. Chủ dự án báo đúng chuyện này.
+   *
+   * Nay lượt mount không ghi gì cả: DOM giữ nguyên thứ script khởi động đặt, và effect chỉ vào
+   * cuộc từ lượt render sau — lúc `prefs` đã là lựa chọn thật. Máy chặn `localStorage` cũng qua
+   * đây bình thường, vì `hydrated` vẫn bật (xem effect đọc kho ở trên) và `prefs` khi ấy là mặc
+   * định, khớp sẵn với HTML tĩnh.
    *
    * `<meta name="theme-color">` phải vá theo, nếu không thanh trạng thái trên di động vẫn giữ
    * màu giấy sáng viền quanh một trang tối. Đọc thẳng token đã áp thay vì chép mã màu vào đây —
    * đổi bảng màu trong globals.css là thẻ meta đi theo, không có mã màu thứ hai để lệch.
    */
   useEffect(() => {
+    if (!hydrated) return;
     document.documentElement.dataset.theme = prefs.theme;
 
     const paper = getComputedStyle(document.documentElement)
@@ -90,7 +103,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     if (paper !== '') {
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', paper);
     }
-  }, [prefs.theme]);
+  }, [hydrated, prefs.theme]);
 
   /*
    * Chế độ hiển thị, cùng khuôn `data-theme` ngay trên và vì cùng một lý do.
@@ -104,12 +117,17 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
    * mặc định", để HTML tĩnh và máy chặn localStorage rơi đúng vào nhánh ấy. Ghi giá trị mặc định
    * ra DOM thì có hai cách diễn đạt cho cùng một trạng thái, và chỉ cần một chỗ quên `:not()` là
    * sai lặng lẽ.
+   *
+   * Cửa `hydrated` cũng vì đúng lý do đã ghi ở effect bảng màu, và hỏng theo cách dễ thấy y hệt:
+   * lượt mount `prefs.mode` còn là `'basic'`, nên `delete` sẽ gỡ mất `data-mode='advanced'` mà
+   * script khởi động vừa đặt, và số công thức của từng nhóm ở trang chủ nháy 111 → 79 → 111.
    */
   useEffect(() => {
+    if (!hydrated) return;
     const root = document.documentElement;
     if (prefs.mode === 'advanced') root.dataset.mode = 'advanced';
     else delete root.dataset.mode;
-  }, [prefs.mode]);
+  }, [hydrated, prefs.mode]);
 
   const persist = useCallback((next: Preferences) => {
     setPrefs(next);

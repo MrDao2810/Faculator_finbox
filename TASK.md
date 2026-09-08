@@ -145,6 +145,69 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Giao diện Tối nháy qua Sáng mỗi lần tải lại — HAI nguyên nhân rời nhau (08/09/2026)
+
+**Trạng thái: xong**, đã đo lại trên Chrome thật ba lần liên tiếp.
+
+Chủ dự án báo: đang ở giao diện Tối, tải lại toàn trang thì "nháy nhanh qua theme sáng rồi mới
+chuyển sang theme tối".
+
+### Cách tìm ra — và một chẩn đoán sai phải bỏ giữa chừng
+
+Đọc code xong tôi kết luận ngay thủ phạm là `PreferencesProvider`, viết bản vá và viết một ca kiểm
+jsdom dùng `MutationObserver` ghi lại mọi giá trị `data-theme` từng mang. Ca ấy **XANH cả khi gỡ bỏ
+bản vá** — tức là một cửa gác giả, và chẩn đoán chưa có gì chống lưng.
+
+Nên phải đo thật: cài quan sát viên qua CDP bằng `Page.addScriptToEvaluateOnNewDocument` (chạy
+TRƯỚC mọi script của trang, kể cả script chặn nháy trong `<head>`), rồi tải lại và đọc nhật ký.
+Hoá ra có **hai** nguyên nhân, và mỗi lần đo chỉ lộ ra một tuỳ nhịp máy:
+
+```text
+lần đo A   t=131  sheets=0  data-theme=null    nền=rgba(0,0,0,0)   ← cửa sổ trắng
+           t=142  sheets=2  data-theme=dark    nền=rgb(17,24,39)
+
+lần đo B   t=469  load      data-theme=dark    color-scheme=dark
+           t=527            data-theme=light   color-scheme=light  ← nháy sáng
+           t=580            data-theme=dark    color-scheme=dark
+```
+
+1. **React ghi đè.** `prefs` khởi tạo bằng `DEFAULT_PREFERENCES` (`theme: 'light'`) — bắt buộc, để
+   lượt render đầu khớp HTML tĩnh — và effect ghi `data-theme` chạy ngay lượt mount với đúng giá
+   trị mặc định ấy, đè lên chữ `'dark'` mà script chặn nháy vừa đặt. Đọc xong `localStorage` thì
+   state đổi và effect chạy lại, trả về `'dark'`.
+2. **`color-scheme` tới muộn.** Nó chỉ sống trong `globals.css`, tức một file NGOÀI; trước khi file
+   ấy tải xong thì `<html>` không có `color-scheme` nào và trình duyệt vẽ canvas bằng TRẮNG mặc
+   định của nó.
+
+| File                                      | Sửa gì                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/preferences-context.tsx` | Cửa `if (!hydrated) return;` ở CẢ HAI effect ghi `<html>` (`data-theme` và `data-mode`) — lượt mount không ghi gì, DOM giữ nguyên thứ script khởi động đặt. `data-mode` hỏng y hệt: `delete` gỡ mất `advanced` nên số công thức từng nhóm ở trang chủ nháy 111 → 79 → 111.                                                                                                                                      |
+| `src/app/layout.tsx`                      | Thêm `THEME_BOOT_STYLE` — đúng một luật `@media screen{[data-theme='dark']{color-scheme:dark}}` đặt thẳng trong `<head>`. Bọc `@media screen` để không bao giờ thắng ngược `@media print { [data-theme] { color-scheme: light } }` của `globals.css`, bất kể thẻ `<style>` này đứng trước hay sau `<link>` của Next. Không chép mã màu nào — `color-scheme` là đủ, và mã màu chỉ được sống trong `globals.css`. |
+
+**Đo lại sau khi vá, ba lần liên tiếp:** `data-theme` đi qua đúng `[null, "dark", "dark"]`,
+`color-scheme` luôn `dark` từ mốc 136ms trở đi. Không lần nào chạm `'light'`.
+
+### Cửa gác
+
+- `scripts/chrome-check.mjs` mục **0a3**, hai phép kiểm mới (tổng 29 → 31): chuỗi giá trị
+  `data-theme` từng mang không được chứa gì khác `'dark'`, và `color-scheme` phải là `dark`. Đây
+  là cửa gác THẬT, vì chỉ Chrome thật mới tách được hai lượt commit của React.
+- `src/application/preferences-context.test.tsx` (mới, 4 ca) gác thứ khác — rủi ro thật của chính
+  bản vá: cửa `hydrated` không được biến hai effect thành hàng rào chết, kể cả trên máy chặn
+  `localStorage`. Docblock của nó ghi rõ nó **không** gác được hiện tượng nháy và vì sao, để không
+  ai dựng lại ca kiểm giả kia.
+
+**Kiểm chứng:** `lint` sạch, `typecheck` sạch, 2353 ca xanh. Đoạn 0a3 chưa chạy qua `check:chrome`
+thật (cổng 3000 đang bị `next dev` giữ nên không build được `out/`), nhưng đã chạy y nguyên logic
+ấy trên dev server bằng một script riêng: `[null,"dark","dark"]` · `color-scheme=dark` · gỡ quan
+sát viên trả về `{}`. Con số 31 trong `CLAUDE.md` là 29 cũ cộng đúng hai ca này, chưa xác nhận
+bằng một lần chạy đầy đủ.
+
+**Ba ca đỏ còn lại KHÔNG thuộc đợt này** — vẫn là `search.seeAll` mồ côi và hai ca tiêu đề chip,
+sinh ra từ việc hai file i18n bị biên tập song song; chủ dự án cho để nguyên.
+
+---
+
 ## Màn không nạp mã được thì KHÔNG nói một chữ nào về mã (08/09/2026)
 
 **Trạng thái: xong.**

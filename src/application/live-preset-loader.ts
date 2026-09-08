@@ -16,7 +16,7 @@
  */
 
 import { MARKET_FEED, isAbortError, presetFromSnapshot } from '@/data';
-import type { Preset } from '@/data';
+import type { DailyBar, Preset } from '@/data';
 
 export type LivePresetResult =
   | { status: 'ok'; preset: Preset }
@@ -53,7 +53,10 @@ export async function loadLivePreset(
   signal?: AbortSignal,
 ): Promise<LivePresetResult> {
   try {
-    const snapshots = await MARKET_FEED.snapshots([code], signal);
+    const [snapshots, history] = await Promise.all([
+      MARKET_FEED.snapshots([code], signal),
+      priceHistoryOrEmpty(code, signal),
+    ]);
     if (signal?.aborted === true) return { status: 'cancelled' };
 
     const snapshot = snapshots.get(code.trim().toUpperCase());
@@ -61,9 +64,35 @@ export async function loadLivePreset(
     // "mã thiếu số liệu". Thử lại có thể được, nên vẫn là `'failed'`.
     if (snapshot === undefined) return { status: 'failed' };
 
-    const preset = presetFromSnapshot(snapshot, asOf);
+    const preset = presetFromSnapshot(snapshot, asOf, history);
     return preset === undefined ? { status: 'no-data' } : { status: 'ok', preset };
   } catch (error) {
     return isAbortError(error) ? { status: 'cancelled' } : { status: 'failed' };
+  }
+}
+
+/**
+ * Mười phiên giá gần nhất — **hỏng thì trả rỗng, không lan sang việc chính**.
+ *
+ * Chuỗi phiên là phần THÊM: có nó thì biểu đồ vẽ được đường thời gian bằng giá thật, mất nó thì
+ * màn quay về đúng hành vi cũ (một phiên, đường quét giả định ±50%). Để một lời gọi phụ hỏng kéo
+ * theo cả preset là đánh đổi ngược: người dùng mất luôn số liệu cơ bản — thứ họ thật sự đến vì nó
+ * — chỉ vì không lấy được thứ trang trí.
+ *
+ * `Promise.all` ở trên nên hai lời gọi đi song song; nuốt lỗi PHẢI nằm trong hàm này chứ không ở
+ * `catch` ngoài, kẻo một lỗi mạng của lời gọi phụ cũng thành `'failed'`.
+ *
+ * Lỗi HUỶ thì ném tiếp: `catch` ngoài đọc nó ra `'cancelled'`, và người dùng đã rời màn thì không
+ * có gì để bày.
+ */
+async function priceHistoryOrEmpty(
+  code: string,
+  signal?: AbortSignal,
+): Promise<ReadonlyArray<DailyBar>> {
+  try {
+    return await MARKET_FEED.priceHistory(code, signal);
+  } catch (error) {
+    if (isAbortError(error)) throw error;
+    return [];
   }
 }

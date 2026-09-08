@@ -162,18 +162,18 @@ owner. Any new outbound call needs the same sign-off — do not widen this quiet
 
 `src/data/finbox/` is the **second** data port, deliberately separate from `DataProvider`:
 
-|         | `DataProvider` (`src/data/types.ts`) | `MarketFeed` (`src/data/finbox/types.ts`)   |
-| ------- | ------------------------------------ | ------------------------------------------- |
-| Shape   | synchronous                          | `Promise` + `AbortSignal`                   |
-| Serves  | 4 WF-10 presets, full 248-bar series | ~1.649 tickers, one session's price         |
-| Used by | "Nạp mẫu" on all 111 detail screens  | `/danh-muc/`, and `?ma=` on a detail screen |
+|         | `DataProvider` (`src/data/types.ts`) | `MarketFeed` (`src/data/finbox/types.ts`)      |
+| ------- | ------------------------------------ | ---------------------------------------------- |
+| Shape   | synchronous                          | `Promise` + `AbortSignal`                      |
+| Serves  | 4 WF-10 presets, full 248-bar series | ~1.649 tickers, price for the last 10 sessions |
+| Used by | "Nạp mẫu" on all 111 detail screens  | `/danh-muc/`, and `?ma=` on a detail screen    |
 
 `DataProvider` stays synchronous exactly as its docblock promises — a `Preset` requires bars _and_
 fundamentals, which a ticker list has neither of, so folding the two together would mean inventing
 fields. `presetFromSnapshot()` in `src/data/live-preset.ts` bridges back the other way, so
 `presetInputs()` serves both sources.
 
-Three things that are easy to break here:
+Four things that are easy to break here:
 
 - **Only ticker codes leave the device.** Quantities, cost prices and buy dates never enter a
   request. `portfolio.localOnly` says so on screen and a test pins the wording.
@@ -181,6 +181,17 @@ Three things that are easy to break here:
   for all 111 formulas, i.e. the whole Registry in `/danh-muc/`'s bundle (measured elsewhere:
   131 kB → 217 kB against a 180 kB gate). `live-preset.test.ts` recomputes it from the real
   Registry and compares line by line, so it cannot drift silently.
+- **`MarketFeed.priceHistory()` is per-ticker, so only the detail screen may call it.** Its source,
+  `POST /v1/getTickerDetail`, takes one ticker per request (`{ticker}`, not `{symbol}` — the latter
+  returns HTTP 400), so wiring it into `/danh-muc/` would turn one request for a 12-holding
+  portfolio into thirteen. It returns `tendays` — 10 sessions, and note the shape trap: the field is
+  a **JSON string**, not an array, ordered newest-first. Those 10 sessions clear `MIN_SESSIONS = 5`,
+  so a real ticker finally draws a time axis (9 formulas measured) — but they do **not** clear
+  RSI-14 / SMA-20, which must keep saying they are short of sessions. It is best-effort: a failure
+  there degrades to the old one-session behaviour and must never take the fundamentals down with it
+  (`priceHistoryOrEmpty()` in `live-preset-loader.ts`, pinned by tests). And `presetFromSnapshot()`
+  takes the history as an **optional** third argument on purpose — `LIVE_PRESET_FORMULAS` is
+  computed without it, because that pinned table is a promise made to a screen that never fetches it.
 - **`FormulaDetail` reads `?ma=` from `window.location.search` inside an effect, never
   `useSearchParams()`.** With `output: 'export'` that hook forces the subtree into `<Suspense>` and
   Next drops it from the static HTML — all 111 detail pages would lose their build-time MathML and

@@ -42,7 +42,13 @@ import { latexToMathml } from './latex-html';
  * `@/application`: barrel của Application chỉ re-export lại từ đây, và `SAMPLE_DATA` cùng mọi
  * thứ khác vẫn là bản thật nhờ `importOriginal`.
  */
-const feed = vi.hoisted(() => ({ listTickers: vi.fn(), snapshots: vi.fn() }));
+const feed = vi.hoisted(() => ({
+  listTickers: vi.fn(),
+  snapshots: vi.fn(),
+  // Chuỗi mười phiên. Mặc định RỖNG ở `afterEach` — đó là ca 'nguồn không có lịch sử', và mọi
+  // ca cũ phải xanh y nguyên trong ca ấy.
+  priceHistory: vi.fn(),
+}));
 
 vi.mock('@/data', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/data')>();
@@ -71,6 +77,17 @@ beforeAll(() => {
   };
 });
 
+/*
+ * Mặc định: nguồn KHÔNG có chuỗi phiên.
+ *
+ * Đặt ở đây chứ không ở `vi.hoisted` vì `mockReset()` trong `afterEach` xoá cả giá trị trả về.
+ * Mặc định rỗng nghĩa là mọi ca cũ vẫn chạy đúng hành vi trước đợt nối `tendays` — ca nào cần
+ * mười phiên thì tự khai, và chỉ ca ấy.
+ */
+beforeEach(() => {
+  feed.priceHistory.mockResolvedValue([]);
+});
+
 afterEach(() => {
   cleanup();
   // Ca kiểm chế độ Nâng cao gieo tuỳ chọn vào localStorage — dọn để nó không chảy sang ca sau.
@@ -81,6 +98,7 @@ afterEach(() => {
   window.history.replaceState({}, '', '/');
   feed.listTickers.mockReset();
   feed.snapshots.mockReset();
+  feed.priceHistory.mockReset();
   router.push.mockReset();
 });
 
@@ -1105,6 +1123,97 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
   });
 });
 
+/*
+ * ── Mã THẬT cũng phải được vẽ theo thời gian, không riêng bộ mẫu ───────────────────────────────
+ *
+ * Trước đợt này chỉ bộ mẫu WF-10 mới có đường thời gian, và chuỗi 248 phiên của nó là PRNG BỊA
+ * (xem `makeBars()`). Mã thật lấy từ API chỉ có một phiên nên rơi về đường quét giả định ±50% —
+ * tức hình vẽ giàu hơn cho số bịa, nghèo hơn cho số thật. Nay `MarketFeed.priceHistory()` lấy
+ * mười phiên thật (`tendays`), và ba ca dưới đây khoá cả ba trạng thái của nó.
+ */
+describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => {
+  /**
+   * Chín phiên HPG, số thật lấy ngày 08/09/2026 — cùng bộ số fixture của `map.test.ts`, trừ phiên
+   * cuối 08/09.
+   *
+   * Bỏ phiên cuối là CỐ Ý: ảnh chụp dưới đây mang `asOfDate: '2026-09-08'`, nên chuỗi vào màn phải
+   * là 9 + 1 = **10** phiên. Nếu `buildBars()` bỏ qua phiên mới hơn thay vì gộp nó vào thì ca này
+   * đỏ — mà đó chính là ca thật, vì hai con số đến từ hai endpoint có thể lệch nhau một phiên.
+   */
+  const CHIN_PHIEN = [
+    ['2026-08-21', 21_700],
+    ['2026-08-24', 22_250],
+    ['2026-08-25', 21_800],
+    ['2026-08-26', 22_050],
+    ['2026-08-27', 22_200],
+    ['2026-08-28', 22_100],
+    ['2026-09-03', 21_600],
+    ['2026-09-04', 21_700],
+    ['2026-09-07', 21_550],
+  ].map(([date, close]) => ({
+    date: date as string,
+    open: null,
+    high: null,
+    low: null,
+    close: close as number,
+    volume: null,
+  }));
+
+  const HPG_SNAPSHOT = {
+    ...FPT_SNAPSHOT,
+    code: 'HPG',
+    name: 'Tập đoàn Hoà Phát',
+    priceVnd: 21_850,
+    asOfDate: '2026-09-08',
+  };
+
+  function napHpg(history: ReadonlyArray<(typeof CHIN_PHIEN)[number]>): void {
+    feed.snapshots.mockResolvedValue(new Map([['HPG', HPG_SNAPSHOT]]));
+    feed.priceHistory.mockResolvedValue(history);
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
+  }
+
+  it('mở ?ma=HPG thì trục X chuyển sang thời gian, vẽ đúng mười phiên', async () => {
+    napHpg(CHIN_PHIEN);
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+
+    const figure = await screen.findByRole('figure');
+    expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
+    // Chín phiên lịch sử cộng phiên 08/09 mà thị giá thuộc về.
+    expect(figure.textContent).toContain('P/E của HPG qua 10 phiên');
+    expect(within(figure).getByRole('columnheader', { name: 'Ngày' })).not.toBeNull();
+  });
+
+  /*
+   * Bất biến của cả gói: chuỗi phiên là phần THÊM. Nguồn không có nó thì màn quay về đúng hành vi
+   * trước đợt này — đường quét giả định — chứ tuyệt đối không được mất luôn số liệu cơ bản, thứ
+   * người dùng thật sự đến vì nó.
+   */
+  it('nguồn không có chuỗi phiên thì vẫn nạp được số, chỉ mất đường thời gian', async () => {
+    napHpg([]);
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+
+    await screen.findByRole('figure');
+    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+    expect((oNhap(/EPS/) as HTMLInputElement).value).toBe('5.867');
+  });
+
+  it('chuỗi phiên hỏng cũng vậy — lỗi của lời gọi phụ không được lan ra', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['HPG', HPG_SNAPSHOT]]));
+    feed.priceHistory.mockRejectedValue(new Error('mất mạng'));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+
+    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+  });
+});
+
 describe('WF-03 — đường ra khỏi màn chi tiết', () => {
   /*
    * Lỗ hổng chủ dự án báo: vào một công thức rồi thì không có lối quay về danh sách để chọn
@@ -1479,17 +1588,67 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
   });
 
   /*
-   * Dải "không dùng số liệu của mã" vẫn còn đường xảy ra sau khi nút bị ẩn: mã dính theo lượt
-   * duyệt. Người dùng đặt mã ở màn P/E rồi mở "Trả góp gốc đều" — mã theo sang, `applyPreset()`
-   * chạy, và không ô nào đổi. Đó đúng là lúc phải nói ra.
+   * ── Màn không nạp mã được thì KHÔNG nói một chữ nào về mã ──────────────────────────────────
+   *
+   * Chủ dự án báo hai lần cho cùng một gốc. Lần đầu ở "Cỡ vị thế phái sinh theo % rủi ro": màn
+   * không có nút "Nạp mẫu" nhưng thanh mã ngay dưới lại mời "Đổi mã". Bản vá đầu chỉ gỡ nút "Đổi
+   * mã" và giữ thanh mã làm lối gỡ cho dải vàng — chủ dự án bác luôn, và bác đúng: một màn không
+   * dùng được mã thì không có lý do gì để NÓI về mã, nên chính dải vàng mới là thứ đáng bỏ chứ
+   * không phải thứ đáng dựng thêm giao diện để phục vụ.
+   *
+   * Ca này thay ca cũ ("mã dính sang công thức không dùng số liệu mã: nói thẳng"), vốn ghim đúng
+   * hành vi vừa bị bác.
    */
-  it('mã dính sang công thức không dùng số liệu mã: nói thẳng, KHÔNG khoe "đã nạp"', async () => {
+  it('mã dính sang màn không nạp mã được: không dải, không thanh mã, không nút nào', async () => {
     seedActiveTicker();
 
     render(<Man spec={specOf('tra-gop-goc-deu')} />);
+    // Chờ đúng thứ effect mã dính chạy xong mới soi — ô nhập giữ nguyên số mặc định của ví dụ.
+    await screen.findByRole('region', { name: t('detail.inputs') });
+
+    expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
+    expect(screen.queryByText(new RegExp(t('detail.tickerSticky')))).toBeNull();
+    expect(screen.queryByRole('button', { name: t('detail.tickerChange') })).toBeNull();
+    expect(screen.queryByRole('button', { name: t('detail.tickerClear') })).toBeNull();
+    // Và vẫn không được khoe "đã nạp" — không một giá trị nào đổi.
+    expect(screen.queryByText(new RegExp(t('detail.fundamentalsSource')))).toBeNull();
+  });
+
+  /*
+   * Mã vẫn SỐNG, chỉ là không dựng ra hình ở màn ấy. Đây là vế phải chứng minh, nếu không thì
+   * "ẩn giao diện" rất dễ trượt thành "xoá mất mã" — người dùng mở tiếp một công thức có ăn số
+   * của mã sẽ phải nạp lại từ đầu, đúng thao tác lặp mà cả tính năng này sinh ra để cắt.
+   */
+  it('mã không mất: mở tiếp màn có nạp mã được thì vẫn tự nạp, thanh mã đủ hai nút', async () => {
+    seedActiveTicker();
+
+    render(<Man spec={specOf('tra-gop-goc-deu')} />);
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    cleanup();
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+
+    expect(screen.getByRole('button', { name: t('detail.tickerChange') })).not.toBeNull();
+    expect(screen.getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
+  });
+
+  /*
+   * Đối chứng, và là lý do cửa `presetHelps` KHÔNG được thay bằng "luôn ẩn dải vàng".
+   *
+   * Ca thật: công thức nạp mã được (nên có nút, có thanh mã), nhưng CHÍNH mã đang chọn không cấp
+   * được ô nào. `finbox/map.ts` đối chiếu thị giá và số liệu cơ bản độc lập nhau, nên một mã có
+   * thể qua phần báo cáo mà vẫn thiếu giá — khi đó 8 công thức tụt hẳn về 0 ô (xem `priceFields`
+   * ở `live-preset.ts`). `phi-giao-dich-ban` là một trong 8: ô duy nhất mã điền được là "Giá bán".
+   */
+  it('công thức nạp mã ĐƯỢC nhưng mã thiếu giá: dải vàng vẫn phải nói ra', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
+    window.history.replaceState({}, '', '/cong-thuc/phi-giao-dich-ban/?ma=FPT');
+
+    render(<Man spec={specOf('phi-giao-dich-ban')} />);
 
     expect(await screen.findByText(new RegExp(t('detail.presetNoData')))).not.toBeNull();
-    expect(screen.queryByText(new RegExp(t('detail.fundamentalsSource')))).toBeNull();
+    expect(screen.getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
   });
 
   it('mẫu điền TRỌN thì vẫn nạp như cũ, không có câu báo nào', async () => {

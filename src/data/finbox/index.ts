@@ -4,13 +4,20 @@
  * Giao diện KHÔNG import thẳng vào đây (CON-03), phải đi qua `@/application`.
  */
 
+import type { DailyBar } from '../types';
 import { FINBOX_FEED } from './client';
 import type { MarketFeed, TickerRef, TickerSnapshot } from './types';
 
 export type { MarketFeed, TickerRef, TickerSnapshot, FeedFailureKind } from './types';
 export { MarketFeedError } from './types';
 export { isAbortError } from './client';
-export { parseSnapshots, parseTickerList, toFundamentals, toSnapshot } from './map';
+export {
+  parsePriceHistory,
+  parseSnapshots,
+  parseTickerList,
+  toFundamentals,
+  toSnapshot,
+} from './map';
 
 /** Bản dùng trong sản phẩm. Đổi nguồn số liệu thị trường thì đổi đúng dòng này. */
 export const MARKET_FEED: MarketFeed = FINBOX_FEED;
@@ -24,6 +31,11 @@ export const MARKET_FEED: MarketFeed = FINBOX_FEED;
 export function createStubFeed(
   tickers: ReadonlyArray<TickerRef> = [],
   snapshots: ReadonlyArray<TickerSnapshot> = [],
+  /**
+   * Chuỗi phiên theo mã. Bỏ trống thì mọi mã trả chuỗi RỖNG — đúng ca "nguồn không có lịch sử",
+   * tức hành vi mà preset phải chịu được mà không hỏng việc chính.
+   */
+  history: Readonly<Record<string, ReadonlyArray<DailyBar>>> = {},
 ): MarketFeed {
   const byCode = new Map(snapshots.map((item) => [item.code.toUpperCase(), item]));
 
@@ -38,5 +50,6 @@ export function createStubFeed(
             .map((item) => [item.code, item]),
         ),
       ),
+    priceHistory: (code) => Promise.resolve(history[code.trim().toUpperCase()] ?? []),
   };
 }

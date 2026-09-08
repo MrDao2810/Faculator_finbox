@@ -14,8 +14,11 @@
  * một mã, cùng một phiên** — xem 5 chỉ số là 5 request giống hệt nhau. Cất luôn `Preset` đã dựng
  * thì cả lượt duyệt chỉ tốn một lời gọi, và các màn sau nạp tức thì, không cần mạng.
  *
- * Preset ở đây nhỏ: API Finbox chỉ trả **một phiên** giá (xem `presetFromSnapshot`), nên `bars`
- * có đúng một phần tử — vài trăm byte, không phải 248 phiên như bộ mẫu tĩnh.
+ * Preset ở đây nhỏ: API Finbox trả **tối đa mười phiên** giá (`tendays`, xem `presetFromSnapshot`),
+ * nên `bars` có nhiều nhất mười phần tử — khoảng một kilobyte, không phải 248 phiên như bộ mẫu
+ * tĩnh. Cất cả chuỗi ấy là điều kiện để mã dính theo lượt duyệt giữ được đường biểu đồ theo thời
+ * gian: mở tiếp P/B sau khi xem P/E thì hình vẫn là mười phiên thật, không tụt về đường quét giả
+ * định — mà cũng không tốn thêm lời gọi nào.
  *
  * ## Vì sao `sessionStorage` chứ không `localStorage`
  *

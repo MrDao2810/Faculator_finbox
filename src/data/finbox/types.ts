@@ -18,7 +18,7 @@
  * không bao giờ được đưa vào tham số của bất kỳ lời gọi nào ở đây.
  */
 
-import type { Fundamentals } from '../types';
+import type { DailyBar, Fundamentals } from '../types';
 
 /** Một mã trong danh sách chọn: chỉ đủ để hiện và tìm. */
 export interface TickerRef {
@@ -101,4 +101,28 @@ export interface MarketFeed {
     codes: ReadonlyArray<string>,
     signal?: AbortSignal,
   ): Promise<ReadonlyMap<string, TickerSnapshot>>;
+
+  /**
+   * Mười phiên giá gần nhất của MỘT mã, xếp cũ → mới. Rỗng khi nguồn không có.
+   *
+   * ── Vì sao đứng riêng, không gộp vào `snapshots()` ─────────────────────────────────────────
+   *
+   * Nguồn của nó là `POST /v1/getTickerDetail`, mà endpoint ấy nhận **đúng một mã mỗi lời gọi** —
+   * ngược hẳn `snapshots()` vốn trả cả nhóm trong một lượt. Gộp vào là biến một lời gọi cho 12 mã
+   * trong danh mục thành 13 lời gọi. Nên tách ra, và chỉ màn chi tiết công thức gọi nó, cho ĐÚNG
+   * mã đang xem.
+   *
+   * ── Vì sao chỉ 10 phiên, và điều đó đủ cho việc gì ────────────────────────────────────────
+   *
+   * Đó là tất cả những gì Finbox có (`tendays`). 10 phiên **đủ** cho đường biểu đồ theo thời gian
+   * (`MIN_SESSIONS = 5` ở `core/chart/history.ts`), nên nạp một mã thật xong màn vẽ được "P/E của
+   * HPG qua 10 phiên" bằng giá thật thay vì đường quét giả định ±50%. Nhưng **không đủ** cho chỉ
+   * báo cuộn: RSI-14, SMA-20, Bollinger-20 vẫn báo thiếu phiên, và phải để chúng báo thiếu chứ
+   * không được cho vay mượn con số nào (FR-06).
+   *
+   * Hỏng thì trả mảng RỖNG, không ném: đây là phần THÊM cho biểu đồ. Mất nó thì màn quay về đúng
+   * hành vi trước đợt này — một phiên giá, đường quét giả định — chứ không được kéo theo việc nạp
+   * số liệu cơ bản vào ô.
+   */
+  priceHistory(code: string, signal?: AbortSignal): Promise<ReadonlyArray<DailyBar>>;
 }

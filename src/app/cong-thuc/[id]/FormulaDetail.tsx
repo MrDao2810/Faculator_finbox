@@ -813,13 +813,34 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * thì nạp mã không đổi một thứ gì** — vay, tiết kiệm, lãi kép, phái sinh, trả góp. Đầu vào của
    * chúng là tiền và giả định của chính người dùng.
    *
-   * Với 38 màn ấy, nút "Nạp mẫu" bị ẩn hẳn (chủ dự án chốt): mời người dùng bấm vào một thứ không
-   * làm gì rồi giải thích sau đó là bắt họ trả một cú bấm để nhận một lời từ chối. Cái giá đã biết
-   * và chấp nhận: không đặt được "mã dính theo lượt duyệt" từ 38 màn này — vẫn đặt được từ 73 màn
-   * kia, và mã đã đặt thì vẫn theo sang đây bình thường.
+   * ── LUẬT: 38 màn ấy KHÔNG nói một chữ nào về mã ────────────────────────────────────────────
+   *
+   * Cờ này gác **toàn bộ** phần giao diện nói về mã, không riêng nút "Nạp mẫu":
+   *
+   *   1. nút "Nạp mẫu";
+   *   2. dải "Công thức này không dùng số liệu của mã X";
+   *   3. thanh mã dính theo lượt duyệt (cả "Đổi mã" lẫn "Bỏ mã").
+   *
+   * Cả ba đọc chung MỘT cờ, cố ý. Bản đầu chỉ ẩn (1), nên chủ dự án gặp màn "Cỡ vị thế phái sinh
+   * theo % rủi ro" vừa nói *"không dùng số liệu của mã VIC"* vừa mời **Đổi mã**. Bản vá sau đó gỡ
+   * riêng nút "Đổi mã" mà giữ thanh mã lại làm "lối gỡ cho dải vàng" — vẫn sai, và sai ở chỗ sâu
+   * hơn: một màn không dùng được mã thì không có lý do gì để nói về mã, nên **dải vàng ấy mới là
+   * thứ đáng bỏ, không phải thứ đáng phục vụ**. Giữ nó lại rồi dựng thêm giao diện để tắt nó là tự
+   * tạo ra việc cho mình.
+   *
+   * Người dùng ở đây không hỏi gì về mã: họ không bấm nút nào (nút đã ẩn), không ô nào đổi, và đầu
+   * vào của công thức là tiền của chính họ. Trả lời một câu chưa ai hỏi là thêm nhiễu, không thêm
+   * thông tin.
+   *
+   * Mã vẫn SỐNG trong `sessionStorage` và trong `stickyTicker` — chỉ là không dựng ra hình. Mở
+   * tiếp một công thức có ăn số của mã thì mã vẫn tự nạp và thanh mã vẫn hiện đủ ở đó, tức "Bỏ mã"
+   * không mất đi đâu cả, nó chỉ nằm ở nơi có nghĩa.
+   *
+   * Cái giá đã biết và chấp nhận: không đặt được "mã dính theo lượt duyệt" từ 38 màn này — vẫn đặt
+   * được từ 73 màn kia.
    *
    * Dùng chính `presetInputs()` chứ không dựng danh sách id: thêm một khoá vào bảng ánh xạ ở tầng
-   * Data là nút tự hiện lại ở đúng những màn vừa dùng được, không cần ai nhớ cập nhật gì.
+   * Data là cả ba thứ trên tự hiện lại ở đúng những màn vừa dùng được, không cần ai nhớ cập nhật.
    */
   const presetHelps = useMemo(() => {
     if (formula === undefined) return false;
@@ -1577,8 +1598,15 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
           Dải này ở LẠI header, khác dải "điền được N/M ô" đã xuống khối Số liệu: nó nói về cả công
           thức chứ không về ô nào, và không có ô nào để đứng cạnh — không một giá trị nào đổi.
+
+          ⚠ `presetHelps` là cửa đầu tiên, và nó là ĐIỀU KIỆN chứ không phải tối ưu — xem khối
+          "toàn bộ phần nói về mã" ngay dưới. Còn lại là ca THẬT của dải này: công thức nạp mã được
+          (nên có nút), nhưng CHÍNH mã đang chọn thì không cấp được ô nào. Đo được 8 công thức rơi
+          vào đó khi mã không tra được thị giá — `finbox/map.ts` đối chiếu giá và số liệu cơ bản
+          độc lập nhau, nên một mã có thể qua phần báo cáo mà vẫn thiếu giá (xem `priceFields` ở
+          `live-preset.ts`).
         */}
-        {presetFill !== null && !presetFill.touched && (
+        {presetHelps && presetFill !== null && !presetFill.touched && (
           <p className={styles.presetMismatch} role="status">
             {t('detail.presetNoData')} <strong>{presetFill.code}</strong>.{' '}
             {t('detail.presetNoDataFix')}
@@ -1652,7 +1680,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           số của một mã mà người dùng không bấm gì ở màn này cả, nên màn phải gọi tên mã ấy ra và
           đưa sẵn đường thoát. Cùng luật mà thị giá đã lưu ở tab Danh mục đang chịu.
         */}
-        {stickyTicker !== null && (
+        {presetHelps && stickyTicker !== null && (
           <p className={styles.tickerBar} role="status">
             <span className={styles.tickerCode}>{stickyTicker}</span>
             <span className={styles.tickerText}>{t('detail.tickerSticky')}</span>

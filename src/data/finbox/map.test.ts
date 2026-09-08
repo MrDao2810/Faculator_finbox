@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import { LIVE_FUNDAMENTALS } from '../live-fundamentals.generated';
-import { parseSnapshots, parseTickerList, toFundamentals, toIsoDate, toSnapshot } from './map';
+import {
+  parsePriceHistory,
+  parseSnapshots,
+  parseTickerList,
+  toFundamentals,
+  toIsoDate,
+  toSnapshot,
+} from './map';
 import type { Fundamentals } from '../types';
 
 /**
@@ -394,6 +401,107 @@ describe('ngày phiên của ảnh chụp', () => {
     for (const raw of [2026, 202608251, 20261325, 20260800, 2026.5, '20260825', null]) {
       expect(toIsoDate(raw)).toBeNull();
     }
+  });
+});
+
+/**
+ * Phản hồi thật `POST https://dcs.finbox.vn/v1/getTickerDetail` cho HPG, lấy ngày 08/09/2026,
+ * cắt gọn còn `tendays` (bản đầy đủ còn `tickerData`, 9,1 KB).
+ *
+ * **Giữ nguyên hình dạng CHUỖI** — đó là cái bẫy chính của endpoint này và cũng là lý do ca kiểm
+ * tồn tại: `tendays` không phải mảng, nó là một chuỗi chứa JSON của mảng. Sửa fixture thành mảng
+ * cho "gọn" là xoá mất đúng thứ đang được kiểm.
+ *
+ * Chuỗi xếp MỚI → CŨ, đúng như nguồn trả. Ngày nhảy từ 20260828 sang 20260903 vì đó là kỳ nghỉ
+ * thật, không phải dữ liệu thiếu.
+ */
+const HPG_TENDAYS = JSON.stringify([
+  { date: 20260908, priceFlat: 21.85, pricePercent: 0.014 },
+  { date: 20260907, priceFlat: 21.55, pricePercent: -0.007 },
+  { date: 20260904, priceFlat: 21.7, pricePercent: 0.005 },
+  { date: 20260903, priceFlat: 21.6, pricePercent: -0.023 },
+  { date: 20260828, priceFlat: 22.1, pricePercent: -0.005 },
+  { date: 20260827, priceFlat: 22.2, pricePercent: 0.007 },
+  { date: 20260826, priceFlat: 22.05, pricePercent: 0.011 },
+  { date: 20260825, priceFlat: 21.8, pricePercent: -0.02 },
+  { date: 20260824, priceFlat: 22.25, pricePercent: 0.025 },
+  { date: 20260821, priceFlat: 21.7, pricePercent: 0.026 },
+]);
+
+describe('đọc chuỗi mười phiên giá', () => {
+  it('gỡ được lớp chuỗi, đổi nghìn ₫ sang ₫, xếp cũ → mới', () => {
+    const bars = parsePriceHistory({ tendays: HPG_TENDAYS });
+
+    expect(bars).toHaveLength(10);
+    expect(bars[0]).toEqual({
+      date: '2026-08-21',
+      open: null,
+      high: null,
+      low: null,
+      close: 21_700,
+      volume: null,
+    });
+    expect(bars[9]?.date).toBe('2026-09-08');
+    expect(bars[9]?.close).toBe(21_850);
+  });
+
+  /*
+   * Chiều thời gian là bất biến mà cả biểu đồ lẫn `presetInputs()` bám vào: phiên CUỐI là "giá
+   * trị hiện tại" (`historyPoints()` đánh dấu nó), phiên ĐẦU là chân giá vào. Đảo chiều là gắn
+   * nhãn "hôm nay" lên giá của mười phiên trước.
+   */
+  it('ngày luôn tăng dần, không phụ thuộc chiều của nguồn', () => {
+    const bars = parsePriceHistory({ tendays: HPG_TENDAYS });
+    const dates = bars.map((bar) => bar.date);
+
+    expect([...dates].sort((a, b) => a.localeCompare(b))).toEqual(dates);
+  });
+
+  it('nhận cả hình dạng mảng, phòng khi nguồn thôi bọc chuỗi', () => {
+    const bars = parsePriceHistory({ tendays: JSON.parse(HPG_TENDAYS) as unknown });
+
+    expect(bars).toHaveLength(10);
+    expect(bars[9]?.close).toBe(21_850);
+  });
+
+  /*
+   * Phiên hỏng bị bỏ RIÊNG. Khác hẳn `toFundamentals()`, nơi một field lệch huỷ cả bản ghi: ở đó
+   * số liệu là xương sống của phép tính, ở đây chuỗi phiên là phần thêm cho biểu đồ — 9 phiên
+   * thật vẫn vẽ được, còn vứt cả chuỗi thì mất luôn đường thời gian.
+   */
+  it('phiên hỏng rụng riêng, phần còn lại vẫn dùng được', () => {
+    const bars = parsePriceHistory({
+      tendays: JSON.stringify([
+        { date: 20260908, priceFlat: 21.85 },
+        // Giá 0 không phải giá — cùng luật `isBadPrice()`, và một số 0 lọt vào là biểu đồ vẽ một
+        // cú sập sàn chưa hề xảy ra (FR-06).
+        { date: 20260907, priceFlat: 0 },
+        { date: 20261399, priceFlat: 21.7 },
+        { date: 20260904, priceFlat: null },
+        null,
+        { date: 20260903, priceFlat: 21.6 },
+      ]),
+    });
+
+    expect(bars.map((bar) => bar.date)).toEqual(['2026-09-03', '2026-09-08']);
+  });
+
+  it('ngày lặp lại chỉ còn một phiên', () => {
+    const bars = parsePriceHistory({
+      tendays: JSON.stringify([
+        { date: 20260908, priceFlat: 21.85 },
+        { date: 20260908, priceFlat: 21.85 },
+      ]),
+    });
+
+    expect(bars).toHaveLength(1);
+  });
+
+  it('thiếu trường, chuỗi hỏng, thân lạ — đều ra rỗng chứ không ném', () => {
+    expect(parsePriceHistory({ tickerData: {} })).toEqual([]);
+    expect(parsePriceHistory({ tendays: '{ không phải JSON' })).toEqual([]);
+    expect(parsePriceHistory({ tendays: 42 })).toEqual([]);
+    expect(parsePriceHistory(null)).toEqual([]);
   });
 });
 

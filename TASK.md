@@ -145,6 +145,179 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Màn không nạp mã được thì KHÔNG nói một chữ nào về mã (08/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án báo hai lần cho cùng một gốc, và lần thứ hai bác luôn bản vá của lần thứ nhất — phần
+"Vì sao bản vá đầu vẫn sai" dưới đây là chỗ đáng đọc nhất của mục này.
+
+1. Ảnh màn "Cỡ vị thế phái sinh theo % rủi ro" (`co-vi-the-phai-sinh`):
+   _"tại sao công thức không có nạp mã mà lại có đổi mã ở bên dưới?"_
+2. Sau bản vá đầu, ảnh thanh mã còn lại:
+   _"phải bỏ hẳn cả cái này đi khi mà công thức không có mã nào áp dụng được chứ. công thức nào
+   nạp mã được thì mới có cái này đúng không. logic làm là gì?"_
+
+### Nguyên nhân
+
+Đợt trước ẩn nút "Nạp mẫu" ở **38 công thức** mà nạp mã không đổi được gì (`presetHelps`), nhưng
+**hai phần giao diện khác cũng nói về mã thì không đi theo vị từ ấy**. Người dùng đặt VIC ở một màn
+khác rồi mở màn này, và nhận:
+
+- dải vàng: _"Công thức này không dùng số liệu của mã VIC"_
+- thanh mã: _"VIC đang dùng cho mọi công thức trong lượt xem này"_ + **Đổi mã** + **Bỏ mã**
+
+Tức một màn không dùng được mã lại dành hai khối để nói về mã, trong đó một khối mời mở bảng 1.649
+mã để chọn một thứ cho ra đúng kết quả ấy.
+
+### Vì sao bản vá đầu vẫn sai
+
+Bản vá đầu chỉ gỡ nút "Đổi mã" và **giữ thanh mã lại làm lối gỡ cho dải vàng**: dải vàng còn đó
+thì phải có nút tắt nó. Lập luận ấy nghe hợp lý mà sai ở tầng dưới — nó nhận dải vàng làm điều
+kiện cho trước rồi đi phục vụ, trong khi **chính dải vàng mới là thứ đáng bỏ**.
+
+Người dùng ở màn ấy không hỏi gì về mã: nút đã ẩn nên họ không bấm gì, không ô nào đổi, và đầu vào
+của công thức là tiền cùng giả định của chính họ. Trả lời một câu chưa ai hỏi là thêm nhiễu, không
+thêm thông tin — rồi dựng thêm một nút để tắt câu trả lời ấy là tự tạo việc cho mình.
+
+### Luật, viết ra một lần cho hết
+
+**`presetHelps` gác TOÀN BỘ phần giao diện nói về mã**, cả ba đọc chung một cờ:
+
+1. nút "Nạp mẫu";
+2. dải "Công thức này không dùng số liệu của mã X";
+3. thanh mã dính theo lượt duyệt (cả "Đổi mã" lẫn "Bỏ mã").
+
+Một cờ chứ không ba điều kiện: ba điều kiện cho cùng một câu hỏi là ba thứ sẽ lệch nhau, mà đợt này
+đã lệch đúng hai lần rồi. Vị từ tính từ chính `presetInputs()`, nên thêm một khoá vào bảng ánh xạ ở
+tầng Data là cả ba tự hiện lại ở đúng những màn vừa dùng được.
+
+**Mã vẫn SỐNG** trong `sessionStorage` và trong state `stickyTicker` — chỉ là không dựng ra hình.
+Mở tiếp một công thức có ăn số của mã thì mã vẫn tự nạp và thanh mã vẫn đủ hai nút ở đó, tức "Bỏ
+mã" không mất đi đâu cả, nó chỉ nằm ở nơi có nghĩa. Có ca kiểm riêng cho vế này, vì "ẩn giao diện"
+rất dễ trượt thành "xoá mất mã".
+
+### Cửa `presetHelps` KHÔNG được thay bằng "luôn ẩn dải vàng"
+
+Dải vàng còn một ca thật: công thức **nạp mã được** (nên có nút, có thanh mã) nhưng **chính mã đang
+chọn** không cấp được ô nào. `finbox/map.ts` đối chiếu thị giá và số liệu cơ bản độc lập nhau, nên
+một mã có thể qua phần báo cáo mà vẫn thiếu giá — khi đó **8 công thức tụt hẳn về 0 ô** (cột
+`priceFields` ở `live-preset.ts`). Ca kiểm mới ghim `phi-giao-dich-ban` với một ảnh chụp thiếu giá.
+
+### Đã đổi gì
+
+[`FormulaDetail.tsx`](src/app/cong-thuc/[id]/FormulaDetail.tsx) — thanh mã và dải vàng cùng bọc
+`presetHelps`; docblock của `presetHelps` nay ghi cả ba thứ nó gác, kèm lý do bản vá đầu sai.
+
+Hệ quả kèm theo: bảng chọn mã **không còn lối vào nào** ở 38 màn ấy (lối rẽ sang bảng chọn nằm
+trong sheet "Nạp mẫu", vốn đã ẩn), nên `TickerPickerPanel` cũng thôi bị dựng ở đấy.
+
+Không đụng nút "Đổi mã" của nhánh `liveTicker.status === 'no-data'`: nhánh ấy chỉ chạy qua `?ma=`
+trên URL, mà không lối nào trong sản phẩm đưa `?ma=` tới 38 màn này (sheet "Công thức cho mã" chỉ
+liệt kê 34 dòng `LIVE_PRESET_FORMULAS`). Thêm cửa chặn ở đó là chặn một ca không tồn tại, và còn để
+lại câu "Thử mã khác" mà không có nút để làm theo.
+
+Ca kiểm: ca cũ "mã dính sang công thức không dùng số liệu mã: nói thẳng" bị **thay**, vì nó ghim
+đúng hành vi vừa bị bác. Ba ca mới — màn ẩn thì sạch cả bốn phần tử; mã không mất khi sang màn
+dùng được; và ca đối chứng `phi-giao-dich-ban`. **2349 xanh**, 3 ca đỏ vẫn là baseline màn Tìm kiếm.
+
+---
+
+## Nạp mã xong thì biểu đồ vẽ theo mười phiên THẬT của mã (08/09/2026)
+
+**Trạng thái: xong** — trừ phần build (xem "Việc còn lại").
+
+Chủ dự án: _"sau khi áp dụng số liệu trong mã thì biểu đồ cần vẽ lại theo số liệu vừa thêm"_.
+
+### Đo trước, vì chẩn đoán ban đầu SAI
+
+Chạy `buildChartModel()` trên Registry thật, so mô hình trước/sau khi nạp:
+
+| Đường nạp        | Biểu đồ đổi | Không đổi                                       |
+| ---------------- | ----------- | ----------------------------------------------- |
+| Bộ mẫu 248 phiên | 30/37       | 7 — 6 công thức `chartType: 'none'`, 2 trùng số |
+| Mã thật từ API   | 28/34       | 6 — đều `chartType: 'none'`                     |
+
+**Biểu đồ đã vẽ lại rồi.** Mọi công thức CÓ biểu đồ đều vẽ lại theo số vừa nạp; nhóm "không đổi"
+là những công thức không dựng khối biểu đồ nào. Hai ca `mo-hinh-gordon`/`ddm-hai-giai-doan` chỉ là
+trùng hợp số liệu: cổ tức FPT đúng bằng số mặc định.
+
+Chỗ thật sự hụt nằm ở khác: **mã thật không được vẽ đường "Theo thời gian", còn mã mẫu BỊA thì
+được.** `presetFromSnapshot()` dựng đúng 1 phiên, mà `MIN_SESSIONS = 5`, nên trục thời gian tắt.
+Bộ mẫu (248 phiên PRNG) thì bật cho 9 công thức. Tức hình vẽ giàu hơn cho số bịa, nghèo hơn cho số
+thật — đúng ngược.
+
+Và docblock `live-preset.ts:22` đang ghi "API Finbox không có chuỗi giá dài". Gọi lại API:
+`POST /v1/getTickerDetail` trả `tendays` — **10 phiên thật**. 10 > 5, nên đủ cho trục thời gian.
+Kết luận cũ đã lấy "không đủ cho chỉ báo kỹ thuật" làm "không đủ cho mọi thứ".
+
+Chủ dự án chốt: nối `tendays` vào (chấp nhận thêm một lời gọi mạng, cùng origin `dcs.finbox.vn`
+nên CSP không phải nới).
+
+### Đã đổi gì
+
+| File                                    | Sửa gì                                                                                                     |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `src/data/finbox/types.ts`              | `MarketFeed.priceHistory(code, signal)` — docblock ghi rõ vì sao đứng riêng và 10 phiên đủ/không đủ cho gì |
+| `src/data/finbox/map.ts`                | `parsePriceHistory()` — gỡ lớp chuỗi, ×1000, xếp cũ → mới, gộp ngày trùng, phiên hỏng rụng riêng           |
+| `src/data/finbox/client.ts`             | `POST /v1/getTickerDetail` với `{ticker}`                                                                  |
+| `src/data/finbox/index.ts`              | `createStubFeed()` nhận thêm bảng chuỗi phiên; export `parsePriceHistory`                                  |
+| `src/data/live-preset.ts`               | `presetFromSnapshot(snapshot, asOf, history?)` + `buildBars()` gộp theo ngày                               |
+| `src/application/live-preset-loader.ts` | Gọi song song `Promise.all`; `priceHistoryOrEmpty()` nuốt lỗi của lời gọi phụ, trừ lỗi HUỶ                 |
+| `src/application/active-ticker.ts`      | Docblock: `bars` nay tối đa 10 phần tử, và cất cả chuỗi là điều kiện để mã dính giữ được đường thời gian   |
+| `src/data/README.md`, `CLAUDE.md`       | Ba endpoint thay vì hai; luật "chỉ màn chi tiết được gọi `priceHistory`"                                   |
+
+Ca kiểm mới: `map.test.ts` (+7, fixture là phản hồi thật của HPG, **giữ nguyên hình dạng chuỗi**),
+`live-preset.test.ts` (+6), `live-preset-loader.test.ts` (mới, 6 ca), `FormulaDetail.test.tsx` (+3
+ca đầu-cuối qua `?ma=HPG`). **2347 xanh** (từ 2326), 3 ca đỏ vẫn là baseline của luồng màn Tìm kiếm.
+
+### Ba quyết định phải giữ
+
+1. **`history` là tham số TUỲ CHỌN.** Không truyền thì `bars` có đúng 1 phiên — hợp đồng mà
+   `LIVE_PRESET_FORMULAS` được tính trên. Bảng ghim ấy là lời hứa nói với **tab Danh mục**, mà tab
+   ấy không gọi `priceHistory()` (endpoint nhận một mã mỗi lượt: danh mục 12 mã sẽ thành 13 lời
+   gọi). Cho chuỗi chảy vào bảng ghim là hứa thêm một ô mà nơi đọc không lấy được — đúng loại "nói
+   quá" mà cột `priceFields` đã sinh ra để chặn một lần rồi.
+2. **Lỗi của lời gọi phụ không được lan ra.** Chuỗi phiên là phần THÊM cho biểu đồ; số liệu cơ bản
+   mới là thứ người dùng đến vì nó. `priceHistoryOrEmpty()` nuốt lỗi mạng nhưng **ném tiếp lỗi
+   HUỶ**, để `'cancelled'` không bị biến thành `'ok'` nửa vời.
+3. **`buildBars()` gộp theo NGÀY, không nối vào cuối.** `priceVnd` và `history` đến từ hai endpoint
+   khác nhau nên có thể lệch một phiên theo **cả hai chiều**. Trùng ngày thì `priceVnd` thắng: nó là
+   con số đang chạy trong ô nhập.
+
+### Kết quả đo được
+
+**9 công thức** chuyển từ đường quét giả định ±50% sang trục thời gian khi nạp mã thật: `pe`, `pb`,
+`ps`, `von-hoa-thi-truong`, `ty-suat-co-tuc`, `ty-suat-loi-nhuan-tren-gia`, `hpr`,
+`loi-suat-quy-nam-theo-ngay`, `bien-an-toan`. Thử thật với HPG: cả 9 vẽ đúng 10 điểm.
+
+`rsi-wilder` vẫn `MISSING_SERIES` — 10 phiên không đủ cho RSI-14, và phải để nó báo thiếu (FR-06).
+
+### Phát hiện kèm theo — CHƯA sửa, cần chủ dự án quyết
+
+`co-lenh-rui-ro` là công thức DUY NHẤT dùng khoá `entryPrice`, và `preset-inputs.ts` xếp khoá ấy
+vào `ENTRY_LEG` (chân giá VÀO, lấy phiên đầu chuỗi). Nhưng "Giá vào lệnh" của phép tính cỡ lệnh là
+giá **sắp vào**, tức phải là phiên gần nhất — nó thuộc `CURRENT_LEG` mới đúng nghĩa.
+
+Đây **không phải lỗi mới của gói này**: đo trên bộ mẫu hiện tại, **7 trên 10 mã** đã cho
+`MEANINGLESS` ngay khi nạp, vì `entryPrice` nhận giá của mã (DGC 45.970, KDH 20.020, NT2 18.340…)
+trong khi ô "Giá cắt lỗ" giữ nguyên mặc định 86.000 — cắt lỗ cao hơn giá vào. Gói này chỉ làm
+đường mã thật hành xử giống đường bộ mẫu.
+
+Sửa thì phải đổi ở **cả hai** file (`preset-inputs.ts` và `core/chart/history.ts`), vì docblock hai
+bên tự ràng nhau là không được nói khác nhau về chân giá — và đổi xong `co-lenh-rui-ro` sẽ có thêm
+đường thời gian, tức một hành vi mới chưa ai yêu cầu. Nên để lại đây chứ không tự làm.
+
+### Việc còn lại
+
+- **Chưa chạy `npm run build && verify:static && size && check:chrome`** — `prebuild` từ chối vì
+  dev server đang giữ cổng 3000. Cần tắt dev rồi chạy.
+- Kiểm tay ở `npm run preview`: `/cong-thuc/pe/?ma=HPG` phải hiện "P/E của HPG qua 10 phiên" và ô
+  chọn trục mặc định là "Theo thời gian"; ngắt mạng rồi nạp lại phải rơi về "P/E theo Giá thị
+  trường" mà **vẫn** điền EPS/giá.
+
+---
+
 ## Nạp mã thật vào ô công thức — 5 gói (08/09/2026)
 
 **Trạng thái: đang làm** — Gói 1 xong, Gói 2–5 còn lại.

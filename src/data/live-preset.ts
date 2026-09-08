@@ -19,14 +19,32 @@ import type { DailyBar, Preset } from './types';
  * `undefined` khi số liệu cơ bản không qua được đối chiếu (`map.ts`) — không có gì để nạp thì
  * nói thẳng, đừng dựng một preset rỗng rồi để người dùng bấm "Nạp" mà không ô nào đổi.
  *
- * `bars` chỉ có ĐÚNG MỘT phiên: API Finbox không có chuỗi giá dài (đã xác nhận: `tendays` chỉ
- * 10 phiên, 1 giá/phiên, không OHLC). `presetInputs()` biết ca này và cố ý bỏ trống chân "giá
- * vào" khi chuỗi ngắn hơn hai phiên — xem docblock ở đó.
- *
  * `isDraft: false` — khác hẳn bốn preset của `samples.ts`. Số ở đây đọc thẳng từ báo cáo thật
  * qua API, cả thị giá lẫn số liệu cơ bản, nên không có gì để cảnh báo là bản thảo.
+ *
+ * ── `history` là THAM SỐ TUỲ CHỌN, và đó là một quyết định chứ không phải tiện tay ──────────
+ *
+ * Không truyền thì `bars` có đúng MỘT phiên, y hệt trước đợt này. Đó là hợp đồng mà
+ * `LIVE_PRESET_FORMULAS` được tính trên: bảng ấy hứa với tab Danh mục rằng "mã này điền được N ô",
+ * và tab Danh mục KHÔNG gọi `priceHistory()` (một lời gọi cho mỗi mã trong danh mục thì quá đắt —
+ * xem `MarketFeed.priceHistory`). Nếu chuỗi 10 phiên chảy vào bảng ghim thì bảng sẽ hứa thêm một
+ * ô mà màn nhận về không chắc điền được — đúng loại "nói quá" mà cột `priceFields` đã sinh ra để
+ * chặn một lần rồi.
+ *
+ * Truyền vào thì `bars` thành 10 phiên thật, và hai thứ đổi theo, cả hai đều đúng hơn:
+ *
+ *   · Biểu đồ chuyển sang trục thời gian — "P/E của HPG qua 10 phiên" bằng giá thật, thay cho
+ *     đường quét giả định ±50%. Trước đợt này chỉ bộ mẫu BỊA (248 phiên PRNG) mới được vẽ đường
+ *     ấy, còn mã thật thì không: hình vẽ giàu hơn cho số bịa, nghèo hơn cho số thật.
+ *   · Chân "giá vào" được điền (`presetInputs()` chỉ bỏ trống nó khi chuỗi ngắn hơn hai phiên),
+ *     và nó là giá đóng cửa THẬT của phiên cũ nhất trong mười phiên — không phải một phiên PRNG
+ *     như chân giá vào của bộ mẫu bản thảo, nên KHÔNG mang cờ `synthetic`.
  */
-export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Preset | undefined {
+export function presetFromSnapshot(
+  snapshot: TickerSnapshot,
+  asOf: string,
+  history: ReadonlyArray<DailyBar> = [],
+): Preset | undefined {
   const { fundamentals } = snapshot;
   if (fundamentals === null) return undefined;
 
@@ -37,19 +55,7 @@ export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Pres
    */
   const sessionDate = snapshot.asOfDate ?? asOf;
 
-  const bars: DailyBar[] =
-    snapshot.priceVnd === null
-      ? []
-      : [
-          {
-            date: sessionDate,
-            open: null,
-            high: null,
-            low: null,
-            close: snapshot.priceVnd,
-            volume: null,
-          },
-        ];
+  const bars = buildBars(snapshot.priceVnd, sessionDate, history);
 
   return {
     version: PRESET_CONTRACT_VERSION,
@@ -63,6 +69,38 @@ export function presetFromSnapshot(snapshot: TickerSnapshot, asOf: string): Pres
     isDraft: false,
     fundamentalsAsOf: sessionDate,
   };
+}
+
+/**
+ * Chuỗi phiên của preset: mười phiên lịch sử, gộp với phiên mà thị giá đang thuộc về.
+ *
+ * Gộp theo NGÀY rồi sắp lại, chứ không nối vào cuối. Hai con số đến từ hai endpoint khác nhau
+ * (`/data/symbols` cho `priceVnd`, `/v1/getTickerDetail` cho `history`), nên chúng có thể lệch
+ * nhau một phiên theo cả hai chiều — endpoint nào cập nhật trước thì endpoint ấy mới hơn. Gộp
+ * theo ngày là cách duy nhất đúng ở cả hai chiều mà không phải đoán bên nào đang chạy trước.
+ *
+ * Trùng ngày thì `priceVnd` thắng: nó là con số đang chạy trong ô nhập, và khối Kết quả tính trên
+ * nó — để chuỗi mang một giá khác cho cùng phiên ấy là hình và số nói hai chuyện.
+ */
+function buildBars(
+  priceVnd: number | null,
+  sessionDate: string,
+  history: ReadonlyArray<DailyBar>,
+): DailyBar[] {
+  const byDate = new Map(history.map((bar) => [bar.date, bar]));
+
+  if (priceVnd !== null) {
+    byDate.set(sessionDate, {
+      date: sessionDate,
+      open: null,
+      high: null,
+      low: null,
+      close: priceVnd,
+      volume: null,
+    });
+  }
+
+  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /** Một công thức mà số liệu của mã điền được, kèm mức độ điền. */

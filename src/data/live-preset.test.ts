@@ -4,7 +4,7 @@ import { FORMULA_MODULES } from '@/core/formulas';
 
 import { LIVE_FUNDAMENTALS } from './live-fundamentals.generated';
 import { LIVE_PRESET_FORMULAS, presetFromSnapshot } from './live-preset';
-import { presetInputs } from './preset-inputs';
+import { presetInputs, presetRealKeys } from './preset-inputs';
 import type { TickerSnapshot } from './finbox/types';
 
 const ASOF = '2026-08-24';
@@ -88,6 +88,82 @@ describe('dựng Preset từ ảnh chụp thị trường', () => {
     const filled = presetInputs(preset, hpr.spec);
     expect(filled.endPrice).toBe(71_400);
     expect(filled.startPrice).toBeUndefined();
+  });
+});
+
+/**
+ * Mười phiên thật của FPT, xếp cũ → mới, đúng thứ `parsePriceHistory()` trả ra.
+ *
+ * Phiên cuối cố ý CÙNG ngày với `SNAPSHOT.asOfDate` nhưng KHÁC giá (71.000 so với 71.400): hai
+ * con số đến từ hai endpoint khác nhau và có thể lệch, nên ca "phiên trùng ngày thì thị giá
+ * thắng" mới có sức nặng.
+ */
+const HISTORY = [
+  { date: '2026-08-10', open: null, high: null, low: null, close: 69_500, volume: null },
+  { date: '2026-08-11', open: null, high: null, low: null, close: 70_100, volume: null },
+  { date: '2026-08-21', open: null, high: null, low: null, close: 71_000, volume: null },
+];
+
+describe('dựng Preset kèm chuỗi mười phiên', () => {
+  it('không truyền chuỗi thì giữ nguyên hành vi một phiên', () => {
+    // Hợp đồng mà `LIVE_PRESET_FORMULAS` được tính trên — xem docblock `presetFromSnapshot()`.
+    expect(presetFromSnapshot(SNAPSHOT, ASOF, [])?.bars).toHaveLength(1);
+  });
+
+  it('truyền chuỗi thì bars mang cả lịch sử, xếp cũ → mới', () => {
+    const bars = presetFromSnapshot(SNAPSHOT, ASOF, HISTORY)?.bars ?? [];
+
+    expect(bars.map((bar) => bar.date)).toEqual(['2026-08-10', '2026-08-11', '2026-08-21']);
+  });
+
+  /*
+   * Phiên trùng ngày: thị giá của `/data/symbols` thắng giá của `/v1/getTickerDetail`.
+   *
+   * Vì `priceVnd` là con số đang chạy trong ô nhập và khối Kết quả tính trên nó. Để chuỗi mang
+   * một giá khác cho cùng phiên ấy là hình và số nói hai chuyện về một ngày.
+   */
+  it('trùng ngày thì thị giá thắng, không thành hai phiên', () => {
+    const bars = presetFromSnapshot(SNAPSHOT, ASOF, HISTORY)?.bars ?? [];
+
+    expect(bars).toHaveLength(3);
+    expect(bars.at(-1)?.close).toBe(71_400);
+  });
+
+  it('nguồn lịch sử chạy trước thì phiên mới hơn vẫn nằm đúng chỗ theo ngày', () => {
+    const moiHon = [
+      ...HISTORY,
+      { date: '2026-08-24', open: null, high: null, low: null, close: 72_000, volume: null },
+    ];
+    const bars = presetFromSnapshot(SNAPSHOT, ASOF, moiHon)?.bars ?? [];
+
+    expect(bars.map((bar) => bar.date)).toEqual([
+      '2026-08-10',
+      '2026-08-11',
+      '2026-08-21',
+      '2026-08-24',
+    ]);
+  });
+
+  it('thiếu thị giá mà có lịch sử thì vẫn dựng được chuỗi', () => {
+    const bars = presetFromSnapshot({ ...SNAPSHOT, priceVnd: null }, ASOF, HISTORY)?.bars ?? [];
+
+    expect(bars).toHaveLength(3);
+  });
+
+  /*
+   * Đây là thứ chuỗi mười phiên mở ra ở tầng ô nhập, và nó là ca THẬT chứ không phải tác dụng
+   * phụ: `presetInputs()` bỏ trống chân giá vào chỉ khi chuỗi ngắn hơn hai phiên (nếu không, mua
+   * và bán cùng một giá thì mọi công thức lãi lỗ ra đúng 0%). Có lịch sử thì chân ấy nhận giá
+   * đóng cửa THẬT của phiên cũ nhất — không phải phiên PRNG như chân giá vào của bộ mẫu bản thảo,
+   * nên nó KHÔNG mang cờ `synthetic`.
+   */
+  it('có lịch sử thì chân giá vào được điền, bằng giá thật của phiên cũ nhất', () => {
+    const preset = presetFromSnapshot(SNAPSHOT, ASOF, HISTORY);
+    const hpr = FORMULA_MODULES.find((m) => m.spec.id === 'hpr');
+    if (preset === undefined || hpr === undefined) throw new Error('Thiếu dữ liệu cho ca kiểm.');
+
+    expect(presetInputs(preset, hpr.spec).startPrice).toBe(69_500);
+    expect(presetRealKeys(preset, hpr.spec).has('startPrice')).toBe(true);
   });
 });
 

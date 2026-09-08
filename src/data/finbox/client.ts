@@ -9,6 +9,9 @@
  *   82 KB). Không cần token.
  * · `POST /data/symbols` — trả 346 field cho **nhiều mã một lượt**, trong đó có `priceFlat`
  *   (thị giá) lẫn đủ field dựng `Fundamentals`. Đo được: 30 mã ≈ 199 KB, 0,23 s.
+ * · `POST /v1/getTickerDetail` — nguồn DUY NHẤT có chuỗi giá nhiều phiên (`tendays`, 10 phiên).
+ *   Đo được: 9,1 KB cho một mã. Nhận **một mã mỗi lời gọi**, tham số là `ticker` (`symbol` trả
+ *   HTTP 400) — nên chỉ màn chi tiết công thức gọi, cho đúng mã đang xem; tab Danh mục không đụng.
  *
  * Đã thử và loại: `GET /data/symbol/{mã}/quotes` trả HTTP 200 nhưng thân rỗng 0 byte, nên không
  * có đường nào lấy riêng giá cho nhẹ hơn — nếu sau này Finbox mở một endpoint chỉ-giá thì đây là
@@ -19,7 +22,8 @@
  * Application lo (`ticker-list-store.ts`), có chủ đích.
  */
 
-import { parseSnapshots, parseTickerList } from './map';
+import type { DailyBar } from '../types';
+import { parsePriceHistory, parseSnapshots, parseTickerList } from './map';
 import { MarketFeedError } from './types';
 import type { MarketFeed, TickerRef, TickerSnapshot } from './types';
 
@@ -134,5 +138,19 @@ export const FINBOX_FEED: MarketFeed = {
     );
 
     return parseSnapshots(body);
+  },
+
+  async priceHistory(code: string, signal?: AbortSignal): Promise<ReadonlyArray<DailyBar>> {
+    const ticker = code.trim().toUpperCase();
+    // Không mã thì không gọi — cùng luật với `snapshots()` ngay trên.
+    if (ticker === '') return [];
+
+    const body = await requestJson(
+      '/v1/getTickerDetail',
+      { ...JSON_POST, body: JSON.stringify({ ticker }) },
+      signal,
+    );
+
+    return parsePriceHistory(body);
   },
 };

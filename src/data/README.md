@@ -22,10 +22,27 @@ Thêm ở gói "Danh mục dùng số liệu thật". **Bất đồng bộ, có 
   đó giải thích vì sao đây là cổng RIÊNG chứ không phải `DataProvider` đổi sang Promise.
 - `finbox/map.ts` — thuần, không fetch: đổi đơn vị nghìn ₫ → ₫, lợi nhuận TTM 4 quý, lọc mã khỏi
   chỉ số/ngành bằng luật `code !== name`.
-- `finbox/client.ts` — hai endpoint của `dcs.finbox.vn`: `GET /bp/codes` (~1.649 mã) và
-  `POST /data/symbols` (thị giá + số liệu cơ bản, nhiều mã một lượt).
+- `finbox/client.ts` — ba endpoint của `dcs.finbox.vn`: `GET /bp/codes` (~1.649 mã),
+  `POST /data/symbols` (thị giá + số liệu cơ bản, nhiều mã một lượt) và
+  `POST /v1/getTickerDetail` (chuỗi `tendays`, **một mã mỗi lời gọi**).
 - `live-preset.ts` — `presetFromSnapshot()` nối cổng 2 về lại kiểu `Preset` của cổng 1, để
   `presetInputs()` dùng chung cho cả hai nguồn.
+
+### Chuỗi mười phiên — ai gọi, ai không, và vì sao
+
+`MarketFeed.priceHistory()` chỉ có **màn chi tiết công thức** gọi, cho đúng mã đang xem. Tab Danh
+mục KHÔNG gọi: endpoint nguồn nhận một mã mỗi lượt, nên một danh mục 12 mã sẽ thành 13 lời gọi
+thay vì 1.
+
+Mười phiên **đủ** cho đường biểu đồ theo thời gian (`MIN_SESSIONS = 5` ở `core/chart/history.ts`),
+nên nạp một mã thật xong màn vẽ được "P/E của HPG qua 10 phiên" bằng giá thật — đo được **9 công
+thức** chuyển từ đường quét giả định ±50% sang trục thời gian. Nhưng **không đủ** cho chỉ báo cuộn:
+RSI-14, SMA-20, Bollinger-20 vẫn báo thiếu phiên, và phải để chúng báo thiếu (FR-06).
+
+`history` là tham số **tuỳ chọn** của `presetFromSnapshot()`, và đó là một quyết định: không truyền
+thì `bars` có đúng một phiên, tức hợp đồng mà `LIVE_PRESET_FORMULAS` được tính trên. Nếu chuỗi mười
+phiên chảy vào bảng ghim thì bảng sẽ hứa với tab Danh mục thêm một ô mà tab ấy không gọi được —
+đúng loại "nói quá" mà cột `priceFields` đã sinh ra để chặn một lần rồi.
 
 `TickerSnapshot.asOfDate` mang **ngày phiên** của thị giá, đọc từ field `date` của API. Đã đối
 chiếu với `GET /v1/getMarketDates`: endpoint đó bỏ đúng thứ Bảy và Chủ nhật, nên `date` là ngày
@@ -46,7 +63,8 @@ từ API Finbox_v2" (xem `TASK.md`):
   thật từ `LIVE_FUNDAMENTALS` — giả định A1 của SRS nay đã đúng một phần.
 - **Chuỗi giá** (`bars` từng mã, và `VN_INDEX_BARS`) **vẫn PRNG bịa**, và bị chặn cứng: API
   Finbox_v2 xác nhận tối đa chỉ 10-21 phiên/mã, không đủ cho SMA/RSI/Bollinger/MACD hay hồi quy
-  Beta (cần ~248 phiên). Rủi ro R-01 của SRS vẫn còn mở ở phần này.
+  Beta (cần ~248 phiên). Rủi ro R-01 của SRS vẫn còn mở ở phần này. Mười phiên thật đã được nối vào
+  đường **mã lấy lúc chạy** (xem mục trên), nhưng bộ mẫu WF-10 thì không: nó cần 248 phiên.
 - `equity` (vốn chủ sở hữu) vẫn SUY RA bằng `bookValuePerShare × sharesOutstanding` — Finbox_v2
   không trả field vốn chủ sở hữu tuyệt đối.
 

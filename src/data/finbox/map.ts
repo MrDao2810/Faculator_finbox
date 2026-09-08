@@ -47,7 +47,7 @@
  * MỘT mã không được phép làm hỏng cả màn Danh mục.
  */
 
-import type { Fundamentals } from '../types';
+import type { DailyBar, Fundamentals } from '../types';
 import type { TickerRef, TickerSnapshot } from './types';
 
 /** Một tỷ — đổi ₫ sang tỷ ₫ cho các khoản mục toàn doanh nghiệp. */
@@ -399,6 +399,65 @@ export function toSnapshot(value: unknown): TickerSnapshot | null {
     industry: text(record.industry),
     fundamentals: toFundamentals(record),
   };
+}
+
+/**
+ * Thân phản hồi của `POST /v1/getTickerDetail` → mười phiên giá gần nhất, xếp **cũ → mới**.
+ *
+ * ── Ba cái bẫy của trường `tendays`, đo trực tiếp trên phản hồi thật của HPG ────────────────
+ *
+ * 1. **Nó là một CHUỖI, không phải mảng.** `typeof body.tendays === 'string'`, bên trong mới là
+ *    JSON của mảng. Đọc thẳng `body.tendays.map` là `undefined is not a function`. Vẫn nhận cả
+ *    hình dạng mảng, phòng khi nguồn thôi bọc — đó là một dòng, còn phát hiện ra sau này thì đắt.
+ * 2. **Xếp mới → cũ.** Phiên đầu mảng là hôm nay. Biểu đồ theo thời gian đọc `bars` theo chỉ số
+ *    phiên tăng dần và đánh dấu phiên CUỐI là "giá trị hiện tại" (`historyPoints()`), nên giữ
+ *    nguyên chiều là vẽ ngược thời gian và gắn dấu lên phiên cũ nhất. Sắp lại theo NGÀY chứ không
+ *    `reverse()`: chiều của nguồn là thứ ta không kiểm soát.
+ * 3. **`priceFlat` tính bằng nghìn ₫**, y hệt `/data/symbols` — `21.85` là 21.850 ₫.
+ *
+ * Phiên hỏng bị bỏ RIÊNG chứ không huỷ cả chuỗi: 9 phiên thật vẫn vẽ được, và đây là phần thêm
+ * cho biểu đồ chứ không phải xương sống như `Fundamentals`. Giá ≤ 0 không phải giá — cùng luật
+ * `isBadPrice()` bên `price-series.ts`, và một số 0 lọt vào là biểu đồ vẽ một cú sập sàn chưa hề
+ * xảy ra (FR-06).
+ */
+export function parsePriceHistory(body: unknown): DailyBar[] {
+  const record = asRecord(body);
+  const raw = record === null ? body : record.tendays;
+
+  let rows: unknown;
+  if (typeof raw === 'string') {
+    try {
+      rows = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  } else {
+    rows = raw;
+  }
+  if (!Array.isArray(rows)) return [];
+
+  // Theo NGÀY, để một ngày lặp hai lần chỉ còn một phiên — nguồn nào cũng có ngày lỗi nhịp.
+  const byDate = new Map<string, DailyBar>();
+
+  for (const row of rows) {
+    const item = asRecord(row);
+    if (item === null) continue;
+
+    const date = toIsoDate(item.date);
+    const priceRaw = num(item.priceFlat);
+    if (date === null || priceRaw === null || priceRaw <= 0) continue;
+
+    byDate.set(date, {
+      date,
+      open: null,
+      high: null,
+      low: null,
+      close: round(priceRaw * THOUSAND, 0),
+      volume: null,
+    });
+  }
+
+  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /** Thân phản hồi của `POST /data/symbols` → bảng tra theo mã. Bản ghi hỏng bị bỏ, không ném. */

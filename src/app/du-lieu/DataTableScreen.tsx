@@ -1,10 +1,8 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
-  FORMULA_SUMMARIES,
   MAX_SERIES_ROWS,
   PRICE_SERIES_KEY,
   appendRow,
@@ -12,7 +10,6 @@ import {
   defaultPresetPicks,
   emptyRow,
   formatNumber,
-  formulaPath,
   parseStoredSeries,
   removeRow,
   serializeStoredSeries,
@@ -22,7 +19,6 @@ import {
 import type { PasteResult, Preset, SeriesRow } from '@/application';
 import { useT } from '@/application/preferences-context';
 import { NumberCell } from '@/ui/inputs';
-import { BackLink } from '@/ui/navigation';
 import { Button } from '@/ui/primitives';
 import { PasteImportSheet, PresetSheet } from '@/ui/sheets';
 
@@ -40,9 +36,11 @@ import styles from './DataTableScreen.module.css';
  *
  * Bảng lưu ở localStorage chứ không gửi đi đâu (NFR-SEC-01, COM-03). Màn từng có một dòng ghi
  * chú nói đúng câu ấy ngay dưới bảng; chủ dự án cho bỏ ngày 25/08/2026 vì người dùng không cần
- * đọc nó. Bỏ được là vì màn này KHÔNG gọi mạng lần nào, nên chẳng có gì để cảnh báo — chỗ duy
- * nhất còn phải nói rõ là màn Danh mục, nơi mã cổ phiếu có rời máy thật (`portfolio.localOnly`,
- * có ca kiểm ghim nguyên văn). Đừng dựng lại dòng này ở đây.
+ * đọc nó. Bỏ được là vì màn này KHÔNG gọi mạng lần nào, nên chẳng có gì để cảnh báo.
+ *
+ * Câu trên từng nói thêm rằng "chỗ duy nhất còn phải nói rõ là màn Danh mục, nơi mã cổ phiếu có
+ * rời máy thật" — điều đó KHÔNG còn đúng: dải ấy (`portfolio.localOnly`) cũng đã bỏ ngày
+ * 09/09/2026 theo yêu cầu chủ dự án. Nay không màn nào nói ra nữa. Đừng dựng lại dòng này ở đây.
  */
 
 /** Sáu cột của bảng, đúng thứ tự wireframe. */
@@ -147,20 +145,13 @@ export function DataTableScreen() {
   const t = useT();
 
   /*
-   * Đến từ nút "Mở bảng dữ liệu" của một trang công thức thì nút quay lại phải về ĐÚNG trang đó,
-   * không về danh sách chung — chủ dự án báo mất dấu công thức đang thao tác. Tham số `from` do
-   * `FormulaDetail.tsx` gắn vào link; kiểm lại bằng `FORMULA_SUMMARIES` chứ không tin thẳng
-   * chuỗi trên URL, để một tham số gõ bậy không dựng ra một link trỏ vào chỗ không tồn tại.
+   * `?from=` KHÔNG còn đọc ở đây. Nó chỉ phục vụ nút quay lại, mà nút ấy đã lên thanh trên — luật
+   * nay nằm trọn ở `backLinkFor()` bên `routes.ts`, kể cả ngoại lệ "về đúng trang công thức".
    *
-   * Cố ý dùng `FORMULA_SUMMARIES` (chỉ mục nhẹ) chứ không `findFormulaModule()`/
-   * `FORMULA_MODULES`: bảng dữ liệu là màn KHÔNG liên quan gì tới việc tính toán của riêng một
-   * công thức, kéo cả Registry đầy đủ (111 hàm tính) vào chỉ để so một chuỗi id sẽ nặng thêm
-   * hàng chục kB First Load JS một cách vô lý — đã đo thấy /du-lieu/ nhảy từ 131 kB lên 217 kB
-   * khi thử bằng `findFormulaModule()`.
+   * Nhờ đó màn này thôi gọi `useSearchParams()` và thôi đụng `FORMULA_SUMMARIES`. Đừng dựng lại
+   * hai thứ ấy chỉ để đọc `?from=`: docblock cũ ở đây đã đo được /du-lieu/ nhảy 131 → 217 kB khi
+   * thử kéo Registry vào, và chỉ mục công thức là bước đầu tiên trên con đường ấy.
    */
-  const fromId = useSearchParams().get('from');
-  const fromFormula = fromId === null ? undefined : FORMULA_SUMMARIES.find((f) => f.id === fromId);
-
   const [code, setCode] = useState('');
   const [rows, setRows] = useState<ReadonlyArray<SeriesRow>>([]);
   const [sheet, setSheet] = useState<'preset' | 'paste' | null>(null);
@@ -275,23 +266,13 @@ export function DataTableScreen() {
     <div className={styles.screen}>
       <header className={styles.head}>
         {/*
-          WF-18 xếp bảng dữ liệu trong luồng công thức, nên mặc định đường ra là về danh sách
-          công thức — giống hệt trang chi tiết, và cùng nhớ bộ lọc người dùng vừa đặt.
+          Đường ra chuyển lên thanh trên (`HeaderIdentity`), cùng đợt với màn chi tiết và màn tìm.
 
-          Ngoại lệ: vào từ nút "Mở bảng dữ liệu" của một trang công thức thì về ĐÚNG trang đó.
-          `rememberOrigin={false}` vì lúc này không còn là "về màn gốc" nữa — đọc sessionStorage
-          rồi ghi đè bằng href công thức chỉ tổ nhấp nháy một nhịp trước khi đúng.
+          Cả NGOẠI LỆ của màn này cũng đi theo, không bị bỏ rơi: vào từ nút "Mở bảng dữ liệu" của
+          một trang công thức (`?from=<id>`) thì đường ra vẫn về ĐÚNG trang đó chứ không về danh
+          sách. Luật ấy nay nằm ở `backLinkFor()` bên `routes.ts` — đọc `?from` từ chuỗi truy vấn,
+          cùng tham số mà `fromFormula` ngay trên đang đọc.
         */}
-        {fromFormula === undefined ? (
-          <BackLink />
-        ) : (
-          <BackLink
-            fallbackHref={formulaPath(fromFormula.id)}
-            labelKey="nav.backToFormula"
-            rememberOrigin={false}
-          />
-        )}
-
         <h1 className={styles.title}>{t('series.title')}</h1>
         <p className={styles.subtitle}>
           {code === '' ? t('series.codeLabel') : code} · {t('series.subtitle')}

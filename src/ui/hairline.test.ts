@@ -112,7 +112,7 @@ describe('--color-hairline chỉ làm kẻ chia, không làm ranh giới', () =>
 });
 
 /**
- * Bảy kẻ chia CỐ Ý ở lại `--color-border`, mỗi cái một lý do.
+ * Tám kẻ chia CỐ Ý ở lại `--color-border`, mỗi cái một lý do.
  *
  * Ghim danh sách chứ không chỉ đếm: đếm thì đổi một chỗ rồi thêm một chỗ khác là hoà, và ca kiểm
  * im lặng. Cùng lối với danh sách id trong `chart.test.ts` — một mục mới không được lọt qua mà
@@ -126,6 +126,11 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
     'app/danh-muc/PortfolioScreen.module.css',
     '.holdRow',
     'Kẻ chia giữa hai mã. Mỗi dòng là một đích bấm cao 44px và không có nền xen kẽ, nên đường kẻ là thứ DUY NHẤT tách chúng.',
+  ],
+  [
+    'app/danh-muc/PortfolioScreen.module.css',
+    '.savedRow',
+    'Kẻ chia giữa hai phép tính đã lưu. Cùng cảnh .holdRow, và nặng hơn từ khi dòng thôi bày con số: nay nó chỉ còn hai dòng chữ, mất kẻ là ba mục dính thành một đoạn văn.',
   ],
   [
     'ui/browse/SearchResults.module.css',
@@ -160,7 +165,7 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
 ];
 
 describe('kẻ chia cố ý ở lại --color-border', () => {
-  it('đúng bảy chỗ, không thừa không thiếu', () => {
+  it('đúng tám chỗ, không thừa không thiếu', () => {
     const thucTe: string[] = [];
 
     for (const file of moduleCssFiles()) {

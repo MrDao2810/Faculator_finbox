@@ -22,7 +22,6 @@ import {
   SearchBox,
   SearchResults,
 } from '@/ui/browse';
-import { BackLink } from '@/ui/navigation';
 
 import styles from './SearchScreen.module.css';
 
@@ -112,11 +111,11 @@ export function SearchScreen() {
   return (
     <div className={styles.screen}>
       {/*
-        Wireframe WF-09 vẽ dấu `‹` ngay bên trái ô tìm. Ở 360px ô tìm cần trọn bề ngang nên
-        đường ra xếp lên trên nó — vẫn là hàng đầu tiên của màn, đúng chỗ mắt tìm.
+        Đường ra KHÔNG còn ở đây — nó chuyển lên thanh trên cùng đợt với màn chi tiết và bảng dữ
+        liệu (xem `HeaderIdentity`). Wireframe WF-09 vẽ dấu `‹` ngay bên trái ô tìm; bản dựng cũ
+        xếp nó lên TRÊN ô tìm vì ở 360px ô tìm cần trọn bề ngang. Nay nó nằm ở hàng dính trên, tức
+        gần đúng chỗ bản vẽ muốn hơn cả bản cũ, mà ô tìm vẫn giữ trọn bề ngang và lên được dòng đầu.
       */}
-      <BackLink />
-
       <div ref={inputRef}>
         <SearchBox
           value={draft}

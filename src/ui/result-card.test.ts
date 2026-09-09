@@ -144,21 +144,31 @@ describe('Thẻ kết quả — một khuôn duy nhất', () => {
     );
   });
 
-  it('con số trong một dòng danh sách đi theo StatTile, KHÔNG theo khuôn thẻ đáp án', () => {
-    const saved = ruleBody(
-      readFileSync(join(SRC_DIR, 'app/danh-muc/PortfolioScreen.module.css'), 'utf8'),
-      'savedResult',
+  /*
+   * ⚠ Khuôn "con số trong một dòng danh sách" nay chỉ còn MỘT chỗ dùng.
+   *
+   * Ca cũ ở đây ghim `PortfolioScreen.savedResult` đi theo neo `StatTile.value`. Ngày 09/09/2026
+   * chủ dự án bỏ hẳn con số khỏi danh sách phép tính đã lưu — *"số liệu thì khi mở lại thì mới
+   * thấy được"* — nên vế thứ hai của cặp ấy không còn tồn tại để mà lệch.
+   *
+   * Hệ quả đáng ghi: mục E2 của bản soát ba màn ("hạ cỡ `StatTile.value` ở khổ hẹp") vốn vướng
+   * chính cặp này — hạ một vế mà giữ vế kia là làm hai thứ cùng khuôn lệch nhau. Nay `StatTile`
+   * đứng một mình, nên E2 hạ được mà không kéo theo ai. Vẫn là quyết định của chủ dự án, nhưng
+   * lý do phải-cân đã mất.
+   */
+  it('StatTile vẫn là con số trong một dòng danh sách, KHÔNG theo khuôn thẻ đáp án', () => {
+    const tile = ruleBody(
+      readFileSync(join(SRC_DIR, 'ui/result/StatTile.module.css'), 'utf8'),
+      'value',
     );
 
     expectDeclarations(
-      saved,
-      {
-        'font-size': 'var(--text-lg)',
-        'font-weight': 'var(--weight-bold)',
-        'font-variant-numeric': 'tabular-nums',
-        color: 'var(--color-ink)',
-      },
-      'PortfolioScreen .savedResult',
+      tile,
+      { 'font-size': 'var(--text-lg)', 'font-weight': 'var(--weight-bold)' },
+      'StatTile .value',
     );
+
+    /* Và nó KHÔNG được lấy khuôn thẻ đáp án — đó mới là điều ca này gác. */
+    expect(tile ?? '').not.toMatch(/background:\s*var\(--gradient-result\)/);
   });
 });

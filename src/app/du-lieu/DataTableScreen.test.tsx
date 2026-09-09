@@ -103,9 +103,11 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
  * ngày 25/08/2026 theo yêu cầu của chủ dự án — người dùng không cần đọc nó.
  *
  * Ghim lại vì câu ấy trước đó được docblock của màn viện dẫn NFR-SEC-01/COM-03, nên rất dễ bị
- * dựng lại "cho đúng yêu cầu". Bỏ được là vì màn này KHÔNG gọi mạng lần nào; chỗ thật sự cần
- * cảnh báo là màn Danh mục, nơi mã cổ phiếu có rời máy — `portfolio.localOnly` vẫn còn nguyên và
- * có ca kiểm riêng ghim nguyên văn.
+ * dựng lại "cho đúng yêu cầu". Bỏ được là vì màn này KHÔNG gọi mạng lần nào.
+ *
+ * Vế cũ ở đây — "chỗ thật sự cần cảnh báo là màn Danh mục, `portfolio.localOnly` vẫn còn nguyên"
+ * — nay đã sai: dải ấy cũng bỏ ngày 09/09/2026 theo yêu cầu chủ dự án, nên không màn nào còn nói.
+ * Xem `PortfolioScreen.test.tsx`, mục "dữ liệu riêng tư: cam kết còn, câu nói ra thì không".
  */
 describe('DataTableScreen — không còn dòng ghi chú localStorage', () => {
   it('bảng có số liệu: không nhắc localStorage, cũng không nhắc "máy chủ"', async () => {

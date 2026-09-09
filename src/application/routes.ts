@@ -103,6 +103,126 @@ export function showsModeToggle(pathname: string): boolean {
 }
 
 /**
+ * Những màn mà thanh trên bày TÊN MÀN thay cho tên sản phẩm.
+ *
+ * Bảng chứ không phải một điều kiện: chủ dự án chốt màn danh sách công thức trước, rồi Danh mục và
+ * Cài đặt ngay sau — mỗi lần chỉ thêm một dòng ở đây, không sửa component nào.
+ *
+ * Nay là ĐỦ BA màn có mục riêng ở thanh điều hướng (trừ trang chủ, nơi tên sản phẩm mới đúng là
+ * tên màn). Vì thế bảng cũng thành lời hứa ngược lại: màn nào KHÔNG có ở đây thì thân màn phải tự
+ * dựng `<h1>` của nó — xem `headerTitleKey()`.
+ *
+ * Khớp TUYỆT ĐỐI, cùng lẽ với `showsModeToggle()`: '/cong-thuc/wacc/' là màn chi tiết, nó có tên
+ * riêng của công thức làm tiêu đề nên thanh trên phải trả lại chỗ cho tên sản phẩm.
+ */
+const HEADER_TITLES: ReadonlyArray<{ path: string; key: MessageKey }> = [
+  { path: ROUTES.formulas, key: 'page.formulas.title' },
+  /* 'Danh mục của tôi', không phải 'Danh mục' của thanh nav: đây là tiêu đề trang, và chữ "của
+     tôi" là thứ nói ra rằng kho này nằm trên máy người dùng. */
+  { path: ROUTES.portfolio, key: 'portfolio.title' },
+  { path: ROUTES.settings, key: 'page.settings.title' },
+];
+
+/**
+ * Khoá chữ mà thanh trên bày thay cho tên sản phẩm, hoặc `null` nếu thanh giữ tên sản phẩm.
+ *
+ * ── Vì sao thanh trên đổi danh tính theo màn ─────────────────────────────────────────────────
+ *
+ * Trước đây phần đầu mọi màn là HAI hàng: thanh dính trên mang khối hộp + "Faculator", rồi ngay
+ * dưới là `<h1>` tên màn. Ở khổ 360px hai hàng ấy ăn ~105px trước khi tới thứ đầu tiên bấm được,
+ * mà hàng DÍNH trên — thứ luôn ở đó khi cuộn — lại mang chữ không bao giờ đổi, còn chữ có đổi thì
+ * cuộn đi mất. Bản thiết kế cũ dựng đúng một hàng, và nó trả lời câu "tôi đang ở đâu".
+ *
+ * Màn nào có tên trong bảng thì `<h1>` chuyển hẳn LÊN thanh trên; thân màn thôi dựng tiêu đề. Một
+ * trang vẫn đúng một `<h1>`, chỉ đổi chỗ — nếu để cả hai thì trang có hai tiêu đề cấp một, và
+ * trình đọc màn hình đọc tên màn hai lần liền nhau.
+ */
+export function headerTitleKey(pathname: string): MessageKey | null {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+  return HEADER_TITLES.find((entry) => entry.path === path)?.key ?? null;
+}
+
+/** Chỗ quay về mà thanh trên bày cho một màn TRONG — đúng bộ prop của `BackLink`. */
+export interface HeaderBackLink {
+  fallbackHref: string;
+  labelKey: MessageKey;
+  rememberOrigin: boolean;
+}
+
+/**
+ * Màn TRONG nào bày nút quay lại ở thanh trên, và quay về đâu — `null` nếu màn ấy không phải màn
+ * trong.
+ *
+ * ── Danh tính thanh trên nay có BA dạng, không phải hai ──────────────────────────────────────
+ *
+ * `headerTitleKey()` ngay trên chia màn làm hai: bày tên sản phẩm, hoặc bày tên màn. Chủ dự án
+ * chốt thêm dạng thứ ba cho MÀN TRONG: *"thay vì bên trên hiển thị icon và faculator thì đổi
+ * thành button back kèm chỉ dẫn về màn trước"*. Ba dạng loại trừ nhau và `HeaderIdentity` hỏi
+ * hàm này TRƯỚC, vì một màn trong không bao giờ nên bày tên sản phẩm.
+ *
+ * Điều đó lật lại đúng một câu lý lẽ ghi ở `headerTitleKey()` — *"màn chi tiết… nên thanh trên
+ * phải trả lại chỗ cho tên sản phẩm"*. Câu ấy đúng khi chỉ có hai dạng: giữa "tên sản phẩm" và
+ * "tên màn" thì màn chi tiết chọn tên sản phẩm, vì tên công thức đã là `<h1>` trong thân. Nay có
+ * dạng thứ ba tốt hơn cả hai: hàng dính trên mang thứ DUY NHẤT người dùng cần ở đó — đường ra.
+ *
+ * ── Vì sao nhận cả `search`, không chỉ `pathname` ────────────────────────────────────────────
+ *
+ * Bảng dữ liệu WF-05 có một ngoại lệ thật: vào từ nút "Mở bảng dữ liệu" của một trang công thức
+ * (`?from=<id>`) thì đường ra phải về ĐÚNG trang đó, không phải về danh sách. Đó là hành vi đã
+ * dựng có chủ đích, không phải chi tiết vụn — bỏ đi là người dùng mất chỗ đang tính dở.
+ *
+ * Hàm THUẦN, nhận chuỗi truy vấn làm tham số chứ không tự đọc `window`: nơi gọi mới là chỗ quyết
+ * định đọc nó lúc nào cho an toàn. Xem `HeaderIdentity` — ở đó nó đọc trong effect, vì
+ * `useSearchParams()` trong thanh trên sẽ kéo `<Suspense>` vào layout gốc và thổi bay HTML tĩnh
+ * của MỌI trang (cùng cái bẫy `FormulaDetail` đã ghi cho `?ma=`).
+ */
+export function backLinkFor(pathname: string, search = ''): HeaderBackLink | null {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+
+  /* Trang chi tiết một công thức — KHỚP TRANG CON, khác hẳn hai hàm trên. '/cong-thuc/' trơn là
+     màn danh sách, nó có mục riêng ở thanh nav nên không phải màn trong. */
+  if (path.startsWith(ROUTES.formulas) && path !== ROUTES.formulas) {
+    return { fallbackHref: ROUTES.formulas, labelKey: 'nav.backToList', rememberOrigin: true };
+  }
+
+  if (path === ROUTES.search) {
+    return { fallbackHref: ROUTES.formulas, labelKey: 'nav.backToList', rememberOrigin: true };
+  }
+
+  if (path === ROUTES.data) {
+    const from = (new URLSearchParams(search).get('from') ?? '').trim();
+    /*
+     * Kiểm DẠNG slug, không kiểm sự tồn tại — và đó là một bước lùi có tính toán.
+     *
+     * Bản cũ ở `DataTableScreen` đối chiếu `?from=` với `FORMULA_SUMMARIES` để một tham số gõ bậy
+     * không dựng ra link trỏ vào trang không có. Không làm lại được ở đây: hàm này chạy trong
+     * `HeaderIdentity`, thứ nằm ở layout GỐC, nên mọi thứ `routes.ts` import sẽ rơi vào gói của
+     * MỌI trang. Chỉ mục 111 công thức là cái giá quá đắt cho một phép kiểm chỉ có nghĩa khi người
+     * dùng tự gõ sai URL.
+     *
+     * Đổi lại là một biểu thức chặn đúng phần nguy hiểm: chuỗi lạ không còn ghép được thành đường
+     * dẫn khác (`../`, khoảng trắng, dấu chấm hỏi). Cái còn sót là `?from=khong-co-that` cho ra
+     * link 404 — người dùng phải tự sửa URL mới gặp, và họ vẫn còn thanh nav dưới để đi tiếp.
+     */
+    if (!/^[a-z0-9-]+$/.test(from)) {
+      return { fallbackHref: ROUTES.formulas, labelKey: 'nav.backToList', rememberOrigin: true };
+    }
+    /*
+     * `rememberOrigin: false` — giữ nguyên lý lẽ đã ghi ở `DataTableScreen`: lúc này không còn là
+     * "về màn gốc" nữa, đọc sessionStorage rồi ghi đè bằng href công thức chỉ tổ nhấp nháy một
+     * nhịp trước khi đúng.
+     */
+    return {
+      fallbackHref: formulaPath(from),
+      labelKey: 'nav.backToFormula',
+      rememberOrigin: false,
+    };
+  }
+
+  return null;
+}
+
+/**
  * Mục nào đang được chọn ứng với đường dẫn hiện tại.
  * Trang chủ phải khớp tuyệt đối, các mục khác khớp cả trang con
  * (ví dụ '/cong-thuc/wacc/' vẫn sáng mục Công thức).

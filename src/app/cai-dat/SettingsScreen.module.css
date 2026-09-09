@@ -5,12 +5,7 @@
   min-width: 0;
 }
 
-.h1 {
-  margin: 0;
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  color: var(--color-ink);
-}
+/* `.h1` đã xoá: tiêu đề "Cài đặt" nay do thanh trên dựng (`HeaderIdentity` + `headerTitleKey()`). */
 
 .block {
   display: flex;
@@ -86,11 +81,7 @@
   gap: var(--space-3);
 }
 
-.note {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-ink-soft);
-}
+/* `.note` đã xoá cùng câu "Mọi thứ dưới đây nằm trong trình duyệt của bạn…" — chủ dự án chốt. */
 
 /* ── Dữ liệu cục bộ ──────────────────────────────────────────────────────── */
 

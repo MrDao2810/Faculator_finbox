@@ -1241,14 +1241,47 @@ describe('WF-06 — mất mạng vẫn còn số thật, và nói rõ nó cũ', 
   });
 });
 
-describe('WF-06 — lời hứa về dữ liệu riêng tư', () => {
-  it('nói rõ chỉ mã rời khỏi máy, số lượng và giá vốn thì không', async () => {
+/*
+ * ── Dải "CỤC BỘ" đã bỏ (09/09/2026, chủ dự án chốt) ─────────────────────────────────────────
+ *
+ * Ca cũ ở đây ghim nguyên văn `portfolio.localOnly` — "Số lượng và giá vốn chỉ lưu trên thiết bị
+ * này. Chỉ mã cổ phiếu được gửi tới Finbox để tra thị giá." — và nó viện dẫn COM-03 / NFR-SEC-01.
+ * Câu ấy nay không còn trên màn.
+ *
+ * ⚠ KHÁC hẳn lượt bỏ câu tương tự ở màn `/du-lieu/` (25/08/2026). Ở đó bỏ được vì màn ấy KHÔNG gọi
+ * mạng lần nào, và docblock của nó ghi thẳng rằng "chỗ thật sự cần cảnh báo là màn Danh mục, nơi
+ * mã cổ phiếu có rời máy". Lượt này bỏ đúng cái chỗ ấy. Lý lẽ cũ không chuyển sang được, nên đừng
+ * đọc hai lượt này như một.
+ *
+ * Cái KHÔNG đổi: chỉ mã cổ phiếu vào request. `client.ts` gửi đúng `{ symbols }` và `{ ticker }`,
+ * số lượng / giá vốn / ngày mua không có đường nào vào đó. Ca dưới giữ vế ấy ở đúng tầng nó sống —
+ * tầng dữ liệu — thay cho một ca đọc chữ trên màn.
+ */
+describe('WF-06 — dữ liệu riêng tư: cam kết còn, câu nói ra thì không', () => {
+  it('màn không còn dải cam kết nào — ghim để không ai dựng lại mà không đọc docblock trên', async () => {
     render(<PortfolioScreen />);
 
-    const note = await screen.findByText(/chỉ lưu trên thiết bị này/i);
-    expect(note.textContent).toContain('Chỉ mã cổ phiếu được gửi tới Finbox');
-    // Câu cũ hứa "Không gửi lên máy chủ" — nay không còn đúng, không được để sót lại.
-    expect(note.textContent).not.toContain('Không gửi lên máy chủ');
+    await screen.findByText('Nắm giữ');
+
+    expect(screen.queryByText('CỤC BỘ')).toBeNull();
+    expect(screen.queryByText(/chỉ lưu trên thiết bị này/i)).toBeNull();
+  });
+
+  it('số lượng và giá vốn không xuất hiện trong bất kỳ request nào', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+
+    /*
+     * Ghim theo GIÁ TRỊ chứ không theo tên trường: đổi tên `costPrice` thành gì thì con số 60.000
+     * vẫn là con số phải không được rời máy. `seedHolding()` dựng FPT · 100 CP · giá vốn 60.000.
+     */
+    const daGui = JSON.stringify(feed.snapshots.mock.calls);
+    expect(daGui).toContain('FPT');
+    expect(daGui).not.toContain('60000');
+    expect(daGui).not.toContain('100');
+    expect(daGui).not.toContain('2026-01-02');
   });
 });
 
@@ -1320,7 +1353,8 @@ describe('WF-06 — đổi tab không ném người dùng đi chỗ khác', () =
     seedSaved();
     render(<PortfolioScreen />);
 
-    await screen.findByText(/không tính lại/);
+    /* Mốc "tab Công thức đã dựng xong" — trước là câu "không tính lại", nay là tên phép tính đã lưu. */
+    await screen.findByText('HPG · P/E');
 
     expect(bay.goi).not.toHaveBeenCalled();
     bay.go();
@@ -1384,7 +1418,16 @@ describe('WF-06 — tab Công thức', () => {
     expect(screen.queryByText('Nắm giữ')).toBeNull();
   });
 
-  it('bày tên, công thức, kết quả đã lưu và NGÀY LƯU', async () => {
+  /*
+   * Danh sách bày TÊN và NGÀY LƯU — không bày con số.
+   *
+   * Chủ dự án chốt 09/09/2026: *"số liệu thì khi mở lại thì mới thấy được -> không hiển thị bên
+   * ngoài"*. Tab này thành một mục lục, không phải bảng tổng hợp.
+   *
+   * Ca kiểm giữ CẢ HAI chiều. Vế vắng mặt mới là vế dễ hỏng: dựng lại con số ở đây thì hai ca
+   * "phải có tên" và "phải có ngày" vẫn xanh, mà đó đúng là điều vừa bị bỏ.
+   */
+  it('bày tên và NGÀY LƯU, KHÔNG bày con số kết quả', async () => {
     seedSaved();
     render(<PortfolioScreen />);
 
@@ -1392,50 +1435,131 @@ describe('WF-06 — tab Công thức', () => {
     await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
 
     expect(screen.getByText('HPG · P/E')).not.toBeNull();
-    expect(screen.getByText('12,5 lần')).not.toBeNull();
-    // Ngày lưu là điều kiện để bày một con số không tính lại (xem docblock trên).
     expect(screen.getByText(/25\/08\/2026/)).not.toBeNull();
-    expect(screen.getByText(/không tính lại/)).not.toBeNull();
+
+    expect(screen.queryByText('12,5 lần')).toBeNull();
+    /* Cả dấu gạch của ca thiếu số cũng không được lọt ra — nó cũng là một chỗ bày kết quả. */
+    const dong = screen.getByText('HPG · P/E').closest('li');
+    expect(dong?.textContent ?? '').not.toContain('_ _');
   });
 
-  it('nhãn tab mang số đếm của cả hai bên', async () => {
-    seedHolding();
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    expect(await screen.findByRole('tab', { name: 'Mã (1)' })).not.toBeNull();
-    expect(screen.getByRole('tab', { name: 'Công thức (1)' })).not.toBeNull();
-  });
-
-  it('nút Mở lại dẫn về đúng công thức kèm ?luu=', async () => {
+  /*
+   * Dòng phụ thôi nhắc lại thứ dòng tên đã nói — chủ dự án chỉ vào tab này: *"sửa giao diện hiển
+   * thị trong phần công thức sao cho gọn như phần Mã bên cạnh"*.
+   *
+   * Bộ mẫu ở đây là tên lưu "HPG · P/E" — chứa mã. Bản trước in tiếp "HPG · P/E — hệ số giá trên
+   * lợi nhuận · lưu 25/08/2026" ngay dưới, tức mã hiện hai lần trên hai dòng liền nhau.
+   *
+   * Tên ĐẦY ĐỦ của công thức thì vẫn hiện, và đúng như vậy: "P/E" ở dòng tên chỉ là chữ viết tắt,
+   * dòng phụ nói thêm "hệ số giá trên lợi nhuận" là thêm thông tin chứ không phải lặp lại. Luật ở
+   * đây là "bỏ mảnh ĐÃ NẰM TRONG tên", không phải "bỏ mọi thứ na ná".
+   */
+  it('dòng phụ không nhắc lại mã đã có ở dòng tên', async () => {
     seedSaved();
     render(<PortfolioScreen />);
 
     await screen.findByText('Nắm giữ');
     await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
 
-    const open = screen.getByRole('link', { name: 'Mở lại' });
+    const dong = screen.getByText('HPG · P/E').closest('li');
+    expect(dong).not.toBeNull();
+
+    const chu = dong?.textContent ?? '';
+    expect(chu.match(/HPG/g), 'mã chỉ được hiện một lần trong cả dòng').toHaveLength(1);
+    /* Mốc thời gian vẫn phải có — không còn câu chung nào nói con số là của lần lưu. */
+    expect(chu).toContain('lưu 25/08/2026');
+  });
+
+  /*
+   * ĐÚNG hai việc trên một dòng: Xem và Xoá. "Đổi tên" đã bỏ (chủ dự án chốt), và cùng nó là cả
+   * form sửa tên tại chỗ — nên ca này gác luôn vế vắng mặt, nếu không thì dựng lại nút thứ ba
+   * cũng không ai biết.
+   *
+   * "Xem" vẫn phải là `<a>` chứ không phải `<button>`: nó điều hướng sang màn khác, nên phải mở
+   * được bằng chuột giữa và bằng menu ngữ cảnh.
+   */
+  it('đúng hai việc trên một dòng, và "Xem" vẫn là link', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    const xem = screen.getByRole('link', { name: 'Xem' });
+    expect(xem.getAttribute('href')).toContain('/cong-thuc/pe');
+    expect(screen.getByRole('button', { name: /Xoá/ })).not.toBeNull();
+
+    expect(screen.queryByRole('button', { name: /Đổi tên/ })).toBeNull();
+    expect(screen.queryByLabelText('Tên phép tính')).toBeNull();
+  });
+
+  /*
+   * Tên khả truy cập đổi từ `'Mã (1)'` sang `'Mã 1'` ở đợt chuyển cụm tab sang primitive `TabBar`:
+   * số đếm nay đi qua khe `count` của primitive chứ không còn nối tay vào chuỗi nhãn, nên cặp
+   * ngoặc biến mất.
+   *
+   * Khoảng trắng giữa nhãn và số là thứ ĐÁNG GÁC, không phải chi tiết vụn: khoảng cách nhìn thấy
+   * do `gap` của flex dựng, mà `gap` không sinh ra ký tự nào. Primitive phải tự chèn một
+   * `{' '}` thật, thiếu nó thì tên đọc lên thành 'Mã1'. Ca kiểm này là chỗ thứ hai canh điều đó
+   * (chỗ thứ nhất nằm trong test của chính primitive), và là chỗ duy nhất canh nó với dữ liệu thật.
+   */
+  it('nhãn tab mang số đếm của cả hai bên, có khoảng trắng ngăn cách', async () => {
+    seedHolding();
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    expect(await screen.findByRole('tab', { name: 'Mã 1' })).not.toBeNull();
+    expect(screen.getByRole('tab', { name: 'Công thức 1' })).not.toBeNull();
+  });
+
+  it('nút Xem dẫn về đúng công thức kèm ?luu=', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Nắm giữ');
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    const open = screen.getByRole('link', { name: 'Xem' });
     // `next/link` bỏ dấu '/' ngay trước '?' — cùng cách ca "từ mã sang công thức" ở trên xử lý.
     expect(open.getAttribute('href')?.replace('/?', '?')).toBe(
       '/cong-thuc/pe?luu=pe-1756000000000',
     );
   });
 
-  it('đổi tên ghi thẳng vào localStorage', async () => {
-    seedSaved();
+  /*
+   * Ca "đổi tên ghi thẳng vào localStorage" đã bỏ cùng nút "Đổi tên" (chủ dự án chốt 09/09/2026).
+   *
+   * Hàm `renameSavedCalc()` thì KHÔNG bỏ, và nó vẫn có ca kiểm riêng ở `saved-calc-store.test.ts`
+   * — nó là câu trả lời sẵn cho lần muốn bày lại việc đổi tên ở đâu đó, không phải mã chết bỏ
+   * quên. Ca dưới ghim rằng tên tự đặt VẪN hiện đúng nếu bản ghi có sẵn một cái, tức đường hiển
+   * thị không chết theo lối vào.
+   */
+  it('tên tự đặt vẫn hiện nguyên văn dù không còn chỗ đổi tên trên màn', async () => {
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-1756000000000',
+          formulaId: 'pe',
+          name: 'Sàng HPG quý 3',
+          code: 'HPG',
+          inputs: { price: 25000, eps: 2000 },
+          resultValue: 12.5,
+          resultUnit: 'lần',
+          savedAt: new Date(2026, 7, 25, 10, 0, 0).getTime(),
+          needsSeries: false,
+        },
+      ]),
+    );
     render(<PortfolioScreen />);
 
     await screen.findByText('Nắm giữ');
     await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-    await userEvent.click(screen.getByRole('button', { name: 'Đổi tên HPG · P/E' }));
-
-    const field = screen.getByLabelText('Tên phép tính') as HTMLInputElement;
-    await userEvent.clear(field);
-    await userEvent.type(field, 'Sàng HPG quý 3');
-    await userEvent.click(screen.getByRole('button', { name: 'Lưu tên' }));
 
     expect(screen.getByText('Sàng HPG quý 3')).not.toBeNull();
-    expect(window.localStorage.getItem(SAVED_CALCS_KEY)).toContain('Sàng HPG quý 3');
+    /* Tên tự đặt không chứa mã lẫn tên công thức, nên dòng phụ phải hiện đủ ngữ cảnh trở lại. */
+    const dong = screen.getByText('Sàng HPG quý 3').closest('li');
+    expect(dong?.textContent ?? '').toContain('HPG');
   });
 
   it('xoá thì mục biến khỏi màn và khỏi localStorage', async () => {
@@ -1450,7 +1574,18 @@ describe('WF-06 — tab Công thức', () => {
     expect(window.localStorage.getItem(SAVED_CALCS_KEY)).toBe('[]');
   });
 
-  it('thiếu kết quả thì hiện gạch, KHÔNG hiện 0 (FR-06)', async () => {
+  /*
+   * FR-06 ở tab này nay được giữ bằng cách KHÁC, và ca kiểm đổi theo.
+   *
+   * Bản trước bày con số ngay trong danh sách, nên thiếu số thì phải hiện `_ _` chứ không được
+   * hiện 0. Từ 09/09/2026 danh sách không bày con số nào cả — chủ dự án chốt *"số liệu thì khi mở
+   * lại thì mới thấy được"* — nên chỗ có thể lọt ra một số 0 cũng không còn.
+   *
+   * Ca này vì thế đổi vai: gác rằng một bản ghi THIẾU số vẫn dựng ra được một dòng bình thường,
+   * vẫn có đường đi xem, và không lọt ra con số nào. Bản ghi thiếu số là ca dễ làm sập cả danh
+   * sách nhất, nên vẫn phải có ca kiểm cho nó — chỉ là nó không còn kiểm chữ `_ _` nữa.
+   */
+  it('bản ghi thiếu kết quả vẫn dựng được dòng, và không lọt ra con số nào (FR-06)', async () => {
     window.localStorage.setItem(
       SAVED_CALCS_KEY,
       JSON.stringify([
@@ -1471,8 +1606,14 @@ describe('WF-06 — tab Công thức', () => {
     await screen.findByText('Nắm giữ');
     await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
 
-    expect(screen.getByText('_ _')).not.toBeNull();
-    expect(screen.queryByText('0 lần')).toBeNull();
+    const dong = screen.getByText('Chưa có số').closest('li');
+    expect(dong).not.toBeNull();
+
+    const chu = dong?.textContent ?? '';
+    expect(chu).not.toContain('0 lần');
+    expect(chu).not.toContain('_ _');
+    /* Vẫn còn đường đi xem — thiếu số không được biến dòng thành ngõ cụt. */
+    expect(screen.getByRole('link', { name: 'Xem' })).not.toBeNull();
   });
 
   it('không gọi mạng chỉ vì đổi sang tab Công thức', async () => {

@@ -102,11 +102,20 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
     expect(t('search.noMatch', 'en')).toBe('Nothing found for');
   });
 
-  it('câu tiếng Anh không sót chữ có dấu — trừ một câu cố ý gọi tên đơn vị tiền Việt', () => {
-    // `settings.units.scaleHint` gọi tên đơn vị tiền là "đồng" — đó chính là nội dung của câu.
-    // Hai mục kia đã rời danh sách chứ không nằm lại cho mọc rêu: `search.placeholder` nay lấy ví
-    // dụ "Sharpe" (chữ tìm được ở cả hai ngôn ngữ), còn `search.hint` thì bỏ hẳn khoá.
-    const CO_Y = new Set(['settings.units.scaleHint']);
+  it('câu tiếng Anh không sót chữ có dấu', () => {
+    /*
+     * Danh sách miễn nay RỖNG, và đó là chỗ đáng ghi: cả ba mục từng nằm đây đều rời đi vì khoá
+     * của chúng biến mất hoặc đổi nội dung, không mục nào nằm lại cho mọc rêu.
+     *
+     *   `search.placeholder`        — đổi ví dụ sang "Sharpe", chữ tìm được ở cả hai ngôn ngữ.
+     *   `search.hint`               — bỏ hẳn khoá.
+     *   `settings.units.scaleHint`  — bỏ hẳn khoá (09/09/2026). Nó là câu duy nhất còn lại gọi tên
+     *                                 đơn vị tiền là "đồng" ngay trong bản tiếng Anh.
+     *
+     * Rỗng thì giữ `Set` chứ đừng gỡ luôn: lần sau có một câu tiếng Anh cố ý mang chữ Việt thì đây
+     * là chỗ khai kèm lý do, thay vì ai đó nới regex.
+     */
+    const CO_Y = new Set<string>([]);
     const chuCoDau = /[À-ʯḀ-ỿ]/u;
     const saiSot = Object.entries(en)
       .filter(([key, text]) => !CO_Y.has(key) && chuCoDau.test(text ?? ''))

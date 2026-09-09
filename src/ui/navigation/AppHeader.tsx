@@ -1,10 +1,5 @@
-import Link from 'next/link';
-
-import { ROUTES } from '@/application';
-
-import { T } from '../i18n/T';
 import styles from './AppHeader.module.css';
-import { BrandMark } from './BrandMark';
+import { HeaderIdentity } from './HeaderIdentity';
 import { HeaderModeToggle } from './HeaderModeToggle';
 import { HeaderNav } from './HeaderNav';
 import { LangSwitch } from './LangSwitch';
@@ -13,9 +8,14 @@ import { ThemeSwitch } from './ThemeSwitch';
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
  *
- * Khối hộp + tên "Faculator", nút chuyển chế độ Cơ bản / Nâng cao (chỉ ở màn danh sách công
- * thức), nút đổi giao diện Sáng / Tối, nút ngôn ngữ. Dính trên khi cuộn để mấy nút này luôn với
- * tới được trên điện thoại.
+ * Danh tính ở đầu thanh, nút chuyển chế độ Cơ bản / Nâng cao (chỉ ở màn danh sách công thức), nút
+ * đổi giao diện Sáng / Tối, nút ngôn ngữ. Dính trên khi cuộn để mấy nút này luôn với tới được
+ * trên điện thoại.
+ *
+ * Danh tính KHÔNG cố định là tên sản phẩm nữa: ở màn có tên trong `headerTitleKey()`, khối hộp và
+ * chữ "Faculator" nhường chỗ cho tên màn, và thân màn thôi dựng `<h1>` — chủ dự án chốt theo bản
+ * thiết kế cũ, nơi thanh trên trả lời câu "tôi đang ở đâu" thay vì nhắc lại tên ứng dụng. Lý do
+ * đầy đủ và cái giá của nó nằm ở `HeaderIdentity`.
  *
  * Tên rút còn "Faculator" chứ không phải "Faculator Finbox": ở 360px, tên đầy đủ cộng hai
  * cụm nút không đủ chỗ, và bản thiết kế cũng chỉ ghi một chữ. Tên đầy đủ vẫn là `app.name`,
@@ -25,12 +25,12 @@ export function AppHeader() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        <Link href={ROUTES.home} className={styles.brand}>
-          <BrandMark />
-          <span className={styles.name}>
-            <T k="app.brand" />
-          </span>
-        </Link>
+        {/*
+          Danh tính đầu thanh: tên sản phẩm ở phần lớn màn, TÊN MÀN ở những màn có trong bảng
+          `headerTitleKey()`. Xem `HeaderIdentity` — ở đó `<h1>` chuyển hẳn lên thanh trên và thân
+          màn thôi dựng tiêu đề.
+        */}
+        <HeaderIdentity />
 
         {/* Bốn mục điều hướng — chỉ hiện ở màn PC (≥1024px). Dưới khổ đó, BottomTabBar vẫn lo
             việc này ở đáy màn, đúng như trước; xem HeaderNav.module.css. */}

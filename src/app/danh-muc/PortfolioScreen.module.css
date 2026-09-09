@@ -20,24 +20,11 @@
   min-width: 0;
 }
 
-.head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.title {
-  margin: 0;
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-tight);
-}
-
-.subtitle {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-muted);
-}
+/*
+ * `.head`, `.title`, `.subtitle` đã xoá: tiêu đề màn nay do thanh trên dựng
+ * (`HeaderIdentity` + `headerTitleKey()`), và phụ đề "Lưu tại thiết bị · không cần đăng nhập" thì
+ * chủ dự án bỏ hẳn. Không còn thẻ nào mang ba lớp ấy.
+ */
 
 /*
  * Bốn (hoặc sáu) thẻ chỉ số: hai cột ở 360px, trải hết hàng trên màn rộng.
@@ -607,37 +594,10 @@
   border-radius: var(--radius-sm);
 }
 
-.local {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-
-  margin: 0;
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-muted);
-}
-
-.localTag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  flex-shrink: 0;
-  padding: 1px var(--space-2);
-
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--color-ink-soft);
-
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-}
-
-/* Ổ khoá nhỏ hơn chữ một chút, để cái tem không cao hơn dòng nó đứng cùng. */
-.localTag svg {
-  width: 14px;
-  height: 14px;
-}
+/*
+ * `.local`, `.localTag` và `.localTag svg` đã xoá cùng dải "CỤC BỘ" mà chúng vẽ ra — chủ dự án
+ * chốt 09/09/2026. Lý do đầy đủ, và cái mất đi, ghi ở `PortfolioScreen.tsx` chỗ dải từng đứng.
+ */
 
 /*
  * Trạng thái của phần thị giá, đặt ngay dưới khối con số tiền — đúng chỗ đã từng đặt cảnh báo
@@ -820,74 +780,66 @@
  * Tab đang chọn báo bằng CẢ nền, màu chữ lẫn gạch chân dày — không chỉ bằng màu (NFR-USA-06).
  * Hai nút chia đôi bề ngang để ở khổ 360px không nút nào bị cắt.
  */
-.tabs {
-  display: flex;
-  gap: var(--space-2);
-  margin-bottom: var(--space-1);
-
-  /*
-   * Chỗ chừa khi `scrollIntoView()` đưa cụm này trở lại tầm mắt sau khi đổi tab. Thanh trên
-   * `position: sticky` nên thiếu dòng này thì cụm tab bị nó che đúng bằng chiều cao ấy.
-   */
-  scroll-margin-top: calc(var(--header-height) + var(--space-2));
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-
-  flex: 1;
-  min-height: var(--tap-min);
-  padding: var(--space-2) var(--space-3);
-
-  font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-muted);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-bottom: 3px solid transparent;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
 /*
- * Tab đang chọn: nền chuyển màu xanh, chữ đảo màu, in đậm — ba dấu hiệu, không chỉ màu.
+ * Vỏ ngoài của cụm tab — KHÔNG còn dựng dáng tab nào.
  *
- * Dùng `--gradient-highlight` sẵn có thay vì tự dựng một dải riêng. Trước đợt rà soát phân cấp
- * đây là dải chuyển màu THỨ HAI của sản phẩm — cùng góc 135°, cùng ý "mục đang chọn", nhưng lấy
- * cặp `accent`/`accent-strong` trong khi ba cụm nút hai bậc (Cơ bản/Nâng cao · Sáng/Tối · bậc
- * đơn vị) lấy cặp `selected-strong`/`selected`. Hai dải xanh gần giống nhau trên cùng một sản
- * phẩm là đúng thứ bản rà soát gọi là "Tab... lặp lại nhưng chưa đồng nhất giữa các màn".
+ * Hình dáng nay thuộc về primitive `TabBar` (khay xám bo 8px, viên xanh thụt 2px), y hệt màn Danh
+ * sách công thức. Ba luật cũ ở đây — `.tabs` xếp hai nút, `.tab`, `.tabActive` — đã xoá: chúng là
+ * bản chép tay của đúng thứ primitive đang làm, và giữ lại là để hai màn trôi ra xa nhau lần nữa.
+ *
+ * Còn đúng hai việc mà primitive không lo và cũng không nên lo:
+ *
+ *   1. `margin-bottom` — khoảng cách tới khối bên dưới, thuộc về BỐ CỤC MÀN.
+ *   2. `scroll-margin-top` — chỗ chừa khi `scrollIntoView()` đưa cụm này trở lại tầm mắt sau khi
+ *      đổi tab. Thanh trên `position: sticky` nên thiếu nó thì cụm tab bị che đúng bằng chiều cao
+ *      ấy. Đây cũng là lý do vỏ này tồn tại thay vì truyền thẳng `className` xuống primitive: chỗ
+ *      neo `ref` cho `scrollIntoView` phải là một node màn này nắm được.
  */
-.tabActive {
-  color: var(--color-on-selected);
-  background: var(--gradient-highlight);
-  border-color: var(--color-selected);
-  font-weight: var(--weight-bold);
+.tabsWrap {
+  margin-bottom: var(--space-1);
+  scroll-margin-top: calc(var(--header-height) + var(--space-2));
 }
 
 /*
  * ── Danh sách phép tính đã lưu ──────────────────────────────────────────────
  *
- * Câu nhắc "kết quả của lần lưu, không tính lại" đứng ngay đầu danh sách chứ không nằm ở chân
- * màn: nó là điều kiện để bày một con số cũ mà vẫn lương thiện, nên phải nằm trong tầm mắt của
- * chính con số đó.
+ * `.savedNote` đã xoá cùng câu "Kết quả của lần lưu, không tính lại" mà nó vẽ ra — chủ dự án chốt.
+ * Vế câu ấy lo (con số đang bày thuộc mốc nào) vẫn còn ở ngày lưu trên TỪNG thẻ, tức nằm sát con
+ * số hơn cả bản cũ.
  */
-.savedNote {
-  margin: 0;
+
+/*
+ * Một phép tính đã lưu — HAI dòng, cùng mật độ với dòng mã ở tab bên cạnh.
+ *
+ * Bản trước là năm dòng xếp dọc: tên · dòng phụ · con số · rồi ba nút đặc chiếm trọn một dòng
+ * 36px. Chủ dự án chỉ vào tab này và chốt *"sửa giao diện hiển thị trong phần công thức sao cho
+ * gọn như phần Mã bên cạnh"*.
+ *
+ * Lưới 2×2, trái là danh tính, phải là hai việc làm được:
+ *
+ *     tên phép tính                [Xem] [Xoá]
+ *     lưu <ngày>
+ *
+ * Con số kết quả KHÔNG còn ở đây — chủ dự án chốt *"số liệu thì khi mở lại thì mới thấy được"*, và
+ * hai nút dọn vào đúng chỗ nó vừa rời đi. Đổi ấy đổi luôn vai của cả tab: nó thành MỤC LỤC chứ
+ * không phải bảng tổng hợp, nên một dòng chỉ cần trả lời "cái gì, lưu bao giờ, đi đâu để xem".
+ *
+ * `.savedActions` khai `grid-column: 2` TƯỜNG MINH chứ không để lưới tự xếp: dòng phụ có thể rỗng
+ * (tên tự sinh đã chứa đủ), và lúc ấy phép tự xếp sẽ ném cụm nút sang cột trái.
+ *
+ * Ngăn cách bằng một nét kẻ, không phải thẻ có viền và nền — cũng theo `.holdRow`. Bản trước gọi
+ * lớp này là `.row`, và lớp ấy đã bị đổi tên rồi biến mất trong một đợt trước, nên thẻ chạy suốt
+ * từ đó tới nay KHÔNG có nền, KHÔNG viền, KHÔNG đệm. CSS Module trả `undefined` cho tên lớp không
+ * tồn tại: không lỗi, không cảnh báo — TypeScript không biết gì về tên lớp CSS.
+ */
+.savedRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px var(--space-3);
+
   padding: var(--space-2) var(--space-3);
-
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-muted);
-
-  background: var(--color-paper);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .savedName {
@@ -900,50 +852,91 @@
 }
 
 .savedMeta {
+  grid-column: 1;
   margin: 0;
   font-size: var(--text-xs);
   color: var(--color-muted);
   overflow-wrap: anywhere;
 }
 
-/*
- * Kết quả của một phép tính đã lưu.
- *
- * Đây KHÔNG phải "đáp án của màn" nên không lấy khuôn `ResultBlock` — nó là một con số trong
- * một dòng danh sách, cùng vai với `StatTile.value`, nên lấy đúng kiểu ấy: sans, `--text-lg`,
- * mực. Bản cũ dùng mono + xanh nhấn, làm nó thành kiểu vẽ "con số đáp án" thứ TƯ của sản phẩm.
- */
-.savedResult {
-  margin: 0;
-  font-size: var(--text-lg);
-  font-weight: var(--weight-bold);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink);
+.savedActions {
+  grid-column: 2;
+  justify-self: end;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 /*
- * "Mở lại" là <Link> chứ không phải <Button> — nó điều hướng sang màn khác, nên phải mở được
- * bằng chuột giữa và bằng menu ngữ cảnh. Dáng vẫn kẻ theo nút thứ cấp để ba hành động cuối thẻ
- * trông cùng một hàng.
+ * Hai việc làm được với một dòng đã lưu — nút CÓ VỎ, chủ dự án chốt.
+ *
+ * Lượt trước chúng là chữ trần, và lúc ấy còn dùng được vì cạnh chúng có một con số cỡ lớn làm mốc
+ * cho mắt. Con số đi rồi thì dòng chỉ còn chữ với chữ: không có vỏ thì không nhìn ra đâu là chỗ
+ * bấm được — chữ xanh giữa một hàng chữ xám đọc ra là nhãn, không phải nút.
+ *
+ * Vỏ mỏng: đệm dọc 4px + viền 1px, cao khoảng 28px. Không lấy primitive `Button` (bậc `sm` của nó
+ * đã 36px + đệm 12px hai bên) vì hai nút này là ĐUÔI của một dòng danh sách, không phải hành động
+ * chính của màn — cùng lập luận đã ghi lúc chúng còn là chữ trần.
+ *
+ * Vùng chạm 44px vẫn đủ, nằm ở lớp phủ `::after`, và chỉ nới theo chiều CAO. Không nới ngang: hai
+ * nút đứng cạnh nhau, nở ngang là bấm "Xem" lại trúng "Xoá".
  */
-.savedOpen {
+.savedAction {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: var(--tap-min);
-  padding: 0 var(--space-3);
+  justify-content: center;
+  min-width: var(--tap-min);
 
+  padding: var(--space-1) var(--space-2);
+  font-family: inherit;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--color-accent);
   text-decoration: none;
 
-  background: var(--color-accent-soft);
-  border: 1px solid var(--color-accent);
+  border: 1px solid;
   border-radius: var(--radius-sm);
+  cursor: pointer;
 }
 
-.renameRow {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.savedAction::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
 }
+
+/*
+ * "Xem" là việc chính của dòng nên nó có nền; "Xoá" chỉ có viền — hai bậc, đúng cặp `secondary` /
+ * `danger` mà primitive `Button` đã đặt ra, chỉ nhỏ hơn. Cả hai cặp màu đều đã có ca kiểm tương
+ * phản sẵn ở `contrast.test.ts`, nên lượt này không đẻ token nào.
+ */
+.savedActionOpen {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.savedActionRemove {
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border-color: var(--color-danger);
+}
+
+/*
+ * `.savedResult` đã xoá — danh sách thôi bày con số kết quả, chủ dự án chốt *"số liệu thì khi mở
+ * lại thì mới thấy được"*.
+ *
+ * Nó từng là NEO thứ hai của khuôn "con số trong một dòng danh sách" ở `result-card.test.ts`, cặp
+ * với `StatTile.value`. Nay khuôn ấy chỉ còn một chỗ dùng; xem docblock ở file test.
+ *
+ * `.savedOpen` cũng đã xoá ở lượt trước: "Xem" nay là một trong hai nút của `.savedActions`.
+ * Nó VẪN là `<Link>` chứ không phải `<button>` — điều hướng sang màn khác thì phải mở được bằng
+ * chuột giữa và bằng menu ngữ cảnh.
+ *
+ * `.renameRow` xoá cùng lượt này: nút "Đổi tên" đi thì form sửa tên tại chỗ không còn lối vào.
+ */

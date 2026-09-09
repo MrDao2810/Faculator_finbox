@@ -27,28 +27,43 @@
 /*
  * Bản `notice` — đầu màn chi tiết công thức (đợt 10).
  *
- * Ở đây câu miễn trừ phải giành được sự chú ý vì ngay bên dưới là một con số tiền, nên dùng
- * nền vàng cảnh báo thay vì chữ xám chìm: --color-warning trên --color-warning-soft đạt
- * 4,92:1, vẫn qua ngưỡng 4,5:1 của chữ thường.
+ * Vẫn là ô vàng có viền, vì ngay bên dưới là một con số tiền và câu miễn trừ phải nằm cạnh con
+ * số ấy. Nhưng từ đợt này nó THU LẠI — chủ dự án chốt: *"thu nhỏ phần này xuống để tiết kiệm
+ * không gian. giảm size text. màu nhạt đi và padding giảm xuống"*.
+ *
+ *   · chữ 14 → 12px, và thôi in đậm nửa bậc;
+ *   · đệm 12 → 8px;
+ *   · nền `--color-warning-soft` → `--color-notice-soft`, vàng cùng họ nhưng nhạt hơn 40%.
+ *
+ * Bốn thứ ấy cùng kéo về một phía: ô này là câu nhắc THƯỜNG TRỰC, người dùng gặp lại nó ở mọi màn
+ * công thức, nên nó cần luôn ở đó chứ không cần hét lên mỗi lần.
+ *
+ * ⚠ Cái KHÔNG được đụng là đường viền. FR-24 đòi câu miễn trừ phải thấy được, mà nền nhạt chỉ còn
+ * 1,10:1 so với nền trang — thứ vẽ ra hình cái ô nay là `--color-warning-line` (1,70:1 trên nền
+ * ấy) chứ không còn là mảng vàng. Bỏ viền là ô miễn trừ tan vào trang.
+ *
+ * Lượt thu nhỏ này kéo ô ra khỏi nhóm sáu "mặt phẳng cảnh báo vàng" mà `warning-surface.test.ts`
+ * canh — cố ý, vì nó không phải một cảnh báo: năm mặt kia hiện ra vì CÓ CHUYỆN vừa xảy ra, còn ô
+ * này luôn ở đó dù mọi thứ đang chạy tốt. Lý do đầy đủ và cửa canh thay thế nằm ở file test ấy.
+ *
+ * Chữ thì ngược lại, DỄ đọc hơn trước: nền nhạt đi nên `--color-warning` trên nó đạt 5,26:1 (bảng
+ * sáng) và 8,75:1 (bảng tối), so với 4,92 / 7,63 của nền cũ. Cỡ 12px vẫn là chữ thường theo WCAG
+ * nên ngưỡng phải đạt vẫn là 4,5:1 — `contrast.test.ts` chấm cặp mới này.
  */
 .notice {
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
 
-  padding: var(--space-3);
+  padding: var(--space-2);
 
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   line-height: var(--leading-normal);
   color: var(--color-warning);
 
-  background: var(--color-warning-soft);
+  background: var(--color-notice-soft);
   border: 1px solid var(--color-warning-line);
   border-radius: var(--radius-md);
-}
-
-.notice .text {
-  font-weight: var(--weight-medium);
 }
 
 .icon {

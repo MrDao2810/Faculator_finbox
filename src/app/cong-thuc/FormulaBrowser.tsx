@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import {
+  CLEARED_SELECT_FILTERS,
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
   countByCategoryFor,
   countHiddenByLevel,
   formulasForLevel,
+  hasSelectFilters,
   isDefaultListParams,
   parseFormulaUsage,
   selectFormulas,
@@ -21,6 +23,7 @@ import {
   EmptyState,
   FormulaCard,
   HiddenByLevelNote,
+  SEGMENT_LABEL_KEYS,
   SEGMENT_TABS_ID,
   SearchBoxLink,
   VirtualList,
@@ -135,12 +138,22 @@ export function FormulaBrowser() {
     <div className={styles.browser}>
       <SearchBoxLink />
 
+      {/*
+        Nút "Xoá bộ lọc" của khối này chỉ xoá HAI Ô CHỌN nó đứng cạnh, không đụng thanh tab mảng
+        bên trên và cũng không đụng chuỗi tìm — xem `CLEARED_SELECT_FILTERS` bên `url-state.ts`.
+
+        `showReset` phải hỏi ĐÚNG câu ấy (`hasSelectFilters`), không phải `isFiltering`: đang ở
+        mảng "Cá nhân" mà hai ô chọn vẫn mặc định thì `isFiltering` là true, nút hiện lên, bấm vào
+        không đổi gì. Một nút không làm gì còn tệ hơn một nút vắng mặt.
+      */}
       <CategoryFilter
         params={params}
         onChange={setParams}
-        onReset={reset}
+        onReset={() => {
+          setParams(CLEARED_SELECT_FILTERS);
+        }}
         categoryCounts={categoryCounts}
-        showReset={isFiltering}
+        showReset={hasSelectFilters(params)}
         panelId={PANEL_ID}
       />
 
@@ -160,8 +173,19 @@ export function FormulaBrowser() {
         aria-labelledby={tabId(SEGMENT_TABS_ID, params.segment)}
         className={styles.panel}
       >
+        {/*
+          Mở đầu bằng TÊN MẢNG đang chọn — "Tất cả 111 công thức", "Chứng khoán 98 công thức".
+
+          Trước chỉ có "111 công thức", đứng một mình dưới cụm tab thì trông trống và không nói
+          nó đang đếm cái gì. Tên mảng lấy từ `SEGMENT_LABEL_KEYS`, đúng bảng mà ba tab đang đọc,
+          nên dòng này và tab đang chọn không bao giờ gọi khác tên nhau.
+
+          ⚠ Con số vẫn là số công thức khớp TOÀN BỘ bộ lọc, không riêng mảng: chọn thêm một nhóm
+          thì nó tụt xuống trong khi chữ "Chứng khoán" vẫn đứng đó. Đúng ý chủ dự án — dòng này
+          nói "trong mảng này, còn bấy nhiêu" — nhưng đừng đọc nó thành sĩ số của mảng.
+        */}
         <p className={styles.count} aria-live="polite">
-          {formulas.length} {t('list.count')}
+          {t(SEGMENT_LABEL_KEYS[params.segment])} {formulas.length} {t('list.count')}
         </p>
 
         {/*
@@ -203,6 +227,13 @@ export function FormulaBrowser() {
           <EmptyState
             title={t('list.empty.noMatch.title')}
             lines={[t('list.empty.noMatch.scope'), t('list.empty.noMatch.hint')]}
+            /*
+              Nút này xoá SẠCH, khác hẳn nút cùng tên ở khối bộ lọc phía trên — và sự khác nhau ấy
+              là cố ý. Ở đây danh sách đang RỖNG, nên thứ đang giữ nó rỗng thường là chuỗi tìm hoặc
+              mảng chứ không phải hai ô chọn. Xoá mỗi hai ô ấy là trả người dùng về đúng màn trống
+              cũ — một lối thoát không dẫn đi đâu. Nút trên thì ngược lại: nó đứng cạnh hai ô chọn
+              và chỉ được phép nói về chúng.
+            */
             action={
               isFiltering ? (
                 <Button variant="secondary" size="sm" onClick={reset}>

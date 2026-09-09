@@ -1,0 +1,53 @@
+/*
+ * Hai dáng của cùng một chỗ đứng: tên sản phẩm (có link về trang chủ) và tên màn (một `<h1>`).
+ *
+ * Hai luật dưới đây cố ý dùng CÙNG cỡ chữ và CÙNG độ đậm. Đó là số đo, không phải khẩu vị: ở khổ
+ * 360px, lòng thanh trên là 328px và cụm điều khiển bên phải đã ăn hơn hai phần ba — "Faculator"
+ * và "Công thức" đều 9 ký tự nên đổi qua lại ở cùng một bậc chữ thì bề rộng không đổi, tức không
+ * màn nào vỡ hình vì lượt đổi này.
+ *
+ * Muốn tên màn TO hơn (bản thiết kế cũ vẽ ~26px) thì phải nhường chỗ ở cụm bên phải trước — riêng
+ * màn danh sách công thức còn mang thêm cụm nút Cơ bản / Nâng cao, và nó là màn chật nhất.
+ */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  /* Vùng chạm 44px — NFR-USA-01. Khối hộp cao 26px nên phải nới bằng chiều cao tối thiểu. */
+  min-height: var(--tap-min);
+  text-decoration: none;
+  color: var(--color-accent);
+}
+
+.name {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  /* Chữ dài hơn chỗ trống thì cắt gọn, không đẩy hai cụm nút ra ngoài khung. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Tên màn: mực chứ không phải xanh nhấn.
+ *
+ * Đây không còn là link — nó là tiêu đề của trang. Xanh nhấn ở thanh trên đang là dấu hiệu "bấm
+ * được" (`.brand` là link về trang chủ, `a` toàn cục cũng xanh), nên giữ xanh cho một chữ không
+ * bấm được là dạy sai người dùng.
+ *
+ * Phải khai `font-size` dù `globals.css` đã đặt cho `h1`: bậc toàn cục là `--text-xl` 26px, mà ở
+ * đây cần 20px. Bộ chọn theo lớp (0,1,0) thắng bộ chọn theo thẻ (0,0,1) nên không phụ thuộc thứ
+ * tự bundler gộp file. `margin: 0` và `line-height` thì đã có sẵn từ luật `h1, h2, h3` chung.
+ */
+.screenTitle {
+  min-width: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

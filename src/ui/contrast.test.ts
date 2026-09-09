@@ -216,6 +216,15 @@ for (const [palette, tokens] of PALETTES) {
       expect(meetsContrast(color('--color-ink-soft'), color('--color-sunken'))).toBe(true);
     });
 
+    /*
+     * Ô miễn trừ ở đầu màn chi tiết dùng nền RIÊNG, nhạt hơn nền cảnh báo chung — nó là câu nhắc
+     * thường trực chứ không phải một cảnh báo. Chữ vẫn là `--color-warning`, và cỡ 12px thì WCAG
+     * vẫn xếp là chữ thường, nên ngưỡng phải đạt vẫn là 4,5:1.
+     */
+    it('chữ miễn trừ đọc được trên nền vàng nhạt của ô miễn trừ', () => {
+      expect(meetsContrast(color('--color-warning'), color('--color-notice-soft'))).toBe(true);
+    });
+
     it('chữ cảnh báo đọc được trên nền cảnh báo nhạt', () => {
       expect(meetsContrast(color('--color-warning'), color('--color-warning-soft'))).toBe(true);
       expect(meetsContrast(color('--color-danger'), color('--color-danger-soft'))).toBe(true);
@@ -315,6 +324,7 @@ const REQUIRED_TOKENS = [
   '--color-warning',
   '--color-warning-line',
   '--color-warning-soft',
+  '--color-notice-soft',
   '--color-focus',
 ];
 

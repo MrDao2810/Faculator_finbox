@@ -60,8 +60,11 @@ export function tabId(idBase: string, value: string): string {
  * cạnh của cả cụm, bên trong không kẻ ngăn, nút đang chọn thụt vào bốn phía thành một viên bo
  * góc riêng — chủ dự án chốt từng điều một. Xem docblock của `TabBar.module.css`.
  *
- * Màn Danh mục CHƯA chuyển sang primitive này — nó có `scrollIntoView` và hai vùng nội dung
- * riêng; ghi vào TASK.md làm việc kế tiếp. Khi chuyển, nó sẽ nhận luôn cách xếp mới này.
+ * Màn Danh mục ĐÃ chuyển sang primitive này (việc kế tiếp mà đoạn trên từng hẹn). Hai thứ khiến
+ * nó bị hoãn lại một đợt đều giải quyết được ở phía NƠI GỌI, không phải ở đây: `scrollIntoView`
+ * neo vào một `<div>` bọc ngoài, còn hai vùng nội dung riêng thì gộp về một id chung — chúng vốn
+ * dựng có điều kiện nên chỉ một cái nằm trong DOM tại một thời điểm, và bản cũ luôn có một tab trỏ
+ * `aria-controls` vào id không tồn tại.
  *
  * ── Bàn phím ─────────────────────────────────────────────────────────────────────────────────
  *

@@ -327,13 +327,18 @@ export {
 export type { Locale, MessageKey } from './i18n';
 export { LOCALES, isLocale, missingKeys, pick, t } from './i18n';
 
-export type { NavItem, NavKey, RouteKey } from './routes';
+// ── Link chia sẻ mang theo bộ số liệu đang nhập ────────────────────────────
+export { SHARE_INPUTS_PARAM, decodeShareInputs, encodeShareInputs } from './share-inputs';
+
+export type { HeaderBackLink, NavItem, NavKey, RouteKey } from './routes';
 export {
   NAV_ITEMS,
   ROUTES,
   activeRouteKey,
+  backLinkFor,
   formulaListPath,
   formulaPath,
+  headerTitleKey,
   showsModeToggle,
 } from './routes';
 
@@ -438,7 +443,9 @@ export {
 
 export type { ListParams, ListSort, SegmentFilter } from './url-state';
 export {
+  CLEARED_SELECT_FILTERS,
   DEFAULT_LIST_PARAMS,
+  hasSelectFilters,
   isDefaultListParams,
   listParamsToQuery,
   parseListParams,

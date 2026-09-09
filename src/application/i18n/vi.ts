@@ -251,7 +251,25 @@ export const vi = {
   'detail.tickerNoData':
     'mã này chưa có đủ số liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
     'không khớp nhau). Thử lại cũng vậy — chọn mã khác, hoặc nhập tay.',
-  'detail.export': '↓ Xuất',
+  /*
+   * ── Hai nút icon ở hàng tiêu đề ────────────────────────────────────────────
+   *
+   * Chủ dự án chốt: *"button xuất cần thay đổi sang dạng icon… 1 icon tượng trưng cho download 1
+   * icon tượng trưng cho share link"*. Chữ giữ lại bên cạnh icon chứ không bỏ hẳn: icon một mình
+   * thì cái mũi tên xuống và cái mắt xích trông na ná nhau ở khổ 16px, mà đây là hai việc khác
+   * hẳn — một cái tải file về máy, một cái sao chép đường dẫn.
+   *
+   * `detail.export` cũ ('↓ Xuất') bỏ: mũi tên nay là icon thật, không còn phải vẽ bằng ký tự.
+   */
+  'detail.download': 'Tải về',
+  'detail.shareLink': 'Chia sẻ',
+  'detail.shareCopied': 'Đã sao chép link',
+  /*
+   * Câu nói ra thứ link KHÔNG mang. Chỉ hiện với công thức ăn chuỗi giá — xem `share-inputs.ts`:
+   * 248 phiên không nhét vừa URL, và cắt bớt cho vừa là để người nhận thấy một con số khác người
+   * gửi thấy.
+   */
+  'detail.shareNoSeries': 'Link mang theo số liệu đang nhập; chuỗi giá thì người nhận phải tự nạp.',
 
   /*
    * ── Mã dính theo lượt duyệt ────────────────────────────────────────────────
@@ -491,8 +509,11 @@ export const vi = {
 
   // Dán từ Excel / CSV — WF-11, gói 2.5.2
   // ── Danh mục cá nhân WF-06 (gói 3.4.1) ────────────────────────────────────
+  /*
+   * Nay còn là TÊN MÀN trên thanh trên (`headerTitleKey()`), không chỉ là `<h1>` trong thân màn.
+   * Phụ đề `portfolio.subtitle` đi kèm nó đã bỏ hẳn (chủ dự án chốt 09/09/2026).
+   */
   'portfolio.title': 'Danh mục của tôi',
-  'portfolio.subtitle': 'Lưu tại thiết bị · không cần đăng nhập',
   'portfolio.totalValue': 'Tổng giá trị',
   'portfolio.beta': 'Beta danh mục',
   'portfolio.xirr': 'XIRR toàn DM',
@@ -512,19 +533,17 @@ export const vi = {
   'portfolio.add': 'Thêm mã cổ phiếu',
   'portfolio.remove': 'Bỏ mã',
   'portfolio.empty': 'Chưa có mã nào. Thêm mã đầu tiên để xem tổng giá trị và tỷ trọng.',
-  'portfolio.localTag': 'CỤC BỘ',
   /*
-   * Câu này từng ghi "Không gửi lên máy chủ." và điều đó KHÔNG còn đúng kể từ gói lấy thị giá
-   * thật: mã cổ phiếu phải rời máy thì mới tra được giá. Số lượng nắm giữ và giá vốn — hai thứ
-   * riêng tư thật sự — vẫn không đi đâu cả, và câu mới nói đúng ranh giới đó thay vì hứa suông.
+   * ⚠ `portfolio.localTag` ("CỤC BỘ") và `portfolio.localOnly` đã XOÁ — chủ dự án chốt 09/09/2026.
    *
-   * Bỏ chú "(localStorage)" (08/09/2026): đó là tên một thứ trong mã nguồn, không phải chữ của
-   * người đọc — cùng loại với `[object Object]` mà chủ dự án vừa bắt được ở bảng XIRR. Câu không
-   * mất gì: "chỉ lưu trên thiết bị này" đã nói trọn cam kết, và người cần biết cơ chế thì không
-   * đọc dòng này để biết.
+   * Ghi lại vì hai khoá này không phải chú thích thường. `localOnly` là chỗ DUY NHẤT sản phẩm nói
+   * trên màn rằng mã cổ phiếu rời khỏi máy để tra thị giá, còn số lượng và giá vốn thì không —
+   * CLAUDE.md gọi tên nó ở mục "The one network call". Cùng đợt, `settings.data.note` cũng xoá.
+   *
+   * Cam kết bản thân KHÔNG đổi: chỉ mã cổ phiếu vào request, và ca kiểm ở `src/data/finbox/` vẫn
+   * gác điều đó. Thứ mất đi là lời nói ra trên màn. Muốn trả lại thì rẻ nhất là một dòng ở khối
+   * "Về sản phẩm" của màn Cài đặt.
    */
-  'portfolio.localOnly':
-    'Số lượng và giá vốn chỉ lưu trên thiết bị này. Chỉ mã cổ phiếu được gửi tới Finbox để tra thị giá.',
   'portfolio.formCode': 'Mã cổ phiếu',
   // "Số cổ phiếu" trần bị đọc nhầm thành số CP LƯU HÀNH — cụm mà Domain dùng cho
   // `sharesOutstanding`. Thêm "nắm giữ" để hai khái niệm không còn trùng chữ.
@@ -661,18 +680,31 @@ export const vi = {
   'portfolio.tabSaved': 'Công thức',
   'portfolio.savedEmpty':
     'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
-  'portfolio.savedOpen': 'Mở lại',
-  'portfolio.savedRename': 'Đổi tên',
+  /*
+   * "Xem", không phải "Mở lại" (chủ dự án chốt 09/09/2026).
+   *
+   * Đổi cùng lượt với việc danh sách thôi bày con số kết quả: "mở lại" hứa mở một thứ đang đóng,
+   * còn việc thật bây giờ là ĐI XEM con số mà danh sách không bày nữa. Khoá giữ nguyên tên
+   * `savedOpen` — nó chỉ việc, không chỉ chữ.
+   */
+  'portfolio.savedOpen': 'Xem',
   'portfolio.savedRemove': 'Xoá',
-  'portfolio.savedSaveName': 'Lưu tên',
-  'portfolio.savedNameLabel': 'Tên phép tính',
+  /*
+   * Ba khoá của luồng đổi tên tại chỗ — `savedRename`, `savedSaveName`, `savedNameLabel` — đã xoá
+   * cùng lượt: chủ dự án bỏ nút "Đổi tên" khỏi dòng, nên form sửa tên mất lối vào. Hàm
+   * `renameSavedCalc()` ở tầng Application thì giữ nguyên kèm ca kiểm, sẵn cho lần muốn bày lại.
+   */
   /*
    * Ngày lưu KHÔNG phải thứ trang trí — nó là điều kiện để bày một con số cũ mà vẫn lương thiện,
    * đúng cặp ràng buộc mà `price-cache-store.ts` đặt ra cho thị giá đã lưu: được dùng số cũ,
    * nhưng phải nói rõ số ấy thuộc mốc nào. Tab này không tính lại, nên bỏ ngày đi là vi phạm.
    */
   'portfolio.savedAt': 'lưu',
-  'portfolio.savedResultNote': 'Kết quả của lần lưu, không tính lại. Bấm “Mở lại” để tính lại.',
+  /*
+   * `portfolio.savedResultNote` ("Kết quả của lần lưu, không tính lại…") đã xoá — chủ dự án chốt.
+   * Vế nó lo vẫn còn: `savedAt` in ngày lưu trên TỪNG thẻ, đúng chỗ hơn một câu chung ở đầu danh
+   * sách. Xem docblock ngay trên.
+   */
   'portfolio.savedNeedsSeries': 'Cần chuỗi giá',
 
   // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
@@ -724,7 +756,8 @@ export const vi = {
   'series.usable': 'phiên dùng được',
   'series.rowLabel': 'Dòng',
   /* Không còn `series.localOnly` / `series.localTag`: màn bảng dữ liệu bỏ dòng ghi chú
-     localStorage (25/08/2026). Câu tương đương chỉ còn ở màn Danh mục — `portfolio.localOnly`. */
+     localStorage (25/08/2026). Câu tương đương ở màn Danh mục (`portfolio.localOnly`) cũng đã bỏ
+     ngày 09/09/2026 — nay không màn nào còn dòng cam kết dữ liệu. */
   'series.needMore':
     'Beta và Sharpe cần ít nhất 60 phiên để có ý nghĩa thống kê. Hiện chưa đủ, kết quả sẽ báo thiếu dữ liệu.',
 
@@ -880,17 +913,19 @@ export const vi = {
   'settings.mode.hint':
     'Nâng cao mở thêm công thức phức tạp, toàn bộ biến nâng cao, chuỗi định giá, và ô Beta / XIRR ở màn Danh mục.',
   'settings.theme.label': 'Sáng hay Tối',
-  'settings.theme.hint':
-    'Lựa chọn này nằm trên máy bạn và chỉ đổi màu giao diện. File PNG và bản in xuất ra vẫn luôn nền sáng.',
   'settings.units.title': 'Đơn vị & biểu thị',
   'settings.units.scale': 'Đơn vị tiền trong bảng',
-  'settings.units.scaleHint':
-    'Chỉ đổi cách bày con số trong bảng. Phép tính vẫn chạy bằng đồng, và ô nhập vẫn theo quy ước Việt Nam.',
+  /*
+   * `settings.theme.hint` và `settings.units.scaleHint` đã xoá — chủ dự án chốt 09/09/2026.
+   *
+   * Câu theme mang một vế KHÔNG suy ra được từ nhãn: file PNG và bản in luôn nền sáng dù giao diện
+   * đang tối. Vế ấy nay chỉ còn trong mã (`draw-card.ts`), người dùng không được báo trước.
+   */
   'settings.units.schedule': 'Biểu phí giao dịch',
   'settings.units.scheduleHint':
     'Dùng cho màn lợi nhuận ròng sau phí & thuế. Nguồn: Market Config.',
+  /* `settings.data.note` đã xoá cùng đợt với dải "CỤC BỘ" — xem docblock ở `portfolio.formCode`. */
   'settings.data.title': 'Dữ liệu trên máy',
-  'settings.data.note': 'Mọi thứ dưới đây nằm trong trình duyệt của bạn và không được gửi đi đâu.',
   'settings.about.title': 'Về sản phẩm',
 
   'data.prefs': 'Tuỳ chọn hiển thị',

@@ -176,7 +176,13 @@ fields. `presetFromSnapshot()` in `src/data/live-preset.ts` bridges back the oth
 Four things that are easy to break here:
 
 - **Only ticker codes leave the device.** Quantities, cost prices and buy dates never enter a
-  request. `portfolio.localOnly` says so on screen and a test pins the wording.
+  request — `client.ts` sends `{symbols}` and `{ticker}`, nothing else, and a case in
+  `PortfolioScreen.test.tsx` asserts the seeded quantity, cost price and buy date appear in no
+  call. **The product no longer says this on screen.** `portfolio.localOnly` (the "CỤC BỘ" strip)
+  and `settings.data.note` were both removed on 09/09/2026 at the project owner's request, so
+  COM-03 now rests on behaviour and on `public/_headers`, not on any sentence a user can read.
+  That was a deliberate call, not a dropped gate; the reasoning sits in `vi.ts` beside the
+  removed keys.
 - **`LIVE_PRESET_FORMULAS` is pinned data, not a computation.** Deriving it needs `spec.variables`
   for all 111 formulas, i.e. the whole Registry in `/danh-muc/`'s bundle (measured elsewhere:
   131 kB → 217 kB against a 180 kB gate). `live-preset.test.ts` recomputes it from the real
@@ -290,10 +296,12 @@ schedule must break the formula, which catches a declaration the calc never uses
   the same way it writes `lang`, and an inline `<head>` script in `layout.tsx` — the repo's first,
   CSP-legal under the existing `'unsafe-inline'`, paired with `suppressHydrationWarning` on
   `<html>` — sets it before first paint so dark users get no white flash. The control has **two
-  shapes for one preference**: `ThemeSwitch`, a single icon button in the header from 1024px up
-  (hidden below that by `AppHeader.module.css`'s `.themeControl` wrapper, never by the component
-  itself), and `ThemePicker`, the labelled two-option control in Settings at every width — so
-  Settings is the only way in on a phone and that row can never be dropped. Both read and write
+  shapes for one preference**: `ThemeSwitch`, a single icon button in the header — shown at **every**
+  width since the search icon left the header and freed a slot; the `.themeControl` wrapper that
+  used to hide it below 1024px is gone — and `ThemePicker`, the labelled two-option control in
+  Settings. Settings is therefore no longer the _only_ way in on a phone, but that row still can't
+  be dropped: it is the one place a user reads which theme is set instead of decoding an icon.
+  Both read and write
   through `usePreferences`, so the state stays single-sourced; only the affordance differs, for the
   reason `ThemePicker`'s docblock records. `ThemeSwitch` keeps **both** icons in the DOM and lets
   CSS pick by `data-theme` rather than letting React pick one: first render is always `light` so

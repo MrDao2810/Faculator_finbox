@@ -21,26 +21,11 @@
   padding: var(--space-1) var(--space-4);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-  /* Vùng chạm 44px — NFR-USA-01. Khối hộp cao 26px nên phải nới bằng chiều cao tối thiểu. */
-  min-height: var(--tap-min);
-  text-decoration: none;
-  color: var(--color-accent);
-}
-
-.name {
-  font-size: var(--text-lg);
-  font-weight: var(--weight-bold);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  /* Chữ dài hơn chỗ trống thì cắt gọn, không đẩy hai cụm nút ra ngoài khung. */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/*
+ * `.brand` và `.name` đã dời sang `HeaderIdentity.module.css`, cùng chỗ với luật `.screenTitle`
+ * thay thế chúng ở màn có tên riêng. Hai dáng của một chỗ đứng thì phải nằm cạnh nhau, nếu không
+ * lần chỉnh sau chỉ sửa được một dáng.
+ */
 
 .controls {
   display: flex;

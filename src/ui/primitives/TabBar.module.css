@@ -180,8 +180,8 @@
  * ⚠ Đó cũng là lý do `contrast.test.ts` KHÔNG đưa `--color-tab-tray` vào danh sách `backgrounds`:
  * làm thế là bắt `--color-muted` phải đạt trên một cái nền nó không bao giờ đứng lên.
  *
- * Màn Danh sách hiện KHÔNG truyền `count` (chủ dự án bỏ số, chỉ để lại chữ), nên luật này đang
- * ngủ. Giữ nguyên: `PortfolioScreen` có số đếm trên tab, và nó là chỗ tiếp theo dùng primitive này.
+ * Màn Danh sách KHÔNG truyền `count` (chủ dự án bỏ số, chỉ để lại chữ), nhưng luật này không còn
+ * ngủ: `PortfolioScreen` đã chuyển sang primitive và nó truyền số đếm cho cả hai tab.
  */
 .count {
   font-variant-numeric: tabular-nums;

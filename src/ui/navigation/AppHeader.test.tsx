@@ -116,3 +116,57 @@ describe('AppHeader — nút chế độ theo màn', () => {
     expect(screen.queryByRole('group', { name: TEN_NHOM })).toBeNull();
   });
 });
+
+/*
+ * Danh tính đầu thanh đổi theo màn — luật ở `headerTitleKey()`, đây là chỗ gác việc thanh trên
+ * thật sự theo luật ấy.
+ *
+ * Ba ca dưới cùng bảo vệ MỘT bất biến: chỗ đứng ấy có đúng một thứ. Kiểm cả hai vế (thứ phải có
+ * VÀ thứ phải vắng) chứ không chỉ vế đầu — bày cả tên sản phẩm lẫn tên màn thì hai ca "phải có"
+ * vẫn xanh, mà đó chính là hỏng.
+ */
+describe('AppHeader — danh tính đổi theo màn', () => {
+  it('trang chủ bày tên sản phẩm, không có tiêu đề màn', async () => {
+    dungThanh(ROUTES.home);
+
+    expect(screen.getByRole('link', { name: 'Faculator' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+  });
+
+  it('màn danh sách công thức bày tên màn thay cho tên sản phẩm', async () => {
+    dungThanh(ROUTES.formulas);
+
+    const tieuDe = await screen.findByRole('heading', { level: 1, name: 'Công thức' });
+    expect(tieuDe).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Faculator' })).toBeNull();
+  });
+
+  /*
+   * Màn TRONG bày ĐƯỜNG RA, không bày tên sản phẩm — dạng thứ ba của danh tính thanh trên.
+   *
+   * Ca này từng ghim điều ngược lại ("trang chi tiết giữ tên sản phẩm"), và lý lẽ khi ấy đúng
+   * trong thế giới chỉ có hai dạng: giữa "tên sản phẩm" và "tên màn" thì trang chi tiết chọn tên
+   * sản phẩm, vì tên công thức đã là `<h1>` trong thân. Chủ dự án chốt dạng thứ ba tốt hơn cả hai:
+   * hàng dính trên mang thứ duy nhất người dùng cần ở đó — lối quay về.
+   *
+   * Vế `<h1>` thì GIỮ NGUYÊN, và nó vẫn là phần nặng ký nhất của ca này: thanh trên tuyệt đối
+   * không được dựng thêm một tiêu đề cấp một khi thân màn đã có tên công thức.
+   */
+  it('trang chi tiết bày đường ra, KHÔNG bày tên sản phẩm và không thêm h1', async () => {
+    dungThanh('/cong-thuc/wacc/');
+
+    expect(await screen.findByRole('link', { name: /Danh sách công thức/ })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Faculator' })).toBeNull();
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+  });
+
+  /* Màn tìm kiếm và bảng dữ liệu cũng là màn trong — cùng dạng, không phải ngoại lệ nào. */
+  it('màn tìm kiếm và bảng dữ liệu cũng bày đường ra', async () => {
+    dungThanh(ROUTES.search);
+    expect(await screen.findByRole('link', { name: /Danh sách công thức/ })).toBeTruthy();
+
+    cleanup();
+    dungThanh(ROUTES.data);
+    expect(await screen.findByRole('link', { name: /Danh sách công thức/ })).toBeTruthy();
+  });
+});

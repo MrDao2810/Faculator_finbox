@@ -55,9 +55,22 @@ describe('WF-13 — bốn khối đúng thứ tự wireframe', () => {
     ]);
   });
 
-  it('có đúng một <h1>', () => {
+  /*
+   * Ca cũ đòi màn có ĐÚNG MỘT `<h1>`. Từ 09/09/2026 tiêu đề "Cài đặt" do thanh trên dựng
+   * (`HeaderIdentity` + `headerTitleKey()`), nên thân màn không được có `<h1>` nào — hai chỗ cùng
+   * dựng thì trang có hai tiêu đề cấp một và trình đọc màn hình đọc tên màn hai lần.
+   *
+   * Vế "trang vẫn có một `<h1>`" nay do `AppHeader.test.tsx` gác. Chia đôi như vậy vì file này
+   * dựng `SettingsScreen` trần, không có `AppShell` bọc ngoài.
+   */
+  it('thân màn KHÔNG dựng <h1> — tiêu đề đã chuyển lên thanh trên', () => {
     open();
-    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
+  });
+
+  it('vẫn còn tiêu đề cấp hai cho từng khối — thứ bậc không sập một nấc', () => {
+    open();
+    expect(screen.getAllByRole('heading', { level: 2 }).length).toBeGreaterThanOrEqual(4);
   });
 });
 
@@ -92,9 +105,17 @@ describe('đơn vị & biểu phí — cài đặt ghi được và nhớ đư�
     expect(select.value).toBe(MARKET_CONFIG.defaultScheduleId);
   });
 
-  it('nói rõ đổi đơn vị KHÔNG đổi cách đọc ô nhập', () => {
+  /*
+   * Ca cũ đòi màn NÓI RA rằng đổi bậc đơn vị không đổi cách đọc ô nhập. Dòng phụ ấy đã bỏ — chủ dự
+   * án chốt 09/09/2026, cùng đợt với năm dòng phụ khác ở hai màn.
+   *
+   * Điều nó nói vẫn đúng trong mã: bậc đơn vị chỉ đổi cách BÀY con số ở bảng, phép tính vẫn chạy
+   * bằng đồng. Thứ mất đi là lời nói ra. Ghim lại chiều ngược để không ai dựng lại mà không đọc
+   * đoạn này — cùng khuôn `DataTableScreen.test.tsx` đã dùng cho một lượt bỏ tương tự.
+   */
+  it('không còn dòng phụ nào dưới hàng đơn vị', () => {
     open();
-    expect(screen.getByText(/ô nhập vẫn theo quy ước Việt Nam/)).not.toBeNull();
+    expect(screen.queryByText(/quy ước Việt Nam/)).toBeNull();
   });
 });
 
@@ -239,9 +260,23 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
     expect(button.disabled).toBe(true);
   });
 
-  it('nói thẳng dữ liệu không rời khỏi máy (COM-03)', () => {
+  /*
+   * ⚠ Ca cũ ở đây tên là "nói thẳng dữ liệu không rời khỏi máy (COM-03)" và nó ghim câu
+   * `settings.data.note`. Câu ấy đã bỏ — chủ dự án chốt 09/09/2026, cùng đợt với dải "CỤC BỘ" ở
+   * màn Danh mục.
+   *
+   * Sau hai lượt ấy, **COM-03 không còn cửa gác nào ở tầng giao diện**: sản phẩm không còn câu nào
+   * trên màn nói về dữ liệu rời máy hay ở lại máy. Phần LÕI của yêu cầu thì vẫn đứng và vẫn có
+   * cửa — dữ liệu thật sự nằm trong `localStorage` (bốn store ở `src/application/` đều ghi
+   * COM-03 trong docblock), `public/_headers` khoá `connect-src` về đúng một origin, và ca kiểm ở
+   * `PortfolioScreen.test.tsx` gác việc số lượng / giá vốn / ngày mua không vào request.
+   *
+   * Ghi ra để lần soát tuân thủ sau không phải đoán: đây là quyết định của chủ dự án, không phải
+   * một cửa bị rơi mất.
+   */
+  it('không còn dòng cam kết nào ở khối dữ liệu', () => {
     open();
-    expect(screen.getByText(/không được gửi đi đâu/)).not.toBeNull();
+    expect(screen.queryByText(/không được gửi đi đâu/)).toBeNull();
   });
 });
 

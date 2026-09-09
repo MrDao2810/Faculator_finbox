@@ -21,6 +21,52 @@
   min-width: 0;
 }
 
-.reset {
-  align-self: flex-start;
+/*
+ * Nhãn "Nhóm công thức" / "Sắp xếp" — nhỏ hơn và KHÔNG in đậm.
+ *
+ * Hai nhãn này chú thích cho BỘ LỌC, không phải cho ô nhập số liệu. Bậc mặc định của primitive
+ * `Select` (14px, weight 500) tính cho nhãn biến công thức — thứ người dùng phải đọc kỹ trước khi
+ * gõ số. Bộ lọc thì ngược lại: nội dung đang chọn nằm ngay trong ô ngay dưới, nhãn chỉ để nói ô ấy
+ * lọc theo cái gì. Cùng bậc với nhãn ô nhập là bắt hai việc khác hẳn nhau đòi cùng mức chú ý.
+ *
+ * Ghi đè ở ĐÂY chứ không sửa `Select.module.css`: primitive ấy còn phục vụ nhãn biến công thức
+ * (`SelectInput`), ô chọn trục biểu đồ, ô ở màn Cài đặt và `FeeScheduleField`. Hạ bậc bên đó là
+ * hạ cả bốn chỗ kia, trong đó nhãn biến công thức thì KHÔNG được nhỏ đi.
+ *
+ * Chọn `> label` chứ không phải tên lớp của primitive: tên lớp CSS Module bị băm, file này không
+ * gọi tới được. Đổi lại được đúng thứ cần — một lớp cộng một thẻ (0,1,1) thắng lớp `.label` đơn
+ * (0,1,0) của primitive, nên không phụ thuộc thứ tự hai file trong gói CSS, thứ không đoán trước
+ * được (xem cùng bẫy đã ghi ở `CategoryIcon.toneClass()`).
+ */
+.field > label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+}
+
+/*
+ * Nút "Xoá bộ lọc" — chủ dự án chốt: dạt phải, chữ nhỏ hơn, màu xanh dương.
+ *
+ * Bộ chọn có tên thẻ đứng trước, cùng bẫy và cùng cách gỡ như `.field > label` ngay trên: hai
+ * trong ba dòng dưới đây đè lên kiểu dáng của chính primitive Button — `font-size` thuộc `.sm`,
+ * `color` thuộc `.ghost` — mà cả hai đều là bộ chọn MỘT lớp, trọng số đúng bằng `.reset`. Ngang
+ * trọng số thì thứ tự trong bó CSS quyết định, và thứ tự ấy là thứ tự bundler gộp hai file module:
+ * không đoán trước được, cũng không đứng yên qua lần đổi import sau. `button.reset` là (0,1,1),
+ * thắng chắc mà không cần `!important` và không đụng vào primitive.
+ *
+ * `button` chứ không phải tên lớp của primitive, cũng vì lý do bên trên đã ghi: tên lớp CSS Module
+ * bị băm nên file này không gọi tới được. Ở đây thẻ là chắc chắn — `Button` luôn dựng ra `<button>`
+ * thật (nó đặt sẵn `type="button"`, không có đường nào ra thẻ khác).
+ *
+ * `.field` cạnh đó không cần gì cả: nó chỉ đặt bề rộng, thứ `Select` không tự đặt.
+ *
+ * Nếu về sau có nút thứ hai cũng cần dáng này thì nó là biến thể của Button, không phải một lần
+ * đè từ bên ngoài nữa.
+ *
+ * `--color-accent` #1b447e đã nằm trong danh sách token chữ của `contrast.test.ts` nên nó được
+ * chấm sẵn trên cả ba nền, ở cả hai bảng màu — đổi màu này không đẻ thêm phép kiểm nào.
+ */
+button.reset {
+  align-self: flex-end;
+  font-size: var(--text-xs);
+  color: var(--color-accent);
 }

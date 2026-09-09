@@ -44,16 +44,131 @@
   gap: var(--space-2);
 }
 
+/*
+ * Cặp nút Tải về / Chia sẻ, dạt về mép phải của hàng tiêu đề.
+ *
+ * `margin-left: auto` chứ không `justify-content: space-between` trên `.titleRow`: hàng ấy có BA
+ * phần tử (tên · huy hiệu cấp độ · cặp nút), nên `space-between` sẽ đẩy cả huy hiệu ra giữa, tách
+ * nó khỏi cái tên mà nó đang chú thích.
+ *
+ * `align-self: center` vì hàng canh theo `baseline`: nút không có đường chân chữ chung với tiêu đề
+ * `--text-xl`, để mặc định thì cặp nút tụt xuống theo chữ bên trong nó.
+ *
+ * Ở 360px hàng tự xuống dòng (`flex-wrap` của `.titleRow`) và cặp nút thành một hàng riêng dưới
+ * tên — vẫn dạt phải, vẫn ngay đầu màn.
+ */
+.shareRow {
+  display: inline-flex;
+  gap: var(--space-2);
+  margin-left: auto;
+  align-self: center;
+}
+
+/*
+ * Nút icon + chữ. Nhỏ hơn hẳn `size="sm"` mặc định — chủ dự án chốt *"nhỏ gọn"*.
+ *
+ * Bộ chọn có TÊN THẺ đứng trước. `min-height`, `padding` và `font-size` ở đây đè lên chính lớp
+ * `.sm` của primitive Button, mà `.sm` là bộ chọn MỘT lớp — ngang trọng số với `.iconButton`.
+ * Ngang nhau thì thứ tự bundler gộp hai file module quyết định, và thứ tự ấy không đoán trước
+ * được, cũng không đứng yên qua lần đổi import sau. Thêm tên thẻ đưa lên (0,1,1) — thắng chắc,
+ * không cần `!important`, không đụng vào primitive.
+ *
+ * Đây không phải mẹo riêng của chỗ này: `button.reset` bên `CategoryFilter.module.css` đã ghi
+ * cùng lập luận cho cùng cái bẫy. Tên thẻ chắc chắn đúng vì `Button` luôn dựng ra `<button>` thật.
+ *
+ * Vùng chạm giữ 44px bằng lớp phủ `::after` trong suốt, đúng cách `ChartKindToggle` và `Chip` đã
+ * làm: NFR-USA-01 nói về chỗ ngón tay chạm được, không nói về chỗ có màu.
+ */
+button.iconButton {
+  position: relative;
+  gap: var(--space-1);
+  min-height: 30px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+}
+
+button.iconButton::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+/* Câu "link không mang chuỗi giá" — chỉ hiện sau khi vừa sao chép, xem chỗ dựng nó. */
+.shareNote {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Khối gom TIÊU ĐỀ + HUY HIỆU CẤP ĐỘ — một khối thường, không phải ô flex thứ hai.
+ *
+ * Đây là chỗ sửa lỗi chủ dự án báo: ở khổ hẹp, tên dài xuống hai dòng thì huy hiệu rơi hẳn xuống
+ * hàng riêng. Flex không cứu được — hai ô cạnh nhau, hết chỗ thì ô sau xuống dòng nguyên khối, nó
+ * không chen vào phần trống còn lại ở cuối dòng cuối của ô trước. Chỉ dòng chảy INLINE làm được
+ * việc ấy, nên khối này cố tình KHÔNG có `display: flex`.
+ *
+ * `min-width: 0` vì nó là ô flex của `.titleRow`: thiếu dòng này thì một tên công thức không có
+ * chỗ ngắt sẽ nới ô ra quá bề ngang cha và đẩy cặp nút ra ngoài màn.
+ *
+ * ── Vì sao khối này phải MANG CỠ CHỮ CỦA TIÊU ĐỀ ─────────────────────────────
+ *
+ * `vertical-align: middle` của huy hiệu canh theo cỡ chữ của KHỐI CHỨA NÓ, không phải theo cỡ chữ
+ * của `<h1>` đứng cạnh. Khối này trước đây thừa hưởng 16px của thân trang, nên "giữa" mà trình
+ * duyệt tính là giữa dòng chữ 16px — thấp hơn giữa tiêu đề 26px chừng 2,5px, đủ để mắt thấy viên
+ * bo góc bị dìm xuống dưới, đúng chỗ chủ dự án chỉ ra.
+ *
+ * Cho khối lấy đúng cỡ và độ giãn dòng của tiêu đề thì "giữa" thành giữa của chính tiêu đề, và
+ * huy hiệu tự canh — không cần con số bù trừ nào ở `.level`, thứ sẽ lệch lại ngay lần đổi cỡ chữ
+ * tiếp theo. Khoảng trắng thật giữa hai thứ cũng giãn theo cỡ tiêu đề, nên khe không còn chật.
+ *
+ * Chiều cao dòng không đổi: `.title` vốn đã đặt `--leading-tight` ở cỡ này, nên hộp dòng vẫn là
+ * 26px × 1,25 như trước — đây là canh lại, không phải nới thêm chỗ.
+ */
+.titleGroup {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+}
+
+/*
+ * `display: inline` là mấu chốt, không phải chuyện kiểu dáng.
+ *
+ * `<h1>` mặc định là khối, nên phần tử ngay sau nó luôn bắt đầu ở một dòng mới bất kể còn bao
+ * nhiêu chỗ trống ở cuối dòng cuối. Chuyển sang inline thì huy hiệu chảy tiếp như một từ nữa của
+ * câu — có chỗ thì cùng dòng, hết chỗ thì tự xuống, nhưng luôn bám sát tiêu đề.
+ *
+ * `margin: 0` giữ nguyên và vẫn cần: lề dọc của phần tử inline bị bỏ qua, nhưng lề NGANG thì không.
+ */
 .title {
+  display: inline;
   margin: 0;
   font-size: var(--text-xl);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
 }
 
-/* Cấp độ báo bằng chữ + viền, không chỉ bằng màu — NFR-USA-06. */
+/*
+ * Cấp độ báo bằng chữ + viền, không chỉ bằng màu — NFR-USA-06.
+ *
+ * `inline-block` chứ không `inline`: chỉ inline-block mới nhận `padding` dọc và `border` mà không
+ * đè lên dòng trên. Để mặc định (`baseline`) thì viên bo góc ngồi hẳn trên đường chân chữ và thò
+ * xuống dưới, nhìn ra ngay là lệch — nên `vertical-align: middle`.
+ *
+ * Nhưng "middle" của ai thì `.titleGroup` mới là chỗ quyết định, không phải luật này: trình duyệt
+ * lấy giữa dòng chữ của KHỐI CHỨA. Đừng bù trừ bằng `margin`/`position` ở đây — số bù ấy đúng cho
+ * đúng một cỡ chữ rồi sai âm thầm; chỗ sửa là cỡ chữ của khối chứa. Lý do đầy đủ ở docblock trên.
+ *
+ * KHÔNG còn `flex-shrink: 0`: nó là tàn dư của thời huy hiệu là ô flex, nay vô nghĩa.
+ */
 .level {
-  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
   padding: 1px var(--space-2);
 
   font-size: var(--text-xs);
@@ -61,37 +176,24 @@
 
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-pill);
+
+  /* Không cho chữ trong huy hiệu tự ngắt: "Nâng cao" vỡ hai dòng thì viên bo góc méo hẳn. */
+  white-space: nowrap;
 }
 
-.subtitle {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-ink-soft);
-}
+/*
+ * ── `.subtitle` đã BỎ HẲN cùng dòng mô tả nó tạo kiểu ────────────────────────
+ *
+ * Dòng `<p>{spec.description}</p>` dưới tên công thức không còn — lý do đầy đủ ở docblock trong
+ * `FormulaDetail.tsx`, chỗ nó từng đứng. Đừng dựng lại luật này: không còn ai dùng, và một luật
+ * `.subtitle` mồ côi thì lần sau có người thấy tên hợp lý là gắn bừa vào một dòng chữ khác.
+ */
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
-
-/*
- * ── Hàng nút đầu màn không còn luật riêng nào ────────────────────────────────
- *
- * Ở đây từng có `@media (max-width: 599px) { .actionsHead > :last-child { flex: 1 1 100% } }`,
- * cho "Lưu vào danh mục" xuống hàng riêng trải hết bề ngang ở khổ điện thoại (bản thiết kế
- * mobile đợt 13). Lý do khi ấy: ở 360px bốn nút `sm` xếp thành hai hàng so le, nên nút quan
- * trọng nhất rơi vào chỗ đoán không ra — cuối hàng một hay đầu hàng hai là tuỳ độ dài ba nhãn
- * trước nó.
- *
- * Luật ấy đi theo chính cái nút: nút đã xuống bệ dính đáy (`.saveDock`), nên vấn đề "đứng ở chỗ
- * đoán không ra" tự hết. Phải GỠ chứ không được để lại: `:last-child` nay trỏ vào nút "Xuất", và
- * để nguyên là nút ấy tự dưng trải hết bề ngang ở khổ hẹp — im lặng, không test nào đỏ, đúng
- * kiểu lỗi mà chính chú thích cũ đã cảnh báo khi nói "chèn nút mới vào sau nó là nút mới chiếm
- * mất chỗ ấy".
- *
- * Ba nút còn lại đều `secondary` và tự xuống hàng theo `flex-wrap`, không cần luật gì thêm.
- */
 
 /*
  * ── Hai lối ra ở cuối màn: "Huỷ và thoát" · "Lưu vào danh mục" ───────────────
@@ -156,6 +258,28 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-2);
+}
+
+/*
+ * Biến thể của hàng trên khi vế phải là NÚT chứ không phải một dòng ghi chú — khối Công thức.
+ *
+ * Hai luật, mỗi luật một lý do:
+ *
+ * `align-items: center` — `baseline` canh chữ trong nút thẳng với chữ tiêu đề, mà nút còn có
+ * viền và đệm dọc, nên canh theo chữ là viền nút thò lên trên đường chữ hoa của tiêu đề.
+ *
+ * `flex-wrap: wrap` — ở 360px, "CÔNG THỨC" + "Nạp mẫu" + "Xem ví dụ thực tế ↓" không đủ chỗ trên
+ * một dòng. Không cho xuống hàng thì flex bóp hai nút lại cho vừa và nhãn vỡ dòng bên trong nút.
+ * `row-gap` để khi đã xuống hàng thì hai hàng không dính nhau.
+ *
+ * Ghi bằng hai lớp (`.blockHead.blockHeadActions`, độ ưu tiên 0-2-0) chứ không một lớp: `.blockHead`
+ * cùng nằm trong file này nên thứ tự vốn đã định đoạt được, nhưng viết rõ thì luật này thắng chắc
+ * chắn, không phụ thuộc vào việc ai đó dời khối CSS đi chỗ khác.
+ */
+.blockHead.blockHeadActions {
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
 }
 
 /*

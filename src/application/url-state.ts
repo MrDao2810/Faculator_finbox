@@ -100,12 +100,43 @@ export function listParamsToQuery(state: ListParams): string {
   return text === '' ? '' : `?${text}`;
 }
 
-/** Đang ở trạng thái mặc định hay không — dùng để quyết định có hiện nút “Xoá bộ lọc”. */
+/** Đang ở trạng thái mặc định hay không — mọi tiêu chí, kể cả chuỗi tìm và mảng. */
 export function isDefaultListParams(state: ListParams): boolean {
   return (
     state.q.trim() === '' &&
     state.segment === DEFAULT_LIST_PARAMS.segment &&
     state.categoryId === null &&
     state.sort === DEFAULT_LIST_PARAMS.sort
+  );
+}
+
+/*
+ * ── Phần trạng thái của HAI Ô CHỌN, tách khỏi phần còn lại ──────────────────────────────────────
+ *
+ * Nút "Xoá bộ lọc" đứng ngay dưới hai ô "Nhóm công thức" và "Sắp xếp", và nó chỉ phụ trách hai ô
+ * ấy. Trước đây nó gọi `reset()` — thứ xoá SẠCH truy vấn — nên bấm vào là thanh tab mảng bên trên
+ * nhảy về "Tất cả" và chuỗi tìm cũng bay mất. Người dùng vừa chọn "Cá nhân" xong bấm xoá nhóm thì
+ * mất luôn mảng: một nút xoá nhiều hơn thứ nó đứng cạnh.
+ *
+ * Hai thứ dưới đây đi THÀNH CẶP và phải ở cùng một chỗ: cái thứ nhất nói "xoá thì đặt lại thành
+ * gì", cái thứ hai nói "có gì để xoá không". Tách chúng ra hai file là có ngày nút hiện lên trong
+ * khi bấm vào không đổi gì — đúng loại lỗi im lặng mà `showReset` sinh ra nếu hai bên lệch nhau.
+ *
+ * `reset()` của `useListParams` KHÔNG đổi: nút "Xoá bộ lọc" ở khối rỗng (khi không công thức nào
+ * khớp) vẫn phải xoá sạch, vì ở đó chuỗi tìm hoặc mảng mới là thứ đang giữ danh sách trống — xoá
+ * mỗi hai ô chọn là để người dùng lại đúng chỗ cũ, một lối thoát không dẫn đi đâu.
+ */
+
+/** Giá trị hai ô chọn sau khi xoá — dùng làm patch cho `setParams`. */
+export const CLEARED_SELECT_FILTERS: Pick<ListParams, 'categoryId' | 'sort'> = {
+  categoryId: DEFAULT_LIST_PARAMS.categoryId,
+  sort: DEFAULT_LIST_PARAMS.sort,
+};
+
+/** Hai ô chọn có đang lọc gì không — quyết định hiện nút "Xoá bộ lọc" đứng dưới chúng. */
+export function hasSelectFilters(state: ListParams): boolean {
+  return (
+    state.categoryId !== CLEARED_SELECT_FILTERS.categoryId ||
+    state.sort !== CLEARED_SELECT_FILTERS.sort
   );
 }

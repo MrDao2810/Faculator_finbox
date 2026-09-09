@@ -7,14 +7,23 @@ import { Button, Select, TabBar } from '@/ui/primitives';
 
 import styles from './CategoryFilter.module.css';
 
-const SEGMENTS: ReadonlyArray<{
-  value: SegmentFilter;
-  labelKey: 'filter.segment.all' | 'filter.segment.stock' | 'filter.segment.personal';
-}> = [
-  { value: 'all', labelKey: 'filter.segment.all' },
-  { value: 'stock', labelKey: 'filter.segment.stock' },
-  { value: 'personal', labelKey: 'filter.segment.personal' },
-];
+/**
+ * Nhãn của ba mảng, tra theo giá trị.
+ *
+ * Xuất ra ngoài vì dòng đếm bên `FormulaBrowser` nay mở đầu bằng đúng tên mảng đang chọn — "Tất cả
+ * 111 công thức". Hai chỗ phải nói CÙNG một chữ, nên chúng đọc cùng một bảng; chép tay tên mảng
+ * sang màn là chỗ sẽ lệch ngay lần đổi chữ sau.
+ */
+export const SEGMENT_LABEL_KEYS: Readonly<
+  Record<SegmentFilter, 'filter.segment.all' | 'filter.segment.stock' | 'filter.segment.personal'>
+> = {
+  all: 'filter.segment.all',
+  stock: 'filter.segment.stock',
+  personal: 'filter.segment.personal',
+};
+
+/** Thứ tự ba tab trên màn — rộng dần về hẹp, không phải thứ tự bảng chữ cái. */
+const SEGMENT_ORDER: ReadonlyArray<SegmentFilter> = ['all', 'stock', 'personal'];
 
 /**
  * Thứ tự trong `<select>` gom theo LOẠI tiêu chí, không theo thứ tự thêm vào: hai cách sắp bám
@@ -75,6 +84,10 @@ export const SEGMENT_TABS_ID = 'mang';
  * cụm tab đã nói số kết quả của mảng đang xem, nên ba con số kia chỉ trả lời một câu hỏi người
  * dùng chưa hỏi — mà lại chiếm chỗ đúng ở khổ 360px, nơi "Chứng khoán" đã là nhãn dài nhất.
  *
+ * Dòng đếm ấy nay còn mở đầu bằng chính tên mảng ("Tất cả 111 công thức"), tức con số vừa bỏ khỏi
+ * tab đã hiện lại đầy đủ hơn ngay dưới — kèm cả đơn vị, và chỉ MỘT lần thay vì ba. Đó là lý do
+ * `SEGMENT_LABEL_KEYS` phải xuất ra ngoài.
+ *
  * `TabBar.count` VẪN còn trong hợp đồng của primitive và vẫn có ca kiểm: `PortfolioScreen` có số
  * đếm trên tab, và nó là chỗ tiếp theo dùng primitive này. Bỏ ở đây là quyết định của MÀN.
  *
@@ -102,9 +115,9 @@ export function CategoryFilter({
         idBase={SEGMENT_TABS_ID}
         panelId={panelId}
         value={params.segment}
-        items={SEGMENTS.map((segment) => ({
-          value: segment.value,
-          label: t(segment.labelKey),
+        items={SEGMENT_ORDER.map((segment) => ({
+          value: segment,
+          label: t(SEGMENT_LABEL_KEYS[segment]),
         }))}
         onChange={(segment) => {
           // Đổi mảng thì bỏ nhóm đang chọn — nhóm cũ có thể không thuộc mảng mới.

@@ -28,7 +28,6 @@ import {
   parseViNumber,
   removeHolding,
   removeSavedCalc,
-  renameSavedCalc,
   serializeCachedPrices,
   serializeHoldings,
   serializeSavedCalcs,
@@ -48,7 +47,7 @@ import { usePick, usePreferences, useT } from '@/application/preferences-context
 import { HiddenByLevelNote } from '@/ui/browse';
 import { useCalcText, useValueText } from '@/ui/i18n/units';
 import { DisclaimerBar } from '@/ui/navigation';
-import { Button, Input } from '@/ui/primitives';
+import { Button, Input, TabBar, tabId } from '@/ui/primitives';
 import { StatTile } from '@/ui/result';
 import { FormulaForTickerSheet, TickerPickerSheet } from '@/ui/sheets';
 
@@ -244,6 +243,23 @@ interface PortfolioCell {
  */
 type PortfolioTab = 'holdings' | 'saved';
 
+/**
+ * Tiền tố id của cụm tab — `tabId()` ghép ra `portfolio-tab-holdings` / `portfolio-tab-saved`.
+ *
+ * Đúng hai chuỗi mà bản dựng tay trước đây viết cứng, nên `aria-labelledby` của hai vùng nội dung
+ * không đổi một ký tự nào khi chuyển sang primitive.
+ */
+const PORTFOLIO_TABS_ID = 'portfolio';
+
+/**
+ * id CHUNG của vùng nội dung, thay cho hai id riêng `portfolio-panel-holdings` / `-saved`.
+ *
+ * Hai vùng ấy dựng có điều kiện — chỉ một cái nằm trong DOM tại một thời điểm — nên bản cũ luôn có
+ * MỘT tab trỏ `aria-controls` vào một id không tồn tại. Gộp về một id là hết chuyện đó, và cũng
+ * đúng khuôn `TabBar` cùng `FormulaBrowser` đang dùng: một vùng nội dung, nội dung thay theo tab.
+ */
+const PORTFOLIO_PANEL_ID = 'portfolio-panel';
+
 /** Giá trị của `?tab=` trên URL. Tiếng Việt cho khớp lối đặt đường dẫn của cả sản phẩm. */
 const SAVED_TAB_PARAM = 'cong-thuc';
 
@@ -336,9 +352,11 @@ export function PortfolioScreen() {
   /** Form thêm/sửa mã, để đưa nó vào tầm mắt khi mở — xem effect dưới `formOpen`. */
   const formRef = useRef<HTMLDivElement>(null);
   const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
-  /** Id mục đang đổi tên tại chỗ. `null` nghĩa là không có mục nào đang sửa. */
-  const [renaming, setRenaming] = useState<string | null>(null);
-  const [renameDraft, setRenameDraft] = useState('');
+  /*
+   * Không còn state đổi tên: chủ dự án bỏ nút "Đổi tên" khỏi dòng (09/09/2026), nên form sửa tên
+   * tại chỗ mất luôn lối vào. `renameSavedCalc()` ở tầng Application vẫn còn nguyên kèm ca kiểm —
+   * nó là câu trả lời sẵn cho lần muốn bày lại việc đổi tên ở đâu đó, không phải mã chết bỏ quên.
+   */
 
   const openSheet = useCallback((kind: SheetKind): void => {
     setMountedSheets((current) => (current.has(kind) ? current : new Set(current).add(kind)));
@@ -400,7 +418,7 @@ export function PortfolioScreen() {
    */
   const switchTab = useCallback((next: PortfolioTab): void => {
     setTab(next);
-    setRenaming(null);
+    /* Không còn `setRenaming(null)` ở đây: form đổi tên tại chỗ đã bỏ cùng nút "Đổi tên". */
     tabJustClicked.current = true;
 
     try {
@@ -840,60 +858,59 @@ export function PortfolioScreen() {
 
   return (
     <div className={styles.screen}>
-      <header className={styles.head}>
-        <h1 className={styles.title}>{t('portfolio.title')}</h1>
-        <p className={styles.subtitle}>{t('portfolio.subtitle')}</p>
-      </header>
+      {/*
+        KHÔNG có `<h1>` ở đây — tiêu đề "Danh mục của tôi" nay do thanh trên dựng
+        (`HeaderIdentity` + `headerTitleKey()`). Trang vẫn đúng một `<h1>`, chỉ đổi chỗ.
+
+        Phụ đề "Lưu tại thiết bị · không cần đăng nhập" cũng bỏ theo, chủ dự án chốt.
+      */}
 
       {/*
         Hai tab: mã đang giữ · phép tính đã lưu.
 
-        Dựng tay bằng `role="tablist"` chứ không qua một primitive: sản phẩm chưa có primitive
-        tab nào, và đây là chỗ duy nhất cần nó. Số đếm nằm ngay trên nhãn để người dùng biết tab
-        kia có gì mà không phải bấm sang xem.
+        Nay đi qua primitive `TabBar` thay vì `role="tablist"` dựng tay. Docblock cũ ở đây ghi lý
+        do dựng tay là *"sản phẩm chưa có primitive tab nào, và đây là chỗ duy nhất cần nó"* — cả
+        hai vế đều đã hết hiệu lực từ khi màn Danh sách công thức có cụm tab thứ hai và primitive
+        ra đời cho nó. Chính docblock của `TabBar` cũng ghi màn này là chỗ chuyển tiếp theo.
+
+        Ba thứ nhận được mà bản dựng tay không có: dáng khay xám bo góc giống hệt màn Công thức,
+        roving tabindex (cả cụm một nấc Tab rồi ←/→/Home/End chạy giữa hai tab, thay vì mỗi tab
+        một nấc), và số đếm đi qua `count` nên nó lấy `font-variant-numeric: tabular-nums`.
+
+        Bọc thêm một `<div>` chỉ để giữ `ref`: `scrollIntoView` sau khi đổi tab cần một node thật,
+        mà `TabBar` không nhận `ref`. Bọc rẻ hơn nhiều so với việc mở `forwardRef` trên primitive
+        cho đúng một nơi gọi cần.
       */}
-      <div
-        ref={tablistRef}
-        className={styles.tabs}
-        role="tablist"
-        aria-label={t('portfolio.title')}
-      >
-        <button
-          type="button"
-          role="tab"
-          id="portfolio-tab-holdings"
-          aria-selected={tab === 'holdings'}
-          aria-controls="portfolio-panel-holdings"
-          className={tab === 'holdings' ? `${styles.tab} ${styles.tabActive}` : styles.tab}
-          onClick={() => {
-            switchTab('holdings');
-          }}
-        >
-          {/* Icon `aria-hidden`, nên tên khả truy cập vẫn đúng là 'Mã (1)'. */}
-          <StatIcon d={TILE_ICONS.tabHoldings} />
-          {t('portfolio.tabHoldings')} ({holdings.length})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="portfolio-tab-saved"
-          aria-selected={tab === 'saved'}
-          aria-controls="portfolio-panel-saved"
-          className={tab === 'saved' ? `${styles.tab} ${styles.tabActive}` : styles.tab}
-          onClick={() => {
-            switchTab('saved');
-          }}
-        >
-          <StatIcon d={TILE_ICONS.tabSaved} />
-          {t('portfolio.tabSaved')} ({savedCalcs.length})
-        </button>
+      <div ref={tablistRef} className={styles.tabsWrap}>
+        <TabBar
+          label={t('portfolio.title')}
+          idBase={PORTFOLIO_TABS_ID}
+          panelId={PORTFOLIO_PANEL_ID}
+          value={tab}
+          onChange={switchTab}
+          items={[
+            {
+              value: 'holdings',
+              label: t('portfolio.tabHoldings'),
+              count: holdings.length,
+              /* Icon luôn `aria-hidden` trong primitive, nên tên khả truy cập vẫn là 'Mã 1'. */
+              icon: <StatIcon d={TILE_ICONS.tabHoldings} />,
+            },
+            {
+              value: 'saved',
+              label: t('portfolio.tabSaved'),
+              count: savedCalcs.length,
+              icon: <StatIcon d={TILE_ICONS.tabSaved} />,
+            },
+          ]}
+        />
       </div>
 
       {tab === 'saved' ? (
         <section
-          id="portfolio-panel-saved"
+          id={PORTFOLIO_PANEL_ID}
           role="tabpanel"
-          aria-labelledby="portfolio-tab-saved"
+          aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'saved')}
           className={styles.block}
         >
           {savedCalcs.length === 0 ? (
@@ -906,14 +923,12 @@ export function PortfolioScreen() {
           ) : (
             <>
               {/*
-                Nói thẳng rằng con số đang bày là con số CỦA LẦN LƯU, không phải số tính lại.
-                Cùng ràng buộc mà thị giá đã lưu đang chịu ở tab bên cạnh: được dùng số cũ, nhưng
-                phải nói rõ nó thuộc mốc nào (FR-06).
-              */}
-              <p className={styles.savedNote} role="note">
-                {t('portfolio.savedResultNote')}
-              </p>
+                Câu "Kết quả của lần lưu, không tính lại" đã bỏ (chủ dự án chốt).
 
+                Vế nó lo — con số đang bày thuộc mốc nào — KHÔNG mất theo: mỗi thẻ vẫn in ngày lưu
+                qua `portfolio.savedAt`, và đó mới là chỗ nói đúng mốc của TỪNG phép tính thay vì
+                một câu chung ở đầu danh sách.
+              */}
               <ul className={styles.list}>
                 {savedCalcs.map((saved) => {
                   const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
@@ -944,93 +959,67 @@ export function PortfolioScreen() {
                           savedAt: saved.savedAt,
                         });
 
-                  return (
-                    <li key={saved.id} className={styles.row}>
-                      {renaming === saved.id ? (
-                        <div className={styles.renameRow}>
-                          <Input
-                            label={t('portfolio.savedNameLabel')}
-                            value={renameDraft}
-                            maxLength={60}
-                            onChange={(event) => {
-                              setRenameDraft(event.target.value);
-                            }}
-                          />
-                          <div className={styles.actions}>
-                            <Button
-                              size="sm"
-                              disabled={renameDraft.trim() === ''}
-                              onClick={() => {
-                                persistSaved(renameSavedCalc(savedCalcs, saved.id, renameDraft));
-                                setRenaming(null);
-                              }}
-                            >
-                              {t('portfolio.savedSaveName')}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setRenaming(null);
-                              }}
-                            >
-                              {t('portfolio.formCancel')}
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <p className={styles.savedName}>{savedName}</p>
-                          <p className={styles.savedMeta}>
-                            {saved.code === undefined
-                              ? formulaName
-                              : `${saved.code} · ${formulaName}`}
-                            {' · '}
-                            {t('portfolio.savedAt')} {formatIsoDate(isoDayOf(saved.savedAt))}
-                            {saved.needsSeries && ` · ${t('portfolio.savedNeedsSeries')}`}
-                          </p>
-                          {/*
-                            Kết quả định dạng lại từ SỐ THÔ mỗi lần hiện, không phải chuỗi đã cất
-                            sẵn: chuỗi là chữ đã dịch, mà ngôn ngữ đổi được lúc chạy. Thiếu số thì
-                            hiện gạch chứ không hiện 0 (FR-06).
-                          */}
-                          <p className={styles.savedResult}>
-                            {saved.resultValue === null
-                              ? '_ _'
-                              : valueText(saved.resultValue, saved.resultUnit)}
-                          </p>
+                  /*
+                    Dòng phụ chỉ nói những gì DÒNG TÊN chưa nói.
 
-                          <div className={styles.actions}>
-                            <Link
-                              className={styles.savedOpen}
-                              href={`${formulaPath(saved.formulaId)}?luu=${saved.id}`}
-                            >
-                              {t('portfolio.savedOpen')}
-                            </Link>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              aria-label={`${t('portfolio.savedRename')} ${saved.name}`}
-                              onClick={() => {
-                                setRenaming(saved.id);
-                                setRenameDraft(saved.name);
-                              }}
-                            >
-                              {t('portfolio.savedRename')}
-                            </Button>
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              aria-label={`${t('portfolio.savedRemove')} ${saved.name}`}
-                              onClick={() => {
-                                persistSaved(removeSavedCalc(savedCalcs, saved.id));
-                              }}
-                            >
-                              {t('portfolio.savedRemove')}
-                            </Button>
-                          </div>
-                        </>
-                      )}
+                    MỘT luật cho cả hai vế bị lặp: bỏ mọi mảnh đã nằm trong tên. Tên tự sinh có
+                    dạng "<mã> · <tên công thức> · <ngày>", nên bản trước in "Lãi kép · 08/09/2026"
+                    rồi ngay dưới lại "Lãi kép · lưu 08/09/2026" — hai dòng liền nhau nói cùng một
+                    thứ. Tên người dùng tự đặt thì không chứa mã lẫn tên công thức, nên với nó dòng
+                    phụ vẫn hiện đủ ngữ cảnh; đúng lúc nó cần nhất.
+
+                    "lưu <ngày>" KHÔNG bao giờ bị lọc, dù ngày có thể đã nằm trong tên: từ lúc bỏ
+                    câu chung "Kết quả của lần lưu, không tính lại", đây là chỗ duy nhất nói ra
+                    rằng con số này thuộc một MỐC chứ không phải vừa tính xong.
+                  */
+                  const metaParts = [saved.code, formulaName]
+                    .filter((part): part is string => part !== undefined)
+                    .filter((part) => !savedName.includes(part));
+
+                  metaParts.push(
+                    `${t('portfolio.savedAt')} ${formatIsoDate(isoDayOf(saved.savedAt))}`,
+                  );
+                  if (saved.needsSeries) metaParts.push(t('portfolio.savedNeedsSeries'));
+
+                  return (
+                    <li key={saved.id} className={styles.savedRow}>
+                      <p className={styles.savedName}>{savedName}</p>
+
+                      {/*
+                        HAI việc, đứng đúng chỗ con số vừa rời đi — chủ dự án chốt.
+
+                        Con số kết quả KHÔNG còn bày ở danh sách: *"số liệu thì khi mở lại thì mới
+                        thấy được"*. Điều ấy đổi luôn vai của cả tab — nó thành một mục lục, không
+                        phải một bảng tổng hợp. Danh sách thôi phải nói con số này thuộc mốc nào,
+                        vì nó không bày con số nào nữa; dòng "lưu <ngày>" ở dưới nay chỉ còn là mốc
+                        của bản ghi.
+
+                        "Xem" chứ không phải "Mở lại": nút cũ hứa mở lại một thứ đang đóng, trong
+                        khi việc thật là đi xem con số mà danh sách không bày.
+
+                        Hai nút có VỎ, khác lượt trước (chữ trần): khi con số đi rồi, dòng chỉ còn
+                        chữ với chữ — không có vỏ thì không nhìn ra đâu là chỗ bấm được.
+                      */}
+                      <div className={styles.savedActions}>
+                        <Link
+                          className={`${styles.savedAction} ${styles.savedActionOpen}`}
+                          href={`${formulaPath(saved.formulaId)}?luu=${saved.id}`}
+                        >
+                          {t('portfolio.savedOpen')}
+                        </Link>
+                        <button
+                          type="button"
+                          className={`${styles.savedAction} ${styles.savedActionRemove}`}
+                          aria-label={`${t('portfolio.savedRemove')} ${saved.name}`}
+                          onClick={() => {
+                            persistSaved(removeSavedCalc(savedCalcs, saved.id));
+                          }}
+                        >
+                          {t('portfolio.savedRemove')}
+                        </button>
+                      </div>
+
+                      <p className={styles.savedMeta}>{metaParts.join(' · ')}</p>
                     </li>
                   );
                 })}
@@ -1046,9 +1035,9 @@ export function PortfolioScreen() {
           nhau, thanh thị giá đè lên tiêu đề "NẮM GIỮ". `.panel` chép lại đúng luật giãn cách đó.
         */
         <div
-          id="portfolio-panel-holdings"
+          id={PORTFOLIO_PANEL_ID}
           role="tabpanel"
-          aria-labelledby="portfolio-tab-holdings"
+          aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'holdings')}
           className={styles.panel}
         >
           {/*
@@ -1673,17 +1662,17 @@ export function PortfolioScreen() {
       )}
 
       {/*
-        Dòng cam kết riêng tư nằm NGOÀI cả hai tab: nó nói về toàn bộ dữ liệu của màn, và phép
-        tính đã lưu cũng nằm trên máy người dùng y như số lượng và giá vốn.
+        ⚠ Dải "CỤC BỘ · Số lượng và giá vốn chỉ lưu trên thiết bị này. Chỉ mã cổ phiếu được gửi tới
+        Finbox để tra thị giá." đã BỎ — chủ dự án chốt (09/09/2026).
+
+        Ghi lại vì nó không phải một chú thích thường: CLAUDE.md, mục "The one network call", nêu
+        đích danh `portfolio.localOnly` là chỗ sản phẩm NÓI RA trên màn cái gì rời khỏi máy, và
+        cùng đợt này `settings.data.note` cũng bỏ. Sau hai lượt ấy, sản phẩm không còn câu nào trên
+        màn nói về việc mã cổ phiếu được gửi tới `dcs.finbox.vn`.
+
+        Bản thân cam kết KHÔNG đổi — số lượng, giá vốn và ngày mua vẫn không bao giờ vào một request
+        (xem `src/data/finbox/`), và ca kiểm chặn điều đó vẫn còn. Chỉ là màn thôi nói ra.
       */}
-      <p className={styles.local}>
-        <span className={styles.localTag}>
-          {/* Ổ khoá — dấu hiệu thứ hai bên cạnh chữ, cho người lướt nhanh không đọc cả câu. */}
-          <StatIcon d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v9H5v-9Z" />
-          {t('portfolio.localTag')}
-        </span>
-        {t('portfolio.localOnly')}
-      </p>
 
       {mountedSheets.has('ticker') && (
         <TickerPickerSheet

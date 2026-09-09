@@ -24,7 +24,10 @@ import {
   cashflowsOf,
   chainFor,
   constantsUsedBy,
+  SHARE_INPUTS_PARAM,
+  decodeShareInputs,
   defaultInputs,
+  encodeShareInputs,
   displayCalcName,
   draftFor,
   emptyCashflowRow,
@@ -84,7 +87,7 @@ import {
   VariableTable,
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
-import { BackLink, DisclaimerBar, useBackTarget } from '@/ui/navigation';
+import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
 import { ExportSheet, PasteImportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
   ChainPanel,
@@ -192,6 +195,51 @@ interface RestoredCalc {
   seriesCount: number | null;
 }
 
+/*
+ * Hai icon của cặp nút Tải về / Chia sẻ — vẽ tay, không thêm thư viện (NFR-PER-04), cùng nếp
+ * `TabIcon` và `CategoryIcon`.
+ *
+ * `aria-hidden` cả hai: chữ ngay cạnh đã là tên của nút, nên icon lọt vào cây trợ năng chỉ khiến
+ * trình đọc màn hình đọc thừa.
+ */
+function DownloadIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 3v12M7 11l5 5 5-5M4 20h16" />
+    </svg>
+  );
+}
+
+/** Mắt xích nghiêng — dấu hiệu quen thuộc của "đường dẫn", không phải mũi tên chia sẻ của iOS. */
+function LinkIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10 13.5a4 4 0 0 0 5.7.4l3-3a4 4 0 0 0-5.7-5.7l-1.7 1.7" />
+      <path d="M14 10.5a4 4 0 0 0-5.7-.4l-3 3a4 4 0 0 0 5.7 5.7l1.7-1.7" />
+    </svg>
+  );
+}
+
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
  *
@@ -230,6 +278,61 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setMountedSheets((current) => (current.has(kind) ? current : new Set(current).add(kind)));
     setSheet(kind);
   }
+
+  /**
+   * Vừa sao chép link xong hay chưa — chỉ để đổi chữ trên nút và bật câu ghi chú.
+   *
+   * Tự tắt sau vài giây chứ không để mãi: nút ghi "Đã sao chép link" hoài thì lần bấm sau người
+   * dùng không biết cú bấm ấy có ăn hay không. Hẹn giờ dọn trong effect ngay dưới.
+   */
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => {
+      setCopied(false);
+    }, 4000);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [copied]);
+
+  /**
+   * Sao chép đường dẫn màn này KÈM bộ số đang nằm trong ô.
+   *
+   * Dựng từ `window.location.href` chứ không ghép tay từ `spec.id`: người dùng có thể đang ở một
+   * tên miền xem thử, và một link chia sẻ trỏ sang tên miền khác thì vô dụng.
+   *
+   * Gỡ `?luu=` và `?ma=` trước khi gắn `?so=`. Cả ba đều ghi vào cùng một bộ ô, nên để lẫn là
+   * người nhận mở ra thấy con số khác người gửi: `?luu=` trỏ vào một phép tính đã lưu **trên máy
+   * người gửi** (người nhận không có), còn `?ma=` sẽ gọi mạng nạp đè số liệu mới lên đúng bộ số
+   * vừa gửi đi. `?so=` mang sẵn con số thật rồi, không cần hai cái kia.
+   *
+   * Ba nấc dự phòng cho việc sao chép, vì `navigator.clipboard` vắng mặt ở khá nhiều chỗ (trang
+   * không chạy HTTPS, WebView cũ, người dùng từ chối quyền). Nấc cuối là `prompt()` — xấu, nhưng
+   * nó vẫn để người dùng tự bôi đen mà chép, còn hơn một nút bấm vào không có gì xảy ra.
+   */
+  const copyShareLink = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('luu');
+    url.searchParams.delete('ma');
+
+    const packed = encodeShareInputs(spec.variables, inputs);
+    if (packed === '') url.searchParams.delete(SHARE_INPUTS_PARAM);
+    else url.searchParams.set(SHARE_INPUTS_PARAM, packed);
+
+    const link = url.toString();
+
+    void (async () => {
+      try {
+        await navigator.clipboard.writeText(link);
+        setCopied(true);
+        return;
+      } catch {
+        // Rơi xuống nấc dưới.
+      }
+      window.prompt(t('detail.shareLink'), link);
+    })();
+  }, [inputs, spec.variables, t]);
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   /** Ngày đối chiếu số liệu cơ bản của preset đang nạp — đặt và xoá cùng lúc với `loadedPreset`. */
   const [fundamentalsAsOf, setFundamentalsAsOf] = useState<string | null>(null);
@@ -624,13 +727,35 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     }
   }, [inputs, spec.id, stickyTicker]);
 
+  /*
+   * `?so=` — bộ số liệu đi kèm một link chia sẻ.
+   *
+   * Đọc `window.location.search` chứ KHÔNG `useSearchParams()`, cùng lý do đã ghi ở đầu file: hook
+   * ấy đẩy cây con vào `<Suspense>` và Next bỏ nó khỏi HTML tĩnh, làm 111 trang mất phần MathML.
+   *
+   * Trộn ĐÈ LÊN bộ số hiện có chứ không thay hẳn: link cũ có thể thiếu một biến mới thêm vào công
+   * thức, và ô ấy phải giữ giá trị mặc định thay vì thành trống. `decodeShareInputs()` đã lọc khoá
+   * lạ và kẹp giá trị về miền của biến, nên tới đây không còn gì phải tin.
+   *
+   * Chạy MỘT lần lúc mở màn: sau đó người dùng gõ gì là việc của họ, đọc lại URL là giật số về.
+   */
+  useEffect(() => {
+    const packed = new URLSearchParams(window.location.search).get(SHARE_INPUTS_PARAM);
+    const shared = decodeShareInputs(spec.variables, packed);
+    if (Object.keys(shared).length === 0) return;
+    setInputs((current) => ({ ...current, ...shared }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ chạy lúc mở màn, xem chú thích.
+  }, [spec.id]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     /*
-     * `?luu=` thắng `?ma=`: cả hai đều ghi vào `inputs`, và một phép tính đã lưu là bộ số người
-     * dùng tự chốt — nạp đè số liệu thị trường lên đó là làm hỏng đúng thứ họ vừa mở ra xem.
+     * `?luu=` và `?so=` đều thắng `?ma=`: cả ba đều ghi vào `inputs`. Một phép tính đã lưu là bộ
+     * số người dùng tự chốt, còn `?so=` là bộ số người GỬI đã chốt — nạp đè số liệu thị trường lên
+     * cả hai là làm hỏng đúng thứ vừa mở ra xem.
      */
     if ((params.get('luu') ?? '').trim() !== '') return;
+    if ((params.get(SHARE_INPUTS_PARAM) ?? '').trim() !== '') return;
 
     const raw = params.get('ma');
     const code = raw === null ? '' : raw.trim().toUpperCase();
@@ -1573,105 +1698,106 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       */}
       <DisclaimerBar variant="notice" />
 
-      {/* ── 1. Đầu màn: đường ra, tên, nhóm, ba nút hành động ────────────── */}
+      {/* ── 1. Đầu màn: tên, nhóm, ba nút hành động ───────────────────────── */}
       <header className={styles.head}>
         {/*
-          Đường ra khỏi màn này. Wireframe vẽ dấu `‹` ở hàng đầu của mọi màn trong; bản dựng
-          bỏ sót, nên vào một công thức rồi là không có lối quay về danh sách để chọn cái khác.
+          KHÔNG còn `<BackLink>` ở đây — đường ra chuyển hẳn lên thanh trên (`HeaderIdentity`),
+          chủ dự án chốt: *"bên dưới thì bỏ … đi và đẩy tiêu đề công thức lên cho dễ nhận biết"*.
+
+          Được hai thứ cùng lúc. Tên công thức lên thẳng dòng đầu của thân màn, tức thứ trả lời
+          "đây là công thức gì" không còn bị một hàng điều hướng đẩy xuống. Và đường ra chuyển vào
+          hàng DÍNH trên, nên cuộn xuống giữa màn vẫn với tới được — trước đây nó cuộn đi mất.
         */}
-        <BackLink />
-
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>{pick(spec.name)}</h1>
-          <span className={styles.level}>
-            {t(spec.level === 'basic' ? 'level.basic' : 'level.advanced')}
-          </span>
-        </div>
-        <p className={styles.subtitle}>{pick(spec.description)}</p>
-
-        <div className={`${styles.actions} ${styles.actionsHead}`}>
           {/*
-            Ẩn hẳn với 38 công thức mà nạp mã không đổi được gì — xem `presetHelps`. Ẩn chứ không
-            vô hiệu hoá: một nút mờ vẫn chiếm chỗ và vẫn mời người ta thử bấm, mà câu trả lời thì
-            luôn là "không". Nút "Xem ví dụ thực tế" ngay cạnh vẫn còn, nên màn không hụt lối vào.
+            Tiêu đề và huy hiệu cấp độ nằm trong CÙNG một dòng chảy inline, không phải hai ô flex.
+
+            Chủ dự án báo: ở khổ hẹp, tên công thức dài xuống hai dòng thì huy hiệu "Nâng cao" rơi
+            hẳn xuống một hàng riêng bên dưới. Đó là hệ quả tất yếu của flex — hai ô cạnh nhau, hết
+            chỗ thì ô sau xuống dòng NGUYÊN KHỐI, nó không biết chen vào chỗ trống còn lại ở cuối
+            dòng cuối của ô trước.
+
+            Bọc chúng vào một khối thường rồi cho `<h1>` thành `display: inline` thì huy hiệu chảy
+            tiếp ngay sau chữ cuối, đúng như một từ nữa của câu — có chỗ thì nằm cùng dòng, không
+            thì tự xuống, nhưng luôn bám sát tiêu đề.
+
+            Huy hiệu vẫn NGOÀI `<h1>`: nó là siêu dữ liệu về công thức, không phải một phần của
+            tên. Nhét vào trong thì tên khả truy cập của tiêu đề thành "CAPM — chi phí vốn chủ sở
+            hữu Nâng cao", và trình đọc màn hình đọc cấp độ như thể nó là chữ cuối của cái tên.
+
+            `{' '}` là khoảng trắng THẬT, không phải `gap`: nó vừa tạo khe, vừa là chỗ trình duyệt
+            được phép ngắt dòng. Thay bằng `margin-left` thì huy hiệu dính liền chữ khi cùng dòng.
           */}
-          {presetHelps && (
+          <div className={styles.titleGroup}>
+            <h1 className={styles.title}>{pick(spec.name)}</h1>{' '}
+            <span className={styles.level}>
+              {t(spec.level === 'basic' ? 'level.basic' : 'level.advanced')}
+            </span>
+          </div>
+
+          {/*
+            Hai nút icon, dạt PHẢI trên chính hàng tiêu đề — chủ dự án chốt chỗ đứng: *"đặt ở chỗ
+            có thể dễ nhận biết trong phần chi tiết công thức"*.
+
+            Hàng tiêu đề chứ không phải hàng nút bên dưới, vì hai việc này nói về CẢ MÀN (mang màn
+            này đi chỗ khác), còn hàng dưới toàn là lối vào của riêng khối Số liệu ("Nạp mẫu", "Xem
+            ví dụ thực tế"). Đặt cạnh tên công thức thì mắt bắt được ngay ở nhịp đầu, và chúng
+            không trôi mất giữa ba nút cùng dáng.
+          */}
+          <span className={styles.shareRow}>
             <Button
               variant="secondary"
               size="sm"
+              className={styles.iconButton}
               onClick={() => {
-                openSheet('preset');
+                openSheet('export');
               }}
             >
-              {loadedPreset === null
-                ? t('detail.loadPreset')
-                : `${t('detail.preset')} ${loadedPreset}`}
+              <DownloadIcon />
+              {t('detail.download')}
             </Button>
-          )}
 
-          {/*
-            Lối tắt cho người vừa vào màn, chưa hiểu công thức và chưa có số liệu riêng — chung
-            cho CẢ 111 công thức, không riêng nhóm chuỗi giá (xem docblock `scrollToExample()`).
-            Chỉ CUỘN, không nạp gì cả — khác hẳn nút "Xem ví dụ minh hoạ" ở khối Số liệu của 35
-            công thức chuỗi giá, vốn NẠP số liệu minh hoạ vào phép tính.
-          */}
-          <Button variant="secondary" size="sm" onClick={scrollToExample}>
-            {t('detail.jumpToExample')}
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              openSheet('export');
-            }}
-          >
-            {t('detail.export')}
-          </Button>
-
-          {/*
-            "Lưu vào danh mục" KHÔNG còn nằm ở hàng này — nó đã xuống bệ dính đáy khung nhìn ở
-            cuối `.detail` (xem `.saveDock`). Ba nút còn lại đều `secondary` và đều là lối phụ.
-
-            Thêm nút mới vào hàng này thì cứ để `secondary`: hàng này cố ý không có nút màu chính
-            nào nữa, vì việc đáng làm sau khi tính xong đã có chỗ đứng riêng, luôn với tới được.
-          */}
+            <Button
+              variant="secondary"
+              size="sm"
+              className={styles.iconButton}
+              onClick={copyShareLink}
+            >
+              <LinkIcon />
+              {copied ? t('detail.shareCopied') : t('detail.shareLink')}
+            </Button>
+          </span>
         </div>
 
         {/*
-          Trả lời câu "số liệu mẫu bắt đầu từ đâu, như thế nào" — chỉ hiện khi đã nạp một preset
-          CÓ mốc đối chiếu (bốn mã WF-10 hiện tại đều có, xem `samples.ts`). Không hiện cho
-          "Xem ví dụ minh hoạ" hay dán tay: cả hai đều không phải số đối chiếu báo cáo thật.
+          Chỉ nói với 35 công thức ăn chuỗi giá, và chỉ SAU khi vừa sao chép — trước đó nó là một
+          câu trả lời cho việc người dùng chưa làm. Xem `share-inputs.ts` về vì sao chuỗi giá không
+          đi vào URL được.
         */}
-        {loadedFundamentalsAsOf !== null && (
-          <p className={styles.pendingNote}>
-            {t('detail.fundamentalsSource')} {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
+        {copied && wantsSeries && (
+          <p className={styles.shareNote} role="status">
+            {t('detail.shareNoSeries')}
           </p>
         )}
-
         {/*
-          Mẫu vừa chọn không cấp được số nào cho công thức này — xem `applyPreset()`.
+          ── Dòng mô tả một câu đã BỎ HẲN ────────────────────────────────────────────────────────
 
-          `role="status"` chứ không `alert`: không có gì hỏng cả, đây là câu trả lời cho một thao
-          tác vừa xảy ra. Nói luôn công thức này chạy bằng gì, không thì người dùng chỉ biết "không
-          được" mà không biết phải làm gì tiếp.
+          Trước đây ở đây là `<p>{pick(spec.description)}</p>`. Chủ dự án hỏi lại nó có cần không,
+          và câu trả lời là không — ba lần nói cùng một điều trong một màn hình đầu:
 
-          Dải này ở LẠI header, khác dải "điền được N/M ô" đã xuống khối Số liệu: nó nói về cả công
-          thức chứ không về ô nào, và không có ô nào để đứng cạnh — không một giá trị nào đổi.
+          1. Việc của `description` được ghi ngay ở khai báo (`registry/types.ts`): *"Mô tả ngắn
+             hiện trên THẺ CÔNG THỨC"*. Vào được màn này tức vừa bấm đúng cái thẻ ấy.
+          2. Ngay dưới một hàng là khối "Ý nghĩa" (`explanation.meaning`, FR-03 bắt buộc có) —
+             cùng câu hỏi "công thức này là gì", trả lời dài hơn và đúng ngôn ngữ người mới hơn.
+          3. Phần duy nhất nó nói thêm — kể tên các biến đầu vào — được lặp nguyên văn ở vế dạng
+             chữ của khối Công thức ("Chi phí vốn chủ = Lãi suất phi rủi ro + Beta × ERP").
 
-          ⚠ `presetHelps` là cửa đầu tiên, và nó là ĐIỀU KIỆN chứ không phải tối ưu — xem khối
-          "toàn bộ phần nói về mã" ngay dưới. Còn lại là ca THẬT của dải này: công thức nạp mã được
-          (nên có nút), nhưng CHÍNH mã đang chọn thì không cấp được ô nào. Đo được 8 công thức rơi
-          vào đó khi mã không tra được thị giá — `finbox/map.ts` đối chiếu giá và số liệu cơ bản
-          độc lập nhau, nên một mã có thể qua phần báo cáo mà vẫn thiếu giá (xem `priceFields` ở
-          `live-preset.ts`).
+          `spec.description` KHÔNG bị đụng tới: thẻ công thức, kết quả tìm kiếm, `<meta
+          description>` của trang (`page.tsx`) và phụ đề của bản xuất (`export-content.ts`) vẫn
+          đọc nó. Đây chỉ là gỡ một chỗ HIỂN THỊ thừa, không phải bỏ một trường dữ liệu.
+
+          Hàng nút "Nạp mẫu" / "Xem ví dụ thực tế" cũng đã rời khỏi đây — xem khối Công thức.
         */}
-        {presetHelps && presetFill !== null && !presetFill.touched && (
-          <p className={styles.presetMismatch} role="status">
-            {t('detail.presetNoData')} <strong>{presetFill.code}</strong>.{' '}
-            {t('detail.presetNoDataFix')}
-          </p>
-        )}
 
         {/*
           Trạng thái của mã đến từ `?ma=` trên URL. Nạp xong thì `liveTicker` về null và dòng
@@ -1770,7 +1896,109 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
       {/* ── 3. Công thức — ký hiệu toán học (gói 2.4.3) rồi tới bản dạng chữ ─ */}
       <section className={styles.block}>
-        <h2 className={styles.blockTitle}>{t('detail.formula')}</h2>
+        {/*
+          Hàng nút "Nạp mẫu" / "Xem ví dụ thực tế ↓" nay đi CHUNG hàng với tiêu đề khối, không còn
+          đứng thành một hàng riêng ngay dưới tên công thức.
+
+          Chủ dự án: *"button kia cần điều chỉnh để không bị bơ vơ ở vị trí đó … để 2 button đó lần
+          lượt ngang hàng với text công thức bên dưới"*. Gốc của chữ "bơ vơ": với 38 công thức mà
+          `presetHelps` sai, hàng ấy chỉ còn ĐÚNG MỘT nút, nên nó chiếm trọn một hàng ngang mà
+          không có gì cân lại — đúng cảnh trong ảnh chụp `capm`. Ghép vào hàng tiêu đề thì hàng ấy
+          luôn có hai vế dù còn một nút hay hai.
+
+          Chỗ này cũng hợp nghĩa: khối Công thức bày phép tính ở dạng TRỪU TƯỢNG, còn hai nút là
+          hai lối đưa số cụ thể vào nó — "Nạp mẫu" nạp số thật của một mã, "Xem ví dụ thực tế"
+          cuộn xuống bộ số minh hoạ. Cùng một câu hỏi "cái này với số thật thì ra sao".
+
+          `.blockHead` là hàng có sẵn của khối Số liệu (tiêu đề + ghi chú dạt phải), dùng lại chứ
+          không dựng hàng mới; `.blockHeadActions` chỉ thêm căn giữa theo trục dọc và cho xuống
+          hàng ở khổ hẹp — 360px không đủ chỗ cho tiêu đề và hai nút trên một dòng.
+        */}
+        <div className={`${styles.blockHead} ${styles.blockHeadActions}`}>
+          <h2 className={styles.blockTitle}>{t('detail.formula')}</h2>
+
+          <div className={styles.actions}>
+            {/*
+              Ẩn hẳn với 38 công thức mà nạp mã không đổi được gì — xem `presetHelps`. Ẩn chứ không
+              vô hiệu hoá: một nút mờ vẫn chiếm chỗ và vẫn mời người ta thử bấm, mà câu trả lời thì
+              luôn là "không". Nút "Xem ví dụ thực tế" ngay cạnh vẫn còn, nên màn không hụt lối vào.
+            */}
+            {presetHelps && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  openSheet('preset');
+                }}
+              >
+                {loadedPreset === null
+                  ? t('detail.loadPreset')
+                  : `${t('detail.preset')} ${loadedPreset}`}
+              </Button>
+            )}
+
+            {/*
+              Lối tắt cho người vừa vào màn, chưa hiểu công thức và chưa có số liệu riêng — chung
+              cho CẢ 111 công thức, không riêng nhóm chuỗi giá (xem docblock `scrollToExample()`).
+              Chỉ CUỘN, không nạp gì cả — khác hẳn nút "Xem ví dụ minh hoạ" ở khối Số liệu của 35
+              công thức chuỗi giá, vốn NẠP số liệu minh hoạ vào phép tính.
+            */}
+            <Button variant="secondary" size="sm" onClick={scrollToExample}>
+              {t('detail.jumpToExample')}
+            </Button>
+
+            {/*
+              Cả hai nút đều `secondary` và đều là lối phụ. Thêm nút mới vào hàng này thì cứ giữ
+              nguyên nếp ấy: việc đáng làm sau khi tính xong ("Lưu vào danh mục") đã có bệ dính đáy
+              khung nhìn riêng, còn "Xuất" đã thành cặp icon trên hàng tiêu đề màn.
+            */}
+          </div>
+        </div>
+
+        {/*
+          Hai dải dưới đây là CÂU TRẢ LỜI của nút "Nạp mẫu", nên chúng theo nút xuống đây chứ không
+          ở lại header. Để nút ở khối này mà lời đáp nằm cách hai khối phía trên thì ở khổ điện
+          thoại người bấm không nhìn thấy lời đáp — đúng lỗi "bấm Nạp xong không ô nào đổi mà màn
+          không nói gì" đã sửa một lần rồi.
+
+          Ba dải còn lại (`liveTicker`, `restored`, thanh mã dính) KHÔNG theo xuống: chúng trả lời
+          `?ma=`, `?luu=` và mã đang bám theo lượt duyệt — không nút nào ở hàng trên gây ra chúng.
+        */}
+        {/*
+          Trả lời câu "số liệu mẫu bắt đầu từ đâu, như thế nào" — chỉ hiện khi đã nạp một preset
+          CÓ mốc đối chiếu (bốn mã WF-10 hiện tại đều có, xem `samples.ts`). Không hiện cho
+          "Xem ví dụ minh hoạ" hay dán tay: cả hai đều không phải số đối chiếu báo cáo thật.
+        */}
+        {loadedFundamentalsAsOf !== null && (
+          <p className={styles.pendingNote}>
+            {t('detail.fundamentalsSource')} {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
+          </p>
+        )}
+
+        {/*
+          Mẫu vừa chọn không cấp được số nào cho công thức này — xem `applyPreset()`.
+
+          `role="status"` chứ không `alert`: không có gì hỏng cả, đây là câu trả lời cho một thao
+          tác vừa xảy ra. Nói luôn công thức này chạy bằng gì, không thì người dùng chỉ biết "không
+          được" mà không biết phải làm gì tiếp.
+
+          Dải này không xuống khối Số liệu như dải "điền được N/M ô": nó nói về cả công thức chứ
+          không về ô nào, và không có ô nào để đứng cạnh — không một giá trị nào đổi.
+
+          ⚠ `presetHelps` là cửa đầu tiên, và nó là ĐIỀU KIỆN chứ không phải tối ưu — xem khối
+          "toàn bộ phần nói về mã" ở header. Còn lại là ca THẬT của dải này: công thức nạp mã được
+          (nên có nút), nhưng CHÍNH mã đang chọn thì không cấp được ô nào. Đo được 8 công thức rơi
+          vào đó khi mã không tra được thị giá — `finbox/map.ts` đối chiếu giá và số liệu cơ bản
+          độc lập nhau, nên một mã có thể qua phần báo cáo mà vẫn thiếu giá (xem `priceFields` ở
+          `live-preset.ts`).
+        */}
+        {presetHelps && presetFill !== null && !presetFill.touched && (
+          <p className={styles.presetMismatch} role="status">
+            {t('detail.presetNoData')} <strong>{presetFill.code}</strong>.{' '}
+            {t('detail.presetNoDataFix')}
+          </p>
+        )}
+
         {/*
           `dangerouslySetInnerHTML` ở đây an toàn và không có đường nào khác: React không dựng
           được cây MathML từ chuỗi. Đầu vào là hằng số `spec.latex` trong repo, đi qua KaTeX với

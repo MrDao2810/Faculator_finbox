@@ -27,9 +27,12 @@ import styles from './SettingsScreen.module.css';
 /**
  * Mọi thứ app này lưu trên máy người dùng, đúng thứ tự "hay động tới nhất" trước.
  *
- * LDR-04 · NFR-SEC-01 · COM-03: mọi thứ ở đây nằm trên thiết bị và không gửi đi đâu. Nói ra
- * được thì phải xoá được — người dùng không có cách nào khác để lấy lại quyền với dữ liệu của
- * mình, vì không có tài khoản nào để đăng xuất.
+ * LDR-04 · NFR-SEC-01 · COM-03: mọi thứ ở đây nằm trên thiết bị và không gửi đi đâu.
+ *
+ * ⚠ Từ 09/09/2026 màn KHÔNG còn nói câu ấy ra nữa — chủ dự án bỏ `settings.data.note`, cùng đợt
+ * với dải "CỤC BỘ" ở màn Danh mục. Yêu cầu vẫn được giữ bằng CHỨC NĂNG chứ không bằng lời: dữ liệu
+ * thật sự nằm trên máy, và mỗi kho đều có nút xoá. Xoá được thì mới là quyền — người dùng không có
+ * cách nào khác để lấy lại quyền với dữ liệu của mình, vì không có tài khoản nào để đăng xuất.
  *
  * Thêm một kho mới mà quên thêm dòng vào đây là dựng ra đúng thứ danh sách này tồn tại để chặn:
  * dữ liệu nằm trên máy người dùng mà họ không có nút nào để xoá. Chuyện đó đã xảy ra thật hai
@@ -273,7 +276,10 @@ export function SettingsScreen() {
 
   return (
     <div className={styles.screen}>
-      <h1 className={styles.h1}>{t('page.settings.title')}</h1>
+      {/*
+        KHÔNG có `<h1>` ở đây — tiêu đề "Cài đặt" nay do thanh trên dựng (`HeaderIdentity` +
+        `headerTitleKey()`). Trang vẫn đúng một `<h1>`, chỉ đổi chỗ.
+      */}
 
       {/* ── 1. Chế độ hiển thị — FR-09 ───────────────────────────────────── */}
       <section className={styles.block}>
@@ -301,10 +307,15 @@ export function SettingsScreen() {
 
           Nút trên thanh chỉ hiện từ 1024px, nên hàng này là lối vào DUY NHẤT trên điện thoại.
         */}
+        {/*
+          Dòng phụ đã bỏ (chủ dự án chốt). Nó từng nói thêm một vế KHÔNG suy ra được từ nhãn: file
+          PNG và bản in xuất ra luôn nền sáng bất kể giao diện đang tối. Vế ấy nay chỉ còn sống
+          trong mã (`draw-card.ts` ghim `CARD_COLORS` vào bảng sáng, `draw-card.test.ts` gác) —
+          người dùng chọn giao diện Tối rồi xuất ảnh sẽ gặp nền sáng mà không được báo trước.
+        */}
         <div className={styles.row}>
           <span className={styles.rowText}>
             <span className={styles.rowLabel}>{t('settings.theme.label')}</span>
-            <span className={styles.rowHint}>{t('settings.theme.hint')}</span>
           </span>
           <ThemePicker />
         </div>
@@ -317,10 +328,10 @@ export function SettingsScreen() {
           {t('settings.units.title')}
         </h2>
 
+        {/* Dòng phụ đã bỏ (chủ dự án chốt): đơn vị này chỉ đổi cách BÀY con số trong bảng. */}
         <div className={styles.row}>
           <span className={styles.rowText}>
             <span className={styles.rowLabel}>{t('settings.units.scale')}</span>
-            <span className={styles.rowHint}>{t('settings.units.scaleHint')}</span>
           </span>
           <UnitSwitcher value={unitScale} onChange={setUnitScale} />
         </div>
@@ -353,7 +364,11 @@ export function SettingsScreen() {
           <SectionIcon d={SECTION_ICONS.data} />
           {t('settings.data.title')}
         </h2>
-        <p className={styles.note}>{t('settings.data.note')}</p>
+        {/*
+          ⚠ Câu "Mọi thứ dưới đây nằm trong trình duyệt của bạn và không được gửi đi đâu" đã bỏ
+          (chủ dự án chốt). Cùng đợt với dải "CỤC BỘ" ở màn Danh mục — xem docblock ở đó: sau hai
+          lượt ấy sản phẩm không còn câu nào TRÊN MÀN nói về dữ liệu rời máy.
+        */}
 
         <ul className={styles.dataList}>
           {STORAGE_ITEMS.map((item, index) => {

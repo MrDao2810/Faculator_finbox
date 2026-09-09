@@ -16,10 +16,23 @@
   gap: var(--space-4);
 }
 
+/*
+ * Dòng "Tất cả 111 công thức" — chủ dự án chốt: to hơn một bậc, và màu chữ chính.
+ *
+ * `--text-base` là bậc kế tiếp của thang (12 · 14 · 16), không có nấc nào ở giữa để nhích nhẹ hơn.
+ *
+ * `--color-ink` #1a2233 là bậc mực THẪM NHẤT của bảng màu — không có token đen tuyền, và CSS
+ * Module thì không được viết thẳng mã màu (`tokens.test.ts` quét cả thư mục). Đây cũng là màu mà
+ * tên công thức trên mỗi thẻ đang dùng, nên dòng đếm nay đứng ngang hàng với chúng thay vì lùi
+ * xuống một bậc như chữ phụ.
+ *
+ * Dòng này từ chữ phụ thành chữ chính là có chủ ý: nó không còn chỉ là con số kết quả, nó là câu
+ * nói ra người dùng đang đứng ở mảng nào.
+ */
 .count {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-soft);
+  color: var(--color-ink);
 }
 
 .list {

@@ -294,6 +294,25 @@
   --color-warning-line: #d8b64a; /* viền vàng của ô nhận giá trị tự động */
   /* Vàng đủ đậm để dải miễn trừ (FR-24) không hoà vào nền trang. */
   --color-warning-soft: #f8e7b4;
+  /*
+   * Bản NHẠT của vàng trên, chỉ cho ô miễn trừ ở đầu màn chi tiết (`DisclaimerBar` biến thể
+   * `notice`) — chủ dự án chốt: *"thu nhỏ phần này xuống để tiết kiệm không gian … màu nhạt đi"*.
+   *
+   * Là #f8e7b4 ở 60% đã TRỘN SẴN với nền trang #f8fafc, cùng lối `--color-tab-tray`: mã đặc thì
+   * `contrast.test.ts` mới đọc được, `rgba()` thì nó mù.
+   *
+   * Token RIÊNG chứ không hạ luôn `--color-warning-soft`: token kia còn là nền của `InlineWarning`
+   * và badge tông cảnh báo, mà chỗ đó thì cảnh báo ĐANG cần giành sự chú ý. Chỉ mỗi ô miễn trừ là
+   * câu nhắc thường trực, người dùng đã đọc rồi thì không cần nó hét lên mỗi lần mở màn.
+   *
+   * ⚠ Dòng ghi chú của `--color-warning-soft` ("đủ đậm để không hoà vào nền trang") vẫn là ràng
+   * buộc thật của FR-24, và ô này giữ nó bằng đường VIỀN chứ không bằng nền: nền nhạt còn 1,10:1
+   * so với nền trang, nhưng `--color-warning-line` quanh nó thì 1,70:1 — mép vẫn vẽ ra một cái ô.
+   * Bỏ viền đi là ô miễn trừ biến mất khỏi trang.
+   *
+   * Nhạt hơn nên chữ lại DỄ đọc hơn: `--color-warning` trên nó đạt 5,26:1, hơn 4,92:1 của nền cũ.
+   */
+  --color-notice-soft: #f8efd1;
 
   /* Đi theo `--color-accent` — hai token này trùng khít từ đầu, đổi một thì phải đổi cả hai. */
   --color-focus: #1b447e;
@@ -548,6 +567,14 @@
   --color-warning: #e5c168; /* 10,27 / 9,00 */
   --color-warning-line: #6b5a24; /* khớp dải ~2:1 của bảng sáng */
   --color-warning-soft: #3a2f10; /* cặp: 7,63:1 */
+  /*
+   * Bản nhạt cho ô miễn trừ — #3a2f10 ở 60% trên nền trang #111827, cùng phép trộn với bảng sáng.
+   *
+   * Ở bảng tối, "nhạt đi" nghĩa là lùi gần nền trang hơn, nên mã ngả về phía trung tính và mất
+   * bớt sắc vàng. Sắc vàng còn lại nằm ở đường viền `--color-warning-line`, đúng chỗ bảng sáng
+   * cũng đang nhờ cậy. Chữ `--color-warning` trên nó đạt 8,75:1.
+   */
+  --color-notice-soft: #2a2619;
 
   --color-focus: #8ab4f8;
 

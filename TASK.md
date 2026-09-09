@@ -145,6 +145,743 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Bỏ dòng mô tả ở màn chi tiết · hàng nút về chung hàng tiêu đề khối Công thức (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án gửi ảnh cắt phần dưới tên công thức `capm` (một câu mô tả + nút "Xem ví dụ thực tế ↓" đứng
+trơ một hàng) và hỏi _"xem mô tả và button này có cần thiết không"_. Rà xong, trả lời tách đôi: mô tả
+thì thừa, nút thì cần nhưng đứng sai chỗ. Chủ dự án chốt qua `AskUserQuestion` kèm chỉ dẫn riêng:
+_"bỏ mô tả đi nhưng button kia cần điều chỉnh để không bị bơ vơ ở vị trí đó … để 2 button đó lần
+lượt ngang hàng với text công thức bên dưới"_.
+
+**Vì sao dòng mô tả thừa — ba chỗ nói cùng một điều trong một màn hình đầu.**
+
+1. Việc của `description` ghi ngay ở khai báo (`registry/types.ts`): _"Mô tả ngắn hiện trên THẺ công
+   thức"_. Vào được màn này tức vừa bấm đúng cái thẻ ấy.
+2. Ngay dưới một hàng là khối "Ý nghĩa" (`explanation.meaning`, FR-03 bắt buộc có) — cùng câu hỏi,
+   trả lời dài hơn và đúng giọng người mới hơn.
+3. Phần duy nhất nó nói thêm (kể tên biến đầu vào) lặp nguyên văn ở vế dạng chữ của khối Công thức:
+   _"Chi phí vốn chủ = Lãi suất phi rủi ro + Beta × Phần bù rủi ro thị trường"_.
+
+**Trường `spec.description` không bị đụng tới** — thẻ công thức, kết quả tìm kiếm, `<meta
+description>` (`page.tsx`) và phụ đề bản xuất (`core/export-content.ts`) vẫn đọc nó. Đây là gỡ một
+chỗ HIỂN THỊ, không phải bỏ một trường dữ liệu.
+
+**Vì sao nút thì giữ.** TASK.md đã ghi lý do nó ra đời: _"khối Ví dụ thực tế nằm cuối trang, người
+mới vào không chắc biết cuộn xuống"_ — trang vẫn dài y như vậy. Thứ khiến nó **trông** thừa là chỗ
+đứng: `capm` nằm trong 38 công thức mà `presetHelps` sai nên "Nạp mẫu" bị ẩn, hàng ấy còn đúng một
+nút và chiếm trọn một hàng ngang không có gì cân lại.
+
+**File đổi:**
+
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — bỏ `<p className={styles.subtitle}>`; chuyển hàng nút
+  vào hàng tiêu đề khối Công thức (`.blockHead` + `.blockHeadActions`, tiêu đề trái · nút phải).
+  **Hai dải trả lời của "Nạp mẫu" theo nút xuống cùng** (`loadedFundamentalsAsOf` và
+  `presetMismatch`): để nút ở khối này mà lời đáp còn nằm hai khối phía trên thì ở khổ điện thoại
+  người bấm không nhìn thấy lời đáp — đúng lỗi "bấm Nạp xong màn không nói gì" đã sửa một lần rồi.
+  Ba dải còn lại (`liveTicker`, `restored`, thanh mã dính) **không** theo xuống: chúng trả lời
+  `?ma=`, `?luu=` và mã bám theo lượt duyệt, không nút nào ở hàng ấy gây ra chúng.
+- `src/app/cong-thuc/[id]/FormulaDetail.module.css` — gỡ `.subtitle` (thay bằng chú thích "đừng dựng
+  lại", vì một luật mồ côi tên hợp lý thì lần sau có người gắn bừa vào dòng chữ khác); thêm
+  `.blockHead.blockHeadActions` (`align-items: center` vì `baseline` làm viền nút thò lên trên chữ
+  hoa của tiêu đề; `flex-wrap` + `row-gap` vì ở 360px tiêu đề + hai nút không đủ một dòng).
+- `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` — 2 ca mới, 1 ca đổi tên (nút không còn "ở đầu
+  trang"). jsdom không dàn trang nên "cùng một dòng" không kiểm được ở đây; ca kiểm gác **điều kiện
+  cấu trúc** khiến hàng ấy thành hình: hai nút và `<h2>` "Công thức" chung một thẻ cha. Ca thứ hai
+  gác chỗ hiển thị đã gỡ (mô tả không còn in ra) kèm khẳng định khối "Ý nghĩa" vẫn còn.
+
+**Xác minh:** `tsc --noEmit` sạch · `eslint` sạch · `prettier --check` sạch ·
+`FormulaDetail.test.tsx` 129/129 xanh (3 skip) · toàn bộ `vitest run` 2428 xanh / **3 đỏ, cả 3 không
+thuộc đợt này** — 2 ca `RecentSearches` và khoá i18n mồ côi `search.seeAll` (file `RecentSearches.tsx`
+không nằm trong diff của tôi; `search.seeAll` là khoá của màn Tìm kiếm). `hairline.test.ts` đã tự
+xanh lại. Soi bằng Chrome thật trên dev server: `capm` ở 380px (tiêu đề khối và nút vừa một dòng),
+`pe` ở 380px (hai nút tự xuống hàng dưới tiêu đề, vẫn trong khối) và ở 900px (nút dạt phải cùng
+hàng), và một lượt bấm "Nạp mẫu" → VHM ở 900px xác nhận nhãn nút đổi thành "Đã nạp VHM" cùng dòng
+nguồn Finbox_v2 hiện **ngay dưới hàng nút**, không còn ở header.
+
+**Còn lại:** chưa xem trên bản build — cùng chỗ nghẽn ghi ở cuối file.
+
+---
+
+## Huy hiệu cấp độ canh giữa theo tiêu đề, không theo thân trang (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án gửi ảnh cắt "Biên an toàn ⟨Cơ bản⟩" và chốt: _"căn chỉnh lại sao cho Cơ bản hoặc nâng cao
+căn chỉnh đẹp hơn"_. Viên bo góc bị dìm thấp hơn tiêu đề, thấy rõ ở cỡ chụp gần.
+
+**Nguyên nhân — không nằm ở luật `.level`.** `vertical-align: middle` canh theo cỡ chữ của **khối
+chứa**, không phải theo cỡ chữ của `<h1>` đứng cạnh. Mục dưới bọc hai thứ vào `.titleGroup` để huy
+hiệu chảy inline theo tiêu đề, nhưng khối bọc ấy vẫn thừa hưởng 16px của thân trang. Nên "giữa" mà
+trình duyệt tính là giữa dòng chữ 16px, trong khi thứ đứng cạnh là chữ 26px — chênh chừng 2,5px.
+
+**File đổi:** `src/app/cong-thuc/[id]/FormulaDetail.module.css` (chỉ một file).
+
+- `.titleGroup` nhận `font-size: var(--text-xl)` + `line-height: var(--leading-tight)` — đúng cặp
+  `.title` đang dùng. Từ đó "giữa" thành giữa của chính tiêu đề và huy hiệu tự canh.
+- Được thêm một thứ không phải mục tiêu ban đầu: `{' '}` giữa tiêu đề và huy hiệu là khoảng trắng
+  THẬT, nên nó giãn theo cỡ chữ của khối — khe hết chật mà không thêm `margin` nào.
+- Chiều cao dòng **không đổi**: `.title` vốn đã đặt `--leading-tight` ở cỡ này nên hộp dòng vẫn là
+  26px × 1,25. Đây là canh lại, không phải nới chỗ.
+
+**Cố ý KHÔNG bù trừ bằng `margin-top`/`position` ở `.level`.** Con số bù đúng cho đúng một cỡ chữ
+rồi sai âm thầm ở lần đổi `--text-xl` tiếp theo. Đã ghi cảnh báo ấy ngay tại luật `.level`, vì đó là
+chỗ người sau sẽ mở ra khi thấy lệch.
+
+**Không thêm ca kiểm.** jsdom không dựng bố cục nên không có gì để khẳng định; ba dòng CSS này chỉ
+có docblock tại chỗ bảo vệ, mà rủi ro thật là người sau thấy `font-size` ở khối cha trùng với
+`font-size` của con rồi xoá đi cho gọn — nên lý do nằm ngay trên dòng ấy, không nằm ở file khác.
+
+Kiểm: `tokens` + `section-title` + `warning-surface` + `hairline` (299 ca) xanh, `prettier --check`
+sạch. Chưa xem trên bản build — cùng chỗ nghẽn ghi ở cuối file.
+
+---
+
+## Huy hiệu cấp độ bám sát tiêu đề ở khổ hẹp (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án báo kèm ảnh: ở màn hẹp, tên công thức dài xuống hai dòng thì huy hiệu "Nâng cao" rơi hẳn
+xuống một hàng riêng bên dưới, thay vì nằm cạnh chữ cuối của tiêu đề.
+
+**Nguyên nhân.** Tiêu đề và huy hiệu là hai Ô FLEX cạnh nhau trong `.titleRow`. Flex không làm được
+việc đang cần: hết chỗ thì ô sau xuống dòng NGUYÊN KHỐI, nó không chen vào phần trống còn lại ở
+cuối dòng cuối của ô trước. Chỉ dòng chảy **inline** mới làm được — ở đó huy hiệu chảy tiếp như
+một từ nữa của câu.
+
+**File đổi:** `FormulaDetail.tsx` + `.module.css` + `.test.tsx`.
+
+- Bọc `<h1>` và huy hiệu vào một `.titleGroup` — khối THƯỜNG, cố ý không `display: flex`.
+- `.title` thành `display: inline`. Đây là mấu chốt, không phải chuyện kiểu dáng: `<h1>` mặc định
+  là khối nên phần tử ngay sau nó luôn bắt đầu ở dòng mới bất kể còn bao nhiêu chỗ trống.
+- `.level` thành `inline-block` + `vertical-align: middle` (chỉ inline-block mới nhận `padding` dọc
+  và `border` mà không đè lên dòng trên; để `baseline` thì viên bo góc tụt xuống dưới đường chân
+  chữ 20px). Thêm `white-space: nowrap`, bỏ `flex-shrink: 0` — tàn dư của thời nó là ô flex.
+- Khoảng cách là `{' '}` khoảng trắng THẬT chứ không `gap`/`margin`: nó vừa tạo khe vừa là chỗ
+  trình duyệt được phép ngắt dòng.
+
+**Huy hiệu vẫn NGOÀI `<h1>`** — cấp độ là siêu dữ liệu về công thức, không phải một phần của tên.
+Nhét vào trong thì tên khả truy cập của tiêu đề thành "CAPM — chi phí vốn chủ sở hữu Nâng cao".
+
+**Hai ca kiểm mới.** jsdom không dựng bố cục nên không kiểm được "chúng có cùng một dòng" — phần ấy
+xem bằng ảnh chụp ở 380px. Ca kiểm gác ĐIỀU KIỆN CẦN, thứ duy nhất khiến bố cục kia khả thi: huy
+hiệu và `<h1>` phải là anh em ruột trong cùng một khối cha, và huy hiệu không được nằm trong `<h1>`.
+
+Kiểm: 2425 xanh / 4 đỏ — cả 4 vẫn là những ca đã ghi ở mục dưới, không thuộc đợt này. `tsc` +
+`lint` + `format` sạch. Đã chụp `capm` ở 380px và 900px.
+
+---
+
+## Đường ra lên thanh trên · cặp nút Tải về / Chia sẻ (09/09/2026)
+
+**Trạng thái: xong.** Hai yêu cầu của chủ dự án, làm chung một đợt vì cùng chạm đầu màn chi tiết.
+
+### 1. Nút back lên thanh trên, tiêu đề công thức đẩy lên
+
+_"thay vì bên trên hiển thị icon và faculator thì đổi thành button back kèm chỉ dẫn về màn trước…
+còn bên dưới thì bỏ đi và đẩy tiêu đề công thức lên"_ — áp cho **mọi màn TRONG** (chủ dự án chọn):
+chi tiết công thức, tìm kiếm, bảng dữ liệu.
+
+Hạ tầng đã có sẵn: `BackLink` + `useBackTarget` vốn đã cho nhãn đi theo màn trước thật. Việc làm là
+đổi CHỖ đứng của nó.
+
+- `src/application/routes.ts` — thêm `backLinkFor(pathname, search)`. Danh tính thanh trên nay có
+  **ba dạng** loại trừ nhau: nút quay lại → tên màn → tên sản phẩm, hỏi theo đúng thứ tự ấy.
+- `src/ui/navigation/HeaderIdentity.tsx` — nhánh thứ ba, hỏi `backLinkFor()` trước.
+- Bỏ `<BackLink>` khỏi thân `FormulaDetail`, `SearchScreen`, `DataTableScreen`.
+
+**Ba chỗ đáng ghi lại**
+
+1. **Lật một lý lẽ vừa chốt tuần này.** `routes.ts` đang ghi _"màn chi tiết… nên thanh trên phải
+   trả lại chỗ cho tên sản phẩm"_. Câu ấy đúng khi chỉ có hai dạng; nay có dạng thứ ba tốt hơn cả
+   hai. Đã sửa thẳng câu lý lẽ đó thay vì để hai chỗ nói ngược nhau.
+2. **Không dùng `useSearchParams()`.** `HeaderIdentity` ở layout GỐC — hook ấy kéo `<Suspense>` vào
+   layout và với `output: 'export'` thì Next bỏ cây con khỏi HTML tĩnh, mất MathML của cả 111
+   trang. Đọc `window.location.search` trong effect, đúng nếp `FormulaDetail` đã ghi cho `?ma=`.
+3. **Một bước lùi có tính toán.** Bản cũ đối chiếu `?from=` với `FORMULA_SUMMARIES`. Không làm lại
+   được: `routes.ts` nay chạy ở layout gốc, kéo chỉ mục vào là rơi vào gói của MỌI trang. Thay
+   bằng kiểm dạng slug `/^[a-z0-9-]+$/` — chặn đúng phần nguy hiểm (`../`, khoảng trắng), còn sót
+   `?from=khong-co-that` cho ra link 404. Đã ghi rõ trong code và có ca kiểm.
+
+**Đổi lại, `DataTableScreen` nhẹ đi**: thôi gọi `useSearchParams()`, thôi đụng `FORMULA_SUMMARIES`.
+
+### 2. Nút Xuất → cặp icon Tải về / Chia sẻ
+
+- **Tải về** mở đúng `ExportSheet` cũ (chủ dự án chọn: giữ cả PDF lẫn PNG).
+- **Chia sẻ** sao chép link **kèm bộ số đang nhập** — tính năng MỚI, chưa có gì tương tự.
+
+`src/application/share-inputs.ts` (mới) — `encodeShareInputs()` / `decodeShareInputs()`, tham số
+`?so=`, dạng `key_value~key_value`. Không JSON: cùng bộ số ra chuỗi dài gấp ~2,4 lần vì mọi dấu
+ngoặc thành `%7B`, mà link chia sẻ là thứ dán vào ô chat.
+
+Phần giải mã có ba luật an toàn, vì chuỗi đến từ URL: chỉ nhận khoá có trong `spec.variables`, chỉ
+nhận số hữu hạn, và **kẹp về miền bằng `clampToSpec()`** — link không đẩy được màn vào trạng thái
+mà chính ô nhập không tạo ra được.
+
+`?luu=` và `?so=` đều thắng `?ma=`: cả ba ghi vào cùng bộ ô, để lẫn là người nhận thấy số khác
+người gửi. Nút sao chép cũng gỡ `?luu=`/`?ma=` khỏi link trước khi gắn `?so=` — `?luu=` trỏ vào
+phép tính lưu **trên máy người gửi**, người nhận không có.
+
+Chuỗi giá 248 phiên KHÔNG vào URL (đã dài hơn 3.000 ký tự; cắt cho vừa là để người nhận thấy con
+số khác). 35 công thức ăn chuỗi giá nhận thêm một câu nói ra điều đó, chỉ hiện sau khi vừa sao chép.
+
+### Kiểm
+
+`tsc` + `lint` + `format` sạch. 2423 xanh / 4 đỏ — **cả 4 đều không thuộc đợt này**: 2 ca
+`RecentSearches` và khoá i18n mồ côi `search.seeAll` (baseline cũ), cộng `hairline.test.ts` báo
+`.savedRow` mới thêm vào `PortfolioScreen.module.css` — của một phiên khác đang sửa song song.
+
+5 ca đỏ do đợt này gây ra đã xử xong, và hai trong số đó là **chuyển lời hứa chứ không bỏ**: hai ca
+"đường ra khỏi màn chi tiết" ở `FormulaDetail.test.tsx` dựng màn một mình nên không còn thấy nút.
+Vế "là link thật" về `AppHeader.test.tsx` (dựng đúng thanh thật, thứ hai ca cũ không chạm tới); vế
+"MỌI công thức đều có" về `routes.test.ts`, quét `backLinkFor()` trên đường dẫn cả 111 công thức —
+nhanh hơn và đúng cho cả đường dẫn chưa tồn tại. Thêm 11 ca cho `share-inputs`.
+
+Đã chụp xác nhận: thanh trên ở màn chi tiết, cặp nút ở 900px, và link `?so=` mở ra đúng số đã gửi.
+
+### Còn lại
+
+- Chưa chạy `npm run build` / `verify:static` / `check:chrome` — dev server đang giữ cổng 3000.
+- Nút "Chia sẻ" chưa thử trên máy thật: `navigator.clipboard` cần HTTPS hoặc localhost, và nấc dự
+  phòng `window.prompt()` chưa ai nhìn tận mắt.
+
+---
+
+## Cụm tab màn Danh mục dùng chung primitive `TabBar` (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"ở phần Danh mục thì hãy thay đổi 2 tabbar bên này cho giống với bên Công thức"_.
+
+Đây đúng là **việc kế tiếp mà docblock `TabBar` đã hẹn** khi dựng primitive: _"Màn Danh mục CHƯA
+chuyển sang primitive này — nó có `scrollIntoView` và hai vùng nội dung riêng; ghi vào TASK.md làm
+việc kế tiếp."_
+
+**Trước:** hai thẻ rời, mỗi thẻ một viền 1px + bo góc riêng, cách nhau `--space-2`, cao 44px, thẻ
+đang chọn tô `--gradient-highlight`. **Sau:** một khay `--color-tab-tray` bo 8px, không viền, không
+kẻ ngăn, viên xanh thụt 2px — y hệt cụm Tất cả · Chứng khoán · Cá nhân bên màn Công thức.
+
+**File đổi**
+
+1. `src/app/danh-muc/PortfolioScreen.tsx` — thay `role="tablist"` dựng tay bằng `<TabBar>`.
+   - `idBase="portfolio"` cho ra đúng hai id cũ (`portfolio-tab-holdings` / `-saved`), nên
+     `aria-labelledby` của hai vùng nội dung không đổi một ký tự.
+   - Hai id vùng nội dung gộp về một (`portfolio-panel`). Bản cũ dựng hai `<section>` có điều kiện
+     nên lúc nào cũng có MỘT tab trỏ `aria-controls` vào id không tồn tại; gộp lại là hết.
+   - Bọc thêm một `<div>` chỉ để giữ `ref` cho `scrollIntoView` — rẻ hơn mở `forwardRef` trên
+     primitive cho đúng một nơi gọi cần.
+2. `src/app/danh-muc/PortfolioScreen.module.css` — xoá `.tabs` / `.tab` / `.tabActive` (bản chép
+   tay của đúng thứ primitive đang làm). Còn lại `.tabsWrap` với hai dòng thuộc về bố cục màn:
+   `margin-bottom` và `scroll-margin-top`.
+3. `src/ui/primitives/TabBar.tsx` + `.module.css` — sửa hai chú thích mà chính thay đổi này làm
+   lạc hậu ("màn Danh mục chưa chuyển", "luật `.count` đang ngủ").
+4. `src/app/danh-muc/PortfolioScreen.test.tsx` — một ca đổi kỳ vọng.
+
+**Thứ mà primitive mang lại, ngoài dáng**
+
+- **Roving tabindex**: cả cụm một nấc Tab rồi ←/→/Home/End chạy giữa hai tab. Bản dựng tay để mỗi
+  tab một nấc Tab — docblock `TabBar` đã gọi tên thiếu sót ấy từ đầu.
+- Số đếm đi qua khe `count` nên nhận `font-variant-numeric: tabular-nums`.
+
+**Một hợp đồng bị đổi, cố ý:** tên khả truy cập của tab từ `'Mã (1)'` thành `'Mã 1'` — số đếm nay
+là một `<span>` riêng chứ không nối tay vào chuỗi nhãn, nên cặp ngoặc biến mất. Ca kiểm ở
+`PortfolioScreen.test.tsx` cập nhật theo, và tôi đổi luôn tên ca cho nó nói ra thứ đáng gác:
+khoảng trắng giữa nhãn và số phải là một ký tự thật (`gap` của flex không sinh ký tự nào), không
+thì tên đọc lên thành `'Mã1'`.
+
+**Giữ nguyên có chủ ý:** hai tab vẫn có icon và vẫn có số đếm, dù cụm bên màn Công thức không có
+cái nào. Đó là NỘI DUNG, không phải dáng — và chính primitive để sẵn hai khe `icon`/`count` cho ca
+này (`.count` có docblock nói thẳng "PortfolioScreen có số đếm trên tab").
+
+Kiểm: `src/app/danh-muc` 76/76 xanh. Toàn bộ: 2389 xanh, 5 đỏ — 3 baseline (2 ca `RecentSearches`,
+khoá i18n mồ côi `search.seeAll`) và 2 ca `warning-surface` thuộc phần `DisclaimerBar` một phiên
+khác đang sửa dở (`git diff` xác nhận tôi không chạm file đó). `tsc` + `lint` + `format` sạch. Đã
+chụp lại `/danh-muc/` ở 900px và 360px.
+
+---
+
+## Sửa lỗi: "Xoá bộ lọc" reset luôn cả thanh tab mảng (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"click vào button text xóa bộ lọc thì tabbar bên trên lại bị reset. chỉ cần xóa bộ lọc
+ở 2 select bên trên là Nhóm công thức và Sắp xếp thôi"_.
+
+**Nguyên nhân.** Nút gọi thẳng `reset()` của `useListParams`, mà hàm ấy là
+`router.replace(pathname)` — xoá SẠCH truy vấn. Nên nó xoá luôn `segment` (thanh tab) và `q`
+(chuỗi tìm), tức xoá nhiều hơn hẳn hai ô chọn nó đứng cạnh.
+
+**File đổi**
+
+1. `src/application/url-state.ts` — thêm một CẶP đi liền nhau:
+
+   - `CLEARED_SELECT_FILTERS` — patch `{categoryId, sort}` về mặc định, không mang `segment`/`q`.
+   - `hasSelectFilters(state)` — hai ô ấy có đang lọc gì không.
+
+   Để cùng chỗ là có chủ đích: một cái nói "xoá thì đặt lại thành gì", cái kia nói "có gì để xoá
+   không". Tách ra hai file là có ngày nút hiện lên trong khi bấm vào không đổi gì.
+
+2. `src/application/index.ts` — mở hai thứ trên qua barrel (barrel này khai từng mục một, không
+   wildcard).
+
+3. `src/app/cong-thuc/FormulaBrowser.tsx` — `onReset` nay là `setParams(CLEARED_SELECT_FILTERS)`.
+
+   **`showReset` cũng phải đổi theo, và đây là nửa thứ hai của lỗi**: nó đang là `isFiltering`
+   (`!isDefaultListParams`), thứ tính cả `segment` và `q`. Giữ nguyên thì đứng ở mảng "Cá nhân" mà
+   hai ô chọn vẫn mặc định là nút hiện lên, bấm vào không đổi gì — một nút không làm gì còn tệ hơn
+   một nút vắng mặt. Nay hỏi `hasSelectFilters(params)`.
+
+4. `src/application/url-state.test.ts` — 5 ca mới, gác cả tính KHỚP NHAU của cặp trên: patch không
+   mang `segment`/`q`; trộn patch vào trạng thái đang lọc thì mảng và chuỗi tìm còn nguyên; nút
+   hiện khi một trong hai ô lọc; **không** hiện khi chỉ có mảng hoặc chuỗi tìm; và sau khi xoá thì
+   nút tự tắt.
+
+**Nút cùng tên ở khối rỗng KHÔNG đổi** — nó vẫn xoá sạch, và khác biệt ấy là cố ý (đã ghi vào
+code). Ở đó danh sách đang rỗng, mà thứ giữ nó rỗng thường là chuỗi tìm hoặc mảng chứ không phải
+hai ô chọn; xoá mỗi hai ô ấy là trả người dùng về đúng màn trống cũ — một lối thoát không dẫn đi
+đâu.
+
+Kiểm: `src/application` + `src/app/cong-thuc` + `src/ui/browse` — 538 xanh, 3 đỏ đều là baseline
+(2 ca `RecentSearches`, khoá i18n mồ côi `search.seeAll`). `tsc` + `lint` + `format:check` sạch.
+Đã chụp trước/sau ở `?segment=personal&category=loans&sort=az`: tab giữ nguyên "Cá nhân", hai ô
+chọn về mặc định, nút tự biến mất.
+
+---
+
+## Nhãn "Nhóm công thức" / "Sắp xếp" nhỏ lại, bỏ in đậm (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"giảm size text của 'Nhóm công thức' 'Sắp xếp' xuống và không được in đậm"_.
+
+**File đổi:** `src/ui/browse/CategoryFilter.module.css` — thêm một luật `.field > label`.
+
+|        | trước                 | sau                    |
+| ------ | --------------------- | ---------------------- |
+| cỡ chữ | `--text-sm` 14px      | `--text-xs` 12px       |
+| độ đậm | `--weight-medium` 500 | `--weight-regular` 400 |
+
+**Vì sao đè ở đây chứ không sửa `Select.module.css`.** Primitive ấy còn phục vụ bốn chỗ khác:
+nhãn biến công thức (`SelectInput`), ô chọn trục biểu đồ (`SweepPicker`), ô ở màn Cài đặt, và
+`FeeScheduleField`. Hạ bậc bên đó là hạ cả bốn — trong đó nhãn biến công thức thì KHÔNG được nhỏ
+đi, vì đó là thứ người dùng phải đọc kỹ trước khi gõ số. Hai nhãn này thì ngược lại: nội dung đang
+chọn nằm ngay trong ô ngay dưới, nhãn chỉ nói ô ấy lọc theo cái gì.
+
+**Bộ chọn `.field > label`** — cùng bẫy và cùng cách gỡ với `button.reset` ở mục ngay dưới: tên lớp
+CSS Module bị băm nên file này không gọi tới `.label` của primitive được, mà một-lớp-cộng-một-thẻ
+(0,1,1) lại thắng chắc lớp đơn (0,1,0) của primitive, nên không phụ thuộc thứ tự bundler gộp hai
+file — thứ không đoán trước được.
+
+Kiểm: `src/ui/browse` + `src/app/cong-thuc` + `tokens` — 485 xanh, 2 đỏ là baseline
+`RecentSearches` (file đó không bị chạm, `git status` xác nhận chỉ một file CSS đổi).
+`format:check` sạch. Đã chụp lại `/cong-thuc/` xác nhận bằng mắt.
+
+---
+
+## Danh sách phép tính đã lưu thành MỤC LỤC — bỏ con số, còn hai nút (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án, ngay sau lượt thu gọn: _"số liệu thì khi mở lại thì mới thấy được -> không hiển thị bên
+ngoài. đưa button Mở lại lên và button xóa lên thay thế vị trí đó. đồng thời bỏ button Đổi tên đi.
+đồng thời button mở lại sửa thành Xem. và thêm vỏ bọc cho 2 button trên"_.
+
+```text
+Lãi kép · 08/09/2026                    [Xem] [Xoá]
+lưu 08/09/2026
+```
+
+### Đây là đổi VAI, không phải đổi dáng
+
+Bỏ con số khỏi danh sách biến tab này từ **bảng tổng hợp** thành **mục lục**. Một dòng nay chỉ trả
+lời ba câu: cái gì · lưu bao giờ · đi đâu để xem. Hai hệ quả phải xử lý chứ không lờ đi:
+
+**1. FR-06 đổi chỗ giữ.** Bản trước bày con số nên thiếu số phải hiện `_ _` chứ không được hiện 0.
+Nay danh sách không bày con số nào, tức chỗ có thể lọt ra một số 0 cũng không còn. Ca kiểm đổi vai
+theo: từ "thiếu số thì hiện gạch" thành "bản ghi thiếu số vẫn dựng được dòng, không lọt ra con số
+nào, và vẫn còn đường đi xem" — bản ghi thiếu số vẫn là ca dễ làm sập danh sách nhất.
+
+**2. `result-card.test.ts` mất một neo.** `.savedResult` là vế thứ hai của cặp "con số trong một
+dòng danh sách", cặp với `StatTile.value`. Nay nó không tồn tại nữa, nên `StatTile` đứng một mình.
+**Điều này gỡ khoá mục E2 của bản soát ba màn**: E2 (hạ cỡ `StatTile.value` ở khổ hẹp) vướng chính
+cặp này — hạ một vế mà giữ vế kia là làm hai thứ cùng khuôn lệch nhau. Lý do phải-cân đã mất; E2
+vẫn là quyết định của chủ dự án nhưng nay làm được mà không kéo theo ai.
+
+### "Xem", không phải "Mở lại"
+
+Đổi cùng lượt và cùng một lẽ: "mở lại" hứa mở một thứ đang đóng, còn việc thật bây giờ là **đi xem
+con số mà danh sách không bày nữa**. Khoá i18n giữ nguyên tên `savedOpen` — nó chỉ VIỆC, không chỉ
+chữ.
+
+### Hai nút có vỏ
+
+Lượt trước chúng là chữ trần, và lúc ấy dùng được vì cạnh chúng có một con số cỡ lớn làm mốc cho
+mắt. Con số đi rồi thì dòng chỉ còn chữ với chữ — không có vỏ thì chữ xanh giữa hàng chữ xám đọc ra
+là nhãn, không phải nút. Vỏ mỏng: đệm 4px + viền 1px, cao ~28px; "Xem" có nền (`accent-soft`),
+"Xoá" chỉ viền — đúng cặp bậc `secondary` / `danger` mà primitive `Button` đã đặt ra, chỉ nhỏ hơn.
+Vùng chạm 44px vẫn ở lớp phủ `::after`, nới **chiều cao thôi**: hai nút cạnh nhau, nở ngang là bấm
+"Xem" lại trúng "Xoá".
+
+### Bỏ "Đổi tên" kéo theo cả một luồng
+
+Nút đi thì form sửa tên tại chỗ mất lối vào. Xoá theo: state `renaming`/`renameDraft`, luật
+`.renameRow`, và ba khoá i18n `savedRename` · `savedSaveName` · `savedNameLabel` ở **cả hai** từ
+điển (cửa khoá-mồ-côi bắt buộc). Hàm `renameSavedCalc()` ở tầng Application thì **giữ nguyên** kèm
+ca kiểm riêng — nó là câu trả lời sẵn cho lần muốn bày lại việc đổi tên, không phải mã chết bỏ
+quên. Ca kiểm cũ "đổi tên ghi thẳng vào localStorage" đổi thành "tên tự đặt vẫn hiện nguyên văn dù
+không còn chỗ đổi tên", tức đường hiển thị không chết theo lối vào.
+
+### Hai cửa gác bắt được lỗi trong lúc làm
+
+- **`hairline.test.ts`** đòi mọi kẻ chia dùng `--color-border` phải nằm trong danh sách ghim **kèm
+  lý do**. `.savedRow` là mục thứ tám; đã khai với lý do thật (dòng nay chỉ còn hai dòng chữ, mất
+  kẻ là ba mục dính thành một đoạn văn).
+- **`switchTab` còn gọi `setRenaming(null)`** sau khi state đã xoá → `ReferenceError` lúc chạy.
+  `typecheck` bắt ngay chuyện này, nhưng lúc ấy nó đang bị chặn bởi một file dở dang của luồng khác
+  (`FormulaDetail.tsx`), nên phải để test tìm ra. Ghi lại vì đó là cái giá cụ thể của việc mất
+  `typecheck` một lúc.
+
+Kiểm: `typecheck` (nay đã chạy được) · `lint` · `format:check` sạch. Toàn bộ **2413 xanh / 3 đỏ** —
+3 ca baseline màn Tìm kiếm.
+
+---
+
+## Tab "Công thức" của Danh mục gọn bằng tab "Mã" (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án gửi ảnh tab ấy: _"sửa giao diện hiển thị trong phần công thức sao cho gọn như phần Mã bên
+cạnh"_. Mỗi mục đang chiếm **năm dòng**: tên · dòng phụ · con số · rồi ba nút đặc chiếm trọn một
+dòng 36px. Tab Mã bên cạnh chỉ một dòng ba cột.
+
+**File đổi:** `src/app/danh-muc/PortfolioScreen.tsx` + `.module.css` + `.test.tsx`.
+
+### Ba việc, và việc nào cũng cắt một dòng
+
+**1. Lưới 2×2 thay cho xếp dọc.** Theo đúng khuôn `.holdSummary` của tab Mã — trái là danh tính,
+phải là con số:
+
+```text
+tên phép tính                con số kết quả
+dòng phụ             Mở lại · Đổi tên · Xoá
+```
+
+`.savedActions` khai `grid-column: 2` **tường minh** chứ không để lưới tự xếp: dòng phụ có thể rỗng,
+và lúc ấy phép tự xếp ném cụm nút sang cột trái.
+
+**2. Dòng phụ thôi nhắc lại dòng tên.** Ảnh cho thấy "Lãi kép · 08/09/2026" rồi ngay dưới "Lãi kép ·
+lưu 08/09/2026" — tên công thức và ngày, mỗi thứ hai lần trên hai dòng liền nhau. Một luật cho cả
+hai vế: **bỏ mọi mảnh đã nằm trong tên**. Tên người dùng tự đặt thì không chứa mã lẫn tên công thức
+nên với nó dòng phụ vẫn hiện đủ ngữ cảnh — đúng lúc nó cần nhất.
+
+`lưu <ngày>` **không bao giờ** bị lọc: từ lúc bỏ câu chung "Kết quả của lần lưu, không tính lại",
+đây là chỗ duy nhất nói ra con số này thuộc một mốc chứ không phải vừa tính.
+
+**3. Ba nút đặc thành ba mục chữ.** Không dùng primitive `Button`: bậc nhỏ nhất của nó vẫn là khối
+cao 36px có viền, mà chỗ này cần mật độ của một liên kết trong câu. Vùng chạm 44px nằm ở lớp phủ
+`::after`, nới **chiều cao thôi** — ba mục đứng cạnh nhau, nới ngang là bấm "Đổi tên" lại trúng
+"Xoá". "Mở lại" vẫn là `<Link>` (điều hướng, phải mở được bằng chuột giữa).
+
+### Vá luôn một lỗi hồi quy
+
+Lớp của mỗi mục là `styles.row` — mà `.row` đã bị đổi tên rồi biến mất trong một đợt trước. CSS
+Module trả `undefined`: không lỗi, không cảnh báo, TypeScript không biết gì về tên lớp CSS. Thẻ đã
+lưu chạy suốt từ đó tới nay **không nền, không viền, không đệm**. Nay là `.savedRow` và có thân luật
+thật. (Đây là mục **A1** của bản soát ba màn.)
+
+### Cái KHÔNG đổi, và vì sao
+
+Con số kết quả giữ nguyên `--text-lg` 20px, dù tab Mã dùng 16px cho con số của nó.
+`result-card.test.ts` ghim `PortfolioScreen.savedResult` đi theo neo `StatTile.value` — "con số
+trong một dòng danh sách", cố ý ở ngoài khuôn thẻ đáp án. Hạ một vế mà giữ vế kia là làm hai thứ
+cùng khuôn lệch nhau. Đó là mục **E2** của bản soát, vẫn chờ chủ dự án quyết: hạ cả hai, hay tách
+cặp và sửa lời ghi ở `result-card.test.ts`.
+
+Kiểm: 79 ca `src/app/danh-muc` + `result-card` + `tokens` xanh (363). `eslint` + `prettier` sạch.
+**`npm run typecheck` chưa chạy được**: `FormulaDetail.tsx` đang dở dang ở một luồng khác
+(`DownloadIcon`, `copyShareLink`, `copied` chưa khai) — không thuộc phần này.
+
+---
+
+## Ba màn tab đều mang tên màn trên thanh, và bỏ sáu chú thích (09/09/2026)
+
+**Trạng thái: xong về mã.** Một vế chưa kiểm được (HTML tĩnh) và một ràng buộc bị thu hẹp — cả hai
+ghi ở cuối mục.
+
+Chủ dự án: _"tương tự với Danh mục và phần cài đặt. đồng thời xóa các chú thích thừa như …"_ kèm
+danh sách sáu câu.
+
+### Phần 1 — mở rộng bảng `HEADER_TITLES`
+
+Thêm hai dòng vào `src/application/routes.ts`, đúng như bảng ấy được dựng ra để nhận:
+
+| đường dẫn    | khoá                                                                        |
+| ------------ | --------------------------------------------------------------------------- |
+| `/danh-muc/` | `portfolio.title` — 'Danh mục của tôi', không phải 'Danh mục' của thanh nav |
+| `/cai-dat/`  | `page.settings.title`                                                       |
+
+Rồi gỡ `<h1>` khỏi `PortfolioScreen.tsx` và `SettingsScreen.tsx`, cùng năm luật CSS thành mã chết
+(`.head` · `.title` · `.subtitle` · `.h1`, và `.note`).
+
+Nay là **đủ ba màn có mục riêng ở thanh điều hướng**, nên bảng thành lời hứa hai chiều: màn nào
+không có trong bảng thì thân màn phải tự dựng `<h1>`. Thêm một ca kiểm cho đúng vế ấy — quét
+`/`, `/tim-kiem/`, `/du-lieu/`, `/cong-thuc/pe/` — vì thêm dòng vào bảng mà quên gỡ `<h1>` bên thân
+là dựng ra hai tiêu đề cấp một.
+
+**Ca kiểm vòng trước đã làm đúng việc của nó.** Nó ghim "Danh mục và Cài đặt CHƯA nằm trong bảng",
+và đỏ ngay lượt này — đúng ý định lúc viết: mở rộng bảng là một quyết định, phải đi qua chỗ đó chứ
+không lọt.
+
+### Phần 2 — bỏ sáu chú thích
+
+| khoá                                         | câu                                                           |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| `portfolio.subtitle`                         | "Lưu tại thiết bị · không cần đăng nhập"                      |
+| `portfolio.savedResultNote`                  | "Kết quả của lần lưu, không tính lại…"                        |
+| `portfolio.localTag` + `portfolio.localOnly` | dải "CỤC BỘ · Số lượng và giá vốn chỉ lưu trên thiết bị này…" |
+| `settings.theme.hint`                        | "…File PNG và bản in xuất ra vẫn luôn nền sáng."              |
+| `settings.units.scaleHint`                   | "Chỉ đổi cách bày con số trong bảng…"                         |
+| `settings.data.note`                         | "Mọi thứ dưới đây nằm trong trình duyệt của bạn…"             |
+
+Xoá ở **cả hai từ điển** (cửa khoá-mồ-côi của `i18n.test.ts` bắt buộc), kèm CSS và các chỗ dùng.
+
+**Bốn cái là dọn dẹp thuần tuý. Hai cái mang thông tin không suy ra được từ chỗ khác:**
+
+1. **`settings.theme.hint`** — vế "PNG và bản in luôn nền sáng" nay chỉ còn sống trong mã
+   (`draw-card.ts` ghim `CARD_COLORS` vào bảng sáng). Người dùng chọn giao diện Tối rồi xuất ảnh sẽ
+   gặp nền sáng mà không được báo trước.
+2. **`portfolio.localOnly` + `settings.data.note`** — hai câu này bỏ **cùng đợt**, và sau đó sản
+   phẩm **không còn câu nào trên màn** nói về dữ liệu rời máy hay ở lại máy.
+
+### ⚠ COM-03 thu hẹp — đây là phần phải đọc
+
+Ca kiểm cũ tên là _"nói thẳng dữ liệu không rời khỏi máy (COM-03)"_. CLAUDE.md, mục "The one network
+call", cũng nêu đích danh `portfolio.localOnly` là chỗ sản phẩm nói ra điều đó.
+
+**Lý lẽ của lượt bỏ tương tự trước đây KHÔNG chuyển sang được.** Ngày 25/08/2026 màn `/du-lieu/` bỏ
+một câu y hệt, và docblock của nó ghi rõ bỏ được _"vì màn này KHÔNG gọi mạng lần nào; chỗ thật sự
+cần cảnh báo là màn Danh mục, nơi mã cổ phiếu có rời máy"_. Lượt này bỏ đúng cái chỗ ấy. Đã sửa cả
+hai docblock ở `/du-lieu/` để chúng thôi trỏ tới một câu không còn tồn tại.
+
+**Phần lõi vẫn đứng, và có cửa gác — chỉ là cửa đổi tầng:**
+
+- `client.ts` gửi đúng `{symbols}` và `{ticker}`; số lượng, giá vốn, ngày mua không có đường nào vào.
+- Ca kiểm mới ở `PortfolioScreen.test.tsx` ghim theo **giá trị** chứ không theo tên trường: dựng
+  FPT · 100 CP · giá vốn 60.000 rồi khẳng định không chuỗi nào trong mọi lời gọi chứa `60000`,
+  `100`, `2026-01-02`. Đổi tên `costPrice` thành gì thì con số vẫn phải không rời máy.
+- `public/_headers` khoá `connect-src` về đúng một origin; bốn store ở `src/application/` giữ dữ
+  liệu trong `localStorage` và mỗi kho đều có nút xoá.
+
+Cái mất là **lời nói ra**, không phải cam kết. Đã ghi vào CLAUDE.md, vào hai file từ điển và vào
+chính chỗ dải từng đứng, để lần soát tuân thủ sau không phải đoán đây là quyết định hay là một cửa
+bị rơi. Muốn trả lại thì rẻ nhất là một dòng ở khối "Về sản phẩm" của màn Cài đặt.
+
+### Hai lỗi tài liệu sửa kèm
+
+- `CLAUDE.md` nói `ThemeSwitch` bị ẩn dưới 1024px bởi `.themeControl` — wrapper ấy không còn, và
+  `AppHeader.tsx` ghi "nay hiện ở MỌI khổ màn". Cùng câu sai ở `SettingsScreen.tsx:302`.
+- `i18n.test.ts` có danh sách miễn cho câu tiếng Anh mang chữ Việt; mục cuối cùng
+  (`settings.units.scaleHint`) vừa bị xoá nên danh sách nay **rỗng**. Giữ `Set` rỗng kèm lý do thay
+  vì gỡ hẳn — lần sau có câu cố ý thì đây là chỗ khai, không ai phải nới regex.
+
+Kiểm: `typecheck` · `lint` · `format:check` sạch. **2405 xanh / 3 đỏ** (3 ca baseline màn Tìm kiếm).
+
+---
+
+## Thanh trên mang tên MÀN ở /cong-thuc/, thân màn thôi dựng `<h1>` (09/09/2026)
+
+**Trạng thái: xong về mã. Còn một vế chưa kiểm được — xem cuối mục.**
+
+Chủ dự án chỉ vào ảnh bản thiết kế cũ rồi chốt: _"khi chuyển sang màn công thức thì logo và
+faculator sẽ được thay thế bằng Công thức. bên dưới sẽ không cần text công thức nữa"_.
+
+**Vấn đề gốc.** Phần đầu mọi màn là HAI hàng: thanh dính trên mang khối hộp + "Faculator"
+(`--header-height` 56px), rồi `<h1>` tên màn (26px × 1,25) cộng `marginTop` 16px. Ở khổ 360px là
+**~105px** trước thứ đầu tiên bấm được — 16% chiều cao màn. Và hàng DÍNH trên, thứ luôn ở đó khi
+cuộn, lại mang chữ không bao giờ đổi; chữ có đổi thì cuộn đi mất.
+
+**File đổi:**
+
+| file                                                   | sửa gì                                                                        |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `src/application/routes.ts`                            | thêm bảng `HEADER_TITLES` + `headerTitleKey()`, cạnh `showsModeToggle()`      |
+| `src/application/index.ts`                             | xuất `headerTitleKey` qua barrel                                              |
+| `src/ui/navigation/HeaderIdentity.tsx` · `.module.css` | **mới** — client leaf dựng HOẶC tên sản phẩm HOẶC `<h1>` tên màn              |
+| `src/ui/navigation/AppHeader.tsx` · `.module.css`      | thay khối brand bằng `<HeaderIdentity />`; `.brand`/`.name` dời sang file mới |
+| `src/app/cong-thuc/page.tsx`                           | bỏ `<h1>` và cái bọc `marginTop`                                              |
+| `routes.test.ts` · `AppHeader.test.tsx`                | +10 ca                                                                        |
+
+**Đi đúng khuôn đã có, không phát minh.** `AppHeader` là server component nên không gọi được
+`usePathname()`; `HeaderNav` và `HeaderModeToggle` đã giải bài này bằng client leaf, và
+`HeaderIdentity` là cái thứ ba. Luật "màn nào đổi" nằm ở tầng Application cạnh `showsModeToggle()`,
+vì đó là quyết định về **đường dẫn**, không phải về giao diện. Khớp tuyệt đối, không khớp trang con
+— `/cong-thuc/wacc/` giữ tên sản phẩm, vì thân màn ấy đã có `<h1>` là tên công thức.
+
+**`<h1>` chuyển CHỖ chứ không nhân đôi.** Trang vẫn đúng một tiêu đề cấp một. Để cả hai thì trình
+đọc màn hình đọc tên màn hai lần liền nhau. Ba ca kiểm mới đều kiểm **cả hai vế** (thứ phải có và
+thứ phải vắng) — chỉ kiểm vế đầu thì bày cả hai vẫn xanh, mà đó chính là hỏng.
+
+**Giá phải trả, đã cân và ghi ra:** `<h1>` nay nằm ngoài `<main>`, nên link "Bỏ qua tới nội dung"
+nhảy qua nó. Chấp nhận được vì thanh trên đọc trước `<main>` trong thứ tự tài liệu.
+
+**Cỡ chữ giữ nguyên `--text-lg` 20px, không lấy 26px như bản thiết kế.** Là số đo: ở 360px lòng
+thanh còn 328px và cụm điều khiển bên phải đã ăn hơn hai phần ba — riêng màn này còn mang thêm cụm
+Cơ bản / Nâng cao, nên nó là màn chật nhất. "Faculator" và "Công thức" đều 9 ký tự nên đổi ở cùng
+bậc chữ thì bề rộng không đổi. Muốn to hơn phải nhường chỗ ở cụm bên phải trước.
+
+**⚠ Việc còn lại.** Vế chưa kiểm được là **HTML tĩnh**: `usePathname()` phải phân giải đúng ở lượt
+prerender thì `<h1>` mới có trong `out/cong-thuc/index.html` — mà đó là trang sitemap khai priority
+0,9. Bằng chứng gián tiếp thì mạnh (`BottomTabBar` và `HeaderNav` đã dựa vào chính hook này để tô
+mục đang chọn, và `HeaderModeToggle` dựa vào nó để **vắng mặt** ở 110 trang), nhưng chưa ai chạy
+`npm run build` để nhìn tận mắt — dev server đang giữ cổng 3000. Chạy được thì kiểm ngay
+`out/cong-thuc/index.html` có `<h1`.
+
+---
+
+## Ô miễn trừ ở đầu màn chi tiết thu lại — nhỏ, nhạt, sát (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án chỉ vào ô vàng đầu màn chi tiết: _"thu nhỏ phần này xuống để tiết kiệm không gian. giảm
+size text. màu nhạt đi và padding giảm xuống"_.
+
+**File đổi:** `src/ui/navigation/DisclaimerBar.module.css` (biến thể `.notice`),
+`src/app/globals.css` (token mới, hai bảng), `src/ui/contrast.test.ts` (một ca + danh sách token).
+
+|        | trước                  | sau                                  |
+| ------ | ---------------------- | ------------------------------------ |
+| cỡ chữ | `--text-sm` 14px       | `--text-xs` 12px                     |
+| độ đậm | `--weight-medium`      | bỏ hẳn luật, về chữ thường           |
+| đệm    | `--space-3` 12px       | `--space-2` 8px                      |
+| nền    | `--color-warning-soft` | `--color-notice-soft` — nhạt hơn 40% |
+
+**Vì sao token mới chứ không hạ luôn `--color-warning-soft`.** Token ấy đang là nền của **19** chỗ
+khác — `InlineWarning`, badge tông cảnh báo, các sheet, `DataTableScreen`, `PortfolioScreen`. Ở
+những chỗ đó cảnh báo ĐANG cần giành sự chú ý. Chỉ mỗi ô miễn trừ là câu nhắc thường trực, gặp lại
+ở mọi màn công thức, nên chỉ nó cần lùi xuống.
+
+Giá trị: #f8e7b4 ở 60% trộn sẵn trên nền trang → **#f8efd1** (bảng tối #3a2f10 ở 60% trên #111827 →
+**#2a2619**). Trộn sẵn chứ không `rgba()`, cùng lý do đã ghi cho `--color-tab-tray`: nền trong suốt
+nằm ngoài tầm `contrast.test.ts`.
+
+**Chỗ suýt làm hỏng FR-24.** Ghi chú của `--color-warning-soft` viết rõ nó được chọn "đủ đậm để dải
+miễn trừ không hoà vào nền trang" — tức làm nhạt đi là đụng thẳng vào ràng buộc ấy. Nền nhạt nay chỉ
+còn **1,10:1** so với nền trang. Thứ giữ FR-24 chuyển sang **đường viền**: `--color-warning-line`
+đạt 1,70:1 trên nền mới, nên mép vẫn vẽ ra một cái ô. Đã ghi ở cả hai nơi rằng bỏ viền là ô miễn trừ
+tan vào trang.
+
+**Chữ lại dễ đọc hơn trước.** Nền nhạt đi nên `--color-warning` trên nó đạt **5,26:1** (sáng) và
+**8,75:1** (tối), so với 4,92 / 7,63 của nền cũ. Cỡ 12px vẫn là chữ thường theo WCAG nên ngưỡng phải
+đạt vẫn là 4,5:1 — có ca kiểm riêng cho cặp mới.
+
+**⚠ Lượt này đã phá một cửa kiểm, và tôi báo xanh trước khi phát hiện.** Chạy hẹp (`contrast` +
+`tokens` + `src/ui/navigation`) thì 416 xanh, nhưng `src/ui/warning-surface.test.ts` nằm ngoài phạm
+vi ấy — và nó ghim rằng **sáu mặt phẳng cảnh báo vàng phải dùng chung nền/viền/bo góc**, và **không
+mặt nào được dùng `--text-xs`**. Cả hai vế đều bị lượt sửa này phá. Chỉ lộ ra khi chạy `npm test`
+đầy đủ ở việc sau đó.
+
+**Cách gỡ: tách `DisclaimerBar.notice` ra khỏi nhóm, không phải nới luật cho nhóm.** Bảng ấy gom
+nhầm ngay từ đầu — năm mặt còn lại xuất hiện vì CÓ CHUYỆN vừa xảy ra (phép tính không ra số, thiếu
+chuỗi giá, mã không nạp được) nên chúng phải giành lấy mắt người dùng đúng lúc đó; ô miễn trừ thì
+luôn ở đó dù mọi thứ chạy tốt. Bắt nó hét lên bằng đúng giọng của một cảnh báo hỏng việc là dạy
+người dùng bỏ qua giọng ấy — và lần bỏ qua tốn kém là ở năm mặt kia. Lý do "không được dùng
+`--text-xs`" cũng chỉ đúng cho năm mặt kia: nó nói về "câu giải thích vì sao phép tính không ra
+số", mà ô miễn trừ không giải thích gì cả.
+
+**Rời nhóm không có nghĩa thôi bị canh.** Thêm ba ca mới riêng cho ô miễn trừ, neo đúng thứ nay
+đang giữ FR-24 cho nó: **còn viền vàng** (nền đã hết làm được việc ấy), và **dùng nền riêng
+`--color-notice-soft`** — ai gán lại về `--color-warning-soft` là kéo ô về nhóm cũ mà không đọc lý
+do nó ra khỏi đó.
+
+Kiểm: `warning-surface` 9 xanh. Toàn bộ **2404 xanh / 3 đỏ** (3 ca baseline màn Tìm kiếm).
+`lint` + `format:check` sạch.
+
+---
+
+## Dòng đếm gọi tên mảng đang xem — "Tất cả 111 công thức" (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án chỉ vào dòng "111 công thức" đứng một mình dưới cụm tab: _"như ảnh cảm giác bị trống
+trải nên khi click vào tab Tất cả thì chỗ này sẽ là Tất cả 111 công thức tương tự với Chứng khoán
+và Cá nhân"_.
+
+**File đổi:**
+
+| file                                   | sửa gì                                                                            |
+| -------------------------------------- | --------------------------------------------------------------------------------- |
+| `src/ui/browse/CategoryFilter.tsx`     | tách nhãn ba mảng ra thành `SEGMENT_LABEL_KEYS` (xuất ra ngoài) + `SEGMENT_ORDER` |
+| `src/ui/browse/index.ts`               | xuất thêm `SEGMENT_LABEL_KEYS` qua barrel                                         |
+| `src/app/cong-thuc/FormulaBrowser.tsx` | dòng đếm mở đầu bằng `t(SEGMENT_LABEL_KEYS[params.segment])`                      |
+
+**Một bảng nhãn, hai nơi đọc.** Trước đây mảng `SEGMENTS` gói sẵn cặp `{value, labelKey}` và chỉ
+dùng tại chỗ. Nay dòng đếm phải gọi đúng cái tên mà tab đang chọn hiển thị, nên nhãn tách thành
+một bảng tra riêng và cả hai bên đọc chung. Chép tay tên mảng sang màn là chỗ sẽ lệch ngay lần đổi
+chữ sau — mà lệch kiểu này thì không test nào bắt được, vì cả hai chuỗi đều "đúng".
+
+Việc này cũng khép lại vòng bỏ số đếm khỏi tab (đợt trước): con số vừa gỡ khỏi ba tab nay hiện lại
+ngay dưới, đầy đủ hơn (có đơn vị "công thức") và chỉ **một** lần thay vì ba — đúng lý do đã ghi lúc
+bỏ. Docblock `CategoryFilter` cập nhật theo.
+
+**⚠ Ghi rõ để không ai đọc nhầm:** con số vẫn là số công thức khớp **toàn bộ** bộ lọc, không riêng
+mảng. Chọn thêm một nhóm thì nó tụt xuống trong khi chữ "Chứng khoán" vẫn đứng đó — dòng này nói
+"trong mảng này, còn bấy nhiêu", không phải sĩ số của mảng. Đã ghi cảnh báo ngay tại chỗ dựng.
+
+Không thêm khoá i18n nào: dùng lại `filter.segment.*` và `list.count` đã có ở cả hai ngôn ngữ
+("All 111 formula(s)").
+
+**Lượt chỉnh ngay sau đó** (_"cho text tăng lên 1 chút và để cho tôi thành màu đen"_) —
+`FormulaBrowser.module.css`: `--text-sm` → **`--text-base`** (14 → 16px, bậc kế tiếp của thang, không
+có nấc nào ở giữa) và `--color-ink-soft` → **`--color-ink`** #1a2233. Không có token đen tuyền, và
+CSS Module thì không được viết thẳng mã màu (`tokens.test.ts` quét cả thư mục), nên đây là bậc mực
+thẫm nhất dùng được — cũng đúng màu tên công thức trên mỗi thẻ, nên dòng đếm nay đứng ngang hàng
+với chúng. Dòng này từ chữ phụ thành chữ chính là có chủ ý: nó không còn chỉ là con số kết quả, nó
+là câu nói ra người dùng đang đứng ở mảng nào.
+
+Kiểm: `typecheck` sạch, `src/ui/browse` + `src/app/cong-thuc` + `i18n` — 211 xanh, 2 đỏ là baseline
+`RecentSearches`. `tokens` + `contrast` 364 xanh. `lint` sạch.
+
+---
+
+## Nút "Xoá bộ lọc" dạt phải, chữ nhỏ, màu xanh (09/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"button text Xóa bộ lọc chuyển sang bên phải và giảm size text xuống đồng thời đổi sang
+màu xanh dương"_.
+
+**File đổi:** `src/ui/browse/CategoryFilter.module.css` — chỉ một luật.
+
+|          | trước                                     | sau                      |
+| -------- | ----------------------------------------- | ------------------------ |
+| chỗ đứng | `align-self: flex-start`                  | `align-self: flex-end`   |
+| cỡ chữ   | `--text-sm` 14px (của `.sm` trong Button) | `--text-xs` 12px         |
+| màu chữ  | `--color-ink-soft` (của `.ghost`)         | `--color-accent` #1b447e |
+
+**Vì sao bộ chọn là `button.reset`.** Hai trong ba dòng trên đè lên kiểu dáng của chính primitive
+Button — `font-size` thuộc `.sm`, `color` thuộc `.ghost` — mà cả hai đều là bộ chọn MỘT lớp, trọng
+số đúng bằng `.reset`. Ngang trọng số thì thứ tự trong bó CSS quyết định, và thứ tự ấy là thứ tự
+bundler gộp hai file module: không đoán trước được, cũng không đứng yên qua lần đổi import sau.
+Thêm tên thẻ đưa lên (0,1,1) — thắng chắc, không cần `!important`, không đụng vào primitive. Tên
+thẻ chắc chắn đúng vì `Button` luôn dựng ra `<button>` thật.
+
+Đây **không phải** cách riêng của chỗ này: `.field > label` vừa được thêm vào cùng file, đè nhãn
+của `Select` bằng đúng thủ thuật ấy và đã ghi cùng lập luận. Hai luật cạnh nhau nay đi một lối.
+(`.field` thì không cần gì cả — nó chỉ đặt bề rộng, thứ `Select` không tự đặt.)
+
+Đã ghi vào CSS: có nút thứ hai cần dáng này thì nó là **biến thể của Button**, không phải một lần
+đè từ bên ngoài nữa.
+
+**Không đẻ thêm phép kiểm.** `--color-accent` đã nằm trong danh sách token chữ của
+`contrast.test.ts`, nên nó được chấm sẵn trên cả ba nền ở cả hai bảng màu. Vùng chạm 44px cũng còn
+nguyên: nó nằm ở lớp phủ `::after` của `.sm`, không phụ thuộc cỡ chữ.
+
+Kiểm: `src/ui/browse` + `tokens` + `contrast` — 442 xanh, 2 đỏ là baseline `RecentSearches`.
+`lint` + `format:check` sạch.
+
+---
+
 ## Ba mảng lọc thành thanh tab thật — primitive `TabBar` (08/09/2026)
 
 **Trạng thái: xong.** Còn một việc kế tiếp, ghi ở cuối mục.

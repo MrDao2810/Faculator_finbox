@@ -198,6 +198,42 @@ function mucGiaiThich(): ReadonlyArray<HTMLDetailsElement> {
   });
 }
 
+/*
+ * Huy hiệu cấp độ phải BÁM tiêu đề, kể cả khi tên xuống hai dòng.
+ *
+ * Chủ dự án báo ở khổ hẹp: tên dài xuống hai dòng thì "Nâng cao" rơi hẳn xuống một hàng riêng.
+ * Nguyên nhân là hai ô flex cạnh nhau — hết chỗ thì ô sau xuống dòng NGUYÊN KHỐI, nó không chen
+ * vào phần trống còn lại ở cuối dòng cuối của ô trước. Cách chữa là cho cả hai vào chung một dòng
+ * chảy inline.
+ *
+ * jsdom không dựng bố cục nên không kiểm được "chúng có thật sự cùng một dòng" — phần ấy đã xem
+ * bằng ảnh chụp ở 380px. Ở đây gác ĐIỀU KIỆN CẦN, thứ duy nhất khiến bố cục kia khả thi: huy hiệu
+ * và `<h1>` phải là anh em ruột trong cùng một khối. Tách chúng ra hai khối cha là lỗi cũ quay lại
+ * ngay, dù CSS có viết gì đi nữa.
+ */
+describe('WF-03 — huy hiệu cấp độ bám sát tiêu đề', () => {
+  it('huy hiệu là anh em ruột của h1, cùng một khối cha', () => {
+    render(<Man spec={specOf('capm')} />);
+
+    const heading = screen.getByRole('heading', { level: 1 });
+    const badge = screen.getByText(t('level.advanced'));
+
+    expect(badge.parentElement).toBe(heading.parentElement);
+  });
+
+  /*
+   * Huy hiệu NGOÀI `<h1>`: cấp độ là siêu dữ liệu về công thức, không phải một phần của tên. Nhét
+   * vào trong thì tên khả truy cập của tiêu đề thành "CAPM — chi phí vốn chủ sở hữu Nâng cao".
+   */
+  it('nhưng KHÔNG nằm trong h1 — cấp độ không phải một phần của tên công thức', () => {
+    render(<Man spec={specOf('capm')} />);
+
+    const heading = screen.getByRole('heading', { level: 1 });
+
+    expect(heading.textContent).not.toContain(t('level.advanced'));
+  });
+});
+
 describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   it('dựng đủ các khối bắt buộc của FR-02, FR-03 và FR-04', () => {
     render(<Man spec={specOf('pe')} />);
@@ -718,7 +754,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
     render(<Man spec={specOf('pe')} />);
 
-    await userEvent.click(screen.getByRole('button', { name: '↓ Xuất' }));
+    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
 
     expect(screen.getByText(/Miễn trừ tự động đính kèm/)).not.toBeNull();
     expect(screen.getByText(/Không thể tắt/)).not.toBeNull();
@@ -743,7 +779,7 @@ describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
   it('mở rồi đóng thì sheet vẫn còn trong DOM — không mất lựa chọn bên trong', async () => {
     const { container } = render(<Man spec={specOf('pe')} />);
 
-    await userEvent.click(screen.getByRole('button', { name: '↓ Xuất' }));
+    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
     expect(container.querySelector('.print-region')).not.toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Đóng' }));
@@ -1043,19 +1079,76 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   /*
-   * Nút cuộn xuống khối này (đầu màn, cạnh "Nạp mẫu") phải có mặt trên CẢ 111 công thức, không
-   * riêng nhóm chuỗi giá — chủ dự án chốt điều này sau khi hỏi vì sao chỉ 35 công thức chuỗi có
-   * lối "Xem ví dụ minh hoạ": người "chưa hiểu, chưa có số liệu" là một nhóm người dùng, không
-   * phải một nhóm công thức. jsdom không cài `Element.scrollIntoView`, nên ca này còn kiểm luôn
-   * nhánh an toàn trong `scrollToExample()` không ném lỗi khi hàm đó vắng mặt.
+   * Nút cuộn xuống khối này (hàng tiêu đề khối Công thức, cạnh "Nạp mẫu") phải có mặt trên CẢ 111
+   * công thức, không riêng nhóm chuỗi giá — chủ dự án chốt điều này sau khi hỏi vì sao chỉ 35 công
+   * thức chuỗi có lối "Xem ví dụ minh hoạ": người "chưa hiểu, chưa có số liệu" là một nhóm người
+   * dùng, không phải một nhóm công thức. jsdom không cài `Element.scrollIntoView`, nên ca này còn
+   * kiểm luôn nhánh an toàn trong `scrollToExample()` không ném lỗi khi hàm đó vắng mặt.
    */
-  it('nút "Xem ví dụ thực tế ↓" ở đầu trang có trên mọi công thức, kể cả công thức chuỗi giá', async () => {
+  it('nút "Xem ví dụ thực tế ↓" có trên mọi công thức, kể cả công thức chuỗi giá', async () => {
     for (const id of ['pe', 'beta']) {
       const { unmount } = render(<Man spec={specOf(id)} />);
 
       const jump = screen.getByRole('button', { name: t('detail.jumpToExample') });
       await userEvent.click(jump);
       expect(document.getElementById('khoi-vi-du')).not.toBeNull();
+
+      unmount();
+    }
+  });
+
+  /*
+   * CHỖ ĐỨNG của hàng nút, không phải sự tồn tại của nó.
+   *
+   * Chủ dự án chuyển hai nút xuống ngang hàng tiêu đề khối Công thức vì ở 38 công thức mà "Nạp
+   * mẫu" bị ẩn, hàng cũ chỉ còn đúng một nút và chiếm trọn một hàng ngang ngay dưới tên công thức
+   * — *"bơ vơ ở vị trí đó"*.
+   *
+   * jsdom không dàn trang nên "hai nút có thật sự nằm cùng một dòng với tiêu đề" thì không kiểm
+   * được ở đây (phần ấy soi bằng ảnh chụp). Ca này gác ĐIỀU KIỆN khiến hàng đó thành hình, thứ
+   * duy nhất một lần `<div>` đặt sai chỗ sẽ phá: tiêu đề và hàng nút chung một thẻ cha.
+   */
+  it('hai nút "Nạp mẫu" / "Xem ví dụ thực tế" nằm ở hàng tiêu đề khối Công thức', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    const jump = screen.getByRole('button', { name: t('detail.jumpToExample') });
+    const preset = screen.getByRole('button', { name: t('detail.loadPreset') });
+
+    const khoi = jump.closest('section');
+    expect(khoi).not.toBeNull();
+
+    const tieuDe = within(khoi as HTMLElement).getByRole('heading', { level: 2 });
+    expect(tieuDe.textContent).toBe(t('detail.formula'));
+
+    // `.blockHead` ← `.actions` ← nút. Tiêu đề là con trực tiếp của chính `.blockHead` ấy.
+    expect(jump.parentElement?.parentElement).toBe(tieuDe.parentElement);
+    expect(preset.parentElement?.parentElement).toBe(tieuDe.parentElement);
+  });
+
+  /*
+   * Dòng mô tả một câu dưới tên công thức đã bỏ hẳn: nó trả lời đúng câu hỏi mà khối "Ý nghĩa"
+   * ngay dưới đang trả lời kỹ hơn, và bản thân `description` là chữ viết cho THẺ công thức ở màn
+   * danh sách — vào được màn này tức vừa bấm đúng cái thẻ ấy.
+   *
+   * TRƯỜNG `spec.description` không bị đụng tới: thẻ, tìm kiếm, `<meta description>` và phụ đề bản
+   * xuất vẫn đọc nó. Ca này chỉ gác chỗ hiển thị đã gỡ, để không ai dựng lại vì thấy màn "thiếu
+   * một câu giới thiệu".
+   */
+  it('màn chi tiết KHÔNG in lại dòng mô tả của thẻ công thức', () => {
+    for (const id of ['capm', 'pe']) {
+      const spec = specOf(id);
+      const { unmount } = render(<Man spec={spec} />);
+
+      expect(screen.queryByText(spec.description.vi)).toBeNull();
+      /*
+        Khối trả lời cùng câu hỏi ấy vẫn còn — bỏ mô tả không làm màn mất phần giới thiệu.
+
+        `getAllByText` chứ không `getByText`: câu này vốn đã hiện HAI chỗ trong màn — khối "Ý
+        nghĩa" (mục 2) và mục `meaning` của đàn xếp "Giải thích cho người mới" (mục 7, xem
+        `ExplanationAccordion`). Cả hai đều có từ trước đợt này; ca kiểm chỉ cần biết câu ấy còn có
+        mặt, không phải đếm xem mấy bản.
+      */
+      expect(screen.getAllByText(spec.explanation.meaning.vi).length).toBeGreaterThan(0);
 
       unmount();
     }
@@ -1214,28 +1307,24 @@ describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => 
   });
 });
 
-describe('WF-03 — đường ra khỏi màn chi tiết', () => {
-  /*
-   * Lỗ hổng chủ dự án báo: vào một công thức rồi thì không có lối quay về danh sách để chọn
-   * cái khác. Ca này chốt lại cho mọi công thức, không riêng một cái.
-   */
-  it('mọi công thức đều có link quay về danh sách', () => {
-    for (const spec of FORMULAS) {
-      const { unmount } = render(<Man spec={spec} />);
-
-      const back = screen.getByRole('link', { name: t('nav.backToList') });
-      expect(back.getAttribute('href'), spec.id).toMatch(/^\/cong-thuc\/?(\?|$)/);
-
-      unmount();
-    }
-  });
-
-  it('đường ra là link thật, không phải nút — chạy được cả khi JavaScript chưa tải xong', () => {
-    render(<Man spec={specOf('pe')} />);
-
-    expect(screen.getByRole('link', { name: t('nav.backToList') }).tagName).toBe('A');
-  });
-});
+/*
+ * ── Đường ra ĐÃ RỜI khỏi thân màn ────────────────────────────────────────────────────────────
+ *
+ * Ở đây từng có hai ca: "mọi công thức đều có link quay về danh sách" (quét cả 111) và "đường ra
+ * là link thật, không phải nút". Chúng ra đời từ một lỗ hổng chủ dự án báo — vào một công thức rồi
+ * thì không có lối quay về để chọn cái khác — nên lời hứa ấy KHÔNG được mất; nó chỉ đổi chỗ.
+ *
+ * Nay `<BackLink>` nằm ở thanh trên (`HeaderIdentity`), tức ngoài component này. Hai ca cũ dựng
+ * `FormulaDetail` một mình nên chúng sẽ đỏ mãi mà không nói lên điều gì thật.
+ *
+ * Chỗ mới của từng vế, cả hai đều gác chặt hơn bản cũ:
+ *
+ *   · "màn chi tiết có đường ra, là link thật" → `AppHeader.test.tsx`, ca "trang chi tiết bày
+ *     đường ra". Nó dựng đúng cái thanh thật, thứ hai ca cũ không chạm tới.
+ *   · "MỌI công thức đều có" → `routes.test.ts`, ca quét `backLinkFor()` trên đường dẫn của cả
+ *     111 công thức. Mạnh hơn vòng lặp 111 lần render ở đây: luật nay thuần hàm, chạy trong vài
+ *     mili giây, và nó gác cả những đường dẫn công thức chưa tồn tại.
+ */
 
 describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn', () => {
   it('mọi công thức đều dựng được và không hiện NaN hay Infinity', () => {

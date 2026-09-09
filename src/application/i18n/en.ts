@@ -171,7 +171,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.tickerNoData':
     'this ticker has no usable fundamentals yet (its reports lack four consecutive quarters, or the ' +
     'figures do not agree). Retrying will not help — pick another ticker, or enter values by hand.',
-  'detail.export': '↓ Export',
+  'detail.download': 'Download',
+  'detail.shareLink': 'Share',
+  'detail.shareCopied': 'Link copied',
+  'detail.shareNoSeries':
+    'The link carries the numbers in the fields; the price series has to be loaded by the recipient.',
   'detail.tickerSticky': 'in use for every formula this visit',
   'detail.tickerChange': 'Change ticker',
   'detail.tickerClear': 'Clear ticker',
@@ -283,7 +287,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'Input numbers come from a fabricated sample dataset, not yet checked against real statements.',
 
   'portfolio.title': 'My portfolio',
-  'portfolio.subtitle': 'Stored on this device · no sign-in needed',
   'portfolio.totalValue': 'Total value',
   'portfolio.beta': 'Portfolio beta',
   'portfolio.xirr': 'Portfolio XIRR',
@@ -296,10 +299,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.add': 'Add a ticker',
   'portfolio.remove': 'Remove',
   'portfolio.empty': 'Nothing here yet. Add your first ticker to see total value and weights.',
-  'portfolio.localTag': 'LOCAL',
-  // Bỏ chú "(localStorage)" cùng lúc với bản Việt — xem docblock ở `vi.ts`.
-  'portfolio.localOnly':
-    'Quantities and cost prices stay on this device only. Only the ticker codes are sent to Finbox to look up market prices.',
+  /* `portfolio.localTag` và `portfolio.localOnly` đã xoá cùng lúc với bản Việt — xem docblock ở
+     `vi.ts`, chỗ ghi vì sao lượt xoá này khác một lượt dọn chú thích thường. */
   'portfolio.formCode': 'Ticker',
   'portfolio.formQuantity': 'Shares held',
   'portfolio.formCostPrice': 'Cost per share (₫)',
@@ -364,14 +365,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.tabSaved': 'Formulas',
   'portfolio.savedEmpty':
     'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
-  'portfolio.savedOpen': 'Reopen',
-  'portfolio.savedRename': 'Rename',
+  /* "View", không phải "Reopen" — xem lý do ở `vi.ts`. */
+  'portfolio.savedOpen': 'View',
   'portfolio.savedRemove': 'Delete',
-  'portfolio.savedSaveName': 'Save name',
-  'portfolio.savedNameLabel': 'Calculation name',
+  /* `savedRename` · `savedSaveName` · `savedNameLabel` đã xoá cùng lúc với bản Việt. */
   'portfolio.savedAt': 'saved',
-  'portfolio.savedResultNote':
-    'The result as of the moment it was saved — not recalculated. Tap “Reopen” to run it again.',
   'portfolio.savedNeedsSeries': 'Needs price series',
 
   'ticker.title': 'Pick a ticker',
@@ -415,7 +413,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'series.usable': 'usable sessions',
   'series.rowLabel': 'Row',
   /* Không còn `series.localOnly` / `series.localTag`: màn bảng dữ liệu bỏ dòng ghi chú
-     localStorage (25/08/2026). Câu tương đương chỉ còn ở màn Danh mục — `portfolio.localOnly`. */
+     localStorage (25/08/2026). Câu tương đương ở màn Danh mục (`portfolio.localOnly`) cũng đã bỏ
+     ngày 09/09/2026 — nay không màn nào còn dòng cam kết dữ liệu. */
   'series.needMore':
     'Beta and Sharpe need at least 60 sessions to mean anything statistically. Not enough yet — results will report missing data.',
 
@@ -515,16 +514,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'settings.mode.hint':
     'Advanced mode adds the complex formulas, every advanced variable, the valuation chain, and the Beta / XIRR tiles in Portfolio.',
   'settings.theme.label': 'Light or Dark',
-  'settings.theme.hint':
-    'Kept on this device and only changes the interface. Exported PNGs and printouts always stay on a light background.',
   'settings.units.title': 'Units & display',
   'settings.units.scale': 'Currency unit in tables',
-  'settings.units.scaleHint':
-    'Only changes how numbers are shown in tables. The math still runs in đồng, and input fields keep the Vietnamese convention.',
+  /* `settings.theme.hint` và `settings.units.scaleHint` đã xoá cùng lúc với bản Việt. */
   'settings.units.schedule': 'Trading fee schedule',
   'settings.units.scheduleHint': 'Used by the net-profit-after-fees screen. Source: Market Config.',
   'settings.data.title': 'Data on this device',
-  'settings.data.note': 'Everything below lives in your browser and is never sent anywhere.',
   'settings.about.title': 'About',
 
   'data.prefs': 'Display preferences',

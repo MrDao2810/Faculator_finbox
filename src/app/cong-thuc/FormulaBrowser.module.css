@@ -4,6 +4,18 @@
   gap: var(--space-4);
 }
 
+/*
+ * Vùng nội dung của thanh tab mảng.
+ *
+ * Lặp lại đúng flow của `.browser`: cái bọc này thêm vào để có chỗ gắn `role="tabpanel"`, nên
+ * nó không được đổi nhịp dọc mà cả màn đang theo.
+ */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 .count {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);

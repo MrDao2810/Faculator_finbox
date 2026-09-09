@@ -1263,7 +1263,13 @@
       "Bash(node shot-url.mjs http://localhost:3000/cong-thuc/lai-kep/ C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/0034d886-5425-4d3d-b547-624f6133d0e8/scratchpad/b-zoom.png 900 700 '[...document.querySelectorAll\\('\\\\''button'\\\\''\\)].find\\(b=>/Phóng to/.test\\(b.textContent\\)\\)?.click\\(\\);')",
       "Bash(node shot-url.mjs http://localhost:3000/cong-thuc/lai-kep/ C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/0034d886-5425-4d3d-b547-624f6133d0e8/scratchpad/final-zoom-bar.png 900 700 '\\(async\\(\\)=>{const b=[...document.querySelectorAll\\('\\\\''button'\\\\''\\)];b.find\\(x=>x.textContent.trim\\(\\)==='\\\\''Cột'\\\\''\\)?.click\\(\\); await new Promise\\(r=>setTimeout\\(r,400\\)\\); [...document.querySelectorAll\\('\\\\''button'\\\\''\\)].find\\(x=>/Phóng to/.test\\(x.textContent\\)\\)?.click\\(\\);}\\)\\(\\)')",
       "Bash(node shot-url.mjs http://localhost:3000/cong-thuc/lai-kep/ C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/0034d886-5425-4d3d-b547-624f6133d0e8/scratchpad/small-btn.png 1280 900 'document.querySelector\\('\\\\''figure'\\\\''\\)?.scrollIntoView\\({block:'\\\\''start'\\\\''}\\);')",
-      "Bash(node shot-url.mjs http://localhost:3000/cong-thuc/lai-kep/ C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/0034d886-5425-4d3d-b547-624f6133d0e8/scratchpad/small-btn-mobile.png 360 900 'document.querySelector\\('\\\\''figure'\\\\''\\)?.scrollIntoView\\({block:'\\\\''start'\\\\''}\\);')"
+      "Bash(node shot-url.mjs http://localhost:3000/cong-thuc/lai-kep/ C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/0034d886-5425-4d3d-b547-624f6133d0e8/scratchpad/small-btn-mobile.png 360 900 'document.querySelector\\('\\\\''figure'\\\\''\\)?.scrollIntoView\\({block:'\\\\''start'\\\\''}\\);')",
+      "PowerShell(npx vitest run src/ui/primitives/TabBar.test.tsx 2>&1)",
+      "PowerShell(npx prettier --write \"src/ui/primitives/TabBar.tsx\" \"src/ui/primitives/TabBar.module.css\" 2>&1)",
+      "Bash(sed -n '/--space-0/,/--radius-pill/p' src/app/globals.css | head -40)",
+      "PowerShell(npx vitest run src/ui/tokens.test.ts src/ui/primitives/TabBar.test.tsx 2>&1)",
+      "PowerShell(npx vitest run src/ui/contrast.test.ts src/ui/tokens.test.ts src/ui/primitives/TabBar.test.tsx 2>&1)",
+      "Bash(node C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/58295bed-76d0-4382-a968-ca2758a5e33f/scratchpad/ratio.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",
@@ -1272,7 +1278,8 @@
       "C:\\Faculator_finbox\\.git",
       "c:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",
       "c:\\Faculator_finbox\\src\\ui\\layout",
-      "C:\\caculator_visualize"
+      "C:\\caculator_visualize",
+      "c:\\Faculator_finbox\\src\\app"
     ]
   }
 }

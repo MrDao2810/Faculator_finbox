@@ -31,3 +31,6 @@ export type { TableProps } from './Table';
 
 export { Switch } from './Switch';
 export type { SwitchProps } from './Switch';
+
+export { TabBar, tabId } from './TabBar';
+export type { TabBarItem, TabBarProps } from './TabBar';

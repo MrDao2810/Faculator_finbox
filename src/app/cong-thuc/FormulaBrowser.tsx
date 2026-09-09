@@ -6,7 +6,6 @@ import {
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
   countByCategoryFor,
-  countBySegmentFor,
   countHiddenByLevel,
   formulasForLevel,
   isDefaultListParams,
@@ -22,13 +21,22 @@ import {
   EmptyState,
   FormulaCard,
   HiddenByLevelNote,
+  SEGMENT_TABS_ID,
   SearchBoxLink,
   VirtualList,
 } from '@/ui/browse';
 import { rememberOrigin } from '@/ui/layout/OriginTracker';
-import { Button } from '@/ui/primitives';
+import { Button, tabId } from '@/ui/primitives';
 
 import styles from './FormulaBrowser.module.css';
+
+/**
+ * id của vùng nội dung mà thanh tab mảng điều khiển.
+ *
+ * Chuỗi cứng chứ không `useId()`: bản build là HTML tĩnh, và id do React sinh khác nhau giữa
+ * lượt dựng lúc build và lượt hydrate — cùng lý do cả thư mục `ui/charts` bị cấm `useId()`.
+ */
+const PANEL_ID = 'danh-sach-cong-thuc';
 
 /**
  * Màn WF-02 Danh sách công thức — gói WBS 2.2 (component) và 3.1.2 (lắp ráp).
@@ -96,7 +104,10 @@ export function FormulaBrowser() {
     () => selectFormulas(pool, params, { usageOrder }),
     [pool, params, usageOrder],
   );
-  const segmentCounts = useMemo(() => countBySegmentFor(pool, params), [pool, params]);
+  /*
+   * Không còn `countBySegmentFor(pool, params)`: ba tab mảng đã bỏ số đếm, chỉ còn chữ. Hàm ấy
+   * vẫn sống ở Domain kèm ca kiểm riêng — xem docblock `CategoryFilter`.
+   */
   const categoryCounts = useMemo(() => countByCategoryFor(pool, params), [pool, params]);
 
   /** Bao nhiêu công thức khớp bộ lọc này nhưng chế độ Cơ bản đang giấu đi. */
@@ -128,64 +139,80 @@ export function FormulaBrowser() {
         params={params}
         onChange={setParams}
         onReset={reset}
-        segmentCounts={segmentCounts}
         categoryCounts={categoryCounts}
         showReset={isFiltering}
+        panelId={PANEL_ID}
       />
 
-      {/* aria-live để trình đọc màn hình biết số kết quả đổi sau mỗi lần đổi bộ lọc. */}
-      <p className={styles.count} aria-live="polite">
-        {formulas.length} {t('list.count')}
-      </p>
-
       {/*
-        Chỉ báo khi danh sách CÒN mục: lúc rỗng thì cả khối rỗng bên dưới đã nói đúng chuyện
-        này rồi, hiện cả hai là nói hai lần cùng một câu.
-      */}
-      {formulas.length > 0 && <HiddenByLevelNote count={hiddenByLevel} />}
+        Vùng nội dung của thanh tab mảng.
 
-      {formulas.length > 0 ? (
-        <VirtualList items={formulas} itemKey={(formula) => formula.id} label={t('list.label')}>
-          {(formula) => <FormulaCard formula={formula} />}
-        </VirtualList>
-      ) : registryEmpty ? (
-        <EmptyState
-          title={t('list.empty.registry.title')}
-          lines={[t('list.empty.registry.hint')]}
-        />
-      ) : hiddenByLevel > 0 ? (
-        /*
-          Rỗng vì CHẾ ĐỘ chứ không vì bộ lọc. Nhóm "Tài chính DN" có 2/2 công thức mức nâng cao
-          nên ở chế độ Cơ bản nó trống hẳn — không nói ra thì người dùng tưởng nhóm chưa làm.
-        */
-        <EmptyState
-          title={t('list.empty.basicOnly.title')}
-          lines={[t('list.empty.basicOnly.hint')]}
-          action={
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setMode('advanced');
-              }}
-            >
-              {t('list.showAdvanced')}
-            </Button>
-          }
-        />
-      ) : (
-        <EmptyState
-          title={t('list.empty.noMatch.title')}
-          lines={[t('list.empty.noMatch.scope'), t('list.empty.noMatch.hint')]}
-          action={
-            isFiltering ? (
-              <Button variant="secondary" size="sm" onClick={reset}>
-                {t('filter.reset')}
+        Bọc CẢ dòng đếm lẫn danh sách (và cả bốn khối rỗng): chúng là một vùng duy nhất mà thanh
+        tab thay đổi, nên `aria-labelledby` phải trỏ về tab đang chọn để trình đọc màn hình biết
+        đang đọc danh sách của mảng nào.
+
+        `aria-live` của dòng đếm vẫn giữ: nó nói ra số kết quả sau MỌI lần đổi bộ lọc, kể cả đổi
+        nhóm hay đổi cách sắp — những thứ không đi qua thanh tab.
+      */}
+      <div
+        id={PANEL_ID}
+        role="tabpanel"
+        aria-labelledby={tabId(SEGMENT_TABS_ID, params.segment)}
+        className={styles.panel}
+      >
+        <p className={styles.count} aria-live="polite">
+          {formulas.length} {t('list.count')}
+        </p>
+
+        {/*
+          Chỉ báo khi danh sách CÒN mục: lúc rỗng thì cả khối rỗng bên dưới đã nói đúng chuyện
+          này rồi, hiện cả hai là nói hai lần cùng một câu.
+        */}
+        {formulas.length > 0 && <HiddenByLevelNote count={hiddenByLevel} />}
+
+        {formulas.length > 0 ? (
+          <VirtualList items={formulas} itemKey={(formula) => formula.id} label={t('list.label')}>
+            {(formula) => <FormulaCard formula={formula} />}
+          </VirtualList>
+        ) : registryEmpty ? (
+          <EmptyState
+            title={t('list.empty.registry.title')}
+            lines={[t('list.empty.registry.hint')]}
+          />
+        ) : hiddenByLevel > 0 ? (
+          /*
+            Rỗng vì CHẾ ĐỘ chứ không vì bộ lọc. Nhóm "Tài chính DN" có 2/2 công thức mức nâng cao
+            nên ở chế độ Cơ bản nó trống hẳn — không nói ra thì người dùng tưởng nhóm chưa làm.
+          */
+          <EmptyState
+            title={t('list.empty.basicOnly.title')}
+            lines={[t('list.empty.basicOnly.hint')]}
+            action={
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setMode('advanced');
+                }}
+              >
+                {t('list.showAdvanced')}
               </Button>
-            ) : undefined
-          }
-        />
-      )}
+            }
+          />
+        ) : (
+          <EmptyState
+            title={t('list.empty.noMatch.title')}
+            lines={[t('list.empty.noMatch.scope'), t('list.empty.noMatch.hint')]}
+            action={
+              isFiltering ? (
+                <Button variant="secondary" size="sm" onClick={reset}>
+                  {t('filter.reset')}
+                </Button>
+              ) : undefined
+            }
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -145,6 +145,272 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Ba mảng lọc thành thanh tab thật — primitive `TabBar` (08/09/2026)
+
+**Trạng thái: xong.** Còn một việc kế tiếp, ghi ở cuối mục.
+
+Chủ dự án chỉ vào hàng **Tất cả · Chứng khoán · Cá nhân** ở màn Danh sách: _"chuyển đổi phần này
+thành tabbar cho tôi"_.
+
+### Không chỉ đổi hình — khuôn cũ nói sai với trình đọc màn hình
+
+Ba mảng trước đây là ba `Chip`. Chip là khuôn của bộ lọc **cộng dồn**: bấm thêm một cái thì lọc
+chặt thêm. Ba mảng này thì **loại trừ nhau**, và mỗi lần bấm là thay hẳn danh sách bên dưới.
+
+Cái sai không nằm ở hình. `Chip` phát ra `aria-pressed`, nên trình đọc màn hình đọc ra ba "nút
+bật/tắt" độc lập chứ không đọc ra "1 trong 3" — trong khi chúng ràng buộc nhau. Và cả cụm chiếm ba
+nấc Tab của bàn phím thay vì một.
+
+Nay: `role="tablist"` + `aria-selected`, vùng danh sách bên dưới thành `role="tabpanel"` có
+`aria-labelledby` trỏ về đúng tab đang chọn.
+
+Danh sách chọn **nhóm** thì giữ nguyên `<Select>`: 12 mục không thành hàng tab được ở 360px.
+
+### Vì sao dựng primitive, không chép cụm tab của màn Danh mục
+
+`PortfolioScreen` đã có một `role="tablist"` dựng tay, và docblock ở đó ghi rõ lý do: _"sản phẩm
+chưa có primitive tab nào, và đây là chỗ duy nhất cần nó"_. Nay có chỗ thứ hai → lý do ấy hết hiệu
+lực. Chép lần nữa là đúng thứ bản rà soát phân cấp đã gọi tên: _"Tab… lặp lại nhưng chưa đồng nhất
+giữa các màn"_.
+
+`src/ui/primitives/TabBar.tsx` lấy nguyên **dấu hiệu đang chọn** của màn Danh mục (nền
+`--gradient-highlight`, chữ đảo màu, in đậm — ba dấu hiệu, không chỉ màu) và **thêm** thứ cả hai
+bản trước đều thiếu: **roving tabindex** đúng khuôn WAI-ARIA. Cả cụm một nấc Tab, rồi ←/→/Home/End
+chạy giữa các tab, chọn tới đâu tiêu điểm theo tới đó.
+
+### Cách xếp: hai vòng sửa, và bản chốt là "một khối" chứ không phải "ba nút"
+
+**Vòng 1.** Bản đầu chép luôn cách xếp của màn Danh mục — ba nút rời có `gap`, mỗi nút chừa
+`border-bottom: 3px solid transparent` làm chỗ cho gạch chân. Chủ dự án bác, và đọc đúng ra cái
+cạnh chừa ấy thật sự là gì: _"3 button liền kề và các viền border đều rõ ràng chứ không phải là có
+viền trắng ở bottom thế kia"_. Đã bỏ cạnh chừa, cho ba nút dính liền, mỗi nút một viền và kéo đè
+`margin-left: -1px`.
+
+**Vòng 2.** Vẫn chưa đúng, và lần này chủ dự án tách ra ba điều rõ ràng:
+
+1. không viền 1px quanh **từng nút** — viền bo bốn cạnh của **cả cụm**, chữ bên trong `#4F4F4F`;
+2. bên trong **không có gạch phân cách** giữa ba nút;
+3. nút đang chọn **thụt vào** một khoảng nhỏ cả bốn phía, và **tự bo bốn góc**.
+
+Cả ba nói cùng một chuyện: đây là MỘT khối, không phải ba nút xếp cạnh nhau. Đường ngăn của vòng 1
+chính là thứ điều 2 loại bỏ — nó chia cụm thành ba ô, trong khi cả cụm chỉ là một lựa chọn.
+
+Nay khung mang `border-radius: var(--radius-md)` + `padding`; nút trong suốt, không viền,
+`border-radius: var(--radius-sm)`.
+
+**Vòng 3 — nửa đệm.** Chủ dự án nhìn bản 4px rồi chốt: _"giảm padding của button bên trong với bên
+ngoài đi 1 nửa"_. Khung 4px → **2px**, đệm ngang của nút 12px → **6px**
+(`calc(var(--space-3) / 2)`).
+
+2px không nằm trên thang `--space-*` (bậc nhỏ nhất đã là 4px), và đó hoá ra không phải chỗ lách
+luật mà là chỗ **về đúng khuôn**: ba cụm chọn-một khác của sản phẩm — `ButtonGroup`,
+`UnitSwitcher`, `ChartKindToggle` — đều đã dựng sẵn đúng `padding: 2px` + `--radius-md` ngoài +
+`--radius-sm` trong. Cụm tab nay là cụm thứ tư dùng chung khuôn ấy thay vì tự đặt một mức riêng.
+
+Hệ quả nhỏ, ghi ra để khỏi ai "sửa": bo góc trong 6px, theo hình học lẽ ra là 8px (10 − 2). Ba cụm
+kia lệch đúng như vậy và đã sống với nó — bốn cụm giống nhau đáng hơn hai pixel bo.
+
+**Vòng 4 — khung thôi có viền.** _"xóa viền kia đi chỉ bo tròn 4 góc cùng màu thôi"_. Bỏ nốt
+`border: 1px solid var(--color-border)`; còn lại là một mảng màu bo góc.
+
+**Vòng 5 — khay thôi màu trắng.** _"đổi màu bên trong đi không phải màu trắng mà là màu 4F4F4F
+opacity 20%"_ → token mới `--color-tab-tray`. **Vòng 6** đổi tiếp sang **#D1D9E5** đặc, cùng lúc
+với hai việc nữa (xem mục riêng bên dưới).
+
+Hai vòng cuối đi với nhau chứ không phải hai ý rời: bỏ viền thì khay phải tự thấy được bằng NỀN, mà
+khay trắng trên nền trang #f8fafc thì gần như tàng hình. Xám 20% đọc ra ngay là một cái khay.
+
+Nhìn lại cả năm vòng thì chúng cùng một hướng: **mỗi nét kẻ bị bỏ đi là một lần cụm thôi bị cắt
+thành nhiều ô**. Viền từng nút → đường ngăn giữa các nút → viền khung. Cả cụm chỉ là MỘT lựa chọn,
+nên cuối cùng không còn nét nào — chỉ còn một mảng màu và một viên nổi trên nó.
+
+Không phạm NFR-USA-06: cấu trúc cụm do `role="tablist"`/`aria-selected` nói, còn viên đang chọn vẫn
+giữ đủ ba dấu hiệu nhìn thấy được.
+
+Vòng focus `box-shadow` nay quan trọng hơn hẳn — khung không còn viền, nên nó là dấu hiệu duy nhất
+vẽ ra mép cụm khi đi bằng bàn phím. Khung vẫn **không** `overflow: hidden` nên nó không bị cắt.
+
+**Trỏ vào cũng đổi nghĩa theo.** `--color-sunken` giữ nguyên nhưng trên khay xám nó SÁNG lên chứ
+không chìm xuống: một viên sáng hiện đúng chỗ viên xanh sẽ nằm, tức thấy trước hình của kết quả.
+Cùng một dòng CSS, hai nghĩa — đã ghi vào chỗ khai để nó không bị "sửa cho đúng".
+
+### Token thứ hai: `--color-tab-tray`, và một cặp màu trượt AA vì nó
+
+Vòng 5 đặt nó là `rgba(79, 79, 79, 0.2)`; vòng 6 chốt **#D1D9E5**, màu **đặc**. Bảng tối `#2a3446`,
+dựng theo đúng vai của bản sáng — thẫm hơn nền trang một bậc, cùng họ xanh xám với
+`--color-surface`.
+
+Chuyện màu đặc không phải chi tiết vặt. **Nền trong suốt nằm ngoài tầm của `contrast.test.ts`** —
+nó đọc token dạng mã màu đặc, nên với `rgba()` thì tỉ số phải tính tay trên màu chồng (~#d6d8d9 →
+5,73:1) và **không cửa nào canh** khi ai đó chỉnh độ đục. Đúng cái lỗ mà `--color-scrim` cũng đang
+nằm trong. Nay có ca kiểm thật: **5,76:1** bảng sáng, **6,31:1** bảng tối, chấm ở cả hai bảng.
+
+Ca kiểm ấy là ca **riêng**, không phải thêm `--color-tab-tray` vào danh sách `backgrounds`: làm thế
+là bắt MỌI token chữ đạt 4,5:1 trên khay, mà `--color-muted` chỉ đạt **4,15** — nó không bao giờ
+đứng trên khay, nên đó sẽ là một ca đỏ vô nghĩa.
+
+Chính con số 4,15 ấy là chỗ khay cắn: **`.count` phải bỏ `--color-muted`**, dù docblock của chính
+`--color-muted` hứa _"vẫn đạt AA cả trên vùng chìm"_. Lời hứa đúng với `--color-sunken` #e8edf4,
+không đúng với khay thẫm hơn một bậc. Số đếm nay dùng đúng màu nhãn.
+
+### Vòng 6 — cao thêm 5px, và bỏ số đếm
+
+**Chiều cao.** _"tăng height của button và ô tabbar lên thêm 5px"_ → nút 36 → 41px, khay theo lên
+40 → 45. **Vòng 7 chốt lại đúng con số**: _"height tabbar là 40, height của button bên trong là
+36"_ — tức về lại 36/40.
+
+Cả hai vòng đều chỉ khai **một** `min-height` trên nút: khay không tự đặt chiều cao, nó cao bằng
+nút cộng `padding` hai phía, và 36 + 2×2 = 40 khớp sẵn. Không thêm `height: 40px` cho khay — hai
+nguồn sự thật cho một chiều cao là chỗ sẽ lệch ngay lần chỉnh sau. Vẫn dưới `--tap-min` 44px nên
+lớp phủ `::after` còn nguyên việc.
+
+**Bỏ số đếm.** _"bỏ các số đi chỉ để lại text"_. Ba tab còn "Tất cả · Chứng khoán · Cá nhân". Dòng
+đếm ngay dưới cụm tab đã nói số kết quả của mảng đang xem, nên ba con số kia trả lời một câu hỏi
+người dùng chưa hỏi — mà chiếm chỗ đúng ở khổ 360px.
+
+Kéo theo hai chỗ, và cả hai đều là **giữ chứ không xoá**:
+
+- `TabBar.count` vẫn trong hợp đồng primitive, vẫn có ca kiểm — `PortfolioScreen` có số đếm trên
+  tab và là chỗ tiếp theo dùng primitive này. Bỏ số là quyết định của MÀN, không phải của primitive.
+- `countBySegmentFor()` ở Domain giữ nguyên kèm ca kiểm riêng, tạm không còn nơi gọi. Đã ghi lý do
+  ở cả `CategoryFilter` lẫn `FormulaBrowser` để nó không bị đọc nhầm là mã chết.
+
+Prop `segmentCounts` thì bỏ hẳn khỏi `CategoryFilterProps` — một prop bắt buộc mà không ai đọc là
+lời hứa suông với nơi gọi.
+
+### Vòng 7 — hai bậc bo thành một, và khay nhạt thêm
+
+**Bo góc.** _"bo góc bên trong và bo góc bên ngoài cùng số liệu"_ → viên trong đổi từ `--radius-sm`
+sang `--radius-md`, bằng đúng khay. Bỏ phép tính hình học cũ (10px khay − 2px đệm = 8px, lấy bậc
+gần nhất 6px). Viên bo hơi "béo" so với mép khay, nhưng ở đệm 2px thì chênh lệch nằm dưới ngưỡng
+nhìn ra, còn cái được là **một con số duy nhất cho cả cụm** — đổi bo khay thì viên đi theo, không
+phải nhớ tính lại bậc thứ hai. Đây là chỗ cụm tab đi khác ba cụm chọn-một kia (chúng dùng `sm` bên
+trong); đã ghi vào docblock để không ai "chuẩn hoá" ngược lại.
+
+**Khay nhạt thêm.** _"thêm opacity thêm 20%"_ → #D1D9E5 ở 80%, tức **#d9e0ea** (bảng tối
+**#252e40**).
+
+Ghi mã đã **trộn sẵn** chứ không `rgba(209, 217, 229, 0.8)`, và lý do đáng giữ: nền trong suốt nằm
+ngoài tầm `contrast.test.ts` — nó đọc token dạng mã màu đặc, không dựng lại được màu chồng. Ghi
+`rgba()` là tỉ số chữ-trên-khay quay về phải tính tay, và không cửa nào canh khi ai đó chỉnh độ
+đục. Cùng một màu hiện ra, khác ở chỗ có ca kiểm hay không.
+
+Chênh lệch giữa trộn-trên-#f8fafc và trộn-trên-#ffffff là 1/255 mỗi kênh, nên khay đặt lên nền thẻ
+cũng không lệch thấy được. Tỉ số mới: **6,16:1** bảng sáng, **6,86:1** bảng tối — ca kiểm chấm cả
+hai.
+
+Chiều cao: nút 36px + padding khung = 40px. Vùng chạm 44px của NFR-USA-01 nằm ở lớp phủ `::after`
+trong suốt — cùng cách `Chip.module.css` làm, và cùng lý do nó ghi bằng chữ: nâng thẳng lên 44px
+thì hàng lọc WF-02 dày lên và vỡ hình.
+
+Khung vẫn **không** `overflow: hidden`, nên vòng focus `box-shadow` của nút sát mép không bị cắt —
+với roving tabindex thì vòng focus là thứ duy nhất chỉ đường cho người dùng bàn phím.
+
+### Vòng 8 — bo góc 8px, và một nguồn duy nhất cho con số ấy
+
+_"giảm bo góc xuống 8 cho tôi"_ → cả khay lẫn viên trong về **8px**, thay cho `--radius-md` (10px)
+mà vòng 7 vừa chốt.
+
+**Viết số thẳng, không qua token.** Thang bo góc không có bậc nào bằng 8 (`--radius-sm` 6 ·
+`--radius-md` 10 · `--radius-lg` 16). Hai đường đi khác: thêm một bậc chung, hoặc viết thẳng tại
+chỗ. Chọn viết thẳng — thang chung không nên phình ra vì một lần chỉnh bằng mắt của riêng một khối,
+và `Highlight.module.css` (2px) đã là tiền lệ. `tokens.test.ts` chỉ ép **màu** phải qua token, không
+ép bo góc, nên đây không phải chỗ lách luật.
+
+**Chỉ một chỗ giữ con số.** `.tabs` khai `border-radius: 8px`, `.tab` lấy lại bằng
+`border-radius: inherit`. `border-radius` vốn không di truyền, nhưng từ khoá `inherit` lấy đúng giá
+trị đã tính của thẻ cha, mà `.tab` luôn là con trực tiếp của `.tabs`. Vòng 7 đặt ra luật "bo trong
+và bo ngoài cùng số liệu" bằng cách viết cùng một token hai lần; nay CSS tự bảo đảm luật ấy, không
+còn chuyện phải nhớ sửa hai chỗ. Cùng lập luận đã dùng cho chiều cao ở vòng 7 (nút 36px + đệm 2px =
+khay 40px, chỉ khai một): **hai nguồn sự thật cho một con số là chỗ sẽ lệch ngay lần chỉnh sau.**
+
+Kiểm: `tokens.test.ts` 274 ca + `TabBar.test.tsx` 8 ca xanh, `format:check` sạch. Không ca nào chấm
+bo góc — đây là thay đổi thuần thị giác, phải nhìn trên `npm run preview`.
+
+### Vòng 9 — khay nhạt còn 40%, và một lỗi lặng do chính lượt ấy sinh ra
+
+_"màu của tabbar cần nhạt đi thêm 40%"_ → #D1D9E5 còn **40% độ đục** (vòng 7 là 80%), trộn sẵn
+thành **#e8edf3** (bảng tối: #2a3446 ở 40% trên nền trang, thành **#1b2333**).
+
+**Lỗi lượt này sinh ra.** Ở 40%, khay lùi xuống còn cách `--color-sunken` #e8edf4 đúng **1/255 ở
+kênh lam** — tỉ số 1,001:1. Mà `TabBar` đang lấy chính `--color-sunken` làm nền hover, nên dòng CSS
+ấy còn nguyên nhưng không vẽ ra gì. Loại lỗi không ai báo: trỏ chuột vào không có chuyện gì xảy ra
+thì trông giống một cụm tab vốn không có hover, chứ không giống hỏng.
+
+**Token mới `--color-tab-hover`**, khai ở cả hai bảng theo đúng lối `--color-tab-tray` /
+`--color-tab-label`:
+
+| bảng | mã        | vì sao                                                                                         |
+| ---- | --------- | ---------------------------------------------------------------------------------------------- |
+| sáng | `#ffffff` | bậc sáng duy nhất còn lại phía trên khay — giữ nguyên luật "trỏ vào thì sáng lên"              |
+| tối  | `#2a3446` | chính mã gốc mà khay bảng tối trộn ra; lượt làm nhạt lấy của khay bao nhiêu thì hover nhận lại |
+
+Bảng sáng nó trùng giá trị `--color-surface`, nhưng khai riêng chứ không `var()` sang: trùng vì
+bảng sáng hết bậc, không phải vì tab dùng nền thẻ — bảng tối (#2a3446 vs #1b2435) cho thấy hai
+token thật sự rời nhau.
+
+**Ba ca kiểm mới** ở `contrast.test.ts`, chạy trên cả hai bảng:
+
+- chữ tab đọc được trên nền hover (8,19:1 sáng · 6,31:1 tối);
+- **nền hover phải KHÁC khay** — ngưỡng 1,04:1, cố ý đặt thấp vì đây không phải phép đo dễ đọc mà
+  là phép đo "có nhìn ra không". Hiện 1,177 sáng · 1,257 tối. Cửa này canh cả hai đầu (làm nhạt khay
+  thêm, hoặc đổi màu hover), nên lượt chỉnh sau không tự tay bịt lại;
+- chữ trên khay: **6,96:1** sáng · **7,93:1** tối — nhạt hơn thì tương phản chữ lại tăng.
+
+**Một câu trong docblock phải sửa, không được chép nguyên.** Vòng 7 ghi "chênh lệch giữa
+trộn-trên-#f8fafc và trộn-trên-#ffffff là 1/255 mỗi kênh". Càng nhạt thì mã trộn càng phụ thuộc nền
+đứng dưới: ở 40% con số ấy đã là **5/255**. Vẫn dưới ngưỡng nhìn ra, nhưng lượt làm nhạt sau phải
+cân lại chứ không chép lại.
+
+Khay so với nền trang nay còn 1,125:1 (sáng) — vẫn đúng cái nó phải làm từ vòng 5 (bỏ viền mà vẫn
+thấy được khối), nhưng đây là mức mỏng, nhạt thêm nữa thì khay tàng hình trở lại.
+
+Kiểm: `contrast.test.ts` 90 ca, `tokens.test.ts` 274, `TabBar.test.tsx` 8 — xanh. Toàn bộ **2384
+xanh / 3 đỏ** (3 ca đỏ là baseline màn Tìm kiếm, không đụng tới). `lint` + `format:check` sạch.
+
+### Token mới: `--color-tab-label`
+
+`#4F4F4F` là **xám trung tính**, khác cả ba bậc mực của bảng màu (đều ngả navy). Không ép về
+`--color-ink-soft` #46536b: hai màu xấp xỉ cùng độ đậm nhưng khác sắc, mà trong cụm tab chúng đứng
+ngay cạnh nền navy của nút đang chọn — chỗ lệch sắc ấy nhìn ra được.
+
+Token gắn với MỘT khối chứ không phải một vai chung, cùng lối `--color-result-*` đã có. Khai ở **cả
+hai bảng** như `tokens.test.ts` bắt buộc; bảng tối `#b8b8b8` dựng bằng cách lật quanh trục sáng mà
+vẫn giữ tính trung tính, vì chính chỗ khác sắc mới là lý do nó thành token riêng. Thêm tên vào
+`contrast.test.ts` ở cả hai danh sách — **8,19:1** trên nền thẻ sáng, **7,84:1** trên nền thẻ tối,
+và ca kiểm chấm nó trên cả ba nền chứ không riêng nền thẻ.
+
+`idBase` truyền vào chứ không `useId()`: vùng nội dung nằm ở component khác và cần dựng ngược lại
+id của tab đang chọn. Cùng lý do bản build là HTML tĩnh — id React sinh lệch giữa build và hydrate.
+
+### File đổi
+
+| File                                            | Sửa gì                                                      |
+| ----------------------------------------------- | ----------------------------------------------------------- |
+| `ui/primitives/TabBar.{tsx,module.css}`         | **mới** — primitive, kèm `tabId()` để hai bên dựng chung id |
+| `ui/primitives/TabBar.test.tsx`                 | **mới** — 8 ca                                              |
+| `ui/primitives/index.ts` · `ui/browse/index.ts` | mở cửa barrel                                               |
+| `ui/browse/CategoryFilter.{tsx,module.css}`     | thay hàng chip bằng `TabBar`, thêm prop `panelId`           |
+| `app/cong-thuc/FormulaBrowser.{tsx,module.css}` | bọc dòng đếm + danh sách + 3 khối rỗng thành `tabpanel`     |
+
+Ca kiểm ghim ba vế dễ mất nhất: **không còn `aria-pressed`**, id dựng từ `tabId()` chứ không phải
+chuỗi React sinh, và số đếm nằm **trong** tên khả truy cập (`'Tất cả 111'` — cần `{' '}` thật, vì
+`gap` của flex không sinh ký tự nào).
+
+### Kiểm
+
+`typecheck` · `lint` · `format:check` sạch. **2374 xanh** (+19: 8 ca mới, phần còn lại là các bộ
+quét `*.module.css` tự nhận thêm file mới — `tokens`, `radius`, `typography`, `section-title`,
+`warning-surface` đều đã chấm CSS mới và xanh). 3 ca đỏ vẫn là baseline màn Tìm kiếm.
+
+### Việc kế tiếp
+
+Chuyển nốt cụm tab của `PortfolioScreen` sang `TabBar`. Chưa làm trong đợt này vì nó có
+`scrollIntoView` khi đổi tab và **hai** vùng nội dung riêng, tức không phải phép thay một dòng —
+mà chủ dự án đang hỏi về màn Danh sách, không phải màn Danh mục.
+
+---
+
 ## `— , —` thành `_ _`, và thôi tô đỏ chỗ trống (08/09/2026)
 
 **Trạng thái: xong.**

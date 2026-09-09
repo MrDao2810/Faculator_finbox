@@ -90,6 +90,9 @@ for (const [palette, tokens] of PALETTES) {
       '--color-ink',
       '--color-ink-soft',
       '--color-muted',
+      // Chữ của tab chưa chọn trong `TabBar`. Thực tế nó chỉ đứng trên `--color-surface`, nhưng
+      // chấm cả ba nền thì cụm tab đem đặt lên nền trang hay vùng chìm cũng không phải kiểm lại.
+      '--color-tab-label',
       '--color-accent',
       '--color-selected',
       '--color-highlight',
@@ -236,6 +239,39 @@ for (const [palette, tokens] of PALETTES) {
     it('chip đang chọn vẫn đọc được', () => {
       expect(meetsContrast(color('--color-accent'), color('--color-accent-soft'))).toBe(true);
     });
+
+    /*
+     * Chữ tab chưa chọn trên khay của chính cụm tab.
+     *
+     * Ca RIÊNG chứ không thêm `--color-tab-tray` vào danh sách `backgrounds` bên trên: làm thế là
+     * bắt MỌI token chữ phải đạt 4,5:1 trên khay, mà `--color-muted` chỉ đạt 4,15 — nó không đứng
+     * trên khay bao giờ, nên đó sẽ là một ca đỏ vô nghĩa.
+     *
+     * Ca này có được là nhờ khay đã đổi sang màu ĐẶC. Bản trước là `rgba(79,79,79,.2)`, mà nền
+     * trong suốt thì `color()` ở đây không dựng lại được màu chồng — tỉ số phải tính tay và không
+     * cửa nào canh khi ai đó chỉnh độ đục.
+     */
+    it('chữ tab chưa chọn đọc được trên khay của cụm tab', () => {
+      expect(meetsContrast(color('--color-tab-label'), color('--color-tab-tray'))).toBe(true);
+    });
+
+    /* Cùng dòng chữ ấy khi trỏ chuột vào — nền đổi, chữ thì không. */
+    it('chữ tab chưa chọn đọc được cả khi trỏ vào', () => {
+      expect(meetsContrast(color('--color-tab-label'), color('--color-tab-hover'))).toBe(true);
+    });
+
+    /*
+     * Trỏ vào phải NHÌN RA. Đây là ca sinh ra từ một lỗi thật: khay được làm nhạt hai lượt và lùi
+     * xuống gần đúng `--color-sunken`, mà `TabBar` lại đang lấy chính token ấy làm nền hover — nền
+     * hover trùng nền khay, dòng CSS còn nguyên nhưng không vẽ ra gì.
+     *
+     * Ngưỡng 1,04 là mức thấp: không đòi hover phải nổi bật, chỉ đòi nó KHÁC. Cửa này canh cả hai
+     * đầu — làm nhạt khay thêm, hoặc đổi màu hover — nên lượt chỉnh sau không tự tay bịt lại.
+     */
+    it('nền tab khi trỏ vào phân biệt được với khay', () => {
+      const ratio = contrastRatio(color('--color-tab-hover'), color('--color-tab-tray'));
+      expect(ratio, `tỉ số hiện tại ${ratio.toFixed(3)}:1`).toBeGreaterThan(1.04);
+    });
   });
 }
 
@@ -247,6 +283,9 @@ const REQUIRED_TOKENS = [
   '--color-ink',
   '--color-ink-soft',
   '--color-muted',
+  '--color-tab-label',
+  '--color-tab-tray',
+  '--color-tab-hover',
   '--color-border',
   '--color-border-strong',
   '--color-accent',

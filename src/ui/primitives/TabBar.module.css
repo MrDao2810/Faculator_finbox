@@ -1,0 +1,193 @@
+/*
+ * Thanh tab — primitive dùng chung.
+ *
+ * ── Khung là một MẢNG MÀU bo góc, không có đường viền nào ────────────────────────────────────
+ *
+ * Chủ dự án chốt qua sáu vòng, và mọi vòng đều đẩy về cùng một phía: đây là MỘT khối, không phải
+ * ba nút xếp cạnh nhau.
+ *
+ *   1. Không viền 1px quanh từng nút.
+ *   2. Bên trong KHÔNG có gạch phân cách giữa ba nút.
+ *   3. Nút đang chọn thụt vào một khoảng nhỏ ở cả bốn phía, và tự bo bốn góc.
+ *   4. Khung cũng KHÔNG có viền — *"xóa viền kia đi chỉ bo tròn 4 góc cùng màu thôi"*.
+ *   5. Khay không còn trắng — nay là `--color-tab-tray`, một mảng xanh xám nhạt.
+ *   6. Bo góc trong và bo góc ngoài CÙNG một số, nay là 8px.
+ *
+ * Vòng đầu làm ngược hẳn: mỗi nút một viền, kéo đè `margin-left: -1px` để chỗ giáp nhau thành một
+ * đường ngăn. Mỗi nét kẻ thêm vào là một lần cắt cụm thành nhiều ô, trong khi cả cụm chỉ là MỘT
+ * lựa chọn — nay không còn nét nào.
+ *
+ * Thứ tách khay khỏi trang là NỀN chứ không phải mép, và ở vòng 5 nó mới thật sự làm được việc
+ * ấy: khay trắng trên nền trang #f8fafc gần như tàng hình, còn `--color-tab-tray` thì đọc ra ngay
+ * là một cái khay. Bỏ viền mà vẫn thấy được khối — hai vòng ấy đi với nhau, không phải hai ý rời.
+ *
+ * Nút đang chọn nổi lên như một viên nằm TRONG khay. Đó cũng là lý do khay phải có `padding`:
+ * khoảng thụt ấy là thứ dựng nên hình viên.
+ */
+.tabs {
+  display: flex;
+
+  /*
+   * Khoảng thụt bốn phía của nút đang chọn — 2px, chủ dự án chốt sau khi nhìn bản 4px: *"giảm
+   * padding của button bên trong với bên ngoài đi 1 nửa"*.
+   *
+   * Con số này KHÔNG lấy từ thang `--space-*` (bậc nhỏ nhất đã là 4px), và đó không phải chỗ
+   * lách luật: ba cụm chọn-một khác của sản phẩm đều đã dựng đúng `padding: 2px` +
+   * `--radius-md` cho khung — `ButtonGroup`, `UnitSwitcher`, `ChartKindToggle`. Nay cụm tab về
+   * đúng khuôn ấy thay vì tự đặt một mức riêng.
+   *
+   * Còn bo góc thì cụm này đi khác ba cụm kia cả trong lẫn ngoài: chúng dùng `--radius-md` cho
+   * khung và `--radius-sm` bên trong, ở đây là MỘT số 8px cho cả hai — chủ dự án chốt "cùng số
+   * liệu". Xem chỗ khai ngay dưới và ở `.tab`.
+   *
+   * 2px cũng là thứ nối hai chiều cao chủ dự án chốt: nút 36px + 2×2 = khay 40px.
+   */
+  padding: 2px;
+
+  background: var(--color-tab-tray);
+
+  /*
+   * 8px — chủ dự án chốt sau khi nhìn bản 10px.
+   *
+   * Số viết thẳng chứ không qua token, vì thang bo góc không có bậc nào bằng 8 (`--radius-sm` 6 ·
+   * `--radius-md` 10 · `--radius-lg` 16). Thêm một bậc chung cho riêng cụm tab thì thang chung
+   * phình ra vì một lần chỉnh bằng mắt — `Highlight.module.css` đã có tiền lệ viết thẳng.
+   *
+   * Đây là NGUỒN DUY NHẤT của con số: `.tab` lấy lại bằng `border-radius: inherit`, nên hai bậc bo
+   * không thể lệch nhau.
+   */
+  border-radius: 8px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  /*
+   * `relative` để `::after` (vùng chạm) neo theo nút, và để nút đang chọn vẽ trên nền khung.
+   */
+  position: relative;
+
+  flex: 1;
+  min-width: 0;
+  /*
+   * 36px, và khay 40px — chủ dự án chốt đúng hai con số ấy.
+   *
+   * Chỉ khai MỘT trong hai: khay không tự đặt chiều cao, nó cao bằng nút cộng `padding` hai
+   * phía. 36 + 2×2 = 40, khớp sẵn. Đừng thêm `height: 40px` cho khay — hai nguồn sự thật cho một
+   * chiều cao là chỗ sẽ lệch ngay lần chỉnh sau, và lần này thì đệm 2px đang là thứ nối chúng.
+   *
+   * Vẫn dưới `--tap-min` 44px, nên lớp phủ `::after` trong suốt bên dưới còn nguyên việc — cùng
+   * cách `Chip.module.css` làm, và cùng lý do nó ghi: nâng thẳng ô lên 44px thì hàng lọc của
+   * WF-02 dày lên và vỡ hình.
+   */
+  min-height: 36px;
+  /*
+   * Đệm ngang nửa `--space-3` (12 → 6px), cùng đợt với khung. Ở đây nó chỉ đổi bề rộng TỐI THIỂU
+   * — ba nút `flex: 1` chia đều bề ngang thật — nên chỗ nó thật sự cứu là khổ 360px, nơi "Chứng
+   * khoán 98" là nhãn dài nhất.
+   */
+  padding: 0 calc(var(--space-3) / 2);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-tab-label);
+
+  /* Trong suốt: nền của nút chưa chọn LÀ nền khung. Không viền, không kẻ ngăn. */
+  background: transparent;
+  border: none;
+  /*
+   * CÙNG bậc bo với khay — chủ dự án chốt *"bo góc bên trong và bo góc bên ngoài cùng số liệu"*.
+   *
+   * `inherit` chứ không chép lại con số: `border-radius` vốn không di truyền, nhưng từ khoá này
+   * lấy đúng giá trị đã tính của thẻ cha, mà `.tab` luôn là con TRỰC TIẾP của `.tabs`. Nhờ vậy
+   * "cùng số liệu" là chuyện CSS bảo đảm, không phải chuyện phải nhớ sửa hai chỗ.
+   *
+   * Bản đầu dựng theo hình học: bo khay − đệm = bo viên, rồi lấy bậc gần nhất trên thang. Bỏ phép
+   * tính ấy. Viên trong bo hơi "béo" so với mép khay, nhưng ở đệm 2px thì chênh lệch nằm dưới
+   * ngưỡng nhìn ra.
+   */
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+/* Vùng chạm căng đúng bề ngang nút, chỉ nới theo chiều cao — hai nút cạnh nhau không chồng lấn. */
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+/*
+ * Trỏ vào: SÁNG lên, không chìm xuống. Một viên sáng hiện ra đúng chỗ viên xanh sẽ nằm, tức chuột
+ * đang đứng ở đâu thì thấy trước hình của kết quả.
+ *
+ * Token RIÊNG chứ không `--color-sunken` như bản trước: lượt làm nhạt khay lần thứ hai kéo
+ * `--color-tab-tray` xuống chỉ còn cách vùng chìm 1/255 ở kênh lam, nên dòng này sẽ không vẽ ra
+ * gì cả. Lỗi thuộc loại không ai thấy — trỏ chuột vào và không có chuyện gì xảy ra thì trông
+ * giống một cụm tab không có trạng thái hover, chứ không giống hỏng.
+ */
+.tab:hover:not(:disabled) {
+  background: var(--color-tab-hover);
+}
+
+/*
+ * Vòng focus phải rõ: roving tabindex nghĩa là người dùng bàn phím chạy giữa các tab bằng phím
+ * mũi tên, nên tab đang có tiêu điểm là thứ duy nhất chỉ đường cho họ.
+ *
+ * Khung KHÔNG `overflow: hidden`, nên vòng này không bị cắt dù nút nằm sát mép trong — nay còn
+ * quan trọng hơn: khung không còn viền, nên vòng focus là dấu hiệu duy nhất vẽ ra mép cụm.
+ */
+.tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/*
+ * Tab đang chọn: nền chuyển màu, chữ đảo màu, in đậm — ba dấu hiệu, không chỉ màu (NFR-USA-06).
+ * Dấu thứ tư không nhìn được nhưng đọc được: `aria-selected` ở chính component.
+ */
+.active {
+  color: var(--color-on-selected);
+  background: var(--gradient-highlight);
+  font-weight: var(--weight-bold);
+}
+
+.active:hover:not(:disabled) {
+  background: var(--gradient-highlight);
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/*
+ * Số đếm dùng ĐÚNG màu của nhãn, không chìm hơn một bậc.
+ *
+ * Bản trước lấy `--color-muted` cho nó chìm xuống. Không dùng được nữa kể từ lúc khay đổi màu:
+ * trên `--color-tab-tray` nó chỉ đạt **4,15:1**, tức trượt AA cho chữ nhỏ — dù docblock của chính
+ * `--color-muted` hứa "vẫn đạt AA cả trên vùng chìm". Lời hứa ấy đúng với `--color-sunken`
+ * #e8edf4, không đúng với khay thẫm hơn một bậc này.
+ *
+ * ⚠ Đó cũng là lý do `contrast.test.ts` KHÔNG đưa `--color-tab-tray` vào danh sách `backgrounds`:
+ * làm thế là bắt `--color-muted` phải đạt trên một cái nền nó không bao giờ đứng lên.
+ *
+ * Màn Danh sách hiện KHÔNG truyền `count` (chủ dự án bỏ số, chỉ để lại chữ), nên luật này đang
+ * ngủ. Giữ nguyên: `PortfolioScreen` có số đếm trên tab, và nó là chỗ tiếp theo dùng primitive này.
+ */
+.count {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-tab-label);
+}
+
+.active .count {
+  color: var(--color-on-selected);
+}

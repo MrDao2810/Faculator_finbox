@@ -26,11 +26,60 @@
   --color-paper: #f8fafc; /* nền trang — mã của bản Figma "FINBOX VERSION 2" */
   --color-surface: #ffffff; /* nền thẻ, nền ô nhập */
   --color-sunken: #e8edf4; /* vùng chìm: thanh trượt, ô khoá */
+  /*
+   * Nền khay của cụm tab (`TabBar`).
+   *
+   * Chủ dự án chốt #D1D9E5, rồi hai lượt làm nhạt: *"thêm opacity thêm 20%"* (còn 80%), rồi
+   * *"nhạt đi thêm 40%"* — nay còn **40% độ đục**. Mã dưới đây là #D1D9E5 ở 40% ĐÃ TRỘN SẴN với
+   * nền trang #f8fafc — cùng một màu hiện ra, khác ở chỗ nó là màu đặc.
+   *
+   * Trộn sẵn chứ không ghi `rgba(209, 217, 229, 0.4)`, và đây là lý do đáng giữ: nền trong suốt
+   * nằm NGOÀI tầm của `contrast.test.ts` — nó đọc token dạng mã màu đặc, không dựng lại được màu
+   * chồng. Ghi `rgba()` là tỉ số chữ-trên-khay quay về phải tính tay, và không cửa nào canh khi
+   * ai đó chỉnh độ đục. Đúng cái lỗ `--color-scrim` đang nằm trong.
+   *
+   * Càng nhạt thì mã trộn càng phụ thuộc nền đứng dưới: ở 80% chênh lệch giữa trộn-trên-#f8fafc
+   * và trộn-trên-#ffffff là 1/255 mỗi kênh, ở 40% đã là 5/255. Vẫn dưới ngưỡng nhìn ra, nhưng
+   * lượt làm nhạt tiếp theo thì phải cân lại chỗ này chứ không chép nguyên câu cũ.
+   *
+   * ⚠ Khay nay chỉ còn cách `--color-sunken` #e8edf4 đúng 1/255 ở kênh lam. Vì thế trạng thái trỏ
+   * vào của tab KHÔNG còn dùng được `--color-sunken` — xem `--color-tab-hover` ngay dưới.
+   *
+   * `--color-tab-label` trên nó đạt 6,96:1 — có ca kiểm riêng ở `contrast.test.ts`.
+   */
+  --color-tab-tray: #e8edf3;
+
+  /*
+   * Nền tab khi trỏ vào.
+   *
+   * Trước là `--color-sunken`, và lượt làm nhạt vừa rồi giết nó: khay đã lùi xuống gần đúng mã
+   * của vùng chìm, nên trỏ vào không đổi gì cả. Trắng là bậc sáng duy nhất còn lại phía trên
+   * khay, và nó giữ nguyên nghĩa mà bản cũ chọn — trỏ vào thì SÁNG lên, không chìm xuống.
+   *
+   * Bằng đúng `--color-surface`, nhưng khai riêng chứ không gọi `var()` sang: hai màu trùng nhau
+   * vì bảng sáng hết bậc, không phải vì tab dùng nền thẻ. Bảng tối cho thấy chúng thật sự rời
+   * nhau.
+   */
+  --color-tab-hover: #ffffff;
 
   /* ── Màu chữ ─────────────────────────────────────────────────────────── */
   --color-ink: #1a2233; /* chữ chính */
   --color-ink-soft: #46536b; /* chữ phụ, nhãn */
   --color-muted: #58657a; /* chữ mờ nhất còn đọc được — vẫn đạt AA cả trên vùng chìm */
+  /*
+   * Chữ của tab CHƯA chọn trong `TabBar` — mã của bản Figma "FINBOX VERSION 2", chủ dự án chỉ
+   * đích danh.
+   *
+   * Xám TRUNG TÍNH, khác cả ba bậc mực ở trên (đều ngả navy). Giữ token riêng chứ không ép về
+   * `--color-ink-soft` #46536b: hai màu xấp xỉ cùng độ đậm nhưng khác sắc, và trong cụm tab
+   * chúng đứng ngay cạnh nền navy của tab đang chọn — chỗ lệch sắc ấy nhìn ra được.
+   *
+   * Token gắn với MỘT khối chứ không phải một vai chung, cùng lối `--color-result-*`. Nếu bản
+   * Figma còn dùng xám này ở chỗ khác thì đổi tên lúc đó, đừng đổi tên trước.
+   *
+   * 8,19:1 trên nền thẻ trắng — `contrast.test.ts` chấm nó trên cả ba nền.
+   */
+  --color-tab-label: #4f4f4f;
 
   /* ── Đường kẻ — BA bậc, đừng gộp lại ─────────────────────────────────── */
   /*
@@ -370,11 +419,37 @@
   --color-paper: #111827;
   --color-surface: #1b2435;
   --color-sunken: #0a0f1a;
+  /*
+   * Khay của cụm tab. Figma không đưa mã bảng tối, nên dựng theo đúng VAI của bản sáng: nổi hơn
+   * nền trang một bậc, cùng họ xanh xám với `--color-surface`, và đi theo cùng hai lượt làm nhạt
+   * — ở bảng tối, nhạt thêm nghĩa là lùi gần nền trang hơn, tức khay chìm bớt.
+   *
+   * Cũng đã trộn sẵn (#2a3446 ở **40%** trên nền trang #111827), cùng lý do với bản sáng.
+   * `--color-tab-label` trên nó đạt 7,93:1 — `contrast.test.ts` chấm cả hai bảng.
+   */
+  --color-tab-tray: #1b2333;
+
+  /*
+   * Nền tab khi trỏ vào — xem lý do đầy đủ ở bảng sáng.
+   *
+   * Đây chính là #2a3446, mã gốc mà khay bảng tối được trộn ra. Không màu nào mới vào bảng: thứ
+   * lượt làm nhạt lấy đi của khay thì trạng thái trỏ vào nhận lại. Vẫn theo luật "trỏ vào thì
+   * sáng lên", vì ở bảng tối sáng hơn nghĩa là nổi hơn nền trang.
+   *
+   * Khác hẳn `--color-surface` #1b2435 của bảng này — chỗ chứng minh hai token không phải một.
+   */
+  --color-tab-hover: #2a3446;
 
   /* ── Màu chữ ─────────────────────────────────────────────────────────── */
   --color-ink: #e8edf6; /* 15,10:1 trên nền trang */
   --color-ink-soft: #b3c0d4; /* 9,64:1 */
   --color-muted: #93a1b8; /* 6,78:1 — trên vùng chìm vẫn 7,33:1 */
+  /*
+   * Figma KHÔNG đưa mã bảng tối cho xám này, nên dựng bằng cách LẬT quanh trục sáng mà vẫn giữ
+   * đúng tính trung tính của bảng sáng — không ngả navy như ba bậc mực bên trên, vì cái làm nó
+   * thành token riêng chính là chỗ khác sắc ấy. 7,84:1 trên nền thẻ tối.
+   */
+  --color-tab-label: #b8b8b8;
 
   /* ── Đường kẻ ────────────────────────────────────────────────────────── */
   /*

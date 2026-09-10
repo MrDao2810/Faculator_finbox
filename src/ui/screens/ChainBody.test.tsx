@@ -14,7 +14,7 @@
  */
 
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FORMULA_MODULES, chainFor, runChain } from '@/application';
 import type { CalcContext, FormulaSpec } from '@/application';
@@ -25,6 +25,37 @@ afterEach(cleanup);
 
 const ALL_SPECS: ReadonlyArray<FormulaSpec> = FORMULA_MODULES.map((m) => m.spec);
 const CTX: CalcContext = { asOf: '2026-08-04' };
+
+/**
+ * Giả lập khổ màn cho `manRong()` trong `ChainBody`.
+ *
+ * jsdom KHÔNG cài `matchMedia`, nên mặc định mọi ca kiểm ở file này chạy ở nhánh "màn hẹp" — đúng
+ * nếp mà `use-chart-size.ts` đã ghi. Ca nào cần nhánh màn rộng thì gọi hàm này rồi tự dọn.
+ */
+function gaKhoMan(rong: boolean): () => void {
+  const truoc = window.matchMedia;
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    writable: true,
+    value: vi.fn((query: string) => ({
+      matches: rong,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+  return () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: truoc,
+    });
+  };
+}
 
 /** Dựng khối chuỗi đúng cách `FormulaDetail` dựng nó, cho một công thức nằm trong chuỗi. */
 function dungKhoi(id: string) {
@@ -154,6 +185,82 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
   it('một nhóm một thẻ: chỉ có cột trái', () => {
     const { container } = dungKhoi('fcfe');
     expect(cacCot(container)).toEqual([['fcff']]);
+  });
+
+  /**
+   * Luật "hai cột cùng mép dưới" (`.columnsEven`) chỉ bật khi hai cột BẰNG NHAU số thẻ.
+   *
+   * Chủ dự án gửi ảnh `gia-tri-noi-tai-fcff` (trái 2 thẻ, phải 1 thẻ): ở đó luật này bắt thẻ WACC
+   * một mình cao bằng cả hai thẻ bên trái, dư ra đúng một thẻ thành mảng trống trong lòng nó.
+   * jsdom không dựng bố cục nên không đo được chiều cao — ca kiểm gác đúng thứ quyết định luật ấy
+   * có hiệu lực hay không, tức sự CÓ MẶT của lớp modifier.
+   */
+  function coCanBang(container: HTMLElement): boolean {
+    const boc = container.querySelector('[class*="columns"]');
+    return /columnsEven/.test(String(boc?.className ?? ''));
+  }
+
+  it('hai cột lệch số thẻ thì KHÔNG kéo bằng mép dưới — 2 | 1 không có columnsEven', () => {
+    const { container } = dungKhoi('gia-tri-noi-tai-fcff');
+    expect(cacCot(container).map((c) => c.length)).toEqual([2, 1]);
+    expect(coCanBang(container)).toBe(false);
+  });
+
+  it('hai cột bằng số thẻ thì kéo bằng mép dưới — 2 | 2 và 1 | 1 đều có columnsEven', () => {
+    const bonThe = dungKhoi('capm');
+    expect(cacCot(bonThe.container).map((c) => c.length)).toEqual([2, 2]);
+    expect(coCanBang(bonThe.container)).toBe(true);
+    bonThe.unmount();
+
+    const motMotBen = dungKhoi('wacc');
+    expect(cacCot(motMotBen.container).map((c) => c.length)).toEqual([1, 1]);
+    expect(coCanBang(motMotBen.container)).toBe(true);
+  });
+
+  it('chỉ một cột thì không có gì để kéo bằng', () => {
+    const { container } = dungKhoi('fcfe');
+    expect(coCanBang(container)).toBe(false);
+  });
+
+  /**
+   * Bước nào MỞ SẴN — chủ dự án chốt 10/09/2026: ở màn web thì mọi thẻ của nhóm "Bước trước" đều
+   * bật sẵn. Màn hẹp giữ nếp cũ (chỉ bước cấp số liệu trực tiếp), vì một cột mà mở hết là đẩy phần
+   * còn lại của trang xuống rất xa.
+   *
+   * `gia-tri-noi-tai-fcff` là ca phân biệt được hai nhánh: ba bước trước (`capm`, `fcff`, `wacc`)
+   * nhưng `dependsOn` chỉ có hai (`wacc`, `fcff`) — `capm` cấp số liệu GIÁN TIẾP, qua `wacc`.
+   */
+  function maDangMo(container: HTMLElement): string[] {
+    return [...container.querySelectorAll('details[open]')].map((d) =>
+      d.id.replace(/^chain-step-/, ''),
+    );
+  }
+
+  it('màn hẹp: chỉ mở sẵn bước cấp số liệu TRỰC TIẾP', () => {
+    // jsdom không có `matchMedia`, tức đúng nhánh màn hẹp — không cần giả lập gì.
+    const { container } = dungKhoi('gia-tri-noi-tai-fcff');
+    expect(maDangMo(container).sort()).toEqual(['fcff', 'wacc']);
+  });
+
+  it('màn rộng: mở sẵn MỌI bước trước, kể cả bước cấp gián tiếp', () => {
+    const donDep = gaKhoMan(true);
+    try {
+      const { container } = dungKhoi('gia-tri-noi-tai-fcff');
+      expect(maDangMo(container).sort()).toEqual(['capm', 'fcff', 'wacc']);
+    } finally {
+      donDep();
+    }
+  });
+
+  it('màn rộng: bước SAU vẫn gập, không mở lây', () => {
+    const donDep = gaKhoMan(true);
+    try {
+      // `wacc`: một bước trước (capm), một bước sau (gia-tri-noi-tai-fcff).
+      const { container } = dungKhoi('wacc');
+      expect(maDangMo(container)).toEqual(['capm']);
+    } finally {
+      donDep();
+    }
   });
 
   /*

@@ -11,11 +11,12 @@ import { describe, expect, it } from 'vitest';
  *   `--radius-md`  10px   MỌI điều khiển và MỌI thẻ
  *   `--radius-lg`  16px   chỉ mép trên của bottom sheet
  *   `--radius-pill`       chip
- *   `8px` (số trần)       khay tab
+ *   `8px` (số trần)       khay tab · nhóm Cơ bản / Nâng cao
  *   `5px` (số trần)       huy hiệu cấp độ · nhóm nút Đường/Cột của biểu đồ (khung lẫn nút)
  *
  * Hai bậc số trần KHÔNG có trên thang, và đó là chuyện có thật chứ không phải thiếu sót — đều do
- * chủ dự án chốt sau khi nhìn màn thật. Khay `TabBar` xuống 8 (09/09/2026); huy hiệu xuống 8 rồi
+ * chủ dự án chốt sau khi nhìn màn thật. Khay `TabBar` xuống 8 (09/09/2026) và nhóm Cơ bản / Nâng
+ * cao theo sau (10/09/2026, từ `--radius-pill`); huy hiệu xuống 8 rồi
  * hạ tiếp còn 5 cùng ngày, vì nó chỉ cao 17–20px nên bo 8 ở đó đã xấp xỉ NỬA chiều cao — mà nửa
  * chiều cao chính là định nghĩa của viên thuốc, nên "8" không hiện ra thành góc bo. Nhóm nút
  * Đường/Cột về 5 ngày 10/09/2026, _"bên ngoài và bên trong cần đồng bộ đều bằng 5"_ — nút trong lấy
@@ -118,6 +119,50 @@ describe('Bo góc', () => {
     expect(body, `không tìm thấy luật .${className} trong ${file}`).not.toBeNull();
     expect(body ?? '', `${file} .${className}`).toMatch(/border-radius:\s*5px\s*;/);
   });
+
+  /*
+   * Bo 8px — bậc thứ hai ngoài thang, nay có HAI chỗ dùng.
+   *
+   * Khay `TabBar` xuống 8 ngày 09/09/2026; nhóm Cơ bản / Nâng cao (`ModeToggle`) theo sau ngày
+   * 10/09/2026 — _"sửa lại bo bên ngoài lẫn bên trong giảm xuống bo 8"_, trước đó nó là
+   * `--radius-pill` tức bo tròn hẳn hai đầu.
+   *
+   * Hai chỗ trùng số là hợp lẽ chứ không phải trùng lặp cần gom: cùng một họ điều khiển (khay chứa
+   * mấy nút chọn-một-trong-nhiều), và mỗi lần đều là chủ dự án chốt bằng mắt cho riêng cụm ấy. Có
+   * chỗ dùng thứ ba mà KHÔNG cùng họ thì mới là lúc bàn đưa 8 lên thang.
+   *
+   * Chỉ ghim KHUNG: nút bên trong lấy `inherit`, và ca kiểm ngay dưới giữ đúng điều đó.
+   */
+  const BO_8PX: ReadonlyArray<readonly [file: string, className: string]> = [
+    ['ui/primitives/TabBar.module.css', 'tabs'],
+    ['ui/navigation/ModeToggle.module.css', 'group'],
+  ];
+
+  it.each(BO_8PX)('%s .%s — bo 8px, bậc trần ngoài thang', (file, className) => {
+    const body = ruleBodyFor(readFileSync(join(SRC_DIR, file), 'utf8'), className);
+
+    expect(body, `không tìm thấy luật .${className} trong ${file}`).not.toBeNull();
+    expect(body ?? '', `${file} .${className}`).toMatch(/border-radius:\s*8px\s*;/);
+  });
+
+  /*
+   * Nút trong khay lấy bo từ khay bằng `inherit` — một chỗ khai, không thể lệch.
+   *
+   * Cùng lý lẽ với nút Đường/Cột ngay dưới, và bắt đúng lúc ai đó "sửa cho rõ" bằng cách ghi thẳng
+   * số vào nút — lúc ấy hai bậc bo lại có thể trôi khỏi nhau.
+   */
+  it.each([
+    ['ui/primitives/TabBar.module.css', 'tab'],
+    ['ui/navigation/ModeToggle.module.css', 'option'],
+  ] as ReadonlyArray<readonly [file: string, className: string]>)(
+    '%s .%s — lấy bo góc từ khay bằng inherit',
+    (file, className) => {
+      const body = ruleBodyFor(readFileSync(join(SRC_DIR, file), 'utf8'), className);
+
+      expect(body, `không tìm thấy luật .${className} trong ${file}`).not.toBeNull();
+      expect(body ?? '', `${file} .${className}`).toMatch(/border-radius:\s*inherit\s*;/);
+    },
+  );
 
   it('nút Đường/Cột lấy bo góc từ khung bằng inherit — một chỗ khai, không thể lệch', () => {
     /*

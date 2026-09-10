@@ -552,6 +552,56 @@
 }
 
 /*
+ * ── Form thêm/sửa mã xếp HAI CỘT ở khổ PC ────────────────────────────────────
+ *
+ * Chủ dự án chụp form ở khổ ~1500px: _"giao diện đang để thừa khá nhiều, điều chỉnh để chia các ô
+ * nhập trên thành 2 cột chia đều. 2 button Thêm vào danh mục và Huỷ chuyển sang bên phải"_. Đúng —
+ * form là cột dọc ở MỌI khổ (file này trước đợt này không có `@media` nào), nên một ô nhập số cổ
+ * phiếu trải hết 1420px.
+ *
+ * Sáu ô ở chế độ Nâng cao chia vừa khít 3 hàng × 2 cột. Chế độ Cơ bản không có ô Beta nên còn năm,
+ * và ô cuối ("Tính công thức") đứng một mình ở cột trái hàng cuối — không lấp chỗ trống ấy bằng
+ * cách cho ô nào chiếm hai cột: thứ tự ô là thứ tự người dùng điền, xáo nó để cho vuông là đổi
+ * mạch nhập liệu lấy một khoảng đều.
+ *
+ * `align-items: start` để ô ngắn không bị kéo cao bằng ô cùng hàng — ô "Mã cổ phiếu" mang cả dòng
+ * gợi ý, câu lỗi lẫn lời nhắc cộng dồn nên nó cao hơn hẳn ô "Số cổ phiếu nắm giữ" bên cạnh, mà
+ * mặc định `stretch` sẽ kéo dãn chính cái nút chọn mã trong đó.
+ *
+ * Khe NGANG rộng hơn khe dọc một bậc, cùng lý do với `.columns` của khối Chuỗi: hai ô nhập đứng
+ * cách nhau 8px thì đọc ra như một ô bị nứt đôi.
+ *
+ * Mốc 1024 chứ không 1280: ở 1024 khung form đã rộng ~928px, mỗi cột ~455px — thừa sức cho một ô
+ * nhập, và đây cũng là mốc khối Chuỗi đang dùng cho đúng loại quyết định này.
+ */
+@media (min-width: 1024px) {
+  .form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-4);
+    align-items: start;
+  }
+
+  /*
+   * Câu lỗi chung và hàng nút KHÔNG phải ô nhập nên không vào lưới hai cột: câu lỗi nói về cả
+   * form, còn hàng nút là chỗ kết thúc của cả form.
+   */
+  .formError,
+  .formActions {
+    grid-column: 1 / -1;
+  }
+
+  /*
+   * Hàng nút dạt phải theo yêu cầu chủ dự án. Giữ nguyên THỨ TỰ trong DOM (nút chính trước,
+   * "Huỷ" sau) — đó là thứ tự phím Tab và cũng là thứ tự đang dùng ở khổ hẹp; đổi chỗ hai nút chỉ
+   * để nút chính nằm ngoài cùng phải là một quyết định khác, chưa ai yêu cầu.
+   */
+  .formActions {
+    justify-content: flex-end;
+  }
+}
+
+/*
  * Câu lỗi của ô chọn mã. Ba ô còn lại đi qua prop `error` của primitive Input (đã nối sẵn
  * aria-invalid + aria-describedby + role="alert"); riêng ô mã là một <button> tự dựng nên phải
  * tự vẽ câu lỗi, và phải tự mang `role="alert"` cho khớp.

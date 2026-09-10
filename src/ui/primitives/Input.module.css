@@ -104,6 +104,45 @@
   cursor: not-allowed;
 }
 
+/*
+ * ── Nền autofill của trình duyệt: tắt đi ─────────────────────────────────────
+ *
+ * Chủ dự án chụp ô "Giá vốn một cổ phiếu" vừa gõ `2414` và nền ô chuyển xanh nhạt, đọc ra như ô
+ * đang báo lỗi. Đo lại bằng Chrome thật thì ô ở trạng thái HOÀN TOÀN bình thường — `background`
+ * của `.input` là `rgba(0,0,0,0)`, khung trắng, viền màu nhấn, không `aria-invalid`, không câu
+ * lỗi. Tức sản phẩm không tô gì; màu ấy là của Chrome.
+ *
+ * Chrome/Safari tô `rgb(232, 240, 254)` lên chính thẻ `<input>` khi giá trị đến từ autofill, và
+ * `background: transparent` ngay trên KHÔNG thắng được: nền autofill vẽ ở một lớp riêng mà thuộc
+ * tính `background-color` thường không với tới. Cách duy nhất che nó là vẽ đè một `box-shadow`
+ * inset dày — mẹo chuẩn cho đúng việc này.
+ *
+ * ⚠ Đây là ca hiếm mà màu ô nhập nói SAI về trạng thái: xanh nhạt ở đây gần `--color-accent-soft`
+ * (#e3ebfd — nền chip đang chọn), nên nó đọc ra như một trạng thái của sản phẩm chứ không phải
+ * của trình duyệt. Trạng thái thật của ô chỉ nói bằng VIỀN (`.tone-invalid` đỏ, `.tone-derived`
+ * vàng nét đứt) — NFR-USA-06 — nên một mảng nền do trình duyệt tự thêm là nhiễu thuần tuý.
+ *
+ * `--color-surface` là đúng màu cần trả về: nó là nền của `.control` bao quanh, và ở bảng tối
+ * token này tự đổi nên luật chạy đúng ở cả hai giao diện. Không cần bản cho `.tone-locked` (nền
+ * `--color-sunken`): ô khoá luôn là `readOnly` hoặc `disabled`, mà trình duyệt không autofill vào
+ * hai loại ấy.
+ *
+ * `-webkit-text-fill-color` là bắt buộc, cùng lý do với `.input:disabled` ngay trên: WebKit tự
+ * đặt màu chữ cho ô autofill và chỉ khai `color` thì không đủ.
+ *
+ * Hai luật TÁCH RỜI, không gộp danh sách bộ chọn: trình duyệt nào chưa biết `:autofill` sẽ vứt cả
+ * danh sách nếu gộp chung với bộ chọn có tiền tố, nên vế chuẩn và vế `-webkit-` phải đứng riêng.
+ */
+.input:autofill {
+  box-shadow: inset 0 0 0 100px var(--color-surface);
+  -webkit-text-fill-color: var(--color-ink);
+}
+
+.input:-webkit-autofill {
+  -webkit-box-shadow: inset 0 0 0 100px var(--color-surface);
+  -webkit-text-fill-color: var(--color-ink);
+}
+
 .unit {
   flex-shrink: 0;
   font-size: var(--text-sm);

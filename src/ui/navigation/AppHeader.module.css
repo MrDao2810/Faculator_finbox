@@ -26,6 +26,67 @@
 }
 
 /*
+ * ── Từ khổ có thanh điều hướng: LƯỚI ba cột, không phải hàng flex ────────────
+ *
+ * Chủ dự án gửi bốn ảnh thanh trên của bốn màn: _"mỗi lần click vào một tab thì giao diện lại bị
+ * lệch đi quá xa"_. Đo trên Chrome thật ở khổ 1500px, lấy TÂM của hàng bốn mục nav:
+ *
+ * | Trang chủ 765 | Công thức **682** | Danh mục 772 | Cài đặt 765 |
+ *
+ * Thủ phạm chính là 83px giữa "Công thức" và ba màn kia, và nó không phải lỗi vặt mà là hệ quả
+ * thẳng của cách xếp cũ: `.nav` khai `flex: 1 1 auto` + `justify-content: center`, tức nó căn giữa
+ * trong PHẦN CÒN LẠI giữa hai cụm hai bên, chứ không căn giữa thanh. Màn '/cong-thuc/' là màn duy
+ * nhất có nút Cơ bản / Nâng cao (xem `showsModeToggle()`), nên cụm phải ở đó rộng 239px thay vì
+ * 74px — phần còn lại hụt đi 165px và tâm nav trôi sang trái đúng một nửa, 83px.
+ *
+ * Lưới `minmax(0, 1fr) auto minmax(0, 1fr)` chữa tận gốc: hai cột biên LUÔN bằng nhau nên cột giữa
+ * nằm đúng tâm thanh, bất kể hai bên rộng hẹp thế nào. Nhờ vậy nó chặn luôn một lớp lệch nữa mà
+ * chủ dự án chưa gặp: ở màn TRONG, danh tính là nút quay lại ("Danh sách công thức") rộng hơn hẳn
+ * khối "Faculator", và cách xếp cũ cũng đẩy nav đi vì lý do y hệt.
+ *
+ * `minmax(0, …)` chứ không `1fr` trần: `1fr` mặc định là `minmax(auto, 1fr)`, tức cột được phép
+ * PHÌNH ra cho vừa nội dung — đúng lúc cụm phải rộng lên thì nó lại đẩy cột giữa đi, tức dựng lại
+ * nguyên cái lỗi đang chữa. Đo chỗ trống hiện có: ở 1024px mỗi cột biên được ~290px, cụm phải rộng
+ * nhất là 239px, nên còn dư và không cột nào phải phình.
+ *
+ * Chỉ đổi từ 1024px — dưới mốc đó `.nav` là `display: none` nên lưới ba cột chỉ còn hai mục và cột
+ * giữa rỗng sẽ đẩy cụm nút vào giữa thanh. Hàng flex `space-between` vẫn là câu trả lời đúng ở đó.
+ *
+ * `<h1>` tên màn KHÔNG chiếm ô lưới nào: từ 1024px nó là `position: absolute` (xem
+ * `HeaderIdentity.module.css`) nên đã ra khỏi dòng chảy. Ba mục còn lại khớp đúng ba cột.
+ *
+ * ⚠ Còn MỘT nguồn lệch nữa, nhỏ hơn và CỐ Ý để lại: màn nào ngắn tới mức không cuộn được thì
+ * trình duyệt bỏ thanh cuộn, vùng nhìn rộng thêm 15px và cả trang dịch 7,5px (đo được ở
+ * '/danh-muc/' khi danh mục rỗng: `clientWidth` 1500 so với 1485 của ba màn kia). Cách chữa là
+ * `scrollbar-gutter: stable`, và nó ĐÃ bị gỡ có chủ đích — nó để lại một vệt 15px khác màu chạy
+ * dọc trang mà chủ dự án đã khoanh và bác. Lý do đầy đủ cùng bốn hướng chữa đã cân nhắc nằm ở
+ * `globals.css`, ngay trên luật `body { overflow-x: clip }`.
+ */
+@media (min-width: 1024px) {
+  .inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    /*
+     * `justify-items: start` KHÔNG phải trang trí — thiếu nó là một lỗi bấm nhầm.
+     *
+     * Mục lưới mặc định `stretch`, mà mục đầu cột trái là một THẺ LINK (khối "Faculator", hoặc nút
+     * quay lại ở màn trong). Đo được ngay ở bản đầu của đổi này: thẻ `<a>` phình từ 119px lên
+     * 497px, tức bấm vào khoảng trống gần nửa thanh trên cũng nhảy về trang chủ — một đích bấm vô
+     * hình, không có gì trên màn báo là nó tồn tại.
+     *
+     * Hàng flex cũ không mắc lỗi ấy vì mục flex không tự giãn theo trục chính. Đổi sang lưới thì
+     * phải khai lại điều đó cho rõ.
+     */
+    justify-items: start;
+  }
+
+  /* Cụm nút bám mép phải trong cột của nó — không thì nó dừng ở mép trái theo `justify-items`. */
+  .controls {
+    justify-self: end;
+  }
+}
+
+/*
  * `.brand` và `.name` đã dời sang `HeaderIdentity.module.css`, cùng chỗ với luật `.screenTitle`
  * thay thế chúng ở màn có tên riêng. Hai dáng của một chỗ đứng thì phải nằm cạnh nhau, nếu không
  * lần chỉnh sau chỉ sửa được một dáng.

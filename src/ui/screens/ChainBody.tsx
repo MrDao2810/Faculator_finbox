@@ -60,6 +60,32 @@ export interface ChainBodyProps {
  * thì bước cấp trực tiếp (mở sẵn từ đầu) cùng mọi bước đã từng bấm qua sẽ xanh cùng lúc mãi mãi,
  * đúng cái cảnh "hai nút cùng xanh, nhìn như nút cũ chưa tắt" mà chủ dự án đã báo.
  */
+/**
+ * Mốc "màn đủ rộng để bày hết bước trước", khớp `@media (min-width: 1024px)` trong
+ * `ChainBody.module.css` — chính mốc các thẻ chuyển sang xếp hai cột.
+ *
+ * Một con số ở hai nơi là một nguy cơ lệch, nhưng CSS không đọc được hằng số TS và ngược lại —
+ * cùng cảnh với `WIDE_QUERY` ở `use-chart-size.ts`, và cách xử lý cũng giống: đổi mốc này thì
+ * PHẢI đổi cả bên kia. Lệch nhau thì có khổ màn mở sẵn mọi thẻ mà vẫn xếp một cột, đúng cảnh dài
+ * dòng mà việc chia hai cột sinh ra để tránh.
+ */
+const MAN_RONG_QUERY = '(min-width: 1024px)';
+
+/**
+ * Màn có đang ở khổ rộng không.
+ *
+ * `matchMedia` canh bằng `typeof` chứ không gọi thẳng: jsdom không cài nó, mà `ChainBody.test.tsx`
+ * dựng component này trực tiếp. Vắng `matchMedia` thì coi như khổ hẹp — đúng nếp cũ, nên mọi ca
+ * kiểm sẵn có giữ nguyên hành vi chúng đang gác.
+ */
+function manRong(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia(MAN_RONG_QUERY).matches
+  );
+}
+
 export function ChainBody({
   formulas,
   chain,
@@ -73,13 +99,41 @@ export function ChainBody({
   const specById = new Map(formulas.map((spec) => [spec.id, spec]));
 
   /*
-   * Bước cấp số liệu trực tiếp cho công thức đang xem thì mở sẵn — đó là thứ người dùng bật chế
-   * độ Nâng cao để sửa (đổi beta rồi xem suất chiết khấu đổi theo). Các bước còn lại gập lại,
-   * nhưng dòng tóm tắt vẫn hiện kết quả nên không phải mở ra mới biết chuỗi đang chạy tới đâu.
+   * Bước nào mở sẵn khi khối vừa dựng — và câu trả lời khác nhau theo khổ màn.
+   *
+   * **Màn rộng: MỌI bước trước đều mở.** Chủ dự án chốt 10/09/2026: _"mặc định ở màn web thì các
+   * phần nằm trong 'Bước trước — cấp số liệu cho công thức đang xem' đều được mặc định là bật"_.
+   * Từ khổ 1024 các thẻ đã xếp hai cột (xem `haiCot()`), nên bày hết ra tốn ít chiều dọc hơn hẳn
+   * và người dùng thấy trọn mạch tính mà không phải bấm từng thẻ.
+   *
+   * **Màn hẹp: chỉ bước cấp số liệu TRỰC TIẾP.** Giữ nguyên nếp cũ, và lý do cũ vẫn đúng: đó là
+   * thứ người dùng bật chế độ Nâng cao để sửa (đổi beta rồi xem suất chiết khấu đổi theo). Ở một
+   * cột, mở hết là đẩy khối Nguồn tham khảo xuống rất xa; dòng tóm tắt của thẻ gập vẫn hiện kết
+   * quả nên không phải mở ra mới biết chuỗi chạy tới đâu.
+   *
+   * Bước SAU không đổi: chúng chưa bao giờ nằm trong `dependsOn` nên vẫn gập, ở cả hai khổ.
+   *
+   * ── Vì sao ĐƯỢC đọc `matchMedia` ngay trong thân component ở đây ─────────────────────────────
+   *
+   * `use-chart-size.ts` cấm đúng việc này và cấm có lý: thư mục biểu đồ được dựng sẵn vào HTML
+   * tĩnh, nên lần render đầu ở máy khách phải khớp hệt HTML ấy — đo màn lúc render là một đường
+   * lệch hydration.
+   *
+   * Khối này KHÔNG ở trong cảnh đó. Nó chỉ dựng khi `mode === 'advanced'`, mà chế độ mặc định là
+   * Cơ bản, nên nó không hề có mặt trong HTML tĩnh — `verify:static` ghim đúng điều đó ("khối
+   * chuỗi WF-04 không rò vào HTML tĩnh"). Lần render đầu của nó luôn là render ở máy khách, sau
+   * khi `PreferencesProvider` đã đọc xong preferences. Không có HTML nào để lệch.
+   *
+   * Và phải đọc ngay lúc render chứ không hoãn vào `useEffect`: hoãn thì thẻ mở BẬT RA sau khi
+   * khối đã vẽ xong, tức một cú nhảy bố cục ngay trước mắt người dùng.
    */
-  const [openIds, setOpenIds] = useState<ReadonlySet<string>>(
-    () => new Set(chain.byId.get(currentId)?.dependsOn ?? []),
-  );
+  const [openIds, setOpenIds] = useState<ReadonlySet<string>>(() => {
+    const trucTiep = chain.byId.get(currentId)?.dependsOn ?? [];
+    if (!manRong()) return new Set(trucTiep);
+
+    const moc = chain.steps.findIndex((step) => step.formulaId === currentId);
+    return new Set(moc === -1 ? trucTiep : chain.steps.slice(0, moc).map((s) => s.formulaId));
+  });
   /** Bước vừa bấm gần nhất trên `FlowChainStrip` — chỉ MỘT pill tô xanh tại một thời điểm. */
   const [activeId, setActiveId] = useState<string | undefined>(undefined);
   const t = useT();
@@ -222,20 +276,33 @@ export function ChainBody({
   /**
    * Hai cột thẻ bước ở khổ rộng — mỗi cột là tiêu đề nhóm (nếu cột LÀ một nhóm) rồi các thẻ xếp
    * dọc. Cột không có thẻ nào thì không dựng, để một thẻ lẻ loi không kéo theo một cột rỗng.
+   *
+   * ── `columnsEven`: khi nào thẻ đang mở được nở ra cho hai cột cùng mép dưới ──────────────────
+   *
+   * Chỉ khi hai cột giữ BẰNG NHAU số thẻ. Chủ dự án chỉ lỗi này bằng ảnh trang
+   * `gia-tri-noi-tai-fcff` (cột trái CAPM + FCFF, cột phải mỗi WACC): luật nở áp cả ở đó thì thẻ
+   * WACC phải một mình cao bằng hai thẻ bên trái, và phần dư — đúng bằng nguyên một thẻ — thành
+   * một mảng trống mênh mông dưới dòng "Mở màn riêng của bước này".
+   *
+   * Lệch số thẻ thì chênh lệch chiều cao TÍNH BẰNG THẺ, không phải bằng vài chục px, nên không có
+   * cách nào lấp cho đẹp — để hai cột kết thúc ở đúng chỗ nội dung của chúng hết là câu trả lời
+   * thật thà. Bằng số thẻ thì chênh lệch chỉ là do số ô nhập trong từng thẻ, và lấp nó lại chính
+   * là điều chủ dự án yêu cầu ở trang `wacc` (1 | 1).
    */
   function haiCot(
     cot: ReadonlyArray<{ key: string; title?: string; cards: ReadonlyArray<ReactNode> }>,
   ) {
+    const coThe = cot.filter((c) => c.cards.length > 0);
+    const canBang = coThe.length === 2 && coThe[0]?.cards.length === coThe[1]?.cards.length;
+
     return (
-      <div className={styles.columns}>
-        {cot
-          .filter((c) => c.cards.length > 0)
-          .map((c) => (
-            <div key={c.key} className={styles.column}>
-              {c.title !== undefined && <h3 className={styles.groupTitle}>{c.title}</h3>}
-              {c.cards}
-            </div>
-          ))}
+      <div className={canBang ? `${styles.columns} ${styles.columnsEven}` : styles.columns}>
+        {coThe.map((c) => (
+          <div key={c.key} className={styles.column}>
+            {c.title !== undefined && <h3 className={styles.groupTitle}>{c.title}</h3>}
+            {c.cards}
+          </div>
+        ))}
       </div>
     );
   }
@@ -255,7 +322,8 @@ export function ChainBody({
    * `mo-hinh-gordon`); nhóm nhiều thẻ thì thẻ xếp dọc trong cột.
    *
    * Cùng lần hai: _"height của các phần này cần bằng nhau khi bật lên để xem chi tiết các bước"_ —
-   * luật ấy nằm ở CSS (`.column > .step[open]` nở ra lấp phần cột còn dư), xem `ChainBody.module.css`.
+   * luật ấy nằm ở CSS (`.column > .step[open]` nở ra lấp phần cột còn dư), và nó CHỈ bật khi hai cột
+   * bằng nhau số thẻ; xem `haiCot()` ngay trên cùng `ChainBody.module.css`.
    *
    * ── Vì sao là hai cột flex thật, không phải lưới hai cột hay `columns: 2` ────────────────────
    *

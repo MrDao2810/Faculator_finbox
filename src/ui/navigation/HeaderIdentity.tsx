@@ -117,15 +117,54 @@ export function HeaderIdentity() {
     );
   }
 
-  const titleKey = headerTitleKey(pathname);
-  if (titleKey !== null) {
-    return <h1 className={styles.screenTitle}>{t(titleKey)}</h1>;
+  function tenSanPham(themLop?: string) {
+    return (
+      <Link
+        href={ROUTES.home}
+        className={themLop === undefined ? styles.brand : `${styles.brand} ${themLop}`}
+      >
+        <BrandMark />
+        <span className={styles.name}>{t('app.brand')}</span>
+      </Link>
+    );
   }
 
-  return (
-    <Link href={ROUTES.home} className={styles.brand}>
-      <BrandMark />
-      <span className={styles.name}>{t('app.brand')}</span>
-    </Link>
-  );
+  const titleKey = headerTitleKey(pathname);
+  if (titleKey !== null) {
+    /*
+     * ── Màn có tên: dựng CẢ HAI, để CSS chọn theo khổ ──────────────────────────────────────────
+     *
+     * Chủ dự án chốt 10/09/2026: _"ở màn web thì khi chuyển sang màn công thức hoặc Danh mục, cài
+     * đặt thì bên trái kia không cần để tên tương ứng mà chỉ cần để icon lẫn Faculator như ngoài
+     * trang chủ"_. Lý do đứng vững: từ 1024px thanh điều hướng hiện ra và tự gạch chân mục đang
+     * mở, nên tên màn ở đầu thanh là nói lần thứ hai cùng một điều. Dưới 1024px không có thanh ấy
+     * — tên màn ở lại, y như cũ.
+     *
+     * Mốc 1024 không phải chọn bừa: đó ĐÚNG mốc `.nav` trong `HeaderNav.module.css` hiện ra. Đổi
+     * mốc bên ấy thì phải đổi cả bên này, không thì có khổ màn mất cả hai thứ trả lời "tôi đang ở
+     * đâu".
+     *
+     * ── Vì sao CSS chọn, không phải JavaScript chọn ───────────────────────────────────────────
+     *
+     * Thanh trên nằm ở layout gốc và ĐƯỢC dựng sẵn vào HTML tĩnh của cả 122 trang. Đo khổ màn lúc
+     * render (`matchMedia`) là một đường lệch hydration — cùng cái bẫy `use-chart-size.ts` đã ghi.
+     * Nên cả hai dạng cùng nằm trong DOM và CSS quyết dạng nào hiện, đúng nếp `ThemeSwitch` đã
+     * dựng cho hai icon sáng/tối.
+     *
+     * ⚠ Điều này PHÁ bất biến cũ "chỗ đứng ấy có đúng một thứ" mà `AppHeader.test.tsx` đang gác —
+     * bất biến ấy viết khi câu trả lời không phụ thuộc khổ màn. Nay nó thành "có đúng một thứ HIỆN
+     * RA", mà jsdom không áp CSS Module nên không đo được; phần ấy chuyển sang `check:chrome`.
+     *
+     * `<h1>` KHÔNG bị gỡ, chỉ ẩn khỏi mắt: nó vẫn là tiêu đề cấp một duy nhất của trang, cho trình
+     * đọc màn hình và cho SEO. Thân màn vẫn thôi dựng tiêu đề, nên vẫn đúng một `<h1>` mỗi trang.
+     */
+    return (
+      <>
+        <h1 className={styles.screenTitle}>{t(titleKey)}</h1>
+        {tenSanPham(styles.brandWide)}
+      </>
+    );
+  }
+
+  return tenSanPham();
 }

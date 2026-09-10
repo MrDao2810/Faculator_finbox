@@ -77,9 +77,16 @@
  * vô hình — thứ người dùng nhìn là THẺ. Nên thẻ đang MỞ nở ra lấp phần cột còn dư: cả hai cột có
  * thẻ mở thì hai mép dưới trùng nhau, phần dư nằm trong lòng thẻ, dưới dòng "Mở màn riêng".
  *
- * Chỉ thẻ `[open]`, cố ý. Thẻ gập là một dòng 44px; kéo nó cao lên vài trăm px là một khung rỗng
- * có viền — trông như thẻ hỏng. Cột toàn thẻ gập thì đơn giản kết thúc sớm hơn cột kia, và đó đúng
- * là điều kiện "khi bật lên" trong câu của chủ dự án.
+ * Hai điều kiện, và cả hai đều đến từ một ảnh chủ dự án gửi:
+ *
+ * 1. **Chỉ thẻ `[open]`.** Thẻ gập là một dòng 44px; kéo nó cao lên vài trăm px là một khung rỗng
+ *    có viền — trông như thẻ hỏng. Cột toàn thẻ gập thì kết thúc sớm hơn cột kia, đúng như điều
+ *    kiện "khi bật lên" trong câu của chủ dự án.
+ * 2. **Chỉ khi hai cột BẰNG NHAU số thẻ** (`.columnsEven`, do `haiCot()` gắn). Ảnh thứ hai là
+ *    trang `gia-tri-noi-tai-fcff` — trái hai thẻ, phải một thẻ — và ở đó luật này bắt thẻ WACC
+ *    một mình cao bằng cả hai thẻ bên trái: dư ra đúng một thẻ, thành mảng trống mênh mông trong
+ *    lòng nó. Lệch số thẻ thì phần dư tính bằng THẺ, không lấp cho đẹp được; để cột kết thúc ở
+ *    chỗ nội dung hết là câu trả lời thật thà. Lý do đầy đủ ở docblock `haiCot()`.
  */
 @media (min-width: 1024px) {
   .columns {
@@ -88,7 +95,7 @@
     column-gap: var(--space-4);
   }
 
-  .column > .step[open] {
+  .columnsEven .column > .step[open] {
     flex: 1 0 auto;
   }
 }

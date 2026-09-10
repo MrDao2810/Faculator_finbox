@@ -8,11 +8,22 @@
 }
 
 @media (min-width: 1024px) {
+  /*
+   * Chỗ đứng do LƯỚI của `.inner` quyết, không phải do nav tự giành.
+   *
+   * Bản trước khai `flex: 1 1 auto` + `justify-content: center`: nav chiếm hết phần còn lại giữa
+   * hai cụm hai bên rồi căn giữa TRONG PHẦN ẤY. Hệ quả đo được: màn '/cong-thuc/' có thêm nút
+   * Cơ bản / Nâng cao nên cụm phải rộng gấp ba, phần còn lại hụt đi và tâm nav trôi 83px so với ba
+   * màn kia — chủ dự án gửi bốn ảnh và gọi đúng tên: "mỗi lần click vào một tab thì giao diện lại
+   * bị lệch đi quá xa".
+   *
+   * Nay `.inner` là lưới ba cột với hai cột biên bằng nhau, nên cột giữa đã nằm đúng tâm thanh và
+   * nav chỉ việc lấp đầy ô của mình. `flex: 1 1 auto` gỡ đi vì nó là thuộc tính của một mục FLEX —
+   * đứng trong lưới thì nó không có tác dụng gì, chỉ gây hiểu nhầm về thứ đang giữ chỗ. Lý do đầy
+   * đủ và số đo nằm ở `AppHeader.module.css`.
+   */
   .nav {
     display: flex;
-    /* Chiếm hết khoảng còn lại giữa khối thương hiệu và cụm nút phải, rồi tự căn giữa nội dung
-       của mình — không cần đổi `justify-content: space-between` sẵn có của `.inner`. */
-    flex: 1 1 auto;
     justify-content: center;
   }
 }

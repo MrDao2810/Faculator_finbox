@@ -156,9 +156,449 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Nhóm Cơ bản / Nâng cao bo 8px, khung lẫn nút (10/09/2026)
+
+**Trạng thái: xong**, đã xem trên Chrome thật ở 1500px.
+
+Chủ dự án: _"sửa lại bo bên ngoài lẫn bên trong giảm xuống bo 8"_. Trước đợt này cả `.group` lẫn
+`.option` đều khai `--radius-pill`, tức bo tròn hẳn hai đầu.
+
+| File                                      | Sửa gì                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------- |
+| `src/ui/navigation/ModeToggle.module.css` | `.group` → `8px`; `.option` → `inherit`.                            |
+| `src/ui/radius.test.ts`                   | Bảng `BO_8PX` + ca kiểm `inherit` cho cả `TabBar` lẫn `ModeToggle`. |
+
+**Một chỗ khai, không thể lệch.** Nút trong lấy `border-radius: inherit` chứ không chép lại số —
+`border-radius` vốn không di truyền, nhưng từ khoá này lấy đúng giá trị đã tính của thẻ cha, mà
+`.option` luôn là con trực tiếp của `.group`. Nhờ vậy "ngoài và trong cùng số" là chuyện CSS bảo
+đảm, không phải chuyện phải nhớ sửa hai chỗ. Đây đúng lối `.tab` của `TabBar.module.css` đã dựng
+khi chủ dự án yêu cầu y hệt cho khay tab ngày 09/09/2026.
+
+**Số viết thẳng, không dựng token.** Thang bo góc không có bậc nào bằng 8 (`sm` 6 · `md` 10 · `lg`
+16). Đây là chỗ dùng THỨ HAI của số 8 — cùng một họ điều khiển với khay `TabBar` (một khay chứa mấy
+nút chọn-một-trong-nhiều) và cùng là một lần chủ dự án chốt bằng mắt, nên trùng số là hợp lẽ chứ
+không phải trùng lặp cần gom. `radius.test.ts` ghi rõ: có chỗ dùng thứ ba mà KHÔNG cùng họ thì mới
+là lúc bàn đưa 8 lên thang.
+
+**Cửa gác theo đúng luật file ấy tự đặt** ("bậc ngoài thang thì mỗi chỗ dùng phải có ca kiểm giữ"):
+số 8 trước nay chỉ được nhắc trong docblock chứ chưa có ca kiểm nào. Nay có bảng `BO_8PX` ghim khung
+của cả hai cụm, cộng một ca ghim nút trong phải là `inherit` — bắt đúng lúc ai đó "sửa cho rõ" bằng
+cách ghi thẳng số vào nút, vì lúc ấy hai bậc bo lại có thể trôi khỏi nhau.
+
+---
+
+## Thanh điều hướng đứng yên khi đổi màn — thanh trên thành lưới ba cột (10/09/2026)
+
+**Trạng thái: xong**, đã đo trong Chrome thật ở 1500 và 1024px trên cả bốn màn.
+
+Chủ dự án gửi bốn ảnh thanh trên: _"mỗi lần click vào một tab thì giao diện lại bị lệch đi quá xa,
+sửa lỗi để không bị lệch hay gây ra hiểu lầm là giao diện bị lệch đi"_.
+
+### Đo trước khi sửa — hai nguyên nhân, không phải một
+
+Tâm hàng bốn mục nav, đo ở 1500px:
+
+| Màn           | Tâm nav | `clientWidth` |
+| ------------- | ------- | ------------- |
+| `/`           | 765     | 1485          |
+| `/cong-thuc/` | **682** | 1485          |
+| `/danh-muc/`  | 772     | **1500**      |
+| `/cai-dat/`   | 765     | 1485          |
+
+**Nguyên nhân 1 — lệch 83px, là thứ chủ dự án thấy.** `.nav` khai `flex: 1 1 auto` +
+`justify-content: center`, tức nó căn giữa trong PHẦN CÒN LẠI giữa hai cụm hai bên, không phải căn
+giữa thanh. `/cong-thuc/` là màn duy nhất có nút Cơ bản / Nâng cao (`showsModeToggle()`), nên cụm
+phải ở đó rộng **239px** thay vì 74px — phần còn lại hụt 165px, tâm nav trôi đúng một nửa: 83px.
+
+**Nguyên nhân 2 — lệch 7,5px, CỐ Ý để lại.** `/danh-muc/` với danh mục rỗng thì trang ngắn, trình
+duyệt bỏ thanh cuộn, vùng nhìn rộng thêm 15px. Cách chữa là `scrollbar-gutter: stable`, và nó **đã
+bị gỡ có chủ đích**: nó để lại một vệt 15px khác màu chạy dọc trang mà chủ dự án đã khoanh và bác.
+Bốn hướng chữa khác cũng đã cân nhắc rồi bỏ — toàn bộ lý do nằm ở `globals.css`, ngay trên luật
+`body { overflow-x: clip }`. Không đụng lại.
+
+### Sửa
+
+| File                                     | Sửa gì                                                                                                                       |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/navigation/AppHeader.module.css` | Từ 1024px, `.inner` thành lưới `minmax(0,1fr) auto minmax(0,1fr)` + `justify-items: start`; `.controls` `justify-self: end`. |
+| `src/ui/navigation/HeaderNav.module.css` | Gỡ `flex: 1 1 auto` — vô tác dụng khi đứng trong lưới, chỉ gây hiểu nhầm về thứ đang giữ chỗ.                                |
+| `scripts/chrome-check.mjs`               | Hai phép kiểm mới: tâm nav bằng nhau giữa hai màn, và khối "Faculator" không phình.                                          |
+
+Hai cột biên LUÔN bằng nhau nên cột giữa nằm đúng tâm thanh, bất kể hai bên rộng hẹp thế nào.
+`minmax(0, 1fr)` chứ không `1fr` trần: `1fr` mặc định là `minmax(auto, 1fr)`, tức cột được phép
+phình cho vừa nội dung — đúng lúc cụm phải rộng lên thì nó lại đẩy cột giữa đi, dựng lại nguyên cái
+lỗi đang chữa.
+
+**Sau khi sửa**, tâm nav ở 1500px: `/` 743 · `/cong-thuc/` 742 · `/cai-dat/` 742 — bằng nhau trong
+1px. `/danh-muc/` 750, chênh 8px còn lại đúng bằng nửa thanh cuộn, tức nguyên nhân 2. Ở 1024px:
+505 / 504 / 504 / 512 — cùng kết quả.
+
+Bản vá còn chặn sẵn một lớp lệch nữa mà chủ dự án chưa gặp: ở màn TRONG, danh tính là nút quay lại
+("Danh sách công thức") rộng hơn hẳn khối "Faculator", và cách xếp cũ cũng đẩy nav đi vì lý do y hệt.
+
+### Một lỗi bản vá này suýt tạo ra, phép đo bắt được
+
+Bản đầu chỉ đổi sang lưới, chưa khai `justify-items`. Đo lại thì `danhTinh` phình từ 119px lên
+**497px**: mục lưới mặc định `stretch`, mà mục đầu cột trái là một thẻ `<a>` — tức bấm vào khoảng
+trống gần nửa thanh trên cũng nhảy về trang chủ, một đích bấm vô hình không có gì báo là nó tồn
+tại. Hàng flex cũ không mắc vì mục flex không tự giãn theo trục chính.
+
+`justify-items: start` chặn điều đó, và một phép kiểm `check:chrome` ghim con số ấy lại
+(≤220px) để lần sau ai đụng lưới thì biết ngay.
+
+---
+
+## Khổ có thanh điều hướng thì thanh trên quay về tên sản phẩm (10/09/2026)
+
+**Trạng thái: xong**, đã đo trong Chrome thật ở 1500 · 1023 · 360px trên cả ba màn.
+
+Chủ dự án: _"ở màn web thì khi chuyển sang màn công thức hoặc Danh mục, cài đặt thì bên trái kia
+không cần để tên tương ứng mà chỉ cần để icon lẫn Faculator như ngoài trang chủ là được"_.
+
+Lý do đứng vững: từ 1024px `.nav` hiện ra và tự **gạch chân** mục đang mở, nên tên màn ở đầu thanh
+là nói lần thứ hai cùng một điều. Dưới 1024px không có thanh ấy — tên màn ở lại, y như cũ.
+
+| File                                          | Sửa gì                                                                             |
+| --------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `src/ui/navigation/HeaderIdentity.tsx`        | Màn có tên nay dựng CẢ `<h1>` lẫn khối tên sản phẩm (lớp `brandWide`).             |
+| `src/ui/navigation/HeaderIdentity.module.css` | `@media (min-width: 1024px)`: hiện `.brand.brandWide`, ẩn `.screenTitle` khỏi mắt. |
+| `src/ui/navigation/AppHeader.test.tsx`        | Ca "bày tên màn" bỏ vế "không có tên sản phẩm" — xem mục bất biến dưới.            |
+| `scripts/chrome-check.mjs`                    | Hai phép kiểm mới: khổ 360 bày tên màn, khổ 1440 bày tên sản phẩm.                 |
+
+**Đo trong Chrome thật:**
+
+| Màn · khổ            | `<h1>`             | Hiện ra   |
+| -------------------- | ------------------ | --------- |
+| `/cong-thuc/` 1500px | "Công thức"        | Faculator |
+| `/cong-thuc/` 1023px | "Công thức"        | Công thức |
+| `/cong-thuc/` 360px  | "Công thức"        | Công thức |
+| `/danh-muc/` 1500px  | "Danh mục của tôi" | Faculator |
+| `/cai-dat/` 1500px   | "Cài đặt"          | Faculator |
+
+Mốc lật đúng 1024 (đo ở 1023 vẫn là dạng cũ).
+
+### Vì sao CSS chọn chứ không phải JavaScript chọn
+
+Thanh trên nằm ở layout GỐC và được dựng sẵn vào HTML tĩnh của cả 122 trang. Đo khổ màn lúc render
+(`matchMedia`) là một đường lệch hydration — cùng cái bẫy `use-chart-size.ts` đã ghi, và khác hẳn
+cảnh của khối Chuỗi (khối ấy không có mặt trong HTML tĩnh nên đọc lúc render được).
+
+Nên cả hai dạng cùng nằm trong DOM, CSS quyết dạng nào hiện — đúng nếp `ThemeSwitch` đã dựng cho
+hai icon sáng/tối.
+
+### Một bất biến đổi nghĩa, ghi rõ vì nó là cửa gác
+
+`AppHeader.test.tsx` đang gác _"chỗ đứng ấy có đúng MỘT thứ"_, và docblock ở đó nói thẳng vì sao
+phải kiểm cả vế "thứ phải vắng". Bất biến ấy viết khi câu trả lời không phụ thuộc khổ màn.
+
+Nay nó thành **"có đúng một thứ HIỆN RA"** — mà jsdom không áp CSS Module nên không đo được ở đó.
+Vế ấy chuyển sang `check:chrome`, đo ở cả hai khổ. Ca vitest giữ lại phần nó vẫn gác được, và đó
+là phần nặng ký nhất: **`<h1>` phải có mặt ở mọi khổ**. Thân màn không dựng tiêu đề nào (xem
+`headerTitleKey()`), nên nó là tiêu đề cấp một duy nhất của trang — ẩn khỏi mắt thì được, gỡ khỏi
+DOM thì trang mất tiêu đề.
+
+Mốc 1024 nay nằm ở hai file CSS (`HeaderNav.module.css` và `HeaderIdentity.module.css`). Docblock
+hai bên đều ghi: đổi bên nào thì phải đổi bên kia, không thì có khổ màn mất CẢ tên màn lẫn thanh
+điều hướng — tức mất sạch câu trả lời "tôi đang ở đâu".
+
+### ⚠ Cái giá, đo được chứ không suy đoán
+
+Ở khổ PC, màn Danh mục không còn chữ **"của tôi"** nào hiện ra. `routes.ts` ghi rõ khoá
+`portfolio.title` là "Danh mục của tôi" chứ không phải "Danh mục" của thanh nav, và _"chữ 'của
+tôi' là thứ nói ra rằng kho này nằm trên máy người dùng"_.
+
+Đây là câu CUỐI CÙNG trên màn nói điều đó: `portfolio.localOnly` (dải "CỤC BỘ") và
+`settings.data.note` đã gỡ ngày 09/09/2026, `portfolio.subtitle` cũng vậy. COM-03 nay chỉ còn nằm
+ở hành vi và `public/_headers`. Ở khổ điện thoại chữ ấy vẫn hiện, và trình đọc màn hình vẫn đọc
+được ở mọi khổ (`<h1>` chỉ ẩn khỏi mắt) — nhưng người dùng PC nhìn thì không thấy nữa.
+
+Không có cửa gác nào bắt được việc này, nên ghi ở đây. Muốn giữ thì cách rẻ nhất là cho màn Danh
+mục dựng lại `<h1>` trong thân ở khổ PC — chờ chủ dự án quyết.
+
+---
+
+## Màn rộng mở sẵn MỌI bước trước của khối Chuỗi (10/09/2026)
+
+**Trạng thái: xong**, đã đo trong Chrome thật ở 1500 · 1024 · 390px.
+
+Chủ dự án: _"mặc định ở màn web thì các phần nằm trong 'Bước trước — cấp số liệu cho công thức đang
+xem' đều được mặc định là bật"_.
+
+Trước đợt này `openIds` khởi tạo bằng `chain.byId.get(currentId)?.dependsOn` — tức chỉ bước cấp số
+liệu **trực tiếp**. Ở `gia-tri-noi-tai-fcff` thì `dependsOn` là `wacc` + `fcff`, còn `capm` cấp số
+liệu GIÁN TIẾP (qua `wacc`) nên nó gập — đúng thẻ CAPM đóng trong ảnh chủ dự án gửi đợt trước.
+
+| File                                | Sửa gì                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------- |
+| `src/ui/screens/ChainBody.tsx`      | Hằng số `MAN_RONG_QUERY` + hàm `manRong()`; `openIds` mở mọi bước trước khi màn rộng. |
+| `src/ui/screens/ChainBody.test.tsx` | Hàm `gaKhoMan()` giả lập `matchMedia`, ba ca kiểm mới cho hai nhánh.                  |
+
+**Đo trong Chrome thật** (`gia-tri-noi-tai-fcff`, ba bước trước):
+
+| Khổ    | Mở sẵn                   |
+| ------ | ------------------------ |
+| 1500px | `capm` · `fcff` · `wacc` |
+| 1024px | `capm` · `fcff` · `wacc` |
+| 390px  | `fcff` · `wacc` — nếp cũ |
+
+**Chỉ đổi ở màn rộng, cố ý.** Từ 1024 các thẻ đã xếp hai cột nên bày hết tốn ít chiều dọc hơn hẳn.
+Ở một cột thì mở hết là đẩy khối Nguồn tham khảo xuống rất xa, mà lý do cũ vẫn đúng: bước cấp số
+liệu trực tiếp mới là thứ người dùng bật Nâng cao để sửa, và dòng tóm tắt của thẻ gập vẫn hiện kết
+quả nên không phải mở ra mới biết chuỗi chạy tới đâu. Bước SAU không đổi — chúng chưa bao giờ nằm
+trong `dependsOn` nên vẫn gập ở cả hai khổ.
+
+### Vì sao ĐƯỢC đọc `matchMedia` ngay lúc render ở đây
+
+`use-chart-size.ts` cấm đúng việc này, và cấm có lý: thư mục biểu đồ được dựng sẵn vào HTML tĩnh
+nên lần render đầu ở máy khách phải khớp hệt HTML ấy.
+
+Khối Chuỗi KHÔNG ở trong cảnh đó — nó chỉ dựng khi `mode === 'advanced'`, mà chế độ mặc định là Cơ
+bản, nên nó không có mặt trong HTML tĩnh; `verify:static` ghim đúng điều đó ("khối chuỗi WF-04
+không rò vào HTML tĩnh"). Lần render đầu của nó luôn là render ở máy khách. Và **phải** đọc lúc
+render chứ không hoãn vào `useEffect`: hoãn thì thẻ bật ra sau khi khối đã vẽ xong — một cú nhảy bố
+cục ngay trước mắt người dùng.
+
+`MAN_RONG_QUERY` lặp con số 1024 với `@media` bên CSS. Không tránh được (CSS không đọc hằng số TS),
+nên xử lý đúng nếp `WIDE_QUERY` của `use-chart-size.ts`: docblock ghi rõ **đổi mốc này thì phải đổi
+cả bên kia**.
+
+### Ca kiểm
+
+jsdom không cài `matchMedia`, nên mặc định mọi ca kiểm ở file ấy chạy nhánh "màn hẹp" — nghĩa là
+các ca sẵn có giữ nguyên hành vi chúng đang gác, không phải sửa ca nào. Ba ca mới: màn hẹp chỉ mở
+bước trực tiếp; màn rộng mở cả bước gián tiếp; màn rộng không mở lây sang bước sau.
+
+### Còn lệch một chút, ghi lại để chủ dự án quyết
+
+Mở hết ba thẻ thì cột trái (CAPM + FCFF) cao hơn cột phải (WACC) khoảng **200px** — luật chia của
+chủ dự án đếm theo **số thẻ**, không theo chiều cao, nên không có cách nào cân lại mà vẫn giữ đúng
+luật ấy. Đổi cách chia sang cân theo chiều cao sẽ phá bất biến "thẻ nào ở cột nào là cố định" và
+làm thứ tự DOM lệch khỏi thứ tự topo — nên **chưa đụng**.
+
+---
+
+## Tắt nền autofill của trình duyệt trên ô nhập (10/09/2026)
+
+**Trạng thái: xong phần code** — nhưng xem mục "Chưa kiểm được gì" ở cuối, chủ dự án cần xác nhận
+trên máy mình.
+
+Chủ dự án chụp ô "Giá vốn một cổ phiếu" vừa gõ `2414`, nền ô xanh nhạt: _"sửa lỗi khi nhập số thì
+bôi màu cho ô nhập bị lỗi"_.
+
+### Đo trước khi sửa — sản phẩm KHÔNG tô gì cả
+
+Dựng lại đúng cảnh trong ảnh bằng Chrome thật (mở form, gõ `2414` qua đúng đường React đi), rồi đọc
+trạng thái thật của ô:
+
+```
+giá trị      2414
+nền input    rgba(0, 0, 0, 0)      ← trong suốt
+nền khung    rgb(255, 255, 255)    ← trắng
+viền khung   rgb(27, 68, 126) solid
+aria-invalid null
+câu lỗi      null
+```
+
+Không `aria-invalid`, không câu lỗi, không lớp `tone-invalid`. Và trong toàn bộ repo không có luật
+CSS nào tô nền ô nhập theo giá trị — `.tone-invalid` chỉ đổi **viền** sang đỏ (NFR-USA-06: trạng
+thái nói bằng viền và chữ, không bằng nền).
+
+→ Màu ấy là của **trình duyệt**: Chrome/Safari tô `rgb(232, 240, 254)` lên chính thẻ `<input>` khi
+giá trị đến từ autofill. `background: transparent` của `.input` không thắng được, vì nền autofill
+vẽ ở một lớp mà `background-color` thường không với tới.
+
+Nó gây hiểu nhầm đúng như chủ dự án đọc ra, và có lý do đo được: xanh nhạt ấy gần
+`--color-accent-soft` (#e3ebfd, nền chip đang chọn) tới mức đọc ra như một trạng thái của sản phẩm.
+
+### Sửa
+
+| File                                 | Sửa gì                                                                                                                  |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/primitives/Input.module.css` | Hai luật `:autofill` / `:-webkit-autofill` phủ `box-shadow` inset màu `--color-surface`, kèm `-webkit-text-fill-color`. |
+
+Ba điểm cần giữ khi ai đó đụng lại chỗ này:
+
+- **`box-shadow` inset chứ không `background`** — đó là cách duy nhất che được lớp nền autofill.
+- **`--color-surface`, không phải mã màu** — nó là nền của `.control` bao quanh, và token này tự
+  đổi ở bảng tối nên luật chạy đúng cả hai giao diện (`tokens.test.ts` cũng cấm mã màu cứng).
+- **Hai luật TÁCH RỜI** — gộp `:autofill` và `:-webkit-autofill` vào một danh sách bộ chọn thì
+  trình duyệt nào chưa biết vế chuẩn sẽ vứt cả luật.
+
+Không cần bản riêng cho `.tone-locked` (nền `--color-sunken`): ô khoá luôn là `readOnly` hoặc
+`disabled`, mà trình duyệt không autofill vào hai loại ấy — xem `NumberInput.tsx`.
+
+### Chưa kiểm được gì, và vì sao
+
+**Không tái hiện được trạng thái autofill trong Chrome headless**: hồ sơ profile mới tinh không có
+dữ liệu autofill nào, và CDP không cho ép trạng thái `:-webkit-autofill` (`CSS.forcePseudoState`
+chỉ nhận hover/focus/active/visited/focus-within/focus-visible/target). `check:chrome` vì vậy cũng
+không gác được luật này.
+
+Thứ ĐÃ kiểm: ô ở trạng thái thường **không đổi gì** sau khi thêm luật — đo lại vẫn
+`nền input rgba(0,0,0,0)`, không box-shadow. Tức luật không gây tác dụng phụ.
+
+⚠ Còn một khả năng nữa mà CSS không chữa được: **tiện ích mở rộng** (trình quản lý mật khẩu như
+LastPass/1Password cũng tô nền ô nhập). Nếu sau bản này ô vẫn xanh, đó là extension chứ không phải
+autofill — lúc ấy không luật CSS nào của sản phẩm can thiệp được.
+
+`SearchBox.module.css` và `InlineNumber.module.css` cũng có `<input>` nền trong suốt nên về lý
+cũng dính được. **Chưa đụng** — chủ dự án mới báo ở ô của primitive `Input`, và cả hai ô kia đều
+không nằm trong ngữ cảnh trình duyệt hay autofill (một ô là `type="search"`, một ô là tham số công
+thức). Thêm cùng hai luật ấy là việc một dòng nếu sau này thấy.
+
+---
+
+## Form thêm mã của màn Danh mục xếp hai cột ở khổ PC (10/09/2026)
+
+**Trạng thái: xong phần code, chưa build** — đã đo trên Chrome thật ở 1500 · 1024 · 360px qua dev
+server; ba phép kiểm `check:chrome` mới chưa chạy được vì cổng 3000 đang có dev server.
+
+Chủ dự án: _"khi thêm mã ở màn web trong phần danh mục thì giao diện đang để thừa khá nhiều, điều
+chỉnh để chia các ô nhập trên thành 2 cột chia đều. 2 button Thêm vào danh mục và Huỷ chuyển sang
+bên phải"_.
+
+**Gốc: `PortfolioScreen.module.css` trước đợt này KHÔNG có một `@media` nào.** Cả màn — form này
+gồm — là một cột dọc ở mọi khổ, nên ở 1500px một ô "Số cổ phiếu nắm giữ" trải hết 1372px.
+
+| File                                          | Sửa gì                                                                                                                                           |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/danh-muc/PortfolioScreen.module.css` | `@media (min-width: 1024px)`: `.form` thành lưới 2 cột đều; `.formError` + `.formActions` chiếm trọn hàng; hàng nút `justify-content: flex-end`. |
+| `scripts/chrome-check.mjs`                    | Ba phép kiểm mới ở khổ PC 1440 — hai cột, hàng nút dạt phải, không tràn ngang.                                                                   |
+
+**Đo được:** chiều cao form 1500px từ ~660px xuống **381px**; ở 1024px là 399px. Khổ 360px không
+đổi (`min-width: 1024`), vẫn một cột, nút vẫn ở trái.
+
+Sáu ô ở chế độ Nâng cao chia vừa khít 3 hàng × 2 cột. Chế độ Cơ bản không có ô Beta nên còn năm, ô
+cuối ("Tính công thức") đứng một mình ở cột trái hàng cuối — **cố ý không** cho ô nào chiếm hai cột
+để lấp cho vuông: thứ tự ô là thứ tự người dùng điền.
+
+`align-items: start` là bắt buộc chứ không phải trang trí: ô "Mã cổ phiếu" mang cả dòng gợi ý, câu
+lỗi lẫn lời nhắc cộng dồn nên nó cao hơn hẳn ô bên cạnh, mà mặc định `stretch` sẽ kéo dãn chính cái
+nút chọn mã bên trong nó.
+
+**Giữ nguyên thứ tự hai nút trong DOM** (nút chính trước, "Huỷ" sau) — đó là thứ tự phím Tab và
+cũng là thứ tự đang dùng ở khổ hẹp. Hệ quả nhìn thấy được: khi dạt phải thì "Huỷ" nằm ngoài cùng
+bên phải. Đổi chỗ để nút chính ra ngoài cùng là một quyết định khác, chưa ai yêu cầu — nói ra ở đây
+để chủ dự án chốt nếu muốn.
+
+**Vì sao ca kiểm nằm ở `check:chrome` chứ không phải vitest:** luật nằm trong `@media` của một CSS
+Module, mà jsdom không áp CSS Module — một ca vitest sẽ xanh bất kể file CSS viết gì. Cùng lý do
+`ChainBody.test.tsx` đã ghi. Phép kiểm đo hai ô ĐẦU (`Mã cổ phiếu`, `Số cổ phiếu nắm giữ`) chứ
+không đo ô Beta, để không phụ thuộc chế độ Cơ bản/Nâng cao.
+
+**Kiểm:** `tsc` sạch · ESLint sạch · Prettier sạch · `node --check` script sạch ·
+`PortfolioScreen.test.tsx` 80/80 xanh · `tokens.test.ts` + `radius.test.ts` xanh.
+
+---
+
+## Luật "hai cột cùng mép dưới" chỉ áp khi hai cột bằng số thẻ (10/09/2026)
+
+**Trạng thái: xong**, đã đo trên Chrome thật ở 1500px cho cả hai ca.
+
+Chủ dự án gửi ảnh trang `gia-tri-noi-tai-fcff`: _"sửa lỗi giao diện khi tôi bật phần xem các bước
+bên phải"_. Cột trái hai thẻ (CAPM gập + FCFF mở), cột phải một thẻ (WACC mở) — và luật nở thẻ vừa
+thêm ở đợt trước bắt **một mình thẻ WACC phải cao bằng cả hai thẻ bên trái**. Phần dư đúng bằng
+nguyên một thẻ, nên nó thành một mảng trống mênh mông dưới dòng "Mở màn riêng của bước này".
+
+**Gốc lỗi là điều kiện thiếu, không phải luật sai.** Đợt trước tôi mới gác đúng MỘT vế ("chỉ thẻ
+đang mở mới nở, thẻ gập thì không") mà bỏ sót vế thứ hai: hai cột phải giữ **bằng nhau số thẻ**.
+Lệch số thẻ thì chênh lệch chiều cao tính bằng THẺ chứ không phải vài chục px — không có cách nào
+lấp cho đẹp, và để mỗi cột kết thúc ở chỗ nội dung nó hết mới là câu trả lời thật thà.
+
+| File                                  | Sửa gì                                                                               |
+| ------------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/ui/screens/ChainBody.tsx`        | `haiCot()` tính `canBang` (hai cột, bằng số thẻ) rồi gắn lớp `columnsEven`.          |
+| `src/ui/screens/ChainBody.module.css` | Luật nở đổi từ `.column > .step[open]` sang `.columnsEven .column > .step[open]`.    |
+| `src/ui/screens/ChainBody.test.tsx`   | Ba ca kiểm mới: 2\|1 không có `columnsEven`; 2\|2 và 1\|1 thì có; một cột thì không. |
+
+**Đo lại trên Chrome thật:**
+
+| Trang                  | Hình dạng | Kết quả                                                            |
+| ---------------------- | --------- | ------------------------------------------------------------------ |
+| `gia-tri-noi-tai-fcff` | 2 \| 1    | Thẻ WACC kết thúc ngay sau nội dung — hết mảng trống               |
+| `wacc` (mở cả hai)     | 1 \| 1    | Hai thẻ vẫn cùng mép dưới — đúng yêu cầu của đợt trước, giữ nguyên |
+
+jsdom không dựng bố cục nên ca kiểm gác **sự có mặt của lớp modifier**, tức đúng thứ quyết định
+luật CSS ấy có hiệu lực hay không. Chiều cao thật thì đo bằng ảnh chụp Chrome.
+
+---
+
+## Chạy trọn cửa kiểm sau build · gỡ hai chỗ kẹt của `check:chrome` (10/09/2026)
+
+**Trạng thái: xong.** Lần đầu cả bộ lệnh sau build chạy được kể từ khi dev server nhả cổng 3000 —
+gồm cả `check:chrome`, thứ đã kẹt suốt nhiều đợt.
+
+| Lệnh                 | Kết quả                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| `npm run build`      | Xanh — 122 trang, xuất tĩnh sạch                                                       |
+| ESLint toàn repo     | Xanh                                                                                   |
+| `prettier --check .` | Xanh                                                                                   |
+| `verify:static`      | **26/26 đạt**                                                                          |
+| `check:chrome`       | **73/80** — 7 đỏ, cả 7 là nợ nền, không do đợt này (bảng dưới)                         |
+| `npm run size`       | Đỏ **sẵn** — 112 trang vượt cửa 180 kB, nợ đã ghi từ đợt Audit, chủ dự án đã chấp nhận |
+
+### Hai chỗ khiến `check:chrome` không chạy nổi tới cuối — đã sửa
+
+**1. Script CHẾT ĐỨNG ở phép kiểm thứ 8, bỏ luôn 72 phép kiểm phía sau.** Nó dò nút mở sheet Xuất
+bằng `/Xuất/`, nhưng nhãn nút đã đổi từ `'↓ Xuất'` sang `'Tải về'` ở commit `d93d480` (mũi tên nay
+là icon thật). Không tìm thấy nút → `waitFor('.print-region')` hết 8000ms → `throw` → cả script
+dừng. Chuỗi "Xuất" giờ chỉ còn trên hai nút BÊN TRONG sheet ('Xuất PDF' / 'Xuất PNG') và tiêu đề
+sheet, nên dò theo nó là dò nhầm lớp. Nay dò đúng `Tải về`, và **thêm một phép kiểm riêng** báo lỗi
+tại chỗ nếu không thấy nút — để lần sau đổi nhãn thì nó đỏ một dòng chứ không giết cả bộ.
+
+**2. Phép kiểm `.expression` đã lạc hậu.** Nó đòi `.expression` mang `overflow-y: hidden`, nhưng
+đợt "vế công thức xuống dòng thay vì cuộn ngang" đã bỏ hẳn `white-space: nowrap` + `overflow-x` của
+`.expression`. Không còn trục nào khác `visible` thì cái bẫy "trình duyệt tự đổi trục kia thành
+`auto`" cũng hết đường xảy ra — giữ phép kiểm cũ là bắt CSS mang một dòng không còn tác dụng.
+Đổi lại kiểm đúng thứ chủ dự án yêu cầu: **vế chữ không được cuộn ngang** (`overflow-x: visible`).
+`.formula` giữ nguyên phép kiểm cũ — nó vẫn cuộn ngang thật nên vẫn phải khoá trục dọc.
+
+### Bảy phép kiểm đỏ — đều là nợ nền, đã truy ra tận gốc
+
+**a) Bốn phép kiểm nhãn trục (`lich-tra-no`, `diem-hoa-von`, `lai-kep` ×2).** Thông báo của
+`check:chrome` chỉ in `x..right` nên đọc ra như "nhãn quá dài" — sai hướng. Đo thẳng bằng probe
+riêng (`getBBox()` + viewBox) thì ra **tràn theo trục TRÊN, không phải trục ngang**:
+
+```
+"Lịch trả nợ vay (tỷ ₫)"  x=34..123.6   top=-0.6  bottom=12.1   viewBox 320×240
+```
+
+Tức: tên trục Y đặt ở baseline `plot.y0 - 4` = **10** (`LineChart.tsx:868`, `PAD.top = 14`), nhưng
+phần chữ vươn lên trên baseline **10,6 đơn vị** — dấu tiếng Việt chồng trên chữ hoa (`Lị`, `Đ`,
+`ã`) ăn hết chỗ. Thừa đúng **0,1 đơn vị** so với dung sai 0,5 của phép kiểm.
+
+Đây **không phải chuyện nhãn dài**: cả ba trang cho ra cùng một cặp số `top=-0.6 / bottom=12.1`,
+nghĩa là MỌI biểu đồ đường có tên trục đều lệch y hệt nhau. `ev` xanh vì nó là thác nước — tên trục
+nằm ở ĐÁY (`WaterfallChart.tsx:337`), không đụng mép trên.
+
+Sửa được bằng một con số (`y={plot.y0 - 3}`, hoặc `PAD.top` 14 → 15), nhưng đó là hình học chung của
+102 biểu đồ và thuộc mạch việc biểu đồ đang làm dở — **chưa sửa, chờ chủ dự án quyết**. Docblock ở
+`LineChart.tsx:866` đã ghi sẵn "PAD.top = 14 và số này là một cặp", nên chỗ cần đụng đã có người
+đánh dấu từ trước.
+
+**b) Ba phép kiểm "không cảnh báo nào ra console" (`/du-lieu/`, `fcff`, trang Nâng cao).** Cùng một
+câu của Chrome:
+
+```
+A preload for '…/chunks/9064.…js' is found, but is not used because it is a
+cross-world service worker resource mismatch.
+```
+
+Là cảnh báo về `<link rel=preload>` gặp service worker, không phải lỗi của mã sản phẩm. Cùng chunk
+`9064` ở cả ba trang, và một trong ba là `/du-lieu/` — màn không dính dáng gì tới các đợt sửa gần
+đây, nên nó chứng minh cảnh báo này không thuộc màn nào cụ thể.
+
+**Không phép kiểm đỏ nào chạm vào phần sửa của hôm nay** (hai cột khối Chuỗi, nhãn "Mẫu ưu tiên",
+gộp thanh mã, chân trang). Ngược lại, chúng nay được gác thật: các phép kiểm PC 1440 / 1024 / 360 và
+"mọi thanh trượt chiếm trọn một hàng lưới — kể cả trong thẻ bước của chuỗi" đều xanh.
+
+**File đụng:** `scripts/chrome-check.mjs` (chỉ script kiểm, không đụng mã sản phẩm).
+
+---
+
 ## Thẻ bước của khối Chuỗi chia hai cột ở khổ PC (10/09/2026)
 
-**Trạng thái: xong phần code, chưa build** — đã đo trên Chrome thật ở 1500 · 1024 · 390px.
+**Trạng thái: xong**, đã build và đo lại trên bản `out/` ở 1500 · 1024 · 390px.
 
 Chủ dự án: _"phần Bước trước — cấp số liệu cho công thức đang xem ở màn web đang quá rộng. thay đổi
 nếu là số chẵn thì chia ra 2 cột lần lượt. nếu là số lẻ thì cột trái nhiều hơn cột phải 1"_.

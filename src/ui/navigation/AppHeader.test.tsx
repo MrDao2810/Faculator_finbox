@@ -133,12 +133,28 @@ describe('AppHeader — danh tính đổi theo màn', () => {
     expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
   });
 
-  it('màn danh sách công thức bày tên màn thay cho tên sản phẩm', async () => {
+  /*
+   * ── Vế "KHÔNG có tên sản phẩm" đã rời ca này, và đó là đổi ý có chủ đích ────────────────────
+   *
+   * Chủ dự án chốt 10/09/2026: từ khổ có thanh điều hướng (1024px), màn có tên quay về bày icon +
+   * "Faculator" như trang chủ — tên màn ở đầu thanh là nói lần thứ hai điều mà mục nav đang gạch
+   * chân đã nói. Dưới 1024px thì tên màn ở lại y như cũ.
+   *
+   * Thanh trên được dựng sẵn vào HTML tĩnh nên phép chọn PHẢI là CSS, không thể là `matchMedia`
+   * lúc render (lệch hydration — xem `HeaderIdentity`). Hệ quả: cả hai dạng cùng nằm trong DOM.
+   * Bất biến cũ "chỗ đứng ấy có đúng một thứ" vì thế thành "có đúng một thứ HIỆN RA" — mà jsdom
+   * không áp CSS Module nên nó không đo được ở đây. Hai phép kiểm ở `check:chrome` (khổ 1440 và
+   * 360) là chỗ gác vế ấy từ nay.
+   *
+   * Thứ ca này VẪN gác, và vẫn là phần nặng ký nhất: `<h1>` phải có mặt ở mọi khổ. Nó là tiêu đề
+   * cấp một duy nhất của trang vì thân màn không dựng cái nào — ẩn khỏi mắt thì được, gỡ khỏi DOM
+   * thì trang mất tiêu đề.
+   */
+  it('màn danh sách công thức luôn có <h1> tên màn ở thanh trên', async () => {
     dungThanh(ROUTES.formulas);
 
     const tieuDe = await screen.findByRole('heading', { level: 1, name: 'Công thức' });
     expect(tieuDe).toBeTruthy();
-    expect(screen.queryByRole('link', { name: 'Faculator' })).toBeNull();
   });
 
   /*

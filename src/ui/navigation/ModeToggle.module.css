@@ -4,7 +4,20 @@
   padding: 2px;
   background: var(--color-sunken);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-pill);
+  /*
+   * 8px — chủ dự án chốt 10/09/2026: _"sửa lại bo bên ngoài lẫn bên trong giảm xuống bo 8"_. Trước
+   * đó là `--radius-pill`, tức bo tròn hẳn hai đầu.
+   *
+   * Số viết thẳng chứ không qua token, vì thang bo góc không có bậc nào bằng 8 (`--radius-sm` 6 ·
+   * `--radius-md` 10 · `--radius-lg` 16). Đây là chỗ dùng THỨ HAI của số 8, sau khay `TabBar` —
+   * cùng một họ điều khiển (một khay chứa mấy nút chọn-một-trong-nhiều) và cùng một lần chủ dự án
+   * chốt bằng mắt, nên hai chỗ trùng số là hợp lẽ chứ không phải trùng lặp cần gom.
+   *
+   * Đây là NGUỒN DUY NHẤT của con số: `.option` lấy lại bằng `border-radius: inherit`, nên bo
+   * ngoài và bo trong không thể lệch nhau — cùng lối `.tab` của `TabBar.module.css` đã dựng cho
+   * đúng yêu cầu này.
+   */
+  border-radius: 8px;
 }
 
 .option {
@@ -24,7 +37,15 @@
 
   background: transparent;
   border: none;
-  border-radius: var(--radius-pill);
+  /*
+   * CÙNG bậc bo với khung — chủ dự án chốt _"bo bên ngoài lẫn bên trong giảm xuống bo 8"_.
+   *
+   * `inherit` chứ không chép lại con số: `border-radius` vốn không di truyền, nhưng từ khoá này
+   * lấy đúng giá trị đã tính của thẻ cha, mà `.option` luôn là con TRỰC TIẾP của `.group` (xem
+   * `ModeToggle.tsx`). Nhờ vậy "cùng số liệu" là chuyện CSS bảo đảm, không phải chuyện phải nhớ
+   * sửa hai chỗ.
+   */
+  border-radius: inherit;
   cursor: pointer;
 }
 

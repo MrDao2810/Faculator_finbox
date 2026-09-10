@@ -440,8 +440,8 @@ window.__themeLog = [];
    * Chủ dự án chụp màn `ev-ebitda`: khung ký hiệu toán có hai nút mũi tên lên/xuống ở mép phải,
    * y hệt một thanh cuộn dọc kiểu Windows cũ, dù không có gì đáng để cuộn.
    *
-   * Gốc lỗi nằm ở CSS, không phải ở KaTeX: `.formula`/`.expression` trong `FormulaDetail.module.css`
-   * chỉ khai `overflow-x: auto` để cuộn NGANG cho công thức dài (NFR-USA-02), nhưng bỏ trống
+   * Gốc lỗi nằm ở CSS, không phải ở KaTeX: `.formula` trong `FormulaDetail.module.css` chỉ khai
+   * `overflow-x: auto` để cuộn NGANG cho công thức dài (NFR-USA-02), nhưng bỏ trống
    * `overflow-y`. Theo đúng đặc tả CSS, một trục khác `visible` mà trục kia bỏ mặc định thì trình
    * duyệt tự đổi trục còn lại thành `auto` — không phải `visible` như người viết tưởng. Khung này
    * không có chiều cao cố định nên chẳng bao giờ THẬT SỰ cần cuộn dọc, nhưng chỉ cần nội dung lệch
@@ -468,18 +468,38 @@ window.__themeLog = [];
   if (!formula || !expression) return null;
   return {
     formulaY: getComputedStyle(formula).overflowY,
-    expressionY: getComputedStyle(expression).overflowY,
+    expressionX: getComputedStyle(expression).overflowX,
   };
 })()`);
 
   check(
     'khối Công thức khoá cuộn dọc — không còn thanh cuộn ẩn kèm nút mũi tên lên/xuống',
-    cuonCongThuc !== null &&
-      cuonCongThuc.formulaY === 'hidden' &&
-      cuonCongThuc.expressionY === 'hidden',
+    cuonCongThuc !== null && cuonCongThuc.formulaY === 'hidden',
     cuonCongThuc === null
       ? 'không thấy khối Công thức'
-      : `formula overflow-y: ${cuonCongThuc.formulaY} · expression overflow-y: ${cuonCongThuc.expressionY}`,
+      : `formula overflow-y: ${cuonCongThuc.formulaY}`,
+  );
+
+  /*
+   * `.expression` (vế công thức dạng chữ) KHÔNG còn nằm trong phép kiểm trên, và đây là chỗ ghi
+   * lại vì sao — nó từng bị kiểm cùng `.formula` cho tới 10/09/2026.
+   *
+   * Chủ dự án chụp XIRR bị cắt cụt kèm thanh cuộn ngang: _"tránh tạo ra scroll ngang khiến dự án
+   * khó sử dụng"_. Đo được lúc ấy: 108/111 vế chữ dài quá khung. Bản sửa bỏ hẳn `white-space:
+   * nowrap` + `overflow-x` của `.expression` để nó XUỐNG DÒNG. Không còn trục nào khác `visible`
+   * thì cái bẫy "trình duyệt tự đổi trục kia thành auto" cũng không còn đường xảy ra, nên
+   * `overflow-y: hidden` ở đó thành thừa — và giữ phép kiểm cũ là bắt CSS phải mang một dòng
+   * không còn tác dụng gì.
+   *
+   * Đổi lại kiểm đúng thứ chủ dự án yêu cầu: vế chữ không được cuộn NGANG. `visible` là đạt;
+   * `auto`/`scroll` nghĩa là ai đó vừa dựng lại `nowrap`.
+   */
+  check(
+    'vế công thức dạng chữ xuống dòng, không cuộn ngang',
+    cuonCongThuc !== null && cuonCongThuc.expressionX === 'visible',
+    cuonCongThuc === null
+      ? 'không thấy khối Công thức'
+      : `expression overflow-x: ${cuonCongThuc.expressionX}`,
   );
 
   /* ── 0b. Khối dưới nếp gấp thật sự được hoãn dựng hình ───────────────────── */
@@ -554,8 +574,20 @@ window.__themeLog = [];
   );
 
   await send('Emulation.setEmulatedMedia', { media: 'screen' });
-  await evaluate(
-    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Xuất/.test(x.textContent ?? '')); if (!b) return false; b.click(); return true; })()`,
+  /*
+   * Nút mở sheet là `detail.download` — "Tải về". KHÔNG dò theo /Xuất/ nữa: nhãn nút đổi từ
+   * '↓ Xuất' sang 'Tải về' ở commit d93d480 (mũi tên nay là icon thật), và chuỗi "Xuất" chỉ còn
+   * nằm trên hai nút BÊN TRONG sheet ('Xuất PDF' / 'Xuất PNG') cùng tiêu đề sheet — tức phép dò cũ
+   * không tìm thấy gì, `waitFor` dưới đây hết giờ và cả script chết đứng, bỏ luôn mọi phép kiểm
+   * phía sau. Dò đúng nhãn nút mở, và báo lỗi ngay tại chỗ nếu không thấy.
+   */
+  const moSheetXuat = await evaluate(
+    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Tải về/.test(x.textContent ?? '')); if (!b) return false; b.click(); return true; })()`,
+  );
+  check(
+    'màn chi tiết có nút mở sheet Xuất',
+    moSheetXuat === true,
+    `tìm thấy nút: ${String(moSheetXuat)}`,
   );
   await waitFor("document.querySelector('.print-region')");
   await send('Emulation.setEmulatedMedia', { media: 'print' });
@@ -1960,6 +1992,52 @@ window.__themeLog = [];
     `top: Số liệu ${String(dt360.soLieu?.top)} · Kết quả ${String(dt360.ketQua?.top)} · Biểu đồ ${String(dt360.bieuDo?.top)} · Giải thích ${String(dt360.giaiThich?.top)} · Bảng biến ${String(dt360.bangBien?.top)}`,
   );
 
+  /*
+   * ── Danh tính đầu thanh: ĐÚNG MỘT dạng HIỆN RA, và dạng nào là tuỳ khổ ────
+   *
+   * Chủ dự án chốt 10/09/2026: từ khổ có thanh điều hướng thì màn có tên quay về bày icon +
+   * "Faculator"; dưới khổ ấy thì tên màn ở lại.
+   *
+   * Đây là chỗ DUY NHẤT đo được vế "hiện ra". Bất biến ấy trước nằm ở `AppHeader.test.tsx` dưới
+   * dạng "chỉ MỘT thứ trong DOM", nhưng phép chọn nay là CSS (bắt buộc: thanh trên dựng sẵn vào
+   * HTML tĩnh, đo `matchMedia` lúc render là lệch hydration) nên cả hai dạng CÙNG nằm trong DOM và
+   * jsdom không phân biệt được. Xem docblock `HeaderIdentity`.
+   *
+   * `<h1>` phải có mặt ở CẢ HAI khổ: thân màn không dựng tiêu đề nào, nên nó là tiêu đề cấp một
+   * duy nhất của trang. Ẩn khỏi mắt thì được, vắng mặt thì không.
+   */
+  const DOC_DANH_TINH = `(() => {
+    const thanh = document.querySelector('header');
+    if (thanh === null) return null;
+    const h1 = thanh.querySelector('h1');
+    const hieu = [...thanh.querySelectorAll('a')].find((a) => /Faculator/.test(a.textContent ?? ''));
+    const hien = (el) => {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 1 && r.height > 1 && getComputedStyle(el).display !== 'none';
+    };
+    return {
+      coH1: h1 !== null,
+      chuH1: h1?.textContent ?? null,
+      h1Hien: hien(h1),
+      hieuHien: hien(hieu),
+    };
+  })()`;
+
+  await open('/cong-thuc/');
+  const dt360DanhTinh = await evaluate(DOC_DANH_TINH);
+
+  check(
+    'Điện thoại 360 · thanh trên bày TÊN MÀN, không bày tên sản phẩm',
+    dt360DanhTinh !== null &&
+      dt360DanhTinh.coH1 === true &&
+      dt360DanhTinh.h1Hien === true &&
+      dt360DanhTinh.hieuHien === false,
+    dt360DanhTinh === null
+      ? 'không thấy thanh trên'
+      : `h1 "${String(dt360DanhTinh.chuH1)}" hiện ${String(dt360DanhTinh.h1Hien)} · Faculator hiện ${String(dt360DanhTinh.hieuHien)}`,
+  );
+
   /* ── Đợt 2: Cài đặt và bảng chuỗi giá ─────────────────────────────────── */
 
   await send('Emulation.setDeviceMetricsOverride', {
@@ -2000,6 +2078,145 @@ window.__themeLog = [];
   );
 
   check('PC 1440 · Cài đặt không tràn ngang', pcCaiDat.tran === false);
+
+  /*
+   * ── Thanh điều hướng đứng YÊN khi đổi màn ────────────────────────────────
+   *
+   * Chủ dự án gửi bốn ảnh thanh trên: _"mỗi lần click vào một tab thì giao diện lại bị lệch đi quá
+   * xa"_. Đo được ở 1500px, tâm hàng nav: 765 / **682** / 772 / 765 — màn '/cong-thuc/' lệch 83px
+   * vì nó là màn duy nhất có nút Cơ bản / Nâng cao, mà cách xếp cũ căn nav giữa PHẦN CÒN LẠI chứ
+   * không giữa thanh.
+   *
+   * So hai màn KHÁC NHAU đúng ở chỗ ấy: '/cong-thuc/' có nút chế độ, '/cai-dat/' không. Cả hai đều
+   * đủ dài để có thanh cuộn nên `clientWidth` bằng nhau — phép so này vì thế đo đúng một thứ, và
+   * không dính cú giãn 15px khi trang ngắn bỏ thanh cuộn (chuyện riêng, đã chốt để lại — xem
+   * `globals.css`).
+   *
+   * Vế thứ hai gác một lỗi mà chính bản vá này suýt tạo ra: mục lưới mặc định `stretch`, nên thẻ
+   * link "Faculator" phình từ 119px lên 497px và biến gần nửa thanh thành đích bấm vô hình về
+   * trang chủ. `justify-items: start` chặn điều đó; con số dưới đây là thứ giữ nó.
+   */
+  const DOC_NAV = `(() => {
+    const nav = document.querySelector('header nav ul');
+    const hieu = [...document.querySelectorAll('header a')].find((a) => /Faculator/.test(a.textContent ?? ''));
+    if (nav === null) return null;
+    const r = nav.getBoundingClientRect();
+    return {
+      tam: Math.round((r.left + r.right) / 2),
+      rongHieu: hieu === undefined ? null : Math.round(hieu.getBoundingClientRect().width),
+      clientWidth: document.documentElement.clientWidth,
+    };
+  })()`;
+
+  await open('/cong-thuc/');
+  const navCongThuc = await evaluate(DOC_NAV);
+  /* Về lại '/cai-dat/' — phép kiểm danh tính ngay dưới đo trên chính màn ấy. */
+  await open('/cai-dat/');
+  const navCaiDat = await evaluate(DOC_NAV);
+
+  check(
+    'PC 1440 · hàng nav đứng yên khi đổi màn — nút Cơ bản/Nâng cao không đẩy nó đi',
+    navCongThuc !== null &&
+      navCaiDat !== null &&
+      navCongThuc.clientWidth === navCaiDat.clientWidth &&
+      Math.abs(navCongThuc.tam - navCaiDat.tam) <= 1,
+    navCongThuc === null || navCaiDat === null
+      ? 'không thấy hàng nav'
+      : `tâm: Công thức ${String(navCongThuc.tam)} · Cài đặt ${String(navCaiDat.tam)}`,
+  );
+
+  check(
+    'PC 1440 · khối "Faculator" chỉ rộng bằng nội dung — không thành đích bấm vô hình',
+    navCaiDat !== null && navCaiDat.rongHieu !== null && navCaiDat.rongHieu <= 220,
+    `rộng ${String(navCaiDat?.rongHieu)}px`,
+  );
+
+  /* Vế PC của phép kiểm danh tính ở khổ 360 phía trên — cùng một bất biến, hai khổ. */
+  const pcDanhTinh = await evaluate(DOC_DANH_TINH);
+
+  check(
+    'PC 1440 · màn Cài đặt bày TÊN SẢN PHẨM, tên màn ẩn khỏi mắt nhưng vẫn là <h1> của trang',
+    pcDanhTinh !== null &&
+      pcDanhTinh.coH1 === true &&
+      pcDanhTinh.h1Hien === false &&
+      pcDanhTinh.hieuHien === true,
+    pcDanhTinh === null
+      ? 'không thấy thanh trên'
+      : `h1 "${String(pcDanhTinh.chuH1)}" hiện ${String(pcDanhTinh.h1Hien)} · Faculator hiện ${String(pcDanhTinh.hieuHien)}`,
+  );
+
+  /*
+   * ── Form thêm mã của màn Danh mục xếp hai cột, hàng nút dạt phải ─────────
+   *
+   * Chủ dự án chụp form ở ~1500px: _"giao diện đang để thừa khá nhiều… chia các ô nhập trên thành
+   * 2 cột chia đều. 2 button Thêm vào danh mục và Huỷ chuyển sang bên phải"_.
+   *
+   * Chỉ đo được ở đây, đúng lý do `ChainBody.test.tsx` đã ghi: luật nằm trong `@media` của một CSS
+   * Module, mà jsdom không áp CSS Module nên một ca vitest sẽ xanh bất kể file CSS viết gì.
+   *
+   * Đo hai ô ĐẦU TIÊN chứ không đo ô Beta: Beta chỉ dựng ở chế độ Nâng cao (FR-09), còn hai ô đầu
+   * ("Mã cổ phiếu", "Số cổ phiếu nắm giữ") có ở cả hai chế độ — nên phép kiểm không phụ thuộc vào
+   * việc trang đang ở chế độ nào.
+   */
+  await open('/danh-muc/');
+  await evaluate(
+    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Thêm mã/.test(x.textContent ?? '')); if (b) b.click(); return Boolean(b); })()`,
+  );
+  await waitFor(
+    `[...document.querySelectorAll('button')].some((b) => /Thêm vào danh mục/.test(b.textContent ?? ''))`,
+  );
+
+  const pcDanhMuc = await evaluate(`(() => {
+    const nut = [...document.querySelectorAll('button')].find((b) => /Thêm vào danh mục/.test(b.textContent ?? ''));
+    const hang = nut === undefined ? null : nut.parentElement;
+    const form = hang === null ? null : hang.parentElement;
+    if (form === null) return { thay: false };
+
+    const doKhung = (el) => {
+      const b = el.getBoundingClientRect();
+      return { top: Math.round(b.top), left: Math.round(b.left), right: Math.round(b.right) };
+    };
+    // Ô nhập = con trực tiếp của form, trừ hàng nút và câu lỗi chung.
+    const o = [...form.children].filter(
+      (el) => el !== hang && !/formError/.test(String(el.className)),
+    );
+    const nutTrongHang = [...hang.querySelectorAll('button')];
+    const cuoi = nutTrongHang[nutTrongHang.length - 1];
+
+    return {
+      thay: true,
+      soO: o.length,
+      mot: o[0] === undefined ? null : doKhung(o[0]),
+      hai: o[1] === undefined ? null : doKhung(o[1]),
+      soNut: nutTrongHang.length,
+      // Hở từ nút cuối tới mép phải hàng nút — dạt phải thì gần bằng 0.
+      hoPhai:
+        cuoi === undefined
+          ? null
+          : Math.round(hang.getBoundingClientRect().right - cuoi.getBoundingClientRect().right),
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+
+  check(
+    'PC 1440 · form thêm mã xếp hai cột — hai ô đầu cùng mép trên, ô thứ hai nằm hẳn bên phải',
+    pcDanhMuc.thay === true &&
+      pcDanhMuc.mot !== null &&
+      pcDanhMuc.hai !== null &&
+      Math.abs(pcDanhMuc.mot.top - pcDanhMuc.hai.top) <= 1 &&
+      pcDanhMuc.hai.left >= pcDanhMuc.mot.right,
+    pcDanhMuc.thay !== true
+      ? 'không mở được form'
+      : `${String(pcDanhMuc.soO)} ô · mép trên ${String(pcDanhMuc.mot?.top)} / ${String(pcDanhMuc.hai?.top)}`,
+  );
+
+  check(
+    'PC 1440 · hàng nút của form thêm mã dạt về mép phải',
+    pcDanhMuc.hoPhai !== null && pcDanhMuc.hoPhai <= 1,
+    `${String(pcDanhMuc.soNut)} nút · hở phải ${String(pcDanhMuc.hoPhai)}px`,
+  );
+
+  check('PC 1440 · màn Danh mục mở form không tràn ngang', pcDanhMuc.tran === false);
 
   await open('/du-lieu/');
   const pcDuLieu = await evaluate(`(() => {

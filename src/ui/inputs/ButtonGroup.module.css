@@ -27,6 +27,28 @@
 }
 
 .option {
+  /*
+   * Các lựa chọn CHIA NHAU bề ngang khung, không dồn về mép trái.
+   *
+   * `.group` là `inline-flex` nên tự nó chỉ rộng bằng nội dung, nhưng `.wrap` là flex cột với
+   * `align-items: stretch` mặc định, nên khung vẫn bị kéo hết bề ngang ô — còn hai nút bên trong
+   * thì không giãn theo. Kết quả là một khung rỗng quá nửa. Đo trên Chrome thật ở `lich-tra-no`:
+   *
+   *     390px   khung 358 · nút 92 + 84  → hở phải 178px (50%)
+   *    1024px   khung 913 · nút 92 + 84  → hở phải 733px (80%)
+   *    1440px   khung 569 · nút 92 + 84  → hở phải 389px (68%)
+   *
+   * Lỗi có sẵn từ trước ở khổ điện thoại, nhưng khung nới theo viewport ở đợt bố cục PC làm nó
+   * thành một mảng trống chiếm bốn phần năm khung. Bản vẽ WF-14 vẽ nhóm này chia đôi đều.
+   *
+   * `1 1 auto` chứ không `1` (tức `1 1 0%`): giữ đáy bằng chính bề ngang chữ, nên nhãn không bao
+   * giờ bị bóp hẹp hơn nội dung của nó. Hai nhãn ở đây gần bằng nhau nên phần dôi chia đều vẫn ra
+   * hai nửa gần khít; nhóm nào về sau có nhãn dài ngắn chênh nhau thì vẫn đọc được, chỉ là hai
+   * phần không đều tăm tắp. Toàn Registry hiện có ĐÚNG HAI biến `buttonGroup`, cả hai đều hai
+   * lựa chọn nhãn ngắn (`loanMethod`, `geoPeriodCount`).
+   */
+  flex: 1 1 auto;
+
   /* Vùng chạm tối thiểu 44px — NFR-USA-01. */
   min-height: var(--tap-min);
   padding: 0 var(--space-4);

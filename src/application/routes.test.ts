@@ -10,6 +10,7 @@ import {
   formulaListPath,
   formulaPath,
   headerTitleKey,
+  showsFooterDisclaimer,
   showsModeToggle,
 } from './routes';
 import { DEFAULT_LIST_PARAMS, parseListParams } from './url-state';
@@ -73,6 +74,52 @@ describe('showsModeToggle()', () => {
 
     expect(url, 'ví dụ phải thật sự có query, nếu không ca kiểm này rỗng nghĩa').toContain('?');
     expect(showsModeToggle(String(duongDan))).toBe(true);
+  });
+});
+
+/*
+ * FR-24 · UI-04 nói câu miễn trừ phải có ở MỌI màn, nên hàm này bị kiểm theo chiều nghiêm hơn
+ * chiều còn lại: mặc định phải là "có", và danh sách trừ phải ngắn, có lý do, không tự lan.
+ *
+ * Cùng cách chia như `showsModeToggle()`: ở đây gác cái LUẬT, còn việc lá `FooterDisclaimer` có
+ * thật sự hỏi luật ấy thì `FooterDisclaimer.test.tsx` gác.
+ */
+describe('showsFooterDisclaimer()', () => {
+  it('mặc định là CÓ — một màn mới không phải nhớ thêm gì', () => {
+    expect(showsFooterDisclaimer(ROUTES.home)).toBe(true);
+    expect(showsFooterDisclaimer(ROUTES.formulas), 'danh sách không bày con số tiền nào').toBe(
+      true,
+    );
+    expect(showsFooterDisclaimer(ROUTES.search)).toBe(true);
+    expect(showsFooterDisclaimer(ROUTES.data)).toBe(true);
+    expect(showsFooterDisclaimer(ROUTES.settings)).toBe(true);
+  });
+
+  it('trừ đúng 111 trang chi tiết — nơi ô vàng đầu màn đã nói câu ấy', () => {
+    expect(showsFooterDisclaimer(formulaPath('pe'))).toBe(false);
+    expect(showsFooterDisclaimer(formulaPath('capm'))).toBe(false);
+    // Không đuôi '/' vẫn phải nhận ra, cùng lẽ với mọi hàm khác trong file này.
+    expect(showsFooterDisclaimer('/cong-thuc/pe')).toBe(false);
+  });
+
+  /*
+   * Danh mục cũng dựng ô `notice` riêng nên nó vào danh sách trừ (09/09/2026, chủ dự án chốt).
+   * Trước đó ca này khẳng định điều NGƯỢC LẠI, và lý do ghi kèm là "chủ dự án khoanh vùng đúng màn
+   * chi tiết" — nay chính chủ dự án mở rộng vùng ấy, nên ca đổi chiều là đúng chứ không phải nới
+   * cho hết đỏ. Điều kiện đi kèm — ô `notice` phải có ở CẢ HAI tab của màn — do
+   * `PortfolioScreen.test.tsx` gác, vì `usePathname()` không nhìn thấy `?tab=`.
+   */
+  it('trừ Danh mục — ô vàng dưới cụm tab đã nói câu ấy', () => {
+    expect(showsFooterDisclaimer(ROUTES.portfolio)).toBe(false);
+    expect(showsFooterDisclaimer('/danh-muc')).toBe(false);
+  });
+
+  /*
+   * Khớp tuyệt đối, không khớp trang con: hôm nay `/danh-muc/` không có trang con nào, và trang con
+   * thêm sau này chưa chắc mang theo ô `notice` — mặc định "có dải" phải là thứ nó nhận được.
+   */
+  it('trang con của Danh mục KHÔNG được thừa hưởng ngoại lệ ấy', () => {
+    expect(showsFooterDisclaimer(`${ROUTES.portfolio}bao-cao/`)).toBe(true);
   });
 });
 

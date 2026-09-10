@@ -339,6 +339,7 @@ export {
   formulaListPath,
   formulaPath,
   headerTitleKey,
+  showsFooterDisclaimer,
   showsModeToggle,
 } from './routes';
 
@@ -421,6 +422,10 @@ export {
   originToStore,
   parseOrigin,
 } from './origin-screen';
+
+/* Bà con gần với `origin-screen` nhưng KHÔNG cùng vai — xem docblock đầu file ấy. */
+export type { FormulaOrigin } from './formula-origin';
+export { FORMULA_ORIGIN_KEY, formulaOriginToStore, parseFormulaOrigin } from './formula-origin';
 
 export type { ActiveTicker } from './active-ticker';
 export {

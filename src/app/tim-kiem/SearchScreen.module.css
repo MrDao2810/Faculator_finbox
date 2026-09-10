@@ -3,6 +3,27 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
+
+  /*
+   * ── Màn này CỐ Ý giữ nguyên bố cục điện thoại ở mọi khổ ──────────────────────────────────
+   *
+   * WF-09 là màn duy nhất KHÔNG có trong bộ 11 bản vẽ khổ PC, nên nó không có bố cục nhiều cột
+   * nào để dựng theo. Chủ dự án chốt: dùng tạm bản của màn điện thoại.
+   *
+   * `--content-max` chính là token "cột nội dung, mobile-first" (720px), nên một dòng này cho ra
+   * đúng bản ấy — chứ KHÔNG phải để mặc nó giãn theo `--desktop-max`. Từ đợt bố cục PC, khung
+   * rộng tới 1600px, và ở bề ngang đó màn này hỏng thấy rõ: đo trên Chrome ở 1440 trước khi có
+   * dòng này, ô tìm dài 1310px, còn sáu ô "Danh mục hot" thì `auto-fill` giữ nguyên bề ngang
+   * 110px rồi dồn cục về mép trái, bỏ trống hơn hai phần ba hàng. Kẹp lại 720px thì sáu ô ấy vừa
+   * khít một hàng, không phải đụng gì tới `HotCategories`.
+   *
+   * KHÔNG căn giữa: giữ mép trái thẳng với logo và nút quay lại ở thanh trên. Căn giữa là một
+   * quyết định thiết kế, mà màn này đang chờ chủ dự án quyết chứ chưa quyết.
+   *
+   * Ba phương án đã đưa ra và còn để ngỏ: (1) cột hẹp căn giữa, (2) theo khuôn trang chủ — ô tìm
+   * 510px, "Danh mục hot" lưới 5 cột, (3) chỉ chặn tràn. Gỡ dòng này là quay lại trạng thái giãn.
+   */
+  max-width: var(--content-max);
 }
 
 .matchNote {

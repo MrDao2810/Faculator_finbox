@@ -177,6 +177,11 @@ describe('dữ liệu trên máy — LDR-04, NFR-SEC-01', () => {
         viSao:
           'sessionStorage — mã dính theo lượt duyệt, tự hết khi đóng tab. Lối xoá nằm ngay tại chỗ nó có tác dụng: nút "Bỏ mã" trên thanh của màn chi tiết công thức',
       },
+      {
+        key: 'ffb.formulaOrigin.v1',
+        viSao:
+          'sessionStorage — TÊN công thức vừa mở bảng dữ liệu, chỉ để nút quay lại gọi đúng tên nó. Không quyết định đường đi (đích do ?from= trên URL định), không mang gì riêng tư hơn một cái tên công thức có sẵn trong Registry công khai, và tự hết khi đóng tab',
+      },
     ];
 
     const khai = new Set<string>();

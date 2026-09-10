@@ -143,7 +143,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'variable.colDescription': 'DESCRIPTION',
   'variable.noDescription': '—',
   'example.title': 'Worked example',
-  'example.editHint': 'Edit right here — swap in the real numbers of the stock you follow.',
+  /* `example.editHint` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'example.original': 'Original example gives:',
   'example.reset': 'Back to example numbers',
   'source.title': 'References',
@@ -153,8 +153,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'flow.stepError': 'error',
 
   'chain.title': 'Formula chain',
-  'chain.intro':
-    'Each step feeds its result straight into the next. Change a number upstream and the whole chain recomputes.',
+  /* `chain.intro` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'chain.upstreamHeading': 'Steps before — supply numbers to this formula',
   'chain.downstreamHeading': "Steps after — use this formula's result",
   'chain.openStep': "Open this step's own screen",
@@ -163,8 +162,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.loadPreset': 'Load sample',
   'detail.preset': 'Loaded',
   'detail.jumpToExample': 'See the worked example ↓',
-  'detail.fundamentalsSource':
-    "This ticker's fundamentals (EPS, book value, shares, dividend…) come from real Finbox_v2 data, checked on",
+  /* Mẩu chữ ngắn trong thanh mã, không còn là một câu — xem `vi.ts`. */
+  'detail.fundamentalsSource': 'Finbox_v2 figures as of',
   'detail.tickerLoading': 'fetching live data for this ticker…',
   'detail.tickerFailed':
     'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
@@ -216,14 +215,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.openDataTable': 'Open the data table →',
   'detail.chart': 'Chart',
   'chart.sweepLabel': 'See how the result changes with',
-  'chart.kindLabel': 'Shape',
+  /* Đi theo bản tiếng Việt: 'Shape' là bản dịch của 'Kiểu hình' cũ, đã bỏ — xem `vi.ts`. */
+  'chart.kindLabel': 'Chart type',
   'chart.kindLine': 'Line',
   'chart.kindBar': 'Bars',
   'chart.showData': 'View the numbers',
   'chart.tableCaption': 'Data',
   'chart.applyHintTimeAxis':
     'The axis is time, so clicking won\'t write anything — switch "See how the result changes with" above to a variable to apply a clicked value.',
-  'chart.applyHintReady': 'Click the chart to apply that value to the input field.',
+  /* `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */
   'chart.zoom': 'Expand',
   'chart.exit': 'Exit full screen',
   'chart.rotate': 'Turn your phone sideways for a wider chart.',
@@ -255,12 +255,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'loan.condensed.after': 'periods: the first 12, each year-end, and the last one.',
 
   'preset.title': 'Load a sample dataset',
-  'preset.subtitle':
-    'A pool of sample tickers — each ships a full 248-session price series, so series formulas work',
+  /* Sáu khoá của sheet này đã bỏ cùng bản tiếng Việt — xem `vi.ts` để biết khoá nào và vì sao. */
   'preset.load': 'Load',
-  'preset.rankedNote':
-    'Four tickers picked by what this very formula returns, lowest to highest — one glance ' +
-    'shows the range.',
+  'preset.topPicks': 'Top picks — the four tickers best suited to trying this formula',
   'preset.seriesOnlyNote':
     'This formula runs on a price series. Only the latest session is a real price; the path ' +
     'before it is fabricated, so read the four numbers below as examples, not as a market ' +
@@ -271,18 +268,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'preset.cannotCompute': 'no result with this ticker',
   'preset.lastPrice': 'Latest session price',
   'preset.browseMarket': 'Find another ticker across the market →',
-  'preset.browseMarketNote':
-    'Every tradable ticker, with real figures from the latest session — but only ONE price ' +
-    'session, so formulas that need many sessions still require a pasted series.',
-  'preset.editableAfterLoad':
-    'After loading, fields the ticker has a figure for stay editable; the rest are locked — tap ' +
-    '"Clear ticker" to type freely again.',
   'preset.draftTag': 'fabricated price history',
-  'preset.draftTitle': 'The fundamentals and the market price are real; the price history is not.',
-  'preset.draftDetail':
-    'EPS, book value, share count and the latest session price come from Finbox. The 247 ' +
-    'sessions before that are a fabricated series, so formulas reading the whole series (RSI, ' +
-    'volatility, Beta…) should be treated as examples only.',
   'preset.draftExport':
     'Input numbers come from a fabricated sample dataset, not yet checked against real statements.',
 

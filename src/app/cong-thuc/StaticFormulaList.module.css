@@ -10,10 +10,18 @@
   gap: var(--space-4);
 }
 
+/*
+ * Chép Y HỆT `.count` của `FormulaBrowser.module.css` — đây là chỗ dễ trôi nhất của cả cặp file.
+ *
+ * Bản tĩnh nằm sẵn trong `out/cong-thuc/index.html` và bị `FormulaBrowser` thay chỗ ngay khi hydrate
+ * xong. Lệch một thuộc tính là người dùng thấy dòng chữ đổi cỡ hoặc đổi màu ngay trước mắt, ở đúng
+ * dòng đầu tiên của màn. Đã trôi một lần thật: lượt nâng cỡ chữ trước đó chỉ sửa file kia, để lại
+ * bản tĩnh 14px xám trong khi bản sau hydrate là 16px mực.
+ */
 .count {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-soft);
+  color: var(--color-accent);
 }
 
 .list {
@@ -39,4 +47,24 @@
   padding-bottom: var(--space-2);
   content-visibility: auto;
   contain-intrinsic-size: auto 122px;
+}
+
+/*
+ * Lưới ba cột ở khổ PC — chép Y HỆT `.listStatic` của `VirtualList.module.css`, cùng lý do như
+ * `content-visibility` ngay trên: bản tĩnh này là thứ trình duyệt dựng trước, `VirtualList` thay
+ * chỗ sau khi hydrate. Lệch một thuộc tính là cả trăm thẻ nhảy bố cục ngay trước mắt.
+ *
+ * Bên kia luật khoá vào lớp `.listStatic` để không chạm nhánh ảo hoá; ở đây không cần, file này
+ * chỉ có một nhánh và nó luôn là nhánh tĩnh.
+ */
+@media (min-width: 1280px) {
+  .list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-2);
+  }
+
+  .list > .item > * {
+    height: 100%;
+  }
 }

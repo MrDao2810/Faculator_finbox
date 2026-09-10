@@ -30,6 +30,19 @@
   gap: var(--space-2);
 }
 
+/*
+ * Khổ PC: thanh công cụ dạt về phải (bản vẽ WF-05). Bậc 1280 — bảng "BẬC MÀN" ở `globals.css`.
+ *
+ * Ở 360px năm nút xuống hai hàng và phải bám mép trái, cùng đường dóng với tiêu đề ngay trên. Từ
+ * 1280 chúng nằm gọn một hàng chiếm chưa tới nửa bề ngang, và mép phải là chỗ đúng: nó dóng thẳng
+ * với mép phải của bảng ngay dưới, thay vì trôi lửng giữa một khoảng trống 800px.
+ */
+@media (min-width: 1280px) {
+  .actions {
+    justify-content: flex-end;
+  }
+}
+
 .empty {
   margin: 0;
   padding: var(--space-5) var(--space-4);

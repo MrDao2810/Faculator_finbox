@@ -29,15 +29,25 @@
 /* Lưới khối "Công thức dùng hằng ngày" đã chuyển sang `FeaturedFormulas.module.css`. */
 
 /*
- * Phần "· 111 công thức" đứng trong dòng tiêu đề "Duyệt theo nhóm" — bản thiết kế Figma "FINBOX
- * VERSION 2" vẽ dòng ấy hai màu.
+ * NGOẠI LỆ CÓ TÊN của luật "tiêu đề khối màu mực" — chỉ dòng "Duyệt theo nhóm".
  *
- * Nằm ở lớp RIÊNG chứ không sửa `.blockTitle`: luật của `.blockTitle` là kết luận đợt rà soát
- * phân cấp và có `section-title.test.ts` gác (mọi tiêu đề khối phải `--color-ink`, không được
- * `--color-accent`). Cái được tô ở đây là SỐ LIỆU đi kèm tiêu đề, không phải tiêu đề — cùng loại
- * với `.segment` ngay dưới, vốn đã mang màu nhấn từ trước đợt này.
+ * Trước đây dòng này HAI màu: tên khối màu mực, "· 111 công thức" màu nhấn, đúng bản vẽ Figma
+ * "FINBOX VERSION 2". Chủ dự án chốt ngày 09/09/2026: cho tên khối cùng màu với phần chữ bên cạnh
+ * nó, tức cả dòng một màu nhấn. Lớp `.blockCount` cũ vì thế không còn việc gì và đã bỏ.
+ *
+ * Là LỚP BỔ SUNG chứ không sửa `.blockTitle`: lớp gốc còn phục vụ "Công thức dùng hằng ngày" và
+ * khối "Công cụ" trên chính trang này — hai khối KHÔNG có con số đi kèm, nên cũng không có "chữ bên
+ * cạnh" để mà cùng màu. Bốn thuộc tính còn lại (cỡ, độ đậm, giãn chữ, viết hoa) vẫn khai một chỗ ở
+ * `.blockTitle`, nên `section-title.test.ts` vẫn gác được chúng như cũ.
+ *
+ * Đè được `color` vì hai lớp cùng trọng số (0,1,0) mà luật này viết SAU, trong CÙNG một file — thứ
+ * tự chắc chắn. Khác hẳn cái bẫy "hai file module do bundler gộp, thứ tự không đoán được" đã ghi ở
+ * `CategoryFilter.module.css`; ở đó phải dùng bộ chọn có tên thẻ, ở đây thì không cần.
+ *
+ * `section-title.test.ts` BIẾT về ngoại lệ này — nó nằm trong bảng `NGOAI_LE_MAU_NHAN` kèm lý do.
+ * Thêm một tiêu đề khối màu nhấn ở chỗ khác thì phải khai vào đó, không được lặng lẽ chép lớp này.
  */
-.blockCount {
+.blockTitleAccent {
   color: var(--color-accent);
 }
 

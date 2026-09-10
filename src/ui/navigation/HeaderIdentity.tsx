@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { ROUTES, backLinkFor, headerTitleKey } from '@/application';
+import {
+  FORMULA_ORIGIN_KEY,
+  ROUTES,
+  backLinkFor,
+  formulaPath,
+  headerTitleKey,
+  parseFormulaOrigin,
+} from '@/application';
+import type { FormulaOrigin } from '@/application';
 import { useT } from '@/application/preferences-context';
 
 import { BackLink } from './BackLink';
@@ -62,8 +70,25 @@ export function HeaderIdentity() {
    * đúng theo lối này (đọc `sessionStorage` trong effect), nên đây là một nhịp chứ không phải hai.
    */
   const [search, setSearch] = useState('');
+
+  /*
+   * Tên công thức vừa mở bảng dữ liệu — CHỮ cho nút quay lại, không phải đích của nó.
+   *
+   * Đích đã do `?from=` quyết định; bản ghi này chỉ để nút gọi đúng tên thay vì nói trống không
+   * "Quay lại công thức". Vì sao phải đi vòng qua `sessionStorage` thay vì tra thẳng Registry: xem
+   * docblock `formula-origin.ts` — thanh trên nằm ở layout gốc, kéo chỉ mục 111 công thức vào đây
+   * là kéo vào gói của MỌI trang.
+   */
+  const [fromFormula, setFromFormula] = useState<FormulaOrigin | null>(null);
+
   useEffect(() => {
     setSearch(window.location.search);
+    try {
+      setFromFormula(parseFormulaOrigin(window.sessionStorage.getItem(FORMULA_ORIGIN_KEY)));
+    } catch {
+      // Trình duyệt chặn sessionStorage — nút quay lại lùi về nhãn chung, đường đi không đổi.
+      setFromFormula(null);
+    }
   }, [pathname]);
 
   /*
@@ -72,11 +97,22 @@ export function HeaderIdentity() {
    */
   const back = backLinkFor(pathname, search);
   if (back !== null) {
+    /*
+     * Đối chiếu bằng ĐÍCH chứ không bằng `?from=`: bản ghi chỉ được dùng khi nó gọi tên đúng nơi
+     * cái link này sắp dẫn tới. Người dùng mở bảng từ `pe`, quay ra, rồi mở lại từ `roe` — bản ghi
+     * cũ còn nằm đó, và phép so này là thứ chặn nó dán tên "P/E" lên đường về `roe`.
+     */
+    const label =
+      fromFormula !== null && formulaPath(fromFormula.id) === back.fallbackHref
+        ? fromFormula.name
+        : undefined;
+
     return (
       <BackLink
         fallbackHref={back.fallbackHref}
         labelKey={back.labelKey}
         rememberOrigin={back.rememberOrigin}
+        label={label}
       />
     );
   }

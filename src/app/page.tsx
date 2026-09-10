@@ -123,20 +123,20 @@ export default function Home() {
         {/* ── Duyệt theo nhóm — FR-01 ──────────────────────────────────────── */}
         <section className={styles.block} aria-labelledby="home-browse">
           {/*
-            Phần ĐẾM tách ra một `<span>` riêng mang màu nhấn — bản thiết kế Figma "FINBOX
-            VERSION 2" vẽ đúng dòng này hai màu: tên khối màu mực, "· 111 công thức" màu xanh.
+            CẢ DÒNG một màu nhấn — chủ dự án chốt 09/09/2026.
 
-            Vì sao không tô cả `<h2>`: `section-title.test.ts` chốt mọi tiêu đề khối dùng
-            `--color-ink`, và đó là kết luận của đợt rà soát phân cấp ("xanh dành cho hành động
-            và cho khối Kết quả"). Con số ở đây không phải tiêu đề mà là số liệu đi kèm, nên nó
-            được phép mang màu nhấn mà không đụng vào luật ấy — luật vẫn nguyên trên `.blockTitle`.
+            Bản trước chia hai màu theo bản vẽ Figma "FINBOX VERSION 2": tên khối màu mực, phần
+            "· 111 công thức" màu xanh, tách ra một `<span>` riêng chỉ để mang màu ấy. Nay tên khối
+            lấy cùng màu với phần chữ bên cạnh nó, nên cái `<span>` không còn việc gì và đi theo.
+
+            Màu nằm ở lớp `.blockTitleAccent` chồng lên `.blockTitle` chứ không sửa lớp gốc: hai
+            khối còn lại của trang này vẫn màu mực. Lý do đầy đủ ở `page.module.css`, và ngoại lệ
+            được khai tên trong `section-title.test.ts`.
           */}
-          <h2 className={styles.blockTitle} id="home-browse">
-            <T k="home.browse.title" />{' '}
-            <span className={styles.blockCount}>
-              · <ModeCount basic={basicCountOf()} advanced={TOTAL_EXPECTED} />{' '}
-              <T k="home.browse.unit" />
-            </span>
+          <h2 className={`${styles.blockTitle} ${styles.blockTitleAccent}`} id="home-browse">
+            <T k="home.browse.title" /> ·{' '}
+            <ModeCount basic={basicCountOf()} advanced={TOTAL_EXPECTED} />{' '}
+            <T k="home.browse.unit" />
           </h2>
 
           <h3 className={styles.segment}>

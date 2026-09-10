@@ -41,3 +41,36 @@
   padding: 0;
   pointer-events: none;
 }
+
+/*
+ * ── Khổ PC: lưới ba cột (bản vẽ WF-02) ───────────────────────────────────────────────────────
+ *
+ * Chỉ trên `.listStatic`, tức NHÁNH KHÔNG ẢO HOÁ. Đây là ràng buộc cứng, không phải chuyện gọn
+ * gàng: nhánh ảo hoá đo chiều cao từng dòng rồi cộng dồn thành hai khối đệm giữ đúng tổng chiều
+ * cao danh sách. Phép cộng ấy giả định mỗi dòng chiếm một hàng — ba cột thì tổng đo được lớn gấp
+ * ba lần thật, thanh cuộn dài gấp ba và phần lớn danh sách nằm dưới một vùng trắng.
+ *
+ * Ngưỡng ảo hoá là 1000 mục, danh sách dài nhất của sản phẩm là 111, nên hôm nay mọi lượt đều đi
+ * nhánh tĩnh. Luật vẫn khoá theo lớp chứ không dựa vào điều đó: ngưỡng là một con số có thể đổi.
+ *
+ * `column-gap` được phép ở đây vì lớp này không bao giờ bị đo — khoảng cách DỌC vẫn nằm trong
+ * `padding-bottom` của `.item` như cũ, để hai nhánh cách dòng y hệt nhau. Đừng nâng nó lên `.list`.
+ *
+ * ⚠ Chép Y HỆT sang `StaticFormulaList.module.css`: bản tĩnh trong HTML bị thay chỗ ngay khi
+ * hydrate xong, lệch một thuộc tính là cả trăm thẻ nhảy bố cục trước mắt người dùng.
+ */
+@media (min-width: 1280px) {
+  .listStatic {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-2);
+  }
+
+  /*
+   * Thẻ cao bằng ô lưới, nếu không ba thẻ cùng hàng lệch đáy nhau — `.card` là flex không đặt
+   * chiều cao, nên `<li>` giãn theo hàng còn thẻ bên trong thì không.
+   */
+  .listStatic > .item > * {
+    height: 100%;
+  }
+}

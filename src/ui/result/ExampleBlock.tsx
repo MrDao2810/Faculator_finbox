@@ -164,7 +164,17 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
         </div>
       )}
 
-      {editable && onExample && <p className={styles.note}>{t('example.editHint')}</p>}
+      {/*
+        Dòng "Sửa được ngay tại đây — thay bằng số thật của mã bạn đang xem." đã BỎ — chủ dự án
+        chốt 10/09/2026.
+
+        Nó là câu hướng dẫn cách dùng, và nó đứng ở đúng chỗ người dùng đã tự làm được việc ấy: ô
+        nhập nằm ngay trên, sửa vào là kết quả đổi theo từng phím. Câu này chỉ còn nghĩa với lần mở
+        màn ĐẦU TIÊN, mà nó thì hiện ở cả 111 màn, mọi lần.
+
+        `styles.note` vẫn còn dùng — nó là luật của `example.note`, ghi chú riêng của từng công
+        thức, thứ khác hẳn và vẫn hiện.
+      */}
     </section>
   );
 }

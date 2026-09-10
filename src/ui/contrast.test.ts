@@ -69,9 +69,16 @@ for (const [palette, tokens] of PALETTES) {
   const color = reader(tokens, palette);
 
   describe(`bảng màu ${palette} đạt WCAG 2.1 AA (NFR-USA-06)`, () => {
+    /*
+     * `--color-formula-surface` vào danh sách vì nó là nền CHỮ, không phải một mảng trang trí:
+     * khung Công thức bày ký hiệu toán và vế dạng chữ ngay trên nó. Nền thứ ba trong bảng này chứ
+     * không phải một ca riêng — thêm một dòng ở đây là mọi màu chữ đều được chấm lại trên nó, đúng
+     * điều mà việc "thêm token không tự sinh phép kiểm" hay bỏ sót.
+     */
     const backgrounds = [
       ['nền trang', '--color-paper'],
       ['nền thẻ', '--color-surface'],
+      ['nền khung Công thức', '--color-formula-surface'],
     ] as const;
 
     /*
@@ -217,6 +224,23 @@ for (const [palette, tokens] of PALETTES) {
     });
 
     /*
+     * Huy hiệu "Nâng cao" là một DẢI vàng → cam, nên chữ phải đọc được ở CẢ HAI ĐẦU.
+     *
+     * Chữ là `--color-warning`. Đầu VÀNG của dải (`--color-warning-soft`) đã có ca riêng ở trên —
+     * đúng cặp cảnh báo. Còn thiếu đầu CAM: ca ngay trên chấm `--color-highlight-soft` nhưng với
+     * màu chữ `--color-highlight`, một màu khác hẳn.
+     *
+     * Màu chữ vai này đã đi một vòng trong ngày 09/09/2026 (vàng → cam đậm → vàng), và ca kiểm đi
+     * theo cả vòng. Đó chính là việc của nó: đổi màu chữ là đổi luôn cặp nào đang chịu lực.
+     *
+     * Bản `Badge.module.css` trước đợt này chỉ ghi trong chú thích rằng "chữ đủ 4,5:1 ở cả hai đầu
+     * dải" và trỏ sang file này — nhưng phép ấy không hề tồn tại. Nay cả hai đầu đều có người chấm.
+     */
+    it('chữ huy hiệu Nâng cao đọc được ở đầu CAM của dải, không riêng đầu vàng', () => {
+      expect(meetsContrast(color('--color-warning'), color('--color-highlight-soft'))).toBe(true);
+    });
+
+    /*
      * Ô miễn trừ ở đầu màn chi tiết dùng nền RIÊNG, nhạt hơn nền cảnh báo chung — nó là câu nhắc
      * thường trực chứ không phải một cảnh báo. Chữ vẫn là `--color-warning`, và cỡ 12px thì WCAG
      * vẫn xếp là chữ thường, nên ngưỡng phải đạt vẫn là 4,5:1.
@@ -297,6 +321,8 @@ const REQUIRED_TOKENS = [
   '--color-tab-hover',
   '--color-border',
   '--color-border-strong',
+  '--color-formula-surface',
+  '--color-formula-border',
   '--color-accent',
   '--color-accent-strong',
   '--color-accent-soft',

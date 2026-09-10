@@ -18,8 +18,57 @@
 
 /*
  * ── Hai vai cấp độ ────────────────────────────────────────────────────────────
- * Viền + màu chữ là hai tín hiệu chính (NFR-USA-06); chữ đậm hẳn (`--weight-bold`) để không
- * lẫn với chữ thường quanh nó ở cỡ `--text-xs`.
+ *
+ * NỀN ĐẶC, KHÔNG VIỀN — chủ dự án chốt 09/09/2026: *"bỏ các viền bo xung quanh đi thay vào đó là
+ * đổ màu nền thành màu xanh hoặc màu vàng cam tương ứng"*. Bản trước: "cơ bản" chỉ có viền xanh,
+ * "nâng cao" có dải vàng nhạt sang cam nhạt cộng viền. Nay hai vai cùng một khuôn, chỉ khác sắc.
+ *
+ * NFR-USA-06 vẫn nguyên và đây là chỗ phải nói rõ, vì luật cũ ghi "viền + màu chữ là hai tín hiệu"
+ * mà viền vừa mất. Tín hiệu không-phải-màu còn lại là thứ mạnh nhất trong ba: CHỮ. Huy hiệu luôn
+ * đọc ra "Cơ bản" hay "Nâng cao", nên ảnh chuyển sang xám vẫn phân biệt được. Đừng bỏ chữ để thay
+ * bằng một chấm màu.
+ *
+ * ── Bo 5px, hạ từ 8 sau khi nhìn màn thật ────────────────────────────────────
+ *
+ * Lý do đo được, không phải khẩu vị: huy hiệu chỉ cao 17–20px (chữ 12px + đệm 1px, cộng giãn dòng
+ * của chỗ chứa). Bo 8 ở kích thước ấy đã xấp xỉ NỬA chiều cao, mà nửa chiều cao chính là định
+ * nghĩa của viên thuốc — nên "8" đặt vào đây không hiện ra thành góc bo. 5px là chỗ góc bắt đầu
+ * đọc được mà viên vẫn mềm.
+ *
+ * 5 viết thẳng — khác hẳn 8px của khay `TabBar`. Từ 10/09/2026 nó không còn là số riêng của huy
+ * hiệu: nhóm nút Đường/Cột của biểu đồ (`ChartKindToggle.module.css`) cũng bo 5 cả khung lẫn nút,
+ * do chủ dự án chốt riêng cho cụm ấy sau khi nhìn màn — hai lần chốt bằng mắt trùng số, không phải
+ * một bậc chung. Thang chính thức vẫn bốn bậc (`sm` 6 · `md` 10 · `lg` 16 · `pill`); các con số
+ * trần này là ngoại lệ được khai tên ở `radius.test.ts`, và ca kiểm ở đó giữ chúng khỏi trôi.
+ *
+ * `--radius-sm` (6px) chỉ cách 1px và là token thật — nếu có lúc muốn kéo huy hiệu về thang thì đó
+ * là chỗ để về, đừng dựng token mới cho riêng số 5.
+ *
+ * ── Bậc NHẠT của mỗi họ, không phải bậc đặc ──────────────────────────────────
+ *
+ * Bản đầu của đợt này tô đặc `--color-accent` / `--color-highlight` và chủ dự án trả lại ngay:
+ * *"màu xanh đang quá đậm"*. Đúng — `--color-accent` (#1b447e) là bậc THẪM NHẤT của họ xanh, dựng
+ * cho chữ và cho nút bấm; trải nó thành một mảng đặc cạnh tên công thức thì huy hiệu nặng hơn cả
+ * cái tên nó đang chú thích.
+ *
+ * Nên màu cũ ở lại đúng chỗ nó vốn làm tốt — CHỮ — còn nền lấy bậc `-soft` của chính họ ấy:
+ *
+ *   cơ bản    `--color-accent`  trên `--color-accent-soft`  (#1b447e trên #e3ebfd)
+ *   nâng cao  `--color-warning` trên dải vàng → cam        (#7a5f14, xem luật `.advanced`)
+ *
+ * Chữ vai "nâng cao" đã đi một vòng trong cùng ngày: `--color-warning` → `--color-highlight`
+ * (*"cam đậm"*) → về lại `--color-warning` (*"vàng đi"*). Ghi cả vòng ra đây để lần sau không ai
+ * "sửa cho hợp họ màu" — chữ vàng trên dải kết thúc bằng cam là CHỦ Ý của chủ dự án, không phải
+ * chỗ chưa dọn.
+ *
+ * Đây cũng là cặp duy nhất còn ĐỌC ĐƯỢC NHƯ NHAU ở bảng tối. Bảng tối lật `-soft` thành nền thẫm
+ * (#1e3a6b · #3a2f10) và lật màu chữ thành sáng (#8ab4f8 · #e5c168), nên hai huy hiệu vẫn cùng
+ * kiểu "nền thẫm, chữ sáng". Mấy phương án tô đặc thì không: `--color-selected` lật thành xanh
+ * SÁNG với chữ thẫm, còn `--color-warning-line` lật thành ô liu THẪM với chữ sáng — hai huy hiệu
+ * đứng cạnh nhau mà ngược chiều nhau.
+ *
+ * Đã thử và loại: nền `--color-warning-line` (#d8b64a, đúng chữ "vàng cam" nhất) — chữ
+ * `--color-warning` trên nó chỉ đạt 2,99:1, dưới hẳn ngưỡng AA.
  */
 .basic,
 .advanced {
@@ -28,25 +77,60 @@
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
 
-  border: 1px solid;
-  border-radius: var(--radius-pill);
+  border-radius: 5px;
 }
 
 .basic {
   color: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
 
 /*
- * Nền dải vàng sang cam — chỉ riêng vai "nâng cao" mới tô nền, để nó nổi hơn "cơ bản" (đúng thứ
- * bậc: nâng cao là thứ cần chú ý). Hai đầu dải lấy đúng token nhạt sẵn có, không bày thêm mã màu
- * mới: `--color-warning-soft` (vàng) → `--color-highlight-soft` (cam). Chữ `--color-warning` vẫn
- * đủ 4,5:1 ở cả hai đầu dải, cả hai bảng màu (xem contrast.test.ts phần token chữ).
+ * Riêng "nâng cao" là DẢI vàng sang cam, không phải một màu phẳng — chủ dự án chốt 09/09/2026.
+ *
+ * Đây là đúng dải mà vai này mang trước đợt đổ nền; đợt ấy làm phẳng nó cho hai vai cùng khuôn, và
+ * chủ dự án đòi lại. Nên chép lại nguyên văn chứ không dựng dải mới: hai đầu vẫn là hai token nhạt
+ * SẴN CÓ, không thêm mã màu nào vào bảng.
+ *
+ * Hai vai nay khác nhau ở HAI điểm (sắc, và phẳng/dải) thay vì một, và điều đó hợp thứ bậc: nâng
+ * cao là vai cần chú ý hơn. Chữ, bo góc, đệm, cỡ vẫn dùng chung luật trên — thứ từng khiến bốn bản
+ * chép trôi khỏi nhau là mấy thuộc tính ấy, không phải cái nền.
+ *
+ * Chữ phải đọc được ở CẢ HAI đầu dải, và hai đầu chia nhau hai ca kiểm ở `contrast.test.ts`:
+ *
+ *   đầu vàng  `--color-warning` trên `--color-warning-soft`    — ca cặp cảnh báo, có sẵn · 4,92:1
+ *   đầu cam   `--color-warning` trên `--color-highlight-soft`  — ca riêng, thêm cùng đợt này · 5,13:1
+ *
+ * Đầu VÀNG chốt ngưỡng, dù nghe ngược: chữ vàng trên nền vàng nhạt sát nhau hơn là chữ vàng trên
+ * nền cam nhạt. Đổi một trong hai token nhạt thì phải nhìn lại 4,92 trước.
+ *
+ * Docblock cũ chỉ nói suông "đủ 4,5:1 ở cả hai đầu dải" và trỏ sang `contrast.test.ts` — phép ấy
+ * khi đó KHÔNG hề tồn tại ở đó. Nay cả hai đầu đều có người chấm thật.
  */
 .advanced {
   color: var(--color-warning);
   background: linear-gradient(135deg, var(--color-warning-soft), var(--color-highlight-soft));
-  border-color: var(--color-warning-line);
+}
+
+/*
+ * Đường lui cho bản in — cùng bài học đã trả giá ở `ResultBlock.module.css`.
+ *
+ * Trình duyệt mặc định KHÔNG in nền, nên mảng màu biến mất và huy hiệu mất hết hình khối, còn lại
+ * mấy chữ màu lửng lơ giữa dòng. Không ép in nền bằng `print-color-adjust: exact` — bản in của sản
+ * phẩm này luôn là giấy trắng mực đen (xem docblock `@media print` ở `globals.css`).
+ *
+ * `currentcolor` nên mỗi vai tự lấy màu chữ của mình làm viền — đúng bằng khuôn viền của bản TRƯỚC
+ * đợt đổ nền. Chữ thì không cần đặt lại: cả hai màu chữ vốn đã đủ tương phản trên giấy trắng.
+ *
+ * Chỉ chạm tới khi người dùng bấm Ctrl+P thẳng trên trang; đi qua sheet Xuất thì `.print-region`
+ * đã ẩn hết phần còn lại.
+ */
+@media print {
+  .basic,
+  .advanced {
+    background: none;
+    border: 1px solid currentcolor;
+  }
 }
 
 /*

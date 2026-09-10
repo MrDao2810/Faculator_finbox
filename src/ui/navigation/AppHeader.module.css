@@ -18,7 +18,11 @@
   min-height: var(--header-height);
   max-width: var(--desktop-max);
   margin: 0 auto;
-  padding: var(--space-1) var(--space-4);
+  /*
+   * Cùng `--gutter` với `.content` của AppShell, nếu không logo và nhóm nút sẽ lệch mép so với nội
+   * dung ngay bên dưới — ở 1920px chênh lệch là 64px, nhìn thấy rõ.
+   */
+  padding: var(--space-1) var(--gutter);
 }
 
 /*

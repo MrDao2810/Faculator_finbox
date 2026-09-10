@@ -1078,7 +1078,14 @@ window.__themeLog = [];
    * kiểm báo "vừa khung" trong khi trang thật cuộn ngang tới 495px vì năm thanh trượt của chuỗi
    * bị nhét vào ô lưới 143px. Cuộn ngang là chuyện của TRANG, nên phải hỏi trang.
    */
-  const buoc = await evaluate(`(() => {
+  /*
+   * `khoiChuoi`, không phải `buoc`: tên ấy đã khai ở phép kiểm nháy giao diện phía trên (cùng
+   * phạm vi hàm), và hai `const` trùng tên là lỗi CÚ PHÁP — cả script không chạy nổi dòng nào,
+   * `npm run check:chrome` chết ngay lúc nạp. Lọt được vào repo vì prettier dùng Babel ở chế độ
+   * bỏ qua lỗi khai báo trùng, còn `node --check` thì bắt. Lần sau đổi script này, chạy
+   * `node --check scripts/chrome-check.mjs` trước khi tin vào prettier.
+   */
+  const khoiChuoi = await evaluate(`(() => {
   const block = document.querySelector('#khoi-chuoi')?.closest('section');
   if (!block) return null;
   const doc = document.documentElement;
@@ -1091,8 +1098,8 @@ window.__themeLog = [];
 
   check(
     'khối chuỗi không đẩy trang tràn ngang ở khổ 360px',
-    buoc !== null && buoc.tran === false,
-    buoc === null ? 'không đọc được khối' : `trang rộng ${String(buoc.rong)}px`,
+    khoiChuoi !== null && khoiChuoi.tran === false,
+    khoiChuoi === null ? 'không đọc được khối' : `trang rộng ${String(khoiChuoi.rong)}px`,
   );
 
   /*
@@ -1504,6 +1511,517 @@ window.__themeLog = [];
 
   await evaluate(`localStorage.removeItem('ffb.saved.v1'), true`);
   await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
+
+  /* ── 8. Khổ PC lớn: bố cục nhiều cột ─────────────────────────────────────
+   *
+   * Cửa gác duy nhất của dự án ở khổ PC. Mọi phép kiểm trên đây chạy ở 360×780, nên trước mục này
+   * bố cục desktop KHÔNG được đo bằng máy lần nào — sửa gì cũng không đỏ, mà cũng không được che.
+   *
+   * Đo bằng toạ độ thật chứ không đọc CSS: "hai khối cùng một hàng lưới" là thứ chỉ trình duyệt
+   * mới trả lời được, và cũng chính là thứ hỏng khi ai đó thêm một con mới cho `.detail` mà quên
+   * khai cột (xem cảnh báo trong `FormulaDetail.module.css`).
+   *
+   * 1440 chứ không 1920: đây là bậc đệm 64px, tức khung 1312px — dưới trần 1600 nên phép so
+   * `bề ngang = viewport − 2×đệm` kiểm được cả hai thứ cùng lúc.
+   */
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+
+  /**
+   * Đọc vị trí các khối chính của màn chi tiết. Trả hình chữ nhật đã làm tròn, cộng số cột thật
+   * của lưới ô nhập — `gridTemplateColumns` đã giải ra danh sách px nên đếm phần tử là ra số cột.
+   */
+  const DOC_CHI_TIET = `(() => {
+    const r = (el) => {
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return {
+        top: Math.round(b.top),
+        bottom: Math.round(b.bottom),
+        left: Math.round(b.left),
+        right: Math.round(b.right),
+        width: Math.round(b.width),
+      };
+    };
+    const soLieu = document.querySelector('section[aria-labelledby="khoi-so-lieu"]');
+    const luoi = soLieu?.querySelector('[class*="fields"]') ?? null;
+    const cot = luoi === null ? null : getComputedStyle(luoi).gridTemplateColumns.trim();
+    const khung = soLieu === null ? null : getComputedStyle(soLieu);
+    const khoiGiaiThich =
+      [...document.querySelectorAll('h2')]
+        .find((h) => /Giải thích/.test(h.textContent ?? ''))
+        ?.closest('section') ?? null;
+    return {
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      main: r(document.querySelector('main')),
+      congThuc: r(document.querySelector('.katex')?.closest('section') ?? null),
+      soLieu: r(soLieu),
+      ketQua: r(document.querySelector('section[aria-labelledby="khoi-ket-qua"]')),
+      bieuDo: r(document.querySelector('figure')?.closest('section') ?? null),
+      soCot: cot === null || cot === 'none' ? null : cot.split(/\\s+/).length,
+      /* Khung của khối Số liệu: viền và bo góc — chỉ có ở khổ PC, xem FormulaDetail.module.css. */
+      vienSoLieu: khung === null ? null : khung.borderTopWidth,
+      boSoLieu: khung === null ? null : khung.borderTopLeftRadius,
+      /* Bốn khối còn lại của khuôn hai chồng, và hai mốc của hàng điều khiển biểu đồ. */
+      giaiThich: r(khoiGiaiThich),
+      /* Bốn mục của khối Giải thích — để đo chúng xếp dọc hay lưới. */
+      mucGiaiThich:
+        khoiGiaiThich === null ? null : [...khoiGiaiThich.querySelectorAll('details')].map(r),
+      bangBien: r(document.querySelector('[class*="aside"]')),
+      /* Bảng biến: bề rộng cả bảng và của cột "Biến" (ô tiêu đề đầu). */
+      cotBien: (() => {
+        const bang = document.querySelector('[class*="aside"] table');
+        const th = bang?.querySelector('thead th') ?? null;
+        return bang === null || th === null
+          ? null
+          : {
+              bang: Math.round(bang.getBoundingClientRect().width),
+              bien: Math.round(th.getBoundingClientRect().width),
+            };
+      })(),
+      chuThich: r(document.querySelector('figure figcaption')),
+      dieuKhien: r(document.querySelector('figure [class*="controls"]')),
+      /*
+       * Thẻ Kết quả ở khổ PC xếp nhãn trái, con số phải (xem ResultBlock.module.css). Thẻ là cha
+       * trực tiếp của nhãn — không dò [class*="block"] vì tên lớp ấy có ở nhiều chỗ khác trong màn.
+       * Không dùng dấu backtick trong chú thích này: cả khối đang nằm trong một template literal.
+       */
+      ...(() => {
+        const khoi = document.querySelector('section[aria-labelledby="khoi-ket-qua"]');
+        const nhan = khoi?.querySelector('[class*="eyebrow"]') ?? null;
+        return {
+          theKetQua: r(nhan?.parentElement ?? null),
+          nhanKetQua: r(nhan),
+          soKetQua: r(khoi?.querySelector('[class*="figure"]') ?? null),
+        };
+      })(),
+      /* Nhóm Đường/Cột: bo góc đã tính ra của khung và của nút đầu — phải cùng một số. */
+      boDuongCot: (() => {
+        const khung = document.querySelector('figure [class*="kindGroup"]');
+        const nut = khung?.querySelector('button') ?? null;
+        return khung === null || nut === null
+          ? null
+          : {
+              khung: getComputedStyle(khung).borderTopLeftRadius,
+              nut: getComputedStyle(nut).borderTopLeftRadius,
+            };
+      })(),
+    };
+  })()`;
+
+  await open('/cong-thuc/pe/');
+  const pcPe = await evaluate(DOC_CHI_TIET);
+
+  check('PC 1440 · trang chi tiết không tràn ngang', pcPe.tran === false);
+
+  /*
+   * Hai vế, vì `main` KHÔNG phải là cột nội dung: `--gutter` nằm bên trong nó, và ở 1440 nó rộng
+   * đúng viewport trừ thanh cuộn (1425), không phải 1440 − 2×64. Nên đo đệm bằng khoảng cách từ
+   * mép `main` tới mép khối đầu tiên của cột trái, còn trần thì so thẳng.
+   */
+  check(
+    'PC 1440 · đệm hai bên đúng 64 và khung không vượt trần 1600',
+    pcPe.main !== null &&
+      pcPe.congThuc !== null &&
+      pcPe.congThuc.left - pcPe.main.left === 64 &&
+      pcPe.main.width <= 1600,
+    `đệm ${String((pcPe.congThuc?.left ?? 0) - (pcPe.main?.left ?? 0))}px · khung ${String(pcPe.main?.width)}px`,
+  );
+
+  /*
+   * Khuôn PC (chủ dự án chốt theo ảnh mẫu từ trang tham chiếu, 09/09/2026): Công thức một mình
+   * trên hàng riêng; dưới nó cột trái là Số liệu, cột phải là thẻ Kết quả rồi Biểu đồ ngay dưới,
+   * hai cột cùng mép trên. Bốn phép kiểm dưới đây là bốn cạnh của khuôn ấy — thiếu một cạnh là
+   * khuôn đã trôi mà không ai biết. Cạnh nào cũng đo bằng toạ độ, vì "Kết quả rơi lên cạnh Công
+   * thức" (điều `dense` làm ngay khi Công thức thôi trải hết hàng) chỉ trình duyệt mới thấy.
+   */
+  check(
+    'PC 1440 · Công thức một mình trên hàng riêng — thẻ Kết quả nằm DƯỚI nó, không cạnh nó',
+    pcPe.congThuc !== null && pcPe.ketQua !== null && pcPe.ketQua.top >= pcPe.congThuc.bottom,
+    `Công thức đáy=${String(pcPe.congThuc?.bottom)} · Kết quả top=${String(pcPe.ketQua?.top)}`,
+  );
+
+  check(
+    'PC 1440 · khối Số liệu bên trái và thẻ Kết quả bên phải cùng mép trên',
+    pcPe.soLieu !== null &&
+      pcPe.ketQua !== null &&
+      Math.abs(pcPe.soLieu.top - pcPe.ketQua.top) <= 1 &&
+      pcPe.ketQua.left >= pcPe.soLieu.right,
+    `mép trên ${String(pcPe.soLieu?.top)} / ${String(pcPe.ketQua?.top)}`,
+  );
+
+  /*
+   * 32px: `row-gap` của lưới là `--space-5` (24px), cộng chỗ cho làm tròn. Rộng hơn thế là Biểu đồ
+   * đã rơi xuống một hàng lưới khác chứ không còn xếp dọc trong cùng ô với Kết quả.
+   */
+  check(
+    'PC 1440 · Biểu đồ ngay dưới thẻ Kết quả, cùng cột phải',
+    pcPe.ketQua !== null &&
+      pcPe.bieuDo !== null &&
+      pcPe.bieuDo.left === pcPe.ketQua.left &&
+      pcPe.bieuDo.top - pcPe.ketQua.bottom >= 0 &&
+      pcPe.bieuDo.top - pcPe.ketQua.bottom <= 32,
+    `Kết quả đáy=${String(pcPe.ketQua?.bottom)} · Biểu đồ top=${String(pcPe.bieuDo?.top)}`,
+  );
+
+  check(
+    'PC 1440 · cột phải rộng ~65% — biểu đồ chiếm phần lớn bề ngang theo yêu cầu chủ dự án',
+    pcPe.bieuDo !== null &&
+      pcPe.soLieu !== null &&
+      pcPe.bieuDo.width / (pcPe.bieuDo.width + pcPe.soLieu.width) >= 0.62,
+    `Biểu đồ ${String(pcPe.bieuDo?.width)}px · Số liệu ${String(pcPe.soLieu?.width)}px`,
+  );
+
+  check(
+    'PC 1440 · ô nhập MỘT cột — mỗi tham số một hàng như ô THAM SỐ của ảnh mẫu',
+    pcPe.soCot === 1,
+    `${String(pcPe.soCot)} cột`,
+  );
+
+  /*
+   * Hai chồng độc lập: Giải thích dính ngay dưới Số liệu ở cột trái, Bảng biến + Ví dụ ở cuối cột
+   * phải. Đây là phép kiểm bắt đúng lỗi chủ dự án chỉ ra — khoảng trống dưới Số liệu khi hai cột
+   * còn chia hàng chung lưới. 32px = `row-gap` 20px cộng chỗ cho làm tròn.
+   */
+  check(
+    'PC 1440 · Giải thích ngay dưới Số liệu, cùng cột trái — không có khoảng trống',
+    pcPe.soLieu !== null &&
+      pcPe.giaiThich !== null &&
+      pcPe.giaiThich.left === pcPe.soLieu.left &&
+      pcPe.giaiThich.top - pcPe.soLieu.bottom >= 0 &&
+      pcPe.giaiThich.top - pcPe.soLieu.bottom <= 32,
+    `Số liệu đáy=${String(pcPe.soLieu?.bottom)} · Giải thích top=${String(pcPe.giaiThich?.top)}`,
+  );
+
+  check(
+    'PC 1440 · Bảng biến + Ví dụ ở cột phải, dưới biểu đồ',
+    pcPe.bangBien !== null &&
+      pcPe.ketQua !== null &&
+      pcPe.bieuDo !== null &&
+      pcPe.bangBien.left === pcPe.ketQua.left &&
+      pcPe.bangBien.top >= pcPe.bieuDo.bottom,
+    `Biểu đồ đáy=${String(pcPe.bieuDo?.bottom)} · Bảng biến top=${String(pcPe.bangBien?.top)}`,
+  );
+
+  /*
+   * Hàng điều khiển biểu đồ (ô chọn trục + Đường/Cột) lên cùng hàng với tiêu đề hình và dạt về mép
+   * phải thẻ — "nhỏ gọn như link mẫu". `pe` có hai biến quét nên có ô chọn. 24px: đệm thẻ 12px cộng
+   * viền và làm tròn.
+   */
+  check(
+    'PC 1440 · điều khiển biểu đồ cùng hàng với tiêu đề hình, dạt về mép phải thẻ',
+    pcPe.chuThich !== null &&
+      pcPe.dieuKhien !== null &&
+      pcPe.bieuDo !== null &&
+      Math.abs(pcPe.dieuKhien.top - pcPe.chuThich.top) <= 4 &&
+      pcPe.dieuKhien.left > pcPe.chuThich.left &&
+      pcPe.bieuDo.right - pcPe.dieuKhien.right <= 24,
+    `tiêu đề top=${String(pcPe.chuThich?.top)} · điều khiển top=${String(pcPe.dieuKhien?.top)} · hở phải ${String((pcPe.bieuDo?.right ?? 0) - (pcPe.dieuKhien?.right ?? 0))}px`,
+  );
+
+  /*
+   * Thẻ Kết quả ở khổ PC: nhãn "KẾT QUẢ · CẬP NHẬT TỨC THÌ" bám mép trái, con số bám mép phải, cùng
+   * một hàng — chủ dự án 10/09/2026: "tối ưu không gian bên phải". 16px là đệm `--space-4` của thẻ.
+   * Đo toạ độ chứ không đọc CSS, vì luật nằm trong media query 1280 và "cùng một hàng" là thứ chỉ
+   * trình duyệt mới trả lời được; cùng lối với phép "điều khiển biểu đồ cùng hàng" ngay trên.
+   */
+  check(
+    'PC 1440 · thẻ Kết quả: nhãn sát mép trái, con số sát mép phải, cùng một hàng',
+    pcPe.theKetQua !== null &&
+      pcPe.nhanKetQua !== null &&
+      pcPe.soKetQua !== null &&
+      Math.abs(pcPe.nhanKetQua.left - (pcPe.theKetQua.left + 16)) <= 1 &&
+      Math.abs(pcPe.theKetQua.right - 16 - pcPe.soKetQua.right) <= 1 &&
+      pcPe.soKetQua.left > pcPe.nhanKetQua.right &&
+      pcPe.nhanKetQua.top < pcPe.soKetQua.bottom &&
+      pcPe.soKetQua.top < pcPe.nhanKetQua.bottom,
+    `thẻ ${String(pcPe.theKetQua?.left)}–${String(pcPe.theKetQua?.right)} · nhãn trái=${String(pcPe.nhanKetQua?.left)} · số phải=${String(pcPe.soKetQua?.right)} · nhãn top=${String(pcPe.nhanKetQua?.top)} · số top=${String(pcPe.soKetQua?.top)}`,
+  );
+
+  /*
+   * Nhóm Đường/Cột bo 5px cả khung lẫn nút — chủ dự án 10/09/2026: "đồng bộ đều bằng 5". Đọc giá trị
+   * đã tính ra vì nút khai `inherit`, tức con số thật chỉ có ở trình duyệt.
+   */
+  check(
+    'PC 1440 · nhóm Đường/Cột bo 5px cả khung lẫn nút',
+    pcPe.boDuongCot !== null && pcPe.boDuongCot.khung === '5px' && pcPe.boDuongCot.nut === '5px',
+    `khung ${String(pcPe.boDuongCot?.khung)} · nút ${String(pcPe.boDuongCot?.nut)}`,
+  );
+
+  /*
+   * Khối Số liệu đóng khung ở khổ PC — chủ dự án: "phần bên trái thì cần bo lại khi ở màn web".
+   * Đo viền và bo góc đã tính ra, không đọc CSS: luật nằm trong media query, và chính media query
+   * là thứ hay bị dời nhầm ra ngoài (khi ấy điện thoại cũng bị đóng khung — phép kiểm 1024 dưới
+   * đây bắt vế đó).
+   */
+  check(
+    'PC 1440 · khối Số liệu đóng khung: viền 1px, bo góc --radius-md',
+    pcPe.vienSoLieu === '1px' && pcPe.boSoLieu === '10px',
+    `viền ${String(pcPe.vienSoLieu)} · bo ${String(pcPe.boSoLieu)}`,
+  );
+
+  /*
+   * Cột "Biến" của bảng biến giữ ~30% bảng ở khổ PC — chủ dự án chụp cảnh nó co còn ~130px và tên
+   * biến vỡ hai dòng (xem `VariableTable.module.css`). 28% chứ không 30 vì tỉ lệ đo trên ô tiêu đề
+   * còn lệch bởi `border-collapse` và làm tròn.
+   */
+  check(
+    'PC 1440 · bảng biến: cột "Biến" giữ ít nhất 28% bề ngang bảng',
+    pcPe.cotBien !== null && pcPe.cotBien.bien / pcPe.cotBien.bang >= 0.28,
+    `Biến ${String(pcPe.cotBien?.bien)}px / bảng ${String(pcPe.cotBien?.bang)}px`,
+  );
+
+  /*
+   * Bốn mục Giải thích xếp DỌC ở khổ PC — chủ dự án bỏ lưới 2×2 sau khi thấy ba thẻ gập trống hoác
+   * cao bằng thẻ mở (xem docblock `ExplanationAccordion.module.css`). Đo: cùng mép trái, mục sau
+   * bắt đầu dưới đáy mục trước.
+   */
+  check(
+    'PC 1440 · bốn mục Giải thích là bốn hàng dọc, không phải lưới 2×2',
+    pcPe.mucGiaiThich !== null &&
+      pcPe.mucGiaiThich.length === 4 &&
+      pcPe.mucGiaiThich.every(
+        (muc, i, all) =>
+          muc.left === all[0].left && (i === 0 || muc.top >= (all[i - 1]?.bottom ?? Infinity)),
+      ),
+    `top: ${String(pcPe.mucGiaiThich?.map((m) => m.top).join(' · '))}`,
+  );
+
+  /*
+   * ── Màn danh sách: thanh tab và hai ô lọc theo bản vẽ WF-02 ──────────────────────────────────
+   *
+   * Ba con số của bản vẽ, đo trên khung 1690px: khay tab 672px (40% hàng), ba tab rộng bằng nhau,
+   * nhãn "Nhóm công thức" / "Sắp xếp" đứng BÊN TRÁI ô chọn cùng hàng, cả cụm lọc dạt mép phải.
+   * Chủ dự án trả lại bản trước ở đúng hai điểm đầu ("quá nhỏ và để thừa không gian bên phải",
+   * nhãn còn nằm trên ô chọn), nên mỗi điểm là một phép kiểm.
+   */
+  await open('/cong-thuc/');
+  const pcDs = await evaluate(`(() => {
+    const r = (el) => {
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return {
+        top: Math.round(b.top),
+        bottom: Math.round(b.bottom),
+        left: Math.round(b.left),
+        right: Math.round(b.right),
+        width: Math.round(b.width),
+      };
+    };
+    const khay = document.querySelector('[role="tablist"]');
+    const wrap = khay?.parentElement ?? null;
+    return {
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      khay: r(khay),
+      wrap: r(wrap),
+      tabs: khay === null ? [] : [...khay.querySelectorAll('[role="tab"]')].map(r),
+      oChon:
+        wrap === null
+          ? []
+          : [...wrap.querySelectorAll('select')].map((s) => ({
+              chon: r(s),
+              nhan: r(wrap.querySelector('label[for="' + s.id + '"]')),
+            })),
+    };
+  })()`);
+
+  check('PC 1440 · danh sách không tràn ngang', pcDs.tran === false);
+
+  check(
+    'PC 1440 · danh sách: thanh tab chiếm ~40% hàng lọc, ba tab rộng bằng nhau',
+    pcDs.khay !== null &&
+      pcDs.wrap !== null &&
+      pcDs.tabs.length === 3 &&
+      pcDs.khay.width / pcDs.wrap.width >= 0.36 &&
+      pcDs.khay.width / pcDs.wrap.width <= 0.42 &&
+      Math.max(...pcDs.tabs.map((t) => t.width)) - Math.min(...pcDs.tabs.map((t) => t.width)) <= 2,
+    `khay ${String(pcDs.khay?.width)} / hàng ${String(pcDs.wrap?.width)} · tab ${String(pcDs.tabs.map((t) => t.width).join(' · '))}`,
+  );
+
+  check(
+    'PC 1440 · danh sách: nhãn "Nhóm công thức" / "Sắp xếp" đứng bên trái ô chọn, cùng hàng',
+    pcDs.oChon.length === 2 &&
+      pcDs.oChon.every(
+        ({ chon, nhan }) =>
+          chon !== null &&
+          nhan !== null &&
+          nhan.right <= chon.left &&
+          Math.abs((nhan.top + nhan.bottom) / 2 - (chon.top + chon.bottom) / 2) <= 8,
+      ),
+    pcDs.oChon
+      .map(({ chon, nhan }) => `nhãn phải=${String(nhan?.right)} · ô trái=${String(chon?.left)}`)
+      .join(' | '),
+  );
+
+  check(
+    'PC 1440 · danh sách: cụm lọc dạt mép phải, cùng đáy với thanh tab',
+    pcDs.wrap !== null &&
+      pcDs.khay !== null &&
+      pcDs.oChon.length === 2 &&
+      pcDs.oChon[1]?.chon !== null &&
+      pcDs.wrap.right - (pcDs.oChon[1]?.chon?.right ?? 0) <= 2 &&
+      Math.abs((pcDs.oChon[1]?.chon?.bottom ?? 0) - pcDs.khay.bottom) <= 2,
+    `hàng phải=${String(pcDs.wrap?.right)} · ô cuối phải=${String(pcDs.oChon[1]?.chon?.right)} · đáy khay=${String(pcDs.khay?.bottom)} · đáy ô=${String(pcDs.oChon[1]?.chon?.bottom)}`,
+  );
+
+  /*
+   * Lịch trả nợ là công thức có ba thanh trượt và một thân riêng (bảng lịch dài) — đúng ca đã làm
+   * khuôn trước hỏng: bảng nằm trong khối Kết quả kéo cả hàng lưới cao lên, đẩy Số liệu xuống tận
+   * dưới bảng và bỏ cột trái trống rỗng. Phép kiểm này giữ cho thanh trượt đứng cạnh MÉP TRÊN của
+   * cột phải, dù bảng có dài đến đâu. Trang `pe` không có thanh trượt nên đo ở đây.
+   */
+  await open('/cong-thuc/lich-tra-no/');
+  const pcVay = await evaluate(DOC_CHI_TIET);
+
+  check(
+    'PC 1440 · lich-tra-no: thanh trượt (Số liệu) bên trái cùng mép trên với thẻ Kết quả bên phải',
+    pcVay.soLieu !== null &&
+      pcVay.ketQua !== null &&
+      Math.abs(pcVay.soLieu.top - pcVay.ketQua.top) <= 1 &&
+      pcVay.ketQua.left >= pcVay.soLieu.right,
+    `mép trên ${String(pcVay.soLieu?.top)} / ${String(pcVay.ketQua?.top)}`,
+  );
+
+  check(
+    'PC 1440 · lich-tra-no: thân riêng (bảng lịch) ở cột phải, phía trên biểu đồ',
+    pcVay.ketQua !== null &&
+      pcVay.bieuDo !== null &&
+      pcVay.ketQua.left === pcVay.bieuDo.left &&
+      pcVay.ketQua.top < pcVay.bieuDo.top,
+    `Kết quả top=${String(pcVay.ketQua?.top)} · Biểu đồ top=${String(pcVay.bieuDo?.top)}`,
+  );
+
+  check('PC 1440 · lich-tra-no không tràn ngang', pcVay.tran === false);
+
+  /*
+   * Dải 1024–1279 cố ý giữ MỘT cột (chữ trục biểu đồ tụt xuống 8px nếu chia đôi ở đây — xem bảng
+   * "BẬC MÀN" trong `globals.css`). Đo luôn để cái "cố ý" ấy không lặng lẽ trôi mất.
+   */
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1024,
+    height: 768,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await open('/cong-thuc/pe/');
+  const pc1024 = await evaluate(DOC_CHI_TIET);
+
+  /*
+   * So Số liệu với Kết quả chứ không với Công thức: từ khuôn "nhập trái · đáp án phải", Công thức
+   * trải ngang trên cùng ở MỌI khổ, nên "Số liệu dưới Công thức" đúng cả ở 1280 và không phân
+   * biệt được gì. Thứ đổi giữa hai bậc là Kết quả: cạnh Số liệu ở ≥1280, dưới Số liệu ở 1024.
+   */
+  check(
+    'PC 1024 · vẫn một cột — thẻ Kết quả nằm DƯỚI khối Số liệu, không cạnh nó',
+    pc1024.soLieu !== null && pc1024.ketQua !== null && pc1024.ketQua.top >= pc1024.soLieu.bottom,
+    `Số liệu đáy=${String(pc1024.soLieu?.bottom)} · Kết quả top=${String(pc1024.ketQua?.top)}`,
+  );
+
+  check('PC 1024 · không tràn ngang', pc1024.tran === false);
+
+  /* Khung của Số liệu đi cùng lưới hai cột — dưới 1280 khối vẫn trần như bản điện thoại đã duyệt. */
+  check(
+    'PC 1024 · khối Số liệu CHƯA đóng khung — khung chỉ bật cùng lưới hai cột',
+    pc1024.vienSoLieu === '0px',
+    `viền ${String(pc1024.vienSoLieu)}`,
+  );
+
+  /*
+   * ── 360: thứ tự MẮT THẤY ở điện thoại sau khi DOM đổi cho khuôn hai chồng ──────────────────
+   *
+   * Giải thích nay đứng TRƯỚC Kết quả trong DOM (xem docblock `.ask` ở `FormulaDetail.module.css`)
+   * và chỉ `order` giữ nó ở dưới Biểu đồ khi nhìn. Mất luật `order` là điện thoại đọc thấy phần
+   * giải thích chen giữa ô nhập và đáp án — mà không ca kiểm DOM nào bắt được, vì DOM vốn đã thế.
+   */
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 360,
+    height: 780,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await open('/cong-thuc/pe/');
+  const dt360 = await evaluate(DOC_CHI_TIET);
+
+  check(
+    'Điện thoại 360 · thứ tự nhìn thấy giữ nguyên: Số liệu → Kết quả → Biểu đồ → Giải thích → Bảng biến',
+    dt360.soLieu !== null &&
+      dt360.ketQua !== null &&
+      dt360.bieuDo !== null &&
+      dt360.giaiThich !== null &&
+      dt360.bangBien !== null &&
+      dt360.ketQua.top >= dt360.soLieu.bottom &&
+      dt360.bieuDo.top >= dt360.ketQua.bottom &&
+      dt360.giaiThich.top >= dt360.bieuDo.bottom &&
+      dt360.bangBien.top >= dt360.giaiThich.bottom,
+    `top: Số liệu ${String(dt360.soLieu?.top)} · Kết quả ${String(dt360.ketQua?.top)} · Biểu đồ ${String(dt360.bieuDo?.top)} · Giải thích ${String(dt360.giaiThich?.top)} · Bảng biến ${String(dt360.bangBien?.top)}`,
+  );
+
+  /* ── Đợt 2: Cài đặt và bảng chuỗi giá ─────────────────────────────────── */
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+
+  await open('/cai-dat/');
+  const pcCaiDat = await evaluate(`(() => {
+    const khoi = [...document.querySelectorAll('main section')].map((el) => {
+      const b = el.getBoundingClientRect();
+      return { top: Math.round(b.top), left: Math.round(b.left), right: Math.round(b.right) };
+    });
+    return {
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      so: khoi.length,
+      dau: khoi[0] ?? null,
+      thuBa: khoi[2] ?? null,
+    };
+  })()`);
+
+  /*
+   * Khối 1 ("Chế độ hiển thị") và khối 3 ("Dữ liệu trên máy") là đỉnh của hai cột, nên chúng phải
+   * cùng mép trên và khối 3 phải nằm hẳn bên phải khối 1. Đây cũng là phép kiểm bắt được lỗi
+   * ngược lại: nếu ai gỡ hai bọc `.col` để về lưới phẳng, khối 3 vẫn bên phải nhưng khối 2 sẽ bị
+   * đẩy xuống đáy — thứ mà phép so mép trên này không thấy, nên đo thêm số khối cho chắc.
+   */
+  check(
+    'PC 1440 · Cài đặt xếp hai cột — khối Chế độ và khối Dữ liệu cùng mép trên',
+    pcCaiDat.so === 4 &&
+      pcCaiDat.dau !== null &&
+      pcCaiDat.thuBa !== null &&
+      Math.abs(pcCaiDat.dau.top - pcCaiDat.thuBa.top) <= 1 &&
+      pcCaiDat.thuBa.left >= pcCaiDat.dau.right,
+    `${String(pcCaiDat.so)} khối · mép trên ${String(pcCaiDat.dau?.top)} / ${String(pcCaiDat.thuBa?.top)}`,
+  );
+
+  check('PC 1440 · Cài đặt không tràn ngang', pcCaiDat.tran === false);
+
+  await open('/du-lieu/');
+  const pcDuLieu = await evaluate(`(() => {
+    const thanh = document.querySelector('main [class*="actions"]');
+    const nut = thanh === null ? [] : [...thanh.querySelectorAll('button')];
+    const cuoi = nut.length === 0 ? null : nut[nut.length - 1].getBoundingClientRect();
+    const khung = thanh === null ? null : thanh.getBoundingClientRect();
+    return {
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      soNut: nut.length,
+      // Khoảng hở từ nút cuối tới mép phải của thanh — dạt phải thì nó phải gần bằng 0.
+      hoPhai: cuoi === null || khung === null ? null : Math.round(khung.right - cuoi.right),
+    };
+  })()`);
+
+  check(
+    'PC 1440 · thanh công cụ bảng chuỗi giá dạt về mép phải',
+    pcDuLieu.hoPhai !== null && pcDuLieu.hoPhai <= 1,
+    `${String(pcDuLieu.soNut)} nút · hở phải ${String(pcDuLieu.hoPhai)}px`,
+  );
+
+  check('PC 1440 · bảng chuỗi giá không tràn ngang', pcDuLieu.tran === false);
 
   /* ── Hết phép kiểm ─────────────────────────────────────────────────────── */
 } finally {

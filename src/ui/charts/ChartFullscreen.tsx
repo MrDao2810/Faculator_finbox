@@ -6,7 +6,6 @@ import type { DrawableChart } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
 import { ApplyHint } from './ApplyHint';
-import type { ApplyHintState } from './ApplyHint';
 import { LineChart } from './LineChart';
 import { WaterfallChart } from './WaterfallChart';
 import styles from './chart.module.css';
@@ -62,12 +61,12 @@ export interface ChartFullscreenProps {
    */
   onApplyPoint?: (key: string, value: number) => void;
   /**
-   * Trạng thái của dòng gợi ý bấm-áp-dụng, hoặc `null` khi không có gì để nói.
+   * Có dựng dòng "trục đang là thời gian nên bấm không ghi được gì" không.
    *
-   * `ChartBody` tính một lần rồi truyền cả hai bản, để logic "khi nào nói gì" chỉ sống ở một chỗ —
+   * `ChartBody` tính một lần rồi truyền cả hai bản, để logic "khi nào nói" chỉ sống ở một chỗ —
    * bản phóng to và bản trên trang nói khác nhau là người dùng đọc ra hai sự thật về cùng một hình.
    */
-  applyHint?: ApplyHintState | null;
+  axisHint?: boolean;
   /**
    * Lối vẽ chuỗi chính, chuyển thẳng xuống `LineChart`.
    *
@@ -125,7 +124,7 @@ export function ChartFullscreen({
   idBase,
   controls,
   onApplyPoint,
-  applyHint = null,
+  axisHint = false,
   variant = 'line',
 }: ChartFullscreenProps) {
   const t = useT();
@@ -293,7 +292,7 @@ export function ChartFullscreen({
                 {pick(model.note)}
               </p>
             )}
-            {applyHint !== null && <ApplyHint state={applyHint} />}
+            {axisHint && <ApplyHint />}
             {/*
               Câu nhờ xoay chỉ hiện khi máy ĐANG dọc; người dùng xoay thật thì `portrait` thành
               false và câu tự biến mất.

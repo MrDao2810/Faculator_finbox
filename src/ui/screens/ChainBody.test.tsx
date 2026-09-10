@@ -103,3 +103,74 @@ describe('ChainBody — lưới ô nhập của thẻ bước', () => {
     expect(screen.getAllByRole('listitem').length).toBeGreaterThanOrEqual(4);
   });
 });
+
+/**
+ * Hai cột thẻ bước ở khổ rộng — hai luật chủ dự án chốt 10/09/2026 (docblock `bocNhom()`): chỉ một
+ * nhóm thì cắt thẻ của nó làm đôi, lẻ thì cột trái nhiều hơn một; có cả hai nhóm thì mỗi nhóm là
+ * một cột. jsdom không dựng bố cục, nên ca kiểm giữ phần CẤU TRÚC: một `.columns` bọc tối đa hai
+ * `.column`, thẻ nào ở cột nào và tiêu đề nhóm đứng ở đâu. Chiều cao bằng nhau là việc của CSS —
+ * `check:chrome` mới là nơi đo hình thật.
+ */
+describe('ChainBody — thẻ bước chia hai cột', () => {
+  /** Mã bước của từng thẻ trong một cột, theo thứ tự DOM. */
+  function maTrongCot(cot: Element): string[] {
+    return [...cot.querySelectorAll(':scope > details')].map((d) =>
+      d.id.replace(/^chain-step-/, ''),
+    );
+  }
+
+  /** Các cột của khối: mảng mã bước của từng cột, theo thứ tự trái → phải. */
+  function cacCot(container: HTMLElement): string[][] {
+    const boc = container.querySelectorAll('[class*="columns"]');
+    expect(boc, 'đúng một bọc hai cột cho cả khối').toHaveLength(1);
+    return [...(boc[0]?.querySelectorAll('[class*="column"]') ?? [])]
+      .filter((c) => !/columns/.test(String(c.className)))
+      .map(maTrongCot);
+  }
+
+  function thuTuTopo(container: HTMLElement): string[] {
+    return [...container.querySelectorAll('details')].map((d) => d.id.replace(/^chain-step-/, ''));
+  }
+
+  /* `gia-tri-noi-tai-fcff`: ba bước trước (lẻ), không bước sau. */
+  it('một nhóm ba thẻ: trái hai, phải một — trái nhận đúng hai thẻ đầu theo thứ tự topo', () => {
+    const { container } = dungKhoi('gia-tri-noi-tai-fcff');
+    const topo = thuTuTopo(container);
+    expect(topo).toHaveLength(3);
+    expect(cacCot(container)).toEqual([topo.slice(0, 2), topo.slice(2)]);
+    // Tiêu đề nhóm đứng NGOÀI hai cột, trên cả hai.
+    expect(container.querySelectorAll('[class*="column"] h3')).toHaveLength(0);
+  });
+
+  /* `capm`: không bước trước, bốn bước sau (chẵn). */
+  it('một nhóm bốn thẻ: mỗi bên hai', () => {
+    const { container } = dungKhoi('capm');
+    const topo = thuTuTopo(container);
+    expect(topo).toHaveLength(4);
+    expect(cacCot(container)).toEqual([topo.slice(0, 2), topo.slice(2)]);
+  });
+
+  /* `fcfe`: một bước trước (fcff), không bước sau — thẻ lẻ loi không kéo theo cột rỗng. */
+  it('một nhóm một thẻ: chỉ có cột trái', () => {
+    const { container } = dungKhoi('fcfe');
+    expect(cacCot(container)).toEqual([['fcff']]);
+  });
+
+  /*
+   * `wacc`: một bước trước (capm), một bước sau (gia-tri-noi-tai-fcff). Đây là ảnh chủ dự án gửi —
+   * cắt đôi từng nhóm thì ra hai thẻ chồng nhau ở nửa trái, "vẫn 1 cột". Nay mỗi nhóm là một cột,
+   * tiêu đề nhóm đứng đầu cột của mình.
+   */
+  it('có cả hai nhóm: Bước trước là cột trái, Bước sau là cột phải, mỗi cột mang tiêu đề riêng', () => {
+    const { container } = dungKhoi('wacc');
+    expect(cacCot(container)).toEqual([['capm'], ['gia-tri-noi-tai-fcff']]);
+
+    const tieuDe = [...container.querySelectorAll('[class*="column"] > h3')].map(
+      (h) => h.textContent,
+    );
+    expect(tieuDe).toEqual([
+      'Bước trước — cấp số liệu cho công thức đang xem',
+      'Bước sau — dùng kết quả của công thức đang xem',
+    ]);
+  });
+});

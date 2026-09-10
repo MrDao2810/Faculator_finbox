@@ -6,6 +6,21 @@
 }
 
 /*
+ * Ô tìm hãm lại ở khổ PC — bản vẽ WF-01 vẽ nó rộng ~510px chứ không trải hết hàng.
+ *
+ * Bậc 1024 chứ không 1280, và đây KHÔNG phải chuyện chia cột: từ 1024 khung mới bắt đầu nới theo
+ * viewport (xem bảng "BẬC MÀN" ở `globals.css`), và một ô tìm rộng 928–1600px thì con trỏ nằm cách
+ * nút xoá gần một mét — cái cần hãm xuất hiện đúng ở mốc ấy, không phải ở mốc chia cột.
+ *
+ * `max-width` chứ không `width`: dưới 1024 nó vẫn trải hết như cũ, và ở mọi khổ nó vẫn co được.
+ */
+@media (min-width: 1024px) {
+  .searchSlot {
+    max-width: 510px;
+  }
+}
+
+/*
  * Vùng thông báo cho trình đọc màn hình. Có mặt trong DOM từ lần render đầu và không bao giờ
  * tháo — sinh nó ra cùng lúc với nội dung thì trình đọc coi cả vùng là mới và bỏ qua.
  * Không dùng `display: none` vì như thế trình đọc cũng bỏ qua nốt.
@@ -72,6 +87,17 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/*
+ * Trần bốn cột ở khổ PC — bản vẽ WF-01. Luật này BẮT BUỘC giống hệt `FeaturedFormulas.module.css`:
+ * khối kết quả tìm phải trông y hệt kệ mà nó đang lọc, xem chú thích dài ở đầu khối `.resultsBlock`.
+ * Sửa một bên mà quên bên kia là gõ vào ô tìm thì kệ đổi số cột.
+ */
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 /*

@@ -22,17 +22,75 @@
   color: var(--color-ink);
 }
 
-.intro {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-ink-soft);
-}
+/*
+ * ── `.intro` đã BỎ cùng dòng chữ nó tạo kiểu ─────────────────────────────────
+ *
+ * Dòng dẫn "Kết quả mỗi bước chảy thẳng vào ô của bước sau…" không còn — lý do đầy đủ ở chỗ nó
+ * từng đứng trong `ChainBody.tsx`. Đừng dựng lại luật này: không còn ai dùng, và một lớp `.intro`
+ * mồ côi thì lần sau có người thấy tên hợp lý là gắn bừa vào một dòng chữ khác.
+ */
 
 .groupTitle {
   margin: var(--space-2) 0 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
+}
+
+/*
+ * ── Hai cột thẻ bước ─────────────────────────────────────────────────────────
+ *
+ * `bocNhom()` trong `ChainBody.tsx` quyết định cột nào chứa gì (mỗi nhóm một cột khi có cả Bước
+ * trước lẫn Bước sau; chỉ một nhóm thì cắt thẻ của nó làm đôi) và vì sao là hai cột flex thật chứ
+ * không phải lưới hay `columns: 2`. Ở đây chỉ còn việc đặt hai cột cạnh nhau và cho chúng cao
+ * bằng nhau.
+ *
+ * Khổ hẹp: cả `.columns` lẫn `.column` đều là cột flex cùng một `gap`, nên hai cột CHỒNG lên nhau
+ * thành đúng một danh sách như trước — không cần `display: contents`, không cần luật riêng.
+ */
+.columns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Từ 1024 hai cột đứng cạnh nhau. Chọn 1024 chứ không 1280 (mốc bố cục nhiều cột của cả màn, xem
+ * `globals.css`): mốc 1280 là vì chữ trục biểu đồ, còn khối này không có biểu đồ — và ở 1024–1279
+ * khung đã rộng 928–1184px, một thẻ trải hết cũng đã là "quá rộng" như chủ dự án chỉ ở 1500.
+ *
+ * Khe ngang rộng hơn khe dọc một bậc: hai thẻ 456–870px đứng sát nhau 8px thì đọc ra như một thẻ
+ * bị nứt đôi.
+ *
+ * ── Hai cột cao bằng nhau khi mở thẻ ─────────────────────────────────────────
+ *
+ * Chủ dự án: _"height của các phần này cần bằng nhau khi bật lên để xem chi tiết các bước"_. Lưới
+ * kéo hai `.column` cao bằng nhau sẵn (`align-items` mặc định là `stretch`), nhưng cột chỉ là bọc
+ * vô hình — thứ người dùng nhìn là THẺ. Nên thẻ đang MỞ nở ra lấp phần cột còn dư: cả hai cột có
+ * thẻ mở thì hai mép dưới trùng nhau, phần dư nằm trong lòng thẻ, dưới dòng "Mở màn riêng".
+ *
+ * Chỉ thẻ `[open]`, cố ý. Thẻ gập là một dòng 44px; kéo nó cao lên vài trăm px là một khung rỗng
+ * có viền — trông như thẻ hỏng. Cột toàn thẻ gập thì đơn giản kết thúc sớm hơn cột kia, và đó đúng
+ * là điều kiện "khi bật lên" trong câu của chủ dự án.
+ */
+@media (min-width: 1024px) {
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-4);
+  }
+
+  .column > .step[open] {
+    flex: 1 0 auto;
+  }
 }
 
 /* ── Một bước của chuỗi ──────────────────────────────────────────────────── */
@@ -140,6 +198,22 @@
   grid-row: span 4;
   min-width: 0;
   padding-bottom: var(--space-3);
+}
+
+/*
+ * TRẦN số cột ở khổ rộng — cùng lý do với khối Số liệu (chú thích dài ở `FormulaDetail.module.css`).
+ *
+ * Từng là BỐN, vì khi ấy thẻ bước trải hết bề ngang khối (nó là con trải ngang của lưới `.detail`).
+ * Từ 10/09/2026 thẻ đứng hai cột (xem `.group` phía trên) nên chỉ còn nửa bề ngang, và bốn ô một
+ * hàng không còn chỗ: ở 1024 thẻ rộng 456px, trừ viền và đệm còn 430px — ba ô đã là 133px, dưới
+ * sàn 140px của luật `auto-fit`; hai ô là 207px. Ở 1500 hai ô là 318px, ở 1920 là 415px — cùng cỡ
+ * với ô "một ô một hàng" 366–429px mà khối Số liệu chọn ở ≥1280, chỗ chủ dự án đã chốt là đủ rộng
+ * để nhãn thôi xuống dòng.
+ */
+@media (min-width: 1024px) {
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .openLink {

@@ -62,6 +62,39 @@
    */
   --color-tab-hover: #ffffff;
 
+  /*
+   * Nền của thẻ bọc khối Công thức.
+   *
+   * Không dùng chung `--color-surface`: thẻ này cố ý KHÔNG phải nền thẻ thường. Nền có sắc + viền
+   * nét đứt là dáng của một khung trích dẫn — thứ bày lại một công thức, không phải một thẻ nội
+   * dung. Ghi riêng thì lần đổi nền thẻ sau này không kéo theo khung này, và ngược lại.
+   *
+   * ── Vì sao KHÔNG phải một sắc trắng ─────────────────────────────────────────
+   *
+   * Bản đầu lấy #FCFCFB theo chỉ định của chủ dự án, rồi chính chủ dự án báo lại là *"chưa được
+   * nổi bật"*. Nguyên nhân đo được, và nó là trần chứ không phải một lần chọn hụt: **mọi màu gần
+   * trắng đều bị kẹt dưới ~1,06:1 so với nền trang #f8fafc** — #fcfcfb chỉ đạt 1,019:1, và ngay cả
+   * trắng tinh cũng chỉ 1,046:1. Độ sáng không còn chỗ để chạy.
+   *
+   * Nên thứ làm khung nổi lên phải là SẮC. Chủ dự án chọn hướng xanh nhạt cùng họ navy trong bản so
+   * sánh năm hướng: 1,064:1 so với nền trang — gấp ba bản #fcfcfb — mà vẫn cùng gia đình màu với
+   * nền trang và với `--color-accent`, nên nó nổi mà không lạc.
+   *
+   * Nằm giữa `--color-paper` (#f8fafc) và `--color-sunken` (#e8edf4): đủ để đọc ra là một khung
+   * riêng, chưa tới mức thành một ô lõm.
+   *
+   * ⚠ Gần `--color-accent-soft` (#e3ebfd, nền chip ĐANG CHỌN) — cách 1,074:1. Chấp nhận được vì hai
+   * chỗ không bao giờ đứng cạnh nhau và khác nhau cả cỡ lẫn dáng, nhưng đừng kéo hai mã này lại gần
+   * nhau thêm: lúc đó khung công thức bắt đầu đọc ra như một thứ "đang được chọn".
+   *
+   * ⚠ `.formula` bên `FormulaDetail.module.css` phủ hai dải màu nền lên hai mép để che bóng cuộn
+   * ngang — hai dải ấy phải lấy ĐÚNG token này. Chúng từng lấy `--color-surface`, và để nguyên là
+   * hai vệt trắng 20px hiện lên giữa khung.
+   *
+   * Bảng tối: xem cặp cùng tên dưới `[data-theme='dark']`.
+   */
+  --color-formula-surface: #eef3fc;
+
   /* ── Màu chữ ─────────────────────────────────────────────────────────── */
   --color-ink: #1a2233; /* chữ chính */
   --color-ink-soft: #46536b; /* chữ phụ, nhãn */
@@ -101,6 +134,20 @@
   --color-hairline: #f2f2f2;
   --color-border: #d7dee9; /* viền thẻ, mép thanh dính, kẻ chia dòng bấm được */
   --color-border-strong: #78859a; /* viền ô nhập và ranh giới điều khiển — cần ≥ 3:1 */
+  /*
+   * Viền NÉT ĐỨT của thẻ bọc khối Công thức.
+   *
+   * Đi CẶP với `--color-formula-surface`, không đứng riêng: nó là bậc đậm hơn của cùng sắc xanh
+   * ấy (1,284:1 trên nền khung), nên đổi một trong hai mà giữ nguyên cái kia là khung mất tương
+   * quan. Bản đầu là #E2E8F0 để cặp với nền trắng ngà; nền đổi sang xanh nhạt thì viền theo.
+   *
+   * Đậm hơn `--color-border` (#d7dee9) một chút, và đó là CHỦ Ý chứ không phải lệch chuẩn: nét đứt
+   * ít mực hơn nét liền cùng độ đậm, nên để bằng nhau thì khung này trông mờ hơn mọi thẻ khác.
+   *
+   * KHÔNG hạ nó xuống `--color-hairline` cho "gọn": hairline là bậc dành cho KẺ CHIA bên trong một
+   * khối đã có viền ngoài, và `hairline.test.ts` chặn đúng việc dùng nó làm viền bốn phía.
+   */
+  --color-formula-border: #c9d9f2;
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
   /*
@@ -402,8 +449,35 @@
 
   /* ── Bố cục ──────────────────────────────────────────────────────────── */
   --tap-min: 44px; /* vùng chạm tối thiểu trên điện thoại — NFR-USA-01 */
+  /*
+   * Chiều cao của một điều khiển PHỤ — thứ chỉ đổi cách nhìn cùng một bộ số, không nhập liệu.
+   *
+   * Hàng điều khiển của biểu đồ có đúng hai thứ đứng cạnh nhau: ô chọn trục (`<select>` cao
+   * `--tap-min`) và nhóm nút Đường/Cột (cao 36px = nút 30 + đệm 4 + viền 2). Tám pixel lệch ấy làm
+   * hai cột không đều hàng ngang, và chủ dự án chốt cách chữa là gặp nhau ở giữa: hạ ô chọn xuống,
+   * nâng nhóm nút lên. Một token chứ không hai con số chép ở hai file, vì đúng cái lệch ấy đã phải
+   * sửa hai lần rồi.
+   *
+   * ĐÁNH ĐỔI đã biết: 40px thấp hơn `--tap-min`. Nhóm nút không mất gì — vùng chạm của nó là một
+   * ô phủ vô hình 44px (`.kindOption::after`), tách rời khỏi thân nút. Còn `<select>` là điều
+   * khiển hệ điều hành vẽ, không mở rộng vùng chạm bằng pseudo-element được, nên ô chọn trục nhận
+   * đúng 40px. Chỉ dùng cho hàng điều khiển biểu đồ; ô NHẬP LIỆU của công thức giữ nguyên
+   * `--tap-min`.
+   */
+  --control-h-compact: 40px;
   --content-max: 720px; /* cột nội dung, mobile-first */
-  --desktop-max: 1200px; /* bố cục ba cột WF-07 */
+  /*
+   * TRẦN bề ngang của khung ở khổ PC. Trước đây là 1200px với chú thích "bố cục ba cột WF-07" —
+   * bố cục ấy chưa bao giờ được dựng, mà con số thì kẹp cứng mọi màn to: ở 1920px nội dung vẫn
+   * chỉ rộng 1168px và bản vẽ hi-fi khổ PC đòi ~1690px. Nay khung TRẢI theo viewport, chỉ dừng ở
+   * 1600px để một dòng chữ không dài quá tầm mắt.
+   */
+  --desktop-max: 1600px;
+  /*
+   * Đệm hai bên khung. Giá trị ở đây là bậc điện thoại; các bậc màn lớn hơn đè lại ở khối `body`
+   * ngay dưới bảng màu tối — xem docblock "BẬC MÀN" ở đó.
+   */
+  --gutter: var(--space-4);
   --header-height: 56px;
   --tabbar-height: 60px;
 }
@@ -459,6 +533,21 @@
    */
   --color-tab-hover: #2a3446;
 
+  /*
+   * Nền khung Công thức. Chủ dự án chỉ đưa mã bảng SÁNG, nên bản này dựng theo TỈ SỐ với nền
+   * trang — cùng cách `--color-hairline` bên dưới đã dựng, và cùng lý do:
+   *
+   *   bảng sáng  #eef3fc lệch nền trang #f8fafc = 1,064:1
+   *   bảng tối   #0b111e lệch nền trang #111827 = 1,063:1
+   *
+   * Hướng lệch giữ nguyên: ở bảng sáng khung THẪM hơn nền trang (nằm giữa `--color-paper` và
+   * `--color-sunken`), nên ở đây nó cũng thẫm hơn, nằm giữa đúng hai token ấy của bảng tối. Lật
+   * ngược thành sáng hơn là đổi khung từ "ô lõm nhẹ" thành "thẻ nổi" — khác hẳn dáng bản sáng.
+   *
+   * Chữ trên nền này rộng cửa: thấp nhất là `--color-selected` 6,81:1, ngưỡng 4,5.
+   */
+  --color-formula-surface: #0b111e;
+
   /* ── Màu chữ ─────────────────────────────────────────────────────────── */
   --color-ink: #e8edf6; /* 15,10:1 trên nền trang */
   --color-ink-soft: #b3c0d4; /* 9,64:1 */
@@ -483,6 +572,18 @@
   --color-hairline: #232c3e;
   --color-border: #313d52; /* viền thẻ, mép thanh dính — giữ dải ~1,4:1 như bảng sáng */
   --color-border-strong: #6b7a93; /* 4,08 / 3,58 — vẫn qua ngưỡng 3:1 */
+  /*
+   * Viền nét đứt của khung Công thức. Cũng dựng theo TỈ SỐ, đo trên chính nền khung của mỗi bảng:
+   *
+   *   bảng sáng  #c9d9f2 trên nền khung #eef3fc = 1,284:1
+   *   bảng tối   #1c2744 trên nền khung #0b111e = 1,278:1
+   *
+   * Ép thẳng mã bảng sáng vào đây thì nó cho hơn 12:1 — một khung kẻ sáng chói giữa trang tối, và
+   * KHÔNG ca kiểm nào bắt được vì `contrast.test.ts` không chấm cặp nào có `--color-border`.
+   *
+   * Ở bảng tối "nhạt hơn" nghĩa là lùi GẦN nền hơn, tức tối đi chứ không sáng lên.
+   */
+  --color-formula-border: #1c2744;
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
   --color-accent: #8ab4f8; /* 8,42 / 7,38 */
@@ -586,6 +687,45 @@
    */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
   --focus-ring: 0 0 0 var(--focus-width) rgba(138, 180, 248, 0.4);
+}
+
+/*
+ * ── BẬC MÀN ──────────────────────────────────────────────────────────────────────────────────
+ *
+ * Bảng DUY NHẤT của dự án. `@media` không đọc được biến CSS nên mọi mốc dưới đây là số trần; chép
+ * chúng ở nhiều nơi mà không có một chỗ nói vì sao thì lần sau ai đó sẽ chọn một con số thứ năm.
+ *
+ *    768   biểu đồ đổi sang viewBox rộng — `chart.module.css` và `use-chart-size.ts` phải cùng mốc
+ *   1024   nav lên thanh trên, thanh dưới ẩn, khung nới tới `--desktop-max`, đệm 48
+ *   1280   bố cục NHIỀU CỘT: màn chi tiết, Cài đặt, Danh sách, Trang chủ
+ *   1440   đệm 64      ·      1920   đệm 80
+ *
+ * Vì sao nhiều cột bật ở 1280 chứ không 1024: chữ trục biểu đồ tính theo đơn vị viewBox, tức cỡ
+ * hiện ra = 10 × (bề ngang thật ÷ 640). Ở 1024, cột phải 60% cho khung vẽ 514px → chữ 8,0px, dưới
+ * dải 10–15px mà `chart.module.css` cam kết, và khung công thức bên trái chỉ còn 358px. Từ 1280
+ * mọi mốc đều nằm trong dải. Dải 1024–1279 vì thế giữ MỘT cột, chỉ được khung rộng hơn.
+ *
+ * Đè trên `body` chứ KHÔNG mở khối `:root` thứ hai: `contrast.ts` bóc token theo khối `:root` đầu
+ * tiên nó gặp, và file này giữ quy ước một `:root` duy nhất (xem @media print ở cuối). `body` là
+ * tổ tiên của mọi khung (`.content`, `.inner`) nên giá trị thừa kế xuống đủ.
+ */
+@media (min-width: 1024px) {
+  body {
+    --gutter: var(--space-8);
+  }
+}
+
+@media (min-width: 1440px) {
+  body {
+    /* 64 và 80 không có trên thang `--space` (dừng ở 48) — số trần, và token là chỗ hợp lệ cho nó. */
+    --gutter: 64px;
+  }
+}
+
+@media (min-width: 1920px) {
+  body {
+    --gutter: 80px;
+  }
 }
 
 * {

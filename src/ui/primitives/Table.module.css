@@ -153,8 +153,11 @@
  * Mặc định `nowrap` đúng cho bảng số (lịch trả nợ, chuỗi giá): một con số bị bẻ dòng giữa chừng
  * là đọc sai. Nhưng `VariableTable` (WF-03 khối 7) có cột "Mô tả" chứa cả câu, ép nowrap thì MỘT
  * câu mô tả dài tự kéo cả bảng rộng hơn khung 344px và bắt cuộn ngang chỉ vì đúng một ô — trong
- * khi xuống dòng ở đây không đổi nghĩa, khác hẳn rủi ro của dòng biểu thức thay số ở
- * `FormulaDetail.module.css` (`.expression` cố ý giữ `nowrap`, đọc chú thích ở đó).
+ * khi xuống dòng ở đây không đổi nghĩa.
+ *
+ * Cùng lập luận ấy sau đó áp cho `.expression` bên `FormulaDetail.module.css`: nó cũng là chữ nên
+ * cũng đã bỏ `nowrap`. Thứ CÒN giữ `nowrap` là `.formula` — ký hiệu toán do KaTeX dựng, bẻ dòng
+ * giữa một phân số thì hỏng thật.
  *
  * Cùng cơ chế `:global` với `.numeric` ngay trên — nơi gọi truyền chuỗi thô `className="wrap"`.
  */

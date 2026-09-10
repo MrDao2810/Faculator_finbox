@@ -281,23 +281,34 @@ export function SettingsScreen() {
         `headerTitleKey()`). Trang vẫn đúng một `<h1>`, chỉ đổi chỗ.
       */}
 
-      {/* ── 1. Chế độ hiển thị — FR-09 ───────────────────────────────────── */}
-      <section className={styles.block}>
-        <h2 className={styles.blockTitle}>
-          <SectionIcon d={SECTION_ICONS.mode} />
-          {t('settings.mode.title')}
-        </h2>
+      {/*
+        Hai cột ở khổ PC (bản vẽ WF-13), và chúng là hai BỌC thật chứ không phải một lưới phẳng.
 
-        <div className={styles.row}>
-          <span className={styles.rowText}>
-            <span className={styles.rowLabel}>{t('settings.mode.label')}</span>
-            <span className={styles.rowHint}>{t('settings.mode.hint')}</span>
-          </span>
-          {/* Dùng lại đúng nút của thanh trên, không dựng bản thứ hai — một nguồn sự thật. */}
-          <ModeToggle />
-        </div>
+        Lưới phẳng canh các khối theo HÀNG: khối "Dữ liệu trên máy" cao 760px (mười kho, mỗi kho
+        một hàng có nút xoá) sẽ kéo hàng đầu cao bằng nó, đẩy khối "Đơn vị & biểu thị" xuống tận
+        đáy màn, cách khối "Chế độ hiển thị" ngay trên nó một khoảng trống bằng nửa trang.
 
-        {/*
+        Ở khổ hẹp `.col` chỉ là flex cột cùng nhịp `--space-5` với `.screen`, nên điện thoại giữ
+        nguyên thứ tự 1 → 2 → 3 → 4 và không đổi một pixel nào.
+      */}
+      <div className={styles.col}>
+        {/* ── 1. Chế độ hiển thị — FR-09 ───────────────────────────────────── */}
+        <section className={styles.block}>
+          <h2 className={styles.blockTitle}>
+            <SectionIcon d={SECTION_ICONS.mode} />
+            {t('settings.mode.title')}
+          </h2>
+
+          <div className={styles.row}>
+            <span className={styles.rowText}>
+              <span className={styles.rowLabel}>{t('settings.mode.label')}</span>
+              <span className={styles.rowHint}>{t('settings.mode.hint')}</span>
+            </span>
+            {/* Dùng lại đúng nút của thanh trên, không dựng bản thứ hai — một nguồn sự thật. */}
+            <ModeToggle />
+          </div>
+
+          {/*
           Bảng màu ở cùng khối với chế độ Cơ bản/Nâng cao: cả hai đều là "trang này bày ra như
           thế nào", và cả hai đều chỉ nằm trên máy người dùng.
 
@@ -307,85 +318,87 @@ export function SettingsScreen() {
 
           Nút trên thanh chỉ hiện từ 1024px, nên hàng này là lối vào DUY NHẤT trên điện thoại.
         */}
-        {/*
+          {/*
           Dòng phụ đã bỏ (chủ dự án chốt). Nó từng nói thêm một vế KHÔNG suy ra được từ nhãn: file
           PNG và bản in xuất ra luôn nền sáng bất kể giao diện đang tối. Vế ấy nay chỉ còn sống
           trong mã (`draw-card.ts` ghim `CARD_COLORS` vào bảng sáng, `draw-card.test.ts` gác) —
           người dùng chọn giao diện Tối rồi xuất ảnh sẽ gặp nền sáng mà không được báo trước.
         */}
-        <div className={styles.row}>
-          <span className={styles.rowText}>
-            <span className={styles.rowLabel}>{t('settings.theme.label')}</span>
-          </span>
-          <ThemePicker />
-        </div>
-      </section>
+          <div className={styles.row}>
+            <span className={styles.rowText}>
+              <span className={styles.rowLabel}>{t('settings.theme.label')}</span>
+            </span>
+            <ThemePicker />
+          </div>
+        </section>
 
-      {/* ── 2. Đơn vị & biểu thị ─────────────────────────────────────────── */}
-      <section className={styles.block}>
-        <h2 className={styles.blockTitle}>
-          <SectionIcon d={SECTION_ICONS.units} />
-          {t('settings.units.title')}
-        </h2>
+        {/* ── 2. Đơn vị & biểu thị ─────────────────────────────────────────── */}
+        <section className={styles.block}>
+          <h2 className={styles.blockTitle}>
+            <SectionIcon d={SECTION_ICONS.units} />
+            {t('settings.units.title')}
+          </h2>
 
-        {/* Dòng phụ đã bỏ (chủ dự án chốt): đơn vị này chỉ đổi cách BÀY con số trong bảng. */}
-        <div className={styles.row}>
-          <span className={styles.rowText}>
-            <span className={styles.rowLabel}>{t('settings.units.scale')}</span>
-          </span>
-          <UnitSwitcher value={unitScale} onChange={setUnitScale} />
-        </div>
+          {/* Dòng phụ đã bỏ (chủ dự án chốt): đơn vị này chỉ đổi cách BÀY con số trong bảng. */}
+          <div className={styles.row}>
+            <span className={styles.rowText}>
+              <span className={styles.rowLabel}>{t('settings.units.scale')}</span>
+            </span>
+            <UnitSwitcher value={unitScale} onChange={setUnitScale} />
+          </div>
 
-        <div className={styles.stack}>
-          <Select
-            label={t('settings.units.schedule')}
-            hint={t('settings.units.scheduleHint')}
-            value={feeScheduleId}
-            onChange={(event) => {
-              setFeeScheduleId(event.target.value);
-            }}
-          >
-            {/*
+          <div className={styles.stack}>
+            <Select
+              label={t('settings.units.schedule')}
+              hint={t('settings.units.scheduleHint')}
+              value={feeScheduleId}
+              onChange={(event) => {
+                setFeeScheduleId(event.target.value);
+              }}
+            >
+              {/*
               Chỉ hiện tên biểu phí. Không ghép thêm "— mặc định": tên trong MarketConfig đã là
               "Mặc định HOSE 2026", ghép nữa thì ra "Mặc định HOSE 2026 — mặc định".
             */}
-            {MARKET_CONFIG.schedules.map((schedule) => (
-              <option key={schedule.id} value={schedule.id}>
-                {pick(schedule.name)}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </section>
+              {MARKET_CONFIG.schedules.map((schedule) => (
+                <option key={schedule.id} value={schedule.id}>
+                  {pick(schedule.name)}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </section>
+      </div>
 
-      {/* ── 3. Dữ liệu cục bộ — LDR-04, NFR-SEC-01 ───────────────────────── */}
-      <section className={styles.block}>
-        <h2 className={styles.blockTitle}>
-          <SectionIcon d={SECTION_ICONS.data} />
-          {t('settings.data.title')}
-        </h2>
-        {/*
+      <div className={styles.col}>
+        {/* ── 3. Dữ liệu cục bộ — LDR-04, NFR-SEC-01 ───────────────────────── */}
+        <section className={styles.block}>
+          <h2 className={styles.blockTitle}>
+            <SectionIcon d={SECTION_ICONS.data} />
+            {t('settings.data.title')}
+          </h2>
+          {/*
           ⚠ Câu "Mọi thứ dưới đây nằm trong trình duyệt của bạn và không được gửi đi đâu" đã bỏ
           (chủ dự án chốt). Cùng đợt với dải "CỤC BỘ" ở màn Danh mục — xem docblock ở đó: sau hai
           lượt ấy sản phẩm không còn câu nào TRÊN MÀN nói về dữ liệu rời máy.
         */}
 
-        <ul className={styles.dataList}>
-          {STORAGE_ITEMS.map((item, index) => {
-            const size = sizes[index] ?? null;
-            return (
-              <li key={item.key} className={styles.dataRow}>
-                <span className={styles.rowText}>
-                  <span className={styles.rowLabel}>{t(item.labelKey)}</span>
-                  <span className={styles.rowHint}>
-                    <code className={styles.key}>{item.key}</code>
-                    {size === null
-                      ? ` · ${t('data.empty')}`
-                      : ` · ${formatNumber(size)} ${t('data.chars')}`}
+          <ul className={styles.dataList}>
+            {STORAGE_ITEMS.map((item, index) => {
+              const size = sizes[index] ?? null;
+              return (
+                <li key={item.key} className={styles.dataRow}>
+                  <span className={styles.rowText}>
+                    <span className={styles.rowLabel}>{t(item.labelKey)}</span>
+                    <span className={styles.rowHint}>
+                      <code className={styles.key}>{item.key}</code>
+                      {size === null
+                        ? ` · ${t('data.empty')}`
+                        : ` · ${formatNumber(size)} ${t('data.chars')}`}
+                    </span>
                   </span>
-                </span>
 
-                {/*
+                  {/*
                   Nút xoá chỉ còn icon thùng rác trên nền đỏ nhạt — bản thiết kế đợt 12.
 
                   `aria-label` PHẢI đúng chuỗi `data.remove` ('Xoá'): tên khả truy cập của nút là
@@ -397,23 +410,23 @@ export function SettingsScreen() {
                   — thứ không đoán trước được. Vòng focus vẫn có, do luật `:focus-visible` chung
                   trong globals.css.
                 */}
-                <button
-                  type="button"
-                  className={styles.removeButton}
-                  aria-label={t('data.remove')}
-                  disabled={size === null}
-                  onClick={() => {
-                    remove(item.key, item.labelKey);
-                  }}
-                >
-                  <SectionIcon d={SECTION_ICONS.remove} />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                  <button
+                    type="button"
+                    className={styles.removeButton}
+                    aria-label={t('data.remove')}
+                    disabled={size === null}
+                    onClick={() => {
+                      remove(item.key, item.labelKey);
+                    }}
+                  >
+                    <SectionIcon d={SECTION_ICONS.remove} />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
 
-        {/*
+          {/*
           Vùng thông báo LUÔN có mặt, rỗng khi chưa xoá gì.
 
           Sinh một `role="status"` cùng lúc với nội dung của nó thì trình đọc màn hình không đọc
@@ -423,49 +436,50 @@ export function SettingsScreen() {
           Đặt NGOÀI `<ul>` chứ không thành một `<li>` thứ chín: danh sách kia là bản kiểm kê tám
           kho, và ca kiểm cửa gác duyệt từng `listitem` để đọc `<code>` bên trong.
         */}
-        <div className={styles.undoSlot} role="status" aria-live="polite">
-          {undo !== null && (
-            <p className={styles.undoBar}>
-              <span className={styles.undoText}>
-                {t('data.removed')} {t(undo.labelKey)} · {t('data.undoIn')} {secondsLeft}{' '}
-                {t('data.seconds')}
-              </span>
-              <Button ref={undoButtonRef} variant="secondary" size="sm" onClick={restore}>
-                {t('data.undo')}
-              </Button>
-            </p>
-          )}
-        </div>
+          <div className={styles.undoSlot} role="status" aria-live="polite">
+            {undo !== null && (
+              <p className={styles.undoBar}>
+                <span className={styles.undoText}>
+                  {t('data.removed')} {t(undo.labelKey)} · {t('data.undoIn')} {secondsLeft}{' '}
+                  {t('data.seconds')}
+                </span>
+                <Button ref={undoButtonRef} variant="secondary" size="sm" onClick={restore}>
+                  {t('data.undo')}
+                </Button>
+              </p>
+            )}
+          </div>
 
-        <Button variant="secondary" size="sm" disabled={stored === 0} onClick={removeAll}>
-          {t('data.clearAll')}
-        </Button>
-      </section>
+          <Button variant="secondary" size="sm" disabled={stored === 0} onClick={removeAll}>
+            {t('data.clearAll')}
+          </Button>
+        </section>
 
-      {/* ── 4. Về sản phẩm ───────────────────────────────────────────────── */}
-      <section className={styles.block}>
-        <h2 className={styles.blockTitle}>
-          <SectionIcon d={SECTION_ICONS.about} />
-          {t('settings.about.title')}
-        </h2>
+        {/* ── 4. Về sản phẩm ───────────────────────────────────────────────── */}
+        <section className={styles.block}>
+          <h2 className={styles.blockTitle}>
+            <SectionIcon d={SECTION_ICONS.about} />
+            {t('settings.about.title')}
+          </h2>
 
-        <dl className={styles.about}>
-          <dt>{t('about.formulas')}</dt>
-          <dd>{FORMULA_SUMMARIES.length}</dd>
+          <dl className={styles.about}>
+            <dt>{t('about.formulas')}</dt>
+            <dd>{FORMULA_SUMMARIES.length}</dd>
 
-          <dt>{t('about.schedule')}</dt>
-          <dd>{MARKET_CONFIG.schedules.length}</dd>
+            <dt>{t('about.schedule')}</dt>
+            <dd>{MARKET_CONFIG.schedules.length}</dd>
 
-          <dt>{t('about.offline')}</dt>
-          <dd>{t('about.offlineValue')}</dd>
-        </dl>
+            <dt>{t('about.offline')}</dt>
+            <dd>{t('about.offlineValue')}</dd>
+          </dl>
 
-        {/*
+          {/*
           KHÔNG lặp lại câu miễn trừ ở đây. `AppShell` đã đặt nó ở chân mọi trang, và đây không
           phải màn bày ra con số tiền nào nên UI-04 không đòi bản thứ hai trong tầm mắt — khác
           màn chi tiết công thức, nơi cố ý giữ cả hai.
         */}
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

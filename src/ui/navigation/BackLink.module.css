@@ -16,6 +16,15 @@
    */
   align-self: flex-start;
 
+  /*
+   * Trần bề ngang, vì nhãn không còn luôn ngắn: từ khi nút ở màn bảng dữ liệu gọi thẳng TÊN công
+   * thức ("‹ XIRR — suất sinh lợi nội tại theo ngày thực"), chữ có thể dài gấp ba nhãn cố định.
+   * Nút này nằm trong hàng dính trên, cạnh nav và mấy nút đổi chế độ — thiếu trần thì ở 360px nó
+   * đẩy chúng ra khỏi màn. Cắt bớt chữ do `.text` lo.
+   */
+  max-width: 100%;
+  min-width: 0;
+
   /* Vùng chạm 44px — NFR-USA-01. Đệm dọc gánh phần chiều cao còn thiếu của chữ. */
   min-height: var(--tap-min);
   margin-left: calc(-1 * var(--space-2));
@@ -32,6 +41,20 @@
 .back:hover {
   color: var(--color-accent-strong);
   background: var(--color-accent-soft);
+}
+
+/*
+ * Cắt bớt chữ, KHÔNG xuống dòng: nút cao `--tap-min` và nằm trong hàng dính trên, nên một nhãn vỡ
+ * hai dòng sẽ nới cả hàng ấy ra và đẩy nội dung trang xuống.
+ *
+ * `min-width: 0` bắt buộc dù đã có ở `.back`: đây là ô flex con, mà ô flex mặc định không co nhỏ
+ * hơn nội dung của nó — thiếu dòng này thì `text-overflow` không bao giờ có dịp chạy.
+ */
+.text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /*

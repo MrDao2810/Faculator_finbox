@@ -1419,6 +1419,31 @@ describe('WF-06 — tab Công thức', () => {
   });
 
   /*
+   * Câu miễn trừ đứng NGOÀI cả hai tab — và từ 09/09/2026 nó là câu duy nhất của màn.
+   *
+   * `showsFooterDisclaimer()` đã trừ `/danh-muc/` ra khỏi dải xám chân trang (chủ dự án: *"bên
+   * trên đã có"*), nên nếu ô vàng còn nằm trong tab Mã như trước thì tab này trắng trơn — FR-24
+   * thủng đúng một tab mà không ca kiểm nào của `routes.ts` thấy được, vì `usePathname()` không
+   * nhìn thấy `?tab=`. Đây là ca gác chỗ ấy.
+   */
+  it('câu miễn trừ vẫn còn sau khi đổi tab — nó ngoài cả hai tab (FR-24)', async () => {
+    seedHolding();
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await screen.findByText('Tổng giá trị');
+    expect(
+      screen.getAllByRole('note').some((n) => (n.textContent ?? '').includes('tham khảo')),
+    ).toBe(true);
+
+    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
+
+    expect(
+      screen.getAllByRole('note').some((n) => (n.textContent ?? '').includes('tham khảo')),
+    ).toBe(true);
+  });
+
+  /*
    * Danh sách bày TÊN và NGÀY LƯU — không bày con số.
    *
    * Chủ dự án chốt 09/09/2026: *"số liệu thì khi mở lại thì mới thấy được -> không hiển thị bên

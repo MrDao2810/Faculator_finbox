@@ -19,7 +19,8 @@
   min-width: 0;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: var(--space-5) var(--space-4) var(--space-7);
+  /* Đệm ngang theo bậc màn — bảng "BẬC MÀN" ở `globals.css` là nơi khai các bậc ấy. */
+  padding: var(--space-5) var(--gutter) var(--space-7);
 }
 
 @media (min-width: 1024px) {

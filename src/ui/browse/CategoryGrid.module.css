@@ -17,6 +17,20 @@
 }
 
 /*
+ * Trần năm cột ở khổ PC — bản vẽ WF-01 xếp bảy nhóm Chứng khoán thành 5 + 2. Không có trần thì
+ * `auto-fill` cho bảy cột ở 1440, tức cả bảy nhóm nằm một hàng và hai đoạn "Chứng khoán" /
+ * "Tài chính cá nhân" không còn ra hình khối nào.
+ *
+ * Con số 156px ở trên GIỮ NGUYÊN — nó là trần thật của khổ 360px, xem chú thích ngay trên. Trần
+ * cột và đáy ô là hai thứ khác nhau: cái này chặn màn rộng, cái kia chặn màn hẹp.
+ */
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/*
  * Một hàng: icon + tên bên trái, số bên phải.
  *
  * Ô CHỮ NHẬT BO GÓC chứ không còn viên thuốc — bản thiết kế Figma "FINBOX VERSION 2". Cùng bán

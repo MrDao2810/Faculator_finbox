@@ -114,6 +114,49 @@
 }
 
 /*
+ * ── Khổ PC: nhãn bên TRÁI, con số bên PHẢI, cùng một hàng ───────────────────────────────────
+ *
+ * Ở ≥1280 thẻ này nằm trong cột phải 65% của màn chi tiết (xem khối 1280 ở
+ * `FormulaDetail.module.css`), tức rộng ~780–900px. Khuôn dọc của điện thoại — nhãn trên, số dưới,
+ * cả hai dạt trái — để trống trọn nửa phải thẻ, và chủ dự án chỉ đúng chỗ đó (10/09/2026): _"chuyển
+ * Text 'KẾT QUẢ · CẬP NHẬT TỨC THÌ' sang bên trái và đưa '0,51 %/phiên' sang bên phải để tối ưu
+ * không gian bên phải"_.
+ *
+ * Lưới hai cột `1fr auto` chứ không bọc thêm phần tử: DOM giữ nguyên, nên ba ca kiểm ở
+ * `FormulaDetail.test.tsx` dò chuỗi 'KẾT QUẢ' qua hai `<span>` lồng và `aria-live` trên `.figure`
+ * không đổi gì. Tự xếp: `.eyebrow` rơi vào ô (1,1), `.figure` vào ô (1,2); mọi thứ đứng sau — câu
+ * diễn giải, nút gợi ý — trải hết hàng bên dưới bằng luật `:not()`, nên thẻ có hay không có diễn
+ * giải đều đúng hình.
+ *
+ * `align-items: center`, không `baseline`: nhãn 12px canh theo đường chân của con số 40px sẽ tụt
+ * xuống sát đáy thẻ; canh giữa mới đọc ra "một hàng". `.figure` dạt phải luôn phần ruột để khi đơn
+ * vị phải xuống dòng nó vẫn bám mép phải, không nhảy về trái.
+ *
+ * Mốc 1280 là mốc "nhiều cột" của màn chi tiết theo bảng BẬC MÀN ở `globals.css` — cùng mốc với
+ * `.fields` một cột và nhãn "Loại biểu đồ" ẩn đi. Dải 1024–1279 màn giữ một cột và thẻ giữ khuôn
+ * dọc. `.blockPlain` (chỉ có `.value`) vẫn đúng: một con rơi vào cột đầu.
+ *
+ * Khối này KHÔNG đổi token nào trong `FRAME`/`LABEL`/`VALUE` của `result-card.test.ts`, và ca kiểm
+ * ấy chỉ đọc luật `.block` ở đầu dòng, nên luật thụt lề dưới đây không lọt vào phép so.
+ */
+@media (min-width: 1280px) {
+  .block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+    align-items: center;
+  }
+
+  .figure {
+    justify-content: flex-end;
+  }
+
+  .block > :not(.eyebrow):not(.figure) {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
  * Bản in trả thẻ về khuôn nền trắng viền xanh.
  *
  * Trình duyệt mặc định KHÔNG in nền, nên dải xanh biến mất còn chữ vẫn trắng — con số đáp án

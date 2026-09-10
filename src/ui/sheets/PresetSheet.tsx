@@ -161,6 +161,24 @@ export function PresetSheet({
     return null;
   }
 
+  /**
+   * Câu dẫn ở đầu sheet — ba ca, và ca nào cũng chỉ có ĐÚNG MỘT dòng.
+   *
+   * `topPicks` là nhãn chủ dự án đặt cho bốn dòng bên dưới, và nó chỉ đúng ở nhánh có xếp hạng:
+   * chỉ ở đó `pickPresetsFor()` mới chạy thật công thức với từng mã rồi trải bốn mã trên biên độ
+   * kết quả. Hai ca kia bốn mã là bộ `WF10_CODES` theo thứ tự kho — gọi chúng là "hợp nhất để chạy
+   * thử công thức này" ngay trên một câu vừa nói "bốn mã dưới đây không đổi được ô nào của công
+   * thức này" thì hai dòng cãi nhau ngay trong một màn.
+   *
+   * Không có công thức nào (`spec === undefined`, màn bảng dữ liệu WF-05) thì không có gì để nói
+   * "hợp nhất cho" cả, nên sheet lùi về đúng hình dạng cũ — mã, tên, dòng nguồn.
+   */
+  function cauDan(): string | null {
+    if (spec === undefined) return null;
+    if (ranked) return t('preset.topPicks');
+    return t(wantsSeries ? 'preset.seriesOnlyNote' : 'preset.noTickerNote');
+  }
+
   /** Tên và đơn vị của một ô — tra từ spec, không đoán từ khoá. */
   function labelOf(key: string): { label: string; unit: string } {
     const variable = spec?.variables.find((item) => item.key === key);
@@ -170,33 +188,43 @@ export function PresetSheet({
     };
   }
 
+  const dan = cauDan();
+
   return (
-    <BottomSheet
-      open={open}
-      onClose={onClose}
-      title={t('preset.title')}
-      subtitle={t('preset.subtitle')}
-    >
-      {anyDraft && (
-        <p className={styles.draft} role="note">
-          <strong>{t('preset.draftTitle')}</strong> {t('preset.draftDetail')}
-        </p>
-      )}
+    /*
+      KHÔNG còn `subtitle` — chủ dự án chốt gỡ dòng "Kho mã mẫu — mã nào cũng có sẵn 248 phiên
+      giá…". Bốn dòng bên dưới tự nói ra chúng là gì; câu ấy chỉ lặp lại tiêu đề bằng chữ dài hơn.
+    */
+    <BottomSheet open={open} onClose={onClose} title={t('preset.title')}>
+      {/*
+        ── Khối vàng "giá quá khứ tự dựng" đã BỎ, và đây là chỗ ghi lại cái giá của việc ấy ─────
+
+        Nó từng nói: số liệu cơ bản và thị giá là thật, còn ĐƯỜNG ĐI của giá qua 247 phiên trước đó
+        là chuỗi tự dựng. Chủ dự án chốt gỡ cùng ba chú thích khác của sheet này.
+
+        Hệ quả đo được, không phải suy đoán: cả bốn mã mẫu đều `isDraft`, nên `mixedDraft` luôn sai
+        và nhãn `preset.draftTag` trên từng dòng KHÔNG bao giờ hiện với bộ mẫu hiện tại. Tức từ nay
+        màn hình không còn câu nào nói ra rằng 247/248 phiên giá là số tự dựng.
+
+        Cờ dữ liệu `isDraft` trong `samples.ts` GIỮ NGUYÊN (ba ca kiểm ghim nó), và câu cảnh báo
+        trong file XUẤT ra (`preset.draftExport`) cũng giữ — thứ gỡ ở đây chỉ là câu trên màn.
+        Cùng nếp với `portfolio.localOnly` và `settings.data.note` đã gỡ ngày 09/09/2026: lời hứa
+        chuyển từ chỗ người dùng đọc được sang chỗ dữ liệu và bản xuất giữ.
+      */}
 
       {/*
-        Câu dẫn nói vì sao đúng bốn mã NÀY. Ba trạng thái, ba câu khác hẳn nhau — gộp lại thì
-        câu chung phải mờ đến mức không nói được gì, mà đây đúng chỗ người dùng cần biết mình
-        sắp nạp cái gì vào.
+        Câu dẫn nói vì sao đúng bốn mã NÀY — ba ca, xem `cauDan()`.
+
+        Câu dài của nhánh `ranked` ("Bốn mã chọn theo kết quả của chính công thức này, xếp từ thấp
+        đến cao…") đã gỡ theo yêu cầu chủ dự án, và thay bằng nhãn ngắn `preset.topPicks`: ở ca ấy
+        mỗi dòng đã in sẵn kết quả của chính nó, nên thứ tự tự nói ra nghĩa — thứ còn thiếu chỉ là
+        một chữ gọi tên bốn dòng đó là gì.
+
+        Hai câu kia KHÔNG gỡ theo, và đó là chủ ý: `noTickerNote` là câu trả lời cho đúng lỗi chủ
+        dự án từng báo — "bấm Nạp xong không ô nào đổi" — còn `seriesOnlyNote` là chỗ duy nhất còn
+        lại nói ra rằng đường đi của giá là số tự dựng.
       */}
-      {spec !== undefined && (
-        <p className={styles.lead}>
-          {ranked
-            ? t('preset.rankedNote')
-            : wantsSeries
-              ? t('preset.seriesOnlyNote')
-              : t('preset.noTickerNote')}
-        </p>
-      )}
+      {dan !== null && <p className={styles.lead}>{dan}</p>}
 
       {/*
         `data-ma` trên mỗi dòng là chỗ bám ổn định cho ca kiểm và cho `check:chrome`. Cần vì thứ
@@ -292,11 +320,18 @@ export function PresetSheet({
           >
             {t('preset.browseMarket')}
           </Button>
-          <p className={styles.browseNote}>{t('preset.browseMarketNote')}</p>
+          {/* Câu "Toàn bộ mã đang giao dịch… chỉ có MỘT phiên giá" đã gỡ — chủ dự án chốt. */}
         </div>
       )}
 
-      <p className={styles.footnote}>{t('preset.editableAfterLoad')}</p>
+      {/*
+        Chân sheet "Sau khi nạp, ô nào mã có số thì vẫn sửa được…" cũng đã gỡ.
+
+        ⚠ Đó là câu DUY NHẤT trên màn nói ra lời hứa FR-10 ("nạp xong vẫn sửa được từng ô") và nói
+        ra lối mở khoá ("Bỏ mã"). Hành vi giữ nguyên: ô nào mã cấp được số thì vẫn gõ được, ô không
+        có thì khoá, và "Bỏ mã" vẫn mở lại — nay người dùng phải tự thấy thay vì được nói trước.
+        Dòng phụ trên chính ô bị khoá (`lockedNoteFor`) là chỗ còn lại giải thích việc khoá.
+      */}
     </BottomSheet>
   );
 }

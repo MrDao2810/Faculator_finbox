@@ -101,11 +101,20 @@ describe('ExampleBlock — gõ được ngay tại dòng số của ví dụ', (
 });
 
 describe('ExampleBlock — giữ được con số gốc của ví dụ (FR-02)', () => {
-  it('đang đúng bộ của ví dụ thì chỉ nhắc là sửa được, không bày nút quay về', () => {
+  /*
+   * Ca này từng đòi khối NÓI RA rằng sửa được ngay tại đây. Câu ấy đã bỏ — chủ dự án chốt
+   * 10/09/2026, cùng đợt với dòng dẫn của khối Chuỗi công thức.
+   *
+   * Điều đáng gác vẫn nguyên và nằm ở vế thứ hai: đang đúng bộ số của ví dụ thì KHÔNG có nút quay
+   * về, vì chẳng có gì để quay về. Ghim thêm chiều ngược — câu nhắc không được mọc lại — theo cùng
+   * khuôn `SettingsScreen.test.tsx` và `DataTableScreen.test.tsx` đã dùng cho những lượt bỏ chữ
+   * khác trong tuần này.
+   */
+  it('đang đúng bộ của ví dụ thì không có nút quay về, và cũng không còn câu nhắc nào', () => {
     draw('pe');
 
-    expect(screen.getByText(/Sửa được ngay tại đây/)).not.toBeNull();
     expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.queryByText(/Sửa được ngay tại đây/)).toBeNull();
   });
 
   /*

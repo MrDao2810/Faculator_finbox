@@ -171,8 +171,13 @@ export function VirtualList<T>({
   }, [virtual, update]);
 
   if (!virtual) {
+    /*
+      `listStatic` là lớp bật lưới nhiều cột ở khổ PC, và nó CHỈ được có mặt ở nhánh này. Nhánh ảo
+      hoá bên dưới đo chiều cao theo từng DÒNG rồi cộng dồn thành hai khối đệm — một lưới nhiều cột
+      làm mỗi phép đo ấy sai đúng bằng số cột. Xem `VirtualList.module.css`.
+    */
     return (
-      <ul className={styles.list} aria-label={label}>
+      <ul className={`${styles.list} ${styles.listStatic}`} aria-label={label}>
         {items.map((item) => (
           <li key={itemKey(item)} className={styles.item}>
             {children(item)}

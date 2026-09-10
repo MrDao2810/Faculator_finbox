@@ -70,3 +70,78 @@ button.reset {
   font-size: var(--text-xs);
   color: var(--color-accent);
 }
+
+/*
+ * ── Khổ PC: ba mảng bên trái, hai ô lọc bên phải, CÙNG một hàng (bản vẽ WF-02) ────────────────
+ *
+ * Bậc 1280 — bảng "BẬC MÀN" ở `globals.css`. Dưới mốc ấy giữ ba hàng chồng nhau như cũ: hai ô lọc
+ * khai `flex: 1 1 200px`, nên nhét chung hàng với thanh tab ở khổ hẹp là chúng co xuống dưới 200px
+ * và tên nhóm dài nhất bị cắt.
+ *
+ * Hai cột 2fr / 3fr — thanh tab chiếm 40% hàng, đo từ bản vẽ: khay 672px trên khung 1690px, ba
+ * tab rộng BẰNG NHAU ~224px. Bản trước để cột đầu `auto` và ép từng tab `flex: 0 0 auto` cho khay
+ * co về đúng bề ngang chữ (71px mỗi tab); chủ dự án nhìn ở 1440 và trả lại: _"3 tabbar … bản web
+ * đang quá nhỏ và để thừa không gian bên phải"_. Nay tab giữ `flex: 1` của primitive và chia đều
+ * 40% ấy: ~155 / 173 / 190px mỗi tab ở 1280 / 1440 / 1920.
+ *
+ * Khay cao bằng ô chọn bên cạnh (44px = nút 40 + đệm 2×2) và chữ lên `--text-base`, đúng bản vẽ —
+ * hai con số 36/40 và `--text-sm` chủ dự án chốt là cho khổ điện thoại, nơi "Chứng khoán" phải
+ * vừa một phần ba của 328px. Chỉ đổi trong `.wrap` nên không chạm `TabBar` ở màn Danh mục.
+ *
+ * Nhãn "Nhóm công thức" / "Sắp xếp" xuống CÙNG HÀNG với ô chọn, đứng bên trái nó — bản vẽ vẽ thế,
+ * chủ dự án nhắc lại. `.selects > .field` (0,2,0) đè `flex-direction: column` của primitive
+ * (`.field` 0,1,0) mà không phụ thuộc thứ tự hai file trong bó CSS — cùng bẫy đã ghi ở
+ * `.field > label`. Ô chọn thôi `width: 100%` của primitive và ôm theo lựa chọn dài nhất, nên ô
+ * Nhóm rộng hơn ô Sắp xếp như trên bản vẽ; sàn 10rem để ô Sắp xếp không teo theo "A → Z".
+ *
+ * Nút "Xoá bộ lọc" xuống hàng riêng và vẫn dạt phải, y như cũ — `align-self` của nó không còn tác
+ * dụng trong lưới nên phải nói lại bằng `justify-self`.
+ */
+@media (min-width: 1280px) {
+  .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: end;
+    column-gap: var(--space-4);
+  }
+
+  /*
+   * Chọn theo `[role='tab']` vì tên lớp CSS Module của primitive bị băm, file này không gọi tới
+   * được — cùng cách và cùng lý do đã ghi ở `.field > label` và `button.reset`. Thuộc tính này là
+   * chắc chắn: `TabBar` dựng nó cho mọi tab, đó là điều kiện để cụm đọc được như một tablist.
+   */
+  .wrap [role='tab'] {
+    min-height: 40px;
+    font-size: var(--text-base);
+    white-space: nowrap;
+  }
+
+  .selects {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: var(--space-5);
+  }
+
+  .selects > .field {
+    flex: 0 1 auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .selects > .field > label {
+    flex: 0 0 auto;
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+
+  .selects > .field > select {
+    width: auto;
+    min-width: 10rem;
+  }
+
+  button.reset {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}

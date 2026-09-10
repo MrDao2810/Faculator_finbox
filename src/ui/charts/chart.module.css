@@ -566,7 +566,13 @@
   color: var(--color-warning);
 }
 
-/* Gợi ý cách xem — trung tính, khác .note (dành cho cảnh báo đường đứt quãng). */
+/*
+ * Gợi ý cách xem — trung tính, khác .note (dành cho cảnh báo đường đứt quãng).
+ *
+ * Còn `display: flex` dù nay chỉ bọc chữ: đó vẫn là cách đúng để một dòng chữ phụ không nhận lề
+ * thừa. Luật `.applyHintReady` (màu nhấn + icon con trỏ) đã gỡ cùng câu khẳng định mà nó tô — xem
+ * docblock `ApplyHint.tsx`.
+ */
 .applyHint {
   display: flex;
   align-items: center;
@@ -575,22 +581,6 @@
   margin: 0;
   font-size: var(--text-xs);
   color: var(--color-ink-soft);
-}
-
-/*
- * Trạng thái KHẲNG ĐỊNH: "bấm được ngay bây giờ".
- *
- * Màu nhấn chứ không phải màu chữ phụ, và đây là chỗ khác biệt đáng giá nhất của cả đợt: câu kia
- * là lời xin lỗi (bấm không ăn gì), câu này là lời mời. Cùng một sắc xám thì hai câu đọc như nhau,
- * mà chúng nói hai điều ngược nhau.
- *
- * `--color-accent` trên `--color-surface` chính là cặp của mọi liên kết trong sản phẩm, nên nó đã
- * nằm sẵn trong bộ kiểm tương phản của cả hai bảng màu — không đẻ thêm token nào.
- *
- * Icon đi kèm là dấu hiệu thứ hai, không để màu gánh một mình (NFR-USA-06).
- */
-.applyHintReady {
-  color: var(--color-accent);
 }
 
 /*
@@ -718,12 +708,19 @@
   background: var(--color-accent-soft);
 }
 
-/* ── Hàng điều khiển: ô chọn trục X + nút phóng to ──────────────────────── */
+/* ── Hàng điều khiển: ô chọn trục X + nhóm nút lối vẽ ───────────────────── */
 
 /*
- * `align-items: flex-end` chứ không phải `center`: ô chọn có nhãn phía trên nên nó cao hơn nút, và
- * căn giữa sẽ đẩy nút lệch lên ngang với dòng nhãn. Căn đáy thì hai ô nhập thẳng hàng nhau, đó mới
- * là thứ mắt lấy làm mốc.
+ * Nút phóng to KHÔNG còn ở hàng này (nó lên `.captionRow` từ đợt 12), nên hàng này nay chỉ có hai
+ * cột, và cả hai đều là "nhãn ở trên, điều khiển ở dưới".
+ *
+ * `align-items: flex-end` giữ nguyên, nhưng lý do đã đổi. Trước là để ô chọn có nhãn không đẩy nút
+ * phóng to không nhãn lệch lên. Nay hai cột cùng dáng nên mốc phải là ĐÁY của hai ô điều khiển:
+ * nhãn trái dài, khổ hẹp thì nó xuống hai dòng, và lúc ấy chỉ căn đáy mới giữ được hai ô thẳng
+ * hàng — thứ mắt lấy làm mốc, chứ không phải dòng nhãn.
+ *
+ * Chiều cao hai cột bằng nhau là việc của `ChartKindToggle.module.css` (`.kind` dành sẵn một hàng
+ * `--tap-min` cho nhóm nút). Không có nó thì hai cái nhãn lệch nhau đúng 8px.
  */
 .controls {
   display: flex;
@@ -737,6 +734,23 @@
 }
 
 /*
+ * Ô chọn trục thấp hơn một ô nhập liệu — xem `--control-h-compact` trong globals.css.
+ *
+ * Nhắm vào thẻ `<select>` bên trong chứ không vào `.picker`: `.picker` là lớp gắn lên `.field`,
+ * tức cái BỌC gồm nhãn + ô chọn (xem `Select.tsx`), nên đặt chiều cao ở đó là ép cả cột hai dòng.
+ *
+ * Không sửa `Select.module.css`: primitive ấy dùng ở khắp nơi — Nhóm công thức, Sắp xếp, Đơn vị
+ * hiển thị, màn Cài đặt — và ở những chỗ đó nó là ô nhập liệu thật, phải giữ trọn `--tap-min`.
+ * Chỉ hàng điều khiển biểu đồ mới đổi, nên luật ở lại đây.
+ *
+ * Không ràng vào `.controls`: cùng ô chọn ấy được dựng lại trong màn phóng to (`.fullFoot`), và
+ * hai chỗ lệch chiều cao nhau là đúng thứ đợt này đang sửa.
+ */
+.picker select {
+  min-height: var(--control-h-compact);
+}
+
+/*
  * Phần co giãn của ô chọn thuộc về HÀNG, không thuộc về ô chọn.
  *
  * Bản đầu đặt `flex: 1 1 12rem` thẳng lên `.picker`, và nó hỏng ngay khi cùng ô chọn ấy được dựng lại
@@ -746,6 +760,67 @@
  */
 .controls .picker {
   flex: 1 1 12rem;
+}
+
+/*
+ * ── Khổ PC: hàng điều khiển lên CÙNG HÀNG với tiêu đề hình, dạt phải, nhãn ẩn khỏi mắt ──────────
+ *
+ * Chủ dự án đối chiếu với trang tham chiếu (finbox-calculator.pages.dev): ở đó `Tháng | Năm` và
+ * `Đường | Cột` là hai cụm nhỏ ở góc trên phải của thẻ biểu đồ, không nhãn, không ô chọn trải
+ * ngang — và bảo _"cần thay đổi ở bản web cho nhỏ gọn lại như của link mẫu"_.
+ *
+ * Thẻ đổi từ flex cột sang LƯỚI hai cột chỉ ở khổ này: hàng đầu là tiêu đề (cột 1, co giãn) và
+ * hàng điều khiển (cột 2, ôm nội dung); mọi con khác trải hết hàng. `.captionRow` và `.controls`
+ * là hai con đầu tiên nên tự rơi vào hàng 1 — không cần đánh số hàng. Thiếu `.controls` (công thức
+ * một biến quét, không nút Cột) thì cột 2 rộng 0 và chỉ còn `gap` 8px, không ai thấy.
+ *
+ * Nhãn ẩn theo đúng công thức `.visually-hidden` của globals.css (chép vì CSS Module không với tới
+ * lớp toàn cục), vẫn ở DOM và vẫn là `<label for>` của ô chọn — trình đọc màn hình không mất gì.
+ * Ô chọn thôi giãn (`flex: 0 1 auto`) và ôm theo lựa chọn dài nhất, trần 16rem để tên biến dài
+ * ("Giá trị nội tại từ FCFF (DCF)") không nuốt mất tiêu đề. Nhãn "Loại biểu đồ" ẩn ở
+ * `ChartKindToggle.module.css`, cùng mốc 1280.
+ *
+ * Chỉ `.controls` (trên trang), không đụng `.fullFoot` của màn phóng to: ở đó hàng điều khiển vẫn
+ * là hàng riêng dưới hình.
+ */
+@media (min-width: 1280px) {
+  .chart {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .chart > * {
+    grid-column: 1 / -1;
+  }
+
+  .captionRow {
+    grid-column: 1;
+  }
+
+  .controls {
+    grid-column: 2;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .controls .picker {
+    flex: 0 1 auto;
+    max-width: 16rem;
+  }
+
+  .controls .picker label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
 }
 
 .zoom {

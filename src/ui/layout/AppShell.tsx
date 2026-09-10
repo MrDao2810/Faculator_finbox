@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { T } from '../i18n/T';
 import { AppHeader } from '../navigation/AppHeader';
 import { BottomTabBar } from '../navigation/BottomTabBar';
-import { DisclaimerBar } from '../navigation/DisclaimerBar';
+import { FooterDisclaimer } from '../navigation/FooterDisclaimer';
 import { OfflineBanner } from '../navigation/OfflineBanner';
 import styles from './AppShell.module.css';
 import { OriginTracker } from './OriginTracker';
@@ -19,6 +19,10 @@ import { ServiceWorker } from './ServiceWorker';
  * trang: FR-24 và UI-04 không được phụ thuộc việc người viết màn có nhớ thêm hay không —
  * cùng cách nghĩ với ok() giữ bất biến FR-06. Chủ dự án chốt đưa nó xuống chân trang để
  * phần đầu màn giống bản thiết kế.
+ *
+ * Từ đợt này nó đi qua lá `FooterDisclaimer`: khung vẫn dựng cho MỌI màn, nhưng màn nào đã tự bày
+ * câu ấy ở chỗ tốt hơn (ô vàng đầu trang chi tiết công thức) thì lá đó trả `null` để trang không
+ * nói cùng một câu hai lần. Danh sách trừ nằm ở `showsFooterDisclaimer()` trong `routes.ts`.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -34,7 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <DisclaimerBar />
+      <FooterDisclaimer />
       <BottomTabBar />
 
       {/* Hai đảo dưới đây không dựng ra gì, chỉ chạy effect — đặt ở đây để phủ mọi màn. */}

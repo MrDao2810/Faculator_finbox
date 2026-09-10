@@ -5,6 +5,36 @@
   min-width: 0;
 }
 
+/*
+ * Một cột của bố cục PC. Ở khổ hẹp nó chép đúng luật giãn cách của `.screen` vì nó đứng CHEN vào
+ * giữa: bốn khối vốn là con trực tiếp của `.screen` và ăn `gap` của nó, bọc lại mà không chép thì
+ * chúng dính sát nhau. (Cùng bài học với `.panel` bên `PortfolioScreen.module.css`.)
+ */
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/*
+ * Khổ PC: hai cột — trái "Chế độ hiển thị" + "Đơn vị & biểu thị", phải "Dữ liệu trên máy" +
+ * "Về sản phẩm" (bản vẽ WF-13). Bậc 1280 — bảng "BẬC MÀN" ở `globals.css`.
+ *
+ * Đo trước khi sửa, ở 1440: bốn khối xếp dọc, mỗi khối rộng 1297px, và khối "Chế độ hiển thị" chỉ
+ * có hai dòng nên nhãn dính mép trái còn nút dính mép phải, cách nhau hơn 1000px trống.
+ *
+ * `align-items: start` để cột trái (ngắn, ~440px) không bị kéo cao bằng cột phải (~800px).
+ */
+@media (min-width: 1280px) {
+  .screen {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    align-items: start;
+  }
+}
+
 /* `.h1` đã xoá: tiêu đề "Cài đặt" nay do thanh trên dựng (`HeaderIdentity` + `headerTitleKey()`). */
 
 .block {

@@ -126,17 +126,28 @@
 }
 
 /*
- * Nhãn nhóm của biến thể hàng.
+ * Nhãn nhóm của biến thể hàng — CHỮ TRƠN, không nền, không viên pill.
  *
- * TRUNG TÍNH kể từ đợt đổi màu Finbox: nó KHÔNG còn mang tông của nhóm. Bản trước tô nó bằng
- * `--category-*` giống ô icon, nên mỗi thẻ có hai mảng màu và lưới 18 ô ở trang chủ thành 36
- * mảng — nửa còn lại của việc "loè" mà đợt ấy sửa (nửa kia là bảy tông, xem
- * `category-tone.module.css`). Ô icon giữ màu, nhãn nhóm nhường, vì nhãn chỉ lặp lại bằng chữ
- * đúng thông tin mà icon đã mang. Chữ vẫn đọc rõ: `--color-ink-soft` trên `--color-sunken`
- * đạt 6,59:1 (sáng) / 10,41:1 (tối).
+ * Ba bước cùng một hướng, ghi lại đủ để không ai đi ngược:
  *
- * `display: inline-flex` chứ không để nguyên khối: `.body` là block nên một `<div>` sẽ kéo hết bề
- * ngang, và badge pill dài bằng cả thẻ đọc ra là thanh trạng thái chứ không phải nhãn.
+ *   1. Đợt đổi màu Finbox bỏ tông nhóm (`--category-*`) khỏi nhãn — mỗi thẻ khi ấy có hai mảng
+ *      màu, lưới 18 ô ở trang chủ thành 36 mảng. Ô icon giữ màu, nhãn nhường.
+ *   2. Biến thể Ô (`.tileCategory`) bỏ nốt nền `--color-sunken`.
+ *   3. Đợt này biến thể HÀNG theo nốt — chủ dự án chốt 09/09/2026: *"bỏ màu nền biểu thị cho nhóm
+ *      công thức đi"*.
+ *
+ * Lý do vẫn là lý do cũ: nhãn chỉ lặp lại bằng chữ đúng thông tin mà ô icon đã mang, nên cho nó
+ * một mảng nền là dựng một khối thị giác cho thứ ít quan trọng nhất trong thẻ.
+ *
+ * Bỏ nền thì mốc tương phản đổi theo: nay là `--color-ink-soft` trên `--color-surface`, đạt 8,03:1
+ * (sáng) / 7,74:1 (tối) — rộng hơn cả mức cũ trên nền chìm (6,59:1 / 10,41:1 sáng/tối).
+ *
+ * Đệm ngang phải đi CÙNG cái nền. Còn nền thì 8px đệm là hình khối của viên pill; hết nền thì đúng
+ * 8px ấy thụt chữ vào so với dòng mô tả ngay trên, và mắt đọc ra một dòng bị lệch chứ không đọc ra
+ * khoảng thở. `margin-top` giữ nguyên vì nó là khoảng cách giữa hai dòng, không phải hình khối.
+ *
+ * `display: inline-flex` + `justify-self: start` VẪN cần dù đã hết nền: `.body` là lưới nên item
+ * mặc định kéo hết bề ngang, và `text-overflow: ellipsis` sẽ cắt theo cả ô thay vì theo độ dài chữ.
  */
 .category {
   /* Cùng lý do với `.description`: bắt đầu từ mép trái thẻ, không chừa cột icon. */
@@ -147,13 +158,10 @@
   max-width: 100%;
 
   margin-top: var(--space-2);
-  padding: 1px var(--space-2);
 
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
-  background: var(--color-sunken);
-  border-radius: var(--radius-pill);
 
   overflow: hidden;
   white-space: nowrap;

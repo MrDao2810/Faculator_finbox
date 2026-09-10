@@ -1,5 +1,5 @@
 import { DEFAULT_LIST_PARAMS, FORMULA_SUMMARIES, selectFormulas, t } from '@/application';
-import { FormulaCard } from '@/ui/browse';
+import { FormulaCard, SEGMENT_LABEL_KEYS } from '@/ui/browse';
 
 import styles from './StaticFormulaList.module.css';
 
@@ -29,8 +29,15 @@ export function StaticFormulaList() {
 
   return (
     <div className={styles.static}>
+      {/*
+        Cùng câu với `FormulaBrowser` — "Tất cả · 111 công thức", không phải "111 công thức" trơn.
+
+        Tên mảng lấy qua `SEGMENT_LABEL_KEYS[DEFAULT_LIST_PARAMS.segment]` chứ không viết thẳng
+        'filter.segment.all': bản tĩnh này dựng danh sách bằng chính `DEFAULT_LIST_PARAMS`, nên nếu
+        mặc định ấy đổi thì tên mảng phải đổi theo, không được nói một đằng dựng một nẻo.
+      */}
       <p className={styles.count}>
-        {formulas.length} {t('list.count')}
+        {t(SEGMENT_LABEL_KEYS[DEFAULT_LIST_PARAMS.segment])} · {formulas.length} {t('list.count')}
       </p>
 
       <ul className={styles.list} aria-label={t('list.label')}>

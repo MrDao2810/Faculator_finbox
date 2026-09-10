@@ -26,6 +26,16 @@ export interface BackLinkProps {
    * Tắt ở màn có đường ra riêng, ví dụ bảng dữ liệu WF-05 mở từ một trang công thức.
    */
   rememberOrigin?: boolean;
+  /**
+   * Nhãn dạng CHỮ SẴN, thay cho `labelKey` — dùng khi tên của đích không phải một khoá i18n mà là
+   * dữ liệu, ví dụ tên công thức vừa mở bảng dữ liệu ("‹ P/E — hệ số giá trên lợi nhuận").
+   *
+   * Chỉ có hiệu lực khi đích ĐÚNG LÀ `fallbackHref`. Nhớ được một màn gốc khác thì nhãn phải đi
+   * theo màn ấy, không thì nút gọi tên một nơi rồi dẫn tới nơi khác — đúng thứ quyết định (3)
+   * trong docblock dưới đây cấm. Nơi gọi vẫn phải truyền `labelKey`, vì nó là đường lui khi chuỗi
+   * này vắng mặt.
+   */
+  label?: string;
 }
 
 /**
@@ -70,6 +80,7 @@ export function BackLink({
   fallbackHref = ROUTES.formulas,
   labelKey = 'nav.backToList',
   rememberOrigin = true,
+  label,
 }: BackLinkProps) {
   const t = useT();
   /*
@@ -80,6 +91,13 @@ export function BackLink({
    * còn việc component có mặt trên màn thì không nói lên điều gì.
    */
   const target = useBackTarget(fallbackHref, labelKey, rememberOrigin);
+
+  /*
+   * Chữ sẵn chỉ thắng khi đích vẫn là `fallbackHref`. Đọc được một màn gốc khác thì `target` đã
+   * đổi cả `href` lẫn `labelKey` cùng lúc, và một cái tên công thức dán lên đường về trang chủ là
+   * đúng kiểu "nói sai chứ không phải không nói" mà quyết định (3) dưới đây tồn tại để chặn.
+   */
+  const text = label !== undefined && target.href === fallbackHref ? label : t(target.labelKey);
 
   return (
     <Link className={styles.back} href={target.href} onClick={target.markReturning}>
@@ -98,7 +116,7 @@ export function BackLink({
       >
         <path d="M15 5 8 12l7 7" />
       </svg>
-      <span>{t(target.labelKey)}</span>
+      <span className={styles.text}>{text}</span>
     </Link>
   );
 }

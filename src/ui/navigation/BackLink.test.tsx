@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { ORIGIN_KEY, ORIGIN_PREV_KEY, ORIGIN_RESTORE_KEY } from '@/application';
@@ -162,6 +163,109 @@ describe('BackLink — đường ra của các màn trong', () => {
 
     const svg = container.querySelector('svg');
     expect(svg?.getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+/*
+ * Lỗi chủ dự án báo, nguyên văn đường đi: "vừa click vào button Mở bảng dữ liệu thì chuyển sang
+ * trang mới nhưng từ bên mới đó click vào button quay lại thì thay vì về trang chi tiết của công
+ * thức đó thì nó lại về phần Công thức".
+ *
+ * Nguyên nhân KHÔNG nằm ở `?from=` — cơ chế ấy đã đúng từ đầu. Nó nằm ở chỗ `useBackTarget` giữ
+ * đích trong `useState` khởi tạo từ tham số: giá trị khởi tạo chỉ chạy ở lần GẮN đầu, mà điều
+ * hướng bằng `next/link` thì React giữ nguyên instance `<BackLink>` ở cùng chỗ trong cây. Màn bảng
+ * dữ liệu lại truyền `rememberOrigin: false`, nên effect thoát ngay dòng đầu và không bao giờ ghi
+ * đè state cũ.
+ *
+ * Mọi ca kiểm phía trên đều render MỚI nên không ca nào chạm tới được lỗi này — phải `rerender`.
+ */
+describe('BackLink — đổi màn mà không tháo component', () => {
+  /** Đứng ở trang chi tiết rồi sang bảng dữ liệu, đúng cặp tham số hai màn ấy truyền vào. */
+  function moBangDuLieu(view: RenderResult): void {
+    dungO('/du-lieu/?from=pe');
+    view.rerender(
+      <BackLink
+        fallbackHref="/cong-thuc/pe/"
+        labelKey="nav.backToFormula"
+        rememberOrigin={false}
+      />,
+    );
+  }
+
+  it('sang bảng dữ liệu thì quay về ĐÚNG công thức, không về danh sách', () => {
+    const view = render(<BackLink />);
+    expect(hrefOf()).toBe('/cong-thuc');
+
+    moBangDuLieu(view);
+
+    expect(hrefOf()).toBe('/cong-thuc/pe');
+  });
+
+  it('nhãn cũng phải đi theo, không đứng lại ở "Danh sách công thức"', () => {
+    const view = render(<BackLink />);
+    moBangDuLieu(view);
+
+    expect(screen.queryByRole('link', { name: 'Danh sách công thức' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Quay lại công thức' })).not.toBeNull();
+  });
+
+  /*
+   * Ca nặng hơn: màn trước đã NHỚ được một màn gốc, tức state không chỉ cũ mà còn khác hẳn tham số.
+   * Vào công thức từ trang chủ rồi mở bảng dữ liệu thì nút không được giữ đường về trang chủ.
+   */
+  it('màn gốc đã nhớ của màn trước cũng không được sống sót qua cú điều hướng', () => {
+    nho('/');
+    const view = render(<BackLink />);
+    expect(hrefOf('Trang chủ')).toBe('/');
+
+    moBangDuLieu(view);
+
+    expect(hrefOf()).toBe('/cong-thuc/pe');
+  });
+});
+
+/*
+ * Nhãn dạng CHỮ SẴN — chủ dự án chốt: *"thay vì hiển thị Danh sách công thức thì hiển thị tên của
+ * loại công thức đó"*. Tên công thức là dữ liệu, không phải khoá i18n, nên nó vào bằng `label`.
+ */
+describe('BackLink — nhãn là tên công thức, không phải một khoá', () => {
+  it('gọi đúng tên thay vì nói trống không "Quay lại công thức"', () => {
+    dungO('/du-lieu/?from=pe');
+    render(
+      <BackLink
+        fallbackHref="/cong-thuc/pe/"
+        labelKey="nav.backToFormula"
+        rememberOrigin={false}
+        label="P/E — hệ số giá trên lợi nhuận"
+      />,
+    );
+
+    expect(hrefOf('P/E — hệ số giá trên lợi nhuận')).toBe('/cong-thuc/pe');
+  });
+
+  it('thiếu chữ sẵn thì lùi về khoá — mở thẳng URL vẫn có nhãn tử tế', () => {
+    dungO('/du-lieu/?from=pe');
+    render(
+      <BackLink
+        fallbackHref="/cong-thuc/pe/"
+        labelKey="nav.backToFormula"
+        rememberOrigin={false}
+      />,
+    );
+
+    expect(hrefOf('Quay lại công thức')).toBe('/cong-thuc/pe');
+  });
+
+  /*
+   * Quyết định (3) — nhãn phải NÓI ĐÚNG đích. Nhớ được một màn gốc thì đích đổi, nên cái tên công
+   * thức không được dán lên đó: nút sẽ gọi tên một nơi rồi dẫn tới nơi khác.
+   */
+  it('đích đổi sang màn gốc thì chữ sẵn bị bỏ, nhãn đi theo đích', () => {
+    nho('/');
+    render(<BackLink label="P/E — hệ số giá trên lợi nhuận" />);
+
+    expect(hrefOf('Trang chủ')).toBe('/');
+    expect(screen.queryByText('P/E — hệ số giá trên lợi nhuận')).toBeNull();
   });
 });
 

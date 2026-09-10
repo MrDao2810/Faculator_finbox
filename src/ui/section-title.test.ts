@@ -49,6 +49,25 @@ const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> 
   ['ui/screens/XirrBody.module.css', 'blockTitle'],
 ];
 
+/**
+ * Tiêu đề khối được phép mang MÀU NHẤN — ngoại lệ có tên, không phải lỗ hổng.
+ *
+ * Luật gốc ("xanh dành cho hành động và cho khối Kết quả") vẫn đứng, và `EXPECTED.color` vẫn buộc
+ * mọi lớp trong `SECTION_TITLES` khai `--color-ink`. Ngoại lệ đi bằng một lớp CHỒNG LÊN, nên bốn
+ * thuộc tính còn lại vẫn khai một chỗ và vẫn bị gác.
+ *
+ * Ghim thành bảng chứ không bỏ qua: một lớp bổ sung màu là cách đơn giản nhất để lách hai ca kiểm
+ * bên dưới mà chúng không hay biết. Ai thêm một tiêu đề khối màu nhấn thì phải khai vào đây, và lúc
+ * ấy sẽ đọc đúng lý do vì sao cái đang có được phép.
+ */
+const NGOAI_LE_MAU_NHAN: ReadonlyArray<readonly [file: string, className: string, lyDo: string]> = [
+  [
+    'app/page.module.css',
+    'blockTitleAccent',
+    'Dòng "Duyệt theo nhóm · 111 công thức" là MỘT câu liền: tên khối và con số đọc nối nhau. Chủ dự án chốt 09/09/2026 cho cả dòng một màu, thay vì hai màu như bản vẽ Figma cũ.',
+  ],
+];
+
 /** Cắt đúng thân luật của một lớp, bỏ chú thích để `color:` trong docblock không lọt vào. */
 function ruleBody(css: string, className: string): string | null {
   const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -76,6 +95,32 @@ describe('Tiêu đề khối — một kiểu duy nhất', () => {
       const body = ruleBody(readFileSync(join(SRC_DIR, file), 'utf8'), className) ?? '';
 
       expect(body, `${file} .${className}`).not.toMatch(/color:\s*var\(--color-accent\)/);
+    }
+  });
+});
+
+describe('Ngoại lệ màu nhấn — có tên và có lý do', () => {
+  /*
+   * Ngoại lệ phải là lớp CHỒNG LÊN, tức nó chỉ được khai đúng `color`. Khai thêm cỡ chữ hay độ đậm
+   * ở đây là dựng một kiểu tiêu đề thứ hai bằng cửa sau, đúng thứ cả file này tồn tại để chặn.
+   */
+  it.each(NGOAI_LE_MAU_NHAN)('%s .%s chỉ đổi màu, không đổi gì khác', (file, className) => {
+    const body = ruleBody(readFileSync(join(SRC_DIR, file), 'utf8'), className);
+
+    expect(body, `không tìm thấy luật .${className} trong ${file}`).not.toBeNull();
+    expect(body ?? '').toMatch(/color:\s*var\(--color-accent\)\s*;/);
+
+    for (const property of Object.keys(EXPECTED)) {
+      if (property === 'color') continue;
+      expect(body ?? '', `${file} .${className} — không được khai lại ${property}`).not.toMatch(
+        new RegExp(`${property}\\s*:`),
+      );
+    }
+  });
+
+  it('mỗi ngoại lệ đều có lý do viết ra, không để trống cho qua', () => {
+    for (const [file, className, lyDo] of NGOAI_LE_MAU_NHAN) {
+      expect(lyDo.length, `${file} .${className}`).toBeGreaterThan(40);
     }
   });
 });

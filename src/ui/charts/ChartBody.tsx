@@ -8,7 +8,6 @@ import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
 import { ApplyHint } from './ApplyHint';
-import type { ApplyHintState } from './ApplyHint';
 import { ChartFrame } from './ChartFrame';
 import { ChartFullscreen } from './ChartFullscreen';
 import { ChartKindToggle } from './ChartKindToggle';
@@ -191,32 +190,31 @@ export function ChartBody({
     lockedKeys?.has(model.sweepKey) !== true;
 
   /*
-   * Dòng gợi ý về lối bấm-áp-dụng — BA trạng thái, không phải một cờ bật/tắt.
+   * Có dựng dòng "trục đang là thời gian nên bấm không ghi được gì" không.
    *
-   * Bản trước chỉ nói khi tính năng KHÔNG dùng được ("trục đang là thời gian…"), nên người dùng làm
-   * đúng theo lời khuyên, đổi trục, rồi câu ấy biến mất và không còn dấu hiệu nào cho biết giờ bấm
-   * được. Lối tương tác duy nhất của biểu đồ tự giấu mình đi đúng lúc nó bắt đầu chạy.
+   * Ba điều kiện, đọc từ trên xuống là ba lý do im lặng:
    *
-   *   - `'ready'`  — trục X đang là một biến thật: nói thẳng là bấm được.
-   *   - `'switch'` — đang ở trục thời gian nhưng có biến khác đổi sang được: chỉ đường như cũ.
-   *   - `null`     — tính năng không bật ở màn này (`onApplyPoint` vắng), hoặc không trục nào áp
-   *                  dụng được, nên không có gì để mời cũng không có gì để chỉ.
+   *   - biểu đồ không phải dạng đường, hoặc tính năng không bật ở màn này (`onApplyPoint` vắng)
+   *     — không có gì để chỉ;
+   *   - trục X ĐANG là một biến thật (`canApplyPoint`) — bấm ăn ngay, không có gì để giải thích;
+   *   - không trục nào đổi sang mà bấm được — chỉ đường tới một chỗ không tồn tại thì tệ hơn im.
+   *
+   * Trước đây đây là ba TRẠNG THÁI, vì còn một câu khẳng định "bấm vào biểu đồ để áp dụng…" cho
+   * nhánh giữa. Chủ dự án chốt bỏ câu ấy (xem docblock `ApplyHint`), nên nhánh giữa thành im lặng
+   * và cả cụm rút về một cờ bật/tắt.
    *
    * Tính MỘT lần ở đây rồi truyền cả hai bản (trên trang và phóng to), để câu trả lời cho "khi nào
-   * nói gì" chỉ sống ở một chỗ.
+   * nói" chỉ sống ở một chỗ.
    */
-  const applyHint: ApplyHintState | null =
-    model.kind !== 'line' || onApplyPoint === undefined
-      ? null
-      : canApplyPoint
-        ? 'ready'
-        : model.options.some(
-              (option) =>
-                formula.spec.variables.some((v) => v.key === option.key) &&
-                lockedKeys?.has(option.key) !== true,
-            )
-          ? 'switch'
-          : null;
+  const chiDuongDoiTruc: boolean =
+    model.kind === 'line' &&
+    onApplyPoint !== undefined &&
+    !canApplyPoint &&
+    model.options.some(
+      (option) =>
+        formula.spec.variables.some((v) => v.key === option.key) &&
+        lockedKeys?.has(option.key) !== true,
+    );
 
   /*
    * Gốc của mọi `id` trong cây biểu đồ — sinh từ prop, KHÔNG từ `useId()`.
@@ -326,7 +324,7 @@ export function ChartBody({
               variant={variant}
               onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
             />
-            {applyHint !== null && <ApplyHint state={applyHint} />}
+            {chiDuongDoiTruc && <ApplyHint />}
           </>
         )}
       </ChartFrame>
@@ -341,7 +339,7 @@ export function ChartBody({
           idBase={`${idBase}-full`}
           controls={pickerVoi(`${idBase}-full`)}
           onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
-          applyHint={applyHint}
+          axisHint={chiDuongDoiTruc}
           variant={variant}
         />
       ) : null}

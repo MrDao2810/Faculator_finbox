@@ -202,19 +202,25 @@ describe('PresetSheet — WF-10', () => {
   /** Hình dạng "không có công thức nào" — đúng thứ màn bảng dữ liệu WF-05 truyền vào. */
   const noFormula = defaultPresetPicks();
 
-  it('liệt kê bốn mã mẫu và nói rõ phần nào của số liệu là tự dựng', () => {
+  it('liệt kê bốn mã mẫu', () => {
     render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
 
     expect(screen.getByText('FPT')).not.toBeNull();
     expect(screen.getByText(/Hòa Phát/)).not.toBeNull();
-    // Nhãn phải nói ĐÚNG nửa nào là số tự dựng: fundamentals và thị giá là số thật từ Finbox.
-    expect(screen.getByText(/đường đi của giá thì không/)).not.toBeNull();
   });
 
-  it('hứa rõ với người dùng là nạp xong vẫn sửa được — FR-10', () => {
-    render(<PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={noFormula} />);
-    expect(screen.getByText(/ô nào mã có số thì vẫn sửa được/)).not.toBeNull();
-  });
+  /*
+   * ── Hai ca kiểm đã GỠ, ghi lại để không ai dựng lại mà không biết đã đổi gì ─────────────────
+   *
+   * Ca "nói rõ phần nào của số liệu là tự dựng" gác khối vàng `preset.draftTitle`/`draftDetail`,
+   * và ca "hứa rõ nạp xong vẫn sửa được — FR-10" gác câu chân sheet `preset.editableAfterLoad`.
+   * Chủ dự án chốt gỡ cả hai câu ngày 09/09/2026.
+   *
+   * Giữ lại ca kiểm cho một câu đã bỏ thì nó đỏ mãi; đổi nó thành "câu ấy KHÔNG còn" thì nó gác
+   * một điều không ai định làm lại. Nên gỡ, và ca kiểm thật sự còn giá trị nằm ở chỗ khác:
+   * `samples.ts` vẫn `isDraft` (ba ca ghim cờ ấy) và `preset.draftExport` vẫn đính vào file xuất
+   * (`export-content` có ca riêng). Lời hứa FR-10 nay do hành vi giữ, không do một câu chữ.
+   */
 
   /*
    * ── Bốn dòng phải KHÁC NHAU ────────────────────────────────────────────────────────────
@@ -260,6 +266,42 @@ describe('PresetSheet — WF-10', () => {
     for (let i = 1; i < values.length; i += 1) {
       expect(values[i] ?? 0).toBeGreaterThan(values[i - 1] ?? 0);
     }
+  });
+
+  /*
+   * ── Nhãn "Mẫu ưu tiên" chỉ đúng ở nhánh CÓ xếp hạng ────────────────────────────────────────
+   *
+   * Chỉ ở đó `pickPresetsFor()` mới chạy thật công thức với từng mã rồi trải bốn mã trên biên độ
+   * kết quả. Nhánh kia bốn mã là bộ WF-10 theo thứ tự kho, và nhãn ấy đặt ngay trên câu "bốn mã
+   * dưới đây không đổi được ô nào của công thức này" là hai dòng cãi nhau trong một màn.
+   */
+  it('gọi tên bốn dòng là mẫu ưu tiên — và chỉ khi chúng thật sự chọn theo công thức', () => {
+    const pe = findFormulaModule('pe');
+    const laiKep = findFormulaModule('lai-kep');
+    if (pe === undefined || laiKep === undefined) throw new Error('Thiếu công thức để dựng ca.');
+
+    const coXepHang = render(
+      <PresetSheet
+        open
+        onClose={vi.fn()}
+        onLoad={vi.fn()}
+        picks={pickPresetsFor(pe, SAMPLE_DATA.list(), { asOf: '2026-09-07' })}
+        spec={pe.spec}
+      />,
+    );
+    expect(screen.getByText(/Mẫu ưu tiên/)).not.toBeNull();
+    coXepHang.unmount();
+
+    render(
+      <PresetSheet
+        open
+        onClose={vi.fn()}
+        onLoad={vi.fn()}
+        picks={pickPresetsFor(laiKep, SAMPLE_DATA.list(), { asOf: '2026-09-07' })}
+        spec={laiKep.spec}
+      />,
+    );
+    expect(screen.queryByText(/Mẫu ưu tiên/)).toBeNull();
   });
 
   it('công thức không dùng số liệu của mã nào thì nói thẳng, không bịa ra thứ hạng', () => {
@@ -312,7 +354,10 @@ describe('PresetSheet — WF-10', () => {
     }
   });
 
-  it('mở sẵn lối sang kho mã toàn thị trường, và nói rõ nó chỉ có một phiên giá', async () => {
+  /* Vế "và nói rõ nó chỉ có một phiên giá" đã rời ca này cùng `preset.browseMarketNote` — gỡ theo
+     yêu cầu chủ dự án. Phần còn lại của ca vẫn nguyên giá trị: lối sang kho lớn phải mở đúng chỗ,
+     và sheet mẫu phải đóng trước khi sheet kia mở. */
+  it('mở sẵn lối sang kho mã toàn thị trường', async () => {
     const onClose = vi.fn();
     const onBrowseMarket = vi.fn();
     render(
@@ -324,8 +369,6 @@ describe('PresetSheet — WF-10', () => {
         onBrowseMarket={onBrowseMarket}
       />,
     );
-
-    expect(screen.getByText(/chỉ có MỘT phiên giá/)).not.toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: /toàn thị trường/ }));
 

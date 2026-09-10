@@ -17,22 +17,25 @@
 }
 
 /*
- * Dòng "Tất cả 111 công thức" — chủ dự án chốt: to hơn một bậc, và màu chữ chính.
+ * Dòng "Tất cả · 111 công thức" — to hơn một bậc, và MÀU NHẤN.
  *
  * `--text-base` là bậc kế tiếp của thang (12 · 14 · 16), không có nấc nào ở giữa để nhích nhẹ hơn.
  *
- * `--color-ink` #1a2233 là bậc mực THẪM NHẤT của bảng màu — không có token đen tuyền, và CSS
- * Module thì không được viết thẳng mã màu (`tokens.test.ts` quét cả thư mục). Đây cũng là màu mà
- * tên công thức trên mỗi thẻ đang dùng, nên dòng đếm nay đứng ngang hàng với chúng thay vì lùi
- * xuống một bậc như chữ phụ.
+ * Màu đã đổi HAI lần trong cùng ngày 09/09/2026 và cả hai đều là quyết định của chủ dự án: chữ phụ
+ * (`--color-ink-soft`) → mực (`--color-ink`) → màu nhấn. Chốt cuối: *"đổi màu sang màu xanh dương
+ * đại diện của toàn app"*. Ghi cả đường đi ra đây để không ai "sửa lại cho đúng bậc mực" ở lượt sau.
  *
- * Dòng này từ chữ phụ thành chữ chính là có chủ ý: nó không còn chỉ là con số kết quả, nó là câu
- * nói ra người dùng đang đứng ở mảng nào.
+ * Đi cùng cặp với dòng "Duyệt theo nhóm · 111 công thức" ở trang chủ, đổi màu cùng ngày và cùng lý
+ * do: cặp "tên · số đếm" là một câu, và câu ấy nay mang màu của sản phẩm.
+ *
+ * ⚠ `StaticFormulaList.module.css` phải khai Y HỆT ba dòng này. Nó là bản dựng sẵn trong HTML tĩnh
+ * và bị thay chỗ ngay khi hydrate xong, nên lệch nhau là người dùng thấy dòng chữ đổi cỡ và đổi màu
+ * ngay trước mắt. Hai file đã trôi khỏi nhau một lần đúng vì lượt đổi màu trước bỏ sót chỗ đó.
  */
 .count {
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
-  color: var(--color-ink);
+  color: var(--color-accent);
 }
 
 .list {

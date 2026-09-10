@@ -32,13 +32,14 @@
    * padding của button bên trong với bên ngoài đi 1 nửa"*.
    *
    * Con số này KHÔNG lấy từ thang `--space-*` (bậc nhỏ nhất đã là 4px), và đó không phải chỗ
-   * lách luật: ba cụm chọn-một khác của sản phẩm đều đã dựng đúng `padding: 2px` +
-   * `--radius-md` cho khung — `ButtonGroup`, `UnitSwitcher`, `ChartKindToggle`. Nay cụm tab về
-   * đúng khuôn ấy thay vì tự đặt một mức riêng.
+   * lách luật: ba cụm chọn-một khác của sản phẩm đều đã dựng đúng `padding: 2px` cho khung —
+   * `ButtonGroup`, `UnitSwitcher`, `ChartKindToggle`. Nay cụm tab về đúng khuôn ấy thay vì tự đặt
+   * một mức riêng.
    *
-   * Còn bo góc thì cụm này đi khác ba cụm kia cả trong lẫn ngoài: chúng dùng `--radius-md` cho
-   * khung và `--radius-sm` bên trong, ở đây là MỘT số 8px cho cả hai — chủ dự án chốt "cùng số
-   * liệu". Xem chỗ khai ngay dưới và ở `.tab`.
+   * Còn bo góc: `ButtonGroup` và `UnitSwitcher` dùng `--radius-md` cho khung và `--radius-sm` bên
+   * trong; ở đây là MỘT số 8px cho cả hai — chủ dự án chốt "cùng số liệu". `ChartKindToggle` từ
+   * 10/09/2026 cũng đi một số cho cả hai (5px), nút lấy vào bằng `inherit` đúng lối `.tab` bên
+   * dưới. Xem chỗ khai ngay dưới và ở `.tab`.
    *
    * 2px cũng là thứ nối hai chiều cao chủ dự án chốt: nút 36px + 2×2 = khay 40px.
    */

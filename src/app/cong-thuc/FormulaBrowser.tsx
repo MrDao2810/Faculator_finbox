@@ -174,18 +174,22 @@ export function FormulaBrowser() {
         className={styles.panel}
       >
         {/*
-          Mở đầu bằng TÊN MẢNG đang chọn — "Tất cả 111 công thức", "Chứng khoán 98 công thức".
+          Mở đầu bằng TÊN MẢNG đang chọn — "Tất cả · 111 công thức", "Chứng khoán · 98 công thức".
 
           Trước chỉ có "111 công thức", đứng một mình dưới cụm tab thì trông trống và không nói
           nó đang đếm cái gì. Tên mảng lấy từ `SEGMENT_LABEL_KEYS`, đúng bảng mà ba tab đang đọc,
           nên dòng này và tab đang chọn không bao giờ gọi khác tên nhau.
+
+          Dấu `·` là ký tự THẬT trong JSX, không phải `gap` hay `::before`: nó phải đi vào cả chuỗi
+          mà `aria-live` đọc lên. Cùng khuôn với dòng "Duyệt theo nhóm · 111 công thức" ở trang chủ
+          và với `<h3>` của từng mảng — ba chỗ cùng bày một cặp "tên · số đếm".
 
           ⚠ Con số vẫn là số công thức khớp TOÀN BỘ bộ lọc, không riêng mảng: chọn thêm một nhóm
           thì nó tụt xuống trong khi chữ "Chứng khoán" vẫn đứng đó. Đúng ý chủ dự án — dòng này
           nói "trong mảng này, còn bấy nhiêu" — nhưng đừng đọc nó thành sĩ số của mảng.
         */}
         <p className={styles.count} aria-live="polite">
-          {t(SEGMENT_LABEL_KEYS[params.segment])} {formulas.length} {t('list.count')}
+          {t(SEGMENT_LABEL_KEYS[params.segment])} · {formulas.length} {t('list.count')}
         </p>
 
         {/*

@@ -15,6 +15,20 @@
 }
 
 /*
+ * Trần bốn cột ở khổ PC — bản vẽ WF-01. Không có trần thì `auto-fill` chia tiếp theo khung: đo ở
+ * 1440 trước khi có luật này ra **bảy** cột thẻ rộng 150px, tức mô tả hai dòng của mỗi thẻ bị bóp
+ * thành ba, bốn dòng.
+ *
+ * ⚠ Chép Y HỆT sang `HomeSearchPanel.module.css` (`.cards` của khối kết quả tìm) — hai file cố ý
+ * tách nhau nhưng phải giữ chung DIỆN MẠO; xem chú thích ở đầu khối `.resultsBlock` bên ấy.
+ */
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/*
  * Dòng nói ra việc khối vừa được sắp lại theo lịch sử.
  *
  * Nằm DƯỚI lưới chứ không trên: nó chỉ xuất hiện sau khi hydrate, nên đặt trên là đẩy cả 18 ô

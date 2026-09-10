@@ -1811,33 +1811,25 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
   });
 
   /*
-   * ── Ba tín hiệu cho biết "bấm được ngay bây giờ" ───────────────────────────────────────────
+   * ── Trục bấm được thì màn hình KHÔNG nói gì ────────────────────────────────────────────────
    *
-   * Bối cảnh: tính năng bấm-áp-dụng chạy đúng nhưng gần như không ai tìm ra, vì dấu hiệu DUY NHẤT
-   * là một câu chỉ hiện lúc tính năng KHÔNG dùng được. Làm theo lời khuyên của câu ấy — đổi trục —
-   * là câu ấy biến mất và màn hình im lặng hoàn toàn.
+   * Từng có một câu khẳng định ở đây ("Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập.") kèm ba
+   * ca kiểm gác nó. Chủ dự án chốt bỏ câu ấy, nên hai ca về dòng chữ đi theo — giữ lại một ca đỏ
+   * mãi mãi hoặc một ca kiểm điều ngược lại với chính nó thì tệ hơn là xoá.
    *
-   * Ba ca dưới gác ba tín hiệu thay thế, mỗi tín hiệu cho một kiểu người dùng: dòng chữ (mọi máy,
-   * kể cả cảm ứng không có hover), con trỏ chuột, và vạch dò bám con trỏ.
+   * Ca dưới gác phần CÒN LẠI đúng: dưới hình không còn dòng gợi ý nào khi trục đã bấm được. Nó
+   * cũng là ca chống dựng lại — thêm câu mời nào vào chỗ ấy là đỏ ngay.
+   *
+   * Hai tín hiệu còn lại của tính năng (con trỏ bàn tay, vạch dò bám con trỏ) có ca riêng ngay
+   * dưới và KHÔNG đổi: tính năng không bị gỡ, chỉ thôi tự giới thiệu bằng chữ.
    */
-  it('trục là biến số: nói thẳng rằng bấm được, không im lặng', () => {
-    gioKhungKhopViewBox();
-    drawVoiApply(vi.fn());
-
-    expect(screen.getByText(t('chart.applyHintReady'))).not.toBeNull();
-  });
-
-  /*
-   * Dòng chữ phải có mặt NGAY KHI DỰNG, không đợi một sự kiện con trỏ nào — đó chính là điều kiện
-   * để nó còn tác dụng trên máy cảm ứng, nơi không hề có hover. Ca này không bắn pointer event nào
-   * là cố ý: nó mô phỏng đúng một chiếc điện thoại vừa mở trang.
-   */
-  it('máy cảm ứng không có hover: dòng chữ vẫn hiện, vì nó không phụ thuộc rê chuột', () => {
+  it('trục là biến số: dưới hình không còn dòng gợi ý nào', () => {
     gioKhungKhopViewBox();
     const { container } = drawVoiApply(vi.fn());
 
-    expect(screen.getByText(t('chart.applyHintReady'))).not.toBeNull();
-    // Chưa rê gì nên chưa có vạch dò — đúng như trên máy cảm ứng.
+    expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
+    expect(container.querySelector('[class*="applyHint"]')).toBeNull();
+    // Chưa rê gì nên cũng chưa có vạch dò — đúng như trên máy cảm ứng vừa mở trang.
     expect(container.querySelector('[data-testid="chart-pe-hover"]')).toBeNull();
   });
 
@@ -1917,13 +1909,13 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(dau?.getAttribute('class')).toContain('marker');
   });
 
-  it.skip('bản phóng to nhận cùng dòng gợi ý khẳng định, không im lặng riêng', async () => {
+  /* Bỏ qua vì lối phóng to đang tắt (`PHONG_TO_BAT`), không phải vì ca này sai. */
+  it.skip('bản phóng to cũng mời bấm bằng con trỏ, không câm lặng riêng', async () => {
     gioKhungKhopViewBox();
     drawVoiApply(vi.fn());
 
     await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
 
-    expect(screen.getAllByText(t('chart.applyHintReady'))).toHaveLength(2);
     expect(screen.getByTestId('chart-pe-full-hover-capture').getAttribute('class')).toContain(
       'hoverCaptureReady',
     );
@@ -2384,7 +2376,7 @@ describe.skip('Nút Back của hệ thống — đóng lớp phủ, không rời
 });
 
 /*
- * Lối vẽ CỘT — nút "Kiểu hình" (Đường / Cột).
+ * Lối vẽ CỘT — nhóm nút "Loại biểu đồ" (Đường / Cột).
  *
  * Điều đáng gác ở đây KHÔNG phải chuyện vẽ ra được hình cột, mà là ba lời hứa quanh nó, cả ba đều
  * hỏng lặng lẽ nếu không có test:
@@ -2394,7 +2386,7 @@ describe.skip('Nút Back của hệ thống — đóng lớp phủ, không rời
  *   2. Đổi lối vẽ KHÔNG được đổi dữ liệu. Bảng số phải nói y nguyên những con số cũ.
  *   3. Nút chỉ hiện ở chỗ nó có nghĩa — không hiện trên thác nước (vốn đã là cột, ý nghĩa khác).
  */
-describe('Kiểu hình — đổi giữa Đường và Cột', () => {
+describe('Loại biểu đồ — đổi giữa Đường và Cột', () => {
   /** Bấm sang lối cột trên biểu đồ đang hiện. */
   async function bamCot() {
     await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
@@ -2447,7 +2439,7 @@ describe('Kiểu hình — đổi giữa Đường và Cột', () => {
   });
 
   /* Lời hứa 3: thác nước vốn đã là cột, hỏi thêm "muốn cột không" là câu vô nghĩa. */
-  it('thác nước KHÔNG có nút Kiểu hình', () => {
+  it('thác nước KHÔNG có nhóm nút Loại biểu đồ', () => {
     draw('ev');
 
     expect(screen.queryByRole('button', { name: 'Cột' })).toBeNull();

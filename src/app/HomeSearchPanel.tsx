@@ -198,14 +198,23 @@ export function HomeSearchPanel({ children }: HomeSearchPanelProps) {
 
   return (
     <div className={styles.panel}>
-      <SearchBox
-        inputRef={inputRef}
-        value={params.q}
-        onChange={(q) => {
-          setParams((current) => ({ ...current, q }));
-        }}
-        onCancel={reset}
-      />
+      {/*
+        Bọc để hãm bề ngang ô tìm ở khổ PC (bản vẽ WF-01 vẽ nó rộng ~510px, không trải hết hàng).
+
+        Bọc ở đây chứ không thêm `className` cho `SearchBox`: primitive ấy còn dùng ở màn tìm WF-09,
+        nơi nó PHẢI trải hết. Một prop bề ngang trên primitive là mời gọi mỗi nơi đặt một con số
+        khác; một bọc ở đúng màn cần hãm thì không đi đâu được.
+      */}
+      <div className={styles.searchSlot}>
+        <SearchBox
+          inputRef={inputRef}
+          value={params.q}
+          onChange={(q) => {
+            setParams((current) => ({ ...current, q }));
+          }}
+          onCancel={reset}
+        />
+      </div>
 
       {/*
         Hàng chip đứng NGAY DƯỚI ô tìm và chỉ ở trạng thái nhàn — đúng chỗ bản thiết kế đặt nó.

@@ -12,6 +12,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 import {
   ACTIVE_TICKER_KEY,
   FORMULA_MODULES,
+  FORMULA_ORIGIN_KEY,
   FORMULA_USAGE_KEY,
   INPUT_DRAFT_KEY,
   MARKET_CONFIG,
@@ -32,6 +33,7 @@ import {
   draftFor,
   emptyCashflowRow,
   findFormulaModule,
+  formulaOriginToStore,
   formatIsoDate,
   formatValueWithUnit,
   hasDraftData,
@@ -76,7 +78,7 @@ import type {
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { useCalcText, useValueText } from '@/ui/i18n/units';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
-import { Button } from '@/ui/primitives';
+import { Badge, Button } from '@/ui/primitives';
 import {
   ConstantsNote,
   ErrorState,
@@ -1727,12 +1729,18 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
             `{' '}` là khoảng trắng THẬT, không phải `gap`: nó vừa tạo khe, vừa là chỗ trình duyệt
             được phép ngắt dòng. Thay bằng `margin-left` thì huy hiệu dính liền chữ khi cùng dòng.
+
+            Huy hiệu nay là primitive `Badge`, không còn là `<span>` tự tạo kiểu. Đợt đổ nền
+            xanh/cam (09/09/2026) buộc phải chọn: bản riêng của màn này vốn xám cho CẢ HAI cấp độ,
+            nên giữ nó lại là cùng một chữ "Cơ bản" đọc ra hai thứ khác hẳn khi đi từ danh sách
+            sang đây. `.level` teo lại còn đúng phần ĐẶT CHỖ trong dòng chữ — thứ riêng của màn này
+            và không thuộc về primitive.
           */}
           <div className={styles.titleGroup}>
             <h1 className={styles.title}>{pick(spec.name)}</h1>{' '}
-            <span className={styles.level}>
+            <Badge tone={spec.level === 'basic' ? 'basic' : 'advanced'} className={styles.level}>
               {t(spec.level === 'basic' ? 'level.basic' : 'level.advanced')}
-            </span>
+            </Badge>
           </div>
 
           {/*
@@ -1860,32 +1868,13 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         )}
 
         {/*
-          Mã đang theo người dùng qua các công thức trong lượt duyệt này.
+          Thanh mã đã RỜI khỏi đây — nay nằm ngay dưới hàng nút của khối Công thức.
 
-          Thanh này là ĐIỀU KIỆN để việc tự nạp không thành một bất ngờ: ô nhập vừa được điền bằng
-          số của một mã mà người dùng không bấm gì ở màn này cả, nên màn phải gọi tên mã ấy ra và
-          đưa sẵn đường thoát. Cùng luật mà thị giá đã lưu ở tab Danh mục đang chịu.
+          Chủ dự án: *"khi vừa nạp mã thông qua button nạp mẫu thì đang hiển thị vị trí của thông
+          báo nạp sai chỗ"*. Đúng: nút "Nạp mẫu" đã xuống khối Công thức từ đợt trước, còn thanh
+          báo kết quả của nó thì vẫn ở cuối `<header>` — cách chỗ vừa bấm hai khối, tức trên điện
+          thoại là ngoài tầm mắt.
         */}
-        {presetHelps && stickyTicker !== null && (
-          <p className={styles.tickerBar} role="status">
-            <span className={styles.tickerCode}>{stickyTicker}</span>
-            <span className={styles.tickerText}>{t('detail.tickerSticky')}</span>
-
-            {/* Bọc trong hàm: `onClick` truyền sự kiện chuột vào tham số `fromPreset`. */}
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                openTickerPicker();
-              }}
-            >
-              {t('detail.tickerChange')}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={resetAll}>
-              {t('detail.tickerClear')}
-            </Button>
-          </p>
-        )}
       </header>
 
       {/* ── 2. Ý nghĩa ───────────────────────────────────────────────────── */}
@@ -1895,7 +1884,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       </section>
 
       {/* ── 3. Công thức — ký hiệu toán học (gói 2.4.3) rồi tới bản dạng chữ ─ */}
-      <section className={styles.block}>
+      <section className={`${styles.block} ${styles.blockFormula}`}>
         {/*
           Hàng nút "Nạp mẫu" / "Xem ví dụ thực tế ↓" nay đi CHUNG hàng với tiêu đề khối, không còn
           đứng thành một hàng riêng ngay dưới tên công thức.
@@ -1956,22 +1945,51 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         </div>
 
         {/*
-          Hai dải dưới đây là CÂU TRẢ LỜI của nút "Nạp mẫu", nên chúng theo nút xuống đây chứ không
-          ở lại header. Để nút ở khối này mà lời đáp nằm cách hai khối phía trên thì ở khổ điện
-          thoại người bấm không nhìn thấy lời đáp — đúng lỗi "bấm Nạp xong không ô nào đổi mà màn
-          không nói gì" đã sửa một lần rồi.
+          ── MỘT thanh trạng thái cho mã, đặt ngay dưới nút đã gây ra nó ──────────────────────────
 
-          Ba dải còn lại (`liveTicker`, `restored`, thanh mã dính) KHÔNG theo xuống: chúng trả lời
-          `?ma=`, `?luu=` và mã đang bám theo lượt duyệt — không nút nào ở hàng trên gây ra chúng.
+          Trước đợt này việc "đang dùng mã HPG" được nói ở BA chỗ cùng lúc: nhãn nút ("Đã nạp HPG"),
+          thanh mã ở cuối `<header>` cách đó hai khối, và một dòng văn dài kể tên EPS / giá trị sổ
+          sách / số CP kèm ngày đối chiếu. Chủ dự án chốt: *"thông báo này đang thừa và cần thay đổi
+          sao phù hợp với thiết kế mới"*.
+
+          Nay gộp còn một: thanh mã xuống đây, và ngày đối chiếu thành một mẩu chữ trong chính nó.
+          Dòng văn dài bỏ hẳn — nó chỉ thêm được đúng cái ngày, còn danh sách tên trường thì đã nằm
+          ngay dưới, trên chính những ô vừa được điền.
+
+          `presetHelps && stickyTicker !== null` giữ nguyên như khi thanh này còn ở header: nó phải
+          hiện cả khi mã tự bám theo lượt duyệt chứ người dùng không bấm gì ở màn này — đó là điều
+          kiện để việc tự nạp không thành một bất ngờ.
+
+          Ngày chỉ hiện khi `loadedFundamentalsAsOf` có: mã bám theo lượt duyệt mà chưa nạp được ô
+          nào thì không có mốc nào để nói.
         */}
-        {/*
-          Trả lời câu "số liệu mẫu bắt đầu từ đâu, như thế nào" — chỉ hiện khi đã nạp một preset
-          CÓ mốc đối chiếu (bốn mã WF-10 hiện tại đều có, xem `samples.ts`). Không hiện cho
-          "Xem ví dụ minh hoạ" hay dán tay: cả hai đều không phải số đối chiếu báo cáo thật.
-        */}
-        {loadedFundamentalsAsOf !== null && (
-          <p className={styles.pendingNote}>
-            {t('detail.fundamentalsSource')} {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
+        {presetHelps && stickyTicker !== null && (
+          <p className={styles.tickerBar} role="status">
+            <span className={styles.tickerCode}>{stickyTicker}</span>
+            <span className={styles.tickerText}>
+              {t('detail.tickerSticky')}
+              {loadedFundamentalsAsOf !== null && (
+                <>
+                  {' · '}
+                  {t('detail.fundamentalsSource')}{' '}
+                  {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
+                </>
+              )}
+            </span>
+
+            {/* Bọc trong hàm: `onClick` truyền sự kiện chuột vào tham số `fromPreset`. */}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                openTickerPicker();
+              }}
+            >
+              {t('detail.tickerChange')}
+            </Button>
+            <Button variant="ghost" size="sm" onClick={resetAll}>
+              {t('detail.tickerClear')}
+            </Button>
           </p>
         )}
 
@@ -2038,19 +2056,37 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         không lẫn là biết mình đang ở vùng nào, và tên vùng làm đúng việc ấy: trình đọc màn hình
         đọc "Số liệu" hay "Ví dụ thực tế" khi bước vào, rồi mới tới tên ô.
       */}
-      <section className={styles.block} aria-labelledby="khoi-so-lieu">
-        <div className={styles.blockHead}>
-          <h2 className={styles.blockTitle} id="khoi-so-lieu">
-            {t('detail.inputs')}
-          </h2>
-          {hiddenCount > 0 && (
-            <span className={styles.hiddenNote}>
-              {hiddenCount} {t('detail.hiddenInBasic')}
-            </span>
-          )}
-        </div>
+      {/*
+        ── Hai bọc cột `.ask` / `.answer` — hai CHỒNG độc lập ở khổ PC ─────────────────────────
 
-        {/*
+        Cột trái là chỗ HỎI: Số liệu rồi Giải thích ngay dưới. Cột phải là chỗ ĐÁP: Kết quả, Biểu
+        đồ, rồi Bảng biến + Ví dụ. Mỗi bọc là MỘT ô của lưới `.detail`, nên cột này cao thấp ra sao
+        không đẩy cột kia — chủ dự án chỉ ra khoảng trống dưới Số liệu khi hai cột còn chia hàng
+        chung của lưới và bảo "kéo phần Giải thích cho người mới lên và để bên dưới phần số liệu".
+
+        Cái giá của nó là THỨ TỰ DOM: Giải thích phải đứng ngay sau Số liệu (cùng bọc), tức TRƯỚC
+        Kết quả và Biểu đồ. Ở khổ hẹp hai bọc là `display: contents` và `order` kéo Giải thích,
+        Bảng biến, Ví dụ, Nguồn, hai nút cuối xuống sau Biểu đồ — mắt thấy đúng thứ tự cũ, không đổi
+        một pixel. Trình đọc màn hình và phím Tab thì đi theo DOM: Số liệu → Giải thích → Kết quả.
+        Đánh đổi có chủ ý, lý do đầy đủ ở docblock `.ask` trong `FormulaDetail.module.css`.
+
+        Chuỗi định giá (4b) đứng GIỮA hai bọc: nó cần trọn bề ngang cho bốn thẻ bước, nên không vào
+        cột trái được; `dense` của lưới đưa nó xuống hàng trống đầu tiên dưới cả hai cột.
+      */}
+      <div className={styles.ask}>
+        <section className={`${styles.block} ${styles.blockInputs}`} aria-labelledby="khoi-so-lieu">
+          <div className={styles.blockHead}>
+            <h2 className={styles.blockTitle} id="khoi-so-lieu">
+              {t('detail.inputs')}
+            </h2>
+            {hiddenCount > 0 && (
+              <span className={styles.hiddenNote}>
+                {hiddenCount} {t('detail.hiddenInBasic')}
+              </span>
+            )}
+          </div>
+
+          {/*
           ── Dải "AAA điền được 2 trong 4 ô…" đã BỎ HẲN ────────────────────────────────────────
 
           Chủ dự án: *"không cần phải giải thích … cho tốn không gian. bỏ đi. thay vào đó các ô kia
@@ -2065,35 +2101,35 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           một đoạn văn thứ hai nói cùng một điều ở xa hơn.
         */}
 
-        {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
-        {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
+          {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
+          {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
 
-        <div className={styles.fields}>
-          {shown.map((variable) => {
-            const linked = linkedFields.get(variable.key);
-            // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
-            const wide = linked !== undefined || isWideControl(variable.type);
+          <div className={styles.fields}>
+            {shown.map((variable) => {
+              const linked = linkedFields.get(variable.key);
+              // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
+              const wide = linked !== undefined || isWideControl(variable.type);
 
-            /*
+              /*
               Điều khiển LÀ ô lưới, không bọc thêm một <div> quanh nó.
               Bọc thì nhãn / khung nhập / dòng phụ nằm sâu thêm một tầng, và `subgrid` — thứ giữ
               cho hai ô cùng hàng thẳng nhau khi một nhãn dài hơn — chỉ với tới con TRỰC TIẾP.
               Khối chuỗi WF-04 vốn đã dựng theo lối này, nên bỏ lớp bọc cũng là đưa hai màn về
               cùng một hình dạng DOM.
             */
-            const className = wide ? styles.fieldWide : styles.field;
+              const className = wide ? styles.fieldWide : styles.field;
 
-            return linked === undefined ? (
-              <VariableField
-                key={variable.key}
-                spec={variable}
-                value={inputs[variable.key] ?? variable.defaultValue}
-                onChange={(value) => {
-                  setValue(variable.key, value);
-                }}
-                mode={mode}
-                sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
-                /*
+              return linked === undefined ? (
+                <VariableField
+                  key={variable.key}
+                  spec={variable}
+                  value={inputs[variable.key] ?? variable.defaultValue}
+                  onChange={(value) => {
+                    setValue(variable.key, value);
+                  }}
+                  mode={mode}
+                  sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
+                  /*
                   Ô này đang mang số của mã vừa nạp → trạng thái `derived` của WF-16: viền đứt +
                   dòng phụ `↳ HPG`.
 
@@ -2101,14 +2137,14 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
                   (nếu không màn nói dối về nguồn con số), nhưng ô vẫn phải MỞ — mà `filled` nay là
                   thứ quyết định khoá. Xem docblock của `presetFill`.
                 */
-                derivedFrom={
-                  presetFill !== null &&
-                  presetFill.filled.has(variable.key) &&
-                  !presetFill.edited.has(variable.key)
-                    ? presetFill.code
-                    : undefined
-                }
-                /*
+                  derivedFrom={
+                    presetFill !== null &&
+                    presetFill.filled.has(variable.key) &&
+                    !presetFill.edited.has(variable.key)
+                      ? presetFill.code
+                      : undefined
+                  }
+                  /*
                   Dòng phụ viết thành chữ, KHÔNG để mặc định `↳ VHM`.
 
                   Chủ dự án nhìn `↳ VHM` và hỏi *"ký hiệu này nghĩa là gì? ký hiệu có thể nhập liệu
@@ -2117,122 +2153,144 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
                   giải thích nó. Nay ô mở nói 'dữ liệu của VHM', ô khoá nói 'dữ liệu mẫu' — chung
                   một danh từ, khác đúng một vế, nên liếc một cái là phân được.
                 */
-                derivedNote={
-                  presetFill === null ? undefined : `${t('input.fromTicker')} ${presetFill.code}`
-                }
-                // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
-                lockedNote={lockedNoteFor(variable.key)}
-                className={className}
-              />
-            ) : (
-              /*
+                  derivedNote={
+                    presetFill === null ? undefined : `${t('input.fromTicker')} ${presetFill.code}`
+                  }
+                  // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
+                  lockedNote={lockedNoteFor(variable.key)}
+                  className={className}
+                />
+              ) : (
+                /*
                 Ô nhận giá trị từ bước trước (FR-15). Dựng TẠI CHỖ trong lưới chứ không gom
                 xuống khối chuỗi bên dưới: nó vẫn là một biến của công thức này, đứng đúng
                 thứ tự của nó trong bảng biến. Gom xuống dưới là người dùng phải ghép hai
                 danh sách ô nhập trong đầu mới biết công thức cần những gì.
               */
-              <LinkedInput
-                key={variable.key}
-                spec={variable}
-                upstream={linked.upstream}
-                {...(linked.override === undefined ? {} : { override: linked.override })}
-                onOverrideChange={(value) => {
-                  setOverride(spec.id, variable.key, value);
+                <LinkedInput
+                  key={variable.key}
+                  spec={variable}
+                  upstream={linked.upstream}
+                  {...(linked.override === undefined ? {} : { override: linked.override })}
+                  onOverrideChange={(value) => {
+                    setOverride(spec.id, variable.key, value);
+                  }}
+                  mode={mode}
+                  className={className}
+                />
+              );
+            })}
+          </div>
+
+          {wantsSeries && (
+            <div className={styles.actions}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  openSheet('paste');
                 }}
-                mode={mode}
-                className={className}
-              />
-            );
-          })}
-        </div>
+              >
+                {t('detail.pasteSeries')}
+              </Button>
 
-        {wantsSeries && (
-          <div className={styles.actions}>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                openSheet('paste');
-              }}
-            >
-              {t('detail.pasteSeries')}
-            </Button>
-
-            {/*
+              {/*
               Lối thứ ba cho người chưa có chuỗi giá thật để dán VÀ không hiểu bộ mẫu 4 công ty —
               xem docblock `loadIllustrativeExample()`. Ẩn hẳn với công thức không khai
               `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
             */}
-            {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
-              <Button variant="secondary" size="sm" onClick={loadIllustrativeExample}>
-                {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
-              </Button>
-            )}
+              {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
+                <Button variant="secondary" size="sm" onClick={loadIllustrativeExample}>
+                  {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
+                </Button>
+              )}
 
-            {/*
+              {/*
               Chỉ hiện khi đã có gì để áp dụng — nút này ghi CHỦ Ý, khác "Nạp mẫu"/"Dán chuỗi
               giá" vốn cố ý không tự ghi đè bảng WF-05 (xem docblock `applyToDataTable()`).
               Chủ dự án báo mất dấu: nạp mẫu xong sang /du-lieu/ không thấy gì — đây là lối vá.
             */}
-            {bars !== null && (
-              <Button variant="secondary" size="sm" onClick={applyToDataTable}>
-                {appliedToTable ? t('detail.appliedToTable') : t('detail.applyToTable')}
-              </Button>
-            )}
+              {bars !== null && (
+                <Button variant="secondary" size="sm" onClick={applyToDataTable}>
+                  {appliedToTable ? t('detail.appliedToTable') : t('detail.applyToTable')}
+                </Button>
+              )}
 
-            {/*
+              {/*
               Lối vào bảng WF-05. Dán tại chỗ chỉ đọc được chuỗi vào công thức đang mở; muốn
               sửa từng phiên, xem dòng nào sai, hay giữ chuỗi lại thì phải sang bảng. Trước đợt
               này màn đó không có link nào trỏ tới từ bất kỳ đâu trong giao diện.
 
               Mang theo `?from=<id>` để nút quay lại ở /du-lieu/ biết đường về ĐÚNG công thức
               này thay vì về danh sách chung — chủ dự án báo mất dấu công thức đang thao tác.
+
+              `onClick` ghi thêm TÊN công thức vào sessionStorage, để nút quay lại bên kia gọi
+              đúng tên nó ("‹ P/E — hệ số giá trên lợi nhuận") thay vì nói trống không "Quay lại
+              công thức". Chỉ là NHÃN: đích vẫn hoàn toàn do `?from=` quyết định, nên chặn kho
+              hay xoá kho thì nhãn lùi về câu chung mà đường đi không xê dịch. Vì sao phải đi
+              vòng thế này thay vì tra Registry ở thanh trên — xem `formula-origin.ts`.
+
+              Ghi trong `onClick` chứ không trong effect: chỉ CÚ BẤM này mới là "đang mở bảng từ
+              công thức này", còn việc trang có mặt trên màn thì không nói lên điều gì — cùng lập
+              luận với `markReturning` của `BackLink`.
             */}
-            <Link className={styles.dataLink} href={`${ROUTES.data}?from=${spec.id}`}>
-              {t('detail.openDataTable')}
-            </Link>
-          </div>
-        )}
+              <Link
+                className={styles.dataLink}
+                href={`${ROUTES.data}?from=${spec.id}`}
+                onClick={() => {
+                  const record = formulaOriginToStore(spec.id, pick(spec.name));
+                  if (record === null) return;
+                  try {
+                    window.sessionStorage.setItem(FORMULA_ORIGIN_KEY, JSON.stringify(record));
+                  } catch {
+                    // Kho bị chặn (chế độ riêng tư) — mất cái tên, không mất đường đi.
+                  }
+                }}
+              >
+                {t('detail.openDataTable')}
+              </Link>
+            </div>
+          )}
 
-        {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
-        {wantsSeries && seriesCount !== null && (
-          <p className={styles.pendingNote}>
-            {t('detail.seriesLoaded')} {seriesCount}
-          </p>
-        )}
+          {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
+          {wantsSeries && seriesCount !== null && (
+            <p className={styles.pendingNote}>
+              {t('detail.seriesLoaded')} {seriesCount}
+            </p>
+          )}
 
-        {/*
+          {/*
           Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`presetFromSnapshot()`), nên
           ở một công thức cần chuỗi thì "nạp mã xong" và "tính được" là hai chuyện khác nhau.
           Không nói ra thì người dùng đọc màn hình này ra là sản phẩm hỏng — cùng lý do FR-06
           cấm trả 0 thay cho lỗi. Ngưỡng < 2 chứ không phải === 1: mã không tra được giá cho
           `bars: []`, và ca đó cũng cần đúng câu này.
         */}
-        {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
-          <p className={styles.seriesShortNote} role="note">
-            {t('detail.liveSeriesShort')}
-          </p>
-        )}
+          {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
+            <p className={styles.seriesShortNote} role="note">
+              {t('detail.liveSeriesShort')}
+            </p>
+          )}
 
-        {/* Chỉ hiện khi số đang bày LÀ chuỗi minh hoạ — đừng để người dùng tưởng nhầm là số thật. */}
-        {wantsSeries && exampleLoaded && (
-          <p className={styles.pendingNote}>{t('detail.exampleSeriesNote')}</p>
-        )}
+          {/* Chỉ hiện khi số đang bày LÀ chuỗi minh hoạ — đừng để người dùng tưởng nhầm là số thật. */}
+          {wantsSeries && exampleLoaded && (
+            <p className={styles.pendingNote}>{t('detail.exampleSeriesNote')}</p>
+          )}
 
-        {/*
+          {/*
           Công thức hồi quy với thị trường (hiện chỉ Beta) đọc `ctx.marketSeries` mà KHÔNG ai bấm
           nạp gì cả — chuỗi VN-Index luôn có sẵn. Chừng nào chuỗi ấy còn là PRNG, con số ra là một
           con số sai trông hoàn toàn hợp lệ, và bốn mã mẫu lại là PRNG ĐỘC LẬP với nó nên beta rơi
           về gần 0. Đây là ca FR-06 rõ nhất còn lại trong sản phẩm, và cách chữa duy nhất trong tầm
           tay là NÓI RA. Cờ đọc từ tầng Data nên ngày có chuỗi thật, dòng này tự biến mất.
         */}
-        {usesMarketSeries && hasDraftMarketSeries() && (
-          <p className={styles.seriesShortNote} role="note">
-            {t('detail.draftMarketSeries')}
-          </p>
-        )}
+          {usesMarketSeries && hasDraftMarketSeries() && (
+            <p className={styles.seriesShortNote} role="note">
+              {t('detail.draftMarketSeries')}
+            </p>
+          )}
 
-        {/*
+          {/*
           Hằng số thuế & phí đang áp — đặt CUỐI khối Số liệu, không tách thành khối riêng.
           Nó thuộc về đầu vào: cùng là thứ quyết định con số ở khối Kết quả, chỉ khác chỗ người
           dùng không gõ được. Tách ra thành khối số 5 thì nó rơi xuống dưới Kết quả, tức là người
@@ -2241,8 +2299,31 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           Tự trả về null khi công thức không tra hằng số nào, nên 98 trong 111 trang không thêm
           một nút DOM nào.
         */}
-        <ConstantsNote constants={constantsUsedBy(spec, ctx)} />
-      </section>
+          <ConstantsNote constants={constantsUsedBy(spec, ctx)} />
+        </section>
+
+        {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}
+        {/*
+        Đứng NGAY SAU Số liệu trong DOM, trước Kết quả — là điều kiện của bọc `.ask` (xem chú thích
+        trên bọc ấy), không phải mạch đọc. Ở khổ hẹp `order` đưa nó xuống sau Biểu đồ như cũ.
+
+        LUÔN mở sẵn CẢ BỐN mục, không phụ thuộc chế độ — chủ dự án chốt.
+
+        Bản đầu gập hết ở chế độ Nâng cao cho gọn màn (FR-09), bản sau chỉ mở mục đầu. Cả hai đều bắt
+        người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để
+        đọc. Không truyền prop nào ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không có
+        điều kiện nào để về sau lệch với nó.
+      */}
+        {/*
+        Bốn khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
+        `FormulaDetail.module.css`. Chúng luôn nằm dưới nếp gấp ở khổ điện thoại, nên bỏ qua phần
+        dựng hình của chúng cho tới lúc cuộn tới là cắt được phần lớn lượt layout đầu tiên của màn.
+      */}
+        <ExplanationAccordion
+          explanation={spec.explanation}
+          className={`${styles.deferred} ${styles.blockExplain}`}
+        />
+      </div>
 
       {/* ── 4b. Chuỗi công thức — WF-04, FR-15 (gói 5.2.3) ────────────────── */}
       {/*
@@ -2266,8 +2347,16 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         />
       )}
 
-      {/* ── 5. Kết quả ───────────────────────────────────────────────────── */}
       {/*
+        Bọc cột phải `.answer`: Kết quả, Biểu đồ, rồi Bảng biến + Ví dụ — xem chú thích trên `.ask`.
+        Ở khổ PC nó là MỘT ô lưới, thẻ Kết quả nằm trên, biểu đồ ngay dưới, theo ảnh mẫu chủ dự án
+        đưa. Không bọc thì mỗi khối một hàng lưới, và hàng nào cũng cao bằng khối cao nhất trong
+        hàng — chính là lỗi cột trái trống rỗng ở `lich-tra-no` từng gặp (bảng lịch trong khối Kết
+        quả kéo cả hàng cao lên, đẩy Số liệu xuống tận dưới bảng).
+      */}
+      <div className={styles.answer}>
+        {/* ── 5. Kết quả ───────────────────────────────────────────────────── */}
+        {/*
         Khối Kết quả có tiêu đề riêng kể từ đợt rà soát phân cấp — trước đó nó là khối DUY NHẤT
         trong chín khối không có tiêu đề nào trong nhịp heading của trang, nên đi bằng phím hay
         bằng trình đọc màn hình thì cả trang chỉ có một chỗ hụt, đúng ngay chỗ quan trọng nhất.
@@ -2283,29 +2372,29 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         Kết quả không tách khỏi phần nhập liệu ngay trên nó. Bản rà soát báo đúng thế —
         "khoảng cách giữa các khối chưa rõ ràng".
       */}
-      <section className={styles.result} aria-labelledby="khoi-ket-qua">
-        <h2 className="visually-hidden" id="khoi-ket-qua">
-          {t('result.heading')}
-        </h2>
+        <section className={styles.result} aria-labelledby="khoi-ket-qua">
+          <h2 className="visually-hidden" id="khoi-ket-qua">
+            {t('result.heading')}
+          </h2>
 
-        {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
-        {!ownsResult(spec.id) && <ResultBlock output={output} />}
+          {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
+          {!ownsResult(spec.id) && <ResultBlock output={output} />}
 
-        {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
-        {hasCustomBody(spec.id) && (
-          <DetailBody
-            id={spec.id}
-            inputs={inputs}
-            ctx={ctx}
-            output={output}
-            cashflowRows={cashflowRows}
-            onCashflowRowsChange={setCashflowRows}
-          />
-        )}
-      </section>
+          {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
+          {hasCustomBody(spec.id) && (
+            <DetailBody
+              id={spec.id}
+              inputs={inputs}
+              ctx={ctx}
+              output={output}
+              cashflowRows={cashflowRows}
+              onCashflowRowsChange={setCashflowRows}
+            />
+          )}
+        </section>
 
-      {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
-      {/*
+        {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
+        {/*
         Khung nét đứt "sẽ có ở bản sau" đã bỏ hẳn: `hasChart()` nay phủ 102 trên 111 công thức, và 9
         công thức còn lại khai `chartType: 'none'` nên chúng KHÔNG dựng khối này chút nào — không có
         trạng thái thứ ba nào để bày.
@@ -2314,44 +2403,37 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         quả đang nói, kèm câu chỉ đường; nút "Nạp mẫu" và "Dán chuỗi giá" đã nằm ở khối Số liệu ngay
         trên đó, nên không bày lối vào lần hai.
       */}
-      {showChart && formula !== undefined && (
-        <section className={`${styles.block} ${styles.deferred}`}>
-          <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
-          <FormulaChart
-            formula={formula}
-            inputs={chartInputs}
-            ctx={ctx}
-            output={chartOutput}
-            level={mode}
-            {...(chartSeriesLabel === undefined ? {} : { seriesLabel: chartSeriesLabel })}
-            // KHÔNG thay bằng closure viết trực tiếp ở đây — xem docblock `onApplyPoint` ở trên.
-            onApplyPoint={onChartApplyPoint}
-            lockedKeys={chartLockedKeys}
-          />
-        </section>
-      )}
+        {showChart && formula !== undefined && (
+          <section className={`${styles.block} ${styles.deferred} ${styles.blockChart}`}>
+            <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
+            <FormulaChart
+              formula={formula}
+              inputs={chartInputs}
+              ctx={ctx}
+              output={chartOutput}
+              level={mode}
+              {...(chartSeriesLabel === undefined ? {} : { seriesLabel: chartSeriesLabel })}
+              // KHÔNG thay bằng closure viết trực tiếp ở đây — xem docblock `onApplyPoint` ở trên.
+              onApplyPoint={onChartApplyPoint}
+              lockedKeys={chartLockedKeys}
+            />
+          </section>
+        )}
+        {/* ── 8. Bảng biến ─────────────────────────────────────────────────── */}
+        {/*
+        Bảng biến và Ví dụ thực tế đi chung MỘT bọc `.aside`, và cái bọc ấy là điều kiện chứ không
+        phải cho gọn: nó là phần tử mang `order` ở khổ hẹp (xem chú thích trên `.ask`), mà `Table`
+        dựng thêm một `<div>` vùng cuộn bao ngoài nên `className` của `VariableTable` rơi vào chính
+        thẻ `<table>` — tức bản thân bảng KHÔNG có chỗ bấu ở tầng con trực tiếp.
 
-      {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}
-      {/*
-        LUÔN mở sẵn CẢ BỐN mục, không phụ thuộc chế độ — chủ dự án chốt.
-
-        Bản đầu gập hết ở chế độ Nâng cao cho gọn màn (FR-09), bản sau chỉ mở mục đầu. Cả hai đều bắt
-        người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để
-        đọc. Không truyền prop nào ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không có
-        điều kiện nào để về sau lệch với nó.
+        Ở khổ PC cả bọc này nằm cuối cột phải, dưới biểu đồ; ở khổ hẹp nó là một cột dọc cùng nhịp
+        `--space-5` với `.detail`, nên điện thoại không đổi một pixel nào.
       */}
-      {/*
-        Bốn khối cuối màn mang lớp `deferred` — xem chú thích trong `FormulaDetail.module.css`.
-        Chúng luôn nằm dưới nếp gấp ở khổ điện thoại, nên bỏ qua phần dựng hình của chúng cho tới
-        lúc cuộn tới là cắt được phần lớn lượt layout đầu tiên của màn.
-      */}
-      <ExplanationAccordion explanation={spec.explanation} className={styles.deferred} />
+        <div className={styles.aside}>
+          <VariableTable formula={spec} mode={mode} className={styles.deferred} />
 
-      {/* ── 8. Bảng biến ─────────────────────────────────────────────────── */}
-      <VariableTable formula={spec} mode={mode} className={styles.deferred} />
-
-      {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
-      {/*
+          {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
+          {/*
         Dòng số của ví dụ gõ được tại chỗ. Trước đây khối này là ngõ cụt: nó bày một bộ số hoàn
         chỉnh rồi để người đọc tự cuộn lên gõ lại từng ô.
 
@@ -2359,17 +2441,20 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         và ô ở khối Số liệu là CÙNG một con số, không phải hai bản sao có ngày lệch nhau. Kết quả
         cũng lấy đúng `output` mà khối Kết quả đang hiện.
       */}
-      {/*
+          {/*
         `effectiveInputs` chứ không phải `inputs`: ô móc nối cũng xuất hiện ở đây, và nó phải bày
         đúng con số mà khối Số liệu đang bày. Gõ vào nó thì `setValue()` tự lái sang ghi đè.
       */}
-      <ExampleBlock
-        formula={spec}
-        inputs={effectiveInputs}
-        output={output}
-        onChange={setValue}
-        className={styles.deferred}
-      />
+          <ExampleBlock
+            formula={spec}
+            inputs={effectiveInputs}
+            output={output}
+            onChange={setValue}
+            className={styles.deferred}
+          />
+        </div>
+      </div>
+
       <SourceBlock sources={spec.source} className={styles.deferred} />
 
       {/*

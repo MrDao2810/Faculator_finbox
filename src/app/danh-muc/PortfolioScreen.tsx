@@ -906,6 +906,23 @@ export function PortfolioScreen() {
         />
       </div>
 
+      {/*
+        UI-04 (mức M) đòi dải miễn trừ nằm trong TẦM NHÌN ĐẦU TIÊN của trang có kết quả, và màn
+        này bày sáu ô tiền ngay đầu màn — trong đó có lãi/lỗ của chính người dùng, tức con số dễ bị
+        đọc thành lời khuyên nhất trong cả sản phẩm (rủi ro R-06). Cùng lý do bản `notice` đã có ở
+        màn chi tiết công thức.
+
+        NGOÀI cả hai tab, không nằm trong tab Mã như trước. Từ 09/09/2026 đây là câu miễn trừ DUY
+        NHẤT của màn: `showsFooterDisclaimer()` đã trừ `/danh-muc/` ra nên dải xám chân trang không
+        còn dựng ở đây nữa. Để nguyên nó trong tab Mã thì tab Công thức trắng câu miễn trừ — mà
+        `usePathname()` không nhìn thấy `?tab=`, nên bên `routes.ts` không có cách nào bù lại. Đổi
+        chỗ ô này là điều kiện để dòng trừ bên ấy hợp lệ; docblock của hàm ghi cùng chuyện.
+
+        Bấm sang tab Công thức KHÔNG dựng lại ô: nó nằm ngoài nhánh ba ngôi nên React giữ nguyên
+        node, đúng như cụm tab ngay trên.
+      */}
+      <DisclaimerBar variant="notice" />
+
       {tab === 'saved' ? (
         <section
           id={PORTFOLIO_PANEL_ID}
@@ -1040,15 +1057,6 @@ export function PortfolioScreen() {
           aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'holdings')}
           className={styles.panel}
         >
-          {/*
-            UI-04 (mức M) đòi dải miễn trừ nằm trong TẦM NHÌN ĐẦU TIÊN của trang có kết quả, và
-            màn này bày sáu ô tiền ngay đầu màn — trong đó có lãi/lỗ của chính người dùng, tức
-            con số dễ bị đọc thành lời khuyên nhất trong cả sản phẩm (rủi ro R-06). Trước đây câu
-            miễn trừ duy nhất ở đây là dải `footer` của AppShell, nằm sau cả danh sách nắm giữ.
-            Cùng lý do bản `notice` đã có ở màn chi tiết công thức.
-          */}
-          <DisclaimerBar variant="notice" />
-
           <div className={styles.stats}>
             <StatTile
               label={t('portfolio.totalValue')}

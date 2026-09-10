@@ -642,13 +642,15 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     // ngay trong lượt render đầu.
     expect(feed.snapshots.mock.calls[0]?.[0]).toEqual(['FPT']);
     /*
-     * Và dòng nguồn phải hiện, dù FPT-của-API không đi qua bộ mẫu WF-10 — đây chính là ca mà
-     * phép tra `SAMPLE_DATA.byCode()` cũ làm hỏng, vì mã lấy lúc chạy không nằm trong bộ mẫu.
+     * Và mốc nguồn phải hiện, dù FPT-của-API không đi qua bộ mẫu WF-10 — đây chính là ca mà phép
+     * tra `SAMPLE_DATA.byCode()` cũ làm hỏng, vì mã lấy lúc chạy không nằm trong bộ mẫu.
      *
-     * Dò bằng một mẩu chữ đặc trưng chứ không bọc cả câu vào `new RegExp`: câu đầy đủ có dấu
-     * ngoặc đơn, mà trong biểu thức chính quy thì đó là dấu gom nhóm chứ không phải chữ.
+     * Từ 09/09/2026 mốc ấy là một mẩu chữ TRONG thanh mã, không còn là một dòng riêng — nên dò
+     * theo `exact: false` trên chính khoá i18n, không dò cả câu.
      */
-    expect(screen.getByText(/lấy thật từ Finbox_v2/)).not.toBeNull();
+    expect(
+      screen.getByText(t('detail.fundamentalsSource'), { exact: false }).textContent,
+    ).toContain('Finbox_v2');
   });
 
   it('không gọi mạng khi mở trang theo đường thường', () => {
@@ -2424,7 +2426,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     ).toBeUndefined();
     expect(await screen.findByText('SHB')).not.toBeNull();
     // Và sheet mẫu nhường chỗ hẳn: hai bottom sheet chồng nhau là một cái bẫy tiêu điểm.
-    expect(sheetChua(t('preset.browseMarketNote')).open).toBe(false);
+    expect(sheetChua(t('preset.title')).open).toBe(false);
   });
 
   /*
@@ -2452,7 +2454,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
       }),
     );
 
-    expect(sheetChua(t('preset.browseMarketNote')).open).toBe(true);
+    expect(sheetChua(t('preset.title')).open).toBe(true);
     expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
   });
 
@@ -2483,7 +2485,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
 
     await screen.findByRole('button', { name: /Đã nạp SHB/ });
     expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
-    expect(sheetChua(t('preset.browseMarketNote')).open).toBe(false);
+    expect(sheetChua(t('preset.title')).open).toBe(false);
   });
 
   it('mã lấy từ kho lớn chỉ có một phiên giá thì nói rõ lý do và lối đi tiếp', async () => {

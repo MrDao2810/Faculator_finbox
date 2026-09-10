@@ -62,3 +62,21 @@
   font-size: var(--text-sm);
   color: var(--color-ink-soft);
 }
+
+/*
+ * ── Khổ PC: BỐN HÀNG DỌC, không còn lưới 2×2 ─────────────────────────────────────────────────
+ *
+ * Từng có một khối `@media (min-width: 1280px)` xếp bốn mục thành 2×2 với bốn thẻ cao bằng nhau
+ * (`auto-fit minmax(220px)` + `grid-auto-rows: 1fr`, theo bản vẽ WF-03 — khi khối này còn trải
+ * 455–563px ở hàng dưới của lưới `.detail`). Hai chuyện làm nó hết đúng:
+ *
+ *   1. Khối nay nằm trong CỘT TRÁI 35% của màn chi tiết, ngay dưới Số liệu — chỉ 366–459px, tức
+ *      mỗi thẻ 2×2 còn ~180–225px, hẹp hơn cả ô ở điện thoại.
+ *   2. "Cao bằng nhau" bắt thẻ đã gập giữ chiều cao của thẻ bên cạnh: ba mục gập, một mục mở là ba
+ *      cái hộp trống cao bằng cả đoạn văn. Chủ dự án nhìn đúng cảnh ấy (10/09/2026) và chốt: _"sửa
+ *      lại thành 4 dòng lần lượt khi ở bản web"_.
+ *
+ * Nên khổ PC dùng y nguyên cột dọc của khổ hẹp — cố ý KHÔNG có media query nào ở đây. Đừng dựng
+ * lại lưới: nếu có ngày khối này về lại một hàng rộng thì lịch sử git của file này có cả con số đáy
+ * 220px lẫn cặp `1fr` + `stretch`, kèm đúng cái bẫy ở mục 2.
+ */

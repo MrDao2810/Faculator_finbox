@@ -1,0 +1,34 @@
+/*
+ * Bảng biến — chỉ một việc: BỀ RỘNG CỘT "BIẾN" ở khổ PC.
+ *
+ * Bảng dựng trên primitive `Table`, và primitive ấy cho hai cột chữ (Biến, Mô tả) lớp toàn cục
+ * `.wrap` với `overflow-wrap: anywhere` — đúng cho khổ điện thoại, nơi một câu mô tả dài không
+ * được kéo cả bảng rộng hơn 328px. Nhưng `anywhere` còn một tác dụng phụ ở bố cục bảng tự động:
+ * nó cho phép bẻ dòng ở BẤT KỲ đâu, nên bề rộng tối thiểu của cột Biến chỉ còn bằng một ký tự, và
+ * trình duyệt đem gần hết chỗ cho cột Mô tả (câu dài, bề rộng mong muốn lớn nhất). Kết quả chủ dự
+ * án chụp ở 1440: cột Biến co còn ~130px, "Chu kỳ EMA nhanh" xuống hai dòng trong khi cột Mô tả
+ * thừa chỗ — _"cột Biến ở màn web đang quá ít không gian để hiển thị khiến bị xuống dòng"_.
+ *
+ * Hai luật ở khổ PC, đặt lên MỌI ô đầu hàng (`th:first-child` — tiêu đề cột lẫn ô tên biến, vì
+ * cả hai đều là `<th>` đứng đầu `<tr>`):
+ *
+ *   - `width: 30%` — cột Biến giữ gần một phần ba bảng (222 / 247 / 275px ở 1280 / 1440 / 1920),
+ *     đủ cho "Chu kỳ đường tín hiệu" (dài nhất trong ảnh) một dòng; tên dài nhất Registry
+ *     (~33 ký tự, "EPS — lợi nhuận trên mỗi cổ phiếu") còn hai dòng ở 1280–1440, một dòng ở 1920.
+ *   - `overflow-wrap: break-word` thay cho `anywhere` — vẫn xuống dòng khi phải, nhưng theo TỪ,
+ *     và không còn cho bố cục bảng cái cớ "cột này co được tới một ký tự".
+ *
+ * Trọng số (0,2,1) — `.variables` + `:first-child` + `th` — thắng chắc `.table :global(.wrap)`
+ * (0,2,0) của primitive, không phụ thuộc thứ tự hai file trong bó CSS (cùng bẫy đã ghi ở
+ * `CategoryFilter.module.css`). Lớp `.variables` nằm trên chính `<table>` — `Table` đặt `className`
+ * ở đó, không ở vùng cuộn.
+ *
+ * Chỉ ≥1280: ở khổ hẹp bảng vẫn chia như cũ, bản điện thoại đã duyệt. Không đụng `Table.module.css`
+ * vì `.wrap` còn phục vụ bảng khác.
+ */
+@media (min-width: 1280px) {
+  .variables th:first-child {
+    width: 30%;
+    overflow-wrap: break-word;
+  }
+}

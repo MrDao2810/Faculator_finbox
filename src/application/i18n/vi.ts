@@ -212,7 +212,11 @@ export const vi = {
   'variable.colDescription': 'MÔ TẢ',
   'variable.noDescription': '—',
   'example.title': 'Ví dụ thực tế',
-  'example.editHint': 'Sửa được ngay tại đây — thay bằng số thật của mã bạn đang xem.',
+  /*
+   * `example.editHint` ("Sửa được ngay tại đây — thay bằng số thật của mã bạn đang xem.") đã BỎ,
+   * chủ dự án chốt 10/09/2026. Nó là câu hướng dẫn cách dùng đứng ở đúng chỗ người dùng đã tự làm
+   * được việc ấy — ô nhập nằm ngay trên. Lý do đầy đủ ở chỗ nó từng đứng trong `ExampleBlock.tsx`.
+   */
   'example.original': 'Ví dụ gốc cho:',
   'example.reset': 'Về số của ví dụ',
   'source.title': 'Nguồn tham khảo',
@@ -224,8 +228,10 @@ export const vi = {
 
   // Chuỗi công thức nối nhau — WF-04, FR-15 (gói 5.2.3)
   'chain.title': 'Chuỗi công thức',
-  'chain.intro':
-    'Kết quả mỗi bước chảy thẳng vào ô của bước sau. Sửa số ở bước trước là cả chuỗi tính lại.',
+  /*
+   * `chain.intro` ("Kết quả mỗi bước chảy thẳng vào ô của bước sau…") đã BỎ, chủ dự án chốt
+   * 10/09/2026. Điều nó nói ra thì dải `FlowChainStrip` ngay dưới đã VẼ ra, rõ hơn hẳn.
+   */
   'chain.upstreamHeading': 'Bước trước — cấp số liệu cho công thức đang xem',
   'chain.downstreamHeading': 'Bước sau — dùng kết quả của công thức đang xem',
   'chain.openStep': 'Mở màn riêng của bước này',
@@ -235,8 +241,15 @@ export const vi = {
   'detail.loadPreset': 'Nạp mẫu',
   'detail.preset': 'Đã nạp',
   'detail.jumpToExample': 'Xem ví dụ thực tế ↓',
-  'detail.fundamentalsSource':
-    'Số liệu cơ bản (EPS, giá trị sổ sách, số CP, cổ tức…) của mã này lấy thật từ Finbox_v2, đối chiếu lúc',
+  /*
+   * Mẩu chữ NGẮN, không còn là một câu: nó nay nằm trong thanh mã, ngay sau "đang dùng cho mọi
+   * công thức trong lượt xem này", nên nó chỉ cần gắn cái ngày vào — chủ ngữ đã có sẵn ở vế trước.
+   *
+   * Bản cũ là cả một câu kể tên EPS / giá trị sổ sách / số CP / cổ tức và nói nguồn Finbox_v2. Chủ
+   * dự án chốt bỏ vì thừa: những trường ấy nằm ngay dưới, trên chính các ô vừa được điền, mỗi ô
+   * còn mang dấu `↳ HPG` của riêng nó.
+   */
+  'detail.fundamentalsSource': 'số liệu Finbox_v2 tới',
   /*
    * Ba câu dưới đứng SAU mã (“FPT · …”), nên viết thường.
    *
@@ -364,10 +377,15 @@ export const vi = {
   /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
   'chart.sweepLabel': 'Xem kết quả đổi theo',
   /*
-   * Nhóm nút đổi lối vẽ. Nhãn nói VIỆC ('Kiểu hình') chứ không nói cơ chế ('Loại biểu đồ') — người
-   * dùng đang chọn cách nhìn cùng một bộ số, không chọn một biểu đồ khác.
+   * Nhóm nút đổi lối vẽ.
+   *
+   * Bản trước là 'Kiểu hình', chọn theo lập luận "nhãn nói VIỆC chứ không nói cơ chế". Chủ dự án
+   * đổi lại thành 'Loại biểu đồ' ngày 09/09/2026. Lập luận cũ trả giá bằng thứ quan trọng hơn:
+   * 'kiểu hình' không phải chữ người đọc gặp ở đâu khác, nên nó bắt người ta dừng lại đoán, ngay
+   * cạnh một ô chọn đã dài sẵn. 'Loại biểu đồ' nói đúng thứ hai cái nút làm và ai cũng đọc được.
+   * Đừng khôi phục bản cũ.
    */
-  'chart.kindLabel': 'Kiểu hình',
+  'chart.kindLabel': 'Loại biểu đồ',
   'chart.kindLine': 'Đường',
   'chart.kindBar': 'Cột',
   /*
@@ -391,16 +409,15 @@ export const vi = {
   'chart.applyHintTimeAxis':
     'Trục đang là thời gian nên bấm không ghi được gì — đổi mục "Xem kết quả đổi theo" ở trên sang một biến số để bấm áp dụng giá trị.',
   /*
-   * Vế KHẲNG ĐỊNH của câu ngay trên, thêm ở đợt này.
+   * ── `chart.applyHintReady` đã BỎ ────────────────────────────────────────────────────────────
    *
-   * Trước đó sản phẩm chỉ nói khi tính năng KHÔNG dùng được. Người dùng đổi trục theo đúng lời
-   * khuyên, rồi câu kia biến mất và không còn gì cho biết giờ bấm được — nên lối tương tác duy
-   * nhất của biểu đồ chỉ tự nhắc tới mình vào đúng lúc nó không chạy.
+   * Câu "Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập." từng là vế khẳng định của câu ngay
+   * trên. Chủ dự án chốt bỏ: *"không cần đoạn chú thích ... này"*. Cái giá — trên máy cảm ứng đó
+   * là dấu hiệu duy nhất của lối bấm-áp-dụng — ghi ở docblock `ApplyHint.tsx`.
    *
-   * Nói "ô nhập" chứ không "ô Số liệu": ở khổ điện thoại khối Số liệu nằm ngoài tầm mắt khi đang
-   * xem biểu đồ, nên gọi tên khối là bắt người đọc đi tìm; gọi tên thứ họ sắp thấy nhảy số thì không.
+   * Đừng thêm lại một khoá cùng nghĩa dưới tên khác: câu trên (`applyHintTimeAxis`) là lời giải
+   * thích cho một cú bấm KHÔNG ăn gì, nó ở lại vì không có nó thì tính năng trông như hỏng.
    */
-  'chart.applyHintReady': 'Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập.',
   'chart.zoom': 'Phóng to',
   'chart.exit': 'Thoát phóng to',
   'chart.rotate': 'Xoay ngang điện thoại để biểu đồ rộng hơn.',
@@ -435,16 +452,38 @@ export const vi = {
 
   // Nạp bộ số liệu mẫu — WF-10, gói 2.5.1
   'preset.title': 'Nạp bộ số liệu mẫu',
-  'preset.subtitle': 'Kho mã mẫu — mã nào cũng có sẵn 248 phiên giá, dùng được cho công thức chuỗi',
+  /*
+   * ── Bốn chuỗi của sheet này đã BỎ ngày 09/09/2026, theo yêu cầu của chủ dự án ───────────────
+   *
+   *   `preset.subtitle`          "Kho mã mẫu — mã nào cũng có sẵn 248 phiên giá…"
+   *   `preset.rankedNote`        "Bốn mã chọn theo kết quả của chính công thức này…"
+   *   `preset.browseMarketNote`  "Toàn bộ mã đang giao dịch… chỉ có MỘT phiên giá…"
+   *   `preset.editableAfterLoad` "Sau khi nạp, ô nào mã có số thì vẫn sửa được…"
+   *
+   * Và cặp `preset.draftTitle` / `preset.draftDetail` (khối vàng "giá quá khứ tự dựng") ở dưới.
+   *
+   * Đừng dựng lại một khoá cùng nghĩa dưới tên khác. Cái đáng biết khi quay lại chỗ này: hai câu
+   * `seriesOnlyNote` / `noTickerNote` ngay dưới KHÔNG bị gỡ theo, và mỗi câu ở lại vì một lý do
+   * riêng — ghi tại `PresetSheet.tsx`.
+   *
+   * ⚠ `preset.topPicks` ngay dưới đứng đúng chỗ `rankedNote` từng đứng, nhưng KHÔNG phải nó quay
+   * lại: câu cũ tả CÁCH XẾP ("xếp từ thấp đến cao — nhìn một lượt là thấy biên độ"), nhãn mới chỉ
+   * gọi tên bốn dòng bên dưới là gì. Chủ dự án chốt 09/09/2026: bỏ câu dài, giữ một nhãn ngắn.
+   */
   'preset.load': 'Nạp',
   /*
-   * Ba câu dẫn cho ba trạng thái của sheet — xem `PresetSheet`. Tách riêng chứ không gộp: gộp
-   * lại thì câu chung phải mờ tới mức không nói được gì, mà đây đúng chỗ người dùng cần biết
-   * bấm Nạp xong sẽ đổi cái gì.
+   * Nhãn của bốn dòng khi chúng thật sự được chọn theo công thức đang xem.
+   *
+   * Chỉ đúng ở ca có xếp hạng (`pickPresetsFor()` chạy thật công thức với từng mã trong kho rồi
+   * trải bốn mã trên biên độ kết quả). Hai ca còn lại bốn mã là bộ `WF10_CODES` theo thứ tự kho,
+   * nên gọi chúng là "hợp nhất cho công thức này" là nói sai — `PresetSheet` gác nhánh ấy.
    */
-  'preset.rankedNote':
-    'Bốn mã chọn theo kết quả của chính công thức này, xếp từ thấp đến cao — nhìn một lượt là ' +
-    'thấy biên độ.',
+  'preset.topPicks': 'Mẫu ưu tiên — bốn mã hợp nhất để chạy thử công thức này',
+  /*
+   * Hai câu dẫn còn lại của sheet — xem `PresetSheet`. Tách riêng chứ không gộp: gộp lại thì câu
+   * chung phải mờ tới mức không nói được gì, mà đây đúng chỗ người dùng cần biết bấm Nạp xong sẽ
+   * đổi cái gì.
+   */
   'preset.seriesOnlyNote':
     'Công thức này chạy bằng chuỗi phiên giá. Chỉ phiên gần nhất là giá thật; đường đi trước đó ' +
     'là số tự dựng, nên đọc bốn con số dưới đây như ví dụ, đừng như so sánh thị trường.',
@@ -463,22 +502,6 @@ export const vi = {
   /* Lối sang kho mã lớn. Cố ý không chép số mã vào câu: con số đó do nguồn quyết, chép vào
      đây là để nó rữa trong im lặng. */
   'preset.browseMarket': 'Tìm mã khác trong toàn thị trường →',
-  'preset.browseMarketNote':
-    'Toàn bộ mã đang giao dịch, số liệu thật của phiên gần nhất — nhưng chỉ có MỘT phiên giá, ' +
-    'nên công thức cần nhiều phiên vẫn phải dán chuỗi riêng.',
-  /*
-   * Bản trước: "Sau khi nạp, mọi ô vẫn sửa được từng cái một." — nay NÓI QUÁ.
-   *
-   * Từ đợt khoá ô (chủ dự án chốt), nạp một mã thì chỉ ô mã cấp được số mới gõ vào được; ô mã
-   * không có thì khoá lại. Câu cũ hứa một điều màn không còn làm — mà đây lại là câu người
-   * dùng đọc NGAY TRƯỚC khi bấm Nạp, tức lời hứa được đọc đúng lúc nó sắp bị phá.
-   *
-   * FR-10 vẫn còn nguyên vế của nó, chỉ hẹp lại: "Bỏ mã" là lối mở khoá, và câu mới nói ra
-   * lối ấy thay vì im lặng về nó.
-   */
-  'preset.editableAfterLoad':
-    'Sau khi nạp, ô nào mã có số thì vẫn sửa được; ô mã không có thì khoá lại — bấm "Bỏ mã" ' +
-    'để gõ tự do trở lại.',
   /*
    * Nhãn bản thảo nay nói ĐÚNG NỬA nào là số tự dựng.
    *
@@ -491,12 +514,20 @@ export const vi = {
    * từ báo cáo thật thì lần sau người dùng không tin cả cảnh báo lẫn con số.
    */
   'preset.draftTag': 'giá quá khứ tự dựng',
-  'preset.draftTitle': 'Số liệu cơ bản và thị giá là số thật; đường đi của giá thì không.',
-  'preset.draftDetail':
-    'EPS, giá trị sổ sách, số cổ phiếu và giá phiên gần nhất lấy từ Finbox. 247 phiên trước đó ' +
-    'là chuỗi tự dựng, nên công thức đọc cả chuỗi (RSI, độ biến động, Beta…) chỉ nên xem là ví dụ.',
-  /* Câu ngắn đi kèm ngay CẠNH CON SỐ tiền — dùng ở màn Danh mục và trong file xuất ra.
-     Khác `preset.draftDetail` ở chỗ nó phải đọc lọt trong một dòng hẹp. */
+  /*
+   * ⚠ `preset.draftTitle` / `preset.draftDetail` đã BỎ — khối vàng nói rõ 247/248 phiên giá là số
+   * tự dựng. Chủ dự án chốt gỡ.
+   *
+   * Cái giá, đo được chứ không suy đoán: cả bốn mã mẫu đều `isDraft`, nên `mixedDraft` trong
+   * `PresetSheet` luôn sai và `preset.draftTag` ngay trên KHÔNG bao giờ hiện với bộ mẫu hiện tại.
+   * Tức màn hình không còn câu nào nói ra điều đó. Chỗ còn giữ lời hứa: cờ `isDraft` trong
+   * `samples.ts` (ba ca kiểm ghim), câu `preset.seriesOnlyNote` ở ca công thức ăn chuỗi, và
+   * `preset.draftExport` đính vào mọi file xuất ra.
+   *
+   * Cùng nếp với `portfolio.localOnly` và `settings.data.note` đã gỡ cùng ngày — quyết định có
+   * chủ ý, không phải một cửa gác bị rơi.
+   */
+  /* Câu ngắn đi kèm ngay CẠNH CON SỐ tiền — dùng ở màn Danh mục và trong file xuất ra. */
   /*
    * `preset.draftInline` đã bị xoá ở gói "Danh mục dùng số liệu thật".
    *

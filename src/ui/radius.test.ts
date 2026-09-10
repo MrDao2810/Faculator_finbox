@@ -10,7 +10,21 @@ import { describe, expect, it } from 'vitest';
  *   `--radius-sm`   6px   chrome nhỏ nằm trong dòng (ô icon, dấu bút chì, dải lãi/lỗ)
  *   `--radius-md`  10px   MỌI điều khiển và MỌI thẻ
  *   `--radius-lg`  16px   chỉ mép trên của bottom sheet
- *   `--radius-pill`       chip và huy hiệu
+ *   `--radius-pill`       chip
+ *   `8px` (số trần)       khay tab
+ *   `5px` (số trần)       huy hiệu cấp độ · nhóm nút Đường/Cột của biểu đồ (khung lẫn nút)
+ *
+ * Hai bậc số trần KHÔNG có trên thang, và đó là chuyện có thật chứ không phải thiếu sót — đều do
+ * chủ dự án chốt sau khi nhìn màn thật. Khay `TabBar` xuống 8 (09/09/2026); huy hiệu xuống 8 rồi
+ * hạ tiếp còn 5 cùng ngày, vì nó chỉ cao 17–20px nên bo 8 ở đó đã xấp xỉ NỬA chiều cao — mà nửa
+ * chiều cao chính là định nghĩa của viên thuốc, nên "8" không hiện ra thành góc bo. Nhóm nút
+ * Đường/Cột về 5 ngày 10/09/2026, _"bên ngoài và bên trong cần đồng bộ đều bằng 5"_ — nút trong lấy
+ * số bằng `inherit` nên chỉ có MỘT chỗ khai. Tiền lệ viết số trần có từ `Highlight.module.css`.
+ *
+ * Đừng dựng token cho hai số này. Số 8 phục vụ đúng một thành phần; số 5 nay có hai chỗ dùng, nhưng
+ * mỗi chỗ là một lần chủ dự án chốt bằng mắt cho riêng cụm ấy, không phải một bậc chung được chọn
+ * rồi áp xuống — có chỗ dùng thứ ba thì mới là lúc bàn chuyện đưa 5 lên thang. Muốn kéo cả hai về
+ * thang thì `--radius-sm` (6px) chỉ cách 1px — đó là chỗ để về.
  *
  * Chỗ hỏng mà bản rà soát bắt được: các điều khiển ĐỨNG CẠNH NHAU trong cùng một hàng lại bo bốn
  * kiểu — ô nhập và ô chọn `lg`, ô tìm kiếm `pill`, ô trong bảng dữ liệu `sm`, còn nút bấm ngay
@@ -66,6 +80,58 @@ describe('Bo góc', () => {
 
       expect(source, `${name} — ${reason}`).toMatch(/var\(--radius-lg\)/);
     }
+  });
+
+  /*
+   * Bo 5px — bậc không có trên thang, nên mỗi chỗ dùng phải có ca kiểm giữ.
+   *
+   * Hai dòng huy hiệu: bảng này từng có ba, `FormulaDetail.module.css .level` là bản chép thứ hai
+   * của huy hiệu, mang bộ màu riêng cho màn chi tiết. Đợt đổ nền xanh/cam (09/09/2026) gộp nó về
+   * `<Badge>`, nên bản chép ấy KHÔNG còn và dòng thứ ba đi theo. Đây là bảng thu hẹp vì hết việc,
+   * không phải vì ai đó bỏ bớt: `.level` nay chỉ còn `vertical-align` + `white-space`.
+   *
+   * Dòng `kindGroup` là khung của nhóm nút Đường/Cột (10/09/2026). Chỉ ghim KHUNG ở đây: nút bên
+   * trong không khai số mà lấy `inherit`, và ca kiểm riêng bên dưới giữ đúng điều đó — ghim cả hai
+   * bằng `5px` là mời hai chỗ khai cùng một con số.
+   */
+  const BO_5PX: ReadonlyArray<readonly [file: string, className: string]> = [
+    ['ui/primitives/Badge.module.css', 'basic'],
+    ['ui/primitives/Badge.module.css', 'advanced'],
+    ['ui/charts/ChartKindToggle.module.css', 'kindGroup'],
+  ];
+
+  /** Thân luật theo TÊN LỚP, chịu được cả bộ chọn ghép (`.basic, .advanced { … }`). */
+  function ruleBodyFor(css: string, className: string): string | null {
+    const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+    for (const match of stripped.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const selectors = (match[1] ?? '').split(',').map((part) => part.trim());
+      if (selectors.includes(`.${className}`)) return match[2] ?? '';
+    }
+
+    return null;
+  }
+
+  it.each(BO_5PX)('%s .%s — bo 5px, bậc trần ngoài thang', (file, className) => {
+    const body = ruleBodyFor(readFileSync(join(SRC_DIR, file), 'utf8'), className);
+
+    expect(body, `không tìm thấy luật .${className} trong ${file}`).not.toBeNull();
+    expect(body ?? '', `${file} .${className}`).toMatch(/border-radius:\s*5px\s*;/);
+  });
+
+  it('nút Đường/Cột lấy bo góc từ khung bằng inherit — một chỗ khai, không thể lệch', () => {
+    /*
+     * Chủ dự án chốt "bên ngoài và bên trong cần đồng bộ". Cách giữ đồng bộ bền nhất không phải hai
+     * dòng `5px` giống nhau mà là MỘT dòng và một `inherit` — cùng lối `.tab` của `TabBar.module.css`.
+     * Ca này bắt đúng lúc ai đó "sửa cho rõ" bằng cách ghi thẳng số vào nút.
+     */
+    const body = ruleBodyFor(
+      readFileSync(join(SRC_DIR, 'ui/charts/ChartKindToggle.module.css'), 'utf8'),
+      'kindOption',
+    );
+
+    expect(body, 'không tìm thấy luật .kindOption').not.toBeNull();
+    expect(body ?? '').toMatch(/border-radius:\s*inherit\s*;/);
   });
 
   it('mọi điều khiển nhập liệu bo cùng một bậc', () => {

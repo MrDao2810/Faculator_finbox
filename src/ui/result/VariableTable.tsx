@@ -5,6 +5,8 @@ import type { FormulaSpec, Level } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Table } from '@/ui/primitives';
 
+import styles from './VariableTable.module.css';
+
 export interface VariableTableProps {
   formula: FormulaSpec;
   /** Chế độ Cơ bản chỉ liệt kê biến cơ bản, Nâng cao liệt kê tất (FR-09). */
@@ -25,14 +27,18 @@ export interface VariableTableProps {
  * đây là câu chữ, xuống dòng không đổi nghĩa, nên khỏi ép `nowrap` mặc định của primitive — một
  * mô tả dài không còn tự kéo rộng cả bảng và bắt cuộn ngang ở khổ điện thoại. Cột Đơn vị vẫn
  * nowrap mặc định vì luôn là nhãn ngắn ("%", "lần"...).
+ *
+ * Ở khổ PC cột Biến giữ 30% bảng — lớp `.variables` trong `VariableTable.module.css`, lý do ghi ở
+ * đó. Lớp ghép TRƯỚC `className` từ ngoài (`deferred` của màn chi tiết) để cả hai cùng lên `<table>`.
  */
 export function VariableTable({ formula, mode = 'advanced', className }: VariableTableProps) {
   const t = useT();
   const pick = usePick();
   const variables = variablesForLevel(formula, mode);
+  const classes = [styles.variables, className].filter(Boolean).join(' ');
 
   return (
-    <Table caption={t('variable.tableCaption')} hideCaption className={className}>
+    <Table caption={t('variable.tableCaption')} hideCaption className={classes}>
       <thead>
         <tr>
           <th scope="col">{t('variable.colName')}</th>

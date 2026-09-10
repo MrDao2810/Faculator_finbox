@@ -223,6 +223,40 @@ export function backLinkFor(pathname: string, search = ''): HeaderBackLink | nul
 }
 
 /**
+ * Chân trang có dựng dải miễn trừ ở đường dẫn này không.
+ *
+ * Mặc định là CÓ, và đó là điểm quan trọng nhất của hàm: FR-24 · UI-04 đòi câu miễn trừ có mặt ở
+ * mọi màn, nên `AppShell` vẫn dựng nó cho mọi màn và một màn mới không phải nhớ thêm gì. Hàm này
+ * chỉ liệt kê ngoại lệ, và ngoại lệ chỉ hợp lệ khi màn ấy đã tự bày câu miễn trừ ở CHỖ TỐT HƠN.
+ *
+ * Hai ngoại lệ, cùng một lý do — màn ấy đã dựng `DisclaimerBar variant="notice"`, ô vàng nằm cùng
+ * tầm mắt với con số tiền, nên dải xám ở chân trang là lần thứ hai nói cùng một câu trong cùng một
+ * trang:
+ *
+ *   1. Trang chi tiết công thức. Chủ dự án: *"đoạn này ở chi tiết công thức đang có ở trên cùng
+ *      rồi nên xóa ở dưới cùng đi"*.
+ *   2. `/danh-muc/`. Màn này trước đây CỐ Ý đứng ngoài danh sách trừ, và docblock cũ ghi thẳng
+ *      "muốn thêm thì thêm một dòng ở đây" — 09/09/2026 chủ dự án chốt thêm, cùng câu chữ:
+ *      *"bên trên đã có"*.
+ *
+ * Điều kiện để một ngoại lệ hợp lệ: ô `notice` phải có ở MỌI trạng thái của màn, không riêng
+ * trạng thái mặc định. `/danh-muc/` suýt vi phạm — ô ấy vốn nằm trong tab Mã nên tab Công thức
+ * sẽ trắng câu miễn trừ ngay khi dòng này thêm vào; nó đã được nâng ra ngoài cả hai tab đúng lúc
+ * ấy, xem docblock cạnh nó trong `PortfolioScreen.tsx`.
+ *
+ * Khớp TRANG CON ở màn chi tiết, cùng lẽ với `backLinkFor()`: '/cong-thuc/' trơn là màn danh sách,
+ * nó không bày con số tiền nào và không có ô `notice`, nên chân trang vẫn phải nói. Danh mục thì
+ * khớp TUYỆT ĐỐI — hôm nay nó không có trang con, và một trang con thêm sau này chưa chắc mang
+ * theo ô `notice`, nên mặc định "có dải" phải là thứ nó nhận được.
+ */
+export function showsFooterDisclaimer(pathname: string): boolean {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+  const laTrangChiTiet = path.startsWith(ROUTES.formulas) && path !== ROUTES.formulas;
+  const laDanhMuc = path === ROUTES.portfolio;
+  return !laTrangChiTiet && !laDanhMuc;
+}
+
+/**
  * Mục nào đang được chọn ứng với đường dẫn hiện tại.
  * Trang chủ phải khớp tuyệt đối, các mục khác khớp cả trang con
  * (ví dụ '/cong-thuc/wacc/' vẫn sáng mục Công thức).

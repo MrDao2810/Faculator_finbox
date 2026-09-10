@@ -1,11 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import {
+  CATEGORIES,
+  DEFAULT_LIST_PARAMS,
   FORMULA_SUMMARIES,
   RECENT_SEARCHES_KEY,
   countHiddenByLevel,
+  formulaListPath,
   formulasForLevel,
   selectFormulas,
 } from '@/application';
@@ -16,6 +20,7 @@ import { useQueryDraft } from '@/application/use-query-draft';
 import { useRecentSearches } from '@/application/use-recent-searches';
 import {
   EmptyState,
+  FormulaFolders,
   HiddenByLevelNote,
   HotCategories,
   RecentSearches,
@@ -39,6 +44,18 @@ const SUGGESTED_IDS: ReadonlyArray<string> = ['co-lenh-rui-ro', 'roi', 'gia-hoa-
  *
  * Trang cha đặt `robots: noindex` và không có trong `sitemap.xml`: hai URL cùng ra một danh
  * sách là đúng thứ FR-25 không muốn.
+ *
+ * ── Khổ PC: bản vẽ "Thư mục theo nhóm" ────────────────────────────────────────────────────
+ *
+ * Đây là màn duy nhất KHÔNG có trong bộ 11 bản vẽ hi-fi, nên nó từng dùng tạm bản điện thoại
+ * kẹp lại 720px. Chủ dự án gửi bản vẽ riêng cho nó (phương án 05/10), và bản vẽ ấy quyết đúng
+ * ba câu hỏi đang để ngỏ ở docblock cũ của `SearchScreen.module.css`: khung trải rộng, chưa gõ
+ * gì thì bày THƯ MỤC 12 nhóm chứ không phải sáu ô "Danh mục hot", còn kết quả tìm là chính lưới
+ * thư mục ấy thu lại còn những nhóm có kết quả.
+ *
+ * Hai khối lối tắt cùng nằm trong DOM và CSS chọn theo bề ngang — cùng lối `CategoryGrid` đã
+ * dùng cho cặp con số Cơ bản / Nâng cao, và ở đây không có ràng buộc HTML tĩnh nào (trang bọc
+ * `<Suspense fallback={null}>`) nên đây thuần là chuyện chọn hình theo khổ màn.
  */
 export function SearchScreen() {
   const { params, setParams } = useListParams();
@@ -82,6 +99,32 @@ export function SearchScreen() {
     [pool, params, trimmed],
   );
 
+  /*
+   * Số công thức của TỪNG nhóm trong bộ đang tìm — đầu mỗi thẻ kết quả in "7 / 13". Đếm trên
+   * `pool` chứ không trên `FORMULA_SUMMARIES`: mẫu số phải là thứ người dùng bấm vào được ở chế
+   * độ hiện tại, đúng như dòng "xem tất cả N" và khối thư mục.
+   */
+  const totals = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const formula of pool) {
+      counts.set(formula.categoryId, (counts.get(formula.categoryId) ?? 0) + 1);
+    }
+    return counts;
+  }, [pool]);
+
+  /*
+   * Những nhóm CÓ công thức nhưng không có kết quả nào khớp — hàng chip cuối trạng thái đang gõ,
+   * theo bản vẽ. Nói ra chỗ đã tìm mà không thấy, để người dùng biết mình đã quét hết thư viện
+   * chứ không phải mới quét bốn nhóm hiện trên màn.
+   */
+  const emptyCategories = useMemo(() => {
+    if (trimmed === '') return [];
+    const hit = new Set(results.map((formula) => formula.categoryId));
+    return CATEGORIES.filter(
+      (category) => (totals.get(category.id) ?? 0) > 0 && !hit.has(category.id),
+    );
+  }, [results, totals, trimmed]);
+
   const hiddenByLevel = useMemo(
     () =>
       trimmed === '' ? 0 : countHiddenByLevel(FORMULA_SUMMARIES, { ...params, q: trimmed }, mode),
@@ -115,24 +158,40 @@ export function SearchScreen() {
         liệu (xem `HeaderIdentity`). Wireframe WF-09 vẽ dấu `‹` ngay bên trái ô tìm; bản dựng cũ
         xếp nó lên TRÊN ô tìm vì ở 360px ô tìm cần trọn bề ngang. Nay nó nằm ở hàng dính trên, tức
         gần đúng chỗ bản vẽ muốn hơn cả bản cũ, mà ô tìm vẫn giữ trọn bề ngang và lên được dòng đầu.
+
+        Ô tìm và hàng chip "Tìm gần đây" đứng CÙNG MỘT HÀNG ở khổ PC — bản vẽ "Thư mục theo nhóm"
+        vẽ chúng thế. Ở khổ điện thoại `.topRow` vẫn là một cột, nên hai khối xếp dọc như cũ.
       */}
-      <div ref={inputRef}>
-        <SearchBox
-          value={draft}
-          onChange={setDraft}
-          onSubmit={() => {
-            // Enter là dấu hiệu người dùng gõ xong: chốt URL ngay để link chia sẻ được luôn.
-            commitDraft(draft);
-          }}
-        />
+      <div className={styles.topRow}>
+        <div ref={inputRef} className={styles.searchSlot}>
+          <SearchBox
+            value={draft}
+            onChange={setDraft}
+            onSubmit={() => {
+              // Enter là dấu hiệu người dùng gõ xong: chốt URL ngay để link chia sẻ được luôn.
+              commitDraft(draft);
+            }}
+          />
+        </div>
+
+        {trimmed === '' && (
+          <RecentSearches terms={recent} onPick={commitDraft} onClear={clearRecent} />
+        )}
       </div>
 
       {trimmed === '' ? (
         <>
-          <RecentSearches terms={recent} onPick={commitDraft} onClear={clearRecent} />
-
-          {/* Lối tắt cho người chưa biết gõ gì — chỉ những nhóm ĐÃ có công thức. */}
-          <HotCategories formulas={pool} />
+          {/*
+            Hai lối tắt cho người chưa biết gõ gì, CSS chọn theo khổ màn (xem docblock đầu file):
+            sáu ô "Danh mục hot" ở điện thoại, thư mục 12 thẻ ở khổ PC. Cả hai chỉ hiện những nhóm
+            ĐÃ có công thức — lối tắt dẫn vào phòng trống là lối tắt hỏng.
+          */}
+          <div className={styles.onlyPhone}>
+            <HotCategories formulas={pool} />
+          </div>
+          <div className={styles.onlyDesktop}>
+            <FormulaFolders formulas={pool} />
+          </div>
 
           <p className={styles.tip}>{t('search.tip')}</p>
         </>
@@ -145,7 +204,32 @@ export function SearchScreen() {
 
           <HiddenByLevelNote count={hiddenByLevel} />
 
-          <SearchResults formulas={results} query={trimmed} onSelect={onSelectResult} />
+          <SearchResults
+            formulas={results}
+            query={trimmed}
+            onSelect={onSelectResult}
+            totals={totals}
+          />
+
+          {/*
+            Hàng chip những nhóm không có kết quả nào — bản vẽ đặt nó ở cuối trạng thái đang gõ.
+            Là link thật sang danh sách đã lọc nhóm, KHÔNG mang theo chuỗi đang tìm: mang theo là
+            dẫn thẳng vào một danh sách rỗng, đúng thứ vừa nói là không có gì.
+          */}
+          {emptyCategories.length > 0 && (
+            <p className={styles.noneIn}>
+              <span className={styles.noneInLabel}>{t('search.noneIn')}</span>
+              {emptyCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  className={styles.noneInChip}
+                  href={formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: category.id })}
+                >
+                  {pick(category.shortName)}
+                </Link>
+              ))}
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -176,13 +260,18 @@ export function SearchScreen() {
 
           {/*
             Lối ra khi không tìm thấy: khối nhóm cho người dùng nhảy thẳng vào vùng mình quan tâm,
-            thay vì phải nghĩ ra từ khoá khác.
+            thay vì phải nghĩ ra từ khoá khác. Cùng cặp hai dáng với trạng thái nhàn ở trên.
 
             Từng có thêm một link "Xoá tìm kiếm · xem tất cả 111" ngay dưới đây — chủ dự án cho bỏ.
             Thanh nav dưới đã có mục "Công thức" dẫn đúng chỗ đó, nên nó là lối ra thứ hai cho cùng
             một nơi, đặt ở cuối một màn vốn đã dài.
           */}
-          <HotCategories formulas={pool} />
+          <div className={styles.onlyPhone}>
+            <HotCategories formulas={pool} />
+          </div>
+          <div className={styles.onlyDesktop}>
+            <FormulaFolders formulas={pool} />
+          </div>
         </>
       )}
     </div>

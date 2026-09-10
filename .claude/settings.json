@@ -1459,7 +1459,12 @@
       "Bash(node shot-url.mjs \"http://localhost:3000/cong-thuc/\" nav-fix-ct.png 1500 90)",
       "Bash(node shot-url.mjs \"http://localhost:3000/cai-dat/\" nav-fix-cd.png 1500 90)",
       "Bash(node shot-url.mjs \"http://localhost:3000/cong-thuc/\" mode8-light.png 1500 90)",
-      "Bash(node shot-url.mjs \"http://localhost:3000/cong-thuc/\" mode8-dark.png 1500 90 \"document.documentElement.setAttribute\\('data-theme','dark'\\)\")"
+      "Bash(node shot-url.mjs \"http://localhost:3000/cong-thuc/\" mode8-dark.png 1500 90 \"document.documentElement.setAttribute\\('data-theme','dark'\\)\")",
+      "Bash(MSYS_NO_PATHCONV=1 node do-bo.mjs .)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/tim-kiem/ --max-time 8)",
+      "Bash(node do-thumuc.mjs .)",
+      "Bash(node thu-gac.mjs)",
+      "Bash(node thu-gac.mjs .)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

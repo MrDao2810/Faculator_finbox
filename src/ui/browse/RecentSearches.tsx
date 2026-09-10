@@ -135,7 +135,8 @@ export function RecentSearches({
   }
 
   return (
-    <section className={styles.recent} aria-labelledby="recent-title">
+    /* `.block` chỉ để CSS khổ PC xếp dạng này thành một hàng — xem `RecentSearches.module.css`. */
+    <section className={`${styles.recent} ${styles.block}`} aria-labelledby="recent-title">
       <div className={styles.head}>
         <h2 className={styles.title} id="recent-title">
           {t('search.recent.title')}

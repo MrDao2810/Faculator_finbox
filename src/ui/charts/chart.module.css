@@ -748,6 +748,16 @@
  */
 .picker select {
   min-height: var(--control-h-compact);
+
+  /*
+   * 5px — bằng khung nhóm nút Đường / Cột đứng ngay bên phải nó (`.kindGroup` ở
+   * `ChartKindToggle.module.css`, chủ dự án chốt 10/09/2026). Cùng ngày, nhìn hai điều khiển cạnh
+   * nhau ở 1440: _"điều chỉnh bo bên trái bằng với bo bên phải"_. Primitive `Select` vẫn giữ
+   * `--radius-md` cho mọi chỗ khác — chỉ ô chọn trục, ở cả trên trang lẫn màn phóng to (cùng lý do
+   * luật này không ràng vào `.controls`, xem docblock trên), mới theo số của cụm nút bên cạnh.
+   * `radius.test.ts` ghim con số này cùng với `.kindGroup`.
+   */
+  border-radius: 5px;
 }
 
 /*

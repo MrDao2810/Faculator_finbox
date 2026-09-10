@@ -146,6 +146,8 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.2.1 | Màn chi tiết khổ PC — thẻ Kết quả nằm ngang · nhóm Đường/Cột bo 5px             | —       | Xong phần code, **chưa build** — xem mục "Thẻ Kết quả nằm ngang"   |
 | 2.4.5 | Bảng biến khổ PC — cột "Biến" giữ 30% bảng, hết vỡ dòng                         | —       | Xong phần code, **chưa build** — xem mục "Cột Biến của bảng biến"  |
 | 3.2.2 | Khối Chuỗi khổ PC — thẻ bước chia hai cột, lẻ thì trái nhiều hơn một            | —       | Xong phần code, **chưa build** — xem mục "Thẻ bước … chia hai cột" |
+| 4.x   | Ô chọn trục biểu đồ bo 5px, bằng nhóm Đường/Cột bên cạnh                        | —       | Xong phần code, **chưa build** — xem mục "Ô chọn trục bo 5px"      |
+| 3.1.3 | Màn Tìm kiếm khổ PC — thư mục 12 thẻ nhóm theo bản vẽ riêng                     | —       | Xong phần code, **chưa build** — xem mục "Thư mục theo nhóm"       |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -153,6 +155,171 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Màn Tìm kiếm khổ PC — thư mục theo nhóm (10/09/2026)
+
+**Trạng thái: xong phần code**, đã đo trên Chrome thật ở 360 / 1024 / 1440 / 1920 và soi ảnh chụp
+cả hai trạng thái.
+
+Chủ dự án gửi bản vẽ riêng cho WF-09 — _"Thư mục theo nhóm"_, phương án 05/10, khổ 1440. Đây là màn
+DUY NHẤT không nằm trong bộ 11 bản vẽ hi-fi, nên nó đang dùng tạm bản điện thoại kẹp lại 720px, và
+docblock `SearchScreen.module.css` ghi ba phương án còn để ngỏ. Bản vẽ này chốt chúng.
+
+### Bản vẽ quyết cái gì
+
+Khung TRẢI theo viewport (bỏ dòng kẹp `--content-max`); ô tìm hãm còn ~40% hàng, phần còn lại là
+khối "Tìm gần đây" đứng CẠNH nó; chưa gõ gì thì bày **thư mục 12 thẻ nhóm** thay cho sáu ô
+"Danh mục hot"; đang gõ thì chính lưới thư mục ấy thu lại còn những nhóm có kết quả, mỗi thẻ mang
+"7 / 13" ở đầu và link "Mở nhóm …" ở cuối; hàng chip những nhóm không có kết quả đứng cuối màn.
+
+### Làm
+
+Một thẻ cho CẢ HAI trạng thái — `GroupCard` (mới) — vì bản vẽ vẽ chúng bằng cùng một hình; hai
+component riêng là mở đường cho hai hình trôi khỏi nhau. Thẻ có hai dáng trên cùng một DOM, CSS
+chọn theo bề ngang: dưới 1024 là danh sách gọn của bản điện thoại đã duyệt (chép nguyên luật cũ của
+`SearchResults.module.css` — tiêu đề chữ nhỏ viết hoa, dòng 44px có kẻ chia và mũi tên, không
+viền), từ 1024 là thẻ đóng khung (icon + tên đậm + con số, mô tả một dòng, dòng hạ xuống 40px, bỏ
+mũi tên).
+
+`FormulaFolders` (mới) trải 12 thẻ thành lưới — 3 cột ở 1024–1279, 4 cột từ 1280. `SearchResults`
+rút gọn còn phần gom nhóm và trải CÙNG lưới ấy.
+
+**Mốc 1024 chứ không 1280**, khác màn chi tiết: thứ màn này chờ là khung nới theo viewport, không
+phải chỗ cho biểu đồ. Ở 928px sáu ô "Danh mục hot" đã dồn cục về mép trái bỏ trống hai phần ba
+hàng — đúng chỗ hỏng mà dòng kẹp 720px sinh ra để che, nay có thư mục lấp.
+
+Hai khối lối tắt CÙNG nằm trong DOM, `display` chọn theo khổ — cùng lối `CategoryGrid` dùng cho cặp
+con số Cơ bản / Nâng cao. Không một byte JS nào phải chạy để đổi hình, nên không có nháy; cái giá
+là DOM mang cả hai, chấp nhận vì đây là màn client hoàn toàn (`<Suspense fallback={null}>`,
+`robots: noindex`) nên không đụng HTML tĩnh của trang nào.
+
+Số đếm lấy từ `pool` (đã lọc theo chế độ) chứ không từ `expectedCount`, đúng luật `HotCategories`
+đã có: lối tắt dẫn vào phòng trống là lối tắt hỏng. Nên ở chế độ Cơ bản màn bày **11 thẻ** chứ
+không 12 — `corporate-finance` có 2/2 công thức đều mức nâng cao.
+
+### Lệch bản vẽ CÓ CHỦ Ý — ba chỗ, chờ chủ dự án
+
+1. **Không thêm `<h1>` "Thư viện công thức" + câu mô tả vào thân màn.** "h1 về thân trang" nằm
+   trong danh sách không-làm đã chốt; `<h1>` của trang là ở thanh trên (`HeaderIdentity`).
+2. **Không thêm nút "Theo nhóm / Danh sách".** Đó là chức năng mới (đổi cách xem), không phải bố
+   cục — luật đã chốt là chỗ nào chức năng khác thì giữ phiên bản dự án.
+3. **Không thêm ô "Trong: Tất cả nhóm ▾" cạnh ô tìm.** Cũng là chức năng mới. `params.categoryId`
+   đã có sẵn trên URL nên nối vào rẻ, nhưng đó là quyết định của chủ dự án chứ không phải của bố cục.
+
+Ngoài ra: huy hiệu "Cơ bản" VẪN hiện trên mọi dòng, còn bản vẽ chỉ vẽ huy hiệu cho dòng nâng cao.
+Cấp độ là nội dung, và NFR-USA-06 muốn nó đọc được bằng chữ chứ không suy ra từ chỗ trống.
+
+### Ba ca kiểm ĐỎ SẴN từ trước, vá luôn vì nằm đúng khối đang sửa
+
+Có bằng chứng: `git stash` phần sửa của mình rồi chạy lại, cả ba vẫn đỏ ở HEAD.
+
+- `i18n.test.ts` "khoá mồ côi" đỏ vì `search.seeAll` — link "Xoá tìm kiếm · xem tất cả" đã bị chủ
+  dự án cho gỡ mà khoá ở lại. **Xoá khoá** ở cả hai từ điển, ghi lý do tại chỗ. Link cuối thẻ nhóm
+  dùng khoá MỚI `search.folder.seeAll`, khác chữ và khác việc.
+- `RecentSearches.test.tsx` ×2 ghim chữ "Lịch sử tìm kiếm" — chữ của bản trước; từ điển đã đổi sang
+  "Tìm gần đây" mà ca kiểm không đi theo. **Ghim đúng chữ đang dùng.**
+- Kèm theo, `SearchScreen.test.tsx` có một ca `queryByRole('region', { name: 'Lịch sử tìm kiếm' })`
+  mong `null` — nó XANH cả khi khối hiện ra, vì cái tên ấy không còn tồn tại. Sửa chữ, ca mới thật
+  sự gác.
+
+### Cửa gác
+
+`FormulaFolders.test.tsx` (mới, 9 ca): chỉ dựng thẻ cho nhóm đã có công thức · số ở đầu thẻ bằng số
+trong "Xem tất cả N" · nhiều nhất bốn dòng, nổi bật lên trước · bày hết thì link đổi thành "Mở
+nhóm" · rỗng thì không dựng lưới; và `GroupCard` "khớp / tổng", không `total` thì đầu thẻ không có
+số, bấm dòng thì gọi `onSelect`.
+
+`chrome-check.mjs` thêm **8 phép** (một khối đọc `DOC_TIM` dùng chung ba khổ): 1440 không tràn ·
+thư mục hiện & "Danh mục hot" ẩn & 4 cột · thẻ viền 1px & nhiều nhất 4 dòng · ô tìm ≤45% hàng và
+khối "Tìm gần đây" đứng cạnh bên phải · **nút xoá cùng hàng tiêu đề và dạt mép phải khối** · 1024
+ba cột & không tràn · **360 giữ "Danh mục hot", KHÔNG phải thư mục**. Phép cuối là vế quan trọng
+nhất: hai dáng cùng nằm trong DOM nên không ca jsdom nào phân biệt được chúng.
+
+`hairline.test.ts` — mục `.row` trong bảng `GIU_COLOR_BORDER` chuyển địa chỉ từ
+`SearchResults.module.css` sang `GroupCard.module.css`, lý do viết lại kèm chỗ cũ.
+
+### Đo
+
+| Khổ  | Thư mục        | "Danh mục hot" | Ô tìm             | Khối gần đây         | Tràn ngang |
+| ---- | -------------- | -------------- | ----------------- | -------------------- | ---------- |
+| 360  | ẩn             | hiện           | 328px             | xuống dòng riêng     | không      |
+| 1024 | 11 thẻ · 3 cột | ẩn             | 365px             | cạnh ô tìm           | không      |
+| 1440 | 11 thẻ · 4 cột | ẩn             | 519px (0,40 hàng) | cạnh ô tìm, trái 603 | không      |
+| 1920 | 11 thẻ · 4 cột | ẩn             | 576px             | cạnh ô tìm           | không      |
+
+Đang gõ "loi nhuan" ở 1440: 4 thẻ trên một hàng, đầu thẻ "2 / 8 · 7 / 13 · 1 / 8 · 1 / 12", 28 đoạn
+tô sáng, hàng cuối "Không có kết quả trong:" 7 chip. Chạy đúng các phép kiểm mới trên Chrome thật
+(cắt `DOC_TIM` thẳng từ `chrome-check.mjs`), kèm bốn phép phụ cho bản vá dưới: **10/10 đạt**.
+
+### Vá cùng ngày — nút xoá lịch sử
+
+Chủ dự án chụp hàng trên ở màn thật: sáu chip tên công thức tiếng Việt vỡ thành HAI hàng, và nút
+thùng rác bị đẩy hẳn xuống hàng thứ ba, đứng lẻ loi dưới đáy. Yêu cầu: _"đưa button xoá lên ngang
+hàng với Tìm Gần Đây nhưng phải căn phải"_.
+
+Nguyên nhân là mẹo của bản đầu: dồn tiêu đề + chip + nút thành MỘT hàng flex bằng `display: contents`
+trên `.head` cộng `order`. Cách ấy chỉ đứng vững khi chip vừa một hàng — mà số chip thì do người
+dùng quyết, không do bố cục.
+
+**Bỏ hẳn mẹo đó.** Khối quay về đúng hình hai tầng vốn có của bản điện thoại (`.head` đã sẵn
+`justify-content: space-between`: tiêu đề trái, nút xoá phải; chip ở hàng dưới), và ở khổ PC chỉ
+còn một việc duy nhất: `flex: 1` cho khối giãn hết phần hàng còn lại. Thiếu nó thì "căn phải" dừng
+ở mép phải đám chip chứ không tới mép phải cột nội dung.
+
+Đo ở 1440: nút xoá [77–101] so với tiêu đề [82–97] — cùng tâm dọc; mép phải nút 1361 = mép phải
+khối 1361 (mép phải `main` là 1425, chênh đúng 64px đệm). 1024 và 360 cùng dạng, bản điện thoại
+không đổi một pixel.
+
+`chrome-check` thêm phép **"nút xoá cùng hàng với TÌM GẦN ĐÂY và dạt mép phải"**, so tâm dọc với
+TIÊU ĐỀ chứ không với ô tìm — hai thứ ấy mới là cặp phải thẳng hàng — và đòi `nút.bottom ≤ chip.top`
+để bắt đúng ca vừa hỏng.
+
+### File đổi
+
+**Mới:** `ui/browse/GroupCard.tsx` + `.module.css`, `ui/browse/FormulaFolders.tsx` + `.module.css`,
+`ui/browse/FormulaFolders.test.tsx`.
+**Sửa:** `app/tim-kiem/SearchScreen.tsx` + `.module.css` (bỏ kẹp 720px, hàng trên, hai dáng lối
+tắt, hàng "Không có kết quả trong"), `ui/browse/SearchResults.tsx` + `.module.css` (rút còn phần
+gom nhóm + lưới), `ui/browse/RecentSearches.tsx` + `.module.css` (dạng `block` giãn hết phần hàng
+còn lại ở khổ PC — xem mục vá ngay dưới),
+`ui/browse/index.ts`, `i18n/vi.ts` + `en.ts` (thêm `search.folder.seeAll`, `search.folder.open`,
+`search.noneIn`; xoá `search.seeAll`), `ui/hairline.test.ts`, `ui/browse/RecentSearches.test.tsx`,
+`app/tim-kiem/SearchScreen.test.tsx`, `scripts/chrome-check.mjs`.
+
+**Kiểm:** `npm test` **106 file / 2534 ca xanh** (trước đợt này 3 ca đỏ) · `lint` · `typecheck` ·
+`format:check` sạch.
+
+### Còn lại
+
+Ba chỗ lệch bản vẽ ở trên chờ chủ dự án quyết. Và như mọi mục PC khác: **chưa chạy `build`** —
+`npm run dev` đang giữ cổng 3000.
+
+---
+
+## Ô chọn trục bo 5px, bằng nhóm Đường/Cột bên cạnh (10/09/2026)
+
+**Trạng thái: xong phần code**, đã đo giá trị bo góc đã tính trên Chrome ở 360 và 1440.
+
+Chủ dự án chụp hàng điều khiển biểu đồ ở màn web — ô chọn trục bo 10px (`--radius-md` của primitive
+`Select`), nhóm Đường / Cột vừa về 5px — và bảo: _"điều chỉnh bo bên trái bằng với bo bên phải"_.
+
+**Làm:** `.picker select { border-radius: 5px }` trong `chart.module.css`, cạnh luật chiều cao
+`--control-h-compact` đã có — cùng phạm vi (ô chọn trục trên trang lẫn màn phóng to), không đụng
+primitive `Select` ở các chỗ khác. Ô chọn và nhóm nút là hai anh em, không phải cha con, nên không
+`inherit` được như nút trong khay; đây là chỗ khai thứ hai của số 5 trong hàng.
+
+**Cửa gác:** `radius.test.ts` thêm `chart.module.css .picker select` vào bảng `BO_5PX` (hàm tìm luật
+nay nhận nguyên bộ chọn) và docblock ghi lại: số 5 có HAI cụm dùng — huy hiệu, và hàng điều khiển
+biểu đồ (ô chọn + nhóm nút chốt để bằng nhau, không phải hai lần chọn); cụm thứ ba không cùng hàng
+mới là lúc bàn đưa 5 lên thang. `chrome-check` thêm một phép ở 1440: bo góc đã tính của ô chọn bằng
+của nhóm nút.
+
+**Đo:** 360 và 1440 — ô chọn 5px · khung nhóm 5px · nút 5px.
+
+**File đổi:** `chart.module.css`, `radius.test.ts`, `scripts/chrome-check.mjs`. **Kiểm:** `lint` ·
+`prettier` sạch; `radius` + `tokens` + `hairline` + `charts` 4 file xanh.
 
 ---
 

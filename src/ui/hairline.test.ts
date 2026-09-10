@@ -133,9 +133,9 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
     'Kẻ chia giữa hai phép tính đã lưu. Cùng cảnh .holdRow, và nặng hơn từ khi dòng thôi bày con số: nay nó chỉ còn hai dòng chữ, mất kẻ là ba mục dính thành một đoạn văn.',
   ],
   [
-    'ui/browse/SearchResults.module.css',
+    'ui/browse/GroupCard.module.css',
     '.row',
-    'Cùng cảnh với .holdRow: các dòng kết quả tìm đều bấm được, mất kẻ là dính thành một khối chữ.',
+    'Cùng cảnh với .holdRow: các dòng kết quả tìm (và dòng trong thẻ thư mục nhóm) đều bấm được, mất kẻ là dính thành một khối chữ. Trước ở SearchResults.module.css; dọn sang thẻ nhóm dùng chung khi có thư mục 12 nhóm.',
   ],
   [
     'ui/navigation/AppHeader.module.css',

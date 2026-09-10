@@ -86,10 +86,23 @@ export const vi = {
   'search.resultCount': 'kết quả',
   'search.noMatch': 'Không tìm thấy',
   'search.suggest.title': 'Có thể bạn cần',
-  'search.seeAll': 'Xoá tìm kiếm · xem tất cả',
+  /*
+   * `search.seeAll` — "Xoá tìm kiếm · xem tất cả" — đã BỎ. Chủ dự án cho gỡ chính cái link ấy khỏi
+   * trạng thái không-tìm-thấy (lý do ở `SearchScreen.tsx`), nhưng khoá thì ở lại và thành khoá chết:
+   * `i18n.test.ts` báo đỏ đúng nó. Link cuối thẻ nhóm nay dùng `search.folder.seeAll`, khác chữ và
+   * khác việc — không phải chỗ để hồi sinh khoá cũ.
+   */
   /* Khối lối tắt ở trạng thái chưa gõ gì. Số trên ô là số công thức ĐÃ DÙNG ĐƯỢC,
      khác lưới nhóm ở trang chủ vốn hiện số dự kiến của SRS. */
   'search.hot.title': 'Danh mục hot',
+  /*
+   * Thẻ nhóm ở khổ PC — bản vẽ "Thư mục theo nhóm". Hai link cuối thẻ ghép thêm con số hoặc tên
+   * nhóm phía sau ("Xem tất cả 20 →", "Mở nhóm Vay nợ →"), nên viết cụt, không dấu chấm.
+   * `search.noneIn` mở đầu hàng chip những nhóm KHÔNG có kết quả, đứng cuối trạng thái đang gõ.
+   */
+  'search.folder.seeAll': 'Xem tất cả',
+  'search.folder.open': 'Mở nhóm',
+  'search.noneIn': 'Không có kết quả trong:',
 
   // Lọc — WF-02
   'filter.segment.label': 'Mảng',

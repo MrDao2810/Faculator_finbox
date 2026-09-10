@@ -39,7 +39,12 @@ describe('RecentSearches — dạng block, màn tìm WF-09', () => {
     const onClear = vi.fn();
     render(<RecentSearches terms={TERMS} onPick={vi.fn()} onClear={onClear} />);
 
-    expect(screen.getByRole('heading', { name: 'Lịch sử tìm kiếm' })).not.toBeNull();
+    /*
+     * Chữ đọc thẳng từ `search.recent.title`. Ba ca dưới từng ghim "Lịch sử tìm kiếm" — chữ của
+     * bản trước — và đỏ suốt từ lúc từ điển đổi sang "Tìm gần đây" mà không ai sửa theo. Ghim
+     * đúng chữ đang dùng, nếu không cả ba chỉ còn là ba ca đỏ thường trực.
+     */
+    expect(screen.getByRole('heading', { name: 'Tìm gần đây' })).not.toBeNull();
 
     /*
      * Nút xoá của dạng này từng là nút CHỮ; nay thu về icon cho gọn (chủ dự án báo khối chiếm
@@ -85,7 +90,7 @@ describe('RecentSearches — dạng inline, hàng chip dưới ô tìm ở trang
   /* Bỏ `<h2>` thì `aria-labelledby` mất chỗ trỏ tới; vùng vẫn phải tự xưng tên được. */
   it('vùng vẫn có tên cho trình đọc màn hình', () => {
     renderInline();
-    expect(screen.getByRole('region', { name: 'Lịch sử tìm kiếm' })).not.toBeNull();
+    expect(screen.getByRole('region', { name: 'Tìm gần đây' })).not.toBeNull();
   });
 
   /* Nút chỉ còn icon, nên nhãn phải nằm ở `aria-label` — NFR-USA-06. */

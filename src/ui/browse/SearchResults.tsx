@@ -1,15 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import { findCategory } from '@/application';
+import type { Category, FormulaSummary } from '@/application';
 
-import { findCategory, formulaPath } from '@/application';
-import type { FormulaSummary } from '@/application';
-import { usePick } from '@/application/preferences-context';
-
-import { T } from '../i18n/T';
-/* Nhập thẳng từ file chứ không qua barrel — cùng lý do đã ghi ở `FormulaCard.tsx`. */
-import { Badge } from '../primitives/Badge';
-import { Highlight } from './Highlight';
+import { GroupCard } from './GroupCard';
 import styles from './SearchResults.module.css';
 
 export interface SearchResultsProps {
@@ -26,37 +20,56 @@ export interface SearchResultsProps {
    * trạng thái không-tìm-thấy cố tình không truyền, vì đó là gợi ý chứ không phải thứ vừa tìm ra.
    */
   onSelect?: (formula: FormulaSummary) => void;
+  /**
+   * Tổng số công thức của từng nhóm trong BỘ ĐANG TÌM, khoá theo `categoryId` — để đầu mỗi thẻ
+   * in "7 / 13" và có link "Mở nhóm …". Phải đếm trên cùng `pool` với kết quả (xem `SearchScreen`):
+   * hai con số trên một thẻ mà đếm hai bộ khác nhau là sai hiển nhiên.
+   *
+   * Khối "Có thể bạn cần" không truyền: gợi ý không phải kết quả đếm được.
+   */
+  totals?: ReadonlyMap<string, number>;
 }
 
 interface Group {
-  id: string;
-  name: string;
+  category: Category;
   formulas: FormulaSummary[];
+}
+
+/**
+ * Nhóm lạ (id chưa có trong `CATEGORIES`) vẫn phải hiện ra được, dù validator của Registry đã
+ * chặn chuyện đó từ lúc kiểm — dựng một nhóm tạm mang chính id làm tên, không ném lỗi.
+ */
+function categoryOrFallback(id: string): Category {
+  return (
+    findCategory(id) ?? {
+      id,
+      segment: 'stock',
+      name: { vi: id, en: id },
+      shortName: { vi: id, en: id },
+      description: { vi: '', en: '' },
+      expectedCount: 0,
+    }
+  );
 }
 
 /**
  * Danh sách kết quả tìm kiếm gom theo nhóm — WF-09 trạng thái A (gói WBS 3.1.3).
  *
- * Khác `FormulaCard` ở chỗ mỗi dòng gọn hơn và có nhãn nhóm bên phải, đúng như wireframe vẽ:
- * đang tìm thì người dùng cần quét nhanh nhiều dòng, không cần mô tả dài.
+ * Mỗi nhóm là một `GroupCard`: dưới 1024px là danh sách gọn của bản điện thoại (dòng gọn, huy
+ * hiệu cấp độ, mũi tên), từ 1024 là thẻ đóng khung xếp lưới — bản vẽ "Thư mục theo nhóm" cho
+ * trạng thái đang gõ. Ở đây chỉ còn việc gom nhóm và trải lưới.
  *
  * Thứ tự nhóm bám theo thứ tự kết quả do `selectFormulas()` chấm điểm, KHÔNG sắp lại theo
  * bảng chữ cái — kết quả khớp nhất phải nằm trên cùng.
  */
-export function SearchResults({ formulas, query = '', onSelect }: SearchResultsProps) {
-  const pick = usePick();
+export function SearchResults({ formulas, query = '', onSelect, totals }: SearchResultsProps) {
   const groups: Group[] = [];
   const byId = new Map<string, Group>();
 
   for (const formula of formulas) {
     let group = byId.get(formula.categoryId);
     if (group === undefined) {
-      const category = findCategory(formula.categoryId);
-      group = {
-        id: formula.categoryId,
-        name: category !== undefined ? pick(category.name) : formula.categoryId,
-        formulas: [],
-      };
+      group = { category: categoryOrFallback(formula.categoryId), formulas: [] };
       byId.set(formula.categoryId, group);
       groups.push(group);
     }
@@ -65,53 +78,27 @@ export function SearchResults({ formulas, query = '', onSelect }: SearchResultsP
 
   return (
     <div className={styles.groups}>
-      {groups.map((group) => (
-        <section key={group.id} className={styles.group}>
-          <h2 className={styles.groupName}>{group.name}</h2>
-
-          <ul className={styles.list}>
-            {group.formulas.map((formula) => (
-              <li key={formula.id}>
-                <Link
-                  href={formulaPath(formula.id)}
-                  className={styles.row}
-                  onClick={() => {
-                    onSelect?.(formula);
-                  }}
-                >
-                  <span className={styles.body}>
-                    <span className={styles.name}>
-                      <Highlight text={pick(formula.name)} query={query} />
-                    </span>
-                    <span className={styles.hint}>
-                      <Highlight text={pick(formula.description)} query={query} />
-                    </span>
-                  </span>
-
-                  <Badge tone={formula.level === 'basic' ? 'basic' : 'advanced'}>
-                    <T k={formula.level === 'basic' ? 'level.basic' : 'level.advanced'} />
-                  </Badge>
-
-                  <svg
-                    className={styles.chevron}
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="m9 6 6 6-6 6" />
-                  </svg>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      {groups.map((group) => {
+        const total = totals?.get(group.category.id);
+        return (
+          <GroupCard
+            key={group.category.id}
+            category={group.category}
+            formulas={group.formulas}
+            query={query}
+            onSelect={onSelect}
+            /*
+              Câu mô tả nhóm chỉ hiện từ 1024 (CSS trong `GroupCard.module.css` ẩn nó ở dưới mốc
+              ấy), nên truyền ở mọi khổ vẫn không đụng gì tới bản điện thoại đã duyệt. Bản vẽ có
+              nó ở cả hai trạng thái — thẻ kết quả và thẻ thư mục là cùng một thẻ.
+            */
+            showDescription
+            {...(total === undefined
+              ? {}
+              : { total, hits: group.formulas.length, footer: 'open' as const })}
+          />
+        );
+      })}
     </div>
   );
 }

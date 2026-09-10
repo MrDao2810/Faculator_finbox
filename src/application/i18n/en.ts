@@ -72,8 +72,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'search.resultCount': 'result(s)',
   'search.noMatch': 'Nothing found for',
   'search.suggest.title': 'You might need',
-  'search.seeAll': 'Clear search · view all',
   'search.hot.title': 'Hot categories',
+  'search.folder.seeAll': 'See all',
+  'search.folder.open': 'Open group',
+  'search.noneIn': 'No results in:',
 
   'filter.segment.label': 'Segment',
   'filter.segment.all': 'All',

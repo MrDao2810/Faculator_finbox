@@ -43,3 +43,10 @@ export type { RecentSearchesProps } from './RecentSearches';
 
 export { HotCategories } from './HotCategories';
 export type { HotCategoriesProps } from './HotCategories';
+
+/* Thư mục 12 nhóm ở khổ PC — bản vẽ "Thư mục theo nhóm" (WF-09, phương án 05). */
+export { FormulaFolders } from './FormulaFolders';
+export type { FormulaFoldersProps } from './FormulaFolders';
+
+export { GroupCard } from './GroupCard';
+export type { GroupCardProps } from './GroupCard';

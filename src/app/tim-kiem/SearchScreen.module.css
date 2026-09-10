@@ -5,25 +5,74 @@
   min-width: 0;
 
   /*
-   * ── Màn này CỐ Ý giữ nguyên bố cục điện thoại ở mọi khổ ──────────────────────────────────
+   * ── Khổ PC: bản vẽ riêng "Thư mục theo nhóm" (WF-09, phương án 05/10) ────────────────────────
    *
-   * WF-09 là màn duy nhất KHÔNG có trong bộ 11 bản vẽ khổ PC, nên nó không có bố cục nhiều cột
-   * nào để dựng theo. Chủ dự án chốt: dùng tạm bản của màn điện thoại.
+   * Màn này từng KẸP LẠI 720px (`--content-max`) ở mọi khổ, vì nó là màn duy nhất không có trong
+   * bộ 11 bản vẽ hi-fi và bản điện thoại giãn ra 1440 thì hỏng thấy rõ: ô tìm dài 1310px, còn sáu
+   * ô "Danh mục hot" thì `auto-fill` giữ nguyên bề ngang 110px rồi dồn cục về mép trái, bỏ trống
+   * hơn hai phần ba hàng. Docblock cũ ghi ba phương án còn để ngỏ và chờ chủ dự án chọn.
    *
-   * `--content-max` chính là token "cột nội dung, mobile-first" (720px), nên một dòng này cho ra
-   * đúng bản ấy — chứ KHÔNG phải để mặc nó giãn theo `--desktop-max`. Từ đợt bố cục PC, khung
-   * rộng tới 1600px, và ở bề ngang đó màn này hỏng thấy rõ: đo trên Chrome ở 1440 trước khi có
-   * dòng này, ô tìm dài 1310px, còn sáu ô "Danh mục hot" thì `auto-fill` giữ nguyên bề ngang
-   * 110px rồi dồn cục về mép trái, bỏ trống hơn hai phần ba hàng. Kẹp lại 720px thì sáu ô ấy vừa
-   * khít một hàng, không phải đụng gì tới `HotCategories`.
+   * Chủ dự án gửi bản vẽ riêng, và nó chọn phương án thứ hai một cách rộng hơn: khung TRẢI theo
+   * viewport, ô tìm hãm lại còn ~40% hàng, phần trống bên phải là hàng chip "Gần đây", còn chỗ
+   * của sáu ô "Danh mục hot" là THƯ MỤC 12 thẻ nhóm. Nên bỏ hẳn dòng kẹp: cái nó che đã có thứ
+   * khác lấp.
    *
-   * KHÔNG căn giữa: giữ mép trái thẳng với logo và nút quay lại ở thanh trên. Căn giữa là một
-   * quyết định thiết kế, mà màn này đang chờ chủ dự án quyết chứ chưa quyết.
-   *
-   * Ba phương án đã đưa ra và còn để ngỏ: (1) cột hẹp căn giữa, (2) theo khuôn trang chủ — ô tìm
-   * 510px, "Danh mục hot" lưới 5 cột, (3) chỉ chặn tràn. Gỡ dòng này là quay lại trạng thái giãn.
+   * KHÔNG căn giữa — giữ mép trái thẳng với logo và nút quay lại ở thanh trên, đúng như bản vẽ.
    */
-  max-width: var(--content-max);
+}
+
+/*
+ * Hàng trên: ô tìm bên trái, hàng chip "Tìm gần đây" bên phải. Ở điện thoại vẫn là một cột, tức
+ * đúng bản đã duyệt — hai khối xếp dọc, ô tìm trọn bề ngang.
+ */
+.topRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/*
+ * Từ 1024: một hàng. Mốc này đi cùng bảng "BẬC MÀN" ở `globals.css` — 1024 là chỗ khung bắt đầu
+ * nới theo viewport, tức cũng là chỗ ô tìm bắt đầu dài quá tay nếu không hãm.
+ *
+ * `flex: 0 1 40%` chứ không `max-width` cố định: bản vẽ vẽ ô tìm chiếm ~42% hàng ở 1440, và tỉ lệ
+ * đi theo khung thì ở 1920 nó không thành một ô nhỏ lạc lõng giữa hàng rộng.
+ */
+@media (min-width: 1024px) {
+  .topRow {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .searchSlot {
+    flex: 0 1 40%;
+    min-width: 0;
+  }
+}
+
+/*
+ * Hai dáng của khối lối tắt — "Danh mục hot" ở điện thoại, thư mục 12 thẻ ở khổ PC. Cả hai nằm
+ * trong DOM, CSS chọn theo bề ngang; lý do đầy đủ ở docblock `SearchScreen.tsx`.
+ *
+ * Dùng `display: none` chứ không tháo khỏi DOM: không có JavaScript nào phải chạy để đổi hình,
+ * nên không có nháy ở lượt vẽ đầu. Cái giá là DOM mang cả hai — chấp nhận, vì đây là màn client
+ * hoàn toàn (trang bọc `<Suspense fallback={null}>`, `robots: noindex`) nên không đụng HTML tĩnh
+ * và không đụng gói của trang nào khác.
+ */
+.onlyDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .onlyPhone {
+    display: none;
+  }
+
+  .onlyDesktop {
+    display: block;
+  }
 }
 
 .matchNote {
@@ -42,4 +91,62 @@
   margin: 0;
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
+}
+
+/*
+ * "Không có kết quả trong: [chip] [chip] …" — hàng cuối của trạng thái đang gõ, theo bản vẽ.
+ *
+ * Là một `<p>` với chip inline chứ không phải danh sách: cả hàng đọc thành MỘT CÂU, và trình đọc
+ * màn hình đọc liền mạch "không có kết quả trong Rủi ro, Kỹ thuật, …" thay vì đọc ra một danh
+ * sách tám mục rời.
+ */
+.noneIn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+
+  margin: 0;
+}
+
+.noneInLabel {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * Chip nhỏ hơn chip "Tìm gần đây" một bậc và không đậm: đây là chỗ KHÔNG có gì, nên nó không được
+ * tranh chỗ đọc với các thẻ kết quả ngay trên. Vùng chạm vẫn đủ 44px nhờ `::after`, đúng kỹ thuật
+ * `RecentSearches.module.css` đã dùng — lý do và ba con số ăn khớp nằm ở đó.
+ */
+.noneInChip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  min-height: var(--space-6);
+  padding: 0 var(--space-2);
+
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+  text-decoration: none;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.noneInChip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+.noneInChip:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
 }

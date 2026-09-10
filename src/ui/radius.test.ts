@@ -12,7 +12,8 @@ import { describe, expect, it } from 'vitest';
  *   `--radius-lg`  16px   chỉ mép trên của bottom sheet
  *   `--radius-pill`       chip
  *   `8px` (số trần)       khay tab · nhóm Cơ bản / Nâng cao
- *   `5px` (số trần)       huy hiệu cấp độ · nhóm nút Đường/Cột của biểu đồ (khung lẫn nút)
+ *   `5px` (số trần)       huy hiệu cấp độ · hàng điều khiển biểu đồ: nhóm nút Đường/Cột (khung lẫn
+ *                         nút) và ô chọn trục đứng cạnh nó
  *
  * Hai bậc số trần KHÔNG có trên thang, và đó là chuyện có thật chứ không phải thiếu sót — đều do
  * chủ dự án chốt sau khi nhìn màn thật. Khay `TabBar` xuống 8 (09/09/2026) và nhóm Cơ bản / Nâng
@@ -20,12 +21,15 @@ import { describe, expect, it } from 'vitest';
  * hạ tiếp còn 5 cùng ngày, vì nó chỉ cao 17–20px nên bo 8 ở đó đã xấp xỉ NỬA chiều cao — mà nửa
  * chiều cao chính là định nghĩa của viên thuốc, nên "8" không hiện ra thành góc bo. Nhóm nút
  * Đường/Cột về 5 ngày 10/09/2026, _"bên ngoài và bên trong cần đồng bộ đều bằng 5"_ — nút trong lấy
- * số bằng `inherit` nên chỉ có MỘT chỗ khai. Tiền lệ viết số trần có từ `Highlight.module.css`.
+ * số bằng `inherit` nên chỉ có MỘT chỗ khai; rồi ô chọn trục đứng cạnh nó theo sau cùng ngày,
+ * _"điều chỉnh bo bên trái bằng với bo bên phải"_. Tiền lệ viết số trần có từ `Highlight.module.css`.
  *
- * Đừng dựng token cho hai số này. Số 8 phục vụ đúng một thành phần; số 5 nay có hai chỗ dùng, nhưng
- * mỗi chỗ là một lần chủ dự án chốt bằng mắt cho riêng cụm ấy, không phải một bậc chung được chọn
- * rồi áp xuống — có chỗ dùng thứ ba thì mới là lúc bàn chuyện đưa 5 lên thang. Muốn kéo cả hai về
- * thang thì `--radius-sm` (6px) chỉ cách 1px — đó là chỗ để về.
+ * Đừng dựng token cho hai số này. Số 8 phục vụ đúng một họ điều khiển; số 5 có hai cụm dùng — huy
+ * hiệu, và HÀNG điều khiển biểu đồ (ô chọn + nhóm nút là một hàng, chốt để chúng bằng nhau chứ
+ * không phải hai lần chọn) — mỗi cụm là một lần chủ dự án chốt bằng mắt cho riêng nó, không phải
+ * một bậc chung được chọn rồi áp xuống. Có cụm thứ ba KHÔNG cùng hàng với hai cụm này thì mới là
+ * lúc bàn chuyện đưa 5 lên thang. Muốn kéo về thang thì `--radius-sm` (6px) chỉ cách 1px — đó là
+ * chỗ để về.
  *
  * Chỗ hỏng mà bản rà soát bắt được: các điều khiển ĐỨNG CẠNH NHAU trong cùng một hàng lại bo bốn
  * kiểu — ô nhập và ô chọn `lg`, ô tìm kiếm `pill`, ô trong bảng dữ liệu `sm`, còn nút bấm ngay
@@ -94,14 +98,24 @@ describe('Bo góc', () => {
    * Dòng `kindGroup` là khung của nhóm nút Đường/Cột (10/09/2026). Chỉ ghim KHUNG ở đây: nút bên
    * trong không khai số mà lấy `inherit`, và ca kiểm riêng bên dưới giữ đúng điều đó — ghim cả hai
    * bằng `5px` là mời hai chỗ khai cùng một con số.
+   *
+   * Dòng `picker select` là ô chọn trục đứng cạnh nhóm nút ấy, cùng ngày — hai điều khiển một hàng
+   * phải bo cùng số. Đây là bộ chọn ghép (lớp + thẻ), không phải tên lớp: `ruleBodyFor` nhận nguyên
+   * chuỗi bộ chọn nên vẫn tìm đúng luật. Nó KHÔNG lấy `inherit` được như nút trong khay — ô chọn và
+   * nhóm nút là hai anh em, không phải cha con — nên đây là chỗ khai thứ hai của số 5 trong hàng,
+   * và ca kiểm này là thứ giữ hai chỗ ấy không trôi khỏi nhau.
    */
-  const BO_5PX: ReadonlyArray<readonly [file: string, className: string]> = [
+  const BO_5PX: ReadonlyArray<readonly [file: string, selector: string]> = [
     ['ui/primitives/Badge.module.css', 'basic'],
     ['ui/primitives/Badge.module.css', 'advanced'],
     ['ui/charts/ChartKindToggle.module.css', 'kindGroup'],
+    ['ui/charts/chart.module.css', 'picker select'],
   ];
 
-  /** Thân luật theo TÊN LỚP, chịu được cả bộ chọn ghép (`.basic, .advanced { … }`). */
+  /**
+   * Thân luật theo BỘ CHỌN, chịu được cả bộ chọn ghép (`.basic, .advanced { … }`). Tham số là tên
+   * lớp không có dấu chấm — có thể kèm phần đuôi (`picker select` → `.picker select`).
+   */
   function ruleBodyFor(css: string, className: string): string | null {
     const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '');
 

@@ -1,0 +1,36 @@
+/*
+ * Lưới thẻ nhóm — bản vẽ "Thư mục theo nhóm" xếp 12 thẻ thành 4 cột × 3 hàng ở 1440.
+ *
+ * `align-items: start`: thẻ cao thấp theo số dòng thật (nhóm "Thuế TNCN" có một công thức thì
+ * thẻ ngắn) — bản vẽ cũng để hàng cuối lệch nhau chứ không kéo thẻ nào cho bằng thẻ cao nhất.
+ *
+ * Ba cột ở 1024–1279: khung 928–1184px chia bốn thì thẻ chỉ còn ~220px, tên "Phân tích kỹ thuật"
+ * cộng con số không vừa một dòng. Bốn cột từ 1280, đúng bậc "nhiều cột" của bảng BẬC MÀN.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.grid > li {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    align-items: start;
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

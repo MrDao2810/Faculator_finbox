@@ -134,7 +134,12 @@ describe('SearchScreen — lịch sử là kho RIÊNG của màn tìm', () => {
 
     // Vào màn là ô tìm đang rỗng, tức đúng trạng thái khối "Tìm gần đây" hiện ra — nếu có gì.
     expect(screen.queryByRole('button', { name: 'Beta' })).toBeNull();
-    expect(screen.queryByRole('region', { name: 'Lịch sử tìm kiếm' })).toBeNull();
+    /*
+     * Tên vùng lấy từ `search.recent.title` — "Tìm gần đây". Ca này từng ghim chữ của bản trước
+     * ("Lịch sử tìm kiếm"), tức nó XANH cả khi khối hiện ra, vì cái tên ấy không còn tồn tại ở
+     * đâu. Một ca `queryBy…toBeNull()` ghim sai chữ là ca không gác gì cả.
+     */
+    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
   });
 
   it('chọn kết quả ở đây thì chỉ kho của màn này đổi, kho trang chủ vẫn nguyên', () => {

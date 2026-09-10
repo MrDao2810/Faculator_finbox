@@ -12,6 +12,32 @@
   gap: var(--space-2);
 }
 
+/*
+ * Khổ PC, dạng `block` (màn tìm WF-09): khối đứng CẠNH ô tìm và ăn hết phần hàng còn lại, nhưng
+ * bên trong vẫn giữ nguyên hình hai tầng của bản điện thoại — tiêu đề và nút xoá trên một hàng,
+ * chip ở hàng dưới.
+ *
+ * Bản trước dồn cả ba thứ thành MỘT hàng bằng `display: contents` trên `.head` cộng `order`. Nhìn
+ * màn thật thì hỏng đúng chỗ đó: chip nhiều tới mức tự vỡ thành hai hàng, nên nút xoá bị đẩy hẳn
+ * xuống hàng thứ ba, đứng lẻ loi dưới đáy. Chủ dự án chốt: _"đưa button xoá lên ngang hàng với Tìm
+ * Gần Đây nhưng phải căn phải"_ — tức đúng bố cục `.head` vốn có, `justify-content: space-between`
+ * ở ngay trên.
+ *
+ * Nên ở đây chỉ còn MỘT việc: cho khối giãn hết phần hàng còn lại. Không có nó thì `.recent` chỉ
+ * rộng bằng nội dung, và "căn phải" sẽ dừng ở mép phải đám chip chứ không tới mép phải cột nội
+ * dung. `min-width: 0` đi kèm, như mọi flex item khác của dự án.
+ *
+ * Chỉ áp cho `.block`: dạng `inline` ở trang chủ không có `.head`, và nó nằm trong một cột chứ
+ * không đứng cạnh ô tìm. Mốc 1024 đi cùng `SearchScreen.module.css` — hàng trên của màn tìm chia
+ * hai cột từ đó.
+ */
+@media (min-width: 1024px) {
+  .block {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 .title {
   margin: 0;
   font-size: var(--text-xs);

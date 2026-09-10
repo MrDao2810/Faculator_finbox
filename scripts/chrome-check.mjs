@@ -1587,7 +1587,14 @@ window.__themeLog = [];
       [...document.querySelectorAll('h2')]
         .find((h) => /Giải thích/.test(h.textContent ?? ''))
         ?.closest('section') ?? null;
+    const oChonTruc = document.querySelector('figure [class*="controls"] select');
+    const nhomLoiVe = document.querySelector('figure [class*="controls"] [role="group"]');
     return {
+      /* Bo góc hai điều khiển đứng cạnh nhau trên thẻ biểu đồ — phải bằng nhau. */
+      boDieuKhien: {
+        chon: oChonTruc === null ? null : getComputedStyle(oChonTruc).borderTopLeftRadius,
+        nhom: nhomLoiVe === null ? null : getComputedStyle(nhomLoiVe).borderTopLeftRadius,
+      },
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       main: r(document.querySelector('main')),
       congThuc: r(document.querySelector('.katex')?.closest('section') ?? null),
@@ -1753,6 +1760,19 @@ window.__themeLog = [];
       pcPe.dieuKhien.left > pcPe.chuThich.left &&
       pcPe.bieuDo.right - pcPe.dieuKhien.right <= 24,
     `tiêu đề top=${String(pcPe.chuThich?.top)} · điều khiển top=${String(pcPe.dieuKhien?.top)} · hở phải ${String((pcPe.bieuDo?.right ?? 0) - (pcPe.dieuKhien?.right ?? 0))}px`,
+  );
+
+  /*
+   * Ô chọn trục và nhóm nút Đường/Cột đứng cạnh nhau nên bo cùng một số — chủ dự án: "điều chỉnh bo
+   * bên trái bằng với bo bên phải" (10/09/2026). Đọc giá trị đã tính chứ không so CSS: hai con số
+   * nằm ở hai file, và `radius.test.ts` chỉ ghim từng file một.
+   */
+  check(
+    'PC 1440 · ô chọn trục và nhóm Đường/Cột bo cùng một số',
+    pcPe.boDieuKhien.chon !== null &&
+      pcPe.boDieuKhien.nhom !== null &&
+      pcPe.boDieuKhien.chon === pcPe.boDieuKhien.nhom,
+    `ô chọn ${String(pcPe.boDieuKhien.chon)} · nhóm nút ${String(pcPe.boDieuKhien.nhom)}`,
   );
 
   /*
@@ -1930,6 +1950,127 @@ window.__themeLog = [];
   check('PC 1440 · lich-tra-no không tràn ngang', pcVay.tran === false);
 
   /*
+   * ── Màn Tìm kiếm: bản vẽ riêng "Thư mục theo nhóm" (WF-09, phương án 05/10) ─────────────────
+   *
+   * Màn này có HAI dáng cho cùng một DOM, và CSS là thứ chọn: dưới 1024 là bản điện thoại đã
+   * duyệt (sáu ô "Danh mục hot"), từ 1024 là thư mục thẻ nhóm. Cả hai khối cùng nằm trong DOM,
+   * nên không phép kiểm jsdom nào phân biệt được chúng — chỉ trình duyệt thật mới trả lời.
+   *
+   * Gieo sẵn lịch sử tìm để hàng chip "Tìm gần đây" có gì mà hiện: bản vẽ xếp nó CÙNG HÀNG với ô
+   * tìm, và một hàng rỗng thì phép so mép trên bên dưới thành vô nghĩa.
+   */
+  const DOC_TIM = `(() => {
+    const r = (el) => {
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return {
+        top: Math.round(b.top),
+        bottom: Math.round(b.bottom),
+        left: Math.round(b.left),
+        right: Math.round(b.right),
+        width: Math.round(b.width),
+      };
+    };
+    const hien = (el) =>
+      el !== null && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
+    const oTim = document.querySelector('input[type="search"]');
+    const khoiRecent = document.querySelector('[class*="recent"]');
+    const chips = khoiRecent?.querySelector('[class*="chips"]') ?? null;
+    const tieuDeRecent = khoiRecent?.querySelector('h2') ?? null;
+    const nutXoa = khoiRecent?.querySelector('button[aria-label]') ?? null;
+    const luoi =
+      [...document.querySelectorAll('ul')].find(
+        (u) => u.className.includes('grid') && u.querySelector('section') !== null,
+      ) ?? null;
+    const hot =
+      [...document.querySelectorAll('h2')]
+        .find((h) => /Danh mục hot/.test(h.textContent ?? ''))
+        ?.closest('section') ?? null;
+    const the = luoi === null ? [] : [...luoi.querySelectorAll(':scope > li > section')];
+    const dau = the[0] ?? null;
+    return {
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      main: r(document.querySelector('main')),
+      oTim: r(oTim === null ? null : oTim.closest('[class*="control"]')),
+      khoiRecent: r(khoiRecent),
+      chips: r(chips),
+      chipsHien: hien(chips),
+      /* Tiêu đề "TÌM GẦN ĐÂY" và nút xoá — bản vá 10/09: hai thứ này phải cùng một hàng. */
+      tieuDeRecent: r(tieuDeRecent),
+      nutXoa: r(nutXoa),
+      thuMucHien: hien(luoi),
+      hotHien: hien(hot),
+      soThe: the.length,
+      soCot: luoi === null ? null : getComputedStyle(luoi).gridTemplateColumns.trim().split(/\\s+/).length,
+      /* Thẻ đóng khung chỉ ở khổ PC — dưới 1024 nó là danh sách trần như bản điện thoại. */
+      vienThe: dau === null ? null : getComputedStyle(dau).borderTopWidth,
+      /*
+       * Số dòng công thức NHIỀU NHẤT trên một thẻ — bản vẽ vẽ bốn, và trần ấy là thứ giữ ba hàng
+       * thẻ vừa hai màn. Đo bằng max chứ không đo thẻ đầu: nhóm "Thuế TNCN" chỉ có một công thức,
+       * và thứ tự thẻ đi theo số đếm nên thẻ đầu đổi theo chế độ Cơ bản / Nâng cao.
+       */
+      soDongToiDa: the.length === 0 ? 0 : Math.max(...the.map((s) => s.querySelectorAll('li').length)),
+    };
+  })()`;
+
+  await open('/tim-kiem/');
+  await evaluate(
+    `localStorage.setItem('ffb.recent.v1', JSON.stringify(['Giá hoà vốn thực','P/E','CAGR'])), true`,
+  );
+  await open('/tim-kiem/');
+  const pcTim = await evaluate(DOC_TIM);
+
+  check('PC 1440 · màn Tìm kiếm không tràn ngang', pcTim.tran === false);
+
+  check(
+    'PC 1440 · Tìm kiếm bày THƯ MỤC 12 nhóm, không phải sáu ô "Danh mục hot"',
+    pcTim.thuMucHien === true && pcTim.hotHien === false && pcTim.soCot === 4 && pcTim.soThe >= 10,
+    `thư mục ${String(pcTim.thuMucHien)} · hot ${String(pcTim.hotHien)} · ${String(pcTim.soThe)} thẻ / ${String(pcTim.soCot)} cột`,
+  );
+
+  check(
+    'PC 1440 · Tìm kiếm: thẻ nhóm đóng khung và bày nhiều nhất bốn dòng công thức',
+    pcTim.vienThe === '1px' && pcTim.soDongToiDa === 4,
+    `viền ${String(pcTim.vienThe)} · nhiều nhất ${String(pcTim.soDongToiDa)} dòng`,
+  );
+
+  /* Ô tìm hãm còn ~40% hàng, khối "Tìm gần đây" đứng CẠNH nó chứ không xuống dòng — bản vẽ vẽ thế. */
+  check(
+    'PC 1440 · Tìm kiếm: ô tìm ~40% hàng, khối "Tìm gần đây" đứng cạnh bên phải',
+    pcTim.oTim !== null &&
+      pcTim.main !== null &&
+      pcTim.chipsHien === true &&
+      pcTim.chips !== null &&
+      pcTim.oTim.width / (pcTim.main.width - 2 * (pcTim.oTim.left - pcTim.main.left)) <= 0.45 &&
+      pcTim.chips.left >= pcTim.oTim.right,
+    `ô tìm ${String(pcTim.oTim?.width)}px · chip trái=${String(pcTim.chips?.left)} · ô tìm phải=${String(pcTim.oTim?.right)}`,
+  );
+
+  /*
+   * Nút xoá đứng CÙNG HÀNG với tiêu đề "TÌM GẦN ĐÂY" và dạt mép phải khối — chủ dự án chốt
+   * 10/09/2026: _"đưa button xoá lên ngang hàng với Tìm Gần Đây nhưng phải căn phải"_.
+   *
+   * Đây là phép bắt được đúng lỗi vừa sửa: bản trước dồn tiêu đề + chip + nút thành một hàng flex,
+   * nên khi chip vỡ thành hai hàng thì nút bị đẩy xuống hàng thứ ba. So tâm dọc với TIÊU ĐỀ (không
+   * so với ô tìm) vì hai thứ này mới là cặp phải thẳng hàng nhau; và so mép phải với mép phải KHỐI,
+   * thứ chỉ đúng khi khối giãn hết phần hàng còn lại.
+   */
+  check(
+    'PC 1440 · Tìm kiếm: nút xoá cùng hàng với "TÌM GẦN ĐÂY" và dạt mép phải',
+    pcTim.nutXoa !== null &&
+      pcTim.tieuDeRecent !== null &&
+      pcTim.khoiRecent !== null &&
+      pcTim.chips !== null &&
+      Math.abs(
+        (pcTim.nutXoa.top + pcTim.nutXoa.bottom) / 2 -
+          (pcTim.tieuDeRecent.top + pcTim.tieuDeRecent.bottom) / 2,
+      ) <= 4 &&
+      pcTim.khoiRecent.right - pcTim.nutXoa.right <= 1 &&
+      pcTim.nutXoa.bottom <= pcTim.chips.top,
+    `nút [${String(pcTim.nutXoa?.top)}–${String(pcTim.nutXoa?.bottom)}] phải=${String(pcTim.nutXoa?.right)} · tiêu đề [${String(pcTim.tieuDeRecent?.top)}–${String(pcTim.tieuDeRecent?.bottom)}] · khối phải=${String(pcTim.khoiRecent?.right)} · chip top=${String(pcTim.chips?.top)}`,
+  );
+
+  /*
    * Dải 1024–1279 cố ý giữ MỘT cột (chữ trục biểu đồ tụt xuống 8px nếu chia đôi ở đây — xem bảng
    * "BẬC MÀN" trong `globals.css`). Đo luôn để cái "cố ý" ấy không lặng lẽ trôi mất.
    */
@@ -1963,6 +2104,22 @@ window.__themeLog = [];
   );
 
   /*
+   * Màn Tìm kiếm đi NGƯỢC lại: nó đổi dáng ở 1024 chứ không 1280, vì thứ nó chờ là khung nới theo
+   * viewport chứ không phải chỗ cho biểu đồ. Ba cột ở dải này — bốn cột thì thẻ chỉ còn ~220px và
+   * tên "Phân tích kỹ thuật" cộng con số không vừa một dòng.
+   */
+  await open('/tim-kiem/');
+  const tim1024 = await evaluate(DOC_TIM);
+
+  check(
+    'PC 1024 · Tìm kiếm đã là thư mục thẻ, lưới ba cột',
+    tim1024.thuMucHien === true && tim1024.hotHien === false && tim1024.soCot === 3,
+    `thư mục ${String(tim1024.thuMucHien)} · ${String(tim1024.soCot)} cột`,
+  );
+
+  check('PC 1024 · màn Tìm kiếm không tràn ngang', tim1024.tran === false);
+
+  /*
    * ── 360: thứ tự MẮT THẤY ở điện thoại sau khi DOM đổi cho khuôn hai chồng ──────────────────
    *
    * Giải thích nay đứng TRƯỚC Kết quả trong DOM (xem docblock `.ask` ở `FormulaDetail.module.css`)
@@ -1990,6 +2147,20 @@ window.__themeLog = [];
       dt360.giaiThich.top >= dt360.bieuDo.bottom &&
       dt360.bangBien.top >= dt360.giaiThich.bottom,
     `top: Số liệu ${String(dt360.soLieu?.top)} · Kết quả ${String(dt360.ketQua?.top)} · Biểu đồ ${String(dt360.bieuDo?.top)} · Giải thích ${String(dt360.giaiThich?.top)} · Bảng biến ${String(dt360.bangBien?.top)}`,
+  );
+
+  /*
+   * Vế kia của cặp hai dáng: ở điện thoại màn Tìm phải GIỮ NGUYÊN bản đã duyệt — sáu ô "Danh mục
+   * hot", không phải thư mục thẻ. Thiếu phép này thì gỡ nhầm một dòng `display` là điện thoại
+   * nhận trọn 12 thẻ nhóm mà không có gì báo.
+   */
+  await open('/tim-kiem/');
+  const tim360 = await evaluate(DOC_TIM);
+
+  check(
+    'Điện thoại 360 · màn Tìm giữ bản đã duyệt — "Danh mục hot", KHÔNG phải thư mục thẻ',
+    tim360.hotHien === true && tim360.thuMucHien === false && tim360.tran === false,
+    `hot ${String(tim360.hotHien)} · thư mục ${String(tim360.thuMucHien)} · tràn ${String(tim360.tran)}`,
   );
 
   /*

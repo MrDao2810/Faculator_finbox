@@ -148,6 +148,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.2.2 | Khối Chuỗi khổ PC — thẻ bước chia hai cột, lẻ thì trái nhiều hơn một            | —       | Xong phần code, **chưa build** — xem mục "Thẻ bước … chia hai cột" |
 | 4.x   | Ô chọn trục biểu đồ bo 5px, bằng nhóm Đường/Cột bên cạnh                        | —       | Xong phần code, **chưa build** — xem mục "Ô chọn trục bo 5px"      |
 | 3.1.3 | Màn Tìm kiếm khổ PC — thư mục 12 thẻ nhóm theo bản vẽ riêng                     | —       | Xong phần code, **chưa build** — xem mục "Thư mục theo nhóm"       |
+| 3.3.1 | Bảng chuỗi giá — biểu đồ nến, cột kiểm dữ liệu, ngày mới nhất lên đầu           | —       | Xong phần code, **chưa build** — xem mục "Biểu đồ nến"             |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -155,6 +156,135 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Bảng chuỗi giá — biểu đồ nến, cột kiểm dữ liệu, ngày mới nhất lên đầu (10/09/2026)
+
+**Trạng thái: xong phần code**, đã đo trên Chrome thật ở 1440 và 360, soi ảnh chụp cả hai khổ.
+
+Chủ dự án gửi bản vẽ khổ PC cho màn WF-05 kèm hai yêu cầu về hành vi: _"thay đổi hiển thị dữ liệu
+trong bảng số liệu ngày mới nhất lên đầu, và tạo thêm dòng thì hiển thị trên đầu, sau khi nhập liệu
+xong rồi mới check ngày rồi sort sau"_.
+
+### Ba việc, không phải một
+
+**1 · Biểu đồ nến** (mới hoàn toàn). Thẻ trên cùng: huy hiệu mã, số phiên, khoảng ngày, giá gần
+nhất kèm phần trăm cả kỳ, thanh chọn 1T/3T/6T/Cả chuỗi, hình nến cộng dải khối lượng, trục giá bên
+PHẢI, đường đứt mốc đóng cửa gần nhất, và hàng chú thích.
+
+**2 · Khung bảng + cột "Kiểm tra dữ liệu"** ở khổ PC: bảng bên trái, cột kiểm 320px bên phải. Cột
+ấy gom ba thứ trước đây nằm rải rác DƯỚI bảng — con số phiên dùng được, câu nhắc 60 phiên, danh
+sách dòng lỗi. Gom lại vì cả ba trả lời CÙNG một câu hỏi ("bảng này đã dùng được chưa") mà trước đó
+người dùng phải cuộn qua 248 dòng mới đọc được câu trả lời. Mỗi dòng lỗi nay là một thẻ riêng kèm
+nút **"Tới dòng N →"** nhảy thẳng tới ô ngày của dòng ấy.
+
+**3 · Thứ tự bảng.**
+
+### Chỗ dễ làm hỏng nhất, và cách tránh
+
+Lật mảng đã lưu là cách sai hiển nhiên nhất để làm ra bảng "mới nhất lên đầu". `closesOf()` đọc
+chính mảng ấy như một CHUỖI THỜI GIAN, nên lật nó là Beta, độ biến động và VaR tính trên chuỗi chạy
+ngược — mà không có gì trên màn nói là đã ngược.
+
+Nên phép lật nằm ở đúng MỘT chỗ, biến `hienThi` trong màn. Lưu, kiểm, xuất CSV và vẽ biểu đồ đều
+làm việc trên mảng thời gian thật. Có một phép Chrome kiểm cả hai chiều trong cùng một khẳng định.
+
+Kéo theo: số dòng bày cho người dùng nay là **vị trí NHÌN THẤY**, không phải chỉ số mảng. Mọi nhãn
+trợ năng, nút xoá và thẻ lỗi đều dùng con số ấy. Câu báo `DUPLICATE_DATE` ở Domain thì **thôi nêu
+số dòng** và nêu chính NGÀY: Domain không biết màn đang bày theo chiều nào, và một câu chỉ sai chỗ
+tệ hơn một câu không chỉ chỗ nào — người dùng sẽ đi sửa nhầm dòng.
+
+### "Sort sau" — sắp lúc nào
+
+`sortRowsByDate()` (Domain, mới) sắp cũ → mới và có hai luật giữ cho nó không bao giờ đoán:
+
+1. **Dòng không đọc được ngày thì ĐỨNG YÊN.** Hàm chỉ xáo lại những dòng đọc được, và xếp chúng vào
+   đúng những vị trí mà chính chúng đang chiếm. Nhờ vậy dòng vừa thêm (ngày còn trống) nằm im ở đầu
+   bảng trong lúc người dùng gõ — đây chính là vế "hiển thị trên đầu" của yêu cầu.
+2. **Trộn hai lối viết thì lối THIẾU NĂM nhường chỗ.** '15/07' và '2025-01-20' không so được với
+   nhau; `parseSeriesDate()` không tự suy ra năm, đúng lời hứa mà `SeriesRow.date` đã ghi.
+
+Sắp được KÍCH HOẠT khi tiêu điểm rời khỏi cả dòng (`onBlur` trên `<tr>`, xét `relatedTarget`). Tab
+từ ô Ngày sang ô Mở thì chưa — sắp lúc ấy là dòng nhảy đi chỗ khác giữa lúc đang gõ.
+
+### Vì sao biểu đồ nến là loại RIÊNG, không phải nhánh thứ tư của `ChartModel`
+
+`ChartModel` phục vụ 111 trang công thức: nhận một `FormulaSpec` và một `CalcContext`. Hình này
+không có công thức nào — nó vẽ chính bảng đang gõ, và cần ba thứ `ChartModel` không có chỗ mang:
+bốn giá trong một điểm, dải khối lượng, và **danh sách phiên lỗi để bỏ qua**. Nhập vào là buộc
+`ChartBody`, `ChartFrame`, `SweepPicker` và `chart.test.ts` phải biết một hình mà 111 trang kia
+không bao giờ vẽ. Đổi lại nó dùng chung `niceAxis()`/`linearScale()` — phần khó và đã có test.
+
+**Phiên đang lỗi thì KHÔNG vẽ.** Vẽ một phiên mà chính bảng đang báo là mâu thuẫn là mời người dùng
+tin vào hình dựng từ số sai. Đã bỏ thì phải ĐẾM: hàng chú thích ghi "2 phiên lỗi — chưa vẽ, sửa ở
+bảng dưới", và trên hình có vệt vàng ở đúng chỗ chúng đứng.
+
+**Hai khổ khung vẽ**, dùng lại `useChartSize()` của thư mục `charts` (nhập thẳng từ file, không qua
+barrel — barrel kéo cả thư mục biểu đồ công thức vào gói màn này). Đo được trước khi tách: ở 360px
+với khung 960 đơn vị, chữ trục hiện ra **3,2px**. Khổ `compact` 360×240 cho 8,6px.
+
+**Nút 1T/3T/6T cắt theo SỐ PHIÊN** (21 · 63 · 126) chứ không theo ngày thật, và `title` của nút nói
+ra điều đó. Ô ngày nhận bất cứ thứ gì người dùng gõ — bảng có thể toàn ngày thiếu năm, hoặc toàn số
+thứ tự phiên như chuỗi minh hoạ của trang Beta; cắt theo ngày thì những bảng ấy có ba nút chết.
+
+### Hai lỗi chỉ lộ ra khi mở màn nhìn
+
+Cả hai không ca kiểm nào bắt được, phải soi ảnh chụp Chrome:
+
+- Nhãn trục X đầu tiên bị `<svg>` cắt — '01/25' hiện ra ')1/25'. Vá bằng cách đổi cách canh hai nhãn
+  ngoài cùng, đúng luật `tickAnchor()` bên `ticks.ts` đã ghi cho biểu đồ công thức.
+- Hai nhãn '12/25' giống hệt nhau đứng cạnh nhau. Lọc theo CHỮ, không theo khoảng cách: nguyên nhân
+  là hai mốc cùng THÁNG, không phải hai mốc gần nhau.
+
+### Cửa gác
+
+`price-series.test.ts` +11 ca cho `parseSeriesDate` và `sortRowsByDate`, gồm ca "dòng không đọc được
+ngày thì đứng yên" và ca "sắp rồi thì `closesOf` vẫn trả chuỗi theo thời gian".
+`chart/candles.test.ts` (mới, 15 ca): phiên lỗi không vẽ nhưng được đếm · chiều của phiên khi thiếu
+giá mở · trục bọc trọn cao–thấp · một phiên thì phần trăm là `null` chứ không phải 0 · bốn khoảng
+cắt đúng số phiên GẦN NHẤT, và cắt đoạn TRƯỚC khi lọc lỗi.
+`DataTableScreen.test.tsx` +9 ca: ngày mới nhất lên đầu · **mảng đã lưu vẫn cũ → mới** · dòng mới ở
+đầu bảng · đang gõ thì đứng yên · rời tiêu điểm mới xếp · số dòng trong câu báo lỗi đếm theo màn.
+`chrome-check.mjs` **+7 phép**: nến vẽ đúng số và bỏ đúng phiên lỗi · khổ khung rộng và bốn nút
+khoảng · bảng trái / cột kiểm phải cùng mép trên · **màn lật mà mảng lưu không lật** · 1440 không
+tràn · 360 đổi sang khổ hẹp · 360 xếp dọc.
+
+### Đo
+
+| Khổ  | Biểu đồ                         | Bảng và cột kiểm                                | Thứ tự màn | Thứ tự đã lưu |
+| ---- | ------------------------------- | ----------------------------------------------- | ---------- | ------------- |
+| 1440 | 246 nến · 2 vệt lỗi · khung 960 | bảng 64–1025 · kiểm 1041 (320px), cùng mép trên | mới → cũ   | cũ → mới      |
+| 360  | 246 nến · khung 360             | xếp dọc, bảng trước                             | mới → cũ   | cũ → mới      |
+
+Bấm "3T" trên chuỗi 246 phiên: còn 63 nến. Không khổ nào tràn ngang. Chạy đúng 7 phép mới trên
+Chrome thật (cắt `GIEO_CHUOI`/`DOC_CHUOI` thẳng từ `chrome-check.mjs`): **7/7 đạt**.
+
+### File đổi
+
+**Mới:** `core/chart/candles.ts` + `candles.test.ts`, `ui/series/CandleChart.tsx` + `.module.css`,
+`ui/series/index.ts`.
+**Sửa:** `core/price-series.ts` (`parseSeriesDate`, `sortRowsByDate`, câu `DUPLICATE_DATE`),
+`core/price-series.test.ts`, `core/chart/index.ts`, `application/index.ts`,
+`app/du-lieu/DataTableScreen.tsx` + `.module.css` + `.test.tsx`, `i18n/vi.ts` + `en.ts` (+22 khoá),
+`scripts/chrome-check.mjs`.
+
+**Kiểm:** `npm test` **107 file / 2572 ca xanh** · `lint` · `typecheck` · `format:check` sạch.
+
+### Ba chỗ lệch bản vẽ CÓ CHỦ Ý
+
+1. **Ngày mới nhất lên ĐẦU**, còn bản vẽ bày cũ → mới ("Cũ → mới" ở góc phải bảng). Đây là yêu cầu
+   viết ra của chủ dự án trong cùng tin nhắn, nên nó thắng bản vẽ. Câu ghi chú đổi theo: "Mới → cũ".
+2. Hệ quả: số dòng trong thẻ lỗi khác bản vẽ. Bản vẽ ghi "Dòng 4 · 2025-01-23" vì nó đếm từ phiên
+   cũ nhất; ở bản này cùng phiên ấy là dòng 245 của 248.
+3. Thang trên cột kiểm mang hai mốc THẬT của sản phẩm — 60 (ngưỡng Beta/Sharpe) và 400 (trần
+   `MAX_SERIES_ROWS`) — chứ không phải mốc trang trí.
+
+### Còn lại
+
+**Chưa chạy `build`**, nên `npm run size` chưa đo được phần gói mà biểu đồ nến thêm vào `/du-lieu/`.
+Trang này đang ~131 kB trên trần 180 kB và component mới là SVG viết tay không kéo thư viện nào,
+nhưng con số thật phải đợi build. `npm run dev` vẫn giữ cổng 3000.
 
 ---
 

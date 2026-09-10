@@ -177,9 +177,20 @@ export function checkSeries(rows: ReadonlyArray<SeriesRow>): SeriesCheck {
       if (first === undefined) {
         seen.set(key, index);
       } else {
+        /*
+         * Câu này KHÔNG còn nêu số dòng, và đó là một thay đổi có lý do.
+         *
+         * Bảng nay hiện NGÀY MỚI NHẤT LÊN ĐẦU (`sortRowsByDate()` ngay dưới, cộng phép lật ở màn
+         * WF-05), nên "dòng 1" trong mảng không còn là "dòng 1" mà người dùng đếm bằng mắt. Một
+         * con số chỉ sai chỗ thì tệ hơn không có con số nào — họ sẽ đi sửa nhầm dòng.
+         *
+         * Nêu chính NGÀY thì đúng ở mọi thứ tự hiển thị, và sau khi sắp xếp thì hai dòng trùng
+         * nhau nằm sát nhau nên tìm cũng không khó hơn. `first` vẫn giữ để bảng tra biết dòng nào
+         * là dòng đầu tiên dùng ngày đó — chỉ là nó thôi đi vào câu chữ.
+         */
         issues.push({
           code: 'DUPLICATE_DATE',
-          message: `Ngày ${key} đã có ở dòng ${first + 1} — mỗi phiên chỉ được xuất hiện một lần.`,
+          message: `Ngày ${key} xuất hiện ở hơn một dòng — mỗi phiên chỉ được ghi một lần.`,
         });
       }
     }
@@ -189,6 +200,120 @@ export function checkSeries(rows: ReadonlyArray<SeriesRow>): SeriesCheck {
   });
 
   return { rows: checks, usableCount: usable, total: rows.length };
+}
+
+/**
+ * Ngày của một phiên, đã tách thành ba phần. `year === null` là dạng viết KHÔNG có năm ('15/07').
+ *
+ * Không tự suy ra năm — cùng lời hứa mà `SeriesRow.date` đã ghi. Suy ra năm là đoán, và đoán sai
+ * thì cả chuỗi bị xếp lộn mà không có gì trên màn nói là đã lộn.
+ */
+export interface SeriesDate {
+  year: number | null;
+  month: number;
+  day: number;
+}
+
+/* Ba lối viết ngày mà bảng này thật sự gặp: bộ mẫu ghi ISO, người dùng dán từ Excel ghi kiểu Việt. */
+const ISO = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/;
+const DMY = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/;
+const DM = /^(\d{1,2})[-/.](\d{1,2})$/;
+
+function hopLe(month: number, day: number): boolean {
+  return month >= 1 && month <= 12 && day >= 1 && day <= 31;
+}
+
+/**
+ * Đọc ô ngày thành ba phần, hoặc `null` nếu không đọc được.
+ *
+ * `null` là chuyện BÌNH THƯỜNG ở đây, không phải lỗi: ô ngày nhận bất cứ thứ gì người dùng gõ, và
+ * chuỗi minh hoạ của trang Beta còn ghi số thứ tự phiên ('1', '2', …). Nơi gọi phải xử được `null`
+ * chứ không được coi nó là 0 — cùng luật FR-06 áp cho phần dữ liệu vào.
+ *
+ * Dạng ngày/tháng đọc theo lối Việt Nam (CON-05): '15/07' là 15 tháng 7, không phải 7 tháng 15.
+ */
+export function parseSeriesDate(raw: string): SeriesDate | null {
+  const text = raw.trim();
+  if (text === '') return null;
+
+  const iso = ISO.exec(text);
+  if (iso !== null) {
+    const [, y, m, d] = iso;
+    const month = Number(m);
+    const day = Number(d);
+    return hopLe(month, day) ? { year: Number(y), month, day } : null;
+  }
+
+  const dmy = DMY.exec(text);
+  if (dmy !== null) {
+    const [, d, m, y] = dmy;
+    const month = Number(m);
+    const day = Number(d);
+    return hopLe(month, day) ? { year: Number(y), month, day } : null;
+  }
+
+  const dm = DM.exec(text);
+  if (dm !== null) {
+    const [, d, m] = dm;
+    const month = Number(m);
+    const day = Number(d);
+    return hopLe(month, day) ? { year: null, month, day } : null;
+  }
+
+  return null;
+}
+
+/** Khoá so sánh của một ngày đã đọc được. Không năm thì khoá chỉ gồm tháng và ngày. */
+function khoaNgay(date: SeriesDate): number {
+  return date.year === null
+    ? date.month * 100 + date.day
+    : date.year * 10_000 + date.month * 100 + date.day;
+}
+
+/**
+ * Sắp xếp chuỗi theo ngày, CŨ → MỚI.
+ *
+ * Thứ tự trong mảng là thứ tự thời gian thật, và phải giữ nguyên như vậy: `closesOf()` trả mảng
+ * theo đúng thứ tự này, còn Beta, độ biến động và VaR đều đọc nó như một chuỗi thời gian. Màn hình
+ * muốn bày ngày mới nhất lên đầu thì LẬT LÚC HIỂN THỊ, tuyệt đối không lật mảng đã lưu.
+ *
+ * ── Hai luật giữ cho phép sắp không bao giờ đoán ───────────────────────────────────────────────
+ *
+ * 1. **Dòng không đọc được ngày thì ĐỨNG YÊN.** Ô trống, số thứ tự phiên, hay chữ tự do đều rơi
+ *    vào nhóm này. Chúng không bị đẩy về một đầu nào cả: hàm chỉ xáo lại những dòng ĐỌC ĐƯỢC, và
+ *    xếp chúng vào đúng những vị trí mà chính chúng đang chiếm. Nhờ vậy dòng vừa thêm (ngày còn
+ *    trống) nằm im tại chỗ trong lúc người dùng gõ, và không dòng nào biến mất khỏi bảng.
+ *
+ * 2. **Trộn hai lối viết thì lối THIẾU NĂM nhường chỗ.** '15/07' và '2025-01-20' không so sánh
+ *    được với nhau — không có năm thì không biết '15/07' thuộc năm nào. Khi trong bảng có ít nhất
+ *    một ngày CÓ năm, những ngày thiếu năm được xếp vào nhóm "đứng yên" của luật 1. Bảng toàn ngày
+ *    thiếu năm thì so theo tháng–ngày như thường, vì lúc đó cả bảng cùng một hệ quy chiếu.
+ *
+ * Sắp ỔN ĐỊNH: hai dòng cùng ngày giữ nguyên thứ tự tương đối, nên phiên trùng ngày (`DUPLICATE_DATE`)
+ * không nhảy qua lại mỗi lần sắp.
+ */
+export function sortRowsByDate(rows: ReadonlyArray<SeriesRow>): SeriesRow[] {
+  const parsed = rows.map((row) => parseSeriesDate(row.date));
+  const coNam = parsed.some((date) => date !== null && date.year !== null);
+
+  const movable = parsed
+    .map((date, index) => ({
+      index,
+      key: date === null || (coNam && date.year === null) ? null : khoaNgay(date),
+    }))
+    .filter((entry): entry is { index: number; key: number } => entry.key !== null);
+
+  const sorted = [...movable].sort((a, b) => a.key - b.key || a.index - b.index);
+
+  const out = [...rows];
+  movable.forEach((slot, position) => {
+    const source = sorted[position];
+    if (source === undefined) return;
+    const row = rows[source.index];
+    if (row !== undefined) out[slot.index] = row;
+  });
+
+  return out;
 }
 
 /**

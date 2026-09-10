@@ -13,13 +13,15 @@ import {
   parseStoredSeries,
   removeRow,
   serializeStoredSeries,
+  sortRowsByDate,
   toCsv,
   updateRow,
 } from '@/application';
-import type { PasteResult, Preset, SeriesRow } from '@/application';
+import type { CandleRange, PasteResult, Preset, SeriesRow } from '@/application';
 import { useT } from '@/application/preferences-context';
 import { NumberCell } from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
+import { CandleChart } from '@/ui/series';
 import { PasteImportSheet, PresetSheet } from '@/ui/sheets';
 
 import styles from './DataTableScreen.module.css';
@@ -41,6 +43,22 @@ import styles from './DataTableScreen.module.css';
  * Câu trên từng nói thêm rằng "chỗ duy nhất còn phải nói rõ là màn Danh mục, nơi mã cổ phiếu có
  * rời máy thật" — điều đó KHÔNG còn đúng: dải ấy (`portfolio.localOnly`) cũng đã bỏ ngày
  * 09/09/2026 theo yêu cầu chủ dự án. Nay không màn nào nói ra nữa. Đừng dựng lại dòng này ở đây.
+ *
+ * ── Bản vẽ 10/09/2026: biểu đồ nến trên, bảng và cột kiểm dưới ─────────────────────────────────
+ *
+ * Chủ dự án gửi bản vẽ khổ PC cho màn này: thẻ biểu đồ nến bày cả chuỗi ở trên, rồi bảng số liệu
+ * bên trái và cột "Kiểm tra dữ liệu" bên phải. Biểu đồ vẽ chính cái bảng đang gõ, nên nó là một
+ * tấm gương chứ không phải một phép tính — sửa một ô là hình đổi theo ngay.
+ *
+ * ── Ngày MỚI NHẤT lên đầu, nhưng chỉ ở phần NHÌN THẤY ──────────────────────────────────────────
+ *
+ * Chủ dự án chốt cùng ngày: bảng bày ngày mới nhất trước. Mảng `rows` thì **giữ nguyên thứ tự
+ * thời gian cũ → mới** và tuyệt đối không được lật: `closesOf()` trả mảng theo đúng thứ tự này,
+ * còn Beta, độ biến động và VaR đều đọc nó như một chuỗi thời gian. Lật mảng đã lưu là mọi con số
+ * rủi ro của sản phẩm tính ngược, mà không có gì trên màn nói là đã ngược.
+ *
+ * Nên phép lật nằm ở đúng một chỗ: `hienThi` ngay dưới. Mọi thứ khác — lưu, kiểm, xuất CSV, vẽ
+ * biểu đồ — vẫn làm việc trên mảng thời gian thật.
  */
 
 /** Sáu cột của bảng, đúng thứ tự wireframe. */
@@ -56,14 +74,24 @@ const COLUMNS = [
 /** Số phiên tối thiểu để Beta và Sharpe có ý nghĩa thống kê — cùng ngưỡng với cảnh báo WF-15. */
 const MIN_USABLE_ROWS = 60;
 
+/** id của ô ngày trên một dòng — chỗ mà nút "Tới dòng N" nhảy tới. */
+function oNgayId(index: number): string {
+  return `o-ngay-${String(index)}`;
+}
+
 interface SeriesRowFieldsProps {
   row: SeriesRow;
+  /** Vị trí trong mảng `rows` — dùng cho mọi lời gọi ngược lên màn. */
   index: number;
+  /** Số dòng NGƯỜI DÙNG ĐẾM BẰNG MẮT, đếm từ 1 ở dòng trên cùng. Khác `index` vì bảng lật. */
+  displayNumber: number;
   /** Dòng có vấn đề hay không. Truyền boolean chứ KHÔNG truyền mảng issues: mảng được dựng
    *  lại sau mỗi lần gõ nên sẽ phá memo, và ở đây dòng chỉ cần biết có tô vàng hay không. */
   bad: boolean;
   onChange: (index: number, patch: Partial<SeriesRow>) => void;
   onRemove: (index: number) => void;
+  /** Tiêu điểm vừa rời khỏi cả dòng — lúc ấy mới được sắp xếp lại. */
+  onLeave: () => void;
 }
 
 /**
@@ -76,13 +104,28 @@ interface SeriesRowFieldsProps {
 const SeriesRowFields = memo(function SeriesRowFields({
   row,
   index,
+  displayNumber,
   bad,
   onChange,
   onRemove,
+  onLeave,
 }: SeriesRowFieldsProps) {
   const t = useT();
   return (
-    <tr className={bad ? styles.badRow : undefined}>
+    <tr
+      className={bad ? styles.badRow : undefined}
+      /*
+       * Sắp xếp lại NGAY KHI tiêu điểm rời khỏi cả dòng, không sớm hơn.
+       *
+       * `relatedTarget` là nơi tiêu điểm sắp tới. Còn nằm trong chính dòng này (Tab từ ô Ngày
+       * sang ô Mở) thì chưa nhập xong — sắp lúc ấy là dòng nhảy đi chỗ khác giữa lúc người dùng
+       * đang gõ, đúng thứ chủ dự án dặn tránh: *"nhập liệu xong rồi mới check ngày rồi sort"*.
+       */
+      onBlur={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget)) return;
+        onLeave();
+      }}
+    >
       <td className={styles.flagCol}>
         {bad && (
           <span className={styles.flag} aria-hidden="true">
@@ -95,9 +138,10 @@ const SeriesRowFields = memo(function SeriesRowFields({
         <td key={column.key}>
           {column.key === 'date' ? (
             <input
+              id={oNgayId(index)}
               className={`${styles.cell} ${styles.dateCell}`}
               inputMode="text"
-              aria-label={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
+              aria-label={`${t('series.rowLabel')} ${displayNumber} · ${t(column.label)}`}
               value={row.date}
               onChange={(event) => {
                 onChange(index, { date: event.target.value });
@@ -114,7 +158,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
                của cờ báo lỗi ngay dưới. */
             <NumberCell
               className={styles.cell}
-              ariaLabel={`${t('series.rowLabel')} ${index + 1} · ${t(column.label)}`}
+              ariaLabel={`${t('series.rowLabel')} ${displayNumber} · ${t(column.label)}`}
               placeholder="_ _"
               value={row[column.key]}
               onChange={(next) => {
@@ -129,7 +173,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
         <button
           type="button"
           className={styles.removeButton}
-          aria-label={`${t('series.removeRow')} ${index + 1}`}
+          aria-label={`${t('series.removeRow')} ${displayNumber}`}
           onClick={() => {
             onRemove(index);
           }}
@@ -155,6 +199,7 @@ export function DataTableScreen() {
   const [code, setCode] = useState('');
   const [rows, setRows] = useState<ReadonlyArray<SeriesRow>>([]);
   const [sheet, setSheet] = useState<'preset' | 'paste' | null>(null);
+  const [range, setRange] = useState<CandleRange>('all');
   /**
    * Bảng hiện tại dựng từ một bộ số liệu mẫu BẢN THẢO.
    *
@@ -173,7 +218,8 @@ export function DataTableScreen() {
     try {
       const stored = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY));
       setCode(stored.code);
-      setRows(stored.rows);
+      /* Sắp một lần lúc nạp: bảng cũ trong máy có thể đã lộn thứ tự từ một lần dán ngược. */
+      setRows(sortRowsByDate(stored.rows));
     } catch {
       // localStorage bị chặn (chế độ riêng tư của Safari) — màn vẫn dùng được, chỉ không nhớ.
     }
@@ -197,13 +243,64 @@ export function DataTableScreen() {
     [check],
   );
 
-  // Hai callback này phải ổn định qua các lần render, nếu không memo của từng dòng vô tác dụng.
+  /**
+   * Thứ tự BÀY RA MÀN: ngày mới nhất trước.
+   *
+   * Chỉ đảo chiều, không sắp lại — `rows` vốn đã theo ngày (xem `onLeave` và lúc nạp). Nhờ vậy
+   * vị trí bày ra suy được bằng một phép trừ, và nút "Tới dòng N" ở cột kiểm tra dịch qua lại
+   * giữa hai hệ mà không phải dò.
+   */
+  const hienThi = useMemo(() => rows.map((row, index) => ({ row, index })).reverse(), [rows]);
+
+  /** Vị trí bày ra của một dòng, đếm từ 1 — con số mà mọi nhãn và mọi câu báo lỗi phải dùng. */
+  const soDong = useCallback((index: number) => rows.length - index, [rows.length]);
+
+  // Ba callback này phải ổn định qua các lần render, nếu không memo của từng dòng vô tác dụng.
   const setCell = useCallback((index: number, patch: Partial<SeriesRow>) => {
     setRows((current) => updateRow(current, index, patch));
   }, []);
 
   const dropRow = useCallback((index: number) => {
     setRows((current) => removeRow(current, index));
+  }, []);
+
+  /**
+   * Tiêu điểm vừa rời khỏi một dòng — lúc này mới xếp lại theo ngày.
+   *
+   * Đây là vế thứ hai của yêu cầu chủ dự án: dòng mới hiện ngay trên đầu, *"sau khi nhập liệu
+   * xong rồi mới check ngày rồi sort"*. Dòng chưa có ngày đọc được thì `sortRowsByDate()` để
+   * nguyên tại chỗ, nên dòng vừa thêm ở lại đầu bảng cho tới khi ô ngày có nội dung thật.
+   */
+  const onLeave = useCallback(() => {
+    setRows((current) => sortRowsByDate(current));
+  }, []);
+
+  /**
+   * Thêm một dòng — bày ở ĐẦU bảng.
+   *
+   * Nối vào CUỐI mảng chứ không đầu: mảng đi theo thời gian nên cuối mảng là phiên mới nhất, mà
+   * bảng lật nên phiên mới nhất hiện lên trên cùng. Một dòng trống chưa có ngày thì không tham
+   * gia phép sắp, nên nó nằm im ở đó trong lúc người dùng gõ.
+   *
+   * Đưa con trỏ thẳng vào ô ngày: người dùng bấm "Thêm dòng" là để gõ ngay, và ô ngày là ô đầu.
+   */
+  const addRow = useCallback(() => {
+    setRows((current) => {
+      const next = appendRow(current, emptyRow());
+      if (next.length === current.length) return current;
+      /* Sau lượt vẽ tiếp theo mới có ô để đưa tiêu điểm vào. */
+      window.requestAnimationFrame(() => {
+        document.getElementById(oNgayId(next.length - 1))?.focus();
+      });
+      return next;
+    });
+  }, []);
+
+  /** Nhảy tới một dòng đang lỗi từ cột kiểm tra. */
+  const goToRow = useCallback((index: number) => {
+    const field = document.getElementById(oNgayId(index));
+    field?.scrollIntoView({ block: 'center' });
+    field?.focus();
   }, []);
 
   /**
@@ -218,14 +315,16 @@ export function DataTableScreen() {
     // Ghi nhớ bảng này dựng từ bộ mẫu bản thảo, để dấu vết đi theo cả vào file CSV tải về.
     setFromDraft(preset.isDraft);
     setRows(
-      preset.bars.slice(-MAX_SERIES_ROWS).map((bar) => ({
-        date: bar.date,
-        open: bar.open,
-        high: bar.high,
-        low: bar.low,
-        close: bar.close,
-        volume: bar.volume,
-      })),
+      sortRowsByDate(
+        preset.bars.slice(-MAX_SERIES_ROWS).map((bar) => ({
+          date: bar.date,
+          open: bar.open,
+          high: bar.high,
+          low: bar.low,
+          close: bar.close,
+          volume: bar.volume,
+        })),
+      ),
     );
   }, []);
 
@@ -233,14 +332,16 @@ export function DataTableScreen() {
   const importPaste = useCallback((result: PasteResult) => {
     setFromDraft(false);
     setRows(
-      result.rows.slice(0, MAX_SERIES_ROWS).map((bar) => ({
-        date: bar.date,
-        open: bar.open,
-        high: bar.high,
-        low: bar.low,
-        close: bar.close,
-        volume: bar.volume,
-      })),
+      sortRowsByDate(
+        result.rows.slice(0, MAX_SERIES_ROWS).map((bar) => ({
+          date: bar.date,
+          open: bar.open,
+          high: bar.high,
+          low: bar.low,
+          close: bar.close,
+          volume: bar.volume,
+        })),
+      ),
     );
     setSheet(null);
   }, []);
@@ -262,125 +363,199 @@ export function DataTableScreen() {
     setRows([]);
   }, [t]);
 
+  /*
+   * Thanh tiến độ của cột kiểm tra. Hai mốc trên thanh, đều là con số THẬT của sản phẩm chứ không
+   * phải mốc trang trí: 60 là ngưỡng Beta/Sharpe có ý nghĩa thống kê, 400 là trần `MAX_SERIES_ROWS`.
+   */
+  const phanTram = Math.min(100, (check.usableCount / MAX_SERIES_ROWS) * 100);
+  const mocToiThieu = (MIN_USABLE_ROWS / MAX_SERIES_ROWS) * 100;
+
   return (
     <div className={styles.screen}>
-      <header className={styles.head}>
-        {/*
-          Đường ra chuyển lên thanh trên (`HeaderIdentity`), cùng đợt với màn chi tiết và màn tìm.
+      <div className={styles.topBar}>
+        <header className={styles.head}>
+          {/*
+            Đường ra chuyển lên thanh trên (`HeaderIdentity`), cùng đợt với màn chi tiết và màn tìm.
 
-          Cả NGOẠI LỆ của màn này cũng đi theo, không bị bỏ rơi: vào từ nút "Mở bảng dữ liệu" của
-          một trang công thức (`?from=<id>`) thì đường ra vẫn về ĐÚNG trang đó chứ không về danh
-          sách. Luật ấy nay nằm ở `backLinkFor()` bên `routes.ts` — đọc `?from` từ chuỗi truy vấn,
-          cùng tham số mà `fromFormula` ngay trên đang đọc.
-        */}
-        <h1 className={styles.title}>{t('series.title')}</h1>
-        <p className={styles.subtitle}>
-          {code === '' ? t('series.codeLabel') : code} · {t('series.subtitle')}
-        </p>
-      </header>
+            Cả NGOẠI LỆ của màn này cũng đi theo, không bị bỏ rơi: vào từ nút "Mở bảng dữ liệu" của
+            một trang công thức (`?from=<id>`) thì đường ra vẫn về ĐÚNG trang đó chứ không về danh
+            sách. Luật ấy nay nằm ở `backLinkFor()` bên `routes.ts` — đọc `?from` từ chuỗi truy vấn,
+            cùng tham số mà `fromFormula` ngay trên đang đọc.
+          */}
+          <h1 className={styles.title}>{t('series.title')}</h1>
+          <p className={styles.subtitle}>
+            {code === '' ? t('series.codeLabel') : code} · {t('series.subtitle')}
+          </p>
+        </header>
 
-      <div className={styles.actions}>
-        <Button
-          size="sm"
-          onClick={() => {
-            setRows((current) => appendRow(current, emptyRow()));
-          }}
-        >
-          + {t('series.addRow')}
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            setSheet('preset');
-          }}
-        >
-          {t('series.loadPreset')}
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            setSheet('paste');
-          }}
-        >
-          {t('series.paste')}
-        </Button>
-        <Button variant="ghost" size="sm" onClick={downloadCsv} disabled={rows.length === 0}>
-          ↓ {t('series.downloadCsv')}
-        </Button>
-        <Button variant="ghost" size="sm" onClick={clearAll} disabled={rows.length === 0}>
-          {t('series.clear')}
-        </Button>
+        <div className={styles.actions}>
+          <Button size="sm" onClick={addRow}>
+            + {t('series.addRow')}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setSheet('preset');
+            }}
+          >
+            {t('series.loadPreset')}
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setSheet('paste');
+            }}
+          >
+            {t('series.paste')}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={downloadCsv} disabled={rows.length === 0}>
+            ↓ {t('series.downloadCsv')}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={clearAll} disabled={rows.length === 0}>
+            {t('series.clear')}
+          </Button>
+        </div>
       </div>
 
       {rows.length === 0 ? (
         <p className={styles.empty}>{t('series.empty')}</p>
       ) : (
         <>
-          {/* Khung cuộn ngang riêng — bảng 6 cột không thể vừa 360px, và cả trang thì
-              KHÔNG được tràn ngang (bài học đợt 7 với bảng lịch trả nợ WF-14). */}
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th className={styles.flagCol}>
-                    <span className="visually-hidden">{t('series.rowLabel')}</span>
-                  </th>
-                  {COLUMNS.map((column) => (
-                    <th key={column.key} scope="col">
-                      {t(column.label)}
-                    </th>
-                  ))}
-                  <th className={styles.flagCol}>
-                    <span className="visually-hidden">{t('series.removeRow')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, index) => (
-                  <SeriesRowFields
-                    key={index}
-                    row={row}
-                    index={index}
-                    bad={issueByIndex.has(index)}
-                    onChange={setCell}
-                    onRemove={dropRow}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <CandleChart rows={rows} code={code} range={range} onRangeChange={setRange} />
 
-          {/* Nêu TỪNG dòng sai kèm lý do, không gộp thành một câu "dữ liệu không hợp lệ" —
-              người dùng phải dò được đúng dòng nào để sửa (cùng cách nghĩ với WF-11). */}
-          {check.rows.length > 0 && (
-            <ul className={styles.issues}>
-              {check.rows.map((row) => (
-                <li key={row.index} className={styles.issue}>
-                  <span className={styles.issueFlag} aria-hidden="true">
-                    !
+          <div className={styles.lower}>
+            <section className={styles.tableCard} aria-labelledby="khoi-bang-so-lieu">
+              <div className={styles.cardHead}>
+                <h2 className={styles.cardTitle} id="khoi-bang-so-lieu">
+                  {t('series.tableTitle')}
+                </h2>
+                <p className={styles.cardHint}>{t('series.tableHint')}</p>
+              </div>
+
+              {/* Khung cuộn ngang riêng — bảng 6 cột không thể vừa 360px, và cả trang thì
+                  KHÔNG được tràn ngang (bài học đợt 7 với bảng lịch trả nợ WF-14). */}
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th className={styles.flagCol}>
+                        <span className="visually-hidden">{t('series.rowLabel')}</span>
+                      </th>
+                      {COLUMNS.map((column) => (
+                        <th key={column.key} scope="col">
+                          {t(column.label)}
+                        </th>
+                      ))}
+                      <th className={styles.flagCol}>
+                        <span className="visually-hidden">{t('series.removeRow')}</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hienThi.map((entry) => (
+                      <SeriesRowFields
+                        key={entry.index}
+                        row={entry.row}
+                        index={entry.index}
+                        displayNumber={soDong(entry.index)}
+                        bad={issueByIndex.has(entry.index)}
+                        onChange={setCell}
+                        onRemove={dropRow}
+                        onLeave={onLeave}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/*
+              Cột "Kiểm tra dữ liệu" — bản vẽ 10/09/2026. Nó gom ba thứ trước đây nằm rải rác dưới
+              bảng: dòng đếm phiên dùng được, câu nhắc 60 phiên, và danh sách dòng lỗi. Gom lại vì
+              cả ba trả lời CÙNG một câu hỏi — "bảng này đã dùng được chưa" — mà trước đó người dùng
+              phải cuộn qua 248 dòng mới đọc được câu trả lời.
+            */}
+            <aside className={styles.checkCard} aria-labelledby="khoi-kiem-tra">
+              <h2 className={styles.cardTitle} id="khoi-kiem-tra">
+                {t('series.checkTitle')}
+              </h2>
+
+              <p className={styles.count}>
+                {/* `formatNumber` khai trả `string` nên `?? check.usableCount` từng đứng đây không
+                    bao giờ chạy — một đường dự phòng giả, đọc vào tưởng có xử lý ca lỗi. */}
+                <span className={styles.countBig}>{formatNumber(check.usableCount)}</span>
+                <span className={styles.countRest}>
+                  {' / '}
+                  {formatNumber(check.total)} {t('series.usable')}
+                </span>
+              </p>
+
+              {/*
+                Thanh tiến độ chỉ là hình: con số đã nằm ngay trên, và `aria-hidden` giữ cho trình
+                đọc màn hình khỏi đọc lại cùng một thông tin hai lần dưới hai hình thức.
+              */}
+              <div className={styles.gauge} aria-hidden="true">
+                <div className={styles.gaugeTrack}>
+                  <div className={styles.gaugeFill} style={{ width: `${String(phanTram)}%` }} />
+                  <div className={styles.gaugeMark} style={{ left: `${String(mocToiThieu)}%` }} />
+                </div>
+                <div className={styles.gaugeScale}>
+                  <span>0</span>
+                  <span>
+                    {String(MIN_USABLE_ROWS)} · {t('series.checkFloor')}
                   </span>
                   <span>
-                    <strong>
-                      {t('series.rowLabel')} {row.index + 1}
-                      {rows[row.index]?.date === '' ? '' : ` (${rows[row.index]?.date})`}:
-                    </strong>{' '}
-                    {row.issues.map((issue) => issue.message).join(' ')}
+                    {formatNumber(MAX_SERIES_ROWS)} {t('series.checkCap')}
                   </span>
-                </li>
-              ))}
-            </ul>
-          )}
+                </div>
+              </div>
 
-          <p className={styles.summary}>
-            {/* `formatNumber` khai trả `string` nên `?? check.usableCount` từng đứng đây không
-                bao giờ chạy — một đường dự phòng giả, đọc vào tưởng có xử lý ca lỗi. */}
-            {formatNumber(check.usableCount)} / {check.total} {t('series.usable')}
-            {check.usableCount > 0 && check.usableCount < MIN_USABLE_ROWS
-              ? ` — ${t('series.needMore')}`
-              : ''}
-          </p>
+              {check.usableCount > 0 && check.usableCount < MIN_USABLE_ROWS && (
+                <p className={styles.needMore}>{t('series.needMore')}</p>
+              )}
+
+              {/* Nêu TỪNG dòng sai kèm lý do, không gộp thành một câu "dữ liệu không hợp lệ" —
+                  người dùng phải dò được đúng dòng nào để sửa (cùng cách nghĩ với WF-11).
+                  Xếp theo vị trí BÀY RA, nên dòng nằm cao nhất trên bảng cũng đứng đầu ở đây. */}
+              {check.rows.length === 0 ? (
+                <p className={styles.allGood}>{t('series.allGood')}</p>
+              ) : (
+                <ul className={styles.issues}>
+                  {[...check.rows]
+                    .sort((a, b) => soDong(a.index) - soDong(b.index))
+                    .map((row) => (
+                      <li key={row.index} className={styles.issue}>
+                        <span className={styles.issueFlag} aria-hidden="true">
+                          !
+                        </span>
+                        <div className={styles.issueBody}>
+                          <p className={styles.issueHead}>
+                            {t('series.rowLabel')} {soDong(row.index)}
+                            {rows[row.index]?.date === ''
+                              ? ''
+                              : ` · ${rows[row.index]?.date ?? ''}`}
+                          </p>
+                          <p className={styles.issueText}>
+                            {row.issues.map((issue) => issue.message).join(' ')}
+                          </p>
+                          <button
+                            type="button"
+                            className={styles.issueJump}
+                            onClick={() => {
+                              goToRow(row.index);
+                            }}
+                          >
+                            {t('series.goToRow')} {soDong(row.index)} →
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </aside>
+          </div>
         </>
       )}
 

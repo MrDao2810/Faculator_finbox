@@ -87,8 +87,23 @@ export type { DisplayCalcNameInput, SuggestCalcNameInput } from '@/core/saved-ca
 export { MAX_SAVED_NAME, displayCalcName, suggestCalcNames } from '@/core/saved-calc-name';
 
 // ── Chuỗi giá OHLCV sửa tay — WF-05 (gói 3.3.1) ─────────────────────────────
-export type { RowCheck, RowIssue, RowIssueCode, SeriesCheck, SeriesRow } from '@/core/price-series';
-export { checkRow, checkSeries, closesOf, emptyRow, toCsv } from '@/core/price-series';
+export type {
+  RowCheck,
+  RowIssue,
+  RowIssueCode,
+  SeriesCheck,
+  SeriesDate,
+  SeriesRow,
+} from '@/core/price-series';
+export {
+  checkRow,
+  checkSeries,
+  closesOf,
+  emptyRow,
+  parseSeriesDate,
+  sortRowsByDate,
+  toCsv,
+} from '@/core/price-series';
 
 // ── Dòng tiền có ngày sửa tay — thân riêng của XIRR (gói WBS 3.3.1) ─────────
 export type {
@@ -195,6 +210,9 @@ export { chainFor, runChain } from '@/core/calc';
  */
 export type {
   BreakdownBar,
+  CandleBar,
+  CandleModel,
+  CandleRange,
   ChartArgs,
   ChartAxis,
   ChartKind,
@@ -205,6 +223,7 @@ export type {
   ChartSeries,
   DrawableChart,
   LineChart,
+  NiceAxis,
   ReferenceLine,
   SeriesTone,
   SweepOption,
@@ -212,9 +231,11 @@ export type {
   WaterfallChart,
 } from '@/core/chart';
 export {
+  CANDLE_RANGE_SESSIONS,
   CHART_TABLE_ROWS,
   PRIMARY_SERIES_KEY,
   areaPath,
+  buildCandleModel,
   buildChartModel,
   gapsOf,
   linePath,

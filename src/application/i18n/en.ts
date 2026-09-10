@@ -406,6 +406,32 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'series.needMore':
     'Beta and Sharpe need at least 60 sessions to mean anything statistically. Not enough yet — results will report missing data.',
 
+  'series.chartLabel': 'Candlestick chart of the price series',
+  'series.chartBlank':
+    'No session can be drawn yet. Fill in a close price, or fix the flagged rows.',
+  'series.sessions': 'sessions',
+  'series.overPeriod': 'over the period',
+  'series.rangeLabel': 'Time range',
+  /* Chữ tắt tháng: bản Việt dùng "T" (tháng), bản Anh dùng "M" (month). */
+  'series.range.1m': '1M',
+  'series.range.3m': '3M',
+  'series.range.6m': '6M',
+  'series.range.all': 'All',
+  'series.rangeHint': 'Most recent sessions:',
+  'series.rangeAllHint': 'Every session in the table',
+  'series.legendUp': 'Up session',
+  'series.legendDown': 'Down session',
+  'series.legendLast': 'Latest close',
+  'series.legendSkipped': 'flagged sessions — not drawn, fix them in the table below',
+
+  'series.tableTitle': 'Data table',
+  'series.tableHint': 'Newest → oldest · edit straight in the cell',
+  'series.checkTitle': 'Data check',
+  'series.checkFloor': 'Beta, Sharpe',
+  'series.checkCap': 'max',
+  'series.goToRow': 'Go to row',
+  'series.allGood': 'No row is flagged.',
+
   'xirr.tableTitle': 'Cash flows',
   'xirr.hint':
     'Negative is money out, positive is money in — the last row is usually the current value.',

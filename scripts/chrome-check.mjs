@@ -2411,6 +2411,153 @@ window.__themeLog = [];
 
   check('PC 1440 · bảng chuỗi giá không tràn ngang', pcDuLieu.tran === false);
 
+  /*
+   * ── Bảng chuỗi giá theo bản vẽ 10/09/2026: nến trên, bảng và cột kiểm dưới ──────────────────
+   *
+   * Ba nhóm phép, và cả ba đều CHỈ đo được ở đây:
+   *
+   *   1. Bố cục hai cột nằm trong `@media` của một CSS Module — jsdom không áp CSS Module, nên một
+   *      ca vitest sẽ xanh bất kể file CSS viết gì (cùng lý do `ChainBody.test.tsx` đã ghi).
+   *   2. Biểu đồ nến là SVG dựng từ `viewBox`; số cây nến thật chỉ đếm được trên DOM đã vẽ.
+   *   3. Hai khổ khung vẽ (`compact` / `wide`) do `useChartSize()` chọn qua `matchMedia`, thứ mà
+   *      jsdom không cài đặt — nên chỉ trình duyệt thật mới phân biệt được hai khổ.
+   *
+   * Gieo một chuỗi có HAI phiên hỏng, đúng cảnh bản vẽ: một phiên giá cao nhỏ hơn giá thấp, một
+   * phiên thiếu giá đóng cửa. Cả hai phải BỊ BỎ khỏi hình mà vẫn được đếm ra ở hàng chú thích.
+   */
+  const GIEO_CHUOI = `(() => {
+    const rows = [];
+    for (let i = 0; i < 80; i += 1) {
+      const d = new Date(2025, 0, 2 + i);
+      const date =
+        String(d.getFullYear()) +
+        '-' +
+        String(d.getMonth() + 1).padStart(2, '0') +
+        '-' +
+        String(d.getDate()).padStart(2, '0');
+      const open = 60000 + i * 120;
+      const close = open + (i % 3 === 0 ? -240 : 260);
+      rows.push({
+        date,
+        open,
+        high: Math.max(open, close) + 200,
+        low: Math.min(open, close) - 200,
+        close,
+        volume: 1000000 + i * 5000,
+      });
+    }
+    rows[4].high = 100;
+    rows[4].low = 90000;
+    rows[9].close = null;
+    localStorage.setItem('ffb.series.v1', JSON.stringify({ code: 'FPT', rows }));
+    return rows.length;
+  })()`;
+
+  const DOC_CHUOI = `(() => {
+    const r = (el) => {
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return { top: Math.round(b.top), left: Math.round(b.left), right: Math.round(b.right), width: Math.round(b.width) };
+    };
+    const fig = document.querySelector('main figure');
+    const svg = fig === null ? null : fig.querySelector('svg');
+    const oNgay = [...document.querySelectorAll('input')].filter((i) =>
+      /· Ngày$/.test(i.getAttribute('aria-label') ?? ''),
+    );
+    const bang = [...document.querySelectorAll('main section')].find(
+      (s) => /Bảng số liệu/i.test(s.querySelector('h2')?.textContent ?? ''),
+    ) ?? null;
+    const luu = JSON.parse(localStorage.getItem('ffb.series.v1') ?? '{}').rows ?? [];
+    return {
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      /* Khổ khung vẽ đang dùng — 360 là 'compact', 960 là 'wide'. */
+      viewW: svg === null ? null : Number((svg.getAttribute('viewBox') ?? '0 0 0 0').split(' ')[2]),
+      soNen: svg === null ? 0 : svg.querySelectorAll('rect[class*="body"]').length,
+      soVetLoi: svg === null ? 0 : svg.querySelectorAll('rect[class*="badBand"]').length,
+      soNutKhoang: fig === null ? 0 : fig.querySelectorAll('[role="group"] button').length,
+      chuThich: fig === null ? '' : (fig.querySelector('figcaption')?.textContent ?? ''),
+      bang: r(bang),
+      kiem: r(document.querySelector('main aside')),
+      ngayDau: oNgay[0]?.value ?? null,
+      ngayCuoi: oNgay[oNgay.length - 1]?.value ?? null,
+      soDong: oNgay.length,
+      /* Mảng ĐÃ LƯU — vế đắt nhất: nó phải theo thời gian cũ → mới, ngược với thứ tự trên màn. */
+      luuDau: luu[0]?.date ?? null,
+      luuCuoi: luu[luu.length - 1]?.date ?? null,
+    };
+  })()`;
+
+  await evaluate(GIEO_CHUOI);
+  await open('/du-lieu/');
+  const pcChuoi = await evaluate(DOC_CHUOI);
+
+  check(
+    'PC 1440 · bảng chuỗi giá có biểu đồ nến, và phiên LỖI thì không vẽ nhưng vẫn được đếm',
+    pcChuoi.soNen === 78 && pcChuoi.soVetLoi === 2 && /2 phiên lỗi/.test(pcChuoi.chuThich),
+    `${String(pcChuoi.soNen)} nến · ${String(pcChuoi.soVetLoi)} vệt lỗi · chú thích "${String(pcChuoi.chuThich).slice(-40)}"`,
+  );
+
+  check(
+    'PC 1440 · biểu đồ nến dùng khổ khung rộng, và có đủ bốn nút chọn khoảng',
+    pcChuoi.viewW === 960 && pcChuoi.soNutKhoang === 4,
+    `viewBox rộng ${String(pcChuoi.viewW)} · ${String(pcChuoi.soNutKhoang)} nút`,
+  );
+
+  check(
+    'PC 1440 · bảng số liệu bên trái, cột "Kiểm tra dữ liệu" bên phải, cùng mép trên',
+    pcChuoi.bang !== null &&
+      pcChuoi.kiem !== null &&
+      pcChuoi.kiem.left >= pcChuoi.bang.right &&
+      Math.abs(pcChuoi.kiem.top - pcChuoi.bang.top) <= 2,
+    `bảng ${String(pcChuoi.bang?.left)}–${String(pcChuoi.bang?.right)} · cột kiểm ${String(pcChuoi.kiem?.left)} rộng ${String(pcChuoi.kiem?.width)}`,
+  );
+
+  /*
+   * Vế NHÌN THẤY và vế ĐÃ LƯU đi ngược chiều nhau, và phải kiểm cả hai trong một phép.
+   *
+   * Lật mảng đã lưu là cách sai hiển nhiên nhất để làm ra bảng "mới nhất lên đầu", và nó hỏng thứ
+   * không ai nhìn thấy: `closesOf()` đọc mảng ấy như một chuỗi thời gian, nên Beta, độ biến động
+   * và VaR sẽ tính trên chuỗi chạy ngược mà không có gì trên màn nói là đã ngược.
+   */
+  check(
+    'PC 1440 · bảng bày ngày MỚI NHẤT trước, còn mảng đã lưu vẫn theo thời gian cũ → mới',
+    pcChuoi.soDong === 80 &&
+      pcChuoi.ngayDau === '2025-03-22' &&
+      pcChuoi.ngayCuoi === '2025-01-02' &&
+      pcChuoi.luuDau === '2025-01-02' &&
+      pcChuoi.luuCuoi === '2025-03-22',
+    `màn ${String(pcChuoi.ngayDau)} → ${String(pcChuoi.ngayCuoi)} · lưu ${String(pcChuoi.luuDau)} → ${String(pcChuoi.luuCuoi)}`,
+  );
+
+  check('PC 1440 · bảng chuỗi giá có số liệu không tràn ngang', pcChuoi.tran === false);
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 360,
+    height: 780,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await open('/du-lieu/');
+  const dtChuoi = await evaluate(DOC_CHUOI);
+
+  /*
+   * Khổ điện thoại đổi sang `viewBox` HẸP. Chữ trong SVG đo bằng đơn vị viewBox nên nó phóng y hệt
+   * hình: giữ khung 960 ở đây thì chữ trục hiện ra 3,2px — đo được trước khi tách hai khổ.
+   */
+  check(
+    'Điện thoại 360 · biểu đồ nến đổi sang khổ khung hẹp để chữ trục còn đọc được',
+    dtChuoi.viewW === 360 && dtChuoi.tran === false,
+    `viewBox rộng ${String(dtChuoi.viewW)} · tràn ${String(dtChuoi.tran)}`,
+  );
+
+  check(
+    'Điện thoại 360 · bảng và cột kiểm xếp DỌC, bảng trước',
+    dtChuoi.bang !== null && dtChuoi.kiem !== null && dtChuoi.kiem.top > dtChuoi.bang.top,
+    `bảng top=${String(dtChuoi.bang?.top)} · cột kiểm top=${String(dtChuoi.kiem?.top)}`,
+  );
+
+  await evaluate(`localStorage.removeItem('ffb.series.v1'), true`);
+
   /* ── Hết phép kiểm ─────────────────────────────────────────────────────── */
 } finally {
   await cleanup();

@@ -805,6 +805,34 @@ export const vi = {
   'series.needMore':
     'Beta và Sharpe cần ít nhất 60 phiên để có ý nghĩa thống kê. Hiện chưa đủ, kết quả sẽ báo thiếu dữ liệu.',
 
+  /* Biểu đồ nến và cột kiểm dữ liệu — bản vẽ "Chuỗi giá OHLCV" của chủ dự án (10/09/2026). */
+  'series.chartLabel': 'Biểu đồ nến của chuỗi giá',
+  'series.chartBlank':
+    'Chưa có phiên nào vẽ được. Điền giá đóng cửa, hoặc sửa những dòng đang lỗi.',
+  'series.sessions': 'phiên',
+  'series.overPeriod': 'cả kỳ',
+  'series.rangeLabel': 'Khoảng thời gian',
+  'series.range.1m': '1T',
+  'series.range.3m': '3T',
+  'series.range.6m': '6T',
+  'series.range.all': 'Cả chuỗi',
+  /* Nút ghi "1T" nhưng cắt theo SỐ PHIÊN — xem docblock `CandleRange`. Nói ra, đừng để đoán. */
+  'series.rangeHint': 'Số phiên gần nhất:',
+  'series.rangeAllHint': 'Toàn bộ chuỗi trong bảng',
+  'series.legendUp': 'Phiên tăng',
+  'series.legendDown': 'Phiên giảm',
+  'series.legendLast': 'Đóng cửa gần nhất',
+  'series.legendSkipped': 'phiên lỗi — chưa vẽ, sửa ở bảng dưới',
+
+  'series.tableTitle': 'Bảng số liệu',
+  /* Chủ dự án chốt 10/09/2026: ngày mới nhất lên ĐẦU bảng. Câu này nói ra thứ tự đang dùng. */
+  'series.tableHint': 'Mới → cũ · sửa trực tiếp trong ô',
+  'series.checkTitle': 'Kiểm tra dữ liệu',
+  'series.checkFloor': 'Beta, Sharpe',
+  'series.checkCap': 'tối đa',
+  'series.goToRow': 'Tới dòng',
+  'series.allGood': 'Không dòng nào đang lỗi.',
+
   'xirr.tableTitle': 'Dòng tiền',
   'xirr.hint':
     'Số âm là tiền chi ra, số dương là tiền thu về — dòng cuối thường là giá trị hiện tại.',

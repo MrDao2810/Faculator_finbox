@@ -60,3 +60,10 @@ export { CHART_TABLE_ROWS, condensePoints } from './table';
 
 export type { ChartArgs } from './build';
 export { buildChartModel } from './build';
+
+/*
+ * Biểu đồ NẾN của màn bảng chuỗi giá WF-05 — loại riêng, không phải nhánh của `ChartModel`.
+ * Lý do đầy đủ ở docblock `candles.ts`.
+ */
+export type { CandleBar, CandleModel, CandleRange } from './candles';
+export { CANDLE_RANGE_SESSIONS, buildCandleModel } from './candles';

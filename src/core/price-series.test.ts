@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { checkRow, checkSeries, closesOf, emptyRow, toCsv } from './price-series';
+import {
+  checkRow,
+  checkSeries,
+  closesOf,
+  emptyRow,
+  parseSeriesDate,
+  sortRowsByDate,
+  toCsv,
+} from './price-series';
 import type { SeriesRow } from './price-series';
 
 /** Một phiên hợp lệ, dùng làm khuôn rồi ghi đè từng mảnh trong các ca lỗi. */
@@ -103,8 +111,16 @@ describe('checkSeries — cả bảng', () => {
     expect(check.rows).toHaveLength(1);
     expect(check.rows[0]?.index).toBe(2);
     expect(check.rows[0]?.issues[0]?.code).toBe('DUPLICATE_DATE');
-    // Nói rõ dòng số mấy, đếm từ 1 như người dùng nhìn thấy trên bảng.
-    expect(check.rows[0]?.issues[0]?.message).toContain('dòng 1');
+    /*
+     * Câu báo nêu chính NGÀY, KHÔNG nêu số dòng — và ca này ghim cả vế phủ định.
+     *
+     * Bản trước ghim `'dòng 1'`. Từ 10/09/2026 bảng WF-05 bày ngày mới nhất lên đầu, nên chỉ số
+     * trong mảng không còn là con số người dùng đếm bằng mắt: một câu chỉ sai chỗ thì tệ hơn một
+     * câu không chỉ chỗ nào, vì họ sẽ đi sửa nhầm dòng. `first` vẫn còn trong `checkSeries()` để
+     * bảng tra biết dòng đầu tiên dùng ngày đó, nó chỉ thôi đi vào câu chữ.
+     */
+    expect(check.rows[0]?.issues[0]?.message).toContain('15/07');
+    expect(check.rows[0]?.issues[0]?.message).not.toMatch(/dòng \d/);
   });
 
   it('một dòng hỏng không làm hỏng cả bảng', () => {
@@ -164,5 +180,87 @@ describe('toCsv', () => {
 
   it('bảng rỗng vẫn xuất được, chỉ có dòng tiêu đề', () => {
     expect(toCsv([])).toBe('Ngày,Mở,Cao,Thấp,Đóng,Khối lượng');
+  });
+});
+
+/*
+ * Đọc ngày và sắp xếp — thêm 10/09/2026, khi chủ dự án chốt bảng WF-05 bày ngày mới nhất lên đầu.
+ *
+ * Cả hai hàm phục vụ đúng một yêu cầu: *"tạo thêm dòng thì hiển thị trên đầu, sau khi nhập liệu
+ * xong rồi mới check ngày rồi sort"*. Phần "sort sau" nằm ở màn (sắp lúc tiêu điểm rời dòng); phần
+ * "không đoán" nằm ở đây.
+ */
+describe('parseSeriesDate — đọc ô ngày, không đoán', () => {
+  it('đọc được ba lối viết mà bảng này thật sự gặp', () => {
+    expect(parseSeriesDate('2025-01-20')).toEqual({ year: 2025, month: 1, day: 20 });
+    expect(parseSeriesDate('20/01/2025')).toEqual({ year: 2025, month: 1, day: 20 });
+    expect(parseSeriesDate('15/07')).toEqual({ year: null, month: 7, day: 15 });
+  });
+
+  it('ngày/tháng đọc theo lối Việt Nam — 15/07 là 15 tháng 7', () => {
+    expect(parseSeriesDate('15/07')?.month).toBe(7);
+    expect(parseSeriesDate('15/07')?.day).toBe(15);
+  });
+
+  it('thứ không phải ngày thì trả null chứ không đoán ra một ngày nào', () => {
+    // Chuỗi minh hoạ của trang Beta ghi số thứ tự phiên — đây là dữ liệu THẬT, không phải ca hiếm.
+    expect(parseSeriesDate('1')).toBeNull();
+    expect(parseSeriesDate('')).toBeNull();
+    expect(parseSeriesDate('hôm qua')).toBeNull();
+    // Tháng 13 và ngày 32 không tồn tại; nhận bừa là xếp chuỗi theo một ngày không có thật.
+    expect(parseSeriesDate('2025-13-01')).toBeNull();
+    expect(parseSeriesDate('32/01/2025')).toBeNull();
+  });
+});
+
+describe('sortRowsByDate — cũ → mới, và không bao giờ đoán', () => {
+  function ngay(date: string, close = 10): SeriesRow {
+    return { date, open: null, high: null, low: null, close, volume: null };
+  }
+
+  it('xếp theo ngày tăng dần, giữ nguyên số dòng', () => {
+    const sorted = sortRowsByDate([ngay('2025-03-02'), ngay('2025-01-05'), ngay('2025-02-11')]);
+
+    expect(sorted.map((r) => r.date)).toEqual(['2025-01-05', '2025-02-11', '2025-03-02']);
+  });
+
+  it('dòng KHÔNG đọc được ngày thì đứng yên tại chỗ, không bị dồn về một đầu', () => {
+    /*
+     * Đây là bất biến giữ cho dòng vừa thêm (ngày còn trống) nằm im ở đầu bảng trong lúc người
+     * dùng gõ. Ô trống ở vị trí 1 phải VẪN ở vị trí 1 sau khi sắp.
+     */
+    const sorted = sortRowsByDate([ngay('2025-03-02'), ngay(''), ngay('2025-01-05')]);
+
+    expect(sorted.map((r) => r.date)).toEqual(['2025-01-05', '', '2025-03-02']);
+  });
+
+  it('trộn hai lối viết thì lối THIẾU NĂM nhường chỗ — không so được thì không xếp', () => {
+    // '15/07' không biết thuộc năm nào, nên nó ở nguyên vị trí 1, còn hai ngày có năm đổi chỗ.
+    const sorted = sortRowsByDate([ngay('2025-03-02'), ngay('15/07'), ngay('2024-01-05')]);
+
+    expect(sorted.map((r) => r.date)).toEqual(['2024-01-05', '15/07', '2025-03-02']);
+  });
+
+  it('cả bảng cùng lối thiếu năm thì so theo tháng–ngày như thường', () => {
+    const sorted = sortRowsByDate([ngay('15/07'), ngay('02/03'), ngay('20/07')]);
+
+    expect(sorted.map((r) => r.date)).toEqual(['02/03', '15/07', '20/07']);
+  });
+
+  it('ỔN ĐỊNH: hai dòng trùng ngày giữ nguyên thứ tự tương đối', () => {
+    const sorted = sortRowsByDate([ngay('2025-01-05', 1), ngay('2025-01-05', 2)]);
+
+    expect(sorted.map((r) => r.close)).toEqual([1, 2]);
+  });
+
+  it('sắp rồi thì `closesOf` vẫn trả chuỗi theo thời gian — đây là chỗ Beta/VaR đọc', () => {
+    const sorted = sortRowsByDate([ngay('2025-03-02', 30), ngay('2025-01-05', 10)]);
+
+    expect(closesOf(sorted)).toEqual([10, 30]);
+  });
+
+  it('bảng rỗng và bảng một dòng không vỡ', () => {
+    expect(sortRowsByDate([])).toEqual([]);
+    expect(sortRowsByDate([emptyRow()])).toHaveLength(1);
   });
 });

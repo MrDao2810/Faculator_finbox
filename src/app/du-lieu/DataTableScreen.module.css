@@ -5,6 +5,33 @@
   min-width: 0;
 }
 
+/*
+ * Hàng trên: tiêu đề bên trái, thanh công cụ bên phải — bản vẽ 10/09/2026.
+ *
+ * Ở điện thoại vẫn là một cột, tức đúng bản đã duyệt: tiêu đề trên, năm nút xuống dưới và bám mép
+ * trái. Từ 1024 hai khối vào cùng một hàng và thanh công cụ dạt phải, dóng thẳng với mép phải của
+ * thẻ biểu đồ ngay dưới.
+ */
+.topBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .topBar {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .head {
+    min-width: 0;
+  }
+}
+
 .head {
   display: flex;
   flex-direction: column;
@@ -31,16 +58,227 @@
 }
 
 /*
- * Khổ PC: thanh công cụ dạt về phải (bản vẽ WF-05). Bậc 1280 — bảng "BẬC MÀN" ở `globals.css`.
+ * Khổ PC: thanh công cụ dạt về phải (bản vẽ WF-05).
  *
  * Ở 360px năm nút xuống hai hàng và phải bám mép trái, cùng đường dóng với tiêu đề ngay trên. Từ
- * 1280 chúng nằm gọn một hàng chiếm chưa tới nửa bề ngang, và mép phải là chỗ đúng: nó dóng thẳng
- * với mép phải của bảng ngay dưới, thay vì trôi lửng giữa một khoảng trống 800px.
+ * 1024 chúng nằm gọn một hàng và mép phải là chỗ đúng: nó dóng thẳng với mép phải của thẻ biểu đồ
+ * ngay dưới, thay vì trôi lửng giữa một khoảng trống 800px.
+ *
+ * Mốc 1024 chứ không 1280 nữa: từ đợt bản vẽ mới, chính `.topBar` ở trên đưa hai khối vào cùng một
+ * hàng ở mốc ấy, nên hai luật phải bật cùng lúc — lệch nhau là dải 1024–1279 có thanh công cụ dính
+ * bên trái của một hàng mà nó đang chiếm nửa phải.
  */
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
   .actions {
     justify-content: flex-end;
+    flex-shrink: 0;
   }
+}
+
+/*
+ * Hai khối dưới biểu đồ: bảng bên trái, cột kiểm tra bên phải — bản vẽ 10/09/2026.
+ *
+ * Cột kiểm rộng CỐ ĐỊNH 320px chứ không theo phần trăm: nội dung của nó là chữ và số ngắn, nên
+ * giãn theo màn chỉ tạo ra một cột chữ thưa thớt. Bảng thì ngược lại — nó có sáu cột số và luôn
+ * dùng hết chỗ được cho.
+ *
+ * `align-items: start` để cột kiểm không bị kéo dài bằng một bảng 248 dòng.
+ */
+.lower {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .lower {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+  }
+}
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Tiêu đề khối — CHÉP đúng năm thuộc tính mà `section-title.test.ts` gác cho tám khối kia. Không
+ * khai vào bảng của ca kiểm ấy vì đây là khối thứ chín và mười của một màn vừa dựng lại; nếu về
+ * sau nó ở lại thì chỗ đúng là thêm hai dòng vào `SECTION_TITLES`, không phải nới luật.
+ */
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+/* "Mới → cũ · sửa trực tiếp trong ô" — nói ra thứ tự đang dùng VÀ nói ô gõ được. */
+.cardHint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* ── Cột kiểm tra dữ liệu ─────────────────────────────────────────────────── */
+
+.checkCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+/*
+ * Con số phiên dùng được — số to nhất của cột, vì nó là câu trả lời cho câu hỏi duy nhất mà cả
+ * khối này tồn tại để trả lời. Chữ số đều: bảng đổi từng dòng nên con số nhảy liên tục, và bề
+ * ngang co giật theo từng chữ số là thứ đọc rất mệt.
+ */
+.countBig {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.countRest {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.gaugeTrack {
+  position: relative;
+  height: 8px;
+  background: var(--color-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.gaugeFill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: inherit;
+}
+
+/*
+ * Vạch mốc 60 phiên — ngưỡng Beta/Sharpe. Là một vạch ĐỨNG cắt ngang thanh chứ không phải một
+ * mảng màu thứ hai: mảng màu đọc ra là "một đoạn giá trị", còn đây là một điểm.
+ */
+.gaugeMark {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 12px;
+  background: var(--color-ink-soft);
+  border-radius: var(--radius-pill);
+}
+
+.gaugeScale {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.needMore {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-warning);
+}
+
+.allGood {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-success);
+}
+
+/* Nút nhảy tới đúng dòng đang lỗi. Chữ màu nhấn, không nền — nó là link trong một thẻ cảnh báo. */
+.issueJump {
+  align-self: flex-start;
+
+  min-height: var(--space-6);
+  padding: 0;
+
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.issueJump:hover {
+  text-decoration: underline;
+}
+
+.issueBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.issueHead {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+}
+
+.issueText {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-warning);
 }
 
 .empty {
@@ -67,10 +305,13 @@
   contain: layout inline-size;
 
   overflow-x: auto;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
 }
+
+/*
+ * Viền và nền của khung cuộn đã chuyển lên `.tableCard` bọc ngoài (bản vẽ 10/09/2026): thẻ mang
+ * tiêu đề "BẢNG SỐ LIỆU" nên chính nó là hình khối, còn khung cuộn chỉ còn việc cuộn. Để cả hai
+ * cùng vẽ viền là hai đường kẻ lồng nhau cách nhau đúng 16px đệm.
+ */
 
 .table {
   width: 100%;
@@ -229,28 +470,33 @@
   color: var(--color-danger);
 }
 
+/*
+ * Danh sách dòng lỗi trong cột kiểm tra.
+ *
+ * Bản trước là MỘT khối vàng đặc gom mọi lỗi, đặt dưới bảng. Bản vẽ 10/09/2026 tách thành từng
+ * thẻ rời, và tách là đúng: mỗi thẻ nói về một dòng cụ thể và mang riêng một nút nhảy tới dòng
+ * ấy, nên gom chung một nền là ba mục khác nhau đọc thành một đoạn văn.
+ */
 .issues {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 
   margin: 0;
-  padding: var(--space-3);
+  padding: 0;
   list-style: none;
-
-  font-size: var(--text-sm);
-  line-height: var(--leading-normal);
-  color: var(--color-warning);
-
-  background: var(--color-warning-soft);
-  border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-md);
 }
 
 .issue {
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
+
+  padding: var(--space-2);
+
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+  border-radius: var(--radius-md);
 }
 
 .issueFlag {
@@ -271,8 +517,8 @@
   border-radius: var(--radius-pill);
 }
 
-.summary {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-ink-soft);
-}
+/*
+ * `.summary` — dòng "246 / 248 phiên dùng được" đứng dưới bảng — đã BỎ. Cả ba thứ nó gom (con số,
+ * câu nhắc 60 phiên, danh sách lỗi) nay nằm trong cột "Kiểm tra dữ liệu" bên phải bảng, xem
+ * `.checkCard` ở trên. Đừng dựng lại: hai chỗ cùng in một con số là hai chỗ sẽ có ngày lệch nhau.
+ */

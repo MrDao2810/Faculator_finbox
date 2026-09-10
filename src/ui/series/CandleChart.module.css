@@ -1,0 +1,287 @@
+/*
+ * Thẻ biểu đồ nến của màn bảng chuỗi giá WF-05 — bản vẽ "Chuỗi giá OHLCV" của chủ dự án.
+ *
+ * Mọi màu đi qua token: `tokens.test.ts` quét toàn bộ CSS Module và đỏ khi thấy mã màu viết thẳng,
+ * và đó cũng là thứ giữ cho bảng tối không phải sửa file này một dòng nào.
+ *
+ * Xanh / đỏ ở đây là `--color-success` / `--color-danger` — đúng cặp mà thẻ lãi–lỗ của màn Danh
+ * mục đã dùng. KHÔNG dựng cặp màu riêng cho biểu đồ: hai chỗ cùng nói "tăng / giảm" thì phải cùng
+ * một màu, nếu không người dùng phải học hai bảng màu trong một sản phẩm.
+ */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+
+  margin: 0;
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Huy hiệu mã — cùng khuôn với vai `code` của primitive Badge, chỉ nhỏ hơn một bậc. */
+.code {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 0 var(--space-2);
+  min-height: var(--space-6);
+
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.priceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+/* Giá gần nhất — số to nhất trên thẻ, chữ số đều để hai lần mở không nhảy bề ngang. */
+.price {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.changeUp,
+.changeDown {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.changeUp {
+  color: var(--color-success);
+}
+
+.changeDown {
+  color: var(--color-danger);
+}
+
+/*
+ * Thanh chọn khoảng. Khay + nút bo cùng bậc `--radius-md`, nút trong dùng `inherit` — cùng khuôn
+ * với `TabBar` và nhóm Đường/Cột, nên chỉ có MỘT dòng số cho cả cụm.
+ */
+.ranges {
+  display: flex;
+  align-self: flex-start;
+  gap: 2px;
+
+  padding: 2px;
+
+  background: var(--color-sunken);
+  border-radius: var(--radius-md);
+}
+
+.range {
+  min-height: var(--control-h-compact);
+  padding: 0 var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+
+  background: transparent;
+  border: none;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.range:hover {
+  color: var(--color-ink);
+}
+
+/*
+ * Nút đang chọn. Nền đặc + chữ nghịch đảo là hai dấu hiệu chứ không riêng màu, và `aria-pressed`
+ * lo phần trình đọc màn hình — NFR-USA-06.
+ */
+.range[aria-pressed='true'] {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+/*
+ * Tỉ lệ khung phải KHỚP `viewBox` của đúng khổ đang dùng, nếu không `preserveAspectRatio` chừa
+ * viền trống rồi hình bị đẩy lệch — đúng lỗi mà `use-chart-size.ts` ghi lại cho mốc 640px.
+ *
+ * Hai con số này là bản sao của `SIZES` bên `CandleChart.tsx`; CSS không đọc được hằng TS. Đổi một
+ * bên thì phải đổi cả bên kia.
+ */
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.svg[data-size='compact'] {
+  aspect-ratio: 360 / 240;
+}
+
+.svg[data-size='wide'] {
+  aspect-ratio: 960 / 300;
+}
+
+.blank {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  text-align: center;
+
+  background: var(--color-sunken);
+  border-radius: var(--radius-md);
+}
+
+/* ── Phần bên trong <svg> ─────────────────────────────────────────────────── */
+
+.grid {
+  stroke: var(--color-hairline);
+  stroke-width: 1;
+}
+
+.tick {
+  font-size: 10px;
+  fill: var(--color-muted);
+}
+
+/*
+ * Nến. Bấc và thân cùng lấy màu từ lớp tông đặt trên `<g>` bọc ngoài, nên một phiên không bao giờ
+ * có bấc một màu và thân một màu.
+ */
+.up .wick,
+.up .body {
+  stroke: var(--color-success);
+  fill: var(--color-success);
+}
+
+.down .wick,
+.down .body {
+  stroke: var(--color-danger);
+  fill: var(--color-danger);
+}
+
+.wick {
+  stroke-width: 1;
+}
+
+.body {
+  stroke-width: 0.5;
+}
+
+/* Cột khối lượng — nhạt hẳn, nó là nền chứ không phải nội dung chính của hình. */
+.volume {
+  fill: var(--color-sunken);
+}
+
+/* Vệt đánh dấu phiên lỗi: cùng vàng với dòng bị tô ở bảng dưới, để mắt nối được hai chỗ. */
+.badBand {
+  fill: var(--color-warning-soft);
+  stroke: var(--color-warning-line);
+  stroke-width: 0.5;
+}
+
+.lastLine {
+  stroke: var(--color-warning);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.lastTag {
+  fill: var(--color-warning);
+}
+
+.lastText {
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  fill: var(--color-on-accent);
+}
+
+/* ── Hàng chú thích ───────────────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.legendBad {
+  color: var(--color-warning);
+  font-weight: var(--weight-medium);
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.dotUp {
+  background: var(--color-success);
+}
+
+.dotDown {
+  background: var(--color-danger);
+}
+
+.dotVolume {
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+}
+
+.dotLast {
+  height: 0;
+  border-top: 2px dashed var(--color-warning);
+  border-radius: 0;
+}
+
+.dotBad {
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-line);
+}

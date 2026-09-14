@@ -456,14 +456,17 @@ export {
   serializeActiveTicker,
 } from './active-ticker';
 
-export type { StoredSeries } from './price-series-store';
+export type { StoredSeries, WorkingSeries, WorkingSeriesSource } from './price-series-store';
 export {
   MAX_SERIES_ROWS,
   PRICE_SERIES_KEY,
+  WORKING_SERIES_KEY,
   appendRow,
   parseStoredSeries,
+  parseWorkingSeries,
   removeRow,
   serializeStoredSeries,
+  serializeWorkingSeries,
   updateRow,
 } from './price-series-store';
 

@@ -98,8 +98,8 @@ export const DIEM_HOA_VON: FormulaModule = {
         en: 'When drafting a business plan, pricing a new product, or assessing a company with a heavy fixed-cost structure.',
       },
       howToRead: {
-        vi: 'Điểm hoà vốn càng thấp so với sản lượng thực tế thì biên an toàn càng dày. Doanh thu hoà vốn ở dòng phụ giúp so thẳng với doanh thu trên báo cáo.',
-        en: 'The lower the break-even point is relative to actual output, the thicker the margin of safety. The break-even revenue shown alongside lets you compare directly against reported revenue.',
+        vi: 'Điểm hoà vốn càng thấp so với sản lượng thực tế thì biên an toàn càng dày. Muốn so với doanh thu trên báo cáo, nhân sản lượng hoà vốn với giá bán để ra doanh thu hoà vốn tương ứng.',
+        en: 'The lower the break-even point is relative to actual output, the thicker the margin of safety. To compare against reported revenue, multiply the break-even quantity by the selling price to get the matching break-even revenue.',
       },
       commonMistakes: {
         vi: 'Xếp nhầm chi phí nửa cố định nửa biến đổi (điện, lương có thưởng doanh số) vào một cột duy nhất, làm điểm hoà vốn lệch xa thực tế.',
@@ -273,8 +273,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Hệ số khuếch đại từ doanh thu tới EPS: DOL đo phần khuếch đại do định phí hoạt động, DFL đo phần do lãi vay, nhân lại thành đòn bẩy tổng hợp.',
-        en: 'The amplification factor from revenue to EPS: DOL measures the amplification from operating fixed cost, DFL measures the part from interest expense, and multiplying them gives the degree of total leverage.',
+        vi: 'Hệ số khuếch đại từ doanh thu tới EPS: DOL đo phần khuếch đại do định phí hoạt động, DFL đo phần do lãi vay, nhân lại thành đòn bẩy tổng hợp. EBIT ở đây là lợi nhuận trước lãi vay và thuế, bằng doanh thu trừ biến phí trừ định phí hoạt động.',
+        en: 'The amplification factor from revenue to EPS: DOL measures the amplification from operating fixed cost, DFL measures the part from interest expense, and multiplying them gives the degree of total leverage. EBIT here is operating profit before interest and tax, equal to revenue minus variable cost minus operating fixed cost.',
       },
       whenToUse: {
         vi: 'Khi đánh giá độ nhạy lợi nhuận của doanh nghiệp nhiều định phí hoặc vay nợ lớn, nhất là lúc dự phóng kịch bản doanh thu tăng giảm.',

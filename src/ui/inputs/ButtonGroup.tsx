@@ -80,7 +80,8 @@ export function ButtonGroup({
         })}
       </div>
 
-      {spec.description !== undefined && <p className={styles.hint}>{pick(spec.description)}</p>}
+      {/* `spec.description` không hiện ở đây — bảng biến cùng màn đã in đúng câu ấy; xem docblock
+          trong `NumberInput.tsx`. */}
     </div>
   );
 }

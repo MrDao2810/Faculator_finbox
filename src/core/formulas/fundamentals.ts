@@ -172,8 +172,8 @@ export const EPS_CO_BAN: FormulaModule = {
         en: "The portion of profit belonging to one common share after subtracting the preferred shareholders' portion.",
       },
       whenToUse: {
-        vi: 'Là đầu vào của P/E và của hầu hết phép so sánh lợi nhuận giữa các doanh nghiệp.',
-        en: 'It feeds into P/E and into most profit comparisons between companies.',
+        vi: 'Khi đọc báo cáo tài chính theo quý hoặc theo năm và muốn biết lợi nhuận mỗi cổ phiếu đang tăng hay giảm so với kỳ trước.',
+        en: 'When reading quarterly or annual financial reports and wanting to see whether profit per share is rising or falling compared with the previous period.',
       },
       howToRead: {
         vi: 'EPS tăng đều qua các năm là dấu hiệu tốt; EPS âm nghĩa là doanh nghiệp đang lỗ trên mỗi cổ phiếu.',
@@ -270,8 +270,8 @@ export const BVPS: FormulaModule = {
         en: 'The theoretical amount each share would receive if the company were liquidated and its assets sold at exactly book value.',
       },
       whenToUse: {
-        vi: 'Là mẫu số của P/B, và là mốc so sánh khi thị giá rơi sâu.',
-        en: 'It is the denominator of P/B, and a reference point when the market price falls sharply.',
+        vi: 'Khi thị giá rơi sâu hoặc cổ phiếu bị bán tháo, dùng làm mốc so sánh xem thị trường đang định giá doanh nghiệp thấp hơn giá trị sổ sách bao nhiêu.',
+        en: 'When the market price drops sharply or the stock is being sold off, use it as a reference point to see how far below book value the market is pricing the company.',
       },
       howToRead: {
         vi: 'Thị giá thấp hơn BVPS nghĩa là thị trường định giá doanh nghiệp dưới giá trị sổ sách — cần tìm hiểu vì sao trước khi kết luận là rẻ.',
@@ -489,8 +489,8 @@ export const ROA: FormulaModule = {
         en: 'When comparing companies with different levels of debt, or when leverage is distorting ROE.',
       },
       howToRead: {
-        vi: 'ROA thấp hơn ROE là bình thường vì tài sản luôn lớn hơn vốn chủ; khoảng cách càng rộng thì doanh nghiệp vay nợ càng nhiều.',
-        en: 'ROA being lower than ROE is normal, since assets are always larger than equity; the wider the gap, the more the company relies on debt.',
+        vi: 'So ROA với trung bình ngành là cách đọc đáng tin cậy nhất, vì mỗi ngành cần lượng tài sản khác nhau để tạo ra doanh thu. Trong cùng một doanh nghiệp có lãi, ROA thường thấp hơn ROE vì tổng tài sản bao gồm cả vốn chủ lẫn nợ phải trả — khoảng cách càng rộng thì vay nợ càng nhiều.',
+        en: 'Comparing ROA with the industry average is the most reliable way to read it, since different industries need different amounts of assets to generate revenue. Within the same profitable company, ROA is usually lower than ROE because total assets include both equity and liabilities — the wider the gap, the more debt the company carries.',
       },
       commonMistakes: {
         vi: 'So ROA giữa hai ngành khác cấu trúc tài sản — ngân hàng và bán lẻ có mặt bằng ROA hoàn toàn khác nhau.',
@@ -574,8 +574,8 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
         en: 'When comparing cost-control ability between companies in the same industry.',
       },
       howToRead: {
-        vi: 'Biên ròng mỏng nghĩa là chỉ cần chi phí nhích nhẹ là lợi nhuận bốc hơi; biên dày cho doanh nghiệp sức chịu đựng tốt hơn khi thị trường xấu.',
-        en: 'A thin net margin means a small uptick in costs can wipe out profit; a thick margin gives a company more resilience when the market turns bad.',
+        vi: "Biên ròng mỏng nghĩa là chỉ cần chi phí nhích nhẹ là lợi nhuận bốc hơi; biên dày cho doanh nghiệp sức chịu đựng tốt hơn khi thị trường xấu. Mức 'mỏng' hay 'dày' phụ thuộc vào ngành, nên chỉ nên so sánh biên ròng giữa các doanh nghiệp cùng lĩnh vực hoặc so với chính doanh nghiệp đó ở các kỳ trước.",
+        en: "A thin net margin means a small uptick in costs can wipe out profit; a thick margin gives a company more resilience when the market turns bad. What counts as 'thin' or 'thick' depends on the industry, so only compare net margin across companies in the same field, or against the same company's own prior periods.",
       },
       commonMistakes: {
         vi: 'So biên ròng giữa bán lẻ (thường vài phần trăm) với phần mềm (vài chục phần trăm) rồi kết luận bán lẻ kém.',

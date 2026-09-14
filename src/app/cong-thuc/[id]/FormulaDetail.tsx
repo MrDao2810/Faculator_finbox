@@ -21,6 +21,7 @@ import {
   ROUTES,
   SAMPLE_DATA,
   SAVED_CALCS_KEY,
+  WORKING_SERIES_KEY,
   addSavedCalc,
   cashflowsOf,
   chainFor,
@@ -45,6 +46,7 @@ import {
   parseInputDrafts,
   parseSavedCalcs,
   parseStoredSeries,
+  parseWorkingSeries,
   pickPresetsFor,
   presetInputs,
   presetRealKeys,
@@ -60,6 +62,7 @@ import {
   serializeInputDrafts,
   serializeSavedCalcs,
   serializeStoredSeries,
+  serializeWorkingSeries,
   variablesForLevel,
 } from '@/application';
 import type {
@@ -74,6 +77,8 @@ import type {
   Preset,
   SavedCalc,
   SeriesRow,
+  WorkingSeries,
+  WorkingSeriesSource,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { useCalcText, useValueText } from '@/ui/i18n/units';
@@ -729,6 +734,69 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     }
   }, [inputs, spec.id, stickyTicker]);
 
+  /**
+   * Chuỗi giá trên màn đến từ đâu ở lượt xem này — `null` nghĩa là "không phải thứ cần cất".
+   *
+   * Cùng vai với `editedRef` ngay trên, cho vế CHUỖI: nó là tín hiệu duy nhất cho phép ghi, và
+   * chỉ bật ở hai lối nạp mà cú điều hướng làm mất trắng — dán tại chỗ và ví dụ minh hoạ. Chuỗi
+   * của "Nạp mẫu" cố ý KHÔNG bật cờ này: nó đã sống sót sẵn nhờ preset trong `sessionStorage`,
+   * nên cất thêm một bản nữa chỉ là chép 248 phiên ra hai chỗ.
+   *
+   * `useRef` chứ không `useState`, cùng lý do đã ghi ở `editedRef`: cờ bật rồi `setBars()` ngay
+   * trong một lượt sự kiện, mà state thì tới lượt render sau mới mang giá trị mới — effect ghi
+   * bên dưới sẽ bỏ lỡ đúng chuỗi vừa nạp.
+   */
+  const workingSourceRef = useRef<WorkingSeriesSource | null>(null);
+
+  /**
+   * Bản ghi đọc lên lúc mở màn, giữ lại cho nhánh `?ma=` bất đồng bộ đọc — cùng vai `draftRef`.
+   */
+  const workingSeriesRef = useRef<WorkingSeries | null>(null);
+
+  /**
+   * Đặt chuỗi đã cất trở lại lên màn.
+   *
+   * `useCallback` rỗng deps: thân hàm chỉ gọi setter (React bảo đảm ổn định), nên nó giữ được một
+   * tham chiếu duy nhất cho cả hai nơi gọi — effect khôi phục lúc mở màn và nhánh `?ma=`.
+   */
+  const applyWorkingSeries = useCallback((record: WorkingSeries) => {
+    workingSourceRef.current = record.source;
+    setBars(record.rows);
+    setSeriesCount(record.rows.length);
+    setMarketSeriesOverride(record.marketSeries);
+    // Ghi chú "đây là chuỗi minh hoạ, không phải số thật" phải theo đúng dữ liệu vừa khôi phục.
+    setExampleLoaded(record.source === 'example');
+    // Bảng WF-05 không được đụng tới trong cú khôi phục này, nên nhãn "đã áp dụng" phải về không.
+    setAppliedToTable(false);
+  }, []);
+
+  /*
+   * Ghi chuỗi đang dùng sau mỗi lần nó đổi — nhưng chỉ khi cờ trên đã bật.
+   *
+   * Bám `bars` chứ không ghi thẳng trong `onImport`/`loadIllustrativeExample`, cùng lẽ với effect
+   * ghi bản nháp ngay trên: sau lần nạp đầu, mọi thay đổi tiếp theo của chuỗi (áp một điểm từ
+   * biểu đồ, nạp lại ví dụ khác) đều được ghi mà không phải nhớ thêm một nơi gọi nào.
+   */
+  useEffect(() => {
+    if (workingSourceRef.current === null || bars === null || bars.length === 0) return;
+
+    try {
+      window.sessionStorage.setItem(
+        WORKING_SERIES_KEY,
+        serializeWorkingSeries({
+          id: spec.id,
+          rows: bars,
+          marketSeries: marketSeriesOverride,
+          source: workingSourceRef.current,
+          code: stickyTicker,
+        }),
+      );
+    } catch {
+      // sessionStorage bị chặn hoặc đầy — mất chuỗi khi rời màn, đúng hành vi trước đợt này.
+      // Tuyệt đối không được làm hỏng lượt tính đang chạy.
+    }
+  }, [bars, marketSeriesOverride, spec.id, stickyTicker]);
+
   /*
    * `?so=` — bộ số liệu đi kèm một link chia sẻ.
    *
@@ -778,7 +846,20 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         return;
       }
 
+      /*
+       * Chốt bản ghi chuỗi TRƯỚC khi nạp: `applyPreset()` xoá nó đi (mã mới nạp thì chuỗi trên
+       * màn là chuỗi của mã), nên đọc sau là đọc phải `null`.
+       */
+      const working = workingSeriesRef.current;
+
       applyPresetRef.current(result.preset);
+
+      /*
+       * Chuỗi đã thay tại chỗ cũng thắng lại, cùng luật và cùng lý do với bản nháp ngay dưới:
+       * dán chuỗi của riêng mình khi đang xem mã này rồi rời màn, quay lại mà bị 248 phiên của
+       * mã đè lên thì đúng thứ vừa dán biến mất. Khác mã thì mã thắng — họ vừa đòi mã khác.
+       */
+      if (working !== null && working.code === code) applyWorkingSeries(working);
 
       /*
        * Bản nháp thắng LẠI, nhưng chỉ khi nó được ghi lúc đang xem CHÍNH mã này.
@@ -805,7 +886,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     return () => {
       controller.abort();
     };
-  }, [asOf]);
+  }, [asOf, applyWorkingSeries]);
 
   const ctx = useMemo<CalcContext>(
     () => ({
@@ -1322,6 +1403,21 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       } catch {
         // sessionStorage bị chặn (chế độ riêng tư) — mã không dính sang màn sau, chỉ vậy thôi.
       }
+
+      /*
+       * Chuỗi đã thay tại chỗ thôi được cất: từ giây này chuỗi trên màn là 248 phiên của mã, nên
+       * giữ bản ghi cũ lại là nó quay về đè lên ngay ở lần mở sau.
+       *
+       * CHỈ ở nhánh `!fromSession`. Lượt nạp lại từ kho phiên (lúc mở màn) không phải một hành
+       * động của người dùng — xoá ở đó là xoá đúng thứ effect khôi phục ngay dưới sắp đọc lên.
+       */
+      workingSourceRef.current = null;
+      workingSeriesRef.current = null;
+      try {
+        window.sessionStorage.removeItem(WORKING_SERIES_KEY);
+      } catch {
+        // sessionStorage bị chặn — không có gì để xoá.
+      }
     }
     // Nạp mẫu công ty thật thì thôi ở trạng thái "ví dụ minh hoạ" — xem loadIllustrativeExample().
     setMarketSeriesOverride(null);
@@ -1415,6 +1511,37 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     }
   }, [spec.id]);
 
+  /*
+   * ── Chuỗi đã thay tại chỗ: đưa lại lên màn sau cú rời màn ───────────────────────────────────
+   *
+   * Vế CHUỖI của lỗi đã vá cho ô nhập, xem `WORKING_SERIES_KEY`. Ba nguồn chuỗi, ba số phận khác
+   * nhau trước đợt này: bảng WF-05 sống ở `localStorage` (effect đầu màn đọc lên), chuỗi của mã
+   * sống nhờ preset trong kho phiên, còn chuỗi dán tại chỗ và chuỗi minh hoạ thì mất trắng —
+   * người dùng bấm "Mở bảng dữ liệu →" rồi Back là công thức trở lại câu "chưa đủ phiên giá".
+   *
+   * ⚠ Effect này phải đứng **DƯỚI** effect nạp lại mã ngay trên, và thứ tự ấy là toàn bộ phần
+   * khó: cả hai chạy đồng bộ lúc gắn, mà `applyPreset()` đặt `bars` bằng 248 phiên của mã. Đặt ở
+   * trên thì chuỗi khôi phục xong bị mã đè lên ngay trong cùng một nhịp, và lỗi còn nguyên.
+   *
+   * Chỉ nhận bản ghi của ĐÚNG công thức này. Chuỗi minh hoạ của Beta đi kèm một chuỗi VN-Index
+   * riêng để ra đúng 1,5 lần; đem nó sang màn RSI là bày số của công thức khác.
+   */
+  useEffect(() => {
+    let record: WorkingSeries | null = null;
+    try {
+      record = parseWorkingSeries(window.sessionStorage.getItem(WORKING_SERIES_KEY));
+    } catch {
+      // sessionStorage bị chặn — không có gì để khôi phục, màn chạy như trước đợt này.
+      return;
+    }
+
+    if (record === null || record.id !== spec.id) return;
+
+    // Giữ cho nhánh `?ma=` bất đồng bộ đọc lại, vì `applyPreset()` sẽ xoá bản ghi trong kho.
+    workingSeriesRef.current = record;
+    applyWorkingSeries(record);
+  }, [spec.id, applyWorkingSeries]);
+
   /**
    * Nạp chuỗi MINH HOẠ có sẵn trong `spec.example` — lối thứ ba cho người chưa hiểu bộ mẫu 4
    * công ty (PRNG bịa, không mang ý nghĩa gì cho công thức chuỗi) và cũng không có chuỗi giá thật
@@ -1441,6 +1568,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
       }));
     if (rows === undefined || rows.length === 0) return;
 
+    // Chuỗi này chỉ sống trong state của màn, nên phải tự cất để sống sót cú "Mở bảng dữ liệu →
+    // rồi Back" — xem `WORKING_SERIES_KEY`. Cờ bật trước, effect ghi bám `bars` lo phần còn lại.
+    workingSourceRef.current = 'example';
     setBars(rows);
     setSeriesCount(rows.length);
     setMarketSeriesOverride(spec.example.marketSeries ?? null);
@@ -1532,8 +1662,13 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    * kế; còn để bản nháp lại thì đúng bộ số vừa bị bỏ sẽ quay về ở lần mở sau.
    */
   function resetAll(): void {
+    workingSourceRef.current = null;
+    workingSeriesRef.current = null;
     try {
       window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
+      // Chuỗi đã thay tại chỗ cũng phải đi cùng: hàm này đưa màn về trạng thái sạch, mà một chuỗi
+      // quay lại ở lần mở sau thì màn hình cãi lại đúng thao tác người dùng vừa làm.
+      window.sessionStorage.removeItem(WORKING_SERIES_KEY);
     } catch {
       // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
     }
@@ -2512,6 +2647,9 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
             setSheet(null);
           }}
           onImport={(result) => {
+            // Chuỗi dán tại chỗ cũng chỉ sống trong state của màn — cất lại để nó qua được cú
+            // rời màn, cùng đường với ví dụ minh hoạ. Xem `WORKING_SERIES_KEY`.
+            workingSourceRef.current = 'paste';
             setSeriesCount(result.rows.length);
             // Dán chuỗi thật của riêng mình thì thôi ở trạng thái "ví dụ minh hoạ" — người dùng
             // vừa đưa vào đúng thứ khối minh hoạ tồn tại để thay thế.

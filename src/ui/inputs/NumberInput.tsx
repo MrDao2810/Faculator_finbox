@@ -124,12 +124,20 @@ export function NumberInput({
    *   tức là mời một thao tác rồi từ chối nó, đúng thứ đợt này đang dọn.
    */
   const lockedByTicker = locked && lockedNote !== undefined && lockedNote.trim() !== '';
-  const description = spec.description === undefined ? undefined : pick(spec.description);
 
+  /*
+   * `spec.description` CỐ Ý không hiện ở đây, dù ô nhập có chỗ cho nó.
+   *
+   * Cùng một câu mô tả biến đang hiện ở bảng biến ngay dưới cùng màn, nên để cả hai chỗ là đọc
+   * hai lần một nội dung — đúng điều buổi test nội bộ phản ánh ("nhiều công thức đang bị hiển thị
+   * lại phần giải thích tại mục Số liệu"). Bảng biến giữ vai trò tra nghĩa đầy đủ; khối Số liệu
+   * chỉ giữ những dòng phụ THEO TRẠNG THÁI (`note`: ô đang khoá, ô nhận số từ công thức khác, ô
+   * mang số của một mã) — thứ bảng biến không có.
+   */
   // Ngoài miền là lỗi thật sự nên đi đường `error` (có role="alert"); các dòng phụ khác
   // chỉ là thông tin nên đi đường `hint`.
   const error = state === 'outOfRange' ? note : undefined;
-  const hint = state === 'outOfRange' ? description : (note ?? description);
+  const hint = state === 'outOfRange' ? undefined : note;
 
   return (
     <Input

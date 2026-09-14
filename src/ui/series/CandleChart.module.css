@@ -4,9 +4,11 @@
  * Mọi màu đi qua token: `tokens.test.ts` quét toàn bộ CSS Module và đỏ khi thấy mã màu viết thẳng,
  * và đó cũng là thứ giữ cho bảng tối không phải sửa file này một dòng nào.
  *
- * Xanh / đỏ ở đây là `--color-success` / `--color-danger` — đúng cặp mà thẻ lãi–lỗ của màn Danh
- * mục đã dùng. KHÔNG dựng cặp màu riêng cho biểu đồ: hai chỗ cùng nói "tăng / giảm" thì phải cùng
- * một màu, nếu không người dùng phải học hai bảng màu trong một sản phẩm.
+ * Xanh giảm dùng thẳng `--color-danger` — đúng cặp mà thẻ lãi–lỗ của màn Danh mục đã dùng, để hai
+ * chỗ cùng nói "giảm" thì cùng một màu. Nến TĂNG lại đi qua `--color-candle-up` riêng: chủ dự án
+ * xin nến tăng nhạt hơn ở bảng tối (ảnh tham chiếu 10/09/2026), mà `--color-success` còn là CHỮ ở
+ * khắp sản phẩm nên không đổi thẳng được — lý do đầy đủ nằm ở khai báo token trong `globals.css`.
+ * Cột khối lượng ở bảng tối dùng lại đúng hai token này, chỉ hạ `fill-opacity`.
  */
 .card {
   display: flex;
@@ -183,11 +185,15 @@
 /*
  * Nến. Bấc và thân cùng lấy màu từ lớp tông đặt trên `<g>` bọc ngoài, nên một phiên không bao giờ
  * có bấc một màu và thân một màu.
+ *
+ * Nến TĂNG dùng `--color-candle-up`, KHÔNG dùng `--color-success` — hai token bằng nhau ở bảng
+ * sáng, chỉ tách ở bảng tối (lý do đầy đủ tại khai báo token trong `globals.css`). Nến GIẢM vẫn
+ * dùng thẳng `--color-danger`: chủ dự án chỉ xin sửa màu tăng, đỏ hiện đã đủ nhạt.
  */
 .up .wick,
 .up .body {
-  stroke: var(--color-success);
-  fill: var(--color-success);
+  stroke: var(--color-candle-up);
+  fill: var(--color-candle-up);
 }
 
 .down .wick,
@@ -207,6 +213,25 @@
 /* Cột khối lượng — nhạt hẳn, nó là nền chứ không phải nội dung chính của hình. */
 .volume {
   fill: var(--color-sunken);
+}
+
+/*
+ * Bảng TỐI: nhuộm cột khối lượng theo chiều phiên tăng/giảm thay vì xám phẳng.
+ *
+ * Đo trên Chrome thật trước khi sửa: `--color-sunken` bảng tối là #0a0f1a, gần trùng hệt nền
+ * trang #111827 — cột khối lượng gần như vô hình. Chủ dự án xin "cột bên dưới cũng tương tự" khi
+ * gửi ảnh nến nhạt tham chiếu, nên đây là cùng cặp `--color-candle-up`/`--color-danger` của nến,
+ * chỉ hạ độ đậm bằng `fill-opacity` để nó vẫn đọc ra là NỀN chứ không tranh mắt với thân nến phía
+ * trên. Bảng SÁNG không đổi: `--color-sunken` sáng vẫn đủ tương phản với nền, không có gì phải vá.
+ */
+[data-theme='dark'] .volume.up {
+  fill: var(--color-candle-up);
+  fill-opacity: 0.4;
+}
+
+[data-theme='dark'] .volume.down {
+  fill: var(--color-danger);
+  fill-opacity: 0.4;
 }
 
 /* Vệt đánh dấu phiên lỗi: cùng vàng với dòng bị tô ở bảng dưới, để mắt nối được hai chỗ. */
@@ -263,7 +288,7 @@
 }
 
 .dotUp {
-  background: var(--color-success);
+  background: var(--color-candle-up);
 }
 
 .dotDown {

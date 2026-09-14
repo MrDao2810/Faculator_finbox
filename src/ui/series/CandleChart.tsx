@@ -286,10 +286,13 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
                 return null;
               }
               const y = toVolY(bar.volume);
+              /* Chiều phiên tăng/giảm — chỉ đổi màu ở bảng TỐI (xem `.volume.up`/`.volume.down`
+                 trong CSS); bảng sáng vẫn phẳng một màu `--color-sunken` như trước. */
+              const toneVol = bar.up ? styles.up : styles.down;
               return (
                 <rect
                   key={`v${String(bar.index)}`}
-                  className={styles.volume}
+                  className={`${styles.volume} ${toneVol}`}
                   x={xOf(position) - bodyW / 2}
                   y={y}
                   width={bodyW}

@@ -138,7 +138,17 @@ function chuKyKhongHopLe(unit: string, label: Bilingual): CalcOutput {
 }
 
 /** Chu kỳ nhanh không nhỏ hơn chu kỳ chậm — bộ MACD mất hết ý nghĩa. */
-function chuKyNguoc(unit: string, ngan: Bilingual, dai: Bilingual): CalcOutput {
+/**
+ * @param viDu cặp chu kỳ nêu trong gợi ý sửa — phải là bộ MẶC ĐỊNH của chính công thức gọi tới.
+ * Trước đây câu này viết cứng "12 và 26 phiên" cho cả ba nơi gọi, nên `giao-cat-hai-duong-ma`
+ * (mặc định 10 và 20, mô tả biến cũng nói vậy) chỉ người dùng sang một cặp số không phải của nó.
+ */
+function chuKyNguoc(
+  unit: string,
+  ngan: Bilingual,
+  dai: Bilingual,
+  viDu: { ngan: number; dai: number },
+): CalcOutput {
   return fail(
     unit,
     meaningless(
@@ -147,8 +157,8 @@ function chuKyNguoc(unit: string, ngan: Bilingual, dai: Bilingual): CalcOutput {
         en: `${ngan.en} is currently equal to or longer than ${dai.en}, so the difference between the two lines no longer reflects the trend direction.`,
       },
       {
-        vi: `Đặt ${ngan.vi} nhỏ hơn ${dai.vi}, ví dụ 12 và 26 phiên.`,
-        en: `Set ${ngan.en} shorter than ${dai.en}, for example 12 and 26 periods.`,
+        vi: `Đặt ${ngan.vi} nhỏ hơn ${dai.vi}, ví dụ ${viDu.ngan} và ${viDu.dai} phiên.`,
+        en: `Set ${ngan.en} shorter than ${dai.en}, for example ${viDu.ngan} and ${viDu.dai} periods.`,
       },
     ),
   );
@@ -395,8 +405,8 @@ export const EMA_N_PHIEN: FormulaModule = {
         en: "When trading short-term trends and SMA's lag is too large; the 12- and 26-period EMAs are also the building blocks of MACD.",
       },
       howToRead: {
-        vi: 'Đọc giống SMA nhưng nhạy hơn: EMA bám sát giá hơn, đổi lại báo nhiễu nhiều hơn ở thị trường đi ngang.',
-        en: 'Read the same way as SMA but more sensitive: EMA tracks price more closely, at the cost of noisier signals in a sideways market.',
+        vi: 'Kết quả là một mức giá tính bằng đồng, đọc bằng cách đem so với giá đóng cửa phiên cuối: giá nằm trên EMA và đường dốc lên là đà tăng còn giữ, giá cắt xuống dưới đường là đà đang yếu đi. Vì phiên mới nặng ký hơn nên EMA quay đầu sớm hơn SMA, đổi lại nó cũng đổi chiều theo cả những nhịp nhiễu khi thị trường đi ngang.',
+        en: 'The result is a price in dong, read by comparing it with the latest closing price: price above the EMA with the line sloping up means the advance is holding, price crossing below means it is fading. Because recent periods carry more weight, the EMA turns sooner than the SMA — and in exchange it also turns on noise while the market moves sideways.',
       },
       commonMistakes: {
         vi: 'Đọc EMA tính trên chuỗi quá ngắn: khi chuỗi vừa đúng bằng chu kỳ, EMA rơi về đúng SMA vì mới chỉ có phần mồi, chưa có phiên nào được làm mượt.',
@@ -476,7 +486,11 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       vi: 'Hiệu giữa EMA nhanh và EMA chậm — đo xem xu hướng ngắn hạn đang kéo giá đi đâu.',
       en: 'The difference between the fast EMA and the slow EMA — measures where the short-term trend is pulling price.',
     },
-    latex: 'MACD = EMA_{12} - EMA_{26}',
+    // Chỉ số viết theo TÊN chu kỳ, không viết cứng 12/26: hai chu kỳ là thanh trượt (2–100 và
+    // 3–200), đặt khác đi là công thức in trên màn nói một đằng còn kết quả tính một nẻo. Cùng
+    // lối viết với `giao-cat-hai-duong-ma` và khớp luôn `expression` ngay dưới, vốn đã tổng quát.
+    // Bộ 12/26 vẫn còn ở giá trị mặc định và ở mô tả biến.
+    latex: 'MACD = EMA_{nhanh} - EMA_{cham}',
     expression: {
       vi: 'MACD = EMA chu kỳ nhanh − EMA chu kỳ chậm',
       en: 'MACD = Fast-period EMA − Slow-period EMA',
@@ -566,7 +580,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
 
     if (fast < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_NHANH);
     if (slow < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_CHAM);
-    if (fast >= slow) return chuKyNguoc('₫', NHAN_CHU_KY_EMA_NHANH, NHAN_CHU_KY_EMA_CHAM);
+    if (fast >= slow)
+      return chuKyNguoc('₫', NHAN_CHU_KY_EMA_NHANH, NHAN_CHU_KY_EMA_CHAM, { ngan: 12, dai: 26 });
 
     const closes = requireCloses(ctx, slow);
     if (!Array.isArray(closes)) return fail('₫', closes);
@@ -591,7 +606,9 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       vi: 'EMA 9 phiên của chính đường MACD — mốc so sánh để bắt điểm cắt mua bán.',
       en: 'A 9-period EMA of the MACD line itself — the reference used to catch buy/sell crossover points.',
     },
-    latex: 'Signal = EMA_{9}(MACD)',
+    // Cùng lẽ với latex của `macd-duong-chinh`: chu kỳ tín hiệu là thanh trượt 2–100 nên không
+    // viết cứng 9.
+    latex: 'Signal = EMA_{tin hieu}(MACD)',
     expression: {
       vi: 'Đường tín hiệu = EMA chu kỳ tín hiệu tính trên chuỗi giá trị MACD',
       en: 'Signal line = EMA of the signal period computed on the series of MACD values',
@@ -630,8 +647,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         en: 'When you need a concrete marker for reading momentum rather than just the trend: by Gerald Appel’s MACD convention, the MACD crossing above the signal line means momentum has turned upward, crossing below means it has turned downward.',
       },
       howToRead: {
-        vi: 'Khoảng cách MACD trừ đường tín hiệu chính là cột histogram quen thuộc, trả kèm trong phần kết quả phụ. Histogram âm và đang doãng ra nghĩa là đà giảm còn mạnh lên.',
-        en: 'The gap MACD minus the signal line is the familiar histogram bar, returned alongside in the extra results. A histogram that is negative and widening means downward momentum is still strengthening.',
+        vi: 'Đường tín hiệu là một con số tính bằng đồng, chỉ có nghĩa khi đọc kèm đường MACD: MACD nằm trên đường tín hiệu là đà đang nghiêng lên, nằm dưới là đang nghiêng xuống. Hiệu của hai đường chính là cột histogram trả kèm ở phần kết quả phụ — trong ví dụ 12/26/9, đường tín hiệu 25,07 ₫ còn MACD −247,35 ₫ nên histogram âm sâu.',
+        en: 'The signal line is a figure in dong that only means something read next to the MACD line: MACD above the signal line means momentum is leaning up, below it means leaning down. The gap between the two is the familiar histogram bar, returned in the extra results — in the 12/26/9 example the signal line is 25.07 VND while MACD is −247.35 VND, so the histogram is deeply negative.',
       },
       commonMistakes: {
         vi: 'Ngạc nhiên khi đường tín hiệu còn dương trong lúc MACD đã âm — đó đúng là bản chất của một đường trung bình chạy sau, không phải lỗi tính toán.',
@@ -689,7 +706,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     if (fast < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_NHANH);
     if (slow < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_CHAM);
     if (signal < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_TIN_HIEU);
-    if (fast >= slow) return chuKyNguoc('₫', NHAN_CHU_KY_EMA_NHANH, NHAN_CHU_KY_EMA_CHAM);
+    if (fast >= slow)
+      return chuKyNguoc('₫', NHAN_CHU_KY_EMA_NHANH, NHAN_CHU_KY_EMA_CHAM, { ngan: 12, dai: 26 });
 
     // Cần đủ phiên để có `signal` giá trị MACD: chuỗi MACD chỉ bắt đầu từ phiên thứ `slow`.
     const closes = requireCloses(ctx, slow + signal - 1);
@@ -745,8 +763,8 @@ export const RSI_WILDER: FormulaModule = {
     variables: [
       sliderVar('period', NHAN_SO_PHIEN, 'phiên', 14, 2, 100, 1, {
         description: {
-          vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất — 15 giá cho RSI 14.',
-          en: 'Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns — 15 prices for a 14-period RSI.',
+          vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất — 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
+          en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns — 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
         },
       }),
     ],
@@ -756,8 +774,8 @@ export const RSI_WILDER: FormulaModule = {
         en: 'Over the most recent N periods, how much of the total movement was upward — rescaled to a 0-to-100 range.',
       },
       whenToUse: {
-        vi: 'Khi muốn biết một nhịp tăng hay giảm đã đi quá đà chưa, hoặc khi tìm phân kỳ giữa giá và động lượng.',
-        en: 'When you want to know whether an up- or down-move has gone too far, or when looking for divergence between price and momentum.',
+        vi: 'Khi muốn biết một nhịp tăng hay giảm đã đi quá đà chưa, hoặc khi giá lập đỉnh mới mà RSI lại lập đỉnh thấp hơn — hiện tượng đó gọi là phân kỳ, dấu hiệu đà tăng đang đuối dần.',
+        en: 'When you want to know whether an up- or down-move has gone too far, or when price makes a new high while RSI makes a lower high — that pattern is called divergence, a sign that momentum is running out.',
       },
       howToRead: {
         vi: 'Trên 70 là vùng quá mua, dưới 30 là vùng quá bán, quanh 50 là cân bằng. Không phiên nào giảm thì RSI chạm đúng trần 100, đó là giá trị thật chứ không phải lỗi.',
@@ -1118,8 +1136,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
         en: 'How far price currently stands from the moving average, expressed as a percentage so it can be compared across stocks with different prices.',
       },
       whenToUse: {
-        vi: 'Khi cân nhắc mua đuổi: giá vừa chạy quá xa khỏi đường trung bình thường có nhịp co về, và ngược lại.',
-        en: 'When considering chasing a move: price that has run too far from the moving average often pulls back, and vice versa.',
+        vi: 'Khi cân nhắc mua đuổi một mã vừa chạy nhanh: con số này cho biết giá đang đứng cách đường trung bình bao nhiêu phần trăm, để bạn đối chiếu với mức lệch thường thấy của chính mã đó thay vì ước lượng bằng mắt.',
+        en: "When you are weighing whether to chase a stock that has just run: this figure says how many percent price currently stands away from the moving average, so you can hold it against that stock's own usual stretch instead of eyeballing the chart.",
       },
       howToRead: {
         vi: 'Dương là giá nằm trên đường, âm là nằm dưới. Càng xa 0 thì càng căng, nhưng ngưỡng bao nhiêu là căng thì tuỳ độ biến động từng mã — phải đối chiếu với chính lịch sử của mã đó.',
@@ -1236,12 +1254,12 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         en: 'The difference between the two moving averages. A positive sign means the short line is above — an upward crossover has occurred; a negative sign means the short line has crossed below.',
       },
       whenToUse: {
-        vi: 'Khi cần một quy tắc vào lệnh cơ học, không phụ thuộc cảm nhận: mua khi hiệu đổi từ âm sang dương, bán khi ngược lại.',
-        en: "When you need a mechanical entry rule that doesn't depend on gut feel: buy when the difference flips from negative to positive, sell when it flips the other way.",
+        vi: 'Khi muốn một mốc cơ học để bám xu hướng thay vì đoán bằng cảm nhận: hiệu đổi từ âm sang dương là lúc đường ngắn vừa cắt lên đường dài, đổi từ dương sang âm là vừa cắt xuống — quy ước đọc tín hiệu của cặp trung bình động là vậy.',
+        en: 'When you want a mechanical marker for following the trend instead of going by feel: the difference turning from negative to positive is the moment the short line has just crossed above the long one, and the other way round for a downward crossover — that is how a moving-average pair is read by convention.',
       },
       howToRead: {
-        vi: 'Hai đường SMA thành phần trả kèm trong kết quả phụ. Hiệu gần 0 nghĩa là hai đường đang chồng nhau, tức thị trường đi ngang và tín hiệu cắt dễ đảo qua đảo lại.',
-        en: 'Both component SMAs are returned in the extra results. A difference near 0 means the two lines are overlapping, i.e. the market is sideways and the crossover signal can easily flip back and forth.',
+        vi: 'Kết quả tính bằng đồng: dương là đường ngắn đang nằm trên đường dài, âm là nằm dưới, và cả hai đường SMA thành phần đều trả kèm ở phần kết quả phụ. Hiệu gần 0 chỉ nói hai đường đang chồng nhau — có thể vì giá đi ngang, mà cũng có thể vì một nhịp đảo chiều đang diễn ra, nên phải nhìn cả chuỗi giá chứ đừng kết luận từ một con số.',
+        en: 'The result is in dong: positive means the short line currently sits above the long line, negative means below, and both component SMAs come back in the extra results. A difference near 0 only says the two lines overlap — that can be a sideways market, but it is just as much what a reversal looks like while it happens, so read the price series alongside it rather than concluding from a single number.',
       },
       commonMistakes: {
         vi: 'Giao dịch mọi lần cắt trong thị trường đi ngang: cặp đường sẽ cắt qua cắt lại liên tục và phí giao dịch ăn hết phần lãi. Sai thứ hai là quên rằng tín hiệu chỉ chốt khi phiên đã đóng cửa.',
@@ -1303,7 +1321,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
 
     if (short < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_NGAN);
     if (long < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_DAI);
-    if (short >= long) return chuKyNguoc('₫', NHAN_CHU_KY_NGAN, NHAN_CHU_KY_DAI);
+    if (short >= long)
+      return chuKyNguoc('₫', NHAN_CHU_KY_NGAN, NHAN_CHU_KY_DAI, { ngan: 10, dai: 20 });
 
     const closes = requireCloses(ctx, long);
     if (!Array.isArray(closes)) return fail('₫', closes);

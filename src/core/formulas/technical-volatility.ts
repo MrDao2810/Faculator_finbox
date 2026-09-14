@@ -318,8 +318,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     variables: [BOLLINGER_PERIOD, BOLLINGER_K],
     explanation: {
       meaning: {
-        vi: 'Ranh giới trên của vùng giá "bình thường": dải tự nở ra khi thị trường động và tự co lại khi thị trường lặng, vì bề rộng của nó chính là độ lệch chuẩn của giá.',
-        en: 'The upper boundary of the "normal" price zone: the band widens on its own when the market is volatile and narrows when it is quiet, because its width is literally the standard deviation of price.',
+        vi: 'Ranh giới trên của vùng giá "bình thường": dải tự nở ra khi thị trường động và tự co lại khi thị trường lặng, vì khoảng cách từ đường giữa lên tới nó đúng bằng k lần độ lệch chuẩn của giá.',
+        en: 'The upper boundary of the "normal" price zone: the band widens on its own when the market is volatile and narrows when it is quiet, because its distance from the middle line is exactly k times the standard deviation of price.',
       },
       whenToUse: {
         vi: 'Khi muốn biết giá hiện tại đã cao tới đâu so với chính nó vài tuần gần đây, thay vì so với một mốc cố định.',
@@ -449,8 +449,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       series: CLOSES_VI_DU,
       expected: 25_764.19,
       note: {
-        vi: 'Giá đóng cửa mới nhất 27.200 ₫ đang nằm gần dải trên, cách dải dưới gần 1.400 ₫.',
-        en: 'The latest close of 27,200 VND sits near the upper band, almost 1,400 VND away from the lower band.',
+        vi: 'Giá đóng cửa mới nhất 27.200 ₫ đang nằm gần dải trên, cách dải dưới hơn 1.400 ₫.',
+        en: 'The latest close of 27,200 VND sits near the upper band, more than 1,400 VND above the lower band.',
       },
     },
     tests: [
@@ -642,8 +642,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
         en: 'When setting a stop-loss distance or sizing a position: a stop tighter than one ATR is almost certain to get swept out by ordinary daily noise.',
       },
       howToRead: {
-        vi: 'ATR là số tiền, không phải phần trăm và không có hướng — ATR cao chỉ nghĩa là biên độ rộng, không nói giá đang lên hay xuống.',
-        en: 'ATR is a currency amount, not a percentage, and it has no direction — a high ATR only means a wide range, not that price is rising or falling.',
+        vi: 'ATR là số tiền của một phiên, không phải phần trăm và không có hướng — ATR cao chỉ nói biên độ rộng, không nói giá lên hay xuống. Muốn biết rộng tới đâu thì đem so với thị giá: ATR 500 ₫ trên cổ phiếu 26.800 ₫ là gần 1,9% thị giá mỗi phiên.',
+        en: 'ATR is a per-session amount in VND, not a percentage, and it has no direction — a high ATR only means a wide range, not that price is rising or falling. To see how wide, compare it with the market price: an ATR of 500 VND on a 26,800 VND stock is close to 1.9% of the price per session.',
       },
       commonMistakes: {
         vi: 'So ATR giữa hai mã có thị giá khác xa nhau: 500 ₫ trên cổ phiếu 26.000 ₫ khác hẳn 500 ₫ trên cổ phiếu 200.000 ₫. Muốn so thì chia ATR cho giá.',
@@ -931,8 +931,8 @@ export const STOCHASTIC_K: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Ý tưởng gốc: khi thị trường mạnh, giá đóng cửa có xu hướng nằm gần đỉnh của biên độ gần đây; khi yếu thì nằm gần đáy.',
-        en: 'The original idea: when the market is strong, the closing price tends to sit near the top of its recent range; when weak, it tends to sit near the bottom.',
+        vi: 'Cho biết giá đóng cửa đang nằm ở đâu trong khoảng cao nhất – thấp nhất của n phiên gần nhất, quy về thang 0–100%. Ý tưởng gốc: thị trường mạnh thì giá đóng cửa nằm gần đỉnh của biên độ, yếu thì nằm gần đáy.',
+        en: 'Shows where the closing price sits within the highest–lowest range of the last n sessions, on a 0–100% scale. The original idea: when the market is strong the close sits near the top of that range; when weak, near the bottom.',
       },
       whenToUse: {
         vi: 'Khi thị trường đi ngang trong một biên độ và cần biết giá đang ở mép trên hay mép dưới của biên độ đó.',
@@ -1061,16 +1061,16 @@ export const VWAP: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Mức giá mà phần lớn cổ phiếu thực sự đổi chủ trong kỳ — sát với giá vốn bình quân của thị trường hơn là trung bình cộng thông thường.',
-        en: "The price level at which most shares actually changed hands during the period — closer to the market's average cost basis than a plain arithmetic mean.",
+        vi: 'Giá vốn bình quân của cả kỳ: mỗi phiên góp vào theo đúng số cổ phiếu đã khớp, nên phiên giao dịch sôi động kéo con số về phía giá của nó mạnh hơn hẳn phiên ế.',
+        en: 'The average cost basis for the whole period: every session contributes in proportion to the shares it actually matched, so a heavily traded session pulls the number toward its own price far more than a quiet one does.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá một lần mua bán lớn đã khớp tốt hay xấu so với mặt bằng, hoặc khi tìm vùng giá được nhiều người mua nhất trong kỳ.',
-        en: 'When evaluating whether a large trade executed well or poorly relative to the overall level, or when looking for the price zone where the most buying occurred during the period.',
+        vi: 'Khi đánh giá một lần mua bán lớn đã khớp tốt hay xấu so với mặt bằng của kỳ, hoặc khi cần một mốc giá có tính tới khối lượng thay vì trung bình cộng các phiên.',
+        en: 'When judging whether a large trade executed well or poorly against the overall level of the period, or when you need a price benchmark that takes volume into account instead of a plain average of sessions.',
       },
       howToRead: {
-        vi: 'Giá hiện tại trên VWAP nghĩa là phần đông người mua trong kỳ đang có lãi; dưới VWAP thì ngược lại.',
-        en: 'Price currently above VWAP means most buyers during the period are sitting on a gain; below VWAP, the opposite.',
+        vi: 'Giá hiện tại trên VWAP nghĩa là người mua BÌNH QUÂN của kỳ đang lãi, dưới VWAP thì đang lỗ. Chỉ là bình quân thôi: một phiên khối lượng lớn kéo VWAP về phía giá của nó, nên phần đông người mua vẫn có thể đang lỗ dù giá nằm trên VWAP.',
+        en: 'Price above VWAP means the AVERAGE buyer of the period is in profit; below it, at a loss. On average only: one heavy-volume session pulls VWAP toward its own price, so most buyers can still be under water even when price sits above VWAP.',
       },
       commonMistakes: {
         vi: 'Nhầm với VWAP trong phiên của bảng giá: bản trong phiên tính theo từng lệnh khớp và giá điển hình (cao + thấp + đóng) chia 3, còn công thức này gộp theo PHIÊN và dùng giá đóng cửa, nên hai con số không trùng nhau.',

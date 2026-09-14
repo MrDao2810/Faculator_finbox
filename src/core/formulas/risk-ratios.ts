@@ -342,8 +342,8 @@ export const BETA: FormulaModule = {
         en: 'When estimating cost of equity under CAPM, ranking how sensitive a stock is to the broader market, or as the denominator of the Treynor ratio.',
       },
       howToRead: {
-        vi: 'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn. Beta âm — cổ phiếu đi NGƯỢC thị trường — hiếm nhưng có thật, thường gặp ở vàng hoặc một số ngành phòng thủ.',
-        en: 'A beta above 1 means the stock swings more than the market, between 0 and 1 means it swings less. A negative beta — the stock moves OPPOSITE the market — is rare but real, often seen in gold or some defensive sectors.',
+        vi: 'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn — vùng của các ngành phòng thủ như điện, nước hay hàng thiết yếu: VN-Index giảm 10% thì một cổ phiếu beta 0,5 vẫn giảm khoảng 5%, chỉ giảm ít hơn chứ không đi ngược. Beta âm, tức cổ phiếu tăng khi thị trường giảm, rất hiếm; gặp beta âm trên một cửa sổ ngắn thì hãy kéo dài cửa sổ trước khi tin.',
+        en: 'A beta above 1 means the stock swings more than the market, between 0 and 1 means it swings less — where defensive sectors such as utilities and staples sit: if the VN-Index drops 10%, a beta-0.5 stock still drops about 5%, it simply drops less rather than moving the other way. A negative beta, where the stock rises as the market falls, is genuinely rare; if a short window produces one, extend the window before trusting it.',
       },
       commonMistakes: {
         vi: 'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
@@ -611,8 +611,8 @@ export const TY_SO_SORTINO: FormulaModule = {
         en: 'When a portfolio has a handful of outsized gaining sessions, or when comparing strategies where losses are what matters — open-end funds, options strategies, retirement portfolios.',
       },
       howToRead: {
-        vi: 'Luôn cao hơn Sharpe của cùng chuỗi nếu các phiên tăng mạnh hơn các phiên giảm. Đọc theo cùng thang với Sharpe: quanh 1 là khá, trên 2 là tốt.',
-        en: 'Always higher than the Sharpe ratio for the same series if gaining sessions are larger than losing ones. Read on the same scale as Sharpe: around 1 is decent, above 2 is good.',
+        vi: 'Đọc theo cùng thang với Sharpe: quanh 1 là khá, trên 2 là tốt, số âm nghĩa là danh mục còn thua ngưỡng phi rủi ro. Khi lợi suất bình quân vượt ngưỡng, Sortino thường cao hơn Sharpe của cùng chuỗi vì mẫu số bỏ qua các phiên tăng; nhưng khi lợi suất tụt dưới ngưỡng thì chính mẫu số nhỏ ấy kéo tỷ số xuống THẤP hơn Sharpe.',
+        en: 'Read it on the same scale as Sharpe: around 1 is decent, above 2 is good, and a negative value means the portfolio fell short of the risk-free threshold. When the average return clears that threshold, Sortino usually sits higher than the Sharpe ratio for the same series because the denominator ignores rising sessions; but once the return drops below the threshold, that same smaller denominator drags the ratio LOWER than Sharpe.',
       },
       commonMistakes: {
         vi: 'So thẳng Sortino với Sharpe rồi kết luận danh mục "tốt hơn" — hai thước đo có mẫu số khác nhau. Ngoài ra mẫu số chia cho TỔNG số phiên, nên chuỗi hầu như không có phiên giảm sẽ cho ra con số rất lớn, cần cảnh giác.',
@@ -741,8 +741,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
           // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
           // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
           description: {
-            vi: 'Nhập tay: tính bằng công thức Beta của thư viện này (dán chuỗi giá cổ phiếu), lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ, hoặc trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
-            en: "Enter manually: compute it with this library's Beta formula (paste the stock price series), or take it from a brokerage data table, a fund report, or an exchange statistics page. A beta of 1 means volatility in line with the market.",
+            vi: 'Nhập tay: tính bằng công thức Beta của thư viện này (cần cả chuỗi giá cổ phiếu lẫn chuỗi VN-Index, mỗi chuỗi tối thiểu 60 phiên), lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ, hoặc trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
+            en: "Enter manually: compute it with this library's Beta formula (it needs both the stock price series and the VN-Index series, at least 60 sessions each), or take it from a brokerage data table, a fund report, or an exchange statistics page. A beta of 1 means volatility in line with the market.",
           },
         },
       ),
@@ -912,8 +912,8 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         en: 'When scoring an actively managed fund or your own portfolio against the VN-Index, and wanting to know whether the outperformance is worth the risk taken by deviating.',
       },
       howToRead: {
-        vi: 'Từ 0,5 trở lên đã là quản lý chủ động tốt theo thang của Grinold & Kahn; trên 1 là hiếm. Số âm nghĩa là đi lệch khỏi chuẩn mà vẫn thua chuẩn.',
-        en: 'From 0.5 upward already counts as good active management on the Grinold & Kahn scale; above 1 is rare. A negative value means deviating from the benchmark while still underperforming it.',
+        vi: 'Số âm nghĩa là đi lệch khỏi chuẩn mà vẫn thua chuẩn; càng cao thì phần thắng chuẩn càng đáng với mức biến động phải chịu. Nhưng đừng chấm theo thang quen thuộc của quản lý chủ động: bản rút gọn này nhập chuẩn bằng MỘT con số cả năm nên mẫu số là độ lệch chuẩn lợi suất của chính danh mục chứ không phải sai số bám chuẩn từng phiên. Hãy so với mốc 0 và với chính danh mục ở kỳ trước, nhập theo cùng một cách.',
+        en: "A negative value means deviating from the benchmark while still underperforming it; the higher the number, the more the outperformance justifies the volatility borne. But do not score it on the familiar active-management scale: this simplified version takes the benchmark as a SINGLE annual figure, so the denominator is the standard deviation of the portfolio's own returns rather than a session-by-session tracking error. Compare it against 0 and against the same portfolio in an earlier period, entered the same way.",
       },
       commonMistakes: {
         vi: 'Đọc tỷ số thông tin như Sharpe. Sharpe so với lãi suất phi rủi ro, tỷ số thông tin so với chuẩn thị trường — một danh mục có thể tốt theo thước này và tệ theo thước kia.',
@@ -1033,8 +1033,8 @@ export const TY_SO_CALMAR: FormulaModule = {
         en: "When evaluating a strategy or fund where the investor's tolerance for pain is limited — commonly used for hedge funds and trading systems.",
       },
       howToRead: {
-        vi: 'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
-        en: 'Above 1 means the annual gain already exceeds the deepest drawdown. The original Calmar is computed over 36 months; with a window of only 60 sessions, annualizing inflates the numerator, so the figure can look deceptively good.',
+        vi: 'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất — ví dụ bên dưới cho 1,95 lần. Số âm nghĩa là cả giai đoạn đang lỗ, khi đó hãy đọc thẳng mức sụt giảm chứ đừng xếp hạng bằng tỷ số. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
+        en: 'Above 1 means the annual gain already exceeds the deepest drawdown — the example below gives 1.95. A negative value means the whole period is a loss; read the drawdown itself in that case rather than ranking by the ratio. The original Calmar is computed over 36 months; with a window of only 60 sessions, annualizing inflates the numerator, so the figure can look deceptively good.',
       },
       commonMistakes: {
         vi: 'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',
@@ -1176,12 +1176,12 @@ export const TY_SO_THANG_THUA: FormulaModule = {
         en: "When sizing up a stock's personality before placing an order, or when reviewing a strategy: does the average gain size offset the average loss size.",
       },
       howToRead: {
-        vi: 'Đây là tỷ số về BIÊN ĐỘ, không phải về tần suất. Tỷ số 1,2 mà chỉ 30% số phiên tăng thì tổng cuộc vẫn lỗ — phải đọc kèm số phiên tăng và số phiên giảm.',
-        en: 'This is a ratio of MAGNITUDE, not frequency. A ratio of 1.2 with only 30% of sessions rising still nets out to a loss overall — always read it alongside the counts of gaining and losing sessions.',
+        vi: 'Đây là tỷ số về BIÊN ĐỘ, không phải về tần suất: 1,16 lần nghĩa là một phiên tăng lãi trung bình bằng 1,16 lần mức lỗ của một phiên giảm. Mốc để so là số phiên tăng và số phiên giảm: hai bên ngang nhau thì 1 lần là hoà, phiên tăng càng ít thì tỷ số phải càng lớn mới bù lại.',
+        en: 'This is a ratio of MAGNITUDE, not frequency: 1.16 means the average gain of a rising session equals 1.16 times the average loss of a falling one. The yardstick is the count of rising versus falling sessions: with the two sides equal, 1 is break-even, and the fewer the rising sessions, the larger the ratio has to be to make up for them.',
       },
       commonMistakes: {
-        vi: 'Coi tỷ số trên 1 là chắc chắn có lãi. Cần nhân với tỷ lệ thắng mới ra kỳ vọng: tỷ lệ thắng 30% và tỷ số thắng/thua 1,2 vẫn là một chiến lược thua.',
-        en: 'Assuming a ratio above 1 guarantees a profit. It must be multiplied by the win rate to get expectancy: a 30% win rate with a 1.2 win/loss ratio is still a losing strategy.',
+        vi: 'Coi tỷ số trên 1 là chắc chắn có lãi. Phải cân với tỷ lệ thắng: kỳ vọng bằng tỷ lệ thắng × mức lãi bình quân TRỪ tỷ lệ thua × mức lỗ bình quân, nên với tỷ lệ thắng 30% thì tỷ số phải hơn 2,3 lần mới hoà, còn 1,2 lần vẫn là một chiến lược thua.',
+        en: 'Assuming a ratio above 1 guarantees a profit. It has to be weighed against the win rate: expectancy equals the win rate times the average gain MINUS the loss rate times the average loss, so at a 30% win rate the ratio must exceed about 2.3 just to break even, and 1.2 is still a losing strategy.',
       },
     },
     example: {

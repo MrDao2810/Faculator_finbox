@@ -149,6 +149,9 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 4.x   | Ô chọn trục biểu đồ bo 5px, bằng nhóm Đường/Cột bên cạnh                        | —       | Xong phần code, **chưa build** — xem mục "Ô chọn trục bo 5px"      |
 | 3.1.3 | Màn Tìm kiếm khổ PC — thư mục 12 thẻ nhóm theo bản vẽ riêng                     | —       | Xong phần code, **chưa build** — xem mục "Thư mục theo nhóm"       |
 | 3.3.1 | Bảng chuỗi giá — biểu đồ nến, cột kiểm dữ liệu, ngày mới nhất lên đầu           | —       | Xong phần code, **chưa build** — xem mục "Biểu đồ nến"             |
+| —     | Rà đúng/sai 111 công thức + đúng tiêu đề 4 mục diễn giải, bằng máy có phản biện | —       | Xong — 87 phát hiện đã áp, xem `src/core/formulas/REVIEW.md`       |
+| —     | Vá lỗi từ bảng feedback test nội bộ — phần nội dung công thức                   | —       | Xong phần đã chốt — xem mục "Vá bảng feedback"                     |
+| 3.2.1 | Giữ chuỗi giá đã thay tại chỗ khi rời màn — vế còn lại của lỗi #2               | —       | Xong — xem mục "Giữ chuỗi giá khi rời màn"                         |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -156,6 +159,264 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Giữ chuỗi giá khi rời màn — vế còn lại của lỗi #2 trong bảng feedback (14/09/2026)
+
+**Trạng thái: xong.** `npm run check` xanh **107 file / 2588 test** (+16 ca mới), lint + typecheck +
+format sạch.
+
+### Yêu cầu
+
+> Chủ dự án: _"bắt đầu sửa từ lỗi số 2"_ — mục #2 của bảng feedback: _"Sau khi set giá trị để tính
+> toán, bấm 'Mở bảng dữ liệu' rồi Back quay lại thì toàn bộ giá trị đã set bị reset về mặc định ban
+> đầu… cần lưu lại giá trị đã điều chỉnh khi chuyển qua lại giữa 2 màn hình."_
+
+### Đọc trước khi sửa: một nửa lỗi đã vá rồi, nửa còn lại chưa ai thấy
+
+Sheet ghi #2 là **Done**, và đúng một nửa: đợt trước đã dựng `input-draft-store.ts` cho **ô nhập**
+(kho `ffb.draft.v1`, 23 + 9 ca kiểm). Nhưng lối vào bảng dữ liệu CHỈ hiện ở công thức ăn chuỗi giá —
+tức đúng nhóm mà thứ quý nhất trên màn là **chuỗi**, không phải mấy ô vô hướng. Dò lại bằng ca kiểm
+dựng-tháo-dựng: ba nguồn chuỗi, ba số phận khác nhau.
+
+| Chuỗi đến từ           | Trước đợt này                     | Vì sao                                           |
+| ---------------------- | --------------------------------- | ------------------------------------------------ |
+| Bảng WF-05 `/du-lieu/` | sống                              | `ffb.series.v1` ở localStorage                   |
+| "Nạp mẫu" / `?ma=`     | sống                              | preset 248 phiên nằm trong `ffb.activeTicker.v1` |
+| "Dán chuỗi giá"        | **mất trắng**                     | cố ý không ghi đè bảng WF-05, nên không ở đâu cả |
+| "Xem ví dụ minh hoạ"   | **mất trắng** (cả chuỗi VN-Index) | như trên                                         |
+
+Hai dòng cuối là lỗi thật, tái hiện được: nạp ví dụ minh hoạ cho Tỷ số Sharpe → ra số; tháo màn rồi
+dựng lại → về đúng câu "chưa đủ phiên giá" mà người dùng vừa thoát ra, mà họ sang bảng dữ liệu chính
+là để xem chuỗi ấy.
+
+### Cách vá
+
+Kho thứ hai trong `price-series-store.ts`: `WORKING_SERIES_KEY = 'ffb.workingSeries.v1'`, **đúng một
+bản ghi**, khoá theo id công thức, mang theo cả chuỗi VN-Index (Beta đọc hai vế; thiếu nó thì mở lại
+ra một con số khác chứ không phải 1,5 — có ca kiểm riêng).
+
+Ba quyết định đáng ghi:
+
+1. **`sessionStorage` chứ không `localStorage`**, khác bản nháp ô nhập. Chuỗi đã có chỗ ở lại lâu
+   dài cách đúng một nút bấm ("Áp dụng vào bảng dữ liệu"); cất bản thử nhanh vào localStorage là
+   dựng nguồn sự thật thứ hai và làm nút ấy mất nghĩa. Vòng đời này cũng khớp anh em sẵn có
+   (`ffb.activeTicker.v1` cũng mang 248 phiên và cũng chết theo tab).
+2. **Thao tác gần nhất thắng.** Hai chuỗi cùng tồn tại là có chủ ý, nên phải có luật: sửa bảng WF-05
+   thì `DataTableScreen` xoá bản ghi kia (bỏ qua đúng lượt ghi đầu sau khi nạp bảng — mở ra xem thôi
+   thì không phải một lần sửa). Không có luật này thì bảng vừa sửa xong lại bị chuỗi cũ che mất.
+3. **Trùng mã thì bản ghi thắng `?ma=`**, khác mã thì mã thắng — copy đúng luật của `InputDraft.code`,
+   vì `?ma=` nạp bất đồng bộ nên nó luôn về sau. Mã FPT chỉ có một phiên giá, nên thiếu nhánh này là
+   lỗi còn nguyên trên chính đường tab Danh mục dùng để sang màn chi tiết.
+
+"Nạp mẫu" CỐ Ý không đi qua kho này (đã có preset lo) — có ca kiểm ghim, để không ai chép 248 phiên
+ra hai chỗ trong cùng một kho phiên.
+
+### File đã đổi
+
+- `src/application/price-series-store.ts` — thêm kho thứ hai + `cleanRows()` dùng chung cho cả hai
+  bộ đọc (một chỗ duy nhất biết một dòng hợp lệ trông thế nào).
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — cờ nguồn chuỗi, effect ghi bám `bars`, effect khôi
+  phục (phải đứng DƯỚI effect nạp lại mã, không thì bị đè ngay trong cùng một nhịp), nhánh `?ma=`,
+  và xoá bản ghi ở `applyPreset()` (chỉ khi người dùng chủ động nạp) lẫn `resetAll()`.
+- `src/app/du-lieu/DataTableScreen.tsx` — luật "thao tác gần nhất thắng".
+- `src/application/index.ts` — 5 export mới ra barrel.
+- Ca kiểm: 6 ca tích hợp ở `FormulaDetail.test.tsx`, 8 ca đọc-ghi ở `price-series-store.test.ts`,
+  2 ca ở `DataTableScreen.test.tsx`, 1 dòng miễn trừ ở cửa gác kho của `SettingsScreen.test.tsx`
+  (kho `sessionStorage` không cần nút xoá ở màn Cài đặt, cùng lẽ với `ffb.activeTicker.v1`).
+
+Đã đột biến thử ba chỗ (tắt effect khôi phục, tắt nhánh so mã, bỏ phép bỏ-qua-lượt-ghi-đầu): mỗi lần
+đúng những ca liên quan đỏ, không ca nào đỏ oan.
+
+### Còn lại của lỗi #2
+
+Bảng dòng tiền của XIRR cũng mất khi rời màn (dò được bằng cùng cách). Không nằm trong luồng #2 —
+XIRR không ăn chuỗi giá nên màn nó không có nút "Mở bảng dữ liệu" — nhưng cùng một loại lỗi, và chỗ
+vá tự nhiên là thêm trường vào `InputDraft` chứ không phải kho này. Để đợt sau.
+
+---
+
+## Vá bảng feedback test nội bộ — phần nội dung công thức, và áp 87 phát hiện đã rà (13/09/2026)
+
+**Trạng thái: xong phần đã chốt.** `npm run check` xanh **107 file / 2572 test**, lint + typecheck +
+format sạch, `gen:summaries` không lệch.
+
+### Yêu cầu
+
+> Chủ dự án đưa link Google Sheets "FinboxGPT - Internal test & feedback": _"đây là những lỗi của dự
+> án. đọc và phân tích rồi sửa. đối chiếu với các công thức khác để tạo phương án sửa"_.
+
+**Sheet gộp hai sản phẩm.** Dòng 1–128 là feedback cho chatbot FinboxGPT (giao diện chat, chất lượng
+câu trả lời AI, ngân hàng câu hỏi) — **không thuộc repo này**, đây là web tĩnh không có chatbot. Dòng
+130–188 mới là Faculator Finbox: 18 mục Done, 2 Failed, 18 Todo, cộng ~9 dòng ghi chú kèm ảnh chụp.
+Chốt phạm vi đợt này với chủ dự án: **nhóm nội dung công thức + áp luôn 87 phát hiện của `REVIEW.md`**
+(hai việc chạm cùng một vùng file, và mục #39 của sheet chính là thứ `REVIEW.md` đã giải).
+
+### Mục #39 của sheet và 35 phát hiện T1 là cùng một lỗi
+
+Sheet ghi: _"Khi thay đổi số liệu thì nội dung 'Cách đọc kết quả' không đổi cho nên bị sai trong
+nhiều trường hợp. Có thể hiển thị câu trả lời chung chung có thể bao quát được tất cả các trường
+hợp."_ Đúng kết luận của lượt rà: 35 mục "Cách đọc kết quả" tả cơ chế tính hoặc độ nhạy đầu vào thay
+vì dạy đọc con số, và câu viết lại đã cố ý viết dạng bao quát.
+
+Soi thêm theo đúng phản ánh này: trong 87 câu sửa có **31 câu chứa số cụ thể**. 26 câu đã neo rõ vào
+ví dụ ("ví dụ trên màn…") nên an toàn — khối Ví dụ là tĩnh, số không đổi theo ô nhập. Còn **3 câu mở
+đầu bằng "Kết quả <số>"** thì đúng là mắc lỗi #39: người dùng đổi ô nhập, con số trên màn đổi, câu
+chữ vẫn khẳng định "Kết quả 25%…". Viết lại theo nếp sẵn có của repo — nêu giá trị như một MINH HOẠ
+("25% nghĩa là…", giống `sut-giam-sau-nhat` "25 nghĩa là từng rơi 25% khỏi đỉnh"). `he-so-bien-thien`
+bị máy đánh dấu cùng nhóm nhưng đọc lại thì đã đúng nếp ấy từ đầu, để nguyên.
+
+### Bốn quyết định của chủ dự án
+
+1. **Áp cả ba chốt chặn** đang chặn/thả sai chỗ: Gordon với cổ tức = 0 (trước đây ra "0 ₫" trình bày
+   như một mức giá cổ phiếu — nghi vi phạm FR-06, và hạ nguồn `bien-an-toan` báo sai nguyên nhân);
+   FCFF thu hẹp còn "EBIT âm VÀ thuế > 0" (ở thuế 0% không có khoản hoàn thuế ảo nào, phép tính là
+   định nghĩa chuẩn cho một năm lỗ); tỷ suất lợi nhuận trên giá bỏ chặn EPS ≤ 0 (E/P là tỷ lệ đơn,
+   lỗ ra % âm đọc được — khác P/E, và chặn còn mâu thuẫn với chính "Khi nào dùng" của nó).
+2. **Latex MACD viết tổng quát** theo tên chu kỳ thay vì cứng 12/26/9 — hai chu kỳ là thanh trượt nên
+   đặt khác đi là công thức in trên màn nói một đằng, kết quả tính một nẻo. `expression` của cả hai
+   công thức vốn đã tổng quát từ trước, nay latex khớp lại.
+3. **Mục #43 — ký hiệu công thức vào nhãn ô nhập**, phạm vi nhóm Định giá + Chỉ số DN. Áp theo luật
+   hẹp: chỉ thêm khi latex THẬT SỰ dùng ký hiệu ngắn cho ô ấy. Ra 9 nhãn / 7 công thức — `bien-an-toan`
+   (V, P — đúng công thức sheet nêu đích danh), `ps` (P, S), `von-hoa-thi-truong` (P, N), `peg` (g),
+   `so-graham` (BVPS), `ncav-tren-co-phieu` (N), `ty-suat-loi-nhuan-tren-gia` (P). Luật này loại
+   `no-tren-von-chu`: latex viết tên đầy đủ trong `\text{}`, chỉ tên KẾT QUẢ là D/E.
+4. **Mục #38 — bỏ mô tả biến lặp dưới ô nhập**, giữ ở bảng biến. `NumberInput`/`SelectInput`/
+   `ButtonGroup` đều đang in `spec.description`, đúng câu mà bảng biến cùng màn đã in. Khối Số liệu
+   nay chỉ còn dòng phụ THEO TRẠNG THÁI (ô khoá, ô nhận số từ công thức khác, ô mang số của một mã) —
+   thứ bảng biến không có.
+
+### Hai lỗ hổng cửa gác, vá luôn
+
+- **`constants-gate.test.ts` không lần qua hàm phụ.** `loi-nhuan-rong` đọc đủ bốn hằng số qua
+  `totalCostOf()` mà không khai `usesConstants`, và cửa gác vẫn xanh suốt vì nó chỉ soi chữ trong đúng
+  khối `FormulaModule`. Thêm `khoaTheoHamPhu()` gom khoá của từng hàm cấp tệp rồi cộng vào công thức
+  nào gọi tới, kèm cắt phần đuôi để khoá của hàm phụ không bị tính cho công thức đứng ngay trên.
+  Đã đột biến thử: gỡ `usesConstants` của `loi-nhuan-rong` thì cửa gác đỏ, nêu đúng cả bốn khoá.
+- **`raLenhMuaBan()` không bắt hết lời khuyên đầu tư.** `loi-suat-vuot-chuan.howToRead` từng viết
+  "nên cân nhắc đầu tư theo chỉ số" — khuyến nghị đầu tư thật (CON-11) lách qua cả sáu mẫu regex. Câu
+  đã được viết lại trong lượt áp; **regex thì chưa nới** (nới regex là đúng cái bẫy ba phép kiểm bị bỏ
+  ở `prose-audit` đã trả giá), ghi lại ở `REVIEW.md` để lần sau có người quyết.
+
+### Một lỗi của chính script áp, và cách bắt được
+
+Bản đầu dò theo câu trích rồi kiểm "khoá đứng trước có phải `vi:`" — thủng ở hai finding mà câu trích
+là TÊN công thức (`name: { vi: … }` cũng có khoá `vi:`), nên nó ghi đè tên `gia-von-trung-binh-dca`
+bằng câu meaning mới. `summaries.test.ts` đỏ ngay vì file sinh chứa `name`. Hoàn nguyên bằng
+`git checkout`, viết lại bản 2 định vị theo ĐƯỜNG DẪN FIELD trong đúng khối công thức. Thêm một lỗi
+nữa của script gộp: `merge.mjs` khoá theo `lô|id|field` nên hai finding cùng field (`basis-vn30f`) đè
+nhau, làm mất bản sửa P1 — lấy lại từ `challenged/P1.json`, bản P1 chứa cả hai sửa.
+
+### Đã đổi file nào
+
+- **`src/core/formulas/*.ts`** — 75 câu prose (vi + en) + 12 mục code/latex + 9 nhãn ký hiệu.
+- **`src/core/registry/categories.ts`** — mô tả nhóm `personal-tax` (hứa "thuế tiền lương luỹ tiến"
+  trong khi công thức duy nhất của nhóm là thuế chuyển nhượng + cổ tức, hai thuế suất phẳng).
+- **`src/core/formulas/constants-gate.test.ts`** — `khoaTheoHamPhu()`, docblock.
+- **`src/ui/inputs/NumberInput.tsx`, `SelectInput.tsx`, `ButtonGroup.tsx`** — bỏ mô tả biến lặp.
+- **`src/core/formulas/REVIEW.md`** — trạng thái "đã áp", mục "Đã áp những gì", việc còn lại.
+- **`TASK.md`** — mục này.
+
+### Việc còn lại
+
+- [ ] Hai ghi chú trong sheet chưa suy ra được từ chữ, cần ảnh chụp: **"Nghìn đ và đ???"** (nghi lệch
+      giữa đơn vị ô nhập `₫` và thang hiển thị tự động "nghìn ₫") và **"K có dấu trừ"** (nghi số âm
+      mất dấu ở một chỗ hiển thị).
+- [ ] Các mục còn lại của sheet, chưa thuộc phạm vi đã chốt: bug UI (#20, #21 Failed; #22, #24, #25,
+      #27, #28), chỉnh hiển thị (#33 cảnh báo xuống cuối trang, #34 bỏ "Cập nhật tức thì"), và nhóm
+      thay đổi sản phẩm (#26, #29 gộp Trang chủ + Công thức, #30, #31, #32 About, #35, #36 FAQ,
+      #37 trắc nghiệm).
+- [ ] 100 công thức ngoài nhóm Định giá + Chỉ số DN vẫn chưa có ký hiệu ở nhãn ô nhập (#43).
+
+---
+
+## Rà đúng/sai 111 công thức + đúng tiêu đề 4 mục diễn giải (12/09/2026)
+
+**Trạng thái: xong lượt rà, CHỜ CHỦ DỰ ÁN DUYỆT — chưa sửa dòng code nào.** Hồ sơ đầy đủ:
+[`src/core/formulas/REVIEW.md`](src/core/formulas/REVIEW.md) (bảng 111 dòng, 87 phát hiện đã qua
+phản biện kèm câu sửa vi/en, 3 phát hiện bị bác, hai lỗ hổng cửa gác lộ ra).
+
+> "xác định đúng sai của tất cả công thức + cách giải thích cho người mới" → làm rõ tiêu đề khối
+> Giải thích đang bị lệch, nhất là "Cách đọc kết quả" đang tả cơ chế/độ nhạy thay vì dạy đọc con số.
+
+### Cách làm
+
+Harness độc lập ngoài repo: mỗi công thức có một **bản tính tham chiếu** viết chỉ từ
+`latex`/`expression`/`variables` (dump đã cắt `expected` để không lộ đáp số) và định nghĩa chuẩn —
+**chưa đọc `calc`** — rồi một driver so nó với `runFormula()` thật trên `spec.tests` và 400 bộ đầu
+vào ngẫu nhiên có hạt giống mỗi công thức (kể cả chuỗi giá/OHLCV/VN-Index/dòng tiền khi cần). 11 lô
+rà song song theo nhóm file liên quan → rà đủ 4 mục diễn giải theo một chuẩn "đúng tiêu đề" tường
+minh (mỗi mục phải trả lời đúng câu hỏi của chính tiêu đề nó, không phải nội dung khác dù đúng) →
+phản biện đối nghịch **chia theo loại phát hiện** (không theo lô) để cùng một thước đo cho cả 111
+công thức.
+
+### Kết quả
+
+111/111 công thức có mặt. Toán: **9 lỗi xác nhận** trên 6 công thức, toàn bộ là mã cảnh báo/chốt
+chặn sai chỗ chứ không phải phép tính sai — nặng nhất: `mo-hinh-gordon` với cổ tức = 0 ra "0 ₫" thay
+vì báo lỗi (nghi FR-06), `fcff` chặn cả EBIT âm ở thuế suất 0% nơi lý do nêu ra không còn đúng,
+`cvar-lich-su` dùng chung điều kiện chặn với VaR nên từ chối tính cả khi đuôi lỗ có thật. Diễn giải:
+**87/90 phát hiện thô CONFIRMED** sau phản biện (3 bị bác — đều là ca đã được cân nhắc từ trước
+trong chính `prose-audit.test.ts`, lượt rà lặp lại nhầm); khoảng một nửa số công thức có ít nhất một
+phát hiện, và 47/87 rơi đúng trọng tâm — lệch tiêu đề 4 mục hoặc thuật ngữ không giải nghĩa ở đâu
+trên màn.
+
+Hai phát hiện lộ ra lỗ hổng ở chính cửa gác cơ học: `loi-nhuan-rong` đọc 4 hằng số qua một hàm dùng
+chung mà `constants-gate.test.ts` không theo dấu tới; `loi-suat-vuot-chuan.howToRead` là một khuyến
+nghị đầu tư thật (CON-11) lách qua cả 6 mẫu regex của `raLenhMuaBan()` trong `prose-audit.test.ts`.
+
+### Đã đổi file nào
+
+- **`src/core/formulas/REVIEW.md`** (mới) — hồ sơ đầy đủ.
+- **`TASK.md`** — mục này.
+
+Chưa đụng `src/core/formulas/*.ts`, `src/core/registry/categories.ts`, hay bất kỳ file nguồn nào
+khác — đợi chủ dự án chọn phát hiện nào áp rồi mới sang đợt sửa.
+
+### Việc còn lại
+
+- [ ] Chủ dự án đọc `REVIEW.md`, chọn phát hiện nào áp.
+- [ ] Sau khi chọn: sửa prose + `calc`/`tests` liên quan, `npm run gen:summaries` nếu đổi
+      `description`, `npm run check`.
+- [ ] Cân nhắc vá hai lỗ hổng cửa gác — làm được độc lập, trước cả khi chọn xong phần prose.
+
+---
+
+## Nến tăng nhạt hơn ở bảng tối · cột khối lượng nhuộm theo chiều phiên (11/09/2026)
+
+**Trạng thái: xong**, đo lại màu bằng `getComputedStyle` trên Chrome thật trước và sau khi sửa.
+
+Chủ dự án gửi ảnh chụp `CandleChart` ở bảng tối cùng một ảnh tham chiếu nến pastel, xin đổi màu
+nến tăng thành xanh lá nhạt và làm cột khối lượng "cũng tương tự".
+
+Đo trước khi sửa: nến tăng đã dùng `--color-success` (#7ddaa0, 67% độ sáng) — nhạt, nhưng NHẠT HƠN
+đỏ bên cạnh (`--color-danger` #f4a0a6, 79% độ sáng) nên hai màu đứng cạnh nhau lệch tông, xanh có vẻ
+"nặng" hơn hẳn đỏ. Cột khối lượng ở bảng tối thì thật sự hỏng: `--color-sunken` (#0a0f1a) gần trùng
+hệt nền trang (#111827) — RGB đo được chỉ cách nhau vài đơn vị, cột gần như vô hình.
+
+**Không đổi thẳng `--color-success`**: token đó còn là màu CHỮ ở khắp sản phẩm (lãi/lỗ Danh mục,
+FeeTaxBody, sheet dán dữ liệu, `.changeUp` của chính thẻ này…) — đổi nó thì bảng tối lệch màu ở
+những chỗ không ai xin sửa. Thêm token riêng `--color-candle-up` trong `globals.css`: bảng sáng
+bằng hệt `--color-success` cũ (#146b3a, không đổi gì ở bảng sáng), bảng tối đổi thành `#a6e6c4`
+(78% độ sáng, cân với đỏ, 12,45 / 10,92 — dư ngưỡng 4,5:1 dù hiện chỉ dùng làm mảng màu). Nến GIẢM
+và `.changeUp`/`.changeDown` giữ nguyên `--color-success`/`--color-danger` — chỉ nến tăng được xin
+đổi.
+
+Cột khối lượng: thêm lớp tông (`up`/`down`, cùng nguồn `bar.up` đã có) lên `<rect>` khối lượng, rồi
+`[data-theme='dark'] .volume.up`/`.volume.down` phủ `--color-candle-up`/`--color-danger` ở
+`fill-opacity: 0.4` — đủ để đọc ra chiều phiên nhưng vẫn là NỀN, không tranh mắt với thân nến phía
+trên. Bảng sáng không đụng: `--color-sunken` sáng vẫn đủ tương phản, không hỏng gì để vá.
+
+**File đổi:** `src/app/globals.css` (token `--color-candle-up` cả hai bảng màu),
+`src/ui/series/CandleChart.module.css` (nến tăng + `.dotUp` đổi token, quy tắc `.volume.up/.down`
+mới, docblock đầu file viết lại), `src/ui/series/CandleChart.tsx` (gắn lớp tông vào `<rect>` khối
+lượng).
+
+**Kiểm chứng:** `tokens.test.ts` (289 ca) và `contrast.test.ts` (124 ca) xanh; `npm run lint` /
+`typecheck` / `format:check` sạch; `npm test` 107 file / 2572 ca xanh. Đo lại bằng Chrome thật sau
+khi sửa: nến tăng ra đúng `rgb(166, 230, 196)` (#a6e6c4), chụp ảnh thẻ ở khoảng 3T khớp ảnh tham
+chiếu chủ dự án gửi.
 
 ---
 

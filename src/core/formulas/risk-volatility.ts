@@ -155,8 +155,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         en: "The most basic measure of risk: how many percentage points each session's return typically deviates from the average.",
       },
       whenToUse: {
-        vi: 'Khi cần một con số duy nhất để so mức dao động của hai cổ phiếu, hoặc làm đầu vào cho Sharpe và VaR.',
-        en: 'When you need a single number to compare the volatility of two stocks, or as an input for Sharpe and VaR.',
+        vi: 'Khi cần một con số duy nhất để so mức dao động của hai cổ phiếu trong cùng một kỳ, hoặc khi cần mẫu số cho tỷ số Sharpe và số liệu đầu vào để quy độ biến động về năm.',
+        en: 'When you need a single number to compare the volatility of two stocks over the same period, or when you need the denominator of the Sharpe ratio and the input for annualizing volatility.',
       },
       howToRead: {
         vi: 'Số càng lớn thì giá càng nhảy mạnh giữa các phiên. Với chuỗi lợi suất phân phối chuẩn, khoảng hai phần ba số phiên nằm trong khoảng một lần độ lệch chuẩn quanh mức trung bình.',
@@ -268,8 +268,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         en: "When reporting a portfolio's risk level, or when you need an input for option pricing formulas and annual VaR.",
       },
       howToRead: {
-        vi: 'Nhân với căn bậc hai của số phiên chứ không nhân thẳng số phiên: rủi ro cộng dồn theo căn thời gian, nên 1,4%/phiên thành khoảng 22%/năm chứ không phải 350%.',
-        en: 'It is multiplied by the square root of the number of sessions, not the number of sessions directly: risk accumulates with the square root of time, so 1.4%/session becomes about 22%/year, not 350%.',
+        vi: 'Đọc là mức dao động của cả một năm: 22%/năm nghĩa là trong một năm bình thường, giá có thể lệch khoảng 22% so với mức trung bình, lên hoặc xuống. Số càng lớn thì đường giá càng gập ghềnh; muốn biết mức đó là cao hay thấp thì so với một mã cùng ngành trong cùng kỳ, hoặc với con số biến động mà báo cáo quỹ công bố, vì tất cả đều đã quy về cùng đơn vị năm.',
+        en: "Read it as a full year's swing: 22%/year means that in a normal year the price can drift about 22% away from its average, up or down. The larger the number, the bumpier the price line; to judge whether that level is high or low, compare it with a peer ticker over the same period, or with the volatility figure a fund report publishes, since all of them are already stated per year.",
       },
       commonMistakes: {
         vi: 'Nhân độ lệch chuẩn phiên với 250 thay vì với căn bậc hai của 250. Sai lầm thứ hai là dùng 365 ngày lịch trong khi chuỗi giá chỉ có ngày giao dịch.',
@@ -498,8 +498,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
         en: 'When choosing between two opportunities where one has both a higher return and stronger volatility, so neither metric alone can decide it.',
       },
       howToRead: {
-        vi: 'Số càng NHỎ càng tốt: mỗi phần lợi suất kiếm được phải trả bằng ít rủi ro hơn. Đây là tỷ số thuần, không có đơn vị.',
-        en: 'The SMALLER the number, the better: each unit of return earned costs less risk. This is a pure ratio with no unit.',
+        vi: '3,3 lần nghĩa là mỗi 1% lợi suất bình quân một phiên phải đổi bằng 3,3% dao động. Số càng NHỎ càng tốt, nhưng nó chỉ có nghĩa khi đem so: đo hai mã trên cùng một kỳ, mã nào hệ số thấp hơn thì mỗi phần lãi kèm ít dao động hơn.',
+        en: 'A value of 3.3 means every 1% of average per-session return is paid for with 3.3% of volatility. The SMALLER the better, but the number only means something in comparison: measure two tickers over the same period, and the one with the lower coefficient carries less volatility per unit of return.',
       },
       commonMistakes: {
         vi: 'Dùng khi lợi suất bình quân âm — lúc đó tỷ số ra số âm và xếp hạng ngược hoàn toàn, nên công thức này chỉ dùng cho kỳ có lợi suất bình quân dương.',
@@ -629,8 +629,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         en: "When quickly estimating a stock's volatility before setting a stop-loss or take-profit order, and when comparing price zones across periods.",
       },
       howToRead: {
-        vi: 'Tính theo đáy làm gốc, nên đọc là "từ đáy lên đỉnh tăng bao nhiêu phần trăm". Biên độ rộng nghĩa là vào lệnh sai vùng thì chênh lệch rất lớn.',
-        en: 'It is computed with the trough as the base, so read it as "how many percent from trough to peak." A wide range means entering at the wrong zone carries a very large difference.',
+        vi: 'Tính theo đáy làm gốc, nên đọc là "từ đáy lên đỉnh tăng bao nhiêu phần trăm": 8,25% nghĩa là đỉnh cao hơn đáy 8,25%. Muốn biết rộng hay hẹp thì so với chính mã đó ở một kỳ trước dài bằng đúng kỳ này, hoặc với một mã cùng ngành trong cùng kỳ — biên độ càng rộng thì vào lệnh lệch vùng càng chênh nhiều.',
+        en: 'It is computed with the trough as the base, so read it as "how many percent from trough to peak": 8.25% means the peak sits 8.25% above the trough. To judge whether that is wide or narrow, compare it with the same ticker over an equally long earlier period, or with a peer ticker over the same period — the wider the range, the more it costs to enter at the wrong zone.',
       },
       commonMistakes: {
         vi: 'Nhầm với mức sụt giảm sâu nhất từ đỉnh: biên độ không quan tâm đỉnh và đáy cái nào tới trước, còn drawdown thì bắt buộc đáy phải nằm SAU đỉnh.',

@@ -100,11 +100,19 @@ interface LossTail {
 /**
  * Phần việc chung của VaR và CVaR: lấy chuỗi, đổi ra lợi suất, tìm ngưỡng phân vị.
  *
- * Trả `CalcWarning` trong hai tình huống, nơi gọi kiểm bằng `'code' in`:
- *   · chưa đủ phiên → MISSING_SERIES (qua `requireCloses`);
- *   · ngưỡng phân vị không âm → MEANINGLESS. Đây chính là ca chuỗi phẳng hoặc chuỗi chỉ đi
- *     lên: nhóm phiên tệ nhất vẫn không lỗ, nên "mức lỗ" không tồn tại. Trả 0 ở đây là đúng
- *     thứ FR-06 cấm — người đọc sẽ hiểu thành "danh mục không có rủi ro".
+ * Trả `CalcWarning` khi chưa đủ phiên (MISSING_SERIES, qua `requireCloses`) hoặc khi chuỗi không
+ * đủ lợi suất để dựng phân vị.
+ *
+ * **Không** tự từ chối khi ngưỡng phân vị không âm — đó là quyết định của từng công thức, và hai
+ * công thức trả lời hai câu khác nhau:
+ *
+ *   · VaR đo chính NGƯỠNG, nên ngưỡng không âm là hết chuyện: không có mức lỗ để đọc.
+ *   · CVaR đo TRUNG BÌNH PHẦN ĐUÔI, thứ vẫn tồn tại khi ngưỡng dương. Chuỗi 61 giá với 57 phiên
+ *     +0,5%, hai phiên −0,05% và một phiên −7% cho ngưỡng +0,4725% (VaR từ chối, đúng) trong khi
+ *     đuôi ba phiên vẫn lỗ trung bình 2,3667% — con số có thật, trước đây bị giấu sau một lời từ
+ *     chối nói sai sự thật ("ngay cả nhóm phiên tệ nhất vẫn không lỗ").
+ *
+ * Gộp hai điều kiện vào đây là để một công thức quyết thay công thức kia.
  */
 function lossTailOf(
   ctx: CalcContext,
@@ -130,19 +138,6 @@ function lossTailOf(
       },
     );
   }
-  if (threshold >= 0) {
-    return meaningless(
-      {
-        vi: `Trong cửa sổ đang xét, ngay cả nhóm phiên tệ nhất ở mức tin cậy ${confidence}% vẫn không lỗ, nên không có mức lỗ để đo.`,
-        en: `In the window being examined, even the worst sessions at the ${confidence}% confidence level still show no loss, so there is no loss to measure.`,
-      },
-      {
-        vi: 'Chọn cửa sổ dài hơn hoặc chuỗi có phiên giảm, vì mẫu chỉ toàn phiên tăng thì mọi thước đo tổn thất đều rỗng nghĩa.',
-        en: 'Pick a longer window or a series that includes down sessions — a sample made up entirely of up sessions makes every loss measure meaningless.',
-      },
-    );
-  }
-
   return { returns, threshold };
 }
 
@@ -190,6 +185,23 @@ const CHUOI_VAR_MAU: ReadonlyArray<number> = [
 
 /** 61 phiên chỉ đi lên — mẫu không có phiên lỗ nào, dùng cho ca MEANINGLESS. */
 const CHUOI_TANG_DEU_61: ReadonlyArray<number> = Array.from({ length: 61 }, (_, i) => 100 + i);
+
+/**
+ * 61 giá dựng từ 57 phiên +0,5%, hai phiên −0,05% và một phiên −7%.
+ *
+ * Ca tách VaR khỏi CVaR: phân vị 5% rơi vào +0,4725% — DƯƠNG, nên VaR đúng khi từ chối — trong
+ * khi ba phiên của phần đuôi vẫn lỗ bình quân 2,3667%, tức CVaR có số thật để trả.
+ */
+const CHUOI_DUOI_LO_NGUONG_DUONG: ReadonlyArray<number> = (() => {
+  const rets = [...Array<number>(57).fill(0.005), -0.0005, -0.0005, -0.07];
+  let p = 100;
+  const closes = [p];
+  for (const r of rets) {
+    p = Math.round(p * (1 + r) * 10_000) / 10_000;
+    closes.push(p);
+  }
+  return closes;
+})();
 
 /** 40 phiên — cố tình ngắn hơn ngưỡng 60 của VaR/CVaR. */
 const CHUOI_THIEU_PHIEN_40: ReadonlyArray<number> = Array.from(
@@ -384,8 +396,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
         en: 'When weighing whether to buy more or cut losses: knowing exactly how far you are from the peak is clearer than looking at the raw price alone.',
       },
       howToRead: {
-        vi: 'Số dương nghĩa là đang thấp hơn đỉnh: 10 nghĩa là còn kém đỉnh 10%. Bằng 0 nghĩa là giá vừa lập đỉnh mới của cửa sổ. Muốn về lại đỉnh thì cần lãi 100 ÷ (100 − kết quả) − 1, tức đang chìm 20% phải lãi 25%.',
-        en: 'A positive number means it is below the peak: 10 means it is still 10% short of the peak. Zero means the price has just set a new peak within the window. Getting back to the peak requires a gain of 100 ÷ (100 − result) − 1 — being 20% underwater needs a 25% gain to recover.',
+        vi: 'Số dương nghĩa là đang thấp hơn đỉnh: 10 nghĩa là còn kém đỉnh 10%. Bằng 0 nghĩa là giá vừa lập đỉnh mới của cửa sổ. Mức lãi cần để về lại đỉnh luôn lớn hơn mức đang chìm: chìm 20% phải lãi 25%, chìm 50% phải lãi 100%.',
+        en: 'A positive number means it is below the peak: 10 means it is still 10% short of the peak. Zero means the price has just set a new peak within the window. The gain needed to climb back to the peak is always larger than the drawdown itself: 20% underwater needs a 25% gain, 50% underwater needs a 100% gain.',
       },
       commonMistakes: {
         vi: 'Nhầm sang mức sụt giảm sâu nhất: chỉ số này đo đúng khoảng cách tới đỉnh HIỆN TẠI, giá hồi lên là nó giảm ngay, còn sụt giảm sâu nhất thì đã ghi vào lịch sử và không bao giờ giảm.',
@@ -551,6 +563,24 @@ export const VAR_LICH_SU: FormulaModule = {
     const tail = lossTailOf(ctx, v('lookback'), confidence);
     if ('code' in tail) return fail('%', tail);
 
+    // Ngưỡng không âm: thứ VaR đo CHÍNH LÀ ngưỡng ấy, nên không còn mức lỗ nào để đọc. Câu chữ
+    // nói đúng thứ đang kiểm — ngưỡng — chứ không khẳng định cả cửa sổ không có phiên giảm.
+    if (tail.threshold >= 0) {
+      return fail(
+        '%',
+        meaningless(
+          {
+            vi: `Ở mức tin cậy ${confidence}%, ngưỡng lỗ của một phiên xấu vẫn là một mức TĂNG, nên không có ngưỡng lỗ để đọc.`,
+            en: `At the ${confidence}% confidence level the threshold for a bad session is still a GAIN, so there is no loss threshold to read.`,
+          },
+          {
+            vi: 'Chọn cửa sổ dài hơn để phần đuôi có phiên giảm, hoặc xem CVaR nếu chỉ cần mức lỗ trung bình của nhóm phiên tệ nhất.',
+            en: 'Pick a longer window so the tail contains down sessions, or read CVaR if you only need the average loss of the worst group.',
+          },
+        ),
+      );
+    }
+
     return ok(-tail.threshold * 100, '%', { extras: { observations: tail.returns.length } });
   },
 };
@@ -623,6 +653,16 @@ export const CVAR_LICH_SU: FormulaModule = {
         expected: 10,
       },
       {
+        /*
+         * Ngưỡng phân vị dương nhưng đuôi vẫn lỗ: VaR từ chối ca này (đúng — nó đo ngưỡng), CVaR
+         * thì không được từ chối theo, vì trung bình ba phiên đuôi là một khoản lỗ có thật.
+         */
+        name: 'ngưỡng phân vị dương nhưng đuôi vẫn lỗ — CVaR vẫn phải trả 2,3667%',
+        inputs: { confidence: 95, lookback: 250 },
+        series: CHUOI_DUOI_LO_NGUONG_DUONG,
+        expected: 2.3667,
+      },
+      {
         name: 'chuỗi chỉ đi lên thì không có phiên nào tệ hơn ngưỡng để lấy trung bình',
         inputs: { confidence: 95, lookback: 250 },
         series: CHUOI_TANG_DEU_61,
@@ -647,7 +687,27 @@ export const CVAR_LICH_SU: FormulaModule = {
     // Ngưỡng nội suy luôn nằm không thấp hơn lợi suất nhỏ nhất, nên nhóm này chắc chắn có ít
     // nhất một phần tử — `mean()` không rơi vào NaN. Vẫn để `ok()` làm lưới cuối.
     const worst = tail.returns.filter((r) => r <= tail.threshold);
-    return ok(-mean(worst) * 100, '%', { extras: { tailCount: worst.length } });
+    const trungBinhDuoi = mean(worst);
+
+    // CVaR chỉ hết nghĩa khi CHÍNH PHẦN ĐUÔI không lỗ — điều kiện này khác ngưỡng của VaR: ngưỡng
+    // dương vẫn có thể kèm một đuôi lỗ thật (xem docblock `lossTailOf`).
+    if (trungBinhDuoi >= 0) {
+      return fail(
+        '%',
+        meaningless(
+          {
+            vi: `Ở mức tin cậy ${confidence}%, ngay cả nhóm phiên tệ nhất cũng lãi bình quân, nên không có mức lỗ để đo.`,
+            en: `At the ${confidence}% confidence level even the worst group of sessions averages a gain, so there is no loss to measure.`,
+          },
+          {
+            vi: 'Chọn cửa sổ dài hơn hoặc chuỗi có phiên giảm — mẫu mà nhóm tệ nhất vẫn lãi thì mọi thước đo tổn thất đều rỗng nghĩa.',
+            en: 'Pick a longer window or a series that includes down sessions — when even the worst group gains, every loss measure is empty.',
+          },
+        ),
+      );
+    }
+
+    return ok(-trungBinhDuoi * 100, '%', { extras: { tailCount: worst.length } });
   },
 };
 

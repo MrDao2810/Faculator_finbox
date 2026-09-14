@@ -140,8 +140,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         en: 'Before deciding to withdraw early for an urgent need, or when considering splitting the money into several smaller books.',
       },
       howToRead: {
-        vi: 'So con số này với phần lãi hợp đồng lẽ ra được hưởng (hiện ở phần số phụ) — chênh lệch chính là cái giá của việc rút sớm.',
-        en: 'Compare this figure with the contract interest that would otherwise have been earned (shown in the secondary figures) — the difference is the price of withdrawing early.',
+        vi: 'So con số này với phần lãi đáng lẽ được hưởng nếu tính theo lãi suất hợp đồng cho cùng số tháng đã gửi — chênh lệch chính là cái giá của việc rút sớm.',
+        en: 'Compare this figure with the interest you would have earned at the contract rate for the same number of months held — the gap is the price of withdrawing early.',
       },
       commonMistakes: {
         vi: 'Tưởng gửi được gần hết kỳ hạn thì lãi mất ít. Rút trước hạn dù chỉ một ngày, cả quãng đã gửi vẫn chỉ được trả lãi không kỳ hạn; ngân hàng còn tính theo số ngày thực gửi nên con số thực tế có thể lệch nhẹ so với ước tính theo tháng.',
@@ -554,20 +554,20 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Mức giá bình quân thực sự đã trả cho mỗi cổ phiếu sau khi gom các đợt mua giá cao lẫn giá thấp.',
-        en: 'The average price actually paid per share after combining purchase rounds at both high and low prices.',
+        vi: 'Mức giá bình quân thực sự đã trả cho mỗi cổ phiếu sau khi gom nhiều đợt mua rải đều theo thời gian (DCA) ở các mức giá cao lẫn thấp.',
+        en: 'The average price actually paid per share after combining several purchases spread out over time (DCA) at both high and low prices.',
       },
       whenToUse: {
         vi: 'Sau vài đợt mua rải, để biết cổ phiếu phải về giá nào thì hoà vốn và đợt mua tiếp theo nên chờ vùng giá nào.',
         en: 'After several staggered purchases, to know what price the stock must reach to break even and what price range to wait for on the next purchase.',
       },
       howToRead: {
-        vi: 'Mua cùng một số tiền mỗi đợt thì đợt giá thấp mua được nhiều cổ phiếu hơn, nên giá vốn trung bình luôn thấp hơn trung bình cộng các mức giá.',
-        en: 'Investing the same amount each round means the lower-priced round buys more shares, so the average cost is always lower than the simple average of the prices.',
+        vi: 'So giá vốn trung bình vừa tính với thị giá hiện tại: thấp hơn thị giá là đang lãi, cao hơn là đang lỗ. Con số này luôn nằm giữa mức giá thấp nhất và cao nhất trong các đợt đã mua, không bao giờ vượt ra ngoài khoảng đó.',
+        en: "Compare this average cost with the stock's current market price: below it means you are in profit, above it means a loss. The figure always falls between the lowest and highest prices among your purchase rounds, never outside that range.",
       },
       commonMistakes: {
-        vi: 'Cộng các mức giá rồi chia ba. Cách đó bỏ qua việc mỗi đợt mua được số cổ phiếu khác nhau, cho ra giá vốn cao hơn thực tế.',
-        en: 'Adding up the prices and dividing by three. That approach ignores that each round buys a different number of shares, producing a cost basis higher than the real one.',
+        vi: 'Cộng các mức giá rồi chia ba, coi đó là giá vốn. Cách tính này bỏ qua số tiền khác nhau ở mỗi đợt, nên có thể lệch khá xa so với giá vốn thực — lệch theo hướng nào còn tuỳ đợt nào được rót nhiều tiền hơn.',
+        en: 'Adding up the prices and dividing by three, treating that as the cost basis. This ignores the different amount invested each round, so it can be well off the real average cost — which direction it drifts depends on which round received more money.',
       },
     },
     example: {
@@ -752,8 +752,8 @@ export const SO_KY_DCA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Số tháng góp đều tối thiểu để tổng tiền góp cộng lợi nhuận tích luỹ chạm mức mục tiêu.',
-        en: 'The minimum number of months of equal contributions for total contributions plus accumulated returns to reach the target.',
+        vi: 'Số tháng góp đều tối thiểu — theo cách đầu tư định kỳ số tiền cố định mỗi tháng (DCA) — để tổng tiền góp cộng lợi nhuận tích luỹ chạm mức mục tiêu.',
+        en: 'The minimum number of months of contributing a fixed amount each period (DCA) for total contributions plus accumulated returns to reach the target.',
       },
       whenToUse: {
         vi: 'Khi lập kế hoạch tích sản dài hạn và muốn biết đích đến còn cách bao nhiêu tháng với sức góp hiện tại.',
@@ -764,8 +764,8 @@ export const SO_KY_DCA: FormulaModule = {
         en: 'The result is rounded up to the nearest whole period. Increasing the contribution shortens the timeline far more reliably than counting on a high expected return — returns are never guaranteed in advance.',
       },
       commonMistakes: {
-        vi: 'Lấy mục tiêu chia cho mức góp rồi coi đó là số tháng — cách đó bỏ qua lợi nhuận tích luỹ nên ra thời gian dài hơn thực tế, nhất là ở kế hoạch nhiều năm.',
-        en: 'Dividing the target by the contribution and treating that as the number of months — this ignores accumulated returns and overstates the time needed, especially for multi-year plans.',
+        vi: 'Lấy mục tiêu chia cho mức góp rồi coi đó là số tháng — cách đó bỏ qua lợi nhuận tích luỹ nên cho thời gian dài hơn hoặc bằng thực tế (bằng nhau khi lợi suất kỳ vọng là 0%), chênh lệch rõ nhất ở kế hoạch nhiều năm.',
+        en: 'Dividing the target by the contribution and treating that as the number of months — this ignores accumulated returns, so it gives a time that is longer than or equal to the actual one (equal when the expected return is 0%), with the gap becoming clearest for multi-year plans.',
       },
     },
     example: {
@@ -911,8 +911,8 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
         en: 'When finalizing a year of investment activity, or estimating in advance the tax on a plan that both receives dividends and takes profit.',
       },
       howToRead: {
-        vi: 'Hai khoản có bản chất khác nhau: thuế chuyển nhượng tính trên giá trị bán nên lỗ vẫn phải nộp, còn thuế cổ tức khấu trừ trước khi tiền về tài khoản.',
-        en: 'The two amounts differ in nature: transfer tax is charged on the sale value, so it is due even on a loss, while dividend tax is withheld before the money reaches the account.',
+        vi: 'So tổng thuế này với phần lãi hoặc lỗ thực tế từ giao dịch, để thấy thuế chiếm bao nhiêu trong khoản tiền nhận về. Biểu đồ bóc tách bên dưới tách riêng phần đến từ bán và phần đến từ cổ tức.',
+        en: 'Compare this total tax with the actual gain or loss from the transaction, to see how much of the money you receive it takes up. The breakdown chart below separates the portion from the sale from the portion from the dividend.',
       },
       commonMistakes: {
         vi: 'Tưởng bán lỗ thì cả năm không mất đồng thuế nào — thuế chuyển nhượng thu theo giá trị bán, không theo lãi.',

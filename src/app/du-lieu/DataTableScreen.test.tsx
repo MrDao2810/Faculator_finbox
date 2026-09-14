@@ -3,7 +3,12 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { PRICE_SERIES_KEY, serializeStoredSeries } from '@/application';
+import {
+  PRICE_SERIES_KEY,
+  WORKING_SERIES_KEY,
+  serializeStoredSeries,
+  serializeWorkingSeries,
+} from '@/application';
 import type { SeriesRow } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
@@ -58,6 +63,8 @@ function moMan() {
 
 beforeEach(() => {
   window.localStorage.clear();
+  // Chuỗi đã thay tại chỗ ở màn chi tiết sống trong kho phiên — không dọn thì nó chảy sang ca sau.
+  window.sessionStorage.clear();
 });
 
 afterEach(cleanup);
@@ -276,5 +283,48 @@ describe('DataTableScreen — cột kiểm tra dữ liệu', () => {
     await screen.findByLabelText('Dòng 1 · Ngày');
 
     expect(screen.getByText('Không dòng nào đang lỗi.')).not.toBeNull();
+  });
+});
+
+/**
+ * Hai chuỗi cùng tồn tại là có chủ ý — dán ở màn chi tiết CỐ Ý không ghi đè bảng này (xem
+ * `applyPreset()` ở `FormulaDetail.tsx`) — nên phải có luật ai thắng khi người dùng quay lại màn
+ * chi tiết. Luật: thao tác GẦN NHẤT thắng. Thiếu nó thì bảng vừa sửa xong lại bị một chuỗi cũ hơn
+ * che mất, mà trên màn không có gì nói vì sao.
+ */
+describe('sửa bảng thì chuỗi đã thay tại chỗ ở màn chi tiết hết hiệu lực', () => {
+  /** Đúng hình dạng `FormulaDetail` ghi ra khi người dùng dán chuỗi tại chỗ. */
+  function gieoChuoiTaiCho(): void {
+    window.sessionStorage.setItem(
+      WORKING_SERIES_KEY,
+      serializeWorkingSeries({
+        id: 'ty-so-sharpe',
+        rows: CHI_CO_GIA_DONG,
+        marketSeries: null,
+        source: 'paste',
+        code: null,
+      }),
+    );
+  }
+
+  it('chỉ MỞ bảng ra xem thì chuỗi kia vẫn còn — lượt ghi đầu không phải một lần sửa', async () => {
+    napBang();
+    gieoChuoiTaiCho();
+    moMan();
+
+    await screen.findByLabelText('Dòng 1 · Đóng');
+
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).not.toBeNull();
+  });
+
+  it('sửa một ô thì chuỗi kia bị bỏ — bảng vừa sửa mới là thứ mới nhất', async () => {
+    napBang();
+    gieoChuoiTaiCho();
+    moMan();
+
+    const oDong = await screen.findByLabelText('Dòng 1 · Đóng');
+    fireEvent.change(oDong, { target: { value: '123' } });
+
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
   });
 });

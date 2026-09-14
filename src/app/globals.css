@@ -337,6 +337,16 @@
      Chữ --color-success trên nền này đạt 5,48:1. */
   --color-success-soft: #dcefe3;
   --color-success-line: #6aa885;
+  /*
+   * Riêng cho thân/bấc nến TĂNG của `CandleChart` (WF-05) — KHÔNG dùng chung `--color-success`.
+   *
+   * Ở bảng sáng hai token này bằng hệt nhau (nến vẫn xanh thẫm như chữ lãi ở Danh mục). Chỉ
+   * bảng TỐI mới lệch: chủ dự án gửi ảnh tham chiếu 10/09/2026 xin nến tăng nhạt hơn hẳn, còn
+   * cột khối lượng nhuộm theo cùng tông — xem lý do đủ ở khối `[data-theme='dark']`. Tách token
+   * mới thay vì đổi thẳng `--color-success` vì token kia còn là CHỮ ở khắp nơi (lãi/lỗ Danh mục,
+   * FeeTaxBody, sheet dán dữ liệu…) — đổi nó thì bảng tối lệch màu ở những chỗ không ai xin sửa.
+   */
+  --color-candle-up: #146b3a;
   --color-warning: #7a5f14; /* chữ cảnh báo */
   --color-warning-line: #d8b64a; /* viền vàng của ô nhận giá trị tự động */
   /* Vàng đủ đậm để dải miễn trừ (FR-24) không hoà vào nền trang. */
@@ -665,6 +675,17 @@
   --color-success: #7ddaa0; /* 10,48 / 9,19 */
   --color-success-soft: #10301f; /* cặp: 8,47:1 */
   --color-success-line: #376a4d; /* viền trang trí, khớp dải ~2,3:1 của bảng sáng */
+  /*
+   * Nến tăng của `CandleChart`, riêng ở bảng tối — xem lý do tách token ở khối `:root`.
+   *
+   * Nhạt hơn hẳn `--color-success` (#7ddaa0): đo trên Chrome thật trước khi đổi, nến tăng và cột
+   * khối lượng của nó gần như CÙNG một mảng màu với `--color-danger` bên cạnh (cả hai đã sáng),
+   * mà chủ dự án so hai màu cạnh nhau lại thấy xanh "nặng" hơn hẳn đỏ — đúng: đỏ đang 79% độ sáng,
+   * xanh cũ chỉ 67%. Nhích #a6e6c4 lên ~78% độ sáng cho cân với đỏ, và đó cũng là tông pastel
+   * trong ảnh tham chiếu chủ dự án gửi. 12,45 / 10,92 — dư sức đạt 4,5:1 nếu sau này có chỗ dùng
+   * làm chữ.
+   */
+  --color-candle-up: #a6e6c4; /* 12,45 / 10,92 */
   --color-warning: #e5c168; /* 10,27 / 9,00 */
   --color-warning-line: #6b5a24; /* khớp dải ~2:1 của bảng sáng */
   --color-warning-soft: #3a2f10; /* cặp: 7,63:1 */

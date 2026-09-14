@@ -45,7 +45,8 @@ export function SelectInput({
       className={className}
       label={pick(spec.label)}
       hideLabel={hideLabel}
-      hint={spec.description === undefined ? undefined : pick(spec.description)}
+      // `spec.description` không hiện ở đây — bảng biến cùng màn đã in đúng câu ấy; xem docblock
+      // trong `NumberInput.tsx`.
       value={String(value)}
       disabled={
         isLockedForMode(spec, mode) || (lockedNote !== undefined && lockedNote.trim() !== '')

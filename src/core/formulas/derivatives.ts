@@ -309,8 +309,8 @@ export const BASIS_VN30F: FormulaModule = {
         en: 'Watch it before placing an order — an unusually wide basis, or one narrowing toward expiry, both carry information.',
       },
       howToRead: {
-        vi: 'Không đọc thẳng mọi basis dương là kỳ vọng tăng — quá nửa mức đó thường chỉ là chi phí nắm giữ hợp lý (xem mục Lỗi hay gặp). Basis vượt hẳn mức chi phí đó, hoặc basis âm sâu bất thường, mới đáng đọc là tâm lý thị trường. Càng gần đáo hạn basis càng co về 0.',
-        en: "Don't read every positive basis as a bullish signal — much of it is usually just the fair cost of carry (see Common mistakes). Only a basis that clearly exceeds that cost, or an unusually deep negative basis, is worth reading as market sentiment. The basis converges to 0 as expiry approaches.",
+        vi: 'Không đọc thẳng mọi basis dương là kỳ vọng tăng — một phần mức đó thường chỉ là chi phí nắm giữ hợp lý (xem mục Sai lầm thường gặp). Basis vượt hẳn mức chi phí đó, hoặc basis âm sâu bất thường, mới đáng đọc là tâm lý thị trường. Càng gần đáo hạn basis càng co về 0.',
+        en: "Don't read every positive basis as a bullish signal — a part of it is usually just the fair cost of carry (see Common mistakes). Only a basis that clearly exceeds that cost, or an unusually deep negative basis, is worth reading as market sentiment. The basis converges to 0 as expiry approaches.",
       },
       commonMistakes: {
         vi: 'Quên rằng một phần basis là chi phí nắm giữ hợp lý (lãi suất trừ cổ tức) — không phải cứ basis dương là thị trường hưng phấn.',
@@ -684,8 +684,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Mỗi hợp đồng đòi một khoản ký quỹ ban đầu bằng giá trị danh nghĩa nhân tỷ lệ ký quỹ; vốn chia cho khoản đó là số hợp đồng mở được.',
-        en: 'Each contract requires initial margin equal to its notional value times the margin ratio; capital divided by that amount gives the number of contracts you can open.',
+        vi: 'Mỗi hợp đồng đòi một khoản ký quỹ ban đầu bằng giá trị danh nghĩa (điểm hợp đồng nhân hệ số nhân) nhân tỷ lệ ký quỹ; vốn chia cho khoản đó là số hợp đồng mở được.',
+        en: 'Each contract requires initial margin equal to its notional value (contract points times the multiplier) times the margin ratio; capital divided by that amount gives the number of contracts you can open.',
       },
       whenToUse: {
         vi: 'Trước khi đặt lệnh, để biết trần khối lượng mà tài khoản chịu được — rồi mới cân nhắc có nên đi tới trần hay không.',

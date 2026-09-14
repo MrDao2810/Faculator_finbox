@@ -1,10 +1,11 @@
 'use client';
 
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   MAX_SERIES_ROWS,
   PRICE_SERIES_KEY,
+  WORKING_SERIES_KEY,
   appendRow,
   checkSeries,
   defaultPresetPicks,
@@ -226,12 +227,37 @@ export function DataTableScreen() {
     setLoaded(true);
   }, []);
 
+  /**
+   * Lượt ghi ĐẦU TIÊN sau khi đọc kho — tức bảng vừa nạp lên, chưa ai sửa gì.
+   *
+   * Cần phân biệt vì hai chuyện dẫn tới cùng một lần ghi: nạp bảng lên màn, và người dùng sửa
+   * bảng. Chỉ lần thứ hai mới được phép huỷ chuỗi đã thay tại chỗ ở màn chi tiết (xem effect
+   * ngay dưới). Đúng MỘT lượt bị bỏ qua: `setCode`/`setRows`/`setLoaded` nằm chung một effect
+   * nên React gộp thành một lượt render, và mọi lượt chạy sau đó đều do `code`/`rows` đổi thật.
+   */
+  const firstWriteRef = useRef(true);
+
   // Ghi lại sau mỗi lần sửa. Chỉ ghi sau khi đã đọc xong, nếu không lần render đầu sẽ
   // đè bảng rỗng lên dữ liệu người dùng đã có.
   useEffect(() => {
     if (!loaded) return;
     try {
       window.localStorage.setItem(PRICE_SERIES_KEY, serializeStoredSeries({ code, rows }));
+
+      if (firstWriteRef.current) {
+        firstWriteRef.current = false;
+        return;
+      }
+
+      /*
+       * Người dùng vừa SỬA bảng → chuỗi họ dán tại chỗ ở màn chi tiết hết hiệu lực.
+       *
+       * Hai chuỗi cùng tồn tại là có chủ ý (dán ở màn chi tiết cố ý không ghi đè bảng này), nên
+       * phải có luật ai thắng khi quay lại màn chi tiết. Luật: thao tác GẦN NHẤT thắng. Bỏ đoạn
+       * này thì bảng vừa sửa xong lại bị một chuỗi cũ hơn che mất, và người dùng không có cách
+       * nào nhìn ra vì sao — xem `WORKING_SERIES_KEY`.
+       */
+      window.sessionStorage.removeItem(WORKING_SERIES_KEY);
     } catch {
       // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
     }

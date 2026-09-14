@@ -15,6 +15,7 @@ import {
   ROUTES,
   SAVED_CALCS_KEY,
   WARNING_LABELS,
+  WORKING_SERIES_KEY,
   formatIsoDate,
   parseFormulaUsage,
   parseActiveTicker,
@@ -2666,5 +2667,106 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
 
     render(<Man spec={specOf('pe')} />);
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe(sauKhiVe);
+  });
+});
+
+/**
+ * Vế CHUỖI của đúng lỗi ấy — xem `WORKING_SERIES_KEY` ở `price-series-store.ts`.
+ *
+ * Ba nguồn chuỗi, ba số phận khác nhau khi rời màn: bảng WF-05 sống ở `localStorage`, chuỗi của
+ * mã sống nhờ preset trong kho phiên, còn chuỗi dán tại chỗ và chuỗi minh hoạ thì mất trắng. Mà
+ * lối vào bảng dữ liệu chỉ có ở công thức ăn chuỗi, nên đây đúng là nhóm công thức mà người dùng
+ * bấm "Mở bảng dữ liệu →" rồi Back — và trở lại đúng câu "chưa đủ phiên giá" họ vừa thoát ra.
+ */
+describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi quay lại', () => {
+  it('chuỗi minh hoạ còn nguyên sau cú rời màn, không trở lại "chưa đủ phiên giá"', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    const truocKhiRoi = screen.getByTestId('result-text').textContent;
+    expect(truocKhiRoi).not.toContain(NO_VALUE);
+    cleanup();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    expect(screen.getByTestId('result-text').textContent).toBe(truocKhiRoi);
+    // Ghi chú "đây là chuỗi minh hoạ, không phải số thật" phải theo đúng dữ liệu được khôi phục.
+    expect(screen.getByText(t('detail.exampleSeriesNote'))).not.toBeNull();
+  });
+
+  /*
+   * Beta đọc CẢ HAI chuỗi. Cất mỗi vế cổ phiếu thì mở lại nó lặng lẽ lấy vế thị trường từ hằng số
+   * PRNG của màn và ra một con số khác — sai âm thầm mà ca "không còn NO_VALUE" không bắt được.
+   */
+  it('Beta giữ cả chuỗi VN-Index — mở lại vẫn ra đúng 1,5 lần', async () => {
+    render(<Man spec={specOf('beta')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    cleanup();
+
+    render(<Man spec={specOf('beta')} />);
+    const shown = screen.getByTestId('result-text').textContent ?? '';
+    expect(Number(shown.replace(' lần', '').replace(',', '.'))).toBeCloseTo(1.5, 1);
+  });
+
+  it('chuỗi của công thức này không chảy sang công thức khác', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    cleanup();
+
+    render(<Man spec={specOf('sma-n-phien')} />);
+    // Chưa ai nạp chuỗi nào cho SMA, nên nó phải vẫn đang chờ dữ liệu.
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+  });
+
+  /*
+   * Chuỗi của "Nạp mẫu" CỐ Ý không đi qua kho này: preset trong `ffb.activeTicker.v1` đã mang
+   * theo đủ 248 phiên và tự nạp lại ở lần mở sau. Cất thêm một bản nữa là chép 248 phiên ra hai
+   * chỗ trong cùng một kho phiên, và hai bản ấy bắt đầu lệch nhau ngay khi có một bên được sửa.
+   */
+  it('nạp mẫu KHÔNG cất thêm bản sao chuỗi — preset trong kho phiên đã lo', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await napDongDau();
+
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
+    cleanup();
+
+    // Và chuỗi vẫn phải sống sót — bằng đường preset, như trước đợt này.
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
+  });
+
+  /*
+   * Ca đắt nhất của khối, song sinh với ca `?ma=` của bản nháp ô nhập: đường ấy nạp BẤT ĐỒNG BỘ
+   * nên nó về sau và `applyPreset()` đè chuỗi của mã lên. Mã FPT chỉ có MỘT phiên giá, nên thiếu
+   * nhánh so mã thì màn quay lại đúng câu "chưa đủ phiên giá" — tức lỗi còn nguyên trên chính
+   * đường mà tab Danh mục dùng để sang đây.
+   */
+  it('cùng mã thì chuỗi đã thay thắng, dù `?ma=` nạp lại sau', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/ty-so-sharpe/?ma=FPT');
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    const truocKhiRoi = screen.getByTestId('result-text').textContent;
+    expect(truocKhiRoi).not.toContain(NO_VALUE);
+    cleanup();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await screen.findByText(t('detail.exampleSeriesNote'));
+    expect(screen.getByTestId('result-text').textContent).toBe(truocKhiRoi);
+  });
+
+  it('bấm Huỷ thì chuỗi cũng bị xoá, không quay về ở lần mở sau', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    // Có chuỗi đã cất thì mới có cái để xoá — nếu không ca này không chứng minh được gì.
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.cancel') }));
+    cleanup();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
   });
 });

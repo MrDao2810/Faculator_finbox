@@ -185,6 +185,14 @@ export const MO_HINH_GORDON: FormulaModule = {
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
+      {
+        // Doanh nghiệp chưa trả cổ tức: phép nhân ra đúng 0 và `ok()` sẽ bày nó như một mức giá
+        // cổ phiếu nếu không có chốt chặn này.
+        name: 'cổ tức vừa trả bằng 0 thì mô hình cổ tức không định giá được',
+        inputs: { dividend: 0, growth: 5, requiredReturn: 12 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
     ],
     source: [SOURCE_DAMODARAN_DDM, SOURCE_CFA],
     /*
@@ -202,6 +210,29 @@ export const MO_HINH_GORDON: FormulaModule = {
   calc: (v) => {
     const r = v('requiredReturn');
     const g = v('growth');
+
+    /*
+     * D0 = 0 là giá trị hợp lệ của ô nhập (min 0) và rất thường gặp — cổ phiếu tăng trưởng chưa
+     * trả cổ tức bao giờ. Không chặn thì phép nhân cho ra đúng 0 và `ok()` bày nó như một MỨC GIÁ
+     * cổ phiếu, tức con số sai trình bày như số đúng — đúng thứ FR-06 sinh ra để chặn. Hạ nguồn
+     * còn nặng hơn: `bien-an-toan` nhận giá trị nội tại 0 rồi báo "chia cho 0", chỉ người dùng đi
+     * sửa nhầm ô.
+     */
+    if (v('dividend') === 0) {
+      return fail(
+        '₫',
+        meaningless(
+          {
+            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu — cách này không định giá được doanh nghiệp chưa trả cổ tức.',
+            en: 'A most recent dividend of 0 leaves no dividend stream to discount — this method cannot value a company that pays no dividend.',
+          },
+          {
+            vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
+            en: 'Enter the cash dividend of the last 12 months, or use a cash-flow based method if the company pays no dividend.',
+          },
+        ),
+      );
+    }
 
     if (r === g) {
       return fail(
@@ -347,16 +378,16 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Tách đời doanh nghiệp làm hai khúc — tăng nhanh rồi ổn định — và cộng giá trị hiện tại của cổ tức cả hai khúc.',
-        en: "Splits a company's life into two phases — fast growth then stability — and adds up the present value of dividends from both.",
+        vi: 'Một cổ phiếu đáng giá bao nhiêu tiền hôm nay, khi cổ tức được cho là tăng nhanh vài năm đầu rồi mới về mức đều đặn mãi mãi — thay vì đều ngay từ năm đầu.',
+        en: 'How much one share is worth today when dividends are assumed to grow fast for the first few years before settling into a steady rate forever — instead of growing steadily from year one.',
       },
       whenToUse: {
         vi: 'Với doanh nghiệp đang tăng trưởng nhanh hơn mức bền vững, điều mô hình Gordon một giai đoạn không tả được.',
         en: 'For companies growing faster than a sustainable rate — something the single-stage Gordon model cannot capture.',
       },
       howToRead: {
-        vi: 'Phần lớn giá trị thường nằm ở giá trị cuối kỳ, nên g2 và r mới là hai con số đáng soi kỹ nhất.',
-        en: 'Most of the value usually sits in the terminal value, so g2 and r are the two figures most worth scrutinizing.',
+        vi: "Con số là giá trị một cổ phiếu theo mô hình — ví dụ trên cho 40.506,6 ₫; cao hơn thị giá là cổ phiếu đang rẻ theo cách tính này, thấp hơn là đang đắt. Nhìn thêm cột 'Giá trị cuối kỳ' trên biểu đồ: ở ví dụ nó chiếm khoảng ba phần tư tổng số, nên con số bạn đọc dựa vào giả định dài hạn nhiều hơn vào mấy năm tăng nhanh.",
+        en: "The figure is the value of one share under this model — the example gives 40,506.6 ₫; above the market price the stock looks cheap by this calculation, below it looks expensive. Also look at the 'Terminal value' bar on the chart: in the example it accounts for about three quarters of the total, so the number you read leans more on the long-term assumption than on the fast-growth years.",
       },
       commonMistakes: {
         vi: 'Để g2 cao gần bằng r khiến giá trị cuối kỳ phồng lên vô lý, hoặc kéo giai đoạn tăng nhanh dài quá mức doanh nghiệp giữ được.',
@@ -564,8 +595,8 @@ export const CAPM: FormulaModule = {
         en: 'When you need a discount rate for valuation models (Gordon, DDM, DCF) or the equity component of WACC.',
       },
       howToRead: {
-        vi: 'Beta 1 cho ra đúng mức sinh lợi kỳ vọng của thị trường; beta càng cao thì suất sinh lợi yêu cầu càng lớn — tức chiết khấu càng mạnh.',
-        en: 'A beta of 1 yields exactly the expected market return; the higher the beta, the larger the required return — meaning heavier discounting.',
+        vi: 'Con số là mức sinh lợi tối thiểu mỗi năm cổ đông nên đòi ở cổ phiếu này: ví dụ trên ra 13,1%/năm, cao hơn lãi suất phi rủi ro 3,5% gần mười điểm phần trăm — đó là phần bù cho rủi ro. Lấy nó so với lãi gửi tiết kiệm hoặc lợi suất trái phiếu Chính phủ; mốc dễ nhớ là beta bằng 1, khi ấy con số ra đúng bằng mức sinh lợi kỳ vọng của cả thị trường.',
+        en: 'The figure is the minimum annual return a shareholder should demand from this stock: the example gives 13.1%/year, nearly ten percentage points above the 3.5% risk-free rate — that gap is the compensation for risk. Compare it with deposit rates or government bond yields; a handy landmark is a beta of 1, where the figure equals the expected return of the market as a whole.',
       },
       commonMistakes: {
         vi: 'Lấy beta của thị trường khác áp cho cổ phiếu Việt Nam, hoặc quên rằng beta quá khứ không chắc lặp lại trong tương lai.',
@@ -727,8 +758,8 @@ export const WACC: FormulaModule = {
         en: 'As the discount rate for FCFF in whole-firm DCF valuation, or as a hurdle rate for screening investment projects.',
       },
       howToRead: {
-        vi: 'Dự án chỉ tạo giá trị khi sinh lợi vượt WACC. Nợ vay nhiều làm WACC thấp đi nhưng rủi ro tài chính tăng lên — con số này không phản ánh vế rủi ro đó.',
-        en: 'A project only creates value when its return exceeds WACC. More debt lowers WACC but raises financial risk — this figure does not capture that risk side.',
+        vi: 'Dự án chỉ tạo giá trị khi sinh lợi vượt WACC. Thêm nợ chỉ kéo WACC xuống chừng nào lãi vay sau thuế còn rẻ hơn chi phí vốn chủ — và ngay cả khi rẻ hơn thì rủi ro tài chính vẫn tăng, phần rủi ro ấy con số này không phản ánh.',
+        en: 'A project only creates value when its return exceeds WACC. Adding debt pulls WACC down only for as long as after-tax interest stays cheaper than the cost of equity — and even when it is cheaper, financial risk still rises, a side this figure does not capture.',
       },
       commonMistakes: {
         vi: 'Lấy giá trị sổ sách của vốn chủ thay vì vốn hoá thị trường, hoặc quên nhân chi phí nợ với (1 − thuế suất).',
@@ -960,13 +991,27 @@ export const FCFF: FormulaModule = {
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
+      {
+        // Cùng bộ số trên nhưng thuế suất 0%: không còn khoản hoàn thuế ảo nào, nên phép tính
+        // chạy bình thường — −100 + 120 − 180 − 40 = −200.
+        name: 'EBIT âm ở thuế suất 0% vẫn tính được, vì không có lá chắn thuế để bịa',
+        inputs: { ebit: -100, taxRate: 0, depreciation: 120, capex: 180, nwcChange: 40 },
+        expected: -200,
+      },
     ],
     source: [SOURCE_DAMODARAN_FCF, SOURCE_CORPORATE_FINANCE],
   },
   calc: (v) => {
     const ebit = v('ebit');
 
-    if (ebit < 0) {
+    /*
+     * Chốt chặn hẹp lại đúng bằng lý do nó nêu: khoản hoàn thuế ảo CHỈ xuất hiện khi thuế suất
+     * dương. Ở thuế suất 0% (giá trị hợp lệ của thanh trượt) số hạng EBIT × (1 − t) suy biến về
+     * chính EBIT, và FCFF = EBIT + Khấu hao − CapEx − ΔVLĐ là định nghĩa chuẩn cho một năm lỗ —
+     * Damodaran bỏ lá chắn thuế chứ không bỏ phép tính. Chặn rộng như trước là từ chối một ca
+     * tính được, kèm một câu giải thích không đúng với bộ số người dùng đang nhập.
+     */
+    if (ebit < 0 && v('taxRate') > 0) {
       return fail(
         'tỷ ₫',
         meaningless(
@@ -1362,7 +1407,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'FCFF âm hoặc bằng 0 thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp âm — không định giá được bằng cách này.',
+            vi: 'FCFF bằng 0 hoặc âm thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp bằng 0 hoặc âm — không còn gì để chia cho cổ đông, nên cách này không định giá được.',
             en: 'A zero or negative FCFF makes the steady-growth model produce a negative enterprise value — this method cannot value the company.',
           },
           {
@@ -1498,8 +1543,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
         en: 'When comparing amounts received at different points in time, or as a building block for DDM, DCF, and NPV.',
       },
       howToRead: {
-        vi: 'Tỷ lệ chiết khấu càng cao hoặc thời gian càng dài thì giá trị hôm nay càng teo nhỏ — 1 tỷ sau 10 năm với chiết khấu 8% chỉ còn khoảng 463 triệu.',
-        en: "The higher the discount rate or the longer the time horizon, the smaller today's value shrinks — 1 billion in 10 years discounted at 8% is worth only about 463 million today.",
+        vi: 'Con số là số tiền hôm nay tương đương với khoản tiền tương lai: 1 tỷ ₫ nhận sau 10 năm, chiết khấu 8%/năm, chỉ đáng khoảng 463 triệu ₫ ở hôm nay. Hãy đem nó so với cái giá phải trả ngay bây giờ để có khoản tiền ấy, hoặc so với một khoản khác đã quy về cùng mốc hôm nay — đó là cách duy nhất để hai khoản tiền ở hai thời điểm so được với nhau.',
+        en: 'The figure is the amount today that is equivalent to that future sum: 1 billion ₫ received in 10 years, discounted at 8%/year, is worth only about 463 million ₫ today. Compare it with the price you would have to pay right now to secure that sum, or with another amount already brought back to today — that is the only way two amounts at two different dates can be compared.',
       },
       commonMistakes: {
         vi: 'Chọn tỷ lệ chiết khấu tuỳ hứng — nó phải phản ánh mức rủi ro của chính khoản tiền đó, tiền chắc chắn chiết khấu thấp, tiền bấp bênh chiết khấu cao.',
@@ -1645,8 +1690,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         en: 'When estimating how large a one-time investment will grow, or setting an asset target for retirement.',
       },
       howToRead: {
-        vi: 'Thời gian là biến mạnh nhất — 100 triệu ở mức 10%/năm thành gần 418 triệu sau 15 năm, và hơn 670 triệu nếu chờ thêm 5 năm nữa.',
-        en: 'Time is the strongest variable — 100 million at 10%/year grows to nearly 418 million after 15 years, and over 670 million if left another 5 years.',
+        vi: 'Con số là số tiền bạn sẽ có ở cuối kỳ nếu mức sinh lợi giả định giữ nguyên suốt thời gian đó: 100 triệu ₫ để yên 15 năm ở 10%/năm thành gần 418 triệu ₫. Đem nó so với mục tiêu bạn đặt cho mốc thời gian ấy — còn thiếu thì thử lại với vốn ban đầu lớn hơn hoặc thời gian dài hơn, chờ thêm 5 năm nữa con số đã lên hơn 670 triệu ₫.',
+        en: 'The figure is what you would hold at the end of the period if the assumed return holds throughout: 100 million ₫ left alone for 15 years at 10%/year becomes nearly 418 million ₫. Compare it with the target you set for that date — if it falls short, try again with a larger starting amount or a longer horizon; waiting another 5 years already takes the figure past 670 million ₫.',
       },
       commonMistakes: {
         vi: 'Quên trừ lạm phát: con số tương lai là tiền danh nghĩa, sức mua thực của nó thấp hơn con số hiện ra.',
@@ -1735,7 +1780,9 @@ export const BIEN_AN_TOAN: FormulaModule = {
     variables: [
       numberVar(
         'intrinsic',
-        { vi: 'Giá trị nội tại ước tính', en: 'Estimated intrinsic value' },
+        // `V` và `P` là đúng hai ký hiệu latex của công thức này (MOS = (V − P) ÷ V) — buổi test
+        // nội bộ nêu đích danh Biên an toàn là chỗ thiếu ký hiệu ở ô nhập.
+        { vi: 'Giá trị nội tại ước tính (V)', en: 'Estimated intrinsic value (V)' },
         '₫',
         40_000,
         {
@@ -1747,14 +1794,20 @@ export const BIEN_AN_TOAN: FormulaModule = {
           },
         },
       ),
-      numberVar('price', { vi: 'Thị giá hiện tại', en: 'Current market price' }, '₫', 30_000, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Giá đóng cửa gần nhất của cổ phiếu.',
-          en: "The stock's most recent closing price.",
+      numberVar(
+        'price',
+        { vi: 'Thị giá hiện tại (P)', en: 'Current market price (P)' },
+        '₫',
+        30_000,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Giá đóng cửa gần nhất của cổ phiếu.',
+            en: "The stock's most recent closing price.",
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {

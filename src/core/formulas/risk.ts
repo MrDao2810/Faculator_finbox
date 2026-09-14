@@ -71,16 +71,16 @@ export const CO_LENH_RUI_RO: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Khối lượng lớn nhất được phép mua, sao cho nếu giá chạm mức cắt lỗ thì khoản mất đúng bằng mức rủi ro đã định trước.',
-        en: 'The largest quantity you may buy such that, if the price hits the stop-loss level, the loss equals exactly the risk you set in advance.',
+        vi: 'Khối lượng mà nếu giá chạm mức cắt lỗ thì khoản mất đúng bằng mức rủi ro đã định trước. Đây là trần theo RỦI RO, chưa phải trần theo số tiền đang có: khoảng cắt lỗ hẹp có thể cho ra khối lượng đắt hơn cả tài khoản.',
+        en: 'The quantity for which, if the price hits the stop-loss level, the loss equals exactly the risk you set in advance. This is a ceiling set by RISK, not by the cash you hold: a narrow stop distance can produce a quantity that costs more than the whole account.',
       },
       whenToUse: {
         vi: 'Trước mỗi lệnh mua, để khối lượng do kỷ luật quyết chứ không do cảm xúc.',
         en: 'Before every buy order, so the quantity is decided by discipline rather than emotion.',
       },
       howToRead: {
-        vi: 'Đặt cắt lỗ càng sát giá vào thì được mua càng nhiều, nhưng cũng càng dễ bị quét khỏi vị thế.',
-        en: 'The closer the stop-loss is to the entry price, the more you may buy — but the easier it is to get stopped out of the position.',
+        vi: 'howToRead thay bằng: «Con số là khối lượng tối đa của riêng lệnh này: 1.666,67 CP nghĩa là cỡ lệnh dừng ở 1.600 CP sau khi làm tròn xuống bội 100 cổ phiếu. Nhân khối lượng với giá vào rồi so với vốn tài khoản trước khi đặt lệnh — cắt lỗ càng sát giá vào thì số tiền phải bỏ ra càng dễ vượt quá vốn.» — câu độ nhạy cũ chuyển xuống commonMistakes, thành: «Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau — và đừng kéo cắt lỗ sát giá vào chỉ để được mua nhiều hơn, vì vị thế càng dễ bị quét khỏi thị trường.»',
+        en: 'howToRead becomes: «The number is the maximum quantity for this one order: 1,666.67 shares means the order stops at 1,600 shares once rounded down to a multiple of 100. Multiply the quantity by the entry price and compare it with your account capital before placing the order — the tighter the stop sits to the entry, the more easily that amount exceeds your capital.» — the old sensitivity sentence moves into commonMistakes, which becomes: «Buying a round amount of money first and only then thinking about the stop-loss. The correct order is: choose the stop-loss level first, and let the quantity follow from it — and do not pull the stop close to the entry just to be allowed a larger size, because the position is then far easier to get stopped out of.»',
       },
       commonMistakes: {
         vi: 'Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau.',

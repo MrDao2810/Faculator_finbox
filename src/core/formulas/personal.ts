@@ -121,8 +121,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
         en: 'For home loans or consumer loans repaid with equal monthly instalments.',
       },
       howToRead: {
-        vi: 'Những năm đầu phần lớn tiền trả là lãi, nên trả trước hạn sớm tiết kiệm được nhiều hơn trả muộn.',
-        en: 'In the early years most of the payment is interest, so paying off early saves more than paying off later.',
+        vi: 'howToRead thay bằng: «So khoản trả hằng tháng này với thu nhập của bạn để biết có kham nổi lâu dài không. Con số này giữ nguyên suốt toàn bộ kỳ hạn vay — không giảm dần theo thời gian như ở trả góp gốc đều.» — câu cơ cấu gốc/lãi cũ chuyển xuống commonMistakes, ghép thành: «Chỉ nhìn số tiền hằng tháng thấy vừa sức mà không cộng lại tổng lãi phải trả cả kỳ hạn. Cũng dễ quên rằng những năm đầu phần lớn khoản trả là lãi chứ chưa phải gốc, nên trả trước hạn càng sớm càng tiết kiệm được nhiều hơn để càng muộn.»',
+        en: 'howToRead becomes: «Compare this monthly payment with your income to judge whether it is affordable over the long run. The figure stays the same for the entire loan term — it does not decrease over time the way the equal-principal payment does.» — the old principal/interest-structure sentence moves into commonMistakes, merged as: «Judging affordability only by the monthly amount, without adding up the total interest paid over the whole term. It is also easy to forget that in the early years most of each payment is interest rather than principal, so paying off early saves more than waiting.»',
       },
       commonMistakes: {
         vi: 'Chỉ nhìn số tiền hằng tháng thấy vừa sức mà không cộng lại tổng lãi phải trả cả kỳ hạn.',
@@ -369,8 +369,8 @@ export const LICH_TRA_NO: FormulaModule = {
         en: 'When comparing the two repayment methods, or considering shortening the term.',
       },
       howToRead: {
-        vi: 'Với cùng lãi suất và kỳ hạn, gốc đều luôn cho tổng lãi thấp hơn niên kim, đổi lại kỳ đầu nặng hơn.',
-        en: 'For the same rate and term, equal-principal always yields lower total interest than annuity, at the cost of a heavier first period.',
+        vi: 'Với cùng lãi suất và kỳ hạn, gốc đều không bao giờ cho tổng lãi cao hơn niên kim — bằng nhau khi lãi suất 0%/năm, còn lại đều thấp hơn — đổi lại kỳ đầu nặng hơn.',
+        en: 'For the same rate and term, equal-principal never yields higher total interest than annuity — they tie when the rate is 0%/year, and equal-principal is lower otherwise — at the cost of a heavier first period.',
       },
       commonMistakes: {
         vi: 'Chỉ nhìn lãi suất mà bỏ qua kỳ hạn. Kéo dài kỳ hạn làm khoản trả hằng tháng nhẹ đi nhưng tổng lãi tăng mạnh.',
@@ -733,8 +733,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
         en: 'When comparing deposit terms at one bank or across several banks.',
       },
       howToRead: {
-        vi: 'Lãi tăng theo đúng tỷ lệ với số tiền gửi và với số tháng.',
-        en: 'Interest scales exactly proportionally with the deposit amount and with the number of months.',
+        vi: 'Con số này là tổng tiền lãi cho cả kỳ hạn đã chọn, không phải mức lãi suất theo năm — so nó với mục tiêu tiết kiệm của bạn hoặc với đề nghị của một kỳ hạn hay ngân hàng khác.',
+        en: 'This figure is the total interest for the whole term you chose, not an annual rate — compare it with your savings goal or with an offer for a different term or bank.',
       },
       commonMistakes: {
         vi: 'Rút trước hạn thì phần lớn ngân hàng chỉ trả lãi không kỳ hạn, thấp hơn nhiều con số này.',

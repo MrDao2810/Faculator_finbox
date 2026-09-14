@@ -9,9 +9,10 @@
  * Hai chiều, hai cách kiểm khác nhau, cố ý không dùng chung một cơ chế:
  *
  *   1. QUÉT MÃ NGUỒN bắt khai THIẾU. Đọc ba file có gọi `constantOf`/`rateOf`, cắt theo từng
- *      `FormulaModule`, gom khoá trong mỗi khối rồi đối chiếu với `usesConstants` của chính
- *      công thức ấy. Quét nguồn vì lời gọi nào không chạy trong ca kiểm nào thì cách (2) không
- *      thấy — ví dụ một nhánh chỉ chạy khi người dùng bật một tuỳ chọn.
+ *      `FormulaModule`, gom khoá trong mỗi khối — CỘNG khoá của những hàm phụ mà khối ấy gọi tới
+ *      (xem `khoaTheoHamPhu`) — rồi đối chiếu với `usesConstants` của chính công thức ấy. Quét
+ *      nguồn vì lời gọi nào không chạy trong ca kiểm nào thì cách (2) không thấy — ví dụ một
+ *      nhánh chỉ chạy khi người dùng bật một tuỳ chọn.
  *
  *   2. RÚT HẰNG SỐ bắt khai THỪA. Với mỗi khoá đã khai, dựng một biểu phí thiếu đúng khoá đó
  *      rồi chạy `calc`: kết quả BẮT BUỘC phải hỏng (`value === null`). Cách này không đọc chữ
@@ -42,15 +43,51 @@ const FILE_CO_HANG_SO = ['derivatives.ts', 'fees.ts', 'planning.ts'];
 /** Khoá viết thẳng trong lời gọi `constantOf(ctx, '…')` / `rateOf(ctx, '…')`. */
 const LOI_GOI = /(?:constantOf|rateOf)\(ctx, '([^']+)'\)/g;
 
+/**
+ * Khoá mà mỗi HÀM PHỤ dùng chung đọc — công thức gọi hàm ấy cũng là công thức tra hằng số.
+ *
+ * Thiếu bước này là lỗ hổng đã trả giá một lần: `loi-nhuan-rong` đọc đủ bốn hằng số qua
+ * `totalCostOf()` nhưng không khai `usesConstants`, và cửa gác vẫn xanh suốt vì nó chỉ soi chữ
+ * nằm trong đúng khối `FormulaModule` của công thức. Hệ quả trên màn: kết quả tính theo bốn mức
+ * phí/thuế mà khối hằng số không in mức nào.
+ */
+function khoaTheoHamPhu(noiDung: string): Map<string, Set<string>> {
+  const ket = new Map<string, Set<string>>();
+
+  for (const m of noiDung.matchAll(/^function (\w+)\(/gm)) {
+    const ten = m[1] as string;
+    const from = m.index ?? 0;
+    const den = noiDung.indexOf('\n}', from);
+    const than = noiDung.slice(from, den === -1 ? undefined : den);
+    const khoa = new Set([...than.matchAll(LOI_GOI)].map((x) => x[1] as string));
+    if (khoa.size > 0) ket.set(ten, khoa);
+  }
+  return ket;
+}
+
 /** Cắt file thành từng khối FormulaModule. */
 function khoaTheoCongThuc(noiDung: string): Map<string, Set<string>> {
+  const hamPhu = khoaTheoHamPhu(noiDung);
   const ket = new Map<string, Set<string>>();
   const khoi = noiDung.split(/export const \w+: FormulaModule = \{/).slice(1);
 
-  for (const phan of khoi) {
+  for (const nguyenKhoi of khoi) {
+    /*
+     * Cắt phần đuôi là mã cấp tệp viết SAU công thức (hàm phụ, mảng xuất). Không cắt thì khoá của
+     * `totalCostOf()` bị tính cho công thức đứng ngay trên nó, và cửa gác đọc ra một quan hệ
+     * không có thật.
+     */
+    const cat = nguyenKhoi.search(/^(?:function |export )/m);
+    const phan = cat === -1 ? nguyenKhoi : nguyenKhoi.slice(0, cat);
+
     const id = /id: '([^']+)'/.exec(phan)?.[1];
     if (id === undefined) continue;
+
     const khoa = new Set([...phan.matchAll(LOI_GOI)].map((m) => m[1] as string));
+    for (const [ten, khoaCuaHam] of hamPhu) {
+      if (!new RegExp(`\\b${ten}\\(`).test(phan)) continue;
+      for (const k of khoaCuaHam) khoa.add(k);
+    }
     if (khoa.size > 0) ket.set(id, khoa);
   }
   return ket;

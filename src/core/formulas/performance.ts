@@ -100,8 +100,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
         en: 'When comparing a gain earned over a few weeks or months against a savings rate quoted per year.',
       },
       howToRead: {
-        vi: 'Vì tính theo lãi kép nên kết quả cao hơn phép nhân đơn thuần: 2%/tháng ra 26,8%/năm chứ không phải 24%.',
-        en: 'Because it compounds, the result is higher than simple multiplication: 2%/month becomes 26.8%/year, not 24%.',
+        vi: 'So kết quả với lãi suất gửi tiết kiệm cùng kỳ hạn: cao hơn nghĩa là khoản lãi ngắn hạn đang thắng kênh gửi tiết kiệm nếu giữ nguyên nhịp đó cả năm. Vì tính theo lãi kép nên con số cao hơn phép nhân đơn thuần khi có nhiều hơn một kỳ mỗi năm — 2%/tháng ra 26,8%/năm chứ không phải 24%.',
+        en: 'Compare the result against a savings rate over the same horizon: higher means the short-term gain is beating a savings account if that pace held for a whole year. Because it compounds, the figure comes out higher than simple multiplication whenever there is more than one period per year — 2%/month becomes 26.8%/year, not 24%.',
       },
       commonMistakes: {
         vi: 'Coi con số năm hoá là mức chắc chắn đạt được — nó chỉ đúng nếu kỳ nào cũng lặp lại y hệt, điều hiếm khi xảy ra.',
@@ -653,8 +653,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         en: 'Always lower than the arithmetic average whenever returns fluctuate — the more volatile the returns, the larger the gap.',
       },
       commonMistakes: {
-        vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%, trong khi thực tế đã mất 25% vốn.',
-        en: 'Using the arithmetic average: a 50% gain followed by a 50% loss averages to 0%, while in reality 25% of the capital was lost.',
+        vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%/kỳ — trong khi trung bình hình học đúng của hai kỳ này là khoảng −13,4%/kỳ, gộp lại đúng bằng mức vốn đã giảm 25% sau hai kỳ.',
+        en: 'Using the arithmetic average: a 50% gain then a 50% loss averages to 0%/period — whereas the correct geometric mean of these two periods is about −13.4%/period, which compounds out to the actual 25% drop in capital after the two periods.',
       },
     },
     example: {
@@ -1126,6 +1126,14 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
+      {
+        // Giá gấp 125 lần trong đúng 1 ngày: 125^365 tràn khỏi dải số hữu hạn. Trước khi có
+        // nhánh riêng, ca này rơi vào lưới NaN của `ok()` và chỉ báo "giá trị không xác định".
+        name: 'quãng ngày quá ngắn so với chênh giá thì phép quy năm tràn số',
+        inputs: { buyPrice: 80_000, sellPrice: 10_000_000, days: 1 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
     ],
     source: [SOURCE_CFA, SOURCE_INVESTMENTS],
   },
@@ -1156,7 +1164,31 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       };
     }
 
-    return ok((Math.pow(v('sellPrice') / buy, 365 / days) - 1) * 100, '%');
+    /*
+     * Luỹ thừa 365/days phóng đại rất nhanh: giá gấp 125 lần trong 1 ngày cho số mũ 365, tràn
+     * khỏi dải số hữu hạn. `ok()` bắt được (đó là lưới cuối của FR-06) nhưng chỉ nói "giá trị
+     * không xác định" — không nêu nguyên nhân, trong khi nguyên nhân ở đây rất cụ thể và người
+     * dùng sửa được: quãng ngày quá ngắn so với mức chênh giá.
+     */
+    const quyNam = Math.pow(v('sellPrice') / buy, 365 / days);
+    if (!Number.isFinite(quyNam)) {
+      return {
+        value: null,
+        unit: '%',
+        warning: meaningless(
+          {
+            vi: 'Số ngày nắm giữ quá ngắn so với mức chênh lệch giá, nên phép quy năm vượt quá dải số đọc được.',
+            en: 'The holding period is too short for this price gap, so annualizing overflows the readable number range.',
+          },
+          {
+            vi: 'Kiểm tra lại giá mua và giá bán, hoặc nhập số ngày nắm giữ dài hơn.',
+            en: 'Check the buy and sell prices, or enter a longer holding period.',
+          },
+        ),
+      };
+    }
+
+    return ok((quyNam - 1) * 100, '%');
   },
 };
 
@@ -1221,8 +1253,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
         en: "When wrapping up an investment period: an 18% gain isn't necessarily impressive if the whole market rose 25% over the same period.",
       },
       howToRead: {
-        vi: 'Dương nghĩa là thắng chuẩn, âm là thua chuẩn — thua chuẩn kéo dài là dấu hiệu nên cân nhắc đầu tư theo chỉ số.',
-        en: 'Positive means beating the benchmark, negative means trailing it — a prolonged losing streak against the benchmark is a sign to consider index investing instead.',
+        vi: 'Dương nghĩa là thắng chuẩn, âm là thua chuẩn — thua chuẩn kéo dài nhiều kỳ liên tiếp là tín hiệu đáng xem lại cách chọn cổ phiếu hoặc mức phí đang trả, không phải một kỳ lẻ tẻ.',
+        en: 'Positive means beating the benchmark, negative means trailing it — a losing streak across many consecutive periods is a signal worth reviewing your stock-picking approach or the fees you are paying, not just a single off period.',
       },
       commonMistakes: {
         vi: 'So với chuẩn không cùng mức rủi ro, hoặc lệch kỳ tính — hai lợi suất phải đo trên cùng một khoảng thời gian.',

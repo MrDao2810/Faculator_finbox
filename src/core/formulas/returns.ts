@@ -66,8 +66,8 @@ export const ROI: FormulaModule = {
         en: 'For a quick comparison of performance between investments of different sizes.',
       },
       howToRead: {
-        vi: 'ROI không tính tới thời gian: 25% trong một năm và 25% trong năm năm là hai chuyện rất khác nhau.',
-        en: 'ROI does not account for time: a 25% return in one year and a 25% return over five years are very different things.',
+        vi: '25% nghĩa là 100 triệu ₫ bỏ ra nay thành 125 triệu ₫ — cứ 100 đồng vốn lãi thêm 25 đồng. Số âm là đang lỗ, 0% là vừa đủ hoà vốn; muốn biết hơn kém thì so với lãi suất tiết kiệm của đúng khoảng thời gian ấy.',
+        en: 'A value of 25% means 100 million ₫ put in is now 125 million ₫ — every 100 đồng of capital earned 25 đồng more. A negative figure means a loss and 0% means exactly break-even; to judge it, compare against a savings rate over the same span of time.',
       },
       commonMistakes: {
         vi: 'Dùng ROI để so hai khoản có thời gian nắm giữ khác nhau. Muốn so thì dùng CAGR.',
@@ -159,16 +159,16 @@ export const HPR: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Tổng lợi ích thu được trên một cổ phiếu trong kỳ, gồm cả lãi giá lẫn cổ tức.',
-        en: 'The total benefit earned per share over the period, including both price gains and dividends.',
+        vi: 'Trong kỳ nắm giữ, mỗi trăm đồng bỏ ra mua cổ phiếu mang lại bao nhiêu đồng — tính cả phần giá lên xuống lẫn cổ tức đã nhận.',
+        en: 'Over the holding period, how many đồng each hundred đồng spent on the stock returns — counting both the price move and the dividends received.',
       },
       whenToUse: {
         vi: 'Khi chốt lại một khoản đã bán và muốn tính trọn cả lãi giá lẫn cổ tức đã nhận trong suốt thời gian nắm giữ.',
         en: 'When closing out a position that has been sold and you want to capture the full return — price gains plus dividends received throughout the holding period.',
       },
       howToRead: {
-        vi: 'Cao hơn tỷ suất tính theo giá thuần đúng bằng phần cổ tức, nên cổ phiếu cổ tức cao nhìn khác hẳn.',
-        en: 'It exceeds the return based on price alone by exactly the dividend portion, so high-dividend stocks look quite different under HPR.',
+        vi: 'Cao hơn tỷ suất tính trên giá thuần — tức (Giá cuối kỳ − Giá đầu kỳ) ÷ Giá đầu kỳ — đúng bằng phần cổ tức chia cho giá đầu kỳ: ví dụ trên màn ra 20,51%, còn bỏ cổ tức đi chỉ còn 17,95%.',
+        en: 'It exceeds the price-only return — (Ending price − Starting price) ÷ Starting price — by exactly the dividend divided by the starting price: the example above gives 20.51%, while dropping the dividend leaves 17.95%.',
       },
       commonMistakes: {
         vi: 'Nhầm HPR với ROI. ROI chỉ nhìn chênh lệch giá trị; HPR cộng thêm dòng tiền cổ tức.',
@@ -264,8 +264,8 @@ export const CAGR: FormulaModule = {
         en: 'When comparing investments with different holding periods.',
       },
       howToRead: {
-        vi: 'Là con số đã san phẳng: thực tế từng năm có thể lên xuống mạnh quanh mức bình quân này.',
-        en: 'It is a smoothed figure: actual year-by-year results can swing widely around this average.',
+        vi: 'Con số là mức tăng đều mỗi năm: 14,87% nghĩa là 100 triệu ₫ tăng 14,87% mỗi năm thì sau 5 năm thành 200 triệu ₫. Số âm nghĩa là vốn co lại đều mỗi năm; đem so với lãi suất tiết kiệm cùng kỳ hạn để biết nhanh hay chậm.',
+        en: 'The figure is the steady per-year rate: 14.87% means 100 million ₫ growing 14.87% a year becomes 200 million ₫ after 5 years. A negative figure means the capital shrinks every year; compare it against a savings rate of the same term to see whether it is fast or slow.',
       },
       commonMistakes: {
         vi: 'Coi CAGR như lợi suất chắc chắn của năm tới. Nó là số liệu quá khứ đã được làm mượt.',
@@ -399,8 +399,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
         en: 'When looking for stocks that generate steady cash flow, comparable to a bank savings rate.',
       },
       howToRead: {
-        vi: 'Tỷ suất cao bất thường thường do giá vừa giảm mạnh, chứ không hẳn do doanh nghiệp hào phóng.',
-        en: 'An unusually high yield is often the result of a sharp price drop, not necessarily generous dividends from the company.',
+        vi: '2,17% nghĩa là bỏ ra 100.000 ₫ mua cổ phiếu thì một năm nhận về 2.170 ₫ tiền mặt, trước thuế. Tỷ suất cao bất thường thường do giá vừa giảm mạnh chứ không hẳn do doanh nghiệp hào phóng.',
+        en: 'A value of 2.17% means 100,000 ₫ spent on the stock returns 2,170 ₫ in cash over a year, before tax. An unusually high yield is often the result of a sharp price drop rather than a generous company.',
       },
       commonMistakes: {
         vi: 'Lấy mức cổ tức công bố mà quên thuế cổ tức bị khấu trừ, nên số thực nhận thấp hơn.',
@@ -558,8 +558,15 @@ export function xirrNotConverged(): CalcWarning {
       en: 'No rate of return could be found for this cash flow series.',
     },
     {
-      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày đúng thứ tự.',
-      en: 'Check again: you need at least one outflow and one inflow, with dates in the correct order.',
+      /*
+       * Hai nguyên nhân dẫn tới cùng một lời từ chối, và câu gợi ý phải nói cả hai: dòng tiền
+       * không đổi dấu (thiếu chi hoặc thiếu thu), HOẶC nghiệm nằm ngoài khoảng `bisectXirr` quét
+       * ([−99,99%; 1.000%]/năm). Ca thứ hai rất dễ gặp với quãng vài ngày — lỗ 20% trong một tuần
+       * quy ra năm đã vượt trần — và câu cũ chỉ nêu nguyên nhân thứ nhất, tức bảo người dùng đi
+       * kiểm thứ vốn đã đúng.
+       */
+      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày đúng thứ tự. Nếu đã đủ cả hai thì lãi hoặc lỗ đang nằm trong quãng ngày quá ngắn để quy ra suất sinh lợi năm — với quãng vài ngày, ROI hoặc HPR đọc dễ hơn.',
+      en: 'Check again: you need at least one outflow and one inflow, with dates in the correct order. If both are already there, the gain or loss sits in too short a span of days to annualize — over a few days, ROI or HPR reads more easily.',
     },
   );
 }
@@ -629,8 +636,8 @@ export const XIRR: FormulaModule = {
         en: "When investing on an irregular schedule (contributions that don't line up monthly, partial withdrawals along the way), or when comparing an actual portfolio against another investment channel using the real dates involved.",
       },
       howToRead: {
-        vi: 'Đọc như một mức lãi suất kép mỗi năm. Cao hơn lãi suất tiết kiệm là khoản đầu tư đang thắng; khác IRR thường, XIRR không đòi các kỳ cách đều.',
-        en: 'Read it as a compound annual interest rate. Higher than the savings rate means the investment is winning; unlike ordinary IRR, XIRR does not require evenly spaced periods.',
+        vi: 'Đọc như một mức lãi suất kép mỗi năm, đem so với lãi suất tiết kiệm cùng kỳ hạn: ví dụ trên màn, 100 triệu ₫ thành 110 triệu ₫ sau đúng một năm cho 10%/năm. Quãng giữa các dòng tiền càng ngắn thì con số quy ra năm càng bị phóng đại — lãi 7% trong hai ngày đã thành hàng triệu %/năm.',
+        en: 'Read it as a compound annual interest rate and compare it against a savings rate of the same term: on the example above, 100 million ₫ becoming 110 million ₫ after exactly one year gives 10%/year. The shorter the span between cash flows, the more the annualized figure is magnified — a 7% gain over two days already becomes millions of percent per year.',
       },
       commonMistakes: {
         vi: 'Quên rằng dòng tiền cuối cùng phải là GIÁ TRỊ HIỆN TẠI của khoản đầu tư (một khoản thu về GIẢ ĐỊNH nếu bán hết hôm nay), không phải chỉ tính tới lần rót tiền gần nhất.',

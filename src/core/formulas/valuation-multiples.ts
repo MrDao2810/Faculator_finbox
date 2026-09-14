@@ -45,18 +45,32 @@ const SOURCE_SECURITY_ANALYSIS: FormulaSource = {
  * ── Biến dùng lại trong nhóm ───────────────────────────────────────────────────────────
  */
 
-const sharePrice = numberVar('price', { vi: 'Giá thị trường', en: 'Market price' }, '₫', 92_000, {
-  min: 0,
-  max: 10_000_000,
-  description: {
-    vi: 'Giá đóng cửa gần nhất của một cổ phiếu.',
-    en: 'The most recent closing price of one share.',
+/*
+ * Nhãn mang theo KÝ HIỆU trong ngoặc khi latex của công thức dùng đúng ký hiệu ấy cho ô này —
+ * `P` ở cả ps, von-hoa-thi-truong và ty-suat-loi-nhuan-tren-gia. Không có nó, người đọc phải tự
+ * đoán chữ nào trong công thức ứng với ô nào; nhóm định giá dòng tiền (`capm`, `wacc`, `fcff`…)
+ * đã làm vậy từ đầu, đây là kéo phần còn lại cho khớp.
+ */
+const sharePrice = numberVar(
+  'price',
+  { vi: 'Giá thị trường (P)', en: 'Market price (P)' },
+  '₫',
+  92_000,
+  {
+    min: 0,
+    max: 10_000_000,
+    description: {
+      vi: 'Giá đóng cửa gần nhất của một cổ phiếu.',
+      en: 'The most recent closing price of one share.',
+    },
   },
-});
+);
 
 const sharesOutstanding = numberVar(
   'shares',
-  { vi: 'Số cổ phiếu lưu hành', en: 'Shares outstanding' },
+  // `N` trong latex của von-hoa-thi-truong và ncav-tren-co-phieu — hai công thức duy nhất dùng
+  // hằng này.
+  { vi: 'Số cổ phiếu lưu hành (N)', en: 'Shares outstanding (N)' },
   'triệu CP',
   118,
   {
@@ -110,7 +124,7 @@ export const PS: FormulaModule = {
       sharePrice,
       numberVar(
         'salesPerShare',
-        { vi: 'Doanh thu trên mỗi cổ phiếu', en: 'Revenue per share' },
+        { vi: 'Doanh thu trên mỗi cổ phiếu (S)', en: 'Revenue per share (S)' },
         '₫',
         45_000,
         {
@@ -632,7 +646,7 @@ export const PEG: FormulaModule = {
       }),
       numberVar(
         'growth',
-        { vi: 'Tăng trưởng lợi nhuận kỳ vọng', en: 'Expected earnings growth' },
+        { vi: 'Tăng trưởng lợi nhuận kỳ vọng (g)', en: 'Expected earnings growth (g)' },
         '%/năm',
         12,
         {
@@ -659,8 +673,8 @@ export const PEG: FormulaModule = {
         en: 'Around 1 is usually considered fair: P/E matches the growth rate. Below 1 suggests cheap relative to growth, above 2 is expensive unless the growth is very certain.',
       },
       commonMistakes: {
-        vi: 'Dùng con số tăng trưởng quá lạc quan — PEG nhạy với g hơn với P/E, dự phóng sai vài điểm phần trăm là kết luận đảo chiều.',
-        en: 'Using an overly optimistic growth figure — PEG is more sensitive to g than to P/E, so a few percentage points of forecast error can flip the conclusion.',
+        vi: 'Dùng con số tăng trưởng quá lạc quan — g là một dự phóng, không chắc chắn như P/E vốn tính từ số liệu đã có, nên sai lệch vài điểm phần trăm ở g dễ kéo PEG lệch xa kết luận ban đầu.',
+        en: 'Using an overly optimistic growth figure — g is a forecast, less certain than P/E which is computed from data already on hand, so an error of a few percentage points in g can easily pull PEG far from the original conclusion.',
       },
     },
     example: {
@@ -789,8 +803,8 @@ export const VON_HOA: FormulaModule = {
         en: 'The amount of money needed to buy every share of the company at its current market price.',
       },
       whenToUse: {
-        vi: 'Xếp cỡ doanh nghiệp — vốn hoá lớn, vừa, nhỏ — và làm đầu vào cho EV cùng các bội số so sánh.',
-        en: 'Sizing a company — large-cap, mid-cap, small-cap — and as an input for EV and comparable multiples.',
+        vi: 'Khi mới tìm hiểu một cổ phiếu lạ, hoặc muốn cân đối danh mục theo tỷ trọng vốn hoá lớn, vừa, nhỏ phù hợp khẩu vị rủi ro của bản thân.',
+        en: 'When first researching an unfamiliar stock, or wanting to balance a portfolio across large-, mid-, and small-cap weights to match your own risk appetite.',
       },
       howToRead: {
         vi: 'Vốn hoá là giá thị trường gán cho phần vốn cổ đông, chưa tính nợ. Doanh nghiệp lớn thường biến động giá êm hơn doanh nghiệp vốn hoá nhỏ.',
@@ -913,14 +927,20 @@ export const SO_GRAHAM: FormulaModule = {
           },
         },
       ),
-      numberVar('bvps', { vi: 'Giá trị sổ sách / CP', en: 'Book value / share' }, '₫', 24_800, {
-        min: -1_000_000,
-        max: 10_000_000,
-        description: {
-          vi: 'Vốn chủ sở hữu chia cho số cổ phiếu đang lưu hành.',
-          en: 'Shareholders’ equity divided by shares outstanding.',
+      numberVar(
+        'bvps',
+        { vi: 'Giá trị sổ sách / CP (BVPS)', en: 'Book value / share (BVPS)' },
+        '₫',
+        24_800,
+        {
+          min: -1_000_000,
+          max: 10_000_000,
+          description: {
+            vi: 'Vốn chủ sở hữu chia cho số cổ phiếu đang lưu hành.',
+            en: 'Shareholders’ equity divided by shares outstanding.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -1254,10 +1274,14 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'doanh nghiệp không có lãi thì tỷ suất vô nghĩa',
+        /*
+         * EPS âm KHÔNG phải ca vô nghĩa: E/P là tỷ lệ đơn nên giữ nguyên dấu, và đây đúng là lý do
+         * kinh điển người ta dùng E/P thay P/E khi mẫu so sánh có công ty lỗ (P/E thì đảo ngược
+         * thứ hạng, E/P thì không). −1.200 ÷ 92.000 × 100 = −1,3%.
+         */
+        name: 'doanh nghiệp lỗ cho tỷ suất âm — vẫn là con số đọc được, khác P/E',
         inputs: { eps: -1_200, price: 92_000 },
-        expected: null,
-        expectedWarning: 'MEANINGLESS',
+        expected: -1.3,
       },
     ],
     source: [SOURCE_CFA],
@@ -1281,23 +1305,14 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
       };
     }
 
-    if (eps <= 0) {
-      return {
-        value: null,
-        unit: '%',
-        warning: meaningless(
-          {
-            vi: 'Tỷ suất lợi nhuận trên giá không có ý nghĩa khi doanh nghiệp không có lãi.',
-            en: 'Earnings yield is meaningless when the company has no profit.',
-          },
-          {
-            vi: 'Dùng P/B hoặc P/S để đánh giá doanh nghiệp đang lỗ.',
-            en: 'Use P/B or P/S to assess a loss-making company.',
-          },
-        ),
-      };
-    }
-
+    /*
+     * KHÔNG chặn EPS ≤ 0. E/P là một TỶ LỆ ĐƠN (EPS ÷ Giá), không phải bội số nghịch đảo như P/E:
+     * nó giữ nguyên dấu, nên doanh nghiệp lỗ cho ra một tỷ suất ÂM đọc được — và đó đúng là lý do
+     * kinh điển E/P được ưa dùng hơn P/E khi mẫu so sánh có công ty lỗ (P/E đảo ngược thứ hạng,
+     * E/P thì không). Chặn ở đây còn mâu thuẫn với chính "Khi nào dùng" và "Cách đọc kết quả" của
+     * công thức, vốn dạy đem tỷ suất này so thẳng với lãi suất tiết kiệm — đúng lúc nó âm là lúc
+     * phép so ấy nói được nhiều nhất.
+     */
     return ok((eps / price) * 100, '%');
   },
 };

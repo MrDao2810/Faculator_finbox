@@ -152,8 +152,8 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     name: { vi: 'Thuế thu nhập cá nhân', en: 'Personal income tax' },
     shortName: { vi: 'Thuế TNCN', en: 'Income tax' },
     description: {
-      vi: 'Thuế thu nhập từ tiền lương theo biểu luỹ tiến từng phần.',
-      en: 'Tax on salary income under the progressive partial-bracket schedule.',
+      vi: 'Thuế thu nhập cá nhân trên một giao dịch đầu tư chứng khoán trong năm: thuế chuyển nhượng khi bán và thuế cổ tức tiền mặt, cả hai đều theo thuế suất cố định.',
+      en: 'Personal income tax on a securities investment transaction in a year: transfer tax on the sale and tax on cash dividends, both at flat rates.',
     },
     expectedCount: 1,
   },

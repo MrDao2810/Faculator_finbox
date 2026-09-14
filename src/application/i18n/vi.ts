@@ -365,8 +365,11 @@ export const vi = {
   'detail.exampleSeriesNote':
     'Đây là chuỗi số dựng sẵn để minh hoạ đúng ý nghĩa công thức, không phải giá cổ phiếu thật của công ty nào.',
   'detail.exampleSeriesLabel': 'ví dụ minh hoạ',
-  'detail.applyToTable': 'Áp dụng vào bảng dữ liệu',
-  'detail.appliedToTable': 'Đã áp dụng ✓',
+  /*
+   * `detail.applyToTable` / `detail.appliedToTable` đã BỎ cùng nút của chúng — chủ dự án chốt
+   * 14/09/2026. Việc "đưa chuỗi và mã sang bảng WF-05" nay chạy tự động khi bấm
+   * `detail.openDataTable`; xem `handOverToDataTable()` ở `FormulaDetail.tsx`.
+   */
   'detail.seriesLoaded': 'Đã nạp số phiên giá:',
   /*
    * Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`live-preset.ts`) — nguồn Finbox

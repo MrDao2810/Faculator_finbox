@@ -1527,7 +1527,10 @@
       "Bash(awk 'NR>=134 && NR<=172 {printf \"%d len=%d TAIL=%s\\\\n\", NR, length\\($0\\), substr\\($0, length\\($0\\)-60\\)}' sheet-map.txt)",
       "Bash(awk '{print substr\\($0,1,4\\) \" \" substr\\($0,index\\($0,\"#\"\\)\\) }' sheet-faculator-full.txt)",
       "Bash(grep -nE \"^\\\\| \\\\`\\(pe|roi|so-graham|wacc|loi-suat-thuc|loi-suat-nam-hoa|hpr|loi-suat-vuot-chuan|ty-suat-co-tuc|loi-suat-quy-nam[a-z-]*\\)\\\\`\" src/core/formulas/REVIEW.md)",
-      "Bash(cd \"C:/Faculator_finbox\" && rm -f \"src/app/cong-thuc/[id]/__probe.test.tsx\" && sed -n '55,120p' src/app/cai-dat/SettingsScreen.tsx)"
+      "Bash(cd \"C:/Faculator_finbox\" && rm -f \"src/app/cong-thuc/[id]/__probe.test.tsx\" && sed -n '55,120p' src/app/cai-dat/SettingsScreen.tsx)",
+      "PowerShell(npx eslint \"src/app/cong-thuc/[id]\" src/application/i18n 2>&1)",
+      "PowerShell(npx prettier --check \"src/app/cong-thuc/[id]/FormulaDetail.tsx\" \"src/app/cong-thuc/[id]/FormulaDetail.test.tsx\" src/application/i18n/vi.ts src/application/i18n/en.ts)",
+      "Bash(grep -oE \"\\(Tất cả|Chứng khoán|Cá nhân\\)[^<]{0,30}\" out/cong-thuc/index.html)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

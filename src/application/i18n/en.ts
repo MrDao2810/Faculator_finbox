@@ -204,8 +204,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.exampleSeriesNote':
     "This is a purpose-built illustrative series, not a real stock's price history.",
   'detail.exampleSeriesLabel': 'the illustrative example',
-  'detail.applyToTable': 'Apply to the data table',
-  'detail.appliedToTable': 'Applied ✓',
+  /* `detail.applyToTable` / `detail.appliedToTable` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.liveSeriesShort':
     'This ticker has a single price session — the live source provides no long history. This ' +

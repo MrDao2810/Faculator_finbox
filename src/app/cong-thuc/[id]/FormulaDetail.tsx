@@ -405,12 +405,11 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   );
   /** Đang bày chuỗi minh hoạ (không phải bộ mẫu công ty thật, không phải chuỗi người dùng dán). */
   const [exampleLoaded, setExampleLoaded] = useState(false);
-  /**
-   * Đã ghi `bars` hiện tại vào bảng WF-05 (`/du-lieu/`) hay chưa — nhãn nút "Áp dụng vào bảng
-   * dữ liệu" đổi thành "Đã áp dụng ✓" sau khi bấm, cùng nếp với `loadedPreset`. Đặt lại về false
-   * mỗi khi `bars` đổi (nạp mẫu khác, dán chuỗi khác) — xem effect ngay dưới `applyToDataTable`.
+  /*
+   * `appliedToTable` đã BỎ cùng nút "Áp dụng vào bảng dữ liệu". Nó tồn tại chỉ để đổi nhãn nút ấy
+   * thành "Đã áp dụng ✓", và cả năm chỗ đặt lại nó về `false` cũng theo nó mà đi. Việc bàn giao
+   * nay chạy trong `handOverToDataTable()` — xem docblock ở đó.
    */
-  const [appliedToTable, setAppliedToTable] = useState(false);
 
   /**
    * Mã đến từ `?ma=` trên URL — lối đi từ tab Danh mục sang màn này.
@@ -766,8 +765,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setMarketSeriesOverride(record.marketSeries);
     // Ghi chú "đây là chuỗi minh hoạ, không phải số thật" phải theo đúng dữ liệu vừa khôi phục.
     setExampleLoaded(record.source === 'example');
-    // Bảng WF-05 không được đụng tới trong cú khôi phục này, nên nhãn "đã áp dụng" phải về không.
-    setAppliedToTable(false);
   }, []);
 
   /*
@@ -1469,7 +1466,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         ]);
       }
     }
-    setAppliedToTable(false);
   }
 
   // Cập nhật sau MỖI lượt render, không có mảng phụ thuộc: `applyPreset` đọc `spec` và nhiều
@@ -1579,25 +1575,59 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     // Số của ví dụ minh hoạ không phải số của mã nào — viền `↳ HPG` phải tắt cùng lúc.
     setPresetFill(null);
     setExampleLoaded(true);
-    setAppliedToTable(false);
   }
 
   /**
-   * Ghi `bars` hiện tại vào bảng WF-05 (`/du-lieu/`) — hành động RÕ RÀNG do người dùng chủ động
-   * bấm, khác hẳn "Nạp mẫu"/"Dán chuỗi giá" vốn cố ý không tự ghi đè (xem docblock ở
-   * `applyPreset()`). Mã đi kèm lấy từ `loadedPreset` nếu có; dán tay thì không có mã, để trống
-   * — đúng quy ước `StoredSeries.code` rỗng nghĩa là "bảng tự nhập, chưa gắn mã nào".
+   * Bàn giao cho bảng WF-05 khi người dùng bấm "Mở bảng dữ liệu →" — TÊN công thức cho nút quay
+   * lại, cộng CHUỖI GIÁ và MÃ đang xem.
+   *
+   * ## Vì sao tự động thay vì một nút riêng
+   *
+   * Trước đợt này có nút "Áp dụng vào bảng dữ liệu" đứng cạnh, và bấm nó là điều kiện để bảng
+   * thấy được thứ đang xem. Chủ dự án bỏ nút ấy: *"mặc định nếu click vào Mở bảng dữ liệu thì khi
+   * chuyển sang sẽ lấy mã ticker đã thêm từ bên công thức"*. Đúng — hai nút cạnh nhau cho một
+   * việc thì người dùng phải đoán cái nào đã chạy, mà lối duy nhất sang bảng chính là cái link
+   * này, nên cú bấm ấy đã nói đủ ý định rồi.
+   *
+   * ## Đánh đổi, ghi ra vì nó có thật
+   *
+   * Bảng WF-05 là dữ liệu người dùng chủ động quản, và cú bàn giao này GHI ĐÈ nó. Ai đang có một
+   * bảng gõ tay, mở một công thức, nạp mẫu, rồi bấm sang bảng thì bảng cũ mất. Trước đây cái nút
+   * riêng chính là chỗ họ đồng ý; nay sự đồng ý nằm ở chính cú bấm "Mở bảng dữ liệu".
+   *
+   * Hai điều giữ cho nó không hoá thành mất mát âm thầm:
+   *
+   *   1. CHỈ ghi khi chuỗi trên màn đến TỪ MÀN NÀY. `bars !== null` KHÔNG đủ, và chỗ này đã trả
+   *      giá một lần: effect lúc mở màn tự nạp `bars` từ chính bảng WF-05 (xem nó, ngay dưới
+   *      `cashflowRows`). Nên mở một công thức ăn chuỗi rồi bấm thẳng sang bảng — không nạp gì cả
+   *      — vẫn thoả `bars !== null`, và cú ghi sẽ đè bảng của người dùng bằng chính nó nhưng MẤT
+   *      cái mã. Điều kiện đúng là "có nguồn từ màn này": mẫu đã nạp, mã đang dính, hoặc chuỗi
+   *      dán/minh hoạ đang hiển thị.
+   *   2. Mã và chuỗi đi CÙNG NHAU, không bao giờ tách. Ghi mỗi mã lên bộ dòng cũ là dán nhãn "HPG"
+   *      lên chuỗi của mã khác — đúng loại "số sai mà trông có lý" mà FR-06 tồn tại để chặn.
+   *
+   * Mã lấy `stickyTicker` TRƯỚC `loadedPreset`: mã dính theo cả lượt duyệt, còn `loadedPreset` về
+   * `null` mỗi khi người dùng xem chuỗi minh hoạ — mà việc ấy không có nghĩa họ thôi theo dõi mã.
+   * Không có mã nào thì để trống, đúng quy ước `StoredSeries.code` rỗng = "bảng tự nhập".
    */
-  function applyToDataTable(): void {
-    if (bars === null) return;
+  function handOverToDataTable(): void {
+    const record = formulaOriginToStore(spec.id, pick(spec.name));
+    const tuManNay =
+      loadedPreset !== null || stickyTicker !== null || workingSourceRef.current !== null;
+
     try {
-      window.localStorage.setItem(
-        PRICE_SERIES_KEY,
-        serializeStoredSeries({ code: loadedPreset ?? '', rows: bars }),
-      );
-      setAppliedToTable(true);
+      if (record !== null) {
+        window.sessionStorage.setItem(FORMULA_ORIGIN_KEY, JSON.stringify(record));
+      }
+
+      if (bars !== null && tuManNay) {
+        window.localStorage.setItem(
+          PRICE_SERIES_KEY,
+          serializeStoredSeries({ code: stickyTicker ?? loadedPreset ?? '', rows: bars }),
+        );
+      }
     } catch {
-      // localStorage bị chặn (chế độ riêng tư) — không chặn thao tác đang làm, chỉ là chưa lưu được.
+      // Kho bị chặn (chế độ riêng tư) — mất phần bàn giao, không mất đường đi.
     }
   }
 
@@ -1706,7 +1736,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setSeriesCount(null);
     setMarketSeriesOverride(null);
     setExampleLoaded(false);
-    setAppliedToTable(false);
   }
 
   /**
@@ -2341,15 +2370,10 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               )}
 
               {/*
-              Chỉ hiện khi đã có gì để áp dụng — nút này ghi CHỦ Ý, khác "Nạp mẫu"/"Dán chuỗi
-              giá" vốn cố ý không tự ghi đè bảng WF-05 (xem docblock `applyToDataTable()`).
-              Chủ dự án báo mất dấu: nạp mẫu xong sang /du-lieu/ không thấy gì — đây là lối vá.
+              Nút "Áp dụng vào bảng dữ liệu" đã BỎ — việc của nó nay chạy tự động trong `onClick`
+              của link ngay dưới. Đừng dựng lại: hai lối làm cùng một việc thì người dùng phải
+              đoán cái nào đã chạy.
             */}
-              {bars !== null && (
-                <Button variant="secondary" size="sm" onClick={applyToDataTable}>
-                  {appliedToTable ? t('detail.appliedToTable') : t('detail.applyToTable')}
-                </Button>
-              )}
 
               {/*
               Lối vào bảng WF-05. Dán tại chỗ chỉ đọc được chuỗi vào công thức đang mở; muốn
@@ -2365,6 +2389,10 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               hay xoá kho thì nhãn lùi về câu chung mà đường đi không xê dịch. Vì sao phải đi
               vòng thế này thay vì tra Registry ở thanh trên — xem `formula-origin.ts`.
 
+              `onClick` cũng ĐƯA CHUỖI VÀ MÃ sang bảng — việc trước đây do nút "Áp dụng vào bảng
+              dữ liệu" riêng làm. Chủ dự án chốt: mở bảng thì phải thấy đúng thứ đang xem, không
+              phải bấm thêm một nút nữa. Chi tiết và phần đánh đổi ở `handOverToDataTable()`.
+
               Ghi trong `onClick` chứ không trong effect: chỉ CÚ BẤM này mới là "đang mở bảng từ
               công thức này", còn việc trang có mặt trên màn thì không nói lên điều gì — cùng lập
               luận với `markReturning` của `BackLink`.
@@ -2372,15 +2400,7 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
               <Link
                 className={styles.dataLink}
                 href={`${ROUTES.data}?from=${spec.id}`}
-                onClick={() => {
-                  const record = formulaOriginToStore(spec.id, pick(spec.name));
-                  if (record === null) return;
-                  try {
-                    window.sessionStorage.setItem(FORMULA_ORIGIN_KEY, JSON.stringify(record));
-                  } catch {
-                    // Kho bị chặn (chế độ riêng tư) — mất cái tên, không mất đường đi.
-                  }
-                }}
+                onClick={handOverToDataTable}
               >
                 {t('detail.openDataTable')}
               </Link>
@@ -2668,7 +2688,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
                 volume,
               })),
             );
-            setAppliedToTable(false);
           }}
         />
       )}

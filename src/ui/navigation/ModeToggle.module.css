@@ -59,15 +59,29 @@
   transform: translateY(-50%);
 }
 
-.option:hover:not(.selected) {
+.option:hover {
   color: var(--color-ink);
 }
 
 /*
- * Đang chọn: đổi nền, đổi màu chữ VÀ in đậm.
- * Không để màu là dấu hiệu duy nhất — NFR-USA-06.
+ * ── Nút nào đang sáng do CSS quyết, không do React ───────────────────────────────────────────
+ *
+ * Lý do đầy đủ ở docblock `ModeToggle.tsx`; gọn lại: lượt render đầu luôn là chế độ Cơ bản (phải
+ * thế mới khớp HTML tĩnh), nên để React chọn là người dùng Nâng cao thấy ô sáng nhảy một nhịp
+ * mỗi lần tải trang — đúng cái nháy đã bị báo lỗi.
+ *
+ * Khoá chọn là `data-mode` trên `<html>`, do `THEME_BOOT_SCRIPT` đặt trước lượt vẽ đầu. KHÔNG có
+ * thuộc tính nghĩa là **Cơ bản** — khớp `DEFAULT_PREFERENCES.mode`, khớp HTML tĩnh, và khớp cả
+ * máy chặn localStorage. Vì vậy điều kiện viết theo hướng `:not(...)` chứ không liệt kê
+ * `[data-mode='basic']`: chỉ liệt kê thì mất hẳn ca mặc định. Cùng luật, cùng chiều với
+ * `CategoryGrid.module.css`.
+ *
+ * Đang chọn thì đổi nền, đổi màu chữ VÀ in đậm — không để màu là dấu hiệu duy nhất (NFR-USA-06).
+ * Độ ưu tiên của hai bộ chọn dưới đây là (0,2,1), cao hơn `.option:hover` (0,2,0), nên rê chuột
+ * lên nút đang sáng không làm nó nhạt đi — trước đây việc ấy do `:not(.selected)` lo.
  */
-.selected {
+:global(html:not([data-mode='advanced'])) .optionBasic,
+:global(html[data-mode='advanced']) .optionAdvanced {
   font-weight: var(--weight-bold);
   color: var(--color-on-selected);
   background: var(--gradient-highlight);

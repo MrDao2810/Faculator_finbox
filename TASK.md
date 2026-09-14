@@ -152,6 +152,7 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Rà đúng/sai 111 công thức + đúng tiêu đề 4 mục diễn giải, bằng máy có phản biện | —       | Xong — 87 phát hiện đã áp, xem `src/core/formulas/REVIEW.md`       |
 | —     | Vá lỗi từ bảng feedback test nội bộ — phần nội dung công thức                   | —       | Xong phần đã chốt — xem mục "Vá bảng feedback"                     |
 | 3.2.1 | Giữ chuỗi giá đã thay tại chỗ khi rời màn — vế còn lại của lỗi #2               | —       | Xong — xem mục "Giữ chuỗi giá khi rời màn"                         |
+| 2.1.1 | Hết nháy cụm Cơ bản / Nâng cao lúc tải trang — lỗi #21                          | —       | Xong phần cụm nút — xem mục "Hết nháy cụm Cơ bản / Nâng cao"       |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -159,6 +160,122 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Bỏ nút "Áp dụng vào bảng dữ liệu" — bàn giao tự động khi mở bảng (14/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"loại bỏ button Áp dụng vào bảng dữ liệu đi. mặc định nếu click vào Mở bảng dữ liệu thì
+khi chuyển sang sẽ lấy mã ticker đã thêm từ bên công thức"_.
+
+Hai nút cạnh nhau cho một việc thì người dùng phải đoán cái nào đã chạy — mà lối duy nhất sang bảng
+chính là cái link kia, nên cú bấm ấy đã nói đủ ý định. Việc của nút cũ nay nằm trong
+`handOverToDataTable()`, gọi từ `onClick` của link.
+
+### Cái bẫy mà ca kiểm bắt được — và nó là mất dữ liệu thật
+
+Bản đầu tôi chuyển nguyên điều kiện của nút cũ sang: ghi khi `bars !== null`. **Sai**, và ca kiểm
+"chưa nạp chuỗi nào thì KHÔNG đụng tới bảng đang có" đỏ ngay.
+
+Lý do: màn chi tiết có một effect tự nạp `bars` **từ chính bảng WF-05** lúc mở màn. Nên mở một công
+thức ăn chuỗi rồi bấm thẳng sang bảng — không nạp gì cả — vẫn thoả `bars !== null`, và cú ghi sẽ đè
+bảng của người dùng bằng chính nó **nhưng mất cái mã** (`code` rơi về rỗng). Đúng cảnh: ai đang có
+bảng gắn mã VNM, ghé một công thức rồi bấm sang bảng, là mất nhãn VNM mà không hiểu vì sao.
+
+Điều kiện đúng là **"chuỗi này đến TỪ MÀN NÀY"**: `loadedPreset !== null` (đã nạp mẫu / `?ma=`),
+hoặc `stickyTicker !== null` (mã đang dính theo lượt duyệt), hoặc `workingSourceRef.current !== null`
+(chuỗi dán tại chỗ hoặc chuỗi minh hoạ đang hiển thị).
+
+### Hai ràng buộc được ghim, không chỉ ghi chú
+
+1. **Không có nguồn từ màn này thì không đụng bảng.** Đây là ràng buộc vừa suýt hỏng ở trên.
+2. **Mã và chuỗi luôn đi cùng nhau.** Ghi mỗi mã lên bộ dòng cũ là dán nhãn "HPG" lên chuỗi của mã
+   khác — đúng loại "số sai mà trông có lý" mà FR-06 tồn tại để chặn. Ca kiểm riêng: chuỗi minh hoạ
+   sang bảng thì mã phải TRỐNG, không mượn mã cũ của bảng.
+
+Mã lấy `stickyTicker` **trước** `loadedPreset`: mã dính theo cả lượt duyệt, còn `loadedPreset` về
+`null` mỗi khi người dùng xem chuỗi minh hoạ — mà việc ấy không có nghĩa họ thôi theo dõi mã.
+
+### Đánh đổi còn lại, ghi ra vì nó có thật
+
+Bảng WF-05 là dữ liệu người dùng chủ động quản, và cú bàn giao này GHI ĐÈ nó khi có nguồn. Trước
+đây cái nút riêng chính là chỗ người dùng đồng ý; nay sự đồng ý nằm ở chính cú bấm "Mở bảng dữ
+liệu". Không có đường lui — muốn giữ bảng cũ thì phải xuất CSV trước.
+
+**File đổi:** `app/cong-thuc/[id]/FormulaDetail.tsx` + `.test.tsx`, `application/i18n/vi.ts` +
+`en.ts`.
+
+Dọn theo: state `appliedToTable` và cả năm chỗ đặt lại nó về `false` (nó chỉ tồn tại để đổi nhãn nút
+thành "Đã áp dụng ✓"), cùng hai khoá `detail.applyToTable` / `detail.appliedToTable` ở cả hai từ
+điển. Bốn ca kiểm mới, trong đó một ca ghim rằng nút cũ KHÔNG còn.
+
+Kiểm: toàn bộ **2592 xanh / 0 đỏ** — ba ca baseline đỏ suốt tuần trước nay cũng đã được vá ở nhánh
+khác. `tsc` + `eslint` + `prettier` sạch. Chưa xem trên bản build — cùng chỗ nghẽn ghi ở cuối file.
+
+---
+
+## Hết nháy cụm Cơ bản / Nâng cao lúc tải trang — lỗi #21 (14/09/2026)
+
+**Trạng thái: xong phần cụm nút.** `npm run check` xanh **108 file / 2599 test** (+11 ca mới), lint
+
+- typecheck + format sạch. Chưa chạy `build`/`verify:static`/`check:chrome`: cổng 3000 đang có dev
+  server của chủ dự án, mà `prebuild` cố ý chặn build trong tình huống đó.
+
+### Yêu cầu
+
+> Mục #21 của bảng feedback, trạng thái **Failed** (đã sửa một lần, kiểm lại vẫn còn): _"Khi Loading
+> trang thì bị flicker (nhấp nháy) 2 bộ lọc 'Cơ bản - Nâng cao'"_.
+
+### Nguyên nhân
+
+Lượt render đầu ở máy khách **bắt buộc** chạy bằng `DEFAULT_PREFERENCES` (mode `basic`) — có thế mới
+khớp HTML tĩnh, nếu không lệch hydration. Mà `ModeToggle` lại để **React** quyết nút nào sáng
+(`selected = option.value === mode`). Hệ quả với người đã chọn Nâng cao: HTML tĩnh sáng ô "Cơ bản"
+(kiểm được trong `out/cong-thuc/index.html`: `aria-pressed="true"` nằm trên "Cơ bản"), rồi
+`PreferencesProvider` đọc xong `localStorage` là ô sáng nhảy sang "Nâng cao". Xảy ra ở **mọi** lần
+tải trang, không phải thỉnh thoảng.
+
+Đợt vá trước chỉ đặt `data-mode` sớm bằng `THEME_BOOT_SCRIPT` — đủ cho con số ở trang chủ
+(`CategoryGrid` bày sẵn cả hai số, CSS chọn), nhưng cụm nút thì vẫn do React vẽ, nên nó không được
+vá. Đó là lý do lần kiểm lại vẫn Failed.
+
+### Cách vá
+
+Bỏ hẳn quyết định ấy khỏi React, đúng cơ chế `ThemeSwitch` và `CategoryGrid` đã dùng: hai nút luôn
+mang một lớp CỐ ĐỊNH (`.optionBasic` / `.optionAdvanced`), còn `data-mode` trên `<html>` — script
+khởi động đặt trước lượt vẽ đầu — mới chọn cái nào sáng. Nút đúng sáng ngay từ pixel đầu tiên, và
+đúng cả khi JS hỏng.
+
+`aria-pressed` vẫn do React quyết (lệch một nhịp trước hydrate) — chấp nhận được, giống hệt
+`ThemeSwitch`/`LangSwitch`, và nó là chỗ duy nhất nói ra trạng thái cho trình đọc màn hình.
+
+Chi tiết CSS: bộ chọn mới có độ ưu tiên (0,2,1), cao hơn `.option:hover` (0,2,0), nên rê chuột lên
+nút đang sáng không làm nó nhạt đi — việc mà `:not(.selected)` từng lo.
+
+### File đã đổi
+
+- `src/ui/navigation/ModeToggle.tsx` — lớp cố định cho từng nút, bỏ lớp `selected` do state gắn.
+- `src/ui/navigation/ModeToggle.module.css` — hai luật `data-mode`, viết theo hướng `:not()`.
+- `src/ui/navigation/ModeToggle.test.tsx` (mới) — 7 ca: `aria-pressed` vẫn nói đúng trạng thái, bấm
+  ghi/gỡ `data-mode` trên `<html>`, **lớp CSS của hai nút không đổi theo chế độ** (ca chặn tái phát),
+  cộng 3 ca đọc thẳng file CSS để gác chiều của phép chọn — cùng cách `CategoryGrid.test.tsx` gác.
+
+Đã đột biến thử: gắn lại một lớp do state quyết → đúng ca "lớp CSS không đổi theo chế độ" đỏ.
+
+### Còn lại của lỗi #21
+
+Ngay dưới cụm nút còn một cú nhảy THỨ HAI, cùng gốc nhưng khác chỗ: `/cong-thuc/` dựng HTML tĩnh
+bằng `StaticFormulaList` (**111 công thức**, không lọc theo chế độ), trong khi `FormulaBrowser` lúc
+hydrate lọc theo mode mặc định (**79**). Nên mọi người dùng đều thấy danh sách rút ngắn một nhịp khi
+trang vừa tải, và người dùng Nâng cao thấy 111 → 79 → 111.
+
+Chưa vá vì phép vá đụng một quyết định SEO đã ghi thành văn: `StaticFormulaList` tồn tại để bộ máy
+tìm kiếm thấy **đủ** danh sách (đợt 14, có `verify:static` gác). Cách vá theo đúng nếp `CategoryGrid`
+là giữ đủ 111 thẻ trong HTML nhưng cho CSS ẩn 32 thẻ nâng cao ở chế độ mặc định — link vẫn nằm trong
+HTML, nhưng phần Google **render** ra thì thiếu 32 mục. Đây là đánh đổi cần chủ dự án chốt, không
+phải thứ nên đổi lặng lẽ.
 
 ---
 

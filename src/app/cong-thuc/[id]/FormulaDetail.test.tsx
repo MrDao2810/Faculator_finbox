@@ -12,6 +12,7 @@ import {
   SAMPLE_DATA,
   ACTIVE_TICKER_KEY,
   PRESET_CONTRACT_VERSION,
+  PRICE_SERIES_KEY,
   ROUTES,
   SAVED_CALCS_KEY,
   WARNING_LABELS,
@@ -20,6 +21,8 @@ import {
   parseFormulaUsage,
   parseActiveTicker,
   parseSavedCalcs,
+  parseStoredSeries,
+  serializeStoredSeries,
   t,
 } from '@/application';
 import type { FormulaSpec } from '@/application';
@@ -2768,5 +2771,95 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
 
     render(<Man spec={specOf('ty-so-sharpe')} />);
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+  });
+});
+
+/**
+ * Bàn giao sang bảng WF-05 khi bấm "Mở bảng dữ liệu →".
+ *
+ * Chủ dự án bỏ nút "Áp dụng vào bảng dữ liệu" và chốt việc ấy chạy tự động: *"mặc định nếu click
+ * vào Mở bảng dữ liệu thì khi chuyển sang sẽ lấy mã ticker đã thêm từ bên công thức"*.
+ *
+ * Điều đáng gác KHÔNG phải "có ghi hay không" — mà là hai ràng buộc giữ cho cú ghi đè này không
+ * hoá thành mất mát âm thầm, vì bảng WF-05 là dữ liệu người dùng chủ động quản:
+ *
+ *   1. Không có chuỗi trên màn thì KHÔNG đụng tới bảng.
+ *   2. Mã và chuỗi luôn đi cùng nhau — dán nhãn mã này lên chuỗi của mã khác đúng là loại "số sai
+ *      mà trông có lý" mà FR-06 tồn tại để chặn.
+ */
+describe('WF-03 — mở bảng dữ liệu thì mang theo chuỗi và mã đang xem', () => {
+  /** Link "Mở bảng dữ liệu →" — `<a>` thật, nên tìm theo vai link chứ không phải nút. */
+  function moBang(): HTMLElement {
+    return screen.getByRole('link', { name: t('detail.openDataTable') });
+  }
+
+  /** Một bảng WF-05 người dùng đã có sẵn. `SeriesRow` đòi đủ sáu trường, thiếu là bị lọc mất. */
+  function bangCuaToi(code: string): void {
+    window.localStorage.setItem(
+      PRICE_SERIES_KEY,
+      serializeStoredSeries({
+        code,
+        rows: [
+          { date: '2026-01-02', open: null, high: null, low: null, close: 70_000, volume: null },
+        ],
+      }),
+    );
+  }
+
+  it('nút "Áp dụng vào bảng dữ liệu" không còn — chỉ còn một lối', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await napDongDau();
+
+    expect(screen.queryByRole('button', { name: /Áp dụng vào bảng/ })).toBeNull();
+    expect(moBang()).not.toBeNull();
+  });
+
+  it('nạp mẫu rồi bấm sang bảng thì bảng nhận đúng mã và đủ số phiên', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await napDongDau();
+
+    await userEvent.click(moBang());
+
+    const stored = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY));
+    expect(stored.code).not.toBe('');
+    expect(stored.rows.length).toBeGreaterThan(100);
+  });
+
+  /*
+   * Ràng buộc (1), và đây là rủi ro thật của đợt này: người dùng có sẵn một bảng gõ tay, mở một
+   * công thức ăn chuỗi, KHÔNG nạp gì cả, rồi bấm thẳng sang bảng để xem lại nó. Thiếu nhánh
+   * `bars !== null` thì đúng cú bấm ấy xoá trắng bảng của họ.
+   *
+   * Không dùng được `pe` cho ca này: công thức vô hướng vốn không có link "Mở bảng dữ liệu" nào
+   * (đã có ca riêng ghim điều đó ở trên).
+   */
+  it('chưa nạp chuỗi nào thì KHÔNG đụng tới bảng đang có', async () => {
+    bangCuaToi('VNM');
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(moBang());
+
+    const stored = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY));
+    expect(stored.code).toBe('VNM');
+    expect(stored.rows).toHaveLength(1);
+  });
+
+  /*
+   * Ràng buộc (2). Chuỗi minh hoạ không phải của mã nào, nên nó phải sang bảng mà KHÔNG mang theo
+   * một cái mã — kể cả khi bảng cũ đang gắn mã khác. Đây là chỗ dễ hỏng nhất: giữ lại `code` cũ
+   * của bảng là dán nhãn "VNM" lên một chuỗi dựng sẵn để minh hoạ.
+   */
+  it('chuỗi minh hoạ sang bảng thì mã phải trống, không mượn mã cũ của bảng', async () => {
+    bangCuaToi('VNM');
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    await userEvent.click(moBang());
+
+    const stored = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY));
+    expect(stored.code).toBe('');
+    expect(stored.rows.length).toBeGreaterThan(1);
   });
 });

@@ -2233,10 +2233,14 @@ window.__themeLog = [];
   })()`);
 
   /*
-   * Khối 1 ("Chế độ hiển thị") và khối 3 ("Dữ liệu trên máy") là đỉnh của hai cột, nên chúng phải
-   * cùng mép trên và khối 3 phải nằm hẳn bên phải khối 1. Đây cũng là phép kiểm bắt được lỗi
-   * ngược lại: nếu ai gỡ hai bọc `.col` để về lưới phẳng, khối 3 vẫn bên phải nhưng khối 2 sẽ bị
+   * Khối 1 ("Chế độ hiển thị") và khối đầu của cột phải là đỉnh của hai cột, nên chúng phải cùng
+   * mép trên và khối kia phải nằm hẳn bên phải khối 1. Đây cũng là phép kiểm bắt được lỗi ngược
+   * lại: nếu ai gỡ hai bọc `.col` để về lưới phẳng, khối thứ ba vẫn bên phải nhưng khối 2 sẽ bị
    * đẩy xuống đáy — thứ mà phép so mép trên này không thấy, nên đo thêm số khối cho chắc.
+   *
+   * Vẫn ĐÚNG BỐN khối kể cả khi bản kiểm kê chín kho đang ẩn sau cờ `HIEN_KHOI_DU_LIEU`
+   * (14/09/2026): khối 3 lúc ấy rút xuống còn tiêu đề và một nút xoá sạch, nhưng nó KHÔNG biến
+   * mất — nếu mất thì cột phải chỉ còn một khối và phép so mép trên dưới đây đo sang thứ khác.
    */
   check(
     'PC 1440 · Cài đặt xếp hai cột — khối Chế độ và khối Dữ liệu cùng mép trên',

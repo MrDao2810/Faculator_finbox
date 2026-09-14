@@ -5,9 +5,11 @@ import {
   checkSeries,
   closesOf,
   emptyRow,
+  keepSeriesDateChars,
   parseSeriesDate,
   sortRowsByDate,
   toCsv,
+  withSeriesDateSlashes,
 } from './price-series';
 import type { SeriesRow } from './price-series';
 
@@ -210,6 +212,75 @@ describe('parseSeriesDate — đọc ô ngày, không đoán', () => {
     // Tháng 13 và ngày 32 không tồn tại; nhận bừa là xếp chuỗi theo một ngày không có thật.
     expect(parseSeriesDate('2025-13-01')).toBeNull();
     expect(parseSeriesDate('32/01/2025')).toBeNull();
+  });
+});
+
+describe('keepSeriesDateChars — cửa ký tự của ô Ngày', () => {
+  it('giữ chữ số và đúng ba dấu ngăn mà ISO/DMY/DM chấp nhận', () => {
+    expect(keepSeriesDateChars('2025-01-20')).toBe('2025-01-20');
+    expect(keepSeriesDateChars('20/01/2025')).toBe('20/01/2025');
+    expect(keepSeriesDateChars('15.07')).toBe('15.07');
+  });
+
+  it('bỏ chữ cái nhưng giữ nguyên phần ngày', () => {
+    expect(keepSeriesDateChars('Ngày 15/07')).toBe('15/07');
+    expect(keepSeriesDateChars('hôm qua')).toBe('');
+  });
+
+  /* `toCsv` phải bọc ngoặc kép nếu ô ngày có dấu phẩy — chặn ngay từ lúc gõ thì không bao giờ gặp. */
+  it('bỏ dấu phẩy — parseSeriesDate không đọc nó và toCsv thì vướng nó', () => {
+    expect(keepSeriesDateChars('15,07')).toBe('1507');
+  });
+
+  it('số thứ tự phiên đi qua nguyên vẹn — chuỗi minh hoạ trang Beta ghi kiểu đó', () => {
+    expect(keepSeriesDateChars('1')).toBe('1');
+    expect(keepSeriesDateChars('248')).toBe('248');
+  });
+});
+
+describe('withSeriesDateSlashes — bù cho bàn phím số không có phím /', () => {
+  it('tám chữ số ghép thành ngày, lối Việt thử trước', () => {
+    expect(withSeriesDateSlashes('07092026')).toBe('07/09/2026');
+  });
+
+  it('lối Việt không ra ngày có thật thì rơi xuống ISO', () => {
+    // '20/25/0715' tháng 25 không tồn tại.
+    expect(withSeriesDateSlashes('20250715')).toBe('2025-07-15');
+  });
+
+  it('bốn chữ số ghép thành ngày/tháng', () => {
+    expect(withSeriesDateSlashes('1507')).toBe('15/07');
+  });
+
+  it('ghép không ra ngày có thật thì trả nguyên xi, không đoán bừa', () => {
+    // '20/25' tháng 25 không tồn tại; '99/99/9999' cũng vậy.
+    expect(withSeriesDateSlashes('2025')).toBe('2025');
+    expect(withSeriesDateSlashes('99999999')).toBe('99999999');
+  });
+
+  /* Ghim đúng dữ liệu của chuỗi minh hoạ trang Beta: chạm vào ô rồi rời ra không được đổi gì. */
+  it('số thứ tự phiên không bị chèn dấu', () => {
+    for (const stt of ['1', '2', '48', '248']) {
+      expect(withSeriesDateSlashes(stt), `số thứ tự '${stt}'`).toBe(stt);
+    }
+  });
+
+  it('chuỗi đã có dấu ngăn thì không đụng tới', () => {
+    expect(withSeriesDateSlashes('15/07')).toBe('15/07');
+    expect(withSeriesDateSlashes('2025-01-20')).toBe('2025-01-20');
+  });
+
+  it('chuỗi rỗng và chuỗi không phải toàn số thì trả nguyên', () => {
+    expect(withSeriesDateSlashes('')).toBe('');
+    expect(withSeriesDateSlashes('15/')).toBe('15/');
+  });
+
+  it('mọi kết quả CÓ ĐỔI đều là ngày mà parseSeriesDate đọc được', () => {
+    const dayChuSo = ['07092026', '20250715', '1507', '2025', '1', '248', '99999999', '123456789'];
+    for (const raw of dayChuSo) {
+      const ket = withSeriesDateSlashes(raw);
+      if (ket !== raw) expect(parseSeriesDate(ket), `từ '${raw}'`).not.toBeNull();
+    }
   });
 });
 

@@ -24,6 +24,14 @@ export interface BottomSheetProps {
    * Mũi tên bên trái là quy ước ai cũng đọc được, và vị trí trái/phải tự nó đã nói hướng đi.
    */
   dismiss?: 'close' | 'back';
+  /**
+   * `'tall'` ghim chiều cao tấm ở mức trần thay vì để nó co theo nội dung.
+   *
+   * Dành cho sheet có ô lọc ngay trong thân: ở đó số dòng đổi theo từng ký tự người dùng gõ, nên
+   * một tấm co theo nội dung sẽ nhảy lên nhảy xuống dưới chính ngón tay đang gõ. Mặc định
+   * `'auto'` — sheet ít dòng và không lọc được thì căng hết màn chỉ để lấy khoảng trắng.
+   */
+  size?: 'auto' | 'tall';
 }
 
 /**
@@ -44,6 +52,7 @@ export function BottomSheet({
   footer,
   className,
   dismiss = 'close',
+  size = 'auto',
 }: BottomSheetProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -85,7 +94,7 @@ export function BottomSheet({
         if (event.target === ref.current) onClose();
       }}
     >
-      <div className={styles.panel}>
+      <div className={size === 'tall' ? `${styles.panel} ${styles.panelTall}` : styles.panel}>
         <header className={styles.header}>
           <div className={styles.grabber} aria-hidden="true" />
 

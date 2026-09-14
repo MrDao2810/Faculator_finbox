@@ -1,7 +1,8 @@
 /**
  * Tầng APPLICATION — bản đồ đường dẫn (gói WBS 1.4.1).
  *
- * WF-18 chốt luồng: bốn mục ở thanh nav dưới, mỗi công thức một URL riêng.
+ * WF-18 chốt luồng: bốn mục ở thanh nav dưới, mỗi công thức một URL riêng. Mục thứ NĂM
+ * ('/ve-chung-toi/') thêm sau, ngoài luồng tác vụ ấy — xem `NAV_ITEMS`.
  * Đây là nguồn duy nhất của đường dẫn — thanh nav, sitemap và mọi link đều đọc từ đây,
  * để đổi slug là sửa một chỗ.
  *
@@ -29,12 +30,17 @@ export const ROUTES = {
   data: '/du-lieu/',
   portfolio: '/danh-muc/',
   settings: '/cai-dat/',
+  /**
+   * Màn giới thiệu sản phẩm. CÓ trong `NAV_ITEMS` và CÓ trong `sitemap.xml`: khác `/tim-kiem/`
+   * và `/du-lieu/`, đây là nội dung thật sự để đọc, không trùng nội dung với màn nào khác.
+   */
+  about: '/ve-chung-toi/',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
 
 /**
- * Bốn mục có mặt ở thanh nav dưới.
+ * Năm mục có mặt ở thanh nav dưới.
  * `search` và `data` là route thật nhưng không phải mục điều hướng — tách kiểu ra để component
  * thanh nav không phải bịa một icon cho chúng.
  */
@@ -63,14 +69,40 @@ export interface NavItem {
   key: NavKey;
   href: string;
   labelKey: MessageKey;
+  /**
+   * Nhãn NGẮN, chỉ dùng cho thanh tab dưới — bỏ trống thì tab dùng luôn `labelKey`.
+   *
+   * Sinh ra từ một phép tính hình học, không phải từ sở thích: thanh dưới chia đều bề ngang cho
+   * các mục, nên mục thứ năm kéo mỗi tab từ 90px xuống 72px ở khổ 360, còn 64px cho chữ sau khi
+   * trừ đệm. "Về chúng tôi" ở 12px đậm đo được ~72px, tức xuống dòng — mà `.link` khai
+   * `min-height` chứ không `height`, nên một nhãn hai dòng đội CẢ thanh lên và ăn chỗ của mọi
+   * màn, chỉ vì một tab.
+   *
+   * Rút nhãn cho cả hai thanh thì mất chữ đúng ở chỗ có thừa chỗ: thanh trên desktop là hàng chữ
+   * trần, ở đó "Về chúng tôi" vừa thoải mái và là tên màn người dùng sẽ thấy trong thẻ trình
+   * duyệt. Nên chỗ chật có nhãn riêng, chỗ rộng giữ tên đầy đủ.
+   */
+  shortLabelKey?: MessageKey;
 }
 
-/** Bốn mục của thanh điều hướng dưới, đúng thứ tự WF-18. */
+/**
+ * Năm mục của thanh điều hướng dưới.
+ *
+ * Bốn mục đầu theo đúng thứ tự WF-18 — chúng là một LUỒNG TÁC VỤ: xem → tính → giữ → chỉnh.
+ * "Về chúng tôi" không nằm trong luồng ấy nên đứng cuối, sau `settings`: chen nó vào giữa là đẩy
+ * Cài đặt khỏi chỗ góc phải mà người dùng đã quen bấm.
+ */
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { key: 'home', href: ROUTES.home, labelKey: 'nav.home' },
   { key: 'formulas', href: ROUTES.formulas, labelKey: 'nav.formulas' },
   { key: 'portfolio', href: ROUTES.portfolio, labelKey: 'nav.portfolio' },
   { key: 'settings', href: ROUTES.settings, labelKey: 'nav.settings' },
+  {
+    key: 'about',
+    href: ROUTES.about,
+    labelKey: 'nav.about',
+    shortLabelKey: 'nav.aboutShort',
+  },
 ];
 
 /**
@@ -108,9 +140,16 @@ export function showsModeToggle(pathname: string): boolean {
  * Bảng chứ không phải một điều kiện: chủ dự án chốt màn danh sách công thức trước, rồi Danh mục và
  * Cài đặt ngay sau — mỗi lần chỉ thêm một dòng ở đây, không sửa component nào.
  *
- * Nay là ĐỦ BA màn có mục riêng ở thanh điều hướng (trừ trang chủ, nơi tên sản phẩm mới đúng là
- * tên màn). Vì thế bảng cũng thành lời hứa ngược lại: màn nào KHÔNG có ở đây thì thân màn phải tự
- * dựng `<h1>` của nó — xem `headerTitleKey()`.
+ * Ba màn, và bảng cũng là lời hứa ngược lại: màn nào KHÔNG có ở đây thì thân màn phải tự dựng
+ * `<h1>` của nó — xem `headerTitleKey()`.
+ *
+ * Hai mục điều hướng cố ý ĐỨNG NGOÀI bảng, mỗi mục một lý do khác nhau:
+ *
+ *   - Trang chủ: ở đó tên sản phẩm mới đúng là tên màn, nên thanh trên khỏi đổi gì.
+ *   - '/ve-chung-toi/': màn này mở bằng một dải giới thiệu có tiêu đề lớn của riêng nó, và tiêu đề
+ *     ấy là thứ người đọc nhìn thấy đầu tiên. Đẩy `<h1>` lên thanh trên thì từ 1024px nó thành
+ *     `position: absolute` (xem `HeaderIdentity.module.css`) — tức trang giới thiệu mất hẳn tiêu
+ *     đề nhìn thấy được trên desktop, đúng chỗ nó cần nhất.
  *
  * Khớp TUYỆT ĐỐI, cùng lẽ với `showsModeToggle()`: '/cong-thuc/wacc/' là màn chi tiết, nó có tên
  * riêng của công thức làm tiêu đề nên thanh trên phải trả lại chỗ cho tên sản phẩm.

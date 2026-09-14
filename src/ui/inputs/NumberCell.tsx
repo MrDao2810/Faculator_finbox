@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 
-import { parseViNumber, rawViNumber } from '@/application';
+import { keepViNumberChars, parseViNumber, rawViNumber } from '@/application';
+
+import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
 
 export interface NumberCellProps {
   /** Giá trị hiện tại. `null` là ô CHƯA điền — khác hẳn số 0 (NFR-REL-01). */
@@ -36,6 +38,11 @@ export interface NumberCellProps {
  * Không kẹp gì cả, kể cả lúc rời ô: giá âm hay giá cao thấp hơn giá thấp là việc của
  * `checkSeries()` — nó tô vàng cả dòng và nói ra lỗi, đúng chỗ mà một ràng buộc GIỮA các ô phải
  * nằm. Kẹp lặng lẽ ở đây sẽ sửa số của người dùng mà không ai giải thích được vì sao.
+ *
+ * Chữ cái thì có chặn, và ở ô này nó sửa luôn một lỗi MẤT DỮ LIỆU: trước đây gõ một chữ vào ô
+ * đang giữ 100 sẽ làm `parseViNumber` trả `null`, và `null` được đẩy thẳng lên — giá biến mất
+ * chỉ vì một phím bấm nhầm. Nay chữ rụng ngay ở `onChange` nên con số cũ còn nguyên. Chặn KÝ TỰ
+ * thôi, không phải chặn giá trị: đó vẫn là ranh giới ghi ở `keepViNumberChars()`.
  */
 export function NumberCell({
   value,
@@ -57,13 +64,18 @@ export function NumberCell({
       placeholder={placeholder}
       value={draft ?? (value === null ? '' : rawViNumber(value))}
       onChange={(event) => {
-        const raw = event.target.value;
+        const raw = filterTypedValue(event, keepViNumberChars);
         setDraft(raw);
         onChange(parseViNumber(raw));
       }}
-      onBlur={() => {
+      onBlur={(event) => {
+        resetFilteredDelete(event.currentTarget);
         setDraft(null);
       }}
+      /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. Ô này
+         trước không có `onKeyDown` nào (không có cả Enter→blur như hai ô kia); nay có đúng việc
+         này, và đó là bất đối xứng có chủ ý chứ không phải quên. */
+      onKeyDown={guardFilteredDelete}
     />
   );
 }

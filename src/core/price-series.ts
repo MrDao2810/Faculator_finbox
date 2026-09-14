@@ -263,6 +263,62 @@ export function parseSeriesDate(raw: string): SeriesDate | null {
   return null;
 }
 
+/**
+ * Mọi ký tự KHÔNG được phép có mặt trong ô Ngày: nghịch của tập chữ số và ba dấu ngăn mà
+ * `ISO`/`DMY`/`DM` ngay trên chấp nhận. Không có dấu phẩy — `parseSeriesDate()` không đọc nó, mà
+ * `toCsv()` lại phải bọc ngoặc kép nếu gặp.
+ */
+const NOT_SERIES_DATE = /[^\d\-/.]/g;
+
+/**
+ * Bỏ khỏi ô Ngày mọi ký tự không thuộc về một ngày — cửa chặn chữ cái của cột Ngày bảng WF-05.
+ *
+ * Đặt ở file này chứ không ở `format.ts` là có lý do: tập dấu ngăn hợp lệ SUY RA TỪ ba biểu thức
+ * `ISO`/`DMY`/`DM` ngay trên. Để hai thứ cạnh nhau thì ai nới luật ĐỌC sẽ thấy ngay luật NHẬP
+ * đang chặn đúng phần mình vừa nới.
+ *
+ * Cùng ranh giới với `keepViNumberChars()`: đây là cửa KÝ TỰ. Số thứ tự phiên ('1', '2' — thứ
+ * chuỗi minh hoạ trang Beta ghi vào cột này) đi qua nguyên vẹn, vì `parseSeriesDate()` trả `null`
+ * cho chúng là chuyện BÌNH THƯỜNG, không phải lỗi.
+ */
+export function keepSeriesDateChars(text: string): string {
+  return text.replace(NOT_SERIES_DATE, '');
+}
+
+/**
+ * Chèn dấu ngăn vào một dãy TOÀN CHỮ SỐ, nếu ghép được thành một ngày đọc được.
+ *
+ * Tồn tại vì một ràng buộc của phần cứng: bàn phím số trên iPhone lẫn Android **không có phím
+ * '/'**. Cột Ngày bật `inputMode="numeric"` (chủ dự án chốt 14/09/2026) nên người dùng điện thoại
+ * chỉ gõ được dãy số liền — không có hàm này thì họ không nhập nổi một ngày nào. Nơi gọi chạy nó
+ * lúc RỜI Ô, không phải từng phím: chèn dấu giữa lúc đang gõ là con trỏ nhảy.
+ *
+ * **Không bao giờ đoán bừa.** Cửa `parseSeriesDate(…) !== null` là thứ giữ lời hứa đó: ghép không
+ * ra một ngày CÓ THẬT thì trả nguyên xi chuỗi người dùng gõ.
+ *
+ *   '07092026' → '07/09/2026'      lối Việt thử trước
+ *   '20250715' → '2025-07-15'      lối Việt ra '20/25/0715' sai tháng nên rơi xuống ISO
+ *   '1507'     → '15/07'
+ *   '2025'     → '2025'            ghép ra '20/25' sai tháng, trả nguyên
+ *   '1', '2'   → '1', '2'          số thứ tự phiên không có ứng viên nào, trả nguyên
+ */
+export function withSeriesDateSlashes(raw: string): string {
+  const text = raw.trim();
+  if (!/^\d+$/.test(text)) return raw;
+
+  const ungVien =
+    text.length === 8
+      ? [
+          `${text.slice(0, 2)}/${text.slice(2, 4)}/${text.slice(4)}`,
+          `${text.slice(0, 4)}-${text.slice(4, 6)}-${text.slice(6)}`,
+        ]
+      : text.length === 4
+        ? [`${text.slice(0, 2)}/${text.slice(2)}`]
+        : [];
+
+  return ungVien.find((ky) => parseSeriesDate(ky) !== null) ?? raw;
+}
+
 /** Khoá so sánh của một ngày đã đọc được. Không năm thì khoá chỉ gồm tháng và ngày. */
 function khoaNgay(date: SeriesDate): number {
   return date.year === null

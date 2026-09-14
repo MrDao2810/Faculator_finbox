@@ -74,6 +74,32 @@ describe('NumberCell — ô số của bảng WF-05 và bảng dòng tiền', ()
     expect(onValue).toHaveBeenLastCalledWith(null);
   });
 
+  /*
+   * Chặn chữ cái ở ô này còn sửa luôn một lỗi MẤT DỮ LIỆU, không chỉ là chuyện hiển thị: trước
+   * đây một phím bấm nhầm làm `parseViNumber` trả `null`, và `null` đi thẳng lên nơi gọi — giá
+   * đang có biến mất khỏi bảng.
+   */
+  it('gõ chữ vào ô đang có số thì KHÔNG đẩy null lên — không xoá mất giá', async () => {
+    const onValue = vi.fn();
+    render(<Bang start={100} onValue={onValue} />);
+
+    await userEvent.type(cell(), 'abc');
+
+    expect(cell().value).toBe('100');
+    for (const [value] of onValue.mock.calls) expect(value).toBe(100);
+  });
+
+  it('dán chuỗi lẫn chữ thì giữ lại phần số', async () => {
+    const onValue = vi.fn();
+    render(<Bang start={null} onValue={onValue} />);
+
+    await userEvent.click(cell());
+    await userEvent.paste('92.000 ₫');
+
+    expect(cell().value).toBe('92.000');
+    expect(onValue).toHaveBeenLastCalledWith(92_000);
+  });
+
   it('rời ô thì hiện lại bản dựng từ giá trị, không giữ chuỗi gõ dở', async () => {
     render(<Bang start={null} />);
 

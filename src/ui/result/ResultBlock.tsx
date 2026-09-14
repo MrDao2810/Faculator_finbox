@@ -57,17 +57,17 @@ export function ResultBlock({ output, interpretation, action, className }: Resul
   return (
     <div className={classes}>
       {/*
-        Nhãn FR-05 'cập nhật tức thì' đứng CÙNG HÀNG với chữ KẾT QUẢ, đúng bản vẽ Finbox_v2 —
-        trước đó nó nằm riêng ở góc dưới phải thẻ. Nó là ghi chú về CÁCH con số vận hành nên nó
-        thuộc về dòng nhãn chứ không phải một dòng riêng dưới đáy.
+        Dòng nhãn nay chỉ còn chữ KẾT QUẢ.
 
-        Hai `<span>` lồng chứ không một chuỗi ghép, và dấu chấm giữa do CSS sinh: xem docblock
-        `.eyebrow` trong `ResultBlock.module.css`.
+        Nhãn FR-05 'cập nhật tức thì' từng đứng cùng hàng ở đây (và trước nữa là ở góc dưới phải
+        thẻ) — chủ dự án chốt bỏ 14/09/2026, cùng mục #34 của bảng feedback. FR-05 vẫn giữ bằng
+        CHỨC NĂNG: gõ tới đâu con số đổi tới đó, người dùng thấy ngay ở lần gõ đầu. Xem `vi.ts`.
+
+        Một `<span>` trơn, không lồng thêm: ba ca kiểm ở `FormulaDetail.test.tsx` dò đúng chuỗi
+        'KẾT QUẢ' bằng `getByText`, vốn khớp TRỌN nội dung một thẻ — nên thẻ này phải chứa đúng
+        chừng ấy chữ, không kèm gì khác.
       */}
-      <span className={styles.eyebrow}>
-        <span>{t('result.eyebrow')}</span>
-        <span className={styles.live}>{t('result.live')}</span>
-      </span>
+      <span className={styles.eyebrow}>{t('result.eyebrow')}</span>
 
       <p className={styles.figure} aria-live="polite">
         <span className={styles.value}>{formatNumber(output.value)}</span>

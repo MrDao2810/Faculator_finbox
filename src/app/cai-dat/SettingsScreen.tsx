@@ -15,7 +15,6 @@ import {
   RECENT_SEARCHES_KEY,
   SAVED_CALCS_KEY,
   TICKER_LIST_KEY,
-  formatNumber,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { UnitSwitcher } from '@/ui/inputs';
@@ -53,11 +52,44 @@ type StorageLabelKey =
   | 'data.tickers'
   | 'data.prices';
 
-const STORAGE_ITEMS: ReadonlyArray<{
+/**
+ * Câu nói trong kho có gì — dòng phụ của mỗi hàng.
+ *
+ * Luôn đi kèm nhãn, nên union này là bản sao có hậu tố `.note` của union trên. Để rời nhau thì
+ * thêm một kho mới mà quên câu mô tả vẫn dịch được, và hàng ấy lại rơi về đúng cái dòng trống
+ * nghĩa mà đợt này vừa bỏ đi.
+ */
+type StorageNoteKey = `${StorageLabelKey}.note`;
+
+/**
+ * Cờ TẠM ẨN khối "Dữ liệu trên máy" — chủ dự án chốt 14/09/2026.
+ *
+ * Tạm, không phải bỏ. Bật lại là một dòng: đổi thành `true` và khối trở lại nguyên vẹn, kể cả bộ
+ * ca kiểm của nó — `SettingsScreen.test.tsx` đọc chính hằng này qua `describe.skipIf`, nên không
+ * có ca nào phải viết lại. Vì thế toàn bộ state của khối (`filled`, `undo`, `remove`,
+ * `removeAll`, `restore`) cố ý Ở LẠI chứ không gỡ theo.
+ *
+ * ⚠ **Trong lúc ẩn, người dùng không còn nút nào để xoá dữ liệu app giữ trên máy họ.** LDR-04 và
+ * NFR-SEC-01 đòi quyền ấy, và ở sản phẩm này không có tài khoản nào để đăng xuất, không có màn
+ * nào khác bày kho ra — nên đây là lối duy nhất. Chỗ duy nhất còn lại là xoá dữ liệu trang trong
+ * trình duyệt, tức người dùng phải tự biết đường. Chủ dự án đã biết và chọn tạm ẩn.
+ *
+ * `STORAGE_ITEMS` ngay dưới thì VẪN phải cập nhật khi thêm kho mới, dù khối đang ẩn — cửa gác
+ * "mọi kho khai trong src/application đều xoá được" nay đọc thẳng mảng ấy chứ không đọc màn, đúng
+ * vì lý do này: bản kiểm kê mà mục ra trong lúc khối ẩn thì lúc bật lại nó thiếu, và đó chính là
+ * con bọ đã xảy ra hai lần.
+ *
+ * Kiểu `boolean` chứ không để suy ra `false`: kiểu literal làm mọi nhánh dùng nó thành mã chết
+ * trong mắt TypeScript lẫn ESLint, và nhánh chết thì không ai còn sửa khi nó đang ngủ.
+ */
+export const HIEN_KHOI_DU_LIEU: boolean = false;
+
+export const STORAGE_ITEMS: ReadonlyArray<{
   key: string;
   labelKey: StorageLabelKey;
+  noteKey: StorageNoteKey;
 }> = [
-  { key: PREFERENCES_STORAGE_KEY, labelKey: 'data.prefs' },
+  { key: PREFERENCES_STORAGE_KEY, labelKey: 'data.prefs', noteKey: 'data.prefs.note' },
   /*
    * Ba kho "lịch sử" đứng cạnh nhau: cùng loại dữ liệu, cùng lý do người dùng muốn xoá.
    *
@@ -65,21 +97,21 @@ const STORAGE_ITEMS: ReadonlyArray<{
    * này không lẫn sang màn kia (xem docblock `recent-searches.ts`). Nhãn phải nói ra màn nào,
    * nếu không ở đây hiện hai dòng trông y hệt nhau mà xoá ra hai kết quả khác.
    */
-  { key: RECENT_SEARCHES_KEY, labelKey: 'data.recent' },
-  { key: HOME_RECENT_SEARCHES_KEY, labelKey: 'data.recentHome' },
-  { key: FORMULA_USAGE_KEY, labelKey: 'data.usage' },
-  { key: PRICE_SERIES_KEY, labelKey: 'data.series' },
-  { key: PORTFOLIO_KEY, labelKey: 'data.portfolio' },
-  { key: SAVED_CALCS_KEY, labelKey: 'data.saved' },
+  { key: RECENT_SEARCHES_KEY, labelKey: 'data.recent', noteKey: 'data.recent.note' },
+  { key: HOME_RECENT_SEARCHES_KEY, labelKey: 'data.recentHome', noteKey: 'data.recentHome.note' },
+  { key: FORMULA_USAGE_KEY, labelKey: 'data.usage', noteKey: 'data.usage.note' },
+  { key: PRICE_SERIES_KEY, labelKey: 'data.series', noteKey: 'data.series.note' },
+  { key: PORTFOLIO_KEY, labelKey: 'data.portfolio', noteKey: 'data.portfolio.note' },
+  { key: SAVED_CALCS_KEY, labelKey: 'data.saved', noteKey: 'data.saved.note' },
   /*
    * Bản nháp ô nhập đứng NGAY SAU phép tính đã lưu, vì người dùng dễ nhầm hai thứ này với nhau.
    * Khác nhau ở chỗ chủ động: "Phép tính đã lưu" là thứ họ tự bấm nút lưu và tự đặt tên; kho này
    * ghi lặng lẽ mỗi lần họ gõ, chỉ để số không bốc hơi khi rời màn, và tự hết hạn sau bảy ngày.
    */
-  { key: INPUT_DRAFT_KEY, labelKey: 'data.drafts' },
+  { key: INPUT_DRAFT_KEY, labelKey: 'data.drafts', noteKey: 'data.drafts.note' },
   // Hai kho tạm của tab Danh mục. Xoá chỉ mất bộ nhớ đệm, lần mở sau tự lấy lại từ nguồn.
-  { key: TICKER_LIST_KEY, labelKey: 'data.tickers' },
-  { key: PRICE_CACHE_KEY, labelKey: 'data.prices' },
+  { key: TICKER_LIST_KEY, labelKey: 'data.tickers', noteKey: 'data.tickers.note' },
+  { key: PRICE_CACHE_KEY, labelKey: 'data.prices', noteKey: 'data.prices.note' },
 ];
 
 /**
@@ -139,14 +171,22 @@ interface UndoState {
   raw: string;
 }
 
-/** Cỡ một mục trong localStorage, tính bằng ký tự. `null` nghĩa là chưa có gì. */
-function sizeOf(key: string): number | null {
+/**
+ * Kho này đã có gì chưa.
+ *
+ * Trước đợt này hàm trả về ĐỘ DÀI chuỗi để in ra màn ("98 ký tự"). Con số ấy đã bỏ — chủ dự án
+ * chỉ vào đúng nó: *"không có nghĩa"* — nên thứ màn hình còn cần chỉ là có/không: nó quyết định
+ * dòng phụ có kèm chữ "Chưa có gì" hay không, và nút xoá của hàng có bấm được hay không.
+ *
+ * Trả `boolean` chứ không giữ lại con số "phòng khi cần": một giá trị không ai đọc là một lời mời
+ * in nó ra màn lần nữa.
+ */
+function coDuLieu(key: string): boolean {
   try {
-    const raw = window.localStorage.getItem(key);
-    return raw === null ? null : raw.length;
+    return window.localStorage.getItem(key) !== null;
   } catch {
     // Trình duyệt chặn localStorage (chế độ riêng tư của Safari) — coi như chưa lưu gì.
-    return null;
+    return false;
   }
 }
 
@@ -164,17 +204,26 @@ export function SettingsScreen() {
   const t = useT();
   const pick = usePick();
 
-  const [sizes, setSizes] = useState<ReadonlyArray<number | null>>(() =>
-    STORAGE_ITEMS.map(() => null),
+  /**
+   * Kho nào đang có dữ liệu — đúng một cờ mỗi hàng.
+   *
+   * Khởi tạo TOÀN `false` chứ không đọc kho ngay: bản build là HTML tĩnh nên lượt render đầu ở
+   * máy khách phải giống hệt lúc build (bài học đợt 2). Hệ quả nhìn thấy được: khoảnh khắc đầu
+   * mọi hàng đều mang nhãn "Chưa có gì", rồi effect ngay dưới sửa lại — chấp nhận được vì nhãn ấy
+   * chỉ là chú thích cho nút xoá đang mờ, không phải một con số người dùng đọc để ra quyết định.
+   */
+  const [filled, setFilled] = useState<ReadonlyArray<boolean>>(() =>
+    STORAGE_ITEMS.map(() => false),
   );
 
-  const refreshSizes = useCallback(() => {
-    setSizes(STORAGE_ITEMS.map((item) => sizeOf(item.key)));
+  /** Đọc lại kho rồi đồng bộ cờ — gọi lúc mở màn và sau mỗi lần xoá / hoàn tác. */
+  const dongBoTrangThai = useCallback(() => {
+    setFilled(STORAGE_ITEMS.map((item) => coDuLieu(item.key)));
   }, []);
 
-  useEffect(refreshSizes, [refreshSizes]);
+  useEffect(dongBoTrangThai, [dongBoTrangThai]);
 
-  const stored = sizes.filter((size) => size !== null).length;
+  const stored = filled.filter(Boolean).length;
 
   /*
    * ── Hoàn tác sau khi xoá một kho ────────────────────────────────────────────
@@ -240,7 +289,7 @@ export function SettingsScreen() {
     } catch {
       // Xoá không được thì con số trên màn vẫn phải nói đúng sự thật — nên đọc lại ngay dưới.
     }
-    refreshSizes();
+    dongBoTrangThai();
 
     // Không đọc được gì thì không có gì để hoàn tác: đừng mời một nút không làm được việc.
     setSecondsLeft(UNDO_SECONDS);
@@ -255,7 +304,7 @@ export function SettingsScreen() {
       // Hết chỗ hoặc bị chặn — đọc lại ngay dưới nên con số trên màn vẫn nói đúng sự thật.
     }
     setUndo(null);
-    refreshSizes();
+    dongBoTrangThai();
   }
 
   function removeAll(): void {
@@ -269,7 +318,7 @@ export function SettingsScreen() {
     }
     // Bản sao đang giữ để hoàn tác nay trỏ vào một kho vừa bị xoá lần thứ hai — bỏ đi.
     setUndo(null);
-    refreshSizes();
+    dongBoTrangThai();
     // Tải lại để mọi màn đọc lại tuỳ chọn mặc định — nếu không thì trên màn vẫn là bộ cũ.
     window.location.reload();
   }
@@ -371,34 +420,47 @@ export function SettingsScreen() {
       </div>
 
       <div className={styles.col}>
-        {/* ── 3. Dữ liệu cục bộ — LDR-04, NFR-SEC-01 ───────────────────────── */}
-        <section className={styles.block}>
-          <h2 className={styles.blockTitle}>
-            <SectionIcon d={SECTION_ICONS.data} />
-            {t('settings.data.title')}
-          </h2>
-          {/*
+        {/* ── 3. Dữ liệu cục bộ — LDR-04, NFR-SEC-01. TẠM ẨN, xem `HIEN_KHOI_DU_LIEU` ────── */}
+        {HIEN_KHOI_DU_LIEU && (
+          <section className={styles.block}>
+            <h2 className={styles.blockTitle}>
+              <SectionIcon d={SECTION_ICONS.data} />
+              {t('settings.data.title')}
+            </h2>
+            {/*
           ⚠ Câu "Mọi thứ dưới đây nằm trong trình duyệt của bạn và không được gửi đi đâu" đã bỏ
           (chủ dự án chốt). Cùng đợt với dải "CỤC BỘ" ở màn Danh mục — xem docblock ở đó: sau hai
           lượt ấy sản phẩm không còn câu nào TRÊN MÀN nói về dữ liệu rời máy.
         */}
 
-          <ul className={styles.dataList}>
-            {STORAGE_ITEMS.map((item, index) => {
-              const size = sizes[index] ?? null;
-              return (
-                <li key={item.key} className={styles.dataRow}>
-                  <span className={styles.rowText}>
-                    <span className={styles.rowLabel}>{t(item.labelKey)}</span>
-                    <span className={styles.rowHint}>
-                      <code className={styles.key}>{item.key}</code>
-                      {size === null
-                        ? ` · ${t('data.empty')}`
-                        : ` · ${formatNumber(size)} ${t('data.chars')}`}
-                    </span>
-                  </span>
+            <ul className={styles.dataList}>
+              {STORAGE_ITEMS.map((item, index) => {
+                const coGi = filled[index] ?? false;
+                return (
+                  /*
+                Khoá kho đi vào THUỘC TÍNH, không đi vào chữ trên màn.
 
-                  {/*
+                Chủ dự án chốt ẩn hẳn `ffb.…v1`: màn Cài đặt là chỗ của người dùng, không phải chỗ
+                debug. Nhưng cửa gác "mọi kho khai trong src/application đều xoá được ở màn này"
+                phải còn soi được từng hàng — nó đã thủng hai lần thật (`ffb.tickers.v1`,
+                `ffb.prices.v1` nằm trên máy người dùng mà không có nút xoá nào). Nên khoá vẫn nằm
+                trong DOM, chỉ là không hiện thành chữ; `SettingsScreen.test.tsx` đọc `data-key`.
+              */
+                  <li key={item.key} className={styles.dataRow} data-key={item.key}>
+                    <span className={styles.rowText}>
+                      <span className={styles.rowHead}>
+                        <span className={styles.rowLabel}>{t(item.labelKey)}</span>
+                        {/*
+                      "Chưa có gì" chỉ hiện khi kho rỗng, và nó là lời giải thích cho nút xoá đang
+                      mờ ngay bên cạnh. Kho có dữ liệu thì không cần nhãn nào: nút xoá bấm được đã
+                      nói đủ, còn thêm chữ "đang lưu" vào chín hàng là chín lần nhiễu.
+                    */}
+                        {!coGi && <span className={styles.rowEmpty}>{t('data.empty')}</span>}
+                      </span>
+                      <span className={styles.rowHint}>{t(item.noteKey)}</span>
+                    </span>
+
+                    {/*
                   Nút xoá chỉ còn icon thùng rác trên nền đỏ nhạt — bản thiết kế đợt 12.
 
                   `aria-label` PHẢI đúng chuỗi `data.remove` ('Xoá'): tên khả truy cập của nút là
@@ -410,23 +472,23 @@ export function SettingsScreen() {
                   — thứ không đoán trước được. Vòng focus vẫn có, do luật `:focus-visible` chung
                   trong globals.css.
                 */}
-                  <button
-                    type="button"
-                    className={styles.removeButton}
-                    aria-label={t('data.remove')}
-                    disabled={size === null}
-                    onClick={() => {
-                      remove(item.key, item.labelKey);
-                    }}
-                  >
-                    <SectionIcon d={SECTION_ICONS.remove} />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    <button
+                      type="button"
+                      className={styles.removeButton}
+                      aria-label={t('data.remove')}
+                      disabled={!coGi}
+                      onClick={() => {
+                        remove(item.key, item.labelKey);
+                      }}
+                    >
+                      <SectionIcon d={SECTION_ICONS.remove} />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
 
-          {/*
+            {/*
           Vùng thông báo LUÔN có mặt, rỗng khi chưa xoá gì.
 
           Sinh một `role="status"` cùng lúc với nội dung của nó thì trình đọc màn hình không đọc
@@ -436,24 +498,53 @@ export function SettingsScreen() {
           Đặt NGOÀI `<ul>` chứ không thành một `<li>` thứ chín: danh sách kia là bản kiểm kê tám
           kho, và ca kiểm cửa gác duyệt từng `listitem` để đọc `<code>` bên trong.
         */}
-          <div className={styles.undoSlot} role="status" aria-live="polite">
-            {undo !== null && (
-              <p className={styles.undoBar}>
-                <span className={styles.undoText}>
-                  {t('data.removed')} {t(undo.labelKey)} · {t('data.undoIn')} {secondsLeft}{' '}
-                  {t('data.seconds')}
-                </span>
-                <Button ref={undoButtonRef} variant="secondary" size="sm" onClick={restore}>
-                  {t('data.undo')}
-                </Button>
-              </p>
-            )}
-          </div>
+            <div className={styles.undoSlot} role="status" aria-live="polite">
+              {undo !== null && (
+                <p className={styles.undoBar}>
+                  <span className={styles.undoText}>
+                    {t('data.removed')} {t(undo.labelKey)} · {t('data.undoIn')} {secondsLeft}{' '}
+                    {t('data.seconds')}
+                  </span>
+                  <Button ref={undoButtonRef} variant="secondary" size="sm" onClick={restore}>
+                    {t('data.undo')}
+                  </Button>
+                </p>
+              )}
+            </div>
 
-          <Button variant="secondary" size="sm" disabled={stored === 0} onClick={removeAll}>
-            {t('data.clearAll')}
-          </Button>
-        </section>
+            <Button variant="secondary" size="sm" disabled={stored === 0} onClick={removeAll}>
+              {t('data.clearAll')}
+            </Button>
+          </section>
+        )}
+
+        {/*
+          Bản RÚT GỌN, dựng khi bản kiểm kê đang ẩn — chủ dự án chốt 14/09/2026.
+
+          Chỉ tiêu đề và một nút, đúng yêu cầu: *"nếu có hệ quả là không thể xoá dữ liệu app giữ
+          trên máy thì tạm thời làm một button… chỉ cần button trong ảnh và text 'Dữ liệu của bạn'
+          còn lại thì không cần thêm"*. Không dải "CỤC BỘ", không câu mô tả — hai thứ ấy đã bỏ
+          09/09/2026 và không dựng lại.
+
+          Nhờ nó, khối 3 LUÔN có mặt: quyền xoá dữ liệu của LDR-04 · NFR-SEC-01 không đứt quãng
+          trong lúc bản đầy đủ ngủ, và bố cục hai cột của màn không đổi (phép kiểm
+          `chrome-check.mjs` vẫn đếm đúng bốn khối).
+
+          `variant="danger"` chứ không `secondary`: nút này xoá SẠCH mọi kho trong một cú bấm, và
+          nay nó đứng một mình chứ không còn chín nút xoá từng dòng ở trên để đặt nó vào ngữ cảnh.
+          Vẫn hỏi lại qua `window.confirm` như cũ.
+        */}
+        {!HIEN_KHOI_DU_LIEU && (
+          <section className={styles.block}>
+            <h2 className={styles.blockTitle}>
+              <SectionIcon d={SECTION_ICONS.data} />
+              {t('settings.data.title')}
+            </h2>
+            <Button variant="danger" size="sm" disabled={stored === 0} onClick={removeAll}>
+              {t('data.clearAll')}
+            </Button>
+          </section>
+        )}
 
         {/* ── 4. Về sản phẩm ───────────────────────────────────────────────── */}
         <section className={styles.block}>

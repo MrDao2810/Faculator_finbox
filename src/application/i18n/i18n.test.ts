@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import { DISCLAIMER_VI } from '@/core/disclaimer';
+import { findFormulaModule } from '@/core/formulas';
 import { UNIT_SCALES } from '@/core/format';
 import { COLUMN_LABELS } from '@/core/paste-import';
 
@@ -142,6 +143,34 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
     for (const kind of kinds) {
       expect(vi[`paste.col.${kind}`]).toBe(COLUMN_LABELS[kind]);
     }
+  });
+
+  /*
+   * Dây neo thứ ba, và nó neo Ý chứ không neo CHỮ.
+   *
+   * Ô nhập beta ở form Danh mục và công thức `beta` trong Registry nói về cùng một khái niệm, ở hai
+   * chỗ người dùng gặp cách nhau vài cú bấm. Hai cách giải thích khác nhau cho cùng một khái niệm
+   * là thứ làm người đọc ngờ chính mình hiểu sai.
+   *
+   * Không so từng chữ như hai ca trên: một câu gợi ý trong form và một đoạn `meaning` đầy đủ vốn dĩ
+   * phải khác độ dài. Cái ghim được là MỎ NEO — cùng con số ví dụ, cùng tên chỉ số.
+   *
+   * Ca này thêm ngày 14/09/2026 khi chủ dự án báo câu gợi ý cũ khó hiểu: nó chỉ nói vì sao sản phẩm
+   * CHƯA tính được beta, mà không nói beta là gì — tức chỉ có nghĩa với người đã biết. Vế cuối giữ
+   * đúng điều đó khỏi quay lại.
+   */
+  it('gợi ý beta ở form Danh mục dùng chung mỏ neo với công thức beta của Registry', () => {
+    const meaning = findFormulaModule('beta')?.spec.explanation.meaning.vi ?? '';
+    // Canary: đổi ví dụ bên Registry mà quên bên này thì phải đỏ ở đây, không đỏ mơ hồ bên dưới.
+    expect(meaning, 'công thức beta thôi dùng ví dụ 1,5 — soi lại câu gợi ý ở form').toContain(
+      '1,5',
+    );
+
+    const hint = vi['portfolio.betaHint'];
+    expect(hint).toContain('1,5');
+    expect(hint).toContain('VN-Index');
+    // Và vế "vì sao phải nhập tay" vẫn phải còn — nó là lý do ô này bắt người dùng tự gõ.
+    expect(hint).toMatch(/nhập tay/);
   });
 });
 

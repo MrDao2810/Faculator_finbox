@@ -274,6 +274,19 @@ for (const [palette, tokens] of PALETTES) {
     });
 
     /*
+     * Dải kêu gọi cuối màn "Về chúng tôi" đặt chữ MỰC lên nền nhấn nhạt — cặp thứ hai mà
+     * `--color-accent-soft` phải gánh, bên cạnh cặp chip ngay trên.
+     *
+     * Tách ca riêng vì trước đợt này `--color-accent-soft` chỉ từng đỡ đúng một màu chữ. Một dải
+     * chữ mực trên nền ấy đi qua mà không cửa nào đo, và nó là khối chữ DÀI nhất của trang chứ
+     * không phải một nhãn chip vài từ. Chấm cả hai bậc mực vì dòng mô tả của dải dùng bậc nhạt.
+     */
+    it('chữ mực đọc được trên nền nhấn nhạt — dải kêu gọi ở màn Về chúng tôi', () => {
+      expect(meetsContrast(color('--color-ink'), color('--color-accent-soft'))).toBe(true);
+      expect(meetsContrast(color('--color-ink-soft'), color('--color-accent-soft'))).toBe(true);
+    });
+
+    /*
      * Chữ tab chưa chọn trên khay của chính cụm tab.
      *
      * Ca RIÊNG chứ không thêm `--color-tab-tray` vào danh sách `backgrounds` bên trên: làm thế là

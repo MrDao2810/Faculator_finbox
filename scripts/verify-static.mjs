@@ -257,6 +257,59 @@ check(
   '0 tài sản kèm theo',
 );
 
+/* ── Màn "Về chúng tôi" ──────────────────────────────────────────────────── */
+
+let aboutHtml = '';
+try {
+  aboutHtml = readFileSync('out/ve-chung-toi/index.html', 'utf8');
+} catch {
+  // check dưới tự trượt.
+}
+
+/*
+ * Màn này là SERVER component có chủ đích: toàn bộ prose phải nằm sẵn trong HTML tĩnh, vì đó là
+ * thứ bộ máy tìm kiếm đọc và cũng là thứ hiện ra khi JavaScript chưa tải. Kiểm hai đoạn chữ ở hai
+ * đầu trang chứ không chỉ một, để "trang có dựng" và "trang dựng ĐỦ" là hai điều khác nhau.
+ */
+check(
+  'màn Về chúng tôi dựng sẵn prose trong HTML tĩnh, không phải đảo client',
+  aboutHtml !== '' &&
+    !aboutHtml.includes(BAILOUT) &&
+    aboutHtml.includes('đồ thị phụ thuộc') &&
+    aboutHtml.includes('Faculator không phải là gì'),
+);
+
+/*
+ * Đúng MỘT `<h1>`. Màn này cố ý đứng ngoài `HEADER_TITLES` để dải mở đầu tự mang tiêu đề — thêm
+ * nó vào bảng mà quên gỡ hero là trang có hai tiêu đề cấp một. Xem `routes.ts`.
+ */
+check(
+  'màn Về chúng tôi có đúng một <h1> — hero tự mang tiêu đề',
+  (aboutHtml.match(/<h1[\s>]/g) ?? []).length === 1,
+  `${String((aboutHtml.match(/<h1[\s>]/g) ?? []).length)} thẻ h1`,
+);
+
+/*
+ * Bản vẽ có hai nút; chủ dự án bỏ nút "Cài lên thiết bị" vì làm thật thì phải bắt
+ * `beforeinstallprompt`, thứ Safari iOS không có. Cửa này chặn nút ấy quay lại khi ai đó mở lại
+ * bản vẽ, và chặn luôn chiều ngược lại — nút CTA biến mất thì trang mất đường ra duy nhất.
+ */
+check(
+  'dải kêu gọi có đúng một nút, trỏ về /cong-thuc/',
+  (aboutHtml.match(/class="[^"]*ctaAction/g) ?? []).length === 1,
+);
+
+/*
+ * Ảnh minh hoạ là tài sản do người dựng chép tay vào `public/`, không phải thứ build sinh ra —
+ * nên quên chép thì mọi thứ vẫn xanh và chỉ có một ô vỡ giữa trang. Kiểm cả kích thước khai trong
+ * thẻ: đó là thứ chừa sẵn khung cho ảnh, thiếu là trang giật khi ảnh về.
+ */
+check(
+  'ảnh minh hoạ có trong out/ và thẻ khai sẵn kích thước',
+  existsSync('out/about-hero.png') && /<img[^>]+width="1040"[^>]+height="716"/.test(aboutHtml),
+  existsSync('out/about-hero.png') ? '' : 'thiếu public/about-hero.png',
+);
+
 /* ── Trang 404 (đợt 14) ──────────────────────────────────────────────────── */
 
 let notFoundHtml = '';

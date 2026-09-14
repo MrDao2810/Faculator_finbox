@@ -119,6 +119,22 @@ describe('ResultBlock giao việc báo lỗi cho ErrorState', () => {
     expect(screen.getByRole('alert')).not.toBeNull();
   });
 
+  /*
+   * Chiều NGƯỢC của một lần bỏ chữ, ghim lại để không ai dựng lại mà không đọc lý do.
+   *
+   * Nhãn 'cập nhật tức thì' (FR-05) từng nằm cùng hàng với chữ KẾT QUẢ; chủ dự án chốt bỏ
+   * 14/09/2026 — cũng là mục #34 của bảng feedback test nội bộ. Điều khoản ấy nay giữ bằng CHỨC
+   * NĂNG: ca "đổi ô nhập thì kết quả đổi theo" ở `FormulaDetail.test.tsx` mới là chỗ chứng minh
+   * nó, và đó là chỗ đúng — một nhãn dán chỉ nói rằng sản phẩm làm việc đó.
+   */
+  it('dòng nhãn chỉ còn chữ KẾT QUẢ, không còn nhãn "cập nhật tức thì"', () => {
+    const { container } = render(<ResultBlock output={ok(15.21, 'lần')} />);
+
+    expect(container.textContent ?? '').not.toContain('ập nhật tức thì');
+    // Và chữ KẾT QUẢ phải đứng một mình trong thẻ của nó — ba ca ở FormulaDetail dò đúng chuỗi ấy.
+    expect(screen.getByText('KẾT QUẢ')).not.toBeNull();
+  });
+
   it('hiện câu diễn giải kết quả — khối 4 của WF-03', () => {
     render(
       <ResultBlock

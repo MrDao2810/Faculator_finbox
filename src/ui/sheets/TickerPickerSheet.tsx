@@ -148,6 +148,14 @@ export function TickerPickerSheet({
       title={t('ticker.title')}
       subtitle={t('ticker.subtitle')}
       dismiss={dismiss}
+      /*
+       * Ghim chiều cao tấm — xem `BottomSheetProps.size`.
+       *
+       * Ô lọc nằm ngay trong thân sheet này, và số dòng đổi theo từng ký tự: mở ra là 60 dòng
+       * (chạm trần), gõ "vnm" còn một. Để tấm co theo nội dung thì nó tụt từ gần hết màn xuống
+       * chừng hai đốt ngón tay ngay giữa lúc người dùng đang gõ, kéo cả ô tìm kiếm chạy theo.
+       */
+      size="tall"
     >
       <label className="visually-hidden" htmlFor="ticker-search">
         {t('ticker.searchLabel')}

@@ -7,7 +7,6 @@ import type { CalcContext, CalcInputs, CalcOutput, FormulaModule, Level } from '
 import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
-import { ApplyHint } from './ApplyHint';
 import { ChartFrame } from './ChartFrame';
 import { ChartFullscreen } from './ChartFullscreen';
 import { ChartKindToggle } from './ChartKindToggle';
@@ -190,31 +189,18 @@ export function ChartBody({
     lockedKeys?.has(model.sweepKey) !== true;
 
   /*
-   * Có dựng dòng "trục đang là thời gian nên bấm không ghi được gì" không.
+   * ── Dòng gợi ý dưới hình đã BỎ HẲN ─────────────────────────────────────────────────────────
    *
-   * Ba điều kiện, đọc từ trên xuống là ba lý do im lặng:
+   * Ở đây từng có `chiDuongDoiTruc` + component `ApplyHint`, dựng câu "Trục đang là thời gian nên
+   * bấm không ghi được gì — đổi mục 'Xem kết quả đổi theo' ở trên sang một biến số…". Chủ dự án
+   * chốt bỏ ngày 14/09/2026; câu khẳng định đi cùng nó ("Bấm vào biểu đồ để áp dụng…") đã bỏ từ
+   * một đợt trước, nên nay dưới hình không còn dòng gợi ý nào.
    *
-   *   - biểu đồ không phải dạng đường, hoặc tính năng không bật ở màn này (`onApplyPoint` vắng)
-   *     — không có gì để chỉ;
-   *   - trục X ĐANG là một biến thật (`canApplyPoint`) — bấm ăn ngay, không có gì để giải thích;
-   *   - không trục nào đổi sang mà bấm được — chỉ đường tới một chỗ không tồn tại thì tệ hơn im.
-   *
-   * Trước đây đây là ba TRẠNG THÁI, vì còn một câu khẳng định "bấm vào biểu đồ để áp dụng…" cho
-   * nhánh giữa. Chủ dự án chốt bỏ câu ấy (xem docblock `ApplyHint`), nên nhánh giữa thành im lặng
-   * và cả cụm rút về một cờ bật/tắt.
-   *
-   * Tính MỘT lần ở đây rồi truyền cả hai bản (trên trang và phóng to), để câu trả lời cho "khi nào
-   * nói" chỉ sống ở một chỗ.
+   * Cái giá, ghi lại vì nó không hiện ra ở đâu khác: bấm vào hình khi trục X là THỜI GIAN vẫn
+   * không ghi gì vào ô Số liệu, và nay không còn câu nào nói ra điều đó — người dùng bấm thử rồi
+   * tự đoán. Tính năng KHÔNG bị gỡ: `canApplyPoint`, con trỏ và vạch dò giữ nguyên, đổi trục sang
+   * một biến số thì bấm vẫn ăn như cũ.
    */
-  const chiDuongDoiTruc: boolean =
-    model.kind === 'line' &&
-    onApplyPoint !== undefined &&
-    !canApplyPoint &&
-    model.options.some(
-      (option) =>
-        formula.spec.variables.some((v) => v.key === option.key) &&
-        lockedKeys?.has(option.key) !== true,
-    );
 
   /*
    * Gốc của mọi `id` trong cây biểu đồ — sinh từ prop, KHÔNG từ `useId()`.
@@ -317,15 +303,12 @@ export function ChartBody({
         {model.kind === 'waterfall' ? (
           <WaterfallChart model={model} idBase={idBase} />
         ) : (
-          <>
-            <LineChart
-              model={model}
-              idBase={idBase}
-              variant={variant}
-              onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
-            />
-            {chiDuongDoiTruc && <ApplyHint />}
-          </>
+          <LineChart
+            model={model}
+            idBase={idBase}
+            variant={variant}
+            onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
+          />
         )}
       </ChartFrame>
 
@@ -339,7 +322,6 @@ export function ChartBody({
           idBase={`${idBase}-full`}
           controls={pickerVoi(`${idBase}-full`)}
           onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
-          axisHint={chiDuongDoiTruc}
           variant={variant}
         />
       ) : null}

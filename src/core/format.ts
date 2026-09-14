@@ -155,6 +155,37 @@ export function formatIsoDate(iso: string): string {
 const MINUS_SIGNS = /[−–—]/g;
 
 /**
+ * Mọi ký tự KHÔNG được phép có mặt trong một ô số: nghịch của tập chữ số, dấu phẩy (thập phân
+ * VN), dấu chấm (ngăn nghìn VN) và bốn dấu trừ — '-' thường cùng ba dấu Unicode của `MINUS_SIGNS`.
+ */
+const NOT_VI_NUMBER = /[^\d,.\-−–—]/g;
+
+/**
+ * Bỏ khỏi chuỗi mọi ký tự không thuộc về một con số — cửa chặn chữ cái của MỌI ô nhập số.
+ *
+ * Bốn điều cần biết trước khi sửa hàm này:
+ *
+ * 1. **Đây là cửa KÝ TỰ, không phải cửa ngữ nghĩa.** Nó chỉ trả lời "ký tự này có được xuất hiện
+ *    không"; còn "chuỗi này có phải MỘT con số không" vẫn là việc của `parseViNumber()` ngay dưới.
+ *    Nên '4-4', '1,2,3' và '..' đều LỌT qua đây rồi bị `parseViNumber()` trả `null`, y hệt trước
+ *    khi có hàm này. Đừng thêm luật kiểu "chỉ một dấu trừ và phải ở đầu": luật ấy sẽ xoá ký tự
+ *    ngay dưới ngón tay người đang sửa '-45' ở giữa chuỗi.
+ * 2. **KHÔNG chuẩn hoá dấu trừ Unicode về '-'.** `parseViNumber()` đã làm việc đó ở dòng đầu của
+ *    nó. Đổi ký tự tại đây là sửa thứ người dùng đang nhìn thấy trong ô — đúng thứ quy tắc 1 của
+ *    `NumberInput` cấm ("không sửa giá trị dưới tay người đang gõ").
+ * 3. **Bỏ cả khoảng trắng, có chủ ý.** Chủ dự án chốt: dán '92.000 ₫' phải ra đúng '92.000', giữ
+ *    khoảng trắng thì ô còn dấu cách thừa ở đuôi. Kèm theo đó '92 000' ra '92000', và
+ *    `parseViNumber()` đọc được 92000 — đúng ý người dán.
+ * 4. **Ca hiếm đã biết:** `rawViNumber()` cho ra dạng mũ với số cực lớn ('1e+21'); gõ thêm vào ô
+ *    đang giữ chuỗi ấy sẽ mất 'e' và '+'. Không chặn, vì chặn nghĩa là cho chữ 'e' lọt vào MỌI ô
+ *    số — đắt hơn nhiều so với một ca nằm ngoài miền giá trị thật của sản phẩm (`max` lớn nhất
+ *    trong Registry chỉ tới hàng triệu).
+ */
+export function keepViNumberChars(text: string): string {
+  return text.replace(NOT_VI_NUMBER, '');
+}
+
+/**
  * Đọc chuỗi người dùng gõ thành số.
  *
  * Chấp nhận cả hai lối viết vì người dùng gõ lẫn lộn: '92.000' và '92000' đều ra 92000,

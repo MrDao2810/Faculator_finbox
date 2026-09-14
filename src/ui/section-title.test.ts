@@ -43,6 +43,7 @@ const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> 
   ['app/cong-thuc/[id]/FormulaDetail.module.css', 'blockTitle'],
   ['app/danh-muc/PortfolioScreen.module.css', 'blockTitle'],
   ['app/page.module.css', 'blockTitle'],
+  ['app/ve-chung-toi/AboutScreen.module.css', 'blockTitle'],
   ['ui/screens/ChainBody.module.css', 'title'],
   ['ui/screens/FeeTaxBody.module.css', 'blockTitle'],
   ['ui/screens/LoanScheduleBody.module.css', 'blockTitle'],

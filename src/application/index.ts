@@ -37,6 +37,7 @@ export {
   formatIsoDate,
   formatNumber,
   formatValueWithUnit,
+  keepViNumberChars,
   parseViNumber,
   rawViNumber,
   scaleToDong,
@@ -100,9 +101,11 @@ export {
   checkSeries,
   closesOf,
   emptyRow,
+  keepSeriesDateChars,
   parseSeriesDate,
   sortRowsByDate,
   toCsv,
+  withSeriesDateSlashes,
 } from '@/core/price-series';
 
 // ── Dòng tiền có ngày sửa tay — thân riêng của XIRR (gói WBS 3.3.1) ─────────

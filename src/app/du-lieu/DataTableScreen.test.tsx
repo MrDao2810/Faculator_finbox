@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -94,6 +95,12 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
     expect(oNgay.getAttribute('placeholder')).toBeNull();
   });
 
+  /*
+   * Cột Ngày để `inputMode="text"` cho tới 14/09/2026, ngày chủ dự án chốt đưa nó vào cùng luật với
+   * các ô số: bàn phím số, không chữ cái. Đổi dòng ghim này phải đọc kèm cái bẫy đi liền — bàn phím
+   * số KHÔNG có phím '/', nên `withSeriesDateSlashes()` lúc rời ô là phần bù bắt buộc. Ai gỡ nó là
+   * khoá người dùng điện thoại ra khỏi cột này; hai ca dưới giữ đúng chỗ đó.
+   */
   it('bàn phím số của điện thoại mở đúng loại cho từng cột', async () => {
     napBang();
     moMan();
@@ -101,7 +108,47 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
     expect((await screen.findByLabelText('Dòng 1 · Đóng')).getAttribute('inputmode')).toBe(
       'decimal',
     );
-    expect((await screen.findByLabelText('Dòng 1 · Ngày')).getAttribute('inputmode')).toBe('text');
+    expect((await screen.findByLabelText('Dòng 1 · Ngày')).getAttribute('inputmode')).toBe(
+      'numeric',
+    );
+  });
+
+  it('ô Ngày không nhận chữ cái, chỉ chữ số và dấu ngăn', async () => {
+    napBang([{ date: '', open: null, high: null, low: null, close: 100, volume: null }]);
+    moMan();
+
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+    await userEvent.type(oNgay, 'ngày 15/07');
+
+    expect(oNgay.value).toBe('15/07');
+  });
+
+  it('gõ tám chữ số rồi rời ô thì tự thành ngày có dấu ngăn', async () => {
+    napBang([{ date: '', open: null, high: null, low: null, close: 100, volume: null }]);
+    moMan();
+
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+    await userEvent.type(oNgay, '07092026');
+    expect(oNgay.value).toBe('07092026');
+
+    await userEvent.tab();
+
+    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe('07/09/2026');
+  });
+
+  /* Chuỗi minh hoạ trang Beta ghi số thứ tự phiên vào cột này — chạm vào rồi rời ra không được đổi. */
+  it('số thứ tự phiên vẫn gõ được, không bị chèn dấu', async () => {
+    napBang();
+    moMan();
+
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+    const truoc = oNgay.value;
+    expect(truoc).toMatch(/^\d$/);
+
+    await userEvent.click(oNgay);
+    await userEvent.tab();
+
+    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe(truoc);
   });
 });
 

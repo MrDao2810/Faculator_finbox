@@ -43,6 +43,21 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/*
+ * Dạng "cao cố định" — thân sheet giữ nguyên chiều cao dù nội dung bên trong dài ngắn thế nào.
+ *
+ * Chỉ sheet nào có ô LỌC ngay trong thân mới cần đến nó. Sheet chọn mã mở ra với 60 dòng nên
+ * chạm trần 88dvh; gõ thêm một ký tự là còn một dòng, và một tấm co theo nội dung sẽ tụt từ gần
+ * hết màn xuống chừng hai đốt ngón tay — kéo theo cả ô tìm kiếm chạy khỏi chỗ ngón tay đang gõ.
+ * Ghim chiều cao thì ô tìm kiếm đứng yên, chỉ danh sách dưới nó đổi.
+ *
+ * Mặc định vẫn là co theo nội dung, và đó là mặc định đúng: bốn dòng của PresetSheet mà căng
+ * 88dvh thì phần lớn tấm là khoảng trắng.
+ */
+.panelTall {
+  height: 88dvh;
+}
+
 .header {
   position: relative;
   display: flex;

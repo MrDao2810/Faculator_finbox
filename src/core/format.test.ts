@@ -10,6 +10,7 @@ import {
   formatNumber,
   formatValueWithUnit,
   hasUnitLabel,
+  keepViNumberChars,
   parseViNumber,
   rawViNumber,
   scaleToDong,
@@ -143,6 +144,58 @@ describe('parseViNumber()', () => {
   it('đọc lại được đúng thứ formatNumber ghi ra', () => {
     for (const value of [0, 1, -4, 92_000, 1_234_567, 15.21, -0.5]) {
       expect(parseViNumber(formatNumber(value)), `giá trị ${value}`).toBe(value);
+    }
+  });
+});
+
+describe('keepViNumberChars() — cửa ký tự của mọi ô số', () => {
+  it('bỏ chữ cái nhưng giữ nguyên phần số', () => {
+    expect(keepViNumberChars('92.000 ₫')).toBe('92.000');
+    expect(keepViNumberChars('12abc')).toBe('12');
+    expect(keepViNumberChars('1,234 lần')).toBe('1,234');
+  });
+
+  it('chuỗi toàn chữ ra chuỗi rỗng — nơi gọi hiểu là “không có gì để nhận”', () => {
+    expect(keepViNumberChars('abc')).toBe('');
+    expect(keepViNumberChars('Giá thị trường')).toBe('');
+  });
+
+  it('giữ đủ mọi dấu mà parseViNumber cần: chữ số, phẩy, chấm và bốn kiểu dấu trừ', () => {
+    expect(keepViNumberChars('1.234,5')).toBe('1.234,5');
+    expect(keepViNumberChars('-4')).toBe('-4');
+    expect(keepViNumberChars('−4')).toBe('−4');
+    expect(keepViNumberChars('–4')).toBe('–4');
+    expect(keepViNumberChars('—4')).toBe('—4');
+  });
+
+  it('bỏ khoảng trắng, nên “92 000” ra “92000” và đọc được đúng 92000', () => {
+    expect(keepViNumberChars('92 000')).toBe('92000');
+    expect(parseViNumber(keepViNumberChars('92 000'))).toBe(92_000);
+    expect(parseViNumber(keepViNumberChars('92.000 ₫'))).toBe(92_000);
+  });
+
+  it('KHÔNG chuẩn hoá dấu trừ Unicode — việc đó là của parseViNumber', () => {
+    expect(keepViNumberChars('−4')).not.toBe('-4');
+  });
+
+  /*
+   * Ranh giới của hàm này, viết thành ca kiểm để không ai “sửa cho chặt hơn”: cửa ký tự chỉ
+   * quyết định ký tự nào được tồn tại, còn chuỗi đó có phải MỘT con số không thì vẫn là việc
+   * của `parseViNumber()`.
+   */
+  it('không giữ ràng buộc ngữ nghĩa: “4-4” lọt cửa ký tự rồi bị parseViNumber trả null', () => {
+    expect(keepViNumberChars('4-4')).toBe('4-4');
+    expect(parseViNumber('4-4')).toBeNull();
+
+    expect(keepViNumberChars('1,2,3')).toBe('1,2,3');
+    expect(parseViNumber('1,2,3')).toBeNull();
+  });
+
+  it('lọc xong đưa vào parseViNumber thì không ca nào ra NaN (FR-06)', () => {
+    const rac = ['abc', '12abc', '₫₫₫', 'e+21', '1..2', '--5', '   ', 'NaN', 'Infinity', '92 000'];
+    for (const chuoi of rac) {
+      const doc = parseViNumber(keepViNumberChars(chuoi));
+      expect(doc === null || Number.isFinite(doc), `chuỗi '${chuoi}'`).toBe(true);
     }
   });
 });

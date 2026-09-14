@@ -46,8 +46,14 @@
  *
  * `minmax(0, …)` chứ không `1fr` trần: `1fr` mặc định là `minmax(auto, 1fr)`, tức cột được phép
  * PHÌNH ra cho vừa nội dung — đúng lúc cụm phải rộng lên thì nó lại đẩy cột giữa đi, tức dựng lại
- * nguyên cái lỗi đang chữa. Đo chỗ trống hiện có: ở 1024px mỗi cột biên được ~290px, cụm phải rộng
- * nhất là 239px, nên còn dư và không cột nào phải phình.
+ * nguyên cái lỗi đang chữa. Đo chỗ trống lúc nav còn BỐN mục: ở 1024px mỗi cột biên được ~290px,
+ * cụm phải rộng nhất là 239px, nên còn dư và không cột nào phải phình.
+ *
+ * ⚠ Mục nav thứ NĂM ("Về chúng tôi") ăn gần hết khoản dư ấy — nó lấy ~90px của cột giữa, tức mỗi
+ * cột biên mất ~45px và tụt về ~245px so với cụm phải 239px. Chỗ dư còn lại mỏng tới mức một font
+ * hệ điều hành rộng hơn là hụt, và hụt ở đây nghĩa là cụm nút ĐÈ LÊN nav chứ không đẩy nav đi.
+ * Bản vá nằm ở `HeaderNav.module.css`: thu đệm ngang của nav trong đúng dải 1024–1279px, trả lại
+ * ~20px cho mỗi cột biên. Đo lại ở 1024px trên '/cong-thuc/' nếu thêm mục nav thứ sáu.
  *
  * Chỉ đổi từ 1024px — dưới mốc đó `.nav` là `display: none` nên lưới ba cột chỉ còn hai mục và cột
  * giữa rỗng sẽ đẩy cụm nút vào giữa thanh. Hàng flex `space-between` vẫn là câu trả lời đúng ở đó.

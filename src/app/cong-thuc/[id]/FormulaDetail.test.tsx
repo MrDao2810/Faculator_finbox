@@ -127,6 +127,28 @@ function Man({ spec }: { spec: FormulaSpec }) {
 }
 
 /**
+ * Thanh mã dính theo lượt duyệt — `null` khi màn không dựng nó.
+ *
+ * Dò qua nút "Đổi mã" rồi ngược lên thẻ cha, KHÔNG dò `getByRole('status')`: màn có nhiều vùng
+ * mang vai ấy (dải "không nạp được ô nào", câu nhắc của nút áp dụng giá trị trên biểu đồ…), nên
+ * `status` một mình bắt nhầm chỗ. Nút "Đổi mã" thì chỉ thanh này có.
+ *
+ * Từ 14/09/2026 thanh không còn câu chữ nào, nên dò theo chữ cũng không còn là lối vào được.
+ */
+function thanhMa(): HTMLElement | null {
+  const nut = screen.queryByRole('button', { name: t('detail.tickerChange') });
+  return nut === null ? null : nut.closest('p');
+}
+
+/** Như `thanhMa()` nhưng CHỜ thanh hiện ra — dùng sau một lượt nạp không đồng bộ. */
+async function thanhMaHienRa(): Promise<HTMLElement> {
+  const nut = await screen.findByRole('button', { name: t('detail.tickerChange') });
+  const bar = nut.closest('p');
+  if (bar === null) throw new Error('Nút “Đổi mã” không nằm trong thanh mã nào.');
+  return bar;
+}
+
+/**
  * Ô gõ số trong khối **Số liệu**.
  *
  * Phải khoanh vùng từ khi khối Ví dụ thực tế cũng cho gõ số: hai khối bày CÙNG một giá trị nên ô
@@ -646,15 +668,13 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     // ngay trong lượt render đầu.
     expect(feed.snapshots.mock.calls[0]?.[0]).toEqual(['FPT']);
     /*
-     * Và mốc nguồn phải hiện, dù FPT-của-API không đi qua bộ mẫu WF-10 — đây chính là ca mà phép
+     * Và thanh mã phải hiện, dù FPT-của-API không đi qua bộ mẫu WF-10 — đây chính là ca mà phép
      * tra `SAMPLE_DATA.byCode()` cũ làm hỏng, vì mã lấy lúc chạy không nằm trong bộ mẫu.
      *
-     * Từ 09/09/2026 mốc ấy là một mẩu chữ TRONG thanh mã, không còn là một dòng riêng — nên dò
-     * theo `exact: false` trên chính khoá i18n, không dò cả câu.
+     * Trước 14/09/2026 ca này dò mốc ngày ('số liệu Finbox_v2 tới …'). Câu chữ ấy đã bỏ, nên nay
+     * dò thứ còn lại và cũng là thứ thật sự phải có: huy hiệu mã trong thanh mã.
      */
-    expect(
-      screen.getByText(t('detail.fundamentalsSource'), { exact: false }).textContent,
-    ).toContain('Finbox_v2');
+    expect((await thanhMaHienRa()).textContent).toContain('FPT');
   });
 
   it('không gọi mạng khi mở trang theo đường thường', () => {
@@ -733,28 +753,26 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
   /*
    * Chủ dự án hỏi "ví dụ thực tế lấy từ API Finbox đúng không, cho biết bắt đầu từ đâu, như thế
    * nào" — hoá ra câu hỏi đó chỉ đúng với "Nạp mẫu" (Ví dụ thực tế/"Xem ví dụ minh hoạ" đều là số
-   * tĩnh viết tay, không đụng API). Ca này chốt đúng chỗ CÓ số thật: sau khi nạp mẫu, màn phải nói
-   * rõ tên nguồn (Finbox_v2) và ngày đối chiếu — không được để người dùng tự đoán.
+   * tĩnh viết tay, không đụng API). Ca này chốt đúng chỗ CÓ số thật: sau khi nạp mẫu, màn phải gọi
+   * tên được mã đang cấp số — không được để người dùng tự đoán.
+   *
+   * Bản trước 14/09/2026 dò tên nguồn ('Finbox_v2') và ngày đối chiếu trong thanh mã. Chủ dự án
+   * chốt bỏ cả câu chữ ấy, nên nay ca dò thứ CÒN LẠI và cũng là vế còn phải giữ: thanh mã chỉ xuất
+   * hiện sau khi thật sự nạp được, và nó mang đúng mã vừa nạp.
    */
-  it('nạp mẫu thì hiện dòng nói rõ nguồn số liệu cơ bản (Finbox_v2) và ngày đối chiếu', async () => {
+  it('nạp mẫu thì thanh mã hiện lên, mang đúng mã vừa nạp', async () => {
     render(<Man spec={specOf('pe')} />);
 
-    // Chưa nạp gì thì chưa có gì để nói về nguồn — đừng bày trước khi có sự thật để bày.
-    // Chuỗi khoá có dấu ngoặc — dò bằng so khớp con chuỗi (exact: false), không bọc RegExp: bọc
-    // RegExp thì dấu ngoặc trong chuỗi bị hiểu thành cú pháp nhóm, khớp sai hẳn ý.
-    expect(screen.queryByText(t('detail.fundamentalsSource'), { exact: false })).toBeNull();
+    // Chưa nạp gì thì chưa có gì để nói về mã — đừng bày trước khi có sự thật để bày.
+    expect(thanhMa()).toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
     const maVuaNap = await napDongDau();
 
-    const nap = SAMPLE_DATA.byCode(maVuaNap);
-    if (nap?.fundamentalsAsOf === undefined) {
-      throw new Error(`Bộ mẫu thiếu fundamentalsAsOf cho ${maVuaNap}.`);
-    }
-
-    const note = screen.getByText(t('detail.fundamentalsSource'), { exact: false });
-    expect(note.textContent).toContain('Finbox_v2');
-    expect(note.textContent).toContain(formatIsoDate(nap.fundamentalsAsOf.slice(0, 10)));
+    const bar = await thanhMaHienRa();
+    expect(bar.textContent).toContain(maVuaNap);
+    // Và lối thoát thứ hai phải đi cùng mã, không thì người dùng kẹt với số của một mã họ không chọn.
+    expect(within(bar).getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
   });
 
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
@@ -887,8 +905,12 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     expect(screen.getByText(t('detail.exampleSeriesNote'))).not.toBeNull();
     // Đây không phải một bộ mẫu công ty — nút "Nạp mẫu" ở đầu trang vẫn phải đứng nguyên nhãn cũ.
     expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
-    // Và KHÔNG được nói đây là số thật từ Finbox_v2 — chuỗi minh hoạ không đụng API nào cả.
-    expect(screen.queryByText(t('detail.fundamentalsSource'), { exact: false })).toBeNull();
+    /*
+     * Và KHÔNG được dựng thanh mã — chuỗi minh hoạ không đụng API nào, không có mã nào cấp số cả.
+     * Bản trước 14/09/2026 dò câu 'số liệu Finbox_v2 tới …'; câu ấy đã bỏ nên dò chính thanh mã,
+     * thứ mang cùng lời hứa và vẫn còn trên màn.
+     */
+    expect(thanhMa()).toBeNull();
   });
 
   /*
@@ -1702,11 +1724,11 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     await screen.findByRole('region', { name: t('detail.inputs') });
 
     expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
-    expect(screen.queryByText(new RegExp(t('detail.tickerSticky')))).toBeNull();
+    expect(thanhMa()).toBeNull();
     expect(screen.queryByRole('button', { name: t('detail.tickerChange') })).toBeNull();
     expect(screen.queryByRole('button', { name: t('detail.tickerClear') })).toBeNull();
     // Và vẫn không được khoe "đã nạp" — không một giá trị nào đổi.
-    expect(screen.queryByText(new RegExp(t('detail.fundamentalsSource')))).toBeNull();
+    expect(screen.queryByRole('button', { name: /Đã nạp/ })).toBeNull();
   });
 
   /*
@@ -2303,9 +2325,13 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
 
     render(<Man spec={specOf('pe')} />);
 
-    const bar = await screen.findByRole('status');
+    /*
+     * Câu chữ trong thanh bỏ ngày 14/09/2026, nên lời hứa này nay do huy hiệu mã và hai lối thoát
+     * gánh: người dùng thấy được mã nào đang cấp số, và đổi hoặc bỏ được nó ngay tại chỗ.
+     */
+    const bar = await thanhMaHienRa();
     expect(bar.textContent).toContain('FPT');
-    expect(bar.textContent).toContain(t('detail.tickerSticky'));
+    expect(within(bar).getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
   });
 
   it('nạp mẫu ở một công thức thì ghi mã vào kho phiên cho công thức sau', async () => {

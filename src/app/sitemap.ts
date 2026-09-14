@@ -21,6 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl(ROUTES.home), priority: 1 },
     { url: absoluteUrl(ROUTES.formulas), priority: 0.9 },
     { url: absoluteUrl(ROUTES.portfolio), priority: 0.5 },
+    /* Trang nội dung thật, không phải màn công cụ — vì thế nó xếp trên Cài đặt. */
+    { url: absoluteUrl(ROUTES.about), priority: 0.4 },
     { url: absoluteUrl(ROUTES.settings), priority: 0.3 },
   ];
 

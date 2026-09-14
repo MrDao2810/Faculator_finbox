@@ -341,8 +341,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     })();
   }, [inputs, spec.variables, t]);
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
-  /** Ngày đối chiếu số liệu cơ bản của preset đang nạp — đặt và xoá cùng lúc với `loadedPreset`. */
-  const [fundamentalsAsOf, setFundamentalsAsOf] = useState<string | null>(null);
   /**
    * Lượt nạp mẫu gần nhất: mã nào, và mã đó điền được ĐÚNG những ô nào.
    *
@@ -1163,19 +1161,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
   const chartSeriesLabel =
     loadedPreset ?? (exampleLoaded ? t('detail.exampleSeriesLabel') : undefined);
 
-  /**
-   * Ngày đối chiếu fundamentals của preset đang nạp.
-   *
-   * Trước gói "Danh mục dùng số liệu thật", chỗ này tra `SAMPLE_DATA.byCode(loadedPreset)`. Nay
-   * preset còn có thể đến từ API (`?ma=`) cho một mã **không nằm trong bộ mẫu**, nên phép tra ấy
-   * trả `undefined` và dòng nguồn biến mất đúng lúc nó cần thiết nhất — dữ liệu thật lấy lúc chạy
-   * mới là thứ người dùng cần biết là lấy khi nào.
-   *
-   * Nên nay `applyPreset()` ghi thẳng `preset.fundamentalsAsOf` vào state. Vẫn không có hai nguồn
-   * sự thật: nó được đặt và xoá đúng cùng chỗ với `loadedPreset`.
-   */
-  const loadedFundamentalsAsOf = loadedPreset === null ? null : fundamentalsAsOf;
-
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
 
@@ -1374,7 +1359,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     if (napDuocGi) {
       setInputs((current) => ({ ...current, ...fromPreset }));
       setLoadedPreset(preset.code);
-      setFundamentalsAsOf(preset.fundamentalsAsOf ?? null);
     }
     /*
      * Ca không nạp được gì: không đụng ô nhập, không dựng dải "đã nạp" — nhưng VẪN ghi mã vào kho
@@ -1571,7 +1555,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
     setSeriesCount(rows.length);
     setMarketSeriesOverride(spec.example.marketSeries ?? null);
     setLoadedPreset(null);
-    setFundamentalsAsOf(null);
     // Số của ví dụ minh hoạ không phải số của mã nào — viền `↳ HPG` phải tắt cùng lúc.
     setPresetFill(null);
     setExampleLoaded(true);
@@ -1729,7 +1712,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
     setStickyTicker(null);
     setLoadedPreset(null);
-    setFundamentalsAsOf(null);
     setPresetFill(null);
     setInputs(defaultInputs(spec));
     setBars(null);
@@ -2116,30 +2098,20 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           sách / số CP kèm ngày đối chiếu. Chủ dự án chốt: *"thông báo này đang thừa và cần thay đổi
           sao phù hợp với thiết kế mới"*.
 
-          Nay gộp còn một: thanh mã xuống đây, và ngày đối chiếu thành một mẩu chữ trong chính nó.
-          Dòng văn dài bỏ hẳn — nó chỉ thêm được đúng cái ngày, còn danh sách tên trường thì đã nằm
-          ngay dưới, trên chính những ô vừa được điền.
+          Nay còn đúng ba thứ: huy hiệu mã, và hai nút thao tác được với nó.
 
           `presetHelps && stickyTicker !== null` giữ nguyên như khi thanh này còn ở header: nó phải
           hiện cả khi mã tự bám theo lượt duyệt chứ người dùng không bấm gì ở màn này — đó là điều
           kiện để việc tự nạp không thành một bất ngờ.
 
-          Ngày chỉ hiện khi `loadedFundamentalsAsOf` có: mã bám theo lượt duyệt mà chưa nạp được ô
-          nào thì không có mốc nào để nói.
+          Câu chữ trong thanh bỏ hẳn 14/09/2026 theo yêu cầu chủ dự án: cả vế phạm vi ("đang dùng
+          cho mọi công thức trong lượt xem này") lẫn vế mốc ngày ("số liệu Finbox_v2 tới …"). Huy
+          hiệu mã ở lại, nên vế "màn phải nói ra đang dùng mã nào" của `active-ticker.ts` vẫn còn;
+          vế mốc ngày thì không còn chỗ nào trên màn nói — xem docblock ở file ấy.
         */}
         {presetHelps && stickyTicker !== null && (
           <p className={styles.tickerBar} role="status">
             <span className={styles.tickerCode}>{stickyTicker}</span>
-            <span className={styles.tickerText}>
-              {t('detail.tickerSticky')}
-              {loadedFundamentalsAsOf !== null && (
-                <>
-                  {' · '}
-                  {t('detail.fundamentalsSource')}{' '}
-                  {formatIsoDate(loadedFundamentalsAsOf.slice(0, 10))}
-                </>
-              )}
-            </span>
 
             {/* Bọc trong hàm: `onClick` truyền sự kiện chuột vào tham số `fromPreset`. */}
             <Button

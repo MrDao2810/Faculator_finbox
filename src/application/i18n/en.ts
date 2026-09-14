@@ -30,6 +30,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'nav.formulas': 'Formulas',
   'nav.portfolio': 'Portfolio',
   'nav.settings': 'Settings',
+  'nav.about': 'About us',
+  /* Bản tiếng Anh không chật như tiếng Việt, nhưng vẫn giữ đôi nhãn cho hai thanh khớp nhau. */
+  'nav.aboutShort': 'About',
   /* Cố ý khác `nav.formulas` — cùng lý do bản tiếng Việt: màn chi tiết đã có khối "Formula". */
   'nav.backToList': 'Formula list',
   'nav.backToFormula': 'Back to formula',
@@ -131,7 +134,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'result.eyebrow': 'RESULT',
   /* Tiêu đề ẩn của khối Kết quả — vì sao tách khoá, xem chú thích ở `vi.ts`. */
   'result.heading': 'Result',
-  'result.live': 'updates as you type',
+  /* `result.live` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'result.unavailable': 'Cannot compute yet',
   'result.fixPrefix': '↳',
   'explain.title': 'Plain-language explanation',
@@ -164,8 +167,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.loadPreset': 'Load sample',
   'detail.preset': 'Loaded',
   'detail.jumpToExample': 'See the worked example ↓',
-  /* Mẩu chữ ngắn trong thanh mã, không còn là một câu — xem `vi.ts`. */
-  'detail.fundamentalsSource': 'Finbox_v2 figures as of',
+  /* `detail.fundamentalsSource` bỏ 14/09/2026 cùng `detail.tickerSticky` — xem `vi.ts`. */
   'detail.tickerLoading': 'fetching live data for this ticker…',
   'detail.tickerFailed':
     'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
@@ -177,7 +179,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.shareCopied': 'Link copied',
   'detail.shareNoSeries':
     'The link carries the numbers in the fields; the price series has to be loaded by the recipient.',
-  'detail.tickerSticky': 'in use for every formula this visit',
+  /* `detail.tickerSticky` bỏ 14/09/2026 — xem `vi.ts`. */
   'detail.tickerChange': 'Change ticker',
   'detail.tickerClear': 'Clear ticker',
   'detail.saveToPortfolio': '☆ Save to portfolio',
@@ -222,9 +224,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.kindBar': 'Bars',
   'chart.showData': 'View the numbers',
   'chart.tableCaption': 'Data',
-  'chart.applyHintTimeAxis':
-    'The axis is time, so clicking won\'t write anything — switch "See how the result changes with" above to a variable to apply a clicked value.',
-  /* `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */
+  /* `chart.applyHintTimeAxis` và `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */
   'chart.zoom': 'Expand',
   'chart.exit': 'Exit full screen',
   'chart.rotate': 'Turn your phone sideways for a wider chart.',
@@ -292,13 +292,17 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formQuantity': 'Shares held',
   'portfolio.formCostPrice': 'Cost per share (₫)',
   'portfolio.formBuyDate': 'Purchase date',
-  'portfolio.formBeta': 'Beta (leave blank if unknown)',
+  /* Nhãn trần, bỏ "(leave blank if unknown)" cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
+  'portfolio.formBeta': 'Beta',
   'portfolio.formSubmit': 'Add to portfolio',
   'portfolio.formCancel': 'Cancel',
+  /* Vế "beta là gì" thêm cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'portfolio.betaHint':
-    'Beta cannot be computed automatically yet — it needs return series for both the stock and the market index. Enter it by hand if you already have it.',
-  'portfolio.priceNote':
-    'Market prices come from Finbox at the latest session, not real-time quotes.',
+    'Beta measures how much harder or softer this stock swings than the VN-Index — a beta of 1.5 ' +
+    'means the index moving 1% usually moves this stock about 1.5%, and under 1 is milder than the ' +
+    'market. It cannot be computed automatically yet because that needs return series for both the ' +
+    'stock and the index; enter it by hand if you already have it.',
+  /* `portfolio.priceNote` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'portfolio.pickCode': 'Pick a ticker',
   'portfolio.priceLoading': 'Fetching market prices…',
   'portfolio.priceFailed': 'Could not fetch market prices from Finbox.',
@@ -312,8 +316,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.betaShort': 'beta',
   'portfolio.edit': 'Edit',
   'portfolio.details': 'Details',
-  'portfolio.editHint':
-    'Change the quantity, cost price, purchase date or beta. To change the ticker itself, remove it and add it again.',
+  /* `portfolio.editHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.formSave': 'Save changes',
   'portfolio.mergeNote':
     'This ticker is already in the portfolio. Adding again will add up the quantity and recalculate the average cost price — it will not create a second row. To correct the existing numbers instead, cancel this form, tap the ticker in the list, then tap Edit.',
@@ -333,8 +336,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.priceNone': 'No market price found for any ticker yet.',
   'portfolio.formulas': 'Run a formula',
   'portfolio.pickFormula': 'Pick a formula',
-  'portfolio.formulaHint':
-    'Optional. Pick one and saving takes you straight to it, with this ticker already filled in.',
+  /* `portfolio.formulaHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.pickCodeFirst': 'Pick a ticker first',
   'portfolio.formulaNeedsCode':
     'How many fields each formula can fill depends on the ticker, so pick one first. Tap here to choose it.',
@@ -342,22 +344,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formSubmitOpen': 'Add and open the formula',
   'portfolio.formSaveOpen': 'Save and open the formula',
   'portfolio.formulasTitle': 'Formulas this ticker can fill',
-  'portfolio.formulasSubtitle':
-    'Pick one — saving opens it with this ticker’s data already filled in',
+  /* `portfolio.formulasSubtitle` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.formulasFilled': 'fields prefilled',
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
 
-  'portfolio.tabHoldings': 'Tickers',
-  'portfolio.tabSaved': 'Formulas',
-  'portfolio.savedEmpty':
-    'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
-  /* "View", không phải "Reopen" — xem lý do ở `vi.ts`. */
-  'portfolio.savedOpen': 'View',
-  'portfolio.savedRemove': 'Delete',
-  /* `savedRename` · `savedSaveName` · `savedNameLabel` đã xoá cùng lúc với bản Việt. */
-  'portfolio.savedAt': 'saved',
-  'portfolio.savedNeedsSeries': 'Needs price series',
+  /* Bảy khoá của cụm tab và panel "phép tính đã lưu" đã xoá cùng bản Việt — xem lý do ở `vi.ts`. */
 
   'ticker.title': 'Pick a ticker',
   'ticker.subtitle': 'Every tradable ticker, from Finbox',
@@ -532,21 +524,39 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `settings.theme.hint` và `settings.units.scaleHint` đã xoá cùng lúc với bản Việt. */
   'settings.units.schedule': 'Trading fee schedule',
   'settings.units.scheduleHint': 'Used by the net-profit-after-fees screen. Source: Market Config.',
-  'settings.data.title': 'Data on this device',
+  'settings.data.title': 'Your data',
   'settings.about.title': 'About',
 
   'data.prefs': 'Display preferences',
+  'data.prefs.note':
+    'The display mode, language, light or dark theme, units and fee schedule you picked.',
   'data.recent': 'Search history',
+  'data.recent.note': 'Words you typed on the Search screen, kept so you can tap them again.',
   'data.recentHome': 'Home search history',
+  'data.recentHome.note':
+    'Words typed in the search box on the home page — kept apart from the Search screen.',
   'data.series': 'Entered price series',
+  'data.series.note':
+    'The session-by-session price table you typed, pasted or loaded on the Data table screen.',
   'data.portfolio': 'Personal portfolio',
+  'data.portfolio.note':
+    'The tickers you added to your portfolio, with quantity, cost price and buy date.',
   'data.saved': 'Saved calculations',
+  'data.saved.note':
+    'The calculations you saved from a formula screen, under the names you gave them.',
   'data.drafts': 'Unsaved inputs',
+  'data.drafts.note':
+    'Numbers you were typing on a formula screen, kept so you need not start over after leaving.',
   'data.usage': 'Formulas you opened',
+  'data.usage.note':
+    'Which formulas you open most, used to reorder the formula shelf on the home page.',
   'data.tickers': 'Ticker list',
+  'data.tickers.note':
+    'The exchange ticker list, downloaded once so ticker search is fast and works offline.',
   'data.prices': 'Cached prices',
-  'data.empty': 'nothing saved',
-  'data.chars': 'characters',
+  'data.prices.note':
+    'The latest session price for the tickers in your portfolio, kept so they still show offline.',
+  'data.empty': 'Nothing yet',
   'data.remove': 'Delete',
   'data.clearAll': 'Delete all data on this device',
   'data.removed': 'Deleted',
@@ -561,6 +571,76 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'about.schedule': 'Fee schedules loaded',
   'about.offline': 'Works offline',
   'about.offlineValue': 'yes',
+
+  /* Màn "Về chúng tôi" — lý do chọn tiền tố `aboutUs.` và hai luật viết nằm ở bản tiếng Việt. */
+  'aboutUs.eyebrow': 'About Faculator Finbox',
+  'aboutUs.title': 'Smart financial tools for the modern investor',
+  'aboutUs.lead':
+    'Faculator Finbox is a web app for looking up, computing and visualizing formulas for the Vietnamese market. The core difference: formulas do not stand alone but connect into a dependency graph — the output of one step flows straight into the input of the next.',
+  'aboutUs.stat.full': 'Complete',
+  'aboutUs.stat.fullNote': 'Financial tools',
+  'aboutUs.stat.fresh': 'Fresh data',
+  'aboutUs.stat.freshNote': 'To the latest session',
+  'aboutUs.stat.simple': 'Simple interface',
+  'aboutUs.stat.simpleNote': 'Easy to use',
+
+  'aboutUs.can.title': 'What the product does',
+  'aboutUs.can.lookup': 'Lookup with explanation',
+  'aboutUs.can.lookupNote':
+    'Every formula ships with its meaning, when to use it, how to read the result and the common mistakes.',
+  'aboutUs.can.instant': 'Instant calculation',
+  'aboutUs.can.instantNote':
+    'Results and charts change as you type; there is no Calculate button to press.',
+  'aboutUs.can.chain': 'Controlled chaining',
+  'aboutUs.can.chainNote':
+    'The output of one formula feeds straight into the input of the next, and you can still override it with your own number.',
+  'aboutUs.can.fees': 'Vietnamese market fees and taxes',
+  'aboutUs.can.feesNote':
+    'Trading fees, income tax and dividend tax follow the domestic rules, declared in one place in Market Config.',
+  'aboutUs.can.data': 'Sample data and flexible input',
+  'aboutUs.can.dataNote':
+    'Load a sample data set by ticker, or type and paste your own price table.',
+  'aboutUs.can.portfolio': 'A personal portfolio on your device',
+  'aboutUs.can.portfolioNote':
+    'Track the tickers you hold and their cost basis, with XIRR and related measures, without having to sign in.',
+
+  'aboutUs.arch.title': 'Client-only architecture (zero backend)',
+  'aboutUs.arch.ui': 'Presentation layer',
+  'aboutUs.arch.uiNote': 'An SPA/PWA running in the browser, designed mobile-first.',
+  'aboutUs.arch.calc': 'Calculation layer',
+  'aboutUs.arch.calcNote': 'The formula engine and the dependency graph between steps.',
+  'aboutUs.arch.registry': 'Formula Registry',
+  'aboutUs.arch.registryNote': 'Definitions of formulas, variables, units and explanatory content.',
+  'aboutUs.arch.provider': 'DataProvider',
+  'aboutUs.arch.providerNote':
+    'Supplies price series and sample data, isolating the data source from the three layers above.',
+
+  'aboutUs.yourData.title': 'Your data',
+  'aboutUs.yourData.noAccount': 'No account, no server',
+  'aboutUs.yourData.noAccountNote':
+    'The app runs entirely in the browser: there is no sign-up step and no account server. Your portfolio and display preferences live in the localStorage of this device, so clearing browser data or switching machines leaves them behind.',
+  'aboutUs.yourData.sources': 'Public reference sources',
+  'aboutUs.yourData.sourcesNote':
+    'Every formula names its source — a textbook, an accounting standard or a legal document — so you can check it. Fee and tax constants come from Market Config: change them in one place and the whole system follows.',
+
+  'aboutUs.not.title': 'What Faculator is not',
+  'aboutUs.not.broker': 'Not a brokerage',
+  'aboutUs.not.brokerNote': 'It places no orders and connects to no securities account.',
+  'aboutUs.not.realtime': 'Not a real-time price board',
+  'aboutUs.not.realtimeNote':
+    'The market price on the Portfolio tab is the latest session price, pulled from a data provider and always stamped with its session date. It is not a live order-book feed.',
+  'aboutUs.not.history': 'Not a historical data warehouse',
+  'aboutUs.not.historyNote':
+    'The bundled sample data is only enough to show how a formula runs. To compute on a real, long price series you enter or paste it into the Data table yourself.',
+  'aboutUs.not.advice': 'Not an investment advisory tool',
+  'aboutUs.not.adviceNote':
+    'Every number on screen is a calculation for reference, not a buy or sell recommendation.',
+
+  'aboutUs.cta.eyebrow': 'Start today',
+  'aboutUs.cta.title': 'Master the market with Faculator Finbox',
+  'aboutUs.cta.note':
+    'No sign-up needed. Open a formula, load a sample data set by ticker and watch the result update instantly — fully working offline too.',
+  'aboutUs.cta.action': 'Open it now',
 
   'page.formulas.title': 'Formulas',
   'page.settings.title': 'Settings',

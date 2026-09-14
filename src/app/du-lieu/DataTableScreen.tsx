@@ -11,16 +11,23 @@ import {
   defaultPresetPicks,
   emptyRow,
   formatNumber,
+  keepSeriesDateChars,
   parseStoredSeries,
   removeRow,
   serializeStoredSeries,
   sortRowsByDate,
   toCsv,
   updateRow,
+  withSeriesDateSlashes,
 } from '@/application';
 import type { CandleRange, PasteResult, Preset, SeriesRow } from '@/application';
 import { useT } from '@/application/preferences-context';
-import { NumberCell } from '@/ui/inputs';
+import {
+  NumberCell,
+  filterTypedValue,
+  guardFilteredDelete,
+  resetFilteredDelete,
+} from '@/ui/inputs';
 import { Button } from '@/ui/primitives';
 import { CandleChart } from '@/ui/series';
 import { PasteImportSheet, PresetSheet } from '@/ui/sheets';
@@ -138,14 +145,36 @@ const SeriesRowFields = memo(function SeriesRowFields({
       {COLUMNS.map((column) => (
         <td key={column.key}>
           {column.key === 'date' ? (
+            /*
+              Ô Ngày: bàn phím SỐ, và một luật ghép dấu bù lại cho nó.
+
+              Chủ dự án chốt 14/09/2026 đưa ô này vào cùng luật với các ô số — chỉ chữ số và ba dấu
+              ngăn mà `parseSeriesDate()` đọc được. Nhưng bàn phím số của iPhone lẫn Android KHÔNG
+              có phím '/', nên `inputMode="numeric"` một mình sẽ khoá người dùng điện thoại ra khỏi
+              cột này: họ chỉ gõ được '07092026'. `withSeriesDateSlashes()` lúc rời ô là phần bù bắt
+              buộc, không phải tiện ích thêm — gỡ nó đi là hồi quy cứng trên điện thoại.
+
+              Ghép dấu lúc RỜI Ô chứ không từng phím: chèn dấu giữa lúc đang gõ là con trỏ nhảy.
+              Và nó không bao giờ đoán bừa — ghép không ra một ngày có thật thì trả nguyên xi, nên
+              số thứ tự phiên ('1', '2' của chuỗi minh hoạ trang Beta) nằm im.
+            */
             <input
               id={oNgayId(index)}
               className={`${styles.cell} ${styles.dateCell}`}
-              inputMode="text"
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
               aria-label={`${t('series.rowLabel')} ${displayNumber} · ${t(column.label)}`}
               value={row.date}
               onChange={(event) => {
-                onChange(index, { date: event.target.value });
+                onChange(index, { date: filterTypedValue(event, keepSeriesDateChars) });
+              }}
+              /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. */
+              onKeyDown={guardFilteredDelete}
+              onBlur={(event) => {
+                resetFilteredDelete(event.currentTarget);
+                const tron = withSeriesDateSlashes(row.date);
+                if (tron !== row.date) onChange(index, { date: tron });
               }}
             />
           ) : (

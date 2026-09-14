@@ -1,5 +1,5 @@
 /*
- * Ẩn mặc định — chỉ hiện ở màn PC. Dưới 1024px, bốn mục vẫn nằm ở `BottomTabBar` như cũ.
+ * Ẩn mặc định — chỉ hiện ở màn PC. Dưới 1024px, năm mục vẫn nằm ở `BottomTabBar` như cũ.
  * `display: none` gỡ nav này khỏi flex layout của `.inner` (AppHeader) và khỏi cây trợ năng ở
  * mọi khổ hẹp hơn, không cần `aria-hidden` riêng.
  */
@@ -59,6 +59,32 @@
   outline: var(--focus-width) solid var(--color-focus);
   outline-offset: -2px;
   border-radius: var(--radius-sm);
+}
+
+/*
+ * Dải 1024–1279px là chỗ chật nhất của thanh trên, và mục nav thứ năm đẩy nó qua mức.
+ *
+ * `AppHeader.module.css` ghi phép đo cũ: ở 1024px mỗi cột biên được ~290px trong khi cụm phải
+ * rộng nhất (màn '/cong-thuc/', có nút Cơ bản/Nâng cao) là 239px — dư 51px. Mục "Về chúng tôi"
+ * ăn khoảng ~90px của cột giữa, tức mỗi cột biên mất ~45px và chỉ còn ~245px: gần như hết dư, và
+ * hết hẳn nếu font hệ điều hành rộng hơn một chút. Lưới `minmax(0, 1fr)` CỐ Ý cấm cột biên phình,
+ * nên khi hụt thì cụm nút không đẩy nav đi mà đè lên nó — chữ chồng chữ.
+ *
+ * Thu đệm ngang của nav lấy lại 5 × 8 = 40px, cộng 4 khoảng cách hẹp lại lấy thêm 8px. Chỉ ở dải
+ * hẹp: từ 1280px chỗ đã dư rộng rãi nên nav giữ nguyên đệm thoáng. Vùng chạm không đổi —
+ * `min-height: var(--tap-min)` mới là thứ giữ nó, đệm ngang chỉ là khoảng thở.
+ *
+ * Đo trên Chrome thật ở 1024px, màn '/cong-thuc/': hàng nav kết thúc ở 709, cụm nút bắt đầu ở 722
+ * — hở 13px. Không có khối này thì nav rộng thêm 48px, tức tràn 35px vào cụm nút.
+ */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .link {
+    padding: 0 var(--space-2);
+  }
+
+  .list {
+    gap: 2px;
+  }
 }
 
 /* Đang chọn: đậm chữ VÀ gạch chân — hai dấu hiệu ngoài màu, không vay icon (NFR-USA-06). */

@@ -1779,16 +1779,20 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
   });
 
   /*
-   * Yêu cầu người dùng sau khi thấy vệt dò vẫn không rõ vì sao ô Số liệu không đổi: "bấm vào chart
-   * mà không thấy dữ liệu + thanh tròn thay đổi — sửa lại như các chart khác". Trục thời gian không
-   * thể ghi được (không có ô nào ứng với "một ngày trong quá khứ") — cách xử lý là NÓI RÕ ra sao mới
-   * bấm áp dụng được, thay vì cố áp dụng sai chỗ.
+   * ── Trục THỜI GIAN cũng không nói gì nữa ───────────────────────────────────────────────────
+   *
+   * Ca này từng khẳng định điều NGƯỢC LẠI: trục thời gian phải hiện câu "Trục đang là thời gian nên
+   * bấm không ghi được gì — đổi mục 'Xem kết quả đổi theo'…". Câu ấy sinh ra từ một yêu cầu người
+   * dùng ("bấm vào chart mà không thấy dữ liệu thay đổi"), rồi chủ dự án chốt bỏ ngày 14/09/2026.
+   *
+   * Giữ ca lại dưới dạng đảo chiều chứ không xoá: nó là cửa chống dựng lại. Và ghi rõ cái giá —
+   * bấm khi trục là thời gian VẪN không ghi gì, nay không còn câu nào giải thích.
    */
-  it('trục đang là thời gian: hiện gợi ý đổi trục để bấm áp dụng được', () => {
+  it('trục đang là thời gian: dưới hình không còn dòng gợi ý nào', () => {
     gioKhungKhopViewBox();
     const formula = moduleOf('pe');
     const inputs = defaultInputs(formula.spec);
-    render(
+    const { container } = render(
       <ChartBody
         formula={formula}
         inputs={inputs}
@@ -1801,24 +1805,18 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     );
 
     expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
-    expect(screen.getByText(t('chart.applyHintTimeAxis'))).not.toBeNull();
-  });
-
-  it('trục đang là biến số (áp dụng được): KHÔNG hiện gợi ý đổi trục', () => {
-    gioKhungKhopViewBox();
-    drawVoiApply(vi.fn());
-    expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
+    expect(container.querySelector('[class*="applyHint"]')).toBeNull();
+    expect(screen.queryByText(/Xem kết quả đổi theo.*biến số/)).toBeNull();
   });
 
   /*
    * ── Trục bấm được thì màn hình KHÔNG nói gì ────────────────────────────────────────────────
    *
    * Từng có một câu khẳng định ở đây ("Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập.") kèm ba
-   * ca kiểm gác nó. Chủ dự án chốt bỏ câu ấy, nên hai ca về dòng chữ đi theo — giữ lại một ca đỏ
-   * mãi mãi hoặc một ca kiểm điều ngược lại với chính nó thì tệ hơn là xoá.
+   * ca kiểm gác nó. Chủ dự án chốt bỏ câu ấy, rồi bỏ nốt câu còn lại ngày 14/09/2026 — nay dưới
+   * hình không còn dòng gợi ý nào ở BẤT KỲ trục nào.
    *
-   * Ca dưới gác phần CÒN LẠI đúng: dưới hình không còn dòng gợi ý nào khi trục đã bấm được. Nó
-   * cũng là ca chống dựng lại — thêm câu mời nào vào chỗ ấy là đỏ ngay.
+   * Ca dưới là cửa chống dựng lại: thêm câu mời nào vào chỗ ấy là đỏ ngay.
    *
    * Hai tín hiệu còn lại của tính năng (con trỏ bàn tay, vạch dò bám con trỏ) có ca riêng ngay
    * dưới và KHÔNG đổi: tính năng không bị gỡ, chỉ thôi tự giới thiệu bằng chữ.
@@ -1827,7 +1825,6 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     gioKhungKhopViewBox();
     const { container } = drawVoiApply(vi.fn());
 
-    expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
     expect(container.querySelector('[class*="applyHint"]')).toBeNull();
     // Chưa rê gì nên cũng chưa có vạch dò — đúng như trên máy cảm ứng vừa mở trang.
     expect(container.querySelector('[data-testid="chart-pe-hover"]')).toBeNull();
@@ -1921,11 +1918,11 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     );
   });
 
-  it('không truyền onApplyPoint: dù trục là thời gian cũng KHÔNG hiện gợi ý (tính năng không bật ở đây)', () => {
+  it('không truyền onApplyPoint: dưới hình cũng không có dòng gợi ý nào', () => {
     gioKhungKhopViewBox();
     const formula = moduleOf('pe');
     const inputs = defaultInputs(formula.spec);
-    render(
+    const { container } = render(
       <ChartBody
         formula={formula}
         inputs={inputs}
@@ -1935,7 +1932,7 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
         seriesLabel="FPT"
       />,
     );
-    expect(screen.queryByText(t('chart.applyHintTimeAxis'))).toBeNull();
+    expect(container.querySelector('[class*="applyHint"]')).toBeNull();
   });
 
   it.skip('bản phóng to: nhả tay cũng ghi được, tách biệt với bản trên trang', async () => {

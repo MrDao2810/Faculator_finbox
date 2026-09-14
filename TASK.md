@@ -153,6 +153,9 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Vá lỗi từ bảng feedback test nội bộ — phần nội dung công thức                   | —       | Xong phần đã chốt — xem mục "Vá bảng feedback"                     |
 | 3.2.1 | Giữ chuỗi giá đã thay tại chỗ khi rời màn — vế còn lại của lỗi #2               | —       | Xong — xem mục "Giữ chuỗi giá khi rời màn"                         |
 | 2.1.1 | Hết nháy cụm Cơ bản / Nâng cao lúc tải trang — lỗi #21                          | —       | Xong phần cụm nút — xem mục "Hết nháy cụm Cơ bản / Nâng cao"       |
+| 3.6.1 | Khối "Dữ liệu trên máy" nói bằng tiếng người, bỏ khoá kho và số ký tự           | —       | Xong — xem mục "Dữ liệu trên máy nói bằng tiếng người"             |
+| —     | Bỏ ba câu giải thích thừa trên giao diện (gồm mục #34 của bảng feedback)        | —       | Xong — xem mục "Bỏ ba câu giải thích thừa"                         |
+| —     | Màn "Về chúng tôi" — màn thứ 10, mục nav thứ 5                                  | —       | Xong phần code, **chưa build** — xem mục ngay dưới                 |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -160,6 +163,568 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Màn "Về chúng tôi" — màn thứ 10 và mục nav thứ 5 (14/09/2026)
+
+**Trạng thái: xong phần code, chưa build.** `npm run check` xanh trọn (111 file, 2649 ca). Việc
+còn chặn: chạy bộ lệnh cần bản build — dev server đang giữ cổng 3000 nên `prebuild` từ chối, đúng
+thiết kế.
+
+Dựng theo bản vẽ chủ dự án đưa. Giữ nguyên thứ tự và cách trình bày năm khối của bản vẽ: dải mở
+đầu hai cột → "Sản phẩm làm được gì" (lưới 6 thẻ) → hai cột "Kiến trúc client-only" / "Dữ liệu của
+bạn" → "Faculator không phải là gì?" (4 thẻ) → dải kêu gọi.
+
+### File đã tạo
+
+| file                                      | nội dung                                                        |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| `app/ve-chung-toi/page.tsx`               | server component, `metadata`, không `<Suspense>`, không noindex |
+| `app/ve-chung-toi/AboutScreen.tsx`        | **server component** — mọi chữ qua lá `<T>`, 0 byte gói mới     |
+| `app/ve-chung-toi/AboutScreen.module.css` | không token mới, không hex, `--radius-md` (không `-lg`)         |
+| `app/ve-chung-toi/AboutScreen.test.tsx`   | 4 ca: một `<h1>`, một nút CTA, thuộc tính ảnh, 4 thẻ khác nhau  |
+
+### File đã sửa
+
+| file                                   | sửa gì                                                                     |
+| -------------------------------------- | -------------------------------------------------------------------------- |
+| `application/routes.ts`                | `ROUTES.about`, mục `NAV_ITEMS` thứ 5, trường mới `NavItem.shortLabelKey`  |
+| `application/i18n/{vi,en}.ts`          | 2 khoá nav + 49 khoá `aboutUs.*`, đủ cả hai ngôn ngữ                       |
+| `ui/navigation/TabIcon.tsx`            | cặp icon nét/đặc cho `about` + `ABOUT_RING`                                |
+| `ui/navigation/BottomTabBar.tsx` + css | lấy `shortLabelKey` trước; `white-space: nowrap`; thu đệm dưới 380px       |
+| `ui/navigation/HeaderNav.module.css`   | thu đệm nav ở dải 1024–1279px — xem "chỗ chật" dưới                        |
+| `ui/navigation/AppHeader.module.css`   | viết lại phép đo cột biên: mục thứ 5 ăn gần hết khoản dư                   |
+| `app/sitemap.ts`                       | thêm URL, priority 0.4 (trên Cài đặt: đây là nội dung, không phải công cụ) |
+| `ui/section-title.test.ts`             | khai `AboutScreen.module.css` vào `SECTION_TITLES`                         |
+| `ui/contrast.test.ts`                  | ca mới: chữ mực trên `--color-accent-soft` (cặp chưa ai chấm)              |
+| `application/routes.test.ts`           | 4 → 5 mục; 3 ca mới ghim ngoại lệ `HEADER_TITLES` và nhãn ngắn             |
+| `ui/navigation/HeaderNav.test.tsx`     | thêm mục thứ 5 ở cả ca VI và EN; ca chặn thanh trên lây nhãn ngắn          |
+| `scripts/verify-static.mjs`            | +4 assertion (26 → **30**), gồm ca bắt việc quên chép ảnh                  |
+
+### Bốn chỗ đáng ghi lại
+
+**1. Thân màn tự dựng `<h1>`, cố ý đứng ngoài `HEADER_TITLES`.** Đây là màn duy nhất có mục nav
+riêng mà không có tên trong bảng ấy. Lý do đo được: từ 1024px `<h1>` của thanh trên là
+`position: absolute` (`HeaderIdentity.module.css`), nên đẩy tiêu đề lên đó thì trang giới thiệu
+**mất hẳn tiêu đề nhìn thấy được trên desktop** — đúng chỗ nó cần nhất. Ghim bằng một ca ở
+`routes.test.ts`, một ca ở `AboutScreen.test.tsx` và một assertion ở `verify-static.mjs`.
+
+**2. Một mục điều hướng, HAI nhãn.** Thanh dưới chia đều bề ngang: mục thứ năm kéo mỗi tab từ 90px
+xuống 72px ở khổ 360, còn 64px cho chữ. "Về chúng tôi" ở 12px đậm đo được ~72px → xuống dòng, mà
+`.link` khai `min-height` nên nhãn hai dòng **đội cả thanh dính lên ~76px trên mọi màn**. Rút nhãn
+cho cả hai thanh thì mất chữ đúng ở chỗ đang thừa chỗ, nên thêm `NavItem.shortLabelKey`: thanh trên
+giữ "Về chúng tôi", thanh tab dùng "Giới thiệu". `routes.test.ts` ghim rằng CHỈ mục này có nhãn
+ngắn — để hai thanh không âm thầm gọi một màn bằng hai cái tên ở chỗ khác.
+
+**3. Chỗ chật thật sự là THANH TRÊN ở 1024–1279px, không phải thanh dưới.** `AppHeader.module.css`
+ghi phép đo cũ: cột biên ~290px, cụm phải rộng nhất (màn `/cong-thuc/`, có nút Cơ bản/Nâng cao)
+239px. Mục thứ năm ăn ~90px của cột giữa → mỗi cột biên mất ~45px, còn ~245px. Lưới
+`minmax(0, 1fr)` **cố ý cấm cột biên phình**, nên khi hụt thì cụm nút không đẩy nav đi mà **đè lên
+nó**. Vá bằng cách thu đệm ngang và khoảng cách của nav trong đúng dải ấy (lấy lại 48px).
+
+**Đã đo trên Chrome thật** (dev server, CDP, không dùng bản build): ở 1024px trên `/cong-thuc/` —
+màn có cụm nút rộng nhất — hàng nav kết thúc ở **709**, cụm nút bắt đầu ở **722**, hở **13px**.
+Không có bản vá thì nav rộng thêm 48px, tức tràn 35px vào cụm nút. Đo thêm ở 1100 / 1279 / 1280 /
+1440: không khổ nào đè.
+
+**4. Ba chỗ bản vẽ nói sai, đã sửa kèm lý do trong mã.**
+
+- Bản vẽ ghi tên sản phẩm là **"Falculator"** (thừa `l`). Đúng tên là **Faculator Finbox** — chính
+  cái typo đã bị quét khỏi repo một lần rồi, xem mục "Sửa tên sản phẩm".
+- Thẻ thứ ba của khối "không phải là gì" **lặp nguyên văn thẻ thứ hai** trong ảnh. Thay bằng mục
+  mới "Không phải kho dữ liệu lịch sử" — đúng sự thật kiểm chứng được (chuỗi giá bộ mẫu là số dựng
+  sẵn; API chỉ trả 10 phiên, không đủ RSI-14 / SMA-20) và dẫn người đọc sang đúng việc tiếp theo là
+  màn Bảng dữ liệu. Ca `AboutScreen.test.tsx` so bốn thẻ với nhau để lỗi này không chép lại được.
+- Thẻ "Dữ liệu cập nhật / **Liên tục**" → "**Theo phiên gần nhất**". "Liên tục" hứa một bảng giá
+  khớp lệnh trực tiếp mà sản phẩm không có, và nó **cãi thẳng** thẻ `aboutUs.not.realtimeNote` cách
+  đó hai màn cuộn. Đổi một chữ là trả lại được nếu chủ dự án muốn.
+
+**5. `public/about-hero.png` là thẻ `<img>` ĐẦU TIÊN của repo** — trước đợt này `src/` không có một
+thẻ ảnh nào, mọi hình đều là SVG nội tuyến. Dùng `<img>` trần chứ không `next/image`: bản build là
+`output: 'export'` với `images.unoptimized`, nên `next/image` chỉ thêm runtime máy khách mà không
+tối ưu được gì. Lint `@next/next/no-img-element` chỉ ở mức cảnh báo, vẫn đặt `eslint-disable-next-line`
+kèm lý do — `npm run lint` báo **0 cảnh báo**.
+
+Ảnh gốc chủ dự án gửi là 1344×925 / 658 kB. Đã hạ xuống **1040×716 / 50 kB** (gấp đôi khổ hiển thị
+520px, đủ nét retina) bằng `sharp` với bảng 128 màu — nó là tranh vẽ phẳng nên không thấy dải màu.
+`sharp` chỉ dùng MỘT LẦN để sinh tệp, **không thành phụ thuộc của dự án**: nó vốn đã nằm trong
+`node_modules` như phụ thuộc gián tiếp của Next, và không mã nào trong `src/` hay `scripts/` gọi
+tới nó. Thay ảnh về sau thì nhớ nâng `CACHE` trong `public/sw.js` nếu giữ nguyên tên tệp.
+
+Khối "Dữ liệu của bạn" viết **trung tính về kiến trúc**, không badge "CỤC BỘ", không câu cam kết
+riêng tư — giữ nguyên quyết định 09/09/2026 đã gỡ `portfolio.localOnly` và `settings.data.note`.
+Nút "Cài lên thiết bị" của bản vẽ **bỏ** (chủ dự án chốt): làm thật thì phải bắt
+`beforeinstallprompt`, thứ Safari iOS không có, nên nút sẽ chết câm đúng trên nhóm máy cần nó nhất.
+
+### Còn lại
+
+1. **Chạy bộ lệnh cần bản build**: `npm run build` → `verify:static` (chờ 30/30) → `npm run size`
+   → `npm run check:chrome`. Cần tắt dev server ở cổng 3000 trước.
+2. **Ghim hai phép đo vào `chrome-check.mjs`.** Cả hai đã đo tay và đều đạt (xem mục 2 và 3 trên),
+   nhưng chưa có cửa gác nào canh chúng: hiện **không assertion nào đo ở 1024px** — ca
+   `'PC 1440 · hàng nav đứng yên'` vẫn xanh dù dải 1024–1090px hỏng. Hai ca nên thêm: cụm nút
+   không đè hàng nav ở 1024 trên `/cong-thuc/`; năm tab ở 360 không nhãn nào xuống dòng và tab nào
+   cũng ≥44px.
+3. **Ảnh ở bảng tối** đang vá bằng `opacity: 0.9`. Nếu chủ dự án thấy vẫn chói thì bước tiếp là xin
+   một PNG bản tối — lưu ý `<picture media="(prefers-color-scheme: dark)">` **không dùng được** vì
+   sản phẩm cố ý bỏ qua `prefers-color-scheme`, phải đổi bằng `html[data-theme='dark']`.
+
+---
+
+## Khối "Dữ liệu của bạn" rút xuống còn một nút xoá (14/09/2026)
+
+**Trạng thái: xong.** Hệ quả về quyền dữ liệu đã được vá ngay trong cùng đợt — xem mục con cuối.
+
+Chủ dự án yêu cầu tạm ẩn bản kiểm kê chín kho. Làm bằng **một cờ**, không xoá mã:
+
+```ts
+// src/app/cai-dat/SettingsScreen.tsx
+export const HIEN_KHOI_DU_LIEU: boolean = false;
+```
+
+| file                                  | sửa gì                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `app/cai-dat/SettingsScreen.tsx`      | cờ + hai nhánh của khối 3 (bản đầy đủ / bản rút gọn); `STORAGE_ITEMS` thành `export`       |
+| `app/cai-dat/SettingsScreen.test.tsx` | hai cụm ca dựng màn chuyển sang `describe.skipIf(!HIEN_KHOI_DU_LIEU)`; cửa gác kho tách ra |
+| `application/i18n/{vi,en}.ts`         | `settings.data.title`: "Dữ liệu trên máy" → **"Dữ liệu của bạn"**                          |
+| `scripts/chrome-check.mjs`            | docblock: vì sao vẫn ĐÚNG BỐN khối dù bản kiểm kê đang ẩn                                  |
+
+**Toàn bộ state của khối cố ý Ở LẠI** (`filled`, `undo`, `remove`, `removeAll`, `restore`). Bật lại
+là đổi một chữ — đã kiểm thật: đặt cờ `true` thì **24/24 xanh**, kể cả cụm bản kiểm kê; đặt lại
+`false` thì 14 xanh / 10 bỏ qua. Không ca nào phải viết lại.
+
+**Chỗ phải cẩn thận — cửa gác kho KHÔNG được ngủ theo.** Ca "mọi kho khai trong `src/application`
+đều xoá được" trước đọc `data-key` trên màn, nên khối ẩn là nó đỏ (hoặc tệ hơn: bị bỏ qua cùng
+cụm). Đã **tách ra một describe riêng, đọc thẳng `STORAGE_ITEMS`**. Lý do: bản kiểm kê mà mục ra
+trong lúc khối ngủ thì lúc bật lại nó thiếu — mà thiếu một dòng ở đó đúng là con bọ đã xảy ra hai
+lần (`ffb.tickers.v1`, `ffb.prices.v1`). Đọc mảng cũng đúng vai hơn: thứ phải đủ là **bản kiểm
+kê**; việc nó dựng thành hàng trên màn đã có cụm ca kiểm kia lo.
+
+Cờ khai kiểu `boolean` chứ không để TypeScript suy ra `false`: kiểu literal biến mọi nhánh dùng nó
+thành mã chết trong mắt `tsc` lẫn ESLint, mà nhánh chết thì không ai còn sửa khi nó đang ngủ.
+
+### Bản rút gọn — vá đúng hệ quả của việc ẩn
+
+Ẩn cả khối thì **người dùng không còn nút nào để xoá dữ liệu app giữ trên máy họ**. LDR-04 và
+NFR-SEC-01 đòi quyền ấy; sản phẩm không có tài khoản nào để đăng xuất và không màn nào khác bày
+kho ra, nên nút ấy là lối DUY NHẤT. Chủ dự án chốt cách vá: _"tạm thời làm một button… chỉ cần
+button trong ảnh và text 'Dữ liệu của bạn' còn lại thì không cần thêm"_.
+
+Nên khối 3 không biến mất mà **rút xuống hai phần tử**: tiêu đề + một nút `variant="danger"` gọi
+thẳng `removeAll()` (vẫn hỏi lại qua `window.confirm` như cũ). Không dải "CỤC BỘ", không câu mô tả
+— hai thứ ấy bỏ 09/09/2026 và không dựng lại.
+
+Kéo theo ba thứ:
+
+- **Tiêu đề đổi chữ.** "Trên máy" đi cùng bản kiểm kê chín kho, vì lúc ấy tiêu đề phải nói kho nằm
+  ĐÂU. Bản rút gọn không kể kho nào, nên thứ cần nói là dữ liệu ấy THUỘC VỀ AI.
+- **Vẫn đúng bốn khối**, nên `chrome-check.mjs` giữ nguyên phép đếm — chỉ thêm docblock nói vì sao.
+  Phép so mép trên hai cột cũng còn nguyên nghĩa.
+- **Ba ca kiểm nút "Xoá toàn bộ" dời ra khỏi cụm bị bỏ qua** và thêm ca thứ tư: đồng ý thì xoá
+  sạch thật, ghim hai kho ở hai đầu `STORAGE_ITEMS` để bắt cả lỗi vòng lặp dừng sớm. Ở bản rút gọn
+  không còn nút từng dòng nào bù cho một kho bị sót.
+
+⚠ Ca mới in ra stderr một dòng `Not implemented: navigation to another Document` — đúng như vậy:
+`removeAll()` gọi `location.reload()` ở cuối, mà jsdom không điều hướng được. **Không dập bằng
+spy** — jsdom khai `reload` không cấu hình lại được, `vi.spyOn` ném `Cannot redefine property`.
+
+**Đo trên Chrome thật** (`next dev`, 1440×900): 4 khối · tiêu đề đúng bốn chuỗi · khối 3 có đúng
+**2** nút con · nút đỏ `rgb(179, 32, 47)` chữ + viền · khoá đúng khi chưa có dữ liệu · cùng mép
+trên với khối 1 và nằm hẳn bên phải.
+
+**Một chỗ lệch với ảnh:** nút ở bản vẽ có nền hồng nhạt, nút thật chỉ hồng khi rê chuột — đó là
+dáng sẵn có của `variant="danger"`. Không đè lớp từ CSS Module của màn: docblock ngay trong file đã
+ghi vì sao (hai lớp cùng độ ưu tiên 0,1,0, cái nào thắng phụ thuộc thứ tự file trong gói).
+
+**Kiểm:** toàn bộ **2633 xanh / 0 đỏ / 48 bỏ qua**. `tsc`, `eslint`, `prettier` sạch.
+`node --check` trên `chrome-check.mjs` sạch — nhưng phép kiểm ấy **chưa chạy thật**, vì còn kẹt bản
+build.
+
+---
+
+## Bỏ nốt dòng gợi ý dưới biểu đồ (14/09/2026)
+
+**Trạng thái: xong.** Chủ dự án yêu cầu xoá câu _"Trục đang là thời gian nên bấm không ghi được gì
+— đổi mục 'Xem kết quả đổi theo' ở trên sang một biến số để bấm áp dụng giá trị."_
+
+Đó là câu **cuối cùng** của component `ApplyHint`, nên cả chuỗi đi theo: dưới biểu đồ nay không
+còn dòng gợi ý nào, ở bất kỳ trục nào.
+
+| file                               | sửa gì                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| `ui/charts/ApplyHint.tsx`          | **xoá file** — không còn gì để dựng                                            |
+| `ui/charts/ChartBody.tsx`          | xoá import, cờ `chiDuongDoiTruc` (4 điều kiện), chỗ dựng, và prop truyền xuống |
+| `ui/charts/ChartFullscreen.tsx`    | xoá import, prop `axisHint` (khai báo + mặc định + chỗ dựng)                   |
+| `ui/charts/chart.module.css`       | xoá luật `.applyHint`                                                          |
+| `application/i18n/vi.ts` · `en.ts` | xoá `chart.applyHintTimeAxis` ở cả hai từ điển                                 |
+| `ui/charts/charts.test.tsx`        | 4 ca đổi cách dò — xem dưới                                                    |
+
+**⚠ Cái giá, và nó đã được ghi thành nguyên tắc trước khi bỏ.** Docblock cũ của `vi.ts` viết thẳng:
+_"Đừng thêm lại một khoá cùng nghĩa dưới tên khác: câu trên (`applyHintTimeAxis`) là lời giải thích
+cho một cú bấm KHÔNG ăn gì, nó ở lại vì không có nó thì tính năng trông như hỏng."_ Câu ấy sinh ra
+từ một yêu cầu người dùng thật (_"bấm vào chart mà không thấy dữ liệu thay đổi"_).
+
+Sau đợt này: trục X mặc định của **35 công thức ăn chuỗi giá** là thời gian, bấm lúc đó vẫn không
+ghi gì vào ô Số liệu, và không còn câu nào nói ra. Người dùng bấm thử rồi tự đoán. **Tính năng
+KHÔNG bị gỡ** — `canApplyPoint`, con trỏ bàn tay và vạch dò giữ nguyên; đổi trục sang một biến số
+thì bấm vẫn áp dụng được như cũ. Lý do và cái giá nay ghi ở docblock `ChartBody`.
+
+**Ca kiểm đảo chiều, không xoá.** Ca `'trục đang là thời gian: hiện gợi ý đổi trục'` từng khẳng
+định điều ngược lại; giữ lại dưới dạng `'…: dưới hình không còn dòng gợi ý nào'` để làm cửa chống
+dựng lại. Ba ca còn lại đổi từ dò chuỗi i18n sang dò `[class*="applyHint"]` — thứ vẫn sống sót khi
+khoá i18n biến mất.
+
+**Kiểm chứng.** `npm run check` xanh trọn, exit 0 (110 file, 2.629 ca). Trên **Chrome thật** ở
+`/cong-thuc/pe/?ma=FPT` — đúng màn có trục thời gian mặc định: 8 mục đều đúng, gồm câu đã bỏ không
+còn ở đâu trên trang, không phần tử nào mang class `applyHint` (cả trước lẫn sau khi đổi trục sang
+"Giá thị trường"), biểu đồ vẫn vẽ, vùng bấm-áp-dụng vẫn còn, không lỗi console.
+
+---
+
+## Bỏ câu chữ trong thanh mã ở màn công thức (14/09/2026)
+
+**Trạng thái: xong.** Chủ dự án yêu cầu: _"bỏ đoạn text sau ở trong công thức khi mới nạp mã 'đang
+dùng cho mọi công thức trong lượt xem này · số liệu Finbox_v2 tới 14/09/2026'"_.
+
+Thanh mã nay còn đúng ba thứ: **huy hiệu mã · [Đổi mã] · [Bỏ mã]**.
+
+| file                                          | sửa gì                                                                                                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`        | bỏ `<span className={styles.tickerText}>`; dọn theo: state `fundamentalsAsOf`, biến dẫn xuất `loadedFundamentalsAsOf`, ba lời gọi `setFundamentalsAsOf` |
+| `app/cong-thuc/[id]/FormulaDetail.module.css` | xoá `.tickerText`; `margin-right: auto` chuyển sang `.tickerCode`                                                                                       |
+| `application/i18n/vi.ts` · `en.ts`            | xoá `detail.tickerSticky` và `detail.fundamentalsSource` ở cả hai từ điển                                                                               |
+| `application/active-ticker.ts`                | docblock: ghi rõ vế mốc ngày không còn được nói ra ở đâu                                                                                                |
+| `FormulaDetail.test.tsx`                      | 5 chỗ đổi cách dò + helper `thanhMa()` / `thanhMaHienRa()`                                                                                              |
+
+**Xoá khoá i18n chứ không để lại chuỗi chết.** Cửa khoá mồ côi ở `i18n.test.ts` bắt đúng loại rác
+đó, và khoá phải biến mất ở **cả** `vi` lẫn `en` cùng lúc.
+
+**Bố cục: `.tickerText` còn giữ một việc ngoài chữ.** Nó có `flex: 1` để đẩy hai nút về mép phải;
+bỏ nó đi thì nút dính ngay sau huy hiệu mã. Việc ấy chuyển sang `.tickerCode` bằng
+`margin-right: auto` — không dùng `flex: 1` vì huy hiệu phải giữ đúng bề rộng của chữ, giãn ra thì
+nền nhạt kéo thành một vệt trống.
+
+**⚠ Một lời hứa đã ghi thành nguyên tắc bị cắt mất một nửa.** Docblock `active-ticker.ts` viết:
+màn **phải nói ra** đang dùng số liệu của mã nào, và `fundamentalsAsOf` cho biết số liệu đối chiếu
+lúc nào — "cùng luật mà `PriceState = 'stale'` ở tab Danh mục đang chịu". Sau đợt này vế **mã** vẫn
+còn (huy hiệu), vế **mốc ngày** thì không còn chỗ nào trên màn nói ra. Trường `fundamentalsAsOf`
+vẫn được cất và vẫn đi qua bộ đọc, nên dữ liệu còn nguyên cho ai cần dựng lại. Docblock đã sửa cho
+khỏi nói dối, và đánh dấu đây là chỗ khác biệt với tab Danh mục — nơi ngày phiên vẫn bắt buộc hiện.
+
+**Ca kiểm đổi cách dò, không xoá.** Năm chỗ bám vào hai khoá vừa bỏ; thứ chúng bảo vệ ("không tự
+điền ô trong im lặng", "chuỗi minh hoạ không được khoe là số thật") vẫn còn nguyên giá trị, chỉ là
+nay do huy hiệu mã và hai nút gánh. Thêm helper `thanhMa()` dò qua **nút "Đổi mã"** chứ không qua
+`getByRole('status')`: màn có nhiều vùng mang vai ấy, và một ca đã bắt đúng lỗi bắt nhầm đó.
+
+**Kiểm chứng.** Lint, typecheck sạch; `FormulaDetail.test.tsx` 142 ca xanh; toàn bộ vitest 2.630 ca
+xanh. Trên **Chrome thật** ở `/cong-thuc/pe/?ma=FPT`: thanh mã còn đúng `FPT · Đổi mã · Bỏ mã`, hai
+câu đã bỏ không xuất hiện ở bất kỳ đâu trên trang, hai nút vẫn dạt mép phải, ô nhập vẫn được điền.
+
+**Nợ không thuộc đợt này:** `SettingsScreen.test.tsx` có 4 ca đỏ (`role="listitem"` không tìm thấy,
+tính năng "hoàn tác sau khi xoá một kho") và `SettingsScreen.tsx` chưa qua `format:check`. Cả hai
+xuất hiện trong lúc đợt này đang chạy, ở file mà đợt này không chạm — `npm run check` đã xanh trọn
+hai lần trước đó.
+
+---
+
+## Ô nhập số không nhận chữ cái, ô Ngày mở bàn phím số (14/09/2026)
+
+**Trạng thái: xong.** Chủ dự án yêu cầu: _"tất cả các ô nhập số liệu liên quan đến việc nhập số
+thì không được có sự xuất hiện của chữ cái. Trên mobile thì hiển thị bàn phím số. Còn nếu trên web
+thì không cho nhập text vào các loại ô đó."_
+
+**Hiện trạng trước đợt này.** Bàn phím số mobile gần như đã xong — cả ba component số và ba ô của
+form Danh mục đều có `inputMode="decimal"`; chỉ ô "Ngày phiên" của bảng WF-05 còn để `text`. Việc
+chặn chữ thì **chưa có ở đâu cả**: gõ `abc` vào ô số thì chữ hiện lên bình thường, tới lúc chốt mới
+bị `parseViNumber()` trả `null`. Ở `NumberCell` điều đó còn **xoá mất giá đang có**, vì `null` đi
+thẳng lên nơi gọi.
+
+**Chốt với chủ dự án trước khi làm:** giữ `type="text"` (đổi sang `type="number"` sẽ nuốt `14,3`
+và `92.000`, và làm vỡ ~15 ca kiểm tìm ô theo vai `textbox`); dán chuỗi lẫn chữ thì lọc bỏ phần
+thừa giữ lại số; ô Ngày vào phạm vi kèm luật tự ghép dấu; có thêm cửa gác chống tái phát.
+
+| file                                   | sửa gì                                                                                                       |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `core/format.ts`                       | `keepViNumberChars()` — cửa ký tự của mọi ô số, đặt cạnh `parseViNumber` vì cùng họ luật                     |
+| `core/price-series.ts`                 | `keepSeriesDateChars()` + `withSeriesDateSlashes()` — đặt cạnh `ISO`/`DMY`/`DM` vì tập dấu ngăn suy ra từ đó |
+| `application/index.ts`                 | re-export ba hàm trên (CON-02: `src/ui` không import thẳng `src/core`)                                       |
+| `ui/inputs/filtered-change.ts` (mới)   | `filterTypedValue()` — lọc trong `onChange` và giữ nguyên vị trí con trỏ                                     |
+| `ui/inputs/NumberInput.tsx`            | gắn cửa lọc, thêm quy tắc 4 vào docblock                                                                     |
+| `ui/inputs/InlineNumber.tsx`           | gắn cửa lọc, thêm quy tắc 6; sửa luôn dòng "Năm quy tắc" trong khi đang liệt kê bảy                          |
+| `ui/inputs/NumberCell.tsx`             | gắn cửa lọc — chỗ này sửa luôn một lỗi **mất dữ liệu**, xem dưới                                             |
+| `app/danh-muc/PortfolioScreen.tsx`     | ba ô số lượng / giá vốn / beta, thêm `type="text"` tường minh                                                |
+| `app/du-lieu/DataTableScreen.tsx`      | ô Ngày: `inputMode="numeric"` + ghép dấu lúc rời ô                                                           |
+| `ui/inputs/numeric-gate.test.ts` (mới) | cửa gác quét mã nguồn: file nào bật bàn phím số mà quên cửa lọc thì đỏ                                       |
+
+**Ranh giới giữ xuyên suốt.** Bộ lọc chỉ quyết định **ký tự nào được tồn tại**; chuỗi đó có phải
+một con số hợp lệ không thì vẫn là việc của `parseViNumber()` / `parseSeriesDate()`. Nên `4-4`,
+`1,2,3`, `..` vẫn lọt cửa ký tự rồi bị trả `null` y như trước. Không nhét luật "chỉ một dấu trừ và
+phải ở đầu" vào bộ lọc — luật ấy sẽ xoá ký tự ngay dưới ngón tay người đang sửa `-45` ở giữa chuỗi.
+
+**Vì sao lọc ở `onChange` chứ không `onBeforeInput`/`onPaste`.** `onChange` là phễu duy nhất mà mọi
+đường sửa nội dung đều đi qua: gõ, dán, kéo-thả, IME, autofill, hoàn tác. Hai lựa chọn kia mỗi cái
+chỉ che một đường, mà `onBeforeInput` của React còn không phải sự kiện `beforeinput` gốc.
+
+**Con trỏ.** Ô là controlled, nên khi ký tự bị loại ở GIỮA chuỗi mà state không đổi, React vẫn ghi
+lại `node.value` sau sự kiện và con trỏ văng về cuối. `filterTypedValue()` ghi thẳng vào DOM rồi tự
+đặt lại con trỏ; nhánh ấy chỉ chạy khi thật sự có ký tự bị loại.
+
+**Ô Ngày — cái bẫy phần cứng.** Bàn phím số của iPhone lẫn Android **không có phím `/`**. Bật
+`inputMode="numeric"` một mình là khoá người dùng điện thoại ra khỏi cột Ngày: họ chỉ gõ được
+`07092026`. `withSeriesDateSlashes()` lúc rời ô là **phần bù bắt buộc**, không phải tiện ích thêm —
+ai gỡ nó là hồi quy cứng trên điện thoại. Nó không bao giờ đoán bừa: ghép không ra một ngày có thật
+thì trả nguyên xi, nên số thứ tự phiên (`1`, `2` của chuỗi minh hoạ trang Beta) nằm im.
+
+**Một lỗi mất dữ liệu được vá kèm.** Ở `NumberCell` (bảng WF-05 và bảng dòng tiền XIRR), gõ nhầm
+một chữ vào ô đang giữ `100` làm `parseViNumber` trả `null`, và `null` đi thẳng lên — giá biến mất
+khỏi bảng. Nay chữ rụng trước khi tới đó nên con số cũ còn nguyên.
+
+**Một ca kiểm cũ phải đổi đường vào, không phải xoá.** `PortfolioScreen.test.tsx` có ca "beta gõ
+chữ: nói rõ, không lặng lẽ biến thành chưa-có-beta". Chữ nay không vào nổi ô nên không còn đường
+dẫn tới câu lỗi bằng chữ cái — nhưng câu lỗi **vẫn phải ở lại**, vì `1,2,3` gồm toàn ký tự hợp lệ
+mà `parseViNumber` vẫn trả `null`. Ca đổi tên và đổi chuỗi gõ; thứ nó bảo vệ không đổi.
+
+### Vá tiếp — ô ăn mất chữ số khi bấm nhầm (cùng ngày)
+
+Chủ dự án báo ngay sau khi cửa lọc lên: _"đang nhập số mà bấm nhầm sau text chữ số thì số trong ô
+lại bị xóa đi"_, chỉ đích danh ba ô của form Danh mục.
+
+**Tái hiện được, và là hồi quy do chính cửa lọc gây ra.** Gõ `100`, bấm nhầm `a` (chữ bị loại
+ngay), rồi bấm Backspace để xoá chữ vừa nhầm — nhưng `a` không còn trong ô nữa nên phím xoá ăn
+thẳng vào chữ số, ô còn `10`. Trước khi có cửa lọc, `a` nằm lại trong ô nên phím xoá ăn đúng vào
+`a` và không ai mất số.
+
+**Vế nặng hơn: bộ gõ tiếng Việt.** Unikey/EVKey gõ `a` rồi `s` để ra `á` bằng cách gửi
+**Backspace rồi chèn `á`** — phím xoá ấy là tự động, người dùng không bấm gì. Mỗi chữ có dấu là
+một chữ số biến mất; gõ vài lần là ô sạch trơn. Đây là cái giá của việc lọc âm thầm, và phải trả
+bằng một phần bù tường minh.
+
+| file                                             | sửa gì                                                                                                                |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `ui/inputs/filtered-change.ts`                   | `guardFilteredDelete()` + `resetFilteredDelete()` — đếm số ký tự vừa bị loại rồi nuốt đúng bấy nhiêu phím xoá kế tiếp |
+| `ui/inputs/NumberInput.tsx` · `InlineNumber.tsx` | gộp vào `onKeyDown` sẵn có (Enter→blur) và `onBlur`                                                                   |
+| `ui/inputs/NumberCell.tsx`                       | thêm `onKeyDown` — ô này trước không có handler phím nào                                                              |
+| `app/danh-muc/PortfolioScreen.tsx`               | ba ô số lượng / giá vốn / beta, thêm `onKeyDown` + `onBlur`                                                           |
+| `app/du-lieu/DataTableScreen.tsx`                | ô Ngày, gộp vào `onBlur` ghép dấu sẵn có                                                                              |
+| `ui/inputs/numeric-gate.test.ts`                 | vế thứ hai: có cửa lọc mà quên phần bù phím xoá thì đỏ                                                                |
+
+**Vì sao ĐẾM chứ không chỉ một cờ bật/tắt.** Bấm nhầm hai chữ liền thì người dùng cũng bấm xoá hai
+lần; đếm thì lần thứ ba mới ăn vào chữ số — đúng số lần họ tưởng mình phải xoá. Một cờ đơn sẽ để
+lần thứ hai ăn mất số.
+
+**Hai chỗ cố ý KHÔNG nuốt**, vì ở đó phím xoá là ý định thật của người dùng: khi đang bôi đen một
+vùng, và sau một thao tác **dán** (dán `100 cổ phiếu` loại chín ký tự cùng lúc, mà người dán thấy
+ngay ô chỉ nhận `100` — nuốt chín phím xoá sau đó là cướp phím của họ). Bộ đếm cũng tiêu ngay khi
+người dùng bấm phím điều hướng: con trỏ đã dời đi thì phím xoá không còn là "xoá chữ vừa nhầm".
+
+**Một lỗi trong chính bản vá, do ca kiểm bắt được:** bản đầu đặt lại bộ đếm ở **mọi** phím không
+phải Backspace, nên keydown của chữ thứ hai xoá mất lượt đếm của chữ thứ nhất và phím xoá thứ hai
+lại ăn vào chữ số. Nay phím ký tự và phím bổ trợ (Shift, Control…) không đụng tới bộ đếm — chỉ
+`filterTypedValue` mới biết ký tự ấy có lọt cửa hay không.
+
+**Kiểm chứng.** `npm run check` xanh trọn (110 file, 2.643 ca). Trên **Chrome thật**: 30 mục qua ba
+ô — bấm nhầm rồi xoá không mất số, mô phỏng bộ gõ tiếng Việt ba vòng giữ nguyên `250`, nhầm hai chữ
+nuốt đúng hai phím xoá, và bốn ca ngược lại (không nhầm gì / dời con trỏ / sau khi dán) phím xoá
+vẫn ăn thật.
+
+---
+
+**Kiểm chứng.** `npm run check` xanh trọn (110 file, 2.635 ca). Ngoài ra chạy một script CDP trên
+**Chrome thật** dựng theo khuôn `scripts/chrome-check.mjs`, đúng 10 mục trên ba màn: `/cong-thuc/pe/`
+(gõ chữ không vào, `92.000` và `92.000,5` còn nguyên, con trỏ đứng yên khi ký tự bị loại ở giữa),
+`/danh-muc/` (gõ `1a0b0` ra `100`), `/du-lieu/` (ô Ngày `numeric`, `ngay07092026` ra `07092026`, rời
+ô thành `07/09/2026`; ô giá gõ `10a0,5b` ra `100,5`).
+
+---
+
+## Sheet có ô lọc thôi co lại khi gõ (14/09/2026)
+
+**Trạng thái: xong.** Làm hai nhịp — sheet chọn mã trước, rồi mở ra cho mọi sheet có ô lọc.
+
+**Lỗi chủ dự án báo.** Ở Danh mục → "Thêm mã" → sheet chọn mã → gõ tìm: lọc còn ít mã thì tấm
+sheet co lại. Nguyên nhân là `.panel` chỉ có `max-height: 88dvh` chứ không có chiều cao, nên tấm
+**co theo nội dung**. Mở ra là 60 dòng (trần `MAX_ROWS`) nên nó chạm trần; gõ thêm một ký tự còn
+một dòng và tấm tụt xuống chừng hai đốt ngón tay — kéo cả ô tìm kiếm chạy khỏi chỗ ngón tay đang
+gõ. Sheet nào cũng co như vậy, nhưng chỉ sheet này có **ô lọc nằm trong thân**, nên chỉ ở đây
+người dùng mới thấy tấm nhảy dưới tay mình.
+
+| file                                      | sửa gì                                                                                              |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `ui/primitives/BottomSheet.module.css`    | thêm `.panelTall { height: 88dvh }` kèm docblock nói rõ chỉ sheet có ô lọc mới cần                  |
+| `ui/primitives/BottomSheet.tsx`           | prop mới `size?: 'auto' \| 'tall'`, mặc định `'auto'` — không sheet cũ nào đổi hình                 |
+| `ui/sheets/TickerPickerSheet.tsx`         | truyền `size="tall"`                                                                                |
+| `ui/primitives/BottomSheet.test.ts` (mới) | cửa gác hai vế: `.panelTall` phải ghim đúng trần của `.panel`, và sheet chọn mã phải thật sự bật nó |
+
+**Vì sao là prop chứ không sửa thẳng `.panel`.** Bốn dòng của `PresetSheet` mà căng 88dvh thì
+phần lớn tấm là khoảng trắng — co theo nội dung vẫn là mặc định đúng cho mọi sheet còn lại.
+
+**Được thêm một thứ không nhắm tới:** trạng thái "đang tải" nay cũng cao đúng bằng lúc danh sách
+về, nên sheet không còn giật một nhịp khi mạng trả lời.
+
+### Nhịp hai — mở ra cho mọi sheet có ô lọc, và bỏ một dòng phụ thừa
+
+Sheet thứ hai cùng cảnh: **"Công thức dùng được với mã này"** (`FormulaForTickerSheet`) — 31 dòng
+chia hai nhóm, gõ "pe" còn vài dòng. Nay cũng `size="tall"`.
+
+Rà cả `src/ui/sheets/`: đúng **hai** sheet có ô lọc trong thân. `PresetSheet` chỉ có 4 mẫu cố
+định, `PasteImportSheet` có `<textarea>` nhưng không có danh sách nào co dưới tay người dùng,
+`ExportSheet`/`SaveCalcSheet` không lọc gì. Ba cái đó giữ nguyên nếp co theo nội dung.
+
+Cửa gác đổi từ ghim một tên sang **quét cả thư mục**: sheet nào dựng `<BottomSheet` và có một
+`type="search"` thì phải truyền `size="tall"`. Kèm canary ghim đúng hai tên hiện có, để hôm nào
+dấu nhận ấy hỏng thì ca kiểm đỏ chứ không xanh trên một mảng rỗng.
+
+**Xoá `portfolio.formulasSubtitle`** ("Chọn một công thức — lưu xong sẽ mở với số liệu của mã điền
+sẵn") ở cả hai từ điển, kèm bia mộ. Chủ dự án cho là chữ thừa và đúng vậy: tiêu đề đã nói đây là
+danh sách công thức, mỗi dòng in sẵn con số thật ("2/2 ô điền sẵn") cụ thể hơn câu văn, còn vế
+"lưu xong mới mở" thì nhãn nút gửi (`portfolio.formSubmitOpen` / `formSaveOpen`) đã nói — bia mộ
+ghi lại điều này để người sau không dựng lại dòng phụ mà quên xét hai nhãn ấy.
+
+**Kiểm.** `src/ui` + `src/app/danh-muc` + `src/application` — **1394 xanh / 0 đỏ / 35 bỏ qua**;
+`tsc`, `eslint`, `prettier` sạch.
+
+Đo **trên Chrome thật** (Chrome riêng, hồ sơ tạm, chạy vào `next dev`), khung nhìn 1289×780 —
+88% của 780 là 686:
+
+| sheet                | số dòng     | cao tấm           | đỉnh ô lọc |
+| -------------------- | ----------- | ----------------- | ---------- |
+| chọn mã              | 60 → 0 → 60 | 686 px cả ba lượt | 188 px     |
+| công thức cho một mã | 28 → 11 → 0 | 686 px cả ba lượt | 180 px     |
+
+### Nhịp ba — bỏ nốt hai dòng gợi ý ở form thêm/sửa mã
+
+Chủ dự án chốt bỏ hai câu nữa, cả hai đều ở form của màn Danh mục:
+
+| khoá                    | câu                                                                           | thứ đang gánh nghĩa thay nó                                                  |
+| ----------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `portfolio.editHint`    | "Đổi số lượng, giá vốn, ngày mua hoặc beta. Muốn đổi mã thì bỏ rồi thêm lại." | bốn ô đổi được đang hiện ngay dưới; nút mã `disabled` nói phần "mã khoá rồi" |
+| `portfolio.formulaHint` | "Tuỳ chọn. Chọn rồi thì lưu xong sẽ mở thẳng công thức đó…"                   | nhãn nút gửi: "Thêm và mở công thức" / "Lưu và mở công thức"                 |
+
+Xoá ở cả hai từ điển kèm bia mộ. Ô mã nay **không còn dòng gợi ý nào ở cả hai chế độ**, nên
+docblock của `portfolio.pickCode` (đang nói "chế độ SỬA vẫn còn `editHint`") cũng phải sửa theo —
+nó đã thành sai.
+
+**Hai chỗ phải cẩn thận, không phải xoá cho xong:**
+
+1. Câu `portfolio.formulaNeedsCode` ("…nên chọn mã trước. Bấm vào đây để chọn.") **ở lại**: nút
+   lúc đó hứa "Chọn mã cổ phiếu trước" và làm việc khác với nhãn ô, nên phải có chỗ nói vì sao.
+   Nghĩa là `<span>` không xoá mà chỉ còn ở nhánh khoá — kéo theo `aria-describedby` phải thành có
+   điều kiện. Trỏ vào một id không tồn tại thì trình đọc màn hình lặng thinh: không lỗi, không
+   cảnh báo, chỉ mất phần mô tả.
+2. Ca kiểm ghim `editHint` **đổi mỏ neo chứ không xoá**: nay nó ghim nút mã `disabled`. Xoá hẳn
+   thì hôm nào ai đó gỡ `disabled` để "cho sửa cả mã" sẽ không gì đỏ — mà `addHolding()` cộng dồn
+   theo mã, nên sửa mã tại chỗ là một lối vỡ dữ liệu im lặng.
+
+**Kiểm:** toàn bộ **2633 xanh / 0 đỏ / 38 bỏ qua**. `tsc`, `eslint`, `prettier` sạch.
+
+### Nhịp bốn — gọn một câu cảnh báo XIRR
+
+`src/core/portfolio.ts` — cảnh báo `MODEL_VIOLATION` khi ngày mua nằm sau ngày định giá, bỏ vế
+"— chưa mua thì chưa có lợi suất để tính." (và vế tương ứng bên `en`). Vế ấy giải thích một điều
+câu đầu đã nói xong. Phần việc người dùng cần làm vẫn nguyên ở `fix` ("Kiểm tra lại năm trong ngày
+mua.") — và `fix` mới là chỗ NFR-USA-04 dành cho lời khuyên, `message` chỉ nói NGUYÊN NHÂN.
+
+Đây là chuỗi ở **tầng Domain**, không phải khoá i18n, nên không có cửa khoá mồ côi nào bắt; đã
+grep cả `src/` để chắc không ca kiểm nào ghim câu chữ ấy. `src/core` + `src/application`: **1205
+xanh**.
+
+**Còn lại:** chưa xem trên bản build (vẫn kẹt `npm run dev` giữ :3000). Phải nhìn mắt ở `preview`
+360×780 với **bàn phím ảo bật lên** — đó là lúc `dvh` co lại, thứ mà Chrome headless không dựng.
+
+---
+
+## Bỏ cụm tab ở màn Danh mục — màn còn một nội dung (14/09/2026)
+
+**Trạng thái: xong.** Còn MỘT hệ quả treo, chủ dự án đã biết và chọn để vậy — xem cuối mục.
+
+Chủ dự án: _"bỏ mục Công thức và Mã ở trong phần Danh mục đi, giữ lại thiết kế + chức năng của phần
+Mã thôi"_, rồi khi được hỏi lại: _"tức là bây giờ bỏ tabbar đi và giữ lại toàn bộ giao diện và logic
+thêm mã cổ phiếu cũ"_.
+
+**Đã hỏi trước khi xoá,** vì "bỏ cụm tab" và "bỏ tính năng lưu phép tính" là hai khối lượng việc rất
+khác nhau (2 file so với 17), và tab ấy là chỗ DUY NHẤT xem lại phép tính đã lưu. Chủ dự án chọn
+phạm vi hẹp.
+
+**Đi theo cụm tab** — tất cả đều chỉ tồn tại vì có hai panel:
+
+| bỏ gì                                                        | vì sao nó chỉ có nghĩa khi có tab                                    |
+| ------------------------------------------------------------ | -------------------------------------------------------------------- |
+| panel "phép tính đã lưu" + `<TabBar>`                        | nội dung của tab thứ hai                                             |
+| state `tab` · `switchTab` · `tablistRef` · `tabJustClicked`  | chỉ phục vụ việc đổi tab                                             |
+| effect cuộn cụm tab về tầm mắt                               | dựng cho cú trang co 1916 → 780px giữa hai panel                     |
+| nhánh đọc `?tab=cong-thuc`                                   | không mở ra được gì nữa                                              |
+| `persistSaved()` · `isoDayOf()` · `useValueText()`           | chỉ danh sách đã lưu gọi                                             |
+| `role="tabpanel"` · `aria-labelledby` · `PORTFOLIO_PANEL_ID` | một tabpanel không có tablist là nói dối trình đọc màn hình          |
+| CSS `.tabsWrap` · khối `.saved*` · `.list`                   | `.list` là `<ul>` của riêng danh sách ấy; mã có `.holdList`          |
+| 7 khoá i18n ở cả hai từ điển                                 | `tabHoldings` · `tabSaved` · `savedEmpty/Open/Remove/At/NeedsSeries` |
+
+**`.panel` thì KHÔNG bỏ**, dù nó thôi làm tabpanel. `.screen` là flex column có `gap`, nên sáu ô số
+· thanh thị giá · khối Nắm giữ vốn là con trực tiếp của nó và được giãn cách sẵn; một `<div>` trần
+cắt đứt quan hệ ấy và thanh thị giá đè lên tiêu đề "NẮM GIỮ". Đã ghi lại ở cả TSX lẫn CSS.
+
+**Cửa gác `hairline.test.ts` phải sửa theo:** `.savedRow` là một trong tám kẻ chia cố ý dùng
+`--color-border`, ghim theo DANH SÁCH chứ không theo số đếm. Bỏ dòng ấy, đổi "tám" thành "bảy" ở cả
+docblock lẫn tên ca.
+
+**Ba docblock trong CSS nói sai sau khi xoá** — đã viết lại chứ không để lại: `.panel` ("Thân của
+một tab"), `.empty` ("tab Mã tuyệt đối không được sinh thêm `<li>`"), và đoạn trong `.holdList` dặn
+giữ `.list`/`.row`/`.actions` "vì tab Công thức vẫn dùng chúng". Riêng `.actions` thì đúng là ở lại
+— khối chi tiết của một mã vẫn dùng.
+
+**Hai khối ca kiểm bỏ theo:** "đổi tab không ném người dùng đi chỗ khác" và "tab Công thức" (15 ca).
+Chúng đo đúng thứ không còn tồn tại, không phải đo một lời hứa vẫn còn giá trị.
+
+### ⚠ Hệ quả còn treo
+
+Nút "Lưu vào danh mục" ở 111 màn chi tiết VẪN ghi vào `ffb.savedCalcs.v1`, nhưng nay không màn nào
+bày kho ấy ra, và câu xác nhận "Đã lưu vào Danh mục › Công thức" trỏ vào một tab không còn. Chủ dự
+án biết và chọn để vậy ở lượt này. `saved-calc-store.ts` cùng `saved-calc-name.ts` giữ nguyên kèm ca
+kiểm — bày lại ở đâu đó chỉ còn là việc dựng UI. Nhóm khoá `portfolio.save*` của sheet lưu cũng ở
+lại; đừng thấy tên gần giống mà dọn nốt.
+
+**File đổi:** `app/danh-muc/PortfolioScreen.tsx` + `.module.css` + `.test.tsx`,
+`application/i18n/vi.ts` + `en.ts`, `ui/hairline.test.ts`.
+
+Kiểm: toàn bộ **2592 xanh / 0 đỏ**. `tsc` + `eslint` + `prettier` sạch. Chưa xem trên bản build —
+cùng chỗ nghẽn ghi ở cuối file.
+
+---
+
+## Gợi ý beta ở form Danh mục nói beta LÀ GÌ trước (14/09/2026)
+
+**Trạng thái: xong.**
+
+Chủ dự án: _"đang chưa rõ text 'Beta chưa tính tự động được - cần chuỗi lợi suất …' cần bổ sung giải
+thích ý nghĩa của Beta là gì"_.
+
+**Chẩn đoán.** Câu cũ chỉ có MỘT vế: vì sao sản phẩm chưa tính được. Vế ấy chỉ có nghĩa với người
+đã biết beta là gì — mà ô nhập này đứng trước cả hai loại người dùng. Người chưa biết đọc xong một
+câu đầy thuật ngữ ("chuỗi lợi suất", "chỉ số thị trường") và vẫn không biết phải gõ con số nào.
+
+**Câu mới, hai vế theo đúng thứ tự người đọc cần:**
+
+> Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index — beta 1,5 nghĩa là chỉ số nhích 1% thì mã
+> thường nhích khoảng 1,5%, dưới 1 là nhẹ hơn thị trường. Sản phẩm chưa tự tính được vì cần chuỗi
+> lợi suất của cả mã lẫn chỉ số; nhập tay nếu bạn đã có số.
+
+Hai lựa chọn có chủ ý: mỏ neo **1,5** lấy đúng ví dụ mà `meaning` của công thức `beta` trong Registry
+đang dùng, và gọi tên **VN-Index** thay vì "chỉ số thị trường" — đó là chỉ số công thức ấy thật sự
+hồi quy theo, và người dùng Việt Nam đọc ra ngay.
+
+**Dây neo thứ ba ở `i18n.test.ts`, và nó neo Ý chứ không neo CHỮ.** Hai ca neo sẵn có (`unit.scale.*`,
+`paste.col.*`) so từng chữ với Domain. Ở đây không so được: một câu gợi ý trong form và một đoạn
+`meaning` đầy đủ vốn dĩ phải khác độ dài. Cái ghim được là mỏ neo — cùng con số ví dụ, cùng tên chỉ
+số — cộng một canary trên chính `meaning` để nếu Registry đổi ví dụ thì đỏ ở đúng dòng nói ra điều
+đó. Vế "nhập tay" cũng bị ghim, để lý do ô này bắt người dùng tự gõ không biến mất theo.
+
+Cùng một khái niệm được giải thích hai kiểu ở hai chỗ cách nhau vài cú bấm là thứ làm người đọc ngờ
+chính mình hiểu sai — đó mới là điều ca kiểm này gác, không phải câu chữ.
+
+**File đổi:** `application/i18n/vi.ts` + `en.ts` + `i18n.test.ts`.
+
+Kiểm: toàn bộ **2602 xanh / 0 đỏ**. `tsc` + `eslint` + `prettier` sạch. Chưa xem trên bản build —
+cùng chỗ nghẽn ghi ở cuối file.
 
 ---
 
@@ -213,6 +778,92 @@ thành "Đã áp dụng ✓"), cùng hai khoá `detail.applyToTable` / `detail.a
 
 Kiểm: toàn bộ **2592 xanh / 0 đỏ** — ba ca baseline đỏ suốt tuần trước nay cũng đã được vá ở nhánh
 khác. `tsc` + `eslint` + `prettier` sạch. Chưa xem trên bản build — cùng chỗ nghẽn ghi ở cuối file.
+
+---
+
+## Bỏ ba câu giải thích thừa trên giao diện (14/09/2026)
+
+**Trạng thái: xong.** Lint + typecheck sạch, **108 file / 2606 test** xanh, file trong phạm vi đợt
+này prettier sạch.
+
+### Yêu cầu
+
+> Chủ dự án: _"bỏ các loại text kiểu giải như sau đi"_ — `(để trống nếu chưa biết)` · `Thị giá lấy
+từ Finbox theo phiên gần nhất, không phải giá khớp lệnh.` · `cập nhật tức thì`.
+
+Câu thứ ba chính là mục **#34** của bảng feedback test nội bộ.
+
+### Ba câu, ba lý do bỏ khác nhau
+
+| Câu                        | Ở đâu                             | Vì sao thừa                                                                                                                        |
+| -------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `(để trống nếu chưa biết)` | nhãn ô Beta, form Danh mục        | Dòng gợi ý ngay dưới đã nói đủ và rõ hơn ("nhập tay nếu bạn đã có số"). Nhãn ô nhập nên gọi tên thứ nó nhận, không mang hướng dẫn. |
+| `Thị giá lấy từ Finbox…`   | dưới ô chọn mã, chỉ ở chế độ THÊM | Trả lời một câu chưa ai hỏi: lúc ấy mã còn chưa chọn, trên màn chưa có thị giá nào để đính điều kiện.                              |
+| `cập nhật tức thì`         | dòng nhãn thẻ Kết quả (FR-05)     | Hứa một hành vi mà chính hành vi tự nói ra: gõ tới đâu số đổi tới đó, thấy ngay ở lần gõ đầu.                                      |
+
+Hai thứ **giữ nguyên**, vì chúng khác loại: câu gợi ý beta (nói beta LÀ GÌ — phiên làm mục #23 vừa
+viết lại), và `portfolio.editHint` ở chế độ SỬA (nói về thao tác đang làm, không giới thiệu nguồn
+số liệu). Lời hứa "số này cũ tới đâu" cũng không mất: nó nằm đúng cạnh con số, ở dòng ngày phiên khi
+giá lấy từ bộ nhớ đệm (`PriceState = 'stale'`), ca kiểm ghim dòng ấy vẫn nguyên.
+
+### File đã đổi
+
+- `src/application/i18n/vi.ts`, `src/application/i18n/en.ts` — `portfolio.formBeta` còn `'Beta'`;
+  `portfolio.priceNote` và `result.live` xoá hẳn (cửa gác khoá mồ côi sẽ bắt nếu để lại), chỗ cũ để
+  lại chú thích nói vì sao bỏ.
+- `src/ui/result/ResultBlock.tsx` + `.module.css` — dòng nhãn còn một `<span>` chữ KẾT QUẢ; bỏ lớp
+  `.live` và dấu `·` do `::before` sinh.
+- `src/app/danh-muc/PortfolioScreen.tsx` — dòng dưới ô mã chỉ dựng khi đang SỬA.
+- Ca kiểm: một ca ở `ErrorState.test.tsx` và một describe ba ca ở `PortfolioScreen.test.tsx` ghim
+  **chiều ngược** (chữ đã bỏ không được quay lại, chữ phải giữ thì vẫn còn) — cùng khuôn describe
+  "cam kết còn, câu nói ra thì không" đã có sẵn trong file ấy.
+
+---
+
+## Dữ liệu trên máy nói bằng tiếng người, không bằng tiếng lập trình (14/09/2026)
+
+**Trạng thái: xong.** `npm run check` xanh **108 file / 2601 test**, lint + typecheck + format sạch.
+
+### Yêu cầu
+
+> Chủ dự án khoanh đúng dòng phụ của hàng đầu tiên trong khối "Dữ liệu trên máy": _"đang không hiểu
+> vùng khoanh tròn biểu thị cho cái gì. không có nghĩa. thiết kế lại cách hiển thị để cho người dùng
+> có thể hiểu chứ không phải người code"_.
+
+Dòng ấy in `ffb.prefs.v1 · 98 ký tự`: tên khoá `localStorage` (chi tiết cài đặt) và độ dài chuỗi JSON
+(một con số không trả lời câu hỏi nào người dùng đang hỏi). Đúng: cả hai vế chỉ người viết mã đọc được.
+
+### Đã chốt trước khi làm
+
+Hỏi hai câu, chủ dự án chọn: **(1)** dòng phụ là một CÂU nói trong kho có gì + nhãn "Chưa có gì" khi
+kho rỗng, không con số nào; **(2)** khoá kho **ẩn hẳn** khỏi màn.
+
+### Cách làm
+
+- Mười câu mô tả mới (vi + en), mỗi câu trả lời hai điều: trong kho có gì, và nó sinh ra từ thao tác
+  nào của người dùng — gọi đúng TÊN MÀN ("màn Tìm kiếm", "màn Bảng dữ liệu") để họ nối được với việc
+  mình đã làm. `StorageNoteKey` là bản sao có hậu tố `.note` của union nhãn, nên thêm kho mới mà quên
+  câu mô tả là **lỗi biên dịch**, không phải một dòng trống nghĩa lọt ra màn.
+- `data.chars` bỏ hẳn (cửa gác khoá mồ côi ở `i18n.test.ts` sẽ bắt nếu để lại); `data.empty` đổi
+  thành nhãn trạng thái "Chưa có gì" / "Nothing yet", chỉ hiện khi kho rỗng — nó là lời giải thích
+  cho nút xoá đang mờ ngay cạnh, nên kho có dữ liệu thì không cần nhãn nào.
+- `sizeOf()` → `coDuLieu()` trả `boolean`: màn không còn cần độ dài, mà giữ lại một giá trị không ai
+  đọc là lời mời in nó ra màn lần nữa.
+- **Khoá kho vẫn nằm trong DOM** ở thuộc tính `data-key`. Đây là phần không được bỏ: cửa gác "mọi kho
+  khai trong `src/application` đều xoá được ở màn này" đã thủng hai lần thật (`ffb.tickers.v1`,
+  `ffb.prices.v1` nằm trên máy người dùng mà không có nút xoá nào), nên nó phải tiếp tục soi được
+  từng hàng. Nay nó đọc thuộc tính thay vì đọc chữ.
+
+### File đã đổi
+
+- `src/application/i18n/vi.ts`, `src/application/i18n/en.ts` — 10 khoá `.note` mới, bỏ `data.chars`,
+  đổi `data.empty`.
+- `src/app/cai-dat/SettingsScreen.tsx` — `StorageNoteKey`, `coDuLieu()`, hàng hai dòng, `data-key`.
+- `src/app/cai-dat/SettingsScreen.module.css` — bỏ `.key` (chữ mono của khoá), thêm `.rowHead` và
+  `.rowEmpty`; `.rowHint` bỏ `overflow-wrap: anywhere` vì nay là câu chữ, để lại thì nó cắt giữa từ.
+- `src/app/cai-dat/SettingsScreen.test.tsx` — cửa gác đọc `data-key`; hai ca mới ghim cả hai vế của
+  phép chữa (không hàng nào in khoá hay chữ "ký tự"; mỗi kho có một câu nói trong đó là gì); ba ca cũ
+  vốn soi con số cỡ kho nay soi nhãn "Chưa có gì" và trạng thái nút xoá.
 
 ---
 

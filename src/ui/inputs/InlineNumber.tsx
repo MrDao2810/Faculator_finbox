@@ -5,6 +5,7 @@ import { useState } from 'react';
 import {
   commitValue,
   formatNumber,
+  keepViNumberChars,
   parseViNumber,
   rawViNumber,
   resolveInputState,
@@ -13,6 +14,7 @@ import {
 import type { VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
 import styles from './InlineNumber.module.css';
 
 export interface InlineNumberProps {
@@ -46,7 +48,7 @@ export interface InlineNumberProps {
  * của ví dụ), và `NumberInput` — cái cuối vẫn giữ bản riêng vì nó phải vẽ đủ năm trạng thái WF-16
  * qua primitive `Input`, còn hai chỗ kia chỉ cần con số.
  *
- * Năm quy tắc, giống hệt `NumberInput` để hai ô không cư xử khác nhau:
+ * Bảy quy tắc, giống hệt `NumberInput` để hai ô không cư xử khác nhau:
  *
  *   0. **Đẩy giá trị lên ngay từng phím gõ**, chuỗi chưa ra số thì bỏ qua lượt đó. Trước đây cả
  *      hai ô chỉ báo lên lúc rời ô, nên gõ xong mà khối Kết quả vẫn đứng im — xem `NumberInput`.
@@ -63,6 +65,9 @@ export interface InlineNumberProps {
  *      của Domain; khác biệt còn lại chỉ là chỗ đặt lời cảnh báo — `NumberInput` có dòng `error`
  *      của primitive, ô này nằm lẫn trong dòng chữ nên chỉ có viền, dấu `!` và câu cho trình đọc
  *      màn hình. Kẹp vẫn xảy ra đúng một chỗ, lúc chốt (quy tắc 1).
+ *   6. **Chữ cái không bao giờ xuất hiện trong ô.** Chặn ở `onChange` qua `keepViNumberChars()`,
+ *      cùng một cửa với `NumberInput` — nếu không thì hai ô lại cư xử khác nhau, đúng thứ quy tắc
+ *      5 vừa dọn xong. Chỉ chặn KÝ TỰ, còn chuỗi ấy có ra số không vẫn là của `parseViNumber()`.
  */
 export function InlineNumber({
   spec,
@@ -170,7 +175,8 @@ export function InlineNumber({
           setDraft(rawViNumber(value));
         }}
         onChange={(event) => {
-          const next = event.target.value;
+          /* Quy tắc 6 — chữ cái rụng tại đây, con trỏ giữ nguyên chỗ. */
+          const next = filterTypedValue(event, keepViNumberChars);
           setDraft(next);
 
           // Quy tắc 0 — xem docblock. Chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì giữ nguyên giá
@@ -178,8 +184,13 @@ export function InlineNumber({
           const parsed = parseViNumber(next);
           if (parsed !== null && parsed !== value) onChange(parsed);
         }}
-        onBlur={commit}
+        onBlur={(event) => {
+          resetFilteredDelete(event.currentTarget);
+          commit();
+        }}
         onKeyDown={(event) => {
+          /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. */
+          guardFilteredDelete(event);
           if (event.key !== 'Enter') return;
           event.preventDefault();
           event.currentTarget.blur();

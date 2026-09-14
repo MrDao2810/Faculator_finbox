@@ -54,14 +54,11 @@
 }
 
 /*
- * Nhãn gộp "KẾT QUẢ · CẬP NHẬT TỨC THÌ" trên một dòng, đúng bản vẽ.
+ * Dòng nhãn của thẻ Kết quả — nay chỉ còn chữ "KẾT QUẢ".
  *
- * Bản trước tách đôi: "KẾT QUẢ" ở trên, "cập nhật tức thì" ở góc dưới phải. Nhãn FR-05 ấy nói
- * về CÁCH con số vận hành nên nó thuộc về dòng nhãn, không phải một dòng riêng dưới đáy thẻ.
- *
- * Hai `<span>` lồng chứ không một chuỗi ghép: ba ca kiểm ở `FormulaDetail.test.tsx` dò đúng
- * chuỗi 'KẾT QUẢ' để biết khối kết quả CHUNG có mặt hay không, mà `getByText` khớp trọn nội
- * dung của một thẻ — ghép thành một chuỗi là ba ca ấy hỏng. Xem thêm `vi.ts` chỗ `result.live`.
+ * Từng là nhãn gộp "KẾT QUẢ · CẬP NHẬT TỨC THÌ" (và trước nữa, vế thứ hai nằm riêng ở góc dưới
+ * phải thẻ). Chủ dự án chốt bỏ vế ấy ngày 14/09/2026 — xem `ResultBlock.tsx` và `vi.ts`. Lớp
+ * `.live` cùng dấu chấm phân cách do `::before` sinh ra đã đi theo, không còn chỗ nào dùng.
  */
 .eyebrow {
   font-size: var(--text-xs);
@@ -69,11 +66,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-on-result);
-}
-
-/* Dấu chấm giữa là trang trí — để CSS sinh ra thì nó không lọt vào bản đọc màn hình. */
-.live::before {
-  content: ' · ';
 }
 
 .figure {

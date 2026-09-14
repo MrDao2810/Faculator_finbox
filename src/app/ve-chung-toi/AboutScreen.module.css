@@ -1,0 +1,447 @@
+/*
+ * Màn "Về chúng tôi".
+ *
+ * Bề ngang KHÔNG phải việc của file này: `AppShell.module.css` đã nới `main` từ `--content-max`
+ * (720px) lên `--desktop-max` ở 1024px, nên mọi lưới dưới đây chỉ việc lấp ô của nó.
+ *
+ * Hai loại lưới, cố ý khác nhau:
+ *   - lưới thẻ dùng `auto-fit` nên tự đi từ 1 → 2 → 3 cột mà không cần một media query nào;
+ *   - hai bố cục thật sự đổi DÁNG (dải mở đầu, cặp cột kiến trúc/dữ liệu) thì mới dùng mốc 1024,
+ *     đúng bậc đã khai trong bảng "BẬC MÀN" của `globals.css`.
+ */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  min-width: 0;
+}
+
+/* ── Dải mở đầu ──────────────────────────────────────────────────────────────────────────── */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/*
+ * Nhãn nhỏ trên tiêu đề. Nền nhấn nhạt + bo tròn hết cỡ, dáng con chip — cố ý KHÔNG viết hoa,
+ * vì viết hoa sẽ khiến nó đọc ra như một tiêu đề khối thứ hai cạnh `.blockTitle`.
+ */
+.eyebrow {
+  align-self: flex-start;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-pill);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-accent-strong);
+  /* Tiêu đề dài, nhiều từ ghép — ở 360px phải xuống dòng được chứ đừng tràn ngang. */
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-2);
+
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  padding: var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.statIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 28px;
+  height: 28px;
+
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.statText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.statName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+}
+
+.statNote {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.heroArt {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+/*
+ * Ảnh minh hoạ. `width`/`height` khai ở THẺ để trình duyệt chừa sẵn khung; hai dòng dưới đây chỉ
+ * lo phần co giãn theo cột.
+ */
+.heroImage {
+  display: block;
+  width: 100%;
+  /* Tệp rộng 1040px, tức trần này là bản gấp 1,86× — vừa đủ nét trên màn có tỉ lệ điểm ảnh 2. */
+  max-width: 560px;
+  height: auto;
+}
+
+/*
+ * Bảng tối: ảnh nền sáng giữa trang tối sẽ chói. Hạ nhẹ độ đục thay vì xin một tấm ảnh thứ hai —
+ * hai tấm thì Chrome vẫn tải cả tấm đang `display: none`, tức trả băng thông hai lần cho một hình
+ * trang trí. Dùng `:global(html[data-theme='dark'])` chứ không `prefers-color-scheme`: chủ đề của
+ * sản phẩm là một TUỲ CHỌN có thật, không suy ra từ hệ điều hành — xem docblock ở `globals.css`.
+ */
+:global(html[data-theme='dark']) .heroImage {
+  opacity: 0.9;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: center;
+  }
+}
+
+/* ── Khối chung ──────────────────────────────────────────────────────────────────────────── */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* Cùng bài học với `page.module.css`: thiếu dòng này thì lưới thẻ đẩy tràn ngang ở 360px. */
+  min-width: 0;
+}
+
+/* Kiểu tiêu đề khối dùng chung toàn sản phẩm — `section-title.test.ts` gác năm thuộc tính này. */
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+/*
+ * Hai lưới thẻ, cùng dáng ở khổ hẹp nhưng KHÁC số cột ở khổ rộng — và đó là chủ đích của bản vẽ,
+ * không phải chuyện tuỳ nghi.
+ *
+ * `auto-fit` một mình lo được phần điện thoại và máy tính bảng (1 → 2 cột), nhưng ở 1440px nó
+ * chia 6 thẻ thành 5 cột cộng một thẻ lẻ đứng trơ hàng dưới. Từ 1024px phải chốt số cột: sáu thẻ
+ * "làm được gì" xếp 3 × 2 như bản vẽ, bốn thẻ "không phải là gì" xếp một hàng ngang.
+ */
+.cardGrid,
+.notGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 1024px) {
+  .cardGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .notGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+}
+
+.cardNote {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+/* ── Hai cột kiến trúc / dữ liệu ─────────────────────────────────────────────────────────── */
+
+.twoCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .twoCol {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    /* Cột ngắn không bị kéo cao bằng cột dài — cùng lý do đã ghi ở `SettingsScreen.module.css`. */
+    align-items: start;
+  }
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.stepNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 26px;
+  height: 26px;
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* ── Không phải là gì ────────────────────────────────────────────────────────────────────── */
+
+.notCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+
+  padding: var(--space-3);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * Dấu nhân màu cảnh báo trên nền cảnh báo nhạt. Cặp màu này đã có ca chấm sẵn trong
+ * `contrast.test.ts`, nên không mở thêm nợ nào.
+ */
+.notIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 22px;
+  height: 22px;
+
+  color: var(--color-danger);
+
+  background: var(--color-danger-soft);
+  border-radius: var(--radius-pill);
+}
+
+.notText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* ── Dải kêu gọi cuối trang ──────────────────────────────────────────────────────────────── */
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+
+  padding: var(--space-5);
+
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+}
+
+/* Sentence case, cùng lý do với `.eyebrow` ở đầu trang: đây là nhãn, không phải tiêu đề khối. */
+.ctaEyebrow {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+}
+
+.ctaTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.ctaNote {
+  margin: 0;
+  max-width: var(--content-max);
+
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+.ctaAction {
+  align-self: flex-start;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: var(--tap-min);
+  margin-top: var(--space-2);
+  padding: 0 var(--space-5);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-on-accent);
+  text-decoration: none;
+
+  background: var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.ctaAction:hover {
+  background: var(--color-accent-strong);
+}
+
+.ctaAction:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  .cta {
+    /*
+     * Từ 1024px chữ và nút đứng cạnh nhau, đúng bản vẽ. Cột chữ được `1fr`, nút `auto` — nút
+     * không bao giờ phải co, chữ thì có chỗ tới đâu dùng tới đó.
+     */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-7);
+    padding: var(--space-7);
+  }
+
+  .ctaEyebrow,
+  .ctaTitle,
+  .ctaNote {
+    grid-column: 1;
+  }
+
+  .ctaAction {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+    margin-top: 0;
+  }
+}

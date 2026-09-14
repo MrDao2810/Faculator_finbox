@@ -1,9 +1,9 @@
 import type { NavKey } from '@/application';
 
 /**
- * Bốn icon của thanh điều hướng dưới — gói WBS 2.1.2, vẽ lại theo bản thiết kế ở đợt 8.
+ * Năm icon của thanh điều hướng dưới — gói WBS 2.1.2, vẽ lại theo bản thiết kế ở đợt 8.
  *
- * Vẽ tay bằng SVG thay vì thêm thư viện icon: bốn hình đơn giản không đáng đánh đổi
+ * Vẽ tay bằng SVG thay vì thêm thư viện icon: năm hình đơn giản không đáng đánh đổi
  * dung lượng gói (NFR-PER-04). Dùng `currentColor` nên đổi màu theo trạng thái của link.
  *
  * Mục đang chọn dùng icon **đặc**, mục còn lại dùng icon nét. Khác biệt hình khối này là
@@ -29,6 +29,8 @@ const OUTLINE: Readonly<Record<NavKey, string>> = {
   formulas: 'M4 5h6v6H4V5ZM14 5h6v6h-6V5ZM4 13h6v6H4v-6ZM14 13h6v6h-6v-6Z',
   portfolio: 'M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z',
   settings: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
+  // Chữ "i" trong vòng tròn: chấm trên + thân dưới. Vòng tròn vẽ riêng — xem ABOUT_RING.
+  about: 'M12 7.9h.01M12 11v5',
 };
 
 /** Hình đặc, dùng cho mục đang chọn. */
@@ -38,11 +40,24 @@ const SOLID: Readonly<Record<NavKey, string>> = {
   formulas: 'M3.5 4.5h7v7h-7v-7ZM13.5 4.5h7v7h-7v-7ZM3.5 12.5h7v7h-7v-7ZM13.5 12.5h7v7h-7v-7Z',
   portfolio: 'M3 7a2 2 0 0 1 2-2h4l2.2 2.6H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z',
   settings: 'M12 15.6a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2Z',
+  // Cùng chữ "i", cùng tâm với OUTLINE.about — chỉ chuyển từ nét sang khối tô.
+  about: 'M12 6.75a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3ZM10.9 11h2.2v5h-2.2Z',
 };
 
 /** Vành răng của icon Cài đặt — vẽ riêng vì cả hai trạng thái đều dùng nét. */
 const GEAR_RING =
   'M19.4 13.5a7.6 7.6 0 0 0 0-3l1.8-1.3-1.9-3.3-2.1.8a7.6 7.6 0 0 0-2.6-1.5L14.3 3H9.7l-.3 2.2a7.6 7.6 0 0 0-2.6 1.5l-2.1-.8-1.9 3.3 1.8 1.3a7.6 7.6 0 0 0 0 3l-1.8 1.3 1.9 3.3 2.1-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2.2h4.6l.3-2.2a7.6 7.6 0 0 0 2.6-1.5l2.1.8 1.9-3.3-1.8-1.3Z';
+
+/**
+ * Vòng tròn của icon Giới thiệu — cùng cơ chế GEAR_RING: vẽ riêng vì cả hai trạng thái đều nét.
+ *
+ * Vòng tròn KHÔNG được làm phần đổi trạng thái, dù đó là cách vẽ hiển nhiên hơn: lúc "đặc" nó tô
+ * `currentColor` và nuốt mất chữ "i" bên trong, vốn cũng `currentColor` — mà `tokens.test.ts` cấm
+ * viết màu thẳng vào thuộc tính SVG nên không có cách nào khoét chữ ra. Đảo vai (vành luôn nét,
+ * lõi đổi trạng thái) giữ được cả hai ràng buộc, và giữ luôn điều kiện chung tâm mà docblock đầu
+ * file đòi: chấm + thân của chữ "i" ở cả hai bản đứng đúng một chỗ.
+ */
+const ABOUT_RING = 'M12 3.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8Z';
 
 export function TabIcon({ route, active = false }: { route: NavKey; active?: boolean }) {
   const isSolid = active;
@@ -65,6 +80,7 @@ export function TabIcon({ route, active = false }: { route: NavKey; active?: boo
         stroke={isSolid ? 'none' : 'currentColor'}
       />
       {route === 'settings' && <path d={GEAR_RING} />}
+      {route === 'about' && <path d={ABOUT_RING} />}
     </svg>
   );
 }

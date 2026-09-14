@@ -99,10 +99,15 @@
   color: var(--color-ink);
 }
 
+/*
+ * Dòng phụ nay là một CÂU, không phải chuỗi khoá `ffb.…v1` nữa — nên bỏ `overflow-wrap: anywhere`.
+ * Luật đó sinh ra để một chuỗi dài không có khoảng trắng khỏi tràn khung; áp lên câu chữ thì nó
+ * cắt giữa từ ("Bảng dữ li / ệu"), xấu mà không giải quyết vấn đề nào còn tồn tại.
+ */
 .rowHint {
   font-size: var(--text-xs);
+  line-height: var(--leading-normal);
   color: var(--color-muted);
-  overflow-wrap: anywhere;
 }
 
 .stack {
@@ -137,8 +142,28 @@
   border-top: 1px solid var(--color-hairline);
 }
 
-.key {
-  font-family: var(--font-mono);
+/*
+ * `.key` đã xoá cùng khoá `ffb.…v1` in trên màn — chủ dự án chốt 14/09/2026: dòng phụ ấy
+ * *"không có nghĩa"* với người dùng. Khoá nay chỉ còn ở thuộc tính `data-key` cho cửa gác, nên
+ * không còn gì cần kiểu chữ mono ở khối này.
+ */
+
+/* Tên kho và nhãn "Chưa có gì" đứng chung một hàng, xuống dòng được ở khổ hẹp. */
+.rowHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+/*
+ * Nhãn trạng thái của kho rỗng.
+ *
+ * Nhỏ và mờ vì nó là chú thích cho nút xoá đang mờ bên cạnh, không phải một mẩu tin riêng. Không
+ * dựng thành viên hay nền: hàng nào cũng có thể rỗng, mà mười cái chip xám xếp dọc thì phần nhìn
+ * nặng hơn hẳn thông tin chúng mang.
+ */
+.rowEmpty {
   font-size: var(--text-xs);
   color: var(--color-muted);
 }

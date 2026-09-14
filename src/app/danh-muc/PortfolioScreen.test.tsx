@@ -12,6 +12,7 @@ import {
   PRICE_CACHE_KEY,
   PRICE_CACHE_TTL_MS,
   SAVED_CALCS_KEY,
+  t,
 } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
@@ -617,7 +618,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
 
     await moChiTiet();
     await userEvent.click(screen.getByRole('button', { name: 'Sửa FPT' }));
-    await userEvent.type(screen.getByLabelText('Beta (để trống nếu chưa biết)'), '1,1');
+    await userEvent.type(screen.getByLabelText('Beta'), '1,1');
     await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
 
     await waitFor(() => {
@@ -702,7 +703,7 @@ describe('WF-06 — chế độ hiển thị giấu bớt ô nâng cao (FR-09)',
     // Ba ô kia vẫn còn — chỉ đúng một ô bị giấu.
     expect(screen.getByLabelText('Số cổ phiếu nắm giữ')).toBeTruthy();
     expect(screen.getByLabelText('Giá vốn một cổ phiếu (₫)')).toBeTruthy();
-    expect(screen.queryByLabelText('Beta (để trống nếu chưa biết)')).toBeNull();
+    expect(screen.queryByLabelText('Beta')).toBeNull();
   });
 
   /*
@@ -893,12 +894,22 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
     ).toBeTruthy();
   });
 
-  it('beta gõ chữ: nói rõ, không lặng lẽ biến thành “chưa có beta”', async () => {
+  /*
+   * Ca này gõ 'abc' cho tới 14/09/2026, ngày cửa chặn chữ cái bật lên — từ đó chữ không vào nổi ô
+   * nữa nên không còn đường nào dẫn tới câu lỗi bằng chữ cái. Câu lỗi VẪN phải ở lại, vì cửa kia
+   * chỉ chặn KÝ TỰ: '1,2,3' gồm toàn ký tự hợp lệ mà `parseViNumber` vẫn trả `null`. Đổi đường
+   * vào chứ không xoá ca — thứ nó bảo vệ ("không lặng lẽ biến thành chưa-có-beta") không đổi.
+   */
+  it('beta không đọc được: nói rõ, không lặng lẽ biến thành “chưa có beta”', async () => {
     // Ô beta chỉ có ở chế độ Nâng cao, nên câu lỗi của nó cũng chỉ có nghĩa ở đó — FR-09.
     await moManNangCao();
     await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
 
-    await userEvent.type(screen.getByLabelText('Beta (để trống nếu chưa biết)'), 'abc');
+    const beta = screen.getByLabelText('Beta') as HTMLInputElement;
+    await userEvent.type(beta, 'abc');
+    expect(beta.value).toBe('');
+
+    await userEvent.type(beta, '1,2,3');
     await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
 
     expect(screen.getByText(/Beta phải là một số/)).toBeTruthy();
@@ -935,6 +946,88 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
 
     await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '5');
     expect(screen.queryByText('Nhập số cổ phiếu nắm giữ, lớn hơn 0.')).toBeNull();
+  });
+
+  /*
+   * Chủ dự án chốt 14/09/2026: ô nhập số không được để chữ cái xuất hiện. Ba ô số của form này đi
+   * thẳng qua primitive `Input` chứ không qua `NumberInput` (lý do ở docblock màn), nên chúng phải
+   * được ghim riêng — sửa `NumberInput` không che được chỗ này.
+   */
+  it('gõ chữ vào ô số lượng thì ô không nhận', async () => {
+    await moForm();
+
+    const o = screen.getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement;
+    await userEvent.type(o, '1a0b0');
+
+    expect(o.value).toBe('100');
+  });
+
+  it('gõ chữ vào ô giá vốn thì ô không nhận', async () => {
+    await moForm();
+
+    const o = screen.getByLabelText('Giá vốn một cổ phiếu (₫)') as HTMLInputElement;
+    await userEvent.type(o, 'abc');
+
+    expect(o.value).toBe('');
+  });
+
+  /*
+   * Lỗi chủ dự án báo 14/09/2026, ngay sau khi cửa chặn chữ cái lên: *"đang nhập số mà bấm nhầm
+   * sau text chữ số thì số trong ô lại bị xóa đi"*. Chữ bị loại ngay nên phím xoá ăn vào chữ số
+   * thật — và với bộ gõ tiếng Việt thì phím xoá ấy TỰ ĐỘNG (Unikey gửi Backspace + chữ có dấu),
+   * nên gõ vài chữ là ô sạch số. Ba ô này đi thẳng qua primitive `Input` nên phải ghim riêng.
+   */
+  it('bấm nhầm chữ rồi bấm xoá: ba ô số đều không mất chữ số', async () => {
+    await moManNangCao();
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
+    for (const nhan of ['Số cổ phiếu nắm giữ', 'Giá vốn một cổ phiếu (₫)', 'Beta']) {
+      const o = screen.getByLabelText(nhan) as HTMLInputElement;
+      await userEvent.clear(o);
+      await userEvent.type(o, '100');
+      await userEvent.type(o, 'a');
+      expect(o.value, nhan).toBe('100');
+
+      await userEvent.type(o, '{Backspace}');
+      expect(o.value, nhan).toBe('100');
+
+      await userEvent.type(o, '{Backspace}');
+      expect(o.value, nhan).toBe('10');
+    }
+  });
+
+  it('mô phỏng bộ gõ tiếng Việt ở ô số lượng: không mất chữ số nào', async () => {
+    await moForm();
+
+    const o = screen.getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement;
+    await userEvent.type(o, '250');
+
+    /* Đúng thứ Unikey gửi khi gõ 'a' rồi 's': ký tự, phím xoá, rồi ký tự có dấu. */
+    for (const _lan of [1, 2, 3]) {
+      await userEvent.type(o, 'a');
+      await userEvent.type(o, '{Backspace}');
+      await userEvent.type(o, 'á');
+    }
+
+    expect(o.value).toBe('250');
+  });
+
+  it('dán “60.000 ₫” vào ô giá vốn thì lưu ra đúng 60.000', async () => {
+    render(<PortfolioScreen />);
+    await chonMaTrongForm();
+
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '100');
+    const giaVon = screen.getByLabelText('Giá vốn một cổ phiếu (₫)') as HTMLInputElement;
+    await userEvent.click(giaVon);
+    await userEvent.paste('60.000 ₫');
+
+    expect(giaVon.value).toBe('60.000');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+
+    // Vốn = 100 × 60.000 ₫. Ô "Vốn đã bỏ ra" là con số sống sót kể cả khi mất mạng.
+    const von = (await screen.findByText('Vốn đã bỏ ra')).parentElement;
+    expect(von?.textContent).toContain('6.000.000');
   });
 });
 
@@ -1285,6 +1378,63 @@ describe('WF-06 — dữ liệu riêng tư: cam kết còn, câu nói ra thì kh
   });
 });
 
+/**
+ * Chiều NGƯỢC của một lần bỏ chữ (14/09/2026), cùng khuôn describe ngay trên.
+ *
+ * Chủ dự án chỉ ra hai câu trong form và cho bỏ: nhãn "Beta (để trống nếu chưa biết)" và dòng
+ * "Thị giá lấy từ Finbox theo phiên gần nhất, không phải giá khớp lệnh." Cả hai đều giải thích
+ * trước khi người dùng kịp hỏi — vế sau còn nói về một con số chưa có trên màn, vì lúc ấy mã còn
+ * chưa được chọn.
+ *
+ * Hai thứ PHẢI còn, và ca kiểm gác đúng chúng: câu gợi ý beta (nó nói beta LÀ GÌ, không phải
+ * "để trống nếu chưa biết"), và câu của chế độ SỬA (nó nói về thao tác đang làm).
+ */
+describe('WF-06 — form thôi giải thích thay cho người dùng', () => {
+  it('nhãn beta là "Beta" trơn, và câu gợi ý beta vẫn ở đó', async () => {
+    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ mode: 'advanced' }));
+    render(
+      <PreferencesProvider>
+        <PortfolioScreen />
+      </PreferencesProvider>,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
+    expect(screen.getByLabelText('Beta')).not.toBeNull();
+    expect(screen.queryByLabelText(/để trống nếu chưa biết/)).toBeNull();
+    expect(screen.getByText(/Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index/)).not.toBeNull();
+  });
+
+  it('form thêm mã không còn dòng nói về nguồn thị giá', async () => {
+    render(<PortfolioScreen />);
+    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã cổ phiếu/ }));
+
+    expect(screen.queryByText(/Thị giá lấy từ Finbox/)).toBeNull();
+    expect(screen.queryByText(/không phải giá khớp lệnh/)).toBeNull();
+  });
+
+  /*
+   * Câu của form SỬA ("Đổi số lượng, giá vốn, ngày mua hoặc beta. Muốn đổi mã thì bỏ rồi thêm
+   * lại.") đã bỏ 14/09/2026 theo yêu cầu chủ dự án.
+   *
+   * Ca kiểm này KHÔNG xoá theo mà đổi mỏ neo, vì điều câu ấy nói vẫn phải đọc được — chỉ là nay
+   * bằng hình thay vì bằng chữ: nút mã `disabled`. Xoá hẳn ca kiểm thì hôm nào ai đó gỡ `disabled`
+   * để "cho sửa cả mã" sẽ không gì đỏ, mà `addHolding()` lại cộng dồn theo mã nên sửa mã tại chỗ
+   * là một lối vỡ dữ liệu im lặng.
+   */
+  it('form SỬA khoá ô mã bằng chính nút, không cần một dòng chữ nói hộ', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+
+    await moChiTiet();
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+
+    expect(screen.queryByText(/Muốn đổi mã thì bỏ rồi thêm lại/)).toBeNull();
+
+    const nutMa = screen.getByRole('button', { name: t('portfolio.formCode') });
+    expect(nutMa.hasAttribute('disabled')).toBe(true);
+  });
+});
+
 /*
  * ── Tab "Công thức": phép tính đã lưu từ màn chi tiết ──────────────────────────────────────
  *
@@ -1311,61 +1461,6 @@ function seedSaved(): void {
   );
 }
 
-/*
- * Chủ dự án báo: ở tab Mã đang cuộn dở mà bấm sang tab Công thức thì "giao diện bật to ra, cảm
- * giác bị giật". Đo trên Chrome thật với 3 mã và 1 phép tính đã lưu, ra HAI nguyên nhân rời nhau:
- *
- *   1. Thanh cuộn biến mất khi trang hết đủ dài → vùng nhìn rộng thêm 15px → thanh trên giãn từ
- *      1249 lên 1264 và mép trái cụm tab dịch 7,5px. ĐỂ NGUYÊN, có chủ đích: cách chặn duy nhất
- *      (`scrollbar-gutter: stable`) để lại một vệt 15px khác màu chạy dọc mép phải mà không gì
- *      vẽ vào được, và chủ dự án thấy vệt ấy phiền hơn cú giãn — lý lẽ đầy đủ nằm trong docblock
- *      cạnh khối `body { overflow-x: clip }` của `globals.css`. Dù có chặn thì cũng KHÔNG kiểm
- *      được ở đây: jsdom không có bộ dựng hình nên không có thanh cuộn nào để mất.
- *   2. Trang co 1916 → 780px làm trình duyệt kẹp vị trí cuộn 700 → 0.
- *
- * Nguyên nhân 2 là phần sửa được mà không kèm tác dụng phụ, và cũng là phần kiểm được: đổi tab
- * phải chủ động kéo cụm tab trở lại tầm mắt, thay vì phó mặc cho cú kẹp của trình duyệt.
- */
-describe('WF-06 — đổi tab không ném người dùng đi chỗ khác', () => {
-  it('bấm đổi tab thì kéo cụm tab trở lại tầm mắt', async () => {
-    const bay = bayScrollIntoView();
-    seedHolding();
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    expect(bay.goi).not.toHaveBeenCalled();
-
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(bay.goi).toHaveBeenCalledTimes(1);
-    /*
-     * `nearest` chứ không `start`: đứng sẵn ở đầu trang mà bấm tab thì màn hình phải ĐỨNG YÊN.
-     * `start` sẽ cuộn xuống để đẩy cụm tab lên đỉnh — một cú giật khác, do chính bản vá gây ra.
-     */
-    expect(bay.goi.mock.calls[0]?.[0]).toMatchObject({ block: 'nearest' });
-    bay.go();
-  });
-
-  it('mở màn sẵn ở tab Công thức bằng `?tab=` thì KHÔNG tự cuộn — người dùng chưa bấm gì', async () => {
-    const bay = bayScrollIntoView();
-    window.history.replaceState(null, '', '/danh-muc/?tab=cong-thuc');
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    /* Mốc "tab Công thức đã dựng xong" — trước là câu "không tính lại", nay là tên phép tính đã lưu. */
-    await screen.findByText('HPG · P/E');
-
-    expect(bay.goi).not.toHaveBeenCalled();
-    bay.go();
-  });
-});
-
-/*
- * Chủ dự án báo bấm "Sửa" xong "cảm giác không có gì thay đổi" — nút Sửa nằm trong khối chi tiết
- * của một dòng, mà form luôn dựng ở CUỐI cả danh sách, nên dòng đang sửa càng ở trên thì form
- * càng xa tầm nhìn: form đã mở, chỉ là ngoài màn hình.
- */
 describe('WF-06 — mở form thì kéo nó vào tầm mắt', () => {
   it('bấm Sửa thì kéo form vào tầm mắt để thao tác tiếp', async () => {
     const bay = bayScrollIntoView();
@@ -1393,262 +1488,6 @@ describe('WF-06 — mở form thì kéo nó vào tầm mắt', () => {
 
     expect(bay.goi).toHaveBeenCalledTimes(1);
     bay.go();
-  });
-});
-
-describe('WF-06 — tab Công thức', () => {
-  it('mặc định mở tab Mã; chưa lưu gì thì tab kia mời lưu chứ không để trống', async () => {
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(screen.getByText(/Chưa lưu phép tính nào/)).not.toBeNull();
-  });
-
-  it('sáu ô chỉ thuộc tab Mã — tab Công thức không mang theo con số của tab kia', async () => {
-    seedHolding();
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Tổng giá trị');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(screen.queryByText('Tổng giá trị')).toBeNull();
-    expect(screen.queryByText('Nắm giữ')).toBeNull();
-  });
-
-  /*
-   * Câu miễn trừ đứng NGOÀI cả hai tab — và từ 09/09/2026 nó là câu duy nhất của màn.
-   *
-   * `showsFooterDisclaimer()` đã trừ `/danh-muc/` ra khỏi dải xám chân trang (chủ dự án: *"bên
-   * trên đã có"*), nên nếu ô vàng còn nằm trong tab Mã như trước thì tab này trắng trơn — FR-24
-   * thủng đúng một tab mà không ca kiểm nào của `routes.ts` thấy được, vì `usePathname()` không
-   * nhìn thấy `?tab=`. Đây là ca gác chỗ ấy.
-   */
-  it('câu miễn trừ vẫn còn sau khi đổi tab — nó ngoài cả hai tab (FR-24)', async () => {
-    seedHolding();
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Tổng giá trị');
-    expect(
-      screen.getAllByRole('note').some((n) => (n.textContent ?? '').includes('tham khảo')),
-    ).toBe(true);
-
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(
-      screen.getAllByRole('note').some((n) => (n.textContent ?? '').includes('tham khảo')),
-    ).toBe(true);
-  });
-
-  /*
-   * Danh sách bày TÊN và NGÀY LƯU — không bày con số.
-   *
-   * Chủ dự án chốt 09/09/2026: *"số liệu thì khi mở lại thì mới thấy được -> không hiển thị bên
-   * ngoài"*. Tab này thành một mục lục, không phải bảng tổng hợp.
-   *
-   * Ca kiểm giữ CẢ HAI chiều. Vế vắng mặt mới là vế dễ hỏng: dựng lại con số ở đây thì hai ca
-   * "phải có tên" và "phải có ngày" vẫn xanh, mà đó đúng là điều vừa bị bỏ.
-   */
-  it('bày tên và NGÀY LƯU, KHÔNG bày con số kết quả', async () => {
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(screen.getByText('HPG · P/E')).not.toBeNull();
-    expect(screen.getByText(/25\/08\/2026/)).not.toBeNull();
-
-    expect(screen.queryByText('12,5 lần')).toBeNull();
-    /* Cả dấu gạch của ca thiếu số cũng không được lọt ra — nó cũng là một chỗ bày kết quả. */
-    const dong = screen.getByText('HPG · P/E').closest('li');
-    expect(dong?.textContent ?? '').not.toContain('_ _');
-  });
-
-  /*
-   * Dòng phụ thôi nhắc lại thứ dòng tên đã nói — chủ dự án chỉ vào tab này: *"sửa giao diện hiển
-   * thị trong phần công thức sao cho gọn như phần Mã bên cạnh"*.
-   *
-   * Bộ mẫu ở đây là tên lưu "HPG · P/E" — chứa mã. Bản trước in tiếp "HPG · P/E — hệ số giá trên
-   * lợi nhuận · lưu 25/08/2026" ngay dưới, tức mã hiện hai lần trên hai dòng liền nhau.
-   *
-   * Tên ĐẦY ĐỦ của công thức thì vẫn hiện, và đúng như vậy: "P/E" ở dòng tên chỉ là chữ viết tắt,
-   * dòng phụ nói thêm "hệ số giá trên lợi nhuận" là thêm thông tin chứ không phải lặp lại. Luật ở
-   * đây là "bỏ mảnh ĐÃ NẰM TRONG tên", không phải "bỏ mọi thứ na ná".
-   */
-  it('dòng phụ không nhắc lại mã đã có ở dòng tên', async () => {
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    const dong = screen.getByText('HPG · P/E').closest('li');
-    expect(dong).not.toBeNull();
-
-    const chu = dong?.textContent ?? '';
-    expect(chu.match(/HPG/g), 'mã chỉ được hiện một lần trong cả dòng').toHaveLength(1);
-    /* Mốc thời gian vẫn phải có — không còn câu chung nào nói con số là của lần lưu. */
-    expect(chu).toContain('lưu 25/08/2026');
-  });
-
-  /*
-   * ĐÚNG hai việc trên một dòng: Xem và Xoá. "Đổi tên" đã bỏ (chủ dự án chốt), và cùng nó là cả
-   * form sửa tên tại chỗ — nên ca này gác luôn vế vắng mặt, nếu không thì dựng lại nút thứ ba
-   * cũng không ai biết.
-   *
-   * "Xem" vẫn phải là `<a>` chứ không phải `<button>`: nó điều hướng sang màn khác, nên phải mở
-   * được bằng chuột giữa và bằng menu ngữ cảnh.
-   */
-  it('đúng hai việc trên một dòng, và "Xem" vẫn là link', async () => {
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    const xem = screen.getByRole('link', { name: 'Xem' });
-    expect(xem.getAttribute('href')).toContain('/cong-thuc/pe');
-    expect(screen.getByRole('button', { name: /Xoá/ })).not.toBeNull();
-
-    expect(screen.queryByRole('button', { name: /Đổi tên/ })).toBeNull();
-    expect(screen.queryByLabelText('Tên phép tính')).toBeNull();
-  });
-
-  /*
-   * Tên khả truy cập đổi từ `'Mã (1)'` sang `'Mã 1'` ở đợt chuyển cụm tab sang primitive `TabBar`:
-   * số đếm nay đi qua khe `count` của primitive chứ không còn nối tay vào chuỗi nhãn, nên cặp
-   * ngoặc biến mất.
-   *
-   * Khoảng trắng giữa nhãn và số là thứ ĐÁNG GÁC, không phải chi tiết vụn: khoảng cách nhìn thấy
-   * do `gap` của flex dựng, mà `gap` không sinh ra ký tự nào. Primitive phải tự chèn một
-   * `{' '}` thật, thiếu nó thì tên đọc lên thành 'Mã1'. Ca kiểm này là chỗ thứ hai canh điều đó
-   * (chỗ thứ nhất nằm trong test của chính primitive), và là chỗ duy nhất canh nó với dữ liệu thật.
-   */
-  it('nhãn tab mang số đếm của cả hai bên, có khoảng trắng ngăn cách', async () => {
-    seedHolding();
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    expect(await screen.findByRole('tab', { name: 'Mã 1' })).not.toBeNull();
-    expect(screen.getByRole('tab', { name: 'Công thức 1' })).not.toBeNull();
-  });
-
-  it('nút Xem dẫn về đúng công thức kèm ?luu=', async () => {
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    const open = screen.getByRole('link', { name: 'Xem' });
-    // `next/link` bỏ dấu '/' ngay trước '?' — cùng cách ca "từ mã sang công thức" ở trên xử lý.
-    expect(open.getAttribute('href')?.replace('/?', '?')).toBe(
-      '/cong-thuc/pe?luu=pe-1756000000000',
-    );
-  });
-
-  /*
-   * Ca "đổi tên ghi thẳng vào localStorage" đã bỏ cùng nút "Đổi tên" (chủ dự án chốt 09/09/2026).
-   *
-   * Hàm `renameSavedCalc()` thì KHÔNG bỏ, và nó vẫn có ca kiểm riêng ở `saved-calc-store.test.ts`
-   * — nó là câu trả lời sẵn cho lần muốn bày lại việc đổi tên ở đâu đó, không phải mã chết bỏ
-   * quên. Ca dưới ghim rằng tên tự đặt VẪN hiện đúng nếu bản ghi có sẵn một cái, tức đường hiển
-   * thị không chết theo lối vào.
-   */
-  it('tên tự đặt vẫn hiện nguyên văn dù không còn chỗ đổi tên trên màn', async () => {
-    window.localStorage.setItem(
-      SAVED_CALCS_KEY,
-      JSON.stringify([
-        {
-          id: 'pe-1756000000000',
-          formulaId: 'pe',
-          name: 'Sàng HPG quý 3',
-          code: 'HPG',
-          inputs: { price: 25000, eps: 2000 },
-          resultValue: 12.5,
-          resultUnit: 'lần',
-          savedAt: new Date(2026, 7, 25, 10, 0, 0).getTime(),
-          needsSeries: false,
-        },
-      ]),
-    );
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(screen.getByText('Sàng HPG quý 3')).not.toBeNull();
-    /* Tên tự đặt không chứa mã lẫn tên công thức, nên dòng phụ phải hiện đủ ngữ cảnh trở lại. */
-    const dong = screen.getByText('Sàng HPG quý 3').closest('li');
-    expect(dong?.textContent ?? '').toContain('HPG');
-  });
-
-  it('xoá thì mục biến khỏi màn và khỏi localStorage', async () => {
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-    await userEvent.click(screen.getByRole('button', { name: 'Xoá HPG · P/E' }));
-
-    expect(screen.getByText(/Chưa lưu phép tính nào/)).not.toBeNull();
-    expect(window.localStorage.getItem(SAVED_CALCS_KEY)).toBe('[]');
-  });
-
-  /*
-   * FR-06 ở tab này nay được giữ bằng cách KHÁC, và ca kiểm đổi theo.
-   *
-   * Bản trước bày con số ngay trong danh sách, nên thiếu số thì phải hiện `_ _` chứ không được
-   * hiện 0. Từ 09/09/2026 danh sách không bày con số nào cả — chủ dự án chốt *"số liệu thì khi mở
-   * lại thì mới thấy được"* — nên chỗ có thể lọt ra một số 0 cũng không còn.
-   *
-   * Ca này vì thế đổi vai: gác rằng một bản ghi THIẾU số vẫn dựng ra được một dòng bình thường,
-   * vẫn có đường đi xem, và không lọt ra con số nào. Bản ghi thiếu số là ca dễ làm sập cả danh
-   * sách nhất, nên vẫn phải có ca kiểm cho nó — chỉ là nó không còn kiểm chữ `_ _` nữa.
-   */
-  it('bản ghi thiếu kết quả vẫn dựng được dòng, và không lọt ra con số nào (FR-06)', async () => {
-    window.localStorage.setItem(
-      SAVED_CALCS_KEY,
-      JSON.stringify([
-        {
-          id: 'pe-1',
-          formulaId: 'pe',
-          name: 'Chưa có số',
-          inputs: {},
-          resultValue: null,
-          resultUnit: 'lần',
-          savedAt: Date.now(),
-          needsSeries: false,
-        },
-      ]),
-    );
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    const dong = screen.getByText('Chưa có số').closest('li');
-    expect(dong).not.toBeNull();
-
-    const chu = dong?.textContent ?? '';
-    expect(chu).not.toContain('0 lần');
-    expect(chu).not.toContain('_ _');
-    /* Vẫn còn đường đi xem — thiếu số không được biến dòng thành ngõ cụt. */
-    expect(screen.getByRole('link', { name: 'Xem' })).not.toBeNull();
-  });
-
-  it('không gọi mạng chỉ vì đổi sang tab Công thức', async () => {
-    seedSaved();
-    render(<PortfolioScreen />);
-
-    await screen.findByText('Nắm giữ');
-    await userEvent.click(screen.getByRole('tab', { name: /Công thức/ }));
-
-    expect(feed.snapshots).not.toHaveBeenCalled();
   });
 });
 

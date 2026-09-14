@@ -61,11 +61,32 @@
   color: var(--color-accent);
 }
 
+/*
+ * `nowrap` không phải trang trí — nó giữ chiều cao của cả thanh.
+ *
+ * Từ mục thứ năm (Giới thiệu), năm nhãn chia nhau 360px: mỗi tab 72px, trừ đệm còn 64px cho chữ.
+ * `.link` khai `min-height` chứ không `height`, nên một nhãn xuống dòng không bị cắt — nó đẩy
+ * thanh dính dưới cao thêm ~16px trên MỌI màn, và chỉ một tab cao hơn bốn tab kia.
+ *
+ * Nhãn dài nhất đã được rút ở tầng dữ liệu (`NavItem.shortLabelKey`); luật này là lớp chặn thứ
+ * hai, cho font hệ điều hành rộng hơn dự tính hoặc cho ngôn ngữ thêm sau.
+ */
 .label {
   text-align: center;
+  white-space: nowrap;
 }
 
-/* Bốn mục chuyển lên HeaderNav ở màn PC — thanh này chỉ còn việc ở điện thoại/máy tính bảng. */
+/*
+ * Dưới 380px thu đệm ngang để chữ được trọn 68px thay vì 64px. Chỉ đụng khổ hẹp nhất: từ 380px
+ * trở lên mỗi tab đã có ≥76px và đệm var(--space-1) vẫn thoải mái.
+ */
+@media (max-width: 379px) {
+  .link {
+    padding: var(--space-1) 2px;
+  }
+}
+
+/* Năm mục chuyển lên HeaderNav ở màn PC — thanh này chỉ còn việc ở điện thoại/máy tính bảng. */
 @media (min-width: 1024px) {
   .bar {
     display: none;

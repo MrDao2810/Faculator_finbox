@@ -5,6 +5,7 @@ import { useState } from 'react';
 import {
   commitValue,
   formatNumber,
+  keepViNumberChars,
   parseViNumber,
   rawViNumber,
   resolveInputState,
@@ -13,6 +14,8 @@ import {
 import type { InputState, Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Input, type InputTone } from '@/ui/primitives';
+
+import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
 
 export interface NumberInputProps {
   spec: VariableSpec;
@@ -80,6 +83,9 @@ const TONE_BY_STATE: Readonly<Record<InputState, InputTone>> = {
  * 3. **Dòng phụ đi qua `hint`/`error` của primitive** chứ không tự vẽ thẻ riêng — nhờ vậy nó
  *    được nối sẵn vào `aria-describedby`, và lỗi miền có `role="alert"`. Tự vẽ song song thì
  *    trình đọc màn hình sẽ không đọc được dòng đó.
+ * 4. **Chữ cái không bao giờ xuất hiện trong ô.** Chặn ở `onChange` qua `keepViNumberChars()`,
+ *    không phải bằng `type` — xem bình luận ở thuộc tính `type` bên dưới. Chỉ chặn KÝ TỰ; việc
+ *    chuỗi ấy có phải một con số không thì vẫn là của `parseViNumber()`, y như trước.
  *
  * Không cần CSS Module: mọi khác biệt về hình đã nằm ở bốn sắc thái của primitive
  * (viền đứt cho ô nhận tự động, nền chìm cho ô khoá, viền đỏ cho ngoài miền).
@@ -152,7 +158,8 @@ export function NumberInput({
       // Bàn phím số trên điện thoại — WF-03 ghi 'bàn phím số · HW-02'.
       inputMode="decimal"
       // Không dùng type="number": nó chặn dấu phẩy thập phân kiểu Việt Nam, và nút tăng/giảm
-      // mặc định của trình duyệt không đủ vùng chạm 44px.
+      // mặc định của trình duyệt không đủ vùng chạm 44px. Việc chặn chữ cái mà `type="number"`
+      // hay được dùng để làm thì `onChange` bên dưới lo, không mất gì.
       type="text"
       autoComplete="off"
       value={raw}
@@ -168,7 +175,8 @@ export function NumberInput({
         setDraft(rawViNumber(value));
       }}
       onChange={(event) => {
-        const next = event.target.value;
+        /* Chữ cái rụng ngay tại đây, con trỏ giữ nguyên chỗ — quy tắc 4 ở docblock. */
+        const next = filterTypedValue(event, keepViNumberChars);
         setDraft(next);
 
         /*
@@ -182,12 +190,15 @@ export function NumberInput({
         const parsed = parseViNumber(next);
         if (parsed !== null) onChange(parsed);
       }}
-      onBlur={() => {
+      onBlur={(event) => {
+        resetFilteredDelete(event.currentTarget);
         setFocused(false);
         setDraft(null);
         onChange(commitValue(raw, spec));
       }}
       onKeyDown={(event) => {
+        /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. */
+        guardFilteredDelete(event);
         if (event.key !== 'Enter') return;
         event.preventDefault();
         event.currentTarget.blur();

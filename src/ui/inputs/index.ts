@@ -9,6 +9,9 @@
  * Chỗ giữ state là màn hình — cùng khuôn với SearchBox và CategoryFilter của gói 2.2.
  */
 
+/* Cửa chặn chữ cái dùng chung cho mọi ô số — ba hàm đi CÙNG NHAU, xem docblock của chính chúng. */
+export { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
+
 export { NumberInput } from './NumberInput';
 export type { NumberInputProps } from './NumberInput';
 

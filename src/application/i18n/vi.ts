@@ -15,13 +15,16 @@ export const vi = {
   /* Tên gọn hiện cạnh logo trên thanh trên — bản thiết kế chỉ ghi "Faculator". */
   'app.brand': 'Faculator',
 
-  // Điều hướng — WF-18 chốt thanh nav dưới có 4 mục
+  // Điều hướng — WF-18 chốt thanh nav dưới có 4 mục, mục thứ 5 thêm cùng màn giới thiệu
   'nav.primary': 'Điều hướng chính',
   'nav.skipToContent': 'Bỏ qua điều hướng, tới nội dung',
   'nav.home': 'Trang chủ',
   'nav.formulas': 'Công thức',
   'nav.portfolio': 'Danh mục',
   'nav.settings': 'Cài đặt',
+  'nav.about': 'Về chúng tôi',
+  /* Nhãn ngắn của riêng thanh tab dưới — lý do hình học ghi ở `NavItem.shortLabelKey`. */
+  'nav.aboutShort': 'Giới thiệu',
   /*
    * Nhãn nút quay lại của các màn trong. CỐ Ý khác `nav.formulas`: màn chi tiết đã có tiêu đề
    * khối "Công thức" cho phần biểu thức, nên dùng lại đúng chữ ấy cho nút quay lại là hai thứ
@@ -211,7 +214,16 @@ export const vi = {
    * khớp, và ba ca kiểm ấy mất hiệu lực trong im lặng.
    */
   'result.heading': 'Kết quả',
-  'result.live': 'cập nhật tức thì',
+  /*
+   * `result.live` ("cập nhật tức thì") đã BỎ — chủ dự án chốt 14/09/2026, cũng là mục #34 của
+   * bảng feedback test nội bộ.
+   *
+   * FR-05 vẫn được giữ bằng CHỨC NĂNG chứ không bằng lời: gõ tới đâu con số đổi tới đó, và người
+   * dùng thấy điều ấy ngay ở lần gõ đầu tiên. Một nhãn dán thường trực để hứa một hành vi mà bản
+   * thân hành vi tự nói ra được thì chỉ chiếm chỗ trên dòng nhãn.
+   *
+   * Cùng nếp với `settings.data.note` và `portfolio.localOnly` đã gỡ trước đó: bỏ lời, giữ việc.
+   */
   'result.unavailable': 'Chưa tính được',
   'result.fixPrefix': '↳',
   'explain.title': 'Giải thích cho người mới',
@@ -255,14 +267,10 @@ export const vi = {
   'detail.preset': 'Đã nạp',
   'detail.jumpToExample': 'Xem ví dụ thực tế ↓',
   /*
-   * Mẩu chữ NGẮN, không còn là một câu: nó nay nằm trong thanh mã, ngay sau "đang dùng cho mọi
-   * công thức trong lượt xem này", nên nó chỉ cần gắn cái ngày vào — chủ ngữ đã có sẵn ở vế trước.
-   *
-   * Bản cũ là cả một câu kể tên EPS / giá trị sổ sách / số CP / cổ tức và nói nguồn Finbox_v2. Chủ
-   * dự án chốt bỏ vì thừa: những trường ấy nằm ngay dưới, trên chính các ô vừa được điền, mỗi ô
-   * còn mang dấu `↳ HPG` của riêng nó.
+   * `detail.fundamentalsSource` ('số liệu Finbox_v2 tới' + ngày) ĐÃ BỎ ngày 14/09/2026 cùng với
+   * `detail.tickerSticky` — xem chỗ khoá ấy từng nằm, phía dưới. Khoá bỏ hẳn chứ không để lại một
+   * chuỗi không ai đọc: cửa khoá mồ côi ở `i18n.test.ts` bắt đúng loại rác đó.
    */
-  'detail.fundamentalsSource': 'số liệu Finbox_v2 tới',
   /*
    * Ba câu dưới đứng SAU mã (“FPT · …”), nên viết thường.
    *
@@ -300,12 +308,14 @@ export const vi = {
   /*
    * ── Mã dính theo lượt duyệt ────────────────────────────────────────────────
    *
-   * Câu này đứng SAU mã ('HPG · đang dùng…') và là điều kiện để việc tự điền ô nhập không thành
-   * một bất ngờ: số vừa xuất hiện trong ô là của một mã mà người dùng không bấm gì ở màn này cả.
-   * Cùng luật mà thị giá đã lưu ở tab Danh mục đang chịu — được dùng số đã cất, nhưng phải gọi
-   * tên được nguồn của nó.
+   * `detail.tickerSticky` ('đang dùng cho mọi công thức trong lượt xem này') và
+   * `detail.fundamentalsSource` ('số liệu Finbox_v2 tới' + ngày) BỎ ngày 14/09/2026 theo yêu cầu
+   * chủ dự án: *"bỏ đoạn text sau ở trong công thức khi mới nạp mã"*.
+   *
+   * Thanh mã giữ lại huy hiệu mã và hai nút, nên vế "màn phải nói ra đang dùng mã nào" — điều kiện
+   * để việc tự điền ô không thành một bất ngờ — vẫn còn. Vế MỐC NGÀY thì nay không còn chỗ nào
+   * trên màn nói ra; đó là thay đổi có chủ ý, và docblock của `active-ticker.ts` đã ghi lại.
    */
-  'detail.tickerSticky': 'đang dùng cho mọi công thức trong lượt xem này',
   'detail.tickerChange': 'Đổi mã',
   'detail.tickerClear': 'Bỏ mã',
 
@@ -417,22 +427,18 @@ export const vi = {
    * hoặc máy Android đang bật khoá xoay.
    */
   /*
-   * Hiện dưới biểu đồ khi trục X đang là thời gian (HISTORY_KEY) — bấm/nhả lúc đó KHÔNG ghi được
-   * gì vào ô Số liệu (không có ô nào tương ứng "một ngày trong quá khứ"), khác các trục biến số
-   * khác nơi bấm áp dụng được luôn. Không có gợi ý này thì cú bấm trên các công thức cần chuỗi giá
-   * (mặc định luôn mở ra đúng trục thời gian) trông như tính năng không hoạt động.
-   */
-  'chart.applyHintTimeAxis':
-    'Trục đang là thời gian nên bấm không ghi được gì — đổi mục "Xem kết quả đổi theo" ở trên sang một biến số để bấm áp dụng giá trị.',
-  /*
-   * ── `chart.applyHintReady` đã BỎ ────────────────────────────────────────────────────────────
+   * ── CẢ HAI khoá gợi ý dưới biểu đồ đã BỎ ────────────────────────────────────────────────────
    *
-   * Câu "Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập." từng là vế khẳng định của câu ngay
-   * trên. Chủ dự án chốt bỏ: *"không cần đoạn chú thích ... này"*. Cái giá — trên máy cảm ứng đó
-   * là dấu hiệu duy nhất của lối bấm-áp-dụng — ghi ở docblock `ApplyHint.tsx`.
+   * `chart.applyHintReady` ("Bấm vào biểu đồ để áp dụng giá trị đó vào ô nhập.") bỏ trước, rồi
+   * `chart.applyHintTimeAxis` ("Trục đang là thời gian nên bấm không ghi được gì — đổi mục 'Xem
+   * kết quả đổi theo' ở trên sang một biến số…") bỏ nốt ngày 14/09/2026. Cả component `ApplyHint`
+   * lẫn luật CSS `.applyHint` đi theo — dưới hình nay không còn dòng gợi ý nào.
    *
-   * Đừng thêm lại một khoá cùng nghĩa dưới tên khác: câu trên (`applyHintTimeAxis`) là lời giải
-   * thích cho một cú bấm KHÔNG ăn gì, nó ở lại vì không có nó thì tính năng trông như hỏng.
+   * Cái giá, ghi ở đây vì nó là lý do câu thứ hai từng được giữ lại: trục X mặc định của 35 công
+   * thức ăn chuỗi giá LÀ thời gian, và bấm lúc đó không ghi gì vào ô Số liệu. Không còn câu nào
+   * nói ra điều ấy, nên cú bấm đầu tiên trên những màn đó trông như tính năng không hoạt động.
+   * Tính năng vẫn còn nguyên (`canApplyPoint` ở `ChartBody`); đổi trục sang một biến số thì bấm
+   * vẫn áp dụng được.
    */
   'chart.zoom': 'Phóng to',
   'chart.exit': 'Thoát phóng to',
@@ -597,12 +603,48 @@ export const vi = {
   'portfolio.formQuantity': 'Số cổ phiếu nắm giữ',
   'portfolio.formCostPrice': 'Giá vốn một cổ phiếu (₫)',
   'portfolio.formBuyDate': 'Ngày mua',
-  'portfolio.formBeta': 'Beta (để trống nếu chưa biết)',
+  /*
+   * Nhãn trần, KHÔNG kèm "(để trống nếu chưa biết)" — chủ dự án chốt 14/09/2026 bỏ vế ấy.
+   *
+   * Nó nói một điều mà dòng gợi ý ngay dưới đã nói đủ và nói rõ hơn ("nhập tay nếu bạn đã có số"),
+   * nên đặt trong nhãn là bắt người dùng đọc cùng một câu hai lần — mà lại đọc trước, lúc còn chưa
+   * biết beta là gì. Nhãn của một ô nhập nên gọi tên thứ nó nhận, không mang theo hướng dẫn.
+   */
+  'portfolio.formBeta': 'Beta',
   'portfolio.formSubmit': 'Thêm vào danh mục',
   'portfolio.formCancel': 'Huỷ',
+  /*
+   * Câu này phải NÓI BETA LÀ GÌ trước, rồi mới nói vì sao phải nhập tay.
+   *
+   * Bản trước chỉ có vế thứ hai ("chưa tính tự động được — cần chuỗi lợi suất của cả mã lẫn chỉ số
+   * thị trường"), và chủ dự án báo đúng chỗ ấy: người chưa biết beta đọc xong vẫn không biết phải
+   * gõ con số gì vào ô. Một câu giải thích vì sao KHÔNG có số chỉ có nghĩa với người đã biết số ấy
+   * là gì — mà ô này thì đứng trước cả hai loại người dùng.
+   *
+   * Con số 1,5 lấy đúng khuôn `meaning` của công thức `beta` trong Registry ("VN-Index tăng hay
+   * giảm 1% thì cổ phiếu này thường tăng hay giảm khoảng 1,5%"). Cố ý chép ý chứ không chép chữ:
+   * hai chỗ nói cùng một điều bằng cùng một ví dụ thì người đọc gặp lại là nhận ra ngay, còn hai
+   * cách giải thích khác nhau cho cùng một khái niệm mới là thứ làm họ ngờ mình hiểu sai.
+   *
+   * Nhắc VN-Index bằng tên thay vì "chỉ số thị trường": đó là chỉ số mà công thức `beta` thật sự
+   * hồi quy theo, và người dùng Việt Nam đọc tên ấy ra ngay.
+   */
   'portfolio.betaHint':
-    'Beta chưa tính tự động được — cần chuỗi lợi suất của cả mã lẫn chỉ số thị trường. Nhập tay nếu bạn đã có số.',
-  'portfolio.priceNote': 'Thị giá lấy từ Finbox theo phiên gần nhất, không phải giá khớp lệnh.',
+    'Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index — beta 1,5 nghĩa là chỉ số nhích 1% thì mã ' +
+    'thường nhích khoảng 1,5%, dưới 1 là nhẹ hơn thị trường. Sản phẩm chưa tự tính được vì cần ' +
+    'chuỗi lợi suất của cả mã lẫn chỉ số; nhập tay nếu bạn đã có số.',
+  /*
+   * `portfolio.priceNote` ("Thị giá lấy từ Finbox theo phiên gần nhất, không phải giá khớp lệnh")
+   * đã BỎ — chủ dự án chốt 14/09/2026, cùng đợt với "(để trống nếu chưa biết)" và "cập nhật tức thì".
+   *
+   * Câu ấy trả lời một câu hỏi chưa ai hỏi, ngay trước khi người dùng kịp chọn mã: lúc ô còn trống
+   * thì chưa có thị giá nào trên màn để mà đính kèm điều kiện. Thứ giữ lời hứa "số này cũ tới đâu"
+   * không mất đi — nó nằm đúng CẠNH CON SỐ, ở dòng ngày phiên mà `PortfolioScreen` bày khi giá lấy
+   * từ bộ nhớ đệm (`PriceState = 'stale'`), và ca kiểm ghim dòng ấy vẫn nguyên.
+   *
+   * Ô mã ở chế độ SỬA cũng đã bỏ nốt câu của nó (`portfolio.editHint`) trong cùng ngày, nên giờ
+   * ô mã KHÔNG còn dòng gợi ý nào ở cả hai chế độ — xem bia mộ của khoá ấy.
+   */
   'portfolio.pickCode': 'Chọn mã',
   'portfolio.priceLoading': 'Đang lấy thị giá…',
   'portfolio.priceFailed': 'Không lấy được thị giá từ Finbox.',
@@ -636,8 +678,16 @@ export const vi = {
    * đã có mũi tên), nhưng là toàn bộ tên khả truy cập của nút nên phải nói đúng việc nó làm.
    */
   'portfolio.details': 'Chi tiết',
-  'portfolio.editHint':
-    'Đổi số lượng, giá vốn, ngày mua hoặc beta. Muốn đổi mã thì bỏ rồi thêm lại.',
+  /*
+   * ── `portfolio.editHint` đã XOÁ (14/09/2026) ──────────────────────────────────────────────
+   *
+   * "Đổi số lượng, giá vốn, ngày mua hoặc beta. Muốn đổi mã thì bỏ rồi thêm lại." Chủ dự án chốt
+   * bỏ, cùng đợt với `portfolio.formulaHint`.
+   *
+   * Vế đầu kể lại thứ form đã tự bày: bốn ô đổi được đang hiện ngay bên dưới câu ấy. Vế sau là
+   * lối đi vòng cho một việc hiếm (đổi mã của một dòng đã có), không đáng một dòng chữ thường
+   * trực trên MỌI lượt sửa. Còn việc "mã đang khoá" thì nút mã `disabled` đã nói bằng hình.
+   */
   'portfolio.formSave': 'Lưu thay đổi',
 
   /*
@@ -691,8 +741,20 @@ export const vi = {
    */
   'portfolio.formulas': 'Tính công thức',
   'portfolio.pickFormula': 'Chọn công thức',
-  'portfolio.formulaHint':
-    'Tuỳ chọn. Chọn rồi thì lưu xong sẽ mở thẳng công thức đó với số liệu của mã đã điền sẵn.',
+  /*
+   * ── `portfolio.formulaHint` đã XOÁ (14/09/2026) ───────────────────────────────────────────
+   *
+   * "Tuỳ chọn. Chọn rồi thì lưu xong sẽ mở thẳng công thức đó với số liệu của mã đã điền sẵn."
+   *
+   * Vế "tuỳ chọn": ô này không có dấu bắt buộc nào và form gửi được khi bỏ trống — không cần một
+   * câu nói ra. Vế "lưu xong sẽ mở": nhãn nút gửi ngay bên dưới đã nói đúng thế
+   * (`portfolio.formSubmitOpen` "Thêm và mở công thức" / `portfolio.formSaveOpen` "Lưu và mở
+   * công thức"), và nhãn nút thì đọc được ĐÚNG LÚC bấm.
+   *
+   * ⚠ Hai nhãn ấy nay là chỗ DUY NHẤT nói ra điều đó — dòng phụ của sheet
+   * (`portfolio.formulasSubtitle`) cũng đã xoá cùng ngày. Đổi chữ trên hai nhãn thì phải giữ
+   * nguyên vế "mở", đừng rút gọn thành "Lưu".
+   */
   /*
    * Chữ trên NÚT khi chưa có mã, và bấm vào nó là mở sheet chọn mã thật.
    *
@@ -707,52 +769,33 @@ export const vi = {
   'portfolio.formSaveOpen': 'Lưu và mở công thức',
   'portfolio.formulasTitle': 'Công thức dùng được với mã này',
   /*
-   * Nói CHỌN chứ không nói MỞ. Sheet từng đi thẳng tới trang công thức khi bấm một dòng; từ đợt
-   * gộp luồng thêm mã nó trả lựa chọn về form, và form lưu xong mới mở. Hứa "mở" ở đây là hứa sai
-   * một nhịp — người dùng bấm rồi thấy mình quay lại form và tưởng thao tác hỏng.
+   * ── `portfolio.formulasSubtitle` đã XOÁ (14/09/2026) ──────────────────────────────────────
+   *
+   * "Chọn một công thức — lưu xong sẽ mở với số liệu của mã điền sẵn". Chủ dự án cho là chữ
+   * thừa, và đúng: tiêu đề sheet đã nói đây là danh sách công thức, mỗi dòng là một nút bấm rõ
+   * ràng, còn vế "điền sẵn" thì từng dòng đã in ra bằng con số thật ("2/2 ô điền sẵn") — cụ thể
+   * hơn hẳn câu văn.
+   *
+   * Điều câu ấy giữ được mà chỗ khác không nói: bấm một dòng là CHỌN chứ không MỞ ngay. Nay
+   * nhãn nút gửi form gánh vế đó — `portfolio.formSubmitOpen` ("Thêm và mở công thức") /
+   * `portfolio.formSaveOpen` ("Lưu và mở công thức") nói đúng lúc nào thì trang mới mở. Đừng
+   * dựng lại dòng phụ này mà không xét hai nhãn ấy trước.
    */
-  'portfolio.formulasSubtitle': 'Chọn một công thức — lưu xong sẽ mở với số liệu của mã điền sẵn',
   // Đứng SAU cặp số "2/2", nên viết thường và mở đầu bằng đơn vị.
   'portfolio.formulasFilled': 'ô điền sẵn',
   'portfolio.formulasNoPrice':
     'Chưa tra được thị giá của mã này, nên các công thức cần giá đã bị lược bớt hoặc điền ít ô hơn.',
 
   /*
-   * ── Hai tab của màn Danh mục: Mã · Công thức ───────────────────────────────
+   * ── Bảy khoá của cụm tab và panel "phép tính đã lưu" đã XOÁ (14/09/2026) ───
    *
-   * Tab "Công thức" giữ các phép tính người dùng đã lưu từ màn chi tiết. Nhãn tab đứng cạnh
-   * một con số đếm ('Mã (5)') nên phải ngắn và là DANH TỪ, không phải câu lệnh.
-   */
-  'portfolio.tabHoldings': 'Mã',
-  'portfolio.tabSaved': 'Công thức',
-  'portfolio.savedEmpty':
-    'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
-  /*
-   * "Xem", không phải "Mở lại" (chủ dự án chốt 09/09/2026).
+   * `tabHoldings` · `tabSaved` · `savedEmpty` · `savedOpen` · `savedRemove` · `savedAt` ·
+   * `savedNeedsSeries`. Chủ dự án bỏ cụm tab khỏi màn Danh mục: *"bỏ tabbar đi và giữ lại toàn bộ
+   * giao diện và logic thêm mã cổ phiếu cũ"* — panel đã lưu đi theo, và bảy khoá này mất nơi dùng.
    *
-   * Đổi cùng lượt với việc danh sách thôi bày con số kết quả: "mở lại" hứa mở một thứ đang đóng,
-   * còn việc thật bây giờ là ĐI XEM con số mà danh sách không bày nữa. Khoá giữ nguyên tên
-   * `savedOpen` — nó chỉ việc, không chỉ chữ.
+   * ⚠ Nhóm `portfolio.save*` của SHEET LƯU thì Ở LẠI và vẫn chạy: nút "Lưu vào danh mục" ở màn chi
+   * tiết chưa bỏ. Đừng thấy tên gần giống mà dọn nốt — hai nhóm phục vụ hai màn khác nhau.
    */
-  'portfolio.savedOpen': 'Xem',
-  'portfolio.savedRemove': 'Xoá',
-  /*
-   * Ba khoá của luồng đổi tên tại chỗ — `savedRename`, `savedSaveName`, `savedNameLabel` — đã xoá
-   * cùng lượt: chủ dự án bỏ nút "Đổi tên" khỏi dòng, nên form sửa tên mất lối vào. Hàm
-   * `renameSavedCalc()` ở tầng Application thì giữ nguyên kèm ca kiểm, sẵn cho lần muốn bày lại.
-   */
-  /*
-   * Ngày lưu KHÔNG phải thứ trang trí — nó là điều kiện để bày một con số cũ mà vẫn lương thiện,
-   * đúng cặp ràng buộc mà `price-cache-store.ts` đặt ra cho thị giá đã lưu: được dùng số cũ,
-   * nhưng phải nói rõ số ấy thuộc mốc nào. Tab này không tính lại, nên bỏ ngày đi là vi phạm.
-   */
-  'portfolio.savedAt': 'lưu',
-  /*
-   * `portfolio.savedResultNote` ("Kết quả của lần lưu, không tính lại…") đã xoá — chủ dự án chốt.
-   * Vế nó lo vẫn còn: `savedAt` in ngày lưu trên TỪNG thẻ, đúng chỗ hơn một câu chung ở đầu danh
-   * sách. Xem docblock ngay trên.
-   */
-  'portfolio.savedNeedsSeries': 'Cần chuỗi giá',
 
   // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
   'ticker.title': 'Chọn mã cổ phiếu',
@@ -1000,22 +1043,59 @@ export const vi = {
   'settings.units.scheduleHint':
     'Dùng cho màn lợi nhuận ròng sau phí & thuế. Nguồn: Market Config.',
   /* `settings.data.note` đã xoá cùng đợt với dải "CỤC BỘ" — xem docblock ở `portfolio.formCode`. */
-  'settings.data.title': 'Dữ liệu trên máy',
+  /*
+   * "Dữ liệu của bạn" chứ không còn "Dữ liệu trên máy" — chủ dự án chọn 14/09/2026, khi khối này
+   * rút xuống còn tiêu đề và một nút xoá (`HIEN_KHOI_DU_LIEU`).
+   *
+   * Vế "trên máy" đi cùng bản kiểm kê chín kho: lúc ấy tiêu đề phải nói kho nằm ĐÂU. Bản rút gọn
+   * không kể kho nào cả, nên thứ cần nói là dữ liệu ấy THUỘC VỀ AI — và đó cũng là vế hợp với một
+   * nút xoá sạch.
+   */
+  'settings.data.title': 'Dữ liệu của bạn',
   'settings.about.title': 'Về sản phẩm',
 
+  /*
+   * ── Mỗi kho một CÂU nói trong đó có gì, không phải khoá kho và độ dài chuỗi ─────────────────
+   *
+   * Dòng phụ trước đây in `ffb.prefs.v1 · 98 ký tự`. Chủ dự án chỉ vào đúng dòng ấy: *"đang không
+   * hiểu vùng khoanh tròn biểu thị cho cái gì. không có nghĩa"*. Cả hai vế đều là thứ chỉ người
+   * viết mã đọc được — tên khoá là chi tiết cài đặt, còn "ký tự" là độ dài chuỗi JSON, một con số
+   * không trả lời câu hỏi nào người dùng đang hỏi.
+   *
+   * Câu thay vào phải trả lời đúng hai điều: **trong đó có gì** và **nó từ đâu ra** (tức xoá đi
+   * thì mất thao tác nào của mình). Viết bằng danh từ đời thường, và gọi đúng TÊN MÀN nơi dữ liệu
+   * ấy sinh ra, để người dùng nối được với việc họ đã làm.
+   *
+   * `data.chars` đã bỏ cùng con số ấy; `i18n.test.ts` có ca bắt khoá mồ côi nên đừng để lại.
+   */
   'data.prefs': 'Tuỳ chọn hiển thị',
+  'data.prefs.note':
+    'Chế độ hiển thị, ngôn ngữ, giao diện sáng/tối, đơn vị và biểu phí bạn đã chọn.',
   'data.recent': 'Từ khoá đã tìm',
+  'data.recent.note': 'Những từ bạn đã gõ ở màn Tìm kiếm, giữ lại để lần sau bấm chọn cho nhanh.',
   /* Kho lịch sử tìm của ô tìm ở TRANG CHỦ — kho riêng, xem chú thích ở `SettingsScreen`. */
   'data.recentHome': 'Từ khoá đã tìm ở trang chủ',
+  'data.recentHome.note':
+    'Những từ bạn đã gõ ở ô tìm ngay trang chủ — kho riêng, không lẫn với màn Tìm kiếm.',
   'data.series': 'Chuỗi giá đã nhập',
+  'data.series.note': 'Bảng giá theo từng phiên bạn nhập, dán hoặc nạp ở màn Bảng dữ liệu.',
   'data.portfolio': 'Danh mục cá nhân',
+  'data.portfolio.note': 'Các mã bạn đã thêm vào Danh mục, kèm số lượng, giá vốn và ngày mua.',
   'data.saved': 'Phép tính đã lưu',
+  'data.saved.note': 'Những phép tính bạn bấm Lưu ở màn công thức, kèm tên bạn đặt cho chúng.',
   'data.drafts': 'Số đang gõ dở',
+  'data.drafts.note':
+    'Số bạn vừa nhập ở màn công thức, giữ tạm để rời màn rồi quay lại không phải gõ lại từ đầu.',
   'data.usage': 'Công thức đã mở',
+  'data.usage.note':
+    'Công thức bạn hay mở, dùng để xếp lại kệ công thức ở trang chủ theo thói quen.',
   'data.tickers': 'Danh sách mã',
+  'data.tickers.note':
+    'Danh sách mã của sàn, tải về một lần cho ô tìm mã chạy nhanh và vẫn dùng được khi mất mạng.',
   'data.prices': 'Giá đã lưu',
-  'data.empty': 'chưa lưu gì',
-  'data.chars': 'ký tự',
+  'data.prices.note':
+    'Giá phiên gần nhất của các mã trong Danh mục, giữ lại để vẫn xem được khi mất mạng.',
+  'data.empty': 'Chưa có gì',
   'data.remove': 'Xoá',
   'data.clearAll': 'Xoá toàn bộ dữ liệu trên máy',
   /*
@@ -1037,6 +1117,113 @@ export const vi = {
   'about.schedule': 'Biểu phí đã nạp',
   'about.offline': 'Chạy ngoại tuyến',
   'about.offlineValue': 'có',
+
+  /*
+   * ── Màn "Về chúng tôi" (/ve-chung-toi/) ──────────────────────────────────────────────────────
+   *
+   * Tiền tố `aboutUs.` chứ KHÔNG phải `about.`: bốn khoá ngay trên đã thuộc về khối "Về sản phẩm"
+   * của màn Cài đặt — ba dòng số liệu, không phải văn giới thiệu. Trộn hai màn vào một namespace
+   * là mời người sửa sau đổi nhầm chỗ.
+   *
+   * Đây là màn DUY NHẤT của sản phẩm viết bằng giọng quảng bá. Hai luật tự đặt cho nó:
+   *
+   *   1. Không câu nào được nói quá thứ mã nguồn làm thật. Cụ thể ở `aboutUs.stat.freshNote`
+   *      dưới đây, và ở cả khối `aboutUs.not.*` — khối ấy tồn tại chính vì một trang giới thiệu
+   *      chỉ đáng tin khi nó chịu nói ra phần mình không làm.
+   *   2. Không dựng lại cam kết riêng tư đã gỡ. Khoá `portfolio.localOnly` (dải "CỤC BỘ") và
+   *      `settings.data.note` bỏ ngày 09/09/2026 theo yêu cầu chủ dự án; `aboutUs.yourData.*`
+   *      dưới đây cố ý chỉ MÔ TẢ kiến trúc ("nằm trong localStorage của thiết bị") chứ không hứa
+   *      hẹn gì thay mặt sản phẩm. Xem chú thích ở `settings.data.title`.
+   */
+  'aboutUs.eyebrow': 'Về Faculator Finbox',
+  'aboutUs.title': 'Công cụ tài chính thông minh cho nhà đầu tư hiện đại',
+  'aboutUs.lead':
+    'Faculator Finbox là ứng dụng web tra cứu, tính toán và trực quan hoá công thức cho thị trường Việt Nam. Điểm khác biệt cốt lõi: các công thức không đứng độc lập mà kết nối thành đồ thị phụ thuộc — đầu ra của bước trước chảy thẳng vào đầu vào của bước sau.',
+  'aboutUs.stat.full': 'Đầy đủ',
+  'aboutUs.stat.fullNote': 'Công cụ tài chính',
+  'aboutUs.stat.fresh': 'Dữ liệu cập nhật',
+  /*
+   * "Theo phiên gần nhất", KHÔNG phải "Liên tục" như bản vẽ.
+   *
+   * Thứ sản phẩm thật sự lấy về là thị giá cuối phiên của tab Danh mục, và nó luôn đi kèm ngày
+   * phiên (`TickerSnapshot.asOfDate`). Chuỗi giá trong bộ mẫu thì vẫn là số dựng sẵn. Viết "liên
+   * tục" là hứa một bảng giá khớp lệnh trực tiếp mà sản phẩm không có — và nó cãi thẳng
+   * `aboutUs.not.realtimeNote` cách đó hai màn cuộn.
+   */
+  'aboutUs.stat.freshNote': 'Theo phiên gần nhất',
+  'aboutUs.stat.simple': 'Giao diện đơn giản',
+  'aboutUs.stat.simpleNote': 'Dễ sử dụng',
+
+  'aboutUs.can.title': 'Sản phẩm làm được gì',
+  'aboutUs.can.lookup': 'Tra cứu có giải thích',
+  'aboutUs.can.lookupNote':
+    'Mỗi công thức đi kèm ý nghĩa, lúc nào nên dùng, cách đọc kết quả và những lỗi thường gặp.',
+  'aboutUs.can.instant': 'Tính toán tức thì',
+  'aboutUs.can.instantNote':
+    'Gõ số tới đâu thì kết quả và biểu đồ đổi tới đó, không có nút Tính nào phải bấm.',
+  'aboutUs.can.chain': 'Chuỗi móc nối có kiểm soát',
+  'aboutUs.can.chainNote':
+    'Đầu ra của một công thức nạp thẳng vào ô nhập của công thức sau, và bạn vẫn ghi đè được bằng số của mình.',
+  'aboutUs.can.fees': 'Phí và thuế thị trường Việt Nam',
+  'aboutUs.can.feesNote':
+    'Phí giao dịch, thuế thu nhập và thuế cổ tức theo quy định trong nước, khai một chỗ ở Market Config.',
+  'aboutUs.can.data': 'Dữ liệu mẫu và nhập liệu linh hoạt',
+  'aboutUs.can.dataNote':
+    'Nạp bộ số liệu mẫu theo mã cổ phiếu, hoặc tự gõ và dán bảng giá của riêng bạn.',
+  'aboutUs.can.portfolio': 'Danh mục cá nhân tại thiết bị',
+  'aboutUs.can.portfolioNote':
+    'Theo dõi các mã đang nắm giữ kèm giá vốn, hỗ trợ XIRR và các phép tính liên quan mà không bắt buộc đăng nhập.',
+
+  'aboutUs.arch.title': 'Kiến trúc client-only (zero backend)',
+  'aboutUs.arch.ui': 'Tầng trình bày',
+  'aboutUs.arch.uiNote': 'SPA/PWA chạy trong trình duyệt, thiết kế mobile-first.',
+  'aboutUs.arch.calc': 'Tầng tính toán',
+  'aboutUs.arch.calcNote': 'Bộ máy công thức và đồ thị phụ thuộc giữa các bước.',
+  'aboutUs.arch.registry': 'Formula Registry',
+  'aboutUs.arch.registryNote': 'Định nghĩa công thức, biến, đơn vị và nội dung giải thích.',
+  'aboutUs.arch.provider': 'DataProvider',
+  'aboutUs.arch.providerNote':
+    'Cấp chuỗi giá và số liệu mẫu, cô lập nguồn dữ liệu khỏi ba tầng trên.',
+
+  'aboutUs.yourData.title': 'Dữ liệu của bạn',
+  'aboutUs.yourData.noAccount': 'Không tài khoản, không máy chủ',
+  'aboutUs.yourData.noAccountNote':
+    'Sản phẩm chạy trọn trong trình duyệt: không có bước đăng ký, không có máy chủ tài khoản. Danh mục và tuỳ chọn hiển thị nằm trong localStorage của chính thiết bị, nên xoá dữ liệu trình duyệt hoặc đổi máy thì chúng không đi theo.',
+  'aboutUs.yourData.sources': 'Nguồn tham khảo công khai',
+  'aboutUs.yourData.sourcesNote':
+    'Mỗi công thức ghi rõ nguồn — giáo trình, chuẩn mực kế toán hoặc văn bản pháp luật — để bạn kiểm chứng. Hằng số phí và thuế lấy từ Market Config, sửa một chỗ áp dụng toàn hệ thống.',
+
+  'aboutUs.not.title': 'Faculator không phải là gì?',
+  'aboutUs.not.broker': 'Không phải sàn giao dịch',
+  'aboutUs.not.brokerNote': 'Không đặt lệnh, không kết nối tài khoản chứng khoán.',
+  'aboutUs.not.realtime': 'Không phải bảng giá thời gian thực',
+  /*
+   * Bản vẽ ghi "Không cung cấp giá thị trường thời gian thực ở bản phát hành đầu". Câu ấy đã sai
+   * kể từ gói "Danh mục dùng số liệu thật": sản phẩm CÓ gọi `dcs.finbox.vn` lấy thị giá, và
+   * `public/_headers` mở `connect-src` cho đúng origin ấy. Nên trục của câu đổi từ "có giá hay
+   * không" sang "giá LOẠI NÀO" — vẫn giữ nguyên điều bản vẽ muốn nói (đừng dùng app này để lướt
+   * sóng) mà không nói sai về thứ mã nguồn đang làm.
+   */
+  'aboutUs.not.realtimeNote':
+    'Thị giá ở tab Danh mục là giá của phiên gần nhất, lấy từ nhà cung cấp dữ liệu và luôn kèm ngày phiên. Đây không phải bảng giá khớp lệnh trực tiếp.',
+  /*
+   * Mục này THAY cho thẻ thứ ba của bản vẽ — bản vẽ lặp lại nguyên văn thẻ thứ hai, hiển nhiên là
+   * lỗi dựng ảnh. Chọn "kho dữ liệu lịch sử" vì nó vừa đúng sự thật kiểm chứng được (chuỗi giá
+   * trong bộ mẫu là số dựng sẵn; API chỉ trả 10 phiên, không đủ cho RSI-14 hay SMA-20), vừa dẫn
+   * người đọc sang đúng việc cần làm tiếp là màn Bảng dữ liệu.
+   */
+  'aboutUs.not.history': 'Không phải kho dữ liệu lịch sử',
+  'aboutUs.not.historyNote':
+    'Bộ số liệu mẫu dựng sẵn chỉ đủ để minh hoạ cách một công thức chạy. Muốn tính trên chuỗi giá thật và dài, bạn tự nhập hoặc dán vào Bảng dữ liệu.',
+  'aboutUs.not.advice': 'Không phải công cụ tư vấn đầu tư',
+  'aboutUs.not.adviceNote':
+    'Mọi con số trên màn là kết quả tính toán để tham khảo, không phải khuyến nghị mua bán.',
+
+  'aboutUs.cta.eyebrow': 'Bắt đầu ngay hôm nay',
+  'aboutUs.cta.title': 'Cùng Faculator Finbox làm chủ thị trường',
+  'aboutUs.cta.note':
+    'Không cần đăng ký. Mở công thức, nạp bộ số liệu mẫu theo mã cổ phiếu và xem kết quả cập nhật tức thì — hoạt động đầy đủ cả khi ngoại tuyến.',
+  'aboutUs.cta.action': 'Truy cập ngay',
 
   // Tiêu đề <h1> của màn. Chỉ có key cho màn nào THẬT SỰ hiện tiêu đề bằng chữ:
   // trang chủ dùng `home.h1` (ẩn cho trình đọc màn hình), danh mục dùng `portfolio.title`.

@@ -27,10 +27,16 @@
  * cũ đi theo giờ, mà một bản cất trong `localStorage` sẽ sống qua đêm rồi âm thầm điền số của
  * hôm qua vào ô nhập hôm nay. Đóng tab là mất — đúng tuổi thọ của một phiên làm việc.
  *
- * Kèm theo đó, màn **phải nói ra** là đang dùng số liệu của mã nào (`fundamentalsAsOf` của preset
- * cho biết số liệu cơ bản đối chiếu lúc nào). Cặp ràng buộc này giống hệt cặp mà
- * `price-cache-store.ts` phải giữ với `PriceState = 'stale'`: được dùng số đã cất, nhưng phải
- * gọi tên được nguồn gốc của nó.
+ * Kèm theo đó, màn **phải nói ra** là đang dùng số liệu của mã nào. Cặp ràng buộc này giống cặp
+ * mà `price-cache-store.ts` phải giữ với `PriceState = 'stale'`: được dùng số đã cất, nhưng phải
+ * gọi tên được nguồn gốc của nó. Vế ấy nay do **huy hiệu mã** trong thanh mã của `FormulaDetail`
+ * gánh một mình.
+ *
+ * ⚠ Vế thứ hai của cặp — **mốc ngày** (`fundamentalsAsOf` cho biết số liệu cơ bản đối chiếu lúc
+ * nào) — KHÔNG còn được nói ra ở đâu trên màn kể từ 14/09/2026: chủ dự án chốt bỏ câu chữ trong
+ * thanh mã. Trường `fundamentalsAsOf` vẫn được cất và vẫn đi qua bộ đọc dưới đây, nên ai cần dựng
+ * lại mốc ấy thì dữ liệu còn nguyên — chỉ là màn không bày nó nữa. Đây là chỗ khác biệt với
+ * `PriceState = 'stale'` ở tab Danh mục, nơi ngày phiên vẫn bắt buộc phải hiện.
  *
  * Phần thuần nằm ở đây, không import React — test được bằng Node. Phần chạm `sessionStorage` do
  * màn gọi trong `useEffect`, cùng khuôn `price-series-store.ts`.

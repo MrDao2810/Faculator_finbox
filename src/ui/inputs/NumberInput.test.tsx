@@ -191,6 +191,177 @@ describe('đẩy giá trị lên ngay trong lúc gõ', () => {
   });
 });
 
+/*
+ * Chủ dự án chốt 14/09/2026: *"tất cả các ô nhập số liệu … không được có sự xuất hiện của chữ
+ * cái"*. Chặn ở `onChange` chứ không bằng `type="number"` — lý do đầy đủ ở docblock của component.
+ * Đây cũng là chỗ duy nhất che `filtered-change.ts`, nên ca con trỏ nằm ở đây.
+ */
+describe('chỉ nhận ký tự của một con số', () => {
+  it('gõ chữ cái thì ô không nhận, con số đang có vẫn nguyên', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+
+    await userEvent.click(box());
+    await userEvent.type(box(), 'abc');
+
+    expect(box().value).toBe('92000');
+    // Chữ rụng trước khi tới `parseViNumber`, nên mọi lượt báo lên đều là giá trị CŨ — không có
+    // lượt nào mang `null`, NaN hay 0 (FR-06).
+    for (const [value] of onChange.mock.calls) expect(value).toBe(92_000);
+  });
+
+  it('gõ lẫn chữ và số thì chỉ phần số lọt vào ô', async () => {
+    render(<NumberInput spec={price} value={0} onChange={vi.fn()} />);
+
+    await userEvent.clear(box());
+    await userEvent.type(box(), '1a2b3');
+
+    expect(box().value).toBe('123');
+  });
+
+  it('dán chuỗi lẫn chữ thì giữ lại phần số: “92.000 ₫” ra “92.000”', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={0} onChange={onChange} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.paste('92.000 ₫');
+
+    expect(box().value).toBe('92.000');
+    expect(onChange).toHaveBeenLastCalledWith(92_000);
+  });
+
+  it('dán chuỗi toàn chữ thì ô giữ nguyên thứ đang có', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.paste('không có số nào');
+
+    expect(box().value).toBe('92000');
+  });
+
+  it('vẫn gõ được đủ lối viết số Việt Nam — dấu phẩy, dấu chấm và bốn kiểu dấu trừ', async () => {
+    render(<NumberInput spec={growth} value={0} onChange={vi.fn()} />);
+    const g = () => screen.getByLabelText('Tăng trưởng g') as HTMLInputElement;
+
+    for (const chuoi of ['14,3', '1.234,5', '-4', '−4', '–4', '—4']) {
+      await userEvent.clear(g());
+      await userEvent.type(g(), chuoi);
+      expect(g().value, `chuỗi '${chuoi}'`).toBe(chuoi);
+    }
+  });
+
+  /*
+   * Ô là controlled, nên khi ký tự bị loại mà state không đổi thì React ghi lại `value` sau sự
+   * kiện và trình duyệt đẩy con trỏ về CUỐI ô — gõ nhầm một chữ ở giữa '92.000' là con trỏ văng
+   * ra đuôi. `filterTypedValue()` sinh ra để giữ đúng chỗ ấy.
+   */
+  it('con trỏ không nhảy về cuối khi ký tự bị loại ở GIỮA chuỗi', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    expect(box().value).toBe('92000');
+
+    await userEvent.type(box(), 'x', { initialSelectionStart: 2, initialSelectionEnd: 2 });
+
+    expect(box().value).toBe('92000');
+    expect(box().selectionStart).toBe(2);
+  });
+
+  /*
+   * Lỗi chủ dự án báo 14/09/2026: *"đang nhập số mà bấm nhầm sau text chữ số thì số trong ô lại bị
+   * xóa đi"*. Gõ '100', bấm nhầm 'a' (chữ bị loại ngay), rồi bấm Backspace để xoá chữ vừa nhầm —
+   * phím xoá ăn thẳng vào chữ số thật.
+   *
+   * Với bộ gõ tiếng Việt thì phím xoá ấy TỰ ĐỘNG: Unikey gõ 'a' rồi 's' để ra 'á' bằng cách gửi
+   * Backspace rồi chèn 'á'. Mỗi chữ có dấu là một chữ số biến mất — ca `mô phỏng bộ gõ` dưới đây
+   * ghim đúng chuỗi thao tác đó.
+   */
+  it('bấm nhầm chữ rồi bấm xoá: phím xoá ăn vào chữ vừa nhầm, KHÔNG ăn vào chữ số', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.type(box(), '100');
+    await userEvent.type(box(), 'a');
+    expect(box().value).toBe('100');
+
+    await userEvent.type(box(), '{Backspace}');
+    expect(box().value).toBe('100');
+
+    // Lần xoá thứ hai mới là xoá thật — chuỗi "vừa gõ nhầm" đã tiêu ở lần đầu.
+    await userEvent.type(box(), '{Backspace}');
+    expect(box().value).toBe('10');
+  });
+
+  it('bấm nhầm hai chữ thì nuốt đúng hai phím xoá, không hơn', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.type(box(), '100ab');
+    expect(box().value).toBe('100');
+
+    await userEvent.type(box(), '{Backspace}{Backspace}');
+    expect(box().value).toBe('100');
+
+    await userEvent.type(box(), '{Backspace}');
+    expect(box().value).toBe('10');
+  });
+
+  it('mô phỏng bộ gõ tiếng Việt: gõ chữ có dấu không làm mất chữ số nào', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.type(box(), '100');
+
+    /* Đúng thứ Unikey gửi khi người dùng gõ 'a' rồi 's': ký tự, phím xoá, rồi ký tự có dấu. */
+    for (const _lan of [1, 2, 3]) {
+      await userEvent.type(box(), 'a');
+      await userEvent.type(box(), '{Backspace}');
+      await userEvent.type(box(), 'á');
+    }
+
+    expect(box().value).toBe('100');
+  });
+
+  it('phím xoá vẫn xoá bình thường khi không có ký tự nào vừa bị loại', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.type(box(), '100');
+    await userEvent.type(box(), '{Backspace}');
+
+    expect(box().value).toBe('10');
+  });
+
+  /* Dời con trỏ đi rồi thì phím xoá không còn là "xoá chữ vừa nhầm" nữa. */
+  it('bấm phím khác rồi mới xoá thì phím xoá ăn thật', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.type(box(), '100a');
+    await userEvent.type(box(), '{ArrowLeft}{ArrowRight}');
+    await userEvent.type(box(), '{Backspace}');
+
+    expect(box().value).toBe('10');
+  });
+
+  it('con trỏ đứng đúng sau phần số vừa dán ở giữa chuỗi', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.type(box(), '4a', { initialSelectionStart: 2, initialSelectionEnd: 2 });
+
+    // '92' + '4' + '000', con trỏ ngay sau số 4 vừa gõ chứ không nhảy ra đuôi.
+    expect(box().value).toBe('924000');
+    expect(box().selectionStart).toBe(3);
+  });
+});
+
 describe('ô nhận giá trị tự động (FR-15)', () => {
   it('ghi rõ tên công thức nguồn', () => {
     render(<NumberInput spec={price} value={14.3} onChange={vi.fn()} derivedFrom="CAPM" />);

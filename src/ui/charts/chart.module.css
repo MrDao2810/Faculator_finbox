@@ -567,21 +567,9 @@
 }
 
 /*
- * Gợi ý cách xem — trung tính, khác .note (dành cho cảnh báo đường đứt quãng).
- *
- * Còn `display: flex` dù nay chỉ bọc chữ: đó vẫn là cách đúng để một dòng chữ phụ không nhận lề
- * thừa. Luật `.applyHintReady` (màu nhấn + icon con trỏ) đã gỡ cùng câu khẳng định mà nó tô — xem
- * docblock `ApplyHint.tsx`.
+ * `.applyHint` (và `.applyHintReady` trước đó) đã gỡ ngày 14/09/2026 cùng component `ApplyHint`:
+ * dưới hình không còn dòng gợi ý nào để tô. Lý do và cái giá ghi ở docblock `ChartBody`.
  */
-.applyHint {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-
-  margin: 0;
-  font-size: var(--text-xs);
-  color: var(--color-ink-soft);
-}
 
 /*
  * Ô chọn trục giữ lại khi không vẽ được — đường ra duy nhất của trạng thái ấy, nên nó phải nằm

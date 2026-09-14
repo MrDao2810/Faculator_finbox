@@ -85,6 +85,38 @@ describe('InlineNumber — ngoài miền thì nói ra trước khi kẹp', () =>
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
+  /* Quy tắc 6 — cùng cửa ký tự với `NumberInput`, vì hai ô không được cư xử khác nhau. */
+  it('gõ chữ cái thì ô không nhận, con số đang có vẫn nguyên', async () => {
+    ve(92_000);
+
+    await userEvent.click(box());
+    await userEvent.type(box(), 'abc');
+
+    expect(box().value).toBe('92000');
+  });
+
+  it('dán chuỗi lẫn chữ thì giữ lại phần số', async () => {
+    ve(0);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.paste('92.000 ₫');
+
+    expect(box().value).toBe('92.000');
+  });
+
+  it('vẫn gõ được dấu phẩy thập phân và dấu trừ', async () => {
+    ve(92_000);
+
+    await userEvent.clear(box());
+    await userEvent.type(box(), '14,3');
+    expect(box().value).toBe('14,3');
+
+    await userEvent.clear(box());
+    await userEvent.type(box(), '-4');
+    expect(box().value).toBe('-4');
+  });
+
   /* Cùng lỗi `String(100.449)` → 100449 đã vá ở `NumberInput` và `NumberCell`. */
   it('chạm vào ô có số lẻ rồi rời ra không làm giá nhân lên nghìn lần', async () => {
     const onChange = ve(100.449);

@@ -16,9 +16,25 @@ import {
 import { DEFAULT_LIST_PARAMS, parseListParams } from './url-state';
 
 describe('bản đồ đường dẫn (WF-18)', () => {
-  it('thanh nav dưới có đúng bốn mục', () => {
-    expect(NAV_ITEMS).toHaveLength(4);
-    expect(NAV_ITEMS.map((i) => i.key)).toEqual(['home', 'formulas', 'portfolio', 'settings']);
+  it('thanh nav dưới có đúng năm mục, "Về chúng tôi" đứng cuối', () => {
+    expect(NAV_ITEMS).toHaveLength(5);
+    expect(NAV_ITEMS.map((i) => i.key)).toEqual([
+      'home',
+      'formulas',
+      'portfolio',
+      'settings',
+      'about',
+    ]);
+  });
+
+  /*
+   * Nhãn ngắn là một phép tính hình học, không phải sở thích — xem `NavItem.shortLabelKey`. Ghim
+   * lại rằng CHỈ mục thứ năm có nó: thêm nhãn ngắn cho một mục vừa chỗ là mở đường cho thanh tab
+   * và thanh trên gọi cùng một màn bằng hai cái tên mà không ai để ý.
+   */
+  it('chỉ mục Về chúng tôi có nhãn ngắn riêng cho thanh tab', () => {
+    const coNhanNgan = NAV_ITEMS.filter((i) => i.shortLabelKey !== undefined).map((i) => i.key);
+    expect(coNhanNgan).toEqual(['about']);
   });
 
   it('mọi đường dẫn kết thúc bằng "/" cho hợp trailingSlash', () => {
@@ -171,6 +187,19 @@ describe('headerTitleKey()', () => {
       expect(headerTitleKey(path), path).toBeNull();
     }
   });
+
+  /*
+   * '/ve-chung-toi/' đứng ngoài bảng dù nó CÓ mục riêng ở thanh nav — ngoại lệ có lý do, không
+   * phải chỗ bị bỏ sót. Màn ấy mở bằng một dải giới thiệu mang `<h1>` của riêng nó; đẩy tiêu đề
+   * lên thanh trên thì từ 1024px nó thành `position: absolute` và trang giới thiệu mất hẳn tiêu
+   * đề nhìn thấy được trên desktop.
+   *
+   * Ghim riêng chứ không gộp vào ca trên: ai đó "dọn cho nhất quán" bằng cách thêm một dòng vào
+   * HEADER_TITLES sẽ làm màn ấy có HAI `<h1>`, và đây là chỗ họ đọc được vì sao đừng làm thế.
+   */
+  it('Về chúng tôi cố ý đứng ngoài bảng — hero tự mang <h1>', () => {
+    expect(headerTitleKey(ROUTES.about)).toBeNull();
+  });
 });
 
 describe('activeRouteKey()', () => {
@@ -197,8 +226,26 @@ describe('activeRouteKey()', () => {
     expect(activeRouteKey('/du-lieu')).toBe('formulas');
   });
 
+  it('màn giới thiệu sáng đúng mục của nó', () => {
+    expect(activeRouteKey(ROUTES.about)).toBe('about');
+    expect(activeRouteKey('/ve-chung-toi')).toBe('about');
+  });
+
   it('đường dẫn lạ thì không mục nào sáng', () => {
     expect(activeRouteKey('/khong-co-trang-nay/')).toBeNull();
+  });
+});
+
+/*
+ * Màn giới thiệu nhận trọn phần MẶC ĐỊNH của mọi hàm trong file — không xin ngoại lệ nào. Ghim
+ * lại vì đó chính là điều đáng giữ: dải miễn trừ ở chân trang (FR-24 · UI-04) chỉ được vắng khi
+ * màn ấy đã tự bày câu miễn trừ ở chỗ tốt hơn, mà màn này thì không bày con số tiền nào.
+ */
+describe('màn Về chúng tôi dùng trọn hành vi mặc định', () => {
+  it('không phải màn trong, có dải miễn trừ, không có nút đổi chế độ', () => {
+    expect(backLinkFor(ROUTES.about)).toBeNull();
+    expect(showsFooterDisclaimer(ROUTES.about)).toBe(true);
+    expect(showsModeToggle(ROUTES.about)).toBe(false);
   });
 });
 
@@ -264,10 +311,10 @@ describe('backLinkFor() — màn trong nào cũng có đường ra', () => {
   });
 
   /*
-   * Bốn màn có mục riêng ở thanh nav KHÔNG phải màn trong — chúng bày tên màn hoặc tên sản phẩm.
+   * Năm màn có mục riêng ở thanh nav KHÔNG phải màn trong — chúng bày tên màn hoặc tên sản phẩm.
    * Ba dạng danh tính loại trừ nhau, nên trùng ở đây là thanh trên có hai thứ cùng đòi chỗ.
    */
-  it('bốn màn gốc KHÔNG có đường ra, và không trùng với bảng tên màn', () => {
+  it('năm màn gốc KHÔNG có đường ra, và không trùng với bảng tên màn', () => {
     for (const item of NAV_ITEMS) {
       expect(backLinkFor(item.href), item.href).toBeNull();
     }

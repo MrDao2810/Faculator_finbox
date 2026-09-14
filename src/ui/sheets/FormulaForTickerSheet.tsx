@@ -147,7 +147,13 @@ export function FormulaForTickerSheet({
       open={open}
       onClose={close}
       title={`${t('portfolio.formulasTitle')}${code === null ? '' : ` · ${code}`}`}
-      subtitle={t('portfolio.formulasSubtitle')}
+      /*
+       * Ghim chiều cao tấm — cùng lý do như `TickerPickerSheet`, xem `BottomSheetProps.size`.
+       *
+       * Ô lọc nằm ngay trong thân: mở ra là 31 dòng chia hai nhóm, gõ "pe" còn một hai dòng. Để
+       * tấm co theo nội dung thì nó tụt xuống ngay dưới ngón tay đang gõ.
+       */
+      size="tall"
     >
       <label className="visually-hidden" htmlFor="formulas-for-ticker-search">
         {t('search.label')}

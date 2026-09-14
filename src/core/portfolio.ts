@@ -403,8 +403,15 @@ export function summarisePortfolio(
     rate = fail('%/năm', {
       code: 'MODEL_VIOLATION',
       message: {
-        vi: `Ngày mua của ${futureBuys.join(', ')} nằm sau ngày định giá — chưa mua thì chưa có lợi suất để tính.`,
-        en: `The buy date of ${futureBuys.join(', ')} is after the valuation date — there's no return to calculate before a purchase happens.`,
+        /*
+         * Vế "— chưa mua thì chưa có lợi suất để tính." đã bỏ 14/09/2026 theo yêu cầu chủ dự án.
+         *
+         * Nó giải thích một điều câu đầu đã nói xong: ngày mua nằm SAU ngày định giá thì tự nó là
+         * lý do. Phần người dùng cần làm tiếp vẫn còn nguyên ở `fix` ngay dưới — mà `fix` mới là
+         * chỗ NFR-USA-04 dành cho lời khuyên, không phải phần `message`.
+         */
+        vi: `Ngày mua của ${futureBuys.join(', ')} nằm sau ngày định giá.`,
+        en: `The buy date of ${futureBuys.join(', ')} is after the valuation date.`,
       },
       fix: {
         vi: 'Kiểm tra lại năm trong ngày mua.',

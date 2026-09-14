@@ -49,7 +49,7 @@ function boDauCuoi(path: string): string {
 }
 
 describe('HeaderNav', () => {
-  it('bốn mục trỏ đúng ROUTES', () => {
+  it('năm mục trỏ đúng ROUTES', () => {
     dungNav();
     expect(
       boDauCuoi(screen.getByRole('link', { name: 'Trang chủ' }).getAttribute('href') ?? ''),
@@ -63,6 +63,20 @@ describe('HeaderNav', () => {
     expect(
       boDauCuoi(screen.getByRole('link', { name: 'Cài đặt' }).getAttribute('href') ?? ''),
     ).toBe(boDauCuoi(ROUTES.settings));
+    expect(
+      boDauCuoi(screen.getByRole('link', { name: 'Về chúng tôi' }).getAttribute('href') ?? ''),
+    ).toBe(boDauCuoi(ROUTES.about));
+  });
+
+  /*
+   * Thanh trên dùng nhãn ĐẦY ĐỦ, thanh tab dưới dùng nhãn ngắn — hai dáng của cùng một mục. Ghim
+   * ở đây vì `BottomTabBar` mới là nơi rút nhãn: nếu ai đó gỡ `shortLabelKey` cho gọn thì thanh
+   * tab lại nhận "Về chúng tôi" và xuống dòng, còn ca này vẫn xanh. Nên ca này gác chiều còn lại
+   * — thanh trên không được lây nhãn ngắn của thanh dưới.
+   */
+  it('thanh trên giữ nhãn đầy đủ, không dùng nhãn ngắn của thanh tab', () => {
+    dungNav();
+    expect(screen.queryByRole('link', { name: 'Giới thiệu' })).toBeNull();
   });
 
   it('mục khớp đường dẫn hiện tại được đánh dấu aria-current="page"', () => {
@@ -88,7 +102,7 @@ describe('HeaderNav', () => {
     expect(screen.getByRole('navigation', { name: 'Điều hướng chính' })).toBeTruthy();
   });
 
-  it('chuyển sang EN thì cả bốn nhãn đổi theo', async () => {
+  it('chuyển sang EN thì cả năm nhãn đổi theo', async () => {
     const user = userEvent.setup();
     // Đặt cạnh LangSwitch — đúng cách hai component thật sự sống chung trong AppHeader — để đổi
     // locale qua một tương tác thật, không chỉ ghi thẳng localStorage.
@@ -105,5 +119,6 @@ describe('HeaderNav', () => {
     expect(screen.getByRole('link', { name: 'Formulas' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Portfolio' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'About us' })).toBeTruthy();
   });
 });

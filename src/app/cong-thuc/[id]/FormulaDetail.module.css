@@ -796,7 +796,7 @@ button.iconButton::after {
  * cho một ô nhập một hàng (xem `.fields` ở khối 1280 phía trên).
  *
  * `grid-auto-flow: row dense` giữ cho `.answer` dính vào đúng hàng của `.ask`: chuỗi định giá
- * (7 công thức, chế độ Nâng cao) đứng GIỮA hai bọc trong DOM và trải hết hàng — không `dense` thì
+ * (5 công thức, chế độ Nâng cao) đứng GIỮA hai bọc trong DOM và trải hết hàng — không `dense` thì
  * nó chen vào giữa và đẩy `.answer` xuống dưới. Với `dense`, nó rơi xuống hàng trống đầu tiên, tức
  * dưới cả hai cột. `dense` an toàn vì MỌI con trực tiếp của `.detail` đều được khai cột tường minh
  * ngay bên dưới. Nó cũng là lý do Công thức PHẢI trải hết hàng: để ô bên phải nó trống là `.answer`

@@ -243,14 +243,18 @@ export function ChainBody({
     );
   }
 
+  /**
+   * Thẻ của mọi bước CẤP SỐ LIỆU, theo thứ tự topo.
+   *
+   * Không có thẻ cho bước đứng sau: nửa "Bước sau" đã bỏ 16/09/2026 — xem docblock đầu file.
+   * `chainFor()` nay cũng dừng ở tổ tiên, nên thực tế `currentIndex` luôn là bước cuối; lát cắt
+   * này giữ nguyên để component không phụ thuộc vào điều đó.
+   */
   const truoc = chain.steps.slice(0, currentIndex).map((_step, index) => theBuoc(index));
-  const sau = chain.steps
-    .slice(currentIndex + 1)
-    .map((_step, index) => theBuoc(currentIndex + 1 + index));
 
   /**
-   * Hai cột thẻ bước ở khổ rộng — mỗi cột là tiêu đề nhóm (nếu cột LÀ một nhóm) rồi các thẻ xếp
-   * dọc. Cột không có thẻ nào thì không dựng, để một thẻ lẻ loi không kéo theo một cột rỗng.
+   * Hai cột thẻ bước ở khổ rộng. Cột không có thẻ nào thì không dựng, để một thẻ lẻ loi không kéo
+   * theo một cột rỗng.
    *
    * ── `columnsEven`: khi nào thẻ đang mở được nở ra cho hai cột cùng mép dưới ──────────────────
    *
@@ -264,9 +268,7 @@ export function ChainBody({
    * thật thà. Bằng số thẻ thì chênh lệch chỉ là do số ô nhập trong từng thẻ, và lấp nó lại chính
    * là điều chủ dự án yêu cầu ở trang `wacc` (1 | 1).
    */
-  function haiCot(
-    cot: ReadonlyArray<{ key: string; title?: string; cards: ReadonlyArray<ReactNode> }>,
-  ) {
+  function haiCot(cot: ReadonlyArray<{ key: string; cards: ReadonlyArray<ReactNode> }>) {
     const coThe = cot.filter((c) => c.cards.length > 0);
     const canBang = coThe.length === 2 && coThe[0]?.cards.length === coThe[1]?.cards.length;
 
@@ -274,7 +276,6 @@ export function ChainBody({
       <div className={canBang ? `${styles.columns} ${styles.columnsEven}` : styles.columns}>
         {coThe.map((c) => (
           <div key={c.key} className={styles.column}>
-            {c.title !== undefined && <h3 className={styles.groupTitle}>{c.title}</h3>}
             {c.cards}
           </div>
         ))}
@@ -283,22 +284,13 @@ export function ChainBody({
   }
 
   /**
-   * Bố cục hai cột của các thẻ bước — hai luật, theo hai lần chủ dự án chỉ (10/09/2026).
+   * Bố cục hai cột của các thẻ bước, theo yêu cầu của chủ dự án ngày 10/09/2026 trên trang
+   * `gia-tri-noi-tai-fcff`: _"ở màn web đang quá rộng… chẵn thì chia ra 2 cột lần lượt, lẻ thì cột
+   * trái nhiều hơn cột phải 1"_. Đo ở 1500px: một thẻ trải 1357px, thanh trượt bên trong dài cả
+   * màn. `Math.ceil(n / 2)` cho cột trái làm đúng cả hai ca.
    *
-   * Lần một, trang `gia-tri-noi-tai-fcff` (ba bước trước, không bước sau): _"ở màn web đang quá
-   * rộng… chẵn thì chia ra 2 cột lần lượt, lẻ thì cột trái nhiều hơn cột phải 1"_. Đo ở 1500px:
-   * một thẻ trải 1357px, thanh trượt bên trong dài cả màn. → CHỈ MỘT nhóm thì cắt thẻ của nhóm đó
-   * làm đôi: nửa đầu cột trái, nửa sau cột phải, `Math.ceil(n / 2)` cho cột trái làm đúng cả hai ca.
-   *
-   * Lần hai, trang `wacc` (một bước trước, một bước sau): _"tôi vẫn thấy chưa chia thành 2 cột vẫn
-   * 1 cột"_ — vì mỗi nhóm một thẻ, cắt đôi từng nhóm cho ra hai thẻ nửa bề ngang chồng lên nhau ở
-   * nửa trái. → CÓ CẢ HAI nhóm thì mỗi nhóm là một cột: Bước trước bên trái, Bước sau bên phải, tiêu
-   * đề nhóm đứng đầu cột của mình. Trong Registry hiện tại ca này luôn là 1 | 1 (`wacc`,
-   * `mo-hinh-gordon`); nhóm nhiều thẻ thì thẻ xếp dọc trong cột.
-   *
-   * Cùng lần hai: _"height của các phần này cần bằng nhau khi bật lên để xem chi tiết các bước"_ —
-   * luật ấy nằm ở CSS (`.column > .step[open]` nở ra lấp phần cột còn dư), và nó CHỈ bật khi hai cột
-   * bằng nhau số thẻ; xem `haiCot()` ngay trên cùng `ChainBody.module.css`.
+   * Luật "hai nhóm thì mỗi nhóm một cột" của bản trước đã hết đất dùng cùng nửa "Bước sau": nay
+   * chỉ còn MỘT nhóm thẻ, luôn cắt đôi.
    *
    * ── Vì sao là hai cột flex thật, không phải lưới hai cột hay `columns: 2` ────────────────────
    *
@@ -309,46 +301,29 @@ export function ChainBody({
    * cột tự xếp thẻ của mình, và thẻ nào ở cột nào là cố định.
    *
    * Cắt LIỀN KỀ (nửa đầu trái, nửa sau phải) chứ không so le, để thứ tự DOM vẫn là thứ tự topo:
-   * khổ hẹp hai cột chồng lên nhau thành đúng một danh sách như cũ, trình đọc màn hình và phím Tab
-   * đi theo mạch tính từ trên xuống, và `moToiBuoc()` cuộn tới đúng thẻ dù thẻ ở cột nào.
+   * khổ hẹp hai cột chồng lên nhau thành đúng một danh sách như cũ, và trình đọc màn hình cùng
+   * phím Tab đi theo mạch tính từ trên xuống.
    */
   function bocNhom(): ReactNode {
-    const coTruoc = truoc.length > 0;
-    const coSau = sau.length > 0;
+    if (truoc.length === 0) return null;
 
-    if (coTruoc && coSau) {
-      return haiCot([
-        { key: 'truoc', title: t('chain.upstreamHeading'), cards: truoc },
-        { key: 'sau', title: t('chain.downstreamHeading'), cards: sau },
-      ]);
-    }
-    if (!coTruoc && !coSau) return null;
-
-    const cards = coTruoc ? truoc : sau;
-    const nuaTrai = Math.ceil(cards.length / 2);
-    return (
-      <>
-        <h3 className={styles.groupTitle}>
-          {t(coTruoc ? 'chain.upstreamHeading' : 'chain.downstreamHeading')}
-        </h3>
-        {haiCot([
-          { key: 'trai', cards: cards.slice(0, nuaTrai) },
-          { key: 'phai', cards: cards.slice(nuaTrai) },
-        ])}
-      </>
-    );
+    const nuaTrai = Math.ceil(truoc.length / 2);
+    return haiCot([
+      { key: 'trai', cards: truoc.slice(0, nuaTrai) },
+      { key: 'phai', cards: truoc.slice(nuaTrai) },
+    ]);
   }
 
   return (
     <section className={styles.wrap} aria-labelledby="khoi-chuoi">
+      {/*
+        Tiêu đề khối nói thẳng các thẻ dưới nó là gì, nên không còn tiêu đề nhóm và cũng không
+        còn dòng dẫn nào — xem docblock đầu file: ba bản dòng dẫn đã viết đều là để giải thích
+        một hình vẽ nay không còn.
+      */}
       <h2 className={styles.title} id="khoi-chuoi">
         {t('chain.title')}
       </h2>
-      {/*
-        Không có dòng dẫn nào ở đây, và đó là kết luận của ba lần viết lại (10/09 và hai lần
-        16/09/2026): mỗi bản đều phải đi giải thích một hình vẽ, mà hình vẽ ấy nay đã bỏ. Hai
-        tiêu đề nhóm ngay dưới tự nói xong việc.
-      */}
       {bocNhom()}
     </section>
   );

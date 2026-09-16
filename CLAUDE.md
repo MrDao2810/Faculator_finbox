@@ -145,12 +145,22 @@ coexist on purpose: the input keeps the upstream's original code (`resolveLinked
 downstream result gets `INHERITED`.
 
 On screen this is the WF-04 half of package 3.2.2: `FormulaDetail` renders the chain block only
-in **advanced mode** and only for formulas that `chainFor()` places in a chain — that is 7 of them
-(`capm`, `wacc`, `mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), so 104
-of 111 get nothing, and basic mode behaves exactly as before — which is why the four sweeps over
+in **advanced mode** and only for formulas that `chainFor()` places in a chain — **5 of them**
+(`wacc`, `mo-hinh-gordon`, `bien-an-toan`, `fcfe`, `gia-tri-noi-tai-fcff`), so 106 of 111 get
+nothing, and basic mode behaves exactly as before — which is why the four sweeps over
 all 111 detail screens in `FormulaDetail.test.tsx` needed no changes. `src/ui/screens/ChainPanel.tsx` is
 the `next/dynamic` boundary (same pattern as `FormulaChart`/`DetailBody`); never export
 `ChainBody` from the `@/ui/screens` barrel or its cost lands on all 111 detail pages.
+
+**The block shows upstream steps only, and has no diagram** — both cuts made 16/09/2026 by the
+project owner, who read the block three times and could not tell what it was for. `chainFor()`
+stops at ancestors, so `capm` and `fcff` (which feed others but take nothing) now render no block
+at all. The removed pieces were a `FlowChainStrip`/`FlowChainTree` picture of the dependency graph
+(every fact it drew was already on the step cards below it), the "Bước sau" half (it only answered
+"where does this number go"), the group headings and the intro line (three rewrites, each one
+explaining the picture). Do not rebuild any of them: what makes the block legible is its own
+title — "Số liệu lấy từ công thức khác" — plus the source label `LinkedInput` prints under the
+field that receives the number.
 
 ## The one network call — `MarketFeed`
 

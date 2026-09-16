@@ -1505,15 +1505,14 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     expect(screen.getByTestId('result-text').textContent).toContain('25.925');
   });
 
-  it('khối chuỗi bày cả bước trước lẫn bước sau của công thức đang xem', async () => {
+  it('khối chuỗi bày thẻ của bước cấp số liệu', async () => {
     manNangCao(specOf('mo-hinh-gordon'));
     const khoi = await screen.findByRole('region', { name: t('chain.title') });
 
     // Hình vẽ chuỗi đã bỏ 16/09/2026; thứ còn lại — và thứ mang trọn chức năng — là các thẻ bước.
     expect(khoi.textContent).toContain('CAPM');
-    expect(khoi.textContent).toContain('Biên an toàn');
     expect(khoi.querySelector('#chain-step-capm')).not.toBeNull();
-    expect(khoi.querySelector('#chain-step-bien-an-toan')).not.toBeNull();
+    expect(within(khoi).getByRole('link', { name: t('chain.openStep') })).not.toBeNull();
   });
 
   it('sửa số ở bước TRƯỚC thì kết quả của công thức đang xem đổi theo', async () => {
@@ -1563,16 +1562,19 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     expect(screen.getByTestId('result-text').textContent).toContain('25.925');
   });
 
-  it('bước SAU dùng kết quả của công thức đang xem, và nói rõ đó là bước sau', async () => {
+  /*
+   * Nửa "Bước sau" — thẻ của những công thức DÙNG kết quả của công thức đang xem — đã bỏ khỏi
+   * sản phẩm ngày 16/09/2026 (chủ dự án: khối chỉ nên giữ phần sửa được). Ca này đổi sang ghim
+   * đúng điều đó, vì bày lại chúng là mở lại lớp câu hỏi "khối này để làm gì".
+   */
+  it('KHÔNG bày công thức dùng kết quả của công thức đang xem', async () => {
     manNangCao(specOf('mo-hinh-gordon'));
     const khoi = await screen.findByRole('region', { name: t('chain.title') });
 
-    expect(within(khoi).getByText(t('chain.upstreamHeading'))).not.toBeNull();
-    expect(within(khoi).getByText(t('chain.downstreamHeading'))).not.toBeNull();
-
-    // Biên an toàn gập sẵn, nhưng dòng tóm tắt phải hiện kết quả:
-    // (25.925,93 − 30.000) ÷ 25.925,93 = −15,71%
-    expect(khoiChuoi().textContent).toContain('-15,71');
+    // CAPM cấp số cho Gordon nên có thẻ; Biên an toàn nhận từ Gordon nên không.
+    expect(khoi.querySelector('#chain-step-capm')).not.toBeNull();
+    expect(khoi.querySelector('#chain-step-bien-an-toan')).toBeNull();
+    expect(khoi.textContent).not.toContain('Biên an toàn');
   });
 });
 

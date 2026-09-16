@@ -173,13 +173,13 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
-## Bỏ hình vẽ chuỗi phụ thuộc ở khối "Chuỗi công thức" (16/09/2026)
+## Khối chuỗi rút về đúng phần sửa được — bỏ hình vẽ và nửa "Bước sau" (16/09/2026)
 
-**Trạng thái: xong, chờ chủ dự án soi màn.** `npm test` **113 file, 2.693 ca đạt, 48 hoãn**;
-typecheck, lint, format:check sạch. Đã soi bằng Chrome thật ở 1440px (sáng) và 360px (tối) trên
-các trang `fcff`, `gia-tri-noi-tai-fcff`, `capm`.
+**Trạng thái: xong, chờ chủ dự án soi màn.** `npm test` **113 file, 2.694 ca đạt, 48 hoãn**;
+typecheck, lint, format:check sạch. Đã soi bằng Chrome thật ở 1440px, 800px và 360px trên
+`gia-tri-noi-tai-fcff`, `mo-hinh-gordon`, và xác nhận `fcff` KHÔNG còn khối.
 
-### Ba vòng, một kết luận
+### Bốn vòng, một kết luận
 
 Chủ dự án gửi ảnh khối trên trang `fcff`: _"tôi đọc cũng không hiểu, vậy nó tồn tại có mục đích
 gì"_. Hàng ngang khi đó đọc ra là `FCFF → FCFE · Giá trị nội tại từ FCFF (DCF)` — dấu `·` nói được
@@ -193,45 +193,83 @@ gì"_. Hàng ngang khi đó đọc ra là `FCFF → FCFE · Giá trị nội t�
    (tên bước · kết quả từng bước · bước nào gãy · đường tới màn riêng của bước) đều đã có sẵn
    trên chính các thẻ ngay dưới nó. Nó chỉ nói lại bằng một ngôn ngữ phải học trước mới đọc được,
    và ba lần viết lời dẫn đều là ba lần đi giải thích cho nó.
+4. **Bỏ nửa "Bước sau"** — chủ dự án chốt sau khi đọc phân tích hai nửa. Nửa ấy chỉ trả lời "số
+   này chảy đi đâu"; nửa "Bước trước" mới cho sửa được giả định của công thức cấp số. Đúng hai
+   trang chỉ có nửa "Bước sau" (`capm`, `fcff`) là hai trang chủ dự án hỏi "tác dụng là gì".
 
-Luật rút ra, đã ghi vào `ChainBody.tsx`: quan hệ giữa các bước để cho **tiêu đề nhóm** và **nhãn
+Luật rút ra, đã ghi vào `ChainBody.tsx`: quan hệ giữa các bước để cho **tiêu đề khối** và **nhãn
 nguồn của `LinkedInput`** nói — chữ đứng cạnh đúng con số nó nói tới, không cần một hình riêng.
 
 ### Còn lại gì, mất gì
 
-Khối giữ nguyên phần mang chức năng: thẻ gập của từng bước trước/sau, có ô nhập riêng và kết quả
-riêng, bố cục hai cột ở khổ ≥1024px, và link "Mở màn riêng của bước này". Sửa beta trong thẻ CAPM
-vẫn đẩy thẳng vào `Suất sinh lợi yêu cầu` của Gordon như cũ — đó mới là chỗ FR-15 đáng tiền.
+Khối giờ là: tiêu đề **"Số liệu lấy từ công thức khác"** (đổi từ "Chuỗi công thức" — chữ cũ đặt
+tên cho một khái niệm, chữ mới gọi tên thứ đang nhìn thấy) rồi các thẻ gập của bước cấp số, mỗi
+thẻ có ô nhập riêng, kết quả riêng và link "Mở màn riêng của bước này". Sửa beta trong thẻ CAPM
+vẫn đẩy thẳng vào `Suất sinh lợi yêu cầu` của Gordon — đó mới là chỗ FR-15 đáng tiền. Hết tiêu đề
+nhóm, hết dòng dẫn, hết hình vẽ.
 
-Mất: một chỗ duy nhất nhìn thấy trọn hình chuỗi khi chuỗi có nhánh (`capm` 5 bước,
-`gia-tri-noi-tai-fcff` hội tụ hai nguồn). Đổi lại, trang `fcff` từ 247px chiều cao khối xuống còn
-105px.
+`chainFor()` nay dừng ở tổ tiên, nên **khối chỉ còn ở 5 trang** (`wacc`, `mo-hinh-gordon`,
+`bien-an-toan`, `fcfe`, `gia-tri-noi-tai-fcff`); `capm` và `fcff` không dựng khối, không tính
+chuỗi, không tải chunk nạp trễ.
+
+Mất: chỗ duy nhất nhìn thấy trọn hình chuỗi, và chỗ duy nhất thấy kết quả của công thức đứng sau.
+Đổi lại, trang `mo-hinh-gordon` từ khối cao 480px còn đúng một thẻ, và trang `fcff` sạch hẳn.
 
 ### File đã đổi
 
-| File                                                                         | Sửa gì                                                                                      |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `ui/result/FlowChainStrip.*`                                                 | **xoá 3 file** (component, CSS, test) — dựng từ gói 2.4.6                                   |
-| `core/flow-chain.ts`                                                         | xoá `layoutFlowChain()`, `FlowNode`, `flowDepth()`; giữ `buildFlowChain()` cho `runChain()` |
-| `core/flow-chain.test.ts`                                                    | xoá khối ca của cây; giữ phần sắp thứ tự                                                    |
-| `ui/screens/ChainBody.tsx` + `.module.css`                                   | gỡ sơ đồ, dòng dẫn, state `activeId`, hàm cuộn `moToiBuoc()`                                |
-| `application/i18n/vi.ts`, `en.ts`                                            | xoá cả nhóm `flow.*` và `chain.intro`                                                       |
-| `application/index.ts`, `ui/result/index.ts`                                 | thu cửa xuất theo                                                                           |
-| `ui/screens/ChainBody.test.tsx`, `app/cong-thuc/[id]/FormulaDetail.test.tsx` | hai ca đổi sang ghim thẻ bước thay vì ghim hình vẽ                                          |
-| `ui/README.md`, `README.md`, `ui/screens/ChainPanel.tsx`                     | gỡ tên component đã xoá                                                                     |
+| File                                                                                              | Sửa gì                                                                                      |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `ui/result/FlowChainStrip.*`                                                                      | **xoá 3 file** (component, CSS, test) — dựng từ gói 2.4.6                                   |
+| `core/flow-chain.ts`                                                                              | xoá `layoutFlowChain()`, `FlowNode`, `flowDepth()`; giữ `buildFlowChain()` cho `runChain()` |
+| `core/flow-chain.test.ts`                                                                         | xoá khối ca của cây; giữ phần sắp thứ tự                                                    |
+| `core/calc/run-chain.ts` + test                                                                   | `chainFor()` dừng ở tổ tiên, không lấy hậu duệ nữa                                          |
+| `ui/screens/ChainBody.tsx` + `.module.css`                                                        | gỡ sơ đồ, dòng dẫn, nửa "Bước sau", tiêu đề nhóm, state `activeId`, hàm cuộn `moToiBuoc()`  |
+| `application/i18n/vi.ts`, `en.ts`                                                                 | xoá nhóm `flow.*`, `chain.intro`, hai khoá `*Heading`; đổi chữ `chain.title`                |
+| `application/index.ts`, `ui/result/index.ts`                                                      | thu cửa xuất theo                                                                           |
+| `ui/screens/ChainBody.test.tsx`, `app/cong-thuc/[id]/FormulaDetail.test.tsx`                      | các ca đổi sang ghim thẻ bước, và ghim rằng bước SAU không còn được bày                     |
+| `CLAUDE.md`, `ui/README.md`, `README.md`, `ui/screens/ChainPanel.tsx`, `FormulaDetail.module.css` | 7 công thức → 5, gỡ tên component đã xoá                                                    |
+
+### Bốn lệnh cần bản build — đã chạy, không có hồi quy nào của đợt này
+
+Cổng 3000 vẫn bị dev server của phiên khác giữ, nên build trên **bản chép cây làm việc ở thư mục
+tạm** (`node_modules` nối bằng junction) — bộ theo dõi file của dev server không nhìn thấy thư mục
+ấy, nên `FFB_ALLOW_BUILD_WITH_DEV=1` ở đó là đúng trường hợp cửa gác cho phép. Để tách nợ cũ khỏi
+lỗi mới, dựng thêm một bản `git archive HEAD` (2613b11) và chạy đúng bốn lệnh ấy.
+
+| Lệnh            | Cây làm việc                     | HEAD 2613b11                          |
+| --------------- | -------------------------------- | ------------------------------------- |
+| `build`         | đạt                              | đạt                                   |
+| `verify:static` | **34/34**                        | 34/34                                 |
+| `size`          | chưa đạt — chi tiết 386,4 kB JS  | chưa đạt — chi tiết 386,6 kB JS       |
+| `check:chrome`  | 98/107 — **đúng 9 phép hỏng cũ** | 98/107 — cùng 9 phép, cùng thông điệp |
+
+9 phép hỏng có sẵn ở HEAD, không phép nào chạm khối chuỗi: nhãn trục tràn viewBox ở `lich-tra-no`,
+`diem-hoa-von`, `lai-kep` (2 phép), nhãn chặng "Tăng VLĐ ròng" của `fcff`, nav PC lệch tâm 8px, và
+3 trang có cảnh báo console `A preload … cross-world service worker resource mismatch`. Chúng thuộc
+các đợt trước, ghi ở đây để đợt sau không nhận nhầm là của đợt này.
+
+**Cột CSS của `npm run size` là nhiễu, đừng đọc chênh lệch dưới ~4 kB.** Cùng một mã nguồn build hai
+lần cho ra hai cách chia chunk CSS khác nhau — trang `ddm-hai-giai-doan` đo 19,4 rồi 21,1 kB; bốn bản
+build trong đợt này cho 17,9 / 18,5 / 19,4 / 21,1 kB. Tập quy tắc CSS thì giống hệt (1.095 / 1.095,
+lệch 0), chỉ khác quy tắc nào rơi vào chunk nào. Cột JS ổn định trong khoảng 0,2 kB.
+
+Dọn thêm lúc rà: class `.groupTitle` chết trong `ChainBody.module.css` (hết chỗ dùng từ khi bỏ tiêu
+đề nhóm) cùng chú thích còn tả "Bước trước lẫn Bước sau"; `ChainPanel.tsx` còn một chỗ "7 trang".
+`npm run check` chạy lại sau đó: xanh, 113 file / 2.694 ca.
 
 ### Việc còn lại
 
-- [ ] **Chủ dự án quyết: có bỏ nốt nửa "Bước sau" không?** Nửa "Bước trước" là thứ duy nhất cho
-      phép chỉnh giả định của công thức cấp số (beta của CAPM, EBIT của FCFF) ngay tại trang đang
-      xem — bỏ nó thì ô móc nối đứng yên ở số mặc định và người dùng phải tự gõ đè. Nửa "Bước
-      sau" chỉ trả lời "số này chảy đi đâu"; bỏ nó thì khối biến mất hẳn khỏi 2 trang (`capm`,
-      `fcff`) — đúng trang mà chủ dự án hỏi "tác dụng là gì". Tôi không tự quyết vì đây là cắt
-      chức năng, không phải dọn thứ thừa.
-- [ ] Chạy `build` → `verify:static` → `size` → `check:chrome` khi cổng 3000 rảnh. Ba cửa kiểm
-      liên quan không phải sửa: chúng gác `#khoi-chuoi` (vắng trong HTML tĩnh, hiện sau hydrate)
-      và "trang không cuộn ngang ở 360" — vẫn đúng, và vế cuộn ngang nay còn chắc hơn vì vùng
-      cuộn ngang của dải đã biến mất.
+- [ ] Chủ dự án soi `/cong-thuc/mo-hinh-gordon/` và `/cong-thuc/gia-tri-noi-tai-fcff/` ở chế độ
+      Nâng cao, sáng và tối.
+
+### Một cái bẫy của môi trường, ghi lại để khỏi mất công lần nữa
+
+Giữa đợt này, khối chuỗi đột nhiên KHÔNG dựng trên dev server ở mọi khổ màn, trong khi `npm test`
+vẫn xanh và cùng đoạn code vừa chụp ảnh được vài phút trước. Nguyên nhân: máy đang chạy **hai dev
+server trên cùng thư mục dự án** (phiên khác giữ cổng 3000, tôi mở thêm 3100), mà cả hai ghi chung
+`.next` — cùng lớp hỏng với `[webpack.cache.PackFileCacheStrategy] Caching failed for pack` và
+`Jest worker encountered 2 child process exceptions` trong log. Dựng lại server là hết. Đừng đi
+sửa code theo triệu chứng ấy: kiểm bằng `npm test` trước, rồi khởi động lại dev server.
 
 ---
 

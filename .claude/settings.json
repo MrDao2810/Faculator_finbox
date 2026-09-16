@@ -1673,7 +1673,14 @@
       "Bash(wait)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3100/cong-thuc/fcff/ --max-time 120)",
       "Bash(OUT_DIR=\".\" node soi-chuoi.mjs)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(grep -rn \"capm\\\\`, \\\\`wacc\\\\`, \\\\`mo-hinh-gordon\\\\`\\\\|7 công thức\\\\*\\\\*\\\\|\\\\*\\\\*7 công thức\\\\*\\\\*\" src/ui/README.md src/ui/screens/ChainPanel.tsx src/app/cong-thuc/\\\\[id\\\\]/FormulaDetail.module.css)",
+      "Bash(node kiem-360.mjs)",
+      "Bash(rm -f kiem-360.mjs)",
+      "PowerShell($c = Get-NetTCPConnection -LocalPort 3000,3100,4173 -State Listen -ErrorAction SilentlyContinue; if \\($c\\) { $c | ForEach-Object { $p = Get-CimInstance Win32_Process -Filter \"ProcessId=$\\($_.OwningProcess\\)\"; \"{0} pid={1} {2}\" -f $_.LocalPort, $_.OwningProcess, $p.CommandLine } } else { 'khong co cong nao dang nghe' })",
+      "PowerShell(Get-Content \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\d937e94a-a867-4805-8111-da9808ba520a\\\\scratchpad\\\\build-copy\\\\chrome.log\" | Where-Object { $_ -notmatch '^OK ' -and $_.Trim\\(\\) -ne '' })",
+      "PowerShell(npx prettier --write TASK.md src/ui/screens/ChainBody.module.css src/ui/screens/ChainPanel.tsx)",
+      "PowerShell(npx prettier --check TASK.md src/ui/screens/ChainBody.module.css src/ui/screens/ChainPanel.tsx)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

@@ -156,9 +156,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'source.title': 'References',
   /* Cả nhóm `flow.*` và `chain.intro` đã bỏ cùng hình vẽ chuỗi — xem lý do ở `vi.ts`. */
 
-  'chain.title': 'Formula chain',
-  'chain.upstreamHeading': 'Steps before — supply numbers to this formula',
-  'chain.downstreamHeading': "Steps after — use this formula's result",
+  'chain.title': 'Numbers taken from other formulas',
+  /* Hai khoá `*Heading` bỏ cùng nửa "Bước sau" — xem lý do ở `vi.ts`. */
   'chain.openStep': "Open this step's own screen",
   'stat.eyebrow': 'METRIC',
 

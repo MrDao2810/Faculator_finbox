@@ -214,13 +214,20 @@ export function runChain(args: ChainArgs): ChainResult {
 }
 
 /**
- * Các công thức thuộc cùng một nhánh với `formulaId` — tổ tiên và hậu duệ của nó.
+ * Các công thức CẤP SỐ LIỆU cho `formulaId` — tổ tiên của nó, cộng chính nó.
  *
- * Dùng để biết màn chi tiết của một công thức phải bày ra chuỗi nào. Lấy TỔ TIÊN + HẬU DUỆ chứ
- * không lấy cả thành phần liên thông: hai công thức chỉ chung một tổ tiên (WACC và Gordon cùng
- * nhận từ CAPM) là hai nhánh song song, gộp vào một dải sẽ vẽ mũi tên nói sai quan hệ.
+ * ── Hậu duệ đã thôi được lấy, 16/09/2026 ────────────────────────────────────────────────────
  *
- * Trả về mảng rỗng nếu công thức không dính cạnh nào — nơi gọi hiểu là "không có chuỗi để bày".
+ * Bản trước lấy cả tổ tiên lẫn hậu duệ, vì khối chuỗi khi ấy có nửa "Bước sau" bày ra kết quả mà
+ * công thức đang xem cấp cho nơi khác. Chủ dự án bỏ nửa ấy: nó chỉ trả lời "số này chảy đi đâu",
+ * trong khi nửa "Bước trước" mới là thứ làm được việc — sửa giả định của công thức cấp số rồi xem
+ * kết quả ở đây đổi theo.
+ *
+ * Nên nay hàm dừng ở tổ tiên. Hệ quả có chủ ý: công thức không nhận số của ai (`capm`, `fcff`)
+ * trả về mảng rỗng, tức trang của chúng không dựng khối chuỗi, không tính chuỗi, không tải chunk
+ * nạp trễ. Và `runChain()` cũng chỉ còn chạy đúng những bước mà kết quả trên màn thật sự cần.
+ *
+ * Trả về mảng rỗng nếu công thức không nhận số từ đâu — nơi gọi hiểu là "không có chuỗi để bày".
  */
 export function chainFor(
   specs: ReadonlyArray<FormulaSpec>,
@@ -232,14 +239,8 @@ export function chainFor(
   const parentsOf = (id: string): ReadonlyArray<string> =>
     (byId.get(id)?.dependsOn ?? []).map((d) => d.formulaId).filter((parent) => byId.has(parent));
 
-  const childrenOf = (id: string): ReadonlyArray<string> =>
-    specs
-      .filter((spec) => (spec.dependsOn ?? []).some((d) => d.formulaId === id))
-      .map((spec) => spec.id);
-
   const picked = new Set<string>([formulaId]);
   walk(formulaId, parentsOf, picked);
-  walk(formulaId, childrenOf, picked);
 
   if (picked.size < 2) return [];
 

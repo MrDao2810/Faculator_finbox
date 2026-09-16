@@ -274,16 +274,23 @@ export const vi = {
    * Lý do đầy đủ ở docblock `ui/screens/ChainBody.tsx`.
    */
 
-  // Chuỗi công thức nối nhau — WF-04, FR-15 (gói 5.2.3)
-  'chain.title': 'Chuỗi công thức',
   /*
-   * `chain.intro` cũng BỎ, và đây là lần thứ hai. Cả ba bản từng viết (10/09 "Kết quả mỗi bước
-   * chảy thẳng vào ô của bước sau…", 16/09 "Số liệu chảy theo chiều mũi tên…", rồi "Mỗi ô là một
-   * công thức…") đều làm cùng một việc: đi giải thích một hình vẽ. Bỏ hình thì hết việc cho câu
-   * dẫn — hai tiêu đề nhóm ngay dưới đã nói đủ, và nói bằng chính chữ của việc đang làm.
+   * Khối bước cấp số liệu — WF-04, FR-15 (gói 5.2.3).
+   *
+   * Tiêu đề đổi từ "Chuỗi công thức" ngày 16/09/2026: chữ cũ đặt tên cho một KHÁI NIỆM, và ba
+   * vòng sửa cho thấy khái niệm ấy không tự giải thích được. Chữ mới nói thẳng các thẻ dưới nó
+   * là gì, nên khối hết cần cả dòng dẫn lẫn tiêu đề nhóm.
    */
-  'chain.upstreamHeading': 'Bước trước — cấp số liệu cho công thức đang xem',
-  'chain.downstreamHeading': 'Bước sau — dùng kết quả của công thức đang xem',
+  'chain.title': 'Số liệu lấy từ công thức khác',
+  /*
+   * `chain.intro`, `chain.upstreamHeading` và `chain.downstreamHeading` đều BỎ ngày 16/09/2026.
+   *
+   * · `chain.intro` — cả ba bản từng viết (10/09 "Kết quả mỗi bước chảy thẳng vào ô của bước
+   *   sau…", 16/09 "Số liệu chảy theo chiều mũi tên…", rồi "Mỗi ô là một công thức…") đều làm
+   *   cùng một việc: đi giải thích hình vẽ chuỗi. Bỏ hình thì hết việc cho câu dẫn.
+   * · Hai `*Heading` — nửa "Bước sau" đã bỏ khỏi sản phẩm, nên không còn hai nhóm để đặt tên;
+   *   nhóm duy nhất còn lại thì `chain.title` đã gọi đúng tên.
+   */
   'chain.openStep': 'Mở màn riêng của bước này',
   'stat.eyebrow': 'CHỈ SỐ',
 

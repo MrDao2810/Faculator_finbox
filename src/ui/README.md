@@ -55,9 +55,11 @@ chuỗi của màn nâng cao WF-04) cùng chính màn chi tiết, nơi biến n�
 nhập dựng `LinkedInput` thay cho `VariableField`.
 
 `screens/ChainPanel` là ranh giới `next/dynamic` của khối ấy — **đừng** xuất `ChainBody` ra barrel,
-xuất là cả 111 trang chi tiết cùng gánh trong khi chỉ **7 công thức** dùng tới (`capm`, `wacc`,
-`mo-hinh-gordon`, `bien-an-toan`, `fcff`, `fcfe`, `gia-tri-noi-tai-fcff`), và chỉ khi bật chế độ
-Nâng cao.
+xuất là cả 111 trang chi tiết cùng gánh trong khi chỉ **5 công thức** dùng tới (`wacc`,
+`mo-hinh-gordon`, `bien-an-toan`, `fcfe`, `gia-tri-noi-tai-fcff`), và chỉ khi bật chế độ Nâng cao.
+
+Khối ấy từ 16/09/2026 chỉ còn bày bước CẤP SỐ LIỆU, không còn hình vẽ chuỗi và không còn nửa "Bước
+sau" — `capm` và `fcff` vì thế hết khối. Lý do ở docblock `screens/ChainBody.tsx`; đừng dựng lại.
 
 ## Ba bậc chữ
 

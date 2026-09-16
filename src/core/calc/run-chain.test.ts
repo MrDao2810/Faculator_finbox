@@ -334,12 +334,10 @@ describe('runChain — các nhánh biên', () => {
 describe('chainFor', () => {
   const SPECS = FORMULA_MODULES.map((m) => m.spec);
 
-  it('lấy cả tổ tiên lẫn hậu duệ của công thức đang xem', () => {
-    expect(ids(chainFor(SPECS, 'mo-hinh-gordon'))).toEqual([
-      'mo-hinh-gordon',
-      'capm',
-      'bien-an-toan',
-    ]);
+  it('lấy tổ tiên của công thức đang xem, KHÔNG lấy hậu duệ', () => {
+    // Biên an toàn nhận số từ Gordon, nhưng nó không cấp gì cho Gordon — khối chuỗi chỉ bày
+    // những bước cấp số liệu, xem docblock `chainFor()`.
+    expect(ids(chainFor(SPECS, 'mo-hinh-gordon'))).toEqual(['mo-hinh-gordon', 'capm']);
   });
 
   it('đi ngược hết chuỗi từ bước cuối', () => {
@@ -351,13 +349,24 @@ describe('chainFor', () => {
   });
 
   it('KHÔNG kéo nhánh song song chỉ vì chung một tổ tiên', () => {
-    // WACC cũng nhận từ CAPM, nhưng nó không nằm trên đường đi của Gordon — gộp vào là dải luồng
-    // sẽ vẽ mũi tên Gordon → WACC, một quan hệ không có thật.
+    // WACC cũng nhận từ CAPM, nhưng Gordon không nhận gì của WACC.
     expect(ids(chainFor(SPECS, 'mo-hinh-gordon'))).not.toContain('wacc');
   });
 
-  it('công thức không dính cạnh nào thì không có chuỗi để bày', () => {
+  it('hội tụ: lấy đủ mọi nguồn số, kể cả hai nhánh khác nhau', () => {
+    expect([...ids(chainFor(SPECS, 'gia-tri-noi-tai-fcff'))].sort()).toEqual([
+      'capm',
+      'fcff',
+      'gia-tri-noi-tai-fcff',
+      'wacc',
+    ]);
+  });
+
+  it('công thức không nhận số của ai thì không có chuỗi để bày', () => {
     expect(chainFor(SPECS, 'pe')).toEqual([]);
+    // `fcff` có hậu duệ nhưng không có tổ tiên — trang của nó không dựng khối chuỗi nữa.
+    expect(chainFor(SPECS, 'fcff')).toEqual([]);
+    expect(chainFor(SPECS, 'capm')).toEqual([]);
   });
 
   it('id không có trong Registry cũng không ném lỗi', () => {

@@ -23,25 +23,17 @@
 }
 
 /*
- * Không có `.intro`, và cũng không có kiểu cho sơ đồ — cả hai đã bỏ ngày 16/09/2026 cùng lý do:
- * chúng sinh ra để giải thích một hình vẽ mà hình ấy không mang chức năng nào của riêng nó.
- * Lý do đầy đủ ở docblock `ChainBody.tsx`.
+ * Không có `.intro`, `.groupTitle`, và cũng không có kiểu cho sơ đồ — cả ba đã bỏ ngày 16/09/2026
+ * cùng lý do: chúng sinh ra để giải thích một hình vẽ mà hình ấy không mang chức năng nào của
+ * riêng nó. Lý do đầy đủ ở docblock `ChainBody.tsx`.
  */
-
-.groupTitle {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-ink-soft);
-}
 
 /*
  * ── Hai cột thẻ bước ─────────────────────────────────────────────────────────
  *
- * `bocNhom()` trong `ChainBody.tsx` quyết định cột nào chứa gì (mỗi nhóm một cột khi có cả Bước
- * trước lẫn Bước sau; chỉ một nhóm thì cắt thẻ của nó làm đôi) và vì sao là hai cột flex thật chứ
- * không phải lưới hay `columns: 2`. Ở đây chỉ còn việc đặt hai cột cạnh nhau và cho chúng cao
- * bằng nhau.
+ * `bocNhom()` trong `ChainBody.tsx` quyết định cột nào chứa gì (cắt các thẻ bước cấp số liệu làm
+ * đôi, cột trái nhiều hơn một khi lẻ) và vì sao là hai cột flex thật chứ không phải lưới hay
+ * `columns: 2`. Ở đây chỉ còn việc đặt hai cột cạnh nhau và cho chúng cao bằng nhau.
  *
  * Khổ hẹp: cả `.columns` lẫn `.column` đều là cột flex cùng một `gap`, nên hai cột CHỒNG lên nhau
  * thành đúng một danh sách như trước — không cần `display: contents`, không cần luật riêng.

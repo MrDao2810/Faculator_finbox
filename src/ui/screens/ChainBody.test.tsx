@@ -183,15 +183,15 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     expect(container.querySelectorAll('[class*="column"] h3')).toHaveLength(0);
   });
 
-  /* `capm`: không bước trước, bốn bước sau (chẵn). */
-  it('một nhóm bốn thẻ: mỗi bên hai', () => {
-    const { container } = dungKhoi('capm');
+  /* `bien-an-toan`: hai bước cấp số (`mo-hinh-gordon`, và `capm` cấp gián tiếp qua nó). */
+  it('một nhóm hai thẻ: mỗi bên một', () => {
+    const { container } = dungKhoi('bien-an-toan');
     const topo = thuTuTopo(container);
-    expect(topo).toHaveLength(4);
-    expect(cacCot(container)).toEqual([topo.slice(0, 2), topo.slice(2)]);
+    expect(topo).toHaveLength(2);
+    expect(cacCot(container)).toEqual([topo.slice(0, 1), topo.slice(1)]);
   });
 
-  /* `fcfe`: một bước trước (fcff), không bước sau — thẻ lẻ loi không kéo theo cột rỗng. */
+  /* `fcfe`: đúng một bước cấp số (fcff) — thẻ lẻ loi không kéo theo cột rỗng. */
   it('một nhóm một thẻ: chỉ có cột trái', () => {
     const { container } = dungKhoi('fcfe');
     expect(cacCot(container)).toEqual([['fcff']]);
@@ -216,15 +216,11 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     expect(coCanBang(container)).toBe(false);
   });
 
-  it('hai cột bằng số thẻ thì kéo bằng mép dưới — 2 | 2 và 1 | 1 đều có columnsEven', () => {
-    const bonThe = dungKhoi('capm');
-    expect(cacCot(bonThe.container).map((c) => c.length)).toEqual([2, 2]);
-    expect(coCanBang(bonThe.container)).toBe(true);
-    bonThe.unmount();
-
-    const motMotBen = dungKhoi('wacc');
-    expect(cacCot(motMotBen.container).map((c) => c.length)).toEqual([1, 1]);
-    expect(coCanBang(motMotBen.container)).toBe(true);
+  it('hai cột bằng số thẻ thì kéo bằng mép dưới — 1 | 1 có columnsEven', () => {
+    // Registry hiện chỉ còn một ca chẵn: `bien-an-toan` với hai bước cấp số.
+    const { container } = dungKhoi('bien-an-toan');
+    expect(cacCot(container).map((c) => c.length)).toEqual([1, 1]);
+    expect(coCanBang(container)).toBe(true);
   });
 
   it('chỉ một cột thì không có gì để kéo bằng', () => {
@@ -262,32 +258,20 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     }
   });
 
-  it('màn rộng: bước SAU vẫn gập, không mở lây', () => {
-    const donDep = gaKhoMan(true);
-    try {
-      // `wacc`: một bước trước (capm), một bước sau (gia-tri-noi-tai-fcff).
-      const { container } = dungKhoi('wacc');
-      expect(maDangMo(container)).toEqual(['capm']);
-    } finally {
-      donDep();
-    }
+  /*
+   * Khối chỉ còn bày bước CẤP SỐ LIỆU — nửa "Bước sau" bỏ ngày 16/09/2026. `wacc` là ca gọn nhất
+   * để ghim: nó vừa có một bước trước (`capm`) vừa có một bước sau (`gia-tri-noi-tai-fcff`), nên
+   * bước sau mà rò lại thì ca này đỏ ngay.
+   */
+  it('chỉ bày bước cấp số liệu, không bày bước dùng kết quả', () => {
+    const { container } = dungKhoi('wacc');
+
+    expect(cacCot(container)).toEqual([['capm']]);
+    expect(container.textContent).not.toContain('Giá trị nội tại');
   });
 
-  /*
-   * `wacc`: một bước trước (capm), một bước sau (gia-tri-noi-tai-fcff). Đây là ảnh chủ dự án gửi —
-   * cắt đôi từng nhóm thì ra hai thẻ chồng nhau ở nửa trái, "vẫn 1 cột". Nay mỗi nhóm là một cột,
-   * tiêu đề nhóm đứng đầu cột của mình.
-   */
-  it('có cả hai nhóm: Bước trước là cột trái, Bước sau là cột phải, mỗi cột mang tiêu đề riêng', () => {
-    const { container } = dungKhoi('wacc');
-    expect(cacCot(container)).toEqual([['capm'], ['gia-tri-noi-tai-fcff']]);
-
-    const tieuDe = [...container.querySelectorAll('[class*="column"] > h3')].map(
-      (h) => h.textContent,
-    );
-    expect(tieuDe).toEqual([
-      'Bước trước — cấp số liệu cho công thức đang xem',
-      'Bước sau — dùng kết quả của công thức đang xem',
-    ]);
+  it('không còn tiêu đề nhóm — tiêu đề khối đã gọi tên các thẻ', () => {
+    const { container } = dungKhoi('gia-tri-noi-tai-fcff');
+    expect(container.querySelectorAll('h3')).toHaveLength(0);
   });
 });

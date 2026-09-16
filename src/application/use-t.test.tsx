@@ -21,7 +21,7 @@ function DauDo() {
 
   return (
     <div>
-      <p>{t('nav.home')}</p>
+      <p>{t('nav.portfolio')}</p>
       <button
         type="button"
         onClick={() => {
@@ -44,7 +44,7 @@ afterEach(cleanup);
 describe('useT() — luồng locale', () => {
   it('ngoài Provider thì rơi về tiếng Việt, không ném lỗi', () => {
     render(<DauDo />);
-    expect(screen.getByText('Trang chủ')).toBeDefined();
+    expect(screen.getByText('Danh mục')).toBeDefined();
   });
 
   it('mặc định trong Provider là tiếng Việt', () => {
@@ -53,7 +53,7 @@ describe('useT() — luồng locale', () => {
         <DauDo />
       </PreferencesProvider>,
     );
-    expect(screen.getByText('Trang chủ')).toBeDefined();
+    expect(screen.getByText('Danh mục')).toBeDefined();
   });
 
   it('setLocale(en) đổi chữ ngay, ghi localStorage, và đổi thuộc tính lang của <html>', async () => {
@@ -66,7 +66,7 @@ describe('useT() — luồng locale', () => {
 
     await user.click(screen.getByRole('button', { name: 'doi-ngon-ngu' }));
 
-    expect(screen.getByText('Home')).toBeDefined();
+    expect(screen.getByText('Portfolio')).toBeDefined();
     const stored = window.localStorage.getItem(PREFERENCES_STORAGE_KEY);
     expect(stored).not.toBeNull();
     expect(JSON.parse(stored ?? '{}')).toMatchObject({ locale: 'en' });
@@ -83,7 +83,7 @@ describe('useT() — luồng locale', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Home')).toBeDefined();
+      expect(screen.getByText('Portfolio')).toBeDefined();
     });
     expect(document.documentElement.lang).toBe('en');
   });

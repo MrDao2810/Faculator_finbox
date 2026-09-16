@@ -58,7 +58,7 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 30 assertions against a built out/ — run after build
+npm run verify:static  # 34 assertions against a built out/ — run after build
 npm run check:chrome   # 31 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
@@ -348,21 +348,54 @@ schedule must break the formula, which catches a declaration the calc never uses
   every formula uses inside `\text{}`. `verify-static.mjs` asserts `<math` is present in
   `out/cong-thuc/pe/index.html` and that no `katex-html` class or font reference came with it;
   that is the only check that can tell build-time rendering from client-time rendering.
-- **The home "Công thức dùng hằng ngày" shelf is personalised, and three invariants hold it up.**
-  The 18 tiles are still built by the **server** in `page.tsx` from the `isFeatured` flag and passed
-  down as `pinned[].card`; `FeaturedFormulas.tsx` is a thin client island that only **reorders** them
-  from `ffb.usage.v1` (a formula's score halves every 30 days; `PERSONAL_SLOTS = 6` caps how many
-  tiles history may claim, so at least 12 curated pins always survive). So: (1) the shelf is always
-  exactly `pinnedIds.length` tiles with no repeats — `rankFeaturedIds()` guarantees it and
-  `formula-usage.test.ts` sweeps for it; (2) the first client render must equal the build-time HTML —
-  state starts at the constant `null`, `localStorage` and `Date.now()` are read only inside the
-  effect, and `FeaturedFormulas.test.tsx` compares `renderToStaticMarkup()` against the mounted DOM;
-  (3) `verify-static.mjs` now asserts `out/index.html` carries **as many formula links as there are
-  pins**, not merely `id="home-featured"` — the old check passes even with an empty grid, because
-  that id lives on the server-rendered `<h2>`. Never make the grid wait on a `hydrated` flag: it
-  holds the home page's LCP candidate. A usage entry is written once per page view, after 8 s of
-  visible dwell **or** the first edit to an input — never on mount, since `?ma=` fills the fields by
-  itself.
+- **There is no separate home page any more — `/cong-thuc/` is the landing screen.** On 15/09/2026
+  the owner merged WF-01 (home) into WF-02 (formula list): `FormulaListScreen` stacks a typeable
+  search box, the "Công thức dùng hằng ngày" shelf and the full list (a "Mức độ" Basic/Advanced
+  toggle and a sort select in its title row, a horizontally scrolling `CategoryChips` radio row, and a
+  "Hiển thị · N công thức" line). `/` is only a redirect: `public/_redirects` returns 301 in
+  production, and `src/app/page.tsx` carries a `noindex` `<meta http-equiv="refresh">` for dev,
+  preview and `check:chrome`, whose servers ignore `_redirects`. There is no `ROUTES.home`, no "Trang
+  chủ" nav item (4 items), no header mode toggle (`showsModeToggle`/`HeaderModeToggle` are gone), and
+  the sitemap gives `/cong-thuc/` priority 1. `manifest.webmanifest` keeps `"id": "/"` while
+  `start_url` moved, so installed PWAs keep their identity; `sw.js` uses `/cong-thuc/` as its
+  offline shell (never `/`, which is a 301 in production). Three rules keep the screen's static HTML
+  whole, and `verify-static.mjs` checks all three against `out/cong-thuc/index.html`.
+  - **(1) Never call `useSearchParams()`/`useListParams()` in the screen.** Filter state lives in
+    `useState` (`use-list-url-state.ts`) and is _written_ to the URL with
+    `history.replaceState(null, …)`, debounced for typing and flushed on `pointerdown`/Enter. The
+    URL is _read_ only by `ListUrlSync` (`list-url-sync.tsx`), an empty component inside its own
+    `<Suspense>`. The one bailout boundary is therefore empty, and the shelf and all 111 list cards
+    stay in the HTML. `applySearch()` drops echoes of the hook's own writes, including late echoes
+    that no longer match `location.search`; that check is what stops typed characters from being
+    dropped. A legacy `?segment=` is ignored: the segment tabs are gone, and applying it would be an
+    invisible filter.
+  - **(2) The first client render must equal the static HTML.** Before `hydrated` the list renders
+    all 111 cards, and advanced ones carry `advancedPreHydrate`, which CSS hides under
+    `html:not([data-mode='advanced'])`, so Basic users never see the list shrink. Chip counts and the
+    count line render both numbers and let CSS pick by `data-mode`. Never call `rememberOrigin()` on
+    mount: the screen's effect runs before `OriginTracker`'s and would overwrite the scroll position
+    the back button is about to restore.
+  - **(3) The shelf is server-built.** `DailyShelf` (server) renders the 16 tiles of
+    `DAILY_SHELF_IDS` (`daily-shelf.ts`, all `isFeatured`; the first 8 in mockup order, the next 8
+    cover the featured categories the first 8 miss) plus the `<h2>`, and passes them into the client
+    screen via the `shelf` prop. `FeaturedFormulas.tsx` **reorders** them from `ffb.usage.v1` (score
+    halves every 30 days; `PERSONAL_SLOTS = 4`) and owns the "Xem tất cả" / "Thu gọn" button: a
+    `<button aria-expanded>` that shows only the first `DAILY_SHELF_PREVIEW = 8` tiles until clicked.
+    The rest stay in the HTML with the `hidden` attribute, cut by **position after reordering**, so
+    personalised tiles are always in the visible part. The open state is remembered per tab in
+    `sessionStorage` (`DAILY_SHELF_OPEN_KEY`) and re-applied in a `useLayoutEffect`, so the page is
+    already full height when `OriginTracker`'s back-button scroll restore runs. The shelf is always exactly `pinnedIds.length`
+    tiles with no repeats (`rankFeaturedIds()` guarantees it). `FeaturedFormulas.test.tsx` compares
+    `renderToStaticMarkup()` against the mounted DOM. Never make the shelf wait on a `hydrated` flag:
+    it holds the LCP candidate. While a query is typed the shelf is hidden with the `hidden`
+    attribute, not unmounted, so the personalised order survives. The shelf carries no secondary
+    text: the owner removed the "moved to the front" note and the Data table link on 15/09/2026, so
+    `/du-lieu/` is now reached from the detail screens of price-series formulas only. A usage entry
+    is written once per page view, after 8 s of visible dwell **or** the first edit to an input —
+    never on mount, since `?ma=` fills the fields by itself.
+  - Search history is **one** store again (`ffb.recent.v1`), shared with `/tim-kiem/`, because both
+    boxes now search the whole library. The old `ffb.recent.home.v1` is merged in once on first open,
+    then deleted, and "Xoá toàn bộ" still sweeps it (`LEGACY_STORAGE_KEYS`).
 - **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
   `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
   static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every
@@ -371,13 +404,13 @@ schedule must break the formula, which catches a declaration the calc never uses
   shared primitives: `SweepPicker` passes an explicit `id` to `Select` instead of letting it generate
   one. `charts.test.tsx` fails if any id in the chart subtree matches React's `:r…:` / `«…»` shape.
 - **On-screen text goes through `useT()`** (client components) or the client leaf `<T k="…">`
-  from `src/ui/i18n/T.tsx` — the leaf is what server components use (home page, AppShell), and
-  also what a component rendered on _both_ sides must use (`FormulaCard` is reached from both
-  `FormulaBrowser` and the server-rendered `StaticFormulaList`, so a hook would crash the server
+  from `src/ui/i18n/T.tsx` — the leaf is what server components use (`DailyShelf`, AppShell), and
+  also what a component rendered on _both_ sides must use (`FormulaCard` is reached from both the
+  client `FormulaListScreen` and the server-rendered `DailyShelf`, so a hook would crash the server
   pass). The static `t()` import from `@/application` is frozen to Vietnamese at build time, so
   a gate in `i18n.test.ts` scans **all of `src/ui` + `src/app`** and fails any file importing it
-  that is not on a four-entry allowlist, each entry carrying its reason: `layout.tsx` metadata,
-  the SEO fallback `StaticFormulaList`, and the print/PNG regions of `ExportSheet`/`draw-card`
+  that is not on a three-entry allowlist, each entry carrying its reason: `layout.tsx` metadata,
+  and the print/PNG regions of `ExportSheet`/`draw-card`
   (exported files are all-Vietnamese documents, including the disclaimer they carry — see next
   point). The gate scans by directory on purpose: an earlier version keyed off the `'use client'`
   directive and missed three shared modules that carry no directive but land in the client bundle

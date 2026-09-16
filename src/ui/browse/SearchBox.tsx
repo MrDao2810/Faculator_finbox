@@ -17,7 +17,7 @@ export interface SearchBoxProps {
    * Tham chiếu tới chính thẻ `<input>`.
    *
    * Nơi gọi cần nó để TRẢ TIÊU ĐIỂM về ô sau khi bấm một nút rồi nút ấy tự tháo khỏi DOM —
-   * ví dụ "Xoá bộ lọc" ở trang chủ. Không truyền thì ô tự giữ tham chiếu riêng.
+   * ví dụ chip "Tìm gần đây" ở màn Công thức. Không truyền thì ô tự giữ tham chiếu riêng.
    */
   inputRef?: RefObject<HTMLInputElement | null>;
 }
@@ -32,8 +32,8 @@ export interface SearchBoxProps {
  * nó: câu ấy giải thích một tính năng mà người dùng KHÔNG cần biết để dùng được — cứ gõ là ra —
  * nên nó chỉ chiếm chỗ. Khả năng bỏ dấu không mất đi đâu, nó nằm ở `normalizeVi()`, không ở câu chữ.
  *
- * Không tự giữ state: nơi gọi quyết định giá trị đi đâu — `/cong-thuc/` và `/tim-kiem/` đẩy
- * lên URL qua `useListParams()`, còn trang chủ giữ trong state cục bộ (xem HomeSearchPanel).
+ * Không tự giữ state: nơi gọi quyết định giá trị đi đâu — `/tim-kiem/` đẩy lên URL qua
+ * `useListParams()`, còn màn Công thức giữ trong state rồi ghi URL sau (xem `use-list-url-state.ts`).
  */
 export function SearchBox({ value, onChange, onCancel, onSubmit, inputRef }: SearchBoxProps) {
   const inputId = useId();

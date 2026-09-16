@@ -1093,14 +1093,18 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 80.000 ₫, bán 86.000 ₫ sau 90 ngày',
-        en: 'Bought at 80,000 VND, sold at 86,000 VND after 90 days',
+        vi: 'Mua FPT giá 65.000 ₫, bán giá 72.300 ₫ sau 90 ngày',
+        en: 'Bought FPT at 65,000 ₫, sold at 72,300 ₫ after 90 days',
       },
-      inputs: { buyPrice: 80_000, sellPrice: 86_000, days: 90 },
-      expected: 34.08,
+      inputs: { buyPrice: 65_000, sellPrice: 72_300, days: 90 },
+      expected: 53.98,
       note: {
-        vi: 'Lãi thực tế của thương vụ là 7,5%; con số 34% chỉ là mức quy đổi cả năm.',
-        en: "The trade's actual gain is 7.5%; the 34% figure is only its annualized equivalent.",
+        vi: 'Giá mua dùng mức giả định. Lãi thực tế của thương vụ là 11,2%; con số 54% chỉ là mức quy đổi cả năm.',
+        en: 'The buy price is an assumption. The trade’s actual gain is 11.2%; the 54% figure is only its annualized equivalent.',
+      },
+      source: {
+        vi: 'Finbox_v2, thị giá FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) market price, locked in 2026-09-08.',
       },
     },
     tests: [

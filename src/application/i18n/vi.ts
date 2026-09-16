@@ -15,10 +15,12 @@ export const vi = {
   /* Tên gọn hiện cạnh logo trên thanh trên — bản thiết kế chỉ ghi "Faculator". */
   'app.brand': 'Faculator',
 
-  // Điều hướng — WF-18 chốt thanh nav dưới có 4 mục, mục thứ 5 thêm cùng màn giới thiệu
+  /*
+   * Điều hướng — bốn mục. `nav.home` ("Trang chủ") đã BỎ ngày 15/09/2026: trang chủ gộp vào màn
+   * Công thức, nên mục ấy không còn màn nào để trỏ tới — xem docblock `NAV_ITEMS`.
+   */
   'nav.primary': 'Điều hướng chính',
   'nav.skipToContent': 'Bỏ qua điều hướng, tới nội dung',
-  'nav.home': 'Trang chủ',
   'nav.formulas': 'Công thức',
   'nav.portfolio': 'Danh mục',
   'nav.settings': 'Cài đặt',
@@ -95,8 +97,7 @@ export const vi = {
    * `i18n.test.ts` báo đỏ đúng nó. Link cuối thẻ nhóm nay dùng `search.folder.seeAll`, khác chữ và
    * khác việc — không phải chỗ để hồi sinh khoá cũ.
    */
-  /* Khối lối tắt ở trạng thái chưa gõ gì. Số trên ô là số công thức ĐÃ DÙNG ĐƯỢC,
-     khác lưới nhóm ở trang chủ vốn hiện số dự kiến của SRS. */
+  /* Khối lối tắt ở trạng thái chưa gõ gì. Số trên ô là số công thức ĐÃ DÙNG ĐƯỢC. */
   'search.hot.title': 'Danh mục hot',
   /*
    * Thẻ nhóm ở khổ PC — bản vẽ "Thư mục theo nhóm". Hai link cuối thẻ ghép thêm con số hoặc tên
@@ -107,13 +108,21 @@ export const vi = {
   'search.folder.open': 'Mở nhóm',
   'search.noneIn': 'Không có kết quả trong:',
 
-  // Lọc — WF-02
-  'filter.segment.label': 'Mảng',
-  'filter.segment.all': 'Tất cả',
-  'filter.segment.stock': 'Chứng khoán',
-  'filter.segment.personal': 'Cá nhân',
+  /*
+   * Lọc — WF-02. Bốn khoá `filter.segment.*` (Mảng · Tất cả · Chứng khoán · Cá nhân) đã BỎ cùng
+   * ba tab mảng khi trang chủ gộp vào màn Công thức: bản vẽ chỉ còn một hàng chip nhóm.
+   */
   'filter.category.label': 'Nhóm công thức',
   'filter.category.all': 'Tất cả nhóm',
+  /*
+   * Chữ thay cho con số trên chip của nhóm mà chế độ Cơ bản giấu sạch — hiện chỉ có
+   * `corporate-finance` (2/2 công thức mức nâng cao). Chữ chứ không in `0`: số 0 đọc ra là "nhóm
+   * này rỗng", trong khi sự thật là "nhóm này chỉ có ở chế độ kia" — kiểu im lặng FR-06 chặn.
+   */
+  'filter.category.advancedOnly': 'chỉ ở Nâng cao',
+  /* Nhãn hai nút cuộn hàng chip ở khổ PC — nút chỉ có mũi tên nên chữ nằm ở `title`. */
+  'filter.category.scrollPrev': 'Nhóm phía trước',
+  'filter.category.scrollNext': 'Xem thêm nhóm',
   'filter.reset': 'Xoá bộ lọc',
   'sort.label': 'Sắp xếp',
   'sort.featured': 'Thiết thực trước',
@@ -128,9 +137,13 @@ export const vi = {
   'level.basic': 'Cơ bản',
   'level.advanced': 'Nâng cao',
 
-  // Danh sách kết quả
+  // Danh sách kết quả — cũng là tiêu đề khối "DANH SÁCH CÔNG THỨC" của màn Công thức
   'list.label': 'Danh sách công thức',
   'list.count': 'công thức',
+  /* Mở đầu dòng đếm: "Hiển thị · 79 công thức". */
+  'list.showing': 'Hiển thị',
+  /* Nhãn nhìn thấy đứng trước cụm Cơ bản / Nâng cao trong hàng tiêu đề danh sách. */
+  'list.levelLabel': 'Mức độ',
   'list.empty.registry.title': 'Chưa có công thức nào',
   'list.empty.registry.hint': 'Thư viện công thức đang được bổ sung dần.',
   'list.empty.noMatch.title': 'Không tìm thấy công thức nào',
@@ -244,6 +257,13 @@ export const vi = {
    */
   'example.original': 'Ví dụ gốc cho:',
   'example.reset': 'Về số của ví dụ',
+  /*
+   * Nhãn đứng trước `example.source` — trích dẫn của MỘT ví dụ cụ thể (khác `source.title`, mục
+   * lớn "Nguồn tham khảo" trích lý thuyết/pháp lý của cả công thức). Chỉ khoảng một phần ba công
+   * thức neo ví dụ vào một trường hợp có thật mới có `example.source`; phần còn lại không hiện
+   * dòng này.
+   */
+  'example.source': 'Nguồn:',
   'source.title': 'Nguồn tham khảo',
   'flow.title': 'Dải luồng tính toán',
   'flow.cyclicWarning': 'Có bước phụ thuộc vòng nên chưa xếp được thứ tự:',
@@ -787,15 +807,22 @@ export const vi = {
     'Chưa tra được thị giá của mã này, nên các công thức cần giá đã bị lược bớt hoặc điền ít ô hơn.',
 
   /*
-   * ── Bảy khoá của cụm tab và panel "phép tính đã lưu" đã XOÁ (14/09/2026) ───
+   * ── Khối "Phép tính đã lưu" ở màn Danh mục ──────────────────────────────────
    *
-   * `tabHoldings` · `tabSaved` · `savedEmpty` · `savedOpen` · `savedRemove` · `savedAt` ·
-   * `savedNeedsSeries`. Chủ dự án bỏ cụm tab khỏi màn Danh mục: *"bỏ tabbar đi và giữ lại toàn bộ
-   * giao diện và logic thêm mã cổ phiếu cũ"* — panel đã lưu đi theo, và bảy khoá này mất nơi dùng.
+   * Ba khoá của cụm tab đã XOÁ hẳn (14/09/2026): `tabHoldings` · `tabSaved` · `savedEmpty`. Chủ dự
+   * án bỏ cụm tab: *"bỏ tabbar đi và giữ lại toàn bộ giao diện và logic thêm mã cổ phiếu cũ"*.
    *
-   * ⚠ Nhóm `portfolio.save*` của SHEET LƯU thì Ở LẠI và vẫn chạy: nút "Lưu vào danh mục" ở màn chi
-   * tiết chưa bỏ. Đừng thấy tên gần giống mà dọn nốt — hai nhóm phục vụ hai màn khác nhau.
+   * Bốn khoá dưới đây từng xoá cùng lượt ấy rồi QUAY LẠI (15/09/2026), kèm một khoá tiêu đề mới:
+   * nút Lưu ở 111 màn chi tiết vẫn ghi vào kho mà không còn chỗ nào bày kho ra, và chủ dự án báo
+   * đó là lỗi. Danh sách nay là khối thứ hai của màn, không tab. `savedEmpty` không quay lại vì
+   * khối chỉ dựng khi kho có mục — xem chú thích cạnh khối trong `PortfolioScreen.tsx`.
    */
+  'portfolio.savedTitle': 'Phép tính đã lưu',
+  'portfolio.savedOpen': 'Xem',
+  'portfolio.savedRemove': 'Xoá',
+  // Đứng TRƯỚC một ngày: "lưu 15/09/2026".
+  'portfolio.savedAt': 'lưu',
+  'portfolio.savedNeedsSeries': 'Cần chuỗi giá',
 
   // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
   'ticker.title': 'Chọn mã cổ phiếu',
@@ -949,10 +976,14 @@ export const vi = {
   'save.title': 'Lưu vào danh mục',
   'save.subtitle': 'Giữ lại bộ số liệu và kết quả này để mở lại sau',
   'save.nameLabel': 'Đặt tên cho phép tính',
-  'save.nameHint': 'Tên hiện ở tab Công thức của màn Danh mục.',
+  /*
+   * `nameHint` và `done` từng gọi tên "tab Công thức" / "Danh mục › Công thức" — một tab đã bỏ
+   * từ 14/09/2026. Nay gọi đúng tên khối mà người dùng sẽ thấy ngay sau khi lưu.
+   */
+  'save.nameHint': 'Tên hiện ở khối Phép tính đã lưu của màn Danh mục.',
   'save.suggestions': 'Gợi ý tên',
   'save.submit': 'Lưu vào danh mục',
-  'save.done': 'Đã lưu vào Danh mục › Công thức.',
+  'save.done': 'Đã lưu vào Danh mục › Phép tính đã lưu.',
   'save.goToPortfolio': 'Xem trong danh mục',
   'save.errEmpty': 'Đặt một cái tên trước đã — tên trống thì sau này không tìm lại được.',
   'save.errDuplicate': 'Đã có một phép tính tên này. Đặt tên khác để hai mục không lẫn nhau.',
@@ -971,54 +1002,22 @@ export const vi = {
   'switch.on': 'Bật',
   'switch.off': 'Tắt',
 
-  // Trang chủ — WF-01, gói 3.1.1
   /*
-   * Câu mô tả dài của trang chủ, ghép sau tên thương hiệu trong thẻ <h1>. Dải mở đầu thấy được
-   * (icon + tên + phụ đề) đã bị bỏ khỏi màn hình theo yêu cầu chủ dự án — cả hai khoá dưới đây
-   * giờ chỉ còn sống trong một <h1> ẩn hẳn (`visually-hidden`), nhưng vẫn phải TỒN TẠI: trang chủ
-   * là URL priority 1.0 của sitemap, và cụm "công thức tài chính và chứng khoán Việt Nam" là thứ
-   * bộ máy tìm kiếm đọc, còn tên thương hiệu một mình thì không nói gì về nội dung trang.
-   */
-  'home.h1': 'Thư viện công thức tài chính và chứng khoán Việt Nam',
-  'home.hero.title': 'Bộ công cụ tính nhanh của Finbox',
-  /*
-   * Khối kết quả ở trang chủ KHÔNG có tiêu đề riêng: nó dùng lại `home.featured.title` của chính
-   * kệ nó đang lọc, vì nó là kệ ấy thu hẹp lại chứ không phải một khối mới. Khoá
-   * `home.search.resultsHeading` (tiêu đề ẩn) đã bỏ cùng đợt — tiêu đề nay hiện ra cho mắt thấy.
-   */
-  'home.search.featuredEmpty': 'Không ô nào trong khối này khớp',
-  /* Dòng đầu khối rỗng phải nói ra PHẠM VI: rỗng ở đây là chuyện thường, không phải hỏng.
-     Cố ý không viết con số 18 vào câu — số chép vào prose thì rữa trong im lặng. */
-  'home.search.featuredScope':
-    'Ô tìm ở trang chủ chỉ lọc khối “Công thức dùng hằng ngày”, không phải cả thư viện.',
-  'home.search.notFound': 'Không thấy công thức bạn cần?',
-  /* Ghép với số kết quả: "Tìm trong cả thư viện · 5 kết quả". */
-  'home.search.searchWhole': 'Tìm trong cả thư viện',
-  'home.search.results': 'kết quả',
-  'home.featured.title': 'Công thức dùng hằng ngày',
-  /* Chỉ hiện khi lịch sử đã thật sự đổi thứ tự khối — trang chủ tự sắp lại mà im lặng là
-     hành vi lén, cùng lý do màn danh mục nói thẳng dữ liệu nằm ở đâu. */
-  'home.featured.personalNote':
-    'Những công thức bạn hay mở đã được đưa lên đầu. Lịch sử này nằm trên máy bạn, không gửi đi đâu.',
-  'home.browse.title': 'Duyệt theo nhóm',
-  /* Đơn vị ghép sau tổng số ở tiêu đề khối: "Duyệt theo nhóm · 111 công thức". */
-  'home.browse.unit': 'công thức',
-  /*
-   * Nhãn thay cho số trên ô nhóm mà chế độ Cơ bản giấu sạch — hiện chỉ có `corporate-finance`
-   * (2/2 công thức đều mức nâng cao).
+   * Khối "Công thức dùng hằng ngày" — FR-20, nay là khối ĐẦU của màn Công thức.
    *
-   * Phải là CHỮ chứ không được in số `0`: ô vẫn bấm vào được và màn danh sách phía sau vẫn có
-   * khối rỗng riêng kèm nút bật, nên một con số 0 trơ trọi ở đây đọc ra là "nhóm này rỗng" —
-   * sai, và đúng kiểu im lặng mà FR-06 sinh ra để chặn.
+   * Toàn bộ khoá `home.*` đã bỏ ngày 15/09/2026 cùng trang chủ riêng: ô tìm chỉ-lọc-kệ, lưới
+   * "Duyệt theo nhóm", khối "Công cụ" và `<h1>` ẩn.
+   *
+   * Cũng ngày ấy chủ dự án bỏ hai dòng chữ phụ của kệ vì dư thừa: `shelf.personalNote` ("Những công
+   * thức bạn hay mở đã được đưa lên đầu. Lịch sử này nằm trên máy bạn…") và `tools.data` /
+   * `tools.dataHint` (link "Bảng dữ liệu · Nhập hoặc dán chuỗi giá OHLCV…"). Đó là quyết định có chủ
+   * đích, không phải khoá rơi mất: việc cá nhân hoá vẫn được nói ở màn Cài đặt (`data.usage.note`),
+   * và bảng dữ liệu vẫn vào được từ màn chi tiết của công thức dùng chuỗi giá.
    */
-  'home.browse.advancedOnly': 'chỉ ở Nâng cao',
-  /* Nhãn mảng ở trang chủ. Rộng rãi hơn chip lọc nên viết đủ chữ, không dùng `filter.segment.*`. */
-  'home.segment.stock': 'Chứng khoán',
-  'home.segment.personal': 'Tài chính cá nhân',
-  /* Khối "Công cụ": lối vào những màn không có mục riêng ở thanh dưới. */
-  'home.tools.title': 'Công cụ',
-  'home.tools.data': 'Bảng dữ liệu',
-  'home.tools.dataHint': 'Nhập hoặc dán chuỗi giá OHLCV dùng cho Beta, Sharpe, VaR',
+  'shelf.title': 'Công thức dùng hằng ngày',
+  /* Nút cuối hàng tiêu đề kệ — bày nốt các ô đang ẩn ngay tại chỗ; bấm lần nữa thì `shelf.collapse`. */
+  'shelf.seeAll': 'Xem tất cả',
+  'shelf.collapse': 'Thu gọn',
 
   // Màn cài đặt — WF-13, gói 3.6.1
   'settings.mode.title': 'Chế độ hiển thị',
@@ -1072,11 +1071,9 @@ export const vi = {
   'data.prefs.note':
     'Chế độ hiển thị, ngôn ngữ, giao diện sáng/tối, đơn vị và biểu phí bạn đã chọn.',
   'data.recent': 'Từ khoá đã tìm',
-  'data.recent.note': 'Những từ bạn đã gõ ở màn Tìm kiếm, giữ lại để lần sau bấm chọn cho nhanh.',
-  /* Kho lịch sử tìm của ô tìm ở TRANG CHỦ — kho riêng, xem chú thích ở `SettingsScreen`. */
-  'data.recentHome': 'Từ khoá đã tìm ở trang chủ',
-  'data.recentHome.note':
-    'Những từ bạn đã gõ ở ô tìm ngay trang chủ — kho riêng, không lẫn với màn Tìm kiếm.',
+  /* Một kho cho cả hai ô tìm từ khi trang chủ gộp vào màn Công thức — `data.recentHome` đã bỏ. */
+  'data.recent.note':
+    'Tên công thức bạn đã chọn khi tìm ở màn Công thức hoặc màn Tìm kiếm, giữ lại để lần sau bấm cho nhanh.',
   'data.series': 'Chuỗi giá đã nhập',
   'data.series.note': 'Bảng giá theo từng phiên bạn nhập, dán hoặc nạp ở màn Bảng dữ liệu.',
   'data.portfolio': 'Danh mục cá nhân',
@@ -1088,7 +1085,7 @@ export const vi = {
     'Số bạn vừa nhập ở màn công thức, giữ tạm để rời màn rồi quay lại không phải gõ lại từ đầu.',
   'data.usage': 'Công thức đã mở',
   'data.usage.note':
-    'Công thức bạn hay mở, dùng để xếp lại kệ công thức ở trang chủ theo thói quen.',
+    'Công thức bạn hay mở, dùng để xếp lại khối Công thức dùng hằng ngày theo thói quen.',
   'data.tickers': 'Danh sách mã',
   'data.tickers.note':
     'Danh sách mã của sàn, tải về một lần cho ô tìm mã chạy nhanh và vẫn dùng được khi mất mạng.',
@@ -1226,7 +1223,7 @@ export const vi = {
   'aboutUs.cta.action': 'Truy cập ngay',
 
   // Tiêu đề <h1> của màn. Chỉ có key cho màn nào THẬT SỰ hiện tiêu đề bằng chữ:
-  // trang chủ dùng `home.h1` (ẩn cho trình đọc màn hình), danh mục dùng `portfolio.title`.
+  // danh mục dùng `portfolio.title`.
   'page.formulas.title': 'Công thức',
   'page.settings.title': 'Cài đặt',
 
@@ -1235,5 +1232,6 @@ export const vi = {
   'notFound.reason': 'Đường dẫn có thể gõ sai, hoặc trang đã được dời chỗ.',
   'notFound.suggest': 'Thử tìm công thức theo tên — gõ không dấu vẫn ra đúng.',
   'notFound.search': 'Tìm công thức',
-  'notFound.home': 'Về trang chủ',
+  /* Thay `notFound.home` — không còn trang chủ riêng, màn Công thức là màn mở đầu. */
+  'notFound.formulas': 'Về danh sách công thức',
 } as const;

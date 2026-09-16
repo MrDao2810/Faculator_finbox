@@ -108,10 +108,10 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   /*
    * Chế độ hiển thị, cùng khuôn `data-theme` ngay trên và vì cùng một lý do.
    *
-   * Khối "Duyệt theo nhóm" ở trang chủ do SERVER dựng nên nó không đọc được chế độ; nó bày sẵn
-   * cả hai con số và để CSS chọn theo thuộc tính này (xem docblock `CategoryGrid`). Thiếu effect
-   * này thì đổi chế độ ở màn Cài đặt xong quay về trang chủ, con số vẫn đứng im cho tới lần tải
-   * cứng tiếp theo — script khởi động chỉ chạy đúng một lần.
+   * Chip nhóm, dòng đếm và cụm Cơ bản / Nâng cao ở màn Công thức bày sẵn cả hai trạng thái và để CSS
+   * chọn theo thuộc tính này (xem docblock `CategoryChips`, `ModeToggle`). Thiếu effect này thì đổi
+   * chế độ ở màn Cài đặt xong quay về, con số vẫn đứng im cho tới lần tải cứng tiếp theo — script
+   * khởi động chỉ chạy đúng một lần.
    *
    * `remove` chứ không ghi `'basic'`: CSS ở cả hai chỗ viết theo hướng "không có thuộc tính là
    * mặc định", để HTML tĩnh và máy chặn localStorage rơi đúng vào nhánh ấy. Ghi giá trị mặc định
@@ -182,8 +182,8 @@ export function usePreferences(): PreferencesContextValue {
  * `usePreferences()` trả mặc định nên chữ ra tiếng Việt — đúng hành vi HTML tĩnh.
  *
  * Server component KHÔNG gọi được hook — chữ cần đổi theo locale ở đó đi qua lá client
- * `<T k="…">` (src/ui/i18n/T.tsx); chữ cố ý đứng yên (câu miễn trừ FR-24, metadata build-time,
- * fallback SEO `StaticFormulaList`) thì giữ `t()` thẳng từ `@/application`.
+ * `<T k="…">` (src/ui/i18n/T.tsx); chữ cố ý đứng yên (metadata build-time, file PDF/PNG xuất ra)
+ * thì giữ `t()` thẳng từ `@/application`.
  */
 export function useT(): (key: MessageKey) => string {
   const { locale } = usePreferences();

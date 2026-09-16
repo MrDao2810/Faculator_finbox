@@ -79,15 +79,16 @@ describe('BackLink — đường ra của các màn trong', () => {
   });
 
   /*
-   * Đây là ca của chính lỗi đã báo: vào công thức TỪ TRANG CHỦ rồi bấm quay ra thì phải về trang
-   * chủ, không về danh sách. Trước đợt này màn gốc chỉ nhận URL `/cong-thuc/...` nên trang chủ
-   * không bao giờ được nhớ, và nút quay lại ném người dùng sang một màn họ chưa từng đứng.
+   * Trang chủ `/` từng là một màn gốc (ca của lỗi "vào từ trang chủ mà quay về danh sách"). Nó gộp
+   * vào `/cong-thuc/` ngày 15/09/2026 và chỉ còn chuyển hướng — nên một bản ghi `/` còn sót trong
+   * `sessionStorage` của tab mở từ trước KHÔNG được dựng ra link về một trang chuyển hướng. Nó rơi
+   * về đường dự phòng, tức đúng nơi trang chủ cũ giờ nằm.
    */
-  it('vào từ trang chủ thì quay về TRANG CHỦ, và nhãn nói đúng đích', () => {
+  it('bản ghi "/" cũ của trang chủ rơi về danh sách công thức', () => {
     nho('/');
     render(<BackLink />);
 
-    expect(hrefOf('Trang chủ')).toBe('/');
+    expect(hrefOf('Danh sách công thức')).toBe('/cong-thuc');
   });
 
   it('vào từ danh mục thì quay về danh mục', () => {
@@ -98,11 +99,11 @@ describe('BackLink — đường ra của các màn trong', () => {
   });
 
   /*
-   * Nhãn phải ĐI THEO đích. Một nút ghi "Danh sách công thức" mà bấm vào ra trang chủ còn tệ hơn
+   * Nhãn phải ĐI THEO đích. Một nút ghi "Danh sách công thức" mà bấm vào ra màn Danh mục còn tệ hơn
    * mũi tên trơn: nó nói sai chứ không phải không nói.
    */
   it('nhãn đổi theo màn gốc, không đứng yên ở "Danh sách công thức"', () => {
-    nho('/');
+    nho('/danh-muc/');
     render(<BackLink />);
 
     expect(screen.queryByRole('link', { name: 'Danh sách công thức' })).toBeNull();
@@ -139,23 +140,23 @@ describe('BackLink — đường ra của các màn trong', () => {
 
   it('tắt `rememberOrigin` thì bỏ qua chỗ đã nhớ và dùng đường dẫn dự phòng', () => {
     nho('/cong-thuc/?category=risk');
-    render(<BackLink rememberOrigin={false} fallbackHref="/" labelKey="nav.home" />);
+    render(<BackLink rememberOrigin={false} fallbackHref="/danh-muc/" labelKey="nav.portfolio" />);
 
-    expect(hrefOf('Trang chủ')).toBe('/');
+    expect(hrefOf('Danh mục')).toBe('/danh-muc');
   });
 
   /*
    * Cờ quay lại chỉ được đặt khi NGƯỜI DÙNG BẤM, không phải khi component có mặt trên màn: thiếu
-   * phân biệt đó thì mọi lần mở trang chủ đều nhảy cuộn về chỗ cũ.
+   * phân biệt đó thì mọi lần mở màn gốc đều nhảy cuộn về chỗ cũ.
    */
   it('chỉ đặt cờ quay lại khi thật sự bấm', () => {
-    nho('/', 640);
+    nho('/danh-muc/', 640);
     render(<BackLink />);
 
     expect(window.sessionStorage.getItem(ORIGIN_RESTORE_KEY)).toBeNull();
 
     fireEvent.click(screen.getByRole('link'));
-    expect(window.sessionStorage.getItem(ORIGIN_RESTORE_KEY)).toBe('/');
+    expect(window.sessionStorage.getItem(ORIGIN_RESTORE_KEY)).toBe('/danh-muc/');
   });
 
   it('mũi tên ẩn với trình đọc màn hình — chữ mới là tên của link', () => {
@@ -211,12 +212,12 @@ describe('BackLink — đổi màn mà không tháo component', () => {
 
   /*
    * Ca nặng hơn: màn trước đã NHỚ được một màn gốc, tức state không chỉ cũ mà còn khác hẳn tham số.
-   * Vào công thức từ trang chủ rồi mở bảng dữ liệu thì nút không được giữ đường về trang chủ.
+   * Vào công thức từ màn Danh mục rồi mở bảng dữ liệu thì nút không được giữ đường về Danh mục.
    */
   it('màn gốc đã nhớ của màn trước cũng không được sống sót qua cú điều hướng', () => {
-    nho('/');
+    nho('/danh-muc/');
     const view = render(<BackLink />);
-    expect(hrefOf('Trang chủ')).toBe('/');
+    expect(hrefOf('Danh mục')).toBe('/danh-muc');
 
     moBangDuLieu(view);
 
@@ -261,10 +262,10 @@ describe('BackLink — nhãn là tên công thức, không phải một khoá', 
    * thức không được dán lên đó: nút sẽ gọi tên một nơi rồi dẫn tới nơi khác.
    */
   it('đích đổi sang màn gốc thì chữ sẵn bị bỏ, nhãn đi theo đích', () => {
-    nho('/');
+    nho('/danh-muc/');
     render(<BackLink label="P/E — hệ số giá trên lợi nhuận" />);
 
-    expect(hrefOf('Trang chủ')).toBe('/');
+    expect(hrefOf('Danh mục')).toBe('/danh-muc');
     expect(screen.queryByText('P/E — hệ số giá trên lợi nhuận')).toBeNull();
   });
 });

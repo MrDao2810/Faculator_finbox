@@ -22,8 +22,8 @@ afterEach(cleanup);
 
 describe('lá <T> cho server component', () => {
   it('ngoài Provider (và trong HTML tĩnh) là tiếng Việt', () => {
-    render(<T k="nav.home" />);
-    expect(screen.getByText('Trang chủ')).toBeDefined();
+    render(<T k="nav.portfolio" />);
+    expect(screen.getByText('Danh mục')).toBeDefined();
   });
 
   it('người dùng đã chọn EN thì chữ đổi sau hydrate', async () => {
@@ -32,13 +32,13 @@ describe('lá <T> cho server component', () => {
     render(
       <PreferencesProvider>
         <p>
-          <T k="nav.home" />
+          <T k="nav.portfolio" />
         </p>
       </PreferencesProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Home')).toBeDefined();
+      expect(screen.getByText('Portfolio')).toBeDefined();
     });
   });
 });

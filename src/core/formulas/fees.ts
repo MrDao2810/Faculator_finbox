@@ -221,11 +221,19 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Bán 1.000 CP giá 97.000 ₫, biểu phí HOSE 2026',
-        en: 'Sell 1,000 shares at 97,000 ₫, HOSE 2026 fee schedule',
+        vi: 'Bán 1.000 CP HPG giá 21.850 ₫, biểu phí HOSE 2026',
+        en: 'Sell 1,000 HPG shares at 21,850 ₫, HOSE 2026 fee schedule',
       },
-      inputs: { quantity: WF08.quantity, sellPrice: WF08.sellPrice },
-      expected: 145_500,
+      inputs: { quantity: 1_000, sellPrice: 21_850 },
+      expected: 32_775,
+      note: {
+        vi: 'Bán đúng giá thị trường của HPG nên phí trừ thẳng 32.775 ₫ trước khi tiền về tài khoản.',
+        en: 'Selling at HPG’s real market price, the fee comes straight off 32,775 ₫ before the proceeds settle.',
+      },
+      source: {
+        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+      },
     },
     tests: [
       {
@@ -288,9 +296,20 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'Bán 1.000 CP giá 97.000 ₫', en: 'Sell 1,000 shares at 97,000 ₫' },
-      inputs: { quantity: WF08.quantity, sellPrice: WF08.sellPrice },
-      expected: 97_000,
+      title: {
+        vi: 'Bán 1.000 CP HPG giá 21.850 ₫',
+        en: 'Sell 1,000 HPG shares at 21,850 ₫',
+      },
+      inputs: { quantity: 1_000, sellPrice: 21_850 },
+      expected: 21_850,
+      note: {
+        vi: 'Thuế 0,1% tính trên đúng giá trị bán 21.850.000 ₫ của lô CP này, không phụ thuộc lãi lỗ.',
+        en: 'The 0.1% tax is charged on this lot’s real 21,850,000 ₫ sale value, regardless of profit or loss.',
+      },
+      source: {
+        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+      },
     },
     tests: [
       {
@@ -356,9 +375,20 @@ export const THUE_CO_TUC: FormulaModule = {
       },
     },
     example: {
-      title: { vi: '1.000 CP, cổ tức 2.000 ₫/CP', en: '1,000 shares, dividend 2,000 ₫/share' },
-      inputs: { quantity: 1_000, dividendPerShare: 2_000 },
-      expected: 100_000,
+      title: {
+        vi: '1.000 CP VNM, cổ tức 4.350 ₫/CP',
+        en: '1,000 VNM shares, dividend 4,350 ₫/share',
+      },
+      inputs: { quantity: 1_000, dividendPerShare: 4_350 },
+      expected: 217_500,
+      note: {
+        vi: 'Cổ tức 4.350 ₫/CP của Vinamilk bị giữ lại 5%, còn 4.132,5 ₫/CP thực nhận.',
+        en: 'Vinamilk’s 4,350 ₫/share dividend has 5% withheld, leaving 4,132.5 ₫/share net.',
+      },
+      source: {
+        vi: 'Finbox_v2, cổ tức Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) dividend, locked in 2026-09-08.',
+      },
     },
     note: {
       vi: 'Áp dụng cho cổ tức tiền mặt của cổ phiếu. Lợi tức chia từ quỹ đầu tư chứng khoán hoặc quỹ bất động sản có mức riêng, không tính bằng công thức này.',
@@ -619,14 +649,18 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 1.000 CP giá 92.000 ₫, bán 97.000 ₫ sau 5 tháng',
-        en: 'Buy 1,000 shares at 92,000 ₫, sell at 97,000 ₫ after 5 months',
+        vi: 'Mua 1.000 CP HPG giá 19.000 ₫, bán giá 21.850 ₫ sau 5 tháng',
+        en: 'Buy 1,000 HPG shares at 19,000 ₫, sell at 21,850 ₫ after 5 months',
       },
-      inputs: { ...WF08 },
-      expected: 4_618_150,
+      inputs: { quantity: 1_000, months: 5, buyPrice: 19_000, sellPrice: 21_850 },
+      expected: 2_765_525,
       note: {
-        vi: 'Lãi gộp 5.000.000 ₫, tổng chi phí 381.850 ₫.',
-        en: 'Gross profit 5,000,000 ₫, total costs 381,850 ₫.',
+        vi: 'Giá mua dùng mức giả định. Lãi gộp 2.850.000 ₫, tổng chi phí 84.475 ₫.',
+        en: 'The buy price is an assumption. Gross profit is 2,850,000 ₫, total costs are 84,475 ₫.',
+      },
+      source: {
+        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -705,11 +739,19 @@ export const ROI_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 1.000 CP giá 92.000 ₫, bán 97.000 ₫ sau 5 tháng',
-        en: 'Buy 1,000 shares at 92,000 ₫, sell at 97,000 ₫ after 5 months',
+        vi: 'Mua 1.000 CP HPG giá 19.000 ₫, bán giá 21.850 ₫ sau 5 tháng',
+        en: 'Buy 1,000 HPG shares at 19,000 ₫, sell at 21,850 ₫ after 5 months',
       },
-      inputs: { ...WF08 },
-      expected: 5.01,
+      inputs: { quantity: 1_000, months: 5, buyPrice: 19_000, sellPrice: 21_850 },
+      expected: 14.53,
+      note: {
+        vi: 'Giá mua dùng mức giả định. Từ 19.000 ₫ lên 21.850 ₫ sau 5 tháng, trừ phí và thuế còn lãi ròng quy năm 14,53%.',
+        en: 'The buy price is an assumption. From 19,000 ₫ to 21,850 ₫ over 5 months, after fees and tax the annualized net return is 14.53%.',
+      },
+      source: {
+        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+      },
     },
     tests: [
       { name: 'ví dụ WF-08', inputs: { ...WF08 }, expected: 5.01, tolerance: 0.01 },

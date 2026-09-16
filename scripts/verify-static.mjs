@@ -8,12 +8,18 @@
  * Vì sao phải kiểm: với `output: 'export'`, chỉ cần một component trong cây gọi
  * `useSearchParams()` là Next dựng ranh giới `<Suspense>` và **bỏ toàn bộ cây đó khỏi HTML
  * tĩnh**, thay bằng một marker bailout. Build VẪN XANH. `/cong-thuc/` từng dính đúng lỗi đó
- * (fallback={null} → 14,6 kB, không một link công thức nào) cho tới khi đợt 14 thay fallback
- * bằng `StaticFormulaList` — và thêm cửa kiểm ở dưới để nó không tái diễn.
+ * (fallback={null} → 14,6 kB, không một link công thức nào).
  *
- * Trang chủ là URL priority 1.0 của sitemap và là trang duy nhất Google thật sự cần đọc. Nếu
- * người sau "sửa cho nhất quán" bằng cách cho `HomeSearchPanel` dùng `useListParams()`, trang
- * chủ sẽ lặng lẽ mất 33 kB nội dung mà không test nào đỏ. Script này là chỗ chặn cứng.
+ * ── Từ 15/09/2026: trang chủ gộp vào màn Công thức ──────────────────────────────────────────
+ *
+ * `/cong-thuc/` là màn MỞ ĐẦU, URL priority 1.0 của sitemap, trang Google thật sự cần đọc. Màn này
+ * được phép có đúng MỘT ranh giới bailout — của `ListUrlSync`, component rỗng đọc URL — còn kệ
+ * "Công thức dùng hằng ngày" và cả danh sách phải nằm NGOÀI nó, trong HTML. Nếu người sau "sửa cho
+ * nhất quán" bằng cách cho màn dùng `useListParams()`, cả màn lặng lẽ mất khỏi HTML tĩnh mà không
+ * test nào đỏ. Script này là chỗ chặn cứng.
+ *
+ * `/` chỉ còn chuyển hướng về `/cong-thuc/`: 301 qua `_redirects` ở bản triển khai, meta refresh ở
+ * bản tĩnh. Nó phải KHÔNG mang nội dung công thức nào (FR-25: một nội dung, một URL).
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -22,10 +28,11 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 const BAILOUT = 'BAILOUT_TO_CLIENT_SIDE_RENDERING';
 
 /**
- * Ngưỡng kích thước trang chủ. Đặt thấp hơn hẳn số thật (khoảng 33 kB) để không phải sửa mỗi
- * lần thêm bớt một công thức, nhưng vẫn cao hơn hẳn một trang chỉ còn vỏ AppShell (~14 kB).
+ * Ngưỡng kích thước màn Công thức. Đặt thấp hơn hẳn số thật (kệ 16 thẻ + danh sách 111 thẻ, cỡ trăm
+ * kB) để không phải sửa mỗi lần thêm bớt một công thức, nhưng vẫn cao hơn hẳn một trang chỉ còn vỏ
+ * AppShell (~14 kB).
  */
-const MIN_HOME_BYTES = 25_000;
+const MIN_LIST_BYTES = 25_000;
 
 const checks = [];
 
@@ -34,186 +41,225 @@ function check(name, pass, detail = '') {
   console.log(`${pass ? 'OK  ' : 'FAIL'} ${name}${detail === '' ? '' : ` — ${detail}`}`);
 }
 
-let html = '';
-try {
-  html = readFileSync('out/index.html', 'utf8');
-} catch {
-  console.error('Không đọc được out/index.html — chạy `npm run build` trước.');
-  process.exit(1);
-}
+/* ── /cong-thuc/ — màn mở đầu (trang chủ + danh sách gộp làm một) ─────────── */
 
-const bytes = statSync('out/index.html').size;
-
-check(
-  'trang chủ không rơi vào chế độ dựng ở máy khách',
-  !html.includes(BAILOUT),
-  html.includes(BAILOUT)
-    ? 'có marker bailout — nhiều khả năng vừa có component dùng useSearchParams() trong cây trang chủ'
-    : 'không có marker bailout',
-);
-
-check('khối "Công thức dùng hằng ngày" nằm trong HTML tĩnh', html.includes('id="home-featured"'));
-
-/*
- * Đủ SỐ Ô ghim, không chỉ đủ cái tiêu đề.
- *
- * Cửa kiểm ngay trên chỉ tìm `id="home-featured"`, mà id đó nằm ở `<h2>` phía server nên nó còn
- * nguyên kể cả khi lưới bên dưới rỗng. Từ đợt cá nhân hoá, lưới do một client component dựng:
- * nếu người sau cho nó chờ một cờ `hydrated` rồi mới vẽ, 18 link công thức biến mất khỏi HTML
- * tĩnh mà cửa kiểm cũ vẫn xanh. Đây là chỗ chặn.
- *
- * Số ghim đọc THẲNG từ chỉ mục đã sinh chứ không viết cứng — thêm bớt một `isFeatured` không
- * được biến script này thành việc phải sửa tay.
- */
-const soGhim = (
-  readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/isFeatured: true/g) ?? []
-).length;
-const homeLinks = new Set(html.match(/href="\/cong-thuc\/[a-z0-9-]+\/"/g) ?? []);
-
-check(
-  `trang chủ dựng sẵn đủ ${String(soGhim)} link công thức ghim trong HTML tĩnh`,
-  soGhim > 0 && homeLinks.size >= soGhim,
-  `${String(homeLinks.size)} link duy nhất, cần ${String(soGhim)}`,
-);
-
-check('khối "Duyệt theo nhóm" nằm trong HTML tĩnh', html.includes('id="home-browse"'));
-
-check(
-  'trang chủ có đúng một <h1>',
-  (html.match(/<h1[\s>]/g) ?? []).length === 1,
-  `đếm được ${String((html.match(/<h1[\s>]/g) ?? []).length)}`,
-);
-
-/*
- * Dòng tiêu đề mang tổng số phải đếm theo CẢ HAI chế độ, không in cứng một con số.
- *
- * Trước đây chỗ này in thẳng `REGISTRY.formulas.length` = 111, trong khi chế độ Cơ bản — mặc định
- * của người mở lần đầu — chỉ với tới 79. Hai con số nói về cùng một thư viện cãi nhau trong cùng
- * một màn hình, và bản build tĩnh là chỗ duy nhất thấy được điều đó: ca kiểm DOM không chạy trang
- * chủ, còn phép chọn thì nằm trong CSS theo `data-mode`.
- *
- * ĐỔI CHỖ ĐO, KHÔNG ĐỔI Ý ĐỊNH: bản đầu khoanh trong `<header class="…hero…">`, nhưng dải mở đầu
- * đã bị bỏ khỏi trang chủ theo yêu cầu chủ dự án (xem chú thích trong `src/app/page.tsx`), nên
- * phép kiểm cũ đỏ vì KHÔNG CÒN THẺ để đọc — chứ không phải vì con số sai. Chỗ duy nhất còn in
- * tổng số nay là `<h2 id="home-browse">`, nên cửa kiểm dời theo về đúng đó.
- *
- * Vẫn khoanh vùng chứ không quét cả trang: `countBasic` còn có ở hai dòng phân mảng và ở mọi ô
- * nhóm, nên một phép kiểm trần vẫn xanh sau khi riêng dòng này quay về in cứng.
- */
-const dongTong = html.match(/<h2[^>]*id="home-browse"[\s\S]*?<\/h2>/);
-const coCaHaiSo =
-  dongTong !== null && dongTong[0].includes('countBasic') && dongTong[0].includes('countAdvanced');
-
-check(
-  'dòng tổng số đếm theo chế độ (Cơ bản / Nâng cao), không in cứng tổng số',
-  coCaHaiSo,
-  // `check()` in `detail` cả khi ĐẠT, nên câu này phải đọc xuôi ở cả hai chiều — bản đầu để
-  // nguyên lý do thất bại và hoá ra in "thiếu một trong hai nhánh" ngay cạnh chữ OK.
-  coCaHaiSo
-    ? '<h2 id="home-browse"> mang cả hai nhánh'
-    : dongTong === null
-      ? 'không tìm thấy <h2 id="home-browse">'
-      : 'thiếu một trong hai nhánh con số',
-);
-
-check('trang chủ có link tới trang công thức', /href="\/cong-thuc\/[a-z0-9-]+\/"/.test(html));
-
-check(
-  `trang chủ đủ nội dung (> ${String(MIN_HOME_BYTES)} B)`,
-  bytes > MIN_HOME_BYTES,
-  `${String(bytes)} B`,
-);
-
-/*
- * Hai màn KHÔNG có mục ở thanh dưới (WF-18 chốt đúng bốn mục), nên lối vào duy nhất của chúng
- * là link trong nội dung. Trước đợt 12 cả hai màn đã dựng xong mà không có link nào trỏ tới —
- * chỉ gõ URL tay mới mở được, và không test nào đỏ. Đây là chỗ chặn việc đó tái diễn.
- *
- * `/du-lieu/` giữ nguyên ở đây. Lối vào `/tim-kiem/` đã dời sang màn `/cong-thuc/` nên phép kiểm
- * của nó cũng dời xuống mục dưới — lý do đầy đủ ghi tại chỗ.
- */
-check(
-  'trang chủ có lối vào màn bảng dữ liệu /du-lieu/',
-  html.includes('href="/du-lieu/"'),
-  'khối "Công cụ"',
-);
-
-/* ── /cong-thuc/ — URL chính danh của danh sách, sitemap khai priority 0.9 ── */
-
-/*
- * Khác trang chủ, trang này ĐƯỢC PHÉP mang marker bailout: FormulaBrowser bên trong Suspense
- * vẫn dựng ở máy khách (nó cần useSearchParams). Thứ phải có là FALLBACK — bản danh sách tĩnh
- * nằm sẵn trong HTML. Vì vậy ở đây không kiểm marker, chỉ kiểm nội dung thật.
- */
 let listHtml = '';
 try {
   listHtml = readFileSync('out/cong-thuc/index.html', 'utf8');
 } catch {
-  // check dưới sẽ tự trượt vì chuỗi rỗng không chứa link nào.
+  console.error('Không đọc được out/cong-thuc/index.html — chạy `npm run build` trước.');
+  process.exit(1);
 }
 
-const formulaLinks = new Set(
-  [...listHtml.matchAll(/href="\/cong-thuc\/([a-z0-9-]+)\/"/g)].map((m) => m[1]),
+const listBytes = statSync('out/cong-thuc/index.html').size;
+const summaries = readFileSync('src/core/formulas/summaries.generated.ts', 'utf8');
+
+/* Số đọc THẲNG từ chỉ mục đã sinh — thêm bớt một công thức không biến script này thành việc sửa tay. */
+const TONG_CONG_THUC = (summaries.match(/categoryId:/g) ?? []).length;
+const SO_NANG_CAO = (summaries.match(/level: 'advanced'/g) ?? []).length;
+
+/*
+ * Đúng MỘT ranh giới bailout, không phải "không có": `ListUrlSync` cố ý gọi `useSearchParams()` trong
+ * `<Suspense>` riêng và không dựng ra gì. Hai ranh giới trở lên nghĩa là có thêm một cây NỮA bị đẩy
+ * ra khỏi HTML — gần như chắc là ai đó vừa cho màn đọc URL bằng hook. Các phép kiểm nội dung bên
+ * dưới mới là thứ chứng minh không mất gì; phép này chỉ báo sớm.
+ */
+const soBailout = listHtml.split(BAILOUT).length - 1;
+check(
+  'màn Công thức có tối đa MỘT ranh giới dựng ở máy khách (của ListUrlSync)',
+  soBailout <= 1,
+  `${String(soBailout)} marker bailout`,
 );
 
 /*
- * ĐỦ công thức, không phải "có là được".
+ * Kệ "Công thức dùng hằng ngày" đủ ô, ĐÚNG THỨ TỰ bản vẽ.
  *
- * Từ đợt này chế độ Cơ bản lọc bớt danh sách theo cấp độ (FR-09), và mặc định của sản phẩm
- * LÀ chế độ Cơ bản — nghĩa là 32 công thức mức nâng cao không hiện trên màn khi mới vào. Việc
- * đó chỉ được phép xảy ra ở phía máy khách: `StaticFormulaList` là server component, không đọc
- * localStorage, nên HTML tĩnh phải luôn có đủ đường vào cho cả 111. Ai đó "sửa cho nhất quán"
- * bằng cách lọc luôn ở fallback là lặng lẽ giấu 32 URL khỏi Google, mà build vẫn xanh.
+ * Tìm id của tiêu đề thôi là chưa đủ: id nằm ở `<h2>` do server dựng nên nó còn nguyên kể cả khi
+ * lưới bên dưới rỗng. Từ đợt cá nhân hoá, lưới do một client component dựng — nếu người sau cho nó
+ * chờ một cờ `hydrated` rồi mới vẽ, link của kệ biến mất khỏi HTML tĩnh mà phép kiểm id vẫn xanh.
+ *
+ * Danh sách ô đọc THẲNG từ `daily-shelf.ts` (docblock ở đó dặn giữ dạng mảng chuỗi nháy đơn).
  */
-const TONG_CONG_THUC = (
-  readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/categoryId:/g) ?? []
-).length;
+const shelfSource = readFileSync('src/application/daily-shelf.ts', 'utf8');
+const shelfIds = [
+  ...(/\bDAILY_SHELF_IDS = \[([\s\S]*?)\] as const/
+    .exec(shelfSource)?.[1]
+    ?.matchAll(/'([a-z0-9-]+)'/g) ?? []),
+].map((m) => m[1]);
+
+const shelfBlock =
+  /<section[^>]*aria-labelledby="cong-thuc-hang-ngay"[\s\S]*?<\/section>/.exec(listHtml)?.[0] ?? '';
+const shelfLinks = [...shelfBlock.matchAll(/href="\/cong-thuc\/([a-z0-9-]+)\/"/g)].map((m) => m[1]);
 
 check(
-  '/cong-thuc/ có ĐỦ link công thức trong HTML tĩnh (fallback không lọc theo chế độ)',
-  formulaLinks.size === TONG_CONG_THUC,
-  `${String(formulaLinks.size)} / ${String(TONG_CONG_THUC)} link công thức khác nhau`,
+  `kệ "Công thức dùng hằng ngày" dựng sẵn đủ ${String(shelfIds.length)} ô, đúng thứ tự trong HTML tĩnh`,
+  shelfIds.length > 0 && JSON.stringify(shelfLinks) === JSON.stringify(shelfIds),
+  shelfBlock === ''
+    ? 'không thấy khối có aria-labelledby="cong-thuc-hang-ngay"'
+    : `${shelfLinks.join(', ')}`,
 );
 
 /*
- * React chèn `<!-- -->` giữa hai text node liền nhau khi dựng ở server, nên `{n} {t('list.count')}`
- * ra HTML là `111<!-- --> <!-- -->công thức`. Phép kiểm bản đầu tìm ` công thức<` nên đỏ vì ký tự
- * ngay trước "công" là `>` chứ không phải dấu cách — dòng đếm vẫn đúng, chỉ regex là quá chặt.
- * Gỡ marker trước rồi mới đối chiếu: chuỗi cần kiểm là chuỗi NGƯỜI ĐỌC thấy, không phải chuỗi byte.
+ * Kệ bày trước `DAILY_SHELF_PREVIEW` ô, phần còn lại nằm SẴN trong HTML nhưng mang `hidden` — bấm
+ * "Xem tất cả" chỉ gỡ thuộc tính. Ai đó đổi sang "chỉ dựng phần còn lại sau khi bấm" thì phép đếm
+ * link ở trên đã đỏ; phép này bắt chiều ngược lại: quên `hidden` thì kệ bày đủ 16 ô ngay từ đầu.
  */
-const listHtmlPhang = listHtml.replaceAll('<!-- -->', '');
+const shelfPreview = Number(/\bDAILY_SHELF_PREVIEW = (\d+)/.exec(shelfSource)?.[1] ?? NaN);
+const soOAn = (shelfBlock.match(/<li hidden=""/g) ?? []).length;
+check(
+  `kệ bày trước ${String(shelfPreview)} ô, ${String(shelfIds.length - shelfPreview)} ô còn lại mang hidden`,
+  Number.isInteger(shelfPreview) && shelfPreview > 0 && soOAn === shelfIds.length - shelfPreview,
+  `${String(soOAn)} ô ẩn`,
+);
 
 check(
-  '/cong-thuc/ có dòng đếm trong HTML tĩnh',
-  / công thức</.test(listHtmlPhang),
-  'dòng "N công thức"',
+  'kệ có nút "Xem tất cả" (aria-expanded="false") điều khiển đúng lưới ô',
+  /<button[^>]*aria-expanded="false"[^>]*aria-controls="cong-thuc-hang-ngay-luoi"/.test(
+    shelfBlock,
+  ) && shelfBlock.includes('id="cong-thuc-hang-ngay-luoi"'),
 );
 
 /*
- * Lối vào màn tìm kiếm `/tim-kiem/` — WF-18 không cho nó một mục ở thanh dưới.
+ * ĐỦ công thức trong khối danh sách, không phải "có là được".
  *
- * Lối vào cũ là nút kính lúp ở thanh trên, và phép kiểm cũ đọc `out/index.html`. Nút đó đã nhường
- * chỗ cho nút đổi theme; chủ dự án chốt lối vào mới là chính ô tìm ở màn `/cong-thuc/` — xem
- * docblock `SearchBoxLink`. Nên phép kiểm dời cả TRANG lẫn CÁCH ĐỌC.
+ * Chế độ Cơ bản lọc bớt danh sách theo cấp độ (FR-09), và mặc định của sản phẩm LÀ chế độ Cơ bản.
+ * Việc lọc ấy chỉ được phép xảy ra ở phía máy khách: HTML tĩnh phải luôn có đủ đường vào cho cả
+ * thư viện. Ai đó "sửa cho nhất quán" bằng cách lọc luôn lúc dựng tĩnh là lặng lẽ giấu mọi công
+ * thức Nâng cao khỏi Google, mà build vẫn xanh.
  *
- * Vì sao không tìm trong HTML tĩnh: `SearchBoxLink` nằm trong `FormulaBrowser`, tức bên trong
- * ranh giới `<Suspense>` mà `useSearchParams()` dựng lên, nên nó KHÔNG vào HTML tĩnh — chỗ đó là
- * `StaticFormulaList`. Đòi `href="/tim-kiem/"` trong HTML là đòi một điều kiến trúc hiện tại
- * không cho phép, và cũng không phải điều cần: yêu cầu thật là "có link bấm được trong sản phẩm,
- * không phải chỉ gõ URL tay". Vì vậy đọc chính những chunk JS mà trang này tham chiếu.
+ * Đếm TRONG khối danh sách chứ không cả trang: kệ phía trên cũng mang link công thức.
  */
-const listAssets = [...listHtml.matchAll(/["'(](\/_next\/static\/[^"')]+?\.js)["')]/g)].map((m) =>
-  decodeURIComponent((m[1] ?? '').slice(1)),
-);
-const coLoiVaoTim = listAssets.some(
-  (asset) =>
-    existsSync(`out/${asset}`) && readFileSync(`out/${asset}`, 'utf8').includes('/tim-kiem/'),
+const listBlock =
+  /<section[^>]*id="danh-sach-cong-thuc"[\s\S]*?<\/section>/.exec(listHtml)?.[0] ?? '';
+const listLinks = new Set(
+  [...listBlock.matchAll(/href="\/cong-thuc\/([a-z0-9-]+)\/"/g)].map((m) => m[1]),
 );
 
 check(
-  '/cong-thuc/ có lối vào màn tìm kiếm /tim-kiem/',
-  coLoiVaoTim,
-  `ô tìm SearchBoxLink · quét ${String(listAssets.length)} chunk trang này tham chiếu`,
+  'khối danh sách có ĐỦ link công thức trong HTML tĩnh (không lọc theo chế độ lúc dựng)',
+  listLinks.size === TONG_CONG_THUC,
+  `${String(listLinks.size)} / ${String(TONG_CONG_THUC)} link công thức khác nhau`,
+);
+
+/*
+ * Thẻ Nâng cao mang lớp `advancedPreHydrate` để CSS giấu trước hydrate — người dùng Cơ bản không
+ * thấy danh sách co 111 → 79 lúc tải trang. Đếm đúng bằng số công thức Nâng cao: thiếu là có thẻ
+ * lộ ra rồi biến mất, thừa là giấu nhầm thẻ Cơ bản.
+ */
+const soLopAn = (listBlock.match(/advancedPreHydrate/g) ?? []).length;
+check(
+  'mọi thẻ Nâng cao (và chỉ thẻ Nâng cao) mang lớp giấu trước hydrate',
+  soLopAn === SO_NANG_CAO,
+  `${String(soLopAn)} / ${String(SO_NANG_CAO)}`,
+);
+
+/*
+ * React chèn `<!-- -->` giữa hai text node liền nhau khi dựng ở server. Gỡ marker trước rồi mới đối
+ * chiếu: chuỗi cần kiểm là chuỗi NGƯỜI ĐỌC thấy, không phải chuỗi byte.
+ *
+ * Dòng "Hiển thị · N công thức" phải mang CẢ HAI con số (Cơ bản / cả thư viện) để CSS chọn theo
+ * `data-mode` — in cứng một số là hai con số về cùng một thư viện cãi nhau trên cùng màn hình.
+ */
+const dongDem = /<p[^>]*>(?:(?!<\/p>)[\s\S])*?Hiển thị[\s\S]*?<\/p>/.exec(listBlock)?.[0] ?? '';
+check(
+  'dòng "Hiển thị · N công thức" đếm theo cả hai chế độ, không in cứng một con số',
+  dongDem.includes('countBasic') &&
+    dongDem.includes('countAdvanced') &&
+    / công thức</.test(dongDem.replaceAll('<!-- -->', '')),
+  dongDem === '' ? 'không thấy dòng "Hiển thị"' : 'mang cả hai nhánh',
+);
+
+check(
+  'hàng chip nhóm dựng sẵn 13 lựa chọn radio',
+  (listBlock.match(/name="nhom-cong-thuc"/g) ?? []).length === 13,
+  `${String((listBlock.match(/name="nhom-cong-thuc"/g) ?? []).length)} radio`,
+);
+
+check(
+  'màn Công thức có đúng một <h1> (ở thanh trên)',
+  (listHtml.match(/<h1[\s>]/g) ?? []).length === 1,
+  `đếm được ${String((listHtml.match(/<h1[\s>]/g) ?? []).length)}`,
+);
+
+check(
+  `màn Công thức đủ nội dung (> ${String(MIN_LIST_BYTES)} B)`,
+  listBytes > MIN_LIST_BYTES,
+  `${String(listBytes)} B`,
+);
+
+/* ── / — chỉ còn chuyển hướng ────────────────────────────────────────────── */
+
+const rootHtml = existsSync('out/index.html') ? readFileSync('out/index.html', 'utf8') : '';
+
+check(
+  '/ tự chuyển về /cong-thuc/ và đặt noindex',
+  /<meta[^>]+http-equiv="refresh"[^>]+content="0;url=\/cong-thuc\/"/.test(rootHtml) &&
+    /<meta[^>]+name="robots"[^>]+content="[^"]*noindex/.test(rootHtml),
+  rootHtml === '' ? 'thiếu out/index.html' : '',
+);
+
+check(
+  '/ không mang nội dung công thức nào — một nội dung, một URL (FR-25)',
+  rootHtml !== '' && !/href="\/cong-thuc\/[a-z0-9-]+\/"/.test(rootHtml),
+);
+
+/*
+ * `_redirects` là lớp chuyển hướng CHÍNH ở bản triển khai (301 — bộ máy tìm kiếm hiểu là dời hẳn).
+ * Máy chạy thử không đọc nó nên không phép kiểm nào khác thấy nó hỏng.
+ */
+const redirects = existsSync('out/_redirects') ? readFileSync('out/_redirects', 'utf8') : '';
+check(
+  'out/_redirects chuyển / về /cong-thuc/ bằng 301',
+  /^\/\s+\/cong-thuc\/\s+301\s*$/m.test(redirects),
+  redirects === '' ? 'thiếu out/_redirects' : '',
+);
+
+/* Đọc từng `<url>` của sitemap thành cặp (đường dẫn, priority) — so đường dẫn, không so chuỗi thô. */
+const sitemapUrls = [
+  ...(existsSync('out/sitemap.xml') ? readFileSync('out/sitemap.xml', 'utf8') : '').matchAll(
+    /<url>([\s\S]*?)<\/url>/g,
+  ),
+].map((m) => ({
+  path: (() => {
+    const loc = /<loc>\s*([^<\s]+)\s*<\/loc>/.exec(m[1])?.[1] ?? '';
+    try {
+      return new URL(loc).pathname;
+    } catch {
+      return loc;
+    }
+  })(),
+  priority: /<priority>\s*([^<\s]+)\s*<\/priority>/.exec(m[1])?.[1] ?? '',
+}));
+
+check(
+  'sitemap không khai URL gốc "/", và /cong-thuc/ mang priority 1',
+  sitemapUrls.length > 0 &&
+    !sitemapUrls.some((u) => u.path === '/') &&
+    sitemapUrls.some((u) => u.path === '/cong-thuc/' && Number(u.priority) === 1),
+  `${String(sitemapUrls.length)} URL`,
+);
+
+const manifestGoc = existsSync('out/manifest.webmanifest')
+  ? JSON.parse(readFileSync('out/manifest.webmanifest', 'utf8'))
+  : {};
+/*
+ * `id` giữ nguyên "/" dù `start_url` đổi: Chrome lấy `start_url` làm danh tính app khi thiếu `id`,
+ * nên đổi `start_url` mà không có `id` là người đã cài PWA thấy nó như một app khác.
+ */
+check(
+  'manifest mở vào /cong-thuc/ mà vẫn giữ danh tính app cũ (id "/")',
+  manifestGoc.start_url === '/cong-thuc/' && manifestGoc.id === '/',
+  `start_url ${String(manifestGoc.start_url)} · id ${String(manifestGoc.id)}`,
+);
+
+/*
+ * Khung ngoại tuyến của service worker không được là "/": ở bản triển khai "/" trả 301, và
+ * `cache.add()` sẽ cất một phản hồi chuyển hướng làm khung.
+ */
+check(
+  'service worker lấy /cong-thuc/ làm khung ngoại tuyến, không lấy trang chuyển hướng',
+  existsSync('out/sw.js') &&
+    /const SHELL = '\/cong-thuc\/';/.test(readFileSync('out/sw.js', 'utf8')),
 );
 
 /* ── Ký hiệu toán học trong HTML tĩnh — gói 2.4.3 ────────────────────────── */
@@ -329,7 +375,7 @@ check(
 
 check(
   'manifest được khai trong HTML và có mặt trong out/',
-  html.includes('rel="manifest"') && existsSync('out/manifest.webmanifest'),
+  listHtml.includes('rel="manifest"') && existsSync('out/manifest.webmanifest'),
 );
 
 check(
@@ -510,6 +556,8 @@ const failed = checks.filter((c) => !c.pass);
 console.log(`\n=== ${String(checks.length - failed.length)}/${String(checks.length)} đạt ===`);
 
 if (failed.length > 0) {
-  console.error('\nBản build tĩnh không đạt. Trang chủ là URL priority 1.0 của sitemap.');
+  console.error(
+    '\nBản build tĩnh không đạt. Màn Công thức là màn mở đầu, URL priority 1.0 của sitemap.',
+  );
   process.exit(1);
 }

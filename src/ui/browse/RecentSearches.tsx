@@ -10,11 +10,12 @@ import styles from './RecentSearches.module.css';
  * Bấm một chip làm gì — hai màn dùng khối này muốn hai chuyện khác hẳn nhau, và kiểu union ở đây
  * bắt phải chọn đúng MỘT, sai là lỗi typecheck chứ không phải lỗi lúc chạy.
  *
- * `onPick` — gọi lại tại chỗ, chip chỉ lọc chính màn đang đứng (màn tìm WF-09).
- * `hrefFor` — chip là `<a>` thật sang màn khác (trang chủ). Phải là link chứ không phải nút gọi
- * `router.push`: `useRouter` đòi app router đã mount, mà `HomeSearchPanel` được kiểm bằng
- * `render()` trần trong jsdom — 14 ca đỏ ngay khi thử. Link thật còn mở được tab mới và điều
- * hướng được cả khi JS chưa tải xong, đúng lẽ mà `FormulaCard` đã theo.
+ * `onPick` — gọi lại tại chỗ, chip chỉ lọc chính màn đang đứng (màn tìm WF-09, màn Công thức).
+ * `hrefFor` — chip là `<a>` thật sang màn khác. Trang chủ cũ dùng dạng này; từ khi nó gộp vào màn
+ * Công thức (15/09/2026) không màn nào dùng, nhưng hợp đồng giữ lại vì nó đúng cho bất cứ ô tìm nào
+ * nằm ở màn khác danh sách. Phải là link chứ không phải nút gọi `router.push`: `useRouter` đòi app
+ * router đã mount, nên component không còn `render()` trần được trong jsdom — 14 ca đỏ ngay khi thử.
+ * Link thật còn mở được tab mới và điều hướng được cả khi JS chưa tải xong, đúng lẽ `FormulaCard` theo.
  */
 type RecentSearchesAction =
   | { onPick: (term: string) => void; hrefFor?: never }

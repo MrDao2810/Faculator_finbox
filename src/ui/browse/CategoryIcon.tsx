@@ -23,9 +23,9 @@ import styles from './category-tone.module.css';
  * Vẫn KHÔNG thêm thư viện icon, cùng lẽ với `TabIcon`: 12 hình nhúng thẳng thì nhẹ hơn hẳn một
  * gói phụ thuộc kéo theo cả bộ (NFR-PER-04). Dùng `currentColor` nên icon lấy màu của chỗ đặt nó.
  *
- * KHÔNG `'use client'` và KHÔNG hook: `FormulaCard` (nhánh ô vuông) và `CategoryGrid` phải dựng
- * được ở phía server — chúng đi vào trang chủ qua `children` của `HomeSearchPanel`, và một hook
- * ở đây sẽ kéo cả hai vào gói máy khách, làm `out/index.html` mất phần Google đang đọc.
+ * KHÔNG `'use client'` và KHÔNG hook: `FormulaCard` (nhánh ô vuông) phải dựng được ở phía server
+ * — nó đi vào màn Công thức qua kệ `DailyShelf` do server dựng, và một hook ở đây sẽ kéo kệ vào gói
+ * máy khách, làm `out/cong-thuc/index.html` mất phần Google đang đọc.
  *
  * Nhóm lạ (id chưa khai) rơi về hình khối hộp, không ném lỗi: một nhóm mới chưa kịp vẽ icon vẫn
  * phải hiện ra được. `CategoryIcon.test.tsx` là chỗ bắt việc quên vẽ.

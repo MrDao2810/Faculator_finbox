@@ -152,7 +152,7 @@ describe('biến thể tile — lưới trang chủ WF-01', () => {
  * `onSelect` — nơi gọi dùng để ghi lịch sử tìm. Ca thứ hai là CỬA GÁC, và nó có mặt vì một lỗi
  * thật đã làm sập trang chủ.
  *
- * File này KHÔNG mang `'use client'` và được `page.tsx` cùng `StaticFormulaList` dựng ở phía
+ * File này KHÔNG mang `'use client'` và được kệ `DailyShelf` dựng ở phía
  * SERVER, còn `<Link>` là client component. Bản đầu gắn cứng `onClick={handleClick}` với
  * `handleClick` luôn tồn tại (bên trong gọi `onSelect?.()`), nên ở lượt dựng server có một hàm bị
  * đẩy qua ranh giới RSC và Next dừng hẳn trang: "Event handlers cannot be passed to Client

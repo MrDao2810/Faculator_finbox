@@ -73,7 +73,7 @@
  * được, cũng không đứng yên qua lần đổi import sau. Thêm tên thẻ đưa lên (0,1,1) — thắng chắc,
  * không cần `!important`, không đụng vào primitive.
  *
- * Đây không phải mẹo riêng của chỗ này: `button.reset` bên `CategoryFilter.module.css` đã ghi
+ * Đây không phải mẹo riêng của chỗ này: `button.reset` bên `FormulaListScreen.module.css` đã ghi
  * cùng lập luận cho cùng cái bẫy. Tên thẻ chắc chắn đúng vì `Button` luôn dựng ra `<button>` thật.
  *
  * Vùng chạm giữ 44px bằng lớp phủ `::after` trong suốt, đúng cách `ChartKindToggle` và `Chip` đã

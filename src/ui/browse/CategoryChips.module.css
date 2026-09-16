@@ -1,0 +1,178 @@
+/*
+ * Hàng chip nhóm — bản vẽ gộp trang chủ vào màn Công thức (15/09/2026).
+ *
+ * Hai nút ‹ › đứng CUỐI hàng, liền nhau, đúng chỗ bản vẽ đặt — không tách ra hai mép: tách ra thì
+ * nút trái đứng đè lên chip "Tất cả nhóm" ở vị trí người dùng bấm nhiều nhất.
+ */
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Khung cuộn ngang. `padding-block` 4px không phải khoảng thở: chip nhìn thấy cao 36px, vùng chạm
+ * 44px mở bằng `::after` như mọi chip của dự án — nhưng `overflow-x: auto` buộc cả chiều dọc cũng bị
+ * cắt, nên khung phải cao đủ 44px thì vùng chạm mới không bị xén mất 4px mỗi phía.
+ */
+.scroller {
+  flex: 1;
+  min-width: 0;
+  padding-block: var(--space-1);
+
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+/* `fieldset` mặc định có viền, đệm và `min-inline-size: min-content` — gỡ cả ba. */
+.group {
+  display: flex;
+  gap: var(--space-2);
+
+  width: max-content;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/*
+ * Nhãn bọc cả ô radio ẩn lẫn phần nhìn thấy. `position: relative` là để ô radio `visually-hidden`
+ * (vốn `position: absolute`) nằm TRONG chip: trình duyệt cuộn khung tới đúng chỗ ô nhận tiêu điểm,
+ * nên ô phải đứng ở chip của nó chứ không ở góc khung.
+ */
+.chip {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.face {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  min-height: 36px;
+  padding: 0 var(--space-3);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  white-space: nowrap;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* Vùng chạm 44px quanh chip 36px — NFR-USA-01. Chỉ nới dọc: nới ngang là chồng lên chip bên cạnh. */
+.face::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+.face:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+/*
+ * Đang chọn: đổi nền, đổi màu chữ VÀ in đậm — không để màu là dấu hiệu duy nhất (NFR-USA-06).
+ * Cùng bộ ba `ModeToggle` dùng cho nút đang sáng, nên hai điều khiển đứng cách nhau một hàng nói
+ * "đang chọn" bằng cùng một giọng.
+ */
+input:checked + .face {
+  font-weight: var(--weight-bold);
+  color: var(--color-on-selected);
+  background: var(--gradient-highlight);
+  border-color: transparent;
+}
+
+input:focus-visible + .face {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.dot {
+  color: var(--color-muted);
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-soft);
+}
+
+input:checked + .face .dot,
+input:checked + .face .count {
+  color: inherit;
+}
+
+/*
+ * ── Con số đi theo chế độ hiển thị, không cần một byte JS nào ────────────────────────────────
+ *
+ * KHÔNG có thuộc tính nghĩa là **Cơ bản** — khớp `DEFAULT_PREFERENCES.mode`, khớp HTML tĩnh và máy
+ * chặn localStorage. Nên điều kiện viết theo hướng `:not(...)`, không bao giờ liệt kê
+ * `[data-mode='basic']`: chỉ liệt kê thì mất hẳn ca mặc định. `CategoryChips.test.tsx` gác chiều này.
+ */
+.countBasic,
+.countAdvanced {
+  display: none;
+}
+
+:global(html:not([data-mode='advanced'])) .countBasic {
+  display: inline;
+}
+
+:global(html[data-mode='advanced']) .countAdvanced {
+  display: inline;
+}
+
+/* Nút cuộn — ẩn dưới 1024px, nơi hàng chip vuốt được bằng tay. */
+.arrow {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .arrow {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    color: var(--color-ink-soft);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  .arrow:hover:not(:disabled) {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Hết đường cuộn thì nút mờ đi và thôi nhận chuột — vẫn giữ chỗ để hàng không xô lệch. */
+  .arrow:disabled {
+    color: var(--color-muted);
+    background: var(--color-sunken);
+    cursor: default;
+  }
+}

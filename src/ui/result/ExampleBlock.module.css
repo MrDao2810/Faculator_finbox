@@ -55,9 +55,22 @@
   color: var(--color-ink);
 }
 
+/*
+ * `--text-xs` từng khiến câu mô tả đọc như chữ chua nhỏ đi kèm, trong khi nó lại là câu QUAN
+ * TRỌNG NHẤT của cả khối — kể chuyện gì đã xảy ra. Nâng lên `--text-sm`, ngang cỡ `.subtitle` và
+ * `.term`, chủ dự án chốt 16/09/2026 vì bản cũ "đang để quá nhỏ".
+ */
 .note {
   margin: 0;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+/* Dòng trích dẫn nguồn — cùng cỡ với `.note` (đọc được ngang nhau) nhưng nhạt hơn một bậc, đúng
+   vai một dòng chú thích đứng sau câu mô tả, không phải một câu cùng trọng lượng với nó. */
+.source {
+  margin: 0;
+  font-size: var(--text-sm);
   color: var(--color-muted);
 }
 

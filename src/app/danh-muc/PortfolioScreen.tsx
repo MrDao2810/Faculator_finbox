@@ -11,9 +11,13 @@ import {
   MAX_HOLDINGS,
   PORTFOLIO_KEY,
   PRICE_CACHE_KEY,
+  SAVED_CALCS_ANCHOR,
+  SAVED_CALCS_KEY,
   addHolding,
+  displayCalcName,
   formatIsoDate,
   formatNumber,
+  formatValueWithUnit,
   formulaPath,
   isAbortError,
   isCalculated,
@@ -22,10 +26,13 @@ import {
   oldestAsOf,
   parseCachedPrices,
   parseHoldings,
+  parseSavedCalcs,
   parseViNumber,
   removeHolding,
+  removeSavedCalc,
   serializeCachedPrices,
   serializeHoldings,
+  serializeSavedCalcs,
   summarisePortfolio,
   updateHolding,
 } from '@/application';
@@ -34,12 +41,13 @@ import type {
   CachedQuote,
   Holding,
   PriceState,
+  SavedCalc,
   TickerRef,
   TickerSnapshot,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { HiddenByLevelNote } from '@/ui/browse';
-import { useCalcText } from '@/ui/i18n/units';
+import { useCalcText, useValueText } from '@/ui/i18n/units';
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from '@/ui/inputs';
 import { DisclaimerBar } from '@/ui/navigation';
 import { Button, Input } from '@/ui/primitives';
@@ -107,6 +115,30 @@ function todayIso(): string {
   const day = `${now.getDate()}`.padStart(2, '0');
   return `${now.getFullYear()}-${month}-${day}`;
 }
+
+/**
+ * Mốc epoch thành ngày ISO 'YYYY-MM-DD' theo giờ **địa phương**, để đưa cho `formatIsoDate()`.
+ *
+ * Không dùng `toISOString().slice(0, 10)`: hàm đó đổi sang UTC, nên một phép tính lưu lúc 7 giờ
+ * sáng ở Việt Nam sẽ hiện ra ngày hôm trước — cùng lý do `todayIso()` ngay trên tự ghép chuỗi.
+ */
+function isoDayOf(ms: number): string {
+  const date = new Date(ms);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/**
+ * Thời gian tối đa màn giữ khối "Phép tính đã lưu" ở đầu tầm nhìn sau khi đáp xuống bằng neo.
+ *
+ * Đủ dài để phủ lời gọi thị giá trên mạng di động chậm (đo trên dev server: vài trăm mili giây),
+ * và không bao giờ là lý do chính để dừng — người dùng chạm vào màn là dừng ngay. Xem effect cuộn
+ * tới neo trong `PortfolioScreen`.
+ */
+const HOLD_ANCHOR_MS = 8000;
 
 /**
  * Số ô mà chế độ Cơ bản giấu đi — Beta và XIRR.
@@ -239,6 +271,7 @@ export function PortfolioScreen() {
   const t = useT();
   const pick = usePick();
   const calcText = useCalcText();
+  const valueText = useValueText();
 
   const router = useRouter();
   const { mode } = usePreferences();
@@ -297,8 +330,20 @@ export function PortfolioScreen() {
    */
   const [pendingOpen, setPendingOpen] = useState<{ id: string; code: string } | null>(null);
 
+  /**
+   * Các phép tính người dùng bấm "Lưu vào danh mục" ở màn chi tiết công thức.
+   *
+   * Khối bày chúng từng là tab "Công thức" và bị gỡ cùng cụm tab (14/09/2026), trong khi nút Lưu
+   * ở 111 màn chi tiết vẫn ghi vào kho — tức lưu xong không có chỗ nào để thấy lại. Chủ dự án báo
+   * đúng hệ quả ấy như một lỗi (15/09/2026), nên khối quay lại, lần này KHÔNG có tab: nó là khối
+   * thứ hai của cùng một màn, đứng dưới khối Nắm giữ.
+   */
+  const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
+
   /** Form thêm/sửa mã, để đưa nó vào tầm mắt khi mở — xem effect dưới `formOpen`. */
   const formRef = useRef<HTMLDivElement>(null);
+  /** Khối "Phép tính đã lưu", để cuộn tới khi URL mang neo của nó — xem effect dưới `loaded`. */
+  const savedRef = useRef<HTMLElement>(null);
 
   const openSheet = useCallback((kind: SheetKind): void => {
     setMountedSheets((current) => (current.has(kind) ? current : new Set(current).add(kind)));
@@ -330,12 +375,95 @@ export function PortfolioScreen() {
       // localStorage bị chặn — màn vẫn dùng được, chỉ không nhớ giữa hai lần mở.
     }
 
+    try {
+      setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
+    } catch {
+      // Cùng lý do ngay trên — không đọc được thì coi như chưa lưu gì, khối tự ẩn.
+    }
+
     /*
      * Không còn nhánh đọc `?tab=cong-thuc`: cụm tab đã bỏ (14/09/2026), nên tham số ấy không mở
      * ra được gì nữa. URL cũ ai đó đã bookmark vẫn vào đúng màn này, chỉ là tham số bị lờ đi.
+     * Lối vào thẳng khối phép tính đã lưu nay là neo `#phep-tinh-da-luu` — xem effect ngay dưới.
      */
     setAsOf(todayIso());
     setLoaded(true);
+  }, []);
+
+  /*
+   * Cuộn tới khối "Phép tính đã lưu" khi URL mang neo của nó — đích đến của nút Lưu ở màn chi
+   * tiết công thức (`savedCalcsPath()`) — và GIỮ nó ở đó cho tới khi bố cục phía trên thôi đổi.
+   *
+   * Không trông vào việc trình duyệt tự nhảy tới neo: khối chỉ dựng khi kho có mục, mà kho đọc từ
+   * localStorage TRONG effect, nên lúc trình duyệt dò neo thì phần tử mang `id` ấy chưa có.
+   *
+   * Cuộn MỘT LẦN cũng không đủ, và đây là số đo trên Chrome thật chứ không phải phỏng đoán (danh
+   * mục 6 mã, dev server): cuộn ngay lúc `loaded` thì thị giá còn chưa về. Vài trăm mili giây sau
+   * lời gọi Finbox trả lời, mỗi dòng Nắm giữ cao thêm một hàng (tỷ trọng, lãi/lỗ) và dải "Giá
+   * phiên" hiện ra — cả khối Phép tính đã lưu bị đẩy xuống. Kết quả đo được: mép trên khối dừng ở
+   * 702/780px (khổ 360) và 889/900px (khổ 1440), tức chỉ ló ra ở đáy màn. Đúng cảm giác "lưu xong
+   * không thấy đâu" mà lỗi này sinh ra để chữa.
+   *
+   * Cơ chế neo cuộn sẵn có của trình duyệt (`overflow-anchor`) không cứu được: nó chọn phần tử
+   * ĐANG trong tầm nhìn làm mốc, mà lúc thị giá về thì các dòng Nắm giữ vẫn nằm trong tầm nhìn.
+   *
+   * Nên: `ResizeObserver` trên khung màn, mỗi lần khung đổi cỡ thì canh lại khối lên đầu. Hai điều
+   * kiện dừng, và điều kiện đầu là thứ quyết định việc này có được phép làm hay không:
+   *
+   *   1. Người dùng TỰ thao tác (lăn chuột, chạm, nhấn phím, bấm) — từ lúc ấy màn thôi giành cuộn.
+   *      Kéo người ta về chỗ cũ trong lúc họ đang cuộn đi là một lỗi tệ hơn lỗi đang chữa.
+   *   2. Quá `HOLD_ANCHOR_MS` — mạng chậm tới đâu thì cũng không giữ vô hạn.
+   *
+   * `behavior: 'auto'` chứ không `smooth`: đây là lượt đáp xuống sau khi chuyển trang, cùng bản
+   * chất với cú nhảy tới neo của trình duyệt, không phải một thao tác trong trang. Và một lượt cuộn
+   * mượt đang chạy dở sẽ bị lượt canh lại kế tiếp cắt ngang thành một cú giật.
+   */
+  useEffect(() => {
+    if (!loaded) return;
+    if (window.location.hash !== `#${SAVED_CALCS_ANCHOR}`) return;
+
+    const target = savedRef.current;
+    if (target === null || typeof target.scrollIntoView !== 'function') return;
+
+    const align = (): void => {
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    };
+
+    // Lượt đầu chờ một khung hình: effect chạy sau commit nhưng có thể trước lượt tính bố cục.
+    const frame = window.requestAnimationFrame(align);
+
+    let observer: ResizeObserver | null = null;
+    const root = target.parentElement;
+    if (root !== null && typeof ResizeObserver === 'function') {
+      observer = new ResizeObserver(align);
+      observer.observe(root);
+    }
+
+    const USER_EVENTS = ['wheel', 'touchstart', 'pointerdown', 'keydown'] as const;
+    let timer = 0;
+    const release = (): void => {
+      observer?.disconnect();
+      observer = null;
+      window.clearTimeout(timer);
+      for (const name of USER_EVENTS) window.removeEventListener(name, release);
+    };
+    for (const name of USER_EVENTS) window.addEventListener(name, release, { passive: true });
+    timer = window.setTimeout(release, HOLD_ANCHOR_MS);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      release();
+    };
+  }, [loaded]);
+
+  /** Ghi lại kho phép tính đã lưu sau mỗi lần xoá một mục. */
+  const persistSaved = useCallback((next: ReadonlyArray<SavedCalc>): void => {
+    setSavedCalcs(next);
+    try {
+      window.localStorage.setItem(SAVED_CALCS_KEY, serializeSavedCalcs(next));
+    } catch {
+      // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
+    }
   }, []);
 
   /*
@@ -747,33 +875,15 @@ export function PortfolioScreen() {
         ⚠ CỤM TAB (Mã · Công thức) đã BỎ — chủ dự án chốt 14/09/2026: *"bỏ tabbar đi và giữ lại
         toàn bộ giao diện và logic thêm mã cổ phiếu cũ"*. Màn này nay chỉ còn MỘT nội dung.
 
-        Đi theo nó: panel "phép tính đã lưu", `?tab=cong-thuc`, và mọi state chỉ phục vụ việc đổi
-        tab (`tab`, `switchTab`, `tablistRef`, `tabJustClicked`, cùng effect cuộn cụm tab trở lại
-        tầm mắt — thứ chỉ có nghĩa khi hai panel chênh nhau cả nghìn pixel).
+        Đi theo nó: `?tab=cong-thuc` và mọi state chỉ phục vụ việc đổi tab (`tab`, `switchTab`,
+        `tablistRef`, `tabJustClicked`, cùng effect cuộn cụm tab trở lại tầm mắt — thứ chỉ có nghĩa
+        khi hai panel chênh nhau cả nghìn pixel).
 
-        ⚠ HỆ QUẢ CÒN TREO, ghi ra để không ai tưởng là đã xong: nút "Lưu vào danh mục" ở 111 màn
-        chi tiết VẪN ghi vào `ffb.savedCalcs.v1`, nhưng nay không còn màn nào bày kho ấy ra. Câu
-        xác nhận "Đã lưu vào Danh mục › Công thức" cũng trỏ vào một tab không còn tồn tại. Chủ dự
-        án biết và chọn để vậy ở lượt này. `saved-calc-store.ts` cùng `saved-calc-name.ts` giữ
-        nguyên kèm ca kiểm — bày lại ở đâu đó chỉ còn là việc dựng UI.
+        Panel "phép tính đã lưu" cũng đi theo lượt ấy, và để lại một lỗi thật: nút "Lưu vào danh
+        mục" ở 111 màn chi tiết vẫn ghi vào kho, nhưng không còn chỗ nào bày kho ra. Chủ dự án báo
+        lại đúng lỗi đó (15/09/2026) — nay danh sách quay về thành KHỐI THỨ HAI của màn, ngay dưới
+        khối Nắm giữ, không tab nào. Quyết định "bỏ tabbar" giữ nguyên.
       */}
-
-      {/*
-        UI-04 (mức M) đòi dải miễn trừ nằm trong TẦM NHÌN ĐẦU TIÊN của trang có kết quả, và màn
-        này bày sáu ô tiền ngay đầu màn — trong đó có lãi/lỗ của chính người dùng, tức con số dễ bị
-        đọc thành lời khuyên nhất trong cả sản phẩm (rủi ro R-06). Cùng lý do bản `notice` đã có ở
-        màn chi tiết công thức.
-
-        NGOÀI cả hai tab, không nằm trong tab Mã như trước. Từ 09/09/2026 đây là câu miễn trừ DUY
-        NHẤT của màn: `showsFooterDisclaimer()` đã trừ `/danh-muc/` ra nên dải xám chân trang không
-        còn dựng ở đây nữa. Để nguyên nó trong tab Mã thì tab Công thức trắng câu miễn trừ — mà
-        `usePathname()` không nhìn thấy `?tab=`, nên bên `routes.ts` không có cách nào bù lại. Đổi
-        chỗ ô này là điều kiện để dòng trừ bên ấy hợp lệ; docblock của hàm ghi cùng chuyện.
-
-        Bấm sang tab Công thức KHÔNG dựng lại ô: nó nằm ngoài nhánh ba ngôi nên React giữ nguyên
-        node, đúng như cụm tab ngay trên.
-      */}
-      <DisclaimerBar variant="notice" />
 
       {/*
         `styles.panel` KHÔNG được bỏ, dù lớp bọc này thôi làm tabpanel từ 14/09/2026.
@@ -1437,6 +1547,102 @@ export function PortfolioScreen() {
       </div>
 
       {/*
+        Khối "Phép tính đã lưu" — đích của nút Lưu ở màn chi tiết công thức.
+
+        CHỈ dựng khi kho có ít nhất một mục. Bản tab cũ có ô rỗng kèm câu hướng dẫn, và ở đó nó
+        đúng: người dùng đã chủ động bấm sang tab. Nay khối nằm thường trực dưới danh mục của MỌI
+        người, kể cả người chưa từng bấm Lưu — một ô rỗng thường trực là đúng thứ chủ dự án đã gỡ
+        khi bỏ tabbar. Người dùng tới được khối này chỉ bằng việc lưu, nên họ luôn thấy nó có mục.
+
+        Nằm NGOÀI `.panel` của khối Nắm giữ: `.screen` đã giãn cách các con trực tiếp của nó.
+      */}
+      {savedCalcs.length > 0 && (
+        <section
+          ref={savedRef}
+          id={SAVED_CALCS_ANCHOR}
+          className={`${styles.block} ${styles.savedBlock}`}
+          aria-labelledby="portfolio-saved"
+        >
+          <h2 className={styles.blockTitle} id="portfolio-saved">
+            {t('portfolio.savedTitle')}
+          </h2>
+
+          <ul className={styles.savedList}>
+            {savedCalcs.map((saved) => {
+              const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
+              // Công thức bị gỡ khỏi Registry thì id vẫn là thứ nhận ra được, hơn là một dòng trống.
+              const formulaName = summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
+
+              /*
+                Tên đã cất là chuỗi ĐÃ GHÉP ở ngôn ngữ lúc bấm Lưu, nên đổi sang EN nó vẫn tiếng
+                Việt trong khi dòng phụ ngay dưới đã dịch. `displayCalcName()` nhận ra tên nào vốn
+                là GỢI Ý rồi dựng lại ở ngôn ngữ đang xem; tên người dùng tự gõ giữ nguyên từng chữ.
+              */
+              const savedName =
+                summaryOf === undefined
+                  ? saved.name
+                  : displayCalcName({
+                      stored: saved.name,
+                      viName: summaryOf.name.vi,
+                      localName: formulaName,
+                      ...(saved.code === undefined ? {} : { code: saved.code }),
+                      ...(saved.resultValue === null
+                        ? {}
+                        : {
+                            viResult: formatValueWithUnit(saved.resultValue, saved.resultUnit),
+                            localResult: valueText(saved.resultValue, saved.resultUnit),
+                          }),
+                      savedAt: saved.savedAt,
+                    });
+
+              /*
+                Dòng phụ chỉ nói những gì DÒNG TÊN chưa nói: tên tự sinh có dạng "<mã> · <tên công
+                thức> · <ngày>", nên mảnh nào đã nằm trong tên thì bỏ. "lưu <ngày>" thì KHÔNG bao
+                giờ bị lọc — đó là chỗ duy nhất nói con số này thuộc một MỐC chứ không vừa tính xong.
+              */
+              const metaParts = [saved.code, formulaName]
+                .filter((part): part is string => part !== undefined)
+                .filter((part) => !savedName.includes(part));
+              metaParts.push(`${t('portfolio.savedAt')} ${formatIsoDate(isoDayOf(saved.savedAt))}`);
+              if (saved.needsSeries) metaParts.push(t('portfolio.savedNeedsSeries'));
+
+              return (
+                <li key={saved.id} className={styles.savedRow}>
+                  <p className={styles.savedName}>{savedName}</p>
+
+                  {/*
+                    "Xem" là `<Link>` chứ không `<button>`: điều hướng sang màn khác thì phải mở
+                    được bằng chuột giữa và menu ngữ cảnh. Con số kết quả không bày ở đây — chủ dự
+                    án chốt từ bản tab: *"số liệu thì khi mở lại thì mới thấy được"*.
+                  */}
+                  <div className={styles.savedActions}>
+                    <Link
+                      className={`${styles.savedAction} ${styles.savedActionOpen}`}
+                      href={`${formulaPath(saved.formulaId)}?luu=${saved.id}`}
+                    >
+                      {t('portfolio.savedOpen')}
+                    </Link>
+                    <button
+                      type="button"
+                      className={`${styles.savedAction} ${styles.savedActionRemove}`}
+                      aria-label={`${t('portfolio.savedRemove')} ${savedName}`}
+                      onClick={() => {
+                        persistSaved(removeSavedCalc(savedCalcs, saved.id));
+                      }}
+                    >
+                      {t('portfolio.savedRemove')}
+                    </button>
+                  </div>
+
+                  <p className={styles.savedMeta}>{metaParts.join(' · ')}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/*
         ⚠ Dải "CỤC BỘ · Số lượng và giá vốn chỉ lưu trên thiết bị này. Chỉ mã cổ phiếu được gửi tới
         Finbox để tra thị giá." đã BỎ — chủ dự án chốt (09/09/2026).
 
@@ -1448,6 +1654,18 @@ export function PortfolioScreen() {
         Bản thân cam kết KHÔNG đổi — số lượng, giá vốn và ngày mua vẫn không bao giờ vào một request
         (xem `src/data/finbox/`), và ca kiểm chặn điều đó vẫn còn. Chỉ là màn thôi nói ra.
       */}
+
+      {/*
+        Ô miễn trừ đứng CUỐI MÀN, sau cả khối Phép tính đã lưu — chủ dự án chốt 15/09/2026: *"nội
+        dung cảnh báo cho xuống cuối trang"*. Trước đó nó đứng đầu màn, trên sáu ô tiền, theo UI-04
+        (mức M: miễn trừ trong tầm nhìn đầu tiên của trang có kết quả). Đổi chỗ là quyết định sản
+        phẩm, cùng lượt với màn chi tiết công thức.
+
+        Đây vẫn là câu miễn trừ DUY NHẤT của màn: `showsFooterDisclaimer()` trừ `/danh-muc/` ra nên
+        dải xám chân trang không dựng ở đây. Ô nằm ngoài mọi nhánh điều kiện nên có ở mọi trạng thái
+        của màn — rỗng, đang tải, lỗi thị giá — và đó là điều kiện để dòng trừ bên ấy hợp lệ.
+      */}
+      <DisclaimerBar variant="notice" />
 
       {mountedSheets.has('ticker') && (
         <TickerPickerSheet

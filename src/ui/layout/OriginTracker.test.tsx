@@ -11,7 +11,7 @@ import { OriginTracker } from './OriginTracker';
  * `usePathname()` chỉ để effect chạy lại khi đổi màn; nội dung thật lấy từ `window.location`,
  * đúng như component làm (xem docblock của nó về việc vì sao không dùng `useSearchParams`).
  */
-const pathname = vi.hoisted(() => ({ value: '/' }));
+const pathname = vi.hoisted(() => ({ value: '/cong-thuc/' }));
 vi.mock('next/navigation', () => ({
   usePathname: () => pathname.value,
 }));
@@ -25,17 +25,17 @@ function dungO(url: string): void {
 afterEach(cleanup);
 beforeEach(() => {
   window.sessionStorage.clear();
-  dungO('/');
+  dungO('/cong-thuc/');
   window.scrollY = 0;
 });
 
 describe('OriginTracker — ghi màn gốc', () => {
   it('ghi ngay khi gắn, để một màn vừa mở đã bấm vào công thức vẫn được nhớ', () => {
-    dungO('/');
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
 
     expect(parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY))).toEqual({
-      url: '/',
+      url: '/cong-thuc/',
       scrollY: 0,
     });
   });
@@ -54,7 +54,7 @@ describe('OriginTracker — ghi màn gốc', () => {
    * Đây cũng là chỗ bắt được vị trí cuộn mới nhất mà không phải ghi mỗi khung hình.
    */
   it('bấm chuột thì ghi lại vị trí cuộn ngay tại thời điểm ấy', () => {
-    dungO('/');
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
 
     window.scrollY = 640;
@@ -64,7 +64,7 @@ describe('OriginTracker — ghi màn gốc', () => {
   });
 
   it('người dùng bàn phím cũng được nhớ — họ không sinh ra pointerdown nào', () => {
-    dungO('/');
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
 
     window.scrollY = 320;
@@ -78,7 +78,7 @@ describe('OriginTracker — ghi màn gốc', () => {
    * lại của trang đang đứng mất đích.
    */
   it('ở trang chi tiết thì không ghi đè, cũng không xoá bản ghi cũ', () => {
-    dungO('/');
+    dungO('/cong-thuc/');
     const first = render(<OriginTracker />);
     first.unmount();
 
@@ -87,7 +87,7 @@ describe('OriginTracker — ghi màn gốc', () => {
     render(<OriginTracker />);
     fireEvent.pointerDown(document.body);
 
-    expect(parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY))?.url).toBe('/');
+    expect(parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY))?.url).toBe('/cong-thuc/');
   });
 
   /** Mở một màn rồi rời đi, đúng cách `usePathname()` làm effect chạy lại. */
@@ -144,7 +144,7 @@ describe('OriginTracker — ghi màn gốc', () => {
   });
 
   it('gỡ hết listener khi rời màn — không để lại cái nào ghi tiếp', () => {
-    dungO('/');
+    dungO('/cong-thuc/');
     const { unmount } = render(<OriginTracker />);
     unmount();
 
@@ -164,9 +164,9 @@ describe('OriginTracker — khôi phục vị trí cuộn', () => {
   it('bấm quay lại rồi về đúng màn thì cuộn về chỗ cũ', async () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
-    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/', scrollY: 640 }));
-    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/');
-    dungO('/');
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/cong-thuc/', scrollY: 640 }));
+    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/cong-thuc/');
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
     await haiKhungHinh();
 
@@ -175,14 +175,14 @@ describe('OriginTracker — khôi phục vị trí cuộn', () => {
   });
 
   /*
-   * Ca giữ cho tính năng không thành phiền toái: mọi lần mở trang chủ đều KHỚP bản ghi, nên nếu
-   * suy "quay lại" từ việc URL khớp thì bấm mục Trang chủ ở thanh dưới cũng nhảy cuộn.
+   * Ca giữ cho tính năng không thành phiền toái: mọi lần mở màn Công thức trơn đều KHỚP bản ghi, nên
+   * nếu suy "quay lại" từ việc URL khớp thì bấm mục Công thức ở thanh điều hướng cũng nhảy cuộn.
    */
   it('KHÔNG cuộn khi vào màn theo lối thường — chỉ cú bấm quay lại mới đặt cờ', async () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
-    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/', scrollY: 640 }));
-    dungO('/');
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/cong-thuc/', scrollY: 640 }));
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
     await haiKhungHinh();
 
@@ -193,9 +193,9 @@ describe('OriginTracker — khôi phục vị trí cuộn', () => {
   it('cờ dùng xong là hết hiệu lực, không dội sang lượt điều hướng sau', async () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
-    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/', scrollY: 640 }));
-    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/');
-    dungO('/');
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/cong-thuc/', scrollY: 640 }));
+    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/cong-thuc/');
+    dungO('/cong-thuc/');
     const { unmount } = render(<OriginTracker />);
     await haiKhungHinh();
     unmount();
@@ -233,9 +233,9 @@ describe('OriginTracker — khôi phục vị trí cuộn', () => {
   it('cờ trỏ một màn khác thì không cuộn — người dùng đã đi chỗ khác giữa chừng', async () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
-    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/', scrollY: 640 }));
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/cong-thuc/', scrollY: 640 }));
     window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/danh-muc/');
-    dungO('/');
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
     await haiKhungHinh();
 
@@ -250,9 +250,9 @@ describe('OriginTracker — khôi phục vị trí cuộn', () => {
   it('lần ghi lúc gắn không được xoá mất vị trí đang chờ khôi phục', async () => {
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
-    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/', scrollY: 640 }));
-    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/');
-    dungO('/');
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/cong-thuc/', scrollY: 640 }));
+    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/cong-thuc/');
+    dungO('/cong-thuc/');
     render(<OriginTracker />);
     await haiKhungHinh();
 

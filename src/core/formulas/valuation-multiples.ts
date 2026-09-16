@@ -157,14 +157,18 @@ export const PS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Giá 92.000 ₫, doanh thu 45.000 ₫/CP',
-        en: 'Price 92,000 ₫, revenue 45,000 ₫/share',
+        vi: 'FPT — giá 72.300 ₫, doanh thu 37.157 ₫/CP',
+        en: 'FPT — price 72,300 ₫, revenue 37,157 ₫/share',
       },
-      inputs: { price: 92_000, salesPerShare: 45_000 },
-      expected: 2.04,
+      inputs: { price: 72_300, salesPerShare: 37_157 },
+      expected: 1.95,
       note: {
-        vi: 'Mỗi đồng doanh thu đang được trả giá hơn hai đồng.',
-        en: 'Each dong of revenue is being priced at more than two dong.',
+        vi: 'Mỗi đồng doanh thu của FPT đang được trả giá gần hai đồng.',
+        en: 'Each dong of FPT’s revenue is being priced at nearly two dong.',
+      },
+      source: {
+        vi: 'Finbox_v2, BCTC quý gần nhất của FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) latest quarterly financials, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -307,14 +311,18 @@ export const EV: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn hoá 9.200 tỷ ₫, nợ vay 3.500 tỷ ₫, tiền mặt 1.200 tỷ ₫',
-        en: 'Market cap 9,200 billion ₫, debt 3,500 billion ₫, cash 1,200 billion ₫',
+        vi: 'FPT — vốn hoá 123.946 tỷ ₫, giả định nợ vay 3.500 tỷ ₫, tiền mặt 1.200 tỷ ₫',
+        en: 'FPT — market cap 123,946 billion ₫, assumed debt 3,500 billion ₫, cash 1,200 billion ₫',
       },
-      inputs: { marketCap: 9_200, totalDebt: 3_500, cash: 1_200 },
-      expected: 11_500,
+      inputs: { marketCap: 123_946, totalDebt: 3_500, cash: 1_200 },
+      expected: 126_246,
       note: {
-        vi: 'Muốn mua trọn doanh nghiệp này thực chất phải bỏ ra 11.500 tỷ ₫.',
-        en: 'Buying the whole company actually requires 11,500 billion ₫.',
+        vi: 'Nợ vay và tiền mặt dùng mức minh hoạ vì Finbox_v2 không tách hai khoản này khỏi tổng nợ phải trả. Muốn mua trọn FPT ở mức này thực chất phải bỏ ra 126.246 tỷ ₫.',
+        en: 'Debt and cash are illustrative, since Finbox_v2 does not separate them out of total liabilities. Buying all of FPT at this level would actually cost 126,246 billion ₫.',
+      },
+      source: {
+        vi: 'Finbox_v2, vốn hoá FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) market cap, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -547,11 +555,19 @@ export const EV_SALES: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'EV 11.500 tỷ ₫, doanh thu 9.800 tỷ ₫',
-        en: 'EV 11,500 billion ₫, revenue 9,800 billion ₫',
+        vi: 'FPT — EV 126.246 tỷ ₫ (nối từ ví dụ công thức EV), doanh thu 63.698,4 tỷ ₫',
+        en: 'FPT — EV 126,246 billion ₫ (carried over from the EV example), revenue 63,698.4 billion ₫',
       },
-      inputs: { ev: 11_500, revenue: 9_800 },
-      expected: 1.17,
+      inputs: { ev: 126_246, revenue: 63_698.4 },
+      expected: 1.98,
+      note: {
+        vi: 'EV lấy từ ví dụ công thức EV ở trên.',
+        en: 'EV is carried from the EV formula example above.',
+      },
+      source: {
+        vi: 'Finbox_v2, doanh thu FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) revenue, locked in 2026-09-08.',
+      },
     },
     tests: [
       {
@@ -679,14 +695,18 @@ export const PEG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'P/E 15,2 lần, tăng trưởng kỳ vọng 12%/năm',
-        en: 'P/E 15.2x, expected growth 12%/year',
+        vi: 'VNM — P/E 11,59 lần, giả định tăng trưởng 8%/năm',
+        en: 'VNM — P/E 11.59x, assumed growth 8%/year',
       },
-      inputs: { pe: 15.2, growth: 12 },
-      expected: 1.27,
+      inputs: { pe: 11.59, growth: 8 },
+      expected: 1.45,
       note: {
-        vi: 'Trên 1 một chút — định giá tương xứng với tốc độ tăng trưởng.',
-        en: 'A little above 1 — the valuation is roughly in line with the growth rate.',
+        vi: 'Tăng trưởng dùng mức giả định. Trên 1 khá rõ — hợp với một cổ phiếu tăng trưởng chậm nhưng chi trả cổ tức đều như VNM.',
+        en: 'Growth is an assumption. Well above 1 — fitting for a slow-growth stock with a steady dividend like VNM.',
+      },
+      source: {
+        vi: 'Finbox_v2, P/E Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) P/E, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -817,14 +837,18 @@ export const VON_HOA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Giá 92.000 ₫, 118 triệu cổ phiếu lưu hành',
-        en: 'Price 92,000 ₫, 118 million shares outstanding',
+        vi: 'HPG — giá 21.850 ₫, 8.442,96 triệu cổ phiếu lưu hành',
+        en: 'HPG — price 21,850 ₫, 8,442.96 million shares outstanding',
       },
-      inputs: { price: 92_000, shares: 118 },
-      expected: 10_856,
+      inputs: { price: 21_850, shares: 8_442.96 },
+      expected: 184_479,
       note: {
-        vi: 'Thuộc nhóm vốn hoá lớn trên sàn HOSE.',
-        en: 'Falls in the large-cap group on the HOSE exchange.',
+        vi: 'Khớp đúng vốn hoá 184.479 tỷ ₫ mà Hoà Phát báo cáo.',
+        en: 'Matches Hoa Phat’s own reported market cap of 184,479 billion ₫.',
+      },
+      source: {
+        vi: 'Finbox_v2, giá và số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) price and share count, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -962,14 +986,18 @@ export const SO_GRAHAM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'EPS 6.050 ₫, giá trị sổ sách 24.800 ₫/CP',
-        en: 'EPS 6,050 ₫, book value 24,800 ₫/share',
+        vi: 'Vinamilk — một bài phân tích đo “biên an toàn” bằng số Graham',
+        en: 'Vinamilk — a write-up measuring its margin of safety with the Graham number',
       },
-      inputs: { eps: 6_050, bvps: 24_800 },
-      expected: 58_102.5,
+      inputs: { eps: 4_914, bvps: 17_554 },
+      expected: 44_055.17,
       note: {
-        vi: 'Giá thị trường 92.000 ₫ đang cao hơn hẳn mức trần theo chuẩn Graham.',
-        en: 'The market price of 92,000 ₫ is well above the Graham ceiling.',
+        vi: 'EPS 4.914 ₫ và BVPS 17.554 ₫ ở trên là hai số bài viết dùng để tính P/E, P/B rồi kết luận cổ phiếu còn "biên an toàn dài hạn".',
+        en: 'The EPS of 4,914 ₫ and BVPS of 17,554 ₫ above are the pair the article used to work out its P/E and P/B, concluding the stock still had a long-term margin of safety.',
+      },
+      source: {
+        vi: 'Finhay.vn, bài phân tích Vinamilk (VNM), số liệu đến 30/06/2026.',
+        en: 'Finhay.vn, a Vinamilk (VNM) write-up, figures as of 2026-06-30.',
       },
     },
     tests: [
@@ -1130,14 +1158,18 @@ export const NCAV: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Tài sản ngắn hạn 4.800 tỷ ₫, tổng nợ 2.600 tỷ ₫, 118 triệu CP',
-        en: 'Current assets 4,800 billion ₫, total liabilities 2,600 billion ₫, 118 million shares',
+        vi: 'VNM — tổng nợ 19.120,6 tỷ ₫, 2.089,96 triệu CP, giả định tài sản ngắn hạn 26.000 tỷ ₫',
+        en: 'VNM — liabilities 19,120.6 billion ₫, 2,089.96 million shares, assumed current assets 26,000 billion ₫',
       },
-      inputs: { currentAssets: 4_800, totalLiabilities: 2_600, shares: 118 },
-      expected: 18_644.07,
+      inputs: { currentAssets: 26_000, totalLiabilities: 19_120.6, shares: 2_089.96 },
+      expected: 3_291.64,
       note: {
-        vi: 'Giá thị trường dưới mức này mới được coi là cổ phiếu net-net.',
-        en: 'Only a market price below this level would make the stock a net-net.',
+        vi: 'Tài sản ngắn hạn dùng mức minh hoạ vì Finbox_v2 không tách riêng mục này. Thị giá 60.800 ₫ còn cách rất xa mức này — VNM không phải cổ phiếu net-net.',
+        en: 'Current assets is illustrative, since Finbox_v2 does not break out that line. The market price of 60,800 ₫ sits far above this level — VNM is nowhere near a net-net.',
+      },
+      source: {
+        vi: 'Finbox_v2, tổng nợ và số cổ phiếu Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) liabilities and share count, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -1248,12 +1280,19 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'EPS 6.050 ₫, giá 92.000 ₫', en: 'EPS 6,050 ₫, price 92,000 ₫' },
-      inputs: { eps: 6_050, price: 92_000 },
-      expected: 6.58,
+      title: {
+        vi: 'FPT — EPS 5.867 ₫, giá 72.300 ₫',
+        en: 'FPT — EPS 5,867 ₫, price 72,300 ₫',
+      },
+      inputs: { eps: 5_867, price: 72_300 },
+      expected: 8.11,
       note: {
-        vi: 'Đúng bằng 1 chia cho P/E 15,2 lần của ví dụ WF-03.',
-        en: 'Exactly 1 divided by the P/E of 15.2x from the WF-03 example.',
+        vi: 'Đúng bằng 1 chia cho P/E 12,32 lần của FPT.',
+        en: 'Exactly 1 divided by FPT’s P/E of 12.32x.',
+      },
+      source: {
+        vi: 'Finbox_v2, giá và EPS FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) price and EPS, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -1387,12 +1426,19 @@ export const GIA_MUC_TIEU: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'EPS 6.050 ₫, P/E mục tiêu 18 lần', en: 'EPS 6,050 ₫, target P/E 18x' },
-      inputs: { eps: 6_050, targetPe: 18 },
-      expected: 108_900,
+      title: {
+        vi: 'FPT — EPS 5.867 ₫, giả định P/E mục tiêu 15 lần',
+        en: 'FPT — EPS 5,867 ₫, assumed target P/E 15x',
+      },
+      inputs: { eps: 5_867, targetPe: 15 },
+      expected: 88_005,
       note: {
-        vi: 'Cao hơn thị giá 92.000 ₫ của ví dụ WF-03 — dư địa tăng nếu P/E đạt đúng mức mục tiêu.',
-        en: 'Higher than the 92,000 ₫ market price in the WF-03 example — upside if P/E reaches the target level.',
+        vi: 'Cao hơn thị giá 72.300 ₫ — dư địa tăng nếu P/E đạt đúng mức mục tiêu giả định.',
+        en: 'Higher than the market price of 72,300 ₫ — upside if P/E reaches the assumed target level.',
+      },
+      source: {
+        vi: 'Finbox_v2, EPS FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) EPS, locked in 2026-09-08.',
       },
     },
     tests: [

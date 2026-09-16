@@ -74,7 +74,7 @@
  * thuộc tính nghĩa là **Cơ bản** — khớp `DEFAULT_PREFERENCES.mode`, khớp HTML tĩnh, và khớp cả
  * máy chặn localStorage. Vì vậy điều kiện viết theo hướng `:not(...)` chứ không liệt kê
  * `[data-mode='basic']`: chỉ liệt kê thì mất hẳn ca mặc định. Cùng luật, cùng chiều với
- * `CategoryGrid.module.css`.
+ * `CategoryChips.module.css` và dòng đếm của `FormulaListScreen.module.css`.
  *
  * Đang chọn thì đổi nền, đổi màu chữ VÀ in đậm — không để màu là dấu hiệu duy nhất (NFR-USA-06).
  * Độ ưu tiên của hai bộ chọn dưới đây là (0,2,1), cao hơn `.option:hover` (0,2,0), nên rê chuột

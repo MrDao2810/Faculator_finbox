@@ -100,16 +100,140 @@
 /*
  * ── Đã xoá cùng cụm tab (14/09/2026) ────────────────────────────────────────
  *
- * `.tabsWrap` và cả khối `.saved*` (`.savedRow`, `.savedName`, `.savedMeta`, `.savedActions`,
- * `.savedAction` + hai vai của nó) đi theo cụm tab và panel "phép tính đã lưu" — chủ dự án chốt
- * *"bỏ tabbar đi và giữ lại toàn bộ giao diện và logic thêm mã cổ phiếu cũ"*.
- *
- * `.list` cũng xoá: nó là `<ul>` của riêng danh sách ấy. Danh sách mã có `.holdList` riêng, nên
- * đừng thấy tên chung chung mà gắn bừa vào đó — hai danh sách khác nhịp dọc.
- *
- * Không dựng lại mấy luật này khi bày lại phép tính đã lưu ở chỗ khác: chúng được đo cho một
- * panel chiếm trọn màn, không cho một khối nhỏ nằm cạnh thứ khác.
+ * `.tabsWrap` và `.list` đi theo cụm tab — chủ dự án chốt *"bỏ tabbar đi và giữ lại toàn bộ giao
+ * diện và logic thêm mã cổ phiếu cũ"*. Danh sách mã có `.holdList` riêng, nên đừng thấy tên chung
+ * chung mà gắn bừa vào đó — hai danh sách khác nhịp dọc.
  */
+
+/*
+ * ── Phép tính đã lưu — khối thứ hai của màn (15/09/2026) ────────────────────
+ *
+ * Quay lại sau khi bị gỡ cùng cụm tab, vì nút Lưu ở màn chi tiết vẫn ghi vào kho mà không còn chỗ
+ * nào bày kho ra. Bản tab cũ là một panel chiếm trọn màn, mỗi mục một dòng trôi tự do có gạch chân
+ * `--color-border`; luật ấy KHÔNG chép lại: nay khối đứng ngay dưới khối Nắm giữ, và hai danh sách
+ * sát nhau mà khác dáng thì đọc ra như hai sản phẩm.
+ *
+ * Nên nó mượn đúng DÁNG của `.holdList`: một khung bọc cả danh sách, các mục là băng bên trong.
+ * Kẻ chia giữa hai mục là `--color-hairline` chứ không `--color-border` như `.holdRow`: đã có
+ * khung ngoài lo phần ranh giới thì kẻ trong chỉ cần tách dòng, và `hairline.test.ts` ghim đích
+ * danh bảy chỗ được phép giữ `--color-border` cho kẻ một phía — `.holdRow` có lý do riêng (mỗi dòng
+ * là một đích bấm cả dòng), dòng ở đây thì không: đích bấm là hai nút có vỏ.
+ */
+/*
+ * Chừa chỗ cho thanh trên DÍNH khi cuộn tới khối bằng neo — cùng luật `scroll-margin-top` của
+ * form thêm/sửa mã. Thiếu dòng này thì `scrollIntoView({ block: 'start' })` đặt tiêu đề "PHÉP
+ * TÍNH ĐÃ LƯU" ngay mép trên cửa sổ, tức nằm gọn dưới thanh trên.
+ */
+.savedBlock {
+  scroll-margin-top: calc(var(--header-height) + var(--space-2));
+}
+
+.savedList {
+  display: flex;
+  flex-direction: column;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.savedRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px var(--space-3);
+
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.savedRow:last-child {
+  border-bottom: none;
+}
+
+.savedName {
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+  /* Tên do người dùng đặt nên dài ngắn tuỳ ý — xuống dòng chứ không tràn ngang ở 360px. */
+  overflow-wrap: anywhere;
+}
+
+.savedMeta {
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Hai nút đứng dọc suốt cả hai dòng chữ, bám mép phải — tên dài xuống dòng không đẩy nút đi. */
+.savedActions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/*
+ * Nút CÓ VỎ — chủ dự án chốt từ bản tab: dòng chỉ còn chữ với chữ, không có vỏ thì không nhìn ra
+ * đâu là chỗ bấm được. Vỏ mỏng (~28px) vì đây là ĐUÔI của một dòng danh sách, không phải hành động
+ * chính của màn; vùng chạm 44px nằm ở lớp phủ `::after`, chỉ nới theo chiều CAO — nở ngang là bấm
+ * "Xem" lại trúng "Xoá".
+ */
+.savedAction {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tap-min);
+
+  padding: var(--space-1) var(--space-2);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+
+  border: 1px solid;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.savedAction::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+/*
+ * "Xem" có nền, "Xoá" chỉ có viền — đúng cặp `secondary` / `danger` của primitive `Button`, chỉ nhỏ
+ * hơn. Cả hai cặp màu đã có ca kiểm tương phản ở `contrast.test.ts`, không đẻ token nào.
+ */
+.savedActionOpen {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.savedActionRemove {
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border-color: var(--color-danger);
+}
 
 /*
  * ── Danh sách nắm giữ: dòng gọn ba cột ──────────────────────────────────────

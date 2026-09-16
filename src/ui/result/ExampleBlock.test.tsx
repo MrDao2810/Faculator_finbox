@@ -53,8 +53,8 @@ describe('ExampleBlock — chỉ để đọc khi màn không truyền giá tr�
 
     expect(screen.queryByRole('textbox')).toBeNull();
     expect(screen.getByText('Ví dụ thực tế')).not.toBeNull();
-    // Vẫn phải đọc được con số của ví dụ.
-    expect(screen.getByText('92.000 ₫')).not.toBeNull();
+    // Vẫn phải đọc được con số của ví dụ — giá thật của FPT, xem `multiples.ts`.
+    expect(screen.getByText('72.300 ₫')).not.toBeNull();
   });
 });
 
@@ -93,10 +93,10 @@ describe('ExampleBlock — gõ được ngay tại dòng số của ví dụ', (
 
   it('dòng "→" nói đúng con số của khối Kết quả, không phải con số cứng của ví dụ', () => {
     const spec = specOf('pe');
-    // Giá gấp đôi ví dụ thì P/E phải gấp đôi — nếu dòng này vẫn ghi 15,21 là nó đang bịa.
-    draw('pe', { ...defaultInputs(spec), ...spec.example.inputs, price: 184_000 });
+    // Giá gấp đôi ví dụ thì P/E phải gấp đôi — nếu dòng này vẫn ghi 12,32 là nó đang bịa.
+    draw('pe', { ...defaultInputs(spec), ...spec.example.inputs, price: 144_600 });
 
-    expect(screen.getByText(/30,41/)).not.toBeNull();
+    expect(screen.getByText(/24,65/)).not.toBeNull();
   });
 });
 

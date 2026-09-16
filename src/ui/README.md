@@ -13,9 +13,9 @@
 - `navigation/` — gói 2.1: `AppHeader`, `OfflineBanner`, `ModeToggle`, `LangSwitch`,
   `BottomTabBar`, `DisclaimerBar`.
 - `layout/` — gói 1.4.2: `AppShell`.
-- `browse/` — gói 2.2 và 3.1: `SearchBox`, `CategoryFilter`, `FormulaCard`, `EmptyState`,
-  `CategoryGrid` (WF-01), `VirtualList` (ảo hoá WF-02), `SearchResults` và
-  `RecentSearches` (WF-09).
+- `browse/` — gói 2.2 và 3.1: `SearchBox`, `CategoryChips` (hàng chip nhóm của màn Công thức),
+  `FormulaCard`, `EmptyState`, `VirtualList` (ảo hoá WF-02), `SearchResults` và
+  `RecentSearches` (WF-09). Trang chủ WF-01 và danh sách WF-02 gộp làm một màn từ 15/09/2026.
 - `inputs/` — gói 2.3: `NumberInput` (5 trạng thái WF-16), `SliderInput`, `ButtonGroup`,
   `RadioGroup`, `SelectInput`, `Toggle`, `UnitSwitcher`, `LinkedInput` (4 trạng thái FR-15),
   và `VariableField` chọn điều khiển theo `spec.type` (FR-05).

@@ -20,7 +20,7 @@
  *
  * Trọng số (0,2,1) — `.variables` + `:first-child` + `th` — thắng chắc `.table :global(.wrap)`
  * (0,2,0) của primitive, không phụ thuộc thứ tự hai file trong bó CSS (cùng bẫy đã ghi ở
- * `CategoryFilter.module.css`). Lớp `.variables` nằm trên chính `<table>` — `Table` đặt `className`
+ * `FormulaListScreen.module.css`). Lớp `.variables` nằm trên chính `<table>` — `Table` đặt `className`
  * ở đó, không ở vùng cuộn.
  *
  * Chỉ ≥1280: ở khổ hẹp bảng vẫn chia như cũ, bản điện thoại đã duyệt. Không đụng `Table.module.css`

@@ -13,9 +13,9 @@ import { DisclaimerBar } from './DisclaimerBar';
  * ── Vì sao lọc ở đây chứ không ở `AppShell` ──────────────────────────────────────────────────
  *
  * `AppShell` là server component nên nó không gọi được `usePathname()`. Đây đúng khuôn
- * `HeaderIdentity`, `HeaderNav` và `HeaderModeToggle` đã dựng: bọc phần cần biết route vào một lá
- * client, phần khung giữ nguyên là server. Luật "màn nào" thì nằm ở `showsFooterDisclaimer()` bên
- * `routes.ts`, cùng chỗ với `showsModeToggle()` và cùng lý do — đó là quyết định về đường dẫn.
+ * `HeaderIdentity` và `HeaderNav` đã dựng: bọc phần cần biết route vào một lá client, phần khung giữ
+ * nguyên là server. Luật "màn nào" thì nằm ở `showsFooterDisclaimer()` bên `routes.ts` — đó là
+ * quyết định về đường dẫn.
  *
  * ── Vì sao KHÔNG bỏ hẳn lời gọi ở `AppShell` ─────────────────────────────────────────────────
  *

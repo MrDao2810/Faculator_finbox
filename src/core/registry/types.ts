@@ -90,6 +90,18 @@ export interface FormulaExample {
   cashflows?: ReadonlyArray<Cashflow>;
   expected: number;
   note?: Bilingual;
+  /**
+   * Trích dẫn NGUỒN của chính ví dụ này — khác `FormulaSpec.source` ở trên, thứ trích nguồn lý
+   * thuyết/pháp lý của cả công thức (giáo trình, chuẩn mực). Trường này chỉ có ở những ví dụ neo
+   * vào một trường hợp có thật (một bài báo, một báo cáo phân tích, một API số liệu) — nội dung là
+   * TÊN NGUỒN và mốc thời gian, KHÔNG lặp lại chữ "Nguồn:"/"Source:" vì đó là nhãn cố định
+   * `example.source` trong từ điển, `ExampleBlock` tự ghép vào trước.
+   *
+   * Tách khỏi `note` để hai việc không lẫn vào nhau: `note` là câu MÔ TẢ (điều xảy ra, kết luận
+   * gì), còn trường này là câu TRÍCH DẪN (ai nói, ở đâu, khi nào) — gộp chung từng làm một câu
+   * vừa mô tả vừa trích dẫn đọc rối, chủ dự án chốt tách riêng ngày 16/09/2026.
+   */
+  source?: Bilingual;
 }
 
 /**

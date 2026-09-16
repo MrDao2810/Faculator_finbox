@@ -1,12 +1,13 @@
 /**
  * Tầng APPLICATION — lịch sử mở công thức, dùng để cá nhân hoá khối "Công thức dùng hằng ngày"
- * của trang chủ (FR-20).
+ * ở đầu màn Công thức (FR-20).
  *
  * Cùng khuôn với `recent-searches.ts`: phần thuần nằm ở đây, không import React, nên test được
- * bằng Node; phần chạm `localStorage` do màn chi tiết và trang chủ gọi trong `useEffect`.
+ * bằng Node; phần chạm `localStorage` do màn chi tiết và màn Công thức gọi trong `useEffect`.
  *
- * Trước gói này khối trên trang chủ là kệ ghim tay thuần: 18 công thức gắn cờ `isFeatured` lúc
- * build, ai vào cũng thấy y hệt nhau. Tên khối hứa cá nhân hoá mà mã thì không làm gì cả.
+ * Trước gói này khối là kệ ghim tay thuần: ai vào cũng thấy y hệt nhau, và tên khối hứa cá nhân
+ * hoá mà mã thì không làm gì cả. (Khối từng nằm ở trang chủ với 18–19 ô; từ 15/09/2026 nó đứng
+ * đầu màn Công thức với 16 ô, bày trước 8 — xem `daily-shelf.ts`.)
  *
  * LDR-04 · NFR-SEC-01: chỉ lưu id công thức, nằm trên máy, không gửi đi đâu.
  *
@@ -14,14 +15,17 @@
  *
  * Tra id có thật hay không là việc của chỗ gọi: `knownIds` truyền vào qua tham số. Import chỉ
  * mục 111 công thức vào đây là kéo nó theo vào gói của 111 trang chi tiết — nơi `recordFormulaUsage`
- * được gọi — mà gói đó vốn đã vượt ngưỡng đo được. Trang chủ thì đã có sẵn chỉ mục trong gói,
+ * được gọi — mà gói đó vốn đã vượt ngưỡng đo được. Màn Công thức thì đã có sẵn chỉ mục trong gói,
  * nên nó không mất gì khi tự truyền vào.
  */
 
 /** Đổi khoá khi cấu trúc đổi, để bản cũ trong máy không làm hỏng bản mới. */
 export const FORMULA_USAGE_KEY = 'ffb.usage.v1';
 
-/** Trên 18 ô của khối một ít, để còn chỗ cho ứng viên chen lên. ~24 × 40 B ≈ 1 kB. */
+/**
+ * Dư hẳn so với số ô của khối, để còn chỗ cho ứng viên chen lên — và vì cùng kho này còn chấm
+ * điểm cho hai cách sắp "Vừa xem gần đây" / "Hay dùng nhất" của cả danh sách. ~24 × 40 B ≈ 1 kB.
+ */
 export const MAX_USAGE_ENTRIES = 24;
 
 /** Chặn số phình vô hạn, và chặn luôn giá trị bịa do sửa tay trong DevTools. */
@@ -42,11 +46,16 @@ export const USAGE_MIN_SCORE = 1.5;
 /**
  * Số suất tối đa trên khối dành cho lịch sử.
  *
- * Sáu vì lưới là `minmax(150px, 1fr)`: ở 360px là hai cột, nên 6 ô đúng bằng ba hàng đầu tiên
- * nhìn thấy được. Trần này cũng bảo đảm khối luôn còn ít nhất 12 ghim tay — nó vẫn phải giới
- * thiệu được thứ người dùng chưa biết, không chỉ nhắc lại thứ họ đã dùng.
+ * BỐN — hạ từ sáu ngày 15/09/2026, khi khối lên đầu màn Công thức và chỉ bày trước 8 ô
+ * (`DAILY_SHELF_PREVIEW`). Giữ sáu thì phần nhìn thấy chỉ còn 2 ghim tay, tức gần như mất hẳn vai
+ * "giới thiệu thứ người dùng chưa biết".
+ * Bốn là đúng một nửa: một hàng ở khổ PC (lưới 4 cột), hai hàng ở 360px (lưới 2 cột), và kệ luôn
+ * còn ít nhất 4 ghim tay.
+ *
+ * Đây là con số TINH CHỈNH chứ không phải hệ quả kỹ thuật — chủ dự án đổi được mà không đụng gì
+ * khác; `formula-usage.test.ts` đọc thẳng hằng này.
  */
-export const PERSONAL_SLOTS = 6;
+export const PERSONAL_SLOTS = 4;
 
 /** Id công thức là slug; mọi thứ khác là rác đọc lên từ máy người dùng. */
 const ID_PATTERN = /^[a-z0-9-]{1,40}$/;
@@ -216,10 +225,10 @@ export interface RankFeaturedInput {
  *    ở phần ghim.
  *
  * Công thức hay mở mà KHÔNG nằm trong danh sách ghim vẫn được chèn lên đầu, và ghim xếp cuối
- * rơi ra. Đó chính là chỗ khác nhau giữa "cá nhân hoá thật" và "chỉ sắp xếp lại 18 ô có sẵn".
+ * rơi ra. Đó chính là chỗ khác nhau giữa "cá nhân hoá thật" và "chỉ sắp xếp lại các ô có sẵn".
  *
  * KHÔNG lọc theo chế độ Cơ bản/Nâng cao: khối FR-20 vốn được miễn lọc (xem docblock của
- * `HomeSearchPanel`), lọc ở đây sẽ làm số ô đổi mỗi lần bấm nút chế độ.
+ * `daily-shelf.ts`), lọc ở đây sẽ làm số ô đổi mỗi lần bấm nút chế độ.
  */
 export function rankFeaturedIds({
   pinnedIds,

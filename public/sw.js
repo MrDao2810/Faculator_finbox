@@ -28,11 +28,19 @@
  *
  * v3: biểu tượng được vẽ lại nhưng tên file không đổi (`icon-192.png`, `icon.svg`…). Không
  * nâng số ở đây thì người đã cài PWA vẫn thấy biểu tượng cũ lấy từ kho, có khi hàng tháng.
+ *
+ * v4: trang chủ gộp vào màn Công thức (15/09/2026). `/` chỉ còn chuyển hướng, nên khung ngoại tuyến
+ * đổi sang `/cong-thuc/` — kho v3 đang giữ bản `/` CŨ, tức một trang chủ không còn tồn tại.
  */
-const CACHE = 'ffb-v3';
+const CACHE = 'ffb-v4';
 
-/** Trang dựng sẵn để làm khung khi mở lúc mất mạng. Trang chủ là HTML tĩnh đầy đủ. */
-const SHELL = '/';
+/**
+ * Trang dựng sẵn để làm khung khi mở lúc mất mạng — màn Công thức, HTML tĩnh đầy đủ.
+ *
+ * KHÔNG được là `/`: ở bản triển khai `/` trả 301, và `cache.add()` sẽ cất một phản hồi đã chuyển
+ * hướng làm khung — mở lúc mất mạng là nhận về một cú chuyển hướng không đi đâu được.
+ */
+const SHELL = '/cong-thuc/';
 
 /**
  * Trần số mục trong kho.
@@ -81,7 +89,7 @@ async function putCapped(request, response) {
   if (keys.length <= MAX_ENTRIES) return;
 
   for (const key of keys.slice(0, keys.length - MAX_ENTRIES)) {
-    // Không bao giờ vứt khung trang chủ — mất nó là mất luôn màn dự phòng lúc ngoại tuyến.
+    // Không bao giờ vứt khung ngoại tuyến — mất nó là mất luôn màn dự phòng lúc ngoại tuyến.
     if (new URL(key.url).pathname !== SHELL) await cache.delete(key);
   }
 }
@@ -103,7 +111,7 @@ function handles(request) {
  * Điều hướng trang: mạng trước, cache sau.
  *
  * Ngược với tài nguyên tĩnh bên dưới, vì HTML là thứ hay đổi nhất — thêm một công thức là
- * đổi trang. Mất mạng thì lấy đúng trang ấy trong kho, không có nữa thì trả khung trang chủ
+ * đổi trang. Mất mạng thì lấy đúng trang ấy trong kho, không có nữa thì trả khung màn Công thức
  * để người dùng vẫn còn chỗ đứng chứ không gặp trang lỗi của trình duyệt.
  */
 async function handleNavigation(request) {

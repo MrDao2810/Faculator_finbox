@@ -18,8 +18,8 @@ import {
  *
  * Không dựng ra gì cả, chỉ chạy effect — cùng khuôn `ServiceWorker`, và đặt cạnh nó trong
  * `AppShell` để có mặt ở mọi màn mà không màn nào phải nhớ thêm. Đó là điểm khác quan trọng nhất
- * so với bản trước: việc ghi nhớ từng nằm trong `FormulaBrowser`, nên chỉ màn danh sách được nhớ,
- * còn trang chủ, màn tìm kiếm và danh mục thì không — xem `origin-screen.ts`.
+ * so với bản trước: việc ghi nhớ từng nằm trong màn danh sách, nên chỉ màn ấy được nhớ, còn màn
+ * tìm kiếm và danh mục thì không — xem `origin-screen.ts`.
  *
  * ## Bốn thời điểm ghi, và vì sao cần cả bốn
  *
@@ -88,8 +88,13 @@ const SCROLL_SETTLE_MS = 150;
 
 /**
  * Ghi màn hiện tại vào `sessionStorage`. Xuất ra ngoài để nơi nào BIẾT mình vừa đổi trạng thái
- * URL có thể gọi thẳng — `FormulaBrowser` gọi sau mỗi lần bộ lọc đổi, vì đổi bộ lọc chỉ thay truy
- * vấn chứ không thay `pathname`, nên effect trong component này không chạy lại.
+ * URL có thể gọi thẳng — `FormulaListScreen` gọi sau mỗi lần URL thật sự đổi vì bộ lọc (qua
+ * `onUrlWritten` của `useListUrlState`), vì đổi bộ lọc chỉ thay truy vấn chứ không thay `pathname`,
+ * nên effect trong component này không chạy lại.
+ *
+ * KHÔNG được gọi lúc màn vừa gắn: effect của màn chạy TRƯỚC effect của component này (nó đứng sau
+ * `<main>` trong `AppShell`), nên một lần ghi lúc gắn đè `scrollY` đang chờ khôi phục bằng số 0 của
+ * trang vừa mở — nút quay lại về đúng màn mà đứng ở đỉnh trang.
  */
 export function rememberOrigin(): void {
   try {

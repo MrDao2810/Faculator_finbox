@@ -42,20 +42,36 @@ const OPTIONS: ReadonlyArray<{
  * Chữa bằng cách bỏ hẳn quyết định ấy khỏi React: hai nút luôn mang đúng một lớp cố định, còn
  * `data-mode` trên `<html>` — do `THEME_BOOT_SCRIPT` đặt TRƯỚC lượt vẽ đầu và `PreferencesProvider`
  * giữ đồng bộ sau đó — mới là thứ chọn. Nút đúng sáng ngay từ pixel đầu tiên, và đúng cả khi JS
- * hỏng hoàn toàn. Đây cũng là cơ chế mà con số công thức của từng nhóm ở trang chủ đã dùng
- * (`CategoryGrid`), nên toàn sản phẩm chỉ có một cách hiểu `data-mode`.
+ * hỏng hoàn toàn. Đây cũng là cơ chế mà con số trên chip nhóm và dòng đếm của màn Công thức dùng
+ * (`CategoryChips`), nên toàn sản phẩm chỉ có một cách hiểu `data-mode`.
  *
  * `aria-pressed` thì VẪN do React quyết, nên nó còn lệch một nhịp trước hydrate — chấp nhận được
  * và giống hệt `ThemeSwitch`/`LangSwitch`: trình đọc màn hình dựng cây trợ năng sau khi trang tải
  * xong. Đổi lại, nó là chỗ duy nhất nói ra trạng thái cho bộ kiểm và cho trình đọc màn hình, nên
  * đừng gỡ.
  */
-export function ModeToggle() {
+export interface ModeToggleProps {
+  /**
+   * `id` của một nhãn NHÌN THẤY đứng cạnh cụm nút — ví dụ "Mức độ" ở hàng tiêu đề danh sách.
+   *
+   * Có nhãn nhìn thấy thì tên khả truy cập phải LÀ nhãn ấy (WCAG 2.5.3 "Label in Name"): người dùng
+   * điều khiển bằng giọng nói đọc "Mức độ" mà nhóm lại tên "Chế độ hiển thị" thì không gọi được nó.
+   * Không truyền thì nhóm giữ `aria-label` như cũ — màn Cài đặt đặt cụm này dưới tiêu đề riêng.
+   */
+  labelledBy?: string;
+}
+
+export function ModeToggle({ labelledBy }: ModeToggleProps = {}) {
   const { mode, setMode } = usePreferences();
   const t = useT();
 
   return (
-    <div className={styles.group} role="group" aria-label={t('mode.label')}>
+    <div
+      className={styles.group}
+      role="group"
+      aria-labelledby={labelledBy}
+      aria-label={labelledBy === undefined ? t('mode.label') : undefined}
+    >
       {OPTIONS.map((option) => (
         <button
           key={option.value}

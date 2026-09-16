@@ -1,0 +1,21 @@
+.shelf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  /* Item của flex mặc định rộng tối thiểu bằng min-content — thiếu dòng này lưới thẻ đẩy phình cả
+     cột và trang tràn ngang ở 360px (bài học đợt 2). */
+  min-width: 0;
+}
+
+/*
+ * Tiêu đề khối viết hoa, màu mực — một kiểu duy nhất trên cả sản phẩm, `section-title.test.ts` gác.
+ * Hàng chứa nó (`.head`) nằm ở `FeaturedFormulas.module.css`, cạnh nút "Xem tất cả".
+ */
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}

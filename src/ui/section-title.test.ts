@@ -41,8 +41,10 @@ const EXPECTED = {
 const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> = [
   ['app/cai-dat/SettingsScreen.module.css', 'blockTitle'],
   ['app/cong-thuc/[id]/FormulaDetail.module.css', 'blockTitle'],
+  /* Hai khối của màn Công thức — trang chủ `app/page.module.css` gộp vào đây ngày 15/09/2026. */
+  ['app/cong-thuc/DailyShelf.module.css', 'blockTitle'],
+  ['app/cong-thuc/FormulaListScreen.module.css', 'blockTitle'],
   ['app/danh-muc/PortfolioScreen.module.css', 'blockTitle'],
-  ['app/page.module.css', 'blockTitle'],
   ['app/ve-chung-toi/AboutScreen.module.css', 'blockTitle'],
   ['ui/screens/ChainBody.module.css', 'title'],
   ['ui/screens/FeeTaxBody.module.css', 'blockTitle'],
@@ -60,14 +62,14 @@ const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> 
  * Ghim thành bảng chứ không bỏ qua: một lớp bổ sung màu là cách đơn giản nhất để lách hai ca kiểm
  * bên dưới mà chúng không hay biết. Ai thêm một tiêu đề khối màu nhấn thì phải khai vào đây, và lúc
  * ấy sẽ đọc đúng lý do vì sao cái đang có được phép.
+ *
+ * Bảng hiện RỖNG. Mục duy nhất từng có — dòng "Duyệt theo nhóm · 111 công thức" của trang chủ, cả
+ * dòng một màu nhấn theo chủ dự án chốt 09/09/2026 — đi cùng khối ấy khi trang chủ gộp vào màn Công
+ * thức (15/09/2026): bản vẽ màn gộp không còn khối "Duyệt theo nhóm". Đó là khối bị bỏ, không phải
+ * quyết định màu bị đảo. Bảng giữ lại làm chỗ khai cho lần sau.
  */
-const NGOAI_LE_MAU_NHAN: ReadonlyArray<readonly [file: string, className: string, lyDo: string]> = [
-  [
-    'app/page.module.css',
-    'blockTitleAccent',
-    'Dòng "Duyệt theo nhóm · 111 công thức" là MỘT câu liền: tên khối và con số đọc nối nhau. Chủ dự án chốt 09/09/2026 cho cả dòng một màu, thay vì hai màu như bản vẽ Figma cũ.',
-  ],
-];
+const NGOAI_LE_MAU_NHAN: ReadonlyArray<readonly [file: string, className: string, lyDo: string]> =
+  [];
 
 /** Cắt đúng thân luật của một lớp, bỏ chú thích để `color:` trong docblock không lọt vào. */
 function ruleBody(css: string, className: string): string | null {

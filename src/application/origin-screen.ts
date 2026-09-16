@@ -5,12 +5,14 @@
  * ## Vì sao rộng hơn "màn danh sách"
  *
  * Bản trước của file này tên là `last-list-url.ts` và chỉ nhận URL bắt đầu bằng `/cong-thuc/`.
- * Đúng cho một lối vào, sai cho bốn lối còn lại — mà bốn lối kia mới là lối thường đi:
+ * Đúng cho một lối vào, sai cho những lối còn lại — mà chúng mới là lối thường đi:
  *
- *   - kệ "Công thức dùng hằng ngày" và ô tìm ngay tại **trang chủ** (18 thẻ + tối đa 8 kết quả);
  *   - màn **tìm kiếm** WF-09;
  *   - **danh mục** WF-06, cả link `?ma=` của sheet chọn công thức lẫn link `?luu=` của phép tính
  *     đã lưu.
+ *
+ * (Trang chủ từng là lối thứ ba. Từ 15/09/2026 nó gộp vào `/cong-thuc/` nên lối ấy chính là màn
+ * danh sách — xem `ORIGINS`.)
  *
  * Vào từ những chỗ ấy thì không có gì được ghi, nên nút quay lại rơi về `/cong-thuc/` trơn — tức
  * ném người dùng sang một màn họ chưa từng đứng, và nếu trong phiên có lần nào ghé danh sách thì
@@ -18,9 +20,9 @@
  *
  * ## Vì sao nhớ cả vị trí cuộn
  *
- * Về đúng MÀN vẫn chưa phải về đúng CHỖ. Trang chủ có kệ 18 thẻ, hai lưới nhóm rồi khối công cụ;
- * bấm một thẻ ở kệ rồi quay ra mà đứng ở đỉnh trang thì vẫn phải cuộn đi tìm lại. Nhớ thêm một
- * con số là đủ, và nó rẻ hơn nhiều so với việc dựng anchor cho từng khối.
+ * Về đúng MÀN vẫn chưa phải về đúng CHỖ. Màn Công thức có kệ 8–16 thẻ rồi cả danh sách 111 thẻ; bấm
+ * một thẻ ở giữa danh sách rồi quay ra mà đứng ở đỉnh trang thì vẫn phải cuộn đi tìm lại. Nhớ thêm
+ * một con số là đủ, và nó rẻ hơn nhiều so với việc dựng anchor cho từng thẻ.
  *
  * ## Vì sao KHÔNG dùng `history.back()`
  *
@@ -55,9 +57,9 @@ export const ORIGIN_KEY = 'ffb.origin.v1';
 /**
  * Cờ "lượt điều hướng này là một cú QUAY LẠI" — nút quay lại đặt, màn gốc đọc rồi xoá.
  *
- * Cần một cờ riêng chứ không suy từ việc URL khớp bản ghi: mọi lần mở trang chủ đều khớp, nên
- * thiếu cờ thì mỗi lần vào trang chủ là một cú nhảy cuộn không ai yêu cầu — kể cả lần đầu tiên
- * trong phiên, ngay sau khi bấm mục Trang chủ ở thanh dưới.
+ * Cần một cờ riêng chứ không suy từ việc URL khớp bản ghi: mọi lần mở màn Công thức trơn đều khớp,
+ * nên thiếu cờ thì mỗi lần vào đó là một cú nhảy cuộn không ai yêu cầu — kể cả lần đầu tiên trong
+ * phiên, ngay sau khi bấm mục Công thức ở thanh điều hướng.
  */
 export const ORIGIN_RESTORE_KEY = 'ffb.origin.restore.v1';
 
@@ -95,7 +97,12 @@ export interface Origin {
 }
 
 /**
- * Bốn màn được phép làm "gốc", và nhãn nút quay lại của mỗi màn.
+ * Ba màn được phép làm "gốc", và nhãn nút quay lại của mỗi màn.
+ *
+ * Trang chủ `/` từng là màn gốc thứ tư. Nó rời danh sách ngày 15/09/2026 — không còn là một màn mà
+ * chỉ là trang chuyển hướng về `/cong-thuc/`. Bản ghi `{url: '/'}` còn sót trong `sessionStorage`
+ * của một tab mở từ trước sẽ không khớp mục nào, và nút quay lại tự lùi về đường dự phòng
+ * `/cong-thuc/` — đúng nơi trang chủ cũ giờ nằm.
  *
  * Danh sách ĐÓNG chứ không phải "mọi thứ không phải trang chi tiết", và đó là chỗ an toàn của cả
  * module: nội dung `sessionStorage` người dùng sửa được, mà nó đi thẳng vào thuộc tính `href`.
@@ -108,7 +115,6 @@ export interface Origin {
  * và nút quay lại của chính nó đã có đường riêng.
  */
 const ORIGINS: ReadonlyArray<{ path: string; labelKey: MessageKey }> = [
-  { path: ROUTES.home, labelKey: 'nav.home' },
   { path: ROUTES.formulas, labelKey: 'nav.backToList' },
   { path: ROUTES.search, labelKey: 'search.label' },
   { path: ROUTES.portfolio, labelKey: 'nav.portfolio' },

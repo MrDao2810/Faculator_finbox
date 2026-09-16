@@ -1,0 +1,95 @@
+/*
+ * Hàng tiêu đề + lưới khối "Công thức dùng hằng ngày" — dời từ trang chủ về màn Công thức (15/09/2026).
+ */
+
+/* Tiêu đề bên trái, "Xem tất cả ›" bên phải, cùng một hàng — đúng bản vẽ. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/*
+ * "Xem tất cả ›" / "Thu gọn" — chữ màu nhấn cỡ nhỏ ở cuối hàng tiêu đề, đúng bản vẽ.
+ *
+ * Là `<button>` nên phải tự gỡ nền, viền và đệm mặc định của trình duyệt. Nhìn thấy chỉ cao một dòng
+ * chữ để hàng tiêu đề không phình; vùng chạm 44px mở bằng `::after`, cùng kỹ thuật chip "Tìm gần đây"
+ * và cụm Cơ bản / Nâng cao (NFR-USA-01).
+ */
+.toggle {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+.toggle:hover {
+  text-decoration: underline;
+}
+
+.toggle:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Mũi tên chỉ sang phải khi còn ô ẩn, quay lên khi đã bày đủ — dấu hiệu thứ hai ngoài chữ. */
+.chevron {
+  transition: transform 120ms ease;
+}
+
+.toggle[aria-expanded='true'] .chevron {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}
+
+.cards {
+  display: grid;
+  /* Hai cột ở 360px, tự giãn trên màn rộng. */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Trần bốn cột ở khổ PC. Không có trần thì `auto-fill` chia tiếp theo khung: đo ở 1440 trước khi có
+ * luật này ra **bảy** cột thẻ rộng 150px, tức mô tả hai dòng của mỗi thẻ bị bóp thành ba, bốn dòng.
+ * Kệ bày trước 8 ô nên bốn cột cho ra đúng hai hàng, như bản vẽ; bày đủ 16 ô là bốn hàng.
+ */
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

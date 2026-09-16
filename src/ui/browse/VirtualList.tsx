@@ -22,6 +22,15 @@ export interface VirtualListProps<T> {
   estimatedRowHeight?: number;
   /** Nhãn cho trình đọc màn hình. */
   label?: string;
+  /**
+   * Lớp CSS thêm cho `<li>` của một mục — `undefined` là không thêm gì.
+   *
+   * Sinh ra cho màn Công thức: trước khi đọc xong tuỳ chọn, danh sách dựng ĐỦ 111 thẻ (HTML tĩnh
+   * phải có đủ đường vào cho Google), và thẻ mức Nâng cao mang một lớp để CSS giấu đi khi `<html>`
+   * chưa có `data-mode='advanced'`. Lớp phải nằm trên chính `<li>`: giấu thẻ bên trong mà để `<li>`
+   * lại thì ô lưới trống vẫn chiếm chỗ và vẫn mang `padding-bottom`.
+   */
+  itemClassName?: (item: T) => string | undefined;
 }
 
 /**
@@ -73,7 +82,13 @@ export function VirtualList<T>({
   children,
   estimatedRowHeight = 122,
   label,
+  itemClassName,
 }: VirtualListProps<T>) {
+  /** Ghép lớp gốc của dòng với lớp nơi gọi muốn thêm — không thêm gì thì trả đúng lớp gốc. */
+  const rowClass = (base: string | undefined, item: T): string | undefined => {
+    const extra = itemClassName?.(item);
+    return extra === undefined ? base : `${base ?? ''} ${extra}`.trim();
+  };
   const listRef = useRef<HTMLUListElement>(null);
 
   /** Chiều cao thật đã đo, theo khoá mục — sống qua các lần đổi bộ lọc. */
@@ -179,7 +194,7 @@ export function VirtualList<T>({
     return (
       <ul className={`${styles.list} ${styles.listStatic}`} aria-label={label}>
         {items.map((item) => (
-          <li key={itemKey(item)} className={styles.item}>
+          <li key={itemKey(item)} className={rowClass(styles.item, item)}>
             {children(item)}
           </li>
         ))}
@@ -200,7 +215,7 @@ export function VirtualList<T>({
         return (
           <li
             key={key}
-            className={styles.row}
+            className={rowClass(styles.row, item)}
             ref={(node) => {
               // Gỡ khỏi kho khi dòng rời DOM, nếu không sẽ đo mãi node đã tháo.
               if (node === null) rowNodes.current.delete(key);

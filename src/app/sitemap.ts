@@ -18,8 +18,13 @@ export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
-    { url: absoluteUrl(ROUTES.home), priority: 1 },
-    { url: absoluteUrl(ROUTES.formulas), priority: 0.9 },
+    /*
+     * Màn Công thức là màn mở đầu và mang priority 1.0 từ 15/09/2026, khi trang chủ gộp vào nó.
+     * `/` KHÔNG có mặt: nó chỉ còn chuyển hướng (301 ở bản triển khai, `noindex` ở bản tĩnh), và
+     * khai một URL chuyển hướng trong sitemap là mời bộ máy tìm kiếm lập chỉ mục hai địa chỉ cho
+     * cùng một nội dung (FR-25).
+     */
+    { url: absoluteUrl(ROUTES.formulas), priority: 1 },
     { url: absoluteUrl(ROUTES.portfolio), priority: 0.5 },
     /* Trang nội dung thật, không phải màn công cụ — vì thế nó xếp trên Cài đặt. */
     { url: absoluteUrl(ROUTES.about), priority: 0.4 },

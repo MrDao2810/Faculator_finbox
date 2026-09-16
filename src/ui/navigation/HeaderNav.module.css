@@ -1,5 +1,5 @@
 /*
- * Ẩn mặc định — chỉ hiện ở màn PC. Dưới 1024px, năm mục vẫn nằm ở `BottomTabBar` như cũ.
+ * Ẩn mặc định — chỉ hiện ở màn PC. Dưới 1024px, các mục vẫn nằm ở `BottomTabBar` như cũ.
  * `display: none` gỡ nav này khỏi flex layout của `.inner` (AppHeader) và khỏi cây trợ năng ở
  * mọi khổ hẹp hơn, không cần `aria-hidden` riêng.
  */
@@ -76,6 +76,9 @@
  *
  * Đo trên Chrome thật ở 1024px, màn '/cong-thuc/': hàng nav kết thúc ở 709, cụm nút bắt đầu ở 722
  * — hở 13px. Không có khối này thì nav rộng thêm 48px, tức tràn 35px vào cụm nút.
+ *
+ * (15/09/2026: thanh còn bốn mục và không màn nào còn cụm Cơ bản/Nâng cao ở thanh trên, nên số đo
+ * trên đã cũ và chỗ chật rộng ra. Khối này giữ nguyên vì vô hại — xem ghi chú ⚠ ở `AppHeader.module.css`.)
  */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .link {

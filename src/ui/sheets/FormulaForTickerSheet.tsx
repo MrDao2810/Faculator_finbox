@@ -62,8 +62,8 @@ export interface FormulaForTickerSheetProps {
  * đã có tên công thức + tỷ lệ ô điền sẽ phải hy sinh chính tỷ lệ ấy ở khổ 360 px — mà đó là thứ
  * danh sách đang sắp theo.
  *
- * **Ở chế độ Cơ bản vẫn hiện đủ cả nhóm Nâng cao**, khác với ba màn duyệt (`FormulaBrowser`,
- * `HomeSearchPanel`, `SearchScreen`) vốn ẩn hẳn công thức nâng cao. Ba lý do:
+ * **Ở chế độ Cơ bản vẫn hiện đủ cả nhóm Nâng cao**, khác với các màn duyệt (`FormulaListScreen`,
+ * `SearchScreen`) vốn ẩn hẳn công thức nâng cao. Ba lý do:
  *
  * 1. Đây là **kệ ghim tay**, không phải danh sách duyệt — cùng loại với khối "Công thức dùng hằng
  *    ngày" của FR-20 ở trang chủ, chỗ đã được chủ dự án cho miễn lọc (xem TASK.md, mục "Hai chỗ

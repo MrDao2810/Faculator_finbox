@@ -3,7 +3,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FORMULA_SUMMARIES, HOME_RECENT_SEARCHES_KEY, RECENT_SEARCHES_KEY } from '@/application';
+import { FORMULA_SUMMARIES, RECENT_SEARCHES_KEY } from '@/application';
 import type { FormulaSummary } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
@@ -47,15 +47,14 @@ function moMan() {
   );
 }
 
-/** Ô nhập của WF-09 — cùng nhãn `t('search.label')` mà `HomeSearchPanel.test.tsx` đã dùng. */
+/** Ô nhập của WF-09 — cùng nhãn `t('search.label')` với ô tìm ở màn Công thức. */
 const oTim = (): HTMLElement => screen.getByLabelText('Tìm công thức');
 
 /**
  * Dòng kết quả dẫn tới một công thức trong cây vừa dựng.
  *
- * Chấp nhận cả hai dạng có / không gạch chéo cuối — cùng lý do `HomeSearchPanel.test.tsx` đã
- * ghi: `next/link` dưới jsdom cắt gạch chéo cuối dù bản build thật giữ lại
- * (`trailingSlash: true`).
+ * Chấp nhận cả hai dạng có / không gạch chéo cuối: `next/link` dưới jsdom cắt gạch chéo cuối dù
+ * bản build thật giữ lại (`trailingSlash: true`).
  */
 function dongKetQua(id: string): HTMLElement {
   const link = screen.getAllByRole('link').find((a) => {
@@ -123,50 +122,19 @@ describe('SearchScreen — "Tìm gần đây" chỉ ghi khi CHỌN kết quả, 
 });
 
 /**
- * Vế đối xứng của ca gác ở `HomeSearchPanel.test.tsx`: hai ô tìm có hai kho riêng, và không kho
- * nào nhìn thấy kho kia. Trước đợt sửa cả hai đọc chung `ffb.recent.v1` nên cả hai ca đều đỏ.
+ * Kho CHUNG với ô tìm ở màn Công thức.
+ *
+ * Từng là kho RIÊNG, và ba ca ở đây từng gác đúng điều ngược lại — khi ô tìm trang chủ chỉ lọc kệ
+ * 18 ô thì chip của nó hiện ở màn này là nói sai. Trang chủ gộp vào màn Công thức ngày 15/09/2026 và
+ * ô tìm ở đó lọc cả thư viện, đúng phạm vi của màn này, nên hai ô dùng chung `RECENT_SEARCHES_KEY`.
+ * Ca dưới gác vế còn lại của lời hứa ấy: thứ người dùng chọn ở màn Công thức hiện ra ở đây.
  */
-describe('SearchScreen — lịch sử là kho RIÊNG của màn tìm', () => {
-  it('lịch sử ghi ở trang chủ KHÔNG hiện ở màn tìm', () => {
-    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['Beta', 'WACC']));
+describe('SearchScreen — lịch sử dùng chung với màn Công thức', () => {
+  it('chip ghi vào kho chung hiện ở màn tìm', () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
 
     moMan();
 
-    // Vào màn là ô tìm đang rỗng, tức đúng trạng thái khối "Tìm gần đây" hiện ra — nếu có gì.
-    expect(screen.queryByRole('button', { name: 'Beta' })).toBeNull();
-    /*
-     * Tên vùng lấy từ `search.recent.title` — "Tìm gần đây". Ca này từng ghim chữ của bản trước
-     * ("Lịch sử tìm kiếm"), tức nó XANH cả khi khối hiện ra, vì cái tên ấy không còn tồn tại ở
-     * đâu. Một ca `queryBy…toBeNull()` ghim sai chữ là ca không gác gì cả.
-     */
-    expect(screen.queryByRole('region', { name: 'Tìm gần đây' })).toBeNull();
-  });
-
-  it('chọn kết quả ở đây thì chỉ kho của màn này đổi, kho trang chủ vẫn nguyên', () => {
-    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['Beta']));
-
-    moMan();
-    fireEvent.change(oTim(), { target: { value: 'P/E' } });
-    fireEvent.click(dongKetQua(PE.id));
-
-    expect(JSON.parse(window.localStorage.getItem(RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
-      PE.name.vi,
-    ]);
-    expect(JSON.parse(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
-      'Beta',
-    ]);
-  });
-
-  it('xoá lịch sử ở đây thì kho trang chủ không bị đụng', () => {
-    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['Beta']));
-    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(['P/E']));
-
-    moMan();
-    fireEvent.click(screen.getByRole('button', { name: 'Xoá lịch sử' }));
-
-    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
-    expect(JSON.parse(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
-      'Beta',
-    ]);
+    expect(screen.getByRole('button', { name: PE.name.vi })).not.toBeNull();
   });
 });

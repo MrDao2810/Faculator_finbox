@@ -33,14 +33,14 @@ function dung(path: string) {
 
 beforeEach(() => {
   window.localStorage.clear();
-  duongDan.hienTai = ROUTES.home;
+  duongDan.hienTai = ROUTES.formulas;
 });
 
 afterEach(cleanup);
 
 describe('FooterDisclaimer', () => {
-  it('dựng ở trang chủ', () => {
-    dung(ROUTES.home);
+  it('dựng ở màn Về chúng tôi — một màn không xin ngoại lệ nào', () => {
+    dung(ROUTES.about);
 
     expect(screen.getByRole('note').textContent).toContain('tham khảo');
   });

@@ -177,11 +177,19 @@ export const HPR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 78.000 ₫, bán 92.000 ₫, nhận cổ tức 2.000 ₫',
-        en: 'Bought at 78,000 ₫, sold at 92,000 ₫, received 2,000 ₫ in dividends',
+        vi: 'Mua MWG giá 60.000 ₫, bán giá 72.100 ₫, nhận cổ tức 1.000 ₫',
+        en: 'Bought MWG at 60,000 ₫, sold at 72,100 ₫, received a 1,000 ₫ dividend',
       },
-      inputs: { startPrice: 78_000, endPrice: 92_000, dividend: 2_000 },
-      expected: 20.51,
+      inputs: { startPrice: 60_000, endPrice: 72_100, dividend: 1_000 },
+      expected: 21.83,
+      note: {
+        vi: 'Giá mua dùng mức giả định. Từ 60.000 ₫ lên 72.100 ₫ cộng cổ tức 1.000 ₫, tổng lợi suất nắm giữ 21,83%.',
+        en: 'The buy price is an assumption. From 60,000 ₫ to 72,100 ₫ plus a 1,000 ₫ dividend, the total holding period return is 21.83%.',
+      },
+      source: {
+        vi: 'Finbox_v2, giá bán và cổ tức Thế giới Di động (mã MWG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Mobile World’s (ticker MWG) sell price and dividend, locked in 2026-09-08.',
+      },
     },
     tests: [
       {
@@ -409,11 +417,19 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Thị giá 92.000 ₫, cổ tức 2.000 ₫/CP/năm',
-        en: 'Market price 92,000 ₫, dividend 2,000 ₫/share/year',
+        vi: 'HPG — thị giá 21.850 ₫, cổ tức 500 ₫/CP/năm',
+        en: 'HPG — market price 21,850 ₫, dividend 500 ₫/share/year',
       },
-      inputs: { price: 92_000, dividendPerShare: 2_000 },
-      expected: 2.17,
+      inputs: { price: 21_850, dividendPerShare: 500 },
+      expected: 2.29,
+      note: {
+        vi: 'Cổ tức 500 ₫/CP/năm so với thị giá 21.850 ₫, tỷ suất cổ tức của HPG chỉ 2,29%.',
+        en: 'A 500 ₫/share/year dividend against a 21,850 ₫ price gives HPG a dividend yield of just 2.29%.',
+      },
+      source: {
+        vi: 'Finbox_v2, giá và cổ tức Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) price and dividend, locked in 2026-09-08.',
+      },
     },
     tests: [
       {

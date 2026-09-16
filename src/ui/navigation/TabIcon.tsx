@@ -1,9 +1,9 @@
 import type { NavKey } from '@/application';
 
 /**
- * Năm icon của thanh điều hướng dưới — gói WBS 2.1.2, vẽ lại theo bản thiết kế ở đợt 8.
+ * Bốn icon của thanh điều hướng dưới — gói WBS 2.1.2, vẽ lại theo bản thiết kế ở đợt 8.
  *
- * Vẽ tay bằng SVG thay vì thêm thư viện icon: năm hình đơn giản không đáng đánh đổi
+ * Vẽ tay bằng SVG thay vì thêm thư viện icon: bốn hình đơn giản không đáng đánh đổi
  * dung lượng gói (NFR-PER-04). Dùng `currentColor` nên đổi màu theo trạng thái của link.
  *
  * Mục đang chọn dùng icon **đặc**, mục còn lại dùng icon nét. Khác biệt hình khối này là
@@ -13,19 +13,13 @@ import type { NavKey } from '@/application';
  * Luôn aria-hidden — icon chỉ là phần nhìn, nhãn chữ mới là thứ trình đọc màn hình đọc.
  *
  * Nét và đặc của cùng một mục phải chung TÂM, chỉ khác đường viền so với khối tô — đo bằng
- * `getBBox()` trong Chrome thật thì ba mục formulas/portfolio/settings vốn đã vậy (tâm lệch
- * 0,00 khi đổi trạng thái). `home` từng lệch: bản nét vẽ mái đua ra ngoài tường (kiểu mái nhà
- * cổ điển), còn bản đặc thu mái khít tường và thêm ô cửa cắt ở đáy — hai khối hình khác nhau,
- * không phải cùng một khối phóng to/thu nhỏ, nên tâm lệch xuống 0,8 đơn vị và đáy lệch 1,1 đơn
- * vị. Kết quả nhìn thấy: bấm vào/ra mục Trang chủ thì icon không chỉ đổi màu mà còn "nhảy"
- * hình dạng và dịch chuyển liên tục, trong khi ba icon còn lại đứng yên. Sửa bằng cách bỏ mái
- * đua và ô cửa, dùng một khối ngũ giác duy nhất cho `home` — cùng toạ độ ở cả hai trạng thái,
- * giống hệt cách ba icon kia đã làm.
+ * `getBBox()` trong Chrome thật (tâm lệch 0,00 khi đổi trạng thái). Icon `home` từng vi phạm điều
+ * này và "nhảy" hình mỗi lần bấm; nó rời thanh ngày 15/09/2026 cùng mục "Trang chủ", nhưng luật
+ * chung tâm vẫn đứng cho mọi icon thêm sau.
  */
 
 /** Hình nét, dùng khi mục KHÔNG được chọn. */
 const OUTLINE: Readonly<Record<NavKey, string>> = {
-  home: 'M12 3.6 20.4 11V20.4H3.6V11Z',
   formulas: 'M4 5h6v6H4V5ZM14 5h6v6h-6V5ZM4 13h6v6H4v-6ZM14 13h6v6h-6v-6Z',
   portfolio: 'M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z',
   settings: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
@@ -35,8 +29,6 @@ const OUTLINE: Readonly<Record<NavKey, string>> = {
 
 /** Hình đặc, dùng cho mục đang chọn. */
 const SOLID: Readonly<Record<NavKey, string>> = {
-  // Cùng khối ngũ giác với OUTLINE.home — xem docblock đầu file vì sao phải chung toạ độ.
-  home: 'M12 3.6 20.4 11V20.4H3.6V11Z',
   formulas: 'M3.5 4.5h7v7h-7v-7ZM13.5 4.5h7v7h-7v-7ZM3.5 12.5h7v7h-7v-7ZM13.5 12.5h7v7h-7v-7Z',
   portfolio: 'M3 7a2 2 0 0 1 2-2h4l2.2 2.6H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z',
   settings: 'M12 15.6a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2Z',

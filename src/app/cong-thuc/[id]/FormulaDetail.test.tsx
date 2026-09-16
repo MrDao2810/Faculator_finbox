@@ -22,6 +22,7 @@ import {
   parseActiveTicker,
   parseSavedCalcs,
   parseStoredSeries,
+  savedCalcsPath,
   serializeStoredSeries,
   t,
 } from '@/application';
@@ -362,17 +363,24 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(oNhap(/EPS/)).not.toBeNull();
   });
 
-  it('miễn trừ nằm NGAY ĐẦU MÀN chứ không đợi cuộn hết trang (FR-24 · UI-04)', () => {
-    const { container } = render(<Man spec={specOf('pe')} />);
+  /*
+   * Chủ dự án chốt 15/09/2026: *"nội dung cảnh báo cho xuống cuối trang"*. Trước đó ca này ghim
+   * chiều ngược lại — ô đứng trên tên công thức, theo UI-04 (mức M).
+   */
+  it('miễn trừ nằm CUỐI MÀN, sau hai nút kết thúc, và chỉ một lần (FR-24)', () => {
+    render(<Man spec={specOf('pe')} />);
 
-    const notice = container.querySelector('[role="note"]');
-    if (notice === null) throw new Error('Màn chi tiết thiếu dải miễn trừ.');
+    const notes = screen.getAllByText(t('disclaimer.text'));
+    expect(notes).toHaveLength(1);
+    const notice = notes[0]?.closest('[role="note"]');
+    if (notice == null) throw new Error('Màn chi tiết thiếu dải miễn trừ.');
     expect(notice.textContent).toContain('không phải khuyến nghị đầu tư');
 
-    // Phải đứng trước tiêu đề công thức — cuối màn thì không tính là "cùng tầm mắt với con số".
     const heading = screen.getByRole('heading', { level: 1 });
-    const position = notice.compareDocumentPosition(heading);
-    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const saveButton = screen.getByRole('button', { name: t('detail.saveToPortfolio') });
+    for (const truoc of [heading, saveButton]) {
+      expect(notice.compareDocumentPosition(truoc) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    }
   });
 });
 
@@ -1089,21 +1097,25 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
     expect(within(figure).getByRole('table').textContent).toContain('19,83');
   });
 
-  it('lệch khỏi ví dụ thì nói ra con số gốc kèm nút quay về, bấm là trở lại trọn bộ', async () => {
+  /*
+   * `pe` neo ví dụ vào số THẬT của FPT (72.300 ₫ / EPS 5.867 ₫ — xem `multiples.ts`), khác hẳn
+   * số mặc định 92.000 ₫ / 6.050 ₫ của chính ô nhập (số mặc định đó là fixture dùng chung cho rất
+   * nhiều ca kiểm khác trong file này nên KHÔNG đổi theo ví dụ — xem docblock ở `spec.example`).
+   * Vì vậy màn mở ra là đã LỆCH khỏi ví dụ ngay từ đầu, không cần gõ gì cả — khác với trước
+   * 15/09/2026, khi số mặc định và số ví dụ trùng nhau nên màn mở ra trông như "đã đúng ví dụ".
+   */
+  it('mở màn là đã lệch khỏi ví dụ thật của FPT; bấm nút quay về là trở lại trọn bộ', async () => {
     render(<Man spec={specOf('pe')} />);
 
-    // Đang đúng bộ của ví dụ thì chưa cần bày nút nào.
-    expect(screen.queryByRole('button', { name: 'Về số của ví dụ' })).toBeNull();
-
-    const duoi = oViDu(/Giá thị trường/);
-    await userEvent.clear(duoi);
-    await userEvent.type(duoi, '50000{Enter}');
-
+    // Số mặc định (92.000 ₫) không phải số ví dụ (72.300 ₫ thật của FPT) nên nút hiện ngay.
     expect(screen.getByText(/Ví dụ gốc cho:/)).not.toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Về số của ví dụ' }));
 
-    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
-    expect(screen.getByTestId('result-text').textContent).toBe('15,21 lần');
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('72.300');
+    expect((oNhap(/EPS/) as HTMLInputElement).value).toBe('5.867');
+    expect(screen.getByTestId('result-text').textContent).toBe('12,32 lần');
+    // Đúng bộ ví dụ rồi thì nút biến mất — không còn gì để "quay về".
+    expect(screen.queryByRole('button', { name: 'Về số của ví dụ' })).toBeNull();
   });
 
   /*
@@ -1989,6 +2001,44 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     expect(saved[0]?.inputs.price).toBe(92_000);
     expect(saved[0]?.resultValue).toBeCloseTo(15.2066, 3);
     expect(screen.getByTestId('result-text').textContent).toBe('15,21 lần');
+  });
+
+  /*
+   * Lỗi chủ dự án báo 15/09/2026: *"vừa tạo một công thức và lưu lại thì không thấy chuyển sang
+   * phần Danh mục"*. Sheet cũ chỉ đổi sang câu "Đã lưu" và đứng yên, còn link của nó trỏ vào một
+   * tab đã bỏ. Ca này ghim cả hai vế: có chuyển trang, và chuyển tới ĐÚNG khối — neo lấy từ
+   * `savedCalcsPath()` chứ không gõ lại chuỗi, để hai màn không lệch nhau một chữ.
+   */
+  it('lưu xong thì chuyển thẳng sang khối Phép tính đã lưu của màn Danh mục', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+    await userEvent.click(screen.getByRole('button', { name: t('save.submit') }));
+
+    expect(router.push).toHaveBeenCalledWith(savedCalcsPath());
+    expect(savedCalcsPath()).toBe(`${ROUTES.portfolio}#phep-tinh-da-luu`);
+  });
+
+  /*
+   * Chiều ngược lại cũng quan trọng ngang: ghi hỏng mà vẫn đi là đưa người dùng sang Danh mục tìm
+   * một mục không tồn tại, và họ không bao giờ đọc được câu lỗi của sheet.
+   */
+  it('trình duyệt chặn bộ nhớ thì KHÔNG chuyển trang, sheet ở lại báo lỗi', async () => {
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+
+    const chan = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('QuotaExceededError');
+    });
+    try {
+      await userEvent.click(screen.getByRole('button', { name: t('save.submit') }));
+    } finally {
+      chan.mockRestore();
+    }
+
+    expect(router.push).not.toHaveBeenCalledWith(savedCalcsPath());
+    expect(screen.getByRole('alert').textContent).toBe(t('save.failed'));
   });
 
   it('`?luu=` nạp lại đúng bộ số đã lưu và nói rõ ngày lưu', async () => {

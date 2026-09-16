@@ -84,6 +84,22 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
       </h2>
       <p className={styles.subtitle}>{pick(example.title)}</p>
 
+      {/*
+        Mô tả đứng NGAY dưới tiêu đề, trước cả bộ số — người đọc phải thấy "chuyện gì đã xảy ra"
+        trong tầm mắt đầu tiên, không phải cuộn qua hết bộ số và dòng kết quả mới tới.
+
+        Trích dẫn (`example.source`) tách thành DÒNG RIÊNG ngay dưới, không lẫn vào câu mô tả:
+        một câu kể chuyện, một dòng ghi nguồn — gộp chung từng đọc rối, vừa mô tả vừa dẫn nguồn
+        trong cùng một câu. Chỉ khoảng một phần ba công thức neo ví dụ vào một trường hợp có thật
+        mới có dòng này; phần còn lại không hiện.
+      */}
+      {example.note !== undefined && <p className={styles.note}>{pick(example.note)}</p>}
+      {example.source !== undefined && (
+        <p className={styles.source}>
+          {t('example.source')} {pick(example.source)}
+        </p>
+      )}
+
       <dl className={styles.inputs}>
         {rows.map((row) => (
           <div key={row.key} className={styles.pair}>
@@ -121,8 +137,6 @@ export function ExampleBlock({ formula, inputs, output, onChange, className }: E
             : valueText(example.expected, formula.resultUnit)}
         </strong>
       </p>
-
-      {example.note !== undefined && <p className={styles.note}>{pick(example.note)}</p>}
 
       {editable && !onExample && (
         <div className={styles.action}>

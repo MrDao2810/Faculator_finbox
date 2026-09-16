@@ -4,7 +4,7 @@ import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import {
-  HOME_RECENT_SEARCHES_KEY,
+  LEGACY_HOME_RECENT_SEARCHES_KEY,
   MAX_RECENT_SEARCHES,
   RECENT_SEARCHES_KEY,
   parseRecentSearches,
@@ -14,9 +14,9 @@ import { useRecentSearches } from './use-recent-searches';
 /**
  * Hook một-kho dùng chung cho hai ô tìm.
  *
- * Phần thuần (lọc trùng, cắt bớt, chịu được dữ liệu hỏng) đã có 25 ca ở `recent-searches.test.ts`
- * — ở đây chỉ gác phần hook: đọc đúng lúc, ghi đúng khoá, và **hai khoá không đụng nhau**, vốn là
- * cả lý do hook nhận khoá làm tham số.
+ * Phần thuần (lọc trùng, cắt bớt, chịu được dữ liệu hỏng) đã có ca riêng ở `recent-searches.test.ts`
+ * — ở đây chỉ gác phần hook: đọc đúng lúc, ghi đúng khoá, hai khoá không đụng nhau, và phép gộp
+ * một lần kho cũ của trang chủ.
  */
 
 beforeEach(() => {
@@ -121,50 +121,111 @@ describe('useRecentSearches() — ghi và xoá đúng khoá được truyền', 
 });
 
 /**
- * Cả lý do hook nhận khoá làm THAM SỐ thay vì viết cứng một khoá bên trong.
+ * Hook nhận khoá làm THAM SỐ thay vì viết cứng một khoá bên trong.
  *
- * Trước đợt này hai ô tìm dùng chung `ffb.recent.v1`, nên chip sinh ra ở màn tìm lại hiện ở trang
- * chủ — nó nói với người dùng rằng họ đã tìm thứ đó ở đây, trong khi không phải.
+ * Hai ô tìm hiện dùng chung một kho, nhưng hook không được giả định điều đó — từng có một đợt hai ô
+ * phải dùng hai kho riêng, và cái giá của một khoá viết cứng là sửa hook mỗi lần quyết định ấy đổi.
+ * Khoá thứ hai dưới đây là khoá giả chỉ để kiểm, không phải kho nào của sản phẩm.
  */
+const KHO_KHAC = 'ffb.recent.kiem-thu.v1';
+
 describe('useRecentSearches() — hai kho không đụng vào nhau', () => {
   it('ghi vào kho này thì kho kia vẫn nguyên và vẫn rỗng', () => {
-    const nhaTim = renderHook(() => useRecentSearches(RECENT_SEARCHES_KEY));
-    const nhaChu = renderHook(() => useRecentSearches(HOME_RECENT_SEARCHES_KEY));
+    const khoChinh = renderHook(() => useRecentSearches(RECENT_SEARCHES_KEY));
+    const khoKia = renderHook(() => useRecentSearches(KHO_KHAC));
 
     act(() => {
-      nhaTim.result.current.remember('Beta');
+      khoChinh.result.current.remember('Beta');
     });
 
     expect(doc(RECENT_SEARCHES_KEY)).toEqual(['Beta']);
-    expect(window.localStorage.getItem(HOME_RECENT_SEARCHES_KEY)).toBeNull();
-    expect(nhaChu.result.current.terms).toEqual([]);
+    expect(window.localStorage.getItem(KHO_KHAC)).toBeNull();
+    expect(khoKia.result.current.terms).toEqual([]);
   });
 
   it('xoá kho này thì kho kia còn nguyên', () => {
     window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(['Beta']));
-    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['P/E']));
+    window.localStorage.setItem(KHO_KHAC, JSON.stringify(['P/E']));
 
-    const nhaTim = renderHook(() => useRecentSearches(RECENT_SEARCHES_KEY));
+    const khoChinh = renderHook(() => useRecentSearches(RECENT_SEARCHES_KEY));
 
     act(() => {
-      nhaTim.result.current.clear();
+      khoChinh.result.current.clear();
     });
 
     expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
-    expect(doc(HOME_RECENT_SEARCHES_KEY)).toEqual(['P/E']);
+    expect(doc(KHO_KHAC)).toEqual(['P/E']);
   });
 
   it('đổi khoá thì đọc lại kho mới, không giữ danh sách cũ trên màn', () => {
     window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(['Beta']));
-    window.localStorage.setItem(HOME_RECENT_SEARCHES_KEY, JSON.stringify(['P/E']));
+    window.localStorage.setItem(KHO_KHAC, JSON.stringify(['P/E']));
 
     const { result, rerender } = renderHook(({ key }) => useRecentSearches(key), {
       initialProps: { key: RECENT_SEARCHES_KEY },
     });
     expect(result.current.terms).toEqual(['Beta']);
 
-    rerender({ key: HOME_RECENT_SEARCHES_KEY });
+    rerender({ key: KHO_KHAC });
 
     expect(result.current.terms).toEqual(['P/E']);
+  });
+});
+
+/**
+ * Gộp một lần kho cũ của ô tìm trang chủ (`absorbKey`) — trang chủ gộp vào màn Công thức ngày
+ * 15/09/2026 nên kho riêng của nó hết người ghi, nhưng lịch sử đã có trong đó không được mất.
+ */
+describe('useRecentSearches() — gộp kho cũ', () => {
+  const moKhoChung = () =>
+    renderHook(() =>
+      useRecentSearches(RECENT_SEARCHES_KEY, { absorbKey: LEGACY_HOME_RECENT_SEARCHES_KEY }),
+    );
+
+  it('kho chung đứng trước, kho cũ nối sau, bỏ trùng — rồi kho cũ bị xoá', () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(['Beta', 'P/E']));
+    window.localStorage.setItem(LEGACY_HOME_RECENT_SEARCHES_KEY, JSON.stringify(['p/e', 'ROI']));
+
+    const { result } = moKhoChung();
+
+    expect(result.current.terms).toEqual(['Beta', 'P/E', 'ROI']);
+    expect(doc(RECENT_SEARCHES_KEY)).toEqual(['Beta', 'P/E', 'ROI']);
+    expect(window.localStorage.getItem(LEGACY_HOME_RECENT_SEARCHES_KEY)).toBeNull();
+  });
+
+  it('gộp không được vượt trần số mục', () => {
+    const nhieu = (tien: string) =>
+      Array.from({ length: MAX_RECENT_SEARCHES }, (_, i) => `${tien} ${String(i)}`);
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(nhieu('Mới')));
+    window.localStorage.setItem(LEGACY_HOME_RECENT_SEARCHES_KEY, JSON.stringify(nhieu('Cũ')));
+
+    const { result } = moKhoChung();
+
+    expect(result.current.terms).toHaveLength(MAX_RECENT_SEARCHES);
+    expect(result.current.terms[0]).toBe('Mới 0');
+  });
+
+  /*
+   * Gộp xong mà không xoá kho cũ thì lần mở sau gộp lại — và mục người dùng vừa xoá khỏi kho chung
+   * sống lại từ kho cũ. Ca này gác đúng chuyện ấy.
+   */
+  it('mục đã xoá khỏi kho chung không sống lại ở lần mở sau', () => {
+    window.localStorage.setItem(LEGACY_HOME_RECENT_SEARCHES_KEY, JSON.stringify(['ROI']));
+
+    const lanDau = moKhoChung();
+    act(() => {
+      lanDau.result.current.clear();
+    });
+    lanDau.unmount();
+
+    const lanSau = moKhoChung();
+    expect(lanSau.result.current.terms).toEqual([]);
+  });
+
+  it('không có kho cũ thì chỉ đọc, không ghi gì', () => {
+    const { result } = moKhoChung();
+
+    expect(result.current.terms).toEqual([]);
+    expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
   });
 });

@@ -133,8 +133,8 @@
 .heroImage {
   display: block;
   width: 100%;
-  /* Tệp rộng 1040px, tức trần này là bản gấp 1,86× — vừa đủ nét trên màn có tỉ lệ điểm ảnh 2. */
-  max-width: 560px;
+  /* Tệp rộng 1040px, tức trần này là bản gấp 2,2× — dư nét trên màn có tỉ lệ điểm ảnh 2. */
+  max-width: 470px;
   height: auto;
 }
 
@@ -149,11 +149,21 @@
 }
 
 @media (min-width: 1024px) {
+  /*
+   * `align-items: start`, KHÔNG phải `center` — và đây là thứ quyết định chỗ bắt đầu của cả trang.
+   *
+   * Ảnh cao hơn cột chữ, nên căn giữa theo trục dọc sẽ đẩy khối chữ xuống đúng một nửa phần chênh
+   * (đo được ~70px ở 1440). Người đọc thấy đó là một khoảng trống lớn ngay dưới thanh trên, trong
+   * khi thứ họ cần đọc đầu tiên — tiêu đề — lại nằm dưới nó. Căn theo mép trên thì tiêu đề bám sát
+   * đỉnh vùng nội dung, và phần chênh dồn xuống dưới ảnh, nơi nó không che thứ gì.
+   *
+   * Ảnh thu còn 470px cũng vì lẽ đó: phần chênh còn lại nhỏ đi, nên mép dưới hai cột gần bằng nhau.
+   */
   .hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-7);
-    align-items: center;
+    align-items: start;
   }
 }
 

@@ -5,8 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
-  HOME_RECENT_SEARCHES_KEY,
   INPUT_DRAFT_KEY,
+  LEGACY_HOME_RECENT_SEARCHES_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
@@ -39,11 +39,10 @@ import styles from './SettingsScreen.module.css';
  * liệu thật" cho tới khi được vá cùng đợt cá nhân hoá trang chủ. Nay có ca kiểm quét mọi hằng
  * `'ffb.…'` trong `src/application` để không có lần thứ ba; xem `SettingsScreen.test.tsx`.
  */
-/** Nhãn của một kho. Union chứ không phải `MessageKey` trần — chỉ mười câu này hợp nghĩa ở đây. */
+/** Nhãn của một kho. Union chứ không phải `MessageKey` trần — chỉ chín câu này hợp nghĩa ở đây. */
 type StorageLabelKey =
   | 'data.prefs'
   | 'data.recent'
-  | 'data.recentHome'
   | 'data.usage'
   | 'data.series'
   | 'data.portfolio'
@@ -91,14 +90,13 @@ export const STORAGE_ITEMS: ReadonlyArray<{
 }> = [
   { key: PREFERENCES_STORAGE_KEY, labelKey: 'data.prefs', noteKey: 'data.prefs.note' },
   /*
-   * Ba kho "lịch sử" đứng cạnh nhau: cùng loại dữ liệu, cùng lý do người dùng muốn xoá.
+   * Hai kho "lịch sử" đứng cạnh nhau: cùng loại dữ liệu, cùng lý do người dùng muốn xoá.
    *
-   * Hai dòng đầu là lịch sử tìm của HAI ô tìm khác nhau — mỗi ô một kho riêng để chip của màn
-   * này không lẫn sang màn kia (xem docblock `recent-searches.ts`). Nhãn phải nói ra màn nào,
-   * nếu không ở đây hiện hai dòng trông y hệt nhau mà xoá ra hai kết quả khác.
+   * Lịch sử tìm từng có HAI dòng — kho riêng của ô tìm trang chủ đứng cạnh kho của màn tìm. Trang
+   * chủ gộp vào màn Công thức ngày 15/09/2026 và hai ô tìm quay về dùng chung một kho, nên còn một
+   * dòng. Kho cũ không có dòng riêng: xem `LEGACY_STORAGE_KEYS` ngay dưới.
    */
   { key: RECENT_SEARCHES_KEY, labelKey: 'data.recent', noteKey: 'data.recent.note' },
-  { key: HOME_RECENT_SEARCHES_KEY, labelKey: 'data.recentHome', noteKey: 'data.recentHome.note' },
   { key: FORMULA_USAGE_KEY, labelKey: 'data.usage', noteKey: 'data.usage.note' },
   { key: PRICE_SERIES_KEY, labelKey: 'data.series', noteKey: 'data.series.note' },
   { key: PORTFOLIO_KEY, labelKey: 'data.portfolio', noteKey: 'data.portfolio.note' },
@@ -113,6 +111,17 @@ export const STORAGE_ITEMS: ReadonlyArray<{
   { key: TICKER_LIST_KEY, labelKey: 'data.tickers', noteKey: 'data.tickers.note' },
   { key: PRICE_CACHE_KEY, labelKey: 'data.prices', noteKey: 'data.prices.note' },
 ];
+
+/**
+ * Kho CŨ không còn ai ghi, không có dòng trên màn nhưng vẫn phải được "Xoá toàn bộ" quét tới.
+ *
+ * `ffb.recent.home.v1` — lịch sử tìm của trang chủ trước khi gộp vào màn Công thức. Màn Công thức gộp
+ * nó vào kho chung rồi xoá ở lần mở đầu tiên, nên với gần như mọi người dùng nó đã biến mất. Không
+ * cho nó một dòng: một dòng "lịch sử tìm ở trang chủ" trong khi không còn trang chủ nào là câu nói
+ * sai. Nhưng người chưa kịp mở màn Công thức lần nào sau bản cập nhật vẫn có kho ấy trên máy, và
+ * LDR-04 đòi "xoá toàn bộ" là xoá THẬT toàn bộ.
+ */
+const LEGACY_STORAGE_KEYS: ReadonlyArray<string> = [LEGACY_HOME_RECENT_SEARCHES_KEY];
 
 /**
  * Icon của bốn khối và của nút xoá — bản thiết kế đợt 12.
@@ -309,9 +318,9 @@ export function SettingsScreen() {
 
   function removeAll(): void {
     if (!window.confirm(t('data.clearConfirm'))) return;
-    for (const item of STORAGE_ITEMS) {
+    for (const key of [...STORAGE_ITEMS.map((item) => item.key), ...LEGACY_STORAGE_KEYS]) {
       try {
-        window.localStorage.removeItem(item.key);
+        window.localStorage.removeItem(key);
       } catch {
         // Bỏ qua từng mục hỏng, vẫn xoá tiếp các mục còn lại.
       }
@@ -492,8 +501,8 @@ export function SettingsScreen() {
           Vùng thông báo LUÔN có mặt, rỗng khi chưa xoá gì.
 
           Sinh một `role="status"` cùng lúc với nội dung của nó thì trình đọc màn hình không đọc
-          lên — nó chỉ theo dõi những vùng đã có sẵn từ trước. Bài học này đã ghim ở
-          `HomeSearchPanel`; trước đợt này màn Cài đặt không có vùng live nào.
+          lên — nó chỉ theo dõi những vùng đã có sẵn từ trước. Bài học này đã ghim ở ô tìm màn
+          Công thức (`FormulaListScreen`); trước đợt này màn Cài đặt không có vùng live nào.
 
           Đặt NGOÀI `<ul>` chứ không thành một `<li>` thứ chín: danh sách kia là bản kiểm kê tám
           kho, và ca kiểm cửa gác duyệt từng `listitem` để đọc `<code>` bên trong.

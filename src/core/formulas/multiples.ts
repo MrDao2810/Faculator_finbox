@@ -83,12 +83,19 @@ export const PE: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'Giá 92.000 ₫, EPS 6.050 ₫', en: 'Price 92,000 ₫, EPS 6,050 ₫' },
-      inputs: { price: 92_000, eps: 6_050 },
-      expected: 15.21,
+      title: {
+        vi: 'FPT — một câu hỏi đầu tư giữa 2026: P/E quanh 12 lần',
+        en: 'FPT — a mid-2026 investment question: P/E around 12x',
+      },
+      inputs: { price: 72_300, eps: 5_867 },
+      expected: 12.32,
       note: {
-        vi: 'Cao hơn trung bình ngành thì thị trường đang kỳ vọng tăng trưởng.',
-        en: 'Higher than the industry average means the market is pricing in growth.',
+        vi: 'Giá 72.300 ₫ và EPS 5.867 ₫ ở trên là mức của FPT quanh thời điểm bài viết đặt câu hỏi có nên mua hay không, khi P/E khoảng 12 lần trong lúc lợi nhuận vẫn tăng khoảng 13%/năm nhờ mảng AI.',
+        en: 'The price of 72,300 ₫ and EPS of 5,867 ₫ above are FPT’s figures from around when the article asked whether the stock should be bought, with P/E around 12x while profit kept growing roughly 13%/year on its AI business.',
+      },
+      source: {
+        vi: 'Elibook.vn, bài viết ngày 28/05/2026 về FPT (mã FPT).',
+        en: 'Elibook.vn, an article dated 2026-05-28 about FPT (ticker FPT).',
       },
     },
     tests: [
@@ -210,11 +217,19 @@ export const PB: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Giá 92.000 ₫, giá trị sổ sách 24.800 ₫/CP',
-        en: 'Price 92,000 ₫, book value 24,800 ₫/share',
+        vi: 'MWG — giá 72.100 ₫, giá trị sổ sách 24.177 ₫/CP',
+        en: 'MWG — price 72,100 ₫, book value 24,177 ₫/share',
       },
-      inputs: { price: 92_000, bookValuePerShare: 24_800 },
-      expected: 3.71,
+      inputs: { price: 72_100, bookValuePerShare: 24_177 },
+      expected: 2.98,
+      note: {
+        vi: 'Thị giá MWG gần gấp ba giá trị sổ sách — mức P/B khá cao cho một doanh nghiệp bán lẻ.',
+        en: 'MWG’s market price is nearly three times its book value — a fairly high P/B for a retail business.',
+      },
+      source: {
+        vi: 'Finbox_v2, giá và giá trị sổ sách Thế giới Di động (mã MWG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Mobile World’s (ticker MWG) price and book value, locked in 2026-09-08.',
+      },
     },
     tests: [
       {

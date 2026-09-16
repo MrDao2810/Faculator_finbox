@@ -13,12 +13,20 @@ function ban(url: string, scrollY = 0): Origin {
   return { url, scrollY };
 }
 
-describe('matchOrigin() — bốn màn được phép làm gốc', () => {
-  it('nhận trang chủ, danh sách, tìm kiếm và danh mục', () => {
-    expect(matchOrigin('/')?.labelKey).toBe('nav.home');
+describe('matchOrigin() — ba màn được phép làm gốc', () => {
+  it('nhận danh sách, tìm kiếm và danh mục', () => {
     expect(matchOrigin('/cong-thuc/')?.labelKey).toBe('nav.backToList');
     expect(matchOrigin('/tim-kiem/')?.labelKey).toBe('search.label');
     expect(matchOrigin('/danh-muc/')?.labelKey).toBe('nav.portfolio');
+  });
+
+  /*
+   * Trang chủ `/` từng là màn gốc thứ tư. Nó gộp vào `/cong-thuc/` ngày 15/09/2026 và chỉ còn
+   * chuyển hướng — một bản ghi `/` còn sót trong tab mở từ trước phải rớt, để nút quay lại lùi về
+   * `/cong-thuc/` chứ không dựng link vào một trang chuyển hướng.
+   */
+  it('"/" không còn là màn gốc', () => {
+    expect(matchOrigin('/')).toBeNull();
   });
 
   it('giữ nguyên truy vấn — bộ lọc là thứ đáng nhớ nhất của màn danh sách', () => {
@@ -66,7 +74,7 @@ describe('matchOrigin() — bốn màn được phép làm gốc', () => {
 
 describe('parseOrigin() — đọc bản ghi trong sessionStorage', () => {
   it('đọc được bản ghi hợp lệ', () => {
-    expect(parseOrigin(ghi('/', 640))).toEqual({ url: '/', scrollY: 640 });
+    expect(parseOrigin(ghi('/danh-muc/', 640))).toEqual({ url: '/danh-muc/', scrollY: 640 });
   });
 
   it('chưa có gì thì trả null chứ không ném', () => {
@@ -81,9 +89,9 @@ describe('parseOrigin() — đọc bản ghi trong sessionStorage', () => {
   it('sai hình dạng thì rớt', () => {
     expect(parseOrigin('"chuoi-tran"')).toBeNull();
     expect(parseOrigin('null')).toBeNull();
-    expect(parseOrigin(JSON.stringify({ url: '/' }))).toBeNull();
-    expect(parseOrigin(JSON.stringify({ url: '/', scrollY: 'cao' }))).toBeNull();
-    expect(parseOrigin(JSON.stringify({ url: '/', scrollY: Number.NaN }))).toBeNull();
+    expect(parseOrigin(JSON.stringify({ url: '/danh-muc/' }))).toBeNull();
+    expect(parseOrigin(JSON.stringify({ url: '/danh-muc/', scrollY: 'cao' }))).toBeNull();
+    expect(parseOrigin(JSON.stringify({ url: '/danh-muc/', scrollY: Number.NaN }))).toBeNull();
   });
 
   it('URL không phải màn gốc thì rớt, dù bản ghi đúng hình dạng', () => {
@@ -92,9 +100,9 @@ describe('parseOrigin() — đọc bản ghi trong sessionStorage', () => {
   });
 
   it('vị trí cuộn âm hay vô lý bị kẹp về khoảng dùng được', () => {
-    expect(parseOrigin(ghi('/', -50))?.scrollY).toBe(0);
-    expect(parseOrigin(ghi('/', 9_999_999))?.scrollY).toBe(500_000);
-    expect(parseOrigin(ghi('/', 640.7))?.scrollY).toBe(640);
+    expect(parseOrigin(ghi('/cong-thuc/', -50))?.scrollY).toBe(0);
+    expect(parseOrigin(ghi('/cong-thuc/', 9_999_999))?.scrollY).toBe(500_000);
+    expect(parseOrigin(ghi('/cong-thuc/', 640.7))?.scrollY).toBe(640);
   });
 });
 
@@ -107,7 +115,11 @@ describe('originToStore() — có đáng ghi không', () => {
   });
 
   it('không có truy vấn thì không để lại dấu ? thừa', () => {
-    expect(originToStore('/', '', 0)).toEqual({ url: '/', scrollY: 0 });
+    expect(originToStore('/cong-thuc/', '', 0)).toEqual({ url: '/cong-thuc/', scrollY: 0 });
+  });
+
+  it('đứng ở trang chuyển hướng "/" thì không có gì để ghi', () => {
+    expect(originToStore('/', '', 0)).toBeNull();
   });
 
   /*
@@ -119,7 +131,7 @@ describe('originToStore() — có đáng ghi không', () => {
   });
 
   it('scrollY không hữu hạn thì về 0 chứ không lọt NaN vào JSON', () => {
-    expect(originToStore('/', '', Number.NaN)?.scrollY).toBe(0);
+    expect(originToStore('/cong-thuc/', '', Number.NaN)?.scrollY).toBe(0);
   });
 });
 
@@ -134,7 +146,7 @@ describe('originPath() — một cách chuẩn hoá duy nhất', () => {
     expect(originPath('/danh-muc?tab=cong-thuc')).toBe('/danh-muc/');
   });
 
-  it('trang chủ giữ nguyên một dấu /', () => {
+  it('đường dẫn gốc giữ nguyên một dấu /', () => {
     expect(originPath('/')).toBe('/');
   });
 });
@@ -152,11 +164,11 @@ describe('backTarget() — đích và nhãn không được rời nhau', () => {
   it('nhớ được thì nhãn ĐI THEO màn gốc, không giữ nhãn dự phòng', () => {
     expect(
       backTarget(
-        { origin: ban('/'), prev: null, here: O_CHI_TIET },
+        { origin: ban('/danh-muc/'), prev: null, here: O_CHI_TIET },
         '/cong-thuc/',
         'nav.backToList',
       ),
-    ).toEqual({ href: '/', labelKey: 'nav.home' });
+    ).toEqual({ href: '/danh-muc/', labelKey: 'nav.portfolio' });
   });
 
   it('màn gốc là danh sách đã lọc thì giữ nguyên bộ lọc trong href', () => {
@@ -170,7 +182,7 @@ describe('backTarget() — đích và nhãn không được rời nhau', () => {
 
   it('ô thứ hai chỉ là dự bị — còn dùng được ô thứ nhất thì không đụng tới nó', () => {
     const target = backTarget(
-      { origin: ban('/danh-muc/'), prev: ban('/'), here: O_CHI_TIET },
+      { origin: ban('/danh-muc/'), prev: ban('/tim-kiem/'), here: O_CHI_TIET },
       '/cong-thuc/',
       'nav.backToList',
     );
@@ -196,11 +208,11 @@ describe('backTarget() — không bao giờ trỏ về chính màn đang đứng
 
   it('so bằng ĐƯỜNG DẪN — khác mỗi truy vấn thì vẫn là màn ấy, không phải đường ra', () => {
     const target = backTarget(
-      { origin: ban('/tim-kiem/?q=roe'), prev: ban('/'), here: '/tim-kiem/' },
+      { origin: ban('/tim-kiem/?q=roe'), prev: ban('/danh-muc/'), here: '/tim-kiem/' },
       '/cong-thuc/',
       'nav.backToList',
     );
-    expect(target).toEqual({ href: '/', labelKey: 'nav.home' });
+    expect(target).toEqual({ href: '/danh-muc/', labelKey: 'nav.portfolio' });
   });
 
   it('thiếu dấu / cuối ở màn đang đứng vẫn nhận ra là trùng', () => {

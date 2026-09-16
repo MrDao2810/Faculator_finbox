@@ -56,8 +56,8 @@
  * `column-gap` được phép ở đây vì lớp này không bao giờ bị đo — khoảng cách DỌC vẫn nằm trong
  * `padding-bottom` của `.item` như cũ, để hai nhánh cách dòng y hệt nhau. Đừng nâng nó lên `.list`.
  *
- * ⚠ Chép Y HỆT sang `StaticFormulaList.module.css`: bản tĩnh trong HTML bị thay chỗ ngay khi
- * hydrate xong, lệch một thuộc tính là cả trăm thẻ nhảy bố cục trước mắt người dùng.
+ * (Bản chép thứ hai của luật này ở `StaticFormulaList.module.css` đã đi cùng file ấy: từ khi trang
+ * chủ gộp vào màn Công thức, danh sách do chính component này dựng vào HTML tĩnh.)
  */
 @media (min-width: 1280px) {
   .listStatic {

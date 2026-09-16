@@ -17,7 +17,7 @@ import { LangSwitch } from './LangSwitch';
  * chọn đúng, và nhãn đổi theo ngôn ngữ — không lặp lại mọi ca của `BottomTabBar`.
  */
 
-let pathname: string = ROUTES.home;
+let pathname: string = ROUTES.portfolio;
 
 vi.mock('next/navigation', () => ({
   usePathname: () => pathname,
@@ -32,7 +32,7 @@ function dungNav() {
 }
 
 beforeEach(() => {
-  pathname = ROUTES.home;
+  pathname = ROUTES.portfolio;
   window.localStorage.clear();
 });
 
@@ -49,11 +49,14 @@ function boDauCuoi(path: string): string {
 }
 
 describe('HeaderNav', () => {
-  it('năm mục trỏ đúng ROUTES', () => {
+  /*
+   * Bốn mục từ 15/09/2026 — "Trang chủ" rời thanh cùng trang chủ riêng. Ca đầu gác vế vắng mặt
+   * trước, vì một mục thừa không làm đỏ bốn phép `getByRole` phía dưới.
+   */
+  it('bốn mục trỏ đúng ROUTES, không còn "Trang chủ"', () => {
     dungNav();
-    expect(
-      boDauCuoi(screen.getByRole('link', { name: 'Trang chủ' }).getAttribute('href') ?? ''),
-    ).toBe(boDauCuoi(ROUTES.home));
+    expect(screen.queryByRole('link', { name: 'Trang chủ' })).toBeNull();
+    expect(screen.getAllByRole('link')).toHaveLength(4);
     expect(
       boDauCuoi(screen.getByRole('link', { name: 'Công thức' }).getAttribute('href') ?? ''),
     ).toBe(boDauCuoi(ROUTES.formulas));
@@ -85,7 +88,7 @@ describe('HeaderNav', () => {
 
     const dangChon = screen.getByRole('link', { name: 'Công thức' });
     expect(dangChon.getAttribute('aria-current')).toBe('page');
-    expect(screen.getByRole('link', { name: 'Trang chủ' }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Danh mục' }).getAttribute('aria-current')).toBeNull();
   });
 
   it('đường dẫn công thức con vẫn sáng đúng mục Công thức', () => {
@@ -102,7 +105,7 @@ describe('HeaderNav', () => {
     expect(screen.getByRole('navigation', { name: 'Điều hướng chính' })).toBeTruthy();
   });
 
-  it('chuyển sang EN thì cả năm nhãn đổi theo', async () => {
+  it('chuyển sang EN thì cả bốn nhãn đổi theo', async () => {
     const user = userEvent.setup();
     // Đặt cạnh LangSwitch — đúng cách hai component thật sự sống chung trong AppHeader — để đổi
     // locale qua một tương tác thật, không chỉ ghi thẳng localStorage.
@@ -115,7 +118,7 @@ describe('HeaderNav', () => {
 
     await user.click(screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' }));
 
-    expect(screen.getByRole('link', { name: 'Home' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Home' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Formulas' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Portfolio' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeTruthy();

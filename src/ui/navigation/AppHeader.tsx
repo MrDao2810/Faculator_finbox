@@ -1,6 +1,5 @@
 import styles from './AppHeader.module.css';
 import { HeaderIdentity } from './HeaderIdentity';
-import { HeaderModeToggle } from './HeaderModeToggle';
 import { HeaderNav } from './HeaderNav';
 import { LangSwitch } from './LangSwitch';
 import { ThemeSwitch } from './ThemeSwitch';
@@ -8,9 +7,12 @@ import { ThemeSwitch } from './ThemeSwitch';
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
  *
- * Danh tính ở đầu thanh, nút chuyển chế độ Cơ bản / Nâng cao (chỉ ở màn danh sách công thức), nút
- * đổi giao diện Sáng / Tối, nút ngôn ngữ. Dính trên khi cuộn để mấy nút này luôn với tới được
- * trên điện thoại.
+ * Danh tính ở đầu thanh, nút đổi giao diện Sáng / Tối, nút ngôn ngữ. Dính trên khi cuộn để mấy nút
+ * này luôn với tới được trên điện thoại.
+ *
+ * Cụm Cơ bản / Nâng cao KHÔNG còn ở đây từ 15/09/2026: nó từng chỉ hiện ở màn danh sách công thức
+ * (`HeaderModeToggle` + `showsModeToggle()`), và khi trang chủ gộp vào màn ấy thì cụm nút dời xuống
+ * hàng tiêu đề "Danh sách công thức", ngay cạnh con số nó làm đổi — xem `FormulaListScreen`.
  *
  * Danh tính KHÔNG cố định là tên sản phẩm nữa: ở màn có tên trong `headerTitleKey()`, khối hộp và
  * chữ "Faculator" nhường chỗ cho tên màn, và thân màn thôi dựng `<h1>` — chủ dự án chốt theo bản
@@ -32,24 +34,16 @@ export function AppHeader() {
         */}
         <HeaderIdentity />
 
-        {/* Bốn mục điều hướng — chỉ hiện ở màn PC (≥1024px). Dưới khổ đó, BottomTabBar vẫn lo
+        {/* Các mục điều hướng — chỉ hiện ở màn PC (≥1024px). Dưới khổ đó, BottomTabBar vẫn lo
             việc này ở đáy màn, đúng như trước; xem HeaderNav.module.css. */}
         <HeaderNav />
 
         <div className={styles.controls}>
           {/*
-            Nút chế độ Cơ bản / Nâng cao — CHỈ hiện ở màn danh sách '/cong-thuc/'. Lý do và số
-            đo nằm trong `showsModeToggle()`; ngắn gọn: ở những màn khác phần lớn lần bấm không
-            đổi gì trong tầm mắt, nên nút dạy người dùng rằng nó hỏng. Các màn ấy vẫn đổi theo
-            chế độ, lối vào là dòng `HiddenByLevelNote` đặt ngay cạnh chỗ bị giấu.
-          */}
-          <HeaderModeToggle />
-          {/*
             Nút đổi giao diện — đứng ở đúng chỗ nút tìm kiếm từng đứng (đợt đổi icon tìm kiếm
-            thành icon đổi theme). Cạnh nút chế độ vì cả hai là cùng một loại việc ("trang này
-            bày ra như thế nào"), đúng thứ tự chúng đứng trong khối "Chế độ hiển thị" ở màn
-            Cài đặt. Nay hiện ở MỌI khổ màn: trước đây bị ẩn dưới 1024px vì thanh trên đã đủ ba
-            điều khiển, nhưng bỏ nút tìm kiếm thì lại thừa đúng một chỗ trên điện thoại.
+            thành icon đổi theme). Nay hiện ở MỌI khổ màn: trước đây bị ẩn dưới 1024px vì thanh
+            trên đã đủ ba điều khiển, nhưng bỏ nút tìm kiếm thì lại thừa đúng một chỗ trên điện
+            thoại.
           */}
           <ThemeSwitch />
           {/*

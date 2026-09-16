@@ -9,6 +9,7 @@
  * Phần React (context, hook) KHÔNG nằm ở đây mà có đường dẫn riêng, để trang chạy phía
  * máy chủ như `sitemap.ts` không phải kéo theo React:
  *   @/application/preferences-context · @/application/use-online-status · @/application/use-list-params
+ *   @/application/use-list-url-state · @/application/list-url-sync
  */
 
 // ── Kiểu dữ liệu nền ────────────────────────────────────────────────────────
@@ -356,26 +357,38 @@ export { SHARE_INPUTS_PARAM, decodeShareInputs, encodeShareInputs } from './shar
 
 export type { HeaderBackLink, NavItem, NavKey, RouteKey } from './routes';
 export {
+  FORMULA_LIST_ANCHOR,
   NAV_ITEMS,
   ROUTES,
+  SAVED_CALCS_ANCHOR,
+  savedCalcsPath,
   activeRouteKey,
   backLinkFor,
   formulaListPath,
   formulaPath,
   headerTitleKey,
   showsFooterDisclaimer,
-  showsModeToggle,
 } from './routes';
+
+// Mười sáu ô (bày trước tám) của khối "Công thức dùng hằng ngày" ở đầu màn Công thức (FR-20)
+export {
+  DAILY_SHELF_IDS,
+  DAILY_SHELF_OPEN_KEY,
+  DAILY_SHELF_PREVIEW,
+  dailyShelfFormulas,
+} from './daily-shelf';
 
 export type { Preferences, Theme } from './preferences';
 export { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from './preferences';
 
-// Chip “Tìm gần đây” — hai kho riêng, mỗi ô tìm một khoá (xem docblock `recent-searches.ts`)
+// Chip “Tìm gần đây” — một kho chung cho hai ô tìm, kèm kho cũ của trang chủ chờ gộp
+// (xem docblock `recent-searches.ts`)
 export {
-  HOME_RECENT_SEARCHES_KEY,
+  LEGACY_HOME_RECENT_SEARCHES_KEY,
   MAX_RECENT_SEARCHES,
   RECENT_SEARCHES_KEY,
   addRecentSearch,
+  mergeRecentSearches,
   parseRecentSearches,
   removeRecentSearch,
   serializeRecentSearches,
@@ -394,8 +407,8 @@ export {
   serializeInputDrafts,
 } from './input-draft-store';
 
-// Lịch sử mở công thức — cá nhân hoá khối "Công thức dùng hằng ngày" của trang chủ (FR-20)
-// và hai cách sắp xếp "Vừa xem gần đây" / "Hay dùng nhất" ở màn danh sách (`usageOrderMap`).
+// Lịch sử mở công thức — cá nhân hoá khối "Công thức dùng hằng ngày" ở đầu màn Công thức (FR-20)
+// và hai cách sắp xếp "Vừa xem gần đây" / "Hay dùng nhất" của danh sách (`usageOrderMap`).
 export type { FormulaUsage, RankFeaturedInput } from './formula-usage';
 export {
   FORMULA_USAGE_KEY,
@@ -479,7 +492,9 @@ export {
   DEFAULT_LIST_PARAMS,
   hasSelectFilters,
   isDefaultListParams,
+  listParamsFromSearch,
   listParamsToQuery,
   parseListParams,
+  sameListParams,
   serializeListParams,
 } from './url-state';

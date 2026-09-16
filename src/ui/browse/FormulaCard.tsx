@@ -8,10 +8,10 @@ import { Pick } from '../i18n/Pick';
 import { T } from '../i18n/T';
 /*
  * Nhập THẲNG từ file chứ không qua barrel `@/ui/primitives`, cùng cách hai dòng trên nhập
- * `Pick`/`T`. Thẻ này được dựng từ CẢ hai phía — `FormulaBrowser` phía máy khách và
- * `StaticFormulaList` phía máy chủ — nên đi qua barrel là kéo theo `Button`, `Input`, `Select`,
- * `BottomSheet`, `Switch` (đều mang `'use client'`) vào đồ thị của trang chủ và của danh sách
- * tĩnh, chỉ để lấy một `<span>`. `Badge` không có `'use client'` và không gọi hook nào.
+ * `Pick`/`T`. Thẻ này được dựng từ CẢ hai phía — `FormulaListScreen` phía máy khách và kệ
+ * `DailyShelf` phía máy chủ — nên đi qua barrel là kéo theo `Button`, `Input`, `Select`,
+ * `BottomSheet`, `Switch` (đều mang `'use client'`) vào đồ thị của khối server, chỉ để lấy một
+ * `<span>`. `Badge` không có `'use client'` và không gọi hook nào.
  */
 import { Badge } from '../primitives/Badge';
 import { CategoryIcon, toneClass } from './CategoryIcon';
@@ -56,8 +56,8 @@ export interface FormulaCardProps {
  * và điều hướng được cả khi JavaScript chưa tải xong.
  *
  * Badge cấp độ và tên/mô tả công thức/nhóm đều đi qua lá `<T>`/`<Pick>` chứ không `useT()`/
- * `usePick()` thẳng: file này được dựng ở CẢ HAI phía — client (FormulaBrowser, HomeSearchPanel)
- * lẫn server (StaticFormulaList, fallback SEO) — nên gọi hook thẳng sẽ ném lỗi ở lượt dựng
+ * `usePick()` thẳng: file này được dựng ở CẢ HAI phía — client (FormulaListScreen, SearchScreen)
+ * lẫn server (kệ DailyShelf) — nên gọi hook thẳng sẽ ném lỗi ở lượt dựng
  * server. Hai lá này chạy được cả hai chỗ (xem docblock `Pick.tsx`).
  */
 function FormulaCardBase({
@@ -75,7 +75,7 @@ function FormulaCardBase({
    *
    * PHẢI là `undefined` khi không ai truyền `onSelect`, không được là một hàm luôn tồn tại gọi
    * `onSelect?.()` bên trong. Lý do là ranh giới RSC: file này KHÔNG mang `'use client'` và được
-   * `StaticFormulaList` cùng `page.tsx` dựng ở phía SERVER, mà `<Link>` thì là client component —
+   * kệ `DailyShelf` dựng ở phía SERVER, mà `<Link>` thì là client component —
    * nên một hàm gắn cứng vào `onClick` là hàm bị đẩy qua ranh giới, và Next dừng hẳn trang với
    * "Event handlers cannot be passed to Client Component props". Đã xảy ra thật ở trang chủ.
    * Không ca kiểm jsdom nào bắt được chuyện này vì chúng không dựng qua ranh giới RSC — chỉ

@@ -400,10 +400,10 @@ window.__themeLog = [];
 })();`;
 
   // Ghi lựa chọn Tối vào kho, rồi tải lại với quan sát viên đã cài sẵn.
-  await open('/');
+  await open('/cong-thuc/');
   await evaluate(`localStorage.setItem('ffb.prefs.v1', JSON.stringify({ theme: 'dark' }))`);
   const watcherId = await send('Page.addScriptToEvaluateOnNewDocument', { source: THEME_WATCHER });
-  await open('/');
+  await open('/cong-thuc/');
   // Đợi qua cả lượt hydrate: nguyên nhân 1 chỉ lộ ra sau khi React gắn xong.
   await waitFor(`document.documentElement.dataset.theme === 'dark'`);
   await new Promise((r) => setTimeout(r, 800));
@@ -432,7 +432,7 @@ window.__themeLog = [];
     identifier: watcherId.result?.identifier ?? watcherId.identifier,
   });
   await evaluate(`localStorage.removeItem('ffb.prefs.v1')`);
-  await open('/');
+  await open('/cong-thuc/');
 
   /* ── 0a2. Khối Công thức không có thanh cuộn dọc ẩn ──────────────────────── */
 
@@ -1197,45 +1197,62 @@ window.__themeLog = [];
     noise.slice(0, 2).join(' | '),
   );
 
-  /* ── 4. Trang chủ cá nhân hoá — lưới ghim sắp lại theo lịch sử trên máy ──── */
+  /* ── 4. Màn Công thức — `/` chuyển hướng, kệ cá nhân hoá theo lịch sử ────── */
+
+  /*
+   * Trang chủ riêng đã gộp vào màn Công thức (15/09/2026). Máy chủ riêng của script này không đọc
+   * `_redirects`, nên cú chuyển ở đây là của `<meta http-equiv="refresh">` trong `src/app/page.tsx`
+   * — đúng lớp dự phòng mà máy chạy thử dựa vào.
+   */
+  await open('/');
+  let daChuyen = false;
+  try {
+    await waitFor(`location.pathname === '/cong-thuc/'`, 8000);
+    daChuyen = true;
+  } catch {
+    daChuyen = false;
+  }
+  check('mở "/" thì tự chuyển về /cong-thuc/', daChuyen);
 
   /*
    * Chỗ DUY NHẤT trả lời được "có lệch hydration thật không".
    *
-   * Lưới 18 ô do server dựng, rồi một client component sắp lại theo `ffb.usage.v1`. Lượt render
-   * đầu ở máy khách phải trùng khít HTML tĩnh, nếu không React vứt cả cây đi — và cảnh báo của
-   * nó chui ra đúng cái console mà phép kiểm thứ ba dưới đây đang soi. jsdom không thay được:
-   * ở đó không có lượt hydrate thật nào.
+   * Kệ 16 ô (8 ô mang `hidden`) do server dựng, rồi một client component sắp lại theo `ffb.usage.v1`. Lượt render đầu ở
+   * máy khách phải trùng khít HTML tĩnh, nếu không React vứt cả cây đi — và cảnh báo của nó chui ra
+   * đúng cái console mà phép kiểm thứ ba dưới đây đang soi. jsdom không thay được: ở đó không có
+   * lượt hydrate thật nào.
    */
   await evaluate(
     `localStorage.setItem('ffb.usage.v1', JSON.stringify([{ id: 'xirr', count: 9, at: Date.now() }])), true`,
   );
-  await open('/');
+  await open('/cong-thuc/');
 
   const oDau = await evaluate(
-    `document.querySelector('#home-featured')?.closest('section')?.querySelector('li a')?.getAttribute('href') ?? null`,
+    `document.querySelector('#cong-thuc-hang-ngay')?.closest('section')?.querySelector('li a')?.getAttribute('href') ?? null`,
   );
   check(
-    'lịch sử đưa công thức hay mở lên ô đầu của khối',
+    'lịch sử đưa công thức hay mở lên ô đầu của kệ',
     oDau === '/cong-thuc/xirr/',
     `ô đầu trỏ ${String(oDau)}`,
   );
 
-  const soGhim = (
-    readFileSync('src/core/formulas/summaries.generated.ts', 'utf8').match(/isFeatured: true/g) ??
-    []
-  ).length;
+  /* Số ô đọc THẲNG từ `daily-shelf.ts` — docblock ở đó dặn giữ dạng mảng chuỗi nháy đơn. */
+  const soGhim = [
+    ...(/\bDAILY_SHELF_IDS = \[([\s\S]*?)\] as const/
+      .exec(readFileSync('src/application/daily-shelf.ts', 'utf8'))?.[1]
+      ?.matchAll(/'([a-z0-9-]+)'/g) ?? []),
+  ].length;
   const soO = await evaluate(
-    `document.querySelector('#home-featured')?.closest('section')?.querySelectorAll('li').length ?? 0`,
+    `document.querySelector('#cong-thuc-hang-ngay')?.closest('section')?.querySelectorAll('li').length ?? 0`,
   );
   check(
-    'khối vẫn đủ số ô sau khi sắp lại — không co giãn theo lịch sử',
+    'kệ vẫn đủ số ô sau khi sắp lại — không co giãn theo lịch sử',
     soGhim > 0 && soO === soGhim,
     `${String(soO)} ô, cần ${String(soGhim)}`,
   );
 
   check(
-    'trang chủ đã cá nhân hoá không kêu lỗi hay cảnh báo nào ra console — kể cả lệch hydration',
+    'màn Công thức đã cá nhân hoá không kêu lỗi hay cảnh báo nào ra console — kể cả lệch hydration',
     noise.length === 0,
     noise.slice(0, 2).join(' | '),
   );
@@ -1243,22 +1260,22 @@ window.__themeLog = [];
   // Dọn ngay: cụm EN dưới đây phải thấy đúng thứ tự ghim như một máy sạch.
   await evaluate(`localStorage.removeItem('ffb.usage.v1'), true`);
 
-  /* ── 5. Luồng EN sau hydrate — lá <T> trong children server-render (đợt 8) ─ */
+  /* ── 5. Luồng EN sau hydrate — lá <T> trong khối server truyền qua prop (đợt 8) ─ */
 
   /*
-   * Rủi ro riêng của kiến trúc i18n: ba khối trang chủ là server children truyền vào client
-   * `HomeSearchPanel` — bản thân chúng KHÔNG render lại khi context đổi. Chữ trong đó đổi được
-   * chỉ vì từng lá `<T>` tự subscribe. jsdom kiểm được từng lá một; còn "cả trang thật, hydrate
-   * từ HTML tĩnh tiếng Việt, đổi sang EN mà console sạch" thì chỉ Chrome thật trả lời được —
-   * cảnh báo lệch hydration của React chui ra đúng ở console mà phép kiểm cuối đang soi.
+   * Rủi ro riêng của kiến trúc i18n: kệ "Công thức dùng hằng ngày" là node server truyền vào màn
+   * client `FormulaListScreen` qua prop `shelf` — bản thân nó KHÔNG render lại khi context đổi. Chữ
+   * trong đó đổi được chỉ vì từng lá `<T>` tự subscribe. jsdom kiểm được từng lá một; còn "cả trang
+   * thật, hydrate từ HTML tĩnh tiếng Việt, đổi sang EN mà console sạch" thì chỉ Chrome thật trả lời
+   * được — cảnh báo lệch hydration của React chui ra đúng ở console mà phép kiểm cuối đang soi.
    */
   await evaluate(`localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' })), true`);
-  await open('/');
+  await open('/cong-thuc/');
 
   let enServer = false;
   try {
     await waitFor(
-      `[...document.querySelectorAll('h2')].some((h) => (h.textContent ?? '').includes('Browse by group'))`,
+      `[...document.querySelectorAll('h2')].some((h) => (h.textContent ?? '').includes('Everyday formulas'))`,
       8000,
     );
     enServer = true;
@@ -1284,80 +1301,70 @@ window.__themeLog = [];
   );
 
   check(
-    'trang chủ ở chế độ EN không kêu lỗi hay cảnh báo nào ra console — kể cả lệch hydration',
+    'màn Công thức ở chế độ EN không kêu lỗi hay cảnh báo nào ra console — kể cả lệch hydration',
     noise.length === 0,
     noise.slice(0, 2).join(' | '),
   );
 
-  /* ── 6. Tên nhóm không bị cắt ở khổ 360px (cả hai chế độ) ────────────────── */
+  /* ── 6. Hàng chip nhóm ở khổ 360px (cả hai chế độ) ───────────────────────── */
 
-  /**
-   * Đọc 12 ô "Duyệt theo nhóm": tên có bị cắt không, và badge bên phải đang chiếm bao nhiêu.
-   *
-   * Đo `scrollWidth > clientWidth` chứ không so chuỗi: `.name` cắt bằng `text-overflow: ellipsis`,
-   * mà `textContent` vẫn trả về tên ĐẦY ĐỦ dù trên màn chỉ còn "Tà…". Không phép kiểm nào của
-   * vitest thấy được chuyện này — jsdom không tính bố cục, nên `scrollWidth` ở đó luôn bằng 0.
-   *
-   * Cuộn tới khối trước khi đo, cùng lý do như `docThacNuoc()`.
+  /*
+   * Hàng chip thay lưới "Duyệt theo nhóm" của trang chủ cũ (15/09/2026). Nó CUỘN NGANG trong khung
+   * riêng, nên ba điều chỉ Chrome thật đo được: hàng chip không kéo cả trang tràn ngang, hai nút
+   * ‹ › ẩn ở khổ điện thoại, và nhánh con số đúng chế độ là nhánh HIỆN RA (jsdom không áp CSS nên
+   * nó luôn thấy cả hai nhánh). Chip "Tài chính DN" là chip duy nhất chế độ Cơ bản giấu sạch — nhánh
+   * hiện ra của nó phải là chữ, không phải số 0.
    */
-  function doONhom() {
+  function docHangChip() {
     return evaluate(`(async () => {
-    const khoi = document.querySelector('#home-browse')?.closest('section');
-    if (!khoi) return [];
-    khoi.scrollIntoView({ block: 'center' });
+    const khoi = document.getElementById('danh-sach-cong-thuc');
+    if (!khoi) return null;
+    khoi.scrollIntoView({ block: 'start' });
     await new Promise((d) => requestAnimationFrame(() => requestAnimationFrame(d)));
-    return [...khoi.querySelectorAll('li a')].map((a) => {
-      const ten = a.children[1];
-      const badge = [...a.children].slice(2).find((s) => getComputedStyle(s).display !== 'none');
-      return {
-        ten: ten?.textContent ?? '',
-        cut: ten ? ten.scrollWidth > ten.clientWidth + 1 : false,
-        rong: ten ? Math.round(ten.clientWidth) : 0,
-        can: ten ? Math.round(ten.scrollWidth) : 0,
-        badge: badge?.textContent ?? '',
-      };
-    });
+    const radios = [...khoi.querySelectorAll('input[name="nhom-cong-thuc"]')];
+    const tcdn = radios.find((r) => r.value === 'corporate-finance')?.parentElement ?? null;
+    const soHien = tcdn
+      ? [...tcdn.querySelectorAll('span span')].filter((s) => getComputedStyle(s).display !== 'none' && s.getAttribute('aria-hidden') !== 'true').map((s) => s.textContent)
+      : [];
+    const nut = [...khoi.querySelectorAll('button[aria-hidden="true"]')];
+    return {
+      soRadio: radios.length,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      nutHien: nut.filter((b) => getComputedStyle(b).display !== 'none').length,
+      tcdn: soHien.join('|'),
+    };
   })()`);
   }
 
-  /*
-   * Ô 'Tài chính DN' là ô duy nhất mà chế độ Cơ bản giấu sạch công thức, nên badge bên phải của nó
-   * là NHÃN CHỮ ("chỉ ở Nâng cao") chứ không phải một con số hai chữ số. Đo được: nhãn chiếm 82px
-   * trong khi tên và badge chỉ có 102px để chia nhau, mà `.count` khai `flex-shrink: 0` — tên bị
-   * bóp còn 20px và hiện ra "Tà…". Đây là chỗ chặn, và nó chỉ chặn được từ Chrome thật.
-   */
   await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
-  await open('/');
-  const oCoBan = await doONhom();
-  const cutCoBan = oCoBan.filter((o) => o.cut);
+  await open('/cong-thuc/');
+  const chipCoBan = await docHangChip();
 
   check(
-    'chế độ Cơ bản: không tên nhóm nào bị cắt ở khổ 360px — kể cả ô mang nhãn chữ',
-    oCoBan.length === 12 && cutCoBan.length === 0,
-    // Không in "còn dư bao nhiêu px": chữ vừa khung thì `scrollWidth` LUÔN bằng `clientWidth`,
-    // nên hiệu số đó là 0 ở mọi ô lành lặn và đọc ra như thể ô nào cũng sát nút.
-    cutCoBan.length > 0
-      ? cutCoBan.map((o) => `"${o.ten}" chỉ được ${String(o.rong)}/${String(o.can)}px`).join(' · ')
-      : `${String(oCoBan.length)} ô, ô mang nhãn chữ là "${
-          oCoBan.find((o) => !/^\d+$/.test(o.badge))?.ten ?? '—'
-        }"`,
+    'Điện thoại 360 · hàng chip nhóm đủ 13 lựa chọn, không kéo trang tràn ngang, nút ‹ › ẩn',
+    chipCoBan !== null &&
+      chipCoBan.soRadio === 13 &&
+      chipCoBan.tran === false &&
+      chipCoBan.nutHien === 0,
+    JSON.stringify(chipCoBan),
+  );
+
+  check(
+    'Điện thoại 360 · chế độ Cơ bản: chip "Tài chính DN" hiện chữ "chỉ ở Nâng cao", không hiện số 0',
+    chipCoBan !== null && chipCoBan.tcdn === 'chỉ ở Nâng cao',
+    `nhánh hiện ra: "${String(chipCoBan?.tcdn)}"`,
   );
 
   await evaluate(
     `localStorage.setItem('ffb.prefs.v1', JSON.stringify({ mode: 'advanced' })), true`,
   );
-  await open('/');
-  const oNangCao = await doONhom();
-  const cutNangCao = oNangCao.filter((o) => o.cut);
+  await open('/cong-thuc/');
+  const chipNangCao = await docHangChip();
 
   check(
-    'chế độ Nâng cao: không tên nhóm nào bị cắt — badge quay về con số nên ô về lại một hàng',
-    oNangCao.length === 12 && cutNangCao.length === 0,
-    cutNangCao.length > 0
-      ? cutNangCao.map((o) => `"${o.ten}" ${String(o.rong)}/${String(o.can)}px`).join(' · ')
-      : `${String(oNangCao.length)} ô, badge dài nhất "${
-          oNangCao.map((o) => o.badge).sort((a, b) => b.length - a.length)[0] ?? ''
-        }"`,
+    'Điện thoại 360 · chế độ Nâng cao: chip "Tài chính DN" quay về con số',
+    chipNangCao !== null && /^\d+$/.test(chipNangCao.tcdn),
+    `nhánh hiện ra: "${String(chipNangCao?.tcdn)}"`,
   );
 
   await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
@@ -1372,7 +1379,7 @@ window.__themeLog = [];
    * Ba nhóm ngoại lệ dưới đây là CÓ CHỦ ĐÍCH hoặc là nợ đã ghi sổ; mọi chuỗi khác là lỗi.
    */
   const MAN = [
-    '/',
+    // '/' không còn trong danh sách: nó chỉ chuyển hướng về '/cong-thuc/' (15/09/2026).
     '/cong-thuc/',
     '/tim-kiem/',
     '/cong-thuc/pe/',
@@ -1507,6 +1514,10 @@ window.__themeLog = [];
    *
    * Phép kiểm này gieo thẳng một bản lưu mang tên TIẾNG VIỆT vào kho, đúng như bản lưu cũ nằm sẵn
    * trên máy người dùng. Khối dò ở trên không thấy được ca này: máy Chrome của nó có kho rỗng.
+   *
+   * Không còn bước bấm sang tab "Công thức": cụm tab bỏ từ 14/09/2026, và danh sách phép tính đã
+   * lưu quay lại ngày 15/09/2026 thành khối thứ hai nằm thẳng trên màn. Bước bấm cũ dò mọi nút có
+   * chữ "Công thức" — giữ lại thì nó có thể bấm nhầm một nút khác trùng chữ.
    */
   await evaluate(`(() => {
     const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
@@ -1525,11 +1536,12 @@ window.__themeLog = [];
   await open('/danh-muc/');
 
   const tenDaLuu = await evaluate(`(async () => {
-    const tab = [...document.querySelectorAll('button, [role="tab"]')]
-      .find((el) => /Formulas|Công thức/.test(el.textContent ?? ''));
-    tab?.click();
-    await new Promise((d) => setTimeout(d, 300));
-    return [...document.querySelectorAll('p')].map((p) => p.textContent ?? '');
+    // Kho đọc trong effect — chờ khối dựng xong rồi mới đọc chữ.
+    for (let i = 0; i < 30 && !document.getElementById('phep-tinh-da-luu'); i += 1) {
+      await new Promise((d) => setTimeout(d, 100));
+    }
+    const khoi = document.getElementById('phep-tinh-da-luu');
+    return khoi === null ? [] : [...khoi.querySelectorAll('p')].map((p) => p.textContent ?? '');
   })()`);
 
   const coTenEn = (tenDaLuu ?? []).some((line) => line.includes('Margin of safety · 25/08/2026'));
@@ -1844,12 +1856,12 @@ window.__themeLog = [];
   );
 
   /*
-   * ── Màn danh sách: thanh tab và hai ô lọc theo bản vẽ WF-02 ──────────────────────────────────
+   * ── Màn Công thức: trang chủ + danh sách gộp làm một (bản vẽ 15/09/2026) ────────────────────
    *
-   * Ba con số của bản vẽ, đo trên khung 1690px: khay tab 672px (40% hàng), ba tab rộng bằng nhau,
-   * nhãn "Nhóm công thức" / "Sắp xếp" đứng BÊN TRÁI ô chọn cùng hàng, cả cụm lọc dạt mép phải.
-   * Chủ dự án trả lại bản trước ở đúng hai điểm đầu ("quá nhỏ và để thừa không gian bên phải",
-   * nhãn còn nằm trên ô chọn), nên mỗi điểm là một phép kiểm.
+   * Thay cụm kiểm "thanh tab 40% + hai ô lọc" của màn danh sách cũ — ba tab mảng và ô chọn nhóm đã
+   * bỏ. Mỗi phép dưới đây ứng với một điểm của bản vẽ gộp màn mà chỉ bố cục thật mới đo được:
+   * kệ 4 × 2, hàng tiêu đề danh sách mang "Mức độ" + "Sắp xếp" cùng hàng, hàng chip tràn thì nút
+   * ‹ › làm việc, lưới thẻ ba cột, và "Xem tất cả" bày đủ kệ tại chỗ (4 × 4) rồi thu về được.
    */
   await open('/cong-thuc/');
   const pcDs = await evaluate(`(() => {
@@ -1864,60 +1876,135 @@ window.__themeLog = [];
         width: Math.round(b.width),
       };
     };
-    const khay = document.querySelector('[role="tablist"]');
-    const wrap = khay?.parentElement ?? null;
+    const ke = document.querySelector('#cong-thuc-hang-ngay')?.closest('section') ?? null;
+    // Chỉ ô đang hiện: ô mang thuộc tính hidden có khung 0 × 0 ở toạ độ 0, làm sai phép đếm cột.
+    const oKe = ke === null ? [] : [...ke.querySelectorAll('li:not([hidden])')].map(r);
+    const khoi = document.getElementById('danh-sach-cong-thuc');
+    const tieuDe = khoi?.querySelector('h2') ?? null;
+    const nhomMucDo = khoi?.querySelector('[role="group"]') ?? null;
+    const chon = khoi?.querySelector('select') ?? null;
+    const nhanChon = chon === null ? null : khoi.querySelector('label[for="' + chon.id + '"]');
+    const theDs = khoi === null ? [] : [...khoi.querySelectorAll('ul li')].slice(0, 3).map(r);
     return {
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-      khay: r(khay),
-      wrap: r(wrap),
-      tabs: khay === null ? [] : [...khay.querySelectorAll('[role="tab"]')].map(r),
-      oChon:
-        wrap === null
-          ? []
-          : [...wrap.querySelectorAll('select')].map((s) => ({
-              chon: r(s),
-              nhan: r(wrap.querySelector('label[for="' + s.id + '"]')),
-            })),
+      oKe,
+      tieuDe: r(tieuDe),
+      mucDo: r(nhomMucDo),
+      chon: r(chon),
+      nhanChon: r(nhanChon),
+      theDs,
     };
   })()`);
 
-  check('PC 1440 · danh sách không tràn ngang', pcDs.tran === false);
+  check('PC 1440 · màn Công thức không tràn ngang', pcDs.tran === false);
 
   check(
-    'PC 1440 · danh sách: thanh tab chiếm ~40% hàng lọc, ba tab rộng bằng nhau',
-    pcDs.khay !== null &&
-      pcDs.wrap !== null &&
-      pcDs.tabs.length === 3 &&
-      pcDs.khay.width / pcDs.wrap.width >= 0.36 &&
-      pcDs.khay.width / pcDs.wrap.width <= 0.42 &&
-      Math.max(...pcDs.tabs.map((t) => t.width)) - Math.min(...pcDs.tabs.map((t) => t.width)) <= 2,
-    `khay ${String(pcDs.khay?.width)} / hàng ${String(pcDs.wrap?.width)} · tab ${String(pcDs.tabs.map((t) => t.width).join(' · '))}`,
+    'PC 1440 · kệ "Công thức dùng hằng ngày" xếp 4 cột × 2 hàng',
+    pcDs.oKe.length === 8 &&
+      new Set(pcDs.oKe.map((o) => o.left)).size === 4 &&
+      new Set(pcDs.oKe.map((o) => o.top)).size === 2,
+    `${String(pcDs.oKe.length)} ô · ${String(new Set(pcDs.oKe.map((o) => o.left)).size)} cột · ${String(new Set(pcDs.oKe.map((o) => o.top)).size)} hàng`,
   );
 
   check(
-    'PC 1440 · danh sách: nhãn "Nhóm công thức" / "Sắp xếp" đứng bên trái ô chọn, cùng hàng',
-    pcDs.oChon.length === 2 &&
-      pcDs.oChon.every(
-        ({ chon, nhan }) =>
-          chon !== null &&
-          nhan !== null &&
-          nhan.right <= chon.left &&
-          Math.abs((nhan.top + nhan.bottom) / 2 - (chon.top + chon.bottom) / 2) <= 8,
-      ),
-    pcDs.oChon
-      .map(({ chon, nhan }) => `nhãn phải=${String(nhan?.right)} · ô trái=${String(chon?.left)}`)
-      .join(' | '),
+    'PC 1440 · hàng tiêu đề danh sách: tiêu đề trái, "Mức độ" và "Sắp xếp" cùng hàng bên phải, nhãn đứng trái ô chọn',
+    pcDs.tieuDe !== null &&
+      pcDs.mucDo !== null &&
+      pcDs.chon !== null &&
+      pcDs.nhanChon !== null &&
+      pcDs.mucDo.left > pcDs.tieuDe.right &&
+      pcDs.chon.left > pcDs.mucDo.right &&
+      Math.abs((pcDs.mucDo.top + pcDs.mucDo.bottom) / 2 - (pcDs.chon.top + pcDs.chon.bottom) / 2) <=
+        8 &&
+      pcDs.nhanChon.right <= pcDs.chon.left,
+    `tiêu đề phải=${String(pcDs.tieuDe?.right)} · Mức độ trái=${String(pcDs.mucDo?.left)} · ô chọn trái=${String(pcDs.chon?.left)}`,
   );
 
   check(
-    'PC 1440 · danh sách: cụm lọc dạt mép phải, cùng đáy với thanh tab',
-    pcDs.wrap !== null &&
-      pcDs.khay !== null &&
-      pcDs.oChon.length === 2 &&
-      pcDs.oChon[1]?.chon !== null &&
-      pcDs.wrap.right - (pcDs.oChon[1]?.chon?.right ?? 0) <= 2 &&
-      Math.abs((pcDs.oChon[1]?.chon?.bottom ?? 0) - pcDs.khay.bottom) <= 2,
-    `hàng phải=${String(pcDs.wrap?.right)} · ô cuối phải=${String(pcDs.oChon[1]?.chon?.right)} · đáy khay=${String(pcDs.khay?.bottom)} · đáy ô=${String(pcDs.oChon[1]?.chon?.bottom)}`,
+    'PC 1440 · lưới thẻ danh sách ba cột',
+    pcDs.theDs.length === 3 &&
+      new Set(pcDs.theDs.map((t) => t.top)).size === 1 &&
+      new Set(pcDs.theDs.map((t) => t.left)).size === 3,
+    pcDs.theDs.map((t) => `${String(t.left)},${String(t.top)}`).join(' · '),
+  );
+
+  /* Hàng chip tràn ở 1440 (13 lựa chọn) — nút ‹ tắt ở đầu hàng, bấm › thì cuộn và ‹ bật. */
+  const hangChip = await evaluate(`(async () => {
+    const khoi = document.getElementById('danh-sach-cong-thuc');
+    const [lui, toi] = [...(khoi?.querySelectorAll('button[aria-hidden="true"]') ?? [])];
+    const khung = khoi?.querySelector('fieldset')?.parentElement ?? null;
+    if (!lui || !toi || !khung) return null;
+    const truoc = { tran: khung.scrollWidth > khung.clientWidth + 1, luiTat: lui.disabled, toiTat: toi.disabled };
+    toi.click();
+    await new Promise((d) => setTimeout(d, 800));
+    return { ...truoc, cuon: Math.round(khung.scrollLeft), luiSau: lui.disabled };
+  })()`);
+
+  check(
+    'PC 1440 · hàng chip nhóm: ‹ tắt ở đầu hàng, bấm › thì cuộn sang phải và ‹ bật',
+    hangChip !== null &&
+      (hangChip.tran === false ||
+        (hangChip.luiTat === true &&
+          hangChip.toiTat === false &&
+          hangChip.cuon > 0 &&
+          hangChip.luiSau === false)),
+    JSON.stringify(hangChip),
+  );
+
+  /*
+   * "Xem tất cả" bày đủ kệ NGAY TẠI CHỖ (chủ dự án chốt 15/09/2026): lưới 4 × 4, nút đổi thành "Thu
+   * gọn" và giữ tiêu điểm, URL không đổi. Bấm lần nữa thì về lại 4 × 2. jsdom kiểm được thuộc tính
+   * `hidden`; chỉ Chrome thật trả lời được "ô ẩn có thật sự không chiếm chỗ trong lưới không".
+   */
+  await open('/cong-thuc/');
+  const xemTatCa = await evaluate(`(async () => {
+    const ke = document.querySelector('#cong-thuc-hang-ngay')?.closest('section') ?? null;
+    const nut = ke?.querySelector('button[aria-controls="cong-thuc-hang-ngay-luoi"]') ?? null;
+    if (!ke || !nut) return null;
+    const oHien = () =>
+      [...ke.querySelectorAll('li')]
+        .map((li) => li.getBoundingClientRect())
+        .filter((b) => b.width > 0 && b.height > 0);
+    const luoi = () => {
+      const o = oHien();
+      return {
+        so: o.length,
+        cot: new Set(o.map((b) => Math.round(b.left))).size,
+        hang: new Set(o.map((b) => Math.round(b.top))).size,
+      };
+    };
+    const truoc = { ...luoi(), mo: nut.getAttribute('aria-expanded') };
+    const url = location.href;
+    nut.focus();
+    nut.click();
+    await new Promise((d) => setTimeout(d, 300));
+    const sau = {
+      ...luoi(),
+      mo: nut.getAttribute('aria-expanded'),
+      chu: (nut.textContent ?? '').trim(),
+      tieuDiem: document.activeElement === nut,
+      urlGiuNguyen: location.href === url,
+    };
+    nut.click();
+    await new Promise((d) => setTimeout(d, 300));
+    return { truoc, sau, thuLai: luoi() };
+  })()`);
+
+  check(
+    'PC 1440 · "Xem tất cả" bày đủ kệ tại chỗ (4 × 4), đổi thành "Thu gọn", bấm lần nữa về 4 × 2',
+    xemTatCa !== null &&
+      xemTatCa.truoc.so === 8 &&
+      xemTatCa.truoc.mo === 'false' &&
+      xemTatCa.sau.so === 16 &&
+      xemTatCa.sau.cot === 4 &&
+      xemTatCa.sau.hang === 4 &&
+      xemTatCa.sau.mo === 'true' &&
+      xemTatCa.sau.chu === 'Thu gọn' &&
+      xemTatCa.sau.tieuDiem === true &&
+      xemTatCa.sau.urlGiuNguyen === true &&
+      xemTatCa.thuLai.so === 8 &&
+      xemTatCa.thuLai.hang === 2,
+    JSON.stringify(xemTatCa),
   );
 
   /*
@@ -2259,17 +2346,17 @@ window.__themeLog = [];
    *
    * Chủ dự án gửi bốn ảnh thanh trên: _"mỗi lần click vào một tab thì giao diện lại bị lệch đi quá
    * xa"_. Đo được ở 1500px, tâm hàng nav: 765 / **682** / 772 / 765 — màn '/cong-thuc/' lệch 83px
-   * vì nó là màn duy nhất có nút Cơ bản / Nâng cao, mà cách xếp cũ căn nav giữa PHẦN CÒN LẠI chứ
-   * không giữa thanh.
+   * vì hồi ấy nó là màn duy nhất có nút Cơ bản / Nâng cao ở thanh trên, mà cách xếp cũ căn nav giữa
+   * PHẦN CÒN LẠI chứ không giữa thanh.
    *
-   * So hai màn KHÁC NHAU đúng ở chỗ ấy: '/cong-thuc/' có nút chế độ, '/cai-dat/' không. Cả hai đều
-   * đủ dài để có thanh cuộn nên `clientWidth` bằng nhau — phép so này vì thế đo đúng một thứ, và
-   * không dính cú giãn 15px khi trang ngắn bỏ thanh cuộn (chuyện riêng, đã chốt để lại — xem
-   * `globals.css`).
+   * Từ 15/09/2026 cụm nút ấy dời xuống thân màn Công thức, nên hai màn so dưới đây nay có cùng một
+   * cụm phải — phép so vẫn giữ: nó gác chuyện nav thôi đứng giữa THANH, không riêng chuyện cụm nút.
+   * Cả hai màn đủ dài để có thanh cuộn nên `clientWidth` bằng nhau, và không dính cú giãn 15px khi
+   * trang ngắn bỏ thanh cuộn (chuyện riêng, đã chốt để lại — xem `globals.css`).
    *
    * Vế thứ hai gác một lỗi mà chính bản vá này suýt tạo ra: mục lưới mặc định `stretch`, nên thẻ
-   * link "Faculator" phình từ 119px lên 497px và biến gần nửa thanh thành đích bấm vô hình về
-   * trang chủ. `justify-items: start` chặn điều đó; con số dưới đây là thứ giữ nó.
+   * link "Faculator" phình từ 119px lên 497px và biến gần nửa thanh thành đích bấm vô hình về màn
+   * Công thức. `justify-items: start` chặn điều đó; con số dưới đây là thứ giữ nó.
    */
   const DOC_NAV = `(() => {
     const nav = document.querySelector('header nav ul');
@@ -2290,7 +2377,7 @@ window.__themeLog = [];
   const navCaiDat = await evaluate(DOC_NAV);
 
   check(
-    'PC 1440 · hàng nav đứng yên khi đổi màn — nút Cơ bản/Nâng cao không đẩy nó đi',
+    'PC 1440 · hàng nav đứng yên khi đổi màn — căn giữa thanh, không giữa phần còn lại',
     navCongThuc !== null &&
       navCaiDat !== null &&
       navCongThuc.clientWidth === navCaiDat.clientWidth &&

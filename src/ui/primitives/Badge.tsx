@@ -23,7 +23,7 @@ export interface BadgeProps {
  * đây là một trong những chỗ lặp đó, và là chỗ đo được rõ nhất.
  *
  * Không có `'use client'` và không gọi hook nào: `FormulaCard` dùng huy hiệu này và nó được
- * dựng từ CẢ hai phía — `FormulaBrowser` phía máy khách lẫn `StaticFormulaList` phía máy chủ.
+ * dựng từ CẢ hai phía — `FormulaListScreen` phía máy khách lẫn kệ `DailyShelf` phía máy chủ.
  * Một hook ở đây sẽ làm hỏng lượt dựng phía máy chủ.
  *
  * Chữ bên trong do nơi gọi truyền vào, nên nó vẫn đi qua `useT()`/`<T>` của chính nơi gọi —

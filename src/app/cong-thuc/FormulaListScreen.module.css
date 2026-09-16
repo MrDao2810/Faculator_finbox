@@ -1,0 +1,209 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.searchArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/*
+ * Ô tìm hãm lại ở khổ PC — bản vẽ gộp màn vẽ nó chiếm hơn nửa hàng một chút (~54%), không trải hết.
+ *
+ * Bậc 1024 chứ không 1280: từ 1024 khung bắt đầu nới theo viewport (bảng "BẬC MÀN" ở `globals.css`),
+ * và một ô tìm rộng 928–1600px thì con trỏ nằm cách nút xoá gần một mét. Phần trăm chứ không số px:
+ * ở 1024 nó ra ~500px, đúng bề ngang ô tìm trang chủ cũ, rồi nới theo khung ở màn rộng như bản vẽ.
+ */
+@media (min-width: 1024px) {
+  .searchSlot {
+    max-width: 54%;
+  }
+}
+
+/*
+ * Vùng thông báo cho trình đọc màn hình. Có mặt trong DOM từ lần render đầu và không bao giờ tháo.
+ * Không dùng `display: none` vì như thế trình đọc cũng bỏ qua nốt.
+ */
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * Khối "Danh sách công thức" — mang neo `#danh-sach-cong-thuc`.
+ *
+ * `scroll-margin-top` chừa chỗ cho thanh trên DÍNH: thiếu nó, một cú nhảy tới neo đặt tiêu đề khối
+ * đúng mép trên khung nhìn — tức nằm khuất sau thanh trên. Cùng công thức `PortfolioScreen.module.css`
+ * đã dùng cho neo "Phép tính đã lưu".
+ */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  scroll-margin-top: calc(var(--header-height) + var(--space-3));
+}
+
+/* Tiêu đề bên trái, hai điều khiển bên phải — xuống hàng ở khổ hẹp. */
+.listHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+/*
+ * Tiêu đề khối viết hoa, màu mực — một kiểu duy nhất trên cả sản phẩm, `section-title.test.ts` gác.
+ */
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.level {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* "Mức độ" / "Sắp xếp" — nhãn chú thích cho bộ lọc, nhỏ và nhạt: nội dung đang chọn nằm ngay cạnh. */
+.controlLabel {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/*
+ * Ô Sắp xếp — nhãn ĐỨNG CẠNH ô chứ không chồng trên, cho gọn một hàng với cụm "Mức độ".
+ *
+ * Bộ chọn hai lớp `.controls > .sort` (0,2,0) chứ không `.sort` trơn: `.field` của primitive `Select`
+ * cũng một lớp, ngang trọng số thì thứ tự hai file module trong bó CSS quyết — thứ không đoán trước
+ * được. Tên lớp của primitive bị băm nên phải chạm tới nó qua thẻ (`> label`, `> select`).
+ */
+.controls > .sort {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.controls > .sort > label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.controls > .sort > select {
+  width: auto;
+  min-width: 10rem;
+  font-size: var(--text-sm);
+}
+
+/*
+ * Khổ PC: ô chọn thấp xuống 36px — chủ dự án muốn *"thu nhỏ và tối giản các button lớn cũ"*.
+ *
+ * CHỈ từ 1024px, nơi con trỏ là chuột. Dưới mốc ấy giữ 44px của NFR-USA-01: `<select>` là điều khiển
+ * gốc của hệ điều hành, không mở được vùng chạm bằng `::after` như nút tự vẽ.
+ */
+@media (min-width: 1024px) {
+  .controls > .sort > select {
+    min-height: 36px;
+  }
+}
+
+/* Dòng đếm bên trái, "Xoá bộ lọc" dạt phải. */
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--space-7);
+}
+
+/*
+ * Dòng "Hiển thị · 79 công thức" — to hơn một bậc, và MÀU NHẤN.
+ *
+ * Màu đã đổi HAI lần trong cùng ngày 09/09/2026 và cả hai đều là quyết định của chủ dự án: chữ phụ
+ * → mực → màu nhấn. Chốt cuối: *"đổi màu sang màu xanh dương đại diện của toàn app"*. Ghi cả đường
+ * đi ra đây để không ai "sửa lại cho đúng bậc mực" ở lượt sau.
+ */
+.count {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * ── Con số đi theo chế độ hiển thị ───────────────────────────────────────────────────────────
+ *
+ * Cả hai con số nằm sẵn trong DOM, `data-mode` trên `<html>` chọn con số nào hiện. KHÔNG có thuộc
+ * tính nghĩa là **Cơ bản** (khớp HTML tĩnh và máy chặn localStorage), nên điều kiện viết theo hướng
+ * `:not()` — liệt kê `[data-mode='basic']` là mất hẳn ca mặc định.
+ */
+.countBasic,
+.countAdvanced {
+  display: none;
+}
+
+:global(html:not([data-mode='advanced'])) .countBasic {
+  display: inline;
+}
+
+:global(html[data-mode='advanced']) .countAdvanced {
+  display: inline;
+}
+
+/* Dòng "N công thức nâng cao đang ẩn" chỉ có nghĩa ở chế độ Cơ bản. */
+:global(html[data-mode='advanced']) .onlyBasic {
+  display: none;
+}
+
+/*
+ * Thẻ mức Nâng cao TRƯỚC khi đọc xong tuỳ chọn — xem docblock `FormulaListScreen`.
+ *
+ * Lớp này chỉ có mặt ở lượt render trước hydrate (HTML tĩnh). Người dùng Cơ bản không thấy 32 thẻ ấy
+ * ngay từ pixel đầu; người dùng Nâng cao đã có `data-mode` do script khởi động đặt nên thấy đủ.
+ */
+:global(html:not([data-mode='advanced'])) .advancedPreHydrate {
+  display: none;
+}
+
+/*
+ * Nút "Xoá bộ lọc" — chủ dự án chốt: chữ nhỏ, màu xanh dương.
+ *
+ * `button.reset` (0,1,1) chứ không `.reset` trơn: hai dòng dưới đè `font-size` của `.sm` và `color`
+ * của `.ghost` trong primitive `Button`, cả hai đều một lớp — ngang trọng số thì thứ tự bó CSS quyết.
+ * `Button` luôn dựng ra `<button>` thật nên bộ chọn có tên thẻ là chắc chắn.
+ */
+button.reset {
+  margin-inline-start: auto;
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+}

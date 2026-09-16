@@ -1,10 +1,17 @@
 /**
  * Tầng APPLICATION — bản đồ đường dẫn (gói WBS 1.4.1).
  *
- * WF-18 chốt luồng: bốn mục ở thanh nav dưới, mỗi công thức một URL riêng. Mục thứ NĂM
- * ('/ve-chung-toi/') thêm sau, ngoài luồng tác vụ ấy — xem `NAV_ITEMS`.
+ * WF-18 chốt luồng: các mục ở thanh nav, mỗi công thức một URL riêng — xem `NAV_ITEMS`.
  * Đây là nguồn duy nhất của đường dẫn — thanh nav, sitemap và mọi link đều đọc từ đây,
  * để đổi slug là sửa một chỗ.
+ *
+ * ── Không còn trang chủ riêng (15/09/2026) ────────────────────────────────────────────────────
+ *
+ * Chủ dự án chốt gộp trang chủ vào màn Công thức: kệ "Công thức dùng hằng ngày" lên đầu màn danh
+ * sách, mục "Trang chủ" rời thanh nav. URL chính của màn gộp là `/cong-thuc/`; đường dẫn `/` chỉ
+ * còn chuyển hướng về đó (`public/_redirects` ở bản triển khai, `src/app/page.tsx` ở máy chạy thử)
+ * nên nó KHÔNG có mặt trong bảng dưới — không link nào trong sản phẩm được trỏ vào một trang chỉ
+ * để chuyển hướng.
  *
  * Slug tiếng Việt vì đường dẫn là phần Google đọc (FR-25). Đuôi '/' là bắt buộc:
  * next.config.mjs đặt `trailingSlash: true` cho hợp static hosting.
@@ -14,7 +21,7 @@ import type { MessageKey } from './i18n';
 import { listParamsToQuery, type ListParams } from './url-state';
 
 export const ROUTES = {
-  home: '/',
+  /** Màn Công thức — màn mở đầu của sản phẩm từ khi trang chủ gộp vào nó. */
   formulas: '/cong-thuc/',
   /**
    * Màn tìm kiếm WF-09. KHÔNG có trong `NAV_ITEMS` và KHÔNG có trong `sitemap.xml`:
@@ -40,11 +47,34 @@ export const ROUTES = {
 export type RouteKey = keyof typeof ROUTES;
 
 /**
- * Năm mục có mặt ở thanh nav dưới.
+ * Bốn mục có mặt ở thanh nav.
  * `search` và `data` là route thật nhưng không phải mục điều hướng — tách kiểu ra để component
  * thanh nav không phải bịa một icon cho chúng.
  */
 export type NavKey = Exclude<RouteKey, 'search' | 'data'>;
+
+/**
+ * `id` của khối "Danh sách công thức" trên màn Công thức, dùng làm neo `#…`.
+ *
+ * Khai ở đây vì nó là một phần hợp đồng URL — cùng lẽ với `SAVED_CALCS_ANCHOR` ngay dưới — và vì
+ * `verify-static.mjs` / `chrome-check.mjs` tìm khối danh sách qua chính chuỗi này. Từng là đích cuộn
+ * của link "Xem tất cả" trên kệ; từ 15/09/2026 nút ấy mở rộng kệ tại chỗ, không cuộn tới đây nữa.
+ */
+export const FORMULA_LIST_ANCHOR = 'danh-sach-cong-thuc';
+
+/**
+ * `id` của khối "Phép tính đã lưu" ở màn Danh mục, dùng làm neo `#…` trên URL.
+ *
+ * Khai ở đây chứ không ở từng màn vì nó là HỢP ĐỒNG giữa hai màn: màn chi tiết công thức điều
+ * hướng tới neo này ngay sau khi lưu, còn màn Danh mục đặt nó lên khối và cuộn tới khi thấy nó
+ * trên URL. Hai bên tự gõ chuỗi thì lệch một chữ là lưu xong rơi xuống đầu trang mà không ai biết.
+ */
+export const SAVED_CALCS_ANCHOR = 'phep-tinh-da-luu';
+
+/** Đường dẫn tới khối "Phép tính đã lưu", ví dụ '/danh-muc/#phep-tinh-da-luu'. */
+export function savedCalcsPath(): string {
+  return `${ROUTES.portfolio}#${SAVED_CALCS_ANCHOR}`;
+}
 
 /** Đường dẫn tới một công thức, ví dụ '/cong-thuc/wacc/'. */
 export function formulaPath(id: string): string {
@@ -54,8 +84,8 @@ export function formulaPath(id: string): string {
 /**
  * Đường dẫn tới màn danh sách ĐÃ LỌC SẴN, ví dụ '/cong-thuc/?q=roi&category=returns'.
  *
- * Một chỗ duy nhất dựng loại link này — lưới nhóm ở trang chủ và hàng "Xem tất cả" của ô tìm
- * đều gọi vào đây. Ghép chuỗi tay ở từng nơi thì tên tham số dễ lệch với `parseListParams()`
+ * Một chỗ duy nhất dựng loại link này — thẻ nhóm và khối "Danh mục hot" của màn tìm kiếm đều gọi
+ * vào đây. Ghép chuỗi tay ở từng nơi thì tên tham số dễ lệch với `parseListParams()`
  * mà không ai biết, và link mở ra một danh sách chưa lọc gì; đợt 7 đã dính đúng lỗi đó.
  *
  * Tham số mặc định được `listParamsToQuery()` lược bỏ, nên `DEFAULT_LIST_PARAMS` cho ra
@@ -72,11 +102,13 @@ export interface NavItem {
   /**
    * Nhãn NGẮN, chỉ dùng cho thanh tab dưới — bỏ trống thì tab dùng luôn `labelKey`.
    *
-   * Sinh ra từ một phép tính hình học, không phải từ sở thích: thanh dưới chia đều bề ngang cho
-   * các mục, nên mục thứ năm kéo mỗi tab từ 90px xuống 72px ở khổ 360, còn 64px cho chữ sau khi
-   * trừ đệm. "Về chúng tôi" ở 12px đậm đo được ~72px, tức xuống dòng — mà `.link` khai
-   * `min-height` chứ không `height`, nên một nhãn hai dòng đội CẢ thanh lên và ăn chỗ của mọi
-   * màn, chỉ vì một tab.
+   * Sinh ra từ một phép tính hình học khi thanh dưới có NĂM mục: mỗi tab còn 72px ở khổ 360, và
+   * "Về chúng tôi" ở 12px đậm đo được ~72px, tức xuống dòng — mà `.link` khai `min-height` chứ
+   * không `height`, nên một nhãn hai dòng đội CẢ thanh lên và ăn chỗ của mọi màn.
+   *
+   * Từ 15/09/2026 thanh còn bốn mục (mục "Trang chủ" đi theo trang chủ), mỗi tab về lại ~90px nên
+   * tiền đề ấy yếu đi. Nhãn ngắn vẫn giữ: đổi chữ trên thanh dưới là một quyết định hiển thị riêng,
+   * chưa ai đo lại để chốt — và giữ thì không hỏng gì.
    *
    * Rút nhãn cho cả hai thanh thì mất chữ đúng ở chỗ có thừa chỗ: thanh trên desktop là hàng chữ
    * trần, ở đó "Về chúng tôi" vừa thoải mái và là tên màn người dùng sẽ thấy trong thẻ trình
@@ -86,14 +118,16 @@ export interface NavItem {
 }
 
 /**
- * Năm mục của thanh điều hướng dưới.
+ * Bốn mục của thanh điều hướng.
  *
- * Bốn mục đầu theo đúng thứ tự WF-18 — chúng là một LUỒNG TÁC VỤ: xem → tính → giữ → chỉnh.
+ * Ba mục đầu theo đúng thứ tự WF-18 — chúng là một LUỒNG TÁC VỤ: xem & tính → giữ → chỉnh. Mục
+ * "Trang chủ" từng đứng đầu hàng; nó rời thanh ngày 15/09/2026 khi trang chủ gộp vào màn Công thức,
+ * nên "Công thức" nay vừa là mục đầu vừa là màn mở đầu.
+ *
  * "Về chúng tôi" không nằm trong luồng ấy nên đứng cuối, sau `settings`: chen nó vào giữa là đẩy
- * Cài đặt khỏi chỗ góc phải mà người dùng đã quen bấm.
+ * Cài đặt khỏi chỗ quen bấm.
  */
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
-  { key: 'home', href: ROUTES.home, labelKey: 'nav.home' },
   { key: 'formulas', href: ROUTES.formulas, labelKey: 'nav.formulas' },
   { key: 'portfolio', href: ROUTES.portfolio, labelKey: 'nav.portfolio' },
   { key: 'settings', href: ROUTES.settings, labelKey: 'nav.settings' },
@@ -105,34 +139,13 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   },
 ];
 
-/**
- * Thanh trên có bày cụm nút Cơ bản / Nâng cao ở đường dẫn này không.
- *
- * CHỈ màn danh sách công thức. Đây là số đo chứ không phải sở thích: đo trên Chrome ở khổ
- * 420×900, bấm đổi chế độ rồi so DOM từng ký tự, thì trang chủ lúc nhàn không đổi MỘT ký tự
- * nào; và trong 111 trang chi tiết chỉ 17 trang đổi gì đó (10 trang có biến `level: 'advanced'`
- * cộng 7 trang `chainFor()` xếp vào chuỗi phụ thuộc) — 94 trang còn lại bấm không thấy gì.
- *
- * Một nút bày thường trực ở thanh thương hiệu mà phần lớn lần bấm không trả lời gì sẽ dạy người
- * dùng đúng một điều, và điều đó sai: "nút này hỏng". Họ thôi bấm, và mất luôn 32 công thức mức
- * nâng cao mà họ không hề biết là có.
- *
- * Ở '/cong-thuc/' thì ngược hẳn: bấm xong con số ngay phía trên đổi từ 79 sang 111, cách chỗ
- * ngón tay vừa chạm chưa tới một dòng. Nguyên nhân dính liền kết quả nên nút tự giải thích, không
- * cần thêm câu thông báo nào.
- *
- * Những màn khác VẪN đổi theo chế độ — chỉ là không còn nút ở thanh trên. Lối vào của chúng là
- * `HiddenByLevelNote`: dòng "N thứ đang ẩn · Bật chế độ Nâng cao" đặt ngay cạnh chỗ bị thiếu và
- * chỉ hiện khi thật sự có thứ bị giấu. Đường về chế độ Cơ bản ở những màn ấy là hàng "Chế độ
- * hiển thị" trong màn Cài đặt.
- *
- * Khớp TUYỆT ĐỐI, cố ý không khớp trang con: '/cong-thuc/wacc/' là màn chi tiết chứ không phải
- * màn danh sách, và nó nằm trong nhóm 94 trang nói trên.
+/*
+ * `showsModeToggle()` — luật "thanh trên chỉ bày cụm Cơ bản / Nâng cao ở màn danh sách" — đã BỎ
+ * ngày 15/09/2026. Cụm nút không rời màn danh sách mà dời XUỐNG thân màn, ngay cạnh con số nó làm
+ * đổi (hàng tiêu đề "Danh sách công thức", nhãn "Mức độ"), nên thanh trên không còn màn nào cần
+ * bày nó. Số đo gốc của luật ấy — trang chủ không đổi một ký tự, 94/111 trang chi tiết bấm không
+ * thấy gì — chuyển sang docblock `FormulaListScreen`, nơi nó vẫn là lý do nút đứng ở đó.
  */
-export function showsModeToggle(pathname: string): boolean {
-  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
-  return path === ROUTES.formulas;
-}
 
 /**
  * Những màn mà thanh trên bày TÊN MÀN thay cho tên sản phẩm.
@@ -143,16 +156,17 @@ export function showsModeToggle(pathname: string): boolean {
  * Ba màn, và bảng cũng là lời hứa ngược lại: màn nào KHÔNG có ở đây thì thân màn phải tự dựng
  * `<h1>` của nó — xem `headerTitleKey()`.
  *
- * Hai mục điều hướng cố ý ĐỨNG NGOÀI bảng, mỗi mục một lý do khác nhau:
+ * '/ve-chung-toi/' cố ý ĐỨNG NGOÀI bảng dù có mục điều hướng riêng: màn này mở bằng một dải giới
+ * thiệu có tiêu đề lớn của riêng nó, và tiêu đề ấy là thứ người đọc nhìn thấy đầu tiên. Đẩy `<h1>`
+ * lên thanh trên thì từ 1024px nó thành `position: absolute` (xem `HeaderIdentity.module.css`) —
+ * tức trang giới thiệu mất hẳn tiêu đề nhìn thấy được trên desktop, đúng chỗ nó cần nhất.
  *
- *   - Trang chủ: ở đó tên sản phẩm mới đúng là tên màn, nên thanh trên khỏi đổi gì.
- *   - '/ve-chung-toi/': màn này mở bằng một dải giới thiệu có tiêu đề lớn của riêng nó, và tiêu đề
- *     ấy là thứ người đọc nhìn thấy đầu tiên. Đẩy `<h1>` lên thanh trên thì từ 1024px nó thành
- *     `position: absolute` (xem `HeaderIdentity.module.css`) — tức trang giới thiệu mất hẳn tiêu
- *     đề nhìn thấy được trên desktop, đúng chỗ nó cần nhất.
+ * (Trang chủ từng là mục thứ hai đứng ngoài bảng, vì ở đó tên sản phẩm mới là tên màn. Trang chủ đã
+ * gộp vào '/cong-thuc/' ngày 15/09/2026; màn gộp giữ nguyên dòng của nó trong bảng — dưới 1024px
+ * thanh trên vẫn nói "Công thức", từ 1024px vẫn bày logo + tên sản phẩm như mọi màn có tên.)
  *
- * Khớp TUYỆT ĐỐI, cùng lẽ với `showsModeToggle()`: '/cong-thuc/wacc/' là màn chi tiết, nó có tên
- * riêng của công thức làm tiêu đề nên thanh trên phải trả lại chỗ cho tên sản phẩm.
+ * Khớp TUYỆT ĐỐI: '/cong-thuc/wacc/' là màn chi tiết, nó có tên riêng của công thức làm tiêu đề nên
+ * thanh trên không được bày thêm tên màn danh sách.
  */
 const HEADER_TITLES: ReadonlyArray<{ path: string; key: MessageKey }> = [
   { path: ROUTES.formulas, key: 'page.formulas.title' },
@@ -296,14 +310,15 @@ export function showsFooterDisclaimer(pathname: string): boolean {
 }
 
 /**
- * Mục nào đang được chọn ứng với đường dẫn hiện tại.
- * Trang chủ phải khớp tuyệt đối, các mục khác khớp cả trang con
+ * Mục nào đang được chọn ứng với đường dẫn hiện tại. Mọi mục khớp cả trang con
  * (ví dụ '/cong-thuc/wacc/' vẫn sáng mục Công thức).
+ *
+ * Nhánh riêng cho '/' đã bỏ cùng mục "Trang chủ": '/' chỉ còn là trang chuyển hướng, nó không sáng
+ * mục nào — và vòng lặp dưới không cần bước bỏ qua nữa, vì không còn mục nào mang `href` '/' để
+ * khớp tiền tố với MỌI đường dẫn.
  */
 export function activeRouteKey(pathname: string): NavKey | null {
   const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
-
-  if (path === ROUTES.home) return 'home';
 
   // Màn tìm kiếm WF-09 và bảng dữ liệu WF-05 không có mục riêng ở thanh nav. WF-18 xếp cả hai
   // trong luồng công thức, nên chúng sáng mục Công thức — tắt hết mọi mục sẽ khiến người dùng
@@ -311,7 +326,6 @@ export function activeRouteKey(pathname: string): NavKey | null {
   if (path.startsWith(ROUTES.search) || path.startsWith(ROUTES.data)) return 'formulas';
 
   for (const item of NAV_ITEMS) {
-    if (item.key === 'home') continue;
     if (path === item.href || path.startsWith(item.href)) return item.key;
   }
 

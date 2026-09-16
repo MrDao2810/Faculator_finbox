@@ -36,7 +36,7 @@ describe('khung i18n', () => {
   });
 
   it('lấy đúng câu tiếng Việt', () => {
-    expect(t('nav.home')).toBe('Trang chủ');
+    expect(t('nav.formulas')).toBe('Công thức');
     expect(t('mode.advanced')).toBe('Nâng cao');
   });
 
@@ -98,7 +98,7 @@ describe('khung i18n', () => {
  */
 describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
   it('truyền locale en thì lấy đúng câu tiếng Anh', () => {
-    expect(t('nav.home', 'en')).toBe('Home');
+    expect(t('nav.formulas', 'en')).toBe('Formulas');
     expect(t('mode.advanced', 'en')).toBe('Advanced');
     expect(t('search.noMatch', 'en')).toBe('Nothing found for');
   });
@@ -195,10 +195,6 @@ describe('chữ trên màn không được đóng băng lúc build', () => {
     {
       duoi: join('app', 'layout.tsx'),
       viSao: 'metadata dựng lúc build (tiêu đề tài liệu, manifest) — không phải chữ trên màn',
-    },
-    {
-      duoi: join('cong-thuc', 'StaticFormulaList.tsx'),
-      viSao: 'fallback SEO trong HTML tĩnh, bị FormulaBrowser (đã theo locale) thế chỗ sau hydrate',
     },
     {
       duoi: join('sheets', 'draw-card.ts'),

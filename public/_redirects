@@ -1,0 +1,13 @@
+# Chuyển hướng cho Cloudflare (Pages và Workers static assets đều đọc file này từ gốc out/).
+#
+# Trang chủ riêng đã gộp vào màn Công thức ngày 15/09/2026 — `/cong-thuc/` là màn mở đầu và là URL
+# chính danh (sitemap priority 1.0). `/` chuyển hẳn về đó bằng 301: bộ máy tìm kiếm hiểu là "đã dời
+# hẳn" và chuyển giá trị của URL gốc sang địa chỉ mới, thay vì lập chỉ mục hai địa chỉ cho cùng một
+# nội dung (FR-25). Mặc định của Cloudflare là 302, nên mã 301 phải ghi rõ.
+#
+# Máy chạy thử (`next dev`, `npm run preview`, máy chủ riêng của `check:chrome`) KHÔNG đọc file này;
+# ở đó `src/app/page.tsx` tự chuyển bằng `<meta http-equiv="refresh">`.
+#
+# Kiểm sau khi triển khai: `curl -sI https://<tên-miền>/` phải trả `301` kèm `location: /cong-thuc/`.
+
+/  /cong-thuc/  301

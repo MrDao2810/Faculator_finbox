@@ -6,7 +6,7 @@
  * biến mới vào Registry là có ngay ô nhập đúng kiểu, không phải sửa component nào.
  *
  * Tất cả đều là controlled component thuần: nhận `value` + `onChange`, không tự giữ state.
- * Chỗ giữ state là màn hình — cùng khuôn với SearchBox và CategoryFilter của gói 2.2.
+ * Chỗ giữ state là màn hình — cùng khuôn với SearchBox và CategoryChips của gói 2.2.
  */
 
 /* Cửa chặn chữ cái dùng chung cho mọi ô số — ba hàm đi CÙNG NHAU, xem docblock của chính chúng. */

@@ -209,22 +209,30 @@ describe('WF-06 — danh mục rỗng', () => {
   });
 
   /*
-   * UI-04 (mức M) đòi câu miễn trừ nằm trong TẦM NHÌN ĐẦU TIÊN của trang có kết quả. Màn này bày
-   * sáu ô tiền ngay đầu màn — trong đó có lãi/lỗ của chính người dùng, con số dễ bị đọc thành lời
-   * khuyên nhất trong cả sản phẩm (rủi ro R-06 của SRS). Trước đợt này câu miễn trừ duy nhất ở đây
-   * là dải chân trang của AppShell, nằm sau cả danh sách nắm giữ.
+   * Ô miễn trừ đứng CUỐI MÀN — chủ dự án chốt 15/09/2026: *"nội dung cảnh báo cho xuống cuối
+   * trang"*. Trước đó ca này ghim chiều ngược lại (ô đứng trên sáu ô tiền, theo UI-04 mức M).
+   *
+   * Ghim cả khối Phép tính đã lưu: khối ấy dựng SAU khi kho nạp, nên một ô chèn nhầm vào giữa
+   * Nắm giữ và khối ấy sẽ lọt qua nếu ca này chỉ dựng danh mục rỗng. Và vẫn đúng MỘT ô — đây là
+   * câu miễn trừ duy nhất của màn, chân trang không dựng dải xám ở `/danh-muc/`.
    */
-  it('câu miễn trừ đứng TRƯỚC lưới sáu ô tiền, không đợi cuộn hết màn (UI-04)', async () => {
+  it('câu miễn trừ đứng CUỐI MÀN, sau sáu ô tiền, Nắm giữ và Phép tính đã lưu (FR-24)', async () => {
+    seedSaved();
     const { container } = render(<PortfolioScreen />);
-    await screen.findByText('Nắm giữ');
+    const saved = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
 
-    const note = container.querySelector('[role="note"]');
+    const notes = screen.getAllByText(t('disclaimer.text'));
+    expect(notes).toHaveLength(1);
+    const note = notes[0]?.closest('[role="note"]');
     const stats = container.querySelector('[class*="stats"]');
-    if (note === null || stats === null) throw new Error('thiếu dải miễn trừ hoặc lưới ô số');
+    if (note == null || stats === null) throw new Error('thiếu dải miễn trừ hoặc lưới ô số');
 
     // compareDocumentPosition thay vì so toạ độ: jsdom không dựng bố cục, nhưng thứ tự trong cây
     // đúng là thứ quyết định cái nào đọc trước trên màn hình và với trình đọc màn hình.
-    expect(note.compareDocumentPosition(stats) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    for (const truoc of [stats, screen.getByText('Nắm giữ'), saved.closest('section')]) {
+      if (truoc === null) throw new Error('thiếu khối Phép tính đã lưu');
+      expect(note.compareDocumentPosition(truoc) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    }
   });
 
   it('mọi ô nói rõ chưa có mã nào, KHÔNG ô nào hiện 0 (FR-06)', async () => {
@@ -1436,11 +1444,14 @@ describe('WF-06 — form thôi giải thích thay cho người dùng', () => {
 });
 
 /*
- * ── Tab "Công thức": phép tính đã lưu từ màn chi tiết ──────────────────────────────────────
+ * ── Khối "Phép tính đã lưu": phép tính cất từ màn chi tiết ─────────────────────────────────
  *
- * Tab này cố ý KHÔNG tính lại con số nào — tính lại đòi cả Registry trong gói của `/danh-muc/`,
- * đã đo một lần là 131 kB lên 217 kB, vượt cửa 180 kB. Nên điều kiện để nó lương thiện là bày
- * NGÀY LƯU cùng con số, và ca kiểm dưới ghim đúng chỗ đó.
+ * Từng là tab "Công thức", bị gỡ cùng cụm tab (14/09/2026) rồi quay lại thành khối thứ hai của màn
+ * (15/09/2026) — vì nút Lưu ở màn chi tiết vẫn ghi vào kho mà không còn chỗ nào bày kho ra.
+ *
+ * Khối cố ý KHÔNG tính lại con số nào — tính lại đòi cả Registry trong gói của `/danh-muc/`, đã đo
+ * một lần là 131 kB lên 217 kB, vượt cửa 180 kB. Nên điều kiện để nó lương thiện là bày NGÀY LƯU,
+ * và ca kiểm dưới ghim đúng chỗ đó.
  */
 function seedSaved(): void {
   window.localStorage.setItem(
@@ -1460,6 +1471,149 @@ function seedSaved(): void {
     ]),
   );
 }
+
+describe('WF-06 — phép tính đã lưu là khối thứ hai của màn', () => {
+  /*
+   * Khối nằm thường trực dưới danh mục của MỌI người. Một ô rỗng thường trực kèm câu hướng dẫn là
+   * đúng thứ chủ dự án gỡ khi bỏ tabbar — nên chưa lưu gì thì không có khối nào cả.
+   */
+  it('chưa lưu phép tính nào thì không dựng khối', async () => {
+    render(<PortfolioScreen />);
+
+    // Chờ effect đọc localStorage chạy xong, không thì ca này luôn xanh.
+    await screen.findByText('Nắm giữ');
+    expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
+  });
+
+  /*
+   * Đây là vế "thấy lại được" của lỗi chủ dự án báo 15/09/2026. Trước bản vá, kho có mục mà màn
+   * không có một chữ nào về nó.
+   */
+  it('có phép tính đã lưu thì bày tên, ngày lưu, và "Xem" mở lại đúng bản lưu', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    const tieuDe = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+    const khoi = tieuDe.closest('section') as HTMLElement;
+
+    expect(within(khoi).getByText('HPG · P/E')).not.toBeNull();
+    /*
+     * Dòng phụ bỏ mảnh nào đã nằm trong tên: "HPG" có trong "HPG · P/E" nên rụng, còn tên đầy đủ
+     * của công thức thì không nên ở lại. Ngày lưu thì LUÔN ở cuối — chỗ duy nhất nói con số thuộc
+     * mốc nào.
+     */
+    const dongPhu = within(khoi).getByText(/lưu 25\/08\/2026$/);
+    expect(dongPhu.textContent?.startsWith('HPG')).toBe(false);
+    /*
+     * `next/link` dựng ngoài router thật bỏ dấu '/' trước `?` — hành vi của môi trường test, không
+     * phải của trang thật (xem `HeaderNav.test.tsx`), nên so khớp cho phép có hoặc không.
+     */
+    expect(within(khoi).getByRole('link', { name: 'Xem' }).getAttribute('href')).toMatch(
+      /^\/cong-thuc\/pe\/?\?luu=pe-1756000000000$/,
+    );
+  });
+
+  it('bấm Xoá thì gỡ khỏi kho, và hết mục thì khối biến mất', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Xoá HPG · P/E' }));
+
+    expect(JSON.parse(window.localStorage.getItem(SAVED_CALCS_KEY) ?? 'null')).toEqual([]);
+    expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
+  });
+
+  /*
+   * Đích của nút Lưu ở màn chi tiết là `/danh-muc/#phep-tinh-da-luu`. Không trông vào việc trình
+   * duyệt tự nhảy tới neo: khối chỉ dựng SAU khi kho nạp trong effect, và danh sách Nắm giữ phía
+   * trên nạp cùng lượt ấy đẩy khối xuống thêm. Ca này ghim rằng màn tự cuộn, và cuộn đúng khối.
+   */
+  it('vào bằng neo của khối thì cuộn tới đúng khối ấy, sau khi kho đã nạp', async () => {
+    const bay = bayScrollIntoView();
+    try {
+      seedHolding();
+      seedSaved();
+      window.history.replaceState(null, '', '/danh-muc/#phep-tinh-da-luu');
+      render(<PortfolioScreen />);
+
+      const tieuDe = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+      await waitFor(() => {
+        expect(bay.goi).toHaveBeenCalledTimes(1);
+      });
+
+      expect(bay.goi.mock.contexts[0]).toBe(tieuDe.closest('section'));
+      expect(bay.goi.mock.calls[0]?.[0]).toMatchObject({ block: 'start' });
+    } finally {
+      bay.go();
+    }
+  });
+
+  /*
+   * Cuộn một lần là không đủ — đo trên Chrome thật: thị giá về SAU lượt cuộn, mỗi dòng Nắm giữ cao
+   * thêm một hàng và đẩy khối xuống tận đáy màn. Màn giữ neo bằng `ResizeObserver` cho tới khi bố
+   * cục ổn định. Nhưng điều kiện dừng mới là thứ quyết định việc giữ neo có được phép hay không:
+   * người dùng đã tự cuộn đi mà màn còn kéo họ về là một lỗi tệ hơn lỗi đang chữa.
+   *
+   * jsdom không có `ResizeObserver` nên dựng bản giả nắm lấy callback, rồi tự bắn nó.
+   */
+  it('khung màn đổi cỡ thì canh lại khối, nhưng người dùng tự thao tác là thôi ngay', async () => {
+    const bay = bayScrollIntoView();
+    const cu = globalThis.ResizeObserver;
+    let bao: (() => void) | null = null;
+    const ngat = vi.fn();
+    globalThis.ResizeObserver = class {
+      constructor(callback: () => void) {
+        bao = callback;
+      }
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {
+        ngat();
+      }
+    } as unknown as typeof ResizeObserver;
+
+    try {
+      seedHolding();
+      seedSaved();
+      window.history.replaceState(null, '', '/danh-muc/#phep-tinh-da-luu');
+      render(<PortfolioScreen />);
+
+      await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+      await waitFor(() => {
+        expect(bay.goi).toHaveBeenCalled();
+      });
+      expect(bao).not.toBeNull();
+
+      // Thị giá về, khung màn cao thêm → canh lại.
+      const truoc = bay.goi.mock.calls.length;
+      (bao as unknown as () => void)();
+      expect(bay.goi).toHaveBeenCalledTimes(truoc + 1);
+
+      // Người dùng lăn chuột → thôi giữ neo, và bộ quan sát được tháo hẳn.
+      window.dispatchEvent(new Event('wheel'));
+      expect(ngat).toHaveBeenCalled();
+    } finally {
+      globalThis.ResizeObserver = cu;
+      bay.go();
+    }
+  });
+
+  it('không có neo thì KHÔNG cuộn — mở tab Danh mục thường vẫn đứng ở đầu màn', async () => {
+    const bay = bayScrollIntoView();
+    try {
+      seedSaved();
+      render(<PortfolioScreen />);
+
+      await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+      // Qua hẳn một nhịp khung hình — lượt cuộn (nếu có) được hẹn bằng requestAnimationFrame.
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(bay.goi).not.toHaveBeenCalled();
+    } finally {
+      bay.go();
+    }
+  });
+});
 
 describe('WF-06 — mở form thì kéo nó vào tầm mắt', () => {
   it('bấm Sửa thì kéo form vào tầm mắt để thao tác tiếp', async () => {

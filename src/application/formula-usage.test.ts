@@ -251,8 +251,8 @@ describe('serializeFormulaUsage()', () => {
 });
 
 describe('rankFeaturedIds()', () => {
-  /** Mười tám ô như trên trang chủ thật, để mọi ca nói đúng bài toán thật. */
-  const GHIM = Array.from({ length: 18 }, (_, i) => `ghim-${i}`);
+  /** Tám ô như phần kệ bày trước ở đầu màn Công thức (`DAILY_SHELF_PREVIEW`), để các ca nói đúng bài toán thật. */
+  const GHIM = Array.from({ length: 8 }, (_, i) => `ghim-${i}`);
   const NGOAI_GHIM = ['xirr', 'beta', 'gia-muc-tieu'];
   const KNOWN = new Set([...GHIM, ...NGOAI_GHIM]);
 
@@ -264,16 +264,16 @@ describe('rankFeaturedIds()', () => {
     expect(xep([])).toEqual([...GHIM]);
   });
 
-  it('mọi mục dưới ngưỡng thì cũng trùng khít — bấm nhầm một lần không xáo trang chủ', () => {
-    expect(xep([entry('ghim-9', 1), entry('xirr', 1)])).toEqual([...GHIM]);
+  it('mọi mục dưới ngưỡng thì cũng trùng khít — bấm nhầm một lần không xáo kệ', () => {
+    expect(xep([entry('ghim-5', 1), entry('xirr', 1)])).toEqual([...GHIM]);
   });
 
-  it('một ghim dùng nhiều thì lên đầu, khối vẫn đủ 18 và không trùng id', () => {
-    const ket = xep([entry('ghim-9', 5)]);
-    expect(ket[0]).toBe('ghim-9');
+  it('một ghim dùng nhiều thì lên đầu, khối vẫn đủ ô và không trùng id', () => {
+    const ket = xep([entry('ghim-5', 5)]);
+    expect(ket[0]).toBe('ghim-5');
     expect(ket).toHaveLength(GHIM.length);
     expect(new Set(ket).size).toBe(ket.length);
-    // Chỉ đổi chỗ trong nội bộ 18, không đẩy ai ra.
+    // Chỉ đổi chỗ trong nội bộ kệ, không đẩy ai ra.
     expect([...ket].sort()).toEqual([...GHIM].sort());
   });
 
@@ -281,25 +281,28 @@ describe('rankFeaturedIds()', () => {
     const ket = xep([entry('xirr', 5)]);
     expect(ket[0]).toBe('xirr');
     expect(ket).toHaveLength(GHIM.length);
-    expect(ket).not.toContain('ghim-17');
-    expect(ket).toContain('ghim-16');
+    expect(ket).not.toContain('ghim-7');
+    expect(ket).toContain('ghim-6');
   });
 
   it('nhiều ứng viên hơn số suất thì chỉ lấy đủ suất, phần ghim còn nguyên', () => {
     const usage = Array.from({ length: 8 }, (_, i) => entry(`ghim-${i}`, 9 - i));
     const ket = xep(usage);
-    expect(ket.slice(0, PERSONAL_SLOTS)).toEqual([
-      'ghim-0',
-      'ghim-1',
-      'ghim-2',
-      'ghim-3',
-      'ghim-4',
-      'ghim-5',
-    ]);
+    expect(ket.slice(0, PERSONAL_SLOTS)).toEqual(
+      Array.from({ length: PERSONAL_SLOTS }, (_, i) => `ghim-${i}`),
+    );
     expect(ket).toHaveLength(GHIM.length);
   });
 
-  it('xấu nhất — cả 6 suất đều ngoài ghim thì vẫn còn 12 ghim tay', () => {
+  /*
+   * Suất cá nhân hoá hạ từ 6 xuống 4 khi kệ chỉ bày trước 8 ô (15/09/2026): giữ 6 thì phần nhìn thấy
+   * chỉ còn 2 ghim tay. Ca này gác đúng vế "kệ vẫn giới thiệu được thứ người dùng chưa biết".
+   */
+  it('suất cá nhân hoá không quá nửa kệ — luôn còn ít nhất nửa ô là ghim tay', () => {
+    expect(PERSONAL_SLOTS * 2).toBeLessThanOrEqual(GHIM.length);
+  });
+
+  it(`xấu nhất — cả ${String(PERSONAL_SLOTS)} suất đều ngoài ghim thì phần còn lại vẫn là ghim tay`, () => {
     const usage = [
       ...NGOAI_GHIM.map((id) => entry(id, 9)),
       ...NGOAI_GHIM.map((id) => entry(`${id}-2`, 9)),
@@ -315,8 +318,8 @@ describe('rankFeaturedIds()', () => {
   });
 
   it('hoà điểm thì phá hoà tất định: mốc gần hơn trước, rồi tới thứ tự ghim', () => {
-    const usage = [entry('ghim-5', 4), entry('ghim-2', 4, NGAY), entry('ghim-8', 4, NGAY)];
-    expect(xep(usage).slice(0, 3)).toEqual(['ghim-5', 'ghim-2', 'ghim-8']);
+    const usage = [entry('ghim-5', 4), entry('ghim-2', 4, NGAY), entry('ghim-7', 4, NGAY)];
+    expect(xep(usage).slice(0, 3)).toEqual(['ghim-5', 'ghim-2', 'ghim-7']);
   });
 
   it('danh sách ghim rỗng thì trả rỗng', () => {
@@ -325,7 +328,7 @@ describe('rankFeaturedIds()', () => {
     ).toEqual([]);
   });
 
-  it('bất biến: mọi tổ hợp đầu vào đều cho đúng 18 ô, đôi một khác nhau', () => {
+  it('bất biến: mọi tổ hợp đầu vào đều cho đúng số ô của kệ, đôi một khác nhau', () => {
     const ung_vien = [...GHIM, ...NGOAI_GHIM, 'khong-co-that'];
     // Quét tất định (không random): mỗi vòng lấy một lát khác nhau của tập ứng viên.
     for (let i = 0; i < ung_vien.length; i += 1) {

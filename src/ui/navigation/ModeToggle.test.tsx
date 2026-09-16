@@ -12,7 +12,7 @@ import { PreferencesProvider } from '@/application/preferences-context';
 import { ModeToggle } from './ModeToggle';
 
 /**
- * Cụm nút Cơ bản / Nâng cao — ở thanh trên của màn danh sách và ở màn Cài đặt.
+ * Cụm nút Cơ bản / Nâng cao — ở hàng tiêu đề danh sách của màn Công thức và ở màn Cài đặt.
  *
  * Thứ đáng gác ở đây KHÔNG phải "bấm có đổi state không", mà là **nút nào sáng thì do đâu quyết**.
  * Buổi test nội bộ báo lỗi #21: cụm này nhấp nháy mỗi lần tải trang. Nguyên nhân là lượt render
@@ -102,9 +102,35 @@ describe('ModeToggle', () => {
 });
 
 /**
+ * Tên của cụm nút — hai nơi đặt, hai cách gọi tên.
+ *
+ * Ở màn Cài đặt cụm nút đứng dưới tiêu đề riêng nên nó tự mang `aria-label`. Ở màn Công thức nó đứng
+ * cạnh chữ "Mức độ" nhìn thấy được, nên tên phải LÀ chữ ấy (WCAG 2.5.3) — một cái tên ẩn khác với
+ * chữ trên màn thì người điều khiển bằng giọng nói gọi mãi không trúng.
+ */
+describe('ModeToggle — tên khả truy cập', () => {
+  it('không truyền gì thì giữ tên "Chế độ hiển thị"', () => {
+    dungNut();
+    expect(screen.getByRole('group', { name: 'Chế độ hiển thị' })).toBeTruthy();
+  });
+
+  it('truyền labelledBy thì tên là chữ của nhãn nhìn thấy, không còn aria-label song song', () => {
+    render(
+      <PreferencesProvider>
+        <span id="muc-do">Mức độ</span>
+        <ModeToggle labelledBy="muc-do" />
+      </PreferencesProvider>,
+    );
+
+    const nhom = screen.getByRole('group', { name: 'Mức độ' });
+    expect(nhom.getAttribute('aria-label')).toBeNull();
+  });
+});
+
+/**
  * Nửa còn lại của phép chữa nằm trong file CSS, mà jsdom không đọc CSS Module thật (tên lớp chỉ
- * là chuỗi giả). Nên gác bằng cách đọc thẳng file — cùng cách `CategoryGrid.test.tsx` đang gác
- * đúng cơ chế `data-mode` này ở trang chủ.
+ * là chuỗi giả). Nên gác bằng cách đọc thẳng file — cùng cách `CategoryChips.test.tsx` gác đúng cơ
+ * chế `data-mode` này ở hàng chip nhóm.
  */
 describe('ModeToggle.module.css — chiều của phép chọn theo chế độ', () => {
   const raw = readFileSync(join(process.cwd(), 'src/ui/navigation/ModeToggle.module.css'), 'utf8');

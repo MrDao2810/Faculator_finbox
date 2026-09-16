@@ -163,8 +163,8 @@ const EMPTY_ORDER: ReadonlyMap<string, number> = new Map();
  * vẫn phải đủ 111 mục, "chưa từng mở" không phải là điều kiện lọc.
  *
  * Hệ quả cố ý: map RỖNG cho ra đúng thứ tự mặc định. Nhờ vậy khách mới, trình duyệt chặn
- * localStorage và mọi bộ máy tìm kiếm không bao giờ thấy một danh sách lạ, và bản tĩnh
- * `StaticFormulaList` không cần biết gì về lịch sử dùng.
+ * localStorage và mọi bộ máy tìm kiếm không bao giờ thấy một danh sách lạ, và bản HTML tĩnh của
+ * màn Công thức không cần biết gì về lịch sử dùng.
  *
  * KHÔNG bọc `{ formula, score }` rồi sắp: `FIELD_INDEX` khoá theo chính object công thức, sao
  * chép là chỉ mục từ khoá trượt 100% (xem docblock của nó ở trên).

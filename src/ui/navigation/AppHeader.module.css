@@ -35,9 +35,10 @@
  *
  * Thủ phạm chính là 83px giữa "Công thức" và ba màn kia, và nó không phải lỗi vặt mà là hệ quả
  * thẳng của cách xếp cũ: `.nav` khai `flex: 1 1 auto` + `justify-content: center`, tức nó căn giữa
- * trong PHẦN CÒN LẠI giữa hai cụm hai bên, chứ không căn giữa thanh. Màn '/cong-thuc/' là màn duy
- * nhất có nút Cơ bản / Nâng cao (xem `showsModeToggle()`), nên cụm phải ở đó rộng 239px thay vì
- * 74px — phần còn lại hụt đi 165px và tâm nav trôi sang trái đúng một nửa, 83px.
+ * trong PHẦN CÒN LẠI giữa hai cụm hai bên, chứ không căn giữa thanh. Hồi ấy màn '/cong-thuc/' là màn
+ * duy nhất có nút Cơ bản / Nâng cao ở thanh trên, nên cụm phải ở đó rộng 239px thay vì 74px — phần
+ * còn lại hụt đi 165px và tâm nav trôi sang trái đúng một nửa, 83px. (Từ 15/09/2026 cụm nút ấy dời
+ * xuống thân màn Công thức, nên mọi màn nay có cùng cụm phải ~74px; lưới dưới vẫn là cách đúng.)
  *
  * Lưới `minmax(0, 1fr) auto minmax(0, 1fr)` chữa tận gốc: hai cột biên LUÔN bằng nhau nên cột giữa
  * nằm đúng tâm thanh, bất kể hai bên rộng hẹp thế nào. Nhờ vậy nó chặn luôn một lớp lệch nữa mà
@@ -49,11 +50,13 @@
  * nguyên cái lỗi đang chữa. Đo chỗ trống lúc nav còn BỐN mục: ở 1024px mỗi cột biên được ~290px,
  * cụm phải rộng nhất là 239px, nên còn dư và không cột nào phải phình.
  *
- * ⚠ Mục nav thứ NĂM ("Về chúng tôi") ăn gần hết khoản dư ấy — nó lấy ~90px của cột giữa, tức mỗi
- * cột biên mất ~45px và tụt về ~245px so với cụm phải 239px. Chỗ dư còn lại mỏng tới mức một font
- * hệ điều hành rộng hơn là hụt, và hụt ở đây nghĩa là cụm nút ĐÈ LÊN nav chứ không đẩy nav đi.
- * Bản vá nằm ở `HeaderNav.module.css`: thu đệm ngang của nav trong đúng dải 1024–1279px, trả lại
- * ~20px cho mỗi cột biên. Đo lại ở 1024px trên '/cong-thuc/' nếu thêm mục nav thứ sáu.
+ * ⚠ Mục nav thứ NĂM ("Về chúng tôi", 14/09/2026) từng ăn gần hết khoản dư ấy — cột biên tụt về
+ * ~245px so với cụm phải 239px, và hụt ở đây nghĩa là cụm nút ĐÈ LÊN nav chứ không đẩy nav đi. Bản
+ * vá nằm ở `HeaderNav.module.css`: thu đệm ngang của nav trong đúng dải 1024–1279px.
+ *
+ * Ngày 15/09/2026 cả hai tiền đề ấy yếu đi: mục "Trang chủ" rời thanh (còn bốn mục) và cụm Cơ bản /
+ * Nâng cao rời thanh trên (cụm phải mọi màn còn ~74px). Bản vá được GIỮ vì nó vô hại, chưa ai đo lại
+ * để gỡ; đo lại ở 1024px trước khi thêm mục nav hay nút mới vào thanh trên.
  *
  * Chỉ đổi từ 1024px — dưới mốc đó `.nav` là `display: none` nên lưới ba cột chỉ còn hai mục và cột
  * giữa rỗng sẽ đẩy cụm nút vào giữa thanh. Hàng flex `space-between` vẫn là câu trả lời đúng ở đó.

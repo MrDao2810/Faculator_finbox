@@ -8,8 +8,10 @@ import {
   MAX_QUERY_LENGTH,
   hasSelectFilters,
   isDefaultListParams,
+  listParamsFromSearch,
   listParamsToQuery,
   parseListParams,
+  sameListParams,
   serializeListParams,
 } from './url-state';
 
@@ -190,5 +192,35 @@ describe('nút "Xoá bộ lọc" chỉ phụ trách hai ô chọn', () => {
       ...CLEARED_SELECT_FILTERS,
     };
     expect(hasSelectFilters(sauKhiXoa)).toBe(false);
+  });
+});
+
+/*
+ * Màn Công thức đã bỏ ba tab mảng (15/09/2026). Một link cũ mang `?segment=` mà vẫn được áp là một
+ * bộ lọc VÔ HÌNH: không điều khiển nào trên màn nói ra nó, cũng không nút nào gỡ được.
+ */
+describe('listParamsFromSearch() — đọc URL cho màn Công thức', () => {
+  it('đọc đủ chuỗi tìm, nhóm, cách sắp — có hay không có dấu ?', () => {
+    const mong = { q: 'roi', segment: 'all', categoryId: 'returns', sort: 'az' };
+    expect(listParamsFromSearch('?q=roi&category=returns&sort=az')).toEqual(mong);
+    expect(listParamsFromSearch('q=roi&category=returns&sort=az')).toEqual(mong);
+  });
+
+  it('bỏ qua ?segment= của link cũ — không có bộ lọc vô hình', () => {
+    expect(listParamsFromSearch('?segment=personal&category=loans').segment).toBe('all');
+    // `parseListParams` vẫn đọc nó — màn tìm WF-09 còn dùng.
+    expect(parseListParams(new URLSearchParams('segment=personal')).segment).toBe('personal');
+  });
+
+  it('chuỗi rỗng ra đúng trạng thái mặc định', () => {
+    expect(listParamsFromSearch('')).toEqual(DEFAULT_LIST_PARAMS);
+  });
+});
+
+describe('sameListParams()', () => {
+  it('so từng tiêu chí, không so danh tính object', () => {
+    expect(sameListParams({ ...DEFAULT_LIST_PARAMS }, DEFAULT_LIST_PARAMS)).toBe(true);
+    expect(sameListParams({ ...DEFAULT_LIST_PARAMS, q: 'x' }, DEFAULT_LIST_PARAMS)).toBe(false);
+    expect(sameListParams({ ...DEFAULT_LIST_PARAMS, sort: 'za' }, DEFAULT_LIST_PARAMS)).toBe(false);
   });
 });

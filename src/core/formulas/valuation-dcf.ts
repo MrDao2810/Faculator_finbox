@@ -157,14 +157,18 @@ export const MO_HINH_GORDON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Cổ tức 2.000 ₫/CP, tăng 5%/năm, suất sinh lợi yêu cầu 12%',
-        en: 'Dividend 2,000 ₫/share, growing 5%/year, required return 12%',
+        vi: 'VNM — cổ tức 4.350 ₫/CP, giả định tăng 5%/năm, suất sinh lợi yêu cầu 12%',
+        en: 'VNM — dividend 4,350 ₫/share, assumed growth 5%/year, required return 12%',
       },
-      inputs: { dividend: 2_000, growth: 5, requiredReturn: 12 },
-      expected: 30_000,
+      inputs: { dividend: 4_350, growth: 5, requiredReturn: 12 },
+      expected: 65_250,
       note: {
-        vi: 'Thị giá thấp hơn 30.000 ₫ thì cổ phiếu đang rẻ theo mô hình này.',
-        en: 'If the market price is below 30,000 ₫, the stock looks cheap under this model.',
+        vi: 'Tăng trưởng và suất sinh lợi dùng mức giả định. Thị giá 60.800 ₫ thấp hơn 65.250 ₫ — cổ phiếu đang rẻ theo mô hình này.',
+        en: 'Growth and required return are assumptions. The market price of 60,800 ₫ is below 65,250 ₫ — the stock looks cheap under this model.',
+      },
+      source: {
+        vi: 'Finbox_v2, cổ tức Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) dividend, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -396,8 +400,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Cổ tức 2.000 ₫, tăng 15% trong 5 năm rồi 4% mãi mãi, r 12%',
-        en: 'Dividend 2,000 ₫, growing 15% for 5 years then 4% forever, r 12%',
+        vi: 'FPT — cổ tức 2.000 ₫, giả định tăng 15% trong 5 năm rồi 4% mãi mãi, r 12%',
+        en: 'FPT — dividend 2,000 ₫, assumed growth 15% for 5 years then 4% forever, r 12%',
       },
       inputs: {
         dividend: 2_000,
@@ -408,8 +412,12 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       },
       expected: 40_506.6,
       note: {
-        vi: 'Riêng giá trị cuối kỳ chiết khấu đã chiếm khoảng 29.674 ₫ trong tổng số.',
-        en: 'The discounted terminal value alone accounts for about 29,674 ₫ of the total.',
+        vi: 'Phần còn lại dùng mức giả định. Riêng giá trị cuối kỳ chiết khấu đã chiếm khoảng 29.674 ₫ trong tổng số.',
+        en: 'The rest are assumptions. The discounted terminal value alone accounts for about 29,674 ₫ of the total.',
+      },
+      source: {
+        vi: 'Finbox_v2, cổ tức FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) dividend, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -768,14 +776,18 @@ export const WACC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn chủ 600 tỷ, nợ 400 tỷ, Re 13,1%, Rd 9%, thuế 20%',
-        en: 'Equity 600 billion, debt 400 billion, Re 13.1%, Rd 9%, tax 20%',
+        vi: 'FPT — vốn chủ (vốn hoá) 123.946 tỷ ₫, giả định nợ 8.000 tỷ, Re 13,1%, Rd 9%, thuế 20%',
+        en: 'FPT — equity (market cap) 123,946 billion ₫, assumed debt 8,000 billion, Re 13.1%, Rd 9%, tax 20%',
       },
-      inputs: { equity: 600, debt: 400, costEquity: 13.1, costDebt: 9, taxRate: 20 },
-      expected: 10.74,
+      inputs: { equity: 123_946, debt: 8_000, costEquity: 13.1, costDebt: 9, taxRate: 20 },
+      expected: 12.74,
       note: {
-        vi: '0,6 × 13,1% + 0,4 × 9% × 0,8 = 10,74%.',
-        en: '0.6 × 13.1% + 0.4 × 9% × 0.8 = 10.74%.',
+        vi: 'Thuế suất 20% là mức thuế TNDN hiện hành; nợ vay và hai suất sinh lợi dùng mức giả định. FPT vay nợ rất ít nên WACC gần sát hẳn chi phí vốn chủ 13,1%.',
+        en: 'The 20% tax rate is the current corporate rate; debt and the two return rates are assumptions. FPT carries very little debt, so its WACC sits close to its 13.1% cost of equity.',
+      },
+      source: {
+        vi: 'Finbox_v2, vốn hoá FPT Corp (mã FPT), chốt 08/09/2026, dùng làm vốn chủ.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) market cap, locked in 2026-09-08, used as equity.',
       },
     },
     tests: [
@@ -1316,14 +1328,18 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FCFF 300 tỷ, tăng 4%/năm, WACC 10,7%, nợ ròng 300 tỷ, 118 triệu CP',
-        en: 'FCFF 300 billion, growing 4%/year, WACC 10.7%, net debt 300 billion, 118 million shares',
+        vi: 'HPG — 8.442,96 triệu CP, giả định FCFF 15.000 tỷ, tăng 4%/năm, WACC 10,7%, nợ ròng 40.000 tỷ',
+        en: 'HPG — 8,442.96 million shares, assumed FCFF 15,000 billion, growing 4%/year, WACC 10.7%, net debt 40,000 billion',
       },
-      inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
-      expected: 36_921.33,
+      inputs: { fcff: 15_000, growth: 4, wacc: 10.7, netDebt: 40_000, shares: 8_442.96 },
+      expected: 22_839.84,
       note: {
-        vi: 'Giá trị doanh nghiệp 4.657 tỷ ₫, trừ nợ ròng còn 4.357 tỷ ₫ cho cổ đông.',
-        en: 'Enterprise value is 4,657 billion ₫; after subtracting net debt, 4,357 billion ₫ remains for shareholders.',
+        vi: 'FCFF, WACC và nợ ròng dùng mức giả định vì mô hình này cần báo cáo lưu chuyển tiền tệ mà Finbox_v2 chưa cấp. Giá trị doanh nghiệp 232.836 tỷ ₫, trừ nợ ròng còn 192.836 tỷ ₫ cho cổ đông.',
+        en: 'FCFF, WACC and net debt are assumptions, since this model needs a cash-flow statement Finbox_v2 does not yet supply. Enterprise value is 232,836 billion ₫; after subtracting net debt, 192,836 billion ₫ remains for shareholders.',
+      },
+      source: {
+        vi: 'Finbox_v2, số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) share count, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -1829,14 +1845,18 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Giá trị nội tại 40.000 ₫, thị giá 30.000 ₫',
-        en: 'Intrinsic value 40,000 ₫, market price 30,000 ₫',
+        vi: 'VNM — thị giá 60.800 ₫, giả định giá trị nội tại 75.000 ₫ từ một mô hình định giá',
+        en: 'VNM — market price 60,800 ₫, assumed intrinsic value 75,000 ₫ from a valuation model',
       },
-      inputs: { intrinsic: 40_000, price: 30_000 },
-      expected: 25,
+      inputs: { intrinsic: 75_000, price: 60_800 },
+      expected: 18.93,
       note: {
-        vi: 'Đang mua rẻ hơn ước tính 25% — khoảng đệm cho sai số của mô hình.',
-        en: 'Buying 25% cheaper than the estimate — a cushion against error in the model.',
+        vi: 'Giá trị nội tại là kết quả GIẢ ĐỊNH từ một mô hình định giá, không phải số liệu thô. Đang mua rẻ hơn ước tính khoảng 19% — khoảng đệm cho sai số của mô hình.',
+        en: 'The intrinsic value is an ASSUMED output from a valuation model, not raw data. Buying about 19% cheaper than the estimate — a cushion against error in the model.',
+      },
+      source: {
+        vi: 'Finbox_v2, thị giá Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) market price, locked in 2026-09-08.',
       },
     },
     tests: [

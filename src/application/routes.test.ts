@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { FORMULA_SUMMARIES } from '@/core/registry';
 
 import {
+  FORMULA_LIST_ANCHOR,
   NAV_ITEMS,
   ROUTES,
   activeRouteKey,
@@ -11,26 +12,23 @@ import {
   formulaPath,
   headerTitleKey,
   showsFooterDisclaimer,
-  showsModeToggle,
 } from './routes';
 import { DEFAULT_LIST_PARAMS, parseListParams } from './url-state';
 
 describe('bản đồ đường dẫn (WF-18)', () => {
-  it('thanh nav dưới có đúng năm mục, "Về chúng tôi" đứng cuối', () => {
-    expect(NAV_ITEMS).toHaveLength(5);
-    expect(NAV_ITEMS.map((i) => i.key)).toEqual([
-      'home',
-      'formulas',
-      'portfolio',
-      'settings',
-      'about',
-    ]);
+  /*
+   * Bốn mục từ 15/09/2026: "Trang chủ" rời thanh khi trang chủ gộp vào màn Công thức, nên "Công
+   * thức" vừa là mục đầu vừa là màn mở đầu. Ca này từng ghim năm mục với "home" đứng đầu.
+   */
+  it('thanh nav có đúng bốn mục, "Công thức" đứng đầu, "Về chúng tôi" đứng cuối', () => {
+    expect(NAV_ITEMS).toHaveLength(4);
+    expect(NAV_ITEMS.map((i) => i.key)).toEqual(['formulas', 'portfolio', 'settings', 'about']);
   });
 
   /*
    * Nhãn ngắn là một phép tính hình học, không phải sở thích — xem `NavItem.shortLabelKey`. Ghim
-   * lại rằng CHỈ mục thứ năm có nó: thêm nhãn ngắn cho một mục vừa chỗ là mở đường cho thanh tab
-   * và thanh trên gọi cùng một màn bằng hai cái tên mà không ai để ý.
+   * lại rằng CHỈ mục "Về chúng tôi" có nó: thêm nhãn ngắn cho một mục vừa chỗ là mở đường cho thanh
+   * tab và thanh trên gọi cùng một màn bằng hai cái tên mà không ai để ý.
    */
   it('chỉ mục Về chúng tôi có nhãn ngắn riêng cho thanh tab', () => {
     const coNhanNgan = NAV_ITEMS.filter((i) => i.shortLabelKey !== undefined).map((i) => i.key);
@@ -43,53 +41,19 @@ describe('bản đồ đường dẫn (WF-18)', () => {
     }
     expect(formulaPath('wacc')).toBe('/cong-thuc/wacc/');
   });
-});
-
-describe('showsModeToggle()', () => {
-  it('chỉ bật ở màn danh sách công thức', () => {
-    expect(showsModeToggle(ROUTES.formulas)).toBe(true);
-  });
 
   /*
-   * Cả năm màn còn lại đều tắt, và mỗi màn tắt vì một lý do khác nhau — liệt kê hết chứ không
-   * kiểm mỗi trang chủ, vì luật này sinh ra chính từ chỗ "màn nào cũng bày nút".
+   * `/` chỉ còn là trang chuyển hướng về `/cong-thuc/`. Không mục nav hay route nào được trỏ vào nó
+   * — bấm một link mà phải đi vòng qua một cú chuyển hướng là chậm đi vô cớ, và là một URL thứ hai
+   * mang cùng nội dung (FR-25).
    */
-  it('tắt ở mọi màn khác', () => {
-    expect(showsModeToggle(ROUTES.home), 'trang chủ lúc nhàn không đổi một ký tự nào').toBe(false);
-    expect(showsModeToggle(ROUTES.portfolio), 'Danh mục đã có dòng "2 ô nâng cao đang ẩn"').toBe(
-      false,
-    );
-    expect(showsModeToggle(ROUTES.settings), 'Cài đặt đã có hàng "Chế độ hiển thị" riêng').toBe(
-      false,
-    );
-    expect(showsModeToggle(ROUTES.search)).toBe(false);
-    expect(showsModeToggle(ROUTES.data)).toBe(false);
+  it('không route nào là "/" — trang chủ riêng đã gộp vào màn Công thức', () => {
+    expect(Object.values(ROUTES)).not.toContain('/');
+    expect(NAV_ITEMS.some((i) => i.href === '/')).toBe(false);
   });
 
-  /*
-   * Đây là ca dễ hỏng nhất nếu ai đó đổi sang `startsWith()` cho "gọn": 94 trong 111 trang chi
-   * tiết bấm nút không đổi gì, tức đúng cái cớ sinh ra luật này. Trang chi tiết KHÔNG phải trang
-   * danh sách.
-   */
-  it('KHÔNG lan xuống 111 trang chi tiết', () => {
-    expect(showsModeToggle(formulaPath('wacc'))).toBe(false);
-    expect(showsModeToggle(formulaPath('pe'))).toBe(false);
-  });
-
-  it('chấp nhận đường dẫn thiếu dấu "/" ở cuối', () => {
-    expect(showsModeToggle('/cong-thuc')).toBe(true);
-  });
-
-  /*
-   * Danh sách đã lọc sẵn vẫn là màn danh sách — link từ lưới nhóm ở trang chủ mang theo `?category=`,
-   * và `usePathname()` trả về phần đường dẫn KHÔNG kèm query, nên ca này gác đúng chỗ đó.
-   */
-  it('danh sách đã lọc sẵn vẫn được coi là màn danh sách', () => {
-    const url = formulaListPath({ ...DEFAULT_LIST_PARAMS, categoryId: 'returns' });
-    const [duongDan] = url.split('?');
-
-    expect(url, 'ví dụ phải thật sự có query, nếu không ca kiểm này rỗng nghĩa').toContain('?');
-    expect(showsModeToggle(String(duongDan))).toBe(true);
+  it('neo khối danh sách công thức là một id hợp lệ, không mang dấu #', () => {
+    expect(FORMULA_LIST_ANCHOR).toMatch(/^[a-z][a-z0-9-]*$/);
   });
 });
 
@@ -97,12 +61,12 @@ describe('showsModeToggle()', () => {
  * FR-24 · UI-04 nói câu miễn trừ phải có ở MỌI màn, nên hàm này bị kiểm theo chiều nghiêm hơn
  * chiều còn lại: mặc định phải là "có", và danh sách trừ phải ngắn, có lý do, không tự lan.
  *
- * Cùng cách chia như `showsModeToggle()`: ở đây gác cái LUẬT, còn việc lá `FooterDisclaimer` có
- * thật sự hỏi luật ấy thì `FooterDisclaimer.test.tsx` gác.
+ * Ở đây gác cái LUẬT, còn việc lá `FooterDisclaimer` có thật sự hỏi luật ấy thì
+ * `FooterDisclaimer.test.tsx` gác.
  */
 describe('showsFooterDisclaimer()', () => {
   it('mặc định là CÓ — một màn mới không phải nhớ thêm gì', () => {
-    expect(showsFooterDisclaimer(ROUTES.home)).toBe(true);
+    expect(showsFooterDisclaimer(ROUTES.about)).toBe(true);
     expect(showsFooterDisclaimer(ROUTES.formulas), 'danh sách không bày con số tiền nào').toBe(
       true,
     );
@@ -143,7 +107,7 @@ describe('showsFooterDisclaimer()', () => {
  * Thanh trên bày TÊN MÀN thay tên sản phẩm ở đâu.
  *
  * Ca kiểm ở đây gác cái LUẬT; việc `AppHeader` có thật sự cắm luật ấy vào thì `AppHeader.test.tsx`
- * gác — cùng cách chia đã dùng cho `showsModeToggle()`, và cùng lý do: sửa một bên mà quên bên kia
+ * gác — cùng cách chia với `showsFooterDisclaimer()`, và cùng lý do: sửa một bên mà quên bên kia
  * thì bộ kiểm vẫn xanh.
  */
 describe('headerTitleKey()', () => {
@@ -163,10 +127,6 @@ describe('headerTitleKey()', () => {
     expect(headerTitleKey('/cong-thuc/wacc/')).toBeNull();
   });
 
-  it('trang chủ giữ tên sản phẩm', () => {
-    expect(headerTitleKey(ROUTES.home)).toBeNull();
-  });
-
   /*
    * Danh mục và Cài đặt đổi ngay đợt sau (09/09/2026). Bản trước của ca này ghim chiều NGƯỢC lại —
    * "hai màn ấy chưa nằm trong bảng" — và nó đỏ đúng lúc phải đỏ: mở rộng bảng là một quyết định,
@@ -183,7 +143,7 @@ describe('headerTitleKey()', () => {
    * gỡ `<h1>` bên thân là dựng ra hai tiêu đề cấp một.
    */
   it('những màn còn lại giữ tên sản phẩm', () => {
-    for (const path of [ROUTES.home, ROUTES.search, ROUTES.data, '/cong-thuc/pe/']) {
+    for (const path of ['/', ROUTES.search, ROUTES.data, '/cong-thuc/pe/']) {
       expect(headerTitleKey(path), path).toBeNull();
     }
   });
@@ -203,9 +163,16 @@ describe('headerTitleKey()', () => {
 });
 
 describe('activeRouteKey()', () => {
-  it('trang chủ chỉ sáng khi ở đúng trang chủ', () => {
-    expect(activeRouteKey('/')).toBe('home');
-    expect(activeRouteKey('/cong-thuc/')).not.toBe('home');
+  it('màn Công thức sáng mục Công thức', () => {
+    expect(activeRouteKey('/cong-thuc/')).toBe('formulas');
+  });
+
+  /*
+   * `/` chỉ còn chuyển hướng — nó không sáng mục nào. Ca này cũng gác cái bẫy cũ: một mục mang
+   * `href` '/' sẽ khớp tiền tố với MỌI đường dẫn, và vòng lặp từng phải bỏ qua nó bằng tay.
+   */
+  it('"/" không sáng mục nào', () => {
+    expect(activeRouteKey('/')).toBeNull();
   });
 
   it('trang con vẫn sáng mục cha', () => {
@@ -242,10 +209,9 @@ describe('activeRouteKey()', () => {
  * màn ấy đã tự bày câu miễn trừ ở chỗ tốt hơn, mà màn này thì không bày con số tiền nào.
  */
 describe('màn Về chúng tôi dùng trọn hành vi mặc định', () => {
-  it('không phải màn trong, có dải miễn trừ, không có nút đổi chế độ', () => {
+  it('không phải màn trong, có dải miễn trừ', () => {
     expect(backLinkFor(ROUTES.about)).toBeNull();
     expect(showsFooterDisclaimer(ROUTES.about)).toBe(true);
-    expect(showsModeToggle(ROUTES.about)).toBe(false);
   });
 });
 
@@ -311,10 +277,10 @@ describe('backLinkFor() — màn trong nào cũng có đường ra', () => {
   });
 
   /*
-   * Năm màn có mục riêng ở thanh nav KHÔNG phải màn trong — chúng bày tên màn hoặc tên sản phẩm.
+   * Các màn có mục riêng ở thanh nav KHÔNG phải màn trong — chúng bày tên màn hoặc tên sản phẩm.
    * Ba dạng danh tính loại trừ nhau, nên trùng ở đây là thanh trên có hai thứ cùng đòi chỗ.
    */
-  it('năm màn gốc KHÔNG có đường ra, và không trùng với bảng tên màn', () => {
+  it('mọi màn gốc KHÔNG có đường ra, và không trùng với bảng tên màn', () => {
     for (const item of NAV_ITEMS) {
       expect(backLinkFor(item.href), item.href).toBeNull();
     }

@@ -12,8 +12,8 @@ import { useActiveNavKey } from './useActiveNavKey';
 /**
  * Thanh điều hướng dưới — gói WBS 2.1.2.
  *
- * Bốn mục Trang chủ · Công thức · Danh mục · Cài đặt theo bản đồ luồng WF-18, cộng mục thứ năm
- * Giới thiệu đứng cuối.
+ * Bốn mục Công thức · Danh mục · Cài đặt · Giới thiệu. Mục "Trang chủ" từng đứng đầu; nó rời thanh
+ * ngày 15/09/2026 khi trang chủ gộp vào màn Công thức — xem `NAV_ITEMS`.
  *
  * Dùng <Link> chứ không phải router.push: bản build là HTML tĩnh, thẻ <a> thật thì
  * điều hướng được cả khi JavaScript chưa tải xong.

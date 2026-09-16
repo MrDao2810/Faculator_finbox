@@ -186,14 +186,18 @@ export const EPS_CO_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'LNST 8.894 tỷ ₫, 1,47 tỷ cổ phiếu',
-        en: 'Net income 8,894 billion ₫, 1.47 billion shares',
+        vi: 'HPG — LNST 23.217,4 tỷ ₫, 8,44 tỷ cổ phiếu',
+        en: 'HPG — net income 23,217.4 billion ₫, 8.44 billion shares',
       },
-      inputs: { netIncome: 8_894, preferredDividend: 0, sharesOutstanding: 1_470_000_000 },
-      expected: 6_050.34,
+      inputs: { netIncome: 23_217.4, preferredDividend: 0, sharesOutstanding: 8_442_964_520 },
+      expected: 2_749.91,
       note: {
-        vi: 'Ra EPS 6.050,34 ₫ — đơn vị ₫/CP, không phải tỷ ₫ như LNST.',
-        en: 'Works out to an EPS of 6,050.34 ₫ — a per-share figure, unlike the billion-₫ scale of net income.',
+        vi: 'Gần khớp EPS 2.750 ₫ mà Hoà Phát tự báo cáo. Đơn vị ra là ₫/CP, không phải tỷ ₫ như LNST.',
+        en: 'Closely matches the 2,750 ₫ EPS Hoa Phat itself reports. The result comes out in ₫/share, unlike the billion-₫ scale of net income.',
+      },
+      source: {
+        vi: 'Finbox_v2, LNST và số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) net income and share count, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -284,14 +288,18 @@ export const BVPS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn chủ 36.456 tỷ ₫, 1,47 tỷ cổ phiếu',
-        en: 'Equity 36,456 billion ₫, 1.47 billion shares',
+        vi: 'HPG — vốn chủ 140.854 tỷ ₫, 8,44 tỷ cổ phiếu',
+        en: 'HPG — equity 140,854 billion ₫, 8.44 billion shares',
       },
-      inputs: { equity: 36_456, sharesOutstanding: 1_470_000_000 },
-      expected: 24_800,
+      inputs: { equity: 140_854, sharesOutstanding: 8_442_964_520 },
+      expected: 16_683,
       note: {
-        vi: 'Ra BVPS 24.800 ₫ — đơn vị ₫/CP, không phải tỷ ₫ như vốn chủ sở hữu.',
-        en: 'Works out to a BVPS of 24,800 ₫ — a per-share figure, unlike the billion-₫ scale of equity.',
+        vi: 'Khớp đúng BVPS 16.683 ₫ mà Hoà Phát tự báo cáo. Đơn vị ra là ₫/CP, không phải tỷ ₫ như vốn chủ sở hữu.',
+        en: 'Matches the 16,683 ₫ book value Hoa Phat itself reports. The result comes out in ₫/share, unlike the billion-₫ scale of equity.',
+      },
+      source: {
+        vi: 'Finbox_v2, vốn chủ và số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) equity and share count, locked in 2026-09-08.',
       },
     },
     tests: [
@@ -393,14 +401,18 @@ export const ROE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'LNST 8.894 tỷ ₫, vốn chủ 36.456 tỷ ₫',
-        en: 'Net income 8,894 billion ₫, equity 36,456 billion ₫',
+        vi: 'Vinamilk — LNST nửa đầu 2026, theo báo cáo eBroker Research',
+        en: 'Vinamilk — H1 2026 net income, per eBroker Research',
       },
-      inputs: { netIncome: 8_894, equity: 36_456 },
-      expected: 24.4,
+      inputs: { netIncome: 5_643, equity: 35_666 },
+      expected: 15.82,
       note: {
-        vi: 'Trên 15% nhiều năm liền là mức các nhà đầu tư giá trị hay tìm kiếm.',
-        en: 'Above 15% for several years running is the level value investors typically look for.',
+        vi: 'LNST 5.643 tỷ ₫ và vốn chủ 35.666 tỷ ₫ ở trên là số SÁU THÁNG đầu 2026 (lợi nhuận tăng 38,4% so với cùng kỳ) nên ROE ra thấp hơn con số ROE cả năm (TTM) mà chính eBroker báo riêng là 16,1% — muốn so cả năm phải nhân đôi lợi nhuận trước khi tính, không phải nhân đôi kết quả này.',
+        en: 'The net income of 5,643 billion ₫ and equity of 35,666 billion ₫ above are HALF-YEAR 2026 figures (profit up 38.4% year-on-year), so the ROE comes out lower than eBroker’s own full-year (TTM) ROE of 16.1% — to compare on a yearly basis, double the profit first, not this result.',
+      },
+      source: {
+        vi: 'eBroker Research, báo cáo Vinamilk (VNM) cập nhật 30/06/2026.',
+        en: 'eBroker Research, a Vinamilk (VNM) report updated 2026-06-30.',
       },
     },
     tests: [
@@ -499,11 +511,19 @@ export const ROA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'LNST 8.894 tỷ ₫, tổng tài sản 68.000 tỷ ₫',
-        en: 'Net income 8,894 billion ₫, total assets 68,000 billion ₫',
+        vi: 'VNM — LNST 10.962,9 tỷ ₫, tổng tài sản 50.988,2 tỷ ₫',
+        en: 'VNM — net income 10,962.9 billion ₫, total assets 50,988.2 billion ₫',
       },
-      inputs: { netIncome: 8_894, totalAssets: 68_000 },
-      expected: 13.08,
+      inputs: { netIncome: 10_962.9, totalAssets: 50_988.2 },
+      expected: 21.5,
+      note: {
+        vi: 'Mức khá cao, hợp với một doanh nghiệp tiêu dùng ít thâm dụng tài sản.',
+        en: 'A fairly high level, fitting for an asset-light consumer company.',
+      },
+      source: {
+        vi: 'Finbox_v2, LNST và tổng tài sản Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) net income and total assets, locked in 2026-09-08.',
+      },
     },
     tests: [
       {
@@ -584,11 +604,19 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'LNST 8.894 tỷ ₫, doanh thu 62.850 tỷ ₫',
-        en: 'Net income 8,894 billion ₫, revenue 62,850 billion ₫',
+        vi: 'FPT — LNST 9.999,4 tỷ ₫, doanh thu 63.698,4 tỷ ₫',
+        en: 'FPT — net income 9,999.4 billion ₫, revenue 63,698.4 billion ₫',
       },
-      inputs: { netIncome: 8_894, revenue: 62_850 },
-      expected: 14.15,
+      inputs: { netIncome: 9_999.4, revenue: 63_698.4 },
+      expected: 15.7,
+      note: {
+        vi: 'Mỗi 100 ₫ doanh thu của FPT còn lại gần 15,7 ₫ lợi nhuận sau khi trừ mọi chi phí, thuế và lãi vay.',
+        en: 'For every 100 ₫ of FPT’s revenue, close to 15.7 ₫ remains as profit after all costs, taxes and interest.',
+      },
+      source: {
+        vi: 'Finbox_v2, LNST và doanh thu FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) net income and revenue, locked in 2026-09-08.',
+      },
     },
     tests: [
       { name: 'ca thường', inputs: { netIncome: 8_894, revenue: 62_850 }, expected: 14.15 },
@@ -679,11 +707,19 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Doanh thu 62.850 tỷ ₫, giá vốn 38.400 tỷ ₫',
-        en: 'Revenue 62,850 billion ₫, cost of goods sold 38,400 billion ₫',
+        vi: 'MWG — doanh thu 177.386,5 tỷ ₫, giả định giá vốn 138.000 tỷ ₫',
+        en: 'MWG — revenue 177,386.5 billion ₫, assumed cost of goods sold 138,000 billion ₫',
       },
-      inputs: { revenue: 62_850, cogs: 38_400 },
-      expected: 38.9,
+      inputs: { revenue: 177_386.5, cogs: 138_000 },
+      expected: 22.2,
+      note: {
+        vi: 'Giá vốn dùng mức minh hoạ vì Finbox_v2 không tách riêng mục này. Biên gộp khoảng 22% khá tiêu biểu cho ngành bán lẻ.',
+        en: 'Cost of goods sold is illustrative, since Finbox_v2 does not break out that line. A gross margin around 22% is fairly typical for retail.',
+      },
+      source: {
+        vi: 'Finbox_v2, doanh thu Thế giới Di động (mã MWG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Mobile World’s (ticker MWG) revenue, locked in 2026-09-08.',
+      },
     },
     tests: [
       { name: 'ca thường', inputs: { revenue: 62_850, cogs: 38_400 }, expected: 38.9 },
@@ -787,11 +823,19 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Nợ phải trả 22.500 tỷ ₫, vốn chủ 36.456 tỷ ₫',
-        en: 'Liabilities 22,500 billion ₫, equity 36,456 billion ₫',
+        vi: 'FPT — nợ phải trả 31.881 tỷ ₫, vốn chủ 39.851,2 tỷ ₫',
+        en: 'FPT — liabilities 31,881 billion ₫, equity 39,851.2 billion ₫',
       },
-      inputs: { totalLiabilities: 22_500, equity: 36_456 },
-      expected: 0.6172,
+      inputs: { totalLiabilities: 31_881, equity: 39_851.2 },
+      expected: 0.8,
+      note: {
+        vi: 'D/E 0,8 lần — FPT vay nợ ở mức thấp so với ngưỡng 2 lần vẫn coi là an toàn cho ngành sản xuất/công nghệ.',
+        en: 'A D/E of 0.8x — FPT carries low leverage against the 2x level generally considered safe for manufacturing/tech.',
+      },
+      source: {
+        vi: 'Finbox_v2, nợ phải trả và vốn chủ FPT Corp (mã FPT), chốt 08/09/2026.',
+        en: 'Finbox_v2, FPT Corp’s (ticker FPT) liabilities and equity, locked in 2026-09-08.',
+      },
     },
     tests: [
       { name: 'ca thường', inputs: { totalLiabilities: 22_500, equity: 36_456 }, expected: 0.6172 },
@@ -1112,11 +1156,19 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Doanh thu 62.850 tỷ ₫, tổng tài sản 68.000 tỷ ₫',
-        en: 'Revenue 62,850 billion ₫, total assets 68,000 billion ₫',
+        vi: 'MWG — doanh thu 177.386,5 tỷ ₫, tổng tài sản 103.470,8 tỷ ₫',
+        en: 'MWG — revenue 177,386.5 billion ₫, total assets 103,470.8 billion ₫',
       },
-      inputs: { revenue: 62_850, totalAssets: 68_000 },
-      expected: 0.9243,
+      inputs: { revenue: 177_386.5, totalAssets: 103_470.8 },
+      expected: 1.71,
+      note: {
+        vi: 'Vòng quay trên 1 lần khá tiêu biểu cho một chuỗi bán lẻ.',
+        en: 'A turnover above 1x is fairly typical for a retail chain.',
+      },
+      source: {
+        vi: 'Finbox_v2, doanh thu và tổng tài sản Thế giới Di động (mã MWG), chốt 08/09/2026.',
+        en: 'Finbox_v2, Mobile World’s (ticker MWG) revenue and total assets, locked in 2026-09-08.',
+      },
     },
     tests: [
       {
@@ -1226,14 +1278,18 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Cổ tức 2.000 ₫/CP, EPS 6.050 ₫',
-        en: 'Dividend 2,000 ₫/share, EPS 6,050 ₫',
+        vi: 'VNM — cổ tức 4.350 ₫/CP, EPS 5.246 ₫',
+        en: 'VNM — dividend 4,350 ₫/share, EPS 5,246 ₫',
       },
-      inputs: { dividendPerShare: 2_000, eps: 6_050 },
-      expected: 33.06,
+      inputs: { dividendPerShare: 4_350, eps: 5_246 },
+      expected: 82.92,
       note: {
-        vi: 'Giữ lại khoảng hai phần ba lợi nhuận để tái đầu tư.',
-        en: 'Retains roughly two-thirds of profit for reinvestment.',
+        vi: 'VNM nổi tiếng chi trả gần hết lợi nhuận làm cổ tức, chỉ giữ lại chưa tới hai phần mười để tái đầu tư.',
+        en: 'VNM is known for paying out nearly all of its profit as dividends, retaining less than a fifth for reinvestment.',
+      },
+      source: {
+        vi: 'Finbox_v2, cổ tức và EPS Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) dividend and EPS, locked in 2026-09-08.',
       },
     },
     tests: [

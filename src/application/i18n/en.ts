@@ -9,13 +9,13 @@
  *
  * Từ điển này (và mọi field `Bilingual` ở Domain) nay đã dịch **đủ**: `missingKeys('en')` rỗng.
  * Vài khối vẫn cố định tiếng Việt theo thiết kế, KHÔNG phải nợ dịch: metadata SEO build-time
- * (`page.tsx`), `StaticFormulaList` (fallback trước hydrate), file PDF/PNG xuất ra
- * (`draw-card.ts`, `ExportSheet.tsx` — tài liệu xuất luôn là văn bản tiếng Việt trọn vẹn, kể cả
- * câu miễn trừ đính kèm vẫn lấy `DISCLAIMER_VI`), và tên công ty mẫu trong `samples.ts`.
+ * (`page.tsx`), file PDF/PNG xuất ra (`draw-card.ts`, `ExportSheet.tsx` — tài liệu xuất luôn là
+ * văn bản tiếng Việt trọn vẹn, kể cả câu miễn trừ đính kèm vẫn lấy `DISCLAIMER_VI`), và tên công
+ * ty mẫu trong `samples.ts`.
  *
  * Bẫy số ít/số nhiều: nhiều khoá đứng ngay sau một con số ghép ở call site ("12 kết quả"),
  * mà từ điển phẳng không phân nhánh theo số được. Khoá nào con số có thể bằng 1 thì dùng
- * dạng "(s)"; khoá nào con số luôn ≥ 2 (loan.condensed, home.browse.unit) thì để số nhiều trơn.
+ * dạng "(s)"; khoá nào con số luôn ≥ 2 (loan.condensed) thì để số nhiều trơn.
  */
 
 import type { vi } from './vi';
@@ -26,7 +26,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'nav.primary': 'Primary navigation',
   'nav.skipToContent': 'Skip navigation, go to content',
-  'nav.home': 'Home',
   'nav.formulas': 'Formulas',
   'nav.portfolio': 'Portfolio',
   'nav.settings': 'Settings',
@@ -80,12 +79,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'search.folder.open': 'Open group',
   'search.noneIn': 'No results in:',
 
-  'filter.segment.label': 'Segment',
-  'filter.segment.all': 'All',
-  'filter.segment.stock': 'Stocks',
-  'filter.segment.personal': 'Personal',
   'filter.category.label': 'Formula group',
   'filter.category.all': 'All groups',
+  'filter.category.advancedOnly': 'Advanced only',
+  'filter.category.scrollPrev': 'Previous groups',
+  'filter.category.scrollNext': 'More groups',
   'filter.reset': 'Clear filters',
   'sort.label': 'Sort',
   'sort.featured': 'Most practical first',
@@ -100,6 +98,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'list.label': 'Formula list',
   'list.count': 'formula(s)',
+  'list.showing': 'Showing',
+  'list.levelLabel': 'Level',
   'list.empty.registry.title': 'No formulas yet',
   'list.empty.registry.hint': 'The library is being filled in step by step.',
   'list.empty.noMatch.title': 'No formula found',
@@ -151,6 +151,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `example.editHint` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'example.original': 'Original example gives:',
   'example.reset': 'Back to example numbers',
+  /* Label before `example.source` — see `vi.ts`. */
+  'example.source': 'Source:',
   'source.title': 'References',
   'flow.title': 'Calculation flow',
   'flow.cyclicWarning': 'A circular dependency prevents ordering these steps:',
@@ -349,7 +351,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
 
-  /* Bảy khoá của cụm tab và panel "phép tính đã lưu" đã xoá cùng bản Việt — xem lý do ở `vi.ts`. */
+  /* Khối "Phép tính đã lưu" quay lại, không tab — lý do và ba khoá tab đã xoá ghi ở `vi.ts`. */
+  'portfolio.savedTitle': 'Saved calculations',
+  'portfolio.savedOpen': 'View',
+  'portfolio.savedRemove': 'Delete',
+  'portfolio.savedAt': 'saved',
+  'portfolio.savedNeedsSeries': 'Needs price series',
 
   'ticker.title': 'Pick a ticker',
   'ticker.subtitle': 'Every tradable ticker, from Finbox',
@@ -477,10 +484,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'save.title': 'Save to portfolio',
   'save.subtitle': 'Keep these inputs and this result to reopen later',
   'save.nameLabel': 'Name this calculation',
-  'save.nameHint': 'The name appears on the Formulas tab of the Portfolio screen.',
+  'save.nameHint': 'The name appears under Saved calculations on the Portfolio screen.',
   'save.suggestions': 'Suggested names',
   'save.submit': 'Save to portfolio',
-  'save.done': 'Saved to Portfolio › Formulas.',
+  'save.done': 'Saved to Portfolio › Saved calculations.',
   'save.goToPortfolio': 'View in portfolio',
   'save.errEmpty': 'Give it a name first — an unnamed entry is one you will never find again.',
   'save.errDuplicate':
@@ -494,25 +501,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'switch.on': 'On',
   'switch.off': 'Off',
 
-  'home.h1': 'Vietnamese stock and personal-finance formula library',
-  'home.hero.title': 'Finbox quick calculators',
-  'home.search.featuredEmpty': 'No card here matches',
-  'home.search.featuredScope':
-    'The home search filters only the “Everyday formulas” block, not the whole library.',
-  'home.search.notFound': 'Not the formula you need?',
-  'home.search.searchWhole': 'Search the whole library',
-  'home.search.results': 'result(s)',
-  'home.featured.title': 'Everyday formulas',
-  'home.featured.personalNote':
-    'The formulas you open most often have been moved to the front. This history stays on your device and is never sent anywhere.',
-  'home.browse.title': 'Browse by group',
-  'home.browse.unit': 'formulas',
-  'home.browse.advancedOnly': 'Advanced only',
-  'home.segment.stock': 'Stocks',
-  'home.segment.personal': 'Personal finance',
-  'home.tools.title': 'Tools',
-  'home.tools.data': 'Data table',
-  'home.tools.dataHint': 'Enter or paste OHLCV price series used for Beta, Sharpe, VaR',
+  'shelf.title': 'Everyday formulas',
+  'shelf.seeAll': 'See all',
+  'shelf.collapse': 'Show less',
 
   'settings.mode.title': 'Display mode',
   'settings.mode.label': 'Basic or Advanced',
@@ -531,10 +522,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.prefs.note':
     'The display mode, language, light or dark theme, units and fee schedule you picked.',
   'data.recent': 'Search history',
-  'data.recent.note': 'Words you typed on the Search screen, kept so you can tap them again.',
-  'data.recentHome': 'Home search history',
-  'data.recentHome.note':
-    'Words typed in the search box on the home page — kept apart from the Search screen.',
+  'data.recent.note':
+    'Formula names you picked while searching on the Formulas or Search screen, kept so you can tap them again.',
   'data.series': 'Entered price series',
   'data.series.note':
     'The session-by-session price table you typed, pasted or loaded on the Data table screen.',
@@ -548,8 +537,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.drafts.note':
     'Numbers you were typing on a formula screen, kept so you need not start over after leaving.',
   'data.usage': 'Formulas you opened',
-  'data.usage.note':
-    'Which formulas you open most, used to reorder the formula shelf on the home page.',
+  'data.usage.note': 'Which formulas you open most, used to reorder the Everyday formulas block.',
   'data.tickers': 'Ticker list',
   'data.tickers.note':
     'The exchange ticker list, downloaded once so ticker search is fast and works offline.',
@@ -650,5 +638,5 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'notFound.suggest':
     'Try finding the formula by name — typing without Vietnamese accents still works.',
   'notFound.search': 'Find a formula',
-  'notFound.home': 'Back to the home page',
+  'notFound.formulas': 'Go to the formula list',
 };

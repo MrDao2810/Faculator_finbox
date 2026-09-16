@@ -31,8 +31,7 @@ import styles from './HeaderIdentity.module.css';
  *     thì đổi thành button back kèm chỉ dẫn về màn trước"* → dạng QUAY LẠI, cho mọi màn TRONG.
  *
  * Luật "màn nào dạng nào" nằm ở `backLinkFor()` và `headerTitleKey()` trong
- * `src/application/routes.ts`, cùng chỗ với `showsModeToggle()` và cùng lý do: đó là quyết định
- * về ĐƯỜNG DẪN, không phải về giao diện.
+ * `src/application/routes.ts`: đó là quyết định về ĐƯỜNG DẪN, không phải về giao diện.
  *
  * Dạng QUAY LẠI KHÔNG dựng `<h1>` — màn trong tự có tiêu đề riêng trong thân (tên công thức, tên
  * bảng dữ liệu), và đó cũng là lý do việc bỏ `<BackLink>` khỏi thân màn đẩy được tiêu đề ấy lên.
@@ -40,8 +39,8 @@ import styles from './HeaderIdentity.module.css';
  * ── Vì sao là một client leaf riêng ──────────────────────────────────────────────────────────
  *
  * `AppHeader` là server component (không có `'use client'`) nên nó không gọi được
- * `usePathname()`. Đây đúng khuôn `HeaderNav` và `HeaderModeToggle` đã dựng: bọc phần cần biết
- * route vào một lá client, thanh trên giữ nguyên là server.
+ * `usePathname()`. Đây đúng khuôn `HeaderNav` đã dựng: bọc phần cần biết route vào một lá client,
+ * thanh trên giữ nguyên là server.
  *
  * ── `<h1>` chuyển CHỖ, không nhân đôi ────────────────────────────────────────────────────────
  *
@@ -119,8 +118,10 @@ export function HeaderIdentity() {
 
   function tenSanPham(themLop?: string) {
     return (
+      /* Về màn Công thức — màn mở đầu từ khi trang chủ gộp vào nó. Không trỏ `/`: trang ấy chỉ còn
+         chuyển hướng, bấm logo mà đi vòng qua một cú chuyển hướng là chậm đi vô cớ. */
       <Link
-        href={ROUTES.home}
+        href={ROUTES.formulas}
         className={themLop === undefined ? styles.brand : `${styles.brand} ${themLop}`}
       >
         <BrandMark />

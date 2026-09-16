@@ -70,9 +70,9 @@ export const viewport: Viewport = {
  * Không có nó thì `data-theme` chỉ được đặt sau khi hydrate xong, và người đã chọn Tối phải nhìn
  * một nháy trắng nguyên trang mỗi lần tải cứng — trên nền tối thì cái nháy ấy chói mắt thật sự.
  *
- * `data-mode` vào cùng script vì cùng một lý do và cùng một kho: trang chủ bày số công thức của
- * từng nhóm theo chế độ, mà khối ấy do server dựng (xem docblock `CategoryGrid`). Đặt sau hydrate
- * là người chọn Nâng cao thấy 79 nháy thành 111 ngay dưới mắt. Một lượt đọc `localStorage`, hai
+ * `data-mode` vào cùng script vì cùng một lý do và cùng một kho: màn Công thức bày số công thức
+ * trên chip nhóm và dòng đếm theo chế độ, dựng sẵn cả hai con số cho CSS chọn (xem docblock
+ * `CategoryChips`). Đặt sau hydrate là người chọn Nâng cao thấy 79 nháy thành 111 ngay dưới mắt. Một lượt đọc `localStorage`, hai
  * thuộc tính — rẻ hơn hẳn việc thêm một script thứ hai.
  *
  * Chỉ ghi thuộc tính khi lựa chọn KHÁC mặc định (`theme: 'light'`, `mode: 'basic'`): HTML tĩnh

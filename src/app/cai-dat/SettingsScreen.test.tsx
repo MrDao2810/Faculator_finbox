@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FORMULAS,
   FORMULA_USAGE_KEY,
-  HOME_RECENT_SEARCHES_KEY,
+  LEGACY_HOME_RECENT_SEARCHES_KEY,
   MARKET_CONFIG,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
@@ -146,7 +146,6 @@ describe.skipIf(!HIEN_KHOI_DU_LIEU)('dữ liệu trên máy — LDR-04, NFR-SEC-
     for (const key of [
       PREFERENCES_STORAGE_KEY,
       RECENT_SEARCHES_KEY,
-      HOME_RECENT_SEARCHES_KEY,
       FORMULA_USAGE_KEY,
       PRICE_SERIES_KEY,
       PORTFOLIO_KEY,
@@ -226,6 +225,11 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
           'sessionStorage — cờ sống đúng MỘT lượt điều hướng: nút quay lại đặt, màn đích đọc rồi xoá ngay. Một nút xoá cho nó là nút không bao giờ có gì để xoá',
       },
       {
+        key: 'ffb.shelf.open.v1',
+        viSao:
+          'sessionStorage — kệ "Công thức dùng hằng ngày" đang mở đủ hay thu gọn, để nút quay lại cuộn đúng chỗ. Trạng thái giao diện của một tab, không phải dữ liệu người dùng, tự hết khi đóng tab',
+      },
+      {
         key: 'ffb.activeTicker.v1',
         viSao:
           'sessionStorage — mã dính theo lượt duyệt, tự hết khi đóng tab. Lối xoá nằm ngay tại chỗ nó có tác dụng: nút "Bỏ mã" trên thanh của màn chi tiết công thức',
@@ -234,6 +238,11 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
         key: 'ffb.workingSeries.v1',
         viSao:
           'sessionStorage — chuỗi giá vừa dán tại chỗ hoặc chuỗi minh hoạ của công thức đang mở, giữ để nó sống sót cú "Mở bảng dữ liệu → Back", tự hết khi đóng tab. Hai lối xoá đều nằm ngay tại chỗ nó có tác dụng: nút "Huỷ và thoát" ở màn chi tiết, và chính việc sửa bảng dữ liệu (thao tác gần nhất thắng). Chuỗi muốn ở lại lâu dài thì đã có bảng WF-05, vốn có sẵn dòng xoá riêng',
+      },
+      {
+        key: 'ffb.recent.home.v1',
+        viSao:
+          'kho CŨ của ô tìm trang chủ — trang chủ đã gộp vào màn Công thức (15/09/2026) nên không còn ai ghi. Màn Công thức gộp nó vào ffb.recent.v1 rồi xoá ở lần mở đầu tiên; nút "Xoá toàn bộ" vẫn quét nó qua LEGACY_STORAGE_KEYS. Không cho một dòng riêng: "lịch sử tìm ở trang chủ" khi không còn trang chủ nào là câu nói sai',
       },
       {
         key: 'ffb.formulaOrigin.v1',
@@ -377,6 +386,21 @@ describe('xoá toàn bộ dữ liệu — lối duy nhất, phải luôn có', (
 
     expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
     expect(window.localStorage.getItem(PRICE_CACHE_KEY)).toBeNull();
+  });
+
+  /*
+   * Kho cũ không có dòng trong bản kiểm kê — nên nó là đúng loại kho mà một vòng lặp chỉ duyệt
+   * `STORAGE_ITEMS` sẽ bỏ sót. "Xoá toàn bộ" phải xoá THẬT toàn bộ (LDR-04).
+   */
+  it('đồng ý thì xoá luôn kho cũ của ô tìm trang chủ, dù nó không có dòng riêng', async () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, '["roi"]');
+    window.localStorage.setItem(LEGACY_HOME_RECENT_SEARCHES_KEY, '["P/E"]');
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    open();
+
+    await userEvent.click(screen.getByRole('button', { name: /Xoá toàn bộ/ }));
+
+    expect(window.localStorage.getItem(LEGACY_HOME_RECENT_SEARCHES_KEY)).toBeNull();
   });
 });
 

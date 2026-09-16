@@ -18,16 +18,16 @@ import { AppHeader } from './AppHeader';
  */
 
 /**
- * Đường dẫn giả, đổi được giữa các ca kiểm: từ đợt "nút chế độ chỉ ở màn danh sách", thanh trên
- * dựng ra KHÁC NHAU tuỳ route, nên một hằng số cố định không kiểm được luật ấy nữa.
+ * Đường dẫn giả, đổi được giữa các ca kiểm: danh tính đầu thanh dựng ra KHÁC NHAU tuỳ route, nên
+ * một hằng số cố định không kiểm được luật ấy.
  */
-const duongDan = vi.hoisted(() => ({ hienTai: '/' }));
+const duongDan = vi.hoisted(() => ({ hienTai: '/ve-chung-toi/' }));
 
 vi.mock('next/navigation', () => ({
   usePathname: () => duongDan.hienTai,
 }));
 
-function dungThanh(path: string = ROUTES.home) {
+function dungThanh(path: string = ROUTES.about) {
   duongDan.hienTai = path;
   return render(
     <PreferencesProvider>
@@ -38,7 +38,7 @@ function dungThanh(path: string = ROUTES.home) {
 
 beforeEach(() => {
   window.localStorage.clear();
-  duongDan.hienTai = ROUTES.home;
+  duongDan.hienTai = ROUTES.about;
 });
 
 afterEach(cleanup);
@@ -71,50 +71,26 @@ describe('AppHeader', () => {
 });
 
 /*
- * Nút chế độ chỉ bày ở màn danh sách — luật nằm ở `showsModeToggle()`, đây là chỗ kiểm rằng thanh
- * trên THẬT SỰ theo luật ấy.
+ * Cụm Cơ bản / Nâng cao KHÔNG còn ở thanh trên, ở bất cứ màn nào.
  *
- * Kiểm ở đây chứ không chỉ ở `routes.test.ts` vì hai thứ khác nhau: kia gác cái hàm trả đúng
- * true/false, còn ca dưới gác việc `AppHeader` có thật sự cắm hàm ấy vào hay không. Bản trước
- * dựng `<ModeToggle />` thẳng, và ca "vẫn giữ nguyên hai điều khiển cũ" ở trên đã khoá đúng hành vi
- * cũ — nên nếu chỉ sửa `routes.ts` mà quên thanh trên thì bộ kiểm vẫn xanh.
+ * Nó từng chỉ hiện ở màn danh sách công thức (`showsModeToggle()`); ngày 15/09/2026 trang chủ gộp
+ * vào màn ấy và cụm nút dời xuống hàng tiêu đề "Danh sách công thức" — `FormulaListScreen.test.tsx`
+ * gác vế đó. Ca dưới gác vế còn lại: không màn nào có HAI cụm nút cùng lúc, và thanh trên không
+ * lặng lẽ mọc lại một cụm chỉ vì ai đó khôi phục `HeaderModeToggle`.
  */
-describe('AppHeader — nút chế độ theo màn', () => {
-  const TEN_NHOM = 'Chế độ hiển thị';
+describe('AppHeader — không còn cụm nút chế độ', () => {
+  it.each([ROUTES.formulas, ROUTES.portfolio, ROUTES.settings, '/cong-thuc/wacc/'])(
+    'thanh trên ở %s không có nhóm "Chế độ hiển thị"',
+    async (path) => {
+      dungThanh(path);
 
-  it('bày nút ở màn danh sách công thức', async () => {
-    dungThanh(ROUTES.formulas);
-
-    expect(await screen.findByRole('group', { name: TEN_NHOM })).toBeTruthy();
-  });
-
-  it('không bày ở trang chủ — nơi bấm xong không đổi một ký tự nào', async () => {
-    dungThanh(ROUTES.home);
-
-    // Chờ thanh dựng xong đã, rồi mới khẳng định vắng mặt: `queryBy` ngay lập tức thì ca này
-    // xanh cả khi thanh chưa render gì, tức là xanh vì lý do sai.
-    await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
-    expect(screen.queryByRole('group', { name: TEN_NHOM })).toBeNull();
-  });
-
-  it('không bày ở trang chi tiết — 94 trong 111 trang bấm không đổi gì', async () => {
-    dungThanh('/cong-thuc/wacc/');
-
-    await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
-    expect(screen.queryByRole('group', { name: TEN_NHOM })).toBeNull();
-  });
-
-  /*
-   * Màn Cài đặt là đường về chế độ Cơ bản cho những màn không còn nút, nên nó phải có nút — chỉ
-   * là do CHÍNH MÀN ẤY dựng (hàng "Chế độ hiển thị"), không phải do thanh trên. Ca này gác vế
-   * thanh trên; vế màn Cài đặt do `SettingsScreen.test.tsx` gác.
-   */
-  it('không bày ở màn Cài đặt — màn ấy tự có hàng riêng', async () => {
-    dungThanh(ROUTES.settings);
-
-    await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
-    expect(screen.queryByRole('group', { name: TEN_NHOM })).toBeNull();
-  });
+      // Chờ thanh dựng xong đã, rồi mới khẳng định vắng mặt: `queryBy` ngay lập tức thì ca này
+      // xanh cả khi thanh chưa render gì, tức là xanh vì lý do sai.
+      await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
+      expect(screen.queryByRole('group', { name: 'Chế độ hiển thị' })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Nâng cao' })).toBeNull();
+    },
+  );
 });
 
 /*
@@ -126,10 +102,18 @@ describe('AppHeader — nút chế độ theo màn', () => {
  * vẫn xanh, mà đó chính là hỏng.
  */
 describe('AppHeader — danh tính đổi theo màn', () => {
-  it('trang chủ bày tên sản phẩm, không có tiêu đề màn', async () => {
-    dungThanh(ROUTES.home);
+  /*
+   * Màn giới thiệu đứng ngoài bảng tên màn — hero của nó tự mang `<h1>`. Ca này từng dùng trang chủ
+   * làm ví dụ; trang chủ đã gộp vào màn Công thức (15/09/2026).
+   *
+   * Logo trỏ về màn Công thức, không về `/`: `/` chỉ còn chuyển hướng, bấm logo mà đi vòng qua một
+   * cú chuyển hướng là chậm đi vô cớ.
+   */
+  it('màn Về chúng tôi bày tên sản phẩm trỏ về /cong-thuc/, không có tiêu đề màn', () => {
+    dungThanh(ROUTES.about);
 
-    expect(screen.getByRole('link', { name: 'Faculator' })).toBeTruthy();
+    const logo = screen.getByRole('link', { name: 'Faculator' });
+    expect((logo.getAttribute('href') ?? '').replace(/\/$/, '')).toBe('/cong-thuc');
     expect(screen.queryByRole('heading', { level: 1 })).toBeNull();
   });
 

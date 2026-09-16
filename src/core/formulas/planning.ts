@@ -921,14 +921,18 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     },
     example: {
       title: {
-        vi: '1.000 CP: nhận cổ tức 2.000 ₫/CP rồi bán giá 97.000 ₫, biểu phí HOSE 2026',
-        en: '1,000 shares: receiving a 2,000 VND/share dividend then selling at 97,000 VND, HOSE 2026 fee schedule',
+        vi: '1.000 CP VNM: nhận cổ tức 4.350 ₫/CP rồi bán giá 60.800 ₫, biểu phí HOSE 2026',
+        en: '1,000 VNM shares: receiving a 4,350 ₫/share dividend then selling at 60,800 ₫, HOSE 2026 fee schedule',
       },
-      inputs: { quantity: 1_000, sellPrice: 97_000, dividendPerShare: 2_000 },
-      expected: 197_000,
+      inputs: { quantity: 1_000, sellPrice: 60_800, dividendPerShare: 4_350 },
+      expected: 278_300,
       note: {
-        vi: 'Gồm 97.000 ₫ thuế chuyển nhượng và 100.000 ₫ thuế cổ tức.',
-        en: 'Comprising 97,000 VND transfer tax and 100,000 VND dividend tax.',
+        vi: 'Tổng thuế 278.300 ₫, gồm 60.800 ₫ thuế chuyển nhượng và 217.500 ₫ thuế cổ tức.',
+        en: 'Total tax is 278,300 ₫, comprising 60,800 ₫ transfer tax and 217,500 ₫ dividend tax.',
+      },
+      source: {
+        vi: 'Finbox_v2, giá bán và cổ tức Vinamilk (mã VNM), chốt 08/09/2026.',
+        en: 'Finbox_v2, Vinamilk’s (ticker VNM) sell price and dividend, locked in 2026-09-08.',
       },
     },
     note: {

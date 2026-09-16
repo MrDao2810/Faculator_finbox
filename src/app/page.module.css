@@ -1,129 +1,14 @@
+/*
+ * Trang `/` chỉ còn chuyển hướng (xem `page.tsx`) — một dòng link, căn giữa, cho lúc không gì
+ * khác chạy được.
+ */
 .page {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
+  justify-content: center;
+  padding-block: var(--space-8);
 }
 
-.block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  /* Item của flex mặc định rộng tối thiểu bằng min-content; không có dòng này thì
-     lưới nhóm đẩy phình cả cột và trang tràn ngang ở 360px — bài học đợt 2. */
-  min-width: 0;
-}
-
-/*
- * Tiêu đề khối viết hoa — bản thiết kế hi-fi WF-01, nhưng màu mực chứ không còn màu nhấn: từ
- * đợt rà soát phân cấp, xanh dành cho hành động và cho khối Kết quả. Xem `section-title.test.ts`.
- */
-.blockTitle {
+.note {
   margin: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-ink);
-}
-
-/* Lưới khối "Công thức dùng hằng ngày" đã chuyển sang `FeaturedFormulas.module.css`. */
-
-/*
- * NGOẠI LỆ CÓ TÊN của luật "tiêu đề khối màu mực" — chỉ dòng "Duyệt theo nhóm".
- *
- * Trước đây dòng này HAI màu: tên khối màu mực, "· 111 công thức" màu nhấn, đúng bản vẽ Figma
- * "FINBOX VERSION 2". Chủ dự án chốt ngày 09/09/2026: cho tên khối cùng màu với phần chữ bên cạnh
- * nó, tức cả dòng một màu nhấn. Lớp `.blockCount` cũ vì thế không còn việc gì và đã bỏ.
- *
- * Là LỚP BỔ SUNG chứ không sửa `.blockTitle`: lớp gốc còn phục vụ "Công thức dùng hằng ngày" và
- * khối "Công cụ" trên chính trang này — hai khối KHÔNG có con số đi kèm, nên cũng không có "chữ bên
- * cạnh" để mà cùng màu. Bốn thuộc tính còn lại (cỡ, độ đậm, giãn chữ, viết hoa) vẫn khai một chỗ ở
- * `.blockTitle`, nên `section-title.test.ts` vẫn gác được chúng như cũ.
- *
- * Đè được `color` vì hai lớp cùng trọng số (0,1,0) mà luật này viết SAU, trong CÙNG một file — thứ
- * tự chắc chắn. Khác hẳn cái bẫy "hai file module do bundler gộp, thứ tự không đoán được" đã ghi ở
- * `CategoryFilter.module.css`; ở đó phải dùng bộ chọn có tên thẻ, ở đây thì không cần.
- *
- * `section-title.test.ts` BIẾT về ngoại lệ này — nó nằm trong bảng `NGOAI_LE_MAU_NHAN` kèm lý do.
- * Thêm một tiêu đề khối màu nhấn ở chỗ khác thì phải khai vào đó, không được lặng lẽ chép lớp này.
- */
-.blockTitleAccent {
-  color: var(--color-accent);
-}
-
-.segment {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--color-accent);
-}
-
-/*
- * Khối "Công cụ" — lối vào những màn KHÔNG có mục riêng ở thanh dưới.
- * Thanh dưới chỉ có bốn mục (WF-18) nên màn bảng dữ liệu WF-05 không có chỗ ở đó; trước đợt
- * này nó không có lấy một link nào trong cả giao diện.
- */
-.tools {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: var(--space-2);
-
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.tool {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  min-height: var(--tap-min);
-  padding: var(--space-3);
-
-  text-decoration: none;
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.tool:hover {
-  border-color: var(--color-accent);
-}
-
-.toolName {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--color-accent-strong);
-}
-
-.toolHint {
-  font-size: var(--text-xs);
-  color: var(--color-ink-soft);
-  /* Tên đầy đủ có thể dài hơn nửa bề ngang ở 360px — cho xuống dòng chứ đừng tràn. */
-  overflow-wrap: anywhere;
-}
-
-/*
- * ── Con số trong dòng tiêu đề đi theo chế độ hiển thị ────────────────────────────────────────
- *
- * Cùng cơ chế với hai badge trên ô nhóm: cả hai con số nằm sẵn trong HTML tĩnh, `data-mode` trên
- * `<html>` chọn con số nào hiện. Lý do đầy đủ ở docblock `CategoryGrid.tsx`.
- *
- * Không có thuộc tính nghĩa là **Cơ bản** (`DEFAULT_PREFERENCES.mode`), nên điều kiện viết theo
- * hướng `:not()` — liệt kê `[data-mode='basic']` là mất hẳn ca mặc định, tức là mất `out/index.html`
- * và mất cả máy chặn localStorage.
- */
-.countBasic,
-.countAdvanced {
-  display: none;
-}
-
-:global(html:not([data-mode='advanced'])) .countBasic {
-  display: inline;
-}
-
-:global(html[data-mode='advanced']) .countAdvanced {
-  display: inline;
+  font-size: var(--text-base);
 }

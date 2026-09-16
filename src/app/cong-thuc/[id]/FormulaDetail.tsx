@@ -56,6 +56,7 @@ import {
   runChain,
   runFormula,
   savedCalcId,
+  savedCalcsPath,
   scheduleOrDefault,
   serializeActiveTicker,
   serializeFormulaUsage,
@@ -1638,6 +1639,19 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
    *
    * Đọc lại kho ngay trước khi ghi thay vì tin vào `savedCalcs` trong state: giữa lúc mở sheet
    * và lúc bấm Lưu, người dùng có thể đã xoá một mục ở tab Danh mục đang mở trong thẻ khác.
+   *
+   * ── Ghi xong thì chuyển thẳng sang Danh mục ─────────────────────────────────────────────────
+   *
+   * Chủ dự án báo (15/09/2026): *"vừa tạo một công thức và lưu lại thì không thấy chuyển sang phần
+   * Danh mục"*. Trước đó sheet chỉ đổi sang câu "Đã lưu" kèm một link — và link ấy trỏ vào tab
+   * "Công thức" đã bỏ từ 14/09, nên bấm vào cũng không thấy phép tính vừa lưu ở đâu.
+   *
+   * Điều hướng CHỈ SAU KHI `setItem` đã chạy xong mà không ném: đi trước là màn Danh mục đọc kho
+   * lúc mục mới chưa nằm trên đĩa. Trả `true` về cho sheet vẫn cần — sheet kịp đổi sang câu "Đã
+   * lưu" trong nhịp chuyển trang, thay vì đứng yên như chưa bấm gì.
+   *
+   * Không đi khi ghi hỏng: người dùng phải ở lại thấy câu lỗi của sheet, không thì họ sang Danh mục
+   * tìm một mục không tồn tại.
    */
   function saveCalc(name: string): boolean {
     try {
@@ -1657,10 +1671,12 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
       window.localStorage.setItem(SAVED_CALCS_KEY, serializeSavedCalcs(next));
       setSavedCalcs(next);
-      return true;
     } catch {
       return false;
     }
+
+    router.push(savedCalcsPath());
+    return true;
   }
 
   /**
@@ -1839,13 +1855,6 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
 
   return (
     <div className={styles.detail}>
-      {/*
-        Miễn trừ đặt NGAY ĐẦU MÀN, không chỉ ở chân trang (FR-24 · UI-04).
-        Đây là màn bày ra một con số tiền, nên câu "chỉ tham khảo" phải nằm cùng tầm mắt với
-        con số ấy. Bản ở chân trang do AppShell dựng vẫn giữ, vì nó phủ mọi màn.
-      */}
-      <DisclaimerBar variant="notice" />
-
       {/* ── 1. Đầu màn: tên, nhóm, ba nút hành động ───────────────────────── */}
       <header className={styles.head}>
         {/*
@@ -2607,6 +2616,17 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
         </Button>
         <Button onClick={openSaveSheet}>{t('detail.saveToPortfolio')}</Button>
       </div>
+
+      {/*
+        Miễn trừ (FR-24) đứng CUỐI MÀN, sau hai nút kết thúc — chủ dự án chốt 15/09/2026: *"nội
+        dung cảnh báo cho xuống cuối trang"*. Trước đó nó là dòng đầu thân màn, trên tên công thức,
+        theo UI-04 (mức M: miễn trừ trong tầm nhìn đầu tiên của trang có kết quả). Đổi chỗ là
+        quyết định sản phẩm, cùng lượt với màn Danh mục.
+
+        Đây vẫn là câu miễn trừ duy nhất của trang: `showsFooterDisclaimer()` trừ trang chi tiết ra,
+        nên dải xám chân trang không dựng thêm một lần nữa ngay bên dưới ô này.
+      */}
+      <DisclaimerBar variant="notice" />
 
       {/* ── Ba bottom sheet của gói 2.5 — chỉ dựng từ lần mở đầu tiên ────── */}
       {mountedSheets.has('preset') && (

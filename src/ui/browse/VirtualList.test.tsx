@@ -142,3 +142,31 @@ describe('VirtualList — đổi danh sách thì không vỡ', () => {
     expect(container.querySelectorAll('li')).toHaveLength(0);
   });
 });
+
+/*
+ * Lớp thêm cho từng dòng — màn Công thức dùng để CSS giấu thẻ Nâng cao trước khi đọc xong tuỳ chọn.
+ * Lớp phải nằm trên chính `<li>` và KHÔNG được thay lớp gốc: mất lớp gốc là mất `padding-bottom`
+ * cùng `content-visibility` của dòng, tức cả danh sách đổi nhịp.
+ */
+describe('VirtualList — itemClassName', () => {
+  it('dòng được chọn nhận thêm lớp, lớp gốc vẫn còn; dòng khác giữ nguyên', () => {
+    const items = muc(3);
+    const { container } = render(
+      <VirtualList
+        items={items}
+        itemKey={(m) => m.id}
+        itemClassName={(m) => (m.id === 'm1' ? 'an-truoc-hydrate' : undefined)}
+      >
+        {(m) => <span>{m.ten}</span>}
+      </VirtualList>,
+    );
+
+    const lis = [...container.querySelectorAll('li')];
+    const goc = lis[0]?.className ?? '';
+
+    expect(goc, 'dòng thường phải có lớp gốc để so').not.toBe('');
+    expect(lis[1]?.classList.contains('an-truoc-hydrate')).toBe(true);
+    expect(lis[1]?.className.startsWith(goc)).toBe(true);
+    expect(lis[2]?.className).toBe(goc);
+  });
+});

@@ -155,7 +155,12 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 2.1.1 | Hết nháy cụm Cơ bản / Nâng cao lúc tải trang — lỗi #21                          | —       | Xong phần cụm nút — xem mục "Hết nháy cụm Cơ bản / Nâng cao"       |
 | 3.6.1 | Khối "Dữ liệu trên máy" nói bằng tiếng người, bỏ khoá kho và số ký tự           | —       | Xong — xem mục "Dữ liệu trên máy nói bằng tiếng người"             |
 | —     | Bỏ ba câu giải thích thừa trên giao diện (gồm mục #34 của bảng feedback)        | —       | Xong — xem mục "Bỏ ba câu giải thích thừa"                         |
-| —     | Màn "Về chúng tôi" — màn thứ 10, mục nav thứ 5                                  | —       | Xong phần code, **chưa build** — xem mục ngay dưới                 |
+| —     | Màn "Về chúng tôi" — màn thứ 10, mục nav thứ 5                                  | —       | Xong phần code, **chưa build** — xem mục "Màn Về chúng tôi"        |
+| 3.4.1 | Lưu phép tính xong không thấy ở Danh mục — dựng lại khối, tự chuyển trang       | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới         |
+| —     | Ô miễn trừ xuống cuối màn chi tiết công thức và màn Danh mục                    | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới         |
+| 3.1.x | Gộp Trang chủ vào màn Công thức — một màn, nav 4 mục, `/` chuyển hướng          | —       | Xong phần code, **chưa build** — xem mục "Gộp Trang chủ vào màn…"  |
+| 3.1.x | Kệ hằng ngày 16 ô (bày trước 8), bỏ hai dòng chữ phụ dưới kệ                    | —       | Xong phần code, **chưa build** — xem mục ngay dưới                 |
+| 5.x   | 34 "Ví dụ thực tế" neo vào số liệu thật của FPT/HPG/VNM/MWG qua Finbox_v2       | —       | Xong — xem mục ngay dưới                                           |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -163,6 +168,364 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## 34 "Ví dụ thực tế" neo vào số liệu thật, không còn số bịa (15/09/2026)
+
+**Trạng thái: xong.** Chủ dự án yêu cầu: _"tất cả các ví dụ thực tế trong phần công thức thì cần
+phải gắn liền đến ví dụ thật ngoài đời."_ Khối "Ví dụ thực tế" (`spec.example`) trước đó dùng số
+tròn tự bịa ở cả 111 công thức, ví dụ "Giá 92.000 ₫, doanh thu 45.000 ₫/CP" — không gắn công ty
+hay nguồn nào.
+
+**Phạm vi chốt với chủ dự án trước khi làm** (qua AskUserQuestion, vì đây là thay đổi lớn và va
+chạm nhiều quyết định thiết kế đã có sẵn):
+
+1. Chỉ nhóm đọc số một-công-ty từ BCTC (Định giá + Chỉ số DN) — **34 công thức** — được gắn số
+   thật. Nhóm phí/thuế/vay/kế hoạch cá nhân giữ nguyên (đã dùng luật/lãi suất thật rồi). Nhóm cần
+   chuỗi giá dài (SMA/RSI/Sharpe/Beta…) giữ nguyên — API Finbox_v2 chỉ cấp 10 phiên, không đủ ~248
+   phiên cần thiết, nên vẫn ghi rõ "không phải giá cổ phiếu thật" như hiện tại.
+2. Nguồn số liệu: **4 mã đã có hạ tầng thật trong repo** — FPT, HPG, VNM, MWG — đọc từ
+   `src/data/live-fundamentals.generated.ts` (kéo thật từ Finbox_v2, chốt `2026-09-08`), không tự
+   tra cứu công ty khác ngoài repo.
+3. Số viết cứng vào `example`, ghi rõ ngày chốt trong `note` — **không** tự chạy theo mỗi lần
+   `npm run gen:live-fundamentals` sau này, đúng tinh thần "ví dụ của công thức, cố định, có thêm
+   mã cũng không đổi" mà chủ dự án nhắc lại khi tôi hỏi lại cho rõ.
+
+**34 công thức, 8 file, tra đúng danh sách `LIVE_PRESET_FORMULAS`** (bảng ghim sẵn ở
+`src/data/live-preset.ts` — chính là danh sách công thức mà một mã thật điền được ô, do sản phẩm
+đã tính sẵn cho tính năng "Nạp mẫu"): `valuation-multiples.ts` (9), `valuation-dcf.ts` (5),
+`fees.ts` (5), `returns.ts` (2), `performance.ts` (1), `planning.ts` (1), `fundamentals.ts` (9),
+`multiples.ts` (2). Danh sách đầy đủ và số liệu từng công thức nằm trong chính `example.note` của
+mỗi công thức trên màn — không nhắc lại ở đây.
+
+**Cách tính `expected` — không đoán tay.** Dựng một script vitest tạm (`_tmp_real_examples.test.ts`,
+đã xoá sau khi dùng), gọi thẳng `runFormula()` thật với `CTX` giống hệt `formulas.test.ts` (cùng
+`asOf`), lấy số liệu thật từ `LIVE_FUNDAMENTALS`/`LIVE_TICKER_META`. Không có ca nào hand-compute.
+
+**Ranh giới thật/giả định, giữ đúng bản chất từng ô:**
+
+- Ô có nguồn thật trực tiếp trong `Fundamentals` (eps, bookValuePerShare, dividendPerShare,
+  netIncome, equity, revenue, totalAssets, totalLiabilities, marketCap, pe, giá phiên gần nhất) →
+  **thật**, ghi "số thật của <công ty>" trong note.
+- Ô cần suy ra bằng phép tính đơn giản trên hai trường thật (doanh thu/CP = doanh thu × 1 tỷ ÷ số
+  CP; triệu CP = số CP ÷ 1 triệu) → **vẫn thật**, chỉ là số đã đổi đơn vị.
+- Ô Finbox_v2 không cấp được (tài sản ngắn hạn, giá vốn hàng bán, nợ vay có lãi tách khỏi tổng nợ
+  phải trả, dòng tiền tự do, giá mua trong quá khứ…) → **giữ mức giả định**, nói rõ trong `note` là
+  giả định và vì sao Finbox_v2 không cấp được, không âm thầm trộn lẫn với số thật.
+- `ev-sales` cố ý NỐI vào kết quả của ví dụ `ev` (cùng FPT) thay vì bịa một EV riêng — hai ví dụ kề
+  nhau kể cùng một câu chuyện.
+
+**Một điểm dữ liệu đáng ngờ, cố tình tránh chứ không sửa:** `HPG.totalLiabilities` trong
+`live-fundamentals.generated.ts` bằng **đúng** `HPG.equity` (140.854 tỷ ₫ cả hai) — nhiều khả năng
+là lỗi ở script sinh dữ liệu, không phải trùng hợp. Không dùng HPG cho `no-tren-von-chu` (tỷ số nợ
+trên vốn chủ) vì sẽ ra đúng 1,0 một cách đáng ngờ; công thức đó dùng số thật của FPT thay thế. Đây
+là nợ kỹ thuật của `gen-live-fundamentals.mjs`, ngoài phạm vi đợt này — nên xem lại khi có dịp.
+
+**Một phát hiện phụ khi chạy hết bộ kiểm: đổi `example` một mình là đủ, đổi luôn `defaultValue`
+của biến thì KHÔNG.** Thử đồng bộ giá trị mặc định của `pe`/`pb` theo ví dụ mới (đúng nếp cũ, khi
+mặc định và ví dụ luôn trùng nhau) làm vỡ **19 ca kiểm không liên quan** trong
+`FormulaDetail.test.tsx` — hoá ra `pe` với cặp số 92.000 ₫/6.050 ₫ được dùng làm **fixture chung**
+cho hàng chục ca kiểm test những tính năng khác hẳn (đổi chế độ, bấm biểu đồ, lưu vào danh mục…).
+Đã hoàn tác `defaultValue`, chỉ giữ đúng thay đổi ở `example`. Hệ quả đúng và đã ghim lại bằng ba
+ca kiểm: `pe` giờ mở màn ra là ĐÃ lệch khỏi ví dụ (92.000 ≠ giá thật 72.300 của FPT) — trước đây
+mặc định trùng ví dụ nên trông như "vừa mở đã đúng ví dụ", nay không còn nữa, và đó là điều ĐÚNG
+chứ không phải lỗi: số mặc định là một con số trung tính, ví dụ mới mới là số thật.
+
+| file                                                                                                            | sửa gì                                                                                                        |
+| --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `core/formulas/{valuation-multiples,valuation-dcf,fees,returns,performance,planning,fundamentals,multiples}.ts` | 34 khối `example` — chỉ `title`/`inputs`/`expected`/`note`, không đụng `variables`/`tests`/hằng số dùng chung |
+| `ui/result/ExampleBlock.test.tsx`                                                                               | 2 ca dò theo số cũ của `pe` (92.000 ₫; P/E gấp đôi ra 30,41) → cập nhật theo số thật mới (72.300 ₫; 24,65)    |
+| `app/cong-thuc/[id]/FormulaDetail.test.tsx`                                                                     | 1 ca "lệch khỏi ví dụ" viết lại theo đúng hành vi mới của `pe`                                                |
+
+**Không đụng:** `variables[].defaultValue` (trừ hai lần thử-rồi-hoàn-tác ở `pe`/`pb`), `tests[]`
+(giữ nguyên làm fixture hồi quy độc lập), hằng số dùng chung (`WF08`, `sharePrice`,
+`sharesOutstanding`, `enterpriseValueInput`, và bộ hằng số đầu `fundamentals.ts`) — vài hằng số này
+còn được công thức NGOÀI phạm vi 34 dùng chung, đổi sẽ lộ đúng lỗi vừa thấy ở `pe`/`pb` nhưng sang
+một công thức không được phép đụng tới.
+
+**Kiểm chứng.** `npm run check` xanh trọn: lint, typecheck, format — **114 file / 2.688 ca** (48
+ca skip có sẵn, không liên quan). `formulas.test.ts` xác nhận cả 34 `example.expected` khớp đúng
+`runFormula()` thật; `prose-audit.test.ts` (9 ca, gồm cả cửa "khẳng định khớp bộ số liệu mẫu" ở
+mục H) xanh — không câu nào tự nhận "khớp số liệu mẫu" sai sự thật.
+
+---
+
+## Kệ "Công thức dùng hằng ngày" 16 ô, bỏ hai dòng chữ phụ (15/09/2026)
+
+**Trạng thái: xong phần code, chưa build, chờ chủ dự án xác nhận.** `typecheck` · `eslint` ·
+`prettier` sạch; `vitest` **114 file / 2691 ca xanh** (48 bỏ qua có sẵn). Đo trên dev server bằng
+Chrome headless riêng:
+
+- 1440px: 8 ô (4×2) → bấm → 16 ô (4×4) → bấm → 8 ô.
+- 360px: 8 ô (2×4) → 16 ô → 8 ô.
+- Không tràn ngang, console sạch.
+
+Chủ dự án yêu cầu:
+
+1. Bỏ hai dòng chữ dư thừa dưới kệ:
+   - "Những công thức bạn hay mở đã được đưa lên đầu. Lịch sử này nằm trên máy bạn, không gửi đi đâu."
+   - "Bảng dữ liệu · Nhập hoặc dán chuỗi giá OHLCV dùng cho Beta, Sharpe, VaR"
+2. "Xem tất cả" không cuộn xuống danh sách nữa. Kệ lúc đầu chỉ bày 8 công thức, bấm thì bày đủ 16.
+
+### Mặc định tự chọn (chủ dự án đổi được)
+
+- **Tám ô thêm:** `von-hoa-thi-truong`, `bien-an-toan`, `co-lenh-rui-ro`, `rsi-wilder`,
+  `lai-lo-vi-the-long`, `tra-gop-nien-kim`, `lai-kep`, `gia-von-trung-binh-dca`.
+  - Registry có 19 ghim tay; tám ô này phủ đủ bảy nhóm ghim chưa có mặt ở tám ô đầu.
+  - Ba ghim bị bỏ ra đều trùng nhóm với một ô đã có: `ev-ebitda`, `co-vi-the-phai-sinh`, `lich-tra-no`.
+- **Nút là công tắc hai chiều:** "Xem tất cả ›" / "Thu gọn", mũi tên quay lên khi đã mở. Trạng thái
+  mở được nhớ trong tab (`sessionStorage`, `ffb.shelf.open.v1`), tải lại hay quay lại vẫn giữ.
+- **Cắt ô theo vị trí sau khi sắp theo lịch sử.** Ô cá nhân hoá luôn nằm trong 8 ô đầu.
+
+### File đã sửa
+
+| file                                                                          | sửa gì / vì sao                                                                                      |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `application/daily-shelf.ts` + test, `index.ts`                               | 16 id; thêm `DAILY_SHELF_PREVIEW = 8`; test gác preview < 16 và > `PERSONAL_SLOTS`                   |
+| `app/cong-thuc/FeaturedFormulas.{tsx,module.css}`                             | nhận `heading`, sở hữu nút `aria-expanded`; ô thứ 9+ mang `hidden`; bỏ dòng phụ đề                   |
+| `app/cong-thuc/FeaturedFormulas.test.tsx`                                     | ca mở/thu, không nút khi ≤ 8 ô, HTML tĩnh giữ đủ link, ô cá nhân hoá trong phần hiện                 |
+| `app/cong-thuc/DailyShelf.{tsx,module.css}`                                   | truyền `<h2>` qua `heading`; bỏ link Bảng dữ liệu; `.head` dời sang FeaturedFormulas                 |
+| `app/cong-thuc/SeeAllLink.{tsx,module.css}`                                   | **xoá** — "Xem tất cả" không còn là link cuộn                                                        |
+| `application/i18n/{vi,en}.ts`                                                 | bỏ `shelf.personalNote`, `tools.data`, `tools.dataHint`; thêm `shelf.collapse`                       |
+| `app/cong-thuc/FormulaListScreen.test.tsx`                                    | đổi tên một ca còn nhắc "Xem tất cả"                                                                 |
+| `scripts/verify-static.mjs`                                                   | vẫn 34 phép: "link #danh-sach" + "/du-lieu/" → "8 ô hiện, 8 ô `hidden`" + "nút `aria-expanded`"      |
+| `scripts/chrome-check.mjs`                                                    | kệ 4×2 chỉ đếm ô hiện; "Xem tất cả cuộn" → mở 4×4 / thu 4×2, giữ tiêu điểm, URL không đổi            |
+| `CLAUDE.md`                                                                   | đoạn (3) kệ server-built theo hành vi mới                                                            |
+| `app/cong-thuc/FormulaListScreen.{tsx,module.css}`                            | gỡ `tabIndex={-1}` + luật `:focus` của tiêu đề danh sách (chỉ phục vụ link cuộn đã bỏ); sửa docblock |
+| `app/cai-dat/SettingsScreen.test.tsx`                                         | thêm `ffb.shelf.open.v1` vào danh sách kho không cần nút xoá (sessionStorage), kèm lý do             |
+| `application/routes.ts` + test, `formula-usage.ts` + test, `origin-screen.ts` | docblock/tên ca còn nói "Xem tất cả cuộn tới neo" hoặc "kệ 8 ô"                                      |
+
+### Rà bằng máy có phản biện (3 lăng kính, 8 phát hiện → 3 thật)
+
+1. **Lỗi thật, đã sửa.** Mở kệ, cuộn xuống danh sách, mở một thẻ rồi bấm quay lại: kệ thu về 8 ô nên
+   `OriginTracker` cuộn tới `scrollY` cũ trên một trang ngắn hơn, và người dùng rơi xuống dưới chỗ cũ.
+   - Cách sửa: nhớ trạng thái mở trong `sessionStorage` (`DAILY_SHELF_OPEN_KEY`), áp lại trong
+     `useLayoutEffect` để xong trước effect hẹn cuộn của `OriginTracker`. Có 3 ca test mới.
+   - Đo trên Chrome thật (dev server), mở thẻ thứ 21 của danh sách rồi quay lại:
+     - 1440px: lệch 0px cả khi kệ mở lẫn thu.
+     - 360px: chiều cao kệ, mép trên danh sách và `scrollY` khớp y hệt trước/sau.
+2. **Docblock sai, đã sửa.** `DailyShelf.tsx` nói bảng dữ liệu "vẫn có trong sitemap". Thật ra
+   `/du-lieu/` không có trong sitemap và đặt `noindex`.
+3. **Docblock/tên test cũ, đã sửa.** `FORMULA_LIST_ANCHOR` còn nói là đích cuộn của "Xem tất cả".
+4. Năm phát hiện còn lại bị bác (chỉ là comment cũ, không có hành vi sai). Tôi vẫn sửa chữ luôn vì
+   mỗi chỗ chỉ một dòng.
+
+### Việc còn lại
+
+- [ ] Tắt dev server rồi chạy `build` → `verify:static` → `check:chrome` (chung với mục gộp màn bên dưới).
+- [ ] `/du-lieu/` giờ chỉ còn một lối vào: nút trên màn chi tiết công thức dùng chuỗi giá (không nav,
+      không sitemap). Nếu cần lối vào khác, chủ dự án quyết.
+- [ ] **Lỗi có sẵn, không do đợt này:** ở 360px, quay lại từ màn chi tiết thì thẻ vừa mở lệch lên
+      32px (kệ thu) đến 167px (kệ mở), dù `scrollY` khôi phục đúng. Độ lệch nằm TRONG khối danh sách,
+      nhiều khả năng do chiều cao ước lượng của `content-visibility` ở `VirtualList`. Ở 1440px không lệch.
+
+---
+
+## Gộp Trang chủ vào màn Công thức (15/09/2026)
+
+**Trạng thái: xong phần code, chưa build, chờ chủ dự án xác nhận.** `lint` · `typecheck` ·
+`format:check` sạch; `vitest` **114 file / 2684 ca xanh** (48 bỏ qua có sẵn). Chưa chạy
+`build` / `verify:static` / `size` / `check:chrome`: dev server đang giữ cổng 3000 nên `prebuild`
+từ chối, đúng thiết kế. Đã tự kiểm bằng Chrome headless riêng trên dev server ở 1440 và 360px:
+kệ 8 ô đúng thứ tự, danh sách 111 thẻ, 13 chip, `/` tự chuyển về `/cong-thuc/`, console sạch.
+
+Chủ dự án đưa ảnh mockup và chốt qua hai vòng hỏi:
+
+- URL chính là `/cong-thuc/`; `/` chuyển hướng về đó.
+- Bỏ ba tab mảng, lọc nhóm bằng hàng chip cuộn ngang.
+- Kệ "Công thức dùng hằng ngày" lên đầu màn, 8 ô; "Xem tất cả" chỉ cuộn xuống danh sách.
+- Giữ một link nhỏ tới Bảng dữ liệu.
+- Bỏ qua nút PDF ở header và banner bên phải ô tìm ("chưa hợp lý").
+
+Ảnh lấy từ file Figma cũ ("Falculator", "107 công thức", số nhóm sai), nên chỉ lấy bố cục, không
+chép chữ hay số.
+
+### Kiến trúc — ba quyết định đáng ghi
+
+1. **Không `useSearchParams()` trong màn.** State lọc nằm trong `useState` (`use-list-url-state.ts`)
+   và được ghi lên URL bằng `history.replaceState` (chuỗi tìm trễ 300ms, xả ngay khi bấm/Enter).
+   URL chỉ được ĐỌC ở `ListUrlSync`: một component rỗng trong `<Suspense>` riêng. Nhờ vậy kệ và cả
+   111 thẻ nằm trong HTML tĩnh mà không cần bản fallback `StaticFormulaList`. `applySearch()` chặn
+   tiếng dội (kể cả dội trễ) để không tái diễn lỗi rơi ký tự của đợt 13.
+2. **Trước hydrate dựng đủ 111 thẻ.** Thẻ Nâng cao mang lớp `advancedPreHydrate`, CSS giấu khi chưa
+   có `data-mode='advanced'`, nên người dùng Cơ bản hết thấy danh sách co 111 → 79 lúc tải (vế danh
+   sách còn treo của lỗi #21). Con số trên chip và dòng "Hiển thị" dựng cả hai nhánh, CSS chọn.
+3. **Không gọi `rememberOrigin()` lúc gắn.** `FormulaBrowser` cũ gọi nó trong effect lúc mount, chạy
+   TRƯỚC `OriginTracker` và đè `scrollY` đang chờ khôi phục. Nghi là nguyên nhân quay lại danh sách
+   không về đúng chỗ; nay chỉ gọi sau khi URL thật sự đổi. Chưa đo lại trên Chrome thật.
+
+### File đã tạo
+
+| file                                                 | nội dung                                                    |
+| ---------------------------------------------------- | ----------------------------------------------------------- |
+| `application/use-list-url-state.ts` + test (15 ca)   | hook state lọc ↔ URL, không `useSearchParams`              |
+| `application/list-url-sync.tsx`                      | component rỗng đọc URL trong `<Suspense>` riêng             |
+| `application/daily-shelf.ts` + test                  | `DAILY_SHELF_IDS` — 8 ô theo thứ tự ảnh, đều `isFeatured`   |
+| `ui/browse/CategoryChips.{tsx,module.css,test.tsx}`  | hàng chip nhóm = radio trong `fieldset`, nút ‹ › từ 1024px  |
+| `app/cong-thuc/FormulaListScreen.{tsx,css,test.tsx}` | màn gộp; 21 ca gồm cả `renderToStaticMarkup`                |
+| `app/cong-thuc/DailyShelf.{tsx,module.css}`          | kệ do SERVER dựng + link Bảng dữ liệu                       |
+| `app/cong-thuc/SeeAllLink.{tsx,module.css}`          | "Xem tất cả" — `<a href="#…">` cuộn mượt, không để lại hash |
+| `app/cong-thuc/FeaturedFormulas.*`                   | dời từ `src/app/` (lời nhắn và docblock 18 → 8 ô)           |
+| `app/page.test.tsx`, `public/_redirects`             | `/` chuyển hướng: meta refresh + noindex; 301 ở Cloudflare  |
+
+### File đã xoá
+
+- `app/HomeSearchPanel.*`
+- `app/page.module.css` (viết lại một bản nhỏ cho trang chuyển hướng)
+- `app/cong-thuc/FormulaBrowser.*`, `app/cong-thuc/StaticFormulaList.*`
+- `ui/browse/CategoryFilter.*`, `ui/browse/SearchBoxLink.*`, `ui/browse/CategoryGrid.*`
+- `ui/navigation/HeaderModeToggle.tsx`
+
+### File đã sửa
+
+| file                                                       | sửa gì / vì sao                                                               |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `application/routes.ts` + test                             | bỏ `ROUTES.home`, `showsModeToggle`; nav 4 mục; thêm `FORMULA_LIST_ANCHOR`    |
+| `application/origin-screen.ts` + test                      | `/` không còn là màn gốc — bản ghi cũ rơi về `/cong-thuc/`                    |
+| `application/url-state.ts` + test                          | `listParamsFromSearch` (bỏ qua `?segment=` cũ), `sameListParams`              |
+| `application/recent-searches.ts`, `use-recent-searches.ts` | một kho chung `ffb.recent.v1`; gộp một lần kho cũ trang chủ rồi xoá           |
+| `application/formula-usage.ts` + test                      | `PERSONAL_SLOTS` 6 → 4 (kệ 8 ô, giữ ≥ nửa là ghim tay)                        |
+| `application/i18n/{vi,en}.ts`                              | bỏ `nav.home`, `home.*`, `filter.segment.*`…; thêm `shelf.*`, `list.showing`… |
+| `ui/navigation/{AppHeader,HeaderIdentity,TabIcon}`         | bỏ cụm chế độ khỏi thanh trên, logo trỏ `/cong-thuc/`, bỏ icon home           |
+| `ui/navigation/ModeToggle` + test                          | prop `labelledBy` — tên nhóm là chữ "Mức độ" nhìn thấy (WCAG 2.5.3)           |
+| `ui/browse/VirtualList` + test                             | prop `itemClassName`                                                          |
+| `app/cai-dat/SettingsScreen` + test                        | bỏ dòng kho trang chủ; "Xoá toàn bộ" vẫn quét kho cũ                          |
+| `app/not-found.tsx`, `app/sitemap.ts`                      | 404 về danh sách; sitemap bỏ `/`, `/cong-thuc/` priority 1                    |
+| `public/manifest.webmanifest`, `public/sw.js`              | `start_url` `/cong-thuc/` + `id` `/`; SHELL `/cong-thuc/`, cache `ffb-v4`     |
+| `scripts/verify-static.mjs`                                | 30 → 34 phép; kiểm dời sang `out/cong-thuc/index.html` + trang `/`            |
+| `scripts/chrome-check.mjs`                                 | kiểm trang chủ/tab mảng → chuyển hướng, kệ, chip 360px, bố cục PC 1440        |
+| các test nav/back/origin/i18n/section-title/SearchScreen   | theo nav 4 mục, bỏ `/` làm màn gốc, kho lịch sử chung                         |
+| `CLAUDE.md`, ~20 docblock                                  | đoạn kệ trang chủ → màn gộp; bỏ tham chiếu tới file đã xoá                    |
+
+### Mặc định tự chọn (chủ dự án đổi được)
+
+- Thẻ giữ style đã chốt trước đây: badge nền đặc, tên đầy đủ `name.vi`, sắp mặc định "Thiết thực trước".
+- `PERSONAL_SLOTS = 4`.
+- Chip nhóm rỗng ở chế độ Cơ bản hiện chữ "chỉ ở Nâng cao".
+- Link Bảng dữ liệu đặt ngay dưới kệ.
+- Dưới 1024px thanh trên vẫn ghi "Công thức".
+
+### Việc còn lại
+
+- [ ] Tắt dev server rồi chạy `build` → `verify:static` → `size` → `check:chrome`. Các script đã
+      viết lại theo màn gộp nhưng CHƯA chạy thật lần nào.
+- [ ] Sau deploy: `curl -sI https://<miền>/` phải trả `301` + `location: /cong-thuc/`. Cần xác nhận đích
+      thật là Pages hay Worker; `wrangler.jsonc` và CLAUDE.md đang ghi khác nhau, dù cả hai đều đọc
+      `_redirects`.
+- [ ] `/tim-kiem/` gần như mồ côi: lối vào chỉ còn trang 404 và shortcut trong manifest. Chờ chủ dự án
+      quyết giữ hay bỏ.
+- [ ] `TabBar` và `Chip` (primitive) không còn nơi dùng — chưa xoá.
+- [ ] Bản vá co đệm nav ở dải 1024–1279px (`HeaderNav.module.css`) giữ nguyên, chờ đo lại để gỡ.
+
+---
+
+## Ô miễn trừ xuống cuối màn (15/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận.** Chủ dự án: _"nội dung cảnh báo cho xuống
+cuối trang"_ (kèm ảnh ô vàng "Kết quả chỉ mang tính tham khảo, không phải khuyến nghị đầu tư.").
+
+### Sửa gì
+
+Ô `DisclaimerBar variant="notice"` có ở hai màn, cả hai đều đứng đầu màn. Chuyển cả hai cho đồng bộ:
+
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` — từ dòng đầu thân màn xuống sau hàng nút "Huỷ /
+  Lưu vào danh mục", tức nội dung cuối cùng của trang (sau nó chỉ còn các sheet, chưa mở thì không
+  dựng).
+- `src/app/danh-muc/PortfolioScreen.tsx` — từ trên sáu ô tiền xuống sau khối "Phép tính đã lưu".
+  Vẫn ngoài mọi nhánh điều kiện nên có ở mọi trạng thái của màn.
+
+Giữ nguyên hình ô vàng có viền, không đổi sang dải xám `footer`. `showsFooterDisclaimer()` không
+đổi: hai màn vẫn trừ dải chân trang, nếu không thì hai câu giống nhau sẽ đứng sát nhau.
+
+⚠ **Lệch UI-04 (mức M)**: SRS đòi miễn trừ nằm trong tầm nhìn đầu tiên của trang có kết quả. Nay
+ở hai màn này người dùng phải cuộn hết màn mới thấy. Đây là quyết định của chủ dự án, ghi lại để
+đợt sửa SRS biết mà cập nhật.
+
+### Ca kiểm
+
+- `FormulaDetail.test.tsx` — ca cũ ghim "ô đứng TRƯỚC `<h1>`", đổi thành: đúng một ô, đứng SAU cả
+  `<h1>` lẫn nút "Lưu vào danh mục".
+- `PortfolioScreen.test.tsx` — ca cũ ghim "ô đứng TRƯỚC lưới ô tiền", đổi thành: đúng một ô, đứng
+  SAU lưới ô tiền, tiêu đề Nắm giữ và khối Phép tính đã lưu (gieo sẵn một mục để khối ấy dựng).
+- Chú thích còn ghi "đầu màn" sửa theo: `DisclaimerBar.tsx`, `DisclaimerBar.module.css`,
+  `globals.css`, `routes.ts`, `routes.test.ts` (tên hai ca), `FooterDisclaimer.test.tsx`,
+  `warning-surface.test.ts`, `contrast.test.ts`.
+
+Chạy: 8 file liên quan xanh (691 ca, 3 skip có sẵn), eslint 0 cảnh báo trên file đã sửa.
+
+### Còn lại
+
+- `npm run check` toàn repo chưa xanh, **không do lượt này**: một phiên khác đang gộp Trang chủ vào
+  màn Công thức và đã gỡ các khoá `home.*` / `nav.home` — `tsc` báo 36 lỗi, `HeaderNav.test.tsx` và
+  `BackLink.test.tsx` đỏ 7 ca. Chạy lại khi lượt ấy xong.
+- Chưa xem trên Chrome thật.
+
+---
+
+## Lưu phép tính xong không thấy chuyển sang Danh mục (15/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận.** `npm run check` xanh trọn (111 file, 2657
+ca — thêm 8). Đã thử luồng thật trên Chrome qua dev server ở khổ 360 và 1440.
+
+Chủ dự án báo: _"khi vừa tạo một công thức và lưu lại thì không thấy chuyển sang phần Danh mục"_.
+
+**Nguyên nhân — không phải lỗi ghi.** Nút "Lưu vào danh mục" vẫn ghi đúng vào `ffb.saved.v1`. Thứ
+hỏng là **không còn màn nào bày kho ấy ra**: panel "phép tính đã lưu" bị gỡ cùng cụm tab ở commit
+`fc447fb` (chủ dự án chốt bỏ tabbar 14/09), và docblock `PortfolioScreen.tsx` khi ấy đã ghi thẳng
+đây là "hệ quả còn treo". Câu xác nhận của sheet cũng trỏ vào `?tab=cong-thuc` — một tab không còn.
+
+### Sửa gì
+
+| file                                      | sửa gì / vì sao                                                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `application/routes.ts` + `index.ts`      | `SAVED_CALCS_ANCHOR` + `savedCalcsPath()` — hợp đồng chung giữa hai màn, không ai tự gõ chuỗi neo                                           |
+| `app/danh-muc/PortfolioScreen.tsx`        | nạp kho, dựng lại khối **"Phép tính đã lưu" ngay dưới khối Nắm giữ, KHÔNG tab**; nút Xem (`?luu=`) · Xoá; cuộn tới khối khi URL mang neo    |
+| `app/danh-muc/PortfolioScreen.module.css` | `.saved*` dựng lại theo DÁNG của `.holdList` (khung bọc cả danh sách, kẻ trong `--color-hairline`); `scroll-margin-top` cho thanh dính trên |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`    | `saveCalc()` ghi xong thì `router.push(savedCalcsPath())`; ghi hỏng thì ở lại cho sheet báo lỗi                                             |
+| `ui/sheets/SaveCalcSheet.tsx`             | link "Xem trong danh mục" trỏ neo mới thay cho `?tab=cong-thuc`                                                                             |
+| `application/i18n/{vi,en}.ts`             | 4 khoá `portfolio.saved*` quay lại + `portfolio.savedTitle`; `save.nameHint`, `save.done` thôi gọi tên "tab Công thức"                      |
+| `scripts/chrome-check.mjs`                | ca "tên phép tính đã lưu đổi theo ngôn ngữ" bỏ bước bấm tab cũ, đọc thẳng khối mới                                                          |
+| 2 file test                               | +3 ca `FormulaDetail`, +5 ca `PortfolioScreen` — xem dưới                                                                                   |
+
+Quyết định "bỏ tabbar" **giữ nguyên**. Khối **chỉ dựng khi kho có mục**: bản tab có ô rỗng kèm câu
+hướng dẫn vì người dùng tự bấm sang tab; nay khối nằm thường trực dưới danh mục của mọi người, và
+một ô rỗng thường trực là đúng thứ chủ dự án đã gỡ. `portfolio.savedEmpty` vì thế không quay lại.
+
+### Chỗ jsdom không bắt được — đo trên Chrome thật
+
+Lượt vá đầu cuộn tới khối MỘT LẦN, ngay lúc kho nạp xong. Test xanh, nhưng thử thật với danh mục
+6 mã thì khối dừng ở **702/780px (khổ 360)** và **889/900px (khổ 1440)** — chỉ ló ở đáy màn. Lý do:
+cuộn xong thì thị giá mới về qua mạng, mỗi dòng Nắm giữ cao thêm một hàng (tỷ trọng, lãi/lỗ) và
+dải "Giá phiên" hiện ra, đẩy khối xuống. `overflow-anchor` của trình duyệt không cứu vì nó neo vào
+phần tử đang trong tầm nhìn — tức chính các dòng Nắm giữ.
+
+Bản vá: `ResizeObserver` trên khung màn, khung đổi cỡ thì canh lại khối. **Dừng ngay khi người dùng
+tự thao tác** (lăn chuột, chạm, bấm, phím) — kéo người ta về trong lúc họ đang cuộn đi là lỗi tệ
+hơn — hoặc sau 8 giây. Đo lại, lấy mẫu ở 300 ms / 1,2 s / 3 s:
+
+| khổ      | khối      | vùng nhìn (dưới thanh trên, trên thanh tab) | cả khối trong tầm nhìn |
+| -------- | --------- | ------------------------------------------- | ---------------------- |
+| 360×780  | 564→687px | 57→719px                                    | có, cả ba mốc          |
+| 1440×900 | 769→868px | 57→900px                                    | có, cả ba mốc          |
+
+Khối không lên được sát đầu màn vì nó là thứ cuối trang (`scrollY` chạm trần) — nằm trọn trong
+vùng nhìn là mức tốt nhất đạt được. `body.style.overflow` rỗng sau khi chuyển trang (sheet đã nhả
+khoá cuộn), 0 lỗi console.
+
+### Ca kiểm thêm
+
+- `FormulaDetail.test.tsx`: lưu xong gọi `router.push(savedCalcsPath())`; `setItem` ném thì KHÔNG
+  chuyển trang và sheet hiện `save.failed`.
+- `PortfolioScreen.test.tsx`: kho rỗng thì không có khối; có mục thì bày tên, ngày lưu, link Xem
+  `?luu=`; Xoá gỡ khỏi kho và hết mục thì khối biến mất; có neo thì cuộn đúng khối; **khung đổi cỡ
+  thì canh lại, lăn chuột thì tháo bộ quan sát**; không có neo thì không cuộn.
+
+### Còn lại
+
+1. `npm run check:chrome` cần bản build — chưa chạy. Ca "tên phép tính đã lưu đổi theo ngôn ngữ"
+   đã hỏng ngầm từ lúc bỏ tab (không còn danh sách để dò); lượt này sửa lại cho khớp khối mới.
+2. Chờ chủ dự án xác nhận vị trí khối (dưới Nắm giữ) và việc tự chuyển trang ngay khi lưu.
 
 ---
 
@@ -251,6 +614,27 @@ kèm lý do — `npm run lint` báo **0 cảnh báo**.
 `sharp` chỉ dùng MỘT LẦN để sinh tệp, **không thành phụ thuộc của dự án**: nó vốn đã nằm trong
 `node_modules` như phụ thuộc gián tiếp của Next, và không mã nào trong `src/` hay `scripts/` gọi
 tới nó. Thay ảnh về sau thì nhớ nâng `CACHE` trong `public/sw.js` nếu giữ nguyên tên tệp.
+
+**6. Dải mở đầu bám mép trên — bỏ `align-items: center`** (chủ dự án yêu cầu ngay sau lượt dựng đầu:
+_"đưa phần … cùng nội dung bên dưới dịch lên gần sát mainlayout. ảnh bên phải giảm size xuống một
+chút"_). Ảnh cao hơn cột chữ, nên căn giữa theo trục dọc đẩy cả khối chữ xuống đúng một nửa phần
+chênh. Đổi sang `align-items: start` và thu ảnh còn `max-width: 470px`.
+
+Đo lại trên Chrome thật, bốn bề ngang 1024 / 1280 / 1440 / 1920:
+
+|                                            | trước   | sau                          |
+| ------------------------------------------ | ------- | ---------------------------- |
+| nhãn "Về Faculator Finbox" cách thanh trên | ~90px   | **20px** ở cả bốn khổ        |
+| `<h1>` cách thanh trên                     | ~131px  | **61px**                     |
+| ảnh hiển thị                               | 560×385 | **470×324** (441×303 ở 1024) |
+
+20px chính là `--space-5`, đệm trên của `AppShell.content` dùng chung cho mọi màn — không xuống
+thấp hơn được nữa mà không đụng đệm của cả sản phẩm. Phần chênh dồn xuống dưới ảnh, nơi nó không
+che gì: đáy ảnh so với đáy cột chữ là −93 / +4 / +49 / +81px theo bốn khổ trên.
+
+Một hệ quả đã biết và chấp nhận: ở **đúng khổ 1024px** ba thẻ nhỏ xuống thành 2 + 1, vì cột chữ chỉ
+rộng 441px trong khi ba thẻ ở mức tối thiểu 180px cần 556px. Từ 1280px trở lên vẫn là ba thẻ một
+hàng như bản vẽ. Ép ba cột ở 1024 thì mỗi thẻ còn 141px, chữ trong thẻ vỡ dòng — xấu hơn hẳn.
 
 Khối "Dữ liệu của bạn" viết **trung tính về kiến trúc**, không badge "CỤC BỘ", không câu cam kết
 riêng tư — giữ nguyên quyết định 09/09/2026 đã gỡ `portfolio.localOnly` và `settings.data.note`.

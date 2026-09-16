@@ -18,7 +18,8 @@ import styles from './not-found.module.css';
  * cho URL lạ.
  *
  * Hai lối ra thay vì một: URL sai hay gặp nhất ở đây là link công thức cũ, nên "Tìm công thức"
- * hữu ích hơn "Về trang chủ" — nhưng vẫn giữ cả hai cho người chỉ muốn thoát.
+ * hữu ích hơn "Về danh sách công thức" — nhưng vẫn giữ cả hai cho người chỉ muốn thoát. Lối thứ hai
+ * từng là "Về trang chủ"; từ khi trang chủ gộp vào màn Công thức (15/09/2026) nó dẫn thẳng tới đó.
  *
  * Là client component từ đợt 8 (luồng locale): chữ ở đây đi qua props string của `EmptyState`
  * nên không bọc lá `<T>` được, mà trang 404 cũng chẳng có gì đáng giữ ngoài gói máy khách.
@@ -36,8 +37,8 @@ export default function NotFound() {
             <Link className={styles.primary} href={ROUTES.search}>
               {t('notFound.search')}
             </Link>
-            <Link className={styles.secondary} href={ROUTES.home}>
-              {t('notFound.home')}
+            <Link className={styles.secondary} href={ROUTES.formulas}>
+              {t('notFound.formulas')}
             </Link>
           </span>
         }

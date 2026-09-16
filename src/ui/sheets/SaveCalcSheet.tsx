@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
-import { ROUTES, suggestCalcNames } from '@/application';
+import { savedCalcsPath, suggestCalcNames } from '@/application';
 import { useT } from '@/application/preferences-context';
 import { BottomSheet, Button, Input } from '@/ui/primitives';
 
@@ -158,7 +158,13 @@ export function SaveCalcSheet({
       {saved ? (
         <p className={styles.done} role="status">
           {t('save.done')}{' '}
-          <Link className={styles.link} href={`${ROUTES.portfolio}?tab=cong-thuc`}>
+          {/*
+            Màn chi tiết đã tự chuyển sang Danh mục ngay sau khi ghi (xem `saveCalc()` ở
+            `FormulaDetail`), nên link này chỉ hiện trong nhịp chuyển trang. Vẫn giữ: nó là đường
+            đi tay khi điều hướng chậm, và nó từng trỏ vào `?tab=cong-thuc` — một tab đã bỏ — nên
+            nay trỏ đúng neo của khối "Phép tính đã lưu".
+          */}
+          <Link className={styles.link} href={savedCalcsPath()}>
             {t('save.goToPortfolio')}
           </Link>
         </p>

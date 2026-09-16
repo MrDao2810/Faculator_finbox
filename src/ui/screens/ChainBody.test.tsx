@@ -128,10 +128,20 @@ describe('ChainBody — lưới ô nhập của thẻ bước', () => {
     expect(oSo.some((o) => !/fieldWide/.test(String(o?.className)))).toBe(true);
   });
 
-  it('dải luồng dựng được và nêu đủ các bước của chuỗi', () => {
-    dungKhoi('gia-tri-noi-tai-fcff');
-    // Bốn bước: capm → wacc, fcff, rồi hội tụ vào gia-tri-noi-tai-fcff.
-    expect(screen.getAllByRole('listitem').length).toBeGreaterThanOrEqual(4);
+  /*
+   * Khối từng mở đầu bằng một hình vẽ chuỗi phụ thuộc; bỏ ngày 16/09/2026 (lý do ở docblock
+   * `ChainBody.tsx`). Ca này đổi sang ghim thứ THAY nó gánh việc: mọi bước khác của chuỗi đều
+   * phải có thẻ riêng, không bước nào bị nuốt mất cùng hình vẽ.
+   */
+  it('mỗi bước khác của chuỗi có một thẻ riêng', () => {
+    const { container } = dungKhoi('gia-tri-noi-tai-fcff');
+
+    const ma = [...container.querySelectorAll('details')].map((d) =>
+      d.id.replace(/^chain-step-/, ''),
+    );
+
+    // Ba bước cấp số: capm → wacc, và fcff. Bước đang xem không có thẻ — ô của nó ở khối Số liệu.
+    expect(ma.sort()).toEqual(['capm', 'fcff', 'wacc']);
   });
 });
 

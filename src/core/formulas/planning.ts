@@ -150,20 +150,24 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Sổ 100 triệu ₫ kỳ hạn 12 tháng, rút sau 5 tháng, lãi không kỳ hạn 0,1%/năm',
-        en: 'A 100 million VND book with a 12-month term, withdrawn after 5 months, demand-deposit rate 0.1%/year',
+        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng — năm 2026',
+        en: 'A 1 billion VND book with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need — 2026',
       },
       inputs: {
-        principal: 100_000_000,
-        contractRate: 5.5,
-        termMonths: 12,
-        monthsHeld: 5,
+        principal: 1_000_000_000,
+        contractRate: 8.1,
+        termMonths: 6,
+        monthsHeld: 3,
         demandRate: 0.1,
       },
-      expected: 41_666.67,
+      expected: 250_000,
       note: {
-        vi: 'Lẽ ra được khoảng 2,29 triệu ₫ nếu tính theo lãi hợp đồng cho 5 tháng — rút sớm mất khoảng 2,25 triệu ₫.',
-        en: 'Would have earned about 2.29 million VND at the contract rate for 5 months — withdrawing early forfeits about 2.25 million VND.',
+        vi: 'Giữ đủ kỳ hạn thì phần lãi đã hưởng cho ba tháng ấy là hơn 20 triệu ₫, nên rút sớm ở đây mất gần như trọn vẹn tiền lãi. Thông tư 04/2022 cho phép rút MỘT PHẦN: chỉ phần lấy ra chịu lãi không kỳ hạn, phần để lại vẫn giữ lãi suất ghi trên sổ.',
+        en: 'Held to term, those three months would have earned more than 20 million VND, so withdrawing early here forfeits almost all of the interest. Circular 04/2022 allows a PARTIAL withdrawal: only the portion taken out drops to the demand rate, while the rest keeps the rate stated on the book.',
+      },
+      source: {
+        vi: 'Thông tư 04/2022/TT-NHNN hiệu lực 01/08/2022; lãi suất không kỳ hạn 0,1%/năm niêm yết năm 2026.',
+        en: 'Circular 04/2022/TT-NHNN, effective 2022-08-01; a 0.1%/year demand-deposit rate quoted in 2026.',
       },
     },
     tests: [
@@ -336,20 +340,24 @@ export const GUI_QUAY_VONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: '100 triệu ₫: quay vòng kỳ 3 tháng 4,7%/năm so với sổ 12 tháng 5,5%/năm',
-        en: '100 million VND: rolling over a 3-month term at 4.7%/year versus a 12-month book at 5.5%/year',
+        vi: '1 tỷ ₫: quay vòng hai kỳ 6 tháng lãi 6,6%/năm so với một sổ 12 tháng lãi 6,8%/năm — tháng 9/2026',
+        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month book at 6.8%/year — September 2026',
       },
       inputs: {
-        principal: 100_000_000,
-        shortRate: 4.7,
-        shortMonths: 3,
-        longRate: 5.5,
+        principal: 1_000_000_000,
+        shortRate: 6.6,
+        shortMonths: 6,
+        longRate: 6.8,
         totalMonths: 12,
       },
-      expected: -716_511.7,
+      expected: -911_000,
       note: {
-        vi: 'Sổ 12 tháng thắng khoảng 717 nghìn ₫ — bốn vòng lãi kép chưa bù nổi 0,8 điểm % chênh lãi suất.',
-        en: 'The 12-month book wins by about 717 thousand VND — four rounds of compounding are not enough to offset a 0.8 percentage-point rate gap.',
+        vi: 'Kết quả âm nên sổ kỳ dài thắng, nhưng chỉ hơn chừng 911 nghìn ₫ trên 1 tỷ: lãi kép của hai vòng sáu tháng gần như bù hết 0,2 điểm phần trăm chênh lệch lãi suất năm. Khoảng cách mỏng ấy chính là cái giá của việc giữ được quyền lấy tiền ra trước 12 tháng.',
+        en: 'The negative result means the long-term book wins, but only by about 911 thousand VND on 1 billion: two rounds of six-month compounding almost cancel out the 0.2 percentage-point gap in annual rates. That thin margin is the price of keeping the freedom to take the money out before 12 months.',
+      },
+      source: {
+        vi: 'Biểu lãi suất tiết kiệm trực tuyến nhóm Big4, VietNamNet 09/09/2026.',
+        en: 'The Big4 banks’ online savings rate table, VietNamNet, 2026-09-09.',
       },
     },
     tests: [
@@ -572,21 +580,25 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Ba đợt, mỗi đợt 10 triệu ₫ ở giá 50.000 · 40.000 · 25.000 ₫',
-        en: 'Three rounds, 10 million VND each, at prices of 50,000 · 40,000 · 25,000 VND',
+        vi: 'Chia vốn mua FPT làm ba đợt 10 triệu ₫, các phiên 15/07 – 21/08/2026',
+        en: 'Splitting capital into three 10 million VND FPT purchases, sessions from 2026-07-15 to 2026-08-21',
       },
       inputs: {
         amount1: 10_000_000,
-        price1: 50_000,
+        price1: 66_800,
         amount2: 10_000_000,
-        price2: 40_000,
+        price2: 62_900,
         amount3: 10_000_000,
-        price3: 25_000,
+        price3: 72_000,
       },
-      expected: 35_294.12,
+      expected: 67_028,
       note: {
-        vi: 'Thấp hơn hẳn trung bình cộng ba mức giá (38.333 ₫) vì đợt giá rẻ mua được nhiều cổ phiếu nhất.',
-        en: 'Well below the simple average of the three prices (38,333 VND) because the cheapest round bought the most shares.',
+        vi: 'Giá vốn thấp hơn trung bình cộng ba mức giá (67.233 ₫) vì cùng một số tiền mua được nhiều cổ phiếu hơn ở phiên giá rẻ, nên phiên ấy có trọng số lớn hơn. Cách chia đợt này chỉ làm phẳng rủi ro chọn sai thời điểm, không che chắn được xu hướng giảm dài hạn.',
+        en: 'The cost basis lands below the simple average of the three prices (67,233 VND) because the same amount buys more shares at the cheaper session, which therefore carries more weight. Staggering purchases this way only smooths the risk of mistiming an entry; it does not shield against a lasting downtrend.',
+      },
+      source: {
+        vi: 'Giá đóng cửa FPT các phiên 15/07, 24/07 và 21/08/2026, Investing.com.',
+        en: 'FPT closing prices for the 2026-07-15, 2026-07-24 and 2026-08-21 sessions, Investing.com.',
       },
     },
     tests: [
@@ -770,14 +782,18 @@ export const SO_KY_DCA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mục tiêu 500 triệu ₫, góp 10 triệu ₫/tháng, kỳ vọng 8%/năm',
-        en: 'Target 500 million VND, contributing 10 million VND/month, expected return 8%/year',
+        vi: 'Góp 10 triệu ₫ mỗi tháng vào quỹ mở để có 500 triệu ₫, kỳ vọng 6,8%/năm — tháng 9/2026',
+        en: 'Contributing 10 million VND a month to an open-end fund toward 500 million VND at an expected 6.8%/year — September 2026',
       },
-      inputs: { target: 500_000_000, contribution: 10_000_000, rate: 8 },
-      expected: 44,
+      inputs: { target: 500_000_000, contribution: 10_000_000, rate: 6.8 },
+      expected: 45,
       note: {
-        vi: 'Nếu không có lợi nhuận thì phải góp đủ 50 tháng — lợi suất 8%/năm rút ngắn được 6 tháng.',
-        en: 'Without any returns it would take a full 50 months — an 8%/year return shortens that by 6 months.',
+        vi: 'Ba năm chín tháng: không có lợi nhuận thì phải góp đủ 50 kỳ, nên lợi suất kỳ vọng rút ngắn được 5 kỳ. Ở mức 14,4%/năm — bình quân quỹ VESAF từ 2017 — vẫn cần 40 kỳ, vì kết quả luôn làm tròn lên kỳ trọn vẹn.',
+        en: 'Three years and nine months: with no return at all it would take a full 50 periods, so the expected return saves five. At 14.4%/year — VESAF’s average since 2017 — it still takes 40 periods, because the result is always rounded up to whole periods.',
+      },
+      source: {
+        vi: 'Lãi suất tiết kiệm 12 tháng nhóm Big4 lấy làm mức kỳ vọng thận trọng, VietNamNet 09/09/2026.',
+        en: 'The Big4 banks’ 12-month savings rate taken as a conservative expectation, VietNamNet, 2026-09-09.',
       },
     },
     tests: [
@@ -921,18 +937,18 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     },
     example: {
       title: {
-        vi: '1.000 CP VNM: nhận cổ tức 4.350 ₫/CP rồi bán giá 60.800 ₫, biểu phí HOSE 2026',
-        en: '1,000 VNM shares: receiving a 4,350 ₫/share dividend then selling at 60,800 ₫, HOSE 2026 fee schedule',
+        vi: '1.000 CP FPT: nhận cổ tức 1.000 ₫/CP trong năm rồi bán giá 72.700 ₫ — quyết toán 2026',
+        en: '1,000 FPT shares: receiving a 1,000 ₫/share dividend during the year then selling at 72,700 ₫ — 2026 filing',
       },
-      inputs: { quantity: 1_000, sellPrice: 60_800, dividendPerShare: 4_350 },
-      expected: 278_300,
+      inputs: { quantity: 1_000, sellPrice: 72_700, dividendPerShare: 1_000 },
+      expected: 122_700,
       note: {
-        vi: 'Tổng thuế 278.300 ₫, gồm 60.800 ₫ thuế chuyển nhượng và 217.500 ₫ thuế cổ tức.',
-        en: 'Total tax is 278,300 ₫, comprising 60,800 ₫ transfer tax and 217,500 ₫ dividend tax.',
+        vi: 'Gồm 72.700 ₫ thuế chuyển nhượng và 50.000 ₫ thuế cổ tức, cả hai đều do công ty chứng khoán khấu trừ tại nguồn nên cá nhân không phải tự kê khai. Thuế chuyển nhượng đánh trên giá bán nên vẫn phải nộp cả khi bán lỗ, còn thuế cổ tức chỉ đánh trên khoản thực nhận.',
+        en: 'It combines 72,700 ₫ of transfer tax and 50,000 ₫ of dividend tax, both withheld at source by the broker, so an individual files nothing. Transfer tax is charged on the sale value and so applies even on a losing sale, while dividend tax falls only on what is actually received.',
       },
       source: {
-        vi: 'Finbox_v2, giá bán và cổ tức Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) sell price and dividend, locked in 2026-09-08.',
+        vi: 'Luật Thuế TNCN 2025 số 109/2025/QH15 hiệu lực 01/07/2026; giá FPT phiên 11/09/2026 và cổ tức đợt 02/12/2025.',
+        en: 'Personal Income Tax Law 2025 No. 109/2025/QH15, effective 2026-07-01; FPT’s price on 2026-09-11 and the dividend paid on 2025-12-02.',
       },
     },
     note: {

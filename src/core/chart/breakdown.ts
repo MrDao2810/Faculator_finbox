@@ -131,6 +131,46 @@ export function breakdownExtent(
   return [lo, hi];
 }
 
+/**
+ * Những chặng bóc tách KHÔNG phải ô nhập — công thức tự tính ra rồi mới đem vẽ.
+ *
+ * Sinh ra từ một lỗ hổng chủ dự án chỉ đúng chỗ (16/09/2026) trên `fcfe`: hình bóc tách có cột
+ * `Lãi vay sau thuế` 48 tỷ ₫, mà khối Số liệu chỉ có `Chi phí lãi vay` 60 và `Thuế suất` 20% đứng
+ * rời nhau — con số 48 và cái tên ấy không xuất hiện ở bất kỳ đâu ngoài hình. Người đọc thấy một
+ * đại lượng có tên, có độ dài, nhưng không tra được nó ở đâu ra.
+ *
+ * Đây ĐÚNG lớp vấn đề mà `ConstantsNote` đã giải cho hằng số thuế/phí: một con số công thức đang
+ * tính theo, không phải ô nhập, nên không có chỗ nào trên trang nói tới. Cách chữa cũng cùng một
+ * lối — bày thẳng ra ở cuối khối Số liệu, không bắt người dùng tự suy.
+ *
+ * Lọc bằng `inputs[key] === undefined` chứ không bằng `spec.variables`: đó đúng là phép mà
+ * `stageValue()` ngay dưới dùng để quyết định tra ô nhập hay tra `extras`, nên hai chỗ không thể
+ * lệch nhau. Chặng nào tra không ra số thì bỏ hẳn khỏi danh sách — cùng lẽ với `canDrawBreakdown()`:
+ * thà không nói còn hơn bày một cái tên kèm chỗ trống.
+ *
+ * Nhãn lấy y hệt cách hình lấy (`shortLabel` trước, rồi mới tới nhãn biến), vì mục đích của cả
+ * hàm này là để HAI CHỖ GỌI CÙNG MỘT TÊN.
+ */
+export function derivedStages(
+  spec: FormulaSpec,
+  inputs: CalcInputs,
+  output: CalcOutput,
+): ReadonlyArray<{ key: string; label: Bilingual; value: number }> {
+  const stages = spec.breakdown ?? [];
+  const found: { key: string; label: Bilingual; value: number }[] = [];
+
+  for (const stage of stages) {
+    if (inputs[stage.key] !== undefined) continue;
+
+    const value = output.extras?.[stage.key];
+    if (value === undefined || !Number.isFinite(value)) continue;
+
+    found.push({ key: stage.key, label: stage.shortLabel ?? labelOf(spec, stage.key), value });
+  }
+
+  return found;
+}
+
 /** Giá trị của một chặng: tra ô nhập trước, rồi mới tới `extras` của kết quả. */
 function stageValue(stage: BreakdownStage, inputs: CalcInputs, output: CalcOutput): number | null {
   const fromInput = inputs[stage.key];

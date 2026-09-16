@@ -29,6 +29,7 @@ import {
   SHARE_INPUTS_PARAM,
   decodeShareInputs,
   defaultInputs,
+  derivedStages,
   encodeShareInputs,
   displayCalcName,
   draftFor,
@@ -87,6 +88,7 @@ import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { Badge, Button } from '@/ui/primitives';
 import {
   ConstantsNote,
+  DerivedNote,
   ErrorState,
   ExampleBlock,
   ExplanationAccordion,
@@ -2436,6 +2438,23 @@ export function FormulaDetail({ spec, asOf, latexHtml }: FormulaDetailProps) {
           một nút DOM nào.
         */}
           <ConstantsNote constants={constantsUsedBy(spec, ctx)} />
+
+          {/*
+          Đại lượng công thức TỰ TÍNH RA — đứng cạnh `ConstantsNote` vì cùng một vai: thứ quyết
+          định con số ở khối Kết quả mà người dùng không gõ được, nên phải đọc được TRƯỚC khi tới
+          Kết quả. Lý do đầy đủ ở docblock `DerivedNote.tsx`.
+
+          Đọc `effectiveInputs`/`output` chứ không phải `inputs`: ô móc nối (chuỗi định giá) nhận
+          số từ công thức trên, và chặng tính ra phải nói theo đúng bộ số đang cho ra kết quả đang
+          hiện. Cùng cặp mà khối Kết quả đang dùng, nên hai chỗ không thể lệch nhau.
+
+          Tự trả về null khi công thức không khai `breakdown` hoặc mọi chặng đều là ô nhập — 102
+          trong 111 trang không thêm một nút DOM nào.
+        */}
+          <DerivedNote
+            stages={derivedStages(spec, effectiveInputs, output)}
+            unit={spec.resultUnit}
+          />
         </section>
 
         {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}

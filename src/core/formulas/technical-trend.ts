@@ -26,6 +26,7 @@ import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput } from '../types';
 import { meaningless } from '../warnings';
+import { FPT_57_PHIEN } from './market-series-2026';
 import { lastEma, lastSma, mean, requireCloses } from './series-utils';
 import { sliderVar } from './shared';
 
@@ -313,15 +314,19 @@ export const SMA_N_PHIEN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'SMA 20 phiên trên chuỗi 20 phiên gần nhất',
-        en: '20-period SMA over the most recent 20 periods',
+        vi: 'SMA 20 phiên của FPT, chuỗi 57 phiên đến 15/09/2026',
+        en: '20-session SMA for FPT over the 57 sessions ending 2026-09-15',
       },
       inputs: { period: 20 },
-      series: GIA_20_PHIEN,
-      expected: 25_955,
+      series: FPT_57_PHIEN,
+      expected: 71_560,
       note: {
-        vi: 'Giá phiên cuối 26.700 ₫ đang cao hơn đường bình quân, tức xu hướng ngắn hạn còn nghiêng lên.',
-        en: 'The last closing price of 26,700 VND is above the moving average, meaning the short-term trend still leans upward.',
+        vi: 'Đường trung bình làm mượt nhiễu từng phiên để lộ ra mặt bằng giá: phiên cuối đóng ở 72.700 ₫, tức nằm trên đường. Đây là chỉ báo trễ — nó xác nhận xu hướng đã hình thành chứ không dự báo.',
+        en: 'The moving average smooths out session-to-session noise to reveal the underlying price level: the final session closed at 72,700 VND, above the line. It is a lagging indicator — it confirms a trend that has already formed rather than predicting one.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -415,15 +420,19 @@ export const EMA_N_PHIEN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'EMA 12 phiên trên chuỗi 40 phiên có một lần đảo chiều',
-        en: '12-period EMA over a 40-period series with one reversal',
+        vi: 'EMA 12 phiên của FPT sau cú sụt tháng 7/2026',
+        en: '12-session EMA for FPT after the July 2026 slump',
       },
       inputs: { period: 12 },
-      series: GIA_40_PHIEN,
-      expected: 25_556.86,
+      series: FPT_57_PHIEN,
+      expected: 72_389,
       note: {
-        vi: 'Giá phiên cuối 24.800 ₫ đã nằm dưới EMA — đường vẫn còn nợ một quãng của nhịp tăng trước đó.',
-        en: 'The last closing price of 24,800 VND is now below the EMA — the line still owes a portion of the earlier upswing.',
+        vi: 'Trọng số giảm dần theo hàm mũ về quá khứ nên đường bám giá sát hơn SMA cùng kỳ: hệ số làm mượt 2/(12+1) ≈ 0,1538, tức mỗi phiên mới đóng góp khoảng 15,4% giá trị đường. Đổi lại là nhiễu và tín hiệu giả nhiều hơn — đó là lý do MACD dùng EMA còn dải Bollinger dùng SMA.',
+        en: 'Weights decay exponentially into the past, so the line tracks price more closely than an SMA of the same period: the smoothing factor of 2/(12+1) ≈ 0.1538 means each new session contributes about 15.4% of the line. The trade-off is more noise and more false signals — which is why MACD uses EMAs while Bollinger bands use SMAs.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -533,15 +542,19 @@ export const MACD_DUONG_CHINH: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'MACD 12/26 sau một nhịp đảo chiều 40 phiên',
-        en: '12/26 MACD after a 40-period reversal',
+        vi: 'MACD 12/26 của FPT sau nhịp hồi tháng 8/2026',
+        en: '12/26 MACD for FPT after the August 2026 rebound',
       },
       inputs: { fastPeriod: 12, slowPeriod: 26 },
-      series: GIA_40_PHIEN,
-      expected: -247.35,
+      series: FPT_57_PHIEN,
+      expected: 808.2088,
       note: {
-        vi: 'MACD đã xuống dưới 0: đường nhanh cắt xuống dưới đường chậm sau khi giá quay đầu ở phiên 20.',
-        en: 'MACD has dropped below 0: the fast line crossed below the slow line after price turned around at period 20.',
+        vi: 'Giá trị dương nghĩa là trung bình ngắn đang nằm trên trung bình dài, tức phần đà tăng đang thắng. Chỉ báo đo KHOẢNG CÁCH giữa hai đường trung bình chứ không đo giá, nên nó vẫn dâng lên được cả khi giá đi ngang — đó là lý do nó được xếp vào nhóm động lượng chứ không phải nhóm xu hướng.',
+        en: 'A positive value means the short average sits above the long one, i.e. upward momentum has the upper hand. The indicator measures the DISTANCE between two moving averages rather than price itself, so it can still rise while price moves sideways — which is why it is classed as a momentum indicator rather than a trend one.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -657,15 +670,19 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Đường tín hiệu 12/26/9 sau nhịp đảo chiều 40 phiên',
-        en: '12/26/9 signal line after a 40-period reversal',
+        vi: 'Đường tín hiệu 12/26/9 của FPT, chốt phiên 15/09/2026',
+        en: '12/26/9 signal line for FPT as of the 2026-09-15 session',
       },
       inputs: { fastPeriod: 12, slowPeriod: 26, signalPeriod: 9 },
-      series: GIA_40_PHIEN,
-      expected: 25.07,
+      series: FPT_57_PHIEN,
+      expected: 751.9887,
       note: {
-        vi: 'MACD đã xuống −247 ₫ nhưng đường tín hiệu còn dương vì vẫn mang theo phần đà tăng trước đó — histogram âm sâu, tức tín hiệu bán đã hình thành.',
-        en: 'MACD has dropped to −247 VND but the signal line is still positive because it is still carrying part of the earlier upward momentum — the histogram is deeply negative, meaning a sell signal has formed.',
+        vi: 'Đường tín hiệu là EMA của chính đường MACD — trung bình của một trung bình, nên nó trễ thêm một nhịp nữa so với giá. Trong thị trường đi ngang, hai đường cắt qua cắt lại liên tục và sinh ra chuỗi tín hiệu giả; đó là nhược điểm lớn nhất của bộ chỉ báo này.',
+        en: 'The signal line is an EMA of the MACD line itself — an average of an average, so it lags price by one more step. In a sideways market the two lines cross back and forth and produce a stream of false signals; that is the biggest weakness of this indicator set.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -788,15 +805,19 @@ export const RSI_WILDER: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'RSI 14 phiên trên chuỗi 20 phiên đi lên có nhịp chỉnh',
-        en: '14-period RSI over a 20-period rising series with a pullback',
+        vi: 'RSI 14 phiên của FPT sau nhịp hồi tháng 9/2026',
+        en: '14-session RSI for FPT after the September 2026 rebound',
       },
       inputs: { period: 14 },
-      series: GIA_20_PHIEN,
-      expected: 67.07,
+      series: FPT_57_PHIEN,
+      expected: 55.8734,
       note: {
-        vi: 'Ở mức 67 điểm, đà tăng còn chiếm ưu thế nhưng đã tiến sát vùng quá mua 70.',
-        en: 'At 67 points, upward momentum still dominates but has moved close to the overbought zone of 70.',
+        vi: 'Chỉ số chạy trong khoảng 0–100 với hai ngưỡng quy ước: dưới 30 là quá bán, trên 70 là quá mua. Bản Wilder làm mượt theo hệ số 1/14 chứ không lấy trung bình cộng thuần — lập trình nhầm sang trung bình cộng thì kết quả lệch dần theo chiều dài chuỗi; và trong xu hướng mạnh, chỉ số nằm trên 70 hàng chục phiên liền là chuyện bình thường.',
+        en: 'The index runs from 0 to 100 with two conventional thresholds: below 30 is oversold, above 70 is overbought. Wilder’s version smooths with a 1/14 factor rather than a plain arithmetic mean — coding it as a plain mean makes the result drift as the series gets longer; and in a strong trend the index staying above 70 for dozens of sessions is perfectly normal.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -927,15 +948,19 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'ROC 12 phiên trên chuỗi 20 phiên',
-        en: '12-period ROC over a 20-period series',
+        vi: 'ROC 12 phiên của FPT, chốt phiên 15/09/2026',
+        en: '12-session ROC for FPT as of the 2026-09-15 session',
       },
       inputs: { period: 12 },
-      series: GIA_20_PHIEN,
-      expected: 4.71,
+      series: FPT_57_PHIEN,
+      expected: 2.8289,
       note: {
-        vi: 'Giá 26.700 ₫ so với 25.500 ₫ của 12 phiên trước — nhanh hơn hẳn mặt bằng đi ngang.',
-        en: 'Price of 26,700 VND compared with 25,500 VND 12 periods ago — noticeably faster than a sideways baseline.',
+        vi: 'Chỉ báo đo phần trăm thay đổi giữa giá hiện tại và giá ở mốc nhìn lại, tính thẳng trên giá chứ không qua trung bình, nên phản ứng nhanh nhất nhóm động lượng và cũng nhiễu nhất. Cách dùng phổ biến là coi lần đổi dấu từ âm sang dương là dấu hiệu sớm, rồi chờ MACD xác nhận.',
+        en: 'It measures the percentage change between the current price and the price at the look-back mark, computed directly on price rather than through an average, so it reacts fastest of the momentum group — and is also the noisiest. A common use is to treat a flip from negative to positive as an early sign, then wait for MACD to confirm.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -1039,15 +1064,19 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Động lượng 10 phiên trên chuỗi 20 phiên',
-        en: '10-period momentum over a 20-period series',
+        vi: 'Động lượng 10 phiên của FPT, chốt phiên 15/09/2026',
+        en: '10-session momentum for FPT as of the 2026-09-15 session',
       },
       inputs: { period: 10 },
-      series: GIA_20_PHIEN,
-      expected: 700,
+      series: FPT_57_PHIEN,
+      expected: 500,
       note: {
-        vi: 'Giá cao hơn mốc 10 phiên trước 700 ₫, tương đương khoảng 2,7% thị giá.',
-        en: 'Price is 700 VND higher than the mark from 10 periods ago, roughly 2.7% of the share price.',
+        vi: 'Kết quả là hiệu giá tuyệt đối tính bằng ₫ nên dễ hình dung ngay, nhưng không so sánh chéo mã được: cùng một mức chênh 500 ₫ mang ý nghĩa khác hẳn ở cổ phiếu 72.700 ₫ so với cổ phiếu 10.000 ₫. Muốn so giữa các mã thì phải quy về phần trăm bằng ROC.',
+        en: 'The result is an absolute price difference in VND, easy to picture at a glance but not comparable across tickers: the same 500 VND gap means something quite different for a 72,700 VND stock than for a 10,000 VND one. To compare across tickers you have to normalize to a percentage with ROC.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -1150,15 +1179,19 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Giá phiên cuối so với SMA 20 phiên',
-        en: 'Last closing price compared with the 20-period SMA',
+        vi: 'Khoảng cách giá FPT so với SMA 20 phiên, chốt 15/09/2026',
+        en: 'FPT price gap to its 20-session SMA as of 2026-09-15',
       },
       inputs: { period: 20 },
-      series: GIA_20_PHIEN,
-      expected: 2.87,
+      series: FPT_57_PHIEN,
+      expected: 1.5931,
       note: {
-        vi: 'Giá 26.700 ₫ đứng trên đường 25.955 ₫ — cao hơn gần 3%, chưa phải mức căng.',
-        en: 'Price of 26,700 VND sits above the 25,955 VND line — about 3% higher, not yet a stretched level.',
+        vi: 'Vì tính bằng phần trăm nên khoảng cách so sánh được giữa các mã và giữa các thời điểm; ý tưởng nền là giá có xu hướng quay về trung bình, giãn càng rộng thì xác suất bị kéo ngược càng cao. Ngay trong chuỗi này, cú rơi 5% về 66.800 ₫ giữa tháng 7/2026 đẩy khoảng cách xuống âm sâu.',
+        en: 'Being a percentage, the gap is comparable across tickers and across dates; the underlying idea is mean reversion, so the wider it stretches the higher the odds of being pulled back. Within this very series, the 5% drop to 66,800 VND in mid-July 2026 pushed the gap deep into negative territory.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -1268,15 +1301,19 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Cặp SMA 10 và 20 phiên sau nhịp đảo chiều 40 phiên',
-        en: 'The 10- and 20-period SMA pair after a 40-period reversal',
+        vi: 'Cặp trung bình 10 và 20 phiên của FPT, chốt 15/09/2026',
+        en: 'The 10- and 20-session moving average pair for FPT as of 2026-09-15',
       },
       inputs: { shortPeriod: 10, longPeriod: 20 },
-      series: GIA_40_PHIEN,
-      expected: -750,
+      series: FPT_57_PHIEN,
+      expected: 1_190,
       note: {
-        vi: 'Đường 10 phiên (25.475 ₫) đã nằm dưới đường 20 phiên (26.225 ₫) — một lần cắt xuống hoàn chỉnh.',
-        en: 'The 10-period line (25,475 VND) is now below the 20-period line (26,225 VND) — a complete downward crossover.',
+        vi: 'Kết quả là hiệu của đường nhanh trừ đường chậm: dương nghĩa là đường nhanh đã cắt lên trên. Đây là hệ thống cơ học lâu đời nhất của nhóm, được giữ lại vì nó loại bỏ hoàn toàn cảm tính; điểm yếu đã biết là thị trường đi ngang làm hai đường quấn nhau và sinh ra chuỗi lệnh thua liên tiếp.',
+        en: 'The result is the fast line minus the slow line: positive means the fast line has crossed above. This is the oldest mechanical system of the group, kept around because it removes emotion entirely; its known weakness is that a sideways market tangles the two lines and produces a run of losing trades.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [

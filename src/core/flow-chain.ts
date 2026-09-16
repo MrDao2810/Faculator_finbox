@@ -1,11 +1,12 @@
 /**
- * Tầng DOMAIN — sắp thứ tự dải luồng móc nối (gói WBS 2.4.6).
+ * Tầng DOMAIN — sắp thứ tự chuỗi công thức móc nối theo `dependsOn` (gói WBS 2.4.6).
  *
- * WF-04 chốt dải: Beta → CAPM·Re → WACC → FCFF·PV → EV → Giá mục tiêu → Biên AT.
- * Thứ tự đó KHÔNG viết cứng ở đây: nó suy ra từ `dependsOn` của từng FormulaSpec, nên thêm
- * một bước vào giữa luồng chỉ là khai thêm một cạnh, không phải sửa component (NFR-MNT-01).
+ * Thứ tự KHÔNG viết cứng ở đây: nó suy ra từ `dependsOn` của từng FormulaSpec, nên thêm một bước
+ * vào giữa chuỗi chỉ là khai thêm một cạnh (NFR-MNT-01).
  *
- * Gói 5.3.1 (đồ thị phụ thuộc, FR-15) dùng lại đúng hàm này để biết tính công thức nào trước.
+ * Nay chỉ còn MỘT nơi gọi: `runChain()` (FR-15) hỏi thứ tự để biết tính công thức nào trước.
+ * Nơi gọi thứ hai — hình vẽ của khối chuỗi WF-04 — đã bỏ ngày 16/09/2026, kéo theo hàm dựng cây
+ * `layoutFlowChain()` và `flowDepth()`; lý do ở docblock `ui/screens/ChainBody.tsx`.
  */
 
 import type { FormulaSpec } from './registry/types';
@@ -13,11 +14,11 @@ import type { Bilingual } from './types';
 
 export interface FlowStep {
   formulaId: string;
-  /** Nhãn hiện trên dải, lấy tên công thức. */
+  /** Tên công thức, để nơi gọi gọi đúng tên bước trong câu cảnh báo. */
   label: Bilingual;
   /** Các bước đứng ngay trước bước này. */
   dependsOn: ReadonlyArray<string>;
-  /** Bậc trong luồng: 0 là bước không phụ thuộc ai. Dùng để vẽ cột ở bản dọc desktop. */
+  /** Bậc trong chuỗi: 0 là bước không phụ thuộc ai. `ChainStep` chép lại trường này. */
   depth: number;
 }
 
@@ -25,8 +26,8 @@ export interface FlowChain {
   steps: ReadonlyArray<FlowStep>;
   /**
    * Các công thức nằm trong một vòng phụ thuộc, không sắp thứ tự được.
-   * Rỗng là bình thường. Không rỗng nghĩa là Registry khai sai — nhưng dải vẫn vẽ được
-   * phần lành, không làm trắng cả màn.
+   * Rỗng là bình thường. Không rỗng nghĩa là Registry khai sai — nhưng phần lành vẫn chạy được,
+   * không làm hỏng cả màn.
    */
   cyclic: ReadonlyArray<string>;
 }
@@ -97,11 +98,6 @@ export function buildFlowChain(formulas: ReadonlyArray<FormulaSpec>): FlowChain 
   const cyclic = [...remaining].sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0));
 
   return { steps, cyclic };
-}
-
-/** Bậc sâu nhất của dải — bản dọc ở desktop dùng để biết cần bao nhiêu hàng. */
-export function flowDepth(chain: FlowChain): number {
-  return chain.steps.reduce((max, step) => Math.max(max, step.depth), 0);
 }
 
 function labelOf(formulas: ReadonlyArray<FormulaSpec>, id: string): Bilingual {

@@ -157,18 +157,18 @@ export const PS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — giá 72.300 ₫, doanh thu 37.157 ₫/CP',
-        en: 'FPT — price 72,300 ₫, revenue 37,157 ₫/share',
+        vi: 'FPT — giá 72.700 ₫ phiên 11/09/2026, doanh thu 37.157 ₫/CP',
+        en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, revenue 37,157 ₫/share',
       },
-      inputs: { price: 72_300, salesPerShare: 37_157 },
-      expected: 1.95,
+      inputs: { price: 72_700, salesPerShare: 37_157 },
+      expected: 1.9566,
       note: {
-        vi: 'Mỗi đồng doanh thu của FPT đang được trả giá gần hai đồng.',
-        en: 'Each dong of FPT’s revenue is being priced at nearly two dong.',
+        vi: 'Mỗi đồng doanh thu của FPT đang được trả gần hai đồng — mức dễ chịu với doanh nghiệp phần mềm biên lợi nhuận cao, trong khi nhóm bán lẻ biên mỏng thường giao dịch dưới 0,5 lần. Doanh thu khó làm đẹp hơn lợi nhuận, nhưng bội số này bỏ qua toàn bộ chi phí nên một doanh nghiệp đang lỗ vẫn có thể có P/S trông rất gọn.',
+        en: 'Each dong of FPT’s revenue is being priced at nearly two dong — comfortable for a high-margin software company, while thin-margin retailers usually trade below 0.5x. Revenue is harder to dress up than profit, but this multiple ignores costs entirely, so a loss-making company can still show a tidy-looking P/S.',
       },
       source: {
-        vi: 'Finbox_v2, BCTC quý gần nhất của FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) latest quarterly financials, locked in 2026-09-08.',
+        vi: 'stockanalysis.com, doanh thu bốn quý gần nhất của CTCP FPT (mã FPT); giá phiên 11/09/2026.',
+        en: 'stockanalysis.com, FPT Corp’s (ticker FPT) last four quarters of revenue; price at the 2026-09-11 close.',
       },
     },
     tests: [
@@ -311,18 +311,18 @@ export const EV: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — vốn hoá 123.946 tỷ ₫, giả định nợ vay 3.500 tỷ ₫, tiền mặt 1.200 tỷ ₫',
-        en: 'FPT — market cap 123,946 billion ₫, assumed debt 3,500 billion ₫, cash 1,200 billion ₫',
+        vi: 'FPT — vốn hoá 124.631,5 tỷ ₫, nợ vay 17.444 tỷ ₫, tiền và đầu tư ngắn hạn 28.971,6 tỷ ₫ (30/06/2026)',
+        en: 'FPT — market cap 124,631.5 billion ₫, debt 17,444 billion ₫, cash and short-term investments 28,971.6 billion ₫ (2026-06-30)',
       },
-      inputs: { marketCap: 123_946, totalDebt: 3_500, cash: 1_200 },
-      expected: 126_246,
+      inputs: { marketCap: 124_631.5, totalDebt: 17_444, cash: 28_971.6 },
+      expected: 113_104,
       note: {
-        vi: 'Nợ vay và tiền mặt dùng mức minh hoạ vì Finbox_v2 không tách hai khoản này khỏi tổng nợ phải trả. Muốn mua trọn FPT ở mức này thực chất phải bỏ ra 126.246 tỷ ₫.',
-        en: 'Debt and cash are illustrative, since Finbox_v2 does not separate them out of total liabilities. Buying all of FPT at this level would actually cost 126,246 billion ₫.',
+        vi: 'EV thấp hơn cả vốn hoá vì FPT giữ nhiều tiền hơn nợ vay — nợ vay ròng âm khoảng 11.528 tỷ ₫, nên người mua trọn doanh nghiệp được cầm lại khoản tiền ròng đó. Lưu ý về số liệu: dòng nợ vay quý 2/2026 của FPT trên CafeF bị đảo nhãn với dự phòng phải trả, hai cách đọc cho 17.444 và 18.448 tỷ ₫, làm EV lệch khoảng 1%.',
+        en: 'EV comes out below market cap because FPT holds more cash than debt — net debt is roughly −11,528 billion ₫, so a buyer of the whole company keeps that net cash. A data caveat: FPT’s Q2/2026 debt line on CafeF is swapped with its provisions line, giving 17,444 versus 18,448 billion ₫ and shifting EV by about 1%.',
       },
       source: {
-        vi: 'Finbox_v2, vốn hoá FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) market cap, locked in 2026-09-08.',
+        vi: 'CafeF, bảng cân đối kế toán CTCP FPT (mã FPT) quý 2/2026; vốn hoá theo giá phiên 11/09/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) Q2/2026 balance sheet; market cap at the 2026-09-11 close.',
       },
     },
     tests: [
@@ -432,14 +432,18 @@ export const EV_EBITDA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'EV 11.500 tỷ ₫, EBITDA 1.450 tỷ ₫',
-        en: 'EV 11,500 billion ₫, EBITDA 1,450 billion ₫',
+        vi: 'FPT — EV 113.103,9 tỷ ₫, EBITDA quy năm 13.901,9 tỷ ₫ (6 tháng đầu 2026)',
+        en: 'FPT — EV 113,103.9 billion ₫, annualized EBITDA 13,901.9 billion ₫ (H1 2026)',
       },
-      inputs: { ev: 11_500, ebitda: 1_450 },
-      expected: 7.93,
+      inputs: { ev: 113_103.9, ebitda: 13_901.9 },
+      expected: 8.1359,
       note: {
-        vi: 'Khoảng 8 năm EBITDA để hoàn lại giá mua trọn doanh nghiệp.',
-        en: 'Roughly 8 years of EBITDA to recover the full purchase price.',
+        vi: 'Khoảng tám năm EBITDA để hoàn lại giá mua trọn doanh nghiệp, trùng khớp với bội số 8,14 lần stockanalysis công bố độc lập. EBITDA ở đây quy năm bằng cách nhân đôi số liệu sáu tháng — cách làm chỉ đúng khi hoạt động kinh doanh không có mùa vụ mạnh.',
+        en: 'Roughly eight years of EBITDA to recover the full purchase price, matching the 8.14x that stockanalysis publishes independently. The EBITDA here is annualized by doubling six months of data — valid only when the business has no strong seasonality.',
+      },
+      source: {
+        vi: 'CafeF, báo cáo tài chính CTCP FPT (mã FPT) 6 tháng đầu 2026; EV lấy từ công thức EV của nhóm này.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) H1 2026 financial statements; EV from this group’s EV formula.',
       },
     },
     tests: [
@@ -555,18 +559,18 @@ export const EV_SALES: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — EV 126.246 tỷ ₫ (nối từ ví dụ công thức EV), doanh thu 63.698,4 tỷ ₫',
-        en: 'FPT — EV 126,246 billion ₫ (carried over from the EV example), revenue 63,698.4 billion ₫',
+        vi: 'FPT — EV 113.103,9 tỷ ₫, doanh thu quy năm 52.537 tỷ ₫ theo nền hợp nhất mới',
+        en: 'FPT — EV 113,103.9 billion ₫, annualized revenue 52,537 billion ₫ on the new consolidation basis',
       },
-      inputs: { ev: 126_246, revenue: 63_698.4 },
-      expected: 1.98,
+      inputs: { ev: 113_103.9, revenue: 52_537 },
+      expected: 2.1528,
       note: {
-        vi: 'EV lấy từ ví dụ công thức EV ở trên.',
-        en: 'EV is carried from the EV formula example above.',
+        vi: 'Cao hơn P/S 1,96 lần của cùng cổ phiếu chỉ vì chọn kỳ khác: mẫu số ở đây là doanh thu quy năm theo nền hợp nhất đã bỏ FPT Telecom, còn P/S vẫn dùng doanh thu bốn quý gần nhất 63.698,4 tỷ ₫. Hai bội số cùng đo một thứ vẫn ra hai kết quả, nên luôn phải đọc kèm kỳ của mẫu số.',
+        en: 'Higher than the same stock’s P/S of 1.96x purely because of the period chosen: the denominator here is annualized revenue on the consolidation basis that excludes FPT Telecom, while P/S still uses the last four quarters’ 63,698.4 billion ₫. Two multiples measuring the same thing still give two answers, so always read the denominator’s period alongside them.',
       },
       source: {
-        vi: 'Finbox_v2, doanh thu FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) revenue, locked in 2026-09-08.',
+        vi: 'CafeF, báo cáo kết quả kinh doanh CTCP FPT (mã FPT) quý 2/2026; EV lấy từ công thức EV của nhóm này.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) Q2/2026 income statement; EV from this group’s EV formula.',
       },
     },
     tests: [
@@ -695,18 +699,18 @@ export const PEG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VNM — P/E 11,59 lần, giả định tăng trưởng 8%/năm',
-        en: 'VNM — P/E 11.59x, assumed growth 8%/year',
+        vi: 'FPT — P/E 12,39 lần, lợi nhuận 6 tháng đầu 2026 tăng 14,1% so với cùng kỳ',
+        en: 'FPT — P/E 12.39x, H1 2026 earnings up 14.1% year on year',
       },
-      inputs: { pe: 11.59, growth: 8 },
-      expected: 1.45,
+      inputs: { pe: 12.39, growth: 14.1 },
+      expected: 0.8787,
       note: {
-        vi: 'Tăng trưởng dùng mức giả định. Trên 1 khá rõ — hợp với một cổ phiếu tăng trưởng chậm nhưng chi trả cổ tức đều như VNM.',
-        en: 'Growth is an assumption. Well above 1 — fitting for a slow-growth stock with a steady dividend like VNM.',
+        vi: 'Dưới 1 theo quy tắc Peter Lynch, tức P/E đang thấp so với tốc độ tăng trưởng của chính doanh nghiệp. Cả kết luận treo vào chữ g: thay bằng kế hoạch công ty 15%/năm thì PEG còn 0,83, còn dự phóng thận trọng 10%/năm đẩy PEG lên 1,24 và lật ngược nhận định — nên nhập g kèm ghi rõ nguồn.',
+        en: 'Below 1 by Peter Lynch’s rule, meaning the P/E is low relative to the company’s own growth rate. The whole conclusion hangs on g: the company’s own 15%/year plan brings PEG down to 0.83, while a conservative 10%/year forecast lifts it to 1.24 and flips the reading — so record where g came from.',
       },
       source: {
-        vi: 'Finbox_v2, P/E Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) P/E, locked in 2026-09-08.',
+        vi: 'CafeF, kết quả kinh doanh 6 tháng đầu 2026 của CTCP FPT (mã FPT); P/E theo giá phiên 11/09/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) H1 2026 results; P/E at the 2026-09-11 close.',
       },
     },
     tests: [
@@ -837,18 +841,18 @@ export const VON_HOA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'HPG — giá 21.850 ₫, 8.442,96 triệu cổ phiếu lưu hành',
-        en: 'HPG — price 21,850 ₫, 8,442.96 million shares outstanding',
+        vi: 'FPT — giá 72.700 ₫ phiên 11/09/2026, 1.714,33 triệu cổ phiếu lưu hành',
+        en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, 1,714.33 million shares outstanding',
       },
-      inputs: { price: 21_850, shares: 8_442.96 },
-      expected: 184_479,
+      inputs: { price: 72_700, shares: 1_714.33 },
+      expected: 124_632,
       note: {
-        vi: 'Khớp đúng vốn hoá 184.479 tỷ ₫ mà Hoà Phát báo cáo.',
-        en: 'Matches Hoa Phat’s own reported market cap of 184,479 billion ₫.',
+        vi: 'Khoảng 4,7 tỷ USD, đưa FPT vào nhóm doanh nghiệp lớn nhất sàn HOSE. Con số đổi theo từng phiên: ở đáy 24/07/2026 giá 62.900 ₫ cho vốn hoá 107.831 tỷ ₫, bốc hơi gần 17.000 tỷ trong bảy tuần dù doanh nghiệp không có gì thay đổi — vốn hoá đo thị trường, không đo giá trị doanh nghiệp.',
+        en: 'Around 4.7 billion USD, placing FPT among the largest companies on HOSE. The figure moves session by session: at the 2026-07-24 low, a price of 62,900 ₫ gave a market cap of 107,831 billion ₫ — nearly 17,000 billion gone in seven weeks with nothing changing at the company, because market cap measures the market, not the business.',
       },
       source: {
-        vi: 'Finbox_v2, giá và số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) price and share count, locked in 2026-09-08.',
+        vi: 'Investing.com, giá lịch sử CTCP FPT (mã FPT), phiên 11/09/2026.',
+        en: 'Investing.com, FPT Corp’s (ticker FPT) historical prices, 2026-09-11 session.',
       },
     },
     tests: [
@@ -986,18 +990,18 @@ export const SO_GRAHAM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vinamilk — một bài phân tích đo “biên an toàn” bằng số Graham',
-        en: 'Vinamilk — a write-up measuring its margin of safety with the Graham number',
+        vi: 'FPT — EPS 5.867 ₫, giá trị sổ sách 23.246 ₫/CP tại 30/06/2026',
+        en: 'FPT — EPS 5,867 ₫, book value 23,246 ₫/share as of 2026-06-30',
       },
-      inputs: { eps: 4_914, bvps: 17_554 },
-      expected: 44_055.17,
+      inputs: { eps: 5_867, bvps: 23_246 },
+      expected: 55_395,
       note: {
-        vi: 'EPS 4.914 ₫ và BVPS 17.554 ₫ ở trên là hai số bài viết dùng để tính P/E, P/B rồi kết luận cổ phiếu còn "biên an toàn dài hạn".',
-        en: 'The EPS of 4,914 ₫ and BVPS of 17,554 ₫ above are the pair the article used to work out its P/E and P/B, concluding the stock still had a long-term margin of safety.',
+        vi: 'Thấp hơn giá phiên 11/09/2026 khoảng 24%, tức FPT đang đắt theo chuẩn Graham. Hằng số 22,5 là tích của P/E tối đa 15 và P/B tối đa 1,5 mà Graham đặt cho thị trường Mỹ giữa thế kỷ 20, nên áp nguyên ngưỡng P/B ấy cho một doanh nghiệp phần mềm gần như luôn cho ra kết luận đắt.',
+        en: 'About 24% below the 2026-09-11 close, so FPT looks expensive by Graham’s standard. The 22.5 constant is a maximum P/E of 15 times a maximum P/B of 1.5, set for the mid-20th-century US market, so applying that P/B ceiling to a software company almost always returns “expensive”.',
       },
       source: {
-        vi: 'Finhay.vn, bài phân tích Vinamilk (VNM), số liệu đến 30/06/2026.',
-        en: 'Finhay.vn, a Vinamilk (VNM) write-up, figures as of 2026-06-30.',
+        vi: 'stockanalysis.com, EPS bốn quý gần nhất và BVPS 30/06/2026 của CTCP FPT (mã FPT).',
+        en: 'stockanalysis.com, FPT Corp’s (ticker FPT) last-four-quarters EPS and 2026-06-30 BVPS.',
       },
     },
     tests: [
@@ -1158,18 +1162,18 @@ export const NCAV: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VNM — tổng nợ 19.120,6 tỷ ₫, 2.089,96 triệu CP, giả định tài sản ngắn hạn 26.000 tỷ ₫',
-        en: 'VNM — liabilities 19,120.6 billion ₫, 2,089.96 million shares, assumed current assets 26,000 billion ₫',
+        vi: 'FPT — tài sản ngắn hạn 45.702 tỷ ₫, tổng nợ phải trả 32.738,4 tỷ ₫, 1.714,33 triệu CP (30/06/2026)',
+        en: 'FPT — current assets 45,702 billion ₫, total liabilities 32,738.4 billion ₫, 1,714.33 million shares (2026-06-30)',
       },
-      inputs: { currentAssets: 26_000, totalLiabilities: 19_120.6, shares: 2_089.96 },
-      expected: 3_291.64,
+      inputs: { currentAssets: 45_702, totalLiabilities: 32_738.4, shares: 1_714.33 },
+      expected: 7_562,
       note: {
-        vi: 'Tài sản ngắn hạn dùng mức minh hoạ vì Finbox_v2 không tách riêng mục này. Thị giá 60.800 ₫ còn cách rất xa mức này — VNM không phải cổ phiếu net-net.',
-        en: 'Current assets is illustrative, since Finbox_v2 does not break out that line. The market price of 60,800 ₫ sits far above this level — VNM is nowhere near a net-net.',
+        vi: 'Chỉ bằng khoảng một phần mười giá phiên 11/09/2026, trong khi chuẩn net-net của Graham còn đòi mua dưới hai phần ba NCAV. Đây là kết quả bình thường: net-net là bộ lọc dành cho cổ phiếu bị bỏ rơi lúc khủng hoảng, giá trị của con số nằm ở chỗ nó đặt một mức sàn rất dè dặt.',
+        en: 'Only about a tenth of the 2026-09-11 close, while Graham’s net-net screen asks for a price below two-thirds of NCAV on top of that. This is a normal outcome: net-net is a filter for stocks abandoned in a crisis, and the number’s value lies in marking a deliberately conservative floor.',
       },
       source: {
-        vi: 'Finbox_v2, tổng nợ và số cổ phiếu Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) liabilities and share count, locked in 2026-09-08.',
+        vi: 'CafeF, bảng cân đối kế toán CTCP FPT (mã FPT) quý 2/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) Q2/2026 balance sheet.',
       },
     },
     tests: [
@@ -1281,18 +1285,18 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — EPS 5.867 ₫, giá 72.300 ₫',
-        en: 'FPT — EPS 5,867 ₫, price 72,300 ₫',
+        vi: 'FPT — EPS 5.867 ₫, giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT — EPS 5,867 ₫, price 72,700 ₫ at the 2026-09-11 close',
       },
-      inputs: { eps: 5_867, price: 72_300 },
-      expected: 8.11,
+      inputs: { eps: 5_867, price: 72_700 },
+      expected: 8.0702,
       note: {
-        vi: 'Đúng bằng 1 chia cho P/E 12,32 lần của FPT.',
-        en: 'Exactly 1 divided by FPT’s P/E of 12.32x.',
+        vi: 'Đúng bằng nghịch đảo P/E 12,39 lần. Đặt cạnh lãi suất tiết kiệm 12 tháng 6,8%/năm và lợi suất trái phiếu chính phủ kỳ hạn 10 năm 4,57%/năm thì phần bù rủi ro khoảng 3,5 điểm phần trăm — nhưng đây là lợi nhuận doanh nghiệp làm ra, phần thực về túi cổ đông chỉ là cổ tức 2,75%.',
+        en: 'Exactly the inverse of the 12.39x P/E. Set against a 12-month deposit rate of 6.8%/year and a 10-year government bond yield of 4.57%/year, the risk premium is about 3.5 percentage points — but this is profit the company earns, while what actually reaches shareholders is the 2.75% dividend.',
       },
       source: {
-        vi: 'Finbox_v2, giá và EPS FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) price and EPS, locked in 2026-09-08.',
+        vi: 'Investing.com, giá phiên 11/09/2026 và EPS bốn quý gần nhất của CTCP FPT (mã FPT).',
+        en: 'Investing.com, FPT Corp’s (ticker FPT) 2026-09-11 close and last-four-quarters EPS.',
       },
     },
     tests: [
@@ -1427,18 +1431,18 @@ export const GIA_MUC_TIEU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — EPS 5.867 ₫, giả định P/E mục tiêu 15 lần',
-        en: 'FPT — EPS 5,867 ₫, assumed target P/E 15x',
+        vi: 'FPT — EPS 5.867 ₫, P/E mục tiêu 15 lần theo trung bình lịch sử',
+        en: 'FPT — EPS 5,867 ₫, target P/E of 15x from its historical average',
       },
       inputs: { eps: 5_867, targetPe: 15 },
       expected: 88_005,
       note: {
-        vi: 'Cao hơn thị giá 72.300 ₫ — dư địa tăng nếu P/E đạt đúng mức mục tiêu giả định.',
-        en: 'Higher than the market price of 72,300 ₫ — upside if P/E reaches the assumed target level.',
+        vi: 'Cao hơn giá phiên 11/09/2026 khoảng 21%, tức còn dư địa tăng nếu bội số quay lại mức trung bình lịch sử của chính FPT. Toàn bộ kết quả treo vào một con số do người dùng chọn, nên hãy đọc nó như một dải kịch bản theo vài mức P/E chứ không phải một điểm giá.',
+        en: 'About 21% above the 2026-09-11 close, so there is upside if the multiple returns to FPT’s own historical average. The whole result rests on a single number the user picks, so read it as a range of scenarios across several P/E levels rather than as one price point.',
       },
       source: {
-        vi: 'Finbox_v2, EPS FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) EPS, locked in 2026-09-08.',
+        vi: 'stockanalysis.com, EPS bốn quý gần nhất của CTCP FPT (mã FPT); so với giá phiên 11/09/2026.',
+        en: 'stockanalysis.com, FPT Corp’s (ticker FPT) last-four-quarters EPS; compared with the 2026-09-11 close.',
       },
     },
     tests: [

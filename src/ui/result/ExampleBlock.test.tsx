@@ -54,7 +54,7 @@ describe('ExampleBlock — chỉ để đọc khi màn không truyền giá tr�
     expect(screen.queryByRole('textbox')).toBeNull();
     expect(screen.getByText('Ví dụ thực tế')).not.toBeNull();
     // Vẫn phải đọc được con số của ví dụ — giá thật của FPT, xem `multiples.ts`.
-    expect(screen.getByText('72.300 ₫')).not.toBeNull();
+    expect(screen.getByText('72.700 ₫')).not.toBeNull();
   });
 });
 

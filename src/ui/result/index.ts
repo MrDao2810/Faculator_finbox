@@ -33,8 +33,13 @@ export type { SourceBlockProps } from './SourceBlock';
 export { ConstantsNote } from './ConstantsNote';
 export type { ConstantsNoteProps } from './ConstantsNote';
 
-export { FlowChainStrip } from './FlowChainStrip';
-export type { FlowChainStripProps, FlowStatus } from './FlowChainStrip';
+export { DerivedNote } from './DerivedNote';
+export type { DerivedNoteProps } from './DerivedNote';
+
+/*
+ * `FlowChainStrip`/`FlowChainTree` đã BỎ ngày 16/09/2026 — hình vẽ chuỗi phụ thuộc không giữ
+ * chức năng nào mà thẻ bước của `ChainBody` không có sẵn. Lý do đầy đủ ở docblock `ChainBody.tsx`.
+ */
 
 export { StatTile } from './StatTile';
 export type { StatTileProps } from './StatTile';

@@ -2004,10 +2004,10 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
    * `model.bars` — nên `<rect>` đầu tiên trong SVG và dòng đầu của bảng LUÔN cùng một cột. Test
    * dựa thẳng vào đối chiếu đó, không đoán giá trị.
    *
-   * `ev` còn được chọn vì một lý do thứ hai kể từ đợt rút gọn số lớn: nhãn của nó (`9.200 tỷ ₫`)
-   * vốn đã ngắn, nên `shortValueLabel` VẮNG MẶT và hai chỗ vẫn nói đúng một chuỗi. Công thức mà
-   * rút gọn có nổ thì hai chỗ nói hai chuỗi khác nhau một cách CÓ CHỦ ĐÍCH — ca ngay dưới đây chốt
-   * chuyện đó, và nó là lý do ca này không được đổi sang một công thức khác cho tiện.
+   * `ev` còn được chọn vì một lý do thứ hai kể từ đợt rút gọn số lớn: đơn vị của nó vốn đã là
+   * `tỷ ₫` nên trục KHÔNG phải chia bậc, `shortValueLabel` vắng mặt, và hai chỗ nói đúng một chuỗi.
+   * Công thức mà trục có chia bậc thì hai chỗ nói hai chuỗi khác nhau một cách CÓ CHỦ ĐÍCH — ca
+   * ngay dưới đây chốt chuyện đó, và nó là lý do ca này không được đổi sang công thức khác cho tiện.
    */
   it('trỏ vào hàng đầu: hiện đúng giá trị CỦA CỘT ĐÓ (khớp dòng đầu bảng), viền đậm lên; rời ra thì tắt lại', () => {
     const { container } = draw('ev');

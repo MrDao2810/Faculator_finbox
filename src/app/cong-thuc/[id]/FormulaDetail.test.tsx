@@ -925,10 +925,10 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
    * Ca hồi quy riêng cho Beta: công thức này đọc CẢ HAI chuỗi (cổ phiếu VÀ VN-Index) cùng lúc,
    * còn 34 công thức chuỗi khác chỉ đọc một. Nếu `loadIllustrativeExample()` chỉ nạp vế cổ phiếu
    * (`example.series`) mà bỏ quên `example.marketSeries`, hồi quy vẫn chạy nhưng lấy vế thị
-   * trường từ `VN_INDEX_CLOSES` (PRNG bịa cố định của màn) — beta ra một số KHÁC 1,5, sai âm thầm
+   * trường từ `VN_INDEX_CLOSES` (PRNG bịa cố định của màn) — beta ra một số KHÁC 1, sai âm thầm
    * mà ca kiểm coi "không còn NO_VALUE" ở test bên trên không bắt được. Ca này bắt đúng lỗi đó.
    */
-  it('với Beta, nút minh hoạ đổi CẢ chuỗi cổ phiếu lẫn chuỗi VN-Index — ra đúng 1,5 lần của ví dụ', async () => {
+  it('với Beta, nút minh hoạ đổi CẢ chuỗi cổ phiếu lẫn chuỗi VN-Index — ra đúng 1 lần của ví dụ', async () => {
     render(<Man spec={specOf('beta')} />);
 
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
@@ -938,7 +938,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     const shown = screen.getByTestId('result-text').textContent ?? '';
     expect(shown).not.toContain(NO_VALUE);
     const parsed = Number(shown.replace(' lần', '').replace(',', '.'));
-    expect(parsed).toBeCloseTo(1.5, 1);
+    expect(parsed).toBeCloseTo(1, 1);
   });
 });
 
@@ -1098,7 +1098,7 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   /*
-   * `pe` neo ví dụ vào số THẬT của FPT (72.300 ₫ / EPS 5.867 ₫ — xem `multiples.ts`), khác hẳn
+   * `pe` neo ví dụ vào số THẬT của FPT (72.700 ₫ / EPS 5.867 ₫ — xem `multiples.ts`), khác hẳn
    * số mặc định 92.000 ₫ / 6.050 ₫ của chính ô nhập (số mặc định đó là fixture dùng chung cho rất
    * nhiều ca kiểm khác trong file này nên KHÔNG đổi theo ví dụ — xem docblock ở `spec.example`).
    * Vì vậy màn mở ra là đã LỆCH khỏi ví dụ ngay từ đầu, không cần gõ gì cả — khác với trước
@@ -1107,13 +1107,13 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   it('mở màn là đã lệch khỏi ví dụ thật của FPT; bấm nút quay về là trở lại trọn bộ', async () => {
     render(<Man spec={specOf('pe')} />);
 
-    // Số mặc định (92.000 ₫) không phải số ví dụ (72.300 ₫ thật của FPT) nên nút hiện ngay.
+    // Số mặc định (92.000 ₫) không phải số ví dụ (72.700 ₫ thật của FPT) nên nút hiện ngay.
     expect(screen.getByText(/Ví dụ gốc cho:/)).not.toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Về số của ví dụ' }));
 
-    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('72.300');
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('72.700');
     expect((oNhap(/EPS/) as HTMLInputElement).value).toBe('5.867');
-    expect(screen.getByTestId('result-text').textContent).toBe('12,32 lần');
+    expect(screen.getByTestId('result-text').textContent).toBe('12,39 lần');
     // Đúng bộ ví dụ rồi thì nút biến mất — không còn gì để "quay về".
     expect(screen.queryByRole('button', { name: 'Về số của ví dụ' })).toBeNull();
   });
@@ -1505,14 +1505,15 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     expect(screen.getByTestId('result-text').textContent).toContain('25.925');
   });
 
-  it('dải luồng bày đủ ba bước và đánh dấu bước đang xem', async () => {
+  it('khối chuỗi bày cả bước trước lẫn bước sau của công thức đang xem', async () => {
     manNangCao(specOf('mo-hinh-gordon'));
     const khoi = await screen.findByRole('region', { name: t('chain.title') });
 
-    const dai = within(khoi).getByRole('list');
-    expect(dai.textContent).toContain('CAPM');
-    expect(dai.textContent).toContain('Biên an toàn');
-    expect(dai.querySelector('[aria-current="step"]')?.textContent).toContain('Gordon');
+    // Hình vẽ chuỗi đã bỏ 16/09/2026; thứ còn lại — và thứ mang trọn chức năng — là các thẻ bước.
+    expect(khoi.textContent).toContain('CAPM');
+    expect(khoi.textContent).toContain('Biên an toàn');
+    expect(khoi.querySelector('#chain-step-capm')).not.toBeNull();
+    expect(khoi.querySelector('#chain-step-bien-an-toan')).not.toBeNull();
   });
 
   it('sửa số ở bước TRƯỚC thì kết quả của công thức đang xem đổi theo', async () => {
@@ -2775,14 +2776,14 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
    * Beta đọc CẢ HAI chuỗi. Cất mỗi vế cổ phiếu thì mở lại nó lặng lẽ lấy vế thị trường từ hằng số
    * PRNG của màn và ra một con số khác — sai âm thầm mà ca "không còn NO_VALUE" không bắt được.
    */
-  it('Beta giữ cả chuỗi VN-Index — mở lại vẫn ra đúng 1,5 lần', async () => {
+  it('Beta giữ cả chuỗi VN-Index — mở lại vẫn ra đúng 1 lần', async () => {
     render(<Man spec={specOf('beta')} />);
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
     cleanup();
 
     render(<Man spec={specOf('beta')} />);
     const shown = screen.getByTestId('result-text').textContent ?? '';
-    expect(Number(shown.replace(' lần', '').replace(',', '.'))).toBeCloseTo(1.5, 1);
+    expect(Number(shown.replace(' lần', '').replace(',', '.'))).toBeCloseTo(1, 1);
   });
 
   it('chuỗi của công thức này không chảy sang công thức khác', async () => {
@@ -2937,5 +2938,49 @@ describe('WF-03 — mở bảng dữ liệu thì mang theo chuỗi và mã đang
     const stored = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY));
     expect(stored.code).toBe('');
     expect(stored.rows.length).toBeGreaterThan(1);
+  });
+});
+
+/*
+ * Chặng bóc tách công thức tự tính ra phải đọc được ở khối Số liệu — chủ dự án báo 16/09/2026.
+ *
+ * Triệu chứng: hình bóc tách của `fcfe` có cột 'Lãi vay sau thuế' 48 tỷ ₫, còn khối Số liệu chỉ có
+ * 'Chi phí lãi vay' 60 và 'Thuế suất' 20% đứng rời nhau — cái tên ấy và con số 48 không xuất hiện ở
+ * đâu khác trên trang. Ca kiểm bám vào khối Số liệu THẬT (`aria-labelledby="khoi-so-lieu"`) chứ
+ * không quét cả màn: quét cả màn thì chữ trong hình cũng khớp, và ca sẽ xanh ngay cả khi khối Số
+ * liệu vẫn trống — đúng cảnh cần chặn.
+ */
+describe('WF-03 — đại lượng công thức tự tính ra hiện ở khối Số liệu', () => {
+  function khoiSoLieu(): HTMLElement {
+    const heading = screen.getByRole('heading', { name: t('detail.inputs') });
+    const section = heading.closest('section');
+    if (section === null) throw new Error('Không tìm thấy khối Số liệu — kịch bản test đã đổi.');
+    return section;
+  }
+
+  it('fcfe: khối Số liệu gọi đúng tên mà biểu đồ gọi, kèm trị số', () => {
+    render(<Man spec={specOf('fcfe')} />);
+
+    const khoi = khoiSoLieu();
+    expect(within(khoi).getByText('Lãi vay sau thuế')).not.toBeNull();
+    // 60 tỷ × (1 − 20%) = 48 tỷ ₫.
+    expect(within(khoi).getByText('48 tỷ ₫')).not.toBeNull();
+  });
+
+  it('đổi thuế suất thì trị số tính lại theo, không đứng yên ở số cũ', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('fcfe')} />);
+
+    await user.clear(oNhap(/^Chi phí lãi vay/));
+    await user.type(oNhap(/^Chi phí lãi vay/), '100');
+
+    // 100 tỷ × (1 − 20%) = 80 tỷ ₫.
+    expect(within(khoiSoLieu()).getByText('80 tỷ ₫')).not.toBeNull();
+  });
+
+  it('công thức không khai bóc tách thì không thêm khối nào — 102/111 trang không đổi', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    expect(within(khoiSoLieu()).queryByText(t('detail.derivedInUse'))).toBeNull();
   });
 });

@@ -8,8 +8,7 @@ import { formulaPath, variablesForLevel } from '@/application';
 import type { ChainInputs, ChainOverrides, ChainResult, FormulaSpec, Level } from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
-import { FlowChainStrip, InlineWarning } from '@/ui/result';
-import type { FlowStatus } from '@/ui/result';
+import { InlineWarning } from '@/ui/result';
 
 import { useCalcText } from '../i18n/units';
 import styles from './ChainBody.module.css';
@@ -30,9 +29,21 @@ export interface ChainBodyProps {
 /**
  * Khối chuỗi công thức của màn nâng cao WF-04 — gói WBS 3.2.2.
  *
- * Đây là chỗ FR-15 hiện ra thành thứ người dùng nhìn thấy: dải luồng chỉ rõ thứ tự các bước,
- * mỗi bước trước/sau là một thẻ gập được có ô nhập riêng và kết quả riêng, và bước nào gãy thì
- * dải nói thẳng bước đó gãy.
+ * Đây là chỗ FR-15 hiện ra thành thứ người dùng nhìn thấy: mỗi bước trước/sau là một thẻ gập
+ * được, có ô nhập riêng và kết quả riêng, nên sửa giả định của bước trước là thấy ngay kết quả
+ * của công thức đang xem đổi theo.
+ *
+ * ── Khối này TỪNG có một sơ đồ ở đầu, đã bỏ 16/09/2026 ──────────────────────────────────────
+ *
+ * Bản hàng ngang rồi bản cây `FlowChainTree` đều vẽ quan hệ phụ thuộc thành hình. Chủ dự án nhìn
+ * cả hai và hỏi cùng một câu — _"các ô này tượng trưng cho gì"_, rồi _"vẫn không thể hiểu được
+ * tác dụng của phần này"_. Rà lại thì hình ấy KHÔNG giữ chức năng nào của riêng nó: tên bước,
+ * kết quả từng bước, bước nào gãy, và đường đi tới màn riêng của bước — bốn thứ đó đều đã có sẵn
+ * trên chính các thẻ ngay dưới nó. Nó chỉ nói lại bằng một ngôn ngữ phải học trước mới đọc được.
+ *
+ * Đừng dựng lại hình ấy dưới bất kỳ dạng nào. Thứ khiến quan hệ đọc được nằm ở hai tiêu đề nhóm
+ * ("cấp số liệu cho công thức đang xem" / "dùng kết quả của công thức đang xem") và ở nhãn nguồn
+ * mà `LinkedInput` in ngay dưới ô nhận số — chữ đứng cạnh đúng con số nó nói tới.
  *
  * ── Vì sao khối này KHÔNG dựng lại ô nhập của công thức đang xem ────────────────────────────
  *
@@ -47,18 +58,8 @@ export interface ChainBodyProps {
  * Nên trong thứ tự topo, mọi bước đứng TRƯỚC công thức đang xem đều là thứ cấp số liệu cho nó,
  * và mọi bước đứng SAU đều là thứ tiêu thụ kết quả của nó. Không cần so `depth`.
  *
- * ── Pill trên dải bấm được, trỏ thẳng xuống khối tương ứng ──────────────────────────────────
- *
- * `moToiBuoc()` là `onStepClick` của `FlowChainStrip`: bấm một bước KHÁC bước đang xem thì mở
- * khối `<details>` của bước đó (id `chain-step-<formulaId>`, đặt ở `theBuoc()`) rồi cuộn tới —
- * không thì dải chỉ để xem, người bấm không biết khối tương ứng nằm chỗ nào trong hai danh sách
- * trước/sau. Bước đang xem không có pill bấm được vì nó không có khối nào ở đây để cuộn tới.
- *
- * `activeId` là state RIÊNG, tách khỏi `openIds`: dải luôn tô xanh đúng MỘT pill — bước vừa bấm,
- * hoặc bước đang xem khi chưa bấm gì (`activeId ?? currentId` bên trong `FlowChainStrip`). Còn
- * `openIds` quyết định khối nào đang mở, và có thể có nhiều khối mở cùng lúc. Gộp chung một state
- * thì bước cấp trực tiếp (mở sẵn từ đầu) cùng mọi bước đã từng bấm qua sẽ xanh cùng lúc mãi mãi,
- * đúng cái cảnh "hai nút cùng xanh, nhìn như nút cũ chưa tắt" mà chủ dự án đã báo.
+ * `openIds` quyết định thẻ nào đang mở, và có thể có nhiều thẻ mở cùng lúc — xem luật mở sẵn
+ * theo khổ màn ở ngay trong thân component.
  */
 /**
  * Mốc "màn đủ rộng để bày hết bước trước", khớp `@media (min-width: 1024px)` trong
@@ -134,19 +135,12 @@ export function ChainBody({
     const moc = chain.steps.findIndex((step) => step.formulaId === currentId);
     return new Set(moc === -1 ? trucTiep : chain.steps.slice(0, moc).map((s) => s.formulaId));
   });
-  /** Bước vừa bấm gần nhất trên `FlowChainStrip` — chỉ MỘT pill tô xanh tại một thời điểm. */
-  const [activeId, setActiveId] = useState<string | undefined>(undefined);
   const t = useT();
   const pick = usePick();
   const calcText = useCalcText();
 
   const currentIndex = chain.steps.findIndex((step) => step.formulaId === currentId);
   if (currentIndex === -1) return null;
-
-  const statuses: Record<string, FlowStatus> = {};
-  for (const step of chain.steps) {
-    statuses[step.formulaId] = step.output.value === null ? 'error' : 'ok';
-  }
 
   function toggle(id: string, open: boolean): void {
     setOpenIds((current) => {
@@ -155,25 +149,6 @@ export function ChainBody({
       else next.delete(id);
       return next;
     });
-  }
-
-  /**
-   * Bấm một pill khác trên `FlowChainStrip` thì mở khối của bước đó ra (kể cả đang gập) rồi cuộn
-   * tới — không thì người bấm chỉ thấy khối bật mở ở ngoài tầm mắt, dưới rất xa dải.
-   *
-   * Cùng khuôn `matchMedia`/`scrollIntoView` với `scrollToExample()` trong `FormulaDetail.tsx`:
-   * kiểm `typeof` trước khi gọi cả hai vì jsdom (môi trường test) không cài `matchMedia`.
-   */
-  function moToiBuoc(formulaId: string): void {
-    toggle(formulaId, true);
-    setActiveId(formulaId);
-
-    const target = document.getElementById(`chain-step-${formulaId}`);
-    if (target === null || typeof target.scrollIntoView !== 'function') return;
-    const reduceMotion =
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
   function theBuoc(index: number) {
@@ -370,22 +345,10 @@ export function ChainBody({
         {t('chain.title')}
       </h2>
       {/*
-        Dòng dẫn "Kết quả mỗi bước chảy thẳng vào ô của bước sau…" đã BỎ — chủ dự án chốt
-        10/09/2026, cùng đợt với dòng "Sửa được ngay tại đây" của khối Ví dụ.
-
-        Đừng dựng lại: điều nó nói ra thì dải `FlowChainStrip` ngay dưới đã VẼ ra, và vẽ rõ hơn —
-        các bước nối nhau bằng mũi tên, bước đang đứng nổi lên. Một câu văn lặp lại thứ hình vẽ đã
-        nói là câu người dùng đọc đúng một lần rồi bỏ qua mãi mãi.
+        Không có dòng dẫn nào ở đây, và đó là kết luận của ba lần viết lại (10/09 và hai lần
+        16/09/2026): mỗi bản đều phải đi giải thích một hình vẽ, mà hình vẽ ấy nay đã bỏ. Hai
+        tiêu đề nhóm ngay dưới tự nói xong việc.
       */}
-
-      <FlowChainStrip
-        formulas={formulas}
-        currentId={currentId}
-        statuses={statuses}
-        onStepClick={moToiBuoc}
-        activeId={activeId}
-      />
-
       {bocNhom()}
     </section>
   );

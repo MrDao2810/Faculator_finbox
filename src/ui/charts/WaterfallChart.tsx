@@ -7,7 +7,7 @@ import type { WaterfallChart as WaterfallModel } from '@/application';
 import { usePick } from '@/application/preferences-context';
 
 import styles from './chart.module.css';
-import { thin, tickAnchor } from './ticks';
+import { textWidth, thin, tickAnchor } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
 
@@ -66,14 +66,57 @@ import type { ChartSize } from './use-chart-size';
  * càng lúc càng bẹt — 5 chặng ở khổ rộng sẽ ra tỉ lệ gần 4:1. Nhân đôi cả hai chiều thì tỉ lệ khung
  * giữ nguyên, chỉ chữ là nhỏ đi một nửa so với hình, đúng thứ cần.
  *
- * `PAD` KHÔNG nhân đôi ở cả hai khổ: lề trái 96 là chỗ cho nhãn chặng đọc ngang, mà cỡ chữ không đổi.
+ * `PAD` KHÔNG nhân đôi ở cả hai khổ: lề trên/dưới là chỗ cho nhãn vạch, mà cỡ chữ không đổi.
+ *
+ * `LABEL` là cỡ chữ NHÃN CHẶNG, cũng tính bằng đơn vị viewBox, và cũng không nhân đôi theo khung —
+ * khổ hẹp để 8 thay vì 9. Lý do là số đo: trần `.plot` bên CSS là 460px trên khung 320, hệ số phóng
+ * 1,44, nên chữ 8 hiện ra 11,5px — vẫn nằm trong khoảng 10–15px mà `chart.module.css` đặt ra, đổi
+ * lại lề trái chứa nó co thêm được vài đơn vị. Chủ dự án chốt 16/09/2026 khi xem `fcfe` trên màn
+ * hẹp: chỗ cho CỘT đáng giá hơn một px cỡ chữ.
  */
 const SIZES = {
-  compact: { W: 320, ROW: 26, BAR: 14 },
-  wide: { W: 640, ROW: 52, BAR: 28 },
+  compact: { W: 320, ROW: 26, BAR: 14, LABEL: 8 },
+  wide: { W: 640, ROW: 52, BAR: 28, LABEL: 9 },
 } as const;
 
-const PAD = { top: 8, right: 12, bottom: 26, left: 96 } as const;
+/** Lề trên/phải/dưới cố định. Lề TRÁI thì không — xem `padLeftFor()`. */
+const PAD = { top: 8, right: 12, bottom: 26 } as const;
+
+/** Khoảng hở giữa nhãn chặng và trục — nhãn canh `end` tại `plotLeft - LABEL_GAP`. */
+const LABEL_GAP = 6;
+
+/** Vài đơn vị chừa sát mép trái khung, để chữ không dán vào mép `viewBox`. */
+const LABEL_EDGE = 2;
+
+/**
+ * Sàn của lề trái co giãn — giữ cho hình toàn nhãn cực ngắn ('EV', 'FCFF') không dán chữ vào trục.
+ */
+const MIN_PAD_LEFT = 32;
+
+/**
+ * Trần của lề trái co giãn, đúng bằng hằng `left: 96` của bản cũ.
+ *
+ * Lề nuốt vùng vẽ nên phải có điểm dừng, và giữ nguyên mốc cũ nghĩa là nhãn dài quá mức bị cắt y
+ * như trước chứ không bóp vùng vẽ thêm — cùng lập luận với `MAX_PAD_LEFT` của `LineChart`.
+ */
+const MAX_PAD_LEFT = 96;
+
+/**
+ * Lề trái CO THEO NHÃN CHẶNG, đúng cách `plotOf()` của `LineChart` làm với nhãn trục Y.
+ *
+ * Trước đợt này đây là hằng `left: 96`: 30% bề ngang khung 320 luôn dành cho chữ, kể cả với công
+ * thức mà nhãn dài nhất chỉ là 'FCFF' hay 'Khấu hao'. Chủ dự án báo đúng triệu chứng ấy trên `fcfe`
+ * ở màn hẹp — chữ choán chỗ, ba cột bị dồn vào hai phần ba còn lại của khung.
+ *
+ * Ước lượng bằng `textWidth()` chứ KHÔNG đo DOM: cả thư mục này nằm sau ranh giới `next/dynamic`,
+ * nơi một phép đo lúc dựng là một đường lệch hydration (lý do đầy đủ ở `ticks.ts`). Nhãn đi qua
+ * `pick()` nên lề co theo đúng ngôn ngữ đang hiện, cùng lượt render với chính chữ ấy.
+ */
+function padLeftFor(labels: ReadonlyArray<string>, fontSize: number): number {
+  const rongNhat = Math.max(0, ...labels.map((text) => textWidth(text, fontSize)));
+  const vuaDu = Math.ceil(rongNhat) + LABEL_GAP + LABEL_EDGE;
+  return Math.min(MAX_PAD_LEFT, Math.max(MIN_PAD_LEFT, vuaDu));
+}
 
 /** Số nhãn vạch giữ lại trên trục giá trị. Vạch KẺ vẫn vẽ hết — xem `thin()`. */
 const VALUE_LABELS = 4;
@@ -107,7 +150,7 @@ export function WaterfallChart({
   const svgRef = useRef<SVGSVGElement>(null);
 
   const sizeTuDo = useChartSize();
-  const { W, ROW, BAR: BAR_HEIGHT } = SIZES[sizeProp ?? sizeTuDo];
+  const { W, ROW, BAR: BAR_HEIGHT, LABEL: LABEL_SIZE } = SIZES[sizeProp ?? sizeTuDo];
 
   /** Cột đang trỏ/chạm — `null` là không cột nào. Cục bộ, không đồng bộ với bản phóng to. */
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -127,7 +170,10 @@ export function WaterfallChart({
    * có phép đo DOM nào — bản tĩnh và lượt hydrate ra cùng một con số.
    */
   const height = PAD.top + model.bars.length * ROW + PAD.bottom;
-  const plotLeft = PAD.left;
+  const plotLeft = padLeftFor(
+    model.bars.map((bar) => pick(bar.label)),
+    LABEL_SIZE,
+  );
   const plotRight = W - PAD.right;
 
   const toX = linearScale(model.y.domain, [plotLeft, plotRight]);
@@ -240,7 +286,13 @@ export function WaterfallChart({
             <g key={`${idBase}-bar-${String(index)}`}>
               <text
                 className={styles.barLabel}
-                x={plotLeft - 6}
+                /*
+                  Cỡ chữ đặt Ở ĐÂY chứ không ở CSS Module: lề trái `padLeftFor()` tính THEO chính
+                  con số này, nên hai thứ phải nằm cạnh nhau. Tách ra hai file là mở đúng cái bẫy
+                  `use-chart-size.ts` đã cảnh báo — đổi cỡ chữ một bên, khoảng cách bên kia đứng im.
+                */
+                fontSize={LABEL_SIZE}
+                x={plotLeft - LABEL_GAP}
                 y={rowTop + ROW / 2}
                 textAnchor="end"
               >
@@ -264,7 +316,7 @@ export function WaterfallChart({
 
                 Hai lớp chống tràn, cần cả hai:
 
-                  1. **Bản rút gọn** do Domain dựng (`shortValueLabel`), ở đúng bậc mà trục ngay dưới
+                  1. **Bản ở bậc trục** do Domain dựng (`shortValueLabel`), ở đúng bậc mà trục ngay dưới
                      đang ghi. Trước đợt này chỗ này in thẳng `valueLabel` đầy đủ, nên `lich-tra-no`
                      hiện `1.789.700.000 ₫` ≈ 66 đơn vị — vừa dài hơn phần lớn cột, vừa nói một thang
                      khác với chính cái trục nó nằm trên.

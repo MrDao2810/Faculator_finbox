@@ -79,3 +79,19 @@
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
 }
+
+/*
+ * Bám theo `ResultBlock` ở khổ nhiều cột — cùng lời hứa "bố cục không nhảy" của docblock `.value`.
+ *
+ * Từ ≥1280 thẻ kết quả hạ con số xuống `--text-xl` cho thẻ gọn còn ~50px. Để chỗ trống `_ _` ở
+ * đây đứng yên 40px là dựng lại đúng cái lệch mà chú thích trên vừa kể, chỉ khác mốc: hai trạng
+ * thái cao khác nhau 17px, và trang xê dịch đúng lúc phép tính chuyển từ ra số sang báo lỗi.
+ *
+ * Nằm trong media query nên không đụng phép so ở `result-card.test.ts` — ca "khối lỗi cao bằng
+ * khối kết quả" đọc luật `.value` ở đầu dòng, và luật ấy vẫn là clamp dùng chung.
+ */
+@media (min-width: 1280px) {
+  .value {
+    font-size: var(--text-xl);
+  }
+}

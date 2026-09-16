@@ -23,7 +23,7 @@
   theo id công thức qua `DetailBody`. Khác `result/`: những thứ trong đó dùng chung cho mọi
   công thức, còn ở đây là bố cục riêng của đúng một màn trong wireframe.
 - `result/` — gói 2.4: `ResultBlock`, `ErrorState`, `InlineWarning`, `ExplanationAccordion`,
-  `VariableTable`, `ExampleBlock`, `SourceBlock`, `FlowChainStrip`, `StatTile`.
+  `VariableTable`, `ExampleBlock`, `SourceBlock`, `StatTile`.
 - `sheets/` — gói 2.5: `PresetSheet` (WF-10), `PasteImportSheet` (WF-11), `ExportSheet` (WF-12)
   kèm `draw-card.ts` vẽ thẻ PNG bằng Canvas.
 - `contrast.ts` — công cụ tính tỉ số tương phản WCAG. `contrast.test.ts` đọc thẳng
@@ -48,7 +48,7 @@ kia không nói gì. Khai `stackedBar` thì bóc tách chỉ là một mục tro
 Kiểm hình dạng thật bằng `npm run check:chrome` — jsdom trả 0 cho mọi phép đo hình học nên nhãn
 tràn khung, cột âm vẽ ngược chiều và chiều cao chạy theo số chặng đều lọt qua `*.test.tsx`.
 
-`inputs/LinkedInput` và `result/FlowChainStrip` **đã có nơi dùng** từ gói 5.2.3, sau một quãng dài
+`inputs/LinkedInput` **đã có nơi dùng** từ gói 5.2.3, sau một quãng dài
 dựng xong mà nằm không. Chuỗi định giá có hai nhánh — `capm → mo-hinh-gordon → bien-an-toan`, và
 `capm → wacc → gia-tri-noi-tai-fcff ← fcff → fcfe` — với hai chỗ gọi: `screens/ChainBody` (khối
 chuỗi của màn nâng cao WF-04) cùng chính màn chi tiết, nơi biến nào có cạnh `dependsOn` thì lưới ô
@@ -101,7 +101,7 @@ Bóng đổ chỉ dành cho lớp **nổi** (nút trượt, phản hồi hover).
   URL hay localStorage. Chỗ giữ state là màn hình ở `src/app`.
 - **Sinh từ metadata, không hard-code.** Điều khiển nhập liệu đọc nhãn, đơn vị, miền hợp lệ,
   bước nhảy và danh sách lựa chọn từ `VariableSpec` (FR-05, LDR-01).
-- **Phần khó để ở Domain.** Bảng chuyển trạng thái, định dạng số, thứ tự dải luồng đều là hàm
+- **Phần khó để ở Domain.** Bảng chuyển trạng thái, định dạng số, thứ tự chuỗi công thức đều là hàm
   thuần trong `src/core` nên test được bằng Node; component chỉ lắp ráp. Xem `input-state.ts`,
   `linked-input.ts`, `format.ts`, `flow-chain.ts`.
 - **Dựng trên primitive**, không viết lại nút và ô nhập. Dòng gợi ý và câu lỗi đi qua

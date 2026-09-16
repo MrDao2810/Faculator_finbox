@@ -77,8 +77,12 @@ export {
 } from '@/core/virtual-window';
 
 // ── Dải luồng móc nối — WF-04 (gói 2.4.6) ───────────────────────────────────
+/*
+ * `buildFlowChain()` nay chỉ có nơi gọi ở trong Domain (`runChain`), nên cửa này mở cho TẦNG
+ * TRÊN thì không còn ai bước qua — hình vẽ của khối chuỗi đã bỏ 16/09/2026. Giữ nguyên kiểu
+ * `FlowChain`/`FlowStep` vì `ChainResult` chép lại trường của chúng.
+ */
 export type { FlowChain, FlowStep } from '@/core/flow-chain';
-export { buildFlowChain, flowDepth } from '@/core/flow-chain';
 
 // ── Danh mục cá nhân — WF-06 (gói 3.4.1) ────────────────────────────────────
 export type { Holding, HoldingValue, PortfolioSummary, PriceState } from '@/core/portfolio';
@@ -241,6 +245,7 @@ export {
   areaPath,
   buildCandleModel,
   buildChartModel,
+  derivedStages,
   gapsOf,
   linePath,
   linearScale,

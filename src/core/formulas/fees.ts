@@ -148,11 +148,19 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 1.000 CP giá 92.000 ₫, biểu phí HOSE 2026',
-        en: 'Buy 1,000 shares at 92,000 ₫, HOSE 2026 fee schedule',
+        vi: 'FPT — mua 1.000 CP giá 62.900 ₫ phiên 24/07/2026',
+        en: 'FPT — buying 1,000 shares at 62,900 ₫ at the 2026-07-24 close',
       },
-      inputs: { quantity: WF08.quantity, buyPrice: WF08.buyPrice },
-      expected: 138_000,
+      inputs: { quantity: 1_000, buyPrice: 62_900 },
+      expected: 94_350,
+      note: {
+        vi: 'Mức 0,15% ở đây là bậc phí trực tuyến phổ biến chứ không phải mức luật định: cùng một lệnh, nơi thu 0,03% nơi thu 0,35%, chênh nhau cả chục lần. Đổi biểu phí ở màn Cài đặt rồi tính lại nếu tài khoản của bạn dùng mức khác.',
+        en: 'The 0.15% here is a common online tier, not a statutory rate: the same order costs 0.03% at one broker and 0.35% at another, more than a tenfold spread. Switch the fee schedule in Settings and recompute if your own account uses a different rate.',
+      },
+      source: {
+        vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026.',
+        en: 'SSI’s online trading fee schedule; FPT (ticker FPT) price at the 2026-07-24 close.',
+      },
     },
     tests: [
       {
@@ -221,18 +229,18 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Bán 1.000 CP HPG giá 21.850 ₫, biểu phí HOSE 2026',
-        en: 'Sell 1,000 HPG shares at 21,850 ₫, HOSE 2026 fee schedule',
+        vi: 'FPT — bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT — selling 1,000 shares at 72,700 ₫ at the 2026-09-11 close',
       },
-      inputs: { quantity: 1_000, sellPrice: 21_850 },
-      expected: 32_775,
+      inputs: { quantity: 1_000, sellPrice: 72_700 },
+      expected: 109_050,
       note: {
-        vi: 'Bán đúng giá thị trường của HPG nên phí trừ thẳng 32.775 ₫ trước khi tiền về tài khoản.',
-        en: 'Selling at HPG’s real market price, the fee comes straight off 32,775 ₫ before the proceeds settle.',
+        vi: 'Phí bán tính trên giá trị bán chứ không trên giá vốn, nên cùng một lượng cổ phiếu mà giá đã tăng thì phí bán cao hơn phí mua. Cộng cả hai chiều, riêng phí môi giới của vòng mua – bán này là 203.400 ₫.',
+        en: 'The sell fee is charged on the sale value rather than the cost basis, so with the same share count a risen price means a bigger fee than on the buy leg. Across both legs, brokerage alone comes to 203,400 ₫ on this round trip.',
       },
       source: {
-        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+        vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 11/09/2026.',
+        en: 'SSI’s online trading fee schedule; FPT (ticker FPT) price at the 2026-09-11 close.',
       },
     },
     tests: [
@@ -297,18 +305,18 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Bán 1.000 CP HPG giá 21.850 ₫',
-        en: 'Sell 1,000 HPG shares at 21,850 ₫',
+        vi: 'FPT — thuế trên lệnh bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT — tax on a sale of 1,000 shares at 72,700 ₫, 2026-09-11 close',
       },
-      inputs: { quantity: 1_000, sellPrice: 21_850 },
-      expected: 21_850,
+      inputs: { quantity: 1_000, sellPrice: 72_700 },
+      expected: 72_700,
       note: {
-        vi: 'Thuế 0,1% tính trên đúng giá trị bán 21.850.000 ₫ của lô CP này, không phụ thuộc lãi lỗ.',
-        en: 'The 0.1% tax is charged on this lot’s real 21,850,000 ₫ sale value, regardless of profit or loss.',
+        vi: 'Thuế thu trên giá trị bán chứ không trên khoản lãi: cùng lô này mà cắt lỗ ở 55.000 ₫ thì vẫn nộp 55.000 ₫ tiền thuế. Mức 0,1% được giữ nguyên khi Luật Thuế thu nhập cá nhân 109/2025/QH15 có hiệu lực, không phân biệt cổ phiếu niêm yết hay chưa niêm yết.',
+        en: 'The tax falls on the sale value, not on the gain: cutting this same lot at a loss at 55,000 ₫ still owes 55,000 ₫ in tax. The 0.1% rate carried over unchanged when Personal Income Tax Law 109/2025/QH15 took effect, with no distinction between listed and unlisted shares.',
       },
       source: {
-        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+        vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 13 khoản 2, hiệu lực 01/07/2026; giá FPT (mã FPT) phiên 11/09/2026.',
+        en: 'Personal Income Tax Law 109/2025/QH15, Article 13 clause 2, in force 2026-07-01; FPT (ticker FPT) price at the 2026-09-11 close.',
       },
     },
     tests: [
@@ -376,18 +384,18 @@ export const THUE_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: '1.000 CP VNM, cổ tức 4.350 ₫/CP',
-        en: '1,000 VNM shares, dividend 4,350 ₫/share',
+        vi: 'FPT — 1.000 CP, cổ tức tiền mặt 1.000 ₫/CP chốt quyền 02/12/2025',
+        en: 'FPT — 1,000 shares, a 1,000 ₫/share cash dividend with a 2025-12-02 record date',
       },
-      inputs: { quantity: 1_000, dividendPerShare: 4_350 },
-      expected: 217_500,
+      inputs: { quantity: 1_000, dividendPerShare: 1_000 },
+      expected: 50_000,
       note: {
-        vi: 'Cổ tức 4.350 ₫/CP của Vinamilk bị giữ lại 5%, còn 4.132,5 ₫/CP thực nhận.',
-        en: 'Vinamilk’s 4,350 ₫/share dividend has 5% withheld, leaving 4,132.5 ₫/share net.',
+        vi: 'Công ty chứng khoán khấu trừ ngay tại nguồn, nhà đầu tư nhận về 950.000 ₫ mà không phải tự kê khai. Đáng lưu ý khi so với gửi tiết kiệm: lãi tiền gửi được miễn thuế thu nhập cá nhân, còn cổ tức tiền mặt chịu 5%.',
+        en: 'The brokerage withholds it at source, so 950,000 ₫ reaches the investor with nothing to file. Worth noting against a savings deposit: interest income is exempt from personal income tax, while a cash dividend bears 5%.',
       },
       source: {
-        vi: 'Finbox_v2, cổ tức Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) dividend, locked in 2026-09-08.',
+        vi: 'Cổ tức tiền mặt CTCP FPT (mã FPT) đợt chốt quyền 02/12/2025; thuế suất theo Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 12.',
+        en: 'FPT Corp’s (ticker FPT) cash dividend with a 2025-12-02 record date; rate per Personal Income Tax Law 109/2025/QH15, Article 12.',
       },
     },
     note: {
@@ -460,9 +468,20 @@ export const PHI_LUU_KY: FormulaModule = {
       },
     },
     example: {
-      title: { vi: '1.000 CP giữ 5 tháng', en: '1,000 shares held for 5 months' },
-      inputs: { quantity: WF08.quantity, months: WF08.months },
-      expected: 1_350,
+      title: {
+        vi: 'FPT — 1.000 CP nằm trong tài khoản 2 tháng, 24/07 đến 11/09/2026',
+        en: 'FPT — 1,000 shares sitting in the account for 2 months, 2026-07-24 to 2026-09-11',
+      },
+      inputs: { quantity: 1_000, months: 2 },
+      expected: 540,
+      note: {
+        vi: 'Phí tính theo số cổ phiếu chứ không theo giá trị: cùng 2,5 tỷ ₫, tài khoản nắm cổ phiếu giá 5.000 ₫ trả 135.000 ₫ mỗi tháng, còn nắm FPT chỉ khoảng 9.300 ₫. Khoản này nhỏ nhưng đã rời tài khoản trước khi bán nên vẫn phải cộng vào giá hoà vốn.',
+        en: 'The fee follows the share count, not the value: on the same 2.5 billion ₫, an account holding 5,000 ₫ shares pays 135,000 ₫ a month while one holding FPT pays about 9,300 ₫. Small as it is, it has already left the account before you sell, so it still belongs in the break-even price.',
+      },
+      source: {
+        vi: 'Quyết định 1541/QĐ-BTC về giá dịch vụ lưu ký, hiệu lực 07/05/2025; thời gian nắm giữ 24/07 đến 11/09/2026.',
+        en: 'Decision 1541/QĐ-BTC on custody service pricing, in force 2025-05-07; holding period 2026-07-24 to 2026-09-11.',
+      },
     },
     tests: [
       {
@@ -531,14 +550,18 @@ export const GIA_HOA_VON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 1.000 CP giá 92.000 ₫, giữ 5 tháng',
-        en: 'Buy 1,000 shares at 92,000 ₫, held for 5 months',
+        vi: 'FPT — mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, giữ 2 tháng',
+        en: 'FPT — buy 1,000 shares at 62,900 ₫ on 2026-07-24 and hold for 2 months',
       },
-      inputs: { quantity: WF08.quantity, months: WF08.months, buyPrice: WF08.buyPrice },
-      expected: 92_370.28,
+      inputs: { quantity: 1_000, months: 2, buyPrice: 62_900 },
+      expected: 63_153,
       note: {
-        vi: 'Bán đúng 92.000 ₫ là lỗ, dù không giảm giá đồng nào.',
-        en: 'Selling at exactly 92,000 ₫ is a loss, even though the price did not drop at all.',
+        vi: 'Ngay khi lệnh mua khớp, khoản đầu tư đã âm 0,40%: giá hoà vốn cao hơn giá mua 253 ₫, đúng bằng tổng ma sát của 0,15% phí mua, 0,15% phí bán, 0,1% thuế bán và phí lưu ký. Quay vòng 12 lần một năm thì riêng ma sát đó ngốn khoảng 4,8% vốn.',
+        en: 'The moment the buy order matches, the position is already 0.40% under water: the break-even price sits 253 ₫ above the buy price, exactly the friction of a 0.15% buy fee, a 0.15% sell fee, a 0.1% sell tax and the custody fee. Turn the capital over 12 times a year and that friction alone eats about 4.8% of it.',
+      },
+      source: {
+        vi: 'Biểu phí giao dịch trực tuyến SSI; giá mua FPT (mã FPT) phiên 24/07/2026.',
+        en: 'SSI’s online trading fee schedule; FPT (ticker FPT) buy price at the 2026-07-24 close.',
       },
     },
     tests: [
@@ -649,18 +672,18 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 1.000 CP HPG giá 19.000 ₫, bán giá 21.850 ₫ sau 5 tháng',
-        en: 'Buy 1,000 HPG shares at 19,000 ₫, sell at 21,850 ₫ after 5 months',
+        vi: 'FPT — mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT — buy 1,000 shares at 62,900 ₫ on 2026-07-24, sell at 72,700 ₫ on 2026-09-11',
       },
-      inputs: { quantity: 1_000, months: 5, buyPrice: 19_000, sellPrice: 21_850 },
-      expected: 2_765_525,
+      inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
+      expected: 9_523_360,
       note: {
-        vi: 'Giá mua dùng mức giả định. Lãi gộp 2.850.000 ₫, tổng chi phí 84.475 ₫.',
-        en: 'The buy price is an assumption. Gross profit is 2,850,000 ₫, total costs are 84,475 ₫.',
+        vi: 'Lãi gộp 9.800.000 ₫ nhưng tổng phí và thuế 276.640 ₫ lấy đi 2,8% khoản lãi. Tỷ lệ đó nghe nhỏ vì thương vụ lãi đậm: nếu giá chỉ nhích 1% thì chính khoản chi phí ấy ngốn hơn 40% lợi nhuận, còn giá đi ngang thì lỗ đúng bằng chi phí.',
+        en: 'Gross profit is 9,800,000 ₫, but 276,640 ₫ of fees and tax take 2.8% of it. That share looks small only because the trade ran well: had the price risen just 1%, the same costs would eat over 40% of the profit, and a flat price leaves a loss exactly the size of the costs.',
       },
       source: {
-        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+        vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026 và 11/09/2026.',
+        en: 'SSI’s online trading fee schedule; FPT (ticker FPT) prices at the 2026-07-24 and 2026-09-11 closes.',
       },
     },
     tests: [
@@ -739,18 +762,18 @@ export const ROI_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 1.000 CP HPG giá 19.000 ₫, bán giá 21.850 ₫ sau 5 tháng',
-        en: 'Buy 1,000 HPG shares at 19,000 ₫, sell at 21,850 ₫ after 5 months',
+        vi: 'FPT — vòng mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT — a round trip bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11',
       },
-      inputs: { quantity: 1_000, months: 5, buyPrice: 19_000, sellPrice: 21_850 },
-      expected: 14.53,
+      inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
+      expected: 15.1177,
       note: {
-        vi: 'Giá mua dùng mức giả định. Từ 19.000 ₫ lên 21.850 ₫ sau 5 tháng, trừ phí và thuế còn lãi ròng quy năm 14,53%.',
-        en: 'The buy price is an assumption. From 19,000 ₫ to 21,850 ₫ over 5 months, after fees and tax the annualized net return is 14.53%.',
+        vi: 'Tỷ suất tính trên giá thuần là 15,58%; phần chênh 0,46 điểm phần trăm chính là phí và thuế. Mẫu số ở đây là vốn thực bỏ ra, đã gồm phí mua và phí lưu ký, nên kết quả thấp hơn cách chia cho riêng tiền mua.',
+        en: 'The rate on the raw prices alone is 15.58%; the 0.46 percentage-point gap is exactly the fees and tax. The denominator here is the capital actually deployed, buy fee and custody fee included, so the result lands below one divided by the purchase money alone.',
       },
       source: {
-        vi: 'Finbox_v2, thị giá Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) market price, locked in 2026-09-08.',
+        vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026 và 11/09/2026.',
+        en: 'SSI’s online trading fee schedule; FPT (ticker FPT) prices at the 2026-07-24 and 2026-09-11 closes.',
       },
     },
     tests: [

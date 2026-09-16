@@ -160,7 +160,9 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Ô miễn trừ xuống cuối màn chi tiết công thức và màn Danh mục                    | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới         |
 | 3.1.x | Gộp Trang chủ vào màn Công thức — một màn, nav 4 mục, `/` chuyển hướng          | —       | Xong phần code, **chưa build** — xem mục "Gộp Trang chủ vào màn…"  |
 | 3.1.x | Kệ hằng ngày 16 ô (bày trước 8), bỏ hai dòng chữ phụ dưới kệ                    | —       | Xong phần code, **chưa build** — xem mục ngay dưới                 |
+| —     | Đối chiếu bảng Sheets "Ví dụ thực tế 111 công thức" với engine (không sửa code) | —       | Xong — 105/111 khớp; xem mục ngay dưới                             |
 | 5.x   | 34 "Ví dụ thực tế" neo vào số liệu thật của FPT/HPG/VNM/MWG qua Finbox_v2       | —       | Xong — xem mục ngay dưới                                           |
+| 4.x   | Biểu đồ nói hai đơn vị trên cùng một hình — nhãn trên hình theo bậc trục        | —       | Xong phần code — xem mục "Biểu đồ nói hai đơn vị"                  |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -168,6 +170,288 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Bỏ hình vẽ chuỗi phụ thuộc ở khối "Chuỗi công thức" (16/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi màn.** `npm test` **113 file, 2.693 ca đạt, 48 hoãn**;
+typecheck, lint, format:check sạch. Đã soi bằng Chrome thật ở 1440px (sáng) và 360px (tối) trên
+các trang `fcff`, `gia-tri-noi-tai-fcff`, `capm`.
+
+### Ba vòng, một kết luận
+
+Chủ dự án gửi ảnh khối trên trang `fcff`: _"tôi đọc cũng không hiểu, vậy nó tồn tại có mục đích
+gì"_. Hàng ngang khi đó đọc ra là `FCFF → FCFE · Giá trị nội tại từ FCFF (DCF)` — dấu `·` nói được
+"hai ô này không nối nhau" nhưng không nói được ô bên phải nhận số từ ai.
+
+1. **Vẽ lại thành sơ đồ rẽ nhánh** (chủ dự án chọn trong ba phương án). Cây đọc quan hệ bằng vị
+   trí, hết mơ hồ chỗ rẽ nhánh — nhưng chủ dự án vẫn hỏi _"các ô này tượng trưng cho gì"_.
+2. **Viết lại lời dẫn** cho gọi tên các ô. Vẫn không cứu được: _"vẫn không thể hiểu được tác dụng
+   của phần này"_.
+3. **Bỏ hẳn hình vẽ.** Rà lại thì nó KHÔNG giữ chức năng nào của riêng nó — bốn thứ nó bày ra
+   (tên bước · kết quả từng bước · bước nào gãy · đường tới màn riêng của bước) đều đã có sẵn
+   trên chính các thẻ ngay dưới nó. Nó chỉ nói lại bằng một ngôn ngữ phải học trước mới đọc được,
+   và ba lần viết lời dẫn đều là ba lần đi giải thích cho nó.
+
+Luật rút ra, đã ghi vào `ChainBody.tsx`: quan hệ giữa các bước để cho **tiêu đề nhóm** và **nhãn
+nguồn của `LinkedInput`** nói — chữ đứng cạnh đúng con số nó nói tới, không cần một hình riêng.
+
+### Còn lại gì, mất gì
+
+Khối giữ nguyên phần mang chức năng: thẻ gập của từng bước trước/sau, có ô nhập riêng và kết quả
+riêng, bố cục hai cột ở khổ ≥1024px, và link "Mở màn riêng của bước này". Sửa beta trong thẻ CAPM
+vẫn đẩy thẳng vào `Suất sinh lợi yêu cầu` của Gordon như cũ — đó mới là chỗ FR-15 đáng tiền.
+
+Mất: một chỗ duy nhất nhìn thấy trọn hình chuỗi khi chuỗi có nhánh (`capm` 5 bước,
+`gia-tri-noi-tai-fcff` hội tụ hai nguồn). Đổi lại, trang `fcff` từ 247px chiều cao khối xuống còn
+105px.
+
+### File đã đổi
+
+| File                                                                         | Sửa gì                                                                                      |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `ui/result/FlowChainStrip.*`                                                 | **xoá 3 file** (component, CSS, test) — dựng từ gói 2.4.6                                   |
+| `core/flow-chain.ts`                                                         | xoá `layoutFlowChain()`, `FlowNode`, `flowDepth()`; giữ `buildFlowChain()` cho `runChain()` |
+| `core/flow-chain.test.ts`                                                    | xoá khối ca của cây; giữ phần sắp thứ tự                                                    |
+| `ui/screens/ChainBody.tsx` + `.module.css`                                   | gỡ sơ đồ, dòng dẫn, state `activeId`, hàm cuộn `moToiBuoc()`                                |
+| `application/i18n/vi.ts`, `en.ts`                                            | xoá cả nhóm `flow.*` và `chain.intro`                                                       |
+| `application/index.ts`, `ui/result/index.ts`                                 | thu cửa xuất theo                                                                           |
+| `ui/screens/ChainBody.test.tsx`, `app/cong-thuc/[id]/FormulaDetail.test.tsx` | hai ca đổi sang ghim thẻ bước thay vì ghim hình vẽ                                          |
+| `ui/README.md`, `README.md`, `ui/screens/ChainPanel.tsx`                     | gỡ tên component đã xoá                                                                     |
+
+### Việc còn lại
+
+- [ ] **Chủ dự án quyết: có bỏ nốt nửa "Bước sau" không?** Nửa "Bước trước" là thứ duy nhất cho
+      phép chỉnh giả định của công thức cấp số (beta của CAPM, EBIT của FCFF) ngay tại trang đang
+      xem — bỏ nó thì ô móc nối đứng yên ở số mặc định và người dùng phải tự gõ đè. Nửa "Bước
+      sau" chỉ trả lời "số này chảy đi đâu"; bỏ nó thì khối biến mất hẳn khỏi 2 trang (`capm`,
+      `fcff`) — đúng trang mà chủ dự án hỏi "tác dụng là gì". Tôi không tự quyết vì đây là cắt
+      chức năng, không phải dọn thứ thừa.
+- [ ] Chạy `build` → `verify:static` → `size` → `check:chrome` khi cổng 3000 rảnh. Ba cửa kiểm
+      liên quan không phải sửa: chúng gác `#khoi-chuoi` (vắng trong HTML tĩnh, hiện sau hydrate)
+      và "trang không cuộn ngang ở 360" — vẫn đúng, và vế cuộn ngang nay còn chắc hơn vì vùng
+      cuộn ngang của dải đã biến mất.
+
+---
+
+## Biểu đồ gọi tên một đại lượng mà khối Số liệu không có (16/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận trên màn.** Vòng ba của cùng một báo lỗi trên
+`fcfe`, và là vòng chạm đúng gốc.
+
+### Nguyên nhân
+
+Hình bóc tách có cột `Lãi vay sau thuế` cao 48 tỷ ₫. Khối Số liệu chỉ có `Chi phí lãi vay` 60 và
+`Thuế suất` 20% đứng rời nhau — cái tên ấy và con số 48 không xuất hiện ở đâu khác trên trang.
+Người đọc thấy một đại lượng có tên, có cột vẽ, mà không tra được nó từ đâu ra.
+
+Không phải chuyện riêng của `fcfe`: 9 trong 10 công thức bóc tách có ít nhất một chặng KHÔNG phải
+ô nhập — `EBIT sau thuế` (`fcff`), `Phần vốn chủ`/`Phần nợ vay` (`wacc`), `Thuế chuyển nhượng`
+(`thue-tncn-dau-tu`)… Chúng đọc từ `output.extras`, không từ `spec.variables`.
+
+Hai vòng trước chữa nhầm chỗ, ghi lại để không ai đi lại: vòng 1 sửa `expression` của `fcfe` cho
+tên chặng có mặt ở khối **Công thức** — đúng nhưng mới nửa đường; vòng 2 co lề trái biểu đồ, không
+liên quan.
+
+### Sửa gì
+
+Đúng khuôn `ConstantsNote` — docblock của nó mô tả y hệt lớp vấn đề này cho hằng số thuế/phí: một
+con số công thức đang tính theo, không phải ô nhập, nên không có chỗ nào trên trang nói tới.
+
+- `derivedStages()` ở `core/chart/breakdown.ts`: lọc chặng bằng `inputs[key] === undefined` — đúng
+  phép mà `stageValue()` dùng để quyết định tra ô nhập hay tra `extras`, nên hai chỗ không lệch
+  được. Nhãn lấy y hệt cách hình lấy, vì cả mục đích là để HAI CHỖ GỌI CÙNG MỘT TÊN.
+- `DerivedNote` đứng cuối khối Số liệu, ngay cạnh `ConstantsNote`, dưới nhãn "Từ các ô trên, công
+  thức tính ra".
+
+Hai đường KHÔNG chọn, và lý do:
+
+- **Đổi tên cột biểu đồ cho khớp ô nhập** — cột cao 48 còn ô `Chi phí lãi vay` là 60. Hai chỗ cùng
+  tên mà hai con số thì tệ hơn hẳn cảnh đang có.
+- **Nhét thành một dòng của khối Số liệu** — khối ấy dựng trọn vẹn từ `spec.variables` (FR-05), mỗi
+  dòng là một ô gõ được. Thêm dòng chỉ-đọc vào giữa là phá lời hứa đó, và phải sửa đường dựng ô của
+  cả 111 công thức để phục vụ 9.
+
+Trị số bày theo ĐỘ LỚN, không mang dấu trừ của chặng: `sign` là vai trong phép cộng, do hình nói
+(cột trừ viền đứt). In `−48` cạnh chữ 'Lãi vay sau thuế' là nói tiền lãi âm — thứ chính `calc` của
+`fcfe` chặn bằng `MEANINGLESS`.
+
+### File đổi
+
+`src/core/chart/breakdown.ts` + `index.ts`, `src/application/index.ts`, `src/application/i18n/{vi,en}.ts`,
+`src/ui/result/DerivedNote.tsx` + `.module.css` + `index.ts`,
+`src/app/cong-thuc/[id]/FormulaDetail.tsx`. Ca kiểm: 5 ca ở `chart.test.ts` (có một ca quét cả
+Registry chặn "đổi key chặng mà quên đổi key trong `extras`"), 3 ca ở `FormulaDetail.test.tsx` bám
+vào khối Số liệu thật chứ không quét cả màn — quét cả màn thì chữ trong hình cũng khớp và ca sẽ
+xanh ngay cả khi khối Số liệu vẫn trống.
+
+## Thẻ Kết quả gọn lại còn ~50px ở khổ web (16/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận trên màn.** Đi qua HAI vòng, vòng đầu bị đảo
+lại nên ghi cả hai để không ai dựng lại đường cụt ấy.
+
+### Vòng 1 — nâng trần cỡ chữ, ĐÃ HOÀN LẠI
+
+Chủ dự án báo con số trong thẻ nhỏ so với dải xanh rộng ~900px. Nguyên nhân đúng: `.value` dùng
+`clamp(var(--text-2xl), 9vw, var(--text-3xl))` nên trần 40px chạm từ ~445px, mọi khổ rộng hơn đều
+nhận đúng 40px. Đã thêm bậc `--text-4xl: 48px` và nâng trần lên bậc ấy.
+
+Chủ dự án xem xong thì chốt ngược: thứ cần không phải con số TO hơn mà là **thẻ THẤP hơn**. Nên
+bậc `--text-4xl` bị gỡ, cả bốn file cỡ chữ và hai cửa gác (`result-card.test.ts`,
+`typography.test.ts`) trả về nguyên trạng — khuôn chung của ba thẻ đáp án không đổi một dòng nào.
+
+### Vòng 2 — hạ chiều cao, đảo tương quan hai dòng chữ
+
+Yêu cầu: _"giảm ô xanh này xuống 50px, đồng thời giảm size text -151,6 tỷ đ xuống, tăng Kết quả
+lên"_. Khi nhãn và con số đã đứng chung một hàng (khối `@media (min-width: 1280px)` có từ
+10/09/2026) thì chiều cao thẻ do đúng hai thứ quyết: lề trên dưới và hộp dòng con số.
+
+|                | trước                | sau                       |
+| -------------- | -------------------- | ------------------------- |
+| lề trên/dưới   | `--space-4` (16+16)  | `--space-2` (8+8)         |
+| con số         | 40px → hộp dòng 50px | `--text-xl` 26px → 32,5px |
+| nhãn KẾT QUẢ   | `--text-xs` 12px     | `--text-base` 16px        |
+| đơn vị         | `--text-md` 18px     | `--text-sm` 14px          |
+| **cao cả thẻ** | **~82–92px**         | **~48,5px**               |
+
+Ba điều đáng ghi:
+
+- **Không ghim `height: 50px`.** Thẻ còn cao thêm được khi có câu diễn giải hay nút gợi ý — chúng
+  trải hết hàng dưới bằng luật `:not()`. ~50px là chiều cao của thẻ CHỈ có nhãn và con số.
+- **Mọi luật nằm TRONG media query 1280.** Điện thoại và khổ giữa không đổi một pixel, và khuôn
+  chung ở `result-card.test.ts` vẫn nguyên — ca kiểm ấy chỉ đọc luật ở đầu dòng.
+- **`ErrorState` phải bám theo**, cũng bằng một khối 1280 riêng. Để chỗ trống `_ _` đứng yên 40px
+  là dựng lại đúng cái lệch mà docblock `.value` bên đó vừa kể: hai trạng thái cao khác nhau 17px,
+  trang xê dịch đúng lúc phép tính chuyển từ ra số sang báo lỗi.
+
+### File đổi
+
+`src/ui/result/ResultBlock.module.css`, `src/ui/result/ErrorState.module.css` — chỉ hai file, đều
+là phần THÊM vào khối media query có sẵn.
+
+## Nhãn chặng ăn mất chỗ vẽ của biểu đồ bóc tách (16/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận trên màn.** Chủ dự án gửi ảnh `fcfe` ở màn
+hẹp: "text trong biểu đồ đang quá to khiến không gian biểu đồ bị thu hẹp lại".
+
+### Nguyên nhân
+
+Chữ KHÔNG hề bị đổi cỡ — nó đang hiện ra ~12,5px, đúng khoảng 10–15px mà trần `.plot` bên
+`chart.module.css` cố ý đặt ra. Thứ ăn chỗ là **lề trái chứa tên chặng**: `WaterfallChart.tsx` ghi
+cứng `PAD.left = 96` trên khung 320 đơn vị, tức 30% bề ngang luôn dành cho chữ, kể cả với công
+thức mà nhãn dài nhất chỉ là `Tiền mặt`. `LineChart` đã giải đúng bài này từ trước (`plotOf()` co
+lề theo nhãn trục Y thật, có sàn và trần), riêng thác nước thì chưa.
+
+### Sửa gì
+
+Bê nguyên cách của `LineChart`, cộng một bậc cỡ chữ riêng cho khổ hẹp:
+
+- Lề trái tính bằng `padLeftFor()` — `textWidth()` của nhãn dài nhất, kẹp giữa sàn 32 và trần 96.
+  Trần giữ đúng mốc cũ nên nhãn dài quá mức vẫn bị cắt y như trước, không bóp vùng vẽ thêm.
+- `SIZES` thêm `LABEL`: 8 đơn vị ở khổ hẹp (hiện ra 11,5px), 9 ở khổ rộng — cỡ chữ đặt bằng thuộc
+  tính `fontSize` trong TSX chứ không ở CSS, vì lề trái tính THEO con số ấy; để hai file thì đổi
+  một bên, bên kia đứng im.
+- Đo lại cả 10 công thức bóc tách: lề 96 → 40–87, vùng vẽ rộng thêm 4–26% (`fcfe` +12%, `ev` +26%).
+
+Nhân tiện, cùng hình đó còn một chỗ hụt: chặng `Lãi vay sau thuế` không được nhắc ở khối Công thức
+lẫn khối Số liệu, chỉ hiện trong biểu đồ. Sửa `expression` của `fcfe` thành
+`FCFE = FCFF − Lãi vay sau thuế (Chi phí lãi vay × (1 − Thuế suất)) + Vay ròng mới` để tên chặng
+neo được vào công thức.
+
+### File đổi
+
+`src/ui/charts/WaterfallChart.tsx` (lề co giãn + cỡ chữ theo khổ), `src/ui/charts/chart.module.css`
+(bỏ `font-size` khỏi `.barLabel`), `src/core/formulas/valuation-dcf.ts` (`expression` của `fcfe`).
+
+### Còn lại
+
+`fcff` cũng có chặng `EBIT sau thuế` không xuất hiện nguyên văn trong `expression` — chưa sửa, chờ
+chủ dự án quyết có làm cho nhất quán không.
+
+## Tách "Nguồn" thành dòng riêng ở 34 Ví dụ thực tế (16/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận.** Tiếp mục "34 Ví dụ thực tế neo vào số liệu
+thật" bên dưới. Chủ dự án: "Nguồn thì để xuống 1 dòng riêng bên dưới ví dụ. đồng thời viết lại nội
+dung sao cho đúng mô tả. đồng thời tăng size text lên. đang để quá nhỏ".
+
+### Sửa gì
+
+- `FormulaExample` thêm trường `source` — tách hẳn câu TRÍCH DẪN (ai nói, ở đâu, khi nào) khỏi câu
+  MÔ TẢ (`note`: điều gì đã xảy ra, kết luận gì). Gộp chung đọc rối, vì một câu vừa mô tả vừa dẫn
+  nguồn. Nhãn `Nguồn:`/`Source:` là khoá i18n `example.source`, nội dung trường chỉ còn tên nguồn.
+- `ExampleBlock` đưa câu mô tả lên NGAY dưới tiêu đề (trước bộ số), rồi tới dòng nguồn — người đọc
+  thấy "chuyện gì đã xảy ra" trong tầm mắt đầu tiên, không phải cuộn qua hết bộ số.
+- `.note` từ `--text-xs` lên `--text-sm`; `.source` cùng cỡ nhưng nhạt hơn một bậc.
+- Tách `note`/`source` cho cả 34 công thức, bỏ tiền tố "Nguồn:" đã ghi lẫn trong câu mô tả.
+
+### File đổi
+
+`src/core/registry/types.ts`, `src/application/i18n/{vi,en}.ts`, `src/ui/result/ExampleBlock.tsx`,
+`src/ui/result/ExampleBlock.module.css`, `src/application/prose-audit.test.ts`, và 8 file công thức
+(`valuation-multiples`, `valuation-dcf`, `fees`, `returns`, `performance`, `planning`,
+`fundamentals`, `multiples`).
+
+## Biểu đồ nói hai đơn vị trên cùng một hình (16/09/2026)
+
+**Trạng thái: xong phần code.** Chủ dự án gửi ảnh biểu đồ `DDM hai giai đoạn`: trục ghi
+`(triệu ₫)`, dấu "giá trị hiện tại" ghi `2,27 triệu ₫`, còn vạch dò ngay cạnh ghi `578.636,11 ₫`.
+
+### Nguyên nhân
+
+`shortenLabel()` ở `src/core/chart/build.ts` quyết định theo TỪNG ĐIỂM, bằng một phép so **độ dài
+chuỗi**: chỉ dùng bản ở bậc trục khi nó ngắn hơn bản đầy đủ. Trên trục `(triệu ₫)`:
+
+- `2.269.721,36 ₫` (14 ký tự) → `2,27 triệu ₫` (12) → ngắn hơn ⇒ dùng.
+- `578.636,11 ₫` (12 ký tự) → `0,58 triệu ₫` (12) → **không** ngắn hơn ⇒ rơi về bản đầy đủ.
+
+Nên cùng một hình có điểm nói `triệu ₫`, điểm nói `₫`, còn trục thì chỉ ghi một thang. Lỗi có từ
+đợt "rút gọn số lớn" và im lặng suốt, vì mọi ca kiểm đều xét từng nhãn một, không ca nào hỏi cả
+hình có nói chung một đơn vị không.
+
+### Sửa gì
+
+Bậc hiển thị là thuộc tính của TRỤC nên câu hỏi cũng hỏi một lần cho cả trục —
+`shortenLabel()` thành `labelAtAxisScale()`: trục có chia bậc thì mọi chữ vẽ trên hình nói theo bậc
+ấy, không thì không chữ nào nói. Áp cho cả vạch dò, dấu "giá trị hiện tại" (`LineChart`) và nhãn
+cột thác nước (`WaterfallChart`) — ba chỗ vốn đã đọc chung một trường.
+
+Hai thứ đi kèm:
+
+- **Giữ ba chữ số có nghĩa cả khi nhỏ hơn một đơn vị bậc trục.** `scaledDecimals()` chốt 2 chữ số
+  lẻ với mọi giá trị dưới 10, nên `578.636 ₫` sẽ ra `0,58 triệu ₫` — mất một chữ số đúng ở chỗ còn
+  ít nhất. Nay ra `0,579 triệu ₫`, trần 6 chữ số lẻ.
+- **Ngoại lệ FR-06.** Giá trị khác 0 mà làm tròn ở bậc trục ra `0` thì giữ bản đầy đủ: một
+  `0 triệu ₫` cạnh một điểm có thật là con số sai đội lốt con số đúng. Chỉ chạm tới điểm nhỏ hơn
+  bậc trục hơn một triệu lần.
+
+Bảng số dưới `<details>` và câu mô tả KHÔNG đổi — vẫn đọc `valueLabel` đầy đủ, vì đó là chỗ tra con
+số chính xác. Ca kiểm cũ ghim đúng ranh giới ấy vẫn xanh nguyên.
+
+### File đã sửa
+
+| file                               | sửa gì                                                                        |
+| ---------------------------------- | ----------------------------------------------------------------------------- |
+| `src/core/chart/build.ts`          | `labelAtAxisScale()` thay `shortenLabel()`; `scaledDecimals()` tách riêng     |
+| `src/core/chart/types.ts`          | mô tả `ChartPoint.shortLabel/shortValueLabel`, `BreakdownBar.shortValueLabel` |
+| `src/ui/charts/LineChart.tsx`      | chú thích nhãn vạch dò                                                        |
+| `src/ui/charts/WaterfallChart.tsx` | chú thích nhãn cột                                                            |
+
+### Ca kiểm thêm (`src/core/chart/chart.test.ts`)
+
+- `mọi điểm nói cùng bậc với trục, kể cả điểm nhỏ hơn một đơn vị bậc ấy` — dựng lại đúng kịch bản
+  trong ảnh (DDM, g1 = 22 %, r = 4,5 %) nên trục ra `(triệu ₫)` và có điểm dưới một triệu.
+- `mọi chữ vẽ trên hình của cùng một biểu đồ dùng chung một đơn vị` — quét cả 111 công thức, cả
+  đường quét lẫn thác nước. Đây mới là ca giữ lỗi khỏi quay lại.
+- Ca `bản rút gọn VẮNG MẶT hẳn khi nó không ngắn hơn bản đầy đủ` đổi tên theo luật mới
+  (`… khi trục không chia bậc`).
+
+Chạy: `src/core` + `src/ui` 1.784 ca xanh, `src/app` + `src/application` 730 ca xanh, eslint 0 cảnh
+báo, `tsc` không lỗi nào ở hai thư mục biểu đồ.
+
+### Còn lại
+
+- Chưa xem trên Chrome thật.
 
 ---
 
@@ -248,6 +532,164 @@ một công thức không được phép đụng tới.
 ca skip có sẵn, không liên quan). `formulas.test.ts` xác nhận cả 34 `example.expected` khớp đúng
 `runFormula()` thật; `prose-audit.test.ts` (9 ca, gồm cả cửa "khẳng định khớp bộ số liệu mẫu" ở
 mục H) xanh — không câu nào tự nhận "khớp số liệu mẫu" sai sự thật.
+
+---
+
+## Đối chiếu bảng "Ví dụ thực tế 111 công thức" với engine (16/09/2026)
+
+**Trạng thái: đã áp cả 111 ví dụ vào `src/core/formulas/`.** Chủ dự án chốt "đối chiếu trước" rồi sau
+đó "áp tất cả các ví dụ thực tế vào dự án" — xem mục "Áp 111 ví dụ thực tế vào Registry" ngay bên dưới
+mục đối chiếu này để biết chi tiết những gì đã đổi. Phần dưới đây giữ nguyên làm nhật ký của bước đối
+chiếu (đã xong trước khi áp).
+
+Nguồn: Google Sheets `1UPzyU7j9XQexi3SaCiIjrgLg3rHxuYgcACJ5FMb73Ys` (chủ dự án gửi), 111 dòng, mã công
+thức khớp đúng 111 id của Registry, không thiếu không thừa.
+
+**Cách chạy.** Bóc bảng và hai chuỗi giá của sheet "Dữ liệu gốc" (FPT 57 phiên, VN-Index 71 phiên) ra
+JSON; ánh xạ số liệu từng dòng sang biến của spec (12 agent, mỗi agent đọc hàm `calc` để lấy đúng quy ước
+đơn vị); chạy qua chính `runFormula()` với `MARKET_CONFIG` tại 15/09/2026; so với cột "Kết quả app".
+Toàn bộ script chạy NGOÀI repo (`vitest --config` trỏ vào thư mục tạm của phiên), không thêm file nào
+vào `src/`. Báo cáo đầy đủ 111 dòng: `<scratchpad>/bao-cao-doi-chieu.md`.
+
+**Kết quả: 105/111 khớp trong 0,1%; 6 dòng còn lại lệch ≤ 1% và đều đúng mức làm tròn hai chữ số của
+bảng** (`irr-nien-kim`, `sut-giam-hien-tai`, `var-lich-su`, `cvar-lich-su`,
+`do-lech-chuan-loi-suat-phien`, `khoang-cach-gia-so-sma`). Không dòng nào ra số khác hẳn, không dòng nào
+engine từ chối tính. Cột "Kết quả app" của bảng là số engine thật.
+
+**Ba phát hiện đáng xử lý trước khi áp bảng vào repo:**
+
+1. **Sáu ví dụ KHÔNG gõ lại được trên màn.** Số của bảng vượt dải min/max của ô nhập; trên màn
+   `clampToSpec()` kẹp lại nên người dùng thấy số khác:
+
+   | mã                 | bảng            | trên màn sau khi kẹp | vì                                       |
+   | ------------------ | --------------- | -------------------- | ---------------------------------------- |
+   | `tra-gop-nien-kim` | 25.093.202 ₫    | 16.728.801 ₫         | vay 3 tỷ > max 2 tỷ                      |
+   | `tra-gop-goc-deu`  | 32.500.000 ₫    | 21.666.667 ₫         | như trên                                 |
+   | `lich-tra-no`      | 3.022.368.497 ₫ | 2.014.912.331 ₫      | như trên                                 |
+   | `diem-hoa-von`     | 7.834.407 sp    | 3.221.649 sp         | định phí 2.431,8 tỷ > max 1.000 tỷ       |
+   | `don-bay-tong-hop` | 2,6171 lần      | **không tính được**  | cả 3 ô doanh thu/biến phí/định phí > max |
+   | `irr-nien-kim`     | 0,79 %/kỳ       | 0,1911 %/kỳ          | 240 kỳ > max 120                         |
+
+   Hoặc nới `max` của các biến ấy, hoặc đổi ví dụ sang số nằm trong dải. Đây là quyết định sản phẩm.
+
+2. **Mô tả chuỗi giá của nhóm kỹ thuật sai.** Hơn 20 dòng ghi nguồn "chuỗi 55 phiên FPT, 24/06 → 11/09",
+   nhưng kết quả chỉ tái lập được trên chuỗi đầy đủ 57 phiên tới 15/09 (quét cả 780 cửa sổ của `rsi-wilder`
+   chỉ đúng một cửa sổ; `macd-duong-chinh` trên 55 phiên ra 902 thay vì 808). Dòng `beta` ghi đúng.
+3. **18 chỗ phần chữ tự mâu thuẫn với con số** (`bien-an-toan` 79.243 vs 79.161, `wacc` 9,37 vs 9,36 và
+   số sai này còn được dùng tiếp ở hai dòng sau, `gia-hoa-von` 63.192 vs 63.153, `lai-kep` chênh 0,64 vs
+   1,64 triệu, `ddm-hai-giai-doan` nói ngược chiều độ nhạy, `so-ky-dca` làm tròn xuống…). Danh sách đầy đủ
+   kèm số đúng nằm trong báo cáo.
+
+**Nếu áp bảng vào repo:** 97/111 công thức đổi số đầu vào, 14 công thức trùng khít ví dụ đang có (nhóm
+kỹ thuật, đầu vào chỉ là số phiên). Bảng dùng bộ số FPT chốt 11–15/09/2026, khác bộ 4 mã
+(FPT/HPG/VNM/MWG chốt 08/09/2026) mà đợt "34 ví dụ thực tế" hôm qua vừa gắn.
+
+### Việc còn lại (của bước đối chiếu — đã xử lý ở bước áp, xem mục dưới)
+
+- [x] Chủ dự án quyết: áp cả 111 — **xong**.
+- [x] Nới `max` cho 6 ví dụ vượt dải — **xong**.
+- [ ] Sửa phần chữ của bảng Sheets theo danh sách mâu thuẫn (việc bên ngoài repo, không thuộc phạm vi).
+
+---
+
+## Áp 111 ví dụ thực tế vào Registry (16/09/2026)
+
+**Trạng thái: xong, đã kiểm chứng toàn bộ.** `lint` · `typecheck` · `format:check` sạch; `vitest`
+**114 file / 2704 ca xanh** (48 bỏ qua có sẵn, không liên quan); `gen:summaries` không lệch (chỉ đổi
+`example`, không đổi `name`/`description`/`tags` nên file sinh tự động không đổi). Chưa chạy
+`build` / `verify:static` / `size` / `check:chrome` — dev server một phiên khác đang giữ cổng 3000.
+
+Chủ dự án chốt: "áp tất cả các ví dụ thực tế vào dự án", sau bước đối chiếu ở mục trên.
+
+### Cách làm
+
+- Sinh `src/core/formulas/market-series-2026.ts` (module DOMAIN mới) từ hai chuỗi giá đã bóc ở bước
+  đối chiếu: `FPT_57_PHIEN` (57 giá đóng cửa FPT, 24/06–15/09/2026), `FPT_57_BARS` (cùng 57 phiên, đủ
+  OHLCV), `VNINDEX_71_PHIEN` (71 phiên VN-Index). 36 công thức đọc chuỗi giá dùng chung module này thay
+  vì mỗi công thức tự chép một bản.
+- 11 agent chạy song song, mỗi agent phụ trách 1–3 file nguồn, chỉ được sửa khối `example` (giữ nguyên
+  `calc`, `variables`, `tests`, `explanation`, `source` của spec). Mỗi agent tự chạy
+  `formulas.test.ts` trước khi báo xong.
+- Sau khi cả 11 agent xong: dọn các việc phát sinh nằm ngoài phạm vi "chỉ sửa `example`" mà nhiều agent
+  độc lập cùng phát hiện (xem mục "Việc phát sinh đã dọn" bên dưới), rồi chạy `npm run check` toàn repo.
+
+### Hai thay đổi sản phẩm (nới dải ô nhập)
+
+Sáu ví dụ vượt dải min/max cũ — nếu không nới thì người dùng gõ lại ví dụ trên màn sẽ thấy một số KHÁC
+số in trong khối "Ví dụ thực tế", đúng lỗi FR-02 cấm:
+
+| file             | biến (công thức liên quan)                                                       | trần cũ    | trần mới     |
+| ---------------- | -------------------------------------------------------------------------------- | ---------- | ------------ |
+| `personal.ts`    | `amount` (3 công thức vay: trả góp niên kim, gốc đều, lịch trả nợ)               | 2 tỷ ₫     | 10 tỷ ₫      |
+| `performance.ts` | `periods` (irr-nien-kim)                                                         | 120 kỳ     | 360 kỳ       |
+| `corporate.ts`   | `fixedCost`/`revenue`/`variableCost`/`interest` (điểm hoà vốn, đòn bẩy tổng hợp) | 1.000 tỷ ₫ | 100.000 tỷ ₫ |
+
+Lý do ghi thẳng bằng block comment tại chỗ khai biến trong cả ba file.
+
+Thêm một lựa chọn cho ô chọn kỳ nhập lãi của `lai-kep` (`personal.ts`): `{ value: 2, label: 'Mỗi nửa năm' }`
+— ví dụ thật là một sổ tiết kiệm kỳ hạn 6 tháng (`perYear: 2`), mà danh sách cũ chỉ có 1/4/12/365 nên
+không có mục nào khớp; bấm "về số của ví dụ" sẽ đặt ô chọn ở một giá trị không có trong danh sách.
+
+### Việc phát sinh đã dọn (ngoài phạm vi "chỉ sửa `example`", nhiều agent độc lập cùng thấy)
+
+- **Test hard-code số ví dụ cũ của `pe` và `beta`** — `ExampleBlock.test.tsx`, `FormulaDetail.test.tsx`
+  (4 chỗ): giá 72.300 ₫ → 72.700 ₫, kết quả 12,32 → 12,39 lần; Beta ví dụ cũ 1,5 lần → nay 1 lần (ba
+  công thức tỷ số rủi ro trong `risk-ratios.ts` đều dùng chuỗi VN-Index cho cả hai vế vì chuỗi FPT chỉ
+  có 57 phiên, dưới ngưỡng 60 phiên bắt buộc — hồi quy VN-Index theo chính nó cho đúng 1). Đổi luôn tên
+  hai ca kiểm nhắc "1,5 lần" cho khớp.
+- **Hai công thức có `explanation.howToRead` là văn bản nháp còn sót** — `personal.ts` (trả góp niên
+  kim) và `risk.ts` (cỡ lệnh theo % rủi ro): cả hai câu đều có dạng "howToRead thay bằng: «...» — câu cũ
+  chuyển xuống commonMistakes...", tức một ghi chú chỉnh sửa bị bỏ quên trong chính nội dung thay vì bị
+  xoá sau khi áp. Đã cắt về đúng câu `howToRead` thật (phần trong cặp `«»` đầu tiên); `risk.ts` cũng cập
+  nhật số ví dụ cũ 1.666,67 CP → 2.272,73 CP (làm tròn xuống 2.200 CP) cho khớp ví dụ mới. Không sửa
+  `commonMistakes` — đã có nội dung hợp lệ từ trước.
+- **Ba câu diễn giải trỏ vào số ví dụ cũ** — `risk-ratios.ts` (`ty-so-calmar` "1,95 lần" → −0,35 lần,
+  đổi luôn cách diễn đạt vì dấu đã đảo; `ty-so-thang-thua` "1,16 lần" → 0,87 lần, câu cũng đảo chiều vì
+  0,87 < 1) và `returns.ts` (`xirr` bỏ tham chiếu "100tr → 110tr sau 1 năm = 10%/năm" vì ví dụ mới là
+  chuỗi nhiều lần mua/bán chứ không phải một cặp vào/ra; thay bằng minh hoạ không neo vào ví dụ cụ thể,
+  đúng quy ước "số cụ thể chỉ nêu dạng minh hoạ").
+- **Chính tả tiếng Anh kiểu Anh-Anh** — `annualise/annualising/annualised` (fundamentals.ts,
+  valuation-multiples.ts), `normalise` (technical-trend.ts) → đổi sang `-ize`/`-ized`/`-izing` theo
+  cửa gác `i18n.test.ts`.
+
+### Một câu hỏi thiết kế, CHƯA tự quyết — cần chủ dự án xem lại
+
+**`wacc` (`valuation-dcf.ts`): ví dụ dùng vốn chủ sở hữu theo SỔ SÁCH (40.995,7 tỷ ₫), trong khi chính
+mục "Sai lầm thường gặp" của công thức này cảnh báo đúng lỗi đó** — "lấy giá trị sổ sách của vốn chủ
+thay vì vốn hoá thị trường". Vốn hoá thị trường thật của FPT (giá 72.700 ₫ × 1.714,33 triệu CP ≈ 124.630
+tỷ ₫) cho tỷ trọng E/D khoảng 88/12 thay vì 70/30 mà bảng dùng, và WACC sẽ khác hẳn. Tôi giữ nguyên số
+của bảng gốc — không tự đổi phương pháp luận của một ví dụ — nhưng đây là điểm chủ dự án nên xem lại,
+vì `gia-tri-noi-tai-fcff` và `bien-an-toan` đang nhận số WACC này làm đầu vào chuỗi FR-15.
+
+### Không sửa — cùng loại với một giới hạn sản phẩm đã có từ trước
+
+`cagr`'s `years: 9.12` không kéo tới được bằng thanh trượt (bước 1, `min` 1 `max` 50) vì lối gõ số
+trực tiếp trên thanh trượt đang tắt cho toàn sản phẩm (`GO_SO_TRUC_TIEP = false`, xem docblock
+`SliderInput.tsx`) — một quyết định có sẵn, áp dụng cho 97 biến `slider` khác trên toàn Registry, không
+riêng gì ví dụ mới này. Không đổi kiểu biến của `cagr` để giữ nhất quán với phần còn lại.
+
+### File đã tạo
+
+| file                                  | nội dung                                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------------------- |
+| `core/formulas/market-series-2026.ts` | `FPT_57_PHIEN`, `FPT_57_BARS`, `VNINDEX_71_PHIEN` — dùng chung cho 36 công thức chuỗi |
+
+### File đã sửa (17 file công thức + 3 file test + `TASK.md`)
+
+`fundamentals.ts` (11) · `valuation-multiples.ts` (10) · `valuation-dcf.ts` (10) ·
+`technical-trend.ts` (9) · `technical-volatility.ts` (9) · `risk-ratios.ts` (7) ·
+`risk-volatility.ts` (6) · `returns.ts` (5) · `risk-drawdown.ts` (4) · `fees.ts` (8) ·
+`derivatives.ts` (7) · `personal.ts` (6) · `performance.ts` (9) · `planning.ts` (5) ·
+`multiples.ts` (2) · `corporate.ts` (2) · `risk.ts` (1) — cộng đúng 111 công thức.
+`ExampleBlock.test.tsx`, `FormulaDetail.test.tsx` — số ví dụ cũ hard-code trong test.
+
+### Việc còn lại
+
+- [ ] Chốt lại phương pháp WACC (sổ sách hay vốn hoá thị trường) — mục "câu hỏi thiết kế" ở trên.
+- [ ] Tắt dev server rồi chạy `build` → `verify:static` → `size` → `check:chrome` (dồn chung với các
+      đợt khác đang chờ build).
+- [ ] Sửa phần chữ của bảng Google Sheets gốc theo danh sách mâu thuẫn đã nêu ở mục đối chiếu — việc
+      ngoài repo, không chặn đợt này.
 
 ---
 

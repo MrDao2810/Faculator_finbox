@@ -83,6 +83,9 @@
  *
  * `clamp` cho 32,4px ở khổ 360 và chạm trần 40px từ ~445px trở lên — không cần media query,
  * không cần token cỡ chữ mới.
+ *
+ * Từ ≥1280 thì KHÔNG theo clamp này nữa: khối cuối file hạ hẳn con số xuống `--text-xl` để thẻ
+ * gọn lại còn ~50px. Xem docblock ở đó.
  */
 .value {
   font-size: clamp(var(--text-2xl), 9vw, var(--text-3xl));
@@ -137,6 +140,47 @@
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: var(--space-4);
     align-items: center;
+
+    /*
+     * Thẻ CAO ~50px ở khổ này, không phải ~92px như bản trước — chủ dự án chốt 16/09/2026.
+     *
+     * Khi nhãn và con số đã đứng chung MỘT HÀNG thì chiều cao thẻ do đúng hai thứ quyết định: lề
+     * trên dưới và hộp dòng của con số. Bản trước là lề 16+16 cộng hộp dòng 40px × 1,25 = 50, ra
+     * 82–92px cho một thẻ chỉ mang một dòng chữ — dải xanh choán gần hết tầm mắt đầu tiên mà
+     * không thêm thông tin nào. Nay 8+8 cộng 26px × 1,25 = 32,5, ra ~48,5px.
+     *
+     * Lề NGANG giữ nguyên `--space-4`: cái cần hạ là chiều cao, còn chữ vẫn phải thụt vào khỏi mép
+     * dải đúng như mọi thẻ khác trong màn.
+     *
+     * Thẻ vẫn CAO THÊM được khi có câu diễn giải hay nút gợi ý — chúng trải hết hàng dưới bằng
+     * luật `:not()` ngay dưới đây. ~50px là chiều cao của thẻ CHỈ có nhãn và con số, tức ca trong
+     * ảnh chủ dự án gửi; ghim cứng `height` sẽ cắt mất những hàng kia.
+     */
+    padding-block: var(--space-2);
+  }
+
+  /*
+   * Đảo lại tương quan hai dòng chữ: nhãn LỚN lên, con số NHỎ đi.
+   *
+   * 12px so với 48px là chênh bốn lần — chủ dự án đọc ra "KẾT QUẢ" như một dòng chú thích bị bỏ
+   * quên ở góc trái chứ không phải tên của thẻ. 16px so với 26px vẫn giữ đúng thứ tự (con số vẫn
+   * là thứ nổi nhất, vẫn đậm) nhưng hai vế cùng đọc được ở tầm mắt thường.
+   *
+   * Cả ba luật này nằm TRONG media query nên không đụng `LABEL`/`VALUE` của `result-card.test.ts`
+   * — ca kiểm ấy chỉ đọc luật ở đầu dòng, và khuôn chung của ba thẻ đáp án vẫn nguyên ở đó. Ý là
+   * cố ý: đây là tinh chỉnh riêng cho màn chi tiết ở khổ nhiều cột, không phải đổi khuôn chung.
+   */
+  .eyebrow {
+    font-size: var(--text-base);
+  }
+
+  .value {
+    font-size: var(--text-xl);
+  }
+
+  /* Đơn vị phải hạ theo, không thì 18px đứng cạnh 26px trông như hai con số ngang vai. */
+  .unit {
+    font-size: var(--text-sm);
   }
 
   .figure {

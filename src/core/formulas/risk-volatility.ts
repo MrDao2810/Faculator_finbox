@@ -22,6 +22,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
+import { FPT_57_PHIEN } from './market-series-2026';
 import { mean, requireCloses, sampleStdDev, simpleReturns } from './series-utils';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
@@ -169,15 +170,19 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
     },
     example: {
       title: {
-        vi: '30 phiên gần nhất của một chuỗi tăng có rung lắc nhẹ',
-        en: 'The most recent 30 sessions of a mildly choppy uptrend',
+        vi: 'Mức dao động mỗi phiên của FPT, 55 phiên gần nhất tính tới 15/09/2026',
+        en: 'FPT’s per-session swing over the 55 most recent sessions through 2026-09-15',
       },
-      inputs: { sessions: 30 },
-      series: CHUOI_TANG_ZIGZAG,
-      expected: 1.4159,
+      inputs: { sessions: 55 },
+      series: FPT_57_PHIEN,
+      expected: 1.925,
       note: {
-        vi: 'Khoảng 1,4%/phiên — mức thường thấy của một cổ phiếu vốn hoá lớn trên HOSE.',
-        en: 'About 1.4%/session — a typical level for a large-cap stock on HOSE.',
+        vi: 'Theo quy tắc kinh nghiệm, khoảng 68% số phiên có lợi suất nằm trong ±1 độ lệch chuẩn quanh mức bình quân. Đây cũng là con số gốc mà độ biến động năm hoá và các tỷ số đo hiệu quả đều dựng lên từ đó.',
+        en: 'As a rule of thumb, about 68% of sessions have a return within ±1 standard deviation of the average. It is also the base figure that annualized volatility and the performance ratios are all built on.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -278,15 +283,19 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
     },
     example: {
       title: {
-        vi: '30 phiên gần nhất, quy về năm 250 phiên giao dịch',
-        en: 'The most recent 30 sessions, annualized to a 250-session trading year',
+        vi: 'Quy dao động của FPT về thước đo năm, 55 phiên gần nhất tính tới 15/09/2026',
+        en: 'FPT’s swing annualized, from the 55 most recent sessions through 2026-09-15',
       },
-      inputs: { sessions: 30, tradingDays: 250 },
-      series: CHUOI_TANG_ZIGZAG,
-      expected: 22.387,
+      inputs: { sessions: 55, tradingDays: 250 },
+      series: FPT_57_PHIEN,
+      expected: 30.4376,
       note: {
-        vi: '1,4159%/phiên nhân căn bậc hai của 250 ra khoảng 22,4%/năm.',
-        en: '1.4159%/session times the square root of 250 comes to about 22.4%/year.',
+        vi: 'Phép quy năm nhân độ lệch chuẩn phiên với căn bậc hai của số phiên trong năm chứ không nhân thẳng, vì phương sai mới là thứ cộng dồn theo thời gian. Có thước đo năm rồi mới đặt cạnh được lãi suất tiết kiệm hay lợi suất trái phiếu.',
+        en: 'Annualizing multiplies the per-session standard deviation by the square root of the number of sessions in a year rather than by that number itself, because it is variance that accumulates over time. Only on a yearly scale can it sit beside a savings rate or a bond yield.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -405,15 +414,19 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: '30 phiên gần nhất, ngưỡng 0% mỗi phiên',
-        en: 'The most recent 30 sessions, threshold 0% per session',
+        vi: 'Phần dao động về phía lỗ của FPT, ngưỡng 0% mỗi phiên, 55 phiên tính tới 15/09/2026',
+        en: 'FPT’s downside-only swing, threshold 0% per session, 55 sessions through 2026-09-15',
       },
-      inputs: { sessions: 30, threshold: 0 },
-      series: CHUOI_TANG_ZIGZAG,
-      expected: 0.6731,
+      inputs: { sessions: 55, threshold: 0 },
+      series: FPT_57_PHIEN,
+      expected: 1.1989,
       note: {
-        vi: 'Nhỏ hơn hẳn độ lệch chuẩn đầy đủ 1,4159% vì chuỗi này tăng là chính.',
-        en: 'Well below the full standard deviation of 1.4159% because this series is mostly rising.',
+        vi: 'Chỉ những phiên có lợi suất dưới ngưỡng mới được đưa vào, nên kết quả luôn nhỏ hơn độ lệch chuẩn đầy đủ; hai con số càng sát nhau thì rủi ro càng dồn về chiều giảm. Đây cũng là mẫu số của tỷ số Sortino.',
+        en: 'Only sessions with a return below the threshold are counted, so the result is always smaller than the full standard deviation; the closer the two figures sit, the more the risk leans to the downside. It is also the denominator of the Sortino ratio.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -508,15 +521,19 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
     },
     example: {
       title: {
-        vi: '30 phiên gần nhất của một chuỗi tăng có rung lắc nhẹ',
-        en: 'The most recent 30 sessions of a mildly choppy uptrend',
+        vi: 'Rủi ro trên mỗi đơn vị lợi nhuận của FPT, 55 phiên gần nhất tính tới 15/09/2026',
+        en: 'FPT’s risk per unit of return over the 55 most recent sessions through 2026-09-15',
       },
-      inputs: { sessions: 30 },
-      series: CHUOI_TANG_ZIGZAG,
-      expected: 3.3382,
+      inputs: { sessions: 55 },
+      series: FPT_57_PHIEN,
+      expected: 28.6953,
       note: {
-        vi: 'Lợi suất bình quân 0,4241%/phiên, độ lệch chuẩn 1,4159%/phiên — mỗi phần lợi suất kèm hơn ba phần dao động.',
-        en: 'Average return 0.4241%/session, standard deviation 1.4159%/session — every unit of return carries more than three units of volatility.',
+        vi: 'Kết quả không mang đơn vị nên so được giữa những cổ phiếu có mức giá và biên độ khác hẳn nhau — càng thấp thì mỗi phần lợi suất càng phải chịu ít dao động. Lợi suất bình quân của kỳ càng sát 0 thì mẫu số càng mỏng và con số càng nhảy.',
+        en: 'The result carries no unit, so it compares stocks whose prices and ranges are nothing alike — the lower it is, the less volatility each unit of return has to carry. The closer the period’s average return sits to 0, the thinner the denominator and the jumpier the figure.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -639,15 +656,19 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
     },
     example: {
       title: {
-        vi: '12 phiên gần nhất, đáy 97 và đỉnh 105',
-        en: 'The most recent 12 sessions, trough 97 and peak 105',
+        vi: 'Khoảng cách từ đáy lên đỉnh của FPT trong 55 phiên tính tới 15/09/2026',
+        en: 'FPT’s trough-to-peak distance across the 55 sessions through 2026-09-15',
       },
-      inputs: { sessions: 12 },
-      series: CHUOI_12_PHIEN,
-      expected: 8.2474,
+      inputs: { sessions: 55 },
+      series: FPT_57_PHIEN,
+      expected: 19.7749,
       note: {
-        vi: 'Chênh 8 đơn vị giá trên nền đáy 97 nên biên độ là 8,25%.',
-        en: 'An 8-unit gap on a base of 97 gives a range of 8.25%.',
+        vi: 'Biên độ giữa đỉnh và đáy dễ hình dung hơn độ lệch chuẩn nên hợp để đặt kỳ vọng về mức dao động phải ngồi qua. Bù lại nó chỉ đọc hai điểm cực trị, nên một phiên bất thường cũng đủ kéo con số đi.',
+        en: 'A trough-to-peak range is easier to picture than a standard deviation, which makes it good for setting expectations about the swings one has to sit through. In exchange it reads only two extreme points, so a single unusual session is enough to move it.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -742,15 +763,19 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
     },
     example: {
       title: {
-        vi: '12 phiên gần nhất, có đoạn giảm bốn phiên liền',
-        en: 'The most recent 12 sessions, with a four-session losing run',
+        vi: 'Chuỗi phiên đỏ liên tiếp dài nhất của FPT trong 55 phiên tính tới 15/09/2026',
+        en: 'FPT’s longest run of consecutive down sessions in the 55 sessions through 2026-09-15',
       },
-      inputs: { sessions: 12 },
-      series: CHUOI_12_PHIEN,
+      inputs: { sessions: 55 },
+      series: FPT_57_PHIEN,
       expected: 4,
       note: {
-        vi: 'Đoạn 104 → 103 → 101 → 99 → 98 là bốn phiên giảm liên tiếp.',
-        en: 'The run 104 → 103 → 101 → 99 → 98 is four consecutive declining sessions.',
+        vi: 'Con số này đo sức chịu đựng chứ không đo tiền: biết trước rằng mấy phiên đỏ nối nhau là chuyện thường gặp thì đỡ hoảng khi gặp thật. Trong kỳ có hai đoạn dài bằng nhau, một ở giữa tháng 7 và một ở giữa tháng 8/2026.',
+        en: 'This one measures endurance rather than money: knowing in advance that a few red sessions in a row is an ordinary occurrence makes it less alarming when it happens. The period holds two runs of equal length, one in mid-July and one in mid-August 2026.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [

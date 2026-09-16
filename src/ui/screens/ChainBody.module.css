@@ -23,11 +23,9 @@
 }
 
 /*
- * ── `.intro` đã BỎ cùng dòng chữ nó tạo kiểu ─────────────────────────────────
- *
- * Dòng dẫn "Kết quả mỗi bước chảy thẳng vào ô của bước sau…" không còn — lý do đầy đủ ở chỗ nó
- * từng đứng trong `ChainBody.tsx`. Đừng dựng lại luật này: không còn ai dùng, và một lớp `.intro`
- * mồ côi thì lần sau có người thấy tên hợp lý là gắn bừa vào một dòng chữ khác.
+ * Không có `.intro`, và cũng không có kiểu cho sơ đồ — cả hai đã bỏ ngày 16/09/2026 cùng lý do:
+ * chúng sinh ra để giải thích một hình vẽ mà hình ấy không mang chức năng nào của riêng nó.
+ * Lý do đầy đủ ở docblock `ChainBody.tsx`.
  */
 
 .groupTitle {

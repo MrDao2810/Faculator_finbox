@@ -25,6 +25,7 @@ import type { SeriesRow } from '../price-series';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless, missingSeries } from '../warnings';
+import { FPT_57_BARS, FPT_57_PHIEN } from './market-series-2026';
 import { mean, requireBars, requireCloses, sampleStdDev } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
@@ -218,10 +219,11 @@ function bollingerParts(ctx: CalcContext, period: number, k: number): BollingerP
 }
 
 /*
- * ── Chuỗi dùng cho ví dụ và ca kiểm ────────────────────────────────────────────────────
+ * ── Chuỗi dùng cho ca kiểm ─────────────────────────────────────────────────────────────
  *
  * Giữ ở đây chứ không rải vào từng ca: mười phiên số tròn dưới đây cộng trừ tay được, nên
- * người rà soát đối chiếu được kết quả mà không phải chạy chương trình.
+ * người rà soát đối chiếu được kết quả mà không phải chạy chương trình. Chín `example` thì
+ * dùng chuỗi giá THẬT của FPT trong `market-series-2026.ts` chứ không dùng chuỗi ở đây.
  */
 
 /** Mười phiên số tròn: trung bình 104,6 · độ lệch chuẩn mẫu 3,2042. */
@@ -232,14 +234,6 @@ const CLOSES_NGAN = [100, 102, 101, 105, 104] as const;
 
 /** Chuỗi phẳng lì — độ lệch chuẩn bằng 0, dải co lại thành một đường. */
 const CLOSES_PHANG = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100] as const;
-
-/** Mười phiên giá thật của một cổ phiếu tầm 26–27 nghìn đồng, dùng cho ví dụ trên màn. */
-const CLOSES_VI_DU = [
-  26_000, 26_200, 26_100, 26_400, 26_600, 26_500, 26_800, 27_000, 26_900, 27_200,
-] as const;
-
-/** Như trên, thêm một phiên để công thức độ biến động có đủ 10 lợi suất. */
-const CLOSES_VI_DU_11 = [...CLOSES_VI_DU, 27_100] as const;
 
 /** Chuỗi kiểm của độ biến động: mười một phiên. */
 const CLOSES_KIEM_11 = [...CLOSES_KIEM, 109] as const;
@@ -282,16 +276,6 @@ const BARS_KHONG_KHOI_LUONG: ReadonlyArray<SeriesRow> = BARS_KIEM.map((row) => (
   ...row,
   volume: 0,
 }));
-
-/** Sáu phiên giá thật của một cổ phiếu tầm 26–27 nghìn đồng, dùng cho ví dụ trên màn. */
-const BARS_VI_DU: ReadonlyArray<SeriesRow> = [
-  bar('02/06', 26_100, 26_300, 25_900, 26_200, 1_200_000),
-  bar('03/06', 26_200, 26_600, 26_150, 26_550, 1_500_000),
-  bar('04/06', 26_500, 26_700, 26_300, 26_400, 1_100_000),
-  bar('05/06', 26_400, 26_500, 26_000, 26_050, 1_800_000),
-  bar('06/06', 26_050, 26_400, 25_850, 26_350, 1_400_000),
-  bar('09/06', 26_400, 26_900, 26_300, 26_800, 2_600_000),
-];
 
 /*
  * ── 1. Dải Bollinger trên ──────────────────────────────────────────────────────────────
@@ -336,15 +320,19 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mười phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, chu kỳ 10, k = 2',
-        en: 'The last ten sessions of a stock trading around 26,000–27,000 VND, period 10, k = 2',
+        vi: 'Dải trên của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT upper band over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
       },
-      inputs: { period: 10, k: 2 },
-      series: CLOSES_VI_DU,
-      expected: 27_375.81,
+      inputs: { period: 20, k: 2 },
+      series: FPT_57_PHIEN,
+      expected: 74_988,
       note: {
-        vi: 'Đường giữa là 26.570 ₫, độ lệch chuẩn mẫu 402,91 ₫ nên dải trên cách đường giữa hơn 800 ₫. Ví dụ rút gọn còn 10 phiên cho dễ đối chiếu; mặc định trên màn là 20 phiên.',
-        en: 'The middle line is 26,570 VND and the sample standard deviation is 402.91 VND, so the upper band sits more than 800 VND above the middle line. This example is shortened to 10 sessions for easy checking; the on-screen default is 20 sessions.',
+        vi: 'Dải trên bằng trung bình 20 phiên cộng hai lần độ lệch chuẩn, nên theo phân phối chuẩn chỉ chừng 5% số phiên ra được ngoài hai dải — chạm mép trên là chuyện hiếm. Nhưng trong xu hướng tăng mạnh, giá có thể bám dải trên nhiều phiên liền: dải Bollinger đo biến động chứ không dự báo hướng.',
+        en: 'The upper band is the 20-session average plus twice the standard deviation, so under a normal distribution only about 5% of sessions land outside the two bands — touching the upper edge is rare. In a strong uptrend, though, price can hug the upper band for many sessions in a row: Bollinger bands measure volatility, they do not forecast direction.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -442,15 +430,19 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mười phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, chu kỳ 10, k = 2',
-        en: 'The last ten sessions of a stock trading around 26,000–27,000 VND, period 10, k = 2',
+        vi: 'Dải dưới của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT lower band over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
       },
-      inputs: { period: 10, k: 2 },
-      series: CLOSES_VI_DU,
-      expected: 25_764.19,
+      inputs: { period: 20, k: 2 },
+      series: FPT_57_PHIEN,
+      expected: 68_132,
       note: {
-        vi: 'Giá đóng cửa mới nhất 27.200 ₫ đang nằm gần dải trên, cách dải dưới hơn 1.400 ₫.',
-        en: 'The latest close of 27,200 VND sits near the upper band, more than 1,400 VND above the lower band.',
+        vi: 'Dải dưới đối xứng với dải trên qua đường giữa, nên nó chỉ nói giá đang ở mép dưới vùng dao động quen thuộc. Ngay trong chuỗi này có hai phiên cuối tháng 7 thủng dải dưới rồi giá hồi lên trong tháng 8, nhưng thủng dải xong rơi tiếp cũng là chuyện thường khi tin xấu là thật — Bollinger không phân biệt được hai tình huống đó.',
+        en: 'The lower band mirrors the upper one around the middle line, so it only says price is at the bottom edge of its usual trading range. This very series has two late-July sessions that broke below it before price recovered in August, yet breaking below and continuing to fall is just as common when the bad news is real — Bollinger bands cannot tell the two cases apart.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -542,15 +534,19 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mười phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, chu kỳ 10, k = 2',
-        en: 'The last ten sessions of a stock trading around 26,000–27,000 VND, period 10, k = 2',
+        vi: 'Độ rộng dải của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT bandwidth over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
       },
-      inputs: { period: 10, k: 2 },
-      series: CLOSES_VI_DU,
-      expected: 6.07,
+      inputs: { period: 20, k: 2 },
+      series: FPT_57_PHIEN,
+      expected: 9.5816,
       note: {
-        vi: 'Hai dải cách nhau khoảng 1.612 ₫, bằng 6,07% của đường giữa 26.570 ₫.',
-        en: 'The two bands are about 1,612 VND apart, which is 6.07% of the 26,570 VND middle line.',
+        vi: 'Chia cho đường giữa nên con số này so được qua thời gian và so được giữa các mã có thị giá khác nhau. Giai đoạn dải co hẹp — cái mà Bollinger gọi là "thắt nút" — thường đi trước một nhịp giá mạnh, nhưng nó chỉ trả lời "khi nào" chứ không trả lời "chiều nào", nên phải đọc kèm một chỉ báo xu hướng.',
+        en: 'Dividing by the middle line makes this number comparable across time and across stocks at different price levels. A stretch of narrowing bands — what Bollinger calls a "squeeze" — often precedes a strong price move, but it only answers "when", never "which way", so it has to be read alongside a trend indicator.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -652,15 +648,19 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Sáu phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, chu kỳ 5',
-        en: 'The last six sessions of a stock trading around 26,000–27,000 VND, period 5',
+        vi: 'ATR của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 14 phiên theo Wilder',
+        en: 'FPT ATR over the 57 sessions from 2026-06-24 to 2026-09-15, Wilder period 14',
       },
-      inputs: { period: 5 },
-      bars: BARS_VI_DU,
-      expected: 500,
+      inputs: { period: 14 },
+      bars: FPT_57_BARS,
+      expected: 1_498,
       note: {
-        vi: 'Mỗi phiên cổ phiếu này đi trung bình 500 ₫ biên độ thật. Ví dụ rút gọn còn 5 phiên cho dễ tính tay; mặc định trên màn là 14 phiên theo Wilder.',
-        en: 'This stock moves an average of 500 VND of true range per session. This example is shortened to 5 sessions for easy hand-checking; the on-screen default is 14 sessions per Wilder.',
+        vi: 'Dao động thực lấy số lớn nhất trong ba khoảng nên tính được cả phần giá nhảy qua đêm mà biên độ trong phiên bỏ sót. Ứng dụng quen thuộc nhất là đặt cắt lỗ cách giá vào lệnh chừng 1,5–2 lần ATR, để nhiễu thường ngày không quét mất lệnh dừng.',
+        en: 'The true range takes the largest of three gaps, so it captures the overnight jump that an intraday high-minus-low misses. Its most common use is placing a stop roughly 1.5–2 ATR away from the entry price, so ordinary daily noise does not sweep the stop out.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -790,15 +790,19 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mười phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, chu kỳ 10, k = 2',
-        en: 'The last ten sessions of a stock trading around 26,000–27,000 VND, period 10, k = 2',
+        vi: '%B của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT %B over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
       },
-      inputs: { period: 10, k: 2 },
-      series: CLOSES_VI_DU,
-      expected: 89.09,
+      inputs: { period: 20, k: 2 },
+      series: FPT_57_PHIEN,
+      expected: 66.6263,
       note: {
-        vi: 'Giá đóng cửa 27.200 ₫ nằm ở 89% chiều rộng dải, tức sát mép trên nhưng chưa vượt.',
-        en: 'The 27,200 VND close sits at 89% of the band width — right at the upper edge but not yet past it.',
+        vi: '%B quy vị trí giá về một thang chung: 0 là chạm dải dưới, 50 là đúng đường giữa, 100 là chạm dải trên, còn ra ngoài khoảng đó nghĩa là giá đã ra khỏi dải. Nhờ chuẩn hoá mà so được FPT với một mã giá 15.000 ₫ — điều không làm được khi nhìn ba đường Bollinger thô.',
+        en: '%B maps price position onto a common scale: 0 is the lower band, 50 is exactly the middle line, 100 is the upper band, and anything outside that range means price has left the band. That normalization is what lets FPT be compared with a 15,000 VND stock — something the three raw Bollinger lines cannot do.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -949,15 +953,20 @@ export const STOCHASTIC_K: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Sáu phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, chu kỳ 5',
-        en: 'The last six sessions of a stock trading around 26,000–27,000 VND, period 5',
+        vi: 'Stochastic %K của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 14 phiên',
+        en: 'FPT stochastic %K over the 57 sessions from 2026-06-24 to 2026-09-15, period 14',
       },
-      inputs: { period: 5 },
-      bars: BARS_VI_DU,
-      expected: 90.48,
+      inputs: { period: 14 },
+      series: FPT_57_PHIEN,
+      bars: FPT_57_BARS,
+      expected: 48.7805,
       note: {
-        vi: 'Năm phiên gần nhất dao động 25.850–26.900 ₫, đóng cửa 26.800 ₫ tức gần sát đỉnh.',
-        en: 'The last five sessions ranged between 25,850–26,900 VND, and the 26,800 VND close sits close to the top.',
+        vi: 'Mười bốn phiên gần nhất của FPT dao động trong khoảng 70.700–74.800 ₫ và giá đóng cửa rơi vào quãng giữa, tức chưa sát đỉnh cũng chưa sát đáy của biên độ. Chỉ báo này lấy cả giá cao nhất và thấp nhất trong phiên chứ không chỉ giá đóng cửa như RSI, nên phản ứng nhanh hơn.',
+        en: "FPT's last fourteen sessions ranged between 70,700 and 74,800 VND and the close lands in the middle of that band — neither near the high nor near the low. Unlike RSI, this indicator uses the intraday high and low as well as the close, so it reacts faster.",
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -1079,15 +1088,19 @@ export const VWAP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Năm phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng',
-        en: 'The last five sessions of a stock trading around 26,000–27,000 VND',
+        vi: 'VWAP của FPT trên chuỗi 57 phiên 24/06–15/09/2026, gộp 20 phiên gần nhất',
+        en: 'FPT VWAP over the 57 sessions from 2026-06-24 to 2026-09-15, pooling the last 20 sessions',
       },
-      inputs: { period: 5 },
-      bars: BARS_VI_DU,
-      expected: 26_467.26,
+      inputs: { period: 20 },
+      bars: FPT_57_BARS,
+      expected: 71_726,
       note: {
-        vi: 'Phiên khớp 2,6 triệu cổ phiếu ở 26.800 ₫ kéo bình quân lên, dù có phiên đóng cửa chỉ 26.050 ₫.',
-        en: 'The session that matched 2.6 million shares at 26,800 VND pulls the average up, even though one session closed as low as 26,050 VND.',
+        vi: 'Mỗi phiên góp vào theo đúng số cổ phiếu đã khớp, nên phiên sôi động kéo bình quân về phía giá của nó: hai mươi phiên này có trung bình cộng giá đóng cửa 71.560 ₫, còn VWAP nhỉnh hơn vì phiên khối lượng nặng nhất trong kỳ lại là phiên giá cao. Các quỹ lớn dùng VWAP làm chuẩn đánh giá chất lượng khớp lệnh.',
+        en: 'Every session contributes in proportion to the shares it matched, so an active session pulls the average toward its own price: the plain average of these twenty closes is 71,560 VND, while VWAP comes out higher because the heaviest-volume session of the period was also a high-priced one. Large funds use VWAP as the benchmark for execution quality.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -1234,15 +1247,19 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mười một phiên gần nhất của cổ phiếu tầm 26–27 nghìn đồng, lấy mẫu 10 phiên',
-        en: 'The last eleven sessions of a stock trading around 26,000–27,000 VND, sampled over 10 sessions',
+        vi: 'Độ biến động năm hoá của FPT, lấy mẫu 55 phiên cuối trong chuỗi 24/06–15/09/2026',
+        en: 'FPT annualized volatility, sampled over the last 55 of the sessions from 2026-06-24 to 2026-09-15',
       },
-      inputs: { sample: 10, tradingDays: 252 },
-      series: CLOSES_VI_DU_11,
-      expected: 11.53,
+      inputs: { sample: 55, tradingDays: 252 },
+      series: FPT_57_PHIEN,
+      expected: 30.3652,
       note: {
-        vi: 'Mỗi phiên chỉ nhúc nhích vài phần nghìn, nhưng nhân với căn của 252 phiên thì thành hơn 11%/năm. Ví dụ rút gọn còn 10 phiên cho dễ đối chiếu; mặc định trên màn là 60 phiên.',
-        en: 'Each session moves only a fraction of a percent, but multiplying by the square root of 252 sessions turns it into more than 11%/year. This example is shortened to 10 sessions for easy checking; the on-screen default is 60 sessions.',
+        vi: 'Chỉ báo này dùng quy ước 252 phiên một năm theo thông lệ quốc tế, khác nhóm rủi ro vốn dùng 250 phiên: chênh lệch nhỏ, nhưng nếu hai màn hình không thống nhất thì cùng một mã sẽ hiện ra hai con số. Đây cũng là tham số bắt buộc của Black-Scholes khi định giá chứng quyền có bảo đảm.',
+        en: 'This indicator follows the international convention of 252 sessions per year, unlike the risk group which uses 250: the gap is small, but if two screens disagree the same stock will show two different numbers. It is also the mandatory volatility input to Black-Scholes when pricing covered warrants.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [
@@ -1380,15 +1397,19 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Phiên gần nhất so với trung bình 5 phiên liền trước',
-        en: 'The most recent session compared with the average of the preceding 5 sessions',
+        vi: 'Phiên 15/09/2026 của FPT so với trung bình 20 phiên liền trước, trong chuỗi từ 24/06/2026',
+        en: "FPT's 2026-09-15 session against the average of the preceding 20, within the series starting 2026-06-24",
       },
-      inputs: { period: 5 },
-      bars: BARS_VI_DU,
-      expected: 1.86,
+      inputs: { period: 20 },
+      bars: FPT_57_BARS,
+      expected: 0.55,
       note: {
-        vi: 'Phiên gần nhất khớp 2,6 triệu cổ phiếu, gần gấp đôi mức trung bình 1,4 triệu của năm phiên trước đó.',
-        en: 'The most recent session matched 2.6 million shares, nearly double the 1.4 million average of the preceding five sessions.',
+        vi: 'Phiên gần nhất chỉ khớp chừng một nửa mức bình quân của hai mươi phiên liền trước, tức thanh khoản đang mỏng đi; phải từ khoảng 1,5 lần trở lên mới được coi là đột biến. Tỷ lệ này không có hướng: trong chính chuỗi FPT, phiên 15/07 khối lượng 21,5 triệu đi kèm giá giảm 5% còn phiên 03/08 khối lượng 19,5 triệu đi kèm giá tăng gần 7%.',
+        en: 'The latest session matched only about half the average of the preceding twenty, meaning liquidity is thinning; roughly 1.5x and above is what counts as a spike. The ratio has no direction: within this same FPT series, 15 July matched 21.5 million shares while price fell 5%, and 3 August matched 19.5 million while price rose nearly 7%.',
+      },
+      source: {
+        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
+        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
       },
     },
     tests: [

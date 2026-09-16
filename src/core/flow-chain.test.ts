@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFlowChain, flowDepth } from './flow-chain';
+import { buildFlowChain } from './flow-chain';
 import type { FormulaDependency, FormulaSpec } from './registry/types';
 
-/** Fixture tối thiểu — chỉ điền đủ trường mà dải luồng dùng tới. */
+/** Fixture tối thiểu — chỉ điền đủ trường mà việc sắp thứ tự dùng tới. */
 function make(id: string, vi: string, dependsOn: ReadonlyArray<string> = []): FormulaSpec {
   const edges: FormulaDependency[] = dependsOn.map((formulaId) => ({
     formulaId,
@@ -34,7 +34,7 @@ function make(id: string, vi: string, dependsOn: ReadonlyArray<string> = []): Fo
   };
 }
 
-/** Đúng dải của WF-04, cố ý xáo trộn thứ tự khai báo để chứng minh thứ tự do cạnh quyết định. */
+/** Đúng chuỗi của WF-04, cố ý xáo trộn thứ tự khai báo để chứng minh thứ tự do cạnh quyết định. */
 const WF04 = [
   make('gia-muc-tieu', 'Giá mục tiêu', ['ev']),
   make('wacc', 'WACC', ['capm']),
@@ -45,7 +45,7 @@ const WF04 = [
   make('fcff', 'FCFF · PV', ['wacc']),
 ];
 
-describe('sắp thứ tự dải luồng (WF-04)', () => {
+describe('sắp thứ tự chuỗi công thức (WF-04)', () => {
   it('ra đúng thứ tự Beta → CAPM → WACC → FCFF → EV → Giá mục tiêu → Biên AT', () => {
     const chain = buildFlowChain(WF04);
 
@@ -66,17 +66,16 @@ describe('sắp thứ tự dải luồng (WF-04)', () => {
     expect(chain.steps[1]?.label.vi).toBe('CAPM · Re');
   });
 
-  it('đánh đúng bậc để bản dọc desktop biết xếp cột', () => {
+  it('đánh đúng bậc cho từng bước — `ChainStep` chép lại trường này', () => {
     const chain = buildFlowChain(WF04);
     const depths = Object.fromEntries(chain.steps.map((s) => [s.formulaId, s.depth]));
 
     expect(depths.beta).toBe(0);
     expect(depths.capm).toBe(1);
     expect(depths['bien-an-toan']).toBe(6);
-    expect(flowDepth(chain)).toBe(6);
   });
 
-  it('dải lành thì không có công thức nào kẹt trong vòng', () => {
+  it('chuỗi lành thì không có công thức nào kẹt trong vòng', () => {
     expect(buildFlowChain(WF04).cyclic).toEqual([]);
   });
 });
@@ -119,7 +118,7 @@ describe('đồ thị khai sai không được làm hỏng màn', () => {
     expect(chain.cyclic).toEqual([]);
   });
 
-  it('cạnh trỏ ra ngoài danh sách thì bỏ qua — dải chỉ vẽ một nhánh của Registry', () => {
+  it('cạnh trỏ ra ngoài danh sách thì bỏ qua — chuỗi chỉ lấy một nhánh của Registry', () => {
     const chain = buildFlowChain([make('wacc', 'WACC', ['khong-co-trong-dai'])]);
     expect(chain.steps.map((s) => s.formulaId)).toEqual(['wacc']);
     expect(chain.steps[0]?.depth).toBe(0);
@@ -130,8 +129,7 @@ describe('đồ thị khai sai không được làm hỏng màn', () => {
     expect(chain.steps[1]?.dependsOn).toEqual(['beta']);
   });
 
-  it('danh sách rỗng thì trả dải rỗng, không ném lỗi', () => {
+  it('danh sách rỗng thì trả chuỗi rỗng, không ném lỗi', () => {
     expect(buildFlowChain([])).toEqual({ steps: [], cyclic: [] });
-    expect(flowDepth({ steps: [], cyclic: [] })).toBe(0);
   });
 });

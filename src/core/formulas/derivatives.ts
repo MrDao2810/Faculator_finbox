@@ -171,14 +171,18 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN30 ở 1.280 điểm, lãi suất 4,5%, cổ tức 1,8%, còn 30 ngày',
-        en: 'VN30 at 1,280 points, 4.5% interest rate, 1.8% dividend yield, 30 days left',
+        vi: 'VN30F1M phiên 14/09/2026, ba ngày trước khi hợp đồng tháng 9 đáo hạn',
+        en: 'VN30F1M in the 2026-09-14 session, three days before the September contract expires',
       },
-      inputs: { indexValue: 1_280, riskFreeRate: 4.5, dividendYield: 1.8, days: 30 },
-      expected: 1_282.84,
+      inputs: { indexValue: 1_928.57, riskFreeRate: 4.57, dividendYield: 1.8, days: 3 },
+      expected: 1_929,
       note: {
-        vi: 'Phần chênh 2,84 điểm là chi phí nắm giữ, chưa nói gì về hướng đi của chỉ số.',
-        en: 'The 2.84-point gap is the cost of carry — it says nothing about where the index is headed.',
+        vi: 'Chi phí nắm giữ trong ba ngày gần như bằng 0 nên giá lý thuyết chỉ nhỉnh hơn chỉ số chưa tới nửa điểm. Giá khớp trên bảng còn cao hơn mức lý thuyết khoảng 1,9 điểm — phần chênh đó là kỳ vọng của người giao dịch, không phải chi phí nắm giữ.',
+        en: 'Three days of carry cost is close to nothing, so the theoretical price sits less than half a point above the index. The traded price runs about 1.9 points above that theoretical level — that gap is trader expectation, not cost of carry.',
+      },
+      source: {
+        vi: 'Vietstock, bản tin chứng khoán phái sinh ngày 15/09/2026; VN30 đóng cửa phiên 14/09/2026. Tỷ suất cổ tức rổ VN30 là ước lượng.',
+        en: 'Vietstock, derivatives market bulletin dated 2026-09-15; VN30 close of the 2026-09-14 session. The VN30 basket dividend yield is an estimate.',
       },
     },
     tests: [
@@ -319,14 +323,18 @@ export const BASIS_VN30F: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN30F ở 1.285,5 điểm, VN30 ở 1.280 điểm',
-        en: 'VN30F at 1,285.5 points, VN30 at 1,280 points',
+        vi: 'VN30F1M so với chỉ số VN30, phiên 14/09/2026',
+        en: 'VN30F1M against the VN30 index, the 2026-09-14 session',
       },
-      inputs: { futuresPoints: 1_285.5, indexValue: 1_280 },
-      expected: 5.5,
+      inputs: { futuresPoints: 1_930.9, indexValue: 1_928.57 },
+      expected: 2.33,
       note: {
-        vi: 'Basis +5,5 điểm, tương đương khoảng 0,43% chỉ số.',
-        en: 'Basis of +5.5 points, roughly 0.43% of the index.',
+        vi: 'Basis dương — thị trường quen gọi là contango — nghĩa là hợp đồng đang được định giá cao hơn chỉ số cơ sở. Quy ra tiền, mỗi điểm chênh là 100.000 ₫ trên một hợp đồng, và basis luôn tiến về 0 khi tới ngày đáo hạn.',
+        en: 'A positive basis — what the market calls contango — means the contract is priced above its underlying index. In money terms each point of gap is 100,000 ₫ per contract, and the basis always converges to zero by expiry.',
+      },
+      source: {
+        vi: 'Entrade, bản tin phái sinh ngày 15/09/2026, nơi mức basis 2,33 điểm được công bố độc lập; VN30 đóng cửa phiên 14/09/2026.',
+        en: 'Entrade, derivatives bulletin dated 2026-09-15, which reports the 2.33-point basis independently; VN30 close of the 2026-09-14 session.',
       },
     },
     tests: [
@@ -436,14 +444,18 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua 2 hợp đồng ở 1.280, đóng ở 1.288 điểm',
-        en: 'Buy 2 contracts at 1,280, close at 1,288 points',
+        vi: 'VN30F2005 — vị thế Long mở trong đợt ATC phiên đáo hạn bất thường 21/05/2020',
+        en: 'VN30F2005 — a long opened in the ATC auction of the unusual 2020-05-21 expiry session',
       },
-      inputs: { entryPoints: 1_280, exitPoints: 1_288, contracts: 2 },
-      expected: 1_600_000,
+      inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
+      expected: -4_845_000,
       note: {
-        vi: '8 điểm × 100.000 ₫/điểm × 2 hợp đồng, chưa trừ phí và thuế.',
-        en: '8 points × 100,000 VND/point × 2 contracts, before fees and taxes.',
+        vi: 'Ngày đáo hạn, giá thanh toán cuối cùng chính là chỉ số cơ sở, nên toàn bộ phần giá phái sinh cao hơn chỉ số bị xoá sạch trong một phiên. Khoản lỗ một hợp đồng bằng khoảng một phần ba tiền ký quỹ ban đầu.',
+        en: 'On expiry day the final settlement price is the underlying index itself, so every point by which the futures price sat above the index is wiped out in a single session. The loss on one contract is about a third of the initial margin.',
+      },
+      source: {
+        vi: 'VnExpress, bài tường thuật phiên giao dịch phái sinh bất thường ngày 21/05/2020.',
+        en: 'VnExpress, its report on the unusual derivatives session of 2020-05-21.',
       },
     },
     tests: [
@@ -564,14 +576,18 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Bán 2 hợp đồng ở 1.280, đóng ở 1.272 điểm',
-        en: 'Sell 2 contracts at 1,280, close at 1,272 points',
+        vi: 'VN30F2005 — mặt còn lại của phiên đáo hạn 21/05/2020, vị thế Short',
+        en: 'VN30F2005 — the other side of the 2020-05-21 expiry session, a short position',
       },
-      inputs: { entryPoints: 1_280, exitPoints: 1_272, contracts: 2 },
-      expected: 1_600_000,
+      inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
+      expected: 4_845_000,
       note: {
-        vi: '8 điểm giảm × 100.000 ₫/điểm × 2 hợp đồng, chưa trừ phí và thuế.',
-        en: '8-point decline × 100,000 VND/point × 2 contracts, before fees and taxes.',
+        vi: 'Khoản lãi của bên Short đúng bằng khoản lỗ của bên Long trên cùng một hợp đồng: phái sinh là trò chơi tổng bằng 0, tiền chuyển từ bên này sang bên kia chứ không tự sinh ra như khi doanh nghiệp đứng sau cổ phiếu làm ăn tốt lên.',
+        en: 'The short side gains exactly what the long side loses on the same contract: derivatives are a zero-sum game, money moves from one side to the other rather than being created the way it is when the business behind a share performs better.',
+      },
+      source: {
+        vi: 'VnExpress và Tin nhanh Chứng khoán, tường thuật phiên đáo hạn phái sinh ngày 21/05/2020.',
+        en: 'VnExpress and Tin nhanh Chung khoan, reports on the derivatives expiry session of 2020-05-21.',
       },
     },
     tests: [
@@ -702,14 +718,18 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn 200 triệu ₫, VN30F ở 1.280 điểm, ký quỹ 17%',
-        en: '200 million VND capital, VN30F at 1,280 points, 17% margin',
+        vi: 'Tài khoản 200 triệu ₫ mở VN30F1M theo giá phiên 14/09/2026, ký quỹ 17%',
+        en: 'A 200 million ₫ account trading VN30F1M at the 2026-09-14 price, 17% margin',
       },
-      inputs: { capital: 200_000_000, futuresPoints: 1_280, marginRatio: 17 },
-      expected: 9,
+      inputs: { capital: 200_000_000, futuresPoints: 1_930.9, marginRatio: 17 },
+      expected: 6,
       note: {
-        vi: 'Mỗi hợp đồng cần ký quỹ 21,76 triệu ₫; 200 ÷ 21,76 = 9,19 → làm tròn xuống 9.',
-        en: 'Each contract requires 21.76 million VND in margin; 200 ÷ 21.76 = 9.19 → rounded down to 9.',
+        vi: 'Mở kịch trần là cách chắc chắn gặp lệnh gọi ký quỹ: sáu hợp đồng ngốn gần cạn tài khoản và tương ứng đòn bẩy khoảng 5,8 lần, nên chỉ số giảm 3% đã cuốn đi hơn 17% vốn. Công ty chứng khoán thường đòi tỷ lệ cao hơn mức VSDC nên con số thực tế còn nhỏ hơn.',
+        en: 'Maxing out is the surest way to meet a margin call: six contracts use up almost the whole account and amount to roughly 5.8x leverage, so a 3% index drop takes more than 17% of the capital. Brokers usually require a higher ratio than VSDC does, so the real figure is smaller still.',
+      },
+      source: {
+        vi: 'Thông báo tỷ lệ ký quỹ ban đầu của VSDC, hiệu lực 20/12/2024; giá VN30F1M phiên 14/09/2026.',
+        en: 'VSDC’s initial margin ratio notice, effective 2024-12-20; the VN30F1M price of the 2026-09-14 session.',
       },
     },
     tests: [
@@ -870,14 +890,18 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn 500 triệu ₫, rủi ro 2%, cắt lỗ cách 15 điểm',
-        en: '500 million VND capital, 2% risk, 15-point stop-loss distance',
+        vi: 'Tài khoản 500 triệu ₫ vào lệnh VN30F1M tháng 9/2026, rủi ro 2% mỗi lệnh',
+        en: 'A 500 million ₫ account entering VN30F1M in September 2026, risking 2% per trade',
       },
       inputs: { capital: 500_000_000, riskPercent: 2, stopPoints: 15 },
       expected: 6,
       note: {
-        vi: 'Mức chịu lỗ 10 triệu ₫; mỗi hợp đồng rủi ro 1,5 triệu ₫ → 6 hợp đồng.',
-        en: 'Acceptable loss of 10 million VND; each contract risks 1.5 million VND → 6 contracts.',
+        vi: 'Ở đây khoảng cắt lỗ quyết định khối lượng, không phải tiền ký quỹ: đặt cắt lỗ rộng gấp đôi thì số hợp đồng mở được giảm còn một nửa, dù tài khoản không đổi một đồng.',
+        en: 'Here it is the stop-loss distance that sets the size, not the margin requirement: doubling the stop distance halves the number of contracts even though the account has not changed by a dong.',
+      },
+      source: {
+        vi: 'Bản quy định giao dịch hợp đồng tương lai chỉ số VN30 của MBS, hệ số nhân 100.000 ₫/điểm; biên độ dao động ngày của VN30 tháng 9/2026.',
+        en: 'MBS’s VN30 index futures trading rules, 100,000 ₫ per point multiplier; the VN30 daily trading range in September 2026.',
       },
     },
     tests: [
@@ -1016,14 +1040,18 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     },
     example: {
       title: {
-        vi: '1 hợp đồng ở 1.280 điểm, vốn thực có 30 triệu ₫',
-        en: '1 contract at 1,280 points, 30 million VND actual equity',
+        vi: 'Sáu hợp đồng VN30F1M giá phiên 14/09/2026 trên vốn thực có 200 triệu ₫',
+        en: 'Six VN30F1M contracts at the 2026-09-14 price against 200 million ₫ of equity',
       },
-      inputs: { futuresPoints: 1_280, contracts: 1, equity: 30_000_000 },
-      expected: 4.27,
+      inputs: { futuresPoints: 1_930.9, contracts: 6, equity: 200_000_000 },
+      expected: 5.7927,
       note: {
-        vi: 'Giá trị danh nghĩa 128 triệu ₫ trên 30 triệu ₫ vốn — chỉ số giảm 1% là vốn hụt hơn 4%.',
-        en: 'Notional value of 128 million VND against 30 million VND equity — a 1% drop in the index shaves off more than 4% of equity.',
+        vi: 'Con số này nói chỉ số nhúc nhích 1% thì tài khoản biến động gần 5,8% theo cả hai chiều. VN-Index từng có phiên giảm 3,58% ngày 22/07/2026, đủ để cuốn đi gần một phần năm tài khoản chỉ trong một phiên.',
+        en: 'It says a 1% move in the index swings the account by nearly 5.8% in either direction. The VN-Index fell 3.58% in a single session on 2026-07-22, enough to take almost a fifth of such an account in one day.',
+      },
+      source: {
+        vi: 'Bản quy định giao dịch hợp đồng tương lai chỉ số VN30 của MBS; giá VN30F1M phiên 14/09/2026.',
+        en: 'MBS’s VN30 index futures trading rules; the VN30F1M price of the 2026-09-14 session.',
       },
     },
     tests: [

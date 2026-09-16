@@ -43,9 +43,18 @@ export const DIEM_HOA_VON: FormulaModule = {
     tags: ['diem hoa von', 'hoa von', 'break even', 'bep', 'dinh phi', 'bien phi', 'so du dam phi'],
     resultUnit: 'sản phẩm',
     variables: [
+      /*
+       * Trần 100.000 tỷ ₫ cho mọi ô tiền của nhóm này, nới từ 1.000 tỷ ngày 16/09/2026.
+       *
+       * Hai công thức trong file đọc thẳng báo cáo tài chính của một doanh nghiệp niêm yết, và ví dụ
+       * của chúng dùng số thật của FPT quý 2/2026 — doanh thu 13.788,5 tỷ ₫, định phí 2.431,8 tỷ ₫.
+       * Trần cũ thấp hơn cả hai, nên `clampToSpec()` hạ chúng về 1.000 tỷ ngay khi người dùng chạm
+       * vào ô: điểm hoà vốn ra 3,2 triệu sản phẩm thay vì 7,8 triệu, còn đòn bẩy tổng hợp thì hỏng
+       * hẳn (ba ô cùng bị kẹp về một giá trị nên mẫu số thành 0 và công thức trả cảnh báo).
+       */
       numberVar('fixedCost', { vi: 'Định phí', en: 'Fixed cost' }, '₫', 500_000_000, {
         min: 0,
-        max: 1_000_000_000_000,
+        max: 100_000_000_000_000,
         description: {
           vi: 'Chi phí không đổi theo sản lượng: thuê mặt bằng, khấu hao, lương cố định.',
           en: 'Cost that does not change with output volume: rent, depreciation, fixed salaries.',
@@ -108,14 +117,18 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Định phí 500 triệu ₫, giá bán 50.000 ₫, biến phí 30.000 ₫/sản phẩm',
-        en: 'Fixed cost 500 million VND, selling price 50,000 VND, variable cost 30,000 VND per unit',
+        vi: 'FPT quý 2/2026 — quy ước một "sản phẩm" là 1 triệu ₫ doanh thu',
+        en: 'FPT in Q2 2026 — taking one "unit" to mean 1 million ₫ of revenue',
       },
-      inputs: { fixedCost: 500_000_000, unitPrice: 50_000, variableCost: 30_000 },
-      expected: 25_000,
+      inputs: { fixedCost: 2_431_800_000_000, unitPrice: 1_000_000, variableCost: 689_600 },
+      expected: 7_834_407,
       note: {
-        vi: 'Doanh thu hoà vốn tương ứng 1,25 tỷ ₫.',
-        en: 'The corresponding break-even revenue is 1.25 billion VND.',
+        vi: 'Điểm hoà vốn tương đương khoảng 7.834 tỷ ₫ doanh thu mỗi quý, thấp hơn doanh thu thực khoảng 43% — đó là khoảng doanh thu có thể hụt trước khi hoạt động kinh doanh chuyển sang lỗ. Cách quy ước ở đây coi toàn bộ giá vốn là biến phí và toàn bộ chi phí bán hàng cộng quản lý là định phí, một giả định đơn giản hoá.',
+        en: 'The break-even point works out to roughly 7,834 billion ₫ of revenue per quarter, about 43% below actual revenue — that is how far revenue could fall before operations turn loss-making. The convention here treats all cost of goods sold as variable and all selling plus administrative expense as fixed, which is a simplifying assumption.',
+      },
+      source: {
+        vi: 'Báo cáo tài chính quý 2/2026 của FPT (mã FPT): doanh thu thuần, giá vốn hàng bán, chi phí bán hàng và chi phí quản lý doanh nghiệp.',
+        en: 'FPT’s (ticker FPT) Q2 2026 financial statements: net revenue, cost of goods sold, selling expense and administrative expense.',
       },
     },
     tests: [
@@ -230,7 +243,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     variables: [
       numberVar('revenue', { vi: 'Doanh thu', en: 'Revenue' }, '₫', 2_000_000_000, {
         min: 0,
-        max: 1_000_000_000_000,
+        max: 100_000_000_000_000,
         description: { vi: 'Doanh thu thuần trong kỳ.', en: 'Net revenue for the period.' },
       }),
       numberVar(
@@ -240,7 +253,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         1_200_000_000,
         {
           min: 0,
-          max: 1_000_000_000_000,
+          max: 100_000_000_000_000,
           description: {
             vi: 'Toàn bộ chi phí biến đổi theo doanh thu trong kỳ.',
             en: 'All costs that vary with revenue during the period.',
@@ -254,7 +267,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         500_000_000,
         {
           min: 0,
-          max: 1_000_000_000_000,
+          max: 100_000_000_000_000,
           description: {
             vi: 'Chi phí hoạt động cố định, chưa gồm lãi vay.',
             en: 'Fixed operating cost, not including interest expense.',
@@ -263,7 +276,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       ),
       numberVar('interest', { vi: 'Lãi vay', en: 'Interest expense' }, '₫', 100_000_000, {
         min: 0,
-        max: 1_000_000_000_000,
+        max: 100_000_000_000_000,
         level: 'advanced',
         description: {
           vi: 'Chi phí lãi vay phải trả trong kỳ.',
@@ -291,19 +304,23 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Doanh thu 2 tỷ ₫, biến phí 1,2 tỷ ₫, định phí 500 triệu ₫, lãi vay 100 triệu ₫',
-        en: 'Revenue 2 billion VND, variable cost 1.2 billion VND, fixed cost 500 million VND, interest expense 100 million VND',
+        vi: 'FPT quý 2/2026 — độ nhạy của lợi nhuận theo doanh thu',
+        en: 'FPT in Q2 2026 — how sensitive profit is to revenue',
       },
       inputs: {
-        revenue: 2_000_000_000,
-        variableCost: 1_200_000_000,
-        fixedCost: 500_000_000,
-        interest: 100_000_000,
+        revenue: 13_788_500_000_000,
+        variableCost: 9_508_800_000_000,
+        fixedCost: 2_431_800_000_000,
+        interest: 212_600_000_000,
       },
-      expected: 4,
+      expected: 2.6171,
       note: {
-        vi: 'DOL 2,67 × DFL 1,5 = 4: doanh thu giảm 10% thì EPS giảm khoảng 40%.',
-        en: 'DOL 2.67 × DFL 1.5 = 4: a 10% drop in revenue drives roughly a 40% drop in EPS.',
+        vi: 'Doanh thu đổi 1% thì lợi nhuận sau lãi vay đổi khoảng 2,6% theo cả hai chiều. Phần lớn độ nhạy đến từ cơ cấu định phí chứ không từ nợ vay, vì chi phí lãi vay rất nhỏ so với lợi nhuận hoạt động; doanh nghiệp bất động sản hay thép thường nhạy hơn nhiều với chu kỳ.',
+        en: 'A 1% change in revenue moves after-interest profit by about 2.6% in either direction. Most of that sensitivity comes from the fixed-cost structure rather than from debt, because interest expense is tiny next to operating profit; property and steel companies are typically far more cycle-sensitive.',
+      },
+      source: {
+        vi: 'Báo cáo tài chính quý 2/2026 của FPT (mã FPT): doanh thu thuần, giá vốn hàng bán, chi phí bán hàng và quản lý, chi phí lãi vay.',
+        en: 'FPT’s (ticker FPT) Q2 2026 financial statements: net revenue, cost of goods sold, selling and administrative expense, interest expense.',
       },
     },
     tests: [

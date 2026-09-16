@@ -940,10 +940,10 @@ export function LineChart({
                 <circle className={styles.hoverDot} cx={hoverX} cy={sy(hover.y)} r="3.5" />
               )}
               {/*
-                Bản RÚT GỌN khi Domain có dựng — nhãn này ghép HAI chuỗi đã kèm đơn vị, nên nó là
-                chữ dài nhất trên cả hình (xem `hoverText` bên trên). Rơi về bản đầy đủ khi rút gọn
-                không ngắn hơn (xem `ChartPoint.shortLabel`), tức đúng những lúc bản đầy đủ vốn đã
-                ngắn. Chính vì là chuỗi dài nhất mà nó phải đi qua `floatingLabel()`: canh `end` sát
+                Bản ở BẬC TRỤC khi Domain có dựng — nhãn này ghép HAI chuỗi đã kèm đơn vị, nên nó là
+                chữ dài nhất trên cả hình (xem `hoverText` bên trên). Rơi về bản đầy đủ đúng khi trục
+                không chia bậc (xem `ChartPoint.shortLabel`), tức lúc bản đầy đủ chính là bản ở bậc
+                trục. Chính vì là chuỗi dài nhất mà nó phải đi qua `floatingLabel()`: canh `end` sát
                 mép trái là mất ĐẦU chuỗi, và một nhãn cụt đầu vẫn trông như một nhãn.
               */}
               <text

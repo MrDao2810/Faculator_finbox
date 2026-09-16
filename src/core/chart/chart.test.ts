@@ -6,7 +6,7 @@ import { FORMULA_MODULES } from '../formulas';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
-import { BREAKDOWN_KEY } from './breakdown';
+import { BREAKDOWN_KEY, derivedStages } from './breakdown';
 import { buildChartModel } from './build';
 import { HISTORY_KEY, closePriceSeries, historyPlan } from './history';
 import { areaPath, gapsOf, linePath } from './path';
@@ -1554,13 +1554,99 @@ describe('buildChartModel()', () => {
     expect(rows[rows.length - 1]?.[1]).toBe('989.691.880,64 ₫');
   });
 
-  it('bản rút gọn VẮNG MẶT hẳn khi nó không ngắn hơn bản đầy đủ', () => {
+  it('bản ở bậc trục VẮNG MẶT hẳn khi trục không chia bậc', () => {
     const model = modelOf('pe');
     if (model.kind !== 'line') throw new Error('phải ra đường quét');
 
     for (const point of model.points) {
       expect(point.shortLabel, point.label).toBeUndefined();
       expect(point.shortValueLabel, point.valueLabel).toBeUndefined();
+    }
+  });
+
+  /** Phần đơn vị của một nhãn đã định dạng: '0,58 triệu ₫' → 'triệu ₫', '13,5 %' → '%'. */
+  function donViCua(label: string): string {
+    return label.replace(/^[+-]?[\d.,]+\s*/, '').trim();
+  }
+
+  /*
+   * Lỗi chủ dự án báo 16/09/2026, kèm ảnh: trục ghi `(triệu ₫)`, dấu "giá trị hiện tại" ghi
+   * `2,27 triệu ₫`, còn vạch dò ngay cạnh ghi `578.636,11 ₫` — hai đơn vị trên cùng một hình.
+   *
+   * Nguyên nhân là luật cũ hỏi "bản rút gọn có NGẮN HƠN không" theo TỪNG ĐIỂM: `0,58 triệu ₫` dài
+   * đúng bằng `578.636,11 ₫` nên điểm ấy rơi về bản đầy đủ, trong khi điểm 2,27 triệu thì không.
+   * Nay bậc hiển thị hỏi một lần cho cả trục — xem `labelAtAxisScale()`.
+   */
+  it('mọi điểm nói cùng bậc với trục, kể cả điểm nhỏ hơn một đơn vị bậc ấy', () => {
+    const formula = moduleOf('ddm-hai-giai-doan');
+    /*
+     * Đúng kịch bản trong ảnh: r sát g2 nên giá trị cổ phiếu vọt lên hàng triệu ₫, còn đầu dưới của
+     * dải quét vẫn ở hàng trăm nghìn — tức một trục `(triệu ₫)` có điểm nhỏ hơn một triệu.
+     */
+    const inputs = { ...defaultInputs(formula.spec), growthStage1: 22, requiredReturn: 4.5 };
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'advanced',
+      sweepKey: 'growthStage1',
+    });
+    if (model.kind !== 'line') throw new Error('phải ra đường quét');
+
+    const donViTruc = /\(([^)]+)\)$/.exec(model.y.title.vi)?.[1];
+    expect(donViTruc, model.y.title.vi).toBe('triệu ₫');
+
+    const coSo = model.points.filter((p) => p.y !== null);
+    expect(coSo.length).toBeGreaterThan(0);
+    for (const p of coSo) {
+      expect(p.shortValueLabel, p.valueLabel).toBeDefined();
+      expect(donViCua(p.shortValueLabel ?? ''), p.valueLabel).toBe('triệu ₫');
+    }
+
+    /*
+     * Điểm dưới một triệu ₫ là đúng điểm luật cũ bỏ sót. Nó phải giữ BA chữ số có nghĩa: chốt cứng
+     * 2 chữ số lẻ như bản trước thì `0,58 triệu ₫` mất một chữ số đúng ở chỗ còn ít nhất.
+     */
+    const nho = coSo.find((p) => Math.abs(p.y ?? 0) < 1_000_000);
+    expect(nho, 'kịch bản test đã đổi — không còn điểm nào dưới một triệu ₫').toBeDefined();
+    expect(nho?.shortValueLabel).toMatch(/^0,\d{3} triệu ₫$/);
+  });
+
+  /*
+   * Vế quét toàn Registry của cùng một luật: trên MỘT hình, mọi chữ vẽ ra phải cùng một đơn vị.
+   * Đây mới là ca giữ lỗi khỏi quay lại — ca trên chỉ nói được chuyện của một công thức.
+   */
+  it('mọi chữ vẽ trên hình của cùng một biểu đồ dùng chung một đơn vị', () => {
+    for (const formula of FORMULA_MODULES) {
+      const model = modelOf(formula.spec.id, 'advanced');
+      if (model.kind === 'unavailable') continue;
+
+      if (model.kind === 'waterfall') {
+        const donVi = new Set(model.bars.map((b) => donViCua(b.shortValueLabel ?? b.valueLabel)));
+        expect(donVi.size, `${formula.spec.id}: ${[...donVi].join(' · ')}`).toBe(1);
+        continue;
+      }
+
+      // Điểm không tính được mang `_ _` chứ không mang số, nên nó không nói gì về đơn vị.
+      const truc = [
+        ['X', new Set(model.points.map((p) => donViCua(p.shortLabel ?? p.label)))],
+        [
+          'Y',
+          new Set(
+            model.points
+              .filter((p) => p.y !== null)
+              .map((p) => donViCua(p.shortValueLabel ?? p.valueLabel)),
+          ),
+        ],
+      ] as const;
+
+      for (const [ten, donVi] of truc) {
+        expect(
+          donVi.size,
+          `${formula.spec.id} trục ${ten}: ${[...donVi].join(' · ')}`,
+        ).toBeLessThan(2);
+      }
     }
   });
 
@@ -2141,5 +2227,73 @@ describe('bóc tách — ba công thức vay', () => {
     });
 
     expect(model.kind).not.toBe('waterfall');
+  });
+});
+
+/*
+ * `derivedStages()` — chặng bóc tách công thức tự tính ra, thứ khối Số liệu đem bày.
+ *
+ * Ca kiểm bám vào `fcfe` vì đó đúng là ca chủ dự án báo, và nó có đủ CẢ HAI loại chặng trong cùng
+ * một công thức: hai chặng là ô nhập (`fcff`, `netBorrowing`) và một chặng tính ra
+ * (`interestAfterTax`). Công thức chỉ có một loại thì không phân biệt được phép lọc có chạy không.
+ */
+describe('derivedStages()', () => {
+  const fcfe = moduleOf('fcfe');
+  const inputs = defaultInputs(fcfe.spec);
+
+  function stagesOf() {
+    return derivedStages(fcfe.spec, inputs, runFormula(fcfe, inputs, CTX));
+  }
+
+  it('chỉ giữ chặng KHÔNG phải ô nhập', () => {
+    expect(stagesOf().map((stage) => stage.key)).toEqual(['interestAfterTax']);
+  });
+
+  it('gọi ĐÚNG cái tên mà biểu đồ gọi — đó là lý do hàm này tồn tại', () => {
+    const model = buildChartModel({
+      formula: fcfe,
+      inputs,
+      ctx: CTX,
+      output: runFormula(fcfe, inputs, CTX),
+      level: 'advanced',
+    });
+    if (model.kind !== 'waterfall') throw new Error('fcfe phải ra thác nước');
+
+    const tenTrenHinh = model.bars.map((bar) => bar.label.vi);
+    for (const stage of stagesOf()) expect(tenTrenHinh).toContain(stage.label.vi);
+  });
+
+  /* Trị số là ĐỘ LỚN của đại lượng, không mang dấu trừ của vai chặng — xem docblock `DerivedNote`. */
+  it('trị số khớp extras và luôn dương với lãi vay sau thuế', () => {
+    const stage = stagesOf()[0];
+
+    expect(stage?.value).toBeCloseTo(
+      (inputs['interest'] ?? 0) * (1 - (inputs['taxRate'] ?? 0) / 100),
+      6,
+    );
+    expect(stage?.value).toBeGreaterThan(0);
+  });
+
+  it('công thức không khai bóc tách thì không có chặng nào', () => {
+    const pe = moduleOf('pe');
+    const inputsPe = defaultInputs(pe.spec);
+
+    expect(derivedStages(pe.spec, inputsPe, runFormula(pe, inputsPe, CTX))).toEqual([]);
+  });
+
+  /*
+   * Quét cả Registry: mọi chặng `derivedStages()` trả về đều phải tra ra số thật. Đây là cửa chặn
+   * ca "đổi key chặng mà quên đổi key trong `extras`" — lúc ấy hình vẫn vẽ (nó có nhánh tra ô
+   * nhập) nhưng khối Số liệu sẽ im lặng bỏ trống, đúng kiểu hỏng không ai thấy.
+   */
+  it('mọi công thức: chặng tính ra đều có trị số hữu hạn', () => {
+    for (const formula of FORMULA_MODULES) {
+      const values = defaultInputs(formula.spec);
+      const stages = derivedStages(formula.spec, values, runFormula(formula, values, CTX));
+
+      for (const stage of stages) {
+        expect(Number.isFinite(stage.value), `${formula.spec.id} · ${stage.key}`).toBe(true);
+      }
+    }
   });
 });

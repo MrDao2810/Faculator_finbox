@@ -79,8 +79,8 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         en: 'Before every buy order, so the quantity is decided by discipline rather than emotion.',
       },
       howToRead: {
-        vi: 'howToRead thay bằng: «Con số là khối lượng tối đa của riêng lệnh này: 1.666,67 CP nghĩa là cỡ lệnh dừng ở 1.600 CP sau khi làm tròn xuống bội 100 cổ phiếu. Nhân khối lượng với giá vào rồi so với vốn tài khoản trước khi đặt lệnh — cắt lỗ càng sát giá vào thì số tiền phải bỏ ra càng dễ vượt quá vốn.» — câu độ nhạy cũ chuyển xuống commonMistakes, thành: «Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau — và đừng kéo cắt lỗ sát giá vào chỉ để được mua nhiều hơn, vì vị thế càng dễ bị quét khỏi thị trường.»',
-        en: 'howToRead becomes: «The number is the maximum quantity for this one order: 1,666.67 shares means the order stops at 1,600 shares once rounded down to a multiple of 100. Multiply the quantity by the entry price and compare it with your account capital before placing the order — the tighter the stop sits to the entry, the more easily that amount exceeds your capital.» — the old sensitivity sentence moves into commonMistakes, which becomes: «Buying a round amount of money first and only then thinking about the stop-loss. The correct order is: choose the stop-loss level first, and let the quantity follow from it — and do not pull the stop close to the entry just to be allowed a larger size, because the position is then far easier to get stopped out of.»',
+        vi: 'Con số là khối lượng tối đa của riêng lệnh này: 2.272,73 CP nghĩa là cỡ lệnh dừng ở 2.200 CP sau khi làm tròn xuống bội 100 cổ phiếu. Nhân khối lượng với giá vào rồi so với vốn tài khoản trước khi đặt lệnh — cắt lỗ càng sát giá vào thì số tiền phải bỏ ra càng dễ vượt quá vốn.',
+        en: 'The number is the maximum quantity for this one order: 2,272.73 shares means the order stops at 2,200 shares once rounded down to a multiple of 100. Multiply the quantity by the entry price and compare it with your account capital before placing the order — the tighter the stop sits to the entry, the more easily that amount exceeds your capital.',
       },
       commonMistakes: {
         vi: 'Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau.',
@@ -89,14 +89,18 @@ export const CO_LENH_RUI_RO: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn 500 triệu ₫, rủi ro 2%, vào 92.000 ₫, cắt lỗ 86.000 ₫',
-        en: 'Capital 500 million ₫, risk 2%, entry 92,000 ₫, stop-loss 86,000 ₫',
+        vi: 'Vốn 500 triệu ₫, rủi ro 2% mỗi lệnh, mua FPT giá phiên 11/09/2026, cắt lỗ dưới đáy tháng 8/2026',
+        en: 'Capital of 500 million ₫, 2% risk per trade, buying FPT at the 2026-09-11 close with a stop below the August 2026 low',
       },
-      inputs: { capital: 500_000_000, riskPercent: 2, entryPrice: 92_000, stopPrice: 86_000 },
-      expected: 1_666.67,
+      inputs: { capital: 500_000_000, riskPercent: 2, entryPrice: 72_700, stopPrice: 68_300 },
+      expected: 2_273,
       note: {
-        vi: 'Thực tế làm tròn xuống bội của 100 cổ phiếu theo lô giao dịch.',
-        en: 'In practice, round down to a multiple of 100 shares per trading lot.',
+        vi: 'Mức cắt lỗ quyết định khối lượng chứ không phải ngược lại: khoảng cách tới cắt lỗ càng xa thì số cổ phiếu được phép nắm càng ít. Thực tế còn phải làm tròn xuống bội của 100 cổ phiếu theo lô giao dịch.',
+        en: 'The stop-loss level decides the quantity, not the other way round: the further the stop sits from the entry, the fewer shares are allowed. In practice the figure is then rounded down to a multiple of 100 shares per trading lot.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT) phiên 11/09/2026; mức cắt lỗ lấy theo đáy phiên 14/08/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) close on 2026-09-11; the stop-loss level taken from the 2026-08-14 low.',
       },
     },
     tests: [

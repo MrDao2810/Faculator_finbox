@@ -186,18 +186,18 @@ export const EPS_CO_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'HPG — LNST 23.217,4 tỷ ₫, 8,44 tỷ cổ phiếu',
-        en: 'HPG — net income 23,217.4 billion ₫, 8.44 billion shares',
+        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫, 1,71 tỷ cổ phiếu lưu hành',
+        en: 'FPT H1 2026 — net income 5,055.1 billion ₫, 1.71 billion shares outstanding',
       },
-      inputs: { netIncome: 23_217.4, preferredDividend: 0, sharesOutstanding: 8_442_964_520 },
-      expected: 2_749.91,
+      inputs: { netIncome: 5_055.1, preferredDividend: 0, sharesOutstanding: 1_714_326_422 },
+      expected: 2_949,
       note: {
-        vi: 'Gần khớp EPS 2.750 ₫ mà Hoà Phát tự báo cáo. Đơn vị ra là ₫/CP, không phải tỷ ₫ như LNST.',
-        en: 'Closely matches the 2,750 ₫ EPS Hoa Phat itself reports. The result comes out in ₫/share, unlike the billion-₫ scale of net income.',
+        vi: 'Thấp hơn khoảng 0,6% so với mức 2.967 ₫ FPT tự công bố, vì doanh nghiệp chia cho số cổ phiếu bình quân gia quyền trong kỳ còn ô nhập ở đây là số cổ phiếu cuối kỳ, sau khi đã phát hành thêm ESOP và cổ phiếu thưởng. Khác biệt về phương pháp, không phải sai số tính toán.',
+        en: 'About 0.6% below the 2,967 ₫ FPT reports itself, because the company divides by the weighted-average share count for the period while the field here holds the end-of-period count, after ESOP and bonus share issues. A difference in method, not a calculation error.',
       },
       source: {
-        vi: 'Finbox_v2, LNST và số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) net income and share count, locked in 2026-09-08.',
+        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT H1 2026 business results release via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -288,18 +288,18 @@ export const BVPS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'HPG — vốn chủ 140.854 tỷ ₫, 8,44 tỷ cổ phiếu',
-        en: 'HPG — equity 140,854 billion ₫, 8.44 billion shares',
+        vi: 'FPT ngày 30/06/2026 — vốn chủ của cổ đông công ty mẹ 39.851,5 tỷ ₫, 1,71 tỷ cổ phiếu',
+        en: 'FPT at 30 June 2026 — parent-company equity 39,851.5 billion ₫, 1.71 billion shares',
       },
-      inputs: { equity: 140_854, sharesOutstanding: 8_442_964_520 },
-      expected: 16_683,
+      inputs: { equity: 39_851.5, sharesOutstanding: 1_714_326_422 },
+      expected: 23_246,
       note: {
-        vi: 'Khớp đúng BVPS 16.683 ₫ mà Hoà Phát tự báo cáo. Đơn vị ra là ₫/CP, không phải tỷ ₫ như vốn chủ sở hữu.',
-        en: 'Matches the 16,683 ₫ book value Hoa Phat itself reports. The result comes out in ₫/share, unlike the billion-₫ scale of equity.',
+        vi: 'Phải lấy vốn chủ của cổ đông công ty mẹ chứ không lấy tổng vốn chủ 40.995,7 tỷ ₫: khoản 1.144,2 tỷ ₫ lợi ích cổ đông không kiểm soát sẽ đẩy giá trị sổ sách mỗi cổ phiếu lên gần 3%, và sai lệch đó chảy thẳng sang P/B lẫn số Graham.',
+        en: 'Use equity attributable to the parent company’s shareholders, not total equity of 40,995.7 billion ₫: the 1,144.2 billion ₫ of non-controlling interests would lift book value per share by almost 3%, and that error flows straight into P/B and the Graham number.',
       },
       source: {
-        vi: 'Finbox_v2, vốn chủ và số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) equity and share count, locked in 2026-09-08.',
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -401,18 +401,18 @@ export const ROE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vinamilk — LNST nửa đầu 2026, theo báo cáo eBroker Research',
-        en: 'Vinamilk — H1 2026 net income, per eBroker Research',
+        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫ trên vốn chủ 39.851,5 tỷ ₫',
+        en: 'FPT H1 2026 — net income 5,055.1 billion ₫ on equity of 39,851.5 billion ₫',
       },
-      inputs: { netIncome: 5_643, equity: 35_666 },
-      expected: 15.82,
+      inputs: { netIncome: 5_055.1, equity: 39_851.5 },
+      expected: 12.6848,
       note: {
-        vi: 'LNST 5.643 tỷ ₫ và vốn chủ 35.666 tỷ ₫ ở trên là số SÁU THÁNG đầu 2026 (lợi nhuận tăng 38,4% so với cùng kỳ) nên ROE ra thấp hơn con số ROE cả năm (TTM) mà chính eBroker báo riêng là 16,1% — muốn so cả năm phải nhân đôi lợi nhuận trước khi tính, không phải nhân đôi kết quả này.',
-        en: 'The net income of 5,643 billion ₫ and equity of 35,666 billion ₫ above are HALF-YEAR 2026 figures (profit up 38.4% year-on-year), so the ROE comes out lower than eBroker’s own full-year (TTM) ROE of 16.1% — to compare on a yearly basis, double the profit first, not this result.',
+        vi: 'Đây là hiệu quả của một kỳ SÁU THÁNG, không phải của cả năm. Muốn đặt cạnh lãi suất tiết kiệm 12 tháng thì phải quy lợi nhuận về một năm trước khi chia; ghép lợi nhuận nửa năm với vốn chủ cuối kỳ rồi đọc như số cả năm là lỗi hay gặp nhất lúc tự tính.',
+        en: 'This is the return for a SIX-MONTH period, not for a full year. To set it beside a 12-month deposit rate, annualize the profit before dividing; pairing half-year profit with period-end equity and reading the result as an annual figure is the most common mistake when calculating by hand.',
       },
       source: {
-        vi: 'eBroker Research, báo cáo Vinamilk (VNM) cập nhật 30/06/2026.',
-        en: 'eBroker Research, a Vinamilk (VNM) report updated 2026-06-30.',
+        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT H1 2026 business results release and balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -511,18 +511,18 @@ export const ROA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VNM — LNST 10.962,9 tỷ ₫, tổng tài sản 50.988,2 tỷ ₫',
-        en: 'VNM — net income 10,962.9 billion ₫, total assets 50,988.2 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫ trên tổng tài sản 73.734,2 tỷ ₫',
+        en: 'FPT H1 2026 — net income 5,055.1 billion ₫ on total assets of 73,734.2 billion ₫',
       },
-      inputs: { netIncome: 10_962.9, totalAssets: 50_988.2 },
-      expected: 21.5,
+      inputs: { netIncome: 5_055.1, totalAssets: 73_734.2 },
+      expected: 6.8558,
       note: {
-        vi: 'Mức khá cao, hợp với một doanh nghiệp tiêu dùng ít thâm dụng tài sản.',
-        en: 'A fairly high level, fitting for an asset-light consumer company.',
+        vi: 'Khoảng cách với ROE 12,68% của cùng kỳ chính là phần đòn bẩy đóng góp: tổng tài sản lớn hơn vốn chủ 1,85 lần vì doanh nghiệp đang dùng 32.738,4 tỷ ₫ nợ phải trả, và mức khuếch đại lợi nhuận trên vốn chủ đúng bằng chừng ấy.',
+        en: 'The gap against the same period’s ROE of 12.68% is precisely what leverage contributes: total assets are 1.85 times equity because the company is carrying 32,738.4 billion ₫ of liabilities, and the amplification of the return on equity matches that same multiple.',
       },
       source: {
-        vi: 'Finbox_v2, LNST và tổng tài sản Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) net income and total assets, locked in 2026-09-08.',
+        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT H1 2026 business results release and balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -604,18 +604,18 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — LNST 9.999,4 tỷ ₫, doanh thu 63.698,4 tỷ ₫',
-        en: 'FPT — net income 9,999.4 billion ₫, revenue 63,698.4 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫ trên doanh thu thuần 26.268,5 tỷ ₫',
+        en: 'FPT H1 2026 — net income 5,055.1 billion ₫ on net revenue of 26,268.5 billion ₫',
       },
-      inputs: { netIncome: 9_999.4, revenue: 63_698.4 },
-      expected: 15.7,
+      inputs: { netIncome: 5_055.1, revenue: 26_268.5 },
+      expected: 19.244,
       note: {
-        vi: 'Mỗi 100 ₫ doanh thu của FPT còn lại gần 15,7 ₫ lợi nhuận sau khi trừ mọi chi phí, thuế và lãi vay.',
-        en: 'For every 100 ₫ of FPT’s revenue, close to 15.7 ₫ remains as profit after all costs, taxes and interest.',
+        vi: 'Biên dày như vậy là nét của doanh nghiệp bán dịch vụ phần mềm chứ không bán hàng hoá. Kỳ này còn được nâng thêm bởi 756,6 tỷ ₫ lãi từ công ty liên kết; loại khoản đó ra thì biên của hoạt động cốt lõi thấp hơn khoảng 2,9 điểm phần trăm.',
+        en: 'A margin this thick is characteristic of a company selling software services rather than goods. This period is lifted further by 756.6 billion ₫ of income from associates; strip that out and the core operating margin is about 2.9 percentage points lower.',
       },
       source: {
-        vi: 'Finbox_v2, LNST và doanh thu FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) net income and revenue, locked in 2026-09-08.',
+        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated H1 2026 income statement via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -707,18 +707,18 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'MWG — doanh thu 177.386,5 tỷ ₫, giả định giá vốn 138.000 tỷ ₫',
-        en: 'MWG — revenue 177,386.5 billion ₫, assumed cost of goods sold 138,000 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 — doanh thu thuần 26.268,5 tỷ ₫, giá vốn 17.745 tỷ ₫',
+        en: 'FPT H1 2026 — net revenue 26,268.5 billion ₫, cost of goods sold 17,745 billion ₫',
       },
-      inputs: { revenue: 177_386.5, cogs: 138_000 },
-      expected: 22.2,
+      inputs: { revenue: 26_268.5, cogs: 17_745 },
+      expected: 32.4476,
       note: {
-        vi: 'Giá vốn dùng mức minh hoạ vì Finbox_v2 không tách riêng mục này. Biên gộp khoảng 22% khá tiêu biểu cho ngành bán lẻ.',
-        en: 'Cost of goods sold is illustrative, since Finbox_v2 does not break out that line. A gross margin around 22% is fairly typical for retail.',
+        vi: 'Giá vốn suy ra bằng doanh thu trừ lợi nhuận gộp 8.523,5 tỷ ₫. Biên gộp kỳ này co lại vì quý 2 doanh thu giảm trong khi giá vốn vẫn tăng, sau khi FPT thôi hợp nhất mảng viễn thông — nên không đọc chuỗi biên gộp 2025 và 2026 như một dãy liền mạch.',
+        en: 'Cost of goods sold is derived as revenue minus gross profit of 8,523.5 billion ₫. The margin narrowed this period because Q2 revenue fell while cost of sales still rose, after FPT deconsolidated its telecom arm — so the 2025 and 2026 gross-margin series must not be read as one continuous line.',
       },
       source: {
-        vi: 'Finbox_v2, doanh thu Thế giới Di động (mã MWG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Mobile World’s (ticker MWG) revenue, locked in 2026-09-08.',
+        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated H1 2026 income statement via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -823,18 +823,18 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — nợ phải trả 31.881 tỷ ₫, vốn chủ 39.851,2 tỷ ₫',
-        en: 'FPT — liabilities 31,881 billion ₫, equity 39,851.2 billion ₫',
+        vi: 'FPT ngày 30/06/2026 — nợ phải trả 32.738,4 tỷ ₫ trên tổng vốn chủ 40.995,7 tỷ ₫',
+        en: 'FPT at 30 June 2026 — total liabilities 32,738.4 billion ₫ against total equity of 40,995.7 billion ₫',
       },
-      inputs: { totalLiabilities: 31_881, equity: 39_851.2 },
-      expected: 0.8,
+      inputs: { totalLiabilities: 32_738.4, equity: 40_995.7 },
+      expected: 0.7986,
       note: {
-        vi: 'D/E 0,8 lần — FPT vay nợ ở mức thấp so với ngưỡng 2 lần vẫn coi là an toàn cho ngành sản xuất/công nghệ.',
-        en: 'A D/E of 0.8x — FPT carries low leverage against the 2x level generally considered safe for manufacturing/tech.',
+        vi: 'Ô nhập là TOÀN BỘ nợ phải trả, trong đó chỉ khoảng 17.444 tỷ ₫ là nợ vay có lãi — tính riêng phần nợ vay thì hệ số còn 0,43 lần. Doanh nghiệp lại đang giữ 28.972 tỷ ₫ tiền và đầu tư tài chính ngắn hạn, nhiều hơn cả số nợ vay đó.',
+        en: 'The field holds ALL liabilities, of which only about 17,444 billion ₫ is interest-bearing debt — counted on borrowings alone the ratio falls to 0.43x. The company meanwhile holds 28,972 billion ₫ of cash and short-term investments, more than those borrowings.',
       },
       source: {
-        vi: 'Finbox_v2, nợ phải trả và vốn chủ FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) liabilities and equity, locked in 2026-09-08.',
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -943,11 +943,19 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Tài sản ngắn hạn 42.000 tỷ ₫, nợ ngắn hạn 28.000 tỷ ₫',
-        en: 'Current assets 42,000 billion ₫, current liabilities 28,000 billion ₫',
+        vi: 'FPT ngày 30/06/2026 — tài sản ngắn hạn 45.702 tỷ ₫, nợ ngắn hạn 29.365,3 tỷ ₫',
+        en: 'FPT at 30 June 2026 — current assets 45,702 billion ₫, current liabilities 29,365.3 billion ₫',
       },
-      inputs: { currentAssets: 42_000, currentLiabilities: 28_000 },
-      expected: 1.5,
+      inputs: { currentAssets: 45_702, currentLiabilities: 29_365.3 },
+      expected: 1.5563,
+      note: {
+        vi: 'Nằm giữa hai mốc quen thuộc: 1 lần là vừa đủ trả, 2 lần là rất dư dả. Cơ cấu còn tốt hơn con số, vì gần 29.000 tỷ ₫ trong tài sản ngắn hạn là tiền và tiền gửi ngân hàng — hoá tiền được ngay chứ không phải tồn kho hay khoản phải thu khó đòi.',
+        en: 'It sits between the two familiar reference points: 1x is just enough to pay, 2x is very comfortable. The composition is even better than the number, since close to 29,000 billion ₫ of those current assets is cash and bank deposits — convertible immediately rather than inventory or doubtful receivables.',
+      },
+      source: {
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+      },
     },
     tests: [
       {
@@ -1050,11 +1058,19 @@ export const THANH_TOAN_NHANH: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Tài sản ngắn hạn 42.000 tỷ ₫, tồn kho 9.500 tỷ ₫, nợ ngắn hạn 28.000 tỷ ₫',
-        en: 'Current assets 42,000 billion ₫, inventory 9,500 billion ₫, current liabilities 28,000 billion ₫',
+        vi: 'FPT ngày 30/06/2026 — tài sản ngắn hạn 45.702 tỷ ₫, tồn kho 1.183,1 tỷ ₫, nợ ngắn hạn 29.365,3 tỷ ₫',
+        en: 'FPT at 30 June 2026 — current assets 45,702 billion ₫, inventory 1,183.1 billion ₫, current liabilities 29,365.3 billion ₫',
       },
-      inputs: { currentAssets: 42_000, inventory: 9_500, currentLiabilities: 28_000 },
-      expected: 1.1607,
+      inputs: { currentAssets: 45_702, inventory: 1_183.1, currentLiabilities: 29_365.3 },
+      expected: 1.516,
+      note: {
+        vi: 'Bỏ tồn kho ra gần như không làm hệ số suy giảm, vì tồn kho chỉ chiếm 2,6% tài sản ngắn hạn — nét đặc trưng của doanh nghiệp dịch vụ. Phép thử này chỉ thực sự cảnh báo được ở doanh nghiệp bán lẻ hay sản xuất, nơi hai hệ số cách nhau rất xa.',
+        en: 'Removing inventory barely dents the ratio, because inventory is only 2.6% of current assets — the hallmark of a services company. This test only really warns you at retailers or manufacturers, where the two ratios sit far apart.',
+      },
+      source: {
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+      },
     },
     tests: [
       {
@@ -1156,18 +1172,18 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'MWG — doanh thu 177.386,5 tỷ ₫, tổng tài sản 103.470,8 tỷ ₫',
-        en: 'MWG — revenue 177,386.5 billion ₫, total assets 103,470.8 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 — doanh thu thuần 26.268,5 tỷ ₫ trên tổng tài sản 73.734,2 tỷ ₫',
+        en: 'FPT H1 2026 — net revenue 26,268.5 billion ₫ on total assets of 73,734.2 billion ₫',
       },
-      inputs: { revenue: 177_386.5, totalAssets: 103_470.8 },
-      expected: 1.71,
+      inputs: { revenue: 26_268.5, totalAssets: 73_734.2 },
+      expected: 0.3563,
       note: {
-        vi: 'Vòng quay trên 1 lần khá tiêu biểu cho một chuỗi bán lẻ.',
-        en: 'A turnover above 1x is fairly typical for a retail chain.',
+        vi: 'Doanh thu ở đây mới là nửa năm, nên muốn có số vòng cả năm thì phải quy doanh thu về một năm trước khi chia. Vòng quay thấp cũng không có nghĩa là vận hành kém: gần 40% tài sản của FPT là tiền và tiền gửi ngân hàng, vốn sinh ra doanh thu tài chính chứ không đi qua doanh thu thuần.',
+        en: 'The revenue here covers only half a year, so an annual turnover figure requires annualizing revenue before dividing. A low turnover does not mean weak operations either: close to 40% of FPT’s assets is cash and bank deposits, which generate financial income rather than passing through net revenue.',
       },
       source: {
-        vi: 'Finbox_v2, doanh thu và tổng tài sản Thế giới Di động (mã MWG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Mobile World’s (ticker MWG) revenue and total assets, locked in 2026-09-08.',
+        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
+        en: 'FPT consolidated H1 2026 income statement and balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
       },
     },
     tests: [
@@ -1278,18 +1294,18 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VNM — cổ tức 4.350 ₫/CP, EPS 5.246 ₫',
-        en: 'VNM — dividend 4,350 ₫/share, EPS 5,246 ₫',
+        vi: 'FPT — cổ tức tiền mặt 2.000 ₫/CP, EPS bốn quý gần nhất 5.867 ₫',
+        en: 'FPT — cash dividend 2,000 ₫/share, trailing four-quarter EPS 5,867 ₫',
       },
-      inputs: { dividendPerShare: 4_350, eps: 5_246 },
-      expected: 82.92,
+      inputs: { dividendPerShare: 2_000, eps: 5_867 },
+      expected: 34.089,
       note: {
-        vi: 'VNM nổi tiếng chi trả gần hết lợi nhuận làm cổ tức, chỉ giữ lại chưa tới hai phần mười để tái đầu tư.',
-        en: 'VNM is known for paying out nearly all of its profit as dividends, retaining less than a fifth for reinvestment.',
+        vi: 'FPT đưa khoảng một phần ba lợi nhuận ra trả cổ tức và giữ lại phần còn lại để tái đầu tư. Mức 20% mệnh giá này giữ nguyên nhiều năm liền nên dự đoán được, và phần giữ lại nhân với ROE quy ra cả năm cho tốc độ tăng trưởng nội sinh khoảng 16,7%/năm.',
+        en: 'FPT hands out roughly a third of its profit as dividends and retains the rest for reinvestment. The 20%-of-par level has held for years, so it is predictable, and the retained share multiplied by the annualized ROE implies internal growth of about 16.7% a year.',
       },
       source: {
-        vi: 'Finbox_v2, cổ tức và EPS Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) dividend and EPS, locked in 2026-09-08.',
+        vi: 'Lịch sử chi trả cổ tức FPT trên cotuc.vn, EPS bốn quý gần nhất theo CafeF — truy cập 15/09/2026',
+        en: 'FPT dividend history on cotuc.vn, trailing four-quarter EPS from CafeF — accessed 15 September 2026',
       },
     },
     tests: [

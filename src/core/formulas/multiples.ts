@@ -84,18 +84,18 @@ export const PE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — một câu hỏi đầu tư giữa 2026: P/E quanh 12 lần',
-        en: 'FPT — a mid-2026 investment question: P/E around 12x',
+        vi: 'FPT — giá 72.700 ₫ phiên 11/09/2026, EPS bốn quý gần nhất 5.867 ₫',
+        en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, trailing four-quarter EPS 5,867 ₫',
       },
-      inputs: { price: 72_300, eps: 5_867 },
-      expected: 12.32,
+      inputs: { price: 72_700, eps: 5_867 },
+      expected: 12.3913,
       note: {
-        vi: 'Giá 72.300 ₫ và EPS 5.867 ₫ ở trên là mức của FPT quanh thời điểm bài viết đặt câu hỏi có nên mua hay không, khi P/E khoảng 12 lần trong lúc lợi nhuận vẫn tăng khoảng 13%/năm nhờ mảng AI.',
-        en: 'The price of 72,300 ₫ and EPS of 5,867 ₫ above are FPT’s figures from around when the article asked whether the stock should be bought, with P/E around 12x while profit kept growing roughly 13%/year on its AI business.',
+        vi: 'Thị trường đang trả khoảng 12,4 đồng cho mỗi đồng lợi nhuận một năm của FPT, thấp hơn hẳn vùng 20–25 lần giai đoạn 2023–2024. Lưu ý về nền so sánh: EPS bốn quý gần nhất vẫn còn phần FPT Telecom của các quý 2025, trong khi từ 2026 khoản này không còn hợp nhất.',
+        en: 'The market is paying about 12.4 dong for each dong of FPT’s annual profit, well below the 20–25x band of 2023–2024. A caveat on the comparison base: trailing four-quarter EPS still carries FPT Telecom for the 2025 quarters, while from 2026 that unit is no longer consolidated.',
       },
       source: {
-        vi: 'Elibook.vn, bài viết ngày 28/05/2026 về FPT (mã FPT).',
-        en: 'Elibook.vn, an article dated 2026-05-28 about FPT (ticker FPT).',
+        vi: 'Giá FPT (mã FPT) phiên 11/09/2026; EPS bốn quý gần nhất theo báo cáo tài chính quý 2/2026.',
+        en: 'FPT (ticker FPT) price at the 2026-09-11 close; trailing four-quarter EPS from the Q2/2026 financial statements.',
       },
     },
     tests: [
@@ -217,18 +217,18 @@ export const PB: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'MWG — giá 72.100 ₫, giá trị sổ sách 24.177 ₫/CP',
-        en: 'MWG — price 72,100 ₫, book value 24,177 ₫/share',
+        vi: 'FPT — giá 72.700 ₫ phiên 11/09/2026, giá trị sổ sách 23.246 ₫/CP',
+        en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, book value 23,246 ₫/share',
       },
-      inputs: { price: 72_100, bookValuePerShare: 24_177 },
-      expected: 2.98,
+      inputs: { price: 72_700, bookValuePerShare: 23_246 },
+      expected: 3.1274,
       note: {
-        vi: 'Thị giá MWG gần gấp ba giá trị sổ sách — mức P/B khá cao cho một doanh nghiệp bán lẻ.',
-        en: 'MWG’s market price is nearly three times its book value — a fairly high P/B for a retail business.',
+        vi: 'Giá trị của một doanh nghiệp công nghệ nằm ở con người và hợp đồng chứ không ở tài sản ghi trên sổ, nên P/B của FPT luôn cao hơn nhóm sản xuất và không đặt cạnh HPG hay VNM để so được. Phần vốn chủ sở hữu thực sự đứng sau mỗi cổ phiếu chỉ bằng chưa tới một phần ba thị giá.',
+        en: 'A technology company’s value sits in its people and contracts rather than in assets on the books, so FPT’s P/B is structurally above manufacturers and cannot be read against HPG or VNM. The equity actually standing behind each share is under a third of the market price.',
       },
       source: {
-        vi: 'Finbox_v2, giá và giá trị sổ sách Thế giới Di động (mã MWG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Mobile World’s (ticker MWG) price and book value, locked in 2026-09-08.',
+        vi: 'Giá FPT (mã FPT) phiên 11/09/2026; vốn chủ sở hữu 39.851,5 tỷ ₫ trên 1.714.326.422 CP theo báo cáo tài chính quý 2/2026.',
+        en: 'FPT (ticker FPT) price at the 2026-09-11 close; equity of 39,851.5 billion ₫ over 1,714,326,422 shares from the Q2/2026 financial statements.',
       },
     },
     tests: [

@@ -266,34 +266,66 @@ function pickScale(
 }
 
 /**
- * Một giá trị đơn lẻ viết ở bậc của trục nó nằm trên — dùng cho chữ VẼ TRÊN HÌNH.
+ * Số chữ số thập phân của một giá trị viết ở bậc trục — giữ khoảng BA CHỮ SỐ CÓ NGHĨA.
  *
- * Số chữ số thập phân KHÔNG lấy theo bước chia như nhãn vạch: bước của một trục chạy tới hai tỷ là
- * 500 triệu, tức 0 chữ số lẻ ở bậc tỷ, và `1.789.700.000 ₫` sẽ thành `2 tỷ ₫` — sai lệch 12% ngay
- * trên con số người dùng đang đọc. Ở đây giữ khoảng ba chữ số có nghĩa, nên ra `1,79 tỷ ₫`.
+ * KHÔNG lấy theo bước chia như nhãn vạch: bước của một trục chạy tới hai tỷ là 500 triệu, tức 0 chữ
+ * số lẻ ở bậc tỷ, và `1.789.700.000 ₫` sẽ thành `2 tỷ ₫` — sai lệch 12% ngay trên con số người dùng
+ * đang đọc. Ở đây `1,79 tỷ ₫`.
+ *
+ * Nhánh dưới 1 có từ 16/09/2026, khi nhãn trên hình thôi so độ dài và luôn nói theo bậc trục (xem
+ * `labelAtAxisScale()`): một điểm nhỏ hơn đơn vị trục — 578.636 ₫ trên trục `(triệu ₫)` — mà vẫn
+ * chốt 2 chữ số lẻ thì ra `0,58 triệu ₫`, tức mất một chữ số có nghĩa đúng ở chỗ còn ít nhất. Trần
+ * `MAX_SCALED_DECIMALS` chặn chiều ngược lại: giá trị nhỏ hơn bậc trục cả triệu lần không được kéo
+ * nhãn dài vô hạn — chỗ ấy `labelAtAxisScale()` giữ bản đầy đủ.
  */
+const MAX_SCALED_DECIMALS = 6;
+
+function scaledDecimals(magnitude: number): number {
+  if (magnitude >= 100) return 0;
+  if (magnitude >= 10) return 1;
+  if (magnitude >= 1 || magnitude === 0) return 2;
+  return Math.min(MAX_SCALED_DECIMALS, 2 - Math.floor(Math.log10(magnitude)));
+}
+
+/** Một giá trị đơn lẻ viết ở bậc của trục nó nằm trên — dùng cho chữ VẼ TRÊN HÌNH. */
 function scaledValueLabel(value: number, scale: AxisScale): string {
   const scaled = value / scale.factor;
-  const magnitude = Math.abs(scaled);
-  const decimals = magnitude >= 100 ? 0 : magnitude >= 10 ? 1 : 2;
-  return formatValueWithUnit(scaled, scale.unit.vi, { maxDecimals: decimals });
+  return formatValueWithUnit(scaled, scale.unit.vi, {
+    maxDecimals: scaledDecimals(Math.abs(scaled)),
+  });
 }
 
 /**
- * Bản rút gọn của một nhãn giá trị — hoặc `undefined` khi rút gọn KHÔNG ngắn hơn bản đầy đủ.
+ * Nhãn của một giá trị ở bậc trục — hoặc `undefined` khi trục KHÔNG chia bậc.
  *
- * So bằng độ dài chuỗi chứ không bằng "trục có chia bậc hay không", và đó là điều khiến luật tự chọn
- * đúng ở cả hai phía: `lich-tra-no` đổi `1.789.700.000 ₫` (15 ký tự) lấy `1,79 tỷ ₫` (9) — đáng;
- * còn một mức giá `92.000 ₫` (8) thì `92 nghìn ₫` (10) dài hơn, nên giữ nguyên bản gốc.
+ * ── Vì sao thôi so độ dài chuỗi (16/09/2026) ─────────────────────────────────────────────────
+ *
+ * Bản trước hỏi "bản rút gọn có NGẮN HƠN bản đầy đủ không", từng điểm một. Câu hỏi ấy sai đích và
+ * chủ dự án báo đúng hệ quả: trên một biểu đồ `(triệu ₫)`, dấu "giá trị hiện tại" ghi `2,27 triệu ₫`
+ * còn vạch dò ghi `578.636,11 ₫` — hai đơn vị khác nhau trên cùng một hình, vì `0,58 triệu ₫` dài
+ * đúng bằng bản đầy đủ nên luật cũ bỏ nó. Người đọc phải tự quy đổi giữa hai thang để so hai con số
+ * nằm cách nhau vài xăng-ti-mét, mà trục thì chỉ ghi một thang.
+ *
+ * Bậc hiển thị là thuộc tính của TRỤC, nên câu hỏi đúng cũng phải hỏi một lần cho cả trục: trục có
+ * chia bậc thì mọi chữ vẽ trên hình nói theo bậc ấy, không thì không chữ nào nói. Độ dài thôi là
+ * tiêu chí — nhãn nổi đã có `floatingLabel()` lo chỗ đứng, còn nhãn cột thác nước vốn đã ngắn đi.
+ *
+ * Ngoại lệ duy nhất là FR-06: giá trị KHÁC 0 mà làm tròn ở bậc trục ra `0` thì giữ bản đầy đủ. Một
+ * `0 triệu ₫` cạnh một điểm có thật là con số sai đội lốt con số đúng — đúng thứ FR-06 tồn tại để
+ * chặn. Chỗ này chỉ chạm tới điểm nhỏ hơn bậc trục hơn một triệu lần, tức điểm nằm sát mép 0 của
+ * hình.
  *
  * Trả `undefined` chứ không trả lại chính chuỗi cũ, vì nơi gọi bỏ hẳn trường khi không dùng: bất biến
  * "công thức một chuỗi dựng ra ĐÚNG mô hình như trước" kiểm bằng `toEqual`, mà một trường thừa mang
  * giá trị trùng cũng đủ làm nó đỏ.
  */
-function shortenLabel(value: number, full: string, scale: AxisScale): string | undefined {
+function labelAtAxisScale(value: number, scale: AxisScale): string | undefined {
   if (scale.factor === 1 || !Number.isFinite(value)) return undefined;
-  const short = scaledValueLabel(value, scale);
-  return short.length < full.length ? short : undefined;
+
+  const magnitude = Math.abs(value / scale.factor);
+  if (value !== 0 && magnitude < 0.5 * 10 ** -scaledDecimals(magnitude)) return undefined;
+
+  return scaledValueLabel(value, scale);
 }
 
 /**
@@ -344,7 +376,7 @@ function buildBreakdownModel(
    * là chỗ tra con số chính xác.
    */
   const bars = rawBars.map((bar) => {
-    const short = shortenLabel(bar.delta, bar.valueLabel, scale);
+    const short = labelAtAxisScale(bar.delta, scale);
     return short === undefined ? bar : { ...bar, shortValueLabel: short };
   });
   const total = bars[bars.length - 1];
@@ -668,12 +700,12 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    *
    * Mảng mới này thay hẳn `points` từ đây trở xuống, không dùng song song với mảng cũ: bảng số tra
    * `points.indexOf(point)` bằng THAM CHIẾU, nên hai mảng cùng tồn tại là bảng tra trượt toàn bộ
-   * chuỗi phụ. Điểm nào không rút gọn được thì giữ NGUYÊN object cũ, nên biểu đồ đơn vị 'lần' hay
+   * chuỗi phụ. Trục nào không chia bậc thì điểm giữ NGUYÊN object cũ, nên biểu đồ đơn vị 'lần' hay
    * '%' dựng ra đúng cùng những object như trước.
    */
   points = points.map((point) => {
-    const shortX = xScale === null ? undefined : shortenLabel(point.x, point.label, xScale);
-    const shortY = point.y === null ? undefined : shortenLabel(point.y, point.valueLabel, yScale);
+    const shortX = xScale === null ? undefined : labelAtAxisScale(point.x, xScale);
+    const shortY = point.y === null ? undefined : labelAtAxisScale(point.y, yScale);
     if (shortX === undefined && shortY === undefined) return point;
     return {
       ...point,

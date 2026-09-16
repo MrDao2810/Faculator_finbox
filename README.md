@@ -193,7 +193,7 @@ test → build. Hỏng ở bước nào thì chặn merge ở bước đó.
 
 - **3.2.2 + 5.2.3 đã xong** — chuỗi `CAPM → Mô hình Gordon → Biên an toàn` chạy thật, và màn nâng
   cao WF-04 là một khối mọc thêm trên trang chi tiết khi bật chế độ Nâng cao (không thêm URL nào).
-  `LinkedInput` và `FlowChainStrip` nay có nơi dùng. Chuỗi có **sáu cạnh `dependsOn`** thành hai
+  `LinkedInput` nay có nơi dùng. Chuỗi có **sáu cạnh `dependsOn`** thành hai
   nhánh: `CAPM → Gordon → Biên an toàn`, và `CAPM → WACC → Giá trị nội tại FCFF ← FCFF → FCFE`.
   Mắt xích khép nhánh FCFF chính là công thức thứ **108** — nhóm Định giá nâng 18 → 19. Sau đó ba
   công thức "cố ý chưa đăng ký" (`gia-muc-tieu`, `beta`, `xirr`) khép nốt 108 → 111 — chi tiết ở

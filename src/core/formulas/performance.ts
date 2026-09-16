@@ -109,12 +109,19 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'Lãi 2%/tháng, quy về năm', en: 'A 2%/month gain, annualized' },
-      inputs: { periodReturn: 2, periodsPerYear: 12 },
-      expected: 26.82,
+      title: {
+        vi: 'VN-Index tăng 5,55% riêng tháng 8/2026, quy về cả năm',
+        en: 'The VN-Index rose 5.55% in August 2026 alone, annualized',
+      },
+      inputs: { periodReturn: 5.55, periodsPerYear: 12 },
+      expected: 91.2048,
       note: {
-        vi: 'Cao hơn 24% của phép nhân đơn vì lãi kỳ trước tiếp tục sinh lãi.',
-        en: 'Higher than the 24% from simple multiplication because each period keeps earning on prior gains.',
+        vi: 'Đây là phép ngoại suy, không phải dự báo: ngay tháng liền trước chỉ số giảm 6,7%, quy năm tháng đó sẽ ra một con số âm rất sâu. Quy năm chỉ có nghĩa khi lợi suất kỳ đủ ổn định và lặp lại được, như lãi suất tiền gửi.',
+        en: 'This is an extrapolation, not a forecast: the index fell 6.7% the month before, and annualizing that month would produce a deeply negative figure. Annualizing only means something when the period return is stable and repeatable, the way a deposit rate is.',
+      },
+      source: {
+        vi: 'Tạp chí Kinh tế Tài chính, VN-Index chốt tháng 8/2026 tại 1.832,12 điểm so với 1.735,78 điểm cuối tháng 7.',
+        en: 'Tạp chí Kinh tế Tài chính: the VN-Index closed August 2026 at 1,832.12 points against 1,735.78 at the end of July.',
       },
     },
     tests: [
@@ -235,14 +242,18 @@ export const LOI_SUAT_THUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Lãi danh nghĩa 10%/năm, lạm phát 4%/năm',
-        en: 'A 10%/year nominal return with 4%/year inflation',
+        vi: 'Gửi tiết kiệm 12 tháng 6,8%/năm nhóm Big4, CPI bình quân 8 tháng đầu 2026 tăng 4,45%',
+        en: 'A 6.8%/year twelve-month Big4 deposit against 4.45% average CPI for the first eight months of 2026',
       },
-      inputs: { nominal: 10, inflation: 4 },
-      expected: 5.77,
+      inputs: { nominal: 6.8, inflation: 4.45 },
+      expected: 2.2499,
       note: {
-        vi: 'Thấp hơn phép trừ thẳng 6% một chút — đó chính là điểm của phép chia này.',
-        en: 'Slightly lower than the straight subtraction of 6% — that gap is exactly the point of this division.',
+        vi: 'Gửi 1 tỷ đồng, sau một năm sổ ghi 1,068 tỷ nhưng sức mua chỉ tương đương 1,0225 tỷ của hôm nay. Lấy hai con số trừ thẳng cho nhau ra 2,35%, cao hơn kết quả đúng — càng lạm phát cao thì chênh càng rộng.',
+        en: 'Deposit 1 billion đồng and a year later the passbook says 1.068 billion, yet its purchasing power equals only 1.0225 billion of today. Subtracting the two figures directly gives 2.35%, above the correct answer — and the gap widens as inflation rises.',
+      },
+      source: {
+        vi: 'Lãi suất tiết kiệm trực tuyến nhóm Big4 tháng 9/2026 (VietNamNet); CPI bình quân 8 tháng đầu 2026 do Cục Thống kê công bố ngày 03/09/2026.',
+        en: 'Online Big4 savings rates for September 2026 (VietNamNet); average CPI for the first eight months of 2026 as published by the Statistics Office on 2026-09-03.',
       },
     },
     tests: [
@@ -383,14 +394,18 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Lãi danh nghĩa 12%/năm, ghép hằng tháng',
-        en: 'A 12%/year nominal rate, compounded monthly',
+        vi: 'Gửi kỳ hạn 6 tháng 6,6%/năm nhóm Big4 rồi tái tục thêm một kỳ nữa',
+        en: 'A 6.6%/year six-month Big4 deposit, then rolled over for one more term',
       },
-      inputs: { rate: 12, perYear: 12 },
-      expected: 12.68,
+      inputs: { rate: 6.6, perYear: 2 },
+      expected: 6.7089,
       note: {
-        vi: 'Ghép tháng làm 12% danh nghĩa thành 12,68% thực nhận.',
-        en: 'Monthly compounding turns the nominal 12% into an actual 12.68%.',
+        vi: 'Lãi kỳ đầu được nhập gốc nên mức thực hưởng nhỉnh hơn lãi niêm yết 0,11 điểm phần trăm — trên 1 tỷ đồng là khoảng 1,1 triệu. Cùng mức danh nghĩa đó, ghép hằng tháng đẩy lên 6,80% và ghép hằng ngày lên 6,82%.',
+        en: 'Interest from the first term rolls into the principal, so the effective rate sits 0.11 percentage points above the quoted one — about 1.1 million đồng on a 1 billion deposit. At the same nominal rate, monthly compounding lifts it to 6.80% and daily compounding to 6.82%.',
+      },
+      source: {
+        vi: 'Lãi suất tiết kiệm trực tuyến kỳ hạn 6–11 tháng nhóm Big4 tháng 9/2026 (VietNamNet).',
+        en: 'Online savings rates for 6–11 month terms at the Big4 banks, September 2026 (VietNamNet).',
       },
     },
     tests: [
@@ -514,14 +529,18 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Giá tăng 8%/năm, cổ tức 3%/năm tái đầu tư, giữ 5 năm',
-        en: '8%/year price growth, 3%/year dividends reinvested, held 5 years',
+        vi: 'Giữ 5 năm: giá tăng 19,29%/năm, cổ tức 2,75%/năm đem mua thêm cổ phiếu',
+        en: 'Held five years: 19.29%/year price growth with a 2.75%/year dividend buying more shares',
       },
-      inputs: { priceGrowth: 8, dividendYield: 3, years: 5 },
-      expected: 70.34,
+      inputs: { priceGrowth: 19.29, dividendYield: 2.75, years: 5 },
+      expected: 176.6492,
       note: {
-        vi: 'Chỉ tính tăng giá thì 5 năm được 46,93% — cổ tức tái đầu tư góp thêm hơn 23 điểm phần trăm.',
-        en: 'Price growth alone over 5 years gives 46.93% — reinvested dividends add more than 23 percentage points on top.',
+        vi: 'Phần vượt lên trên mức tăng giá đơn thuần chính là lãi kép của cổ tức: cổ tức mua thêm cổ phiếu, rồi số cổ phiếu mới đó lại nhận cổ tức. Điều kiện là phải thực sự mua lại, và ở Việt Nam còn phải trừ 5% thuế cổ tức trước khi tái đầu tư.',
+        en: 'Everything above the price-growth-only figure is dividends compounding: the payout buys more shares, and those new shares collect dividends in turn. It only holds if the shares are genuinely repurchased, and in Vietnam the 5% dividend tax comes off before anything is reinvested.',
+      },
+      source: {
+        vi: 'Mức tăng giá lấy theo VN-Index giai đoạn 9/2024–8/2026, tỷ suất cổ tức lấy theo FPT tại thị giá 11/09/2026 — hai nguồn ghép lại để minh hoạ tác động tái đầu tư.',
+        en: 'Price growth taken from the VN-Index over 9/2024–8/2026 and the dividend yield from FPT at its 2026-09-11 price — two sources combined to illustrate the reinvestment effect.',
       },
     },
     tests: [
@@ -658,12 +677,19 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'Ba năm liền: +10%, −5%, +20%', en: 'Three straight years: +10%, −5%, +20%' },
-      inputs: { periods: 3, r1: 10, r2: -5, r3: 20 },
-      expected: 7.84,
+      title: {
+        vi: 'VN-Index ba kỳ liền: +12,1% năm 2024, +40,87% năm 2025, +2,67% tám tháng đầu 2026',
+        en: 'The VN-Index over three straight periods: +12.1% in 2024, +40.87% in 2025, +2.67% in the first eight months of 2026',
+      },
+      inputs: { periods: 3, r1: 12.1, r2: 40.87, r3: 2.67 },
+      expected: 17.4778,
       note: {
-        vi: 'Trung bình cộng là 8,33% — cao hơn con số thật vì bỏ qua biến động.',
-        en: 'The arithmetic average is 8.33% — higher than the true figure because it ignores volatility.',
+        vi: 'Trung bình cộng của ba kỳ là 18,55%, cao hơn khoảng 1,07 điểm phần trăm. Khoảng cách này luôn lệch về một phía và càng rộng khi biến động càng mạnh; chỉ trung bình hình học mới nhân dồn ra đúng giá trị cuối kỳ.',
+        en: 'The arithmetic average of the three periods is 18.55%, about 1.07 percentage points higher. That gap always leans the same way and widens as volatility grows; only the geometric mean compounds back to the true end value.',
+      },
+      source: {
+        vi: 'VN-Index chốt năm 2024 tại 1.266,78 điểm, chốt năm 2025 tại 1.784,49 điểm, chốt tháng 8/2026 tại 1.832,12 điểm.',
+        en: 'The VN-Index closed 2024 at 1,266.78 points, 2025 at 1,784.49 points and August 2026 at 1,832.12 points.',
       },
     },
     tests: [
@@ -760,13 +786,18 @@ export const IRR_NIEN_KIM: FormulaModule = {
           },
         },
       ),
+      /*
+       * Trần 360 kỳ, nới từ 120 ngày 16/09/2026: ví dụ của công thức này là một khoản vay 20 năm
+       * trả hằng tháng (240 kỳ). Để trần ở 120 thì ô nhập kẹp xuống một nửa số kỳ và kết quả trên
+       * màn ra 0,19 %/kỳ thay vì 0,79 %/kỳ — sai gấp bốn lần so với con số in trong khối Ví dụ.
+       */
       sliderVar(
         'periods',
         { vi: 'Số kỳ nhận tiền', en: 'Number of periods receiving payments' },
         'kỳ',
         5,
         1,
-        120,
+        360,
         1,
       ),
     ],
@@ -790,14 +821,18 @@ export const IRR_NIEN_KIM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Bỏ 100 triệu ₫, nhận về 25 triệu ₫/kỳ trong 5 kỳ',
-        en: 'Invest 100 million VND, receive 25 million VND/period for 5 periods',
+        vi: 'Vay 3 tỷ ₫ mua nhà kỳ hạn 20 năm, mỗi tháng thực trả 28 triệu ₫',
+        en: 'A 3 billion ₫ home loan over 20 years with an actual payment of 28 million ₫ a month',
       },
-      inputs: { investment: 100_000_000, payment: 25_000_000, periods: 5 },
-      expected: 7.93,
+      inputs: { investment: 3_000_000_000, payment: 28_000_000, periods: 240 },
+      expected: 0.7932,
       note: {
-        vi: 'Tổng thu 125 triệu ₫ nhưng IRR chỉ 7,93%/kỳ vì các khoản về rải rác theo thời gian.',
-        en: 'Total receipts are 125 million VND, but the IRR is only 7.93%/period because the payments are spread out over time.',
+        vi: 'Quy theo cách ngân hàng niêm yết (nhân 12 kỳ) thì tương đương 9,52%/năm, cao hơn mức ưu đãi 8%/năm được chào — con số đưa vào đây là khoản người vay báo trả thực tế, không phải khoản suy ra từ lãi ưu đãi. IRR chính là chỗ bóc tách được khoảng cách đó.',
+        en: 'Quoted the way banks do it (twelve periods a year) this is 9.52%/year, above the 8%/year promotional rate offered — the number entered here is what the borrower reports actually paying, not a figure derived from that rate. IRR is precisely what exposes the gap.',
+      },
+      source: {
+        vi: 'VietnamFinance ngày 28/03/2026, trường hợp vay 3 tỷ đồng kỳ hạn 20 năm, lãi ưu đãi 8%/năm trong 24 tháng đầu.',
+        en: 'VietnamFinance, 2026-03-28: a 3 billion đồng loan over 20 years at a promotional 8%/year for the first 24 months.',
       },
     },
     tests: [
@@ -974,12 +1009,19 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       },
     },
     example: {
-      title: { vi: 'Lợi suất kép 8%/năm', en: 'An 8%/year compound return' },
-      inputs: { rate: 8 },
-      expected: 9.01,
+      title: {
+        vi: 'Gửi tiết kiệm 12 tháng nhóm Big4, lãi 6,8%/năm',
+        en: 'A twelve-month Big4 savings deposit paying 6.8%/year',
+      },
+      inputs: { rate: 6.8 },
+      expected: 10.5361,
       note: {
-        vi: 'Quy tắc 72 nhẩm ra 9 năm — sát với con số chính xác 9,01 năm.',
-        en: 'The rule of 72 gives a quick 9 years — close to the exact figure of 9.01 years.',
+        vi: 'Quy tắc 72 nhẩm ra khoảng 10,6 năm, lệch chưa tới một phần mười năm nên đủ dùng để tính nhẩm. Nhưng tính trên lợi suất THỰC sau lạm phát 2,25%/năm thì phải mất khoảng 31,2 năm sức mua mới nhân đôi.',
+        en: 'The rule of 72 gives roughly 10.6 years, off by less than a tenth of a year, so it works fine as a mental shortcut. On the REAL return of 2.25%/year after inflation, though, doubling purchasing power takes about 31.2 years.',
+      },
+      source: {
+        vi: 'Lãi suất tiết kiệm trực tuyến 12 tháng nhóm Big4 tháng 9/2026 (VietNamNet).',
+        en: 'Online twelve-month savings rates at the Big4 banks, September 2026 (VietNamNet).',
       },
     },
     tests: [
@@ -1093,18 +1135,18 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua FPT giá 65.000 ₫, bán giá 72.300 ₫ sau 90 ngày',
-        en: 'Bought FPT at 65,000 ₫, sold at 72,300 ₫ after 90 days',
+        vi: 'FPT — mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026, nắm 49 ngày',
+        en: 'FPT — bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11, held 49 days',
       },
-      inputs: { buyPrice: 65_000, sellPrice: 72_300, days: 90 },
-      expected: 53.98,
+      inputs: { buyPrice: 62_900, sellPrice: 72_700, days: 49 },
+      expected: 194.0491,
       note: {
-        vi: 'Giá mua dùng mức giả định. Lãi thực tế của thương vụ là 11,2%; con số 54% chỉ là mức quy đổi cả năm.',
-        en: 'The buy price is an assumption. The trade’s actual gain is 11.2%; the 54% figure is only its annualized equivalent.',
+        vi: 'Lãi thực của thương vụ chỉ là 15,58%; con số quy năm dùng để xếp cạnh các khoản có kỳ hạn khác nhau tại cùng một thời điểm, không phải mức kỳ vọng. Mẫu số ở đây là 365 ngày lịch chứ không phải 250 phiên như cách quy năm bên nhóm rủi ro.',
+        en: 'The trade itself gained just 15.58%; the annualized figure exists to line up investments of different lengths at one moment in time, not to set an expectation. The denominator here is 365 calendar days, not the 250 trading sessions used for annualizing in the risk group.',
       },
       source: {
-        vi: 'Finbox_v2, thị giá FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) market price, locked in 2026-09-08.',
+        vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026.',
+        en: 'FPT closing prices on Investing.com, the 2026-07-24 and 2026-09-11 sessions.',
       },
     },
     tests: [
@@ -1267,14 +1309,18 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Danh mục lãi 18,5%, VN-Index cùng kỳ tăng 12,2%',
-        en: 'Portfolio gained 18.5%, VN-Index rose 12.2% over the same period',
+        vi: 'FPT tăng 15,58% trong khi VN-Index cùng kỳ 24/07–11/09/2026 tăng 6,47%',
+        en: 'FPT rose 15.58% while the VN-Index gained 6.47% over the same 2026-07-24 to 2026-09-11 span',
       },
-      inputs: { portfolioReturn: 18.5, benchmarkReturn: 12.2 },
-      expected: 6.3,
+      inputs: { portfolioReturn: 15.58, benchmarkReturn: 6.47 },
+      expected: 9.11,
       note: {
-        vi: 'Danh mục thắng chuẩn 6,3 điểm phần trăm.',
-        en: 'The portfolio beat the benchmark by 6.3 percentage points.',
+        vi: 'Phần chênh mới là phần do việc tự chọn mã tạo ra: một mức lãi nghe giỏi vẫn có thể là kém nếu cùng kỳ cả thị trường còn tăng nhanh hơn. Để con số có nghĩa thì hai lợi suất phải đo trên cùng khoảng thời gian, và nên soi thêm mức rủi ro đi kèm.',
+        en: 'The gap is the part the stock picking actually created: a gain that sounds impressive can still be poor if the whole market climbed faster over the same stretch. For the figure to mean anything both returns must cover the identical span, and the risk taken deserves a look too.',
+      },
+      source: {
+        vi: 'Giá đóng cửa FPT trên Investing.com; VN-Index đi từ 1.686,11 lên 1.795,21 điểm trong cùng khoảng thời gian.',
+        en: 'FPT closing prices on Investing.com; the VN-Index moved from 1,686.11 to 1,795.21 points over the same window.',
       },
     },
     tests: [

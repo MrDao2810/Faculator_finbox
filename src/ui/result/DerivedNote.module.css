@@ -1,0 +1,56 @@
+/*
+ * Cùng khuôn với `ConstantsNote.module.css` — hai khối này là anh em: đều là chặng "không phải ô
+ * nhập" đứng ở cuối khối Số liệu, và khi cả hai cùng có mặt (`thue-tncn-dau-tu`) chúng phải trông
+ * như hai mục của một danh sách chứ không như hai thành phần khác nhau.
+ */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink-soft);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/*
+ * Ở đây nhãn và trị số đứng HAI CỘT, khác `ConstantsNote` vốn xếp dọc.
+ *
+ * Lý do là độ dài thật: nhãn ở đây là `shortLabel` của chặng bóc tách, thứ vốn đã bị ép ngắn để
+ * vừa bề ngang một cột biểu đồ — dài nhất trong 10 công thức là 'Cổ tức giai đoạn đầu' (20 ký tự),
+ * còn `ConstantsNote` phải gánh 'Thuế chuyển nhượng chứng khoán'. Hai cột đọc nhanh hơn, và nó
+ * cũng lặp lại đúng dáng của bảng số dưới biểu đồ, nơi người đọc vừa thấy cùng cặp nhãn–số ấy.
+ */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+}
+
+.label {
+  font-size: var(--text-xs);
+  color: var(--color-ink-soft);
+}
+
+.value {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}

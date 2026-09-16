@@ -62,6 +62,13 @@ export type { ChartArgs } from './build';
 export { buildChartModel } from './build';
 
 /*
+ * Chặng bóc tách công thức TỰ TÍNH RA — khối Số liệu đọc để bày chúng ra, xem docblock ở
+ * `breakdown.ts`. Nằm ở đây chứ không ở `registry` vì nó suy từ `spec.breakdown`, thứ chỉ có
+ * nghĩa với biểu đồ.
+ */
+export { derivedStages } from './breakdown';
+
+/*
  * Biểu đồ NẾN của màn bảng chuỗi giá WF-05 — loại riêng, không phải nhánh của `ChartModel`.
  * Lý do đầy đủ ở docblock `candles.ts`.
  */

@@ -157,18 +157,18 @@ export const MO_HINH_GORDON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VNM — cổ tức 4.350 ₫/CP, giả định tăng 5%/năm, suất sinh lợi yêu cầu 12%',
-        en: 'VNM — dividend 4,350 ₫/share, assumed growth 5%/year, required return 12%',
+        vi: 'FPT — cổ tức 2.000 ₫/CP, tăng trưởng dài hạn 5%/năm, suất sinh lợi yêu cầu 11,92% từ CAPM',
+        en: 'FPT — dividend 2,000 ₫/share, long-term growth 5%/year, required return 11.92% from CAPM',
       },
-      inputs: { dividend: 4_350, growth: 5, requiredReturn: 12 },
-      expected: 65_250,
+      inputs: { dividend: 2_000, growth: 5, requiredReturn: 11.92 },
+      expected: 30_347,
       note: {
-        vi: 'Tăng trưởng và suất sinh lợi dùng mức giả định. Thị giá 60.800 ₫ thấp hơn 65.250 ₫ — cổ phiếu đang rẻ theo mô hình này.',
-        en: 'Growth and required return are assumptions. The market price of 60,800 ₫ is below 65,250 ₫ — the stock looks cheap under this model.',
+        vi: 'Mô hình chỉ định giá phần cổ tức, trong khi FPT giữ lại phần lớn lợi nhuận để tái đầu tư — nên kết quả thấp hơn hẳn thị giá 72.700 ₫. Gordon hợp với doanh nghiệp trưởng thành chia gần hết lợi nhuận, và rất nhạy với hiệu r − g.',
+        en: 'The model values only the dividend stream, while FPT retains most of its profit to reinvest — so the figure lands well below the 72,700 ₫ market price. Gordon suits mature companies that pay out nearly all their earnings, and it is highly sensitive to the r − g spread.',
       },
       source: {
-        vi: 'Finbox_v2, cổ tức Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) dividend, locked in 2026-09-08.',
+        vi: 'cotuc.vn, lịch sử cổ tức tiền mặt FPT Corp (mã FPT), chốt 15/09/2026.',
+        en: 'cotuc.vn, FPT Corp’s (ticker FPT) cash dividend history, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -400,24 +400,24 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — cổ tức 2.000 ₫, giả định tăng 15% trong 5 năm rồi 4% mãi mãi, r 12%',
-        en: 'FPT — dividend 2,000 ₫, assumed growth 15% for 5 years then 4% forever, r 12%',
+        vi: 'FPT — cổ tức 2.000 ₫, tăng 14%/năm trong 5 năm rồi 5% mãi mãi, r 11,92%',
+        en: 'FPT — dividend 2,000 ₫, growing 14%/year for 5 years then 5% forever, r 11.92%',
       },
       inputs: {
         dividend: 2_000,
-        growthStage1: 15,
+        growthStage1: 14,
         years: 5,
-        growthTerminal: 4,
-        requiredReturn: 12,
+        growthTerminal: 5,
+        requiredReturn: 11.92,
       },
-      expected: 40_506.6,
+      expected: 43_845,
       note: {
-        vi: 'Phần còn lại dùng mức giả định. Riêng giá trị cuối kỳ chiết khấu đã chiếm khoảng 29.674 ₫ trong tổng số.',
-        en: 'The rest are assumptions. The discounted terminal value alone accounts for about 29,674 ₫ of the total.',
+        vi: 'Giai đoạn tăng nhanh lấy theo mức tăng lợi nhuận sau thuế nửa đầu 2026 của FPT. Phần lớn giá trị vẫn nằm ở giá trị cuối kỳ chứ không ở năm năm cổ tức đầu — sai một điểm phần trăm ở g vĩnh viễn làm kết quả xê dịch mạnh hơn sai năm điểm ở g giai đoạn đầu.',
+        en: 'The fast-growth stage follows FPT’s net-profit growth in the first half of 2026. Most of the value still sits in the terminal value rather than in the first five years of dividends — being one percentage point off on the perpetual g moves the result more than being five points off on the early-stage g.',
       },
       source: {
-        vi: 'Finbox_v2, cổ tức FPT Corp (mã FPT), chốt 08/09/2026.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) dividend, locked in 2026-09-08.',
+        vi: 'CafeF, kết quả kinh doanh 6 tháng đầu 2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) first-half 2026 results, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -613,14 +613,18 @@ export const CAPM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Rf 3,5%, beta 1,2, phần bù rủi ro 8%',
-        en: 'Rf 3.5%, beta 1.2, risk premium 8%',
+        vi: 'FPT — lợi suất TPCP 10 năm 4,57%, beta 0,9043, phần bù rủi ro Việt Nam 8,13%',
+        en: 'FPT — 10-year government bond yield 4.57%, beta 0.9043, Vietnam risk premium 8.13%',
       },
-      inputs: { riskFree: 3.5, beta: 1.2, erp: 8 },
-      expected: 13.1,
+      inputs: { riskFree: 4.57, beta: 0.9043, erp: 8.13 },
+      expected: 11.922,
       note: {
-        vi: 'Đây chính là chi phí vốn chủ đưa vào WACC hoặc làm r cho mô hình cổ tức.',
-        en: 'This is exactly the cost of equity fed into WACC, or used as r in a dividend model.',
+        vi: 'Beta dưới 1 nghĩa là FPT biến động nhẹ hơn thị trường — trái với cảm nhận rằng cổ phiếu công nghệ luôn bốc; riêng beta này hồi quy trên 55 phiên, ngắn hơn nhiều so với chuẩn hành nghề 2–5 năm. Kết quả chính là chi phí vốn chủ đưa vào WACC và làm r cho mô hình cổ tức.',
+        en: 'A beta below 1 means FPT swings slightly less than the market — the opposite of the usual hunch about tech stocks; this particular beta is regressed over 55 sessions, far shorter than the 2–5 years standard practice uses. The figure is exactly the cost of equity fed into WACC, and the r used in a dividend model.',
+      },
+      source: {
+        vi: 'Trading Economics (lợi suất TPCP 10 năm) và Damodaran (phần bù rủi ro quốc gia), chốt 15/09/2026.',
+        en: 'Trading Economics (10-year government bond yield) and Damodaran (country risk premium), locked in 2026-09-15.',
       },
     },
     tests: [
@@ -776,18 +780,18 @@ export const WACC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — vốn chủ (vốn hoá) 123.946 tỷ ₫, giả định nợ 8.000 tỷ, Re 13,1%, Rd 9%, thuế 20%',
-        en: 'FPT — equity (market cap) 123,946 billion ₫, assumed debt 8,000 billion, Re 13.1%, Rd 9%, tax 20%',
+        vi: 'FPT — vốn chủ 40.995,7 tỷ ₫ ngày 30/06/2026, nợ vay 17.444 tỷ, Re 11,92%, Rd 4,2%, thuế 20%',
+        en: 'FPT — equity 40,995.7 billion ₫ at 2026-06-30, debt 17,444 billion, Re 11.92%, Rd 4.2%, tax 20%',
       },
-      inputs: { equity: 123_946, debt: 8_000, costEquity: 13.1, costDebt: 9, taxRate: 20 },
-      expected: 12.74,
+      inputs: { equity: 40_995.7, debt: 17_444, costEquity: 11.92, costDebt: 4.2, taxRate: 20 },
+      expected: 9.3649,
       note: {
-        vi: 'Thuế suất 20% là mức thuế TNDN hiện hành; nợ vay và hai suất sinh lợi dùng mức giả định. FPT vay nợ rất ít nên WACC gần sát hẳn chi phí vốn chủ 13,1%.',
-        en: 'The 20% tax rate is the current corporate rate; debt and the two return rates are assumptions. FPT carries very little debt, so its WACC sits close to its 13.1% cost of equity.',
+        vi: 'Vốn chủ chiếm khoảng 70% cơ cấu và đắt hơn nợ nhiều lần nên gánh phần lớn kết quả. Chi phí nợ thấp vì FPT vay chủ yếu ngắn hạn bằng ngoại tệ lãi suất thấp, lại được khấu trừ thuế nên sau thuế chỉ còn 3,36%.',
+        en: 'Equity is about 70% of the structure and costs several times more than debt, so it carries most of the figure. The cost of debt is low because FPT borrows mostly short-term in low-rate foreign currencies, and interest is tax-deductible, leaving 3.36% after tax.',
       },
       source: {
-        vi: 'Finbox_v2, vốn hoá FPT Corp (mã FPT), chốt 08/09/2026, dùng làm vốn chủ.',
-        en: 'Finbox_v2, FPT Corp’s (ticker FPT) market cap, locked in 2026-09-08, used as equity.',
+        vi: 'CafeF, báo cáo tài chính hợp nhất quý 2/2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) consolidated Q2 2026 financial statements, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -976,14 +980,24 @@ export const FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'EBIT 500 tỷ, thuế 20%, khấu hao 120 tỷ, CapEx 180 tỷ, ΔNWC 40 tỷ',
-        en: 'EBIT 500 billion, tax 20%, depreciation 120 billion, CapEx 180 billion, ΔNWC 40 billion',
+        vi: 'FPT năm 2025 — EBIT 13.848,8 tỷ ₫, thuế 20%, khấu hao 2.795,9 tỷ, CapEx 5.097,9 tỷ, ΔNWC 3.608,7 tỷ',
+        en: 'FPT in 2025 — EBIT 13,848.8 billion ₫, tax 20%, depreciation 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
       },
-      inputs: { ebit: 500, taxRate: 20, depreciation: 120, capex: 180, nwcChange: 40 },
-      expected: 300,
+      inputs: {
+        ebit: 13_848.8,
+        taxRate: 20,
+        depreciation: 2_795.9,
+        capex: 5_097.9,
+        nwcChange: 3_608.7,
+      },
+      expected: 5_168,
       note: {
-        vi: '500 × 0,8 + 120 − 180 − 40 = 300 tỷ ₫.',
-        en: '500 × 0.8 + 120 − 180 − 40 = 300 billion ₫.',
+        vi: 'Dòng tiền tự do chỉ bằng khoảng 55% lợi nhuận sau thuế: phần chênh là tiền thật đã ra khỏi doanh nghiệp để xây trung tâm dữ liệu, văn phòng và để chôn vào phải thu, tồn kho khi doanh thu tăng. Lấy năm 2025 chứ không lấy nửa đầu 2026 vì kỳ ấy dòng tiền kinh doanh âm do vốn lưu động phình mạnh.',
+        en: 'Free cash flow is only about 55% of net profit: the gap is real money that left the company to build data centers and offices, and to fund receivables and inventory as revenue grew. The 2025 figures are used rather than the first half of 2026, where operating cash flow turned negative as working capital ballooned.',
+      },
+      source: {
+        vi: 'StockAnalysis, báo cáo tài chính năm 2025 của FPT Corp (mã FPT), chốt 15/09/2026.',
+        en: 'StockAnalysis, FPT Corp’s (ticker FPT) 2025 financial statements, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -1060,10 +1074,15 @@ export const FCFE: FormulaModule = {
     },
     latex: 'FCFE = FCFF - I \\, (1 - t) + \\Delta B',
     expression: {
-      vi: 'FCFE = FCFF − Chi phí lãi vay × (1 − Thuế suất) + Vay ròng mới',
-      en: 'FCFE = FCFF − Interest expense × (1 − Tax rate) + New net borrowing',
+      vi: 'FCFE = FCFF − Lãi vay sau thuế (Chi phí lãi vay × (1 − Thuế suất)) + Vay ròng mới',
+      en: 'FCFE = FCFF − After-tax interest (Interest expense × (1 − Tax rate)) + New net borrowing',
     },
     chartType: 'waterfall',
+    /*
+     * Nhãn chặng 'Lãi vay sau thuế' phải khớp chữ với cụm trong `expression` phía trên — chủ dự
+     * án báo hình bóc tách hiện một chặng mà khối Công thức và khối Số liệu không nhắc tới ở đâu
+     * cả, chỉ có "(1 − Thuế suất)" ẩn trong công thức chứ không đặt tên cho chặng.
+     */
     breakdown: [
       { key: 'fcff', sign: 1, shortLabel: { vi: 'FCFF', en: 'FCFF' } },
       {
@@ -1143,14 +1162,18 @@ export const FCFE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FCFF 300 tỷ, lãi vay 60 tỷ, thuế 20%, vay ròng thêm 30 tỷ',
-        en: 'FCFF 300 billion, interest 60 billion, tax 20%, new net borrowing 30 billion',
+        vi: 'FPT năm 2025 — FCFF 5.168,3 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
+        en: 'FPT in 2025 — FCFF 5,168.3 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
       },
-      inputs: { fcff: 300, interest: 60, taxRate: 20, netBorrowing: 30 },
-      expected: 282,
+      inputs: { fcff: 5_168.3, interest: 809.8, taxRate: 20, netBorrowing: 6_256.7 },
+      expected: 10_777,
       note: {
-        vi: '300 − 60 × 0,8 + 30 = 282 tỷ ₫.',
-        en: '300 − 60 × 0.8 + 30 = 282 billion ₫.',
+        vi: 'Kết quả cao hơn cả FCFF lẫn lợi nhuận sau thuế chỉ vì khoản vay ròng trong năm — tiền vay là tiền cổ đông được dùng ngay. Đây là bẫy đọc kinh điển: khi vay ròng đảo chiều sang âm, FCFE sụt mạnh dù hoạt động kinh doanh không đổi.',
+        en: 'The figure exceeds both FCFF and net profit purely because of the net borrowing during the year — borrowed money is cash shareholders can use straight away. That is the classic reading trap: when net borrowing turns negative, FCFE drops sharply even though the underlying business has not changed.',
+      },
+      source: {
+        vi: 'StockAnalysis, bảng cân đối kế toán và kết quả kinh doanh 2024–2025 của FPT Corp (mã FPT), chốt 15/09/2026.',
+        en: 'StockAnalysis, FPT Corp’s (ticker FPT) 2024–2025 balance sheet and income statement, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -1328,18 +1351,18 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'HPG — 8.442,96 triệu CP, giả định FCFF 15.000 tỷ, tăng 4%/năm, WACC 10,7%, nợ ròng 40.000 tỷ',
-        en: 'HPG — 8,442.96 million shares, assumed FCFF 15,000 billion, growing 4%/year, WACC 10.7%, net debt 40,000 billion',
+        vi: 'FPT — FCFF 5.168,3 tỷ ₫, tăng 5%/năm, WACC 9,37%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
+        en: 'FPT — FCFF 5,168.3 billion ₫, growing 5%/year, WACC 9.37%, net debt −11,527.6 billion, 1,714.33 million shares',
       },
-      inputs: { fcff: 15_000, growth: 4, wacc: 10.7, netDebt: 40_000, shares: 8_442.96 },
-      expected: 22_839.84,
+      inputs: { fcff: 5_168.3, growth: 5, wacc: 9.37, netDebt: -11_527.6, shares: 1_714.33 },
+      expected: 79_161,
       note: {
-        vi: 'FCFF, WACC và nợ ròng dùng mức giả định vì mô hình này cần báo cáo lưu chuyển tiền tệ mà Finbox_v2 chưa cấp. Giá trị doanh nghiệp 232.836 tỷ ₫, trừ nợ ròng còn 192.836 tỷ ₫ cho cổ đông.',
-        en: 'FCFF, WACC and net debt are assumptions, since this model needs a cash-flow statement Finbox_v2 does not yet supply. Enterprise value is 232,836 billion ₫; after subtracting net debt, 192,836 billion ₫ remains for shareholders.',
+        vi: 'Nợ vay ròng âm nghĩa là FPT giữ tiền và đầu tư tài chính ngắn hạn nhiều hơn nợ vay, nên phần ấy cộng thêm vào giá trị của cổ đông. Kết quả phụ thuộc nặng vào hiệu WACC − g: hạ g một điểm phần trăm là giá trị rơi hơn 20%, nên bản định giá nghiêm túc luôn kèm bảng độ nhạy hai chiều thay vì một con số duy nhất.',
+        en: 'Negative net debt means FPT holds more cash and short-term investments than borrowings, so that balance adds to the shareholders’ share. The result leans heavily on the WACC − g spread: cutting g by one percentage point takes over 20% off the value, which is why a serious valuation always ships a two-way sensitivity table instead of a single figure.',
       },
       source: {
-        vi: 'Finbox_v2, số cổ phiếu Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) share count, locked in 2026-09-08.',
+        vi: 'CafeF, bảng cân đối kế toán ngày 30/06/2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) balance sheet at 2026-06-30, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -1569,14 +1592,18 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Nhận 1 tỷ ₫ sau 10 năm, chiết khấu 8%/năm',
-        en: 'Receiving 1 billion ₫ in 10 years, discounted at 8%/year',
+        vi: 'Cần bao nhiêu hôm nay để có 1 tỷ ₫ sau 10 năm, lãi suất gửi 6,8%/năm (tháng 9/2026)',
+        en: 'How much is needed today to hold 1 billion ₫ in 10 years at a 6.8%/year deposit rate (September 2026)',
       },
-      inputs: { futureValue: 1_000_000_000, rate: 8, years: 10 },
-      expected: 463_193_488.08,
+      inputs: { futureValue: 1_000_000_000, rate: 6.8, years: 10 },
+      expected: 517_949_565,
       note: {
-        vi: 'Hơn nửa giá trị đã bay hơi chỉ vì phải chờ 10 năm.',
-        en: 'More than half the value has evaporated just from having to wait 10 years.',
+        vi: 'Hơn một nửa mục tiêu phải có sẵn ngay từ đầu, phần còn lại do lãi kép làm ra trong mười năm. Con số bỏ qua lạm phát: với CPI bình quân 4,45%/năm, mục tiêu ấy sau mười năm chỉ còn sức mua tương đương khoảng 645 triệu ₫ hôm nay.',
+        en: 'More than half the target must already be in hand at the start; compounding produces the rest over ten years. The figure ignores inflation: at an average CPI of 4.45%/year, that target ten years out is worth only about 645 million ₫ in today’s purchasing power.',
+      },
+      source: {
+        vi: 'VietNamNet, lãi suất tiết kiệm trực tuyến 12 tháng của Agribank, BIDV, Vietcombank và VietinBank, tháng 9/2026.',
+        en: 'VietNamNet, 12-month online deposit rates at Agribank, BIDV, Vietcombank and VietinBank, September 2026.',
       },
     },
     tests: [
@@ -1716,14 +1743,18 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Đầu tư 100 triệu ₫, sinh lợi 10%/năm, giữ 15 năm',
-        en: 'Investing 100 million ₫, earning 10%/year, held for 15 years',
+        vi: 'Gửi 100 triệu ₫ kỳ hạn 12 tháng, lãi 6,8%/năm (tháng 9/2026), giữ 10 năm',
+        en: 'Depositing 100 million ₫ on a 12-month term at 6.8%/year (September 2026), held for 10 years',
       },
-      inputs: { presentValue: 100_000_000, rate: 10, years: 15 },
-      expected: 417_724_816.94,
+      inputs: { presentValue: 100_000_000, rate: 6.8, years: 10 },
+      expected: 193_068_991,
       note: {
-        vi: 'Gấp hơn 4 lần vốn gốc nhờ lãi kép.',
-        en: 'More than 4 times the original principal thanks to compounding.',
+        vi: 'Gần gấp đôi sau mười năm, khớp quy tắc 72 (72 ÷ 6,8 ≈ 10,6 năm để nhân đôi). Con số chỉ đúng khi lãi được nhập gốc mỗi kỳ và lãi suất giữ nguyên suốt chặng — thực tế không ngân hàng nào cam kết mức lãi suất mười năm.',
+        en: 'Nearly double after ten years, in line with the rule of 72 (72 ÷ 6.8 ≈ 10.6 years to double). The figure only holds if interest is rolled back into the principal each period and the rate stays put the whole way — in practice no bank commits to a rate for ten years.',
+      },
+      source: {
+        vi: 'VietNamNet, lãi suất tiết kiệm trực tuyến kỳ hạn 12 tháng nhóm Big4, tháng 9/2026.',
+        en: 'VietNamNet, 12-month online deposit rates across the Big 4 banks, September 2026.',
       },
     },
     tests: [
@@ -1845,18 +1876,18 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VNM — thị giá 60.800 ₫, giả định giá trị nội tại 75.000 ₫ từ một mô hình định giá',
-        en: 'VNM — market price 60,800 ₫, assumed intrinsic value 75,000 ₫ from a valuation model',
+        vi: 'FPT — thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 79.161 ₫ từ DCF',
+        en: 'FPT — market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 79,161 ₫ from DCF',
       },
-      inputs: { intrinsic: 75_000, price: 60_800 },
-      expected: 18.93,
+      inputs: { intrinsic: 79_161, price: 72_700 },
+      expected: 8.1618,
       note: {
-        vi: 'Giá trị nội tại là kết quả GIẢ ĐỊNH từ một mô hình định giá, không phải số liệu thô. Đang mua rẻ hơn ước tính khoảng 19% — khoảng đệm cho sai số của mô hình.',
-        en: 'The intrinsic value is an ASSUMED output from a valuation model, not raw data. Buying about 19% cheaper than the estimate — a cushion against error in the model.',
+        vi: 'Giá trị nội tại lấy nguyên từ mô hình DCF ở trên, nên biên này thừa hưởng mọi giả định của mô hình đó. Graham đòi biên tối thiểu 30–50% chính vì lý do ấy: ở mức đệm chưa tới mười điểm phần trăm, chỉ một giả định lệch nhẹ là kết luận đảo chiều.',
+        en: 'The intrinsic value is taken straight from the DCF model above, so this margin inherits every assumption that model makes. Graham asked for at least 30–50% for exactly that reason: with a cushion under ten percentage points, a single assumption drifting slightly flips the conclusion.',
       },
       source: {
-        vi: 'Finbox_v2, thị giá Vinamilk (mã VNM), chốt 08/09/2026.',
-        en: 'Finbox_v2, Vinamilk’s (ticker VNM) market price, locked in 2026-09-08.',
+        vi: 'Investing.com, giá đóng cửa FPT Corp (mã FPT) phiên 11/09/2026.',
+        en: 'Investing.com, FPT Corp’s (ticker FPT) closing price on 2026-09-11.',
       },
     },
     tests: [

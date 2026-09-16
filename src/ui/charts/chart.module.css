@@ -530,9 +530,13 @@
   stroke-dasharray: 2 2;
 }
 
+/*
+ * KHÔNG khai `font-size` ở đây. Cỡ chữ nhãn chặng do `WaterfallChart.tsx` đặt bằng thuộc tính
+ * `fontSize` (8 đơn vị ở khổ hẹp, 9 ở khổ rộng), vì lề trái của hình tính THEO con số ấy — để cỡ
+ * chữ bên CSS thì luật này thắng thuộc tính và lề trái tính theo một con số khác với chữ đang vẽ.
+ */
 .barLabel {
   fill: var(--color-ink-soft);
-  font-size: 9px;
   dominant-baseline: middle;
 }
 

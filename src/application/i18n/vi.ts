@@ -265,17 +265,22 @@ export const vi = {
    */
   'example.source': 'Nguồn:',
   'source.title': 'Nguồn tham khảo',
-  'flow.title': 'Dải luồng tính toán',
-  'flow.cyclicWarning': 'Có bước phụ thuộc vòng nên chưa xếp được thứ tự:',
-  // Chỉ trình đọc màn hình nghe: dấu chấm ngăn hai nhánh song song, không phải mũi tên nối tiếp.
-  'flow.branch': 'nhánh khác',
-  'flow.stepError': 'lỗi',
+  /*
+   * ── Cả nhóm `flow.*` đã BỎ ngày 16/09/2026 ─────────────────────────────────
+   *
+   * `flow.title`, `flow.branch`, `flow.alsoFrom`, `flow.stepError`, `flow.cyclicWarning` chỉ
+   * phục vụ hình vẽ chuỗi phụ thuộc ở đầu khối Chuỗi công thức. Hình ấy không còn — nó không giữ
+   * chức năng nào mà thẻ bước bên dưới không có sẵn, và ba lần viết lời dẫn đều không cứu nổi.
+   * Lý do đầy đủ ở docblock `ui/screens/ChainBody.tsx`.
+   */
 
   // Chuỗi công thức nối nhau — WF-04, FR-15 (gói 5.2.3)
   'chain.title': 'Chuỗi công thức',
   /*
-   * `chain.intro` ("Kết quả mỗi bước chảy thẳng vào ô của bước sau…") đã BỎ, chủ dự án chốt
-   * 10/09/2026. Điều nó nói ra thì dải `FlowChainStrip` ngay dưới đã VẼ ra, rõ hơn hẳn.
+   * `chain.intro` cũng BỎ, và đây là lần thứ hai. Cả ba bản từng viết (10/09 "Kết quả mỗi bước
+   * chảy thẳng vào ô của bước sau…", 16/09 "Số liệu chảy theo chiều mũi tên…", rồi "Mỗi ô là một
+   * công thức…") đều làm cùng một việc: đi giải thích một hình vẽ. Bỏ hình thì hết việc cho câu
+   * dẫn — hai tiêu đề nhóm ngay dưới đã nói đủ, và nói bằng chính chữ của việc đang làm.
    */
   'chain.upstreamHeading': 'Bước trước — cấp số liệu cho công thức đang xem',
   'chain.downstreamHeading': 'Bước sau — dùng kết quả của công thức đang xem',
@@ -389,6 +394,11 @@ export const vi = {
   'detail.constantSource': 'Market Config · CON-10',
   'detail.constantsInUse': 'Đang tính theo các mức sau',
   'detail.constantSince': 'áp dụng từ',
+  /*
+   * Nhãn khối bày những đại lượng công thức TỰ TÍNH RA từ các ô trên — thứ biểu đồ bóc tách gọi
+   * tên và vẽ thành cột, nhưng không có ô nhập nào mang tên ấy. Xem `DerivedNote.tsx`.
+   */
+  'detail.derivedInUse': 'Từ các ô trên, công thức tính ra',
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
   'detail.loadExample': 'Xem ví dụ minh hoạ',
   'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',

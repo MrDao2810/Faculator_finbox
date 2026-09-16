@@ -76,11 +76,19 @@ export const ROI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Bỏ ra 100 triệu ₫, nay còn 125 triệu ₫',
-        en: 'Invested 100 million ₫, now worth 125 million ₫',
+        vi: 'FPT — bỏ ra 62,9 triệu ₫ ngày 24/07/2026, tới 11/09/2026 giá trị 72,7 triệu ₫',
+        en: 'FPT — 62.9 million ₫ invested on 2026-07-24, worth 72.7 million ₫ by 2026-09-11',
       },
-      inputs: { cost: 100_000_000, current: 125_000_000 },
-      expected: 25,
+      inputs: { cost: 62_900_000, current: 72_700_000 },
+      expected: 15.5803,
+      note: {
+        vi: 'ROI không có chiều thời gian: một kỳ 49 ngày và một kỳ 5 năm vẫn cho cùng con số. Muốn so sánh công bằng thì dùng CAGR hoặc lợi suất quy năm, và nhớ rằng ROI chưa trừ phí lẫn thuế.',
+        en: 'ROI carries no sense of time: a 49-day holding and a five-year one produce the same figure. For a fair comparison use CAGR or an annualized return, and remember ROI leaves out fees and taxes.',
+      },
+      source: {
+        vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026.',
+        en: 'FPT closing prices on Investing.com, the 2026-07-24 and 2026-09-11 sessions.',
+      },
     },
     tests: [
       { name: 'lãi 25%', inputs: { cost: 100_000_000, current: 125_000_000 }, expected: 25 },
@@ -177,18 +185,18 @@ export const HPR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Mua MWG giá 60.000 ₫, bán giá 72.100 ₫, nhận cổ tức 1.000 ₫',
-        en: 'Bought MWG at 60,000 ₫, sold at 72,100 ₫, received a 1,000 ₫ dividend',
+        vi: 'FPT — giá 62.900 ₫ ngày 24/07/2026 lên 72.700 ₫ ngày 11/09/2026, trong kỳ không có cổ tức',
+        en: 'FPT — 62,900 ₫ on 2026-07-24 rising to 72,700 ₫ on 2026-09-11, with no dividend in the period',
       },
-      inputs: { startPrice: 60_000, endPrice: 72_100, dividend: 1_000 },
-      expected: 21.83,
+      inputs: { startPrice: 62_900, endPrice: 72_700, dividend: 0 },
+      expected: 15.5803,
       note: {
-        vi: 'Giá mua dùng mức giả định. Từ 60.000 ₫ lên 72.100 ₫ cộng cổ tức 1.000 ₫, tổng lợi suất nắm giữ 21,83%.',
-        en: 'The buy price is an assumption. From 60,000 ₫ to 72,100 ₫ plus a 1,000 ₫ dividend, the total holding period return is 21.83%.',
+        vi: 'Cổ tức bằng 0 nên HPR trùng khít ROI — hai bên chỉ tách nhau khi trong kỳ có đợt chốt quyền. Nắm qua một đợt cổ tức 1.000 ₫/CP thì HPR lên 17,17% trong khi lợi suất chỉ theo giá vẫn giữ nguyên.',
+        en: 'With a zero dividend, HPR lands exactly on ROI — the two only part ways when an ex-dividend date falls inside the period. Holding through a 1,000 ₫/share payout would lift HPR to 17.17% while the price-only return stays where it is.',
       },
       source: {
-        vi: 'Finbox_v2, giá bán và cổ tức Thế giới Di động (mã MWG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Mobile World’s (ticker MWG) sell price and dividend, locked in 2026-09-08.',
+        vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026; đợt chốt quyền cổ tức gần nhất 02/12/2025.',
+        en: 'FPT closing prices on Investing.com, the 2026-07-24 and 2026-09-11 sessions; the most recent ex-dividend date was 2025-12-02.',
       },
     },
     tests: [
@@ -282,11 +290,19 @@ export const CAGR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Từ 100 triệu ₫ lên 200 triệu ₫ sau 5 năm',
-        en: 'From 100 million ₫ to 200 million ₫ over 5 years',
+        vi: 'Quỹ VESAF — NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm',
+        en: 'The VESAF fund — NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years',
       },
-      inputs: { start: 100_000_000, end: 200_000_000, years: 5 },
-      expected: 14.87,
+      inputs: { start: 10_000, end: 33_913, years: 9.12 },
+      expected: 14.3284,
+      note: {
+        vi: 'Con số khớp mức tăng luỹ kế +239,1% in trên cùng bản báo cáo. Đây là tốc độ tăng ĐỀU giả định chứ không phải năm nào quỹ cũng lãi chừng ấy — riêng ba tháng gần nhất quỹ âm 5,9%.',
+        en: 'The figure matches the +239.1% cumulative gain printed in the same report. It is an assumed STEADY growth rate, not a return earned in every single year — the latest three months were down 5.9%.',
+      },
+      source: {
+        vi: 'Báo cáo tháng 5/2026 của quỹ VESAF (VinaCapital), NAV/CCQ ngày 31/05/2026, quỹ thành lập 18/04/2017.',
+        en: 'The VESAF fund (VinaCapital) May 2026 report, NAV per unit as of 2026-05-31; the fund launched on 2017-04-18.',
+      },
     },
     tests: [
       {
@@ -417,18 +433,18 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'HPG — thị giá 21.850 ₫, cổ tức 500 ₫/CP/năm',
-        en: 'HPG — market price 21,850 ₫, dividend 500 ₫/share/year',
+        vi: 'FPT — cổ tức tiền mặt 2.000 ₫/CP/năm trên thị giá 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT — a 2,000 ₫/share/year cash dividend against the 72,700 ₫ price on 2026-09-11',
       },
-      inputs: { price: 21_850, dividendPerShare: 500 },
-      expected: 2.29,
+      inputs: { price: 72_700, dividendPerShare: 2_000 },
+      expected: 2.751,
       note: {
-        vi: 'Cổ tức 500 ₫/CP/năm so với thị giá 21.850 ₫, tỷ suất cổ tức của HPG chỉ 2,29%.',
-        en: 'A 500 ₫/share/year dividend against a 21,850 ₫ price gives HPG a dividend yield of just 2.29%.',
+        vi: 'Chưa bằng một nửa lãi suất tiết kiệm 12 tháng 6,8%/năm, lại còn bị khấu trừ 5% thuế cổ tức trong khi lãi tiết kiệm được miễn. Tỷ suất này còn đổi theo giá: ở mức 62.900 ₫ nó là 3,18%.',
+        en: 'Less than half the 6.8%/year twelve-month savings rate, and it is docked 5% dividend tax while deposit interest is exempt. The yield also moves with the price: at 62,900 ₫ it would be 3.18%.',
       },
       source: {
-        vi: 'Finbox_v2, giá và cổ tức Tập đoàn Hoà Phát (mã HPG), chốt 08/09/2026.',
-        en: 'Finbox_v2, Hoa Phat Group’s (ticker HPG) price and dividend, locked in 2026-09-08.',
+        vi: 'Lịch sử cổ tức FPT trên cotuc.vn (mức 20% mệnh giá duy trì từ 2018) và giá đóng cửa phiên 11/09/2026.',
+        en: 'FPT dividend history on cotuc.vn (20% of par, held steady since 2018) and the closing price of the 2026-09-11 session.',
       },
     },
     tests: [
@@ -652,8 +668,8 @@ export const XIRR: FormulaModule = {
         en: "When investing on an irregular schedule (contributions that don't line up monthly, partial withdrawals along the way), or when comparing an actual portfolio against another investment channel using the real dates involved.",
       },
       howToRead: {
-        vi: 'Đọc như một mức lãi suất kép mỗi năm, đem so với lãi suất tiết kiệm cùng kỳ hạn: ví dụ trên màn, 100 triệu ₫ thành 110 triệu ₫ sau đúng một năm cho 10%/năm. Quãng giữa các dòng tiền càng ngắn thì con số quy ra năm càng bị phóng đại — lãi 7% trong hai ngày đã thành hàng triệu %/năm.',
-        en: 'Read it as a compound annual interest rate and compare it against a savings rate of the same term: on the example above, 100 million ₫ becoming 110 million ₫ after exactly one year gives 10%/year. The shorter the span between cash flows, the more the annualized figure is magnified — a 7% gain over two days already becomes millions of percent per year.',
+        vi: 'Đọc như một mức lãi suất kép mỗi năm, đem so với lãi suất tiết kiệm cùng kỳ hạn: một khoản thành gấp đôi sau đúng một năm ứng với XIRR khoảng 100%/năm. Quãng giữa các dòng tiền càng ngắn thì con số quy ra năm càng bị phóng đại — lãi 7% trong hai ngày đã thành hàng triệu %/năm.',
+        en: 'Read it as a compound annual interest rate and compare it against a savings rate of the same term: an amount doubling after exactly one year corresponds to an XIRR of roughly 100%/year. The shorter the span between cash flows, the more the annualized figure is magnified — a 7% gain over two days already becomes millions of percent per year.',
       },
       commonMistakes: {
         vi: 'Quên rằng dòng tiền cuối cùng phải là GIÁ TRỊ HIỆN TẠI của khoản đầu tư (một khoản thu về GIẢ ĐỊNH nếu bán hết hôm nay), không phải chỉ tính tới lần rót tiền gần nhất.',
@@ -662,18 +678,24 @@ export const XIRR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Đầu tư 100 triệu ₫, sau đúng một năm giá trị thành 110 triệu ₫',
-        en: 'Invested 100 million ₫; after exactly one year the value became 110 million ₫',
+        vi: 'FPT — ba lần mua trong tháng 7 và 8/2026, bán hết 300 CP ngày 11/09/2026',
+        en: 'FPT — three purchases across July and August 2026, all 300 shares sold on 2026-09-11',
       },
       inputs: { guess: 10 },
       cashflows: [
-        { date: '2025-01-01', amount: -100_000_000 },
-        { date: '2026-01-01', amount: 110_000_000 },
+        { date: '2026-07-15', amount: -6_680_000 },
+        { date: '2026-07-24', amount: -6_290_000 },
+        { date: '2026-08-21', amount: -7_200_000 },
+        { date: '2026-09-11', amount: 21_810_000 },
       ],
-      expected: 10,
+      expected: 96.5541,
       note: {
-        vi: 'Chỉ một khoản đầu, một khoản thu sau đúng một năm — XIRR trùng với lãi suất kép thông thường.',
-        en: 'Just one investment and one payout exactly one year later — XIRR coincides with an ordinary compound interest rate.',
+        vi: 'XIRR gộp cả ba lần mua theo đúng số ngày thực của từng dòng tiền — việc mà ROI và CAGR không làm được. Kỳ nắm giữ chỉ 22–58 ngày nên con số quy năm bị phóng đại rất mạnh, đọc như một thước so sánh chứ không phải mức kỳ vọng.',
+        en: 'XIRR combines all three purchases using the actual number of days behind each cash flow — something ROI and CAGR cannot do. The holding periods run only 22–58 days, so the annualized figure is heavily magnified; read it as a yardstick, not an expectation.',
+      },
+      source: {
+        vi: 'Giá đóng cửa FPT trên Investing.com, các phiên 15/07, 24/07, 21/08 và 11/09/2026.',
+        en: 'FPT closing prices on Investing.com, the 2026-07-15, 2026-07-24, 2026-08-21 and 2026-09-11 sessions.',
       },
     },
     tests: [

@@ -24,6 +24,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import type { CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import type { FormulaSource } from '../registry/types';
+import { FPT_57_PHIEN, VNINDEX_71_PHIEN } from './market-series-2026';
 import { maxDrawdown, mean, requireCloses, simpleReturns } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
@@ -314,15 +315,19 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Chuỗi leo lên 120 rồi rơi về 90',
-        en: 'A series that climbs to 120 then falls to 90',
+        vi: 'Mua đúng đỉnh FPT trong 55 phiên tính tới 15/09/2026 thì lỗ sâu nhất tới đâu',
+        en: 'How deep the loss runs if you buy FPT at the peak of the 55 sessions through 2026-09-15',
       },
-      inputs: { lookback: 250 },
-      series: CHUOI_DINH_120_DAY_90,
-      expected: 25,
+      inputs: { lookback: 55 },
+      series: FPT_57_PHIEN,
+      expected: 15.0273,
       note: {
-        vi: 'Đỉnh 120, đáy 90 — rơi 30 đồng trên nền 120 là 25%.',
-        en: 'Peak of 120, trough of 90 — a drop of 30 on a base of 120 is 25%.',
+        vi: 'Khoảng rơi được đo từ đỉnh đầu tháng 7 xuống đáy cuối tháng 7/2026 — mức đau mà người vào lệnh sai thời điểm thực sự phải ngồi qua, thứ độ lệch chuẩn không nói ra. Càng sụt sâu thì càng khó giữ đủ lâu để chờ hồi.',
+        en: 'The fall is measured from the early-July peak down to the late-July 2026 trough — the pain someone who timed the entry badly actually has to sit through, which a standard deviation never spells out. The deeper the fall, the harder it is to hold long enough for a recovery.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -406,15 +411,19 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Đỉnh 120, giá phiên gần nhất 108',
-        en: 'Peak of 120, most recent session price 108',
+        vi: 'FPT đang thấp hơn đỉnh của 55 phiên gần nhất bao nhiêu, tính tới phiên 15/09/2026',
+        en: 'How far FPT sits below the peak of its 55 most recent sessions, as of the 2026-09-15 close',
       },
-      inputs: { lookback: 250 },
-      series: CHUOI_DINH_120_DAY_90,
-      expected: 10,
+      inputs: { lookback: 55 },
+      series: FPT_57_PHIEN,
+      expected: 2.4161,
       note: {
-        vi: 'Đã hồi từ đáy 90 lên 108 nhưng vẫn còn kém đỉnh 120 đúng 10%.',
-        en: 'It has recovered from a trough of 90 to 108 but is still exactly 10% below the peak of 120.',
+        vi: 'Khác mức sụt giảm sâu nhất vốn soi cả quá khứ, con số này chỉ so phiên gần nhất với đỉnh nằm trong cửa sổ. Về 0 nghĩa là giá vừa lập đỉnh mới của kỳ.',
+        en: 'Unlike maximum drawdown, which scans the whole past, this figure only compares the most recent session with the peak inside the window. Reaching 0 means the price has just set a new high for the period.',
+      },
+      source: {
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -517,15 +526,19 @@ export const VAR_LICH_SU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Độ tin cậy 95% trên chuỗi 61 phiên mẫu',
-        en: '95% confidence on a 61-session sample series',
+        vi: 'Ngưỡng lỗ một phiên của danh mục bám VN-Index, độ tin cậy 95%, 71 phiên tính tới 15/09/2026',
+        en: 'One-session loss threshold for a VN-Index-tracking portfolio, 95% confidence, 71 sessions through 2026-09-15',
       },
-      inputs: { confidence: 95, lookback: 250 },
-      series: CHUOI_VAR_MAU,
-      expected: 1,
+      inputs: { confidence: 95, lookback: 71 },
+      series: VNINDEX_71_PHIEN,
+      expected: 1.9755,
       note: {
-        vi: 'Phân vị 5% của 60 lợi suất rơi giữa hai phiên −1%, nên ngưỡng lỗ là 1%.',
-        en: 'The 5% percentile of 60 returns falls between two −1% sessions, so the loss threshold is 1%.',
+        vi: 'Đây là NGƯỠNG mà 95% số phiên không vượt qua, chứ không phải mức mất của phiên tệ nhất: ngay trong mẫu này đã có một phiên rơi 3,58%, sâu hơn hẳn ngưỡng. Ví dụ phải dùng chuỗi VN-Index vì phép tính đòi tối thiểu 60 phiên, mà chuỗi FPT thu thập được chỉ có 57.',
+        en: 'This is the THRESHOLD that 95% of sessions stay within, not what the worst session loses: this very sample already holds a session that fell 3.58%, far deeper than the threshold. The example has to use the VN-Index series because the calculation needs at least 60 sessions and the FPT series on hand has only 57.',
+      },
+      source: {
+        vi: 'Investing.com, dữ liệu lịch sử VN-Index, chuỗi 71 phiên 04/06–15/09/2026, đối chiếu chéo Vietstock.',
+        en: 'Investing.com, VN-Index historical data, a 71-session series from 2026-06-04 to 2026-09-15, cross-checked against Vietstock.',
       },
     },
     tests: [
@@ -628,15 +641,19 @@ export const CVAR_LICH_SU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Độ tin cậy 95% trên chuỗi 61 phiên mẫu',
-        en: '95% confidence on a 61-session sample series',
+        vi: 'Mức lỗ bình quân của nhóm phiên tệ nhất trên VN-Index, độ tin cậy 95%, 71 phiên tính tới 15/09/2026',
+        en: 'Average loss across the worst VN-Index sessions, 95% confidence, 71 sessions through 2026-09-15',
       },
-      inputs: { confidence: 95, lookback: 250 },
-      series: CHUOI_VAR_MAU,
-      expected: 4.25,
+      inputs: { confidence: 95, lookback: 71 },
+      series: VNINDEX_71_PHIEN,
+      expected: 2.6858,
       note: {
-        vi: 'Bốn phiên tệ nhất là −10%, −5%, −1% và −1%; trung bình đúng 4,25%.',
-        en: 'The four worst sessions are −10%, −5%, −1%, and −1%; their average is exactly 4.25%.',
+        vi: 'Phép tính lấy bình quân riêng nhóm phiên tệ hơn ngưỡng VaR nên kết quả luôn sâu hơn chính ngưỡng ấy: một bên nói cửa nằm ở đâu, một bên nói phía sau cửa sâu tới đâu. Cũng như VaR, ví dụ phải dùng chuỗi VN-Index vì đòi tối thiểu 60 phiên mà chuỗi FPT chỉ có 57.',
+        en: 'The calculation averages only the sessions worse than the VaR threshold, so the result always runs deeper than that threshold: one says where the doorway is, the other how far down it goes behind it. As with VaR, the example has to use the VN-Index series because it needs at least 60 sessions and the FPT series has only 57.',
+      },
+      source: {
+        vi: 'Investing.com, dữ liệu lịch sử VN-Index, chuỗi 71 phiên 04/06–15/09/2026, đối chiếu chéo Vietstock.',
+        en: 'Investing.com, VN-Index historical data, a 71-session series from 2026-06-04 to 2026-09-15, cross-checked against Vietstock.',
       },
     },
     tests: [

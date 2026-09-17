@@ -11,6 +11,13 @@ import { describe, expect, it } from 'vitest';
 import { runFormula } from '../calc/run';
 import { formatFailures, runSpecTests } from '../calc/run-tests';
 import type { CalcContext } from '../calc/types';
+import {
+  DASHES,
+  LATEX_BACKSLASH,
+  LATEX_BRACES,
+  numbersInLatex,
+  numbersInText,
+} from '../expression-rules';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { latexSymbolTokens } from '../latex-symbols';
@@ -109,8 +116,10 @@ describe('Registry với toàn bộ công thức thật', () => {
     for (const spec of ALL_FORMULAS) {
       const expression = spec.expression?.vi ?? '';
 
-      expect(expression, `${spec.id} còn dấu gạch chéo ngược của LaTeX`).not.toMatch(/\\/);
-      expect(expression, `${spec.id} còn ngoặc nhọn của LaTeX`).not.toMatch(/[{}]/);
+      expect(expression, `${spec.id} còn dấu gạch chéo ngược của LaTeX`).not.toMatch(
+        LATEX_BACKSLASH,
+      );
+      expect(expression, `${spec.id} còn ngoặc nhọn của LaTeX`).not.toMatch(LATEX_BRACES);
       // Dấu bằng bảo đảm đây là một công thức chứ không phải mẩu biểu thức rời.
       expect(expression, `${spec.id} thiếu dấu bằng`).toContain('=');
     }
@@ -126,7 +135,7 @@ describe('Registry với toàn bộ công thức thật', () => {
   it('dòng đó không dùng gạch ngang — dễ đọc nhầm thành dấu trừ', () => {
     for (const spec of ALL_FORMULAS) {
       for (const text of [spec.expression?.vi ?? '', spec.expression?.en ?? '']) {
-        expect(text, `${spec.id} có gạch ngang trong dòng công thức`).not.toMatch(/[–—]/);
+        expect(text, `${spec.id} có gạch ngang trong dòng công thức`).not.toMatch(DASHES);
       }
     }
   });
@@ -145,24 +154,12 @@ describe('Registry với toàn bộ công thức thật', () => {
    * phần trăm thì hình ghi `× 100` — như ROE, ROI, sụt giảm.
    */
   it('dòng chữ nêu đúng các hằng số có trong hình, và ngược lại', () => {
-    const soTrongChu = (text: string, ngon: 'vi' | 'en'): string[] => {
-      const nghin = ngon === 'vi' ? /(\d)\.(?=\d{3}\b)/g : /(\d),(?=\d{3}\b)/g;
-      const thapPhan = ngon === 'vi' ? ',' : '.';
-      const so = text.replace(nghin, '$1').match(/\d+(?:[.,]\d+)?/g) ?? [];
-      return so
-        .map((s) => (thapPhan === ',' ? s.replace(',', '.') : s))
-        .filter((s) => !['0', '1', '2'].includes(s));
-    };
+    // Hai hàm đếm số sống ở `expression-rules.ts`: dòng chữ của từng bước "cách tính" chịu đúng
+    // luật này, nên thước đo phải là một, không chép thành hai bản.
     for (const spec of ALL_FORMULAS) {
-      const trongHinh = [
-        ...new Set(
-          latexSymbolTokens(spec.latex)
-            .filter((token) => /^\d/.test(token))
-            .map((token) => token.replace(',', '.')),
-        ),
-      ].sort();
+      const trongHinh = numbersInLatex(spec.latex);
       for (const ngon of ['vi', 'en'] as const) {
-        const trongChu = [...new Set(soTrongChu(spec.expression?.[ngon] ?? '', ngon))].sort();
+        const trongChu = numbersInText(spec.expression?.[ngon] ?? '', ngon);
         expect(trongChu, `${spec.id} · ${ngon}: hằng số trong dòng chữ khác trong hình`).toEqual(
           trongHinh,
         );
@@ -241,7 +238,7 @@ describe('Registry với toàn bộ công thức thật', () => {
     const coGach = canKiemKyHieu.flatMap((spec) =>
       (spec.symbols ?? []).flatMap((symbol) =>
         (['vi', 'en'] as const)
-          .filter((ngon) => /[–—]/.test(symbol.meaning[ngon]))
+          .filter((ngon) => DASHES.test(symbol.meaning[ngon]))
           .map((ngon) => `${spec.id} · ${symbol.latex} · ${ngon}: "${symbol.meaning[ngon]}"`),
       ),
     );

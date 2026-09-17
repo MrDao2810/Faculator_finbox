@@ -572,12 +572,122 @@ window.__themeLog = [];
       ) <= 2,
     bangPc === null ? 'không thấy bảng ký hiệu' : JSON.stringify(bangPc),
   );
+
+  /*
+   * ── Khung "cách tính" (17/09/2026) — rê chuột ở PC, chạm ở điện thoại ─────────────────────────
+   *
+   * jsdom gác hành vi (mở, đóng, ghim); chỉ Chrome thật trả lời được ba câu còn lại: khung có nằm
+   * TRỌN trong màn không, ký hiệu có sáng lên thật ở cả ba chỗ không (CSS của MathML), và thẻ có xê
+   * dịch khi khung mở không. Rê chuột bằng `Input.dispatchMouseEvent` — con trỏ thật, nên `pointerType`
+   * là "mouse" như người dùng.
+   */
+  const DOC_KHUNG = `(() => {
+  const card = document.querySelector('dl[aria-label="Ký hiệu trong công thức"]')?.parentElement;
+  const panel = document.querySelector('[role="group"][id^="cach-tinh-"]');
+  const r = (el) => { const b = el.getBoundingClientRect(); return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), right: Math.round(b.right), width: Math.round(b.width), height: Math.round(b.height) }; };
+  const active = card?.getAttribute('data-active');
+  const sang = active == null ? [] : [...card.querySelectorAll('[data-sym="' + active + '"]')].filter((el) => getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)').map((el) => el.tagName.toLowerCase());
+  return {
+    card: card ? r(card) : null,
+    panel: panel ? r(panel) : null,
+    vw: window.innerWidth, vh: window.innerHeight,
+    sang,
+    tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+  };
+})()`;
+
+  async function reChuot(x, y) {
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+  }
+
+  await open('/cong-thuc/ty-so-sharpe/');
+  const diemCham = await evaluate(`(() => {
+  const el = document.querySelector('math [data-sym]');
+  if (!el) return null;
+  el.scrollIntoView({ block: 'center' });
+  const b = el.getBoundingClientRect();
+  return { x: Math.round(b.left + b.width / 2), y: Math.round(b.top + b.height / 2) };
+})()`);
+  const truocKhiMo = await evaluate(DOC_KHUNG);
+  if (diemCham !== null) await reChuot(diemCham.x, diemCham.y);
+  await new Promise((r) => setTimeout(r, 400));
+  const khiMo = await evaluate(DOC_KHUNG);
+
+  check(
+    'PC 1440 · rê chuột vào ký hiệu trong hình thì khung cách tính mở, nằm trọn trong màn',
+    diemCham !== null &&
+      khiMo.panel !== null &&
+      khiMo.panel.left >= 0 &&
+      khiMo.panel.right <= khiMo.vw &&
+      khiMo.panel.top >= 0 &&
+      khiMo.panel.bottom <= khiMo.vh,
+    JSON.stringify({ diemCham, panel: khiMo.panel }),
+  );
+  check(
+    'PC 1440 · ký hiệu đang mở sáng lên ở cả hình, dòng chữ và bảng ký hiệu',
+    khiMo.sang.includes('span') && khiMo.sang.includes('button') && khiMo.sang.length >= 3,
+    khiMo.sang.join(', '),
+  );
+  check(
+    'PC 1440 · mở khung không làm thẻ Công thức xê dịch hay đổi kích thước',
+    truocKhiMo.card !== null &&
+      khiMo.card !== null &&
+      truocKhiMo.card.width === khiMo.card.width &&
+      truocKhiMo.card.height === khiMo.card.height &&
+      truocKhiMo.card.top === khiMo.card.top,
+    JSON.stringify({ truoc: truocKhiMo.card, sau: khiMo.card }),
+  );
+
+  await reChuot(5, 5);
+  await new Promise((r) => setTimeout(r, 500));
+  const khiRoi = await evaluate(DOC_KHUNG);
+  check('PC 1440 · rời chuột thì khung tắt', khiRoi.panel === null);
+  check(
+    'trang ty-so-sharpe không kêu lỗi hay cảnh báo nào ra console',
+    noise.length === 0,
+    noise[0] ?? '',
+  );
+
   await send('Emulation.setDeviceMetricsOverride', {
     width: 360,
     height: 780,
     deviceScaleFactor: 2,
     mobile: true,
   });
+
+  await open('/cong-thuc/ty-so-sharpe/');
+  await evaluate(`(() => {
+  const nut = document.querySelector('dl button[data-sym]');
+  nut?.scrollIntoView({ block: 'center' });
+  nut?.click();
+})()`);
+  await new Promise((r) => setTimeout(r, 300));
+  const chamMo = await evaluate(DOC_KHUNG);
+  check(
+    'Điện thoại 360 · chạm dòng bảng ký hiệu thì khung mở, nằm trong 0–360, trang không tràn ngang',
+    chamMo.panel !== null &&
+      chamMo.panel.left >= 0 &&
+      chamMo.panel.right <= 360 &&
+      chamMo.tran === false,
+    JSON.stringify(chamMo.panel),
+  );
+
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
+  await new Promise((r) => setTimeout(r, 200));
+  const sauEsc = await evaluate(DOC_KHUNG);
+
+  await evaluate(`document.querySelector('dl button[data-sym]')?.click()`);
+  await new Promise((r) => setTimeout(r, 200));
+  await evaluate(
+    `document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }))`,
+  );
+  await new Promise((r) => setTimeout(r, 200));
+  const sauChamNgoai = await evaluate(DOC_KHUNG);
+  check(
+    'Điện thoại 360 · Esc đóng khung, chạm ra ngoài cũng đóng khung',
+    sauEsc.panel === null && sauChamNgoai.panel === null,
+    JSON.stringify({ sauEsc: sauEsc.panel, sauChamNgoai: sauChamNgoai.panel }),
+  );
 
   /* ── 0b. Khối dưới nếp gấp thật sự được hoãn dựng hình ───────────────────── */
 

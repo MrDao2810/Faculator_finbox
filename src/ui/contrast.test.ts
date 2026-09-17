@@ -274,6 +274,16 @@ for (const [palette, tokens] of PALETTES) {
     });
 
     /*
+     * Ký hiệu đang mở khung "cách tính" sáng lên ở ba chỗ của thẻ Công thức: MathML và dòng chữ
+     * (mực chính), dòng bảng ký hiệu (mực phụ). Cả hai màu mực phải đọc được trên nền tô sáng —
+     * chính lúc người dùng đang nhìn vào ký hiệu ấy.
+     */
+    it('chữ trên nền tô sáng ký hiệu đọc được — khung cách tính của thẻ Công thức', () => {
+      expect(meetsContrast(color('--color-ink'), color('--color-symbol-mark'))).toBe(true);
+      expect(meetsContrast(color('--color-ink-soft'), color('--color-symbol-mark'))).toBe(true);
+    });
+
+    /*
      * Dải kêu gọi cuối màn "Về chúng tôi" đặt chữ MỰC lên nền nhấn nhạt — cặp thứ hai mà
      * `--color-accent-soft` phải gánh, bên cạnh cặp chip ngay trên.
      *

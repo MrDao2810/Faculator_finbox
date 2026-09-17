@@ -322,6 +322,39 @@ price amounts read as a percentage carries `× 100` (ROE, ROI, drawdown, VaR). W
 see a mismatch (how `calc` converts an annual rate to a per-session one, which returns a threshold
 drops), the legend row has to say it.
 
+**Hovering or tapping a symbol opens a "how it is computed" panel** (17/09/2026). The owner pointed at
+Sharpe's card and said users cannot tell how "Lợi suất bình quân một phiên" is computed. Hovering (mouse)
+or tapping a symbol in the KaTeX picture, its phrase in the expression line, or its legend row opens a
+floating panel with 1–3 steps (a small KaTeX picture plus an expression-style line) and, when the
+library has one, a link to that quantity's own formula. The same symbol lights up in all three places.
+The owner scoped it to **quantities that must be computed**. 112 panels across 61 formulas; 50 formulas
+have none, and each records why in `whyNone`. Things that are easy to break:
+
+- **The content lives in `src/core/how-to/`, NOT in `FormulaSpec`**, and only `page.tsx` reads it (via
+  the build-only sub-path `@/application/how-to`, never the barrel). `FormulaDetail` imports the whole
+  Registry, so anything in `spec` ships in every detail page's JS; `spec.symbols` once cost 185 → 198 kB.
+  `notation-view.ts` builds everything at build time and passes one `notation` prop.
+  `build-only-imports.test.ts` pins who may import `katex`, `latex-html`, `mathml-marks`,
+  `notation-view` and the how-to data. `verify:static` fails if a step line shows up in any `out/` JS
+  file.
+- **Every legend row is classified**: a panel (`derived` = `calc` computes it, with `calcEvidence`
+  snippets that must exist in the formula's `calc` block; `linked` = a typed input that is another
+  library formula's result, same unit; `defined` = a standard metric with no library formula, pinned
+  list) or a `skipped` reason. Classify by what `calc` does, not by the letter: `i` = annual ÷ 12 is
+  `derived`. `how-to.test.ts` pins the `defined` list, the no-panel list and the totals.
+- **KaTeX's MathML output ignores `\htmlData`**, so hotspots are marked AFTER KaTeX by
+  `mathml-marks.ts`, which matches legend subtrees structurally and adds `data-sym="k"`.
+  `unmarkSymbols()` must give back the exact KaTeX bytes, and `notation.test.ts` checks that for all 111.
+  A symbol that only exists inside a longer named symbol (`D` in `D/E`) cannot carry a panel; the build
+  throws.
+- **React 19 compares `dangerouslySetInnerHTML` by object identity.** `FormulaNotationCard` builds the
+  `{ __html }` objects once with `useMemo` and is `memo`'d. Inline literals would rebuild the MathML on
+  every keystroke and swap the node under the pointer. Highlighting is pure CSS (`data-active` plus 12
+  static selectors), so nothing ever writes into the MathML.
+- **Keyboard users open panels from the legend buttons only.** There is no tab stop inside the MathML;
+  that is deliberate. Step text follows the expression-line rules (`src/core/expression-rules.ts`, shared
+  with `formulas.test.ts`).
+
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`
 (1). The declaration is what `ConstantsNote` reads to print the label, value, unit, effective date

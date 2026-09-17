@@ -320,6 +320,77 @@ check(
   `${String(soDt)} ký hiệu · ${String(dtCoMath)} dựng bằng KaTeX`,
 );
 
+/* ── Khung "cách tính" trên thẻ Công thức (17/09/2026) ───────────────────── */
+
+/*
+ * Điểm chạm dựng SẴN trong HTML tĩnh ở cả ba chỗ: dấu `data-sym` trong `<math>` (gắn lúc build bởi
+ * `mathml-marks.ts`), đoạn chữ ở dòng chữ, và nút ở bảng ký hiệu. Tỷ số Sharpe là công thức chủ dự án
+ * chỉ vào, và chắc chắn có khung.
+ */
+let sharpeHtml = '';
+try {
+  sharpeHtml = readFileSync('out/cong-thuc/ty-so-sharpe/index.html', 'utf8');
+} catch {
+  // Các check dưới tự trượt vì chuỗi rỗng.
+}
+const sharpeMath = /<math[\s\S]*?<\/math>/.exec(sharpeHtml)?.[0] ?? '';
+check(
+  'khung cách tính: điểm chạm có sẵn trong HTML tĩnh ở hình, dòng chữ và bảng ký hiệu',
+  /data-sym="\d+"/.test(sharpeMath) &&
+    /<span[^>]*data-sym="\d+"/.test(sharpeHtml) &&
+    /<button[^>]*data-sym="\d+"/.test(sharpeHtml),
+  'out/cong-thuc/ty-so-sharpe/index.html',
+);
+
+/*
+ * Chữ của khung cách tính CHỈ được nằm trong HTML của đúng trang mình, không được lọt vào file JS
+ * nào — nó sống ở `src/core/how-to/` chính vì lẽ ấy (xem `types.ts` ở đó). Lọt vào là cả 111 trang
+ * cùng tải chữ cách tính của 111 công thức, và `npm run size` vốn đang đỏ sẵn nên không ai thấy.
+ *
+ * Lấy mẫu là dòng chữ các bước viết thẳng trong mã nguồn (`expression: { vi: '…' }`) — không lấy
+ * cụm chữ `phrases`, vì cụm chép nguyên văn từ `spec.expression` vốn nằm hợp lệ trong gói JS. File
+ * JS có thể viết chữ có dấu dạng `\uXXXX`, nên giải mã trước khi tìm.
+ */
+const DIR_HOW_TO = 'src/core/how-to';
+const dongBuoc = readdirSync(DIR_HOW_TO)
+  .filter((ten) => ten.endsWith('.ts') && !ten.endsWith('.test.ts') && ten !== 'types.ts')
+  .flatMap((ten) => [
+    ...readFileSync(`${DIR_HOW_TO}/${ten}`, 'utf8').matchAll(
+      /expression: \{\s*vi: '([^'$]{30,})'/g,
+    ),
+  ])
+  .map((m) => m[1]);
+
+function tatCaFile(dir, duoi) {
+  return readdirSync(dir).flatMap((ten) => {
+    const duong = `${dir}/${ten}`;
+    return statSync(duong).isDirectory()
+      ? tatCaFile(duong, duoi)
+      : ten.endsWith(duoi)
+        ? [duong]
+        : [];
+  });
+}
+const giaiMa = (text) =>
+  text.replace(/\\u([0-9a-fA-F]{4})/g, (_m, hex) => String.fromCharCode(Number.parseInt(hex, 16)));
+const roVaoJs = existsSync('out/_next/static')
+  ? tatCaFile('out/_next/static', '.js').filter((file) => {
+      const noiDung = giaiMa(readFileSync(file, 'utf8'));
+      return dongBuoc.some((dong) => noiDung.includes(dong));
+    })
+  : ['không thấy out/_next/static'];
+check(
+  'chữ các bước cách tính không lọt vào file JS nào — chỉ nằm trong HTML của trang mình',
+  dongBuoc.length > 0 && roVaoJs.length === 0,
+  roVaoJs.length === 0 ? `${String(dongBuoc.length)} dòng mẫu, 0 file JS` : roVaoJs.join(', '),
+);
+check(
+  'và chữ ấy CÓ mặt trong HTML trang chi tiết — phép chặn rò ở trên không soi vào khoảng trống',
+  dongBuoc.some((dong) =>
+    tatCaFile('out/cong-thuc', '.html').some((f) => readFileSync(f, 'utf8').includes(dong)),
+  ),
+);
+
 /* ── Màn "Về chúng tôi" ──────────────────────────────────────────────────── */
 
 let aboutHtml = '';

@@ -1712,7 +1712,10 @@
       "PowerShell(node --version)",
       "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \\(Join-Path $s \"shot-card-1440.mjs\"\\) $s truoc)",
       "PowerShell(npx prettier --check TASK.md; Select-String -Path TASK.md -Pattern \"Thẻ Công thức khổ PC\" | Select-Object -First 3 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
-      "Bash(RA_REQ=C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/probes/C/p2.json npx vitest run --config C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/vitest.probe.config.ts)"
+      "Bash(RA_REQ=C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/probes/C/p2.json npx vitest run --config C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/vitest.probe.config.ts)",
+      "Bash(FFB_HOWTO_IDS=ty-so-sharpe npx vitest run src/core/how-to/how-to.test.ts src/core/formulas/formulas.test.ts)",
+      "Bash(grep -E '^\\(tsx|ts-node|vite-node|esbuild\\)$')",
+      "Bash(timeout 200 node shot-howto.mjs C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/howto-shots v4 light rsi-wilder vi)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",
@@ -1724,7 +1727,8 @@
       "C:\\caculator_visualize",
       "c:\\Faculator_finbox\\src\\app",
       "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\cfbac60d-8ed5-474e-8daf-59b9f8ce8810\\scratchpad\\audit",
-      "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\cfbac60d-8ed5-474e-8daf-59b9f8ce8810\\scratchpad\\audit\\refs"
+      "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\cfbac60d-8ed5-474e-8daf-59b9f8ce8810\\scratchpad\\audit\\refs",
+      "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\scratchpad"
     ]
   }
 }

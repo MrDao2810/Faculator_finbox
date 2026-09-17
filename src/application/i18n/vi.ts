@@ -406,6 +406,13 @@ export const vi = {
   'detail.formula': 'Công thức',
   /* Tên vùng (aria-label) của bảng ký hiệu cạnh hình công thức — không in ra màn, bảng tự nói nó là gì. */
   'detail.symbols': 'Ký hiệu trong công thức',
+  /*
+   * Khung "cách tính" mở ra khi rê chuột hoặc chạm vào một ký hiệu của thẻ Công thức (17/09/2026).
+   * `howTo.label` là tên vùng cho trình đọc màn hình, ghép với nghĩa của ký hiệu; `howTo.open` đứng
+   * trước tên công thức riêng trong thư viện, ở liên kết cuối khung.
+   */
+  'detail.howTo.label': 'Cách tính',
+  'detail.howTo.open': 'Xem công thức:',
   'detail.inputs': 'Số liệu',
   'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
   'detail.constantSource': 'Market Config · CON-10',

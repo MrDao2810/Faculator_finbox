@@ -148,6 +148,16 @@
    * khối đã có viền ngoài, và `hairline.test.ts` chặn đúng việc dùng nó làm viền bốn phía.
    */
   --color-formula-border: #c9d9f2;
+  /*
+   * Nền TÔ SÁNG một ký hiệu trên thẻ Công thức, lúc khung "cách tính" của nó đang mở (17/09/2026):
+   * cùng một ký hiệu sáng lên ở cả hình, dòng chữ và dòng bảng, để người đọc thấy ba chỗ ấy là
+   * một thứ.
+   *
+   * Sắc VÀNG, cố ý khác họ xanh của nền khung: tô sáng bằng một xanh đậm hơn thì lẫn vào chính cái
+   * khung, còn vàng nổi lên dù độ sáng gần nhau. Chữ mực trên nền này đạt AA — `contrast.test.ts`
+   * chấm cả hai bảng.
+   */
+  --color-symbol-mark: #fbe3a3;
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
   /*
@@ -594,6 +604,8 @@
    * Ở bảng tối "nhạt hơn" nghĩa là lùi GẦN nền hơn, tức tối đi chứ không sáng lên.
    */
   --color-formula-border: #1c2744;
+  /* Tô sáng ký hiệu — vàng trầm để chữ mực sáng vẫn đạt AA, và vẫn tách khỏi nền khung xanh đen. */
+  --color-symbol-mark: #4a3a12;
 
   /* ── Màu nhấn ────────────────────────────────────────────────────────── */
   --color-accent: #8ab4f8; /* 8,42 / 7,38 */

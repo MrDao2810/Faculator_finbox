@@ -49,6 +49,7 @@ import type { CalcContext } from '../core/calc/types';
 import { buildChartModel } from '../core/chart/build';
 import { sweepCandidates } from '../core/chart/sweep';
 import { FORMULA_MODULES } from '../core/formulas';
+import { howToFor } from '../core/how-to';
 import { MARKET_CONFIG } from '../core/market';
 import { scheduleOrDefault } from '../core/market/resolve';
 import { defaultInputs } from '../core/registry/build';
@@ -101,6 +102,17 @@ function proseOf(spec: FormulaSpec, ngon: Ngon = 'vi'): Array<readonly [string, 
     if (v.description !== undefined) {
       out.push([`variables.${v.key}.description`, v.description[ngon]]);
     }
+  }
+  /*
+   * Dòng chữ các bước của khung "cách tính" (17/09/2026) cũng là chữ người dùng đọc trên màn chi
+   * tiết — mở khung là thấy. Khung `linked` không có chữ riêng (nó bày hình và dòng chữ của công
+   * thức đích, vốn đã được soi ở chính công thức ấy).
+   */
+  for (const entry of howToFor(spec.id)?.entries ?? []) {
+    if (entry.kind === 'linked') continue;
+    entry.steps.forEach((step, index) => {
+      out.push([`howTo.${entry.symbol}.buoc${String(index + 1)}`, step.expression[ngon]]);
+    });
   }
   return out;
 }

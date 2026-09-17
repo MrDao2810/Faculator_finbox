@@ -7,15 +7,7 @@ import Link from 'next/link';
  * mất phần MathML dựng sẵn (xem chú thích chỗ đọc `?ma=` bằng `window.location.search`).
  */
 import { useRouter } from 'next/navigation';
-import {
-  Fragment,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   ACTIVE_TICKER_KEY,
@@ -116,6 +108,8 @@ import {
   ownsResult,
 } from '@/ui/screens';
 
+import { FormulaNotationCard } from './FormulaNotationCard';
+import type { NotationView } from './notation-types';
 import { TickerPickerPanel } from './TickerPickerPanel';
 
 import styles from './FormulaDetail.module.css';
@@ -180,18 +174,14 @@ export interface FormulaDetailProps {
    */
   asOf: string;
   /**
-   * Ký hiệu toán học đã dựng sẵn lúc build — chuỗi MathML, xem `latex-html.ts`.
+   * Thẻ Công thức đã dựng sẵn lúc build: hình MathML có gắn dấu ký hiệu, từng ký hiệu của bảng,
+   * dòng chữ tách đoạn, và khung "cách tính" — xem `notation-view.ts`.
    *
-   * Nhận qua prop chứ không tự dựng ở đây: component này có `'use client'`, nên gọi `katex` trong
-   * nó là kéo ~280 kB thư viện vào gói của trình duyệt. Dựng ở `page.tsx` thì HTML vào thẳng file
-   * tĩnh và phía máy khách tốn 0 byte JS.
+   * Nhận qua prop chứ không tự dựng ở đây: component này có `'use client'`, nên gọi `katex` hay đọc
+   * dữ liệu cách tính trong nó là kéo ~280 kB thư viện cùng chữ của cả 111 công thức vào gói của
+   * trình duyệt. Dựng ở `page.tsx` thì HTML vào thẳng file tĩnh của đúng trang ấy.
    */
-  latexHtml: string;
-  /**
-   * Từng ký hiệu của bảng `spec.symbols`, đã dựng thành MathML dòng lúc build — cùng thứ tự với
-   * `spec.symbols`, cùng lý do với `latexHtml`. Xem `latexToInlineMathml()`.
-   */
-  symbolsHtml: ReadonlyArray<string>;
+  notation: NotationView;
 }
 
 type SheetKind = 'preset' | 'paste' | 'export' | 'save';
@@ -273,7 +263,7 @@ function LinkIcon() {
  * Hai công thức có khối kết quả riêng (WF-08 phí & thuế, WF-14 lịch trả nợ) được nạp qua
  * `DetailBody`, tải trễ theo id — đúng chữ "tải trễ khối nặng" của gói 3.2.1.
  */
-export function FormulaDetail({ spec, asOf, latexHtml, symbolsHtml }: FormulaDetailProps) {
+export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
   const pick = usePick();
@@ -2178,57 +2168,11 @@ export function FormulaDetail({ spec, asOf, latexHtml, symbolsHtml }: FormulaDet
         )}
 
         {/*
-          `dangerouslySetInnerHTML` ở đây an toàn và không có đường nào khác: React không dựng
-          được cây MathML từ chuỗi. Đầu vào là hằng số `spec.latex` trong repo, đi qua KaTeX với
-          `trust: false`, và việc dựng xảy ra lúc BUILD chứ không lúc chạy — không có chỗ nào cho
-          chữ người dùng gõ lọt vào. Xem `latex-html.ts`.
-
-          `<div>` chứ không `<p>`: MathML là nội dung khối, nhét vào `<p>` là HTML sai cấu trúc.
+          Hai vế nằm trong MỘT thẻ, ngăn nhau bằng một đường kẻ — bản thiết kế đợt 12. Thẻ nay là
+          component riêng: nó giữ nguyên các nút MathML qua mọi lượt render của màn này và tự lo
+          khung "cách tính" (17/09/2026) — xem docblock `FormulaNotationCard.tsx`.
         */}
-        {/*
-          Hai vế nằm trong MỘT thẻ, ngăn nhau bằng một đường kẻ — bản thiết kế đợt 12. Trước đó
-          chúng là hai khung rời, đọc ra như hai thông tin khác nhau chứ không phải cùng một công
-          thức nói hai lần.
-        */}
-        <div className={styles.formulaCard}>
-          <div className={styles.formulaMain}>
-            <div
-              className={styles.formula}
-              // eslint-disable-next-line react/no-danger -- xem chú thích ngay trên
-              dangerouslySetInnerHTML={{ __html: latexHtml }}
-            />
-            {/*
-              Bản dạng chữ GIỮ LẠI, không phải bản dự phòng: nó nói cùng công thức bằng tên đầy đủ
-              tiếng Việt ("Lợi nhuận sau thuế ÷ Vốn chủ sở hữu"), thứ mà ký hiệu viết tắt phía trên
-              không nói. Người mới đọc dòng này mới hiểu được ký hiệu kia. Tiện thể nó cũng là lối
-              đọc còn lại nếu trình duyệt quá cũ không dựng được MathML.
-            */}
-            <p className={styles.expression}>
-              {spec.expression === undefined ? spec.latex : pick(spec.expression)}
-            </p>
-          </div>
-          {/*
-            Bảng ký hiệu — nửa phải của thẻ (dưới, ở khổ hẹp): mỗi chữ trong hình là gì, "A: là gì".
-            Chủ dự án chốt bố cục 16/09/2026 sau khi chỉ vào `L = max{k : r_{t+1} < 0, …}`. Đây là
-            DỮ LIỆU (`spec.symbols`, cửa gác đòi phủ hết chữ trong hình), không phải một đoạn văn
-            giải thích — hai bản đoạn văn/chú giải mảnh trước đó đều bị bỏ ("quê mùa"); đừng dựng lại
-            chúng ở đây. Ký hiệu dựng bằng KaTeX lúc build như hình chính (`page.tsx`), nên
-            `dangerouslySetInnerHTML` an toàn cùng lý do.
-          */}
-          {spec.symbols !== undefined && spec.symbols.length > 0 && (
-            <dl className={styles.symbols} aria-label={t('detail.symbols')}>
-              {spec.symbols.map((symbol, index) => (
-                <Fragment key={symbol.latex}>
-                  <dt
-                    // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem trên
-                    dangerouslySetInnerHTML={{ __html: symbolsHtml[index] ?? '' }}
-                  />
-                  <dd>{pick(symbol.meaning)}</dd>
-                </Fragment>
-              ))}
-            </dl>
-          )}
-        </div>
+        <FormulaNotationCard spec={spec} notation={notation} />
       </section>
 
       {/* ── 4. Số liệu — ô nhập sinh từ VariableSpec (FR-05) ──────────────── */}

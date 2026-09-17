@@ -1,0 +1,147 @@
+/*
+ * Khung "cách tính" trên thẻ Công thức (17/09/2026) — phần THÊM vào thẻ.
+ *
+ * Dáng của thẻ (nền, viền nét đứt, hai nửa, bảng ký hiệu) vẫn ở `FormulaDetail.module.css`: thẻ
+ * mang cả hai lớp, và file này chỉ lo ba việc — điểm chạm trông ra sao, ký hiệu đang chọn sáng lên
+ * thế nào, và khung nổi.
+ */
+
+/* Khung định vị tuyệt đối theo thẻ, nằm NGOÀI `.formula` (vốn `overflow-x: auto`) nên không bị cắt. */
+.card {
+  position: relative;
+}
+
+.card [data-sym] {
+  cursor: pointer;
+}
+
+/*
+ * Cụm chữ là điểm chạm: gạch chân CHẤM, màu viền ô nhập — đủ để thấy là "có gì đó ở đây" mà không
+ * đọc ra thành liên kết (liên kết của sản phẩm là chữ xanh gạch liền).
+ */
+.phrase,
+.meaningButton {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+  border-radius: 3px;
+}
+
+/*
+ * Nút nghĩa ở bảng ký hiệu trông y như chữ thường của `<dd>`: cùng cỡ, cùng màu, không đệm, không
+ * viền. Là `<button>` để bàn phím và trình đọc màn hình mở được khung; vòng focus do luật chung ở
+ * `globals.css` lo.
+ */
+.meaningButton {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-align: inherit;
+}
+
+/*
+ * ── Tô sáng ký hiệu đang mở khung ────────────────────────────────────────────────────────────────
+ *
+ * 12 cặp selector tĩnh, không sinh bằng JS: thẻ mang `data-active="k"`, mọi `[data-sym='k']` sáng
+ * lên — ở hình, dòng chữ và bảng cùng lúc. Chỉ đổi NỀN (và một quầng bóng cùng màu để nền tràn ra
+ * vài px), không đổi cỡ chữ, đệm hay viền, nên không có gì xê dịch.
+ *
+ * Bảng ký hiệu dài nhất hiện có 10 dòng (Sortino); `notation.test.ts` chặn bảng nào dài hơn 12.
+ */
+.card[data-active='0'] [data-sym='0'],
+.card[data-active='1'] [data-sym='1'],
+.card[data-active='2'] [data-sym='2'],
+.card[data-active='3'] [data-sym='3'],
+.card[data-active='4'] [data-sym='4'],
+.card[data-active='5'] [data-sym='5'],
+.card[data-active='6'] [data-sym='6'],
+.card[data-active='7'] [data-sym='7'],
+.card[data-active='8'] [data-sym='8'],
+.card[data-active='9'] [data-sym='9'],
+.card[data-active='10'] [data-sym='10'],
+.card[data-active='11'] [data-sym='11'] {
+  background-color: var(--color-symbol-mark);
+  box-shadow: 0 0 0 2px var(--color-symbol-mark);
+  border-radius: 3px;
+}
+
+/* ── Khung nổi ──────────────────────────────────────────────────────────────────────────────── */
+
+/*
+ * Lớp NỔI nên được dùng `--shadow-sm` (xem docblock token ấy). Rộng tối đa 22rem ở PC; ở khổ 360
+ * gần trọn bề ngang màn trừ hai lề 8px. `place-panel.ts` tính chỗ; `maxHeight` chỉ có khi không
+ * phía nào đủ chỗ, và lúc ấy khung tự cuộn.
+ */
+.panel {
+  position: absolute;
+  z-index: 5;
+  box-sizing: border-box;
+  width: min(22rem, calc(100vw - 16px));
+  padding: var(--space-3);
+  overflow-y: auto;
+
+  text-align: left;
+  white-space: normal;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink);
+  cursor: auto;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/*
+ * Ký hiệu và nghĩa chảy LIỀN như một dòng chữ, không xếp flex: nghĩa dài ("trung bình mức tăng giá
+ * mỗi phiên trong kỳ, làm mượt theo Wilder") mà xếp flex thì bị đẩy cả khối xuống dòng dưới, để ký
+ * hiệu đứng trơ trọi một mình trên dòng đầu.
+ */
+.panelTitle {
+  margin: 0 0 var(--space-2);
+  font-weight: var(--weight-medium);
+}
+
+.panelSymbol {
+  margin-inline-end: var(--space-2);
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  min-width: 0;
+}
+
+/* Hình của bước cuộn ngang trong khung riêng như hình chính — cùng lý do `overflow-y: hidden` ở `.formula`. */
+.stepMath {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.stepText {
+  margin: var(--space-1) 0 0;
+  color: var(--color-ink-soft);
+  overflow-wrap: break-word;
+}
+
+.panelLink {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+}

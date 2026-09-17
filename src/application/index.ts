@@ -10,6 +10,10 @@
  * máy chủ như `sitemap.ts` không phải kéo theo React:
  *   @/application/preferences-context · @/application/use-online-status · @/application/use-list-params
  *   @/application/use-list-url-state · @/application/list-url-sync
+ *
+ * Khung "cách tính" của 111 công thức cũng có đường riêng, `@/application/how-to`, nhưng vì lý do
+ * ngược lại: nó CHỈ được đọc lúc build (`page.tsx`), và xuất qua đây là đẩy toàn bộ chữ của nó vào
+ * gói JS của mọi trang. Xem docblock của file ấy.
  */
 
 // ── Kiểu dữ liệu nền ────────────────────────────────────────────────────────

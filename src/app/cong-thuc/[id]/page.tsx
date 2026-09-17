@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { FORMULAS, findCategory } from '@/application';
 
 import { FormulaDetail } from './FormulaDetail';
-import { latexToInlineMathml, latexToMathml } from './latex-html';
+import { buildNotationView } from './notation-view';
 
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
@@ -82,17 +82,9 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   if (formula === undefined) notFound();
 
   /*
-   * Dựng ký hiệu toán học ở ĐÂY, cùng lý do với `AS_OF` phía trên: file này là server component
-   * nên `katex` chỉ chạy trên máy build và không đi vào gói JS của trình duyệt. Xem `latex-html.ts`
-   * để biết vì sao chọn nhánh MathML.
+   * Dựng thẻ Công thức ở ĐÂY, cùng lý do với `AS_OF` phía trên: file này là server component nên
+   * `katex` và dữ liệu "cách tính" của 111 công thức chỉ chạy trên máy build, không đi vào gói JS
+   * của trình duyệt. Mỗi trang chỉ mang phần của chính nó. Xem `notation-view.ts` và `latex-html.ts`.
    */
-  return (
-    <FormulaDetail
-      spec={formula}
-      asOf={AS_OF}
-      latexHtml={latexToMathml(formula.latex)}
-      // Bảng ký hiệu cũng dựng ở đây, từng mục một — cùng lý do, cùng nhánh MathML.
-      symbolsHtml={(formula.symbols ?? []).map((symbol) => latexToInlineMathml(symbol.latex))}
-    />
-  );
+  return <FormulaDetail spec={formula} asOf={AS_OF} notation={buildNotationView(formula)} />;
 }

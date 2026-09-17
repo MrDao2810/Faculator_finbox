@@ -171,7 +171,8 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 2.4.3 | Bảng ký hiệu bỏ gạch ngang dài đọc nhầm thành dấu trừ — 73 dòng, thêm gác       | —       | Xong phần code, chờ chủ dự án soi — xem mục "Bảng ký hiệu có gạch ngang…"      |
 | 3.2.1 | Thẻ Công thức khổ PC — hai nửa căn giữa theo chiều dọc                          | —       | Xong phần code, chờ chủ dự án soi — xem mục "Thẻ Công thức khổ PC…"            |
 | —     | Rà lượt hai nội dung 111 công thức sau khi thay ví dụ thật — 105 phát hiện      | —       | Rà xong, **chưa áp**, chờ chủ dự án duyệt — xem mục "Rà lượt hai…"             |
-| 3.2.2 | Thẻ bước của chuỗi định giá gọi theo tên con số nó cấp                          | —       | Xong phần code, chờ chủ dự án soi — xem mục ngay dưới                          |
+| 3.2.2 | Thẻ bước của chuỗi định giá gọi theo tên con số nó cấp                          | —       | Xong phần code, chờ chủ dự án soi — xem mục "Thẻ bước của chuỗi…"              |
+| 2.4.3 | Khung "cách tính" khi rê chuột/chạm vào một phần của công thức — 111 công thức  | —       | Xong phần code, **chưa build** — xem mục ngay dưới                             |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -179,6 +180,92 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Khung "cách tính" khi rê chuột hoặc chạm vào một phần của công thức (17/09/2026)
+
+**Trạng thái: xong phần code, chưa build.** `npm run check` xanh: 121 file, **2.784** ca. Chưa chạy
+`build`/`verify:static`/`size`/`check:chrome` vì dev server đang giữ cổng 3000. Kế hoạch đã duyệt:
+`C:\Users\daoqu\.claude\plans\ti-p-t-c-v-i-task-tender-thacker.md`.
+
+### Yêu cầu
+
+Chủ dự án gửi ảnh thẻ Công thức của `ty-so-sharpe`: _"'Lợi suất bình quân một phiên' hoặc những phần khác
+đang không biết cách tính … khi hover chuột hoặc bấm vào các đoạn text và ký tự đại diện cho phần nhỏ công
+thức đó thì sẽ hiển thị cách tính … tương tự với tất cả công thức"_.
+
+Chủ dự án chốt: khung nổi cạnh chỗ trỏ (PC rê chuột, điện thoại chạm), tô sáng ký hiệu ở cả hình, dòng
+chữ, bảng ký hiệu; chỉ làm cho đại lượng phải tính; làm trọn 111 công thức một lượt.
+
+### Kết quả nội dung
+
+- **112 khung trên 61 công thức**: 82 `derived`, 23 `linked`, 7 `defined`.
+- **50 công thức không có khung nào**, mỗi công thức ghi lý do trong `whyNone`. Đó là nhóm chỉ số cơ bản,
+  5 công thức phí đơn, 7 công thức phái sinh và các công thức lợi suất gõ tay, vì mọi dòng bảng ký hiệu
+  của chúng là số gõ thẳng, hằng số hoặc phép tính đã hiện trọn trong hình.
+- **7 khung `defined`** (không có mã để đối chiếu, cần soi):
+  - `capm · ERP`, `fcff · EBIT`, `fcff · ΔNWC`, `fcfe · ΔB`;
+  - `gia-tri-noi-tai-fcff · nợ vay ròng`, `ps · doanh thu mỗi cổ phiếu`, `ev-ebitda · EBITDA`.
+- **Chờ REVIEW-2:** 6 khung Bollinger ghi `pendingReview: 'Q1'` (chia n−1), 2 khung tỷ số thông tin ghi
+  `'Q2'`. Đổi `calc` thì phải sửa các khung này.
+- **Cách làm:** 8 agent viết song song theo file nhóm. Mỗi agent tự chạy cửa gác lọc theo id. Tôi đọc lại
+  cả 112 khung, đối chiếu mẩu mã `calcEvidence`.
+- **Lệch kế hoạch:** kế hoạch ghi agent xuất JSON vào thư mục tạm. Thực tế agent ghi thẳng vào file
+  dữ liệu của lô mình, để tự chạy được cửa gác. Mỗi agent chỉ sửa file của lô mình.
+
+### Sửa gì
+
+| File                                                                                      | Sửa gì                                                                                    |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `core/how-to/` (mới)                                                                      | `types.ts`, `recipes.ts` (bước dùng chung), `index.ts`, 17 file dữ liệu, `how-to.test.ts` |
+| `core/expression-rules.ts` (mới)                                                          | luật dòng chữ tách từ `formulas.test.ts`, dùng chung cho dòng chữ các bước                |
+| `core/formulas/formulas.test.ts`                                                          | dùng `expression-rules.ts`, tên và thông báo ca kiểm giữ nguyên                           |
+| `application/how-to.ts` (mới) + barrel docblock                                           | lối vào chỉ-lúc-build, không xuất qua barrel                                              |
+| `app/cong-thuc/[id]/mathml-marks.ts` (mới) + test                                         | gắn `data-sym` vào MathML của KaTeX; `unmarkSymbols()` trả đúng từng byte                 |
+| `app/cong-thuc/[id]/expression-segments.ts` (mới) + test                                  | tách dòng chữ thành điểm chạm theo cụm chép nguyên văn                                    |
+| `app/cong-thuc/[id]/notation-view.ts`, `notation-types.ts` (mới) + `notation.test.ts`     | dựng thẻ lúc build, ném lỗi khi dữ liệu sai                                               |
+| `app/cong-thuc/[id]/FormulaNotationCard.tsx` + `.module.css` + test (mới)                 | thẻ tách khỏi `FormulaDetail`, giữ nút MathML, tô sáng bằng CSS                           |
+| `app/cong-thuc/[id]/HowToPanel.tsx`, `use-how-to-panel.ts`, `place-panel.ts` (mới) + test | khung nổi, rê/chạm/ghim/Esc/chạm ngoài, đặt vị trí trong màn                              |
+| `app/cong-thuc/[id]/build-only-imports.test.ts` (mới)                                     | gác ai được import `katex`, dữ liệu cách tính, file dựng                                  |
+| `app/cong-thuc/[id]/page.tsx`, `FormulaDetail.tsx` (+ test)                               | prop `notation` thay `latexHtml`/`symbolsHtml`                                            |
+| `app/globals.css`                                                                         | token `--color-symbol-mark` cho cả hai bảng màu                                           |
+| `application/i18n/vi.ts`, `en.ts`                                                         | `detail.howTo.label`, `detail.howTo.open`                                                 |
+| `application/prose-audit.test.ts`, `ui/contrast.test.ts`                                  | soi thêm chữ các bước; chấm chữ trên nền tô sáng                                          |
+| `scripts/verify-static.mjs`, `scripts/chrome-check.mjs`                                   | điểm chạm trong HTML tĩnh, chặn chữ bước lọt vào JS; rê chuột/chạm/Esc trên Chrome thật   |
+| `CLAUDE.md`, `core/formulas/README.md`                                                    | luật khung cách tính, bước thêm công thức mới                                             |
+
+### Kiểm chứng
+
+- **`npm run check`** xanh.
+- **Thử làm hỏng:** bỏ phân loại dòng `m` của Sharpe thì cửa gác báo đúng
+  `ty-so-sharpe: dòng "m" chưa được phân loại`. Đã hoàn tác.
+- **Chrome thật trên dev server** (script tạm):
+  - Sharpe, P/E, RSI, trả góp niên kim, FCFF ở 1440 và 360, sáng và tối, vi và en.
+  - Khung nằm trọn trong màn, ký hiệu sáng ở cả ba chỗ, trang không tràn ngang.
+- **Chặn rò trên dev server:** chữ các bước có trong HTML trang Sharpe, không có trong 7 file JS của
+  trang.
+
+### Phát hiện ngoài phạm vi (agent báo, chưa sửa)
+
+- `do-lech-chuan-loi-suat-phien`, `do-lech-chuan-ban-phan`, `cagr`, `ty-so-treynor`: `calc` nhân 100 mà
+  hình và dòng chữ không có `× 100`, lệch quy ước ngày 17/09.
+- `do-lech-chuan-ban-phan`: ghi chú ví dụ "luôn nhỏ hơn độ lệch chuẩn đầy đủ" sai.
+- `rsi-wilder`: bảng ký hiệu nói "trong kỳ", trong khi `wilderAverages()` làm mượt qua cả chuỗi.
+- `macd-duong-tin-hieu`: `description` viết cứng "EMA 9 phiên".
+- `co-lenh-rui-ro`: hai nhánh lỗi tự dựng object thay vì gọi `fail()`.
+- `ev-ebitda`, `ev-sales`: EV âm ra bội số âm mà không cảnh báo.
+- `gia-hoa-von`, `roi-rong`: `source` thiếu nguồn phí lưu ký hoặc thuế.
+- `beta`: ghép lợi suất theo vị trí từ cuối chuỗi, lệch nếu một chuỗi thiếu phiên.
+- Mô tả tiếng Anh ô `totalLiabilities` ghi "debt".
+
+### Việc còn lại
+
+- [ ] Tắt dev server, chạy `npm run build`, `npm run verify:static`, `npm run size` (ghi số trước và
+      sau), `npm run check:chrome`.
+- [ ] Chủ dự án soi khung ở vài trang: Sharpe, P/E, RSI, trả góp niên kim, FCFF, cả PC và điện thoại.
+- [ ] Chủ dự án soi 7 khung `defined` và danh sách 50 công thức không có khung.
+- [ ] Thử chạm trên iPhone thật (Safari), vì `check:chrome` không kiểm được.
 
 ---
 

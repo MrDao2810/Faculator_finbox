@@ -38,7 +38,8 @@ import { PreferencesProvider } from '@/application/preferences-context';
 import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 
 import { FormulaDetail } from './FormulaDetail';
-import { latexToInlineMathml, latexToMathml } from './latex-html';
+import { buildNotationView } from './notation-view';
+import type { NotationView } from './notation-types';
 
 /**
  * Cổng số liệu thị trường thay bằng bản giả — chỉ đường `?ma=` dùng tới nó.
@@ -116,22 +117,27 @@ function specOf(id: string): FormulaSpec {
 }
 
 /**
+ * Thẻ Công thức dựng một lần cho mỗi spec. Bốn ca quét cả 111 màn gọi `Man` hàng trăm lần; dựng lại
+ * KaTeX mỗi lượt là vài giây chết. Khoá theo chính object spec (`WeakMap`), nên ca nào dựng spec tay
+ * từ `specOf()` vẫn được dựng riêng, đúng như `page.tsx` sẽ dựng.
+ */
+const notationCache = new WeakMap<FormulaSpec, NotationView>();
+
+/**
  * Màn chi tiết như `page.tsx` dựng nó.
  *
- * Dựng ký hiệu toán bằng **chính hàm `page.tsx` gọi**, không phải một chuỗi giả: nếu ca kiểm nhận
+ * Dựng thẻ Công thức bằng **chính hàm `page.tsx` gọi**, không phải một chuỗi giả: nếu ca kiểm nhận
  * `latexHtml="<math/>"` viết tay thì nó chứng minh được đúng một thứ là component in ra cái nó
  * được đưa — còn việc 111 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
- * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX kèm theo, miễn phí.
+ * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX và khung cách tính kèm theo, miễn phí.
  */
 function Man({ spec }: { spec: FormulaSpec }) {
-  return (
-    <FormulaDetail
-      spec={spec}
-      asOf={AS_OF}
-      latexHtml={latexToMathml(spec.latex)}
-      symbolsHtml={(spec.symbols ?? []).map((s) => latexToInlineMathml(s.latex))}
-    />
-  );
+  let notation = notationCache.get(spec);
+  if (notation === undefined) {
+    notation = buildNotationView(spec);
+    notationCache.set(spec, notation);
+  }
+  return <FormulaDetail spec={spec} asOf={AS_OF} notation={notation} />;
 }
 
 /**
@@ -336,11 +342,14 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    * quá cũ không dựng được MathML.
    */
   it('giữ cả bản dạng chữ bên cạnh ký hiệu toán', () => {
-    render(<Man spec={specOf('roe')} />);
+    const { container } = render(<Man spec={specOf('roe')} />);
 
     const expr = specOf('roe').expression;
     expect(expr).toBeDefined();
-    expect(screen.getByText(expr?.vi ?? '')).not.toBeNull();
+    // So `textContent` chứ không `getByText`: cụm chữ nào là điểm chạm của khung cách tính thì bọc
+    // trong `<span>`, nên dòng chữ có thể bị chia thành nhiều nút chữ mà vẫn là cùng một dòng.
+    const the = container.querySelector('[class*="formulaCard"]');
+    expect(the?.firstElementChild?.querySelector('p')?.textContent).toBe(expr?.vi);
   });
 
   /*

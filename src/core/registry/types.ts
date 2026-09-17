@@ -250,6 +250,18 @@ export interface FormulaSummary {
   tags: ReadonlyArray<string>;
 }
 
+/**
+ * Một ký hiệu trong `latex` và nghĩa của nó — một dòng của bảng "A: là gì" đứng cạnh hình công thức.
+ *
+ * `latex` chép NGUYÊN VĂN một mẩu của `FormulaSpec.latex` (`'r_{t+1}'`, `'\\bar{r}'`, `'IRR'`, và cả
+ * hằng số không hiển nhiên như `'365'` hay `'1 - (1 + IRR)^{-n}'`), vì màn dựng nó bằng KaTeX y như
+ * hình chính. `meaning` là một CỤM ngắn, không phải câu: "lợi suất phiên t", "số kỳ nhận tiền".
+ */
+export interface SymbolNote {
+  latex: string;
+  meaning: Bilingual;
+}
+
 /** Metadata đầy đủ của một công thức (LDR-01, LDR-02). */
 export interface FormulaSpec extends FormulaSummary {
   /** Chuỗi LaTeX để KaTeX render (UI-03). */
@@ -263,6 +275,21 @@ export interface FormulaSpec extends FormulaSummary {
    * Không dùng để eval.
    */
   expression?: Bilingual;
+  /**
+   * Bảng ký hiệu của hình công thức — mỗi chữ trong `latex` là gì, theo kiểu "L: chuỗi giảm dài
+   * nhất · k: số phiên giảm liên tiếp · r_t: lợi suất phiên t". Màn chi tiết bày nó BÊN PHẢI hình
+   * công thức (dưới hình ở khổ hẹp), chủ dự án chốt bố cục ngày 16/09/2026 sau khi chỉ vào hình
+   * `L = max{k : r_{t+1} < 0, …}` và nói "không hiểu các giá trị".
+   *
+   * Ba luật, đều có cửa gác ở `formulas.test.ts`: mọi công thức đều có bảng; mỗi mục chép nguyên văn
+   * từ `latex`; và gộp các mục lại phải PHỦ HẾT mọi chữ cái, chữ Hy Lạp, viết tắt và hằng số đáng
+   * hỏi trong `latex` (`latexSymbolTokens()` tách chúng ra). Hằng số 0, 1, 2, 100 không bị đòi,
+   * nhưng nên có khi không hiển nhiên — số 1 của IRR, ×100 đổi ra phần trăm.
+   *
+   * Không dùng lại `variables`: bảng biến gọi tên theo Ô NHẬP ("Giá thị trường"), còn ở đây gọi
+   * tên theo CHỮ TRONG HÌNH (`P`); kết quả, chỉ số chạy (t, i, k) và hằng số không phải biến nào.
+   */
+  symbols?: ReadonlyArray<SymbolNote>;
   chartType: ChartType;
   variables: ReadonlyArray<VariableSpec>;
   /** Đơn vị của kết quả, ví dụ 'lần', '%', '₫'. */

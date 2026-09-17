@@ -27,6 +27,39 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       vi: 'Cỡ lệnh = Vốn tài khoản × Rủi ro mỗi lệnh ÷ (Giá vào lệnh − Giá cắt lỗ)',
       en: 'Position size = Account capital × Risk per trade ÷ (Entry price − Stop-loss price)',
     },
+    symbols: [
+      {
+        latex: 'Q',
+        meaning: {
+          vi: 'cỡ lệnh — số cổ phiếu tối đa cho lệnh này, CP',
+          en: 'position size — maximum number of shares for this order, shares',
+        },
+      },
+      { latex: 'V', meaning: { vi: 'vốn tài khoản, ₫', en: 'account capital, ₫' } },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'rủi ro mỗi lệnh — % vốn chấp nhận mất nếu chạm cắt lỗ',
+          en: 'risk per trade — % of capital you accept losing if the stop is hit',
+        },
+      },
+      {
+        latex: 'V \\times r',
+        meaning: {
+          vi: 'số tiền tối đa chấp nhận mất ở lệnh này, ₫',
+          en: 'maximum amount you accept losing on this order, ₫',
+        },
+      },
+      { latex: 'P_{vao}', meaning: { vi: 'giá vào lệnh, ₫', en: 'entry price, ₫' } },
+      { latex: 'P_{cat}', meaning: { vi: 'giá cắt lỗ, ₫', en: 'stop-loss price, ₫' } },
+      {
+        latex: 'P_{vao} - P_{cat}',
+        meaning: {
+          vi: 'khoản lỗ trên mỗi cổ phiếu nếu giá chạm mức cắt lỗ, ₫',
+          en: 'loss per share if the price hits the stop-loss level, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,

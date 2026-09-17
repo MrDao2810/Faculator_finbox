@@ -33,6 +33,21 @@ export const ROI: FormulaModule = {
       vi: 'ROI = (Giá trị hiện tại − Vốn bỏ ra) ÷ Vốn bỏ ra × 100',
       en: 'ROI = (Current value − Capital invested) ÷ Capital invested × 100',
     },
+    symbols: [
+      { latex: 'ROI', meaning: { vi: 'tỷ suất lợi nhuận, %', en: 'return on investment, %' } },
+      {
+        latex: 'V_{cuoi}',
+        meaning: {
+          vi: 'giá trị hiện tại của khoản đầu tư, ₫',
+          en: 'current value of the investment, ₫',
+        },
+      },
+      {
+        latex: 'V_{dau}',
+        meaning: { vi: 'vốn bỏ ra ban đầu, ₫', en: 'capital originally invested, ₫' },
+      },
+      { latex: '100', meaning: { vi: 'đổi ra phần trăm', en: 'converts to percent' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -137,6 +152,19 @@ export const HPR: FormulaModule = {
       vi: 'HPR = (Giá cuối kỳ − Giá đầu kỳ + Cổ tức) ÷ Giá đầu kỳ × 100',
       en: 'HPR = (Ending price − Starting price + Dividend) ÷ Starting price × 100',
     },
+    symbols: [
+      { latex: 'HPR', meaning: { vi: 'lợi suất kỳ nắm giữ, %', en: 'holding period return, %' } },
+      { latex: 'P_{cuoi}', meaning: { vi: 'giá cuối kỳ, ₫', en: 'ending price, ₫' } },
+      { latex: 'P_{dau}', meaning: { vi: 'giá đầu kỳ, ₫', en: 'starting price, ₫' } },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'cổ tức nhận trong kỳ, ₫ mỗi cổ phiếu',
+          en: 'dividends received during the period, ₫ per share',
+        },
+      },
+      { latex: '100', meaning: { vi: 'đổi ra phần trăm', en: 'converts to percent' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['hpr', 'loi suat', 'ky nam giu', 'co tuc'],
@@ -254,6 +282,25 @@ export const CAGR: FormulaModule = {
       vi: 'CAGR = (Giá trị cuối ÷ Giá trị đầu)^(1 ÷ Số năm) − 1',
       en: 'CAGR = (Ending value ÷ Starting value)^(1 ÷ Number of years) − 1',
     },
+    symbols: [
+      {
+        latex: 'CAGR',
+        meaning: {
+          vi: 'tăng trưởng kép bình quân mỗi năm, %/năm',
+          en: 'compound annual growth rate, %/year',
+        },
+      },
+      { latex: 'V_{cuoi}', meaning: { vi: 'giá trị cuối kỳ, ₫', en: 'ending value, ₫' } },
+      { latex: 'V_{dau}', meaning: { vi: 'giá trị đầu kỳ, ₫', en: 'starting value, ₫' } },
+      { latex: 't', meaning: { vi: 'số năm nắm giữ', en: 'number of years held' } },
+      {
+        latex: '1/t',
+        meaning: {
+          vi: 'lấy căn bậc t — chia đều mức tăng cho từng năm',
+          en: 'the t-th root — spreads the growth evenly over each year',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -398,6 +445,18 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       vi: 'Tỷ suất cổ tức = Cổ tức cả năm ÷ Thị giá × 100',
       en: 'Dividend yield = Annual dividend ÷ Market price × 100',
     },
+    symbols: [
+      { latex: 'DY', meaning: { vi: 'tỷ suất cổ tức, %', en: 'dividend yield, %' } },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'cổ tức tiền mặt cả năm, ₫ mỗi cổ phiếu',
+          en: 'annual cash dividend, ₫ per share',
+        },
+      },
+      { latex: 'P', meaning: { vi: 'thị giá hiện tại, ₫', en: 'current market price, ₫' } },
+      { latex: '100', meaning: { vi: 'đổi ra phần trăm', en: 'converts to percent' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -646,6 +705,43 @@ export const XIRR: FormulaModule = {
       vi: 'Tổng các dòng tiền, mỗi cái chiết khấu theo XIRR và đúng số ngày thực kể từ dòng đầu tiên = 0',
       en: 'The sum of all cash flows, each discounted at XIRR over the actual number of days since the first cash flow, equals 0',
     },
+    symbols: [
+      {
+        latex: 'XIRR',
+        meaning: {
+          vi: 'ẩn số cần tìm — suất sinh lợi năm hoá làm tổng về 0, %/năm',
+          en: 'the unknown — the annualized rate that brings the sum to 0, %/year',
+        },
+      },
+      {
+        latex: 'CF_i',
+        meaning: {
+          vi: 'dòng tiền thứ i: chi ra mang dấu âm, thu về mang dấu dương, ₫',
+          en: 'cash flow number i: outflows negative, inflows positive, ₫',
+        },
+      },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'số thứ tự dòng tiền trong bảng',
+          en: 'index of the cash flow in the table',
+        },
+      },
+      {
+        latex: 'd_i',
+        meaning: {
+          vi: 'số ngày từ dòng tiền đầu tiên tới dòng tiền i',
+          en: 'days from the first cash flow to cash flow i',
+        },
+      },
+      {
+        latex: '365',
+        meaning: {
+          vi: 'số ngày một năm, để quy số ngày ra năm',
+          en: 'days in a year, turning days into years',
+        },
+      },
+    ],
     chartType: 'none',
     level: 'advanced',
     /*

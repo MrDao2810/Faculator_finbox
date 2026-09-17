@@ -94,6 +94,9 @@ function proseOf(spec: FormulaSpec, ngon: Ngon = 'vi'): Array<readonly [string, 
   if (spec.example.note !== undefined) out.push(['example.note', spec.example.note[ngon]]);
   if (spec.example.source !== undefined) out.push(['example.source', spec.example.source[ngon]]);
   if (spec.note !== undefined) out.push(['note', spec.note[ngon]]);
+  for (const symbol of spec.symbols ?? []) {
+    out.push([`symbols.${symbol.latex}`, symbol.meaning[ngon]]);
+  }
   for (const v of spec.variables) {
     if (v.description !== undefined) {
       out.push([`variables.${v.key}.description`, v.description[ngon]]);

@@ -96,6 +96,37 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
       en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1]',
     },
+    symbols: [
+      {
+        latex: 'EMI',
+        meaning: {
+          vi: 'khoản trả cố định hằng tháng, ₫/tháng',
+          en: 'fixed monthly payment, ₫/month',
+        },
+      },
+      { latex: 'P', meaning: { vi: 'số tiền vay ban đầu, ₫', en: 'loan amount, ₫' } },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'lãi suất một kỳ tháng = lãi suất / năm ÷ 12, dạng thập phân',
+          en: 'monthly period rate = annual rate ÷ 12, as a decimal',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số kỳ trả = kỳ hạn (năm) × 12',
+          en: 'number of periods = term in years × 12',
+        },
+      },
+      {
+        latex: '(1+i)^n - 1',
+        meaning: {
+          vi: 'tiền lãi kép mà 1 đồng sinh ra sau n kỳ',
+          en: 'compound interest that 1 unit earns over n periods',
+        },
+      },
+    ],
     chartType: 'stackedBar',
     /*
      * Bóc tách KỲ ĐẦU, không phải cả kỳ hạn. Khoản trả hằng tháng không đổi suốt 240 kỳ nhưng
@@ -233,6 +264,30 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       vi: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
       en: 'First period = Loan amount ÷ Number of periods + Loan amount × Period rate',
     },
+    symbols: [
+      {
+        latex: 'A_1',
+        meaning: {
+          vi: 'khoản phải trả ở kỳ đầu tiên, ₫',
+          en: 'payment due in the first period, ₫',
+        },
+      },
+      { latex: 'P', meaning: { vi: 'số tiền vay ban đầu, ₫', en: 'loan amount, ₫' } },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số kỳ trả = kỳ hạn (năm) × 12',
+          en: 'number of periods = term in years × 12',
+        },
+      },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'lãi suất một kỳ tháng = lãi suất / năm ÷ 12, dạng thập phân',
+          en: 'monthly period rate = annual rate ÷ 12, as a decimal',
+        },
+      },
+    ],
     chartType: 'stackedBar',
     /* Kỳ đầu chính là kết quả của công thức này, nên hai chặng ghép lại đúng bằng nó. */
     breakdown: [
@@ -351,6 +406,30 @@ export const LICH_TRA_NO: FormulaModule = {
       vi: 'Tổng lãi = Cộng tiền lãi của tất cả các kỳ',
       en: 'Total interest = Sum of the interest of every period',
     },
+    symbols: [
+      {
+        latex: '\\text{Tổng lãi}',
+        meaning: {
+          vi: 'toàn bộ tiền lãi phải trả trong cả kỳ hạn, ₫',
+          en: 'total interest paid over the whole term, ₫',
+        },
+      },
+      { latex: 'L_k', meaning: { vi: 'tiền lãi của kỳ thứ k, ₫', en: 'interest of period k, ₫' } },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'số thứ tự kỳ trả, chạy từ 1 tới n',
+          en: 'period number, running from 1 to n',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số kỳ trả = kỳ hạn (năm) × 12',
+          en: 'number of periods = term in years × 12',
+        },
+      },
+    ],
     chartType: 'stackedBar',
     /*
      * ── Cạm bẫy của công thức này, và cách né ────────────────────────────────────────────
@@ -604,6 +683,44 @@ export const LAI_KEP: FormulaModule = {
       vi: 'Số tiền cuối = Gốc × (1 + Lãi suất năm ÷ Số lần nhập lãi)^(Số lần nhập lãi × Số năm)',
       en: 'Final amount = Principal × (1 + Annual rate ÷ Compounding frequency)^(Compounding frequency × Years)',
     },
+    symbols: [
+      {
+        latex: 'A',
+        meaning: {
+          vi: 'số tiền cuối kỳ, gồm cả gốc lẫn lãi, ₫',
+          en: 'final amount, principal plus interest, ₫',
+        },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'số tiền gốc gửi ban đầu, ₫', en: 'initial principal deposited, ₫' },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lãi suất / năm, dạng thập phân (8% là 0,08)',
+          en: 'annual interest rate as a decimal (8% is 0.08)',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số lần nhập lãi mỗi năm, lần',
+          en: 'compounding frequency per year, times',
+        },
+      },
+      {
+        latex: 't',
+        meaning: { vi: 'thời gian gửi, năm', en: 'time the money is deposited, years' },
+      },
+      {
+        latex: 'n t',
+        meaning: {
+          vi: 'tổng số kỳ nhập lãi trong suốt thời gian gửi',
+          en: 'total number of compounding periods over the whole time',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -748,6 +865,35 @@ export const LAI_TIEN_GUI: FormulaModule = {
       vi: 'Tiền lãi = Số tiền gửi × Lãi suất năm ÷ 12 × Số tháng',
       en: 'Interest = Deposit amount × Annual rate ÷ 12 × Number of months',
     },
+    symbols: [
+      {
+        latex: 'I',
+        meaning: {
+          vi: 'tiền lãi nhận được khi hết kỳ hạn, ₫',
+          en: 'interest received at maturity, ₫',
+        },
+      },
+      { latex: 'P', meaning: { vi: 'số tiền gửi, ₫', en: 'deposit amount, ₫' } },
+      {
+        latex: 'r',
+        meaning: { vi: 'lãi suất / năm, nhập theo %', en: 'annual interest rate, in %' },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi lãi suất từ % sang số thập phân',
+          en: 'converts the rate from % to a decimal',
+        },
+      },
+      {
+        latex: '12',
+        meaning: {
+          vi: 'số tháng một năm — đổi lãi suất năm thành lãi suất tháng',
+          en: 'months in a year — turns the annual rate into a monthly one',
+        },
+      },
+      { latex: 'T', meaning: { vi: 'kỳ hạn gửi, tháng', en: 'deposit term, months' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['lai tien gui', 'tiet kiem', 'ky han', 'lai don'],
@@ -831,6 +977,40 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
       en: 'Monthly deposit = Goal × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
     },
+    symbols: [
+      {
+        latex: 'PMT',
+        meaning: { vi: 'khoản gửi đều hằng tháng, ₫/tháng', en: 'equal monthly deposit, ₫/month' },
+      },
+      {
+        latex: 'FV',
+        meaning: {
+          vi: 'số tiền mục tiêu muốn có ở cuối kỳ, ₫',
+          en: 'target amount to have at the end of the period, ₫',
+        },
+      },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'lãi suất một kỳ tháng = lãi suất kỳ vọng / năm ÷ 12, dạng thập phân',
+          en: 'monthly period rate = expected annual rate ÷ 12, as a decimal',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'thời gian gửi, tháng — mỗi tháng một khoản',
+          en: 'time in months — one deposit per month',
+        },
+      },
+      {
+        latex: '(1+i)^n - 1',
+        meaning: {
+          vi: 'tiền lãi kép mà 1 đồng sinh ra sau n kỳ',
+          en: 'compound interest that 1 unit earns over n periods',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['tiet kiem muc tieu', 'goal savings', 'gui dinh ky'],

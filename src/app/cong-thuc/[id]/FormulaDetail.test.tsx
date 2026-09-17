@@ -38,7 +38,7 @@ import { PreferencesProvider } from '@/application/preferences-context';
 import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 
 import { FormulaDetail } from './FormulaDetail';
-import { latexToMathml } from './latex-html';
+import { latexToInlineMathml, latexToMathml } from './latex-html';
 
 /**
  * Cổng số liệu thị trường thay bằng bản giả — chỉ đường `?ma=` dùng tới nó.
@@ -124,7 +124,14 @@ function specOf(id: string): FormulaSpec {
  * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX kèm theo, miễn phí.
  */
 function Man({ spec }: { spec: FormulaSpec }) {
-  return <FormulaDetail spec={spec} asOf={AS_OF} latexHtml={latexToMathml(spec.latex)} />;
+  return (
+    <FormulaDetail
+      spec={spec}
+      asOf={AS_OF}
+      latexHtml={latexToMathml(spec.latex)}
+      symbolsHtml={(spec.symbols ?? []).map((s) => latexToInlineMathml(s.latex))}
+    />
+  );
 }
 
 /**
@@ -334,6 +341,41 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     const expr = specOf('roe').expression;
     expect(expr).toBeDefined();
     expect(screen.getByText(expr?.vi ?? '')).not.toBeNull();
+  });
+
+  /*
+   * Thẻ Công thức có hai nửa: trái là hình + dòng chữ, phải là BẢNG KÝ HIỆU "A: là gì" — mỗi chữ
+   * trong hình một dòng, ký hiệu dựng bằng MathML như hình chính (bố cục chủ dự án chốt 16/09/2026).
+   * Không phải đoạn văn: hai bản đoạn văn/chú giải trước đó đã bị bỏ ("quê mùa"). Dùng spec dựng
+   * tay để ca này không phụ thuộc nội dung bảng của công thức thật.
+   */
+  it('thẻ Công thức: hình + dòng chữ bên trái, bảng ký hiệu MathML bên phải, mỗi ký hiệu một dòng', () => {
+    const spec: FormulaSpec = {
+      ...specOf('pe'),
+      symbols: [
+        {
+          latex: 'P',
+          meaning: { vi: 'giá thị trường một cổ phiếu', en: 'market price per share' },
+        },
+        { latex: 'EPS', meaning: { vi: 'lợi nhuận trên mỗi cổ phiếu', en: 'earnings per share' } },
+      ],
+    };
+    const { container } = render(<Man spec={spec} />);
+
+    const the = container.querySelector('[class*="formulaCard"]');
+    expect(the).not.toBeNull();
+    expect(the?.children).toHaveLength(2);
+    expect(the?.firstElementChild?.querySelector('math')).not.toBeNull();
+    expect(the?.firstElementChild?.textContent).toContain(spec.expression?.vi ?? '');
+
+    const bang = the?.lastElementChild;
+    expect(bang?.tagName).toBe('DL');
+    expect(bang?.getAttribute('aria-label')).toBe(t('detail.symbols'));
+    const dts = [...(bang?.querySelectorAll('dt') ?? [])];
+    const dds = [...(bang?.querySelectorAll('dd') ?? [])].map((dd) => dd.textContent);
+    expect(dts).toHaveLength(2);
+    expect(dts.every((dt) => dt.querySelector('math') !== null)).toBe(true);
+    expect(dds).toEqual(['giá thị trường một cổ phiếu', 'lợi nhuận trên mỗi cổ phiếu']);
   });
 
   /*

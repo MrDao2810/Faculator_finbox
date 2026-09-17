@@ -272,6 +272,43 @@ export const SMA_N_PHIEN: FormulaModule = {
       vi: 'SMA = Tổng giá đóng cửa của N phiên gần nhất ÷ N',
       en: 'SMA = Sum of closing prices over the most recent N periods ÷ N',
     },
+    symbols: [
+      {
+        latex: 'SMA_{n}',
+        meaning: {
+          vi: 'trung bình động đơn giản của n phiên gần nhất, ₫',
+          en: 'simple moving average of the last n sessions, ₫',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên trong cửa sổ tính trung bình (ô Số phiên)',
+          en: 'number of sessions in the averaging window (Number of periods field)',
+        },
+      },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'số thứ tự đếm lùi từ 0 tới n−1, 0 là phiên cuối',
+          en: 'counter running back from 0 to n−1, 0 being the last session',
+        },
+      },
+      {
+        latex: 'P_{t-i}',
+        meaning: {
+          vi: 'giá đóng cửa của phiên đứng trước phiên t đúng i phiên, ₫',
+          en: 'closing price of the session i sessions before session t, ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, phiên cuối của chuỗi giá',
+          en: 'session being measured, the last one in the price series',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['sma', 'trung binh dong', 'moving average', 'ma20', 'ma50', 'duong xu huong'],
@@ -388,6 +425,47 @@ export const EMA_N_PHIEN: FormulaModule = {
       vi: 'EMA phiên này = Giá đóng cửa × Hệ số k + EMA phiên trước × (1 − k), với k = 2 ÷ (Số phiên + 1)',
       en: "This period's EMA = Closing price × Factor k + Previous period's EMA × (1 − k), where k = 2 ÷ (Number of periods + 1)",
     },
+    symbols: [
+      {
+        latex: 'EMA_t',
+        meaning: {
+          vi: 'trung bình động luỹ thừa tại phiên t, ₫',
+          en: 'exponential moving average at session t, ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, phiên cuối của chuỗi giá',
+          en: 'session being measured, the last one in the price series',
+        },
+      },
+      {
+        latex: 'P_t',
+        meaning: { vi: 'giá đóng cửa phiên t, ₫', en: 'closing price of session t, ₫' },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'hệ số làm mượt, tỷ trọng dành cho giá của phiên mới nhất',
+          en: "smoothing factor, the weight given to the newest session's price",
+        },
+      },
+      {
+        latex: 'EMA_{t-1}',
+        meaning: {
+          vi: 'EMA của phiên ngay trước phiên t, ₫',
+          en: 'EMA of the session just before session t, ₫',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên của đường EMA (ô Số phiên)',
+          en: 'period of the EMA line (Number of periods field)',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['ema', 'trung binh luy thua', 'exponential moving average', 'ema12', 'ema26'],
@@ -504,6 +582,29 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       vi: 'MACD = EMA chu kỳ nhanh − EMA chu kỳ chậm',
       en: 'MACD = Fast-period EMA − Slow-period EMA',
     },
+    symbols: [
+      {
+        latex: 'MACD',
+        meaning: {
+          vi: 'đường MACD, hiệu giữa EMA nhanh và EMA chậm, ₫',
+          en: 'MACD line, the fast EMA minus the slow EMA, ₫',
+        },
+      },
+      {
+        latex: 'EMA_{nhanh}',
+        meaning: {
+          vi: 'EMA tính theo ô Chu kỳ EMA nhanh, đường bám giá, ₫',
+          en: 'EMA over the Fast EMA period field, the price-tracking line, ₫',
+        },
+      },
+      {
+        latex: 'EMA_{cham}',
+        meaning: {
+          vi: 'EMA tính theo ô Chu kỳ EMA chậm, đường nền, ₫',
+          en: 'EMA over the Slow EMA period field, the baseline, ₫',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'advanced',
     tags: ['macd', 'ema12 ema26', 'phan ky hoi tu', 'dong luong', 'xu huong'],
@@ -626,6 +727,26 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       vi: 'Đường tín hiệu = EMA chu kỳ tín hiệu tính trên chuỗi giá trị MACD',
       en: 'Signal line = EMA of the signal period computed on the series of MACD values',
     },
+    symbols: [
+      {
+        latex: 'Signal',
+        meaning: { vi: 'đường tín hiệu MACD, ₫', en: 'MACD signal line, ₫' },
+      },
+      {
+        latex: 'EMA_{tin hieu}',
+        meaning: {
+          vi: 'EMA theo ô Chu kỳ đường tín hiệu, lấy trên chuỗi MACD chứ không trên giá',
+          en: 'EMA over the Signal line period field, taken on the MACD series, not on price',
+        },
+      },
+      {
+        latex: 'MACD',
+        meaning: {
+          vi: 'chuỗi giá trị đường MACD qua từng phiên, EMA nhanh − EMA chậm, ₫',
+          en: 'series of MACD line values session by session, fast EMA − slow EMA, ₫',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'advanced',
     tags: ['macd signal', 'duong tin hieu', 'ema9', 'giao cat macd', 'histogram'],
@@ -759,6 +880,43 @@ export const RSI_WILDER: FormulaModule = {
       vi: 'RSI = 100 − 100 ÷ (1 + Trung bình tăng ÷ Trung bình giảm), hai trung bình làm mượt theo Wilder',
       en: 'RSI = 100 − 100 ÷ (1 + Average gain ÷ Average loss), both averages smoothed the Wilder way',
     },
+    symbols: [
+      {
+        latex: 'RSI',
+        meaning: {
+          vi: 'chỉ số sức mạnh tương đối, thang 0–100 điểm',
+          en: 'relative strength index on a 0–100 scale, points',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'trần của thang điểm, kéo RS về khoảng 0–100',
+          en: 'ceiling of the scale, mapping RS onto 0–100',
+        },
+      },
+      {
+        latex: 'RS',
+        meaning: {
+          vi: 'sức mạnh tương đối, trung bình tăng chia trung bình giảm, lần',
+          en: 'relative strength, average gain divided by average loss, ratio',
+        },
+      },
+      {
+        latex: '\\overline{Gain}',
+        meaning: {
+          vi: 'trung bình mức tăng giá mỗi phiên trong kỳ, làm mượt theo Wilder, ₫',
+          en: 'average per-session price gain over the period, Wilder-smoothed, ₫',
+        },
+      },
+      {
+        latex: '\\overline{Loss}',
+        meaning: {
+          vi: 'trung bình mức giảm giá mỗi phiên trong kỳ, làm mượt theo Wilder, ₫',
+          en: 'average per-session price loss over the period, Wilder-smoothed, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -916,6 +1074,47 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
       vi: 'ROC = (Giá phiên cuối ÷ Giá của N phiên trước − 1) × 100',
       en: 'ROC = (Last closing price ÷ Price from N periods ago − 1) × 100',
     },
+    symbols: [
+      {
+        latex: 'ROC',
+        meaning: {
+          vi: 'tốc độ thay đổi giá sau n phiên, %',
+          en: 'rate of change of price over n sessions, %',
+        },
+      },
+      {
+        latex: 'P_t',
+        meaning: {
+          vi: 'giá đóng cửa phiên cuối của chuỗi, ₫',
+          en: 'closing price of the last session in the series, ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, phiên cuối của chuỗi giá',
+          en: 'session being measured, the last one in the price series',
+        },
+      },
+      {
+        latex: 'P_{t-n}',
+        meaning: {
+          vi: 'giá đóng cửa của phiên cách đó n phiên về trước, ₫',
+          en: 'closing price n sessions earlier, ₫',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên nhìn lại (ô Số phiên nhìn lại)',
+          en: 'look-back length (Lookback periods field)',
+        },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ thành phần trăm', en: 'converts the ratio to percent' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['roc', 'toc do thay doi', 'rate of change', 'dong luong', 'phan tram'],
@@ -1032,6 +1231,43 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
       vi: 'Động lượng = Giá phiên cuối − Giá của N phiên trước',
       en: 'Momentum = Last closing price − Price from N periods ago',
     },
+    symbols: [
+      {
+        latex: 'M',
+        meaning: {
+          vi: 'động lượng, giá đã đi được bao nhiêu sau n phiên, ₫',
+          en: 'momentum, how far price has moved over n sessions, ₫',
+        },
+      },
+      {
+        latex: 'P_t',
+        meaning: {
+          vi: 'giá đóng cửa phiên cuối của chuỗi, ₫',
+          en: 'closing price of the last session in the series, ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, phiên cuối của chuỗi giá',
+          en: 'session being measured, the last one in the price series',
+        },
+      },
+      {
+        latex: 'P_{t-n}',
+        meaning: {
+          vi: 'giá đóng cửa của phiên cách đó n phiên về trước, ₫',
+          en: 'closing price n sessions earlier, ₫',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên nhìn lại (ô Số phiên nhìn lại)',
+          en: 'look-back length (Lookback periods field)',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['momentum', 'dong luong', 'chenh lech gia', 'da tang', 'da giam'],
@@ -1147,6 +1383,47 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
       vi: 'Khoảng cách = (Giá phiên cuối ÷ SMA N phiên − 1) × 100',
       en: 'Distance = (Last closing price ÷ N-period SMA − 1) × 100',
     },
+    symbols: [
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'khoảng cách giữa giá và đường SMA, %',
+          en: 'distance between price and the SMA line, %',
+        },
+      },
+      {
+        latex: 'P_t',
+        meaning: {
+          vi: 'giá đóng cửa phiên cuối của chuỗi, ₫',
+          en: 'closing price of the last session in the series, ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, phiên cuối của chuỗi giá',
+          en: 'session being measured, the last one in the price series',
+        },
+      },
+      {
+        latex: 'SMA_n',
+        meaning: {
+          vi: 'trung bình động đơn giản của n phiên gần nhất, ₫',
+          en: 'simple moving average of the last n sessions, ₫',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên của đường trung bình đem ra so (ô Số phiên của đường trung bình)',
+          en: 'period of the moving average being compared (Moving average period field)',
+        },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ thành phần trăm', en: 'converts the ratio to percent' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['khoang cach sma', 'do lech gia', 'price deviation', 'ma20', 'qua xa duong trung binh'],
@@ -1263,6 +1540,29 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       vi: 'Chênh lệch = SMA chu kỳ ngắn − SMA chu kỳ dài',
       en: 'Difference = Short-period SMA − Long-period SMA',
     },
+    symbols: [
+      {
+        latex: 'C',
+        meaning: {
+          vi: 'chênh lệch giữa hai đường trung bình, ₫',
+          en: 'gap between the two moving averages, ₫',
+        },
+      },
+      {
+        latex: 'SMA_{ngan}',
+        meaning: {
+          vi: 'SMA tính theo ô Chu kỳ đường ngắn, đường bám giá, ₫',
+          en: 'SMA over the Short period field, the price-tracking line, ₫',
+        },
+      },
+      {
+        latex: 'SMA_{dai}',
+        meaning: {
+          vi: 'SMA tính theo ô Chu kỳ đường dài, đường nền, ₫',
+          en: 'SMA over the Long period field, the baseline, ₫',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['giao cat ma', 'golden cross', 'death cross', 'ma50 ma200', 'cat len cat xuong'],

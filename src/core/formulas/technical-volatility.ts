@@ -295,6 +295,43 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       vi: 'Dải trên = Trung bình n phiên + Hệ số k × Độ lệch chuẩn mẫu của n phiên đó',
       en: 'Upper band = n-session average + Multiplier k × Sample standard deviation of those n sessions',
     },
+    symbols: [
+      {
+        latex: 'BB_{tren}',
+        meaning: {
+          vi: 'dải Bollinger trên, ₫',
+          en: 'upper Bollinger band, in VND',
+        },
+      },
+      {
+        latex: 'SMA_{n}',
+        meaning: {
+          vi: 'trung bình cộng giá đóng cửa n phiên gần nhất — đường giữa, ₫',
+          en: 'simple average of the last n closes — the middle line, in VND',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'chu kỳ dải Bollinger, phiên — Bollinger dùng 20',
+          en: 'Bollinger band period, in sessions — Bollinger uses 20',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'hệ số nhân độ lệch chuẩn, lần — Bollinger dùng 2',
+          en: 'standard deviation multiplier, in times — Bollinger uses 2',
+        },
+      },
+      {
+        latex: '\\sigma_{n}',
+        meaning: {
+          vi: 'độ lệch chuẩn mẫu của giá đóng cửa n phiên đó, ₫',
+          en: 'sample standard deviation of those n closes, in VND',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['bollinger', 'dai tren', 'upper band', 'bien dong', 'ky thuat'],
@@ -405,6 +442,43 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       vi: 'Dải dưới = Trung bình n phiên − Hệ số k × Độ lệch chuẩn mẫu của n phiên đó',
       en: 'Lower band = n-session average − Multiplier k × Sample standard deviation of those n sessions',
     },
+    symbols: [
+      {
+        latex: 'BB_{duoi}',
+        meaning: {
+          vi: 'dải Bollinger dưới, ₫',
+          en: 'lower Bollinger band, in VND',
+        },
+      },
+      {
+        latex: 'SMA_{n}',
+        meaning: {
+          vi: 'trung bình cộng giá đóng cửa n phiên gần nhất — đường giữa, ₫',
+          en: 'simple average of the last n closes — the middle line, in VND',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'chu kỳ dải Bollinger, phiên — Bollinger dùng 20',
+          en: 'Bollinger band period, in sessions — Bollinger uses 20',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'hệ số nhân độ lệch chuẩn, lần — Bollinger dùng 2',
+          en: 'standard deviation multiplier, in times — Bollinger uses 2',
+        },
+      },
+      {
+        latex: '\\sigma_{n}',
+        meaning: {
+          vi: 'độ lệch chuẩn mẫu của giá đóng cửa n phiên đó, ₫',
+          en: 'sample standard deviation of those n closes, in VND',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['bollinger', 'dai duoi', 'lower band', 'bien dong', 'ky thuat'],
@@ -509,6 +583,50 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       vi: 'Độ rộng dải = (Dải trên − Dải dưới) ÷ Đường giữa × 100',
       en: 'Bandwidth = (Upper band − Lower band) ÷ Middle line × 100',
     },
+    symbols: [
+      {
+        latex: 'BW',
+        meaning: {
+          vi: 'độ rộng dải Bollinger, % của đường giữa',
+          en: 'Bollinger bandwidth, as % of the middle line',
+        },
+      },
+      {
+        latex: 'BB_{tren}',
+        meaning: {
+          vi: 'dải trên: đường giữa cộng hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
+          en: 'upper band: middle line plus multiplier × standard deviation of the period, in VND',
+        },
+      },
+      {
+        latex: 'BB_{duoi}',
+        meaning: {
+          vi: 'dải dưới: đường giữa trừ hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
+          en: 'lower band: middle line minus multiplier × standard deviation of the period, in VND',
+        },
+      },
+      {
+        latex: 'SMA_{n}',
+        meaning: {
+          vi: 'đường giữa — trung bình cộng giá đóng cửa n phiên gần nhất, ₫',
+          en: 'middle line — simple average of the last n closes, in VND',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'chu kỳ dải Bollinger, phiên',
+          en: 'Bollinger band period, in sessions',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi ra phần trăm',
+          en: 'converts to percent',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['bollinger', 'do rong dai', 'bandwidth', 'that nut', 'squeeze', 'bien dong'],
@@ -616,6 +734,71 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       vi: 'Dao động thực = số lớn nhất trong (Cao − Thấp), (Cao − Đóng cửa phiên trước), (Đóng cửa phiên trước − Thấp); ATR = trung bình làm mượt Wilder của dao động thực',
       en: 'True range = the largest of (High − Low), (High − Previous close), (Previous close − Low); ATR = the Wilder-smoothed average of the true range',
     },
+    symbols: [
+      {
+        latex: 'ATR_t',
+        meaning: {
+          vi: 'ATR tại phiên t — dao động thực trung bình, ₫',
+          en: 'ATR at session t — the average true range, in VND',
+        },
+      },
+      {
+        latex: 'TR_t',
+        meaning: {
+          vi: 'dao động thực của phiên t, ₫ — số lớn nhất trong ba khoảng cách',
+          en: 'true range of session t, in VND — the largest of three gaps',
+        },
+      },
+      {
+        latex: 'H_t',
+        meaning: {
+          vi: 'giá cao nhất trong phiên t, ₫',
+          en: 'high of session t, in VND',
+        },
+      },
+      {
+        latex: 'L_t',
+        meaning: {
+          vi: 'giá thấp nhất trong phiên t, ₫',
+          en: 'low of session t, in VND',
+        },
+      },
+      {
+        latex: 'C_{t-1}',
+        meaning: {
+          vi: 'giá đóng cửa phiên liền trước, ₫',
+          en: 'close of the previous session, in VND',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét',
+          en: 'the session in view',
+        },
+      },
+      {
+        latex: 'ATR_{t-1}',
+        meaning: {
+          vi: 'ATR của phiên liền trước — phiên đầu mồi bằng trung bình n dao động thực',
+          en: 'ATR of the previous session — seeded by averaging the first n true ranges',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'chu kỳ ATR, phiên — Wilder dùng 14',
+          en: 'ATR period, in sessions — Wilder uses 14',
+        },
+      },
+      {
+        latex: 'n-1',
+        meaning: {
+          vi: 'trọng số Wilder: giữ n − 1 phần ATR cũ, thêm 1 phần dao động mới',
+          en: 'Wilder weighting: keep n − 1 parts of the old ATR, add 1 part of the new range',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['atr', 'dao dong thuc', 'true range', 'wilder', 'bien do', 'cat lo'],
@@ -755,6 +938,43 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       vi: '%B = (Giá đóng cửa − Dải dưới) ÷ (Dải trên − Dải dưới) × 100',
       en: '%B = (Closing price − Lower band) ÷ (Upper band − Lower band) × 100',
     },
+    symbols: [
+      {
+        latex: '\\%B',
+        meaning: {
+          vi: 'vị trí giá trong dải Bollinger, % — 0 là dải dưới, 100 là dải trên',
+          en: 'price position within the Bollinger bands, in % — 0 is the lower band, 100 the upper',
+        },
+      },
+      {
+        latex: 'C',
+        meaning: {
+          vi: 'giá đóng cửa phiên gần nhất, ₫',
+          en: 'latest closing price, in VND',
+        },
+      },
+      {
+        latex: 'BB_{duoi}',
+        meaning: {
+          vi: 'dải dưới: đường giữa trừ hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
+          en: 'lower band: middle line minus multiplier × standard deviation of the period, in VND',
+        },
+      },
+      {
+        latex: 'BB_{tren}',
+        meaning: {
+          vi: 'dải trên: đường giữa cộng hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
+          en: 'upper band: middle line plus multiplier × standard deviation of the period, in VND',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi ra phần trăm',
+          en: 'converts to percent',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['bollinger', 'phan tram b', 'percent b', 'vi tri gia', 'ky thuat'],
@@ -902,6 +1122,50 @@ export const STOCHASTIC_K: FormulaModule = {
       vi: '%K = (Giá đóng cửa − Giá thấp nhất n phiên) ÷ (Giá cao nhất n phiên − Giá thấp nhất n phiên) × 100',
       en: '%K = (Closing price − n-session lowest price) ÷ (n-session highest price − n-session lowest price) × 100',
     },
+    symbols: [
+      {
+        latex: '\\%K',
+        meaning: {
+          vi: 'stochastic %K — vị trí giá đóng cửa trong biên độ n phiên, %',
+          en: 'stochastic %K — where the close sits within the n-session range, in %',
+        },
+      },
+      {
+        latex: 'C',
+        meaning: {
+          vi: 'giá đóng cửa phiên gần nhất, ₫',
+          en: 'latest closing price, in VND',
+        },
+      },
+      {
+        latex: 'L_{n}',
+        meaning: {
+          vi: 'giá thấp nhất trong n phiên gần nhất, ₫',
+          en: 'lowest low of the last n sessions, in VND',
+        },
+      },
+      {
+        latex: 'H_{n}',
+        meaning: {
+          vi: 'giá cao nhất trong n phiên gần nhất, ₫',
+          en: 'highest high of the last n sessions, in VND',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'chu kỳ stochastic, phiên — thông lệ 14',
+          en: 'stochastic period, in sessions — 14 by convention',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi ra phần trăm',
+          en: 'converts to percent',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['stochastic', 'phan tram k', 'dao dong', 'qua mua', 'qua ban', 'ky thuat'],
@@ -1056,6 +1320,36 @@ export const VWAP: FormulaModule = {
       vi: 'VWAP = Tổng (Giá đóng cửa × Khối lượng) ÷ Tổng Khối lượng',
       en: 'VWAP = Sum of (Closing price × Volume) ÷ Total volume',
     },
+    symbols: [
+      {
+        latex: 'VWAP',
+        meaning: {
+          vi: 'giá bình quân theo khối lượng của các phiên gộp, ₫',
+          en: 'volume-weighted average price over the pooled sessions, in VND',
+        },
+      },
+      {
+        latex: 'C_i',
+        meaning: {
+          vi: 'giá đóng cửa phiên i, ₫',
+          en: 'closing price of session i, in VND',
+        },
+      },
+      {
+        latex: 'V_i',
+        meaning: {
+          vi: 'khối lượng khớp của phiên i, cổ phiếu',
+          en: 'matched volume of session i, in shares',
+        },
+      },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'phiên đang xét, chạy qua số phiên gộp gần nhất',
+          en: 'the session in view, running over the pooled sessions',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['vwap', 'gia binh quan', 'khoi luong', 'volume weighted', 'ky thuat'],
@@ -1191,6 +1485,71 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       vi: 'Độ biến động năm = Độ lệch chuẩn mẫu của lợi suất log mỗi phiên × căn bậc hai của Số phiên một năm × 100',
       en: 'Annual volatility = Sample standard deviation of per-session log returns × square root of Sessions per year × 100',
     },
+    symbols: [
+      {
+        latex: '\\sigma_{nam}',
+        meaning: {
+          vi: 'độ biến động lịch sử năm hoá, %/năm',
+          en: 'annualized historical volatility, in %/year',
+        },
+      },
+      {
+        latex: '\\sigma',
+        meaning: {
+          vi: 'độ lệch chuẩn mẫu của dãy lợi suất log trong ngoặc',
+          en: 'sample standard deviation of the log returns in the brackets',
+        },
+      },
+      {
+        latex: '\\ln \\frac{P_t}{P_{t-1}}',
+        meaning: {
+          vi: 'lợi suất log của phiên t — logarit tự nhiên của tỷ số hai giá đóng cửa liên tiếp',
+          en: 'log return of session t — natural log of the ratio of two consecutive closes',
+        },
+      },
+      {
+        latex: 'P_t',
+        meaning: {
+          vi: 'giá đóng cửa phiên t, ₫',
+          en: 'closing price of session t, in VND',
+        },
+      },
+      {
+        latex: 'P_{t-1}',
+        meaning: {
+          vi: 'giá đóng cửa phiên liền trước, ₫',
+          en: 'closing price of the previous session, in VND',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, chạy qua số phiên giá lấy mẫu',
+          en: 'the session in view, running over the sampled sessions',
+        },
+      },
+      {
+        latex: 'N',
+        meaning: {
+          vi: 'số phiên giao dịch một năm — thông lệ 252',
+          en: 'trading sessions per year — 252 by convention',
+        },
+      },
+      {
+        latex: '\\sqrt{N}',
+        meaning: {
+          vi: 'căn bậc hai của số phiên một năm — nhân căn, không nhân thẳng',
+          en: 'square root of the sessions per year — multiply by the root, not the count',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi ra phần trăm',
+          en: 'converts to percent',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['do bien dong', 'volatility', 'nam hoa', 'loi suat log', 'rui ro', 'ky thuat'],
@@ -1356,6 +1715,57 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       vi: 'Tỷ lệ khối lượng = Khối lượng phiên gần nhất ÷ Trung bình khối lượng n phiên liền trước',
       en: "Volume ratio = Most recent session's volume ÷ Average volume of the preceding n sessions",
     },
+    symbols: [
+      {
+        latex: 'RVOL',
+        meaning: {
+          vi: 'tỷ lệ khối lượng so với trung bình, lần',
+          en: 'relative volume, in times',
+        },
+      },
+      {
+        latex: 'V_t',
+        meaning: {
+          vi: 'khối lượng khớp của phiên gần nhất, cổ phiếu',
+          en: 'matched volume of the most recent session, in shares',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên gần nhất — phiên đem so',
+          en: 'the most recent session — the one being compared',
+        },
+      },
+      {
+        latex: '\\frac{1}{n}\\sum_{i=1}^{n} V_{t-i}',
+        meaning: {
+          vi: 'trung bình cộng khối lượng của n phiên liền trước, không gộp phiên gần nhất',
+          en: 'average volume of the n preceding sessions, the most recent one excluded',
+        },
+      },
+      {
+        latex: 'V_{t-i}',
+        meaning: {
+          vi: 'khối lượng của phiên thứ i trước phiên gần nhất, cổ phiếu',
+          en: 'volume of the i-th session before the most recent one, in shares',
+        },
+      },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'số phiên đếm lùi từ phiên gần nhất, chạy từ 1 tới n',
+          en: 'sessions counted back from the latest, running 1 to n',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên lấy trung bình, phiên — chỉ gồm các phiên liền trước',
+          en: 'sessions to average — only the preceding sessions',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['khoi luong', 'volume', 'thanh khoan', 'relative volume', 'dot bien', 'ky thuat'],

@@ -396,6 +396,8 @@ export const vi = {
 
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
+  /* Tên vùng (aria-label) của bảng ký hiệu cạnh hình công thức — không in ra màn, bảng tự nói nó là gì. */
+  'detail.symbols': 'Ký hiệu trong công thức',
   'detail.inputs': 'Số liệu',
   'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
   'detail.constantSource': 'Market Config · CON-10',

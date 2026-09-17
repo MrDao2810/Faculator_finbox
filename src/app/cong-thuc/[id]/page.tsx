@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { FORMULAS, findCategory } from '@/application';
 
 import { FormulaDetail } from './FormulaDetail';
-import { latexToMathml } from './latex-html';
+import { latexToInlineMathml, latexToMathml } from './latex-html';
 
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
@@ -86,5 +86,13 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * nên `katex` chỉ chạy trên máy build và không đi vào gói JS của trình duyệt. Xem `latex-html.ts`
    * để biết vì sao chọn nhánh MathML.
    */
-  return <FormulaDetail spec={formula} asOf={AS_OF} latexHtml={latexToMathml(formula.latex)} />;
+  return (
+    <FormulaDetail
+      spec={formula}
+      asOf={AS_OF}
+      latexHtml={latexToMathml(formula.latex)}
+      // Bảng ký hiệu cũng dựng ở đây, từng mục một — cùng lý do, cùng nhánh MathML.
+      symbolsHtml={(formula.symbols ?? []).map((symbol) => latexToInlineMathml(symbol.latex))}
+    />
+  );
 }

@@ -338,6 +338,7 @@ button.iconButton::after {
 .formulaCard {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
 
   padding: var(--space-4) var(--space-3);
 
@@ -348,6 +349,75 @@ button.iconButton::after {
 
   /* Không có dòng này thì công thức dài đẩy phình cả thẻ thay vì cuộn bên trong. */
   min-width: 0;
+}
+
+/*
+ * ── Hai nửa của thẻ: hình công thức + dòng chữ bên trái, bảng ký hiệu bên phải ───────────────────
+ *
+ * Bố cục chủ dự án chốt 16/09/2026 ("công thức bên trái, giải thích bên phải theo kiểu A: là gì,
+ * B: là gì"). Khổ hẹp thì bảng XUỐNG DƯỚI dòng chữ, ngăn bằng đường kẻ ngang; từ 1024px hai nửa
+ * đứng cạnh nhau, ngăn bằng đường kẻ dọc. Tỷ lệ 3:2 — hình công thức cần bề ngang hơn (phân số,
+ * tổng), còn bảng thì mỗi dòng là một ký hiệu ngắn và một cụm chữ.
+ */
+.formulaMain {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .formulaCard {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+}
+
+/*
+ * Bảng ký hiệu — `<dl>` hai cột: ký hiệu (MathML dòng, dựng lúc build như hình chính) rồi nghĩa.
+ * Dấu hai chấm đặt bằng CSS sau ký hiệu để dữ liệu không phải mang nó, và để "A: là gì" đọc thành
+ * một dòng cả với trình đọc màn hình (dt rồi dd).
+ */
+.symbols {
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--space-2);
+  row-gap: var(--space-1);
+  align-items: baseline;
+
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+.symbols dt {
+  margin: 0;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.symbols dt::after {
+  content: ':';
+}
+
+.symbols dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 1024px) {
+  .symbols {
+    padding-top: 0;
+    padding-left: var(--space-4);
+    border-top: 0;
+    border-left: 1px solid var(--color-hairline);
+  }
 }
 
 .formula {

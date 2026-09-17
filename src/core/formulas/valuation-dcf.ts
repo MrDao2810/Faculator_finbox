@@ -87,6 +87,30 @@ export const MO_HINH_GORDON: FormulaModule = {
       vi: 'Giá trị cổ phiếu = Cổ tức vừa trả × (1 + g) ÷ (r − g)',
       en: 'Share value = Most recent dividend × (1 + g) ÷ (r − g)',
     },
+    symbols: [
+      {
+        latex: 'V_0',
+        meaning: { vi: 'giá trị cổ phiếu ở hôm nay, ₫', en: 'share value today, ₫' },
+      },
+      {
+        latex: 'D_0',
+        meaning: {
+          vi: 'cổ tức vừa trả trên mỗi cổ phiếu, ₫',
+          en: 'most recent dividend per share, ₫',
+        },
+      },
+      {
+        latex: 'g',
+        meaning: {
+          vi: 'tăng trưởng cổ tức dài hạn, %/năm',
+          en: 'long-term dividend growth, %/year',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: { vi: 'suất sinh lợi yêu cầu, %/năm', en: 'required rate of return, %/year' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['gordon', 'ddm', 'chiet khau co tuc', 'dinh gia co tuc', 'dividend discount'],
@@ -291,6 +315,51 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       vi: 'Giá trị cổ phiếu = Tổng cổ tức giai đoạn đầu chiết khấu về hiện tại + Giá trị cuối kỳ chiết khấu về hiện tại',
       en: 'Share value = Sum of first-stage dividends discounted to present + Terminal value discounted to present',
     },
+    symbols: [
+      {
+        latex: 'V_0',
+        meaning: { vi: 'giá trị cổ phiếu ở hôm nay, ₫', en: 'share value today, ₫' },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'năm đang cộng trong giai đoạn đầu, chạy từ 1 tới n',
+          en: 'year being summed in the first stage, running from 1 to n',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số năm của giai đoạn tăng trưởng nhanh',
+          en: 'number of years in the fast-growth stage',
+        },
+      },
+      {
+        latex: 'D_0',
+        meaning: {
+          vi: 'cổ tức vừa trả trên mỗi cổ phiếu, ₫',
+          en: 'most recent dividend per share, ₫',
+        },
+      },
+      {
+        latex: 'g_1',
+        meaning: {
+          vi: 'tăng trưởng cổ tức giai đoạn đầu, %/năm',
+          en: 'first-stage dividend growth, %/year',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: { vi: 'suất sinh lợi yêu cầu, %/năm', en: 'required rate of return, %/year' },
+      },
+      {
+        latex: 'g_2',
+        meaning: {
+          vi: 'tăng trưởng dài hạn sau giai đoạn đầu, %/năm',
+          en: 'long-term growth after the first stage, %/year',
+        },
+      },
+    ],
     chartType: 'stackedBar',
     breakdown: [
       {
@@ -549,6 +618,33 @@ export const CAPM: FormulaModule = {
       vi: 'Chi phí vốn chủ = Lãi suất phi rủi ro + Beta × Phần bù rủi ro thị trường',
       en: 'Cost of equity = Risk-free rate + Beta × Equity risk premium',
     },
+    symbols: [
+      {
+        latex: 'r_e',
+        meaning: {
+          vi: 'chi phí vốn chủ sở hữu, tức suất sinh lợi cổ đông yêu cầu, %/năm',
+          en: 'cost of equity, the return shareholders require, %/year',
+        },
+      },
+      {
+        latex: 'r_f',
+        meaning: {
+          vi: 'lãi suất phi rủi ro, thường là lợi suất trái phiếu Chính phủ, %/năm',
+          en: 'risk-free rate, usually the government bond yield, %/year',
+        },
+      },
+      {
+        latex: '\\beta',
+        meaning: {
+          vi: 'hệ số beta, độ nhạy của cổ phiếu so với thị trường, lần',
+          en: 'beta coefficient, how much the stock moves relative to the market',
+        },
+      },
+      {
+        latex: 'ERP',
+        meaning: { vi: 'phần bù rủi ro thị trường, %/năm', en: 'equity risk premium, %/year' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['capm', 'chi phi von chu', 'beta', 'phan bu rui ro', 'cost of equity'],
@@ -688,6 +784,46 @@ export const WACC: FormulaModule = {
       vi: 'WACC = Tỷ trọng vốn chủ × Chi phí vốn chủ + Tỷ trọng nợ × Chi phí nợ × (1 − Thuế suất)',
       en: 'WACC = Equity weight × Cost of equity + Debt weight × Cost of debt × (1 − Tax rate)',
     },
+    symbols: [
+      {
+        latex: 'WACC',
+        meaning: {
+          vi: 'chi phí vốn bình quân gia quyền, %/năm',
+          en: 'weighted average cost of capital, %/year',
+        },
+      },
+      {
+        latex: 'E',
+        meaning: {
+          vi: 'vốn chủ sở hữu theo giá thị trường, tỷ ₫',
+          en: 'equity at market value, billion ₫',
+        },
+      },
+      {
+        latex: 'D',
+        meaning: { vi: 'nợ vay chịu lãi, tỷ ₫', en: 'interest-bearing debt, billion ₫' },
+      },
+      { latex: 'E+D', meaning: { vi: 'tổng nguồn vốn, tỷ ₫', en: 'total capital, billion ₫' } },
+      { latex: 'r_e', meaning: { vi: 'chi phí vốn chủ, %/năm', en: 'cost of equity, %/year' } },
+      {
+        latex: 'r_d',
+        meaning: {
+          vi: 'chi phí nợ vay, lãi suất vay bình quân, %/năm',
+          en: 'cost of debt, the average borrowing rate, %/year',
+        },
+      },
+      {
+        latex: 't',
+        meaning: { vi: 'thuế suất thuế TNDN, %', en: 'corporate income tax rate, %' },
+      },
+      {
+        latex: '(1 - t)',
+        meaning: {
+          vi: 'hệ số sau thuế, vì lãi vay được khấu trừ thuế',
+          en: 'after-tax factor, since interest is tax-deductible',
+        },
+      },
+    ],
     chartType: 'stackedBar',
     /* Đúng hai vế của chính công thức, nên cộng lại ra đúng WACC — không cần xử lý gì thêm. */
     breakdown: [
@@ -875,6 +1011,61 @@ export const FCFF: FormulaModule = {
       vi: 'FCFF = EBIT × (1 − Thuế suất) + Khấu hao − Chi đầu tư − Tăng vốn lưu động ròng',
       en: 'FCFF = EBIT × (1 − Tax rate) + Depreciation − CapEx − Increase in net working capital',
     },
+    symbols: [
+      {
+        latex: 'FCFF',
+        meaning: {
+          vi: 'dòng tiền tự do của doanh nghiệp trong kỳ, tỷ ₫',
+          en: 'free cash flow to the firm for the period, billion ₫',
+        },
+      },
+      {
+        latex: 'EBIT',
+        meaning: {
+          vi: 'lợi nhuận trước lãi vay và thuế, tỷ ₫',
+          en: 'earnings before interest and tax, billion ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: { vi: 'thuế suất thuế TNDN, %', en: 'corporate income tax rate, %' },
+      },
+      {
+        latex: '(1 - t)',
+        meaning: {
+          vi: 'hệ số sau thuế, phần còn lại của mỗi đồng EBIT sau khi nộp thuế',
+          en: 'after-tax factor, what is left of each unit of EBIT after tax',
+        },
+      },
+      {
+        latex: 'Dep',
+        meaning: {
+          vi: 'khấu hao trong kỳ, chi phí không bằng tiền nên cộng lại, tỷ ₫',
+          en: 'depreciation for the period, a non-cash expense added back, billion ₫',
+        },
+      },
+      {
+        latex: 'CapEx',
+        meaning: {
+          vi: 'chi đầu tư tài sản cố định trong kỳ, tỷ ₫',
+          en: 'capital expenditure for the period, billion ₫',
+        },
+      },
+      {
+        latex: '\\Delta NWC',
+        meaning: {
+          vi: 'tăng vốn lưu động ròng trong kỳ, tỷ ₫',
+          en: 'increase in net working capital for the period, billion ₫',
+        },
+      },
+      {
+        latex: '\\Delta',
+        meaning: {
+          vi: 'mức thay đổi trong kỳ, cuối kỳ trừ đầu kỳ',
+          en: 'change over the period, end minus start',
+        },
+      },
+    ],
     /*
      * Bốn chặng đúng bằng bốn số hạng của công thức. `nwcChange` âm (vốn lưu động GIẢM, tức giải
      * phóng tiền) thì dấu `-1` biến nó thành cột cộng — đúng về toán và đúng về nghĩa, tiền quay
@@ -1077,6 +1268,54 @@ export const FCFE: FormulaModule = {
       vi: 'FCFE = FCFF − Lãi vay sau thuế (Chi phí lãi vay × (1 − Thuế suất)) + Vay ròng mới',
       en: 'FCFE = FCFF − After-tax interest (Interest expense × (1 − Tax rate)) + New net borrowing',
     },
+    symbols: [
+      {
+        latex: 'FCFE',
+        meaning: {
+          vi: 'dòng tiền tự do của cổ đông trong kỳ, tỷ ₫',
+          en: 'free cash flow to equity for the period, billion ₫',
+        },
+      },
+      {
+        latex: 'FCFF',
+        meaning: {
+          vi: 'dòng tiền tự do của doanh nghiệp, tỷ ₫',
+          en: 'free cash flow to the firm, billion ₫',
+        },
+      },
+      {
+        latex: 'I',
+        meaning: {
+          vi: 'chi phí lãi vay trong kỳ, tỷ ₫',
+          en: 'interest expense for the period, billion ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: { vi: 'thuế suất thuế TNDN, %', en: 'corporate income tax rate, %' },
+      },
+      {
+        latex: '(1 - t)',
+        meaning: {
+          vi: 'hệ số sau thuế, chỉ phần lãi vay sau thuế mới bị trừ',
+          en: 'after-tax factor, only the after-tax interest is subtracted',
+        },
+      },
+      {
+        latex: '\\Delta B',
+        meaning: {
+          vi: 'vay ròng mới, tiền vay thêm trừ nợ gốc đã trả trong kỳ, tỷ ₫',
+          en: 'new net borrowing, new debt minus principal repaid in the period, billion ₫',
+        },
+      },
+      {
+        latex: '\\Delta',
+        meaning: {
+          vi: 'mức thay đổi trong kỳ, cuối kỳ trừ đầu kỳ',
+          en: 'change over the period, end minus start',
+        },
+      },
+    ],
     chartType: 'waterfall',
     /*
      * Nhãn chặng 'Lãi vay sau thuế' phải khớp chữ với cụm trong `expression` phía trên — chủ dự
@@ -1259,6 +1498,58 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       vi: 'Giá trị nội tại = (FCFF × (1 + g) ÷ (WACC − g) − Nợ vay ròng) ÷ Số cổ phiếu lưu hành × 1.000',
       en: 'Intrinsic value = (FCFF × (1 + g) ÷ (WACC − g) − Net debt) ÷ Shares outstanding × 1,000',
     },
+    symbols: [
+      {
+        latex: 'V_0',
+        meaning: {
+          vi: 'giá trị nội tại của mỗi cổ phiếu ở hôm nay, ₫',
+          en: 'intrinsic value per share today, ₫',
+        },
+      },
+      {
+        latex: 'FCFF',
+        meaning: {
+          vi: 'dòng tiền tự do của doanh nghiệp kỳ vừa rồi, tỷ ₫',
+          en: 'free cash flow to the firm in the latest period, billion ₫',
+        },
+      },
+      {
+        latex: 'g',
+        meaning: { vi: 'tăng trưởng FCFF dài hạn, %/năm', en: 'long-term FCFF growth, %/year' },
+      },
+      {
+        latex: 'WACC',
+        meaning: {
+          vi: 'chi phí vốn bình quân, dùng làm suất chiết khấu, %/năm',
+          en: 'weighted average cost of capital, used as the discount rate, %/year',
+        },
+      },
+      {
+        latex: '\\dfrac{FCFF \\, (1+g)}{WACC - g}',
+        meaning: {
+          vi: 'giá trị doanh nghiệp, toàn bộ dòng tiền tương lai quy về hôm nay, tỷ ₫',
+          en: 'enterprise value, all future cash flow brought back to today, billion ₫',
+        },
+      },
+      {
+        latex: 'D_{\\text{ròng}}',
+        meaning: {
+          vi: 'nợ vay ròng, nợ vay chịu lãi trừ tiền và tương đương tiền, tỷ ₫',
+          en: 'net debt, interest-bearing debt minus cash and equivalents, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Số CP}',
+        meaning: { vi: 'số cổ phiếu lưu hành, triệu CP', en: 'shares outstanding, millions' },
+      },
+      {
+        latex: '1000',
+        meaning: {
+          vi: 'đổi tỷ ₫ chia triệu CP thành ₫ trên mỗi cổ phiếu',
+          en: 'converts billion ₫ per million shares into ₫ per share',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['dcf', 'gia tri noi tai', 'chiet khau dong tien', 'fcff', 'intrinsic value'],
@@ -1531,6 +1822,37 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
       vi: 'Giá trị hiện tại = Số tiền tương lai ÷ (1 + Tỷ lệ chiết khấu)^Số năm',
       en: 'Present value = Future amount ÷ (1 + Discount rate)^Years',
     },
+    symbols: [
+      {
+        latex: 'PV',
+        meaning: {
+          vi: 'giá trị hiện tại, số tiền hôm nay tương đương khoản tương lai, ₫',
+          en: 'present value, the amount today equivalent to the future sum, ₫',
+        },
+      },
+      {
+        latex: 'FV',
+        meaning: {
+          vi: 'số tiền sẽ nhận trong tương lai, ₫',
+          en: 'amount to be received in the future, ₫',
+        },
+      },
+      { latex: 'r', meaning: { vi: 'tỷ lệ chiết khấu, %/năm', en: 'discount rate, %/year' } },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số năm từ hôm nay tới lúc nhận tiền',
+          en: 'number of years from today until the money is received',
+        },
+      },
+      {
+        latex: '(1 + r)^n',
+        meaning: {
+          vi: 'hệ số lãi kép sau n năm, lần',
+          en: 'compounding factor after n years, times',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['pv', 'gia tri hien tai', 'chiet khau', 'present value'],
@@ -1682,6 +2004,37 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       vi: 'Giá trị tương lai = Số tiền hiện tại × (1 + Tỷ suất sinh lợi)^Số năm',
       en: 'Future value = Present amount × (1 + Rate of return)^Years',
     },
+    symbols: [
+      {
+        latex: 'FV',
+        meaning: {
+          vi: 'giá trị tương lai, số tiền có được ở cuối kỳ, ₫',
+          en: 'future value, the amount held at the end of the period, ₫',
+        },
+      },
+      {
+        latex: 'PV',
+        meaning: { vi: 'số tiền đang có ở hôm nay, ₫', en: 'amount of money available today, ₫' },
+      },
+      {
+        latex: 'r',
+        meaning: { vi: 'tỷ suất sinh lợi kép, %/năm', en: 'compound rate of return, %/year' },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số năm khoản tiền sinh lợi',
+          en: 'number of years the money is invested',
+        },
+      },
+      {
+        latex: '(1 + r)^n',
+        meaning: {
+          vi: 'hệ số lãi kép sau n năm, lần',
+          en: 'compounding factor after n years, times',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['fv', 'gia tri tuong lai', 'lai gop', 'future value'],
@@ -1819,6 +2172,24 @@ export const BIEN_AN_TOAN: FormulaModule = {
       vi: 'Biên an toàn = (Giá trị nội tại − Thị giá) ÷ Giá trị nội tại × 100%',
       en: 'Margin of safety = (Intrinsic value − Market price) ÷ Intrinsic value × 100%',
     },
+    symbols: [
+      { latex: 'MOS', meaning: { vi: 'biên an toàn, %', en: 'margin of safety, %' } },
+      {
+        latex: 'V',
+        meaning: {
+          vi: 'giá trị nội tại ước tính từ một mô hình định giá, ₫',
+          en: 'estimated intrinsic value from a valuation model, ₫',
+        },
+      },
+      {
+        latex: 'P',
+        meaning: {
+          vi: 'thị giá hiện tại của cổ phiếu, ₫',
+          en: 'current market price of the stock, ₫',
+        },
+      },
+      { latex: '100\\%', meaning: { vi: 'đổi ra phần trăm', en: 'converts to a percentage' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,

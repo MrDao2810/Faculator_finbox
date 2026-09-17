@@ -192,6 +192,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'This calculation uses a price series, and the series on this device no longer matches the one used when it was saved — the result shown may differ from the saved number. Reload the price series before reading it.',
   'detail.meaning': 'Meaning',
   'detail.formula': 'Formula',
+  'detail.symbols': 'Symbols in the formula',
   'detail.inputs': 'Inputs',
   'detail.hiddenInBasic': 'advanced variable(s) hidden — switch mode to see them',
   'detail.constantSource': 'Market Config · CON-10',

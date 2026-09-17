@@ -122,6 +122,27 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
       vi: 'Phí mua = Khối lượng × Giá mua × Tỷ lệ phí mua',
       en: 'Buy fee = Quantity × Buy price × Buy fee rate',
     },
+    symbols: [
+      {
+        latex: 'F_{mua}',
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+      },
+      {
+        latex: 'Q',
+        meaning: { vi: 'khối lượng cổ phiếu mua, CP', en: 'quantity of shares bought' },
+      },
+      {
+        latex: 'P_{mua}',
+        meaning: { vi: 'giá mua một cổ phiếu, ₫', en: 'buy price per share, ₫' },
+      },
+      {
+        latex: 'r_{mua}',
+        meaning: {
+          vi: 'tỷ lệ phí môi giới lệnh mua theo biểu phí đang chọn, tính trên giá trị lệnh',
+          en: 'buy-side brokerage fee rate from the selected schedule, on the order value',
+        },
+      },
+    ],
     // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
@@ -203,6 +224,24 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
       vi: 'Phí bán = Khối lượng × Giá bán × Tỷ lệ phí bán',
       en: 'Sell fee = Quantity × Sell price × Sell fee rate',
     },
+    symbols: [
+      {
+        latex: 'F_{ban}',
+        meaning: { vi: 'phí giao dịch bán, ₫', en: 'sell-side brokerage fee, ₫' },
+      },
+      { latex: 'Q', meaning: { vi: 'khối lượng cổ phiếu bán, CP', en: 'quantity of shares sold' } },
+      {
+        latex: 'P_{ban}',
+        meaning: { vi: 'giá bán một cổ phiếu, ₫', en: 'sell price per share, ₫' },
+      },
+      {
+        latex: 'r_{ban}',
+        meaning: {
+          vi: 'tỷ lệ phí môi giới lệnh bán theo biểu phí đang chọn, tính trên giá trị lệnh',
+          en: 'sell-side brokerage fee rate from the selected schedule, on the order value',
+        },
+      },
+    ],
     // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
@@ -279,6 +318,24 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       vi: 'Thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng',
       en: 'Tax = Quantity × Sell price × Transfer tax rate',
     },
+    symbols: [
+      {
+        latex: 'T',
+        meaning: { vi: 'thuế chuyển nhượng chứng khoán, ₫', en: 'securities transfer tax, ₫' },
+      },
+      { latex: 'Q', meaning: { vi: 'khối lượng cổ phiếu bán, CP', en: 'quantity of shares sold' } },
+      {
+        latex: 'P_{ban}',
+        meaning: { vi: 'giá bán một cổ phiếu, ₫', en: 'sell price per share, ₫' },
+      },
+      {
+        latex: 'r_{thue}',
+        meaning: {
+          vi: 'thuế suất chuyển nhượng, tính trên giá trị bán chứ không trên lãi',
+          en: 'transfer tax rate, charged on the sell value rather than on the gain',
+        },
+      },
+    ],
     // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
@@ -358,6 +415,30 @@ export const THUE_CO_TUC: FormulaModule = {
       vi: 'Thuế cổ tức = Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
       en: 'Dividend tax = Quantity × Dividend per share × Dividend tax rate',
     },
+    symbols: [
+      { latex: 'T_{ct}', meaning: { vi: 'thuế cổ tức tiền mặt, ₫', en: 'cash dividend tax, ₫' } },
+      {
+        latex: 'Q',
+        meaning: {
+          vi: 'khối lượng cổ phiếu nhận cổ tức, CP',
+          en: 'quantity of shares receiving the dividend',
+        },
+      },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'cổ tức tiền mặt trên mỗi cổ phiếu, trước thuế, ₫/CP',
+          en: 'cash dividend per share, before tax, ₫/share',
+        },
+      },
+      {
+        latex: 'r_{ct}',
+        meaning: {
+          vi: 'thuế suất cổ tức tiền mặt, tính trên số cổ tức công bố',
+          en: 'cash dividend tax rate, charged on the announced dividend',
+        },
+      },
+    ],
     // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
@@ -443,6 +524,27 @@ export const PHI_LUU_KY: FormulaModule = {
       vi: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
       en: 'Custody fee = Quantity × Holding period × Rate per share per month',
     },
+    symbols: [
+      {
+        latex: 'F_{lk}',
+        meaning: {
+          vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
+          en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'Q',
+        meaning: { vi: 'khối lượng cổ phiếu nắm giữ, CP', en: 'quantity of shares held' },
+      },
+      { latex: 'M', meaning: { vi: 'thời gian nắm giữ, tháng', en: 'holding period, months' } },
+      {
+        latex: 'c',
+        meaning: {
+          vi: 'mức phí lưu ký mỗi cổ phiếu mỗi tháng theo biểu phí, ₫/CP/tháng',
+          en: 'custody fee per share per month from the schedule, ₫/share/month',
+        },
+      },
+    ],
     // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
@@ -524,6 +626,58 @@ export const GIA_HOA_VON: FormulaModule = {
       vi: 'Giá hoà vốn = (Tiền mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
       en: 'Break-even price = (Buy value + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
     },
+    symbols: [
+      {
+        latex: 'P_{hv}',
+        meaning: {
+          vi: 'giá hoà vốn thực của một cổ phiếu, ₫',
+          en: 'true break-even price per share, ₫',
+        },
+      },
+      {
+        latex: 'Q',
+        meaning: {
+          vi: 'khối lượng cổ phiếu mua rồi bán, CP',
+          en: 'quantity of shares bought then sold',
+        },
+      },
+      {
+        latex: 'P_{mua}',
+        meaning: { vi: 'giá mua một cổ phiếu, ₫', en: 'buy price per share, ₫' },
+      },
+      {
+        latex: 'F_{mua}',
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+      },
+      {
+        latex: 'F_{lk}',
+        meaning: {
+          vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
+          en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'r_{ban}',
+        meaning: {
+          vi: 'tỷ lệ phí môi giới lệnh bán, tính trên giá trị bán',
+          en: 'sell-side brokerage fee rate, on the sell value',
+        },
+      },
+      {
+        latex: 'r_{thue}',
+        meaning: {
+          vi: 'thuế suất chuyển nhượng, tính trên giá trị bán',
+          en: 'transfer tax rate, on the sell value',
+        },
+      },
+      {
+        latex: '1 - r_{ban} - r_{thue}',
+        meaning: {
+          vi: 'phần thực còn lại của mỗi 1 ₫ bán ra sau khi trừ phí bán và thuế',
+          en: 'the share of each 1 ₫ of sale proceeds left after the sell fee and tax',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -646,6 +800,56 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       vi: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − Tổng chi phí',
       en: 'Net profit = Quantity × (Sell price − Buy price) − Total costs',
     },
+    symbols: [
+      {
+        latex: 'L_{rong}',
+        meaning: {
+          vi: 'lợi nhuận ròng sau phí và thuế, ₫',
+          en: 'net profit after fees and taxes, ₫',
+        },
+      },
+      {
+        latex: 'Q',
+        meaning: {
+          vi: 'khối lượng cổ phiếu mua rồi bán, CP',
+          en: 'quantity of shares bought then sold',
+        },
+      },
+      {
+        latex: 'P_{ban}',
+        meaning: { vi: 'giá bán một cổ phiếu, ₫', en: 'sell price per share, ₫' },
+      },
+      {
+        latex: 'P_{mua}',
+        meaning: { vi: 'giá mua một cổ phiếu, ₫', en: 'buy price per share, ₫' },
+      },
+      {
+        latex: 'F_{mua}',
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+      },
+      {
+        latex: 'F_{ban}',
+        meaning: { vi: 'phí giao dịch bán, ₫', en: 'sell-side brokerage fee, ₫' },
+      },
+      {
+        latex: 'T',
+        meaning: { vi: 'thuế chuyển nhượng khi bán, ₫', en: 'transfer tax on the sale, ₫' },
+      },
+      {
+        latex: 'F_{lk}',
+        meaning: {
+          vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
+          en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'F_{mua} + F_{ban} + T + F_{lk}',
+        meaning: {
+          vi: 'tổng chi phí của cả vòng mua rồi bán, ₫',
+          en: 'total cost of the whole buy-then-sell round trip, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -737,6 +941,49 @@ export const ROI_RONG: FormulaModule = {
       vi: 'ROI ròng = Lợi nhuận ròng ÷ Vốn thực bỏ ra × 100',
       en: 'Net ROI = Net profit ÷ Actual capital deployed × 100',
     },
+    symbols: [
+      {
+        latex: 'ROI_{rong}',
+        meaning: { vi: 'ROI ròng sau phí và thuế, %', en: 'net ROI after fees and taxes, %' },
+      },
+      {
+        latex: 'L_{rong}',
+        meaning: {
+          vi: 'lợi nhuận ròng sau phí và thuế, ₫',
+          en: 'net profit after fees and taxes, ₫',
+        },
+      },
+      {
+        latex: 'Q',
+        meaning: {
+          vi: 'khối lượng cổ phiếu mua rồi bán, CP',
+          en: 'quantity of shares bought then sold',
+        },
+      },
+      {
+        latex: 'P_{mua}',
+        meaning: { vi: 'giá mua một cổ phiếu, ₫', en: 'buy price per share, ₫' },
+      },
+      {
+        latex: 'F_{mua}',
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+      },
+      {
+        latex: 'F_{lk}',
+        meaning: {
+          vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
+          en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'Q \\cdot P_{mua} + F_{mua} + F_{lk}',
+        meaning: {
+          vi: 'vốn thực bỏ ra: tiền mua cộng phí mua và phí lưu ký, ₫',
+          en: 'capital actually deployed: buy value plus buy fee and custody fee, ₫',
+        },
+      },
+      { latex: '100', meaning: { vi: 'đổi ra phần trăm', en: 'converts to a percentage' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['roi rong', 'ty suat loi nhuan', 'hieu qua'],

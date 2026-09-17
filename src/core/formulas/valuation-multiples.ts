@@ -116,6 +116,20 @@ export const PS: FormulaModule = {
       vi: 'P/S = Giá thị trường ÷ Doanh thu trên mỗi cổ phiếu',
       en: 'P/S = Market price ÷ Revenue per share',
     },
+    symbols: [
+      {
+        latex: 'P/S',
+        meaning: { vi: 'hệ số giá trên doanh thu, lần', en: 'price to sales ratio, in times' },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'giá thị trường một cổ phiếu, ₫', en: 'market price of one share, ₫' },
+      },
+      {
+        latex: 'S_{ps}',
+        meaning: { vi: 'doanh thu trên mỗi cổ phiếu, ₫', en: 'revenue per share, ₫' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['ps', 'p s', 'gia tren doanh thu', 'boi so', 'dinh gia', 'price to sales'],
@@ -249,6 +263,30 @@ export const EV: FormulaModule = {
       vi: 'EV = Vốn hoá thị trường + Nợ vay − Tiền và tương đương tiền',
       en: 'EV = Market capitalization + Debt − Cash and cash equivalents',
     },
+    symbols: [
+      {
+        latex: 'EV',
+        meaning: { vi: 'giá trị doanh nghiệp, tỷ ₫', en: 'enterprise value, billion ₫' },
+      },
+      {
+        latex: '\\text{Vốn hoá}',
+        meaning: { vi: 'vốn hoá thị trường, tỷ ₫', en: 'market capitalization, billion ₫' },
+      },
+      {
+        latex: '\\text{Nợ vay}',
+        meaning: {
+          vi: 'tổng nợ vay ngắn hạn và dài hạn, tỷ ₫',
+          en: 'total short-term and long-term debt, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Tiền mặt}',
+        meaning: {
+          vi: 'tiền và tương đương tiền, tỷ ₫',
+          en: 'cash and cash equivalents, billion ₫',
+        },
+      },
+    ],
     chartType: 'waterfall',
     level: 'basic',
     tags: ['ev', 'gia tri doanh nghiep', 'enterprise value', 'von hoa', 'no vay'],
@@ -396,6 +434,23 @@ export const EV_EBITDA: FormulaModule = {
       vi: 'EV/EBITDA = Giá trị doanh nghiệp ÷ EBITDA',
       en: 'EV/EBITDA = Enterprise value ÷ EBITDA',
     },
+    symbols: [
+      {
+        latex: 'EV/EBITDA',
+        meaning: { vi: 'bội số EV trên EBITDA, lần', en: 'EV to EBITDA multiple, in times' },
+      },
+      {
+        latex: 'EV',
+        meaning: { vi: 'giá trị doanh nghiệp, tỷ ₫', en: 'enterprise value, billion ₫' },
+      },
+      {
+        latex: 'EBITDA',
+        meaning: {
+          vi: 'lợi nhuận trước lãi vay, thuế và khấu hao, tỷ ₫',
+          en: 'earnings before interest, tax, depreciation and amortization, billion ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     isFeatured: true,
@@ -524,6 +579,23 @@ export const EV_SALES: FormulaModule = {
       vi: 'EV/Sales = Giá trị doanh nghiệp ÷ Doanh thu thuần',
       en: 'EV/Sales = Enterprise value ÷ Net revenue',
     },
+    symbols: [
+      {
+        latex: 'EV/Sales',
+        meaning: { vi: 'bội số EV trên doanh thu, lần', en: 'EV to sales multiple, in times' },
+      },
+      {
+        latex: 'EV',
+        meaning: { vi: 'giá trị doanh nghiệp, tỷ ₫', en: 'enterprise value, billion ₫' },
+      },
+      {
+        latex: '\\text{Doanh thu}',
+        meaning: {
+          vi: 'doanh thu thuần bốn quý gần nhất, tỷ ₫',
+          en: 'net revenue over the last four quarters, billion ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['ev sales', 'ev doanh thu', 'boi so', 'dinh gia', 'ev to sales'],
@@ -651,6 +723,26 @@ export const PEG: FormulaModule = {
       vi: 'PEG = P/E ÷ Tăng trưởng lợi nhuận kỳ vọng (%/năm)',
       en: 'PEG = P/E ÷ Expected earnings growth (%/year)',
     },
+    symbols: [
+      {
+        latex: 'PEG',
+        meaning: { vi: 'hệ số P/E trên tăng trưởng, lần', en: 'P/E to growth ratio, in times' },
+      },
+      {
+        latex: 'P/E',
+        meaning: {
+          vi: 'P/E hiện tại — hệ số giá trên lợi nhuận, lần',
+          en: 'current P/E — price to earnings ratio, in times',
+        },
+      },
+      {
+        latex: 'g',
+        meaning: {
+          vi: 'tăng trưởng lợi nhuận kỳ vọng, %/năm',
+          en: 'expected earnings growth, %/year',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['peg', 'tang truong', 'boi so', 'dinh gia', 'growth'],
@@ -815,6 +907,23 @@ export const VON_HOA: FormulaModule = {
       vi: 'Vốn hoá = Giá thị trường × Số cổ phiếu lưu hành',
       en: 'Market cap = Market price × Shares outstanding',
     },
+    symbols: [
+      {
+        latex: '\\text{Vốn hoá}',
+        meaning: { vi: 'vốn hoá thị trường, tỷ ₫', en: 'market capitalization, billion ₫' },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'giá thị trường một cổ phiếu, ₫', en: 'market price of one share, ₫' },
+      },
+      {
+        latex: 'N',
+        meaning: {
+          vi: 'số cổ phiếu lưu hành, triệu CP',
+          en: 'shares outstanding, in millions of shares',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -936,6 +1045,30 @@ export const SO_GRAHAM: FormulaModule = {
       vi: 'Số Graham = Căn bậc hai của (22,5 × EPS × Giá trị sổ sách mỗi cổ phiếu)',
       en: 'Graham number = Square root of (22.5 × EPS × Book value per share)',
     },
+    symbols: [
+      {
+        latex: '\\text{Graham}',
+        meaning: {
+          vi: 'số Graham — mức giá tối đa hợp lý theo chuẩn Graham, ₫',
+          en: 'Graham number — the maximum reasonable price by Graham’s standard, ₫',
+        },
+      },
+      {
+        latex: '22{,}5',
+        meaning: {
+          vi: 'P/E tối đa 15 nhân P/B tối đa 1,5 mà Graham đặt ra',
+          en: 'Graham’s maximum P/E of 15 times his maximum P/B of 1.5',
+        },
+      },
+      {
+        latex: 'EPS',
+        meaning: { vi: 'lợi nhuận trên mỗi cổ phiếu, ₫', en: 'earnings per share, ₫' },
+      },
+      {
+        latex: 'BVPS',
+        meaning: { vi: 'giá trị sổ sách trên mỗi cổ phiếu, ₫', en: 'book value per share, ₫' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['so graham', 'graham number', 'gia tri noi tai', 'dau tu gia tri', 'value investing'],
@@ -1092,6 +1225,30 @@ export const NCAV: FormulaModule = {
       vi: 'NCAV mỗi cổ phiếu = (Tài sản ngắn hạn − Tổng nợ phải trả) ÷ Số cổ phiếu lưu hành',
       en: 'NCAV per share = (Current assets − Total liabilities) ÷ Shares outstanding',
     },
+    symbols: [
+      {
+        latex: 'NCAV',
+        meaning: {
+          vi: 'giá trị tài sản ngắn hạn ròng trên mỗi cổ phiếu, ₫',
+          en: 'net current asset value per share, ₫',
+        },
+      },
+      {
+        latex: '\\text{TSNH}',
+        meaning: { vi: 'tài sản ngắn hạn, tỷ ₫', en: 'current assets, billion ₫' },
+      },
+      {
+        latex: '\\text{Tổng nợ}',
+        meaning: { vi: 'tổng nợ phải trả, tỷ ₫', en: 'total liabilities, billion ₫' },
+      },
+      {
+        latex: 'N',
+        meaning: {
+          vi: 'số cổ phiếu lưu hành, triệu CP',
+          en: 'shares outstanding, in millions of shares',
+        },
+      },
+    ],
     chartType: 'waterfall',
     /*
      * Chặng phải là số TRÊN MỖI CỔ PHIẾU, không phải tài sản và nợ thô.
@@ -1244,6 +1401,24 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
       vi: 'Tỷ suất lợi nhuận = EPS ÷ Giá thị trường × 100',
       en: 'Earnings yield = EPS ÷ Market price × 100',
     },
+    symbols: [
+      {
+        latex: 'E/P',
+        meaning: { vi: 'tỷ suất lợi nhuận trên giá, %', en: 'earnings yield, %' },
+      },
+      {
+        latex: 'EPS',
+        meaning: { vi: 'lợi nhuận trên mỗi cổ phiếu, ₫', en: 'earnings per share, ₫' },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'giá thị trường một cổ phiếu, ₫', en: 'market price of one share, ₫' },
+      },
+      {
+        latex: '100\\%',
+        meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['earnings yield', 'ty suat loi nhuan', 'nghich dao pe', 'e p', 'so voi lai suat'],
@@ -1383,6 +1558,26 @@ export const GIA_MUC_TIEU: FormulaModule = {
       vi: 'Giá mục tiêu = P/E mục tiêu × EPS',
       en: 'Target price = Target P/E × EPS',
     },
+    symbols: [
+      {
+        latex: 'P_{\\text{mục tiêu}}',
+        meaning: { vi: 'giá mục tiêu, ₫', en: 'target price, ₫' },
+      },
+      {
+        latex: 'P/E_{\\text{mục tiêu}}',
+        meaning: {
+          vi: 'P/E mục tiêu — bội số kỳ vọng thị trường sẽ trả, lần',
+          en: 'target P/E — the multiple the market is expected to pay, in times',
+        },
+      },
+      {
+        latex: 'EPS',
+        meaning: {
+          vi: 'lợi nhuận trên mỗi cổ phiếu hiện tại, ₫',
+          en: 'current earnings per share, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['gia muc tieu', 'target price', 'dinh gia', 'pe muc tieu'],

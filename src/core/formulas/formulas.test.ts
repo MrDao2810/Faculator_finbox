@@ -13,6 +13,7 @@ import { formatFailures, runSpecTests } from '../calc/run-tests';
 import type { CalcContext } from '../calc/types';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
+import { latexSymbolTokens } from '../latex-symbols';
 import { createRegistry, defaultInputs } from '../registry/build';
 import { errorsOnly, formatIssues } from '../registry/validate';
 import { buildFeeBreakdown } from './fees';
@@ -112,6 +113,80 @@ describe('Registry với toàn bộ công thức thật', () => {
       expect(expression, `${spec.id} còn ngoặc nhọn của LaTeX`).not.toMatch(/[{}]/);
       // Dấu bằng bảo đảm đây là một công thức chứ không phải mẩu biểu thức rời.
       expect(expression, `${spec.id} thiếu dấu bằng`).toContain('=');
+    }
+  });
+
+  /*
+   * Lỗi thật đã gặp: `thoi-gian-nhan-doi` nối phần xấp xỉ bằng gạch ngang dài — "ln(2) ÷ ln(1 +
+   * Lợi suất năm) — xấp xỉ nhanh bằng 72 ÷ Lợi suất" — và chủ dự án đọc thành phép trừ. Trong một
+   * dòng công thức, gạch ngang (— hay –) đứng giữa hai vế trông y như dấu trừ `−` mà cả 111 dòng
+   * đều dùng. Phần phụ nối bằng dấu phẩy, như `, làm tròn xuống`. Quét cả `en` vì màn tiếng Anh
+   * hiện đúng chuỗi ấy.
+   */
+  it('dòng đó không dùng gạch ngang — dễ đọc nhầm thành dấu trừ', () => {
+    for (const spec of ALL_FORMULAS) {
+      for (const text of [spec.expression?.vi ?? '', spec.expression?.en ?? '']) {
+        expect(text, `${spec.id} có gạch ngang trong dòng công thức`).not.toMatch(/[–—]/);
+      }
+    }
+  });
+
+  /*
+   * ── Bảng ký hiệu (`spec.symbols`) — ba luật, xem docblock của trường ấy ────────────────────────
+   *
+   * Chủ dự án chỉ vào hình `L = max{k : r_{t+1} < 0, …}` và nói "không hiểu các giá trị"
+   * (16/09/2026): mọi chữ trong hình phải được gọi tên ngay cạnh hình, ở CẢ 111 công thức. Bộ tách
+   * `latexSymbolTokens()` là thước chung cho hình và cho từng mục của bảng, nên "phủ hết" là một
+   * phép bao hàm tập hợp, không phải cảm tính.
+   */
+  /*
+   * `FFB_SYMBOL_IDS=id1,id2` thu ba ca dưới về vài công thức — cho người đang viết bảng của MỘT file
+   * nhóm chạy cửa gác mà không bị công thức của file khác che mất kết quả. CI không đặt biến này.
+   */
+  const chiKiem = process.env.FFB_SYMBOL_IDS?.split(',').map((id) => id.trim());
+  const canKiemKyHieu =
+    chiKiem === undefined ? ALL_FORMULAS : ALL_FORMULAS.filter((s) => chiKiem.includes(s.id));
+
+  it('mọi công thức có bảng ký hiệu', () => {
+    for (const spec of canKiemKyHieu) {
+      expect(spec.symbols?.length ?? 0, `${spec.id} chưa có bảng ký hiệu`).toBeGreaterThan(0);
+    }
+  });
+
+  it('mỗi ký hiệu chép nguyên văn từ latex, và bảng phủ hết mọi chữ trong hình', () => {
+    for (const spec of canKiemKyHieu) {
+      const symbols = spec.symbols ?? [];
+      const trongHinh = latexSymbolTokens(spec.latex);
+      const trongBang = new Set(symbols.flatMap((s) => latexSymbolTokens(s.latex)));
+
+      for (const symbol of symbols) {
+        expect(
+          spec.latex,
+          `${spec.id}: "${symbol.latex}" không có nguyên văn trong latex`,
+        ).toContain(symbol.latex);
+      }
+      const thieu = trongHinh.filter((token) => !trongBang.has(token));
+      expect(thieu, `${spec.id}: bảng ký hiệu thiếu ${thieu.join(', ')}`).toEqual([]);
+
+      const trung = symbols.map((s) => s.latex).filter((x, i, all) => all.indexOf(x) !== i);
+      expect(trung, `${spec.id}: ký hiệu lặp ${trung.join(', ')}`).toEqual([]);
+    }
+  });
+
+  it('nghĩa của ký hiệu là một cụm ngắn, đủ hai ngôn ngữ, không chấm cuối', () => {
+    for (const spec of canKiemKyHieu) {
+      for (const symbol of spec.symbols ?? []) {
+        for (const ngon of ['vi', 'en'] as const) {
+          const text = symbol.meaning[ngon].trim();
+          const where = `${spec.id} · ${symbol.latex} · ${ngon}`;
+          expect(text.length, `${where}: cụt`).toBeGreaterThanOrEqual(3);
+          expect(
+            text.length,
+            `${where}: dài quá một cụm (${String(text.length)} ký tự)`,
+          ).toBeLessThanOrEqual(90);
+          expect(text, `${where}: không kết bằng dấu chấm`).not.toMatch(/\.$/);
+        }
+      }
     }
   });
 

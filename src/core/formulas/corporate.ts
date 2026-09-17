@@ -38,6 +38,29 @@ export const DIEM_HOA_VON: FormulaModule = {
       vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán − Biến phí đơn vị)',
       en: 'Break-even output = Fixed cost ÷ (Selling price − Variable cost per unit)',
     },
+    symbols: [
+      {
+        latex: 'Q_{hv}',
+        meaning: {
+          vi: 'sản lượng hoà vốn — số sản phẩm phải bán để không lãi không lỗ',
+          en: 'break-even output — number of units to sell to neither profit nor lose',
+        },
+      },
+      { latex: 'FC', meaning: { vi: 'định phí, ₫', en: 'fixed cost, ₫' } },
+      { latex: 'P', meaning: { vi: 'giá bán một sản phẩm, ₫', en: 'selling price per unit, ₫' } },
+      {
+        latex: 'VC',
+        meaning: { vi: 'biến phí một sản phẩm, ₫', en: 'variable cost per unit, ₫' },
+      },
+      {
+        latex: 'P - VC',
+        meaning: {
+          vi: 'số dư đảm phí — phần mỗi sản phẩm góp vào bù định phí, ₫',
+          en: 'contribution margin — what each unit contributes toward fixed cost, ₫',
+        },
+      },
+      { latex: 'DT_{hv}', meaning: { vi: 'doanh thu hoà vốn, ₫', en: 'break-even revenue, ₫' } },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['diem hoa von', 'hoa von', 'break even', 'bep', 'dinh phi', 'bien phi', 'so du dam phi'],
@@ -227,6 +250,45 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       vi: 'Đòn bẩy tổng hợp = (Doanh thu − Tổng biến phí) ÷ (EBIT − Lãi vay)',
       en: 'Degree of total leverage = (Revenue − Total variable cost) ÷ (EBIT − Interest expense)',
     },
+    symbols: [
+      {
+        latex: 'DTL',
+        meaning: { vi: 'đòn bẩy tổng hợp, lần', en: 'degree of total leverage, times' },
+      },
+      {
+        latex: 'DOL',
+        meaning: {
+          vi: 'đòn bẩy hoạt động: (DT − BP) ÷ EBIT, lần',
+          en: 'degree of operating leverage: (DT − BP) ÷ EBIT, times',
+        },
+      },
+      {
+        latex: 'DFL',
+        meaning: {
+          vi: 'đòn bẩy tài chính: EBIT ÷ (EBIT − I), lần',
+          en: 'degree of financial leverage: EBIT ÷ (EBIT − I), times',
+        },
+      },
+      {
+        latex: 'DT',
+        meaning: { vi: 'doanh thu thuần trong kỳ, ₫', en: 'net revenue for the period, ₫' },
+      },
+      {
+        latex: 'BP',
+        meaning: { vi: 'tổng biến phí trong kỳ, ₫', en: 'total variable cost for the period, ₫' },
+      },
+      {
+        latex: 'EBIT',
+        meaning: {
+          vi: 'lợi nhuận trước lãi vay và thuế: DT − BP − định phí hoạt động, ₫',
+          en: 'earnings before interest and tax: DT − BP − operating fixed cost, ₫',
+        },
+      },
+      {
+        latex: 'I',
+        meaning: { vi: 'lãi vay phải trả trong kỳ, ₫', en: 'interest expense for the period, ₫' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: [

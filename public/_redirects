@@ -8,6 +8,9 @@
 # Máy chạy thử (`next dev`, `npm run preview`, máy chủ riêng của `check:chrome`) KHÔNG đọc file này;
 # ở đó `src/app/page.tsx` tự chuyển bằng `<meta http-equiv="refresh">`.
 #
+# Lúc MẤT MẠNG thì máy chủ không trả lời được, và `public/sw.js` lặp lại đúng luật này: `/` (kèm truy
+# vấn) chuyển sang `/cong-thuc/` rồi lấy khung từ kho. Đổi đích ở đây thì đổi `SHELL` bên đó theo.
+#
 # Kiểm sau khi triển khai: `curl -sI https://<tên-miền>/` phải trả `301` kèm `location: /cong-thuc/`.
 
 /  /cong-thuc/  301

@@ -143,6 +143,26 @@ export const EPS_CO_BAN: FormulaModule = {
       vi: 'EPS = (Lợi nhuận sau thuế − Cổ tức ưu đãi) ÷ Số cổ phiếu lưu hành',
       en: 'EPS = (Net income after tax − Preferred dividends) ÷ Shares outstanding',
     },
+    symbols: [
+      {
+        latex: 'EPS',
+        meaning: { vi: 'lợi nhuận trên mỗi cổ phiếu, tính bằng ₫', en: 'earnings per share, in ₫' },
+      },
+      {
+        latex: '\\text{LNST}',
+        meaning: {
+          vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
+          en: 'net income after tax for the period, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Số CP lưu hành}',
+        meaning: {
+          vi: 'số cổ phiếu (CP) phổ thông đang lưu hành',
+          en: 'number of common shares outstanding',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['eps', 'loi nhuan tren co phieu', 'earnings per share', 'chi so dn'],
@@ -263,6 +283,22 @@ export const BVPS: FormulaModule = {
       vi: 'BVPS = Vốn chủ sở hữu ÷ Số cổ phiếu lưu hành',
       en: 'BVPS = Equity ÷ Shares outstanding',
     },
+    symbols: [
+      {
+        latex: 'BVPS',
+        meaning: {
+          vi: 'giá trị sổ sách mỗi cổ phiếu, tính bằng ₫',
+          en: 'book value per share, in ₫',
+        },
+      },
+      {
+        latex: '\\text{Số CP lưu hành}',
+        meaning: {
+          vi: 'số cổ phiếu (CP) phổ thông đang lưu hành',
+          en: 'number of common shares outstanding',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['bvps', 'gia tri so sach', 'book value', 'chi so dn'],
@@ -376,6 +412,23 @@ export const ROE: FormulaModule = {
       vi: 'ROE = Lợi nhuận sau thuế ÷ Vốn chủ sở hữu × 100',
       en: 'ROE = Net income after tax ÷ Equity × 100',
     },
+    symbols: [
+      {
+        latex: 'ROE',
+        meaning: { vi: 'tỷ suất sinh lời trên vốn chủ, tính bằng %', en: 'return on equity, in %' },
+      },
+      {
+        latex: '\\text{LNST}',
+        meaning: {
+          vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
+          en: 'net income after tax for the period, billion ₫',
+        },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['roe', 'ty suat sinh loi', 'von chu so huu', 'return on equity', 'chi so dn'],
@@ -486,6 +539,23 @@ export const ROA: FormulaModule = {
       vi: 'ROA = Lợi nhuận sau thuế ÷ Tổng tài sản × 100',
       en: 'ROA = Net income after tax ÷ Total assets × 100',
     },
+    symbols: [
+      {
+        latex: 'ROA',
+        meaning: { vi: 'tỷ suất sinh lời trên tài sản, tính bằng %', en: 'return on assets, in %' },
+      },
+      {
+        latex: '\\text{LNST}',
+        meaning: {
+          vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
+          en: 'net income after tax for the period, billion ₫',
+        },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['roa', 'ty suat sinh loi', 'tong tai san', 'return on assets', 'chi so dn'],
@@ -579,6 +649,23 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
       vi: 'ROS = Lợi nhuận sau thuế ÷ Doanh thu thuần × 100',
       en: 'ROS = Net income after tax ÷ Net revenue × 100',
     },
+    symbols: [
+      {
+        latex: 'ROS',
+        meaning: { vi: 'biên lợi nhuận ròng, tính bằng %', en: 'net profit margin, in %' },
+      },
+      {
+        latex: '\\text{LNST}',
+        meaning: {
+          vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
+          en: 'net income after tax for the period, billion ₫',
+        },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['ros', 'bien loi nhuan rong', 'net margin', 'profit margin', 'chi so dn'],
@@ -672,6 +759,30 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
       vi: 'Biên gộp = (Doanh thu thuần − Giá vốn hàng bán) ÷ Doanh thu thuần × 100',
       en: 'Gross margin = (Net revenue − Cost of goods sold) ÷ Net revenue × 100',
     },
+    symbols: [
+      {
+        latex: '\\text{Biên gộp}',
+        meaning: { vi: 'biên lợi nhuận gộp, tính bằng %', en: 'gross profit margin, in %' },
+      },
+      {
+        latex: '\\text{Doanh thu}',
+        meaning: {
+          vi: 'doanh thu thuần trong kỳ, tỷ ₫',
+          en: 'net revenue for the period, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Giá vốn}',
+        meaning: {
+          vi: 'giá vốn hàng bán trong kỳ, tỷ ₫',
+          en: 'cost of goods sold for the period, billion ₫',
+        },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['bien loi nhuan gop', 'gross margin', 'gia von', 'chi so dn'],
@@ -771,6 +882,26 @@ export const NO_TREN_VON_CHU: FormulaModule = {
       vi: 'D/E = Tổng nợ phải trả ÷ Vốn chủ sở hữu',
       en: 'D/E = Total liabilities ÷ Equity',
     },
+    symbols: [
+      {
+        latex: 'D/E',
+        meaning: {
+          vi: 'hệ số nợ trên vốn chủ, tính bằng lần',
+          en: 'debt-to-equity ratio, in times',
+        },
+      },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'nợ (debt) — tổng nợ phải trả, tỷ ₫',
+          en: 'debt — total liabilities, billion ₫',
+        },
+      },
+      {
+        latex: 'E',
+        meaning: { vi: 'vốn chủ sở hữu (equity), tỷ ₫', en: 'equity, billion ₫' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['de', 'd e', 'no tren von chu', 'don bay', 'debt to equity', 'chi so dn'],
@@ -908,6 +1039,12 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
       vi: 'Hệ số hiện hành = Tài sản ngắn hạn ÷ Nợ ngắn hạn',
       en: 'Current ratio = Current assets ÷ Current liabilities',
     },
+    symbols: [
+      {
+        latex: '\\text{Current ratio}',
+        meaning: { vi: 'hệ số thanh toán hiện hành, tính bằng lần', en: 'current ratio, in times' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['thanh toan hien hanh', 'current ratio', 'thanh khoan', 'chi so dn'],
@@ -1015,6 +1152,12 @@ export const THANH_TOAN_NHANH: FormulaModule = {
       vi: 'Hệ số nhanh = (Tài sản ngắn hạn − Hàng tồn kho) ÷ Nợ ngắn hạn',
       en: 'Quick ratio = (Current assets − Inventory) ÷ Current liabilities',
     },
+    symbols: [
+      {
+        latex: '\\text{Quick ratio}',
+        meaning: { vi: 'hệ số thanh toán nhanh, tính bằng lần', en: 'quick ratio, in times' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['thanh toan nhanh', 'quick ratio', 'acid test', 'thanh khoan', 'chi so dn'],
@@ -1147,6 +1290,15 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
       vi: 'Vòng quay tài sản = Doanh thu thuần ÷ Tổng tài sản',
       en: 'Asset turnover = Net revenue ÷ Total assets',
     },
+    symbols: [
+      {
+        latex: '\\text{Vòng quay}',
+        meaning: {
+          vi: 'vòng quay tổng tài sản — số vòng trong kỳ',
+          en: 'total asset turnover — number of turns in the period',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['vong quay tai san', 'asset turnover', 'hieu suat', 'chi so dn'],
@@ -1240,6 +1392,27 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
       vi: 'Hệ số chi trả = Cổ tức tiền mặt mỗi cổ phiếu ÷ EPS × 100',
       en: 'Payout ratio = Cash dividend per share ÷ EPS × 100',
     },
+    symbols: [
+      {
+        latex: '\\text{Payout}',
+        meaning: { vi: 'hệ số chi trả cổ tức, tính bằng %', en: 'dividend payout ratio, in %' },
+      },
+      {
+        latex: 'DPS',
+        meaning: {
+          vi: 'cổ tức tiền mặt mỗi cổ phiếu trong năm, ₫',
+          en: 'cash dividend per share for the year, ₫',
+        },
+      },
+      {
+        latex: 'EPS',
+        meaning: { vi: 'lợi nhuận trên mỗi cổ phiếu, ₫', en: 'earnings per share, ₫' },
+      },
+      {
+        latex: '100',
+        meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['chi tra co tuc', 'payout ratio', 'co tuc', 'dps', 'chi so dn'],

@@ -312,6 +312,41 @@ export const BETA: FormulaModule = {
       vi: 'Beta = Hiệp phương sai(lợi suất cổ phiếu, lợi suất VN-Index) ÷ Phương sai(lợi suất VN-Index)',
       en: 'Beta = Covariance(stock return, VN-Index return) ÷ Variance(VN-Index return)',
     },
+    symbols: [
+      {
+        latex: '\\beta_i',
+        meaning: {
+          vi: 'hệ số beta của cổ phiếu i — biên độ so với thị trường, lần',
+          en: 'beta of stock i — its swing relative to the market, times',
+        },
+      },
+      {
+        latex: '\\text{Cov}',
+        meaning: {
+          vi: 'hiệp phương sai — mức hai chuỗi lợi suất cùng lên xuống với nhau',
+          en: 'covariance — how much two return series rise and fall together',
+        },
+      },
+      {
+        latex: 'R_i',
+        meaning: { vi: 'lợi suất từng phiên của cổ phiếu i', en: 'per-session return of stock i' },
+      },
+      {
+        latex: 'R_m',
+        meaning: {
+          vi: 'lợi suất từng phiên của thị trường, đo bằng VN-Index',
+          en: 'per-session return of the market, measured by the VN-Index',
+        },
+      },
+      {
+        latex: '\\text{Var}',
+        meaning: {
+          vi: 'phương sai — mức lợi suất thị trường dao động quanh trung bình',
+          en: 'variance — how far market returns spread around their mean',
+        },
+      },
+      { latex: 'i', meaning: { vi: 'cổ phiếu đang xét', en: 'the stock being examined' } },
+    ],
     chartType: 'scatter',
     level: 'advanced',
     tags: ['beta', 'he so beta', 'rui ro he thong', 'capm', 'systematic risk', 'hoi quy'],
@@ -478,6 +513,47 @@ export const TY_SO_SHARPE: FormulaModule = {
       vi: 'Tỷ số Sharpe = (Lợi suất bình quân một phiên − Lãi suất phi rủi ro một phiên) ÷ Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên trong một năm',
       en: 'Sharpe ratio = (Average per-session return − Per-session risk-free rate) ÷ Standard deviation of per-session returns × square root of Sessions per year',
     },
+    symbols: [
+      {
+        latex: 'S',
+        meaning: { vi: 'tỷ số Sharpe đã quy năm, lần', en: 'annualized Sharpe ratio, times' },
+      },
+      {
+        latex: '\\bar{r}_p',
+        meaning: {
+          vi: 'lợi suất bình quân một phiên của danh mục',
+          en: 'average per-session return of the portfolio',
+        },
+      },
+      {
+        latex: 'r_f',
+        meaning: {
+          vi: 'lãi suất phi rủi ro / năm đã nhập, quy về một phiên',
+          en: 'the risk-free rate / year entered, converted to one session',
+        },
+      },
+      {
+        latex: '\\sigma_p',
+        meaning: {
+          vi: 'độ lệch chuẩn lợi suất phiên của danh mục',
+          en: "standard deviation of the portfolio's per-session returns",
+        },
+      },
+      {
+        latex: '\\sqrt{m}',
+        meaning: {
+          vi: 'hệ số quy năm — căn bậc hai của số phiên trong một năm',
+          en: 'annualization factor — square root of sessions per year',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số phiên trong một năm, phiên (250 cho chuỗi theo ngày)',
+          en: 'sessions per year (250 for a daily series)',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['sharpe', 'ty so sharpe', 'rui ro dieu chinh', 'risk adjusted', 'do bien dong'],
@@ -605,6 +681,69 @@ export const TY_SO_SORTINO: FormulaModule = {
       vi: 'Tỷ số Sortino = (Lợi suất bình quân một phiên − Ngưỡng phi rủi ro một phiên) ÷ Độ lệch chuẩn phần giảm × căn bậc hai của Số phiên trong một năm',
       en: 'Sortino ratio = (Average per-session return − Per-session risk-free threshold) ÷ Downside deviation × square root of Sessions per year',
     },
+    symbols: [
+      {
+        latex: 'Sortino',
+        meaning: { vi: 'tỷ số Sortino đã quy năm, lần', en: 'annualized Sortino ratio, times' },
+      },
+      {
+        latex: '\\bar{r}_p',
+        meaning: {
+          vi: 'lợi suất bình quân một phiên của danh mục',
+          en: 'average per-session return of the portfolio',
+        },
+      },
+      {
+        latex: 'r_f',
+        meaning: {
+          vi: 'lãi suất phi rủi ro / năm đã nhập, quy về một phiên, dùng làm ngưỡng',
+          en: 'the risk-free rate / year entered, per session, used as the threshold',
+        },
+      },
+      {
+        latex: '\\sigma_d',
+        meaning: {
+          vi: 'độ lệch chuẩn phần giảm — chỉ đếm các phiên dưới ngưỡng',
+          en: 'downside deviation — counts only sessions below the threshold',
+        },
+      },
+      {
+        latex: '\\sqrt{m}',
+        meaning: {
+          vi: 'hệ số quy năm — căn bậc hai của số phiên trong một năm',
+          en: 'annualization factor — square root of sessions per year',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số phiên trong một năm, phiên (250 cho chuỗi theo ngày)',
+          en: 'sessions per year (250 for a daily series)',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'tổng số phiên lợi suất trong chuỗi, kể cả phiên không dưới ngưỡng',
+          en: 'total number of return sessions, including those not below the threshold',
+        },
+      },
+      { latex: 'r_t', meaning: { vi: 'lợi suất của phiên t', en: 'return of session t' } },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, đánh số từ 1 tới n',
+          en: 'the session being examined, numbered 1 to n',
+        },
+      },
+      {
+        latex: '\\min(0, r_t - r_f)',
+        meaning: {
+          vi: 'phần hụt dưới ngưỡng của phiên t; phiên trên ngưỡng tính là 0',
+          en: 'shortfall below the threshold in session t; a session above it counts as 0',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['sortino', 'ty so sortino', 'downside risk', 'rui ro giam gia', 'do lech phan giam'],
@@ -736,6 +875,43 @@ export const TY_SO_TREYNOR: FormulaModule = {
       vi: 'Tỷ số Treynor = (Lợi suất bình quân một phiên − Lãi suất phi rủi ro một phiên) × Số phiên trong một năm ÷ Hệ số beta',
       en: 'Treynor ratio = (Average per-session return − Per-session risk-free rate) × Sessions per year ÷ Beta coefficient',
     },
+    symbols: [
+      {
+        latex: 'T',
+        meaning: {
+          vi: 'tỷ số Treynor — lợi suất vượt phi rủi ro quy năm trên mỗi đơn vị beta, %/năm',
+          en: 'Treynor ratio — annualized excess return per unit of beta, %/year',
+        },
+      },
+      {
+        latex: '\\bar{r}_p',
+        meaning: {
+          vi: 'lợi suất bình quân một phiên của danh mục',
+          en: 'average per-session return of the portfolio',
+        },
+      },
+      {
+        latex: 'r_f',
+        meaning: {
+          vi: 'lãi suất phi rủi ro / năm đã nhập, quy về một phiên',
+          en: 'the risk-free rate / year entered, converted to one session',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số phiên trong một năm, phiên — nhân lên để quy năm',
+          en: 'sessions per year — multiplied to annualize',
+        },
+      },
+      {
+        latex: '\\beta_p',
+        meaning: {
+          vi: 'hệ số beta của danh mục, lần (ô nhập tay)',
+          en: 'portfolio beta coefficient, times (entered manually)',
+        },
+      },
+    ],
     chartType: 'scatter',
     level: 'advanced',
     tags: ['treynor', 'ty so treynor', 'beta', 'rui ro he thong', 'risk adjusted'],
@@ -898,6 +1074,50 @@ export const TY_SO_THONG_TIN: FormulaModule = {
       vi: 'Tỷ số thông tin = (Lợi suất bình quân một phiên − Lợi suất chuẩn một phiên) ÷ Độ lệch chuẩn phần chênh lệch × căn bậc hai của Số phiên trong một năm',
       en: 'Information ratio = (Average per-session return − Per-session benchmark return) ÷ Standard deviation of the difference × square root of Sessions per year',
     },
+    symbols: [
+      {
+        latex: 'IR',
+        meaning: {
+          vi: 'tỷ số thông tin đã quy năm, lần',
+          en: 'annualized information ratio, times',
+        },
+      },
+      {
+        latex: '\\bar{r}_p',
+        meaning: {
+          vi: 'lợi suất bình quân một phiên của danh mục',
+          en: 'average per-session return of the portfolio',
+        },
+      },
+      {
+        latex: '\\bar{r}_b',
+        meaning: {
+          vi: 'lợi suất chuẩn so sánh / năm đã nhập, quy về một phiên',
+          en: 'the benchmark return / year entered, converted to one session',
+        },
+      },
+      {
+        latex: '\\sigma_{p-b}',
+        meaning: {
+          vi: 'sai số theo dõi — độ lệch chuẩn của phần chênh danh mục trừ chuẩn',
+          en: 'tracking error — standard deviation of the portfolio-minus-benchmark gap',
+        },
+      },
+      {
+        latex: '\\sqrt{m}',
+        meaning: {
+          vi: 'hệ số quy năm — căn bậc hai của số phiên trong một năm',
+          en: 'annualization factor — square root of sessions per year',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số phiên trong một năm, phiên (250 cho chuỗi theo ngày)',
+          en: 'sessions per year (250 for a daily series)',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['information ratio', 'ty so thong tin', 'vuot chuan', 'benchmark', 'sai so theo doi'],
@@ -1039,6 +1259,23 @@ export const TY_SO_CALMAR: FormulaModule = {
       vi: 'Tỷ số Calmar = Lợi suất năm hoá ÷ Mức sụt giảm sâu nhất từ đỉnh',
       en: 'Calmar ratio = Annualized return ÷ Maximum drawdown from peak',
     },
+    symbols: [
+      { latex: 'Calmar', meaning: { vi: 'tỷ số Calmar, lần', en: 'Calmar ratio, times' } },
+      {
+        latex: 'r_{nam}',
+        meaning: {
+          vi: 'lợi suất năm hoá của cả chuỗi giá, dạng thập phân',
+          en: 'annualized return of the whole price series, as a decimal',
+        },
+      },
+      {
+        latex: 'MDD',
+        meaning: {
+          vi: 'mức sụt giảm sâu nhất từ đỉnh xuống đáy trong chuỗi, dạng thập phân',
+          en: 'maximum drawdown from peak to trough in the series, as a decimal',
+        },
+      },
+    ],
     chartType: 'underwater',
     level: 'advanced',
     tags: ['calmar', 'ty so calmar', 'max drawdown', 'sut giam sau nhat', 'mdd'],
@@ -1170,6 +1407,37 @@ export const TY_SO_THANG_THUA: FormulaModule = {
       vi: 'Tỷ số thắng/thua = Trung bình mức tăng của các phiên tăng ÷ Trung bình mức giảm của các phiên giảm',
       en: 'Win/loss ratio = Average gain of rising sessions ÷ Average loss of falling sessions',
     },
+    symbols: [
+      { latex: 'W/L', meaning: { vi: 'tỷ số thắng/thua, lần', en: 'win/loss ratio, times' } },
+      {
+        latex: '\\overline{r^{+}}',
+        meaning: {
+          vi: 'mức tăng bình quân của các phiên tăng (lợi suất dương)',
+          en: 'average gain of rising sessions (positive returns)',
+        },
+      },
+      {
+        latex: '\\overline{r^{-}}',
+        meaning: {
+          vi: 'mức giảm bình quân của các phiên giảm (lợi suất âm)',
+          en: 'average loss of falling sessions (negative returns)',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lợi suất một phiên — dấu + là phiên tăng, dấu − là phiên giảm',
+          en: 'one session’s return — + marks a rising session, − a falling one',
+        },
+      },
+      {
+        latex: '\\left| \\overline{r^{-}} \\right|',
+        meaning: {
+          vi: 'giá trị tuyệt đối — bỏ dấu âm để hai vế cùng dương',
+          en: 'absolute value — drops the minus sign so both sides are positive',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'basic',
     tags: ['thang thua', 'win loss', 'payoff ratio', 'phien tang phien giam', 'bien do'],

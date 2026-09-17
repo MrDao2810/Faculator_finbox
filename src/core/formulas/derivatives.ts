@@ -105,6 +105,44 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       vi: 'Giá lý thuyết = Chỉ số cơ sở × [1 + (Lãi suất phi rủi ro − Tỷ suất cổ tức) ÷ 100 × Số ngày đến đáo hạn ÷ 365]',
       en: 'Theoretical price = Underlying index × [1 + (Risk-free rate − Dividend yield) ÷ 100 × Days to expiry ÷ 365]',
     },
+    symbols: [
+      {
+        latex: 'F',
+        meaning: {
+          vi: 'giá lý thuyết của hợp đồng tương lai, điểm',
+          en: 'theoretical futures price, in index points',
+        },
+      },
+      {
+        latex: 'S',
+        meaning: {
+          vi: 'chỉ số VN30 hiện tại — chỉ số cơ sở, điểm',
+          en: 'current VN30 index — the underlying, in points',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: { vi: 'lãi suất phi rủi ro, %/năm', en: 'risk-free rate, %/year' },
+      },
+      {
+        latex: 'q',
+        meaning: {
+          vi: 'tỷ suất cổ tức của rổ VN30, %/năm',
+          en: 'dividend yield of the VN30 basket, %/year',
+        },
+      },
+      {
+        latex: 'd',
+        meaning: { vi: 'số ngày từ hôm nay tới ngày đáo hạn', en: 'days from today to expiry' },
+      },
+      {
+        latex: '365',
+        meaning: {
+          vi: 'số ngày một năm, quy lãi suất năm về d ngày nắm giữ',
+          en: 'days in a year, scaling the annual rate to d days of holding',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['vn30f', 'gia ly thuyet', 'hop dong tuong lai', 'cost of carry', 'futures', 'phai sinh'],
@@ -277,6 +315,26 @@ export const BASIS_VN30F: FormulaModule = {
       vi: 'Basis = Giá hợp đồng tương lai − Chỉ số cơ sở',
       en: 'Basis = Futures contract price − Underlying index',
     },
+    symbols: [
+      {
+        latex: 'Basis',
+        meaning: {
+          vi: 'chênh giá hợp đồng so với chỉ số cơ sở, điểm',
+          en: 'gap between the contract price and the underlying index, in points',
+        },
+      },
+      {
+        latex: 'F',
+        meaning: {
+          vi: 'giá hợp đồng tương lai đang khớp, điểm',
+          en: 'current matched futures contract price, in points',
+        },
+      },
+      {
+        latex: 'S',
+        meaning: { vi: 'chỉ số VN30 hiện tại, điểm', en: 'current VN30 index, in points' },
+      },
+    ],
     /*
      * Hiệu của đúng hai đầu vào — đường quét là đoạn thẳng hệ số góc ±1. Cùng luật với nhóm phí &
      * thuế (xem docblock đầu `fees.ts`). So với `so-hop-dong-toi-da` ngay dưới trong cùng file:
@@ -400,6 +458,37 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
       vi: 'Lãi/lỗ Long = (Điểm đóng vị thế − Điểm mở vị thế) × Hệ số nhân × Số hợp đồng',
       en: 'Long P&L = (Closing points − Opening points) × Multiplier × Number of contracts',
     },
+    symbols: [
+      {
+        latex: 'PnL_{long}',
+        meaning: {
+          vi: 'lãi/lỗ của vị thế Long (vị thế mua), ₫',
+          en: 'profit or loss of the long position, ₫',
+        },
+      },
+      {
+        latex: 'P_{dong}',
+        meaning: {
+          vi: 'điểm đóng vị thế — hoặc giá hiện tại nếu chưa đóng, điểm',
+          en: 'closing points — or the current price if still open',
+        },
+      },
+      {
+        latex: 'P_{mo}',
+        meaning: { vi: 'điểm mở vị thế, điểm', en: 'opening points' },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'hệ số nhân của hợp đồng VN30F, ₫ mỗi điểm',
+          en: 'VN30F contract multiplier, ₫ per point',
+        },
+      },
+      {
+        latex: 'N',
+        meaning: { vi: 'số hợp đồng đang giữ, HĐ', en: 'number of contracts held' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -533,6 +622,37 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       vi: 'Lãi/lỗ Short = (Điểm mở vị thế − Điểm đóng vị thế) × Hệ số nhân × Số hợp đồng',
       en: 'Short P&L = (Opening points − Closing points) × Multiplier × Number of contracts',
     },
+    symbols: [
+      {
+        latex: 'PnL_{short}',
+        meaning: {
+          vi: 'lãi/lỗ của vị thế Short (vị thế bán), ₫',
+          en: 'profit or loss of the short position, ₫',
+        },
+      },
+      {
+        latex: 'P_{mo}',
+        meaning: { vi: 'điểm mở vị thế, điểm', en: 'opening points' },
+      },
+      {
+        latex: 'P_{dong}',
+        meaning: {
+          vi: 'điểm đóng vị thế — hoặc giá hiện tại nếu chưa đóng, điểm',
+          en: 'closing points — or the current price if still open',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'hệ số nhân của hợp đồng VN30F, ₫ mỗi điểm',
+          en: 'VN30F contract multiplier, ₫ per point',
+        },
+      },
+      {
+        latex: 'N',
+        meaning: { vi: 'số hợp đồng đang giữ, HĐ', en: 'number of contracts held' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['lai lo', 'vi the short', 'vn30f', 'ban', 'pnl', 'short', 'phai sinh'],
@@ -660,6 +780,47 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       vi: 'Số hợp đồng tối đa = Vốn ký quỹ ÷ (Điểm hợp đồng × Hệ số nhân × Tỷ lệ ký quỹ ÷ 100), làm tròn xuống',
       en: 'Maximum contracts = Margin capital ÷ (Contract points × Multiplier × Margin ratio ÷ 100), rounded down',
     },
+    symbols: [
+      {
+        latex: 'N_{max}',
+        meaning: {
+          vi: 'số hợp đồng nhiều nhất mở được với vốn ký quỹ hiện có, HĐ',
+          en: 'maximum number of contracts the available margin can open',
+        },
+      },
+      {
+        latex: '\\lfloor',
+        meaning: {
+          vi: 'dấu ngoặc sàn — làm tròn xuống số nguyên',
+          en: 'floor brackets — round down to a whole number',
+        },
+      },
+      {
+        latex: 'V',
+        meaning: {
+          vi: 'vốn ký quỹ đã nộp vào tài khoản phái sinh, ₫',
+          en: 'margin capital deposited in the derivatives account, ₫',
+        },
+      },
+      {
+        latex: 'F',
+        meaning: { vi: 'điểm hợp đồng tương lai, điểm', en: 'futures contract points' },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'hệ số nhân của hợp đồng VN30F, ₫ mỗi điểm',
+          en: 'VN30F contract multiplier, ₫ per point',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'tỷ lệ ký quỹ ban đầu do công ty chứng khoán quy định, %',
+          en: 'initial margin ratio set by the securities company, %',
+        },
+      },
+    ],
     /*
      * MỞ biểu đồ ở đợt kiểm kê — trước đó khai `'none'` theo luật chung "kết quả là hàm bậc nhất
      * của một đầu vào thì hình không nói gì". Luật ấy KHÔNG áp được ở đây: hàm làm tròn xuống của
@@ -826,6 +987,50 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       vi: 'Số hợp đồng = Vốn × Rủi ro mỗi lệnh ÷ 100 ÷ (Khoảng cách cắt lỗ × Hệ số nhân), làm tròn xuống',
       en: 'Number of contracts = Capital × Risk per trade ÷ 100 ÷ (Stop-loss distance × Multiplier), rounded down',
     },
+    symbols: [
+      {
+        latex: 'N',
+        meaning: {
+          vi: 'số hợp đồng được phép mở cho lệnh này, HĐ',
+          en: 'number of contracts allowed for this trade',
+        },
+      },
+      {
+        latex: '\\lfloor',
+        meaning: {
+          vi: 'dấu ngoặc sàn — làm tròn xuống số nguyên',
+          en: 'floor brackets — round down to a whole number',
+        },
+      },
+      {
+        latex: 'V',
+        meaning: {
+          vi: 'vốn tài khoản phái sinh, ₫',
+          en: 'derivatives account capital, ₫',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'rủi ro chấp nhận mỗi lệnh, % của vốn',
+          en: 'risk accepted per trade, % of capital',
+        },
+      },
+      {
+        latex: '\\Delta P',
+        meaning: {
+          vi: 'khoảng cách cắt lỗ — số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ',
+          en: 'stop-loss distance — points between the entry level and the stop level',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'hệ số nhân của hợp đồng VN30F, ₫ mỗi điểm',
+          en: 'VN30F contract multiplier, ₫ per point',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -998,6 +1203,37 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       vi: 'Đòn bẩy hiệu dụng = Điểm hợp đồng × Hệ số nhân × Số hợp đồng ÷ Vốn thực có',
       en: 'Effective leverage = Contract points × Multiplier × Number of contracts ÷ Actual equity',
     },
+    symbols: [
+      {
+        latex: 'L',
+        meaning: {
+          vi: 'tỷ lệ đòn bẩy hiệu dụng — giá trị danh nghĩa gấp mấy lần vốn thực, lần',
+          en: 'effective leverage — notional value as a multiple of actual equity, times',
+        },
+      },
+      {
+        latex: 'F',
+        meaning: { vi: 'điểm hợp đồng tương lai, điểm', en: 'futures contract points' },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'hệ số nhân của hợp đồng VN30F, ₫ mỗi điểm',
+          en: 'VN30F contract multiplier, ₫ per point',
+        },
+      },
+      {
+        latex: 'N',
+        meaning: { vi: 'số hợp đồng đang giữ, HĐ', en: 'number of contracts held' },
+      },
+      {
+        latex: 'E',
+        meaning: {
+          vi: 'vốn thực có trong tài khoản — tiền ký quỹ cộng lãi lỗ đã bù trừ, ₫',
+          en: 'actual equity in the account — margin deposit plus settled P&L, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['don bay', 'leverage', 'vn30f', 'gia tri danh nghia', 'notional', 'phai sinh'],

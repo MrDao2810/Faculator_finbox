@@ -19,7 +19,9 @@ viết hàm tính là lỗi chỉ lộ ra lúc chạy; gộp lại thì typechec
 Bốn việc, không có việc thứ năm:
 
 1. Viết `FormulaModule` trong file nhóm tương ứng (`fees.ts`, `personal.ts`, `returns.ts`,
-   `multiples.ts`, `risk.ts` — hoặc file mới nếu là nhóm chưa có).
+   `multiples.ts`, `risk.ts` — hoặc file mới nếu là nhóm chưa có). Nhớ `symbols`: bảng "A: là
+   gì" cho từng chữ trong `latex`, xem docblock ở `registry/types.ts`; chạy cửa gác riêng bằng
+   `FFB_SYMBOL_IDS=<id> npx vitest run src/core/formulas/formulas.test.ts -t "ký hiệu"`.
 2. Thêm nó vào mảng xuất ở cuối file đó (`FEE_FORMULAS`, `PERSONAL_FORMULAS`, …).
 3. Nếu là file nhóm mới: thêm mảng đó vào `FORMULA_MODULES` trong `index.ts`.
 4. Chạy `npm run check`.
@@ -29,18 +31,19 @@ Không phải đăng ký ở đâu khác. `FORMULAS`, `sitemap.xml`, trang `/con
 
 ## Những chỗ bắt buộc, có test canh
 
-| Bắt buộc                                          | Bắt ở đâu                                  |
-| ------------------------------------------------- | ------------------------------------------ |
-| Đủ bốn mục diễn giải (FR-03)                      | validator Registry                         |
-| Có nguồn tham khảo (FR-04)                        | validator Registry                         |
-| Có ít nhất một ca kiểm thử (NFR-MNT-02)           | validator Registry                         |
-| **Các ca kiểm thử đó phải ĐẠT**                   | `formulas.test.ts` chạy chính `spec.tests` |
-| `example` khớp đúng kết quả hàm tính              | `formulas.test.ts`                         |
-| `expression` đọc được, không lẫn LaTeX            | `formulas.test.ts`                         |
-| id chỉ dùng chữ thường và gạch ngang (đi vào URL) | validator Registry                         |
-| Không vượt `expectedCount` của SRS 3.8            | `formulas.test.ts`                         |
-| Chặng `breakdown` cộng lại ĐÚNG bằng kết quả      | `chart.test.ts` — quét mọi CT khai chặng   |
-| Diễn giải không mâu thuẫn với chính `spec`        | `src/application/prose-audit.test.ts`      |
+| Bắt buộc                                                 | Bắt ở đâu                                           |
+| -------------------------------------------------------- | --------------------------------------------------- |
+| Đủ bốn mục diễn giải (FR-03)                             | validator Registry                                  |
+| Có nguồn tham khảo (FR-04)                               | validator Registry                                  |
+| Có ít nhất một ca kiểm thử (NFR-MNT-02)                  | validator Registry                                  |
+| **Các ca kiểm thử đó phải ĐẠT**                          | `formulas.test.ts` chạy chính `spec.tests`          |
+| `example` khớp đúng kết quả hàm tính                     | `formulas.test.ts`                                  |
+| `expression` đọc được, không lẫn LaTeX                   | `formulas.test.ts`                                  |
+| `symbols` phủ hết mọi chữ trong `latex`, chép nguyên văn | `formulas.test.ts` — thước là `latexSymbolTokens()` |
+| id chỉ dùng chữ thường và gạch ngang (đi vào URL)        | validator Registry                                  |
+| Không vượt `expectedCount` của SRS 3.8                   | `formulas.test.ts`                                  |
+| Chặng `breakdown` cộng lại ĐÚNG bằng kết quả             | `chart.test.ts` — quét mọi CT khai chặng            |
+| Diễn giải không mâu thuẫn với chính `spec`               | `src/application/prose-audit.test.ts`               |
 
 ## Ba luật của thân hàm tính
 

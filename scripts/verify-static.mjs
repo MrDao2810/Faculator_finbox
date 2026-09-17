@@ -303,6 +303,23 @@ check(
   '0 tài sản kèm theo',
 );
 
+/*
+ * Bảng ký hiệu "A: là gì" cạnh hình công thức (16/09/2026) dựng cùng cách: từng ký hiệu qua KaTeX
+ * lúc build (`latexToInlineMathml`), nên HTML tĩnh phải có sẵn `<dl aria-label="Ký hiệu trong công
+ * thức">` với `<math>` bên trong từng `<dt>`. Đếm `<dt>` để chắc không phải một bảng rỗng.
+ */
+const bangKyHieu = /<dl[^>]*aria-label="Ký hiệu trong công thức"[^>]*>([\s\S]*?)<\/dl>/.exec(
+  detailHtml,
+);
+const soDt = bangKyHieu === null ? 0 : (bangKyHieu[1].match(/<dt/g) ?? []).length;
+const dtCoMath =
+  bangKyHieu === null ? 0 : (bangKyHieu[1].match(/<dt[^>]*><span class="katex">/g) ?? []).length;
+check(
+  'bảng ký hiệu cạnh hình công thức có sẵn trong HTML tĩnh, mỗi ký hiệu là MathML dựng lúc build',
+  soDt >= 2 && dtCoMath === soDt,
+  `${String(soDt)} ký hiệu · ${String(dtCoMath)} dựng bằng KaTeX`,
+);
+
 /* ── Màn "Về chúng tôi" ──────────────────────────────────────────────────── */
 
 let aboutHtml = '';

@@ -61,7 +61,20 @@ const MIME = {
 
 const BASE = resolve(ROOT);
 
+/**
+ * Công tắc "mất mạng" cho phép kiểm service worker ở cuối file. Bật lên thì máy chủ cắt socket của
+ * mọi request — `fetch()` bên trong service worker ném lỗi y như lúc điện thoại chưa bắt được sóng.
+ * Phải cắt ở ĐÂY chứ không dùng `Network.emulateNetworkConditions` của CDP: lệnh ấy chỉ chặn
+ * request của trang, còn `fetch()` trong service worker vẫn đi tới máy chủ như thường (đã đo).
+ */
+let matMang = false;
+
 const server = createServer((req, res) => {
+  if (matMang) {
+    req.socket.destroy();
+    return;
+  }
+
   const path = decodeURIComponent((req.url ?? '/').split('?')[0]);
   // `trailingSlash: true` nên mọi trang là <đường dẫn>/index.html.
   const rel = path.endsWith('/') ? `${path}index.html` : path;
@@ -501,6 +514,62 @@ window.__themeLog = [];
       ? 'không thấy khối Công thức'
       : `expression overflow-x: ${cuonCongThuc.expressionX}`,
   );
+
+  /*
+   * ── Bảng ký hiệu "A: là gì" (16/09/2026) — bên PHẢI hình ở khổ PC, DƯỚI dòng chữ ở khổ điện thoại ──
+   *
+   * Bố cục là grid hai cột từ 1024px; jsdom không dựng grid nên chỉ Chrome thật trả lời được "nó
+   * có thật sự đứng bên phải không". Đo trên `chuoi-phien-giam-dai-nhat` — chính hình chủ dự án
+   * chỉ vào. `<dl>` tìm theo aria-label vì tên lớp CSS Module bị băm.
+   */
+  const DOC_BANG_KY_HIEU = `(() => {
+  const katex = document.querySelector('.katex');
+  const formula = katex ? katex.parentElement : null;
+  const expression = formula ? formula.nextElementSibling : null;
+  const bang = document.querySelector('dl[aria-label="Ký hiệu trong công thức"]');
+  if (!formula || !expression || !bang) return null;
+  const r = (el) => { const b = el.getBoundingClientRect(); return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), right: Math.round(b.right) }; };
+  return {
+    formula: r(formula), expression: r(expression), bang: r(bang),
+    soKyHieu: bang.querySelectorAll('dt').length,
+    dtCoMath: [...bang.querySelectorAll('dt')].every((dt) => dt.querySelector('math') !== null),
+    tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+  };
+})()`;
+
+  await open('/cong-thuc/chuoi-phien-giam-dai-nhat/');
+  const bangDt = await evaluate(DOC_BANG_KY_HIEU);
+  check(
+    'Điện thoại 360 · bảng ký hiệu nằm DƯỚI dòng chữ, đủ ký hiệu, mỗi ký hiệu là MathML, không tràn ngang',
+    bangDt !== null &&
+      bangDt.bang.top >= bangDt.expression.bottom &&
+      bangDt.soKyHieu >= 3 &&
+      bangDt.dtCoMath === true &&
+      bangDt.tran === false,
+    bangDt === null ? 'không thấy bảng ký hiệu' : JSON.stringify(bangDt),
+  );
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await open('/cong-thuc/chuoi-phien-giam-dai-nhat/');
+  const bangPc = await evaluate(DOC_BANG_KY_HIEU);
+  check(
+    'PC 1440 · bảng ký hiệu đứng BÊN PHẢI hình công thức, cùng mép trên',
+    bangPc !== null &&
+      bangPc.bang.left >= bangPc.formula.right &&
+      Math.abs(bangPc.bang.top - bangPc.formula.top) <= 24,
+    bangPc === null ? 'không thấy bảng ký hiệu' : JSON.stringify(bangPc),
+  );
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 360,
+    height: 780,
+    deviceScaleFactor: 2,
+    mobile: true,
+  });
 
   /* ── 0b. Khối dưới nếp gấp thật sự được hoãn dựng hình ───────────────────── */
 
@@ -2648,6 +2717,73 @@ window.__themeLog = [];
   );
 
   await evaluate(`localStorage.removeItem('ffb.series.v1'), true`);
+
+  /*
+   * ── Service worker lúc MẤT MẠNG: trang vắng kho thì về khung /cong-thuc/ dưới ĐÚNG URL ───────
+   *
+   * Lỗi thật chủ dự án báo 16/09/2026: mở link hay app lúc điện thoại chưa có mạng thì "vào một màn
+   * cũ rồi mới load lại vào màn Công thức". Đo ra: `sw.js` v4 trả HTML của khung `/cong-thuc/` cho
+   * URL `/` — React ném lỗi hydration #418 vì HTML dựng cho một đường dẫn khác, header hiện logo thay
+   * vì tên màn, thanh địa chỉ vẫn là `/`. Từ v5 service worker CHUYỂN HƯỚNG sang khung thay vì trả
+   * khung dưới URL lạ. Chỉ Chrome thật kiểm được: cần một service worker đã cài, một kho đã có khung,
+   * và một máy chủ thật sự cắt mạng.
+   *
+   * Bản build đăng ký service worker sau `load` ở mọi trang, nên tới đây nó đã cài từ lâu. Nhưng `/`
+   * đã được ghé ở mục 4 — máy chủ này không đọc `_redirects` nên `/` trả 200 và bị cất vào kho, khác
+   * bản triển khai (301, không bao giờ vào kho). Xoá mục ấy đi để đúng với thực tế.
+   */
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 360,
+    height: 780,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await open('/cong-thuc/');
+  let swSanSang = false;
+  for (let lan = 0; lan < 100 && !swSanSang; lan += 1) {
+    swSanSang = await evaluate(`(async () => {
+      if (!navigator.serviceWorker.controller) return false;
+      if ((await caches.match(new Request('/cong-thuc/'))) === undefined) return false;
+      for (const ten of await caches.keys()) await (await caches.open(ten)).delete(new Request('/'));
+      return true;
+    })()`);
+    if (!swSanSang) await new Promise((r) => setTimeout(r, 200));
+  }
+  check('service worker đã cài và kho đã có khung /cong-thuc/', swSanSang);
+
+  matMang = true;
+  try {
+    await open('/');
+    // 79 là số thẻ danh sách ở chế độ Cơ bản (111 ở Nâng cao) — chỉ cần biết màn đã dựng đủ nội dung.
+    const gocMatMang = await evaluate(`JSON.stringify({
+      duongDan: location.pathname,
+      h1: document.querySelector('h1')?.textContent ?? null,
+      soThe: document.querySelectorAll('#danh-sach-cong-thuc ul li').length,
+    })`);
+    const goc = JSON.parse(gocMatMang);
+    const loiReact = noise.filter((n) => /React error|hydrat/i.test(n));
+    check(
+      'mất mạng · mở "/" thì về /cong-thuc/ dưới đúng URL, đủ thẻ, không lỗi hydration',
+      goc.duongDan === '/cong-thuc/' &&
+        goc.h1 === 'Công thức' &&
+        goc.soThe >= 79 &&
+        loiReact.length === 0,
+      `${String(goc.duongDan)} · h1 ${String(goc.h1)} · ${String(goc.soThe)} thẻ · ${loiReact[0] ?? 'console sạch lỗi React'}`,
+    );
+
+    // Một trang chưa từng ghé trong lượt chạy này — không có trong kho — cũng về khung, không về trang lỗi.
+    await open('/cong-thuc/he-so-bien-thien/');
+    const laMatMang = await evaluate(
+      `location.pathname + '|' + (document.querySelector('h1')?.textContent ?? '')`,
+    );
+    check(
+      'mất mạng · trang chưa có trong kho thì về khung /cong-thuc/ chứ không ra trang lỗi của trình duyệt',
+      laMatMang === '/cong-thuc/|Công thức',
+      laMatMang,
+    );
+  } finally {
+    matMang = false;
+  }
 
   /* ── Hết phép kiểm ─────────────────────────────────────────────────────── */
 } finally {

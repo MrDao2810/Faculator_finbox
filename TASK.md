@@ -2,167 +2,171 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
-| Gói   | Nội dung                                                                        | Giờ WBS | Trạng thái                                                         |
-| ----- | ------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------ |
-| 1.1.1 | Repo + toolchain                                                                | 3h00    | Xong (từ trước)                                                    |
-| 1.1.2 | CI/CD + hosting tĩnh                                                            | 3h30    | Xong (từ trước)                                                    |
-| 1.2.1 | Design token & primitive                                                        | 10h00   | Xong — đợt 1                                                       |
-| 1.3.1 | FormulaRegistry: schema, bộ sinh, validator                                     | 7h00    | Xong — đợt 1                                                       |
-| 1.3.2 | MarketConfig thuế & phí                                                         | 3h30    | Xong — đối chiếu xong, đóng 17/08/2026                             |
-| 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                                                  | 4h00    | Xong — đợt 1                                                       |
-| 1.4.1 | Routing, URL state & khung i18n                                                 | 5h30    | Xong — đợt 2, **trừ route động**                                   |
-| 1.4.2 | App shell & layout                                                              | 2h00    | Xong — đợt 2                                                       |
-| 2.1.1 | AppHeader · OfflineBanner · ModeToggle · LangSwitch                             | 10h00   | Xong — đợt 2                                                       |
-| 2.1.2 | BottomTabBar                                                                    | 2h30    | Xong — đợt 2                                                       |
-| 2.1.3 | DisclaimerBar                                                                   | 2h00    | Xong — đợt 2                                                       |
-| 2.2.1 | SearchBox bỏ dấu                                                                | 5h00    | Xong — đợt 3                                                       |
-| 2.2.2 | CategoryFilter                                                                  | 3h30    | Xong — đợt 3                                                       |
-| 2.2.3 | FormulaCard                                                                     | 3h00    | Xong — đợt 3                                                       |
-| 2.3.1 | NumberInput — 5 trạng thái WF-16                                                | 8h00    | Xong — đợt 5                                                       |
-| 2.3.2 | SliderInput · ButtonGroup · RadioGroup                                          | 6h00    | Xong — đợt 5                                                       |
-| 2.3.3 | SelectInput · Toggle · UnitSwitcher                                             | 4h00    | Xong — đợt 5                                                       |
-| 2.3.4 | LinkedInput                                                                     | 12h00   | Xong — đợt 5                                                       |
-| 2.4.1 | ResultBlock                                                                     | 5h00    | Xong — đợt 5                                                       |
-| 2.4.2 | ErrorState · InlineWarning                                                      | 5h00    | Xong — đợt 5                                                       |
-| 2.4.3 | FormulaLatex (KaTeX)                                                            | 3h00    | Xong — xem mục "Ký hiệu toán học"                                  |
-| 2.4.4 | ExplanationAccordion                                                            | 3h00    | Xong — đợt 5                                                       |
-| 2.4.5 | VariableTable · ExampleBlock · SourceBlock                                      | 4h30    | Xong — đợt 5                                                       |
-| 2.4.6 | FlowChain                                                                       | 6h00    | Xong — đợt 5                                                       |
-| 2.4.7 | StatTile                                                                        | 2h00    | Xong — đợt 5 (WBS xếp "sau v0.2")                                  |
-| 2.5.1 | PresetSheet                                                                     | 6h00    | Xong — đợt 6, **số liệu mẫu là bản thảo**                          |
-| 2.5.2 | PasteImportSheet                                                                | 10h00   | Xong — đợt 6                                                       |
-| 2.5.3 | ExportSheet                                                                     | 12h00   | Xong — đợt 6                                                       |
-| 3.1.1 | HomePage — WF-01                                                                | 6h00    | Xong — đợt 7                                                       |
-| 3.1.2 | FormulaListPage — WF-02, có ảo hoá                                              | 8h00    | Xong — đợt 7                                                       |
-| 3.1.3 | SearchPage — WF-09 hai trạng thái                                               | 7h00    | Xong — đợt 7                                                       |
-| 3.2.1 | FormulaDetailBasic — WF-03                                                      | 7h00    | Xong — đợt 7                                                       |
-| 3.2.2 | FormulaDetailAdvanced — WF-04                                                   | 10h00   | Xong — xem mục "Chuỗi định giá chạy thật"                          |
-| 3.2.3 | FeeTaxCalculator — WF-08                                                        | 9h00    | Xong — đợt 7                                                       |
-| 3.2.4 | LoanScheduleScreen — WF-14                                                      | 8h00    | Xong — đợt 7                                                       |
-| 5.1.2 | `fees.*` — 8 công thức phí & thuế                                               | 11h12   | Xong — đợt 7 (kéo về sớm)                                          |
-| 5.1.3 | `returns.*` — 4 / 13 công thức                                                  | ~3h30   | Một phần — đợt 7                                                   |
-| 5.1.4 | `personal.*` — 6 / 8 công thức                                                  | ~6h00   | Gần xong — đợt 7                                                   |
-| 5.2.2 | `valuation.multiples.*` — P/E, P/B                                              | ~2h00   | Một phần — đợt 7 (kéo về sớm)                                      |
-| —     | Dựng lại WF-01 theo bản thiết kế hi-fi                                          | —       | Xong — đợt 8 (chủ dự án yêu cầu)                                   |
-| 3.3.1 | DataTableScreen — WF-05 bảng chuỗi giá OHLCV                                    | ~8h     | Xong — đợt 9                                                       |
-| 3.4.1 | PortfolioScreen — WF-06 danh mục cá nhân                                        | ~8h     | Xong — đợt 9                                                       |
-| —     | Dựng lại WF-08 và WF-14 theo bản thiết kế hi-fi                                 | —       | Xong — đợt 10 (chủ dự án yêu cầu)                                  |
-| —     | Tìm kiếm & lọc tại chỗ ở trang chủ                                              | —       | Xong — đợt 11a (chủ dự án yêu cầu)                                 |
-| —     | Dựng lại ba bottom sheet theo hi-fi                                             | —       | Xong — đợt 12 (chủ dự án yêu cầu)                                  |
-| 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot                                   | —       | Xong — đợt 12                                                      |
-| 3.6.1 | SettingsScreen — WF-13                                                          | ~6h     | Xong — đợt 12                                                      |
-| 3.6.2 | PWA — manifest + service worker                                                 | ~4h     | Xong — đợt 12, biểu tượng PNG sinh bằng `gen-icons.mjs`            |
-| —     | Ô tìm không rơi ký tự khi gõ nhanh                                              | —       | Xong — đợt 13                                                      |
-| —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát                                    | —       | Xong — đợt 13                                                      |
-| —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)                                     | —       | Xong — đợt 13                                                      |
-| —     | Dọn chất lượng phát hành sau kiểm kê                                            | —       | Xong — đợt 14                                                      |
-| 3.1.2 | /cong-thuc/ có HTML tĩnh thật cho Google                                        | —       | Xong — đợt 14                                                      |
-| —     | Sửa lỗi không bấm chuyển tab được (chỉ lúc dev)                                 | —       | Xong — xem mục ngay dưới                                           |
-| 5.x   | Nối nốt 34 công thức chuỗi giá — **đủ 107/107**                                 | —       | Xong — xem mục "Đủ 107 công thức"                                  |
-| —     | Cửa gác chặn build khi dev server đang chạy                                     | —       | Xong — xem mục "lỗi khi click vào xem…"                            |
-| 2.1.x | Nút quay lại cho ba màn trong (WF-03/05/09)                                     | —       | Xong — xem mục "Thêm đường ra khỏi màn…"                           |
-| —     | Nút Cơ bản / Nâng cao lọc danh sách (FR-09 vế 2)                                | —       | Xong — xem mục "Nút Nâng cao không đổi gì"                         |
-| —     | Vẽ lại biểu tượng theo ảnh chủ dự án + dải màu                                  | —       | Xong — xem mục "Biểu tượng mới"                                    |
-| 4.0   | Dọn nền cho biểu đồ — sửa 3 bug, đo chunk nạp trễ                               | ~5h     | Xong — xem mục "Đợt 0 của biểu đồ"                                 |
-| 4.1   | Đường quét độ nhạy cho nhóm Cơ bản — 50 công thức                               | ~18h    | Xong — xem mục "Đợt 1 của biểu đồ"                                 |
-| 4.2   | Trục thời gian + nối dây bộ số liệu mẫu vào ô nhập                              | ~14h    | Xong — xem mục "Đợt 2 của biểu đồ"                                 |
-| 2.3.2 | Thanh trượt gõ được số cụ thể + ví dụ đưa số lên ô                              | ~6h     | **ĐANG TẮT** — `GO_SO_TRUC_TIEP = false`, xem "Hai gói ghi Xong…"  |
-| 4.3   | Mở biểu đồ cho 47 công thức còn lại — **phủ 97/107**                            | ~4h     | Xong — xem mục "Đợt 3 của biểu đồ"                                 |
-| 2.4.4 | Khối Giải thích luôn mở sẵn khi vào màn chi tiết                                | —       | Xong — xem mục "Khối Giải thích… luôn mở sẵn"                      |
-| 4.4   | Nút phóng to biểu đồ toàn màn hình + xoay ngang                                 | ~5h     | **ĐANG TẮT** — `PHONG_TO_BAT = false`, xem "Hai gói ghi Xong…"     |
-| —     | Sửa tên sản phẩm "Falculator" → "Faculator"                                     | —       | Xong — xem mục "Sửa tên sản phẩm"                                  |
-| —     | Vá lệch hydration `useId()` ở cây biểu đồ                                       | —       | Xong — xem mục "Đợt đóng đuôi"                                     |
-| —     | Vá nút Back Android xoá trang khi phóng to biểu đồ                              | —       | Xong — xem mục "Đợt đóng đuôi"                                     |
-| —     | Đồng bộ lại CLAUDE.md / README / TASK.md với code                               | —       | Xong — xem mục "Đợt đóng đuôi"                                     |
-| 2.4.3 | Ký hiệu toán học — KaTeX dựng lúc build                                         | 3h00    | Xong — xem mục "Ký hiệu toán học"                                  |
-| —     | Kết quả đổi theo từng phím gõ + gõ không còn khựng                              | —       | Xong — xem mục "Gõ tới đâu, kết quả tới đó"                        |
-| —     | Kiểm tra lỗi toàn dự án + dọn ba điểm sửa nhanh                                 | —       | Xong — xem mục "Kiểm tra lỗi"                                      |
-| 5.2.3 | Chuỗi định giá — FR-15 chạy thật                                                | 22h30   | Một phần — xem mục "Chuỗi định giá chạy thật"                      |
-| 5.2.3 | Mắt xích DCF khép nhánh FCFF — **107 → 108**                                    | ~6h     | Xong — xem mục "Đợt 2"                                             |
-| 4.x   | Renderer thác nước bóc tách, chứng minh bằng `ev`                               | ~10h    | Xong — xem mục "Đợt 2"                                             |
-| —     | Kế hoạch 3 đợt gỡ 4 nhóm vấn đề + đợt 1 (đo + 3 vá)                             | —       | Xong — xem mục "Đợt 1 của kế hoạch"                                |
-| 4.x   | Bóc tách ba công thức vay — né bẫy `lich-tra-no`                                | ~5h     | Xong — xem mục "Đợt 3"                                             |
-| —     | Bộ kiểm Chrome thật qua CDP — `npm run check:chrome`                            | ~4h     | Xong — xem mục "Đợt 3"                                             |
-| 4.x   | Khai chặng bóc tách nốt 6 công thức — đủ 10/10                                  | ~4h     | Xong — xem mục "Đợt 4"                                             |
-| —     | Rà 432 đoạn diễn giải + cửa gác nội dung đầu tiên                               | ~3h     | Xong — xem mục "Đợt 5"                                             |
-| 5.1.1 | Hồ sơ đối chiếu 7 hằng số thuế/phí — duyệt và đã áp                             | ~3h     | Xong — xem mục "Đợt 6"                                             |
-| 3.6.3 | Từ điển tiếng Anh cho giao diện — 231/232 khoá                                  | ~4h     | Một phần — xem mục "Đợt 7"                                         |
-| 3.6.3 | Luồng locale + gắn lại LangSwitch — FR-21 chạy thật                             | ~6h     | Xong — xem mục "Đợt 8"                                             |
-| —     | Rà đa-agent phần chưa commit + vá 12 lỗi tìm ra                                 | ~5h     | Xong — xem mục "Đợt 9"                                             |
-| 5.1.1 | **Đóng gói** — gỡ nhãn BẢN THẢO sau khi rà bản gốc                              | —       | Xong — xem mục "Đợt 10"                                            |
-| —     | Duyệt chuyên môn bằng máy — 432 đoạn, 5 lỗi tìm ra                              | ~6h     | Xong — xem mục "Đợt 11" và "Vá 5 câu chữ…"                         |
-| —     | Bày hằng số MarketConfig trên màn chi tiết + cửa gác                            | ~4h     | Xong — xem mục "Đợt 11"                                            |
-| —     | Vá tràn ngang 360px — chuỗi WF-04, bảng biểu đồ                                 | —       | Xong — xem mục "Vá tràn ngang 360px"                               |
-| —     | Vá 5 câu chữ diễn giải sai + nâng vitest vá lỗ critical                         | —       | Xong — xem mục "Vá 5 câu chữ…"                                     |
-| —     | Giá mục tiêu (109) + Beta (110) + XIRR (111)                                    | —       | Xong — xem mục "Ba công thức cố ý…"                                |
-| —     | Vá 3 lỗi điều hướng/nạp mẫu — WF-03 và XIRR                                     | —       | Xong — xem mục "Vá ba lỗi điều hướng…"                             |
-| —     | Nút "Về số của ví dụ" tự cuộn lên khối Số liệu                                  | —       | Xong — xem mục "Cuộn lên khi bấm…"                                 |
-| —     | Nav lên header + biểu đồ cân đối + dò điểm ở màn PC                             | —       | Xong — xem mục "Giao diện màn PC…"                                 |
-| —     | Bấm biểu đồ ghi vào Số liệu + xác minh không có "đơ"                            | —       | Xong — xem mục "Bấm biểu đồ ghi giá trị…"                          |
-| —     | Bỏ cuộn khi bấm biểu đồ + vá "Beta im" + điều tra sâu độ trễ                    | —       | Xong 2/3 — xem mục "Phản hồi vòng hai…"                            |
-| —     | Tái hiện + định vị đúng nguyên nhân độ trễ chuyển trang                         | —       | Chẩn đoán xong — xem mục "Độ trễ chuyển trang: tái hiện được…"     |
-| 3.4.1 | Danh mục dùng số liệu thật — 1.649 mã + thị giá lúc chạy                        | —       | Xong — xem mục "Danh mục dùng số liệu THẬT"                        |
-| 3.4.1 | Vá trọn 8 đề mục còn hở của tab Danh mục                                        | —       | Xong phần code — xem mục "Vá trọn 8 đề mục còn hở"                 |
-| 3.4.1 | Lưu phép tính vào Danh mục — tab "Công thức"                                    | —       | Xong phần code — xem mục "Lưu phép tính vào Danh mục"              |
-| —     | Mã dính theo lượt duyệt — nạp một lần, xem mọi công thức                        | —       | Xong — xem mục "Mã dính theo lượt duyệt"                           |
-| 1.2.1 | Giao diện tối — bảng màu thứ hai + nút ở màn Cài đặt                            | —       | Xong phần code — xem mục "Giao diện tối"                           |
-| 1.2.1 | Nâng cấp giao diện theo 5 ảnh thiết kế mới                                      | —       | Xong phần code — xem mục "Nâng cấp giao diện theo bản vẽ mới"      |
-| 1.2.1 | Giao diện mobile + hoàn tác khi xoá + độ trễ                                    | —       | Xong phần code — xem mục "Đợt 13"                                  |
-| 4.x   | Mốc tham chiếu trên biểu đồ — 30 / 70 của RSI                                   | —       | Xong phần code — xem mục "Mốc tham chiếu trên biểu đồ"             |
-| 4.x   | Ba tín hiệu cho lối bấm-áp-dụng trên biểu đồ                                    | —       | Xong phần code — xem mục "Ba tín hiệu cho lối…"                    |
-| 4.x   | Mở biểu đồ cho nhiều chuỗi — nền cho SMA/Bollinger/MACD                         | —       | Xong phần code — xem mục "Mở biểu đồ cho nhiều chuỗi"              |
-| 4.x   | SMA vẽ kèm đường giá đóng cửa — đợt nối đầu tiên                                | —       | Xong phần code — xem mục "SMA vẽ kèm đường giá"                    |
-| —     | Ba cách sắp xếp mới ở màn danh sách — 3 loại thành 6                            | —       | Xong — xem mục "Ba cách sắp xếp mới"                               |
-| —     | Đợt sửa lỗi sau buổi tự thử — 6 trên 10 lỗi đã vá                               | —       | Xong 6/10 — xem mục "Đợt sửa lỗi sau buổi tự thử"                  |
-| 2.5.3 | Biểu đồ đi vào file xuất PDF và PNG (lỗi 8)                                     | —       | Xong — xem mục "8️⃣ Xuất biểu đồ"                                   |
-| —     | Icon Trang chủ nhảy hình khi bấm chọn/bỏ chọn                                   | —       | Xong — xem mục "Icon Trang chủ hết nhảy hình khi bấm"              |
-| —     | Cửa gác từ ngữ khuyến nghị (CON-11) + vá 3 lỗi nhập số WF-05                    | —       | Xong phần code — xem mục "Cửa gác khuyến nghị và ba lỗi ô số"      |
-| —     | Kiểm kê chức năng còn thiếu (62 lỗ hổng) + vá lô việc nhỏ                       | —       | Xong phần code — xem mục "Kiểm kê chức năng còn thiếu"             |
-| 3.4.1 | Dựng lại danh sách Nắm giữ theo bản vẽ WF-06                                    | —       | Xong phần code — xem mục "Danh sách Nắm giữ theo bản vẽ WF-06"     |
-| 3.4.1 | Gộp luồng thêm mã và chọn công thức làm một                                     | —       | Xong phần code — xem mục "Gộp luồng thêm mã và chọn công thức"     |
-| 2.1.1 | Icon tìm kiếm ở thanh trên → icon đổi theme                                     | —       | Xong phần code — xem mục "Icon tìm kiếm ở thanh trên…"             |
-| —     | Tìm gần đây lưu tên đã chọn, tràn chữ Select, cuộn khi Sửa                      | —       | Xong — xem mục "Ba lỗi báo liên tiếp: Tìm gần đây…"                |
-| 1.2.1 | Trang chủ theo bản Figma "FINBOX VERSION 2" — 8 điểm                            | —       | Xong phần code — xem mục "Trang chủ theo bản Figma…"               |
-| 1.2.1 | Ba mã màu Figma vào lớp token + tách `--color-hairline`                         | —       | Xong phần code — xem mục "Ba mã màu Figma vào lớp token"           |
-| —     | Kiểm kê công thức & biểu đồ — mở 2 chart, **100 → 102/111**                     | —       | Xong phần code — xem mục "Kiểm kê công thức và biểu đồ"            |
-| —     | Chạy nốt 4 lệnh cần bản build — `verify:static` 23 → **26/26**                  | —       | Xong — xem mục "Chạy nốt bốn lệnh cần bản build"                   |
-| —     | Ô "Tài chính DN" hết cụt + 2 phép kiểm Chrome mới                               | —       | Xong — xem mục "Ô nhóm bị cắt tên ở khổ 360px"                     |
-| —     | Hover thác nước hết chập chờn — đổi cách bắt sự kiện                            | —       | Xong — xem mục "Hover biểu đồ bóc tách"                            |
-| —     | Gỡ tooltip "Bản tiếng Anh đang dịch dở" ở nút VI/EN                             | —       | Xong — xem mục "Gỡ tooltip"                                        |
-| 3.6.3 | Đơn vị đổi theo ngôn ngữ — bảng tra song ngữ ở Domain                           | —       | Xong phần lớn — xem mục "Đơn vị không đổi theo ngôn ngữ"           |
-| 3.6.3 | Tên phép tính đã lưu đổi theo ngôn ngữ                                          | —       | Xong — xem mục "Tên phép tính đã lưu"                              |
-| 3.6.3 | Đồng bộ tên bản lưu giữa màn công thức và Danh mục                              | —       | Xong — xem mục "Đồng bộ tên bản lưu"                               |
-| 3.6.3 | Thống nhất thuật ngữ tiếng Anh + cửa gác chính tả                               | —       | Xong — xem mục "Thuật ngữ tiếng Anh"                               |
-| —     | Bỏ dòng nhắc "Gõ không dấu vẫn ra đúng"                                         | —       | Xong — xem mục "Bỏ dòng nhắc gõ không dấu"                         |
-| 4.x   | Biểu đồ hỏng khi dữ liệu quá nhỏ — trục toàn "0" + chữ bị cắt                   | —       | Xong phần code — xem mục "Biểu đồ hỏng khi dữ liệu quá nhỏ"        |
-| 1.2.1 | Bố cục khổ PC theo 11 bản vẽ — **Đợt 1**: nền tảng + màn chi tiết               | —       | Xong phần code, **chưa build** — xem mục "Bố cục khổ PC — Đợt 1"   |
-| 1.2.1 | Bố cục khổ PC — **Đợt 2**: Danh mục · Cài đặt · bảng chuỗi giá                  | —       | Xong phần code, **chưa build** — xem mục "Bố cục khổ PC — Đợt 2"   |
-| 1.2.1 | Bố cục khổ PC — **Đợt 3**: Trang chủ · Danh sách — đủ **9/9 màn**               | —       | Xong phần code, **chưa build** — xem mục "Bố cục khổ PC — Đợt 3"   |
-| 3.1.3 | Màn Tìm kiếm giữ bản điện thoại ở khổ PC (không có bản vẽ)                      | —       | Xong phần code — xem mục "Màn Tìm kiếm giữ bản điện thoại"         |
-| 3.2.1 | Màn chi tiết khổ PC — khuôn thứ tư theo ảnh mẫu của chủ dự án                   | —       | Xong phần code, **chưa build** — xem mục "khuôn thứ tư"            |
-| 3.2.1 | Màn chi tiết khổ PC — khối Số liệu đóng khung (viền, bo góc)                    | —       | Xong phần code, **chưa build** — xem mục "Khối Số liệu đóng khung" |
-| 3.2.1 | Màn chi tiết khổ PC — hai chồng độc lập · điều khiển biểu đồ gọn · ô nhập 1 cột | —       | Xong phần code, **chưa build** — xem mục "Hai chồng độc lập"       |
-| 3.1.2 | Màn danh sách khổ PC — thanh tab 40% · nhãn cạnh ô lọc; Giải thích 4 hàng dọc   | —       | Xong phần code, **chưa build** — xem mục "Thanh tab theo bản vẽ"   |
-| 3.2.1 | Màn chi tiết khổ PC — thẻ Kết quả nằm ngang · nhóm Đường/Cột bo 5px             | —       | Xong phần code, **chưa build** — xem mục "Thẻ Kết quả nằm ngang"   |
-| 2.4.5 | Bảng biến khổ PC — cột "Biến" giữ 30% bảng, hết vỡ dòng                         | —       | Xong phần code, **chưa build** — xem mục "Cột Biến của bảng biến"  |
-| 3.2.2 | Khối Chuỗi khổ PC — thẻ bước chia hai cột, lẻ thì trái nhiều hơn một            | —       | Xong phần code, **chưa build** — xem mục "Thẻ bước … chia hai cột" |
-| 4.x   | Ô chọn trục biểu đồ bo 5px, bằng nhóm Đường/Cột bên cạnh                        | —       | Xong phần code, **chưa build** — xem mục "Ô chọn trục bo 5px"      |
-| 3.1.3 | Màn Tìm kiếm khổ PC — thư mục 12 thẻ nhóm theo bản vẽ riêng                     | —       | Xong phần code, **chưa build** — xem mục "Thư mục theo nhóm"       |
-| 3.3.1 | Bảng chuỗi giá — biểu đồ nến, cột kiểm dữ liệu, ngày mới nhất lên đầu           | —       | Xong phần code, **chưa build** — xem mục "Biểu đồ nến"             |
-| —     | Rà đúng/sai 111 công thức + đúng tiêu đề 4 mục diễn giải, bằng máy có phản biện | —       | Xong — 87 phát hiện đã áp, xem `src/core/formulas/REVIEW.md`       |
-| —     | Vá lỗi từ bảng feedback test nội bộ — phần nội dung công thức                   | —       | Xong phần đã chốt — xem mục "Vá bảng feedback"                     |
-| 3.2.1 | Giữ chuỗi giá đã thay tại chỗ khi rời màn — vế còn lại của lỗi #2               | —       | Xong — xem mục "Giữ chuỗi giá khi rời màn"                         |
-| 2.1.1 | Hết nháy cụm Cơ bản / Nâng cao lúc tải trang — lỗi #21                          | —       | Xong phần cụm nút — xem mục "Hết nháy cụm Cơ bản / Nâng cao"       |
-| 3.6.1 | Khối "Dữ liệu trên máy" nói bằng tiếng người, bỏ khoá kho và số ký tự           | —       | Xong — xem mục "Dữ liệu trên máy nói bằng tiếng người"             |
-| —     | Bỏ ba câu giải thích thừa trên giao diện (gồm mục #34 của bảng feedback)        | —       | Xong — xem mục "Bỏ ba câu giải thích thừa"                         |
-| —     | Màn "Về chúng tôi" — màn thứ 10, mục nav thứ 5                                  | —       | Xong phần code, **chưa build** — xem mục "Màn Về chúng tôi"        |
-| 3.4.1 | Lưu phép tính xong không thấy ở Danh mục — dựng lại khối, tự chuyển trang       | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới         |
-| —     | Ô miễn trừ xuống cuối màn chi tiết công thức và màn Danh mục                    | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới         |
-| 3.1.x | Gộp Trang chủ vào màn Công thức — một màn, nav 4 mục, `/` chuyển hướng          | —       | Xong phần code, **chưa build** — xem mục "Gộp Trang chủ vào màn…"  |
-| 3.1.x | Kệ hằng ngày 16 ô (bày trước 8), bỏ hai dòng chữ phụ dưới kệ                    | —       | Xong phần code, **chưa build** — xem mục ngay dưới                 |
-| —     | Đối chiếu bảng Sheets "Ví dụ thực tế 111 công thức" với engine (không sửa code) | —       | Xong — 105/111 khớp; xem mục ngay dưới                             |
-| 5.x   | 34 "Ví dụ thực tế" neo vào số liệu thật của FPT/HPG/VNM/MWG qua Finbox_v2       | —       | Xong — xem mục ngay dưới                                           |
-| 4.x   | Biểu đồ nói hai đơn vị trên cùng một hình — nhãn trên hình theo bậc trục        | —       | Xong phần code — xem mục "Biểu đồ nói hai đơn vị"                  |
+| Gói   | Nội dung                                                                        | Giờ WBS | Trạng thái                                                                     |
+| ----- | ------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------ |
+| 1.1.1 | Repo + toolchain                                                                | 3h00    | Xong (từ trước)                                                                |
+| 1.1.2 | CI/CD + hosting tĩnh                                                            | 3h30    | Xong (từ trước)                                                                |
+| 1.2.1 | Design token & primitive                                                        | 10h00   | Xong — đợt 1                                                                   |
+| 1.3.1 | FormulaRegistry: schema, bộ sinh, validator                                     | 7h00    | Xong — đợt 1                                                                   |
+| 1.3.2 | MarketConfig thuế & phí                                                         | 3h30    | Xong — đối chiếu xong, đóng 17/08/2026                                         |
+| 1.3.3 | Chuẩn CalcOutput & hệ cảnh báo                                                  | 4h00    | Xong — đợt 1                                                                   |
+| 1.4.1 | Routing, URL state & khung i18n                                                 | 5h30    | Xong — đợt 2, **trừ route động**                                               |
+| 1.4.2 | App shell & layout                                                              | 2h00    | Xong — đợt 2                                                                   |
+| 2.1.1 | AppHeader · OfflineBanner · ModeToggle · LangSwitch                             | 10h00   | Xong — đợt 2                                                                   |
+| 2.1.2 | BottomTabBar                                                                    | 2h30    | Xong — đợt 2                                                                   |
+| 2.1.3 | DisclaimerBar                                                                   | 2h00    | Xong — đợt 2                                                                   |
+| 2.2.1 | SearchBox bỏ dấu                                                                | 5h00    | Xong — đợt 3                                                                   |
+| 2.2.2 | CategoryFilter                                                                  | 3h30    | Xong — đợt 3                                                                   |
+| 2.2.3 | FormulaCard                                                                     | 3h00    | Xong — đợt 3                                                                   |
+| 2.3.1 | NumberInput — 5 trạng thái WF-16                                                | 8h00    | Xong — đợt 5                                                                   |
+| 2.3.2 | SliderInput · ButtonGroup · RadioGroup                                          | 6h00    | Xong — đợt 5                                                                   |
+| 2.3.3 | SelectInput · Toggle · UnitSwitcher                                             | 4h00    | Xong — đợt 5                                                                   |
+| 2.3.4 | LinkedInput                                                                     | 12h00   | Xong — đợt 5                                                                   |
+| 2.4.1 | ResultBlock                                                                     | 5h00    | Xong — đợt 5                                                                   |
+| 2.4.2 | ErrorState · InlineWarning                                                      | 5h00    | Xong — đợt 5                                                                   |
+| 2.4.3 | FormulaLatex (KaTeX)                                                            | 3h00    | Xong — xem mục "Ký hiệu toán học"                                              |
+| 2.4.4 | ExplanationAccordion                                                            | 3h00    | Xong — đợt 5                                                                   |
+| 2.4.5 | VariableTable · ExampleBlock · SourceBlock                                      | 4h30    | Xong — đợt 5                                                                   |
+| 2.4.6 | FlowChain                                                                       | 6h00    | Xong — đợt 5                                                                   |
+| 2.4.7 | StatTile                                                                        | 2h00    | Xong — đợt 5 (WBS xếp "sau v0.2")                                              |
+| 2.5.1 | PresetSheet                                                                     | 6h00    | Xong — đợt 6, **số liệu mẫu là bản thảo**                                      |
+| 2.5.2 | PasteImportSheet                                                                | 10h00   | Xong — đợt 6                                                                   |
+| 2.5.3 | ExportSheet                                                                     | 12h00   | Xong — đợt 6                                                                   |
+| 3.1.1 | HomePage — WF-01                                                                | 6h00    | Xong — đợt 7                                                                   |
+| 3.1.2 | FormulaListPage — WF-02, có ảo hoá                                              | 8h00    | Xong — đợt 7                                                                   |
+| 3.1.3 | SearchPage — WF-09 hai trạng thái                                               | 7h00    | Xong — đợt 7                                                                   |
+| 3.2.1 | FormulaDetailBasic — WF-03                                                      | 7h00    | Xong — đợt 7                                                                   |
+| 3.2.2 | FormulaDetailAdvanced — WF-04                                                   | 10h00   | Xong — xem mục "Chuỗi định giá chạy thật"                                      |
+| 3.2.3 | FeeTaxCalculator — WF-08                                                        | 9h00    | Xong — đợt 7                                                                   |
+| 3.2.4 | LoanScheduleScreen — WF-14                                                      | 8h00    | Xong — đợt 7                                                                   |
+| 5.1.2 | `fees.*` — 8 công thức phí & thuế                                               | 11h12   | Xong — đợt 7 (kéo về sớm)                                                      |
+| 5.1.3 | `returns.*` — 4 / 13 công thức                                                  | ~3h30   | Một phần — đợt 7                                                               |
+| 5.1.4 | `personal.*` — 6 / 8 công thức                                                  | ~6h00   | Gần xong — đợt 7                                                               |
+| 5.2.2 | `valuation.multiples.*` — P/E, P/B                                              | ~2h00   | Một phần — đợt 7 (kéo về sớm)                                                  |
+| —     | Dựng lại WF-01 theo bản thiết kế hi-fi                                          | —       | Xong — đợt 8 (chủ dự án yêu cầu)                                               |
+| 3.3.1 | DataTableScreen — WF-05 bảng chuỗi giá OHLCV                                    | ~8h     | Xong — đợt 9                                                                   |
+| 3.4.1 | PortfolioScreen — WF-06 danh mục cá nhân                                        | ~8h     | Xong — đợt 9                                                                   |
+| —     | Dựng lại WF-08 và WF-14 theo bản thiết kế hi-fi                                 | —       | Xong — đợt 10 (chủ dự án yêu cầu)                                              |
+| —     | Tìm kiếm & lọc tại chỗ ở trang chủ                                              | —       | Xong — đợt 11a (chủ dự án yêu cầu)                                             |
+| —     | Dựng lại ba bottom sheet theo hi-fi                                             | —       | Xong — đợt 12 (chủ dự án yêu cầu)                                              |
+| 3.1.3 | SearchPage — thêm tô sáng khớp + Danh mục hot                                   | —       | Xong — đợt 12                                                                  |
+| 3.6.1 | SettingsScreen — WF-13                                                          | ~6h     | Xong — đợt 12                                                                  |
+| 3.6.2 | PWA — manifest + service worker                                                 | ~4h     | Xong — đợt 12, biểu tượng PNG sinh bằng `gen-icons.mjs`                        |
+| —     | Ô tìm không rơi ký tự khi gõ nhanh                                              | —       | Xong — đợt 13                                                                  |
+| —     | Dọn khoá i18n mồ côi + ca kiểm chặn tái phát                                    | —       | Xong — đợt 13                                                                  |
+| —     | Tách chỉ mục nhẹ khỏi Registry (NFR-PER-04)                                     | —       | Xong — đợt 13                                                                  |
+| —     | Dọn chất lượng phát hành sau kiểm kê                                            | —       | Xong — đợt 14                                                                  |
+| 3.1.2 | /cong-thuc/ có HTML tĩnh thật cho Google                                        | —       | Xong — đợt 14                                                                  |
+| —     | Sửa lỗi không bấm chuyển tab được (chỉ lúc dev)                                 | —       | Xong — xem mục ngay dưới                                                       |
+| 5.x   | Nối nốt 34 công thức chuỗi giá — **đủ 107/107**                                 | —       | Xong — xem mục "Đủ 107 công thức"                                              |
+| —     | Cửa gác chặn build khi dev server đang chạy                                     | —       | Xong — xem mục "lỗi khi click vào xem…"                                        |
+| 2.1.x | Nút quay lại cho ba màn trong (WF-03/05/09)                                     | —       | Xong — xem mục "Thêm đường ra khỏi màn…"                                       |
+| —     | Nút Cơ bản / Nâng cao lọc danh sách (FR-09 vế 2)                                | —       | Xong — xem mục "Nút Nâng cao không đổi gì"                                     |
+| —     | Vẽ lại biểu tượng theo ảnh chủ dự án + dải màu                                  | —       | Xong — xem mục "Biểu tượng mới"                                                |
+| 4.0   | Dọn nền cho biểu đồ — sửa 3 bug, đo chunk nạp trễ                               | ~5h     | Xong — xem mục "Đợt 0 của biểu đồ"                                             |
+| 4.1   | Đường quét độ nhạy cho nhóm Cơ bản — 50 công thức                               | ~18h    | Xong — xem mục "Đợt 1 của biểu đồ"                                             |
+| 4.2   | Trục thời gian + nối dây bộ số liệu mẫu vào ô nhập                              | ~14h    | Xong — xem mục "Đợt 2 của biểu đồ"                                             |
+| 2.3.2 | Thanh trượt gõ được số cụ thể + ví dụ đưa số lên ô                              | ~6h     | **ĐANG TẮT** — `GO_SO_TRUC_TIEP = false`, xem "Hai gói ghi Xong…"              |
+| 4.3   | Mở biểu đồ cho 47 công thức còn lại — **phủ 97/107**                            | ~4h     | Xong — xem mục "Đợt 3 của biểu đồ"                                             |
+| 2.4.4 | Khối Giải thích luôn mở sẵn khi vào màn chi tiết                                | —       | Xong — xem mục "Khối Giải thích… luôn mở sẵn"                                  |
+| 4.4   | Nút phóng to biểu đồ toàn màn hình + xoay ngang                                 | ~5h     | **ĐANG TẮT** — `PHONG_TO_BAT = false`, xem "Hai gói ghi Xong…"                 |
+| —     | Sửa tên sản phẩm "Falculator" → "Faculator"                                     | —       | Xong — xem mục "Sửa tên sản phẩm"                                              |
+| —     | Vá lệch hydration `useId()` ở cây biểu đồ                                       | —       | Xong — xem mục "Đợt đóng đuôi"                                                 |
+| —     | Vá nút Back Android xoá trang khi phóng to biểu đồ                              | —       | Xong — xem mục "Đợt đóng đuôi"                                                 |
+| —     | Đồng bộ lại CLAUDE.md / README / TASK.md với code                               | —       | Xong — xem mục "Đợt đóng đuôi"                                                 |
+| 2.4.3 | Ký hiệu toán học — KaTeX dựng lúc build                                         | 3h00    | Xong — xem mục "Ký hiệu toán học"                                              |
+| —     | Kết quả đổi theo từng phím gõ + gõ không còn khựng                              | —       | Xong — xem mục "Gõ tới đâu, kết quả tới đó"                                    |
+| —     | Kiểm tra lỗi toàn dự án + dọn ba điểm sửa nhanh                                 | —       | Xong — xem mục "Kiểm tra lỗi"                                                  |
+| 5.2.3 | Chuỗi định giá — FR-15 chạy thật                                                | 22h30   | Một phần — xem mục "Chuỗi định giá chạy thật"                                  |
+| 5.2.3 | Mắt xích DCF khép nhánh FCFF — **107 → 108**                                    | ~6h     | Xong — xem mục "Đợt 2"                                                         |
+| 4.x   | Renderer thác nước bóc tách, chứng minh bằng `ev`                               | ~10h    | Xong — xem mục "Đợt 2"                                                         |
+| —     | Kế hoạch 3 đợt gỡ 4 nhóm vấn đề + đợt 1 (đo + 3 vá)                             | —       | Xong — xem mục "Đợt 1 của kế hoạch"                                            |
+| 4.x   | Bóc tách ba công thức vay — né bẫy `lich-tra-no`                                | ~5h     | Xong — xem mục "Đợt 3"                                                         |
+| —     | Bộ kiểm Chrome thật qua CDP — `npm run check:chrome`                            | ~4h     | Xong — xem mục "Đợt 3"                                                         |
+| 4.x   | Khai chặng bóc tách nốt 6 công thức — đủ 10/10                                  | ~4h     | Xong — xem mục "Đợt 4"                                                         |
+| —     | Rà 432 đoạn diễn giải + cửa gác nội dung đầu tiên                               | ~3h     | Xong — xem mục "Đợt 5"                                                         |
+| 5.1.1 | Hồ sơ đối chiếu 7 hằng số thuế/phí — duyệt và đã áp                             | ~3h     | Xong — xem mục "Đợt 6"                                                         |
+| 3.6.3 | Từ điển tiếng Anh cho giao diện — 231/232 khoá                                  | ~4h     | Một phần — xem mục "Đợt 7"                                                     |
+| 3.6.3 | Luồng locale + gắn lại LangSwitch — FR-21 chạy thật                             | ~6h     | Xong — xem mục "Đợt 8"                                                         |
+| —     | Rà đa-agent phần chưa commit + vá 12 lỗi tìm ra                                 | ~5h     | Xong — xem mục "Đợt 9"                                                         |
+| 5.1.1 | **Đóng gói** — gỡ nhãn BẢN THẢO sau khi rà bản gốc                              | —       | Xong — xem mục "Đợt 10"                                                        |
+| —     | Duyệt chuyên môn bằng máy — 432 đoạn, 5 lỗi tìm ra                              | ~6h     | Xong — xem mục "Đợt 11" và "Vá 5 câu chữ…"                                     |
+| —     | Bày hằng số MarketConfig trên màn chi tiết + cửa gác                            | ~4h     | Xong — xem mục "Đợt 11"                                                        |
+| —     | Vá tràn ngang 360px — chuỗi WF-04, bảng biểu đồ                                 | —       | Xong — xem mục "Vá tràn ngang 360px"                                           |
+| —     | Vá 5 câu chữ diễn giải sai + nâng vitest vá lỗ critical                         | —       | Xong — xem mục "Vá 5 câu chữ…"                                                 |
+| —     | Giá mục tiêu (109) + Beta (110) + XIRR (111)                                    | —       | Xong — xem mục "Ba công thức cố ý…"                                            |
+| —     | Vá 3 lỗi điều hướng/nạp mẫu — WF-03 và XIRR                                     | —       | Xong — xem mục "Vá ba lỗi điều hướng…"                                         |
+| —     | Nút "Về số của ví dụ" tự cuộn lên khối Số liệu                                  | —       | Xong — xem mục "Cuộn lên khi bấm…"                                             |
+| —     | Nav lên header + biểu đồ cân đối + dò điểm ở màn PC                             | —       | Xong — xem mục "Giao diện màn PC…"                                             |
+| —     | Bấm biểu đồ ghi vào Số liệu + xác minh không có "đơ"                            | —       | Xong — xem mục "Bấm biểu đồ ghi giá trị…"                                      |
+| —     | Bỏ cuộn khi bấm biểu đồ + vá "Beta im" + điều tra sâu độ trễ                    | —       | Xong 2/3 — xem mục "Phản hồi vòng hai…"                                        |
+| —     | Tái hiện + định vị đúng nguyên nhân độ trễ chuyển trang                         | —       | Chẩn đoán xong — xem mục "Độ trễ chuyển trang: tái hiện được…"                 |
+| 3.4.1 | Danh mục dùng số liệu thật — 1.649 mã + thị giá lúc chạy                        | —       | Xong — xem mục "Danh mục dùng số liệu THẬT"                                    |
+| 3.4.1 | Vá trọn 8 đề mục còn hở của tab Danh mục                                        | —       | Xong phần code — xem mục "Vá trọn 8 đề mục còn hở"                             |
+| 3.4.1 | Lưu phép tính vào Danh mục — tab "Công thức"                                    | —       | Xong phần code — xem mục "Lưu phép tính vào Danh mục"                          |
+| —     | Mã dính theo lượt duyệt — nạp một lần, xem mọi công thức                        | —       | Xong — xem mục "Mã dính theo lượt duyệt"                                       |
+| 1.2.1 | Giao diện tối — bảng màu thứ hai + nút ở màn Cài đặt                            | —       | Xong phần code — xem mục "Giao diện tối"                                       |
+| 1.2.1 | Nâng cấp giao diện theo 5 ảnh thiết kế mới                                      | —       | Xong phần code — xem mục "Nâng cấp giao diện theo bản vẽ mới"                  |
+| 1.2.1 | Giao diện mobile + hoàn tác khi xoá + độ trễ                                    | —       | Xong phần code — xem mục "Đợt 13"                                              |
+| 4.x   | Mốc tham chiếu trên biểu đồ — 30 / 70 của RSI                                   | —       | Xong phần code — xem mục "Mốc tham chiếu trên biểu đồ"                         |
+| 4.x   | Ba tín hiệu cho lối bấm-áp-dụng trên biểu đồ                                    | —       | Xong phần code — xem mục "Ba tín hiệu cho lối…"                                |
+| 4.x   | Mở biểu đồ cho nhiều chuỗi — nền cho SMA/Bollinger/MACD                         | —       | Xong phần code — xem mục "Mở biểu đồ cho nhiều chuỗi"                          |
+| 4.x   | SMA vẽ kèm đường giá đóng cửa — đợt nối đầu tiên                                | —       | Xong phần code — xem mục "SMA vẽ kèm đường giá"                                |
+| —     | Ba cách sắp xếp mới ở màn danh sách — 3 loại thành 6                            | —       | Xong — xem mục "Ba cách sắp xếp mới"                                           |
+| —     | Đợt sửa lỗi sau buổi tự thử — 6 trên 10 lỗi đã vá                               | —       | Xong 6/10 — xem mục "Đợt sửa lỗi sau buổi tự thử"                              |
+| 2.5.3 | Biểu đồ đi vào file xuất PDF và PNG (lỗi 8)                                     | —       | Xong — xem mục "8️⃣ Xuất biểu đồ"                                               |
+| —     | Icon Trang chủ nhảy hình khi bấm chọn/bỏ chọn                                   | —       | Xong — xem mục "Icon Trang chủ hết nhảy hình khi bấm"                          |
+| —     | Cửa gác từ ngữ khuyến nghị (CON-11) + vá 3 lỗi nhập số WF-05                    | —       | Xong phần code — xem mục "Cửa gác khuyến nghị và ba lỗi ô số"                  |
+| —     | Kiểm kê chức năng còn thiếu (62 lỗ hổng) + vá lô việc nhỏ                       | —       | Xong phần code — xem mục "Kiểm kê chức năng còn thiếu"                         |
+| 3.4.1 | Dựng lại danh sách Nắm giữ theo bản vẽ WF-06                                    | —       | Xong phần code — xem mục "Danh sách Nắm giữ theo bản vẽ WF-06"                 |
+| 3.4.1 | Gộp luồng thêm mã và chọn công thức làm một                                     | —       | Xong phần code — xem mục "Gộp luồng thêm mã và chọn công thức"                 |
+| 2.1.1 | Icon tìm kiếm ở thanh trên → icon đổi theme                                     | —       | Xong phần code — xem mục "Icon tìm kiếm ở thanh trên…"                         |
+| —     | Tìm gần đây lưu tên đã chọn, tràn chữ Select, cuộn khi Sửa                      | —       | Xong — xem mục "Ba lỗi báo liên tiếp: Tìm gần đây…"                            |
+| 1.2.1 | Trang chủ theo bản Figma "FINBOX VERSION 2" — 8 điểm                            | —       | Xong phần code — xem mục "Trang chủ theo bản Figma…"                           |
+| 1.2.1 | Ba mã màu Figma vào lớp token + tách `--color-hairline`                         | —       | Xong phần code — xem mục "Ba mã màu Figma vào lớp token"                       |
+| —     | Kiểm kê công thức & biểu đồ — mở 2 chart, **100 → 102/111**                     | —       | Xong phần code — xem mục "Kiểm kê công thức và biểu đồ"                        |
+| —     | Chạy nốt 4 lệnh cần bản build — `verify:static` 23 → **26/26**                  | —       | Xong — xem mục "Chạy nốt bốn lệnh cần bản build"                               |
+| —     | Ô "Tài chính DN" hết cụt + 2 phép kiểm Chrome mới                               | —       | Xong — xem mục "Ô nhóm bị cắt tên ở khổ 360px"                                 |
+| —     | Hover thác nước hết chập chờn — đổi cách bắt sự kiện                            | —       | Xong — xem mục "Hover biểu đồ bóc tách"                                        |
+| —     | Gỡ tooltip "Bản tiếng Anh đang dịch dở" ở nút VI/EN                             | —       | Xong — xem mục "Gỡ tooltip"                                                    |
+| 3.6.3 | Đơn vị đổi theo ngôn ngữ — bảng tra song ngữ ở Domain                           | —       | Xong phần lớn — xem mục "Đơn vị không đổi theo ngôn ngữ"                       |
+| 3.6.3 | Tên phép tính đã lưu đổi theo ngôn ngữ                                          | —       | Xong — xem mục "Tên phép tính đã lưu"                                          |
+| 3.6.3 | Đồng bộ tên bản lưu giữa màn công thức và Danh mục                              | —       | Xong — xem mục "Đồng bộ tên bản lưu"                                           |
+| 3.6.3 | Thống nhất thuật ngữ tiếng Anh + cửa gác chính tả                               | —       | Xong — xem mục "Thuật ngữ tiếng Anh"                                           |
+| —     | Bỏ dòng nhắc "Gõ không dấu vẫn ra đúng"                                         | —       | Xong — xem mục "Bỏ dòng nhắc gõ không dấu"                                     |
+| 4.x   | Biểu đồ hỏng khi dữ liệu quá nhỏ — trục toàn "0" + chữ bị cắt                   | —       | Xong phần code — xem mục "Biểu đồ hỏng khi dữ liệu quá nhỏ"                    |
+| 1.2.1 | Bố cục khổ PC theo 11 bản vẽ — **Đợt 1**: nền tảng + màn chi tiết               | —       | Xong phần code, **chưa build** — xem mục "Bố cục khổ PC — Đợt 1"               |
+| 1.2.1 | Bố cục khổ PC — **Đợt 2**: Danh mục · Cài đặt · bảng chuỗi giá                  | —       | Xong phần code, **chưa build** — xem mục "Bố cục khổ PC — Đợt 2"               |
+| 1.2.1 | Bố cục khổ PC — **Đợt 3**: Trang chủ · Danh sách — đủ **9/9 màn**               | —       | Xong phần code, **chưa build** — xem mục "Bố cục khổ PC — Đợt 3"               |
+| 3.1.3 | Màn Tìm kiếm giữ bản điện thoại ở khổ PC (không có bản vẽ)                      | —       | Xong phần code — xem mục "Màn Tìm kiếm giữ bản điện thoại"                     |
+| 3.2.1 | Màn chi tiết khổ PC — khuôn thứ tư theo ảnh mẫu của chủ dự án                   | —       | Xong phần code, **chưa build** — xem mục "khuôn thứ tư"                        |
+| 3.2.1 | Màn chi tiết khổ PC — khối Số liệu đóng khung (viền, bo góc)                    | —       | Xong phần code, **chưa build** — xem mục "Khối Số liệu đóng khung"             |
+| 3.2.1 | Màn chi tiết khổ PC — hai chồng độc lập · điều khiển biểu đồ gọn · ô nhập 1 cột | —       | Xong phần code, **chưa build** — xem mục "Hai chồng độc lập"                   |
+| 3.1.2 | Màn danh sách khổ PC — thanh tab 40% · nhãn cạnh ô lọc; Giải thích 4 hàng dọc   | —       | Xong phần code, **chưa build** — xem mục "Thanh tab theo bản vẽ"               |
+| 3.2.1 | Màn chi tiết khổ PC — thẻ Kết quả nằm ngang · nhóm Đường/Cột bo 5px             | —       | Xong phần code, **chưa build** — xem mục "Thẻ Kết quả nằm ngang"               |
+| 2.4.5 | Bảng biến khổ PC — cột "Biến" giữ 30% bảng, hết vỡ dòng                         | —       | Xong phần code, **chưa build** — xem mục "Cột Biến của bảng biến"              |
+| 3.2.2 | Khối Chuỗi khổ PC — thẻ bước chia hai cột, lẻ thì trái nhiều hơn một            | —       | Xong phần code, **chưa build** — xem mục "Thẻ bước … chia hai cột"             |
+| 4.x   | Ô chọn trục biểu đồ bo 5px, bằng nhóm Đường/Cột bên cạnh                        | —       | Xong phần code, **chưa build** — xem mục "Ô chọn trục bo 5px"                  |
+| 3.1.3 | Màn Tìm kiếm khổ PC — thư mục 12 thẻ nhóm theo bản vẽ riêng                     | —       | Xong phần code, **chưa build** — xem mục "Thư mục theo nhóm"                   |
+| 3.3.1 | Bảng chuỗi giá — biểu đồ nến, cột kiểm dữ liệu, ngày mới nhất lên đầu           | —       | Xong phần code, **chưa build** — xem mục "Biểu đồ nến"                         |
+| —     | Rà đúng/sai 111 công thức + đúng tiêu đề 4 mục diễn giải, bằng máy có phản biện | —       | Xong — 87 phát hiện đã áp, xem `src/core/formulas/REVIEW.md`                   |
+| —     | Vá lỗi từ bảng feedback test nội bộ — phần nội dung công thức                   | —       | Xong phần đã chốt — xem mục "Vá bảng feedback"                                 |
+| 3.2.1 | Giữ chuỗi giá đã thay tại chỗ khi rời màn — vế còn lại của lỗi #2               | —       | Xong — xem mục "Giữ chuỗi giá khi rời màn"                                     |
+| 2.1.1 | Hết nháy cụm Cơ bản / Nâng cao lúc tải trang — lỗi #21                          | —       | Xong phần cụm nút — xem mục "Hết nháy cụm Cơ bản / Nâng cao"                   |
+| 3.6.1 | Khối "Dữ liệu trên máy" nói bằng tiếng người, bỏ khoá kho và số ký tự           | —       | Xong — xem mục "Dữ liệu trên máy nói bằng tiếng người"                         |
+| —     | Bỏ ba câu giải thích thừa trên giao diện (gồm mục #34 của bảng feedback)        | —       | Xong — xem mục "Bỏ ba câu giải thích thừa"                                     |
+| —     | Màn "Về chúng tôi" — màn thứ 10, mục nav thứ 5                                  | —       | Xong phần code, **chưa build** — xem mục "Màn Về chúng tôi"                    |
+| 3.4.1 | Lưu phép tính xong không thấy ở Danh mục — dựng lại khối, tự chuyển trang       | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới                     |
+| —     | Ô miễn trừ xuống cuối màn chi tiết công thức và màn Danh mục                    | —       | Xong phần code, chờ chủ dự án xác nhận — xem mục ngay dưới                     |
+| 3.1.x | Gộp Trang chủ vào màn Công thức — một màn, nav 4 mục, `/` chuyển hướng          | —       | Xong phần code, **chưa build** — xem mục "Gộp Trang chủ vào màn…"              |
+| 3.1.x | Kệ hằng ngày 16 ô (bày trước 8), bỏ hai dòng chữ phụ dưới kệ                    | —       | Xong phần code, **chưa build** — xem mục ngay dưới                             |
+| —     | Đối chiếu bảng Sheets "Ví dụ thực tế 111 công thức" với engine (không sửa code) | —       | Xong — 105/111 khớp; xem mục ngay dưới                                         |
+| 5.x   | 34 "Ví dụ thực tế" neo vào số liệu thật của FPT/HPG/VNM/MWG qua Finbox_v2       | —       | Xong — xem mục ngay dưới                                                       |
+| 4.x   | Biểu đồ nói hai đơn vị trên cùng một hình — nhãn trên hình theo bậc trục        | —       | Xong phần code — xem mục "Biểu đồ nói hai đơn vị"                              |
+| —     | Dòng công thức "Thời gian nhân đôi vốn" bỏ gạch ngang, thêm cửa gác cho cả 111  | —       | Xong, chờ chủ dự án xác nhận — xem mục "Dòng công thức…"                       |
+| 3.6.2 | Mở link/app lúc chưa có mạng thì "vào màn cũ rồi mới load lại" — sửa `sw.js`    | —       | Xong phần code, **chưa triển khai** — xem mục "Mở link/app…"                   |
+| 2.4.x | Vế giải thích dưới dòng công thức của IRR/XIRR — hai bản, đều bị bỏ             | —       | Đóng: chủ dự án chốt "bỏ hẳn, giữ nguyên như trước" — xem mục "Vế giải thích…" |
+| 2.4.3 | Bảng ký hiệu "A: là gì" cạnh hình công thức — đủ 111 công thức, cửa gác phủ hết | —       | Xong phần code, **chưa triển khai** — xem mục ngay dưới                        |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -170,6 +174,185 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Bảng ký hiệu "A: là gì" cạnh hình công thức — 111 công thức (17/09/2026)
+
+**Trạng thái: xong phần code, chờ triển khai và chủ dự án soi màn.** `npm run check` xanh — 114 file,
+**2.707** ca. Trên bản build: `verify:static` **35/35** (thêm 1 phép), `check:chrome` **103/112** (thêm
+2 phép, đều xanh; 9 phép đỏ là nợ cũ, liệt kê ở mục "Khối chuỗi rút về…"). Chụp Chrome thật
+`chuoi-phien-giam-dai-nhat` và `irr-nien-kim` ở 1440 tối, 360 tối, 360 sáng EN: bảng bên phải hình ở
+khổ PC, dưới dòng chữ ở 360, không tràn ngang.
+
+### Yêu cầu
+
+Sau hai bản bị bỏ (mục ngay dưới), chủ dự án chỉ vào hình `L = max{k : r_{t+1} < 0, …}` ghi "không
+hiểu các giá trị" và nói rõ: _"kiểm soát toàn bộ công thức; công thức bên trái, giải thích bên phải
+theo kiểu A: là gì, B: là gì… kể cả tại sao lại là 1"_. Chốt bố cục bằng mockup ASCII trước khi làm.
+
+### Làm gì
+
+- `FormulaSpec.symbols: SymbolNote[]` — `latex` chép nguyên văn một mẩu của `spec.latex`, `meaning` là
+  cụm ngắn vi/en. Kết quả đứng đầu, rồi theo thứ tự đọc hình; chỉ số chạy (t, i, k, n…), chữ Hy Lạp,
+  viết tắt trong `\text{}` và hằng số không hiển nhiên (365, 12, 72, 22,5, số 1 của IRR, ×100) đều
+  có dòng riêng.
+- `src/core/latex-symbols.ts` — `latexSymbolTokens()`: bộ tách theo 5 luật (docblock), là THƯỚC
+  CHUNG cho hình và cho từng mục của bảng. Cửa gác trong `formulas.test.ts`: mọi công thức có bảng;
+  mỗi mục có nguyên văn trong `latex`; hợp các mục PHỦ HẾT token của hình; nghĩa 3–90 ký tự, không
+  chấm cuối. `FFB_SYMBOL_IDS=a,b` thu cửa gác về vài id khi đang viết một file.
+- Màn chi tiết: thẻ Công thức thành grid 3:2 từ 1024px — trái `.formulaMain` (hình + dòng chữ), phải
+  `<dl class="symbols">` mỗi ký hiệu một hàng `dt` (MathML dòng, dựng lúc build qua
+  `latexToInlineMathml`) + `dd`; dấu hai chấm bằng CSS. Khổ hẹp: bảng xuống dưới, đường kẻ ngang.
+- `page.tsx` truyền `symbolsHtml` (mảng MathML) cùng `latexHtml`; `verify-static` kiểm HTML tĩnh có
+  `<dl aria-label="Ký hiệu trong công thức">` với `<math>` trong từng `<dt>`; `chrome-check` đo bảng
+  đứng bên phải ở 1440 và dưới dòng chữ ở 360.
+
+### Nội dung 111 bảng viết thế nào
+
+Workflow 10 lô theo file nhóm (viết → rà độc lập). Bị **hết hạn mức phiên tài khoản** giữa chừng:
+3 lô viết xong (derivatives, fundamentals, valuation-multiples), 7 lô viết gần xong rồi bị cắt trước
+bước chạy cửa gác, không lô nào được rà. Sau đó tự làm nốt: chẩn đoán một lượt (106/111 đã có bảng,
+tất cả qua cửa gác) → viết 5 bảng còn thiếu của `returns.ts` → prettier 8 file agent chưa kịp format
+→ cửa gác chính tả bắt "amortisation" → "amortization". Mọi bảng đều qua cửa gác phủ-hết và
+prose-audit, nhưng phần RÀ NGHĨA độc lập chưa ai làm — xem việc còn lại.
+
+| File                                                          | Sửa gì                                                           |
+| ------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `core/registry/types.ts`                                      | `SymbolNote`, `FormulaSpec.symbols` + docblock                   |
+| `core/latex-symbols.ts` + `.test.ts` (mới)                    | bộ tách token, 8 ca trên chuỗi latex thật                        |
+| `core/formulas/*.ts` (16 file nhóm)                           | `symbols` cho 111 công thức                                      |
+| `core/formulas/formulas.test.ts`                              | 3 cửa gác + bộ lọc `FFB_SYMBOL_IDS`                              |
+| `app/cong-thuc/[id]/latex-html.ts`, `page.tsx`                | `latexToInlineMathml()`, prop `symbolsHtml`                      |
+| `app/cong-thuc/[id]/FormulaDetail.tsx` + `.module.css` + test | thẻ hai nửa, `<dl>` ký hiệu; ca kiểm cấu trúc bằng spec dựng tay |
+| `application/i18n/vi.ts`, `en.ts`                             | `detail.symbols` (aria-label)                                    |
+| `application/prose-audit.test.ts`                             | nghĩa của ký hiệu vào `proseOf()`                                |
+| `scripts/verify-static.mjs`, `scripts/chrome-check.mjs`       | 1 + 2 phép kiểm                                                  |
+| `CLAUDE.md`, `core/formulas/README.md`                        | luật bảng ký hiệu                                                |
+
+### Đánh đổi đo được
+
+`spec.symbols` nằm trong Registry nên đi vào gói JS của trang chi tiết: `/cong-thuc/[id]` **185 → 198 kB**
+(First Load 346 → 360 kB, chưa nén). `npm run size` vốn đã đỏ (nợ cũ); nếu cần gỡ, hướng là truyền
+nghĩa qua prop từ `page.tsx` và tách `symbols` khỏi gói client — chưa làm.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi vài trang: `chuoi-phien-giam-dai-nhat`, `irr-nien-kim`, `xirr`, `ty-so-sharpe`,
+      `eps-co-ban` — cả sáng lẫn tối.
+- [ ] Rà NGHĨA của 111 bảng bằng mắt người (cửa gác chỉ kiểm hình thức và độ phủ): đơn vị, %/kỳ
+      hay %/năm, chiều tính. Workflow rà chưa chạy được vì hết hạn mức; chạy lại sau 12:30.
+
+---
+
+## Vế giải thích dưới dòng công thức của IRR/XIRR — hai bản, đều bỏ (16/09/2026)
+
+**Trạng thái: đóng, không có thay đổi trên màn.** Chủ dự án chốt _"bỏ hẳn, giữ nguyên như trước"_.
+Thứ còn lại trong code là một ca kiểm giữ thẻ Công thức ở đúng hai vế và một chú thích tại chỗ,
+để không ai dựng lại. `npm run check` xanh.
+
+Chủ dự án gửi ảnh khối Công thức của IRR và trích phát hiện của đợt rà: _"Công thức là dạng ẩn
+(implicit) — IRR nằm ở cả 2 vế, không giải trực tiếp ra được (phải dò nghiệm/lặp), nhưng UI không
+nói rõ điều này, khiến người dùng loay hoay 'tính tay' theo công thức mà không ra."_ Rà 111 dòng
+`expression`: đúng hai công thức là phương trình — `irr-nien-kim` và `xirr`.
+
+1. **Đoạn văn** có nhãn in hoa "CÁCH TÌM RA KẾT QUẢ": vì sao không giải thẳng, máy chia đôi khoảng
+   thử ra sao, tính tay thì làm gì. → _"không cần phải giải thích như này, nó quê mùa lắm"_.
+2. **Bảng chú giải mảnh → nghĩa** (`(1 + IRR)^(−Số kỳ)`, `1 − …`, `Tìm IRR sao cho`), mỗi mảnh một
+   câu. → _"tôi đã nói là bỏ phần giải thích như này đi rồi cơ mà"_; hỏi ba phương án (bỏ hẳn / viết
+   lại dòng công thức thành tổng / một dòng về số 1), chốt **bỏ hẳn**.
+
+Bài học đã ghi vào bộ nhớ làm việc: chữ giải thích trên màn không được là đoạn văn, và với khối
+Công thức thì không thêm gì dưới dòng chữ. Phát hiện của đợt rà (dạng ẩn chưa được nói rõ) vì thế
+để ngỏ theo ý chủ dự án; dòng "Tìm IRR sao cho: …" là tất cả những gì màn nói.
+
+| File                                        | Còn lại gì                                                      |
+| ------------------------------------------- | --------------------------------------------------------------- |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`      | chú thích sau dòng chữ: thẻ có đúng hai vế, đừng thêm vế thứ ba |
+| `app/cong-thuc/[id]/FormulaDetail.test.tsx` | ca "thẻ Công thức chỉ có hai vế, kể cả ở công thức dạng ẩn"     |
+| `CLAUDE.md`                                 | đoạn "The Formula card is exactly two lines"                    |
+
+Mọi thứ khác của hai bản (trường spec, dữ liệu IRR/XIRR, CSS, i18n, cửa gác) đã gỡ sạch — không
+để lại trường rỗng hay khoá i18n mồ côi.
+
+---
+
+## Mở link/app lúc chưa có mạng: "vào một màn cũ rồi mới load lại vào /cong-thuc/" (16/09/2026)
+
+**Trạng thái: xong phần code, chờ triển khai.** `sw.js` lên v5; `check:chrome` thêm 3 phép (110 phép,
+đạt 101 — 9 phép hỏng còn lại là nợ cũ, liệt kê ở mục "Khối chuỗi rút về…"). `npm run check` xanh.
+
+### Lỗi báo và cách tìm
+
+Chủ dự án: mở `https://faculator-finbox.falculator.workers.dev/` hoặc app đã cài thì "vào trước một
+màn cũ rồi mới load lại vào màn cong-thuc". Trên site thật, `/` trả **301** ở tầng Cloudflare (đo
+bằng `curl`), `manifest` đã `start_url: /cong-thuc/`, `sw.js` đang là v4 — tức đường có mạng đúng
+hết. Nên dựng lại máy người dùng bằng Chrome thật + máy chủ giả lập Workers (`_redirects` 301,
+`auto-trailing-slash` 307, ETag/304): cho Chrome dùng **bản cũ** trước 15/09 (SW v3 cất `/` = trang
+chủ cũ), rồi "triển khai" bản mới, rồi thử **10 tình huống** (gõ địa chỉ, tải lại, bấm thẻ, Lùi,
+tab mới, mất mạng lúc mở với SW cũ / SW mới, mạng chậm 4 s…), ghi màn hình từng khung + log
+request hai phía. Lưu ý đo được: `Network.emulateNetworkConditions` của CDP KHÔNG chặn `fetch` bên
+trong service worker — phải cắt socket ở máy chủ mới tái hiện được mất mạng.
+
+| Tình huống                                 | Thấy gì                                                                                                                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Có mạng (mọi đường vào)                    | Thẳng tới `/cong-thuc/` mới, không màn cũ                                                                                                                                 |
+| Lùi về tab đang mở trang chủ cũ            | bfcache trả trang cũ, đứng nguyên (Chrome thật sẽ đuổi khỏi bfcache khi SW mới claim → tải lại → 301)                                                                     |
+| **Mất mạng lúc mở, SW cũ (v3)**            | v3 trả **trang chủ cũ** từ kho; mạng về cũng đứng nguyên tới khi bấm gì đó → router cũ gặp build mới → tải lại                                                            |
+| **Mất mạng lúc mở, SW v4 (bản đang chạy)** | v4 trả HTML của `/cong-thuc/` **dưới URL `/`** → React lỗi hydration #418, header hiện logo thay vì "Công thức" — nhìn y trang chủ cũ, thanh địa chỉ `/`, tới khi tải lại |
+
+Dòng cuối là lỗi trong tay mình: khung ngoại tuyến bị trả dưới một URL không phải của nó. Điện
+thoại mở app trước khi bắt được sóng là chuyện thường, và mỗi lần như thế là một lần thấy "màn cũ".
+
+### Sửa gì
+
+| File                       | Sửa gì                                                                                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `public/sw.js`             | v5: mất mạng mà trang xin không có trong kho → `Response.redirect` 302 sang `/cong-thuc/` (giữ truy vấn cho `/`, như `_redirects`); chỉ đúng URL khung mới nhận HTML khung           |
+| `scripts/chrome-check.mjs` | máy chủ có công tắc `matMang` (cắt socket); 3 phép mới: SW đã cài + kho có khung; mở `/` mất mạng → `/cong-thuc/`, h1 "Công thức", ≥ 79 thẻ, không lỗi React; trang chưa ghé → khung |
+| `public/_redirects`        | ghi chú `sw.js` lặp lại luật này lúc mất mạng                                                                                                                                        |
+| `CLAUDE.md`                | đoạn `sw.js` ghi luật "không trả khung dưới URL khác" và vì sao                                                                                                                      |
+
+Kiểm lại bằng chính bộ tái hiện: mất mạng + SW mới → `/` → 302 → `/cong-thuc/` từ kho, h1 "Công
+thức", không lỗi JS, kho `ffb-v5`; đường có mạng không đổi.
+
+### Còn gì không sửa được từ phía site
+
+- Máy còn SW v3 (chưa ghé bản mới lần nào sau 15/09) vẫn có thể thấy trang chủ cũ đúng một lần khi
+  mở lúc mất mạng — kho v3 xoá ở lần ghé thành công đầu tiên, sau đó hết. Không đổi được code đã nằm
+  trong máy người dùng.
+- Tab/cửa sổ app đang đứng ở trang cũ từ trước ngày gộp: trình duyệt bày lại ảnh chụp/bfcache của nó
+  rồi mới tải lại — hành vi của trình duyệt, một lần cho mỗi thiết bị.
+
+### Việc còn lại
+
+- [ ] Triển khai, rồi `curl -sI https://<tên-miền>/sw.js | grep -i etag` đổi so với hiện tại và
+      thử tay trên điện thoại: bật chế độ máy bay, mở app → phải thấy màn Công thức, thanh địa chỉ
+      `/cong-thuc/`.
+
+---
+
+## Dòng công thức của "Thời gian nhân đôi vốn" — bỏ gạch ngang đọc nhầm thành dấu trừ (16/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** `npm run check` xanh — 113 file, **2.695** ca (thêm
+1). Đã chụp bằng Chrome thật trên dev server: 1440px nền tối nằm một dòng, 360px xuống hai dòng,
+không tràn ngang; bản tiếng Anh ở 360px cũng hiện đúng chuỗi mới.
+
+Chủ dự án gửi ảnh khung công thức: dòng chữ dưới KaTeX đọc
+`Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm) — xấp xỉ nhanh bằng 72 ÷ Lợi suất`. Gạch ngang dài
+đứng giữa hai vế trông y dấu trừ `−` (U+2212) mà mọi dòng công thức khác đều dùng.
+
+| File                             | Sửa gì                                                                                  |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| `core/formulas/performance.ts`   | `expression` vi/en: nối phần xấp xỉ bằng dấu phẩy — quy ước sẵn có (`, làm tròn xuống`) |
+| `core/formulas/formulas.test.ts` | ca mới: không dòng công thức nào (vi lẫn en) chứa `—` hay `–`                           |
+
+Quét cả 111 dòng trước khi sửa: đây là dòng **duy nhất** dính. Tiện tay trong cùng câu: vế sau đổi
+`Lợi suất` → `Lợi suất năm (%)` — một biến đang mang hai tên, và quy tắc 72 chia cho con số phần
+trăm (72 ÷ 8 = 9), còn `ln(1 + r)` dùng số thập phân như mọi dòng khác; thiếu `(%)` thì người nhẩm
+theo dòng chữ bằng 0,08 sẽ ra 900 năm. `calc` vốn đã tính đúng (`r / 100` cho vế chính xác, `72 / r`
+cho vế xấp xỉ), chỉ chữ là mơ hồ. KaTeX `\frac{72}{r}` vẫn chung một `r` cho hai vế — để nguyên,
+đó là cách quy tắc 72 được viết quen trong sách.
 
 ---
 

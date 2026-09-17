@@ -62,3 +62,17 @@ export function latexToMathml(latex: string): string {
     strict: false,
   });
 }
+
+/**
+ * Bản DÒNG (inline) cho từng ký hiệu của bảng `spec.symbols` — cùng KaTeX, cùng nhánh MathML, chỉ
+ * khác `displayMode`: một ký hiệu đứng đầu dòng "r_t: lợi suất phiên t" phải cao bằng chữ bên cạnh,
+ * không phải một khối căn giữa như hình công thức.
+ */
+export function latexToInlineMathml(latex: string): string {
+  return katex.renderToString(latex, {
+    output: 'mathml',
+    displayMode: false,
+    throwOnError: true,
+    strict: false,
+  });
+}

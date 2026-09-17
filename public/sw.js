@@ -31,8 +31,11 @@
  *
  * v4: trang chủ gộp vào màn Công thức (15/09/2026). `/` chỉ còn chuyển hướng, nên khung ngoại tuyến
  * đổi sang `/cong-thuc/` — kho v3 đang giữ bản `/` CŨ, tức một trang chủ không còn tồn tại.
+ *
+ * v5: mất mạng mà trang xin không có trong kho thì CHUYỂN HƯỚNG sang khung, không trả HTML của khung
+ * dưới URL lạ nữa — xem `handleNavigation()`. Kho không đổi nội dung, nhưng đây là đổi chiến lược.
  */
-const CACHE = 'ffb-v4';
+const CACHE = 'ffb-v5';
 
 /**
  * Trang dựng sẵn để làm khung khi mở lúc mất mạng — màn Công thức, HTML tĩnh đầy đủ.
@@ -111,8 +114,21 @@ function handles(request) {
  * Điều hướng trang: mạng trước, cache sau.
  *
  * Ngược với tài nguyên tĩnh bên dưới, vì HTML là thứ hay đổi nhất — thêm một công thức là
- * đổi trang. Mất mạng thì lấy đúng trang ấy trong kho, không có nữa thì trả khung màn Công thức
- * để người dùng vẫn còn chỗ đứng chứ không gặp trang lỗi của trình duyệt.
+ * đổi trang. Mất mạng thì lấy đúng trang ấy trong kho, không có nữa thì đưa người dùng về khung
+ * màn Công thức để họ vẫn còn chỗ đứng chứ không gặp trang lỗi của trình duyệt.
+ *
+ * ── Không có trong kho thì CHUYỂN HƯỚNG sang khung, không trả HTML của khung dưới URL lạ ──
+ *
+ * Bản v4 trả thẳng HTML của `/cong-thuc/` cho bất kỳ URL nào vắng kho. Đo trên Chrome thật với
+ * URL `/` (đường vào của link chia sẻ và của app đã cài trước 15/09/2026) lúc mất mạng: React ném
+ * lỗi hydration #418 vì HTML dựng cho `/cong-thuc/` mà router đứng ở `/`, header hiện logo thay vì
+ * tên màn, URL trên thanh địa chỉ sai — nhìn y như trang chủ CŨ, và chỉ hết khi tải lại. Đó là
+ * "vào một màn cũ rồi mới load lại vào màn Công thức" chủ dự án báo ngày 16/09/2026.
+ *
+ * Trả một phản hồi chuyển hướng thì trình duyệt đi tiếp sang `/cong-thuc/`, request ấy lại qua đây
+ * và lấy đúng khung dưới đúng URL của nó. Với `/` giữ nguyên truy vấn (`/?ma=FPT`), y hệt luật trong
+ * `public/_redirects`; URL khác thì bỏ truy vấn vì nó thuộc về trang kia. Mã 302, không 301: đây là
+ * câu trả lời tạm của lúc mất mạng, không phải của máy chủ.
  */
 async function handleNavigation(request) {
   try {
@@ -125,6 +141,13 @@ async function handleNavigation(request) {
   } catch {
     const cached = await caches.match(request);
     if (cached !== undefined) return cached;
+
+    const url = new URL(request.url);
+    if (url.pathname !== SHELL) {
+      const target = new URL(SHELL, self.location.origin);
+      if (url.pathname === '/') target.search = url.search;
+      return Response.redirect(target.href, 302);
+    }
 
     const shell = await caches.match(SHELL);
     if (shell !== undefined) return shell;

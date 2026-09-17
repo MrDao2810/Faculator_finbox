@@ -145,6 +145,50 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
       vi: 'Độ lệch chuẩn phiên = căn bậc hai của [Tổng bình phương (Lợi suất từng phiên − Lợi suất bình quân) ÷ (Số lợi suất − 1)]',
       en: "Session standard deviation = square root of [Sum of squares (each session's return − average return) ÷ (number of returns − 1)]",
     },
+    symbols: [
+      {
+        latex: 's',
+        meaning: {
+          vi: 'độ lệch chuẩn lợi suất theo phiên, %/phiên',
+          en: 'per-session return standard deviation, in %/session',
+        },
+      },
+      {
+        latex: 'r_t',
+        meaning: {
+          vi: 'lợi suất phiên t, so với giá đóng cửa phiên liền trước',
+          en: 'return of session t versus the previous close',
+        },
+      },
+      {
+        latex: '\\bar{r}',
+        meaning: {
+          vi: 'lợi suất bình quân của n phiên',
+          en: 'average return over the n sessions',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, đánh số từ 1 tới n',
+          en: 'the session in view, numbered 1 to n',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số lợi suất trong cửa sổ — bằng số phiên lấy để tính trừ 1',
+          en: 'number of returns in the window — the sessions used minus 1',
+        },
+      },
+      {
+        latex: 'n - 1',
+        meaning: {
+          vi: 'mẫu số của độ lệch chuẩn mẫu — chia n − 1 chứ không chia n',
+          en: 'denominator of the sample standard deviation — n − 1, not n',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['do lech chuan', 'bien dong', 'volatility', 'standard deviation', 'rui ro'],
@@ -241,6 +285,36 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       vi: 'Độ biến động năm = Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên giao dịch trong một năm',
       en: 'Annualized volatility = per-session return standard deviation × square root of the number of trading sessions in a year',
     },
+    symbols: [
+      {
+        latex: '\\sigma_{nam}',
+        meaning: {
+          vi: 'độ biến động năm hoá, %/năm',
+          en: 'annualized volatility, in %/year',
+        },
+      },
+      {
+        latex: 's_{phien}',
+        meaning: {
+          vi: 'độ lệch chuẩn lợi suất theo phiên, %/phiên, tính trên số phiên lấy để tính',
+          en: 'per-session return standard deviation, in %/session, over the sessions used',
+        },
+      },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'số phiên giao dịch trong một năm, thường 250',
+          en: 'trading sessions per year, usually 250',
+        },
+      },
+      {
+        latex: '\\sqrt{D}',
+        meaning: {
+          vi: 'căn bậc hai của số phiên một năm — nhân căn, không nhân thẳng',
+          en: 'square root of the sessions per year — multiply by the root, not the count',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['bien dong nam', 'annualized volatility', 'sigma', 'do lech chuan nam', 'rui ro'],
@@ -372,6 +446,57 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       vi: 'Độ lệch chuẩn bán phần = căn bậc hai của [Tổng bình phương (Lợi suất − Ngưỡng) của riêng các phiên dưới ngưỡng ÷ (Số lợi suất − 1)]',
       en: 'Downside deviation = square root of [Sum of squares (return − threshold) for sessions below the threshold only ÷ (number of returns − 1)]',
     },
+    symbols: [
+      {
+        latex: 'DD',
+        meaning: {
+          vi: 'độ lệch chuẩn bán phần, %/phiên',
+          en: 'downside deviation, in %/session',
+        },
+      },
+      {
+        latex: 'r_t',
+        meaning: {
+          vi: 'lợi suất phiên t, so với giá đóng cửa phiên liền trước',
+          en: 'return of session t versus the previous close',
+        },
+      },
+      {
+        latex: 'B',
+        meaning: {
+          vi: 'ngưỡng lợi suất mỗi phiên, % — để 0 là chỉ tính phiên giảm',
+          en: 'per-session return threshold, in % — at 0 only losing sessions count',
+        },
+      },
+      {
+        latex: 'r_t < B',
+        meaning: {
+          vi: 'chỉ cộng những phiên có lợi suất dưới ngưỡng',
+          en: 'only sessions with a return below the threshold are summed',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét trong cửa sổ',
+          en: 'the session in view within the window',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'tổng số lợi suất trong cửa sổ, kể cả phiên trên ngưỡng',
+          en: 'total number of returns in the window, sessions above the threshold included',
+        },
+      },
+      {
+        latex: 'n - 1',
+        meaning: {
+          vi: 'mẫu số — tổng số lợi suất trừ 1, không phải số phiên dưới ngưỡng',
+          en: 'denominator — total returns minus 1, not the count of sessions below the threshold',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['downside deviation', 'do lech chuan ban phan', 'rui ro giam', 'sortino', 'nguong'],
@@ -496,6 +621,36 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       vi: 'Hệ số biến thiên = Độ lệch chuẩn lợi suất ÷ Lợi suất bình quân',
       en: 'Coefficient of variation = return standard deviation ÷ average return',
     },
+    symbols: [
+      {
+        latex: 'CV',
+        meaning: {
+          vi: 'hệ số biến thiên, lần',
+          en: 'coefficient of variation, in times',
+        },
+      },
+      {
+        latex: 's',
+        meaning: {
+          vi: 'độ lệch chuẩn lợi suất theo phiên trong cửa sổ, %/phiên',
+          en: 'per-session return standard deviation over the window, in %/session',
+        },
+      },
+      {
+        latex: '\\bar{r}',
+        meaning: {
+          vi: 'lợi suất bình quân mỗi phiên trong cùng cửa sổ, %/phiên — phải dương',
+          en: 'average per-session return over the same window, in %/session — must be positive',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lợi suất của một phiên',
+          en: 'return of one session',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['he so bien thien', 'coefficient of variation', 'cv', 'rui ro tren loi suat'],
@@ -626,6 +781,36 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       vi: 'Biên độ dao động = (Giá đóng cửa cao nhất − Giá đóng cửa thấp nhất) ÷ Giá đóng cửa thấp nhất × 100',
       en: 'Price range = (highest closing price − lowest closing price) ÷ lowest closing price × 100',
     },
+    symbols: [
+      {
+        latex: 'A',
+        meaning: {
+          vi: 'biên độ dao động lớn nhất trong kỳ, %',
+          en: 'peak-to-trough price range over the period, in %',
+        },
+      },
+      {
+        latex: 'P_{max}',
+        meaning: {
+          vi: 'giá đóng cửa cao nhất trong số phiên trong kỳ, ₫',
+          en: 'highest closing price within the sessions in the period, in VND',
+        },
+      },
+      {
+        latex: 'P_{min}',
+        meaning: {
+          vi: 'giá đóng cửa thấp nhất trong cùng kỳ, ₫ — làm gốc so sánh',
+          en: 'lowest closing price in the same period, in VND — the base',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi ra phần trăm',
+          en: 'converts to percent',
+        },
+      },
+    ],
     chartType: 'candlestick',
     level: 'basic',
     tags: ['bien do dao dong', 'dinh day', 'price range', 'cao nhat thap nhat', 'vung gia'],
@@ -733,6 +918,43 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       vi: 'Chuỗi giảm dài nhất = Số phiên giảm giá liên tiếp nhiều nhất trong kỳ',
       en: 'Longest losing streak = the greatest number of consecutive declining sessions in the period',
     },
+    symbols: [
+      {
+        latex: 'L',
+        meaning: {
+          vi: 'chuỗi giảm dài nhất, tính bằng phiên',
+          en: 'longest losing streak, in sessions',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'số phiên giảm liên tiếp đang thử',
+          en: 'number of consecutive down sessions being tested',
+        },
+      },
+      {
+        latex: 'r_{t+1}',
+        meaning: {
+          vi: 'lợi suất phiên ngay sau phiên t',
+          en: 'return of the session right after session t',
+        },
+      },
+      {
+        latex: 'r_{t+k}',
+        meaning: {
+          vi: 'lợi suất phiên thứ k sau phiên t — phiên cuối của chuỗi',
+          en: 'return of the k-th session after t — the last of the streak',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đứng ngay trước chuỗi giảm',
+          en: 'the session just before the streak',
+        },
+      },
+    ],
     chartType: 'underwater',
     level: 'basic',
     tags: ['chuoi giam', 'losing streak', 'phien giam lien tiep', 'ky luat', 'tam ly'],

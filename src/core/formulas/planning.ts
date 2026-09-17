@@ -57,6 +57,47 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số tháng đã gửi ÷ 12',
       en: 'Interest received = Deposit amount × Annual demand-deposit rate × Months held ÷ 12',
     },
+    symbols: [
+      {
+        latex: 'I',
+        meaning: {
+          vi: 'lãi thực nhận khi rút trước hạn, ₫',
+          en: 'interest actually received on early withdrawal, ₫',
+        },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'số tiền gửi trên sổ, ₫', en: 'deposit amount on the book, ₫' },
+      },
+      {
+        latex: 'r_{kkh}',
+        meaning: {
+          vi: 'lãi suất không kỳ hạn của ngân hàng, %/năm',
+          en: "the bank's demand-deposit rate, %/year",
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi lãi suất từ % ra số thập phân',
+          en: 'converts the rate from % to a decimal',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'thời gian đã gửi tính tới ngày rút, tháng',
+          en: 'time held up to the withdrawal date, months',
+        },
+      },
+      {
+        latex: '12',
+        meaning: {
+          vi: 'số tháng một năm, quy lãi suất năm về từng tháng',
+          en: 'months in a year, scaling the annual rate to months',
+        },
+      },
+    ],
     /*
      * Tích của ba đầu vào với một hằng — quét biến nào cũng ra đoạn thẳng qua gốc. Cùng luật với
      * nhóm phí & thuế (xem docblock đầu `fees.ts`).
@@ -264,6 +305,40 @@ export const GUI_QUAY_VONG: FormulaModule = {
       vi: 'Chênh lệch = Tiền cuối kỳ khi quay vòng kỳ ngắn − Tiền cuối kỳ khi gửi kỳ dài',
       en: 'Difference = Ending balance from rolling short-term deposits − Ending balance from a long-term deposit',
     },
+    symbols: [
+      {
+        latex: '\\Delta',
+        meaning: {
+          vi: 'chênh lệch tiền cuối kỳ, quay vòng kỳ ngắn trừ gửi kỳ dài, ₫',
+          en: 'difference in ending balance, rolling short terms minus the long-term book, ₫',
+        },
+      },
+      { latex: 'P', meaning: { vi: 'số tiền gửi ban đầu, ₫', en: 'initial deposit amount, ₫' } },
+      { latex: 'r_n', meaning: { vi: 'lãi suất kỳ ngắn, %/năm', en: 'short-term rate, %/year' } },
+      { latex: 'm', meaning: { vi: 'kỳ hạn ngắn, tháng', en: 'short term, months' } },
+      {
+        latex: '1200',
+        meaning: {
+          vi: '100 × 12: đổi lãi suất %/năm ra lãi thập phân của mỗi tháng',
+          en: '100 × 12: converts a %/year rate into a decimal monthly rate',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'số vòng quay, bằng tổng thời gian chia cho kỳ hạn ngắn',
+          en: 'number of rollover rounds, the total time divided by the short term',
+        },
+      },
+      { latex: 'r_d', meaning: { vi: 'lãi suất kỳ dài, %/năm', en: 'long-term rate, %/year' } },
+      {
+        latex: 'T',
+        meaning: {
+          vi: 'tổng thời gian so sánh, cũng là kỳ hạn của sổ dài, tháng',
+          en: 'total comparison time, also the term of the long-term book, months',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['quay vong', 'ky ngan', 'ky dai', 'tiet kiem', 'rollover', 'lai kep'],
@@ -478,6 +553,32 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       vi: 'Giá vốn trung bình = Tổng tiền đã mua ÷ Tổng số cổ phiếu mua được',
       en: 'Average cost = Total amount invested ÷ Total shares acquired',
     },
+    symbols: [
+      {
+        latex: '\\bar{P}',
+        meaning: { vi: 'giá vốn trung bình của một cổ phiếu, ₫', en: 'average cost per share, ₫' },
+      },
+      {
+        latex: 'i',
+        meaning: { vi: 'số thứ tự đợt mua, từ 1 tới 3', en: 'purchase round number, 1 to 3' },
+      },
+      { latex: 'C_i', meaning: { vi: 'tiền mua đợt i, ₫', en: 'amount invested in round i, ₫' } },
+      { latex: 'P_i', meaning: { vi: 'giá mua đợt i, ₫', en: 'purchase price in round i, ₫' } },
+      {
+        latex: '\\sum_i C_i',
+        meaning: {
+          vi: 'tổng tiền đã mua qua các đợt, ₫',
+          en: 'total amount invested across the rounds, ₫',
+        },
+      },
+      {
+        latex: '\\sum_i C_i / P_i',
+        meaning: {
+          vi: 'tổng số cổ phiếu mua được qua các đợt, CP',
+          en: 'total shares acquired across the rounds',
+        },
+      },
+    ],
     /*
      * MỞ biểu đồ ở đợt kiểm kê — trước đó khai `'none'`. Luật chung "hàm bậc nhất thì đừng vẽ"
      * không áp được: giá vốn bình quân có ẩn số ở MẪU (`Σ Cᵢ/Pᵢ`), nên quét giá một đợt mua ra
@@ -719,6 +820,38 @@ export const SO_KY_DCA: FormulaModule = {
       vi: 'Số kỳ = ln(1 + Mục tiêu × Lợi suất kỳ ÷ Mức góp mỗi kỳ) ÷ ln(1 + Lợi suất kỳ), làm tròn lên',
       en: 'Number of periods = ln(1 + Target × Period rate ÷ Contribution per period) ÷ ln(1 + Period rate), rounded up',
     },
+    symbols: [
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số kỳ góp cần thiết, tháng',
+          en: 'number of contribution periods needed, months',
+        },
+      },
+      {
+        latex: '\\lceil',
+        meaning: {
+          vi: 'dấu làm tròn lên: lấy số kỳ trọn vẹn kế tiếp',
+          en: 'ceiling bracket: round up to the next whole period',
+        },
+      },
+      { latex: '\\ln', meaning: { vi: 'logarit tự nhiên', en: 'natural logarithm' } },
+      { latex: 'FV', meaning: { vi: 'số tiền mục tiêu, ₫', en: 'target amount, ₫' } },
+      {
+        latex: 'i',
+        meaning: {
+          vi: 'lợi suất mỗi tháng dạng thập phân: lợi suất năm ÷ 100 ÷ 12',
+          en: 'monthly rate as a decimal: the annual rate ÷ 100 ÷ 12',
+        },
+      },
+      {
+        latex: 'C',
+        meaning: {
+          vi: 'mức góp cuối mỗi tháng, ₫',
+          en: 'contribution at the end of each month, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['dca', 'so ky', 'muc tieu', 'gop deu', 'dau tu dinh ky', 'periods to goal'],
@@ -874,6 +1007,44 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
       vi: 'Tổng thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng + Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
       en: 'Total tax = Quantity × Sale price × Transfer tax rate + Quantity × Dividend per share × Dividend tax rate',
     },
+    symbols: [
+      {
+        latex: 'T',
+        meaning: {
+          vi: 'tổng thuế TNCN của khoản đầu tư trong năm, ₫',
+          en: 'total personal income tax on the investment for the year, ₫',
+        },
+      },
+      {
+        latex: 'Q',
+        meaning: { vi: 'khối lượng cổ phiếu nắm giữ, CP', en: 'quantity of shares held' },
+      },
+      {
+        latex: 'P_{ban}',
+        meaning: { vi: 'giá bán một cổ phiếu, ₫', en: 'sale price per share, ₫' },
+      },
+      {
+        latex: 'r_{cn}',
+        meaning: {
+          vi: 'thuế suất chuyển nhượng, tính trên giá trị bán',
+          en: 'transfer tax rate, charged on the sale value',
+        },
+      },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'cổ tức tiền mặt trên mỗi cổ phiếu, trước thuế, ₫/CP',
+          en: 'cash dividend per share, before tax, ₫/share',
+        },
+      },
+      {
+        latex: 'r_{ct}',
+        meaning: {
+          vi: 'thuế suất cổ tức tiền mặt, tính trên số cổ tức công bố',
+          en: 'cash dividend tax rate, charged on the announced dividend',
+        },
+      },
+    ],
     chartType: 'stackedBar',
     /*
      * Hai khoản bị khấu trừ ở hai thời điểm khác nhau, và đó chính là điều `howToRead` muốn nói.

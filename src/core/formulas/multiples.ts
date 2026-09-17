@@ -35,6 +35,20 @@ export const PE: FormulaModule = {
       vi: 'P/E = Giá thị trường ÷ EPS',
       en: 'P/E = Market price ÷ EPS',
     },
+    symbols: [
+      {
+        latex: 'P/E',
+        meaning: { vi: 'hệ số giá trên lợi nhuận, lần', en: 'price to earnings ratio, times' },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'giá thị trường của một cổ phiếu, ₫', en: 'market price of one share, ₫' },
+      },
+      {
+        latex: 'EPS',
+        meaning: { vi: 'lợi nhuận sau thuế trên mỗi cổ phiếu, ₫', en: 'earnings per share, ₫' },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,
@@ -172,6 +186,23 @@ export const PB: FormulaModule = {
       vi: 'P/B = Giá thị trường ÷ Giá trị sổ sách mỗi cổ phiếu',
       en: 'P/B = Market price ÷ Book value per share',
     },
+    symbols: [
+      {
+        latex: 'P/B',
+        meaning: { vi: 'hệ số giá trên giá trị sổ sách, lần', en: 'price to book ratio, times' },
+      },
+      {
+        latex: 'P',
+        meaning: { vi: 'giá thị trường của một cổ phiếu, ₫', en: 'market price of one share, ₫' },
+      },
+      {
+        latex: 'BVPS',
+        meaning: {
+          vi: 'giá trị sổ sách mỗi cổ phiếu — vốn chủ sở hữu chia số cổ phiếu, ₫',
+          en: 'book value per share — equity divided by shares outstanding, ₫',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     isFeatured: true,

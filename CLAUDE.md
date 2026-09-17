@@ -59,7 +59,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 34 assertions against a built out/ — run after build
-npm run check:chrome   # 31 assertions in a real headless Chrome at 360×780 — needs out/ + Chrome
+npm run check:chrome   # 110 assertions in a real headless Chrome (360×780 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -274,7 +274,21 @@ separate screen, so `SweepPicker` and `ChartBody` stay unaware of it.
 Other domain conventions already established: input controls are generated entirely from
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
 never throws and never returns NaN; tax/fee constants belong in `MarketConstant` records carrying
-`effectiveFrom` + `legalBasis`, kept out of formula bodies (LDR-03, CON-10).
+`effectiveFrom` + `legalBasis`, kept out of formula bodies (LDR-03, CON-10). **Every formula
+declares `spec.symbols`** — the "A: là gì" legend of its KaTeX line: one entry per symbol in
+`latex` (`latex` copied verbatim, `meaning` a short bilingual phrase), rendered by the detail
+screen as a `<dl>` to the **right** of the formula (below it under 1024px), each key set by KaTeX
+at build time like the formula itself (`latexToInlineMathml`, `page.tsx`). `formulas.test.ts`
+gates it three ways: every formula has a legend; every entry is a verbatim substring of `latex`;
+and the entries' tokens cover every token `latexSymbolTokens()` (`src/core/latex-symbols.ts`)
+extracts from `latex` — names, Greek letters, `\text{}` abbreviations, running indices (t, i, j,
+k, s, n are split off; any other subscript makes the whole thing one symbol: `r_f`, `P_{mua}`,
+`\sigma_p`) and numbers other than 0, 1, 2, 100. The owner asked for this after pointing at
+`L = max{k : r_{t+1} < 0, …}` and saying "không hiểu các giá trị" (16/09/2026), and chose this
+layout over two earlier attempts that put a paragraph or a term → meaning table _under_ the
+expression line ("quê mùa"). Keep the legend a legend: phrases, not sentences; nothing narrates
+the algorithm. `FFB_SYMBOL_IDS=a,b` narrows the three gates to a few ids while editing one group
+file.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`
@@ -368,8 +382,17 @@ schedule must break the formula, which catches a declaration the calc never uses
   chủ" nav item (4 items), no header mode toggle (`showsModeToggle`/`HeaderModeToggle` are gone), and
   the sitemap gives `/cong-thuc/` priority 1. `manifest.webmanifest` keeps `"id": "/"` while
   `start_url` moved, so installed PWAs keep their identity; `sw.js` uses `/cong-thuc/` as its
-  offline shell (never `/`, which is a 301 in production). Three rules keep the screen's static HTML
-  whole, and `verify-static.mjs` checks all three against `out/cong-thuc/index.html`.
+  offline shell (never `/`, which is a 301 in production). **Offline, the service worker never
+  serves that shell under another URL**: a navigation that fails and has no cached copy gets a
+  302 to `/cong-thuc/` (query kept for `/`, mirroring `_redirects`), and only that URL gets the
+  shell HTML. The v4 worker served the shell's HTML for `/` directly, and on a phone that opened
+  the app before the radio was up that meant a React hydration error (#418), a header showing the
+  logo instead of the screen name and a stale-looking page at `/` until the next reload — the
+  "old screen, then it reloads into /cong-thuc/" the owner reported on 16/09/2026. Two cases at
+  the end of `chrome-check.mjs` hold this with a real service worker and a server that drops
+  connections (CDP network emulation does not reach fetches made inside a worker). Three rules
+  keep the screen's static HTML whole, and `verify-static.mjs` checks all three against
+  `out/cong-thuc/index.html`.
   - **(1) Never call `useSearchParams()`/`useListParams()` in the screen.** Filter state lives in
     `useState` (`use-list-url-state.ts`) and is _written_ to the URL with
     `history.replaceState(null, …)`, debounced for typing and flushed on `pointerdown`/Enter. The

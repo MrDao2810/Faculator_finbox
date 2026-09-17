@@ -61,6 +61,26 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       vi: 'Lợi suất năm = (1 + Lợi suất một kỳ)^Số kỳ trong năm − 1',
       en: 'Annual return = (1 + Return per period)^Number of periods per year − 1',
     },
+    symbols: [
+      {
+        latex: 'r_{nam}',
+        meaning: { vi: 'lợi suất năm hoá, %/năm', en: 'annualized return, %/year' },
+      },
+      {
+        latex: 'r_{ky}',
+        meaning: {
+          vi: 'lợi suất một kỳ ngắn (tháng, tuần…), %',
+          en: 'return for one short period (month, week…), %',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số kỳ trong một năm — 12 với tháng, 52 với tuần',
+          en: 'number of periods per year — 12 for months, 52 for weeks',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['nam hoa', 'annualized', 'quy nam', 'loi suat ky'],
@@ -194,6 +214,29 @@ export const LOI_SUAT_THUC: FormulaModule = {
       vi: 'Lợi suất thực = (1 + Lợi suất danh nghĩa) ÷ (1 + Lạm phát) − 1',
       en: 'Real return = (1 + Nominal return) ÷ (1 + Inflation) − 1',
     },
+    symbols: [
+      {
+        latex: 'r_{thuc}',
+        meaning: {
+          vi: 'lợi suất thực sau lạm phát, %/năm',
+          en: 'real return after inflation, %/year',
+        },
+      },
+      {
+        latex: 'r_{danh\\,nghia}',
+        meaning: {
+          vi: 'lợi suất danh nghĩa mỗi năm, mức ghi trên sao kê, %',
+          en: 'nominal return per year, the rate on the statement, %',
+        },
+      },
+      {
+        latex: '\\pi',
+        meaning: {
+          vi: 'lạm phát mỗi năm, % — không phải số π = 3,14',
+          en: 'inflation per year, % — not the number π = 3.14',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['loi suat thuc', 'lam phat', 'fisher', 'real return', 'suc mua'],
@@ -334,6 +377,26 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
       vi: 'EAR = (1 + Lãi suất danh nghĩa ÷ Số lần ghép lãi)^Số lần ghép lãi − 1',
       en: 'EAR = (1 + Nominal rate ÷ Compounding frequency)^Compounding frequency − 1',
     },
+    symbols: [
+      {
+        latex: 'EAR',
+        meaning: { vi: 'lãi suất hiệu dụng năm, %/năm', en: 'effective annual rate, %/year' },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lãi suất danh nghĩa mỗi năm, mức ngân hàng niêm yết, %',
+          en: 'nominal rate per year, as the bank quotes it, %',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số lần ghép lãi trong một năm, lần',
+          en: 'number of times interest compounds per year',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['ear', 'lai suat hieu dung', 'ghep lai', 'effective annual rate', 'apr'],
@@ -474,6 +537,27 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       vi: 'Tổng lợi suất = [(1 + Tăng giá mỗi năm) × (1 + Tỷ suất cổ tức)]^Số năm − 1',
       en: 'Total return = [(1 + Annual price growth) × (1 + Dividend yield)]^Years − 1',
     },
+    symbols: [
+      {
+        latex: 'TR',
+        meaning: {
+          vi: 'tổng lợi suất tích luỹ sau n năm, %',
+          en: 'total return accumulated over n years, %',
+        },
+      },
+      {
+        latex: 'g',
+        meaning: { vi: 'tăng giá bình quân mỗi năm, %', en: 'average price growth per year, %' },
+      },
+      {
+        latex: 'y',
+        meaning: {
+          vi: 'tỷ suất cổ tức mỗi năm, đem mua lại cổ phiếu toàn bộ, %',
+          en: 'dividend yield per year, fully reinvested in the stock, %',
+        },
+      },
+      { latex: 'n', meaning: { vi: 'số năm nắm giữ, năm', en: 'number of years held' } },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['tong loi suat', 'tai dau tu co tuc', 'total return', 'reinvest', 'co tuc'],
@@ -635,6 +719,44 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       vi: 'Lợi suất hình học = [(1 + r kỳ 1) × (1 + r kỳ 2) × …]^(1 ÷ Số kỳ) − 1',
       en: 'Geometric return = [(1 + period-1 return) × (1 + period-2 return) × …]^(1 ÷ Number of periods) − 1',
     },
+    symbols: [
+      {
+        latex: 'r_{G}',
+        meaning: {
+          vi: 'lợi suất trung bình hình học mỗi kỳ, %',
+          en: 'geometric mean return per period, %',
+        },
+      },
+      {
+        latex: '\\prod_{k=1}^{n}',
+        meaning: {
+          vi: 'nhân dồn các ngoặc (1 + r_k) của mọi kỳ từ 1 tới n',
+          en: 'multiply the (1 + r_k) brackets of every period from 1 to n',
+        },
+      },
+      {
+        latex: 'r_k',
+        meaning: {
+          vi: 'lợi suất kỳ thứ k (ô Lợi suất kỳ 1, 2, 3), %',
+          en: 'return in period k (the Return in period 1, 2, 3 fields), %',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: { vi: 'số thứ tự kỳ, chạy từ 1 tới n', en: 'period number, running from 1 to n' },
+      },
+      {
+        latex: 'n',
+        meaning: { vi: 'số kỳ nhập liệu, 2 hoặc 3', en: 'number of periods entered, 2 or 3' },
+      },
+      {
+        latex: '1/n',
+        meaning: {
+          vi: 'mũ 1/n tức căn bậc n — quy tích của n kỳ về một kỳ đều',
+          en: 'power 1/n, i.e. the n-th root — spreads the n-period product over one period',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['trung binh hinh hoc', 'geometric mean', 'loi suat nhieu ky', 'binh quan'],
@@ -753,6 +875,40 @@ export const IRR_NIEN_KIM: FormulaModule = {
       vi: 'Tìm IRR sao cho: Vốn bỏ ra = Dòng thu mỗi kỳ × [1 − (1 + IRR)^(−Số kỳ)] ÷ IRR',
       en: 'Find the IRR such that: Capital invested = Payment per period × [1 − (1 + IRR)^(−Number of periods)] ÷ IRR',
     },
+    symbols: [
+      {
+        latex: 'IRR',
+        meaning: {
+          vi: 'ẩn số cần tìm — suất sinh lợi mỗi kỳ làm hai vế bằng nhau, %/kỳ',
+          en: 'the unknown — the per-period rate that makes both sides equal, %/period',
+        },
+      },
+      {
+        latex: 'P',
+        meaning: {
+          vi: 'vốn bỏ ra ban đầu, một lần ở đầu kỳ 0, ₫',
+          en: 'initial capital invested, a single sum at period 0, ₫',
+        },
+      },
+      {
+        latex: 'C',
+        meaning: {
+          vi: 'dòng thu đều nhận về cuối mỗi kỳ, ₫',
+          en: 'equal payment received at the end of each period, ₫',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: { vi: 'số kỳ nhận tiền, kỳ', en: 'number of periods receiving payments' },
+      },
+      {
+        latex: '1 - (1 + IRR)^{-n}',
+        meaning: {
+          vi: 'phần vốn thu về sau n kỳ, tính trên 1 đồng bỏ ra',
+          en: 'the share of capital recovered after n periods, per 1 đồng invested',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['irr', 'nien kim', 'suat sinh loi noi tai', 'annuity', 'dong tien deu'],
@@ -966,9 +1122,47 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
     },
     latex: 't = \\frac{\\ln 2}{\\ln(1 + r)} \\approx \\frac{72}{r}',
     expression: {
-      vi: 'Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm) — xấp xỉ nhanh bằng 72 ÷ Lợi suất',
-      en: 'Years to double = ln(2) ÷ ln(1 + Annual return) — quick approximation: 72 ÷ Return',
+      vi: 'Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm), xấp xỉ nhanh bằng 72 ÷ Lợi suất năm (%)',
+      en: 'Years to double = ln(2) ÷ ln(1 + Annual return), roughly 72 ÷ Annual return (%)',
     },
+    symbols: [
+      {
+        latex: 't',
+        meaning: { vi: 'số năm để vốn tăng gấp đôi, năm', en: 'years until the capital doubles' },
+      },
+      {
+        latex: '\\ln',
+        meaning: { vi: 'logarit tự nhiên (cơ số e)', en: 'natural logarithm (base e)' },
+      },
+      {
+        latex: '2',
+        meaning: {
+          vi: 'gấp đôi — vốn cuối bằng 2 lần vốn đầu',
+          en: 'doubling — the ending capital is 2 times the starting one',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lợi suất kép mỗi năm — dạng thập phân ở vế ln, dạng % ở vế 72',
+          en: 'compound return per year — a decimal under ln, a percentage under 72',
+        },
+      },
+      {
+        latex: '\\approx',
+        meaning: {
+          vi: 'xấp xỉ bằng — vế phải là cách nhẩm nhanh',
+          en: 'approximately equal — the right-hand side is the mental shortcut',
+        },
+      },
+      {
+        latex: '72',
+        meaning: {
+          vi: 'hằng số của quy tắc 72: 100 × ln 2 ≈ 69,3, làm tròn cho dễ chia nhẩm',
+          en: 'the rule-of-72 constant: 100 × ln 2 ≈ 69.3, rounded to divide easily in the head',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['nhan doi von', 'quy tac 72', 'rule of 72', 'doubling time'],
@@ -1095,6 +1289,28 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       vi: 'Lợi suất quy năm = (Giá bán ÷ Giá mua)^(365 ÷ Số ngày nắm giữ) − 1',
       en: 'Annualized return = (Sell price ÷ Buy price)^(365 ÷ Days held) − 1',
     },
+    symbols: [
+      {
+        latex: 'r_{nam}',
+        meaning: { vi: 'lợi suất quy năm, %/năm', en: 'annualized return, %/year' },
+      },
+      { latex: 'P_{ban}', meaning: { vi: 'giá bán, ₫', en: 'sell price, ₫' } },
+      { latex: 'P_{mua}', meaning: { vi: 'giá mua, ₫', en: 'buy price, ₫' } },
+      {
+        latex: '365',
+        meaning: {
+          vi: 'số ngày lịch của một năm, để quy lợi suất về cả năm',
+          en: 'calendar days in a year, to scale the return up to a full year',
+        },
+      },
+      {
+        latex: 'd',
+        meaning: {
+          vi: 'số ngày nắm giữ, ngày lịch từ ngày mua tới ngày bán',
+          en: 'days held, calendar days from the buy date to the sell date',
+        },
+      },
+    ],
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['quy nam', 'so ngay nam giu', 'annualized', 'hpr', 'luot song'],
@@ -1256,6 +1472,29 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
       vi: 'Lợi suất vượt chuẩn = Lợi suất danh mục − Lợi suất chuẩn so sánh',
       en: 'Excess return = Portfolio return − Benchmark return',
     },
+    symbols: [
+      {
+        latex: 'ER',
+        meaning: {
+          vi: 'lợi suất vượt chuẩn, điểm phần trăm',
+          en: 'excess return, percentage points',
+        },
+      },
+      {
+        latex: 'r_{p}',
+        meaning: {
+          vi: 'lợi suất danh mục trong kỳ đang xét, %',
+          en: 'portfolio return over the period under review, %',
+        },
+      },
+      {
+        latex: 'r_{b}',
+        meaning: {
+          vi: 'lợi suất chuẩn so sánh cùng kỳ, ví dụ VN-Index, %',
+          en: 'benchmark return over the same period, e.g. the VN-Index, %',
+        },
+      },
+    ],
     /*
      * Kết quả là HIỆU của đúng hai đầu vào, nên quét biến nào cũng ra đoạn thẳng hệ số góc ±1 —
      * hình mà dòng `expression` ngay trên đã nói trọn. Cùng luật với nhóm phí & thuế (xem docblock

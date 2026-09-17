@@ -290,6 +290,51 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       vi: 'Sụt giảm sâu nhất = lớn nhất của (Đỉnh cao nhất tính tới phiên đó − Giá phiên đó) ÷ Đỉnh cao nhất tính tới phiên đó × 100',
       en: 'Maximum drawdown = largest of (highest peak up to that session − price at that session) ÷ highest peak up to that session × 100',
     },
+    symbols: [
+      {
+        latex: 'MDD',
+        meaning: {
+          vi: 'mức sụt giảm sâu nhất so với đỉnh, %',
+          en: 'maximum drawdown from the peak, %',
+        },
+      },
+      {
+        latex: '\\max_{t}',
+        meaning: {
+          vi: 'lấy giá trị lớn nhất qua mọi phiên t trong cửa sổ',
+          en: 'the largest value across every session t in the window',
+        },
+      },
+      {
+        latex: 't',
+        meaning: {
+          vi: 'phiên đang xét, chạy qua từng phiên của cửa sổ',
+          en: 'the session being examined, running through each session of the window',
+        },
+      },
+      {
+        latex: '\\max_{s \\le t} P_s',
+        meaning: {
+          vi: 'đỉnh cao nhất từ đầu cửa sổ tới phiên t, ₫',
+          en: 'highest peak from the start of the window up to session t, ₫',
+        },
+      },
+      {
+        latex: 's',
+        meaning: {
+          vi: 'một phiên bất kỳ từ đầu cửa sổ tới phiên t',
+          en: 'any session from the start of the window up to session t',
+        },
+      },
+      {
+        latex: 'P_s',
+        meaning: { vi: 'giá đóng cửa phiên s, ₫', en: 'closing price of session s, ₫' },
+      },
+      {
+        latex: 'P_t',
+        meaning: { vi: 'giá đóng cửa phiên t, ₫', en: 'closing price of session t, ₫' },
+      },
+    ],
     chartType: 'underwater',
     level: 'basic',
     tags: ['sut giam', 'max drawdown', 'mdd', 'rui ro', 'dinh day'],
@@ -386,6 +431,33 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       vi: 'Sụt giảm hiện tại = (Đỉnh cao nhất trong cửa sổ − Giá phiên gần nhất) ÷ Đỉnh cao nhất trong cửa sổ × 100',
       en: 'Current drawdown = (highest peak in the window − most recent session price) ÷ highest peak in the window × 100',
     },
+    symbols: [
+      {
+        latex: 'DD_{t}',
+        meaning: {
+          vi: 'mức sụt giảm hiện tại so với đỉnh, %',
+          en: 'current drawdown from the peak, %',
+        },
+      },
+      {
+        latex: 'P_{max}',
+        meaning: {
+          vi: 'đỉnh cao nhất trong cửa sổ quan sát, ₫',
+          en: 'highest peak in the observation window, ₫',
+        },
+      },
+      {
+        latex: 'P_{t}',
+        meaning: {
+          vi: 'giá đóng cửa phiên gần nhất, ₫',
+          en: 'closing price of the most recent session, ₫',
+        },
+      },
+      {
+        latex: 't',
+        meaning: { vi: 'phiên gần nhất trong cửa sổ', en: 'the most recent session in the window' },
+      },
+    ],
     chartType: 'underwater',
     level: 'basic',
     tags: ['sut giam hien tai', 'current drawdown', 'duoi dinh', 'underwater', 've dinh'],
@@ -501,6 +573,36 @@ export const VAR_LICH_SU: FormulaModule = {
       vi: 'VaR = − Phân vị mức (100% − Độ tin cậy) của chuỗi lợi suất phiên × 100, nội suy tuyến tính giữa hai quan sát liền kề',
       en: 'VaR = − percentile at level (100% − confidence) of the session returns series × 100, linearly interpolated between two adjacent observations',
     },
+    symbols: [
+      {
+        latex: 'VaR_{\\alpha}',
+        meaning: {
+          vi: 'ngưỡng lỗ một phiên ở độ tin cậy α, số dương nghĩa là mất, %',
+          en: 'one-session loss threshold at confidence α, positive means loss, %',
+        },
+      },
+      {
+        latex: '\\alpha',
+        meaning: {
+          vi: 'độ tin cậy, 95% hay 99% — nên 1 − α là 5% hay 1%',
+          en: 'confidence level, 95% or 99% — so 1 − α is 5% or 1%',
+        },
+      },
+      {
+        latex: 'Q_{1-\\alpha}(r)',
+        meaning: {
+          vi: 'phân vị mức 1 − α của chuỗi lợi suất — một lợi suất âm, đổi dấu thành mức lỗ dương',
+          en: 'percentile at level 1 − α of the returns, a negative return flipped to a positive loss',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lợi suất từng phiên trong cửa sổ quan sát, dạng thập phân',
+          en: 'return of each session in the observation window, as a decimal',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['var', 'value at risk', 'gia tri chiu rui ro', 'phan vi', 'mo phong lich su'],
@@ -616,6 +718,50 @@ export const CVAR_LICH_SU: FormulaModule = {
       vi: 'CVaR = − Trung bình các lợi suất phiên không cao hơn ngưỡng VaR × 100',
       en: 'CVaR = − average of the session returns no higher than the VaR threshold × 100',
     },
+    symbols: [
+      {
+        latex: 'CVaR_{\\alpha}',
+        meaning: {
+          vi: 'mức lỗ bình quân của nhóm phiên tệ hơn ngưỡng VaR, số dương nghĩa là mất, %',
+          en: 'average loss of the sessions worse than the VaR threshold, positive means loss, %',
+        },
+      },
+      {
+        latex: '\\alpha',
+        meaning: {
+          vi: 'độ tin cậy, 95% hay 99% — nên 1 − α là 5% hay 1%',
+          en: 'confidence level, 95% or 99% — so 1 − α is 5% or 1%',
+        },
+      },
+      {
+        latex: 'E',
+        meaning: {
+          vi: 'trung bình (kỳ vọng) của các lợi suất thoả điều kiện, đổi dấu thành mức lỗ dương',
+          en: 'expected value (mean) of the returns passing the condition, flipped to a positive loss',
+        },
+      },
+      {
+        latex: 'r',
+        meaning: {
+          vi: 'lợi suất từng phiên trong cửa sổ quan sát, dạng thập phân',
+          en: 'return of each session in the observation window, as a decimal',
+        },
+      },
+      {
+        latex: '\\mid',
+        meaning: {
+          vi: 'đọc là "với điều kiện": chỉ giữ những phiên thoả vế bên phải',
+          en: 'reads "given that": keep only the sessions meeting the right-hand condition',
+        },
+      },
+      {
+        latex: 'Q_{1-\\alpha}(r)',
+        meaning: {
+          vi: 'phân vị mức 1 − α của chuỗi lợi suất, tức ngưỡng VaR trước khi đổi dấu',
+          en: 'percentile at level 1 − α of the returns, the VaR threshold before the sign flip',
+        },
+      },
+    ],
     chartType: 'histogram',
     level: 'advanced',
     tags: ['cvar', 'expected shortfall', 'ton that ky vong', 'duoi phan phoi', 'es'],

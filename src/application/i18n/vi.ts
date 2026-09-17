@@ -413,6 +413,12 @@ export const vi = {
    */
   'detail.howTo.label': 'Cách tính',
   'detail.howTo.open': 'Xem công thức:',
+  /*
+   * Nút nhỏ góc dưới bên phải thẻ Công thức, chỉ ở khổ điện thoại — bấm để ẩn/hiện bảng ký hiệu
+   * (17/09/2026). MỘT chữ cho cả hai trạng thái: chủ dự án bỏ cặp "Ẩn ký hiệu"/"Hiện ký hiệu", nên
+   * trạng thái nằm ở mũi tên và `aria-expanded`, không nằm ở chữ.
+   */
+  'detail.symbols.toggle': 'Chú thích',
   'detail.inputs': 'Số liệu',
   'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
   'detail.constantSource': 'Market Config · CON-10',

@@ -377,7 +377,8 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(the?.firstElementChild?.querySelector('math')).not.toBeNull();
     expect(the?.firstElementChild?.textContent).toContain(spec.expression?.vi ?? '');
 
-    const bang = the?.lastElementChild;
+    // Nửa phải là khối bọc bảng ký hiệu cùng nút ẩn/hiện của khổ điện thoại (17/09/2026).
+    const bang = the?.lastElementChild?.querySelector(':scope > dl');
     expect(bang?.tagName).toBe('DL');
     expect(bang?.getAttribute('aria-label')).toBe(t('detail.symbols'));
     const dts = [...(bang?.querySelectorAll('dt') ?? [])];

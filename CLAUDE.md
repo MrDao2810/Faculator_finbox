@@ -354,6 +354,15 @@ have none, and each records why in `whyNone`. Things that are easy to break:
 - **Keyboard users open panels from the legend buttons only.** There is no tab stop inside the MathML;
   that is deliberate. Step text follows the expression-line rules (`src/core/expression-rules.ts`, shared
   with `formulas.test.ts`).
+- **On phones (<1024px) a small "Chú thích" button at the card's bottom-right hides and shows the
+  legend** (17/09/2026). The owner circled `fcfe`'s eight-row legend pushing the inputs down, then
+  renamed the button from "Ẩn ký hiệu"/"Hiện ký hiệu" to one label for both states, so the chevron and
+  `aria-expanded` carry the state; do not bring the "Ẩn"/"Hiện" wording back. It starts shown
+  and is not remembered across pages, so the static HTML and first render match. The desktop layout has
+  no button, and the legend always shows there. `.legend` wraps `<dl>` and the button so the card still
+  has two children. The hide rule needs `.legend > .legendHidden`: `.symbols { display: grid }` loads
+  later at the same specificity and silently wins. While the legend is hidden, a panel opened from the
+  picture renders outside the `<dl>`.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`

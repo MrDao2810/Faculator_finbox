@@ -581,8 +581,14 @@ window.__themeLog = [];
    * dịch khi khung mở không. Rê chuột bằng `Input.dispatchMouseEvent` — con trỏ thật, nên `pointerType`
    * là "mouse" như người dùng.
    */
+  /*
+   * Thẻ tìm theo chuỗi cha của `.katex` (hình → nửa trái → thẻ), không theo tên lớp CSS Module (bị
+   * băm) và không theo cha của `<dl>`: từ khi có nút ẩn bảng ký hiệu, `<dl>` nằm trong một khối bọc.
+   */
   const DOC_KHUNG = `(() => {
-  const card = document.querySelector('dl[aria-label="Ký hiệu trong công thức"]')?.parentElement;
+  const card = document.querySelector('.katex')?.parentElement?.parentElement?.parentElement ?? null;
+  const bang = document.querySelector('dl[aria-label="Ký hiệu trong công thức"]');
+  const nutAn = bang ? document.querySelector('button[aria-controls="' + bang.id + '"]') : null;
   const panel = document.querySelector('[role="group"][id^="cach-tinh-"]');
   const r = (el) => { const b = el.getBoundingClientRect(); return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), right: Math.round(b.right), width: Math.round(b.width), height: Math.round(b.height) }; };
   const active = card?.getAttribute('data-active');
@@ -590,6 +596,9 @@ window.__themeLog = [];
   return {
     card: card ? r(card) : null,
     panel: panel ? r(panel) : null,
+    bangHien: bang ? getComputedStyle(bang).display !== 'none' : null,
+    nutAnHien: nutAn ? getComputedStyle(nutAn).display !== 'none' : null,
+    nutAn: nutAn && getComputedStyle(nutAn).display !== 'none' ? r(nutAn) : null,
     vw: window.innerWidth, vh: window.innerHeight,
     sang,
     tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
@@ -642,6 +651,15 @@ window.__themeLog = [];
   await new Promise((r) => setTimeout(r, 500));
   const khiRoi = await evaluate(DOC_KHUNG);
   check('PC 1440 · rời chuột thì khung tắt', khiRoi.panel === null);
+  /*
+   * Nút ẩn bảng ký hiệu chỉ dành cho khổ điện thoại (17/09/2026): ở PC bảng đứng cạnh hình, không đẩy
+   * gì xuống, nên nút phải biến mất và bảng phải hiện.
+   */
+  check(
+    'PC 1440 · không có nút ẩn bảng ký hiệu, bảng luôn hiện',
+    khiRoi.nutAnHien === false && khiRoi.bangHien === true,
+    JSON.stringify({ nutAnHien: khiRoi.nutAnHien, bangHien: khiRoi.bangHien }),
+  );
   check(
     'trang ty-so-sharpe không kêu lỗi hay cảnh báo nào ra console',
     noise.length === 0,
@@ -688,6 +706,36 @@ window.__themeLog = [];
     sauEsc.panel === null && sauChamNgoai.panel === null,
     JSON.stringify({ sauEsc: sauEsc.panel, sauChamNgoai: sauChamNgoai.panel }),
   );
+
+  /*
+   * Nút ẩn bảng ký hiệu ở khổ điện thoại: nằm góc dưới bên PHẢI thẻ, bấm thì bảng ẩn thật (`display:
+   * none` từ CSS, thứ jsdom không đo được) và thẻ ngắn lại, bấm lần nữa thì bảng về.
+   */
+  const truocAn = await evaluate(DOC_KHUNG);
+  await evaluate(`(() => {
+  const bang = document.querySelector('dl[aria-label="Ký hiệu trong công thức"]');
+  document.querySelector('button[aria-controls="' + bang.id + '"]')?.click();
+})()`);
+  await new Promise((r) => setTimeout(r, 200));
+  const sauAn = await evaluate(DOC_KHUNG);
+  check(
+    'Điện thoại 360 · nút ẩn bảng ký hiệu nằm góc dưới bên phải thẻ, bấm thì bảng ẩn và thẻ ngắn lại',
+    truocAn.nutAn !== null &&
+      truocAn.card !== null &&
+      truocAn.nutAn.right >= truocAn.card.right - 24 &&
+      truocAn.nutAn.bottom >= truocAn.card.bottom - 24 &&
+      sauAn.bangHien === false &&
+      sauAn.card !== null &&
+      sauAn.card.height < truocAn.card.height,
+    JSON.stringify({ nut: truocAn.nutAn, the: truocAn.card, bangHien: sauAn.bangHien }),
+  );
+  await evaluate(`(() => {
+  const bang = document.querySelector('dl[aria-label="Ký hiệu trong công thức"]');
+  document.querySelector('button[aria-controls="' + bang.id + '"]')?.click();
+})()`);
+  await new Promise((r) => setTimeout(r, 200));
+  const sauHien = await evaluate(DOC_KHUNG);
+  check('Điện thoại 360 · bấm lần nữa thì bảng ký hiệu hiện lại', sauHien.bangHien === true);
 
   /* ── 0b. Khối dưới nếp gấp thật sự được hoãn dựng hình ───────────────────── */
 

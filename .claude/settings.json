@@ -1715,7 +1715,10 @@
       "Bash(RA_REQ=C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/probes/C/p2.json npx vitest run --config C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/vitest.probe.config.ts)",
       "Bash(FFB_HOWTO_IDS=ty-so-sharpe npx vitest run src/core/how-to/how-to.test.ts src/core/formulas/formulas.test.ts)",
       "Bash(grep -E '^\\(tsx|ts-node|vite-node|esbuild\\)$')",
-      "Bash(timeout 200 node shot-howto.mjs C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/howto-shots v4 light rsi-wilder vi)"
+      "Bash(timeout 200 node shot-howto.mjs C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/howto-shots v4 light rsi-wilder vi)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\" | Select-Object Name, Length, LastWriteTime; try { \\(Invoke-WebRequest -UseBasicParsing -TimeoutSec 20 http://localhost:3000/cong-thuc/fcfe/\\).StatusCode } catch { \"DEV SERVER: \" + $_.Exception.Message })",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \"$s\\\\shot-page.mjs\" \"$s\\\\trung\" fcfe dark fcfe vi)",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; npx vite-node --config \"$s\\\\probe.config.mjs\" \"$s\\\\trung\\\\probe-trung.ts\")"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

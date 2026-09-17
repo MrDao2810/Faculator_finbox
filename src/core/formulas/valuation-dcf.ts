@@ -1268,19 +1268,26 @@ export const FCFE: FormulaModule = {
       vi: 'FCFE = FCFF − Lãi vay sau thuế (Chi phí lãi vay × (1 − Thuế suất)) + Vay ròng mới',
       en: 'FCFE = FCFF − After-tax interest (Interest expense × (1 − Tax rate)) + New net borrowing',
     },
+    /*
+     * FCFE và FCFF KHÔNG ghi lại tên "dòng tiền tự do của …" (17/09/2026): hai dòng đứng sát nhau từng
+     * ghi "dòng tiền tự do của cổ đông" và "dòng tiền tự do của doanh nghiệp", và chủ dự án khoanh cả
+     * hai là "trùng nội dung". Công ty vốn là của cổ đông, nên hai cái tên đọc như một; chỗ khác nhau
+     * thật là TRƯỚC hay SAU phần trả chủ nợ, nên bảng nói đúng điều đó. Tên đầy đủ vẫn ở tiêu đề trang
+     * và nhãn ô FCFF.
+     */
     symbols: [
       {
         latex: 'FCFE',
         meaning: {
-          vi: 'dòng tiền tự do của cổ đông trong kỳ, tỷ ₫',
-          en: 'free cash flow to equity for the period, billion ₫',
+          vi: 'phần dòng tiền dành riêng cho cổ đông, sau khi đã trả chủ nợ, tỷ ₫',
+          en: 'cash flow left for shareholders alone, after creditors are paid, billion ₫',
         },
       },
       {
         latex: 'FCFF',
         meaning: {
-          vi: 'dòng tiền tự do của doanh nghiệp, tỷ ₫',
-          en: 'free cash flow to the firm, billion ₫',
+          vi: 'dòng tiền kinh doanh sau thuế và tái đầu tư, chưa trả chủ nợ, tỷ ₫',
+          en: 'cash flow after taxes and reinvestment, before creditors are paid, billion ₫',
         },
       },
       {

@@ -34,6 +34,13 @@
  * `globals.css` lo.
  */
 .meaningButton {
+  /*
+   * `block` chứ không để mặc định: `<button>` mặc định là `inline-block`, mà chân chữ của một khối
+   * inline-block là DÒNG CUỐI. Lưới bảng ký hiệu căn `baseline`, nên nghĩa dài hai dòng kéo ký hiệu
+   * ở cột trái xuống ngang dòng thứ hai (đo trên `fcfe`, dòng `ΔB`). Khối `block` lấy chân chữ dòng đầu.
+   */
+  display: block;
+  width: 100%;
   appearance: none;
   margin: 0;
   padding: 0;
@@ -70,6 +77,61 @@
   background-color: var(--color-symbol-mark);
   box-shadow: 0 0 0 2px var(--color-symbol-mark);
   border-radius: 3px;
+}
+
+/*
+ * ── Nút ẩn/hiện bảng ký hiệu — CHỈ khổ điện thoại (17/09/2026) ─────────────────────────────────
+ *
+ * Bọc `.legend` gom bảng và nút thành MỘT con của thẻ, để thẻ vẫn đúng hai con — lưới hai cột ở PC
+ * đặt cả khối vào cột phải như trước. Nút nằm góc dưới bên phải thẻ, dưới bảng; bảng ẩn thì nút
+ * đứng ngay dưới dòng chữ.
+ *
+ * Mốc 1024px trùng mốc thẻ chuyển sang hai cột (`FormulaDetail.module.css`): từ đó bảng đứng CẠNH
+ * hình, không đẩy gì xuống, nên nút ẩn đi và bảng luôn hiện kể cả khi trạng thái đang "ẩn". Selector
+ * `.legend > .legendToggle` cao hơn `.button` của primitive một bậc, để `display: none` thắng
+ * `display: inline-flex` bất kể thứ tự nạp CSS.
+ */
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.legend > .legendToggle {
+  align-self: flex-end;
+  gap: var(--space-1);
+}
+
+.legendToggleIcon {
+  flex-shrink: 0;
+  /* 120ms như Switch — globals.css đã tắt mọi transition khi người dùng xin giảm chuyển động. */
+  transition: transform 120ms ease;
+}
+
+/*
+ * Bảng đang ẩn thì mũi tên chúc xuống: bấm là mở ra. Chữ nút giữ nguyên "Chú thích" ở cả hai trạng
+ * thái, nên mũi tên là dấu hiệu trạng thái DUY NHẤT nhìn thấy được — đừng bỏ nó như đồ trang trí.
+ */
+.legendToggle[aria-expanded='false'] .legendToggleIcon {
+  transform: rotate(180deg);
+}
+
+/*
+ * `.legend > .legendHidden` chứ không `.legendHidden` trần: bảng còn mang `.symbols` của
+ * `FormulaDetail.module.css` (`display: grid`), cùng một bậc ưu tiên, và file ấy nạp SAU — selector trần
+ * thua lặng lẽ (đo trên Chrome thật: nút đổi chữ mà bảng vẫn hiện).
+ */
+@media (max-width: 1023.98px) {
+  .legend > .legendHidden {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .legend > .legendToggle {
+    display: none;
+  }
 }
 
 /* ── Khung nổi ──────────────────────────────────────────────────────────────────────────────── */

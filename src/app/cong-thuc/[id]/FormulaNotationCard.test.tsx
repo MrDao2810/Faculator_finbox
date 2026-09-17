@@ -4,7 +4,7 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { FORMULAS } from '@/application';
+import { FORMULAS, t } from '@/application';
 import type { FormulaSpec } from '@/application';
 import { HOW_TO } from '@/application/how-to';
 
@@ -201,5 +201,59 @@ describe('FormulaNotationCard — cả 111 công thức', () => {
       unmount();
     }
     expect(sai, sai.join('\n')).toEqual([]);
+  });
+});
+
+/**
+ * Nút ẩn/hiện bảng ký hiệu ở khổ điện thoại (17/09/2026). jsdom không có media query nên ca kiểm
+ * gác phần TRẠNG THÁI (lớp ẩn, chữ nút, `aria-expanded`); ẩn thật ở dưới 1024px và nút biến mất ở
+ * PC là việc của CSS, đo ở `check:chrome`.
+ */
+describe('FormulaNotationCard — nút ẩn bảng ký hiệu', () => {
+  function nutAn(card: HTMLElement) {
+    const bang = card.querySelector('dl') as HTMLElement;
+    const nut = card.querySelector(`button[aria-controls="${bang.id}"]`) as HTMLButtonElement;
+    return { bang, nut };
+  }
+
+  it('bấm thì bảng mang lớp ẩn, chữ nút vẫn là "Chú thích", bấm lại thì bảng hiện', () => {
+    const { card } = dungThe('fcfe');
+    const { bang, nut } = nutAn(card);
+    expect(nut).not.toBeNull();
+    expect(nut.getAttribute('aria-expanded')).toBe('true');
+    expect(nut.textContent).toBe(t('detail.symbols.toggle'));
+    expect(bang.className).not.toMatch(/legendHidden/);
+
+    fireEvent.click(nut);
+    expect(bang.className).toMatch(/legendHidden/);
+    expect(nut.getAttribute('aria-expanded')).toBe('false');
+    // Chủ dự án bỏ cặp "Ẩn/Hiện ký hiệu": một chữ cho cả hai trạng thái, trạng thái nằm ở `aria-expanded`.
+    expect(nut.textContent).toBe(t('detail.symbols.toggle'));
+
+    fireEvent.click(nut);
+    expect(bang.className).not.toMatch(/legendHidden/);
+    expect(nut.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('bảng đang ẩn mà chạm ký hiệu trong hình thì khung dựng NGOÀI bảng, không bị ẩn theo', () => {
+    const { card, notation } = dungThe('ty-so-sharpe');
+    const { bang, nut } = nutAn(card);
+    fireEvent.click(nut);
+
+    const sym = notation.howTo[0]?.sym ?? -1;
+    fireEvent.click(card.querySelector(`math [data-sym="${String(sym)}"]`) as Element);
+    const khung = card.querySelector('[role="group"]');
+    expect(khung).not.toBeNull();
+    expect(bang.contains(khung)).toBe(false);
+  });
+
+  it('bấm ẩn bảng lúc khung đang mở thì khung đóng', () => {
+    const { card } = dungThe('ty-so-sharpe');
+    const { nut } = nutAn(card);
+    fireEvent.click(card.querySelector('dl button[data-sym]') as Element);
+    expect(card.querySelector('[role="group"]')).not.toBeNull();
+
+    fireEvent.click(nut);
+    expect(card.querySelector('[role="group"]')).toBeNull();
   });
 });

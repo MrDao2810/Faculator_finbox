@@ -172,7 +172,9 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.2.1 | Thẻ Công thức khổ PC — hai nửa căn giữa theo chiều dọc                          | —       | Xong phần code, chờ chủ dự án soi — xem mục "Thẻ Công thức khổ PC…"            |
 | —     | Rà lượt hai nội dung 111 công thức sau khi thay ví dụ thật — 105 phát hiện      | —       | Rà xong, **chưa áp**, chờ chủ dự án duyệt — xem mục "Rà lượt hai…"             |
 | 3.2.2 | Thẻ bước của chuỗi định giá gọi theo tên con số nó cấp                          | —       | Xong phần code, chờ chủ dự án soi — xem mục "Thẻ bước của chuỗi…"              |
-| 2.4.3 | Khung "cách tính" khi rê chuột/chạm vào một phần của công thức — 111 công thức  | —       | Xong phần code, **chưa build** — xem mục ngay dưới                             |
+| 2.4.3 | Khung "cách tính" khi rê chuột/chạm vào một phần của công thức — 111 công thức  | —       | Xong phần code, **chưa build** — xem mục "Khung cách tính…"                    |
+| 3.2.1 | Nút nhỏ ẩn bảng ký hiệu ở khổ điện thoại                                        | —       | Xong phần code, chờ chủ dự án soi — xem mục "Nút nhỏ ẩn bảng ký hiệu…"         |
+| 2.4.3 | Bảng ký hiệu `fcfe`: hai dòng FCFE và FCFF hết trùng nội dung                   | —       | Xong phần code, chờ chủ dự án soi — xem mục ngay dưới                          |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -180,6 +182,104 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Bảng ký hiệu của `fcfe`: hai dòng FCFE và FCFF trùng nội dung (17/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi câu chữ.**
+
+Chủ dự án khoanh hai dòng đầu bảng ký hiệu của `fcfe` ở khổ PC: _"nhìn vào ảnh và sửa lỗi. phần giải thích
+đang có một số chỗ bị trùng nội dung."_
+
+- **Trước:** `FCFE` là "dòng tiền tự do của cổ đông trong kỳ, tỷ ₫", `FCFF` là "dòng tiền tự do của doanh
+  nghiệp, tỷ ₫". Năm chữ đầu giống hệt. Chữ khác nhau chỉ là "cổ đông" và "doanh nghiệp", mà công ty vốn là
+  của cổ đông, nên hai dòng đọc như một.
+- **Sau:** `FCFE` là "phần dòng tiền dành riêng cho cổ đông, sau khi đã trả chủ nợ, tỷ ₫", `FCFF` là "dòng
+  tiền kinh doanh sau thuế và tái đầu tư, chưa trả chủ nợ, tỷ ₫". Chỗ khác nhau thật, trước hay sau phần
+  trả chủ nợ, nay nằm ngay trên chữ. Bản `en` sửa theo.
+- Không ghi lại tên "dòng tiền tự do của …": tên đầy đủ đã có ở tiêu đề trang và nhãn ô FCFF.
+- **Quét cả 111 bảng** tìm dòng gần trùng nhau (chung từ 3 chữ đầu, hoặc trùng từ 60% số chữ): 30 cặp. Ngoài
+  cặp này, cặp nào cũng là cặp đối (cao nhất và thấp nhất, mua và bán, tăng và giảm, nhanh và chậm) hoặc hai
+  đại lượng khác hẳn nhau, chữ khác nhau tự nói được, nên để nguyên.
+- **Thấy thêm, chưa sửa:** đoạn "Ý nghĩa" đầu màn chi tiết và mục "Công thức này nói lên điều gì" của khối
+  Giải thích cùng in `explanation.meaning`, nên cả 111 trang lặp nguyên đoạn đó hai lần. Nằm ngoài ảnh, chờ
+  chủ dự án quyết.
+
+| File                             | Sửa gì                                                        |
+| -------------------------------- | ------------------------------------------------------------- |
+| `core/formulas/valuation-dcf.ts` | nghĩa `FCFE`, `FCFF` của `fcfe` (vi, en), kèm chú thích lý do |
+
+### Kiểm chứng
+
+- 11 file test liên quan xanh, 259 ca: cửa gác bảng ký hiệu, `prose-audit`, `how-to`, `notation`. Eslint và
+  prettier sạch.
+- Chụp Chrome trang `fcfe`, bảng màu tối: ở 1440 mỗi nghĩa vẫn vừa một dòng; ở 360 hai dòng này xuống hai dòng
+  mỗi dòng, thẻ cao thêm 21px.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi câu chữ mới.
+- [ ] Chủ dự án quyết có bỏ một trong hai đoạn "Ý nghĩa" trùng nhau không.
+
+## Nút nhỏ ẩn bảng ký hiệu ở khổ điện thoại (17/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi màn.** `npm run check` xanh: 121 file, **2.787** ca.
+
+### Yêu cầu
+
+Chủ dự án khoanh bảng ký hiệu của `fcfe` trên điện thoại: _"ở màn mobile thì phần khoanh đỏ thì hãy tạo một
+button nhỏ ở dưới cùng góc phải màn hình để ẩn phần khoanh đỏ đi. còn màn web thì ko cần"_.
+
+### Làm gì
+
+- **Vị trí nút:** góc dưới bên phải THẺ Công thức, ngay dưới bảng ký hiệu. Tôi hiểu "góc phải màn hình"
+  là góc của vùng khoanh, không phải một nút nổi dính màn.
+- **Hành vi:** nút ghi "Chú thích" ở cả hai trạng thái. Bấm thì bảng ẩn và mũi tên lật ngược; bấm lại
+  thì bảng hiện. Bản đầu ghi "Ẩn ký hiệu"/"Hiện ký hiệu", xem mục "Đổi tên nút" bên dưới.
+- **Ở PC (từ 1024px):** không có nút, bảng luôn hiện.
+- **Trạng thái:** mặc định là hiện, và không nhớ qua trang, để HTML tĩnh khớp lần render đầu.
+- **Khung cách tính:** khi bảng đang ẩn mà chạm ký hiệu trong hình, khung dựng ngoài bảng. Bấm ẩn bảng
+  lúc khung đang mở thì khung đóng.
+- **Vá kèm:** trong bảng ký hiệu, nghĩa dài hai dòng kéo ký hiệu ở cột trái xuống ngang dòng thứ hai, do
+  nút nghĩa mặc định `inline-block`. Lỗi này do đợt khung cách tính gây ra; đã đổi thành `display: block`.
+
+| File                                                                        | Sửa gì                                                                                                           |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `app/cong-thuc/[id]/FormulaNotationCard.tsx`                                | khối bọc `.legend` (bảng và nút), trạng thái ẩn, dựng khung ngoài bảng khi bảng ẩn                               |
+| `app/cong-thuc/[id]/FormulaNotationCard.module.css`                         | nút chỉ ở khổ hẹp; `.legend > .legendHidden` (selector trần thua `.symbols` nạp sau); nút nghĩa `display: block` |
+| `app/cong-thuc/[id]/use-how-to-panel.ts`                                    | trả thêm `close()` để nút ẩn bảng đóng khung đang mở                                                             |
+| `application/i18n/vi.ts`, `en.ts`                                           | `detail.symbols.toggle` ("Chú thích" / "Legend")                                                                 |
+| `app/cong-thuc/[id]/FormulaNotationCard.test.tsx`, `FormulaDetail.test.tsx` | 3 ca mới cho nút; ca cấu trúc tìm `<dl>` trong khối bọc                                                          |
+| `scripts/chrome-check.mjs`                                                  | tìm thẻ qua `.katex`; đo nút góc dưới phải ở 360, bảng ẩn thật; PC không có nút                                  |
+| `CLAUDE.md`                                                                 | một gạch đầu dòng về nút ở mục khung cách tính                                                                   |
+
+### Kiểm chứng
+
+- Chrome thật trên dev server, trang `fcfe`, bảng màu tối:
+  - 360: nút ở góc dưới phải thẻ. Bấm thì bảng ẩn, thẻ ngắn từ 436px còn 160px; bấm lại thì bảng hiện.
+  - 1440: không có nút, bảng hiện.
+- Lần đo đầu bắt được lỗi độ ưu tiên CSS: nút đã đổi chữ mà bảng vẫn hiện. jsdom không thấy lỗi này.
+  Phép đo mới trong `check:chrome` gác đúng chỗ đó.
+
+### Đổi tên nút thành "Chú thích"
+
+Chủ dự án: _"liệu có thể đặt lại tên cho "Ẩn ký hiệu" thành "Chú thích" không, không cần thêm Ẩn hay HIện
+cả, chỉ cần bấm vào chú thích thôi"_.
+
+- Hai khoá `detail.symbols.hide` / `detail.symbols.show` gộp thành một khoá `detail.symbols.toggle`:
+  "Chú thích" / "Legend". Chữ nút không đổi khi bấm.
+- Giữ mũi tên: chữ đã cố định nên mũi tên là dấu hiệu trạng thái duy nhất nhìn thấy được. Trình đọc màn
+  hình đọc trạng thái qua `aria-expanded` như cũ.
+- Ca kiểm nút đổi sang: chữ nút vẫn là "Chú thích" sau khi bấm, `aria-expanded` đổi hai chiều.
+  `check:chrome` không so chữ nên không phải sửa.
+- File: `vi.ts`, `en.ts`, `FormulaNotationCard.tsx` (chữ nút, docblock), `FormulaNotationCard.module.css`
+  (chú thích cạnh mũi tên), `FormulaNotationCard.test.tsx`, `CLAUDE.md`.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi nút trên điện thoại.
+- [ ] Chạy `npm run check:chrome` khi cổng 3000 trống.
 
 ---
 

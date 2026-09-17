@@ -203,6 +203,7 @@ export function useHowToPanel(hasHowTo: (sym: number) => boolean, resetKey: unkn
     panelRef,
     anchorRef,
     pointRef,
+    close,
     handlers: { onPointerOver, onPointerOut, onClick, onBlur },
   };
 }

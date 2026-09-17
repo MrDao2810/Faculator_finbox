@@ -198,6 +198,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.symbols': 'Symbols in the formula',
   'detail.howTo.label': 'How it is computed',
   'detail.howTo.open': 'See formula:',
+  'detail.symbols.toggle': 'Legend',
   'detail.inputs': 'Inputs',
   'detail.hiddenInBasic': 'advanced variable(s) hidden — switch mode to see them',
   'detail.constantSource': 'Market Config · CON-10',

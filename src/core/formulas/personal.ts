@@ -860,7 +860,7 @@ export const LAI_TIEN_GUI: FormulaModule = {
       vi: 'Tiền lãi đơn nhận được cho một khoản gửi tiết kiệm có kỳ hạn.',
       en: 'The simple interest earned on a fixed-term savings deposit.',
     },
-    latex: 'I = P \\times \\frac{r}{100 \\times 12} \\times T',
+    latex: 'I = P \\times \\frac{r}{12} \\times T',
     expression: {
       vi: 'Tiền lãi = Số tiền gửi × Lãi suất năm ÷ 12 × Số tháng',
       en: 'Interest = Deposit amount × Annual rate ÷ 12 × Number of months',
@@ -879,17 +879,10 @@ export const LAI_TIEN_GUI: FormulaModule = {
         meaning: { vi: 'lãi suất / năm, nhập theo %', en: 'annual interest rate, in %' },
       },
       {
-        latex: '100',
-        meaning: {
-          vi: 'đổi lãi suất từ % sang số thập phân',
-          en: 'converts the rate from % to a decimal',
-        },
-      },
-      {
         latex: '12',
         meaning: {
-          vi: 'số tháng một năm — đổi lãi suất năm thành lãi suất tháng',
-          en: 'months in a year — turns the annual rate into a monthly one',
+          vi: 'số tháng một năm, dùng để đổi lãi suất năm thành lãi suất tháng',
+          en: 'months in a year, used to turn the annual rate into a monthly one',
         },
       },
       { latex: 'T', meaning: { vi: 'kỳ hạn gửi, tháng', en: 'deposit term, months' } },
@@ -999,8 +992,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'thời gian gửi, tháng — mỗi tháng một khoản',
-          en: 'time in months — one deposit per month',
+          vi: 'số tháng gửi, mỗi tháng một khoản',
+          en: 'number of months, one deposit per month',
         },
       },
       {

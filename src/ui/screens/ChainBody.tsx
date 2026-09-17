@@ -5,7 +5,14 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 
 import { formulaPath, variablesForLevel } from '@/application';
-import type { ChainInputs, ChainOverrides, ChainResult, FormulaSpec, Level } from '@/application';
+import type {
+  ChainInputs,
+  ChainOverrides,
+  ChainResult,
+  FormulaSpec,
+  Level,
+  VariableSpec,
+} from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
 import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { InlineWarning } from '@/ui/result';
@@ -41,9 +48,30 @@ export interface ChainBodyProps {
  * kết quả từng bước, bước nào gãy, và đường đi tới màn riêng của bước — bốn thứ đó đều đã có sẵn
  * trên chính các thẻ ngay dưới nó. Nó chỉ nói lại bằng một ngôn ngữ phải học trước mới đọc được.
  *
- * Đừng dựng lại hình ấy dưới bất kỳ dạng nào. Thứ khiến quan hệ đọc được nằm ở hai tiêu đề nhóm
- * ("cấp số liệu cho công thức đang xem" / "dùng kết quả của công thức đang xem") và ở nhãn nguồn
- * mà `LinkedInput` in ngay dưới ô nhận số — chữ đứng cạnh đúng con số nó nói tới.
+ * Đừng dựng lại hình ấy dưới bất kỳ dạng nào. Thứ khiến quan hệ đọc được là CHỮ đứng cạnh đúng
+ * con số nó nói tới, ở cả hai đầu của mỗi mối nối: dòng tóm tắt của thẻ gọi tên con số và nói nó
+ * là kết quả của công thức nào, dùng cho công thức nào (mục ngay dưới); còn `LinkedInput` in nhãn
+ * nguồn "↳ …" dưới ô nhận số.
+ *
+ * ── Thẻ gọi theo tên CON SỐ nó cấp, không theo tên công thức (17/09/2026) ──────────────────
+ *
+ * Bản trước ghi "CAPM — chi phí vốn chủ sở hữu … 17 %" và "Mô hình Gordon (DDM một giai đoạn) …
+ * 17.500 ₫". Chủ dự án khoanh đỏ hai con số và nói người dùng không hiểu chúng "tự dưng có" từ
+ * đâu. Ba lý do cộng lại:
+ *   · con số đứng trần cạnh tên CÔNG THỨC, không chữ nào nói đó là kết quả của công thức ấy;
+ *   · thẻ không nói con số dùng vào đâu. Chỉ đầu nhận ("↳ Mô hình Gordon") nói, mà ở khổ PC ô ấy
+ *     nằm góc trên bên trái trong khi các thẻ nằm cuối trang;
+ *   · ở khổ PC khối đứng ngay dưới "Ví dụ thực tế", nên các thẻ trông như một phần của ví dụ.
+ *
+ * Nay dòng đầu của thẻ là NHÃN CỦA Ô NHẬN SỐ, trùng từng chữ với ô ấy ("Giá trị nội tại ước tính
+ * (V) … 25.925,93 ₫"), đúng khuôn nhãn và giá trị của mọi hàng số khác trên màn; dòng dưới ghi
+ * "kết quả của Mô hình Gordon (DDM một giai đoạn), dùng cho Biên an toàn". Chủ dự án chọn cách này
+ * thay vì giữ tên công thức rồi thêm một dòng chú thích: thứ đứng cạnh con số phải là tên của CON
+ * SỐ. Vị trí khối ở khổ PC giữ nguyên, cũng do chủ dự án chọn.
+ *
+ * Dòng ấy đọc cạnh `dependsOn`, tức mối nối CỐ ĐỊNH, không đọc trạng thái ghi đè: ô nhận đã nhập
+ * tay thì thẻ vẫn ghi "dùng cho …". Chuyện ô ấy đang không nhận số là việc của `LinkedInput`, nơi
+ * nhãn "đã nhập tay" và nút Nhận tự động nằm ngay tại ô.
  *
  * ── Vì sao khối này KHÔNG dựng lại ô nhập của công thức đang xem ────────────────────────────
  *
@@ -98,6 +126,25 @@ export function ChainBody({
   mode,
 }: ChainBodyProps) {
   const specById = new Map(formulas.map((spec) => [spec.id, spec]));
+
+  /**
+   * Ô nào, của công thức nào trong chuỗi, nhận kết quả của từng bước. Khoá là `formulaId` của
+   * bước CẤP số.
+   *
+   * Đọc thẳng `dependsOn` chứ không đọc `chain.steps[].fields`: `fields` chỉ giữ nguồn THẮNG của
+   * mỗi ô (xem `runChain()`), nên một ô hai nguồn sẽ làm nguồn dự phòng mất tên nơi nhận.
+   */
+  const noiNhan = new Map<string, Array<{ formula: FormulaSpec; variable: VariableSpec }>>();
+  for (const spec of formulas) {
+    for (const dependency of spec.dependsOn ?? []) {
+      const variable = spec.variables.find((v) => v.key === dependency.variableKey);
+      if (variable === undefined) continue;
+      noiNhan.set(dependency.formulaId, [
+        ...(noiNhan.get(dependency.formulaId) ?? []),
+        { formula: spec, variable },
+      ]);
+    }
+  }
 
   /*
    * Bước nào mở sẵn khi khối vừa dựng — và câu trả lời khác nhau theo khổ màn.
@@ -162,6 +209,20 @@ export function ChainBody({
     const ownInputs = inputs[step.formulaId] ?? {};
     const ownOverrides = overrides[step.formulaId] ?? {};
 
+    /*
+     * Tên con số và vai của nó, xem mục "Thẻ gọi theo tên CON SỐ nó cấp" ở docblock đầu file.
+     *
+     * Một bước cấp cho nhiều ô thì gọi đủ tên các ô. Trong một chuỗi của Registry hôm nay chưa có
+     * ca ấy, nhưng `chainFor()` không cấm. Không tìm được ô nhận nào (Registry khai cạnh trỏ vào
+     * một biến không có) thì lùi về tên công thức và bỏ dòng vai, thay vì in "dùng cho" rỗng.
+     */
+    const nhan = noiNhan.get(step.formulaId) ?? [];
+    const tenSo =
+      nhan.length === 0
+        ? pick(spec.name)
+        : [...new Set(nhan.map((n) => pick(n.variable.label)))].join(', ');
+    const dungCho = [...new Set(nhan.map((n) => pick(n.formula.name)))].join(', ');
+
     return (
       <details
         key={step.formulaId}
@@ -173,7 +234,14 @@ export function ChainBody({
         }}
       >
         <summary className={styles.summary}>
-          <span className={styles.stepName}>{pick(spec.name)}</span>
+          <span className={styles.stepText}>
+            <span className={styles.stepName}>{tenSo}</span>
+            {nhan.length > 0 && (
+              <span className={styles.stepRole}>
+                {`${t('chain.resultOf')} ${pick(spec.name)}, ${t('chain.usedFor')} ${dungCho}`}
+              </span>
+            )}
+          </span>
           <span
             className={
               step.output.value === null

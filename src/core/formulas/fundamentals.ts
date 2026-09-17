@@ -138,10 +138,11 @@ export const EPS_CO_BAN: FormulaModule = {
       vi: 'Mỗi cổ phiếu phổ thông làm ra bao nhiêu đồng lợi nhuận trong kỳ.',
       en: 'How much profit each common share earns during the period.',
     },
-    latex: 'EPS = \\frac{\\text{LNST} - \\text{Cổ tức ưu đãi}}{\\text{Số CP lưu hành}}',
+    latex:
+      'EPS = \\frac{\\text{LNST} - \\text{Cổ tức ưu đãi}}{\\text{Số CP lưu hành}} \\times 10^9',
     expression: {
-      vi: 'EPS = (Lợi nhuận sau thuế − Cổ tức ưu đãi) ÷ Số cổ phiếu lưu hành',
-      en: 'EPS = (Net income after tax − Preferred dividends) ÷ Shares outstanding',
+      vi: 'EPS = (Lợi nhuận sau thuế − Cổ tức ưu đãi) ÷ Số cổ phiếu lưu hành × 10^9',
+      en: 'EPS = (Net income after tax − Preferred dividends) ÷ Shares outstanding × 10^9',
     },
     symbols: [
       {
@@ -161,6 +162,10 @@ export const EPS_CO_BAN: FormulaModule = {
           vi: 'số cổ phiếu (CP) phổ thông đang lưu hành',
           en: 'number of common shares outstanding',
         },
+      },
+      {
+        latex: '10^9',
+        meaning: { vi: 'đổi tỷ ₫ ra ₫', en: 'converts billion ₫ into ₫' },
       },
     ],
     chartType: 'sensitivity',
@@ -278,10 +283,10 @@ export const BVPS: FormulaModule = {
       vi: 'Mỗi cổ phiếu đang nắm giữ bao nhiêu đồng vốn chủ sở hữu trên sổ sách.',
       en: 'How much book equity each share currently represents.',
     },
-    latex: 'BVPS = \\frac{\\text{Vốn chủ sở hữu}}{\\text{Số CP lưu hành}}',
+    latex: 'BVPS = \\frac{\\text{Vốn chủ sở hữu}}{\\text{Số CP lưu hành}} \\times 10^9',
     expression: {
-      vi: 'BVPS = Vốn chủ sở hữu ÷ Số cổ phiếu lưu hành',
-      en: 'BVPS = Equity ÷ Shares outstanding',
+      vi: 'BVPS = Vốn chủ sở hữu ÷ Số cổ phiếu lưu hành × 10^9',
+      en: 'BVPS = Equity ÷ Shares outstanding × 10^9',
     },
     symbols: [
       {
@@ -292,11 +297,19 @@ export const BVPS: FormulaModule = {
         },
       },
       {
+        latex: '\\text{Vốn chủ sở hữu}',
+        meaning: { vi: 'vốn chủ sở hữu cuối kỳ, tỷ ₫', en: 'equity at period end, billion ₫' },
+      },
+      {
         latex: '\\text{Số CP lưu hành}',
         meaning: {
           vi: 'số cổ phiếu (CP) phổ thông đang lưu hành',
           en: 'number of common shares outstanding',
         },
+      },
+      {
+        latex: '10^9',
+        meaning: { vi: 'đổi tỷ ₫ ra ₫', en: 'converts billion ₫ into ₫' },
       },
     ],
     chartType: 'sensitivity',
@@ -893,8 +906,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
       {
         latex: 'D',
         meaning: {
-          vi: 'nợ (debt) — tổng nợ phải trả, tỷ ₫',
-          en: 'debt — total liabilities, billion ₫',
+          vi: 'nợ (debt), tức tổng nợ phải trả, tỷ ₫',
+          en: 'debt, i.e. total liabilities, billion ₫',
         },
       },
       {
@@ -1294,8 +1307,8 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
       {
         latex: '\\text{Vòng quay}',
         meaning: {
-          vi: 'vòng quay tổng tài sản — số vòng trong kỳ',
-          en: 'total asset turnover — number of turns in the period',
+          vi: 'vòng quay tổng tài sản, tính bằng số vòng trong kỳ',
+          en: 'total asset turnover, counted in turns per period',
         },
       },
     ],

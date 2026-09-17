@@ -102,8 +102,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
     },
     latex: 'F = S \\left[ 1 + (r - q) \\cdot \\frac{d}{365} \\right]',
     expression: {
-      vi: 'Giá lý thuyết = Chỉ số cơ sở × [1 + (Lãi suất phi rủi ro − Tỷ suất cổ tức) ÷ 100 × Số ngày đến đáo hạn ÷ 365]',
-      en: 'Theoretical price = Underlying index × [1 + (Risk-free rate − Dividend yield) ÷ 100 × Days to expiry ÷ 365]',
+      vi: 'Giá lý thuyết = Chỉ số cơ sở × [1 + (Lãi suất phi rủi ro − Tỷ suất cổ tức) × Số ngày đến đáo hạn ÷ 365]',
+      en: 'Theoretical price = Underlying index × [1 + (Risk-free rate − Dividend yield) × Days to expiry ÷ 365]',
     },
     symbols: [
       {
@@ -116,8 +116,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       {
         latex: 'S',
         meaning: {
-          vi: 'chỉ số VN30 hiện tại — chỉ số cơ sở, điểm',
-          en: 'current VN30 index — the underlying, in points',
+          vi: 'chỉ số VN30 hiện tại, là chỉ số cơ sở, điểm',
+          en: 'current VN30 index, the underlying, in points',
         },
       },
       {
@@ -469,8 +469,8 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
       {
         latex: 'P_{dong}',
         meaning: {
-          vi: 'điểm đóng vị thế — hoặc giá hiện tại nếu chưa đóng, điểm',
-          en: 'closing points — or the current price if still open',
+          vi: 'điểm đóng vị thế, hoặc giá hiện tại nếu chưa đóng, điểm',
+          en: 'closing points, or the current price if still open',
         },
       },
       {
@@ -637,8 +637,8 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       {
         latex: 'P_{dong}',
         meaning: {
-          vi: 'điểm đóng vị thế — hoặc giá hiện tại nếu chưa đóng, điểm',
-          en: 'closing points — or the current price if still open',
+          vi: 'điểm đóng vị thế, hoặc giá hiện tại nếu chưa đóng, điểm',
+          en: 'closing points, or the current price if still open',
         },
       },
       {
@@ -777,8 +777,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     },
     latex: 'N_{max} = \\left\\lfloor \\frac{V}{F \\times m \\times k} \\right\\rfloor',
     expression: {
-      vi: 'Số hợp đồng tối đa = Vốn ký quỹ ÷ (Điểm hợp đồng × Hệ số nhân × Tỷ lệ ký quỹ ÷ 100), làm tròn xuống',
-      en: 'Maximum contracts = Margin capital ÷ (Contract points × Multiplier × Margin ratio ÷ 100), rounded down',
+      vi: 'Số hợp đồng tối đa = Vốn ký quỹ ÷ (Điểm hợp đồng × Hệ số nhân × Tỷ lệ ký quỹ), làm tròn xuống',
+      en: 'Maximum contracts = Margin capital ÷ (Contract points × Multiplier × Margin ratio), rounded down',
     },
     symbols: [
       {
@@ -791,8 +791,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       {
         latex: '\\lfloor',
         meaning: {
-          vi: 'dấu ngoặc sàn — làm tròn xuống số nguyên',
-          en: 'floor brackets — round down to a whole number',
+          vi: 'dấu ngoặc sàn, làm tròn xuống số nguyên',
+          en: 'floor brackets, rounding down to a whole number',
         },
       },
       {
@@ -984,8 +984,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
     },
     latex: 'N = \\left\\lfloor \\frac{V \\times r}{\\Delta P \\times m} \\right\\rfloor',
     expression: {
-      vi: 'Số hợp đồng = Vốn × Rủi ro mỗi lệnh ÷ 100 ÷ (Khoảng cách cắt lỗ × Hệ số nhân), làm tròn xuống',
-      en: 'Number of contracts = Capital × Risk per trade ÷ 100 ÷ (Stop-loss distance × Multiplier), rounded down',
+      vi: 'Số hợp đồng = Vốn × Rủi ro mỗi lệnh ÷ (Khoảng cách cắt lỗ × Hệ số nhân), làm tròn xuống',
+      en: 'Number of contracts = Capital × Risk per trade ÷ (Stop-loss distance × Multiplier), rounded down',
     },
     symbols: [
       {
@@ -998,8 +998,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       {
         latex: '\\lfloor',
         meaning: {
-          vi: 'dấu ngoặc sàn — làm tròn xuống số nguyên',
-          en: 'floor brackets — round down to a whole number',
+          vi: 'dấu ngoặc sàn, làm tròn xuống số nguyên',
+          en: 'floor brackets, rounding down to a whole number',
         },
       },
       {
@@ -1019,8 +1019,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       {
         latex: '\\Delta P',
         meaning: {
-          vi: 'khoảng cách cắt lỗ — số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ',
-          en: 'stop-loss distance — points between the entry level and the stop level',
+          vi: 'khoảng cách cắt lỗ, tức số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ',
+          en: 'stop-loss distance, the points between the entry level and the stop level',
         },
       },
       {
@@ -1207,8 +1207,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       {
         latex: 'L',
         meaning: {
-          vi: 'tỷ lệ đòn bẩy hiệu dụng — giá trị danh nghĩa gấp mấy lần vốn thực, lần',
-          en: 'effective leverage — notional value as a multiple of actual equity, times',
+          vi: 'tỷ lệ đòn bẩy hiệu dụng, tức giá trị danh nghĩa gấp mấy lần vốn thực, lần',
+          en: 'effective leverage, notional value as a multiple of actual equity, times',
         },
       },
       {
@@ -1229,8 +1229,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       {
         latex: 'E',
         meaning: {
-          vi: 'vốn thực có trong tài khoản — tiền ký quỹ cộng lãi lỗ đã bù trừ, ₫',
-          en: 'actual equity in the account — margin deposit plus settled P&L, ₫',
+          vi: 'vốn thực có trong tài khoản, gồm tiền ký quỹ cộng lãi lỗ đã bù trừ, ₫',
+          en: 'actual equity in the account, margin deposit plus settled P&L, ₫',
         },
       },
     ],

@@ -198,8 +198,8 @@ export const PB: FormulaModule = {
       {
         latex: 'BVPS',
         meaning: {
-          vi: 'giá trị sổ sách mỗi cổ phiếu — vốn chủ sở hữu chia số cổ phiếu, ₫',
-          en: 'book value per share — equity divided by shares outstanding, ₫',
+          vi: 'giá trị sổ sách mỗi cổ phiếu, bằng vốn chủ sở hữu chia số cổ phiếu, ₫',
+          en: 'book value per share, equity divided by shares outstanding, ₫',
         },
       },
     ],

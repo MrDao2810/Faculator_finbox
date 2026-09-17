@@ -285,7 +285,7 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       vi: 'Khoảng rơi lớn nhất từ một đỉnh xuống đáy sau đó, đo trong cả cửa sổ quan sát.',
       en: 'The largest drop from a peak to a subsequent trough, measured across the whole observation window.',
     },
-    latex: 'MDD = \\max_{t} \\frac{\\max_{s \\le t} P_s - P_t}{\\max_{s \\le t} P_s}',
+    latex: 'MDD = \\max_{t} \\frac{\\max_{s \\le t} P_s - P_t}{\\max_{s \\le t} P_s} \\times 100',
     expression: {
       vi: 'Sụt giảm sâu nhất = lớn nhất của (Đỉnh cao nhất tính tới phiên đó − Giá phiên đó) ÷ Đỉnh cao nhất tính tới phiên đó × 100',
       en: 'Maximum drawdown = largest of (highest peak up to that session − price at that session) ÷ highest peak up to that session × 100',
@@ -333,6 +333,13 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       {
         latex: 'P_t',
         meaning: { vi: 'giá đóng cửa phiên t, ₫', en: 'closing price of session t, ₫' },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi tỷ lệ ra phần trăm',
+          en: 'converts the ratio to a percentage',
+        },
       },
     ],
     chartType: 'underwater',
@@ -426,7 +433,7 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       vi: 'Giá phiên gần nhất đang thấp hơn đỉnh cao nhất trong cửa sổ bao nhiêu phần trăm.',
       en: 'How many percent the most recent session price sits below the highest peak in the window.',
     },
-    latex: 'DD_{t} = \\frac{P_{max} - P_{t}}{P_{max}}',
+    latex: 'DD_{t} = \\frac{P_{max} - P_{t}}{P_{max}} \\times 100',
     expression: {
       vi: 'Sụt giảm hiện tại = (Đỉnh cao nhất trong cửa sổ − Giá phiên gần nhất) ÷ Đỉnh cao nhất trong cửa sổ × 100',
       en: 'Current drawdown = (highest peak in the window − most recent session price) ÷ highest peak in the window × 100',
@@ -456,6 +463,13 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       {
         latex: 't',
         meaning: { vi: 'phiên gần nhất trong cửa sổ', en: 'the most recent session in the window' },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi tỷ lệ ra phần trăm',
+          en: 'converts the ratio to a percentage',
+        },
       },
     ],
     chartType: 'underwater',
@@ -568,10 +582,10 @@ export const VAR_LICH_SU: FormulaModule = {
       vi: 'Mức lỗ một phiên mà chỉ một tỷ lệ nhỏ số phiên trong quá khứ từng vượt qua, đọc thẳng từ phân vị chuỗi lợi suất.',
       en: 'The single-session loss level that only a small share of past sessions have ever exceeded, read directly off a percentile of the returns series.',
     },
-    latex: 'VaR_{\\alpha} = -Q_{1-\\alpha}(r)',
+    latex: 'VaR_{\\alpha} = -Q_{1-\\alpha}(r) \\times 100',
     expression: {
-      vi: 'VaR = − Phân vị mức (100% − Độ tin cậy) của chuỗi lợi suất phiên × 100, nội suy tuyến tính giữa hai quan sát liền kề',
-      en: 'VaR = − percentile at level (100% − confidence) of the session returns series × 100, linearly interpolated between two adjacent observations',
+      vi: 'VaR = − Phân vị mức (1 − Độ tin cậy) của chuỗi lợi suất phiên × 100, nội suy tuyến tính giữa hai quan sát liền kề',
+      en: 'VaR = − percentile at level (1 − confidence) of the session returns series × 100, linearly interpolated between two adjacent observations',
     },
     symbols: [
       {
@@ -584,14 +598,14 @@ export const VAR_LICH_SU: FormulaModule = {
       {
         latex: '\\alpha',
         meaning: {
-          vi: 'độ tin cậy, 95% hay 99% — nên 1 − α là 5% hay 1%',
-          en: 'confidence level, 95% or 99% — so 1 − α is 5% or 1%',
+          vi: 'độ tin cậy 95% hay 99%, nên 1 − α là 5% hay 1%',
+          en: 'confidence level of 95% or 99%, so 1 − α is 5% or 1%',
         },
       },
       {
         latex: 'Q_{1-\\alpha}(r)',
         meaning: {
-          vi: 'phân vị mức 1 − α của chuỗi lợi suất — một lợi suất âm, đổi dấu thành mức lỗ dương',
+          vi: 'phân vị mức 1 − α của chuỗi lợi suất, là số âm nên đổi dấu thành mức lỗ dương',
           en: 'percentile at level 1 − α of the returns, a negative return flipped to a positive loss',
         },
       },
@@ -600,6 +614,13 @@ export const VAR_LICH_SU: FormulaModule = {
         meaning: {
           vi: 'lợi suất từng phiên trong cửa sổ quan sát, dạng thập phân',
           en: 'return of each session in the observation window, as a decimal',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi lợi suất thập phân ra phần trăm',
+          en: 'converts the decimal return to a percentage',
         },
       },
     ],
@@ -713,7 +734,7 @@ export const CVAR_LICH_SU: FormulaModule = {
       vi: 'Mức lỗ trung bình của riêng những phiên tệ hơn ngưỡng VaR — trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".',
       en: 'The average loss of just the sessions worse than the VaR threshold — answering "if the bad day actually happens, how much do I lose".',
     },
-    latex: 'CVaR_{\\alpha} = -E\\left[r \\mid r \\le Q_{1-\\alpha}(r)\\right]',
+    latex: 'CVaR_{\\alpha} = -E\\left[r \\mid r \\le Q_{1-\\alpha}(r)\\right] \\times 100',
     expression: {
       vi: 'CVaR = − Trung bình các lợi suất phiên không cao hơn ngưỡng VaR × 100',
       en: 'CVaR = − average of the session returns no higher than the VaR threshold × 100',
@@ -729,8 +750,8 @@ export const CVAR_LICH_SU: FormulaModule = {
       {
         latex: '\\alpha',
         meaning: {
-          vi: 'độ tin cậy, 95% hay 99% — nên 1 − α là 5% hay 1%',
-          en: 'confidence level, 95% or 99% — so 1 − α is 5% or 1%',
+          vi: 'độ tin cậy 95% hay 99%, nên 1 − α là 5% hay 1%',
+          en: 'confidence level of 95% or 99%, so 1 − α is 5% or 1%',
         },
       },
       {
@@ -759,6 +780,13 @@ export const CVAR_LICH_SU: FormulaModule = {
         meaning: {
           vi: 'phân vị mức 1 − α của chuỗi lợi suất, tức ngưỡng VaR trước khi đổi dấu',
           en: 'percentile at level 1 − α of the returns, the VaR threshold before the sign flip',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi lợi suất thập phân ra phần trăm',
+          en: 'converts the decimal return to a percentage',
         },
       },
     ],

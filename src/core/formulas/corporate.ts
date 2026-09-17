@@ -35,15 +35,15 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     latex: 'Q_{hv} = \\frac{FC}{P - VC} \\qquad DT_{hv} = Q_{hv} \\times P',
     expression: {
-      vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán − Biến phí đơn vị)',
-      en: 'Break-even output = Fixed cost ÷ (Selling price − Variable cost per unit)',
+      vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán − Biến phí đơn vị); Doanh thu hoà vốn = Sản lượng hoà vốn × Giá bán',
+      en: 'Break-even output = Fixed cost ÷ (Selling price − Variable cost per unit); Break-even revenue = Break-even output × Selling price',
     },
     symbols: [
       {
         latex: 'Q_{hv}',
         meaning: {
-          vi: 'sản lượng hoà vốn — số sản phẩm phải bán để không lãi không lỗ',
-          en: 'break-even output — number of units to sell to neither profit nor lose',
+          vi: 'sản lượng hoà vốn, tức số sản phẩm phải bán để không lãi không lỗ',
+          en: 'break-even output, the number of units to sell to neither profit nor lose',
         },
       },
       { latex: 'FC', meaning: { vi: 'định phí, ₫', en: 'fixed cost, ₫' } },
@@ -55,8 +55,8 @@ export const DIEM_HOA_VON: FormulaModule = {
       {
         latex: 'P - VC',
         meaning: {
-          vi: 'số dư đảm phí — phần mỗi sản phẩm góp vào bù định phí, ₫',
-          en: 'contribution margin — what each unit contributes toward fixed cost, ₫',
+          vi: 'số dư đảm phí, tức phần mỗi sản phẩm góp vào bù định phí, ₫',
+          en: 'contribution margin, what each unit contributes toward fixed cost, ₫',
         },
       },
       { latex: 'DT_{hv}', meaning: { vi: 'doanh thu hoà vốn, ₫', en: 'break-even revenue, ₫' } },

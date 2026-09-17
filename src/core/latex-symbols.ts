@@ -19,8 +19,9 @@
  * 4. Tên có chỉ số dưới: chỉ số là MỘT TỪ (`P_{mua}`, `\sigma_{nam}`, `BB_{tren}`) thì cả cụm là một
  *    ký hiệu riêng; chỉ số là CHỈ SỐ CHẠY (`P_{t-i}`, `r_{t+1}`, `\beta_i`) thì tên gốc là token và
  *    từng chữ cái trong chỉ số cũng là token (t, i — chúng cũng cần được gọi tên).
- * 5. Số: token, trừ 0, 1, 2 và 100 — quá thường gặp để bắt buộc, nhưng `365`, `12`, `72`, `22,5`
- *    thì phải có lời giải.
+ * 5. Số: token, trừ 0, 1, 2 — quá thường gặp để bắt buộc. `100` thì PHẢI có lời giải như `365`,
+ *    `12`, `72`, `22,5`: chủ dự án hỏi đúng câu "tại sao lại nhân với 100" (17/09/2026), nên hằng
+ *    đổi tỷ lệ ra phần trăm cũng là thứ người đọc cần được gọi tên.
  *
  * Không import gì — chạy được ở Node lẫn trình duyệt, nhưng chỉ cửa gác dùng tới.
  */
@@ -52,7 +53,7 @@ const DECORATOR_COMMANDS = ['bar', 'overline', 'hat', 'tilde', 'vec'];
 const OPERATOR_COMMANDS = ['sum', 'prod', 'max', 'min', 'lim'];
 
 /** Số không bị đòi giải thích. */
-const OBVIOUS_NUMBERS = new Set(['0', '1', '2', '100']);
+const OBVIOUS_NUMBERS = new Set(['0', '1', '2']);
 
 /** Viết tắt trong `\text{}`: 2–8 chữ cái, không dấu cách, không dấu tiếng Việt, bắt đầu bằng chữ hoa. */
 const ABBREVIATION = /^[A-Z][A-Za-z]{1,7}$/;

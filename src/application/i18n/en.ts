@@ -159,6 +159,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chain.title': 'Numbers taken from other formulas',
   /* Hai khoá `*Heading` bỏ cùng nửa "Bước sau" — xem lý do ở `vi.ts`. */
   'chain.openStep': "Open this step's own screen",
+  /* Dòng phụ dưới tên con số trong thẻ bước: "result of <formula>, used in <formula>". */
+  'chain.resultOf': 'result of',
+  'chain.usedFor': 'used in',
   'stat.eyebrow': 'METRIC',
 
   'detail.loadPreset': 'Load sample',

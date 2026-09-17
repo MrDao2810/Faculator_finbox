@@ -132,6 +132,45 @@ describe('Registry với toàn bộ công thức thật', () => {
   });
 
   /*
+   * Lỗi thật đã gặp: `sut-giam-hien-tai` có hình `DD_t = (P_max − P_t) / P_max` mà dòng chữ ngay dưới
+   * lại "… ÷ Đỉnh cao nhất trong cửa sổ × 100" — chủ dự án hỏi "tại sao trên công thức không nhân
+   * 100 mà bên dưới lại nhân 100" (17/09/2026). Quét ra 11 công thức cùng họ: bốn công thức thiếu
+   * `× 100` trong hình, ba dòng chữ thừa `÷ 100` so với hình, ba hình thừa `100`/`1200`, và hai dòng
+   * chữ kể ý bỏ mất `365`/`1200`. Dòng chữ là hình đọc thành lời, nên HẰNG SỐ của hai bên phải là
+   * một: số khác 0, 1, 2 (luật số của `latexSymbolTokens()`) có ở bên này thì phải có ở bên kia, ở
+   * cả `vi` lẫn `en`.
+   *
+   * Quy ước mà các lần sửa bám theo: ô nhập gõ theo % (lãi suất, tỷ lệ ký quỹ) thì hình viết dạng
+   * tỷ lệ, không `÷ 100` — như `1 + r`, `r − g`; kết quả là tỷ số của hai lượng tiền/giá mà đọc ra
+   * phần trăm thì hình ghi `× 100` — như ROE, ROI, sụt giảm.
+   */
+  it('dòng chữ nêu đúng các hằng số có trong hình, và ngược lại', () => {
+    const soTrongChu = (text: string, ngon: 'vi' | 'en'): string[] => {
+      const nghin = ngon === 'vi' ? /(\d)\.(?=\d{3}\b)/g : /(\d),(?=\d{3}\b)/g;
+      const thapPhan = ngon === 'vi' ? ',' : '.';
+      const so = text.replace(nghin, '$1').match(/\d+(?:[.,]\d+)?/g) ?? [];
+      return so
+        .map((s) => (thapPhan === ',' ? s.replace(',', '.') : s))
+        .filter((s) => !['0', '1', '2'].includes(s));
+    };
+    for (const spec of ALL_FORMULAS) {
+      const trongHinh = [
+        ...new Set(
+          latexSymbolTokens(spec.latex)
+            .filter((token) => /^\d/.test(token))
+            .map((token) => token.replace(',', '.')),
+        ),
+      ].sort();
+      for (const ngon of ['vi', 'en'] as const) {
+        const trongChu = [...new Set(soTrongChu(spec.expression?.[ngon] ?? '', ngon))].sort();
+        expect(trongChu, `${spec.id} · ${ngon}: hằng số trong dòng chữ khác trong hình`).toEqual(
+          trongHinh,
+        );
+      }
+    }
+  });
+
+  /*
    * ── Bảng ký hiệu (`spec.symbols`) — ba luật, xem docblock của trường ấy ────────────────────────
    *
    * Chủ dự án chỉ vào hình `L = max{k : r_{t+1} < 0, …}` và nói "không hiểu các giá trị"
@@ -140,7 +179,7 @@ describe('Registry với toàn bộ công thức thật', () => {
    * phép bao hàm tập hợp, không phải cảm tính.
    */
   /*
-   * `FFB_SYMBOL_IDS=id1,id2` thu ba ca dưới về vài công thức — cho người đang viết bảng của MỘT file
+   * `FFB_SYMBOL_IDS=id1,id2` thu bốn ca dưới về vài công thức — cho người đang viết bảng của MỘT file
    * nhóm chạy cửa gác mà không bị công thức của file khác che mất kết quả. CI không đặt biến này.
    */
   const chiKiem = process.env.FFB_SYMBOL_IDS?.split(',').map((id) => id.trim());
@@ -188,6 +227,25 @@ describe('Registry với toàn bộ công thức thật', () => {
         }
       }
     }
+  });
+
+  /*
+   * Lỗi thật đã gặp: bảng của `var-lich-su` ghi "độ tin cậy, 95% hay 99% — nên 1 − α là 5% hay 1%",
+   * và chủ dự án hỏi "tại sao lại có - dài và - ngắn" (17/09/2026). Gạch ngang dài đứng cạnh dấu trừ
+   * của chính phép tính thì người đọc không phân biệt nổi cái nào là trừ. Đúng lỗi đã chặn ở dòng
+   * công thức phía trên, nhưng bảng ký hiệu làm sau nên lọt. Bảng này là chỗ tra ký hiệu toán, nên
+   * loại gạch duy nhất được có mặt là dấu trừ `−`. Chỗ nối viết bằng chữ và dấu phẩy (", tức …",
+   * ", nên …"), khoảng số viết "từ 0 đến 100". Quét cả `en` vì màn tiếng Anh hiện đúng chuỗi ấy.
+   */
+  it('nghĩa của ký hiệu không dùng gạch ngang — dễ đọc nhầm thành dấu trừ', () => {
+    const coGach = canKiemKyHieu.flatMap((spec) =>
+      (spec.symbols ?? []).flatMap((symbol) =>
+        (['vi', 'en'] as const)
+          .filter((ngon) => /[–—]/.test(symbol.meaning[ngon]))
+          .map((ngon) => `${spec.id} · ${symbol.latex} · ${ngon}: "${symbol.meaning[ngon]}"`),
+      ),
+    );
+    expect(coGach, `bảng ký hiệu có gạch ngang:\n${coGach.join('\n')}`).toEqual([]);
   });
 
   /*

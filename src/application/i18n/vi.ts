@@ -291,6 +291,14 @@ export const vi = {
    * · Hai `*Heading` — nửa "Bước sau" đã bỏ khỏi sản phẩm, nên không còn hai nhóm để đặt tên;
    *   nhóm duy nhất còn lại thì `chain.title` đã gọi đúng tên.
    */
+  /*
+   * Dòng thứ hai trong dòng tóm tắt của thẻ bước: "kết quả của <công thức>, dùng cho <công thức>",
+   * ngay dưới tên con số. Thêm 17/09/2026 khi chủ dự án khoanh đỏ con số trần "17 %" cạnh tên CAPM
+   * và nói người dùng không hiểu nó từ đâu ra; lý do đầy đủ ở docblock `ChainBody.tsx`. Chữ đầu
+   * viết thường vì đây là dòng phụ, cùng nếp với nhãn nguồn "↳ …" dưới ô móc nối.
+   */
+  'chain.resultOf': 'kết quả của',
+  'chain.usedFor': 'dùng cho',
   'chain.openStep': 'Mở màn riêng của bước này',
   'stat.eyebrow': 'CHỈ SỐ',
 

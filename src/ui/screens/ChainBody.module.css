@@ -101,10 +101,15 @@
 /*
  * Dòng tóm tắt phải đủ cao để chạm được bằng ngón tay (NFR-USA-01) và phải hiện KẾT QUẢ ngay
  * khi còn gập: gập lại vẫn theo dõi được chuỗi chạy tới đâu, không phải mở từng thẻ ra dò.
+ *
+ * Căn theo chân chữ (`baseline`), không căn giữa. Phần chữ nay có hai dòng: tên con số, rồi "kết
+ * quả của …, dùng cho …" (lý do ở docblock `ChainBody.tsx`). Căn giữa thì con số bên phải trôi
+ * xuống lưng chừng hai dòng, không còn đứng ngang tên của nó. Chân chữ của một cột flex là chân
+ * chữ dòng đầu, nên dấu tam giác, tên con số và con số nằm trên cùng một đường.
  */
 .summary {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
 
@@ -132,11 +137,23 @@
   transform: rotate(90deg);
 }
 
-.stepName {
+/* Cột chữ của dòng tóm tắt: tên con số, rồi nó là kết quả của công thức nào, dùng cho công thức nào. */
+.stepText {
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-1);
   min-width: 0;
+}
+
+.stepName {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+}
+
+.stepRole {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
 }
 
 .stepValue {

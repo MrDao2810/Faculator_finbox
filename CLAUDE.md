@@ -162,6 +162,17 @@ explaining the picture). Do not rebuild any of them: what makes the block legibl
 title — "Số liệu lấy từ công thức khác" — plus the source label `LinkedInput` prints under the
 field that receives the number.
 
+**Each step card is titled by the number it supplies, not by the formula that computes it**
+(17/09/2026). The summary row reads `Giá trị nội tại ước tính (V) … 25.925,93 ₫`, the receiving
+field's label word for word, over a muted second line `kết quả của Mô hình Gordon (DDM một giai
+đoạn), dùng cho Biên an toàn` (`chain.resultOf` / `chain.usedFor`). The owner circled the bare
+`17 %` beside "CAPM — chi phí vốn chủ sở hữu" and said users could not tell where it came from:
+the number had no name, nothing on the card said where it went, and on PC the block sits under
+"Ví dụ thực tế", far from the field it feeds, so the cards read as part of the example. The owner
+chose this over keeping the formula name plus a caption, and kept the block's PC position. The
+second line follows the static `dependsOn` edge, not override state; `LinkedInput` shows that at
+the field. `ChainBody.test.tsx` sweeps every chain page for it.
+
 ## The one network call — `MarketFeed`
 
 **The site now calls one external server at runtime**, and that reverses a constraint the repo used
@@ -283,12 +294,33 @@ gates it three ways: every formula has a legend; every entry is a verbatim subst
 and the entries' tokens cover every token `latexSymbolTokens()` (`src/core/latex-symbols.ts`)
 extracts from `latex` — names, Greek letters, `\text{}` abbreviations, running indices (t, i, j,
 k, s, n are split off; any other subscript makes the whole thing one symbol: `r_f`, `P_{mua}`,
-`\sigma_p`) and numbers other than 0, 1, 2, 100. The owner asked for this after pointing at
+`\sigma_p`) and numbers other than 0, 1, 2 (`100` included — see below). The owner asked for this after pointing at
 `L = max{k : r_{t+1} < 0, …}` and saying "không hiểu các giá trị" (16/09/2026), and chose this
 layout over two earlier attempts that put a paragraph or a term → meaning table _under_ the
 expression line ("quê mùa"). Keep the legend a legend: phrases, not sentences; nothing narrates
-the algorithm. `FFB_SYMBOL_IDS=a,b` narrows the three gates to a few ids while editing one group
+the algorithm. **No dashes in a legend entry** (`—` or `–`): the only dash the legend may show is
+the minus sign `−` of real arithmetic. On 17/09/2026 the owner read the em dash in `var-lich-su`'s
+α row ("95% hay 99% — nên 1 − α …") as a second minus sign and asked why there was a long one and
+a short one, the same complaint that had already removed dashes from the expression line. Join
+with words and commas (", tức …", ", nên …", ranges as "từ 0 đến 100"), not with parentheses or
+`/`, which are maths in that same table; a gate in `formulas.test.ts` rejects both characters in
+`vi` and `en`. `FFB_SYMBOL_IDS=a,b` narrows the legend gates to a few ids while editing one group
 file.
+
+**The formula, its expression line and `calc` must describe the same arithmetic, constants
+included.** On 17/09/2026 the owner caught `sut-giam-hien-tai` drawing `(P_max − P_t) / P_max`
+while the line under it said "… × 100" ("tại sao trên công thức không có nhân với 100 mà bên
+dưới lại nhân với 100?"). A fourth gate in `formulas.test.ts` now requires the set of numbers
+other than 0, 1, 2 to be identical in `latex`, `expression.vi` and `expression.en`, and the
+tokenizer stopped exempting `100`, so every `× 100` needs a legend row. A read-only sweep of all
+111 against `calc` then found unit factors the picture had hidden — `× 10^9` (EPS, BVPS: tỷ ₫ →
+₫), `× 1000` (NCAV), `÷ 1000` (market cap) — and those are now in the picture too, following the
+`gia-tri-noi-tai-fcff` precedent: someone checking by hand must land on the number the screen
+shows. The convention the fixes follow: an input typed in % (rates, margin ratio) is written as a
+ratio in the picture with no `÷ 100` (`1 + r`, `r − g`); a result that is a ratio of two money or
+price amounts read as a percentage carries `× 100` (ROE, ROI, drawdown, VaR). When the gate cannot
+see a mismatch (how `calc` converts an annual rate to a per-session one, which returns a threshold
+drops), the legend row has to say it.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`

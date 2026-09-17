@@ -177,15 +177,15 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số lợi suất trong cửa sổ — bằng số phiên lấy để tính trừ 1',
-          en: 'number of returns in the window — the sessions used minus 1',
+          vi: 'số lợi suất trong cửa sổ, bằng số phiên lấy để tính trừ đi 1',
+          en: 'number of returns in the window, equal to the sessions used minus 1',
         },
       },
       {
         latex: 'n - 1',
         meaning: {
-          vi: 'mẫu số của độ lệch chuẩn mẫu — chia n − 1 chứ không chia n',
-          en: 'denominator of the sample standard deviation — n − 1, not n',
+          vi: 'mẫu số của độ lệch chuẩn mẫu, chia cho n − 1 chứ không chia cho n',
+          en: 'denominator of the sample standard deviation, n − 1 rather than n',
         },
       },
     ],
@@ -310,8 +310,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       {
         latex: '\\sqrt{D}',
         meaning: {
-          vi: 'căn bậc hai của số phiên một năm — nhân căn, không nhân thẳng',
-          en: 'square root of the sessions per year — multiply by the root, not the count',
+          vi: 'căn bậc hai của số phiên một năm, nhân với căn chứ không nhân thẳng số phiên',
+          en: 'square root of the sessions per year, so scale by the root, not the count',
         },
       },
     ],
@@ -464,8 +464,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       {
         latex: 'B',
         meaning: {
-          vi: 'ngưỡng lợi suất mỗi phiên, % — để 0 là chỉ tính phiên giảm',
-          en: 'per-session return threshold, in % — at 0 only losing sessions count',
+          vi: 'ngưỡng lợi suất mỗi phiên, để 0 thì chỉ tính phiên giảm, %',
+          en: 'per-session return threshold, at 0 only losing sessions count, in %',
         },
       },
       {
@@ -492,8 +492,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       {
         latex: 'n - 1',
         meaning: {
-          vi: 'mẫu số — tổng số lợi suất trừ 1, không phải số phiên dưới ngưỡng',
-          en: 'denominator — total returns minus 1, not the count of sessions below the threshold',
+          vi: 'mẫu số, bằng tổng số lợi suất trừ 1, không phải số phiên dưới ngưỡng',
+          en: 'denominator, total returns minus 1, not the count of sessions below the threshold',
         },
       },
     ],
@@ -639,8 +639,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       {
         latex: '\\bar{r}',
         meaning: {
-          vi: 'lợi suất bình quân mỗi phiên trong cùng cửa sổ, %/phiên — phải dương',
-          en: 'average per-session return over the same window, in %/session — must be positive',
+          vi: 'lợi suất bình quân mỗi phiên trong cùng cửa sổ, phải dương, %/phiên',
+          en: 'average per-session return over the same window, must be positive, in %/session',
         },
       },
       {
@@ -799,8 +799,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       {
         latex: 'P_{min}',
         meaning: {
-          vi: 'giá đóng cửa thấp nhất trong cùng kỳ, ₫ — làm gốc so sánh',
-          en: 'lowest closing price in the same period, in VND — the base',
+          vi: 'giá đóng cửa thấp nhất trong cùng kỳ, dùng làm gốc so sánh, ₫',
+          en: 'lowest closing price in the same period, used as the base, in VND',
         },
       },
       {
@@ -943,8 +943,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       {
         latex: 'r_{t+k}',
         meaning: {
-          vi: 'lợi suất phiên thứ k sau phiên t — phiên cuối của chuỗi',
-          en: 'return of the k-th session after t — the last of the streak',
+          vi: 'lợi suất phiên thứ k sau phiên t, tức phiên cuối của chuỗi',
+          en: 'return of the k-th session after t, the last of the streak',
         },
       },
       {

@@ -1703,7 +1703,16 @@
       "Bash(grep -iE \"^\\(tsx|vite-node|ts-node|esbuild\\)\\(\\\\.cmd\\)?$\")",
       "Bash(FFB_SYMBOL_IDS=sma-n-phien,ema-n-phien,macd-duong-chinh,macd-duong-tin-hieu,rsi-wilder,roc-toc-do-thay-doi,dong-luong-momentum,khoang-cach-gia-so-sma,giao-cat-hai-duong-ma npx vitest run src/core/formulas/formulas.test.ts -t \"ký hiệu\")",
       "PowerShell(Set-Location C:\\\\Faculator_finbox; git diff --stat -- src/core/formulas | Select-Object -Last 20; \"--- typecheck:\"; npm run typecheck 2>&1 | Select-String -Pattern 'error TS' | Select-Object -First 12; \"typecheck exit=$LASTEXITCODE\"; \"--- node/tsx:\"; node --version; Test-Path node_modules\\\\.bin\\\\tsx)",
-      "PowerShell(Set-Location C:\\\\Faculator_finbox; npx vitest run src/core/formulas/_symbols-diag.test.ts 2>&1 | Select-String -Pattern 'có bảng|THIẾU|KHÔNG NGUYÊN|NGHĨA|PHỦ THIẾU|LẶP' | ForEach-Object { $_.Line.Trim\\(\\) } | Select-Object -First 120)"
+      "PowerShell(Set-Location C:\\\\Faculator_finbox; npx vitest run src/core/formulas/_symbols-diag.test.ts 2>&1 | Select-String -Pattern 'có bảng|THIẾU|KHÔNG NGUYÊN|NGHĨA|PHỦ THIẾU|LẶP' | ForEach-Object { $_.Line.Trim\\(\\) } | Select-Object -First 120)",
+      "PowerShell(npx vitest run src/core/formulas/_dump-diag.test.ts 2>&1)",
+      "Bash(grep -rn \"latex: .*\\\\\\\\\\\\\\\\times 1000\\\\|10\\\\^9\\\\|10\\\\^{9}\" --include=*.ts .)",
+      "Bash(node -e \"for \\(const s of ['tăng trưởng lợi nhuận kỳ vọng, số %/năm — 12% thì g = 12, không phải 0,12','expected earnings growth, as a %/year figure — 12% means g = 12, not 0.12','đổi triệu ₫ \\(giá ₫ nhân triệu CP\\) ra tỷ ₫','converts million ₫ \\(price in ₫ times millions of shares\\) into billion ₫','vốn chủ sở hữu cuối kỳ, tỷ ₫','equity at period end, billion ₫']\\) console.log\\(s.length, s\\)\")",
+      "Bash(node --experimental-strip-types check3.ts)",
+      "PowerShell(try { \\(Invoke-WebRequest -UseBasicParsing -TimeoutSec 60 'http://localhost:3000/cong-thuc/sut-giam-hien-tai/'\\).StatusCode } catch { \"khong: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(node --version)",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \\(Join-Path $s \"shot-card-1440.mjs\"\\) $s truoc)",
+      "PowerShell(npx prettier --check TASK.md; Select-String -Path TASK.md -Pattern \"Thẻ Công thức khổ PC\" | Select-Object -First 3 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
+      "Bash(RA_REQ=C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/probes/C/p2.json npx vitest run --config C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/ra/vitest.probe.config.ts)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

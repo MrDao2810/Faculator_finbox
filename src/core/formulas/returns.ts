@@ -296,8 +296,8 @@ export const CAGR: FormulaModule = {
       {
         latex: '1/t',
         meaning: {
-          vi: 'lấy căn bậc t — chia đều mức tăng cho từng năm',
-          en: 'the t-th root — spreads the growth evenly over each year',
+          vi: 'lấy căn bậc t để chia đều mức tăng cho từng năm',
+          en: 'the t-th root, which spreads the growth evenly over each year',
         },
       },
     ],
@@ -702,15 +702,15 @@ export const XIRR: FormulaModule = {
     },
     latex: '\\sum_{i} \\frac{CF_i}{(1+XIRR)^{d_i / 365}} = 0',
     expression: {
-      vi: 'Tổng các dòng tiền, mỗi cái chiết khấu theo XIRR và đúng số ngày thực kể từ dòng đầu tiên = 0',
-      en: 'The sum of all cash flows, each discounted at XIRR over the actual number of days since the first cash flow, equals 0',
+      vi: 'Tổng các [Dòng tiền ÷ (1 + XIRR)^(Số ngày kể từ dòng tiền đầu tiên ÷ 365)] = 0',
+      en: 'Sum of [Cash flow ÷ (1 + XIRR)^(Days since the first cash flow ÷ 365)] = 0',
     },
     symbols: [
       {
         latex: 'XIRR',
         meaning: {
-          vi: 'ẩn số cần tìm — suất sinh lợi năm hoá làm tổng về 0, %/năm',
-          en: 'the unknown — the annualized rate that brings the sum to 0, %/year',
+          vi: 'ẩn số cần tìm, là suất sinh lợi năm hoá làm tổng về 0, %/năm',
+          en: 'the unknown, the annualized rate that brings the sum to 0, %/year',
         },
       },
       {

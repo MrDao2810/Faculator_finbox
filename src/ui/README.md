@@ -60,6 +60,8 @@ xuất là cả 111 trang chi tiết cùng gánh trong khi chỉ **5 công thứ
 
 Khối ấy từ 16/09/2026 chỉ còn bày bước CẤP SỐ LIỆU, không còn hình vẽ chuỗi và không còn nửa "Bước
 sau" — `capm` và `fcff` vì thế hết khối. Lý do ở docblock `screens/ChainBody.tsx`; đừng dựng lại.
+Từ 17/09/2026 mỗi thẻ gọi theo tên CON SỐ nó cấp (nhãn của ô nhận), kèm dòng phụ "kết quả của …,
+dùng cho …", không theo tên công thức; lý do ở cùng docblock.
 
 ## Ba bậc chữ
 

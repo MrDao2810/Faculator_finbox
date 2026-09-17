@@ -31,16 +31,16 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       {
         latex: 'Q',
         meaning: {
-          vi: 'cỡ lệnh — số cổ phiếu tối đa cho lệnh này, CP',
-          en: 'position size — maximum number of shares for this order, shares',
+          vi: 'cỡ lệnh, tức số cổ phiếu tối đa cho lệnh này, CP',
+          en: 'position size, the maximum number of shares for this order, shares',
         },
       },
       { latex: 'V', meaning: { vi: 'vốn tài khoản, ₫', en: 'account capital, ₫' } },
       {
         latex: 'r',
         meaning: {
-          vi: 'rủi ro mỗi lệnh — % vốn chấp nhận mất nếu chạm cắt lỗ',
-          en: 'risk per trade — % of capital you accept losing if the stop is hit',
+          vi: 'rủi ro mỗi lệnh, tức % vốn chấp nhận mất nếu chạm cắt lỗ',
+          en: 'risk per trade, the % of capital you accept losing if the stop is hit',
         },
       },
       {

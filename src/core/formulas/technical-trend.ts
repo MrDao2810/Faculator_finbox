@@ -884,15 +884,15 @@ export const RSI_WILDER: FormulaModule = {
       {
         latex: 'RSI',
         meaning: {
-          vi: 'chỉ số sức mạnh tương đối, thang 0–100 điểm',
-          en: 'relative strength index on a 0–100 scale, points',
+          vi: 'chỉ số sức mạnh tương đối, thang điểm từ 0 đến 100',
+          en: 'relative strength index on a scale from 0 to 100, points',
         },
       },
       {
         latex: '100',
         meaning: {
-          vi: 'trần của thang điểm, kéo RS về khoảng 0–100',
-          en: 'ceiling of the scale, mapping RS onto 0–100',
+          vi: 'trần của thang điểm, kéo RS về khoảng từ 0 đến 100',
+          en: 'ceiling of the scale, mapping RS onto a range from 0 to 100',
         },
       },
       {

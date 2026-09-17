@@ -557,11 +557,19 @@ window.__themeLog = [];
   });
   await open('/cong-thuc/chuoi-phien-giam-dai-nhat/');
   const bangPc = await evaluate(DOC_BANG_KY_HIEU);
+  /*
+   * Hai nửa căn GIỮA theo chiều dọc, không còn cùng mép trên (17/09/2026): khi nửa trái neo mép trên,
+   * chủ dự án báo công thức "ít không gian bên trên hơn bên dưới". Nửa trái chạy từ mép trên hình tới
+   * mép dưới dòng chữ; tâm của nó phải trùng tâm bảng, lệch tối đa 2px vì làm tròn.
+   */
   check(
-    'PC 1440 · bảng ký hiệu đứng BÊN PHẢI hình công thức, cùng mép trên',
+    'PC 1440 · bảng ký hiệu đứng BÊN PHẢI hình công thức, hai nửa căn giữa theo chiều dọc',
     bangPc !== null &&
       bangPc.bang.left >= bangPc.formula.right &&
-      Math.abs(bangPc.bang.top - bangPc.formula.top) <= 24,
+      Math.abs(
+        (bangPc.formula.top + bangPc.expression.bottom) / 2 -
+          (bangPc.bang.top + bangPc.bang.bottom) / 2,
+      ) <= 2,
     bangPc === null ? 'không thấy bảng ký hiệu' : JSON.stringify(bangPc),
   );
   await send('Emulation.setDeviceMetricsOverride', {

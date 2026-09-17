@@ -731,15 +731,15 @@ export const PEG: FormulaModule = {
       {
         latex: 'P/E',
         meaning: {
-          vi: 'P/E hiện tại — hệ số giá trên lợi nhuận, lần',
-          en: 'current P/E — price to earnings ratio, in times',
+          vi: 'P/E hiện tại, tức hệ số giá trên lợi nhuận, lần',
+          en: 'current P/E, the price to earnings ratio, in times',
         },
       },
       {
         latex: 'g',
         meaning: {
-          vi: 'tăng trưởng lợi nhuận kỳ vọng, %/năm',
-          en: 'expected earnings growth, %/year',
+          vi: 'tăng trưởng lợi nhuận kỳ vọng, số %/năm: 12% thì g = 12, không phải 0,12',
+          en: 'expected earnings growth, as a %/year figure: 12% means g = 12, not 0.12',
         },
       },
     ],
@@ -902,10 +902,10 @@ export const VON_HOA: FormulaModule = {
       vi: 'Tổng giá trị thị trường của toàn bộ cổ phiếu đang lưu hành.',
       en: 'The total market value of all outstanding shares.',
     },
-    latex: '\\text{Vốn hoá} = P \\times N',
+    latex: '\\text{Vốn hoá} = P \\times N \\div 1000',
     expression: {
-      vi: 'Vốn hoá = Giá thị trường × Số cổ phiếu lưu hành',
-      en: 'Market cap = Market price × Shares outstanding',
+      vi: 'Vốn hoá = Giá thị trường × Số cổ phiếu lưu hành ÷ 1.000',
+      en: 'Market cap = Market price × Shares outstanding ÷ 1,000',
     },
     symbols: [
       {
@@ -921,6 +921,13 @@ export const VON_HOA: FormulaModule = {
         meaning: {
           vi: 'số cổ phiếu lưu hành, triệu CP',
           en: 'shares outstanding, in millions of shares',
+        },
+      },
+      {
+        latex: '1000',
+        meaning: {
+          vi: 'đổi triệu ₫ (giá ₫ nhân triệu CP) ra tỷ ₫',
+          en: 'converts million ₫ (price in ₫ times millions of shares) into billion ₫',
         },
       },
     ],
@@ -1049,8 +1056,8 @@ export const SO_GRAHAM: FormulaModule = {
       {
         latex: '\\text{Graham}',
         meaning: {
-          vi: 'số Graham — mức giá tối đa hợp lý theo chuẩn Graham, ₫',
-          en: 'Graham number — the maximum reasonable price by Graham’s standard, ₫',
+          vi: 'số Graham, tức mức giá tối đa hợp lý theo chuẩn Graham, ₫',
+          en: 'Graham number, the maximum reasonable price by Graham’s standard, ₫',
         },
       },
       {
@@ -1220,10 +1227,10 @@ export const NCAV: FormulaModule = {
       vi: 'Giá trị tài sản ngắn hạn còn lại cho mỗi cổ phiếu sau khi trả hết mọi khoản nợ.',
       en: 'The current-asset value left per share after paying off every liability.',
     },
-    latex: 'NCAV = \\frac{\\text{TSNH} - \\text{Tổng nợ}}{N}',
+    latex: 'NCAV = \\frac{\\text{TSNH} - \\text{Tổng nợ}}{N} \\times 1000',
     expression: {
-      vi: 'NCAV mỗi cổ phiếu = (Tài sản ngắn hạn − Tổng nợ phải trả) ÷ Số cổ phiếu lưu hành',
-      en: 'NCAV per share = (Current assets − Total liabilities) ÷ Shares outstanding',
+      vi: 'NCAV mỗi cổ phiếu = (Tài sản ngắn hạn − Tổng nợ phải trả) ÷ Số cổ phiếu lưu hành × 1.000',
+      en: 'NCAV per share = (Current assets − Total liabilities) ÷ Shares outstanding × 1,000',
     },
     symbols: [
       {
@@ -1246,6 +1253,13 @@ export const NCAV: FormulaModule = {
         meaning: {
           vi: 'số cổ phiếu lưu hành, triệu CP',
           en: 'shares outstanding, in millions of shares',
+        },
+      },
+      {
+        latex: '1000',
+        meaning: {
+          vi: 'đổi tỷ ₫ chia triệu CP thành ₫ trên mỗi cổ phiếu',
+          en: 'converts billion ₫ per million shares into ₫ per share',
         },
       },
     ],
@@ -1566,8 +1580,8 @@ export const GIA_MUC_TIEU: FormulaModule = {
       {
         latex: 'P/E_{\\text{mục tiêu}}',
         meaning: {
-          vi: 'P/E mục tiêu — bội số kỳ vọng thị trường sẽ trả, lần',
-          en: 'target P/E — the multiple the market is expected to pay, in times',
+          vi: 'P/E mục tiêu, tức bội số kỳ vọng thị trường sẽ trả, lần',
+          en: 'target P/E, the multiple the market is expected to pay, in times',
         },
       },
       {

@@ -316,15 +316,15 @@ export const BETA: FormulaModule = {
       {
         latex: '\\beta_i',
         meaning: {
-          vi: 'hệ số beta của cổ phiếu i — biên độ so với thị trường, lần',
-          en: 'beta of stock i — its swing relative to the market, times',
+          vi: 'hệ số beta của cổ phiếu i, đo biên độ so với thị trường, lần',
+          en: 'beta of stock i, its swing relative to the market, times',
         },
       },
       {
         latex: '\\text{Cov}',
         meaning: {
-          vi: 'hiệp phương sai — mức hai chuỗi lợi suất cùng lên xuống với nhau',
-          en: 'covariance — how much two return series rise and fall together',
+          vi: 'hiệp phương sai, đo mức hai chuỗi lợi suất cùng lên xuống với nhau',
+          en: 'covariance, how much two return series rise and fall together',
         },
       },
       {
@@ -341,8 +341,8 @@ export const BETA: FormulaModule = {
       {
         latex: '\\text{Var}',
         meaning: {
-          vi: 'phương sai — mức lợi suất thị trường dao động quanh trung bình',
-          en: 'variance — how far market returns spread around their mean',
+          vi: 'phương sai, đo mức lợi suất thị trường dao động quanh trung bình',
+          en: 'variance, how far market returns spread around their mean',
         },
       },
       { latex: 'i', meaning: { vi: 'cổ phiếu đang xét', en: 'the stock being examined' } },
@@ -528,8 +528,8 @@ export const TY_SO_SHARPE: FormulaModule = {
       {
         latex: 'r_f',
         meaning: {
-          vi: 'lãi suất phi rủi ro / năm đã nhập, quy về một phiên',
-          en: 'the risk-free rate / year entered, converted to one session',
+          vi: 'lãi suất phi rủi ro / năm, quy về phiên theo lãi kép: (1 + năm)^(1/m) − 1',
+          en: 'risk-free rate / year, compounded to one session: (1 + annual)^(1/m) − 1',
         },
       },
       {
@@ -542,8 +542,8 @@ export const TY_SO_SHARPE: FormulaModule = {
       {
         latex: '\\sqrt{m}',
         meaning: {
-          vi: 'hệ số quy năm — căn bậc hai của số phiên trong một năm',
-          en: 'annualization factor — square root of sessions per year',
+          vi: 'hệ số quy năm, bằng căn bậc hai của số phiên trong một năm',
+          en: 'annualization factor, the square root of sessions per year',
         },
       },
       {
@@ -696,22 +696,22 @@ export const TY_SO_SORTINO: FormulaModule = {
       {
         latex: 'r_f',
         meaning: {
-          vi: 'lãi suất phi rủi ro / năm đã nhập, quy về một phiên, dùng làm ngưỡng',
-          en: 'the risk-free rate / year entered, per session, used as the threshold',
+          vi: 'lãi phi rủi ro / năm, quy về phiên theo lãi kép (1 + năm)^(1/m) − 1, làm ngưỡng',
+          en: 'risk-free rate / year, compounded to one session (1 + annual)^(1/m) − 1, the threshold',
         },
       },
       {
         latex: '\\sigma_d',
         meaning: {
-          vi: 'độ lệch chuẩn phần giảm — chỉ đếm các phiên dưới ngưỡng',
-          en: 'downside deviation — counts only sessions below the threshold',
+          vi: 'độ lệch chuẩn phần giảm, chỉ đếm các phiên dưới ngưỡng',
+          en: 'downside deviation, counting only sessions below the threshold',
         },
       },
       {
         latex: '\\sqrt{m}',
         meaning: {
-          vi: 'hệ số quy năm — căn bậc hai của số phiên trong một năm',
-          en: 'annualization factor — square root of sessions per year',
+          vi: 'hệ số quy năm, bằng căn bậc hai của số phiên trong một năm',
+          en: 'annualization factor, the square root of sessions per year',
         },
       },
       {
@@ -879,8 +879,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
       {
         latex: 'T',
         meaning: {
-          vi: 'tỷ số Treynor — lợi suất vượt phi rủi ro quy năm trên mỗi đơn vị beta, %/năm',
-          en: 'Treynor ratio — annualized excess return per unit of beta, %/year',
+          vi: 'tỷ số Treynor, tức lợi suất vượt phi rủi ro quy năm trên mỗi đơn vị beta, %/năm',
+          en: 'Treynor ratio, the annualized excess return per unit of beta, %/year',
         },
       },
       {
@@ -893,15 +893,15 @@ export const TY_SO_TREYNOR: FormulaModule = {
       {
         latex: 'r_f',
         meaning: {
-          vi: 'lãi suất phi rủi ro / năm đã nhập, quy về một phiên',
-          en: 'the risk-free rate / year entered, converted to one session',
+          vi: 'lãi suất phi rủi ro / năm, quy về phiên theo lãi kép: (1 + năm)^(1/m) − 1',
+          en: 'risk-free rate / year, compounded to one session: (1 + annual)^(1/m) − 1',
         },
       },
       {
         latex: 'm',
         meaning: {
-          vi: 'số phiên trong một năm, phiên — nhân lên để quy năm',
-          en: 'sessions per year — multiplied to annualize',
+          vi: 'số phiên trong một năm, nhân vào để quy năm',
+          en: 'sessions per year, the multiplier that annualizes',
         },
       },
       {
@@ -1092,22 +1092,22 @@ export const TY_SO_THONG_TIN: FormulaModule = {
       {
         latex: '\\bar{r}_b',
         meaning: {
-          vi: 'lợi suất chuẩn so sánh / năm đã nhập, quy về một phiên',
-          en: 'the benchmark return / year entered, converted to one session',
+          vi: 'lợi suất chuẩn / năm đã nhập, quy về phiên theo lãi kép: (1 + năm)^(1/m) − 1',
+          en: 'benchmark return / year entered, compounded to one session: (1 + annual)^(1/m) − 1',
         },
       },
       {
         latex: '\\sigma_{p-b}',
         meaning: {
-          vi: 'sai số theo dõi — độ lệch chuẩn của phần chênh danh mục trừ chuẩn',
-          en: 'tracking error — standard deviation of the portfolio-minus-benchmark gap',
+          vi: 'sai số theo dõi, tức độ lệch chuẩn của phần chênh danh mục trừ chuẩn',
+          en: 'tracking error, the standard deviation of the portfolio-minus-benchmark gap',
         },
       },
       {
         latex: '\\sqrt{m}',
         meaning: {
-          vi: 'hệ số quy năm — căn bậc hai của số phiên trong một năm',
-          en: 'annualization factor — square root of sessions per year',
+          vi: 'hệ số quy năm, bằng căn bậc hai của số phiên trong một năm',
+          en: 'annualization factor, the square root of sessions per year',
         },
       },
       {
@@ -1264,8 +1264,8 @@ export const TY_SO_CALMAR: FormulaModule = {
       {
         latex: 'r_{nam}',
         meaning: {
-          vi: 'lợi suất năm hoá của cả chuỗi giá, dạng thập phân',
-          en: 'annualized return of the whole price series, as a decimal',
+          vi: 'lợi suất năm hoá theo lãi kép: (giá cuối ÷ giá đầu)^(phiên một năm ÷ số lợi suất) − 1',
+          en: 'compounded annual return: (last ÷ first price)^(sessions per year ÷ returns) − 1',
         },
       },
       {
@@ -1412,29 +1412,29 @@ export const TY_SO_THANG_THUA: FormulaModule = {
       {
         latex: '\\overline{r^{+}}',
         meaning: {
-          vi: 'mức tăng bình quân của các phiên tăng (lợi suất dương)',
-          en: 'average gain of rising sessions (positive returns)',
+          vi: 'mức tăng bình quân của các phiên tăng vượt ngưỡng bỏ qua phiên đi ngang',
+          en: 'average gain of sessions rising past the threshold to ignore flat sessions',
         },
       },
       {
         latex: '\\overline{r^{-}}',
         meaning: {
-          vi: 'mức giảm bình quân của các phiên giảm (lợi suất âm)',
-          en: 'average loss of falling sessions (negative returns)',
+          vi: 'mức giảm bình quân của các phiên giảm vượt ngưỡng bỏ qua phiên đi ngang',
+          en: 'average loss of sessions falling past the threshold to ignore flat sessions',
         },
       },
       {
         latex: 'r',
         meaning: {
-          vi: 'lợi suất một phiên — dấu + là phiên tăng, dấu − là phiên giảm',
-          en: 'one session’s return — + marks a rising session, − a falling one',
+          vi: 'lợi suất một phiên, dương là phiên tăng, âm là phiên giảm',
+          en: 'one session’s return, positive when the session rises, negative when it falls',
         },
       },
       {
         latex: '\\left| \\overline{r^{-}} \\right|',
         meaning: {
-          vi: 'giá trị tuyệt đối — bỏ dấu âm để hai vế cùng dương',
-          en: 'absolute value — drops the minus sign so both sides are positive',
+          vi: 'giá trị tuyệt đối, bỏ dấu âm để hai vế cùng dương',
+          en: 'absolute value, dropping the minus sign so both sides are positive',
         },
       },
     ],

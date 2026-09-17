@@ -306,22 +306,22 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       {
         latex: 'SMA_{n}',
         meaning: {
-          vi: 'trung bình cộng giá đóng cửa n phiên gần nhất — đường giữa, ₫',
-          en: 'simple average of the last n closes — the middle line, in VND',
+          vi: 'trung bình cộng giá đóng cửa n phiên gần nhất, là đường giữa, ₫',
+          en: 'simple average of the last n closes, the middle line, in VND',
         },
       },
       {
         latex: 'n',
         meaning: {
-          vi: 'chu kỳ dải Bollinger, phiên — Bollinger dùng 20',
-          en: 'Bollinger band period, in sessions — Bollinger uses 20',
+          vi: 'chu kỳ dải Bollinger, Bollinger dùng 20 phiên',
+          en: 'Bollinger band period, Bollinger uses 20 sessions',
         },
       },
       {
         latex: 'k',
         meaning: {
-          vi: 'hệ số nhân độ lệch chuẩn, lần — Bollinger dùng 2',
-          en: 'standard deviation multiplier, in times — Bollinger uses 2',
+          vi: 'hệ số nhân độ lệch chuẩn, Bollinger dùng hệ số 2',
+          en: 'standard deviation multiplier, Bollinger uses 2',
         },
       },
       {
@@ -453,22 +453,22 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       {
         latex: 'SMA_{n}',
         meaning: {
-          vi: 'trung bình cộng giá đóng cửa n phiên gần nhất — đường giữa, ₫',
-          en: 'simple average of the last n closes — the middle line, in VND',
+          vi: 'trung bình cộng giá đóng cửa n phiên gần nhất, là đường giữa, ₫',
+          en: 'simple average of the last n closes, the middle line, in VND',
         },
       },
       {
         latex: 'n',
         meaning: {
-          vi: 'chu kỳ dải Bollinger, phiên — Bollinger dùng 20',
-          en: 'Bollinger band period, in sessions — Bollinger uses 20',
+          vi: 'chu kỳ dải Bollinger, Bollinger dùng 20 phiên',
+          en: 'Bollinger band period, Bollinger uses 20 sessions',
         },
       },
       {
         latex: 'k',
         meaning: {
-          vi: 'hệ số nhân độ lệch chuẩn, lần — Bollinger dùng 2',
-          en: 'standard deviation multiplier, in times — Bollinger uses 2',
+          vi: 'hệ số nhân độ lệch chuẩn, Bollinger dùng hệ số 2',
+          en: 'standard deviation multiplier, Bollinger uses 2',
         },
       },
       {
@@ -608,8 +608,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       {
         latex: 'SMA_{n}',
         meaning: {
-          vi: 'đường giữa — trung bình cộng giá đóng cửa n phiên gần nhất, ₫',
-          en: 'middle line — simple average of the last n closes, in VND',
+          vi: 'đường giữa, tức trung bình cộng giá đóng cửa n phiên gần nhất, ₫',
+          en: 'middle line, the simple average of the last n closes, in VND',
         },
       },
       {
@@ -738,15 +738,15 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       {
         latex: 'ATR_t',
         meaning: {
-          vi: 'ATR tại phiên t — dao động thực trung bình, ₫',
-          en: 'ATR at session t — the average true range, in VND',
+          vi: 'ATR tại phiên t, tức dao động thực trung bình, ₫',
+          en: 'ATR at session t, the average true range, in VND',
         },
       },
       {
         latex: 'TR_t',
         meaning: {
-          vi: 'dao động thực của phiên t, ₫ — số lớn nhất trong ba khoảng cách',
-          en: 'true range of session t, in VND — the largest of three gaps',
+          vi: 'dao động thực của phiên t, lấy số lớn nhất trong ba khoảng cách, ₫',
+          en: 'true range of session t, the largest of three gaps, in VND',
         },
       },
       {
@@ -780,15 +780,15 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       {
         latex: 'ATR_{t-1}',
         meaning: {
-          vi: 'ATR của phiên liền trước — phiên đầu mồi bằng trung bình n dao động thực',
-          en: 'ATR of the previous session — seeded by averaging the first n true ranges',
+          vi: 'ATR của phiên liền trước, riêng phiên đầu lấy trung bình n dao động thực đầu tiên',
+          en: 'ATR of the previous session, seeded by averaging the first n true ranges',
         },
       },
       {
         latex: 'n',
         meaning: {
-          vi: 'chu kỳ ATR, phiên — Wilder dùng 14',
-          en: 'ATR period, in sessions — Wilder uses 14',
+          vi: 'chu kỳ ATR, Wilder dùng 14 phiên',
+          en: 'ATR period, Wilder uses 14 sessions',
         },
       },
       {
@@ -942,8 +942,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       {
         latex: '\\%B',
         meaning: {
-          vi: 'vị trí giá trong dải Bollinger, % — 0 là dải dưới, 100 là dải trên',
-          en: 'price position within the Bollinger bands, in % — 0 is the lower band, 100 the upper',
+          vi: 'vị trí giá trong dải Bollinger, 0% là dải dưới, 100% là dải trên',
+          en: 'price position within the Bollinger bands, 0% at the lower band, 100% at the upper',
         },
       },
       {
@@ -1126,8 +1126,8 @@ export const STOCHASTIC_K: FormulaModule = {
       {
         latex: '\\%K',
         meaning: {
-          vi: 'stochastic %K — vị trí giá đóng cửa trong biên độ n phiên, %',
-          en: 'stochastic %K — where the close sits within the n-session range, in %',
+          vi: 'stochastic %K, tức vị trí giá đóng cửa trong biên độ n phiên, %',
+          en: 'stochastic %K, where the close sits within the n-session range, in %',
         },
       },
       {
@@ -1154,8 +1154,8 @@ export const STOCHASTIC_K: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'chu kỳ stochastic, phiên — thông lệ 14',
-          en: 'stochastic period, in sessions — 14 by convention',
+          vi: 'chu kỳ stochastic, thông lệ 14 phiên',
+          en: 'stochastic period, 14 sessions by convention',
         },
       },
       {
@@ -1503,8 +1503,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       {
         latex: '\\ln \\frac{P_t}{P_{t-1}}',
         meaning: {
-          vi: 'lợi suất log của phiên t — logarit tự nhiên của tỷ số hai giá đóng cửa liên tiếp',
-          en: 'log return of session t — natural log of the ratio of two consecutive closes',
+          vi: 'lợi suất log của phiên t, tức logarit tự nhiên của tỷ số hai giá đóng cửa liên tiếp',
+          en: 'log return of session t, the natural log of the ratio of two consecutive closes',
         },
       },
       {
@@ -1531,15 +1531,15 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       {
         latex: 'N',
         meaning: {
-          vi: 'số phiên giao dịch một năm — thông lệ 252',
-          en: 'trading sessions per year — 252 by convention',
+          vi: 'số phiên giao dịch một năm, thông lệ 252',
+          en: 'trading sessions per year, 252 by convention',
         },
       },
       {
         latex: '\\sqrt{N}',
         meaning: {
-          vi: 'căn bậc hai của số phiên một năm — nhân căn, không nhân thẳng',
-          en: 'square root of the sessions per year — multiply by the root, not the count',
+          vi: 'căn bậc hai của số phiên một năm, nhân với căn chứ không nhân thẳng số phiên',
+          en: 'square root of the sessions per year, so scale by the root, not the count',
         },
       },
       {
@@ -1733,8 +1733,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       {
         latex: 't',
         meaning: {
-          vi: 'phiên gần nhất — phiên đem so',
-          en: 'the most recent session — the one being compared',
+          vi: 'phiên gần nhất, là phiên đem ra so',
+          en: 'the most recent session, the one being compared',
         },
       },
       {
@@ -1761,8 +1761,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số phiên lấy trung bình, phiên — chỉ gồm các phiên liền trước',
-          en: 'sessions to average — only the preceding sessions',
+          vi: 'số phiên lấy trung bình, chỉ gồm các phiên liền trước',
+          en: 'sessions to average, only the preceding ones',
         },
       },
     ],

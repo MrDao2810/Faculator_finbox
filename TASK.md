@@ -166,7 +166,12 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | —     | Dòng công thức "Thời gian nhân đôi vốn" bỏ gạch ngang, thêm cửa gác cho cả 111  | —       | Xong, chờ chủ dự án xác nhận — xem mục "Dòng công thức…"                       |
 | 3.6.2 | Mở link/app lúc chưa có mạng thì "vào màn cũ rồi mới load lại" — sửa `sw.js`    | —       | Xong phần code, **chưa triển khai** — xem mục "Mở link/app…"                   |
 | 2.4.x | Vế giải thích dưới dòng công thức của IRR/XIRR — hai bản, đều bị bỏ             | —       | Đóng: chủ dự án chốt "bỏ hẳn, giữ nguyên như trước" — xem mục "Vế giải thích…" |
-| 2.4.3 | Bảng ký hiệu "A: là gì" cạnh hình công thức — đủ 111 công thức, cửa gác phủ hết | —       | Xong phần code, **chưa triển khai** — xem mục ngay dưới                        |
+| 2.4.3 | Bảng ký hiệu "A: là gì" cạnh hình công thức — đủ 111 công thức, cửa gác phủ hết | —       | Xong phần code, **chưa triển khai** — xem mục "Bảng ký hiệu…"                  |
+| 2.4.3 | Hình, dòng chữ và hàm tính nói cùng một phép tính — 24 công thức sửa, thêm gác  | —       | Xong phần code, chờ chủ dự án soi — xem mục "Hình công thức không có × 100…"   |
+| 2.4.3 | Bảng ký hiệu bỏ gạch ngang dài đọc nhầm thành dấu trừ — 73 dòng, thêm gác       | —       | Xong phần code, chờ chủ dự án soi — xem mục "Bảng ký hiệu có gạch ngang…"      |
+| 3.2.1 | Thẻ Công thức khổ PC — hai nửa căn giữa theo chiều dọc                          | —       | Xong phần code, chờ chủ dự án soi — xem mục "Thẻ Công thức khổ PC…"            |
+| —     | Rà lượt hai nội dung 111 công thức sau khi thay ví dụ thật — 105 phát hiện      | —       | Rà xong, **chưa áp**, chờ chủ dự án duyệt — xem mục "Rà lượt hai…"             |
+| 3.2.2 | Thẻ bước của chuỗi định giá gọi theo tên con số nó cấp                          | —       | Xong phần code, chờ chủ dự án soi — xem mục ngay dưới                          |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -174,6 +179,294 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Thẻ bước của chuỗi định giá: con số "tự dưng có" ở dòng tóm tắt (17/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi màn.**
+
+### Yêu cầu
+
+Chủ dự án gửi ảnh khối "Số liệu lấy từ công thức khác" trang `bien-an-toan` (chế độ Nâng cao), khoanh
+đỏ "17 %" cạnh "CAPM — chi phí vốn chủ sở hữu" và "17.500 ₫" cạnh "Mô hình Gordon (DDM một giai
+đoạn)": _"người dùng thì không [hiểu]… sửa lại sao cho hợp lý để người dùng có thể hiểu về số liệu tự
+dưng có trong phần khoanh đỏ"_.
+
+### Nguyên nhân
+
+- Con số đứng trần cạnh tên **công thức**; không chữ nào nói đó là kết quả của công thức ấy. Hai số
+  trong ảnh tính từ chính các ô trong thẻ: 17.500 = 2.000 × 1,05 ÷ (0,17 − 0,05), tức CAPM đã được sửa
+  cho ra 17 % (số mặc định cho 13,1 % và 25.925,93 ₫).
+- Thẻ không nói con số dùng vào đâu. Chỉ đầu nhận ("↳ Mô hình Gordon") nói, mà ở khổ PC ô ấy nằm góc
+  trên bên trái, còn các thẻ nằm cuối trang, ngay dưới "Ví dụ thực tế", nên trông như một phần của ví dụ.
+
+### Chủ dự án chọn
+
+Hỏi hai câu kèm hình phác. **Gọi thẻ theo tên con số** (thay vì giữ tên công thức rồi thêm một dòng),
+và **giữ khối ở cuối trang trên PC** (thay vì đưa lên ngay dưới Số liệu, vốn phải bỏ cách xếp thẻ hai
+cột đã duyệt 10/09).
+
+```text
+TRƯỚC   ▾ CAPM — chi phí vốn chủ sở hữu                                   13,1 %
+SAU     ▾ Suất sinh lợi yêu cầu (r)                                       13,1 %
+          kết quả của CAPM — chi phí vốn chủ sở hữu, dùng cho Mô hình Gordon (DDM một giai đoạn)
+```
+
+### Sửa gì
+
+| File                              | Sửa gì                                                                                                                                                                             |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui/screens/ChainBody.tsx`        | dòng tóm tắt: tên = nhãn ô nhận số (đọc `dependsOn` của các công thức trong chuỗi), dòng phụ "kết quả của …, dùng cho …"; docblock ghi lý do, sửa đoạn còn nhắc tiêu đề nhóm đã bỏ |
+| `ui/screens/ChainBody.module.css` | `.stepText` cột hai dòng, `.stepRole` chữ nhỏ màu mờ; `.summary` căn `baseline` để con số đứng ngang tên của nó                                                                    |
+| `application/i18n/vi.ts`, `en.ts` | khoá `chain.resultOf`, `chain.usedFor`                                                                                                                                             |
+| `ui/screens/ChainBody.test.tsx`   | ca ghim hình đã duyệt ở `bien-an-toan`; ca quét 5 trang có chuỗi (tên thẻ là nhãn ô nhận, không phải tên công thức; dòng phụ gọi đúng hai công thức; vẫn thấy con số)              |
+| `CLAUDE.md`, `ui/README.md`       | đoạn về khối chuỗi: luật gọi thẻ theo tên con số                                                                                                                                   |
+
+Thử lỗi: trả tên thẻ về tên công thức thì 6 ca mới đỏ; hoàn tác xong mới làm tiếp. Không đổi vị trí khối,
+luật mở sẵn hay cách chia hai cột.
+
+### Kiểm chứng
+
+- `npm run check` xanh: 114 file, **2.716** ca (thêm 7). Sau đó chỉ đổi thứ tự khoá trong `en.ts` và
+  README; lint, typecheck, prettier và 43 ca của `ChainBody` + i18n chạy lại vẫn xanh.
+- Chụp Chrome thật trên dev server, chế độ Nâng cao, bảng màu tối: `bien-an-toan` ở 1760 và 360,
+  `gia-tri-noi-tai-fcff` ở 1440. Ba thẻ của trang DCF đọc "Chi phí vốn chủ (Re) · kết quả của CAPM…,
+  dùng cho WACC…", "Dòng tiền tự do của doanh nghiệp (FCFF) · … dùng cho Giá trị nội tại từ FCFF (DCF)",
+  "Chi phí vốn bình quân (WACC) · …". Ở 360 dòng phụ xuống ba dòng, con số vẫn đứng ngang tên.
+- **Chưa chụp bản tiếng Anh**: giữa chừng dev server (PID 20500, không do phiên này mở) ngừng trả lời,
+  ăn khoảng 4 GB RAM, gọi trang 60 giây không có phản hồi. Không tắt nó.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi khối ở trang `bien-an-toan` (PC và điện thoại).
+- [ ] Khởi động lại dev server rồi xem bản tiếng Anh ("result of …, used in …").
+- [ ] Điều ngoài phạm vi, chưa làm: ô nhận số ở khối Số liệu hiện "25.925,9259" (bốn chữ số lẻ) trong
+      khi thẻ hiện "25.925,93 ₫"; và ghi chú ví dụ của `bien-an-toan` nói giá trị nội tại "lấy từ DCF"
+      trong khi ô ấy nối từ Gordon (phát hiện A13 trong `REVIEW-2.md`).
+
+---
+
+## Rà lượt hai: giải thích sai hoặc công thức sai trong 111 công thức (17/09/2026)
+
+**Trạng thái: rà xong, chưa áp, chờ chủ dự án duyệt.** Hồ sơ đầy đủ ở `src/core/formulas/REVIEW-2.md`.
+Chưa đổi chữ hay code nào trong `src/` theo hồ sơ này.
+
+### Yêu cầu
+
+Chủ dự án: _"tiếp tục kiểm tra các công thức đang có giải thích sai hoặc công thức sai"_.
+
+### Làm gì
+
+- Khối Ví dụ của cả 111 công thức bị thay bằng số thật ngày 15–16/09 mà chưa ai rà lại chữ; lần đối
+  chiếu bảng tính trước đó đã thấy chữ mâu thuẫn với số. Lượt này lấy đó làm trọng tâm nhưng soát đủ mọi
+  chữ trên màn chi tiết.
+- Dựng công cụ ngoài repo (thư mục tạm của phiên): dump chữ của 111 công thức kèm kết quả engine thật,
+  và probe gọi `runFormula()` với đầu vào tuỳ ý. Không thêm file nào vào `src/`.
+- 8 lô rà song song theo file nhóm, cùng một hướng dẫn; tôi kiểm lại từng phát hiện (chạy lại probe,
+  đọc code các câu về giao diện), chỉnh mức 7 phát hiện, thêm 1 phát hiện bị bỏ sót.
+
+### Kết quả
+
+- **105 phát hiện trên 67 công thức**: 2 S1, 33 S2, 70 S3. Không công thức nào tính ra số sai ở miền
+  dùng thật. Hai chỗ lệch định nghĩa: dải Bollinger chia n−1 thay vì n; tỷ số thông tin với chuẩn cố
+  định ra đúng tỷ số Sharpe.
+- Năm nguyên nhân gốc: giải thích trích số của ví dụ cũ (5 chỗ, `macd-duong-tin-hieu` kết luận ngược);
+  câu định lượng trong ví dụ sai với engine hoặc chuỗi thật; ví dụ phạm đúng lỗi màn đó cảnh báo (ví dụ
+  Treynor ghép lợi suất VN-Index với beta FPT); khái niệm sai lặp lại (beta là "mức dao động" ở 4 chỗ);
+  lời hứa về giao diện không có thật ("Sửa được ở màn Cài đặt" trên 5 màn phí, ví dụ XIRR không nạp được).
+- 10 mục cần chủ dự án quyết, mỗi mục có đề xuất: Bollinger n hay n−1; tỷ số thông tin; WACC vốn chủ sổ
+  sách (đổi sang vốn hoá thì DCF của FPT từ 79.161 xuống 60.651 ₫, dưới thị giá); nguồn 8,13%; biểu phí
+  ở Cài đặt; căn cứ phí lưu ký; kỳ hạn lãi suất phi rủi ro; cảnh báo thiếu phiên; ví dụ XIRR; quy tắc 72.
+
+| File                              | Sửa gì                                                               |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `core/formulas/REVIEW-2.md` (mới) | hồ sơ rà: tóm tắt, 10 mục cần quyết, 105 phát hiện kèm câu sửa vi/en |
+
+### Việc còn lại
+
+- [ ] Chủ dự án duyệt danh sách và chốt Q1 tới Q10 trong `REVIEW-2.md`.
+- [ ] Áp theo quyết định, thêm phép chặn "giải thích trích số ví dụ" vào `prose-audit.test.ts` nếu được
+      duyệt, chạy `npm run check`.
+
+---
+
+## Thẻ Công thức khổ PC: hình ít chỗ trống phía trên hơn phía dưới (17/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi màn.** `npm run check` xanh: 114 file, **2.709** ca. Chưa chạy
+`check:chrome`: lệnh ấy cần bản build, mà dev server đang giữ cổng 3000 nên `prebuild` chặn build.
+Thay vào đó, đo cùng phép đo trên dev server bằng Chrome thật qua CDP.
+
+### Yêu cầu
+
+Chủ dự án: _"phần bên trái, công thức lại đang ít không gian hơn ở bên trên so với bên dưới, điều
+chỉnh lại để công thức có thể nổi hơn"_. Từ 1024px, thẻ Công thức là grid hai nửa với
+`align-items: start`. Bảng ký hiệu bên phải thường cao hơn hình + dòng chữ, nên nửa trái dính mép
+trên và cả phần trống dồn xuống dưới.
+
+### Sửa gì
+
+| File                                          | Sửa gì                                                                                  |
+| --------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `app/cong-thuc/[id]/FormulaDetail.module.css` | `.formulaCard` từ 1024px: `align-items: start` → `center`; docblock ghi lý do           |
+| `scripts/chrome-check.mjs`                    | phép "bảng bên phải, cùng mép trên" (lệch ≤ 24px) → "hai nửa căn giữa" (tâm lệch ≤ 2px) |
+
+Căn giữa áp cho cả hai nửa: nửa nào thấp hơn thì nằm giữa. Dưới 1024px thẻ là flex dọc, không đổi.
+
+### Đo trên Chrome thật
+
+Khoảng trống trên / dưới của nửa trái, tính trong lòng thẻ:
+
+| Trang                                                  | Trước                       | Sau                    |
+| ------------------------------------------------------ | --------------------------- | ---------------------- |
+| `var-lich-su`                                          | 0 / 56 px                   | 28 / 28 px             |
+| `chuoi-phien-giam-dai-nhat` (trang của `check:chrome`) | 0 / 57 px, lệch tâm 28,5 px | 29 / 29 px, lệch tâm 0 |
+| `ddm-hai-giai-doan`                                    | 0 / 49 px                   | 24 / 24 px             |
+| `ty-so-thang-thua`                                     | 0 / 52 px                   | 26 / 26 px             |
+| `pe` (nửa trái cao hơn, nên bảng mới là nửa được căn)  | bảng: 0 / 13 px             | bảng: 7 / 7 px         |
+
+Khổ 360: số đo trước và sau giống hệt; bảng vẫn nằm dưới dòng chữ, không tràn ngang. Với bố cục cũ
+tâm hai nửa lệch 24 tới 28,5 px, nên phép kiểm mới (≤ 2 px) đỏ được với nó.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi thẻ Công thức ở khổ PC.
+- [ ] Chạy `npm run build` rồi `npm run check:chrome` lúc dev server không giữ cổng 3000.
+
+---
+
+## Bảng ký hiệu có gạch ngang dài đứng cạnh dấu trừ — 73 dòng (17/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi màn.** `npm run check` xanh: 114 file, **2.709** ca
+(thêm 1). Chụp Chrome thật trên dev server: `var-lich-su` ở 1440, rồi giả lập 360 qua CDP cho
+`var-lich-su`, `ty-so-thang-thua`, `dai-bollinger-tren`. Bảng đọc đúng, không tràn ngang
+(`scrollWidth 360 / innerWidth 360`). Không build lại vì chỉ đổi chữ.
+
+### Yêu cầu
+
+Soi `var-lich-su` (việc còn lại của mục ngay dưới), chủ dự án chỉ vào bảng ký hiệu. Dòng α ghi "độ
+tin cậy, 95% hay 99% — nên 1 − α là 5% hay 1%". Chủ dự án hỏi _"tại sao lại có - dài và - ngắn? nó gây
+ra sự hiểu nhầm cho người đọc… vì nó bị nhầm lẫn với dấu trừ"_. Lỗi này đã sửa ở dòng công thức ngày
+16/09 (mục "Dòng công thức…"), nhưng bảng ký hiệu làm sau không có gác nên lọt.
+
+### Làm gì
+
+Quét 549 dòng của 111 bảng: **73 dòng** có `—` hoặc `–`, nằm trong 14 file nhóm. Viết lại cả `vi` lẫn
+`en`, giữ nghĩa. Luật: trong bảng chỉ còn dấu trừ `−` của phép tính thật. Chỗ nối viết bằng chữ và
+dấu phẩy.
+
+| Kiểu dòng                    | Cách nối                      | Ví dụ                                                                                  |
+| ---------------------------- | ----------------------------- | -------------------------------------------------------------------------------------- |
+| Tên gọi — định nghĩa         | `, tức …`                     | `P − VC`: "số dư đảm phí — phần mỗi…" → "số dư đảm phí, tức phần mỗi…"                 |
+| Định nghĩa, đơn vị — ghi chú | ghi chú lên trước, gộp đơn vị | `n` của ATR: "chu kỳ ATR, phiên — Wilder dùng 14" → "chu kỳ ATR, Wilder dùng 14 phiên" |
+| Hệ quả / tương phản          | `, nên …` / `, chứ không …`   | `α`: "độ tin cậy, 95% hay 99% — nên 1 − α…" → "độ tin cậy 95% hay 99%, nên 1 − α…"     |
+| Khoảng số                    | "từ 0 đến 100"                | RSI: "thang 0–100 điểm" → "thang điểm từ 0 đến 100"                                    |
+
+- Không thay gạch bằng ngoặc, `/` hay `:`. Ngoặc và `/` là ký hiệu toán ngay trong bảng, còn `:` đã
+  đứng sau mỗi ký hiệu.
+- `π` (`loi-suat-thuc`): viết "lạm phát mỗi năm tính bằng %, không phải số π = 3,14" để dấu phẩy
+  không dính vào số thập phân.
+- `r` (`ty-so-thang-thua`): bỏ luôn "dấu −" đứng một mình, viết "dương là phiên tăng, âm là phiên
+  giảm". Hai dòng `r⁺`, `r⁻` ngay trên đã gọi tên phiên tăng/giảm.
+- `Q_{1−α}(r)` (`var-lich-su`): "…, là số âm nên đổi dấu thành mức lỗ dương". Đã đối chiếu calc:
+  phân vị không âm thì trả `MEANINGLESS`, nên kết quả hiện ra luôn đi với phân vị âm.
+
+### Cửa gác mới
+
+`formulas.test.ts` có ca **"nghĩa của ký hiệu không dùng gạch ngang — dễ đọc nhầm thành dấu trừ"**.
+Ca này quét `vi` và `en` của mọi dòng (theo `FFB_SYMBOL_IDS`), khi đỏ thì liệt kê đủ
+`id · latex · ngôn ngữ`. Thử lỗi: trả `—` về dòng α của `var-lich-su` thì gác đỏ đúng
+`var-lich-su · \alpha · vi`. Đã hoàn tác.
+
+| File                                                                                                                       | Sửa gì                                       |
+| -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `core/formulas/technical-volatility.ts` (19), `risk-ratios.ts` (12), `risk-volatility.ts` (8), `derivatives.ts` (8)        | nghĩa ký hiệu, vi + en                       |
+| `core/formulas/performance.ts` (7), `risk-drawdown.ts` (3), `valuation-multiples.ts` (3), `multiples.ts` (1)               | nghĩa ký hiệu, vi + en                       |
+| `core/formulas/returns.ts`, `personal.ts`, `fundamentals.ts`, `risk.ts`, `corporate.ts`, `technical-trend.ts` (2 mỗi file) | nghĩa ký hiệu, vi + en                       |
+| `core/formulas/formulas.test.ts`                                                                                           | cửa gác gạch ngang cho bảng ký hiệu          |
+| `core/registry/types.ts`                                                                                                   | docblock `SymbolNote`: luật không gạch ngang |
+| `CLAUDE.md`                                                                                                                | đoạn bảng ký hiệu: luật và lý do             |
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi lại `var-lich-su` và vài bảng khác: `ty-so-thang-thua`, `dai-bollinger-tren`,
+      `rsi-wilder`.
+- [ ] **Chưa làm, chờ đồng ý:** 12 chỗ ngoài bảng ký hiệu có `—` nằm chung một chuỗi với `−`.
+      Khối Giải thích/Ví dụ của `hpr`, `loi-suat-thuc`, `loi-suat-trung-binh-hinh-hoc`,
+      `macd-duong-tin-hieu`, `ty-so-calmar`, `fcff`, `mo-hinh-gordon`; bản en của `roi-rong`, `ev`;
+      tiêu đề ví dụ `gia-tri-noi-tai-fcff`; hai câu cảnh báo "dưới −100%".
+- [ ] **Thấy khi chụp, chưa sửa:** trong hình `ty-so-thang-thua`, gạch trên của `\overline{r^{+}}` và
+      `\overline{r^{-}}` đè lên dấu mũ, nên ở 360 trông như `r∓` và `r=`. Cần chủ dự án xem trên máy
+      thật trước khi quyết có sửa hay không.
+
+---
+
+## Hình công thức không có "× 100" mà dòng chữ lại có — rà cả 111 công thức (17/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi màn.** `npm run check` xanh: 114 file, **2.708** ca.
+Chụp Chrome thật `sut-giam-hien-tai` ở 1440 tối, 360 tối và 360 sáng EN: hình có `× 100`, bảng ký hiệu có
+dòng `100`, không tràn ngang. Không build lại, vì `latex-html.test.ts` đã dựng đủ 111 hình bằng KaTeX
+ở chế độ `throwOnError`.
+
+### Yêu cầu
+
+Chủ dự án gửi ảnh `sut-giam-hien-tai`: hình `DD_t = (P_max − P_t) / P_max`, dòng chữ "… ÷ Đỉnh cao nhất
+trong cửa sổ × 100". Họ hỏi _"tại sao trên công thức không có nhân với 100 mà bên dưới giải thích lại
+nhân với 100? làm chuẩn giúp tôi"_, và nhắc rằng đã yêu cầu kiểm tra toàn bộ công thức.
+
+### Tìm ra thế nào
+
+1. **Quét máy** tập số trong hình với dòng chữ vi/en của 111 công thức. Ra 11 công thức lệch hằng số.
+2. **Workflow rà độc lập**, chỉ đọc: 5 lô theo file, mỗi lô có một người rà và một người phản biện cố
+   bác từng phát hiện. Đủ 111 id. Người rà báo 16 lỗi, người phản biện xác nhận 13 và bác 3: `phi-luu-ky`
+   bản en, `do-bien-dong-lich-su` trùng chữ N, `capm` bản en thiếu "times". Cả ba chỉ là chọn từ.
+
+### Đã sửa
+
+| Công thức                                                           | Lệch                                                    | Sửa                                                                      |
+| ------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `sut-giam-sau-nhat`, `sut-giam-hien-tai`                            | chữ và calc `× 100`, hình không có                      | hình thêm `\times 100`, bảng thêm dòng `100`                             |
+| `var-lich-su`, `cvar-lich-su`                                       | như trên; chữ VaR ghi "100% − Độ tin cậy"               | như trên; chữ thành "1 − Độ tin cậy" cho khớp `1 − α`                    |
+| `gia-ly-thuyet-vn30f`, `so-hop-dong-toi-da`, `co-vi-the-phai-sinh`  | chữ có `÷ 100`, hình không có                           | bỏ `÷ 100` khỏi chữ, theo quy ước ô % viết dạng tỷ lệ                    |
+| `lai-tien-gui`, `rut-truoc-han`                                     | hình có `100`, chữ không có                             | bỏ `100` khỏi hình và bảng                                               |
+| `gui-quay-vong`                                                     | hình `÷ 1200`, chữ chỉ kể ý                             | hình `÷ 12`; chữ đọc đủ hai vế                                           |
+| `xirr`                                                              | chữ kể ý, thiếu `365`                                   | chữ đọc đúng phép tính                                                   |
+| `eps-co-ban`, `bvps`                                                | calc `× 10^9` (tỷ ₫ → ₫), hình và chữ không có          | thêm `× 10^9` vào hình, chữ, bảng; BVPS thêm dòng "Vốn chủ sở hữu, tỷ ₫" |
+| `ncav-tren-co-phieu`                                                | calc `× 1000`, hình và chữ không có                     | thêm `× 1000`, theo tiền lệ `gia-tri-noi-tai-fcff`                       |
+| `von-hoa-thi-truong`                                                | calc `÷ 1000` (triệu ₫ → tỷ ₫), hình không có           | thêm `÷ 1000`                                                            |
+| `diem-hoa-von`                                                      | hình hai vế, chữ đọc một vế                             | chữ đọc thêm "Doanh thu hoà vốn = Sản lượng hoà vốn × Giá bán"           |
+| `peg`                                                               | bảng ghi g "%/năm" như Gordon, calc chia nguyên số %    | bảng: "12% thì g = 12, không phải 0,12"                                  |
+| `irr-nien-kim`                                                      | bảng ghi `1 − (1+IRR)^−n` là "phần vốn thu về", **sai** | "1 trừ giá trị hôm nay của 1 đồng nhận ở cuối kỳ n, chiết khấu theo IRR" |
+| `thoi-gian-nhan-doi`                                                | bảng bảo 72 là 69,3 "làm tròn"                          | "nâng lên 72 cho sát kết quả quanh 8%/năm và dễ chia nhẩm"               |
+| `ty-so-sharpe`, `ty-so-sortino`, `ty-so-treynor`, `ty-so-thong-tin` | calc quy lãi năm về phiên bằng lãi kép, bảng không nói  | bảng ghi `(1 + năm)^(1/m) − 1`                                           |
+| `ty-so-calmar`                                                      | bảng không nói năm hoá bằng lãi kép trên số lợi suất    | bảng ghi đủ phép năm hoá                                                 |
+| `ty-so-thang-thua`                                                  | bảng ghi "lợi suất dương/âm", calc lọc theo ngưỡng      | bảng nói "vượt ngưỡng bỏ qua phiên đi ngang"                             |
+
+Hai dòng của IRR và 72 là tôi viết sai ở lượt làm bảng ký hiệu trước.
+
+### Cửa gác mới
+
+- `formulas.test.ts`: **"dòng chữ nêu đúng các hằng số có trong hình, và ngược lại"**. Tập số khác
+  0, 1, 2 của `latex` phải bằng tập số của `expression.vi` và `expression.en`. Thử lỗi: bỏ `× 100`
+  khỏi hình sụt giảm thì gác đỏ đúng câu "hằng số trong dòng chữ khác trong hình: [100]".
+- `latex-symbols.ts`: bỏ `100` khỏi `OBVIOUS_NUMBERS`, nên mọi `× 100` phải có dòng trong bảng.
+  Test của bộ tách sửa theo.
+- Giới hạn: gác chỉ so hằng số. Cách calc quy đổi (lãi kép, ngưỡng) không lộ ra ở hình, nên vẫn cần
+  người rà. Lượt workflow này đã rà xong cả 111.
+
+| File                                                                                           | Sửa gì                                      |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `core/formulas/risk-drawdown.ts`, `derivatives.ts`, `personal.ts`, `planning.ts`, `returns.ts` | 11 công thức lệch hằng số giữa hình và chữ  |
+| `core/formulas/fundamentals.ts`, `valuation-multiples.ts`, `corporate.ts`                      | hệ số đơn vị lên hình; PEG; hoà vốn         |
+| `core/formulas/performance.ts`, `risk-ratios.ts`                                               | 8 dòng bảng ký hiệu sai hoặc thiếu          |
+| `core/formulas/formulas.test.ts`                                                               | cửa gác hằng số                             |
+| `core/latex-symbols.ts` + `.test.ts`, `core/registry/types.ts`                                 | `100` bị đòi giải thích; docblock           |
+| `CLAUDE.md`                                                                                    | luật "hình, chữ và calc cùng một phép tính" |
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi: `sut-giam-hien-tai`, `var-lich-su`, `eps-co-ban`, `von-hoa-thi-truong`,
+      `irr-nien-kim`, `ty-so-sharpe`.
 
 ---
 
@@ -240,8 +533,8 @@ nghĩa qua prop từ `page.tsx` và tách `symbols` khỏi gói client — chưa
 
 - [ ] Chủ dự án soi vài trang: `chuoi-phien-giam-dai-nhat`, `irr-nien-kim`, `xirr`, `ty-so-sharpe`,
       `eps-co-ban` — cả sáng lẫn tối.
-- [ ] Rà NGHĨA của 111 bảng bằng mắt người (cửa gác chỉ kiểm hình thức và độ phủ): đơn vị, %/kỳ
-      hay %/năm, chiều tính. Workflow rà chưa chạy được vì hết hạn mức; chạy lại sau 12:30.
+- [x] Rà NGHĨA của 111 bảng (đơn vị, %/kỳ hay %/năm, chiều tính): đã chạy 17/09/2026, gộp với lượt
+      rà hình–chữ–calc. Xem mục "Hình công thức không có × 100…".
 
 ---
 

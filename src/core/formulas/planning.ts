@@ -52,7 +52,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       vi: 'Tiền lãi thực nhận khi rút sổ tiết kiệm trước hạn — chỉ được trả theo lãi suất không kỳ hạn, mức cụ thể tuỳ từng ngân hàng.',
       en: 'The interest actually received when withdrawing a savings book early — paid only at the demand-deposit rate, with the exact rate varying by bank.',
     },
-    latex: 'I = P \\times \\frac{r_{kkh}}{100} \\times \\frac{t}{12}',
+    latex: 'I = P \\times r_{kkh} \\times \\frac{t}{12}',
     expression: {
       vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số tháng đã gửi ÷ 12',
       en: 'Interest received = Deposit amount × Annual demand-deposit rate × Months held ÷ 12',
@@ -74,13 +74,6 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         meaning: {
           vi: 'lãi suất không kỳ hạn của ngân hàng, %/năm',
           en: "the bank's demand-deposit rate, %/year",
-        },
-      },
-      {
-        latex: '100',
-        meaning: {
-          vi: 'đổi lãi suất từ % ra số thập phân',
-          en: 'converts the rate from % to a decimal',
         },
       },
       {
@@ -300,10 +293,10 @@ export const GUI_QUAY_VONG: FormulaModule = {
       en: 'The difference in ending balance between continuously rolling over short-term deposits and holding a single long-term book.',
     },
     latex:
-      '\\Delta = P\\left(1 + \\frac{r_n \\, m}{1200}\\right)^{k} - P\\left(1 + \\frac{r_d \\, T}{1200}\\right)',
+      '\\Delta = P\\left(1 + \\frac{r_n \\, m}{12}\\right)^{k} - P\\left(1 + \\frac{r_d \\, T}{12}\\right)',
     expression: {
-      vi: 'Chênh lệch = Tiền cuối kỳ khi quay vòng kỳ ngắn − Tiền cuối kỳ khi gửi kỳ dài',
-      en: 'Difference = Ending balance from rolling short-term deposits − Ending balance from a long-term deposit',
+      vi: 'Chênh lệch = Tiền gửi × (1 + Lãi suất kỳ ngắn × Kỳ hạn ngắn ÷ 12)^Số vòng quay − Tiền gửi × (1 + Lãi suất kỳ dài × Tổng số tháng ÷ 12)',
+      en: 'Difference = Deposit × (1 + Short-term rate × Short term ÷ 12)^Number of rounds − Deposit × (1 + Long-term rate × Total months ÷ 12)',
     },
     symbols: [
       {
@@ -317,10 +310,10 @@ export const GUI_QUAY_VONG: FormulaModule = {
       { latex: 'r_n', meaning: { vi: 'lãi suất kỳ ngắn, %/năm', en: 'short-term rate, %/year' } },
       { latex: 'm', meaning: { vi: 'kỳ hạn ngắn, tháng', en: 'short term, months' } },
       {
-        latex: '1200',
+        latex: '12',
         meaning: {
-          vi: '100 × 12: đổi lãi suất %/năm ra lãi thập phân của mỗi tháng',
-          en: '100 × 12: converts a %/year rate into a decimal monthly rate',
+          vi: 'số tháng một năm, quy lãi suất năm về số tháng đang gửi',
+          en: 'months in a year, scaling the annual rate to the months on deposit',
         },
       },
       {

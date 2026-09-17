@@ -358,6 +358,11 @@ button.iconButton::after {
  * B: là gì"). Khổ hẹp thì bảng XUỐNG DƯỚI dòng chữ, ngăn bằng đường kẻ ngang; từ 1024px hai nửa
  * đứng cạnh nhau, ngăn bằng đường kẻ dọc. Tỷ lệ 3:2 — hình công thức cần bề ngang hơn (phân số,
  * tổng), còn bảng thì mỗi dòng là một ký hiệu ngắn và một cụm chữ.
+ *
+ * Hai nửa căn GIỮA theo chiều dọc, không neo mép trên. Bảng ký hiệu thường cao hơn hình + dòng chữ
+ * (năm tới chín dòng), nên khi neo mép trên thì cả phần trống của nửa trái dồn xuống dưới, và chủ dự
+ * án báo "công thức ít không gian bên trên hơn bên dưới" (17/09/2026). Căn giữa chia đều phần trống
+ * cho hai đầu. Áp cho cả hai nửa để nửa nào thấp hơn cũng nằm giữa, kể cả khi bảng là nửa thấp hơn.
  */
 .formulaMain {
   display: flex;
@@ -370,7 +375,7 @@ button.iconButton::after {
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     gap: var(--space-4);
-    align-items: start;
+    align-items: center;
   }
 }
 

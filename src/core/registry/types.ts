@@ -256,6 +256,10 @@ export interface FormulaSummary {
  * `latex` chép NGUYÊN VĂN một mẩu của `FormulaSpec.latex` (`'r_{t+1}'`, `'\\bar{r}'`, `'IRR'`, và cả
  * hằng số không hiển nhiên như `'365'` hay `'1 - (1 + IRR)^{-n}'`), vì màn dựng nó bằng KaTeX y như
  * hình chính. `meaning` là một CỤM ngắn, không phải câu: "lợi suất phiên t", "số kỳ nhận tiền".
+ *
+ * `meaning` không dùng gạch ngang (`—`, `–`): đứng cạnh dấu trừ `−` của hình, nó bị đọc thành phép
+ * trừ — chủ dự án chỉ ra ở dòng α của `var-lich-su` ngày 17/09/2026. Chỗ nối viết bằng chữ và dấu
+ * phẩy (", tức …", ", nên …"), khoảng số viết "từ 0 đến 100". Cửa gác ở `formulas.test.ts`.
  */
 export interface SymbolNote {
   latex: string;
@@ -273,6 +277,10 @@ export interface FormulaSpec extends FormulaSummary {
    * trong lúc gói 2.4.3 (render LaTeX bằng KaTeX) còn hoãn. Vì vậy nó phải đọc được với người
    * dùng cuối, không được là biểu thức kiểu mã nguồn và tuyệt đối không phải LaTeX thô.
    * Không dùng để eval.
+   *
+   * Nó đứng NGAY DƯỚI hình, nên là hình đọc thành lời: hằng số (khác 0, 1, 2) có trong `latex` thì
+   * phải có ở đây và ngược lại, cả `vi` lẫn `en` — cửa gác ở `formulas.test.ts`. Lỗi thật đã gặp:
+   * hình sụt giảm không có `× 100` mà dòng chữ có.
    */
   expression?: Bilingual;
   /**
@@ -283,8 +291,9 @@ export interface FormulaSpec extends FormulaSummary {
    *
    * Ba luật, đều có cửa gác ở `formulas.test.ts`: mọi công thức đều có bảng; mỗi mục chép nguyên văn
    * từ `latex`; và gộp các mục lại phải PHỦ HẾT mọi chữ cái, chữ Hy Lạp, viết tắt và hằng số đáng
-   * hỏi trong `latex` (`latexSymbolTokens()` tách chúng ra). Hằng số 0, 1, 2, 100 không bị đòi,
-   * nhưng nên có khi không hiển nhiên — số 1 của IRR, ×100 đổi ra phần trăm.
+   * hỏi trong `latex` (`latexSymbolTokens()` tách chúng ra). Hằng số 0, 1, 2 không bị đòi, nhưng
+   * nên có khi không hiển nhiên — số 1 của IRR. `100` thì bị đòi từ 17/09/2026, khi chủ dự án hỏi
+   * "tại sao lại nhân với 100".
    *
    * Không dùng lại `variables`: bảng biến gọi tên theo Ô NHẬP ("Giá thị trường"), còn ở đây gọi
    * tên theo CHỮ TRONG HÌNH (`P`); kết quả, chỉ số chạy (t, i, k) và hằng số không phải biến nào.

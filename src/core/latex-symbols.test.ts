@@ -88,7 +88,7 @@ describe('latexSymbolTokens — tách ký hiệu có nghĩa khỏi hình công t
     ]);
   });
 
-  it('số: 0, 1, 2, 100 không bị đòi; 365, 12, 72, 22,5 thì có', () => {
+  it('số: 0, 1, 2 không bị đòi; 100, 365, 12, 72, 22,5 thì có', () => {
     expect(
       latexSymbolTokens('r_{nam} = \\left(\\frac{P_{ban}}{P_{mua}}\\right)^{365/d} - 1'),
     ).toEqual(['365', 'P_{ban}', 'P_{mua}', 'd', 'r_{nam}']);
@@ -99,6 +99,7 @@ describe('latexSymbolTokens — tách ký hiệu có nghĩa khỏi hình công t
       'Graham',
     ]);
     expect(latexSymbolTokens('I = P \\times \\frac{r}{100 \\times 12} \\times T')).toEqual([
+      '100',
       '12',
       'I',
       'P',

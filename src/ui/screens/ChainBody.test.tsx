@@ -16,7 +16,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { FORMULA_MODULES, chainFor, runChain } from '@/application';
+import { FORMULA_MODULES, chainFor, defaultInputs, runChain, t } from '@/application';
 import type { CalcContext, FormulaSpec } from '@/application';
 
 import { ChainBody } from './ChainBody';
@@ -57,8 +57,13 @@ function gaKhoMan(rong: boolean): () => void {
   };
 }
 
-/** Dựng khối chuỗi đúng cách `FormulaDetail` dựng nó, cho một công thức nằm trong chuỗi. */
-function dungKhoi(id: string) {
+/**
+ * Dựng khối chuỗi đúng cách `FormulaDetail` dựng nó, cho một công thức nằm trong chuỗi.
+ *
+ * `soMacDinh` nạp số mặc định vào mọi bước, đúng như màn thật lúc mới mở (`defaultInputs`). Bỏ
+ * trống thì mọi bước chạy với ô rỗng và ra "_ _": đủ cho ca soi bố cục, không đủ cho ca đọc số.
+ */
+function dungKhoi(id: string, soMacDinh = false) {
   const specs = chainFor(ALL_SPECS, id);
   expect(specs.length, `${id} phải nằm trong một chuỗi`).toBeGreaterThan(1);
 
@@ -66,14 +71,17 @@ function dungKhoi(id: string) {
     .map((s) => FORMULA_MODULES.find((m) => m.spec.id === s.id))
     .filter((m) => m !== undefined);
 
-  const chain = runChain({ modules, inputs: {}, overrides: {}, ctx: CTX });
+  const inputs = soMacDinh
+    ? Object.fromEntries(modules.map((m) => [m.spec.id, defaultInputs(m.spec)]))
+    : {};
+  const chain = runChain({ modules, inputs, overrides: {}, ctx: CTX });
 
   return render(
     <ChainBody
       formulas={specs}
       chain={chain}
       currentId={id}
-      inputs={{}}
+      inputs={inputs}
       overrides={{}}
       onInput={() => undefined}
       onOverride={() => undefined}
@@ -274,4 +282,92 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     const { container } = dungKhoi('gia-tri-noi-tai-fcff');
     expect(container.querySelectorAll('h3')).toHaveLength(0);
   });
+});
+
+/**
+ * Thẻ gọi theo tên CON SỐ nó cấp, không theo tên công thức — chủ dự án chốt 17/09/2026, lý do ở
+ * docblock `ChainBody.tsx`.
+ *
+ * Bản trước ghi tên công thức cạnh một con số trần ("CAPM — chi phí vốn chủ sở hữu … 17 %"), và
+ * chủ dự án khoanh đỏ đúng con số ấy: người dùng không biết nó ở đâu ra. Ca đầu ghim hình đã duyệt
+ * trên trang `bien-an-toan`; các ca sau quét mọi trang có chuỗi, để thẻ nào cũng gọi được tên con số.
+ */
+describe('ChainBody — thẻ gọi theo tên con số nó cấp', () => {
+  /** Ba phần của dòng tóm tắt một thẻ: tên con số, vai của nó, con số. */
+  function dongTomTat(container: HTMLElement, formulaId: string) {
+    const summary = container.querySelector(`#chain-step-${formulaId} > summary`);
+    return {
+      ten: summary?.querySelector('[class*="stepName"]')?.textContent ?? null,
+      vai: summary?.querySelector('[class*="stepRole"]')?.textContent ?? null,
+      so: summary?.querySelector('[class*="stepValue"]')?.textContent ?? null,
+    };
+  }
+
+  it('bien-an-toan: thẻ mang tên ô nhận số, rồi nói kết quả của công thức nào, dùng cho công thức nào', () => {
+    const { container } = dungKhoi('bien-an-toan', true);
+
+    // 3,5 + 1,2 × 8 = 13,1% từ số mặc định của CAPM, chảy vào ô r của Gordon.
+    const capm = dongTomTat(container, 'capm');
+    expect(capm.ten).toBe('Suất sinh lợi yêu cầu (r)');
+    expect(capm.vai).toBe(
+      'kết quả của CAPM — chi phí vốn chủ sở hữu, dùng cho Mô hình Gordon (DDM một giai đoạn)',
+    );
+    expect(capm.so).toContain('13,1');
+
+    // 2.000 × 1,05 ÷ 0,081 = 25.925,93 ₫, chảy vào ô V ở khối Số liệu của chính Biên an toàn.
+    const gordon = dongTomTat(container, 'mo-hinh-gordon');
+    expect(gordon.ten).toBe('Giá trị nội tại ước tính (V)');
+    expect(gordon.vai).toBe(
+      'kết quả của Mô hình Gordon (DDM một giai đoạn), dùng cho Biên an toàn',
+    );
+    expect(gordon.so).toContain('25.925,93');
+  });
+
+  const TRANG_CO_CHUOI = ALL_SPECS.filter((spec) => chainFor(ALL_SPECS, spec.id).length > 1).map(
+    (spec) => spec.id,
+  );
+
+  it('quét được các trang có chuỗi — các ca dưới không được rỗng mà vẫn xanh', () => {
+    expect(TRANG_CO_CHUOI.length).toBeGreaterThan(0);
+  });
+
+  for (const id of TRANG_CO_CHUOI) {
+    it(`${id}: mọi thẻ gọi con số bằng nhãn của ô nhận nó, không bằng tên công thức`, () => {
+      const specs = chainFor(ALL_SPECS, id);
+      const { container, unmount } = dungKhoi(id, true);
+
+      const buocs = [...container.querySelectorAll('details')].map((d) =>
+        d.id.replace(/^chain-step-/, ''),
+      );
+      expect(buocs.length, `${id}: không có thẻ nào để kiểm`).toBeGreaterThan(0);
+
+      for (const buoc of buocs) {
+        const spec = specs.find((s) => s.id === buoc);
+        // Nơi nhận: công thức trong chuỗi khai `dependsOn` trỏ vào bước này, cùng ô nhận của nó.
+        const noiNhan = specs.flatMap((s) =>
+          (s.dependsOn ?? [])
+            .filter((d) => d.formulaId === buoc)
+            .map((d) => ({
+              ten: s.name.vi,
+              nhan: s.variables.find((v) => v.key === d.variableKey)?.label.vi ?? '@@',
+            })),
+        );
+        const { ten, vai, so } = dongTomTat(container, buoc);
+        const noi = `${id} · ${buoc}`;
+
+        expect(noiNhan.length, `${noi}: không có nơi nhận`).toBeGreaterThan(0);
+        expect(ten, noi).not.toBe(spec?.name.vi);
+        for (const n of noiNhan) {
+          expect(ten, noi).toContain(n.nhan);
+          expect(vai, noi).toContain(n.ten);
+        }
+        expect(vai, noi).toContain(
+          `${t('chain.resultOf')} ${spec?.name.vi ?? '@@'}, ${t('chain.usedFor')} `,
+        );
+        // Luật cũ của dòng tóm tắt vẫn giữ: gập thẻ lại vẫn thấy con số (số mặc định đều tính được).
+        expect(so ?? '', `${noi}: dòng tóm tắt mất con số`).toMatch(/\d/);
+      }
+      unmount();
+    });
+  }
 });

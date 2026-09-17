@@ -76,8 +76,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       {
         latex: 'm',
         meaning: {
-          vi: 'số kỳ trong một năm — 12 với tháng, 52 với tuần',
-          en: 'number of periods per year — 12 for months, 52 for weeks',
+          vi: 'số kỳ trong một năm, 12 nếu tính theo tháng, 52 nếu theo tuần',
+          en: 'number of periods per year, 12 for months or 52 for weeks',
         },
       },
     ],
@@ -232,8 +232,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
       {
         latex: '\\pi',
         meaning: {
-          vi: 'lạm phát mỗi năm, % — không phải số π = 3,14',
-          en: 'inflation per year, % — not the number π = 3.14',
+          vi: 'lạm phát mỗi năm tính bằng %, không phải số π = 3,14',
+          en: 'inflation per year in %, not the number π = 3.14',
         },
       },
     ],
@@ -752,8 +752,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       {
         latex: '1/n',
         meaning: {
-          vi: 'mũ 1/n tức căn bậc n — quy tích của n kỳ về một kỳ đều',
-          en: 'power 1/n, i.e. the n-th root — spreads the n-period product over one period',
+          vi: 'mũ 1/n tức căn bậc n, quy tích của n kỳ về một kỳ đều',
+          en: 'power 1/n, i.e. the n-th root, which spreads the n-period product over one period',
         },
       },
     ],
@@ -879,8 +879,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
       {
         latex: 'IRR',
         meaning: {
-          vi: 'ẩn số cần tìm — suất sinh lợi mỗi kỳ làm hai vế bằng nhau, %/kỳ',
-          en: 'the unknown — the per-period rate that makes both sides equal, %/period',
+          vi: 'ẩn số cần tìm, là suất sinh lợi mỗi kỳ làm hai vế bằng nhau, %/kỳ',
+          en: 'the unknown, the per-period rate that makes both sides equal, %/period',
         },
       },
       {
@@ -904,8 +904,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
       {
         latex: '1 - (1 + IRR)^{-n}',
         meaning: {
-          vi: 'phần vốn thu về sau n kỳ, tính trên 1 đồng bỏ ra',
-          en: 'the share of capital recovered after n periods, per 1 đồng invested',
+          vi: '1 trừ giá trị hôm nay của 1 đồng nhận ở cuối kỳ n, chiết khấu theo IRR',
+          en: "1 minus today's value of 1 đồng received at the end of period n, discounted at IRR",
         },
       },
     ],
@@ -1137,29 +1137,29 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       {
         latex: '2',
         meaning: {
-          vi: 'gấp đôi — vốn cuối bằng 2 lần vốn đầu',
-          en: 'doubling — the ending capital is 2 times the starting one',
+          vi: 'gấp đôi, tức vốn cuối bằng 2 lần vốn đầu',
+          en: 'doubling, i.e. the ending capital is 2 times the starting one',
         },
       },
       {
         latex: 'r',
         meaning: {
-          vi: 'lợi suất kép mỗi năm — dạng thập phân ở vế ln, dạng % ở vế 72',
-          en: 'compound return per year — a decimal under ln, a percentage under 72',
+          vi: 'lợi suất kép mỗi năm, dạng thập phân ở vế ln và dạng % ở vế 72',
+          en: 'compound return per year, a decimal under ln and a percentage under 72',
         },
       },
       {
         latex: '\\approx',
         meaning: {
-          vi: 'xấp xỉ bằng — vế phải là cách nhẩm nhanh',
-          en: 'approximately equal — the right-hand side is the mental shortcut',
+          vi: 'xấp xỉ bằng, vế phải là cách nhẩm nhanh',
+          en: 'approximately equal, the right-hand side being the mental shortcut',
         },
       },
       {
         latex: '72',
         meaning: {
-          vi: 'hằng số của quy tắc 72: 100 × ln 2 ≈ 69,3, làm tròn cho dễ chia nhẩm',
-          en: 'the rule-of-72 constant: 100 × ln 2 ≈ 69.3, rounded to divide easily in the head',
+          vi: '100 × ln 2 ≈ 69,3, nâng lên 72 cho sát kết quả quanh 8%/năm và dễ chia nhẩm',
+          en: '100 × ln 2 ≈ 69.3, raised to 72 to fit rates near 8%/year and divide easily',
         },
       },
     ],

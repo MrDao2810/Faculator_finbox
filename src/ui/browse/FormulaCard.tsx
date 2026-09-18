@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, type MouseEvent as ReactMouseEvent } from 'react';
 
 import { findCategory, formulaPath } from '@/application';
 import type { FormulaSummary } from '@/application';
@@ -39,8 +39,11 @@ export interface FormulaCardProps {
    *
    * Nơi gọi phải bọc `useCallback`: thẻ này là `memo`, truyền hàm mới mỗi lượt gõ là cả lưới
    * dựng lại theo từng phím.
+   *
+   * Kèm theo chính cú bấm, để nơi gọi phân biệt được mở NGAY trong tab này với Ctrl/⌘-bấm mở tab
+   * mới: màn Công thức chỉ đánh dấu "rời màn để xem kết quả" ở ca đầu (xem `markResultOpened()`).
    */
-  onSelect?: (formula: FormulaSummary) => void;
+  onSelect?: (formula: FormulaSummary, event: ReactMouseEvent<HTMLAnchorElement>) => void;
 }
 
 /**
@@ -84,8 +87,8 @@ function FormulaCardBase({
   const handleClick =
     onSelect === undefined
       ? undefined
-      : () => {
-          onSelect(formula);
+      : (event: ReactMouseEvent<HTMLAnchorElement>) => {
+          onSelect(formula, event);
         };
 
   if (variant === 'tile') {

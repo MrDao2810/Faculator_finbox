@@ -117,6 +117,23 @@ export function rememberOrigin(): void {
   }
 }
 
+/**
+ * Huỷ cú cuộn-về-chỗ-cũ mà nút quay lại vừa hẹn, nếu nó chưa chạy.
+ *
+ * Màn Công thức gọi khi nó BỎ chuỗi tìm lúc quay về từ một kết quả tìm (`onQueryDropped` của
+ * `useListUrlState`). Chỗ đã nhớ là chỗ trong danh sách KẾT QUẢ, còn màn vừa trở lại danh sách đầy
+ * đủ: cuộn về con số ấy là thả người dùng vào giữa kệ, không thấy ô tìm vừa xoá. Lời gọi ấy nằm
+ * trong effect của `ListUrlSync`, tức chạy TRƯỚC effect của component này (đứng sau `<main>` trong
+ * `AppShell`), nên `restoreScroll()` không còn cờ để đọc.
+ */
+export function cancelScrollRestore(): void {
+  try {
+    window.sessionStorage.removeItem(ORIGIN_RESTORE_KEY);
+  } catch {
+    // Trình duyệt chặn sessionStorage — cờ cũng chưa từng đặt được, không có gì để huỷ.
+  }
+}
+
 /** Tên hàm riêng để `addEventListener` và `removeEventListener` nhận cùng một tham chiếu. */
 function remember(): void {
   rememberOrigin();

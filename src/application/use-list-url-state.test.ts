@@ -3,7 +3,7 @@
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { URL_WRITE_DELAY_MS, useListUrlState } from './use-list-url-state';
+import { RESULT_OPENED_KEY, URL_WRITE_DELAY_MS, useListUrlState } from './use-list-url-state';
 import { DEFAULT_LIST_PARAMS } from './url-state';
 
 /**
@@ -21,6 +21,7 @@ function dungO(url: string): void {
 
 beforeEach(() => {
   vi.useFakeTimers();
+  window.sessionStorage.clear();
   dungO('/cong-thuc/');
 });
 
@@ -269,5 +270,120 @@ describe('useListUrlState() — nhận thay đổi từ URL', () => {
 
     expect(result.current.params).toMatchObject({ q: '', categoryId: 'loans' });
     expect(window.location.search).toBe('?category=loans');
+  });
+});
+
+/*
+ * Chủ dự án yêu cầu 18/09/2026: tìm, bấm một kết quả xem chi tiết, quay lại thì ô tìm phải TRỐNG.
+ * Lối về nào (nút ‹, "Huỷ", nút Lùi) cũng gắn lại màn ở đúng URL có `?q=`, nên các ca dưới dựng lại
+ * đúng cảnh ấy: đánh dấu, tháo màn, gắn lại ở URL cũ rồi cho `ListUrlSync` đọc URL lần đầu.
+ *
+ * `vi.useFakeTimers()` của vitest KHÔNG giả `queueMicrotask`, nên lần ghi URL chạy thật ở lần `await`
+ * đầu tiên.
+ */
+describe('useListUrlState() — quay về từ một kết quả tìm', () => {
+  /** Người dùng đứng ở `url`, mở một kết quả tìm, rồi `<Link>` đưa họ sang trang chi tiết. */
+  function moKetQuaRoiRoiMan(url: string): void {
+    dungO(url);
+    const { result, unmount } = renderHook(() => useListUrlState());
+    act(() => {
+      result.current.markResultOpened();
+    });
+    unmount();
+  }
+
+  /** Cho microtask ghi URL chạy. */
+  async function choGhiUrl(): Promise<void> {
+    await act(async () => {
+      await Promise.resolve();
+    });
+  }
+
+  it('về đúng URL lúc mở kết quả thì bỏ chuỗi tìm, giữ nhóm, rồi ghi lại URL không còn q', async () => {
+    moKetQuaRoiRoiMan('/cong-thuc/?q=roe&category=risk');
+
+    const onQueryDropped = vi.fn();
+    const onUrlWritten = vi.fn();
+    const { result } = renderHook(() => useListUrlState({ onQueryDropped, onUrlWritten }));
+    act(() => {
+      result.current.applySearch('q=roe&category=risk');
+    });
+
+    expect(result.current.params).toMatchObject({ q: '', categoryId: 'risk' });
+    expect(onQueryDropped).toHaveBeenCalledTimes(1);
+    expect(window.sessionStorage.getItem(RESULT_OPENED_KEY)).toBeNull();
+    // Chưa ghi NGAY trong lượt đọc: ở `next dev` lúc ấy bản vá `replaceState` của Next chưa cài.
+    expect(window.location.search).toBe('?q=roe&category=risk');
+
+    await choGhiUrl();
+
+    expect(window.location.search).toBe('?category=risk');
+    expect(onUrlWritten).toHaveBeenCalledTimes(1);
+  });
+
+  it('không có dấu, tức link chia sẻ `?q=`, thì vẫn lọc như thường và không ghi gì', async () => {
+    dungO('/cong-thuc/?q=roe');
+    const replaceState = vi.spyOn(window.history, 'replaceState');
+    const onQueryDropped = vi.fn();
+    const { result } = renderHook(() => useListUrlState({ onQueryDropped }));
+
+    act(() => {
+      result.current.applySearch('q=roe');
+    });
+    await choGhiUrl();
+
+    expect(result.current.params.q).toBe('roe');
+    expect(onQueryDropped).not.toHaveBeenCalled();
+    expect(replaceState).not.toHaveBeenCalled();
+  });
+
+  it('dấu của một chuỗi tìm KHÁC thì giữ chuỗi của URL đang mở, và dấu vẫn bị xoá', () => {
+    moKetQuaRoiRoiMan('/cong-thuc/?q=roe');
+
+    dungO('/cong-thuc/?q=pe');
+    const { result } = renderHook(() => useListUrlState());
+    act(() => {
+      result.current.applySearch('q=pe');
+    });
+
+    expect(result.current.params.q).toBe('pe');
+    expect(window.sessionStorage.getItem(RESULT_OPENED_KEY)).toBeNull();
+  });
+
+  it('dấu chỉ sống tới lượt về ĐẦU TIÊN: về trang trơn, gõ lại đúng chữ cũ rồi tải lại vẫn giữ chữ', () => {
+    moKetQuaRoiRoiMan('/cong-thuc/?q=roe');
+
+    // Về bằng mục "Công thức" ở thanh điều hướng: URL trơn, dấu bị lấy đi mà không có gì để bỏ.
+    dungO('/cong-thuc/');
+    const lanVe = renderHook(() => useListUrlState());
+    act(() => {
+      lanVe.result.current.applySearch('');
+    });
+    lanVe.unmount();
+
+    dungO('/cong-thuc/?q=roe');
+    const taiLai = renderHook(() => useListUrlState());
+    act(() => {
+      taiLai.result.current.applySearch('q=roe');
+    });
+
+    expect(taiLai.result.current.params.q).toBe('roe');
+  });
+
+  it('màn tháo trước khi kịp ghi thì không ghi lên URL của trang kế tiếp', async () => {
+    moKetQuaRoiRoiMan('/cong-thuc/?q=roe');
+
+    const { result, unmount } = renderHook(() => useListUrlState());
+    act(() => {
+      result.current.applySearch('q=roe');
+    });
+    unmount();
+    dungO('/cong-thuc/pe/');
+    const replaceState = vi.spyOn(window.history, 'replaceState');
+
+    await choGhiUrl();
+
+    expect(replaceState).not.toHaveBeenCalled();
+    expect(window.location.pathname).toBe('/cong-thuc/pe/');
   });
 });

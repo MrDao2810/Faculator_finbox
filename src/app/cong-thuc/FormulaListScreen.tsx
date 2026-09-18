@@ -1,6 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from 'react';
 
 import {
   CLEARED_SELECT_FILTERS,
@@ -32,7 +40,7 @@ import {
   SearchBox,
   VirtualList,
 } from '@/ui/browse';
-import { rememberOrigin } from '@/ui/layout/OriginTracker';
+import { cancelScrollRestore, rememberOrigin } from '@/ui/layout/OriginTracker';
 import { ModeToggle } from '@/ui/navigation';
 import { Button, Select } from '@/ui/primitives';
 
@@ -50,6 +58,30 @@ const LIVE_DELAY = 400;
 
 /** Bộ công thức của chế độ Cơ bản — dựng một lần, cùng một hàm màn chi tiết và màn tìm dùng. */
 const BASIC_POOL = formulasForLevel(FORMULA_SUMMARIES, 'basic');
+
+/**
+ * Việc của giao diện khi màn vừa bỏ chuỗi tìm lúc quay về từ một kết quả tìm (`onQueryDropped`).
+ *
+ * Về ĐẦU trang để người dùng thấy ngay ô tìm trống, chip "Tìm gần đây" và kệ, đúng màn họ thấy trước
+ * khi gõ. Huỷ cú cuộn của nút quay lại, vì chỗ nó nhớ là chỗ trong danh sách kết quả vừa bỏ.
+ *
+ * `rememberOrigin()` sẽ chạy ngay sau đó, khi URL không còn `q` được ghi lại (qua `onUrlWritten`), dù
+ * luật chung là không gọi nó lúc gắn. Luật ấy giữ `scrollY` cho một cú cuộn-về-chỗ-cũ, mà ở ca này cú
+ * cuộn ấy vừa bị huỷ có chủ đích.
+ */
+function startFreshSearch(): void {
+  cancelScrollRestore();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+/**
+ * Cú bấm này KHÔNG đưa tab hiện tại đi đâu: Ctrl/⌘/Shift/Alt-bấm mở tab mới, cửa sổ mới hay tải về,
+ * đúng những phím `next/link` nhường lại cho trình duyệt. Người dùng vẫn đứng ở màn này, nên sẽ không
+ * có lần quay về nào để xoá ô tìm.
+ */
+function opensElsewhere(event: ReactMouseEvent<HTMLAnchorElement>): boolean {
+  return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+}
 
 /**
  * Thứ tự trong ô Sắp xếp gom theo LOẠI tiêu chí, không theo thứ tự thêm vào: hai cách sắp bám
@@ -94,6 +126,10 @@ export interface FormulaListScreenProps {
  * Ô tìm cũ ở `/cong-thuc/` là một link sang `/tim-kiem/` trông như ô nhập (`SearchBoxLink`) — đã bỏ.
  * Màn tìm WF-09 vẫn còn nguyên, chỉ không còn lối vào từ đây.
  *
+ * Mở một KẾT QUẢ TÌM rồi quay lại (nút ‹, nút "Huỷ" hay nút Lùi) thì ô tìm TRỐNG và màn về đầu trang —
+ * chủ dự án yêu cầu 18/09/2026. Chỉ chuỗi tìm bị bỏ, nhóm và cách sắp giữ nguyên. Cơ chế nằm ở
+ * `useListUrlState`: `markResultOpened()` lúc rời, `onQueryDropped` lúc về.
+ *
  * ── Cụm Cơ bản / Nâng cao ở hàng tiêu đề danh sách, không ở thanh trên ─────────────────────────
  *
  * Luật cũ `showsModeToggle()` đo trên Chrome ở 420×900: trang chủ lúc nhàn bấm đổi chế độ không đổi
@@ -118,9 +154,11 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
   const { mode, hydrated, setMode } = usePreferences();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { params, setQuery, setFilters, reset, flushUrl, applySearch } = useListUrlState({
-    onUrlWritten: rememberOrigin,
-  });
+  const { params, setQuery, setFilters, reset, flushUrl, applySearch, markResultOpened } =
+    useListUrlState({
+      onUrlWritten: rememberOrigin,
+      onQueryDropped: startFreshSearch,
+    });
 
   /*
    * Chip "Tìm gần đây" — kho CHUNG với màn tìm WF-09, vì hai ô tìm nay chạy trên cùng một phạm vi.
@@ -208,12 +246,17 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
    *
    * `useCallback` là bắt buộc: `FormulaCard` là `memo`, truyền hàm mới mỗi lượt gõ thì cả lưới
    * dựng lại theo từng phím.
+   *
+   * Cùng cú bấm ấy đánh dấu "rời màn để xem kết quả", để lúc quay về ô tìm trống lại. Trừ khi cú bấm
+   * mở ở chỗ khác: lịch sử vẫn ghi (người dùng đã chọn công thức ấy), còn ô tìm của tab này phải còn
+   * nguyên.
    */
   const rememberResult = useCallback(
-    (formula: FormulaSummary) => {
+    (formula: FormulaSummary, event: ReactMouseEvent<HTMLAnchorElement>) => {
       remember(pick(formula.name));
+      if (!opensElsewhere(event)) markResultOpened();
     },
-    [remember, pick],
+    [remember, pick, markResultOpened],
   );
 
   /** Bấm lại một thứ đã tìm: lọc NGAY tại chỗ, URL ghi ngay, tiêu điểm về ô tìm. */

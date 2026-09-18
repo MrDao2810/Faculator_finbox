@@ -176,12 +176,13 @@ describe('FormulaCard — onSelect và ranh giới server/client', () => {
     }
   });
 
-  it('có truyền onSelect thì bấm vào thẻ gọi lại đúng công thức đó', async () => {
+  it('có truyền onSelect thì bấm vào thẻ gọi lại đúng công thức đó, kèm chính cú bấm', async () => {
     const onSelect = vi.fn();
     render(<FormulaCard formula={PE} onSelect={onSelect} />);
 
     await userEvent.click(screen.getByRole('link'));
 
-    expect(onSelect).toHaveBeenCalledWith(PE);
+    // Cú bấm đi kèm để màn Công thức phân biệt mở ngay trong tab này với Ctrl/⌘-bấm mở tab mới.
+    expect(onSelect).toHaveBeenCalledWith(PE, expect.objectContaining({ type: 'click' }));
   });
 });

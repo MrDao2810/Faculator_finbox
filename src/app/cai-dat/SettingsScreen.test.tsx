@@ -225,6 +225,11 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
           'sessionStorage — cờ sống đúng MỘT lượt điều hướng: nút quay lại đặt, màn đích đọc rồi xoá ngay. Một nút xoá cho nó là nút không bao giờ có gì để xoá',
       },
       {
+        key: 'ffb.list.resultOpened.v1',
+        viSao:
+          'sessionStorage — dấu "vừa mở một kết quả tìm" của màn Công thức, sống đúng MỘT lần quay về: lần gắn kế tiếp của màn đọc rồi xoá ngay, khớp hay không. Chỉ mang chuỗi truy vấn vốn đã nằm trên URL, và tự hết khi đóng tab',
+      },
+      {
         key: 'ffb.shelf.open.v1',
         viSao:
           'sessionStorage — kệ "Công thức dùng hằng ngày" đang mở đủ hay thu gọn, để nút quay lại cuộn đúng chỗ. Trạng thái giao diện của một tab, không phải dữ liệu người dùng, tự hết khi đóng tab',

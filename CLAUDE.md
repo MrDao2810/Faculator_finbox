@@ -512,7 +512,14 @@ schedule must break the formula, which catches a declaration the calc never uses
     `html:not([data-mode='advanced'])`, so Basic users never see the list shrink. Chip counts and the
     count line render both numbers and let CSS pick by `data-mode`. Never call `rememberOrigin()` on
     mount: the screen's effect runs before `OriginTracker`'s and would overwrite the scroll position
-    the back button is about to restore.
+    the back button is about to restore. The one exception is **returning from a search result**
+    (owner's request, 18/09/2026): opening a result in the same tab while a query is typed marks the
+    tab (`markResultOpened()`, `RESULT_OPENED_KEY` in `sessionStorage`; Ctrl/⌘-clicks don't), and the
+    first URL read after the next mount drops `q` (category and sort stay), scrolls to the top and
+    calls `cancelScrollRestore()`, because the saved position belongs to the dropped result list. The
+    q-less URL is written through `queueMicrotask`, never inline: under `next dev` `ListUrlSync`
+    hydrates before the Router effect that patches `replaceState`, and a native `replaceState(null)`
+    there strips `__NA`, after which Next ignores Back to that entry.
   - **(3) The shelf is server-built.** `DailyShelf` (server) renders the 16 tiles of
     `DAILY_SHELF_IDS` (`daily-shelf.ts`, all `isFeatured`; the first 8 in mockup order, the next 8
     cover the featured categories the first 8 miss) plus the `<h2>`, and passes them into the client

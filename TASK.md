@@ -187,6 +187,57 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Quay về từ một kết quả tìm thì ô tìm ở màn Công thức TRỐNG (18/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.806** ca.
+
+### Yêu cầu
+
+_"khi click vào xem chi tiết công thức thông qua việc search từ màn search rồi back từ màn hình chi tiết
+công thức về màn search thì cần reset lại nội dung trong thanh search."_ Chủ dự án xác nhận "màn search" là
+ô tìm ở màn Công thức (`/cong-thuc/`); màn `/tim-kiem/` không đụng tới.
+
+### Nguyên nhân
+
+Chuỗi tìm nằm trên URL (`?q=`), và mọi đường về đều trả đúng URL ấy: nút ‹ và nút "Huỷ" dẫn tới URL màn gốc
+đã nhớ (`ORIGIN_KEY`), nút Lùi của trình duyệt về đúng mục lịch sử. Màn gắn lại, `ListUrlSync` đọc `?q=` và
+ô tìm có chữ lại.
+
+### Cách làm: đánh dấu lúc rời, bỏ chuỗi tìm lúc về
+
+- Lúc rời: bấm một kết quả tìm mở NGAY trong tab này thì `markResultOpened()` ghi chuỗi truy vấn hiện có vào
+  `RESULT_OPENED_KEY` (`sessionStorage`). Ctrl/⌘/Shift/Alt-bấm vẫn ghi "Tìm gần đây" nhưng không đánh dấu.
+- Lúc về: lượt `applySearch` đầu tiên của lần gắn lấy dấu ra và xoá luôn. Trùng đúng truy vấn đang mở thì bỏ
+  `q` (nhóm và cách sắp giữ), ghi lại URL không `q`, về đầu trang, huỷ cú cuộn của nút ‹.
+- Đảo một phần quyết định cũ, nói rõ: nút ‹ vẫn giữ bộ lọc, chỉ không giữ chuỗi tìm khi rời màn bằng một kết
+  quả tìm. Link chia sẻ `?q=` vẫn lọc như cũ.
+- URL ghi bằng `queueMicrotask`, không ghi thẳng: ở `next dev` effect đầu của `ListUrlSync` chạy trước effect
+  của router, nơi Next vá `replaceState`; gọi bản gốc với `null` là xoá `__NA` và Next bỏ qua cú Lùi về mục đó.
+
+### File đã đổi
+
+| File                                      | Sửa gì                                                                            |
+| ----------------------------------------- | --------------------------------------------------------------------------------- |
+| `src/application/use-list-url-state.ts`   | `RESULT_OPENED_KEY`, `markResultOpened()`, option `onQueryDropped`, bỏ `q` lúc về |
+| `src/ui/layout/OriginTracker.tsx`         | `cancelScrollRestore()`, xoá cờ cuộn-về-chỗ-cũ                                    |
+| `src/ui/browse/FormulaCard.tsx`           | `onSelect` nhận thêm cú bấm, để phân biệt mở ngay trong tab với mở tab mới        |
+| `src/app/cong-thuc/FormulaListScreen.tsx` | nối hai đầu: đánh dấu khi bấm kết quả, về đầu trang khi bỏ chuỗi tìm              |
+| 4 file test tương ứng                     | 5 ca hook, 4 ca màn (có một ca `StrictMode`), 1 ca `OriginTracker`, sửa 1 ca thẻ  |
+| `src/app/cai-dat/SettingsScreen.test.tsx` | khoá mới vào danh sách miễn `CO_Y` của bản kiểm kê kho, kèm lý do                 |
+| `CLAUDE.md`                               | ngoại lệ của luật "không gọi `rememberOrigin()` lúc gắn"                          |
+
+Đã đo: HTML của `/cong-thuc/?q=roe` do `next dev` trả KHÔNG có dấu `BAILOUT_TO_CLIENT_SIDE_RENDERING`
+(tức `ListUrlSync` hydrate cùng lượt với cả trang, đúng như docblock nói), còn `out/cong-thuc/index.html` có
+đúng một dấu.
+
+### Còn lại
+
+- Chủ dự án thử tay trên `npm run dev`: gõ, bấm kết quả, về bằng nút ‹, nút Lùi và nút "Huỷ".
+- `npm run build` + `verify:static` CHƯA chạy: `prebuild` dừng vì đang có dev server ở cổng 3000 và 3002.
+  Cần chạy lại sau khi tắt dev.
+
+---
+
 ## Mỗi vế một DÒNG, bỏ hẳn lối nối bằng dấu phẩy (18/09/2026)
 
 **Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.796** ca.

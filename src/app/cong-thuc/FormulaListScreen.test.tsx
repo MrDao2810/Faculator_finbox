@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -12,6 +13,7 @@ import {
   RECENT_SEARCHES_KEY,
 } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
+import { RESULT_OPENED_KEY } from '@/application/use-list-url-state';
 
 import { FormulaListScreen } from './FormulaListScreen';
 
@@ -25,9 +27,12 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
 }));
 
-/* `rememberOrigin` ghi sessionStorage — ở đây chỉ cần biết nó được gọi LÚC NÀO. */
-const rememberOrigin = vi.hoisted(() => vi.fn());
-vi.mock('@/ui/layout/OriginTracker', () => ({ rememberOrigin }));
+/* Hai hàm của `OriginTracker` đều ghi sessionStorage — ở đây chỉ cần biết chúng được gọi LÚC NÀO. */
+const { rememberOrigin, cancelScrollRestore } = vi.hoisted(() => ({
+  rememberOrigin: vi.fn(),
+  cancelScrollRestore: vi.fn(),
+}));
+vi.mock('@/ui/layout/OriginTracker', () => ({ rememberOrigin, cancelScrollRestore }));
 
 const TONG = FORMULA_SUMMARIES.length;
 const SO_CO_BAN = FORMULA_SUMMARIES.filter((f) => f.level === 'basic').length;
@@ -69,9 +74,11 @@ function oTim(): HTMLInputElement {
 
 beforeEach(() => {
   window.localStorage.clear();
+  window.sessionStorage.clear();
   window.history.replaceState(null, '', '/cong-thuc/');
   document.documentElement.removeAttribute('data-mode');
   rememberOrigin.mockClear();
+  cancelScrollRestore.mockClear();
 });
 
 afterEach(() => {
@@ -303,5 +310,118 @@ describe('FormulaListScreen — nhớ màn gốc đúng lúc', () => {
       (within(khoiDanhSach()).getByRole('radio', { name: /^Vay nợ/ }) as HTMLInputElement).checked,
     ).toBe(true);
     expect(rememberOrigin).not.toHaveBeenCalled();
+  });
+});
+
+/*
+ * Chủ dự án yêu cầu 18/09/2026: tìm, bấm một kết quả xem chi tiết, quay lại thì ô tìm phải TRỐNG.
+ * Lối về nào (nút ‹, "Huỷ", nút Lùi) cũng gắn lại màn ở đúng URL có `?q=`, nên các ca dưới dựng lại
+ * đúng cảnh ấy: tháo màn rồi gắn lại ở URL cũ. Cơ chế nằm ở `useListUrlState`; ở đây gác chỗ màn nối
+ * vào nó — cú bấm nào đánh dấu, và màn trông ra sao lúc về.
+ */
+describe('FormulaListScreen — quay về từ một kết quả tìm', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  /** Thẻ `pe` trong khối danh sách. */
+  function thePe(): HTMLElement {
+    const link = within(khoiDanhSach())
+      .getAllByRole('link')
+      .find((a) => /\/cong-thuc\/pe\/?$/.test(a.getAttribute('href') ?? ''));
+    if (link === undefined) throw new Error('Không thấy thẻ "pe" trong danh sách.');
+    return link;
+  }
+
+  /**
+   * Bấm như một ngón tay thật: `pointerdown` tới trước và xả lần ghi URL đang đợi, `click` tới sau.
+   * Dấu "vừa mở kết quả" chép đúng URL lúc `click`, nên thứ tự này là một phần của ca kiểm.
+   */
+  function bamThe(the: HTMLElement, phim: { ctrlKey?: boolean } = {}): void {
+    fireEvent.pointerDown(the, phim);
+    fireEvent.click(the, phim);
+  }
+
+  /** Cho microtask ghi lại URL chạy. */
+  async function choGhiUrl(): Promise<void> {
+    await act(async () => {
+      await Promise.resolve();
+    });
+  }
+
+  it('ô tìm trống, kệ hiện lại, URL bỏ ?q=, màn về đầu trang', async () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    moMan();
+    fireEvent.change(oTim(), { target: { value: 'P/E' } });
+    bamThe(thePe());
+    expect(window.location.search).toBe('?q=P%2FE');
+
+    cleanup();
+    moMan();
+    await choGhiUrl();
+
+    expect(oTim().value).toBe('');
+    expect(screen.getByTestId('ke').closest('[hidden]')).toBeNull();
+    expect(window.location.search).toBe('');
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
+    expect(cancelScrollRestore).toHaveBeenCalledTimes(1);
+    // Chip "Tìm gần đây" mang tên công thức vừa mở, sẵn cho lượt tìm sau.
+    expect(await screen.findByRole('button', { name: PE.name.vi })).toBeTruthy();
+  });
+
+  /*
+   * `next dev` bật StrictMode: effect chạy, tháo giả, chạy lại. Một lần ghi hẹn bằng bộ hẹn giờ của
+   * hook sẽ bị lượt tháo giả huỷ mất, URL giữ nguyên `?q=` và lần tải lại sau hiện chữ cũ.
+   */
+  it('StrictMode chạy effect hai lần vẫn ghi lại URL', async () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    moMan();
+    fireEvent.change(oTim(), { target: { value: 'P/E' } });
+    bamThe(thePe());
+
+    cleanup();
+    render(
+      <StrictMode>
+        <PreferencesProvider>
+          <FormulaListScreen shelf={KE} />
+        </PreferencesProvider>
+      </StrictMode>,
+    );
+    await choGhiUrl();
+
+    expect(oTim().value).toBe('');
+    expect(window.location.search).toBe('');
+  });
+
+  it('chỉ bỏ chuỗi tìm, nhóm đang chọn vẫn giữ', async () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    window.history.replaceState(null, '', `/cong-thuc/?q=P%2FE&category=${PE.categoryId}`);
+    moMan();
+    bamThe(thePe());
+
+    cleanup();
+    moMan();
+    await choGhiUrl();
+
+    expect(oTim().value).toBe('');
+    expect(window.location.search).toBe(`?category=${PE.categoryId}`);
+  });
+
+  it('Ctrl-bấm (mở tab mới) vẫn ghi "Tìm gần đây" nhưng không đánh dấu, gắn lại vẫn giữ chữ', async () => {
+    moMan();
+    fireEvent.change(oTim(), { target: { value: 'P/E' } });
+    bamThe(thePe(), { ctrlKey: true });
+
+    expect(window.sessionStorage.getItem(RESULT_OPENED_KEY)).toBeNull();
+    expect(JSON.parse(window.localStorage.getItem(RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
+      PE.name.vi,
+    ]);
+
+    cleanup();
+    moMan();
+    await choGhiUrl();
+
+    expect(oTim().value).toBe('P/E');
+    expect(cancelScrollRestore).not.toHaveBeenCalled();
   });
 });

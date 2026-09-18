@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ORIGIN_KEY, ORIGIN_PREV_KEY, ORIGIN_RESTORE_KEY, parseOrigin } from '@/application';
 
-import { OriginTracker } from './OriginTracker';
+import { OriginTracker, cancelScrollRestore } from './OriginTracker';
 
 /**
  * `usePathname()` chỉ để effect chạy lại khi đổi màn; nội dung thật lấy từ `window.location`,
@@ -257,6 +257,26 @@ describe('OriginTracker — khôi phục vị trí cuộn', () => {
     await haiKhungHinh();
 
     expect(scrollTo).toHaveBeenCalledWith({ top: 640, behavior: 'auto' });
+    scrollTo.mockRestore();
+  });
+
+  /*
+   * Màn Công thức huỷ cú cuộn khi nó bỏ chuỗi tìm lúc quay về từ một kết quả tìm: chỗ đã nhớ là chỗ
+   * trong danh sách KẾT QUẢ, không ứng với chỗ nào trên danh sách đầy đủ. Màn gọi trước effect của
+   * component này, đúng thứ tự ca dưới dựng lại.
+   */
+  it('cancelScrollRestore() trước lượt gắn thì cú bấm quay lại không cuộn nữa', async () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+
+    window.sessionStorage.setItem(ORIGIN_KEY, JSON.stringify({ url: '/cong-thuc/', scrollY: 640 }));
+    window.sessionStorage.setItem(ORIGIN_RESTORE_KEY, '/cong-thuc/');
+    dungO('/cong-thuc/');
+    cancelScrollRestore();
+    render(<OriginTracker />);
+    await haiKhungHinh();
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(window.sessionStorage.getItem(ORIGIN_RESTORE_KEY)).toBeNull();
     scrollTo.mockRestore();
   });
 });

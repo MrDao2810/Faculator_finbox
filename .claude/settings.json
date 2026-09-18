@@ -1727,7 +1727,12 @@
       "Bash(awk 'NR>=325 && NR<=336 {print NR\": \"$0}' CLAUDE.md)",
       "PowerShell(npx prettier --write CLAUDE.md)",
       "PowerShell(node scripts/verify-static.mjs 2>&1)",
-      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \"$s\\\\shot-howto.mjs\" \"$s\\\\dong\" khung dark beta vi 2>&1 | Select-Object -First 12)"
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \"$s\\\\shot-howto.mjs\" \"$s\\\\dong\" khung dark beta vi 2>&1 | Select-Object -First 12)",
+      "PowerShell(npx prettier --check TASK.md CLAUDE.md)",
+      "PowerShell(npm run check 2>&1 | Out-File -FilePath \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\ee0e8260-1bce-454c-8ecb-5d1fd8397f97\\\\scratchpad\\\\check.log\" -Encoding utf8; \"EXIT=$LASTEXITCODE\")",
+      "PowerShell(npx prettier --check src/app/cai-dat/SettingsScreen.test.tsx src/application/use-list-url-state.ts)",
+      "PowerShell(Select-String -Path \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\ee0e8260-1bce-454c-8ecb-5d1fd8397f97\\\\scratchpad\\\\check2.log\" -Pattern \"Test Files|Tests  |All matched files|problems|warning\" | Select-Object -Last 6 | ForEach-Object { $_.Line })",
+      "PowerShell(npm run build 2>&1 | Select-Object -Last 15; \"BUILD_EXIT=$LASTEXITCODE\"; npm run verify:static 2>&1 | Select-Object -Last 12; \"VERIFY_EXIT=$LASTEXITCODE\")"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

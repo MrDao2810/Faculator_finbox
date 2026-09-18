@@ -53,13 +53,25 @@ function dungThe(id: string) {
 }
 
 describe('FormulaNotationCard — dựng', () => {
-  it('HTML tĩnh giống hệt lần mount đầu — không lệch hydration', () => {
-    const spec = specOf('ty-so-sharpe');
-    const notation = buildNotationView(spec);
-    const tinh = renderToStaticMarkup(<FormulaNotationCard spec={spec} notation={notation} />);
-    const { container } = render(<FormulaNotationCard spec={spec} notation={notation} />);
-    expect(container.innerHTML).toBe(tinh);
-  });
+  /*
+   * `ty-so-sortino` có hai vế: nút chữ xuống dòng giữa hai vế là chỗ dễ lệch hydrate nhất.
+   *
+   * Phải chuẩn hoá thẻ rỗng trước khi so: hình có `\quad` sinh `<mspace width="1em">`, mà
+   * `renderToStaticMarkup` in thẻ ấy dạng tự đóng còn `innerHTML` của jsdom in dạng mở rồi đóng.
+   * Khác nhau ở BỘ IN CHUỖI, không phải khác nhau ở cây DOM — React hydrate so nút, không so chuỗi.
+   */
+  const chuanHoa = (html: string) => html.replace(/<(\w+)([^>]*?)\/>/gu, '<$1$2></$1>');
+
+  it.each(['ty-so-sharpe', 'ty-so-sortino'])(
+    'HTML tĩnh giống hệt lần mount đầu — không lệch hydration (%s)',
+    (id) => {
+      const spec = specOf(id);
+      const notation = buildNotationView(spec);
+      const tinh = renderToStaticMarkup(<FormulaNotationCard spec={spec} notation={notation} />);
+      const { container } = render(<FormulaNotationCard spec={spec} notation={notation} />);
+      expect(chuanHoa(container.innerHTML)).toBe(chuanHoa(tinh));
+    },
+  );
 
   it('giữ đúng cấu trúc mà verify-static và check:chrome bám vào', () => {
     const { card } = dungThe('ty-so-sharpe');
@@ -87,8 +99,55 @@ describe('FormulaNotationCard — dựng', () => {
   it('dòng chữ tách đoạn vẫn đọc ra đúng dòng chữ gốc, cụm có khung mang data-sym', () => {
     const { spec, card } = dungThe('ty-so-sharpe');
     const dong = card.querySelector('p') as HTMLElement;
+    /*
+     * `toBe` chứ không `toContain`, và phép so này nay mang thêm một nghĩa: giữa hai vế có một nút
+     * chữ xuống dòng THẬT, nên chỗ ngắt sống sót vào DOM và chép ra ngoài được hai dòng. Ai dọn nút
+     * chữ ấy đi sẽ làm đỏ đúng ở đây.
+     */
     expect(dong.textContent).toBe(spec.expression?.vi);
     expect(dong.querySelectorAll('span[data-sym]').length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * Hình nhiều vế thì dòng chữ nhiều dòng (luật 6, 18/09/2026). Ba ca ở trên đều chạy trên công thức
+ * MỘT vế, nên đường nhiều dòng có hỏng hẳn chúng vẫn xanh — đây là chỗ gác nó.
+ *
+ * jsdom không tính CSS Module nên việc XUỐNG DÒNG THẬT trên màn do `check:chrome` đo; ở đây gác
+ * phần dựng: số khối `[data-eq]`, `data-lines`, và chữ ghép lại đúng nguyên văn dữ liệu.
+ */
+describe('FormulaNotationCard — hình nhiều vế, chữ nhiều dòng', () => {
+  it('ty-so-sortino: hai vế thành hai khối, mỗi khối một công thức', () => {
+    const { spec, card } = dungThe('ty-so-sortino');
+    const dong = card.querySelector('p') as HTMLElement;
+    const ve = [...dong.querySelectorAll('[data-eq]')];
+
+    expect(dong.getAttribute('data-lines')).toBe('2');
+    expect(ve).toHaveLength(2);
+    expect(ve.map((el) => el.textContent).join('\n')).toBe(spec.expression?.vi);
+    for (const el of ve) {
+      expect(el.textContent).toContain('=');
+      expect(el.textContent).not.toContain(', với');
+    }
+  });
+
+  it('cả 111 công thức: số khối đúng bằng số dòng của dữ liệu, chữ không xê một ký tự', () => {
+    const sai: string[] = [];
+    for (const spec of FORMULAS) {
+      const { container, unmount } = render(
+        <FormulaNotationCard spec={spec} notation={buildNotationView(spec)} />,
+      );
+      const dong = container.querySelector('p') as HTMLElement;
+      const soDong = (spec.expression?.vi ?? '').split('\n').length;
+      const soKhoi = dong.querySelectorAll('[data-eq]').length;
+      if (soKhoi !== soDong) sai.push(`${spec.id}: ${String(soKhoi)} khối, ${String(soDong)} dòng`);
+      if (dong.textContent !== spec.expression?.vi) sai.push(`${spec.id}: chữ khác dữ liệu`);
+      if (dong.getAttribute('data-lines') !== String(soDong)) {
+        sai.push(`${spec.id}: data-lines sai`);
+      }
+      unmount();
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
   });
 });
 

@@ -174,7 +174,9 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 | 3.2.2 | Thẻ bước của chuỗi định giá gọi theo tên con số nó cấp                          | —       | Xong phần code, chờ chủ dự án soi — xem mục "Thẻ bước của chuỗi…"              |
 | 2.4.3 | Khung "cách tính" khi rê chuột/chạm vào một phần của công thức — 111 công thức  | —       | Xong phần code, **chưa build** — xem mục "Khung cách tính…"                    |
 | 3.2.1 | Nút nhỏ ẩn bảng ký hiệu ở khổ điện thoại                                        | —       | Xong phần code, chờ chủ dự án soi — xem mục "Nút nhỏ ẩn bảng ký hiệu…"         |
-| 2.4.3 | Bảng ký hiệu `fcfe`: hai dòng FCFE và FCFF hết trùng nội dung                   | —       | Xong phần code, chờ chủ dự án soi — xem mục ngay dưới                          |
+| 2.4.3 | Bảng ký hiệu `fcfe`: hai dòng FCFE và FCFF hết trùng nội dung                   | —       | Xong phần code, chờ chủ dự án soi — xem mục "Bảng ký hiệu của `fcfe`…"         |
+| 2.4.3 | Dòng chữ phải đọc đủ số vế của hình — 3 công thức sai, thêm cửa gác             | —       | Xong phần code, chờ chủ dự án soi — xem mục "Hình vẽ hai vế…"                  |
+| 2.4.3 | Mỗi vế một dòng — bỏ lối nối bằng dấu phẩy, luật 6 và cửa gác bốn tầng          | —       | Xong phần code, **chưa build** — xem mục ngay dưới                             |
 
 Cộng dồn: **~302 giờ** trên tổng 623 giờ của bảng Estimate (148,5 + 45 nhánh 3 + ~24,2 phần nhánh 5
 kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 giờ phần đã làm của gói 5.2.3,
@@ -184,6 +186,148 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
+
+## Mỗi vế một DÒNG, bỏ hẳn lối nối bằng dấu phẩy (18/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.796** ca.
+
+### Yêu cầu
+
+Ngay sau bản vá "đọc đủ số vế", chủ dự án bác cách nối: _"thêm thì thì thêm giải thích rồi nhưng cần
+xuống dòng giải thích công thức thứ 2 thay vì dùng dấy phẩy khó nhìn như này. cần xử lý khoa học hơn"_.
+
+### Luật 6 — chỗ ngắt nằm trong dữ liệu, lấy từ chính hình
+
+Hình đã tự mang chỗ ngắt của nó: `\quad`, `\qquad` hoặc `\\`. Quét cả 111 `latex`: các ký hiệu ấy xuất
+hiện đúng 5 lần, đều là chỗ ngăn hai vế, không công thức nào dùng chúng để nới chữ trong một vế. Nên
+luật là **một chỗ ngắt của hình là một ký tự xuống dòng của chữ**, không phải một danh sách id chép tay.
+
+| Công thức           | Ghi chú                                                                                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ty-so-sortino`     | bỏ ", với"; vế σ_d xuống dòng riêng                                                                                                                                    |
+| `rsi-wilder`        | bỏ ", với"; mệnh đề "hai trung bình làm mượt theo Wilder" bám dòng của vế nó bổ nghĩa                                                                                  |
+| `ema-n-phien`       | bỏ ", với"; vế k xuống dòng riêng, gọi "Hệ số k" đúng tên vế trên đang dùng                                                                                            |
+| `atr-dao-dong-thuc` | bỏ dấu chấm phẩy; **vế 2 viết lại**: bản cũ kể ý ("trung bình làm mượt Wilder"), nay đọc đúng phép tính trong hình và trong `calc`                                     |
+| `diem-hoa-von`      | bỏ dấu chấm phẩy; **đổi tên**: "Giá bán" và "Biến phí đơn vị" thành "Giá bán một sản phẩm", "Biến phí một sản phẩm" cho trùng từng chữ với bảng ký hiệu và nhãn ô nhập |
+| `don-bay-tong-hop`  | **giữ một dòng**: `DTL = DOL × DFL = …` là đẳng thức dây chuyền trong một khối, hình không ngắt thì chữ không ngắt. Cắt ra là đẻ một dòng mở đầu bằng dấu bằng         |
+
+Luật 5 (số dấu bằng) và luật 6 (số dòng) đo hai thứ khác nhau nên giữ cả hai: luật 5 bắt
+`don-bay-tong-hop`, luật 6 bắt `ty-so-sortino`.
+
+**Cửa gác mới bắt được một lỗi đang sống:** khung "cách tính" của `beta`, bước hiệp phương sai, vẽ hai
+vế `R̄_i` và `R̄_m` mà chữ nhồi một dòng nối bằng dấu phẩy. Đã tách hai dòng.
+
+### Dựng trên màn
+
+- `segmentExpressionLines()` cắt dòng TRƯỚC rồi mới tìm cụm trong từng dòng; phép kiểm "đủ cụm" làm trên
+  toàn bộ các dòng, không phải từng dòng.
+- Thẻ dựng một `<span data-eq>` cho mỗi vế, nằm trong ĐÚNG MỘT `<p data-lines>` như cũ — `check:chrome`
+  và `verify-static` dò dòng chữ bằng `formula.nextElementSibling`, tách thành nhiều `<p>` là gãy.
+- Giữa hai vế có một ký tự xuống dòng THẬT, nên `p.textContent` vẫn đúng nguyên văn dữ liệu và người
+  dùng bôi đen chép ra ngoài cũng được hai dòng. Vì thế `.expression` cấm `white-space: pre-line`.
+- Khối nhiều vế: lưới một cột căn giữa, các vế chung mép trái, dòng vắt tiếp thụt vào 1,5em — để "dòng
+  bắt đầu ở mép trái là vế mới, dòng thụt vào là phần vắt tiếp". 106 công thức một vế mang
+  `data-lines="1"`, không khớp luật nào, nên không xê một pixel.
+- Khung "cách tính" dựng y hệt cho chữ của từng bước (`.stepLine`).
+
+| File                                                                                                          | Sửa gì                                                                |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `core/expression-rules.ts`                                                                                    | luật 6: `blocksInLatex`, `expressionLines`, `expressionBlockProblems` |
+| `core/formulas/risk-ratios.ts`, `technical-trend.ts` (2 công thức), `technical-volatility.ts`, `corporate.ts` | 5 dòng chữ xuống dòng                                                 |
+| `core/how-to/risk-ratios.ts`                                                                                  | tách hai vế của bước hiệp phương sai `beta`                           |
+| `core/how-to/corporate.ts`                                                                                    | `phrases` cho DOL và DFL                                              |
+| `app/cong-thuc/[id]/expression-segments.ts`                                                                   | `segmentExpressionLines()`, thân chung `segmentOne()`                 |
+| `app/cong-thuc/[id]/notation-types.ts`, `notation-view.ts`                                                    | `expression` thành mảng DÒNG của đoạn                                 |
+| `app/cong-thuc/[id]/FormulaNotationCard.tsx`, `HowToPanel.tsx`                                                | dựng `<span data-eq>` mỗi vế, giữ ký tự xuống dòng                    |
+| `app/cong-thuc/[id]/FormulaDetail.module.css`, `FormulaNotationCard.module.css`                               | lưới một cột, thụt dòng treo, `break-inside` khi in                   |
+| 5 file test + `scripts/verify-static.mjs`, `scripts/chrome-check.mjs`                                         | cửa gác luật 6 ở cả bốn tầng                                          |
+| `CLAUDE.md`, `core/registry/types.ts`                                                                         | luật 6, số phép kiểm 39 và 126                                        |
+
+### Kiểm chứng
+
+- `npm run check` xanh: 121 file, 2.796 ca (thêm 8 ca), lint và prettier sạch.
+- Chụp Chrome bảng tối: `ty-so-sortino`, `rsi-wilder`, `atr-dao-dong-thuc`, `diem-hoa-von` ở 1440 và 360
+  — hai vế thành hai dòng, chung mép trái, dòng vắt tiếp thụt vào. Trang một vế (`ev-ebitda`) vẫn căn
+  giữa y như cũ.
+
+### Rà phản biện bằng máy sau khi code xong
+
+Bốn hướng rà song song (nội dung, giao diện, cửa gác, tài liệu), mỗi phát hiện bị một agent khác phản
+biện: 19 phát hiện, **9 được xác nhận là lỗi thật**, đã sửa hết:
+
+1. **Nặng — phép kiểm thụt dòng treo trong `check:chrome` không bao giờ xanh được.** Tôi đo bằng
+   `ve[0].getClientRects()`, mà `[data-eq]` là khối `display: block` nên chỉ sinh MỘT hình chữ nhật dù
+   chữ vắt mấy dòng. Đã đổi sang đo bằng `Range` phủ nội dung rồi gom theo `top`. Đo lại trên Chrome
+   thật: `ty-so-sortino` ở 360 cho `[29, 47, 47, 47]`, ở 1440 cho `[77, 98]` — dòng vắt tiếp thụt đúng
+   1,5em; `ev-ebitda` một vế vẫn canh giữa.
+2. **Vừa — `atr-dao-dong-thuc` mất điểm chạm.** Dòng chữ mới gọi tên "ATR phiên trước", nhưng khung của
+   `ATR_{t-1}` không khai `phrases` nên cụm ấy không sáng và không mở khung. Đã khai.
+3. **Nhẹ — cửa gác luật 6 của khung cách tính `trim()` trước khi đếm dòng**, nên một `\n` thừa ở cuối
+   lọt qua mà khung vẫn dựng thêm một khối rỗng. Bỏ `trim()`.
+4. **Nhẹ — CLAUDE.md**: prettier nuốt gạch dưới trong đoạn tôi vừa thêm (`σ*d`, `\sum*{t=1}`); viết lại
+   bằng chữ. Số phép kiểm ghi sai: `verify:static` chạy **39** (đếm bằng cách chạy thật), `check:chrome`
+   chạy **126** (có 2 phép nằm trong vòng lặp). Docblock `blocksInLatex` ghi `\ ` ba lần, thật ra hai.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi năm trang đã đổi.
+- [ ] Chạy `npm run build`, `verify:static`, `check:chrome` khi cổng 3000 trống — hai script có phép kiểm
+      mới chưa chạy trọn lần nào.
+
+## Hình vẽ hai vế mà dòng chữ chỉ đọc một vế — 3 công thức (18/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.788** ca.
+
+### Lỗi
+
+Chủ dự án khoanh thẻ Công thức của `ty-so-sortino`: _"công thức sau tại sao lại có 2 công thức mà bên dưới
+chỉ có giải thích cho 1 công thức?"_ Hình vẽ `Sortino = … , σ_d = …` mà dòng chữ dưới hình chỉ đọc vế đầu.
+
+Cửa gác đợt "hình, dòng chữ và calc nói cùng một phép tính" (17/09/2026) chỉ so **tập hằng số**, nên không
+thấy được lỗi này: vế bị bỏ quên không mang con số lạ nào. Đây là lỗ của cửa gác, không phải một ca hiếm.
+
+### Rà cả 111
+
+Đếm số vế của hình (mỗi dấu bằng là một vế, sau khi bỏ `\text{}` và chỉ số trên dưới để `\sum_{t=1}` không bị
+tính) rồi so với dòng chữ, cả `vi` lẫn `en`. **Sáu công thức có hình nhiều vế; ba cái sai:**
+
+| Công thức          | Hình                               | Dòng chữ trước                                      | Nay                                                          |
+| ------------------ | ---------------------------------- | --------------------------------------------------- | ------------------------------------------------------------ |
+| `ty-so-sortino`    | tỷ số, rồi độ lệch chuẩn phần giảm | chỉ đọc vế tỷ số                                    | thêm ", với Độ lệch chuẩn phần giảm = …", chia TỔNG số phiên |
+| `rsi-wilder`       | RSI, rồi RS                        | gộp RS vào trong ngoặc của vế đầu                   | tách thành ", với Sức mạnh tương đối = Trung bình tăng ÷ …"  |
+| `don-bay-tong-hop` | DTL = DOL × DFL = …                | bỏ hẳn phần giữa, hình nhắc DOL và DFL mà chữ không | đọc đủ ba phần; DOL, DFL thành điểm chạm ở dòng chữ          |
+
+Ba cái còn lại đã đúng từ trước: `ema-n-phien`, `atr-dao-dong-thuc`, `diem-hoa-von`. Tôi cũng đọc tay cả 111
+cặp hình và dòng chữ một lượt, không còn chỗ nào hụt vế.
+
+### Cửa gác mới (luật 5)
+
+- `core/expression-rules.ts`: thêm `equationsInLatex()` và `equationsInText()`.
+- `formulas.test.ts`: ca "dòng chữ đọc đủ số vế của hình" cho cả 111, cả hai ngôn ngữ.
+- `how-to.test.ts`: cùng phép đếm cho dòng chữ của từng bước trong khung cách tính.
+- **Thử làm hỏng:** bỏ lại vế σ_d của Sortino thì ca kiểm đỏ đúng chỗ, báo `ty-so-sortino · vi: hình 2 vế,
+dòng chữ 1 vế`. Đã khôi phục.
+
+| File                                               | Sửa gì                                                   |
+| -------------------------------------------------- | -------------------------------------------------------- |
+| `core/expression-rules.ts`                         | luật 5 trong docblock, hai hàm đếm vế                    |
+| `core/formulas/risk-ratios.ts`                     | dòng chữ `ty-so-sortino` đọc cả vế σ_d                   |
+| `core/formulas/technical-trend.ts`                 | dòng chữ `rsi-wilder` tách vế RS                         |
+| `core/formulas/corporate.ts`                       | dòng chữ `don-bay-tong-hop` đọc đủ ba phần               |
+| `core/how-to/corporate.ts`                         | `phrases` cho DOL và DFL, để hai tên mới thành điểm chạm |
+| `core/formulas/formulas.test.ts`, `how-to.test.ts` | ca kiểm luật 5                                           |
+| `CLAUDE.md`                                        | một đoạn về luật 5 ở mục hình và dòng chữ                |
+
+### Kiểm chứng
+
+- `npm run check` xanh: 121 file, 2.788 ca (thêm 1 ca mới), lint và prettier sạch.
+- Chụp Chrome bảng tối ở 1440 cả ba trang: dòng chữ đọc đủ các vế, xuống dòng gọn trong thẻ.
+
+### Việc còn lại
+
+- [ ] Chủ dự án soi ba dòng chữ mới.
+- [ ] Quyết hình `macd-duong-tin-hieu`: chỉ số dưới đang hiện `EMA_tinhieu`, mất dấu và dính chữ. Sửa được
+      bằng `EMA_{\text{tín hiệu}}`, nhưng đó là đổi HÌNH nên tôi chờ chủ dự án.
 
 ## Bảng ký hiệu của `fcfe`: hai dòng FCFE và FCFF trùng nội dung (17/09/2026)
 

@@ -34,9 +34,57 @@ function isBoundary(text: string, at: number): boolean {
   return char === undefined || !LETTER_OR_DIGIT.test(char);
 }
 
+/**
+ * Tách dòng chữ NHIỀU DÒNG thành từng dòng, mỗi dòng là một dãy đoạn (18/09/2026).
+ *
+ * Hình nhiều vế thì dòng chữ nhiều dòng, ngăn bằng `\n` — luật 6 ở `src/core/expression-rules.ts`.
+ * Cắt dòng TRƯỚC rồi mới tìm cụm trong từng dòng, nên một cụm không bao giờ vắt qua chỗ ngắt.
+ *
+ * Phép kiểm "không thấy cụm" phải làm trên TOÀN BỘ các dòng, không phải từng dòng: cụm của Sortino
+ * nằm ở dòng một, cụm của RSI nằm ở dòng hai, nên đòi đủ cụm ở mỗi dòng là công thức nào cũng đỏ.
+ */
+export function segmentExpressionLines(
+  text: string,
+  phrases: ReadonlyArray<ExpressionPhrase>,
+): ExpressionSegment[][] {
+  const lines = text.split('\n');
+  const thay = new Set<string>();
+  const out = lines.map((line) =>
+    segmentOne(line, phrases, (phrase) => {
+      thay.add(phrase);
+    }),
+  );
+
+  for (const { phrase } of phrases) {
+    if (!thay.has(phrase)) {
+      throw new Error(`expression-segments: không thấy cụm "${phrase}" trong dòng chữ "${text}"`);
+    }
+  }
+
+  return out;
+}
+
 export function segmentExpression(
   text: string,
   phrases: ReadonlyArray<ExpressionPhrase>,
+): ExpressionSegment[] {
+  const thay = new Set<string>();
+  const segments = segmentOne(text, phrases, (phrase) => {
+    thay.add(phrase);
+  });
+  for (const { phrase } of phrases) {
+    if (!thay.has(phrase)) {
+      throw new Error(`expression-segments: không thấy cụm "${phrase}" trong dòng chữ "${text}"`);
+    }
+  }
+  return segments;
+}
+
+/** Thân chung: cắt một dòng, báo về cụm nào tìm thấy; KHÔNG ném khi thiếu cụm. */
+function segmentOne(
+  text: string,
+  phrases: ReadonlyArray<ExpressionPhrase>,
+  onFound: (phrase: string) => void,
 ): ExpressionSegment[] {
   const claimed: Array<{ start: number; end: number; sym: number }> = [];
 
@@ -67,9 +115,7 @@ export function segmentExpression(
       found += 1;
     }
 
-    if (found === 0) {
-      throw new Error(`expression-segments: không thấy cụm "${phrase}" trong dòng chữ "${text}"`);
-    }
+    if (found > 0) onFound(phrase);
   }
 
   claimed.sort((a, b) => a.start - b.start);

@@ -730,9 +730,15 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     },
     latex:
       'TR_t = \\max(H_t - L_t,\\ |H_t - C_{t-1}|,\\ |L_t - C_{t-1}|), \\quad ATR_t = \\frac{(n-1) ATR_{t-1} + TR_t}{n}',
+    /*
+     * Hai vế của hình thành hai DÒNG (luật 6, 18/09/2026), và vế sau được VIẾT LẠI: bản cũ
+     * "ATR = trung bình làm mượt Wilder của dao động thực" kể ý chứ không đọc ra phép tính trong
+     * hình. Nay đọc đúng `((n − 1) × ATR trước + TR) ÷ n`, cũng đúng cách `calc` làm mượt. Gọi `n`
+     * là "Chu kỳ ATR" cho trùng từng chữ với nhãn ô nhập và dòng bảng ký hiệu.
+     */
     expression: {
-      vi: 'Dao động thực = số lớn nhất trong (Cao − Thấp), (Cao − Đóng cửa phiên trước), (Đóng cửa phiên trước − Thấp); ATR = trung bình làm mượt Wilder của dao động thực',
-      en: 'True range = the largest of (High − Low), (High − Previous close), (Previous close − Low); ATR = the Wilder-smoothed average of the true range',
+      vi: 'Dao động thực phiên này = số lớn nhất trong (Cao − Thấp), (Cao − Đóng cửa phiên trước), (Đóng cửa phiên trước − Thấp)\nATR phiên này = ((Chu kỳ ATR − 1) × ATR phiên trước + Dao động thực phiên này) ÷ Chu kỳ ATR',
+      en: "This session's true range = the largest of (High − Low), (High − Previous close), (Previous close − Low)\nThis session's ATR = ((ATR period − 1) × Previous ATR + This session's true range) ÷ ATR period",
     },
     symbols: [
       {

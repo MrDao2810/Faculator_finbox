@@ -565,6 +565,66 @@ button.iconButton::after {
 }
 
 /*
+ * ── Hình nhiều vế: mỗi vế một DÒNG (18/09/2026) ──────────────────────────────────────────────
+ *
+ * Chủ dự án, sau khi bản vá nối hai vế bằng dấu phẩy: *"cần xuống dòng giải thích công thức thứ 2
+ * thay vì dùng dấu phẩy khó nhìn như này. cần xử lý khoa học hơn"*. Chỗ ngắt nằm trong DỮ LIỆU —
+ * một `\n` ứng với một `\quad` của hình, luật 6 ở `src/core/expression-rules.ts` — còn đây chỉ
+ * dựng lại. Năm công thức có hai vế: `ty-so-sortino`, `rsi-wilder`, `ema-n-phien`,
+ * `atr-dao-dong-thuc`, `diem-hoa-von`.
+ *
+ * 106 công thức còn lại mang `data-lines="1"`, không khớp luật nào dưới đây, nên không trang nào
+ * trong số ấy xê một pixel.
+ *
+ * Từ hai vế trở lên thì canh giữa TỪNG DÒNG là đọc không ra: ở 360px cỡ chữ rơi về 12px và một vế
+ * đã vắt hai ba dòng, nên không có dấu hiệu nào nói dòng nào MỞ vế mới, dòng nào chỉ là phần vắt
+ * tiếp. Ba luật dưới đây dựng dấu hiệu ấy mà vẫn giữ nguyên lý do cũ của `text-align: center`
+ * (neo dòng chữ vào hình căn giữa ngay trên):
+ *
+ * 1. Lưới một cột `minmax(0, max-content)` + `justify-content: center`: cả KHỐI vẫn nằm giữa, các
+ *    vế dùng chung MỘT mép trái. Không dùng `width: fit-content`: `<p>` này mang `border-top`, co
+ *    bề ngang là co luôn đường kẻ ngăn với hình thành một gạch ngắn lửng giữa thẻ.
+ * 2. Thụt dòng treo: dòng mở vế mới bắt đầu ở mép trái, dòng vắt tiếp thụt vào 1,5em — luật nhị
+ *    phân, đọc trong một cái liếc, không tốn thêm nét mực nào. `em` chứ không `px` vì cỡ chữ là
+ *    `clamp()`. Đã cân nhắc kẻ một đường dọc cho mỗi vế và bỏ: thẻ đã có viền nét đứt, một đường kẻ
+ *    ngang dưới hình và một đường kẻ dọc ngăn bảng ký hiệu từ 1024px.
+ * 3. `row-gap` giữa hai VẾ rộng hơn khoảng giữa hai dòng vắt tiếp.
+ *
+ * KHÔNG thêm `white-space: pre-line` hay `pre-wrap` vào `.expression`: giữa hai vế có một nút chữ
+ * `\n` thật (để `textContent` còn nguyên văn, xem chú thích trong `FormulaNotationCard.tsx`), và
+ * đổi `white-space` là nó hiện thành một dòng trống.
+ */
+.expressionLine {
+  display: block;
+}
+
+.expression:not([data-lines='1']) {
+  display: grid;
+  /* `minmax(0, …)` chứ không `max-content` trần: vế dài hơn khung thì cột phải co được. */
+  grid-template-columns: minmax(0, max-content);
+  justify-content: center;
+  row-gap: var(--space-2);
+  text-align: left;
+}
+
+.expression:not([data-lines='1']) .expressionLine {
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+  /*
+   * Cỡ tối thiểu tự động của một grid item là min-content, mà `overflow-wrap: break-word` không
+   * làm min-content nhỏ đi — thiếu dòng này thì một "từ" không có chỗ ngắt đẩy tràn cả ô.
+   */
+  min-width: 0;
+}
+
+/* Bản in: một vế không bị cắt đôi qua hai trang giấy. */
+@media print {
+  .expressionLine {
+    break-inside: avoid;
+  }
+}
+
+/*
  * Dòng ghi chú phụ dưới một khối. Nay còn đúng một nơi dùng: số phiên giá đã nạp.
  *
  * Hai trạng thái "chờ" từng dùng khuôn này đều đã đóng. `.chartSlot` là khung nét đứt cho khối

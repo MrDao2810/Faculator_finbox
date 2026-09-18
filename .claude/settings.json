@@ -1718,7 +1718,16 @@
       "Bash(timeout 200 node shot-howto.mjs C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad/scratchpad/howto-shots v4 light rsi-wilder vi)",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\" | Select-Object Name, Length, LastWriteTime; try { \\(Invoke-WebRequest -UseBasicParsing -TimeoutSec 20 http://localhost:3000/cong-thuc/fcfe/\\).StatusCode } catch { \"DEV SERVER: \" + $_.Exception.Message })",
       "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \"$s\\\\shot-page.mjs\" \"$s\\\\trung\" fcfe dark fcfe vi)",
-      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; npx vite-node --config \"$s\\\\probe.config.mjs\" \"$s\\\\trung\\\\probe-trung.ts\")"
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; npx vite-node --config \"$s\\\\probe.config.mjs\" \"$s\\\\trung\\\\probe-trung.ts\")",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; npx vite-node --config \"$s\\\\probe.config.mjs\" \"$s\\\\trung\\\\probe-ve.ts\")",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; npx vite-node --config \"$s\\\\probe.config.mjs\" \"$s\\\\trung\\\\probe-ve2.ts\")",
+      "PowerShell(npx prettier --check src/core/expression-rules.ts src/core/formulas/formulas.test.ts src/core/how-to/how-to.test.ts)",
+      "Bash(sed -i \"s|if \\(/\\\\\\\\\\\\\\\\/.test\\(l\\)\\) flags.push\\('BACKSLASH'\\);|if \\(l.includes\\(String.fromCharCode\\(92\\)\\)\\) flags.push\\('BACKSLASH'\\);|\" check.mjs)",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; New-Item -ItemType Directory -Force \"$s\\\\dong\" | Out-Null; foreach \\($id in @\\('ty-so-sortino','rsi-wilder','atr-dao-dong-thuc','diem-hoa-von','ev-ebitda'\\)\\) { node \"$s\\\\shot-toggle.mjs\" \"$s\\\\dong\" ve dark $id vi })",
+      "Bash(awk 'NR>=325 && NR<=336 {print NR\": \"$0}' CLAUDE.md)",
+      "PowerShell(npx prettier --write CLAUDE.md)",
+      "PowerShell(node scripts/verify-static.mjs 2>&1)",
+      "PowerShell($s = \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\\\scratchpad\"; node \"$s\\\\shot-howto.mjs\" \"$s\\\\dong\" khung dark beta vi 2>&1 | Select-Object -First 12)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

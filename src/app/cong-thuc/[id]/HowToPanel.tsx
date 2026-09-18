@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import type { CSSProperties, RefObject } from 'react';
 
 import { formulaPath } from '@/application';
@@ -77,7 +77,21 @@ export function HowToPanel({
               // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem latex-html.ts
               dangerouslySetInnerHTML={stepInner[index]}
             />
-            <p className={styles.stepText}>{pick(step.expression)}</p>
+            {/*
+              Hình của bước cũng có thể nhiều vế (`\quad`), và khi ấy chữ của bước cũng nhiều dòng —
+              cùng luật 6 với dòng chữ dưới hình chính. Giữ ký tự `\n` giữa hai vế để chép ra ngoài
+              còn đúng hai dòng; chỗ ngắt do `.stepLine { display: block }` dựng.
+            */}
+            <p className={styles.stepText} data-lines={pick(step.expression).split('\n').length}>
+              {pick(step.expression)
+                .split('\n')
+                .map((line, li) => (
+                  <Fragment key={li}>
+                    {li > 0 && '\n'}
+                    <span className={styles.stepLine}>{line}</span>
+                  </Fragment>
+                ))}
+            </p>
           </li>
         ))}
       </ol>

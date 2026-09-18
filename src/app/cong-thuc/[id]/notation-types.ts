@@ -33,7 +33,12 @@ export interface NotationView {
   latexHtml: string;
   /** Từng ký hiệu của bảng, MathML dòng — cùng thứ tự với `spec.symbols`. */
   symbolsHtml: ReadonlyArray<string>;
-  /** Dòng chữ dưới hình, đã tách đoạn theo điểm chạm, cho cả hai ngôn ngữ. */
-  expression: Readonly<Record<'vi' | 'en', ReadonlyArray<ExpressionSegment>>>;
+  /**
+   * Dòng chữ dưới hình, đã tách đoạn theo điểm chạm, cho cả hai ngôn ngữ.
+   *
+   * MỘT MẢNG DÒNG: hình nhiều vế thì chữ nhiều dòng, ngắt đúng chỗ `\quad` của hình (luật 6 ở
+   * `src/core/expression-rules.ts`). 106 công thức có đúng một dòng.
+   */
+  expression: Readonly<Record<'vi' | 'en', ReadonlyArray<ReadonlyArray<ExpressionSegment>>>>;
   howTo: ReadonlyArray<NotationHowToView>;
 }

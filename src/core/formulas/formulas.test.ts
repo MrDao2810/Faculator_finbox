@@ -13,8 +13,11 @@ import { formatFailures, runSpecTests } from '../calc/run-tests';
 import type { CalcContext } from '../calc/types';
 import {
   DASHES,
-  LATEX_BACKSLASH,
-  LATEX_BRACES,
+  blocksInLatex,
+  equationsInLatex,
+  equationsInText,
+  expressionBlockProblems,
+  expressionLines,
   numbersInLatex,
   numbersInText,
 } from '../expression-rules';
@@ -112,17 +115,21 @@ describe('Registry với toàn bộ công thức thật', () => {
     }
   });
 
-  it('dòng đó phải đọc được — không lẫn ký hiệu LaTeX', () => {
-    for (const spec of ALL_FORMULAS) {
-      const expression = spec.expression?.vi ?? '';
-
-      expect(expression, `${spec.id} còn dấu gạch chéo ngược của LaTeX`).not.toMatch(
-        LATEX_BACKSLASH,
-      );
-      expect(expression, `${spec.id} còn ngoặc nhọn của LaTeX`).not.toMatch(LATEX_BRACES);
-      // Dấu bằng bảo đảm đây là một công thức chứ không phải mẩu biểu thức rời.
-      expect(expression, `${spec.id} thiếu dấu bằng`).toContain('=');
-    }
+  /*
+   * Đo trên TỪNG DÒNG, không trên cả chuỗi (18/09/2026): từ khi hình nhiều vế được đọc thành nhiều
+   * dòng, một chuỗi như 'A = B\nmẩu chữ rời' vẫn có dấu bằng nên bản cũ cho qua, mà dòng thứ hai
+   * không phải công thức. `expressionBlockProblems()` gộp luật 1 tới 3 cho từng dòng, thêm luật 6:
+   * dòng không rỗng, không thừa khoảng trắng hai đầu, và không nhồi hai vế vào một dòng.
+   */
+  it('mỗi dòng của dòng chữ là một công thức đọc được, không lẫn ký hiệu LaTeX', () => {
+    const sai = ALL_FORMULAS.flatMap((spec) =>
+      (['vi', 'en'] as const).flatMap((ngon) =>
+        expressionBlockProblems(spec.expression?.[ngon] ?? '').map(
+          (loi) => `${spec.id} · ${ngon}: ${loi}`,
+        ),
+      ),
+    );
+    expect(sai, sai.join('\n')).toEqual([]);
   });
 
   /*
@@ -165,6 +172,54 @@ describe('Registry với toàn bộ công thức thật', () => {
         );
       }
     }
+  });
+
+  /*
+   * Lỗi thật đã gặp: hình của `ty-so-sortino` vẽ HAI vế — tỷ số, rồi cách tính độ lệch chuẩn phần
+   * giảm — mà dòng chữ dưới hình chỉ đọc vế đầu. Chủ dự án: "tại sao lại có 2 công thức mà bên dưới
+   * chỉ có giải thích cho 1 công thức?" (18/09/2026). Quét cả 111 thì còn `rsi-wilder` (vế RS bị gộp
+   * vào trong ngoặc) và `don-bay-tong-hop` (bỏ phần giữa `DOL × DFL` của hình).
+   *
+   * Cửa gác hằng số ngay trên KHÔNG thấy được lỗi này: vế bị bỏ quên chẳng mang con số lạ nào. Đây
+   * là thước đo cấu trúc, đếm số vế — hình ba vế thì dòng chữ cũng phải ba vế.
+   */
+  it('dòng chữ đọc đủ số vế của hình', () => {
+    const lech = ALL_FORMULAS.flatMap((spec) => {
+      const trongHinh = equationsInLatex(spec.latex);
+      return (['vi', 'en'] as const)
+        .map((ngon) => ({ ngon, so: equationsInText(spec.expression?.[ngon] ?? '') }))
+        .filter(({ so }) => so !== trongHinh)
+        .map(
+          ({ ngon, so }) =>
+            `${spec.id} · ${ngon}: hình ${String(trongHinh)} vế, dòng chữ ${String(so)} vế`,
+        );
+    });
+    expect(lech, `hình và dòng chữ khác số vế:\n${lech.join('\n')}`).toEqual([]);
+  });
+
+  /*
+   * Luật 6. Ca luật 5 ngay trên chỉ đếm dấu bằng, nên bản vá đầu tiên của `ty-so-sortino` — hai vế
+   * nối bằng ", với …" trong MỘT dòng — vẫn xanh, và chủ dự án bác đúng chỗ ấy: "cần xuống dòng
+   * giải thích công thức thứ 2 thay vì dùng dấu phẩy khó nhìn như này" (18/09/2026).
+   *
+   * Thước đo lấy thẳng từ hình, không phải danh sách id chép tay: `\quad`, `\qquad` và `\\` là chỗ
+   * HÌNH tự ngắt, nên dòng chữ ngắt đúng bấy nhiêu lần. Năm công thức có ngắt (`ty-so-sortino`,
+   * `rsi-wilder`, `ema-n-phien`, `atr-dao-dong-thuc`, `diem-hoa-von`); `don-bay-tong-hop` KHÔNG,
+   * vì `DTL = DOL × DFL = …` là đẳng thức dây chuyền trong một khối — cắt ra là đẻ một dòng mở đầu
+   * bằng dấu bằng. Hai ca cộng lại ép luôn `vi` và `en` cùng số dòng.
+   */
+  it('hình ngắt ở đâu thì dòng chữ xuống dòng ở đó', () => {
+    const lech = ALL_FORMULAS.flatMap((spec) => {
+      const khoi = blocksInLatex(spec.latex);
+      return (['vi', 'en'] as const)
+        .map((ngon) => ({ ngon, so: expressionLines(spec.expression?.[ngon] ?? '').length }))
+        .filter(({ so }) => so !== khoi)
+        .map(
+          ({ ngon, so }) =>
+            `${spec.id} · ${ngon}: hình ${String(khoi)} khối, dòng chữ ${String(so)} dòng`,
+        );
+    });
+    expect(lech, `hình và dòng chữ khác số dòng:\n${lech.join('\n')}`).toEqual([]);
   });
 
   /*

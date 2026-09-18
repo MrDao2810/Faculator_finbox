@@ -201,6 +201,21 @@
   overflow-wrap: break-word;
 }
 
+/*
+ * Bước có hình nhiều vế thì chữ của bước cũng nhiều dòng — cùng luật 6 với dòng chữ dưới hình
+ * chính (`FormulaDetail.module.css`). Khung nổi hẹp (22rem) nên chỉ cần thụt dòng treo, không cần
+ * lưới căn giữa: chữ ở đây vốn canh trái. `.panel` khai `white-space: normal`, nên ký tự `\n` giữa
+ * hai vế vô hình, và chỗ ngắt là do `display: block` — đừng đổi sang `pre-line`.
+ */
+.stepLine {
+  display: block;
+}
+
+.stepText:not([data-lines='1']) .stepLine {
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
+
 .panelLink {
   display: inline-block;
   margin-top: var(--space-3);

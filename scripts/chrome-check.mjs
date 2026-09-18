@@ -516,6 +516,82 @@ window.__themeLog = [];
   );
 
   /*
+   * ── Hình nhiều vế: mỗi vế một DÒNG (18/09/2026) ────────────────────────────────────────────
+   *
+   * Chủ dự án bác bản nối hai vế bằng dấu phẩy: *"cần xuống dòng giải thích công thức thứ 2 …
+   * cần xử lý khoa học hơn"*. Việc xuống dòng do CSS lo (`.expressionLine { display: block }` và
+   * lưới một cột của `.expression:not([data-lines='1'])`), mà jsdom không tính CSS Module — nên
+   * đây là chỗ DUY NHẤT trả lời được "trên màn có xuống dòng thật không", và cũng là chỗ duy nhất
+   * đo được thụt dòng treo.
+   *
+   * `DOC_VE_CHU` trả về khối của từng vế, cộng mép trái của TỪNG DÒNG CHỮ trong vế thứ nhất — vế ấy
+   * dài 143 ký tự nên ở khổ 360 chắc chắn vắt dòng, và dòng thứ hai chính là phần vắt tiếp.
+   *
+   * Đo bằng `Range`, KHÔNG bằng `ve[0].getClientRects()`: `[data-eq]` mang `display: block` (và còn
+   * là ô của lưới), mà một phần tử block chỉ sinh MỘT mảnh hộp, nên `getClientRects()` của nó luôn
+   * trả đúng một hình chữ nhật dù bên trong chữ vắt mấy dòng — đo kiểu ấy thì phép kiểm không bao
+   * giờ xanh được. `Range` phủ nội dung thì trả một hình chữ nhật cho mỗi DÒNG CHỮ. Phải gom theo
+   * `top` rồi lấy mép trái nhỏ nhất: các `<span>` cụm chữ bên trong sinh thêm hình chữ nhật trên
+   * cùng một dòng.
+   */
+  const DOC_VE_CHU = `(() => {
+  const katex = document.querySelector('.katex');
+  const p = katex ? katex.parentElement.nextElementSibling : null;
+  if (!p) return null;
+  const r = (el) => { const b = el.getBoundingClientRect(); return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), right: Math.round(b.right) }; };
+  const ve = [...p.querySelectorAll('[data-eq]')];
+  let hang = [];
+  if (ve.length > 0) {
+    const rg = document.createRange();
+    rg.selectNodeContents(ve[0]);
+    const theoDong = new Map();
+    for (const b of rg.getClientRects()) {
+      if (b.width === 0 && b.height === 0) continue;
+      const key = Math.round(b.top);
+      const cu = theoDong.get(key);
+      const left = Math.round(b.left);
+      theoDong.set(key, cu === undefined ? left : Math.min(cu, left));
+    }
+    hang = [...theoDong.entries()].sort((a, b) => a[0] - b[0]).map((e) => e[1]);
+  }
+  return {
+    soVe: ve.length,
+    lines: p.getAttribute('data-lines'),
+    canLe: getComputedStyle(p).textAlign,
+    p: r(p),
+    ve: ve.map(r),
+    hang,
+  };
+})()`;
+
+  const veMotKhoi = await evaluate(DOC_VE_CHU);
+  check(
+    'công thức một vế giữ nguyên: một khối chữ, vẫn canh giữa',
+    veMotKhoi !== null &&
+      veMotKhoi.soVe === 1 &&
+      veMotKhoi.lines === '1' &&
+      veMotKhoi.canLe === 'center',
+    JSON.stringify(veMotKhoi === null ? null : { soVe: veMotKhoi.soVe, canLe: veMotKhoi.canLe }),
+  );
+
+  await open('/cong-thuc/ty-so-sortino/');
+  const veHaiKhoi = await evaluate(DOC_VE_CHU);
+  check(
+    'Điện thoại 360 · hình hai vế thì chữ thành hai dòng, chung mép trái, không tràn thẻ',
+    veHaiKhoi !== null &&
+      veHaiKhoi.soVe === 2 &&
+      veHaiKhoi.ve[1].top >= veHaiKhoi.ve[0].bottom - 1 &&
+      Math.abs(veHaiKhoi.ve[0].left - veHaiKhoi.ve[1].left) <= 1 &&
+      veHaiKhoi.ve.every((v) => v.left >= veHaiKhoi.p.left - 1 && v.right <= veHaiKhoi.p.right + 1),
+    JSON.stringify(veHaiKhoi),
+  );
+  check(
+    'Điện thoại 360 · dòng vắt tiếp thụt vào, nên nhìn ra đâu là chỗ mở vế mới',
+    veHaiKhoi !== null && veHaiKhoi.hang.length >= 2 && veHaiKhoi.hang[1] > veHaiKhoi.hang[0],
+    JSON.stringify(veHaiKhoi === null ? null : veHaiKhoi.hang),
+  );
+
+  /*
    * ── Bảng ký hiệu "A: là gì" (16/09/2026) — bên PHẢI hình ở khổ PC, DƯỚI dòng chữ ở khổ điện thoại ──
    *
    * Bố cục là grid hai cột từ 1024px; jsdom không dựng grid nên chỉ Chrome thật trả lời được "nó
@@ -664,6 +740,22 @@ window.__themeLog = [];
     'trang ty-so-sharpe không kêu lỗi hay cảnh báo nào ra console',
     noise.length === 0,
     noise[0] ?? '',
+  );
+
+  /*
+   * Ở PC thẻ là lưới hai cột `minmax(0, 3fr) minmax(0, 2fr)`, nên dòng chữ sống trong một cột HẸP
+   * HƠN bề ngang màn. Đây là chỗ bắt được một cách dựng chỉ bẻ dòng theo bề ngang khung nhìn: hai
+   * vế vẫn phải là hai khối xếp dọc, nằm trọn trong nửa trái, không đè lên bảng ký hiệu.
+   */
+  await open('/cong-thuc/ty-so-sortino/');
+  const vePc = await evaluate(DOC_VE_CHU);
+  check(
+    'PC 1440 · hình hai vế: chữ vẫn hai khối xếp dọc, nằm gọn trong nửa trái của thẻ',
+    vePc !== null &&
+      vePc.soVe === 2 &&
+      vePc.ve[1].top >= vePc.ve[0].bottom - 1 &&
+      vePc.ve.every((v) => v.right <= vePc.p.right + 1),
+    JSON.stringify(vePc),
   );
 
   await send('Emulation.setDeviceMetricsOverride', {

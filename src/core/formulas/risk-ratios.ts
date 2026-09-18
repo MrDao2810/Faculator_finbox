@@ -677,9 +677,14 @@ export const TY_SO_SORTINO: FormulaModule = {
     },
     latex:
       'Sortino = \\frac{\\bar{r}_p - r_f}{\\sigma_d} \\times \\sqrt{m}, \\quad \\sigma_d = \\sqrt{\\frac{1}{n} \\sum_{t=1}^{n} \\min(0, r_t - r_f)^2}',
+    /*
+     * Hình hai vế thì dòng chữ hai DÒNG, ngắt đúng chỗ `\quad` (luật 6, `expression-rules.ts`).
+     * Bản đầu chỉ đọc vế tỷ số; bản vá nối vế sau bằng ", với" và chủ dự án bác tiếp vì dấu phẩy
+     * khó nhìn (18/09/2026). Vế sau chia cho TỔNG số phiên, đúng `downsideDeviation()`.
+     */
     expression: {
-      vi: 'Tỷ số Sortino = (Lợi suất bình quân một phiên − Ngưỡng phi rủi ro một phiên) ÷ Độ lệch chuẩn phần giảm × căn bậc hai của Số phiên trong một năm',
-      en: 'Sortino ratio = (Average per-session return − Per-session risk-free threshold) ÷ Downside deviation × square root of Sessions per year',
+      vi: 'Tỷ số Sortino = (Lợi suất bình quân một phiên − Ngưỡng phi rủi ro một phiên) ÷ Độ lệch chuẩn phần giảm × căn bậc hai của Số phiên trong một năm\nĐộ lệch chuẩn phần giảm = căn bậc hai của (Tổng bình phương phần hụt dưới ngưỡng ÷ Tổng số phiên)',
+      en: 'Sortino ratio = (Average per-session return − Per-session risk-free threshold) ÷ Downside deviation × square root of Sessions per year\nDownside deviation = square root of (Sum of squared shortfalls below the threshold ÷ Total number of sessions)',
     },
     symbols: [
       {

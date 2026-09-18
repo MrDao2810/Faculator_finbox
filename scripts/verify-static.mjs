@@ -343,6 +343,26 @@ check(
 );
 
 /*
+ * Hình nhiều vế thì dòng chữ tách sẵn thành từng khối NGAY TRONG HTML TĨNH (luật 6, 18/09/2026),
+ * không phải do JS máy khách cắt ra lúc chạy. `ty-so-sortino` là công thức chủ dự án chỉ vào.
+ * Bám vào `data-lines` / `data-eq` chứ không vào tên lớp, vì tên lớp CSS Module bị băm lúc build.
+ */
+let sortinoHtml = '';
+try {
+  sortinoHtml = readFileSync('out/cong-thuc/ty-so-sortino/index.html', 'utf8');
+} catch {
+  // check dưới tự trượt vì chuỗi rỗng.
+}
+const veChu = /<p[^>]*data-lines="2"[^>]*>([\s\S]*?)<\/p>/.exec(sortinoHtml)?.[1] ?? '';
+check(
+  'hình hai vế: dòng chữ tách sẵn hai khối trong HTML tĩnh, mỗi khối một công thức',
+  (veChu.match(/data-eq="\d+"/g) ?? []).length === 2 &&
+    veChu.includes('Tỷ số Sortino =') &&
+    veChu.includes('Độ lệch chuẩn phần giảm ='),
+  'out/cong-thuc/ty-so-sortino/index.html',
+);
+
+/*
  * Chữ của khung cách tính CHỈ được nằm trong HTML của đúng trang mình, không được lọt vào file JS
  * nào — nó sống ở `src/core/how-to/` chính vì lẽ ấy (xem `types.ts` ở đó). Lọt vào là cả 111 trang
  * cùng tải chữ cách tính của 111 công thức, và `npm run size` vốn đang đỏ sẵn nên không ai thấy.

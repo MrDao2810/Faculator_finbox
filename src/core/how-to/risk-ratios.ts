@@ -50,9 +50,10 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
           {
             latex:
               '\\bar{R}_i = \\frac{1}{n} \\sum_{t=1}^{n} R_{i,t}, \\quad \\bar{R}_m = \\frac{1}{n} \\sum_{t=1}^{n} R_{m,t}',
+            /* Hình của bước có `\quad`, nên chữ cũng hai dòng — luật 6, y như dòng chữ dưới hình chính. */
             expression: {
-              vi: 'Lợi suất trung bình của cổ phiếu = Tổng lợi suất cổ phiếu ÷ Số lợi suất n, Lợi suất trung bình của VN-Index = Tổng lợi suất VN-Index ÷ n',
-              en: 'Mean stock return = Sum of stock returns ÷ Number of returns n, Mean VN-Index return = Sum of VN-Index returns ÷ n',
+              vi: 'Lợi suất trung bình của cổ phiếu = Tổng lợi suất cổ phiếu ÷ Số lợi suất n\nLợi suất trung bình của VN-Index = Tổng lợi suất VN-Index ÷ n',
+              en: 'Mean stock return = Sum of stock returns ÷ Number of returns n\nMean VN-Index return = Sum of VN-Index returns ÷ n',
             },
           },
           {

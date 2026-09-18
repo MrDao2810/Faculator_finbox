@@ -151,6 +151,12 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       {
         kind: 'derived',
         symbol: 'ATR_{t-1}',
+        /*
+         * Dòng chữ gọi đúng tên đại lượng này từ 18/09/2026, khi vế hai được viết lại cho đọc ra
+         * phép tính — nên khai cụm để nó thành điểm chạm ở cả ba chỗ, như `EMA phiên trước` bên
+         * `ema-n-phien`.
+         */
+        phrases: { vi: ['ATR phiên trước'], en: ['Previous ATR'] },
         steps: [
           {
             latex: 'ATR_{dau} = \\frac{TR_1 + TR_2 + \\dots + TR_n}{n}',

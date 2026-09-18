@@ -230,18 +230,32 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
           tiếng Việt, thứ ký hiệu viết tắt phía trên không nói. Cụm nào là điểm chạm của một ký hiệu
           có khung thì bọc `<span data-sym>` — ghép các đoạn lại luôn ra đúng dòng chữ gốc.
         */}
-        <p className={detailStyles.expression}>
+        <p className={detailStyles.expression} data-lines={segments.length}>
           {spec.expression === undefined
             ? spec.latex
-            : segments.map((segment, index) =>
-                segment.sym === undefined ? (
-                  <Fragment key={index}>{segment.text}</Fragment>
-                ) : (
-                  <span key={index} className={styles.phrase} data-sym={segment.sym}>
-                    {segment.text}
+            : segments.map((line, li) => (
+                <Fragment key={li}>
+                  {/*
+                    Ký tự xuống dòng THẬT giữa hai vế, không chỉ hai khối CSS: `p.textContent` nhờ
+                    thế vẫn đúng từng chữ bằng `spec.expression.vi` (ca kiểm so nguyên văn dựa vào
+                    đó), và người dùng bôi đen chép ra ngoài cũng được hai dòng. Nút chữ toàn khoảng
+                    trắng giữa hai grid item không sinh ô nào, nên nó vô hình — với điều kiện
+                    `.expression` không bao giờ mang `white-space: pre-line` hay `pre-wrap`.
+                  */}
+                  {li > 0 && '\n'}
+                  <span className={detailStyles.expressionLine} data-eq={li}>
+                    {line.map((segment, index) =>
+                      segment.sym === undefined ? (
+                        <Fragment key={index}>{segment.text}</Fragment>
+                      ) : (
+                        <span key={index} className={styles.phrase} data-sym={segment.sym}>
+                          {segment.text}
+                        </span>
+                      ),
+                    )}
                   </span>
-                ),
-              )}
+                </Fragment>
+              ))}
         </p>
       </div>
       {/*

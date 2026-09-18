@@ -34,6 +34,7 @@ export const HOW_TO_CORPORATE: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'derived',
         symbol: 'DOL',
+        phrases: { vi: ['Đòn bẩy hoạt động'], en: ['Degree of operating leverage'] },
         steps: [
           {
             latex: 'DOL = \\frac{DT - BP}{EBIT}',
@@ -48,6 +49,7 @@ export const HOW_TO_CORPORATE: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'derived',
         symbol: 'DFL',
+        phrases: { vi: ['Đòn bẩy tài chính'], en: ['Degree of financial leverage'] },
         steps: [
           {
             latex: 'DFL = \\frac{EBIT}{EBIT - I}',

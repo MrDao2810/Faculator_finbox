@@ -58,8 +58,8 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 34 assertions against a built out/ — run after build
-npm run check:chrome   # 110 assertions in a real headless Chrome (360×780 and 1440) — needs out/ + Chrome
+npm run verify:static  # 39 assertions against a built out/ — run after build
+npm run check:chrome   # 126 assertions in a real headless Chrome (360×780 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -321,6 +321,37 @@ ratio in the picture with no `÷ 100` (`1 + r`, `r − g`); a result that is a r
 price amounts read as a percentage carries `× 100` (ROE, ROI, drawdown, VaR). When the gate cannot
 see a mismatch (how `calc` converts an annual rate to a per-session one, which returns a threshold
 drops), the legend row has to say it.
+
+**The expression line must read every half of the picture.** On 18/09/2026 the owner pointed at
+`ty-so-sortino`, whose picture draws two equations (the ratio, then the downside deviation) under a
+line that read only the first: "tại sao lại có 2 công thức mà bên dưới chỉ có giải thích cho 1 công
+thức?" The numbers gate above could not see it — the forgotten half carried no unusual constant. A
+fifth gate counts equations (`equationsInLatex` / `equationsInText` in `expression-rules.ts`, one
+`=` per half, with `\text{…}` and sub/superscripts stripped first so the `=` inside a sum's limits
+does not count) and requires the same count in `latex`, `expression.vi` and `expression.en`;
+`how-to.test.ts` applies it to every step line too. The sweep it came from found two more:
+`rsi-wilder` folded the `RS` half into the first line's parentheses, and `don-bay-tong-hop` dropped
+the middle `DOL × DFL` of a chained equation. Six formulas have multi-part pictures — the other
+three (`ema-n-phien`, `atr-dao-dong-thuc`, `diem-hoa-von`) already read both halves, joined with
+", với …" or ";".
+
+**Each half goes on its own line — the joiner was rejected the same day.** "cần xuống dòng giải
+thích công thức thứ 2 thay vì dùng dấu phẩy khó nhìn như này. cần xử lý khoa học hơn". The break
+lives in the data: one `\n` in `expression.vi`/`.en` per `\quad` / `\qquad` / `\\` in `latex`
+(rule 6, `blocksInLatex` + `expressionLines` in `expression-rules.ts`; `expressionBlockProblems`
+applies rules 1–3 to each line). Rules 5 and 6 measure different things and both stay:
+`don-bay-tong-hop` is the chained `DTL = DOL × DFL = …`, two `=` inside **one** block, so it keeps
+one line — splitting it would produce a line starting with `=`. The same rule governs how-to step
+lines, and enforcing it found a live defect (`beta`'s covariance step drew two equations and read
+them as one line). `notation-view` therefore hands the card `ExpressionSegment[][]` — one array per
+line (`segmentExpressionLines`, which splits first and then requires each phrase to be found in
+_some_ line). The card renders one `<span data-eq>` per line inside the single `<p data-lines>`,
+with a real `\n` text node between them so `p.textContent` still equals the spec string verbatim
+and a copy-paste keeps the break; never add `white-space: pre-line` to `.expression`, which would
+turn that text node into a blank line. Multi-line blocks switch from per-line centering to a
+centered one-column grid with left-aligned lines and a 1.5em hanging indent, so a wrapped line
+cannot be mistaken for a new equation; the 106 single-line formulas match `[data-lines='1']` and
+are untouched.
 
 **Hovering or tapping a symbol opens a "how it is computed" panel** (17/09/2026). The owner pointed at
 Sharpe's card and said users cannot tell how "Lợi suất bình quân một phiên" is computed. Hovering (mouse)

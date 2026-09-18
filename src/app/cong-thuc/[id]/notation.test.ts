@@ -85,11 +85,18 @@ describe('buildNotationView() — thẻ Công thức dựng lúc build', () => {
       if (view instanceof Error) continue;
       const coKhung = new Set(view.howTo.map((h) => h.sym));
       for (const ngon of ['vi', 'en'] as const) {
-        const doan = view.expression[ngon];
-        if (doan.map((d) => d.text).join('') !== (spec.expression?.[ngon] ?? '')) {
+        const dong = view.expression[ngon];
+        /*
+         * Ghép DÒNG bằng ký tự xuống dòng, ghép ĐOẠN trong dòng bằng chuỗi rỗng: phép cắt dòng
+         * (luật 6) không được làm mất hay thêm một ký tự nào so với dữ liệu gốc.
+         */
+        const ghep = dong.map((d) => d.map((s) => s.text).join('')).join('\n');
+        if (ghep !== (spec.expression?.[ngon] ?? '')) {
           sai.push(`${spec.id} · ${ngon}: ghép đoạn không ra dòng chữ gốc`);
         }
-        for (const d of doan) {
+        for (const d of dong.flat()) {
+          if (d.text.includes('\n'))
+            sai.push(`${spec.id} · ${ngon}: đoạn còn sót ký tự xuống dòng`);
           if (d.sym !== undefined && !coKhung.has(d.sym)) {
             sai.push(`${spec.id} · ${ngon}: đoạn "${d.text}" trỏ tới dòng không có khung`);
           }

@@ -3,7 +3,7 @@ import type { Bilingual, FormulaSpec } from '@/application';
 import { howToFor } from '@/application/how-to';
 import type { FormulaHowTo } from '@/application/how-to';
 
-import { segmentExpression } from './expression-segments';
+import { segmentExpressionLines } from './expression-segments';
 import type { ExpressionPhrase } from './expression-segments';
 import { latexToInlineMathml, latexToMathml } from './latex-html';
 import { markSymbols } from './mathml-marks';
@@ -59,9 +59,10 @@ export function buildNotationView(
       (entry.phrases?.[locale] ?? []).map((phrase) => ({ sym: indexOf(entry.symbol), phrase })),
     );
 
+  /* Mỗi vế của hình là một DÒNG chữ (luật 6) — cắt dòng trước, tìm cụm trong từng dòng. */
   const expressionOf = (locale: 'vi' | 'en') => {
     const text = spec.expression?.[locale] ?? '';
-    return segmentExpression(text, phrasesOf(locale));
+    return segmentExpressionLines(text, phrasesOf(locale));
   };
 
   const howToViews: NotationHowToView[] = entries.map((entry) => {

@@ -35,8 +35,13 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     latex: 'Q_{hv} = \\frac{FC}{P - VC} \\qquad DT_{hv} = Q_{hv} \\times P',
     expression: {
-      vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán − Biến phí đơn vị); Doanh thu hoà vốn = Sản lượng hoà vốn × Giá bán',
-      en: 'Break-even output = Fixed cost ÷ (Selling price − Variable cost per unit); Break-even revenue = Break-even output × Selling price',
+      /*
+       * `\qquad` của hình là hai công thức độc lập, nên hai DÒNG (luật 6). Gọi "Giá bán một sản
+       * phẩm" và "Biến phí một sản phẩm" cho trùng từng chữ với nhãn ô nhập và bảng ký hiệu; bản cũ
+       * gọi ba tên khác nhau cho cùng một ô.
+       */
+      vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán một sản phẩm − Biến phí một sản phẩm)\nDoanh thu hoà vốn = Sản lượng hoà vốn × Giá bán một sản phẩm',
+      en: 'Break-even output = Fixed cost ÷ (Selling price per unit − Variable cost per unit)\nBreak-even revenue = Break-even output × Selling price per unit',
     },
     symbols: [
       {
@@ -246,9 +251,13 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       en: 'How many percent EPS changes for a 1% change in revenue, combining both operating leverage and financial leverage.',
     },
     latex: 'DTL = DOL \\times DFL = \\frac{DT - BP}{EBIT - I}',
+    /*
+     * Hình có ba phần nối bằng hai dấu bằng; dòng chữ từng bỏ phần giữa, nên hình nhắc DOL và DFL mà
+     * dưới hình không chỗ nào đọc ra hai cái tên ấy (18/09/2026, cùng lỗi với `ty-so-sortino`).
+     */
     expression: {
-      vi: 'Đòn bẩy tổng hợp = (Doanh thu − Tổng biến phí) ÷ (EBIT − Lãi vay)',
-      en: 'Degree of total leverage = (Revenue − Total variable cost) ÷ (EBIT − Interest expense)',
+      vi: 'Đòn bẩy tổng hợp = Đòn bẩy hoạt động × Đòn bẩy tài chính = (Doanh thu − Tổng biến phí) ÷ (EBIT − Lãi vay)',
+      en: 'Degree of total leverage = Degree of operating leverage × Degree of financial leverage = (Revenue − Total variable cost) ÷ (EBIT − Interest expense)',
     },
     symbols: [
       {

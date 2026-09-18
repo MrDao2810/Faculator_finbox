@@ -281,6 +281,11 @@ export interface FormulaSpec extends FormulaSummary {
    * Nó đứng NGAY DƯỚI hình, nên là hình đọc thành lời: hằng số (khác 0, 1, 2) có trong `latex` thì
    * phải có ở đây và ngược lại, cả `vi` lẫn `en` — cửa gác ở `formulas.test.ts`. Lỗi thật đã gặp:
    * hình sụt giảm không có `× 100` mà dòng chữ có.
+   *
+   * MỘT VẾ MỘT DÒNG: hình ngắt ở `\quad`, `\qquad` hay `\\` thì chuỗi này ngắt ở đúng bấy nhiêu ký
+   * tự xuống dòng (luật 6 ở `src/core/expression-rules.ts`, 18/09/2026). 5 công thức có hai dòng,
+   * 106 công thức còn lại một dòng. Đừng nối hai vế bằng ", với …" hay dấu chấm phẩy: chủ dự án đã
+   * bác đúng cách nối ấy.
    */
   expression?: Bilingual;
   /**

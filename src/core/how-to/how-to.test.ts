@@ -15,7 +15,16 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-import { DASHES, expressionLineProblems, numbersInLatex, numbersInText } from '../expression-rules';
+import {
+  DASHES,
+  blocksInLatex,
+  equationsInLatex,
+  equationsInText,
+  expressionBlockProblems,
+  expressionLines,
+  numbersInLatex,
+  numbersInText,
+} from '../expression-rules';
 import { ALL_FORMULAS } from '../formulas';
 import type { FormulaSpec } from '../registry/types';
 import { HOW_TO, HOW_TO_BY_FILE } from './index';
@@ -324,10 +333,22 @@ describe('khung cách tính — các bước', () => {
     for (const { spec, entry } of moiKhung()) {
       for (const [i, step] of stepsOf(entry).entries()) {
         const hinh = numbersInLatex(step.latex);
+        const veHinh = equationsInLatex(step.latex);
+        const khoiHinh = blocksInLatex(step.latex);
         for (const ngon of ['vi', 'en'] as const) {
-          const chu = step.expression[ngon].trim();
+          /*
+           * KHÔNG `.trim()`: khung cách tính `split('\n')` đúng chuỗi này, nên cắt hai đầu trước khi
+           * đo là bịt mắt chính hai phép kiểm "dòng rỗng" và "thừa khoảng trắng" của luật 6 — một
+           * `\n` thừa ở cuối sẽ lọt cửa gác mà vẫn đẻ ra một khối chữ rỗng trên khung.
+           */
+          const chu = step.expression[ngon];
           const noi = `${spec.id} · ${entry.symbol} · bước ${String(i + 1)} · ${ngon}`;
-          for (const loi of expressionLineProblems(chu)) sai.push(`${noi}: ${loi}`);
+          for (const loi of expressionBlockProblems(chu)) sai.push(`${noi}: ${loi}`);
+          // Luật 6 cho bước: hình của bước ngắt ở `\quad` thì chữ của bước cũng xuống dòng ở đó.
+          const soDong = expressionLines(chu).length;
+          if (soDong !== khoiHinh) {
+            sai.push(`${noi}: hình ${String(khoiHinh)} khối, chữ ${String(soDong)} dòng`);
+          }
           if (/\.$/.test(chu)) sai.push(`${noi}: kết bằng dấu chấm`);
           if (chu.length > 200) sai.push(`${noi}: dài ${String(chu.length)} ký tự, quá 200`);
           const soChu = numbersInText(chu, ngon);
@@ -335,6 +356,11 @@ describe('khung cách tính — các bước', () => {
             sai.push(
               `${noi}: hằng số trong chữ [${soChu.join(', ')}] khác trong hình [${hinh.join(', ')}]`,
             );
+          }
+          // Luật 5, y như dòng chữ dưới hình chính: hình mấy vế thì chữ mấy vế.
+          const veChu = equationsInText(chu);
+          if (veChu !== veHinh) {
+            sai.push(`${noi}: hình ${String(veHinh)} vế, chữ ${String(veChu)} vế`);
           }
         }
       }
@@ -359,6 +385,13 @@ describe('khung cách tính — các bước', () => {
         for (const phrase of cum) {
           if (!dong.includes(phrase))
             sai.push(`${noi} · ${ngon}: "${phrase}" không có trong dòng chữ`);
+          /*
+           * Cụm phải nằm gọn trong MỘT dòng: tầng dựng cắt dòng chữ theo `\n` rồi mới tìm cụm trong
+           * từng dòng, nên một cụm vắt qua chỗ ngắt sẽ không khớp ở đâu cả và làm đỏ `next build`.
+           * Bắt ở đây thì lỗi chỉ đúng tên file dữ liệu phải sửa.
+           */
+          if (expressionLines(phrase).length > 1)
+            sai.push(`${noi} · ${ngon}: "${phrase}" vắt qua hai dòng`);
         }
       }
     }

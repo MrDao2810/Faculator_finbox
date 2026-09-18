@@ -422,8 +422,8 @@ export const EMA_N_PHIEN: FormulaModule = {
     },
     latex: 'EMA_t = P_t \\cdot k + EMA_{t-1} \\cdot (1 - k), \\quad k = \\frac{2}{n+1}',
     expression: {
-      vi: 'EMA phiên này = Giá đóng cửa × Hệ số k + EMA phiên trước × (1 − k), với k = 2 ÷ (Số phiên + 1)',
-      en: "This period's EMA = Closing price × Factor k + Previous period's EMA × (1 − k), where k = 2 ÷ (Number of periods + 1)",
+      vi: 'EMA phiên này = Giá đóng cửa × Hệ số k + EMA phiên trước × (1 − k)\nHệ số k = 2 ÷ (Số phiên + 1)',
+      en: "This period's EMA = Closing price × Factor k + Previous period's EMA × (1 − k)\nFactor k = 2 ÷ (Number of periods + 1)",
     },
     symbols: [
       {
@@ -876,9 +876,14 @@ export const RSI_WILDER: FormulaModule = {
     },
     latex:
       'RSI = 100 - \\frac{100}{1 + RS}, \\quad RS = \\frac{\\overline{Gain}}{\\overline{Loss}}',
+    /*
+     * Hình hai vế thì dòng chữ hai DÒNG (luật 6). Bản đầu gộp vế RS vào trong ngoặc của vế đầu;
+     * bản vá nối bằng ", với" và bị bác (18/09/2026). Mệnh đề "hai trung bình làm mượt theo Wilder"
+     * bám dòng của vế nó bổ nghĩa, không đứng riêng một dòng: nó không phải một vế.
+     */
     expression: {
-      vi: 'RSI = 100 − 100 ÷ (1 + Trung bình tăng ÷ Trung bình giảm), hai trung bình làm mượt theo Wilder',
-      en: 'RSI = 100 − 100 ÷ (1 + Average gain ÷ Average loss), both averages smoothed the Wilder way',
+      vi: 'RSI = 100 − 100 ÷ (1 + Sức mạnh tương đối)\nSức mạnh tương đối = Trung bình tăng ÷ Trung bình giảm, hai trung bình làm mượt theo Wilder',
+      en: 'RSI = 100 − 100 ÷ (1 + Relative strength)\nRelative strength = Average gain ÷ Average loss, both averages smoothed the Wilder way',
     },
     symbols: [
       {

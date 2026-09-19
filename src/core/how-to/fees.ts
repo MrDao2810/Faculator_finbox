@@ -143,6 +143,7 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
       'P_{hv}': 'ket-qua',
       Q: 'nhap-tho',
       'P_{mua}': 'nhap-tho',
+      M: 'nhap-tho',
       'r_{ban}': 'hang-so-bieu-phi',
       'r_{thue}': 'hang-so-bieu-phi',
       '1 - r_{ban} - r_{thue}': 'da-hien-trong-hinh',
@@ -185,6 +186,7 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
       Q: 'nhap-tho',
       'P_{ban}': 'nhap-tho',
       'P_{mua}': 'nhap-tho',
+      M: 'nhap-tho',
       'F_{mua} + F_{ban} + T + F_{lk}': 'da-hien-trong-hinh',
     },
   },
@@ -201,7 +203,7 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
           PHI_BAN,
           THUE_BAN,
           {
-            latex: 'L_{rong} = Q\\,(P_{ban} - P_{mua}) - (F_{mua} + F_{ban} + T + F_{lk})',
+            latex: 'L_{rong} = Q\\,(P_{ban} - P_{mua}) - (F_{mua} + F_{ban} + T + F_{lk}(M))',
             expression: {
               vi: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − (Phí mua + Phí bán + Thuế chuyển nhượng + Phí lưu ký)',
               en: 'Net profit = Quantity × (Sell price − Buy price) − (Buy fee + Sell fee + Transfer tax + Custody fee)',
@@ -234,6 +236,7 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
       'ROI_{rong}': 'ket-qua',
       Q: 'nhap-tho',
       'P_{mua}': 'nhap-tho',
+      M: 'nhap-tho',
       'Q \\cdot P_{mua} + F_{mua} + F_{lk}': 'da-hien-trong-hinh',
       '100': 'hang-so',
     },

@@ -187,6 +187,70 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Vẽ vào hình 41 ô "Số liệu" đang bị ẩn khỏi hình công thức (18/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.806** ca (đúng số
+nền trước khi sửa — không lệch một ca nào).
+
+### Yêu cầu
+
+Chủ dự án hỏi ý nghĩa ô "Ngưỡng bỏ qua phiên đi ngang" (Tỷ số thắng/thua): đổi kết quả thật nhưng không có
+trong hình. Đã cho quét (chỉ đọc, dùng Workflow) toàn bộ 269 ô "Số liệu" của 111 công thức, đối chiếu
+hình/bảng ký hiệu/calc: 228 ô đã vẽ, **32 ô chỉ nhắc bằng lời**, **9 ô không nhắc ở đâu cả**. Chủ dự án chọn
+sửa cả 41 ô, bằng cách vẽ vào hình + thêm dòng ký hiệu (không chỉ sửa chữ cạnh ô).
+
+### Nguyên nhân
+
+Ký hiệu trong hình do tác giả công thức chọn đưa vào biểu thức toán; tham số kiểu "lấy mấy phiên"/"ngưỡng
+bao nhiêu" nhiều khi chỉ được nhắc bằng lời trong bảng ký hiệu hoặc hoàn toàn không nhắc, dù vẫn là ô
+`spec.variables` thật và vẫn đổi `calc`. Không cổng kiểm nào từng đòi "mọi ô nhập phải có mặt trong hình".
+
+### Cách làm
+
+Với mỗi ô: gắn ký hiệu vào đúng chỗ trong hình nơi nó tác động tới phép tính (subscript hoặc đối số trong
+ngoặc của ký hiệu đã có — ví dụ `EMA_{nhanh}` → `EMA_{nhanh}(n_{nhanh})`), rồi thêm dòng bảng ký hiệu. Không
+thêm `=` mới, không thêm số trần mới, nghĩa dòng mới không dùng gạch ngang. Mỗi công thức: sửa xong chạy
+ngay `FFB_SYMBOL_IDS=<id>`/`FFB_HOWTO_IDS=<id>` rồi soi HTML thật trên `npm run dev` trước khi sang công
+thức kế — phát hiện thêm một cổng kiểm chưa biết trước (`how-to.test.ts`: mỗi dòng bảng ký hiệu phải khai
+nơi dùng — có khung "cách tính" hoặc một lý do bỏ qua `nhap-tho`/`chi-so-chay`/…), và vài chỗ đổi tên ký
+hiệu sẵn có (`P_{max}` → thêm `(N)` NGOÀI ngoặc chứ không chèn vào trong, `\overline{r^{+}}` →
+`\overline{r^{+}}_h`) phải đồng bộ với `src/core/how-to/*.ts` để không vỡ phép so khớp chuỗi con.
+
+**4 ca ngoại lệ, không ép vào phương trình:**
+
+- `xirr` / `guess` — điểm khởi đầu Newton–Raphson, không phải số hạng của phương trình. Để nguyên.
+- `rut-truoc-han` / `termMonths` — điều kiện để công thức có nghĩa, không phải số hạng. Để nguyên.
+- `rut-truoc-han` / `contractRate` — không đổi số hiển thị (REVIEW.md đã ghi không nơi nào đọc). Ngoài
+  phạm vi đợt này, là câu hỏi sản phẩm khác.
+- `roi-rong` / `sellPrice` — đã lộ qua panel how-to sẵn có của `L_{rong}`; chỉ nối thêm chữ vào nghĩa dòng
+  đó, không đổi `latex`.
+
+### File đã đổi
+
+| File công thức (`src/core/formulas/`) | Công thức · ô                                                                                                                                                   |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `technical-volatility.ts`             | do-rong-dai-bollinger·k; phan-tram-b-bollinger·period,k; vwap·period; do-bien-dong-lich-su·sample                                                               |
+| `technical-trend.ts`                  | macd-duong-chinh·fastPeriod,slowPeriod; macd-duong-tin-hieu·fastPeriod,slowPeriod,signalPeriod; rsi-wilder·period; giao-cat-hai-duong-ma·shortPeriod,longPeriod |
+| `risk-ratios.ts`                      | beta·sessions; ty-so-calmar·sessionsPerYear; ty-so-thang-thua·threshold                                                                                         |
+| `risk-drawdown.ts`                    | sut-giam-sau-nhat·lookback; sut-giam-hien-tai·lookback; var-lich-su·lookback; cvar-lich-su·lookback                                                             |
+| `risk-volatility.ts`                  | do-bien-dong-nam-hoa·sessions; he-so-bien-thien·sessions; bien-do-dao-dong-lon-nhat·sessions; chuoi-phien-giam-dai-nhat·sessions                                |
+| `corporate.ts`                        | don-bay-tong-hop·fixedCost                                                                                                                                      |
+| `fees.ts`                             | gia-hoa-von·months; loi-nhuan-rong·months; roi-rong·months (+ sellPrice, chỉ đổi nghĩa)                                                                         |
+| `personal.ts`                         | tra-gop-nien-kim·rate,years; tra-gop-goc-deu·rate,years; lich-tra-no·amount,rate,years,method; tiet-kiem-muc-tieu·rate                                          |
+| `returns.ts`, `planning.ts`           | không đổi — 3 trong 4 ca ngoại lệ                                                                                                                               |
+
+Cộng 8 file `src/core/how-to/*.ts` tương ứng (thêm lý do bỏ qua cho dòng ký hiệu mới; đổi tên ký hiệu trong
+vài bước minh hoạ theo đúng ký hiệu mới của hình).
+
+### Còn lại
+
+- Chủ dự án soát mắt cả 29 công thức đã đổi hình trên `npm run dev` (đã soi HTML thật lúc làm, nhưng nên
+  nhìn trực tiếp trên trình duyệt).
+- `npm run build` + `verify:static` CHƯA chạy: `prebuild` dừng vì đang có dev server ở cổng 3000 và 3002.
+  Cần chạy lại sau khi tắt dev.
+
+---
+
 ## Quay về từ một kết quả tìm thì ô tìm ở màn Công thức TRỐNG (18/09/2026)
 
 **Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.806** ca.

@@ -395,6 +395,28 @@ have none, and each records why in `whyNone`. Things that are easy to break:
   later at the same specificity and silently wins. While the legend is hidden, a panel opened from the
   picture renders outside the `<dl>`.
 
+**A `spec.variables` entry can change the result while never appearing in the picture at all** — the
+legend gates above only check that every _token already in `latex`_ has a row; nothing ever checked the
+reverse. A read-only sweep of all 269 "Số liệu" inputs against every picture/legend/`calc` (18/09/2026,
+triggered by the owner asking what "Ngưỡng bỏ qua phiên đi ngang" on `ty-so-thang-thua` actually did) found
+32 inputs mentioned only in legend prose and 9 mentioned nowhere, all still changing `calc`. The fix pins a
+pattern: attach the parameter to whichever existing symbol it feeds, as a parenthesized argument
+(`EMA_{nhanh}` → `EMA_{nhanh}(n_{nhanh})`, `F_{lk}` → `F_{lk}(M)`) or, when the base is decorator-wrapped
+and the argument must sit as a trailing subscript instead of a call, a straight rename
+(`\overline{r^{+}}` → `\overline{r^{+}}_h`, both on `ty-so-thang-thua`). The two are not interchangeable:
+appending `(x)` after a symbol's closing brace never disturbs that symbol's own legend row, because the
+tokenizer only extends the "whole" match past the brace for a trailing `_`/`^`, never for `(`; a trailing
+`_h` after `\overline{...}` _does_ extend it, so the old bare row stops being a substring of the new
+`latex` and must be renamed in lockstep everywhere it is referenced, including inside
+`src/core/how-to/*.ts` step `latex` and `symbol` fields for that row. Four inputs stayed untouched on
+purpose — `xirr`'s `guess` (a Newton–Raphson seed, not a term of the equation), `rut-truoc-han`'s
+`termMonths` (a validity precondition, not a term) and `contractRate` (feeds only an `extras` field nothing
+reads), and `roi-rong`'s `sellPrice` (already reachable through `L_{rong}`'s own how-to panel, so only its
+legend _meaning_ grew a clause). The sweep also surfaced a gate the owner-facing docs above never named:
+`how-to.test.ts` requires **every** `spec.symbols` row, not just derived ones, to be classified — either an
+`entries[].symbol` or a `skipped` key — so a brand-new raw-input row needs a one-line
+`skipped: { n: 'nhap-tho' }` addition even though it will never carry a panel.
+
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`
 (1). The declaration is what `ConstantsNote` reads to print the label, value, unit, effective date

@@ -93,7 +93,7 @@ const TRUNG_BINH_TANG: ReadonlyArray<HowToStep> = [
     },
   },
   {
-    latex: '\\overline{Gain} = \\frac{\\overline{Gain}_{t-1} \\times (n - 1) + G_t}{n}',
+    latex: '\\overline{Gain}_n = \\frac{\\overline{Gain}_{t-1} \\times (n - 1) + G_t}{n}',
     expression: {
       vi: 'Trung bình tăng = (Trung bình tăng phiên trước × (n − 1) + Mức tăng phiên t) ÷ n, lặp tới phiên cuối chuỗi',
       en: 'Average gain = (Previous average gain × (n − 1) + Gain of session t) ÷ n, repeated up to the last session',
@@ -118,7 +118,7 @@ const TRUNG_BINH_GIAM: ReadonlyArray<HowToStep> = [
     },
   },
   {
-    latex: '\\overline{Loss} = \\frac{\\overline{Loss}_{t-1} \\times (n - 1) + L_t}{n}',
+    latex: '\\overline{Loss}_n = \\frac{\\overline{Loss}_{t-1} \\times (n - 1) + L_t}{n}',
     expression: {
       vi: 'Trung bình giảm = (Trung bình giảm phiên trước × (n − 1) + Mức giảm phiên t) ÷ n, lặp tới phiên cuối chuỗi',
       en: 'Average loss = (Previous average loss × (n − 1) + Loss of session t) ÷ n, repeated up to the last session',
@@ -178,7 +178,7 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'ema-n-phien',
       },
     ],
-    skipped: { MACD: 'ket-qua' },
+    skipped: { MACD: 'ket-qua', 'n_{nhanh}': 'nhap-tho', 'n_{cham}': 'nhap-tho' },
   },
 
   /*
@@ -209,14 +209,19 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'macd-duong-chinh',
       },
     ],
-    skipped: { Signal: 'ket-qua' },
+    skipped: {
+      Signal: 'ket-qua',
+      'n_{tin hieu}': 'nhap-tho',
+      'n_{nhanh}': 'nhap-tho',
+      'n_{cham}': 'nhap-tho',
+    },
   },
 
   'rsi-wilder': {
     entries: [
       {
         kind: 'derived',
-        symbol: '\\overline{Gain}',
+        symbol: '\\overline{Gain}_n',
         phrases: { vi: ['Trung bình tăng'], en: ['Average gain'] },
         steps: TRUNG_BINH_TANG,
         calcEvidence: [
@@ -228,7 +233,7 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       },
       {
         kind: 'derived',
-        symbol: '\\overline{Loss}',
+        symbol: '\\overline{Loss}_n',
         phrases: { vi: ['Trung bình giảm'], en: ['Average loss'] },
         steps: TRUNG_BINH_GIAM,
         calcEvidence: [
@@ -308,6 +313,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'sma-n-phien',
       },
     ],
-    skipped: { C: 'ket-qua' },
+    skipped: { C: 'ket-qua', 'n_{ngan}': 'nhap-tho', 'n_{dai}': 'nhap-tho' },
   },
 };

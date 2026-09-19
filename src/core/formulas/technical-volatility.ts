@@ -578,7 +578,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       vi: 'Khoảng cách giữa hai dải, quy ra phần trăm của đường giữa để so được các mã.',
       en: 'The gap between the two bands, expressed as a percentage of the middle line so different stocks can be compared.',
     },
-    latex: 'BW = \\frac{BB_{tren} - BB_{duoi}}{SMA_{n}} \\times 100',
+    latex: 'BW = \\frac{BB_{tren}(k) - BB_{duoi}(k)}{SMA_{n}} \\times 100',
     expression: {
       vi: 'Độ rộng dải = (Dải trên − Dải dưới) ÷ Đường giữa × 100',
       en: 'Bandwidth = (Upper band − Lower band) ÷ Middle line × 100',
@@ -615,8 +615,15 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'chu kỳ dải Bollinger, phiên',
-          en: 'Bollinger band period, in sessions',
+          vi: 'chu kỳ dải Bollinger, phiên (ô Chu kỳ dải Bollinger)',
+          en: 'Bollinger band period, in sessions (Bollinger band period field)',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'hệ số nhân độ lệch chuẩn, Bollinger dùng hệ số 2 (ô Hệ số nhân độ lệch chuẩn)',
+          en: 'standard deviation multiplier, Bollinger uses 2 (Standard deviation multiplier field)',
         },
       },
       {
@@ -939,7 +946,7 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       vi: 'Giá đóng cửa đang nằm ở đâu giữa hai dải: 0% là dải dưới, 100% là dải trên.',
       en: 'Where the closing price sits between the two bands: 0% is the lower band, 100% is the upper band.',
     },
-    latex: '\\%B = \\frac{C - BB_{duoi}}{BB_{tren} - BB_{duoi}} \\times 100',
+    latex: '\\%B = \\frac{C - BB_{duoi}(n,k)}{BB_{tren}(n,k) - BB_{duoi}(n,k)} \\times 100',
     expression: {
       vi: '%B = (Giá đóng cửa − Dải dưới) ÷ (Dải trên − Dải dưới) × 100',
       en: '%B = (Closing price − Lower band) ÷ (Upper band − Lower band) × 100',
@@ -971,6 +978,20 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         meaning: {
           vi: 'dải trên: đường giữa cộng hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
           en: 'upper band: middle line plus multiplier × standard deviation of the period, in VND',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'chu kỳ dải Bollinger, phiên (ô Chu kỳ dải Bollinger)',
+          en: 'Bollinger band period, in sessions (Bollinger band period field)',
+        },
+      },
+      {
+        latex: 'k',
+        meaning: {
+          vi: 'hệ số nhân độ lệch chuẩn, Bollinger dùng hệ số 2 (ô Hệ số nhân độ lệch chuẩn)',
+          en: 'standard deviation multiplier, Bollinger uses 2 (Standard deviation multiplier field)',
         },
       },
       {
@@ -1321,7 +1342,7 @@ export const VWAP: FormulaModule = {
       vi: 'Giá trung bình của n phiên gần nhất, nhưng phiên khớp nhiều cổ phiếu được tính nặng hơn.',
       en: 'The average price over the last n sessions, but sessions with heavier matched volume are weighted more.',
     },
-    latex: 'VWAP = \\frac{\\sum C_i V_i}{\\sum V_i}',
+    latex: 'VWAP = \\frac{\\sum_{i=1}^{n} C_i V_i}{\\sum_{i=1}^{n} V_i}',
     expression: {
       vi: 'VWAP = Tổng (Giá đóng cửa × Khối lượng) ÷ Tổng Khối lượng',
       en: 'VWAP = Sum of (Closing price × Volume) ÷ Total volume',
@@ -1353,6 +1374,13 @@ export const VWAP: FormulaModule = {
         meaning: {
           vi: 'phiên đang xét, chạy qua số phiên gộp gần nhất',
           en: 'the session in view, running over the pooled sessions',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên gộp gần nhất, phiên (ô Số phiên gộp)',
+          en: 'number of most recent pooled sessions (Sessions to pool field)',
         },
       },
     ],
@@ -1486,7 +1514,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       en: 'The standard deviation of daily log returns, scaled to an annual-equivalent level using the square root of the number of sessions.',
     },
     latex:
-      '\\sigma_{nam} = \\sigma\\left(\\ln \\frac{P_t}{P_{t-1}}\\right) \\times \\sqrt{N} \\times 100',
+      '\\sigma_{nam} = \\sigma_{n}\\left(\\ln \\frac{P_t}{P_{t-1}}\\right) \\times \\sqrt{N} \\times 100',
     expression: {
       vi: 'Độ biến động năm = Độ lệch chuẩn mẫu của lợi suất log mỗi phiên × căn bậc hai của Số phiên một năm × 100',
       en: 'Annual volatility = Sample standard deviation of per-session log returns × square root of Sessions per year × 100',
@@ -1532,6 +1560,13 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         meaning: {
           vi: 'phiên đang xét, chạy qua số phiên giá lấy mẫu',
           en: 'the session in view, running over the sampled sessions',
+        },
+      },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên giá lấy mẫu (ô Số phiên giá lấy mẫu)',
+          en: 'number of sampled sessions (Sample sessions field)',
         },
       },
       {

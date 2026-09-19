@@ -60,7 +60,13 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['const n = Math.round(years * 12);'],
       },
     ],
-    skipped: { EMI: 'ket-qua', P: 'nhap-tho', '(1+i)^n - 1': 'da-hien-trong-hinh' },
+    skipped: {
+      EMI: 'ket-qua',
+      P: 'nhap-tho',
+      r: 'nhap-tho',
+      t: 'nhap-tho',
+      '(1+i)^n - 1': 'da-hien-trong-hinh',
+    },
   },
 
   'tra-gop-goc-deu': {
@@ -80,7 +86,7 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ["monthlyRate(v('rate'))", 'annualPercent / 100 / 12'],
       },
     ],
-    skipped: { A_1: 'ket-qua', P: 'nhap-tho' },
+    skipped: { A_1: 'ket-qua', P: 'nhap-tho', t: 'nhap-tho', r: 'nhap-tho' },
   },
 
   'lich-tra-no': {
@@ -127,7 +133,14 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['const n = Math.round(years * 12);'],
       },
     ],
-    skipped: { '\\text{Tổng lãi}': 'ket-qua', k: 'chi-so-chay' },
+    skipped: {
+      '\\text{Tổng lãi}': 'ket-qua',
+      k: 'chi-so-chay',
+      P: 'nhap-tho',
+      r: 'nhap-tho',
+      '\\text{PT}': 'nhap-tho',
+      t: 'nhap-tho',
+    },
   },
 
   'lai-kep': {
@@ -164,6 +177,7 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
     skipped: {
       PMT: 'ket-qua',
       FV: 'nhap-tho',
+      r: 'nhap-tho',
       n: 'nhap-tho',
       '(1+i)^n - 1': 'da-hien-trong-hinh',
     },

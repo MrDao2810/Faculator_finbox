@@ -1732,7 +1732,22 @@
       "PowerShell(npm run check 2>&1 | Out-File -FilePath \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\ee0e8260-1bce-454c-8ecb-5d1fd8397f97\\\\scratchpad\\\\check.log\" -Encoding utf8; \"EXIT=$LASTEXITCODE\")",
       "PowerShell(npx prettier --check src/app/cai-dat/SettingsScreen.test.tsx src/application/use-list-url-state.ts)",
       "PowerShell(Select-String -Path \"C:\\\\Users\\\\daoqu\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Faculator-finbox\\\\ee0e8260-1bce-454c-8ecb-5d1fd8397f97\\\\scratchpad\\\\check2.log\" -Pattern \"Test Files|Tests  |All matched files|problems|warning\" | Select-Object -Last 6 | ForEach-Object { $_.Line })",
-      "PowerShell(npm run build 2>&1 | Select-Object -Last 15; \"BUILD_EXIT=$LASTEXITCODE\"; npm run verify:static 2>&1 | Select-Object -Last 12; \"VERIFY_EXIT=$LASTEXITCODE\")"
+      "PowerShell(npm run build 2>&1 | Select-Object -Last 15; \"BUILD_EXIT=$LASTEXITCODE\"; npm run verify:static 2>&1 | Select-Object -Last 12; \"VERIFY_EXIT=$LASTEXITCODE\")",
+      "Bash(FFB_SYMBOL_IDS=do-rong-dai-bollinger npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_SYMBOL_IDS=phan-tram-b-bollinger npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_SYMBOL_IDS=vwap,do-bien-dong-lich-su npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_SYMBOL_IDS=beta,ty-so-calmar,ty-so-thang-thua npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_HOWTO_IDS=beta,ty-so-calmar,ty-so-thang-thua npx vitest run src/core/how-to/how-to.test.ts)",
+      "Bash(FFB_SYMBOL_IDS=do-bien-dong-nam-hoa,he-so-bien-thien,bien-do-dao-dong-lon-nhat,chuoi-phien-giam-dai-nhat npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_HOWTO_IDS=do-bien-dong-nam-hoa,he-so-bien-thien,bien-do-dao-dong-lon-nhat,chuoi-phien-giam-dai-nhat npx vitest run src/core/how-to/how-to.test.ts)",
+      "Bash(FFB_SYMBOL_IDS=don-bay-tong-hop npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_HOWTO_IDS=don-bay-tong-hop npx vitest run src/core/how-to/how-to.test.ts)",
+      "Bash(curl -s -o /tmp/page_don-bay-tong-hop.html -w '%{http_code}' http://localhost:3000/cong-thuc/don-bay-tong-hop/ --max-time 8)",
+      "Bash(FFB_SYMBOL_IDS=gia-hoa-von,loi-nhuan-rong,roi-rong npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_HOWTO_IDS=gia-hoa-von,loi-nhuan-rong,roi-rong npx vitest run src/core/how-to/how-to.test.ts)",
+      "Bash(FFB_SYMBOL_IDS=lich-tra-no npx vitest run src/core/formulas/formulas.test.ts)",
+      "Bash(FFB_HOWTO_IDS=lich-tra-no npx vitest run src/core/how-to/how-to.test.ts)",
+      "Bash(npx markdownlint-cli2 *)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

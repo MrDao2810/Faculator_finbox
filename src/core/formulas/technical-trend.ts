@@ -577,7 +577,7 @@ export const MACD_DUONG_CHINH: FormulaModule = {
     // 3–200), đặt khác đi là công thức in trên màn nói một đằng còn kết quả tính một nẻo. Cùng
     // lối viết với `giao-cat-hai-duong-ma` và khớp luôn `expression` ngay dưới, vốn đã tổng quát.
     // Bộ 12/26 vẫn còn ở giá trị mặc định và ở mô tả biến.
-    latex: 'MACD = EMA_{nhanh} - EMA_{cham}',
+    latex: 'MACD = EMA_{nhanh}(n_{nhanh}) - EMA_{cham}(n_{cham})',
     expression: {
       vi: 'MACD = EMA chu kỳ nhanh − EMA chu kỳ chậm',
       en: 'MACD = Fast-period EMA − Slow-period EMA',
@@ -598,10 +598,24 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         },
       },
       {
+        latex: 'n_{nhanh}',
+        meaning: {
+          vi: 'chu kỳ của EMA nhanh, phiên (ô Chu kỳ EMA nhanh)',
+          en: 'period of the fast EMA, in sessions (Fast EMA period field)',
+        },
+      },
+      {
         latex: 'EMA_{cham}',
         meaning: {
           vi: 'EMA tính theo ô Chu kỳ EMA chậm, đường nền, ₫',
           en: 'EMA over the Slow EMA period field, the baseline, ₫',
+        },
+      },
+      {
+        latex: 'n_{cham}',
+        meaning: {
+          vi: 'chu kỳ của EMA chậm, phiên (ô Chu kỳ EMA chậm)',
+          en: 'period of the slow EMA, in sessions (Slow EMA period field)',
         },
       },
     ],
@@ -722,7 +736,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     },
     // Cùng lẽ với latex của `macd-duong-chinh`: chu kỳ tín hiệu là thanh trượt 2–100 nên không
     // viết cứng 9.
-    latex: 'Signal = EMA_{tin hieu}(MACD)',
+    latex: 'Signal = EMA_{tin hieu}\\big(MACD(n_{nhanh}, n_{cham}), n_{tin hieu}\\big)',
     expression: {
       vi: 'Đường tín hiệu = EMA chu kỳ tín hiệu tính trên chuỗi giá trị MACD',
       en: 'Signal line = EMA of the signal period computed on the series of MACD values',
@@ -740,10 +754,31 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         },
       },
       {
+        latex: 'n_{tin hieu}',
+        meaning: {
+          vi: 'chu kỳ của EMA tín hiệu, phiên (ô Chu kỳ đường tín hiệu)',
+          en: 'period of the signal EMA, in sessions (Signal line period field)',
+        },
+      },
+      {
         latex: 'MACD',
         meaning: {
           vi: 'chuỗi giá trị đường MACD qua từng phiên, EMA nhanh − EMA chậm, ₫',
           en: 'series of MACD line values session by session, fast EMA − slow EMA, ₫',
+        },
+      },
+      {
+        latex: 'n_{nhanh}',
+        meaning: {
+          vi: 'chu kỳ của EMA nhanh dùng để dựng MACD, phiên (ô Chu kỳ EMA nhanh)',
+          en: 'period of the fast EMA used to build the MACD series, in sessions (Fast EMA period field)',
+        },
+      },
+      {
+        latex: 'n_{cham}',
+        meaning: {
+          vi: 'chu kỳ của EMA chậm dùng để dựng MACD, phiên (ô Chu kỳ EMA chậm)',
+          en: 'period of the slow EMA used to build the MACD series, in sessions (Slow EMA period field)',
         },
       },
     ],
@@ -875,7 +910,7 @@ export const RSI_WILDER: FormulaModule = {
       en: 'A 0–100 relative strength index that measures the ratio between recent upward and downward momentum.',
     },
     latex:
-      'RSI = 100 - \\frac{100}{1 + RS}, \\quad RS = \\frac{\\overline{Gain}}{\\overline{Loss}}',
+      'RSI = 100 - \\frac{100}{1 + RS}, \\quad RS = \\frac{\\overline{Gain}_n}{\\overline{Loss}_n}',
     /*
      * Hình hai vế thì dòng chữ hai DÒNG (luật 6). Bản đầu gộp vế RS vào trong ngoặc của vế đầu;
      * bản vá nối bằng ", với" và bị bác (18/09/2026). Mệnh đề "hai trung bình làm mượt theo Wilder"
@@ -908,17 +943,17 @@ export const RSI_WILDER: FormulaModule = {
         },
       },
       {
-        latex: '\\overline{Gain}',
+        latex: '\\overline{Gain}_n',
         meaning: {
-          vi: 'trung bình mức tăng giá mỗi phiên trong kỳ, làm mượt theo Wilder, ₫',
-          en: 'average per-session price gain over the period, Wilder-smoothed, ₫',
+          vi: 'trung bình mức tăng giá mỗi phiên trong ô Số phiên, làm mượt theo Wilder, ₫',
+          en: 'average per-session price gain over the Sessions field, Wilder-smoothed, ₫',
         },
       },
       {
-        latex: '\\overline{Loss}',
+        latex: '\\overline{Loss}_n',
         meaning: {
-          vi: 'trung bình mức giảm giá mỗi phiên trong kỳ, làm mượt theo Wilder, ₫',
-          en: 'average per-session price loss over the period, Wilder-smoothed, ₫',
+          vi: 'trung bình mức giảm giá mỗi phiên trong ô Số phiên, làm mượt theo Wilder, ₫',
+          en: 'average per-session price loss over the Sessions field, Wilder-smoothed, ₫',
         },
       },
     ],
@@ -1540,7 +1575,7 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       vi: 'Chênh lệch giữa SMA ngắn hạn và SMA dài hạn — dấu của nó cho biết cắt lên hay cắt xuống.',
       en: 'The difference between the short-term SMA and the long-term SMA — its sign tells you whether a crossover occurred upward or downward.',
     },
-    latex: 'C = SMA_{ngan} - SMA_{dai}',
+    latex: 'C = SMA_{ngan}(n_{ngan}) - SMA_{dai}(n_{dai})',
     expression: {
       vi: 'Chênh lệch = SMA chu kỳ ngắn − SMA chu kỳ dài',
       en: 'Difference = Short-period SMA − Long-period SMA',
@@ -1561,10 +1596,24 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         },
       },
       {
+        latex: 'n_{ngan}',
+        meaning: {
+          vi: 'chu kỳ của đường ngắn, phiên (ô Chu kỳ đường ngắn)',
+          en: 'period of the short line, in sessions (Short period field)',
+        },
+      },
+      {
         latex: 'SMA_{dai}',
         meaning: {
           vi: 'SMA tính theo ô Chu kỳ đường dài, đường nền, ₫',
           en: 'SMA over the Long period field, the baseline, ₫',
+        },
+      },
+      {
+        latex: 'n_{dai}',
+        meaning: {
+          vi: 'chu kỳ của đường dài, phiên (ô Chu kỳ đường dài)',
+          en: 'period of the long line, in sessions (Long period field)',
         },
       },
     ],

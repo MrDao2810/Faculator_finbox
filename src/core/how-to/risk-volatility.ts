@@ -71,7 +71,12 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'do-lech-chuan-loi-suat-phien',
       },
     ],
-    skipped: { '\\sigma_{nam}': 'ket-qua', D: 'nhap-tho', '\\sqrt{D}': 'da-hien-trong-hinh' },
+    skipped: {
+      '\\sigma_{nam}': 'ket-qua',
+      n: 'nhap-tho',
+      D: 'nhap-tho',
+      '\\sqrt{D}': 'da-hien-trong-hinh',
+    },
   },
 
   'do-lech-chuan-ban-phan': {
@@ -136,7 +141,7 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['const returns = simpleReturns(closes)', 'const average = mean(returns)'],
       },
     ],
-    skipped: { CV: 'ket-qua', r: 'nam-trong-ky-hieu-khac' },
+    skipped: { CV: 'ket-qua', r: 'nam-trong-ky-hieu-khac', n: 'nhap-tho' },
   },
 
   'bien-do-dao-dong-lon-nhat': {
@@ -172,7 +177,7 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['closes.slice(-window)', 'close < best ? close : best'],
       },
     ],
-    skipped: { A: 'ket-qua', '100': 'hang-so' },
+    skipped: { A: 'ket-qua', N: 'nhap-tho', '100': 'hang-so' },
   },
 
   'chuoi-phien-giam-dai-nhat': {
@@ -206,6 +211,6 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['for (const r of simpleReturns(closes))', 'if (r < 0)'],
       },
     ],
-    skipped: { L: 'ket-qua', k: 'chi-so-chay', t: 'chi-so-chay' },
+    skipped: { L: 'ket-qua', N: 'nhap-tho', k: 'chi-so-chay', t: 'chi-so-chay' },
   },
 };

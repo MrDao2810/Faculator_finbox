@@ -307,7 +307,7 @@ export const BETA: FormulaModule = {
       vi: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
       en: 'How much more or less a stock swings than the broader market, measured against the VN-Index.',
     },
-    latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}',
+    latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m, n)}{\\text{Var}(R_m, n)}',
     expression: {
       vi: 'Beta = Hiệp phương sai(lợi suất cổ phiếu, lợi suất VN-Index) ÷ Phương sai(lợi suất VN-Index)',
       en: 'Beta = Covariance(stock return, VN-Index return) ÷ Variance(VN-Index return)',
@@ -346,6 +346,13 @@ export const BETA: FormulaModule = {
         },
       },
       { latex: 'i', meaning: { vi: 'cổ phiếu đang xét', en: 'the stock being examined' } },
+      {
+        latex: 'n',
+        meaning: {
+          vi: 'số phiên lấy để hồi quy (ô Số phiên lấy để hồi quy)',
+          en: 'number of sessions used for the regression (Sessions used for the regression field)',
+        },
+      },
     ],
     chartType: 'scatter',
     level: 'advanced',
@@ -1259,7 +1266,7 @@ export const TY_SO_CALMAR: FormulaModule = {
       vi: 'Lợi suất năm hoá chia cho mức sụt giảm sâu nhất — đo phần lãi đổi lại bằng cú đau lớn nhất đã phải chịu.',
       en: 'Annualized return divided by the maximum drawdown — the return earned in exchange for the biggest pain endured.',
     },
-    latex: 'Calmar = \\frac{r_{nam}}{MDD}',
+    latex: 'Calmar = \\frac{r_{nam}(m)}{MDD}',
     expression: {
       vi: 'Tỷ số Calmar = Lợi suất năm hoá ÷ Mức sụt giảm sâu nhất từ đỉnh',
       en: 'Calmar ratio = Annualized return ÷ Maximum drawdown from peak',
@@ -1271,6 +1278,13 @@ export const TY_SO_CALMAR: FormulaModule = {
         meaning: {
           vi: 'lợi suất năm hoá theo lãi kép: (giá cuối ÷ giá đầu)^(phiên một năm ÷ số lợi suất) − 1',
           en: 'compounded annual return: (last ÷ first price)^(sessions per year ÷ returns) − 1',
+        },
+      },
+      {
+        latex: 'm',
+        meaning: {
+          vi: 'số phiên trong một năm (ô Số phiên trong một năm)',
+          en: 'number of sessions per year (Sessions per year field)',
         },
       },
       {
@@ -1407,7 +1421,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
       vi: 'Trung bình mức tăng của các phiên tăng so với trung bình mức giảm của các phiên giảm.',
       en: 'The average gain of rising sessions compared with the average loss of falling sessions.',
     },
-    latex: 'W/L = \\frac{\\overline{r^{+}}}{\\left| \\overline{r^{-}} \\right|}',
+    latex: 'W/L = \\frac{\\overline{r^{+}}_h}{\\left| \\overline{r^{-}}_h \\right|}',
     expression: {
       vi: 'Tỷ số thắng/thua = Trung bình mức tăng của các phiên tăng ÷ Trung bình mức giảm của các phiên giảm',
       en: 'Win/loss ratio = Average gain of rising sessions ÷ Average loss of falling sessions',
@@ -1415,17 +1429,17 @@ export const TY_SO_THANG_THUA: FormulaModule = {
     symbols: [
       { latex: 'W/L', meaning: { vi: 'tỷ số thắng/thua, lần', en: 'win/loss ratio, times' } },
       {
-        latex: '\\overline{r^{+}}',
+        latex: '\\overline{r^{+}}_h',
         meaning: {
-          vi: 'mức tăng bình quân của các phiên tăng vượt ngưỡng bỏ qua phiên đi ngang',
-          en: 'average gain of sessions rising past the threshold to ignore flat sessions',
+          vi: 'mức tăng bình quân của các phiên tăng vượt ngưỡng h (ô Ngưỡng bỏ qua phiên đi ngang)',
+          en: 'average gain of sessions rising past threshold h, the flat-session threshold field',
         },
       },
       {
-        latex: '\\overline{r^{-}}',
+        latex: '\\overline{r^{-}}_h',
         meaning: {
-          vi: 'mức giảm bình quân của các phiên giảm vượt ngưỡng bỏ qua phiên đi ngang',
-          en: 'average loss of sessions falling past the threshold to ignore flat sessions',
+          vi: 'mức giảm bình quân của các phiên giảm vượt ngưỡng h (ô Ngưỡng bỏ qua phiên đi ngang)',
+          en: 'average loss of sessions falling past threshold h, the flat-session threshold field',
         },
       },
       {
@@ -1436,7 +1450,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
         },
       },
       {
-        latex: '\\left| \\overline{r^{-}} \\right|',
+        latex: '\\left| \\overline{r^{-}}_h \\right|',
         meaning: {
           vi: 'giá trị tuyệt đối, bỏ dấu âm để hai vế cùng dương',
           en: 'absolute value, dropping the minus sign so both sides are positive',

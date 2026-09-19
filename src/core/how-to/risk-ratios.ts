@@ -120,7 +120,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['mean(marketReturns)', 'varianceMarket += dm * dm'],
       },
     ],
-    skipped: { '\\beta_i': 'ket-qua', i: 'chi-so-chay' },
+    skipped: { '\\beta_i': 'ket-qua', i: 'chi-so-chay', n: 'nhap-tho' },
   },
 
   /*
@@ -309,7 +309,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'sut-giam-sau-nhat',
       },
     ],
-    skipped: { Calmar: 'ket-qua' },
+    skipped: { Calmar: 'ket-qua', m: 'nhap-tho' },
   },
 
   /*
@@ -320,7 +320,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
     entries: [
       {
         kind: 'derived',
-        symbol: '\\overline{r^{+}}',
+        symbol: '\\overline{r^{+}}_h',
         phrases: {
           vi: ['Trung bình mức tăng của các phiên tăng'],
           en: ['Average gain of rising sessions'],
@@ -328,7 +328,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
         steps: [
           LOI_SUAT_PHIEN,
           {
-            latex: '\\overline{r^{+}} = \\frac{1}{k} \\sum_{r_t > h} r_t',
+            latex: '\\overline{r^{+}}_h = \\frac{1}{k} \\sum_{r_t > h} r_t',
             expression: {
               vi: 'Trung bình mức tăng của các phiên tăng = Tổng lợi suất các phiên có lợi suất lớn hơn h ÷ Số phiên đó k, h là Ngưỡng bỏ qua phiên đi ngang',
               en: 'Average gain of rising sessions = Sum of returns of sessions with a return above h ÷ Number of those sessions k, h is the Threshold to ignore flat sessions',
@@ -344,7 +344,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       },
       {
         kind: 'derived',
-        symbol: '\\overline{r^{-}}',
+        symbol: '\\overline{r^{-}}_h',
         phrases: {
           vi: ['Trung bình mức giảm của các phiên giảm'],
           en: ['Average loss of falling sessions'],
@@ -352,7 +352,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
         steps: [
           LOI_SUAT_PHIEN,
           {
-            latex: '\\overline{r^{-}} = \\frac{1}{k} \\sum_{r_t < -h} r_t',
+            latex: '\\overline{r^{-}}_h = \\frac{1}{k} \\sum_{r_t < -h} r_t',
             expression: {
               vi: 'Trung bình mức giảm của các phiên giảm = Tổng lợi suất các phiên có lợi suất nhỏ hơn −h ÷ Số phiên đó k, h là Ngưỡng bỏ qua phiên đi ngang',
               en: 'Average loss of falling sessions = Sum of returns of sessions with a return below −h ÷ Number of those sessions k, h is the Threshold to ignore flat sessions',
@@ -370,7 +370,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
     skipped: {
       'W/L': 'ket-qua',
       r: 'nam-trong-ky-hieu-khac',
-      '\\left| \\overline{r^{-}} \\right|': 'phep-toan',
+      '\\left| \\overline{r^{-}}_h \\right|': 'phep-toan',
     },
   },
 };

@@ -250,7 +250,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       vi: 'Doanh thu thay đổi 1% thì EPS thay đổi bao nhiêu phần trăm, gộp cả đòn bẩy hoạt động và đòn bẩy tài chính.',
       en: 'How many percent EPS changes for a 1% change in revenue, combining both operating leverage and financial leverage.',
     },
-    latex: 'DTL = DOL \\times DFL = \\frac{DT - BP}{EBIT - I}',
+    latex: 'DTL = DOL \\times DFL = \\frac{DT - BP}{EBIT(FC) - I}',
     /*
      * Hình có ba phần nối bằng hai dấu bằng; dòng chữ từng bỏ phần giữa, nên hình nhắc DOL và DFL mà
      * dưới hình không chỗ nào đọc ra hai cái tên ấy (18/09/2026, cùng lỗi với `ty-so-sortino`).
@@ -291,6 +291,13 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         meaning: {
           vi: 'lợi nhuận trước lãi vay và thuế: DT − BP − định phí hoạt động, ₫',
           en: 'earnings before interest and tax: DT − BP − operating fixed cost, ₫',
+        },
+      },
+      {
+        latex: 'FC',
+        meaning: {
+          vi: 'định phí hoạt động trong kỳ (ô Định phí hoạt động), ₫',
+          en: 'operating fixed cost for the period (Operating fixed cost field), ₫',
         },
       },
       {

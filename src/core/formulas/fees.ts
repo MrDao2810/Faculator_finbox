@@ -621,7 +621,7 @@ export const GIA_HOA_VON: FormulaModule = {
       vi: 'Giá bán tối thiểu để không lỗ sau khi trừ hết phí và thuế.',
       en: 'The minimum sell price to avoid a loss after all fees and taxes.',
     },
-    latex: 'P_{hv} = \\frac{Q \\cdot P_{mua} + F_{mua} + F_{lk}}{Q\\,(1 - r_{ban} - r_{thue})}',
+    latex: 'P_{hv} = \\frac{Q \\cdot P_{mua} + F_{mua} + F_{lk}(M)}{Q\\,(1 - r_{ban} - r_{thue})}',
     expression: {
       vi: 'Giá hoà vốn = (Tiền mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
       en: 'Break-even price = (Buy value + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
@@ -654,6 +654,13 @@ export const GIA_HOA_VON: FormulaModule = {
         meaning: {
           vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
           en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'M',
+        meaning: {
+          vi: 'thời gian nắm giữ, tháng (ô Thời gian nắm giữ)',
+          en: 'holding period, in months (Holding period field)',
         },
       },
       {
@@ -795,7 +802,7 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       vi: 'Số tiền lãi thực sự còn lại sau khi trừ hết phí giao dịch và thuế.',
       en: 'The actual profit left over after deducting all transaction fees and taxes.',
     },
-    latex: 'L_{rong} = Q\\,(P_{ban} - P_{mua}) - (F_{mua} + F_{ban} + T + F_{lk})',
+    latex: 'L_{rong} = Q\\,(P_{ban} - P_{mua}) - (F_{mua} + F_{ban} + T + F_{lk}(M))',
     expression: {
       vi: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − Tổng chi phí',
       en: 'Net profit = Quantity × (Sell price − Buy price) − Total costs',
@@ -840,6 +847,13 @@ export const LOI_NHUAN_RONG: FormulaModule = {
         meaning: {
           vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
           en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'M',
+        meaning: {
+          vi: 'thời gian nắm giữ, tháng (ô Thời gian nắm giữ)',
+          en: 'holding period, in months (Holding period field)',
         },
       },
       {
@@ -936,7 +950,7 @@ export const ROI_RONG: FormulaModule = {
       vi: 'Tỷ suất lợi nhuận thực trên số vốn đã thực sự bỏ ra.',
       en: 'The actual return rate on the capital actually put in.',
     },
-    latex: 'ROI_{rong} = \\frac{L_{rong}}{Q \\cdot P_{mua} + F_{mua} + F_{lk}} \\times 100',
+    latex: 'ROI_{rong} = \\frac{L_{rong}}{Q \\cdot P_{mua} + F_{mua} + F_{lk}(M)} \\times 100',
     expression: {
       vi: 'ROI ròng = Lợi nhuận ròng ÷ Vốn thực bỏ ra × 100',
       en: 'Net ROI = Net profit ÷ Actual capital deployed × 100',
@@ -949,8 +963,8 @@ export const ROI_RONG: FormulaModule = {
       {
         latex: 'L_{rong}',
         meaning: {
-          vi: 'lợi nhuận ròng sau phí và thuế, ₫',
-          en: 'net profit after fees and taxes, ₫',
+          vi: 'lợi nhuận ròng sau phí và thuế, ₫, phụ thuộc cả giá bán (ô Giá bán)',
+          en: 'net profit after fees and taxes, ₫, also depends on the Sell price field',
         },
       },
       {
@@ -973,6 +987,13 @@ export const ROI_RONG: FormulaModule = {
         meaning: {
           vi: 'phí lưu ký cho cả kỳ nắm giữ, ₫',
           en: 'custody fee for the whole holding period, ₫',
+        },
+      },
+      {
+        latex: 'M',
+        meaning: {
+          vi: 'thời gian nắm giữ, tháng (ô Thời gian nắm giữ)',
+          en: 'holding period, in months (Holding period field)',
         },
       },
       {

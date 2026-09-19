@@ -140,7 +140,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         formulaId: 'sma-n-phien',
       },
     ],
-    skipped: { BW: 'ket-qua', n: 'nhap-tho', '100': 'hang-so' },
+    skipped: { BW: 'ket-qua', n: 'nhap-tho', k: 'nhap-tho', '100': 'hang-so' },
   },
 
   /*
@@ -212,7 +212,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         pendingReview: 'Q1',
       },
     ],
-    skipped: { '\\%B': 'ket-qua', C: 'nhap-tho', '100': 'hang-so' },
+    skipped: { '\\%B': 'ket-qua', C: 'nhap-tho', n: 'nhap-tho', k: 'nhap-tho', '100': 'hang-so' },
   },
 
   'stochastic-k': {
@@ -253,7 +253,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
 
   vwap: {
     entries: [],
-    skipped: { VWAP: 'ket-qua', C_i: 'nhap-tho', V_i: 'nhap-tho', i: 'chi-so-chay' },
+    skipped: { VWAP: 'ket-qua', C_i: 'nhap-tho', V_i: 'nhap-tho', i: 'chi-so-chay', n: 'nhap-tho' },
     whyNone:
       'Giá đóng cửa và khối lượng từng phiên đọc thẳng trên bảng giá, còn phép gộp theo khối lượng đã hiện trọn trong hình.',
   },
@@ -296,6 +296,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       P_t: 'nhap-tho',
       'P_{t-1}': 'nhap-tho',
       t: 'chi-so-chay',
+      n: 'nhap-tho',
       N: 'nhap-tho',
       '\\sqrt{N}': 'da-hien-trong-hinh',
       '100': 'hang-so',

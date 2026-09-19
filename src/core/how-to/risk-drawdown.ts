@@ -54,7 +54,7 @@ const PHAN_VI_NOI_SUY: ReadonlyArray<HowToStep> = [
     },
   },
   {
-    latex: 'Q_{1-\\alpha}(r) = r_{(k)} + (h - k) \\times (r_{(k+1)} - r_{(k)})',
+    latex: 'Q_{1-\\alpha}(r_N) = r_{(k)} + (h - k) \\times (r_{(k+1)} - r_{(k)})',
     expression: {
       vi: 'Phân vị = Lợi suất ở vị trí k + (h − k) × (Lợi suất ở vị trí kế tiếp − Lợi suất ở vị trí k), k là phần nguyên của h',
       en: 'Percentile = Return at position k + (h − k) × (Return at the next position − Return at position k), where k is the whole part of h',
@@ -113,8 +113,9 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
     ],
     skipped: {
       MDD: 'ket-qua',
-      '\\max_{t}': 'phep-toan',
+      '\\max_{t \\le N}': 'phep-toan',
       t: 'chi-so-chay',
+      N: 'nhap-tho',
       s: 'chi-so-chay',
       P_s: 'nhap-tho',
       P_t: 'nhap-tho',
@@ -145,14 +146,20 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
         ],
       },
     ],
-    skipped: { 'DD_{t}': 'ket-qua', 'P_{t}': 'nhap-tho', t: 'chi-so-chay', '100': 'hang-so' },
+    skipped: {
+      'DD_{t}': 'ket-qua',
+      'P_{t}': 'nhap-tho',
+      t: 'chi-so-chay',
+      N: 'nhap-tho',
+      '100': 'hang-so',
+    },
   },
 
   'var-lich-su': {
     entries: [
       {
         kind: 'derived',
-        symbol: 'Q_{1-\\alpha}(r)',
+        symbol: 'Q_{1-\\alpha}(r_N)',
         phrases: {
           vi: ['Phân vị mức (1 − Độ tin cậy)', 'nội suy tuyến tính giữa hai quan sát liền kề'],
           en: [
@@ -171,7 +178,7 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: MA_LOI_SUAT_CUA_SO,
       },
     ],
-    skipped: { 'VaR_{\\alpha}': 'ket-qua', '\\alpha': 'nhap-tho', '100': 'hang-so' },
+    skipped: { 'VaR_{\\alpha}': 'ket-qua', '\\alpha': 'nhap-tho', N: 'nhap-tho', '100': 'hang-so' },
   },
 
   /*
@@ -194,7 +201,7 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
         phrases: { vi: ['Trung bình'], en: ['average'] },
         steps: [
           {
-            latex: 'E = \\frac{1}{m} \\sum_{r \\le Q_{1-\\alpha}(r)} r',
+            latex: 'E = \\frac{1}{m} \\sum_{r_N \\le Q_{1-\\alpha}(r_N)} r_N',
             expression: {
               vi: 'Trung bình phần đuôi = Tổng các lợi suất phiên không cao hơn ngưỡng VaR ÷ Số lợi suất đó m',
               en: 'Tail average = Sum of the session returns no higher than the VaR threshold ÷ Their count m',
@@ -215,7 +222,7 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       },
       {
         kind: 'derived',
-        symbol: 'Q_{1-\\alpha}(r)',
+        symbol: 'Q_{1-\\alpha}(r_N)',
         phrases: { vi: ['ngưỡng VaR'], en: ['VaR threshold'] },
         steps: PHAN_VI_NOI_SUY,
         calcEvidence: MA_PHAN_VI,
@@ -225,6 +232,7 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
     skipped: {
       'CVaR_{\\alpha}': 'ket-qua',
       '\\alpha': 'nhap-tho',
+      N: 'nhap-tho',
       '\\mid': 'phep-toan',
       '100': 'hang-so',
     },

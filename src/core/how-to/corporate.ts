@@ -80,6 +80,6 @@ export const HOW_TO_CORPORATE: Readonly<Record<string, FormulaHowTo>> = {
         ],
       },
     ],
-    skipped: { DTL: 'ket-qua', DT: 'nhap-tho', BP: 'nhap-tho', FC: 'nhap-tho', I: 'nhap-tho' },
+    skipped: { DTL: 'ket-qua', DT: 'nhap-tho', BP: 'nhap-tho', I: 'nhap-tho' },
   },
 };

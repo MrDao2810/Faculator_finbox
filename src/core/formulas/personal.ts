@@ -91,7 +91,7 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       vi: 'Số tiền cố định phải trả mỗi tháng cho khoản vay trả góp dư nợ giảm dần.',
       en: 'The fixed amount due each month for a reducing-balance instalment loan.',
     },
-    latex: 'EMI = \\frac{P \\cdot i(r) \\,(1+i)^{n(t)}}{(1+i)^n - 1}',
+    latex: 'EMI = \\frac{P \\cdot i \\,(1+i)^n}{(1+i)^n - 1}',
     expression: {
       vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
       en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1]',
@@ -108,27 +108,16 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       {
         latex: 'i',
         meaning: {
-          vi: 'lãi suất một kỳ tháng = lãi suất / năm ÷ 12, dạng thập phân',
-          en: 'monthly period rate = annual rate ÷ 12, as a decimal',
-        },
-      },
-      {
-        latex: 'r',
-        meaning: {
-          vi: 'lãi suất vay mỗi năm (ô Lãi suất / năm)',
-          en: 'the loan rate per year (Rate per year field)',
+          vi: 'lãi suất một kỳ tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
+          en: 'monthly period rate, the Rate per year field ÷ 12, as a decimal',
         },
       },
       {
         latex: 'n',
         meaning: {
-          vi: 'số kỳ trả = kỳ hạn (năm) × 12',
-          en: 'number of periods = term in years × 12',
+          vi: 'số kỳ trả, bằng ô Kỳ hạn tính theo năm nhân 12',
+          en: 'number of periods, the Term field in years × 12',
         },
-      },
-      {
-        latex: 't',
-        meaning: { vi: 'kỳ hạn vay, năm (ô Kỳ hạn)', en: 'loan term, in years (Term field)' },
       },
       {
         latex: '(1+i)^n - 1',
@@ -270,7 +259,7 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       vi: 'Số tiền phải trả ở kỳ đầu tiên khi trả gốc đều nhau mỗi tháng.',
       en: 'The amount due in the first period when repaying an equal amount of principal each month.',
     },
-    latex: 'A_1 = \\frac{P}{n(t)} + P \\cdot i(r)',
+    latex: 'A_1 = \\frac{P}{n} + P \\cdot i',
     expression: {
       vi: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
       en: 'First period = Loan amount ÷ Number of periods + Loan amount × Period rate',
@@ -287,26 +276,15 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số kỳ trả = kỳ hạn (năm) × 12',
-          en: 'number of periods = term in years × 12',
+          vi: 'số kỳ trả, bằng ô Kỳ hạn tính theo năm nhân 12',
+          en: 'number of periods, the Term field in years × 12',
         },
-      },
-      {
-        latex: 't',
-        meaning: { vi: 'kỳ hạn vay, năm (ô Kỳ hạn)', en: 'loan term, in years (Term field)' },
       },
       {
         latex: 'i',
         meaning: {
-          vi: 'lãi suất một kỳ tháng = lãi suất / năm ÷ 12, dạng thập phân',
-          en: 'monthly period rate = annual rate ÷ 12, as a decimal',
-        },
-      },
-      {
-        latex: 'r',
-        meaning: {
-          vi: 'lãi suất vay mỗi năm (ô Lãi suất / năm)',
-          en: 'the loan rate per year (Rate per year field)',
+          vi: 'lãi suất một kỳ tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
+          en: 'monthly period rate, the Rate per year field ÷ 12, as a decimal',
         },
       },
     ],
@@ -423,7 +401,7 @@ export const LICH_TRA_NO: FormulaModule = {
       vi: 'Tổng số tiền lãi phải trả trong cả kỳ hạn, kèm bảng chi tiết từng kỳ.',
       en: 'The total interest payable over the whole term, with a detailed period-by-period table.',
     },
-    latex: '\\text{Tổng lãi} = \\sum_{k=1}^{n(t)} L_k(P, r, \\text{PT})',
+    latex: '\\text{Tổng lãi} = \\sum_{k=1}^{n} L_k',
     expression: {
       vi: 'Tổng lãi = Cộng tiền lãi của tất cả các kỳ',
       en: 'Total interest = Sum of the interest of every period',
@@ -436,26 +414,11 @@ export const LICH_TRA_NO: FormulaModule = {
           en: 'total interest paid over the whole term, ₫',
         },
       },
-      { latex: 'L_k', meaning: { vi: 'tiền lãi của kỳ thứ k, ₫', en: 'interest of period k, ₫' } },
       {
-        latex: 'P',
+        latex: 'L_k',
         meaning: {
-          vi: 'số tiền vay ban đầu (ô Số tiền vay), ₫',
-          en: 'the initial loan amount (Loan amount field), ₫',
-        },
-      },
-      {
-        latex: 'r',
-        meaning: {
-          vi: 'lãi suất vay mỗi năm (ô Lãi suất / năm)',
-          en: 'the loan rate per year (Rate per year field)',
-        },
-      },
-      {
-        latex: '\\text{PT}',
-        meaning: {
-          vi: 'phương thức trả, niên kim hay gốc đều (ô Phương thức trả)',
-          en: 'repayment method, annuity or equal principal (Repayment method field)',
+          vi: 'tiền lãi kỳ thứ k, tính trên dư nợ còn lại theo ô Phương thức trả, ₫',
+          en: 'interest of period k, on the balance left, per the Repayment method field, ₫',
         },
       },
       {
@@ -468,13 +431,9 @@ export const LICH_TRA_NO: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số kỳ trả = kỳ hạn (năm) × 12',
-          en: 'number of periods = term in years × 12',
+          vi: 'số kỳ trả, bằng ô Kỳ hạn tính theo năm nhân 12',
+          en: 'number of periods, the Term field in years × 12',
         },
-      },
-      {
-        latex: 't',
-        meaning: { vi: 'kỳ hạn vay, năm (ô Kỳ hạn)', en: 'loan term, in years (Term field)' },
       },
     ],
     chartType: 'stackedBar',
@@ -1012,7 +971,7 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       vi: 'Số tiền cần gửi đều mỗi tháng để đạt một mục tiêu tài chính.',
       en: 'The equal monthly deposit needed to reach a financial goal.',
     },
-    latex: 'PMT = \\frac{FV \\cdot i(r)}{(1+i)^n - 1}',
+    latex: 'PMT = \\frac{FV \\cdot i}{(1+i)^n - 1}',
     expression: {
       vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
       en: 'Monthly deposit = Goal × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
@@ -1032,15 +991,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       {
         latex: 'i',
         meaning: {
-          vi: 'lãi suất một kỳ tháng = lãi suất kỳ vọng / năm ÷ 12, dạng thập phân',
-          en: 'monthly period rate = expected annual rate ÷ 12, as a decimal',
-        },
-      },
-      {
-        latex: 'r',
-        meaning: {
-          vi: 'lãi suất kỳ vọng mỗi năm (ô Lãi suất kỳ vọng / năm)',
-          en: 'the expected rate per year (Expected rate per year field)',
+          vi: 'lãi suất một kỳ tháng, bằng ô Lãi suất kỳ vọng / năm chia 12, dạng thập phân',
+          en: 'monthly period rate, the Expected rate per year field ÷ 12, as a decimal',
         },
       },
       {

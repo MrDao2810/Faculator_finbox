@@ -150,7 +150,6 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       'DD_{t}': 'ket-qua',
       'P_{t}': 'nhap-tho',
       t: 'chi-so-chay',
-      N: 'nhap-tho',
       '100': 'hang-so',
     },
   },
@@ -161,11 +160,8 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
         kind: 'derived',
         symbol: 'Q_{1-\\alpha}(r_N)',
         phrases: {
-          vi: ['Phân vị mức (1 − Độ tin cậy)', 'nội suy tuyến tính giữa hai quan sát liền kề'],
-          en: [
-            'percentile at level (1 − confidence)',
-            'linearly interpolated between two adjacent observations',
-          ],
+          vi: ['Phân vị mức (1 − Độ tin cậy)'],
+          en: ['percentile at level (1 − confidence)'],
         },
         steps: PHAN_VI_NOI_SUY,
         calcEvidence: MA_PHAN_VI,

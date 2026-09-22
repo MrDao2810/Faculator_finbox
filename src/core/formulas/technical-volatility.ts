@@ -368,8 +368,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         en: 'The upper band is the 20-session average plus twice the standard deviation, so under a normal distribution only about 5% of sessions land outside the two bands — touching the upper edge is rare. In a strong uptrend, though, price can hug the upper band for many sessions in a row: Bollinger bands measure volatility, they do not forecast direction.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -515,8 +515,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         en: 'The lower band mirrors the upper one around the middle line, so it only says price is at the bottom edge of its usual trading range. This very series has two late-July sessions that broke below it before price recovered in August, yet breaking below and continuing to fall is just as common when the bad news is real — Bollinger bands cannot tell the two cases apart.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -578,7 +578,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       vi: 'Khoảng cách giữa hai dải, quy ra phần trăm của đường giữa để so được các mã.',
       en: 'The gap between the two bands, expressed as a percentage of the middle line so different stocks can be compared.',
     },
-    latex: 'BW = \\frac{BB_{tren}(k) - BB_{duoi}(k)}{SMA_{n}} \\times 100',
+    latex: 'BW = \\frac{BB_{tren} - BB_{duoi}}{SMA_{n}} \\times 100',
     expression: {
       vi: 'Độ rộng dải = (Dải trên − Dải dưới) ÷ Đường giữa × 100',
       en: 'Bandwidth = (Upper band − Lower band) ÷ Middle line × 100',
@@ -617,13 +617,6 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         meaning: {
           vi: 'chu kỳ dải Bollinger, phiên (ô Chu kỳ dải Bollinger)',
           en: 'Bollinger band period, in sessions (Bollinger band period field)',
-        },
-      },
-      {
-        latex: 'k',
-        meaning: {
-          vi: 'hệ số nhân độ lệch chuẩn, Bollinger dùng hệ số 2 (ô Hệ số nhân độ lệch chuẩn)',
-          en: 'standard deviation multiplier, Bollinger uses 2 (Standard deviation multiplier field)',
         },
       },
       {
@@ -670,8 +663,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         en: 'Dividing by the middle line makes this number comparable across time and across stocks at different price levels. A stretch of narrowing bands — what Bollinger calls a "squeeze" — often precedes a strong price move, but it only answers "when", never "which way", so it has to be read alongside a trend indicator.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -855,8 +848,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
         en: 'The true range takes the largest of three gaps, so it captures the overnight jump that an intraday high-minus-low misses. Its most common use is placing a stop roughly 1.5–2 ATR away from the entry price, so ordinary daily noise does not sweep the stop out.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -946,7 +939,7 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       vi: 'Giá đóng cửa đang nằm ở đâu giữa hai dải: 0% là dải dưới, 100% là dải trên.',
       en: 'Where the closing price sits between the two bands: 0% is the lower band, 100% is the upper band.',
     },
-    latex: '\\%B = \\frac{C - BB_{duoi}(n,k)}{BB_{tren}(n,k) - BB_{duoi}(n,k)} \\times 100',
+    latex: '\\%B = \\frac{C - BB_{duoi}}{BB_{tren} - BB_{duoi}} \\times 100',
     expression: {
       vi: '%B = (Giá đóng cửa − Dải dưới) ÷ (Dải trên − Dải dưới) × 100',
       en: '%B = (Closing price − Lower band) ÷ (Upper band − Lower band) × 100',
@@ -969,29 +962,15 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       {
         latex: 'BB_{duoi}',
         meaning: {
-          vi: 'dải dưới: đường giữa trừ hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
-          en: 'lower band: middle line minus multiplier × standard deviation of the period, in VND',
+          vi: 'dải dưới, theo ô Chu kỳ dải Bollinger và ô Hệ số nhân độ lệch chuẩn, ₫',
+          en: 'lower band, from the Bollinger band period and multiplier fields, in VND',
         },
       },
       {
         latex: 'BB_{tren}',
         meaning: {
-          vi: 'dải trên: đường giữa cộng hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
-          en: 'upper band: middle line plus multiplier × standard deviation of the period, in VND',
-        },
-      },
-      {
-        latex: 'n',
-        meaning: {
-          vi: 'chu kỳ dải Bollinger, phiên (ô Chu kỳ dải Bollinger)',
-          en: 'Bollinger band period, in sessions (Bollinger band period field)',
-        },
-      },
-      {
-        latex: 'k',
-        meaning: {
-          vi: 'hệ số nhân độ lệch chuẩn, Bollinger dùng hệ số 2 (ô Hệ số nhân độ lệch chuẩn)',
-          en: 'standard deviation multiplier, Bollinger uses 2 (Standard deviation multiplier field)',
+          vi: 'dải trên, theo ô Chu kỳ dải Bollinger và ô Hệ số nhân độ lệch chuẩn, ₫',
+          en: 'upper band, from the Bollinger band period and multiplier fields, in VND',
         },
       },
       {
@@ -1048,8 +1027,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         en: '%B maps price position onto a common scale: 0 is the lower band, 50 is exactly the middle line, 100 is the upper band, and anything outside that range means price has left the band. That normalization is what lets FPT be compared with a 15,000 VND stock — something the three raw Bollinger lines cannot do.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1256,8 +1235,8 @@ export const STOCHASTIC_K: FormulaModule = {
         en: "FPT's last fourteen sessions ranged between 70,700 and 74,800 VND and the close lands in the middle of that band — neither near the high nor near the low. Unlike RSI, this indicator uses the intraday high and low as well as the close, so it reacts faster.",
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1427,8 +1406,8 @@ export const VWAP: FormulaModule = {
         en: 'Every session contributes in proportion to the shares it matched, so an active session pulls the average toward its own price: the plain average of these twenty closes is 71,560 VND, while VWAP comes out higher because the heaviest-volume session of the period was also a high-priced one. Large funds use VWAP as the benchmark for execution quality.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1658,8 +1637,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         en: 'This indicator follows the international convention of 252 sessions per year, unlike the risk group which uses 250: the gap is small, but if two screens disagree the same stock will show two different numbers. It is also the mandatory volatility input to Black-Scholes when pricing covered warrants.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1859,8 +1838,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         en: 'The latest session matched only about half the average of the preceding twenty, meaning liquidity is thinning; roughly 1.5x and above is what counts as a spike. The ratio has no direction: within this same FPT series, 15 July matched 21.5 million shares while price fell 5%, and 3 August matched 19.5 million while price rose nearly 7%.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [

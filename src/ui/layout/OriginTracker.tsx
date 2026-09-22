@@ -8,6 +8,7 @@ import {
   ORIGIN_KEY,
   ORIGIN_PREV_KEY,
   ORIGIN_RESTORE_KEY,
+  matchOrigin,
   originPath,
   originToStore,
   parseOrigin,
@@ -98,6 +99,18 @@ const SCROLL_SETTLE_MS = 150;
  */
 export function rememberOrigin(): void {
   try {
+    /*
+     * Hỏi "màn này có phải màn gốc không" TRƯỚC, đọc `scrollY` SAU (21/09/2026, đợt tối ưu).
+     *
+     * Hàm này gắn vào `keydown` và `pointerdown` bắt buộc ở `document` của MỌI màn, nên nó chạy
+     * mỗi phím người dùng gõ — kể cả khi đang gõ số ở màn chi tiết, nơi `originToStore` chắc chắn
+     * trả `null`. Mà đọc `window.scrollY` là ép trình duyệt dàn trang ngay lúc ấy để trả số đúng,
+     * tức gánh nốt phần layout mà lượt render của phím trước còn treo. Bản cũ đọc `scrollY` ngay
+     * trong danh sách tham số nên lần ép ấy xảy ra TRƯỚC khi hàm kịp bỏ cuộc.
+     */
+    const url = `${window.location.pathname}${window.location.search}`;
+    if (matchOrigin(url) === null) return;
+
     const next = originToStore(window.location.pathname, window.location.search, window.scrollY);
     if (next === null) return;
 

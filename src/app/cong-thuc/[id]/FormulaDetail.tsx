@@ -143,6 +143,15 @@ const VN_INDEX_CLOSES = SAMPLE_DATA.vnIndex()
  */
 const USAGE_DWELL_MS = 8000;
 
+/**
+ * Gõ ngừng bao lâu thì ghi bản nháp xuống `localStorage`, tính bằng mili giây.
+ *
+ * 300 ms: dài hơn nhịp gõ của người gõ nhanh (một phím mỗi 60–150 ms) nên cả tràng gõ chỉ tốn MỘT
+ * lần ghi, mà vẫn đủ ngắn để một cú rời màn bất ngờ hiếm khi rơi đúng khe chờ — và kể cả rơi đúng
+ * thì ba lối xả ở `flushDraft` vẫn ghi nốt. Đổi số này thì sửa luôn ca kiểm dùng `vi.advanceTimersByTime`.
+ */
+const DRAFT_WRITE_DELAY_MS = 300;
+
 /*
  * Danh sách điều khiển chiếm trọn hàng từng nằm ở đây; nay dùng chung tại
  * `isWideControl()` trong `@/ui/inputs` vì khối chuỗi WF-04 cũng cần đúng luật ấy và đã bỏ sót
@@ -721,21 +730,81 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
    * Sau lần sửa đầu thì MỌI thay đổi đều được ghi, kể cả thay đổi do nạp mẫu: lúc ấy người dùng
    * đã tỏ ý muốn giữ màn này, và bộ số cuối cùng mới là thứ họ để lại.
    */
-  useEffect(() => {
-    if (!editedRef.current) return;
+  /** Bộ số đang chờ ghi xuống kho. `null` nghĩa là không còn gì nợ. */
+  const pendingDraftRef = useRef<{
+    id: string;
+    inputs: Record<string, number>;
+    code: string | null;
+  } | null>(null);
+
+  /**
+   * Ghi nốt bản nháp đang nợ, NGAY LẬP TỨC.
+   *
+   * Tách khỏi effect để ba nơi cùng gọi được: hết hẹn giờ, rời trang, và gỡ component. `useCallback`
+   * rỗng deps vì thân hàm chỉ đọc `pendingDraftRef` — kể cả `spec.id` cũng lấy từ bản ghi đang nợ
+   * chứ không lấy từ props: điều hướng sang công thức khác mà còn một lần ghi treo thì bản nháp ấy
+   * phải thuộc về công thức CŨ.
+   */
+  const flushDraft = useCallback(() => {
+    const pending = pendingDraftRef.current;
+    if (pending === null) return;
+    pendingDraftRef.current = null;
 
     try {
       const now = Date.now();
       const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
       window.localStorage.setItem(
         INPUT_DRAFT_KEY,
-        serializeInputDrafts(putDraft(stored, spec.id, inputs, stickyTicker, now)),
+        serializeInputDrafts(putDraft(stored, pending.id, pending.inputs, pending.code, now)),
       );
     } catch {
       // Trình duyệt chặn localStorage hoặc kho đầy — mất bản nháp thì màn chỉ trở về bộ số mặc
       // định ở lần mở sau. Không có gì để báo, và tuyệt đối không được làm hỏng lượt tính này.
     }
-  }, [inputs, spec.id, stickyTicker]);
+  }, []);
+
+  /*
+   * Hẹn giờ thay vì ghi thẳng (21/09/2026, đợt tối ưu hiệu năng).
+   *
+   * Thân hàm ghi là bốn việc ĐỒNG BỘ nối nhau: đọc `localStorage`, `JSON.parse`, dựng lại mảng tối
+   * đa 40 bản nháp, `JSON.stringify`, rồi ghi lại. Effect này bám `inputs`, mà `inputs` đổi danh
+   * tính mỗi phím gõ VÀ mỗi khung hình khi kéo thanh trượt — nên cả bốn việc ấy nằm thẳng trên
+   * đường người dùng đang gõ. Đo được: 14 phím tốn 655 ms luồng chính ở `gia-von-trung-binh-dca`,
+   * trang không có biểu đồ, tức chỗ tốn không thể đổ cho biểu đồ.
+   *
+   * Gom lại thì kho chỉ bị ghi một lần cho cả tràng gõ. Bản nháp vẫn không mất, vì ba lối ra đều
+   * xả nốt: hết hẹn giờ, rời trang (`pagehide`, `visibilitychange`), và gỡ component ở effect dưới.
+   */
+  useEffect(() => {
+    if (!editedRef.current) return undefined;
+
+    pendingDraftRef.current = { id: spec.id, inputs, code: stickyTicker };
+    const timer = setTimeout(flushDraft, DRAFT_WRITE_DELAY_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [inputs, spec.id, stickyTicker, flushDraft]);
+
+  /*
+   * Ba lối ra của một lần gõ dở: đóng tab, chuyển sang tab khác, và điều hướng trong ứng dụng.
+   *
+   * `pagehide` bắt hai cái đầu (và đúng cả trên iOS, nơi `beforeunload` không chạy);
+   * `visibilitychange` bắt lúc người dùng gạt sang ứng dụng khác rồi hệ điều hành thu hồi tab. Cú
+   * dọn của effect bắt cái thứ ba — nó chạy SAU cú dọn của effect trên (React dọn theo thứ tự khai
+   * báo), nên hẹn giờ đã bị huỷ mà bản nháp vẫn còn trong `pendingDraftRef` để ghi nốt.
+   */
+  useEffect(() => {
+    const onHidden = () => {
+      if (document.visibilityState === 'hidden') flushDraft();
+    };
+    window.addEventListener('pagehide', flushDraft);
+    document.addEventListener('visibilitychange', onHidden);
+    return () => {
+      window.removeEventListener('pagehide', flushDraft);
+      document.removeEventListener('visibilitychange', onHidden);
+      flushDraft();
+    };
+  }, [flushDraft]);
 
   /**
    * Chuỗi giá trên màn đến từ đâu ở lượt xem này — `null` nghĩa là "không phải thứ cần cất".
@@ -1720,6 +1789,12 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
      */
     editedRef.current = false;
     draftRef.current = null;
+    /*
+     * Và xoá cả khoản ĐANG NỢ. Từ 21/09/2026 lần ghi được gom lại sau 300 ms, nên nếu không xoá ở
+     * đây thì lần ghi treo ấy dựng lại đúng bản nháp vừa xoá — bộ số bị bỏ quay về ở lần mở sau,
+     * đúng cái lỗi mà đoạn này sinh ra để chữa.
+     */
+    pendingDraftRef.current = null;
     try {
       const now = Date.now();
       const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
@@ -2201,7 +2276,18 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
         cột trái được; `dense` của lưới đưa nó xuống hàng trống đầu tiên dưới cả hai cột.
       */}
       <div className={styles.ask}>
-        <section className={`${styles.block} ${styles.blockInputs}`} aria-labelledby="khoi-so-lieu">
+        {/*
+          Rời một ô nhập là ghi nốt bản nháp ngay, không đợi hết 300 ms hẹn giờ (21/09/2026).
+
+          `onBlur` của React là `focusout`, nên nó nổi lên từ mọi ô con — một lần ghi cho mỗi lần
+          rời ô, không phải mỗi phím. Có nó thì lời hứa "gõ xong là số đã được cất" vẫn đúng ngay
+          cả khi cú rời màn tới sớm hơn hẹn giờ, và ca kiểm đang gác lời hứa ấy không phải nới ra.
+        */}
+        <section
+          className={`${styles.block} ${styles.blockInputs}`}
+          aria-labelledby="khoi-so-lieu"
+          onBlur={flushDraft}
+        >
           <div className={styles.blockHead}>
             <h2 className={styles.blockTitle} id="khoi-so-lieu">
               {t('detail.inputs')}

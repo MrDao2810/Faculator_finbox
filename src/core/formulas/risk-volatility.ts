@@ -280,7 +280,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       vi: 'Quy độ lệch chuẩn lợi suất theo phiên về mức tương đương cả năm.',
       en: 'Converts the per-session return standard deviation into its yearly equivalent.',
     },
-    latex: '\\sigma_{nam} = s_{phien}(n) \\times \\sqrt{D}',
+    latex: '\\sigma_{nam} = s_{phien} \\times \\sqrt{D}',
     expression: {
       vi: 'Độ biến động năm = Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên giao dịch trong một năm',
       en: 'Annualized volatility = per-session return standard deviation × square root of the number of trading sessions in a year',
@@ -296,15 +296,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       {
         latex: 's_{phien}',
         meaning: {
-          vi: 'độ lệch chuẩn lợi suất theo phiên, %/phiên, tính trên số phiên lấy để tính',
-          en: 'per-session return standard deviation, in %/session, over the sessions used',
-        },
-      },
-      {
-        latex: 'n',
-        meaning: {
-          vi: 'số phiên lấy để tính (ô Số phiên lấy để tính)',
-          en: 'number of sessions used (Sessions used field)',
+          vi: 'độ lệch chuẩn lợi suất theo phiên, %/phiên, theo ô Số phiên lấy để tính',
+          en: 'per-session return standard deviation, %/session, over the Sessions used field',
         },
       },
       {
@@ -623,7 +616,7 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       vi: 'Bao nhiêu đơn vị rủi ro phải chịu cho mỗi đơn vị lợi suất bình quân.',
       en: 'How many units of risk are borne for each unit of average return.',
     },
-    latex: 'CV = \\frac{s(n)}{\\bar{r}(n)}',
+    latex: 'CV = \\frac{s}{\\bar{r}}',
     expression: {
       vi: 'Hệ số biến thiên = Độ lệch chuẩn lợi suất ÷ Lợi suất bình quân',
       en: 'Coefficient of variation = return standard deviation ÷ average return',
@@ -639,8 +632,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       {
         latex: 's',
         meaning: {
-          vi: 'độ lệch chuẩn lợi suất theo phiên trong cửa sổ, %/phiên',
-          en: 'per-session return standard deviation over the window, in %/session',
+          vi: 'độ lệch chuẩn lợi suất phiên trong cửa sổ, theo ô Số phiên lấy để tính, %/phiên',
+          en: 'per-session return standard deviation over the Sessions used field, %/session',
         },
       },
       {
@@ -655,13 +648,6 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
         meaning: {
           vi: 'lợi suất của một phiên',
           en: 'return of one session',
-        },
-      },
-      {
-        latex: 'n',
-        meaning: {
-          vi: 'số phiên lấy để tính (ô Số phiên lấy để tính)',
-          en: 'number of sessions used (Sessions used field)',
         },
       },
     ],
@@ -790,7 +776,7 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       vi: 'Giá đóng cửa cao nhất trong kỳ cao hơn giá đóng cửa thấp nhất bao nhiêu phần trăm.',
       en: 'How many percent the highest closing price in the period is above the lowest closing price.',
     },
-    latex: 'A = \\frac{P_{max}(N) - P_{min}(N)}{P_{min}(N)} \\times 100',
+    latex: 'A = \\frac{P_{max} - P_{min}}{P_{min}} \\times 100',
     expression: {
       vi: 'Biên độ dao động = (Giá đóng cửa cao nhất − Giá đóng cửa thấp nhất) ÷ Giá đóng cửa thấp nhất × 100',
       en: 'Price range = (highest closing price − lowest closing price) ÷ lowest closing price × 100',
@@ -806,8 +792,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       {
         latex: 'P_{max}',
         meaning: {
-          vi: 'giá đóng cửa cao nhất trong số phiên trong kỳ, ₫',
-          en: 'highest closing price within the sessions in the period, in VND',
+          vi: 'giá đóng cửa cao nhất trong kỳ, dài theo ô Số phiên trong kỳ, ₫',
+          en: 'highest closing price in the period, as long as the Sessions in period field, ₫',
         },
       },
       {
@@ -815,13 +801,6 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         meaning: {
           vi: 'giá đóng cửa thấp nhất trong cùng kỳ, dùng làm gốc so sánh, ₫',
           en: 'lowest closing price in the same period, used as the base, in VND',
-        },
-      },
-      {
-        latex: 'N',
-        meaning: {
-          vi: 'số phiên trong kỳ (ô Số phiên trong kỳ)',
-          en: 'number of sessions in the period (Sessions in period field)',
         },
       },
       {
@@ -934,7 +913,7 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       vi: 'Trong kỳ, cổ phiếu đã có lần giảm liên tiếp nhiều nhất bao nhiêu phiên.',
       en: 'In the period, the longest run of consecutive declining sessions the stock has had.',
     },
-    latex: 'L(N) = \\max\\{k : r_{t+1} < 0, \\ldots, r_{t+k} < 0\\}',
+    latex: 'L = \\max\\{k : r_{t+1} < 0, \\ldots, r_{t+k} < 0\\}',
     expression: {
       vi: 'Chuỗi giảm dài nhất = Số phiên giảm giá liên tiếp nhiều nhất trong kỳ',
       en: 'Longest losing streak = the greatest number of consecutive declining sessions in the period',
@@ -943,15 +922,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       {
         latex: 'L',
         meaning: {
-          vi: 'chuỗi giảm dài nhất, tính bằng phiên',
-          en: 'longest losing streak, in sessions',
-        },
-      },
-      {
-        latex: 'N',
-        meaning: {
-          vi: 'số phiên trong kỳ (ô Số phiên trong kỳ)',
-          en: 'number of sessions in the period (Sessions in period field)',
+          vi: 'chuỗi giảm dài nhất trong kỳ, dài theo ô Số phiên trong kỳ, tính bằng phiên',
+          en: 'longest losing streak, over the Sessions in period field, in sessions',
         },
       },
       {

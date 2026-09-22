@@ -264,13 +264,13 @@ export const SMA_N_PHIEN: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average' },
     description: {
-      vi: 'Giá đóng cửa bình quân của N phiên gần nhất — đường xu hướng cơ bản nhất.',
-      en: 'The average closing price over the most recent N periods — the most basic trend line.',
+      vi: 'Giá đóng cửa bình quân của n phiên gần nhất — đường xu hướng cơ bản nhất.',
+      en: 'The average closing price over the most recent n periods — the most basic trend line.',
     },
     latex: 'SMA_{n} = \\frac{1}{n}\\sum_{i=0}^{n-1} P_{t-i}',
     expression: {
-      vi: 'SMA = Tổng giá đóng cửa của N phiên gần nhất ÷ N',
-      en: 'SMA = Sum of closing prices over the most recent N periods ÷ N',
+      vi: 'SMA = Tổng giá đóng cửa của n phiên gần nhất ÷ n',
+      en: 'SMA = Sum of closing prices over the most recent n periods ÷ n',
     },
     symbols: [
       {
@@ -333,8 +333,8 @@ export const SMA_N_PHIEN: FormulaModule = {
     },
     explanation: {
       meaning: {
-        vi: 'Mức giá bình quân mà thị trường đã trả trong N phiên vừa qua, làm phẳng các phiên nhiễu để lộ ra chiều đi của giá.',
-        en: 'The average price the market has paid over the last N periods, smoothing out noisy sessions to reveal the direction of price.',
+        vi: 'Mức giá bình quân mà thị trường đã trả trong n phiên vừa qua, làm phẳng các phiên nhiễu để lộ ra chiều đi của giá.',
+        en: 'The average price the market has paid over the last n periods, smoothing out noisy sessions to reveal the direction of price.',
       },
       whenToUse: {
         vi: 'Khi cần một mốc tham chiếu đơn giản cho xu hướng, hoặc làm đường hỗ trợ / kháng cự động cho điểm mua bán.',
@@ -362,8 +362,8 @@ export const SMA_N_PHIEN: FormulaModule = {
         en: 'The moving average smooths out session-to-session noise to reveal the underlying price level: the final session closed at 72,700 VND, above the line. It is a lagging indicator — it confirms a trend that has already formed rather than predicting one.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -509,8 +509,8 @@ export const EMA_N_PHIEN: FormulaModule = {
         en: 'Weights decay exponentially into the past, so the line tracks price more closely than an SMA of the same period: the smoothing factor of 2/(12+1) ≈ 0.1538 means each new session contributes about 15.4% of the line. The trade-off is more noise and more false signals — which is why MACD uses EMAs while Bollinger bands use SMAs.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -577,7 +577,7 @@ export const MACD_DUONG_CHINH: FormulaModule = {
     // 3–200), đặt khác đi là công thức in trên màn nói một đằng còn kết quả tính một nẻo. Cùng
     // lối viết với `giao-cat-hai-duong-ma` và khớp luôn `expression` ngay dưới, vốn đã tổng quát.
     // Bộ 12/26 vẫn còn ở giá trị mặc định và ở mô tả biến.
-    latex: 'MACD = EMA_{nhanh}(n_{nhanh}) - EMA_{cham}(n_{cham})',
+    latex: 'MACD = EMA_{nhanh} - EMA_{cham}',
     expression: {
       vi: 'MACD = EMA chu kỳ nhanh − EMA chu kỳ chậm',
       en: 'MACD = Fast-period EMA − Slow-period EMA',
@@ -598,24 +598,10 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         },
       },
       {
-        latex: 'n_{nhanh}',
-        meaning: {
-          vi: 'chu kỳ của EMA nhanh, phiên (ô Chu kỳ EMA nhanh)',
-          en: 'period of the fast EMA, in sessions (Fast EMA period field)',
-        },
-      },
-      {
         latex: 'EMA_{cham}',
         meaning: {
           vi: 'EMA tính theo ô Chu kỳ EMA chậm, đường nền, ₫',
           en: 'EMA over the Slow EMA period field, the baseline, ₫',
-        },
-      },
-      {
-        latex: 'n_{cham}',
-        meaning: {
-          vi: 'chu kỳ của EMA chậm, phiên (ô Chu kỳ EMA chậm)',
-          en: 'period of the slow EMA, in sessions (Slow EMA period field)',
         },
       },
     ],
@@ -668,8 +654,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         en: 'A positive value means the short average sits above the long one, i.e. upward momentum has the upper hand. The indicator measures the DISTANCE between two moving averages rather than price itself, so it can still rise while price moves sideways — which is why it is classed as a momentum indicator rather than a trend one.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -736,7 +722,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     },
     // Cùng lẽ với latex của `macd-duong-chinh`: chu kỳ tín hiệu là thanh trượt 2–100 nên không
     // viết cứng 9.
-    latex: 'Signal = EMA_{tin hieu}\\big(MACD(n_{nhanh}, n_{cham}), n_{tin hieu}\\big)',
+    latex: 'Signal = EMA_{tin hieu}(MACD)',
     expression: {
       vi: 'Đường tín hiệu = EMA chu kỳ tín hiệu tính trên chuỗi giá trị MACD',
       en: 'Signal line = EMA of the signal period computed on the series of MACD values',
@@ -754,31 +740,10 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         },
       },
       {
-        latex: 'n_{tin hieu}',
-        meaning: {
-          vi: 'chu kỳ của EMA tín hiệu, phiên (ô Chu kỳ đường tín hiệu)',
-          en: 'period of the signal EMA, in sessions (Signal line period field)',
-        },
-      },
-      {
         latex: 'MACD',
         meaning: {
-          vi: 'chuỗi giá trị đường MACD qua từng phiên, EMA nhanh − EMA chậm, ₫',
-          en: 'series of MACD line values session by session, fast EMA − slow EMA, ₫',
-        },
-      },
-      {
-        latex: 'n_{nhanh}',
-        meaning: {
-          vi: 'chu kỳ của EMA nhanh dùng để dựng MACD, phiên (ô Chu kỳ EMA nhanh)',
-          en: 'period of the fast EMA used to build the MACD series, in sessions (Fast EMA period field)',
-        },
-      },
-      {
-        latex: 'n_{cham}',
-        meaning: {
-          vi: 'chu kỳ của EMA chậm dùng để dựng MACD, phiên (ô Chu kỳ EMA chậm)',
-          en: 'period of the slow EMA used to build the MACD series, in sessions (Slow EMA period field)',
+          vi: 'chuỗi giá trị MACD từng phiên, theo hai ô Chu kỳ EMA nhanh và chậm, ₫',
+          en: 'MACD values session by session, from the Fast and Slow EMA period fields, ₫',
         },
       },
     ],
@@ -837,8 +802,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         en: 'The signal line is an EMA of the MACD line itself — an average of an average, so it lags price by one more step. In a sideways market the two lines cross back and forth and produce a stream of false signals; that is the biggest weakness of this indicator set.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -985,8 +950,8 @@ export const RSI_WILDER: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Trong N phiên gần nhất, phần tăng chiếm bao nhiêu so với tổng biến động — quy về thang 0 tới 100.',
-        en: 'Over the most recent N periods, how much of the total movement was upward — rescaled to a 0-to-100 range.',
+        vi: 'Trong n phiên gần nhất, phần tăng chiếm bao nhiêu so với tổng biến động — quy về thang 0 tới 100.',
+        en: 'Over the most recent n periods, how much of the total movement was upward — rescaled to a 0-to-100 range.',
       },
       whenToUse: {
         vi: 'Khi muốn biết một nhịp tăng hay giảm đã đi quá đà chưa, hoặc khi giá lập đỉnh mới mà RSI lại lập đỉnh thấp hơn — hiện tượng đó gọi là phân kỳ, dấu hiệu đà tăng đang đuối dần.',
@@ -1014,8 +979,8 @@ export const RSI_WILDER: FormulaModule = {
         en: 'The index runs from 0 to 100 with two conventional thresholds: below 30 is oversold, above 70 is overbought. Wilder’s version smooths with a 1/14 factor rather than a plain arithmetic mean — coding it as a plain mean makes the result drift as the series gets longer; and in a strong trend the index staying above 70 for dozens of sessions is perfectly normal.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1106,13 +1071,13 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change' },
     description: {
-      vi: 'Giá hôm nay cao hơn hay thấp hơn giá của N phiên trước bao nhiêu phần trăm.',
-      en: "How many percent today's price is above or below the price from N periods ago.",
+      vi: 'Giá hôm nay cao hơn hay thấp hơn giá của n phiên trước bao nhiêu phần trăm.',
+      en: "How many percent today's price is above or below the price from n periods ago.",
     },
     latex: 'ROC = \\left(\\frac{P_t}{P_{t-n}} - 1\\right) \\times 100',
     expression: {
-      vi: 'ROC = (Giá phiên cuối ÷ Giá của N phiên trước − 1) × 100',
-      en: 'ROC = (Last closing price ÷ Price from N periods ago − 1) × 100',
+      vi: 'ROC = (Giá phiên cuối ÷ Giá của n phiên trước − 1) × 100',
+      en: 'ROC = (Last closing price ÷ Price from n periods ago − 1) × 100',
     },
     symbols: [
       {
@@ -1169,20 +1134,20 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Động lượng đo bằng phần trăm: giá đã chạy nhanh tới mức nào trong cửa sổ N phiên vừa qua.',
-        en: 'Momentum measured in percent: how fast price has moved within the last N-period window.',
+        vi: 'Động lượng đo bằng phần trăm: giá đã chạy nhanh tới mức nào trong cửa sổ n phiên vừa qua.',
+        en: 'Momentum measured in percent: how fast price has moved within the last n-period window.',
       },
       whenToUse: {
         vi: 'Khi cần so sức bật của nhiều cổ phiếu khác thị giá với nhau, hoặc xếp hạng sức mạnh tương đối trong danh mục.',
         en: 'When you need to compare the bounce strength of several stocks with different prices, or rank relative strength within a portfolio.',
       },
       howToRead: {
-        vi: 'Dương là giá cao hơn N phiên trước, âm là thấp hơn. Vì tính bằng phần trăm nên so ngang giữa các mã được, khác với động lượng tính bằng đồng.',
-        en: 'Positive means price is higher than N periods ago, negative means lower. Because it is expressed as a percentage it can be compared across different stocks, unlike momentum measured in VND.',
+        vi: 'Dương là giá cao hơn n phiên trước, âm là thấp hơn. Vì tính bằng phần trăm nên so ngang giữa các mã được, khác với động lượng tính bằng đồng.',
+        en: 'Positive means price is higher than n periods ago, negative means lower. Because it is expressed as a percentage it can be compared across different stocks, unlike momentum measured in VND.',
       },
       commonMistakes: {
-        vi: 'Chọn cửa sổ N trùng đúng một nhịp sóng của cổ phiếu, khiến ROC luôn quanh 0 dù giá vẫn đang chạy — đổi vài chu kỳ để đối chiếu trước khi kết luận.',
-        en: "Choosing a window N that happens to match one full wave of the stock's cycle, which keeps ROC hovering around 0 even though price is still moving — try a few different periods before drawing a conclusion.",
+        vi: 'Chọn cửa sổ n trùng đúng một nhịp sóng của cổ phiếu, khiến ROC luôn quanh 0 dù giá vẫn đang chạy — đổi vài chu kỳ để đối chiếu trước khi kết luận.',
+        en: "Choosing a window n that happens to match one full wave of the stock's cycle, which keeps ROC hovering around 0 even though price is still moving — try a few different periods before drawing a conclusion.",
       },
     },
     example: {
@@ -1198,8 +1163,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
         en: 'It measures the percentage change between the current price and the price at the look-back mark, computed directly on price rather than through an average, so it reacts fastest of the momentum group — and is also the noisiest. A common use is to treat a flip from negative to positive as an early sign, then wait for MACD to confirm.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1263,13 +1228,13 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Động lượng (Momentum)', en: 'Momentum' },
     description: {
-      vi: 'Chênh lệch tuyệt đối giữa giá phiên cuối và giá của N phiên trước, tính bằng đồng.',
-      en: 'The absolute difference between the last closing price and the price from N periods ago, denominated in VND.',
+      vi: 'Chênh lệch tuyệt đối giữa giá phiên cuối và giá của n phiên trước, tính bằng đồng.',
+      en: 'The absolute difference between the last closing price and the price from n periods ago, denominated in VND.',
     },
     latex: 'M = P_t - P_{t-n}',
     expression: {
-      vi: 'Động lượng = Giá phiên cuối − Giá của N phiên trước',
-      en: 'Momentum = Last closing price − Price from N periods ago',
+      vi: 'Động lượng = Giá phiên cuối − Giá của n phiên trước',
+      en: 'Momentum = Last closing price − Price from n periods ago',
     },
     symbols: [
       {
@@ -1322,8 +1287,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Giá đã đi được bao nhiêu đồng trong N phiên — bản gốc, thô nhất của mọi chỉ báo động lượng.',
-        en: 'How many VND price has moved over N periods — the original, rawest form of every momentum indicator.',
+        vi: 'Giá đã đi được bao nhiêu đồng trong n phiên — bản gốc, thô nhất của mọi chỉ báo động lượng.',
+        en: 'How many VND price has moved over n periods — the original, rawest form of every momentum indicator.',
       },
       whenToUse: {
         vi: 'Khi theo dõi một mã quen và muốn cảm nhận biên độ bằng chính đơn vị tiền, thay vì quy ra phần trăm.',
@@ -1351,8 +1316,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
         en: 'The result is an absolute price difference in VND, easy to picture at a glance but not comparable across tickers: the same 500 VND gap means something quite different for a 72,700 VND stock than for a 10,000 VND one. To compare across tickers you have to normalize to a percentage with ROC.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1420,8 +1385,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
     },
     latex: 'D = \\left(\\frac{P_t}{SMA_n} - 1\\right) \\times 100',
     expression: {
-      vi: 'Khoảng cách = (Giá phiên cuối ÷ SMA N phiên − 1) × 100',
-      en: 'Distance = (Last closing price ÷ N-period SMA − 1) × 100',
+      vi: 'Khoảng cách = (Giá phiên cuối ÷ SMA n phiên − 1) × 100',
+      en: 'Distance = (Last closing price ÷ n-period SMA − 1) × 100',
     },
     symbols: [
       {
@@ -1507,8 +1472,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
         en: 'Being a percentage, the gap is comparable across tickers and across dates; the underlying idea is mean reversion, so the wider it stretches the higher the odds of being pulled back. Within this very series, the 5% drop to 66,800 VND in mid-July 2026 pushed the gap deep into negative territory.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [
@@ -1575,7 +1540,7 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       vi: 'Chênh lệch giữa SMA ngắn hạn và SMA dài hạn — dấu của nó cho biết cắt lên hay cắt xuống.',
       en: 'The difference between the short-term SMA and the long-term SMA — its sign tells you whether a crossover occurred upward or downward.',
     },
-    latex: 'C = SMA_{ngan}(n_{ngan}) - SMA_{dai}(n_{dai})',
+    latex: 'C = SMA_{ngan} - SMA_{dai}',
     expression: {
       vi: 'Chênh lệch = SMA chu kỳ ngắn − SMA chu kỳ dài',
       en: 'Difference = Short-period SMA − Long-period SMA',
@@ -1596,24 +1561,10 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         },
       },
       {
-        latex: 'n_{ngan}',
-        meaning: {
-          vi: 'chu kỳ của đường ngắn, phiên (ô Chu kỳ đường ngắn)',
-          en: 'period of the short line, in sessions (Short period field)',
-        },
-      },
-      {
         latex: 'SMA_{dai}',
         meaning: {
           vi: 'SMA tính theo ô Chu kỳ đường dài, đường nền, ₫',
           en: 'SMA over the Long period field, the baseline, ₫',
-        },
-      },
-      {
-        latex: 'n_{dai}',
-        meaning: {
-          vi: 'chu kỳ của đường dài, phiên (ô Chu kỳ đường dài)',
-          en: 'period of the long line, in sessions (Long period field)',
         },
       },
     ],
@@ -1666,8 +1617,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         en: 'The result is the fast line minus the slow line: positive means the fast line has crossed above. This is the oldest mechanical system of the group, kept around because it removes emotion entirely; its known weakness is that a sideways market tangles the two lines and produces a run of losing trades.',
       },
       source: {
-        vi: 'investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.',
-        en: 'investing.com — FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15, accessed 2026-09-15.',
+        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
+        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
       },
     },
     tests: [

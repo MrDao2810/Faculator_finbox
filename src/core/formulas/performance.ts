@@ -623,8 +623,8 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
         en: 'Everything above the price-growth-only figure is dividends compounding: the payout buys more shares, and those new shares collect dividends in turn. It only holds if the shares are genuinely repurchased, and in Vietnam the 5% dividend tax comes off before anything is reinvested.',
       },
       source: {
-        vi: 'Mức tăng giá lấy theo VN-Index giai đoạn 9/2024–8/2026, tỷ suất cổ tức lấy theo FPT tại thị giá 11/09/2026 — hai nguồn ghép lại để minh hoạ tác động tái đầu tư.',
-        en: 'Price growth taken from the VN-Index over 9/2024–8/2026 and the dividend yield from FPT at its 2026-09-11 price — two sources combined to illustrate the reinvestment effect.',
+        vi: 'Mức tăng giá lấy theo VN-Index giai đoạn 9/2024–8/2026, tỷ suất cổ tức lấy theo FPT tại thị giá 11/09/2026; hai nguồn ghép lại để minh hoạ tác động tái đầu tư.',
+        en: 'Price growth taken from the VN-Index over 9/2024–8/2026 and the dividend yield from FPT at its 2026-09-11 price; two sources combined to illustrate the reinvestment effect.',
       },
     },
     tests: [

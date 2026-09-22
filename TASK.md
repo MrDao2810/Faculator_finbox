@@ -187,6 +187,200 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Bỏ lối viết ngoặc kiểu hàm số khỏi mọi hình công thức — 20 hình (22/09/2026)
+
+**Trạng thái: xong.** `npm run check` xanh: 121 file, 2.808 ca — không lệch ca nào so với trước khi sửa.
+
+### Yêu cầu
+
+Chủ dự án khoanh đỏ hình của `lich-tra-no`: `Tổng lãi = Σ L_k(P, r, PT)` và hỏi vì sao có phần trong
+ngoặc ngăn bằng dấu phẩy, "để như này dễ khiến người đọc hiểu nhầm công thức". Khi được giải thích rằng
+phần lớn các ca còn lại chỉ có một đối số và đúng quy ước sách vở (`SMA(20)`), câu trả lời là: "dân kỹ
+thuật đọc được nhưng người dùng hoặc người mới xem công thức làm sao mà hiểu nổi… tôi hướng tới người
+dùng chứ không phải là dân kỹ thuật".
+
+### Nguyên nhân
+
+Đây là hệ quả của chính đợt 18/09 (mục bên dưới). Cổng kiểm bắt mỗi dòng bảng ký hiệu phải là chuỗi chép
+nguyên văn từ `latex`, nên muốn một ô nhập có dòng chú thích riêng thì ký hiệu của nó buộc phải xuất hiện
+trong hình — và cách rẻ nhất để nhét vào là mở ngoặc. Sai lầm nằm ở tiền đề: **ô nhập không cần một dòng
+bảng ký hiệu của riêng nó.**
+
+### Cách làm
+
+Bỏ hẳn lối viết `ký hiệu(tham số)` khỏi 20 hình, trả hình về đúng dạng trước 18/09 (đối chiếu bằng
+`git show ea24e82^`). Tên ô nhập chuyển vào **`meaning` của chính ký hiệu mà nó nuôi**: `F_{lk}` đọc là
+"phí lưu ký cả kỳ, tính theo ô Thời gian nắm giữ, ₫", `i` đọc là "lãi suất một kỳ tháng, bằng ô Lãi suất /
+năm chia 12". Không tốn ký hiệu nào, không đụng hình. Chỗ nào quá 90 ký tự thì để khung "cách tính" và
+bảng biến cuối trang gánh — cả hai đều đã liệt kê ô đó sẵn.
+
+Giữ lại những dấu ngoặc **tự nó là toán thật**: gộp nhóm (`Q\,(1 - r_{ban} - r_{thue})`), phép toán thật
+(`\max(30, L)`), và các dạng sách vở mà đối số là DỮ LIỆU chứ không phải nút vặn — `\text{Cov}(R_i, R_m)`,
+`Q_{1-\alpha}(r)`, `EMA_{tin hieu}(MACD)`. Giữ cả cận chỉ số vốn đã vẽ sẵn: `\sum_{k=1}^{n}`,
+`\max_{t \le N}`, `\overline{r^{+}}_h`.
+
+### File đã đổi
+
+| File                      | Hình đã bỏ ngoặc                                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `personal.ts`             | lich-tra-no, tra-gop-nien-kim, tra-gop-goc-deu, tiet-kiem-muc-tieu                           |
+| `fees.ts`                 | gia-hoa-von, loi-nhuan-rong, roi-rong                                                        |
+| `risk-volatility.ts`      | do-bien-dong-nam-hoa, he-so-bien-thien, bien-do-dao-dong-lon-nhat, chuoi-phien-giam-dai-nhat |
+| `technical-trend.ts`      | macd-duong-chinh, macd-duong-tin-hieu, giao-cat-hai-duong-ma                                 |
+| `technical-volatility.ts` | do-rong-dai-bollinger, phan-tram-b-bollinger                                                 |
+| `risk-ratios.ts`          | beta, ty-so-calmar                                                                           |
+| `risk-drawdown.ts`        | sut-giam-hien-tai                                                                            |
+| `corporate.ts`            | don-bay-tong-hop                                                                             |
+
+Kèm 7 file `src/core/how-to/*.ts` tương ứng: xoá lý do bỏ qua của các dòng ký hiệu vừa bị xoá.
+`CLAUDE.md` đã ghi lại việc đảo quyết định này ngay trong đoạn nói về đợt 18/09, để lần sau không ai
+dựng lại khuôn cũ.
+
+### Còn lại
+
+- Các ô nhập vừa mất dòng bảng ký hiệu (`M` phí lưu ký, `N` số phiên trong kỳ, `n_{nhanh}`/`n_{cham}`,
+  `k` hệ số Bollinger, `P`/`r`/`PT` của lịch trả nợ…) giờ chỉ còn tới được qua `meaning` của ký hiệu mẹ,
+  khung "cách tính" và bảng biến. Đây đúng là đánh đổi đã nói trước với chủ dự án, không phải sót.
+- Vẫn chưa có gì báo cho người đọc biết là **bấm được vào ký hiệu** để mở khung "cách tính" — cùng một
+  việc còn treo từ 19/09.
+
+---
+
+## Đuôi "truy cập 15/09/2026" ở dòng nguồn của ví dụ — 29 câu (21/09/2026)
+
+**Trạng thái: xong.** `npm run check` xanh: 121 file, 2.808 ca. Không thêm/bớt ca kiểm nào — đây là
+sửa câu chữ, và `prose-audit.test.ts` (9 ca, đọc `example.source`) cùng `formulas.test.ts` (153 ca)
+đã phủ sẵn.
+
+Chủ dự án đọc dòng nguồn của `ty-so-sortino` và nhóm kỹ thuật: _"đoạn đầu thì chuẩn nhưng đoạn sau
+là 'truy cập 15/09/2026' đọc có vẻ không hiểu"_, và đề xuất đổi thành "cập nhật dữ liệu mới nhất đến
+ngày…".
+
+### Rà ra được gì
+
+111 công thức đều có `example.source`, trong đó **29 câu** kết bằng "truy cập 15/09/2026". Chúng
+KHÔNG cùng một loại:
+
+| Nhóm                                       | Số câu | Ngày của số liệu               | Ngày truy cập | Đuôi nói thêm gì                               |
+| ------------------------------------------ | ------ | ------------------------------ | ------------- | ---------------------------------------------- |
+| `technical-trend` + `technical-volatility` | 18     | phiên cuối 15/09/2026          | 15/09/2026    | **Không** — trùng đúng ngày vừa ghi ở vế trước |
+| `fundamentals`                             | 11     | BCĐKT 30/06/2026, KQKD 6 tháng | 15/09/2026    | **Có** — hai ngày khác nhau thật               |
+
+Bằng chứng cho hàng đầu: 18 câu ấy đọc đúng chuỗi `FPT_57_PHIEN` mà **8 công thức khác**
+(`risk-drawdown`, `risk-volatility`) cũng đọc, và 8 câu kia viết KHÔNG có đuôi ngày, nối bằng dấu
+phẩy chứ không bằng gạch dài. Tức sản phẩm đã có sẵn một lối viết trôi hơn cho cùng một nguồn.
+
+**Vì sao không dùng thẳng chữ "cập nhật đến" cho cả 29:** ở nhóm `fundamentals` nó sai. Ví dụ dùng
+bảng cân đối kế toán ngày 30/06/2026; viết "số liệu CafeF cập nhật đến 15/09/2026" là hứa số mới hơn
+số thật, đúng loại "con số sai mà trông như đúng" mà FR-06 sinh ra để chặn. Chủ dự án chọn phương án
+tách hai nhóm.
+
+### Đã sửa
+
+- `src/core/formulas/technical-trend.ts` · `technical-volatility.ts` — 18 câu (9 + 9), bỏ hẳn đuôi và
+  đổi gạch dài thành dấu phẩy:
+  `investing.com — dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026, truy cập 15/09/2026.`
+  → `investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.`
+- `src/core/formulas/fundamentals.ts` — 11 câu (6 biến thể), giữ ngày đọc nhưng gọi đúng tên việc:
+  `Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026`
+  → `Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.`
+  Câu `lai-suat-co-tuc` lấy từ hai nguồn (cotuc.vn + CafeF) nên viết `…theo CafeF, lấy ngày 15/09/2026.`
+  chứ không gán riêng cho CafeF.
+- `src/core/formulas/performance.ts` — câu nguồn thứ 30 có gạch dài (`…thị giá 11/09/2026 — hai nguồn
+ghép lại…`) đổi sang dấu chấm phẩy. Đây là câu duy nhất còn lại dùng `—` làm dấu nối.
+- Bản tiếng Anh đổi song song: bỏ `accessed 2026-09-15` ở nhóm 1; nhóm 2 thành
+  `taken from CafeF on 2026-09-15.` — ngày viết dạng ISO cho khớp 100 câu nguồn tiếng Anh còn lại,
+  vốn đã dùng ISO chứ không dùng "15 September 2026".
+
+Kết quả sau khi sửa, kiểm bằng grep trên cả 111 câu: **0 câu còn "truy cập"/"accessed"**, **0 câu còn
+gạch dài `—`**, và cả 111 câu tiếng Việt lẫn tiếng Anh đều kết bằng dấu chấm (trước đó đúng 11 câu
+`fundamentals` thiếu dấu chấm cuối).
+
+### Chủ dự án đã bác trong đợt này
+
+- **Không** viết hoa thống nhất `Investing.com` (đang 27 thường / 11 hoa) — để nguyên, ngoài phạm vi.
+- **Không** đụng 82 câu nguồn còn lại.
+
+### Còn lại
+
+Dấu `–` trong khoảng ngày (`24/06–15/09/2026`) giữ nguyên: đó là dấu chỉ KHOẢNG, không phải dấu nối,
+và 8 câu anh em vốn đã viết như vậy.
+
+---
+
+## Hình vẽ `n` thường mà dòng chữ viết "N" hoa — 5 công thức (21/09/2026)
+
+**Trạng thái: xong.** `npm run check` xanh: 121 file, 2.808 ca (nền 2.806 + 2 ca của đợt tối ưu hiệu
+năng đang làm song song, không phải của mục này).
+
+Chủ dự án chỉ vào `khoang-cach-gia-so-sma`: hình vẽ `SMA_n` (n thường) còn dòng chữ dưới hình đọc là
+"SMA N phiên" (N hoa), và yêu cầu soát luôn cả các chỗ khác cùng kiểu lệch hoa/thường.
+
+### Cách soát
+
+Viết một ca kiểm TẠM (`src/core/how-to/tmp-case-audit.test.ts`, đã xoá sau khi chạy) quét cả 111 công
+thức: lấy tập chữ cái xuất hiện trong `spec.latex` sau khi bỏ lệnh LaTeX, rồi tìm trong mọi đoạn chữ
+những chữ cái ĐỨNG MỘT MÌNH mà bản thân nó không có trong hình nhưng bản đổi hoa/thường của nó thì
+có. Quét `expression`, nghĩa từng dòng bảng ký hiệu, cụm và bước của khung "cách tính",
+`description`, mô tả ô nhập, bốn mục diễn giải, tiêu đề và ghi chú ví dụ.
+
+Kết quả: 52 chỗ nghi, trong đó 34 là nhiễu tiếng Anh (`company's`, `e.g.`, `i.e.` — chữ `s`/`e` đứng
+một mình cạnh dấu nháy hoặc dấu chấm), còn **18 chỗ lệch thật, tất cả cùng một lỗi và đều nằm trong
+`technical-trend.ts`**: hình dùng `n` thường cho độ dài cửa sổ, chữ viết "N" hoa.
+
+### File đã đổi
+
+- `src/core/formulas/technical-trend.ts` — 24 chỗ N → n ở 5 công thức: `khoang-cach-gia-so-sma`,
+  `sma-n-phien`, `rsi-wilder`, `roc-toc-do-thay-doi`, `dong-luong-momentum`. Chạm `expression`,
+  `description` và các mục diễn giải, không chạm `latex` hay `calc`.
+- `src/core/how-to/technical-trend.ts` — cụm điểm chạm của `SMA_n` đổi theo dòng chữ mới ("SMA n
+  phiên"), vì cụm phải là chuỗi con nguyên văn của dòng chữ.
+- `src/core/formulas/summaries.generated.ts` — sinh lại bằng `npm run gen:summaries` (file sinh tự
+  động, 3 câu `description` vừa đổi).
+
+Quy ước đã có sẵn trong repo là `n` thường: recipe dùng chung `smaGiaDongCua()` viết "n phiên", hằng
+`TRUNG_BINH_N_PHIEN` cũng "n phiên". Nên chữ mới sửa theo hình chứ không sửa hình theo chữ.
+
+### Còn lại
+
+- Chữ "SMA" trong hình vẫn chưa có gì kéo mắt người đọc sang lời giải thích: nghĩa của nó nằm ở dòng
+  bảng ký hiệu và khung "cách tính" (bấm/chạm ký hiệu mới hiện, có kèm liên kết sang công thức SMA).
+  Đây là cùng một chuyện với mục "ô nhập không nối được với ký hiệu trong hình" chủ dự án nêu hôm
+  19/09, chưa chốt cách làm.
+- Ca kiểm tự động cho luật này: chưa có. Lần này soát bằng script tạm rồi xoá, nên lỗi cũ có thể quay
+  lại. Cân nhắc biến nó thành một cửa gác thật trong `formulas.test.ts` nếu chủ dự án muốn.
+
+---
+
+## Dòng chữ dưới VaR lịch sử nối một cụm bằng dấu phẩy, không xuống dòng (19/09/2026)
+
+**Trạng thái: xong.** `npm run check` xanh: 121 file, 2.806 ca — không lệch so với nền.
+
+Chủ dự án soát hình `var-lich-su` (một trong 29 công thức vừa sửa ở mục dưới) và chỉ ra dòng chữ dưới hình
+dài lê thê, có cụm "nội suy tuyến tính giữa hai quan sát liền kề" nối vào sau dấu phẩy mà không xuống dòng
+mới, đọc khó. Luật 6 (`src/core/expression-rules.ts`) chỉ cho xuống dòng đúng chỗ HÌNH có `\quad`/`\qquad`/
+`\\`; cụm này không phải một vế phương trình nên không có chỗ tương ứng trong hình LaTeX — ép xuống dòng
+đúng luật nghĩa là phải nhét thêm một `\quad` giả vào hình, vẽ ra một khoảng trắng vô nghĩa.
+
+Cụm này thật ra đã có sẵn, đúng và chi tiết hơn, trong khung "cách tính" của `Q_{1-\alpha}(r_N)` (2 bước,
+viết thẳng công thức nội suy `r_(k) + (h−k)×(r_(k+1)−r_(k))`) — mở bằng cách bấm/chạm ký hiệu đó. Nên bỏ hẳn
+cụm khỏi dòng chữ dưới hình thay vì cố ép xuống dòng, để khung "cách tính" là nơi duy nhất giải thích cách
+tính chi tiết.
+
+**File đã đổi:**
+
+- `src/core/formulas/risk-drawdown.ts` — bỏ cụm ", nội suy tuyến tính giữa hai quan sát liền kề" /
+  ", linearly interpolated between two adjacent observations" khỏi `expression.vi`/`.en` của `var-lich-su`.
+- `src/core/how-to/risk-drawdown.ts` — bớt cụm tương ứng khỏi `phrases` của khung `Q_{1-\alpha}(r_N)`, còn
+  lại 1 cụm mỗi ngôn ngữ, vẫn khớp dòng chữ đã rút gọn.
+
+Không đụng `latex`, `spec.variables`, hay `calc` — số ra màn hình không đổi. Đã soát HTML thật trên
+`npm run dev`: dòng chữ giờ một dòng ngắn, khung "cách tính" của `Q_{1-\alpha}(r_N)` vẫn đủ hai bước như cũ.
+Ô nhập "Độ tin cậy" ở khối SỐ LIỆU vẫn giữ nguyên câu mô tả riêng có nhắc nội suy tuyến tính — đó là chữ
+khác, ngoài phạm vi lỗi này.
+
+---
+
 ## Vẽ vào hình 41 ô "Số liệu" đang bị ẩn khỏi hình công thức (18/09/2026)
 
 **Trạng thái: xong phần code, chờ chủ dự án soi.** `npm run check` xanh: 121 file, **2.806** ca (đúng số
@@ -301,6 +495,58 @@ Chuỗi tìm nằm trên URL (`?q=`), và mọi đường về đều trả đú
   Cần chạy lại sau khi tắt dev.
 
 ---
+
+## Tối ưu hiệu năng — đợt A: đường gõ phím (21/09/2026)
+
+**Trạng thái: xong phần code, `npm run check` xanh (121 file, 2.808 ca). CHƯA đo được số sau, vì
+`npm run build` cần cổng 3000 trống mà dev server đang giữ.**
+
+Chủ dự án yêu cầu "tối ưu lại hiệu năng" và chốt: đo cả hai mặt, cái nào nặng nhất sửa trước. Kế hoạch
+đầy đủ (ba đợt A, B, C) đã được duyệt — xem file kế hoạch của phiên.
+
+### Thước đo mới: `scripts/perf-probe.mjs`
+
+Repo trước nay **không có script đo hiệu năng nào**: `size-report` đo byte, `chrome-check` đo hình học
+và cố ý không có phép kiểm theo mili giây. Script mới dựng máy chủ tĩnh và Chrome riêng (cổng do hệ
+điều hành cấp, chỉ tắt đúng tiến trình mình bật), ghì CPU 4×, khổ 360×780, gõ 14 phím cách nhau 15 ms
+rồi đọc đồng hồ của chính Chrome qua CDP `Performance.getMetrics`.
+
+Đọc `TaskDuration` chứ không chỉ `PerformanceObserver('longtask')`: mỗi phím tốn 10–30 ms nên **không
+tác vụ nào chạm ngưỡng 50 ms của long task** — đo kiểu ấy ra 0 trong khi luồng chính vẫn bị giữ hơn
+600 ms. Đây cũng là lý do mục "~140 ms chưa truy ra chỗ tốn" treo lâu.
+
+**Số nền (bản build 10/09 còn trên máy, CPU 4×, 14 phím):**
+
+| Trang                                    | Luồng chính | script | layout | style | Số lần dàn trang | Độ trễ/phím p50 |
+| ---------------------------------------- | ----------- | ------ | ------ | ----- | ---------------- | --------------- |
+| `gia-von-trung-binh-dca` (không biểu đồ) | 655 ms      | 309 ms | 116 ms | 35 ms | 54               | 10,8 ms         |
+| `lich-tra-no` (nặng nhất)                | 862 ms      | 363 ms | 168 ms | 38 ms | 55               | 17,5 ms         |
+| `wacc` (biểu đồ nặng)                    | 556 ms      | 236 ms | 85 ms  | 34 ms | 60               | 10,0 ms         |
+
+54–60 lần dàn trang cho 14 phím, tức **khoảng 4 lần mỗi phím** — đúng dấu vết của A2.
+
+### Ba việc đã sửa
+
+| #      | File                                   | Sửa gì                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------ | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A1** | `app/cong-thuc/[id]/FormulaDetail.tsx` | Lần ghi bản nháp gom lại sau 300 ms thay vì chạy mỗi lần `inputs` đổi. Trước đó mỗi phím gõ **và mỗi khung hình khi kéo thanh trượt** đều làm bốn việc đồng bộ: đọc `localStorage`, `JSON.parse`, dựng lại mảng tối đa 40 bản nháp, `JSON.stringify`, ghi. Bốn lối xả giữ nguyên lời hứa "gõ xong là số đã cất": hết hẹn giờ, **rời ô nhập** (`onBlur` của khối Số liệu), rời trang (`pagehide`, `visibilitychange`), và gỡ component |
+| **A2** | `ui/layout/OriginTracker.tsx`          | Hỏi `matchOrigin()` trước, đọc `window.scrollY` sau. Hàm này gắn `keydown` bắt buộc ở `document` của mọi màn, nên nó chạy mỗi phím; đọc `scrollY` là ép trình duyệt dàn trang để trả số đúng, gánh nốt layout mà phím trước còn treo — mà ở trang chi tiết thì lần đọc ấy hoàn toàn thừa                                                                                                                                              |
+| **A3** | `ui/screens/LoanScheduleBody.tsx`      | `useMemo` cho `amortisationFor` (tới 240 kỳ) + hai `reduce` + `condenseWithGaps`; trước đó dựng lại trọn bảng trong thân render, mỗi phím                                                                                                                                                                                                                                                                                             |
+
+**Bẫy gặp khi sửa A1:** hai ca kiểm đỏ vì đường "xoá bản nháp" (nút Huỷ, bỏ mã) bị lần ghi đang treo
+dựng lại. Đã xoá luôn khoản đang nợ ở đường ấy. Ca thứ ba đỏ vì nó kiểm "gõ xong là có bản nháp" —
+sửa bằng cách **xả khi rời ô nhập**, không phải bằng cách nới ca kiểm.
+
+### Ca kiểm thêm
+
+- `FormulaDetail.test.tsx`: gõ liên tiếp chỉ ghi MỘT lần, sau khi ngừng tay (dùng đồng hồ giả).
+- `OriginTracker.test.tsx`: trang chi tiết không đọc `scrollY` nữa, màn gốc thì vẫn đọc — gác cả hai chiều.
+
+### Việc còn lại
+
+- [ ] **Cần cổng 3000 trống.** Rồi: `npm run build` → `perf-probe` (số sau) → `size` → `verify:static`
+      → `check:chrome`. Số "trước" lấy bằng cách `git stash` đúng ba file của đợt A rồi build lại.
+- [ ] Đợt B (byte, 6 việc) và đợt C (tách `spec` khỏi `calc`, ~−100 kB nén mỗi trang) — C chờ chủ dự án chốt riêng.
 
 ## Mỗi vế một DÒNG, bỏ hẳn lối nối bằng dấu phẩy (18/09/2026)
 

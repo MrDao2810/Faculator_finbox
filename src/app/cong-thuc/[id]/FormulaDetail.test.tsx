@@ -2676,6 +2676,34 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('77.777');
   });
 
+  /*
+   * Đợt tối ưu hiệu năng 21/09/2026: lần ghi được GOM lại, không còn mỗi phím một lần.
+   *
+   * Thân hàm ghi là đọc `localStorage` → `JSON.parse` → dựng lại mảng tối đa 40 bản nháp →
+   * `JSON.stringify` → ghi, tất cả đồng bộ. Bám `inputs` nghĩa là nó nằm thẳng trên đường gõ và
+   * trên cả đường KÉO THANH TRƯỢT, nơi sự kiện về theo từng khung hình.
+   *
+   * Ca này gác đúng hai vế của lời hứa: giữa tràng gõ thì kho im lặng, mà ngừng tay thì số có mặt.
+   * Ba lối xả còn lại (rời ô, rời trang, gỡ component) do các ca khác trong khối này gác.
+   */
+  it('gõ liên tiếp chỉ ghi MỘT lần, sau khi ngừng tay', () => {
+    vi.useFakeTimers();
+    try {
+      render(<Man spec={specOf('pe')} />);
+      const o = oNhap(/Giá thị trường/);
+      for (const v of ['9', '91', '912']) fireEvent.change(o, { target: { value: v } });
+
+      expect(window.localStorage.getItem(INPUT_DRAFT_KEY)).toBeNull();
+
+      act(() => {
+        vi.advanceTimersByTime(400);
+      });
+      expect(window.localStorage.getItem(INPUT_DRAFT_KEY) ?? '').toContain('912');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('CHỈ ghi khi người dùng thật sự chạm vào số liệu', async () => {
     // Mở rồi thoát mà không gõ gì — đây là lượt vào từ Google rồi đi ngay.
     render(<Man spec={specOf('pe')} />);

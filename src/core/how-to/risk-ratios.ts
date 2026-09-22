@@ -120,7 +120,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
         calcEvidence: ['mean(marketReturns)', 'varianceMarket += dm * dm'],
       },
     ],
-    skipped: { '\\beta_i': 'ket-qua', i: 'chi-so-chay', n: 'nhap-tho' },
+    skipped: { '\\beta_i': 'ket-qua', i: 'chi-so-chay' },
   },
 
   /*
@@ -309,7 +309,7 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'sut-giam-sau-nhat',
       },
     ],
-    skipped: { Calmar: 'ket-qua', m: 'nhap-tho' },
+    skipped: { Calmar: 'ket-qua' },
   },
 
   /*

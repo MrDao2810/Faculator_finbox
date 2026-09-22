@@ -90,6 +90,42 @@ describe('OriginTracker — ghi màn gốc', () => {
     expect(parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY))?.url).toBe('/cong-thuc/');
   });
 
+  /*
+   * Đợt tối ưu hiệu năng 21/09/2026.
+   *
+   * `rememberOrigin` gắn vào `keydown` bắt buộc ở `document` của MỌI màn, nên nó chạy mỗi phím
+   * người dùng gõ — kể cả khi đang gõ số ở trang chi tiết. Đọc `window.scrollY` là ép trình duyệt
+   * dàn trang ngay lúc ấy, tức gánh nốt phần layout mà lượt render của phím trước còn treo. Ở trang
+   * chi tiết thì cả lần đọc ấy là thừa, vì hàm chắc chắn bỏ cuộc ngay sau đó.
+   *
+   * jsdom không dàn trang nên không đo được mili giây ở đây; thứ đo được, và cũng là thứ quyết
+   * định, là CÓ ĐỌC hay không.
+   */
+  it('trang chi tiết: không đọc scrollY nữa — lần đọc ấy ép trình duyệt dàn trang', () => {
+    const goc = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    const doc = vi.fn(() => 0);
+    Object.defineProperty(window, 'scrollY', { configurable: true, get: doc });
+
+    try {
+      dungO('/cong-thuc/pe/');
+      render(<OriginTracker />);
+      doc.mockClear();
+
+      fireEvent.keyDown(document.body, { key: '1' });
+      expect(doc).not.toHaveBeenCalled();
+
+      // Còn ở màn gốc thì vẫn phải đọc — đó là cả lý do hàm này tồn tại.
+      dungO('/cong-thuc/');
+      render(<OriginTracker />);
+      doc.mockClear();
+      fireEvent.keyDown(document.body, { key: '1' });
+      expect(doc).toHaveBeenCalled();
+    } finally {
+      if (goc === undefined) Reflect.deleteProperty(window, 'scrollY');
+      else Object.defineProperty(window, 'scrollY', goc);
+    }
+  });
+
   /** Mở một màn rồi rời đi, đúng cách `usePathname()` làm effect chạy lại. */
   function ghePhai(url: string): void {
     dungO(url);

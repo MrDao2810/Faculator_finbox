@@ -178,7 +178,7 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'ema-n-phien',
       },
     ],
-    skipped: { MACD: 'ket-qua', 'n_{nhanh}': 'nhap-tho', 'n_{cham}': 'nhap-tho' },
+    skipped: { MACD: 'ket-qua' },
   },
 
   /*
@@ -209,12 +209,7 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'macd-duong-chinh',
       },
     ],
-    skipped: {
-      Signal: 'ket-qua',
-      'n_{tin hieu}': 'nhap-tho',
-      'n_{nhanh}': 'nhap-tho',
-      'n_{cham}': 'nhap-tho',
-    },
+    skipped: { Signal: 'ket-qua' },
   },
 
   'rsi-wilder': {
@@ -279,7 +274,7 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'derived',
         symbol: 'SMA_n',
-        phrases: { vi: ['SMA N phiên'], en: ['N-period SMA'] },
+        phrases: { vi: ['SMA n phiên'], en: ['n-period SMA'] },
         steps: [smaGiaDongCua('SMA_n', { vi: 'SMA n phiên', en: 'n-period SMA' })],
         calcEvidence: ['lastSma(closes, period)'],
         formulaId: 'sma-n-phien',
@@ -313,6 +308,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         formulaId: 'sma-n-phien',
       },
     ],
-    skipped: { C: 'ket-qua', 'n_{ngan}': 'nhap-tho', 'n_{dai}': 'nhap-tho' },
+    skipped: { C: 'ket-qua' },
   },
 };

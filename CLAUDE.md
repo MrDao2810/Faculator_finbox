@@ -399,15 +399,34 @@ have none, and each records why in `whyNone`. Things that are easy to break:
 legend gates above only check that every _token already in `latex`_ has a row; nothing ever checked the
 reverse. A read-only sweep of all 269 "Số liệu" inputs against every picture/legend/`calc` (18/09/2026,
 triggered by the owner asking what "Ngưỡng bỏ qua phiên đi ngang" on `ty-so-thang-thua` actually did) found
-32 inputs mentioned only in legend prose and 9 mentioned nowhere, all still changing `calc`. The fix pins a
-pattern: attach the parameter to whichever existing symbol it feeds, as a parenthesized argument
-(`EMA_{nhanh}` → `EMA_{nhanh}(n_{nhanh})`, `F_{lk}` → `F_{lk}(M)`) or, when the base is decorator-wrapped
-and the argument must sit as a trailing subscript instead of a call, a straight rename
-(`\overline{r^{+}}` → `\overline{r^{+}}_h`, both on `ty-so-thang-thua`). The two are not interchangeable:
-appending `(x)` after a symbol's closing brace never disturbs that symbol's own legend row, because the
-tokenizer only extends the "whole" match past the brace for a trailing `_`/`^`, never for `(`; a trailing
-`_h` after `\overline{...}` _does_ extend it, so the old bare row stops being a substring of the new
-`latex` and must be renamed in lockstep everywhere it is referenced, including inside
+32 inputs mentioned only in legend prose and 9 mentioned nowhere, all still changing `calc`.
+
+**The first fix for that was wrong, and the picture is NOT where an input field gets named** (22/09/2026).
+That sweep attached each parameter to the symbol it feeds as a parenthesized argument
+(`EMA_{nhanh}` → `EMA_{nhanh}(n_{nhanh})`, `F_{lk}` → `F_{lk}(M)`, worst of all
+`L_k` → `L_k(P, r, \text{PT})` on `lich-tra-no`), because a legend row must be a verbatim substring of
+`latex`, so a field could only earn a caption line by appearing in the picture. The owner circled that
+`L_k(P, r, \text{PT})` and rejected the whole shape: _"nếu là giải thích thì chỉ cần khi hover vào ký hiệu
+rồi mới hiện… để như này dễ khiến người đọc hiểu nhầm công thức"_, and when told the one-argument cases read
+as conventional notation, answered _"dân kỹ thuật đọc được nhưng người dùng hoặc người mới xem công thức làm
+sao mà hiểu nổi… tôi hướng tới người dùng chứ không phải là dân kỹ thuật"_. **No `symbol(arg)` call notation
+in any picture** — 20 pictures across 7 group files were reverted to their pre-sweep shape. What stays is a
+paren that is real maths on its own terms: grouping (`Q\,(1 - r_{ban} - r_{thue})`), a genuine operator
+(`\max(30, L)`), and the textbook forms whose argument is the DATA, not a knob — `\text{Cov}(R_i, R_m)`,
+`Q_{1-\alpha}(r)`, `EMA_{tin hieu}(MACD)`. Subscript bounds that were already drawn stay too
+(`\sum_{k=1}^{n}`, `\max_{t \le N}`, `\overline{r^{+}}_h`).
+
+**Where the field name goes instead: the `meaning` of the symbol it feeds.** `F_{lk}` reads "phí lưu ký cả
+kỳ, tính theo ô Thời gian nắm giữ, ₫"; `i` reads "lãi suất một kỳ tháng, bằng ô Lãi suất / năm chia 12".
+That needs no picture change, costs no symbol, and fits the 90-char cap if the sentence is rewritten rather
+than merely appended to. When it does not fit, the field is reached through the symbol's own how-to panel
+and through the Bảng biến at the foot of the page — both already list it. A parameter therefore does **not**
+need its own legend row, and adding a letter to the picture just to caption an input is the mistake this
+paragraph records. The tokenizer detail that made the old pattern tempting is still worth knowing when
+renaming any row: appending `(x)` after a symbol's closing brace never disturbs that symbol's own legend
+row, because the tokenizer only extends the "whole" match past the brace for a trailing `_`/`^`, never for
+`(`; a trailing `_h` after `\overline{...}` _does_ extend it, so the old bare row stops being a substring of
+the new `latex` and must be renamed in lockstep everywhere it is referenced, including inside
 `src/core/how-to/*.ts` step `latex` and `symbol` fields for that row. Four inputs stayed untouched on
 purpose — `xirr`'s `guess` (a Newton–Raphson seed, not a term of the equation), `rut-truoc-han`'s
 `termMonths` (a validity precondition, not a term) and `contractRate` (feeds only an `extras` field nothing

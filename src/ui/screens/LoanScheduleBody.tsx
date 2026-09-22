@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import {
   SCHEDULE_GAP,
   amortisationFor,
@@ -51,19 +53,39 @@ export function LoanScheduleBody({ inputs }: LoanScheduleBodyProps) {
   const scale = findUnitScale(unitScale);
   const decimals = DECIMALS[scale.id] ?? 2;
 
-  const rows = amortisationFor(inputs);
+  /*
+   * Dựng lịch trong `useMemo` (21/09/2026, đợt tối ưu hiệu năng).
+   *
+   * Thân hàm này dựng tới 240 kỳ, cộng hai `reduce` và một lượt chọn hàng — mà nó chạy trong thân
+   * render, nên mỗi phím gõ ở khối Số liệu là một lần dựng lại trọn bảng. Đo được: `lich-tra-no`
+   * tốn 862 ms luồng chính cho 14 phím, nhiều nhất trong ba trang mốc.
+   *
+   * Khoá theo chính `inputs`: `FormulaDetail` giữ nó bằng `useState` nên nó chỉ đổi danh tính khi
+   * bộ số thật sự đổi, còn đổi bậc đơn vị hay đổi ngôn ngữ thì không đụng tới phép dựng này.
+   */
+  const lich = useMemo(() => {
+    const rows = amortisationFor(inputs);
+    if (rows === null || rows.length === 0) return null;
 
-  if (rows === null || rows.length === 0) {
+    const cells = condenseWithGaps(rows);
+    const shownCount = cells.filter((cell) => cell !== SCHEDULE_GAP).length;
+    return {
+      rows,
+      cells,
+      shownCount,
+      totalInterest: rows.reduce((sum, row) => sum + row.interest, 0),
+      totalPaid: rows.reduce((sum, row) => sum + row.payment, 0),
+      firstPayment: rows[0]?.payment ?? 0,
+      skipped: rows.length - shownCount,
+    };
+  }, [inputs]);
+
+  if (lich === null) {
     // Kỳ hạn 0 — công thức đã báo lỗi ở khối kết quả phía trên, đây không nhắc lại lần nữa.
     return null;
   }
 
-  const totalInterest = rows.reduce((sum, row) => sum + row.interest, 0);
-  const totalPaid = rows.reduce((sum, row) => sum + row.payment, 0);
-  const firstPayment = rows[0]?.payment ?? 0;
-  const cells = condenseWithGaps(rows);
-  const shownCount = cells.filter((cell) => cell !== SCHEDULE_GAP).length;
-  const skipped = rows.length - shownCount;
+  const { rows, cells, shownCount, totalInterest, totalPaid, firstPayment, skipped } = lich;
 
   return (
     <div className={styles.body}>

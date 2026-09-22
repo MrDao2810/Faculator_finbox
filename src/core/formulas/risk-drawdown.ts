@@ -441,7 +441,7 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       vi: 'Giá phiên gần nhất đang thấp hơn đỉnh cao nhất trong cửa sổ bao nhiêu phần trăm.',
       en: 'How many percent the most recent session price sits below the highest peak in the window.',
     },
-    latex: 'DD_{t} = \\frac{P_{max}(N) - P_{t}}{P_{max}(N)} \\times 100',
+    latex: 'DD_{t} = \\frac{P_{max} - P_{t}}{P_{max}} \\times 100',
     expression: {
       vi: 'Sụt giảm hiện tại = (Đỉnh cao nhất trong cửa sổ − Giá phiên gần nhất) ÷ Đỉnh cao nhất trong cửa sổ × 100',
       en: 'Current drawdown = (highest peak in the window − most recent session price) ÷ highest peak in the window × 100',
@@ -457,8 +457,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       {
         latex: 'P_{max}',
         meaning: {
-          vi: 'đỉnh cao nhất trong cửa sổ quan sát, ₫',
-          en: 'highest peak in the observation window, ₫',
+          vi: 'đỉnh cao nhất trong cửa sổ, dài theo ô Số phiên gần nhất đưa vào tính, ₫',
+          en: 'highest peak in the window, as long as the Sessions to include field, ₫',
         },
       },
       {
@@ -471,13 +471,6 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       {
         latex: 't',
         meaning: { vi: 'phiên gần nhất trong cửa sổ', en: 'the most recent session in the window' },
-      },
-      {
-        latex: 'N',
-        meaning: {
-          vi: 'số phiên trong cửa sổ, lớn nhất của 30 và ô Số phiên gần nhất đưa vào tính',
-          en: 'sessions in the window, the larger of 30 and the Sessions to include field',
-        },
       },
       {
         latex: '100',
@@ -599,8 +592,8 @@ export const VAR_LICH_SU: FormulaModule = {
     },
     latex: 'VaR_{\\alpha} = -Q_{1-\\alpha}(r_N) \\times 100',
     expression: {
-      vi: 'VaR = − Phân vị mức (1 − Độ tin cậy) của chuỗi lợi suất phiên × 100, nội suy tuyến tính giữa hai quan sát liền kề',
-      en: 'VaR = − percentile at level (1 − confidence) of the session returns series × 100, linearly interpolated between two adjacent observations',
+      vi: 'VaR = − Phân vị mức (1 − Độ tin cậy) của chuỗi lợi suất phiên × 100',
+      en: 'VaR = − percentile at level (1 − confidence) of the session returns series × 100',
     },
     symbols: [
       {

@@ -140,7 +140,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         formulaId: 'sma-n-phien',
       },
     ],
-    skipped: { BW: 'ket-qua', n: 'nhap-tho', k: 'nhap-tho', '100': 'hang-so' },
+    skipped: { BW: 'ket-qua', n: 'nhap-tho', '100': 'hang-so' },
   },
 
   /*
@@ -212,7 +212,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         pendingReview: 'Q1',
       },
     ],
-    skipped: { '\\%B': 'ket-qua', C: 'nhap-tho', n: 'nhap-tho', k: 'nhap-tho', '100': 'hang-so' },
+    skipped: { '\\%B': 'ket-qua', C: 'nhap-tho', '100': 'hang-so' },
   },
 
   'stochastic-k': {

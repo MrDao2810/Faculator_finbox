@@ -221,8 +221,8 @@ export const EPS_CO_BAN: FormulaModule = {
         en: 'About 0.6% below the 2,967 ₫ FPT reports itself, because the company divides by the weighted-average share count for the period while the field here holds the end-of-period count, after ESOP and bonus share issues. A difference in method, not a calculation error.',
       },
       source: {
-        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT H1 2026 business results release via CafeF — accessed 15 September 2026',
+        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT H1 2026 business results release, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -347,8 +347,8 @@ export const BVPS: FormulaModule = {
         en: 'Use equity attributable to the parent company’s shareholders, not total equity of 40,995.7 billion ₫: the 1,144.2 billion ₫ of non-controlling interests would lift book value per share by almost 3%, and that error flows straight into P/B and the Graham number.',
       },
       source: {
-        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -477,8 +477,8 @@ export const ROE: FormulaModule = {
         en: 'This is the return for a SIX-MONTH period, not for a full year. To set it beside a 12-month deposit rate, annualize the profit before dividing; pairing half-year profit with period-end equity and reading the result as an annual figure is the most common mistake when calculating by hand.',
       },
       source: {
-        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT H1 2026 business results release and balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT H1 2026 business results release and balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -604,8 +604,8 @@ export const ROA: FormulaModule = {
         en: 'The gap against the same period’s ROE of 12.68% is precisely what leverage contributes: total assets are 1.85 times equity because the company is carrying 32,738.4 billion ₫ of liabilities, and the amplification of the return on equity matches that same multiple.',
       },
       source: {
-        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT H1 2026 business results release and balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT H1 2026 business results release and balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -714,8 +714,8 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
         en: 'A margin this thick is characteristic of a company selling software services rather than goods. This period is lifted further by 756.6 billion ₫ of income from associates; strip that out and the core operating margin is about 2.9 percentage points lower.',
       },
       source: {
-        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated H1 2026 income statement via CafeF — accessed 15 September 2026',
+        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated H1 2026 income statement, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -841,8 +841,8 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
         en: 'Cost of goods sold is derived as revenue minus gross profit of 8,523.5 billion ₫. The margin narrowed this period because Q2 revenue fell while cost of sales still rose, after FPT deconsolidated its telecom arm — so the 2025 and 2026 gross-margin series must not be read as one continuous line.',
       },
       source: {
-        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated H1 2026 income statement via CafeF — accessed 15 September 2026',
+        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated H1 2026 income statement, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -977,8 +977,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         en: 'The field holds ALL liabilities, of which only about 17,444 billion ₫ is interest-bearing debt — counted on borrowings alone the ratio falls to 0.43x. The company meanwhile holds 28,972 billion ₫ of cash and short-term investments, more than those borrowings.',
       },
       source: {
-        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -1103,8 +1103,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         en: 'It sits between the two familiar reference points: 1x is just enough to pay, 2x is very comfortable. The composition is even better than the number, since close to 29,000 billion ₫ of those current assets is cash and bank deposits — convertible immediately rather than inventory or doubtful receivables.',
       },
       source: {
-        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -1224,8 +1224,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         en: 'Removing inventory barely dents the ratio, because inventory is only 2.6% of current assets — the hallmark of a services company. This test only really warns you at retailers or manufacturers, where the two ratios sit far apart.',
       },
       source: {
-        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -1347,8 +1347,8 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
         en: 'The revenue here covers only half a year, so an annual turnover figure requires annualizing revenue before dividing. A low turnover does not mean weak operations either: close to 40% of FPT’s assets is cash and bank deposits, which generate financial income rather than passing through net revenue.',
       },
       source: {
-        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, số liệu CafeF — truy cập 15/09/2026',
-        en: 'FPT consolidated H1 2026 income statement and balance sheet at 30 June 2026 via CafeF — accessed 15 September 2026',
+        vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
+        en: 'FPT consolidated H1 2026 income statement and balance sheet at 30 June 2026, taken from CafeF on 2026-09-15.',
       },
     },
     tests: [
@@ -1490,8 +1490,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         en: 'FPT hands out roughly a third of its profit as dividends and retains the rest for reinvestment. The 20%-of-par level has held for years, so it is predictable, and the retained share multiplied by the annualized ROE implies internal growth of about 16.7% a year.',
       },
       source: {
-        vi: 'Lịch sử chi trả cổ tức FPT trên cotuc.vn, EPS bốn quý gần nhất theo CafeF — truy cập 15/09/2026',
-        en: 'FPT dividend history on cotuc.vn, trailing four-quarter EPS from CafeF — accessed 15 September 2026',
+        vi: 'Lịch sử chi trả cổ tức FPT trên cotuc.vn, EPS bốn quý gần nhất theo CafeF, lấy ngày 15/09/2026.',
+        en: 'FPT dividend history on cotuc.vn, trailing four-quarter EPS from CafeF, taken on 2026-09-15.',
       },
     },
     tests: [

@@ -307,7 +307,7 @@ export const BETA: FormulaModule = {
       vi: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
       en: 'How much more or less a stock swings than the broader market, measured against the VN-Index.',
     },
-    latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m, n)}{\\text{Var}(R_m, n)}',
+    latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}',
     expression: {
       vi: 'Beta = Hiệp phương sai(lợi suất cổ phiếu, lợi suất VN-Index) ÷ Phương sai(lợi suất VN-Index)',
       en: 'Beta = Covariance(stock return, VN-Index return) ÷ Variance(VN-Index return)',
@@ -346,13 +346,6 @@ export const BETA: FormulaModule = {
         },
       },
       { latex: 'i', meaning: { vi: 'cổ phiếu đang xét', en: 'the stock being examined' } },
-      {
-        latex: 'n',
-        meaning: {
-          vi: 'số phiên lấy để hồi quy (ô Số phiên lấy để hồi quy)',
-          en: 'number of sessions used for the regression (Sessions used for the regression field)',
-        },
-      },
     ],
     chartType: 'scatter',
     level: 'advanced',
@@ -1266,7 +1259,7 @@ export const TY_SO_CALMAR: FormulaModule = {
       vi: 'Lợi suất năm hoá chia cho mức sụt giảm sâu nhất — đo phần lãi đổi lại bằng cú đau lớn nhất đã phải chịu.',
       en: 'Annualized return divided by the maximum drawdown — the return earned in exchange for the biggest pain endured.',
     },
-    latex: 'Calmar = \\frac{r_{nam}(m)}{MDD}',
+    latex: 'Calmar = \\frac{r_{nam}}{MDD}',
     expression: {
       vi: 'Tỷ số Calmar = Lợi suất năm hoá ÷ Mức sụt giảm sâu nhất từ đỉnh',
       en: 'Calmar ratio = Annualized return ÷ Maximum drawdown from peak',
@@ -1276,15 +1269,8 @@ export const TY_SO_CALMAR: FormulaModule = {
       {
         latex: 'r_{nam}',
         meaning: {
-          vi: 'lợi suất năm hoá theo lãi kép: (giá cuối ÷ giá đầu)^(phiên một năm ÷ số lợi suất) − 1',
-          en: 'compounded annual return: (last ÷ first price)^(sessions per year ÷ returns) − 1',
-        },
-      },
-      {
-        latex: 'm',
-        meaning: {
-          vi: 'số phiên trong một năm (ô Số phiên trong một năm)',
-          en: 'number of sessions per year (Sessions per year field)',
+          vi: 'lợi suất năm hoá theo lãi kép, quy đổi theo ô Số phiên trong một năm',
+          en: 'compounded annual return, scaled by the Sessions per year field',
         },
       },
       {

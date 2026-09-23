@@ -134,14 +134,27 @@ export {
 } from '@/core/cashflow-series';
 
 // ── Dán dữ liệu từ Excel / CSV — WF-11 (gói 2.5.2) ──────────────────────────
-export type { ColumnKind, PasteResult, PriceBar, SkippedRow } from '@/core/paste-import';
+export type {
+  ColumnKind,
+  NumberStyle,
+  PasteResult,
+  PasteTable,
+  PriceBar,
+  RowOrder,
+  SkippedRow,
+} from '@/core/paste-import';
 export {
   COLUMN_LABELS,
   MAX_PASTE_LINES,
   closeSeries,
   detectDelimiter,
+  detectNumberStyle,
   guessColumns,
+  orderOf,
+  parseCellNumber,
+  parseCells,
   parsePaste,
+  splitPasteTable,
   summarizeSkipped,
 } from '@/core/paste-import';
 

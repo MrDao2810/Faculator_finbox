@@ -304,7 +304,8 @@ export const vi = {
 
   // Màn chi tiết công thức — WF-03, gói 3.2.1
   'detail.loadPreset': 'Nạp mẫu',
-  'detail.preset': 'Đã nạp',
+  /* `detail.preset` ('Đã nạp') bỏ 22/09/2026: nút nạp xong nay thành con chip mang đúng mã,
+     nên không còn nhãn "Đã nạp GVR" nào để dựng — xem `FormulaDetail.tsx`. */
   'detail.jumpToExample': 'Xem ví dụ thực tế ↓',
   /*
    * `detail.fundamentalsSource` ('số liệu Finbox_v2 tới' + ngày) ĐÃ BỎ ngày 14/09/2026 cùng với
@@ -432,8 +433,6 @@ export const vi = {
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
   'detail.loadExample': 'Xem ví dụ minh hoạ',
   'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
-  'detail.exampleSeriesNote':
-    'Đây là chuỗi số dựng sẵn để minh hoạ đúng ý nghĩa công thức, không phải giá cổ phiếu thật của công ty nào.',
   'detail.exampleSeriesLabel': 'ví dụ minh hoạ',
   /*
    * `detail.applyToTable` / `detail.appliedToTable` đã BỎ cùng nút của chúng — chủ dự án chốt
@@ -453,11 +452,25 @@ export const vi = {
    * Chuỗi VN-Index trong bộ mẫu là PRNG (`samples.ts`), mà công thức hồi quy với thị trường thì
    * LUÔN đọc nó qua `ctx.marketSeries` — không ai bấm "Nạp mẫu" cho nó cả. Không có câu này thì
    * người dùng nhận một hệ số beta gần 0 trông hoàn toàn hợp lệ: đúng loại "số sai mà trông có
-   * lý" mà FR-06 tồn tại để chặn. Nói cả nguyên nhân lẫn cách đọc con số đang thấy.
+   * lý" mà FR-06 tồn tại để chặn.
+   *
+   * ── Câu chữ RÚT GỌN 23/09/2026, chủ dự án đọc bản cũ và chốt lại từng chữ ──────────────────
+   *
+   * Bản cũ: _"Chuỗi VN-Index dùng để so sánh hiện là số liệu mẫu tự dựng, chưa phải chỉ số thật
+   * — con số ra đây chỉ để xem cách đọc, đừng dùng cho quyết định thật."_ Nó nói đúng nguyên
+   * nhân, nhưng nguyên nhân ấy đòi người đọc đã biết "chuỗi VN-Index dùng để so sánh" là cái gì
+   * và vì sao một công thức lại cần nó — tức đòi đúng thứ người mới chưa có. Chủ dự án: _"đoạn
+   * text không quá rõ"_.
+   *
+   * Thứ giữ lại là điều DUY NHẤT người dùng phải hành động theo: đừng mang con số này ra đời
+   * thật. Thứ mất đi là tên của con số chưa thật — nó vẫn còn trong `provider.ts` và trong bộ
+   * mẫu, nơi người cần biết sẽ tìm thấy.
+   *
+   * Một hệ quả phải nhận, ghi ra đây để không ai ngạc nhiên: câu nay nói về "số liệu" nói chung,
+   * nên ở ca người dùng mở màn kèm `?ma=` (giá cổ phiếu là số THẬT, chỉ riêng chuỗi VN-Index là
+   * số dựng) nó nói rộng hơn sự thật một chút. Đổi lại nó đọc được ngay từ lần đầu.
    */
-  'detail.draftMarketSeries':
-    'Chuỗi VN-Index dùng để so sánh hiện là số liệu mẫu tự dựng, chưa phải chỉ số thật — con số ' +
-    'ra đây chỉ để xem cách đọc, đừng dùng cho quyết định thật.',
+  'detail.draftMarketSeries': 'Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng cho thực tế.',
   'detail.openDataTable': 'Mở bảng dữ liệu →',
   'detail.chart': 'Biểu đồ',
   /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
@@ -643,7 +656,57 @@ export const vi = {
   'portfolio.shares': 'CP',
   'portfolio.costPrice': 'giá vốn',
   'portfolio.weight': 'tỷ trọng',
-  'portfolio.add': 'Thêm mã cổ phiếu',
+  /*
+   * ── Tiêu đề cột của bảng Nắm giữ (từ 1024px) ──────────────────────────────
+   *
+   * Tách riêng chứ KHÔNG dùng lại bốn khoá ngay trên, dù chữ gần giống. `portfolio.costPrice`
+   * và `portfolio.weight` là MẢNH CHỮ đi liền con số trên dòng gọn của khổ điện thoại ('giá vốn
+   * 60.000 ₫'); ở đây là NHÃN đứng một mình trên đầu một cột. Hai vai khác nhau nên viết hoa
+   * khác nhau — và quan trọng hơn: dùng chung một khoá thì cả hai cùng nằm trong DOM một lúc
+   * (bảng và dòng gọn là MỘT cây, chỉ khác nhau ở CSS), nên mọi `getByText('giá vốn')` trong ca
+   * kiểm bắt được hai phần tử và đỏ.
+   *
+   * Chữ VIẾT HOA TOÀN BỘ trong bản thiết kế là việc của CSS (`.colLabel`), không nằm trong chuỗi
+   * — cùng luật với `.blockTitle` và `.cellLabel`.
+   */
+  'portfolio.colCode': 'Mã',
+  'portfolio.colName': 'Doanh nghiệp',
+  'portfolio.colQuantity': 'Số lượng',
+  'portfolio.colCostPrice': 'Giá vốn',
+  'portfolio.colValue': 'Giá trị',
+  'portfolio.colWeight': 'Tỷ trọng',
+  /*
+   * ── Tỷ trọng nghĩa là gì ──────────────────────────────────────────────────
+   *
+   * Chủ dự án đọc cột ấy và báo "chưa hiểu tác dụng" (22/09/2026). Rà lại cả sản phẩm thì chữ
+   * "tỷ trọng" đang mang BA nghĩa: phần của một mã trong danh mục (chỗ này), tỷ trọng vốn chủ và
+   * vốn nợ trong `wacc`, và hệ số làm mượt `k` của `ema-n-phien`. Ba nghĩa không bao giờ đứng
+   * chung một màn nên không phải đổi tên cái nào; thiếu là một câu nói rõ mẫu số, vì "6%" đứng
+   * trần thì mẫu số có tới hai lựa chọn hợp lý — giá trị thị trường và vốn đã bỏ ra.
+   *
+   * Câu thứ hai chỉ hiện khi có mã chưa tra được giá, và nó là phần THÀNH THẬT về mẫu số: mã ấy
+   * bị coi như 0 nên rơi khỏi tổng, khiến tỷ trọng các mã còn lại cộng đủ 100% trong khi danh mục
+   * thì chưa đủ.
+   */
+  'portfolio.weightNote':
+    'Tỷ trọng là phần giá trị của một mã trên tổng giá trị danh mục, tính theo thị giá chứ không theo vốn đã bỏ ra.',
+  'portfolio.weightPartial':
+    'Mã chưa tra được thị giá không nằm trong tổng, nên tỷ trọng đang tính trên phần danh mục đã có giá.',
+  /*
+   * Chú thích của `<table>` — primitive `Table` bắt buộc có, và đây là câu trình đọc màn hình
+   * đọc TRƯỚC khi bước vào bảng. Ẩn khỏi mắt bằng `hideCaption`: trên màn đã có `<h2>` "NẮM GIỮ"
+   * ngay trên, in thêm một câu nữa là nói hai lần.
+   */
+  'portfolio.tableCaption': 'Các mã đang nắm giữ',
+  /* Đơn vị sau con số đếm ở đầu khối: "2 mã". Cùng nếp với `list.count` ('công thức'). */
+  'portfolio.tickerUnit': 'mã',
+  /*
+   * Nhãn NGẮN vì nút đã rời khung nét đứt cuối khối để lên góc phải dòng tiêu đề (22/09/2026,
+   * chủ dự án đưa ảnh thiết kế). Ở đó nó đứng cạnh "NẮM GIỮ · 2 mã · giá phiên …" nên một nhãn
+   * bốn chữ đẩy dòng xuống hàng thứ hai ngay ở khổ 360px. Dấu '+' vẫn là SVG `aria-hidden`,
+   * KHÔNG nằm trong chuỗi — xem chú thích ở chỗ dựng nút.
+   */
+  'portfolio.add': 'Thêm mã',
   'portfolio.remove': 'Bỏ mã',
   'portfolio.empty': 'Chưa có mã nào. Thêm mã đầu tiên để xem tổng giá trị và tỷ trọng.',
   /*
@@ -730,7 +793,22 @@ export const vi = {
    * ngay lúc nó thành thừa.
    */
   'portfolio.marketPrice': 'Thị giá',
-  'portfolio.priceMissing': 'chưa có giá',
+  /*
+   * ⚠ `portfolio.priceMissing` ("chưa có giá") đã XOÁ — chủ dự án chốt 22/09/2026.
+   *
+   * Câu ấy thế chỗ cả cụm bên phải của dòng gọn khi một mã chưa tra được thị giá. Từ đợt bảng
+   * tám cột, mã thiếu giá làm BỐN ô cùng vắng (thị giá, giá trị, lãi/lỗ, tỷ trọng) — lặp câu ấy
+   * bốn lần trên một hàng thì không đọc được, mà gộp bốn ô lại bằng `colspan` thì cột gãy ngay
+   * hàng đó.
+   *
+   * Chủ dự án chọn ký hiệu `_ _`, đúng ký hiệu "chưa có số" mà cả sản phẩm đang dùng: _"nếu
+   * thiếu thì để _ _ ý là đang chưa có dữ liệu và bên trên có button làm mới"_. Lý do và lối xử
+   * lý không mất — chúng dời lên dòng tiêu đề khối, chỗ có nút Làm mới, và `portfolio.priceNone`
+   * vẫn nói thành câu khi không mã nào có giá.
+   *
+   * FR-06 không bị nới: `_ _` không phải một con số, nên không có `0 ₫` nào thế chỗ. Ca kiểm
+   * "thiếu thị giá: bốn ô hiện _ _" ghim cả hai vế.
+   */
   'portfolio.betaShort': 'beta',
   'portfolio.edit': 'Sửa',
   /*
@@ -784,7 +862,16 @@ export const vi = {
   'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
 
   // ── Trạng thái thị giá: luôn hiện, luôn nói rõ giá thuộc phiên nào ─────────
-  'portfolio.priceSession': 'Giá phiên',
+  /*
+   * Viết THƯỜNG từ 22/09/2026: dải trạng thái không còn là một dòng riêng nữa mà đã gộp vào
+   * dòng tiêu đề khối, nơi nó là mảnh giữa câu — "NẮM GIỮ · 2 mã · giá phiên 22/09/2026".
+   * Đúng luật viết hoa ghi ở docblock phía dưới: mảnh chữ đi liền con số thì viết thường.
+   *
+   * Gộp chứ không thêm: để nguyên cả hai chỗ thì ngày phiên in hai lần trên cùng một màn, và
+   * một helper trong `PortfolioScreen.test.tsx` chờ đúng chữ này sẽ báo "nhiều kết quả" — 13 ca
+   * đỏ theo.
+   */
+  'portfolio.priceSession': 'giá phiên',
   'portfolio.priceRefresh': 'Làm mới',
   'portfolio.priceStale': 'Chưa làm mới được thị giá — đang dùng giá đã lưu.',
   /*
@@ -799,7 +886,17 @@ export const vi = {
    * `portfolio.formulas` từng là nhãn của một NÚT ở dòng mã; từ đợt gộp luồng thêm mã nó là nhãn
    * của một Ô NHẬP trong form. Giữ nguyên chuỗi vì nó vẫn gọi đúng tên việc, chỉ đổi vai.
    */
-  'portfolio.formulas': 'Tính công thức',
+  /*
+   * "Thêm công thức" chứ không "Tính công thức" — chủ dự án chốt 22/09/2026.
+   *
+   * Đây là nhãn của một Ô TRONG FORM thêm/sửa mã, không phải một nút chạy ngay. Bấm vào nó chỉ
+   * CHỌN một công thức để đính kèm; việc tính chỉ xảy ra sau khi lưu, khi màn điều hướng sang
+   * trang công thức ấy. "Tính" hứa một hành động lập tức mà ô này không làm.
+   *
+   * Nhãn cũ vẫn còn trong vài chú thích kể lại lịch sử nút thứ ba đã bỏ ở dòng mã — ở đó nó đúng,
+   * vì đó thật sự là tên của nút ấy khi còn tồn tại.
+   */
+  'portfolio.formulas': 'Thêm công thức',
   'portfolio.pickFormula': 'Chọn công thức',
   /*
    * ── `portfolio.formulaHint` đã XOÁ (14/09/2026) ───────────────────────────────────────────
@@ -822,8 +919,22 @@ export const vi = {
    * gì" — một nút hứa một việc rồi im lặng. Nút phải nói đúng thứ nó sắp làm.
    */
   'portfolio.pickCodeFirst': 'Chọn mã cổ phiếu trước',
-  'portfolio.formulaNeedsCode':
-    'Số ô điền sẵn của mỗi công thức phụ thuộc mã, nên phải có mã rồi mới chọn được. Bấm vào ô này để chọn mã.',
+  /*
+   * ⚠ `portfolio.formulaNeedsCode` đã XOÁ — chủ dự án chốt 22/09/2026.
+   *
+   * "Số ô điền sẵn của mỗi công thức phụ thuộc mã, nên phải có mã rồi mới chọn được. Bấm vào ô
+   * này để chọn mã."
+   *
+   * Đây là lượt HAI của cùng một việc: 14/09/2026 đã bỏ `portfolio.formulaHint`, nay bỏ nốt câu
+   * còn lại. Lý do giữ nó khi ấy — "nút hứa một việc khác với chữ trên nhãn ô nên phải có chỗ nói
+   * vì sao" — nay chính cái nút gánh: nó in thẳng `portfolio.pickCodeFirst` ("Chọn mã cổ phiếu
+   * trước"), tức nói cả việc cần làm lẫn thứ tự phải làm, ngay tại chỗ người dùng đang bấm. Hai
+   * dòng chữ cho một ý là một dòng thừa.
+   *
+   * Hành vi KHÔNG đổi: bấm vào ô lúc chưa có mã vẫn mở sheet chọn mã. `aria-describedby` trỏ vào
+   * câu này cũng gỡ theo — trỏ vào một id không tồn tại thì trình đọc màn hình lặng thinh, không
+   * lỗi, không cảnh báo, chỉ mất phần mô tả.
+   */
   'portfolio.formulaClear': 'Bỏ chọn công thức',
   'portfolio.formSubmitOpen': 'Thêm và mở công thức',
   'portfolio.formSaveOpen': 'Lưu và mở công thức',
@@ -866,7 +977,18 @@ export const vi = {
 
   // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
   'ticker.title': 'Chọn mã cổ phiếu',
-  'ticker.subtitle': 'Toàn bộ mã đang giao dịch, lấy từ Finbox',
+  /*
+   * ⚠ `ticker.subtitle` đã XOÁ — chủ dự án chốt 22/09/2026.
+   *
+   * "Toàn bộ mã đang giao dịch, lấy từ Finbox."
+   *
+   * Vế đầu kể lại thứ danh sách ngay dưới đã tự bày ra; vế sau gọi tên một nhà cung cấp mà người
+   * dùng không có việc gì phải biết để chọn được mã. Cùng lượt dọn với `portfolio.formulaNeedsCode`
+   * ở trên, và cùng một lý do: chữ nói lại điều màn đã nói.
+   *
+   * Lưu ý cho ca kiểm: `FormulaDetail.test.tsx` từng dò sheet chọn mã bằng chính câu này
+   * (`sheetChua(t('ticker.subtitle'))`), nay dò bằng `ticker.title`.
+   */
   'ticker.searchLabel': 'Tìm mã hoặc tên doanh nghiệp',
   'ticker.searchPlaceholder': 'FPT, Hoà Phát…',
   'ticker.pick': 'Chọn',
@@ -956,31 +1078,67 @@ export const vi = {
   'xirr.rowLabel': 'Dòng',
   'xirr.usable': 'dòng tiền dùng được',
 
+  /*
+   * Dán dữ liệu — WF-11.
+   *
+   * Câu chữ viết lại trọn ngày 22/09/2026, rồi cắt bớt ngay trong ngày.
+   *
+   * Lượt một thêm hai dòng chỉ dẫn ('paste.help1' / 'paste.help2') nói ra lấy dữ liệu ở ĐÂU và
+   * cần TỐI THIỂU cột nào. Chủ dự án bác thẳng: "tôi cũng chả muốn đọc vì mô tả quá quê mùa,
+   * lạc hậu". Lượt hai bỏ cả hai dòng ấy cùng với ô văn bản mà chúng sinh ra để bù — chỗ nhập
+   * giờ là lưới ô, và những gì hai dòng kia phải nói bằng lời thì lưới tự nói bằng hình: tên
+   * cột nằm ở đầu cột, hình dạng cần gõ nằm làm chữ mờ ngay trong ô sẽ gõ.
+   */
   'paste.title': 'Dán dữ liệu',
-  'paste.subtitle': 'Chuỗi giá OHLC dán thẳng từ Excel hoặc file CSV',
-  'paste.areaLabel': 'Dán dữ liệu vào đây',
-  'paste.placeholder': '15/07\t25.10\t25.60\t24.90\t25.40',
-  'paste.assignColumns': 'Gán cột',
+  'paste.subtitle': 'Gõ vào lưới, hoặc dán từ Excel bằng Ctrl + V',
+  'paste.sample': 'Dữ liệu mẫu',
+  'paste.loadCsv': 'Tải file CSV',
+  'paste.columnsBtn': 'Cột',
+  'paste.clear': 'Xoá hết',
+  /* Thanh trạng thái dưới lưới: 'Đang xem dòng 1 – 10 trong 251'. */
+  'paste.viewing': 'Đang xem dòng',
+  'paste.inTotal': 'trong',
+  'paste.badRows': 'dòng lỗi',
+  'paste.seeBad': 'Xem',
+  'paste.skipBad': 'Bỏ qua',
+  /* Chữ mờ của ô còn trống giữa một dòng đã có dữ liệu — để trống hẳn thì đọc ra như hết bảng. */
+  'paste.emptyCell': '– –',
+  'paste.gridCaption': 'Lưới nhập chuỗi giá: mỗi dòng một phiên, đầu mỗi cột chọn cột đó là gì',
+  'paste.rowNo': 'Dòng',
+  /*
+   * Chữ mờ trong ô, chỉ đặt ở dòng đầu.
+   *
+   * Đây là thứ thay cho hai dòng chỉ dẫn đã bỏ: hình dạng cần gõ nằm ngay trong ô sẽ gõ, không
+   * phải một câu dặn ở trên. Viết theo quy ước số Việt Nam — dấu phẩy thập phân, dấu chấm ngăn
+   * nghìn — vì ví dụ kiểu Excel tiếng Anh dạy sai đúng chỗ hay đọc sai nhất.
+   */
+  'paste.egDate': '15/07/2026',
+  'paste.egPrice': '25,4',
+  'paste.egVolume': '1.000.000',
   'paste.column': 'Cột',
   /*
-   * Nhãn HIỂN THỊ của từng vai trò cột. Bản gốc là `COLUMN_LABELS` ở Domain (đúng chữ WF-11)
-   * — một ca kiểm trong i18n.test.ts giữ hai bên khớp từng chữ. Từ vựng ĐOÁN cột từ header
-   * dán vào (`HEADER_WORDS`) là chuyện khác, vẫn nằm nguyên trong Domain.
+   * Nhãn HIỂN THỊ của từng vai trò cột. Bản gốc là `COLUMN_LABELS` ở Domain — một ca kiểm
+   * trong i18n.test.ts giữ hai bên khớp từng chữ. Từ vựng ĐOÁN cột từ header dán vào
+   * (`HEADER_WORDS`) là chuyện khác, vẫn nằm nguyên trong Domain.
    */
   'paste.col.date': 'Ngày',
-  'paste.col.open': 'Mở',
-  'paste.col.high': 'Cao',
-  'paste.col.low': 'Thấp',
-  'paste.col.close': 'Đóng',
-  'paste.col.volume': 'KL',
-  'paste.col.ignore': 'Bỏ qua',
-  /* Khung xem trước: chỗ duy nhất đối chiếu được phần dán với phần máy đọc ra, trước khi nạp. */
-  'paste.previewLabel': 'Xem trước',
-  'paste.previewCaption': 'Vài phiên đầu đọc được từ dữ liệu vừa dán',
-  'paste.previewMore': 'dòng nữa không hiện ở đây, nhưng vẫn được nạp.',
-  'paste.validRows': 'dòng hợp lệ, sẵn sàng nạp',
+  'paste.col.open': 'Giá mở cửa',
+  'paste.col.high': 'Giá cao nhất',
+  'paste.col.low': 'Giá thấp nhất',
+  'paste.col.close': 'Giá đóng cửa',
+  'paste.col.volume': 'Khối lượng',
+  'paste.col.ignore': 'Không dùng',
+  'paste.validRows': 'phiên đọc được',
+  'paste.rangeFrom': 'từ',
+  'paste.rangeTo': 'tới',
+  'paste.needClose': 'Chưa cột nào được đặt là Giá đóng cửa. Bấm vào tên cột ở đầu lưới rồi chọn.',
+  'paste.reordered': 'Dữ liệu xếp phiên mới trước. Đã đảo lại cho chuỗi chạy từ cũ tới mới.',
+  'paste.orderUnknown':
+    'Không đọc được thứ tự phiên. Hãy chắc phiên cũ nhất nằm trên cùng, nếu ngược thì kết quả sẽ sai.',
+  'paste.styleAsk': 'Số này đọc là bao nhiêu?',
+  'paste.preamble': 'Đã bỏ phần đầu không phải dữ liệu:',
   'paste.skippedRows': 'dòng bỏ qua',
-  'paste.truncated': 'Đã cắt bớt phần vượt trần:',
+  'paste.truncated': 'Chỉ giữ được phần gần đây nhất, đã bỏ:',
   'paste.rows': 'dòng',
   'paste.cancel': 'Huỷ',
   'paste.import': 'Nạp',

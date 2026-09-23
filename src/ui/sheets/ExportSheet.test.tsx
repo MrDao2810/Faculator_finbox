@@ -395,109 +395,458 @@ describe('PresetSheet — WF-10', () => {
   });
 });
 
+/*
+ * ── Dựng lại ngày 22/09/2026, lượt ba ───────────────────────────────────────────────────
+ *
+ * Lượt một sửa phân luồng cột và chặn bốn chỗ cho ra số sai. Lượt hai bỏ ô văn bản tự do và
+ * thay bằng lưới. Lượt ba là bản thiết kế chủ dự án vẽ ra: popup nổi giữa màn, chỉ vẽ phần
+ * dòng đang nhìn thấy, lỗi chỉ đúng Ô, và bỏ dòng lỗi phải có người bấm đồng ý.
+ *
+ * Trong jsdom mọi kích thước đọc ra đều là 0, nên lưới rơi về mức sàn `MIN_RENDERED` — đủ dòng
+ * cho các ca dưới đây, và đó cũng chính là lý do mức sàn ấy tồn tại.
+ */
 describe('PasteImportSheet — WF-11', () => {
-  it('chưa dán gì thì nút Nạp bị khoá', () => {
+  /** Dán cả khối vào lưới, đúng như Ctrl+V vào ô đầu tiên. */
+  const paste = async (text: string) => {
+    await userEvent.click(screen.getByLabelText('Ngày, Dòng 1'));
+    await userEvent.paste(text);
+  };
+
+  /** Mở bảng chọn vai trò cột — từ lượt ba nó nằm sau nút "Cột", không còn ở mỗi đầu cột. */
+  const openColumns = async () => {
+    await userEvent.click(screen.getByRole('button', { name: /^Cột/ }));
+  };
+
+  /** Nạp bộ mẫu. Nó tới qua  riêng nên phải chờ chunk ấy về. */
+  const loadSample = async () => {
+    await userEvent.click(screen.getByRole('button', { name: 'Dữ liệu mẫu' }));
+    await screen.findByRole('button', { name: 'Nạp 64 dòng' });
+  };
+
+  it('chưa nhập gì thì nút Nạp bị khoá', () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
     const button = screen.getByRole('button', { name: /^Nạp/ }) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
 
-  it('dán vào thì đếm ngay số dòng hợp lệ, trước khi bấm Nạp', async () => {
-    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+  /*
+   * Ô văn bản tự do là thứ đã bị bỏ, không phải thứ được thu nhỏ đi. Ghim bằng DOM chứ không
+   * bằng chữ: còn một `<textarea>` nào ở đây nghĩa là lối cũ đã quay lại.
+   */
+  it('không còn ô văn bản tự do nào — chỗ nhập là lưới ô', () => {
+    const { container } = render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.40\n16/07\t25.70');
-
-    expect(screen.getByText(/2 dòng hợp lệ/)).not.toBeNull();
+    expect(container.querySelector('textarea')).toBeNull();
+    expect(screen.getByRole('table', { name: /Lưới nhập chuỗi giá/ })).not.toBeNull();
   });
 
-  it('nêu rõ dòng hỏng kèm số dòng — đúng khuôn WF-11', async () => {
+  /*
+   * Mở ra là ĐỦ sáu cột. Bản trước mở hai cột kèm nút "Thêm cột"; chủ dự án chốt ngược lại, và
+   * vì đã đủ nên nút ấy không còn lý do tồn tại — ghim cả hai vế ở đây.
+   */
+  it('mở ra là đã gõ được ngay, đủ sáu cột, kèm ví dụ nằm trong ô', () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.40\n16/07\tn/a\n17/07\t25.30');
+    for (const name of [
+      'Ngày',
+      'Giá mở cửa',
+      'Giá cao nhất',
+      'Giá thấp nhất',
+      'Giá đóng cửa',
+      'Khối lượng',
+    ]) {
+      expect(screen.getByRole('button', { name }), name).not.toBeNull();
+    }
+    expect(screen.getByRole('button', { name: 'Cột 6/6' })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: 'Thêm cột' })).toBeNull();
 
-    expect(screen.getByText(/1 dòng bỏ qua/)).not.toBeNull();
-    expect(screen.getByText(/dòng 2/)).not.toBeNull();
+    // Hình dạng cần gõ nằm ngay trong ô sẽ gõ, không phải một câu dặn ở trên.
+    expect(screen.getByPlaceholderText('15/07/2026')).not.toBeNull();
+    expect(screen.getAllByPlaceholderText('25,4')).toHaveLength(4);
+    expect(screen.getByPlaceholderText('1.000.000')).not.toBeNull();
+  });
+
+  /*
+   * ── Mở ra là thấy chuỗi ĐANG dùng ────────────────────────────────────
+   *
+   * Chủ dự án: "sau khi sử dụng chuỗi mẫu thì nó đang được áp dụng ra bên ngoài. thì lúc từ bên
+   * ngoài vào lại để xem thì phải xem được luôn thông tin chuỗi mẫu đó trong bảng dữ liệu chứ".
+   * Đúng: màn ngoài đang tính trên 64 phiên mà mở sheet ra thấy lưới trắng thì người dùng không
+   * soi lại được chuỗi của mình, không sửa được một ô sai, và dễ đọc thành "chuỗi bay mất rồi".
+   */
+  const LOADED = [
+    { date: '15/07/2026', open: 25100, high: 25600, low: 24900, close: 25400, volume: 1250000 },
+    { date: '16/07/2026', open: 25400, high: 25800, low: 25200, close: 25700, volume: 980000 },
+  ];
+
+  it('mở ra là thấy ngay chuỗi màn ngoài đang dùng, không phải lưới trắng', () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={LOADED} />);
+
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('15/07/2026');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe(
+      '25.700',
+    );
+    expect((screen.getByLabelText('Khối lượng, Dòng 1') as HTMLInputElement).value).toBe(
+      '1.250.000',
+    );
+    expect(screen.getByRole('button', { name: 'Nạp 2 dòng' })).not.toBeNull();
+    // Số do CHÍNH sheet viết ra nên quy ước đã chắc — không được quay lại hỏi người dùng.
+    expect(screen.queryByText(/Số này đọc là bao nhiêu/)).toBeNull();
+  });
+
+  it('Xoá hết vẫn xoá được, hiệu ứng đổ chuỗi cũ không ghi đè lại', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={LOADED} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá hết' }));
+
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('');
+    expect((screen.getByRole('button', { name: /^Nạp/ }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  /* ── Gõ tay: không còn dấu ngăn cột nào để gõ sai ─────────────────────── */
+
+  it('gõ thẳng vào từng ô là ra phiên, không cần dấu cách hay dấu phẩy nào', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await userEvent.type(screen.getByLabelText('Ngày, Dòng 1'), '15/07/2026');
+    await userEvent.type(screen.getByLabelText('Giá đóng cửa, Dòng 1'), '25,4');
+
+    expect(screen.getByRole('button', { name: 'Nạp 1 dòng' })).not.toBeNull();
+  });
+
+  it('gõ tới dòng cuối thì lưới tự mở thêm dòng', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    expect(screen.queryByLabelText('Ngày, Dòng 5')).toBeNull();
+
+    await userEvent.type(screen.getByLabelText('Ngày, Dòng 4'), '15/07/2026');
+
+    expect(screen.getByLabelText('Ngày, Dòng 5')).not.toBeNull();
+  });
+
+  /*
+   * Dữ liệu mẫu phải ĐỦ ĐIỀU KIỆN cho công thức chạy, không chỉ để nhìn cho có.
+   *
+   * Bản trước là 10 phiên tự bịa: bấm xong thì biểu đồ trục thời gian vẫn vẽ được (đòi 5 phiên)
+   * nhưng Sharpe, Sortino và Beta vẫn báo thiếu phiên — mốc của chúng là 60. Mốc 60 cũng là
+   * `MIN_USABLE_ROWS` của màn Bảng dữ liệu. Ghim bằng con số, không bằng cảm tính.
+   */
+  it('Dữ liệu mẫu đủ phiên cho mọi công thức chuỗi, không riêng biểu đồ', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
+
+    await loadSample();
+    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
+
+    const rows = onImport.mock.calls[0]?.[0]?.rows as ReadonlyArray<{
+      date: string;
+      open: number | null;
+      high: number | null;
+      low: number | null;
+      close: number;
+      volume: number | null;
+    }>;
+
+    expect(rows.length).toBeGreaterThanOrEqual(60);
+    // Đủ sáu cột chứ không riêng giá đóng cửa — nến và khối lượng cũng phải vẽ được.
+    for (const row of rows) {
+      expect(row.date).not.toBe('');
+      expect(row.open).not.toBeNull();
+      expect(row.high).not.toBeNull();
+      expect(row.low).not.toBeNull();
+      expect(row.volume).not.toBeNull();
+      expect(row.close).toBeGreaterThan(0);
+    }
+  });
+
+  /*
+   * Mẫu là số liệu THẬT, nên nó phải cư xử như số liệu thật: mỗi phiên thoả Thấp ≤ Mở ≤ Cao và
+   * Thấp ≤ Đóng ≤ Cao. Một bộ mẫu dựng bằng tay rất dễ vi phạm chỗ này mà không ai để ý.
+   */
+  it('Dữ liệu mẫu có OHLC hợp lệ ở mọi phiên, và chạy từ cũ tới mới', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
+
+    await loadSample();
+
+    // Chuỗi đã xếp cũ trước nên không có câu "đã đảo lại" — mẫu đi đường sạch.
+    expect(screen.queryByText(/Đã đảo lại/)).toBeNull();
+    expect(screen.queryByText(/dòng lỗi/)).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
+    const rows = onImport.mock.calls[0]?.[0]?.rows as ReadonlyArray<{
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+    }>;
+
+    for (const row of rows) {
+      expect(row.low).toBeLessThanOrEqual(Math.min(row.open, row.close));
+      expect(row.high).toBeGreaterThanOrEqual(Math.max(row.open, row.close));
+    }
+  });
+
+  it('bấm Dữ liệu mẫu thì đi trọn được đường mà không cần có file', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await loadSample();
+
+    expect(screen.getByRole('button', { name: 'Nạp 64 dòng' })).not.toBeNull();
+    // Có dữ liệu rồi thì chỗ ấy đổi thành lối dọn đi, không mời dán mẫu nữa.
+    expect(screen.queryByRole('button', { name: 'Dữ liệu mẫu' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Xoá hết' })).not.toBeNull();
+  });
+
+  it('Xoá hết thì lưới về trạng thái ban đầu', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await loadSample();
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá hết' }));
+
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('');
+    expect((screen.getByRole('button', { name: /^Nạp/ }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  /* ── Dán: cả khối tự rải đúng cột ─────────────────────────────────────── */
+
+  it('dán vào một ô thì cả khối tự rải đúng cột, đếm ngay số phiên', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await paste('15/07/2026\t25,40\n16/07/2026\t25,70');
+
+    const line = screen.getByText(/2 phiên đọc được/);
+    expect(line.textContent).toContain('từ 15/07/2026 tới 16/07/2026');
+    // Ô thô của người dùng nằm nguyên trong lưới để soát lại, không phải số đã đọc xong.
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('25,40');
+  });
+
+  it('dán thêm một cột vào lưới đang có dữ liệu thì không đụng vai trò cột đã chọn', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await userEvent.type(screen.getByLabelText('Ngày, Dòng 1'), '15/07/2026');
+    await userEvent.click(screen.getByLabelText('Giá đóng cửa, Dòng 1'));
+    await userEvent.paste('25,40\n25,70');
+
+    expect(screen.getByRole('button', { name: 'Ngày' })).not.toBeNull();
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('15/07/2026');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25,70');
   });
 
   it('bấm Nạp thì trả kết quả đã đọc lên trên', async () => {
     const onImport = vi.fn();
     render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
 
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.40\n16/07\t25.70');
+    await paste('15/07\t25,40\n16/07\t25,70');
     await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
 
     expect(onImport).toHaveBeenCalledTimes(1);
     expect(onImport.mock.calls[0]?.[0]?.rows).toHaveLength(2);
   });
 
-  /* ── Phần dựng lại ở đợt 11b ─────────────────────────────────────────── */
-
-  it('gán cột là chip nhưng vẫn là <select> thật — bàn phím và trình đọc màn hình dùng được', async () => {
+  /*
+   * Lưới luôn chừa một dòng trống ở cuối để gõ tiếp. Nó KHÔNG được tính là dòng hỏng — báo
+   * "1 dòng lỗi" ngay sau khi dán xong là lời cảnh báo rỗng.
+   */
+  it('dòng trống cuối lưới không bị đếm thành dòng lỗi', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.10\t25.60\t24.90\t25.40');
+    await paste('15/07/2026\t25,40\n16/07/2026\t25,70');
 
-    // Năm cột dán vào → năm chip, mỗi chip có nhãn riêng để dò được cột nào là cột nào.
+    expect(screen.queryByText(/dòng lỗi/)).toBeNull();
+    expect(screen.queryByText(/dòng bỏ qua/)).toBeNull();
+  });
+
+  /* ── Lỗi chỉ đúng ô ───────────────────────────────────────────────────── */
+
+  /*
+   * '28/13/2026' không phải một ngày. Trước lượt ba nó vẫn lọt: ngày giữ nguyên dạng thô nên
+   * chỉ làm cả bảng tụt xuống "không đọc được thứ tự phiên". Một ô gõ nhầm tháng 13 phải bị
+   * chỉ đúng tên, đúng ô.
+   */
+  it('ngày sai bị bắt, tô đúng ô ngày chứ không chỉ báo cả dòng', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await paste('15/07/2026\t25,40\n28/13/2026\t25,85\n17/07/2026\t25,30');
+
+    expect(screen.getByText(/1 dòng sai ngày/)).not.toBeNull();
+
+    const bad = screen.getByLabelText('Ngày, Dòng 2');
+    expect(bad.getAttribute('aria-invalid')).toBe('true');
+    // Và ô giá cùng dòng KHÔNG bị đổ lỗi lây.
+    expect(screen.getByLabelText('Giá đóng cửa, Dòng 2').getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('giá đóng cửa không đọc được thì tô ô giá, không tô ô ngày', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await paste('15/07/2026\t25,40\n16/07/2026\tn/a');
+
+    expect(screen.getByLabelText('Giá đóng cửa, Dòng 2').getAttribute('aria-invalid')).toBe('true');
+    expect(screen.getByLabelText('Ngày, Dòng 2').getAttribute('aria-invalid')).toBeNull();
+  });
+
+  /* Vứt lặng lẽ ba dòng rồi báo "248 phiên sẵn sàng" đúng là thứ FR-06 tồn tại để chặn. */
+  it('còn dòng lỗi thì nút Nạp khoá cho tới khi người dùng đồng ý bỏ chúng', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
+
+    await paste('15/07/2026\t25,40\n28/13/2026\t25,85\n17/07/2026\t25,30');
+
+    const button = screen.getByRole('button', { name: /^Nạp/ }) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /Bỏ qua 1 dòng lỗi/ }));
+
+    expect(button.disabled).toBe(false);
+    await userEvent.click(button);
+    expect(onImport.mock.calls[0]?.[0]?.rows).toHaveLength(2);
+  });
+
+  /*
+   * Tải file là lối vào thứ ba, cạnh gõ tay và dán. Nó đi qua ĐÚNG bộ đọc của hai lối kia —
+   * một bộ đọc riêng cho file là chỗ bốn cơ chế chặn số sai lặng lẽ biến mất.
+   */
+  it('chọn file CSV thì đổ thẳng vào lưới, qua cùng bộ đọc với lối dán', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    const file = new File(['Ngày,Đóng\n15/07/2026,25.4\n16/07/2026,25.7'], 'gia.csv', {
+      type: 'text/csv',
+    });
+    await userEvent.upload(screen.getByLabelText('Tải file CSV'), file);
+
+    await waitFor(() => {
+      expect(screen.getByText(/2 phiên đọc được/)).not.toBeNull();
+    });
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25.7');
+  });
+
+  it('thanh trạng thái nói đang xem dòng nào trong tổng bao nhiêu', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await loadSample();
+
+    // 64 phiên cộng một dòng trống chừa sẵn để gõ tiếp.
+    expect(screen.getByText(/Đang xem dòng 1 – \d+ trong 65/)).not.toBeNull();
+  });
+
+  /* ── Phân luồng cột ──────────────────────────────────────────────────── */
+
+  it('tên vai trò đứng ngay trên đầu cột, bấm vào là mở bảng chọn', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await paste('15/07\t25,10\t25,60\t24,90\t25,40');
+    expect(screen.getByRole('button', { name: 'Giá thấp nhất' })).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ngày' }));
+
     const first = screen.getByLabelText('Cột 1') as HTMLSelectElement;
     expect(first.tagName).toBe('SELECT');
     expect(first.value).toBe('date');
-    expect(screen.getByLabelText('Cột 5')).not.toBeNull();
+    expect((screen.getByLabelText('Cột 5') as HTMLSelectElement).value).toBe('close');
   });
 
-  it('đổi vai trò một cột thì đọc lại dữ liệu theo cách gán mới', async () => {
+  it('nút Cột đếm số cột đã nhận vai trò', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.40\n16/07\t25.70');
-    expect(screen.getByText(/2 dòng hợp lệ/)).not.toBeNull();
+    await paste('15/07\t25,40\t99,90');
 
-    // Bỏ cột giá đóng cửa đi thì không còn dòng nào dùng được — cột 'close' là bắt buộc.
+    expect(screen.getByRole('button', { name: 'Cột 3/3' })).not.toBeNull();
+  });
+
+  it('đổi vai trò một cột thì đọc lại, và nói rõ đang thiếu cột giá đóng cửa', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await paste('15/07\t25,40\n16/07\t25,70');
+    expect(screen.getByText(/2 phiên đọc được/)).not.toBeNull();
+
+    await openColumns();
     await userEvent.selectOptions(screen.getByLabelText('Cột 2'), 'ignore');
 
-    expect(screen.getByText(/0 dòng hợp lệ/)).not.toBeNull();
+    expect(screen.getByText(/Chưa cột nào được đặt là Giá đóng cửa/)).not.toBeNull();
+    expect((screen.getByRole('button', { name: /^Nạp/ }) as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it('hiện khung xem trước để đối chiếu trước khi nạp', async () => {
+  /*
+   * Hai cột cùng một vai trò thì bộ đọc lấy cột ĐẦU (`indexOf`), nên cột sau thành ô chết:
+   * người dùng bấm đổi mà không có gì xảy ra và cũng không có gì báo.
+   */
+  it('một vai trò chỉ ở đúng một cột: gán lại thì cột cũ tự nhả ra', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.10\t25.60\t24.90\t25.40');
+    // Ba cột 'Ngày · số · số' được đoán là Ngày · Giá mở cửa · Giá đóng cửa.
+    await paste('15/07\t25,40\t99,90');
+    await openColumns();
+    expect((screen.getByLabelText('Cột 3') as HTMLSelectElement).value).toBe('close');
 
-    const preview = screen.getByRole('table', {
-      name: /Vài phiên đầu đọc được/,
-    });
-    // Một dòng tiêu đề + một dòng dữ liệu.
-    expect(preview.querySelectorAll('tr')).toHaveLength(2);
-    expect(preview.textContent).toContain('15/07');
-    expect(preview.textContent).toContain('25,4');
+    await userEvent.selectOptions(screen.getByLabelText('Cột 2'), 'close');
+
+    expect((screen.getByLabelText('Cột 2') as HTMLSelectElement).value).toBe('close');
+    expect((screen.getByLabelText('Cột 3') as HTMLSelectElement).value).toBe('ignore');
+    // Và con số đọc ra phải là của cột vừa gán, không phải cột cũ.
+    expect(screen.getByText(/1 phiên đọc được/)).not.toBeNull();
   });
 
-  it('dán quá số dòng xem trước thì nói rõ còn bao nhiêu dòng nữa', async () => {
-    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+  /* ── Chặn số sai, mỗi ca một lỗi đã tái hiện được ────────────────────── */
 
-    const lines = Array.from({ length: 8 }, (_, i) => `1${i}/07\t25.40`).join('\n');
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste(lines);
+  it('dán chuỗi xếp phiên mới trước thì đảo lại và nói ra', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
 
-    // 8 dòng đọc được, khung xem trước cắt ở 5 → còn 3.
-    expect(screen.getByText(/3 dòng nữa/)).not.toBeNull();
+    // Đúng thứ tự CafeF, Vietstock và investing.com xuất ra.
+    await paste('17/07/2026\t25,30\n16/07/2026\t25,70\n15/07/2026\t25,40');
+
+    expect(screen.getByText(/Đã đảo lại cho chuỗi chạy từ cũ tới mới/)).not.toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
+    expect(onImport.mock.calls[0]?.[0]?.rows.map((row: { close: number }) => row.close)).toEqual([
+      25.4, 25.7, 25.3,
+    ]);
   });
 
-  it('không lọt NaN hay undefined ra màn khi ô số bỏ trống — FR-06', async () => {
+  it('không có cột ngày thì nói thẳng là không đọc được thứ tự phiên', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    // Chỉ có ngày và giá đóng cửa; bốn cột còn lại trống.
-    await userEvent.click(screen.getByLabelText('Dán dữ liệu vào đây'));
-    await userEvent.paste('15/07\t25.40');
+    await paste('25,40\n25,70\n25,30');
 
-    const preview = screen.getByRole('table', { name: /Vài phiên đầu đọc được/ });
-    expect(preview.textContent).not.toContain('NaN');
-    expect(preview.textContent).not.toContain('undefined');
-    expect(preview.textContent).toContain('_ _');
+    expect(screen.getByText(/Không đọc được thứ tự phiên/)).not.toBeNull();
+  });
+
+  it('quy ước số mập mờ thì hỏi lại bằng chính con số ấy, chọn xong đọc lại ngay', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
+
+    // '25,100' đọc được thành 25,1 lẫn 25.100 — lệch nhau 1000 lần.
+    await paste('15/07/2026\t25,100\n16/07/2026\t25,400');
+    expect(screen.getByText(/Số này đọc là bao nhiêu/)).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: '25,1' }));
+    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
+
+    expect(onImport.mock.calls[0]?.[0]?.rows.map((row: { close: number }) => row.close)).toEqual([
+      25.1, 25.4,
+    ]);
+  });
+
+  it('quá trần thì giữ phần GẦN ĐÂY nhất và nói đã bỏ bao nhiêu', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} maxRows={2} />);
+
+    await paste('13/07/2026\t10\n14/07/2026\t20\n15/07/2026\t30\n16/07/2026\t40');
+
+    expect(screen.getByText(/Chỉ giữ được phần gần đây nhất/)).not.toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
+    expect(onImport.mock.calls[0]?.[0]?.rows.map((row: { close: number }) => row.close)).toEqual([
+      30, 40,
+    ]);
+  });
+
+  it('bỏ dòng ghi chú đầu file của chính bản xuất CSV, không để lệch cột', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+    await paste('# Faculator Finbox\nNgày,Đóng\n15/07/2026,25.4\n16/07/2026,25.7');
+
+    expect(screen.getByRole('button', { name: 'Giá đóng cửa' })).not.toBeNull();
+    expect(screen.getByText(/2 phiên đọc được/)).not.toBeNull();
   });
 });

@@ -1679,10 +1679,13 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
       }
 
       if (bars !== null && tuManNay) {
-        window.localStorage.setItem(
-          PRICE_SERIES_KEY,
-          serializeStoredSeries({ code: stickyTicker ?? loadedPreset ?? '', rows: bars }),
-        );
+        /*
+         * Chuỗi người dùng TỰ DÁN không thuộc về mã nào. Lấy `stickyTicker` cho nó là dán
+         * nhãn "HPG" lên số của người khác — đúng cái điều 2 ngay trên vừa cấm.
+         */
+        const code =
+          workingSourceRef.current === 'paste' ? '' : (stickyTicker ?? loadedPreset ?? '');
+        window.localStorage.setItem(PRICE_SERIES_KEY, serializeStoredSeries({ code, rows: bars }));
       }
     } catch {
       // Kho bị chặn (chế độ riêng tư) — mất phần bàn giao, không mất đường đi.
@@ -2147,19 +2150,98 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
               vô hiệu hoá: một nút mờ vẫn chiếm chỗ và vẫn mời người ta thử bấm, mà câu trả lời thì
               luôn là "không". Nút "Xem ví dụ thực tế" ngay cạnh vẫn còn, nên màn không hụt lối vào.
             */}
-            {presetHelps && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  openSheet('preset');
-                }}
-              >
-                {loadedPreset === null
-                  ? t('detail.loadPreset')
-                  : `${t('detail.preset')} ${loadedPreset}`}
-              </Button>
-            )}
+            {/*
+              ── Nút "Nạp mẫu" và thanh mã gộp làm một con chip (22/09/2026) ─────────────────
+
+              Trước đợt này, nạp xong một mã là màn mọc thêm hai thứ: nhãn nút dài ra thành "Đã
+              nạp GVR", VÀ một thanh riêng dưới khối công thức mang huy hiệu mã cộng hai nút
+              "Đổi mã" / "Bỏ mã". Ba chỗ nói cùng một việc, chiếm hai hàng.
+
+              Chủ dự án vẽ lại thành một con chip: mã + mũi tên xuống ở nửa trái, dấu × ở nửa
+              phải. Nửa trái mở lại đúng sheet vừa dùng để đổi mã, nửa phải bỏ mã. Chip đứng
+              đúng chỗ nút "Nạp mẫu" từng đứng, nên không có gì phải đi tìm.
+
+              Vẫn là `<p role="status">` như thanh cũ: mã có thể tự bám theo lượt duyệt mà người
+              dùng không bấm gì ở màn này (xem `stickyTicker`), và lúc ấy trình đọc màn hình phải
+              được báo. Chữ "Đổi mã" nằm ẩn TRƯỚC mã để tên đọc được ra "Đổi mã GVR" — người
+              nhìn thấy "GVR", người nghe biết bấm vào thì việc gì xảy ra.
+
+              Điều kiện là `stickyTicker` chứ không phải `loadedPreset`: hai thứ lệch nhau khi mã
+              không điền được ô nào (xem `applyPreset`), và đúng lúc ấy người dùng CÀNG cần lối
+              bỏ mã. Thanh cũ đã dùng `stickyTicker`, chip giữ nguyên điều kiện ấy.
+            */}
+            {presetHelps &&
+              (stickyTicker === null ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    openSheet('preset');
+                  }}
+                >
+                  {t('detail.loadPreset')}
+                </Button>
+              ) : (
+                <p className={styles.tickerChip} role="status">
+                  {/*
+                    Tên đọc được đặt bằng `aria-label`, KHÔNG bằng một `<span>` ẩn đứng trước mã.
+                    Đã thử cách ấy và nó hỏng: bộ tính tên đọc được cắt khoảng trắng hai đầu từng
+                    nút con rồi nối lại, mà hai `<span>` đều là inline nên không có dấu cách nào
+                    được chèn — tên ra "Đổi mãFPT". Chữ nhìn thấy ("FPT") vẫn nằm trong tên, nên
+                    vẫn đúng luật "nhãn phải chứa chữ nhìn thấy" (WCAG 2.5.3).
+                  */}
+                  <button
+                    type="button"
+                    className={styles.tickerPick}
+                    aria-label={`${t('detail.tickerChange')} ${stickyTicker}`}
+                    /*
+                      Mở thẳng kho mã toàn thị trường, đúng như nút "Đổi mã" của thanh cũ — nửa
+                      này KẾ THỪA nút ấy chứ không kế thừa nút "Nạp mẫu". Đã có mã rồi thì việc
+                      cần làm là tìm mã khác, mà sheet mẫu chỉ bày bốn mã; vào thẳng kho là bớt
+                      một lần bấm. Bọc trong hàm vì `onClick` truyền sự kiện chuột vào tham số
+                      `fromPreset`.
+                    */
+                    onClick={() => {
+                      openTickerPicker();
+                    }}
+                  >
+                    <span className={styles.tickerCode}>{stickyTicker}</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={styles.tickerDrop}
+                    onClick={resetAll}
+                    aria-label={`${t('detail.tickerClear')} ${stickyTicker}`}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M6 6l12 12M18 6 6 18" />
+                    </svg>
+                  </button>
+                </p>
+              ))}
 
             {/*
               Lối tắt cho người vừa vào màn, chưa hiểu công thức và chưa có số liệu riêng — chung
@@ -2198,25 +2280,12 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
           hiệu mã ở lại, nên vế "màn phải nói ra đang dùng mã nào" của `active-ticker.ts` vẫn còn;
           vế mốc ngày thì không còn chỗ nào trên màn nói — xem docblock ở file ấy.
         */}
-        {presetHelps && stickyTicker !== null && (
-          <p className={styles.tickerBar} role="status">
-            <span className={styles.tickerCode}>{stickyTicker}</span>
-
-            {/* Bọc trong hàm: `onClick` truyền sự kiện chuột vào tham số `fromPreset`. */}
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                openTickerPicker();
-              }}
-            >
-              {t('detail.tickerChange')}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={resetAll}>
-              {t('detail.tickerClear')}
-            </Button>
-          </p>
-        )}
+        {/*
+          Thanh mã đã GỘP vào con chip trên hàng tiêu đề khối (22/09/2026) — xem chú thích ở đó.
+          Huy hiệu mã, "Đổi mã" và "Bỏ mã" nay là ba phần của cùng một điều khiển, đứng đúng chỗ
+          nút "Nạp mẫu" từng đứng. Đừng dựng lại thanh này: nó nói lại đúng thứ chip đã nói, và
+          nói ở cách đó một khối.
+        */}
 
         {/*
           Mẫu vừa chọn không cấp được số nào cho công thức này — xem `applyPreset()`.
@@ -2476,19 +2545,25 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
             </p>
           )}
 
-          {/* Chỉ hiện khi số đang bày LÀ chuỗi minh hoạ — đừng để người dùng tưởng nhầm là số thật. */}
-          {wantsSeries && exampleLoaded && (
-            <p className={styles.pendingNote}>{t('detail.exampleSeriesNote')}</p>
-          )}
-
           {/*
-          Công thức hồi quy với thị trường (hiện chỉ Beta) đọc `ctx.marketSeries` mà KHÔNG ai bấm
-          nạp gì cả — chuỗi VN-Index luôn có sẵn. Chừng nào chuỗi ấy còn là PRNG, con số ra là một
-          con số sai trông hoàn toàn hợp lệ, và bốn mã mẫu lại là PRNG ĐỘC LẬP với nó nên beta rơi
-          về gần 0. Đây là ca FR-06 rõ nhất còn lại trong sản phẩm, và cách chữa duy nhất trong tầm
-          tay là NÓI RA. Cờ đọc từ tầng Data nên ngày có chuỗi thật, dòng này tự biến mất.
+          ── Hai câu chú thích đã GỠ ngày 22/09/2026 ────────────────────────────────────────
+
+          `detail.exampleSeriesNote` — "Đây là chuỗi số dựng sẵn để minh hoạ…, không phải giá cổ
+          phiếu thật của công ty nào". Câu ấy nói SAI về chính dữ liệu nó đứng cạnh: từ đợt
+          16/09/2026 chuỗi ví dụ là số liệu THẬT (`market-series-2026.ts` — FPT 57 phiên và
+          VN-Index 71 phiên, nguồn investing.com). Ngày 22/09/2026 đã đối chiếu độc lập với
+          CafeF: 6/6 phiên FPT và 20/20 phiên VN-Index khớp từng chữ số. Một câu dán nhãn "số
+          bịa" lên số thật còn tệ hơn không có câu nào — nó dạy người dùng bỏ qua đúng những
+          con số đáng tin nhất trên màn.
+
+          `detail.draftMarketSeries` — câu cảnh báo chuỗi VN-Index là số dựng. Nó vẫn ĐÚNG cho
+          chuỗi mặc định trong `samples.ts` (vẫn PRNG), nhưng ở đây nó bật cả khi công thức
+          đang chạy trên `marketSeriesOverride` — tức chuỗi VN-Index THẬT mà chính ví dụ minh
+          hoạ vừa nạp vào (`risk-ratios.ts` truyền `VNINDEX_71_PHIEN`). Đó là ca chủ dự án
+          chụp màn lại. Điều kiện bật nay xét thêm override, và câu chữ nói đúng nửa còn lại:
+          chuỗi giá của bộ mẫu mới là phần chưa thật.
         */}
-          {usesMarketSeries && hasDraftMarketSeries() && (
+          {usesMarketSeries && marketSeriesOverride === null && hasDraftMarketSeries() && (
             <p className={styles.seriesShortNote} role="note">
               {t('detail.draftMarketSeries')}
             </p>
@@ -2740,6 +2815,9 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
       {mountedSheets.has('paste') && (
         <PasteImportSheet
           open={sheet === 'paste'}
+          // Mở ra là thấy ngay chuỗi màn đang tính — sheet cũng là chỗ SOI lại chuỗi ấy, không
+          // riêng cửa nhập. Xem `initialRows` ở PasteImportSheet.
+          initialRows={bars ?? undefined}
           onClose={() => {
             setSheet(null);
           }}
@@ -2752,6 +2830,11 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
             // vừa đưa vào đúng thứ khối minh hoạ tồn tại để thay thế.
             setMarketSeriesOverride(null);
             setExampleLoaded(false);
+            // Chuỗi vừa dán là số của CHÍNH người dùng, không phải của mã nào — nhãn mã và
+            // viền `↳ HPG` phải tắt cùng lúc, y như lúc nạp ví dụ minh hoạ ở trên. Để sót thì
+            // chuỗi tự dán bị dán nhãn mã đang xem và đi vào bảng WF-05 dưới tên mã đó.
+            setLoadedPreset(null);
+            setPresetFill(null);
             // Chuỗi vừa dán đi thẳng vào ctx để công thức chuỗi tính NGAY — không ghi đè bảng
             // WF-05 đã lưu: dán ở màn chi tiết là thao tác thử nhanh, bảng là dữ liệu người
             // dùng chủ động quản ở /du-lieu/.

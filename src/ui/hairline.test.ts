@@ -112,20 +112,30 @@ describe('--color-hairline chỉ làm kẻ chia, không làm ranh giới', () =>
 });
 
 /**
- * Bảy kẻ chia CỐ Ý ở lại `--color-border`, mỗi cái một lý do.
+ * Chín kẻ chia CỐ Ý ở lại `--color-border`, mỗi cái một lý do.
  *
  * Ghim danh sách chứ không chỉ đếm: đếm thì đổi một chỗ rồi thêm một chỗ khác là hoà, và ca kiểm
  * im lặng. Cùng lối với danh sách id trong `chart.test.ts` — một mục mới không được lọt qua mà
  * không có người xem xét.
  *
- * Ai muốn hạ một trong bảy dòng này xuống hairline thì phải sửa cả danh sách, và lúc đó sẽ đọc
+ * Ai muốn hạ một trong chín dòng này xuống hairline thì phải sửa cả danh sách, và lúc đó sẽ đọc
  * đúng lý do vì sao nó ở đây.
  */
 const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, lyDo: string]> = [
   [
     'app/danh-muc/PortfolioScreen.module.css',
     '.holdRow',
-    'Kẻ chia giữa hai mã. Mỗi dòng là một đích bấm cao 44px và không có nền xen kẽ, nên đường kẻ là thứ DUY NHẤT tách chúng.',
+    'Kẻ chia giữa hai mã. Mỗi hàng là một đích bấm cao 44px và không có nền xen kẽ, nên đường kẻ là thứ DUY NHẤT tách chúng — đúng cả ở khổ dòng gọn lẫn khổ bảng.',
+  ],
+  [
+    'app/danh-muc/PortfolioScreen.module.css',
+    '.holdDetailRow',
+    'Hàng mở ra là <tr> thứ hai, nên nó phải mang kẻ chia thay cho hàng gọn phía trên (hàng ấy tắt kẻ khi đang mở, để cặp hàng đọc ra là một). Cùng lý do và cùng độ đậm với .holdRow.',
+  ],
+  [
+    'app/danh-muc/PortfolioScreen.module.css',
+    '.holdHead th',
+    'Mép dưới hàng tiêu đề cột (chỉ có từ 1024px). Cùng cảnh với .table th của màn Dữ liệu: nó ngăn tên cột khỏi con số đầu tiên, mà tên cột lại có nền paper — hairline nhạt hơn nền ấy nên sẽ tàng hình.',
   ],
   [
     'ui/browse/GroupCard.module.css',
@@ -149,8 +159,8 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
   ],
   [
     'ui/sheets/PasteImportSheet.module.css',
-    '.preview thead th',
-    'Nền --color-sunken, cùng lý do đảo chiều. Phần tbody td bên dưới thì đã chuyển sang hairline — hai bậc kẻ khác nhau ở đây là CỐ Ý, đầu bảng đậm hơn thân bảng.',
+    '.grid thead th',
+    'Nền --color-sunken, cùng lý do đảo chiều. Phần tbody bên dưới thì đã chuyển sang hairline — hai bậc kẻ khác nhau ở đây là CỐ Ý, đầu bảng đậm hơn thân bảng. Đổi tên từ .preview khi WF-11 bỏ ô dán và thay bằng lưới nhập (22/09/2026).',
   ],
   [
     'app/du-lieu/DataTableScreen.module.css',
@@ -160,7 +170,7 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
 ];
 
 describe('kẻ chia cố ý ở lại --color-border', () => {
-  it('đúng bảy chỗ, không thừa không thiếu', () => {
+  it('đúng chín chỗ, không thừa không thiếu', () => {
     const thucTe: string[] = [];
 
     for (const file of moduleCssFiles()) {

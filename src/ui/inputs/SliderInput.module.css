@@ -5,21 +5,22 @@
 }
 
 /*
- * Cho xuống dòng khi hết chỗ. Hàng này ghép một nhãn dài tuỳ ý với một ô nhập ghim 14ch, nên
- * trong khung hẹp hai thứ đó không thể cùng nằm một dòng: không có `flex-wrap`, ô giá trị lọt
- * hẳn ra ngoài khung và đè lên cột bên cạnh — đúng chuyện đã xảy ra ở khối chuỗi WF-04.
- * Bố cục thường thấy không đổi: ở bề ngang bình thường hai thứ vẫn nằm cùng một dòng.
+ * Nhãn trái, con số phải, con dấu nguồn nép sát trước con số.
+ *
+ * KHÔNG dùng `space-between`: nó chỉ đúng khi hàng có đúng hai con. Thêm con dấu vào là con
+ * giữa bị đẩy ra giữa hàng — đúng lỗi đã xảy ra ở hàng mốc min/max phía dưới, và sửa ở đó mà
+ * để nguyên ở đây thì chỉ là dời chỗ cho nó tái diễn. Nhãn tự giãn, hai thứ còn lại tự dạt phải.
  */
 .head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
   gap: var(--space-1) var(--space-2);
 }
 
 .label {
   /* Mặc định của flex item là min-width:auto, tức không co dưới bề rộng chữ dài nhất. */
+  flex: 1 1 auto;
   min-width: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
@@ -101,12 +102,16 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Mốc nhỏ nhất trái, lớn nhất phải — đọc được ngay miền của thanh trượt. */
+/*
+ * Hai mốc phải nằm thẳng dưới hai đầu rãnh, nếu không chúng không còn nói được miền chạy tới
+ * đâu. `margin-left: auto` ở mốc max chứ không chỉ trông vào `space-between`: hàng này từng có
+ * con thứ ba lọt vào và đẩy mốc max vào giữa rãnh (22/09/2026). Đẩy phải tường minh thì con
+ * nào thêm vào sau cũng chỉ chen được ở giữa, mốc max vẫn dính mép.
+ */
 .marks {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
 
   margin: 0;
@@ -133,3 +138,8 @@
  * Bản cũ ở đây thiếu HẲN `font-size` nên nó thừa hưởng cỡ của dòng chứa và to hơn ba bản chép
  * cùng vai ở `ButtonGroup`, `RadioGroup`, `Toggle`. Gom về một chỗ là hết lệch.
  */
+
+/* Mốc max dính mép phải — xem docblock `.marks`. */
+.max {
+  margin-left: auto;
+}

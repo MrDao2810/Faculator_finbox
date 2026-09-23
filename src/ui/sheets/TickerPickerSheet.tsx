@@ -45,6 +45,15 @@ export interface TickerPickerSheetProps {
    */
   dismiss?: 'close' | 'back';
   /**
+   * Chỗ tấm đứng trên màn — xem `BottomSheetProps.placement`.
+   *
+   * Màn Danh mục truyền `'center'` vì sheet này mở TỪ TRONG một hộp thoại nổi giữa màn: một tấm
+   * dán đáy trượt lên đè lên một tấm đang nổi ở giữa thì hai lớp đọc ra như hai thứ không liên
+   * quan. Màn chi tiết công thức giữ mặc định — ở đó nó mở thẳng từ trang, và dán đáy là dáng
+   * đúng cho một danh sách dài cuộn bằng ngón tay.
+   */
+  placement?: 'bottom' | 'center';
+  /**
    * Ngày ISO của màn — bật phần đánh dấu "mã này chưa có số liệu cơ bản".
    *
    * Có mặt thì sheet nạp trễ bảng mã (`@/application/ticker-coverage`) và dán nhãn lên những mã
@@ -72,6 +81,7 @@ export function TickerPickerSheet({
   onPick,
   heldCodes,
   dismiss = 'close',
+  placement = 'bottom',
   markUnusableAsOf,
 }: TickerPickerSheetProps) {
   const t = useT();
@@ -146,8 +156,14 @@ export function TickerPickerSheet({
       open={open}
       onClose={close}
       title={t('ticker.title')}
-      subtitle={t('ticker.subtitle')}
+      /*
+       * Không còn dòng phụ — chủ dự án chốt bỏ 22/09/2026 ("Toàn bộ mã đang giao dịch, lấy từ
+       * Finbox"). Vế đầu kể lại thứ danh sách ngay dưới đã tự bày ra; vế sau gọi tên một nhà cung
+       * cấp mà người dùng không có việc gì phải biết để chọn được mã. Cùng lượt dọn với câu gợi ý
+       * của ô chọn công thức ở màn Danh mục, và cùng một lý do: chữ nói lại điều màn đã nói.
+       */
       dismiss={dismiss}
+      placement={placement}
       /*
        * Ghim chiều cao tấm — xem `BottomSheetProps.size`.
        *

@@ -59,7 +59,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 39 assertions against a built out/ — run after build
-npm run check:chrome   # 126 assertions in a real headless Chrome (360×780 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 147 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -248,6 +248,101 @@ The 4 portfolio tiles are now **6**: total value, invested, gain/loss (with the 
 is the one real number that survives an outage, which is why the header does not go blank offline.
 `gain` **inherits** rather than computing: `total` sums `row.value ?? 0`, so subtracting cost from
 it directly would invent a loss exactly the size of an unpriced holding's cost basis.
+
+**The holdings list is ONE `<table>` that takes three shapes** (22/09/2026, from a design the owner
+supplied). At ≥1024px it is an eight-column table — code, company, quantity, avg cost, market
+price, value, gain/loss (amount over percentage), weight (number plus a bar) — plus a ninth column
+carrying the chevron. From 560px to 1023px it is the same table minus its two widest columns,
+company and value: both `<th>` and `<td>` go `display: none`, so the column stops existing rather
+than standing empty, and the `:nth-child` alignment rules keep working because `:nth-child` counts
+hidden cells too. Below 560px CSS drops it back to the three-column compact row of wireframe WF-06,
+which reverses the 09/2026 decision that had moved market price, gain percentage, buy date, beta
+and the company name _down_ into the expanded block; only buy date and beta stay there now.
+
+The middle shape was added the same day, after the owner photographed a narrow window: the compact
+row is a **two-sided** layout, so every pixel of spare width drains into the gap between the left
+text and the right numbers — at 900px that gap was over 400px wide ("ở giữa đang thừa quá nhiều
+không gian… màn web và mobile phải khác nhau về giao diện"). 560 is the floor because that is where
+`60.000 ₫` still fits its cell; the padding drops to `--space-2` there to buy the 48px that makes it
+fit, and phones in portrait (up to 430px) never reach it. Five rules hold all of this together and
+none of them is cosmetic:
+
+- **One DOM, not two.** Rendering a table and a card list and hiding one would put every number in
+  the document twice — screen readers read both, and `getByText` reports "multiple elements".
+  Picking a tree from the viewport at runtime is also out: the first client render must equal the
+  static HTML, which does not know the screen width. So `<table>`, `<tbody>` and `<caption>` all
+  switch `display` together; leaving any of them at a `table-*` value inside a `display: block`
+  table makes the browser generate an anonymous table box and every grid rule on `<tr>` dies
+  silently, at exactly the width no gate measures. `chrome-check.mjs` counts distinct cell tops at
+  360, at 560 and at 1440 for that reason — many at 360, exactly one at the other two.
+- **The clickable thing stays an empty overlay `<button>`** anchored on the `<tr>` by
+  `position: relative`. Wrapping the row in a button makes `aria-label` swallow every number in it
+  — already broken twice, see the docblock in `PortfolioScreen.tsx`. A Chrome assertion measures
+  the button's box against the row's.
+- **The detail row's `<td>` switches `display` with the table, and the two halves are one rule.**
+  In either _table_ shape it must stay `table-cell`: any other value makes the browser wrap it in
+  an anonymous cell with `colspan=1`, which silently throws away `colSpan={9}` — the expanded
+  content lands in column one, stretches it to the width of the button row, and shoves the other
+  columns right, but only on the open row, so the whole table jumps on every click. In the compact
+  shape it must become `block` for the mirror-image reason: the table itself is `display: block`
+  there, so a lone `table-cell` is a stray table fragment, the browser wraps it in an anonymous
+  table box, and that box **shrinks to fit** — the expanded block ends up only as wide as the
+  Sửa/Bỏ mã buttons, hard against the left edge, with half the card empty beside it. Both were live
+  bugs on 22/09/2026 and both now have a Chrome assertion. For the same family of reasons the table
+  is `table-layout: fixed` with per-column widths, `text-align` is keyed to the column position so
+  a `<th>` and its `<td>` cannot drift apart, and the action buttons are pushed right with
+  `margin-left: auto` (most holdings have neither buy date nor beta, so `space-between` with a
+  single child leaves them on the left).
+- **Nothing optional renders an empty shell.** The expanded block's `<dl>` is built only when the
+  holding actually has a buy date or a beta — an empty `<dl>` still eats a `gap` and still leaves
+  `.actions`' top divider ruling off a blank strip, which is the _common_ case since both fields are
+  optional. `.holdDetailInner > .actions:first-child` drops the divider to match. Same day, the
+  compact row's gain cell was pinned to `grid-row: 2 / span 2`: auto-placement had been dropping it
+  into row three (the cursor was already there after three stacked middle cells), leaving the right
+  half of row two blank and letting the percentage hang below the row — the hole in the middle of
+  the card the owner circled.
+- **A ticker with no market price shows `_ _` in all four dependent cells**, never `0`. The owner
+  chose that over repeating a sentence four times across one row; the reason and the way out live
+  on the block's title line, which now carries `NẮM GIỮ · N mã · giá phiên <date>` **and** the
+  refresh button — merged from the strip that used to sit above the list, because printing the
+  session date twice would make two sources of truth for it. `portfolio.priceMissing` was deleted
+  in that round (tombstone in `vi.ts`); the session-date pairing that `price-cache-store.ts`
+  depends on is unchanged. **That title line has two shapes of its own**: below 1024px it is a
+  two-column grid with the price strip on its own full-width row (`grid-column: 1 / -1`), above it
+  a flex row of three. It used to be nested flex boxes relying on wrapping, and at phone width the
+  price strip wrapped to a second line but kept its _content_ width — stopping mid-screen, forcing
+  "Làm mới" onto a third line inside itself, with "+ Thêm mã" left hanging. A grid track is a
+  promise about width; wrapping is only a measurement result.
+- **The add/edit form is a centred modal**, `BottomSheet` with `placement="center"` — 720px wide,
+  exactly half of the 1440 gate — and it only mounts while open, so its labelled fields cannot be
+  found while it is closed. The ticker and formula sheets open _on top_ of it, so any test looking
+  for "the sheet" must take the topmost `<dialog open>`, not the only one. The old
+  `scrollIntoView` effect went with it: a modal has no distance to scroll. Two things about it are
+  load-bearing rather than decorative. `.panelCenter` **must be declared after `.panel`** in
+  `BottomSheet.module.css`: both are single-class selectors, so file order is the only tiebreak,
+  and declaring it first let the bottom sheet's `border-radius: lg lg 0 0` win — square bottom
+  corners on a floating dialog. And the two sheet-opening `<button>`s in the form copy every
+  measurement from `Input.module.css` (label gap, label colour, 1.5px accent border, `--text-sm`,
+  44px control); when they were styled independently the left column sat lower than the right and
+  nothing in the grid lined up. Chrome assertions now measure the four corner radii, the six
+  control heights and the per-row tops. **The ticker and formula sheets this form opens are
+  centred too** — `placement="center"` is passed at the portfolio call sites only, because a
+  bottom sheet sliding up over a dialog that floats mid-screen reads as two unrelated layers. The
+  detail screen's ticker picker keeps the bottom sheet: it opens straight from the page, not from
+  a dialog. The formula field is labelled **"Thêm công thức"**, not "Tính công thức" — it only
+  attaches a formula, and the calculating happens after save, when the screen navigates. That
+  label now shares a prefix with the submit button ("Thêm và mở công thức"), so any test matching
+  it must anchor on "và mở".
+
+**"Tỷ trọng" means three different things in this product**, so the portfolio column has to say
+which one: a holding's share of total portfolio value (here), the equity and debt weights of
+`wacc`, and the smoothing factor `k` of `ema-n-phien`. They never share a screen, so nothing needs
+renaming — what was missing is the denominator, since a bare `6%` could plausibly be measured
+against market value or against cost. A line under the table says it (`portfolio.weightNote`), the
+same way `ConstantsNote` explains a block from its foot, because a column 10% of the width cannot
+carry a clause. A second sentence appears only when some holding has no price:
+`total` sums `row.value ?? 0`, so an unpriced holding drops out of the denominator and the
+remaining weights add up to 100% while the portfolio does not.
 
 ## Chart kinds
 

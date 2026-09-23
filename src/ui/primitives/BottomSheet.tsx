@@ -32,6 +32,19 @@ export interface BottomSheetProps {
    * `'auto'` — sheet ít dòng và không lọc được thì căng hết màn chỉ để lấy khoảng trắng.
    */
   size?: 'auto' | 'tall';
+  /**
+   * Chỗ tấm đứng trên màn — `'bottom'` (mặc định) dán đáy, `'center'` nổi giữa màn.
+   *
+   * Thêm 22/09/2026 cho form thêm/sửa mã của Danh mục: chủ dự án yêu cầu form ấy "bật popup mới
+   * lên giữa màn chiếm tầm 50% màn hình". Là một PROP chứ không phải một primitive thứ hai vì
+   * phần khó của cái vỏ này không nằm ở chỗ nó đứng đâu — nó nằm ở `<dialog>` gốc: bẫy tiêu
+   * điểm, phím Esc, `inert` cho phần trang phía sau, khoá cuộn nền, bấm ra ngoài thì đóng. Dựng
+   * lại chừng ấy thứ cho một tấm nổi giữa màn là gần như chắc chắn sót một ca tiếp cận.
+   *
+   * Dạng `'center'` giấu luôn vạch kéo: vạch ấy hứa "kéo xuống để đóng", một cử chỉ chỉ đúng với
+   * tấm dán đáy.
+   */
+  placement?: 'bottom' | 'center';
 }
 
 /**
@@ -53,9 +66,11 @@ export function BottomSheet({
   className,
   dismiss = 'close',
   size = 'auto',
+  placement = 'bottom',
 }: BottomSheetProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const centered = placement === 'center';
 
   useEffect(() => {
     const dialog = ref.current;
@@ -80,7 +95,9 @@ export function BottomSheet({
   return (
     <dialog
       ref={ref}
-      className={[styles.sheet, className].filter(Boolean).join(' ')}
+      className={[styles.sheet, centered ? styles.sheetCenter : null, className]
+        .filter(Boolean)
+        .join(' ')}
       aria-labelledby={titleId}
       // Phím Esc: <dialog> tự đóng rồi mới bắn 'cancel'. Chặn hành vi mặc định để trạng thái
       // `open` ở component cha luôn là nguồn sự thật, không bị lệch với DOM.
@@ -94,9 +111,17 @@ export function BottomSheet({
         if (event.target === ref.current) onClose();
       }}
     >
-      <div className={size === 'tall' ? `${styles.panel} ${styles.panelTall}` : styles.panel}>
+      <div
+        className={[
+          styles.panel,
+          size === 'tall' ? styles.panelTall : null,
+          centered ? styles.panelCenter : null,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
         <header className={styles.header}>
-          <div className={styles.grabber} aria-hidden="true" />
+          {!centered && <div className={styles.grabber} aria-hidden="true" />}
 
           {/*
             Nút thoát đứng TRƯỚC tiêu đề ở dạng 'back' và SAU ở dạng 'close' — thứ tự trong DOM

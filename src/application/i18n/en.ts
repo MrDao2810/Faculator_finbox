@@ -165,7 +165,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'stat.eyebrow': 'METRIC',
 
   'detail.loadPreset': 'Load sample',
-  'detail.preset': 'Loaded',
+  /* `detail.preset` bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'detail.jumpToExample': 'See the worked example ↓',
   /* `detail.fundamentalsSource` bỏ 14/09/2026 cùng `detail.tickerSticky` — xem `vi.ts`. */
   'detail.tickerLoading': 'fetching live data for this ticker…',
@@ -208,8 +208,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.pasteSeries': 'Paste a price series from Excel',
   'detail.loadExample': 'View illustrative example',
   'detail.exampleLoaded': 'Illustrative example loaded ✓',
-  'detail.exampleSeriesNote':
-    "This is a purpose-built illustrative series, not a real stock's price history.",
+  /* `detail.exampleSeriesNote` đã bỏ cùng bản tiếng Việt — câu ấy nói sai về số liệu thật đứng
+     cạnh nó; lý do đầy đủ ghi ở `FormulaDetail.tsx`. */
   'detail.exampleSeriesLabel': 'the illustrative example',
   /* `detail.applyToTable` / `detail.appliedToTable` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'detail.seriesLoaded': 'Price sessions loaded:',
@@ -217,9 +217,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'This ticker has a single price session — the live source provides no long history. This ' +
     'formula needs many sessions: paste a price series, or tap “Load sample” and pick one of ' +
     'the four sample tickers.',
-  'detail.draftMarketSeries':
-    'The VN-Index series used for comparison is still self-generated sample data, not the real ' +
-    'index — the number here is only for learning how to read it, not for a real decision.',
+  /* Rút gọn theo bản tiếng Việt (23/09/2026) — lý do đầy đủ ghi ở `vi.ts`. */
+  'detail.draftMarketSeries': 'These figures are illustrative only, not for real-world use.',
   'detail.openDataTable': 'Open the data table →',
   'detail.chart': 'Chart',
   'chart.sweepLabel': 'See how the result changes with',
@@ -288,7 +287,21 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.shares': 'sh',
   'portfolio.costPrice': 'avg cost',
   'portfolio.weight': 'weight',
-  'portfolio.add': 'Add a ticker',
+  /* Tiêu đề cột của bảng Nắm giữ — xem `vi.ts` để biết vì sao không dùng lại bốn khoá ngay trên. */
+  'portfolio.colCode': 'Ticker',
+  'portfolio.colName': 'Company',
+  'portfolio.colQuantity': 'Quantity',
+  'portfolio.colCostPrice': 'Avg cost',
+  'portfolio.colValue': 'Value',
+  'portfolio.colWeight': 'Weight',
+  /* Câu nói rõ MẪU SỐ của tỷ trọng — xem lý do ở `vi.ts`. */
+  'portfolio.weightNote':
+    'Weight is a holding’s share of total portfolio value, measured at market prices rather than at cost.',
+  'portfolio.weightPartial':
+    'Holdings with no market price yet are left out of the total, so weights are measured against the priced part of the portfolio.',
+  'portfolio.tableCaption': 'Tickers you hold',
+  'portfolio.tickerUnit': 'tickers',
+  'portfolio.add': 'Add ticker',
   'portfolio.remove': 'Remove',
   'portfolio.empty': 'Nothing here yet. Add your first ticker to see total value and weights.',
   /* `portfolio.localTag` và `portfolio.localOnly` đã xoá cùng lúc với bản Việt — xem docblock ở
@@ -317,7 +330,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.gain': 'Gain/loss',
 
   'portfolio.marketPrice': 'Market price',
-  'portfolio.priceMissing': 'no price yet',
+  /* `portfolio.priceMissing` ('no price yet') đã xoá cùng bản Việt — xem bia mộ ở `vi.ts`. */
   'portfolio.betaShort': 'beta',
   'portfolio.edit': 'Edit',
   'portfolio.details': 'Details',
@@ -335,16 +348,17 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
 
   /* Ghép ngay trước ngày phiên: "Prices as of 03/09/2026". */
-  'portfolio.priceSession': 'Prices as of',
+  /* Viết thường vì nay là mảnh giữa câu ở dòng tiêu đề khối — xem `vi.ts`. */
+  'portfolio.priceSession': 'prices as of',
   'portfolio.priceRefresh': 'Refresh',
   'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
   'portfolio.priceNone': 'No market price found for any ticker yet.',
-  'portfolio.formulas': 'Run a formula',
+  /* "Add", không phải "Run": ô này CHỌN công thức để đính kèm, việc tính xảy ra sau khi lưu. */
+  'portfolio.formulas': 'Add a formula',
   'portfolio.pickFormula': 'Pick a formula',
   /* `portfolio.formulaHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.pickCodeFirst': 'Pick a ticker first',
-  'portfolio.formulaNeedsCode':
-    'How many fields each formula can fill depends on the ticker, so pick one first. Tap here to choose it.',
+  /* `portfolio.formulaNeedsCode` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
   'portfolio.formulaClear': 'Clear the formula',
   'portfolio.formSubmitOpen': 'Add and open the formula',
   'portfolio.formSaveOpen': 'Save and open the formula',
@@ -362,7 +376,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.savedNeedsSeries': 'Needs price series',
 
   'ticker.title': 'Pick a ticker',
-  'ticker.subtitle': 'Every tradable ticker, from Finbox',
+  /* `ticker.subtitle` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.searchLabel': 'Search by code or company name',
   'ticker.searchPlaceholder': 'FPT, Hoa Phat…',
   'ticker.pick': 'Pick',
@@ -444,24 +458,45 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'xirr.usable': 'usable cash flows',
 
   'paste.title': 'Paste data',
-  'paste.subtitle': 'OHLC price series pasted straight from Excel or a CSV file',
-  'paste.areaLabel': 'Paste your data here',
-  'paste.placeholder': '15/07\t25.10\t25.60\t24.90\t25.40',
-  'paste.assignColumns': 'Assign columns',
+  'paste.subtitle': 'Type into the grid, or paste from Excel with Ctrl + V',
+  'paste.sample': 'Sample data',
+  'paste.loadCsv': 'Load a CSV file',
+  'paste.columnsBtn': 'Columns',
+  'paste.clear': 'Clear all',
+  'paste.viewing': 'Showing row',
+  'paste.inTotal': 'of',
+  'paste.badRows': 'bad row(s)',
+  'paste.seeBad': 'Show',
+  'paste.skipBad': 'Skip',
+  'paste.emptyCell': '– –',
+  'paste.gridCaption':
+    'Price series grid: one session per row, the head of each column says what that column is',
+  'paste.rowNo': 'Row',
+  // Ví dụ giữ nguyên quy ước số Việt Nam ở cả hai bản — đây là hình dạng dữ liệu người dùng dán.
+  'paste.egDate': '15/07/2026',
+  'paste.egPrice': '25,4',
+  'paste.egVolume': '1.000.000',
   'paste.column': 'Column',
   'paste.col.date': 'Date',
-  'paste.col.open': 'Open',
-  'paste.col.high': 'High',
-  'paste.col.low': 'Low',
-  'paste.col.close': 'Close',
-  'paste.col.volume': 'Vol',
-  'paste.col.ignore': 'Skip',
-  'paste.previewLabel': 'Preview',
-  'paste.previewCaption': 'First few sessions parsed from the pasted data',
-  'paste.previewMore': 'more row(s) not shown here, but they will still be imported.',
-  'paste.validRows': 'valid row(s), ready to import',
+  'paste.col.open': 'Open price',
+  'paste.col.high': 'High price',
+  'paste.col.low': 'Low price',
+  'paste.col.close': 'Close price',
+  'paste.col.volume': 'Volume',
+  'paste.col.ignore': 'Unused',
+  'paste.validRows': 'session(s) read',
+  'paste.rangeFrom': 'from',
+  'paste.rangeTo': 'to',
+  'paste.needClose':
+    'No column is set as Close price. Tap a column name at the head of the grid and pick it.',
+  'paste.reordered':
+    'The data is newest first. It has been flipped so the series runs oldest to newest.',
+  'paste.orderUnknown':
+    'The session order could not be read. Make sure the oldest session is at the top, or the result will be wrong.',
+  'paste.styleAsk': 'How should this number be read?',
+  'paste.preamble': 'Dropped the leading lines that are not data:',
   'paste.skippedRows': 'row(s) skipped',
-  'paste.truncated': 'Trimmed the part above the cap:',
+  'paste.truncated': 'Only the most recent part is kept, dropped:',
   'paste.rows': 'row(s)',
   'paste.cancel': 'Cancel',
   'paste.import': 'Import',

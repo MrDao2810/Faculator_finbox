@@ -460,6 +460,15 @@
    * làm một nút thường nổi hơn cả khối Kết quả.
    */
   --shadow-sm: 0 1px 2px rgba(26, 34, 51, 0.08);
+  /*
+   * Lớp nâng của HỘP THOẠI nổi giữa màn (`BottomSheet placement="center"`), thêm 22/09/2026.
+   *
+   * Không dùng lại `--shadow-sm`: tấm dán đáy tựa vào mép màn hình nên một nét 1px là đủ, còn
+   * tấm nổi giữa trang thì không tựa vào đâu cả — thiếu bóng, nó đọc ra như một khối nằm CÙNG
+   * mặt phẳng với nội dung phía sau, dù đã có nền mờ. Hai tầng bóng chứ không một: tầng ngắn vẽ
+   * mép, tầng dài vẽ độ cao.
+   */
+  --shadow-modal: 0 2px 8px rgba(26, 34, 51, 0.08), 0 24px 48px rgba(26, 34, 51, 0.18);
 
   /* ── Trạng thái focus — bắt buộc thấy rõ, không được tắt (NFR-USA-06) ── */
   --focus-width: 3px;
@@ -719,6 +728,7 @@
    * Bóng trên nền tối cần đậm hơn hẳn: nền càng tối thì một mảng đen mờ càng khó thấy.
    */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 2px 8px rgba(0, 0, 0, 0.5), 0 24px 48px rgba(0, 0, 0, 0.6);
   --focus-ring: 0 0 0 var(--focus-width) rgba(138, 180, 248, 0.4);
 }
 

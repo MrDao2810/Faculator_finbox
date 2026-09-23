@@ -6,7 +6,9 @@ import {
   closeSeries,
   detectDelimiter,
   guessColumns,
+  parseCells,
   parsePaste,
+  splitPasteTable,
   summarizeSkipped,
   type ColumnKind,
 } from './paste-import';
@@ -262,8 +264,8 @@ describe('parsePaste() — người dùng tự gán lại cột', () => {
 describe('summarizeSkipped()', () => {
   it('dựng đúng câu của WF-11', () => {
     const lines = summarizeSkipped([
-      { line: 41, reason: 'thiếu cột giá đóng cửa', raw: '' },
-      { line: 58, reason: 'thiếu cột giá đóng cửa', raw: '' },
+      { line: 41, reason: 'thiếu cột giá đóng cửa', short: 'thiếu giá đóng cửa', raw: '' },
+      { line: 58, reason: 'thiếu cột giá đóng cửa', short: 'thiếu giá đóng cửa', raw: '' },
     ]);
 
     expect(lines).toEqual(['thiếu cột giá đóng cửa (dòng 41, 58)']);
@@ -271,8 +273,8 @@ describe('summarizeSkipped()', () => {
 
   it('gộp theo lý do, mỗi lý do một dòng', () => {
     const lines = summarizeSkipped([
-      { line: 3, reason: 'thiếu ngày', raw: '' },
-      { line: 41, reason: 'thiếu cột giá đóng cửa', raw: '' },
+      { line: 3, reason: 'thiếu ngày', short: 'thiếu ngày', raw: '' },
+      { line: 41, reason: 'thiếu cột giá đóng cửa', short: 'thiếu giá đóng cửa', raw: '' },
     ]);
 
     expect(lines).toHaveLength(2);
@@ -282,6 +284,7 @@ describe('summarizeSkipped()', () => {
     const many = Array.from({ length: 10 }, (_, i) => ({
       line: i + 1,
       reason: 'thiếu ngày',
+      short: 'thiếu ngày',
       raw: '',
     }));
 
@@ -296,5 +299,272 @@ describe('summarizeSkipped()', () => {
 describe('closeSeries()', () => {
   it('lấy đúng chuỗi giá đóng cửa cho Beta, Sharpe, MaxDD (FR-12)', () => {
     expect(closeSeries(parsePaste(WF11))).toEqual([25.4, 25.7, 25.3]);
+  });
+});
+
+/*
+ * ── Đợt 22/09/2026: chặn bốn lỗi "ra số sai mà không báo" ───────────────────────────────
+ *
+ * Cả bốn đều đã tái hiện được bằng mã thật trước khi sửa: không dòng nào bị bỏ qua, không
+ * cảnh báo nào nổ, và con số đưa vào công thức thì sai. Mỗi ca dưới đây ghim đúng một lỗi.
+ */
+describe('parsePaste() — quy ước số Việt Nam và quốc tế', () => {
+  it('một cột giá kiểu Việt không bị cắt đôi ở dấu phẩy thập phân', () => {
+    // Trước khi sửa: detectDelimiter chọn ',', giá 25,40 thành hai ô và cột cuối '40' làm giá.
+    expect(detectDelimiter('25,40\n25,70')).toBe('\t');
+    expect(closeSeries(parsePaste('25,40\n25,70\n24,90'))).toEqual([25.4, 25.7, 24.9]);
+  });
+
+  it('CSV dấu phẩy mà số cũng dùng phẩy thập phân: ghép lại chứ không đọc 25,40 thành 40', () => {
+    const result = parsePaste('15/07,25,40\n16/07,25,70');
+
+    expect(result.columns).toEqual(['date', 'close']);
+    expect(closeSeries(result)).toEqual([25.4, 25.7]);
+    expect(result.skipped).toEqual([]);
+  });
+
+  it('phẩy ngăn nghìn kiểu Anh: 25,100 là hai mươi lăm nghìn một trăm, và nói rõ là phỏng đoán', () => {
+    const result = parsePaste('Date\tClose\n15/07/2025\t25,100\n16/07/2025\t25,400');
+
+    expect(result.numberStyle).toBe('en');
+    expect(result.numberStyleGuessed).toBe(true);
+    expect(closeSeries(result)).toEqual([25100, 25400]);
+  });
+
+  it('người dùng chốt lại cách đọc thì bộ đọc theo, không đoán nữa', () => {
+    const result = parsePaste(
+      'Date\tClose\n15/07/2025\t25,100\n16/07/2025\t25,400',
+      undefined,
+      'vi',
+    );
+
+    expect(result.numberStyleGuessed).toBe(false);
+    expect(closeSeries(result)).toEqual([25.1, 25.4]);
+  });
+
+  it('chấm ngăn nghìn kiểu Việt: 25.100 cũng là hai mươi lăm nghìn một trăm', () => {
+    expect(closeSeries(parsePaste('Ngày\tĐóng\n15/07/2025\t25.100'))).toEqual([25100]);
+  });
+
+  it('ô có cả chấm lẫn phẩy thì dấu đứng SAU là thập phân, không phải đoán', () => {
+    const anh = parsePaste('Ngày\tĐóng\n15/07/2025\t1,234.56');
+    expect(anh.numberStyleGuessed).toBe(false);
+    expect(closeSeries(anh)).toEqual([1234.56]);
+
+    const viet = parsePaste('Ngày\tĐóng\n15/07/2025\t1.234,56');
+    expect(closeSeries(viet)).toEqual([1234.56]);
+  });
+
+  it('bỏ được đơn vị tiền và đọc ngoặc kế toán thành số âm', () => {
+    const result = parsePaste('Ngày\tĐóng\n15/07/2025\t25,40 ₫\n16/07/2025\t(25,70)');
+
+    expect(closeSeries(result)).toEqual([25.4]);
+    expect(result.skipped[0]?.reason).toContain('lớn hơn 0');
+  });
+});
+
+describe('parsePaste() — chiều thời gian', () => {
+  const CU_TRUOC = '15/07/2026\t25,40\n16/07/2026\t25,70\n17/07/2026\t25,30';
+  const MOI_TRUOC = '17/07/2026\t25,30\n16/07/2026\t25,70\n15/07/2026\t25,40';
+
+  it('chuỗi xếp cũ trước thì giữ nguyên', () => {
+    const result = parsePaste(CU_TRUOC);
+
+    expect(result.order).toBe('oldest-first');
+    expect(result.reordered).toBe(false);
+    expect(closeSeries(result)).toEqual([25.4, 25.7, 25.3]);
+  });
+
+  it('chuỗi xếp mới trước — kiểu CafeF, Vietstock, investing.com — được đảo lại', () => {
+    const result = parsePaste(MOI_TRUOC);
+
+    expect(result.order).toBe('newest-first');
+    expect(result.reordered).toBe(true);
+    // `CalcContext.series` đòi phiên CŨ trước phiên MỚI. Đảo sai làm Sharpe đổi dấu.
+    expect(closeSeries(result)).toEqual([25.4, 25.7, 25.3]);
+  });
+
+  it('không đọc được ngày thì KHÔNG tự sắp, và nói là không biết thứ tự', () => {
+    const result = parsePaste('25,40\n25,70\n25,30');
+
+    expect(result.order).toBe('unknown');
+    expect(result.reordered).toBe(false);
+    expect(closeSeries(result)).toEqual([25.4, 25.7, 25.3]);
+  });
+
+  it('ngày lộn xộn cũng là không biết thứ tự, thà nói không biết còn hơn sắp sai', () => {
+    expect(parsePaste('16/07/2026\t25,70\n15/07/2026\t25,40\n17/07/2026\t25,30').order).toBe(
+      'unknown',
+    );
+  });
+});
+
+describe('parsePaste() — phần đầu file không phải dữ liệu', () => {
+  it('bỏ dòng ghi chú # của chính bản xuất CSV, cột không bị lệch', () => {
+    const result = parsePaste('# Faculator Finbox\nNgày,Đóng\n15/07/2026,25.4\n16/07/2026,25.7');
+
+    expect(result.preamble).toBe(1);
+    expect(result.columns).toEqual(['date', 'close']);
+    expect(closeSeries(result)).toEqual([25.4, 25.7]);
+  });
+
+  it('bỏ dấu BOM ở đầu file', () => {
+    expect(closeSeries(parsePaste('﻿15/07/2026\t25,40'))).toEqual([25.4]);
+  });
+});
+
+describe('guessColumns() — cột khối lượng', () => {
+  it('bảng Ngày · Giá · Khối lượng không gán khối lượng thành giá đóng cửa', () => {
+    const result = parsePaste('15/07/2026\t25,40\t1250000\n16/07/2026\t25,70\t980000');
+
+    expect(result.columns).toEqual(['date', 'close', 'volume']);
+    expect(closeSeries(result)).toEqual([25.4, 25.7]);
+    expect(result.rows[0]?.volume).toBe(1250000);
+  });
+
+  it('bảng Ngày · Giá hai cột vẫn lấy cột cuối làm giá đóng cửa', () => {
+    expect(parsePaste('15/07/2026\t25,40\n16/07/2026\t25,70').columns).toEqual(['date', 'close']);
+  });
+});
+
+/*
+ * ── Lối vào thứ hai: lưới nhập ──────────────────────────────────────────────────────────
+ *
+ * Từ 22/09/2026 giao diện WF-11 không còn ô văn bản tự do, nên `parsePaste()` không còn là lối
+ * vào duy nhất. `splitPasteTable()` lo nửa cắt ô để đổ vào lưới, `parseCells()` lo nửa đọc số
+ * từ chính lưới ấy. Điều phải giữ: hai lối vào cho ra CÙNG kết quả trên cùng dữ liệu — nếu
+ * lệch thì bốn cơ chế chặn số sai chỉ còn chạy ở một nửa sản phẩm.
+ */
+describe('splitPasteTable()', () => {
+  it('cắt ô và đoán cột, chưa đọc số nào', () => {
+    const table = splitPasteTable(WF11);
+
+    expect(table.cells).toHaveLength(3);
+    expect(table.cells[0]).toEqual(['15/07', '25.10', '25.60', '24.90', '25.40']);
+    expect(table.columns).toEqual(['date', 'open', 'high', 'low', 'close']);
+  });
+
+  it('bỏ dòng tiêu đề khỏi phần thân nhưng vẫn dùng nó để đặt tên cột', () => {
+    const table = splitPasteTable('Ngày,Đóng\n15/07/2026,25.4\n16/07/2026,25.7');
+
+    expect(table.hasHeader).toBe(true);
+    expect(table.columns).toEqual(['date', 'close']);
+    expect(table.cells).toEqual([
+      ['15/07/2026', '25.4'],
+      ['16/07/2026', '25.7'],
+    ]);
+  });
+
+  it('giữ nguyên dòng hỏng — lưới phải bày nó ra thì người dùng mới sửa được', () => {
+    expect(splitPasteTable('15/07\t25,40\n16/07\tn/a').cells).toHaveLength(2);
+  });
+
+  it('bỏ dòng ghi chú # của chính bản xuất CSV và đếm lại', () => {
+    const table = splitPasteTable('# Faculator Finbox\nNgày,Đóng\n15/07/2026,25.4');
+
+    expect(table.preamble).toBe(1);
+    expect(table.cells).toEqual([['15/07/2026', '25.4']]);
+  });
+});
+
+describe('parseCells()', () => {
+  const OHLC: ReadonlyArray<ColumnKind> = ['date', 'open', 'high', 'low', 'close'];
+
+  it('cho cùng kết quả với parsePaste trên cùng dữ liệu', () => {
+    const viaText = parsePaste(WF11);
+    const viaGrid = parseCells(splitPasteTable(WF11).cells, OHLC);
+
+    expect(viaGrid.rows).toEqual(viaText.rows);
+    expect(viaGrid.numberStyle).toBe(viaText.numberStyle);
+    expect(viaGrid.order).toBe(viaText.order);
+  });
+
+  /*
+   * Lưới luôn chừa dòng trống ở cuối để gõ tiếp. Tính nó là dòng hỏng thì mọi lần dán xong đều
+   * kèm một cảnh báo rỗng, và cảnh báo rỗng dạy người dùng bỏ qua cảnh báo thật.
+   */
+  it('dòng trống hoàn toàn không phải dòng bỏ qua', () => {
+    const result = parseCells(
+      [
+        ['15/07/2026', '25,4'],
+        ['', ''],
+        ['   ', ''],
+      ],
+      ['date', 'close'],
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.skipped).toEqual([]);
+  });
+
+  it('số dòng trong lời báo lỗi đếm theo đúng dòng trên lưới', () => {
+    const result = parseCells(
+      [
+        ['15/07/2026', '25,4'],
+        ['16/07/2026', 'n/a'],
+        ['17/07/2026', '25,3'],
+      ],
+      ['date', 'close'],
+    );
+
+    expect(result.skipped.map((row) => row.line)).toEqual([2]);
+  });
+
+  it('vẫn lật chuỗi xếp phiên mới trước — cơ chế chặn số sai chạy cho cả lối gõ tay', () => {
+    const result = parseCells(
+      [
+        ['17/07/2026', '25,3'],
+        ['16/07/2026', '25,7'],
+        ['15/07/2026', '25,4'],
+      ],
+      ['date', 'close'],
+    );
+
+    expect(result.reordered).toBe(true);
+    expect(closeSeries(result)).toEqual([25.4, 25.7, 25.3]);
+  });
+
+  it('vẫn quyết quy ước số theo CẢ lưới, và nói ra khi phải đoán', () => {
+    const cells = [
+      ['15/07/2026', '25,100'],
+      ['16/07/2026', '25,400'],
+    ];
+
+    const guessed = parseCells(cells, ['date', 'close']);
+    expect(guessed.numberStyle).toBe('en');
+    expect(guessed.numberStyleGuessed).toBe(true);
+    expect(closeSeries(guessed)).toEqual([25100, 25400]);
+
+    // Người dùng chốt lại thì đọc theo họ, và không hỏi nữa.
+    const chosen = parseCells(cells, ['date', 'close'], 'vi');
+    expect(chosen.numberStyleGuessed).toBe(false);
+    expect(closeSeries(chosen)).toEqual([25.1, 25.4]);
+  });
+
+  it('không có cột ngày thì nói thẳng là không biết thứ tự', () => {
+    expect(parseCells([['25,4'], ['25,7']], ['close']).order).toBe('unknown');
+  });
+
+  it('lưới rỗng cho kết quả rỗng, không ném lỗi', () => {
+    const result = parseCells([['', '']], ['date', 'close']);
+
+    expect(result.rows).toEqual([]);
+    expect(result.skipped).toEqual([]);
+  });
+});
+
+/*
+ * Bộ đoán tiêu đề phải nhận ra CHÍNH nhãn cột sản phẩm in ra.
+ *
+ * Ngày 22/09/2026 nó không nhận: nhãn đổi sang viết đủ chữ ("Giá cao nhất") mà từ vựng vẫn chỉ
+ * có "cao nhat", nên nạp lại đúng bảng mình vừa xuất thì hai cột Cao và Thấp rơi vào "Không
+ * dùng" mà không báo gì. Ca kiểm này quét cả sáu nhãn, nên nhãn nào đổi sau này cũng bị bắt.
+ */
+describe('guessColumns() — nhãn cột của chính sản phẩm', () => {
+  it('mọi nhãn trong COLUMN_LABELS đều được nhận lại đúng vai trò', () => {
+    const kinds: ReadonlyArray<ColumnKind> = ['date', 'open', 'high', 'low', 'close', 'volume'];
+    const header = kinds.map((kind) => COLUMN_LABELS[kind]).join('\t');
+
+    expect(splitPasteTable(`${header}\n15/07/2026\t1\t2\t0,5\t1,5\t1000`).columns).toEqual(kinds);
   });
 });

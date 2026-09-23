@@ -150,13 +150,13 @@ function Man({ spec }: { spec: FormulaSpec }) {
  * Từ 14/09/2026 thanh không còn câu chữ nào, nên dò theo chữ cũng không còn là lối vào được.
  */
 function thanhMa(): HTMLElement | null {
-  const nut = screen.queryByRole('button', { name: t('detail.tickerChange') });
+  const nut = screen.queryByRole('button', { name: new RegExp(t('detail.tickerChange')) });
   return nut === null ? null : nut.closest('p');
 }
 
 /** Như `thanhMa()` nhưng CHỜ thanh hiện ra — dùng sau một lượt nạp không đồng bộ. */
 async function thanhMaHienRa(): Promise<HTMLElement> {
-  const nut = await screen.findByRole('button', { name: t('detail.tickerChange') });
+  const nut = await screen.findByRole('button', { name: new RegExp(t('detail.tickerChange')) });
   const bar = nut.closest('p');
   if (bar === null) throw new Error('Nút “Đổi mã” không nằm trong thanh mã nào.');
   return bar;
@@ -583,8 +583,11 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
    * nằm sẵn trong `ctx.marketSeries`, người dùng không bấm "Nạp mẫu" lần nào, nên trước đợt này
    * không có MỘT dấu hiệu nào trên màn cho biết vế thị trường là số bịa. Đó là ca FR-06 rõ nhất
    * còn lại: một con số sai trông hoàn toàn hợp lệ.
+   *
+   * Từ 23/09/2026 câu cảnh báo thôi gọi tên chuỗi VN-Index — chủ dự án rút nó về một câu ai đọc
+   * cũng hiểu (xem `vi.ts`). Ca kiểm này vẫn ghim đúng điều cũ: có cảnh báo hay không, và ở đâu.
    */
-  it('công thức hồi quy với VN-Index nói rõ chuỗi chỉ số đang là số tự dựng (FR-06)', () => {
+  it('công thức hồi quy với VN-Index có câu cảnh báo số liệu chỉ để minh hoạ (FR-06)', () => {
     render(<Man spec={specOf('beta')} />);
 
     const khoi = screen.getByRole('region', { name: t('detail.inputs') });
@@ -593,6 +596,22 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
 
   it('công thức không đụng chuỗi chỉ số thì không mang dòng ấy — P/E phải sạch', () => {
     render(<Man spec={specOf('pe')} />);
+    expect(screen.queryByText(t('detail.draftMarketSeries'))).toBeNull();
+  });
+
+  /*
+   * Ca chủ dự án chụp màn lại ngày 22/09/2026: đang xem ví dụ minh hoạ của Beta mà màn vẫn kêu
+   * "chuỗi VN-Index là số tự dựng". Sai — ví dụ ấy nạp kèm `marketSeries` của riêng nó
+   * (`VNINDEX_71_PHIEN`, số liệu THẬT, đã đối chiếu với CafeF), tức con số đang bày không dính
+   * gì tới chuỗi PRNG mà câu kia nói về. Câu cảnh báo bật sai chỗ thì lần sau nó bật đúng chỗ
+   * cũng không ai đọc.
+   */
+  it('đang chạy trên chuỗi chỉ số THẬT của ví dụ thì không còn cảnh báo số tự dựng', async () => {
+    render(<Man spec={specOf('beta')} />);
+    expect(screen.getByText(t('detail.draftMarketSeries'))).not.toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+
     expect(screen.queryByText(t('detail.draftMarketSeries'))).toBeNull();
   });
 
@@ -723,7 +742,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     render(<Man spec={specOf('pe')} />);
 
     // Nút đổi nhãn y như khi bấm "Nạp mẫu" — cùng một đường `applyPreset()`.
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     // Chờ xong rồi mới soi lời gọi: phần gọi mạng nằm sau `await import()` nên nó KHÔNG xảy ra
     // ngay trong lượt render đầu.
     expect(feed.snapshots.mock.calls[0]?.[0]).toEqual(['FPT']);
@@ -807,7 +826,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 
     expect(screen.getByTestId('result-text').textContent).not.toBe(before);
     // Nút đổi nhãn để người dùng biết đang xem số liệu của mã nào.
-    expect(screen.getByRole('button', { name: new RegExp(`Đã nạp ${maVuaNap}`) })).not.toBeNull();
+    expect(screen.getByRole('button', { name: new RegExp(`Đổi mã ${maVuaNap}`) })).not.toBeNull();
   });
 
   /*
@@ -832,7 +851,9 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     const bar = await thanhMaHienRa();
     expect(bar.textContent).toContain(maVuaNap);
     // Và lối thoát thứ hai phải đi cùng mã, không thì người dùng kẹt với số của một mã họ không chọn.
-    expect(within(bar).getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
+    expect(
+      within(bar).getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
+    ).not.toBeNull();
   });
 
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
@@ -960,9 +981,9 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
 
     expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
-    // Nhãn nút đổi để người dùng biết mình vừa nạp gì, và ghi chú nói rõ đây KHÔNG phải số thật.
+    // Nhãn nút đổi để người dùng biết mình vừa nạp gì. Ghi chú "đây không phải số thật" đã GỠ
+    // ngày 22/09/2026 — chuỗi ví dụ là số liệu thật, xem `FormulaDetail.tsx`.
     expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
-    expect(screen.getByText(t('detail.exampleSeriesNote'))).not.toBeNull();
     // Đây không phải một bộ mẫu công ty — nút "Nạp mẫu" ở đầu trang vẫn phải đứng nguyên nhãn cũ.
     expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
     /*
@@ -1218,6 +1239,45 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
   });
 
   /*
+   * ── Con chip mã, 22/09/2026 ───────────────────────────────────────────────────────────
+   *
+   * Nạp xong một mã, màn từng mọc thêm hai thứ: nhãn nút dài ra thành "Đã nạp GVR", VÀ một thanh
+   * riêng dưới khối công thức mang huy hiệu mã cộng hai nút. Chủ dự án vẽ lại thành một con chip
+   * hai nửa đứng đúng chỗ nút "Nạp mẫu" từng đứng.
+   *
+   * Ca này gác ba điều cùng lúc, vì bỏ sót điều nào thì cái cũ lặng lẽ quay lại: chip Ở ĐÚNG hàng
+   * tiêu đề, nút "Nạp mẫu" KHÔNG còn đứng song song với nó, và cả màn chỉ có MỘT chỗ mang mã.
+   */
+  it('nạp mã xong thì nút Nạp mẫu thành con chip, đứng đúng chỗ cũ và chỉ một chỗ', async () => {
+    seedActiveTicker();
+    render(<Man spec={specOf('pe')} />);
+
+    const doiMa = await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    const jump = screen.getByRole('button', { name: t('detail.jumpToExample') });
+    const tieuDe = within(jump.closest('section') as HTMLElement).getByRole('heading', {
+      level: 2,
+    });
+
+    // `.blockHead` ← `.actions` ← chip ← nút. Sâu hơn hai nút kia đúng một bậc: chính con chip.
+    expect(doiMa.parentElement?.parentElement?.parentElement).toBe(tieuDe.parentElement);
+    expect(screen.queryByRole('button', { name: t('detail.loadPreset') })).toBeNull();
+    expect(screen.getAllByRole('button', { name: /Đổi mã/ })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /Bỏ mã/ })).toHaveLength(1);
+  });
+
+  /* Nửa phải là dấu × — bấm vào là bỏ mã, không phải mở gì ra. */
+  it('bấm dấu × trên chip thì bỏ mã, chip trở lại thành nút Nạp mẫu', async () => {
+    seedActiveTicker();
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    await userEvent.click(screen.getByRole('button', { name: /Bỏ mã FPT/ }));
+
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+  });
+
+  /*
    * Dòng mô tả một câu dưới tên công thức đã bỏ hẳn: nó trả lời đúng câu hỏi mà khối "Ý nghĩa"
    * ngay dưới đang trả lời kỹ hơn, và bản thân `description` là chữ viết cho THẺ công thức ở màn
    * danh sách — vào được màn này tức vừa bấm đúng cái thẻ ấy.
@@ -1362,7 +1422,7 @@ describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => 
     napHpg(CHIN_PHIEN);
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    await screen.findByRole('button', { name: /Đổi mã HPG/ });
 
     const figure = await screen.findByRole('figure');
     expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
@@ -1380,7 +1440,7 @@ describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => 
     napHpg([]);
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    await screen.findByRole('button', { name: /Đổi mã HPG/ });
 
     await screen.findByRole('figure');
     expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
@@ -1393,7 +1453,7 @@ describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => 
     window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    await screen.findByRole('button', { name: /Đổi mã HPG/ });
 
     expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
   });
@@ -1792,10 +1852,10 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
 
     expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
     expect(thanhMa()).toBeNull();
-    expect(screen.queryByRole('button', { name: t('detail.tickerChange') })).toBeNull();
-    expect(screen.queryByRole('button', { name: t('detail.tickerClear') })).toBeNull();
+    expect(screen.queryByRole('button', { name: new RegExp(t('detail.tickerChange')) })).toBeNull();
+    expect(screen.queryByRole('button', { name: new RegExp(t('detail.tickerClear')) })).toBeNull();
     // Và vẫn không được khoe "đã nạp" — không một giá trị nào đổi.
-    expect(screen.queryByRole('button', { name: /Đã nạp/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
   });
 
   /*
@@ -1811,10 +1871,14 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     cleanup();
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
 
-    expect(screen.getByRole('button', { name: t('detail.tickerChange') })).not.toBeNull();
-    expect(screen.getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: new RegExp(t('detail.tickerChange')) }),
+    ).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
+    ).not.toBeNull();
   });
 
   /*
@@ -1832,7 +1896,9 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     render(<Man spec={specOf('phi-giao-dich-ban')} />);
 
     expect(await screen.findByText(new RegExp(t('detail.presetNoData')))).not.toBeNull();
-    expect(screen.getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
+    ).not.toBeNull();
   });
 
   it('mẫu điền TRỌN thì vẫn nạp như cũ, không có câu báo nào', async () => {
@@ -2420,7 +2486,7 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
 
     render(<Man spec={specOf('pb')} />);
 
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     // Đây là điểm mấu chốt: preset đã cất từ lượt tra đầu tiên, cả lượt duyệt chỉ tốn một request.
     expect(feed.snapshots).not.toHaveBeenCalled();
   });
@@ -2436,7 +2502,9 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
      */
     const bar = await thanhMaHienRa();
     expect(bar.textContent).toContain('FPT');
-    expect(within(bar).getByRole('button', { name: t('detail.tickerClear') })).not.toBeNull();
+    expect(
+      within(bar).getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
+    ).not.toBeNull();
   });
 
   it('nạp mẫu ở một công thức thì ghi mã vào kho phiên cho công thức sau', async () => {
@@ -2456,16 +2524,18 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
     seedActiveTicker();
     render(<Man spec={specOf('pe')} />);
 
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     const filled = (oNhap(/Giá thị trường/) as HTMLInputElement).value;
     expect(filled).toBe('71.400');
 
-    await userEvent.click(screen.getByRole('button', { name: t('detail.tickerClear') }));
+    await userEvent.click(
+      screen.getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
+    );
 
     expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).toBeNull();
     // Chỉ xoá kho mà để nguyên số trên màn là bày một bộ số người dùng vừa nói là không muốn nữa.
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
-    expect(screen.queryByRole('button', { name: t('detail.tickerClear') })).toBeNull();
+    expect(screen.queryByRole('button', { name: new RegExp(t('detail.tickerClear')) })).toBeNull();
   });
 
   /* `?ma=` là ý định vừa nói ra, còn kho phiên là ý định của lượt trước — cái mới thắng. */
@@ -2478,7 +2548,7 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
 
     render(<Man spec={specOf('pe')} />);
 
-    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    await screen.findByRole('button', { name: /Đổi mã HPG/ });
     expect(feed.snapshots.mock.calls[0]?.[0]).toEqual(['HPG']);
   });
 
@@ -2584,13 +2654,13 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
       lên là một bất ngờ. Mũi tên ‹ bên trái nói trước điều sắp xảy ra.
     */
     await userEvent.click(
-      within(sheetChua(t('ticker.subtitle'))).getByRole('button', {
+      within(sheetChua(t('ticker.title'))).getByRole('button', {
         name: 'Quay lại',
       }),
     );
 
     expect(sheetChua(t('preset.title')).open).toBe(true);
-    expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
+    expect(sheetChua(t('ticker.title')).open).toBe(false);
   });
 
   it('vào từ nút "Đổi mã" thì nút thoát vẫn là Đóng — ở đó đóng là thoát hẳn', async () => {
@@ -2599,9 +2669,11 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
 
     render(<Man spec={specOf('pe')} />);
 
-    await userEvent.click(await screen.findByRole('button', { name: t('detail.tickerChange') }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: new RegExp(t('detail.tickerChange')) }),
+    );
 
-    const sheet = within(sheetChua(t('ticker.subtitle')));
+    const sheet = within(sheetChua(t('ticker.title')));
     expect(sheet.queryByRole('button', { name: 'Quay lại' })).toBeNull();
     expect(sheet.getByRole('button', { name: 'Đóng' })).not.toBeNull();
   });
@@ -2618,8 +2690,8 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
     await userEvent.click(await screen.findByRole('button', { name: t('ticker.pick') }));
 
-    await screen.findByRole('button', { name: /Đã nạp SHB/ });
-    expect(sheetChua(t('ticker.subtitle')).open).toBe(false);
+    await screen.findByRole('button', { name: /Đổi mã SHB/ });
+    expect(sheetChua(t('ticker.title')).open).toBe(false);
     expect(sheetChua(t('preset.title')).open).toBe(false);
   });
 
@@ -2731,12 +2803,12 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
     window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     // Mã vừa nạp điền 71.400; người dùng sửa tay thành 77.777 rồi rời màn.
     await goRoiRoiMan('77777');
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('77.777');
   });
 
@@ -2745,7 +2817,7 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
     window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     await goRoiRoiMan('77777');
 
     feed.snapshots.mockResolvedValue(
@@ -2754,7 +2826,7 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
     window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đã nạp HPG/ });
+    await screen.findByRole('button', { name: /Đổi mã HPG/ });
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('28.500');
   });
 
@@ -2792,12 +2864,14 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
     seedActiveTicker();
     render(<Man spec={specOf('pe')} />);
 
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     await userEvent.clear(oNhap(/Giá thị trường/));
     await userEvent.type(oNhap(/Giá thị trường/), '77777');
     fireEvent.blur(oNhap(/Giá thị trường/));
 
-    await userEvent.click(screen.getByRole('button', { name: t('detail.tickerClear') }));
+    await userEvent.click(
+      screen.getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
+    );
     cleanup();
     window.sessionStorage.clear();
 
@@ -2850,8 +2924,9 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
 
     render(<Man spec={specOf('ty-so-sharpe')} />);
     expect(screen.getByTestId('result-text').textContent).toBe(truocKhiRoi);
-    // Ghi chú "đây là chuỗi minh hoạ, không phải số thật" phải theo đúng dữ liệu được khôi phục.
-    expect(screen.getByText(t('detail.exampleSeriesNote'))).not.toBeNull();
+    // Trạng thái "đang dùng ví dụ minh hoạ" phải theo đúng dữ liệu được khôi phục — đọc ở nhãn
+    // nút, vì ghi chú cũ đã gỡ (chuỗi ví dụ là số liệu thật).
+    expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
   });
 
   /*
@@ -2908,14 +2983,14 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
     window.history.replaceState({}, '', '/cong-thuc/ty-so-sharpe/?ma=FPT');
 
     render(<Man spec={specOf('ty-so-sharpe')} />);
-    await screen.findByRole('button', { name: /Đã nạp FPT/ });
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
     const truocKhiRoi = screen.getByTestId('result-text').textContent;
     expect(truocKhiRoi).not.toContain(NO_VALUE);
     cleanup();
 
     render(<Man spec={specOf('ty-so-sharpe')} />);
-    await screen.findByText(t('detail.exampleSeriesNote'));
+    await screen.findByRole('button', { name: t('detail.exampleLoaded') });
     expect(screen.getByTestId('result-text').textContent).toBe(truocKhiRoi);
   });
 

@@ -199,9 +199,12 @@ function usedNames(css: string): Set<string> {
 
 /**
  * Biến KHÔNG khai trong globals.css mà vẫn hợp lệ, kèm lý do.
+ *
  * `--fill` do `SliderInput.tsx` đặt inline theo giá trị hiện tại, nên nó không thể là token chung.
+ * `--weight` cũng vậy: `PortfolioScreen.tsx` đặt nó trên từng thanh tỷ trọng theo tỷ trọng của
+ * chính mã ấy, nên mỗi hàng một giá trị khác nhau.
  */
-const LOCAL_VARIABLES = new Set(['--fill']);
+const LOCAL_VARIABLES = new Set(['--fill', '--weight']);
 
 /**
  * Gọi `var()` tới một biến chưa ai khai thì CSS lặng thinh: thuộc tính coi như không hợp lệ, và

@@ -96,9 +96,17 @@ export function SliderInput({
   const marksId = `${inputId}-marks`;
   const khoaTheoChe = isLockedForMode(spec, mode);
   const locked = khoaTheoChe || (lockedNote !== undefined && lockedNote.trim() !== '');
-  // Hai lý do khoá, hai câu khác nhau. "nâng cao" thắng khi cả hai cùng đúng — xem
-  // `resolveInputState()`, nơi ô số giữ đúng thứ tự ấy.
-  const lyDo = khoaTheoChe ? t('input.lockedBadge') : lockedNote;
+  /*
+   * Chỉ ô khoá THEO CHẾ ĐỘ mới đeo con dấu.
+   *
+   * Trước 22/09/2026 con dấu còn mang cả `lockedNote` — tức 'dữ liệu mẫu' / 'số liệu từ HPG'.
+   * Chủ dự án bỏ ở thanh trượt: khối Số liệu đã nói nguồn ấy hai lần rồi (nhãn nút "Đã xem ví
+   * dụ minh hoạ ✓" và dòng "Đã nạp số phiên giá"), nên con dấu thứ ba chỉ làm chật hàng. Ô số
+   * (`NumberInput`) vẫn giữ nguyên con dấu nguồn — ở đó nó là chỗ DUY NHẤT nói điều ấy.
+   *
+   * `locked` phía trên KHÔNG đổi: ô vẫn khoá đúng như cũ, chỉ phần chữ là thôi.
+   */
+  const lyDo = khoaTheoChe ? t('input.lockedBadge') : undefined;
 
   const min = spec.min ?? 0;
   const max = spec.max ?? 100;
@@ -130,6 +138,12 @@ export function SliderInput({
         <label className={styles.label} id={labelId} htmlFor={GO_SO_TRUC_TIEP ? boxId : inputId}>
           {pick(spec.label)}
         </label>
+
+        {/*
+          Con dấu chỉ còn cho ô KHOÁ THEO CHẾ ĐỘ ("nâng cao") — xem docblock `lyDo` phía trên.
+          Nó đứng ngay cạnh con số nó nói về, không phải dưới rãnh trượt.
+        */}
+        {locked && lyDo !== undefined && <Badge tone="advanced">{lyDo}</Badge>}
 
         <InlineNumber
           spec={spec}
@@ -166,21 +180,31 @@ export function SliderInput({
         Hai mốc dạt về hai đầu rãnh, đúng bản thiết kế — đọc được vị trí đang ở đâu trong miền.
         Bước nhảy vẫn nằm trong đoạn này nhưng chỉ dành cho trình đọc màn hình: nó là thông tin
         thật (aria-describedby trỏ vào đây) mà bản thiết kế không dành chỗ để bày ra.
+
+        ── Dọn hàng này ngày 22/09/2026 ────────────────────────────────────────────────────
+        Con dấu nguồn số từng là con thứ ba của một hàng `space-between`, nên "max 500 phiên"
+        bị đẩy vào GIỮA rãnh thay vì nằm ở đầu phải — chủ dự án chụp màn lại và hỏi đúng chỗ
+        ấy. Con dấu đã bỏ khỏi thanh trượt (xem `lyDo`), và hàng còn lại đúng một việc: nói
+        miền chạy từ đâu tới đâu.
+
+        Hai chữ "min" / "max" cũng thôi hiện: con số nằm thẳng dưới hai đầu rãnh thì tự nó đã
+        nói mình là đầu nào, còn hai chữ ấy chiếm đúng chỗ mà con số cần để dính mép. Chúng ở
+        lại cho trình đọc màn hình, nơi không có rãnh nào để nhìn — nghe "60 phiên, 500 phiên"
+        trơ trọi thì không biết đâu là đâu.
       */}
       <p id={marksId} className={styles.marks}>
         <span>
-          {t('input.sliderMin')}{' '}
+          <span className="visually-hidden">{t('input.sliderMin')} </span>
           {formatValueWithUnit(min, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
         <span className="visually-hidden">
           {t('input.sliderStep')}{' '}
           {formatValueWithUnit(step, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
-        <span>
-          {t('input.sliderMax')}{' '}
+        <span className={styles.max}>
+          <span className="visually-hidden">{t('input.sliderMax')} </span>
           {formatValueWithUnit(max, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
-        {locked && lyDo !== undefined && <Badge tone="advanced">{lyDo}</Badge>}
       </p>
     </div>
   );

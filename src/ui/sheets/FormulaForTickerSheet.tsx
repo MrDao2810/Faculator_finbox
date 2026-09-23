@@ -40,6 +40,14 @@ export interface FormulaForTickerSheetProps {
    * xem `LivePresetFormula.priceFields`. Không truyền thì mặc định `true`, đúng ca thường gặp.
    */
   hasPrice?: boolean;
+  /**
+   * Chỗ tấm đứng trên màn — xem `BottomSheetProps.placement`.
+   *
+   * Sheet này chỉ mở được từ TRONG form thêm/sửa mã, mà form ấy nay là một hộp thoại nổi giữa
+   * màn. Mặc định vẫn để `'bottom'` để prop này nói đúng vai trò của nó là một lựa chọn, không
+   * phải một hằng số giấu trong component.
+   */
+  placement?: 'bottom' | 'center';
 }
 
 /**
@@ -83,6 +91,7 @@ export function FormulaForTickerSheet({
   onPick,
   code,
   hasPrice = true,
+  placement = 'bottom',
 }: FormulaForTickerSheetProps) {
   const t = useT();
   const pick = usePick();
@@ -147,6 +156,7 @@ export function FormulaForTickerSheet({
       open={open}
       onClose={close}
       title={`${t('portfolio.formulasTitle')}${code === null ? '' : ` · ${code}`}`}
+      placement={placement}
       /*
        * Ghim chiều cao tấm — cùng lý do như `TickerPickerSheet`, xem `BottomSheetProps.size`.
        *

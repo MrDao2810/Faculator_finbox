@@ -211,6 +211,56 @@ describe('SliderInput — ô khoá ở chế độ Cơ bản', () => {
     expect(screen.getByText('nâng cao')).not.toBeNull();
   });
 
+  /*
+   * ── Hàng mốc min/max, dọn ngày 22/09/2026 ─────────────────────────────────────────────
+   *
+   * Chủ dự án chụp màn lại: "max 500 phiên tại sao lại ở giữa? phải ở bên phải chứ". Nguyên
+   * nhân là hàng ấy `space-between` mà lại có ba con — mốc min, mốc max, và con dấu nguồn số.
+   * Ba con thì con giữa rơi vào giữa rãnh, và con giữa chính là mốc max.
+   *
+   * Hai ca dưới gác hai nửa của phép sửa. Chúng đọc DOM chứ không đọc CSS, nên chúng vẫn bắt
+   * được lỗi này nếu ai đó thêm một con thứ ba vào hàng — đúng cái đã xảy ra một lần.
+   */
+  it('hàng mốc chỉ còn hai con nhìn thấy, và mốc max là con CUỐI', () => {
+    const { container } = render(
+      <SliderInput
+        spec={RATE}
+        value={12}
+        onChange={vi.fn()}
+        mode="advanced"
+        lockedNote="dữ liệu mẫu"
+      />,
+    );
+
+    const marks = container.querySelector('p[id$="-marks"]');
+    const seen = [...(marks?.children ?? [])].filter(
+      (node) => !node.classList.contains('visually-hidden'),
+    );
+
+    expect(seen).toHaveLength(2);
+    expect(seen[1]?.textContent).toContain('30');
+  });
+
+  /*
+   * Con dấu 'dữ liệu mẫu' đã thôi hiện ở thanh trượt: khối Số liệu đã nói nguồn ấy ở nhãn nút
+   * và ở dòng "Đã nạp số phiên giá". Ô vẫn KHOÁ như cũ — chỉ phần chữ là thôi, nên ca này ghim
+   * cả hai vế để không ai gỡ nhầm luôn phần khoá.
+   */
+  it('nguồn số không còn là con dấu trên thanh trượt, nhưng ô vẫn khoá', () => {
+    render(
+      <SliderInput
+        spec={RATE}
+        value={12}
+        onChange={vi.fn()}
+        mode="advanced"
+        lockedNote="dữ liệu mẫu"
+      />,
+    );
+
+    expect(screen.queryByText('dữ liệu mẫu')).toBeNull();
+    expect(slider().disabled).toBe(true);
+  });
+
   // Tắt cùng đợt tắt lối gõ thẳng vào con số — xem GO_SO_TRUC_TIEP ở SliderInput.tsx.
   it.skip('cùng biến ấy ở chế độ Nâng cao thì gõ được', async () => {
     const { onChange } = draw(ADVANCED, 12, 'advanced');

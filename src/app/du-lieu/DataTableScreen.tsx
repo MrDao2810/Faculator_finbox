@@ -388,7 +388,10 @@ export function DataTableScreen() {
     setFromDraft(false);
     setRows(
       sortRowsByDate(
-        result.rows.slice(0, MAX_SERIES_ROWS).map((bar) => ({
+        // `parsePaste` trả chuỗi theo chiều cũ → mới, nên cắt phải cắt ĐẦU chuỗi: quá trần thì
+        // giữ các phiên GẦN NHẤT. Cắt đuôi là giữ đúng phần cũ nhất, tức vứt đi phần người
+        // dùng quan tâm. Sheet đã cắt sẵn và nói ra; chỗ này giữ bất biến cho mọi lối gọi khác.
+        result.rows.slice(-MAX_SERIES_ROWS).map((bar) => ({
           date: bar.date,
           open: bar.open,
           high: bar.high,
@@ -632,6 +635,8 @@ export function DataTableScreen() {
 
       <PasteImportSheet
         open={sheet === 'paste'}
+        // Bảng đang có gì thì sheet mở ra thấy nấy — cùng lý do ở màn chi tiết.
+        initialRows={rows.length > 0 ? rows : undefined}
         onClose={() => {
           setSheet(null);
         }}

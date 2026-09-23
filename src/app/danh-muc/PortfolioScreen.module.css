@@ -60,6 +60,33 @@
 }
 
 /*
+ * ── Dòng tiêu đề khối Nắm giữ (22/09/2026) ──────────────────────────────────
+ *
+ * Khổ ĐIỆN THOẠI là một lưới hai cột: "NẮM GIỮ" bên trái, nút "+ Thêm mã" bên phải, và dải trạng
+ * thái giá xuống HÀNG RIÊNG, rộng hết khối. Khổ PC gộp cả ba lên một hàng (xem `@media` cuối
+ * file) — đây chính là chỗ hai khổ phải khác nhau, chứ không phải một bố cục PC bị ép hẹp lại.
+ *
+ * Bản trước bọc `<h2>` và dải trạng thái vào một `<div>` rồi để flex tự xuống dòng, và ở khổ hẹp
+ * nó hỏng theo đúng kiểu chỉ thấy được trên máy thật: dải trạng thái rớt xuống hàng hai nhưng
+ * chỉ rộng bằng NỘI DUNG của nó — nó không phải phần tử giãn — nên nó dừng ở lưng chừng màn, nút
+ * "Làm mới" bên trong bị ép xuống một dòng thứ hai trong lòng nó, còn "+ Thêm mã" thì treo lơ
+ * lửng bên phải chẳng dính vào đâu. Chủ dự án chụp lại (22/09/2026).
+ *
+ * Lưới không có chuyện ấy: `grid-column: 1 / -1` là một lời hứa về bề ngang, còn xuống dòng của
+ * flex chỉ là kết quả của việc đo vừa hay không vừa.
+ *
+ * `align-items: center` chứ không `flex-start`: dải trạng thái có nền và viền nên cao hơn `<h2>`,
+ * nhưng nay nó không còn đứng cùng hàng với `<h2>` ở khổ hẹp, và ở khổ PC thì canh giữa mới là
+ * thứ đặt nút "+ Thêm mã" ngang tầm với dải chứ không dính mép trên.
+ */
+.blockHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+/*
  * Khối rỗng — nay có icon lớn ở giữa (bản thiết kế đợt 12).
  *
  * Là `<div>` chứ không `<ul>`: màn này tuyệt đối không được sinh thêm `<li>` nào ngoài danh sách
@@ -264,13 +291,32 @@
  * bỏ ngày 14/09/2026, nên `.list` và `.row` đi theo; `.actions` thì Ở LẠI vì khối chi tiết của một
  * mã vẫn dùng. Nay màn chỉ còn MỘT kiểu danh sách, không phải nhớ mình đang sửa tab nào nữa.
  */
+/*
+ * ── Danh sách nắm giữ: MỘT cây DOM, BA hình dạng (22/09/2026) ────────────────
+ *
+ * Dưới 560px: dòng gọn ba cột của bản vẽ WF-06 — khổ của điện thoại dựng đứng.
+ * Từ 560px:   bảng sáu cột số, bỏ "Doanh nghiệp" và "Giá trị".
+ * Từ 1024px:  bảng tám cột đủ như ảnh thiết kế.
+ *
+ * Mốc giữa thêm sau, khi chủ dự án chụp màn ở một cửa sổ hẹp: dòng gọn là bố cục HAI MÉP, nên
+ * bao nhiêu bề ngang thừa ra cũng chảy hết vào khoảng giữa — ở 900px khoảng ấy rộng hơn 400px.
+ * _"ở giữa đang thừa quá nhiều không gian… màn web và mobile phải khác nhau về giao diện"_.
+ *
+ * Không phải ba cây rồi ẩn bớt hai: nhiều bản cùng nằm trong DOM thì mọi con số có mặt nhiều
+ * lần — trình đọc màn hình đọc hết, và `getByText` trong ca kiểm báo "nhiều kết quả". Cũng không
+ * chọn cây theo bề ngang màn lúc chạy: lần dựng đầu ở trình duyệt phải khớp HTML tĩnh, mà HTML
+ * tĩnh không biết màn rộng bao nhiêu.
+ *
+ * Ở khổ hẹp nhất, `display: block` gỡ bỏ mô hình bảng để mỗi `<tr>` thành một lưới ba cột. Trình
+ * đọc màn hình KHÔNG mất quan hệ hàng–cột vì `<table>` giữ nguyên vai trò ngữ nghĩa của nó; thứ
+ * đổi chỉ là cách vẽ.
+ */
 .holdList {
-  display: flex;
-  flex-direction: column;
+  display: block;
 
+  width: 100%;
   margin: 0;
-  padding: 0;
-  list-style: none;
+  border-collapse: collapse;
   overflow: hidden;
 
   background: var(--color-surface);
@@ -278,8 +324,37 @@
   border-radius: var(--radius-md);
 }
 
-/* Gạch chân giữa hai mã. Mã cuối không có: dấu hết danh sách là chỗ trống, không phải một nét. */
+/*
+ * `<tbody>` và `<caption>` phải đi theo `<table>` xuống `display: block`, không được bỏ quên.
+ *
+ * Đây là cái bẫy của mọi bảng "gãy thành thẻ ở màn hẹp": một phần tử còn giữ `display:
+ * table-row-group` bên trong một khối `block` thì trình duyệt TỰ SINH một hộp bảng ẩn danh bao
+ * quanh nó — và mọi luật lưới đặt trên `<tr>` đổ theo, lặng lẽ, ở đúng khổ màn mà cửa gác không
+ * đo. `chrome-check.mjs` đo số mép trên của các ô ở khổ 360 chính vì chỗ này.
+ */
+.holdList tbody,
+.holdList caption {
+  display: block;
+}
+
+/*
+ * Hàng tiêu đề chỉ có ở khổ bảng. Ở khổ dòng gọn nó tắt hẳn: lúc ấy các ô không còn xếp thành
+ * cột nào để mà đặt tên, và nhãn đã đi liền con số ngay trong ô (`.cellTag`).
+ */
+.holdHead {
+  display: none;
+}
+
+/*
+ * Gạch chân giữa hai mã. Mã cuối không có: dấu hết danh sách là chỗ trống, không phải một nét.
+ *
+ * `position: relative` là chỗ neo cho nút phủ. Định vị tương đối trên `<tr>` được cả ba engine
+ * dựng đúng, nhưng vì đây là chỗ hỏng âm thầm (nút vẫn tồn tại, chỉ là phủ nhầm chỗ), một khẳng
+ * định trong `chrome-check.mjs` đo hộp của nút so với hộp của hàng ở khổ 1440.
+ */
 .holdRow {
+  position: relative;
+  display: block;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -288,42 +363,130 @@
 }
 
 /*
- * Dòng gọn. `position: relative` là chỗ neo cho nút phủ ngay dưới.
- *
- * `min-height` bằng vùng chạm tối thiểu (NFR-USA-01): hai dòng chữ chỉ cao chừng 38px, mà cả
- * dòng này là một đích bấm.
+ * Hàng mở ra là một `<tr>` THỨ HAI, không phải một khối lồng trong hàng trên: `<table>` không cho
+ * một `<div>` nằm giữa hai `<tr>`, và nhét vào thì trình duyệt đẩy nó ra ngoài bảng.
  */
+.holdDetailRow {
+  display: block;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.holdDetailRow:last-child {
+  border-bottom: none;
+}
+
+/* Hàng đang mở và hàng chi tiết của nó là một cặp — không kẻ vạch chen vào giữa. */
+.holdRow:has(+ .holdDetailRow) {
+  border-bottom: none;
+}
+
 /*
- * `align-items: baseline` chứ không `center`: ba cột cao khác nhau (mã một dòng, cột giữa hai,
- * cột phải ba), nên canh giữa làm dòng đầu của mỗi cột lệch nhau — mã tụt xuống giữa, "500 CP"
- * nằm thấp hơn "39%". Canh theo đường chân chữ kéo mã, số lượng và tỷ trọng về đúng một hàng,
- * đúng bản vẽ. Với cột là flex dọc thì đường chân chữ của cột là của DÒNG ĐẦU trong nó.
+ * ── Khổ DÒNG GỌN (dưới 560px) — bản vẽ WF-06 ────────────────────────────────
+ *
+ * Ba cột: mã · (số lượng / giá vốn / thị giá) · (tỷ trọng / lãi lỗ), cộng mũi tên ở mép phải.
+ * Hai ô đứng ngoài khổ này (`display: none` ngay dưới): tên doanh nghiệp và giá trị thị trường.
+ *
+ * Thị giá thì Ở LẠI, khác bản trước: nó vốn nằm trong khối mở ra, mà khối ấy nay chỉ còn ngày
+ * mua và beta. Giấu nốt ở đây là điện thoại mất hẳn thị giá — đó mới là thay đổi, chứ không phải
+ * việc nó xuất hiện trên dòng.
+ *
+ * `min-height` bằng vùng chạm tối thiểu (NFR-USA-01): ba dòng chữ nhỏ vẫn có thể hụt 44px.
  */
-.holdSummary {
-  position: relative;
-  display: flex;
+.holdRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: baseline;
-  gap: var(--space-3);
+  column-gap: var(--space-3);
 
   min-height: var(--tap-min);
   padding: var(--space-2) var(--space-3);
 }
 
 /*
- * Nền hover đặt ở DÒNG chứ không ở nút phủ, dù chính nút mới là thứ bắt chuột.
+ * Nền hover đặt ở HÀNG chứ không ở nút phủ, dù chính nút mới là thứ bắt chuột.
  *
  * Nút phủ là phần tử định vị tuyệt đối, nên nền của nó vẽ SAU chữ trong cùng ngữ cảnh xếp chồng
- * — tô nền vào đấy là phủ một lớp đục lên đúng những con số vừa đưa lên dòng. Kéo xuống bằng
- * `z-index: -1` thì nó chui qua cả nền trang. Hover cả dòng cho cùng kết quả mà không phải đụng
- * tới thứ tự vẽ: rê vào nút cũng là rê vào dòng, vì nút nằm trong dòng.
+ * — tô nền vào đấy là phủ một lớp đục lên đúng những con số vừa đưa lên hàng. Kéo xuống bằng
+ * `z-index: -1` thì nó chui qua cả nền trang. Hover cả hàng cho cùng kết quả mà không phải đụng
+ * tới thứ tự vẽ: rê vào nút cũng là rê vào hàng, vì nút nằm trong hàng.
+ *
+ * Nền hover là `--color-paper` vì khung danh sách đã là `--color-surface`. Đổi nền của khung là
+ * phải đổi cả hai chỗ này, nếu không hover tàng hình.
  */
-/*
- * Nền hover là `--color-paper` vì khung danh sách đã là `--color-surface`. Đây là chiều NGƯỢC
- * lại với bản chưa có khung, nơi dòng nằm thẳng trên nền trang: ở đó tô paper là không thấy gì
- * đổi, nên phải tô trắng. Đổi nền của khung là phải đổi cả hai chỗ này, nếu không hover tàng hình.
- */
-.holdSummary:hover {
+.holdRow:hover {
   background: var(--color-paper);
+}
+
+/*
+ * Hai ô chỉ có ở khổ bảng ĐỦ (từ 1024px) — chúng là hai cột rộng nhất, nên cũng là hai cột bị
+ * bỏ đầu tiên khi bề ngang hẹp lại. Tắt bằng `display: none` chứ không bằng bề rộng 0: ô còn
+ * trong dòng chảy thì lưới vẫn chừa cột cho nó.
+ */
+.holdName,
+.holdValue {
+  display: none;
+}
+
+/*
+ * Ba ô của cột giữa xếp chồng, mỗi ô một dòng. Chúng vào đúng cột 2 của lưới theo thứ tự DOM.
+ */
+.holdQuantity,
+.holdCost,
+.holdPrice {
+  grid-column: 2;
+  min-width: 0;
+}
+
+/* Hai ô của cột phải, canh mép phải — đúng bản vẽ. */
+.holdGainCell,
+.holdWeightCell {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+}
+
+/* Tỷ trọng ở TRÊN lãi/lỗ, ngược thứ tự DOM của bảng (ở bảng lãi/lỗ đứng trước tỷ trọng). */
+.holdWeightCell {
+  grid-row: 1;
+}
+
+/*
+ * Lãi/lỗ bắt đầu ngay HÀNG HAI và trải hai hàng — nó vốn cao hai dòng chữ (số tiền, rồi phần
+ * trăm), nên hai hàng là đúng chỗ của nó.
+ *
+ * Trước đây ô này không khai hàng nào, và phép xếp tự động thả nó xuống hàng BA: con trỏ xếp đã
+ * chạy tới đó vì ba ô của cột giữa xếp chồng nhau. Hệ quả là nửa phải của hàng hai trống trơn,
+ * còn vế phần trăm thì thò xuống dưới cả hàng ba, kéo dòng cao thêm một dòng chữ mà không đặt gì
+ * vào chỗ vừa nới ra. Đúng cái "ở giữa thừa quá nhiều không gian" chủ dự án khoanh ở khổ điện
+ * thoại (22/09/2026).
+ */
+.holdGainCell {
+  grid-row: 2 / span 2;
+}
+
+.holdCode {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/*
+ * Mũi tên trải cả ba dòng của cột giữa rồi canh giữa theo chiều dọc.
+ *
+ * `span 3` chứ không `1 / -1`: lưới này không khai hàng nào, nên `-1` trỏ tới mép cuối của lưới
+ * TƯỜNG MINH — lúc ấy chỉ có một hàng — và mũi tên sẽ dính hàng đầu thay vì nằm giữa.
+ */
+.holdMarkCell {
+  grid-column: 4;
+  grid-row: 1 / span 3;
+  align-self: center;
+}
+
+/*
+ * Nhãn đi liền con số — CHỈ ở khổ dòng gọn, nơi không có hàng tiêu đề nào nói tên cột.
+ * Viết thường, dính luôn vào số thành một mẩu ('giá vốn 60.000 ₫'), đúng bản vẽ.
+ */
+.cellTag {
+  color: var(--color-muted);
 }
 
 /*
@@ -356,45 +519,47 @@
  * giữa các dòng thay vì so le theo độ dài từng mã.
  */
 .holdCode {
-  flex: none;
   min-width: 44px;
 
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
 }
 
-/* Cột giữa: "cái đang nắm" — số lượng ở bậc secondary, giá vốn ở bậc metadata. */
-.holdMid {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+/* Tên doanh nghiệp — chỉ hiện ở khổ bảng, nơi nó có hẳn một cột. */
+.holdName {
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Mọi ô số dùng chung chữ số đều: cột số chỉ đọc theo hàng dọc được khi mỗi chữ số rộng bằng
+ * nhau. Cỡ chữ và màu thì từng ô tự nói, theo bậc thông tin của nó.
+ */
+.holdCell {
+  font-variant-numeric: tabular-nums;
 }
 
 .holdQuantity {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  font-variant-numeric: tabular-nums;
   color: var(--color-ink-soft);
 }
 
-/* Nhãn "giá vốn" và con số đi liền thành một mẩu, đúng bản vẽ — không tách nhãn ra chữ hoa. */
-.holdCost {
-  font-size: var(--text-xs);
-  font-variant-numeric: tabular-nums;
+/* Đơn vị "CP" đi liền số lượng — chỉ có ở khổ dòng gọn, khổ bảng đã có tiêu đề cột. */
+.cellUnit {
   color: var(--color-muted);
 }
 
-/* Cột phải: "phần của nó trong danh mục" — tỷ trọng trên, lãi/lỗ dưới. */
-.holdRight {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+/* Nhãn "giá vốn" và con số đi liền thành một mẩu, đúng bản vẽ — không tách nhãn ra chữ hoa. */
+.holdCost,
+.holdPrice {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
 
-  text-align: right;
+.holdValue {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
 }
 
 .holdWeight {
@@ -409,6 +574,34 @@
 }
 
 /*
+ * Thanh tỷ trọng — vạch ngang dưới con số phần trăm.
+ *
+ * Vẽ bằng MỘT `linear-gradient` trên một `<span>` sẵn có chứ không bằng hai phần tử lồng nhau:
+ * CSS của màn này đi vào chunk mà cả 118 trang HTML đều tải (đo trên bản build: 20.947 byte thô
+ * / 3.793 byte nén, 49% là luật của màn Danh mục), nên mỗi luật thêm vào đây là byte của toàn
+ * sản phẩm.
+ *
+ * Mốc dừng đặt cứng ở `--weight` chứ không chuyển màu dần: đây là một cái thước, và một cái
+ * thước có mép nhoè thì đọc sai chỗ.
+ */
+.weightBar {
+  display: block;
+  width: 100%;
+  min-width: 64px;
+  height: 3px;
+  margin-top: var(--space-1);
+
+  background: linear-gradient(
+    to right,
+    var(--color-selected) 0,
+    var(--color-selected) var(--weight, 0%),
+    var(--color-border) var(--weight, 0%),
+    var(--color-border) 100%
+  );
+  border-radius: var(--radius-pill);
+}
+
+/*
  * Lãi/lỗ. Màu chỉ là lớp thứ hai — dấu +/− ngay trước con số mới là thứ mang tin (NFR-USA-06).
  *
  * KHÔNG tô nền như dải lãi/lỗ của bản thẻ cũ: ở đây nó đứng ngay dưới con số tỷ trọng, và một
@@ -417,6 +610,16 @@
 .holdGain {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Vế phần trăm, đứng ngay dưới số tiền. Nhỏ hơn một bậc: cùng một con số nói hai lần, và vế trả
+ * lời được "lãi bao nhiêu" là số tiền.
+ */
+.holdGainPct {
+  display: block;
+  font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -429,8 +632,13 @@
 }
 
 /*
- * "chưa có giá" đứng đúng chỗ của tỷ trọng và lãi/lỗ, nên phải trông khác một con số: nhạt VÀ
- * bỏ độ đậm — hai dấu hiệu, không chỉ màu. Cùng lẽ với `.cellAbsent` ở khối chi tiết.
+ * "_ _" đứng đúng chỗ của một con số, nên phải trông khác một con số: nhạt VÀ bỏ độ đậm — hai
+ * dấu hiệu, không chỉ màu. Cùng lẽ với `.cellAbsent` ở hàng mở ra.
+ *
+ * Chủ dự án chốt ký hiệu này ngày 22/09/2026 cho ca thiếu thị giá: _"nếu thiếu thì để _ _ ý là
+ * đang chưa có dữ liệu và bên trên có button làm mới"_. Bốn ô cùng vắng một lượt, nên một câu
+ * "chưa có giá" lặp bốn lần trên một hàng là không đọc được; lý do và lối xử lý đã nằm ở dòng
+ * tiêu đề khối, chỗ có nút Làm mới.
  */
 .holdMissing {
   font-size: var(--text-xs);
@@ -446,9 +654,6 @@
  * có khối mở ra — có khối thì phải có tay nắm.
  */
 .holdMark {
-  flex: none;
-  /* Đứng ngoài luật canh chân chữ của dòng: nó là ký hiệu, không phải một dòng chữ nữa. */
-  align-self: center;
   display: inline-flex;
   color: var(--color-muted);
 }
@@ -458,7 +663,7 @@
 }
 
 /*
- * Khối chi tiết — thị giá, lãi/lỗ phần trăm, ngày mua, beta, và ba nút hành động.
+ * Hàng mở ra — ngày mua, beta, và hai nút hành động.
  *
  * Mặt phẳng CHÌM (`--color-paper`) trong khung trắng của danh sách — cùng thủ pháp `.mergeNote`
  * dùng trong `.form`, nên không đẻ ra kiểu mới nào.
@@ -469,26 +674,44 @@
  * surface lại thành tàng hình. Luật rút ra: nền của khối này luôn phải là token NGƯỢC với nền của
  * khung bọc, và hai chỗ ấy đổi kèm nhau.
  *
- * Thụt vào hai bên bằng đúng lề ngang của dòng để nó nằm gọn trong khung; thụt thêm cho thẳng cột
- * mã thì lưới `.cells` rớt từ ba cột xuống hai ở khổ 360px, đổi lại một manh mối bố cục mà cái
- * nền đã nói rồi.
+ * Từ 1024px nó xếp NGANG: ngày mua và beta bên trái, hai nút dạt phải — đúng ảnh thiết kế. Ở khổ
+ * hẹp thì vẫn xếp dọc, vì bốn thứ ấy không cùng nằm vừa một hàng 328px.
+ */
+/*
+ * `<td>` của hàng mở ra chỉ mang KHOẢNG ĐỆM. Không đặt `display`, `background` hay `border-radius`
+ * lên đây, và đây không phải chuyện gọn gàng: bất kỳ `display` nào khác `table-cell` cũng làm
+ * trình duyệt coi nó không còn là ô bảng, bọc nó vào một ô ẩn danh `colspan=1`, và `colSpan={9}`
+ * bị vứt đi — hàng mở ra rơi vào cột đầu, kéo cột "Mã" rộng bằng cả cụm nút và đẩy bảy cột còn
+ * lại sang phải. Lỗi ấy đã xảy ra thật, chủ dự án chụp lại ngày 22/09/2026.
+ *
+ * `margin` cũng không dùng được ở đây — table-cell bỏ qua lề. Nên khoảng thụt vào là `padding`
+ * của chính ô, còn mặt phẳng màu là của `<div>` bên trong.
+ */
+/*
+ * Ở khổ DÒNG GỌN ô này phải thành `block`, và đó là ngoại lệ của luật ngay trên chứ không phải
+ * quên nó: luật kia bảo vệ `colSpan`, mà `colSpan` chỉ có nghĩa khi `<table>` còn là bảng. Ở khổ
+ * hẹp bảng đã `display: block`, nên một ô còn giữ `table-cell` là một mảnh bảng đứng lẻ — trình
+ * duyệt bọc nó vào một hộp bảng ẩn danh, và hộp ấy CO LẠI VỪA NỘI DUNG. Trên màn: khối chi tiết
+ * chỉ rộng bằng cụm nút Sửa/Bỏ mã, dạt về mép trái, bỏ trống hơn nửa bề ngang thẻ. Chủ dự án
+ * chụp lại (22/09/2026).
+ *
+ * `display: table-cell` được trả lại nguyên vẹn trong `@media (min-width: 1024px)` — chỗ duy
+ * nhất mà `colSpan` thật sự làm việc. Hai dòng này đi thành cặp: sửa một, phải sửa dòng kia.
  */
 .holdDetail {
+  display: block;
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.holdDetailInner {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 
-  margin: 0 var(--space-3) var(--space-3);
   padding: var(--space-3);
 
   background: var(--color-paper);
   border-radius: var(--radius-sm);
-}
-
-.holdName {
-  margin: 0;
-  font-size: var(--text-xs);
-  color: var(--color-muted);
 }
 
 /*
@@ -612,25 +835,40 @@
   border-top: 1px solid var(--color-hairline);
 }
 
+/*
+ * Không có ô số liệu nào thì không có gì để mà ngăn: vạch ngăn tồn tại để tách vùng đọc số khỏi
+ * vùng bấm nút, nên khi vùng trên trống nó chỉ còn là một nét kẻ ngang đầu khối. Phần lớn mã
+ * không có cả ngày mua lẫn beta, nên đây là ca THƯỜNG chứ không phải ca hiếm.
+ */
+.holdDetailInner > .actions:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+/*
+ * Nút thêm mã đứng cùng HÀNG MỘT với tiêu đề, cột hai. Phải khai cả hàng lẫn cột: dải trạng thái
+ * giá nằm giữa hai thứ này trong DOM và chiếm trọn một hàng, nên phép xếp tự động sẽ đẩy nút
+ * xuống tận hàng ba.
+ */
 .addRow {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
 }
 
 /*
- * Nút thêm mã — khung nét đứt rộng hết hàng, đúng bản vẽ WF-06.
+ * Nút thêm mã — nền ĐẶC màu chọn, ở góc phải dòng tiêu đề khối (22/09/2026).
  *
- * Đây là lần thứ HAI kiểu nét đứt được dùng ở đây. Lần trước nó bị bỏ vì "đọc ra như một chỗ
- * trống chờ điền chứ không phải một nút bấm", rồi thành nút cam bo tròn (đợt 12), rồi thành nút
- * xanh `--color-selected` (đợt rà soát phân cấp). Chủ dự án chọn lại kiểu nét đứt khi đối chiếu
- * với bản vẽ.
+ * Kiểu này đã đi một vòng: nét đứt → nút cam bo tròn (đợt 12) → nút xanh `--color-selected` (đợt
+ * rà soát phân cấp) → nét đứt rộng hết hàng theo bản vẽ WF-06 → nay lại là nút xanh đặc, theo
+ * ảnh thiết kế chủ dự án đưa. Ghi lại vòng này để lần sau ai đọc CSS biết đây là quyết định lặp
+ * chứ không phải một lần trượt tay.
  *
- * Hai thứ giữ lại từ bài học cũ, để nó không trượt về "ô trống" một lần nữa: chữ ĐẬM màu nhấn,
- * và mặt phẳng có màu (`--color-accent-soft`). Một khung nét đứt trên nền trắng với chữ xám mới
- * là thứ từng hỏng; khung nét đứt trên nền xanh nhạt với chữ xanh đậm thì đọc ra là một nút.
- * Hover chuyển sang nét liền và nền đặc — nét đứt biến mất đúng lúc con trỏ nói "cái này bấm được".
+ * Bài học từ lần hỏng đầu vẫn giữ nguyên giá trị và nay được thoả hẳn: một khung nét đứt trên
+ * nền trắng với chữ xám đọc ra như "ô trống chờ điền". Nền đặc thì không còn chỗ cho hiểu lầm ấy.
  *
- * Rộng hết hàng chứ không vừa nội dung: nó là thứ duy nhất đứng dưới danh sách, và ở khổ 360px
- * một nút căn giữa hẹp hơn mọi dòng phía trên trông như chú thích chứ không như hành động.
+ * VỪA NỘI DUNG chứ không rộng hết hàng: nó đứng cạnh chữ trên một dòng tiêu đề, không còn đứng
+ * một mình dưới danh sách. `min-height` giữ vùng chạm 44px (NFR-USA-01).
  */
 .addButton {
   display: flex;
@@ -638,53 +876,270 @@
   justify-content: center;
   gap: var(--space-2);
 
-  width: 100%;
   min-height: var(--tap-min);
   padding: 0 var(--space-4);
 
   font-family: inherit;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  color: var(--color-accent);
+  color: var(--color-on-selected);
 
-  background: var(--color-accent-soft);
-  border: 1px dashed var(--color-accent);
+  background: var(--color-selected);
+  border: 1px solid var(--color-selected);
   border-radius: var(--radius-md);
   cursor: pointer;
 }
 
 .addButton:hover {
-  color: var(--color-on-accent);
-  background: var(--color-accent);
-  border-style: solid;
+  background: var(--color-selected-strong);
+  border-color: var(--color-selected-strong);
 }
 
+/*
+ * Form thêm/sửa mã. Không còn nền, viền hay khoảng đệm riêng: nó nằm trong thân của hộp thoại
+ * (`BottomSheet` dạng `center`), mà thân ấy đã có cả ba. Chồng thêm một lớp nữa là một cái hộp
+ * trong một cái hộp.
+ *
+ * `scroll-margin-top` đã bỏ cùng hiệu ứng `scrollIntoView()` — hộp thoại không nằm trong dòng
+ * chảy của trang nên không có gì để cuộn tới.
+ */
 .form {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-
-  padding: var(--space-4);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-
-  /*
-   * Chỗ chừa khi `scrollIntoView()` đưa form trở lại tầm mắt sau khi bấm Sửa/Thêm mã cổ phiếu —
-   * cùng lý do và cùng con số với `.tabs`. Thiếu dòng này thì thanh trên `position: sticky` che
-   * mất mép trên của form ngay sau khi vừa cuộn tới.
-   */
-  scroll-margin-top: calc(var(--header-height) + var(--space-2));
-}
-
-.formActions {
-  display: flex;
-  gap: var(--space-2);
 }
 
 /*
- * ── Form thêm/sửa mã xếp HAI CỘT ở khổ PC ────────────────────────────────────
+ * Câu giải nghĩa cột Tỷ trọng, đứng cuối khối.
+ *
+ * Cùng bậc chữ với `.priceNote` — cả hai là câu NÓI VỀ con số phía trên, không phải một con số
+ * nữa, nên chúng phải trông giống nhau và cùng mờ hơn bảng.
+ */
+.weightNote {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+}
+
+/* Hộp thoại form: không kiểu riêng, chỉ là mỏ neo cho các luật khổ PC ở dưới. */
+.formSheet {
+  color: inherit;
+}
+
+/*
+ * ── Khổ BẢNG GỌN: từ 560px, sáu cột số ──────────────────────────────────────
+ *
+ * Mốc thứ hai, thêm 22/09/2026. Trước đó màn chỉ có HAI khổ — dòng gọn dưới 1024px, bảng tám cột
+ * từ 1024px — và cái sai của nó chỉ lộ ra trên màn thật: dòng gọn là bố cục hai mép, nên bao
+ * nhiêu bề ngang thừa ra cũng chảy hết vào khoảng giữa. Ở 900px khoảng ấy rộng hơn 400px, đúng
+ * thứ chủ dự án khoanh: _"ở giữa đang thừa quá nhiều không gian… màn web và mobile phải khác
+ * nhau về giao diện"_.
+ *
+ * Nên từ 560px danh sách đã là BẢNG, chỉ là bảng thiếu hai cột rộng nhất: "Doanh nghiệp" (20% ở
+ * khổ PC) và "Giá trị". Hai cột ấy là thứ bỏ đi được mà không mất con số nào người dùng cần để
+ * quyết: tên doanh nghiệp vẫn còn trong tên khả truy cập của nút mở hàng, còn giá trị thị trường
+ * thì bằng số lượng nhân thị giá — hai cột đã đứng ngay cạnh nhau.
+ *
+ * Mốc 560 chứ không 600: cửa sổ hẹp mà chủ dự án chụp rộng khoảng 586px. Mọi điện thoại dựng
+ * đứng (tới 430px) vẫn ở khổ dòng gọn.
+ *
+ * Khoảng đệm ô ở khổ này là `--space-2` chứ không `--space-3`: sáu cột nhân hai mép là 8px mỗi
+ * cột đổi lấy 48px bề ngang thật cho con số — ở 560px đó là hiệu số giữa "60.000 ₫" vừa đủ chỗ
+ * và "60.000 ₫" bị cắt.
+ */
+@media (min-width: 560px) {
+  /*
+   * Trả `<table>` về đúng mô hình bảng của nó. Mọi luật lưới của khổ dòng gọn phải được gỡ ở
+   * đây, không chỉ ghi đè một phần: `grid-column` sót lại trên một ô `table-cell` thì bị bỏ qua,
+   * nhưng `display: none` sót lại thì cột biến mất hẳn.
+   *
+   * `table-layout: fixed` — bề ngang cột do LUẬT quyết, không do nội dung. Để `auto` (mặc định)
+   * thì trình duyệt chia phần dư theo nội dung từng cột, và toàn bộ chỗ thừa dồn vào một cột duy
+   * nhất — ở khổ PC là "Doanh nghiệp", để lại một mảng trắng rộng hàng trăm pixel. Chủ dự án
+   * khoanh đúng mảng ấy (22/09/2026).
+   *
+   * Hệ quả phải nhận: nội dung dài hơn cột bị cắt. Đổi lại, các cột đứng yên một chỗ giữa mọi
+   * hàng và mọi lần mở/đóng — mà một bảng số thì đọc theo hàng dọc, nên cột nhảy chỗ còn tệ hơn.
+   *
+   * Tổng phần trăm cố ý dưới 100 để chừa chỗ cho cột mũi tên tính bằng pixel.
+   */
+  .holdList {
+    display: table;
+    table-layout: fixed;
+  }
+
+  .holdList tbody {
+    display: table-row-group;
+  }
+
+  .holdList caption {
+    display: table-caption;
+  }
+
+  .holdHead {
+    display: table-header-group;
+  }
+
+  /*
+   * Hai cột vắng ở khổ này. Phải tắt CẢ ô tiêu đề, không chỉ ô dữ liệu: `<th>` còn đó thì cột
+   * còn đó — tên cột hiện lên trên một cột rỗng suốt từ đầu tới cuối bảng.
+   */
+  .holdHead th:nth-child(2),
+  .holdHead th:nth-child(6) {
+    display: none;
+  }
+
+  /* Bảy cột còn lại. Phần trăm khai trên `<th>` vì `table-layout: fixed` chỉ đọc hàng đầu. */
+  .holdHead th:nth-child(1) {
+    width: 11%;
+  }
+
+  .holdHead th:nth-child(3) {
+    width: 12%;
+  }
+
+  .holdHead th:nth-child(4),
+  .holdHead th:nth-child(5) {
+    width: 16%;
+  }
+
+  .holdHead th:nth-child(7) {
+    width: 21%;
+  }
+
+  .holdHead th:nth-child(8) {
+    width: 16%;
+  }
+
+  .holdHead th:nth-child(9) {
+    width: var(--tap-min);
+  }
+
+  /*
+   * Số KHÔNG được xuống dòng: một khoản tiền gãy làm đôi giữa hai dòng đọc ra thành hai con số.
+   */
+  .holdCell {
+    white-space: nowrap;
+  }
+
+  /*
+   * Tiêu đề cột: chữ nhỏ IN HOA màu mờ, cùng khuôn `.blockTitle` và `.cellLabel` — chữ hoa là
+   * việc của CSS, chuỗi i18n viết hoa chữ đầu như mọi nhãn khác.
+   */
+  .holdHead th {
+    padding: var(--space-2);
+
+    font-size: var(--text-xs);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /*
+   * ── Căn lề theo CỘT: một luật cho cả tiêu đề lẫn ô số ─────────────────────
+   *
+   * Cố ý KHÔNG viết một luật cho `<th>` và một luật khác cho `<td>`. Hai luật rời là hai chỗ để
+   * lệch nhau, và khi lệch thì tên cột đứng mép này còn con số đứng mép kia — đúng thứ chủ dự án
+   * báo ngày 22/09/2026 ("SỐ LƯỢNG" dính mép trái trong khi "123" dính mép phải của cùng một
+   * cột). Khoá vào vị trí cột thì hai hàng không thể nói khác nhau.
+   *
+   * Khoá theo vị trí DOM, nên luật này đúng ở cả hai khổ bảng: `:nth-child` đếm cả ô đang tắt.
+   *
+   * Sáu cột số căn PHẢI. Đây chính là điều chủ dự án từng bác hồi 09/2026 — và lý do bác nói
+   * thẳng vì sao lần này được: _"thứ căn phải thật sự giúp được là bảng có `<th>`/`<td>`"_. Khối
+   * bị bác khi ấy là một lưới `auto-fill` không có cột cố định, nên mép trái các nhãn so le hết.
+   */
+  .holdList tr > :nth-child(-n + 2) {
+    text-align: left;
+  }
+
+  .holdList tr > :nth-child(n + 3):nth-child(-n + 8) {
+    text-align: right;
+  }
+
+  .holdList tr > :nth-child(9) {
+    text-align: center;
+  }
+
+  .holdRow,
+  .holdDetailRow {
+    display: table-row;
+    min-height: 0;
+    padding: 0;
+  }
+
+  /*
+   * Ô của hàng mở ra trở lại là Ô BẢNG THẬT — đây là nửa còn lại của cặp luật ghi ở `.holdDetail`.
+   * Chỉ ở khổ bảng `colSpan={9}` mới có việc để làm, và chỉ `table-cell` mới giữ được nó.
+   */
+  .holdDetail {
+    display: table-cell;
+  }
+
+  .holdRow > td {
+    padding: var(--space-2);
+    vertical-align: middle;
+  }
+
+  /* Nhãn đi liền con số là thứ THAY cho tiêu đề cột — có tiêu đề rồi thì chúng thành thừa. */
+  .cellTag,
+  .cellUnit,
+  .holdWeightLabel {
+    display: none;
+  }
+
+  /* Cỡ chữ đồng loạt một bậc: ở bảng mọi ô là một ô như nhau, không còn bậc chính–phụ của dòng gọn. */
+  .holdQuantity,
+  .holdCost,
+  .holdPrice {
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+  }
+
+  .holdPrice,
+  .holdValue {
+    font-weight: var(--weight-bold);
+  }
+
+  .weightBar {
+    margin-left: auto;
+  }
+
+  .holdMarkCell {
+    width: var(--tap-min);
+  }
+
+  /* Hàng mở ra trải hết bề ngang: ngày mua và beta bên trái, hai nút dạt hẳn phải. */
+  .holdDetailInner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .holdDetailInner .cells {
+    flex: 1;
+  }
+
+  /*
+   * `margin-left: auto` chứ không `justify-content: space-between` trên khối cha: phần lớn mã
+   * KHÔNG có ngày mua lẫn beta (cả hai đều tuỳ chọn), nên lưới bên trái rỗng và `space-between`
+   * với đúng MỘT phần tử con sẽ để cụm nút nằm bên trái. Đẩy bằng lề tự động thì nút dạt phải
+   * bất kể bên trái có gì hay không.
+   */
+  .holdDetailInner .actions {
+    margin-left: auto;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+/*
+ * ── Form thêm/sửa mã xếp HAI CỘT, và bảng đủ TÁM cột ─────────────────────────
  *
  * Chủ dự án chụp form ở khổ ~1500px: _"giao diện đang để thừa khá nhiều, điều chỉnh để chia các ô
  * nhập trên thành 2 cột chia đều. 2 button Thêm vào danh mục và Huỷ chuyển sang bên phải"_. Đúng —
@@ -692,7 +1147,7 @@
  * phiếu trải hết 1420px.
  *
  * Sáu ô ở chế độ Nâng cao chia vừa khít 3 hàng × 2 cột. Chế độ Cơ bản không có ô Beta nên còn năm,
- * và ô cuối ("Tính công thức") đứng một mình ở cột trái hàng cuối — không lấp chỗ trống ấy bằng
+ * và ô cuối ("Thêm công thức") đứng một mình ở cột trái hàng cuối — không lấp chỗ trống ấy bằng
  * cách cho ô nào chiếm hai cột: thứ tự ô là thứ tự người dùng điền, xáo nó để cho vuông là đổi
  * mạch nhập liệu lấy một khoảng đều.
  *
@@ -715,21 +1170,93 @@
   }
 
   /*
-   * Câu lỗi chung và hàng nút KHÔNG phải ô nhập nên không vào lưới hai cột: câu lỗi nói về cả
-   * form, còn hàng nút là chỗ kết thúc của cả form.
+   * Câu lỗi chung KHÔNG phải ô nhập nên không vào lưới hai cột: nó nói về cả form.
+   *
+   * Hàng nút thì rời hẳn khỏi đây từ 22/09/2026 — nó nay là `footer` của hộp thoại, dính đáy tấm
+   * và đã dạt phải sẵn (`BottomSheet.module.css`, `.footer`). Yêu cầu cũ của chủ dự án ("2 button
+   * Thêm vào danh mục và Huỷ chuyển sang bên phải") vẫn được giữ, chỉ là do chỗ khác lo.
    */
-  .formError,
-  .formActions {
+  .formError {
     grid-column: 1 / -1;
   }
 
   /*
-   * Hàng nút dạt phải theo yêu cầu chủ dự án. Giữ nguyên THỨ TỰ trong DOM (nút chính trước,
-   * "Huỷ" sau) — đó là thứ tự phím Tab và cũng là thứ tự đang dùng ở khổ hẹp; đổi chỗ hai nút chỉ
-   * để nút chính nằm ngoài cùng phải là một quyết định khác, chưa ai yêu cầu.
+   * ── Dòng tiêu đề khối: cả ba mẩu lên MỘT hàng ─────────────────────────────
+   *
+   * "NẮM GIỮ" · dải trạng thái giá · nút "+ Thêm mã" dạt phải. Đây là bố cục ảnh thiết kế, và nó
+   * chỉ đứng được ở khổ này — dưới 1024px dải trạng thái phải xuống hàng riêng, xem `.blockHead`.
+   *
+   * Flex chứ không lưới: ba mẩu có bề rộng tự nhiên khác hẳn nhau và không cần thẳng cột với thứ
+   * gì bên dưới. Đổi sang flex cũng tự vô hiệu mọi `grid-column`/`grid-row` khai ở khổ hẹp, nên
+   * không phải gỡ từng cái.
    */
-  .formActions {
-    justify-content: flex-end;
+  .blockHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .addRow {
+    margin-left: auto;
+  }
+
+  /*
+   * ── Hai cột chỉ có ở khổ này ──────────────────────────────────────────────
+   *
+   * Tên doanh nghiệp và giá trị thị trường quay lại, và tám phần trăm bề ngang phải khai lại cả
+   * bộ: bộ bảy cột ở khổ trên chia hết 96% cho các cột còn lại, giữ nguyên thì hai cột mới không
+   * còn chỗ nào để chen vào.
+   */
+  .holdHead th:nth-child(2),
+  .holdHead th:nth-child(6) {
+    display: table-cell;
+  }
+
+  .holdName,
+  .holdValue {
+    display: table-cell;
+  }
+
+  /* Tên doanh nghiệp cắt bằng ba chấm — nó là thứ để NHẬN RA mã, không phải một con số. */
+  .holdName {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .holdHead th:nth-child(1) {
+    width: 7%;
+  }
+
+  .holdHead th:nth-child(2) {
+    width: 20%;
+  }
+
+  .holdHead th:nth-child(3),
+  .holdHead th:nth-child(4) {
+    width: 10%;
+  }
+
+  .holdHead th:nth-child(5) {
+    width: 11%;
+  }
+
+  .holdHead th:nth-child(6),
+  .holdHead th:nth-child(7) {
+    width: 14%;
+  }
+
+  .holdHead th:nth-child(8) {
+    width: 10%;
+  }
+
+  /* Bề ngang đã rộng rãi thì trả lại khoảng đệm đầy đủ của một ô bảng. */
+  .holdHead th {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .holdRow > td {
+    padding: var(--space-3);
   }
 }
 
@@ -790,6 +1317,10 @@
  * màu để truyền tin, nên ca lỗi còn kèm hẳn một nút hành động, còn ca đang tải thì không.
  */
 .priceNote {
+  /* Hàng hai của lưới tiêu đề khối, rộng hết bề ngang — xem `.blockHead`. */
+  grid-column: 1 / -1;
+  grid-row: 2;
+
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -818,6 +1349,10 @@
 }
 
 .priceError {
+  /* Cùng chỗ với `.priceNote` — hai mặt của một dải, không được lệch hàng nhau. */
+  grid-column: 1 / -1;
+  grid-row: 2;
+
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -839,10 +1374,25 @@
 
 /* ── Ô chọn mã: một nút mở sheet, không phải <select> ───────────────────────── */
 
+/*
+ * ── Ô chọn mã và ô chọn công thức PHẢI trông y hệt một ô nhập ───────────────
+ *
+ * Chúng là `<button>` mở sheet chứ không phải `<input>`, nhưng trong form chúng đứng cùng một
+ * lưới với bốn ô nhập thật — nên mọi số đo phải chép từ `Input.module.css`, không được tự đặt.
+ *
+ * Bản đầu tự đặt và lệch bốn chỗ cùng lúc: khe nhãn `--space-2` thay vì `--space-1`, nhãn màu
+ * `--color-ink` thay vì `--color-ink-soft`, viền 1px `--color-border-strong` thay vì 1,5px
+ * `--color-accent`, cỡ chữ `--text-base` thay vì `--text-sm`. Hệ quả trên màn: cột trái toàn ô
+ * viền xám thấp hơn, cột phải toàn ô viền xanh cao hơn, và không hàng nào thẳng hàng nào. Chủ dự
+ * án chụp lại ngày 22/09/2026.
+ *
+ * Viền 1,5px màu nhấn không phải chuyện thẩm mỹ: `Input.module.css` ghi rõ nó là thứ nói "ô này
+ * thao tác được". Một nút mở sheet cũng thao tác được, nên nó phải nói cùng một câu.
+ */
 .codeField {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
 /*
@@ -852,27 +1402,33 @@
 .codeLabel {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--color-ink);
+  color: var(--color-ink-soft);
 }
 
 .codeButton {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 
   width: 100%;
   min-height: var(--tap-min);
-  padding: var(--space-2) var(--space-3);
+  padding: 0 var(--space-3);
 
   font-family: inherit;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   text-align: left;
   color: var(--color-ink);
 
   background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
+  border: 1.5px solid var(--color-accent);
   border-radius: var(--radius-md);
   cursor: pointer;
+}
+
+/* Cùng vòng focus với `Input.control:focus-within` — hai thứ cạnh nhau phải sáng lên như nhau. */
+.codeButton:focus-visible {
+  border-color: var(--color-focus);
+  box-shadow: var(--focus-ring);
 }
 
 /* Chế độ sửa khoá ô mã lại — đổi mã của một dòng đang có là hai thao tác khác, không phải sửa. */
@@ -918,11 +1474,11 @@
   overflow-wrap: anywhere;
 }
 
-.codeHint {
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-muted);
-}
+/*
+ * `.codeHint` đã xoá 22/09/2026 cùng câu gợi ý cuối cùng của ô chọn công thức
+ * (`portfolio.formulaNeedsCode` — bia mộ ở `vi.ts`). Ô chọn mã và ô chọn công thức nay không còn
+ * dòng chữ nhỏ nào dưới nút, ở cả hai chế độ thêm và sửa.
+ */
 
 /*
  * "Bỏ chọn công thức" — chỉ hiện khi đã chọn, nên nó không được chiếm chỗ như một hành động

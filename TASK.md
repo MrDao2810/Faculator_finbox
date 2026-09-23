@@ -187,6 +187,654 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Rút gọn câu cảnh báo số liệu mẫu ở màn chi tiết (23/09/2026)
+
+**Trạng thái: xong, `npm run check` xanh trọn (121 file · 2.864 ca).**
+
+Chủ dự án đọc câu _"Chuỗi VN-Index dùng để so sánh hiện là số liệu mẫu tự dựng, chưa phải chỉ số
+thật — con số ra đây chỉ để xem cách đọc, đừng dùng cho quyết định thật."_ và chốt: _"đoạn text
+không quá rõ… cần đổi lại thành 'Số liệu chỉ mang tính chất minh họa, không nên áp dụng cho thực
+tế'"_.
+
+Bản cũ nói đúng nguyên nhân, nhưng nguyên nhân ấy đòi người đọc đã biết "chuỗi VN-Index dùng để so
+sánh" là cái gì và vì sao một công thức lại cần nó — tức đòi đúng thứ người mới chưa có. Thứ giữ
+lại là điều duy nhất người dùng phải hành động theo; tên của con số chưa thật vẫn còn ở
+`provider.ts` và trong bộ mẫu.
+
+Câu chỉ hiện ở **một** công thức — `beta`, công thức duy nhất đọc `ctx.marketSeries` — và chỉ khi
+chưa bấm "Xem ví dụ minh hoạ" (bấm rồi thì nó chạy trên chuỗi VN-Index THẬT, xem vòng 22/09).
+
+| File                         | Sửa gì                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `src/application/i18n/vi.ts` | `detail.draftMarketSeries` rút còn một câu; ghi lại bản cũ và lý do đổi |
+| `src/application/i18n/en.ts` | bản tiếng Anh đi theo                                                   |
+| `FormulaDetail.test.tsx`     | tên ca kiểm thôi hứa câu chữ cũ (ca vẫn ghim có/không và ở đâu)         |
+
+Hai chữ lệch so với bản chủ dự án gõ, cả hai là quy ước sẵn có của kho: **"minh hoạ"** (cả sản phẩm
+viết vậy — `detail.loadExample` ngay trên cùng màn là "Xem ví dụ minh hoạ"), và dấu chấm cuối câu.
+
+**Một hệ quả đã nhận:** câu nay nói "số liệu" nói chung, nên ở ca mở màn kèm `?ma=` — giá cổ phiếu
+là số THẬT, chỉ riêng chuỗi VN-Index là số dựng — nó nói rộng hơn sự thật một chút. Ghi ở `vi.ts`
+cạnh khoá.
+
+---
+
+## Màn Danh mục ở khổ hẹp: bốn lỗi hình học + khổ bảng thứ ba (22/09/2026)
+
+**Trạng thái: xong, `npm run check` xanh trọn (121 file · 2.862 ca).** Bảy khẳng định Chrome mới đã
+được chạy thử trên Chrome thật qua dev server và đều xanh; chúng sẽ chạy chính thức ở `check:chrome`
+khi cổng 3000 trống.
+
+Chủ dự án gửi ba ảnh chụp khổ hẹp: _"ở giữa đang thừa quá nhiều không gian… màn web và mobile phải
+khác nhau về giao diện chứ ko được như này. màn web thì ổn rồi nhưng màn mobile sai tùm lum"_.
+
+### Bốn lỗi trong ảnh
+
+1. **Nửa phải của hàng hai trống trơn.** Ô lãi/lỗ không khai hàng nào, nên phép xếp tự động của lưới
+   thả nó xuống hàng BA — con trỏ xếp đã chạy tới đó sau ba ô cột giữa. Vế phần trăm thì thò xuống
+   dưới cả hàng ba, kéo dòng cao thêm một dòng chữ mà không đặt gì vào chỗ vừa nới. Sửa:
+   `grid-row: 2 / span 2`. Dòng từ ~93px xuống còn đúng ba hàng chữ.
+2. **"8%tỷ trọng" dính liền.** Hai `<span>` cạnh nhau trong JSX, không có nút văn bản nào ở giữa.
+   Sửa bằng `{' '}` thật chứ không bằng lề CSS: ở khổ bảng nhãn `display: none`, lề biến mất theo
+   nó, nhưng trình đọc màn hình vẫn đọc dính.
+3. **Khối chi tiết co lại bằng cụm nút, dạt trái, bỏ trống hơn nửa thẻ.** `<td>` của hàng mở ra
+   giữ `display: table-cell` trong một `<table>` đã `display: block` — trình duyệt bọc nó vào một
+   hộp bảng ẩn danh, và hộp ấy co vừa nội dung. Sửa: `display: block` ở khổ hẹp, `table-cell` trả
+   lại trong cả hai `@media` bảng. Hai dòng đi thành cặp, ghi rõ ở cả hai chỗ.
+4. **Dòng tiêu đề khối vỡ.** `<h2>` và dải trạng thái giá nằm trong một `<div>` flex tự xuống
+   dòng; ở 360px dải rớt xuống hàng hai nhưng chỉ rộng bằng nội dung, nút "Làm mới" bị ép xuống một
+   dòng thứ ba trong lòng nó, "+ Thêm mã" treo lơ lửng. Sửa: bỏ lớp bọc, `.blockHead` thành lưới
+   hai cột, dải trạng thái `grid-column: 1 / -1`. Khổ PC vẫn là flex một hàng như cũ.
+
+Thêm một lỗi tự tìm ra khi dựng lại: `<dl>` của khối chi tiết vẫn được dựng khi mã không có ngày
+mua lẫn beta — tức phần lớn mã. Một `<dl>` rỗng vẫn ăn trọn một khe `gap` và vẫn để `.actions` kẻ
+vạch ngăn trên một dải trống. Nay chỉ dựng khi có ô, và `.holdDetailInner > .actions:first-child`
+bỏ vạch.
+
+### Khổ bảng thứ ba: 560–1023px
+
+Sửa bốn lỗi trên xong vẫn chưa đủ, và đo bằng Chrome mới thấy vì sao: **dòng gọn là bố cục hai
+mép**, nên mọi bề ngang thừa chảy hết vào khoảng giữa. Ở 900px khoảng ấy rộng hơn 400px — đúng thứ
+chủ dự án khoanh, và không một cách xếp lại nào trong lòng bố cục ấy chữa được.
+
+Nên danh sách nay có **ba** hình dạng thay vì hai:
+
+| Khổ        | Hình dạng                                                 |
+| ---------- | --------------------------------------------------------- |
+| < 560px    | dòng gọn ba cột (WF-06) — điện thoại dựng đứng, tới 430px |
+| 560–1023px | bảng sáu cột số, bỏ "Doanh nghiệp" và "Giá trị"           |
+| ≥ 1024px   | bảng tám cột đủ như ảnh thiết kế                          |
+
+Hai cột bỏ đi là hai cột rộng nhất và là hai cột duy nhất bỏ được mà không mất số: tên doanh nghiệp
+vẫn còn trong tên khả truy cập của nút mở hàng, còn giá trị thị trường bằng số lượng nhân thị giá —
+hai cột đứng ngay cạnh nhau. Tắt CẢ `<th>` lẫn `<td>`, vì `<th>` còn thì cột còn. Luật căn lề khoá
+theo `:nth-child` nên vẫn đúng ở cả hai khổ bảng: `:nth-child` đếm cả ô đang tắt.
+
+Mốc 560 chứ không 600: cửa sổ chủ dự án chụp rộng khoảng 586px. Khoảng đệm ô ở khổ này hạ xuống
+`--space-2` — sáu cột nhân hai mép đổi lấy 48px bề ngang thật, đúng hiệu số giữa "60.000 ₫" vừa đủ
+chỗ và "60.000 ₫" bị cắt. Đo bằng Chrome ở 360 · 430 · 560 · 768 · 900 · 1440: không khổ nào tràn
+ngang, không ô nào cắt chữ.
+
+### File đã đổi
+
+| File                                   | Sửa gì                                                                                                                                       |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx` | bỏ lớp bọc `.blockHeadMain`; `{' '}` giữa con số tỷ trọng và nhãn; `<dl>` chỉ dựng khi có ô                                                  |
+| `PortfolioScreen.module.css`           | `.blockHead` thành lưới; `.holdGainCell` hàng 2 trải 2; `.holdDetail` block ↔ table-cell; `.actions:first-child` bỏ vạch; tách `@media` 560 |
+| `scripts/chrome-check.mjs`             | HPG bỏ ngày mua (ca "không có ô nào"); **7 khẳng định mới** — 4 ở khổ 360, 3 ở khổ 560 mới thêm. 140 → 147                                   |
+| `CLAUDE.md`                            | "hai hình dạng" → ba; luật `<td>` hàng mở ra nay có hai nửa; luật "không dựng vỏ rỗng"; dòng tiêu đề khối có hai khổ; số khẳng định          |
+
+### Còn lại
+
+- `npm run build` + `check:chrome` vẫn chờ cổng 3000 (PID 8752). Bảy khẳng định mới đã chạy thử
+  trên Chrome thật qua dev server nên logic đã được kiểm, nhưng chúng chưa chạy trên bản `out/`.
+- Xem lại trên điện thoại thật: khổ dưới 560px nay là khổ duy nhất còn dòng gọn.
+
+---
+
+## Danh sách Nắm giữ thành bảng tám cột, form thành hộp thoại giữa màn (22/09/2026)
+
+**Trạng thái: xong phần mã, `npm run check` xanh trọn — `check:chrome` vẫn chưa chạy lần nào.** Đợt
+này đi năm vòng; bốn lỗi khổ hẹp mà chủ dự án chụp ở vòng sáu nằm ở **mục riêng ngay trên**. 14
+khẳng định Chrome thêm ở đợt này (và 7 của mục trên) chưa chạy trên bản `out/` vì `npm run build`
+từ chối khi `next dev` còn giữ cổng 3000 (PID 8752).
+
+Chủ dự án đưa hai ảnh thiết kế và yêu cầu "thay đổi phần danh mục theo giao diện như sau".
+
+### Vòng hai — ba lỗi chủ dự án chụp lại (22/09/2026)
+
+Bản đầu lên `next dev` và hỏng ba chỗ. Cả ba đều là lỗi của tôi, và hai cái đầu cùng một họ: **tôi
+đặt kiểu dáng lên chính phần tử bảng thay vì lên khối bên trong nó.**
+
+1. **`colSpan` bị vứt đi.** Đặt `display: flex` thẳng lên `<td>` của hàng mở ra khiến nó thôi là
+   table-cell; trình duyệt bọc nó vào một ô ẩn danh mang `colspan=1`, ô ấy rơi vào **cột một**, kéo
+   cột "Mã" rộng bằng cả cụm nút và đẩy bảy cột còn lại sang phải — **chỉ ở hàng đang mở**, nên cả
+   bảng nhảy chỗ mỗi lần bấm. Chủ dự án chụp đúng triệu chứng: tiêu đề "Doanh nghiệp" nhảy từ x≈110
+   sang x≈390. Sửa: `<td>` chỉ mang `padding`, mọi kiểu dáng vào `<div class=holdDetailInner>`.
+2. **Khoảng trống rộng giữa "Doanh nghiệp" và "Số lượng".** Bảng để `table-layout: auto` nên phần dư
+   của bề ngang dồn hết vào cột Doanh nghiệp. Sửa: `table-layout: fixed` kèm bề ngang từng cột; tên
+   dài cắt bằng ba chấm, số không xuống dòng.
+3. **Tiêu đề cột và ô số không cùng mép.** Hai luật `text-align` rời nhau (một cho `<th>`, một cho
+   `<td>`) thì chỉ cần một bên đổi là hai hàng nói khác nhau. Sửa: khoá căn lề vào **vị trí cột**,
+   một luật cho cả hai.
+4. **Nút Sửa · Bỏ mã nằm bên trái.** `justify-content: space-between` với đúng MỘT phần tử con thì
+   không đẩy được gì — mà phần lớn mã không có ngày mua lẫn beta nên lưới bên trái rỗng. Sửa:
+   `margin-left: auto` trên cụm nút.
+
+Bốn khẳng định Chrome mới sinh ra từ đúng bốn lỗi này (cột đứng yên khi mở hàng, `colspan` còn
+nguyên và ô trải hết bảng, tiêu đề và ô số căn cùng mép ở cả chín cột, nút dạt phải).
+
+### Vòng năm — bỏ hai câu chữ thừa (22/09/2026)
+
+Chủ dự án chỉ đích danh hai câu và yêu cầu xoá.
+
+1. **`ticker.subtitle`** — "Toàn bộ mã đang giao dịch, lấy từ Finbox", dòng phụ dưới tiêu đề sheet
+   chọn mã. Vế đầu kể lại thứ danh sách ngay dưới đã tự bày ra; vế sau gọi tên một nhà cung cấp mà
+   người dùng không có việc gì phải biết để chọn được mã.
+
+   Kéo theo: `FormulaDetail.test.tsx` **dò sheet chọn mã bằng chính câu này** ở 4 chỗ
+   (`sheetChua(t('ticker.subtitle'))`), nay dò bằng `ticker.title`.
+
+2. **`portfolio.formulaNeedsCode`** — "Số ô điền sẵn của mỗi công thức phụ thuộc mã, nên phải có mã
+   rồi mới chọn được. Bấm vào ô này để chọn mã."
+
+   Đây là **lượt hai** của cùng một việc dọn: 14/09/2026 đã bỏ `portfolio.formulaHint`, và lúc ấy
+   câu này được giữ lại với lý do ghi thành văn — _"nút lúc này hứa 'Chọn mã cổ phiếu trước' và làm
+   một việc khác với chữ trên nhãn ô, nên phải có chỗ nói vì sao"_. Lý do ấy nay đã được chính cái
+   nút gánh: nó in thẳng "Chọn mã cổ phiếu trước", tức nói cả việc cần làm lẫn thứ tự phải làm,
+   ngay tại chỗ người dùng đang bấm.
+
+   Bỏ câu thì bỏ luôn `aria-describedby` trỏ vào nó — trỏ vào một id không tồn tại thì trình đọc
+   màn hình lặng thinh, không lỗi, không cảnh báo, chỉ mất phần mô tả. Lớp `.codeHint` cũng thành
+   chết và đã gỡ.
+
+**Ca kiểm đổi chiều chứ không xoá:** ca "chưa chọn mã: ô công thức nói cần mã" từng ghim rằng câu
+gợi ý CÓ mặt; nay nó ghim rằng chính NHÃN NÚT nói điều đó, và câu gợi ý KHÔNG còn. Ai rút gọn nhãn
+nút về "Chọn công thức" là bỏ mất lời giải thích cuối cùng — ca ấy sẽ đỏ.
+
+### Vòng bốn — hai sheet con cũng nổi giữa màn, và đổi nhãn ô công thức (22/09/2026)
+
+Chủ dự án: _"bấm vào Thêm mã để bật popup thêm mã thì cần đổi thành giao diện popup chứ không phải
+bottom dialog, đồng thời thêm công thức cũng vậy. và hơn hết là 'Thêm công thức' chứ không phải là
+'Tính công thức'"_.
+
+1. **Hai sheet mở từ trong hộp thoại nay cũng nổi giữa màn.** Thêm prop `placement` cho
+   `TickerPickerSheet` và `FormulaForTickerSheet`, truyền `'center'` **chỉ ở màn Danh mục**. Một
+   tấm dán đáy trượt lên đè lên một tấm đang nổi ở giữa thì hai lớp đọc ra như hai thứ không liên
+   quan, và cái ở dưới thì vẫn ở giữa màn.
+
+   **Màn chi tiết công thức KHÔNG đổi theo.** `TickerPickerSheet` ở đó mở thẳng từ trang chứ không
+   từ hộp thoại nào, và dán đáy là dáng đúng cho một danh sách dài cuộn bằng ngón tay. Mặc định của
+   prop vẫn là `'bottom'` nên không màn nào đổi ngoài ý muốn.
+
+2. **`portfolio.formulas`: "Tính công thức" → "Thêm công thức"** (en: "Run a formula" → "Add a
+   formula"). Đây là nhãn của một Ô TRONG FORM, không phải nút chạy ngay: bấm vào chỉ CHỌN công
+   thức để đính kèm, việc tính xảy ra sau khi lưu khi màn điều hướng sang trang công thức.
+
+   **Đổi nhãn làm lộ một va chạm thật trong ca kiểm**, không phải lỗi cú pháp: nhãn nút gửi form là
+   "Thêm và mở công thức", nên biểu thức `/^(Thêm|Cộng thêm).*công thức$/` bắt được CẢ ô lẫn nút và
+   báo nhiều kết quả. Neo lại vào chữ "và mở" — lời hứa riêng của nút gửi. Hai nhãn gần nhau là hệ
+   quả không tránh được của lựa chọn này; ai đặt thêm nhãn mới quanh đây phải nhớ.
+
+Một khẳng định Chrome nữa: sheet mở từ trong hộp thoại phải có lề trái bằng lề phải **và có lề
+dưới** — tấm dán đáy thì lề dưới bằng 0, nên phép đo phân biệt được hai dáng.
+
+### Vòng ba — hộp thoại: góc vuông và các ô không thẳng hàng (22/09/2026)
+
+Chủ dự án: _"đổi thành dialog rồi thì bo các góc lại cho đẹp hộ tôi cái… sao không chỉnh sửa cho
+thẳng hàng, không sửa cho không gian hiển thị số liệu bằng nhau"_. Hai lỗi, và lần nữa đều là tôi
+đặt kiểu dáng ở sai chỗ.
+
+1. **Góc bo không ăn.** `.panelCenter` khai ở dòng 44 còn `.panel` ở dòng 72 của cùng một file. Hai
+   bộ chọn **cùng một hạng độ ưu tiên** (mỗi cái một lớp), nên thứ tự trong file là thứ duy nhất
+   quyết định — và `.panel` thắng, trả lại `border-radius: lg lg 0 0` cùng `border-bottom: none`
+   của tấm dán đáy. Hộp thoại vì thế hiện ra với hai góc dưới VUÔNG và không có mép dưới. Sửa:
+   chuyển khối `.panelCenter` xuống SAU `.panel`.
+2. **Hai ô mở sheet không dùng cùng kiểu với bốn ô nhập thật.** `Chọn mã` và `Tính công thức` là
+   `<button>` tự dựng, và chúng tự đặt số đo thay vì chép từ `Input.module.css` — lệch **bốn chỗ
+   cùng lúc**: khe nhãn `--space-2` thay vì `--space-1`, nhãn `--color-ink` thay vì
+   `--color-ink-soft`, viền 1px `--color-border-strong` thay vì 1,5px `--color-accent`, cỡ chữ
+   `--text-base` thay vì `--text-sm`. Trên màn: cột trái toàn ô viền xám thấp hơn, cột phải toàn ô
+   viền xanh cao hơn, không hàng nào thẳng hàng nào.
+
+Kèm phần "hiện đại hơn", không phải trang trí suông: thêm token `--shadow-modal` (khai ở cả hai
+bảng màu) vì tấm nổi giữa trang không tựa vào mép nào nên thiếu bóng thì đọc ra như nằm cùng mặt
+phẳng với nội dung phía sau; cắt góc bo ở `.header` và `.footer` để nền vuông góc của chúng thôi
+lấp bốn góc vừa bo; nới khoảng đệm thân và hàng nút lên một bậc; tiêu đề hộp thoại lên `--text-lg`.
+
+**Chủ dự án bác một đề xuất trong vòng này:** đổi nút "Huỷ" từ `ghost` sang `secondary`. Giữ nguyên
+`ghost`.
+
+Ba khẳng định Chrome mới đo đúng ba thứ vừa hỏng: bán kính bốn góc tấm, chiều cao sáu ô của form
+(đo đúng hộp CÓ VIỀN của từng trường — `.control` với ô nhập, `<button>` với ô mở sheet; đo lẫn hai
+tầng là phép so luôn lệch kể cả khi màn đúng), và mép trên của hai ô cùng một hàng.
+
+### Vòng hai — "Tỷ trọng nghĩa là gì"
+
+Chủ dự án: _"đang chưa hiểu tác dụng của Tỷ trọng, cần xem xét lại trong dự án đối với mã và công
+thức xem tỷ trọng đang có nghĩa là gì rồi sửa lại."_ Rà cả `src/`:
+
+| Chỗ dùng                                 | "Tỷ trọng" nghĩa là                                                  |
+| ---------------------------------------- | -------------------------------------------------------------------- |
+| `portfolio.ts:54` (màn Danh mục)         | Phần giá trị của một mã trên tổng giá trị danh mục, theo **thị giá** |
+| `valuation-dcf.ts:784` (`wacc`)          | Tỷ trọng vốn chủ và vốn nợ trong cơ cấu vốn                          |
+| `technical-trend.ts:450` (`ema-n-phien`) | Hệ số làm mượt `k`, tỷ trọng dành cho giá phiên mới nhất             |
+
+Ba nghĩa **không bao giờ đứng chung một màn**, nên không phải đổi tên cái nào. Thứ thiếu là **mẫu
+số**: "6%" đứng trần thì có hai mẫu số đều hợp lý — giá trị thị trường và vốn đã bỏ ra. Thêm một
+dòng cuối khối (`portfolio.weightNote`), cùng nếp `ConstantsNote` ở màn chi tiết; tiêu đề cột rộng
+10% bề ngang không chở nổi một mệnh đề.
+
+Rà ra thêm **một chỗ thiếu thành thật**: `total` cộng bằng `row.value ?? 0`, nên mã chưa tra được
+giá bị coi như 0 và **rơi khỏi mẫu số** — tỷ trọng các mã còn lại cộng đủ 100% trong khi danh mục
+thì chưa đủ. Nay có câu thứ hai nói đúng điều đó, chỉ hiện khi thật sự có mã thiếu giá
+(`portfolio.weightPartial`), kèm ba ca kiểm ghim cả hai chiều.
+
+### Đây là ĐẢO một quyết định đã chốt
+
+`TASK.md` mục "Danh sách Nắm giữ theo bản vẽ WF-06" (09/2026) ghi: bản vẽ bỏ hẳn thị giá, lãi/lỗ từng
+dòng, ngày mua, beta và tên doanh nghiệp, và chủ dự án chốt **"giữ thông tin, đổi dáng"** — chuyển
+tất cả xuống khối mở ra. Ảnh mới kéo thị giá, giá trị, phần trăm lãi/lỗ và tên doanh nghiệp **trở
+lại hàng**. Đã báo trước khi làm; chủ dự án xác nhận.
+
+Một quyết định cũ khác thì **không** bị đảo mà được thoả: hồi 09/2026 chủ dự án bác "căn phải cho ô
+số", và chính docblock ghi lý do bác đã viết _"thứ căn phải thật sự giúp được là bảng có `<th>`/
+`<td>`"_. Khối bị bác khi ấy là lưới `auto-fill` không có cột cố định.
+
+### Ba quyết định chủ dự án chốt trong đợt
+
+| Câu hỏi                               | Chốt                                                                                                           |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Tám cột không vừa màn 360px           | Điện thoại **giữ dòng gọn** WF-06, từ 1024px mới là bảng                                                       |
+| "Xem trên biểu đồ tỷ trọng" trong ảnh | Bỏ — màn không có biểu đồ nào, Registry không có công thức "tỷ trọng". Hàng mở ra chỉ còn **Sửa** và **Bỏ mã** |
+| Thiếu thị giá thì bốn ô cùng vắng     | Hiện `_ _`, _"ý là đang chưa có dữ liệu và bên trên có button làm mới"_                                        |
+
+Kèm một yêu cầu mới: _"bấm vào Sửa thì bật popup mới lên giữa màn chiếm tầm 50% màn hình width
+height"_.
+
+### Đã đổi file nào
+
+| File                                                | Đổi gì                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/danh-muc/PortfolioScreen.tsx`              | `<ul>/<li>` → `<table>` 9 cột; hàng mở ra thành `<tr>` thứ hai với `colSpan`; dải giá phiên gộp vào dòng tiêu đề khối kèm số mã và nút Thêm mã; form bọc trong `BottomSheet placement="center"`; bỏ effect `scrollIntoView` và `formRef`                                                                                                                                                                                                                                 |
+| `src/app/danh-muc/PortfolioScreen.module.css`       | Một cây DOM hai hình dạng: `display: block` + lưới ở khổ hẹp, `display: table` từ 1024px; thanh tỷ trọng bằng `linear-gradient`; nút Thêm mã từ khung nét đứt rộng hết hàng thành nút nền đặc vừa nội dung                                                                                                                                                                                                                                                               |
+| `src/ui/primitives/BottomSheet.tsx` · `.module.css` | Thêm prop `placement: 'bottom' \| 'center'` (mặc định `bottom`, không đổi hành vi cũ)                                                                                                                                                                                                                                                                                                                                                                                    |
+| `src/application/i18n/vi.ts` · `en.ts`              | Thêm 8 khoá (6 tiêu đề cột, `tableCaption`, `tickerUnit`); `portfolio.add` rút còn "Thêm mã"; `priceSession` viết thường vì nay là mảnh giữa câu; **xoá** `portfolio.priceMissing` kèm bia mộ                                                                                                                                                                                                                                                                            |
+| `src/app/danh-muc/PortfolioScreen.test.tsx`         | 80 → 84 ca. Hai helper mới (`tamTrenCung`, `dongMa`, `oThongKe`)                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `src/ui/hairline.test.ts` · `tokens.test.ts`        | Ghi danh `.holdDetailRow`, `.holdHead th` kèm lý do (7 → 9 chỗ); `--weight` vào danh sách biến cục bộ                                                                                                                                                                                                                                                                                                                                                                    |
+| `scripts/chrome-check.mjs`                          | 126 → **140** khẳng định: 3 ở khổ 360 (bảng trở lại dòng gọn, ô xếp chồng, không tràn ngang), 10 ở khổ 1440 (hộp thoại rộng đúng nửa màn và nằm giữa, bốn góc bo đều, sáu ô cao bằng nhau, hai cột thẳng hàng, bảng đủ 9 cột cùng một hàng, nút phủ trùng khít hàng, cột đứng yên khi mở hàng, `colspan` còn nguyên và ô trải hết bảng, tiêu đề và ô số căn cùng mép, nút Sửa/Bỏ mã dạt phải). Hai khẳng định form cũ phải sửa đường dò vì form nay nằm trong `<dialog>` |
+| `CLAUDE.md`                                         | Mục mới dưới phần `MarketFeed`; số khẳng định 126 → 140                                                                                                                                                                                                                                                                                                                                                                                                                  |
+
+### Lỗi tự bắt được trong lúc làm
+
+- **`<tbody>` bị bỏ quên.** Đặt `display: block` cho `<table>` mà để `<tbody>` nguyên
+  `table-row-group` thì trình duyệt **tự sinh một hộp bảng ẩn danh** bao quanh nó, và mọi luật lưới
+  đặt trên `<tr>` đổ theo — lặng lẽ, ở đúng khổ màn mà không cửa gác nào đo. Đã sửa cả hai chiều
+  (`tbody` + `caption`), và khẳng định "ô xếp chồng chứ không trải thành tám cột" ở khổ 360 sinh ra
+  chính vì chỗ này.
+- **`grid-row: 1 / -1` cho mũi tên là sai.** Lưới không khai hàng nào nên `-1` trỏ mép cuối của lưới
+  TƯỜNG MINH (một hàng), mũi tên sẽ dính hàng đầu thay vì nằm giữa. Đổi sang `span 3`.
+- **Ba ca test đỏ vì lỗi thật của tôi**, không phải vì cửa gác quá chặt: ca beta bấm mở chi tiết lần
+  thứ hai nên ĐÓNG nó lại; hai ca bộ nhớ đệm giá tra `7.140.000` trên cả màn, mà cột GIÁ TRỊ nay in
+  đúng con số của ô tổng (bộ số gieo chỉ có một mã).
+
+### Còn lại
+
+1. **Chạy `npm run check:chrome`** — cần cổng 3000 trống. Sáu khẳng định mới chưa chạy lần nào, và
+   ba trong số đó gác đúng những chỗ chỉ trình duyệt mới trả lời được (bố cục lưới ở 360, nút phủ
+   trùng khít `<tr>`, bề ngang hộp thoại).
+2. **Xem trên điện thoại thật** — dòng gọn nay mang thêm một dòng "thị giá", vì thị giá rời khỏi khối
+   mở ra và không còn chỗ nào khác để đứng.
+3. Biểu đồ tỷ trọng: chưa làm, chờ chủ dự án quyết có cần không.
+
+---
+
+## "Dán dữ liệu" theo bản thiết kế: popup giữa màn, vẽ theo cửa sổ dòng, lỗi chỉ đúng ô (22/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi trên trình duyệt.** `npm run check` xanh: 121 file,
+**2.855 ca** (nền 2.846, thêm 9 ca mới).
+
+### Yêu cầu
+
+Chủ dự án gửi một bản vẽ giao diện kèm câu: "sửa lại thiết kế thành như sau cho tôi, đồng thời đổi
+lại thành popup ở giữa màn hình khi ở màn web". Bản vẽ đổi bốn thứ so với lượt hai.
+
+### Đã làm
+
+**1. Popup nổi giữa màn ở khổ PC.** Dùng `placement="center"` của primitive `BottomSheet` (prop này
+vừa có sẵn cùng ngày cho form Danh mục), nới rộng lên `min(1040px, 94vw)` — lưới sáu cột cần bề
+ngang mà mức mặc định 720px không đủ. Dưới 768px trả về dáng dán đáy: popup giữa màn chỉ hợp lý khi
+màn còn chỗ quanh nó.
+
+**2. Chỉ vẽ phần dòng đang nhìn thấy.** Dán 251 phiên sáu cột là 1.506 ô `<input>`; vẽ hết thì máy
+yếu đứng hình. Chiều cao dòng cố định 44px, hai ô đệm trên dưới giữ đúng chiều dài thanh cuộn, và
+thanh trạng thái nói thẳng "Đang xem dòng 1 – 10 trong 251". Hằng `ROW_H` bên `.tsx` và số 44px bên
+`.css` phải khớp nhau — ghi rõ ở cả hai chỗ.
+
+**3. Lỗi chỉ đúng Ô, không chỉ đúng dòng.** `SkippedRow` thêm `column` (cột gây lỗi) và `short` (lý
+do cực ngắn, để đứng sau một con số). Ô hỏng tô đỏ, mang `aria-invalid`, có dấu báo vẽ ra — ba dấu
+hiệu chứ không riêng màu (NFR-USA-06); dòng hỏng đổi nền; nút "Xem" nhảy tới dòng hỏng đầu tiên.
+
+Kèm theo là một luật mới ở Domain: **ngày có chữ nhưng không đọc ra ngày thật thì dòng đó hỏng**.
+Trước đây `28/13/2026` vẫn lọt — ngày giữ nguyên dạng thô nên nó chỉ làm `orderOf()` trả `'unknown'`
+và cả bảng tụt xuống câu chung chung "không đọc được thứ tự phiên". Một ô gõ nhầm tháng 13 không
+được phép hạ cả chuỗi xuống mức "không biết thứ tự".
+
+**4. Bỏ dòng lỗi là một quyết định có ý thức.** Ô đánh dấu "Bỏ qua N dòng lỗi" ở chân sheet, nút Nạp
+khoá cho tới khi tích. Lặng lẽ vứt ba dòng rồi báo "248 phiên sẵn sàng" đúng là thứ FR-06 tồn tại để
+chặn. **Đây là chỗ tôi phải đoán ý bản vẽ**: bản vẽ để ô chưa tích mà nút Nạp vẫn trông bật — nhưng
+con số trên nút đã là 248 (đã trừ 3 dòng lỗi), nên một ô đánh dấu không gác gì sẽ là nút chết.
+
+**Ngoài bản vẽ, hai thứ giữ lại có chủ ý:** dải cảnh báo về Ý NGHĨA dữ liệu (đảo chiều thời gian,
+không đọc được thứ tự, quy ước số mập mờ, phần đã cắt, danh sách dòng bỏ qua theo khuôn WF-11) —
+bản vẽ không có vì cảnh đang vẽ không rơi vào ca nào trong số đó; và câu xác nhận "N phiên đọc được,
+từ … tới …" thu gọn vào thanh trạng thái, vì khoảng ngày là chỗ duy nhất bắt được một cú dán nhầm
+bảng khác.
+
+**Thêm mới ngoài bản vẽ đã yêu cầu:** nút "Tải file CSV" đọc file người dùng chọn rồi đi qua ĐÚNG bộ
+đọc của lối dán (`splitPasteTable`), không dựng bộ đọc thứ hai.
+
+### File đã đổi
+
+| File                                        | Vì sao                                                              |
+| ------------------------------------------- | ------------------------------------------------------------------- |
+| `src/core/paste-import.ts`                  | `SkippedRow` thêm `column` + `short`; bắt ngày không đọc được       |
+| `src/core/paste-import.test.ts`             | fixture theo trường mới                                             |
+| `src/ui/sheets/PasteImportSheet.tsx`        | dựng lại theo bản vẽ: popup, cửa sổ dòng, lỗi theo ô, ô bỏ qua, CSV |
+| `src/ui/sheets/PasteImportSheet.module.css` | popup rộng, lưới chiều cao dòng cố định, thanh công cụ, ô lỗi       |
+| `src/ui/sheets/ExportSheet.test.tsx`        | viết lại bộ ca WF-11 theo bản vẽ, +9 ca                             |
+| `src/application/i18n/vi.ts`, `en.ts`       | khoá cho thanh công cụ, thanh trạng thái, ô bỏ qua; bỏ 2 khoá thừa  |
+
+### Sửa tiếp trong ngày: đủ sáu cột sẵn, và dữ liệu mẫu là số liệu THẬT
+
+Chủ dự án: "mặc định là hiển thị toàn bộ cột… dữ liệu mẫu nếu đã nạp vào thì phải là dạng chuẩn đã
+lấy từ ví dụ thật sự trên mạng về… sau khi nạp dữ liệu mẫu vào thì dữ liệu hiển thị phải đạt đủ điều
+kiện để vẽ được biểu đồ ở ngoài công thức".
+
+- **`DEFAULT_COLUMNS` thành đủ sáu** (Ngày · Mở · Cao · Thấp · Đóng · Khối lượng); nút "Thêm cột"
+  và khoá `paste.addColumn` bỏ hẳn — đã đủ thì không còn gì để thêm.
+- **`src/ui/sheets/paste-sample.ts` (file mới)**: 64 phiên HPG thật, lấy từ CafeF ngày 22/09/2026
+  (22/06 → 22/09/2026). Đã soát ba điều trước khi chép: không phiên nào dính điều chỉnh giá (nên
+  không có bậc nhảy giả do chia tách / cổ tức), mọi dòng thoả Thấp ≤ Mở ≤ Cao và Thấp ≤ Đóng ≤ Cao,
+  không ngày trùng. Nguồn và ngày lấy ghi trong docblock của file.
+- **64 phiên là con số có lý do**: vượt mốc 60 mà `risk-ratios.ts` đòi để Sharpe / Sortino / Beta có
+  ý nghĩa thống kê, cũng là `MIN_USABLE_ROWS` của màn Bảng dữ liệu, và thừa xa mốc 5 phiên của biểu
+  đồ trục thời gian. Bản mẫu cũ 10 phiên tự bịa chỉ đủ vẽ biểu đồ, còn mọi tỷ số vẫn báo thiếu phiên
+  — tức bấm "Dữ liệu mẫu" xong vẫn không thấy gì. Ba ca kiểm ghim: ≥ 60 phiên, đủ sáu trường không
+  `null`, và OHLC hợp lệ ở mọi phiên.
+- **Nạp bằng `import()` riêng**, cùng lối `draw-card` và `chart-snapshot`: `FormulaDetail` nạp sheet
+  này TĨNH, nên 64 phiên (~3 KB) sẽ đi theo gói đầu của cả 111 trang chi tiết nếu để import tĩnh.
+- **Một lỗi thật lộ ra khi làm mẫu**: `HEADER_WORDS` không nhận ra chính `COLUMN_LABELS` của sản
+  phẩm. Nhãn đã đổi sang viết đủ chữ ("Giá cao nhất") từ lượt một, mà từ vựng vẫn chỉ có "cao nhat"
+  — nên nạp lại đúng bảng do sản phẩm xuất ra thì cột Cao và Thấp rơi vào "Không dùng", im lặng, và
+  mọi công thức cần nến mất dữ liệu. Đã thêm hai từ, và thêm một ca kiểm quét CẢ sáu nhãn nên nhãn
+  nào đổi sau này cũng bị bắt.
+
+### Sửa tiếp: mở sheet ra thấy chuỗi đang dùng, và gỡ hai câu chú thích nói sai
+
+Chủ dự án: "sau khi sử dụng chuỗi mẫu thì nó đang được áp dụng ra bên ngoài. thì lúc từ bên ngoài
+vào lại để xem thì phải xem được luôn thông tin chuỗi mẫu đó trong bảng dữ liệu chứ… tôi đã nói rõ
+rồi là cần chuỗi dữ liệu THẬT được lấy từ trên mạng về chứ không phải fake dữ liệu… xoá mấy cái
+trong ảnh sau đi." Ảnh kèm hai câu: `detail.exampleSeriesNote` và `detail.draftMarketSeries`.
+
+**1. Sheet mở ra là thấy chuỗi màn ngoài đang dùng.** Thêm prop `initialRows`; `FormulaDetail`
+truyền `bars`, `DataTableScreen` truyền `rows`. Đổ một lần mỗi lần mở (cờ `primed`), số viết ra theo
+`formatNumber` nên giống hệt thứ người dùng tự gõ, và chốt luôn `style = 'vi'` để sheet khỏi hỏi lại
+quy ước số của chính nó. Cờ `primed` KHÔNG hạ trong `reset()`: "Xoá hết" cũng gọi hàm ấy, hạ cờ thì
+hiệu ứng đổ lại chuỗi cũ ngay và nút thành vô dụng — có ca kiểm riêng cho chỗ này.
+
+**2. Đã đối chiếu: chuỗi ví dụ LÀ số liệu thật, câu chú thích mới là thứ nói sai.**
+`market-series-2026.ts` giữ FPT 57 phiên và VN-Index 71 phiên do chủ dự án cung cấp 16/09/2026,
+nguồn investing.com. Ngày 22/09/2026 kiểm lại bằng nguồn ĐỘC LẬP (CafeF, gọi thẳng endpoint lịch
+sử): **6/6 phiên OHLC của FPT và 20/20 phiên VN-Index khớp từng chữ số**. Vậy câu
+`detail.exampleSeriesNote` — "không phải giá cổ phiếu thật của công ty nào" — dán nhãn "số bịa" lên
+đúng những con số đáng tin nhất trên màn. Đã gỡ khỏi cả hai từ điển, gỡ chỗ hiện, và ba ca kiểm
+dùng nó làm mốc chuyển sang đọc nhãn nút `detail.exampleLoaded`.
+
+**3. `detail.draftMarketSeries` bật sai chỗ.** Nó vẫn ĐÚNG cho chuỗi VN-Index mặc định trong
+`samples.ts` (vẫn PRNG), nhưng đang bật cả khi công thức chạy trên `marketSeriesOverride` — tức
+chuỗi VN-Index THẬT mà chính ví dụ minh hoạ vừa nạp (`risk-ratios.ts` truyền `VNINDEX_71_PHIEN`).
+Đó đúng là ca trong ảnh. Điều kiện bật nay xét thêm override; thêm một ca kiểm ghim: Beta lúc mở ra
+CÓ câu ấy, bấm "Xem ví dụ minh hoạ" xong thì KHÔNG còn.
+
+### Sửa tiếp: dọn khối Số liệu sau khi nạp ví dụ
+
+Chủ dự án chụp màn: "đoạn chỗ max 500 phiên tại sao lại ở giữa? phải ở bên phải chứ. còn text đâu
+cần phải hiển thị… bên dưới 3 button cũng đang sắp xếp rất rối loạn".
+
+**Nguyên nhân mốc max rơi vào giữa**: `.marks` là flex `space-between` mà lại có BA con — mốc min,
+mốc max, và con dấu nguồn số. Ba con thì con giữa nằm giữa, và con giữa chính là mốc max. Cùng
+khuôn ấy có ở `.head` ngay trên (nhãn · con số), nên sửa một chỗ mà để nguyên chỗ kia chỉ là dời
+chỗ cho lỗi tái diễn. Cả hai hàng nay bỏ `space-between`, đẩy phải tường minh bằng `margin-left:
+auto` — thêm con thứ ba vào sau cũng chỉ chen được ở giữa, hai đầu vẫn dính mép.
+
+**Ba thứ bỏ hiện:**
+
+- con dấu `lockedNote` ('dữ liệu mẫu') trên thanh trượt — khối Số liệu đã nói nguồn ấy hai lần rồi
+  (nhãn nút "Đã xem ví dụ minh hoạ ✓" và dòng "Đã nạp số phiên giá"). Ô số `NumberInput` vẫn giữ
+  con dấu nguồn: ở đó nó là chỗ DUY NHẤT nói điều ấy. Ô trượt vẫn KHOÁ như cũ, chỉ phần chữ là thôi;
+- hai chữ "min" / "max" — con số nằm thẳng dưới hai đầu rãnh thì tự nó nói mình là đầu nào, mà hai
+  chữ ấy chiếm đúng chỗ con số cần để dính mép. Chúng ở lại cho trình đọc màn hình, nơi không có
+  rãnh nào để nhìn.
+
+**Hàng ba nút**: ba thứ không cùng vai mà trước đây trôi tự do. "Dán chuỗi giá" và "Xem ví dụ minh
+hoạ" là hai cách ĐƯA dữ liệu vào màn này, còn "Mở bảng dữ liệu →" là ĐI SANG màn khác. Gom hai cái
+cùng vai về trái, đẩy cái đi-nơi-khác sang phải — hàng tự tách làm hai cụm mà không cần thêm đường
+kẻ hay nhãn nào. Thêm `align-items: center` vì nút cao 44px còn link cao theo chữ.
+
+Hai ca kiểm mới đọc DOM chứ không đọc CSS, nên chúng bắt được đúng lỗi này nếu ai thêm con thứ ba
+vào hàng mốc: "hàng mốc chỉ còn hai con nhìn thấy, và mốc max là con CUỐI".
+
+### Sửa tiếp: nút "Nạp mẫu" và thanh mã gộp thành một con chip
+
+Chủ dự án vẽ lại: nạp mã xong thì nút thu thành chip `GVR ⌄ | ✕` — bấm nửa trái mở lại để đổi mã,
+bấm dấu × là bỏ mã.
+
+**Cái đang thừa:** nạp xong một mã, màn nói điều đó ở HAI chỗ chiếm hai hàng — nhãn nút dài ra
+thành "Đã nạp GVR", và một thanh riêng dưới khối công thức mang huy hiệu mã cộng hai nút "Đổi mã" /
+"Bỏ mã". Chip gộp cả hai, đứng đúng chỗ nút "Nạp mẫu" từng đứng nên không có gì phải đi tìm.
+
+- Nửa trái kế thừa nút "Đổi mã" của thanh cũ → mở thẳng kho mã toàn thị trường. Đã có mã rồi thì
+  việc cần làm là tìm mã KHÁC, mà sheet mẫu chỉ bày bốn mã; vào thẳng kho bớt một lần bấm.
+- Nửa phải gọi `resetAll()` y như nút "Bỏ mã" cũ — xoá kho phiên, trả ô về mặc định, xoá bản nháp.
+- Điều kiện hiện là `stickyTicker` chứ không phải `loadedPreset`: hai thứ lệch nhau khi mã không
+  điền được ô nào, và đúng lúc ấy người dùng CÀNG cần lối bỏ mã. Thanh cũ đã dùng `stickyTicker`.
+- Vẫn `<p role="status">` như thanh cũ: mã có thể tự bám theo lượt duyệt mà người dùng không bấm gì
+  ở màn này, lúc ấy trình đọc màn hình phải được báo.
+
+**Một chỗ vấp đáng ghi**: bản đầu đặt tên đọc được bằng một `<span>` ẩn mang chữ "Đổi mã " đứng
+trước mã. Hỏng — bộ tính tên đọc được cắt khoảng trắng hai đầu từng nút con rồi nối lại, mà hai
+`<span>` đều inline nên không có dấu cách nào được chèn: tên ra "Đổi mãFPT" và 15 ca kiểm đỏ.
+Chuyển sang `aria-label` tường minh. Chữ nhìn thấy ("FPT") vẫn nằm trong tên nên vẫn đúng WCAG
+2.5.3.
+
+Khoá `detail.preset` ('Đã nạp') thành mồ côi và đã bỏ — cổng `i18n.test.ts` bắt đúng chỗ này.
+
+**Hai lượt chỉnh sau đó, đều là "cho giống cái nút đứng cạnh"** — chip nằm cùng hàng với "Xem ví dụ
+thực tế", nên mọi số đo của nó phải lấy từ primitive Button chứ không đặt riêng:
+
+- **Cao 36px, không phải 46px.** Bản đầu để `min-height: var(--tap-min)` (44px) cho hai nửa, cộng
+  2px viền của chip thành 46px — lệch hẳn một bậc. Nút `size="sm"` chỉ cao 36px và giữ vùng chạm
+  44px bằng `.sm::after`, một lớp vô hình nới ra ngoài mép. Chip theo đúng khuôn ấy: hai nửa
+  `min-height: 34px` (36 trừ 2px viền, vì viền nằm ở chip chứ không ở nút) + một `::after` cao
+  `var(--tap-min)`. `overflow: hidden` phải bỏ, nếu không nó cắt mất đúng cái lớp vừa nới; bỏ được
+  vì hai nửa đều nền trong suốt, không có gì tràn ra góc bo.
+- **Góc bo `--radius-md`, không phải `--radius-pill`.** Bo tròn hẳn hai đầu làm chip đọc ra như một
+  thẻ nhãn khác loại, trong khi nó là một nút trong hàng nút. `--radius-md` là đúng giá trị Button
+  dùng.
+
+### Còn lại
+
+- **Phần fake thật sự còn lại là `src/data/samples.ts`** — 26 mã × 248 phiên sinh bằng PRNG, cộng
+  `VN_INDEX_BARS` cũng PRNG. Đây là mục số 1 trong danh sách chặn v0.1 mà `CLAUDE.md` đã ghi từ
+  trước, không phải thứ vừa phát sinh. Thay nó bằng số thật là việc làm được: endpoint lịch sử của
+  CafeF trả OHLCV thật cho cả 26 mã lẫn VNINDEX, đã gọi thử và đối chiếu xong trong đợt này. Chưa
+  làm vì **chưa đo được dung lượng gói**: 26 mã × 64 phiên ≈ 70 KB thô nhúng thẳng vào bundle mà
+  `FormulaDetail` nạp TĨNH, trong khi cổng `npm run size` chặn First Load ở 180 kB — mà build không
+  chạy được (dev server giữ cổng 3000). Cần tắt dev server rồi làm một lượt: viết
+  `scripts/gen-market-bars.mjs` theo đúng khuôn `gen-live-fundamentals.mjs`, đo, rồi mới hạ
+  `isDraft` và gỡ nốt `detail.draftMarketSeries`.
+- Chủ dự án soi trên trình duyệt. Hai chỗ cần nhìn kỹ: **cuộn lưới 250+ dòng** (phần vẽ theo cửa sổ
+  chỉ đúng khi chiều cao dòng thật đúng 44px — đổi cỡ chữ là lệch), và **khổ điện thoại**, nơi tấm
+  trả về dáng dán đáy và lưới sáu cột phải cuộn ngang.
+- Ô đánh dấu "Bỏ qua N dòng lỗi" đang GÁC nút Nạp. Nếu ý bản vẽ là nút vẫn bật sẵn thì nói một câu,
+  đổi lại mất một dòng.
+- Dữ liệu mẫu đứng yên tại ngày 22/09/2026. Nó là bộ mẫu chứ không phải nguồn giá, nên không cần
+  làm mới định kỳ; nhưng nếu đổi mã khác thì phải lấy lại đủ ba phép soát ghi trong docblock.
+- `npm run build` + `verify:static` vẫn chưa chạy (dev server giữ cổng 3000), nên `npm run size`
+  cũng chưa đo được phần chunk mẫu tách ra.
+
+---
+
+## Bỏ ô văn bản tự do khỏi "Dán dữ liệu", thay bằng lưới nhập như bảng tính (22/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi trên trình duyệt.** `npm run check` xanh: 121 file,
+**2.846 ca** (nền 2.829, thêm 17 ca mới).
+
+### Yêu cầu
+
+Ngay sau đợt ở mục dưới, chủ dự án bác nốt phần còn lại của sheet, hai điều một lúc:
+
+> "phần 'dán dữ liệu vào đây' đang không hợp lý… là phải thêm dấu cách các thứ rồi là viết đúng
+> from,… nhưng người dùng làm sao biết được? tôi cũng không cần phải thêm text giải thích như ở trên
+> làm gì vì tôi cũng chả muốn đọc vì mô tả quá quê mùa, lạc hậu."
+>
+> "tại sao không đưa ra các biện pháp thay đổi giao diện phần này để người dùng chỉ cần nhập từng
+> phần hoặc paste dữ liệu vào thôi thay vì cứ nhập xong lại phải sử dụng dấu cách?"
+
+Hai lời phê chỉ về cùng một chỗ: **chữ đang được dùng để bù cho một ô nhập sai hình dạng**. Đợt
+trước thêm hai dòng chỉ dẫn (`paste.help1` / `paste.help2`) chính là để dạy người dùng cách gõ cho
+đúng vào một ô văn bản tự do — mà thứ cần sửa là cái ô, không phải lời dặn.
+
+Chốt qua câu hỏi chọn: **lưới nhập như bảng tính**, mở sẵn **2 cột Ngày + Giá đóng cửa**.
+
+### Đã làm
+
+**Tầng Domain — một bộ đọc, hai lối vào** (`src/core/paste-import.ts`). Tách `parsePaste()` làm hai
+nửa dùng chung phần lõi, không đổi một hành vi nào (56 ca cũ xanh nguyên):
+
+- `splitPasteTable(text)` — cắt chuỗi dán thành bảng ô thô + phỏng đoán vai trò cột, chưa đọc số;
+- `parseCells(cells, columns, style?)` — đọc thẳng từ lưới, kể cả khi người dùng gõ tay từng ô;
+- `parsePaste()` giờ chỉ là hai nửa ấy nối lại.
+
+Cái giá của việc KHÔNG tách: hai bộ đọc song song, và bốn cơ chế chặn số sai của đợt trước (quy ước
+số theo cả bảng, dấu phẩy thập phân, chiều thời gian, cắt phần cũ khi quá trần) chỉ chạy ở một nửa
+sản phẩm. Một ca kiểm mới so thẳng hai lối vào trên cùng dữ liệu.
+
+Riêng lưới có một luật riêng: **dòng trống hoàn toàn không phải dòng hỏng**. Lưới luôn chừa dòng
+trống ở cuối để gõ tiếp, tính nó là lỗi thì mọi lần dán xong đều kèm một cảnh báo rỗng — mà cảnh
+báo rỗng dạy người dùng bỏ qua cảnh báo thật.
+
+**Giao diện** (`src/ui/sheets/PasteImportSheet.tsx`, `.module.css`). `<textarea>` biến mất hẳn:
+
+- gõ thẳng vào từng ô, không còn dấu ngăn cột nào để gõ sai;
+- gõ tới dòng cuối thì lưới tự mở thêm dòng; Enter nhảy xuống ô dưới, Tab sang ngang;
+- Ctrl+V vào bất kỳ ô nào thì cả khối tự rải đúng cột; lưới trống thì nhận luôn phỏng đoán vai trò
+  cột, lưới đang có dữ liệu thì giữ nguyên vai trò người dùng đã chọn;
+- dán một cột ngày vào lưới trống không làm mất cột giá đóng cửa (phỏng đoán chỉ ra 'date');
+- quá trần thì cắt ngay lúc dán, cắt phần **cũ** — hỏi chính bộ đọc phần nào là cũ, không đoán;
+- hai dòng chỉ dẫn bị bỏ. Thứ thay chúng không phải câu chữ khác mà là hình: tên cột ở đầu cột,
+  hình dạng cần gõ làm **chữ mờ ngay trong ô sẽ gõ** (`15/07/2026`, `25,4`, `1.000.000`);
+- nút "Dán thử dữ liệu mẫu" giữ nguyên (đó là một hành động, không phải một đoạn mô tả), đổi thành
+  "Xoá hết" khi đã có dữ liệu; thêm nút "Thêm cột" cho Mở / Cao / Thấp / Khối lượng.
+
+`GridRow` là `memo` và `setCell` chỉ chép lại đúng dòng vừa đổi: dán 400 phiên sáu cột là 2.400 ô
+`<input>`, mỗi phím gõ mà vẽ lại cả lưới thì giật thấy rõ.
+
+### File đã đổi
+
+| File                                        | Vì sao                                                                                                                                               |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/paste-import.ts`                  | tách `splitPasteTable` + `parseCells`, `parsePaste` nối lại hai nửa                                                                                  |
+| `src/core/paste-import.test.ts`             | +11 ca cho lối vào lưới, gồm ca so hai lối vào cho cùng kết quả                                                                                      |
+| `src/ui/sheets/PasteImportSheet.tsx`        | dựng lại thành lưới nhập, bỏ `<textarea>` và khối chỉ dẫn                                                                                            |
+| `src/ui/sheets/PasteImportSheet.module.css` | lớp lưới: khung có trần cao, hàng tiêu đề dính, ô nhập không viền riêng                                                                              |
+| `src/ui/sheets/ExportSheet.test.tsx`        | viết lại bộ ca WF-11 theo lưới, +6 ca (gõ tay, tự thêm dòng, thêm cột…)                                                                              |
+| `src/application/i18n/vi.ts`, `en.ts`       | bỏ `help1/help2/areaLabel/placeholder/mapTitle/mapHint/previewCaption`; thêm `addColumn`, `clear`, `gridCaption`, `rowNo`, `egDate/egPrice/egVolume` |
+| `src/application/index.ts`                  | mở cửa `parseCells`, `splitPasteTable`, kiểu `PasteTable`                                                                                            |
+| `src/ui/hairline.test.ts`                   | đổi tên bộ chọn đã ghim `.preview thead th` → `.grid thead th`                                                                                       |
+
+### Còn lại
+
+- Chủ dự án soi trên trình duyệt: mở công thức cần chuỗi → "Dán chuỗi giá từ Excel" → gõ tay vài
+  dòng, rồi dán dữ liệu thật. Cần nhìn riêng cảnh **dán 200+ phiên trên điện thoại**: lưới có trần
+  cao 50vh và hàng tiêu đề dính, chưa đo trên máy thật.
+- `npm run build` + `verify:static` vẫn chưa chạy (dev server giữ cổng 3000).
+
+---
+
+## Dựng lại sheet "Dán dữ liệu": 4 lỗi ra số sai + phân luồng cột + lối đi cho người mới (22/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án soi trên trình duyệt.** `npm run check` xanh: 121 file,
+**2.829 ca** (nền 2.808, thêm 21 ca mới).
+
+### Yêu cầu
+
+Chủ dự án: "cải tiến lại phần này. đang rất khó sử dụng đối với người mới. đồng thời chức năng nhập
+vào ô trong ảnh đang sai nghiêm trọng, phân luồng các ô đang không rõ ràng, dễ sai." Chốt làm cả ba
+nhóm, giao diện đi theo hướng dẫn từng bước có dữ liệu mẫu bấm thử.
+
+### Rà soát
+
+Chạy một lượt rà soát 4 hướng (bộ đọc, đường đi dữ liệu, trải nghiệm người mới, lỗ hổng test), mỗi
+phát hiện bị một lượt phản biện bắt tái hiện bằng mã thật mới được tính: **16 lỗi xác nhận, 0 bị bác**.
+
+### Bốn lỗi RA SỐ SAI mà không báo gì — vi phạm FR-06
+
+1. **Thứ tự phiên.** `/du-lieu/` có `sortRowsByDate()`, màn chi tiết thì không. CafeF, Vietstock,
+   investing.com đều xuất mới nhất trước. Đo trên 300 phiên, cùng số liệu chỉ đảo chiều: MaxDD
+   24,83% → 37,89%; Sharpe **+3,84 → −5,35** (đổi dấu); RSI 95,81 → 0,0001; Beta 0,0048 → −0,151.
+   Không cảnh báo nào nổ.
+2. **`25,100`** (investing.com) đọc thành 25,1 — sai 1000 lần. Chiều ngược `1.234` thành 1234.
+3. **CSV dấu phẩy mà số cũng dùng phẩy thập phân**: `15/07,25,40` cắt thành 4 ô, cột cuối "40" làm
+   giá đóng cửa, báo "✓ hợp lệ".
+4. **Một cột giá kiểu Việt** (`25,40`) bị cắt đôi y vậy.
+
+### Cách sửa
+
+- **Quy ước số quyết theo CẢ BẢNG** (`detectNumberStyle`), không theo từng ô. Ô nào có cả chấm lẫn
+  phẩy thì dấu đứng sau là thập phân; chỉ một loại dấu mà nhóm sau nó 1–2 chữ số thì nó là thập
+  phân; mọi nhóm đúng 3 chữ số thì coi là ngăn nghìn VÀ đánh dấu `numberStyleGuessed` để giao diện
+  hỏi lại. `parseViNumber` giữ nguyên vì còn phục vụ ô nhập.
+- **Dấu phẩy chỉ được ngăn cột khi không phải dấu thập phân** (`commaSplitsColumns`), và khi bị từ
+  chối thì `splitCommaDecimals` ghép lại cặp bị cắt đôi để không mất dữ liệu.
+- **`orderOf` + lật chuỗi trong `parsePaste`** — một chỗ, cả hai màn cùng hưởng. Chỉ lật khi ngày
+  đọc được VÀ giảm đều tuyệt đối; không đủ bằng chứng thì `order: 'unknown'` để giao diện nói ra.
+- **`dropPreamble`** bỏ dòng ghi chú `#` của chính bản xuất CSV sản phẩm (nạp lại file mình vừa xuất
+  từng lệch hết cột) và phần đầu lệch số ô.
+- **`looksLikeVolume`** để bảng "Ngày · Giá · Khối lượng" không gán khối lượng thành giá đóng cửa.
+- **Phân luồng cột**: ô chọn vai trò chuyển từ hàng chip rời đánh số 1..n lên **đầu từng cột** của
+  bảng dữ liệu thô — không còn phải đếm. Một vai trò chỉ ở đúng một cột (trước đây hai cột cùng vai
+  trò thì cột sau là ô chết, bấm không có tác dụng và không báo gì).
+- **Trần dòng**: sheet cắt về `maxRows`, giữ phần GẦN ĐÂY nhất và nói ra. Trước đây sheet hứa 1.200
+  dòng, hai màn mỗi màn giữ 400 khác nhau, không ai nói.
+- **Nhãn mã**: dán chuỗi của mình thì gỡ `loadedPreset`/`presetFill`, và bàn giao sang bảng WF-05
+  với `code: ''`. Trước đây chuỗi tự dán bị dán nhãn mã đang xem.
+- **Người mới**: khối chỉ dẫn nói lấy dữ liệu ở đâu và cần tối thiểu cột nào, kèm nút **"Dán thử dữ
+  liệu mẫu"**. Nhãn cột viết đủ chữ ("Giá đóng cửa" thay cho "Đóng"). Câu báo lỗi cũ đọc là "0 dòng
+  hợp lệ, sẵn sàng nạp" nay tách riêng. Ví dụ trong ô dán viết theo quy ước số Việt Nam.
+
+### File đã đổi
+
+- `src/core/paste-import.ts` — viết lại phần lõi; thêm `NumberStyle`, `RowOrder`, `detectNumberStyle`,
+  `parseCellNumber`, `orderOf`; `PasteResult` thêm `cells`, `preamble`, `numberStyle`,
+  `numberStyleGuessed`, `order`, `reordered`.
+- `src/ui/sheets/PasteImportSheet.tsx` + `.module.css` — dựng lại.
+- `src/application/i18n/vi.ts`, `en.ts` — viết lại toàn bộ khoá `paste.*`.
+- `src/application/index.ts` — mở thêm export.
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx`, `src/app/du-lieu/DataTableScreen.tsx` — phân luồng.
+- `src/core/paste-import.test.ts` (+15 ca), `src/ui/sheets/ExportSheet.test.tsx` (5 ca cũ neo giao
+  diện cũ đã viết lại, +6 ca mới).
+
+### Còn lại
+
+- Chủ dự án soi trên trình duyệt: mở một công thức ăn chuỗi, bấm "Dán chuỗi giá từ Excel", thử nút
+  dán mẫu rồi thử dán dữ liệu thật của mình.
+- `npm run build` + `verify:static` chưa chạy (dev server đang giữ cổng 3000).
+- Chưa đụng: các lỗi mức thấp còn lại của lượt rà soát (câu chữ phụ, vài ca biên của bảng WF-05).
+
+---
+
 ## Bỏ lối viết ngoặc kiểu hàm số khỏi mọi hình công thức — 20 hình (22/09/2026)
 
 **Trạng thái: xong.** `npm run check` xanh: 121 file, 2.808 ca — không lệch ca nào so với trước khi sửa.

@@ -187,10 +187,30 @@ button.iconButton::after {
  * `.subtitle` mồ côi thì lần sau có người thấy tên hợp lý là gắn bừa vào một dòng chữ khác.
  */
 
+/*
+ * Hàng lối vào dữ liệu của khối Số liệu — WF-03.
+ *
+ * Ba thứ ở đây KHÔNG cùng một vai, và bản trước để cả ba trôi tự do nên đọc ra như ba mẩu rời:
+ * hai nút "Dán chuỗi giá" / "Xem ví dụ minh hoạ" là hai cách ĐƯA dữ liệu vào màn này, còn "Mở
+ * bảng dữ liệu →" là ĐI SANG màn khác. Gom hai cái cùng vai về trái, đẩy cái đi-nơi-khác sang
+ * phải: hàng tự tách làm hai cụm mà không cần thêm một đường kẻ hay một nhãn nào.
+ *
+ * `align-items: center` vì ba thứ khác chiều cao (nút 44px, link cao theo chữ) — không có nó thì
+ * chữ của link treo lệch so với chữ trên nút ngay cạnh.
+ */
 .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
+}
+
+/*
+ * Khổ hẹp thì hàng gãy và link rơi xuống dòng riêng — vẫn nép phải, vẫn đọc ra là "bước đi tiếp"
+ * chứ không phải nút thứ ba bị bỏ rơi.
+ */
+.actions .dataLink {
+  margin-left: auto;
 }
 
 /*
@@ -692,21 +712,79 @@ button.iconButton::after {
  * `flex-wrap` giữ nguyên dù thanh nay ngắn hơn hẳn (câu chữ bỏ ngày 14/09/2026): ở 360px với cỡ
  * chữ phóng to, mã + hai nút vẫn có thể tràn hàng.
  */
-.tickerBar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
+/*
+ * ── Con chip mã đang dùng ────────────────────────────────────────────────────
+ *
+ * Thay cả nút "Nạp mẫu" (khi đã có mã) lẫn thanh mã cũ nằm dưới khối công thức. Một điều khiển
+ * hai nửa: nửa trái mở kho mã để đổi, nửa phải bỏ mã.
+ *
+ * Viền bọc CẢ chip chứ không viền từng nửa, và đường chia là `border-left` của nửa phải: hai nửa
+ * phải đọc ra là một vật bị chia đôi, không phải hai nút dính nhau. `align-items: stretch` để
+ * đường chia ấy chạy hết chiều cao.
+ *
+ * Góc bo là `--radius-md`, lấy thẳng từ primitive Button chứ không phải `--radius-pill`: chip
+ * đứng sát nút "Xem ví dụ thực tế", nên bo tròn hẳn hai đầu làm nó đọc ra như một thẻ nhãn khác
+ * loại chứ không phải một nút cùng hàng.
+ *
+ * KHÔNG `overflow: hidden`: hai nửa đều nền trong suốt nên không có gì tràn ra góc bo mà phải
+ * cắt, còn cắt thì cắt mất vùng chạm nới rộng của chúng (xem `::after` bên dưới).
+ */
+.tickerChip {
+  display: inline-flex;
+  align-items: stretch;
 
-  margin: var(--space-2) 0 0;
-  padding: var(--space-2) var(--space-3);
-
-  font-size: var(--text-xs);
-  color: var(--color-ink);
+  margin: 0;
 
   background: var(--color-accent-soft);
   border: 1px solid var(--color-accent);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * Cao 34px + 2px viền của chip = 36px, ĐÚNG bằng nút `size="sm"` đứng ngay cạnh.
+ *
+ * Con số 34 không tự do: nó bám `.sm` của primitive Button (`min-height: 36px`), và phải trừ đi
+ * viền vì viền nằm ở chip chứ không ở nút. Chủ dự án bắt đúng chỗ này — bản trước để
+ * `var(--tap-min)` nên chip cao 46px, lệch hẳn một bậc so với nút bên cạnh.
+ */
+.tickerPick,
+.tickerDrop {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  min-height: 34px;
+  padding: 0 var(--space-3);
+
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/*
+ * Vùng chạm nới về đúng 44px mà không đẩy chip cao thêm — y hệt `.sm::after` của primitive
+ * Button, và vì cùng một lý do: NFR-USA-01 đòi 44px, còn bản thiết kế đòi nút cao 36px.
+ */
+.tickerPick::after,
+.tickerDrop::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+.tickerDrop {
+  padding: 0 var(--space-2);
+  border-left: 1px solid var(--color-accent);
 }
 
 .tickerCode {
@@ -715,15 +793,6 @@ button.iconButton::after {
   font-weight: var(--weight-bold);
   letter-spacing: 0.02em;
   color: var(--color-accent);
-
-  /*
-   * Nuốt hết chỗ trống để hai nút dạt về mép phải.
-   *
-   * Việc này trước do `.tickerText` làm bằng `flex: 1`; câu chữ bỏ ngày 14/09/2026 nên nó chuyển
-   * sang đây. Dùng `margin-right: auto` chứ không `flex: 1`: huy hiệu mã phải giữ đúng bề rộng
-   * của chữ, giãn nó ra thì nền nhạt kéo dài thành một vệt trống giữa mã và nút.
-   */
-  margin-right: auto;
 }
 
 /*

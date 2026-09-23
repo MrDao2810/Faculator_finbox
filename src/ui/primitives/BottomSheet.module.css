@@ -19,6 +19,28 @@
   overflow: hidden;
 }
 
+/*
+ * Dạng NỔI GIỮA MÀN — form thêm/sửa mã của Danh mục (22/09/2026).
+ *
+ * `margin: auto` cả hai chiều là cách canh giữa của `<dialog>`: phần tử ở lớp trên cùng (top
+ * layer) nên không có dòng chảy nào để `position` bám vào, còn `inset: 0` + `margin: auto` thì
+ * trình duyệt tự cân cả hai trục.
+ *
+ * Bề ngang 720px là ĐÚNG MỘT NỬA khổ PC mà dự án gác (1440), theo yêu cầu "chiếm tầm 50% màn
+ * hình". `92vw` là mức trần ở khổ hẹp: 50% của 360px chỉ còn 180px, không đủ cho một ô nhập có
+ * nhãn — nên ở điện thoại tấm gần như rộng hết màn, và đó là hình dạng duy nhất dùng được.
+ * Chiều cao chặn ở 600px rồi để `.body` tự cuộn, thay vì để tấm cao bằng nội dung: form có tới
+ * sáu ô ở chế độ Nâng cao.
+ */
+.sheetCenter {
+  width: min(720px, 92vw);
+  max-width: min(720px, 92vw);
+  max-height: min(600px, 88dvh);
+
+  inset: 0;
+  margin: auto;
+}
+
 .sheet::backdrop {
   /*
    * Nền mờ đi qua token riêng `--color-scrim` (khai kèm độ đục ngay trong globals.css, chỗ
@@ -56,6 +78,56 @@
  */
 .panelTall {
   height: 88dvh;
+}
+
+/*
+ * ── Tấm nổi giữa màn ────────────────────────────────────────────────────────
+ *
+ * Phải khai SAU `.panel`, không phải trước. Hai bộ chọn cùng một hạng độ ưu tiên (mỗi cái một
+ * lớp), nên thứ tự trong file là thứ duy nhất quyết định ai thắng — và bản đầu khai `.panelCenter`
+ * ở trên `.panel` nên `border-radius: lg lg 0 0` cùng `border-bottom: none` của tấm dán đáy đè
+ * ngược lại: tấm nổi giữa màn hiện ra với hai góc dưới VUÔNG và không có mép dưới. Chủ dự án chụp
+ * lại đúng nó ngày 22/09/2026.
+ */
+.panelCenter {
+  max-height: min(600px, 88dvh);
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  /* Không chừa thanh gạt điện thoại: tấm không dán đáy nên nó không đè lên thanh ấy. */
+  padding-bottom: 0;
+  /*
+   * Bóng đổ: tấm này nổi TRÊN trang chứ không dán vào một mép nào, nên nó cần một lớp nâng của
+   * riêng mình. Tấm dán đáy không cần — mép màn hình đã làm việc ấy.
+   */
+  box-shadow: var(--shadow-modal);
+}
+
+/*
+ * Góc bo của tấm phải được CẮT ở mép, nếu không thì nền của phần tiêu đề và của hàng nút vuông
+ * góc sẽ lấp đầy bốn góc vừa bo. Cùng bài học với `.holdList` ở màn Danh mục.
+ */
+.panelCenter .header {
+  /* Tiêu đề không có vạch kéo phía trên nên khoảng đệm trên thừa một nhịp. Kéo về cho cân. */
+  padding: var(--space-4) var(--space-5) var(--space-3);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+}
+
+/* Tấm nổi giữa màn rộng rãi hơn một bậc: nó là nơi người dùng NHẬP, không phải nơi lướt chọn. */
+.panelCenter .body {
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.panelCenter .footer {
+  padding: var(--space-4) var(--space-5);
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+/* Tiêu đề hộp thoại đứng một mình nên được phép to hơn tiêu đề của một tấm chọn nhanh. */
+.panelCenter .title {
+  font-size: var(--text-lg);
 }
 
 .header {

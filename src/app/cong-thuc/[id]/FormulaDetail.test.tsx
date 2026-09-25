@@ -66,7 +66,7 @@ vi.mock('@/data', async (importOriginal) => {
  * trần trong jsdom. Cùng cách `PortfolioScreen.test.tsx` đang làm, và cùng lý do đã ghi ở docblock
  * `RecentSearches`.
  *
- * Màn dùng router đúng MỘT chỗ: nút "Huỷ và thoát" ở cuối trang (xem `cancelAndLeave()`), nên
+ * Màn dùng router đúng MỘT chỗ: nút "Thoát" ở cuối trang (xem `cancelAndLeave()`), nên
  * `router.push` ở đây vừa là bản giả vừa là chỗ soi xem nút ấy đưa người dùng đi đâu.
  */
 const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }));
@@ -899,12 +899,13 @@ describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
  * tác) hay ra ngoài các khối có phần tử cần thoát khỏi hộp cha.
  */
 describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', () => {
-  it('năm khối cuối màn có lớp, khối Số liệu thì không', () => {
+  it('sáu khối cuối màn có lớp, khối Số liệu thì không', () => {
     const { container } = render(<Man spec={specOf('pe')} />);
 
     const hoan = [...container.querySelectorAll('[class*="deferred"]')];
-    // Giải thích · Bảng biến · Ví dụ thực tế · Nguồn tham khảo · Biểu đồ.
-    expect(hoan).toHaveLength(5);
+    // Giải thích · Bảng biến · Ví dụ thực tế · Nguồn tham khảo · Biểu đồ · Kiểm tra hiểu bài.
+    // Khối thứ sáu vào 23/09/2026 cùng gói WF-19 — nó đứng cuối trang nên đương nhiên hoãn.
+    expect(hoan).toHaveLength(6);
 
     const soLieu = screen.getByRole('region', { name: t('detail.inputs') });
     expect(String(soLieu.className)).not.toMatch(/deferred/);
@@ -1785,13 +1786,13 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
   });
 
   /*
-   * ── Nút "Huỷ và thoát" đứng cạnh nút Lưu ──────────────────────────────────────────────────
+   * ── Nút "Thoát" đứng cạnh nút Lưu ─────────────────────────────────────────────────────────
    *
    * Một cú bấm làm HAI việc, và cả hai đều phải xảy ra: bỏ bộ số đang có (kể cả bản nháp trên
    * đĩa, không thì số cũ quay về ở lần mở sau) rồi rời màn. Làm nửa vời là màn hình cãi lại thao
    * tác người dùng vừa làm.
    */
-  it('bấm Huỷ thì ô nhập về số mặc định VÀ bản nháp bị xoá', async () => {
+  it('bấm Thoát thì ô nhập về số mặc định VÀ bản nháp bị xoá', async () => {
     render(<Man spec={specOf('pe')} />);
 
     await userEvent.clear(oNhap(/Giá thị trường/));

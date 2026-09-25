@@ -183,7 +183,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.tickerChange': 'Change ticker',
   'detail.tickerClear': 'Clear ticker',
   'detail.saveToPortfolio': '☆ Save to portfolio',
-  'detail.cancel': 'Discard and leave',
+  /* Rút gọn theo bản tiếng Việt (24/09/2026) — lý do đầy đủ ghi ở vi.ts. */
+  'detail.cancel': 'Leave',
   'detail.presetNoData': 'This formula uses no data from ticker',
   'detail.presetNoDataFix':
     'It runs on your own numbers — type them into the fields above, or tap "See the worked ' +
@@ -576,6 +577,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'Numbers you were typing on a formula screen, kept so you need not start over after leaving.',
   'data.usage': 'Formulas you opened',
   'data.usage.note': 'Which formulas you open most, used to reorder the Everyday formulas block.',
+  'data.quiz': 'Understanding check results',
+  'data.quiz.note':
+    'How many you got right, and which questions you missed, in the check block at the end of a formula screen.',
   'data.tickers': 'Ticker list',
   'data.tickers.note':
     'The exchange ticker list, downloaded once so ticker search is fast and works offline.',
@@ -677,4 +681,51 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'Try finding the formula by name — typing without Vietnamese accents still works.',
   'notFound.search': 'Find a formula',
   'notFound.formulas': 'Go to the formula list',
+
+  /* ── Understanding check block (WF-19) ────────────────────────────────────────────────── */
+  'quiz.title': 'Practice',
+  /* Mộ chí: `quiz.lead` bỏ hẳn 24/09/2026 — lý do ghi ở `vi.ts`. */
+  'quiz.countUnit': 'question(s)',
+  'quiz.step': 'Question {n} / {total}',
+  'quiz.start': 'Start the check',
+  'quiz.startFew': 'Try a question',
+  'quiz.check': 'Check',
+  'quiz.exit': 'Exit',
+  'quiz.skip': 'Skip this question',
+  'quiz.skippedNote': 'A ? marks a question you skipped — unanswered, so it counts as not known.',
+  'quiz.next': 'Next question',
+  'quiz.seeResult': 'See result',
+  'quiz.retry': 'Start over',
+  'quiz.reviewWrong': 'Review what you missed',
+  'quiz.pickAll': 'This one has more than one right answer — pick them all.',
+  'quiz.slotLabel': 'Slot {n} in the formula',
+  'quiz.workedResult': 'Result',
+  'quiz.correctSlots': 'Correct order',
+  /* Mộ chí: `quiz.numberPlaceholder` bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+  /* Mộ chí: `quiz.chooseFirst`, `quiz.enterFirst`, `quiz.decimalHint` bỏ 24/09/2026 — lý do ở `vi.ts`. */
+  /* Mộ chí: `quiz.yourAnswer`, `quiz.tolerance` bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+  'quiz.right': 'Correct',
+  'quiz.wrong': 'Wrong',
+  /* Mộ chí: `quiz.correctAnswer` bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+  'quiz.whyRight': 'Why this is right',
+  'quiz.whyWrong': 'Why this is wrong',
+  'quiz.rule': 'The rule in force',
+  /* Mộ chí: `quiz.evidence.*` (3 khoá) bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+  'quiz.giai.tinh': 'Computes',
+  'quiz.giai.congThuc': 'Formula',
+  'quiz.giai.thaySo': 'Substituting',
+  'quiz.giai.ketQua': 'Result',
+  'quiz.source': 'Source',
+  'quiz.effectiveFrom': 'In force since',
+  'quiz.result': 'Your result',
+  /* Mộ chí: `quiz.localOnly` bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+  'quiz.lastTime': 'Last attempt',
+  'quiz.empty.title': 'No questions for this formula yet',
+  'quiz.empty.body':
+    'We only write a question when a real source records where people misread the formula. This one has none yet.',
+  'quiz.few.body':
+    'Only a few questions here, because that is all the sourced material there is — we do not pad it out.',
+  'quiz.notTranslated': 'These questions are not translated yet — showing the Vietnamese text.',
+  /* Mộ chí: `quiz.sourceKind.*` bị bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+  /* Mộ chí: `quiz.kind.*` (5 khoá) bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
 };

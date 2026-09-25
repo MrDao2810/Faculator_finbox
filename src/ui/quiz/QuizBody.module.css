@@ -1,0 +1,919 @@
+/*
+ * Khối Kiểm tra hiểu bài (WF-19) — chỉ dùng token của `globals.css`, không đặt màu mới.
+ *
+ * Đáp án ĐÚNG dùng `--color-accent` chứ không dùng `--color-success`: bản thiết kế chốt không
+ * thêm màu xanh lá cho khối này, và trong màn chi tiết màu xanh lá đã mang nghĩa "lãi" ở khối
+ * kết quả và ở Danh mục. Đáp án SAI dùng `--color-danger`, lời giải khi sai dùng bộ cảnh báo
+ * quen thuộc của WF-15 để người dùng nhận ra ngay kiểu ô này.
+ */
+
+/*
+ * KHÔNG đặt `max-width` cho khối này.
+ *
+ * Sáng 24/09/2026 nó từng bị bó lại 60rem (960px) để bịt khoảng trống giữa nhãn "BÀI TẬP" và nút
+ * vào bài, hồi hai thứ ấy bị `space-between` đẩy về hai mép của một khung 1600px. Chủ dự án chụp
+ * màn và bác ngay: bó khối chỉ dời chỗ trống ra NGOÀI mép phải, nơi nó lệch hẳn với khối Nguồn
+ * tham khảo ngay trên và hàng nút cuối trang — cả hai vẫn trải hết khung.
+ *
+ * Chỗ trống bên trong là việc của `.head`, và `.head` xử nó bằng cách cho nhãn với số đếm đứng
+ * sát nhau thay vì dạt hai mép. Đó mới là chữa đúng bệnh.
+ */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  /* `--radius-md` vì đây là một THẺ, và `--radius-lg` chỉ dành cho mép trên bottom sheet. */
+  border-radius: var(--radius-md);
+}
+
+/*
+ * Hàng tiêu đề — chủ dự án 24/09/2026.
+ *
+ * Nghỉ:      BÀI TẬP  5 câu                              Bắt đầu kiểm tra »
+ * Đang làm:  BÀI TẬP  Câu 2 / 5  ▬▬ ▭ ▭ ▭ ▭                            Thoát
+ *
+ * KHÔNG `space-between`. Trên khung 1600px nó ném con số đếm ra tận mép phải, cách nhãn gần cả
+ * bề ngang trang, và người đọc không còn ghép được hai thứ ấy làm một. Nhãn nói khối là gì, số
+ * đếm nói khối lớn cỡ nào — chúng thuộc về nhau nên đứng sát nhau, chỗ trống dồn về giữa, và chỉ
+ * nút bên phải tự đẩy mình ra mép (`.headAction`).
+ *
+ * `min-height` bằng chiều cao nút: hàng luôn có đúng MỘT nút bên phải — "Bắt đầu kiểm tra" lúc
+ * nghỉ, "Thoát" lúc đang làm — nên hàng không nảy khi đổi trạng thái.
+ */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2rem;
+}
+
+/*
+ * Số câu của cả bài, hiện ở trạng thái nghỉ. Màu mờ chứ không cùng màu nhãn: nó là số liệu phụ
+ * đứng cạnh tên khối, không phải vế thứ hai của tên khối.
+ */
+.count {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  color: var(--color-muted);
+}
+
+/*
+ * Mũi tên sau nhãn nút vào bài. `»` của phông chữ nhỏ hơn hẳn chữ thường đứng cạnh, nên phải nống
+ * lên cho cân; `margin-inline-start` thay cho dấu cách để khoảng cách không đổi theo phông.
+ */
+.startIcon {
+  margin-inline-start: 0.4em;
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-accent);
+}
+
+.lead,
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-ink-soft);
+}
+
+.note {
+  color: var(--color-muted);
+}
+
+.intro,
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+
+.empty {
+  border-style: dashed;
+}
+
+/* ── Thanh tiến độ ─────────────────────────────────────────────────────────── */
+
+.step {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--color-accent);
+}
+
+/*
+ * Thanh tiến độ bó ở 14rem chứ KHÔNG `flex: 1`.
+ *
+ * Từ lúc cụm này dời lên hàng tiêu đề (24/09/2026), `flex: 1` cho nó nuốt trọn chỗ trống của một
+ * khung 1600px: đo được 1.100px cho năm vạch, và ở bề ngang ấy nó thôi đọc ra là thanh tiến độ mà
+ * thành một đường kẻ ngang chia đôi trang. 14rem là bề ngang trong ảnh chủ dự án gửi kèm.
+ *
+ * `flex-shrink` vẫn mở: ở khổ điện thoại hàng này còn phải chứa nhãn khối, vị trí câu và nút
+ * Thoát, nên thanh phải co được. Chỗ trống dôi ra nằm GIỮA thanh và nút Thoát, đúng chỗ nó nên
+ * nằm — nút Thoát bám mép phải là việc của `.exit`.
+ */
+.bars {
+  display: flex;
+  flex: 0 1 14rem;
+  gap: var(--space-1);
+}
+
+.bar {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-sunken);
+}
+
+.barDone {
+  background: var(--color-accent);
+}
+
+.barNow {
+  background: var(--color-accent-vivid);
+}
+
+/*
+ * Nút bên phải hàng tiêu đề: "Bắt đầu kiểm tra »" lúc nghỉ, "Thoát" lúc đang làm (WF-19 · S2).
+ *
+ * MỘT lớp cho cả hai chứ không phải hai lớp giống hệt nhau: chúng chiếm cùng một chỗ, và chính
+ * việc chúng chiếm cùng một chỗ là thứ giữ cho hàng không nảy lúc đổi trạng thái.
+ *
+ * `margin-left: auto` chứ không dựa vào thanh tiến độ đẩy hộ: lúc nghỉ và ở bài 1–2 câu thì
+ * không có thanh nào cả, nút sẽ dính luôn vào số đếm nếu thiếu.
+ */
+.headAction {
+  margin-left: auto;
+}
+
+/*
+ * Hàng chip đầu câu (WF-19D · S14) bỏ HẲN ngày 24/09/2026 — `.chips`, `.kind`, `.chipEvidence`
+ * đi cùng nhau. Lý do ghi ở `QuizQuestion.tsx`, đúng chỗ ba chip từng dựng.
+ */
+
+/* ── Khối số liệu của đề bài ───────────────────────────────────────────────── */
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-md);
+}
+
+.fact {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: 0.8125rem;
+}
+
+.fact dt {
+  color: var(--color-ink-soft);
+}
+
+.fact dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ── Câu hỏi và bốn lựa chọn ───────────────────────────────────────────────── */
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.prompt {
+  padding: 0 0 var(--space-2);
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+}
+
+/*
+ * Bốn lựa chọn: MỘT cột ở khổ hẹp, HAI cột ở khổ PC khi cả bốn đáp án đều ngắn — chủ dự án
+ * 24/09/2026: "không gian hiển thị các câu trả lời trắc nghiệm màn web đang thừa quá nhiều".
+ *
+ * "Ngắn" đo ở tầng DỮ LIỆU, không đo bằng CSS: `QuizQuestion` đếm chữ của bốn đáp án rồi gắn
+ * `data-hai-cot`. CSS không đo được độ dài chữ, còn đo bằng JS lúc chạy thì lượt dựng đầu tiên
+ * trên trình duyệt sẽ khác HTML tĩnh. Đếm chữ là hàm thuần của chính câu hỏi nên hai bên luôn
+ * ra cùng một kết quả.
+ *
+ * Lưới là lớp bọc riêng bên trong `<fieldset>`, không phải `display: grid` đặt thẳng lên
+ * `.choices`: `<legend>` nằm trong một cha `grid` thì các trình duyệt xử lý khác nhau.
+ */
+.choiceGrid {
+  display: grid;
+  gap: var(--space-2);
+}
+
+/*
+ * HAI bậc, không một. `data-hai-cot` mang tên khổ màn NHỎ NHẤT mà bốn đáp án còn nằm gọn một
+ * dòng trong nửa bề ngang thẻ — `khoHaiCot()` ở `QuizQuestion.tsx` giữ bảng đo.
+ *
+ * Câu `'1024'` phải hai cột ở MỌI khổ từ 1024 trở lên, nên nó có mặt trong cả hai bộ chọn. Gộp
+ * hai bậc làm một là mất đúng khoảng giữa: đáp án 60 ký tự rơi thẳng về một cột ngay cả khi màn
+ * còn thừa gần một nửa chỗ.
+ */
+@media (min-width: 1024px) {
+  .choiceGrid[data-hai-cot='1024'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .choiceGrid[data-hai-cot='1024'],
+  .choiceGrid[data-hai-cot='1280'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.875rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.choice:hover:not(:has(input:disabled)) {
+  border-color: var(--color-border-strong);
+}
+
+/* Vòng tiêu điểm bám đúng ô, vì `input` bên trong nhỏ hơn hẳn vùng bấm. */
+.choice:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent-vivid);
+  outline-offset: 2px;
+}
+
+.choiceLabel {
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.choiceText {
+  flex: 1;
+}
+
+.choiceRight {
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+/*
+ * Ô chọn SAI: gạch bỏ chữ, KHÔNG tô nền — chủ dự án 24/09/2026, "chỉ cần bôi bỏ kèm Sai là
+ * xong".
+ *
+ * Nét gạch tự nó đã nói ô này bị loại, nên nền đỏ đặc nằm dưới nó chỉ là nói lại lần thứ ba
+ * (đã có nhãn "Sai" và viền đỏ). Viền thì giữ: nó là thứ duy nhất chỉ ra ô này do NGƯỜI DÙNG
+ * chọn, phân biệt với hai ô không ai đụng tới.
+ *
+ * Chữ chuyển sang màu mờ chứ không giữ màu thường: một dòng chữ rõ nét bị gạch ngang vẫn hút
+ * mắt ngang với đáp án đúng ngay cạnh, mà thứ cần đọc lúc này là đáp án đúng.
+ */
+.choiceWrong {
+  border: 1.5px solid var(--color-danger);
+}
+
+.choiceWrong .choiceText {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+.choiceReveal {
+  border: 1.5px dashed var(--color-accent);
+}
+
+.choiceDim {
+  opacity: 0.55;
+}
+
+.verdict {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.choiceRight .verdict,
+.choiceReveal .verdict {
+  color: var(--color-accent);
+}
+
+.choiceWrong .verdict {
+  color: var(--color-danger);
+}
+
+/* ── Lời giải và khối nguồn ────────────────────────────────────────────────── */
+
+.explain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-accent-soft);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.explainWarn {
+  background: var(--color-warning-soft);
+  border-left-color: var(--color-warning-line);
+}
+
+.explainTitle {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.explainWarn .explainTitle {
+  color: var(--color-warning);
+}
+
+.explainBody {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+}
+
+/*
+ * KHỐI LỜI GIẢI CÓ CẤU TRÚC — chủ dự án 24/09/2026.
+ *
+ *   Tính       P/E của cổ phiếu
+ *   Công thức  P/E = Giá thị trường ÷ EPS     ← rê chuột: bảng ký hiệu
+ *   Thay số    36.000 ÷ 3.000
+ *   Kết quả    12,0 lần
+ *
+ * Lưới hai cột thay cho đoạn văn: bốn dòng này là BỐN Ô DỮ LIỆU, và nhãn của chúng phải
+ * thẳng hàng để mắt quét dọc được. Viết thành văn xuôi thì đúng là thứ chủ dự án vừa bác.
+ *
+ * `max-content` cho cột nhãn: bốn nhãn đều ngắn, nên cột chỉ rộng bằng nhãn dài nhất và phần
+ * còn lại dồn hết cho nội dung.
+ */
+.giai {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+}
+
+/*
+ * `subgrid`: mỗi hàng MƯỢN cột của `.giai` thay vì tự dựng lưới riêng. Bản đầu cho mỗi hàng một
+ * lưới `max-content` của riêng nó, nên cột nhãn rộng theo nhãn của chính hàng ấy — "TÍNH" hẹp,
+ * "CÔNG THỨC" rộng — và bốn dòng nội dung bắt đầu ở bốn chỗ khác nhau.
+ *
+ * Không dùng `display: contents` cho việc này: nó gỡ `<div>` khỏi cây trợ năng ở vài trình duyệt,
+ * mà `<div>` ấy là thứ nhóm cặp `<dt>`/`<dd>` lại cho bộ đọc màn hình.
+ */
+.giaiHang {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+.giaiHang dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.giaiHang dd {
+  margin: 0;
+  min-width: 0;
+}
+
+/*
+ * Phông THƯỜNG, không phải phông công thức. Dòng công thức ở đây là dòng CHỮ, đúng như dòng
+ * `expression` nằm dưới hình KaTeX ở đầu màn — và dòng ấy dùng phông giao diện. Bản đầu dùng
+ * `font-family: math` cho cả ba dòng: chữ Việt có dấu trong phông toán ra một thứ nét chân lệch
+ * hẳn phần còn lại của khối, chụp màn là thấy.
+ *
+ * `tabular-nums` để các chữ số cùng bề ngang, đọc phép tính không bị giật.
+ */
+.giaiSo,
+.giaiKetQua {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.giaiKetQua {
+  font-weight: 600;
+}
+
+/* Dòng Nguồn: link trên, từng câu trích một dòng bên dưới. */
+.giaiNguon {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.giaiNguon a {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+/*
+ * Mỗi câu trích một dòng: hai đoạn trích đứng liền trên một dòng thì dấu đóng của đoạn trước
+ * dính vào dấu mở của đoạn sau — `0.20""the true beta`, chụp màn là thấy.
+ */
+.giaiTrich {
+  display: block;
+}
+
+/*
+ * Dòng công thức mang bảng ký hiệu rê chuột ra. Gạch chân đứt để người đọc biết có gì bên
+ * dưới — không có dấu hiệu nào thì không ai rê chuột lên một dòng chữ.
+ */
+.giaiCongThuc {
+  position: relative;
+  color: var(--color-ink);
+  text-decoration: underline dotted var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+
+.giaiCongThuc:focus-visible {
+  outline: 2px solid var(--color-accent-vivid);
+  outline-offset: 2px;
+}
+
+/*
+ * Bảng ký hiệu: ẩn bằng `visibility` chứ không bằng `display: none`, để nó vẫn nằm trong cây
+ * cho bộ đọc màn hình và để đổi trạng thái không phải dựng lại nút.
+ *
+ * `left: 0` + `max-width` thay vì căn giữa: căn giữa thì ở dòng công thức nằm sát mép phải
+ * thẻ, bảng sẽ tràn khỏi thẻ. Bám mép trái của chính dòng công thức thì không bao giờ tràn.
+ */
+.giaiChuThich {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 2;
+  display: grid;
+  gap: var(--space-1);
+  width: max-content;
+  max-width: min(28rem, 70vw);
+  padding: var(--space-3) var(--space-4);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  /* `--shadow-sm`, không phải `--shadow-md`: token ấy đã gỡ ở đợt rà phân cấp — xem globals.css. */
+  box-shadow: var(--shadow-sm);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.giaiCongThuc:hover .giaiChuThich,
+.giaiCongThuc:focus-within .giaiChuThich {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Câu trích nguyên văn của nguồn — tô riêng để nó không chìm vào lời người viết. */
+.quote {
+  font-style: italic;
+  color: var(--color-ink);
+}
+
+.source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.source a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.effective {
+  color: var(--color-muted);
+}
+
+/* ── Dải câu đã làm, nằm trên câu đang hỏi — 24/09/2026 ────────────────────── */
+
+/*
+ * Mỗi câu vừa trả lời co lại thành MỘT dòng bấm được, xếp cũ nhất trên cùng. Trước đó bấm "Câu
+ * tiếp" là mất hẳn câu vừa đọc — muốn xem lại lời giải phải đi hết bài mới thấy ở màn tổng kết.
+ *
+ * Nền `--color-sunken` để cả dải lùi ra sau câu đang hỏi: nó là thứ đã xong, không được tranh
+ * chú ý với việc đang làm.
+ */
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Viền bốn phía dùng `--color-border`, không dùng `--color-hairline`: hairline là bậc KẺ CHIA, và
+ * trên nền chìm nó còn sáng hơn cả nền nên thành quầng sáng thay vì ranh giới (`hairline.test.ts`
+ * gác cả hai điều đó). Kẻ chia bên trong thẻ — `.historyBody` — vẫn là hairline, vì ở đó nó nằm
+ * trên nền `--color-surface` và làm đúng việc của nó.
+ */
+.historyRow {
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.historyHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--color-ink-soft);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.historyHead:focus-visible {
+  outline: 2px solid var(--color-accent-vivid);
+  outline-offset: 2px;
+}
+
+.historyStep {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/*
+ * Đề bài cắt một dòng: dải này là mục lục chứ không phải chỗ đọc. Muốn đọc thì bấm mở ra, và
+ * lúc ấy câu hiện nguyên vẹn ở `.historyBody`.
+ */
+.historyPrompt {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.historyChevron {
+  color: var(--color-muted);
+}
+
+.historyBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-hairline);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* ── Tổng kết ──────────────────────────────────────────────────────────────── */
+
+.score {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reviewRow {
+  display: flex;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--color-ink-soft);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.markRight {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.markWrong {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+/*
+ * Câu bỏ qua: màu mờ, KHÔNG dùng `--color-danger`. Người ta không chọn nhầm, họ không chọn — tô
+ * đỏ như câu sai là báo sai chuyện đã xảy ra. Dòng chú dưới danh sách giải nghĩa dấu này.
+ */
+.markSkipped {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/*
+ * Hàng nút cuối câu — sắp lại lần hai trong ngày 24/09/2026.
+ *
+ * Bản sáng đẩy "Bỏ qua câu này" sang mép phải cho thẳng mép với nút "Thoát" ở dòng đầu. Chủ dự án
+ * bác: "sửa lại 2 button Kiểm tra và Bỏ qua câu này cho gần nhau thay vì cách nhau quá xa như
+ * kia". Ở khổ 1440 hai nút cách nhau gần cả bề ngang thẻ, nên chúng thôi đọc ra là một cặp lựa
+ * chọn của cùng một câu hỏi. Nay chỉ còn `gap` của `.actions` — KHÔNG thêm `margin-left: auto`
+ * cho nút nào ở hàng này.
+ *
+ * Lớp `.hint` của dòng "Chọn một đáp án để mở nút Kiểm tra" cũng bỏ cùng lần ấy: nút xám và
+ * không bấm được đã nói đúng điều đó.
+ */
+
+.lastTime {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+/* ── Câu điền số — WF-19C · S10–S12 ────────────────────────────────────────── */
+
+.numberAsk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/*
+/*
+ * KHỐI CÔNG THỨC của câu điền số — dựng lại lần thứ hai 24/09/2026.
+ *
+ * Ô trống không còn ở đáp số mà ở các SỐ LIỆU bên trong công thức:
+ *
+ *     Beta điều chỉnh = ▢ × ▢ + ▢ × 1
+ *
+ * Ba hàng ngang: tên đại lượng · dấu `=` · công thức. Cả cụm nằm giữa thẻ như khối Công thức đầu
+ * màn. `align-items: center` chứ không `baseline`: một phân số cao hai tầng thì đường chữ của nó
+ * nằm ở tầng dưới, nên canh theo baseline sẽ đẩy tên đại lượng tụt xuống ngang mẫu số.
+ */
+.worked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 var(--space-2);
+  padding: var(--space-4) var(--space-3);
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.workedName,
+.workedEquals {
+  font-size: 1.125rem;
+  color: var(--color-ink);
+}
+
+.workedEquals {
+  font-family: math, 'Times New Roman', serif;
+}
+
+/*
+ * Công thức tự nó KHÔNG xuống dòng được — một phân số bị ngắt giữa tử và mẫu là vô nghĩa. Nên ở
+ * khổ hẹp nó cuộn ngang, cùng bộ ba `min-width: 0` + `overflow-x` + `overflow-y: hidden` mà
+ * `.formula` của `FormulaDetail.module.css` dùng và vì đúng lý do ấy: thiếu `min-width: 0` thì
+ * phần tử flex không chịu co xuống dưới bề rộng nội dung, nên `overflow-x` chẳng có gì để cuộn.
+ *
+ * `padding-block` chừa chỗ cho viền tiêu điểm của ô nhập ở hàng trên cùng và hàng dưới cùng —
+ * thiếu nó thì viền bị `overflow: hidden` cắt cụt.
+ */
+.workedExpr {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 2px;
+}
+
+/* ── Bộ vẽ công thức (CongThucDien.tsx) ────────────────────────────────────── */
+
+/*
+ * `font-family: math` là generic của CSS, đúng thứ trình duyệt dùng để vẽ MathML. Nhờ nó khối
+ * này cùng phông với 111 công thức KaTeX ở đầu màn, dù nó tự vẽ bằng `<span>`.
+ */
+.congThuc {
+  display: inline-flex;
+  align-items: center;
+  font-family: math, 'Times New Roman', serif;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--color-ink);
+}
+
+.ctBoc,
+.ctCan {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ctSo {
+  padding-inline: 0.05em;
+}
+
+.ctDau {
+  margin-inline: 0.28em;
+}
+
+/* Dấu âm dính liền số đứng sau: `−21` là một số, không phải một phép trừ. */
+.ctDauLien {
+  margin-inline: 0 0.02em;
+}
+
+.ctHam {
+  margin-inline: 0.1em 0.05em;
+  font-style: italic;
+}
+
+/*
+ * Dấu ngoặc và vạch trị tuyệt đối kéo dãn theo số tầng chúng bọc. `--cao` do `chieuCao()` tính
+ * TRÊN CÂY, không đo lúc chạy — đo lúc chạy thì lượt dựng đầu tiên trên trình duyệt khác HTML
+ * tĩnh, đúng lớp lỗi hydration mà cả thư mục này phải tránh.
+ *
+ * `scaleY` không chiếm thêm chỗ trong dòng, nên `padding-inline` phải tự chừa khoảng hai bên.
+ */
+.ctNgoac {
+  display: inline-block;
+  padding-inline: 0.12em;
+  transform: scaleY(var(--cao, 1));
+}
+
+/*
+ * PHÂN SỐ — hình mà chủ dự án đòi: "trình bày trên dưới có gạch phân rõ như công thức kìa thì mới
+ * hiểu." Hai tầng xếp dọc, gạch là `border-top` của mẫu số, đúng thứ trình duyệt vẽ cho `<mfrac>`.
+ *
+ * KHÔNG được đặt `align-items: center` ở đây. Trục ngang là trục CHÉO của hộp flex dọc, nên
+ * `center` làm hai tầng co lại vừa nội dung của chính nó — và gạch phân, vốn là `border-top` của
+ * mẫu số, chỉ còn dài bằng MẪU SỐ. Đo được trên `so-graham`: tử số `22,5 × (▢ + ▢ + ▢)` rộng 340px
+ * mà gạch chỉ 26px, nằm lọt thỏm dưới giữa tử số. Để mặc định `stretch` thì hai tầng luôn rộng
+ * bằng tầng rộng hơn, và việc căn giữa nội dung do `justify-content` của từng tầng lo.
+ */
+.ctPhanSo {
+  display: inline-flex;
+  flex-direction: column;
+  margin-inline: 0.22em;
+}
+
+.ctTu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35em 0.2em;
+}
+
+.ctMau {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2em 0.35em 0;
+  border-top: 1.5px solid currentcolor;
+}
+
+/*
+ * DẤU CĂN: glyph `√` kéo dãn đứng cạnh phần thân có vạch trên. Hai mảnh rời nhau chứ không phải
+ * một ký tự, vì `√` của phông không đủ dài để trùm một biểu thức nhiều tầng.
+ */
+.ctCanDau {
+  display: inline-block;
+  transform: scaleY(var(--cao, 1));
+  transform-origin: bottom;
+}
+
+.ctCanThan {
+  display: flex;
+  align-items: center;
+  padding: 0.12em 0.2em 0 0.1em;
+  border-top: 1.5px solid currentcolor;
+}
+
+.ctMu {
+  font-size: 0.7em;
+  line-height: 1;
+}
+
+/* ── Ô trống trong công thức ───────────────────────────────────────────────── */
+
+/*
+ * Ô nhập nằm GIỮA công thức, nên nó phải trông như một chỗ khuyết của công thức chứ không như một
+ * ô biểu mẫu: không nhãn, không bo góc lớn, viền đứt để mắt đọc ra "chỗ này còn thiếu".
+ *
+ * `--rong` là số ký tự của đáp án, do `beNgangO()` ở `QuizQuestion.tsx` tính — ô vừa đúng thứ sẽ
+ * đặt vào, không thừa không thiếu. Dùng `<input>` trần chứ không qua `Input`: `Input` có nhãn ở
+ * trên, mà một nhãn đặt giữa công thức thì phá nát công thức.
+ */
+.blankInput {
+  width: calc(var(--rong, 4) * 1ch + 0.8rem);
+  min-width: 2.75rem;
+  padding: 0.1em 0.25em;
+  font: inherit;
+  font-size: 0.9em;
+  text-align: center;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.blankInput::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+.blankInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.blankInput:disabled {
+  color: var(--color-ink);
+  -webkit-text-fill-color: var(--color-ink);
+  opacity: 1;
+}
+
+/*
+ * Hai lớp dưới đây PHẢI đứng sau `.blankInput:disabled` — ô đã chấm thì vừa `disabled` vừa mang
+ * `data-ket-qua`, mà cả hai bộ chọn cùng một độ đặc hiệu nên thứ tự khai báo là thứ duy nhất phân
+ * định. Cùng bẫy với `.panelCenter` trong `BottomSheet.module.css`.
+ */
+.blankInput[data-ket-qua='dung'] {
+  color: var(--color-success);
+  -webkit-text-fill-color: var(--color-success);
+  border-style: solid;
+  border-color: var(--color-success);
+}
+
+.blankInput[data-ket-qua='sai'] {
+  color: var(--color-danger);
+  -webkit-text-fill-color: var(--color-danger);
+  border-style: solid;
+  border-color: var(--color-danger);
+}
+
+/*
+ * Đề bài của câu điền số là `<p>` chứ không phải `<legend>` như ba dạng kia — không có
+ * `<fieldset>` nào để nó làm chú thích. Nên chép lại cỡ chữ ở đây thay vì để nó rơi về cỡ mặc
+ * định, và `.prompt` vẫn là một lớp duy nhất nên thứ tự khai báo trong file quyết định.
+ */
+.numberAsk .prompt {
+  margin: 0;
+}

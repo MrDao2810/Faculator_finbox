@@ -41,6 +41,12 @@ const CHO_GOI = [
   'ui/inputs/InlineNumber.tsx',
   'ui/inputs/NumberCell.tsx',
   'ui/inputs/NumberInput.tsx',
+  /*
+   * Ô điền số của câu hỏi dạng `dien-so` — WF-19C, 23/09/2026. Đúng chỗ gọi thứ sáu mà docblock
+   * trên nói tới. Đổi tên file ngày 24/09/2026: phần dựng một câu tách khỏi `QuizBody.tsx` sang
+   * `QuizQuestion.tsx` để dải câu đã làm dựng lại được y hệt câu đang hỏi.
+   */
+  'ui/quiz/QuizQuestion.tsx',
 ];
 
 function walk(dir: string): string[] {

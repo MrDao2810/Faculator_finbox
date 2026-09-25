@@ -1,0 +1,1626 @@
+[
+  {
+    "id": "Q316",
+    "formulaId": "ps",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Ngày 8/5/2019, GoValue tính P/S của HPG bằng vốn hóa thị trường 71.150,89 tỷ đồng chia cho doanh thu thuần năm 2018 (56.580,42 tỷ đồng), ra 1,26 lần. Nhưng khi đó HPG đã công bố báo cáo tài chính Q1/2019, nên doanh thu thuần lũy kế 4 quý gần nhất đã lên 57.798 tỷ đồng. Theo khuyến nghị của nguồn — dùng doanh thu lũy kế 4 quý gần nhất để tính cho chính xác hơn — P/S của HPG tại thời điểm đó bằng bao nhiêu?",
+    "promptEn": "On May 8, 2019, GoValue computed HPG's P/S as its market cap of VND 71,150.89 billion divided by 2018 full-year net revenue (VND 56,580.42 billion), getting 1.26x. But by then HPG had already released its Q1/2019 results, so trailing four-quarter net revenue had risen to VND 57,798 billion. Following the source's recommendation to use trailing four-quarter revenue for a more accurate figure, what was HPG's P/S at that point?",
+    "facts": [
+      {
+        "label": "Vốn hóa thị trường HPG (8/5/2019)",
+        "value": "71.150,89 tỷ đồng"
+      },
+      {
+        "label": "Doanh thu thuần năm 2018 (cả năm tài chính trước)",
+        "value": "56.580,42 tỷ đồng"
+      },
+      {
+        "label": "Doanh thu thuần lũy kế 4 quý gần nhất (đã cập nhật Q1/2019)",
+        "value": "57.798 tỷ đồng"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "HPG market capitalization (May 8, 2019)",
+        "value": "VND 71,150.89 billion"
+      },
+      {
+        "label": "Full-year 2018 net revenue (prior fiscal year)",
+        "value": "VND 56,580.42 billion"
+      },
+      {
+        "label": "Trailing four-quarter net revenue (updated with Q1/2019)",
+        "value": "VND 57,798 billion"
+      }
+    ],
+    "expected": 1.231,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.01
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "Nguồn tính lại P/S ngay sau khi có báo cáo Q1/2019: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” Lấy 71.150,89 chia cho 57.798 tỷ đồng doanh thu lũy kế 4 quý ra khoảng 1,23 lần — thấp hơn 1,26 lần nếu vẫn dùng doanh thu cả năm 2018 đã lỗi thời so với báo cáo mới nhất."
+  },
+  {
+    "id": "Q321",
+    "formulaId": "ev-ebitda",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Doanh nghiệp XYZ sở hữu 80% công ty con ABC, nên báo cáo tài chính hợp nhất của XYZ đã gộp 100% doanh thu, EBIT và EBITDA của ABC. Vốn hóa thị trường của XYZ: 5.000 tỷ đồng; tổng nợ vay: 1.200 tỷ đồng; tiền và tương đương tiền: 300 tỷ đồng; giá trị thị trường ước tính của 20% lợi ích cổ đông thiểu số còn lại trong ABC: 400 tỷ đồng; EBITDA hợp nhất (đã gồm 100% EBITDA của ABC): 800 tỷ đồng. Theo đúng quy ước phải cộng thêm lợi ích cổ đông thiểu số vào Enterprise Value để hai vế của tỷ số khớp nhau, EV/EBITDA của XYZ bằng bao nhiêu lần?",
+    "promptEn": "Company XYZ owns 80% of subsidiary ABC, so XYZ's consolidated financial statements already include 100% of ABC's revenue, EBIT and EBITDA. XYZ's market capitalization: VND 5,000 billion; total debt: VND 1,200 billion; cash and equivalents: VND 300 billion; estimated market value of the remaining 20% minority interest in ABC: VND 400 billion; consolidated EBITDA (already including 100% of ABC's EBITDA): VND 800 billion. Following the required convention of adding minority interest to Enterprise Value so both sides of the ratio match, what is XYZ's EV/EBITDA, in multiples (x)?",
+    "facts": [
+      {
+        "label": "Vốn hóa thị trường",
+        "value": "5.000 tỷ đồng"
+      },
+      {
+        "label": "Tổng nợ vay",
+        "value": "1.200 tỷ đồng"
+      },
+      {
+        "label": "Tiền và tương đương tiền",
+        "value": "300 tỷ đồng"
+      },
+      {
+        "label": "Lợi ích cổ đông thiểu số (20% của ABC)",
+        "value": "400 tỷ đồng"
+      },
+      {
+        "label": "EBITDA hợp nhất (gồm 100% EBITDA của ABC)",
+        "value": "800 tỷ đồng"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Market capitalization",
+        "value": "VND 5,000 billion"
+      },
+      {
+        "label": "Total debt",
+        "value": "VND 1,200 billion"
+      },
+      {
+        "label": "Cash and cash equivalents",
+        "value": "VND 300 billion"
+      },
+      {
+        "label": "Minority interest (20% stake in ABC)",
+        "value": "VND 400 billion"
+      },
+      {
+        "label": "Consolidated EBITDA (includes 100% of ABC's EBITDA)",
+        "value": "VND 800 billion"
+      }
+    ],
+    "expected": 7.875,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "EV = Vốn hóa + Nợ vay − Tiền + Lợi ích cổ đông thiểu số = 5.000 + 1.200 − 300 + 400 = 6.300 tỷ đồng. EV/EBITDA = 6.300 / 800 = 7,875 lần. Corporate Finance Institute giải thích vì sao bắt buộc cộng khoản này: “the consolidated financial statements of XYZ will reflect 100% of the Total Sales, EBIT, and EBITDA, etc. of the subsidiary ABC even though XYZ only owns 80% of ABC.” Tức mẫu số EBITDA đã tính đủ 100% công ty con, nên tử số EV cũng phải cộng đủ phần vốn của cổ đông thiểu số; nếu quên cộng, kết quả chỉ còn 5.900 / 800 = 7,375 lần, tức bội số bị bóp méo thấp giả tạo."
+  },
+  {
+    "id": "Q329",
+    "formulaId": "von-hoa-thi-truong",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Cổ phiếu HPG (chốt phiên 27/07/2018) có giá 37.300 đồng/cổ phiếu, số lượng cổ phiếu đang lưu hành 2.123.907.166 cổ phiếu, tỷ lệ free-float thực tế 56,19%. Theo quy tắc làm tròn tỷ lệ free-float của HOSE cho vùng từ 15% trở lên (làm tròn LÊN theo bước 5%), vốn hóa thị trường điều chỉnh theo tỷ lệ free-float (đã làm tròn) của HPG là bao nhiêu tỷ đồng?",
+    "promptEn": "HPG stock (closing 27 Jul 2018) trades at VND 37,300/share, with 2,123,907,166 shares outstanding and an actual free-float ratio of 56.19%. Under HOSE's free-float rounding rule for ratios of 15% or higher (round UP to the nearest 5% step), what is HPG's free-float-adjusted market capitalization, in billion VND?",
+    "facts": [
+      {
+        "label": "Giá cổ phiếu",
+        "value": "37.300 đồng/cổ phiếu"
+      },
+      {
+        "label": "Số lượng cổ phiếu đang lưu hành",
+        "value": "2.123.907.166 cổ phiếu"
+      },
+      {
+        "label": "Tỷ lệ free-float thực tế",
+        "value": "56,19%"
+      },
+      {
+        "label": "Quy tắc làm tròn (free-float ≥ 15%)",
+        "value": "làm tròn LÊN theo bước 5%"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Share price",
+        "value": "VND 37,300/share"
+      },
+      {
+        "label": "Shares outstanding",
+        "value": "2,123,907,166 shares"
+      },
+      {
+        "label": "Actual free-float ratio",
+        "value": "56.19%"
+      },
+      {
+        "label": "Rounding rule (free float ≥ 15%)",
+        "value": "round UP to the nearest 5% step"
+      }
+    ],
+    "expected": 47533,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.01
+    },
+    "unitVi": "tỷ đồng",
+    "unitEn": "billion VND",
+    "explainVi": "Vốn hóa thị trường (chưa điều chỉnh) = 37.300 × 2.123.907.166 ≈ 79.222 tỷ đồng — đây là con số công thức 'Vốn hóa thị trường' trong thư viện tính ra. Tỷ lệ free-float thực tế 56,19% rơi vào vùng ≥15%, mà nguồn nêu rõ: “Riêng các Mã Chứng khoán khác có Tỷ lệ Free-Float thực tế từ 15% trở lên vẫn được làm tròn lên theo bước là 5%”, nên làm tròn thành 60%. Áp dụng đúng ví dụ HPG, nguồn tính sẵn: “79.222 tỷ đồng x 60% = 47.533 tỷ đồng”. Đây là vốn hóa điều chỉnh free-float — con số các Sở Giao dịch Chứng khoán dùng để tính trọng số cổ phiếu trong VN-Index, VN30…, khác với vốn hóa thị trường thô mà công thức này tính."
+  },
+  {
+    "id": "Q332",
+    "formulaId": "so-graham",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một doanh nghiệp có EPS ba năm gần nhất lần lượt là: năm nay 2.000 ₫, năm ngoái 8.000 ₫, năm trước nữa 5.000 ₫ (năm nay lợi nhuận giảm mạnh vì một khoản chi phí bất thường). Giá trị sổ sách mỗi cổ phiếu (BVPS) hiện tại là 30.000 ₫. Theo khuyến nghị gốc của Benjamin Graham — dùng thu nhập bình quân nhiều năm thay vì chỉ lấy năm gần nhất — hãy tính Số Graham dùng EPS bình quân của cả ba năm này.",
+    "promptEn": "A company's EPS for the last three years is: this year ₫2,000, last year ₫8,000, and the year before that ₫5,000 (this year's profit fell sharply because of a one-time charge). Book value per share (BVPS) is currently ₫30,000. Following Benjamin Graham's own recommendation — using average earnings over several years rather than just the latest year — calculate the Graham number using the three-year average EPS.",
+    "facts": [
+      {
+        "label": "EPS năm nay",
+        "value": "2.000 ₫"
+      },
+      {
+        "label": "EPS năm ngoái",
+        "value": "8.000 ₫"
+      },
+      {
+        "label": "EPS năm trước nữa",
+        "value": "5.000 ₫"
+      },
+      {
+        "label": "Giá trị sổ sách mỗi cổ phiếu (BVPS)",
+        "value": "30.000 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "EPS this year",
+        "value": "₫2,000"
+      },
+      {
+        "label": "EPS last year",
+        "value": "₫8,000"
+      },
+      {
+        "label": "EPS two years ago",
+        "value": "₫5,000"
+      },
+      {
+        "label": "Book value per share (BVPS)",
+        "value": "₫30,000"
+      }
+    ],
+    "expected": 58094.75,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.01
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "EPS bình quân 3 năm = (2.000 + 8.000 + 5.000) / 3 = 5.000 ₫. Số Graham = √(22,5 × 5.000 × 30.000) ≈ 58.094,75 ₫. Nếu chỉ lấy EPS năm nay (2.000 ₫) — năm lợi nhuận bị bóp méo bởi chi phí bất thường — kết quả sẽ chỉ khoảng 36.742 ₫, thấp hơn hẳn và dễ khiến cổ phiếu bị đánh giá là 'đắt' một cách sai lệch. Nguồn trích lời Benjamin Graham trong The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” — tức Graham khuyến nghị lấy thu nhập bình quân nhiều năm, không phải một năm đơn lẻ, để tính các phép định giá kiểu Số Graham."
+  },
+  {
+    "id": "Q333",
+    "formulaId": "so-graham",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một ngân hàng có EPS = 4.000 ₫/cổ phiếu. Giá trị sổ sách mỗi cổ phiếu (BVPS) theo báo cáo là 40.000 ₫, trong đó 8.000 ₫ là lợi thế thương mại (goodwill) từ các thương vụ mua lại trước đây. Theo khuyến nghị dùng giá trị sổ sách HỮU HÌNH (loại goodwill) làm phép đối chiếu thận trọng hơn khi ngân hàng có goodwill đáng kể, hãy tính Số Graham dùng BVPS hữu hình (đã loại goodwill).",
+    "promptEn": "A bank has EPS = ₫4,000 per share. Reported book value per share (BVPS) is ₫40,000, of which ₫8,000 is goodwill from past acquisitions. Following the recommendation to use TANGIBLE book value (excluding goodwill) as the more conservative cross-check when a bank carries significant goodwill, calculate the Graham number using tangible BVPS (goodwill excluded).",
+    "facts": [
+      {
+        "label": "EPS",
+        "value": "4.000 ₫"
+      },
+      {
+        "label": "BVPS báo cáo (gồm cả goodwill)",
+        "value": "40.000 ₫"
+      },
+      {
+        "label": "Goodwill mỗi cổ phiếu",
+        "value": "8.000 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "EPS",
+        "value": "₫4,000"
+      },
+      {
+        "label": "Reported BVPS (including goodwill)",
+        "value": "₫40,000"
+      },
+      {
+        "label": "Goodwill per share",
+        "value": "₫8,000"
+      }
+    ],
+    "expected": 53665.63,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.01
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "BVPS hữu hình = 40.000 − 8.000 = 32.000 ₫. Số Graham = √(22,5 × 4.000 × 32.000) ≈ 53.665,63 ₫ — thấp hơn hẳn mức 60.000 ₫ nếu dùng nguyên BVPS báo cáo (đã gồm goodwill). Nguồn cảnh báo: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Dùng BVPS gộp cả goodwill mà không đối chiếu bằng TBVPS sẽ khiến một ngân hàng tăng trưởng nhờ mua lại trông 'rẻ' hơn thực tế."
+  },
+  {
+    "id": "Q337",
+    "formulaId": "ncav-tren-co-phieu",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một doanh nghiệp có tài sản ngắn hạn 6.000 tỷ ₫, nợ ngắn hạn 2.200 tỷ ₫, nợ dài hạn 900 tỷ ₫ và 250 triệu cổ phiếu lưu hành. Theo đúng công thức NCAV gốc của Graham — trừ TOÀN BỘ nợ phải trả, không chỉ nợ ngắn hạn — NCAV mỗi cổ phiếu bằng bao nhiêu?",
+    "promptEn": "A company has current assets of 6,000 billion ₫, current liabilities of 2,200 billion ₫, long-term liabilities of 900 billion ₫, and 250 million shares outstanding. Using Graham's original NCAV formula — subtracting ALL liabilities, not just current liabilities — what is NCAV per share?",
+    "facts": [
+      {
+        "label": "Tài sản ngắn hạn",
+        "value": "6.000 tỷ ₫"
+      },
+      {
+        "label": "Nợ ngắn hạn",
+        "value": "2.200 tỷ ₫"
+      },
+      {
+        "label": "Nợ dài hạn",
+        "value": "900 tỷ ₫"
+      },
+      {
+        "label": "Số cổ phiếu lưu hành",
+        "value": "250 triệu CP"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Current assets",
+        "value": "6,000 billion ₫"
+      },
+      {
+        "label": "Current liabilities",
+        "value": "2,200 billion ₫"
+      },
+      {
+        "label": "Long-term liabilities",
+        "value": "900 billion ₫"
+      },
+      {
+        "label": "Shares outstanding",
+        "value": "250 million shares"
+      }
+    ],
+    "expected": 11600,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.01
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "NCAV lấy tài sản ngắn hạn trừ TỔNG nợ phải trả — tức nợ ngắn hạn cộng nợ dài hạn (2.200 + 900 = 3.100 tỷ ₫) — chứ không phải chỉ nợ ngắn hạn như vốn lưu động ròng thông thường. Kết quả đúng: (6.000 − 3.100) ÷ 250 × 1.000 = 11.600 ₫/CP. Nếu nhầm sang chỉ trừ nợ ngắn hạn, con số sẽ bị thổi phồng thành 15.200 ₫/CP. Nguồn viết: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”"
+  },
+  {
+    "id": "Q340",
+    "formulaId": "ty-suat-loi-nhuan-tren-gia",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Corporate Finance Institute cho ví dụ: cổ phiếu ABC Corp đang giao dịch ở giá 8 USD/cổ phiếu, còn lợi nhuận trên mỗi cổ phiếu (EPS) 12 tháng gần nhất (LTM) là 0,35 USD/cổ phiếu. Tính tỷ suất lợi nhuận trên giá (E/P) của ABC Corp theo đúng quy ước EPS 12 tháng gần nhất mà nguồn dùng.",
+    "promptEn": "The Corporate Finance Institute gives an example: ABC Corp.'s stock trades at $8 per share, and its last-twelve-months (LTM) earnings per share (EPS) is $0.35 per share. Compute ABC Corp.'s earnings yield (E/P) using the trailing LTM EPS convention the source uses.",
+    "facts": [
+      {
+        "label": "Giá cổ phiếu ABC Corp",
+        "value": "8 USD/cổ phiếu"
+      },
+      {
+        "label": "EPS 12 tháng gần nhất (LTM) của ABC Corp",
+        "value": "0,35 USD/cổ phiếu"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "ABC Corp. share price",
+        "value": "$8 per share"
+      },
+      {
+        "label": "ABC Corp. last-twelve-months (LTM) EPS",
+        "value": "$0.35 per share"
+      }
+    ],
+    "expected": 4.375,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Nguồn nêu rõ quy ước dùng EPS 12 tháng gần nhất: “The earnings yield is a financial ratio that describes the relationship of a company's LTM earnings per share to the company's stock price per share.” Với số liệu ví dụ, E/P = 0,35 ÷ 8 × 100 = 4,375%. Nguồn diễn giải nôm na thành “every dollar invested in ABC Corp.'s stock generates 4 cents” — cách nói làm tròn thô; con số chính xác tính từ chính số liệu nguồn đưa ra là 4,375%."
+  },
+  {
+    "id": "Q344",
+    "formulaId": "gia-muc-tieu",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một công ty được dự phóng lợi nhuận sau thuế năm nay là 500 tỷ đồng, có 100 triệu cổ phiếu đang lưu hành. P/E mục tiêu theo trung bình ngành là 12 lần. Theo cách các nhà phân tích thường tính — dùng EPS dự phóng của năm hiện tại, không phải EPS các quý đã công bố — giá mục tiêu của cổ phiếu này là bao nhiêu?",
+    "promptEn": "A company is projected to earn VND 500 billion in after-tax profit this year and has 100 million shares outstanding. The industry-average target P/E is 12x. Using the way analysts usually compute it — the projected EPS for the current year, not the EPS from quarters already reported — what is this stock's target price?",
+    "facts": [
+      {
+        "label": "Lợi nhuận sau thuế dự phóng năm nay",
+        "value": "500 tỷ đồng"
+      },
+      {
+        "label": "Số cổ phiếu đang lưu hành",
+        "value": "100 triệu cổ phiếu"
+      },
+      {
+        "label": "P/E mục tiêu (trung bình ngành)",
+        "value": "12 lần"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Projected after-tax profit this year",
+        "value": "VND 500 billion"
+      },
+      {
+        "label": "Shares outstanding",
+        "value": "100 million shares"
+      },
+      {
+        "label": "Target P/E (industry average)",
+        "value": "12x"
+      }
+    ],
+    "expected": 60000,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 1
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "EPS dự phóng = 500.000.000.000 ÷ 100.000.000 = 5.000 ₫/cp. Giá mục tiêu = 5.000 × 12 = 60.000 ₫. Tititada Academy ghi rõ quy ước này: “Dự phóng EPS là EPS dự đoán của năm hiện tại”, tức lợi nhuận DỰ BÁO cho năm nay, không phải lợi nhuận các quý đã công bố — khác với công thức trong thư viện này, vốn giữ nguyên EPS hiện tại (đã có) khi tính."
+  },
+  {
+    "id": "Q248",
+    "formulaId": "var-lich-su",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một nhà quản lý rủi ro tính VaR lịch sử bằng phương pháp mô phỏng lịch sử (historical simulation) trên 300 phiên giao dịch gần nhất. Theo quy ước xếp hạng quan sát của phương pháp này, VaR ở mức tin cậy cl% là khoản lỗ xếp hạng [(1 − cl%) × n + 1] tính từ nặng nhất trở xuống. Năm khoản lỗ nặng nhất trong 300 phiên (đơn vị triệu, số âm là lỗ) lần lượt là −30; −27; −23; −21; −19. Tính VaR ở mức tin cậy 99%, nhập kết quả dưới dạng số DƯƠNG thể hiện mức lỗ.",
+    "promptEn": "A risk manager computes historical VaR by historical simulation over the most recent 300 trading days. Under this method's observation-ranking convention, the cl% VaR is the loss ranked [(1 − cl%) × n + 1] counting from the worst. The five worst losses among the 300 sessions (millions, negative = loss) are −30, −27, −23, −21, −19 in order. Compute the 99% VaR, entering a POSITIVE number for the loss magnitude.",
+    "facts": [
+      {
+        "label": "Số phiên quan sát (n)",
+        "value": "300 phiên"
+      },
+      {
+        "label": "Mức tin cậy (cl%)",
+        "value": "99%"
+      },
+      {
+        "label": "Năm khoản lỗ nặng nhất trong 300 phiên (triệu, âm là lỗ), từ nặng tới nhẹ",
+        "value": "−30; −27; −23; −21; −19"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Number of observations (n)",
+        "value": "300 sessions"
+      },
+      {
+        "label": "Confidence level (cl%)",
+        "value": "99%"
+      },
+      {
+        "label": "Five worst losses among the 300 sessions (millions, negative = loss), worst to least severe",
+        "value": "−30; −27; −23; −21; −19"
+      }
+    ],
+    "expected": 21,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.02
+    },
+    "unitVi": "triệu",
+    "unitEn": "million",
+    "explainVi": "Quy ước 'xếp hạng quan sát' của mô phỏng lịch sử: sắp các khoản lỗ từ nặng nhất tới nhẹ nhất, VaR ở mức tin cậy cl% là quan sát xếp hạng (1 − cl%) × n + 1. Với n = 300 và cl% = 99%, hạng cần tìm là (1 − 0,99) × 300 + 1 = 3 + 1 = 4 — tức khoản lỗ nặng thứ 4, bằng −21 (triệu). VaR luôn nêu dưới dạng số dương thể hiện mức lỗ nên đáp án là 21. Đây là quy ước chọn theo THỨ HẠNG rời rạc trên chuỗi đã sắp xếp — khác phép nội suy phân vị tuyến tính mà chính công thức VaR lịch sử của Faculator Finbox dùng, nên hai cách tính có thể cho hai con số hơi khác nhau trên cùng một chuỗi dữ liệu; đây là một quy ước thay thế phổ biến trong tài liệu ngành, không phải cách Faculator đang tính."
+  },
+  {
+    "id": "Q249",
+    "formulaId": "var-lich-su",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Quy tắc căn bậc hai thời gian (square-root-of-time rule) quy đổi VaR sang kỳ hạn dài hơn theo công thức: VaR kỳ T = VaR 1 phiên × căn bậc hai của T, với giả định lợi suất các phiên độc lập và cùng phân phối (i.i.d.). Một danh mục có VaR 1 phiên ở độ tin cậy 99% bằng 2% giá trị danh mục. Giả định i.i.d. đúng như quy tắc yêu cầu, VaR ước tính cho kỳ hạn 25 phiên bằng bao nhiêu % giá trị danh mục?",
+    "promptEn": "The square-root-of-time rule scales VaR to a longer horizon as: T-day VaR = 1-day VaR × square root of T, assuming session returns are independent and identically distributed (i.i.d.). A portfolio's 1-day VaR at 99% confidence is 2% of portfolio value. Assuming the i.i.d. condition the rule requires, what is the estimated VaR for a 25-session horizon, as a % of portfolio value?",
+    "facts": [
+      {
+        "label": "VaR 1 phiên, độ tin cậy 99%",
+        "value": "2% giá trị danh mục"
+      },
+      {
+        "label": "Kỳ hạn cần quy đổi (T)",
+        "value": "25 phiên"
+      },
+      {
+        "label": "Quy tắc quy đổi",
+        "value": "VaR kỳ T = VaR 1 phiên × √T"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "1-day VaR, 99% confidence",
+        "value": "2% of portfolio value"
+      },
+      {
+        "label": "Horizon to scale to (T)",
+        "value": "25 sessions"
+      },
+      {
+        "label": "Scaling rule",
+        "value": "T-day VaR = 1-day VaR × √T"
+      }
+    ],
+    "expected": 10,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.2
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Quy tắc căn bậc hai thời gian quy đổi VaR theo công thức T-day VaR = 1-day VaR × √T, dựa trên giả định lợi suất các phiên độc lập và cùng phân phối (i.i.d.) khiến phương sai cộng dồn tuyến tính theo số phiên. Với VaR 1 phiên = 2% và T = 25, VaR 25 phiên ước tính = 2% × √25 = 2% × 5 = 10%. Sai lầm thường gặp — cũng là điều chính công thức VaR lịch sử của Faculator Finbox tự cảnh báo trong mục 'sai lầm thường gặp' — là nhân thẳng VaR một phiên với số phiên (2% × 25 = 50%, gấp 5 lần) thay vì nhân với căn bậc hai. Quy tắc này cũng chỉ là một XẤP XỈ: khi giả định i.i.d. bị vi phạm (biến động thay đổi theo thời gian, đuôi phân phối dày, có bước nhảy), cách quy đổi này có xu hướng ĐÁNH GIÁ THẤP rủi ro thật."
+  },
+  {
+    "id": "Q260",
+    "formulaId": "do-lech-chuan-ban-phan",
+    "kind": "quy-uoc",
+    "evidence": "ngo-nhan",
+    "promptVi": "Một chuyên gia CFA (Amelia Hopkins, Granville Capital) nêu ví dụ: downside deviation tính từ lợi suất THÁNG của chỉ số S&P 500 (giai đoạn 2001–2010, ngưỡng MAR tháng 0,4167%, tương đương 5%/năm) là 3,71%/tháng. Áp đúng quy ước quy đổi ra năm mà bài viết mô tả — nhân với căn bậc hai của số kỳ trong năm, giống hệt cách quy năm độ lệch chuẩn thường dùng — downside deviation theo năm là bao nhiêu %?",
+    "promptEn": "A CFA practitioner (Amelia Hopkins, Granville Capital) gives this example: the downside deviation computed from MONTHLY S&P 500 returns (2001-2010, monthly MAR of 0.4167%, i.e. 5% annually) is 3.71%/month. Applying the exact annualizing convention the article describes — multiplying by the square root of the number of periods per year, the same way standard deviation is annualized — what is the annualized downside deviation, in %?",
+    "facts": [
+      {
+        "label": "Downside deviation tính theo lợi suất tháng",
+        "value": "3,71%/tháng (dữ liệu S&P 500, 2001–2010, ngưỡng MAR tháng 0,4167% ≈ 5%/năm)"
+      },
+      {
+        "label": "Quy ước quy đổi ra năm mà bài viết mô tả",
+        "value": "Nhân với căn bậc hai của số kỳ trong năm (ở đây là căn 12, vì dùng dữ liệu tháng)"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Downside deviation from monthly returns",
+        "value": "3.71%/month (S&P 500 data, 2001-2010, monthly MAR 0.4167% ≈ 5%/year)"
+      },
+      {
+        "label": "Annualizing convention the article describes",
+        "value": "Multiply by the square root of the number of periods per year (here √12, since monthly data is used)"
+      }
+    ],
+    "expected": 12.85,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.15
+    },
+    "unitVi": "%/năm",
+    "unitEn": "%/year",
+    "explainVi": "Nguồn (bài “The Sortino Ratio”, Deborah Kidd CFA, CFA Institute 2012, dẫn lời Amelia Hopkins) đưa đúng con số này: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010) and a monthly MAR of 0.4167% (5 percent annually) gives a downside deviation of 3.71%. Annualizing the number by multiplying by the square root of 12 (which is another problem) gives 12.84%.” Lấy 3,71 nhân căn 12 (≈3,4641) ra khoảng 12,85%, khớp con số bài viết nêu (12,84%, chỉ lệch do làm tròn). Chú ý: ngay trong ngoặc, tác giả đã gọi bước nhân căn 12 này là “một vấn đề khác” — bài viết còn nói thẳng phía sau: “I have read that you cannot annualize downside deviation in the same manner as standard deviation... but analytical packages I've seen do it anyway,” tức quy ước này bị dùng phổ biến dù giới chuyên môn không coi là đúng đắn về mặt lý thuyết."
+  },
+  {
+    "id": "Q274",
+    "formulaId": "ty-so-treynor",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một danh mục có lợi suất 22%/năm, lãi suất phi rủi ro 1%/năm và beta so với thị trường bằng 2,5. Tính tỷ số Treynor của danh mục (kết quả là một số lần, không nhân với 100).",
+    "promptEn": "A portfolio returns 22%/year, the risk-free rate is 1%/year, and the portfolio's beta versus the market is 2.5. Calculate the portfolio's Treynor ratio (as a plain ratio, not multiplied by 100).",
+    "facts": [
+      {
+        "label": "Lợi suất danh mục / năm",
+        "value": "22%"
+      },
+      {
+        "label": "Lãi suất phi rủi ro / năm",
+        "value": "1%"
+      },
+      {
+        "label": "Beta của danh mục",
+        "value": "2,5"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Portfolio return / year",
+        "value": "22%"
+      },
+      {
+        "label": "Risk-free rate / year",
+        "value": "1%"
+      },
+      {
+        "label": "Portfolio beta",
+        "value": "2.5"
+      }
+    ],
+    "expected": 0.084,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.003
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "Nguồn tính ví dụ mẫu: “For investment C, the Treynor ratio comes out to be ( 22 – 1 ) / (2.5 * 100) = 0.084”. Cách viết (2,5 × 100) chỉ là mẹo đổi hiệu số phần trăm (22 − 1 = 21) sang số thập phân trước khi chia cho beta — bản chất vẫn là (22% − 1%) / 2,5 = 0,21 / 2,5 = 0,084. Người quen các tỷ số kiểu Sharpe hay nhân kết quả với 100, hoặc quên đổi % sang số thập phân trước khi chia cho beta, nên hay tính sai bước này."
+  },
+  {
+    "id": "Q276",
+    "formulaId": "ty-so-thong-tin",
+    "kind": "quy-uoc",
+    "evidence": "ngo-nhan",
+    "promptVi": "Một chiến lược có Information Ratio tính trên dữ liệu THÁNG là 1,08 lần. Áp dụng đúng quy ước quy năm (nhân với căn bậc hai số kỳ trong năm), Information Ratio đã quy năm là bao nhiêu?",
+    "promptEn": "A strategy's Information Ratio computed from MONTHLY data is 1.08x. Applying the correct annualization convention (multiplying by the square root of the number of periods per year), what is the annualized Information Ratio?",
+    "facts": [
+      {
+        "label": "Information Ratio theo tháng (chưa quy năm)",
+        "value": "1,08 lần"
+      },
+      {
+        "label": "Số kỳ (tháng) trong một năm",
+        "value": "12"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Monthly Information Ratio (not yet annualized)",
+        "value": "1.08x"
+      },
+      {
+        "label": "Number of periods (months) per year",
+        "value": "12"
+      }
+    ],
+    "expected": 3.74,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "Nguồn nêu đúng ví dụ số cho quy ước này: “Annualised IR = 1.08 x sqrt(12) = 1.08 x 3.464 = 3.74”, tức nhân IR theo kỳ với căn bậc hai số kỳ trong năm (12 cho dữ liệu tháng, 252 cho dữ liệu ngày, 52 cho dữ liệu tuần). Cùng nguồn cảnh báo sai lầm phổ biến: “applying sqrt(252) to monthly data or sqrt(12) to daily data is a common mistake”, dùng nhầm hệ số quy năm ứng với tần suất dữ liệu khiến kết quả vô nghĩa."
+  },
+  {
+    "id": "Q281",
+    "formulaId": "ty-so-thang-thua",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Theo công thức PF = (p × R) / (1 − p) trong nguồn (p = tỷ lệ thắng, R = tỷ số thắng/thua), một chiến lược có tỷ lệ thắng 40% và tỷ số thắng/thua 2 lần thì Profit Factor (PF) bằng bao nhiêu?",
+    "promptEn": "Using the source's formula PF = (p × R) / (1 − p) (p = win rate, R = the win/loss ratio), a strategy with a 40% win rate and a win/loss ratio of 2 has what Profit Factor (PF)?",
+    "facts": [
+      {
+        "label": "Tỷ lệ thắng (p)",
+        "value": "40%"
+      },
+      {
+        "label": "Tỷ số thắng/thua (R)",
+        "value": "2 lần (2:1)"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Win rate (p)",
+        "value": "40%"
+      },
+      {
+        "label": "Win/loss ratio (R)",
+        "value": "2 (2:1)"
+      }
+    ],
+    "expected": 1.3333,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.02
+    },
+    "unitVi": "lần",
+    "unitEn": "times",
+    "explainVi": "Nguồn cho sẵn đúng ví dụ số này: “a 40% win rate with a 2:1 payoff has PF = 0.4 × 2 / 0.6 ≈ 1.33”. Thay p = 0,4 và R = 2 vào PF = (p×R)/(1−p): (0,4×2)/0,6 = 0,8/0,6 ≈ 1,33 lần. Profit Factor KHÔNG phải là tỷ số thắng/thua — nó khoá thêm tỷ lệ thắng vào, đúng như nguồn nói ba đại lượng (win rate, tỷ số thắng/thua, profit factor) \"aren't independent\" (không độc lập với nhau)."
+  },
+  {
+    "id": "Q282",
+    "formulaId": "ty-so-thang-thua",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một nguồn tiếng Việt tính \"tỷ lệ lời/lỗ\" cho MỘT lệnh cụ thể (khác cách tính trung bình nhiều phiên của công thức trong bài, nhưng cùng ý so lãi tiềm năng với lỗ tiềm năng): tỷ lệ = (giá chốt lời − giá vào lệnh) ÷ (giá vào lệnh − giá cắt lỗ). Áp cho lệnh mua PVS với ba mức giá dưới đây, tỷ lệ này bằng bao nhiêu lần?",
+    "promptEn": "A Vietnamese source computes a \"profit/loss ratio\" for a SINGLE order (a different calculation from this article's multi-session average, but the same idea of weighing potential gain against potential loss): ratio = (take-profit price − entry price) ÷ (entry price − stop-loss price). Applied to this PVS buy order with the three prices below, what is the ratio?",
+    "facts": [
+      {
+        "label": "Giá vào lệnh mua PVS",
+        "value": "30.000 đ/cp"
+      },
+      {
+        "label": "Giá chốt lời mục tiêu",
+        "value": "36.000 đ/cp"
+      },
+      {
+        "label": "Giá cắt lỗ",
+        "value": "28.000 đ/cp"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "PVS entry price",
+        "value": "VND 30,000/share"
+      },
+      {
+        "label": "Target take-profit price",
+        "value": "VND 36,000/share"
+      },
+      {
+        "label": "Stop-loss price",
+        "value": "VND 28,000/share"
+      }
+    ],
+    "expected": 3,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "lần",
+    "unitEn": "times",
+    "explainVi": "Nguồn tính sẵn: “Như vậy, đối với giao dịch này tỷ lệ lời/lỗ của giao dịch này là: (36.000 – 30.000)/(30.000 – 28.000) = 3 lần.” Tử số là khoảng cách tới giá chốt lời, mẫu số là khoảng cách tới giá cắt lỗ; đảo ngược hai vế (lấy khoảng lỗ chia khoảng lãi) là lỗi hay gặp khi mới học đọc tỷ lệ này."
+  },
+  {
+    "id": "Q244",
+    "formulaId": "sut-giam-sau-nhat",
+    "kind": "quy-uoc",
+    "evidence": "ngo-nhan",
+    "promptVi": "NAV của một danh mục ghi nhận qua 5 phiên liên tiếp theo bảng dưới (tỷ đồng). Áp dụng đúng quy ước tính Mức sụt giảm sâu nhất (MDD) là tính \"cuốn chiếu\" theo từng đỉnh mới (rolling) — không phải chỉ lấy đỉnh cao nhất và đáy thấp nhất của cả giai đoạn ghép lại với nhau — hãy tính MDD của danh mục trong cả giai đoạn. Nhập kết quả dạng số dương, đơn vị %.",
+    "promptEn": "A portfolio's NAV over 5 consecutive sessions is given below (VND billion). Applying the correct Maximum Drawdown (MDD) convention of computing it dynamically on a rolling basis for each new peak — not simply pairing the period's single highest and lowest values — calculate the portfolio's MDD over the whole period. Enter the result as a positive number, in %.",
+    "facts": [
+      {
+        "label": "NAV phiên 1 (tỷ đồng)",
+        "value": "400"
+      },
+      {
+        "label": "NAV phiên 2 (tỷ đồng)",
+        "value": "150"
+      },
+      {
+        "label": "NAV phiên 3 (tỷ đồng)",
+        "value": "500"
+      },
+      {
+        "label": "NAV phiên 4 (tỷ đồng)",
+        "value": "350"
+      },
+      {
+        "label": "NAV phiên 5 (tỷ đồng)",
+        "value": "450"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "NAV session 1 (VND billion)",
+        "value": "400"
+      },
+      {
+        "label": "NAV session 2 (VND billion)",
+        "value": "150"
+      },
+      {
+        "label": "NAV session 3 (VND billion)",
+        "value": "500"
+      },
+      {
+        "label": "NAV session 4 (VND billion)",
+        "value": "350"
+      },
+      {
+        "label": "NAV session 5 (VND billion)",
+        "value": "450"
+      }
+    ],
+    "expected": 62.5,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 1
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Nếu tính ẩu bằng cách lấy đỉnh cao nhất toàn kỳ (500, ở phiên 3) trừ đáy thấp nhất toàn kỳ (150, ở phiên 2) rồi chia cho 500, sẽ ra 70% — nhưng đáy 150 xảy ra TRƯỚC khi danh mục đạt đỉnh 500, nên phép ghép đó đặt một đáy cạnh một đỉnh còn chưa tồn tại ở thời điểm đó. Nguồn yêu cầu tính trên cơ sở cuốn chiếu: “If calculating the maximum drawdown in Excel, ensure the formula is dynamic to capture each new peak and restart of the cycle, i.e. on a “rolling basis”.” Nghĩa là đỉnh dùng để so sánh phải là đỉnh cao nhất TÍNH ĐẾN THỜI ĐIỂM ĐÓ: ở phiên 2, đỉnh tính đến lúc đó chỉ là 400 (phiên 1), nên mức giảm hợp lệ là (400−150)/400 = 62,5%; ở phiên 4, đỉnh tính đến lúc đó là 500 (phiên 3), mức giảm là (500−350)/500 = 30%. Lớn nhất trong các mức giảm hợp lệ là 62,5% — đó mới là MDD đúng của cả giai đoạn."
+  },
+  {
+    "id": "Q247",
+    "formulaId": "sut-giam-hien-tai",
+    "kind": "hau-qua",
+    "evidence": "quy-dinh",
+    "promptVi": "Một cổ phiếu đang có Mức sụt giảm hiện tại (DD_t) bằng 30% so với đỉnh trong cửa sổ đang xét. Từ mức giá hiện tại, cổ phiếu cần tăng thêm bao nhiêu phần trăm nữa để giá quay lại đúng đỉnh đó (làm tròn 1 chữ số thập phân)?",
+    "promptEn": "A stock currently has a Current drawdown from peak (DD_t) of 30% below the peak of the window. From the current price, how many percent must it gain to climb back to exactly that same peak (round to 1 decimal place)?",
+    "facts": [
+      {
+        "label": "Mức sụt giảm hiện tại so với đỉnh (DD_t)",
+        "value": "30%"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Current drawdown from peak (DD_t)",
+        "value": "30%"
+      }
+    ],
+    "expected": 42.857142857142854,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.5
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Giá hiện tại = Đỉnh × (1 − 30%) = 0,7 × Đỉnh, nên lãi cần có để quay lại đỉnh = Đỉnh ÷ (0,7 × Đỉnh) − 1 = 1/0,7 − 1 ≈ 42,9%. Nguồn nêu đúng quy luật bất đối xứng này qua các ví dụ nhỏ hơn: “Với việc lỗ 5% thì bạn cần đầu tư lãi sau đó 5.3% thì mới hoàn vốn. Nếu số lỗ là 20% thì bạn phải lãi 25%, và khi số lỗ lên đến 50% thì bạn phải lãi 100% thì mới hoàn vốn” — sụt càng sâu thì mức lãi cần để hoà vốn càng vượt xa mức sụt theo tỷ lệ 1:1, không bao giờ bằng nhau."
+  },
+  {
+    "id": "Q268",
+    "formulaId": "beta",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một nền tảng dữ liệu tính được beta hồi quy (raw beta, Cov/Var thô từ dữ liệu lịch sử) của một cổ phiếu là 1,50. Theo quy ước \"beta điều chỉnh\" (adjusted beta) mà Bloomberg dùng — bình quân gia quyền giữa beta hồi quy (trọng số 0,67) và beta thị trường bằng 1 (trọng số 0,33) — beta điều chỉnh của cổ phiếu này là bao nhiêu?",
+    "promptEn": "A data platform computes a stock's regression (raw) beta — the plain Cov/Var from historical data — at 1.50. Under the \"adjusted beta\" convention Bloomberg uses — a weighted average of the regression beta (weight 0.67) and a market beta of 1 (weight 0.33) — what is this stock's adjusted beta?",
+    "facts": [
+      {
+        "label": "Beta hồi quy (raw beta) từ dữ liệu lịch sử",
+        "value": "1,50 lần"
+      },
+      {
+        "label": "Trọng số quy ước: beta hồi quy / beta thị trường (= 1)",
+        "value": "0,67 / 0,33"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Regression (raw) beta from historical data",
+        "value": "1.50x"
+      },
+      {
+        "label": "Convention weights: regression beta / market beta (= 1)",
+        "value": "0.67 / 0.33"
+      }
+    ],
+    "expected": 1.335,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.02
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "Corporate Finance Institute nêu đúng công thức Bloomberg dùng: “Adjusted Beta = Regression Beta (0.67) + 1.00 (0.33)”. Beta điều chỉnh là bình quân gia quyền giữa beta hồi quy (trọng số 0,67) và beta thị trường bằng 1 (trọng số 0,33), vì thực nghiệm cho thấy beta có xu hướng trôi dần về 1 qua thời gian. Với beta hồi quy 1,50: 0,67 × 1,50 + 0,33 × 1 = 1,335."
+  },
+  {
+    "id": "Q255",
+    "formulaId": "do-bien-dong-nam-hoa",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một cổ phiếu có độ lệch chuẩn lợi suất THÁNG bằng 17,9%/tháng. Áp đúng quy tắc quy năm của \"Độ biến động năm hoá\" — nhân độ lệch chuẩn một kỳ với căn bậc hai của số kỳ trong năm; ở đây kỳ là tháng nên số kỳ trong năm là 12. Độ biến động năm hoá của cổ phiếu này là bao nhiêu?",
+    "promptEn": "A stock has a MONTHLY return standard deviation of 17.9%/month. Apply the same annualizing rule as \"Annualized volatility\" — multiply the per-period standard deviation by the square root of the number of periods in a year; here the period is a month, so there are 12 periods per year. What is this stock's annualized volatility?",
+    "facts": [
+      {
+        "label": "Độ lệch chuẩn lợi suất tháng (s)",
+        "value": "17,9%/tháng"
+      },
+      {
+        "label": "Số kỳ trong một năm (D)",
+        "value": "12 tháng"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Monthly return standard deviation (s)",
+        "value": "17.9%/month"
+      },
+      {
+        "label": "Periods per year (D)",
+        "value": "12 months"
+      }
+    ],
+    "expected": 62.01,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.5
+    },
+    "unitVi": "%/năm",
+    "unitEn": "%/year",
+    "explainVi": "Theo Motley Fool: “Annualized volatility = standard deviation (volatility) multiplied by the square root of the periods in the year.” Nguồn tự tính ví dụ đúng công thức này trên một cổ phiếu có độ lệch chuẩn tháng 17,9%: “Stock A annualized volatility = 17.9% multiplied by the square root of 12, resulting in 62%” — tức 17,9% × √12 ≈ 62%/năm, nhân với CĂN BẬC HAI của 12 chứ không nhân thẳng với 12."
+  },
+  {
+    "id": "Q261",
+    "formulaId": "he-so-bien-thien",
+    "kind": "doc-ket-qua",
+    "evidence": "quy-dinh",
+    "promptVi": "Một tài liệu ôn CFA Level I đưa ví dụ: tín phiếu kho bạc (T-Bill) có lợi suất bình quân tháng 0,5% với độ lệch chuẩn 0,58%; khoản đầu tư Y có lợi suất bình quân tháng 1,5% và độ lệch chuẩn 6%. Tính hệ số biến thiên (CV) của khoản đầu tư Y.",
+    "promptEn": "A CFA Level I study note gives this example: a T-Bill has a mean monthly return of 0.5% with a standard deviation of 0.58%; investment Y has a mean monthly return of 1.5% and a standard deviation of 6%. Calculate the coefficient of variation (CV) of investment Y.",
+    "facts": [
+      {
+        "label": "Lợi suất bình quân tháng của T-Bill",
+        "value": "0,5%"
+      },
+      {
+        "label": "Độ lệch chuẩn của T-Bill",
+        "value": "0,58%"
+      },
+      {
+        "label": "Lợi suất bình quân tháng của Y",
+        "value": "1,5%"
+      },
+      {
+        "label": "Độ lệch chuẩn của Y",
+        "value": "6%"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "T-Bill mean monthly return",
+        "value": "0.5%"
+      },
+      {
+        "label": "T-Bill standard deviation",
+        "value": "0.58%"
+      },
+      {
+        "label": "Investment Y mean monthly return",
+        "value": "1.5%"
+      },
+      {
+        "label": "Investment Y standard deviation",
+        "value": "6%"
+      }
+    ],
+    "expected": 4,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "Nguồn: “the dispersion per unit monthly return of T-Bills is less than that of Y. Therefore, investment Y is riskier than an investment on T-Bills” — CV(Y) = 6/1,5 = 4 lần, cao hơn hẳn CV(T-Bill) = 0,58/0,5 = 1,16 lần. Đáng chú ý: nếu chỉ so độ lệch chuẩn thô (6% so với 0,58%, cách nhau hơn 10 lần) sẽ đánh giá chênh lệch rủi ro lớn hơn nhiều so với con số CV thực (chỉ khoảng 3,4 lần) — CV mới là con số đọc đúng rủi ro trên mỗi đơn vị lợi suất khi hai khoản đầu tư có lợi suất kỳ vọng khác nhau."
+  },
+  {
+    "id": "Q265",
+    "formulaId": "bien-do-dao-dong-lon-nhat",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Cổ phiếu XYZ có 12 phiên gần nhất với giá ĐÓNG CỬA cao nhất là 24.500 ₫ và giá đóng cửa thấp nhất là 21.800 ₫. Riêng một phiên trong số đó, giá từng chạm 25.200 ₫ trong lúc khớp lệnh nhưng cuối phiên lùi về đóng cửa ở 23.900 ₫. Theo đúng quy ước chỉ tính giá đóng cửa (như các chỉ số kiểu \"52 tuần cao/thấp\"), hãy tính Biên độ dao động lớn nhất trong kỳ A (%) của XYZ.",
+    "promptEn": "Stock XYZ's most recent 12 sessions have a highest CLOSING price of 24,500 VND and a lowest closing price of 21,800 VND. In one of those sessions the price touched 25,200 VND intraday but closed back down at 23,900 VND. Following the closing-price-only convention (as used for \"52-week high/low\" indicators), compute XYZ's peak-to-trough price range A (%).",
+    "facts": [
+      {
+        "label": "Giá đóng cửa cao nhất trong 12 phiên (P_max)",
+        "value": "24.500 ₫"
+      },
+      {
+        "label": "Giá đóng cửa thấp nhất trong 12 phiên (P_min)",
+        "value": "21.800 ₫"
+      },
+      {
+        "label": "Giá cao nhất TRONG PHIÊN (không phải giá đóng cửa) của phiên đột biến",
+        "value": "25.200 ₫"
+      },
+      {
+        "label": "Giá đóng cửa của chính phiên đột biến đó",
+        "value": "23.900 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Highest closing price over the 12 sessions (P_max)",
+        "value": "24,500 VND"
+      },
+      {
+        "label": "Lowest closing price over the 12 sessions (P_min)",
+        "value": "21,800 VND"
+      },
+      {
+        "label": "Intraday high (not the closing price) of the spike session",
+        "value": "25,200 VND"
+      },
+      {
+        "label": "Closing price of that same spike session",
+        "value": "23,900 VND"
+      }
+    ],
+    "expected": 12.39,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.1
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "A = (P_max − P_min) ÷ P_min × 100 = (24.500 − 21.800) ÷ 21.800 × 100 ≈ 12,39%, tính hoàn toàn bằng giá ĐÓNG CỬA — đúng như spec formula định nghĩa P_max/P_min là \"giá đóng cửa cao nhất/thấp nhất\". Mức 25.200 ₫ chỉ là giá chạm trong phiên rồi tụt về 23.900 ₫ lúc đóng cửa nên KHÔNG được tính vào P_max; lấy nhầm 25.200 ₫ sẽ ra 15,60% — sai. Nguồn nói về cùng quy ước này ở chỉ số mức cao/thấp 52 tuần: “Mức giá 52 tuần Cao/Thấp được tính dựa trên giá đóng cửa hàng ngày của chứng khoán. Thông thường, một cổ phiếu thực sự có thể vượt mức giá cao trong 52 tuần, nhưng cuối cùng lại đóng cửa dưới mức cao trước đó, cho nên giá sẽ không được công nhận.”"
+  },
+  {
+    "id": "Q253",
+    "formulaId": "do-lech-chuan-loi-suat-phien",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một chuỗi gồm 5 lợi suất phiên liên tiếp của một cổ phiếu là: +2%, −1%, +1%, −2%, 0% (lợi suất bình quân 5 phiên bằng 0%). Áp dụng đúng quy ước ĐỘ LỆCH CHUẨN MẪU — chia cho (n − 1) theo hiệu chỉnh Bessel, đúng như mẫu số trong công thức trên trang này — độ lệch chuẩn lợi suất phiên của chuỗi trên bằng bao nhiêu?",
+    "promptEn": "A stock's 5 consecutive session returns are: +2%, −1%, +1%, −2%, 0% (their average is 0%). Using the correct SAMPLE standard deviation convention — dividing by (n − 1) per Bessel's correction, the same denominator used in this page's formula — what is the per-session return standard deviation of this series?",
+    "facts": [
+      {
+        "label": "Lợi suất phiên 1",
+        "value": "+2,0%"
+      },
+      {
+        "label": "Lợi suất phiên 2",
+        "value": "−1,0%"
+      },
+      {
+        "label": "Lợi suất phiên 3",
+        "value": "+1,0%"
+      },
+      {
+        "label": "Lợi suất phiên 4",
+        "value": "−2,0%"
+      },
+      {
+        "label": "Lợi suất phiên 5",
+        "value": "0,0%"
+      },
+      {
+        "label": "Lợi suất bình quân 5 phiên",
+        "value": "0,0%"
+      },
+      {
+        "label": "Số lợi suất trong mẫu (n)",
+        "value": "5"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Session 1 return",
+        "value": "+2.0%"
+      },
+      {
+        "label": "Session 2 return",
+        "value": "−1.0%"
+      },
+      {
+        "label": "Session 3 return",
+        "value": "+1.0%"
+      },
+      {
+        "label": "Session 4 return",
+        "value": "−2.0%"
+      },
+      {
+        "label": "Session 5 return",
+        "value": "0.0%"
+      },
+      {
+        "label": "Average of the 5 sessions",
+        "value": "0.0%"
+      },
+      {
+        "label": "Number of returns in the sample (n)",
+        "value": "5"
+      }
+    ],
+    "expected": 1.58,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.02
+    },
+    "unitVi": "%/phiên",
+    "unitEn": "%/session",
+    "explainVi": "Vì trung bình bằng 0%, độ lệch từng phiên so với trung bình chính là giá trị lợi suất: bình phương lần lượt là 4, 1, 1, 4, 0 (%²), tổng bằng 10. Vì đây là độ lệch chuẩn MẪU nên chia cho (n − 1) = 4, không chia cho n = 5: phương sai = 10/4 = 2,5(%²) → độ lệch chuẩn = √2,5 ≈ 1,58%/phiên. Nếu lỡ chia cho n sẽ ra 1,41%/phiên — sai quy ước. Nguồn xác nhận quy ước n − 1 (hiệu chỉnh Bessel) dùng cho mẫu: “The key difference is the denominator: N for population (divide by total count) vs n−1 for samples (Bessel's correction to reduce bias).”"
+  },
+  {
+    "id": "Q231",
+    "formulaId": "do-rong-dai-bollinger",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một cổ phiếu có đường giữa (SMA 20 phiên) 26.000 ₫, độ lệch chuẩn 20 phiên 800 ₫, hệ số nhân k = 2. Tính độ rộng dải Bollinger (BandWidth) theo quy ước của StockCharts, quy ra phần trăm của đường giữa.",
+    "promptEn": "A stock has a 20-session SMA (middle line) of 26,000 VND, a 20-session standard deviation of 800 VND and a multiplier k = 2. Compute the Bollinger BandWidth by the StockCharts convention, as a percentage of the middle line.",
+    "facts": [
+      {
+        "label": "Đường giữa (SMA 20 phiên)",
+        "value": "26.000 ₫"
+      },
+      {
+        "label": "Độ lệch chuẩn 20 phiên",
+        "value": "800 ₫"
+      },
+      {
+        "label": "Hệ số nhân k",
+        "value": "2"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Middle line (20-session SMA)",
+        "value": "26,000 VND"
+      },
+      {
+        "label": "20-session standard deviation",
+        "value": "800 VND"
+      },
+      {
+        "label": "Multiplier k",
+        "value": "2"
+      }
+    ],
+    "expected": 12.31,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.1
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Dải trên = 26.000 + 2 × 800 = 27.600 ₫; dải dưới = 26.000 − 1.600 = 24.400 ₫; hiệu số 3.200 ₫. StockCharts quy ước chia hiệu số ấy cho đường giữa rồi nhân 100: “When calculating BandWidth, the first step is to subtract the value of the lower band from the value of the upper band. This shows the absolute difference. This difference is then divided by the middle band, which normalizes the value.” Công thức trang ghi là “( (Upper Band - Lower Band) / Middle Band) * 100”, nên BandWidth = 3.200 ÷ 26.000 × 100 ≈ 12,31 %. Ba chỗ hay sai: dừng ở 3.200 ₫ (mới là hiệu số tuyệt đối, không so được giữa các mã), quên nhân 100 (ra 0,123), hoặc chia cho dải dưới thay vì đường giữa (ra 13,1 %)."
+  },
+  {
+    "id": "Q303",
+    "formulaId": "phan-tram-b-bollinger",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một cổ phiếu đang đóng cửa ở 27.200 ₫. Với chu kỳ và hệ số nhân đang dùng, dải trên Bollinger là 27.600 ₫ và dải dưới là 24.400 ₫. Tính %B theo đúng quy ước Fidelity nêu — kết quả theo thang phần trăm (0 đến 100), không phải số thập phân (0 đến 1) — rồi điền kết quả.",
+    "promptEn": "A stock closes at 27,200 VND. With the period and multiplier in use, the Bollinger upper band is 27,600 VND and the lower band is 24,400 VND. Compute %B using Fidelity's convention — the result on a 0-to-100 percent scale, not a 0-to-1 decimal — and enter it.",
+    "facts": [
+      {
+        "label": "Giá đóng cửa",
+        "value": "27.200 ₫"
+      },
+      {
+        "label": "Dải trên Bollinger",
+        "value": "27.600 ₫"
+      },
+      {
+        "label": "Dải dưới Bollinger",
+        "value": "24.400 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Closing price",
+        "value": "27,200 VND"
+      },
+      {
+        "label": "Upper Bollinger band",
+        "value": "27,600 VND"
+      },
+      {
+        "label": "Lower Bollinger band",
+        "value": "24,400 VND"
+      }
+    ],
+    "expected": 87.5,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.1
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Fidelity định nghĩa %B theo thang phần trăm chứ không phải số thập phân 0–1: “If the closing price is equal to the upper Bollinger Band value, Percent B would be 100 (percent).” Và ở đầu kia của dải: “If the closing price is equal to the lower Bollinger Band, Percent B would be zero.” Nghĩa là 0 ứng đúng dải dưới, 100 ứng đúng dải trên — đúng thang mà công cụ này đang hiển thị. Với số liệu trên: %B = (27.200 − 24.400) ÷ (27.600 − 24.400) × 100 = 2.800 ÷ 3.200 × 100 = 87,5%. Sai hay gặp: quên nhân 100 nên gõ 0,875 thay vì 87,5, hoặc lấy nhầm tử số thành (Dải trên − Giá) rồi ra 12,5%."
+  },
+  {
+    "id": "Q289",
+    "formulaId": "macd-duong-tin-hieu",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Đường tín hiệu MACD là EMA của chính chuỗi MACD, không phải trung bình cộng đơn giản của vài phiên gần nhất. Với hệ số làm mượt chuẩn K = 2/(N+1), N = 9: MACD phiên hôm nay = 0,7187753 điểm, đường tín hiệu (EMA9 của MACD) phiên liền trước = 0,661607209 điểm. Tính đường tín hiệu hôm nay.",
+    "promptEn": "The MACD signal line is an EMA of the MACD series itself, not a plain average of a few recent values. Using the standard smoothing factor K = 2/(N+1), N = 9: today's MACD = 0.7187753 points, yesterday's signal line (9-period EMA of MACD) = 0.661607209 points. Calculate today's signal line.",
+    "facts": [
+      {
+        "label": "MACD phiên hôm nay",
+        "value": "0,7187753 điểm"
+      },
+      {
+        "label": "Đường tín hiệu phiên trước (EMA9)",
+        "value": "0,661607209 điểm"
+      },
+      {
+        "label": "Chu kỳ tín hiệu N",
+        "value": "9 phiên"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Today's MACD",
+        "value": "0.7187753 points"
+      },
+      {
+        "label": "Previous signal line (9-period EMA)",
+        "value": "0.661607209 points"
+      },
+      {
+        "label": "Signal period N",
+        "value": "9 periods"
+      }
+    ],
+    "expected": 0.673041,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.0005
+    },
+    "unitVi": "điểm",
+    "unitEn": "points",
+    "explainVi": "Fairmont Equities nêu công thức: “EMA = (today's closing price *K) + (Previous EMA * (1 – K))”, với hệ số làm mượt “K (Smoothing Factor) = 2/(N+1)”. Thay số: 0,7187753 × 0,2 + 0,661607209 × 0,8 = 0,673041 điểm. Sai lầm hay gặp là lấy trung bình cộng đơn giản của các giá trị MACD gần nhất thay vì cập nhật đệ quy từ EMA phiên trước."
+  },
+  {
+    "id": "Q283",
+    "formulaId": "ema-n-phien",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Bạn tính EMA 10 phiên đúng theo ba bước StockCharts mô tả: EMA phiên trước = 50.000 ₫, giá đóng cửa phiên này = 60.000 ₫, chu kỳ n = 10 phiên. Hệ số nhân (multiplier) = 2 ÷ (n + 1). Áp dụng công thức EMA = (Giá đóng cửa − EMA phiên trước) × hệ số nhân + EMA phiên trước, EMA phiên này bằng bao nhiêu?",
+    "promptEn": "You calculate a 10-period EMA using StockCharts' own three-step method: the previous period's EMA is 50,000 ₫, today's closing price is 60,000 ₫, and the period n = 10. The multiplier = 2 ÷ (n + 1). Applying EMA = (Close − Previous EMA) × multiplier + Previous EMA, what is this period's EMA?",
+    "facts": [
+      {
+        "label": "Chu kỳ EMA (n)",
+        "value": "10 phiên"
+      },
+      {
+        "label": "EMA phiên trước",
+        "value": "50.000 ₫"
+      },
+      {
+        "label": "Giá đóng cửa phiên này",
+        "value": "60.000 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "EMA period (n)",
+        "value": "10 periods"
+      },
+      {
+        "label": "Previous period's EMA",
+        "value": "50,000 ₫"
+      },
+      {
+        "label": "This period's closing price",
+        "value": "60,000 ₫"
+      }
+    ],
+    "expected": 51818.18,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.001
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "StockCharts mô tả đúng ba bước: dùng SMA làm giá trị mồi, tính hệ số nhân, rồi áp công thức “EMA: {Close - EMA(previous day)} x multiplier + EMA(previous day)”, với hệ số nhân “(2 / (Time periods + 1) ) = (2 / (10 + 1) ) = 0.1818 (18.18%)”. Với n = 10, hệ số = 2/11 ≈ 0,1818; EMA mới = 50.000 + (60.000 − 50.000) × 2/11 ≈ 51.818,18 ₫. Sai lầm thường gặp là nhân hệ số trực tiếp vào giá đóng cửa rồi cộng thẳng nguyên EMA phiên trước, quên rằng EMA cũ cũng phải co lại theo đúng hệ số đó — làm mức tăng bị đội lên gần gấp đôi."
+  },
+  {
+    "id": "Q285",
+    "formulaId": "ema-n-phien",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Theo Macroption, một chỉ báo làm mượt kiểu Wilder (hệ số làm mượt = 1/n, cách RSI và ATR trong thư viện này đang dùng) với n = 14 phiên có độ trễ gần tương đương với một EMA chuẩn (hệ số làm mượt = 2/(n+1)) bao nhiêu phiên, tính theo công thức chính xác 2n − 1?",
+    "promptEn": "According to Macroption, a Wilder-style smoothed indicator (smoothing factor = 1/n, the convention this library's RSI and ATR use) with n = 14 periods has a lag roughly equivalent to a standard EMA (smoothing factor = 2/(n+1)) of how many periods, using the precise formula 2n − 1?",
+    "facts": [
+      {
+        "label": "Chu kỳ làm mượt kiểu Wilder (n)",
+        "value": "14 phiên"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Wilder's smoothing period (n)",
+        "value": "14 periods"
+      }
+    ],
+    "expected": 27,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.5
+    },
+    "unitVi": "phiên",
+    "unitEn": "periods",
+    "explainVi": "Macroption chỉ rõ hệ số làm mượt khác nhau giữa hai phương pháp — “The numerator in the formula for a is 2” (EMA) “but 1 under Wilder's method” — rồi kết luận: “Wilder ATR with a particular period (n) is approximately the same as EMA ATR with double the period (2n, or 2n - 1 to be precise).” Với n = 14, EMA tương đương là 2×14 − 1 = 27 phiên. Nhầm hai hệ số này với nhau (dùng 2/(n+1) khi lẽ ra là 1/n hoặc ngược lại) là lỗi khiến hai chỉ báo cùng \"n phiên\" nhưng phản ứng nhanh chậm khác hẳn nhau."
+  },
+  {
+    "id": "Q300",
+    "formulaId": "atr-dao-dong-thuc",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "ATR(14) của phiên trước là 1.000 ₫, True Range (TR) của phiên hôm nay là 1.700 ₫. Theo công thức làm mịn Wilder mà StockCharts mô tả (không phải trung bình cộng đơn giản của 14 TR), ATR(14) của hôm nay là bao nhiêu?",
+    "promptEn": "Yesterday's ATR(14) was 1,000 ₫; today's True Range (TR) is 1,700 ₫. Using Wilder's smoothing formula as StockCharts describes it (not a simple average of the last 14 TR values), what is today's ATR(14)?",
+    "facts": [
+      {
+        "label": "ATR(14) phiên trước",
+        "value": "1.000 ₫"
+      },
+      {
+        "label": "True Range (TR) phiên hôm nay",
+        "value": "1.700 ₫"
+      },
+      {
+        "label": "Chu kỳ làm mịn (n)",
+        "value": "14 phiên"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Prior ATR(14)",
+        "value": "1,000 ₫"
+      },
+      {
+        "label": "Today's True Range (TR)",
+        "value": "1,700 ₫"
+      },
+      {
+        "label": "Smoothing period (n)",
+        "value": "14 sessions"
+      }
+    ],
+    "expected": 1050,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.01
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "StockCharts nêu rõ: sau lần tính đầu tiên, ATR(14) không phải trung bình cộng 14 TR gần nhất mà dùng công thức làm mịn của Wilder — “Current ATR = [(Prior ATR x 13) + Current TR] / 14”. Thay số: (1.000 × 13 + 1.700) / 14 = 14.700 / 14 = 1.050 ₫. Hệ số 13/14 và 1/14 này là quy ước làm mượt (giống cách xây EMA), khác hẳn cách lấy trung bình cộng đơn giản mà nhiều người mặc định khi dựng lại chỉ báo từ đầu."
+  },
+  {
+    "id": "Q301",
+    "formulaId": "atr-dao-dong-thuc",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Nhà đầu tư mua cổ phiếu tại giá 45.000 ₫; ATR(14) hiện tại của mã này là 1.200 ₫. Theo công thức đặt điểm dừng lỗ động bằng ATR mà DNSE hướng dẫn cho lệnh mua (bội số 2 lần ATR), điểm dừng lỗ nên đặt ở mức giá nào?",
+    "promptEn": "An investor buys a stock at 45,000 ₫; the stock's current ATR(14) is 1,200 ₫. Using DNSE's ATR-based dynamic stop-loss formula for a long position (a 2x ATR multiple), where should the stop-loss be set?",
+    "facts": [
+      {
+        "label": "Giá vào lệnh (mua)",
+        "value": "45.000 ₫"
+      },
+      {
+        "label": "ATR(14) hiện tại",
+        "value": "1.200 ₫"
+      },
+      {
+        "label": "Bội số ATR dùng để đặt dừng lỗ",
+        "value": "2 lần"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Entry price (long)",
+        "value": "45,000 ₫"
+      },
+      {
+        "label": "Current ATR(14)",
+        "value": "1,200 ₫"
+      },
+      {
+        "label": "ATR multiplier for the stop-loss",
+        "value": "2x"
+      }
+    ],
+    "expected": 42600,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.01
+    },
+    "unitVi": "₫",
+    "unitEn": "₫",
+    "explainVi": "DNSE hướng dẫn đặt điểm dừng lỗ động theo ATR cho lệnh mua: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” Thay số: 45.000 − (2 × 1.200) = 45.000 − 2.400 = 42.600 ₫. Quy ước dùng bội số 2×ATR — không phải cộng/trừ thẳng một lần giá trị ATR, cũng không phải một tỷ lệ % cố định trên giá — nên nhầm hệ số nhân sẽ ra điểm dừng lỗ sai."
+  },
+  {
+    "id": "Q306",
+    "formulaId": "vwap",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một phiên giao dịch được chia làm 2 đợt khớp lệnh (ví dụ theo một khung thời gian ngắn trong phiên). Số liệu mỗi đợt cho ở bảng dưới. Tính VWAP của phiên ĐÚNG theo quy ước dùng GIÁ ĐIỂN HÌNH — Typical Price = (Cao + Thấp + Đóng) / 3 — nhân khối lượng rồi chia tổng khối lượng, KHÔNG phải trung bình cộng hai giá đóng cửa và cũng KHÔNG phải chỉ lấy giá đóng cửa của đợt cuối.",
+    "promptEn": "A trading session is split into 2 matching intervals (for example, by some short intraday timeframe). Each interval's data is given in the table below. Calculate the session's VWAP correctly using the TYPICAL PRICE convention — Typical Price = (High + Low + Close) / 3 — multiplied by volume and divided by total volume, NOT a plain average of the two closing prices, and NOT just the last interval's closing price.",
+    "facts": [
+      {
+        "label": "Đợt 1 — giá cao nhất",
+        "value": "51.000 ₫"
+      },
+      {
+        "label": "Đợt 1 — giá thấp nhất",
+        "value": "45.000 ₫"
+      },
+      {
+        "label": "Đợt 1 — giá khớp cuối đợt (đóng)",
+        "value": "48.000 ₫"
+      },
+      {
+        "label": "Đợt 1 — khối lượng khớp",
+        "value": "200.000 cổ phiếu"
+      },
+      {
+        "label": "Đợt 2 — giá cao nhất",
+        "value": "57.000 ₫"
+      },
+      {
+        "label": "Đợt 2 — giá thấp nhất",
+        "value": "51.000 ₫"
+      },
+      {
+        "label": "Đợt 2 — giá khớp cuối đợt (đóng)",
+        "value": "54.000 ₫"
+      },
+      {
+        "label": "Đợt 2 — khối lượng khớp",
+        "value": "100.000 cổ phiếu"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Interval 1 — high",
+        "value": "51,000 VND"
+      },
+      {
+        "label": "Interval 1 — low",
+        "value": "45,000 VND"
+      },
+      {
+        "label": "Interval 1 — close",
+        "value": "48,000 VND"
+      },
+      {
+        "label": "Interval 1 — matched volume",
+        "value": "200,000 shares"
+      },
+      {
+        "label": "Interval 2 — high",
+        "value": "57,000 VND"
+      },
+      {
+        "label": "Interval 2 — low",
+        "value": "51,000 VND"
+      },
+      {
+        "label": "Interval 2 — close",
+        "value": "54,000 VND"
+      },
+      {
+        "label": "Interval 2 — matched volume",
+        "value": "100,000 shares"
+      }
+    ],
+    "expected": 50000,
+    "tolerance": {
+      "kind": "tuong-doi",
+      "value": 0.005
+    },
+    "unitVi": "₫",
+    "unitEn": "VND",
+    "explainVi": "Giá điển hình đợt 1 = (51.000+45.000+48.000)/3 = 48.000 ₫; đợt 2 = (57.000+51.000+54.000)/3 = 54.000 ₫. VWAP = (48.000×200.000 + 54.000×100.000) / (200.000+100.000) = 15.000.000.000/300.000 = 50.000 ₫. Nguồn nêu đúng quy ước này: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng”, với “Typical Price = (High + Low + Close) / 3” — không phải trung bình cộng hai giá đóng cửa (sẽ ra (48.000+54.000)/2 = 51.000 ₫, sai) và cũng không phải chỉ lấy giá đóng cửa đợt cuối (54.000 ₫, càng sai)."
+  },
+  {
+    "id": "Q292",
+    "formulaId": "roc-toc-do-thay-doi",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "DSC (dịch từ StockCharts) đưa ra quy ước chọn chu kỳ ROC theo khung thời gian dài hạn: một quý có khoảng 63 phiên giao dịch. Nếu chia đều số phiên của một quý (3 tháng) để suy ra chu kỳ ROC dùng cho khung một tháng, kết quả là bao nhiêu phiên?",
+    "promptEn": "DSC (translating StockCharts) gives a convention for picking ROC's period by timeframe: a quarter has about 63 trading sessions. If that quarter's sessions (3 months) are split evenly to derive the ROC period for a one-month window, what is the result, in sessions?",
+    "facts": [
+      {
+        "label": "Số phiên giao dịch mỗi quý (theo quy ước)",
+        "value": "63 phiên"
+      },
+      {
+        "label": "Số tháng trong một quý",
+        "value": "3 tháng"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Trading sessions per quarter (by convention)",
+        "value": "63 sessions"
+      },
+      {
+        "label": "Months per quarter",
+        "value": "3 months"
+      }
+    ],
+    "expected": 21,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.5
+    },
+    "unitVi": "phiên",
+    "unitEn": "sessions",
+    "explainVi": "DSC (dịch StockCharts): \"Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng.\" Chia đều 63 phiên của một quý cho 3 tháng: 63 / 3 = 21 phiên — đúng bằng chu kỳ tháng mà nguồn nêu, dùng khi muốn ROC bắt biến động theo khung tháng thay vì mặc định 12 phiên."
+  },
+  {
+    "id": "Q235",
+    "formulaId": "dong-luong-momentum",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Trên bảng giá DNSE (và trong MetaStock/MT4), Momentum được tính theo quy ước tỷ lệ: Momentum = (Close hôm nay / Close n phiên trước) × 100, dao động quanh mốc 100, chứ không phải hiệu số quanh mốc 0 như công thức của trang này. Với số liệu dưới đây, Momentum(10) theo quy ước tỷ lệ bằng bao nhiêu?",
+    "promptEn": "On DNSE's chart (and in MetaStock/MT4) Momentum follows the ratio convention: Momentum = (today's close / close n sessions ago) × 100, oscillating around 100, not the difference around 0 that this page's formula uses. From the figures below, what is Momentum(10) under the ratio convention?",
+    "facts": [
+      {
+        "label": "Giá đóng cửa hôm nay",
+        "value": "52.000 ₫"
+      },
+      {
+        "label": "Giá đóng cửa 10 phiên trước",
+        "value": "50.000 ₫"
+      },
+      {
+        "label": "Chu kỳ n",
+        "value": "10 phiên"
+      },
+      {
+        "label": "Quy ước tính",
+        "value": "Tỷ lệ Close hôm nay chia Close n phiên trước, nhân 100"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Today's close",
+        "value": "52,000 ₫"
+      },
+      {
+        "label": "Close 10 sessions ago",
+        "value": "50,000 ₫"
+      },
+      {
+        "label": "Period n",
+        "value": "10 sessions"
+      },
+      {
+        "label": "Convention",
+        "value": "Ratio of today's close to the close n sessions ago, times 100"
+      }
+    ],
+    "expected": 104,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.1
+    },
+    "unitVi": "điểm",
+    "unitEn": "points",
+    "explainVi": "DNSE ghi rõ quy ước: “Momentum = (Closei / Closei-n ) x 100”, tức 52.000 / 50.000 × 100 = 104. Cùng số liệu, công thức hiệu số của trang này cho 52.000 − 50.000 = 2.000 ₫ và mốc cân bằng là 0; còn theo quy ước tỷ lệ, mốc cân bằng là 100: “Chỉ báo MOM lớn hơn 100: Mức giá hiện tại cao hơn giá của \"n\" phiên giao dịch trước đó.” Gõ 4 (phần trăm thay đổi, tức ROC) hay 2.000 (hiệu số) đều là đọc nhầm quy ước của bảng giá đang xem."
+  },
+  {
+    "id": "Q240",
+    "formulaId": "khoang-cach-gia-so-sma",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Năm giá đóng cửa gần nhất của một mã, từ cũ đến mới, là 19.500, 20.000, 20.500, 21.000 và 22.000 ₫. Tính khoảng cách của giá phiên cuối so với SMA 5 phiên, theo quy ước chia cho đường trung bình rồi nhân 100.",
+    "promptEn": "A stock's last five closing prices, oldest to newest, are 19,500, 20,000, 20,500, 21,000 and 22,000 ₫. Compute the distance of the last close from the 5-session SMA, following the convention of dividing by the moving average and multiplying by 100.",
+    "facts": [
+      {
+        "label": "Giá đóng cửa 5 phiên gần nhất (cũ → mới)",
+        "value": "19.500 · 20.000 · 20.500 · 21.000 · 22.000 ₫"
+      },
+      {
+        "label": "Số phiên của đường trung bình (n)",
+        "value": "5 phiên"
+      },
+      {
+        "label": "Giá phiên cuối (P_t)",
+        "value": "22.000 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Last five closing prices (oldest → newest)",
+        "value": "19,500 · 20,000 · 20,500 · 21,000 · 22,000 ₫"
+      },
+      {
+        "label": "Moving average period (n)",
+        "value": "5 sessions"
+      },
+      {
+        "label": "Last close (P_t)",
+        "value": "22,000 ₫"
+      }
+    ],
+    "expected": 6.796,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "SMA 5 = (19.500 + 20.000 + 20.500 + 21.000 + 22.000) ÷ 5 = 103.000 ÷ 5 = 20.600 ₫. Khoảng cách = (22.000 ÷ 20.600 − 1) × 100 ≈ 6,80 %. Mẫu số là đường trung bình chứ không phải giá hiện tại: chia cho 22.000 sẽ ra 6,36 %, còn tính SMA bỏ sót phiên cuối sẽ ra 8,64 %, cả hai đều sai quy ước. Titan FX nêu rõ: “BIAS is calculated by dividing the difference between the current price and the Moving Average Price of a specific interval by the Moving Average Price, usually expressed as a percentage.”"
+  },
+  {
+    "id": "Q308",
+    "formulaId": "do-bien-dong-lich-su",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Một mã cho 5 lợi suất log liên tiếp (đã tính sẵn, đơn vị %): 1,5%; −2,0%; 0,5%; −1,0%; 1,0%. Theo đúng quy ước — chia cho n−1 khi tính ĐỘ LỆCH CHUẨN MẪU, rồi nhân với căn bậc hai của số phiên một năm — độ biến động lịch sử năm hoá là bao nhiêu (N = 252 phiên/năm)?",
+    "promptEn": "A stock's five consecutive log returns (already computed, in %) are: 1.5%; −2.0%; 0.5%; −1.0%; 1.0%. Following the convention — dividing by n−1 for the SAMPLE standard deviation, then multiplying by the square root of the number of trading sessions per year — what is the annualized historical volatility (N = 252 sessions/year)?",
+    "facts": [
+      {
+        "label": "5 lợi suất log liên tiếp (phiên cũ → mới)",
+        "value": "1,5%; −2,0%; 0,5%; −1,0%; 1,0%"
+      },
+      {
+        "label": "Số phiên giao dịch một năm (N)",
+        "value": "252 phiên"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Five consecutive log returns (oldest → newest)",
+        "value": "1.5%; −2.0%; 0.5%; −1.0%; 1.0%"
+      },
+      {
+        "label": "Trading sessions per year (N)",
+        "value": "252 sessions"
+      }
+    ],
+    "expected": 23.14,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.05
+    },
+    "unitVi": "%/năm",
+    "unitEn": "%/year",
+    "explainVi": "Trung bình 5 lợi suất bằng 0, nên tổng bình phương độ lệch = tổng bình phương lợi suất = 1,5² + 2,0² + 0,5² + 1,0² + 1,0² = 8,5 (%²). Vì đây là ĐỘ LỆCH CHUẨN MẪU nên chia cho n−1 = 4, không phải n = 5: phương sai mẫu = 8,5 ÷ 4 = 2,125 (%²) → độ lệch chuẩn mẫu ≈ 1,4577%/phiên. Quy năm: 1,4577% × √252 ≈ 1,4577 × 15,8745 ≈ 23,14%/năm. Nếu lỡ chia cho n (coi như tổng thể) sẽ ra phương sai 1,70 (%²), độ lệch chuẩn 1,3038%, quy năm chỉ còn 20,70%/năm — sai quy ước. Macroption nêu rõ: “We are dividing by n - 1 rather than n, as we are calculating sample standard deviation”."
+  },
+  {
+    "id": "Q309",
+    "formulaId": "do-bien-dong-lich-su",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Giá một cổ phiếu tăng từ 100.000 ₫ lên 150.000 ₫ trong một phiên biến động mạnh (lợi suất đơn giản = 50%). Công thức Độ biến động lịch sử năm hoá lấy đầu vào là lợi suất LOG, tức ln(P_t ÷ P_{t-1}). Lợi suất log của phiên này, tính theo %, là bao nhiêu?",
+    "promptEn": "A stock's price rises from 100,000 ₫ to 150,000 ₫ in one sharply volatile session (simple return = 50%). The Annualized historical volatility formula takes the LOG return as its input, i.e. ln(P_t ÷ P_{t-1}). What is this session's log return, in %?",
+    "facts": [
+      {
+        "label": "Giá đóng cửa phiên trước (P_{t-1})",
+        "value": "100.000 ₫"
+      },
+      {
+        "label": "Giá đóng cửa phiên này (P_t)",
+        "value": "150.000 ₫"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Previous session's closing price (P_{t-1})",
+        "value": "100,000 ₫"
+      },
+      {
+        "label": "This session's closing price (P_t)",
+        "value": "150,000 ₫"
+      }
+    ],
+    "expected": 40.55,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.1
+    },
+    "unitVi": "%",
+    "unitEn": "%",
+    "explainVi": "Lợi suất đơn giản = 150.000 ÷ 100.000 − 1 = 50%. Nhưng công thức Độ biến động lịch sử lấy lợi suất LOG: ln(150.000 ÷ 100.000) = ln(1,5) ≈ 0,405465, tức 40,55% — KHÔNG phải 50%. Đây đúng là ví dụ nguồn đưa ra: “a 50% simple return is a 40.5% log return”. Với biến động nhỏ, hai loại lợi suất gần bằng nhau, nhưng ở một phiên biến động mạnh như thế này khoảng cách trở nên đáng kể; nguồn cảnh báo thêm: “Mixing conventions in a single calculation is one of the more common sources of error in performance analysis” — nếu lỡ đưa lợi suất đơn giản 50% vào thay vì 40,55%, độ lệch chuẩn và độ biến động năm hoá sẽ bị thổi phồng."
+  },
+  {
+    "id": "Q313",
+    "formulaId": "ty-le-khoi-luong",
+    "kind": "quy-uoc",
+    "evidence": "quy-dinh",
+    "promptVi": "Theo TradingSim, một cổ phiếu thường giao dịch trung bình 300.000 cổ phiếu mỗi ngày. Vào một phiên, khối lượng khớp lệnh vọt lên 1.000.000 cổ phiếu. Tỷ lệ khối lượng (RVOL) của phiên đó bằng bao nhiêu lần mức trung bình? (làm tròn 2 chữ số thập phân)",
+    "promptEn": "According to TradingSim, a stock typically trades an average of 300,000 shares per day. In one session, matched volume jumps to 1,000,000 shares. What is that session's relative volume (RVOL), as a multiple of the average? (round to 2 decimal places)",
+    "facts": [
+      {
+        "label": "Khối lượng trung bình mỗi ngày",
+        "value": "300.000 cổ phiếu"
+      },
+      {
+        "label": "Khối lượng khớp của phiên đang xét",
+        "value": "1.000.000 cổ phiếu"
+      }
+    ],
+    "factsEn": [
+      {
+        "label": "Average daily volume",
+        "value": "300,000 shares"
+      },
+      {
+        "label": "Matched volume of the session in question",
+        "value": "1,000,000 shares"
+      }
+    ],
+    "expected": 3.33,
+    "tolerance": {
+      "kind": "tuyet-doi",
+      "value": 0.03
+    },
+    "unitVi": "lần",
+    "unitEn": "x",
+    "explainVi": "RVOL = khối lượng phiên ÷ khối lượng trung bình = 1.000.000 ÷ 300.000 ≈ 3,33 lần — một phép chia trực tiếp, không phải công thức phần trăm thay đổi kiểu (V − trung bình) ÷ trung bình. Nguồn: “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”."
+  }
+]

@@ -204,7 +204,13 @@ function usedNames(css: string): Set<string> {
  * `--weight` cũng vậy: `PortfolioScreen.tsx` đặt nó trên từng thanh tỷ trọng theo tỷ trọng của
  * chính mã ấy, nên mỗi hàng một giá trị khác nhau.
  */
-const LOCAL_VARIABLES = new Set(['--fill', '--weight']);
+/*
+ * Biến do JS đặt thẳng vào `style` của phần tử, không phải token bảng màu. `--cao` và `--rong` là
+ * của khối công thức câu điền số: số tầng mà dấu ngoặc phải kéo dãn theo, và số ký tự của ô trống.
+ * Cả hai tính TRÊN CÂY lúc dựng (xem `chieuCao` ở `worked-line.ts`) chứ không đo lúc chạy, nên
+ * chúng không bao giờ được khai trong `:root`.
+ */
+const LOCAL_VARIABLES = new Set(['--fill', '--weight', '--cao', '--rong']);
 
 /**
  * Gọi `var()` tới một biến chưa ai khai thì CSS lặng thinh: thuộc tính coi như không hợp lệ, và

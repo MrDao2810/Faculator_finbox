@@ -12,6 +12,7 @@ import {
   PREFERENCES_STORAGE_KEY,
   PRICE_CACHE_KEY,
   PRICE_SERIES_KEY,
+  QUIZ_PROGRESS_KEY,
   RECENT_SEARCHES_KEY,
   SAVED_CALCS_KEY,
   TICKER_LIST_KEY,
@@ -44,6 +45,7 @@ type StorageLabelKey =
   | 'data.prefs'
   | 'data.recent'
   | 'data.usage'
+  | 'data.quiz'
   | 'data.series'
   | 'data.portfolio'
   | 'data.saved'
@@ -98,6 +100,11 @@ export const STORAGE_ITEMS: ReadonlyArray<{
    */
   { key: RECENT_SEARCHES_KEY, labelKey: 'data.recent', noteKey: 'data.recent.note' },
   { key: FORMULA_USAGE_KEY, labelKey: 'data.usage', noteKey: 'data.usage.note' },
+  /*
+   * Kết quả bài kiểm tra hiểu bài đứng ngay sau lịch sử mở công thức: cùng là dấu vết học
+   * tập, và người muốn xoá cái này thường muốn xoá luôn cái kia.
+   */
+  { key: QUIZ_PROGRESS_KEY, labelKey: 'data.quiz', noteKey: 'data.quiz.note' },
   { key: PRICE_SERIES_KEY, labelKey: 'data.series', noteKey: 'data.series.note' },
   { key: PORTFOLIO_KEY, labelKey: 'data.portfolio', noteKey: 'data.portfolio.note' },
   { key: SAVED_CALCS_KEY, labelKey: 'data.saved', noteKey: 'data.saved.note' },

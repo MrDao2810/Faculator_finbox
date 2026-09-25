@@ -411,6 +411,57 @@ check(
   ),
 );
 
+/*
+ * ── Khối Kiểm tra hiểu bài (WF-19) ────────────────────────────────────────
+ *
+ * Cùng bất biến và cùng cách đo với khung cách tính ở trên: ngân hàng 206 câu là khoảng 150 kB
+ * chữ, mà mỗi trang chỉ cần 1–5 câu của chính nó. `page.tsx` cắt phần ấy lúc build rồi truyền
+ * xuống bằng prop — xem `src/app/cong-thuc/[id]/quiz-view.ts`.
+ *
+ * `build-only-imports.test.ts` đã gác ở tầng IMPORT (ai được `import '@/application/quiz'`). Phép
+ * kiểm này gác ở tầng KẾT QUẢ DỰNG, vì một đường rò không đi qua câu import nào — ví dụ ai đó
+ * chép chữ câu hỏi sang một module khác — thì cửa gác kia không thấy.
+ */
+const DIR_QUIZ = 'src/core/quiz/items';
+const deBai = readdirSync(DIR_QUIZ)
+  .filter((ten) => ten.endsWith('.ts') && !ten.endsWith('.test.ts'))
+  .flatMap((ten) => [
+    ...readFileSync(`${DIR_QUIZ}/${ten}`, 'utf8').matchAll(/prompt: \{\s*vi:\s*'([^'$]{30,})'/g),
+  ])
+  .map((m) => m[1]);
+
+const quizRoVaoJs = existsSync('out/_next/static')
+  ? tatCaFile('out/_next/static', '.js').filter((file) => {
+      const noiDung = giaiMa(readFileSync(file, 'utf8'));
+      return deBai.some((dong) => noiDung.includes(dong));
+    })
+  : ['không thấy out/_next/static'];
+check(
+  'chữ câu hỏi kiểm tra hiểu bài không lọt vào file JS nào',
+  deBai.length > 0 && quizRoVaoJs.length === 0,
+  quizRoVaoJs.length === 0 ? `${String(deBai.length)} câu mẫu, 0 file JS` : quizRoVaoJs.join(', '),
+);
+
+/*
+ * Phép kiểm dương, cùng lý do với cặp ở trên: một trang chỉ được mang câu CỦA MÌNH. Q001 là câu
+ * đầu của `pe`, nên nó phải có trong HTML trang `pe` và KHÔNG có trong trang công thức khác.
+ */
+const deBaiQ001 = deBai.find((dong) => dong.startsWith('P/E của một doanh nghiệp thép'));
+let roeHtml = '';
+try {
+  roeHtml = readFileSync('out/cong-thuc/roe/index.html', 'utf8');
+} catch {
+  // check dưới tự trượt vì `detailHtml` rỗng thì vế đầu đã sai.
+}
+check(
+  'câu hỏi của một công thức chỉ nằm trong HTML trang của chính nó',
+  deBaiQ001 !== undefined &&
+    detailHtml.includes(deBaiQ001) &&
+    roeHtml !== '' &&
+    !roeHtml.includes(deBaiQ001),
+  'out/cong-thuc/pe/index.html · out/cong-thuc/roe/index.html',
+);
+
 /* ── Màn "Về chúng tôi" ──────────────────────────────────────────────────── */
 
 let aboutHtml = '';

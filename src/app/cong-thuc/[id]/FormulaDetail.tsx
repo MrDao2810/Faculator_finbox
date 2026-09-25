@@ -43,7 +43,9 @@ import {
   isTickerCode,
   needsPriceSeries,
   parseActiveTicker,
+  QUIZ_PROGRESS_KEY,
   parseFormulaUsage,
+  parseQuizProgress,
   parseInputDrafts,
   parseSavedCalcs,
   parseStoredSeries,
@@ -51,8 +53,10 @@ import {
   pickPresetsFor,
   presetInputs,
   presetRealKeys,
+  progressFor,
   putDraft,
   recordFormulaUsage,
+  recordQuizResult,
   removeDraft,
   runChain,
   runFormula,
@@ -61,6 +65,7 @@ import {
   scheduleOrDefault,
   serializeActiveTicker,
   serializeFormulaUsage,
+  serializeQuizProgress,
   serializeInputDrafts,
   serializeSavedCalcs,
   serializeStoredSeries,
@@ -68,6 +73,9 @@ import {
   variablesForLevel,
 } from '@/application';
 import type {
+  Bilingual,
+  QuizItem,
+  QuizProgress,
   CalcContext,
   CalcInputs,
   CalcOutput,
@@ -98,6 +106,7 @@ import {
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
+import { QuizPanel } from '@/ui/quiz';
 import { ExportSheet, PasteImportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
   ChainPanel,
@@ -191,6 +200,27 @@ export interface FormulaDetailProps {
    * trình duyệt. Dựng ở `page.tsx` thì HTML vào thẳng file tĩnh của đúng trang ấy.
    */
   notation: NotationView;
+  /**
+   * Bộ câu hỏi kiểm tra hiểu bài của ĐÚNG công thức này, cắt sẵn lúc build — thường 1–3 câu,
+   * nhiều nhất 5, và rỗng với `tiet-kiem-muc-tieu`.
+   *
+   * Cùng lý do với `notation`: cả ngân hàng là 206 câu (~150 kB chữ), mà mỗi trang chỉ cần phần
+   * của mình. Xem `quiz-view.ts`.
+   *
+   * Từ 24/09/2026 prop này mang CẢ công thức của trang, không chỉ câu hỏi: khối lời giải có
+   * cấu trúc cần dòng "Công thức", và lấy nó từ `spec.expression` thì không câu nào phải chép
+   * lại công thức — chép lại là dựng bản sao thứ hai của một thứ đã có.
+   *
+   * Kiểu viết TẠI CHỖ chứ không nhập kiểu `QuizView` từ module cắt câu hỏi: cửa gác
+   * `build-only-imports.test.ts` chỉ cho `page.tsx` nhập module ấy, vì nó kéo theo cả ngân hàng câu
+   * hỏi. Nhập kiểu tuy bị xoá lúc biên dịch, nhưng cửa gác đọc mã nguồn, và nới nó cho một dòng
+   * kiểu là mở đường cho dòng nhập thật tiếp theo. Module ấy trả về đúng hình này.
+   */
+  quiz?: {
+    items: ReadonlyArray<QuizItem>;
+    bieuThuc?: Bilingual;
+    kyHieu: ReadonlyArray<Bilingual>;
+  };
 }
 
 type SheetKind = 'preset' | 'paste' | 'export' | 'save';
@@ -272,7 +302,7 @@ function LinkIcon() {
  * Hai công thức có khối kết quả riêng (WF-08 phí & thuế, WF-14 lịch trả nợ) được nạp qua
  * `DetailBody`, tải trễ theo id — đúng chữ "tải trễ khối nặng" của gói 3.2.1.
  */
-export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
+export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
   const pick = usePick();
@@ -580,6 +610,44 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
       // Trình duyệt chặn localStorage — không có lịch sử thì trang chủ chỉ trở về đúng 18 ghim.
     }
   }, [spec.id]);
+
+  /*
+   * ── Kết quả bài kiểm tra hiểu bài (WF-19) ────────────────────────────────────────────────
+   *
+   * Đọc một lần lúc vào màn để khối biết bày dòng "Lần gần nhất", ghi một lần khi làm xong.
+   * Không lưu từng câu: người bỏ dở giữa chừng thì lần sau làm lại từ đầu — bài dài nhất cũng
+   * chỉ 5 câu, khôi phục nửa chừng phức tạp hơn giá trị nó mang lại.
+   *
+   * Bọc try/catch như mọi chỗ chạm localStorage khác của màn này: trình duyệt chặn kho thì khối
+   * vẫn làm bài được, chỉ là không nhớ kết quả.
+   */
+  const [quizSaved, setQuizSaved] = useState<QuizProgress | null>(null);
+
+  useEffect(() => {
+    try {
+      const list = parseQuizProgress(window.localStorage.getItem(QUIZ_PROGRESS_KEY));
+      setQuizSaved(progressFor(list, spec.id));
+    } catch {
+      // Không đọc được thì coi như chưa làm bao giờ.
+    }
+  }, [spec.id]);
+
+  const saveQuizResult = useCallback(
+    (result: { right: number; total: number; wrong: string[] }) => {
+      const entry: QuizProgress = { id: spec.id, ...result, at: Date.now() };
+      setQuizSaved(entry);
+      try {
+        const list = parseQuizProgress(window.localStorage.getItem(QUIZ_PROGRESS_KEY));
+        window.localStorage.setItem(
+          QUIZ_PROGRESS_KEY,
+          serializeQuizProgress(recordQuizResult(list, entry)),
+        );
+      } catch {
+        // Ghi hỏng thì thôi — điểm này chỉ để người dùng tự soát, không có gì phụ thuộc vào nó.
+      }
+    },
+    [spec.id],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1761,7 +1829,7 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
    * thức, và xoá bản nháp.
    *
    * HAI nơi gọi, cùng một ý "bộ số đang có trên màn không còn được muốn nữa":
-   * nút "Bỏ mã" ở thanh mã, và nút "Huỷ và thoát" ở cuối màn.
+   * nút "Bỏ mã" ở thanh mã, và nút "Thoát" ở cuối màn.
    *
    * Phải làm ĐỦ ba việc. Chỉ xoá kho phiên thì màn vẫn còn nguyên số của mã vừa bỏ, và người dùng
    * đang nhìn một bộ số họ vừa nói là không muốn nữa; chỉ xoá ô thì mã quay lại ngay ở công thức
@@ -1820,7 +1888,10 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
   }
 
   /**
-   * "Huỷ và thoát": bỏ mọi thay đổi trên màn rồi quay về màn trước đó.
+   * Nút "Thoát" ở cuối màn: bỏ mọi thay đổi trên màn rồi quay về màn trước đó.
+   *
+   * Tên hàm giữ nguyên là `cancelAndLeave` dù nhãn nút rút còn một chữ (24/09/2026): nó nói
+   * hàm LÀM gì, còn nhãn nói người dùng ĐỌC gì. Việc nó làm không đổi — vẫn huỷ rồi mới rời.
    *
    * Đi qua ĐÚNG đường mà nút "‹ Quay lại" đầu màn đi (`useBackTarget()`), kể cả cờ cuộn-về-chỗ-cũ
    * — không thì cùng một hành động "rời màn này" lại đưa người dùng tới hai chỗ khác nhau tuỳ họ
@@ -2611,7 +2682,7 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
         điều kiện nào để về sau lệch với nó.
       */}
         {/*
-        Bốn khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
+        Sáu khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
         `FormulaDetail.module.css`. Chúng luôn nằm dưới nếp gấp ở khổ điện thoại, nên bỏ qua phần
         dựng hình của chúng cho tới lúc cuộn tới là cắt được phần lớn lượt layout đầu tiên của màn.
       */}
@@ -2754,8 +2825,30 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
       <SourceBlock sources={spec.source} className={styles.deferred} />
 
       {/*
-        Hai lối ra của màn, đứng cạnh nhau ở cuối trang theo khuôn một form: huỷ bên trái, việc
-        chính bên phải.
+        ── Kiểm tra hiểu bài — WF-19 ──────────────────────────────────────────────────────
+        Đứng SAU khối Nguồn và trước hai nút kết thúc: người đọc xong công thức, xem ví dụ, biết
+        số liệu lấy từ đâu, rồi mới tự soát. Đặt cao hơn là chen ngang việc chính của màn (tính).
+
+        `quiz` cắt sẵn lúc build ở `page.tsx`, nên trang này chỉ mang 1–5 câu của chính nó. Công
+        thức chưa có câu nào thì khối tự dựng trạng thái rỗng và nói thẳng lý do — xem `QuizBody`.
+      */}
+      <QuizPanel
+        formulaId={spec.id}
+        items={quiz?.items ?? []}
+        bieuThuc={quiz?.bieuThuc}
+        kyHieu={quiz?.kyHieu}
+        saved={quizSaved}
+        onFinish={saveQuizResult}
+        className={styles.deferred}
+      />
+
+      {/*
+        Hai lối ra của màn, đứng cạnh nhau ở cuối trang: việc chính ("Lưu vào danh mục") BÊN
+        TRÁI, lối rời màn ("Thoát") bên phải — chủ dự án đổi chỗ 24/09/2026.
+
+        Thứ tự này ngược khuôn một form (huỷ trái, việc chính phải) mà chính hàng nút này từng
+        theo, và ngược cả `footer` của `BottomSheet`. Ghi ra đây để lần sau không ai "sửa lại
+        cho đúng khuôn": đây là quyết định, không phải sót.
 
         "Lưu vào danh mục" là lối sang tab "Công thức" của màn Danh mục, hiện ở CẢ 111 công thức
         chứ không riêng nhóm có mã: người tính một khoản vay hay một mức phí cũng muốn giữ lại
@@ -2771,10 +2864,10 @@ export function FormulaDetail({ spec, asOf, notation }: FormulaDetailProps) {
         trang, và vùng chạm lấy trọn `--tap-min` thay vì dựa vào `::after` nới ra.
       */}
       <div className={styles.endActions}>
+        <Button onClick={openSaveSheet}>{t('detail.saveToPortfolio')}</Button>
         <Button variant="secondary" onClick={cancelAndLeave}>
           {t('detail.cancel')}
         </Button>
-        <Button onClick={openSaveSheet}>{t('detail.saveToPortfolio')}</Button>
       </div>
 
       {/*

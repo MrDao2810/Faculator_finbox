@@ -368,11 +368,13 @@ export const vi = {
    */
   'detail.saveToPortfolio': '☆ Lưu vào danh mục',
   /*
-   * Nút bỏ thay đổi, đứng BÊN TRÁI nút lưu ở cuối trang. "Huỷ và thoát" chứ không chỉ "Huỷ": nó
-   * làm hai việc — trả mọi ô về mặc định, xoá bản nháp, rồi rời màn — nên tên nút phải nói cả hai,
-   * không thì người dùng tưởng chỉ hoàn tác tại chỗ.
+   * Nút rời màn, đứng BÊN PHẢI nút lưu ở cuối trang (chủ dự án đổi chỗ 24/09/2026).
+   *
+   * Nhãn là "Thoát" — một chữ, chủ dự án chốt. Bản cũ "Huỷ và thoát" kể ra cả hai việc nút làm
+   * (trả mọi ô về mặc định, xoá bản nháp, rồi rời màn) vì sợ người dùng tưởng nó chỉ hoàn tác tại
+   * chỗ. Việc nút làm KHÔNG đổi một dòng nào — xem cancelAndLeave() ở FormulaDetail.tsx.
    */
-  'detail.cancel': 'Huỷ và thoát',
+  'detail.cancel': 'Thoát',
   /*
    * Nạp một mã cho công thức KHÔNG dùng số liệu của mã nào (41 công thức: vay, tiết kiệm, phái
    * sinh, lãi kép…). Hai khoá tách rời vì giữa chúng có `<strong>{mã}</strong>` — ghép một chuỗi
@@ -1284,6 +1286,9 @@ export const vi = {
   'data.usage': 'Công thức đã mở',
   'data.usage.note':
     'Công thức bạn hay mở, dùng để xếp lại khối Công thức dùng hằng ngày theo thói quen.',
+  'data.quiz': 'Kết quả kiểm tra hiểu bài',
+  'data.quiz.note':
+    'Số câu đúng và những câu bạn trả lời sai ở khối Kiểm tra hiểu bài cuối màn công thức.',
   'data.tickers': 'Danh sách mã',
   'data.tickers.note':
     'Danh sách mã của sàn, tải về một lần cho ô tìm mã chạy nhanh và vẫn dùng được khi mất mạng.',
@@ -1432,4 +1437,142 @@ export const vi = {
   'notFound.search': 'Tìm công thức',
   /* Thay `notFound.home` — không còn trang chủ riêng, màn Công thức là màn mở đầu. */
   'notFound.formulas': 'Về danh sách công thức',
+
+  /* ── Khối Kiểm tra hiểu bài (WF-19) — gói 23/09/2026 ──────────────────────────────────── */
+  'quiz.title': 'Bài tập',
+  /*
+   * Mộ chí: `quiz.lead` ('Không chấm điểm, chỉ để bạn tự soát lại.') bỏ ngày 24/09/2026, lần thứ
+   * hai và lần này là hẳn — chủ dự án bỏ nó sáng, cho dựng lại chiều, rồi bỏ lần nữa ngay sau khi
+   * nhìn thấy nó đứng dưới hàng tiêu đề. Khối nghỉ nay chỉ còn ĐÚNG một hàng: nhãn, số câu, lối
+   * vào. Cần nói lại chuyện "không chấm điểm" thì dựng khoá mới, đừng đoán là bản cũ xoá nhầm.
+   *
+   * `quiz.countUnit` thì sống: nó là đơn vị sau con số đếm ở hàng tiêu đề, "5 câu". Cùng nếp
+   * `list.count` và `portfolio.tickerUnit`.
+   */
+  'quiz.countUnit': 'câu',
+  /*
+   * Vị trí trong bài, đặt ở hàng tiêu đề lúc đang làm: "Câu 2 / 5".
+   *
+   * Có chữ "Câu" đứng trước chứ không để trần "2 / 5" như bản cũ: ở dòng riêng cũ nó là thứ duy
+   * nhất bên trái nên đọc ra ngay, còn nay nó kẹp giữa nhãn khối và thanh tiến độ, không còn gì
+   * nói hộ nó đang đếm cái gì.
+   */
+  'quiz.step': 'Câu {n} / {total}',
+  'quiz.start': 'Bắt đầu kiểm tra',
+  'quiz.startFew': 'Làm thử',
+  'quiz.check': 'Kiểm tra',
+  'quiz.exit': 'Thoát',
+  'quiz.skip': 'Bỏ qua câu này',
+  'quiz.skippedNote': 'Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là chưa nắm.',
+  'quiz.next': 'Câu tiếp',
+  'quiz.seeResult': 'Xem kết quả',
+  'quiz.retry': 'Làm lại từ đầu',
+  'quiz.reviewWrong': 'Ôn lại câu sai',
+  /*
+   * Mộ chí: `quiz.chooseFirst` và `quiz.enterFirst` bỏ ngày 24/09/2026 theo yêu cầu chủ dự án
+   * ("xóa luôn text thừa"). Nút Kiểm tra đang xám và không bấm được đã nói đúng điều hai câu này
+   * nói, nên chúng chỉ là một dòng chữ nữa phải đọc. Cần nói lại thì dựng khoá mới — đừng đoán
+   * rằng bản cũ bị xoá nhầm.
+   */
+  /* ── Dạng chọn nhiều và điền số (WF-19C, mở 23/09/2026) ──────────────────────────────────── */
+  'quiz.pickAll': 'Câu này có nhiều đáp án đúng — chọn đủ cả.',
+  /*
+   * Nhãn cho bộ đọc màn hình của từng ô trống trong công thức. `{n}` thay bằng thứ tự ô, tính từ
+   * 1 và đếm từ trái sang phải — người dùng bộ đọc không thấy được vị trí ô trong hình, nên số
+   * thứ tự là thứ duy nhất phân biệt được bốn ô giống hệt nhau.
+   */
+  'quiz.slotLabel': 'Ô số {n} trong công thức',
+  /* Kết quả của chính công thức ví dụ, lộ ra sau khi chấm — khác `quiz.result` là điểm cả bài. */
+  'quiz.workedResult': 'Kết quả',
+  'quiz.correctSlots': 'Thứ tự đúng',
+  /*
+   * Mộ chí: `quiz.numberPlaceholder` ('Nhập kết quả') bỏ ngày 24/09/2026. Ô nhập của câu điền số
+   * nay nằm NGAY TRONG công thức, rộng vài ký tự, nên một placeholder bốn chữ tràn ra ngoài. Chỗ
+   * trống ấy dùng dấu "?" — trong một công thức thì dấu hỏi đọc rõ hơn mọi câu chữ. Cần đặt lại
+   * placeholder thì dựng khoá mới, đừng đoán rằng bản cũ bị xoá nhầm.
+   */
+  /*
+   * Mộ chí: `quiz.decimalHint` bỏ cùng lần ấy. Ô nhập vẫn nhận cả dấu phẩy lẫn dấu chấm
+   * (`parseViNumber`), chỉ là thôi nói ra — người Việt gõ dấu phẩy theo phản xạ.
+   */
+  /*
+   * Mộ chí: `quiz.yourAnswer` ('Kết quả bạn tính được') và `quiz.tolerance` ('Chấp nhận sai số')
+   * bỏ cuối ngày 24/09/2026, khi câu điền số đổi từ "tính ra đáp số" sang "đặt số liệu vào đúng
+   * chỗ trong công thức". Không còn một ô đáp số để đặt nhãn, và việc chấm vị trí thì không có
+   * dung sai — chép đúng con số hay không, thế thôi. Sai số vẫn còn trong dữ liệu (`tolerance`)
+   * nhưng chỉ cửa gác `quiz.test.ts` đọc, người dùng không cần biết.
+   */
+  'quiz.right': 'Đúng',
+  /*
+   * "Sai" chứ không phải "Chưa đúng" — chủ dự án 24/09/2026. Ô chọn sai nay bị GẠCH BỎ, nên
+   * nhãn chỉ còn việc xác nhận; một câu vuốt ve dài gấp ba chữ cần thiết đứng cạnh một nét
+   * gạch thì đọc ra thành lưỡng lự.
+   */
+  'quiz.wrong': 'Sai',
+  /*
+   * Mộ chí: `quiz.correctAnswer` ('Đáp án đúng') bỏ ngày 24/09/2026. Ô đáp án đúng mà người
+   * dùng KHÔNG chọn nay cũng mang nhãn "Đúng" như ô chọn trúng — chủ dự án: "câu đúng là đúng
+   * là được". Vị trí của nhãn đã nói nó thuộc ô nào, nên thêm chữ "Đáp án" là nói lại thứ mắt
+   * đã thấy.
+   */
+  'quiz.whyRight': 'Vì sao đúng',
+  'quiz.whyWrong': 'Vì sao chưa đúng',
+  /* Tiêu đề hộp giải thích của câu dựa trên quy định — không có "vì sao", chỉ có điều đúng là gì. */
+  'quiz.rule': 'Quy định hiện hành',
+  /* Chip tầng bằng chứng (WF-19D · S14): tầng A và tầng B của ngân hàng câu hỏi. */
+  /*
+   * Mộ chí: `quiz.evidence.*` (3 khoá — "Ngộ nhận có ghi chép", "Quy định hoặc chuẩn ngành",
+   * "Tự tính lại được") bỏ ngày 24/09/2026, chip cuối cùng trong ba chip phân loại bị bỏ trong
+   * ngày. Nó tả câu hỏi thuộc loại gì, thứ đội nội dung cần chứ người làm bài thì không.
+   *
+   * ĐỪNG nhầm: trường `item.evidence` vẫn SỐNG và vẫn quan trọng. `quiz.rule` ngay dưới đây
+   * thay tiêu đề hộp lời giải cho câu `quy-dinh`, và hai cửa gác ở `quiz.test.ts` khoá theo
+   * trường ấy. Chúng đọc thẳng dữ liệu, không đọc cái chip — nên bỏ chip không mất gì.
+   */
+  /* Tầng thứ ba, mở 24/09/2026 cho câu tính toán — bằng chứng là chính hàm calc của công thức. */
+  /* Bốn nhãn của khối lời giải có cấu trúc — xem docblock `QuizGiai`. */
+  'quiz.giai.tinh': 'Tính',
+  'quiz.giai.congThuc': 'Công thức',
+  'quiz.giai.thaySo': 'Thay số',
+  'quiz.giai.ketQua': 'Kết quả',
+  'quiz.source': 'Nguồn',
+  'quiz.effectiveFrom': 'Hiệu lực từ',
+  'quiz.result': 'Kết quả kiểm tra',
+  /*
+   * Mộ chí: `quiz.localOnly` ('Kết quả lưu trên máy bạn, không gửi đi đâu. Xoá dữ liệu trình
+   * duyệt là mất.') bỏ ngày 24/09/2026 theo yêu cầu chủ dự án.
+   *
+   * Ghi lại vì đây KHÔNG phải chú thích thường — nó là chỗ khối Bài tập nói ra kết quả được cất
+   * ở đâu (LDR-04 · NFR-SEC-01). Câu thứ ba cùng loại bị gỡ, sau `portfolio.localOnly` và
+   * `settings.data.note` ngày 09/09/2026, và cùng một quyết định: bỏ LỜI, giữ VIỆC.
+   *
+   * Việc không đổi: `recordQuizResult` vẫn chỉ ghi `localStorage`, không có backend nào để gửi
+   * đi, `public/_headers` vẫn khoá `connect-src`. Cần nói lại thì dựng khoá mới và hỏi chủ dự
+   * án trước — đừng đoán rằng bản cũ bị xoá nhầm.
+   */
+  'quiz.lastTime': 'Lần gần nhất',
+  'quiz.empty.title': 'Công thức này chưa có bộ câu hỏi',
+  'quiz.empty.body':
+    'Chúng tôi chỉ soạn câu khi tìm được nguồn thật ghi nhận người dùng hay hiểu sai ở đâu. Công thức này chưa có nguồn nào như vậy.',
+  'quiz.few.body':
+    'Công thức này mới có ít câu, vì tư liệu thật chỉ có thế — chúng tôi không độn thêm cho đủ.',
+  'quiz.notTranslated': 'Câu hỏi chưa có bản tiếng Anh — đang hiện bản tiếng Việt.',
+  /*
+   * Mộ chí: `quiz.sourceKind.*` (4 khoá) bị bỏ ngày 24/09/2026 theo yêu cầu chủ dự án — chip
+   * "Chuyên gia" / "Tài liệu chuẩn" / "Người trong cuộc" / "Văn bản quy định" không còn hiện cạnh
+   * đường dẫn nguồn. Nhãn ấy nói về NGƯỜI nói, không giúp người học quyết định đọc hay không, mà
+   * lại chiếm chỗ ngay cạnh thứ họ cần bấm. `source.kind` vẫn còn trong dữ liệu cho đội nội dung
+   * phân loại; nếu có ngày cần hiện lại thì dựng khoá mới, đừng đoán rằng bản cũ bị xoá nhầm.
+   */
+  /*
+   * Mộ chí: `quiz.kind.*` (5 khoá) bỏ ngày 24/09/2026, cùng lý do và cùng ngày với
+   * `quiz.sourceKind.*` ở trên — chip "D1 · Đọc kết quả" … "D5 · Hậu quả bằng tiền" không còn
+   * hiện ở đầu câu hỏi. Nó phân loại KIỂU HIỂU mà câu kiểm tra, thứ đội soạn nội dung cần để
+   * soi độ phủ (nhóm phí & thuế gần như toàn D4, nhóm định giá nghiêng về D1/D2), nhưng người
+   * làm bài không dùng mã "D5" vào việc gì. Trường `kind` vẫn còn nguyên trong dữ liệu; cần
+   * hiện lại thì dựng khoá mới, đừng đoán rằng bản cũ bị xoá nhầm.
+   *
+   * `quiz.evidence.*` thì SỐNG và không được bỏ theo: nó đổi cả tiêu đề hộp lời giải bên dưới
+   * ("Quy định hiện hành" thay cho "Vì sao đúng"), và hai cửa gác ở `quiz.test.ts` khoá theo nó.
+   */
 } as const;

@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1556" viewBox="0 0 1680 1556" fill="none">
+<title>Dải câu đã trả lời — hiện tại và đề xuất</title>
+<rect width="1680" height="1556" fill="#0b101c"/>
+<text x="56" y="52" font-family="Be Vietnam Pro" font-size="22" font-weight="600" fill="#e6ecf7">Dải câu đã trả lời trong khối Bài tập — hiện tại và đề xuất</text>
+<text x="56" y="78" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">Khung trang 1600px ở khổ PC · ảnh mô phỏng theo giao diện tối đang dùng · khối vẫn trải hết khung như chủ dự án đã chốt</text>
+<rect x="56" y="112" width="26" height="26" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="69" y="130" font-family="Inter" font-size="14" font-weight="700" fill="#d99b3c" text-anchor="middle">A</text>
+<text x="94" y="130" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Hiện tại</text>
+<text x="186.8" y="130" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— ba dòng cùng một sắc, mũi tên bung nằm cách đề bài gần cả bề ngang trang</text>
+<rect x="56" y="154" width="1568" height="226" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="154" width="1568" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="172" width="1568" height="10" fill="#141c2b"/>
+<circle cx="72" cy="168" r="4" fill="#3d4863"/>
+<circle cx="86" cy="168" r="4" fill="#3d4863"/>
+<circle cx="100" cy="168" r="4" fill="#3d4863"/>
+<text x="118" y="172" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">faculator · /cong-thuc/bien-an-toan</text>
+<rect x="96" y="200" width="1488" height="38" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M113.5 214.5 l9 9 M122.5 214.5 l-9 9" stroke="#d9605f" stroke-width="2" fill="none" stroke-linecap="round"/>
+<text x="136" y="224" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">1</text>
+<text x="154" y="224" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1">Bạn nới biên an toàn từ 30% lên 50% để an toàn hơn. Cái giá phải trả là gì?</text>
+<path d="M1561 216 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="96" y="246" width="1488" height="38" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M113 265 l4 4 l6 -8" stroke="#4a86d8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="136" y="270" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">2</text>
+<text x="154" y="270" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1">P/E của doanh nghiệp thép là 12,5 trong khi trung bình ngành 18,0. Nhận định nào hợp lý nhất?</text>
+<path d="M1561 262 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="96" y="292" width="1488" height="38" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<circle cx="118" cy="311" r="5" fill="none" stroke="#8a99b5" stroke-width="1.6" stroke-dasharray="2.6 2.4"/>
+<text x="136" y="316" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">3</text>
+<text x="154" y="316" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1">Mua 1.000 cổ phiếu giá 25.000 ₫, phí 0,15%. Tổng tiền phải trả là bao nhiêu?</text>
+<path d="M1561 308 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<line x1="717.4000000000001" y1="350" x2="1550" y2="350" stroke="#d99b3c" stroke-width="1"/>
+<path d="M717.4000000000001 350 l6 -4 M717.4000000000001 350 l6 4" stroke="#d99b3c" stroke-width="1" fill="none"/>
+<path d="M1550 350 l-6 -4 M1550 350 l-6 4" stroke="#d99b3c" stroke-width="1" fill="none"/>
+<text x="1133.7" y="342" font-family="Inter" font-size="11" font-weight="600" fill="#d99b3c" text-anchor="middle">≈ 900px trống giữa đề bài và mũi tên bung</text>
+<text x="96" y="366" font-family="Inter" font-size="12" font-weight="400" fill="#d99b3c">Dấu ✕ ✓ ○ chỉ là ký hiệu — phải tự đoán nghĩa; ba dòng nặng như nhau nên câu sai, thứ đáng xem lại nhất, không nổi lên; mũi tên bung bị đẩy ra mép phải, xa hẳn dòng chữ nó mở.</text>
+<rect x="56" y="422" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="440" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">B</text>
+<text x="94" y="440" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Đề xuất</text>
+<text x="177.2" y="440" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— cả hàng dồn về trái theo đúng thứ tự đọc, câu sai có thanh màu dẫn mắt</text>
+<rect x="56" y="464" width="1568" height="268" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="464" width="1568" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="482" width="1568" height="10" fill="#141c2b"/>
+<circle cx="72" cy="478" r="4" fill="#3d4863"/>
+<circle cx="86" cy="478" r="4" fill="#3d4863"/>
+<circle cx="100" cy="478" r="4" fill="#3d4863"/>
+<text x="118" y="482" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">faculator · /cong-thuc/bien-an-toan</text>
+<text x="96" y="508" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5" letter-spacing="0.6">ĐÃ LÀM 3 CÂU</text>
+<text x="200" y="508" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">1 đúng · 1 sai · 1 bỏ qua</text>
+<rect x="96" y="522" width="1488" height="44" fill="#1d1620" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 532 v24" stroke="#d9605f" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="122" cy="544" r="11" fill="#2a191c"/>
+<path d="M117.5 539.5 l9 9 M126.5 539.5 l-9 9" stroke="#d9605f" stroke-width="2" fill="none" stroke-linecap="round"/>
+<text x="142" y="549" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">1</text>
+<text x="160" y="549" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7" opacity="1.0">Bạn nới biên an toàn từ 30% lên 50% để an toàn hơn. Cái giá phải trả là gì?</text>
+<rect x="714.25" y="535" width="37.8" height="18" fill="#2a191c" rx="9"/>
+<text x="733.15" y="548" font-family="Inter" font-size="11" font-weight="600" fill="#d9605f" text-anchor="middle">Sai</text>
+<text x="762.05" y="549" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">· bạn chọn B</text>
+<path d="M849.65 541 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="96" y="574" width="1488" height="44" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 584 v24" stroke="#4a86d8" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="122" cy="596" r="11" fill="#1a2740"/>
+<path d="M117 596 l4 4 l6 -8" stroke="#4a86d8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="142" y="601" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">2</text>
+<text x="160" y="601" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1" opacity="0.78">P/E của doanh nghiệp thép là 12,5 trong khi trung bình ngành 18,0. Nhận định nào hợp lý nhất?</text>
+<rect x="842.95" y="587" width="44.4" height="18" fill="#1a2740" rx="9"/>
+<text x="865.1500000000001" y="600" font-family="Inter" font-size="11" font-weight="600" fill="#4a86d8" text-anchor="middle">Đúng</text>
+<text x="897.35" y="601" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">· bạn chọn C</text>
+<path d="M984.95 593 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="96" y="626" width="1488" height="44" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 636 v24" stroke="#8a99b5" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="122" cy="648" r="11" fill="#1b2233"/>
+<circle cx="122" cy="648" r="5" fill="none" stroke="#8a99b5" stroke-width="1.6" stroke-dasharray="2.6 2.4"/>
+<text x="142" y="653" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">3</text>
+<text x="160" y="653" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1" opacity="0.78">Mua 1.000 cổ phiếu giá 25.000 ₫, phí 0,15%. Tổng tiền phải trả là bao nhiêu?</text>
+<rect x="721.4000000000001" y="639" width="57.6" height="18" fill="#1b2233" rx="9"/>
+<text x="750.2" y="652" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5" text-anchor="middle">Bỏ qua</text>
+<text x="789.0000000000001" y="653" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">· bỏ qua</text>
+<path d="M852.4000000000001 645 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<text x="96" y="704" font-family="Inter" font-size="12" font-weight="400" fill="#3f8f6a">Nhãn chữ "Sai / Đúng / Bỏ qua" đứng ngay sau đề bài nên không phải đoán dấu; mũi tên bung bám sát cụm chữ nó mở; chỗ trống dồn hết về mép phải — đúng cách hàng tiêu đề đã xử.</text>
+<rect x="56" y="774" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="792" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">C</text>
+<text x="94" y="792" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Khi mở một câu</text>
+<text x="244.4" y="792" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— hàng đang mở đổi nền sang mặt thẻ, thanh màu chạy suốt cả ô nên biết phần nào thuộc câu nào</text>
+<rect x="56" y="816" width="1568" height="300" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="816" width="1568" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="834" width="1568" height="10" fill="#141c2b"/>
+<circle cx="72" cy="830" r="4" fill="#3d4863"/>
+<circle cx="86" cy="830" r="4" fill="#3d4863"/>
+<circle cx="100" cy="830" r="4" fill="#3d4863"/>
+<text x="118" y="834" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">faculator · /cong-thuc/bien-an-toan</text>
+<rect x="96" y="862" width="1488" height="190" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 870 v174" stroke="#d9605f" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="122" cy="886" r="11" fill="#2a191c"/>
+<path d="M117.5 881.5 l9 9 M126.5 881.5 l-9 9" stroke="#d9605f" stroke-width="2" fill="none" stroke-linecap="round"/>
+<text x="142" y="891" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">1</text>
+<text x="160" y="891" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7">Bạn nới biên an toàn từ 30% lên 50% để an toàn hơn. Cái giá phải trả là gì?</text>
+<rect x="714.25" y="877" width="44" height="18" fill="#2a191c" rx="9"/>
+<text x="736.25" y="890" font-family="Inter" font-size="11" font-weight="600" fill="#d9605f" text-anchor="middle">Sai</text>
+<text x="768.25" y="891" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">· bạn chọn B</text>
+<path d="M855.85 888 l5 -5 l5 5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<line x1="97" y1="908" x2="1584" y2="908" stroke="#1e2739" stroke-width="1"/>
+<text x="120" y="936" font-family="Inter" font-size="11" font-weight="600" fill="#4a86d8" letter-spacing="0.6">Đáp án đúng</text>
+<text x="216" y="936" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7">C. Xác suất bỏ lỡ cơ hội tốt tăng lên — biên rộng loại cả cổ phiếu đang định giá hợp lý</text>
+<rect x="120" y="950" width="1440" height="76" fill="#2a2318" rx="6"/>
+<path d="M121.5 950 v76" stroke="#d99b3c" stroke-width="3" fill="none"/>
+<text x="138" y="970" font-family="Inter" font-size="11" font-weight="600" fill="#d99b3c" letter-spacing="0.6">VÌ SAO</text>
+<text x="138" y="992" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Biên an toàn là chỗ đệm cho sai số định giá, không phải nút chỉnh "an toàn hơn thì tốt hơn". Nới lên 50% nghĩa là</text>
+<text x="138" y="1012" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">bạn chỉ mua khi thị trường giảm sâu — nhiều năm sẽ không có lệnh nào.</text>
+<text x="120" y="1044" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5" letter-spacing="0.6">Nguồn</text>
+<rect x="166" y="1032" width="62" height="16" fill="#141c2b" rx="8" stroke="#28344c" stroke-width="1"/>
+<text x="197" y="1044" font-family="Inter" font-size="10" font-weight="400" fill="#8a99b5" text-anchor="middle">sách</text>
+<text x="238" y="1044" font-family="Inter" font-size="11" font-weight="600" fill="#5b9ae8">The Intelligent Investor — ch. 20</text>
+<rect x="96" y="1060" width="1488" height="40" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 1068 v24" stroke="#4a86d8" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="122" cy="1080" r="11" fill="#1a2740"/>
+<path d="M117 1080 l4 4 l6 -8" stroke="#4a86d8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="142" y="1085" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">2</text>
+<text x="160" y="1085" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1" opacity="0.78">P/E của doanh nghiệp thép là 12,5 trong khi trung bình ngành 18,0. Nhận định nào hợp lý nhất?</text>
+<rect x="842.95" y="1071" width="44.4" height="18" fill="#1a2740" rx="9"/>
+<text x="865.1500000000001" y="1084" font-family="Inter" font-size="11" font-weight="600" fill="#4a86d8" text-anchor="middle">Đúng</text>
+<text x="897.35" y="1085" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">· bạn chọn C</text>
+<path d="M984.95 1077 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="96" y="1106" width="1488" height="40" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 1114 v24" stroke="#8a99b5" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="122" cy="1126" r="11" fill="#1b2233"/>
+<circle cx="122" cy="1126" r="5" fill="none" stroke="#8a99b5" stroke-width="1.6" stroke-dasharray="2.6 2.4"/>
+<text x="142" y="1131" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">3</text>
+<text x="160" y="1131" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1" opacity="0.78">Mua 1.000 cổ phiếu giá 25.000 ₫, phí 0,15%. Tổng tiền phải trả là bao nhiêu?</text>
+<rect x="721.4000000000001" y="1117" width="57.6" height="18" fill="#1b2233" rx="9"/>
+<text x="750.2" y="1130" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5" text-anchor="middle">Bỏ qua</text>
+<text x="789.0000000000001" y="1131" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">· bỏ qua</text>
+<path d="M852.4000000000001 1123 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="56" y="1158" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="1176" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">D</text>
+<text x="94" y="1176" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Trên điện thoại (360px)</text>
+<text x="330.79999999999995" y="1176" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— dưới 720px nhãn kết quả và "bạn chọn" xuống dòng dưới, đề bài cắt hai dòng</text>
+<rect x="56" y="1200" width="360" height="300" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="1200" width="360" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="1218" width="360" height="10" fill="#141c2b"/>
+<circle cx="72" cy="1214" r="4" fill="#3d4863"/>
+<circle cx="86" cy="1214" r="4" fill="#3d4863"/>
+<circle cx="100" cy="1214" r="4" fill="#3d4863"/>
+<text x="118" y="1218" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">faculator</text>
+<text x="72" y="1240" font-family="Inter" font-size="10" font-weight="600" fill="#8a99b5" letter-spacing="0.6">ĐÃ LÀM 3 CÂU</text>
+<text x="164" y="1240" font-family="Inter" font-size="10" font-weight="400" fill="#5d6c88">1 đúng · 1 sai · 1 bỏ qua</text>
+<rect x="72" y="1254" width="328" height="72" fill="#2a191c" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M73.5 1264 v52" stroke="#d9605f" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="96" cy="1276" r="11" fill="#2a191c"/>
+<path d="M91.5 1271.5 l9 9 M100.5 1271.5 l-9 9" stroke="#d9605f" stroke-width="2" fill="none" stroke-linecap="round"/>
+<text x="114" y="1280" font-family="Inter" font-size="10" font-weight="600" fill="#8a99b5">1</text>
+<text x="128" y="1276" font-family="Inter" font-size="11" font-weight="400" fill="#e6ecf7">Bạn nới biên an toàn từ 30% lên</text>
+<text x="128" y="1292" font-family="Inter" font-size="11" font-weight="400" fill="#e6ecf7">50% để an toàn hơn. Cái giá…</text>
+<rect x="128" y="1302" width="34.0" height="16" fill="#2a191c" rx="8"/>
+<text x="145.0" y="1313" font-family="Inter" font-size="10" font-weight="600" fill="#d9605f" text-anchor="middle">Sai</text>
+<text x="170.0" y="1314" font-family="Inter" font-size="10" font-weight="400" fill="#5d6c88">· bạn chọn B</text>
+<path d="M379 1287 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="72" y="1334" width="328" height="72" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M73.5 1344 v52" stroke="#4a86d8" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="96" cy="1356" r="11" fill="#1a2740"/>
+<path d="M91 1356 l4 4 l6 -8" stroke="#4a86d8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="114" y="1360" font-family="Inter" font-size="10" font-weight="600" fill="#8a99b5">2</text>
+<text x="128" y="1356" font-family="Inter" font-size="11" font-weight="400" fill="#c3cee1">P/E của doanh nghiệp thép là</text>
+<text x="128" y="1372" font-family="Inter" font-size="11" font-weight="400" fill="#c3cee1">12,5 trong khi trung bình…</text>
+<rect x="128" y="1382" width="40.0" height="16" fill="#1a2740" rx="8"/>
+<text x="148.0" y="1393" font-family="Inter" font-size="10" font-weight="600" fill="#4a86d8" text-anchor="middle">Đúng</text>
+<text x="176.0" y="1394" font-family="Inter" font-size="10" font-weight="400" fill="#5d6c88">· bạn chọn C</text>
+<path d="M379 1367 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<rect x="72" y="1414" width="328" height="72" fill="#131a28" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M73.5 1424 v52" stroke="#8a99b5" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="96" cy="1436" r="11" fill="#1b2233"/>
+<circle cx="96" cy="1436" r="5" fill="none" stroke="#8a99b5" stroke-width="1.6" stroke-dasharray="2.6 2.4"/>
+<text x="114" y="1440" font-family="Inter" font-size="10" font-weight="600" fill="#8a99b5">3</text>
+<text x="128" y="1436" font-family="Inter" font-size="11" font-weight="400" fill="#c3cee1">Mua 1.000 cổ phiếu giá 25.000 ₫,</text>
+<text x="128" y="1452" font-family="Inter" font-size="11" font-weight="400" fill="#c3cee1">phí 0,15%. Tổng tiền phải trả…</text>
+<rect x="128" y="1462" width="52.0" height="16" fill="#1b2233" rx="8"/>
+<text x="154.0" y="1473" font-family="Inter" font-size="10" font-weight="600" fill="#8a99b5" text-anchor="middle">Bỏ qua</text>
+<text x="188.0" y="1474" font-family="Inter" font-size="10" font-weight="400" fill="#5d6c88">· bỏ qua</text>
+<path d="M379 1447 l5 5 l5 -5" stroke="#8a99b5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<text x="472" y="1244" font-family="Be Vietnam Pro" font-size="15" font-weight="600" fill="#e6ecf7">Những gì đổi, gọn lại</text>
+<circle cx="477" cy="1272" r="2.5" fill="#5d6c88"/>
+<text x="490" y="1276" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Dấu ✕ ✓ ○ giữ nguyên, thêm nhãn chữ bên cạnh — dấu để quét nhanh, chữ để chắc nghĩa.</text>
+<circle cx="477" cy="1302" r="2.5" fill="#5d6c88"/>
+<text x="490" y="1306" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Thanh màu 3px bên trái, cùng ngôn ngữ với ô Lời giải đang có, không thêm màu mới.</text>
+<circle cx="477" cy="1332" r="2.5" fill="#5d6c88"/>
+<text x="490" y="1336" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Câu sai giữ nền cảnh báo và chữ đậm hơn; câu đúng mờ đi 22% vì nó đã xong việc.</text>
+<circle cx="477" cy="1362" r="2.5" fill="#5d6c88"/>
+<text x="490" y="1366" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Mũi tên bung đi theo cụm chữ thay vì dính mép phải — cùng cách hàng tiêu đề đã sửa.</text>
+<circle cx="477" cy="1392" r="2.5" fill="#5d6c88"/>
+<text x="490" y="1396" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Dòng "đã làm 3 câu · 1 đúng · 1 sai" đặt trên dải, trả lời ngay câu hỏi đầu tiên người ta hỏi.</text>
+<circle cx="477" cy="1422" r="2.5" fill="#5d6c88"/>
+<text x="490" y="1426" font-family="Inter" font-size="12" font-weight="400" fill="#3f8f6a">Không đổi cấu trúc DOM: vẫn là ul &gt; li &gt; button + div, chỉ thêm span nhãn và class.</text>
+</svg>

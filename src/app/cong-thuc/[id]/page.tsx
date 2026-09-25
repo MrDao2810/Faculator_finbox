@@ -5,6 +5,7 @@ import { FORMULAS, findCategory } from '@/application';
 
 import { FormulaDetail } from './FormulaDetail';
 import { buildNotationView } from './notation-view';
+import { quizViewFor } from './quiz-view';
 
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
@@ -86,5 +87,17 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * `katex` và dữ liệu "cách tính" của 111 công thức chỉ chạy trên máy build, không đi vào gói JS
    * của trình duyệt. Mỗi trang chỉ mang phần của chính nó. Xem `notation-view.ts` và `latex-html.ts`.
    */
-  return <FormulaDetail spec={formula} asOf={AS_OF} notation={buildNotationView(formula)} />;
+  /*
+   * Bộ câu hỏi kiểm tra hiểu bài cũng cắt ở đây, cùng một lý do: cả ngân hàng là 206 câu, mà
+   * trang này chỉ cần phần của chính nó — 49 công thức có đúng một câu, một công thức không có
+   * câu nào. Xem `quiz-view.ts`.
+   */
+  return (
+    <FormulaDetail
+      spec={formula}
+      asOf={AS_OF}
+      notation={buildNotationView(formula)}
+      quiz={quizViewFor(formula)}
+    />
+  );
 }

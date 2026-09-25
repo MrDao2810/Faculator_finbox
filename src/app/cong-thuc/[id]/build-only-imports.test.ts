@@ -56,6 +56,18 @@ const LUAT: ReadonlyArray<{ ten: string; khop: (spec: string) => boolean; duocPh
     duocPhep: ['app/cong-thuc/[id]/page.tsx'],
   },
   {
+    // 206 câu hỏi kiểm tra hiểu bài, ~150 kB chữ — mỗi trang chỉ cần 1–5 câu của chính nó, nên
+    // ngân hàng chỉ được đọc lúc build rồi truyền xuống bằng prop. Xem `src/core/quiz/index.ts`.
+    ten: '@/application/quiz',
+    khop: (spec) => spec === '@/application/quiz',
+    duocPhep: ['app/cong-thuc/[id]/quiz-view.ts'],
+  },
+  {
+    ten: 'quiz-view',
+    khop: (spec) => /(^|\/)quiz-view$/.test(spec),
+    duocPhep: ['app/cong-thuc/[id]/page.tsx'],
+  },
+  {
     ten: '@/application/how-to',
     khop: (spec) => spec === '@/application/how-to',
     duocPhep: ['app/cong-thuc/[id]/notation-view.ts'],

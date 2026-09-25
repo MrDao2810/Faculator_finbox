@@ -242,7 +242,7 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
       {
         key: 'ffb.workingSeries.v1',
         viSao:
-          'sessionStorage — chuỗi giá vừa dán tại chỗ hoặc chuỗi minh hoạ của công thức đang mở, giữ để nó sống sót cú "Mở bảng dữ liệu → Back", tự hết khi đóng tab. Hai lối xoá đều nằm ngay tại chỗ nó có tác dụng: nút "Huỷ và thoát" ở màn chi tiết, và chính việc sửa bảng dữ liệu (thao tác gần nhất thắng). Chuỗi muốn ở lại lâu dài thì đã có bảng WF-05, vốn có sẵn dòng xoá riêng',
+          'sessionStorage — chuỗi giá vừa dán tại chỗ hoặc chuỗi minh hoạ của công thức đang mở, giữ để nó sống sót cú "Mở bảng dữ liệu → Back", tự hết khi đóng tab. Hai lối xoá đều nằm ngay tại chỗ nó có tác dụng: nút "Thoát" ở màn chi tiết, và chính việc sửa bảng dữ liệu (thao tác gần nhất thắng). Chuỗi muốn ở lại lâu dài thì đã có bảng WF-05, vốn có sẵn dòng xoá riêng',
       },
       {
         key: 'ffb.recent.home.v1',

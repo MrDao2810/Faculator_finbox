@@ -51,6 +51,11 @@ user-facing warning message. Write new code the same way.
 ```bash
 npm run dev            # dev server on :3000
 npm run build          # static export to out/ (prebuild refuses to run while dev holds :3000)
+#                        ...and the hazard runs BOTH ways: `next build` and `next dev` share
+#                        `.next`, so a build writes production artifacts there and the next
+#                        `npm run dev` reads them and dies with `Cannot find module './NNN.js'`
+#                        from `.next/server/webpack-runtime.js`. The guard only covers one
+#                        direction. Cure: delete `.next` (and `out/`) with no server running.
 npm run preview        # serve the built out/ on :4173 — never :3000, see package.json//preview
 npm run lint           # ESLint — also enforces the layer boundaries (CON-02/CON-03)
 npm run typecheck      # tsc --noEmit
@@ -58,7 +63,7 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 39 assertions against a built out/ — run after build
+npm run verify:static  # 42 assertions against a built out/ — run after build
 npm run check:chrome   # 147 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
@@ -199,11 +204,14 @@ Four things that are easy to break here:
 - **Only ticker codes leave the device.** Quantities, cost prices and buy dates never enter a
   request — `client.ts` sends `{symbols}` and `{ticker}`, nothing else, and a case in
   `PortfolioScreen.test.tsx` asserts the seeded quantity, cost price and buy date appear in no
-  call. **The product no longer says this on screen.** `portfolio.localOnly` (the "CỤC BỘ" strip)
-  and `settings.data.note` were both removed on 09/09/2026 at the project owner's request, so
-  COM-03 now rests on behaviour and on `public/_headers`, not on any sentence a user can read.
-  That was a deliberate call, not a dropped gate; the reasoning sits in `vi.ts` beside the
-  removed keys.
+  call. **The product no longer says this on screen, anywhere.** `portfolio.localOnly` (the
+  "CỤC BỘ" strip) and `settings.data.note` went on 09/09/2026, and `quiz.localOnly` ("Kết quả
+  lưu trên máy bạn, không gửi đi đâu…") followed on 24/09/2026 — three removals, all at the
+  project owner's request, all the same call: **drop the sentence, keep the behaviour**. So
+  COM-03 here and LDR-04 · NFR-SEC-01 in the quiz block now rest on behaviour and on
+  `public/_headers`, not on any sentence a user can read. That was deliberate, not a dropped
+  gate; the reasoning sits in `vi.ts` beside each removed key. Do not rebuild any of the three
+  without asking — a missing privacy sentence reads like an oversight, and it isn't.
 - **`LIVE_PRESET_FORMULAS` is pinned data, not a computation.** Deriving it needs `spec.variables`
   for all 111 formulas, i.e. the whole Registry in `/danh-muc/`'s bundle (measured elsewhere:
   131 kB → 217 kB against a 180 kB gate). `live-preset.test.ts` recomputes it from the real
@@ -540,6 +548,467 @@ value keeps flowing from `schedules.ts`, so a rate change moves the screen with 
 number copied into prose rots silently and lint cannot see it. `constants-gate.test.ts` holds both
 directions: a source scan catches an undeclared call site, and pulling each declared key out of the
 schedule must break the formula, which catches a declaration the calc never uses.
+
+## The understanding-check block — WF-19
+
+The bottom of every detail screen carries a multiple-choice block (23/09/2026, `src/core/quiz/`,
+`src/application/quiz*.ts`, `src/ui/quiz/`). **411 questions, covering all 111 formulas.** The
+first pass wrote 206 from a spreadsheet of 177 sources and left one formula empty; the expansion
+round that followed (23/09/2026) closed that gap and kept pushing every formula toward five
+questions in batches, and a calculation round (24/09/2026) added one worked question per formula
+that computes from plain inputs — see the two notes below. The wireframes and that spreadsheet live
+in `docs/wf19/` — the repo's first `docs/` directory and its first binary outside `public/`, both
+deliberate and explained in that folder's README.
+
+**Every question must come from a real source, and the bank is uneven because the material is.**
+`QuizItem` requires `source.url`; `quiz.test.ts` re-checks it. The floor across the library is now
+**2 questions**: 24 formulas have two, 27 have three, 23 have four, 32 have five and 5 have six.
+The first wireframe's "5 questions per formula" template was dropped precisely because it would
+have forced 3–4 invented questions onto 88 of 111 formulas. `tiet-kiem-muc-tieu`, the one formula
+nobody could source at the first pass, has had questions since batch 1 — but **the empty-state
+branch stays**, in `quizFor`'s docblock and in `QuizBody`: a new formula added to the Registry is
+empty the moment it lands, and the owner chose that state over hiding the block. Four constants in
+`quiz.test.ts` are tripwires against a number being hit by padding (`TONG_SO_CAU = 411`,
+`SO_CAU_DIEN_GIAI = 5`, `SO_CAU_QUY_DINH_CHUA_CO_NGAY = 16`, and the 0/24 distribution).
+**Never add a question to reach a number.**
+
+**Twice now the distribution test's own claim stopped being true, and twice it was renamed rather
+than just loosened.** After four batches "most formulas have only 1–2 questions" was false (55 of
+111, 49.5%, down from 87), so the name changed from "phân bố vẫn lệch: phần lớn công thức chỉ có
+một hoặc hai câu" to "phân bố đã cân bằng hơn…" and the bar moved from "more than half" to "more
+than a third". After the calculation round no formula has one question at all, which made even
+"more than a third" false (24 of 111), so the case is now "không công thức nào còn một câu, nhưng
+ngân hàng vẫn chưa đều" and it pins the real numbers — `mot` is 0, `hai` is 24, and
+`Math.min(...cover.values())` is 2 — instead of an inequality that keeps expiring. A test name is
+a claim; when the claim stops holding, fix the claim, do not widen the bar.
+
+**Raising a formula's count is allowed only with new INPUT, never a lower bar.** On 23/09/2026 the
+owner asked to bring every formula toward five and allowed foreign-language sources. That is new
+input, so the tripwires keep moving — but 5 stays a target, not a floor. Batch 1 (6 formulas, 23 of
+25 drafts survived) had 2 killed by an adversarial pass that reopens every URL (one quoted verbatim
+from a page that only _defined_ the formula; one was right per the page but wrong per current law).
+Batch 2 lost its automated adversarial pass to a session-limit failure mid-run — 11 drafts had
+already been written when it died, so they were re-verified by hand instead of discarded: every URL
+reopened and diff'd against the quoted text, and one source that was a PDF (a study, whose
+compressed text stream `WebFetch` couldn't decode) was downloaded and run through `pdftotext`
+instead. All 11 held up. Batch 3 (17 formulas) ran the automated pass clean — 67 agents, 0
+infrastructure failures — and it killed 9 of 51 drafts (verbatim mismatches, a wrong division, a
+source that only defined the metric), the sharpest evidence yet that 5 is a target and not a floor.
+Batch 4 (the remaining 12 `technical` formulas, closing that category out — every formula in it now
+has 2+ questions) added a pre-filter for the spelling lesson below before drafts ever reach the
+adversarial pass, and still killed 4 of 35 (two `chon-nhieu` answer sets the source didn't actually
+support, two definition-only sources). Batch 5 (10 `valuation` multiples formulas) killed 2 of 34
+(both definition-only) and surfaced a different failure mode: an agent tagged a news article
+reporting a specific enforcement case as `source.kind: 'quy-dinh'` (legal text / published fee
+schedule), which would have pushed `SO_CAU_QUY_DINH_CHUA_CO_NGAY` — a tripwire that may only ever
+go down — up from 16 to 17. The fix was reclassifying that one question's `source.kind` to
+`trai-nghiem` ("a real person's account, or the press reporting on an incident with real numbers"
+— exactly what it is), not loosening the tripwire. A batch without either the automated pass or an
+equivalent manual one has no business moving these numbers. The method that unstuck the formula
+nobody could source is worth reusing: split it into its hidden assumptions and find a source for
+each one.
+
+**The bank's uniform-US-spelling gate (`i18n.test.ts`) applies to a quoted source's own English too,
+and it can outrank quote fidelity.** A batch-3 quote from a UK site read "Annualised"; the gate
+scans every `en:` string in `src/core` with no carve-out for text inside “…”. The fix asymmetric on
+purpose: `explain.vi`'s embedded quote stays exactly as the source wrote it, because that copy
+exists so a Vietnamese reader can verify it against the page — respelling it would defeat that. The
+same quote inside `explain.en` gets Americanized, because that field is the product's English copy
+and the project already normalizes British spelling there on sight (`risk-ratios.ts`'s "the
+annualised result" got the same treatment earlier). The two fields end up one letter apart, on
+purpose, with a comment at the site recording why.
+
+**66 of the questions are CALCULATION questions, and their answers come from `calc`, not from
+the author** (24/09/2026, `items/tinh-toan.ts`). The owner tried the quiz and found it was theory
+only: measured, 306 of 345 questions carried no figures at all and just 3 multiple-choice questions
+made the reader compute anything. Each new one prints a small table of inputs, asks for the result,
+and offers four answers. The correctness gate is what makes them safe to ship: the item declares
+`verify: { inputs, expected, tolerance }` and `quiz.test.ts` runs `runFormula` with that exact
+input set. **A wrong answer here would teach the wrong arithmetic directly underneath the correct
+formula, on the same screen, and no other gate can see it** — `calc` is still right, the prose
+still reads well, only the number is off. So the authoring order is inverted: pick the inputs, run
+`calc`, then write the question around the number it returned. The three wrong answers are real
+mistakes (inverted ratio, billions not converted to dong, the ×100 forgotten, the tax shield
+dropped, stopping at an intermediate step, rounding up where contracts round down) and the
+explanation names each one, so a wrong pick still teaches something.
+
+Two consequences worth knowing. **`evidence: 'tinh-toan'` had to be a third tier**, because two
+gates key off that field and both are wrong for a calculation: the verbatim-quote case requires
+every `ngo-nhan` item to carry a `“…”`, and the UI titles the explanation box from the tier, where
+`quy-dinh` prints "Quy định hiện hành" — nonsense over an arithmetic answer. And **`verify` cannot
+describe a formula that eats a price series**, because the series travels in `CalcContext` rather
+than in `inputs`; those 35 formulas still have no calculation question and need a different route.
+
+**A Vietnamese explanation must carry the meaning itself, with the quote as evidence — not be a
+quote with a label in front of it.** The owner pressed Check and got an English paragraph back.
+Measured: 64 of 345 `explain.vi` values were essentially one English quotation, the shape
+`Nguồn: “…”.`, peaking at 96% English (Q081). The fix is **not** to drop the quote — verbatim text
+is what lets a reader open the source and check — so all 64 were rewritten to the shape Q275
+already had: the Vietnamese sentence states the point, then the original is quoted behind it.
+`explain.en` was filled in for 93 first-pass questions at the same time, so switching the product's
+language now switches the explanation too. A gate holds the line: any item whose `explain.vi`
+contains an English quotation must keep **≥120 characters of Vietnamese outside the quote marks**.
+That threshold is the measured floor after the fix and may only go up. It catches a floor, not
+thin writing, but the floor is exactly where the defect was.
+
+**No explanation labels itself "Nguồn:" / "Source:"** (25/09/2026). The explanation box already
+ends with its own source row (`quiz.source` + the link), so an `explain` opening with
+`Nguồn: “…”` printed the word twice in one box; the owner circled it and asked for the top one
+gone. 87 labels were stripped from the data (68 `vi`, 19 `en`), quotes untouched, and a case in
+`quiz.test.ts` rejects either word in `explain` — the same rule `FormulaExample.source` states
+in `registry/types.ts`: the label is the UI's job. Stripping it dropped Q279 under the 120 floor
+above (its only Vietnamese before the English quote WAS the label); it was rewritten Vietnamese-first,
+not excused.
+
+**The block keeps every answered question on screen** (24/09/2026). Pressing "Câu tiếp" used to
+erase the question just read; the explanation was only reachable again from the summary at the very
+end. Each answered question now collapses into one clickable row — verdict mark, step number,
+prompt clipped to a line — stacked oldest-first directly above the live question, and opening one
+re-renders it whole, explanation included. **Only one opens at a time**: several at once push the
+live question off screen, which is the thing the strip exists to prevent. That forced a split:
+`QuizQuestion.tsx` renders one question and `cham.ts` holds the scoring rules, because the same
+question must render identically in both places and two copies of that JSX would diverge. The
+`inputMode="decimal"` call site moved with it, so `numeric-gate.test.ts` now pins
+`ui/quiz/QuizQuestion.tsx`.
+
+**The header row carries everything that is not a question** (24/09/2026, rewritten three times in
+one day). Idle it reads `BÀI TẬP · 5 câu ……… Bắt đầu kiểm tra »`; mid-quiz it reads
+`BÀI TẬP · Câu 2 / 5 · ▬▬ ▭ ▭ ▭ ▭ ……… Thoát`. The progress line used to sit inside the question card,
+one row under an `<h2>` that said the same thing, and the start button used to be a solid block on
+a row of its own under a lead line — three stacked rows that existed only to get someone to press
+one button. Four things there are load-bearing:
+
+- **`.head` must NOT use `justify-content: space-between`.** The page frame runs to `--desktop-max`
+  (1600px), so space-between throws the count to the far right edge, the better part of a screen
+  away from the label it belongs to, and the two stop reading as one thing. Label and count sit
+  together on the left; only the right-hand button pushes itself out, with `.headAction`
+  (`margin-left: auto`). That one class serves BOTH buttons — "Bắt đầu kiểm tra" when idle,
+  "Thoát" mid-quiz — because their occupying the same slot is what stops the row jumping when the
+  phase changes, together with `.head`'s `min-height`.
+- **The block has NO `max-width`.** It was capped at 60rem earlier the same day to close that
+  space-between gap; the owner photographed the result and rejected it. Capping only moves the
+  empty space OUTSIDE the block's right edge, where it no longer lines up with the Nguồn tham khảo
+  block above it or the page's own end-buttons below — both of which run the full frame.
+- **`.bars` is `flex: 0 1 14rem`, not `flex: 1`.** Stretched across the full frame it measured
+  ~1.100px for five questions and read as a rule dividing the page rather than as progress.
+- **`.label`, `.step` and `.count` are `white-space: nowrap`.** At 390px the bar's `flex-basis`
+  holds its ground and the text is what gets squeezed instead: "BÀI TẬP" broke across two lines.
+  Nowrap makes the bar — the only thing on the row that can shrink without losing meaning — absorb
+  it.
+
+The `»` is a sibling `<span aria-hidden>` rather than part of the string, because it has to follow
+BOTH labels (`quiz.start` and `quiz.startFew`) and putting it in the dictionary would make four
+places to remember instead of one — same shape as `GroupCard.tsx`. The button is `variant="ghost"`
+on purpose: a solid block of colour beside a small uppercase label outweighs the content it leads
+into. Idle, that row is the WHOLE block — 78px measured — because `quiz.lead` ("Không chấm điểm,
+chỉ để bạn tự soát lại.") is gone: the owner deleted it that morning, had it restored that
+afternoon, then deleted it again on sight, so its tombstone is the second one on that key and it
+is final. `.intro` under the header renders only when there is something real to say — a quiz
+under three questions, or a score from last time. `quiz.countUnit` survives for the "5 câu" beside
+the label, and `quiz.step` ("Câu {n} / {total}") is new, saying "Câu" out loud because the count no
+longer has a row of its own to explain what it counts. The block is titled
+**`Bài tập` / `Practice`** — it was "Kiểm tra hiểu bài" / "Check your understanding" until the same
+round.
+
+**ALL THREE taxonomy chips are gone, for the same reason, on the same day** (24/09/2026), and a
+question card now opens straight onto the prompt. `source.kind` ("Chuyên gia", "Tài liệu
+chuẩn"…) described who was speaking rather than helping the reader decide, while occupying the
+space beside the link they need to click. `kind` ("D1 · Đọc kết quả" … "D5 · Hậu quả bằng
+tiền") classified which KIND OF UNDERSTANDING the question tests. `evidence` ("Ngộ nhận có ghi
+chép", "Quy định hoặc chuẩn ngành", "Tự tính lại được") classified how strong the evidence
+behind it is. All three are real signal **for the content team** — `kind` is how they see
+coverage (fees & taxes is nearly all D4, valuation leans D1/D2) — and none of them is something
+a reader does anything with. Twelve i18n keys deleted with tombstones; **all three fields stay
+in the data** for all 411 questions.
+
+`evidence` survived one round longer on a reason that turned out to be wrong: that the chip fed
+the explanation-box title and two `quiz.test.ts` gates. It does not — **the FIELD feeds them**,
+read straight off `item.evidence`, and the chip fed nothing. Keep that distinction when reading
+the tombstone in `vi.ts`: `quiz.evidence.*` is dead, `item.evidence` is load-bearing. A case in
+`QuizBody.test.tsx` asserts no `D1`–`D5` code and none of the three evidence labels survive
+anywhere in the card — it spells the labels out rather than reading them through `t()`, because
+the keys no longer exist. The four
+choices sit in a **two-column grid whose breakpoint depends on how long the longest answer is**,
+measured from the data and stamped as `data-hai-cot` — measuring at runtime would make the first
+client render disagree with the static HTML, the hydration class of bug this whole directory
+avoids. The attribute holds the NAME of the narrowest viewport that still fits every answer on one
+line: `1024` (≤55 characters), `1280` (≤78), or `0`, and `khoHaiCot()` in `QuizQuestion.tsx` keeps
+the measured table it comes from. It was a single ≤48 threshold until 24/09/2026, set while the
+block was still capped at `max-width: 60rem`; once the block went full-frame that number was
+roughly half of what a column actually holds, and the owner photographed a question with three
+very short answers beside one 59-character answer, all four stacked in one column. Measured in
+Chrome with the real font: a half-width cell fits 55 characters at 1024px, 77 at 1280, 86 at 1440
+and 98 at 1600. Across the bank that moved two-column coverage from 149/389 to 173 from 1024px and
+254 from 1280px. No third tier above 1280 on purpose: past ~78 characters two columns are two
+dense blocks of text side by side, and one column reads better. And
+the hint line under the buttons **had never once rendered**: its condition was `picked === null`
+while `picked` became an array back in WF-19C. It now keys off "is the answer complete", so it
+serves the numeric format too.
+
+**A fill-in question asks WHERE EACH FIGURE GOES, not what the answer is** (24/09/2026, `worked` on
+`QuizDienSo`, parser and rules in `core/quiz/worked-line.ts`). The owner rewrote this format three
+times in one day, and the last rewrite inverted it: _"đoạn mô tả ví dụ sẽ có những thông số nào sẽ
+được áp dụng trong công thức thì để trống trong công thức ra để người dùng điền vào ấy. điền đúng
+chỗ số liệu vào công thức thì kiểm tra xem đúng chưa chứ không phải hỏi xem kết quả là như nào."_
+So the blanks sit on the **input figures inside the formula**, and the check is placement:
+
+```text
+Beta điều chỉnh = ▢ × ▢ + ▢ × 1
+```
+
+The learner takes 0,67 / 1,50 / 0,33 from the "Số liệu" table above and puts each in its slot. The
+earlier shape did the opposite — it printed the whole substituted arithmetic and blanked the
+**result** — so it tested calculator skill, which is not what a formula library is for. The table
+deliberately carries distractors (`he-so-bien-thien` lists the mean and the standard deviation of
+**both** assets), so placing correctly is a real test. The computed result is no longer the
+question: it is revealed after checking, as the payoff that closes the worked example.
+
+**`[…]` marks a blank and CARRIES ITS OWN ANSWER**, so one string still does three jobs — draw the
+picture, grade each slot, and (with the brackets stripped) get re-computed against `expected`. A
+`latex` field or an `answers[]` array parallel to `worked` would be exactly the drift this design
+exists to prevent.
+
+**The formula is drawn with React + CSS, NOT MathML.** The earlier shape emitted MathML from the
+AST; that died the moment the input moved inside the formula, because MathML accepts no `<input>`
+anywhere in its tree, `<mtext>` included — and a slot in a fraction's numerator has nowhere else to
+go. `CongThucDien.tsx` walks the AST instead: `font-family: math` (a CSS generic) keeps the typeface
+the 111 KaTeX pictures use, and a fraction is a flex column with `border-top` on the denominator,
+which is what the browser draws for `<mfrac>` anyway. KaTeX stays out of reach for the old reason:
+build-time only, ~280 kB.
+
+Four things there are load-bearing:
+
+- **The AST arrives with parentheses already inserted.** `workedShape` runs `themNgoac` before
+  handing the tree over, so no line of UI code knows the precedence table. A second copy of that
+  table in the view layer would drift from the evaluator, and then the picture and the graded
+  number would say different things. Division, square root and `|…|` insert no parens — the bar
+  already separates the halves, which is where a drawn formula beats prose: `(2 + 3) ÷ 5` needs
+  brackets as text and none as a fraction.
+- **Bracket and radical heights come from `chieuCao()` on the tree, never from measuring at
+  runtime.** Measuring would make the first client render disagree with the static HTML — the
+  hydration class of bug this whole directory avoids. CSS stretches the glyph with
+  `scaleY(var(--cao))`.
+- **`.ctPhanSo` must NOT set `align-items: center`.** The horizontal axis is the cross axis of a
+  column flex box, so `center` shrinks both tiers to their own content and the fraction bar — a
+  `border-top` on the denominator — ends up only as wide as the DENOMINATOR. Measured on
+  `so-graham`: a 345px numerator over a 26px bar. Leave it at `stretch` and centre the contents
+  with `justify-content`.
+- **The formula does not line-wrap** (a fraction split across lines is meaningless), so
+  `.workedExpr` carries the `min-width: 0` + `overflow-x: auto` + `overflow-y: hidden` trio, the
+  same one and for the same reason as `.formula` in `FormulaDetail.module.css`. At 390px
+  `do-bien-dong-lich-su` is 862px wide inside a 316px block and scrolls; the page itself does not
+  overflow. The label and `=` sit in the same flex row and wrap above the formula when it is tight.
+
+**The action row carries two buttons and nothing else.** The owner first had "Bỏ qua câu này"
+pushed to the right edge to line up with "Thoát" on the row above, then reversed it the same day:
+at 1440px the two buttons sat most of a card apart and stopped reading as one pair. The hint line
+under them ("Chọn một đáp án để mở nút Kiểm tra") is gone too — a greyed-out, unclickable button
+already says that. Do not add a `margin-left: auto` to anything in that row.
+
+**`quiz.test.ts` RE-COMPUTES the line rather than eyeballing it.** It strips the square brackets,
+parses what follows the `=` (Vietnamese number notation, `+ − × ÷ ^ ( ) √ ln | |`) and requires the
+result inside that question's own tolerance. The line prints the actual figures, so it is a promise:
+swap one digit and a learner who places the data correctly is marked WRONG at that slot — and will
+believe themselves wrong rather than the formula. Nothing else can see that failure; `expected` is
+still right and the prose still reads well. Same reasoning as `QuizVerify`.
+
+**The `DONG_GOI_Y_BANG_LOI` pinned list is GONE, and the rule got stricter.** Three questions used
+to keep a worded hint because substituting numbers would delete the step being tested — rounding
+free-float up to the next 5% (Q329), picking which ranked observation is the 99% VaR (Q248), and
+choosing the rolling peak/trough pair rather than the highest peak with the lowest trough (Q244).
+The new shape absorbs all three: that step **is** the blank now. So `workedProblems` rejects any
+line it cannot parse, and every one of the 22 surviving fill-in lines draws. Adding `|…|` to the parser is what let
+Q248 convert (`VaR 99% = |▢|`); it is real notation for that formula, not a workaround.
+
+**A fill-in question may only ever draw ITS OWN page's formula, and `CAU_DIEN_SO` pins the 22 that
+qualify.** This is the invariant the whole round turned on. Once the slots moved inside the formula,
+whatever the block draws is a claim that the page contains that formula — and 14 questions were
+drawing something else. The owner caught it on `beta`: the page draws `β = Cov(Rᵢ,Rₘ) ÷ Var(Rₘ)`
+while the quiz drew `Beta điều chỉnh = 0,67 × β + 0,33 × 1`, Bloomberg's adjusted-beta convention,
+properly sourced to Corporate Finance Institute but present nowhere on that page. _"công thức nào
+thì chỉ làm bài tập của công thức đó thôi chứ."_
+
+All 14 became `trac-nghiem` — prompt, `facts`, `explain` and `source` kept word for word, the three
+wrong answers written as the real miscalculations the explanation already named (taking the raw beta
+unadjusted, the arithmetic mean instead of the 0,67/0,33 weights, dropping the market-beta term).
+They keep teaching their convention; they just stop drawing a foreign formula. Their `evidence`
+moved to `tinh-toan` at the same time, because an arithmetic answer under a box titled "Quy định
+hiện hành" is the exact defect that third tier was added to prevent.
+
+The list of 14, with what each was drawing: `beta` Q268 (Bloomberg adjusted beta), `momentum` Q235
+(the MetaStock ratio convention, where the page uses a difference), `sut-giam-hien-tai` Q247 (the
+recovery gain, not the drawdown), `var-lich-su` Q248 and Q249 (observation ranking, and
+square-root-of-time scaling), `do-lech-chuan-ban-phan` Q260 (annualizing), `ty-so-thang-thua` Q281
+and Q282 (Profit Factor, and a single-order reward/risk), `ema-n-phien` Q285 (Wilder↔EMA period
+conversion), `roc-toc-do-thay-doi` Q292 (picking a period, not a formula at all),
+`atr-dao-dong-thuc` Q301 (an ATR-based stop-loss), `vwap` Q306 (the typical-price convention, which
+that page's own `commonMistakes` explicitly calls a different number), `do-bien-dong-lich-su` Q309
+(the log return, an input to the formula rather than the formula), `von-hoa-thi-truong` Q329
+(free-float-adjusted cap).
+
+**No machine can check this**, which is why the gate is a pinned list rather than a rule: comparing
+`latex` against a `worked` line needs algebra, and the exemption list would be longer than the rule.
+Adding a 23rd fill-in question turns the case red on purpose, so whoever adds it reads this first.
+Expanding an input inside the page's own formula is still fine and is what most of the 22 do —
+`gia-muc-tieu` Q344 writes EPS out as profit ÷ shares, `ev-ebitda` Q321 writes EV out as its
+components, `so-graham` Q332 substitutes a three-year average EPS. The line is between _expanding a
+variable of this formula_ and _drawing a different formula_.
+
+**The PROMPT had to be rewritten too, and forgetting that is the obvious trap.** All 36 still ended
+with "… là bao nhiêu?" after the slots moved, so the screen asked for a number while the formula
+asked for a placement — the owner caught it immediately: _"tại sao câu hỏi vẫn hỏi Beta là bao nhiêu
+khi bây giờ thay đổi cách điền công thức rồi."_ Each prompt now keeps its sourced scenario and its
+convention clause (that is the part the question actually tests) and ends by naming the placement,
+usually with the trap spelled out — "chú ý EMA phiên trước xuất hiện hai lần", "chú ý ô nào cộng
+vào, ô nào trừ ra". No test can see this mismatch, so a new fill-in question needs the prompt read
+against its own `worked` line by hand.
+
+**Every slot must be a figure the `facts` table states LITERALLY**, because the learner copies it.
+Four questions failed that and were fixed rather than excused: `profit-factor` wanted `0,4` while
+the table said `40%` (formula rewritten to the percentage scale, `100 − p` instead of `1 − p`),
+`von-hoa-thi-truong` wanted `0,60` for a rounded free float (rewritten to `× 60 ÷ 100`), and
+`ncav-tren-co-phieu` / `gia-muc-tieu` wanted `250.000.000` and `100.000.000` while their tables said
+"250 triệu CP" and "100 triệu cổ phiếu" (tables now spell the digits out). The one deliberate
+exception is `von-hoa-thi-truong`'s `60`: rounding 56,19% up to the next 5% step **is** the step
+being tested, so that figure must not appear in the table.
+
+**Two authoring rules for choosing which figures to blank**, neither of which a test can enforce:
+blank the DATA and leave structural constants visible (`× 100`, `(n − 1)`, `22,5`, `√252`, unit
+factors — blanking those asks a different question); and when one quantity appears more than once,
+blank **every** occurrence or none, because blanking one of two identical numbers reads as two
+different quantities. `O_TRONG_TOI_DA = 5` in `quiz.test.ts` caps the count — past that the question
+becomes a dictation exercise and the formula overflows a phone.
+
+Details in the UI. Each slot is a bare `<input>`, not the `Input` primitive: `Input` puts a label
+above the control, and a label in the middle of a formula destroys the formula — position is the
+label, and screen readers get `aria-label` with the slot's 1-based index. Slot width comes from the
+answer's character count (`beNgangO`, floored at 4 and capped at 13) so a 13-digit share count and a
+2-digit rate do not get the same box. `.blankInput[data-ket-qua]` **must be declared after
+`.blankInput:disabled`** (a graded input is both), the same single-specificity ordering trap as
+`.panelCenter`. Grading is all-or-nothing, like `chon-nhieu`: three slots right out of four still
+produces the wrong number, so partial credit would tell the learner they were close when the result
+is not close at all. The revealed result prints through `formatNumber` — it used to interpolate the
+raw JS number, so `beta` showed "1.335 lần", which a Vietnamese reader reads as one thousand three
+hundred and thirty-five. The English `worked` line writes its numbers with NO thousands separator
+(`37300`, not `37,300`): an English comma is a Vietnamese decimal point, so a reader who copies
+`36,000` back into a slot gets graded as 36. Grading always reads the `vi` line, and `quiz.test.ts`
+pins that both languages carry the same number of slots in the same order.
+
+**The bank is read at build time only.** 411 questions is ~330 kB of prose; `page.tsx` slices each
+formula's 1–5 and passes them down as a prop, exactly like `notation`. Three gates hold that:
+`build-only-imports.test.ts` allows `@/application/quiz` in `quiz-view.ts` alone and `quiz-view` in
+`page.tsx` alone; the barrel `@/application` re-exports the **types only** (`export type` is erased
+at compile time, so it emits no runtime import); and `verify:static` fails if any question's prompt
+turns up in an `out/` JS chunk, or if `pe`'s first question is missing from its own page's HTML or
+present on another formula's. The import gate cannot see prose copied into a second module — that
+is why the build-output gate exists beside it.
+
+Four more things that are easy to break:
+
+- **Nothing in `src/ui/quiz/` may call `useId()`** — same rule and same reason as `src/ui/charts/`.
+  `QuizPanel` is the `next/dynamic` boundary, and the block's `<h2>` is in the static HTML of all
+  110 pages whether or not the user starts the quiz, so a React-generated id would mismatch on
+  every one of them. Ids derive from the `formulaId` prop (`quiz-<id>-title`), and two cases in
+  `QuizBody.test.tsx` pin the shape. Never export `QuizBody` from the `@/ui/quiz` barrel, or its
+  cost lands on all 111 detail pages.
+- **The quoted passage lives inside `explain`, between `“…”` — there is no `quote` field.** The
+  first build split it out so the source block could print it verbatim; run against all 206 of the first pass it
+  failed twice over: 83 questions were left with an empty `explain` (the whole paragraph was the
+  citation), and the rest got cut mid-sentence. `quote-parts.ts` finds the quoted run and the UI
+  wraps it in `<q>`. `quiz.test.ts` requires every `ngo-nhan` question to carry a quoted run, with
+  exactly 5 prose-only exceptions pinned.
+- **"Ôn lại câu sai" replays a SUBSET, so it must not be recorded.** `recordQuizResult` overwrites
+  by formula id, so writing a review round down turns a real 3/5 into a flattering 2/2 and loses
+  `wrong[]`. `QuizBody` only calls `onFinish` when the round covered the whole set. Getting the
+  whole bài wrong makes the subset equal the set, and recording that is correct.
+- **The summary screen no longer says where the score is kept.** `quiz.localOnly` was removed on
+  24/09/2026, the third such sentence to go — see "The one network call" above for the pattern.
+  Nothing about the storage changed: `recordQuizResult` still writes only to `localStorage`, and
+  there is no backend to send it to (SRS §3). A case in `QuizBody.test.tsx` was INVERTED rather
+  than deleted, so the sentence coming back is a decision rather than a slip.
+- **The "few questions" threshold lives at `QuizBody`'s `minForProgress` default, not in the
+  Domain.** A constant in `src/core/quiz/` cannot reach the UI (CON-03, plus the build-only gate),
+  so one there is just a second number nobody reads — it was removed for that reason.
+- **Three answer formats, and no true/false.** `QuizItem` is a discriminated union on a
+  **required** `format`: `trac-nghiem` (one of four), `chon-nhieu` (two or three of four, scored
+  all-or-nothing) and `dien-so` (place each figure in its slot inside the formula, also scored
+  all-or-nothing; needs `facts`, a finite `expected`, a per-question `tolerance`, a bilingual `unit`
+  and a `worked` line — see the fill-in note above). WF-19C's true/false was dropped on the
+  wireframe's own reasoning — a 50% guess floor. `hasChoices()` reaches the UI through the barrel
+  from `@/core/quiz/types`, a **leaf** module; importing it from `@/core/quiz` would drag every
+  question into the client bundle. `isAccepted()` rides along but no longer grades anything — from
+  24/09/2026 `dien-so` is graded slot by slot by `blankAccepts` (via `@/application/quiz-math`), and
+  `isAccepted` survives only for the gate that re-computes the `worked` line. The numeric field is the sixth `inputMode="decimal"` in the
+  repo, so it carries the full filter trio (`keepViNumberChars` + `guardFilteredDelete` +
+  `resetFilteredDelete`) and is pinned in `numeric-gate.test.ts`; a `chon-nhieu` question must
+  render an overall verdict line, because per-choice badges say only whether _that_ choice was in
+  the answer set.
+
+**An answered question explains itself in FOUR ROWS, not a paragraph** (24/09/2026, `QuizGiai`
+on `QuizBase.giai`). The owner rejected prose twice in one afternoon — first the original
+paragraphs as "quá khó hiểu và trừu tượng", then a three-block rewrite that added "why each wrong
+answer is wrong" as "rườm rà và quá dài dòng" — and specified the shape: what it computes → the
+formula → the figures substituted → the result → the source, "không sáng tạo thêm hay thêm lời vô
+nghĩa". So a `giai` block renders as a `<dl>`: **Tính · Công thức · Thay số · Kết quả · Nguồn**.
+Do not rebuild the wrong-answer commentary. Five things are load-bearing:
+
+- **The formula row is NOT stored in the question.** It is the page's own `spec.expression`,
+  sliced at build time by `quiz-view.ts` (which now returns `{ items, bieuThuc, kyHieu }`). A copy
+  per question would drift from the formula card at the top of the page. `giai.congThuc` may
+  override it ONLY for a rule about the page's own quantity — Q088 asks for beta's confidence
+  band, answered by `beta ± 2 × sai số chuẩn`, not by `β = Cov ÷ Var`. It must never be used to
+  print another library formula; that is the `CAU_DIEN_SO` invariant, and the override is text,
+  so no gate can see it.
+- **Hovering (or tabbing to) the formula row shows the page's symbol legend** — the meanings of
+  `spec.symbols`, as text. Text, not the built MathML: that MathML is already in each page's
+  static HTML once, and passing a second copy into the quiz block would double it on 111 pages.
+  The legend shows only when the row IS the page's formula; with an override it would explain
+  symbols the row does not contain. Pure CSS `:hover`/`:focus-within`, no `useId`.
+- **The source row keeps the verbatim quote**, pulled out of `explain` by `quoteParts`. `explain`
+  no longer renders when `giai` is present, but it must still exist: the `ngo-nhan` gate reads the
+  quote there, and the quote is what lets a reader open the source and check it. One Nguồn row,
+  link first, each quoted run on its own line — two quotes on one line glue together.
+- **Rows share one column via `subgrid`**, not `display: contents` (which drops the `<div>` that
+  groups each `dt`/`dd` pair from the accessibility tree in some browsers). A per-row grid made
+  each label column as wide as its own label, so the four values started at four positions.
+- **Normal UI font, not `font-family: math`**. The row is words, like the `expression` line under
+  the KaTeX picture; Vietnamese diacritics in a math face looked foreign next to the rest.
+
+When a distractor must be referred to in prose, cite it by LETTER — `quoteParts` wraps every
+`“…”` in `<q>`, so a quoted wrong answer renders exactly like the source's own words.
+
+**Coverage is partial on purpose: 43 of 453 questions carry `giai`.** The shape needs figures to
+substitute, which ~105 existing practice questions have and ~306 conceptual questions ("why does
+EV subtract cash?") do not. Filling it for those would mean inventing a computation. Items without
+`giai` still render the old paragraph; that fallback stays until each is converted or replaced.
+
+**42 fill-in practice questions, Q412–Q453** (`items/thuc-hanh.ts`), raised practice coverage from
+105/411. Q412 was written by hand as the template; the other 41 were drafted by agents that looked
+for real worked examples online, then passed every machine gate in this file and a hand review of
+each `worked` line against its page's `latex` and `calc`. The automated adversarial pass died to a
+session limit, so its checks — reopen every URL, confirm the drawn formula — were done by hand; two
+URLs that failed a bare `fetch` (a TLS error, an anti-bot 406) were reopened with a page reader and
+matched the figures. **47 formulas still have no fill-in question.** Every `dien-so` question
+derives its `giai` mechanically: `tinh` from the formula name, `thaySo` from `arithmeticOf(worked)`,
+`ketQua` from `expected` and `unit` — so it cannot disagree with the line the learner just filled.
+
+**A graded choice is marked by ONE thing each** (24/09/2026). A wrong pick gets its text struck
+through and muted plus a `Sai` badge, and its red BACKGROUND FILL is gone — the strike already
+says the option is out, so a filled red box under it was the third voice saying the same thing.
+The red border stays, because it is the only thing left that says the user PICKED this one
+rather than that it is merely wrong. The right answer says `Đúng` whether the user picked it or
+not; `quiz.correctAnswer` ("Đáp án đúng") is retired, since the badge sits inside the option and
+position already says which option it belongs to. `quiz.wrong` went from "Chưa đúng" to "Sai"
+in the same round — a softened three-word label beside a strike-through reads as hesitation.
+Note the deliberate asymmetry left behind: the explanation box below still titles itself
+"Vì sao chưa đúng", because there it is addressing the reader's reasoning, not labelling a box.
+
+The English side splits in two. The 40 UI strings are all translated; the questions are not — 205
+of 411, counted out loud by a case in `quiz.test.ts`, because every question written from batch 1
+onward is bilingual from the start while the 206 of the first pass were Vietnamese only (93 of them
+now have `explain.en`, but not yet `prompt.en` or `choices.en`). `QuizBody` falls back to
+Vietnamese and says so. The verbatim quote stays in its source's language in BOTH versions:
+translating it away is what removes the reader's ability to check it.
 
 ## Notes
 

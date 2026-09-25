@@ -448,6 +448,45 @@ export {
   usageScore,
 } from './formula-usage';
 
+// KIỂU của câu hỏi kiểm tra hiểu bài đi qua đây được, vì `export type` bị xoá hẳn lúc biên dịch
+// nên không sinh dòng import runtime nào — giao diện cần kiểu để nhận prop. DỮ LIỆU thì không:
+// `QUIZ_ITEMS` và `quizFor` chỉ có ở `@/application/quiz`, đọc lúc build. Xem docblock file ấy.
+export type {
+  QuizChoiceKey,
+  QuizChonNhieu,
+  QuizDienSo,
+  QuizEvidence,
+  QuizFormat,
+  QuizItem,
+  QuizKind,
+  QuizSource,
+  QuizSourceKind,
+  QuizText,
+  QuizTolerance,
+  QuizTracNghiem,
+} from '@/core/quiz';
+
+// Hai HÀM này đi qua barrel được, khác với `quizFor`/`QUIZ_ITEMS`: chúng nằm ở `@/core/quiz/types`,
+// một module LÁ không import gì cả. Lấy qua đường sâu ấy thay vì qua `@/core/quiz` là cố ý — chỉ
+// mục kéo theo cả 229 câu, còn đây chỉ là hai phép tính thuần vài dòng. Giao diện cần chúng để
+// chấm câu `chon-nhieu` mà không phải chép lại luật chấm.
+//
+// `isAccepted` KHÔNG còn dùng để chấm câu `dien-so`: từ 24/09/2026 dạng ấy chấm VỊ TRÍ của từng số
+// liệu chứ không chấm kết quả, và phép so từng ô là `blankAccepts` ở `@/application/quiz-math`.
+// Nó ở lại vì cửa gác trong `quiz.test.ts` vẫn dùng để đối chiếu dòng công thức tính lại với
+// `expected`.
+export { hasChoices, isAccepted } from '@/core/quiz/types';
+
+export type { QuizProgress } from './quiz-progress';
+export {
+  MAX_QUIZ_ENTRIES,
+  QUIZ_PROGRESS_KEY,
+  parseQuizProgress,
+  progressFor,
+  recordQuizResult,
+  serializeQuizProgress,
+} from './quiz-progress';
+
 export {
   MAX_HOLDINGS,
   PORTFOLIO_KEY,

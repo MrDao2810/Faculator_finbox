@@ -950,20 +950,47 @@ paragraphs as "quá khó hiểu và trừu tượng", then a three-block rewrite
 answer is wrong" as "rườm rà và quá dài dòng" — and specified the shape: what it computes → the
 formula → the figures substituted → the result → the source, "không sáng tạo thêm hay thêm lời vô
 nghĩa". So a `giai` block renders as a `<dl>`: **Tính · Công thức · Thay số · Kết quả · Nguồn**.
-Do not rebuild the wrong-answer commentary. Five things are load-bearing:
+Do not rebuild the wrong-answer commentary. Seven things are load-bearing:
 
-- **The formula row is NOT stored in the question.** It is the page's own `spec.expression`,
-  sliced at build time by `quiz-view.ts` (which now returns `{ items, bieuThuc, kyHieu }`). A copy
-  per question would drift from the formula card at the top of the page. `giai.congThuc` may
-  override it ONLY for a rule about the page's own quantity — Q088 asks for beta's confidence
-  band, answered by `beta ± 2 × sai số chuẩn`, not by `β = Cov ÷ Var`. It must never be used to
-  print another library formula; that is the `CAU_DIEN_SO` invariant, and the override is text,
-  so no gate can see it.
-- **Hovering (or tabbing to) the formula row shows the page's symbol legend** — the meanings of
-  `spec.symbols`, as text. Text, not the built MathML: that MathML is already in each page's
-  static HTML once, and passing a second copy into the quiz block would double it on 111 pages.
-  The legend shows only when the row IS the page's formula; with an override it would explain
-  symbols the row does not contain. Pure CSS `:hover`/`:focus-within`, no `useId`.
+- **The formula row is NOT stored in the question.** It is the page's own KaTeX PICTURE, built
+  at build time from `spec.latex` like the formula card's. A copy per question would drift from
+  that card.
+  `giai.congThuc` may override it ONLY for a rule about the page's own quantity — Q088 asks for
+  beta's confidence band, answered by `beta ± 2 × sai số chuẩn`, not by `β = Cov ÷ Var`. It must
+  never be used to print another library formula; that is the `CAU_DIEN_SO` invariant, and the
+  override is text, so no gate can see it.
+- **Hovering a symbol in that picture opens the formula card's own "how it is computed" panel**
+  (25/09/2026, `QuizFormulaPicture.tsx`). Three shapes died in two days before this one: bare
+  meanings on hover over a words-only formula row ("không giống giải thích của công thức bên
+  trên", and a text cursor), then a legend fixed to the right like the card's, which the owner
+  rejected with a screenshot of the card's panel on `V`: _"hover vào ký tự thì nó ra như này.
+  kiểu thế chứ không phải là kiểu giải thích ở bên phải kia"_. So it REUSES the card's machinery,
+  not a copy of it: `useHowToPanel`, `HowToPanel`, the `.card` class (hand cursor, highlight,
+  floating panel) and `usePanelPlacement`, which was extracted from `FormulaNotationCard` for the
+  purpose. Do not rebuild the fixed legend or a text-only popover.
+- **Every symbol opens a panel here, not just the 112 with steps.** The card can leave most
+  symbols inert because its legend sits beside the picture; this row has no legend. A symbol with
+  no steps (a raw input like `P`) opens a title-only panel — exactly its "ký hiệu: nghĩa" legend
+  row — and its `aria-label` is the bare meaning, since calling it "Cách tính" would be false.
+  That needs a picture with EVERY symbol marked, which is `NotationView.latexHtmlAllSymbols`, a
+  second marking of the same MathML (546 of 554 rows found; the 8 misses are the names
+  `mathml-marks.ts` already lists). It is a separate string rather than extra marks on
+  `latexHtml` because the card gives every `[data-sym]` a hand cursor, and it is built only when
+  `quiz-view.ts`'s `needsFormulaPicture` says the page has a question that prints the picture.
+- **The picture node is built in `src/app` and handed to `src/ui` as a `ReactNode`**
+  (`hinhCongThuc`). The whole panel mechanism lives in `src/app/cong-thuc/[id]/`, which
+  `src/ui/quiz` must not import, so `FormulaDetail` builds `<QuizFormulaPicture>` once
+  (`useMemo`) and the quiz only drops it into the Công thức cell. That cell must NOT carry
+  `overflow`: the panel is absolutely positioned inside it, and a scrolling ancestor clips it —
+  the picture scrolls in its own inner `.quizPictureMath` instead, the same split as the card's
+  panel living outside `.formula`. For the same reason **the quiz section no longer carries
+  `deferred`**: `content-visibility: auto` implies `contain: paint` even on screen, and the panel
+  is clamped to the VIEWPORT edge, not the block's, so at narrow widths it poked out of the
+  block's left side and was cut in half (the owner's screenshot showed `MOS`'s panel reading just
+  "S"). `FormulaDetail.test.tsx` now pins five deferred blocks, not six, and asserts the quiz
+  section is not one of them. A title-only panel carries `data-title-only` and shrinks to its text
+  (`width: max-content`) instead of the 22rem the step pictures need. Keyboard users cannot open
+  these panels yet: the card reaches them from its legend buttons, and this row has none.
 - **The source row keeps the verbatim quote**, pulled out of `explain` by `quoteParts`. `explain`
   no longer renders when `giai` is present, but it must still exist: the `ngo-nhan` gate reads the
   quote there, and the quote is what lets a reader open the source and check it. One Nguồn row,
@@ -971,8 +998,10 @@ Do not rebuild the wrong-answer commentary. Five things are load-bearing:
 - **Rows share one column via `subgrid`**, not `display: contents` (which drops the `<div>` that
   groups each `dt`/`dd` pair from the accessibility tree in some browsers). A per-row grid made
   each label column as wide as its own label, so the four values started at four positions.
-- **Normal UI font, not `font-family: math`**. The row is words, like the `expression` line under
-  the KaTeX picture; Vietnamese diacritics in a math face looked foreign next to the rest.
+- **The picture is `display: math` (inline), and the text rows use the UI font.** KaTeX emits
+  `<math display="block">`, which the browser centres; here it must hug the left edge like the
+  rows around it (the attribute still keeps full-size fractions). The Thay số and Kết quả rows are
+  words: `font-family: math` made Vietnamese diacritics look foreign next to the rest of the block.
 
 When a distractor must be referred to in prose, cite it by LETTER — `quoteParts` wraps every
 `“…”` in `<q>`, so a quoted wrong answer renders exactly like the source's own words.

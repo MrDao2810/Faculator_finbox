@@ -23,6 +23,7 @@ import type { NotationHowToView, NotationView } from './notation-types';
 export function buildNotationView(
   spec: FormulaSpec,
   howTo: FormulaHowTo | undefined = howToFor(spec.id),
+  options: { allSymbols?: boolean } = {},
 ): NotationView {
   const symbols = spec.symbols ?? [];
   const entries = howTo?.entries ?? [];
@@ -37,14 +38,11 @@ export function buildNotationView(
 
   const targets = new Set(entries.map((entry) => indexOf(entry.symbol)));
 
-  const marked = markSymbols(
-    latexToMathml(spec.latex),
-    symbols.map((symbol, index) => ({
-      index,
-      renderings: [latexToMathml(symbol.latex), latexToInlineMathml(symbol.latex)],
-    })),
-    targets,
-  );
+  const legend = symbols.map((symbol, index) => ({
+    index,
+    renderings: [latexToMathml(symbol.latex), latexToInlineMathml(symbol.latex)],
+  }));
+  const marked = markSymbols(latexToMathml(spec.latex), legend, targets);
 
   for (const index of targets) {
     if ((marked.hits.get(index) ?? 0) === 0) {
@@ -97,8 +95,19 @@ export function buildNotationView(
     };
   });
 
+  /*
+   * Mọi dòng bảng làm đích. Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…, 8 trên 554 dòng
+   * của cả thư viện) thì lặng lẽ không có điểm chạm — khác `targets` ở trên, nơi một khung không
+   * tìm được chỗ là lỗi dữ liệu và phải ném.
+   */
+  const allSymbols =
+    options.allSymbols === true
+      ? markSymbols(latexToMathml(spec.latex), legend, new Set(legend.map((row) => row.index))).html
+      : undefined;
+
   return {
     latexHtml: marked.html,
+    ...(allSymbols === undefined ? {} : { latexHtmlAllSymbols: allSymbols }),
     symbolsHtml: symbols.map((symbol) => latexToInlineMathml(symbol.latex)),
     expression: { vi: expressionOf('vi'), en: expressionOf('en') },
     howTo: howToViews,

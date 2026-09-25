@@ -41,6 +41,38 @@ function viewOf(spec: FormulaSpec): NotationView | Error {
   return view;
 }
 
+/*
+ * Bản hình gắn dấu MỌI ký hiệu — cho dòng Công thức trong khối lời giải của Bài tập (25/09/2026).
+ * Đo trên cả thư viện: 546 trên 554 dòng bảng tìm được chỗ; 8 dòng còn lại chỉ nằm lọt trong một
+ * tên dài hơn (`D` trong `D/E`…), đúng tám dòng docblock `mathml-marks.ts` đã kể.
+ */
+describe('buildNotationView() — bản hình gắn dấu mọi ký hiệu', () => {
+  it('chỉ dựng khi được hỏi: trang không có câu cần nó thì không mang thêm byte', () => {
+    const spec = canKiem[0];
+    if (spec === undefined) throw new Error('không có công thức nào để kiểm');
+    expect(buildNotationView(spec).latexHtmlAllSymbols).toBeUndefined();
+  });
+
+  it('cả 111 công thức dựng được, gỡ dấu ra đúng từng byte hình gốc, và phủ 546 trên 554 dòng', () => {
+    let tong = 0;
+    let coCho = 0;
+    const lech: string[] = [];
+    for (const spec of canKiem) {
+      const html =
+        buildNotationView(spec, undefined, { allSymbols: true }).latexHtmlAllSymbols ?? '';
+      if (unmarkSymbols(html) !== latexToMathml(spec.latex)) lech.push(spec.id);
+      const dau = new Set([...html.matchAll(/data-sym="(\d+)"/g)].map((m) => m[1]));
+      tong += (spec.symbols ?? []).length;
+      coCho += dau.size;
+    }
+    expect(lech).toEqual([]);
+    if (canKiem.length === FORMULAS.length) {
+      expect(tong).toBe(554);
+      expect(coCho).toBe(546);
+    }
+  });
+});
+
 describe('buildNotationView() — thẻ Công thức dựng lúc build', () => {
   it('dựng được thẻ, không ném lỗi', () => {
     const hong = canKiem.flatMap((spec) => {

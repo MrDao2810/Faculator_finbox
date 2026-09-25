@@ -73,7 +73,6 @@ import {
   variablesForLevel,
 } from '@/application';
 import type {
-  Bilingual,
   QuizItem,
   QuizProgress,
   CalcContext,
@@ -119,6 +118,7 @@ import {
 
 import { FormulaNotationCard } from './FormulaNotationCard';
 import type { NotationView } from './notation-types';
+import { QuizFormulaPicture } from './QuizFormulaPicture';
 import { TickerPickerPanel } from './TickerPickerPanel';
 
 import styles from './FormulaDetail.module.css';
@@ -207,9 +207,9 @@ export interface FormulaDetailProps {
    * Cùng lý do với `notation`: cả ngân hàng là 206 câu (~150 kB chữ), mà mỗi trang chỉ cần phần
    * của mình. Xem `quiz-view.ts`.
    *
-   * Từ 24/09/2026 prop này mang CẢ công thức của trang, không chỉ câu hỏi: khối lời giải có
-   * cấu trúc cần dòng "Công thức", và lấy nó từ `spec.expression` thì không câu nào phải chép
-   * lại công thức — chép lại là dựng bản sao thứ hai của một thứ đã có.
+   * Hình công thức mà khối lời giải cần KHÔNG đi qua prop này: màn dựng nó từ `notation` rồi
+   * chuyền thẳng xuống `QuizPanel`. Cờ `needsFormulaPicture` là thứ `page.tsx` đọc để quyết định
+   * có dựng bản hình ấy hay không; màn này không đọc nó.
    *
    * Kiểu viết TẠI CHỖ chứ không nhập kiểu `QuizView` từ module cắt câu hỏi: cửa gác
    * `build-only-imports.test.ts` chỉ cho `page.tsx` nhập module ấy, vì nó kéo theo cả ngân hàng câu
@@ -218,8 +218,7 @@ export interface FormulaDetailProps {
    */
   quiz?: {
     items: ReadonlyArray<QuizItem>;
-    bieuThuc?: Bilingual;
-    kyHieu: ReadonlyArray<Bilingual>;
+    needsFormulaPicture?: boolean;
   };
 }
 
@@ -622,6 +621,22 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
    * vẫn làm bài được, chỉ là không nhớ kết quả.
    */
   const [quizSaved, setQuizSaved] = useState<QuizProgress | null>(null);
+
+  /*
+   * Hình công thức cho dòng "Công thức" của khối lời giải trong Bài tập — rê vào ký hiệu mở khung
+   * "cách tính" y như thẻ Công thức. Dựng ở ĐÂY vì cả cơ chế khung sống cạnh thẻ, trong thư mục
+   * này, còn `src/ui/quiz` không với tới được; khối Bài tập chỉ nhận nút đã dựng và đặt vào ô.
+   *
+   * Chỉ dựng khi `page.tsx` đã làm sẵn bản hình gắn dấu mọi ký hiệu, tức trang có câu cần nó.
+   * `useMemo` giữ nguyên nút qua mỗi lần gõ ở khối Số liệu.
+   */
+  const quizPicture = useMemo(
+    () =>
+      notation.latexHtmlAllSymbols === undefined ? undefined : (
+        <QuizFormulaPicture spec={spec} notation={notation} />
+      ),
+    [spec, notation],
+  );
 
   useEffect(() => {
     try {
@@ -2682,7 +2697,7 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
         điều kiện nào để về sau lệch với nó.
       */}
         {/*
-        Sáu khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
+        Năm khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
         `FormulaDetail.module.css`. Chúng luôn nằm dưới nếp gấp ở khổ điện thoại, nên bỏ qua phần
         dựng hình của chúng cho tới lúc cuộn tới là cắt được phần lớn lượt layout đầu tiên của màn.
       */}
@@ -2831,15 +2846,20 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
 
         `quiz` cắt sẵn lúc build ở `page.tsx`, nên trang này chỉ mang 1–5 câu của chính nó. Công
         thức chưa có câu nào thì khối tự dựng trạng thái rỗng và nói thẳng lý do — xem `QuizBody`.
+
+        KHÔNG mang lớp `deferred` (bỏ ngày 25/09/2026). `content-visibility: auto` kéo theo
+        `contain: paint` kể cả khi khối đang hiện, tức CẮT mọi thứ tràn ra ngoài hộp — và khung
+        "cách tính" bật ra từ hình công thức trong lời giải canh theo mép MÀN, nên ở khổ hẹp nó lấn
+        ra ngoài mép trái khối và bị cắt mất nửa ký hiệu (chủ dự án chụp khung của `MOS` còn trơ
+        chữ "S"). Hoãn dựng hình ở đây cũng chẳng được gì: lúc nghỉ khối chỉ là một hàng tiêu đề,
+        lúc làm bài thì nó đang nằm trên màn.
       */}
       <QuizPanel
         formulaId={spec.id}
         items={quiz?.items ?? []}
-        bieuThuc={quiz?.bieuThuc}
-        kyHieu={quiz?.kyHieu}
+        hinhCongThuc={quizPicture}
         saved={quizSaved}
         onFinish={saveQuizResult}
-        className={styles.deferred}
       />
 
       {/*

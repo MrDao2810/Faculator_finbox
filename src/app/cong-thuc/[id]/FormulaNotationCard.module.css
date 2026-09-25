@@ -222,3 +222,46 @@
   font-weight: var(--weight-medium);
   color: var(--color-accent);
 }
+
+/*
+ * ── Hình công thức trong khối lời giải của Bài tập (25/09/2026) ─────────────────────────────────
+ *
+ * `QuizFormulaPicture` mang `.card` (khung định vị, con trỏ bàn tay, vệt sáng) cộng hai lớp dưới.
+ * Hình cuộn ngang trong `.quizPictureMath` chứ không trong phần tử bọc ngoài: khung nổi định vị
+ * theo `.card`, và một tổ tiên có `overflow` khác `visible` sẽ cắt cụt nó — cùng lý do khung của
+ * thẻ nằm NGOÀI `.formula`.
+ *
+ * `display: math` (tức inline math): KaTeX dựng `<math display="block">`, và khối toán thì trình
+ * duyệt căn GIỮA. Trong khối lời giải hình phải bám mép trái, thẳng cột với các dòng chữ trên dưới;
+ * thuộc tính `display="block"` vẫn giữ cỡ phân số đầy đủ.
+ */
+.quizPicture {
+  min-width: 0;
+}
+
+.quizPictureMath {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.quizPictureMath :global(math) {
+  display: math;
+  font-size: 1.2em;
+}
+
+/*
+ * Khung không có bước tính nào (ký hiệu nhập thẳng, chỉ mở ở hình trong lời giải của Bài tập): một
+ * dòng "ký hiệu: nghĩa". Bề ngang cố định 22rem của khung thường thì dành cho hình KaTeX của các
+ * bước; ở đây nó để lại hai phần ba khung trống trơn bên phải, nên khung co theo chữ. Chữ dài hơn
+ * 22rem vẫn xuống dòng như cũ. `place-panel.ts` đo bề ngang THẬT của khung ở lượt dựng đầu, nên
+ * khung hẹp vẫn được căn giữa đúng theo ký hiệu.
+ */
+.panel[data-title-only] {
+  width: max-content;
+  max-width: min(22rem, calc(100vw - 16px));
+}
+
+.panelTitle:last-child {
+  margin-bottom: 0;
+}

@@ -907,6 +907,11 @@ button.iconButton::after {
  * Vì sao KHÔNG dán lên cả màn. `content-visibility: auto` kéo theo `contain: layout style paint`
  * kể cả khi khối đang hiện, mà `paint` thì CẮT mọi thứ tràn ra ngoài hộp. Khối Số liệu thì không
  * được lợi gì (luôn trên nếp gấp) mà lại là chỗ người dùng thao tác nhiều nhất.
+ *
+ * Khối Bài tập từng mang lớp này và đã bỏ (25/09/2026) đúng vì cái cắt ấy: rê vào ký hiệu trong hình
+ * công thức của lời giải thì khung "cách tính" bật ra, canh theo mép MÀN chứ không theo mép khối, và
+ * ở khổ hẹp nó lấn ra ngoài mép trái — bị cắt mất nửa. Khối nào có phần tử nổi tràn ra ngoài hộp thì
+ * không được mang lớp này.
  */
 .deferred {
   content-visibility: auto;

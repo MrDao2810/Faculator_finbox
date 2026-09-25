@@ -8,31 +8,33 @@
  * `build-only-imports.test.ts` gác: `@/application/quiz` chỉ được import từ file này.
  */
 
-import type { Bilingual, FormulaSpec } from '@/application';
+import type { FormulaSpec } from '@/application';
 import { quizFor } from '@/application/quiz';
 import type { QuizItem } from '@/application/quiz';
 
 /**
- * Phần của khối Bài tập trên MỘT trang: câu hỏi của công thức ấy, cộng chính công thức ấy.
+ * Phần của khối Bài tập trên MỘT trang: câu hỏi của công thức ấy, và chỉ thế.
  *
- * Công thức đi kèm để khối lời giải có cấu trúc (`QuizGiai`) dựng được dòng "Công thức" mà
- * không câu nào phải chép lại nó. Chép lại là dựng bản sao thứ hai của một thứ đã có.
- *
- * `kyHieu` là bảng "A: là gì" của chính công thức — người đọc rê chuột lên dòng công thức thì
- * hiện ra. Lấy NGHĨA dạng chữ chứ không lấy MathML đã dựng: MathML của công thức đã nằm sẵn
- * một bản trong HTML tĩnh của trang (thẻ Công thức đầu màn), truyền thêm một bản nữa xuống
- * khối Bài tập là nhân đôi nó trên cả 111 trang, trong khi `npm run size` vốn đã đỏ.
+ * Từ 24/09 tới 25/09/2026 nó mang thêm dòng chữ công thức và nghĩa của bảng ký hiệu, cho khối lời
+ * giải. Nay khối lời giải in chính HÌNH công thức kèm bảng ký hiệu đủ cả ký hiệu, và cả hai thứ ấy
+ * `FormulaDetail` đã cầm sẵn (`notation` cùng `spec.symbols`) — chuyền xuống từ đó thì không tốn
+ * thêm byte nào trong HTML của trang, còn cắt ở đây là in chúng hai lần.
  */
 export interface QuizView {
   items: ReadonlyArray<QuizItem>;
-  bieuThuc?: Bilingual;
-  kyHieu: ReadonlyArray<Bilingual>;
+  /**
+   * Có câu nào mà dòng Công thức của lời giải in HÌNH công thức của trang không — tức có `giai` mà
+   * không ghi đè `congThuc`. `page.tsx` chỉ dựng bản hình gắn dấu mọi ký hiệu khi cờ này bật.
+   */
+  needsFormulaPicture: boolean;
 }
 
 export function quizViewFor(spec: FormulaSpec): QuizView {
+  const items = quizFor(spec.id);
   return {
-    items: quizFor(spec.id),
-    bieuThuc: spec.expression,
-    kyHieu: (spec.symbols ?? []).map((symbol) => symbol.meaning),
+    items,
+    needsFormulaPicture: items.some(
+      (item) => item.giai !== undefined && item.giai.congThuc === undefined,
+    ),
   };
 }

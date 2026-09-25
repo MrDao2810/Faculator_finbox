@@ -196,6 +196,52 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Bài tập — Rê vào ký hiệu trong lời giải mở khung "cách tính" như thẻ Công thức (25/09/2026)
+
+**Trạng thái: xong phần code, chờ chủ dự án xác nhận trên màn.**
+
+Chủ dự án chụp khối lời giải của `bien-an-toan`, báo ba lỗi: chú thích không giống phần giải thích
+của thẻ Công thức, con trỏ là hình chữ I, và nửa phải khối bỏ trống. Vòng một trong ngày làm bảng ký
+hiệu cố định bên phải; chủ dự án bác bằng ảnh khung "cách tính" của thẻ trên `V`: _"hover vào ký tự
+thì nó ra như này. kiểu thế chứ không phải là kiểu giải thích ở bên phải kia"_. Bảng cố định đã gỡ.
+
+- Dòng Công thức in **hình công thức** (KaTeX dựng lúc build). Rê chuột (hoặc chạm) vào ký hiệu
+  nào cũng mở **đúng khung của thẻ Công thức**: `V` ra nghĩa + bước tính + liên kết Mô hình Gordon;
+  `P` (số nhập thẳng) ra khung chỉ có dòng "P: thị giá hiện tại của cổ phiếu, ₫". Con trỏ bàn tay.
+- Dùng lại, không chép: `useHowToPanel`, `HowToPanel`, lớp `.card`; phần đặt vị trí khung tách
+  từ `FormulaNotationCard` thành `use-panel-placement.ts` để hai nơi dùng chung.
+- Khác thẻ ở một chỗ: MỌI ký hiệu mở khung (thẻ có bảng ký hiệu bên cạnh nên chỉ ký hiệu có bước tính
+  mới mở). Cần bản hình gắn dấu mọi ký hiệu — `latexHtmlAllSymbols`, dựng lúc build, 546/554 dòng
+  tìm được chỗ, **chỉ** cho trang có câu cần nó.
+- Câu ghi đè dòng Công thức (Q088) vẫn in chữ, không hình.
+- Chụp kiểm ở 1440: rê vào `V` và `P` của `bien-an-toan`, con trỏ `pointer`, khung không bị cắt.
+- **Sửa lỗi cắt khung** (chủ dự án chụp khung của `MOS` ở giao diện tối, khổ hẹp: chỉ còn chữ
+  "S"). Nguyên nhân: khối Bài tập mang lớp `deferred` (`content-visibility: auto` ⇒ `contain: paint`),
+  cắt mọi thứ tràn khỏi hộp, mà khung canh theo mép MÀN nên lấn ra ngoài mép trái khối. Bỏ lớp ấy
+  khỏi khối Bài tập — lúc nghỉ khối chỉ là một hàng tiêu đề, không mất gì. Ca ghim trong
+  `FormulaDetail.test.tsx` từ 6 xuống 5 khối, thêm dòng khẳng định khối Bài tập không mang lớp. Đo
+  lại ở 390 và 577 (giao diện tối): khung trọn trong màn, trang không cuộn ngang.
+- Khung chỉ có dòng nghĩa co theo chữ (`data-title-only`), không còn rộng cố định 22rem với hai phần
+  ba bỏ trống.
+- **Còn hở:** bàn phím chưa mở được khung ở đây (thẻ Công thức mở từ nút ở bảng ký hiệu, dòng này
+  không có bảng). Chưa chạy `size`/`check:chrome` — cần tắt `npm run dev`.
+
+| File                                                                               | Sửa gì                                        |
+| ---------------------------------------------------------------------------------- | --------------------------------------------- |
+| `app/cong-thuc/[id]/QuizFormulaPicture.tsx` (mới)                                  | hình + khung cách tính cho khối lời giải      |
+| `app/cong-thuc/[id]/use-panel-placement.ts` (mới)                                  | phép đặt khung, tách từ thẻ Công thức         |
+| `app/cong-thuc/[id]/FormulaNotationCard.tsx`                                       | dùng hook đặt khung chung                     |
+| `app/cong-thuc/[id]/FormulaNotationCard.module.css`                                | lớp cho hình trong lời giải; khung không bước |
+| `app/cong-thuc/[id]/HowToPanel.tsx`                                                | chịu được khung không có bước nào             |
+| `app/cong-thuc/[id]/notation-types.ts`, `notation-view.ts`                         | `latexHtmlAllSymbols`                         |
+| `app/cong-thuc/[id]/quiz-view.ts`, `page.tsx`                                      | cờ `needsFormulaPicture`                      |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`                                             | dựng hình, chuyền xuống khối Bài tập          |
+| `ui/quiz/QuizQuestion.tsx`, `QuizBody.tsx`, `QuizBody.module.css`                  | nhận hình dạng `ReactNode`; gỡ bảng cố định   |
+| test: `QuizFormulaPicture.test.tsx` (mới), `notation.test.ts`, `QuizBody.test.tsx` | 4 + 2 + 5 ca                                  |
+| `CLAUDE.md`                                                                        | viết lại các gạch đầu dòng của khối lời giải  |
+
+---
+
 ## Bài tập — Bỏ nhãn "Nguồn:" trong lời giải (25/09/2026)
 
 **Trạng thái: xong phần code (`npm run check`: 127 file · 3.001 ca), chờ chủ dự án xác nhận.**

@@ -28,6 +28,11 @@ export interface HowToPanelProps {
  * một hình KaTeX dựng sẵn lúc build và dòng chữ đọc hình ấy thành lời — cùng khuôn "hình + dòng chữ"
  * của chính thẻ Công thức, nên người dùng đọc khung như đọc một thẻ nhỏ.
  *
+ * Khung KHÔNG có bước nào cũng hợp lệ (25/09/2026): hình công thức trong khối lời giải của Bài tập
+ * mở khung cho MỌI ký hiệu, kể cả số liệu nhập thẳng như thị giá `P`. Khung ấy chỉ có dòng tiêu đề
+ * — ký hiệu và nghĩa — tức đúng dòng bảng ký hiệu mà thẻ Công thức in cố định bên cạnh hình. Nhãn
+ * trợ năng khi ấy là nghĩa trơn: gọi nó là "Cách tính" là nói sai, vì chẳng có gì để tính.
+ *
  * Các object `__html` dựng một lần bằng `useMemo`: React 19 so `dangerouslySetInnerHTML` theo DANH
  * TÍNH object, nên object mới ở mỗi lượt render (lượt đặt vị trí là một lượt) sẽ thay hết MathML
  * trong khung.
@@ -60,41 +65,44 @@ export function HowToPanel({
       id={id}
       ref={panelRef}
       role="group"
-      aria-label={`${t('detail.howTo.label')}: ${meaning}`}
+      aria-label={howTo.steps.length > 0 ? `${t('detail.howTo.label')}: ${meaning}` : meaning}
       className={styles.panel}
       style={style}
+      {...(howTo.steps.length === 0 ? { 'data-title-only': '' } : {})}
     >
       <p className={styles.panelTitle}>
         {/* eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem latex-html.ts */}
         <span className={styles.panelSymbol} dangerouslySetInnerHTML={symbolInner} />
         <span>{meaning}</span>
       </p>
-      <ol className={styles.steps}>
-        {howTo.steps.map((step, index) => (
-          <li key={index} className={styles.step}>
-            <div
-              className={styles.stepMath}
-              // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem latex-html.ts
-              dangerouslySetInnerHTML={stepInner[index]}
-            />
-            {/*
+      {howTo.steps.length > 0 && (
+        <ol className={styles.steps}>
+          {howTo.steps.map((step, index) => (
+            <li key={index} className={styles.step}>
+              <div
+                className={styles.stepMath}
+                // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem latex-html.ts
+                dangerouslySetInnerHTML={stepInner[index]}
+              />
+              {/*
               Hình của bước cũng có thể nhiều vế (`\quad`), và khi ấy chữ của bước cũng nhiều dòng —
               cùng luật 6 với dòng chữ dưới hình chính. Giữ ký tự `\n` giữa hai vế để chép ra ngoài
               còn đúng hai dòng; chỗ ngắt do `.stepLine { display: block }` dựng.
             */}
-            <p className={styles.stepText} data-lines={pick(step.expression).split('\n').length}>
-              {pick(step.expression)
-                .split('\n')
-                .map((line, li) => (
-                  <Fragment key={li}>
-                    {li > 0 && '\n'}
-                    <span className={styles.stepLine}>{line}</span>
-                  </Fragment>
-                ))}
-            </p>
-          </li>
-        ))}
-      </ol>
+              <p className={styles.stepText} data-lines={pick(step.expression).split('\n').length}>
+                {pick(step.expression)
+                  .split('\n')
+                  .map((line, li) => (
+                    <Fragment key={li}>
+                      {li > 0 && '\n'}
+                      <span className={styles.stepLine}>{line}</span>
+                    </Fragment>
+                  ))}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
       {howTo.formula !== undefined && (
         <Link className={styles.panelLink} href={formulaPath(howTo.formula.id)}>
           {t('detail.howTo.open')} {pick(howTo.formula.name)}

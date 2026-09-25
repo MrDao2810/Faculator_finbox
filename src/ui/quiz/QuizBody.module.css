@@ -370,17 +370,18 @@
 }
 
 /*
- * KHỐI LỜI GIẢI CÓ CẤU TRÚC — chủ dự án 24/09/2026.
+ * KHỐI LỜI GIẢI CÓ CẤU TRÚC — chủ dự án 24/09/2026, hình công thức 25/09/2026.
  *
- *   Tính       P/E của cổ phiếu
- *   Công thức  P/E = Giá thị trường ÷ EPS     ← rê chuột: bảng ký hiệu
- *   Thay số    36.000 ÷ 3.000
- *   Kết quả    12,0 lần
+ *   Tính       Biên an toàn
+ *   Công thức  MOS = (V − P) ÷ V × 100%     ← hình KaTeX; rê vào ký hiệu thì mở khung như thẻ trên
+ *   Thay số    (42.500 − 33.850) ÷ 42.500 × 100
+ *   Kết quả    20,35 %
+ *   Nguồn      24hmoney.vn/…
  *
- * Lưới hai cột thay cho đoạn văn: bốn dòng này là BỐN Ô DỮ LIỆU, và nhãn của chúng phải
- * thẳng hàng để mắt quét dọc được. Viết thành văn xuôi thì đúng là thứ chủ dự án vừa bác.
+ * Lưới thay cho đoạn văn: các dòng là Ô DỮ LIỆU, và nhãn của chúng phải thẳng hàng để mắt quét
+ * dọc được. Viết thành văn xuôi thì đúng là thứ chủ dự án đã bác.
  *
- * `max-content` cho cột nhãn: bốn nhãn đều ngắn, nên cột chỉ rộng bằng nhãn dài nhất và phần
+ * `max-content` cho cột nhãn: nhãn nào cũng ngắn, nên cột chỉ rộng bằng nhãn dài nhất và phần
  * còn lại dồn hết cho nội dung.
  */
 .giai {
@@ -400,14 +401,18 @@
  *
  * Không dùng `display: contents` cho việc này: nó gỡ `<div>` khỏi cây trợ năng ở vài trình duyệt,
  * mà `<div>` ấy là thứ nhóm cặp `<dt>`/`<dd>` lại cho bộ đọc màn hình.
+ *
+ * `baseline`: nhãn "CÔNG THỨC" đứng ngang trục chính của hình (vạch phân số), không treo ở mép
+ * trên của một hình cao gấp ba dòng chữ.
  */
 .giaiHang {
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  align-items: baseline;
 }
 
-.giaiHang dt {
+.giaiHang > dt {
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -415,18 +420,30 @@
   color: var(--color-muted);
 }
 
-.giaiHang dd {
+.giaiHang > dd {
   margin: 0;
   min-width: 0;
 }
 
 /*
- * Phông THƯỜNG, không phải phông công thức. Dòng công thức ở đây là dòng CHỮ, đúng như dòng
- * `expression` nằm dưới hình KaTeX ở đầu màn — và dòng ấy dùng phông giao diện. Bản đầu dùng
- * `font-family: math` cho cả ba dòng: chữ Việt có dấu trong phông toán ra một thứ nét chân lệch
- * hẳn phần còn lại của khối, chụp màn là thấy.
- *
- * `tabular-nums` để các chữ số cùng bề ngang, đọc phép tính không bị giật.
+ * Dòng Công thức là HÌNH công thức của trang, kèm khung "cách tính" khi rê vào ký hiệu. Cả hai do
+ * `QuizFormulaPicture` (src/app/cong-thuc/[id]/) dựng và tự lo CSS — cuộn ngang, căn trái, cỡ chữ —
+ * nên ô này KHÔNG được mang `overflow`: khung nổi định vị tuyệt đối bên trong nó, và một ô cuộn
+ * sẽ cắt cụt khung.
+ */
+.giaiHinh {
+  color: var(--color-ink);
+}
+
+/* Bản chữ của câu ghi đè dòng Công thức (Q088) — chữ thường, như ba dòng còn lại. */
+.giaiGhiDe {
+  color: var(--color-ink);
+}
+
+/*
+ * `tabular-nums` để các chữ số cùng bề ngang, đọc phép tính không bị giật. Hai dòng này là CHỮ,
+ * phông giao diện: bản đầu dùng `font-family: math`, và chữ Việt có dấu trong phông toán ra một
+ * thứ nét chân lệch hẳn phần còn lại của khối.
  */
 .giaiSo,
 .giaiKetQua {
@@ -455,58 +472,6 @@
  */
 .giaiTrich {
   display: block;
-}
-
-/*
- * Dòng công thức mang bảng ký hiệu rê chuột ra. Gạch chân đứt để người đọc biết có gì bên
- * dưới — không có dấu hiệu nào thì không ai rê chuột lên một dòng chữ.
- */
-.giaiCongThuc {
-  position: relative;
-  color: var(--color-ink);
-  text-decoration: underline dotted var(--color-border-strong);
-  text-underline-offset: 3px;
-}
-
-.giaiCongThuc:focus-visible {
-  outline: 2px solid var(--color-accent-vivid);
-  outline-offset: 2px;
-}
-
-/*
- * Bảng ký hiệu: ẩn bằng `visibility` chứ không bằng `display: none`, để nó vẫn nằm trong cây
- * cho bộ đọc màn hình và để đổi trạng thái không phải dựng lại nút.
- *
- * `left: 0` + `max-width` thay vì căn giữa: căn giữa thì ở dòng công thức nằm sát mép phải
- * thẻ, bảng sẽ tràn khỏi thẻ. Bám mép trái của chính dòng công thức thì không bao giờ tràn.
- */
-.giaiChuThich {
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 0;
-  z-index: 2;
-  display: grid;
-  gap: var(--space-1);
-  width: max-content;
-  max-width: min(28rem, 70vw);
-  padding: var(--space-3) var(--space-4);
-  font-family: inherit;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: var(--color-ink-soft);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  /* `--shadow-sm`, không phải `--shadow-md`: token ấy đã gỡ ở đợt rà phân cấp — xem globals.css. */
-  box-shadow: var(--shadow-sm);
-  visibility: hidden;
-  opacity: 0;
-}
-
-.giaiCongThuc:hover .giaiChuThich,
-.giaiCongThuc:focus-within .giaiChuThich {
-  visibility: visible;
-  opacity: 1;
 }
 
 /* Câu trích nguyên văn của nguồn — tô riêng để nó không chìm vào lời người viết. */

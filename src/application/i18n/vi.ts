@@ -1530,7 +1530,7 @@ export const vi = {
    * trường ấy. Chúng đọc thẳng dữ liệu, không đọc cái chip — nên bỏ chip không mất gì.
    */
   /* Tầng thứ ba, mở 24/09/2026 cho câu tính toán — bằng chứng là chính hàm calc của công thức. */
-  /* Bốn nhãn của khối lời giải có cấu trúc — xem docblock `QuizGiai`. */
+  /* Nhãn các dòng của khối lời giải có cấu trúc — xem docblock `QuizGiai`. */
   'quiz.giai.tinh': 'Tính',
   'quiz.giai.congThuc': 'Công thức',
   'quiz.giai.thaySo': 'Thay số',

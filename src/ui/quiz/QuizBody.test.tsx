@@ -578,6 +578,80 @@ describe('khối nguồn — WF-19D · S14 và S16', () => {
   });
 });
 
+/*
+ * Khối lời giải có cấu trúc (`QuizGiai`). Dòng Công thức in HÌNH công thức mà màn chi tiết dựng
+ * sẵn — nút ấy tự mở khung "cách tính" khi rê vào ký hiệu (`QuizFormulaPicture`, kiểm riêng ở
+ * `src/app/cong-thuc/[id]/`). Ở đây chỉ gác phần của khối Bài tập: nút được đặt đúng ô, câu ghi
+ * đè không mang hình, và không còn bảng ký hiệu cố định nào — chủ dự án bác bản ấy 25/09/2026.
+ */
+describe('khối lời giải có cấu trúc — QuizGiai', () => {
+  const HINH = <span data-testid="hinh-cong-thuc">MOS = (V − P) ÷ V × 100%</span>;
+
+  function cauGiai(ghiDe?: string): QuizItem {
+    return {
+      ...cau('Q900'),
+      giai: {
+        tinh: { vi: 'P/E của cổ phiếu' },
+        ...(ghiDe === undefined ? {} : { congThuc: { vi: ghiDe } }),
+        thaySo: { vi: '36.000 ÷ 3.000' },
+        ketQua: { vi: '12,0 lần' },
+      },
+    };
+  }
+
+  function traLoi(item: QuizItem, coHinh: boolean) {
+    render(<QuizBody formulaId="pe" items={[item]} {...(coHinh ? { hinhCongThuc: HINH } : {})} />);
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn A/ }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
+  }
+
+  /** Nhãn của từng dòng, theo thứ tự trên màn. */
+  const nhanCacDong = () =>
+    [...(document.querySelector('dl')?.children ?? [])].map(
+      (dong) => dong.querySelector(':scope > dt')?.textContent,
+    );
+
+  it('dòng Công thức đặt đúng hình mà màn chi tiết đưa xuống', () => {
+    traLoi(cauGiai(), true);
+
+    const hinh = screen.getByTestId('hinh-cong-thuc');
+    expect(hinh.closest('dd')?.previousElementSibling?.textContent).toBe(t('quiz.giai.congThuc'));
+    expect(nhanCacDong()).toEqual([
+      t('quiz.giai.tinh'),
+      t('quiz.giai.congThuc'),
+      t('quiz.giai.thaySo'),
+      t('quiz.giai.ketQua'),
+      t('quiz.source'),
+    ]);
+  });
+
+  it('không còn bảng ký hiệu cố định nào trong khối lời giải', () => {
+    traLoi(cauGiai(), true);
+    expect(document.querySelector('dl dl')).toBeNull();
+    expect(document.querySelector('[data-ky-hieu]')).toBeNull();
+  });
+
+  it('câu ghi đè dòng Công thức thì in chữ ghi đè và KHÔNG đặt hình của trang', () => {
+    traLoi(cauGiai('Khoảng tin cậy = Beta ± 2 × Sai số chuẩn'), true);
+
+    expect(screen.getByText('Khoảng tin cậy = Beta ± 2 × Sai số chuẩn')).toBeTruthy();
+    expect(screen.queryByTestId('hinh-cong-thuc')).toBeNull();
+  });
+
+  it('lời giải có cấu trúc thì thôi in đoạn văn, nhưng câu trích của nguồn vẫn còn', () => {
+    traLoi(cauGiai(), true);
+    expect(screen.queryByText(/nên đáp án là vậy/)).toBeNull();
+    expect(screen.getByText('trích dẫn của Q900').tagName).toBe('Q');
+  });
+
+  it('không có hình công thức mà cũng không ghi đè thì lùi về đoạn văn cũ', () => {
+    traLoi(cauGiai(), false);
+    expect(document.querySelector('dl')).toBeNull();
+    expect(screen.getByText(/nên đáp án là vậy/)).toBeTruthy();
+  });
+});
+
 describe('lối ra giữa bài — WF-19 · S2', () => {
   it('nút Thoát có cả ở bài ngắn, nơi không dựng thanh tiến độ', () => {
     batDau([cau('Q001')]);

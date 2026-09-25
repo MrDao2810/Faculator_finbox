@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1142" viewBox="0 0 1680 1142" fill="none">
+<title>Hướng dẫn sử dụng — cách hoạt động</title>
+<rect width="1680" height="1142" fill="#0b101c"/>
+<text x="56" y="52" font-family="Be Vietnam Pro" font-size="22" font-weight="600" fill="#e6ecf7">Hướng dẫn sử dụng — cách hoạt động</text>
+<text x="56" y="78" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">“Ai muốn xem lúc nào thì bấm vào là xem được, trong hướng dẫn có link để bấm vào các phần” — dịch ra thành ba việc: lối vào có mặt khắp nơi, mở ra không làm mất việc đang làm, và mọi phần đều có đường dẫn riêng.</text>
+<rect x="56" y="118" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="136" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">1</text>
+<text x="94" y="136" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Năm lối vào</text>
+<text x="215.6" y="136" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— đều là một cú bấm, không cái nào tự bật lên</text>
+<rect x="56.0" y="160" width="300.8" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M57.5 170 v92" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<circle cx="86.0" cy="188" r="12" fill="#1a2740"/>
+<text x="86.0" y="193" font-family="Inter" font-size="13" font-weight="700" fill="#5b9ae8" text-anchor="middle">?</text>
+<text x="106.0" y="193" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">Nút ? ở thanh trên</text>
+<text x="74.0" y="220" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Có ở mọi màn, mọi khổ máy. Không bao giờ</text>
+<text x="74.0" y="236" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">biến mất.</text>
+<text x="74.0" y="260" font-family="Roboto Mono, monospace" font-size="10.5" font-weight="400" fill="#5b9ae8">mở bảng hướng dẫn</text>
+<text x="364.8" y="222" font-family="Inter" font-size="13" font-weight="400" fill="#5d6c88" text-anchor="middle">·</text>
+<rect x="372.8" y="160" width="300.8" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M374.3 170 v92" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<circle cx="402.8" cy="188" r="12" fill="#1a2740"/>
+<text x="402.8" y="193" font-family="Inter" font-size="13" font-weight="700" fill="#5b9ae8" text-anchor="middle">?</text>
+<text x="422.8" y="193" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">Nút ? cạnh nhãn ô nhập</text>
+<text x="390.8" y="220" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Hỏi đúng ô đang gõ, không phải đi tìm.</text>
+<text x="390.8" y="260" font-family="Roboto Mono, monospace" font-size="10.5" font-weight="400" fill="#5b9ae8">#o-nhap-so-lieu</text>
+<text x="681.6" y="222" font-family="Inter" font-size="13" font-weight="400" fill="#5d6c88" text-anchor="middle">·</text>
+<rect x="689.6" y="160" width="300.8" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M691.1 170 v92" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<circle cx="719.6" cy="188" r="12" fill="#1a2740"/>
+<text x="719.6" y="193" font-family="Inter" font-size="13" font-weight="700" fill="#5b9ae8" text-anchor="middle">!</text>
+<text x="739.6" y="193" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">Dòng cuối thẻ cảnh báo</text>
+<text x="707.6" y="220" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Sáu mã WF-15, mỗi mã trỏ sang một đoạn.</text>
+<text x="707.6" y="260" font-family="Roboto Mono, monospace" font-size="10.5" font-weight="400" fill="#5b9ae8">#chia-cho-khong</text>
+<text x="998.4000000000001" y="222" font-family="Inter" font-size="13" font-weight="400" fill="#5d6c88" text-anchor="middle">·</text>
+<rect x="1006.4000000000001" y="160" width="300.8" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M1007.9000000000001 170 v92" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<circle cx="1036.4" cy="188" r="12" fill="#1a2740"/>
+<text x="1036.4" y="193" font-family="Inter" font-size="13" font-weight="700" fill="#5b9ae8" text-anchor="middle">~</text>
+<text x="1056.4" y="193" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">“Chưa quen màn này?”</text>
+<text x="1024.4" y="220" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Mời chứ không ép — đóng một lần là thôi.</text>
+<text x="1024.4" y="260" font-family="Roboto Mono, monospace" font-size="10.5" font-weight="400" fill="#5b9ae8">bài của màn đang xem</text>
+<text x="1315.2" y="222" font-family="Inter" font-size="13" font-weight="400" fill="#5d6c88" text-anchor="middle">·</text>
+<rect x="1323.2" y="160" width="300.8" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M1324.7 170 v92" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<circle cx="1353.2" cy="188" r="12" fill="#1a2740"/>
+<text x="1353.2" y="193" font-family="Inter" font-size="13" font-weight="700" fill="#5b9ae8" text-anchor="middle">≡</text>
+<text x="1373.2" y="193" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">Cài đặt → Mở hướng dẫn</text>
+<text x="1341.2" y="220" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Chỗ người ta đi tìm khi đã quên nút ?.</text>
+<text x="1341.2" y="260" font-family="Roboto Mono, monospace" font-size="10.5" font-weight="400" fill="#5b9ae8">/huong-dan/</text>
+<line x1="206.4" y1="272" x2="206.4" y2="292" stroke="#212c40" stroke-width="1"/>
+<line x1="523.2" y1="272" x2="523.2" y2="292" stroke="#212c40" stroke-width="1"/>
+<line x1="840.0" y1="272" x2="840.0" y2="292" stroke="#212c40" stroke-width="1"/>
+<line x1="1156.8000000000002" y1="272" x2="1156.8000000000002" y2="292" stroke="#212c40" stroke-width="1"/>
+<line x1="1473.6000000000001" y1="272" x2="1473.6000000000001" y2="292" stroke="#212c40" stroke-width="1"/>
+<line x1="206.4" y1="292" x2="1473.6000000000001" y2="292" stroke="#212c40" stroke-width="1"/>
+<path d="M840.0 292 L840.0 318" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M840.0 318 L843.5 309.7" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M840.0 318 L836.5 309.7" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="56" y="336" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="354" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">2</text>
+<text x="94" y="354" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Hai cách hiện, một nội dung</text>
+<text x="369.2" y="354" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— cùng một bài, khác nhau ở chỗ nó có cắt ngang việc đang làm hay không</text>
+<line x1="840.0" y1="356" x2="840.0" y2="368" stroke="#212c40" stroke-width="1"/>
+<line x1="436.0" y1="368" x2="1244.0" y2="368" stroke="#212c40" stroke-width="1"/>
+<path d="M436.0 368 L436.0 376" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M436.0 376 L439.5 367.7" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M436.0 376 L432.5 367.7" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M1244.0 368 L1244.0 376" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M1244.0 376 L1247.5 367.7" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M1244.0 376 L1240.5 367.7" fill="none" stroke="#5d6c88" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="56" y="378" width="760.0" height="214" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M57.5 390 v190" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<rect x="114" y="397" width="66.0" height="17" fill="#1a2740" rx="8"/>
+<text x="147.0" y="408" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">MẶC ĐỊNH</text>
+<text x="178" y="409" font-family="Be Vietnam Pro" font-size="15" font-weight="600" fill="#e6ecf7">Panel trượt tại chỗ</text>
+<rect x="78" y="428" width="250" height="140" fill="#131a28" rx="6" stroke="#212c40" stroke-width="1"/>
+<rect x="78" y="428" width="155.0" height="140" fill="#141c2b" rx="6"/>
+<rect x="90" y="444" width="131.0" height="10" fill="#1f2a3e" rx="3"/>
+<rect x="90" y="464" width="131.0" height="10" fill="#1f2a3e" rx="3"/>
+<rect x="90" y="484" width="131.0" height="10" fill="#1f2a3e" rx="3"/>
+<rect x="90" y="504" width="131.0" height="10" fill="#1f2a3e" rx="3"/>
+<rect x="238.0" y="428" width="90.0" height="140" fill="#182031" rx="6" stroke="#2f5a96" stroke-width="1"/>
+<text x="248.0" y="448" font-family="Inter" font-size="9" font-weight="600" fill="#5b9ae8">Hướng dẫn</text>
+<rect x="248.0" y="458" width="70.0" height="8" fill="#253148" rx="2"/>
+<rect x="248.0" y="476" width="70.0" height="8" fill="#253148" rx="2"/>
+<rect x="248.0" y="494" width="70.0" height="8" fill="#253148" rx="2"/>
+<rect x="248.0" y="512" width="70.0" height="8" fill="#253148" rx="2"/>
+<rect x="248.0" y="530" width="70.0" height="8" fill="#253148" rx="2"/>
+<text x="86" y="584" font-family="Inter" font-size="10" font-weight="400" fill="#8a99b5">Màn đang làm</text>
+<text x="238.0" y="584" font-family="Inter" font-size="10" font-weight="400" fill="#5b9ae8">Panel 520px</text>
+<circle cx="360" cy="436" r="2.5" fill="#4a86d8"/>
+<text x="372" y="440" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Số liệu đang gõ dở vẫn nguyên — không rời trang.</text>
+<circle cx="360" cy="470" r="2.5" fill="#4a86d8"/>
+<text x="372" y="474" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Trượt từ phải, Esc hoặc bấm ra ngoài là đóng.</text>
+<circle cx="360" cy="504" r="2.5" fill="#4a86d8"/>
+<text x="372" y="508" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Góc trên có nút “Mở toàn trang ↗” cho ai muốn đọc kỹ.</text>
+<circle cx="360" cy="538" r="2.5" fill="#4a86d8"/>
+<text x="372" y="542" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Dưới 1280px nó thành bottom sheet, cùng nội dung.</text>
+<rect x="864.0" y="378" width="760.0" height="214" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M865.5 390 v190" fill="none" stroke="#3f8f8f" stroke-width="3" stroke-linecap="round"/>
+<rect x="932.0" y="397" width="78.0" height="17" fill="#152728" rx="8"/>
+<text x="971.0" y="408" font-family="Inter" font-size="10" font-weight="600" fill="#3f8f8f" text-anchor="middle">KHI ĐỌC KỸ</text>
+<text x="1006.0" y="409" font-family="Be Vietnam Pro" font-size="15" font-weight="600" fill="#e6ecf7">Trang /huong-dan/</text>
+<rect x="886.0" y="428" width="250" height="140" fill="#131a28" rx="6" stroke="#212c40" stroke-width="1"/>
+<rect x="886.0" y="428" width="250" height="16" fill="#141c2b" rx="6"/>
+<rect x="898.0" y="456" width="138.0" height="10" fill="#253148" rx="3"/>
+<rect x="898.0" y="474" width="138.0" height="7" fill="#1f2a3e" rx="2"/>
+<rect x="898.0" y="490" width="138.0" height="7" fill="#1f2a3e" rx="2"/>
+<rect x="898.0" y="506" width="138.0" height="7" fill="#1f2a3e" rx="2"/>
+<rect x="898.0" y="522" width="138.0" height="7" fill="#1f2a3e" rx="2"/>
+<rect x="1051.0" y="456" width="70.0" height="80" fill="#182031" rx="4" stroke="#212c40" stroke-width="1"/>
+<rect x="1057.0" y="464" width="3" height="9" fill="#2b3750" rx="1"/>
+<rect x="1065.0" y="466" width="46.0" height="5" fill="#253148" rx="2"/>
+<rect x="1057.0" y="480" width="3" height="9" fill="#4a86d8" rx="1"/>
+<rect x="1065.0" y="482" width="46.0" height="5" fill="#253148" rx="2"/>
+<rect x="1057.0" y="496" width="3" height="9" fill="#2b3750" rx="1"/>
+<rect x="1065.0" y="498" width="46.0" height="5" fill="#253148" rx="2"/>
+<rect x="1057.0" y="512" width="3" height="9" fill="#2b3750" rx="1"/>
+<rect x="1065.0" y="514" width="46.0" height="5" fill="#253148" rx="2"/>
+<text x="894.0" y="584" font-family="Inter" font-size="10" font-weight="400" fill="#8a99b5">Bài 880px</text>
+<text x="1041.0" y="584" font-family="Inter" font-size="10" font-weight="400" fill="#3f8f8f">Mục lục 400px</text>
+<circle cx="1168.0" cy="436" r="2.5" fill="#3f8f8f"/>
+<text x="1180.0" y="440" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">URL thật: bấm Back được, copy gửi được, in được.</text>
+<circle cx="1168.0" cy="470" r="2.5" fill="#3f8f8f"/>
+<text x="1180.0" y="474" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Hai cột — bài bên trái, mục lục bám dính bên phải.</text>
+<circle cx="1168.0" cy="504" r="2.5" fill="#3f8f8f"/>
+<text x="1180.0" y="508" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Có trong sitemap, không noindex (khác /tim-kiem/).</text>
+<circle cx="1168.0" cy="538" r="2.5" fill="#3f8f8f"/>
+<text x="1180.0" y="542" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Dưới 1280px mục lục co thành một hàng gấp mở.</text>
+<rect x="56" y="634" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="652" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">3</text>
+<text x="94" y="652" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Bảng neo hai chiều</text>
+<text x="282.79999999999995" y="652" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— thứ làm cho “bấm vào các phần” chạy được cả hai đường</text>
+<rect x="56" y="676" width="1568" height="214" fill="#141c2b" rx="10" stroke="#212c40" stroke-width="1"/>
+<text x="96" y="710" font-family="Inter" font-size="11" font-weight="600" fill="#5b9ae8" letter-spacing="0.6">TRONG HƯỚNG DẪN</text>
+<rect x="96" y="732" width="430" height="40" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 740 v24" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<text x="114" y="750" font-family="Inter" font-size="12" font-weight="400" fill="#e6ecf7">Bước 2 — Dán bảng từ Excel</text>
+<text x="114" y="764" font-family="Roboto Mono, monospace" font-size="10" font-weight="400" fill="#5b9ae8">/huong-dan/nap-so-lieu/#dan-tu-excel</text>
+<rect x="96" y="782" width="430" height="40" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 790 v24" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<text x="114" y="800" font-family="Inter" font-size="12" font-weight="400" fill="#e6ecf7">Bước 4 — Đổi đơn vị tỷ ₫</text>
+<text x="114" y="814" font-family="Roboto Mono, monospace" font-size="10" font-weight="400" fill="#5b9ae8">/huong-dan/doi-don-vi/#chon-bac</text>
+<rect x="96" y="832" width="430" height="40" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<path d="M97.5 840 v24" fill="none" stroke="#4a86d8" stroke-width="3" stroke-linecap="round"/>
+<text x="114" y="850" font-family="Inter" font-size="12" font-weight="400" fill="#e6ecf7">Khi ô kết quả hiện “—”</text>
+<text x="114" y="864" font-family="Roboto Mono, monospace" font-size="10" font-weight="400" fill="#5b9ae8">/huong-dan/o-ket-qua-trong/#chia-cho-khong</text>
+<text x="1154" y="710" font-family="Inter" font-size="11" font-weight="600" fill="#3f8f8f" letter-spacing="0.6">TRONG SẢN PHẨM</text>
+<rect x="1154" y="732" width="430" height="40" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<path d="M1155.5 740 v24" fill="none" stroke="#3f8f8f" stroke-width="3" stroke-linecap="round"/>
+<text x="1172" y="750" font-family="Inter" font-size="12" font-weight="400" fill="#e6ecf7">Khối Số liệu của màn công thức</text>
+<text x="1172" y="764" font-family="Roboto Mono, monospace" font-size="10" font-weight="400" fill="#3f8f8f">/cong-thuc/pe/#khoi-so-lieu</text>
+<rect x="1154" y="782" width="430" height="40" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<path d="M1155.5 790 v24" fill="none" stroke="#3f8f8f" stroke-width="3" stroke-linecap="round"/>
+<text x="1172" y="800" font-family="Inter" font-size="12" font-weight="400" fill="#e6ecf7">Ô chọn đơn vị ở Bảng dữ liệu</text>
+<text x="1172" y="814" font-family="Roboto Mono, monospace" font-size="10" font-weight="400" fill="#3f8f8f">/du-lieu/#chon-don-vi</text>
+<rect x="1154" y="832" width="430" height="40" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<path d="M1155.5 840 v24" fill="none" stroke="#3f8f8f" stroke-width="3" stroke-linecap="round"/>
+<text x="1172" y="850" font-family="Inter" font-size="12" font-weight="400" fill="#e6ecf7">Thẻ cảnh báo DIVIDE_BY_ZERO</text>
+<text x="1172" y="864" font-family="Roboto Mono, monospace" font-size="10" font-weight="400" fill="#3f8f8f">/cong-thuc/pe/#canh-bao</text>
+<rect x="710.0" y="738" width="260" height="122" fill="#182031" rx="8" stroke="#2f5a96" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="840.0" y="764" font-family="Roboto Mono, monospace" font-size="13" font-weight="700" fill="#5b9ae8" text-anchor="middle">GUIDE_ANCHORS</text>
+<text x="730.0" y="786" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">Một bảng duy nhất, đọc được cả hai</text>
+<text x="730.0" y="801" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">chiều. Đúng lẽ mà SAVED_CALCS_ANCHOR</text>
+<text x="730.0" y="816" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">trong routes.ts đã làm: hai màn</text>
+<text x="730.0" y="831" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">không ai tự gõ chuỗi neo.</text>
+<path d="M540 800 L698.0 800" fill="none" stroke="#4a86d8" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M698.0 800 L689.7 796.5" fill="none" stroke="#4a86d8" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M698.0 800 L689.7 803.5" fill="none" stroke="#4a86d8" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M1140 800 L982.0 800" fill="none" stroke="#3f8f8f" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M982.0 800 L990.3 803.5" fill="none" stroke="#3f8f8f" stroke-width="1.4" stroke-linecap="round"/>
+<path d="M982.0 800 L990.3 796.5" fill="none" stroke="#3f8f8f" stroke-width="1.4" stroke-linecap="round"/>
+<text x="618.0" y="788" font-family="Inter" font-size="10" font-weight="600" fill="#4a86d8" text-anchor="middle">bài → màn thật</text>
+<text x="1062.0" y="788" font-family="Inter" font-size="10" font-weight="600" fill="#3f8f8f" text-anchor="middle">màn thật → bài</text>
+<text x="618.0" y="820" font-family="Inter" font-size="10" font-weight="400" fill="#5d6c88" text-anchor="middle">nút “Mở màn này ↗”</text>
+<text x="1062.0" y="820" font-family="Inter" font-size="10" font-weight="400" fill="#5d6c88" text-anchor="middle">nút “?” cạnh nhãn</text>
+<rect x="56" y="932" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="950" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">4</text>
+<text x="94" y="950" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Ba quy tắc giữ cho nó không thành phiền</text>
+<rect x="56.0" y="974" width="512.0" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M57.5 986 v88" fill="none" stroke="#3f8f6a" stroke-width="3" stroke-linecap="round"/>
+<text x="78.0" y="1006" font-family="Be Vietnam Pro" font-size="13.5" font-weight="600" fill="#e6ecf7">1. Không ép ai đọc</text>
+<text x="78.0" y="1030" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Không lớp phủ lúc mở app lần đầu, không dấu chấm đỏ. Hướng dẫn chỉ mở</text>
+<text x="78.0" y="1047" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">khi có người bấm. Tour ba bước chỉ nằm trong Cài đặt cho ai tự tìm.</text>
+<rect x="584.0" y="974" width="512.0" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M585.5 986 v88" fill="none" stroke="#3f8f6a" stroke-width="3" stroke-linecap="round"/>
+<text x="606.0" y="1006" font-family="Be Vietnam Pro" font-size="13.5" font-weight="600" fill="#e6ecf7">2. Mở ra không làm mất việc đang làm</text>
+<text x="606.0" y="1030" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Nên panel là mặc định còn trang là tuỳ chọn. Một người đang gõ dở tám</text>
+<text x="606.0" y="1047" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">ô số liệu mà bấm “?” rồi mất hết thì lần sau không ai bấm nữa.</text>
+<rect x="1112.0" y="974" width="512.0" height="112" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<path d="M1113.5 986 v88" fill="none" stroke="#3f8f6a" stroke-width="3" stroke-linecap="round"/>
+<text x="1134.0" y="1006" font-family="Be Vietnam Pro" font-size="13.5" font-weight="600" fill="#e6ecf7">3. Phần nào cũng có đường dẫn riêng</text>
+<text x="1134.0" y="1030" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Mỗi mục trong bài là một neo, hiện trên URL khi cuộn tới. Thấy chỗ hay</text>
+<text x="1134.0" y="1047" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">thì copy thanh địa chỉ là gửi được đúng chỗ ấy cho người khác.</text>
+</svg>

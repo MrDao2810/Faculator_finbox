@@ -31,6 +31,16 @@ export interface NotationHowToView {
 export interface NotationView {
   /** Hình công thức, đã gắn `data-sym` cho các ký hiệu có khung. */
   latexHtml: string;
+  /**
+   * Cùng hình ấy nhưng gắn `data-sym` cho MỌI ký hiệu tìm được chỗ, không chỉ ký hiệu có khung —
+   * cho dòng Công thức trong khối lời giải của Bài tập (25/09/2026). Ở đó không có bảng ký hiệu
+   * bên cạnh, nên rê vào ký hiệu nào cũng phải mở được khung, dù khung chỉ có mỗi nghĩa.
+   *
+   * Bản RIÊNG chứ không gắn thêm vào `latexHtml`: thẻ Công thức tô con trỏ bàn tay cho mọi
+   * `[data-sym]`, nên gắn thêm ở đó là biến những ký hiệu không mở gì thành thứ trông bấm được.
+   * Chỉ dựng cho trang có câu cần nó (`page.tsx` hỏi `quiz-view.ts`); trang khác không mang thêm byte.
+   */
+  latexHtmlAllSymbols?: string;
   /** Từng ký hiệu của bảng, MathML dòng — cùng thứ tự với `spec.symbols`. */
   symbolsHtml: ReadonlyArray<string>;
   /**

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import type { QuizChoiceKey, QuizItem, QuizProgress, QuizText } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
@@ -43,13 +44,11 @@ export interface QuizBodyProps {
   /** Câu hỏi của đúng công thức ấy, do `page.tsx` cắt sẵn lúc build. */
   items: ReadonlyArray<QuizItem>;
   /**
-   * Công thức của chính trang này, dạng chữ (`FormulaSpec.expression`) — dòng "Công thức"
-   * của khối lời giải có cấu trúc. Không câu hỏi nào chép lại công thức, nên nó không lệch
-   * được khỏi thẻ Công thức đầu màn.
+   * Hình công thức của chính trang này, dựng sẵn ở `FormulaDetail` (rê vào ký hiệu thì mở khung
+   * "cách tính" như thẻ Công thức) — dòng "Công thức" của khối lời giải có cấu trúc. Không câu hỏi
+   * nào chép lại công thức, nên nó không lệch được khỏi thẻ ấy.
    */
-  bieuThuc?: QuizText;
-  /** Bảng "A: là gì" của công thức ấy — hiện ra khi rê chuột lên dòng công thức. */
-  kyHieu?: ReadonlyArray<QuizText>;
+  hinhCongThuc?: ReactNode;
   /** Kết quả lần gần nhất đọc từ máy, `null` nếu chưa làm bao giờ. */
   saved?: QuizProgress | null;
   /** Gọi khi làm xong, để màn chi tiết ghi vào localStorage. */
@@ -82,8 +81,7 @@ interface DaLam {
 export function QuizBody({
   formulaId,
   items,
-  bieuThuc,
-  kyHieu,
+  hinhCongThuc,
   saved = null,
   onFinish,
   minForProgress = 3,
@@ -432,8 +430,7 @@ export function QuizBody({
                       <div className={styles.historyBody}>
                         <QuizQuestion
                           item={xong.item}
-                          bieuThuc={bieuThuc}
-                          kyHieu={kyHieu}
+                          hinhCongThuc={hinhCongThuc}
                           namePrefix={`${groupId}-ls`}
                           picked={xong.picked}
                           typed={xong.typed}
@@ -451,8 +448,7 @@ export function QuizBody({
           <div className={styles.card}>
             <QuizQuestion
               item={item}
-              bieuThuc={bieuThuc}
-              kyHieu={kyHieu}
+              hinhCongThuc={hinhCongThuc}
               namePrefix={groupId}
               picked={picked}
               typed={typed}

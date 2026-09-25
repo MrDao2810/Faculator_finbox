@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1426" viewBox="0 0 1680 1426" fill="none">
+<title>Hướng dẫn sử dụng — giao diện trên PC</title>
+<rect width="1680" height="1426" fill="#0b101c"/>
+<text x="56" y="52" font-family="Be Vietnam Pro" font-size="22" font-weight="600" fill="#e6ecf7">Hướng dẫn sử dụng — giao diện trên PC</text>
+<text x="56" y="78" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">Hai trạng thái chính: bấm “?” khi đang làm dở thì ra panel; muốn đọc kỹ thì mở toàn trang. Cả hai đều có link nhảy thẳng tới từng phần.</text>
+<rect x="56" y="118" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="136" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">A</text>
+<text x="94" y="136" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Bấm “?” khi đang làm dở → panel trượt</text>
+<text x="465.2" y="136" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— màn công thức vẫn nguyên phía sau, số liệu đang gõ không mất</text>
+<rect x="56" y="160" width="1568" height="452" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="160" width="1568" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="178" width="1568" height="10" fill="#141c2b"/>
+<circle cx="72" cy="174" r="4" fill="#3d4863"/>
+<circle cx="86" cy="174" r="4" fill="#3d4863"/>
+<circle cx="100" cy="174" r="4" fill="#3d4863"/>
+<text x="118" y="178" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">faculator · /cong-thuc/pe/  (URL màn không đổi)</text>
+<rect x="56" y="188" width="1568" height="46" fill="#182031"/>
+<line x1="56" y1="234" x2="1624" y2="234" stroke="#28344c" stroke-width="1"/>
+<rect x="80" y="203" width="16" height="16" fill="#4a86d8" rx="4"/>
+<text x="104" y="216" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">Faculator Finbox</text>
+<text x="256" y="216" font-family="Inter" font-size="12" font-weight="600" fill="#4a86d8">Công thức</text>
+<text x="360" y="216" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Danh mục</text>
+<text x="464" y="216" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Cài đặt</text>
+<text x="568" y="216" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Giới thiệu</text>
+<rect x="1480" y="195" width="32" height="32" fill="#1a2740" rx="8"/>
+<circle cx="1496" cy="211" r="11" fill="none" stroke="#5b9ae8" stroke-width="1.3"/>
+<text x="1496" y="215.5" font-family="Inter" font-size="12" font-weight="700" fill="#5b9ae8" text-anchor="middle">?</text>
+<text x="1540" y="216" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">VI</text>
+<circle cx="1584" cy="211" r="9" fill="none" stroke="#8a99b5" stroke-width="1.2"/>
+<text x="96" y="268" font-family="Be Vietnam Pro" font-size="18" font-weight="600" fill="#e6ecf7">Tỷ số giá trên lợi nhuận (P/E)</text>
+<rect x="96" y="286" width="700" height="58" fill="#141c2b" rx="6" stroke="#28344c" stroke-width="1"/>
+<text x="116" y="320" font-family="Inter" font-size="15" font-weight="400" fill="#c3cee1">P/E  =  Giá thị trường một cổ phiếu  ÷  EPS</text>
+<text x="96" y="370" font-family="Inter" font-size="11" font-weight="600" fill="#4a86d8" letter-spacing="0.6">SỐ LIỆU</text>
+<text x="96" y="400" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">Giá thị trường (₫)</text>
+<rect x="96" y="408" width="330" height="34" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<text x="110" y="430" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7">32.500</text>
+<circle cx="402" cy="425" r="8" fill="none" stroke="#5d6c88" stroke-width="1.3"/>
+<text x="402" y="429.5" font-family="Inter" font-size="12" font-weight="700" fill="#5d6c88" text-anchor="middle">?</text>
+<text x="456" y="400" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">EPS (₫)</text>
+<rect x="456" y="408" width="330" height="34" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<text x="470" y="430" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7">2.600</text>
+<circle cx="762" cy="425" r="8" fill="none" stroke="#5d6c88" stroke-width="1.3"/>
+<text x="762" y="429.5" font-family="Inter" font-size="12" font-weight="700" fill="#5d6c88" text-anchor="middle">?</text>
+<text x="96" y="460" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">Số cổ phiếu (triệu)</text>
+<rect x="96" y="468" width="330" height="34" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<text x="110" y="490" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7">1.240</text>
+<circle cx="402" cy="485" r="8" fill="none" stroke="#5d6c88" stroke-width="1.3"/>
+<text x="402" y="489.5" font-family="Inter" font-size="12" font-weight="700" fill="#5d6c88" text-anchor="middle">?</text>
+<text x="456" y="460" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">Lợi nhuận (tỷ ₫)</text>
+<rect x="456" y="468" width="330" height="34" fill="#182031" rx="6" stroke="#28344c" stroke-width="1"/>
+<text x="470" y="490" font-family="Inter" font-size="13" font-weight="400" fill="#e6ecf7">3.224</text>
+<circle cx="762" cy="485" r="8" fill="none" stroke="#5d6c88" stroke-width="1.3"/>
+<text x="762" y="489.5" font-family="Inter" font-size="12" font-weight="700" fill="#5d6c88" text-anchor="middle">?</text>
+<rect x="56" y="188" width="1048" height="424" fill="#080c14" opacity="0.62"/>
+<rect x="1104" y="188" width="520" height="424" fill="#182031"/>
+<line x1="1104" y1="188" x2="1104" y2="612" stroke="#2f5a96" stroke-width="1.5"/>
+<text x="1130" y="222" font-family="Inter" font-size="11" font-weight="600" fill="#5b9ae8" letter-spacing="0.6">HƯỚNG DẪN</text>
+<text x="1558" y="222" font-family="Inter" font-size="11.5" font-weight="600" fill="#5b9ae8" text-anchor="end">Mở toàn trang ↗</text>
+<path d="M1590 216 l10 10 M1600 216 l-10 10" fill="none" stroke="#8a99b5" stroke-width="1.5" stroke-linecap="round"/>
+<rect x="1130" y="234" width="468" height="32" fill="#131a28" rx="6" stroke="#28344c" stroke-width="1"/>
+<circle cx="1148" cy="250" r="5" fill="none" stroke="#5d6c88" stroke-width="1.3"/>
+<path d="M1152 254 l5 5" fill="none" stroke="#5d6c88" stroke-width="1.3" stroke-linecap="round"/>
+<text x="1164" y="255" font-family="Inter" font-size="12" font-weight="400" fill="#5d6c88">Tìm trong hướng dẫn</text>
+<text x="1130" y="290" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">Nhập số &amp; tính  ›</text>
+<text x="1130" y="316" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Nạp số liệu cho một công thức</text>
+<text x="1130" y="346" font-family="Inter" font-size="10" font-weight="600" fill="#5d6c88" letter-spacing="0.6">TRONG BÀI NÀY</text>
+<rect x="1130" y="359" width="54.0" height="17" fill="#1a2740" rx="8"/>
+<text x="1157.0" y="370" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">Bộ mẫu</text>
+<rect x="1192.0" y="359" width="90.0" height="17" fill="#1a2740" rx="8"/>
+<text x="1237.0" y="370" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">Dán từ Excel</text>
+<rect x="1290.0" y="359" width="54.0" height="17" fill="#1a2740" rx="8"/>
+<text x="1317.0" y="370" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">Gõ tay</text>
+<rect x="1352.0" y="359" width="84.0" height="17" fill="#1a2740" rx="8"/>
+<text x="1394.0" y="370" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">Khi dán lỗi</text>
+<line x1="1130" y1="388" x2="1598" y2="388" stroke="#1e2739" stroke-width="1"/>
+<rect x="1130" y="402" width="468" height="58" fill="#2a2318" rx="6"/>
+<path d="M1131.5 402 v58" fill="none" stroke="#d99b3c" stroke-width="3" stroke-linecap="round"/>
+<text x="1146" y="422" font-family="Inter" font-size="10" font-weight="600" fill="#d99b3c" letter-spacing="0.6">TRƯỚC KHI BẮT ĐẦU</text>
+<text x="1146" y="440" font-family="Inter" font-size="11.5" font-weight="400" fill="#c3cee1">Cần một bảng có cột ngày và cột giá đóng cửa, tối thiểu 5 phiên.</text>
+<text x="1130" y="490" font-family="Inter" font-size="13.5" font-weight="600" fill="#e6ecf7">Bước 2 — Dán bảng từ Excel</text>
+<text x="1130" y="512" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">Bôi đen hai cột trong Excel, bấm Ctrl+C, rồi bấm vào ô Dán của Bảng dữ</text>
+<text x="1130" y="529" font-family="Inter" font-size="12" font-weight="400" fill="#c3cee1">liệu. Sản phẩm tự nhận dấu phân cách.</text>
+<rect x="1130" y="552" width="154.39999999999998" height="30" fill="#1a2740" rx="6" stroke="#2f5a96" stroke-width="1"/>
+<text x="1207.2" y="571.5" font-family="Inter" font-size="12" font-weight="600" fill="#5b9ae8" text-anchor="middle">Mở Bảng dữ liệu ↗</text>
+<circle cx="808" cy="430" r="10" fill="#0f1523" stroke="#d99b3c" stroke-width="1.4"/>
+<text x="808" y="434" font-family="Inter" font-size="11" font-weight="700" fill="#d99b3c" text-anchor="middle">1</text>
+<circle cx="1452.0" cy="366" r="10" fill="#0f1523" stroke="#d99b3c" stroke-width="1.4"/>
+<text x="1452.0" y="370" font-family="Inter" font-size="11" font-weight="700" fill="#d99b3c" text-anchor="middle">2</text>
+<circle cx="1424" cy="218" r="10" fill="#0f1523" stroke="#d99b3c" stroke-width="1.4"/>
+<text x="1424" y="222" font-family="Inter" font-size="11" font-weight="700" fill="#d99b3c" text-anchor="middle">3</text>
+<circle cx="1458" cy="211" r="10" fill="#0f1523" stroke="#5b9ae8" stroke-width="1.4"/>
+<text x="1458" y="215" font-family="Inter" font-size="11" font-weight="700" fill="#5b9ae8" text-anchor="middle">4</text>
+<circle cx="66.0" cy="634" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="66.0" y="638" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">1</text>
+<text x="82.0" y="639" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Màn phía sau chỉ mờ đi, không bị thay. Đóng panel là gõ</text>
+<text x="82.0" y="654" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">tiếp ở đúng ô đang dở.</text>
+<circle cx="458.0" cy="634" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="458.0" y="638" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">2</text>
+<text x="474.0" y="639" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Bốn link nhảy thẳng tới từng phần của bài — có cả trong</text>
+<text x="474.0" y="654" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">panel, không riêng trang.</text>
+<circle cx="850.0" cy="634" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="850.0" y="638" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">3</text>
+<text x="866.0" y="639" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Muốn đọc kỹ thì một cú bấm nữa là sang trang đầy đủ,</text>
+<text x="866.0" y="654" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">đúng bài đang mở.</text>
+<circle cx="1242.0" cy="634" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="1242.0" y="638" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">4</text>
+<text x="1258.0" y="639" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Nút “?” ở thanh trên sáng lên khi panel đang mở, nên</text>
+<text x="1258.0" y="654" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">biết cái gì đang che màn.</text>
+<rect x="56" y="696" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="714" font-family="Inter" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">B</text>
+<text x="94" y="714" font-family="Be Vietnam Pro" font-size="16" font-weight="600" fill="#e6ecf7">Trang /huong-dan/nap-so-lieu/</text>
+<text x="388.4" y="714" font-family="Inter" font-size="13" font-weight="400" fill="#8a99b5">— hai cột, mục lục bám dính bên phải, mỗi mục là một neo copy được</text>
+<rect x="56" y="738" width="1568" height="596" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="738" width="1568" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="756" width="1568" height="10" fill="#141c2b"/>
+<circle cx="72" cy="752" r="4" fill="#3d4863"/>
+<circle cx="86" cy="752" r="4" fill="#3d4863"/>
+<circle cx="100" cy="752" r="4" fill="#3d4863"/>
+<text x="118" y="756" font-family="Inter" font-size="11" font-weight="400" fill="#5d6c88">faculator · /huong-dan/nap-so-lieu/#dan-tu-excel</text>
+<rect x="56" y="766" width="1568" height="46" fill="#182031"/>
+<line x1="56" y1="812" x2="1624" y2="812" stroke="#28344c" stroke-width="1"/>
+<rect x="80" y="781" width="16" height="16" fill="#4a86d8" rx="4"/>
+<text x="104" y="794" font-family="Inter" font-size="13" font-weight="600" fill="#e6ecf7">Faculator Finbox</text>
+<text x="256" y="794" font-family="Inter" font-size="12" font-weight="600" fill="#4a86d8">Công thức</text>
+<text x="360" y="794" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Danh mục</text>
+<text x="464" y="794" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Cài đặt</text>
+<text x="568" y="794" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Giới thiệu</text>
+<rect x="1480" y="773" width="32" height="32" fill="#1a2740" rx="8"/>
+<circle cx="1496" cy="789" r="11" fill="none" stroke="#5b9ae8" stroke-width="1.3"/>
+<text x="1496" y="793.5" font-family="Inter" font-size="12" font-weight="700" fill="#5b9ae8" text-anchor="middle">?</text>
+<text x="1540" y="794" font-family="Inter" font-size="11" font-weight="600" fill="#8a99b5">VI</text>
+<circle cx="1584" cy="789" r="9" fill="none" stroke="#8a99b5" stroke-width="1.2"/>
+<text x="184.0" y="846" font-family="Inter" font-size="11" font-weight="400" fill="#8a99b5">Hướng dẫn  ›  Nhập số &amp; tính</text>
+<rect x="236.0" y="863" width="102.0" height="17" fill="#1a2740" rx="8"/>
+<text x="287.0" y="874" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">NHẬP SỐ &amp; TÍNH</text>
+<text x="184.0" y="912" font-family="Be Vietnam Pro" font-size="26" font-weight="600" fill="#e6ecf7">Nạp số liệu cho một công thức</text>
+<text x="184.0" y="938" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">5 phút đọc · cập nhật 21/09/2026 · dùng được cho cả 111 công thức</text>
+<text x="184.0" y="970" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1">Có ba đường đưa số vào một công thức, và chọn đúng đường tiết kiệm nhiều thời gian hơn người ta tưởng.</text>
+<rect x="184.0" y="998" width="880" height="62" fill="#2a2318" rx="6"/>
+<path d="M185.5 998 v62" fill="none" stroke="#d99b3c" stroke-width="3" stroke-linecap="round"/>
+<text x="202.0" y="1020" font-family="Inter" font-size="10" font-weight="600" fill="#d99b3c" letter-spacing="0.6">TRƯỚC KHI BẮT ĐẦU</text>
+<text x="202.0" y="1040" font-family="Inter" font-size="11.5" font-weight="400" fill="#c3cee1">Bảng cần một cột ngày và một cột giá đóng cửa, tối thiểu 5 phiên. Thiếu phiên thì RSI-14 và SMA-20 vẫn báo thiếu.</text>
+<text x="184.0" y="1084" font-family="Inter" font-size="17" font-weight="700" fill="#5b9ae8">#</text>
+<text x="206.0" y="1084" font-family="Be Vietnam Pro" font-size="17" font-weight="600" fill="#e6ecf7">Bước 2 — Dán bảng từ Excel</text>
+<rect x="485.2" y="1070" width="96" height="18" fill="#1a2740" rx="9"/>
+<text x="541.2" y="1083" font-family="Inter" font-size="10" font-weight="600" fill="#5b9ae8" text-anchor="middle">copy link</text>
+<text x="184.0" y="1110" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1">Bôi đen hai cột trong Excel rồi Ctrl+C. Ở Bảng dữ liệu, bấm vào ô Dán và Ctrl+V — sản phẩm tự nhận dấu tab, dấu phẩy hay</text>
+<text x="184.0" y="1130" font-family="Inter" font-size="13" font-weight="400" fill="#c3cee1">chấm phẩy làm phân cách.</text>
+<rect x="184.0" y="1160" width="880" height="74" fill="#131a28" rx="6" stroke="#28344c" stroke-width="1"/>
+<text x="202.0" y="1184" font-family="Roboto Mono, monospace" font-size="11" font-weight="400" fill="#8a99b5">Ngày        Giá đóng cửa</text>
+<text x="202.0" y="1202" font-family="Roboto Mono, monospace" font-size="11" font-weight="400" fill="#c3cee1">02/09/2026    32.500</text>
+<text x="202.0" y="1220" font-family="Roboto Mono, monospace" font-size="11" font-weight="400" fill="#c3cee1">03/09/2026    32.150</text>
+<rect x="184.0" y="1252" width="159.5" height="34" fill="#1a2740" rx="6" stroke="#2f5a96" stroke-width="1"/>
+<text x="263.75" y="1273.5" font-family="Inter" font-size="12.5" font-weight="600" fill="#5b9ae8" text-anchor="middle">Mở Bảng dữ liệu ↗</text>
+<text x="374.0" y="1274" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">mở /du-lieu/#o-dan — cuộn thẳng tới ô Dán và tô sáng nó</text>
+<rect x="1096.0" y="870" width="400" height="232" fill="#182031" rx="8" stroke="#28344c" stroke-width="1"/>
+<text x="1116.0" y="896" font-family="Inter" font-size="10" font-weight="600" fill="#5d6c88" letter-spacing="0.6">TRONG BÀI NÀY</text>
+<path d="M1112.0 907 v18" fill="none" stroke="#28344c" stroke-width="2" stroke-linecap="round"/>
+<text x="1124.0" y="921" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Ba đường nạp số</text>
+<path d="M1112.0 935 v18" fill="none" stroke="#28344c" stroke-width="2" stroke-linecap="round"/>
+<text x="1124.0" y="949" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Bước 1 — Dùng bộ mẫu</text>
+<rect x="1108.0" y="960" width="376" height="24" fill="#1a2740" rx="4"/>
+<path d="M1112.0 963 v18" fill="none" stroke="#4a86d8" stroke-width="2" stroke-linecap="round"/>
+<text x="1124.0" y="977" font-family="Inter" font-size="12" font-weight="600" fill="#5b9ae8">Bước 2 — Dán bảng từ Excel</text>
+<path d="M1112.0 991 v18" fill="none" stroke="#28344c" stroke-width="2" stroke-linecap="round"/>
+<text x="1124.0" y="1005" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Bước 3 — Gõ tay từng ô</text>
+<path d="M1112.0 1019 v18" fill="none" stroke="#28344c" stroke-width="2" stroke-linecap="round"/>
+<text x="1124.0" y="1033" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Khi dán vào mà báo lỗi</text>
+<path d="M1112.0 1047 v18" fill="none" stroke="#28344c" stroke-width="2" stroke-linecap="round"/>
+<text x="1124.0" y="1061" font-family="Inter" font-size="12" font-weight="400" fill="#8a99b5">Đổi đơn vị sau khi nạp</text>
+<rect x="1096.0" y="1118" width="400" height="118" fill="#141c2b" rx="8" stroke="#212c40" stroke-width="1"/>
+<text x="1116.0" y="1144" font-family="Inter" font-size="10" font-weight="600" fill="#3f8f8f" letter-spacing="0.6">VỪA ĐỌC VỪA LÀM</text>
+<text x="1116.0" y="1166" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Mở sản phẩm ở cửa sổ bên cạnh rồi làm theo từng bước.</text>
+<rect x="1116.0" y="1196" width="161.6" height="30" fill="none" rx="6" stroke="#3f8f8f" stroke-width="1"/>
+<text x="1196.8" y="1215.5" font-family="Inter" font-size="12" font-weight="600" fill="#3f8f8f" text-anchor="middle">Mở màn Công thức ↗</text>
+<circle cx="166.0" cy="1078" r="10" fill="#0f1523" stroke="#d99b3c" stroke-width="1.4"/>
+<text x="166.0" y="1082" font-family="Inter" font-size="11" font-weight="700" fill="#d99b3c" text-anchor="middle">1</text>
+<circle cx="1080.0" cy="974" r="10" fill="#0f1523" stroke="#d99b3c" stroke-width="1.4"/>
+<text x="1080.0" y="978" font-family="Inter" font-size="11" font-weight="700" fill="#d99b3c" text-anchor="middle">2</text>
+<circle cx="166.0" cy="1269" r="10" fill="#0f1523" stroke="#d99b3c" stroke-width="1.4"/>
+<text x="166.0" y="1273" font-family="Inter" font-size="11" font-weight="700" fill="#d99b3c" text-anchor="middle">3</text>
+<circle cx="1080.0" cy="1152" r="10" fill="#0f1523" stroke="#3f8f8f" stroke-width="1.4"/>
+<text x="1080.0" y="1156" font-family="Inter" font-size="11" font-weight="700" fill="#3f8f8f" text-anchor="middle">4</text>
+<circle cx="66.0" cy="1356" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="66.0" y="1360" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">1</text>
+<text x="82.0" y="1361" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Dấu # chỉ hiện khi rê chuột vào tiêu đề mục; bấm là</text>
+<text x="82.0" y="1376" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">chép link tới đúng mục ấy.</text>
+<circle cx="458.0" cy="1356" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="458.0" y="1360" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">2</text>
+<text x="474.0" y="1361" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Mục đang đọc tự sáng theo vị trí cuộn, và URL đổi theo</text>
+<text x="474.0" y="1376" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">— copy là gửi được.</text>
+<circle cx="850.0" cy="1356" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="850.0" y="1360" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">3</text>
+<text x="866.0" y="1361" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Nút mở thẳng màn thật, cuộn tới đúng ô Dán và tô sáng</text>
+<text x="866.0" y="1376" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">nó trong hai giây.</text>
+<circle cx="1242.0" cy="1356" r="9" fill="#0f1523" stroke="#d99b3c" stroke-width="1.3"/>
+<text x="1242.0" y="1360" font-family="Inter" font-size="10" font-weight="700" fill="#d99b3c" text-anchor="middle">4</text>
+<text x="1258.0" y="1361" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">Thẻ “Vừa đọc vừa làm” — mở sản phẩm ở cửa sổ bên cạnh,</text>
+<text x="1258.0" y="1376" font-family="Inter" font-size="11.5" font-weight="400" fill="#8a99b5">không mất chỗ đang đọc.</text>
+</svg>

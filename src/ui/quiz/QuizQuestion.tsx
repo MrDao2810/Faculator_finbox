@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
 import { formatNumber, hasChoices, keepViNumberChars } from '@/application';
@@ -95,10 +95,13 @@ function beNgangO(dap: string): number {
 
 export interface QuizQuestionProps {
   item: QuizItem;
-  /** Công thức của trang, dạng chữ — dòng thứ hai của khối lời giải. */
-  bieuThuc?: QuizText;
-  /** Bảng ký hiệu của công thức ấy, hiện khi rê chuột lên dòng công thức. */
-  kyHieu?: ReadonlyArray<QuizText>;
+  /**
+   * Hình công thức của trang, dựng sẵn ở màn chi tiết — dòng "Công thức" của khối lời giải in nó
+   * ra. Là một NÚT React chứ không phải chuỗi: rê vào ký hiệu mở khung "cách tính" của thẻ Công
+   * thức, và cả cơ chế ấy (hook, khung, CSS) nằm ở `src/app/cong-thuc/[id]/`, nơi `src/ui` không
+   * với tới. Màn chi tiết dựng sẵn rồi đưa xuống; thư mục này chỉ đặt nó vào đúng ô.
+   */
+  hinhCongThuc?: ReactNode;
   /** Gốc id, để `name` của radio và `id` của ô nhập không đụng câu khác trên cùng trang. */
   namePrefix: string;
   picked: ReadonlyArray<QuizChoiceKey>;
@@ -113,8 +116,7 @@ export interface QuizQuestionProps {
 
 export function QuizQuestion({
   item,
-  bieuThuc,
-  kyHieu,
+  hinhCongThuc,
   namePrefix,
   picked,
   typed,
@@ -138,14 +140,13 @@ export function QuizQuestion({
     .filter((part) => part.quoted)
     .map((part) => part.text);
 
-  /** Dòng công thức của khối lời giải: bản ghi đè của câu hỏi, nếu không thì công thức của trang. */
-  const dongCongThuc = item.giai?.congThuc ?? bieuThuc;
   /*
-   * Bảng ký hiệu CHỈ đi với công thức của trang. Câu nào ghi đè dòng công thức thì bảng ấy không
-   * còn khớp: Q088 in "Khoảng tin cậy = Beta báo cáo ± 2 × Sai số chuẩn" mà bảng của trang lại giải
-   * nghĩa β, Cov, Var — rê chuột lên ra một bảng không nói về dòng đang đọc.
+   * Dòng "Công thức": câu nào ghi đè thì in bản chữ của câu ấy, không thì in HÌNH công thức của
+   * trang. Câu ghi đè không mang hình: Q088 in "Khoảng tin cậy = Beta báo cáo ± 2 × Sai số chuẩn",
+   * còn hình của trang là β = Cov ÷ Var — rê vào ký hiệu của nó là giải nghĩa thứ dòng không nói.
    */
-  const chuThich = item.giai?.congThuc === undefined ? (kyHieu ?? []) : [];
+  const ghiDe = item.giai?.congThuc;
+  const coHinh = ghiDe === undefined && hinhCongThuc !== undefined;
 
   const laDung = laDungCua(item, picked, typed);
   const khoa = readOnly || answered;
@@ -382,14 +383,14 @@ export function QuizQuestion({
               cả phần "vì sao ba đáp án kia sai"; chủ dự án xem rồi bác vì dài. Nên khối này
               KHÔNG nhắc tới đáp án sai — đừng dựng lại.
 
-              Dòng "Công thức" lấy từ `bieuThuc`, tức `expression` của chính công thức trang này,
-              chứ không phải một chuỗi khai trong câu hỏi: một bản sao trong dữ liệu câu hỏi sẽ
-              lệch khỏi thẻ Công thức đầu màn đúng lúc không ai nhìn.
+              Dòng "Công thức" là HÌNH công thức của chính trang này (`hinhCongThuc`, bản MathML
+              thẻ Công thức đầu màn đang dùng), chứ không phải một chuỗi khai trong câu hỏi: một bản
+              sao trong dữ liệu câu hỏi sẽ lệch khỏi thẻ ấy đúng lúc không ai nhìn.
 
               Câu nào chưa có `giai` thì vẫn dựng đoạn văn cũ — 412 câu không chuyển hết trong
               một lần được, và một khối rỗng thì tệ hơn một đoạn văn dài.
             */}
-            {item.giai !== undefined && dongCongThuc !== undefined ? (
+            {item.giai !== undefined && (ghiDe !== undefined || coHinh) ? (
               <dl className={styles.giai}>
                 <div className={styles.giaiHang}>
                   <dt>{t('quiz.giai.tinh')}</dt>
@@ -397,27 +398,11 @@ export function QuizQuestion({
                 </div>
                 <div className={styles.giaiHang}>
                   <dt>{t('quiz.giai.congThuc')}</dt>
-                  <dd>
-                    {/*
-                      Rê chuột (hoặc bấm Tab tới) thì hiện bảng ký hiệu của công thức. Thuần CSS
-                      qua `:hover`/`:focus-within` — không `useId`, không đo đạc lúc chạy, vì cả
-                      thư mục này nằm sau ranh giới `next/dynamic` và lượt dựng đầu tiên trên
-                      trình duyệt phải khớp HTML tĩnh.
-                    */}
-                    <span
-                      className={styles.giaiCongThuc}
-                      tabIndex={chuThich.length > 0 ? 0 : undefined}
-                    >
-                      {chu(dongCongThuc)}
-                      {chuThich.length > 0 && (
-                        <span className={styles.giaiChuThich} role="note">
-                          {chuThich.map((k) => (
-                            <span key={k.vi}>{chu(k)}</span>
-                          ))}
-                        </span>
-                      )}
-                    </span>
-                  </dd>
+                  {ghiDe === undefined ? (
+                    <dd className={styles.giaiHinh}>{hinhCongThuc}</dd>
+                  ) : (
+                    <dd className={styles.giaiGhiDe}>{chu(ghiDe)}</dd>
+                  )}
                 </div>
                 <div className={styles.giaiHang}>
                   <dt>{t('quiz.giai.thaySo')}</dt>

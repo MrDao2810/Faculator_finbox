@@ -386,12 +386,24 @@
  */
 .giai {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: var(--space-2) var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3) var(--space-4);
   margin: 0;
   font-size: 0.8125rem;
   line-height: 1.55;
   color: var(--color-ink-soft);
+}
+
+/*
+ * Khổ hẹp: nhãn nằm TRÊN giá trị, không cạnh nó. Nhãn dài nhất ("CÔNG THỨC ÁP DỤNG") rộng ~130px;
+ * đứng thành cột thì ở 390px nó ăn gần nửa bề ngang, hình công thức bị cắt mất đuôi "× 100%" và
+ * nghĩa của ký hiệu vỡ ba bốn dòng. Từ 560px — mốc bảng danh mục cũng đổi hình — mới đủ chỗ cho hai cột.
+ */
+@media (min-width: 560px) {
+  .giai {
+    grid-template-columns: max-content minmax(0, 1fr);
+    row-gap: var(--space-2);
+  }
 }
 
 /*
@@ -409,6 +421,7 @@
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
+  row-gap: 2px;
   align-items: baseline;
 }
 
@@ -432,7 +445,70 @@
  * sẽ cắt cụt khung.
  */
 .giaiHinh {
+  min-width: 0;
+  max-width: 100%;
   color: var(--color-ink);
+}
+
+/*
+ * Dòng công thức: hình, rồi đuôi "để tính …" đứng ngay cạnh — cùng một câu của chủ dự án. Hình
+ * dài thì đuôi xuống dòng dưới (`wrap`) chứ không đẩy hình cuộn sớm. `baseline` để đuôi chữ đứng
+ * ngang trục chính của hình (vạch phân số), không treo lơ lửng ở mép trên.
+ */
+.giaiCongThuc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-2);
+}
+
+.giaiDeTinh {
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Dòng "Thay số": `<dl>` con hai cột — ký hiệu, rồi "= con số" và nghĩa. Ký hiệu in bằng MathML
+ * của bảng ký hiệu nên trông y như trong hình ngay trên; cụm `\text{…}` tự nói nghĩa thì in chữ.
+ */
+.giaiThay {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--space-2);
+  row-gap: var(--space-1);
+  align-items: baseline;
+  margin: 0;
+}
+
+.giaiThay dt {
+  margin: 0;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.giaiThay dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.giaiKyHieu :global(math) {
+  font-size: 1.1em;
+}
+
+.giaiGiaTri {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* Câu mô tả của dòng Thay số — chữ thường màu đậm như con số, để nó không chìm như phần nghĩa. */
+.giaiMoTa {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.giaiNghia {
+  margin-left: var(--space-2);
+  color: var(--color-muted);
 }
 
 /* Bản chữ của câu ghi đè dòng Công thức (Q088) — chữ thường, như ba dòng còn lại. */
@@ -461,9 +537,14 @@
   gap: var(--space-1);
 }
 
+/*
+ * `anywhere`: đường dẫn rút gọn không có dấu cách, và nhiều trang không có cả dấu gạch nối để ngắt
+ * (`corporate.vanguard.com/content/dam/corp/research/…`), nên ở 390px nó tràn qua mép khối.
+ */
 .giaiNguon a {
   font-weight: 600;
   color: var(--color-accent);
+  overflow-wrap: anywhere;
 }
 
 /*

@@ -145,8 +145,10 @@ function ve(nut: Nut, oNhap: CongThucDienProps['oNhap']): ReactNode {
 }
 
 /** Dấu phép tính in ra màn — dấu trừ và dấu nhân là ký tự TOÁN, không phải gạch nối và chữ x. */
-const DAU: Readonly<Record<'cong' | 'tru' | 'nhan', string>> = {
+const DAU: Readonly<Record<'cong' | 'tru' | 'nhan' | 'chiaDong', string>> = {
   cong: '+',
   tru: '−',
   nhan: '×',
+  /* Phép chia nằm TRONG một phân số viết ngang — xem `themNgoac`: chỉ một tầng gạch phân số. */
+  chiaDong: '÷',
 };

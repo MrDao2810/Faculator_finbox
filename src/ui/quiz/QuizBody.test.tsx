@@ -579,15 +579,29 @@ describe('khối nguồn — WF-19D · S14 và S16', () => {
 });
 
 /*
- * Khối lời giải có cấu trúc (`QuizGiai`). Dòng Công thức in HÌNH công thức mà màn chi tiết dựng
- * sẵn — nút ấy tự mở khung "cách tính" khi rê vào ký hiệu (`QuizFormulaPicture`, kiểm riêng ở
- * `src/app/cong-thuc/[id]/`). Ở đây chỉ gác phần của khối Bài tập: nút được đặt đúng ô, câu ghi
- * đè không mang hình, và không còn bảng ký hiệu cố định nào — chủ dự án bác bản ấy 25/09/2026.
+ * Khối lời giải có cấu trúc (`QuizGiai`), theo thứ tự chủ dự án đặt 25/09/2026: Công thức áp
+ * dụng (hình + "để tính …") · Thay số (ký hiệu nào nhận số nào) · Áp vào công thức · Kết quả ·
+ * Nguồn. Hình do màn chi tiết dựng sẵn — nút ấy tự mở khung "cách tính" khi rê vào ký hiệu
+ * (`QuizFormulaPicture`, kiểm riêng ở `src/app/cong-thuc/[id]/`).
  */
 describe('khối lời giải có cấu trúc — QuizGiai', () => {
-  const HINH = <span data-testid="hinh-cong-thuc">MOS = (V − P) ÷ V × 100%</span>;
+  const HINH = <span data-testid="hinh-cong-thuc">P/E = P ÷ EPS</span>;
+  const KY_HIEU = [
+    {
+      latex: 'P',
+      html: '<math><mi>P</mi></math>',
+      nghia: { vi: 'giá thị trường một cổ phiếu, ₫' },
+    },
+    { latex: 'EPS', html: '<math><mi>EPS</mi></math>', nghia: { vi: 'lợi nhuận mỗi cổ phiếu, ₫' } },
+  ];
 
-  function cauGiai(ghiDe?: string): QuizItem {
+  function cauGiai(
+    ghiDe?: string,
+    gan: ReadonlyArray<{ kyHieu: string; giaTri: { vi: string } }> = [
+      { kyHieu: 'P', giaTri: { vi: '36.000' } },
+      { kyHieu: 'EPS', giaTri: { vi: '3.000' } },
+    ],
+  ): QuizItem {
     return {
       ...cau('Q900'),
       giai: {
@@ -595,48 +609,105 @@ describe('khối lời giải có cấu trúc — QuizGiai', () => {
         ...(ghiDe === undefined ? {} : { congThuc: { vi: ghiDe } }),
         thaySo: { vi: '36.000 ÷ 3.000' },
         ketQua: { vi: '12,0 lần' },
+        ...(ghiDe === undefined ? { gan } : {}),
       },
     };
   }
 
   function traLoi(item: QuizItem, coHinh: boolean) {
-    render(<QuizBody formulaId="pe" items={[item]} {...(coHinh ? { hinhCongThuc: HINH } : {})} />);
+    render(
+      <QuizBody
+        formulaId="pe"
+        items={[item]}
+        kyHieu={KY_HIEU}
+        {...(coHinh ? { hinhCongThuc: HINH } : {})}
+      />,
+    );
     fireEvent.click(screen.getByRole('button'));
     fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn A/ }));
     fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
   }
 
-  /** Nhãn của từng dòng, theo thứ tự trên màn. */
+  /** Các dòng NGOÀI CÙNG của khối, mỗi dòng một nhãn — không lẫn `<dl>` con của dòng Thay số. */
+  const khoi = () => document.querySelector('dl') as HTMLElement;
   const nhanCacDong = () =>
-    [...(document.querySelector('dl')?.children ?? [])].map(
-      (dong) => dong.querySelector(':scope > dt')?.textContent,
-    );
+    [...khoi().children].map((dong) => dong.querySelector(':scope > dt')?.textContent);
+  const dongCo = (nhan: string) =>
+    [...khoi().children].find((dong) => dong.querySelector(':scope > dt')?.textContent === nhan);
 
-  it('dòng Công thức đặt đúng hình mà màn chi tiết đưa xuống', () => {
+  it('năm dòng theo đúng thứ tự: công thức · thay số · áp vào công thức · kết quả · nguồn', () => {
     traLoi(cauGiai(), true);
-
-    const hinh = screen.getByTestId('hinh-cong-thuc');
-    expect(hinh.closest('dd')?.previousElementSibling?.textContent).toBe(t('quiz.giai.congThuc'));
     expect(nhanCacDong()).toEqual([
-      t('quiz.giai.tinh'),
       t('quiz.giai.congThuc'),
       t('quiz.giai.thaySo'),
+      t('quiz.giai.apVao'),
       t('quiz.giai.ketQua'),
       t('quiz.source'),
     ]);
   });
 
-  it('không còn bảng ký hiệu cố định nào trong khối lời giải', () => {
+  it('dòng công thức đặt đúng hình của màn chi tiết, kèm đuôi "để tính …"', () => {
     traLoi(cauGiai(), true);
-    expect(document.querySelector('dl dl')).toBeNull();
-    expect(document.querySelector('[data-ky-hieu]')).toBeNull();
+    const dong = dongCo(t('quiz.giai.congThuc'));
+    expect(dong?.contains(screen.getByTestId('hinh-cong-thuc'))).toBe(true);
+    expect(dong?.textContent).toContain(t('quiz.giai.deTinh').replace('{x}', 'P/E của cổ phiếu'));
   });
 
-  it('câu ghi đè dòng Công thức thì in chữ ghi đè và KHÔNG đặt hình của trang', () => {
-    traLoi(cauGiai('Khoảng tin cậy = Beta ± 2 × Sai số chuẩn'), true);
+  it('dòng Thay số nói rõ số nào là ký hiệu nào, kèm nghĩa lấy từ bảng ký hiệu', () => {
+    traLoi(cauGiai(), true);
+    const bang = dongCo(t('quiz.giai.thaySo'))?.querySelector('dl');
+    const kyHieu = [...(bang?.querySelectorAll(':scope > dt') ?? [])];
+    expect(kyHieu.map((dt) => dt.querySelector('math')?.textContent)).toEqual(['P', 'EPS']);
+    const nghia = [...(bang?.querySelectorAll(':scope > dd') ?? [])].map((dd) => dd.textContent);
+    expect(nghia[0]).toContain('= 36.000');
+    expect(nghia[0]).toContain('giá thị trường một cổ phiếu');
+    expect(nghia[1]).toContain('= 3.000');
+  });
 
+  /*
+   * Ký hiệu nhận nhiều số nói bằng MỘT câu mô tả — chủ dự án 25/09/2026 đọc "C_i = 12.000.000 ·
+   * 12.000.000 · 12.000.000 · tiền mua đợt i" và hỏi "tiền mua đợt i nghĩa là gì?". Câu mô tả in
+   * liền sau ký hiệu, không dấu "=", và nghĩa tổng quát của bảng ký hiệu thôi không in bên cạnh.
+   */
+  it('câu mô tả in liền sau ký hiệu và thay luôn nghĩa tổng quát của bảng ký hiệu', () => {
+    traLoi(
+      {
+        ...cauGiai(),
+        giai: {
+          ...(cauGiai().giai as NonNullable<QuizItem['giai']>),
+          gan: [
+            { kyHieu: 'P', moTa: { vi: 'là giá lúc mua: lần 1 là 60.000 ₫, lần 2 là 40.000 ₫' } },
+            { kyHieu: 'EPS', giaTri: { vi: '3.000' } },
+          ],
+        },
+      },
+      true,
+    );
+    const bang = dongCo(t('quiz.giai.thaySo'))?.querySelector('dl');
+    const [moTa, giaTri] = [...(bang?.querySelectorAll(':scope > dd') ?? [])].map(
+      (dd) => dd.textContent,
+    );
+    expect(moTa).toBe('là giá lúc mua: lần 1 là 60.000 ₫, lần 2 là 40.000 ₫');
+    expect(moTa).not.toContain('=');
+    expect(giaTri).toContain('= 3.000');
+    expect(giaTri).toContain('lợi nhuận mỗi cổ phiếu');
+  });
+
+  it('cụm \\text{…} không có dòng trong bảng ký hiệu thì in đúng chữ ấy, không kèm nghĩa', () => {
+    traLoi(
+      cauGiai(undefined, [{ kyHieu: '\\text{Tài sản ngắn hạn}', giaTri: { vi: '110.620' } }]),
+      true,
+    );
+    const bang = dongCo(t('quiz.giai.thaySo'))?.querySelector('dl');
+    expect(bang?.querySelector(':scope > dt')?.textContent).toBe('Tài sản ngắn hạn');
+    expect(bang?.querySelector(':scope > dd')?.textContent).toBe('= 110.620');
+  });
+
+  it('câu ghi đè dòng công thức thì in chữ ghi đè, không đặt hình, không có dòng Thay số', () => {
+    traLoi(cauGiai('Khoảng tin cậy = Beta ± 2 × Sai số chuẩn'), true);
     expect(screen.getByText('Khoảng tin cậy = Beta ± 2 × Sai số chuẩn')).toBeTruthy();
     expect(screen.queryByTestId('hinh-cong-thuc')).toBeNull();
+    expect(nhanCacDong()).not.toContain(t('quiz.giai.thaySo'));
   });
 
   it('lời giải có cấu trúc thì thôi in đoạn văn, nhưng câu trích của nguồn vẫn còn', () => {

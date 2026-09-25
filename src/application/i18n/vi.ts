@@ -1531,9 +1531,14 @@ export const vi = {
    */
   /* Tầng thứ ba, mở 24/09/2026 cho câu tính toán — bằng chứng là chính hàm calc của công thức. */
   /* Nhãn các dòng của khối lời giải có cấu trúc — xem docblock `QuizGiai`. */
-  'quiz.giai.tinh': 'Tính',
-  'quiz.giai.congThuc': 'Công thức',
+  /*
+   * Thứ tự và chữ do chủ dự án đặt 25/09/2026: "Công thức áp dụng … để tính Biên an toàn", rồi
+   * "Thay số" nói số nào là ký hiệu nào, rồi phép tính. Nhãn "Tính" riêng gộp vào `deTinh`.
+   */
+  'quiz.giai.congThuc': 'Công thức áp dụng',
+  'quiz.giai.deTinh': 'để tính {x}',
   'quiz.giai.thaySo': 'Thay số',
+  'quiz.giai.apVao': 'Áp vào công thức',
   'quiz.giai.ketQua': 'Kết quả',
   'quiz.source': 'Nguồn',
   'quiz.effectiveFrom': 'Hiệu lực từ',

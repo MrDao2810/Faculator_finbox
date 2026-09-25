@@ -75,8 +75,16 @@ const SO_CAU_DIEN_GIAI = 5;
  * — mở lại URL, soi công thức — đã làm bằng tay; hai URL không trả 200 cho `fetch` trần đã mở
  * lại bằng trình đọc trang và khớp đúng số liệu. 47 công thức còn lại CHƯA có câu điền số.
  * Xem `items/thuc-hanh.ts`.
+ *
+ * 453 → 473 là 20 câu điền số cho 20 trong 21 công thức CHƯA có câu tính toán nào (Q454–Q473,
+ * 25/09/2026) — phần lớn ăn chuỗi giá: SMA, RSI, MACD, Bollinger, Sharpe, Sortino, VaR, CVaR…
+ * Chủ dự án chọn chạy workflow: 7 agent soạn, mỗi agent ba công thức, tìm số liệu thật (giá
+ * VN-Index, VIC, GAS, HPG… trên các trang dữ liệu giá, bài giảng có ví dụ tính tay); 7 agent đối
+ * chiếu mở lại từng URL, tính lại bằng chính `worked-line.ts`, và soát bảng `gan`. 14 agent, 0 lỗi
+ * hạ tầng. Công thức thứ 21, `chuoi-phien-giam-dai-nhat`, bị bỏ có lý do: hình của trang là một
+ * phép ĐẾM rồi lấy lớn nhất, không có phép tính nào để đặt số vào mà không vẽ một công thức khác.
  */
-const TONG_SO_CAU = 453;
+const TONG_SO_CAU = 473;
 
 /**
  * Số câu dẫn văn bản quy định (`source.kind: 'quy-dinh'`) CHƯA có ngày hiệu lực — GHIM ở 17.
@@ -187,6 +195,97 @@ const CAU_DIEN_SO: ReadonlyArray<string> = [
   'Q451',
   'Q452',
   'Q453',
+  // Q454–Q473: 20 công thức chưa có câu tính toán nào — xem docblock `TONG_SO_CAU`.
+  'Q454',
+  'Q455',
+  'Q456',
+  'Q457',
+  'Q458',
+  'Q459',
+  'Q460',
+  'Q461',
+  'Q462',
+  'Q463',
+  'Q464',
+  'Q465',
+  'Q466',
+  'Q467',
+  'Q468',
+  'Q469',
+  'Q470',
+  'Q471',
+  'Q472',
+  'Q473',
+  // Q346–Q411: 66 câu tính toán đổi từ bốn lựa chọn sang điền số (25/09/2026) — chủ dự án: "việc đưa
+  // ra các ô để nhập vào giống như tôi yêu cầu thì bạn chưa sửa, vẫn để chọn các số liệu ABCD". Mọi
+  // câu vẽ đúng công thức của chính trang (đặc tả đã đối chiếu từng dòng với `latex`), và giữ
+  // `verify` để `calc` của sản phẩm vẫn đối chiếu đáp số. Xem docblock `items/tinh-toan.ts`.
+  'Q346',
+  'Q347',
+  'Q348',
+  'Q349',
+  'Q350',
+  'Q351',
+  'Q352',
+  'Q353',
+  'Q354',
+  'Q355',
+  'Q356',
+  'Q357',
+  'Q358',
+  'Q359',
+  'Q360',
+  'Q361',
+  'Q362',
+  'Q363',
+  'Q364',
+  'Q365',
+  'Q366',
+  'Q367',
+  'Q368',
+  'Q369',
+  'Q370',
+  'Q371',
+  'Q372',
+  'Q373',
+  'Q374',
+  'Q375',
+  'Q376',
+  'Q377',
+  'Q378',
+  'Q379',
+  'Q380',
+  'Q381',
+  'Q382',
+  'Q383',
+  'Q384',
+  'Q385',
+  'Q386',
+  'Q387',
+  'Q388',
+  'Q389',
+  'Q390',
+  'Q391',
+  'Q392',
+  'Q393',
+  'Q394',
+  'Q395',
+  'Q396',
+  'Q397',
+  'Q398',
+  'Q399',
+  'Q400',
+  'Q401',
+  'Q402',
+  'Q403',
+  'Q404',
+  'Q405',
+  'Q406',
+  'Q407',
+  'Q408',
+  'Q409',
+  'Q410',
+  'Q411',
 ];
 
 function thieuNgoacKep(item: QuizItem): boolean {
@@ -341,7 +440,7 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
    */
   it('câu tính toán ra đúng con số mà calc của công thức ra', () => {
     for (const item of QUIZ_ITEMS) {
-      if (item.format !== 'trac-nghiem' || item.verify === undefined) continue;
+      if (item.format === 'chon-nhieu' || item.verify === undefined) continue;
       const formula = findFormulaModule(item.formulaId);
       expect(formula, item.id).toBeDefined();
       if (formula === undefined) continue;
@@ -470,12 +569,17 @@ describe('phủ sóng 111 công thức', () => {
    * Q412–Q453 thêm một câu điền số cho 42 công thức. Mười công thức trong số đó đang có đúng
    * hai câu, nên nay có ba. Giảm vì có thêm INPUT thật — tình huống có số liệu, công thức của
    * chính trang — chứ không phải vì hạ ngưỡng. Sàn vẫn là 2.
+   *
+   * ── Mốc 25/09/2026: 20 công thức chưa có câu tính toán nào, `hai` từ 14 xuống 12 ────────────
+   *
+   * Q454–Q473 thêm một câu điền số cho 20 công thức, phần lớn ăn chuỗi giá. Hai trong số đó đang
+   * có đúng hai câu. Cùng lý do như trên: thêm INPUT có nguồn, không hạ ngưỡng.
    */
   it('không công thức nào còn một câu, nhưng ngân hàng vẫn chưa đều', () => {
     const mot = [...cover.values()].filter((n) => n === 1).length;
     const hai = [...cover.values()].filter((n) => n === 2).length;
     expect(mot).toBe(0);
-    expect(hai).toBe(14);
+    expect(hai).toBe(12);
     // Sàn của thư viện là 2 câu. Ghim thẳng con số thay cho ngưỡng cũ — xem docblock.
     expect(Math.min(...cover.values())).toBe(2);
   });
@@ -486,9 +590,10 @@ describe('đa ngôn ngữ (FR-08)', () => {
    * Thước đo tiến độ, không phải lỗi cần vá bằng chuỗi tạm: điền một bản tiếng Anh tạm cho hợp
    * kiểu chính là bịa nội dung.
    *
-   * 0 → 23 → 34 → 76 → 107 → 139 → 205 → 247 ngày 23–24/09/2026. Từ lô 1 trở đi MỌI câu mới đều soạn
+   * 0 → 23 → 34 → 76 → 107 → 139 → 205 → 247 → 267 ngày 23–25/09/2026. Từ lô 1 trở đi MỌI câu mới đều soạn
    * song ngữ ngay từ đầu, nên con số này bằng đúng số câu của đợt mở rộng; 139 → 205 là 66 câu
-   * tính toán Q346–Q411; 205 → 247 là 42 câu thực hành điền số Q412–Q453. 206 câu của đợt đầu vẫn chỉ có `explain` song ngữ (đợt sửa
+   * tính toán Q346–Q411; 205 → 247 là 42 câu thực hành điền số Q412–Q453; 247 → 267 là 20 câu điền
+   * số Q454–Q473 cho các công thức chưa có câu tính toán nào (25/09/2026). 206 câu của đợt đầu vẫn chỉ có `explain` song ngữ (đợt sửa
    * 24/09/2026 thêm `explain.en` cho 93 câu), còn đề bài và lựa chọn thì chưa — dịch nốt chúng là
    * một đợt riêng, chưa làm.
    *
@@ -498,7 +603,7 @@ describe('đa ngôn ngữ (FR-08)', () => {
    */
   it('đếm số câu đã dịch đủ hai ngôn ngữ', () => {
     const daDich = QUIZ_ITEMS.filter(isTranslated).length;
-    expect(daDich).toBe(247);
+    expect(daDich).toBe(267);
   });
 
   /**
@@ -546,5 +651,154 @@ describe('đa ngôn ngữ (FR-08)', () => {
       [item.explain.vi, item.explain.en ?? ''].some((s) => /(?:Nguồn|Source):/.test(s)),
     );
     expect(coNhan.map((item) => item.id)).toEqual([]);
+  });
+});
+
+/**
+ * Dòng "Thay số" của lời giải — ký hiệu nào nhận con số nào (`QuizGiai.gan`, 25/09/2026).
+ *
+ * Chủ dự án đọc "Thứ tự đúng: 42.500 · 33.850 · 42.500" rồi hỏi 42.500 là V hay P. Dòng `gan` trả
+ * lời đúng câu ấy, nên nó chỉ có ích khi nó ĐÚNG — một ký hiệu bịa ra, hay một con số không có trong
+ * đề, là dạy sai ngay dưới lời giải. Bốn điều máy kiểm được đều ở đây. Điều thứ năm thì không: gán
+ * nhầm hai số cùng đơn vị (giá trị nội tại vào `P`, thị giá vào `V`) vẫn qua cả bốn — chỗ ấy chỉ
+ * có người đọc nghĩa của ký hiệu mới thấy, và mỗi lô đều phải soát tay.
+ */
+describe('Thay số — ký hiệu nào nhận con số nào', () => {
+  /** Mọi con số trong một chuỗi, giữ nguyên cách viết: "42.500", "0,15", "12.5". */
+  const soTrong = (text: string): string[] => text.match(/\d[\d.,]*\d|\d/g) ?? [];
+  const coGiaiHinh = QUIZ_ITEMS.filter(
+    (item) => item.giai !== undefined && item.giai.congThuc === undefined,
+  );
+
+  /** Ký hiệu hợp lệ của một công thức: dòng bảng ký hiệu, hoặc cụm `\text{…}` có trong hình. */
+  const kyHieuHopLe = (formulaId: string, kyHieu: string): boolean => {
+    const spec = findFormulaModule(formulaId)?.spec;
+    if (spec === undefined) return false;
+    if ((spec.symbols ?? []).some((row) => row.latex === kyHieu)) return true;
+    return /^\\text\{[^{}]+\}$/.test(kyHieu) && spec.latex.includes(kyHieu);
+  };
+
+  /*
+   * Đuôi "để tính …" đứng NGAY CẠNH hình công thức, và gạch ngang dài ở đó bị đọc thành dấu trừ — lỗi
+   * chủ dự án đã bắt ở dòng chữ dưới hình (16/09) và ở bảng ký hiệu (17/09/2026). 15 câu từng chép
+   * nguyên tên công thức ("FCFE — dòng tiền tự do của cổ đông") vào đây.
+   */
+  it('đuôi "để tính …" không mang gạch ngang dài', () => {
+    const sai = QUIZ_ITEMS.filter((item) =>
+      [item.giai?.tinh.vi ?? '', item.giai?.tinh.en ?? ''].some((s) => /[—–]/.test(s)),
+    );
+    expect(sai.map((item) => item.id)).toEqual([]);
+  });
+
+  it('mọi lời giải in hình công thức đều có dòng Thay số', () => {
+    const thieu = coGiaiHinh.filter((item) => (item.giai?.gan ?? []).length === 0);
+    expect(thieu.map((item) => item.id)).toEqual([]);
+  });
+
+  it('ký hiệu nào cũng có thật trong hình công thức của chính trang ấy', () => {
+    const sai = coGiaiHinh.flatMap((item) =>
+      (item.giai?.gan ?? [])
+        .filter((dong) => !kyHieuHopLe(item.formulaId, dong.kyHieu))
+        .map((dong) => `${item.id} (${item.formulaId}): "${dong.kyHieu}"`),
+    );
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  /*
+   * Con số phải có NGUYÊN VĂN trong đề: bảng Số liệu, lời đề, hoặc dòng công thức (hằng số như
+   * `0,15` của phí môi giới chỉ nằm ở đó). Bản tiếng Anh kiểm với bản tiếng Anh của cùng mấy chỗ ấy.
+   */
+  it('mọi con số trong dòng Thay số đều có nguyên văn trong đề', () => {
+    const sai: string[] = [];
+    for (const item of coGiaiHinh) {
+      for (const ngon of ['vi', 'en'] as const) {
+        const nguon = [
+          ...(item.facts ?? []).flatMap((f) => [f.value[ngon] ?? '', f.label[ngon] ?? '']),
+          item.prompt[ngon] ?? '',
+          item.format === 'dien-so' ? (item.worked[ngon] ?? '') : '',
+          item.giai?.thaySo[ngon] ?? '',
+        ];
+        const co = new Set(nguon.flatMap(soTrong));
+        for (const dong of item.giai?.gan ?? []) {
+          const giaTri = (dong.giaTri ?? dong.moTa)?.[ngon];
+          if (giaTri === undefined) {
+            if (ngon === 'en' && item.prompt.en !== undefined)
+              sai.push(`${item.id}: "${dong.kyHieu}" thiếu bản en`);
+            continue;
+          }
+          for (const so of soTrong(giaTri)) {
+            if (!co.has(so))
+              sai.push(`${item.id} [${ngon}]: "${so}" của "${dong.kyHieu}" không có trong đề`);
+          }
+        }
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  /*
+   * Dòng "Áp vào công thức" của câu điền số phải ĐÚNG BẰNG dòng công thức đã bóc ngoặc — nó là
+   * phép tính người học vừa điền, lộ ra sau khi chấm. Viết nó bằng tay là mở chỗ cho hai bản lệch
+   * nhau: người học đặt đúng mà lời giải lại in một phép tính khác.
+   */
+  it('câu điền số: dòng "Áp vào công thức" đúng bằng dòng công thức đã bóc ngoặc', () => {
+    const sai: string[] = [];
+    for (const item of coGiaiHinh) {
+      if (item.format !== 'dien-so') continue;
+      for (const ngon of ['vi', 'en'] as const) {
+        const dong = item.worked[ngon];
+        if (dong === undefined) continue;
+        if (item.giai?.thaySo[ngon] !== arithmeticOf(dong)) sai.push(`${item.id} [${ngon}]`);
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  /*
+   * Không còn câu tính toán nào bắt CHỌN đáp số — chủ dự án 25/09/2026: "việc đưa ra các ô để nhập
+   * vào giống như tôi yêu cầu thì bạn chưa sửa, vẫn để chọn các số liệu ABCD". 66 câu Q346–Q411 đổi
+   * sang điền số và giữ nguyên `verify`. Câu nào khai `verify` mà lại có lựa chọn là lệch khỏi
+   * quyết định ấy. (14 câu trắc nghiệm vẽ công thức KHÁC trang vẫn chọn đáp án — xem `CAU_DIEN_SO`;
+   * chúng không khai `verify`.)
+   */
+  it('không còn câu tính toán nào bắt chọn đáp số', () => {
+    const conChon = QUIZ_ITEMS.filter(
+      (item) => item.format === 'trac-nghiem' && item.verify !== undefined,
+    ).map((item) => item.id);
+    expect(conChon).toEqual([]);
+  });
+
+  /*
+   * Mỗi dòng Thay số có đúng MỘT trong `giaTri` / `moTa`, và mỗi ký hiệu chỉ một dòng. Hai dòng
+   * cùng ký hiệu là cách cũ — giao diện gộp chúng thành "12.000.000 · 12.000.000 · 12.000.000", chủ
+   * dự án đọc không hiểu, và "·" lại là dấu nhân. Ký hiệu nhận nhiều số thì nói bằng một câu `moTa`.
+   */
+  it('mỗi ký hiệu một dòng Thay số, với đúng một trong giá trị hoặc câu mô tả', () => {
+    const sai: string[] = [];
+    for (const item of coGiaiHinh) {
+      const gan = item.giai?.gan ?? [];
+      const trung = gan.filter((d, i) => gan.findIndex((x) => x.kyHieu === d.kyHieu) !== i);
+      for (const d of trung) sai.push(`${item.id}: "${d.kyHieu}" khai hai lần`);
+      for (const d of gan) {
+        if ((d.giaTri === undefined) === (d.moTa === undefined))
+          sai.push(`${item.id}: "${d.kyHieu}" phải có đúng một trong giaTri/moTa`);
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  it('câu điền số: ô trống nào cũng có ký hiệu ở dòng Thay số', () => {
+    const sai: string[] = [];
+    for (const item of coGiaiHinh) {
+      if (item.format !== 'dien-so') continue;
+      const daGan = new Set(
+        (item.giai?.gan ?? []).flatMap((dong) => soTrong((dong.giaTri ?? dong.moTa)?.vi ?? '')),
+      );
+      for (const o of new Set(blanksOf(item.worked.vi))) {
+        if (!daGan.has(o.replace(/^[−-]/, '')))
+          sai.push(`${item.id} (${item.formulaId}): ô "${o}" chưa có ký hiệu`);
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
   });
 });

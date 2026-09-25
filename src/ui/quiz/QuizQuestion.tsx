@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
@@ -93,6 +93,28 @@ function beNgangO(dap: string): number {
   return Math.min(13, Math.max(4, dap.length));
 }
 
+/**
+ * Một dòng bảng ký hiệu của trang — thứ dòng "Thay số" của lời giải cần để in ký hiệu và nghĩa.
+ * `html` là MathML dựng lúc build (cùng chuỗi thẻ Công thức in), `nghia` là `spec.symbols[].meaning`.
+ */
+export interface QuizKyHieu {
+  latex: string;
+  html: string;
+  nghia: QuizText;
+}
+
+/**
+ * Hạ chữ hoa đầu một cụm danh từ để nó đứng được giữa câu: "để tính Biên an toàn" thành "để tính
+ * biên an toàn". Chữ viết tắt thì giữ nguyên — chữ thứ hai cũng hoa ("P/E", "EPS") hoặc không phải
+ * chữ cái ("P/E") nghĩa là cụm mở bằng một ký hiệu, và "p/E" là sai.
+ */
+function giuaCau(cum: string): string {
+  const [dau, hai] = [...cum];
+  if (dau === undefined || hai === undefined) return cum;
+  const laChuThuong = hai.toLowerCase() === hai && hai.toUpperCase() !== hai;
+  return laChuThuong ? dau.toLowerCase() + cum.slice(dau.length) : cum;
+}
+
 export interface QuizQuestionProps {
   item: QuizItem;
   /**
@@ -102,6 +124,8 @@ export interface QuizQuestionProps {
    * với tới. Màn chi tiết dựng sẵn rồi đưa xuống; thư mục này chỉ đặt nó vào đúng ô.
    */
   hinhCongThuc?: ReactNode;
+  /** Bảng ký hiệu của trang — dòng "Thay số" tra ký hiệu và nghĩa ở đây, không chép vào câu hỏi. */
+  kyHieu?: ReadonlyArray<QuizKyHieu>;
   /** Gốc id, để `name` của radio và `id` của ô nhập không đụng câu khác trên cùng trang. */
   namePrefix: string;
   picked: ReadonlyArray<QuizChoiceKey>;
@@ -117,6 +141,7 @@ export interface QuizQuestionProps {
 export function QuizQuestion({
   item,
   hinhCongThuc,
+  kyHieu,
   namePrefix,
   picked,
   typed,
@@ -147,6 +172,17 @@ export function QuizQuestion({
    */
   const ghiDe = item.giai?.congThuc;
   const coHinh = ghiDe === undefined && hinhCongThuc !== undefined;
+
+  /*
+   * Dòng "Thay số", gộp theo ký hiệu: năm giá đóng cửa cùng là `P_{t-i}` thì in MỘT dòng
+   * "P = 25.100 · 25.300 · …", đúng thứ tự khai. `{ __html }` của ký hiệu dựng một lần — React so
+   * `dangerouslySetInnerHTML` theo danh tính object, dựng lại là thay cây MathML mỗi lượt render.
+   */
+  const kyHieuInner = useMemo(
+    () => new Map((kyHieu ?? []).map((k) => [k.latex, { __html: k.html }])),
+    [kyHieu],
+  );
+  const thayKyHieu = item.giai?.gan ?? [];
 
   const laDung = laDungCua(item, picked, typed);
   const khoa = readOnly || answered;
@@ -392,20 +428,82 @@ export function QuizQuestion({
             */}
             {item.giai !== undefined && (ghiDe !== undefined || coHinh) ? (
               <dl className={styles.giai}>
-                <div className={styles.giaiHang}>
-                  <dt>{t('quiz.giai.tinh')}</dt>
-                  <dd>{chu(item.giai.tinh)}</dd>
-                </div>
+                {/*
+                  Thứ tự dòng do chủ dự án đặt 25/09/2026: "Công thức áp dụng … để tính Biên an
+                  toàn → Thay số: 42500 là gì tương ứng với ký hiệu nào … → áp dụng vào công thức".
+                  Dòng "Tính" riêng cũ gộp thành đuôi "để tính …" của dòng công thức.
+                */}
                 <div className={styles.giaiHang}>
                   <dt>{t('quiz.giai.congThuc')}</dt>
-                  {ghiDe === undefined ? (
-                    <dd className={styles.giaiHinh}>{hinhCongThuc}</dd>
-                  ) : (
-                    <dd className={styles.giaiGhiDe}>{chu(ghiDe)}</dd>
-                  )}
+                  <dd className={styles.giaiCongThuc}>
+                    {ghiDe === undefined ? (
+                      <div className={styles.giaiHinh}>{hinhCongThuc}</div>
+                    ) : (
+                      <span className={styles.giaiGhiDe}>{chu(ghiDe)}</span>
+                    )}
+                    <span className={styles.giaiDeTinh}>
+                      {t('quiz.giai.deTinh').replace('{x}', giuaCau(chu(item.giai.tinh)))}
+                    </span>
+                  </dd>
                 </div>
+                {thayKyHieu.length > 0 && (
+                  <div className={styles.giaiHang}>
+                    <dt>{t('quiz.giai.thaySo')}</dt>
+                    <dd>
+                      {/*
+                        `<dl>` con: mỗi ký hiệu là một `<dt>`, con số và nghĩa là `<dd>` — "V: bằng
+                        42.500, là giá trị nội tại…" đọc đúng thành một cặp với trình đọc màn hình.
+                        Ký hiệu có dòng trong bảng thì in MathML của bảng và nghĩa của bảng; cụm
+                        `\text{…}` tự nói nghĩa (bảng không có dòng riêng) thì in đúng chữ ấy.
+                      */}
+                      <dl className={styles.giaiThay}>
+                        {thayKyHieu.map((dong) => {
+                          const dongBang = (kyHieu ?? []).find((k) => k.latex === dong.kyHieu);
+                          const chuTho = /^\\text\{([^{}]+)\}$/.exec(dong.kyHieu)?.[1];
+                          return (
+                            <Fragment key={dong.kyHieu}>
+                              {dongBang !== undefined ? (
+                                <dt
+                                  className={styles.giaiKyHieu}
+                                  // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem `notation-view.ts`
+                                  dangerouslySetInnerHTML={kyHieuInner.get(dong.kyHieu)}
+                                />
+                              ) : (
+                                <dt className={styles.giaiKyHieuChu}>{chuTho ?? dong.kyHieu}</dt>
+                              )}
+                              <dd>
+                                {/*
+                                  Con số trơn in "= 42.500"; câu mô tả in liền sau ký hiệu, không
+                                  có dấu "=" — "C_i của cả 3 đợt cùng bằng 12.000.000". Xem
+                                  docblock `QuizGan.moTa`: dàn nhiều số nối bằng "·" đã bị bác, vì
+                                  "·" là dấu nhân trong chính các công thức của trang.
+                                */}
+                                {dong.moTa !== undefined ? (
+                                  <span className={styles.giaiMoTa}>{chu(dong.moTa)}</span>
+                                ) : (
+                                  <span className={styles.giaiGiaTri}>
+                                    = {dong.giaTri === undefined ? '' : chu(dong.giaTri)}
+                                  </span>
+                                )}
+                                {/*
+                                  Nghĩa từ bảng ký hiệu CHỈ đi với con số trơn. Câu mô tả tự nói
+                                  nghĩa bằng lời của chính bài: nghĩa trong bảng viết cho công thức
+                                  tổng quát ("tiền mua đợt i"), đặt cạnh một bài cụ thể thì chủ dự
+                                  án đọc không ra — "tiền mua giá đợt i nghĩa là gì?" (25/09/2026).
+                                */}
+                                {dongBang !== undefined && dong.moTa === undefined && (
+                                  <span className={styles.giaiNghia}>{chu(dongBang.nghia)}</span>
+                                )}
+                              </dd>
+                            </Fragment>
+                          );
+                        })}
+                      </dl>
+                    </dd>
+                  </div>
+                )}
                 <div className={styles.giaiHang}>
-                  <dt>{t('quiz.giai.thaySo')}</dt>
+                  <dt>{t('quiz.giai.apVao')}</dt>
                   <dd className={styles.giaiSo}>{chu(item.giai.thaySo)}</dd>
                 </div>
                 <div className={styles.giaiHang}>

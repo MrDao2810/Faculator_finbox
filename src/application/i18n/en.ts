@@ -711,9 +711,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.whyWrong': 'Why this is wrong',
   'quiz.rule': 'The rule in force',
   /* Mộ chí: `quiz.evidence.*` (3 khoá) bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
-  'quiz.giai.tinh': 'Computes',
-  'quiz.giai.congThuc': 'Formula',
-  'quiz.giai.thaySo': 'Substituting',
+  'quiz.giai.congThuc': 'Formula used',
+  'quiz.giai.deTinh': 'to compute {x}',
+  'quiz.giai.thaySo': 'Values',
+  'quiz.giai.apVao': 'Plugged in',
   'quiz.giai.ketQua': 'Result',
   'quiz.source': 'Source',
   'quiz.effectiveFrom': 'In force since',

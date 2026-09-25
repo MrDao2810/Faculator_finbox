@@ -939,6 +939,31 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       vi: 'Nguồn tính ví dụ mẫu: “For investment C, the Treynor ratio comes out to be ( 22 – 1 ) / (2.5 * 100) = 0.084”. Cách viết (2,5 × 100) chỉ là mẹo đổi hiệu số phần trăm (22 − 1 = 21) sang số thập phân trước khi chia cho beta — bản chất vẫn là (22% − 1%) / 2,5 = 0,21 / 2,5 = 0,084. Người quen các tỷ số kiểu Sharpe hay nhân kết quả với 100, hoặc quên đổi % sang số thập phân trước khi chia cho beta, nên hay tính sai bước này.',
       en: "The source's worked example: “For investment C, the Treynor ratio comes out to be ( 22 – 1 ) / (2.5 * 100) = 0.084.” Writing (2.5 × 100) is just a trick to turn the percentage-point difference (22 − 1 = 21) into a decimal before dividing by beta — it is really (22% − 1%) / 2.5 = 0.21 / 2.5 = 0.084. People used to Sharpe-style ratios often multiply the result by 100, or forget to convert the % figures to a decimal before dividing by beta, and get this step wrong.",
     },
+    giai: {
+      tinh: { vi: 'Tỷ số Treynor', en: 'Treynor ratio' },
+      thaySo: { vi: '(22 − 1) ÷ 100 ÷ 2,5', en: '(22 − 1) ÷ 100 ÷ 2.5' },
+      ketQua: { vi: '0,084 lần', en: '0.084 x' },
+      gan: [
+        {
+          kyHieu: '\\bar{r}_p',
+          moTa: {
+            vi: 'là lợi suất danh mục, ở đây đã tính theo năm: 22%',
+            en: 'is the portfolio return, already annual here: 22%',
+          },
+        },
+        {
+          kyHieu: 'r_f',
+          moTa: {
+            vi: 'là lãi suất phi rủi ro theo năm: 1%',
+            en: 'is the annual risk-free rate: 1%',
+          },
+        },
+        {
+          kyHieu: '\\beta_p',
+          moTa: { vi: 'là beta của danh mục: 2,5', en: 'is the portfolio beta: 2.5' },
+        },
+      ],
+    },
     source: {
       url: 'https://www.wallstreetmojo.com/treynor-ratio/',
       kind: 'giao-khoa',
@@ -1050,6 +1075,24 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'Nguồn nêu đúng ví dụ số cho quy ước này: “Annualised IR = 1.08 x sqrt(12) = 1.08 x 3.464 = 3.74”, tức nhân IR theo kỳ với căn bậc hai số kỳ trong năm (12 cho dữ liệu tháng, 252 cho dữ liệu ngày, 52 cho dữ liệu tuần). Cùng nguồn cảnh báo sai lầm phổ biến: “applying sqrt(252) to monthly data or sqrt(12) to daily data is a common mistake”, dùng nhầm hệ số quy năm ứng với tần suất dữ liệu khiến kết quả vô nghĩa.',
       en: 'The source gives the worked example for this exact convention: “Annualized IR = 1.08 x sqrt(12) = 1.08 x 3.464 = 3.74”, meaning the per-period IR is multiplied by the square root of periods per year (12 for monthly data, 252 for daily, 52 for weekly). The same source flags a common mistake: “applying sqrt(252) to monthly data or sqrt(12) to daily data is a common mistake” that renders the result meaningless.',
+    },
+    giai: {
+      tinh: { vi: 'Tỷ số thông tin', en: 'Information ratio' },
+      thaySo: { vi: '1,08 × √12', en: '1.08 × √12' },
+      ketQua: { vi: '3,74 lần', en: '3.74 x' },
+      gan: [
+        {
+          kyHieu: 'IR',
+          moTa: {
+            vi: 'theo tháng là 1,08; nhân với căn bậc hai của 12 để quy ra năm',
+            en: 'is 1.08 on a monthly basis; multiply by the square root of 12 to annualize',
+          },
+        },
+        {
+          kyHieu: 'm',
+          moTa: { vi: 'là 12, vì dữ liệu theo tháng', en: 'is 12, because the data are monthly' },
+        },
+      ],
     },
     source: {
       url: 'https://www.quantt.co.uk/resources/information-ratio-explained',
@@ -1587,6 +1630,27 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       vi: 'Nếu tính ẩu bằng cách lấy đỉnh cao nhất toàn kỳ (500, ở phiên 3) trừ đáy thấp nhất toàn kỳ (150, ở phiên 2) rồi chia cho 500, sẽ ra 70% — nhưng đáy 150 xảy ra TRƯỚC khi danh mục đạt đỉnh 500, nên phép ghép đó đặt một đáy cạnh một đỉnh còn chưa tồn tại ở thời điểm đó. Nguồn yêu cầu tính trên cơ sở cuốn chiếu: “If calculating the maximum drawdown in Excel, ensure the formula is dynamic to capture each new peak and restart of the cycle, i.e. on a “rolling basis”.” Nghĩa là đỉnh dùng để so sánh phải là đỉnh cao nhất TÍNH ĐẾN THỜI ĐIỂM ĐÓ: ở phiên 2, đỉnh tính đến lúc đó chỉ là 400 (phiên 1), nên mức giảm hợp lệ là (400−150)/400 = 62,5%; ở phiên 4, đỉnh tính đến lúc đó là 500 (phiên 3), mức giảm là (500−350)/500 = 30%. Lớn nhất trong các mức giảm hợp lệ là 62,5% — đó mới là MDD đúng của cả giai đoạn.',
       en: "Naively subtracting the period's single lowest value (150, session 2) from its single highest value (500, session 3) and dividing by 500 gives 70% — but the 150 low occurred BEFORE the portfolio ever reached the 500 peak, so that pairing matches a trough with a peak that did not exist yet at that time. The source requires computing on a rolling basis: “If calculating the maximum drawdown in Excel, ensure the formula is dynamic to capture each new peak and restart of the cycle, i.e. on a “rolling basis”.” This means the comparison peak must be the highest value reached so far: at session 2, the peak-to-date was only 400 (session 1), so the valid drawdown there is (400−150)/400 = 62.5%; at session 4, the peak-to-date is 500 (session 3), giving (500−350)/500 = 30%. The largest of these valid drawdowns is 62.5% — that is the period's correct MDD.",
     },
+    giai: {
+      tinh: { vi: 'Mức sụt giảm sâu nhất', en: 'Maximum drawdown' },
+      thaySo: { vi: '(400 − 150) ÷ 400 × 100', en: '(400 − 150) ÷ 400 × 100' },
+      ketQua: { vi: '62,5 %', en: '62.5 %' },
+      gan: [
+        {
+          kyHieu: '\\max_{s \\le t} P_s',
+          moTa: {
+            vi: 'là NAV đỉnh trước đợt giảm: 400 tỷ ₫',
+            en: 'is the peak NAV before the fall: 400 billion ₫',
+          },
+        },
+        {
+          kyHieu: 'P_t',
+          moTa: {
+            vi: 'là NAV đáy sau đỉnh ấy: 150 tỷ ₫',
+            en: 'is the trough NAV after that peak: 150 billion ₫',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://www.wallstreetprep.com/knowledge/maximum-drawdown-mdd/',
       kind: 'giao-khoa',
@@ -1982,6 +2046,27 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       vi: 'Theo Motley Fool: “Annualized volatility = standard deviation (volatility) multiplied by the square root of the periods in the year.” Nguồn tự tính ví dụ đúng công thức này trên một cổ phiếu có độ lệch chuẩn tháng 17,9%: “Stock A annualized volatility = 17.9% multiplied by the square root of 12, resulting in 62%” — tức 17,9% × √12 ≈ 62%/năm, nhân với CĂN BẬC HAI của 12 chứ không nhân thẳng với 12.',
       en: "Per the Motley Fool: “Annualized volatility = standard deviation (volatility) multiplied by the square root of the periods in the year.” The source's own worked example applies this exact rule to a stock with a 17.9% monthly standard deviation: “Stock A annualized volatility = 17.9% multiplied by the square root of 12, resulting in 62%” — i.e. 17.9% × √12 ≈ 62%/year, using the SQUARE ROOT of 12, not 12 directly.",
     },
+    giai: {
+      tinh: { vi: 'Độ biến động năm hoá', en: 'Annualized volatility' },
+      thaySo: { vi: '17,9 × √12', en: '17.9 × √12' },
+      ketQua: { vi: '62,01 %/năm', en: '62.01 %/year' },
+      gan: [
+        {
+          kyHieu: 's_{phien}',
+          moTa: {
+            vi: 'là độ lệch chuẩn lợi suất, ở đây theo tháng: 17,9%',
+            en: 'is the standard deviation of returns, monthly here: 17.9%',
+          },
+        },
+        {
+          kyHieu: 'D',
+          moTa: {
+            vi: 'là 12 kỳ một năm, vì dữ liệu theo tháng',
+            en: 'is 12 periods a year, because the data are monthly',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://www.fool.com/investing/how-to-calculate/annualized-volatility/',
       kind: 'giao-khoa',
@@ -2088,6 +2173,27 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: '“the dispersion per unit monthly return of T-Bills is less than that of Y. Therefore, investment Y is riskier than an investment on T-Bills” — CV(Y) = 6/1,5 = 4 lần, cao hơn hẳn CV(T-Bill) = 0,58/0,5 = 1,16 lần. Đáng chú ý: nếu chỉ so độ lệch chuẩn thô (6% so với 0,58%, cách nhau hơn 10 lần) sẽ đánh giá chênh lệch rủi ro lớn hơn nhiều so với con số CV thực (chỉ khoảng 3,4 lần) — CV mới là con số đọc đúng rủi ro trên mỗi đơn vị lợi suất khi hai khoản đầu tư có lợi suất kỳ vọng khác nhau.',
       en: '“the dispersion per unit monthly return of T-Bills is less than that of Y. Therefore, investment Y is riskier than an investment on T-Bills.” CV(Y) = 6/1.5 = 4x, well above CV(T-Bill) = 0.58/0.5 = 1.16x. Note that comparing raw standard deviations alone (6% vs 0.58%, a 10x+ gap) would suggest a far bigger risk difference than the actual CV gap (about 3.4x) — CV is the number that correctly reads risk per unit of return when two investments have different expected returns.',
+    },
+    giai: {
+      tinh: { vi: 'Hệ số biến thiên', en: 'Coefficient of variation' },
+      thaySo: { vi: '6 ÷ 1,5', en: '6 ÷ 1.5' },
+      ketQua: { vi: '4 lần', en: '4 x' },
+      gan: [
+        {
+          kyHieu: 's',
+          moTa: {
+            vi: 'là độ lệch chuẩn lợi suất tháng của Y: 6%',
+            en: 'is the standard deviation of Y’s monthly returns: 6%',
+          },
+        },
+        {
+          kyHieu: '\\bar{r}',
+          moTa: {
+            vi: 'là lợi suất bình quân tháng của Y: 1,5%',
+            en: 'is Y’s average monthly return: 1.5%',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://analystprep.com/cfa-level-1-exam/quantitative-methods/coefficient-of-variation-sharpe-ratio/',
@@ -2303,6 +2409,27 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       vi: 'A = (P_max − P_min) ÷ P_min × 100 = (24.500 − 21.800) ÷ 21.800 × 100 ≈ 12,39%, tính hoàn toàn bằng giá ĐÓNG CỬA — đúng như spec formula định nghĩa P_max/P_min là "giá đóng cửa cao nhất/thấp nhất". Mức 25.200 ₫ chỉ là giá chạm trong phiên rồi tụt về 23.900 ₫ lúc đóng cửa nên KHÔNG được tính vào P_max; lấy nhầm 25.200 ₫ sẽ ra 15,60% — sai. Nguồn nói về cùng quy ước này ở chỉ số mức cao/thấp 52 tuần: “Mức giá 52 tuần Cao/Thấp được tính dựa trên giá đóng cửa hàng ngày của chứng khoán. Thông thường, một cổ phiếu thực sự có thể vượt mức giá cao trong 52 tuần, nhưng cuối cùng lại đóng cửa dưới mức cao trước đó, cho nên giá sẽ không được công nhận.”',
       en: 'A = (P_max − P_min) ÷ P_min × 100 = (24,500 − 21,800) ÷ 21,800 × 100 ≈ 12.39%, using CLOSING prices only — matching how the formula\'s own spec defines P_max/P_min as "the highest/lowest closing price". The 25,200 VND print was only touched intraday and the session closed back down at 23,900 VND, so it does NOT count as P_max; using 25,200 VND by mistake would give 15.60%, which is wrong. The source states the same convention for the 52-week high/low: “Mức giá 52 tuần Cao/Thấp được tính dựa trên giá đóng cửa hàng ngày của chứng khoán. Thông thường, một cổ phiếu thực sự có thể vượt mức giá cao trong 52 tuần, nhưng cuối cùng lại đóng cửa dưới mức cao trước đó, cho nên giá sẽ không được công nhận.”',
     },
+    giai: {
+      tinh: { vi: 'Biên độ dao động lớn nhất trong kỳ', en: 'Peak-to-trough price range' },
+      thaySo: { vi: '(24.500 − 21.800) ÷ 21.800 × 100', en: '(24500 − 21800) ÷ 21800 × 100' },
+      ketQua: { vi: '12,39 %', en: '12.39 %' },
+      gan: [
+        {
+          kyHieu: 'P_{max}',
+          moTa: {
+            vi: 'là giá đóng cửa cao nhất trong 12 phiên: 24.500 ₫',
+            en: 'is the highest close over the 12 sessions: 24500 ₫',
+          },
+        },
+        {
+          kyHieu: 'P_{min}',
+          moTa: {
+            vi: 'là giá đóng cửa thấp nhất trong 12 phiên: 21.800 ₫',
+            en: 'is the lowest close over the 12 sessions: 21800 ₫',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://masterskills.org/blog/muc-gia-52-tuan-cao-thap-52-week-high-low-la-gi-hieu-ve-muc-gia-52-tuan-cao-thap.html',
       kind: 'giao-khoa',
@@ -2513,6 +2640,37 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: "Vì trung bình bằng 0%, độ lệch từng phiên so với trung bình chính là giá trị lợi suất: bình phương lần lượt là 4, 1, 1, 4, 0 (%²), tổng bằng 10. Vì đây là độ lệch chuẩn MẪU nên chia cho (n − 1) = 4, không chia cho n = 5: phương sai = 10/4 = 2,5(%²) → độ lệch chuẩn = √2,5 ≈ 1,58%/phiên. Nếu lỡ chia cho n sẽ ra 1,41%/phiên — sai quy ước. Nguồn xác nhận quy ước n − 1 (hiệu chỉnh Bessel) dùng cho mẫu: “The key difference is the denominator: N for population (divide by total count) vs n−1 for samples (Bessel's correction to reduce bias).”",
       en: "Since the mean is 0%, each session's deviation equals its own return: the squares are 4, 1, 1, 4, 0 (%²), summing to 10. Because this is the SAMPLE standard deviation, divide by (n − 1) = 4, not by n = 5: variance = 10/4 = 2.5 (%²) → standard deviation = √2.5 ≈ 1.58%/session. Dividing by n instead would wrongly give 1.41%/session. The source confirms the n − 1 (Bessel's correction) convention for samples: “The key difference is the denominator: N for population (divide by total count) vs n−1 for samples (Bessel's correction to reduce bias).”",
+    },
+    giai: {
+      tinh: { vi: 'Độ lệch chuẩn lợi suất theo phiên', en: 'Daily return standard deviation' },
+      thaySo: {
+        vi: '√(((2 − 0)^2 + (−1 − 0)^2 + (1 − 0)^2 + (−2 − 0)^2 + (0 − 0)^2) ÷ (5 − 1))',
+        en: '√(((2 − 0)^2 + (−1 − 0)^2 + (1 − 0)^2 + (−2 − 0)^2 + (0 − 0)^2) ÷ (5 − 1))',
+      },
+      ketQua: { vi: '1,58 %/phiên', en: '1.58 %/session' },
+      gan: [
+        {
+          kyHieu: 'r_t',
+          moTa: {
+            vi: 'là lợi suất 5 phiên theo thứ tự: 2%, −1%, 1%, −2% và 0%',
+            en: 'is the return of each of the 5 sessions in order: 2%, −1%, 1%, −2% and 0%',
+          },
+        },
+        {
+          kyHieu: '\\bar{r}',
+          moTa: {
+            vi: 'là lợi suất bình quân của 5 phiên ấy: 0%',
+            en: 'is the average of those 5 returns: 0%',
+          },
+        },
+        {
+          kyHieu: 'n',
+          moTa: {
+            vi: 'là 5 lợi suất, nên mẫu số là 5 trừ 1',
+            en: 'is 5 returns, so the denominator is 5 minus 1',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://www.calcplanet.com/formulas/standard-deviation-formula/',

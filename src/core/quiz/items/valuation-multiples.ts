@@ -348,6 +348,27 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       vi: 'Nguồn tính lại P/S ngay sau khi có báo cáo Q1/2019: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” Lấy 71.150,89 chia cho 57.798 tỷ đồng doanh thu lũy kế 4 quý ra khoảng 1,23 lần — thấp hơn 1,26 lần nếu vẫn dùng doanh thu cả năm 2018 đã lỗi thời so với báo cáo mới nhất.',
       en: "The source recalculates P/S right after the Q1/2019 results come out: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG” (roughly, “for more accuracy we need to use HPG's trailing four-quarter revenue”). Dividing VND 71,150.89 billion by the trailing four-quarter revenue of VND 57,798 billion gives about 1.23x — lower than the 1.26x you would get by still using the now-outdated full-year-2018 revenue.",
     },
+    giai: {
+      tinh: { vi: 'hệ số giá trên doanh thu', en: 'Price to sales ratio' },
+      thaySo: { vi: '71.150,89 ÷ 57.798', en: '71150.89 ÷ 57798' },
+      ketQua: { vi: '1,23 lần', en: '1.23 x' },
+      gan: [
+        {
+          kyHieu: 'P',
+          moTa: {
+            vi: 'là giá một cổ phiếu; ở đây tử và mẫu cùng nhân với số cổ phiếu, nên dùng thẳng vốn hoá 71.150,89 tỷ ₫',
+            en: 'is the price of one share; here top and bottom are both multiplied by the share count, so market cap of 71150.89 billion ₫ is used directly',
+          },
+        },
+        {
+          kyHieu: 'S_{ps}',
+          moTa: {
+            vi: 'là doanh thu trên một cổ phiếu; nhân với số cổ phiếu thành doanh thu thuần 4 quý gần nhất 57.798 tỷ ₫',
+            en: 'is revenue per share; multiplied by the share count it becomes trailing four-quarter net revenue of 57798 billion ₫',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://govalue.vn/chi-so-ps/',
       kind: 'giao-khoa',
@@ -651,6 +672,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'EV = Vốn hóa + Nợ vay − Tiền + Lợi ích cổ đông thiểu số = 5.000 + 1.200 − 300 + 400 = 6.300 tỷ đồng. EV/EBITDA = 6.300 / 800 = 7,875 lần. Corporate Finance Institute giải thích vì sao bắt buộc cộng khoản này: “the consolidated financial statements of XYZ will reflect 100% of the Total Sales, EBIT, and EBITDA, etc. of the subsidiary ABC even though XYZ only owns 80% of ABC.” Tức mẫu số EBITDA đã tính đủ 100% công ty con, nên tử số EV cũng phải cộng đủ phần vốn của cổ đông thiểu số; nếu quên cộng, kết quả chỉ còn 5.900 / 800 = 7,375 lần, tức bội số bị bóp méo thấp giả tạo.',
       en: 'EV = Market cap + Debt − Cash + Minority interest = 5,000 + 1,200 − 300 + 400 = VND 6,300 billion. EV/EBITDA = 6,300 / 800 = 7.875x. Corporate Finance Institute explains why this add-back is required: “the consolidated financial statements of XYZ will reflect 100% of the Total Sales, EBIT, and EBITDA, etc. of the subsidiary ABC even though XYZ only owns 80% of ABC.” The EBITDA in the denominator already reflects 100% of the subsidiary, so the EV in the numerator must also include the full minority stake; skipping it would give only 5,900 / 800 = 7.375x, an artificially cheap-looking multiple.',
+    },
+    giai: {
+      tinh: { vi: 'EV/EBITDA', en: 'EV to EBITDA ratio' },
+      thaySo: { vi: '(5.000 + 1.200 + 400 − 300) ÷ 800', en: '(5000 + 1200 + 400 − 300) ÷ 800' },
+      ketQua: { vi: '7,88 lần', en: '7.88 x' },
+      gan: [
+        {
+          kyHieu: 'EV',
+          moTa: {
+            vi: 'bằng vốn hoá 5.000 cộng nợ vay 1.200 và lợi ích cổ đông thiểu số 400, trừ tiền mặt 300, đơn vị tỷ ₫',
+            en: 'is market cap 5000 plus debt 1200 and minority interest 400, minus cash 300, in billions of ₫',
+          },
+        },
+        { kyHieu: 'EBITDA', giaTri: { vi: '800', en: '800' } },
+      ],
     },
     source: {
       url: 'https://corporatefinanceinstitute.com/resources/valuation/minority-interest-in-enterprise-value-calculation/',
@@ -1250,6 +1286,24 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       vi: "EPS bình quân 3 năm = (2.000 + 8.000 + 5.000) / 3 = 5.000 ₫. Số Graham = √(22,5 × 5.000 × 30.000) ≈ 58.094,75 ₫. Nếu chỉ lấy EPS năm nay (2.000 ₫) — năm lợi nhuận bị bóp méo bởi chi phí bất thường — kết quả sẽ chỉ khoảng 36.742 ₫, thấp hơn hẳn và dễ khiến cổ phiếu bị đánh giá là 'đắt' một cách sai lệch. Nguồn trích lời Benjamin Graham trong The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” — tức Graham khuyến nghị lấy thu nhập bình quân nhiều năm, không phải một năm đơn lẻ, để tính các phép định giá kiểu Số Graham.",
       en: "Three-year average EPS = (₫2,000 + ₫8,000 + ₫5,000) / 3 = ₫5,000. Graham number = √(22.5 × 5,000 × 30,000) ≈ ₫58,094.75. Using only this year's EPS (₫2,000) — a year distorted by a one-time charge — would give only about ₫36,742, making the stock look misleadingly 'expensive' by comparison. The source quotes Benjamin Graham in The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” — that is, Graham recommended using earnings averaged over several years, not a single year, for Graham-number-style valuations.",
     },
+    giai: {
+      tinh: { vi: 'Số Graham', en: 'Graham number' },
+      thaySo: {
+        vi: '√(22,5 × (2.000 + 8.000 + 5.000) ÷ 3 × 30.000)',
+        en: '√(22.5 × (2000 + 8000 + 5000) ÷ 3 × 30000)',
+      },
+      ketQua: { vi: '58.094,75 ₫', en: '58094.75 ₫' },
+      gan: [
+        {
+          kyHieu: 'EPS',
+          moTa: {
+            vi: 'lấy bình quân ba năm 2.000, 8.000 và 5.000 ₫',
+            en: 'is the three-year average of 2000, 8000 and 5000 ₫',
+          },
+        },
+        { kyHieu: 'BVPS', giaTri: { vi: '30.000', en: '30000' } },
+      ],
+    },
     source: {
       url: 'https://stablebread.com/graham-number/',
       kind: 'giao-khoa',
@@ -1287,6 +1341,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: "BVPS hữu hình = 40.000 − 8.000 = 32.000 ₫. Số Graham = √(22,5 × 4.000 × 32.000) ≈ 53.665,63 ₫ — thấp hơn hẳn mức 60.000 ₫ nếu dùng nguyên BVPS báo cáo (đã gồm goodwill). Nguồn cảnh báo: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Dùng BVPS gộp cả goodwill mà không đối chiếu bằng TBVPS sẽ khiến một ngân hàng tăng trưởng nhờ mua lại trông 'rẻ' hơn thực tế.",
       en: 'Tangible BVPS = ₫40,000 − ₫8,000 = ₫32,000. Graham number = √(22.5 × 4,000 × 32,000) ≈ ₫53,665.63 — notably lower than the ₫60,000 result obtained using the reported BVPS that still includes goodwill. The source warns: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Using BVPS that still includes goodwill without cross-checking against TBVPS makes an acquisition-heavy bank look cheaper than it actually is.',
+    },
+    giai: {
+      tinh: { vi: 'Số Graham', en: 'Graham number' },
+      thaySo: { vi: '√(22,5 × 4.000 × (40.000 − 8.000))', en: '√(22.5 × 4000 × (40000 − 8000))' },
+      ketQua: { vi: '53.665,63 ₫', en: '53665.63 ₫' },
+      gan: [
+        { kyHieu: 'EPS', giaTri: { vi: '4.000', en: '4000' } },
+        {
+          kyHieu: 'BVPS',
+          moTa: {
+            vi: 'là giá trị sổ sách đã bỏ goodwill: 40.000 trừ 8.000 ₫',
+            en: 'is book value with goodwill removed: 40000 minus 8000 ₫',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://banksift.org/valuation/graham-number',
@@ -1461,6 +1530,31 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       vi: "NCAV lấy tài sản ngắn hạn trừ TỔNG nợ phải trả — tức nợ ngắn hạn cộng nợ dài hạn (2.200 + 900 = 3.100 tỷ ₫) — chứ không phải chỉ nợ ngắn hạn như vốn lưu động ròng thông thường. Kết quả đúng: (6.000 − 3.100) ÷ 250 × 1.000 = 11.600 ₫/CP. Nếu nhầm sang chỉ trừ nợ ngắn hạn, con số sẽ bị thổi phồng thành 15.200 ₫/CP. Nguồn viết: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”",
       en: "NCAV subtracts TOTAL liabilities — current plus long-term (2,200 + 900 = 3,100 billion ₫) — from current assets, not just current liabilities as in ordinary net working capital. The correct result: (6,000 − 3,100) ÷ 250 × 1,000 = 11,600 ₫/share. Subtracting only current liabilities would inflate the figure to 15,200 ₫/share. The source states: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”",
     },
+    giai: {
+      tinh: { vi: 'NCAV trên cổ phiếu', en: 'Net current asset value per share' },
+      thaySo: {
+        vi: '(6.000 − 2.200 − 900) × 1.000.000.000 ÷ 250.000.000',
+        en: '(6000 − 2200 − 900) × 1000000000 ÷ 250000000',
+      },
+      ketQua: { vi: '11.600 ₫', en: '11600 ₫' },
+      gan: [
+        { kyHieu: '\\text{TSNH}', giaTri: { vi: '6.000', en: '6000' } },
+        {
+          kyHieu: '\\text{Tổng nợ}',
+          moTa: {
+            vi: 'gồm nợ ngắn hạn 2.200 và nợ dài hạn 900, đơn vị tỷ ₫',
+            en: 'is short-term debt 2200 plus long-term debt 900, in billions of ₫',
+          },
+        },
+        {
+          kyHieu: 'N',
+          moTa: {
+            vi: 'là 250.000.000 cổ phiếu đang lưu hành',
+            en: 'is the 250000000 shares outstanding',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://www.netnethunter.com/grahams-net-current-assets-formula/',
       kind: 'chuyen-gia',
@@ -1603,6 +1697,24 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: "Nguồn nêu rõ quy ước dùng EPS 12 tháng gần nhất: “The earnings yield is a financial ratio that describes the relationship of a company's LTM earnings per share to the company's stock price per share.” Với số liệu ví dụ, E/P = 0,35 ÷ 8 × 100 = 4,375%. Nguồn diễn giải nôm na thành “every dollar invested in ABC Corp.'s stock generates 4 cents” — cách nói làm tròn thô; con số chính xác tính từ chính số liệu nguồn đưa ra là 4,375%.",
       en: "The source states the LTM-EPS convention explicitly: “The earnings yield is a financial ratio that describes the relationship of a company's LTM earnings per share to the company's stock price per share.” Using the example figures, E/P = 0.35 ÷ 8 × 100 = 4.375%. The source loosely paraphrases this as “every dollar invested in ABC Corp.'s stock generates 4 cents” — a rough rounding; the precise value from the source's own numbers is 4.375%.",
+    },
+    giai: {
+      tinh: { vi: 'Tỷ suất lợi nhuận trên giá', en: 'Earnings yield' },
+      thaySo: { vi: '0,35 ÷ 8 × 100', en: '0.35 ÷ 8 × 100' },
+      ketQua: { vi: '4,38 %', en: '4.38 %' },
+      gan: [
+        {
+          kyHieu: 'EPS',
+          moTa: {
+            vi: 'là lợi nhuận 12 tháng gần nhất trên một cổ phiếu: 0,35 USD',
+            en: 'is trailing twelve-month earnings per share: 0.35 USD',
+          },
+        },
+        {
+          kyHieu: 'P',
+          moTa: { vi: 'là giá một cổ phiếu: 8 USD', en: 'is the share price: 8 USD' },
+        },
+      ],
     },
     source: {
       url: 'https://corporatefinanceinstitute.com/resources/knowledge/finance/earnings-yield/',
@@ -1816,6 +1928,24 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'EPS dự phóng = 500.000.000.000 ÷ 100.000.000 = 5.000 ₫/cp. Giá mục tiêu = 5.000 × 12 = 60.000 ₫. Tititada Academy ghi rõ quy ước này: “Dự phóng EPS là EPS dự đoán của năm hiện tại”, tức lợi nhuận DỰ BÁO cho năm nay, không phải lợi nhuận các quý đã công bố — khác với công thức trong thư viện này, vốn giữ nguyên EPS hiện tại (đã có) khi tính.',
       en: "Projected EPS = 500,000,000,000 ÷ 100,000,000 = VND 5,000 per share. Target price = 5,000 × 12 = VND 60,000. Tititada Academy states this convention explicitly: “Dự phóng EPS là EPS dự đoán của năm hiện tại” (projected EPS is the forecast EPS for the current year), meaning FORECAST profit for the current year, not profit from quarters already reported — unlike this library's own formula, which holds the current (already-reported) EPS fixed.",
+    },
+    giai: {
+      tinh: { vi: 'Giá mục tiêu', en: 'Target price' },
+      thaySo: {
+        vi: '500 × 1.000.000.000 ÷ 100.000.000 × 12',
+        en: '500 × 1000000000 ÷ 100000000 × 12',
+      },
+      ketQua: { vi: '60.000 ₫', en: '60000 ₫' },
+      gan: [
+        { kyHieu: 'P/E_{\\text{mục tiêu}}', giaTri: { vi: '12', en: '12' } },
+        {
+          kyHieu: 'EPS',
+          moTa: {
+            vi: 'bằng lợi nhuận dự phóng 500 tỷ ₫ chia 100.000.000 cổ phiếu',
+            en: 'is the forecast profit of 500 billion ₫ divided by 100000000 shares',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://tititada.com/academy/dau-tu/chi-so-p-e-va-dinh-gia-theo-p-e',

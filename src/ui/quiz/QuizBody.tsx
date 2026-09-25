@@ -10,6 +10,7 @@ import { Button } from '@/ui/primitives';
 import { laDungCua, traLoiDuoc as traLoiDuocCua } from './cham';
 import styles from './QuizBody.module.css';
 import { QuizQuestion } from './QuizQuestion';
+import type { QuizKyHieu } from './QuizQuestion';
 
 /**
  * Khối "Kiểm tra hiểu bài" — WF-19, WF-19B và WF-19D, gói 23/09/2026.
@@ -49,6 +50,8 @@ export interface QuizBodyProps {
    * nào chép lại công thức, nên nó không lệch được khỏi thẻ ấy.
    */
   hinhCongThuc?: ReactNode;
+  /** Bảng ký hiệu của trang, cho dòng "Thay số" của lời giải — xem `QuizKyHieu`. */
+  kyHieu?: ReadonlyArray<QuizKyHieu>;
   /** Kết quả lần gần nhất đọc từ máy, `null` nếu chưa làm bao giờ. */
   saved?: QuizProgress | null;
   /** Gọi khi làm xong, để màn chi tiết ghi vào localStorage. */
@@ -82,6 +85,7 @@ export function QuizBody({
   formulaId,
   items,
   hinhCongThuc,
+  kyHieu,
   saved = null,
   onFinish,
   minForProgress = 3,
@@ -431,6 +435,7 @@ export function QuizBody({
                         <QuizQuestion
                           item={xong.item}
                           hinhCongThuc={hinhCongThuc}
+                          kyHieu={kyHieu}
                           namePrefix={`${groupId}-ls`}
                           picked={xong.picked}
                           typed={xong.typed}
@@ -449,6 +454,7 @@ export function QuizBody({
             <QuizQuestion
               item={item}
               hinhCongThuc={hinhCongThuc}
+              kyHieu={kyHieu}
               namePrefix={groupId}
               picked={picked}
               typed={typed}

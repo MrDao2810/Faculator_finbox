@@ -632,6 +632,20 @@ mistakes (inverted ratio, billions not converted to dong, the ×100 forgotten, t
 dropped, stopping at an intermediate step, rounding up where contracts round down) and the
 explanation names each one, so a wrong pick still teaches something.
 
+**All 66 are FILL-IN questions since 25/09/2026, not four-choice ones.** The owner, looking at the
+DCA question's A/B/C/D: _"việc đưa ra các ô để nhập vào giống như tôi yêu cầu thì bạn chưa sửa,
+vẫn để chọn các số liệu ABCD"_. Each now places the table's figures into slots of the page's own
+formula (`CAU_DIEN_SO` +66), keeps `verify` (`QuizDienSo.verify`, so `calc` still checks the
+answer) and a case fails if any question with `verify` still offers choices. Constants stay
+visible (× 100, 10^9, the 0,15% fee, 100.000 ₫ a point); where the data would need more than five
+slots one quantity is written in and the prompt says so (total capital 1.000 on WACC, the share
+count on the FCFF valuation, the 1.000 shares on break-even, the 12 million per DCA purchase). The
+explanations' "Đáp án X là…" became "Kết quả X là…" — the mistakes they name are still the real
+ones. Q388 (IRR of an annuity) gives the IRR a calculator found and asks for the payment and the
+count, so its `expected` is the outlay, not the IRR — the only one whose `expected` differs from
+`verify.expected`. The 14 multiple-choice questions that draw ANOTHER formula stay
+multiple-choice: that is the `CAU_DIEN_SO` invariant, and they declare no `verify`.
+
 Two consequences worth knowing. **`evidence: 'tinh-toan'` had to be a third tier**, because two
 gates key off that field and both are wrong for a calculation: the verbatim-quote case requires
 every `ngo-nhan` item to carry a `“…”`, and the UI titles the explanation box from the tier, where
@@ -783,7 +797,12 @@ Four things there are load-bearing:
   table in the view layer would drift from the evaluator, and then the picture and the graded
   number would say different things. Division, square root and `|…|` insert no parens — the bar
   already separates the halves, which is where a drawn formula beats prose: `(2 + 3) ÷ 5` needs
-  brackets as text and none as a fraction.
+  brackets as text and none as a fraction. **Only ONE level of fraction bars** (25/09/2026): a
+  division inside a fraction's numerator or denominator, or inside an exponent, becomes
+  `chiaDong` and is drawn on one line with "÷". The owner looked at the DCA line — three
+  `12.000.000 / price` fractions stacked inside the denominator of a big one — and said "quá khó
+  nhìn … đổi thiết kế sao cho vừa dễ hiểu vừa gọn". An inline division DOES need parens, so it takes
+  the multiplication rules (`(12 − 4) ÷ 100`), and `chieuCao` counts it as one tier.
 - **Bracket and radical heights come from `chieuCao()` on the tree, never from measuring at
   runtime.** Measuring would make the first client render disagree with the static HTML — the
   hydration class of bug this whole directory avoids. CSS stretches the glyph with
@@ -944,13 +963,27 @@ Four more things that are easy to break:
   render an overall verdict line, because per-choice badges say only whether _that_ choice was in
   the answer set.
 
-**An answered question explains itself in FOUR ROWS, not a paragraph** (24/09/2026, `QuizGiai`
+**An answered question explains itself in ROWS, not a paragraph** (24/09/2026, `QuizGiai`
 on `QuizBase.giai`). The owner rejected prose twice in one afternoon — first the original
 paragraphs as "quá khó hiểu và trừu tượng", then a three-block rewrite that added "why each wrong
 answer is wrong" as "rườm rà và quá dài dòng" — and specified the shape: what it computes → the
 formula → the figures substituted → the result → the source, "không sáng tạo thêm hay thêm lời vô
-nghĩa". So a `giai` block renders as a `<dl>`: **Tính · Công thức · Thay số · Kết quả · Nguồn**.
-Do not rebuild the wrong-answer commentary. Seven things are load-bearing:
+nghĩa". A day later (25/09/2026) the owner fixed the ORDER and wording, pointing at "Thứ tự đúng:
+42.500 · 33.850 · 42.500" and asking which figure was V and which was P: _"Công thức áp dụng … để
+tính Biên an toàn. Thay [số] thì giải thích 42500 là gì tương ứng với ký hiệu nào … áp dụng vào
+công thức"_. So a `giai` block renders as a `<dl>`:
+
+```text
+CÔNG THỨC ÁP DỤNG  MOS = (V − P)/V × 100%  để tính biên an toàn      ← picture + giai.tinh
+THAY SỐ            V = 42.500   giá trị nội tại ước tính…, ₫        ← giai.gan
+                   P = 33.850   thị giá hiện tại của cổ phiếu, ₫
+ÁP VÀO CÔNG THỨC   (42.500 − 33.850) ÷ 42.500 × 100                  ← giai.thaySo
+KẾT QUẢ            20,35 %
+NGUỒN              24hmoney.vn/…
+```
+
+The owner kept the verdict line's "Thứ tự đúng" when asked. Do not rebuild the wrong-answer
+commentary. Eight things are load-bearing:
 
 - **The formula row is NOT stored in the question.** It is the page's own KaTeX PICTURE, built
   at build time from `spec.latex` like the formula card's. A copy per question would drift from
@@ -995,21 +1028,55 @@ Do not rebuild the wrong-answer commentary. Seven things are load-bearing:
   no longer renders when `giai` is present, but it must still exist: the `ngo-nhan` gate reads the
   quote there, and the quote is what lets a reader open the source and check it. One Nguồn row,
   link first, each quoted run on its own line — two quotes on one line glue together.
+- **The Thay số row (`giai.gan`) names which SYMBOL takes which figure, and it is gated four
+  ways** in `quiz.test.ts` ("Thay số — ký hiệu nào nhận con số nào"): every picture-bearing `giai`
+  has one; every `kyHieu` is a `spec.symbols` latex OR a `\text{…}` fragment verbatim in
+  `spec.latex` (many pictures spell words like `\text{Tài sản ngắn hạn}` with no legend row); every
+  number in a `giaTri` appears verbatim in the facts, the prompt, the `worked` line or `thaySo`,
+  in both languages; and in a fill-in question every blank is covered — compared with its minus
+  sign stripped, since `blanksOf` keeps "−0,0246" while the number tokenizer does not. There is no
+  meaning field: the UI reads the meaning from the page's legend (a `\text{…}` fragment prints
+  bare, it reads itself). **A row is either `giaTri` ("V = 42.500" plus the legend's meaning) or a
+  `moTa` sentence** printed right after the symbol with no "=" and WITHOUT the legend's meaning —
+  149 of the 431 rows. The owner rejected both shapes that came before it the same afternoon:
+  "C*i = 12.000.000 · 12.000.000 · 12.000.000" (the "·" is the multiplication dot of the very
+  formulas on the page, and the list says nothing about which number is which purchase), and then
+  one line per figure beside the legend's general meaning — *"tiền mua giá đợt i nghĩa là gì? …
+  máy móc quá"\_. So a symbol that takes several figures, or whose legend meaning is abstract
+  ("đợt i", "phiên t"), names a UI field ("theo ô Thời gian nắm giữ"), has the wrong unit for this
+  question (tỷ ₫ where the question is in million USD, "per session" where the data are monthly),
+  or lectures a convention ("12% thì g = 12"), gets a concrete sentence: "C_i là số tiền bỏ ra mỗi
+  lần mua: cả 3 lần đều là 12.000.000 ₫". One row per symbol, exactly one of the two fields — a case
+  enforces both. Numbers in a `moTa` fall under the same verbatim gate, which caught three derived
+  figures on the way ("tức 1%" for 12% ÷ 12): write the derivation in words, not the result.
+  **What no gate sees is swapping two same-unit figures** (V ↔ P), nor a sentence that reads
+  mechanically: every row was read by hand, and new ones must be too.
+- **`thaySo` is the `worked` line with its brackets stripped**, for every fill-in question, and a
+  case requires it verbatim (both languages) — a hand-written line could print a different sum from
+  the one the learner just filled.
+  `giai.tinh` carries no `—`/`–` (a case enforces it; 15 had copied "FCFE — dòng tiền…" from the
+  formula name, right beside the picture, where a long dash reads as minus), and the UI lowercases
+  its first letter after "để tính" unless it opens with an abbreviation (`giuaCau`). Below 560px
+  the labels stack above their values: "CÔNG THỨC ÁP DỤNG" is ~130px and ate half of a 390px row.
 - **Rows share one column via `subgrid`**, not `display: contents` (which drops the `<div>` that
   groups each `dt`/`dd` pair from the accessibility tree in some browsers). A per-row grid made
   each label column as wide as its own label, so the four values started at four positions.
 - **The picture is `display: math` (inline), and the text rows use the UI font.** KaTeX emits
   `<math display="block">`, which the browser centres; here it must hug the left edge like the
-  rows around it (the attribute still keeps full-size fractions). The Thay số and Kết quả rows are
-  words: `font-family: math` made Vietnamese diacritics look foreign next to the rest of the block.
+  rows around it (the attribute still keeps full-size fractions). The Áp vào công thức and Kết quả rows
+  are words: `font-family: math` made Vietnamese diacritics look foreign next to the rest of the block.
 
 When a distractor must be referred to in prose, cite it by LETTER — `quoteParts` wraps every
 `“…”` in `<q>`, so a quoted wrong answer renders exactly like the source's own words.
 
-**Coverage is partial on purpose: 43 of 453 questions carry `giai`.** The shape needs figures to
-substitute, which ~105 existing practice questions have and ~306 conceptual questions ("why does
-EV subtract cash?") do not. Filling it for those would mean inventing a computation. Items without
-`giai` still render the old paragraph; that fallback stays until each is converted or replaced.
+**Coverage: 150 of 473 questions are fill-in with a Thay số row (plus Q088), and 109 of 111
+formulas have at least one** (25/09/2026 — "áp dụng cho toàn bộ 111 công thức"). The two
+without: `chuoi-phien-giam-dai-nhat` (a count then a max — no arithmetic to fill; the workflow
+agent refused rather than draw another formula, and a multiple-choice question is the owner's
+call) and `beta` (only Q088, which overrides the formula row, so it has no picture to map symbols
+onto — it needs a sourced `β = Cov ÷ Var` fill-in question). The ~306 conceptual questions ("why
+does EV subtract cash?") keep the paragraph: they have nothing to substitute, and a `giai` there
+would be an invented sum.
 
 **42 fill-in practice questions, Q412–Q453** (`items/thuc-hanh.ts`), raised practice coverage from
 105/411. Q412 was written by hand as the template; the other 41 were drafted by agents that looked
@@ -1020,6 +1087,16 @@ URLs that failed a bare `fetch` (a TLS error, an anti-bot 406) were reopened wit
 matched the figures. **47 formulas still have no fill-in question.** Every `dien-so` question
 derives its `giai` mechanically: `tinh` from the formula name, `thaySo` from `arithmeticOf(worked)`,
 `ketQua` from `expected` and `unit` — so it cannot disagree with the line the learner just filled.
+
+**20 more, Q454–Q473** (25/09/2026), for 20 of the 21 formulas that had no calculation question
+at all — mostly series formulas (SMA, RSI, MACD, Bollinger, Sharpe, Sortino, VaR, CVaR, VWAP,
+XIRR…). The fill-in gate never calls `calc`, only re-computes the line, so a short real series
+(five ACB closes, ten VN-Index returns) is enough, as long as the line draws the page's own
+formula. Workflow run the owner opted into: 7 drafting agents (three formulas each, real prices
+from cophieu68 / Investing / broker notes) and 7 adversarial ones that reopened every URL,
+re-computed with `worked-line.ts` and checked each `gan` by meaning; 14 agents, 0 infrastructure
+failures, 20 kept. They fixed their own drafts where needed (long dashes in prompts, a CVaR
+prompt that gave the wrong rule, a win/loss `gan` that lumped both sides onto `r`).
 
 **A graded choice is marked by ONE thing each** (24/09/2026). A wrong pick gets its text struck
 through and muted plus a `Sai` badge, and its red BACKGROUND FILL is gone — the strike already

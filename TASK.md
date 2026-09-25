@@ -196,6 +196,98 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Bài tập — Câu tính toán thành điền số; Thay số viết thành câu; phân số một tầng (25/09/2026)
+
+**Trạng thái: xong phần code (`npm run check`: 128 file · 3.028 ca), chờ chủ dự án xác nhận.**
+
+Ba yêu cầu liền nhau của chủ dự án trên câu giá vốn DCA:
+
+1. _"việc đưa ra các ô để nhập vào giống như tôi yêu cầu thì bạn chưa sửa, vẫn để chọn các số liệu
+   ABCD"_ → **66 câu tính toán Q346–Q411 đổi sang điền số.** Số liệu đặt vào ô trong chính công thức
+   của trang; hằng số hiện sẵn; câu nào vượt 5 ô thì một đại lượng viết sẵn và đề bài nói ra. Giữ
+   `verify` (câu điền số nay mang được `verify`) để `calc` vẫn đối chiếu đáp số. Đề bài viết lại hỏi
+   việc đặt số; lời giải cũ đổi cách dẫn "Đáp án X" → "Kết quả X". Q388 (IRR) cho sẵn IRR, người học
+   đặt khoản thu và số kỳ, kết quả ra số vốn bỏ ra.
+2. _"Ci mua của 3 đợt cùng bằng 12000000… không được máy móc"_, rồi _"tiền mua giá đợt i nghĩa là
+   gì?… máy móc quá"_ → **dòng Thay số viết thành câu** (`QuizGan.moTa`): câu in liền sau ký hiệu,
+   không dấu "=", và thay luôn nghĩa tổng quát của bảng ký hiệu. Đọc lại cả 431 dòng của 150 câu: 149
+   dòng viết thành câu — ký hiệu nhận nhiều số, nghĩa có "đợt i/phiên t", nhắc tên ô nhập, sai đơn vị
+   so với bài (tỷ ₫ ↔ triệu USD, "một phiên" ↔ dữ liệu tháng), hay giảng quy ước. Mỗi ký hiệu một
+   dòng. Cửa gác số nguyên văn bắt 3 con số tôi tự suy ("tức 1%") — đã bỏ.
+3. _"cách trình bày như ảnh quá khó nhìn… vừa dễ hiểu vừa gọn"_ (phân số chồng phân số) → **chỉ một
+   tầng gạch phân số**: phép chia nằm trong tử/mẫu hoặc số mũ viết một dòng bằng "÷" (`chiaDong`,
+   luật đặt ngoặc ở `themNgoac`, Domain). Câu DCA gọn thêm: tử số "3 × 12.000.000".
+
+Chụp kiểm ở 1440 (DCA, Gordon, WACC) và 390 (DCA).
+
+**Độ phủ:** 150/473 câu điền số, tất cả có Thay số; 109/111 công thức. Còn `beta` (cần câu
+`β = Cov ÷ Var` có nguồn) và `chuoi-phien-giam-dai-nhat` (phép đếm — chủ dự án quyết dạng câu).
+
+| File                                                                                       | Sửa gì                                                                                                                                 |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/quiz/types.ts`                                                                       | `QuizDienSo.verify`; `QuizGan.moTa` (giaTri thành tuỳ chọn)                                                                            |
+| `core/quiz/items/tinh-toan.ts`                                                             | 66 câu dựng lại thành điền số; docblock                                                                                                |
+| `core/quiz/items/{thuc-hanh,risk,technical,valuation-multiples}.ts`                        | dòng Thay số viết lại                                                                                                                  |
+| `core/quiz/worked-line.ts` (+ test)                                                        | `chiaDong`: phân số chỉ một tầng                                                                                                       |
+| `core/quiz/quiz.test.ts`                                                                   | cửa calc cho cả điền số; thaySo = dòng công thức bóc ngoặc; không còn câu tính toán dạng chọn; mỗi ký hiệu một dòng; `CAU_DIEN_SO` +66 |
+| `ui/quiz/QuizQuestion.tsx`, `CongThucDien.tsx`, `QuizBody.module.css`, `QuizBody.test.tsx` | câu mô tả; dấu ÷; bỏ gộp                                                                                                               |
+| `CLAUDE.md`                                                                                | các đoạn tương ứng                                                                                                                     |
+
+---
+
+## Bài tập — Dòng "Thay số": số nào là ký hiệu nào, cho cả 111 công thức (25/09/2026)
+
+**Trạng thái: xong phần code (`npm run check`: 128 file · 3.023 ca), chờ chủ dự án xác nhận.**
+
+Chủ dự án khoanh dòng "Thứ tự đúng: 42.500 · 33.850 · 42.500": đọc xong vẫn không biết 42.500 là V
+hay P. Yêu cầu lời giải đi theo thứ tự: _Công thức áp dụng … để tính Biên an toàn → Thay số (42500
+là gì, ứng với ký hiệu nào…) → áp dụng vào công thức → kết quả_, và áp cho toàn bộ 111 công thức.
+Duyệt kế hoạch; giữ lại "Thứ tự đúng"; chọn chạy workflow cho các công thức chưa có câu tính toán.
+
+**Khuôn mới** — `CÔNG THỨC ÁP DỤNG` (hình + "để tính …") · `THAY SỐ` (ký hiệu = con số · nghĩa từ bảng
+ký hiệu) · `ÁP VÀO CÔNG THỨC` · `KẾT QUẢ` · `NGUỒN`. Dưới 560px nhãn nằm trên giá trị.
+
+- Dữ liệu: `QuizGiai.gan` — `{ kyHieu, giaTri }`; ký hiệu là dòng `spec.symbols` hoặc cụm `\text{…}` có
+  trong hình; nghĩa lấy từ bảng ký hiệu, không viết lại.
+- Cửa gác mới (`quiz.test.ts`): có dòng Thay số; ký hiệu có thật; con số có nguyên văn trong đề; ô
+  trống nào cũng có ký hiệu (so bỏ dấu trừ); dòng phép tính viết tay của câu trắc nghiệm tính lại ra
+  đúng đáp số của `calc`; mọi câu tính toán có lời giải trừ đúng Q388; `tinh` không có gạch dài. Đã
+  thử cài lỗi vào dữ liệu — ba cửa đầu đều đỏ đúng chỗ.
+- Bốn lô, soát tay nghĩa từng dòng (thứ máy không thấy: đổi chỗ hai số cùng đơn vị):
+  - lô 1 — 42 câu điền số đã có lời giải (Q412–Q453): thêm `gan`;
+  - lô 2 — 22 câu điền số cũ: dựng cả khối lời giải + `gan`;
+  - lô 3 — 65/66 câu trắc nghiệm tính toán: viết tay dòng phép tính (máy tính lại khớp `calc` cả 65),
+    tên đại lượng (15 tên việc/mô hình đổi thành đại lượng: "tổng tiền lãi của khoản vay"…), `gan`;
+  - workflow — 20 câu điền số mới Q454–Q473 cho 20/21 công thức chưa có câu tính toán nào (chủ yếu
+    ăn chuỗi giá). 14 agent, 0 lỗi; 20 bản nháp qua đủ cửa gác máy và soát tay nghĩa `gan`.
+- Sửa kèm: 15 `tinh` mang gạch dài cạnh hình ("FCFE — …"); đường dẫn nguồn dài tràn khối ở 390px.
+- Tripwire dời có ghi lý do: `TONG_SO_CAU` 453 → 473, `CAU_DIEN_SO` +20, `hai` 14 → 12, song ngữ 247 → 267.
+
+**Độ phủ:** 150/473 câu có lời giải có cấu trúc; 108/111 công thức có ít nhất một câu kèm dòng Thay số.
+
+**Còn lại:**
+
+- `beta` — chỉ có Q088 (ghi đè dòng công thức) nên chưa có dòng Thay số; cần một câu điền số
+  `β = Cov ÷ Var` có nguồn thật.
+- `chuoi-phien-giam-dai-nhat` — phép đếm, không có số để thay; muốn có câu thì phải đổi dạng
+  (trắc nghiệm) — chủ dự án quyết.
+- `irr-nien-kim` (Q388) — không có công thức đóng, giữ đoạn văn.
+- Chưa chạy `build → verify:static → size → check:chrome` (cần tắt `npm run dev`).
+
+| File                                                                                   | Sửa gì                                               |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `core/quiz/types.ts`                                                                   | `QuizGan`, `QuizGiai.gan`, docblock khuôn mới        |
+| `core/quiz/items/thuc-hanh.ts`                                                         | `gan` cho Q412–Q453; 3 `tinh` đổi; +20 câu Q454–Q473 |
+| `core/quiz/items/{valuation-multiples,risk,technical,…}.ts`                            | lời giải cho 22 câu điền số cũ                       |
+| `core/quiz/items/tinh-toan.ts`                                                         | lời giải cho 65 câu trắc nghiệm tính toán            |
+| `core/quiz/quiz.test.ts`                                                               | 7 ca mới; 4 tripwire dời                             |
+| `ui/quiz/QuizQuestion.tsx`, `QuizBody.tsx`, `QuizBody.module.css`, `QuizBody.test.tsx` | khuôn mới, dòng Thay số, nhãn xếp dọc ở khổ hẹp      |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`                                                 | chuyền bảng ký hiệu xuống                            |
+| `i18n/vi.ts`, `en.ts`                                                                  | `quiz.giai.*` mới                                    |
+| `CLAUDE.md`                                                                            | mục lời giải viết lại                                |
+
+---
+
 ## Bài tập — Rê vào ký hiệu trong lời giải mở khung "cách tính" như thẻ Công thức (25/09/2026)
 
 **Trạng thái: xong phần code, chờ chủ dự án xác nhận trên màn.**

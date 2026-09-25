@@ -580,6 +580,37 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       vi: 'Dải trên = 26.000 + 2 × 800 = 27.600 ₫; dải dưới = 26.000 − 1.600 = 24.400 ₫; hiệu số 3.200 ₫. StockCharts quy ước chia hiệu số ấy cho đường giữa rồi nhân 100: “When calculating BandWidth, the first step is to subtract the value of the lower band from the value of the upper band. This shows the absolute difference. This difference is then divided by the middle band, which normalizes the value.” Công thức trang ghi là “( (Upper Band - Lower Band) / Middle Band) * 100”, nên BandWidth = 3.200 ÷ 26.000 × 100 ≈ 12,31 %. Ba chỗ hay sai: dừng ở 3.200 ₫ (mới là hiệu số tuyệt đối, không so được giữa các mã), quên nhân 100 (ra 0,123), hoặc chia cho dải dưới thay vì đường giữa (ra 13,1 %).',
       en: 'Upper band = 26,000 + 2 × 800 = 27,600 VND; lower band = 26,000 − 1,600 = 24,400 VND; the gap is 3,200 VND. StockCharts divides that gap by the middle band and multiplies by 100: “When calculating BandWidth, the first step is to subtract the value of the lower band from the value of the upper band. This shows the absolute difference. This difference is then divided by the middle band, which normalizes the value.” The page writes the formula as “( (Upper Band - Lower Band) / Middle Band) * 100”, so BandWidth = 3,200 ÷ 26,000 × 100 ≈ 12.31%. Three common slips: stopping at 3,200 VND (the absolute gap, not comparable across stocks), forgetting the × 100 (0.123), or dividing by the lower band instead of the middle line (13.1%).',
     },
+    giai: {
+      tinh: { vi: 'Độ rộng dải Bollinger', en: 'Bollinger bandwidth' },
+      thaySo: {
+        vi: '((26.000 + 2 × 800) − (26.000 − 2 × 800)) ÷ 26.000 × 100',
+        en: '((26000 + 2 × 800) − (26000 − 2 × 800)) ÷ 26000 × 100',
+      },
+      ketQua: { vi: '12,31 %', en: '12.31 %' },
+      gan: [
+        {
+          kyHieu: 'BB_{tren}',
+          moTa: {
+            vi: 'bằng đường giữa 26.000 cộng 2 lần độ lệch chuẩn 800 ₫',
+            en: 'is the 26000 middle band plus 2 times the 800 ₫ standard deviation',
+          },
+        },
+        {
+          kyHieu: 'BB_{duoi}',
+          moTa: {
+            vi: 'bằng đường giữa 26.000 trừ 2 lần độ lệch chuẩn 800 ₫',
+            en: 'is the 26000 middle band minus 2 times the 800 ₫ standard deviation',
+          },
+        },
+        {
+          kyHieu: 'SMA_{n}',
+          moTa: {
+            vi: 'là đường giữa, trung bình 20 phiên: 26.000 ₫',
+            en: 'is the middle band, the 20-session average: 26000 ₫',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/bollinger-bandwidth',
       kind: 'giao-khoa',
@@ -719,6 +750,31 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'Fidelity định nghĩa %B theo thang phần trăm chứ không phải số thập phân 0–1: “If the closing price is equal to the upper Bollinger Band value, Percent B would be 100 (percent).” Và ở đầu kia của dải: “If the closing price is equal to the lower Bollinger Band, Percent B would be zero.” Nghĩa là 0 ứng đúng dải dưới, 100 ứng đúng dải trên — đúng thang mà công cụ này đang hiển thị. Với số liệu trên: %B = (27.200 − 24.400) ÷ (27.600 − 24.400) × 100 = 2.800 ÷ 3.200 × 100 = 87,5%. Sai hay gặp: quên nhân 100 nên gõ 0,875 thay vì 87,5, hoặc lấy nhầm tử số thành (Dải trên − Giá) rồi ra 12,5%.',
       en: 'Fidelity defines %B on a percent scale, not a 0-to-1 decimal: “If the closing price is equal to the upper Bollinger Band value, Percent B would be 100 (percent).” And at the other end: “If the closing price is equal to the lower Bollinger Band, Percent B would be zero.” So 0 marks the lower band exactly and 100 marks the upper band exactly — the same scale this tool displays. With the figures above: %B = (27,200 − 24,400) ÷ (27,600 − 24,400) × 100 = 2,800 ÷ 3,200 × 100 = 87.5%. Common slips: forgetting the × 100 and entering 0.875 instead of 87.5, or swapping the numerator to (Upper band − Price), which gives 12.5%.',
+    },
+    giai: {
+      tinh: { vi: 'vị trí giá trong dải Bollinger', en: 'Bollinger %B' },
+      thaySo: {
+        vi: '(27.200 − 24.400) ÷ (27.600 − 24.400) × 100',
+        en: '(27200 − 24400) ÷ (27600 − 24400) × 100',
+      },
+      ketQua: { vi: '87,5 %', en: '87.5 %' },
+      gan: [
+        { kyHieu: 'C', giaTri: { vi: '27.200', en: '27200' } },
+        {
+          kyHieu: 'BB_{duoi}',
+          moTa: {
+            vi: 'là dải dưới Bollinger: 24.400 ₫',
+            en: 'is the lower Bollinger band: 24400 ₫',
+          },
+        },
+        {
+          kyHieu: 'BB_{tren}',
+          moTa: {
+            vi: 'là dải trên Bollinger: 27.600 ₫',
+            en: 'is the upper Bollinger band: 27600 ₫',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/percent-b',
@@ -891,6 +947,37 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     explain: {
       vi: "Fairmont Equities nêu công thức: “EMA = (today's closing price *K) + (Previous EMA * (1 – K))”, với hệ số làm mượt “K (Smoothing Factor) = 2/(N+1)”. Thay số: 0,7187753 × 0,2 + 0,661607209 × 0,8 = 0,673041 điểm. Sai lầm hay gặp là lấy trung bình cộng đơn giản của các giá trị MACD gần nhất thay vì cập nhật đệ quy từ EMA phiên trước.",
       en: "Fairmont Equities gives the formula: “EMA = (today's closing price *K) + (Previous EMA * (1 – K))”, with the smoothing factor “K (Smoothing Factor) = 2/(N+1)”. Plugging in: 0.7187753 × 0.2 + 0.661607209 × 0.8 = 0.673041 points. A common mistake is taking a plain average of the recent MACD values instead of recursively updating from the prior EMA.",
+    },
+    giai: {
+      tinh: { vi: 'Đường tín hiệu MACD', en: 'MACD signal line' },
+      thaySo: {
+        vi: '(0,7187753 − 0,661607209) × 2 ÷ (9 + 1) + 0,661607209',
+        en: '(0.7187753 − 0.661607209) × 2 ÷ (9 + 1) + 0.661607209',
+      },
+      ketQua: { vi: '0,673 điểm', en: '0.673 points' },
+      gan: [
+        {
+          kyHieu: 'MACD',
+          moTa: {
+            vi: 'của phiên hôm nay là 0,7187753 điểm',
+            en: 'for today’s session is 0.7187753 points',
+          },
+        },
+        {
+          kyHieu: 'Signal',
+          moTa: {
+            vi: 'của phiên trước là 0,661607209 điểm',
+            en: 'for the previous session is 0.661607209 points',
+          },
+        },
+        {
+          kyHieu: 'EMA_{tin hieu}',
+          moTa: {
+            vi: 'lấy chu kỳ 9 phiên, nên hệ số làm mượt là 2 chia cho 9 cộng 1',
+            en: 'uses a 9-session period, so the smoothing factor is 2 divided by 9 plus 1',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://fairmontequities.com/how-to-calculate-the-macd/',
@@ -1162,6 +1249,31 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'StockCharts mô tả đúng ba bước: dùng SMA làm giá trị mồi, tính hệ số nhân, rồi áp công thức “EMA: {Close - EMA(previous day)} x multiplier + EMA(previous day)”, với hệ số nhân “(2 / (Time periods + 1) ) = (2 / (10 + 1) ) = 0.1818 (18.18%)”. Với n = 10, hệ số = 2/11 ≈ 0,1818; EMA mới = 50.000 + (60.000 − 50.000) × 2/11 ≈ 51.818,18 ₫. Sai lầm thường gặp là nhân hệ số trực tiếp vào giá đóng cửa rồi cộng thẳng nguyên EMA phiên trước, quên rằng EMA cũ cũng phải co lại theo đúng hệ số đó — làm mức tăng bị đội lên gần gấp đôi.',
       en: 'StockCharts describes three steps: seed the line with an SMA, compute the multiplier, then apply “EMA: {Close - EMA(previous day)} x multiplier + EMA(previous day)”, with the multiplier “(2 / (Time periods + 1) ) = (2 / (10 + 1) ) = 0.1818 (18.18%)”. With n = 10, the multiplier = 2/11 ≈ 0.1818; the new EMA = 50,000 + (60,000 − 50,000) × 2/11 ≈ 51,818.18 ₫. A common mistake is multiplying the multiplier straight into the closing price and adding the full previous EMA back on top, forgetting that the previous EMA must shrink by that same factor — which roughly doubles the apparent move.',
+    },
+    giai: {
+      tinh: { vi: 'Trung bình động luỹ thừa (EMA)', en: 'Exponential moving average' },
+      thaySo: {
+        vi: '(60.000 − 50.000) × 2 ÷ (10 + 1) + 50.000',
+        en: '(60000 − 50000) × 2 ÷ (10 + 1) + 50000',
+      },
+      ketQua: { vi: '51.818,18 ₫', en: '51818.18 ₫' },
+      gan: [
+        {
+          kyHieu: 'P_t',
+          moTa: {
+            vi: 'là giá đóng cửa phiên này: 60.000 ₫',
+            en: 'is this session’s close: 60000 ₫',
+          },
+        },
+        {
+          kyHieu: 'EMA_{t-1}',
+          moTa: {
+            vi: 'là EMA của phiên trước: 50.000 ₫',
+            en: 'is the previous session’s EMA: 50000 ₫',
+          },
+        },
+        { kyHieu: 'n', moTa: { vi: 'là chu kỳ 10 phiên', en: 'is the 10-session period' } },
+      ],
     },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/moving-averages-simple-and-exponential',
@@ -1541,6 +1653,31 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'StockCharts nêu rõ: sau lần tính đầu tiên, ATR(14) không phải trung bình cộng 14 TR gần nhất mà dùng công thức làm mịn của Wilder — “Current ATR = [(Prior ATR x 13) + Current TR] / 14”. Thay số: (1.000 × 13 + 1.700) / 14 = 14.700 / 14 = 1.050 ₫. Hệ số 13/14 và 1/14 này là quy ước làm mượt (giống cách xây EMA), khác hẳn cách lấy trung bình cộng đơn giản mà nhiều người mặc định khi dựng lại chỉ báo từ đầu.',
       en: "StockCharts spells out that after the first calculation, ATR(14) is not a plain average of the last 14 TR values — it uses Wilder's smoothing formula: “Current ATR = [(Prior ATR x 13) + Current TR] / 14”. Plugging in the numbers: (1,000 × 13 + 1,700) / 14 = 14,700 / 14 = 1,050 ₫. That 13/14-and-1/14 weighting is the smoothing convention (similar to building an EMA), which differs from the plain average many people assume when reimplementing the indicator from scratch.",
+    },
+    giai: {
+      tinh: { vi: 'dao động thực trung bình', en: 'Average true range (Wilder)' },
+      thaySo: { vi: '(1.000 × (14 − 1) + 1.700) ÷ 14', en: '(1000 × (14 − 1) + 1700) ÷ 14' },
+      ketQua: { vi: '1.050 ₫', en: '1050 ₫' },
+      gan: [
+        {
+          kyHieu: 'ATR_{t-1}',
+          moTa: {
+            vi: 'là ATR 14 phiên của phiên trước: 1.000 ₫',
+            en: 'is the previous session’s 14-session ATR: 1000 ₫',
+          },
+        },
+        {
+          kyHieu: 'TR_t',
+          moTa: {
+            vi: 'là dao động thực của phiên hôm nay: 1.700 ₫',
+            en: 'is today’s true range: 1700 ₫',
+          },
+        },
+        {
+          kyHieu: 'n',
+          moTa: { vi: 'là chu kỳ làm mịn 14 phiên', en: 'is the 14-session smoothing period' },
+        },
+      ],
     },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/average-true-range-atr',
@@ -2456,6 +2593,28 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       vi: 'SMA 5 = (19.500 + 20.000 + 20.500 + 21.000 + 22.000) ÷ 5 = 103.000 ÷ 5 = 20.600 ₫. Khoảng cách = (22.000 ÷ 20.600 − 1) × 100 ≈ 6,80 %. Mẫu số là đường trung bình chứ không phải giá hiện tại: chia cho 22.000 sẽ ra 6,36 %, còn tính SMA bỏ sót phiên cuối sẽ ra 8,64 %, cả hai đều sai quy ước. Titan FX nêu rõ: “BIAS is calculated by dividing the difference between the current price and the Moving Average Price of a specific interval by the Moving Average Price, usually expressed as a percentage.”',
       en: '5-session SMA = (19,500 + 20,000 + 20,500 + 21,000 + 22,000) ÷ 5 = 103,000 ÷ 5 = 20,600 ₫. Distance = (22,000 ÷ 20,600 − 1) × 100 ≈ 6.80 %. The denominator is the moving average, not the current price: dividing by 22,000 gives 6.36 %, and an SMA that leaves out the last session gives 8.64 %, both against the convention. Titan FX states it plainly: “BIAS is calculated by dividing the difference between the current price and the Moving Average Price of a specific interval by the Moving Average Price, usually expressed as a percentage.”',
     },
+    giai: {
+      tinh: { vi: 'Khoảng cách giá so với SMA', en: 'Price distance from SMA' },
+      thaySo: {
+        vi: '(22.000 × 5 ÷ (19.500 + 20.000 + 20.500 + 21.000 + 22.000) − 1) × 100',
+        en: '(22000 × 5 ÷ (19500 + 20000 + 20500 + 21000 + 22000) − 1) × 100',
+      },
+      ketQua: { vi: '6,8 %', en: '6.8 %' },
+      gan: [
+        {
+          kyHieu: 'P_t',
+          moTa: { vi: 'là giá phiên cuối: 22.000 ₫', en: 'is the last session’s close: 22000 ₫' },
+        },
+        { kyHieu: 'n', moTa: { vi: 'là 5 phiên', en: 'is 5 sessions' } },
+        {
+          kyHieu: 'SMA_n',
+          moTa: {
+            vi: 'là trung bình 5 giá đóng cửa 19.500, 20.000, 20.500, 21.000 và 22.000 ₫',
+            en: 'is the average of the 5 closes 19500, 20000, 20500, 21000 and 22000 ₫',
+          },
+        },
+      ],
+    },
     source: {
       url: 'https://research.titanfx.com/technical-analysis/ma/bias',
       kind: 'chuyen-gia',
@@ -2547,6 +2706,24 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'Trung bình 5 lợi suất bằng 0, nên tổng bình phương độ lệch = tổng bình phương lợi suất = 1,5² + 2,0² + 0,5² + 1,0² + 1,0² = 8,5 (%²). Vì đây là ĐỘ LỆCH CHUẨN MẪU nên chia cho n−1 = 4, không phải n = 5: phương sai mẫu = 8,5 ÷ 4 = 2,125 (%²) → độ lệch chuẩn mẫu ≈ 1,4577%/phiên. Quy năm: 1,4577% × √252 ≈ 1,4577 × 15,8745 ≈ 23,14%/năm. Nếu lỡ chia cho n (coi như tổng thể) sẽ ra phương sai 1,70 (%²), độ lệch chuẩn 1,3038%, quy năm chỉ còn 20,70%/năm — sai quy ước. Macroption nêu rõ: “We are dividing by n - 1 rather than n, as we are calculating sample standard deviation”.',
       en: 'The mean of the five returns is 0, so the sum of squared deviations equals the sum of squared returns: 1.5² + 2.0² + 0.5² + 1.0² + 1.0² = 8.5 (%²). Because this is the SAMPLE standard deviation, divide by n−1 = 4, not n = 5: sample variance = 8.5 ÷ 4 = 2.125 (%²) → sample standard deviation ≈ 1.4577%/session. Annualizing: 1.4577% × √252 ≈ 1.4577 × 15.8745 ≈ 23.14%/year. Dividing by n instead (as if it were a population) gives a variance of 1.70 (%²), a standard deviation of 1.3038%, and only 20.70%/year once annualized — against the convention. Macroption states it plainly: “We are dividing by n - 1 rather than n, as we are calculating sample standard deviation”.',
+    },
+    giai: {
+      tinh: { vi: 'Độ biến động lịch sử năm hoá', en: 'Annualized historical volatility' },
+      thaySo: {
+        vi: '√(((1,5 − 0)^2 + (−2,0 − 0)^2 + (0,5 − 0)^2 + (−1,0 − 0)^2 + (1,0 − 0)^2) ÷ (5 − 1)) × √252',
+        en: '√(((1.5 − 0)^2 + (−2.0 − 0)^2 + (0.5 − 0)^2 + (−1.0 − 0)^2 + (1.0 − 0)^2) ÷ (5 − 1)) × √252',
+      },
+      ketQua: { vi: '23,14 %/năm', en: '23.14 %/year' },
+      gan: [
+        {
+          kyHieu: '\\ln \\frac{P_t}{P_{t-1}}',
+          moTa: {
+            vi: 'là lợi suất log của 5 phiên liên tiếp, từ cũ tới mới: 1,5%, −2,0%, 0,5%, −1,0% và 1,0%',
+            en: 'is the log return of 5 consecutive sessions, oldest first: 1.5%, −2.0%, 0.5%, −1.0% and 1.0%',
+          },
+        },
+        { kyHieu: 'N', giaTri: { vi: '252', en: '252' } },
+      ],
     },
     source: {
       url: 'https://www.macroption.com/historical-volatility-calculation/',
@@ -2758,6 +2935,21 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     explain: {
       vi: 'RVOL = khối lượng phiên ÷ khối lượng trung bình = 1.000.000 ÷ 300.000 ≈ 3,33 lần — một phép chia trực tiếp, không phải công thức phần trăm thay đổi kiểu (V − trung bình) ÷ trung bình. “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”.',
       en: 'RVOL = session volume ÷ average volume = 1,000,000 ÷ 300,000 ≈ 3.33x — a plain division, not a percentage-change formula like (V − average) ÷ average. “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”.',
+    },
+    giai: {
+      tinh: { vi: 'Tỷ lệ khối lượng so với trung bình', en: 'Relative volume' },
+      thaySo: { vi: '1.000.000 ÷ 300.000', en: '1000000 ÷ 300000' },
+      ketQua: { vi: '3,33 lần', en: '3.33 x' },
+      gan: [
+        { kyHieu: 'V_t', giaTri: { vi: '1.000.000', en: '1000000' } },
+        {
+          kyHieu: '\\frac{1}{n}\\sum_{i=1}^{n} V_{t-i}',
+          moTa: {
+            vi: 'là khối lượng trung bình mỗi phiên: 300.000 cổ phiếu',
+            en: 'is the average volume per session: 300000 shares',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://www.tradingsim.com/blog/relative-volume-rvol',

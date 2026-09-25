@@ -191,6 +191,52 @@ describe('hình dạng trao cho giao diện', () => {
     expect(long === null ? 0 : chieuCao(long)).toBe(3);
   });
 
+  /*
+   * Chỉ MỘT tầng gạch phân số (25/09/2026). Chủ dự án nhìn câu giá vốn DCA — ba phân số
+   * "12.000.000 / giá" chồng trong mẫu của một phân số lớn — và nói "quá khó nhìn". Phép chia nằm
+   * trong tử hoặc mẫu của một phân số khác viết một dòng bằng dấu ÷, như sách toán vẫn viết.
+   */
+  it('phép chia nằm trong phân số viết một dòng, nên cả hình chỉ cao hai tầng', () => {
+    const hinh = workedShape('x = 3 × [12] ÷ ([12] ÷ [60] + [12] ÷ [40])');
+    expect(hinh?.cay.t).toBe('chia');
+    if (hinh?.cay.t !== 'chia') return;
+    expect(hinh.cay.b.t).toBe('cong');
+    if (hinh.cay.b.t !== 'cong') return;
+    expect(hinh.cay.b.a.t).toBe('chiaDong');
+    expect(hinh.cay.b.b.t).toBe('chiaDong');
+    expect(chieuCao(hinh.cay)).toBe(2);
+  });
+
+  it('chia một dòng thì cần ngoặc như phép nhân: (12 − 4) ÷ 100', () => {
+    const hinh = workedShape('x = [2] × (1 + [4] ÷ 100) ÷ (([12] − [4]) ÷ 100)');
+    if (hinh?.cay.t !== 'chia') throw new Error('gốc phải là phân số');
+    const mau = hinh.cay.b;
+    expect(mau.t).toBe('chiaDong');
+    if (mau.t !== 'chiaDong') return;
+    expect(mau.a.t).toBe('ngoac');
+    /* Tử số: 1 + 4 ÷ 100 — phép chia bậc nhân đứng trong phép cộng, không cần ngoặc. */
+    const tu = hinh.cay.a;
+    if (tu.t !== 'nhan' || tu.b.t !== 'ngoac' || tu.b.a.t !== 'cong')
+      throw new Error('tử số sai hình');
+    expect(tu.b.a.b.t).toBe('chiaDong');
+  });
+
+  it('phân số trong số mũ cũng viết một dòng', () => {
+    const hinh = workedShape('x = ([133] ÷ [100])^(1 ÷ [3])');
+    if (hinh?.cay.t !== 'luythua') throw new Error('gốc phải là luỹ thừa');
+    /* Cơ số đứng ngoài mọi phân số nên vẫn là phân số; chỉ phép chia TRONG số mũ viết một dòng. */
+    expect(hinh.cay.a.t).toBe('chia');
+    expect(hinh.cay.b.t).toBe('chiaDong');
+  });
+
+  it('phép chia đứng riêng ngoài cùng vẫn vẽ thành phân số', () => {
+    expect(workedShape('x = [7] ÷ [2]')?.cay.t).toBe('chia');
+    expect(workedShape('x = [7] ÷ [2] + [9] ÷ [3]')?.cay.t).toBe('cong');
+    const tong = workedShape('x = [7] ÷ [2] + [9] ÷ [3]')?.cay;
+    if (tong?.t !== 'cong') return;
+    expect([tong.a.t, tong.b.t]).toEqual(['chia', 'chia']);
+  });
+
   it('dòng không vẽ được trả null', () => {
     expect(workedShape('MDD = Đỉnh ÷ Đáy')).toBeNull();
     expect(workedShape('Độ lệch chuẩn của chuỗi')).toBeNull();

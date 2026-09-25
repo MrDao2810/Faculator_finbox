@@ -630,6 +630,21 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
    * Chỉ dựng khi `page.tsx` đã làm sẵn bản hình gắn dấu mọi ký hiệu, tức trang có câu cần nó.
    * `useMemo` giữ nguyên nút qua mỗi lần gõ ở khối Số liệu.
    */
+  /*
+   * Bảng ký hiệu cho dòng "Thay số" của lời giải: ký hiệu đúng bản MathML thẻ Công thức in
+   * (`notation.symbolsHtml`), nghĩa từ `spec.symbols`. Cả hai đã có sẵn trên màn, nên không tốn
+   * thêm byte nào trong HTML. `useMemo` giữ danh tính mảng qua mỗi lần gõ ở khối Số liệu.
+   */
+  const quizKyHieu = useMemo(
+    () =>
+      (spec.symbols ?? []).map((symbol, index) => ({
+        latex: symbol.latex,
+        html: notation.symbolsHtml[index] ?? '',
+        nghia: symbol.meaning,
+      })),
+    [spec.symbols, notation.symbolsHtml],
+  );
+
   const quizPicture = useMemo(
     () =>
       notation.latexHtmlAllSymbols === undefined ? undefined : (
@@ -2858,6 +2873,7 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
         formulaId={spec.id}
         items={quiz?.items ?? []}
         hinhCongThuc={quizPicture}
+        kyHieu={quizKyHieu}
         saved={quizSaved}
         onFinish={saveQuizResult}
       />

@@ -210,12 +210,18 @@ interface QuizBase {
 }
 
 /**
- * Bốn dòng của một lời giải: tính gì · thay số · ra bao nhiêu.
+ * Các dòng của một lời giải, theo đúng thứ tự chủ dự án đặt ngày 25/09/2026:
  *
- * Dòng công thức là dòng thứ hai và nó đến từ `FormulaSpec.expression`, không từ đây.
+ *   Công thức áp dụng   <hình công thức của trang>  để tính <tinh>
+ *   Thay số             V = 42.500   giá trị nội tại ước tính…      ← `gan`
+ *                       P = 33.850   thị giá hiện tại…
+ *   Áp vào công thức    (42.500 − 33.850) ÷ 42.500 × 100             ← `thaySo`
+ *   Kết quả             20,35 %                                       ← `ketQua`
+ *
+ * Hình công thức đến từ chính trang, không từ đây.
  */
 export interface QuizGiai {
-  /** Câu hỏi này tính ra thứ gì. Một cụm danh từ, không phải một câu. */
+  /** Câu hỏi này tính ra thứ gì — đuôi "để tính …" của dòng công thức. Cụm danh từ, không phải câu. */
   tinh: QuizText;
   /**
    * Ghi đè dòng công thức, CHỈ khi công thức của trang không phải thứ tính ra đáp án.
@@ -231,10 +237,67 @@ export interface QuizGiai {
    * tồn tại để chặn, và nó chặn hình vẽ chứ không chặn được dòng chữ này.
    */
   congThuc?: QuizText;
-  /** Thay số của đề bài vào công thức: "36.000 ÷ 3.000". Chỉ phép tính, không lời. */
+  /**
+   * Dòng "Áp vào công thức": số liệu đã đặt vào công thức, "36.000 ÷ 3.000". Chỉ phép tính, không
+   * lời. (Tên trường có trước dòng `gan`, khi dòng này còn mang nhãn "Thay số".)
+   */
   thaySo: QuizText;
   /** Kết quả cuối, kèm đơn vị: "12,0 lần". */
   ketQua: QuizText;
+  /**
+   * Dòng "Thay số": từng con số của đề ứng với KÝ HIỆU NÀO của hình công thức.
+   *
+   * Chủ dự án 25/09/2026, chỉ vào dòng "Thứ tự đúng: 42.500 · 33.850 · 42.500": đọc xong vẫn không
+   * biết 42.500 là V hay P. Dòng phép tính ở dưới đặt đúng số vào đúng chỗ, nhưng không NÓI số nào
+   * là đại lượng nào — người mới cần đúng câu ấy.
+   *
+   * Bắt buộc với mọi lời giải in hình công thức của trang (không ghi đè `congThuc`). Câu ghi đè
+   * không có hình để trỏ vào, nên không khai. `quiz.test.ts` gác ba điều: ký hiệu có thật trong
+   * hình, mọi con số có nguyên văn trong đề, và ở câu điền số thì ô trống nào cũng có ký hiệu.
+   */
+  gan?: ReadonlyArray<QuizGan>;
+}
+
+/**
+ * Một dòng "Thay số": ký hiệu nào nhận con số nào.
+ *
+ * Không có trường nghĩa: nghĩa của ký hiệu lấy từ bảng ký hiệu của trang (`spec.symbols`), cùng
+ * chữ thẻ Công thức đang in. Viết lại ở đây là dựng bản thứ hai của một câu đã có.
+ */
+export interface QuizGan {
+  /**
+   * Ký hiệu, ở một trong hai dạng:
+   * - `latex` của một dòng `spec.symbols`: `"V"`, `"P_{mua}"`, `"\\beta"`;
+   * - một cụm `\\text{…}` có NGUYÊN VĂN trong `spec.latex`: `"\\text{Tài sản ngắn hạn}"`. Cụm chữ
+   *   tự nói nghĩa nên bảng ký hiệu không có dòng riêng cho nó, nhưng nó vẫn là thứ người đọc thấy
+   *   trong hình.
+   */
+  kyHieu: string;
+  /**
+   * Con số thay vào, viết như trong dòng công thức: `"42.500"`. Giao diện in "V = 42.500". Khi đề
+   * khai triển ký hiệu ấy thành vài số liệu thì là phép tính nhỏ: BVPS `"32.816,52 ÷ 2,09"`.
+   *
+   * Có đúng MỘT trong hai trường `giaTri` / `moTa`.
+   */
+  giaTri?: QuizText;
+  /**
+   * Câu mô tả, in NGAY SAU ký hiệu, không có dấu "=" — dùng khi một con số trơn không nói đủ.
+   *
+   * Chủ dự án 25/09/2026, chỉ vào "C_i = 12.000.000 · 12.000.000 · 12.000.000": "có thể mô tả như
+   * sau: Ci mua của 3 đợt cùng bằng 12000000. như vậy sẽ chuẩn hơn là dàn hết ra". Dàn số ra có hai
+   * lỗi: dấu "·" chính là dấu NHÂN trong các công thức của trang, và dãy số không nói số nào thuộc
+   * lần nào. Nên ký hiệu nhận nhiều số (`C_i`, `P_{t-i}`, `r_t`) nói bằng câu: `"của cả 3 đợt cùng
+   * bằng 12.000.000"`, `"lần lượt là 60.000, 40.000 và 30.000 ở đợt 1, 2 và 3"`. Mỗi ký hiệu MỘT dòng —
+   * `quiz.test.ts` cấm khai hai dòng cùng ký hiệu.
+   *
+   * Câu phải đọc liền với ký hiệu đứng trước nó, và chỉ nói đúng số nào ứng với lần nào, phiên nào —
+   * không giảng lại công thức (chủ dự án: "không sáng tạo thêm hay thêm lời vô nghĩa").
+   *
+   * Câu mô tả THAY LUÔN nghĩa của bảng ký hiệu — giao diện không in nghĩa ấy cạnh nó. Nghĩa trong
+   * bảng viết cho công thức tổng quát ("tiền mua đợt i"), đặt cạnh một bài cụ thể thì chủ dự án đọc
+   * không ra: "tiền mua giá đợt i nghĩa là gì? … máy móc quá". Nên câu phải tự đủ nghĩa, kèm đơn vị.
+   */
+  moTa?: QuizText;
 }
 
 /** Bốn lựa chọn, một đáp án đúng. */
@@ -323,6 +386,16 @@ export interface QuizDienSo extends QuizBase {
    * docblock ở đó trước khi soạn một dòng mới.
    */
   worked: QuizText;
+  /**
+   * Bộ số liệu để đối chiếu với chính `calc` của công thức — xem `QuizVerify`.
+   *
+   * Có từ 25/09/2026, khi 66 câu tính toán Q346–Q411 đổi từ bốn lựa chọn sang điền số. Chủ dự án:
+   * "việc đưa ra các ô để nhập vào giống như tôi yêu cầu thì bạn chưa sửa, vẫn để chọn các số liệu
+   * ABCD". Đổi dạng thì không được mất cửa gác đã giữ các câu ấy đúng: `worked` chỉ được tính lại
+   * theo chính nó, còn `verify` chạy `calc` của sản phẩm với cùng bộ số liệu — hai cửa khác nhau,
+   * và một câu điền số có `verify` phải qua cả hai.
+   */
+  verify?: QuizVerify;
 }
 
 /**

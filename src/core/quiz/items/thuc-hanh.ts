@@ -72,6 +72,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'P/E của cổ phiếu', en: 'The P/E of the stock' },
       thaySo: { vi: '36.000 ÷ 3.000', en: '36000 ÷ 3000' },
       ketQua: { vi: '12,0 lần', en: '12.0x' },
+      gan: [
+        { kyHieu: 'P', giaTri: { vi: '36.000', en: '36000' } },
+        { kyHieu: 'EPS', giaTri: { vi: '3.000', en: '3000' } },
+      ],
     },
     source: {
       url: 'https://simplize.vn/learn/chi-so-pe',
@@ -131,6 +135,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Biên an toàn', en: 'Margin of safety' },
       thaySo: { vi: '(42.500 − 33.850) ÷ 42.500 × 100', en: '(42500 − 33850) ÷ 42500 × 100' },
       ketQua: { vi: '20,35 %', en: '20.35 %' },
+      gan: [
+        { kyHieu: 'V', giaTri: { vi: '42.500', en: '42500' } },
+        { kyHieu: 'P', giaTri: { vi: '33.850', en: '33850' } },
+      ],
     },
     source: {
       url: 'https://24hmoney.vn/news/ctg--bao-cao-phan-tich-dinh-gia-co-phieu-2026-c30a2797985.html',
@@ -184,6 +192,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Biên lợi nhuận gộp', en: 'Gross profit margin' },
       thaySo: { vi: '(968,1 − 837,8) ÷ 968,1 × 100', en: '(968.1 − 837.8) ÷ 968.1 × 100' },
       ketQua: { vi: '13,46 %', en: '13.46 %' },
+      gan: [
+        { kyHieu: '\\text{Doanh thu}', giaTri: { vi: '968,1', en: '968.1' } },
+        { kyHieu: '\\text{Giá vốn}', giaTri: { vi: '837,8', en: '837.8' } },
+      ],
     },
     source: {
       url: 'https://mekongasean.vn/gia-von-tang-nhanh-hon-doanh-thu-loi-nhuan-tcm-quy-2-giam-444-57887.html',
@@ -231,9 +243,13 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'Dividing 143 by 613 and multiplying by 100 gives 23.33%: out of every 100 dong of Q2 net revenue, DIG keeps more than 23 dong of net profit. The trap is the gross profit line of 42 billion dong — putting that in the numerator yields 6.85%, exactly the gross margin the article says shrank from 39% to 6.9%. This is the rare case where the net margin is HIGHER than the gross margin, because most of the profit came not from selling goods but from 116 billion dong of financial income plus 40 billion dong of profit from joint ventures and associates. ROS always takes the last profit line after tax, so it absorbs everything outside core operations; to judge the health of the selling business you read the gross margin beside it rather than replacing ROS with it. The 100 in the formula is the structural constant that converts the ratio to a percentage, so it stays visible and is not a slot.',
     },
     giai: {
-      tinh: { vi: 'ROS — biên lợi nhuận ròng', en: 'Net profit margin' },
+      tinh: { vi: 'biên lợi nhuận ròng', en: 'Net profit margin' },
       thaySo: { vi: '143 ÷ 613 × 100', en: '143 ÷ 613 × 100' },
       ketQua: { vi: '23,33 %', en: '23.33 %' },
+      gan: [
+        { kyHieu: '\\text{LNST}', giaTri: { vi: '143', en: '143' } },
+        { kyHieu: '\\text{Doanh thu thuần}', giaTri: { vi: '613 tỷ ₫', en: '613 billion ₫' } },
+      ],
     },
     source: {
       url: 'https://www.tinnhanhchungkhoan.vn/nhieu-doanh-nghiep-niem-yet-lai-lon-nho-thu-nhap-khac-post396380.html',
@@ -288,12 +304,22 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: "Equity attributable to the parent company's shareholders is 96,437 − 91 = 96,346 billion ₫; divided by 5,814,785,700 shares and multiplied by 10^9 to turn billion ₫ into ₫, that gives about 16,569 ₫ per share. The table sets two traps. The first is the 91 billion ₫ of non-controlling interests: that is the minority shareholders' stake in the subsidiaries, and leaving it in the numerator inflates BVPS, an error that flows straight into P/B and the Graham number. The second is the 619 billion ₫ of intangible fixed assets together with the 217 billion ₫ of land use rights: those belong to tangible book value, a stricter metric that the source page itself computes from this same data set; the BVPS formula here does not subtract them, and subtracting them means you have switched metrics while still calling the result BVPS. The 10^9 factor is not a slot because it is the formula's own unit conversion, not a figure from the company.",
     },
     giai: {
-      tinh: { vi: 'BVPS — giá trị sổ sách mỗi cổ phiếu', en: 'Book value per share' },
+      tinh: { vi: 'giá trị sổ sách mỗi cổ phiếu', en: 'Book value per share' },
       thaySo: {
         vi: '(96.437 − 91) ÷ 5.814.785.700 × 10^9',
         en: '(96437 − 91) ÷ 5814785700 × 10^9',
       },
       ketQua: { vi: '16.569,14 ₫', en: '16569.14 ₫' },
+      gan: [
+        {
+          kyHieu: '\\text{Vốn chủ sở hữu}',
+          moTa: {
+            vi: 'của cổ đông công ty mẹ: 96.437 trừ 91 phần không kiểm soát, đơn vị tỷ ₫',
+            en: 'belonging to parent shareholders: 96437 minus 91 of non-controlling interest, in billions of ₫',
+          },
+        },
+        { kyHieu: '\\text{Số CP lưu hành}', giaTri: { vi: '5.814.785.700', en: '5814785700' } },
+      ],
     },
     source: {
       url: 'https://tikop.vn/blog/gia-tri-so-sach-cua-co-phieu-la-gi-vai-tro-cach-tinh-bvps-chi-tiet-6438',
@@ -360,12 +386,17 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'The numerator is the ending value of 900,000,000 ₫, the denominator the starting value of 600,000,000 ₫, and the exponent is 1 divided by the 3 years held. Pinetree writes the arithmetic out directly: “[(900.000.000/ 600.000.000) ^ (1/3)] – 1 = 14%”, a figure the source rounds down; carried to more digits it is 14.47%/year. The first trap is the four year columns: the sheet lists 2019, 2020, 2021 and 2022, so it is tempting to put 4 in the years slot, but only 3 years of growth elapsed between the start of 2019 and the end of 2022, and a 4 would drag the result down to 10.67%/year, spreading the gain over a year that never happened. The second trap is the 60,000 ₫: that is the price of one share, and pairing it with the 900,000,000 ₫ of the whole investment leaves the two sides of the ratio in different units, which sends the result into the thousands of percent. Subtracting 1 and multiplying by 100 are constants of the formula, one stripping the original capital out of the growth multiple and one turning the 0.1447 ratio into a percentage, so neither is a slot.',
     },
     giai: {
-      tinh: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'Compound annual growth rate' },
+      tinh: { vi: 'tăng trưởng kép hằng năm', en: 'Compound annual growth rate' },
       thaySo: {
         vi: '((900.000.000 ÷ 600.000.000)^(1 ÷ 3) − 1) × 100',
         en: '((900000000 ÷ 600000000)^(1 ÷ 3) − 1) × 100',
       },
       ketQua: { vi: '14,47 %/năm', en: '14.47 %/year' },
+      gan: [
+        { kyHieu: 'V_{cuoi}', giaTri: { vi: '900.000.000', en: '900000000' } },
+        { kyHieu: 'V_{dau}', giaTri: { vi: '600.000.000', en: '600000000' } },
+        { kyHieu: 't', giaTri: { vi: '3', en: '3' } },
+      ],
     },
     source: {
       url: 'https://pinetree.vn/post/20220808/cagr-la-gi-y-nghia-va-cach-tinh/',
@@ -423,9 +454,14 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'The last slot takes 2%, the market risk premium, not the 5% expected return of the whole market: CAPM adds to the risk-free rate exactly the market’s EXCESS over that same rate. The source writes the arithmetic out: “3% + 1.1 × (5% – 3%) = 5.2%” (roughly, 3% plus 1.1 times the 5% minus 3% gap). Dropping 5% into the last slot gives 8.5%/year, inflating the cost of equity by more than three percentage points, and because this figure feeds straight into WACC and then becomes the discount rate of every valuation model, a stock worth buying gets marked as expensive. The 3%/year dividend yield row is noise too: it is not a CAPM input at all, it merely happens to equal the risk-free rate.',
     },
     giai: {
-      tinh: { vi: 'CAPM — chi phí vốn chủ sở hữu', en: 'Capital asset pricing model' },
+      tinh: { vi: 'chi phí vốn chủ sở hữu', en: 'Capital asset pricing model' },
       thaySo: { vi: '3 + 1,1 × 2', en: '3 + 1.1 × 2' },
       ketQua: { vi: '5,2 %/năm', en: '5.2 %/year' },
+      gan: [
+        { kyHieu: 'r_f', giaTri: { vi: '3', en: '3' } },
+        { kyHieu: '\\beta', giaTri: { vi: '1,1', en: '1.1' } },
+        { kyHieu: 'ERP', giaTri: { vi: '2', en: '2' } },
+      ],
     },
     source: {
       url: 'https://www.dnse.com.vn/hoc/capm-la-gi',
@@ -487,12 +523,21 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: "All three terms grow out of the dividend JUST PAID of 2,000 ₫, because each term already carries its own (1 + 9 ÷ 100) factor. Putting next year's expected dividend of 2,180 ₫ there applies the growth twice and pushes the result up to 24,377 ₫. The other two slots are both the long-term growth rate of 6%: the terminal value is the Gordon model applied from year three onward, so the final growth step (1 + 6 ÷ 100) and the spread (16 − 6) must both run on g2. Putting the first two years' 9% there shrinks the r minus g spread to 7% and inflates the result to 31,143 ₫, almost 40% above the correct figure. The correct result of 22,364 ₫ sits above the market price of 20,000 ₫, so under this scenario the share is cheaper than its value.",
     },
     giai: {
-      tinh: { vi: 'DDM hai giai đoạn', en: 'Two-stage dividend discount model' },
+      tinh: {
+        vi: 'giá trị cổ phiếu theo DDM hai giai đoạn',
+        en: 'stock value under the two-stage dividend discount model',
+      },
       thaySo: {
         vi: '2.000 × (1 + 9 ÷ 100) ÷ (1 + 16 ÷ 100) + 2.000 × (1 + 9 ÷ 100)^2 ÷ (1 + 16 ÷ 100)^2 + 2.000 × (1 + 9 ÷ 100)^2 × (1 + 6 ÷ 100) ÷ ((16 − 6) ÷ 100 × (1 + 16 ÷ 100)^2)',
         en: '2000 × (1 + 9 ÷ 100) ÷ (1 + 16 ÷ 100) + 2000 × (1 + 9 ÷ 100)^2 ÷ (1 + 16 ÷ 100)^2 + 2000 × (1 + 9 ÷ 100)^2 × (1 + 6 ÷ 100) ÷ ((16 − 6) ÷ 100 × (1 + 16 ÷ 100)^2)',
       },
       ketQua: { vi: '22.363,79 ₫', en: '22363.79 ₫' },
+      gan: [
+        { kyHieu: 'D_0', giaTri: { vi: '2.000', en: '2000' } },
+        { kyHieu: 'g_1', giaTri: { vi: '9', en: '9' } },
+        { kyHieu: 'r', giaTri: { vi: '16', en: '16' } },
+        { kyHieu: 'g_2', giaTri: { vi: '6', en: '6' } },
+      ],
     },
     source: {
       url: 'https://taca.edu.vn/bai-tap-dinh-gia-trai-phieu-va-co-phieu/',
@@ -565,6 +610,16 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '(1621 − 300) ÷ 559166666.7 × 10^9',
       },
       ketQua: { vi: '2.362,44 ₫', en: '2362.44 ₫' },
+      gan: [
+        {
+          kyHieu: '\\text{LNST}',
+          moTa: {
+            vi: 'dành cho cổ phiếu phổ thông: 1.621 trừ 300 cổ tức ưu đãi, đơn vị tỷ ₫',
+            en: 'attributable to common shares: 1621 minus 300 of preferred dividends, in billions of ₫',
+          },
+        },
+        { kyHieu: '\\text{Số CP lưu hành}', giaTri: { vi: '559.166.666,7', en: '559166666.7' } },
+      ],
     },
     source: {
       url: 'https://taca.com.vn/chi-so-eps/',
@@ -626,9 +681,25 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'Enterprise value = market cap + borrowings − cash, so the numerator is 175 + 20 + 30 − 12.5 = 212.5 million USD; divided by net revenue of 85 million USD that gives 2.5x. The trap is the Total assets row of 125 million USD: only 10% of it is cash, that is 12.5 million USD, so anyone who drags 125 into the subtraction slot gets 100 ÷ 85 ≈ 1.18x, almost half as cheap as reality. Both debt figures must be added: dropping the 30 million USD of long-term borrowings pulls the ratio down to 2.15x. And putting only the 175 market cap in the numerator gives 2.06x, which is P/S rather than EV/Sales — a multiple that pairs an equity numerator with a whole-firm denominator, ignoring exactly the debt a buyer would have to take on.',
     },
     giai: {
-      tinh: { vi: 'EV/Sales — EV trên doanh thu', en: 'EV to sales ratio' },
+      tinh: { vi: 'EV trên doanh thu', en: 'EV to sales ratio' },
       thaySo: { vi: '(175 + 20 + 30 − 12,5) ÷ 85', en: '(175 + 20 + 30 − 12.5) ÷ 85' },
       ketQua: { vi: '2,5 lần', en: '2.5 x' },
+      gan: [
+        {
+          kyHieu: 'EV',
+          moTa: {
+            vi: 'bằng vốn hoá 175 cộng nợ vay 20 và 30, trừ tiền mặt 12,5, đơn vị triệu USD',
+            en: 'is market cap 175 plus debt of 20 and 30, minus cash of 12.5, in millions of USD',
+          },
+        },
+        {
+          kyHieu: '\\text{Doanh thu}',
+          moTa: {
+            vi: 'là doanh thu thuần cả năm: 85 triệu USD',
+            en: 'is full-year net revenue: 85 million USD',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://vietnambiz.vn/he-so-ev-r-la-gi-cach-tinh-he-so-ev-r-20200508120305304.htm',
@@ -690,12 +761,23 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'Placed correctly, EV = 86,774.72 + 10,904.34 + 1,477.83 − 6,440.18 = 92,716.71 billion ₫, matching the figure Simplize computes for FPT at the end of 2022. The two borrowing lines are added separately because the balance sheet presents them as two lines, and the source states exactly which part of the liabilities goes in: “Nợ vay là tổng các khoản nợ có yếu tố lãi suất (phải trả lãi) và bao gồm cả các khoản nợ ngắn hạn và dài hạn” (roughly, borrowings are the total of interest-bearing liabilities, short-term and long-term alike). The trap is the net debt row of 5,941.99 billion ₫: cash has already been taken out of it, so putting it in the debt slot and still subtracting 6,440.18 subtracts cash twice and lands on 86,276.53 billion ₫ — nearly 6,440 billion below the real EV, and even below market cap. The 10,141.07 billion ₫ EBITDA row belongs to the EV/EBITDA formula on another page, not to a term of EV, and it sits deliberately close to the 10,904.34 billion ₫ short-term debt figure so a hurried reader can grab the wrong one.',
     },
     giai: {
-      tinh: { vi: 'EV — giá trị doanh nghiệp', en: 'Enterprise value' },
+      tinh: { vi: 'giá trị doanh nghiệp', en: 'Enterprise value' },
       thaySo: {
         vi: '86.774,72 + 10.904,34 + 1.477,83 − 6.440,18',
         en: '86774.72 + 10904.34 + 1477.83 − 6440.18',
       },
       ketQua: { vi: '92.716,71 tỷ ₫', en: '92716.71 billion ₫' },
+      gan: [
+        { kyHieu: '\\text{Vốn hoá}', giaTri: { vi: '86.774,72', en: '86774.72' } },
+        {
+          kyHieu: '\\text{Nợ vay}',
+          moTa: {
+            vi: 'gồm vay ngắn hạn 10.904,34 và vay dài hạn 1.477,83, đơn vị tỷ ₫',
+            en: 'is short-term borrowing 10904.34 plus long-term borrowing 1477.83, in billions of ₫',
+          },
+        },
+        { kyHieu: '\\text{Tiền mặt}', giaTri: { vi: '6.440,18', en: '6440.18' } },
+      ],
     },
     source: {
       url: 'https://simplize.vn/learn/ev-ebitda',
@@ -766,9 +848,33 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'FCFE subtracts only the AFTER-TAX interest, so the interest slot takes the gross figure of USD 3 million while the (1 − 21 ÷ 100) factor already drawn in the picture handles the tax deduction: 3 × 0.79 gives USD 2.37 million. The table deliberately also offers USD 2.37 million — putting that figure into the interest slot deducts tax twice and gives 10.93 instead of 10.43. Net new borrowing of USD 1 million is ADDED, not subtracted, because borrowed money is cash shareholders can use straight away in the period; that is exactly why FCFE drops sharply when net borrowing turns negative even though the underlying business has not changed. EBIT of USD 20 million is an input to the earlier FCFF step, not FCFF itself, so it belongs in no slot at all. “take the same $11.8M FCFF from above. Assume interest expense of $3M and the firm raised $1M of net new debt.”',
     },
     giai: {
-      tinh: { vi: 'FCFE — dòng tiền tự do của cổ đông', en: 'Free cash flow to equity' },
+      tinh: { vi: 'dòng tiền tự do của cổ đông', en: 'Free cash flow to equity' },
       thaySo: { vi: '11,8 − 3 × (1 − 21 ÷ 100) + 1', en: '11.8 − 3 × (1 − 21 ÷ 100) + 1' },
       ketQua: { vi: '10,43 triệu USD', en: '10.43 USD million' },
+      gan: [
+        {
+          kyHieu: 'FCFF',
+          moTa: {
+            vi: 'là dòng tiền tự do của doanh nghiệp: 11,8 triệu USD',
+            en: 'is free cash flow to the firm: 11.8 million USD',
+          },
+        },
+        {
+          kyHieu: 'I',
+          moTa: {
+            vi: 'là chi phí lãi vay, chưa trừ thuế: 3 triệu USD',
+            en: 'is interest expense before tax: 3 million USD',
+          },
+        },
+        { kyHieu: 't', giaTri: { vi: '21', en: '21' } },
+        {
+          kyHieu: '\\Delta B',
+          moTa: {
+            vi: 'là vay ròng mới trong kỳ: 1 triệu USD',
+            en: 'is net new borrowing in the period: 1 million USD',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://ctacquisitions.com/free-cash-flow-formula/',
@@ -830,12 +936,43 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: '250 × (100 − 30) ÷ 100 gives $175 million of after-tax EBIT; add $50 million of depreciation, subtract $100 million of capital expenditure and subtract the $20 million rise in net working capital, and $105 million is left. The trap is the net income line of $154 million: that figure already deducts $30 million of interest before tax is applied, so putting it in the first slot taxes an already-taxed number a second time while also deducting interest, even though the WACC used to discount FCFF already prices the cost of debt, so the charge lands twice. The result then falls to $37.8 million. Depreciation is added back because it is a non-cash expense, while capital expenditure and the increase in working capital are real money that has left the company, so both carry a minus sign.',
     },
     giai: {
-      tinh: { vi: 'FCFF — dòng tiền tự do của doanh nghiệp', en: 'Free cash flow to firm' },
+      tinh: { vi: 'dòng tiền tự do của doanh nghiệp', en: 'Free cash flow to firm' },
       thaySo: {
         vi: '250 × (100 − 30) ÷ 100 + 50 − 100 − 20',
         en: '250 × (100 − 30) ÷ 100 + 50 − 100 − 20',
       },
       ketQua: { vi: '105 triệu USD', en: '105 $ million' },
+      gan: [
+        {
+          kyHieu: 'EBIT',
+          moTa: {
+            vi: 'là lợi nhuận trước lãi vay và thuế: 250 triệu USD',
+            en: 'is earnings before interest and tax: 250 million USD',
+          },
+        },
+        { kyHieu: 't', giaTri: { vi: '30', en: '30' } },
+        {
+          kyHieu: 'Dep',
+          moTa: {
+            vi: 'là khấu hao, cộng lại vì không phải chi tiền: 50 triệu USD',
+            en: 'is depreciation, added back because no cash leaves: 50 million USD',
+          },
+        },
+        {
+          kyHieu: 'CapEx',
+          moTa: {
+            vi: 'là chi đầu tư tài sản cố định: 100 triệu USD',
+            en: 'is capital expenditure: 100 million USD',
+          },
+        },
+        {
+          kyHieu: '\\Delta NWC',
+          moTa: {
+            vi: 'là phần tăng vốn lưu động ròng: 20 triệu USD',
+            en: 'is the increase in net working capital: 20 million USD',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://www.highradius.com/resources/Blog/unlevered-free-cash-flow-formula/',
@@ -904,6 +1041,18 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '(1000 × 50000 + 75000 + 810) ÷ (1000 × (1 − 0.0015 − 0.001))',
       },
       ketQua: { vi: '50.201,31 ₫', en: '50201.31 ₫' },
+      gan: [
+        { kyHieu: 'Q', giaTri: { vi: '1.000', en: '1000' } },
+        { kyHieu: 'P_{mua}', giaTri: { vi: '50.000', en: '50000' } },
+        { kyHieu: 'F_{mua}', giaTri: { vi: '75.000', en: '75000' } },
+        {
+          kyHieu: 'F_{lk}',
+          moTa: {
+            vi: 'là phí lưu ký cả 3 tháng nắm giữ: 810 ₫',
+            en: 'is the custody fee for the 3 months held: 810 ₫',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://casin.vn/hoc/chung-khoan-co-ban/break-even/',
@@ -957,6 +1106,11 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Giá trị hiện tại (PV)', en: 'Present value' },
       thaySo: { vi: '500.000.000 ÷ (1 + 8 ÷ 100) ^ 5', en: '500000000 ÷ (1 + 8 ÷ 100) ^ 5' },
       ketQua: { vi: '340.291.598,52 ₫', en: '340291598.52 ₫' },
+      gan: [
+        { kyHieu: 'FV', giaTri: { vi: '500.000.000', en: '500000000' } },
+        { kyHieu: 'r', giaTri: { vi: '8', en: '8' } },
+        { kyHieu: 'n', giaTri: { vi: '5', en: '5' } },
+      ],
     },
     source: {
       url: 'https://ub.edu.vn/thu-vien-thuat-ngu/gia-tri-hien-tai',
@@ -1034,6 +1188,25 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '(500 × (1 + 0.04) ÷ (0.12 − 0.04) − 800) ÷ 300 × 1000',
       },
       ketQua: { vi: '19.000 ₫', en: '19000 ₫' },
+      gan: [
+        { kyHieu: 'FCFF', giaTri: { vi: '500', en: '500' } },
+        {
+          kyHieu: 'g',
+          moTa: {
+            vi: 'là tăng trưởng dài hạn 4%/năm, viết dạng thập phân 0,04',
+            en: 'is long-run growth of 4% a year, written as the decimal 0.04',
+          },
+        },
+        {
+          kyHieu: 'WACC',
+          moTa: {
+            vi: 'là 12%/năm, viết dạng thập phân 0,12',
+            en: 'is 12% a year, written as the decimal 0.12',
+          },
+        },
+        { kyHieu: 'D_{\\text{ròng}}', giaTri: { vi: '800', en: '800' } },
+        { kyHieu: '\\text{Số CP}', giaTri: { vi: '300', en: '300' } },
+      ],
     },
     source: {
       url: 'https://shinhansec.com.vn/vi/kien-thuc-dau-tu/84/dinh-gia-doanh-nghiep-bang-mo-hinh-fcfe-fcff-la-gi.html',
@@ -1090,6 +1263,11 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Giá trị tương lai (FV)', en: 'Future value' },
       thaySo: { vi: '100.000.000 × (1 + 10 ÷ 100)^5', en: '100000000 × (1 + 10 ÷ 100)^5' },
       ketQua: { vi: '161.051.000 ₫', en: '161051000 ₫' },
+      gan: [
+        { kyHieu: 'PV', giaTri: { vi: '100.000.000', en: '100000000' } },
+        { kyHieu: 'r', giaTri: { vi: '10', en: '10' } },
+        { kyHieu: 'n', giaTri: { vi: '5', en: '5' } },
+      ],
     },
     source: {
       url: 'https://vietnambiz.vn/gia-tri-tuong-lai-cua-tien-future-value-fv-la-gi-cach-xac-dinh-20190812000605052.htm',
@@ -1150,12 +1328,17 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'The numerator holds everything one share returned over the period: the price gain of 35,000 − 30,000 = 5,000 ₫ plus the 1,000 ₫ dividend already received, so 6,000 ₫; divided by the 30,000 ₫ originally invested and multiplied by 100 it gives 20%. The starting price goes into both slots because it is at once the baseline subtracted in the numerator and the base divided by in the denominator. The last two rows of the table are the trap: the dividend was announced as 10% of par value, so putting 10 into the dividend slot yields 16.7%, while taking the 10,000 ₫ par value as the starting price yields 260%. What enters the formula is always the cash actually received per share and the price actually paid, never the announced rate and never the par value. The source writes: “Trong trường hợp cổ phiếu ông A mua trả cổ tức hàng năm là 1.000 đồng/cổ phiếu, tương ứng với 1 triệu đồng cho 1000 cổ phiếu đang sở hữu, và ông A nhận được số cổ tức đó trước khi thực hiện giao dịch bán trên thị trường, tổng lợi nhuận thu được là 6.000.000 đồng” (roughly: the shares also paid an annual dividend of 1,000 ₫ per share, received before the sale, so total profit came to 6,000,000 ₫ on the 1,000-share lot).',
     },
     giai: {
-      tinh: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'Holding period return' },
+      tinh: { vi: 'lợi suất kỳ nắm giữ', en: 'Holding period return' },
       thaySo: {
         vi: '(35.000 − 30.000 + 1.000) ÷ 30.000 × 100',
         en: '(35000 − 30000 + 1000) ÷ 30000 × 100',
       },
       ketQua: { vi: '20 %', en: '20 %' },
+      gan: [
+        { kyHieu: 'P_{cuoi}', giaTri: { vi: '35.000', en: '35000' } },
+        { kyHieu: 'P_{dau}', giaTri: { vi: '30.000', en: '30000' } },
+        { kyHieu: 'D', giaTri: { vi: '1.000', en: '1000' } },
+      ],
     },
     source: {
       url: 'https://nhadautu.srtc.org.vn/p/loi-nhuan-va-muc-sinh-loi',
@@ -1209,6 +1392,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Lãi suất hiệu dụng năm (EAR)', en: 'Effective annual rate' },
       thaySo: { vi: '((1 + 12 ÷ 4 ÷ 100)^4 − 1) × 100', en: '((1 + 12 ÷ 4 ÷ 100)^4 − 1) × 100' },
       ketQua: { vi: '12,55 %', en: '12.55 %' },
+      gan: [
+        { kyHieu: 'r', giaTri: { vi: '12', en: '12' } },
+        { kyHieu: 'm', giaTri: { vi: '4', en: '4' } },
+      ],
     },
     source: {
       url: 'https://tikop.vn/blog/lai-suat-hieu-dung-la-gi-cong-thuc-tinh-lai-suat-hieu-dung-chuan-2317',
@@ -1281,6 +1468,39 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '1000 × (105000 − 100000) − (100000000 × 0.15 ÷ 100 + 105000000 × 0.15 ÷ 100 + 105000000 × 0.1 ÷ 100 + 1000 × 1 × 0.27)',
       },
       ketQua: { vi: '4.587.230 ₫', en: '4587230 ₫' },
+      gan: [
+        { kyHieu: 'Q', giaTri: { vi: '1.000', en: '1000' } },
+        { kyHieu: 'P_{ban}', giaTri: { vi: '105.000', en: '105000' } },
+        { kyHieu: 'P_{mua}', giaTri: { vi: '100.000', en: '100000' } },
+        {
+          kyHieu: 'F_{mua}',
+          moTa: {
+            vi: 'bằng 0,15% của giá trị mua 100.000.000 ₫',
+            en: 'is 0.15% of the 100000000 ₫ purchase value',
+          },
+        },
+        {
+          kyHieu: 'F_{ban}',
+          moTa: {
+            vi: 'bằng 0,15% của giá trị bán 105.000.000 ₫',
+            en: 'is 0.15% of the 105000000 ₫ sale value',
+          },
+        },
+        {
+          kyHieu: 'T',
+          moTa: {
+            vi: 'bằng 0,1% của giá trị bán 105.000.000 ₫',
+            en: 'is 0.1% of the 105000000 ₫ sale value',
+          },
+        },
+        {
+          kyHieu: 'F_{lk}',
+          moTa: {
+            vi: 'bằng 1.000 cổ phiếu nhân 1 tháng nhân 0,27 ₫',
+            en: 'is 1000 shares times 1 month times 0.27 ₫',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://acbs.com.vn/blog/chi-phi-giao-dich-chung-khoan',
@@ -1337,6 +1557,22 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Lợi suất năm hoá', en: 'Annualized return' },
       thaySo: { vi: '((1 + 0,7 ÷ 100) ^ 12 − 1) × 100', en: '((1 + 0.7 ÷ 100) ^ 12 − 1) × 100' },
       ketQua: { vi: '8,73 %', en: '8.73 %' },
+      gan: [
+        {
+          kyHieu: 'r_{ky}',
+          moTa: {
+            vi: 'là lợi suất tháng gần nhất: 0,7%',
+            en: 'is the latest monthly return: 0.7%',
+          },
+        },
+        {
+          kyHieu: 'm',
+          moTa: {
+            vi: 'là 12 kỳ, vì kỳ ở đây là tháng',
+            en: 'is 12 periods, because a period here is a month',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://analystprep.com/cfa-level-1-exam/quantitative-methods/annualized-returns/',
@@ -1397,6 +1633,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '((100 + 5.5) ÷ (100 + 4) − 1) × 100',
       },
       ketQua: { vi: '1,44 %/năm', en: '1.44 %/year' },
+      gan: [
+        { kyHieu: 'r_{danh\\,nghia}', giaTri: { vi: '5,5', en: '5.5' } },
+        { kyHieu: '\\pi', moTa: { vi: 'là lạm phát 4% một năm', en: 'is inflation of 4% a year' } },
+      ],
     },
     source: {
       url: 'https://ub.edu.vn/thu-vien-thuat-ngu/lai-suat-thuc',
@@ -1454,9 +1694,17 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: "Putting 3,000 ₫ in the dividend slot, 5 in both growth slots and 10 in the required-return slot turns the line into 3,000 × 105 ÷ 5 = 63,000 ₫, matching the source's own solution: “P0 = [CF0x(1+g)] / (r - g) = [3.000x(1 + 5%)] / (10% - 5%) = 63.000 đồng” (Vietnamese; 3,000 grown by 5% and divided by the 10% minus 5% spread gives 63,000 dong). The trap is the 3,150 ₫ row in the table: that is next year's expected dividend, meaning 3,000 already multiplied by (1 + g). Placing it in the dividend slot applies growth twice and yields 66,150 ₫, 5% too high for no reason. Conversely, dropping the (100 + g) factor and dividing 3,000 straight by 5 gives 60,000 ₫, which throws away a full year of growth. The 48,000 ₫ market price never enters the formula; it is only the figure you compare the answer against, and here 63,000 ₫ above 48,000 ₫ is the model calling the stock cheap. The numerator is written as (100 + g) rather than (1 + g) because g and r are entered on a percentage scale: multiplying by (100 + g) and dividing by (r − g) gives the same result as multiplying by (1 + g/100) and dividing by (r − g)/100.",
     },
     giai: {
-      tinh: { vi: 'Mô hình Gordon (DDM một giai đoạn)', en: 'Gordon growth model' },
+      tinh: {
+        vi: 'giá trị cổ phiếu theo mô hình Gordon',
+        en: 'stock value under the Gordon growth model',
+      },
       thaySo: { vi: '3.000 × (100 + 5) ÷ (10 − 5)', en: '3000 × (100 + 5) ÷ (10 − 5)' },
       ketQua: { vi: '63.000 ₫', en: '63000 ₫' },
+      gan: [
+        { kyHieu: 'D_0', giaTri: { vi: '3.000', en: '3000' } },
+        { kyHieu: 'g', giaTri: { vi: '5', en: '5' } },
+        { kyHieu: 'r', giaTri: { vi: '10', en: '10' } },
+      ],
     },
     source: {
       url: 'https://www.profinvietnam.com/p/mo-hinh-tang-truong-gordon',
@@ -1508,9 +1756,22 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: '94,186 + 32,493 = 126,679 billion ₫ of liabilities, divided by 131,220 billion ₫ of equity, gives 0.97x: Hoa Phat carries roughly one dong of debt for every dong of shareholder capital, matching the analysis note that its leverage sits at about 1x. The table sets two traps. Putting total assets of 257,899 billion ₫ in the denominator gives 0.49x, but that is the debt-to-assets ratio, an entirely different metric, and it is always smaller than D/E because total assets already include equity. Putting the 31/12/2024 equity of 114,647 billion ₫ in the denominator gives 1.10x, inflating leverage by 14%, because that divides period-end debt by opening equity and mixes two different reporting dates. The numerator and denominator of D/E must be read from the same column of the same balance sheet.',
     },
     giai: {
-      tinh: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'Debt to equity ratio' },
+      tinh: { vi: 'hệ số nợ trên vốn chủ', en: 'Debt to equity ratio' },
       thaySo: { vi: '(94.186 + 32.493) ÷ 131.220', en: '(94186 + 32493) ÷ 131220' },
       ketQua: { vi: '0,9654 lần', en: '0.9654 x' },
+      gan: [
+        {
+          kyHieu: '\\text{Tổng nợ phải trả}',
+          moTa: {
+            vi: 'gồm nợ ngắn hạn 94.186 và nợ dài hạn 32.493, đơn vị tỷ ₫',
+            en: 'is short-term liabilities 94186 plus long-term liabilities 32493, in billions of ₫',
+          },
+        },
+        {
+          kyHieu: '\\text{Vốn chủ sở hữu}',
+          giaTri: { vi: '131.220 tỷ ₫', en: '131220 billion ₫' },
+        },
+      ],
     },
     source: {
       url: 'https://www.dsc.com.vn/kien-thuc/phan-tich-bao-cao-tai-chinh-hoa-phat',
@@ -1565,9 +1826,19 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'Equity of 32816.52 billion ₫ divided by 2.09 billion shares gives book value of 15702 ₫ per share, and 74700 divided by 15702 gives 4.76x, exactly the figure the lesson publishes: “Giá trị sổ sách hiện tại của VNM = 32,816.52 (tỷ đồng) / 2.09 (tỷ cổ phiếu) = 15,702 (vnđ/CP)”. The trap is the charter capital row of 20900 billion ₫: it is merely 2.09 billion shares times the 10000 ₫ par value, so putting it in the denominator returns a book value equal to par, 10000 ₫, and pushes P/B to 7.47x, over half again more expensive than reality. Equity also carries share premium and years of retained earnings, while charter capital stays frozen until the next issue, so the two figures are not interchangeable. Putting the 10000 ₫ par value straight into the denominator produces the same wrong answer.',
     },
     giai: {
-      tinh: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'Price to book ratio' },
+      tinh: { vi: 'hệ số giá trên giá trị sổ sách', en: 'Price to book ratio' },
       thaySo: { vi: '74.700 ÷ (32.816,52 ÷ 2,09)', en: '74700 ÷ (32816.52 ÷ 2.09)' },
       ketQua: { vi: '4,76 lần', en: '4.76 x' },
+      gan: [
+        { kyHieu: 'P', giaTri: { vi: '74.700', en: '74700' } },
+        {
+          kyHieu: 'BVPS',
+          moTa: {
+            vi: 'bằng vốn chủ 32.816,52 tỷ ₫ chia 2,09 tỷ cổ phiếu',
+            en: 'is equity of 32816.52 billion ₫ divided by 2.09 billion shares',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://simplize.vn/learn/chi-so-pb',
@@ -1622,9 +1893,25 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: "A price of 25,000 ₫ divided by EPS of 3,000 ₫ gives a P/E of about 8.33x; dividing again by 10, the percentage figure for expected EPS growth, gives a PEG of about 0.83, matching the source: “PEG = 8,3 / 10 = 0,83”. Below 1 means the P/E is low relative to the company's own growth rate. The table deliberately holds two numbers that belong nowhere in this formula. Putting the prior year EPS of 2,500 ₫ in the denominator turns P/E into 10x and PEG into 1.00, so the stock moves from cheap relative to growth to merely fairly priced. Putting the 18%/year revenue growth into the growth slot gives a PEG of about 0.46, twice as cheap as the real figure, and revenue growing faster than earnings is very common when margins are shrinking. The growth slot also takes 10, not 0.10: g in PEG is the plain percentage figure.",
     },
     giai: {
-      tinh: { vi: 'PEG — P/E trên tăng trưởng', en: 'Price/earnings to growth ratio' },
+      tinh: { vi: 'P/E trên tăng trưởng', en: 'Price/earnings to growth ratio' },
       thaySo: { vi: '(25.000 ÷ 3.000) ÷ 10', en: '(25000 ÷ 3000) ÷ 10' },
       ketQua: { vi: '0,8333 lần', en: '0.8333 x' },
+      gan: [
+        {
+          kyHieu: 'P/E',
+          moTa: {
+            vi: 'bằng giá 25.000 ₫ chia EPS 3.000 ₫',
+            en: 'is the 25000 ₫ price divided by the 3000 ₫ EPS',
+          },
+        },
+        {
+          kyHieu: 'g',
+          moTa: {
+            vi: 'là tăng trưởng EPS dự kiến 10% một năm, viết số 10',
+            en: 'is expected EPS growth of 10% a year, written as 10',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://vnexpress.net/chi-so-peg-la-gi-4861277.html',
@@ -1682,6 +1969,11 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Phí giao dịch bán', en: 'Sell-side brokerage fee' },
       thaySo: { vi: '1.000 × 90.000 × 0,15 ÷ 100', en: '1000 × 90000 × 0.15 ÷ 100' },
       ketQua: { vi: '135.000 ₫', en: '135000 ₫' },
+      gan: [
+        { kyHieu: 'Q', giaTri: { vi: '1.000', en: '1000' } },
+        { kyHieu: 'P_{ban}', giaTri: { vi: '90.000', en: '90000' } },
+        { kyHieu: 'r_{ban}', giaTri: { vi: '0,15%', en: '0.15%' } },
+      ],
     },
     source: {
       url: 'https://vnexpress.net/phi-giao-dich-tai-cac-cong-ty-chung-khoan-lon-4304921.html',
@@ -1739,6 +2031,11 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Phí giao dịch mua', en: 'Buy-side brokerage fee' },
       thaySo: { vi: '1.000 × 25.000 × 0,3 ÷ 100', en: '1000 × 25000 × 0.3 ÷ 100' },
       ketQua: { vi: '75.000 ₫', en: '75000 ₫' },
+      gan: [
+        { kyHieu: 'Q', giaTri: { vi: '1.000', en: '1000' } },
+        { kyHieu: 'P_{mua}', giaTri: { vi: '25.000', en: '25000' } },
+        { kyHieu: 'r_{mua}', giaTri: { vi: '0,3%', en: '0.3%' } },
+      ],
     },
     source: {
       url: 'https://stockkisvn.vn/phi-va-thue-giao-dich-chung-khoan/',
@@ -1805,6 +2102,11 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Phí lưu ký', en: 'Custody fee' },
       thaySo: { vi: '2.000 × 3 × 0,27', en: '2000 × 3 × 0.27' },
       ketQua: { vi: '1.620 ₫', en: '1620 ₫' },
+      gan: [
+        { kyHieu: 'Q', giaTri: { vi: '2.000', en: '2000' } },
+        { kyHieu: 'M', giaTri: { vi: '3', en: '3' } },
+        { kyHieu: 'c', giaTri: { vi: '0,27', en: '0.27' } },
+      ],
     },
     source: {
       url: 'https://thuvienchungkhoan.vn/phi-luu-ky-chung-khoan/',
@@ -1855,9 +2157,13 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: '1,200 divided by 15,000 and multiplied by 100 gives 8.0%: every 100 dong of assets generates 8 dong of net profit. The two slots carry two traps planted in the table. Putting equity of VND 6,000 billion in the denominator gives 20%, but that is ROE, the return on the owner-funded part alone; the source spells out the two different denominators: “ROA = (Lợi nhuận sau thuế / Tổng tài sản) x 100%” and “ROE = (Lợi nhuận sau thuế / Vốn chủ sở hữu) x 100%”. The gap between 8% and 20% is exactly what debt leverage contributes, not evidence that the business runs better. Putting profit before tax of VND 1,500 billion in the numerator gives 10%, inflating the result by the corporate tax the company has not yet paid. The × 100 stays visible because it only converts the ratio to a percentage; it is not a figure taken from the statements.',
     },
     giai: {
-      tinh: { vi: 'ROA — tỷ suất sinh lời trên tài sản', en: 'Return on assets' },
+      tinh: { vi: 'tỷ suất sinh lời trên tài sản', en: 'Return on assets' },
       thaySo: { vi: '1.200 ÷ 15.000 × 100', en: '1200 ÷ 15000 × 100' },
       ketQua: { vi: '8 %', en: '8 %' },
+      gan: [
+        { kyHieu: '\\text{LNST}', giaTri: { vi: '1.200', en: '1200' } },
+        { kyHieu: '\\text{Tổng tài sản}', giaTri: { vi: '15.000 tỷ ₫', en: '15000 billion ₫' } },
+      ],
     },
     source: {
       url: 'https://master.masvn.com/en/kien-thuc-dau-tu-chung-khoan/chi-so-roa-roe-la-gi-va-y-nghia-trong-phan-tich-dau-tu-180',
@@ -1909,12 +2215,22 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: "Simplize states the convention outright: “Vốn chủ sở hữu bình quân = (Vốn chủ sở hữu đầu kỳ + Vốn chủ sở hữu cuối kỳ)/2” (average equity is the mean of beginning and ending equity), so BCF's 2022 denominator is (302.71 + 340.06) / 2 = VND 321.385 billion and ROE works out to about 33.98%. The table plants three traps. Using only the ending equity of VND 340.06 billion drops ROE to 32.11%, which ignores that the company held that much capital only at year-end rather than all year long. Putting total assets of VND 453 billion into the denominator gives 24.11%, but that is ROA, not ROE. Pairing 2021 net income of VND 54 billion with 2022 average equity gives 16.80%, mixing two different periods into one ratio. The ÷ 2 and the × 100 stay visible because they belong to the formula, not to the data of the question.",
     },
     giai: {
-      tinh: { vi: 'ROE — tỷ suất sinh lời trên vốn chủ', en: 'Return on equity' },
+      tinh: { vi: 'tỷ suất sinh lời trên vốn chủ', en: 'Return on equity' },
       thaySo: {
         vi: '109,2 ÷ ((302,71 + 340,06) ÷ 2) × 100',
         en: '109.2 ÷ ((302.71 + 340.06) ÷ 2) × 100',
       },
       ketQua: { vi: '33,98 %', en: '33.98 %' },
+      gan: [
+        { kyHieu: '\\text{LNST}', giaTri: { vi: '109,2', en: '109.2' } },
+        {
+          kyHieu: '\\text{Vốn chủ sở hữu}',
+          moTa: {
+            vi: 'lấy bình quân đầu kỳ 302,71 và cuối kỳ 340,06, đơn vị tỷ ₫',
+            en: 'is the average of 302.71 at the start and 340.06 at the end, in billions of ₫',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://simplize.vn/learn/roe',
@@ -1993,6 +2309,22 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '4587230 ÷ (1000 × 100000 + 150000 + 270) × 100',
       },
       ketQua: { vi: '4,58 %', en: '4.58 %' },
+      gan: [
+        {
+          kyHieu: 'L_{rong}',
+          moTa: {
+            vi: 'là lợi nhuận ròng sau toàn bộ phí và thuế: 4.587.230 ₫',
+            en: 'is the net profit after every fee and tax: 4587230 ₫',
+          },
+        },
+        { kyHieu: 'Q', giaTri: { vi: '1.000', en: '1000' } },
+        { kyHieu: 'P_{mua}', giaTri: { vi: '100.000', en: '100000' } },
+        { kyHieu: 'F_{mua}', giaTri: { vi: '150.000', en: '150000' } },
+        {
+          kyHieu: 'F_{lk}',
+          moTa: { vi: 'là phí lưu ký 1 tháng: 270 ₫', en: 'is one month of custody fee: 270 ₫' },
+        },
+      ],
     },
     source: {
       url: 'https://www.vfs.com.vn/chi-phi-giao-dich-chung-khoan',
@@ -2053,12 +2385,16 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'A gain of 50,000,000 ₫ on 500,000,000 ₫ of capital gives exactly 10%: every 100 dong of capital earned 10 dong more. The denominator of ROI is always the capital put into that same investment, so 500,000,000 ₫ belongs in both slots, one taking the difference and one dividing. The table deliberately sets two traps taken straight from the account screen. The first is total assets of 620,000,000 ₫, which already includes 70,000,000 ₫ of uninvested cash: placing it in the current-value slot gives 24%, counting money that never bought a single share. The second is the holding period of 3 years and 6 months, a plausible figure with no slot at all, because ROI carries no sense of time; comparing against a position held only six months calls for CAGR, not ROI. The source records this very calculation: “(550-500)/500 x 100% = 10%”.',
     },
     giai: {
-      tinh: { vi: 'ROI — tỷ suất lợi nhuận', en: 'Return on investment' },
+      tinh: { vi: 'tỷ suất lợi nhuận', en: 'Return on investment' },
       thaySo: {
         vi: '(550.000.000 − 500.000.000) ÷ 500.000.000 × 100',
         en: '(550000000 − 500000000) ÷ 500000000 × 100',
       },
       ketQua: { vi: '10 %', en: '10 %' },
+      gan: [
+        { kyHieu: 'V_{cuoi}', giaTri: { vi: '550.000.000', en: '550000000' } },
+        { kyHieu: 'V_{dau}', giaTri: { vi: '500.000.000', en: '500000000' } },
+      ],
     },
     source: {
       url: 'https://blog.slimcrm.vn/quan-tri/roi-la-gi',
@@ -2113,6 +2449,13 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Hệ số thanh toán hiện hành', en: 'Current ratio' },
       thaySo: { vi: '110.620 ÷ 46.900', en: '110620 ÷ 46900' },
       ketQua: { vi: '2,36 lần', en: '2.36 x' },
+      gan: [
+        {
+          kyHieu: '\\text{Tài sản ngắn hạn}',
+          giaTri: { vi: '110.620 tỷ ₫', en: '110620 billion ₫' },
+        },
+        { kyHieu: '\\text{Nợ ngắn hạn}', giaTri: { vi: '46.900 tỷ ₫', en: '46900 billion ₫' } },
+      ],
     },
     source: {
       url: 'https://taca.edu.vn/bai-tap-phan-tich-kha-nang-thanh-toan/',
@@ -2170,6 +2513,14 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Hệ số thanh toán nhanh', en: 'Quick ratio' },
       thaySo: { vi: '(44.578 − 25.696) ÷ 26.000', en: '(44578 − 25696) ÷ 26000' },
       ketQua: { vi: '0,726 lần', en: '0.726 x' },
+      gan: [
+        {
+          kyHieu: '\\text{Tài sản ngắn hạn}',
+          giaTri: { vi: '44.578 tỷ ₫', en: '44578 billion ₫' },
+        },
+        { kyHieu: '\\text{Hàng tồn kho}', giaTri: { vi: '25.696 tỷ ₫', en: '25696 billion ₫' } },
+        { kyHieu: '\\text{Nợ ngắn hạn}', giaTri: { vi: '26.000 tỷ ₫', en: '26000 billion ₫' } },
+      ],
     },
     source: {
       url: 'https://taichinhbenvung.com/phan-tich-danh-gia-chuyen-sau-tinh-hinh-tai-chinh-cong-ty-co-phan-dau-tu-the-gioi-di-dong-ma-co-phieu-mwg/',
@@ -2220,6 +2571,11 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Thuế chuyển nhượng chứng khoán', en: 'Securities transfer tax' },
       thaySo: { vi: '1.000 × 25.000 × 0,1 ÷ 100', en: '1000 × 25000 × 0.1 ÷ 100' },
       ketQua: { vi: '25.000 ₫', en: '25000 ₫' },
+      gan: [
+        { kyHieu: 'Q', giaTri: { vi: '1.000', en: '1000' } },
+        { kyHieu: 'P_{ban}', giaTri: { vi: '25.000', en: '25000' } },
+        { kyHieu: 'r_{thue}', giaTri: { vi: '0,1%', en: '0.1%' } },
+      ],
     },
     source: {
       url: 'https://www.dsc.com.vn/kien-thuc/thue-chuyen-nhuong-chung-khoan-la-gi',
@@ -2290,6 +2646,17 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Thuế cổ tức tiền mặt', en: 'Cash dividend tax' },
       thaySo: { vi: '(1.500 + 500) × 1.850 × 5 ÷ 100', en: '(1500 + 500) × 1850 × 5 ÷ 100' },
       ketQua: { vi: '185.000 ₫', en: '185000 ₫' },
+      gan: [
+        {
+          kyHieu: 'Q',
+          moTa: {
+            vi: 'gồm 1.500 cổ phiếu có từ trước và 500 cổ phiếu mua trước ngày giao dịch không hưởng quyền',
+            en: 'is the 1500 shares already held plus the 500 bought before the ex-rights date',
+          },
+        },
+        { kyHieu: 'D', giaTri: { vi: '1.850', en: '1850' } },
+        { kyHieu: 'r_{ct}', giaTri: { vi: '5%', en: '5%' } },
+      ],
     },
     source: {
       url: 'https://www.tinnhanhchungkhoan.vn/vnm-ngay-gdkhq-tra-co-tuc-con-lai-nam-2025-bang-tien-185-post392797.html',
@@ -2346,6 +2713,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Hệ số chi trả cổ tức', en: 'Dividend payout ratio' },
       thaySo: { vi: '4.000 ÷ 7.717 × 100', en: '4000 ÷ 7717 × 100' },
       ketQua: { vi: '51,83 %', en: '51.83 %' },
+      gan: [
+        { kyHieu: 'DPS', giaTri: { vi: '4.000', en: '4000' } },
+        { kyHieu: 'EPS', giaTri: { vi: '7.717', en: '7717' } },
+      ],
     },
     source: {
       url: 'https://taichinh24h.com.vn/co-tuc-la-gi/',
@@ -2399,6 +2770,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Tỷ suất cổ tức', en: 'Dividend yield' },
       thaySo: { vi: '3.000 ÷ 50.000 × 100', en: '3000 ÷ 50000 × 100' },
       ketQua: { vi: '6 %', en: '6 %' },
+      gan: [
+        { kyHieu: 'D', giaTri: { vi: '3.000', en: '3000' } },
+        { kyHieu: 'P', giaTri: { vi: '50.000', en: '50000' } },
+      ],
     },
     source: {
       url: 'https://azfin.vn/cach-tinh-ty-le-va-ty-suat-co-tuc/',
@@ -2455,6 +2830,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       tinh: { vi: 'Vốn hoá thị trường', en: 'Market capitalization' },
       thaySo: { vi: '50.000 × 10 ÷ 1.000', en: '50000 × 10 ÷ 1000' },
       ketQua: { vi: '500 tỷ ₫', en: '500 billion ₫' },
+      gan: [
+        { kyHieu: 'P', giaTri: { vi: '50.000', en: '50000' } },
+        { kyHieu: 'N', giaTri: { vi: '10', en: '10' } },
+      ],
     },
     source: {
       url: 'https://www.vfs.com.vn/gia-tri-von-hoa-thi-truong-la-gi',
@@ -2515,6 +2894,22 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '(554000 − 24000) ÷ ((300900 + 300400) ÷ 2)',
       },
       ketQua: { vi: '1,76 vòng', en: '1.76 x' },
+      gan: [
+        {
+          kyHieu: '\\text{Doanh thu thuần}',
+          moTa: {
+            vi: 'bằng doanh thu 554.000 trừ chiết khấu 24.000 USD',
+            en: 'is sales of 554000 minus 24000 USD of discounts',
+          },
+        },
+        {
+          kyHieu: '\\text{Tổng tài sản}',
+          moTa: {
+            vi: 'lấy bình quân đầu kỳ 300.900 và cuối kỳ 300.400 USD',
+            en: 'is the average of 300900 at the start and 300400 USD at the end',
+          },
+        },
+      ],
     },
     source: {
       url: 'https://taca.com.vn/chi-so-vong-quay-tong-tai-san/',
@@ -2580,7 +2975,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     giai: {
       tinh: {
-        vi: 'WACC — chi phí vốn bình quân gia quyền',
+        vi: 'chi phí vốn bình quân gia quyền',
         en: 'Weighted average cost of capital',
       },
       thaySo: {
@@ -2588,11 +2983,1800 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         en: '600 ÷ 1000 × 12 + 400 ÷ 1000 × 6 × (1 − 25 ÷ 100)',
       },
       ketQua: { vi: '9 %', en: '9 %' },
+      gan: [
+        {
+          kyHieu: 'E',
+          moTa: {
+            vi: 'là vốn chủ theo giá thị trường: 600 triệu USD',
+            en: 'is equity at market value: 600 million USD',
+          },
+        },
+        {
+          kyHieu: 'D',
+          moTa: {
+            vi: 'là nợ vay theo giá thị trường: 400 triệu USD',
+            en: 'is debt at market value: 400 million USD',
+          },
+        },
+        {
+          kyHieu: 'E+D',
+          moTa: {
+            vi: 'bằng 600 cộng 400, tức 1.000 triệu USD',
+            en: 'is 600 plus 400, that is 1000 million USD',
+          },
+        },
+        { kyHieu: 'r_e', giaTri: { vi: '12', en: '12' } },
+        { kyHieu: 'r_d', giaTri: { vi: '6', en: '6' } },
+        { kyHieu: 't', giaTri: { vi: '25', en: '25' } },
+      ],
     },
     source: {
       url: 'https://www.meinvoice.vn/tin-tuc/33427/wacc-la-gi-huong-dan-chi-tiet-cach-tinh-va-y-nghia-trong-tai-chinh/',
       kind: 'giao-khoa',
       vietnam: true,
+    },
+  },
+  {
+    id: 'Q454',
+    formulaId: 'cvar-lich-su',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Lấy 60 giá đóng cửa gần nhất của VN-Index, từ 30/06 đến 24/09/2026, được 59 lợi suất phiên. Ở độ tin cậy 95%, phân vị 5% của chuỗi lợi suất ấy, tức ngưỡng VaR trước khi đổi dấu, là −0,0188. Bảng số liệu liệt kê năm phiên giảm mạnh nhất của cửa sổ theo thứ tự thời gian, lợi suất viết dạng thập phân đúng như chữ r trong công thức. CVaR chỉ lấy trung bình những phiên có lợi suất KHÔNG CAO HƠN ngưỡng, nên không phải cả năm phiên đều vào. Hãy đặt đúng ba lợi suất vào ô trống của công thức CVaR, theo thứ tự thời gian, sau khi so từng phiên với ngưỡng −0,0188: phiên nào cao hơn ngưỡng, dù chỉ một chút, thì nằm ngoài phần đuôi.',
+      en: "Take the latest 60 VN-Index closes, from 2026-06-30 to 2026-09-24, which give 59 session returns. At 95% confidence, the 5th percentile of those returns, that is, the VaR threshold before its sign is flipped, is −0.0188. The table lists the window's five sharpest down sessions in date order, with returns written as decimals, exactly like the letter r in the formula. CVaR averages only the sessions whose return is NO HIGHER than the threshold, so not all five belong in it. Put the right three returns into the slots of the CVaR formula, in date order, after comparing each session with the −0.0188 threshold: a session above the threshold, even by a hair, stays out of the tail.",
+    },
+    facts: [
+      {
+        label: { vi: 'Cửa sổ quan sát', en: 'Observation window' },
+        value: {
+          vi: '60 giá đóng cửa VN-Index, từ 30/06 đến 24/09/2026, tức 59 lợi suất phiên',
+          en: '60 VN-Index closes, 2026-06-30 to 2026-09-24, i.e. 59 session returns',
+        },
+      },
+      {
+        label: { vi: 'Độ tin cậy', en: 'Confidence level' },
+        value: { vi: '95%', en: '95%' },
+      },
+      {
+        label: {
+          vi: 'Phân vị 5% của chuỗi lợi suất, tức ngưỡng VaR trước khi đổi dấu',
+          en: '5th percentile of the returns, i.e. the VaR threshold before the sign flip',
+        },
+        value: { vi: '−0,0188 (tức −1,88%)', en: '−0.0188 (i.e. −1.88%)' },
+      },
+      {
+        label: { vi: 'Lợi suất phiên 20/07/2026', en: 'Return on 2026-07-20' },
+        value: { vi: '−0,0246 (tức −2,46%)', en: '−0.0246 (i.e. −2.46%)' },
+      },
+      {
+        label: { vi: 'Lợi suất phiên 22/07/2026', en: 'Return on 2026-07-22' },
+        value: { vi: '−0,0358 (tức −3,58%)', en: '−0.0358 (i.e. −3.58%)' },
+      },
+      {
+        label: { vi: 'Lợi suất phiên 14/08/2026', en: 'Return on 2026-08-14' },
+        value: { vi: '−0,0207 (tức −2,07%)', en: '−0.0207 (i.e. −2.07%)' },
+      },
+      {
+        label: { vi: 'Lợi suất phiên 07/09/2026', en: 'Return on 2026-09-07' },
+        value: { vi: '−0,0170 (tức −1,70%)', en: '−0.0170 (i.e. −1.70%)' },
+      },
+      {
+        label: { vi: 'Lợi suất phiên 11/09/2026', en: 'Return on 2026-09-11' },
+        value: { vi: '−0,0186 (tức −1,86%)', en: '−0.0186 (i.e. −1.86%)' },
+      },
+    ],
+    expected: 2.7033,
+    tolerance: { kind: 'tuyet-doi', value: 0.005 },
+    unit: { vi: '%', en: '%' },
+    worked: {
+      vi: 'CVaR 95% = −([−0,0246] + [−0,0358] + [−0,0207]) ÷ 3 × 100',
+      en: 'CVaR 95% = −([−0.0246] + [−0.0358] + [−0.0207]) ÷ 3 × 100',
+    },
+    explain: {
+      vi: 'Ngưỡng là −0,0188, nên phần đuôi chỉ gồm những phiên có lợi suất không cao hơn −0,0188: 20/07 (−0,0246), 22/07 (−0,0358) và 14/08 (−0,0207). Phiên 11/09 có lợi suất −0,0186, sát ngưỡng nhưng vẫn cao hơn −0,0188 một chút nên nằm ngoài, phiên 07/09 (−0,0170) càng ở ngoài. Trung bình ba phiên là −0,0811 ÷ 3 = −0,0270; dấu trừ đứng trước đổi nó thành mức lỗ dương, nhân 100 ra 2,70%. Cái bẫy là lấy cả năm phiên giảm mạnh nhất: trung bình khi đó chỉ còn 2,33%, vì hai phiên nhẹ hơn ngưỡng kéo mức lỗ đuôi nông đi, tức là báo rủi ro thấp hơn thực tế. Số 3 đứng sẵn ở mẫu số là số phiên trong phần đuôi, không phải 59 lợi suất của cả cửa sổ. So với VaR 95% là 1,88%, CVaR 2,70% sâu hơn, đúng như định nghĩa: VaR nói cửa nằm ở đâu, CVaR nói phía sau cửa sâu tới đâu. Tính trên lợi suất chưa làm tròn thì ra 2,7042%, chênh nhau chỉ do làm tròn bốn chữ số thập phân.',
+      en: 'The threshold is −0.0188, so the tail holds only the sessions whose return is no higher than −0.0188: 2026-07-20 (−0.0246), 2026-07-22 (−0.0358) and 2026-08-14 (−0.0207). The 2026-09-11 session returned −0.0186, close to the threshold but still slightly above −0.0188, so it stays out, and 2026-09-07 (−0.0170) is further out still. The average of the three is −0.0811 ÷ 3 = −0.0270; the minus sign in front turns it into a positive loss, and multiplying by 100 gives 2.70%. The trap is taking all five sharpest drops: the average then falls to 2.33%, because the two sessions milder than the threshold make the tail look shallower, which reports less risk than there is. The 3 already printed in the denominator is the number of sessions in the tail, not the 59 returns of the whole window. Against the 95% VaR of 1.88%, the CVaR of 2.70% runs deeper, exactly as defined: VaR says where the doorway is, CVaR says how far down it goes behind it. On unrounded returns the result is 2.7042%, the gap coming only from rounding to four decimals.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Tổn thất kỳ vọng phần đuôi (CVaR 95%) của VN-Index trên 60 phiên',
+        en: 'The 95% conditional VaR of the VN-Index over 60 sessions',
+      },
+      thaySo: {
+        vi: '−(−0,0246 + −0,0358 + −0,0207) ÷ 3 × 100',
+        en: '−(−0.0246 + −0.0358 + −0.0207) ÷ 3 × 100',
+      },
+      ketQua: { vi: '2,7 %', en: '2.7 %' },
+      gan: [
+        {
+          kyHieu: '\\alpha',
+          moTa: {
+            vi: 'là độ tin cậy 95%, nên phần đuôi là 5% số phiên xấu nhất',
+            en: 'is the 95% confidence level, so the tail is the worst 5% of sessions',
+          },
+        },
+        {
+          kyHieu: 'Q_{1-\\alpha}(r_N)',
+          moTa: {
+            vi: 'là ngưỡng lợi suất ở phân vị 5%: −0,0188',
+            en: 'is the return threshold at the 5% percentile: −0.0188',
+          },
+        },
+        {
+          kyHieu: 'r',
+          moTa: {
+            vi: 'của 3 phiên thấp hơn ngưỡng ấy là −0,0246, −0,0358 và −0,0207',
+            en: 'of the 3 sessions below that threshold is −0.0246, −0.0358 and −0.0207',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=06/30/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q455',
+    formulaId: 'dai-bollinger-duoi',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Theo lịch sử giá của Vingroup (VIC) trên CafeF, phiên 17/08/2026 cổ phiếu đóng cửa ở 198.000 ₫, phiên giảm thứ ba liên tiếp. Bạn dựng dải Bollinger dưới với chu kỳ 20 phiên và hệ số k = 2. Bảng số liệu có cả đường trung bình 10 phiên, giá thấp nhất của 20 phiên và giá đóng cửa của chính phiên ấy. Trang ấy chỉ ghi giá từng phiên, nên hai đường trung bình và độ lệch chuẩn trong bảng được tính lại từ những giá đóng cửa ấy. Hãy đặt đúng ba con số vào ô trống của công thức dải dưới, chú ý đường giữa phải là trung bình của đúng 20 phiên dùng để tính độ lệch chuẩn, và dải dưới không phải đáy thấp nhất của 20 phiên.',
+      en: "According to the Vingroup (VIC) price history on CafeF, the stock closed at 198000 ₫ on 2026-08-17, its third straight down session. You build the lower Bollinger band with a 20-session period and multiplier k = 2. The table also holds the 10-session moving average, the lowest price of the 20 sessions and that day's own closing price. That page lists only each session's prices, so the averages and the standard deviation in the table were computed from those closes. Put the right three numbers into the slots of the lower band formula, noting that the middle line must average exactly the 20 sessions used for the standard deviation, and that the lower band is not the lowest low of the 20 sessions.",
+    },
+    facts: [
+      {
+        label: { vi: 'Giá đóng cửa VIC phiên 17/08/2026', en: 'VIC closing price on 2026-08-17' },
+        value: { vi: '198.000 ₫', en: '198000 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá thấp nhất trong 20 phiên, từ 21/07 đến 17/08/2026',
+          en: 'Lowest price over the 20 sessions, 2026-07-21 to 2026-08-17',
+        },
+        value: { vi: '194.600 ₫', en: '194600 ₫' },
+      },
+      {
+        label: {
+          vi: 'Trung bình giá đóng cửa 10 phiên, từ 04/08 đến 17/08/2026',
+          en: 'Average close over 10 sessions, 2026-08-04 to 2026-08-17',
+        },
+        value: { vi: '211.060 ₫', en: '211060 ₫' },
+      },
+      {
+        label: {
+          vi: 'Trung bình giá đóng cửa 20 phiên, từ 21/07 đến 17/08/2026',
+          en: 'Average close over the 20 sessions, 2026-07-21 to 2026-08-17',
+        },
+        value: { vi: '212.545 ₫', en: '212545 ₫' },
+      },
+      {
+        label: {
+          vi: 'Độ lệch chuẩn mẫu của 20 giá đóng cửa ấy',
+          en: 'Sample standard deviation of those 20 closes',
+        },
+        value: { vi: '6.466 ₫', en: '6466 ₫' },
+      },
+      {
+        label: { vi: 'Hệ số k, mặc định của Bollinger', en: 'Multiplier k, the Bollinger default' },
+        value: { vi: '2', en: '2' },
+      },
+    ],
+    expected: 199613,
+    tolerance: { kind: 'tuong-doi', value: 0.001 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'Dải dưới = [212.545] − [2] × [6.466]',
+      en: 'Lower band = [212545] − [2] × [6466]',
+    },
+    explain: {
+      vi: 'Đường giữa là trung bình 20 phiên 212.545 ₫, đặt vào ô đầu; phần bị trừ đi là hệ số k = 2 nhân độ lệch chuẩn mẫu của cùng 20 giá đóng cửa ấy, 6.466 ₫: 212.545 − 2 × 6.466 = 199.613 ₫. Giá đóng cửa 198.000 ₫ nằm dưới dải dưới 1.613 ₫, tức phiên 17/08 đã đóng cửa thủng dải. Bẫy thứ nhất là trung bình 10 phiên 211.060 ₫: ghép nó với độ lệch chuẩn 20 phiên ra 198.128 ₫, một dải lai của hai chu kỳ, và khoảng thủng dải co từ 1.613 ₫ xuống còn 128 ₫. Bẫy thứ hai là giá thấp nhất 20 phiên 194.600 ₫: đó là mép dưới của kênh Donchian, dựng từ đáy giá, còn dải Bollinger dựng từ trung bình và độ lệch chuẩn. Lấy giá đóng cửa làm tâm thì ra 185.068 ₫ và cú thủng dải biến mất hẳn. Sau phiên này VIC hồi lên 230.000 ₫ ngày 26/08, nhưng thủng dải dưới rồi rơi tiếp cũng là chuyện thường: dải chỉ đo độ phân tán của giá, không báo trước hướng đi.',
+      en: 'The middle line is the 20-session average of 212545 ₫, placed in the first slot; what gets subtracted is the multiplier k = 2 times the sample standard deviation of those same 20 closes, 6466 ₫: 212545 − 2 × 6466 = 199613 ₫. The 198000 ₫ close sits 1613 ₫ below the lower band, so the 2026-08-17 session closed through the band. The first trap is the 10-session average of 211060 ₫: pairing it with the 20-session standard deviation gives 198128 ₫, a hybrid of two periods, and the break shrinks from 1613 ₫ to just 128 ₫. The second trap is the 20-session low of 194600 ₫: that is the bottom edge of a Donchian channel, built from price lows, while a Bollinger band is built from an average and a standard deviation. Centering the band on the closing price gives 185068 ₫ and the break disappears entirely. After this session VIC recovered to 230000 ₫ on 2026-08-26, but breaking below the lower band and then falling further is just as common: the band only measures how dispersed price is, it does not forecast direction.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Dải Bollinger dưới của VIC phiên 17/08/2026',
+        en: 'The lower Bollinger band of VIC on 2026-08-17',
+      },
+      thaySo: { vi: '212.545 − 2 × 6.466', en: '212545 − 2 × 6466' },
+      ketQua: { vi: '199.613 ₫', en: '199613 ₫' },
+      gan: [
+        {
+          kyHieu: 'SMA_{n}',
+          moTa: {
+            vi: 'là trung bình giá đóng cửa 20 phiên: 212.545 ₫',
+            en: 'is the 20-session average close: 212545 ₫',
+          },
+        },
+        { kyHieu: 'k', giaTri: { vi: '2', en: '2' } },
+        {
+          kyHieu: '\\sigma_{n}',
+          moTa: {
+            vi: 'là độ lệch chuẩn của 20 giá đóng cửa ấy: 6.466 ₫',
+            en: 'is the standard deviation of those 20 closes: 6466 ₫',
+          },
+        },
+        { kyHieu: 'n', giaTri: { vi: '20', en: '20' } },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VIC&StartDate=07/21/2026&EndDate=08/17/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q456',
+    formulaId: 'dai-bollinger-tren',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Theo lịch sử giá của PV GAS (GAS) trên CafeF, phiên 15/09/2026 cổ phiếu tăng mạnh và đóng cửa ở 91.400 ₫. Bạn dựng dải Bollinger trên với chu kỳ 20 phiên và hệ số k = 2 để xem phiên ấy đã ra ngoài vùng dao động quen thuộc chưa. Bảng số liệu có cả giá đóng cửa, giá cao nhất của 20 phiên và độ lệch chuẩn của riêng 10 phiên gần nhất. Trang ấy chỉ ghi giá từng phiên, nên các trung bình và độ lệch chuẩn trong bảng được tính lại từ những giá đóng cửa ấy. Hãy đặt đúng ba con số vào ô trống của công thức dải trên, chú ý dải được dựng quanh đường trung bình chứ không quanh giá đóng cửa, và độ lệch chuẩn phải tính trên cùng 20 phiên với đường trung bình.',
+      en: "According to the PV GAS (GAS) price history on CafeF, the stock rallied on 2026-09-15 and closed at 91400 ₫. You build the upper Bollinger band with a 20-session period and multiplier k = 2 to see whether that session left its usual trading range. The table also holds the closing price, the highest price of the 20 sessions and the standard deviation of just the latest 10 sessions. That page lists only each session's prices, so the averages and standard deviations in the table were computed from those closes. Put the right three numbers into the slots of the upper band formula, noting that the band is built around the moving average, not around the closing price, and that the standard deviation must cover the same 20 sessions as the average.",
+    },
+    facts: [
+      {
+        label: { vi: 'Giá đóng cửa GAS phiên 15/09/2026', en: 'GAS closing price on 2026-09-15' },
+        value: { vi: '91.400 ₫', en: '91400 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá cao nhất trong 20 phiên, từ 14/08 đến 15/09/2026',
+          en: 'Highest price over the 20 sessions, 2026-08-14 to 2026-09-15',
+        },
+        value: { vi: '91.500 ₫', en: '91500 ₫' },
+      },
+      {
+        label: {
+          vi: 'Trung bình giá đóng cửa 20 phiên, từ 14/08 đến 15/09/2026',
+          en: 'Average close over the 20 sessions, 2026-08-14 to 2026-09-15',
+        },
+        value: { vi: '83.795 ₫', en: '83795 ₫' },
+      },
+      {
+        label: {
+          vi: 'Độ lệch chuẩn mẫu của 20 giá đóng cửa ấy',
+          en: 'Sample standard deviation of those 20 closes',
+        },
+        value: { vi: '2.839 ₫', en: '2839 ₫' },
+      },
+      {
+        label: {
+          vi: 'Độ lệch chuẩn mẫu của 10 giá đóng cửa gần nhất, từ 28/08 đến 15/09/2026',
+          en: 'Sample standard deviation of the latest 10 closes, 2026-08-28 to 2026-09-15',
+        },
+        value: { vi: '2.457 ₫', en: '2457 ₫' },
+      },
+      {
+        label: { vi: 'Hệ số k, mặc định của Bollinger', en: 'Multiplier k, the Bollinger default' },
+        value: { vi: '2', en: '2' },
+      },
+    ],
+    expected: 89473,
+    tolerance: { kind: 'tuong-doi', value: 0.001 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'Dải trên = [83.795] + [2] × [2.839]',
+      en: 'Upper band = [83795] + [2] × [2839]',
+    },
+    explain: {
+      vi: 'Đường giữa của dải là trung bình 20 phiên 83.795 ₫, nên số này vào ô đầu; hệ số k = 2 nhân với độ lệch chuẩn mẫu của đúng 20 giá đóng cửa ấy, 2.839 ₫: 83.795 + 2 × 2.839 = 89.473 ₫. Giá đóng cửa 91.400 ₫ nằm trên dải trên 1.927 ₫, tức phiên 15/09 đã đóng cửa ra ngoài vùng dao động quen thuộc của 20 phiên. Bẫy thứ nhất là dựng dải quanh giá đóng cửa: 91.400 + 2 × 2.839 ra 97.078 ₫, và cú vượt dải biến mất chỉ vì đặt sai tâm. Bẫy thứ hai là độ lệch chuẩn 10 phiên 2.457 ₫: ghép nó với trung bình 20 phiên ra 88.709 ₫, một dải lai của hai chu kỳ chứ không phải dải của chu kỳ nào. Giá cao nhất 20 phiên 91.500 ₫ là cách dựng mép trên của kênh Donchian, không thuộc công thức này. Và vượt dải trên chỉ nói giá đang ở mép trên vùng dao động, tự nó không phải tín hiệu bán.',
+      en: 'The middle line of the band is the 20-session average of 83795 ₫, so it goes into the first slot; the multiplier k = 2 then scales the sample standard deviation of exactly those 20 closes, 2839 ₫: 83795 + 2 × 2839 = 89473 ₫. The 91400 ₫ close sits 1927 ₫ above the upper band, so the 2026-09-15 session closed outside the usual 20-session trading range. The first trap is building the band around the closing price: 91400 + 2 × 2839 gives 97078 ₫, and the breakout vanishes purely because the center is wrong. The second trap is the 10-session standard deviation of 2457 ₫: pairing it with the 20-session average gives 88709 ₫, a hybrid of two periods rather than the band of either one. The 20-session high of 91500 ₫ is how the top edge of a Donchian channel is built, and it does not belong in this formula. And closing above the upper band only says price is at the top edge of its range; on its own it is not a sell signal.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Dải Bollinger trên của GAS phiên 15/09/2026',
+        en: 'The upper Bollinger band of GAS on 2026-09-15',
+      },
+      thaySo: { vi: '83.795 + 2 × 2.839', en: '83795 + 2 × 2839' },
+      ketQua: { vi: '89.473 ₫', en: '89473 ₫' },
+      gan: [
+        {
+          kyHieu: 'SMA_{n}',
+          moTa: {
+            vi: 'là trung bình giá đóng cửa 20 phiên: 83.795 ₫',
+            en: 'is the 20-session average close: 83795 ₫',
+          },
+        },
+        { kyHieu: 'k', giaTri: { vi: '2', en: '2' } },
+        {
+          kyHieu: '\\sigma_{n}',
+          moTa: {
+            vi: 'là độ lệch chuẩn của 20 giá đóng cửa ấy: 2.839 ₫',
+            en: 'is the standard deviation of those 20 closes: 2839 ₫',
+          },
+        },
+        { kyHieu: 'n', giaTri: { vi: '20', en: '20' } },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=GAS&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q457',
+    formulaId: 'do-lech-chuan-ban-phan',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Lấy 11 giá đóng cửa VN-Index từ 19/08 đến 07/09/2026 thì được một chuỗi lợi suất phiên, liệt kê đủ ở bảng dưới theo thứ tự thời gian. Ngưỡng để mặc định 0%, tức chỉ những phiên có lợi suất dưới 0% mới vào tổng bình phương, còn mẫu số vẫn tính theo toàn bộ cửa sổ. Hãy đặt đúng ba con số vào ô trống của công thức Độ lệch chuẩn bán phần, các lợi suất theo thứ tự thời gian. Chú ý ô ở mẫu số: bảng có ba con số đếm khác nhau, là số giá đóng cửa, số lợi suất và số phiên giảm, và chỉ một con số đúng là n của công thức.',
+      en: "Taking 11 VN-Index closes from 2026-08-19 to 2026-09-07 gives a series of session returns, listed in full below in date order. The threshold is left at its default of 0%, so only sessions with a return below 0% enter the sum of squares, while the denominator still counts the whole window. Put the right three numbers into the slots of the downside deviation formula, with the returns in date order. Watch the denominator slot: the table holds three different counts, the number of closes, the number of returns and the number of down sessions, and only one of them is the formula's n.",
+    },
+    facts: [
+      {
+        label: { vi: 'Cửa sổ quan sát', en: 'Observation window' },
+        value: {
+          vi: '11 giá đóng cửa VN-Index, từ 19/08 đến 07/09/2026',
+          en: '11 VN-Index closes, 2026-08-19 to 2026-09-07',
+        },
+      },
+      {
+        label: {
+          vi: 'Lợi suất từng phiên, theo thứ tự thời gian từ 20/08 đến 07/09/2026',
+          en: 'Return of each session, in date order from 2026-08-20 to 2026-09-07',
+        },
+        value: {
+          vi: '+0,44%; +1,95%; +1,17%; +0,15%; +1,67%; +0,56%; +0,03%; −0,24%; +1,39%; −1,70%',
+          en: '+0.44%; +1.95%; +1.17%; +0.15%; +1.67%; +0.56%; +0.03%; −0.24%; +1.39%; −1.70%',
+        },
+      },
+      {
+        label: {
+          vi: 'Số lợi suất phiên của cửa sổ',
+          en: 'Number of session returns in the window',
+        },
+        value: { vi: '10', en: '10' },
+      },
+      {
+        label: { vi: 'Số phiên giảm trong cửa sổ', en: 'Number of down sessions in the window' },
+        value: { vi: '2', en: '2' },
+      },
+      {
+        label: { vi: 'Ngưỡng lợi suất mỗi phiên', en: 'Per-session return threshold' },
+        value: { vi: '0%', en: '0%' },
+      },
+    ],
+    expected: 0.5723,
+    tolerance: { kind: 'tuyet-doi', value: 0.005 },
+    unit: { vi: '%/phiên', en: '%/session' },
+    worked: {
+      vi: 'DD = √((([−0,24] − 0)^2 + ([−1,70] − 0)^2) ÷ ([10] − 1))',
+      en: 'DD = √((([−0.24] − 0)^2 + ([−1.70] − 0)^2) ÷ ([10] − 1))',
+    },
+    explain: {
+      vi: 'Chỉ hai phiên có lợi suất dưới ngưỡng 0%: 03/09 (−0,24%) và 07/09 (−1,70%). Phiên 28/08 chỉ tăng +0,03% nhưng vẫn không dưới ngưỡng nên không vào tổng. Tổng bình phương là (−0,24 − 0)² + (−1,70 − 0)² = 0,0576 + 2,89 = 2,9476. Mẫu số là n − 1 với n = 10, tổng số lợi suất của cả cửa sổ kể cả tám phiên tăng: 2,9476 ÷ 9 = 0,3275, căn bậc hai ra khoảng 0,57%/phiên. Bẫy thứ nhất là đặt số phiên giảm 2 vào ô n: mẫu số còn 1 và kết quả vọt lên 1,72%/phiên, gấp ba lần, đúng lỗi chia cho số phiên dưới ngưỡng mà trang này cảnh báo. Bẫy thứ hai là lấy 11 giá đóng cửa làm n, ra 0,54%/phiên: 11 giá chỉ cho 10 lợi suất, vì phiên đầu tiên không có phiên liền trước để so. Tính trên lợi suất chưa làm tròn thì ra 0,5712%/phiên, chênh nhau chỉ do làm tròn hai chữ số thập phân.',
+      en: 'Only two sessions returned less than the 0% threshold: 2026-09-03 (−0.24%) and 2026-09-07 (−1.70%). The 2026-08-28 session rose just +0.03%, but that is still not below the threshold, so it stays out of the sum. The sum of squares is (−0.24 − 0)² + (−1.70 − 0)² = 0.0576 + 2.89 = 2.9476. The denominator is n − 1 with n = 10, the total number of returns in the window, the eight up sessions included: 2.9476 ÷ 9 = 0.3275, and its square root is about 0.57%/session. The first trap is putting the 2 down sessions into the n slot: the denominator shrinks to 1 and the result jumps to 1.72%/session, three times as high, which is exactly the divide-by-sessions-below-threshold error this page warns about. The second trap is using the 11 closes as n, which gives 0.54%/session: 11 closes yield only 10 returns, because the first session has no prior close to compare against. On unrounded returns the result is 0.5712%/session, the gap coming only from rounding to two decimals.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Độ lệch chuẩn bán phần của VN-Index trong 10 phiên',
+        en: 'The downside deviation of the VN-Index over 10 sessions',
+      },
+      thaySo: {
+        vi: '√(((−0,24 − 0)^2 + (−1,70 − 0)^2) ÷ (10 − 1))',
+        en: '√(((−0.24 − 0)^2 + (−1.70 − 0)^2) ÷ (10 − 1))',
+      },
+      ketQua: { vi: '0,5723 %/phiên', en: '0.5723 %/session' },
+      gan: [
+        {
+          kyHieu: 'r_t',
+          moTa: {
+            vi: 'của 2 phiên giảm là −0,24% và −1,70%; các phiên tăng không vào tổng',
+            en: 'of the 2 down sessions is −0.24% and −1.70%; the up sessions stay out of the sum',
+          },
+        },
+        { kyHieu: 'B', giaTri: { vi: '0', en: '0' } },
+        { kyHieu: 'n', giaTri: { vi: '10', en: '10' } },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=08/19/2026&EndDate=09/07/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q458',
+    formulaId: 'dong-luong-momentum',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bảng giá lịch sử của Hòa Phát (HPG) cho giá đóng cửa phiên thứ Năm 24/09/2026, phiên liền trước nó và vài phiên quanh mốc hai tuần trước. Bạn cần động lượng 10 phiên chốt phiên 24/09/2026. Từ 09/09 đến 24/09/2026 sàn mở cửa đủ mọi ngày từ thứ Hai đến thứ Sáu, không có ngày nghỉ lễ nào. Hãy đếm lùi 10 phiên rồi đặt hai con số vào ô trống của công thức động lượng; chú ý 10 phiên ở đây là lùi 10 bước tính từ phiên cuối, không phải 10 phiên gần nhất tính cả phiên cuối, động lượng dùng giá đóng cửa chứ không dùng giá mở cửa, và giá phiên cuối đứng trước dấu trừ.',
+      en: 'The price history of Hoa Phat (HPG) gives the close of Thursday 2026-09-24, the session just before it and a few sessions around the two-weeks-earlier mark. You need the 10-session momentum as of the 2026-09-24 session. From 2026-09-09 to 2026-09-24 the exchange was open every Monday to Friday, with no holidays. Count back 10 sessions, then put the right two numbers into the slots of the momentum formula; note that 10 sessions here means stepping back 10 times from the last session, not the 10 most recent sessions counting the last one, that momentum uses the closing price rather than the opening price, and that the last session’s price comes before the minus sign.',
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Giá đóng cửa HPG phiên thứ Năm 24/09/2026, phiên cuối',
+          en: 'HPG close, Thursday 2026-09-24, the last session',
+        },
+        value: { vi: '20.800 ₫', en: '20800 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Tư 23/09/2026', en: 'Close, Wednesday 2026-09-23' },
+        value: { vi: '21.050 ₫', en: '21050 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Sáu 11/09/2026', en: 'Close, Friday 2026-09-11' },
+        value: { vi: '21.300 ₫', en: '21300 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Năm 10/09/2026', en: 'Close, Thursday 2026-09-10' },
+        value: { vi: '21.850 ₫', en: '21850 ₫' },
+      },
+      {
+        label: { vi: 'Giá mở cửa phiên thứ Năm 10/09/2026', en: 'Open, Thursday 2026-09-10' },
+        value: { vi: '22.000 ₫', en: '22000 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Tư 09/09/2026', en: 'Close, Wednesday 2026-09-09' },
+        value: { vi: '22.050 ₫', en: '22050 ₫' },
+      },
+    ],
+    expected: -1050,
+    tolerance: { kind: 'tuong-doi', value: 0.01 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'Động lượng = [20.800] − [21.850]',
+      en: 'Momentum = [20800] − [21850]',
+    },
+    explain: {
+      vi: 'Đếm lùi từ phiên cuối 24/09: ba phiên 23, 22, 21/09 là 1 đến 3, năm phiên từ 18/09 về 14/09 là 4 đến 8, phiên 11/09 là 9 và phiên 10/09 là 10. Vậy giá cách đó 10 phiên là giá đóng cửa 21.850 ₫ của 10/09, và 20.800 − 21.850 ra −1.050 ₫: sau 10 phiên HPG thấp hơn 1.050 ₫, dấu âm cho biết đà đang đi xuống. Bẫy thứ nhất là hiểu 10 phiên là 10 phiên gần nhất tính cả phiên cuối, lấy nhầm 21.300 ₫ của 11/09, tức là tính động lượng 9 phiên, ra −500 ₫, chỉ còn chưa tới một nửa mức giảm thật. Bẫy thứ hai là lấy giá mở cửa 22.000 ₫ của 10/09, ra −1.200 ₫, trộn giá đầu phiên với giá cuối phiên. Đặt ngược thứ tự, lấy giá cũ trừ giá mới, thì ra +1.050 ₫ và đọc thành cổ phiếu đang có đà tăng trong khi giá thực tế đã giảm.',
+      en: 'Count back from the last session on 2026-09-24: the three sessions of 2026-09-23, 22 and 21 are 1 to 3, the five sessions from 2026-09-18 back to 2026-09-14 are 4 to 8, 2026-09-11 is 9 and 2026-09-10 is 10. So the price 10 sessions back is the 21850 ₫ close of 2026-09-10, and 20800 − 21850 gives −1050 ₫: after 10 sessions HPG is 1050 ₫ lower, and the minus sign says the move is downward. The first trap is reading 10 sessions as the 10 most recent sessions including the last one, picking the 21300 ₫ close of 2026-09-11 by mistake, which is really a 9-session momentum of −500 ₫, less than half the real drop. The second trap is taking the 22000 ₫ opening price of 2026-09-10, giving −1200 ₫ by mixing a start-of-session price with an end-of-session one. Reversing the order, subtracting the new price from the old one, gives +1050 ₫ and reads as upward momentum when the price actually fell.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Động lượng 10 phiên của HPG chốt phiên 24/09/2026',
+        en: 'The 10-session momentum of HPG as of the 2026-09-24 session',
+      },
+      thaySo: { vi: '20.800 − 21.850', en: '20800 − 21850' },
+      ketQua: { vi: '-1.050 ₫', en: '-1050 ₫' },
+      gan: [
+        { kyHieu: 'P_t', giaTri: { vi: '20.800', en: '20800' } },
+        {
+          kyHieu: 'P_{t-n}',
+          moTa: {
+            vi: 'là giá đóng cửa 10 phiên trước, ngày 10/09: 21.850 ₫',
+            en: 'is the close 10 sessions earlier, on 10/09: 21850 ₫',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=HPG&StartDate=09/09/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q459',
+    formulaId: 'giao-cat-hai-duong-ma',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Các đường trung bình ở bảng Số liệu được tính từ giá đóng cửa của Hòa Phát (HPG) trong lịch sử giá trên CafeF, tới phiên 07/08/2026; trang ấy chỉ ghi giá từng phiên, không ghi sẵn đường trung bình. Bạn theo dõi cặp 10 phiên và 20 phiên, cặp ngắn hạn quen dùng, nhưng bảng còn có cả đường 5 phiên lẫn giá đóng cửa của chính phiên ấy. Hãy đặt đúng hai con số vào ô trống của công thức chênh lệch giữa hai đường trung bình, chú ý đường ngắn đứng trước dấu trừ, đường dài đứng sau: đảo thứ tự là đọc ngược tín hiệu.',
+      en: "The moving averages in the table were computed from the Hoa Phat Group (HPG) closing prices in the CafeF price history, up to the 2026-08-07 session; that page lists each session's prices, not the averages themselves. You follow the 10- and 20-session pair, the usual short-term pair, but the table also holds the 5-session line and that day's own closing price. Put the right two numbers into the slots of the moving-average gap formula, noting that the short line goes before the minus sign and the long line after it: swapping them reads the signal backwards.",
+    },
+    facts: [
+      {
+        label: { vi: 'Giá đóng cửa HPG phiên 07/08/2026', en: 'HPG closing price on 2026-08-07' },
+        value: { vi: '22.000 ₫', en: '22000 ₫' },
+      },
+      {
+        label: {
+          vi: 'SMA 5 phiên, từ 03/08 đến 07/08/2026',
+          en: '5-session SMA, 2026-08-03 to 2026-08-07',
+        },
+        value: { vi: '22.110 ₫', en: '22110 ₫' },
+      },
+      {
+        label: {
+          vi: 'SMA 10 phiên, từ 27/07 đến 07/08/2026',
+          en: '10-session SMA, 2026-07-27 to 2026-08-07',
+        },
+        value: { vi: '21.705 ₫', en: '21705 ₫' },
+      },
+      {
+        label: {
+          vi: 'SMA 20 phiên, từ 13/07 đến 07/08/2026',
+          en: '20-session SMA, 2026-07-13 to 2026-08-07',
+        },
+        value: { vi: '21.605 ₫', en: '21605 ₫' },
+      },
+    ],
+    expected: 100,
+    tolerance: { kind: 'tuong-doi', value: 0.001 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'Chênh lệch = [21.705] − [21.605]',
+      en: 'Difference = [21705] − [21605]',
+    },
+    explain: {
+      vi: 'Cặp đang theo dõi là 10 và 20 phiên, nên đường ngắn là SMA 10 phiên 21.705 ₫, đặt trước dấu trừ, còn đường dài là SMA 20 phiên 21.605 ₫, đặt sau: 21.705 − 21.605 = 100 ₫. Hiệu dương nghĩa là đường ngắn đang nằm trên đường dài, và vì ở phiên 06/08/2026 hiệu này còn âm 67,5 ₫, phiên 07/08 chính là lúc đường 10 phiên vừa cắt lên. Bẫy thứ nhất là đảo thứ tự: 21.605 − 21.705 ra âm 100 ₫, đọc thành cắt xuống, ngược hẳn tín hiệu. Bẫy thứ hai là SMA 5 phiên 22.110 ₫: nó cũng là một đường ngắn nhưng thuộc cặp 5 và 20 phiên, cho hiệu 505 ₫ của một cặp khác. Giá đóng cửa 22.000 ₫ không phải đường trung bình nào; giá cắt đường trung bình là một tín hiệu khác. Hiệu 100 ₫ chưa tới 0,5% thị giá, tức hai đường gần như chồng lên nhau: tính tiếp trên cùng bảng giá, cặp này cắt xuống ngày 20/08, cắt lên ngày 04/09 rồi lại cắt xuống ngày 16/09, đúng cảnh hai đường quấn nhau khi giá đi ngang.',
+      en: 'The pair being followed is 10 and 20 sessions, so the short line is the 10-session SMA of 21705 ₫, placed before the minus sign, and the long line is the 20-session SMA of 21605 ₫, placed after it: 21705 − 21605 = 100 ₫. A positive gap means the short line sits above the long one, and since the gap was still minus 67.5 ₫ on 2026-08-06, the 2026-08-07 session is exactly when the 10-session line crossed above. The first trap is swapping the order: 21605 − 21705 gives minus 100 ₫, which reads as a downward cross, the opposite signal. The second trap is the 5-session SMA of 22110 ₫: it is also a short line, but it belongs to the 5-and-20 pair and gives a 505 ₫ gap for a different pair. The 22000 ₫ closing price is not a moving average at all; price crossing a moving average is a different signal. A 100 ₫ gap is under 0.5% of the price, meaning the two lines almost overlap: computed further on the same price table, this pair crossed down on 2026-08-20, up on 2026-09-04 and down again on 2026-09-16, the textbook picture of two lines tangling while price moves sideways.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Chênh lệch giữa đường SMA 10 phiên và đường SMA 20 phiên của HPG',
+        en: 'The gap between the 10-session and the 20-session SMA of HPG',
+      },
+      thaySo: { vi: '21.705 − 21.605', en: '21705 − 21605' },
+      ketQua: { vi: '100 ₫', en: '100 ₫' },
+      gan: [
+        {
+          kyHieu: 'SMA_{ngan}',
+          moTa: { vi: 'là SMA 10 phiên: 21.705 ₫', en: 'is the 10-session SMA: 21705 ₫' },
+        },
+        {
+          kyHieu: 'SMA_{dai}',
+          moTa: { vi: 'là SMA 20 phiên: 21.605 ₫', en: 'is the 20-session SMA: 21605 ₫' },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=HPG&StartDate=07/13/2026&EndDate=08/07/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q460',
+    formulaId: 'lai-lo-vi-the-long',
+    format: 'dien-so',
+    kind: 'hau-qua',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bản tin phái sinh ngày 22/09/2026 của Entrade ghi VN30F1M chốt phiên ở 1.949 điểm và dẫn hai kịch bản của HSC. Kịch bản Long: vào lệnh ở 1.955 khi giá vượt kháng cự, mục tiêu 1.975, cắt lỗ dưới 1.950. Một nhà đầu tư mở 3 hợp đồng Long theo đúng kịch bản ấy và muốn biết mình lãi lỗ bao nhiêu nếu giá chạy tới mục tiêu. Hãy đặt đúng ba con số vào ô trống của công thức lãi/lỗ vị thế Long; chú ý điểm mở là điểm vào lệnh của kịch bản chứ không phải giá chốt phiên 1.949, điểm đóng đứng trước dấu trừ, và bảng còn có các mốc của kịch bản Short không thuộc vị thế này.',
+      en: "Entrade's derivatives bulletin of 2026-09-22 reports that VN30F1M closed the session at 1949 points and quotes two HSC scenarios. The Long scenario: enter at 1955 once price breaks resistance, target 1975, stop loss below 1950. An investor opens 3 Long contracts exactly on that scenario and wants to know the profit or loss if price reaches the target. Put the right three numbers into the slots of the long position P&L formula; note that the opening level is the scenario's entry point, not the 1949 session close, that the closing level comes before the minus sign, and that the table also carries Short scenario levels that do not belong to this position.",
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Giá chốt phiên VN30F1M ngày 22/09/2026',
+          en: 'VN30F1M session close on 2026-09-22',
+        },
+        value: { vi: '1.949 điểm', en: '1949 points' },
+      },
+      {
+        label: { vi: 'Kịch bản Long, điểm vào lệnh', en: 'Long scenario, entry point' },
+        value: { vi: '1.955 điểm', en: '1955 points' },
+      },
+      {
+        label: { vi: 'Kịch bản Long, mục tiêu', en: 'Long scenario, target' },
+        value: { vi: '1.975 điểm', en: '1975 points' },
+      },
+      {
+        label: { vi: 'Kịch bản Long, cắt lỗ', en: 'Long scenario, stop loss' },
+        value: { vi: 'dưới 1.950 điểm', en: 'below 1950 points' },
+      },
+      {
+        label: {
+          vi: 'Kịch bản Short, điểm vào lệnh và mục tiêu',
+          en: 'Short scenario, entry point and target',
+        },
+        value: { vi: '1.940 điểm và 1.915 điểm', en: '1940 points and 1915 points' },
+      },
+      {
+        label: {
+          vi: 'Số hợp đồng nhà đầu tư mở theo kịch bản Long',
+          en: 'Contracts the investor opens on the Long scenario',
+        },
+        value: { vi: '3 HĐ', en: '3 contracts' },
+      },
+      {
+        label: { vi: 'Hệ số nhân hợp đồng VN30F', en: 'VN30F contract multiplier' },
+        value: { vi: '100.000 ₫ mỗi điểm', en: '100000 ₫ per point' },
+      },
+    ],
+    expected: 6000000,
+    tolerance: { kind: 'tuong-doi', value: 0.01 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'Lãi/lỗ Long = ([1.975] − [1.955]) × 100.000 × [3]',
+      en: 'Long P&L = ([1975] − [1955]) × 100000 × [3]',
+    },
+    explain: {
+      vi: 'Vị thế Long lãi khi điểm đóng cao hơn điểm mở, nên điểm đóng 1.975, tức mục tiêu của kịch bản, đứng trước dấu trừ; điểm mở 1.955, tức điểm vào lệnh, đứng sau; số hợp đồng 3 vào ô cuối. Hệ số nhân 100.000 ₫ mỗi điểm là quy cách của hợp đồng nên đã in sẵn: (1.975 − 1.955) × 100.000 × 3 ra 6.000.000 ₫. Bẫy thứ nhất là giá chốt phiên 1.949: kịch bản chỉ vào lệnh khi giá vượt 1.955, nên lấy 1.949 làm điểm mở sẽ ra 7.800.000 ₫, tính thêm 6 điểm mà vị thế chưa từng nắm. Bẫy thứ hai là đảo thứ tự: (1.955 − 1.975) biến khoản lãi 6.000.000 ₫ thành khoản lỗ cùng độ lớn. Hai mốc 1.940 và 1.915 thuộc kịch bản Short. Con số này cũng chưa trừ phí giao dịch và thuế.',
+      en: "A long position profits when the closing level is above the opening level, so the closing level 1975, the scenario's target, comes before the minus sign; the opening level 1955, the entry point, comes after it; and the 3 contracts go into the last slot. The multiplier of 100000 ₫ per point is part of the contract specification, so it is already printed: (1975 − 1955) × 100000 × 3 gives 6000000 ₫. The first trap is the 1949 session close: the scenario only enters once price breaks 1955, so using 1949 as the opening level gives 7800000 ₫, counting 6 points the position never held. The second trap is reversing the order: (1955 − 1975) turns the 6000000 ₫ profit into a loss of the same size. The 1940 and 1915 levels belong to the Short scenario. This figure also has not deducted trading fees and taxes.",
+    },
+    giai: {
+      tinh: {
+        vi: 'Lãi/lỗ của 3 hợp đồng Long nếu kịch bản chạm mục tiêu',
+        en: 'P&L of the 3 long contracts if the scenario hits its target',
+      },
+      thaySo: { vi: '(1.975 − 1.955) × 100.000 × 3', en: '(1975 − 1955) × 100000 × 3' },
+      ketQua: { vi: '6.000.000 ₫', en: '6000000 ₫' },
+      gan: [
+        { kyHieu: 'P_{dong}', giaTri: { vi: '1.975', en: '1975' } },
+        { kyHieu: 'P_{mo}', giaTri: { vi: '1.955', en: '1955' } },
+        { kyHieu: 'm', giaTri: { vi: '100.000', en: '100000' } },
+        { kyHieu: 'N', giaTri: { vi: '3', en: '3' } },
+      ],
+    },
+    source: {
+      url: 'https://blog.entrade.com.vn/ban-tin-phai-sinh-22-09-2026-vn30f1m-rut-chan-manh-1-940-1-960-quyet-dinh-long-hay-short/',
+      kind: 'chuyen-gia',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q461',
+    formulaId: 'macd-duong-chinh',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Thư viện thuật ngữ của UB Academy minh hoạ chỉ báo MACD bằng cổ phiếu VNM: cổ phiếu đang giao dịch quanh 85.000đ, EMA 12 phiên là 86.500 và EMA 26 phiên là 88.000. Cùng đoạn ấy còn nêu đường Signal, tức EMA 9 phiên tính trên chính chuỗi MACD, ở mức −1.200. Hãy đặt đúng hai con số vào ô trống của công thức đường MACD. Chú ý thứ tự phép trừ: phải biết trong hai đường EMA, đường nào là EMA chu kỳ nhanh, đường nào là EMA chu kỳ chậm; còn thị giá và đường Signal thì có nằm trong công thức này hay không.',
+      en: "UB Academy's glossary illustrates the MACD indicator with VNM stock: the share trades around 85000 ₫, the 12-session EMA is 86500 and the 26-session EMA is 88000. The same passage also gives the Signal line, the 9-session EMA taken on the MACD series itself, at −1200. Put the right two numbers into the slots of the MACD line formula. Mind the order of the subtraction: you need to know which of the two EMAs is the fast-period EMA and which is the slow-period EMA, and whether the share price and the Signal line belong in this formula at all.",
+    },
+    facts: [
+      {
+        label: { vi: 'Thị giá VNM trong ví dụ', en: 'VNM share price in the example' },
+        value: { vi: 'quanh 85.000 ₫', en: 'around 85000 ₫' },
+      },
+      {
+        label: { vi: 'EMA 12 phiên', en: '12-session EMA' },
+        value: { vi: '86.500 ₫', en: '86500 ₫' },
+      },
+      {
+        label: { vi: 'EMA 26 phiên', en: '26-session EMA' },
+        value: { vi: '88.000 ₫', en: '88000 ₫' },
+      },
+      {
+        label: {
+          vi: 'Đường Signal, EMA 9 phiên của chuỗi MACD',
+          en: 'Signal line, the 9-session EMA of the MACD series',
+        },
+        value: { vi: '−1.200 ₫', en: '−1200 ₫' },
+      },
+    ],
+    expected: -1500,
+    tolerance: { kind: 'tuong-doi', value: 0.01 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'MACD = [86.500] − [88.000]',
+      en: 'MACD = [86500] − [88000]',
+    },
+    explain: {
+      vi: 'Đường nhanh là EMA có chu kỳ ngắn hơn, ở đây 12 phiên, nên 86.500 đứng trước dấu trừ; EMA 26 phiên ở 88.000 là đường chậm, đứng sau. MACD = 86.500 − 88.000 = −1.500 ₫, đúng con số nguồn ghi: “EMA12 = 86.500 và EMA26 = 88.000 nên MACD = -1.500”. Giá trị âm nghĩa là đường nhanh đang nằm dưới đường chậm, đà giảm vẫn chiếm ưu thế. Đảo hai ô sẽ ra +1.500 ₫ và lật hẳn cách đọc sang đà tăng, dù không con số nào thay đổi. Thị giá 85.000 ₫ không có mặt trong công thức: lấy nó trừ EMA 26 phiên ra −3.000 ₫, là khoảng cách giữa giá và đường trung bình, một đại lượng khác. Đường Signal −1.200 ₫ cũng không vào ô nào: nó là EMA 9 phiên tính trên chính chuỗi MACD để so với MACD, và hiệu MACD trừ Signal, ở đây −300 ₫, là Histogram. Nguồn chỉ gợi ý cân nhắc mở vị thế mua khi đường MACD vượt lên đường Signal và Histogram chuyển từ âm sang dương, mà lúc này −1.500 vẫn nằm dưới −1.200.',
+      en: 'The fast line is the EMA with the shorter period, here 12 sessions, so 86500 goes before the minus sign; the 26-session EMA at 88000 is the slow line and goes after it. MACD = 86500 − 88000 = −1500 ₫, the figure the source gives: “EMA12 = 86.500 và EMA26 = 88.000 nên MACD = -1.500” (EMA12 = 86500 and EMA26 = 88000, so MACD = −1500). A negative value means the fast line sits below the slow line, so downward momentum still has the upper hand. Swapping the two slots gives +1500 ₫ and flips the reading to upward momentum, even though no number changed. The 85000 ₫ share price is not in the formula: subtracting the 26-session EMA from it gives −3000 ₫, the distance between price and a moving average, which is a different quantity. The −1200 ₫ Signal line fills no slot either: it is the 9-session EMA taken on the MACD series itself, used as a yardstick for MACD, and MACD minus Signal, here −300 ₫, is the Histogram. The source only suggests considering a long position once the MACD line crosses above the Signal line and the Histogram turns from negative to positive, and at this point −1500 is still below −1200.',
+    },
+    giai: {
+      tinh: { vi: 'Đường MACD của VNM trong ví dụ', en: "VNM's MACD line in the example" },
+      thaySo: { vi: '86.500 − 88.000', en: '86500 − 88000' },
+      ketQua: { vi: '-1.500 ₫', en: '-1500 ₫' },
+      gan: [
+        {
+          kyHieu: 'EMA_{nhanh}',
+          moTa: { vi: 'là EMA 12 phiên: 86.500 ₫', en: 'is the 12-session EMA: 86500 ₫' },
+        },
+        {
+          kyHieu: 'EMA_{cham}',
+          moTa: { vi: 'là EMA 26 phiên: 88.000 ₫', en: 'is the 26-session EMA: 88000 ₫' },
+        },
+      ],
+    },
+    source: {
+      url: 'https://ub.edu.vn/thu-vien-thuat-ngu/chi-bao-macd',
+      kind: 'giao-khoa',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q462',
+    formulaId: 'roc-toc-do-thay-doi',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bảng giá lịch sử của Vinamilk (VNM) cho giá đóng cửa bảy phiên liền nhau, từ phiên thứ Hai 24/08 đến phiên thứ Sáu 04/09/2026. Bạn cần ROC 5 phiên chốt phiên 04/09/2026. Bình thường một tuần lịch có đúng 5 phiên, nhưng tuần này sàn không mở cửa từ 29/08 đến 02/09 vì cuối tuần và kỳ nghỉ lễ Quốc khánh, nên giá của thứ Sáu tuần trước không còn là giá cách đó 5 phiên. Hãy đếm lùi đúng 5 phiên rồi đặt hai con số vào ô trống của công thức ROC; chú ý giá phiên cuối nằm trên tử số, giá cách đó 5 phiên nằm dưới mẫu số.',
+      en: 'The price history of Vinamilk (VNM) gives the closing prices of seven consecutive sessions, from Monday 2026-08-24 to Friday 2026-09-04. You need the 5-session ROC as of the 2026-09-04 session. A calendar week normally holds exactly 5 sessions, but this time the exchange stayed closed from 2026-08-29 to 2026-09-02 for the weekend and the National Day holiday, so the previous Friday’s price is no longer the price 5 sessions back. Count back exactly 5 sessions, then put the right two numbers into the slots of the ROC formula; note that the last session’s price goes in the numerator and the price 5 sessions earlier goes in the denominator.',
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Giá đóng cửa VNM phiên thứ Sáu 04/09/2026, phiên cuối',
+          en: 'VNM close, Friday 2026-09-04, the last session',
+        },
+        value: { vi: '61.900 ₫', en: '61900 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Năm 03/09/2026', en: 'Close, Thursday 2026-09-03' },
+        value: { vi: '61.200 ₫', en: '61200 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Sáu 28/08/2026', en: 'Close, Friday 2026-08-28' },
+        value: { vi: '62.300 ₫', en: '62300 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Năm 27/08/2026', en: 'Close, Thursday 2026-08-27' },
+        value: { vi: '62.500 ₫', en: '62500 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Tư 26/08/2026', en: 'Close, Wednesday 2026-08-26' },
+        value: { vi: '62.800 ₫', en: '62800 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Ba 25/08/2026', en: 'Close, Tuesday 2026-08-25' },
+        value: { vi: '62.600 ₫', en: '62600 ₫' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa phiên thứ Hai 24/08/2026', en: 'Close, Monday 2026-08-24' },
+        value: { vi: '63.200 ₫', en: '63200 ₫' },
+      },
+    ],
+    expected: -1.1182,
+    tolerance: { kind: 'tuyet-doi', value: 0.01 },
+    unit: { vi: '%', en: '%' },
+    worked: {
+      vi: 'ROC = ([61.900] ÷ [62.600] − 1) × 100',
+      en: 'ROC = ([61900] ÷ [62600] − 1) × 100',
+    },
+    explain: {
+      vi: 'Đếm lùi từ phiên cuối 04/09: phiên 03/09 là 1 phiên trước, 28/08 là 2, 27/08 là 3, 26/08 là 4 và 25/08 là 5, nên giá cách đó 5 phiên là 62.600 ₫ chứ không phải giá thứ Sáu tuần trước. Đặt 61.900 lên tử số, 62.600 xuống mẫu số: (61.900 ÷ 62.600 − 1) × 100 ra khoảng −1,12%, tức VNM đã mất hơn 1% sau 5 phiên. Bẫy thứ nhất là đếm theo lịch: ba ngày nghỉ lễ Quốc khánh từ 31/08 đến 02/09 không có phiên nào, nên lấy giá 62.300 ₫ của thứ Sáu 28/08 thực chất là tính ROC 2 phiên, ra −0,64%, nhẹ đi gần một nửa. Bẫy thứ hai là đếm cả phiên cuối vào 5 phiên, lấy nhầm 62.800 ₫ của 26/08 thành ROC 4 phiên, ra −1,43%. Đảo tử số và mẫu số thì dấu đổi, ra khoảng +1,13%, đọc thành cổ phiếu đang tăng trong khi giá thực tế đã giảm.',
+      en: 'Count back from the last session on 2026-09-04: 2026-09-03 is 1 session back, 2026-08-28 is 2, 2026-08-27 is 3, 2026-08-26 is 4 and 2026-08-25 is 5, so the price 5 sessions back is 62600 ₫, not the previous Friday’s price. Put 61900 in the numerator and 62600 in the denominator: (61900 ÷ 62600 − 1) × 100 gives about −1.12%, meaning VNM lost more than 1% over 5 sessions. The first trap is counting by the calendar: the three National Day holidays from 2026-08-31 to 2026-09-02 had no sessions, so taking the 62300 ₫ close of Friday 2026-08-28 actually computes a 2-session ROC, giving −0.64%, close to half the real move. The second trap is counting the last session itself as one of the 5, picking the 62800 ₫ close of 2026-08-26 by mistake and turning it into a 4-session ROC of −1.43%. Swapping the numerator and denominator flips the sign to about +1.13%, which reads as a rising stock when the price actually fell.',
+    },
+    giai: {
+      tinh: {
+        vi: 'ROC 5 phiên của VNM chốt phiên 04/09/2026',
+        en: 'The 5-session ROC of VNM as of the 2026-09-04 session',
+      },
+      thaySo: { vi: '(61.900 ÷ 62.600 − 1) × 100', en: '(61900 ÷ 62600 − 1) × 100' },
+      ketQua: { vi: '-1,12 %', en: '-1.12 %' },
+      gan: [
+        { kyHieu: 'P_t', giaTri: { vi: '61.900', en: '61900' } },
+        {
+          kyHieu: 'P_{t-n}',
+          moTa: {
+            vi: 'là giá đóng cửa 5 phiên trước, ngày 25/08: 62.600 ₫',
+            en: 'is the close 5 sessions earlier, on 25/08: 62600 ₫',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNM&StartDate=08/24/2026&EndDate=09/04/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q463',
+    formulaId: 'rsi-wilder',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Một bài hướng dẫn cách tính RSI 14 kỳ đưa ra một ví dụ giả định: trong 14 phiên của một cổ phiếu có 9 phiên tăng, cộng lại được 18 điểm, và 5 phiên giảm, cộng lại được 10 điểm. Bảng số liệu có hai cách lấy trung bình: một cách chia tổng cho cả 14 phiên, cách kia chỉ chia cho số phiên có tăng hoặc số phiên có giảm. Hãy đặt đúng hai con số vào ô trống của công thức RSI; chú ý trung bình tăng và trung bình giảm của Wilder tính trên cả kỳ 14 phiên, phiên nào không tăng thì góp 0 vào trung bình tăng, và trung bình tăng nằm trên tử số của RS.',
+      en: 'A guide to computing the 14-period RSI gives this hypothetical example: over 14 sessions of a stock there were 9 up sessions adding up to 18 points and 5 down sessions adding up to 10 points. The table holds two ways of averaging: one divides each total by all 14 sessions, the other divides only by the number of up sessions or down sessions. Put the right two numbers into the slots of the RSI formula; note that the Wilder average gain and average loss are taken over the whole 14-session period, a session that did not rise adds 0 to the average gain, and the average gain sits in the numerator of RS.',
+    },
+    facts: [
+      {
+        label: { vi: 'Số phiên trong kỳ RSI', en: 'Sessions in the RSI period' },
+        value: { vi: '14 phiên', en: '14 sessions' },
+      },
+      {
+        label: {
+          vi: 'Trung bình tăng, tổng mức tăng chia cho cả 14 phiên',
+          en: 'Average gain, total gains divided by all 14 sessions',
+        },
+        value: { vi: '1,28 điểm', en: '1.28 points' },
+      },
+      {
+        label: {
+          vi: 'Trung bình giảm, tổng mức giảm chia cho cả 14 phiên',
+          en: 'Average loss, total losses divided by all 14 sessions',
+        },
+        value: { vi: '0,71 điểm', en: '0.71 points' },
+      },
+      {
+        label: {
+          vi: 'Mức tăng bình quân của riêng 9 phiên tăng',
+          en: 'Average rise across the 9 up sessions only',
+        },
+        value: { vi: '2 điểm', en: '2 points' },
+      },
+      {
+        label: {
+          vi: 'Mức giảm bình quân của riêng 5 phiên giảm',
+          en: 'Average drop across the 5 down sessions only',
+        },
+        value: { vi: '2 điểm', en: '2 points' },
+      },
+    ],
+    expected: 64.3216,
+    tolerance: { kind: 'tuyet-doi', value: 0.05 },
+    unit: { vi: 'điểm', en: 'points' },
+    worked: {
+      vi: 'RSI = 100 − 100 ÷ (1 + [1,28] ÷ [0,71])',
+      en: 'RSI = 100 − 100 ÷ (1 + [1.28] ÷ [0.71])',
+    },
+    explain: {
+      vi: 'Hai ô của công thức là trung bình tăng và trung bình giảm theo Wilder, và cả hai đều chia cho đủ 14 phiên của kỳ: phiên không tăng góp 0 vào trung bình tăng, phiên không giảm góp 0 vào trung bình giảm. Vì thế 1,28 nằm trên tử số của RS, 0,71 nằm dưới mẫu số, và 100 − 100 ÷ (1 + 1,28 ÷ 0,71) ra khoảng 64,32, khớp mức 64,3 bài viết tính. Bài viết ghi “Trung bình mức tăng = 18/14 = 1,28; trung bình mức giảm = 10/14 = 0,71”; chia chính xác thì 18 ÷ 14 là 1,2857, nên số của bài đã bị cắt bớt, nhưng RSI chỉ lệch chưa tới 0,04 điểm. Cái bẫy là hai dòng 2 điểm: chúng chia tổng mức tăng cho 9 phiên tăng và tổng mức giảm cho 5 phiên giảm. Đặt hai số ấy vào thì RS thành 1 và RSI ra đúng 50, như thể bên mua và bên bán ngang sức, trong khi bên mua đã thắng 9 trên 14 phiên. Đảo hai ô, để trung bình giảm lên tử số, thì RSI ra khoảng 35,68, đọc ngược hẳn chiều thị trường. Với kỳ đầu tiên đúng 14 phiên như ở đây, trung bình của Wilder trùng với trung bình cộng thường; từ phiên thứ 15 trở đi mới có bước làm mượt, lấy trung bình cũ nhân 13, cộng mức tăng mới rồi chia 14.',
+      en: 'The two slots of the formula are the Wilder average gain and average loss, and both are divided by all 14 sessions of the period: a session that did not rise adds 0 to the average gain, and a session that did not fall adds 0 to the average loss. So 1.28 goes in the numerator of RS, 0.71 in the denominator, and 100 − 100 ÷ (1 + 1.28 ÷ 0.71) gives about 64.32, matching the 64.3 the article computes. The article writes “Trung bình mức tăng = 18/14 = 1,28; trung bình mức giảm = 10/14 = 0,71” (average gain = 18/14 = 1.28; average loss = 10/14 = 0.71); dividing exactly, 18 ÷ 14 is 1.2857, so the article truncated its figures, but RSI moves by less than 0.04 points. The trap is the two rows of 2 points: they divide the total gain by the 9 up sessions and the total loss by the 5 down sessions. Put those two in and RS becomes 1 and RSI comes out at exactly 50, as if buyers and sellers were evenly matched, when buyers actually won 9 of the 14 sessions. Swap the two slots, putting the average loss in the numerator, and RSI comes out at about 35.68, reading the market the wrong way round. For a first period of exactly 14 sessions like this one, the Wilder average equals the plain arithmetic mean; the smoothing step only starts from session 15 on, taking the previous average times 13, adding the new gain and dividing by 14.',
+    },
+    giai: {
+      tinh: { vi: 'RSI 14 phiên của cổ phiếu', en: 'The 14-session RSI of the stock' },
+      thaySo: { vi: '100 − 100 ÷ (1 + 1,28 ÷ 0,71)', en: '100 − 100 ÷ (1 + 1.28 ÷ 0.71)' },
+      ketQua: { vi: '64,32 điểm', en: '64.32 points' },
+      gan: [
+        {
+          kyHieu: '\\overline{Gain}_n',
+          moTa: {
+            vi: 'là mức tăng trung bình mỗi phiên trong 14 phiên: 1,28 điểm',
+            en: 'is the average gain per session over 14 sessions: 1.28 points',
+          },
+        },
+        {
+          kyHieu: '\\overline{Loss}_n',
+          moTa: {
+            vi: 'là mức giảm trung bình mỗi phiên trong 14 phiên: 0,71 điểm',
+            en: 'is the average loss per session over 14 sessions: 0.71 points',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://fin5s.com/rsi-la-gi/',
+      kind: 'giao-khoa',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q464',
+    formulaId: 'sma-n-phien',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Lịch sử giá trên CafeF ghi giá đóng cửa cổ phiếu ACB trong bảy phiên gần nhất, từ 16/09 đến 24/09/2026; ngày 19 và 20/09 là thứ Bảy và Chủ nhật nên không có phiên. Cần tính đường SMA 5 phiên tại phiên t là phiên 24/09/2026. Hãy đặt đúng năm giá đóng cửa vào năm ô trống của công thức SMA theo thứ tự của tổng: ô đầu là i = 0, tức chính phiên t, mỗi ô sau lùi thêm một phiên. Chú ý cửa sổ là năm PHIÊN giao dịch đếm lùi từ phiên t, không phải năm ngày lịch, nên không phải phiên nào trong bảng cũng được vào công thức.',
+      en: "CafeF's price history lists ACB closing prices for the seven most recent sessions, from 2026-09-16 to 2026-09-24; September 19 and 20 were a Saturday and a Sunday, so there were no sessions on those days. You need the 5-session SMA at session t, the 2026-09-24 session. Put the right five closing prices into the five slots of the SMA formula in the order of the sum: the first slot is i = 0, session t itself, and each slot after it steps back one session. Watch the window: it is five trading SESSIONS counted back from session t, not five calendar days, so not every session in the table belongs in the formula.",
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Số phiên của đường trung bình (n)',
+          en: 'Number of sessions in the average (n)',
+        },
+        value: { vi: '5 phiên', en: '5 sessions' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 24/09/2026, thứ Năm (phiên t)',
+          en: 'ACB close on 2026-09-24, Thursday (session t)',
+        },
+        value: { vi: '21.400 ₫', en: '21400 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 23/09/2026, thứ Tư',
+          en: 'ACB close on 2026-09-23, Wednesday',
+        },
+        value: { vi: '21.800 ₫', en: '21800 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 22/09/2026, thứ Ba',
+          en: 'ACB close on 2026-09-22, Tuesday',
+        },
+        value: { vi: '22.000 ₫', en: '22000 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 21/09/2026, thứ Hai',
+          en: 'ACB close on 2026-09-21, Monday',
+        },
+        value: { vi: '22.400 ₫', en: '22400 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 18/09/2026, thứ Sáu',
+          en: 'ACB close on 2026-09-18, Friday',
+        },
+        value: { vi: '21.900 ₫', en: '21900 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 17/09/2026, thứ Năm',
+          en: 'ACB close on 2026-09-17, Thursday',
+        },
+        value: { vi: '22.800 ₫', en: '22800 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa ACB phiên 16/09/2026, thứ Tư',
+          en: 'ACB close on 2026-09-16, Wednesday',
+        },
+        value: { vi: '22.600 ₫', en: '22600 ₫' },
+      },
+    ],
+    expected: 21900,
+    tolerance: { kind: 'tuong-doi', value: 0.01 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'SMA 5 = ([21.400] + [21.800] + [22.000] + [22.400] + [21.900]) ÷ 5',
+      en: 'SMA 5 = ([21400] + [21800] + [22000] + [22400] + [21900]) ÷ 5',
+    },
+    explain: {
+      vi: 'Tổng chạy từ i = 0 đến n − 1 = 4, nên năm ô là năm phiên giao dịch gần nhất đếm lùi từ phiên t: 24/09, 23/09, 22/09, 21/09, rồi vượt qua hai ngày cuối tuần về phiên thứ Sáu 18/09. Cộng lại được 109.500 ₫, chia cho n = 5 ra 21.900 ₫. Cái bẫy thứ nhất là đếm ngày lịch: năm ngày từ 20/09 đến 24/09 chỉ chứa bốn phiên, vì 19 và 20/09 là thứ Bảy và Chủ nhật, nên phiên 18/09 vẫn thuộc cửa sổ. Cái bẫy thứ hai là hai phiên 17/09 (22.800 ₫) và 16/09 (22.600 ₫): chúng có trong bảng nhưng nằm ngoài cửa sổ năm phiên; kéo cả hai vào là thành SMA 7 phiên, ra khoảng 22.129 ₫, cao hơn gần 230 ₫ vì hai phiên cũ đều đóng cửa ở mức cao. Đọc kết quả: phiên t đóng cửa 21.400 ₫, nằm dưới đường SMA 5 ở 21.900 ₫, tức giá đang yếu hơn mặt bằng một tuần giao dịch vừa qua.',
+      en: 'The sum runs from i = 0 to n − 1 = 4, so the five slots are the five most recent trading sessions counted back from session t: September 24, 23, 22 and 21, then across the weekend to Friday, September 18. They add up to 109500 ₫, and dividing by n = 5 gives 21900 ₫. The first trap is counting calendar days: the five days from September 20 to 24 hold only four sessions, because September 19 and 20 were a Saturday and a Sunday, so the September 18 session is still inside the window. The second trap is the September 17 (22800 ₫) and September 16 (22600 ₫) sessions: they are in the table but outside the five-session window; pulling both in turns the line into a 7-session SMA of about 22129 ₫, nearly 230 ₫ higher, because both older sessions closed high. Reading the result: session t closed at 21400 ₫, below the 5-session SMA of 21900 ₫, so price is weaker than its average level over the past trading week.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Đường SMA 5 phiên của ACB tại phiên 24/09/2026',
+        en: 'The 5-session SMA of ACB at the 2026-09-24 session',
+      },
+      thaySo: {
+        vi: '(21.400 + 21.800 + 22.000 + 22.400 + 21.900) ÷ 5',
+        en: '(21400 + 21800 + 22000 + 22400 + 21900) ÷ 5',
+      },
+      ketQua: { vi: '21.900 ₫', en: '21900 ₫' },
+      gan: [
+        {
+          kyHieu: 'P_{t-i}',
+          moTa: {
+            vi: 'là giá đóng cửa 5 phiên gần nhất, từ 24/09 lùi về 18/09: 21.400, 21.800, 22.000, 22.400 và 21.900 ₫',
+            en: 'is the close of the latest 5 sessions, from 24/09 back to 18/09: 21400, 21800, 22000, 22400 and 21900 ₫',
+          },
+        },
+        { kyHieu: 'n', moTa: { vi: 'là 5 phiên', en: 'is 5 sessions' } },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=ACB&StartDate=09/16/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q465',
+    formulaId: 'stochastic-k',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Lịch sử giá trên CafeF cho cổ phiếu TCB (Techcombank) trong 14 phiên từ 07/09 đến 24/09/2026 cho ra các mốc dưới đây. Stochastic %K chu kỳ 14 đo đỉnh và đáy bằng giá cao nhất và giá thấp nhất TRONG PHIÊN chứ không bằng giá đóng cửa, nên bảng ghi cả hai bộ đỉnh đáy để bạn chọn. Hãy đặt đúng bốn con số vào ô trống của công thức %K; chú ý giá thấp nhất 14 phiên xuất hiện hai lần, một lần ở tử số và một lần ở mẫu số, và giá đứng đầu tử số là giá đóng cửa của phiên gần nhất 24/09 chứ không phải giá mở cửa.',
+      en: "CafeF's price history for Techcombank (TCB) over the 14 sessions from 2026-09-07 to 2026-09-24 gives the levels below. A 14-session stochastic %K measures the high and the low with the INTRADAY high and low, not with closing prices, so the table lists both sets of highs and lows for you to choose from. Put the right four numbers into the slots of the %K formula; note that the 14-session low appears twice, once in the numerator and once in the denominator, and that the price at the head of the numerator is the close of the latest session, 2026-09-24, not its opening price.",
+    },
+    facts: [
+      {
+        label: { vi: 'Giá đóng cửa TCB phiên 24/09/2026', en: 'TCB closing price on 2026-09-24' },
+        value: { vi: '32.950 ₫', en: '32950 ₫' },
+      },
+      {
+        label: { vi: 'Giá mở cửa TCB phiên 24/09/2026', en: 'TCB opening price on 2026-09-24' },
+        value: { vi: '32.750 ₫', en: '32750 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa cao nhất của 14 phiên (phiên 23/09)',
+          en: 'Highest close of the 14 sessions (2026-09-23)',
+        },
+        value: { vi: '33.150 ₫', en: '33150 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá cao nhất trong phiên, cao nhất của 14 phiên (phiên 23/09)',
+          en: 'Highest intraday high of the 14 sessions (2026-09-23)',
+        },
+        value: { vi: '33.450 ₫', en: '33450 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa thấp nhất của 14 phiên (phiên 11/09 và 18/09)',
+          en: 'Lowest close of the 14 sessions (2026-09-11 and 2026-09-18)',
+        },
+        value: { vi: '31.600 ₫', en: '31600 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá thấp nhất trong phiên, thấp nhất của 14 phiên (phiên 14/09)',
+          en: 'Lowest intraday low of the 14 sessions (2026-09-14)',
+        },
+        value: { vi: '31.400 ₫', en: '31400 ₫' },
+      },
+    ],
+    expected: 75.61,
+    tolerance: { kind: 'tuyet-doi', value: 0.05 },
+    unit: { vi: '%', en: '%' },
+    worked: {
+      vi: '%K = ([32.950] − [31.400]) ÷ ([33.450] − [31.400]) × 100',
+      en: '%K = ([32950] − [31400]) ÷ ([33450] − [31400]) × 100',
+    },
+    explain: {
+      vi: '%K đo giá đóng cửa đứng ở đâu trong biên độ thật của 14 phiên, và biên độ ấy tính bằng giá cao nhất, thấp nhất trong phiên. Vì thế 33.450 ₫, đỉnh trong phiên 23/09, vào ô đỉnh; 31.400 ₫, đáy trong phiên 14/09, vào cả hai ô đáy; còn 32.950 ₫ của phiên 24/09 đứng đầu tử số: (32.950 − 31.400) ÷ (33.450 − 31.400) × 100 ra 75,61%. Cái bẫy là hai dòng đỉnh đáy theo giá đóng cửa: đặt 33.150 ₫ và 31.600 ₫ vào thì ra (32.950 − 31.600) ÷ (33.150 − 31.600) × 100 = 87,10%, vượt mốc 80 nên bị đọc thành đóng cửa sát đỉnh, trong khi con số đúng còn cách mốc ấy hơn 4 điểm. Giá mở cửa 32.750 ₫ không có chỗ nào trong công thức.',
+      en: '%K measures where the close sits within the true range of the 14 sessions, and that range is taken from intraday highs and lows. So 33450 ₫, the intraday high of 2026-09-23, goes into the high slot; 31400 ₫, the intraday low of 2026-09-14, goes into both low slots; and the 32950 ₫ close of 2026-09-24 heads the numerator: (32950 − 31400) ÷ (33450 − 31400) × 100 gives 75.61%. The trap is the pair of highs and lows taken from closing prices: putting 33150 ₫ and 31600 ₫ in gives (32950 − 31600) ÷ (33150 − 31600) × 100 = 87.10%, above the 80 mark and so read as a close near the top, while the correct figure is still more than 4 points below that mark. The 32750 ₫ opening price has no place anywhere in the formula.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Stochastic %K chu kỳ 14 của TCB phiên 24/09/2026',
+        en: "TCB's 14-session stochastic %K on 2026-09-24",
+      },
+      thaySo: {
+        vi: '(32.950 − 31.400) ÷ (33.450 − 31.400) × 100',
+        en: '(32950 − 31400) ÷ (33450 − 31400) × 100',
+      },
+      ketQua: { vi: '75,61 %', en: '75.61 %' },
+      gan: [
+        { kyHieu: 'C', giaTri: { vi: '32.950', en: '32950' } },
+        {
+          kyHieu: 'L_{n}',
+          moTa: {
+            vi: 'là giá thấp nhất trong phiên của 14 phiên: 31.400 ₫',
+            en: 'is the lowest intraday price of the 14 sessions: 31400 ₫',
+          },
+        },
+        {
+          kyHieu: 'H_{n}',
+          moTa: {
+            vi: 'là giá cao nhất trong phiên của 14 phiên: 33.450 ₫',
+            en: 'is the highest intraday price of the 14 sessions: 33450 ₫',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=TCB&StartDate=09/07/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q466',
+    formulaId: 'sut-giam-hien-tai',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Lịch sử giá cổ phiếu FPT trên CafeF, từ 26/08 đến 25/09/2026: phiên 25/09 đóng cửa 64.700 ₫, còn giá đóng cửa cao nhất của 30 phiên ấy rơi vào phiên 10/09. FPT chốt quyền nhận cổ phiếu thưởng tỷ lệ 10:1 ngày 22/09/2026, nên cột giá điều chỉnh của CafeF đã chia giá mọi phiên trước 21/09 cho 1,1: phiên 10/09 ở cột ấy ghi 67.730 ₫, trong khi cột giá đóng cửa vẫn ghi 74.500 ₫ như bảng giá hôm ấy. Hãy đặt đúng ba con số vào ô trống của công thức Mức sụt giảm hiện tại, chú ý đỉnh xuất hiện hai lần, một lần ở tử số và một lần ở mẫu số, và đỉnh với giá phiên gần nhất phải cùng một thước giá.',
+      en: "FPT's price history on CafeF, from 2026-08-26 to 2026-09-25: the 2026-09-25 session closed at 64700 ₫, and the highest close of those 30 sessions fell on 2026-09-10. FPT set 2026-09-22 as the record date for a bonus issue of one new share for every ten held, so CafeF's adjusted price column has divided every session before 2026-09-21 by 1.1: the 2026-09-10 session reads 67730 ₫ in that column, while the close column still shows the 74500 ₫ of that day's price board. Put the right three numbers into the slots of the current drawdown formula, noting that the peak appears twice, once in the numerator and once in the denominator, and that the peak and the latest close must be on the same price basis.",
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Giá đóng cửa phiên gần nhất, 25/09/2026',
+          en: 'Close of the latest session, 2026-09-25',
+        },
+        value: { vi: '64.700 ₫', en: '64700 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa cao nhất trong 30 phiên, phiên 10/09/2026, ở cột giá điều chỉnh cho cổ phiếu thưởng',
+          en: 'Highest close of the 30 sessions, 2026-09-10, in the column adjusted for the bonus shares',
+        },
+        value: { vi: '67.730 ₫', en: '67730 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá cao nhất trong phiên 10/09/2026, chưa điều chỉnh',
+          en: 'Intraday high on 2026-09-10, unadjusted',
+        },
+        value: { vi: '74.800 ₫', en: '74800 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa 10/09/2026 ở cột giá đóng cửa, chưa điều chỉnh',
+          en: 'Close on 2026-09-10 in the close column, unadjusted',
+        },
+        value: { vi: '74.500 ₫', en: '74500 ₫' },
+      },
+      {
+        label: {
+          vi: 'Giá đóng cửa phiên liền trước, 24/09/2026',
+          en: 'Close of the previous session, 2026-09-24',
+        },
+        value: { vi: '65.300 ₫', en: '65300 ₫' },
+      },
+    ],
+    expected: 4.47,
+    tolerance: { kind: 'tuyet-doi', value: 0.01 },
+    unit: { vi: '%', en: '%' },
+    worked: {
+      vi: 'Sụt giảm hiện tại = ([67.730] − [64.700]) ÷ [67.730] × 100',
+      en: 'Current drawdown = ([67730] − [64700]) ÷ [67730] × 100',
+    },
+    explain: {
+      vi: 'Đỉnh là giá đóng cửa cao nhất trong cửa sổ, lấy ở cột giá điều chỉnh, nên 67.730 ₫ đứng ở cả tử số lẫn mẫu số, còn giá phiên gần nhất 64.700 ₫ chỉ đứng ở vế bị trừ: (67.730 − 64.700) ÷ 67.730 × 100 ra 4,47%. Cái bẫy lớn nhất là 74.500 ₫ ở cột giá đóng cửa: đó là giá phiên 10/09 trước đợt cổ phiếu thưởng, đem so với giá 64.700 ₫ sau ngày không hưởng quyền thì ra 13,15%, gần gấp ba mức chìm thật, vì phần giá giảm do chia thêm cổ phiếu bị tính nhầm thành thua lỗ. Hai số còn lại cũng sai chỗ: 74.800 ₫ là giá cao nhất TRONG phiên, lại chưa điều chỉnh, lấy nó làm đỉnh ra 13,50%; còn 65.300 ₫ là giá phiên 24/09, đã không còn là phiên gần nhất.',
+      en: 'The peak is the highest close in the window, taken from the adjusted column, so 67730 ₫ goes into both the numerator and the denominator, while the latest close of 64700 ₫ only sits on the subtracted side: (67730 − 64700) ÷ 67730 × 100 gives 4.47%. The biggest trap is the 74500 ₫ in the close column: that is the 2026-09-10 price from before the bonus issue, and setting it against the 64700 ₫ price after the ex-rights date gives 13.15%, nearly three times the real drawdown, because the price drop caused by the extra shares gets counted as a loss. The other two figures are misplaced as well: 74800 ₫ is the highest price DURING the session, and unadjusted on top of that, so using it as the peak gives 13.50%; 65300 ₫ is the 2026-09-24 price, which is no longer the latest session.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Mức sụt giảm hiện tại của FPT so với đỉnh 30 phiên',
+        en: "FPT's current drawdown from its 30-session peak",
+      },
+      thaySo: {
+        vi: '(67.730 − 64.700) ÷ 67.730 × 100',
+        en: '(67730 − 64700) ÷ 67730 × 100',
+      },
+      ketQua: { vi: '4,47 %', en: '4.47 %' },
+      gan: [
+        {
+          kyHieu: 'P_{max}',
+          moTa: {
+            vi: 'là giá đóng cửa cao nhất trong 30 phiên, ở cột giá điều chỉnh cho cổ phiếu thưởng: 67.730 ₫',
+            en: 'is the highest close of the 30 sessions, in the column adjusted for the bonus shares: 67730 ₫',
+          },
+        },
+        { kyHieu: 'P_{t}', giaTri: { vi: '64.700', en: '64700' } },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/26/2026&EndDate=09/25/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q467',
+    formulaId: 'ty-so-calmar',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bài hướng dẫn về tỷ số Calmar trên Quantt đánh giá một quỹ giao dịch hợp đồng tương lai qua ba năm: lợi suất từng năm +18,5%, +9,2% và +14,1%, còn cú sụt sâu nhất từ đỉnh xuống đáy trong cả ba năm là −12,3%. Bảng số liệu có ba cách tóm tắt lợi suất ba năm: lãi cộng dồn, bình quân cộng và lợi suất năm hoá theo lãi kép. Hãy đặt đúng hai con số, viết ở dạng thập phân, vào ô trống của công thức Calmar; chú ý tử số là lợi suất MỖI NĂM tính theo lãi kép, còn mẫu số là độ lớn của mức sụt giảm nên không mang dấu âm.',
+      en: 'A Calmar ratio tutorial on Quantt evaluates a managed futures fund over three years: annual returns of +18.5%, +9.2% and +14.1%, and a worst peak-to-trough decline of −12.3% across the whole three years. The table summarizes the three-year return three ways: cumulative gain, simple average and compounded annualized return. Put the right two numbers, written as decimals, into the slots of the Calmar formula; note that the numerator is the return PER YEAR on a compounded basis, and the denominator is the size of the drawdown, so it carries no minus sign.',
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Lợi suất từng năm 2023, 2024, 2025',
+          en: 'Annual return in 2023, 2024, 2025',
+        },
+        value: { vi: '+18,5%; +9,2%; +14,1%', en: '+18.5%; +9.2%; +14.1%' },
+      },
+      {
+        label: {
+          vi: 'Lãi cộng dồn cả ba năm, từ hệ số 1,185 × 1,092 × 1,141 = 1,4764',
+          en: 'Cumulative gain over the three years, from the factor 1.185 × 1.092 × 1.141 = 1.4764',
+        },
+        value: { vi: '0,4764 (47,64%)', en: '0.4764 (47.64%)' },
+      },
+      {
+        label: {
+          vi: 'Bình quân cộng lợi suất ba năm',
+          en: 'Simple average of the three annual returns',
+        },
+        value: { vi: '0,1393 (13,93%)', en: '0.1393 (13.93%)' },
+      },
+      {
+        label: {
+          vi: 'Lợi suất năm hoá theo lãi kép (CAGR) ba năm',
+          en: 'Compounded annualized return (CAGR) over three years',
+        },
+        value: { vi: '0,1386 (13,86%/năm)', en: '0.1386 (13.86%/year)' },
+      },
+      {
+        label: {
+          vi: 'Mức sụt giảm sâu nhất từ đỉnh xuống đáy trong ba năm',
+          en: 'Maximum peak-to-trough drawdown over the three years',
+        },
+        value: { vi: '−12,3%, độ lớn 0,123', en: '−12.3%, magnitude 0.123' },
+      },
+    ],
+    expected: 1.1268,
+    tolerance: { kind: 'tuyet-doi', value: 0.005 },
+    unit: { vi: 'lần', en: 'x' },
+    worked: {
+      vi: 'Tỷ số Calmar = [0,1386] ÷ [0,123]',
+      en: 'Calmar ratio = [0.1386] ÷ [0.123]',
+    },
+    explain: {
+      vi: 'Tử số là lợi suất năm hoá theo lãi kép: nhân ba hệ số 1,185 × 1,092 × 1,141 được 1,4764, lấy căn bậc ba rồi trừ 1, bài gốc ghi ra 0,1386, tức 13,86% mỗi năm. Mẫu số là độ lớn của cú sụt sâu nhất, 0,123. Lấy 0,1386 chia 0,123 ra khoảng 1,13 lần: mỗi năm quỹ kiếm được hơn một lần cú đau lớn nhất đã phải chịu. Bẫy thứ nhất là lãi cộng dồn 0,4764: đó là lãi của cả ba năm gộp lại, đặt vào tử số thì ra khoảng 3,87 lần, đẹp gấp hơn ba lần thực tế. Bẫy thứ hai là bình quân cộng 0,1393: nó luôn không nhỏ hơn lợi suất kép vì bỏ qua việc lãi năm này chồng lên vốn đã đổi của năm trước; ở đây chỉ lệch chút ít, nhưng lợi suất các năm càng chênh nhau thì lệch càng xa. Bài gốc nói rõ vì sao dùng lãi kép: “Using CAGR rather than simple average return ensures the numerator reflects actual wealth accumulation.” Mẫu số lấy 0,123 chứ không phải −0,123, vì giữ dấu âm thì một quỹ đang lãi lại ra tỷ số âm.',
+      en: 'The numerator is the compounded annualized return: multiplying the three factors 1.185 × 1.092 × 1.141 gives 1.4764, and taking the cube root and subtracting 1 gives the 0.1386 the tutorial reports, that is, 13.86% a year. The denominator is the size of the worst drawdown, 0.123. 0.1386 divided by 0.123 is about 1.13x: each year the fund earned a little more than the single biggest loss it had to sit through. The first trap is the 0.4764 cumulative gain: that is three years of return lumped together, and putting it in the numerator gives about 3.87x, more than three times better than the truth. The second trap is the 0.1393 simple average: it is never smaller than the compounded return because it ignores that each year’s gain lands on the capital left by the year before; the gap is small here, but it widens the more the yearly returns differ. The tutorial states why compounding is used: “Using CAGR rather than simple average return ensures the numerator reflects actual wealth accumulation.” The denominator takes 0.123, not −0.123, because keeping the minus sign turns a profitable fund into a negative ratio.',
+    },
+    giai: {
+      tinh: { vi: 'Tỷ số Calmar của quỹ', en: 'Calmar ratio of the fund' },
+      thaySo: { vi: '0,1386 ÷ 0,123', en: '0.1386 ÷ 0.123' },
+      ketQua: { vi: '1,13 lần', en: '1.13 x' },
+      gan: [
+        {
+          kyHieu: 'r_{nam}',
+          moTa: {
+            vi: 'là lợi suất năm hoá theo lãi kép của ba năm: 0,1386, tức 13,86%',
+            en: 'is the compound annualized return over the three years: 0.1386, that is 13.86%',
+          },
+        },
+        { kyHieu: 'MDD', giaTri: { vi: '0,123', en: '0.123' } },
+      ],
+    },
+    source: {
+      url: 'https://www.quantt.co.uk/resources/calmar-ratio-explained',
+      kind: 'giao-khoa',
+      vietnam: false,
+    },
+  },
+  {
+    id: 'Q468',
+    formulaId: 'ty-so-sharpe',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bài hướng dẫn tính tỷ số Sharpe trên Quantt đánh giá một danh mục cổ phiếu Anh qua sáu tháng, lợi suất từng tháng 2,8%; −1,2%; 3,5%; −0,4%; 1,9%; 2,6%, lãi suất phi rủi ro 4,0%/năm. Công thức của trang làm việc theo kỳ rồi mới quy năm: lợi suất bình quân một kỳ trừ lãi phi rủi ro của một kỳ, chia độ lệch chuẩn lợi suất kỳ, rồi nhân căn bậc hai của số kỳ trong năm, ở đây dữ liệu tháng nên là √12. Bảng số liệu có cả lãi suất năm lẫn lợi suất vượt trội mà bài đã trừ sẵn lãi phi rủi ro. Hãy đặt đúng ba con số vào ô trống của công thức Sharpe; chú ý ô bị trừ là lãi phi rủi ro của MỘT THÁNG quy theo lãi kép chứ không phải lãi cả năm, và ô đầu tiên là lợi suất chưa trừ gì.',
+      en: 'A Sharpe ratio tutorial on Quantt evaluates a UK equity portfolio over six months, with monthly returns of 2.8%; −1.2%; 3.5%; −0.4%; 1.9%; 2.6% and a risk-free rate of 4.0% a year. The formula on this page works per period and annualizes last: the average return of one period minus the risk-free rate of one period, divided by the standard deviation of period returns, then multiplied by the square root of periods per year, which for monthly data is √12. The table holds both the annual rate and an excess return from which the tutorial has already subtracted the risk-free rate. Put the right three numbers into the slots of the Sharpe formula; note that the subtracted slot is the risk-free rate for ONE MONTH, compounded, not the full-year rate, and the first slot is the return before anything is subtracted.',
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Lợi suất của danh mục, tháng 1 đến tháng 6',
+          en: 'Portfolio return, month 1 to month 6',
+        },
+        value: {
+          vi: '2,8%; −1,2%; 3,5%; −0,4%; 1,9%; 2,6%',
+          en: '2.8%; −1.2%; 3.5%; −0.4%; 1.9%; 2.6%',
+        },
+      },
+      {
+        label: {
+          vi: 'Lợi suất bình quân một tháng của danh mục',
+          en: 'Average one-month return of the portfolio',
+        },
+        value: { vi: '1,533%', en: '1.533%' },
+      },
+      {
+        label: {
+          vi: 'Độ lệch chuẩn lợi suất tháng, mẫu chia n − 1',
+          en: 'Standard deviation of monthly returns, sample (n − 1)',
+        },
+        value: { vi: '1,896%', en: '1.896%' },
+      },
+      {
+        label: { vi: 'Lãi suất phi rủi ro / năm', en: 'Risk-free rate / year' },
+        value: { vi: '4,0%', en: '4.0%' },
+      },
+      {
+        label: {
+          vi: 'Lãi suất phi rủi ro quy về một tháng theo lãi kép, (1 + 4%)^(1/12) − 1',
+          en: 'Risk-free rate converted to one month by compounding, (1 + 4%)^(1/12) − 1',
+        },
+        value: { vi: '0,327%', en: '0.327%' },
+      },
+      {
+        label: {
+          vi: 'Lợi suất vượt trội bình quân một tháng, bài đã trừ sẵn lãi phi rủi ro',
+          en: 'Average one-month excess return, risk-free rate already subtracted by the tutorial',
+        },
+        value: { vi: '1,200%', en: '1.200%' },
+      },
+      {
+        label: {
+          vi: 'Số kỳ dữ liệu trong một năm, dữ liệu tháng',
+          en: 'Data periods per year, monthly data',
+        },
+        value: { vi: '12', en: '12' },
+      },
+    ],
+    expected: 2.2034,
+    tolerance: { kind: 'tuyet-doi', value: 0.01 },
+    unit: { vi: 'lần', en: 'x' },
+    worked: {
+      vi: 'Tỷ số Sharpe = ([1,533] − [0,327]) ÷ [1,896] × √12',
+      en: 'Sharpe ratio = ([1.533] − [0.327]) ÷ [1.896] × √12',
+    },
+    explain: {
+      vi: 'Công thức của trang tính theo từng kỳ rồi mới quy năm: lợi suất bình quân một tháng 1,533% trừ lãi phi rủi ro của một tháng 0,327% còn 1,206%, chia độ lệch chuẩn lợi suất tháng 1,896% được khoảng 0,636, nhân √12 (khoảng 3,464) ra khoảng 2,20 lần. Bẫy thứ nhất là dòng lãi suất 4,0%/năm: đặt nó vào ô bị trừ là đem lãi cả năm trừ vào lợi suất một tháng, tử số thành −2,467 và tỷ số rơi xuống khoảng −4,51 lần, dù danh mục thắng lãi phi rủi ro rõ ràng. Bẫy thứ hai là dòng 1,200%: đó là lợi suất vượt trội bài đã trừ sẵn lãi phi rủi ro, đặt vào ô đầu rồi trừ tiếp 0,327% là trừ hai lần, ra khoảng 1,60 lần. Bài gốc quy lãi năm về tháng bằng cách chia thẳng 4,0% cho 12 được 0,333% nên ra 2,19; trang này quy theo lãi kép như ghi ở bảng ký hiệu, nên ô ấy là 0,327% và kết quả nhích lên khoảng 2,20. Độ lệch chuẩn cũng phải là của lợi suất THÁNG, vì phép nhân √12 đã làm việc quy năm rồi.',
+      en: 'The formula on this page works per period and annualizes last: the average one-month return of 1.533% minus the one-month risk-free rate of 0.327% leaves 1.206%; divided by the 1.896% standard deviation of monthly returns that is about 0.636, and multiplied by √12 (about 3.464) it gives about 2.20x. The first trap is the 4.0% per year line: putting it in the subtracted slot takes a full year of interest away from a single month of return, turning the numerator into −2.467 and the ratio into about −4.51x, even though the portfolio clearly beat the risk-free rate. The second trap is the 1.200% line: that is the excess return with the risk-free rate already taken out by the tutorial, so putting it in the first slot and then subtracting 0.327% again subtracts it twice, giving about 1.60x. The original tutorial converts the annual rate to a monthly one by dividing 4.0% straight by 12, which gives 0.333% and a result of 2.19; this page compounds, as its symbol legend states, so that slot takes 0.327% and the result edges up to about 2.20. The standard deviation must also be the one of MONTHLY returns, because multiplying by √12 already does the annualizing.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Tỷ số Sharpe quy năm của danh mục',
+        en: 'Annualized Sharpe ratio of the portfolio',
+      },
+      thaySo: { vi: '(1,533 − 0,327) ÷ 1,896 × √12', en: '(1.533 − 0.327) ÷ 1.896 × √12' },
+      ketQua: { vi: '2,2 lần', en: '2.2 x' },
+      gan: [
+        {
+          kyHieu: '\\bar{r}_p',
+          moTa: {
+            vi: 'là lợi suất bình quân một tháng: 1,533%',
+            en: 'is the average monthly return: 1.533%',
+          },
+        },
+        {
+          kyHieu: 'r_f',
+          moTa: {
+            vi: 'là lãi suất phi rủi ro quy về một tháng: 0,327%',
+            en: 'is the risk-free rate converted to one month: 0.327%',
+          },
+        },
+        {
+          kyHieu: '\\sigma_p',
+          moTa: {
+            vi: 'là độ lệch chuẩn lợi suất tháng: 1,896%',
+            en: 'is the standard deviation of monthly returns: 1.896%',
+          },
+        },
+        {
+          kyHieu: 'm',
+          moTa: { vi: 'là 12, vì dữ liệu theo tháng', en: 'is 12, because the data are monthly' },
+        },
+      ],
+    },
+    source: {
+      url: 'https://www.quantt.co.uk/resources/sharpe-ratio-explained',
+      kind: 'giao-khoa',
+      vietnam: false,
+    },
+  },
+  {
+    id: 'Q469',
+    formulaId: 'ty-so-sortino',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bài viết về tỷ lệ Sortino trên Algotrade Knowledge Hub lấy ví dụ một danh mục có tỷ suất sinh lợi tám năm lần lượt 19%, 12%, 23%, −5%, 15%, 6%, 13%, −4%, và tỷ suất lợi nhuận mục tiêu của nhà đầu tư là 7%/năm; trong công thức của trang, mức mục tiêu này đứng đúng chỗ ngưỡng mà mọi năm được đem ra so. Dòng công thức dưới đây đã viết độ lệch chuẩn phần giảm ra thành căn bậc hai, và bảng số liệu có cả lợi suất gốc của những năm lỗ lẫn mức thua lỗ tương đối so với ngưỡng. Hãy đặt đúng năm con số vào ô trống của công thức Sortino; chú ý dưới dấu căn là phần hụt so với ngưỡng 7% chứ không phải lợi suất gốc của năm lỗ, và dữ liệu đã tính theo năm nên hệ số quy năm là √1.',
+      en: 'An article on the Sortino ratio on the Algotrade Knowledge Hub uses a portfolio whose returns over eight years were 19%, 12%, 23%, −5%, 15%, 6%, 13%, −4%, with an investor target return of 7% a year; in the formula on this page, that target sits exactly where the threshold every year is compared against goes. The line below writes the downside deviation out as a square root, and the table holds both the raw returns of the losing years and the shortfalls relative to the threshold. Put the right five numbers into the slots of the Sortino formula; note that what goes under the root is the shortfall against the 7% threshold, not the raw return of a losing year, and that the data is already yearly, so the annualization factor is √1.',
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Tỷ suất sinh lợi hằng năm của danh mục, năm 1 đến năm 8',
+          en: 'Annual portfolio return, year 1 to year 8',
+        },
+        value: {
+          vi: '19%; 12%; 23%; −5%; 15%; 6%; 13%; −4%',
+          en: '19%; 12%; 23%; −5%; 15%; 6%; 13%; −4%',
+        },
+      },
+      {
+        label: {
+          vi: 'Tỷ suất lợi nhuận mục tiêu, dùng làm ngưỡng',
+          en: 'Target return, used as the threshold',
+        },
+        value: { vi: '7%/năm', en: '7%/year' },
+      },
+      {
+        label: { vi: 'Tỷ suất sinh lợi bình quân 8 năm', en: 'Average return over the 8 years' },
+        value: { vi: '9,875%', en: '9.875%' },
+      },
+      {
+        label: {
+          vi: 'Lợi suất tương đối bình quân, bài đã trừ sẵn ngưỡng',
+          en: 'Average relative return, threshold already subtracted by the article',
+        },
+        value: { vi: '2,88%', en: '2.88%' },
+      },
+      {
+        label: {
+          vi: 'Mức thua lỗ tương đối so với ngưỡng của năm 4, năm 6, năm 8; năm khác bằng 0%',
+          en: 'Shortfall relative to the threshold in year 4, year 6, year 8; 0% in the other years',
+        },
+        value: { vi: '−12%; −1%; −11%', en: '−12%; −1%; −11%' },
+      },
+      {
+        label: {
+          vi: 'Số kỳ dữ liệu trong một năm, dữ liệu năm',
+          en: 'Data periods per year, yearly data',
+        },
+        value: { vi: '1', en: '1' },
+      },
+    ],
+    expected: 0.4986,
+    tolerance: { kind: 'tuyet-doi', value: 0.005 },
+    unit: { vi: 'lần', en: 'x' },
+    worked: {
+      vi: 'Tỷ số Sortino = ([9,875] − [7]) ÷ √((([−12])^2 + ([−1])^2 + ([−11])^2) ÷ 8) × √1',
+      en: 'Sortino ratio = ([9.875] − [7]) ÷ √((([−12])^2 + ([−1])^2 + ([−11])^2) ÷ 8) × √1',
+    },
+    explain: {
+      vi: 'Tử số lấy tỷ suất sinh lợi bình quân 9,875% trừ ngưỡng 7%, còn 2,875%. Ô ngưỡng là r_f: trang lấy lãi suất phi rủi ro làm ngưỡng, còn bài gốc lấy tỷ suất lợi nhuận mục tiêu 7% của nhà đầu tư; công thức giữ nguyên, chỉ đổi con số đứng ở chỗ ngưỡng, và dữ liệu theo năm nên 7% không phải quy đổi gì. Mẫu số là độ lệch chuẩn phần giảm: chỉ ba năm rơi dưới ngưỡng có phần hụt, −12%, −1% và −11%; bình phương lên được 144, 1 và 121, cộng lại 266, chia cho cả 8 năm ra 33,25, khai căn ra khoảng 5,77%. Lấy 2,875 chia 5,77 ra khoảng 0,50 lần (bài gốc ghi 0,49 vì cắt bớt chữ số của 2,88 ÷ 5,77, chứ không làm tròn); dữ liệu theo năm nên √1 không đổi gì, còn nhân √250 như chuỗi theo ngày là thổi tỷ số lên gần 16 lần. Bẫy thứ nhất là lợi suất gốc −5% và −4% của năm 4 và năm 8: đặt chúng dưới dấu căn là đo thua lỗ so với 0 chứ không so với ngưỡng, lại bỏ sót năm 6 lãi 6% mà vẫn hụt 1% so với 7%; mẫu số teo còn khoảng 2,26% và tỷ số phình lên khoảng 1,27 lần. Bẫy thứ hai là dòng 2,88%: đó là phần chênh bài đã trừ sẵn ngưỡng, đặt vào ô đầu rồi trừ tiếp 7% là trừ hai lần. Con số 8 dưới dấu căn là quy ước của trang: chia cho 3 năm hụt thay vì cả 8 năm thì mẫu số phình thành khoảng 9,42% và tỷ số tụt còn khoảng 0,31.',
+      en: "The numerator takes the 9.875% average return minus the 7% threshold, leaving 2.875%. The threshold slot is r_f: this page uses the risk-free rate as its threshold, while the article uses the investor's 7% target return; the formula stays the same, only the number standing in the threshold slot changes, and since the data is yearly the 7% needs no conversion. The denominator is the downside deviation: only three years fall below the threshold, with shortfalls of −12%, −1% and −11%; squared they give 144, 1 and 121, which sum to 266, divided by all 8 years that is 33.25, and the square root is about 5.77%. 2.875 divided by 5.77 is about 0.50x (the article prints 0.49 because it truncates 2.88 ÷ 5.77 rather than rounding it); the data is yearly, so √1 changes nothing, whereas multiplying by √250 as for a daily series would inflate the ratio almost 16 times. The first trap is the raw −5% and −4% returns of year 4 and year 8: putting them under the root measures losses against 0 instead of against the threshold, and it also drops year 6, which gained 6% yet still fell 1% short of 7%; the denominator shrinks to about 2.26% and the ratio swells to about 1.27x. The second trap is the 2.88% line: that is the gap with the threshold already subtracted by the article, so putting it in the first slot and subtracting 7% again subtracts it twice. The 8 under the root is this page’s convention: dividing by the 3 shortfall years instead of all 8 swells the denominator to about 9.42% and drops the ratio to about 0.31.",
+    },
+    giai: {
+      tinh: { vi: 'Tỷ số Sortino của danh mục', en: 'Sortino ratio of the portfolio' },
+      thaySo: {
+        vi: '(9,875 − 7) ÷ √(((−12)^2 + (−1)^2 + (−11)^2) ÷ 8) × √1',
+        en: '(9.875 − 7) ÷ √(((−12)^2 + (−1)^2 + (−11)^2) ÷ 8) × √1',
+      },
+      ketQua: { vi: '0,4986 lần', en: '0.4986 x' },
+      gan: [
+        {
+          kyHieu: '\\bar{r}_p',
+          moTa: {
+            vi: 'là lợi suất bình quân 8 năm: 9,875%',
+            en: 'is the 8-year average return: 9.875%',
+          },
+        },
+        {
+          kyHieu: 'r_f',
+          moTa: {
+            vi: 'ở đây là tỷ suất mục tiêu dùng làm ngưỡng: 7% một năm',
+            en: 'is here the target return used as the threshold: 7% a year',
+          },
+        },
+        {
+          kyHieu: '\\min(0, r_t - r_f)',
+          moTa: {
+            vi: 'chỉ khác 0 ở ba năm dưới ngưỡng, năm 4, 6 và 8: −12, −1 và −11',
+            en: 'is non-zero only in the three years below the threshold, years 4, 6 and 8: −12, −1 and −11',
+          },
+        },
+        {
+          kyHieu: 'n',
+          moTa: {
+            vi: 'là 8 năm, kể cả những năm trên ngưỡng',
+            en: 'is 8 years, including the years above the threshold',
+          },
+        },
+        {
+          kyHieu: 'm',
+          moTa: { vi: 'là 1, vì dữ liệu theo năm', en: 'is 1, because the data are yearly' },
+        },
+      ],
+    },
+    source: {
+      url: 'https://hub.algotrade.vn/knowledge-hub/ty-le-sortino/',
+      kind: 'giao-khoa',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q470',
+    formulaId: 'ty-so-thang-thua',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Từ giá đóng cửa cổ phiếu MWG trên lịch sử giá của CafeF, lợi suất sáu phiên gần nhất tính đến 24/09/2026 (giá đóng cửa chia giá đóng cửa phiên trước rồi trừ 1, làm tròn hai chữ số thập phân) được ghi ở bảng dưới. Ô Ngưỡng bỏ qua phiên đi ngang đặt h = 0,5%: phiên nào tăng hoặc giảm không quá 0,5% bị coi là đi ngang và không vào vế nào. Hãy đặt đúng năm lợi suất vào năm ô trống của công thức Tỷ số thắng/thua: tử số nhận các phiên tăng, mẫu số nhận các phiên giảm, trong mỗi vế xếp từ phiên mới đến phiên cũ như thứ tự trong bảng, và chép nguyên dấu cộng trừ. Chú ý so từng phiên với ngưỡng theo độ lớn: một phiên giảm nhẹ vẫn có thể là phiên đi ngang, còn phiên chỉ nhỉnh hơn ngưỡng một chút thì vẫn được tính.',
+      en: "From MWG closing prices on CafeF's price history, the returns of the six most recent sessions up to 2026-09-24 (the close divided by the previous close, minus 1, rounded to two decimals) are listed below. The flat-session threshold field is set to h = 0.5%: a session that rises or falls by no more than 0.5% counts as flat and goes into neither side. Put the right five returns into the five slots of the win/loss ratio formula: the numerator takes the rising sessions, the denominator takes the falling sessions, each side ordered from the newest session to the oldest as in the table, with the sign copied as shown. Compare each session with the threshold by size: a small drop can still be a flat session, while a session only just past the threshold still counts.",
+    },
+    facts: [
+      {
+        label: { vi: 'Ngưỡng bỏ qua phiên đi ngang (h)', en: 'Flat-session threshold (h)' },
+        value: { vi: '0,5%', en: '0.5%' },
+      },
+      {
+        label: { vi: 'Lợi suất MWG phiên 24/09/2026', en: 'MWG return on 2026-09-24' },
+        value: { vi: '−0,41%', en: '−0.41%' },
+      },
+      {
+        label: { vi: 'Lợi suất MWG phiên 23/09/2026', en: 'MWG return on 2026-09-23' },
+        value: { vi: '+0,55%', en: '+0.55%' },
+      },
+      {
+        label: { vi: 'Lợi suất MWG phiên 22/09/2026', en: 'MWG return on 2026-09-22' },
+        value: { vi: '+1,53%', en: '+1.53%' },
+      },
+      {
+        label: { vi: 'Lợi suất MWG phiên 21/09/2026', en: 'MWG return on 2026-09-21' },
+        value: { vi: '−1,10%', en: '−1.10%' },
+      },
+      {
+        label: { vi: 'Lợi suất MWG phiên 18/09/2026', en: 'MWG return on 2026-09-18' },
+        value: { vi: '−0,82%', en: '−0.82%' },
+      },
+      {
+        label: { vi: 'Lợi suất MWG phiên 17/09/2026', en: 'MWG return on 2026-09-17' },
+        value: { vi: '+2,24%', en: '+2.24%' },
+      },
+    ],
+    expected: 1.5,
+    tolerance: { kind: 'tuyet-doi', value: 0.01 },
+    unit: { vi: 'lần', en: 'x' },
+    worked: {
+      vi: 'Tỷ số thắng/thua = (([0,55] + [1,53] + [2,24]) ÷ 3) ÷ |([−1,10] + [−0,82]) ÷ 2|',
+      en: 'Win/loss ratio = (([0.55] + [1.53] + [2.24]) ÷ 3) ÷ |([−1.10] + [−0.82]) ÷ 2|',
+    },
+    explain: {
+      vi: 'Với ngưỡng h = 0,5%, phiên 24/09 giảm 0,41% nằm trong khoảng cộng trừ 0,5% nên là phiên đi ngang, không vào vế nào; phiên 23/09 tăng 0,55% thì vượt ngưỡng nên vẫn là phiên tăng. Tử số là bình quân ba phiên tăng: (0,55 + 1,53 + 2,24) ÷ 3 = 1,44%. Mẫu số là bình quân hai phiên giảm: (−1,10 − 0,82) ÷ 2 = −0,96%, lấy trị tuyệt đối còn 0,96%. Tỷ số ra 1,44 ÷ 0,96 = 1,5 lần: một phiên tăng bình quân lớn gấp rưỡi một phiên giảm bình quân. Bẫy thứ nhất là đưa phiên −0,41% vào mẫu số: bình quân ba phiên giảm còn khoảng 0,78% và tỷ số phình lên khoảng 1,85 lần, vì một phiên gần như đứng yên kéo mức giảm bình quân xuống. Bẫy thứ hai là loại nhầm phiên +0,55% vì nó sát ngưỡng: bình quân hai phiên tăng còn lại là 1,885% và tỷ số vọt lên khoảng 1,96 lần. Để kiểm lại một dòng trong bảng: phiên 23/09 đóng cửa 73.200 ₫ sau phiên 22/09 đóng cửa 72.800 ₫, nên lợi suất là 73.200 ÷ 72.800 − 1, xấp xỉ +0,55%.',
+      en: 'With the threshold at h = 0.5%, the 0.41% drop on September 24 lies within plus or minus 0.5%, so it is a flat session and goes into neither side; the 0.55% gain on September 23 is past the threshold, so it still counts as a rising session. The numerator is the average of the three rising sessions: (0.55 + 1.53 + 2.24) ÷ 3 = 1.44%. The denominator is the average of the two falling sessions: (−1.10 − 0.82) ÷ 2 = −0.96%, which becomes 0.96% once the absolute value is taken. The ratio is 1.44 ÷ 0.96 = 1.5x: an average rising session is one and a half times the size of an average falling one. The first trap is putting the −0.41% session in the denominator: the average of three falling sessions shrinks to about 0.78% and the ratio swells to about 1.85x, because a nearly motionless session drags the average loss down. The second trap is dropping the +0.55% session because it sits close to the threshold: the two remaining rising sessions average 1.885% and the ratio jumps to about 1.96x. To check one line of the table: the September 23 session closed at 73200 ₫ after a September 22 close of 72800 ₫, so the return is 73200 ÷ 72800 − 1, about +0.55%.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Tỷ số thắng/thua của MWG qua sáu phiên tới 24/09/2026',
+        en: "MWG's win/loss ratio over the six sessions to 2026-09-24",
+      },
+      thaySo: {
+        vi: '((0,55 + 1,53 + 2,24) ÷ 3) ÷ |(−1,10 + −0,82) ÷ 2|',
+        en: '((0.55 + 1.53 + 2.24) ÷ 3) ÷ |(−1.10 + −0.82) ÷ 2|',
+      },
+      ketQua: { vi: '1,5 lần', en: '1.5 x' },
+      gan: [
+        {
+          kyHieu: '\\overline{r^{+}}_h',
+          moTa: {
+            vi: 'là bình quân 3 phiên tăng vượt ngưỡng 0,5%: 0,55%, 1,53% và 2,24%',
+            en: 'is the average of the 3 up sessions beyond the 0.5% threshold: 0.55%, 1.53% and 2.24%',
+          },
+        },
+        {
+          kyHieu: '\\overline{r^{-}}_h',
+          moTa: {
+            vi: 'là bình quân 2 phiên giảm vượt ngưỡng: −1,10% và −0,82%',
+            en: 'is the average of the 2 down sessions beyond the threshold: −1.10% and −0.82%',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=MWG&StartDate=09/16/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q471',
+    formulaId: 'var-lich-su',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Ví dụ thực tế trên trang tính VaR lịch sử 95% cho một danh mục bám VN-Index từ 71 giá đóng cửa ngày 04/06 đến 15/09/2026 lấy từ Investing.com, tức 70 lợi suất phiên. Theo cách tính của trang, phân vị mức 5% nằm ở vị trí h = (70 − 1) × (1 − 0,95) = 3,45 trên chuỗi lợi suất xếp tăng dần, nên phải nội suy giữa vị trí 3 và vị trí 4 với phần lẻ 0,45. Bảng số liệu có sáu lợi suất thấp nhất. Hãy đặt đúng ba con số vào ô trống của công thức VaR, chú ý vị trí đếm từ 0 ở lợi suất thấp nhất, và lợi suất ở vị trí 3 xuất hiện hai lần.',
+      en: "The page's own worked example computes a 95% historical VaR for a portfolio tracking the VN-Index from 71 closes between 2026-06-04 and 2026-09-15 taken from Investing.com, that is, 70 session returns. Under the page's method, the 5% percentile sits at position h = (70 − 1) × (1 − 0.95) = 3.45 in the returns sorted in ascending order, so it is interpolated between position 3 and position 4 with a fractional part of 0.45. The table lists the six lowest returns. Put the right three numbers into the slots of the VaR formula, noting that positions are counted from 0 at the lowest return, and that the return at position 3 appears twice.",
+    },
+    facts: [
+      {
+        label: { vi: 'Chuỗi dùng để tính', en: 'Series used' },
+        value: {
+          vi: '71 giá đóng cửa VN-Index từ 04/06 đến 15/09/2026, tức 70 lợi suất phiên',
+          en: '71 VN-Index closes from 2026-06-04 to 2026-09-15, that is, 70 session returns',
+        },
+      },
+      {
+        label: { vi: 'Độ tin cậy', en: 'Confidence level' },
+        value: { vi: '95%', en: '95%' },
+      },
+      {
+        label: {
+          vi: 'Vị trí phân vị h = (70 − 1) × (1 − 0,95), đếm từ 0 ở lợi suất thấp nhất',
+          en: 'Percentile position h = (70 − 1) × (1 − 0.95), counted from 0 at the lowest return',
+        },
+        value: {
+          vi: '3,45, gồm phần nguyên 3 và phần lẻ 0,45',
+          en: '3.45, a whole part of 3 and a fractional part of 0.45',
+        },
+      },
+      {
+        label: {
+          vi: 'Sáu lợi suất phiên thấp nhất, xếp tăng dần, dạng thập phân',
+          en: 'The six lowest session returns, sorted in ascending order, as decimals',
+        },
+        value: {
+          vi: '−0,0358; −0,0263; −0,0246; −0,0207; −0,0186; −0,0170',
+          en: '−0.0358; −0.0263; −0.0246; −0.0207; −0.0186; −0.0170',
+        },
+      },
+    ],
+    expected: 1.9755,
+    tolerance: { kind: 'tuyet-doi', value: 0.005 },
+    unit: { vi: '%', en: '%' },
+    worked: {
+      vi: 'VaR 95% = −([−0,0207] + 0,45 × ([−0,0186] − [−0,0207])) × 100',
+      en: 'VaR 95% = −([−0.0207] + 0.45 × ([−0.0186] − [−0.0207])) × 100',
+    },
+    explain: {
+      vi: 'Đếm từ 0 ở lợi suất thấp nhất thì vị trí 3 là lợi suất thấp thứ tư, −0,0207, còn vị trí 4 là −0,0186. Phân vị nằm 0,45 đoạn đường từ số thứ nhất sang số thứ hai, nên −0,0207 đứng hai chỗ: làm điểm xuất phát và làm số bị trừ trong khoảng cách giữa hai quan sát. Dấu trừ đằng trước đổi phân vị âm thành mức lỗ dương: −(−0,0207 + 0,45 × 0,0021) × 100 ra 1,9755%, đúng con số của ví dụ trên trang. Cái bẫy là đếm từ 1: lấy nhầm −0,0246 và −0,0207 thì ngưỡng phình lên 2,28%. Phiên tệ nhất −0,0358 cũng không phải VaR, nó chỉ là một trong bốn phiên lỗ nặng hơn ngưỡng, và VaR nói ngưỡng chứ không nói mức lỗ nặng nhất.',
+      en: "Counting from 0 at the lowest return, position 3 is the fourth-lowest return, −0.0207, and position 4 is −0.0186. The percentile sits 0.45 of the way from the first to the second, so −0.0207 appears in two places: as the starting point and as the number subtracted in the gap between the two observations. The leading minus sign turns the negative percentile into a positive loss: −(−0.0207 + 0.45 × 0.0021) × 100 gives 1.9755%, exactly the figure in the page's example. The trap is counting from 1: picking −0.0246 and −0.0207 by mistake inflates the threshold to 2.28%. The worst session, −0.0358, is not the VaR either; it is just one of the four sessions that lost more than the threshold, and VaR states a threshold, not the heaviest loss.",
+    },
+    giai: {
+      tinh: {
+        vi: 'Ngưỡng lỗ một phiên VaR 95% của danh mục bám VN-Index',
+        en: 'The one-session 95% VaR of the VN-Index-tracking portfolio',
+      },
+      thaySo: {
+        vi: '−(−0,0207 + 0,45 × (−0,0186 − −0,0207)) × 100',
+        en: '−(−0.0207 + 0.45 × (−0.0186 − −0.0207)) × 100',
+      },
+      ketQua: { vi: '1,98 %', en: '1.98 %' },
+      gan: [
+        { kyHieu: '\\alpha', moTa: { vi: 'là độ tin cậy 95%', en: 'is the 95% confidence level' } },
+        {
+          kyHieu: 'r',
+          moTa: {
+            vi: 'là hai lợi suất kẹp vị trí 3,45 khi xếp tăng dần: −0,0207 và −0,0186; lấy thêm 0,45 phần khoảng cách giữa chúng',
+            en: 'is the two returns around position 3.45 in ascending order: −0.0207 and −0.0186, plus 0.45 of the gap between them',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://vn.investing.com/indices/vn-historical-data',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q472',
+    formulaId: 'vwap',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Bảng lịch sử giao dịch của CafeF tách khối lượng mỗi phiên của FPT làm hai cột: khớp lệnh và thỏa thuận. Giá đóng cửa hình thành từ các lệnh khớp, còn giao dịch thỏa thuận là những giao dịch hai bên tự thỏa thuận giá với nhau, không qua khớp lệnh. Bạn cần VWAP gộp hai phiên gần nhất, 23/09 và 24/09/2026, theo đúng công thức của trang: giá đóng cửa mỗi phiên nhân với khối lượng khớp của chính phiên ấy, rồi chia cho tổng khối lượng khớp. Hai giá đóng cửa đã in sẵn trong công thức; hãy đặt đúng bốn con số vào ô trống, chú ý mỗi khối lượng xuất hiện hai lần, một lần cạnh giá của phiên mình ở tử số và một lần ở mẫu số, và cột thỏa thuận không thuộc công thức này.',
+      en: "CafeF's trading history splits each FPT session's volume into two columns: matched orders and put-through deals. The closing price comes out of order matching, while put-through deals are trades whose price the two parties negotiate between themselves, outside order matching. You need the VWAP pooling the two latest sessions, 2026-09-23 and 2026-09-24, exactly as this page defines it: each session's closing price times that same session's matched volume, divided by the total matched volume. The two closing prices are already printed in the formula; put the right four numbers into the slots, noting that each volume appears twice, once next to its own session's price in the numerator and once in the denominator, and that the put-through column does not belong in this formula.",
+    },
+    facts: [
+      {
+        label: { vi: 'Giá đóng cửa FPT phiên 23/09/2026', en: 'FPT closing price on 2026-09-23' },
+        value: { vi: '66.100 ₫', en: '66100 ₫' },
+      },
+      {
+        label: { vi: 'Khối lượng khớp lệnh phiên 23/09/2026', en: 'Matched volume on 2026-09-23' },
+        value: { vi: '3.557.500 cổ phiếu', en: '3557500 shares' },
+      },
+      {
+        label: {
+          vi: 'Khối lượng thỏa thuận phiên 23/09/2026',
+          en: 'Put-through volume on 2026-09-23',
+        },
+        value: { vi: '1.297.000 cổ phiếu', en: '1297000 shares' },
+      },
+      {
+        label: { vi: 'Giá đóng cửa FPT phiên 24/09/2026', en: 'FPT closing price on 2026-09-24' },
+        value: { vi: '65.300 ₫', en: '65300 ₫' },
+      },
+      {
+        label: { vi: 'Khối lượng khớp lệnh phiên 24/09/2026', en: 'Matched volume on 2026-09-24' },
+        value: { vi: '4.350.900 cổ phiếu', en: '4350900 shares' },
+      },
+      {
+        label: {
+          vi: 'Khối lượng thỏa thuận phiên 24/09/2026',
+          en: 'Put-through volume on 2026-09-24',
+        },
+        value: { vi: '1.431.463 cổ phiếu', en: '1431463 shares' },
+      },
+      {
+        label: { vi: 'Giá trị thỏa thuận phiên 24/09/2026', en: 'Put-through value on 2026-09-24' },
+        value: { vi: '101,2 tỷ ₫', en: '101.2 billion ₫' },
+      },
+    ],
+    expected: 65659.87,
+    tolerance: { kind: 'tuong-doi', value: 0.001 },
+    unit: { vi: '₫', en: '₫' },
+    worked: {
+      vi: 'VWAP = (66.100 × [3.557.500] + 65.300 × [4.350.900]) ÷ ([3.557.500] + [4.350.900])',
+      en: 'VWAP = (66100 × [3557500] + 65300 × [4350900]) ÷ ([3557500] + [4350900])',
+    },
+    explain: {
+      vi: 'VWAP của trang gộp theo phiên: mỗi giá đóng cửa đi cùng khối lượng khớp của chính phiên ấy, và tổng các khối lượng đó nằm ở mẫu số. Vì thế 3.557.500 đứng cạnh 66.100 ₫ của phiên 23/09, 4.350.900 đứng cạnh 65.300 ₫ của phiên 24/09, rồi cả hai lặp lại dưới mẫu số: (66.100 × 3.557.500 + 65.300 × 4.350.900) ÷ (3.557.500 + 4.350.900) ra khoảng 65.660 ₫, thấp hơn trung bình cộng 65.700 ₫ vì phiên 24/09 khớp nhiều hơn. Bẫy thứ nhất là cột thỏa thuận: cùng bảng ấy ghi 1.431.463 cổ phiếu thỏa thuận phiên 24/09 trị giá 101,2 tỷ ₫, tức khoảng 70.700 ₫ một cổ phiếu, nên ghép khối lượng ấy với giá đóng cửa 65.300 ₫ là gán cho nó một mức giá nó không hề giao dịch. Bẫy thứ hai là đổi chỗ hai khối lượng khớp: kết quả thành khoảng 65.740 ₫, nghiêng về giá của phiên khớp ít hơn.',
+      en: "This page's VWAP pools by session: each closing price travels with that same session's matched volume, and the sum of those volumes sits in the denominator. So 3557500 goes next to the 66100 ₫ of 2026-09-23, 4350900 goes next to the 65300 ₫ of 2026-09-24, and both repeat in the denominator: (66100 × 3557500 + 65300 × 4350900) ÷ (3557500 + 4350900) gives about 65660 ₫, below the plain average of 65700 ₫ because more shares matched on 2026-09-24. The first trap is the put-through column: the same table records 1431463 put-through shares on 2026-09-24 worth 101.2 billion ₫, about 70700 ₫ a share, so pairing that volume with the 65300 ₫ close assigns it a price it never traded at. The second trap is swapping the two matched volumes: the result becomes about 65740 ₫, tilted toward the price of the session that matched fewer shares.",
+    },
+    giai: {
+      tinh: {
+        vi: 'VWAP gộp hai phiên 23/09 và 24/09/2026 của FPT',
+        en: "FPT's VWAP pooling the 2026-09-23 and 2026-09-24 sessions",
+      },
+      thaySo: {
+        vi: '(66.100 × 3.557.500 + 65.300 × 4.350.900) ÷ (3.557.500 + 4.350.900)',
+        en: '(66100 × 3557500 + 65300 × 4350900) ÷ (3557500 + 4350900)',
+      },
+      ketQua: { vi: '65.659,87 ₫', en: '65659.87 ₫' },
+      gan: [
+        {
+          kyHieu: 'C_i',
+          moTa: {
+            vi: 'là giá đóng cửa: 66.100 ₫ phiên 23/09 và 65.300 ₫ phiên 24/09',
+            en: 'is the close: 66100 ₫ on 23/09 and 65300 ₫ on 24/09',
+          },
+        },
+        {
+          kyHieu: 'V_i',
+          moTa: {
+            vi: 'là khối lượng khớp lệnh: 3.557.500 cổ phiếu phiên 23/09 và 4.350.900 cổ phiếu phiên 24/09',
+            en: 'is the matched volume: 3557500 shares on 23/09 and 4350900 shares on 24/09',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/23/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      kind: 'trai-nghiem',
+      vietnam: true,
+    },
+  },
+  {
+    id: 'Q473',
+    formulaId: 'xirr',
+    format: 'dien-so',
+    kind: 'quy-uoc',
+    evidence: 'tinh-toan',
+    prompt: {
+      vi: 'Trang hướng dẫn hàm XIRR của Microsoft có một ví dụ mẫu: chi 10.000 ngày 01/01/2008, rồi thu về 2.750 ngày 01/03/2008, 4.250 ngày 30/10/2008, 3.250 ngày 15/02/2009 và 2.750 ngày 01/04/2009; hàm trả về 37,34%/năm. Bảng mẫu không ghi đơn vị tiền, ở đây đọc là nghìn đồng. Dòng công thức bên dưới đã điền sẵn năm dòng tiền theo thứ tự ngày và XIRR 0,3734, dòng tiền đầu tiên có số ngày bằng 0, nên chỉ còn trống số ngày của bốn lần thu tiền. Bảng số liệu đếm số ngày theo hai cách mà công thức chỉ nhận một cách. Hãy đặt đúng bốn con số vào bốn ô để tổng quy về ngày đầu bằng 0.',
+      en: "Microsoft's help page for the XIRR function has a sample: pay out 10000 on 2008-01-01, then receive 2750 on 2008-03-01, 4250 on 2008-10-30, 3250 on 2009-02-15 and 2750 on 2009-04-01; the function returns 37.34%/year. The sample gives no currency, so read it here as thousands of dong. The line below already holds the five cash flows in date order and the XIRR of 0.3734, and the first cash flow has a day count of 0, so only the day counts of the four receipts are blank. The table counts days in two ways and the formula accepts only one. Put the right four numbers into the four slots so that the sum discounted to day one comes to 0.",
+    },
+    facts: [
+      {
+        label: {
+          vi: 'Dòng tiền ngày 01/01/2008, chi ra lúc bắt đầu',
+          en: 'Cash flow on 2008-01-01, paid out at the start',
+        },
+        value: { vi: '−10.000 nghìn ₫', en: '−10000 thousand ₫' },
+      },
+      {
+        label: { vi: 'Dòng tiền ngày 01/03/2008', en: 'Cash flow on 2008-03-01' },
+        value: { vi: '2.750 nghìn ₫', en: '2750 thousand ₫' },
+      },
+      {
+        label: { vi: 'Dòng tiền ngày 30/10/2008', en: 'Cash flow on 2008-10-30' },
+        value: { vi: '4.250 nghìn ₫', en: '4250 thousand ₫' },
+      },
+      {
+        label: { vi: 'Dòng tiền ngày 15/02/2009', en: 'Cash flow on 2009-02-15' },
+        value: { vi: '3.250 nghìn ₫', en: '3250 thousand ₫' },
+      },
+      {
+        label: { vi: 'Dòng tiền ngày 01/04/2009', en: 'Cash flow on 2009-04-01' },
+        value: { vi: '2.750 nghìn ₫', en: '2750 thousand ₫' },
+      },
+      {
+        label: { vi: 'XIRR hàm Excel trả về', en: 'XIRR returned by the Excel function' },
+        value: { vi: '37,34%/năm, tức 0,3734', en: '37.34%/year, that is 0.3734' },
+      },
+      {
+        label: {
+          vi: 'Số ngày kể từ 01/01/2008 tới từng lần thu tiền, theo thứ tự ngày',
+          en: 'Days from 2008-01-01 to each receipt, in date order',
+        },
+        value: { vi: '60; 303; 411; 456', en: '60; 303; 411; 456' },
+      },
+      {
+        label: {
+          vi: 'Số ngày kể từ lần có dòng tiền liền trước, theo thứ tự ngày',
+          en: 'Days since the previous cash flow, in date order',
+        },
+        value: { vi: '60; 243; 108; 45', en: '60; 243; 108; 45' },
+      },
+    ],
+    expected: 0,
+    tolerance: { kind: 'tuyet-doi', value: 0.5 },
+    unit: { vi: 'nghìn ₫', en: 'thousand ₫' },
+    worked: {
+      vi: 'Tổng quy về ngày đầu = −10.000 ÷ (1 + 0,3734)^(0 ÷ 365) + 2.750 ÷ (1 + 0,3734)^([60] ÷ 365) + 4.250 ÷ (1 + 0,3734)^([303] ÷ 365) + 3.250 ÷ (1 + 0,3734)^([411] ÷ 365) + 2.750 ÷ (1 + 0,3734)^([456] ÷ 365)',
+      en: 'Sum discounted to day one = −10000 ÷ (1 + 0.3734)^(0 ÷ 365) + 2750 ÷ (1 + 0.3734)^([60] ÷ 365) + 4250 ÷ (1 + 0.3734)^([303] ÷ 365) + 3250 ÷ (1 + 0.3734)^([411] ÷ 365) + 2750 ÷ (1 + 0.3734)^([456] ÷ 365)',
+    },
+    explain: {
+      vi: 'Trong công thức XIRR, d_i là số ngày tính từ dòng tiền ĐẦU TIÊN, nên mọi lần thu tiền đều đếm từ 01/01/2008: 60, 303, 411 và 456 ngày, và cả năm phân số cùng quy về một mốc chung là ngày bỏ tiền ra. Đặt đúng như vậy thì tổng chỉ còn −0,22 nghìn đồng, phần lẻ do làm tròn 0,373362535 thành 0,3734, nghĩa là 37,34%/năm đúng là nghiệm. Cái bẫy là dãy đếm từ lần liền trước (60; 243; 108; 45): đó là cách nghĩ của IRR theo kỳ, nhưng mỗi khoản thu bị chiết khấu quá ít ngày nên tổng lệch lên khoảng 1.654 nghìn đồng, và XIRR giải ra từ dãy ấy vọt lên gần 120%/năm. Số 60 có mặt ở cả hai dãy chỉ vì lần thu đầu tiên cách ngày đầu đúng 60 ngày.',
+      en: 'In the XIRR formula, d_i is the number of days counted from the FIRST cash flow, so every receipt is counted from 2008-01-01: 60, 303, 411 and 456 days, and all five fractions are brought back to one common anchor, the day the money went in. Placed that way, the sum is only −0.22 thousand dong, a leftover from rounding 0.373362535 to 0.3734, which means 37.34%/year really is the root. The trap is the row counted from the previous cash flow (60; 243; 108; 45): that is the per-period thinking of ordinary IRR, but each receipt is then discounted over too few days, so the sum drifts up to about 1654 thousand dong, and the XIRR solved from that row jumps to almost 120%/year. The number 60 shows up in both rows only because the first receipt falls exactly 60 days after day one.',
+    },
+    giai: {
+      tinh: {
+        vi: 'Tổng năm dòng tiền quy về ngày 01/01/2008 ở mức XIRR 37,34%/năm',
+        en: 'The sum of the five cash flows discounted to 2008-01-01 at an XIRR of 37.34%/year',
+      },
+      thaySo: {
+        vi: '−10.000 ÷ (1 + 0,3734)^(0 ÷ 365) + 2.750 ÷ (1 + 0,3734)^(60 ÷ 365) + 4.250 ÷ (1 + 0,3734)^(303 ÷ 365) + 3.250 ÷ (1 + 0,3734)^(411 ÷ 365) + 2.750 ÷ (1 + 0,3734)^(456 ÷ 365)',
+        en: '−10000 ÷ (1 + 0.3734)^(0 ÷ 365) + 2750 ÷ (1 + 0.3734)^(60 ÷ 365) + 4250 ÷ (1 + 0.3734)^(303 ÷ 365) + 3250 ÷ (1 + 0.3734)^(411 ÷ 365) + 2750 ÷ (1 + 0.3734)^(456 ÷ 365)',
+      },
+      ketQua: { vi: '0 nghìn ₫', en: '0 thousand ₫' },
+      gan: [
+        {
+          kyHieu: 'XIRR',
+          moTa: {
+            vi: 'là mức Excel trả về: 0,3734, tức 37,34% một năm',
+            en: 'is the rate Excel returns: 0.3734, that is 37.34% a year',
+          },
+        },
+        {
+          kyHieu: 'CF_i',
+          moTa: {
+            vi: 'là các dòng tiền theo thứ tự ngày: chi ra 10.000, rồi thu về 2.750, 4.250, 3.250 và 2.750 nghìn ₫',
+            en: 'is the cash flows by date: 10000 paid out, then 2750, 4250, 3250 and 2750 thousand ₫ received',
+          },
+        },
+        {
+          kyHieu: 'd_i',
+          moTa: {
+            vi: 'là số ngày tính từ 01/01/2008: 0, 60, 303, 411 và 456',
+            en: 'is the number of days counted from 01/01/2008: 0, 60, 303, 411 and 456',
+          },
+        },
+      ],
+    },
+    source: {
+      url: 'https://support.microsoft.com/vi-vn/office/xirr-ha%CC%80m-xirr-de1242ec-6477-445b-b11b-a303ad9adc9d',
+      kind: 'giao-khoa',
+      vietnam: false,
     },
   },
 ];

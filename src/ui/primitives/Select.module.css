@@ -16,7 +16,7 @@
   width: 100%;
   min-width: 0;
   min-height: var(--tap-min);
-  padding: 0 var(--space-3);
+  padding: 0 36px 0 var(--space-3);
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -26,16 +26,33 @@
   font-size: var(--text-base);
   color: var(--color-ink);
 
-  background: var(--color-surface);
+  /* appearance: none + SVG background để mũi tên tự định vị, cách border phải 10px thay vì sát cạnh. */
+  appearance: none;
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
   /* Đi theo `.control` của Input từng con số — hai loại ô hay đứng cạnh nhau trong cùng một hàng,
      nên cả bo góc lẫn màu viền phải đổi cùng nhau (màu nhấn từ đợt 13). */
   border: 1.5px solid var(--color-accent);
   border-radius: var(--radius-md);
 }
 
+/* Dark mode: đổi màu mũi tên sang sáng hơn vì SVG background-image không nhận CSS variable. */
+:root[data-theme='dark'] .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b3c0d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b3c0d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  }
+}
+
 .select:disabled {
   color: var(--color-muted);
-  background: var(--color-sunken);
+  background-color: var(--color-sunken);
   cursor: not-allowed;
 }
 

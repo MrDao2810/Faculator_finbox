@@ -126,11 +126,20 @@ describe('gõ và chốt giá trị', () => {
   });
 
   /*
-   * Chạm vào ô rồi bấm ra chỗ khác KHÔNG được đổi con số. Trước đây `onFocus` đặt draft bằng
-   * `String(value)`, nên 100,449 thành chuỗi '100.449' — chuỗi ấy đọc ngược lại là 100449 vì
-   * trông y hệt ngăn nghìn, và người dùng mất giá gấp nghìn lần mà không đụng phím nào.
+   * ── Chạm vào ô rồi bấm ra chỗ khác KHÔNG được đổi gì cả ───────────────────────────────────
+   *
+   * Ca này đã bắt được hai lỗi khác nhau, cách nhau ba tuần, nên nó ghim cả hai vế.
+   *
+   * Vế con số: `onFocus` từng đặt draft bằng `String(value)`, nên 100,449 thành chuỗi '100.449'
+   * — chuỗi ấy đọc ngược lại là 100449 vì trông y hệt ngăn nghìn, và người dùng mất giá gấp
+   * nghìn lần mà không đụng phím nào.
+   *
+   * Vế lượt chốt: bản trước khẳng định `onChange` được gọi lại với ĐÚNG con số cũ. Lời hứa ấy
+   * yếu hơn sự thật cần có, và nó che mất một lỗi thật — `LinkedInput` hiểu mọi lượt `onChange`
+   * là "người dùng ghi đè", nên một lượt chốt vô hại ở đây lại cắt một ô khỏi CAPM ở đó
+   * (29/09/2026). Nay ca ghim điều mạnh hơn và đúng hơn: **không có lượt nào cả**.
    */
-  it('chạm vào ô có số lẻ rồi rời ra không làm giá nhân lên nghìn lần', async () => {
+  it('chạm vào ô rồi rời ra: chữ số y nguyên và KHÔNG có lượt chốt nào', async () => {
     const onChange = vi.fn();
     render(<NumberInput spec={price} value={100.449} onChange={onChange} />);
 
@@ -138,7 +147,42 @@ describe('gõ và chốt giá trị', () => {
     expect(box().value).toBe('100,449');
 
     await userEvent.tab();
-    expect(onChange).toHaveBeenLastCalledWith(100.449);
+    expect(box().value).toBe('100,449');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  /*
+   * ── Chạm vào ô KHÔNG được làm con số nhảy thêm chữ số ─────────────────────────────────────
+   *
+   * Chủ dự án chụp màn ngày 29/09/2026: ô "Suất sinh lời yêu cầu (r)" nhận 12,33291875 từ CAPM.
+   * Lúc nghỉ ô hiện '12,3329'; bấm vào thì `rawViNumber()` dựng lại đủ độ chính xác và ô nhảy
+   * thành '12,33291875'. Con số đổi dưới mắt người dùng khi họ chưa gõ phím nào.
+   *
+   * Ca so hai chuỗi với NHAU chứ không so với một hằng chép tay: thứ phải đúng là "hai bên giống
+   * nhau", còn bốn chữ số là bao nhiêu thì `INPUT_MAX_DECIMALS` nói, và đổi hằng ấy không được
+   * làm ca này đỏ oan.
+   */
+  it('số lẻ dài: chạm vào ô hiện đúng chừng ấy chữ số như lúc nghỉ', async () => {
+    render(<NumberInput spec={price} value={12.33291875} onChange={vi.fn()} />);
+
+    const luaNghi = box().value;
+    expect(luaNghi).toBe('12,3329');
+
+    await userEvent.click(box());
+    expect(box().value).toBe(luaNghi);
+  });
+
+  /*
+   * Ngăn nghìn vẫn phải rụng đi khi vào ô — đó là cả lý do `onFocus` đụng vào chuỗi. Ca này
+   * đứng cạnh ca trên để không ai chữa lỗi kia bằng cách bỏ luôn việc bỏ dấu chấm.
+   */
+  it('số vừa to vừa lẻ: bỏ ngăn nghìn nhưng giữ nguyên phần thập phân đang hiện', async () => {
+    render(<NumberInput spec={price} value={234_567.891234} onChange={vi.fn()} />);
+
+    expect(box().value).toBe('234.567,8912');
+
+    await userEvent.click(box());
+    expect(box().value).toBe('234567,8912');
   });
 });
 
@@ -188,6 +232,27 @@ describe('đẩy giá trị lên ngay trong lúc gõ', () => {
 
     await userEvent.type(box(), '-');
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  /*
+   * ── Gõ một ký tự bị lọc sạch thì KHÔNG được coi là một lượt gõ ────────────────────────────
+   *
+   * Lỗ hổng tự tìm ra khi rà lại đợt sửa 29/09/2026: chữ cái bị `keepViNumberChars()` loại nên
+   * chuỗi sau khi lọc giống hệt chuỗi trước đó, số đọc ra cũng y hệt số cũ — nhưng cửa cũ chỉ
+   * hỏi "chuỗi có ra số không", không hỏi "số có đổi không", nên `onChange` vẫn nổ NGAY trong
+   * lúc gõ. Với `LinkedInput` (xem ca tương ứng ở `LinkedInput.test.tsx`) một lượt nổ suông như
+   * vậy đủ để bị hiểu là "người dùng ghi đè" — dù không chữ số nào đổi.
+   *
+   * `value={92_000}` khớp đúng thứ ô đang hiện, nên nếu cửa `parsed !== value` bị gỡ, ca này đỏ.
+   */
+  it('gõ một ký tự bị lọc sạch thì KHÔNG báo lên — số chưa hề đổi', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+
+    await userEvent.type(box(), 'a');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(box().value).toBe('92000');
   });
 });
 

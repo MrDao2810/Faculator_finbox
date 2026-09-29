@@ -18,12 +18,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       vi: 'Vay 120 triệu, 12%/năm, 12 tháng. Tổng lãi theo dư nợ gốc ban đầu và theo dư nợ giảm dần lần lượt là?',
     },
     choices: {
-      a: { vi: '14,4 triệu và 7,8 triệu' },
-      b: { vi: '14,4 triệu cả hai' },
-      c: { vi: '7,8 triệu và 14,4 triệu' },
-      d: { vi: 'Bằng nhau' },
+      a: { vi: '14,4 triệu cả hai' },
+      b: { vi: '7,8 triệu và 14,4 triệu' },
+      c: { vi: 'Bằng nhau' },
+      d: { vi: '14,4 triệu và 7,8 triệu' },
     },
-    answer: 'a',
+    answer: 'd',
     explain: {
       vi: 'Nguồn tính sẵn: “Theo dư nợ gốc: Tiền lãi mỗi tháng 1.200.000 VND (không đổi), Tổng lãi 12 tháng: 14.400.000 VND” so với “Theo dư nợ giảm dần... Tổng lãi 12 tháng: 7.800.000 VND” — cùng một con số 12%/năm nhưng chênh gần gấp đôi.',
     },
@@ -44,11 +44,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Gói B vì con số lớn hơn' },
-      b: { vi: 'Số tiền phải trả như nhau — hai con số chỉ là hai cách diễn đạt' },
-      c: { vi: 'Gói A' },
-      d: { vi: 'Không so được' },
+      b: { vi: 'Gói A' },
+      c: { vi: 'Không so được' },
+      d: { vi: 'Số tiền phải trả như nhau — hai con số chỉ là hai cách diễn đạt' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Nguồn nêu đúng cặp số này: “với lãi suất trên dư nợ gốc là 2.2%/tháng thì mức lãi suất trên dư nợ giảm dần sẽ là 3.75%/tháng, nhưng số tiền bạn phải trả như nhau”. Vì vậy phải hỏi phương pháp tính trước khi so hai con số.',
     },
@@ -68,12 +68,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       vi: 'Trả góp niên kim 30 năm. Ở kỳ trả đầu tiên, bao nhiêu phần trăm tiền đi vào lãi?',
     },
     choices: {
-      a: { vi: 'Khoảng 50%' },
-      b: { vi: 'Khoảng 80–90%' },
+      a: { vi: 'Khoảng 80–90%' },
+      b: { vi: 'Khoảng 50%' },
       c: { vi: 'Khoảng 20%' },
       d: { vi: 'Chia đều gốc và lãi' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Khoảng 80 đến 90% kỳ trả đầu tiên là lãi, chỉ 10 đến 20% vào gốc: đầu kỳ dư nợ còn nguyên nên phần lãi tính trên nó lớn nhất, và tỷ lệ chỉ đảo dần về sau. Với khoản vay 30 năm, điểm mà gốc bằng lãi chỉ đến quanh kỳ thứ 257, tức đã đi hơn hai phần ba kỳ hạn. “payment 1 allocates about 80-90% of the total payment towards interest and only 10-20% toward the principal balance”, và điểm cân bằng ở “payment 257 or over two thirds through the term”.',
       en: 'Roughly 80 to 90% of the first payment is interest and only 10 to 20% principal: at the start the balance is untouched, so the interest computed on it is at its largest, and the split only reverses gradually. On a 30-year loan the point where principal equals interest arrives around payment 257, more than two thirds of the way through. The source: “payment 1 allocates about 80-90% of the total payment towards interest and only 10-20% toward the principal balance”, with the crossover at “payment 257 or over two thirds through the term”.',
@@ -93,11 +93,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Khoản trả hằng tháng cố định có nghĩa là gốc cũng được trả đều không?' },
     choices: {
       a: { vi: 'Có' },
-      b: { vi: 'Không — tổng tiền giữ nguyên nhưng giai đoạn đầu phần lãi lớn hơn phần gốc' },
-      c: { vi: 'Có nếu lãi suất cố định' },
-      d: { vi: 'Có với khoản vay dưới 5 năm' },
+      b: { vi: 'Có nếu lãi suất cố định' },
+      c: { vi: 'Có với khoản vay dưới 5 năm' },
+      d: { vi: 'Không — tổng tiền giữ nguyên nhưng giai đoạn đầu phần lãi lớn hơn phần gốc' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Bài trên Thời báo Ngân hàng: ngân hàng “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”; có phương án 21 tháng đầu khách hàng “chỉ trả lãi cho khoản vay”, từ tháng 22 mới “trả cả lãi lẫn gốc”.',
     },
@@ -118,11 +118,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Khoảng 10%' },
-      b: { vi: '18%/năm, và biên độ tăng từ 3,6% lên 6,6%' },
-      c: { vi: '12%' },
+      b: { vi: '12%' },
+      c: { vi: '18%/năm, và biên độ tăng từ 3,6% lên 6,6%' },
       d: { vi: 'Giữ nguyên 8,2%' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Trường hợp thật trên VietnamFinance: “khoản vay chuyển qua lãi suất thả nổi từ kỳ thanh toán tháng 7 với mức 18%/năm”. Điểm ít ai lường: không chỉ lãi suất cơ sở tăng mà BIÊN ĐỘ cũng bị nâng lên.',
     },
@@ -166,11 +166,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Thời gian ưu đãi lãi suất vay mua nhà ở VN phổ biến kéo dài bao lâu?' },
     choices: {
       a: { vi: '3–5 năm' },
-      b: { vi: '6–12 tháng, sau đó lãi thực tế phổ biến 13–15%/năm' },
-      c: { vi: 'Toàn bộ kỳ hạn' },
+      b: { vi: 'Toàn bộ kỳ hạn' },
+      c: { vi: '6–12 tháng, sau đó lãi thực tế phổ biến 13–15%/năm' },
       d: { vi: '24–36 tháng' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: '“Lãi suất vay mua nhà trong thời gian ưu đãi hiện phổ biến 8,5-11%/năm, với thời gian áp dụng thường kéo dài 6-12 tháng”, còn “Lãi suất thực tế người vay phải chịu hiện phổ biến 13-15%/năm”, tính bằng lãi suất cơ sở cộng biên độ khoảng 3,3–3,5%.',
     },
@@ -216,13 +216,13 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Khoảng 2,75 triệu (một nửa)' },
-      b: {
+      b: { vi: 'Mất trắng toàn bộ lãi' },
+      c: {
         vi: 'Vài chục nghìn đồng — toàn bộ thời gian gửi tính lại theo lãi không kỳ hạn 0,1–0,2%/năm',
       },
-      c: { vi: 'Mất trắng toàn bộ lãi' },
       d: { vi: 'Lãi theo kỳ hạn 6 tháng' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Nguồn nêu đúng ví dụ này: người gửi chỉ nhận vài chục nghìn đồng thay vì hơn 2,5 triệu đồng tiền lãi kỳ hạn. Lưu ý thêm: nhiều người tưởng rút trước hạn là “mất trắng” lãi, thực tế vẫn được hưởng lãi suất không kỳ hạn.',
     },
@@ -243,11 +243,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Tất toán cả sổ' },
-      b: { vi: 'Rút một phần — phần rút chịu lãi không kỳ hạn, 500 triệu còn lại vẫn hưởng 6%' },
-      c: { vi: 'Vay cầm cố sổ' },
+      b: { vi: 'Vay cầm cố sổ' },
+      c: { vi: 'Rút một phần — phần rút chịu lãi không kỳ hạn, 500 triệu còn lại vẫn hưởng 6%' },
       d: { vi: 'Không rút được trước hạn' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: '“chỉ phần rút trước hạn chịu lãi suất không kỳ hạn, phần tiền gửi còn lại được ngân hàng giữ nguyên mức lãi suất”. Trước Thông tư 04/2022, rút trước hạn buộc phải tất toán toàn bộ và chịu lãi không kỳ hạn trên cả sổ.',
     },
@@ -266,12 +266,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: { vi: 'Công thức tính lãi ngân hàng VN công bố dùng mẫu số nào?' },
     choices: {
-      a: { vi: '360 ngày' },
-      b: { vi: '365 ngày và số ngày sử dụng thực tế' },
+      a: { vi: '365 ngày và số ngày sử dụng thực tế' },
+      b: { vi: '360 ngày' },
       c: { vi: '12 tháng tròn' },
       d: { vi: '30 ngày mỗi tháng' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Công thức ngân hàng công bố: “Tiền lãi = ∑ (Dư nợ thực tế x Lãi suất/365 x Số ngày sử dụng)”. Nếu app dùng quy ước 30 ngày/tháng thì kết quả sẽ lệch so với số ngân hàng trả — ví dụ 1 tỷ gửi 6 tháng lãi 8,1%: quy ước 30 ngày ra 40,5 triệu, tính theo ngày thực ra khoảng 39,9 triệu.',
     },
@@ -293,23 +293,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Thấp hơn mức thật sự cần, vì sản phẩm gửi góp thường trả lãi thấp hơn gửi thông thường cùng kỳ hạn',
-        en: 'It comes out lower than what is really needed, because monthly-contribution accounts usually pay less than a standard deposit of the same term',
-      },
-      b: {
         vi: 'Cao hơn mức thật sự cần, vì gửi góp được cộng thêm lãi ưu đãi cho khách gửi đều',
         en: 'It comes out higher than what is really needed, because monthly-contribution accounts carry a bonus rate for regular savers',
       },
-      c: {
+      b: {
         vi: 'Đúng bằng mức cần, vì mọi hình thức tiết kiệm cùng kỳ hạn đều áp chung một lãi suất niêm yết',
         en: 'It is exactly right, because every savings product of the same term carries the one posted rate',
       },
-      d: {
+      c: {
         vi: 'Không đổi, vì lãi suất chỉ tác động tới số tiền mục tiêu chứ không tới khoản gửi hằng tháng',
         en: 'It is unchanged, because the rate affects only the target amount, not the monthly deposit',
       },
+      d: {
+        vi: 'Thấp hơn mức thật sự cần, vì sản phẩm gửi góp thường trả lãi thấp hơn gửi thông thường cùng kỳ hạn',
+        en: 'It comes out lower than what is really needed, because monthly-contribution accounts usually pay less than a standard deposit of the same term',
+      },
     },
-    answer: 'a',
+    answer: 'd',
     explain: {
       vi: 'Bà Nguyễn Phương Huyền (Sacombank) nêu rõ chênh lệch này: “So với gửi tiết kiệm thông thường, tiết kiệm gửi góp thường có lãi suất thấp hơn khi gửi cùng kỳ hạn.” Lãi suất nằm ở mẫu số (1+i)^n − 1, nên điền lãi cao hơn thực tế làm mẫu số phình ra và khoản gửi hằng tháng nhỏ đi — kế hoạch trông nhẹ hơn khả năng thật và về đích hụt tiền.',
       en: 'Nguyễn Phương Huyền of Sacombank states the gap plainly: “So với gửi tiết kiệm thông thường, tiết kiệm gửi góp thường có lãi suất thấp hơn khi gửi cùng kỳ hạn.” The rate sits in the denominator (1+i)^n − 1, so an overstated rate inflates the denominator and shrinks the monthly deposit — the plan looks easier than it is and lands short of the goal.',
@@ -332,12 +332,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Công thức giữ nguyên một mức lãi suất suốt 60 tháng, trong khi lãi chỉ cố định trong một kỳ hạn rồi đổi lúc tái tục',
-        en: 'The formula holds one rate across all 60 months, whereas the rate is fixed only within a term and is reset on rollover',
-      },
-      b: {
         vi: 'Không có giả định nào bị hỏng, vì ngân hàng cam kết mức lãi suất cho tới khi đạt mục tiêu',
         en: 'Nothing breaks: the bank commits to the rate until the goal is reached',
+      },
+      b: {
+        vi: 'Công thức giữ nguyên một mức lãi suất suốt 60 tháng, trong khi lãi chỉ cố định trong một kỳ hạn rồi đổi lúc tái tục',
+        en: 'The formula holds one rate across all 60 months, whereas the rate is fixed only within a term and is reset on rollover',
       },
       c: {
         vi: 'Công thức quá thận trọng, vì lãi suất tiết kiệm tăng dần theo thời gian gửi',
@@ -348,7 +348,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
         en: 'The rate moves only when the State Bank changes the deposit rate ceiling',
       },
     },
-    answer: 'a',
+    answer: 'b',
     explain: {
       vi: 'Nguồn bác bỏ thẳng cách hiểu “để lâu thì lãi suất tự lên”: “Một số người vẫn cho rằng lãi suất sẽ tăng dần theo thời gian, suy nghĩ này về gửi tiết kiệm là sai lầm. Lãi suất được cố định cho mỗi kỳ hạn gửi tiết kiệm và không thay đổi trong suốt kỳ hạn đó.” Mức 6% chỉ chắc chắn trong đúng kỳ hạn đã chọn; các kỳ sau phải tái tục theo lãi suất tại thời điểm đó, nên con số công thức đưa ra là một kịch bản chứ không phải một cam kết.',
       en: "The source rejects the idea that a rate rises on its own the longer you leave the money: “Một số người vẫn cho rằng lãi suất sẽ tăng dần theo thời gian, suy nghĩ này về gửi tiết kiệm là sai lầm. Lãi suất được cố định cho mỗi kỳ hạn gửi tiết kiệm và không thay đổi trong suốt kỳ hạn đó.” The 6% is locked only for the term you picked; later terms roll over at whatever rate applies then, so the formula's output is a scenario, not a commitment.",
@@ -410,23 +410,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giá căn hộ chạy nhanh hơn tốc độ tích luỹ — 5 năm qua Hà Nội tăng khoảng 72% trong khi thu nhập bình quân chỉ tăng 6–10% mỗi năm',
-        en: 'Apartment prices outrun the pace of saving — over the past five years Hanoi rose about 72% while average income grew only 6–10% a year',
-      },
-      b: {
         vi: 'Không hỏng ở đâu, vì giá căn hộ đã được chốt tại thời điểm đặt mục tiêu',
         en: 'It does not break: the apartment price is locked in when the goal is set',
       },
-      c: {
+      b: {
         vi: 'Hỏng vì tiền gửi mất giá do lạm phát, còn giá căn hộ thì đứng yên',
         en: 'It breaks because inflation erodes the deposit, while apartment prices stand still',
       },
-      d: {
+      c: {
         vi: 'Hỏng vì ngân hàng thu phí quản lý tài khoản tiết kiệm, ăn dần vào số dư',
         en: 'It breaks because account maintenance fees eat into the balance',
       },
+      d: {
+        vi: 'Giá căn hộ chạy nhanh hơn tốc độ tích luỹ — 5 năm qua Hà Nội tăng khoảng 72% trong khi thu nhập bình quân chỉ tăng 6–10% mỗi năm',
+        en: 'Apartment prices outrun the pace of saving — over the past five years Hanoi rose about 72% while average income grew only 6–10% a year',
+      },
     },
-    answer: 'a',
+    answer: 'd',
     explain: {
       vi: 'Số liệu Avison Young Việt Nam trên báo Dân Việt: “Theo phân tích của Avison Young Việt Nam, trong 5 năm qua, giá căn hộ tại Hà Nội tăng khoảng 72%, TP.HCM tăng 50% và Đà Nẵng tăng 34%, trong khi thu nhập bình quân chỉ tăng khoảng 6-10% mỗi năm.” Lãi 6%/năm trong ô Lãi suất kỳ vọng không đuổi kịp mức đó, nên kế hoạch tính đúng đến từng đồng vẫn có thể về đích mà vẫn thiếu tiền mua căn hộ đã nhắm. Muốn dùng công thức cho mục tiêu kiểu này thì phải nâng số tiền mục tiêu theo tốc độ tăng giá dự kiến, chứ không lấy giá hôm nay.',
       en: "Avison Young Vietnam's figures, reported by Dân Việt: “Theo phân tích của Avison Young Việt Nam, trong 5 năm qua, giá căn hộ tại Hà Nội tăng khoảng 72%, TP.HCM tăng 50% và Đà Nẵng tăng 34%, trong khi thu nhập bình quân chỉ tăng khoảng 6-10% mỗi năm.” A 6%/year expected rate does not keep up with that, so a plan computed to the last dong can still finish short of the apartment it was aimed at. To use the formula for a goal like this, raise the target amount by the expected price growth instead of entering today's price.",
@@ -446,11 +446,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Số tiền cuối kỳ do lãi kép tạo ra có phải mức giàu lên thật sự không?' },
     choices: {
       a: { vi: 'Phải' },
-      b: { vi: 'Không — phải trừ lạm phát; nếu giá cả tăng nhanh hơn thì vẫn lỗ sức mua' },
-      c: { vi: 'Phải nếu gửi trên 10 năm' },
-      d: { vi: 'Phải với lãi suất trên 8%' },
+      b: { vi: 'Phải nếu gửi trên 10 năm' },
+      c: { vi: 'Phải với lãi suất trên 8%' },
+      d: { vi: 'Không — phải trừ lạm phát; nếu giá cả tăng nhanh hơn thì vẫn lỗ sức mua' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Không hẳn: lãi kép danh nghĩa chỉ nói số tiền tăng bao nhiêu, còn giàu lên hay không phải đo bằng sức mua sau lạm phát. Tiền tăng 10% trong khi giá hàng hoá tăng 25% là sức mua GIẢM. Nguồn nêu đúng tình huống ấy: “If the prices of the food, clothing, housing, and other things that she wishes to purchase have increased 25% over this period, she has, in fact, suffered a real loss of about 15% in her purchasing power”.',
       en: 'Not necessarily: nominal compounding only says how much the balance grew, while being better off is measured in purchasing power after inflation. Money up 10% while the prices of goods rise 25% means purchasing power FELL. The source sets out exactly that case: “If the prices of the food, clothing, housing, and other things that she wishes to purchase have increased 25% over this period, she has, in fact, suffered a real loss of about 15% in her purchasing power”.',
@@ -472,11 +472,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Đánh giá quá cao' },
-      b: { vi: 'Đánh giá thấp (exponential growth bias)' },
-      c: { vi: 'Ước lượng chính xác' },
+      b: { vi: 'Ước lượng chính xác' },
+      c: { vi: 'Đánh giá thấp (exponential growth bias)' },
       d: { vi: 'Không có thiên lệch nào' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Thiên lệch tăng trưởng mũ: con người có xu hướng ĐÁNH GIÁ THẤP sức mạnh của lãi kép, nên vừa hụt kỳ vọng khi tiết kiệm vừa xem nhẹ lãi vay tích luỹ khi đi vay. “Exponential growth bias is the tendency to underestimate compound growth processes. This bias can have financial implications as well”, dẫn nghiên cứu Stango và Zinman (2009) trên The Journal of Finance.',
       en: 'Exponential growth bias: people tend to UNDERESTIMATE how compounding works, so they expect too little when saving and take accumulating interest too lightly when borrowing. The source: “Exponential growth bias is the tendency to underestimate compound growth processes. This bias can have financial implications as well”, citing Stango and Zinman (2009) in The Journal of Finance.',
@@ -496,11 +496,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Gửi tiết kiệm là tự động có lãi kép. Đúng không?' },
     choices: {
       a: { vi: 'Đúng' },
-      b: { vi: 'Không — phải nhập lãi vào gốc và tái tục đều đặn thì mới thành lãi chồng lãi' },
-      c: { vi: 'Đúng với kỳ hạn trên 12 tháng' },
-      d: { vi: 'Đúng nếu lãi suất trên 6%' },
+      b: { vi: 'Đúng với kỳ hạn trên 12 tháng' },
+      c: { vi: 'Đúng nếu lãi suất trên 6%' },
+      d: { vi: 'Không — phải nhập lãi vào gốc và tái tục đều đặn thì mới thành lãi chồng lãi' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Lãi kép là khi “số tiền lãi được cộng dồn vào số tiền gốc để tiếp tục chu kỳ đầu tư mới” — tức phải tái tục đều đặn; hiệu quả thường chỉ rõ sau 10–20 năm.',
     },
@@ -519,11 +519,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Sổ tiết kiệm đáo hạn mà bạn không chỉ định gì. Rủi ro của tự động tái tục?' },
     choices: {
       a: { vi: 'Không có rủi ro' },
-      b: { vi: 'Tiền bị khoá thêm một kỳ, và có nơi tái tục ở lãi suất thấp hơn kỳ ban đầu' },
-      c: { vi: 'Bị chuyển sang không kỳ hạn' },
+      b: { vi: 'Bị chuyển sang không kỳ hạn' },
+      c: { vi: 'Tiền bị khoá thêm một kỳ, và có nơi tái tục ở lãi suất thấp hơn kỳ ban đầu' },
       d: { vi: 'Mất lãi kỳ trước' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Rủi ro là tiền bị khoá thêm một kỳ nữa mà bạn không chủ động chọn, và kỳ mới có thể chạy ở lãi suất thấp hơn kỳ cũ. Không dặn gì trước ngày đáo hạn thì ngân hàng được quyền tự tái tục. “In the absence of such directions, the institution may roll over the CD automatically, once again tying up the money for a period of time” và “Some banks have been known to renew at rates lower than that of the original CD”.',
       en: 'The risk is that the money is locked up for another term you did not choose, and the new term may run at a lower rate than the old one. Leave no instruction before maturity and the bank may roll it over on its own. The source: “In the absence of such directions, the institution may roll over the CD automatically, once again tying up the money for a period of time” and “Some banks have been known to renew at rates lower than that of the original CD”.',
@@ -544,12 +544,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       vi: 'Có một khoản tiền lớn. Chia nhỏ giải ngân dần (DCA) hay bỏ vào một lần? Nghiên cứu Vanguard trên dữ liệu 1976–2022 nói gì?',
     },
     choices: {
-      a: { vi: 'DCA thắng đa số' },
-      b: { vi: 'Bỏ một lần thắng khoảng hai phần ba số lần' },
+      a: { vi: 'Bỏ một lần thắng khoảng hai phần ba số lần' },
+      b: { vi: 'DCA thắng đa số' },
       c: { vi: 'Hai cách như nhau' },
       d: { vi: 'Chưa có nghiên cứu' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Nghiên cứu cho thấy bỏ vào một lần thắng khoảng hai phần ba số trường hợp, vì thị trường tăng nhiều hơn giảm nên tiền đứng ngoài chờ giải ngân là tiền mất cơ hội. Vanguard đo trên thị trường Mỹ, Anh, Úc, Canada và EU: “Lump-sum investment strategies beat common cost averaging investment strategies two-thirds of the time”, cụ thể “LS outperformed 68% of the time”.',
       en: 'The research finds a lump sum wins about two thirds of the time, because markets rise more often than they fall, so cash waiting to be deployed is cash giving up return. Vanguard measured it across the US, UK, Australia, Canada and the EU: “Lump-sum investment strategies beat common cost averaging investment strategies two-thirds of the time”, specifically “LS outperformed 68% of the time”.',
@@ -569,11 +569,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Vậy khi nào DCA vẫn là lựa chọn hợp lý?' },
     choices: {
       a: { vi: 'Khi muốn lợi nhuận cao nhất' },
-      b: { vi: 'Khi nhà đầu tư sợ lỗ — đổi lợi nhuận kỳ vọng lấy giảm rủi ro' },
-      c: { vi: 'Khi thị trường đang tăng' },
+      b: { vi: 'Khi thị trường đang tăng' },
+      c: { vi: 'Khi nhà đầu tư sợ lỗ — đổi lợi nhuận kỳ vọng lấy giảm rủi ro' },
       d: { vi: 'Không bao giờ' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Khi người đầu tư sợ lỗ mạnh: rải vốn cho lợi suất kỳ vọng thấp hơn nhưng cũng giảm khả năng vào đúng đỉnh rồi bỏ cuộc, và một kế hoạch theo được vẫn hơn một kế hoạch tối ưu mà bỏ giữa chừng. Chi phí cơ hội định lượng được, với 100.000 USD trong một năm, danh mục 100% cổ phiếu bỏ vào một lần cao hơn 2,2%. Vanguard: “The relationship between increased return at the cost of additional risk-taking suggests that investors with higher loss aversion would be better off drip feeding their investment through a cost-averaging approach”.',
       en: 'When the investor is strongly loss-averse: phasing the money in lowers expected return but also lowers the odds of buying the top and then abandoning the plan, and a plan that gets followed beats an optimal one that gets dropped. The opportunity cost is measurable: on 100,000 USD over one year, an all-equity lump sum came out 2.2% ahead. Vanguard: “The relationship between increased return at the cost of additional risk-taking suggests that investors with higher loss aversion would be better off drip feeding their investment through a cost-averaging approach”.',
@@ -592,12 +592,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Rải vốn càng nhiều kỳ, càng lâu thì càng an toàn và càng lợi. Đúng không?' },
     choices: {
-      a: { vi: 'Đúng' },
-      b: { vi: 'Không — thời gian rải càng dài thì chi phí cơ hội càng lớn' },
+      a: { vi: 'Không — thời gian rải càng dài thì chi phí cơ hội càng lớn' },
+      b: { vi: 'Đúng' },
       c: { vi: 'Đúng nếu trên 12 kỳ' },
       d: { vi: 'Đúng với danh mục 60/40' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Sai: kéo dài thời gian rải vốn chỉ làm tăng chi phí cơ hội, vì tiền chờ giải ngân là tiền không sinh lời trong khi thị trường tăng nhiều hơn giảm. Ví dụ danh mục 60/40 với 100.000 USD: rải trong 3 tháng đạt 107.453 USD so với 109.360 USD nếu bỏ vào một lần. Vanguard: “the longer the CA horizon—the time it takes to fully invest cash—the greater the opportunity cost incurred”.',
       en: 'Wrong: stretching the phase-in only raises the opportunity cost, because cash waiting to be deployed earns nothing while markets rise more often than they fall. On a 60/40 portfolio of 100,000 USD, phasing in over three months reached 107,453 USD against 109,360 USD for the lump sum. Vanguard: “the longer the CA horizon—the time it takes to fully invest cash—the greater the opportunity cost incurred”.',
@@ -616,12 +616,12 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Phần lớn tranh luận “DCA có tốt không” thực ra đang nói về tình huống nào?' },
     choices: {
-      a: { vi: 'Đầu tư đều đặn từ thu nhập hằng tháng' },
-      b: { vi: 'Rải một khoản tiền lớn bất ngờ (thừa kế, tiền bảo hiểm)' },
+      a: { vi: 'Rải một khoản tiền lớn bất ngờ (thừa kế, tiền bảo hiểm)' },
+      b: { vi: 'Đầu tư đều đặn từ thu nhập hằng tháng' },
       c: { vi: 'Mua bình quân giá xuống' },
       d: { vi: 'Đầu tư vào quỹ chỉ số' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Phần lớn tranh luận ấy thực ra nói về việc giải ngân DẦN một khoản tiền lớn có sẵn, chẳng hạn tiền bảo hiểm hay thừa kế, chứ không phải DCA đúng nghĩa là đều đặn bỏ vào từ thu nhập hằng tháng. Hai tình huống khác nhau nên kết luận của bên này không áp cho bên kia. “The confusion occurs where the term dollar cost averaging is incorrectly used to describe a different investment strategy... where the investor invests a windfall gain such as an insurance payout or inheritance”, và “this is actually a rare event for most investors”.',
       en: 'Most of that debate is really about phasing in a lump sum already in hand, an insurance payout or an inheritance, rather than dollar-cost averaging proper, which is investing steadily out of monthly income. They are two different situations, so a conclusion about one does not carry to the other. The source: “The confusion occurs where the term dollar cost averaging is incorrectly used to describe a different investment strategy... where the investor invests a windfall gain such as an insurance payout or inheritance”, and “this is actually a rare event for most investors”.',

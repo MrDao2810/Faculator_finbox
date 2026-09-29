@@ -71,6 +71,24 @@ export interface FormulaSource {
   url?: string;
 }
 
+/**
+ * Bộ dữ liệu thật đứng sau chuỗi giá của ví dụ — mang tên, mã, khoảng ngày để hiện
+ * cạnh nút nạp và trên trục thời gian biểu đồ.
+ */
+export interface ExampleDataset {
+  /** Tên ngắn, KHÔNG song ngữ, dùng trong câu mô tả biểu đồ — vd 'FPT', 'VN-Index'. */
+  name: string;
+  /** Nhãn song ngữ dùng trên nút và chip — vd { vi: 'số liệu FPT', en: 'FPT data' }. */
+  label: Bilingual;
+  /** Mã chứng khoán nếu có; VN-Index thì undefined. */
+  ticker?: string;
+  /**
+   * Chuỗi nến đầy đủ OHLCV với ngày ISO (YYYY-MM-DD), phiên cũ trước.
+   * Cột close phải trùng khớp example.series / example.bars.
+   */
+  rows: ReadonlyArray<SeriesRow>;
+}
+
 /** Ví dụ thực tế bằng số liệu Việt Nam, hiện trên màn chi tiết (FR-02). */
 export interface FormulaExample {
   title: Bilingual;
@@ -88,6 +106,11 @@ export interface FormulaExample {
   marketSeries?: ReadonlyArray<number>;
   /** Dòng tiền cho công thức đọc `ctx.cashflows` — riêng cho XIRR. */
   cashflows?: ReadonlyArray<Cashflow>;
+  /**
+   * Bộ dữ liệu đứng sau `series` / `bars` — bắt buộc khai báo khi ví dụ có chuỗi giá.
+   * Dùng để hiện tên nguồn trên nút, chip và trục thời gian biểu đồ.
+   */
+  dataset?: ExampleDataset;
   expected: number;
   note?: Bilingual;
   /**

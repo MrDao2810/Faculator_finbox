@@ -12,6 +12,8 @@ import {
   hasUnitLabel,
   keepViNumberChars,
   parseViNumber,
+  INPUT_MAX_DECIMALS,
+  draftViNumber,
   rawViNumber,
   scaleToDong,
   scaleToUnit,
@@ -226,6 +228,71 @@ describe('rawViNumber()', () => {
   it('giá trị không hữu hạn cho ô TRỐNG, không bao giờ ra chuỗi NaN (FR-06)', () => {
     expect(rawViNumber(Number.NaN)).toBe('');
     expect(rawViNumber(Number.POSITIVE_INFINITY)).toBe('');
+  });
+});
+
+describe('draftViNumber()', () => {
+  /*
+   * Bất biến của hàm này, và là cả lý do nó tồn tại: chuỗi ĐẶT VÀO ô phải mang đúng chừng ấy
+   * chữ số như chuỗi đang HIỆN trên ô, chỉ khác mỗi dấu ngăn nghìn.
+   *
+   * Lỗi nó đi chữa (29/09/2026): ô nhận 12,33291875 từ CAPM, lúc nghỉ hiện '12,3329', chạm vào
+   * thì nhảy thành '12,33291875' vì `rawViNumber()` dựng lại đủ độ chính xác.
+   */
+  it('giữ nguyên chữ số đang hiện, chỉ bỏ dấu ngăn nghìn', () => {
+    const mau = [12.33291875, 100.449, 92_000, 234_567.891234, -4, 0];
+    for (const value of mau) {
+      const hien = formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS });
+      expect(draftViNumber(value), `giá trị ${String(value)}`).toBe(hien.split('.').join(''));
+    }
+  });
+
+  it('cắt đúng ở bốn chữ số thập phân', () => {
+    expect(draftViNumber(12.33291875)).toBe('12,3329');
+    expect(draftViNumber(92_000)).toBe('92000');
+    expect(draftViNumber(234_567.891234)).toBe('234567,8912');
+  });
+
+  /*
+   * Bẫy đã sập một lần: bản đầu viết `replace(/./g, '')` — thiếu dấu thoát nên regex khớp MỌI
+   * ký tự và mọi ô nhập trống trắng ngay khi chạm vào. Typecheck không thấy, mắt đọc lướt cũng
+   * không thấy. Ca này là chỗ thấy.
+   */
+  it('KHÔNG nuốt mất chữ số nào — bẫy regex thiếu dấu thoát', () => {
+    expect(draftViNumber(5)).toBe('5');
+    expect(draftViNumber(0)).toBe('0');
+    expect(draftViNumber(1_234)).toBe('1234');
+    expect(draftViNumber(0.5)).toBe('0,5');
+  });
+
+  /*
+   * Vòng ngược qua `parseViNumber()` phải ra đúng con số ĐANG HIỆN, không phải con số gốc —
+   * đó là điều đúng đắn ở đây: người dùng chỉ sửa được thứ họ nhìn thấy.
+   */
+  it('đọc ngược lại ra đúng con số đang hiện trên ô', () => {
+    for (const value of [12.33291875, 100.449, 92_000, -0.5]) {
+      const hien = Number(
+        formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS })
+          .split('.')
+          .join('')
+          .replace(',', '.'),
+      );
+      expect(parseViNumber(draftViNumber(value)), `giá trị ${String(value)}`).toBe(hien);
+    }
+  });
+
+  /*
+   * `rawViNumber()` cho '1e+21' với số cực lớn — ca hiếm mà `keepViNumberChars()` đã phải ghi
+   * lại trong chú thích. Đi qua Intl thì không còn dạng mũ nào, nên chuỗi luôn gõ tiếp được.
+   */
+  it('số cực lớn vẫn viết đủ chữ số, không ra dạng mũ', () => {
+    expect(rawViNumber(1e21)).toContain('e');
+    expect(draftViNumber(1e21)).not.toContain('e');
+  });
+
+  it('giá trị không hữu hạn cho ô TRỐNG, không bao giờ ra chuỗi NaN (FR-06)', () => {
+    expect(draftViNumber(Number.NaN)).toBe('');
+    expect(draftViNumber(Number.NEGATIVE_INFINITY)).toBe('');
   });
 });
 

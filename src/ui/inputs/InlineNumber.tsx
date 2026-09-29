@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import {
+  INPUT_MAX_DECIMALS,
   commitValue,
+  draftViNumber,
   formatNumber,
   keepViNumberChars,
   parseViNumber,
-  rawViNumber,
   resolveInputState,
   unitLabel,
 } from '@/application';
@@ -83,12 +84,14 @@ export function InlineNumber({
 }: InlineNumberProps) {
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
   const [draft, setDraft] = useState<string | null>(null);
+  /** Đã gõ gì kể từ lúc chạm vào ô chưa — xem `commit()` và quy tắc 5 của `NumberInput`. */
+  const edited = useRef(false);
   const t = useT();
   const pick = usePick();
   /* Đơn vị Domain là chuỗi tiếng Việt trần — dịch một lần, dùng cho cả hai nhánh dựng bên dưới. */
   const donVi = pick(unitLabel(spec.unit));
 
-  const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
+  const raw = draft ?? formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS });
   /*
    * `focused: false` và `mode: 'advanced'` là cố ý: ô này không vẽ trạng thái 'editing' (không có
    * viền thường trực để đổi) và việc khoá theo chế độ đã do prop `readOnly` của nơi gọi quyết —
@@ -106,10 +109,19 @@ export function InlineNumber({
     .filter(Boolean)
     .join(' ');
 
+  /*
+   * Chốt giá trị khi rời ô — nhưng CHỈ khi người dùng thật sự có gõ.
+   *
+   * Cờ `edited` là bắt buộc kể từ lúc `onFocus` thôi dựng lại chuỗi đủ độ chính xác: bản nháp
+   * lúc này đã làm tròn về bốn chữ số như chỗ đang hiện, nên `next !== value` là ĐÚNG với mọi ô
+   * mang số lẻ dài — chạm vào rồi bấm ra chỗ khác sẽ ghi 12,3329 đè lên 12,33291875 thật. Lý do
+   * đầy đủ ở quy tắc 5 của `NumberInput`; hai ô này phải cư xử giống hệt nhau.
+   */
   function commit(): void {
-    if (draft === null) return;
-    const next = commitValue(draft, spec);
+    const nhap = draft;
     setDraft(null);
+    if (nhap === null || !edited.current) return;
+    const next = commitValue(nhap, spec);
     if (next !== value) onChange(next);
   }
 
@@ -137,7 +149,7 @@ export function InlineNumber({
     return (
       <span className={classes}>
         <span id={id} className={styles.input}>
-          {formatNumber(value, { maxDecimals: 4 })}
+          {formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS })}
         </span>
         {showUnit && donVi !== '' && <span className={styles.unit}>{donVi}</span>}
       </span>
@@ -169,14 +181,21 @@ export function InlineNumber({
         aria-describedby={describedBy}
         title={readOnly ? t('input.lockedHint') : outOfRange ? note : undefined}
         onFocus={() => {
-          /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '10.000.000' thành '10000000'. Qua
-             `rawViNumber()` chứ không `String()` — lý do ghi ở `NumberInput` và ở chính hàm ấy:
-             `String(100.449)` đọc ngược lại thành 100449. */
-          setDraft(rawViNumber(value));
+          edited.current = false;
+          /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '10.000.000' thành '10000000' — nhưng giữ
+             NGUYÊN những chữ số đang hiện. Qua `draftViNumber()`, vốn lấy chính chuỗi trên màn
+             rồi bỏ dấu chấm; lý do đầy đủ ở quy tắc 5 của `NumberInput` và ở chính hàm ấy. */
+          setDraft(draftViNumber(value));
         }}
         onChange={(event) => {
           /* Quy tắc 6 — chữ cái rụng tại đây, con trỏ giữ nguyên chỗ. */
           const next = filterTypedValue(event, keepViNumberChars);
+          /*
+           * Chỉ tính là ĐÃ GÕ khi chuỗi thật sự đổi — cùng luật với `NumberInput`, xem chú thích
+           * ở đó. Một ký tự bị lọc sạch trả `next` giống hệt `raw`; đặt `edited` vô điều kiện
+           * thì `commit()` sẽ chạy `commitValue()` trên một ô người dùng chưa đụng tới.
+           */
+          if (next !== raw) edited.current = true;
           setDraft(next);
 
           // Quy tắc 0 — xem docblock. Chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì giữ nguyên giá

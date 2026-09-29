@@ -1180,20 +1180,14 @@ describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
    * `pe` neo ví dụ vào số THẬT của FPT (72.700 ₫ / EPS 5.867 ₫ — xem `multiples.ts`), khác hẳn
    * số mặc định 92.000 ₫ / 6.050 ₫ của chính ô nhập (số mặc định đó là fixture dùng chung cho rất
    * nhiều ca kiểm khác trong file này nên KHÔNG đổi theo ví dụ — xem docblock ở `spec.example`).
-   * Vì vậy màn mở ra là đã LỆCH khỏi ví dụ ngay từ đầu, không cần gõ gì cả — khác với trước
-   * 15/09/2026, khi số mặc định và số ví dụ trùng nhau nên màn mở ra trông như "đã đúng ví dụ".
+   *
+   * Nút "Về số của ví dụ" đã BỎ — 29/09/2026 (chủ dự án bỏ phần đó để khối gọn hơn).
+   * Ca ghim: mở màn không có câu "Ví dụ gốc cho" và không có nút quay về, dù ô lệch khỏi ví dụ.
    */
-  it('mở màn là đã lệch khỏi ví dụ thật của FPT; bấm nút quay về là trở lại trọn bộ', async () => {
+  it('mở màn dù ô lệch khỏi ví dụ FPT vẫn không có nút quay về và không có câu "Ví dụ gốc"', () => {
     render(<Man spec={specOf('pe')} />);
 
-    // Số mặc định (92.000 ₫) không phải số ví dụ (72.700 ₫ thật của FPT) nên nút hiện ngay.
-    expect(screen.getByText(/Ví dụ gốc cho:/)).not.toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Về số của ví dụ' }));
-
-    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('72.700');
-    expect((oNhap(/EPS/) as HTMLInputElement).value).toBe('5.867');
-    expect(screen.getByTestId('result-text').textContent).toBe('12,39 lần');
-    // Đúng bộ ví dụ rồi thì nút biến mất — không còn gì để "quay về".
+    expect(screen.queryByText(/Ví dụ gốc cho:/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Về số của ví dụ' })).toBeNull();
   });
 
@@ -2894,21 +2888,18 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
   });
 
   /*
-   * Vế thứ hai của lỗi được báo: bấm "Về số của ví dụ" ra một kết quả, quay lại ra kết quả khác.
-   * Bản nháp bắt luôn cả cú bấm ấy, nên hai lần xem phải khớp nhau từng con số.
+   * Nút "Về số của ví dụ" đã BỎ — 29/09/2026. Bản nháp vẫn lưu đúng, ca này kiểm nhánh còn lại:
+   * gõ số khác rồi rời màn → quay lại → ô hiện đúng số đã gõ (không mặc định lại từ đầu).
    */
-  it('"Về số của ví dụ" cũng được giữ — hai lần xem cho cùng một kết quả', async () => {
+  it('số đã gõ được giữ sau khi rời màn rồi quay lại — không mặc định lại', async () => {
     render(<Man spec={specOf('pe')} />);
     await userEvent.clear(oNhap(/Giá thị trường/));
     await userEvent.type(oNhap(/Giá thị trường/), '12345');
     fireEvent.blur(oNhap(/Giá thị trường/));
-
-    await userEvent.click(screen.getByRole('button', { name: t('example.reset') }));
-    const sauKhiVe = (oNhap(/Giá thị trường/) as HTMLInputElement).value;
     cleanup();
 
     render(<Man spec={specOf('pe')} />);
-    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe(sauKhiVe);
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('12.345');
   });
 });
 

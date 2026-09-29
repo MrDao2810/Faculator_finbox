@@ -246,6 +246,56 @@ export function rawViNumber(value: number): string {
   return text.includes('e') ? text : text.replace('.', ',');
 }
 
+/**
+ * Số chữ số thập phân TỐI ĐA mà một ô nhập bày ra — và cũng là độ chính xác mà nó sửa được.
+ *
+ * Một con số duy nhất cho cả hai, cố ý: xem `draftViNumber()` ngay dưới.
+ */
+export const INPUT_MAX_DECIMALS = 4;
+
+/**
+ * Số thành chuỗi để ĐẶT VÀO ô nhập lúc người dùng vừa chạm vào nó.
+ *
+ * Khác `rawViNumber()` ở đúng một điều, và điều ấy là cả lý do hàm này tồn tại: **nó dùng CHUNG
+ * một hàm và CÙNG một `maxDecimals`** với chuỗi lúc nghỉ (`formatNumber(value, { maxDecimals:
+ * INPUT_MAX_DECIMALS })`), chỉ khác mỗi việc bỏ dấu ngăn nghìn đi ở cuối. Không tự dựng một cách
+ * làm tròn riêng. Nhờ vậy thứ người dùng nhìn thấy lúc nghỉ và thứ họ sửa được lúc gõ KHÔNG THỂ
+ * lệch nhau — không phải vì ai đó nhớ truyền cùng một số vào hai chỗ, mà vì chỉ còn một hàm và
+ * một hằng số quyết định cả hai.
+ *
+ * Lỗi nó đi chữa, chủ dự án chụp màn ngày 29/09/2026: ô "Suất sinh lời yêu cầu (r)" nhận số từ
+ * CAPM nên mang 12,33291875. Lúc nghỉ ô hiện '12,3329' (bốn chữ số), chạm vào thì `rawViNumber()`
+ * dựng lại đủ độ chính xác và ô nhảy thành '12,33291875'. Con số đổi dưới mắt người dùng mà họ
+ * chưa gõ phím nào.
+ *
+ * Hai thứ được thêm miễn phí vì đi qua `formatNumber()`:
+ *
+ * - Số cực lớn thôi ra dạng mũ. `rawViNumber(1e21)` cho '1e+21' — ca hiếm mà `keepViNumberChars()`
+ *   đã phải ghi lại trong chú thích của nó; ở đây Intl viết đủ 22 chữ số nên chuỗi luôn gõ tiếp được.
+ * - Nhiễu dấu phẩy động biến mất mà không cần `toPrecision(12)`: làm tròn về bốn chữ số đã cắt nó.
+ *
+ * Cái giá phải nhận: giá trị có trị tuyệt đối dưới 0,00005 cho ra '0' (Intl làm tròn half-expand
+ * ở chữ số thứ năm). Đó KHÔNG phải mất mát mới — lúc nghỉ ô cũng đã hiện '0' cho đúng con số ấy.
+ * Và vì `NumberInput` chỉ chốt khi người dùng thật sự gõ, chạm vào rồi bấm ra chỗ khác không ghi
+ * đè con số thật bằng số 0.
+ *
+ * Giá trị không hữu hạn trả chuỗi rỗng — ô trống, không bao giờ là 'NaN' (FR-06).
+ */
+export function draftViNumber(value: number, maxDecimals: number = INPUT_MAX_DECIMALS): string {
+  if (!Number.isFinite(value)) return '';
+
+  /*
+   * Dấu ngăn nghìn của tiếng Việt là dấu CHẤM; dấu phẩy là dấu thập phân nên phải giữ lại.
+   *
+   * `split('.').join('')` chứ không `replace(/\./g, '')`: hai cách cho cùng kết quả,
+   * nhưng cách này không có ký tự thoát nào để mà viết sót. Bản đầu của hàm này rụng mất dấu
+   * `\` và thành
+   * `/./g` — một regex khớp MỌI ký tự, nên mọi ô nhập trống trắng ngay khi chạm vào. Nó qua được
+   * cả typecheck lẫn mắt người đọc; bộ kiểm ô nhập mới bắt được.
+   */
+  return formatNumber(value, { maxDecimals }).split('.').join('');
+}
+
 /*
  * ── Đổi đơn vị tiền — UnitSwitcher của gói 2.3.3 ───────────────────────────────────────
  */

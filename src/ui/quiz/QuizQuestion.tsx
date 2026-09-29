@@ -24,6 +24,9 @@ import { shortUrl } from './short-url';
  *
  * `readOnly` là khác biệt DUY NHẤT giữa hai chỗ gọi: câu trong lịch sử không nhận thêm thao tác
  * nào nữa. Ô nhập vẫn dựng (để người xem lại thấy mình đã gõ gì) nhưng bị khoá.
+ *
+ * `readOnly` mà KHÔNG `answered` là câu người dùng đã BỎ QUA: khoá hết, nhưng không chấm — không
+ * dấu đúng/sai, không lộ đáp án, không lời giải. Mọi thứ ấy chỉ hiện sau một lần bấm Kiểm tra.
  */
 
 const CHOICE_KEYS: ReadonlyArray<QuizChoiceKey> = ['a', 'b', 'c', 'd'];

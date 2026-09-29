@@ -678,7 +678,11 @@ not excused.
 erase the question just read; the explanation was only reachable again from the summary at the very
 end. Each answered question now collapses into one clickable row — verdict mark, step number,
 prompt clipped to a line — stacked oldest-first directly above the live question, and opening one
-re-renders it whole, explanation included. **Only one opens at a time**: several at once push the
+re-renders it whole, explanation included — except a SKIPPED question, which reopens locked but
+ungraded: no verdict badges, no revealed answer, no explanation (29/09/2026; the owner skipped one,
+reopened it and found the answer and the explanation on show — _"chỉ khi người dùng chọn đáp án và
+click vào button Kiểm tra thì mới có giải thích"_). `QuizQuestion` gets `readOnly` without
+`answered` for that case. **Only one opens at a time**: several at once push the
 live question off screen, which is the thing the strip exists to prevent. That forced a split:
 `QuizQuestion.tsx` renders one question and `cham.ts` holds the scoring rules, because the same
 question must render identically in both places and two copies of that JSX would diverge. The
@@ -686,16 +690,19 @@ question must render identically in both places and two copies of that JSX would
 `ui/quiz/QuizQuestion.tsx`.
 
 **The header row carries everything that is not a question** (24/09/2026, rewritten three times in
-one day). Idle it reads `BÀI TẬP · 5 câu ……… Bắt đầu kiểm tra »`; mid-quiz it reads
+one day). Idle it reads `BÀI TẬP ……… Bắt đầu kiểm tra »`; mid-quiz it reads
 `BÀI TẬP · Câu 2 / 5 · ▬▬ ▭ ▭ ▭ ▭ ……… Thoát`. The progress line used to sit inside the question card,
 one row under an `<h2>` that said the same thing, and the start button used to be a solid block on
 a row of its own under a lead line — three stacked rows that existed only to get someone to press
-one button. Four things there are load-bearing:
+one button. The idle row carried a question count too (`BÀI TẬP · 4 câu`) until 29/09/2026, when the
+owner photographed it and said _"không cần hiển thị số câu ở ngoài"_: the count now appears only
+once the quiz starts, as `Câu 2 / 5`, and a case in `QuizBody.test.tsx` rejects any "N câu" in the
+idle block. Four things there are load-bearing:
 
 - **`.head` must NOT use `justify-content: space-between`.** The page frame runs to `--desktop-max`
-  (1600px), so space-between throws the count to the far right edge, the better part of a screen
-  away from the label it belongs to, and the two stop reading as one thing. Label and count sit
-  together on the left; only the right-hand button pushes itself out, with `.headAction`
+  (1600px), so space-between throws the progress cluster to the far right edge, the better part of a
+  screen away from the label it belongs to, and the two stop reading as one thing. Label and progress
+  sit together on the left; only the right-hand button pushes itself out, with `.headAction`
   (`margin-left: auto`). That one class serves BOTH buttons — "Bắt đầu kiểm tra" when idle,
   "Thoát" mid-quiz — because their occupying the same slot is what stops the row jumping when the
   phase changes, together with `.head`'s `min-height`.
@@ -705,21 +712,25 @@ one button. Four things there are load-bearing:
   block above it or the page's own end-buttons below — both of which run the full frame.
 - **`.bars` is `flex: 0 1 14rem`, not `flex: 1`.** Stretched across the full frame it measured
   ~1.100px for five questions and read as a rule dividing the page rather than as progress.
-- **`.label`, `.step` and `.count` are `white-space: nowrap`.** At 390px the bar's `flex-basis`
+- **`.label` and `.step` are `white-space: nowrap`.** At 390px the bar's `flex-basis`
   holds its ground and the text is what gets squeezed instead: "BÀI TẬP" broke across two lines.
   Nowrap makes the bar — the only thing on the row that can shrink without losing meaning — absorb
   it.
 
-The `»` is a sibling `<span aria-hidden>` rather than part of the string, because it has to follow
-BOTH labels (`quiz.start` and `quiz.startFew`) and putting it in the dictionary would make four
-places to remember instead of one — same shape as `GroupCard.tsx`. The button is `variant="ghost"`
+The `»` is a sibling `<span aria-hidden>` rather than part of the string, because it is decoration,
+not part of the label — same shape as `GroupCard.tsx`. The button is `variant="ghost"`
 on purpose: a solid block of colour beside a small uppercase label outweighs the content it leads
 into. Idle, that row is the WHOLE block — 78px measured — because `quiz.lead` ("Không chấm điểm,
 chỉ để bạn tự soát lại.") is gone: the owner deleted it that morning, had it restored that
 afternoon, then deleted it again on sight, so its tombstone is the second one on that key and it
-is final. `.intro` under the header renders only when there is something real to say — a quiz
-under three questions, or a score from last time. `quiz.countUnit` survives for the "5 câu" beside
-the label, and `quiz.step` ("Câu {n} / {total}") is new, saying "Câu" out loud because the count no
+is final. `.intro` under the header renders only when there is something real to say — a score
+from last time. **There is no "few questions" state any more** (29/09/2026): a quiz under three
+questions used to say "Làm thử" instead of "Bắt đầu kiểm tra", hide the progress bar and print
+"Công thức này mới có ít câu, vì tư liệu thật chỉ có thế…"; the owner had the button unified, the
+sentence dropped as filler, and pointed at the progress bar the short quizzes were missing. Every
+quiz now renders the same shape; `minForProgress`, `quiz.startFew` and `quiz.few.body` are gone
+(tombstones in `vi.ts`). `quiz.countUnit` is gone (tombstone in `vi.ts`),
+and `quiz.step` ("Câu {n} / {total}") is new, saying "Câu" out loud because the count no
 longer has a row of its own to explain what it counts. The block is titled
 **`Bài tập` / `Practice`** — it was "Kiểm tra hiểu bài" / "Check your understanding" until the same
 round.
@@ -945,9 +956,6 @@ Four more things that are easy to break:
   Nothing about the storage changed: `recordQuizResult` still writes only to `localStorage`, and
   there is no backend to send it to (SRS §3). A case in `QuizBody.test.tsx` was INVERTED rather
   than deleted, so the sentence coming back is a decision rather than a slip.
-- **The "few questions" threshold lives at `QuizBody`'s `minForProgress` default, not in the
-  Domain.** A constant in `src/core/quiz/` cannot reach the UI (CON-03, plus the build-only gate),
-  so one there is just a second number nobody reads — it was removed for that reason.
 - **Three answer formats, and no true/false.** `QuizItem` is a discriminated union on a
   **required** `format`: `trac-nghiem` (one of four), `chon-nhieu` (two or three of four, scored
   all-or-nothing) and `dien-so` (place each figure in its slot inside the formula, also scored
@@ -1068,6 +1076,19 @@ commentary. Eight things are load-bearing:
 
 When a distractor must be referred to in prose, cite it by LETTER — `quoteParts` wraps every
 `“…”` in `<q>`, so a quoted wrong answer renders exactly like the source's own words.
+
+**The correct answer is spread across the four letters, and a case holds it there** (29/09/2026).
+The owner noticed every correct answer was B: measured, 259 of 305 multiple-choice answers and 12
+of 18 multi-select sets (A and B) — authors, and agents drafting in batches, put the right answer
+right after one decoy, so a reader could guess the pattern within a few questions. They were
+reshuffled through the TypeScript syntax tree, not by regex: questions sorted by a hash of their
+id and assigned a, b, c, d round-robin (77/76/76/76), the three wrong answers keeping their
+relative order; multi-select sets rotated. Seven explanations that name a choice by letter were
+remapped (Q208, Q236, Q243, Q259, Q267, Q284, Q338; three more kept their letters), and a check
+confirmed every question kept the same correct text and the same four choices. `quiz.test.ts`
+now requires each letter to hold 20–30% of the multiple-choice answers and no multi-select set to
+exceed a third — so **a new question must not default to B**, and one whose explanation cites a
+letter must be checked against its own `choices`.
 
 **Coverage: 150 of 473 questions are fill-in with a Thay số row (plus Q088), and 109 of 111
 formulas have at least one** (25/09/2026 — "áp dụng cho toàn bộ 111 công thức"). The two

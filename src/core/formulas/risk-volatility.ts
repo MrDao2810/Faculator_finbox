@@ -22,7 +22,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
-import { FPT_57_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_57_PHIEN } from './market-series-2026';
 import { mean, requireCloses, sampleStdDev, simpleReturns } from './series-utils';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
@@ -219,6 +219,7 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
       },
       inputs: { sessions: 55 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 1.925,
       note: {
         vi: 'Theo quy tắc kinh nghiệm, khoảng 68% số phiên có lợi suất nằm trong ±1 độ lệch chuẩn quanh mức bình quân. Đây cũng là con số gốc mà độ biến động năm hoá và các tỷ số đo hiệu quả đều dựng lên từ đó.',
@@ -362,6 +363,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       },
       inputs: { sessions: 55, tradingDays: 250 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 30.4376,
       note: {
         vi: 'Phép quy năm nhân độ lệch chuẩn phiên với căn bậc hai của số phiên trong năm chứ không nhân thẳng, vì phương sai mới là thứ cộng dồn theo thời gian. Có thước đo năm rồi mới đặt cạnh được lãi suất tiết kiệm hay lợi suất trái phiếu.',
@@ -544,6 +546,7 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       },
       inputs: { sessions: 55, threshold: 0 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 1.1989,
       note: {
         vi: 'Chỉ những phiên có lợi suất dưới ngưỡng mới được đưa vào, nên kết quả luôn nhỏ hơn độ lệch chuẩn đầy đủ; hai con số càng sát nhau thì rủi ro càng dồn về chiều giảm. Đây cũng là mẫu số của tỷ số Sortino.',
@@ -681,6 +684,7 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       },
       inputs: { sessions: 55 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 28.6953,
       note: {
         vi: 'Kết quả không mang đơn vị nên so được giữa những cổ phiếu có mức giá và biên độ khác hẳn nhau — càng thấp thì mỗi phần lợi suất càng phải chịu ít dao động. Lợi suất bình quân của kỳ càng sát 0 thì mẫu số càng mỏng và con số càng nhảy.',
@@ -846,6 +850,7 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       },
       inputs: { sessions: 55 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 19.7749,
       note: {
         vi: 'Biên độ giữa đỉnh và đáy dễ hình dung hơn độ lệch chuẩn nên hợp để đặt kỳ vọng về mức dao động phải ngồi qua. Bù lại nó chỉ đọc hai điểm cực trị, nên một phiên bất thường cũng đủ kéo con số đi.',
@@ -990,6 +995,7 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       },
       inputs: { sessions: 55 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 4,
       note: {
         vi: 'Con số này đo sức chịu đựng chứ không đo tiền: biết trước rằng mấy phiên đỏ nối nhau là chuyện thường gặp thì đỡ hoảng khi gặp thật. Trong kỳ có hai đoạn dài bằng nhau, một ở giữa tháng 7 và một ở giữa tháng 8/2026.',

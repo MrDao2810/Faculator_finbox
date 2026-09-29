@@ -16,12 +16,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'RSI vượt 70 trong một xu hướng tăng mạnh. Cách đọc đúng?' },
     choices: {
-      a: { vi: 'Tín hiệu bán, chốt lời ngay' },
-      b: { vi: 'Quá mua cũng là dấu hiệu SỨC MẠNH, RSI có thể ở trên 70 rất lâu' },
+      a: { vi: 'Quá mua cũng là dấu hiệu SỨC MẠNH, RSI có thể ở trên 70 rất lâu' },
+      b: { vi: 'Tín hiệu bán, chốt lời ngay' },
       c: { vi: 'Cổ phiếu đang đắt' },
       d: { vi: 'Sắp đảo chiều trong 3 phiên' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Trong một xu hướng tăng mạnh, RSI trên 70 là dấu hiệu SỨC MẠNH của xu hướng chứ không phải tín hiệu bán: chỉ báo động lượng có thể nằm lì trong vùng quá mua suốt cả nhịp tăng. StockCharts: “Momentum oscillators can become overbought (oversold) and remain so in a strong up (down) trend” và “overbought can also be a sign of strength”. Một bài khác nói gọn hơn: “RSI above 70 is not a red flag, but a green light for momentum”.',
       en: 'Inside a strong uptrend, RSI above 70 is a mark of STRENGTH in the trend rather than a sell signal: a momentum oscillator can sit in overbought territory for the whole advance. StockCharts: “Momentum oscillators can become overbought (oversold) and remain so in a strong up (down) trend” and “overbought can also be a sign of strength”. Another piece puts it more bluntly: “RSI above 70 is not a red flag, but a green light for momentum”.',
@@ -41,11 +41,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Welles Wilder thiết kế RSI năm 1978 cho trạng thái thị trường nào?' },
     choices: {
       a: { vi: 'Thị trường xu hướng mạnh' },
-      b: { vi: 'Thị trường đi ngang' },
-      c: { vi: 'Mọi trạng thái' },
+      b: { vi: 'Mọi trạng thái' },
+      c: { vi: 'Thị trường đi ngang' },
       d: { vi: 'Thị trường phái sinh' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: "Wilder thiết kế RSI năm 1978 cho thị trường ĐI NGANG, để bắt các cực trị trong một biên dao động, chứ không phải cho thị trường có xu hướng mạnh. Đó cũng là lý do ngưỡng 30/70 hay hỏng khi giá đang chạy theo xu hướng. Nguyên văn: “Welles Wilder, who created RSI in 1978, intended it to spot extremes in sideways markets. But there's an obvious twist (or trap): in trending markets, those rules of thumb don't always hold up”.",
       en: "Wilder built RSI in 1978 for SIDEWAYS markets, to catch extremes inside a range, not for strongly trending ones. That is also why the 30/70 thresholds keep failing while price is running with a trend. Verbatim: “Welles Wilder, who created RSI in 1978, intended it to spot extremes in sideways markets. But there's an obvious twist (or trap): in trending markets, those rules of thumb don't always hold up”.",
@@ -67,13 +67,13 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Do thiếu dữ liệu' },
-      b: {
+      b: { vi: 'Do múi giờ' },
+      c: { vi: 'Do bảng điện làm tròn' },
+      d: {
         vi: 'RSI chuẩn Wilder dùng làm mượt hệ số 1/n, không phải SMA cũng không phải EMA 2/(n+1)',
       },
-      c: { vi: 'Do múi giờ' },
-      d: { vi: 'Do bảng điện làm tròn' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Vì Wilder không dùng trung bình cộng đơn giản mà dùng một lối làm mượt riêng, cộng dồn giá trị kỳ trước với trọng số 13/14. Nguyên văn công thức: “Average Gain = [(previous Average Gain) x 13 + current Gain] / 14”. Thay nó bằng trung bình cộng hay bằng EMA là ra một chỉ số khác hẳn: nguồn đo được “EMA RSI overshoots Wilder RSI by 5–10 points”, và “The same 14-period RSI can display materially different values across platforms purely because of the smoothing method”.',
       en: 'Because Wilder does not use a simple average but his own smoothing, carrying the previous value forward with a weight of 13/14. The formula verbatim: “Average Gain = [(previous Average Gain) x 13 + current Gain] / 14”. Swap it for a simple average or an EMA and you get a different indicator: the source measures that “EMA RSI overshoots Wilder RSI by 5–10 points”, and “The same 14-period RSI can display materially different values across platforms purely because of the smoothing method”.',
@@ -95,11 +95,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Một bên tính sai' },
-      b: { vi: 'Làm mượt đệ quy nên giá trị phụ thuộc lượng dữ liệu nạp vào (điểm khởi đầu)' },
-      c: { vi: 'Do giá điều chỉnh cổ tức' },
+      b: { vi: 'Do giá điều chỉnh cổ tức' },
+      c: { vi: 'Làm mượt đệ quy nên giá trị phụ thuộc lượng dữ liệu nạp vào (điểm khởi đầu)' },
       d: { vi: 'Do chu kỳ 14 không chuẩn' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Vì làm mượt kiểu Wilder cộng dồn từ phiên đầu tiên có dữ liệu, nên điểm bắt đầu và độ dài chuỗi quyết định kết quả: hai phần mềm nạp số phiên lịch sử khác nhau sẽ ra hai con số khác nhau dù cùng chu kỳ 14. Một trader mô tả: “RSI value depends on starting point and if you do not have enough data the calculations will not match”. StockCharts xác nhận: “RSI values may differ based on the total calculation period”.',
       en: 'Because Wilder smoothing accumulates from the first session with data, so the starting point and the length of the series decide the result: two platforms loading different amounts of history return different numbers even on the same 14-period setting. One trader describes it: “RSI value depends on starting point and if you do not have enough data the calculations will not match”. StockCharts confirms: “RSI values may differ based on the total calculation period”.',
@@ -119,13 +119,13 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Phân kỳ giảm của RSI xuất hiện trong xu hướng tăng mạnh. Độ tin cậy?' },
     choices: {
       a: { vi: 'Rất cao, nên bán' },
-      b: {
+      b: { vi: 'Chỉ tin nếu kèm khối lượng' },
+      c: { vi: 'Luôn đúng sau 5 phiên' },
+      d: {
         vi: 'Thấp — xu hướng tăng mạnh sinh hàng loạt phân kỳ giảm trước khi đỉnh thật xuất hiện',
       },
-      c: { vi: 'Chỉ tin nếu kèm khối lượng' },
-      d: { vi: 'Luôn đúng sau 5 phiên' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Độ tin cậy thấp: trong xu hướng tăng mạnh, phân kỳ giảm xuất hiện liên tục mà giá vẫn đi lên, nên bán theo nó là bán sớm nhiều lần trước khi đỉnh thật xuất hiện. StockCharts: “divergences are misleading in a strong trend. A strong uptrend can show numerous bearish divergences before a top materializes”. Nguồn trong nước (DSC) nói cùng ý: RSI “có thể bị kẹt trong vùng quá mua hoặc quá bán trong thời gian dài, dẫn đến việc đưa ra các tín hiệu đảo chiều sớm và không chính xác”.',
       en: 'Low. Inside a strong uptrend bearish divergences appear again and again while price keeps rising, so trading them means selling early, repeatedly, before the real top arrives. StockCharts: “divergences are misleading in a strong trend. A strong uptrend can show numerous bearish divergences before a top materializes”. A Vietnamese source (DSC) makes the same point: RSI “có thể bị kẹt trong vùng quá mua hoặc quá bán trong thời gian dài, dẫn đến việc đưa ra các tín hiệu đảo chiều sớm và không chính xác” (it can stay stuck in overbought or oversold territory for a long time, producing early and inaccurate reversal signals).',
@@ -176,19 +176,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'About 95%, because 2 standard deviations of a normal distribution cover 95%',
       },
       b: {
-        vi: 'Khoảng 90%, và không được suy ra bất kỳ tỷ lệ thống kê nào từ con số 2 độ lệch chuẩn',
-        en: 'About 90%, and no statistical claim at all should be read into the 2-standard-deviation setting',
-      },
-      c: {
         vi: 'Đúng 68%, vì mỗi dải chỉ cách đường trung bình 1 độ lệch chuẩn',
         en: 'Exactly 68%, because each band sits 1 standard deviation from the average',
+      },
+      c: {
+        vi: 'Khoảng 90%, và không được suy ra bất kỳ tỷ lệ thống kê nào từ con số 2 độ lệch chuẩn',
+        en: 'About 90%, and no statistical claim at all should be read into the 2-standard-deviation setting',
       },
       d: {
         vi: '100%, giá không bao giờ đóng cửa ra ngoài dải',
         en: '100%, price never closes outside the bands',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Quy tắc 14 trong bộ 22 quy tắc chính thức của John Bollinger nói thẳng là đừng gắn giả thiết thống kê nào vào con số 2 độ lệch chuẩn: “In practice we typically find 90%, not 95%, of the data inside Bollinger Bands with the default parameters”. Lý do quy tắc này nêu là phân phối giá chứng khoán không phải phân phối chuẩn, và mẫu 20 phiên quá nhỏ để có ý nghĩa thống kê. Con số 2 là một lựa chọn thực nghiệm để dải bao được phần lớn giá, không phải một ngưỡng xác suất.',
       en: "Rule 14 of John Bollinger's own 22 rules says outright that no statistical assumption belongs on the 2-standard-deviation setting: “In practice we typically find 90%, not 95%, of the data inside Bollinger Bands with the default parameters”. The rule gives the reason: security prices are not normally distributed, and a 20-period sample is far too small for statistical significance. The 2 is an empirical choice that contains most of the price action, not a probability threshold.",
@@ -215,19 +215,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'A strong buy signal, since closing above the upper band means buyers are in control',
       },
       b: {
-        vi: 'Một trong ba lỗi cốt lõi: phá vỡ thiếu xác nhận khối lượng thường là phá vỡ giả, giá quay ngược vào trong dải',
-        en: 'One of three core errors: a break with no volume confirmation is usually a false break and price turns back inside the bands',
-      },
-      c: {
         vi: 'Tín hiệu bán, vì ra ngoài dải trên là đã quá mua',
         en: 'A sell signal, because trading outside the upper band means overbought',
       },
-      d: {
+      c: {
         vi: 'Không nói lên điều gì, phải chờ giá chạm dải dưới mới có tín hiệu',
         en: 'It says nothing; you must wait for price to reach the lower band before acting',
       },
+      d: {
+        vi: 'Một trong ba lỗi cốt lõi: phá vỡ thiếu xác nhận khối lượng thường là phá vỡ giả, giá quay ngược vào trong dải',
+        en: 'One of three core errors: a break with no volume confirmation is usually a false break and price turns back inside the bands',
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Công ty chứng khoán DSC xếp việc vào lệnh breakout mà thiếu xác nhận khối lượng vào đúng ba lỗi cốt lõi khi dùng Bollinger Bands: “Một phiên phá vỡ dải biên nhưng khối lượng giao dịch thấp thường là phá vỡ giả.” Bản thân dải trên chỉ là trung bình cộng với độ lệch chuẩn của giá, nó không nhìn thấy khối lượng, nên phần xác nhận buộc phải lấy từ chỗ khác. Đây là giới hạn của công thức chứ không phải lỗi cài đặt tham số.',
       en: 'Vietnamese broker DSC files chasing a breakout without volume confirmation among exactly three core errors in using Bollinger Bands: “Một phiên phá vỡ dải biên nhưng khối lượng giao dịch thấp thường là phá vỡ giả.” (a session that breaks the band on low volume is usually a false break). The upper band is only a moving average plus the standard deviation of price; it cannot see volume, so the confirmation has to come from somewhere else. That is a limit of the formula itself, not a settings problem.',
@@ -254,19 +254,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Leave it at 2, since the multiplier has nothing to do with the length of the average',
       },
       b: {
-        vi: 'Nâng lên 2,1; ngược lại nếu rút chu kỳ xuống 10 phiên thì hạ còn 1,9',
-        en: 'Raise it to 2.1; conversely, shortening the average to 10 periods means lowering it to 1.9',
-      },
-      c: {
         vi: 'Hạ xuống 1,9, vì chu kỳ dài đã làm dải rộng sẵn rồi',
         en: 'Lower it to 1.9, because a longer average already makes the bands wider',
+      },
+      c: {
+        vi: 'Nâng lên 2,1; ngược lại nếu rút chu kỳ xuống 10 phiên thì hạ còn 1,9',
+        en: 'Raise it to 2.1; conversely, shortening the average to 10 periods means lowering it to 1.9',
       },
       d: {
         vi: 'Đổi trung bình sang EMA rồi giữ nguyên hệ số 2',
         en: 'Switch the average to an EMA and keep the multiplier at 2',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Quy tắc 11 của John Bollinger ghi rõ, và nêu luôn mục đích là giữ mức bao phủ giá ổn định: “If the average is lengthened the number of standard deviations needs to be increased; from 2 at 20 periods, to 2.1 at 50 periods”. Chu kỳ càng dài thì giá càng có thời gian đi xa khỏi đường trung bình, tỷ lệ phiên lọt ra ngoài dải tăng lên, nên hệ số phải nới ra; rút chu kỳ xuống 10 phiên thì làm ngược lại, hạ về 1,9. Bê nguyên hệ số 2 sang mọi chu kỳ là chỗ sai hay gặp nhất khi tự chỉnh tham số.',
       en: "Bollinger's rule 11 states it, and names the purpose as consistent price containment: “If the average is lengthened the number of standard deviations needs to be increased; from 2 at 20 periods, to 2.1 at 50 periods”. A longer average gives price more room to wander away from it, so more sessions fall outside the bands and the multiplier has to widen; shortening the average to 10 periods works the other way, down to 1.9. Carrying the multiplier of 2 over to every period length is the usual mistake when people retune the settings themselves.",
@@ -289,23 +289,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Độ lệch chuẩn tổng thể, mẫu số là n (Excel: STDEV.P)',
-        en: 'Population standard deviation, divided by n (Excel: STDEV.P)',
-      },
-      b: {
         vi: 'Độ lệch chuẩn mẫu, mẫu số là n − 1 (Excel: STDEV.S)',
         en: 'Sample standard deviation, divided by n − 1 (Excel: STDEV.S)',
       },
-      c: {
+      b: {
         vi: 'Sai số chuẩn của trung bình, tức độ lệch chuẩn chia cho căn bậc hai của n',
         en: 'Standard error of the mean, the standard deviation divided by the square root of n',
       },
-      d: {
+      c: {
         vi: 'Độ lệch tuyệt đối bình quân so với đường trung bình',
         en: 'Mean absolute deviation from the moving average',
       },
+      d: {
+        vi: 'Độ lệch chuẩn tổng thể, mẫu số là n (Excel: STDEV.P)',
+        en: 'Population standard deviation, divided by n (Excel: STDEV.P)',
+      },
     },
-    answer: 'a',
+    answer: 'd',
     explain: {
       vi: 'Chính John Bollinger ghi trong phần kể lại cách ông dựng chỉ báo: “We use the population calculation for standard deviation”, tức chia cho n chứ không phải n − 1. Nhiều người quen tay dùng STDEV.S vì đó là hàm độ lệch chuẩn mặc định trong đầu, nhưng nó cho kết quả lớn hơn, với 20 phiên là lớn hơn khoảng 2,6%, nên dải trên vẽ ra cao hơn dải trên trên phần mềm biểu đồ. Cùng một mã, cùng một ngày, hai người sẽ đọc ra hai mức giá khác nhau chỉ vì mẫu số.',
       en: 'John Bollinger himself, recounting how he settled on the indicator, writes: “We use the population calculation for standard deviation” — the divisor is n, not n − 1. Many people reach for STDEV.S out of habit, but it returns a larger figure, about 2.6% larger over 20 sessions, so the upper band is drawn higher than the one their charting software shows. Same ticker, same day, two different readings, purely because of the divisor.',
@@ -324,14 +324,14 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Trong xu hướng tăng mạnh, giá gần như không chạm dải dưới. Ý nghĩa?' },
     choices: {
-      a: { vi: 'Chỉ báo bị lỗi' },
-      b: {
+      a: {
         vi: 'Bình thường — giá đi bộ dọc dải trên, và “thấp tương đối” không có nghĩa là nên mua',
       },
+      b: { vi: 'Chỉ báo bị lỗi' },
       c: { vi: 'Phải đổi chu kỳ sang 50' },
       d: { vi: 'Sắp có điều chỉnh' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Nghĩa là xu hướng đang mạnh, không phải là mất cơ hội mua: trong một nhịp tăng, giá thường xuyên không chạm dải dưới suốt cả nhịp, và bản thân việc giá ở vùng thấp hay cao của dải cũng không phải tín hiệu mua bán. StockCharts: “Relatively low should not be considered bullish or a buy signal. Prices are high or low for a reason”, và “It is also common for prices to never reach the lower band during an uptrend”.',
       en: 'It means the trend is strong, not that a buying chance was missed: through an advance, price commonly never touches the lower band, and sitting low or high inside the bands is not in itself a trading signal. StockCharts: “Relatively low should not be considered bullish or a buy signal. Prices are high or low for a reason”, and “It is also common for prices to never reach the lower band during an uptrend”.',
@@ -397,19 +397,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'About 95%, matching what a normal distribution predicts',
       },
       b: {
-        vi: 'Khoảng 88–89%, thấp hơn mức phân phối chuẩn dự đoán',
-        en: 'About 88-89%, lower than what a normal distribution predicts',
-      },
-      c: {
         vi: 'Khoảng 99%, cao hơn mức phân phối chuẩn dự đoán',
         en: 'About 99%, higher than what a normal distribution predicts',
+      },
+      c: {
+        vi: 'Khoảng 88–89%, thấp hơn mức phân phối chuẩn dự đoán',
+        en: 'About 88-89%, lower than what a normal distribution predicts',
       },
       d: {
         vi: 'Không cố định, vì Bollinger chưa bao giờ đưa ra con số cụ thể',
         en: 'No fixed figure — Bollinger never gave a specific number',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'StockCharts ghi rõ: “According to Bollinger, the bands should contain 88-89% of price action, which makes a move outside the bands significant.” Con số này THẤP hơn mức ~95% mà phân phối chuẩn dự đoán cho khoảng ± 2 độ lệch chuẩn — chỗ hay bị hiểu lầm là đem thẳng quy tắc thống kê "2 sigma ≈ 95%" áp vào giá cổ phiếu, trong khi lợi suất giá thực tế có đuôi phân phối dày hơn phân phối chuẩn, nên tỷ lệ nằm trong dải thấp hơn con số lý thuyết. Chính vì tỷ lệ chỉ 88–89%, không phải 95% hay cao hơn, mà một cú phá dải mới được Bollinger xem là đáng chú ý.',
       en: 'StockCharts states it plainly: “According to Bollinger, the bands should contain 88-89% of price action, which makes a move outside the bands significant.” That figure is lower than the ~95% a normal distribution would predict for ±2 standard deviations — the common slip is carrying the textbook "2 sigma is about 95%" rule straight over to stock prices, when actual returns have fatter tails than a normal distribution, so less of the data falls inside the bands than theory would suggest. It is precisely because the share is only 88-89%, not 95% or higher, that Bollinger treats a move outside the bands as significant.',
@@ -436,19 +436,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The pattern is invalidated, since the second low must break the band more deeply than the first to count as confirmation',
       },
       b: {
-        vi: 'Đà giảm ở đáy sau đã yếu hơn đáy trước, nên đây là tín hiệu có lợi cho khả năng đảo chiều tăng',
-        en: 'Downside momentum has weakened compared with the first low, which favors a bullish reversal',
-      },
-      c: {
         vi: 'Không có ý nghĩa gì — dải Bollinger tự dịch chuyển theo giá nên phép so sánh này vô nghĩa',
         en: 'It means nothing — the bands move with price, so this comparison is meaningless',
+      },
+      c: {
+        vi: 'Đà giảm ở đáy sau đã yếu hơn đáy trước, nên đây là tín hiệu có lợi cho khả năng đảo chiều tăng',
+        en: 'Downside momentum has weakened compared with the first low, which favors a bullish reversal',
       },
       d: {
         vi: 'Đáy thứ hai bắt buộc phải chạm đúng dải dưới thì W-Bottom mới hợp lệ',
         en: 'The second low must touch the lower band exactly for the W-Bottom to be valid',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'StockCharts mô tả bốn bước của W-Bottom, bước ba là: “there is a new price low in the security. This low holds above the lower band.” Rồi trang giải thích thẳng ý nghĩa: “The ability to hold above the lower band on the test shows less weakness on the last decline.” Trực giác thông thường dễ nghĩ ngược lại — đáy sau phải phá dải sâu hơn mới là "xác nhận mạnh hơn" — nhưng đọc theo dải Bollinger thì ngược lại: giữ được trên dải ở lần test thứ hai mới là dấu hiệu đà bán đã cạn.',
       en: 'StockCharts describes the W-Bottom in four steps, the third being: “there is a new price low in the security. This low holds above the lower band.” The page then states the reading directly: “The ability to hold above the lower band on the test shows less weakness on the last decline.” The intuitive guess runs the other way — that the second low should break the band even more deeply to count as "stronger confirmation" — but reading it through the bands works in reverse: holding above the band on the second test is what shows selling pressure has faded.',
@@ -468,11 +468,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Dải Bollinger thắt lại (squeeze). Thông tin nào bạn KHÔNG có được?' },
     choices: {
       a: { vi: 'Biến động đang co lại' },
-      b: { vi: 'Hướng của cú phá vỡ sắp tới' },
-      c: { vi: 'Độ rộng dải đang ở mức thấp' },
-      d: { vi: 'Có thể sắp có biến động mạnh' },
+      b: { vi: 'Độ rộng dải đang ở mức thấp' },
+      c: { vi: 'Có thể sắp có biến động mạnh' },
+      d: { vi: 'Hướng của cú phá vỡ sắp tới' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Bạn KHÔNG có được hướng đi sắp tới. Dải thắt lại chỉ nói biến động đang co lại, còn nổ ra theo chiều nào thì nó không nói. StockCharts: “Narrowing bands do not provide any directional clues. They simply infer that volatility is contracting”. John Bollinger còn mô tả cú “head fake”, phá giả một chiều rồi đảo hẳn sang chiều kia: “Unconfirmed band breaks are subject to failure”.',
       en: 'What you do NOT get is direction. A squeeze only says volatility is contracting; which way it breaks is not in the signal. StockCharts: “Narrowing bands do not provide any directional clues. They simply infer that volatility is contracting”. John Bollinger also describes the “head fake”, a false break one way before the real move the other: “Unconfirmed band breaks are subject to failure”.',
@@ -629,12 +629,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Đủ, vì BandWidth dưới 10 % đã là dải hẹp',
-        en: 'Yes, any BandWidth under 10% is a tight band',
-      },
-      b: {
         vi: 'Chưa chắc: Squeeze là khi BandWidth xuống thấp nhất trong 6 tháng của chính mã đó, 5 % mới chỉ là dải đang hẹp',
         en: "Not necessarily: a Squeeze is when BandWidth is at its lowest in that stock's own last 6 months; 5% only says the bands are tight",
+      },
+      b: {
+        vi: 'Đủ, vì BandWidth dưới 10 % đã là dải hẹp',
+        en: 'Yes, any BandWidth under 10% is a tight band',
       },
       c: {
         vi: 'Đủ, miễn là dùng đúng tham số mặc định (20, 2)',
@@ -642,7 +642,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       },
       d: { vi: 'Không, Squeeze phải dưới 2 %', en: 'No, a Squeeze needs BandWidth under 2%' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: "Trang sàng lọc của John Bollinger định nghĩa Squeeze theo lịch sử của chính mã đó, không theo một con số tuyệt đối: “Squeeze means a stock's BandWidth is at its narrowest (lowest %) in 6 months.” Và nói thẳng về những con số như 5 %: “BandWidth of 5% and 10% are examples of tightened BandWidth, but do not necessarily constitute a Squeeze.” Muốn biết 5 % có phải Squeeze không, phải kéo lịch sử BandWidth 6 tháng của mã đó ra xem nó có đang ở đáy hay không; không có ngưỡng 10 % hay 2 % nào thay được việc đó.",
       en: "John Bollinger's screening page defines a Squeeze against the stock's own history, not against an absolute number: “Squeeze means a stock's BandWidth is at its narrowest (lowest %) in 6 months.” And it says outright about numbers like 5%: “BandWidth of 5% and 10% are examples of tightened BandWidth, but do not necessarily constitute a Squeeze.” To know whether 5% is a Squeeze you have to pull up that stock's BandWidth over the last 6 months and see whether it sits at the bottom; no 10% or 2% threshold replaces that check.",
@@ -662,11 +662,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: '%B vượt 1 nhiều lần trên biểu đồ Apple. Các tín hiệu “quá mua” đó ra sao?' },
     choices: {
       a: { vi: 'Đều chính xác' },
-      b: { vi: 'Đều thất bại — nên chỉ tìm quá mua khi xu hướng trung hạn đang giảm' },
-      c: { vi: 'Chỉ đúng nửa số lần' },
-      d: { vi: 'Không kiểm chứng được' },
+      b: { vi: 'Chỉ đúng nửa số lần' },
+      c: { vi: 'Không kiểm chứng được' },
+      d: { vi: 'Đều thất bại — nên chỉ tìm quá mua khi xu hướng trung hạn đang giảm' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Chúng là tín hiệu bán hỏng: %B vượt 1 nhiều lần trên đồ thị Apple mà giá vẫn đi tiếp, nên đọc riêng ngưỡng quá mua là bán sớm. Phải xác định xu hướng lớn trước rồi mới đọc quá mua hay quá bán trong khuôn xu hướng ấy. StockCharts: “%B moved above 1 several times, but these overbought readings still failed to produce good sell signals”, và khuyên “identify the bigger trend before looking for overbought or oversold readings”.',
       en: 'They were failed sell signals: %B rose above 1 several times on the Apple chart while price carried on, so reading the overbought threshold on its own means selling early. Establish the larger trend first, then read overbought or oversold inside it. StockCharts: “%B moved above 1 several times, but these overbought readings still failed to produce good sell signals”, advising to “identify the bigger trend before looking for overbought or oversold readings”.',
@@ -815,13 +815,13 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'MACD cắt xuống đường tín hiệu ở vùng cực trị dương. Nên hiểu thế nào?' },
     choices: {
       a: { vi: 'Tín hiệu bán đáng tin' },
-      b: {
+      b: { vi: 'Tín hiệu mua ngược' },
+      c: {
         vi: 'Thận trọng — ở vùng cực trị, động lượng chậm lại một cách cơ học sẽ tự sinh giao cắt',
       },
-      c: { vi: 'Tín hiệu mua ngược' },
       d: { vi: 'Bỏ qua hoàn toàn' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Nên đọc thận trọng: ở vùng cực trị, động lượng chậm lại là chuyện gần như chắc chắn xảy ra, nên giao cắt đường tín hiệu ở đó thường chỉ phản ánh việc đà tăng bớt gấp chứ chưa nói giá sẽ đảo chiều. StockCharts: “Signal line crossovers at positive or negative extremes should be viewed with caution... momentum is likely to slow and this will usually produce a signal line crossover at the extremities”. Giao cắt đường 0 trong thị trường không xu hướng còn gây whipsaw hàng loạt.',
       en: 'Read it cautiously: at an extreme, momentum slowing is close to inevitable, so a signal-line cross there usually just reflects the advance losing urgency rather than price about to turn. StockCharts: “Signal line crossovers at positive or negative extremes should be viewed with caution... momentum is likely to slow and this will usually produce a signal line crossover at the extremities”. Zero-line crosses in a trendless market also produce whipsaws in bulk.',
@@ -844,12 +844,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Cắt nhau càng nhiều thì xu hướng giá càng chắc chắn',
-        en: 'The more crossovers, the more certain the price trend',
-      },
-      b: {
         vi: 'Tần suất dày cho thấy một lần cắt đơn lẻ không đảm bảo đúng — thực tế có cả tín hiệu tốt lẫn tín hiệu xấu trong 8 lần đó',
         en: 'Such a high frequency shows a single crossover is no guarantee — the eight crossovers included both good and bad signals',
+      },
+      b: {
+        vi: 'Cắt nhau càng nhiều thì xu hướng giá càng chắc chắn',
+        en: 'The more crossovers, the more certain the price trend',
       },
       c: {
         vi: 'Đây là bằng chứng bộ tham số 12,26,9 tính sai cho IBM',
@@ -860,7 +860,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Only crossovers happening at the start of a month should be trusted',
       },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'StockCharts nêu ví dụ IBM: “There were eight signal line crossovers in six months: four up and four down. There were some good signals and some bad signals.” Một lần cắt riêng lẻ không đủ để khẳng định đúng hay sai, phải đọc kèm bối cảnh xu hướng nền.',
       en: 'StockCharts notes on IBM: “There were eight signal line crossovers in six months: four up and four down. There were some good signals and some bad signals.” A single crossover by itself cannot be called right or wrong — it has to be read alongside the broader trend.',
@@ -887,19 +887,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The signal line used the wrong EMA period',
       },
       b: {
-        vi: 'Tín hiệu cắt hai đường vốn bị trễ vì dựa trên trung bình động, nên cần một cách để đoán trước lúc nó sắp xảy ra',
-        en: 'The two-line crossover is inherently late because it is built from moving averages, so a way to anticipate it in advance was needed',
-      },
-      c: {
         vi: 'Đường tín hiệu không thể vẽ chung biểu đồ với MACD',
         en: 'The signal line could not be plotted on the same chart as MACD',
+      },
+      c: {
+        vi: 'Tín hiệu cắt hai đường vốn bị trễ vì dựa trên trung bình động, nên cần một cách để đoán trước lúc nó sắp xảy ra',
+        en: 'The two-line crossover is inherently late because it is built from moving averages, so a way to anticipate it in advance was needed',
       },
       d: {
         vi: 'Đường tín hiệu chỉ đúng với chỉ số, không đúng với cổ phiếu lẻ',
         en: 'The signal line is only valid for indices, not individual stocks',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'StockCharts: “Thomas Aspray developed the MACD-Histogram to anticipate signal line crossovers in MACD.” Lý do nêu thêm trên cùng trang: “Because MACD uses moving averages and moving averages lag price, signal line crossovers can come late and affect the reward-to-risk ratio of a trade.” Cột histogram tiến sát 0 (thường trong khoảng -0,20 đến +0,20 với bộ 12,26,9) là dấu hiệu giao cắt sắp xảy ra, trước khi nó thật sự xảy ra.',
       en: 'StockCharts: “Thomas Aspray developed the MACD-Histogram to anticipate signal line crossovers in MACD.” The reason given on the same page: “Because MACD uses moving averages and moving averages lag price, signal line crossovers can come late and affect the reward-to-risk ratio of a trade.” A histogram bar nearing zero (typically between -.20 and +.20 for a 12,26,9 set) hints a crossover is about to happen, ahead of the actual cross.',
@@ -997,12 +997,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Bằng giá trị MACD của chính phiên đó nhân với hệ số K',
-        en: "That session's own MACD value multiplied by K",
-      },
-      b: {
         vi: 'Bằng trung bình cộng đơn giản của 9 giá trị MACD đầu tiên; từ phiên sau mới chuyển sang công thức EMA đệ quy',
         en: 'The simple average of the first 9 MACD values; only from the next session does the recursive EMA formula take over',
+      },
+      b: {
+        vi: 'Bằng giá trị MACD của chính phiên đó nhân với hệ số K',
+        en: "That session's own MACD value multiplied by K",
       },
       c: {
         vi: 'Bằng 0, vì chưa có EMA phiên trước để tính',
@@ -1013,7 +1013,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The average of MACD and the closing price',
       },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Fairmont Equities: “The first value of the 9 Day EMA of the MACD will be the averages of the first 9 MACD values.” Từ phiên thứ 10 trở đi mới dùng công thức EMA đệ quy dựa trên EMA phiên trước. Đối chiếu với hàm lastEma trong src/core/formulas/series-utils.ts của chính sản phẩm: công thức cũng mồi bằng SMA của N phiên đầu rồi mới đệ quy — đúng quy ước này, nên số ra khớp được với các bảng giá phổ thông.',
       en: "Fairmont Equities: “The first value of the 9 Day EMA of the MACD will be the averages of the first 9 MACD values.” Only from the 10th session onward does the recursive EMA formula, built on the prior EMA, take over. This matches the product's own lastEma function in src/core/formulas/series-utils.ts, which also seeds with the SMA of the first N periods before recursing — the same convention that lets the figures line up with common price platforms.",
@@ -1056,12 +1056,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Hệ thống giao cắt MA hoạt động kém nhất trong điều kiện nào?' },
     choices: {
-      a: { vi: 'Xu hướng tăng mạnh' },
-      b: { vi: 'Thị trường đi ngang — sinh nhiều whipsaw' },
+      a: { vi: 'Thị trường đi ngang — sinh nhiều whipsaw' },
+      b: { vi: 'Xu hướng tăng mạnh' },
       c: { vi: 'Xu hướng giảm mạnh' },
       d: { vi: 'Phiên có khối lượng lớn' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: "Kém nhất khi thị trường đi ngang trong một biên hẹp: không có xu hướng thì hai đường trung bình cắt qua cắt lại, mỗi lần cắt là một lệnh lỗ nhỏ. StockCharts: “Securities spend much time in trading ranges, which renders moving averages ineffective” và “When there's no strong trend, a moving average crossover system will produce many whipsaws”, ví dụ Home Depot phải chịu “three whipsaws before catching a good trade”.",
       en: "Worst inside a narrow sideways range: with no trend the two averages cross back and forth, and each cross is another small losing trade. StockCharts: “Securities spend much time in trading ranges, which renders moving averages ineffective” and “When there's no strong trend, a moving average crossover system will produce many whipsaws”, with Home Depot taking “three whipsaws before catching a good trade”.",
@@ -1123,23 +1123,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Xác nhận thêm bằng khối lượng giao dịch tại thời điểm xảy ra giao cắt',
-        en: 'Confirm with trading volume at the moment the crossover happens',
-      },
-      b: {
-        vi: 'Kết hợp thêm chỉ báo RSI hoặc MACD để kiểm tra trạng thái quá mua/quá bán trước khi ra quyết định',
-        en: 'Add RSI or MACD to check for overbought/oversold conditions before deciding',
-      },
-      c: {
-        vi: 'Không mua đuổi ngay khi vừa xuất hiện giao cắt, nên chờ giá kiểm định lại đường MA',
-        en: 'Do not chase the cross the moment it appears — wait for price to retest the moving average',
-      },
-      d: {
         vi: 'Bỏ qua khối lượng giao dịch vì bản thân giao cắt hai đường MA đã đủ để tự xác nhận tín hiệu',
         en: 'Ignore trading volume, since the MA crossover itself is already enough confirmation',
       },
+      b: {
+        vi: 'Xác nhận thêm bằng khối lượng giao dịch tại thời điểm xảy ra giao cắt',
+        en: 'Confirm with trading volume at the moment the crossover happens',
+      },
+      c: {
+        vi: 'Kết hợp thêm chỉ báo RSI hoặc MACD để kiểm tra trạng thái quá mua/quá bán trước khi ra quyết định',
+        en: 'Add RSI or MACD to check for overbought/oversold conditions before deciding',
+      },
+      d: {
+        vi: 'Không mua đuổi ngay khi vừa xuất hiện giao cắt, nên chờ giá kiểm định lại đường MA',
+        en: 'Do not chase the cross the moment it appears — wait for price to retest the moving average',
+      },
     },
-    answers: ['a', 'b', 'c'],
+    answers: ['b', 'c', 'd'],
     explain: {
       vi: 'Bài viết của DSC liệt kê các cách làm tín hiệu giao cắt MA đáng tin hơn. Về khối lượng: “Khối lượng giao dịch là yếu tố then chốt. Một điểm cắt vàng đi kèm với thanh khoản tăng đột biến cho thấy dòng tiền lớn đang tham gia mua vào. Ngược lại, điểm cắt tử thần xuất hiện cùng khối lượng bán lớn chứng tỏ áp lực thoát hàng mạnh mẽ.” Về chỉ báo động lượng, bài khuyến nghị dùng thêm RSI hoặc MACD để kiểm tra vùng quá mua/quá bán trước khi vào lệnh. Và vì đường MA có độ trễ, DSC cảnh báo mua ngay khi vừa giao cắt đôi khi khiến nhà đầu tư mua đúng nhịp điều chỉnh ngắn hạn — nên chờ retest thay vì vào lệnh ngay. Phương án d ngược hoàn toàn với các khuyến nghị này.',
       en: "DSC's article lists ways to make the crossover signal more reliable. On volume, it states: “Khối lượng giao dịch là yếu tố then chốt. Một điểm cắt vàng đi kèm với thanh khoản tăng đột biến cho thấy dòng tiền lớn đang tham gia mua vào. Ngược lại, điểm cắt tử thần xuất hiện cùng khối lượng bán lớn chứng tỏ áp lực thoát hàng mạnh mẽ.” (trading volume is the key factor — a spike in volume on a golden cross shows large capital flowing in, while heavy selling volume on a death cross shows strong distribution pressure). It also recommends adding RSI or MACD to check for overbought/oversold zones before entering, and warns that because a moving average lags, buying right when the cross appears can mean buying right into a short-term pullback — better to wait for a retest first. Option d is the exact opposite of this advice.",
@@ -1197,14 +1197,14 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: '“EMA tốt hơn SMA vì nhạy hơn”. Đánh giá?' },
     choices: {
-      a: { vi: 'Đúng hoàn toàn' },
-      b: {
+      a: {
         vi: 'Không cái nào tốt hơn — EMA ít trễ nhưng nhạy với nhiễu, SMA hợp hơn để xác định hỗ trợ/kháng cự',
       },
+      b: { vi: 'Đúng hoàn toàn' },
       c: { vi: 'SMA luôn tốt hơn' },
       d: { vi: 'Phụ thuộc vốn hoá cổ phiếu' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Không có cái nào tốt hơn, chỉ có cái hợp việc hơn: EMA ít trễ hơn nên bám giá gần đây sát hơn, còn SMA là trung bình thật của cả kỳ nên hợp để xác định vùng hỗ trợ và kháng cự. StockCharts: “One is not necessarily better”; EMA “have less lag and are, therefore, more sensitive to recent prices”, còn SMA “represent a true average of prices for the entire period” và “may be better suited to identify support or resistance levels”.',
       en: 'Neither is better, they suit different jobs: an EMA lags less and so tracks recent prices more closely, while an SMA is a true average of the whole period and suits marking support and resistance. StockCharts: “One is not necessarily better”; EMAs “have less lag and are, therefore, more sensitive to recent prices”, while SMAs “represent a true average of prices for the entire period” and “may be better suited to identify support or resistance levels”.',
@@ -1297,22 +1297,22 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Perfectly accurate, since the formula only needs the most recent n sessions',
       },
       b: {
-        vi: 'Chỉ là một xấp xỉ — càng ít dữ liệu mồi phía trước thì càng lệch, vì mỗi EMA quá khứ vẫn góp một phần nhỏ vào EMA hiện tại mãi mãi',
-        en: "Only an approximation — the less seed history it has, the more it deviates, because every past EMA value still contributes a small, shrinking share to today's EMA forever",
-      },
-      c: {
         vi: 'Sai hoàn toàn, không thể tính được nếu chưa đủ đúng 3×12 = 36 phiên',
         en: 'Completely wrong — it cannot even be computed until exactly 3×12 = 36 sessions are available',
       },
-      d: {
+      c: {
         vi: 'Không liên quan gì đến số phiên, chỉ phụ thuộc việc tính theo ngày hay theo tuần',
         en: 'Unrelated to the number of sessions — it only depends on whether the period is measured in days or weeks',
       },
+      d: {
+        vi: 'Chỉ là một xấp xỉ — càng ít dữ liệu mồi phía trước thì càng lệch, vì mỗi EMA quá khứ vẫn góp một phần nhỏ vào EMA hiện tại mãi mãi',
+        en: "Only an approximation — the less seed history it has, the more it deviates, because every past EMA value still contributes a small, shrinking share to today's EMA forever",
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
-      vi: 'StockCharts nói rõ: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be”, và “Each previous EMA value accounts for a small portion of the current value.” Nghĩa là EMA 12 phiên tính đúng trên 12 phiên vẫn TÍNH ĐƯỢC bình thường (đáp án c sai — không có ngưỡng cứng 3×n để "tính được"), nhưng chỉ là một xấp xỉ vì bỏ qua lịch sử trước phiên đầu tiên; càng nạp thêm dữ liệu cũ, đường càng gần EMA lý tưởng.',
-      en: "StockCharts states: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be,” and “Each previous EMA value accounts for a small portion of the current value.” A 12-period EMA computed on exactly 12 sessions still computes fine (option c's hard 3×n threshold to compute it at all does not exist) — it is just an approximation, because the history before the first session is left out. The more prior data fed in, the closer the line gets to the ideal EMA.",
+      vi: 'StockCharts nói rõ: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be”, và “Each previous EMA value accounts for a small portion of the current value.” Nghĩa là EMA 12 phiên tính đúng trên 12 phiên vẫn TÍNH ĐƯỢC bình thường (đáp án b sai — không có ngưỡng cứng 3×n để "tính được"), nhưng chỉ là một xấp xỉ vì bỏ qua lịch sử trước phiên đầu tiên; càng nạp thêm dữ liệu cũ, đường càng gần EMA lý tưởng.',
+      en: "StockCharts states: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be,” and “Each previous EMA value accounts for a small portion of the current value.” A 12-period EMA computed on exactly 12 sessions still computes fine (option b's hard 3×n threshold to compute it at all does not exist) — it is just an approximation, because the history before the first session is left out. The more prior data fed in, the closer the line gets to the ideal EMA.",
     },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/moving-averages-simple-and-exponential',
@@ -1338,11 +1338,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     ],
     choices: {
       a: { vi: '14 phiên', en: '14 periods' },
-      b: { vi: '27 phiên', en: '27 periods' },
-      c: { vi: '28 phiên', en: '28 periods' },
+      b: { vi: '28 phiên', en: '28 periods' },
+      c: { vi: '27 phiên', en: '27 periods' },
       d: { vi: '7 phiên', en: '7 periods' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Macroption chỉ rõ hệ số làm mượt khác nhau giữa hai phương pháp — “The numerator in the formula for a is 2” (EMA) “but 1 under Wilder\'s method” — rồi kết luận: “Wilder ATR with a particular period (n) is approximately the same as EMA ATR with double the period (2n, or 2n - 1 to be precise).” Với n = 14, EMA tương đương là 2×14 − 1 = 27 phiên. Nhầm hai hệ số này với nhau (dùng 2/(n+1) khi lẽ ra là 1/n hoặc ngược lại) là lỗi khiến hai chỉ báo cùng "n phiên" nhưng phản ứng nhanh chậm khác hẳn nhau. Ba đáp án còn lại là ba lỗi hay gặp: 14 là tưởng hai lối làm mượt cùng chu kỳ thì cùng độ trễ; 28 là lấy 2n mà quên trừ 1; 7 là chia đôi, tức làm ngược chiều quy đổi.',
       en: 'Macroption spells out the different smoothing factor between the two methods — “The numerator in the formula for a is 2” for EMA “but 1 under Wilder\'s method” — and concludes: “Wilder ATR with a particular period (n) is approximately the same as EMA ATR with double the period (2n, or 2n - 1 to be precise).” With n = 14, the equivalent EMA period is 2×14 − 1 = 27. Confusing the two smoothing factors (using 2/(n+1) where the convention calls for 1/n, or vice versa) is what makes two indicators with the same "n periods" respond at very different speeds. The other three are common slips: 14 assumes the two smoothing conventions have the same lag at the same period; 28 takes 2n and forgets the −1; 7 halves the period, converting in the wrong direction.',
@@ -1362,11 +1362,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Đường trung bình động làm được việc gì?' },
     choices: {
       a: { vi: 'Dự báo hướng giá sắp tới' },
-      b: { vi: 'Xác định hướng hiện tại, không dự báo' },
-      c: { vi: 'Đo động lượng' },
-      d: { vi: 'Đo khối lượng' },
+      b: { vi: 'Đo động lượng' },
+      c: { vi: 'Đo khối lượng' },
+      d: { vi: 'Xác định hướng hiện tại, không dự báo' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: "Nó XÁC ĐỊNH hướng hiện tại chứ không dự báo hướng sắp tới: đường trung bình là số đã xảy ra được làm mượt, nên nó theo sau giá. Vì vậy đừng kỳ vọng bán được đỉnh và mua được đáy bằng nó. StockCharts: “A moving average doesn't predict price direction. Instead, it defines the current direction”, và “Don't expect to sell at the top and buy at the bottom using moving averages”.",
       en: "It DEFINES the current direction rather than predicting the next one: a moving average is smoothed history, so it follows price. Do not expect it to sell you the top and buy you the bottom. StockCharts: “A moving average doesn't predict price direction. Instead, it defines the current direction”, and “Don't expect to sell at the top and buy at the bottom using moving averages”.",
@@ -1471,19 +1471,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Both: more data makes it smoother and more responsive at the same time',
       },
       b: {
-        vi: 'Mượt hơn, ít tín hiệu nhiễu hơn, nhưng đổi hướng chậm hơn — độ trễ lớn hơn',
-        en: 'It gets smoother and gives fewer noisy signals, but turns later — the lag grows',
-      },
-      c: {
         vi: 'Nhạy hơn, vì cửa sổ lớn hơn thì đường phản ứng nhanh hơn',
         en: 'It becomes more responsive, because a larger window reacts faster',
+      },
+      c: {
+        vi: 'Mượt hơn, ít tín hiệu nhiễu hơn, nhưng đổi hướng chậm hơn — độ trễ lớn hơn',
+        en: 'It gets smoother and gives fewer noisy signals, but turns later — the lag grows',
       },
       d: {
         vi: 'Chỉ đổi độ cao của đường trên đồ thị, độ trễ không đổi',
         en: 'Only the height of the line on the chart changes; the lag stays the same',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Cửa sổ dài hơn kéo thêm giá cũ vào trung bình, nên đường phẳng hơn nhưng cũng chậm đổi hướng hơn. Chứng khoán Finhay (FHSC) viết: “Đường SMA càng dài thì tín hiệu càng trễ và càng ít bám đường giá của thị trường hơn.” Mượt và nhạy là hai đầu của cùng một cần gạt, không có số phiên nào cho cả hai cùng lúc.',
       en: 'A longer window pulls older prices into the average, so the line flattens but also turns later. Finhay Securities (FHSC) writes: “Đường SMA càng dài thì tín hiệu càng trễ và càng ít bám đường giá của thị trường hơn.” Smoothness and responsiveness are two ends of the same lever; no window length gives you both at once.',
@@ -1510,19 +1510,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Much less — the further back a session is, the less it matters',
       },
       b: {
-        vi: 'Bằng nhau — mọi phiên trong cửa sổ đều mang trọng số 1/n như nhau',
-        en: 'Exactly the same: every session inside the window carries the same 1/n weight',
-      },
-      c: {
         vi: 'Nặng hơn, vì nó là phiên đặt nền cho cả cửa sổ',
         en: 'More, because it sets the starting point for the whole window',
       },
-      d: {
+      c: {
         vi: 'Tuỳ biên độ phiên đó — phiên biến động mạnh thì trọng số lớn hơn',
         en: "It depends on that session's range — a volatile session weighs more",
       },
+      d: {
+        vi: 'Bằng nhau — mọi phiên trong cửa sổ đều mang trọng số 1/n như nhau',
+        en: 'Exactly the same: every session inside the window carries the same 1/n weight',
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'SMA là trung bình cộng thuần: tổng n giá đóng cửa chia cho n, nên phiên xa nhất trong cửa sổ nặng đúng bằng phiên gần nhất, và phiên thứ n+1 thì rơi hẳn ra ngoài. CFI: “The difference is that EMA places greater emphasis on recent prices, while SMA places equal weight on all data points.” Muốn phiên gần nặng hơn thì phải đổi sang EMA, chứ không phải nới số phiên của SMA.',
       en: 'An SMA is a plain arithmetic mean: n closing prices divided by n, so the oldest session in the window weighs exactly as much as the most recent one, while session n+1 drops out entirely. CFI: “The difference is that EMA places greater emphasis on recent prices, while SMA places equal weight on all data points.” If you want recent sessions to count for more, you need an EMA, not a longer SMA window.',
@@ -1542,11 +1542,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'ATR của cổ phiếu tăng gấp đôi trong một tuần. Thông tin này cho biết gì?' },
     choices: {
       a: { vi: 'Giá sắp tăng' },
-      b: { vi: 'Biến động tăng — ATR không chứa thông tin về hướng' },
-      c: { vi: 'Xu hướng tăng đang mạnh lên' },
-      d: { vi: 'Khối lượng đang tăng' },
+      b: { vi: 'Xu hướng tăng đang mạnh lên' },
+      c: { vi: 'Khối lượng đang tăng' },
+      d: { vi: 'Biến động tăng — ATR không chứa thông tin về hướng' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: "StockCharts: “It is important to remember that ATR doesn't indicate price direction, just volatility”. Nguồn khác liệt kê 5 lỗi phổ biến của trader với ATR, gồm dùng ATR xác định hướng vào lệnh và đi tìm “phân kỳ ATR” — “ATR indicator isn't an oscillator”.",
     },
@@ -1592,23 +1592,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Phiên mở cửa nhảy vọt lên cao hẳn so với giá đóng cửa phiên trước (gap tăng)',
-        en: 'A session that opens with a sharp gap up from the prior close',
-      },
-      b: {
         vi: 'Phiên mở cửa rơi sâu xuống dưới giá đóng cửa phiên trước (gap giảm)',
         en: 'A session that opens with a sharp gap down from the prior close',
       },
-      c: {
+      b: {
         vi: 'Phiên giá đi ngang, mở cửa gần sát đóng cửa hôm trước, dao động trong phiên hẹp',
         en: 'A flat session that opens near the prior close with a narrow intraday range',
       },
-      d: {
+      c: {
         vi: 'Phiên khối lượng giao dịch tăng đột biến nhưng giá mở cửa không gap',
         en: 'A session with a volume spike but no opening gap',
       },
+      d: {
+        vi: 'Phiên mở cửa nhảy vọt lên cao hẳn so với giá đóng cửa phiên trước (gap tăng)',
+        en: 'A session that opens with a sharp gap up from the prior close',
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['a', 'd'],
     explain: {
       vi: 'DNSE giải thích vì sao TR lấy giá trị lớn nhất trong 3 khoảng cách thay vì chỉ High − Low: “Việc tính toán này vô cùng quan trọng vì nó bao quát toàn bộ biên độ thực tế của giá, giúp nhà đầu tư không bị đánh lừa bởi những phiên mở cửa vọt tăng hoặc giảm sâu tạo Gap.” Ở phiên gap tăng, giá đã nhảy vọt trước khi phiên mở nên phần biến động đó nằm ngoài khoảng High − Low trong phiên; TR bắt lại phần đó bằng cách so |High − Close hôm trước|. Tương tự với gap giảm, TR dùng |Low − Close hôm trước|. Phiên đi ngang không gap hoặc phiên chỉ tăng khối lượng thì High − Low trong phiên đã bao trùm đủ biến động, TR trùng với Range thông thường nên không bị tính thiếu.',
       en: "DNSE explains why TR takes the largest of three distances rather than just High − Low: “Việc tính toán này vô cùng quan trọng vì nó bao quát toàn bộ biên độ thực tế của giá, giúp nhà đầu tư không bị đánh lừa bởi những phiên mở cửa vọt tăng hoặc giảm sâu tạo Gap.” (this calculation matters because it captures the price's full actual range, keeping investors from being fooled by sessions that gap sharply up or down at the open.) On a gap-up session, the price has already jumped before the open, so that move falls outside the intraday High − Low; TR recovers it by comparing |High − prior close|. A gap-down session works the same way through |Low − prior close|. A flat session with no gap, or one with only a volume spike, already has its full move captured by the intraday High − Low, so TR equals the ordinary range and nothing is understated.",
@@ -1711,11 +1711,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     ],
     choices: {
       a: { vi: '43.800 ₫', en: '43,800 ₫' },
-      b: { vi: '42.600 ₫', en: '42,600 ₫' },
-      c: { vi: '47.400 ₫', en: '47,400 ₫' },
+      b: { vi: '47.400 ₫', en: '47,400 ₫' },
+      c: { vi: '42.600 ₫', en: '42,600 ₫' },
       d: { vi: '40.200 ₫', en: '40,200 ₫' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'DNSE hướng dẫn đặt điểm dừng lỗ động theo ATR cho lệnh mua: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” Thay số: 45.000 − (2 × 1.200) = 45.000 − 2.400 = 42.600 ₫. Quy ước dùng bội số 2×ATR — không phải cộng/trừ thẳng một lần giá trị ATR, cũng không phải một tỷ lệ % cố định trên giá — nên nhầm hệ số nhân sẽ ra điểm dừng lỗ sai. Ba đáp án còn lại là ba lỗi hay gặp: 43.800 là chỉ trừ một lần ATR, bỏ mất bội số 2; 47.400 là CỘNG thay vì trừ, tức đặt dừng lỗ của lệnh bán khống lên một lệnh mua; 40.200 là trừ bốn lần ATR.',
       en: "DNSE's guide sets a volatility-based stop-loss for a buy order: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” (stop-loss = entry price − (2 × ATR value)). Plugging in the numbers: 45,000 − (2 × 1,200) = 45,000 − 2,400 = 42,600 ₫. The convention uses a 2x ATR multiple — not a single raw ATR value added or subtracted, and not a fixed percentage of price — so mixing up the multiplier produces the wrong stop level. The other three are common slips: 43,800 subtracts only one ATR and drops the 2x multiple; 47,400 ADDS instead of subtracting, placing a short position’s stop on a long one; 40,200 subtracts four ATRs.",
@@ -1735,13 +1735,13 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Stochastic %K vượt 80. Theo tài liệu gốc, nên làm gì?' },
     choices: {
       a: { vi: 'Bán ngay' },
-      b: {
+      b: { vi: 'Mua thêm' },
+      c: { vi: 'Đổi sang chu kỳ 5' },
+      d: {
         vi: 'Chờ — trên 80 vừa là quá mua vừa là dấu hiệu mạnh; cần %K rơi xuống dưới 80 mới là tín hiệu đảo chiều',
       },
-      c: { vi: 'Mua thêm' },
-      d: { vi: 'Đổi sang chu kỳ 5' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Theo tài liệu gốc thì chưa làm gì cả: trên 80 nghĩa là chỉ báo đang ở vùng quá mua VÀ đang mạnh, phải chờ nó quay xuống dưới 80 mới có tín hiệu đảo chiều. StockCharts: “The indicator is overbought and strong when above 80. A subsequent move below 80 is needed to signal a reversal”. Chính George Lane, người tạo ra chỉ báo, nói “A %D divergence is the only signal which will cause you to buy or sell”. KIS Việt Nam cũng xếp việc bán máy móc ở mốc 80 vào nhóm lỗi phổ biến.',
       en: 'By the original material, nothing yet: above 80 means the indicator is overbought AND strong, and a reversal signal requires it to come back below 80. StockCharts: “The indicator is overbought and strong when above 80. A subsequent move below 80 is needed to signal a reversal”. George Lane, who created the indicator, said “A %D divergence is the only signal which will cause you to buy or sell”. KIS Vietnam likewise lists mechanically selling at the 80 mark among the common mistakes.',
@@ -1768,19 +1768,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The stock is at its highest price since listing',
       },
       b: {
-        vi: 'Giá đóng cửa đang nằm sát đỉnh của riêng 14 phiên gần nhất — không nói gì về mặt bằng giá dài hạn hay khối lượng',
-        en: "The close sits near the top of the last 14 sessions' range only — it says nothing about the long-term price level or about volume",
-      },
-      c: {
         vi: 'Lực mua rất lớn, khối lượng khớp đang ở mức cao',
         en: 'Buying pressure is very strong and traded volume is high',
       },
-      d: {
+      c: {
         vi: 'Giá đã tăng 95% so với đáy của 14 phiên',
         en: 'The price is 95% above the 14-session low',
       },
+      d: {
+        vi: 'Giá đóng cửa đang nằm sát đỉnh của riêng 14 phiên gần nhất — không nói gì về mặt bằng giá dài hạn hay khối lượng',
+        en: "The close sits near the top of the last 14 sessions' range only — it says nothing about the long-term price level or about volume",
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: "StockCharts viết: “High readings (above 80) indicate that price is near its high for the given time period.” Đỉnh ở đây là đỉnh của đúng n phiên được lấy ra, nên một cổ phiếu đang dò đáy dài hạn vẫn có thể cho %K bằng 95 sau vài phiên hồi. Chính George Lane mô tả chỉ báo của mình: “It doesn't follow price, it doesn't follow volume or anything like that.”",
       en: "StockCharts puts it this way: “High readings (above 80) indicate that price is near its high for the given time period.” The high in question is the high of those n sessions only, so a stock grinding out long-term lows can still print %K = 95 after a few sessions of rebound. George Lane himself described his indicator as follows: “It doesn't follow price, it doesn't follow volume or anything like that.”",
@@ -1807,19 +1807,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The indicator is broken; shorten the period to 5 sessions to make it more responsive',
       },
       b: {
-        vi: 'Đây là hạn chế đã biết: trong xu hướng rõ, %K bám vùng quá mua rất lâu và sinh nhiều tín hiệu sai; nên giao dịch thuận xu hướng lớn, chỉ lấy những lần %K rơi xuống vùng quá bán',
-        en: 'This is a known limitation: in a clear trend %K stays pinned in the overbought zone and produces many false signals, so trade with the larger trend and take only the occasional drop into oversold',
-      },
-      c: {
         vi: 'Nâng ngưỡng quá mua từ 80 lên 90 để lọc bớt tín hiệu',
         en: 'Raise the overbought threshold from 80 to 90 to filter the signals',
       },
-      d: {
+      c: {
         vi: 'Cứ bán như cũ, trước sau gì giá cũng phải đảo chiều về vùng cân bằng',
         en: 'Keep selling — sooner or later the price has to revert',
       },
+      d: {
+        vi: 'Đây là hạn chế đã biết: trong xu hướng rõ, %K bám vùng quá mua rất lâu và sinh nhiều tín hiệu sai; nên giao dịch thuận xu hướng lớn, chỉ lấy những lần %K rơi xuống vùng quá bán',
+        en: 'This is a known limitation: in a clear trend %K stays pinned in the overbought zone and produces many false signals, so trade with the larger trend and take only the occasional drop into oversold',
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Chứng khoán KIS Việt Nam xếp đúng tình huống này vào phần hạn chế của chỉ báo: “Trong thị trường có xu hướng tăng hoặc giảm rõ ràng, Stochastic có thể tạo ra nhiều tín hiệu sai khi giá duy trì ở vùng quá mua hoặc quá bán trong thời gian dài.” StockCharts nói thẳng cách xử lý: “Look for occasional oversold readings in an uptrend and ignore frequent overbought readings.” Chỉ báo không hỏng và đổi tham số cũng không chữa được; cái sai là lấy tín hiệu ngược với xu hướng lớn.',
       en: "KIS Securities Vietnam lists exactly this case among the indicator's limitations: “Trong thị trường có xu hướng tăng hoặc giảm rõ ràng, Stochastic có thể tạo ra nhiều tín hiệu sai khi giá duy trì ở vùng quá mua hoặc quá bán trong thời gian dài.” StockCharts states the remedy plainly: “Look for occasional oversold readings in an uptrend and ignore frequent overbought readings.” The indicator is not broken and changing the period does not fix it; the mistake is taking signals against the larger trend.",
@@ -1846,16 +1846,16 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The platform uses a different price feed, so the data differs',
       },
       b: {
-        vi: 'Phần mềm còn làm mượt %K thêm một lần bằng trung bình 3 phiên (ô Smooth mặc định là 3); đặt Smooth = 1 mới ra đúng công thức gốc',
-        en: 'The platform smooths %K once more with a 3-period average (the Smooth input defaults to 3); set Smooth = 1 to get the raw formula',
-      },
-      c: {
         vi: 'Cái đang hiện là đường %D chứ không phải %K',
         en: 'What you are looking at is the %D line, not %K',
       },
+      c: {
+        vi: 'Phần mềm còn làm mượt %K thêm một lần bằng trung bình 3 phiên (ô Smooth mặc định là 3); đặt Smooth = 1 mới ra đúng công thức gốc',
+        en: 'The platform smooths %K once more with a 3-period average (the Smooth input defaults to 3); set Smooth = 1 to get the raw formula',
+      },
       d: { vi: 'Chênh lệch do làm tròn số thập phân', en: 'It is just a rounding difference' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Tài liệu chỉ báo STOCH của TradingView mô tả ô Smooth: “The time period to be used in additional smoothing of the %K. 3 is the default. Value of 1 disables the additional smoothing.” Nghĩa là %K vẽ trên biểu đồ mặc định đã qua một lần trung bình 3 phiên — đúng thứ StockCharts gọi là “Slow %K = Fast %K smoothed with 3-period SMA”. Công thức trong thư viện này là %K gốc (fast), nên muốn hai số trùng nhau thì phải đặt Smooth = 1 trên phần mềm.',
       en: "TradingView's STOCH documentation describes the Smooth input: “The time period to be used in additional smoothing of the %K. 3 is the default. Value of 1 disables the additional smoothing.” So the %K drawn on the chart has by default been averaged once over 3 sessions — exactly what StockCharts calls “Slow %K = Fast %K smoothed with 3-period SMA”. The formula in this library is the raw (fast) %K, so to make the two numbers agree you must set Smooth = 1 on the platform.",
@@ -1878,12 +1878,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: '%K trở nên mượt hơn và ít khi chạm vùng quá mua/quá bán hơn',
-        en: '%K becomes smoother and touches the overbought/oversold zones less often',
-      },
-      b: {
         vi: '%K dao động mạnh hơn (nhiễu hơn) và chạm vùng quá mua/quá bán thường xuyên hơn',
         en: '%K swings harder (gets choppier) and touches the overbought/oversold zones more often',
+      },
+      b: {
+        vi: '%K trở nên mượt hơn và ít khi chạm vùng quá mua/quá bán hơn',
+        en: '%K becomes smoother and touches the overbought/oversold zones less often',
       },
       c: {
         vi: '%K không đổi, vì công thức chỉ phụ thuộc giá đóng cửa chứ không phụ thuộc chu kỳ',
@@ -1894,7 +1894,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: '%K gets automatically re-smoothed by the %D line before it is displayed',
       },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'StockCharts nói thẳng hệ quả của việc rút ngắn chu kỳ nhìn lại: “A shorter look-back period will produce a choppy oscillator with many overbought and oversold readings.” Chu kỳ dài hơn cho hiệu ứng ngược lại: đường mượt hơn, ít lần chạm quá mua/quá bán hơn. Phản ứng nhanh hơn không đồng nghĩa với chính xác hơn — cái phải đánh đổi là nhiễu tăng lên, đúng như phần "Cách đọc kết quả" của công thức này cảnh báo về việc bị nhiễu tín hiệu.',
       en: "StockCharts states the consequence directly: “A shorter look-back period will produce a choppy oscillator with many overbought and oversold readings.” A longer period does the opposite — a smoother line with fewer overbought/oversold touches. Reacting faster does not mean being more accurate; the trade-off is more noise, which is exactly the kind of false signal this formula's own reading guide warns about.",
@@ -1939,14 +1939,14 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Vì sao VWAP phản ứng chậm dần về cuối phiên?' },
     choices: {
-      a: { vi: 'Do khối lượng giảm' },
-      b: {
+      a: {
         vi: 'Vì là chỉ báo lũy kế — số điểm dữ liệu tăng dần, cuối phiên hành xử như một đường trung bình dài',
       },
+      b: { vi: 'Do khối lượng giảm' },
       c: { vi: 'Do lệnh ATC' },
       d: { vi: 'Do biên độ thu hẹp' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: "Vì nó cộng dồn: càng về cuối phiên thì số điểm dữ liệu đã gộp càng nhiều, nên mỗi lệnh mới chỉ chiếm một phần rất nhỏ trong trung bình và đường gần như đứng yên. StockCharts: “VWAP is a cumulative indicator, which means the number of data points progressively increases throughout the day”. Nguồn khác mô tả: “Late in the session: The line starts to act like a long moving average”, và nhắc thêm “It isn't a crystal ball”.",
       en: "Because it accumulates: the later in the session, the more data points are already in the average, so each new trade is a tiny share of it and the line barely moves. StockCharts: “VWAP is a cumulative indicator, which means the number of data points progressively increases throughout the day”. Another source describes it as: “Late in the session: The line starts to act like a long moving average”, adding that “It isn't a crystal ball”.",
@@ -1973,19 +1973,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Because VWAP is computed with the wrong formula under that condition',
       },
       b: {
-        vi: 'Vì trong điều kiện này giá có thể liên tục cắt qua lại đường VWAP, tạo ra hàng loạt tín hiệu giả',
-        en: 'Because under this condition price can repeatedly cross back and forth over the VWAP line, creating a stream of false signals',
-      },
-      c: {
         vi: 'Vì khối lượng khớp lúc đó luôn bằng 0',
         en: 'Because matched volume is always zero under that condition',
       },
-      d: {
+      c: {
         vi: 'Vì VWAP chỉ được cập nhật vào cuối phiên trong điều kiện này',
         en: 'Because VWAP is only updated at the end of the session under that condition',
       },
+      d: {
+        vi: 'Vì trong điều kiện này giá có thể liên tục cắt qua lại đường VWAP, tạo ra hàng loạt tín hiệu giả',
+        en: 'Because under this condition price can repeatedly cross back and forth over the VWAP line, creating a stream of false signals',
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Nguồn cảnh báo: “Khi thị trường biến động giằng co với biên độ hẹp, giá có thể liên tục cắt qua lại đường VWAP, tạo ra các tín hiệu giả.” Vào/thoát lệnh theo mỗi lần cắt trong điều kiện này là giao dịch theo nhiễu chứ không theo xu hướng thật, đúng kiểu hiểu sai phổ biến khi coi mọi lần cắt VWAP là một tín hiệu.',
       en: 'The source warns: “Khi thị trường biến động giằng co với biên độ hẹp, giá có thể liên tục cắt qua lại đường VWAP, tạo ra các tín hiệu giả” (when the market chops sideways in a narrow range, price can repeatedly cross back and forth over the VWAP line, creating false signals). Entering and exiting on every such crossing under this condition means trading on noise rather than a real trend, exactly the common mistake of treating every VWAP crossing as a signal.',
@@ -2041,12 +2041,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       },
     ],
     choices: {
-      a: { vi: '50.000 ₫', en: '50,000 ₫' },
-      b: { vi: '51.000 ₫', en: '51,000 ₫' },
+      a: { vi: '51.000 ₫', en: '51,000 ₫' },
+      b: { vi: '50.000 ₫', en: '50,000 ₫' },
       c: { vi: '52.000 ₫', en: '52,000 ₫' },
       d: { vi: '54.000 ₫', en: '54,000 ₫' },
     },
-    answer: 'a',
+    answer: 'b',
     explain: {
       vi: 'Giá điển hình đợt 1 = (51.000+45.000+48.000)/3 = 48.000 ₫; đợt 2 = (57.000+51.000+54.000)/3 = 54.000 ₫. VWAP = (48.000×200.000 + 54.000×100.000) / (200.000+100.000) = 15.000.000.000/300.000 = 50.000 ₫. Nguồn nêu đúng quy ước này: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng”, với “Typical Price = (High + Low + Close) / 3” — không phải trung bình cộng hai giá đóng cửa (sẽ ra (48.000+54.000)/2 = 51.000 ₫, sai) và cũng không phải chỉ lấy giá đóng cửa đợt cuối (54.000 ₫, càng sai). Ba đáp án còn lại là ba lỗi hay gặp: 51.000 là trung bình cộng hai giá của hai đợt, bỏ qua hẳn khối lượng; 52.000 là gán nhầm khối lượng cho đợt kia; 54.000 là chỉ lấy giá đợt cuối, tức coi VWAP như giá đóng cửa.',
       en: "Typical price for interval 1 = (51,000+45,000+48,000)/3 = 48,000 VND; interval 2 = (57,000+51,000+54,000)/3 = 54,000 VND. VWAP = (48,000×200,000 + 54,000×100,000) / (200,000+100,000) = 15,000,000,000/300,000 = 50,000 VND. The source states exactly this convention: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng” (VWAP = sum of (typical price × volume) divided by total volume), with “Typical Price = (High + Low + Close) / 3” — not a plain average of the two closing prices (which would give (48,000+54,000)/2 = 51,000 VND, wrong), and not just the last interval's closing price (54,000 VND, even more wrong). The other three are common slips: 51,000 is the plain average of the two intervals’ prices, ignoring volume entirely; 52,000 swaps the two volumes; 54,000 takes only the last interval’s price, treating VWAP as a closing price.",
@@ -2073,19 +2073,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'This is a sign the fund is about to lose money, because a price below VWAP means the price is falling',
       },
       b: {
-        vi: 'Lệnh mua khớp dưới VWAP được xem là mức giá tối ưu, quỹ đã mua rẻ hơn mặt bằng bình quân theo khối lượng của phiên',
-        en: "A buy order filled below VWAP is considered the optimal price, the fund bought cheaper than the session's volume-weighted average level",
-      },
-      c: {
         vi: 'Kết quả này không có ý nghĩa gì vì VWAP chỉ dùng để vẽ đường xu hướng',
         en: 'This result means nothing, because VWAP is only used to draw a trend line',
       },
-      d: {
+      c: {
         vi: 'Chỉ có ý nghĩa nếu quỹ đặt lệnh bán, không áp dụng cho lệnh mua',
         en: 'It only matters for sell orders, not for buy orders',
       },
+      d: {
+        vi: 'Lệnh mua khớp dưới VWAP được xem là mức giá tối ưu, quỹ đã mua rẻ hơn mặt bằng bình quân theo khối lượng của phiên',
+        en: "A buy order filled below VWAP is considered the optimal price, the fund bought cheaper than the session's volume-weighted average level",
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Nguồn nói thẳng: “Lệnh mua được khớp dưới đường VWAP được xem là mức giá tối ưu.” Các quỹ lớn dùng VWAP làm thước đo hiệu quả khớp lệnh bằng cách so sánh giá khớp thực tế với VWAP của phiên; mua dưới đường này nghĩa là mua rẻ hơn mặt bằng bình quân theo khối lượng, không liên quan gì tới việc giá "đang giảm" hay dự báo xu hướng.',
       en: 'The source states plainly: “Lệnh mua được khớp dưới đường VWAP được xem là mức giá tối ưu” (a buy order filled below the VWAP line is considered the optimal price). Large funds use VWAP as an execution-quality benchmark by comparing the actual fill price against the session\'s VWAP; buying below it means buying cheaper than the volume-weighted average level, and says nothing about price "falling" or forecasting a trend.',
@@ -2129,11 +2129,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Dùng chung ngưỡng ROC ±10% cho mọi cổ phiếu. Đúng hay sai?' },
     choices: {
       a: { vi: 'Đúng, đó là chuẩn' },
-      b: { vi: 'Sai — ngưỡng phụ thuộc mức biến động riêng của từng mã' },
-      c: { vi: 'Đúng với cổ phiếu VN30' },
-      d: { vi: 'Đúng nếu dùng chu kỳ 12' },
+      b: { vi: 'Đúng với cổ phiếu VN30' },
+      c: { vi: 'Đúng nếu dùng chu kỳ 12' },
+      d: { vi: 'Sai — ngưỡng phụ thuộc mức biến động riêng của từng mã' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Sai: ngưỡng quá mua và quá bán của ROC phải đặt theo mức biến động của chính mã đó. Một mã biến động mạnh có thể cần mốc quá bán ở âm 15%, mã êm hơn thì âm 5% đã là quá bán, nên một ngưỡng chung cho mọi mã sẽ vừa bỏ sót vừa báo thừa. StockCharts: “Overbought and oversold settings depend on the volatility of the underlying security. A more volatile stock may use -15% for oversold, while a less volatile stock may use -5%”.',
       en: 'Wrong: ROC overbought and oversold levels have to be set from the volatility of the specific security. A volatile stock may need minus 15% to count as oversold while a calmer one is already oversold at minus 5%, so one shared threshold both misses signals and invents them. StockCharts: “Overbought and oversold settings depend on the volatility of the underlying security. A more volatile stock may use -15% for oversold, while a less volatile stock may use -5%”.',
@@ -2159,17 +2159,17 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         vi: 'Giá đang giảm, vì ROC đang giảm dần',
         en: 'The price is falling, because ROC keeps falling',
       },
-      b: {
+      b: { vi: 'Giá đã đi ngang suốt giai đoạn này', en: 'The price has been flat throughout' },
+      c: {
         vi: 'Giá vẫn đang tăng, chỉ là tốc độ tăng đang chậm lại — ROC dương nghĩa là giá hiện tại vẫn cao hơn giá n phiên trước',
         en: 'The price is still rising, just at a slower pace — a positive ROC means the current price is still above its level n sessions ago',
       },
-      c: { vi: 'Giá đã đi ngang suốt giai đoạn này', en: 'The price has been flat throughout' },
       d: {
         vi: 'Không thể kết luận nếu chưa có dữ liệu khối lượng',
         en: 'Nothing can be concluded without volume data',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'DSC (dịch từ StockCharts): “giá liên tục tăng miễn là ROC vẫn tích cực. Các chỉ số tích cực có thể ít hơn trước, nhưng ROC tích cực vẫn phản ánh sự tăng giá chứ không phải sự giảm giá.” ROC giảm từ +30% xuống +5% chỉ cho thấy đà tăng đang yếu đi, không phải giá đang giảm; nhầm “ROC giảm” với “giá giảm” là lỗi đọc kết quả phổ biến với chỉ báo này.',
       en: 'DSC (translating StockCharts) writes: “giá liên tục tăng miễn là ROC vẫn tích cực. Các chỉ số tích cực có thể ít hơn trước, nhưng ROC tích cực vẫn phản ánh sự tăng giá chứ không phải sự giảm giá.” ["the price keeps rising as long as ROC stays positive. The positive readings may be smaller than before, but a positive ROC still reflects a price increase, not a decrease."] A drop from +30% to +5% only signals fading upward momentum, not a falling price; confusing "ROC is falling" with "the price is falling" is a common misreading of this indicator.',
@@ -2205,11 +2205,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     ],
     choices: {
       a: { vi: '63 phiên', en: '63 sessions' },
-      b: { vi: '21 phiên', en: '21 sessions' },
-      c: { vi: '12 phiên', en: '12 sessions' },
+      b: { vi: '12 phiên', en: '12 sessions' },
+      c: { vi: '21 phiên', en: '21 sessions' },
       d: { vi: '5 phiên', en: '5 sessions' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'DSC (dịch StockCharts): "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." Chia đều 63 phiên của một quý cho 3 tháng: 63 / 3 = 21 phiên — đúng bằng chu kỳ tháng mà nguồn nêu, dùng khi muốn ROC bắt biến động theo khung tháng thay vì mặc định 12 phiên. Ba đáp án còn lại là ba lỗi hay gặp: 63 là giữ nguyên chu kỳ quý mà không chia; 12 là lấy số THÁNG trong năm chứ không phải số phiên trong tháng; 5 là số phiên một tuần.',
       en: 'DSC (translating StockCharts) states: "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." ["There are roughly 250 trading days in a year. This can be split into 125 days per half-year, 63 days per quarter and 21 days per month."] Dividing a quarter\'s 63 sessions evenly across 3 months: 63 / 3 = 21 sessions — exactly the monthly period the source gives, used when ROC should track monthly moves instead of the default 12-session window. The other three are common slips: 63 keeps the quarterly period without dividing; 12 takes the number of MONTHS in a year rather than sessions in a month; 5 is the number of sessions in a week.',
@@ -2229,13 +2229,13 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Mã A có Momentum = 3.000, mã B có Momentum = 800. Kết luận?' },
     choices: {
       a: { vi: 'A khoẻ hơn B' },
-      b: {
+      b: { vi: 'B sắp tăng' },
+      c: { vi: 'Phải cộng thêm khối lượng' },
+      d: {
         vi: 'Không so được — Momentum là chênh lệch tuyệt đối theo đơn vị tiền, không chia cho giá cũ',
       },
-      c: { vi: 'B sắp tăng' },
-      d: { vi: 'Phải cộng thêm khối lượng' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Không kết luận được gì: Momentum là hiệu giá tuyệt đối nên phụ thuộc thị giá, mã giá cao đương nhiên có số lớn hơn. Muốn so chéo mã phải dùng ROC, vốn chia cho giá cũ nên ra phần trăm. “Rate of change scales by the old close, so as to represent the increase as a fraction”, minh hoạ rằng momentum cho thấy “a $3 rise over 20 days” trong khi ROC thể hiện “that as 0.25 for a 25% rise”.',
       en: 'Nothing can be concluded: Momentum is an absolute price difference and therefore depends on price level, so a higher-priced stock naturally shows a bigger number. Cross-stock comparison needs ROC, which divides by the old close and so returns a percentage. The source: “Rate of change scales by the old close, so as to represent the increase as a fraction”, illustrating that momentum shows “a $3 rise over 20 days” while ROC expresses “that as 0.25 for a 25% rise”.',
@@ -2258,12 +2258,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Bán ngay, vì phân kỳ là tín hiệu bán',
-        en: 'Sell at once, because divergence is a sell signal',
-      },
-      b: {
         vi: 'Chỉ là cảnh báo đà tăng đang yếu đi, chưa phải tín hiệu mua/bán; theo dõi thêm, và không biết trước mức hay thời gian điều chỉnh',
         en: 'Only a warning that upward momentum is fading, not a buy/sell signal; keep watching, and neither the size nor the timing of any correction is known in advance',
+      },
+      b: {
+        vi: 'Bán ngay, vì phân kỳ là tín hiệu bán',
+        en: 'Sell at once, because divergence is a sell signal',
       },
       c: {
         vi: 'Giá sẽ điều chỉnh đúng bằng mức của lần phân kỳ trước',
@@ -2274,7 +2274,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Divergence only counts while Momentum sits above the 100 line',
       },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Vietstock nói thẳng đây là chỗ nhà đầu tư mới hay nhầm giữa hai loại tín hiệu: “tín hiệu phân kỳ của nhóm chỉ báo Momentum chỉ mang tính chất cảnh báo (Warning Signal) không phải là tín hiệu mua/bán (Signal)”. Bài còn nêu “Phân kỳ chỉ mang tính cảnh báo về sự đảo chiều trong xu hướng và không cho người sử dụng biết mức độ điều chỉnh cũng như thời gian điều chỉnh”, với ví dụ PVD: hai lần phân kỳ liên tiếp cho mức giảm 13,3% và 25,3% khác hẳn nhau, nên không suy được mức điều chỉnh từ lần trước.',
       en: 'Vietstock says outright that newcomers confuse the two kinds of signal: “tín hiệu phân kỳ của nhóm chỉ báo Momentum chỉ mang tính chất cảnh báo (Warning Signal) không phải là tín hiệu mua/bán (Signal)”. The article adds “Phân kỳ chỉ mang tính cảnh báo về sự đảo chiều trong xu hướng và không cho người sử dụng biết mức độ điều chỉnh cũng như thời gian điều chỉnh”, with a PVD example in which two consecutive divergences were followed by corrections of 13.3% and 25.3%, so the last one tells you nothing about the size of the next.',
@@ -2297,12 +2297,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Có, Momentum cao kỷ lục là quá mua, nên bán',
-        en: 'Yes, record-high Momentum means overbought, so sell',
-      },
-      b: {
         vi: 'Không, Momentum không có biên trên hay biên dưới nên không có ngưỡng quá mua cố định; đọc quá mua là chủ quan và giá vẫn có thể tăng tiếp',
         en: 'No, Momentum has no upper or lower bound, so there is no fixed overbought threshold; calling it overbought is subjective and price can keep rising',
+      },
+      b: {
+        vi: 'Có, Momentum cao kỷ lục là quá mua, nên bán',
+        en: 'Yes, record-high Momentum means overbought, so sell',
       },
       c: {
         vi: 'Có, với điều kiện Momentum đang trên mốc 100',
@@ -2313,7 +2313,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'No, because Momentum only confirms downtrends',
       },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Fidelity lưu ý: “Momentum is an unbound oscillator, meaning there is no upside or downside limits. This makes interpreting an overbought or oversold condition subjective. When the Momentum indicator is overbought the security can continue to move higher.” Khác RSI có biên 0 đến 100 và ngưỡng quen thuộc 70/30, Momentum là hiệu số giá nên không có trần; muốn đọc quá mua hay quá bán phải kết hợp chỉ báo khác hoặc phân tích giá.',
       en: 'Fidelity notes: “Momentum is an unbound oscillator, meaning there is no upside or downside limits. This makes interpreting an overbought or oversold condition subjective. When the Momentum indicator is overbought the security can continue to move higher.” Unlike RSI, which is bounded between 0 and 100 with the familiar 70/30 levels, Momentum is a price difference with no ceiling; reading overbought or oversold needs other indicators or price analysis alongside it.',
@@ -2381,26 +2381,26 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Dùng cả MOM lẫn RSI cho cùng một quyết định rồi coi đó là hai xác nhận độc lập',
-        en: 'Using both MOM and RSI for the same decision and treating them as two independent confirmations',
-      },
-      b: {
-        vi: 'Đổi chu kỳ n sau mỗi lệnh thua để tìm chu kỳ mà lẽ ra đã thắng',
-        en: 'Changing the lookback period n after each losing trade to find the one that would have worked',
-      },
-      c: {
-        vi: 'Coi mọi lần MOM cắt qua đường 0 là một tín hiệu vào lệnh',
-        en: 'Treating every MOM cross of the zero line as an entry signal',
-      },
-      d: {
         vi: 'Đọc MOM dương là giá hiện tại cao hơn giá n phiên trước',
         en: "Reading a positive MOM as today's price being above the price n sessions ago",
       },
+      b: {
+        vi: 'Dùng cả MOM lẫn RSI cho cùng một quyết định rồi coi đó là hai xác nhận độc lập',
+        en: 'Using both MOM and RSI for the same decision and treating them as two independent confirmations',
+      },
+      c: {
+        vi: 'Đổi chu kỳ n sau mỗi lệnh thua để tìm chu kỳ mà lẽ ra đã thắng',
+        en: 'Changing the lookback period n after each losing trade to find the one that would have worked',
+      },
+      d: {
+        vi: 'Coi mọi lần MOM cắt qua đường 0 là một tín hiệu vào lệnh',
+        en: 'Treating every MOM cross of the zero line as an entry signal',
+      },
     },
-    answers: ['a', 'b', 'c'],
+    answers: ['b', 'c', 'd'],
     explain: {
-      vi: 'Ba lựa chọn đầu là ba mục riêng trong danh sách sai lầm của nguồn. Về RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” Về đổi chu kỳ: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” Về cắt đường 0: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Còn (d) là cách đọc đúng của công thức hiệu số: MOM > 0 nghĩa là giá hôm nay cao hơn giá n phiên trước.',
-      en: "The first three are separate items on the source's list of mistakes. On RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” On changing the period: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” On zero-line crosses: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Option (d) is simply the correct reading of the difference formula: MOM > 0 means today's close is above the close n sessions ago.",
+      vi: 'Ba lựa chọn đầu là ba mục riêng trong danh sách sai lầm của nguồn. Về RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” Về đổi chu kỳ: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” Về cắt đường 0: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Còn (a) là cách đọc đúng của công thức hiệu số: MOM > 0 nghĩa là giá hôm nay cao hơn giá n phiên trước.',
+      en: "The first three are separate items on the source's list of mistakes. On RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” On changing the period: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” On zero-line crosses: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Option (a) is simply the correct reading of the difference formula: MOM > 0 means today's close is above the close n sessions ago.",
     },
     source: {
       url: 'https://trendsandbreakouts.com/momentum-indicator',
@@ -2447,23 +2447,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Từ 0 đến 5 % dưới đường trung bình',
-        en: 'Between 0 and 5 % below the moving average',
-      },
-      b: {
         vi: 'Xa nhất dưới đường, dưới −10 %, vì càng rẻ càng tốt',
         en: 'Furthest below the line, under −10 %, because cheaper is better',
       },
-      c: {
+      b: {
         vi: 'Trên 10 % phía trên đường, vì giá đang có đà',
         en: 'More than 10 % above the line, because price has momentum',
+      },
+      c: {
+        vi: 'Từ 0 đến 5 % dưới đường trung bình',
+        en: 'Between 0 and 5 % below the moving average',
       },
       d: {
         vi: 'Đúng bằng đường trung bình, khoảng cách 0 %',
         en: 'Exactly on the moving average, distance 0 %',
       },
     },
-    answer: 'a',
+    answer: 'c',
     explain: {
       vi: 'Kết luận của nghiên cứu: “the range of 0-5% below shorter term MA of 20 and 50 comes up as the winner; and somewhat less convincingly, the range of 0-10% below the intermediate and long-term MA of 100 and 200. But, perhaps more interestingly and unexpectedly, buying very far below almost all MA in almost all holding periods turns out to be the worst possible option.” Nhóm nằm sâu dưới đường (dưới −10 % so với SMA 20/50) không hồi về mà tiếp tục giảm nên là nhóm tệ nhất; nhóm nằm trên đường nói chung kém nhóm nằm dưới. Lưu ý nghiên cứu chưa tính phí giao dịch và chỉ trên thị trường Mỹ, nên đây là bằng chứng về cách đọc con số, không phải quy tắc mua.',
       en: "The study's conclusion: “the range of 0-5% below shorter term MA of 20 and 50 comes up as the winner; and somewhat less convincingly, the range of 0-10% below the intermediate and long-term MA of 100 and 200. But, perhaps more interestingly and unexpectedly, buying very far below almost all MA in almost all holding periods turns out to be the worst possible option.” Stocks deep below the line (under −10 % versus the 20/50 SMA) did not revert but kept falling, making them the worst group; stocks above the line generally trailed those below. Note the study ignores transaction costs and covers only the US market, so it is evidence about how to read the number, not a buy rule.",
@@ -2490,19 +2490,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Stock A, because it sits 5,000 ₫ above the line versus 1,500 ₫ for B',
       },
       b: {
-        vi: 'Mã B, vì khoảng cách quy ra phần trăm là 8,1 % so với 5,3 % của A',
-        en: 'Stock B, because the distance in percent is 8.1 % versus 5.3 % for A',
-      },
-      c: {
         vi: 'Hai mã như nhau, vì cùng nằm trên SMA 20',
         en: 'Both the same, since both are above their 20-session SMA',
       },
-      d: {
+      c: {
         vi: 'Không so được vì thị giá hai mã khác nhau',
         en: 'They cannot be compared because the two stocks trade at different price levels',
       },
+      d: {
+        vi: 'Mã B, vì khoảng cách quy ra phần trăm là 8,1 % so với 5,3 % của A',
+        en: 'Stock B, because the distance in percent is 8.1 % versus 5.3 % for A',
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'A: (100.000 ÷ 95.000 − 1) × 100 ≈ 5,26 %. B: (20.000 ÷ 18.500 − 1) × 100 ≈ 8,11 %. Hiệu số bằng đồng bị thị giá kéo lệch: 5.000 ₫ trên nền giá 100.000 ₫ là ít hơn 1.500 ₫ trên nền 20.000 ₫. Công thức chia cho SMA rồi nhân 100 chính là để so được giữa các mã: “Because the distance is a percentage rather than points, readings are comparable across instruments and across price levels in a way raw price-minus-average measures are not.”',
       en: 'A: (100,000 ÷ 95,000 − 1) × 100 ≈ 5.26 %. B: (20,000 ÷ 18,500 − 1) × 100 ≈ 8.11 %. The gap in currency is distorted by the price level: 5,000 ₫ on a 100,000 ₫ base is less than 1,500 ₫ on a 20,000 ₫ base. Dividing by the SMA and multiplying by 100 is exactly what makes stocks comparable: “Because the distance is a percentage rather than points, readings are comparable across instruments and across price levels in a way raw price-minus-average measures are not.”',
@@ -2525,23 +2525,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Xu hướng tăng đang mạnh: giá có thể vượt ngưỡng trên rồi tiếp tục nằm trên đó nhiều phiên',
-        en: 'A strong uptrend is under way: price can move above the upper threshold and stay there for many sessions',
-      },
-      b: {
-        vi: 'Mã biến động mạnh mà ngưỡng lại đặt hẹp: mã như vậy cần dải rộng hơn mới bao được phần lớn dao động giá',
-        en: 'A highly volatile stock with a narrow threshold: such a stock needs wider bands to encompass most of its price action',
-      },
-      c: {
-        vi: 'SMA được tính từ giá đóng cửa thay vì giá trung bình trong phiên',
-        en: "The SMA is computed from closing prices rather than the session's average price",
-      },
-      d: {
         vi: 'Khoảng cách được đo bằng phần trăm thay vì bằng đồng',
         en: 'The distance is measured in percent rather than in currency',
       },
+      b: {
+        vi: 'Xu hướng tăng đang mạnh: giá có thể vượt ngưỡng trên rồi tiếp tục nằm trên đó nhiều phiên',
+        en: 'A strong uptrend is under way: price can move above the upper threshold and stay there for many sessions',
+      },
+      c: {
+        vi: 'Mã biến động mạnh mà ngưỡng lại đặt hẹp: mã như vậy cần dải rộng hơn mới bao được phần lớn dao động giá',
+        en: 'A highly volatile stock with a narrow threshold: such a stock needs wider bands to encompass most of its price action',
+      },
+      d: {
+        vi: 'SMA được tính từ giá đóng cửa thay vì giá trung bình trong phiên',
+        en: "The SMA is computed from closing prices rather than the session's average price",
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['b', 'c'],
     explain: {
       vi: 'StockCharts: “In a strong uptrend, prices often move above the upper envelope and continue above this line.” và số đọc quá mua khi đó có thể là dấu hiệu sức mạnh, vì thế “overbought and oversold readings are best used when the trend flattens”. Về ngưỡng: “Securities with high volatility will require wider bands to encompass most price action.”, tức một ngưỡng hẹp áp lên mã biến động mạnh sẽ báo quá mua liên tục mà không có gì bất thường. Giá đóng cửa là đầu vào chuẩn của SMA, còn đo bằng phần trăm chính là điều làm con số so sánh được; hai chi tiết đó không làm số đọc kém tin cậy.',
       en: 'StockCharts: “In a strong uptrend, prices often move above the upper envelope and continue above this line.”, and an overbought reading there can be a sign of strength, which is why “overbought and oversold readings are best used when the trend flattens”. On thresholds: “Securities with high volatility will require wider bands to encompass most price action.”, so a narrow threshold applied to a volatile stock keeps flagging overbought with nothing unusual going on. Closing prices are the standard SMA input, and measuring in percent is exactly what makes the number comparable; neither detail weakens the reading.',
@@ -2630,11 +2630,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Biến động lịch sử của cổ phiếu tăng mạnh. Điều này nói gì về hướng giá?' },
     choices: {
       a: { vi: 'Giá sắp giảm' },
-      b: { vi: 'Không gì cả — HV chỉ đo mức lệch khỏi trung bình, tức bất định tăng' },
-      c: { vi: 'Giá sắp tăng' },
-      d: { vi: 'Xu hướng sắp đảo chiều' },
+      b: { vi: 'Giá sắp tăng' },
+      c: { vi: 'Xu hướng sắp đảo chiều' },
+      d: { vi: 'Không gì cả — HV chỉ đo mức lệch khỏi trung bình, tức bất định tăng' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Không nói gì về hướng giá. Biến động lịch sử chỉ đo biên độ dao động quanh mức trung bình, nên biến động tăng mạnh nghĩa là giá đang dao động rộng hơn bình thường, có thể rộng lên hoặc rộng xuống. Fidelity: “Historical Volatility does not measure direction; it measures how much the securities price is deviating from its average”.',
       en: 'Nothing about direction. Historical volatility measures only the size of the swings around the average, so a jump in it means price is ranging more widely than usual, upward or downward alike. Fidelity: “Historical Volatility does not measure direction; it measures how much the securities price is deviating from its average”.',
@@ -2655,14 +2655,14 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       vi: 'Cùng mã, cùng tham số nhưng hai phần mềm cho biến động lịch sử khác nhau. Điều quan trọng nhất là gì?',
     },
     choices: {
-      a: { vi: 'Tìm ra số đúng duy nhất' },
-      b: {
+      a: {
         vi: 'Dùng NHẤT QUÁN một bộ quy ước — mẫu chia n−1 hay n, quy năm 252 hay 262, cửa sổ 20 hay 21',
       },
+      b: { vi: 'Tìm ra số đúng duy nhất' },
       c: { vi: 'Lấy trung bình hai số' },
       d: { vi: 'Dùng số cao hơn cho an toàn' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Điều quan trọng nhất là dùng NHẤT QUÁN một bộ tham số, chứ không phải tìm ra con số nào đúng: mỗi nơi có thể dùng một biến thể công thức khác nhau, nên cùng mã và cùng cài đặt vẫn ra số khác. “different sources may use slightly different historical volatility formulas, so you can get different values for the same asset with the same settings”, và “It is not that important whether you use 20 or 21 days, or 252 or 262 days. It is much more important to use the same parameters consistently”.',
       en: 'What matters is using one set of parameters CONSISTENTLY, not hunting for the single correct number: different providers use slightly different variants of the formula, so the same asset on the same settings still prints different values. The source: “different sources may use slightly different historical volatility formulas, so you can get different values for the same asset with the same settings”, and “It is not that important whether you use 20 or 21 days, or 252 or 262 days. It is much more important to use the same parameters consistently”.',
@@ -2782,11 +2782,11 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Dòng tiền vào mạnh, nên mua' },
-      b: { vi: 'Thường đánh dấu vùng đỉnh' },
-      c: { vi: 'Không có ý nghĩa' },
+      b: { vi: 'Không có ý nghĩa' },
+      c: { vi: 'Thường đánh dấu vùng đỉnh' },
       d: { vi: 'Sắp có tin tốt' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: "Thường là dấu hiệu phân phối ở vùng đỉnh: lực mua rất lớn nhưng giá không tiến được, tức có bên bán đủ mạnh hấp thụ hết. Khối lượng đo mức độ quan tâm chứ không đo chiều, nên một mình nó không báo hướng. “high volume alone doesn't predict direction”; khối lượng là “intensity of interest, not sentiment”; và “a day with 4x normal volume but no price progress—or worse, a reversal day with volume spike and red candle—often marks a top”. Vẫn phải loại trừ trường hợp khối lượng vọt chỉ vì quỹ chỉ số cơ cấu danh mục.",
       en: "Usually distribution near a top: buying interest is heavy yet price cannot advance, meaning sellers are absorbing all of it. Volume measures intensity of interest, not direction, so on its own it forecasts nothing. The source: “high volume alone doesn't predict direction”; volume is “intensity of interest, not sentiment”; and “a day with 4x normal volume but no price progress—or worse, a reversal day with volume spike and red candle—often marks a top”. One case still has to be ruled out: a spike caused purely by index funds rebalancing.",
@@ -2808,12 +2808,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       en: "A day trader is screening stocks by RVOL before entering a position. According to StockCharts' ChartSchool, what RVOL level do many day traders commonly use as a threshold worth watching?",
     },
     choices: {
-      a: { vi: 'Khoảng 0,5 lần', en: 'About 0.5x' },
-      b: { vi: 'Đúng bằng 1,0 lần', en: 'Exactly 1.0x' },
-      c: { vi: 'Trên khoảng 2,0 lần', en: 'Above about 2.0x' },
+      a: { vi: 'Trên khoảng 2,0 lần', en: 'Above about 2.0x' },
+      b: { vi: 'Khoảng 0,5 lần', en: 'About 0.5x' },
+      c: { vi: 'Đúng bằng 1,0 lần', en: 'Exactly 1.0x' },
       d: { vi: 'Chỉ khi vượt 10 lần', en: 'Only above 10x' },
     },
-    answer: 'c',
+    answer: 'a',
     explain: {
       vi: '“Many day traders look for an RVOL over 2.0 before investing.” — 2,0 lần là ngưỡng nhiều trader trong ngày dùng làm bộ lọc trước khi vào lệnh, không phải một con số tuỳ ý, và không cần chờ tới mức cực đoan (4 lần trở lên) mới đáng để ý.',
       en: '“Many day traders look for an RVOL over 2.0 before investing.” — 2.0x is the threshold many day traders use as a screening filter before entering, not an arbitrary figure, and one need not wait for an extreme reading (4x or above) to start watching.',
@@ -2840,19 +2840,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'The unusually low RVOL that day certainly reflects money flowing out of the market',
       },
       b: {
-        vi: 'Cần thận trọng — mức trung bình dùng để so sánh vẫn gồm các phiên bình thường trước đó, nên chỉ số dễ đọc sai lệch vào những phiên bất thường như vậy',
-        en: 'Be cautious — the average used for comparison still consists of normal sessions, so the ratio can be misread on such atypical days',
-      },
-      c: {
         vi: 'Không có vấn đề gì, vì RVOL tự động loại phiên áp lễ ra khỏi phép tính',
         en: 'No issue at all, since RVOL automatically excludes the pre-holiday session from the calculation',
+      },
+      c: {
+        vi: 'Cần thận trọng — mức trung bình dùng để so sánh vẫn gồm các phiên bình thường trước đó, nên chỉ số dễ đọc sai lệch vào những phiên bất thường như vậy',
+        en: 'Be cautious — the average used for comparison still consists of normal sessions, so the ratio can be misread on such atypical days',
       },
       d: {
         vi: 'Hiện tượng này chỉ xảy ra với cổ phiếu vốn hoá lớn',
         en: 'This only happens with large-cap stocks',
       },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: '“On low-volume days (such as the day before a holiday), RVOL can be misleading because the average it compares against includes normal-volume days.” — bản thân phép chia không sai, nhưng vì mẫu số (mức trung bình) vẫn là các phiên bình thường, tỷ lệ tính ra đúng vào phiên bất thường (áp lễ) dễ bị đọc nhầm thành tín hiệu thực.',
       en: '“On low-volume days (such as the day before a holiday), RVOL can be misleading because the average it compares against includes normal-volume days.” — the division itself is not wrong, but because the denominator (the average) still reflects normal sessions, the ratio computed on an atypical (pre-holiday) session can easily be misread as a real signal.',
@@ -2875,23 +2875,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Mã A quy đổi ra chỉ khoảng 500.000 cổ phiếu phiên đó — theo tác giả vẫn chưa đủ khối lượng để giao dịch nghiêm túc',
-        en: 'Ticker A converts to only about 500,000 shares that session — per the author, still not enough volume for serious trading',
-      },
-      b: {
-        vi: 'Mã B quy đổi ra khoảng 5 triệu cổ phiếu phiên đó — tác giả cho đây là mức đáng quan tâm hơn hẳn',
-        en: 'Ticker B converts to about 5 million shares that session — the author calls this level far more interesting',
-      },
-      c: {
-        vi: 'Vì cùng tỷ lệ RVOL 5:1 nên hai mã đáng tin như nhau khi đánh giá thanh khoản',
-        en: 'Because both tickers share the same 5:1 RVOL, they are equally trustworthy for judging liquidity',
-      },
-      d: {
         vi: 'RVOL chỉ có ý nghĩa khi tính đúng trên 60 phiên như trong hai ví dụ',
         en: 'RVOL is only meaningful when computed over exactly 60 sessions, as in both examples',
       },
+      b: {
+        vi: 'Mã A quy đổi ra chỉ khoảng 500.000 cổ phiếu phiên đó — theo tác giả vẫn chưa đủ khối lượng để giao dịch nghiêm túc',
+        en: 'Ticker A converts to only about 500,000 shares that session — per the author, still not enough volume for serious trading',
+      },
+      c: {
+        vi: 'Mã B quy đổi ra khoảng 5 triệu cổ phiếu phiên đó — tác giả cho đây là mức đáng quan tâm hơn hẳn',
+        en: 'Ticker B converts to about 5 million shares that session — the author calls this level far more interesting',
+      },
+      d: {
+        vi: 'Vì cùng tỷ lệ RVOL 5:1 nên hai mã đáng tin như nhau khi đánh giá thanh khoản',
+        en: 'Because both tickers share the same 5:1 RVOL, they are equally trustworthy for judging liquidity',
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['b', 'c'],
     explain: {
       vi: "Trích nguyên văn: “Say a stock has traded an average volume of 100,000 shares a day over the last 60 days. Then it pops up on your relative volume scanner with an RVOL of 5:1. Sounds like high relative volume, right? Not really. That ratio means it only traded 500,000 shares that day. That's not enough volume for me.”; và “Say a stock traded an average of a million shares daily over the last 60 days. If it shows up on your relative volume scanner with an RVOL of 5:1, that's 5 million shares in volume. Now, that's a stock I'm more interested in.” Cùng một tỷ lệ RVOL nhưng quy đổi ra khối lượng tuyệt đối khác xa nhau, nên tỷ lệ không thể đứng một mình để đánh giá thanh khoản thực — phải nhân ngược lại ra số cổ phiếu.",
       en: "Verbatim: “Say a stock has traded an average volume of 100,000 shares a day over the last 60 days. Then it pops up on your relative volume scanner with an RVOL of 5:1. Sounds like high relative volume, right? Not really. That ratio means it only traded 500,000 shares that day. That's not enough volume for me.”; and “Say a stock traded an average of a million shares daily over the last 60 days. If it shows up on your relative volume scanner with an RVOL of 5:1, that's 5 million shares in volume. Now, that's a stock I'm more interested in.” The same RVOL ratio converts into very different absolute volumes, so the ratio alone cannot judge real liquidity — it has to be multiplied back into a share count.",
@@ -2967,12 +2967,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       vi: 'Bạn bật RSI, MACD và Stochastic, cả ba cùng báo mua. Đây có phải xác nhận không?',
     },
     choices: {
-      a: { vi: 'Có, ba chỉ báo đồng thuận' },
-      b: { vi: 'Không — cả ba đo cùng một thuộc tính là động lượng, chỉ củng cố thiên kiến' },
+      a: { vi: 'Không — cả ba đo cùng một thuộc tính là động lượng, chỉ củng cố thiên kiến' },
+      b: { vi: 'Có, ba chỉ báo đồng thuận' },
       c: { vi: 'Có nếu thêm khối lượng' },
       d: { vi: 'Có trên khung tuần' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Bài về tư duy John Bollinger trên TraderViet gọi đây là “multicollinearity”. Bài “10 sai lầm phân tích kỹ thuật” nêu dùng quá nhiều chỉ báo tạo ra “analysis paralysis” và tín hiệu xung đột. Xác nhận thật phải đến từ các LOẠI chỉ báo khác nhau: biến động, động lượng, khối lượng.',
     },
@@ -2998,19 +2998,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'It is a bullish centerline crossover — the long-term uptrend has already been established',
       },
       b: {
-        vi: 'Đó là một bullish signal line crossover — khác với centerline crossover, MACD còn phải tự vượt mốc 0 mới tính là centerline crossover',
-        en: 'It is a bullish signal line crossover — different from a centerline crossover; MACD still has to cross above zero itself for that to count',
-      },
-      c: {
         vi: 'Đó là cả hai loại giao cắt cùng lúc, vì StockCharts coi hai khái niệm là một',
         en: 'It is both crossovers at once, since StockCharts treats the two terms as the same thing',
       },
-      d: {
+      c: {
         vi: 'Đó không phải tín hiệu gì, vì MACD còn âm nên chưa có ý nghĩa',
         en: 'It is not a signal at all, since MACD is still negative and therefore meaningless',
       },
+      d: {
+        vi: 'Đó là một bullish signal line crossover — khác với centerline crossover, MACD còn phải tự vượt mốc 0 mới tính là centerline crossover',
+        en: 'It is a bullish signal line crossover — different from a centerline crossover; MACD still has to cross above zero itself for that to count',
+      },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'StockCharts định nghĩa hai loại giao cắt riêng biệt: “A bullish crossover occurs when the MACD turns up and crosses above the signal line” là tín hiệu signal line, còn “A bullish centerline crossover occurs when the MACD line moves above the zero line to turn positive” là tín hiệu centerline — khác điều kiện, khác ý nghĩa. MACD cắt lên signal line trong khi còn âm mới chỉ thoả điều kiện thứ nhất; đà tăng dài hạn, đo bằng việc vượt mốc 0, vẫn chưa xác lập.',
       en: 'StockCharts defines the two crossovers separately: “A bullish crossover occurs when the MACD turns up and crosses above the signal line” describes the signal line signal, while “A bullish centerline crossover occurs when the MACD line moves above the zero line to turn positive” describes the centerline signal — different conditions, different meanings. MACD crossing above its signal line while still negative satisfies only the first condition; the long-term uptrend, measured by crossing zero, has not yet been established.',

@@ -104,6 +104,16 @@ describe('Registry với toàn bộ công thức thật', () => {
     }
   });
 
+  it('ví dụ có chuỗi giá phải khai báo dataset', () => {
+    for (const formula of FORMULA_MODULES) {
+      const { id, example } = formula.spec;
+      const hasSeries = example.series !== undefined || example.bars !== undefined;
+      if (hasSeries) {
+        expect(example.dataset, `${id} thiếu dataset`).toBeDefined();
+      }
+    }
+  });
+
   /*
    * Lỗi thật đã gặp: bốn công thức thiếu `expression` nên màn chi tiết rơi về hiện LaTeX THÔ —
    * người dùng nhìn thấy `L_{rong} = Q\,(P_{ban} - P_{mua})`. Chỉ lộ ra khi mở màn ra nhìn,

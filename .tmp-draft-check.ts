@@ -135,10 +135,8 @@ for (const duong of process.argv.slice(2)) {
   if (!(q.tolerance?.value > 0) || !['tuyet-doi', 'tuong-doi'].includes(q.tolerance?.kind))
     loi.push('tolerance phải là {kind: tuyet-doi|tuong-doi, value > 0}');
   else if (!isAccepted(q, q.expected)) loi.push('chính expected không được chấp nhận');
-  for (const [ngon, dong] of [
-    ['vi', wv],
-    ['en', we],
-  ] as const) {
+  /* Chỉ tính lại bản vi, đúng như quiz.test.ts: bộ tính đọc số kiểu Việt, "19.22" là 1922. */
+  for (const [ngon, dong] of [['vi', wv]] as const) {
     const bt = arithmeticOf(dong);
     const gia = bt === null ? null : evaluateWorked(bt);
     if (gia === null) loi.push(`worked.${ngon}: bóc ngoặc ra không tính lại được`);

@@ -20,10 +20,12 @@ import type { QuizKyHieu } from './QuizQuestion';
  *
  * ── Năm quyết định đã chốt, đừng dựng lại ────────────────────────────────────────────────────
  *
- * 1. **Không có khuôn "5 câu mỗi công thức".** Số câu đi theo tư liệu. Khối tự đổi hình theo số
- *    câu nó nhận được — dưới `minForProgress` thì giấu hẳn thanh tiến độ, vì một thanh hai vạch
- *    trông như lỗi hiển thị. Trạng thái rỗng vẫn phải giữ, dù hiện không công thức nào còn trống:
- *    mất nó thì lần sau thêm một công thức mới là màn hỏng.
+ * 1. **Không có khuôn "5 câu mỗi công thức".** Số câu đi theo tư liệu. Nhưng khối KHÔNG còn đổi
+ *    hình theo số câu (29/09/2026): bài hai câu cũng có nút "Bắt đầu kiểm tra" và thanh tiến độ
+ *    như bài năm câu. Bản cũ dưới ba câu thì đổi nút thành "Làm thử", giấu thanh tiến độ và in
+ *    câu "Công thức này mới có ít câu…"; chủ dự án bảo đồng bộ nút, bỏ câu ấy, và chụp thanh tiến
+ *    độ chỉ ra rằng những bài ít câu đang thiếu nó. Trạng thái rỗng vẫn phải giữ, dù hiện không
+ *    công thức nào còn trống: mất nó thì lần sau thêm một công thức mới là màn hỏng.
  * 2. **Khối nguồn là bắt buộc, không phải trang trí.** Mỗi câu hiện đường dẫn tới chỗ đọc được
  *    điều nó kiểm tra. Đây là thứ giữ cho đội nội dung không soạn câu theo cảm tính.
  * 3. **Trả lời xong thì khoá lựa chọn.** Không cho đổi đáp án. Đổi đáp án sau khi đã thấy lời
@@ -56,17 +58,11 @@ export interface QuizBodyProps {
   saved?: QuizProgress | null;
   /** Gọi khi làm xong, để màn chi tiết ghi vào localStorage. */
   onFinish?: (result: { right: number; total: number; wrong: string[] }) => void;
-  /**
-   * Dưới ngưỡng này thì khối đổi sang trạng thái "công thức mới có ít câu" (WF-19D · S18): không
-   * hiện thanh tiến độ, không chấm điểm, chỉ mời làm thử.
-   *
-   * BA — vì một thanh tiến độ hai vạch trông như lỗi hiển thị, còn "1/2" thì không đáng gọi là
-   * bài kiểm tra. Rất nhiều công thức rơi vào khoảng này, nên đây là trạng thái THƯỜNG GẶP.
-   *
-   * Con số sống ở ĐÂY, không ở Domain: tầng giao diện không import được `@/core/quiz` (CON-03),
-   * nên một hằng bên ấy chỉ là con số thứ hai không ai đọc.
+  /*
+   * Không còn `minForProgress` (29/09/2026). Nó từng là ngưỡng BA câu của trạng thái "công thức mới
+   * có ít câu" (WF-19D · S18): dưới ngưỡng thì nút đổi thành "Làm thử", thanh tiến độ bị giấu và
+   * một câu giải thích hiện dưới hàng tiêu đề. Chủ dự án bỏ cả ba — xem quyết định 1 ở đầu file.
    */
-  minForProgress?: number;
   className?: string;
 }
 
@@ -88,7 +84,6 @@ export function QuizBody({
   kyHieu,
   saved = null,
   onFinish,
-  minForProgress = 3,
   className,
 }: QuizBodyProps) {
   const t = useT();
@@ -161,7 +156,6 @@ export function QuizBody({
 
   const item = queue[index];
   const total = queue.length;
-  const showProgress = total >= minForProgress;
 
   const traLoiDuoc = traLoiDuocCua(item, picked, typed);
   const laDung = laDungCua(item, picked, typed);
@@ -292,11 +286,15 @@ export function QuizBody({
       aria-labelledby={`${groupId}-title`}
     >
       {/*
-        Hàng tiêu đề mang NHÃN KHỐI và chỗ đếm câu; lúc đang làm bài nó mang thêm vị trí trong
-        bài, thanh tiến độ và nút Thoát — chủ dự án 24/09/2026, có ảnh chụp kèm.
+        Hàng tiêu đề mang NHÃN KHỐI; lúc đang làm bài nó mang thêm vị trí trong bài, thanh tiến
+        độ và nút Thoát — chủ dự án 24/09/2026, có ảnh chụp kèm.
 
-        Nghỉ:      BÀI TẬP  5 câu                               Bắt đầu kiểm tra »
+        Nghỉ:      BÀI TẬP                                      Bắt đầu kiểm tra »
         Đang làm:  BÀI TẬP  Câu 2 / 5  ▬▬ ▭ ▭ ▭ ▭                            Thoát
+
+        Số câu cạnh nhãn ("BÀI TẬP · 4 câu") bỏ ngày 29/09/2026: chủ dự án chụp hàng nghỉ và bảo
+        "không cần hiển thị số câu ở ngoài". Số câu vẫn hiện, nhưng chỉ khi đã vào bài ("Câu 2 / 5"),
+        đúng lúc nó nói người học còn bao xa.
 
         Chủ dự án chốt hình này sau bốn vòng trong cùng một ngày. Trạng thái nghỉ nay là ĐÚNG
         một hàng — câu mời "Không chấm điểm, chỉ để bạn tự soát lại." bị bỏ, cho dựng lại, rồi bỏ
@@ -304,12 +302,12 @@ export function QuizBody({
         nút CHỮ (`ghost`), không phải nút đặc: một khối màu cạnh một nhãn nhỏ viết hoa sẽ nặng
         hơn chính nội dung nó dẫn vào.
 
-        `.intro` bên dưới chỉ dựng khi thật sự có gì để nói — bài dưới ba câu, hoặc đã có điểm
-        lần trước. Không còn dòng nào dựng vô điều kiện ở trạng thái nghỉ.
+        `.intro` bên dưới chỉ dựng khi thật sự có gì để nói: đã có điểm lần trước. Không còn dòng
+        nào dựng vô điều kiện ở trạng thái nghỉ.
 
-        Hàng này KHÔNG dùng `space-between`. Nhãn và số đếm thuộc về nhau nên đứng sát nhau bên
-        trái; chỉ nút bên phải tự đẩy mình ra mép bằng `.headAction`. Có `space-between` thì số
-        đếm bị ném ra tận mép phải của một khung 1600px, cách nhãn gần cả bề ngang trang.
+        Hàng này KHÔNG dùng `space-between`. Nhãn và cụm tiến độ thuộc về nhau nên đứng sát nhau
+        bên trái; chỉ nút bên phải tự đẩy mình ra mép bằng `.headAction`. Có `space-between` thì
+        cụm tiến độ bị ném ra tận mép phải của một khung 1600px, cách nhãn gần cả bề ngang trang.
       */}
       <div className={styles.head}>
         <h2 className={styles.label} id={`${groupId}-title`}>
@@ -317,21 +315,17 @@ export function QuizBody({
         </h2>
         {phase === 'idle' && (
           <>
-            <span className={styles.count}>
-              {total} {t('quiz.countUnit')}
-            </span>
             <Button
               variant="ghost"
               size="sm"
               className={styles.headAction}
               onClick={() => start(items)}
             >
-              {showProgress ? t('quiz.start') : t('quiz.startFew')}
+              {t('quiz.start')}
               {/*
-                Mũi tên dựng ở ĐÂY chứ không nhét vào chuỗi i18n: nó là trang trí, và nó phải theo
-                cả hai nhãn (`quiz.start` lẫn `quiz.startFew`) — để trong từ điển thì thành bốn chỗ
-                phải nhớ sửa thay vì một. Cùng khuôn `GroupCard.tsx`. `aria-hidden` vì bộ đọc màn
-                hình đọc "»" ra thành tên ký tự, không thêm nghĩa gì cho nhãn nút.
+                Mũi tên dựng ở ĐÂY chứ không nhét vào chuỗi i18n: nó là trang trí, không phải chữ
+                của nhãn. Cùng khuôn `GroupCard.tsx`. `aria-hidden` vì bộ đọc màn hình đọc "»" ra
+                thành tên ký tự, không thêm nghĩa gì cho nhãn nút.
               */}
               <span className={styles.startIcon} aria-hidden="true">
                 »
@@ -343,34 +337,31 @@ export function QuizBody({
           Cụm tiến độ dựng ở ĐÂY chứ không ở đầu thẻ câu hỏi như trước: một dòng riêng chỉ để đếm
           câu là dòng thứ hai nói cùng chuyện với nhãn khối nằm ngay trên nó.
 
-          Nút Thoát dựng cả khi bài dưới ba câu, lúc không có thanh tiến độ (WF-19 · S2) — thiếu
-          nó thì vào làm bài là không còn lối ra nào ngoài việc đi hết bài.
+          Dựng ở MỌI bài, kể cả bài hai câu (29/09/2026) — bản cũ giấu nó dưới ba câu, và chủ dự án
+          chụp thanh tiến độ chỉ ra những bài đang thiếu nó. Nút Thoát (WF-19 · S2) thì vẫn như cũ:
+          thiếu nó thì vào làm bài là không còn lối ra nào ngoài việc đi hết bài.
         */}
         {phase === 'asking' && (
           <>
-            {showProgress && (
-              <>
-                <span className={styles.step}>
-                  {t('quiz.step')
-                    .replace('{n}', String(index + 1))
-                    .replace('{total}', String(total))}
-                </span>
-                <span className={styles.bars} aria-hidden="true">
-                  {queue.map((entry, i) => (
-                    <span
-                      key={entry.id}
-                      className={[
-                        styles.bar,
-                        i < index ? styles.barDone : '',
-                        i === index ? styles.barNow : '',
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                    />
-                  ))}
-                </span>
-              </>
-            )}
+            <span className={styles.step}>
+              {t('quiz.step')
+                .replace('{n}', String(index + 1))
+                .replace('{total}', String(total))}
+            </span>
+            <span className={styles.bars} aria-hidden="true">
+              {queue.map((entry, i) => (
+                <span
+                  key={entry.id}
+                  className={[
+                    styles.bar,
+                    i < index ? styles.barDone : '',
+                    i === index ? styles.barNow : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                />
+              ))}
+            </span>
             <Button variant="ghost" size="sm" className={styles.headAction} onClick={exit}>
               {t('quiz.exit')}
             </Button>
@@ -380,14 +371,15 @@ export function QuizBody({
 
       {chuaDich && <p className={styles.note}>{t('quiz.notTranslated')}</p>}
 
-      {phase === 'idle' && (!showProgress || saved !== null) && (
+      {/*
+        Câu "Công thức này mới có ít câu, vì tư liệu thật chỉ có thế…" (`quiz.few.body`) đã BỎ
+        ngày 29/09/2026 — chủ dự án gọi nó là chữ thừa. Hàng này nay chỉ còn điểm lần trước.
+      */}
+      {phase === 'idle' && saved !== null && (
         <div className={styles.intro}>
-          {!showProgress && <p className={styles.note}>{t('quiz.few.body')}</p>}
-          {saved !== null && (
-            <p className={styles.lastTime}>
-              {t('quiz.lastTime')}: {saved.right}/{saved.total}
-            </p>
-          )}
+          <p className={styles.lastTime}>
+            {t('quiz.lastTime')}: {saved.right}/{saved.total}
+          </p>
         </div>
       )}
 
@@ -399,6 +391,11 @@ export function QuizBody({
             câu cũ mở ra nguyên vẹn ngay tại chỗ, không nhảy trang và không mất câu đang làm.
             Chỉ mở MỘT câu tại một thời điểm — mở nhiều câu cùng lúc thì câu đang hỏi bị đẩy khỏi
             màn, đúng thứ dải này sinh ra để tránh.
+
+            Câu BỎ QUA mở ra thì chỉ khoá lại, KHÔNG chấm (29/09/2026): không dấu đúng/sai, không lộ
+            đáp án, không lời giải. Bản cũ dựng nó với `answered` như câu đã làm, nên bấm "Bỏ qua"
+            rồi mở lại là thấy ngay đáp án và giải thích — chủ dự án: "chỉ khi người dùng chọn đáp án
+            và click vào button Kiểm tra thì mới có giải thích tại sao và có hiển thị câu đúng sai".
           */}
           {daLam.length > 0 && (
             <ul className={styles.history}>
@@ -439,7 +436,7 @@ export function QuizBody({
                           namePrefix={`${groupId}-ls`}
                           picked={xong.picked}
                           typed={xong.typed}
-                          answered
+                          answered={!xong.boQua}
                           readOnly
                         />
                       </div>
@@ -534,10 +531,9 @@ export function QuizBody({
             })}
           </ul>
           {/*
-            Dòng giải nghĩa dấu `?`, chỉ hiện khi có câu bỏ qua — cùng nếp `portfolio.weightNote`
-            và `ConstantsNote`: một ô rộng bằng một ký tự không mang nổi mệnh đề.
+            KHÔNG còn dòng giải nghĩa dấu `?` ("Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là
+            chưa nắm.") — chủ dự án bỏ ngày 29/09/2026 vì thừa. Dấu `?` vẫn đứng riêng, khác `✕`.
           */}
-          {skippedIds.length > 0 && <p className={styles.note}>{t('quiz.skippedNote')}</p>}
           <div className={styles.actions}>
             {wrongItems.length > 0 && (
               <Button

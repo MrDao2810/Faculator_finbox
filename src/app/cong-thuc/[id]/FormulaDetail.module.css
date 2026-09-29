@@ -190,13 +190,9 @@ button.iconButton::after {
 /*
  * Hàng lối vào dữ liệu của khối Số liệu — WF-03.
  *
- * Ba thứ ở đây KHÔNG cùng một vai, và bản trước để cả ba trôi tự do nên đọc ra như ba mẩu rời:
- * hai nút "Dán chuỗi giá" / "Xem ví dụ minh hoạ" là hai cách ĐƯA dữ liệu vào màn này, còn "Mở
- * bảng dữ liệu →" là ĐI SANG màn khác. Gom hai cái cùng vai về trái, đẩy cái đi-nơi-khác sang
- * phải: hàng tự tách làm hai cụm mà không cần thêm một đường kẻ hay một nhãn nào.
- *
- * `align-items: center` vì ba thứ khác chiều cao (nút 44px, link cao theo chữ) — không có nó thì
- * chữ của link treo lệch so với chữ trên nút ngay cạnh.
+ * Hai nút "Dán chuỗi giá" / "Xem ví dụ minh hoạ" là hai cách ĐƯA dữ liệu vào màn này. "Mở bảng
+ * dữ liệu →" là ĐI SANG màn khác, nên nó không ở hàng này nữa mà xuống `.seriesFoot` bên dưới,
+ * cạnh dòng số phiên đã nạp (29/09/2026) — xem docblock ở đó.
  */
 .actions {
   display: flex;
@@ -206,11 +202,30 @@ button.iconButton::after {
 }
 
 /*
- * Khổ hẹp thì hàng gãy và link rơi xuống dòng riêng — vẫn nép phải, vẫn đọc ra là "bước đi tiếp"
- * chứ không phải nút thứ ba bị bỏ rơi.
+ * Hàng chân của khối chuỗi: "Đã nạp số phiên giá: 57" bên trái, "Mở bảng dữ liệu →" bên phải.
+ *
+ * Link từng nằm cuối `.actions` và nép phải bằng `margin-left: auto`. Cột Số liệu hẹp nên hàng
+ * gãy, link rơi xuống một dòng RIÊNG lơ lửng giữa hàng nút và dòng số phiên, còn bên phải dòng số
+ * phiên thì bỏ trống — chủ dự án khoanh đúng chỗ trống ấy và bảo chuyển link xuống (29/09/2026).
+ * Hai thứ cùng nói về chuỗi đang nạp nên chung một hàng; `.actions` giữ lại đúng hai nút đưa dữ
+ * liệu vào.
+ *
+ * `margin-left: auto` chứ không `space-between`: chưa nạp chuỗi thì không có dòng số phiên, và
+ * link đứng một mình vẫn phải nép phải. `align-items: center` vì link cao 44px (vùng chạm) còn
+ * dòng số phiên cao theo chữ nhỏ.
  */
-.actions .dataLink {
+.seriesFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-3);
+}
+
+/* Lề âm bằng đúng phần đệm của link: chữ "→" thẳng mép phải với thanh trượt và nhãn "60 phiên"
+   phía trên, mà vùng chạm 44px vẫn đủ — phần đệm tràn vào lề trong của thẻ, không ra ngoài. */
+.seriesFoot .dataLink {
   margin-left: auto;
+  margin-right: calc(var(--space-2) * -1);
 }
 
 /*
@@ -248,8 +263,8 @@ button.iconButton::after {
   }
 }
 
-/* Link sang bảng dữ liệu WF-05, đứng cạnh nút "Dán chuỗi giá". Cao bằng nút nhỏ đứng cạnh
-   để hàng không so le, và đủ 44px vùng chạm — NFR-USA-01. */
+/* Link sang bảng dữ liệu WF-05, nép phải ở hàng chân `.seriesFoot`, cạnh dòng số phiên đã nạp.
+   Đủ 44px vùng chạm — NFR-USA-01. */
 .dataLink {
   display: inline-flex;
   align-items: center;

@@ -26,7 +26,7 @@ import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput } from '../types';
 import { meaningless } from '../warnings';
-import { FPT_57_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_57_PHIEN } from './market-series-2026';
 import { lastEma, lastSma, mean, requireCloses } from './series-utils';
 import { sliderVar } from './shared';
 
@@ -356,6 +356,7 @@ export const SMA_N_PHIEN: FormulaModule = {
       },
       inputs: { period: 20 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 71_560,
       note: {
         vi: 'Đường trung bình làm mượt nhiễu từng phiên để lộ ra mặt bằng giá: phiên cuối đóng ở 72.700 ₫, tức nằm trên đường. Đây là chỉ báo trễ — nó xác nhận xu hướng đã hình thành chứ không dự báo.',
@@ -503,6 +504,7 @@ export const EMA_N_PHIEN: FormulaModule = {
       },
       inputs: { period: 12 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 72_389,
       note: {
         vi: 'Trọng số giảm dần theo hàm mũ về quá khứ nên đường bám giá sát hơn SMA cùng kỳ: hệ số làm mượt 2/(12+1) ≈ 0,1538, tức mỗi phiên mới đóng góp khoảng 15,4% giá trị đường. Đổi lại là nhiễu và tín hiệu giả nhiều hơn — đó là lý do MACD dùng EMA còn dải Bollinger dùng SMA.',
@@ -648,6 +650,7 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       },
       inputs: { fastPeriod: 12, slowPeriod: 26 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 808.2088,
       note: {
         vi: 'Giá trị dương nghĩa là trung bình ngắn đang nằm trên trung bình dài, tức phần đà tăng đang thắng. Chỉ báo đo KHOẢNG CÁCH giữa hai đường trung bình chứ không đo giá, nên nó vẫn dâng lên được cả khi giá đi ngang — đó là lý do nó được xếp vào nhóm động lượng chứ không phải nhóm xu hướng.',
@@ -796,6 +799,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       },
       inputs: { fastPeriod: 12, slowPeriod: 26, signalPeriod: 9 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 751.9887,
       note: {
         vi: 'Đường tín hiệu là EMA của chính đường MACD — trung bình của một trung bình, nên nó trễ thêm một nhịp nữa so với giá. Trong thị trường đi ngang, hai đường cắt qua cắt lại liên tục và sinh ra chuỗi tín hiệu giả; đó là nhược điểm lớn nhất của bộ chỉ báo này.',
@@ -973,6 +977,7 @@ export const RSI_WILDER: FormulaModule = {
       },
       inputs: { period: 14 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 55.8734,
       note: {
         vi: 'Chỉ số chạy trong khoảng 0–100 với hai ngưỡng quy ước: dưới 30 là quá bán, trên 70 là quá mua. Bản Wilder làm mượt theo hệ số 1/14 chứ không lấy trung bình cộng thuần — lập trình nhầm sang trung bình cộng thì kết quả lệch dần theo chiều dài chuỗi; và trong xu hướng mạnh, chỉ số nằm trên 70 hàng chục phiên liền là chuyện bình thường.',
@@ -1157,6 +1162,7 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
       },
       inputs: { period: 12 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 2.8289,
       note: {
         vi: 'Chỉ báo đo phần trăm thay đổi giữa giá hiện tại và giá ở mốc nhìn lại, tính thẳng trên giá chứ không qua trung bình, nên phản ứng nhanh nhất nhóm động lượng và cũng nhiễu nhất. Cách dùng phổ biến là coi lần đổi dấu từ âm sang dương là dấu hiệu sớm, rồi chờ MACD xác nhận.',
@@ -1310,6 +1316,7 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
       },
       inputs: { period: 10 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 500,
       note: {
         vi: 'Kết quả là hiệu giá tuyệt đối tính bằng ₫ nên dễ hình dung ngay, nhưng không so sánh chéo mã được: cùng một mức chênh 500 ₫ mang ý nghĩa khác hẳn ở cổ phiếu 72.700 ₫ so với cổ phiếu 10.000 ₫. Muốn so giữa các mã thì phải quy về phần trăm bằng ROC.',
@@ -1466,6 +1473,7 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
       },
       inputs: { period: 20 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 1.5931,
       note: {
         vi: 'Vì tính bằng phần trăm nên khoảng cách so sánh được giữa các mã và giữa các thời điểm; ý tưởng nền là giá có xu hướng quay về trung bình, giãn càng rộng thì xác suất bị kéo ngược càng cao. Ngay trong chuỗi này, cú rơi 5% về 66.800 ₫ giữa tháng 7/2026 đẩy khoảng cách xuống âm sâu.',
@@ -1611,6 +1619,7 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       },
       inputs: { shortPeriod: 10, longPeriod: 20 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 1_190,
       note: {
         vi: 'Kết quả là hiệu của đường nhanh trừ đường chậm: dương nghĩa là đường nhanh đã cắt lên trên. Đây là hệ thống cơ học lâu đời nhất của nhóm, được giữ lại vì nó loại bỏ hoàn toàn cảm tính; điểm yếu đã biết là thị trường đi ngang làm hai đường quấn nhau và sinh ra chuỗi lệnh thua liên tiếp.',

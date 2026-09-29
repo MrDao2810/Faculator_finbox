@@ -25,7 +25,7 @@ import type { SeriesRow } from '../price-series';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless, missingSeries } from '../warnings';
-import { FPT_57_BARS, FPT_57_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_57_BARS, FPT_57_PHIEN } from './market-series-2026';
 import { mean, requireBars, requireCloses, sampleStdDev } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
@@ -362,6 +362,7 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       },
       inputs: { period: 20, k: 2 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 74_988,
       note: {
         vi: 'Dải trên bằng trung bình 20 phiên cộng hai lần độ lệch chuẩn, nên theo phân phối chuẩn chỉ chừng 5% số phiên ra được ngoài hai dải — chạm mép trên là chuyện hiếm. Nhưng trong xu hướng tăng mạnh, giá có thể bám dải trên nhiều phiên liền: dải Bollinger đo biến động chứ không dự báo hướng.',
@@ -509,6 +510,7 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       },
       inputs: { period: 20, k: 2 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 68_132,
       note: {
         vi: 'Dải dưới đối xứng với dải trên qua đường giữa, nên nó chỉ nói giá đang ở mép dưới vùng dao động quen thuộc. Ngay trong chuỗi này có hai phiên cuối tháng 7 thủng dải dưới rồi giá hồi lên trong tháng 8, nhưng thủng dải xong rơi tiếp cũng là chuyện thường khi tin xấu là thật — Bollinger không phân biệt được hai tình huống đó.',
@@ -657,6 +659,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       },
       inputs: { period: 20, k: 2 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 9.5816,
       note: {
         vi: 'Chia cho đường giữa nên con số này so được qua thời gian và so được giữa các mã có thị giá khác nhau. Giai đoạn dải co hẹp — cái mà Bollinger gọi là "thắt nút" — thường đi trước một nhịp giá mạnh, nhưng nó chỉ trả lời "khi nào" chứ không trả lời "chiều nào", nên phải đọc kèm một chỉ báo xu hướng.',
@@ -842,6 +845,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       },
       inputs: { period: 14 },
       bars: FPT_57_BARS,
+      dataset: FPT_2026,
       expected: 1_498,
       note: {
         vi: 'Dao động thực lấy số lớn nhất trong ba khoảng nên tính được cả phần giá nhảy qua đêm mà biên độ trong phiên bỏ sót. Ứng dụng quen thuộc nhất là đặt cắt lỗ cách giá vào lệnh chừng 1,5–2 lần ATR, để nhiễu thường ngày không quét mất lệnh dừng.',
@@ -1021,6 +1025,7 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       },
       inputs: { period: 20, k: 2 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 66.6263,
       note: {
         vi: '%B quy vị trí giá về một thang chung: 0 là chạm dải dưới, 50 là đúng đường giữa, 100 là chạm dải trên, còn ra ngoài khoảng đó nghĩa là giá đã ra khỏi dải. Nhờ chuẩn hoá mà so được FPT với một mã giá 15.000 ₫ — điều không làm được khi nhìn ba đường Bollinger thô.',
@@ -1228,6 +1233,7 @@ export const STOCHASTIC_K: FormulaModule = {
       },
       inputs: { period: 14 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       bars: FPT_57_BARS,
       expected: 48.7805,
       note: {
@@ -1400,6 +1406,7 @@ export const VWAP: FormulaModule = {
       },
       inputs: { period: 20 },
       bars: FPT_57_BARS,
+      dataset: FPT_2026,
       expected: 71_726,
       note: {
         vi: 'Mỗi phiên góp vào theo đúng số cổ phiếu đã khớp, nên phiên sôi động kéo bình quân về phía giá của nó: hai mươi phiên này có trung bình cộng giá đóng cửa 71.560 ₫, còn VWAP nhỉnh hơn vì phiên khối lượng nặng nhất trong kỳ lại là phiên giá cao. Các quỹ lớn dùng VWAP làm chuẩn đánh giá chất lượng khớp lệnh.',
@@ -1631,6 +1638,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       },
       inputs: { sample: 55, tradingDays: 252 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 30.3652,
       note: {
         vi: 'Chỉ báo này dùng quy ước 252 phiên một năm theo thông lệ quốc tế, khác nhóm rủi ro vốn dùng 250 phiên: chênh lệch nhỏ, nhưng nếu hai màn hình không thống nhất thì cùng một mã sẽ hiện ra hai con số. Đây cũng là tham số bắt buộc của Black-Scholes khi định giá chứng quyền có bảo đảm.',
@@ -1832,6 +1840,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       },
       inputs: { period: 20 },
       bars: FPT_57_BARS,
+      dataset: FPT_2026,
       expected: 0.55,
       note: {
         vi: 'Phiên gần nhất chỉ khớp chừng một nửa mức bình quân của hai mươi phiên liền trước, tức thanh khoản đang mỏng đi; phải từ khoảng 1,5 lần trở lên mới được coi là đột biến. Tỷ lệ này không có hướng: trong chính chuỗi FPT, phiên 15/07 khối lượng 21,5 triệu đi kèm giá giảm 5% còn phiên 03/08 khối lượng 19,5 triệu đi kèm giá tăng gần 7%.',

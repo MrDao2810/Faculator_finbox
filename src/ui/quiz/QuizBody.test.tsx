@@ -120,17 +120,36 @@ describe('làm bài', () => {
   });
 });
 
-describe('khối ít câu — 87 trên 111 công thức rơi vào đây', () => {
-  it('dưới ba câu thì không dựng thanh tiến độ', () => {
+/*
+ * KHÔNG còn trạng thái "ít câu" (29/09/2026). Bài dưới ba câu từng đổi nút thành "Làm thử", giấu
+ * thanh tiến độ và in "Công thức này mới có ít câu…"; chủ dự án bỏ cả ba. Chữ cũ viết tay trong ca
+ * này vì hai khoá i18n của nó đã xoá.
+ */
+describe('bài ít câu dựng y như bài nhiều câu', () => {
+  it('bài hai câu cũng mang nút "Bắt đầu kiểm tra" và thanh tiến độ, không có câu "ít câu"', () => {
     const { container } = render(<QuizBody formulaId="pe" items={[cau('Q001'), cau('Q002')]} />);
+    expect(screen.getByRole('button', { name: t('quiz.start') })).toBeTruthy();
+    expect(container.textContent).not.toContain('Làm thử');
+    expect(container.textContent).not.toContain('mới có ít câu');
+
     fireEvent.click(screen.getByRole('button'));
-    expect(container.textContent).not.toContain(viTri(1, 2));
+    expect(container.textContent).toContain(viTri(1, 2));
   });
 
   it('từ ba câu trở lên thì có', () => {
     const { container } = render(<QuizBody formulaId="pe" items={BA_CAU} />);
     fireEvent.click(screen.getByRole('button'));
     expect(container.textContent).toContain(viTri(1, 3));
+  });
+
+  /*
+   * Hàng nghỉ KHÔNG in số câu (29/09/2026) — chủ dự án chụp "BÀI TẬP · 4 câu" và bảo "không cần
+   * hiển thị số câu ở ngoài". Ca này chữ viết tay chứ không đọc qua `t()`, vì khoá cũ đã xoá.
+   */
+  it('trạng thái nghỉ chỉ có nhãn khối và nút vào bài, không đếm số câu', () => {
+    const { container } = render(<QuizBody formulaId="pe" items={BA_CAU} />);
+    expect(container.textContent).not.toMatch(/\d+\s*câu/);
+    expect(container.textContent).not.toContain(viTri(1, 3));
   });
 });
 
@@ -749,9 +768,9 @@ describe('lối ra giữa bài — WF-19 · S2', () => {
   });
 
   /*
-   * Bộ BA câu, và cố ý để lọt một câu đúng: lượt ôn khi ấy chỉ có hai câu — dưới ngưỡng thanh
-   * tiến độ — nên nếu `exit()` quên trả `queue` về cả bộ, màn nghỉ sẽ bày nút "Làm thử" của bài
-   * ngắn thay vì "Bắt đầu kiểm tra". Sai cả bài thì tập con BẰNG cả bài và ca kiểm mù.
+   * Bộ BA câu, và cố ý để lọt một câu đúng: lượt ôn khi ấy chỉ có hai câu, nên nếu `exit()` quên
+   * trả `queue` về cả bộ, lần bắt đầu sau sẽ chạy "1 / 2" thay vì "1 / 3". Sai cả bài thì tập con
+   * BẰNG cả bài và ca kiểm mù.
    */
   it('thoát khỏi lượt ôn lại thì lần bắt đầu sau là CẢ bài, không phải tập con', () => {
     batDau(BA_CAU);
@@ -802,7 +821,11 @@ describe('bỏ qua câu — WF-19 · S2', () => {
     expect(onFinish).toHaveBeenCalledWith({ right: 1, total: 2, wrong: ['Q002'] });
   });
 
-  it('câu bỏ qua đánh dấu khác câu trả lời sai, và có dòng giải nghĩa dấu ấy', () => {
+  /*
+   * Dòng giải nghĩa dấu `?` đã BỎ (29/09/2026, chủ dự án: "đang quá thừa"). Chữ cũ viết tay trong
+   * ca này vì khoá i18n của nó đã xoá — ca đỏ nếu dòng ấy quay lại.
+   */
+  it('câu bỏ qua đánh dấu khác câu trả lời sai, và không kèm dòng giải nghĩa dấu ấy', () => {
     const { container } = render(<QuizBody formulaId="pe" items={[cau('Q001'), cau('Q002')]} />);
     fireEvent.click(screen.getByRole('button'));
 
@@ -814,16 +837,7 @@ describe('bỏ qua câu — WF-19 · S2', () => {
 
     const marks = [...container.querySelectorAll('li span:first-child')].map((n) => n.textContent);
     expect(marks).toEqual(['✕', '?']);
-    expect(screen.getByText(t('quiz.skippedNote'))).toBeTruthy();
-  });
-
-  it('không bỏ qua câu nào thì không có dòng giải nghĩa', () => {
-    batDau([cau('Q001')]);
-    fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn B/ }));
-    fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
-    fireEvent.click(screen.getByRole('button', { name: t('quiz.seeResult') }));
-
-    expect(screen.queryByText(t('quiz.skippedNote'))).toBeNull();
+    expect(container.textContent).not.toContain('Dấu ? là câu bạn bỏ qua');
   });
 
   it('câu bỏ qua vào được lượt "Ôn lại câu sai"', () => {
@@ -964,6 +978,29 @@ describe('dải câu đã làm — 24/09/2026', () => {
     const thuNho = screen.getByRole('button', { name: /Đề bài Q001/ });
     expect(thuNho.textContent).toContain('?');
     expect(thuNho.textContent).not.toContain('✕');
+  });
+
+  /*
+   * Câu bỏ qua mở lại thì chỉ KHOÁ, không chấm (29/09/2026). Bản cũ dựng nó như câu đã trả lời:
+   * lộ đáp án đúng, gắn nhãn Đúng, và in cả lời giải — chủ dự án: "chỉ khi người dùng chọn đáp án
+   * và click vào button Kiểm tra thì mới có giải thích tại sao và có hiển thị câu đúng sai".
+   */
+  it('câu bỏ qua mở lại thì khoá hết, không lộ đáp án, không nhãn Đúng/Sai, không lời giải', () => {
+    const { container } = render(<QuizBody formulaId="pe" items={BA_CAU} />);
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.skip') }));
+    fireEvent.click(screen.getByRole('button', { name: /Đề bài Q001/ }));
+
+    const cu = container.querySelectorAll<HTMLInputElement>('input[name="quiz-pe-ls-Q001"]');
+    expect(cu.length).toBe(4);
+    for (const radio of cu) {
+      expect(radio.disabled).toBe(true);
+      expect(radio.checked).toBe(false);
+    }
+    const lichSu = container.querySelector('li');
+    expect(lichSu?.textContent).not.toContain(t('quiz.right'));
+    expect(lichSu?.textContent).not.toContain(t('quiz.wrong'));
+    expect(screen.queryByText(/trích dẫn của Q001/)).toBeNull();
   });
 
   it('thoát giữa bài thì dải xoá theo', () => {

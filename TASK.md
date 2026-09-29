@@ -2,6 +2,28 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+---
+
+## Sửa nút "Xem ví dụ minh hoạ" — 29/09/2026
+
+Chủ dự án: bấm nút → biểu đồ thay đổi nhưng không rõ thay đổi theo cái gì.
+Kế hoạch 10 bước đã duyệt. Tiến độ:
+
+| Bước | Nội dung                                                                           | Trạng thái |
+| ---- | ---------------------------------------------------------------------------------- | ---------- |
+| 1    | Sửa `detail.presetNoDataFix` trỏ đúng nút                                          | Xong       |
+| 2    | Xoá fill mã khi khôi phục chuỗi (`applyWorkingSeries`)                             | Xong       |
+| 3    | Đổi ngày FPT_57_BARS sang ISO; test mới                                            | Xong       |
+| 4    | Thêm `ExampleDataset`, `FPT_2026`, `VNINDEX_2026`; gắn `dataset:` vào 35 công thức | Xong       |
+| 5    | `applyExample()` nạp cả chuỗi lẫn ô nhập; sửa `handOverToDataTable`                | Xong       |
+| 6    | Câu biểu đồ dùng `dataset.name`; tombstone `exampleSeriesLabel`                    | Xong       |
+| 7    | Biến nút thành chip có × hoàn tác                                                  | Chưa       |
+| 8    | Khoá nút khi ticker đang loading                                                   | Chưa       |
+| 9    | ExampleBlock hiện kết quả thực khi chưa chạy ví dụ                                 | Chưa       |
+| 10   | Dọn comment lỗi thời                                                               | Chưa       |
+
+---
+
 | Gói   | Nội dung                                                                           | Giờ WBS | Trạng thái                                                                     |
 | ----- | ---------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------ |
 | 1.1.1 | Repo + toolchain                                                                   | 3h00    | Xong (từ trước)                                                                |
@@ -193,6 +215,167 @@ kéo về sớm + 10 nhánh 3.6 + 4 đợt 13, cộng 10 giờ gói 3.2.2, ~11 g
 đợt 11).
 **Nhánh 3.1 và 3.2 xong trọn** — 3.2.2 là gói cuối cùng của nhánh 3.2, nay đã đóng.
 Nhánh 3.6 xong 3.6.1 và 3.6.2.
+
+---
+
+## Ô nhập số lẻ: chạm vào ô là con số nhảy thêm chữ số (29/09/2026)
+
+**Trạng thái: xong, `npm run check` xanh trọn (128 file · 3.040 ca).** Vòng hai bên dưới sửa một lỗ
+mà một vòng khảo sát song song (Workflow, phản biện hai lớp) tìm ra ngay sau vòng một.
+
+### Vòng hai — cửa `edited` chặn đúng lượt CHỐT, nhưng lượt SỐNG THEO TAY GÕ không đi qua nó
+
+Vòng một (bên dưới) thêm cờ `edited` để gác lượt `onBlur`. Đúng, nhưng không đủ: `NumberInput`
+đẩy `onChange` lên **hai** đường, không phải một. Đường thứ hai — "sống theo tay gõ", nổ ngay
+trong sự kiện gõ để khối Kết quả đổi theo từng phím — chỉ hỏi "chuỗi có ra số không"
+(`parsed !== null`), không hỏi "số có đổi không". Gõ một chữ cái bị `keepViNumberChars()` lọc
+sạch thì chuỗi không đổi, số đọc ra vẫn là số CŨ, nhưng đường ấy vẫn gọi `onChange` — **ngay
+trong lúc gõ, trước cả khi rời ô** — và với `LinkedInput` thì một lượt gọi suông là đủ để bị hiểu
+"người dùng ghi đè", cắt đứt ô khỏi CAPM/WACC dù không chữ số nào đổi.
+
+Tìm ra nhờ chính ca kiểm mới viết ở vòng một tự đỏ khi tôi viết thêm một ca cho `LinkedInput` gõ
+chữ cái — tưởng lỗi ở cờ `edited`, nhưng thêm một dòng `console.log` mới lộ ra cờ ấy vẫn đúng
+(`false`), và `onOverrideChange` bị gọi từ đường khác hẳn.
+
+Sửa: thêm cửa `parsed !== value` vào lượt sống-theo-tay-gõ của `NumberInput` — đúng cửa
+`InlineNumber` đã có sẵn từ trước, chỉ `NumberInput` thiếu. Với ô nhập tay thường thì vô hại: sau
+mỗi phím `value` đã được cập nhật thành số của phím trước, nên phím tiếp theo luôn cho số khác nó.
+
+Test mới: `NumberInput.test.tsx` một ca pin đúng cửa này; `LinkedInput.test.tsx` viết lại ca "gõ
+chữ cái bị lọc sạch" thành kiểm CẢ hai mốc — ngay sau khi gõ (bắt lượt sống) và sau khi rời ô (bắt
+lượt chốt) — để một trong hai đường có tái phát thì ca này bắt được, không cần biết đường nào.
+Dựng lại trên Chrome thật (`/cong-thuc/mo-hinh-gordon/`): gõ chữ cái vào ô đang nối CAPM, ô vẫn
+`13,1` và vẫn nối CAPM, không bật nhãn "đã nhập tay".
+
+Nhân tiện sửa luôn hai chỗ docblock tự viết sai ở vòng một, do cùng vòng khảo sát bắt được:
+`draftViNumber()` tả sai chính nó ("lấy chuỗi đang hiện trên màn" — thật ra hàm nhận một _con số_
+rồi tự tính lại chuỗi bằng cùng `formatNumber`/`maxDecimals`, không đọc DOM); và ngưỡng làm tròn
+về "0" ghi nhầm 0,0001 trong khi đo lại đúng là 0,00005 (Intl làm tròn half-expand ở chữ số thứ
+năm).
+
+### Vòng một
+
+Chủ dự án chụp ô "Suất sinh lời yêu cầu (r)" ở `mo-hinh-gordon`: lúc nghỉ hiện '12,3329' (bốn
+chữ số), bấm vào thì nhảy thành '12,33291875' (đủ độ chính xác) — _"đây là lỗi nghiêm trọng"_.
+
+### Gốc lỗi — hai vế, phải sửa cùng nhau
+
+`NumberInput.tsx` (`src/ui/inputs/`) là ô nhập số dùng chung cho cả 111 màn công thức. Lúc nghỉ nó
+hiện `formatNumber(value, { maxDecimals: 4 })`. `onFocus` thì gọi `rawViNumber(value)` — dựng LẠI
+một chuỗi khác từ chính con số gốc, đủ độ chính xác chứ không bốn chữ số. Hai hàm không chung một
+nguồn, nên chúng lệch nhau bất cứ khi nào con số có nhiều hơn bốn chữ số thập phân — đúng ca "nhận
+từ công thức khác" của `LinkedInput` (CAPM, WACC…), nơi con số hiếm khi tròn.
+
+Sửa vế hiển thị không thì thành một lỗi khác, nặng hơn vì im lặng: `onBlur` cũ luôn gọi
+`onChange(commitValue(raw, spec))` bất kể người dùng có gõ hay không. Nếu chỉ làm ô hiện đúng bốn
+chữ số lúc bấm vào mà không sửa `onBlur`, thì chạm vào ô rồi bấm ra chỗ khác sẽ CHỐT LẠI con số đã
+làm tròn — 12,3329 ghi đè lên 12,33291875 thật, và với `LinkedInput` còn tệ hơn: mọi lượt
+`onChange` được hiểu là "người dùng ghi đè", nên chỉ NHÌN vào ô cũng đủ cắt nó khỏi CAPM.
+
+### Sửa
+
+1. **`src/core/format.ts`** — thêm `INPUT_MAX_DECIMALS = 4` (một hằng số, không phải số 4 rải rác
+   hai chỗ) và `draftViNumber()`: lấy CHÍNH chuỗi đang hiện trên màn (`formatNumber`) rồi bỏ dấu
+   ngăn nghìn, thay vì dựng một chuỗi khác từ con số gốc. Hai bên không thể lệch nhau vì chỉ còn
+   một chuỗi. `rawViNumber()` giữ nguyên — vẫn cần cho những nơi phải giữ đủ độ chính xác thật
+   (`NumberCell` ở bảng dữ liệu, bản Thay số của Bài tập).
+2. **`NumberInput.tsx`, `InlineNumber.tsx`** — `onFocus` đổi từ `rawViNumber` sang `draftViNumber`;
+   thêm cờ `edited` (đặt `false` ở `onFocus`, `true` ở `onChange`); `onBlur` chỉ gọi `onChange` khi
+   `edited.current === true`. Hai ô này là toàn bộ đường "vào ô rồi sửa" của sản phẩm nên phải sửa
+   cùng nhau — khác đường là khác hành vi khi một cái sửa mà cái kia quên.
+3. **Một lỗi tự gây ra rồi tự bắt**: bản nháp đầu của `draftViNumber()` viết `replace(/./g, '')` để
+   bỏ dấu chấm — thiếu một dấu gạch chéo ngược qua hai lớp escape của công cụ soạn, nên regex
+   thành khớp MỌI ký tự và mọi ô nhập trống trắng ngay khi chạm vào. Qua được typecheck và mắt đọc
+   lướt; bộ kiểm mới viết bắt được ngay trong lượt chạy đầu. Sửa bằng `split('.').join('')` —
+   không còn ký tự thoát nào để viết sót.
+
+### Test mới / viết lại
+
+- `format.test.ts`: 6 ca cho `draftViNumber()` — giữ nguyên chữ số đang hiện, cắt đúng bốn chữ số,
+  bẫy đúng lớp lỗi regex vừa gặp, đọc ngược đúng, số cực lớn không ra dạng mũ, giá trị không hữu
+  hạn ra chuỗi rỗng.
+- `NumberInput.test.tsx`: ca "chạm rồi rời" viết lại — ghim thêm KHÔNG có lượt `onChange` nào (lời
+  hứa yếu hơn trước chỉ ghim đúng-giá-trị, không ghim đúng-không-có-lượt); 2 ca mới cho đúng kịch
+  bản trong ảnh (số lẻ dài không nhảy chữ số khi bấm vào; số vừa to vừa lẻ bỏ đúng ngăn nghìn giữ
+  đúng phần thập phân).
+- `LinkedInput.test.tsx`: 2 ca mới ghim ranh giới "nhìn ≠ ghi đè" — chạm rồi rời KHÔNG cắt liên kết
+  CAPM; gõ thật thì vẫn ghi đè như cũ (để không ai siết cờ `edited` tới mức hỏng luôn việc ghi đè).
+
+### Kiểm chứng
+
+`npm run check` xanh trọn — 128 file, 3.038 ca. Dựng lại đúng kịch bản trong ảnh trên Chrome thật
+qua dev server (`/cong-thuc/mo-hinh-gordon/`, chế độ Nâng cao): gõ 12,33291875 → bấm ra → bấm vào
+lại — con số đứng yên ở mọi bước, không còn chỗ nào nhảy thêm chữ số.
+
+### File đã đổi
+
+`src/core/format.ts` · `src/application/index.ts` (xuất `INPUT_MAX_DECIMALS`, `draftViNumber`) ·
+`src/ui/inputs/NumberInput.tsx` · `src/ui/inputs/InlineNumber.tsx` · ba file test kể trên.
+
+---
+
+## Bài tập — đáp án dồn về B; câu bỏ qua lộ lời giải; bỏ trạng thái "ít câu" (29/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** Bốn lỗi chủ dự án liệt kê:
+
+1. **"Toàn bộ đáp án đúng đều đang để là chọn B"** — đo: 259/305 câu trắc nghiệm là B, 12/18 câu
+   chọn nhiều là A+B. Đảo lại bằng cây cú pháp TypeScript (sửa đúng vị trí `choices`/`answer`, không
+   regex): xếp theo băm mã câu, chia vòng a/b/c/d → 77/76/76/76; chọn nhiều xoay vòng → không bộ nào
+   quá 5/18. 7 lời giải gọi phương án bằng chữ cái được đổi chữ theo (Q208, Q236, Q243, Q259, Q267,
+   Q284, Q338) và đọc tay từng câu. Đối chiếu máy: cả 323 câu giữ nguyên nội dung đáp án đúng và bộ
+   bốn lựa chọn. Cửa gác mới trong `quiz.test.ts`: mỗi chữ cái 20–30%, không bộ chọn nhiều nào quá
+   một phần ba (chạy thử trên dữ liệu cũ thì đỏ: A chỉ 9,8%).
+2. **Bỏ qua rồi mở lại thì lộ đáp án và lời giải** — câu bỏ qua ở dải lịch sử dựng với
+   `answered={!boQua}`: khoá hết, không dấu, không lời giải. +1 ca test.
+3. **Bỏ câu "Công thức này mới có ít câu…"** — xoá `quiz.few.body` (mộ chí ở `vi.ts`).
+4. **"Làm thử" → "Bắt đầu kiểm tra", bài ít câu thiếu thanh tiến độ** — bỏ hẳn trạng thái "ít câu":
+   `minForProgress`, `quiz.startFew`; mọi bài có cùng nút và thanh tiến độ. Ca test cũ đảo lại.
+5. **Bỏ dòng "Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là chưa nắm."** ở màn tổng kết (chủ
+   dự án: "đang quá thừa") — xoá `quiz.skippedNote` (mộ chí ở `vi.ts`); dấu `?` vẫn giữ. Hai ca test
+   gộp thành một ca đỏ nếu dòng ấy quay lại.
+
+Chụp thật `thoi-gian-nhan-doi` (2 câu) ở 1440: nghỉ, đang làm "Câu 1 / 2" có thanh, bỏ qua rồi mở
+lại. `npm run check` phần của tôi: lint, tsc, 129 file · 3.057 ca xanh.
+
+File: `core/quiz/items/{derivatives,fees,fundamentals,personal,returns,risk,technical,valuation-dcf,valuation-multiples}.ts`,
+`core/quiz/quiz.test.ts`, `core/quiz/index.ts` (chú thích), `ui/quiz/QuizBody.tsx`,
+`QuizQuestion.tsx` (chú thích), `QuizBody.test.tsx`, `i18n/vi.ts` + `en.ts`, `CLAUDE.md`.
+
+---
+
+## Khối Số liệu — "Mở bảng dữ liệu →" xuống cùng hàng với số phiên đã nạp (29/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** Chủ dự án chụp khối Số liệu của dải Bollinger: link
+đứng lơ lửng một dòng riêng dưới hai nút, còn bên phải dòng "Đã nạp số phiên giá: 57" bỏ trống —
+khoanh chỗ trống ấy và hỏi chuyển xuống được không. Link ra khỏi hàng nút `.actions`, vào hàng chân
+mới `.seriesFoot` cùng dòng số phiên: ghi chú bên trái, link nép phải (`margin-left: auto`, nên chưa
+nạp chuỗi thì link vẫn đứng một mình bên phải); lề âm bằng phần đệm để "→" thẳng mép với thanh trượt.
+Chụp thật ở 1440 và 390, trước và sau khi nạp ví dụ: cùng hàng, tâm dọc trùng nhau, không cuộn ngang.
+File: `app/cong-thuc/[id]/FormulaDetail.tsx`, `FormulaDetail.module.css`. Test màn chi tiết 219 ca xanh.
+Lưu ý: phiên đang làm "Xem ví dụ minh hoạ" (bước 7 — chip có × hoàn tác) sửa cùng hàng nút này.
+
+---
+
+## Bài tập — bỏ số câu ở hàng nghỉ; nguồn giá ghim ngày; ví dụ tính trên mã thật (25–29/09/2026)
+
+1. **Bỏ "N câu" cạnh nhãn BÀI TẬP** — xong, chờ chủ dự án xác nhận. Chủ dự án chụp "BÀI TẬP · 4 câu"
+   và bảo "không cần hiển thị số câu ở ngoài". Số câu chỉ còn hiện khi đã vào bài ("Câu 2 / 5").
+   `ui/quiz/QuizBody.tsx` (bỏ span), `QuizBody.module.css` (bỏ `.count`), `i18n/vi.ts` + `en.ts`
+   (bỏ `quiz.countUnit`, mộ chí ở `vi.ts`), `QuizBody.test.tsx` (+1 ca: hàng nghỉ không có "N câu"),
+   `CLAUDE.md`. Kiểm: tsc sạch, 129 file · 3.057 ca xanh.
+2. **Nguồn giá "trôi" → CafeF ghim khoảng ngày** — xong (đã nằm trong commit `1b8c102`). 11 câu
+   Q454–Q470 trỏ trang cophieu68/Investing chỉ hiện phiên mới nhất; nay trỏ
+   `PriceHistory.ashx?Symbol=…&StartDate=…&EndDate=…`, từng con số đã đối chiếu với CafeF. Q466 (FPT)
+   ghi giá đóng cửa 25/09 là 64.900 — giá lấy lúc còn trong phiên; giá chốt 64.700, câu dựng lại theo
+   cột giá điều chỉnh của CafeF (4,47%). Q471 giữ Investing vì bám ví dụ trên chính trang công thức.
+3. **Ví dụ "người khác tính công thức A cho mã B"** — **đang dở, chưa chèn câu nào.** Chủ dự án chọn:
+   thêm câu mới, không có bài thì bỏ qua, chạy cả 77 công thức chưa có câu dùng mã thật (trừ
+   `chuoi-phien-giam-dai-nhat`). Workflow chạm giới hạn phiên: 4/16 agent soạn xong, 0/16 agent soát
+   chạy được. 30 bản nháp ở scratchpad, 29 qua cửa gác máy, CHƯA bản nào qua vòng soát nguồn — nên
+   chưa vào ngân hàng. Không tìm được: `hpr`, `xirr`, `loi-suat-nam-hoa`, `he-so-bien-thien`,
+   `loi-suat-thuc`, `lai-suat-hieu-dung`, `tong-loi-suat-tai-dau-tu`, `loi-suat-trung-binh-hinh-hoc`.
+   39 công thức chưa được tìm. `.tmp-draft-check.ts` (công cụ tự kiểm bản nháp) lỡ vào commit
+   `1b8c102` cùng `.tmp-nguon.ts`; file sau đã xoá, file đầu xoá khi đợt này xong.
 
 ---
 

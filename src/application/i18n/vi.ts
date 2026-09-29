@@ -255,8 +255,8 @@ export const vi = {
    * chủ dự án chốt 10/09/2026. Nó là câu hướng dẫn cách dùng đứng ở đúng chỗ người dùng đã tự làm
    * được việc ấy — ô nhập nằm ngay trên. Lý do đầy đủ ở chỗ nó từng đứng trong `ExampleBlock.tsx`.
    */
-  'example.original': 'Ví dụ gốc cho:',
-  'example.reset': 'Về số của ví dụ',
+  /* `example.original` ('Ví dụ gốc cho:') và `example.reset` ('Về số của ví dụ') đã BỎ — 29/09/2026.
+     Chủ dự án bỏ phần đó khỏi ExampleBlock để khối gọn hơn. */
   /*
    * Nhãn đứng trước `example.source` — trích dẫn của MỘT ví dụ cụ thể (khác `source.title`, mục
    * lớn "Nguồn tham khảo" trích lý thuyết/pháp lý của cả công thức). Chỉ khoảng một phần ba công
@@ -382,8 +382,8 @@ export const vi = {
    */
   'detail.presetNoData': 'Công thức này không dùng số liệu của mã',
   'detail.presetNoDataFix':
-    'Nó chạy bằng số của chính bạn — gõ thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ minh hoạ" để ' +
-    'lấy một bộ số mẫu.',
+    'Nó chạy bằng số của chính bạn — gõ thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ thực tế" để ' +
+    'dùng bộ số của ví dụ.',
   /*
    * ── Dải "AAA điền được 2 trong 4 ô…" ĐÃ BỎ, cùng cả cụm khoá `detail.presetPartial*` ──────
    *
@@ -435,7 +435,8 @@ export const vi = {
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
   'detail.loadExample': 'Xem ví dụ minh hoạ',
   'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
-  'detail.exampleSeriesLabel': 'ví dụ minh hoạ',
+  /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index')
+     thay vì chuỗi i18n cố định; xem `chartSeriesLabel` ở `FormulaDetail.tsx`. Bỏ: 29/09/2026. */
   /*
    * `detail.applyToTable` / `detail.appliedToTable` đã BỎ cùng nút của chúng — chủ dự án chốt
    * 14/09/2026. Việc "đưa chuỗi và mã sang bảng WF-05" nay chạy tự động khi bấm
@@ -1443,13 +1444,13 @@ export const vi = {
   /*
    * Mộ chí: `quiz.lead` ('Không chấm điểm, chỉ để bạn tự soát lại.') bỏ ngày 24/09/2026, lần thứ
    * hai và lần này là hẳn — chủ dự án bỏ nó sáng, cho dựng lại chiều, rồi bỏ lần nữa ngay sau khi
-   * nhìn thấy nó đứng dưới hàng tiêu đề. Khối nghỉ nay chỉ còn ĐÚNG một hàng: nhãn, số câu, lối
-   * vào. Cần nói lại chuyện "không chấm điểm" thì dựng khoá mới, đừng đoán là bản cũ xoá nhầm.
+   * nhìn thấy nó đứng dưới hàng tiêu đề. Khối nghỉ nay chỉ còn ĐÚNG một hàng: nhãn và lối vào.
+   * Cần nói lại chuyện "không chấm điểm" thì dựng khoá mới, đừng đoán là bản cũ xoá nhầm.
    *
-   * `quiz.countUnit` thì sống: nó là đơn vị sau con số đếm ở hàng tiêu đề, "5 câu". Cùng nếp
-   * `list.count` và `portfolio.tickerUnit`.
+   * Mộ chí: `quiz.countUnit` ('câu', đơn vị của "4 câu" cạnh nhãn khối) bỏ ngày 29/09/2026 — chủ
+   * dự án chụp hàng nghỉ và bảo "không cần hiển thị số câu ở ngoài". Số câu chỉ còn hiện khi đã
+   * vào bài, qua `quiz.step`. Muốn đếm lại ở hàng nghỉ thì hỏi trước, đừng khôi phục khoá này.
    */
-  'quiz.countUnit': 'câu',
   /*
    * Vị trí trong bài, đặt ở hàng tiêu đề lúc đang làm: "Câu 2 / 5".
    *
@@ -1459,11 +1460,21 @@ export const vi = {
    */
   'quiz.step': 'Câu {n} / {total}',
   'quiz.start': 'Bắt đầu kiểm tra',
-  'quiz.startFew': 'Làm thử',
+  /*
+   * Mộ chí: `quiz.startFew` ('Làm thử') và `quiz.few.body` ('Công thức này mới có ít câu, vì tư
+   * liệu thật chỉ có thế — chúng tôi không độn thêm cho đủ.') bỏ ngày 29/09/2026. Hai khoá ấy là
+   * trạng thái "ít câu" của bài dưới ba câu (WF-19D · S18), cùng với việc giấu thanh tiến độ. Chủ
+   * dự án bảo đồng bộ nút về "Bắt đầu kiểm tra", bỏ câu kia vì thừa, và chỉ ra những bài ít câu
+   * đang thiếu thanh tiến độ. Nay mọi bài dựng cùng một hình; đừng dựng lại nhánh "ít câu".
+   */
   'quiz.check': 'Kiểm tra',
   'quiz.exit': 'Thoát',
   'quiz.skip': 'Bỏ qua câu này',
-  'quiz.skippedNote': 'Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là chưa nắm.',
+  /*
+   * Mộ chí: `quiz.skippedNote` ('Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là chưa nắm.')
+   * bỏ ngày 29/09/2026 — chủ dự án gọi là "quá thừa". Dấu `?` ở màn tổng kết vẫn giữ, chỉ bỏ dòng
+   * giải nghĩa nó. Đừng dựng lại mà không hỏi.
+   */
   'quiz.next': 'Câu tiếp',
   'quiz.seeResult': 'Xem kết quả',
   'quiz.retry': 'Làm lại từ đầu',
@@ -1559,8 +1570,6 @@ export const vi = {
   'quiz.empty.title': 'Công thức này chưa có bộ câu hỏi',
   'quiz.empty.body':
     'Chúng tôi chỉ soạn câu khi tìm được nguồn thật ghi nhận người dùng hay hiểu sai ở đâu. Công thức này chưa có nguồn nào như vậy.',
-  'quiz.few.body':
-    'Công thức này mới có ít câu, vì tư liệu thật chỉ có thế — chúng tôi không độn thêm cho đủ.',
   'quiz.notTranslated': 'Câu hỏi chưa có bản tiếng Anh — đang hiện bản tiếng Việt.',
   /*
    * Mộ chí: `quiz.sourceKind.*` (4 khoá) bị bỏ ngày 24/09/2026 theo yêu cầu chủ dự án — chip

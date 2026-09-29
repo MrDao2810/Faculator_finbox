@@ -19,11 +19,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Hoà vốn' },
-      b: { vi: 'Mất 25%' },
-      c: { vi: 'Mất 50%' },
-      d: { vi: 'Lãi 25%' },
+      b: { vi: 'Mất 50%' },
+      c: { vi: 'Lãi 25%' },
+      d: { vi: 'Mất 25%' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Tài khoản còn 75, tức MẤT 25%, dù trung bình cộng bằng 0%: 100 lên 150 rồi giảm một nửa còn 75. Cú lỗ 50% ăn vào số tiền đã lớn hơn, nên trung bình cộng luôn nói đẹp hơn thực tế. “+50% and −50% average to 0% but leave you down 25%”, và đây là lý do phải dùng trung bình hình học: “the arithmetic mean is always greater than the geometric mean unless the numbers are identical”.',
       en: 'The account is at 75, DOWN 25%, even though the arithmetic mean is 0%: 100 goes to 150, then halves to 75. The 50% loss bites into a larger balance, which is why the arithmetic mean always reads better than reality. The source: “+50% and −50% average to 0% but leave you down 25%”, and this is why the geometric mean is the right tool: “the arithmetic mean is always greater than the geometric mean unless the numbers are identical”.',
@@ -45,11 +45,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: '100.000' },
-      b: { vi: '96.000' },
-      c: { vi: '104.000' },
-      d: { vi: '98.000' },
+      b: { vi: '104.000' },
+      c: { vi: '98.000' },
+      d: { vi: '96.000' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Còn 96.000 đồng chứ không về lại 100.000: 80.000 nhân 1,2 bằng 96.000, vì mức tăng 20% tính trên số tiền đã nhỏ hơn. Muốn hoà vốn từ mức giảm 20% thì phải tăng 25%. “To break even, the stock would need to appreciate by 25%”. Khoảng cách giữa trung bình cộng và trung bình hình học chính là phần hao hụt do biến động ấy.',
       en: 'It reaches 96,000, not back to 100,000: 80,000 times 1.2 is 96,000, because the 20% gain applies to a smaller base. Recovering from a 20% fall requires a 25% rise. The source: “To break even, the stock would need to appreciate by 25%”. The gap between the arithmetic and geometric means is exactly this volatility drag.',
@@ -71,11 +71,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Quỹ có bao nhiêu tài sản' },
-      b: { vi: 'Đó là trung bình cộng hay CAGR — hai con số có thể chênh nhau vài điểm phần trăm' },
-      c: { vi: 'Phí quản lý bao nhiêu' },
-      d: { vi: 'Ai là người quản lý' },
+      b: { vi: 'Phí quản lý bao nhiêu' },
+      c: { vi: 'Ai là người quản lý' },
+      d: { vi: 'Đó là trung bình cộng hay CAGR — hai con số có thể chênh nhau vài điểm phần trăm' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: "Nên hỏi đó là trung bình cộng hay trung bình hình học, vì hai con số ấy khác nhau và chỉ trung bình hình học mới phản ánh số tiền thực nhận. “Brokers and advisors love to throw out averages because they're technically true”, nhưng “the average rate of return doesn't equal actual rate of return”. Một quỹ quảng cáo trung bình 10% mỗi năm hoàn toàn có thể chỉ thực tăng 7% mỗi năm.",
       en: "Ask whether that is an arithmetic or a geometric average, because the two differ and only the geometric one matches the money actually received. The source: “Brokers and advisors love to throw out averages because they're technically true”, yet “the average rate of return doesn't equal actual rate of return”. A fund advertising a 10% average year can easily have compounded at 7%.",
@@ -95,11 +95,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Quỹ có CAGR 12%/năm trong 10 năm. Điều này KHÔNG nói gì?' },
     choices: {
       a: { vi: 'Tốc độ tăng trưởng gộp đều' },
-      b: { vi: 'Biến động giữa kỳ và giai đoạn gần đây có kém không' },
-      c: { vi: 'Giá trị đầu và cuối kỳ' },
-      d: { vi: 'Số năm nắm giữ' },
+      b: { vi: 'Giá trị đầu và cuối kỳ' },
+      c: { vi: 'Số năm nắm giữ' },
+      d: { vi: 'Biến động giữa kỳ và giai đoạn gần đây có kém không' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Nó KHÔNG nói đường đi trong 10 năm ấy ra sao: CAGR san phẳng toàn bộ biến động thành một tốc độ duy nhất, nên một quỹ đi đều và một quỹ sụt 50% rồi hồi lại vẫn có thể cho cùng con số. Kỳ đo càng dài càng che được giai đoạn gần đây kém. “It smooths out the volatility of returns to provide a single growth rate” và “longer time periods smooth out short-term volatility, potentially masking recent underperformance”.',
       en: 'It says NOTHING about the path taken over those ten years: CAGR flattens all the volatility into one rate, so a steady fund and one that halved and recovered can print the same number. The longer the window, the more it can hide a weak recent stretch. The source: “It smooths out the volatility of returns to provide a single growth rate” and “longer time periods smooth out short-term volatility, potentially masking recent underperformance”.',
@@ -149,11 +149,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: '10%' },
-      b: { vi: 'Khoảng 19%' },
-      c: { vi: 'Khoảng 5%' },
-      d: { vi: 'Khoảng 12%' },
+      b: { vi: 'Khoảng 5%' },
+      c: { vi: 'Khoảng 12%' },
+      d: { vi: 'Khoảng 19%' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Khoảng 19% một năm, không phải 10%. Con số 10% là lợi suất tuyệt đối trên tổng tiền đã nộp, trong khi phần lớn các khoản nộp chỉ nằm trong quỹ vài tháng, nên quy về lợi suất năm thì cao gần gấp đôi. Nguồn nêu đúng ví dụ này: “Absolute Return - 10%... XIRR - ~ 19% (annualized return considering the timing of each SIP instalment)”.',
       en: 'About 19% a year, not 10%. The 10% is an absolute return on total contributions, while most of those contributions were only invested for a few months, so annualizing roughly doubles the figure. The source gives this exact example: “Absolute Return - 10%... XIRR - ~ 19% (annualized return considering the timing of each SIP instalment)”.',
@@ -173,11 +173,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Dòng tiền đổi dấu nhiều hơn một lần (+ + − − − +). IRR sẽ thế nào?' },
     choices: {
       a: { vi: 'Luôn có đúng một nghiệm' },
-      b: { vi: 'Có thể có nhiều nghiệm thực, ví dụ vừa 0% vừa 10%' },
-      c: { vi: 'Không tính được' },
+      b: { vi: 'Không tính được' },
+      c: { vi: 'Có thể có nhiều nghiệm thực, ví dụ vừa 0% vừa 10%' },
       d: { vi: 'Bằng trung bình các dòng tiền' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'IRR có thể có NHIỀU nghiệm thực, không chỉ một: mỗi lần dòng tiền đổi dấu là phương trình có thêm một khả năng cắt trục, nên một chuỗi đổi dấu hai lần có thể vừa đúng ở 0% vừa đúng ở 10% mà không có cách nào chọn đúng một trong hai bằng chính công thức. “When the sign of the cash flows changes more than once... the IRR may have multiple real values”, và nêu đúng ví dụ “0% as well as 10%”.',
       en: 'IRR can have SEVERAL real roots, not one: every sign change adds another way the equation can cross zero, so a series that flips twice may be solved by both 0% and 10%, with nothing in the formula to pick between them. The source: “When the sign of the cash flows changes more than once... the IRR may have multiple real values”, giving exactly the example “0% as well as 10%”.',
@@ -196,12 +196,12 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'IRR của dự án là 25%. Giả định ngầm thường được nêu là gì?' },
     choices: {
-      a: { vi: 'Lạm phát bằng 0' },
-      b: { vi: 'Mọi dòng tiền dương được tái đầu tư ở chính mức 25%' },
+      a: { vi: 'Mọi dòng tiền dương được tái đầu tư ở chính mức 25%' },
+      b: { vi: 'Lạm phát bằng 0' },
       c: { vi: 'Dự án không có rủi ro' },
       d: { vi: 'Thuế suất bằng 0' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'CFI: “it assumes all positive cash flows of a project will be reinvested at the same rate as the project” — điều hiếm khi xảy ra, nên MIRR ra đời để sửa. Lưu ý: giới học thuật còn tranh cãi giả định này có thực sự tồn tại hay không.',
     },
@@ -222,11 +222,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Bằng nhau' },
-      b: { vi: 'Cao gần gấp đôi' },
-      c: { vi: 'Thấp hơn' },
+      b: { vi: 'Thấp hơn' },
+      c: { vi: 'Cao gần gấp đôi' },
       d: { vi: 'Chênh khoảng 10%' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Phóng sự CafeF: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” — vì lãi vẫn tính trên toàn bộ vốn vay ban đầu dù mỗi tháng đã trả bớt gốc. Điều tra Tuổi Trẻ ghi nhận trường hợp lãi suất quy đổi lên tới 49,68%/năm.',
     },
@@ -247,11 +247,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: '6,00%' },
-      b: { vi: '6,17%' },
-      c: { vi: '6,50%' },
+      b: { vi: '6,50%' },
+      c: { vi: '6,17%' },
       d: { vi: '7,20%' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: '6,17% một năm: mỗi tháng cộng 0,5% và lãi tháng trước lại sinh lãi, nên sau 12 tháng hệ số tăng trưởng là 1,005 mũ 12, cao hơn mức danh nghĩa 6%. “a nominal rate of 6% compounded monthly gives an EAR of 6.17%, since each month 0.5% is applied and after 12 months the growth factor is [1.005]^12”. Vì lãi suất hiệu dụng tăng theo tần suất ghép lãi, không so trực tiếp được hai lãi suất danh nghĩa có kỳ ghép lãi khác nhau.',
       en: '6.17% a year: each month adds 0.5% and the previous month interest earns interest too, so after 12 months the growth factor is 1.005 to the 12th, above the 6% nominal. The source: “a nominal rate of 6% compounded monthly gives an EAR of 6.17%, since each month 0.5% is applied and after 12 months the growth factor is [1.005]^12”. Because the effective rate rises with compounding frequency, two nominal rates on different compounding periods cannot be compared directly.',
@@ -273,13 +273,13 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Có' },
-      b: {
+      b: { vi: 'Có nếu vay trên 12 tháng' },
+      c: {
         vi: 'Không — APR danh nghĩa là lãi đơn; APR hiệu dụng gồm phí cộng lãi kép, một khoản phí nhỏ có thể đẩy nó lên rất cao',
       },
-      c: { vi: 'Có nếu vay trên 12 tháng' },
       d: { vi: 'Có với ngân hàng, không với công ty tài chính' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Không đảm bảo. APR danh nghĩa chỉ là lãi đơn quy về một năm, chưa tính phí và chưa tính ghép lãi; APR hiệu dụng mới gộp cả hai. Với khoản vay ngắn ngày, một khoản phí 10 đô trên 100 đô có thể đẩy APR hiệu dụng lên khoảng 435%. “The nominal APR is the simple-interest rate (for a year). The effective APR is the fee+compound interest rate”, và “Despite the word annual in APR, it is not necessarily a direct reference for the interest rate paid on a stable balance over one year”.',
       en: 'It does not. A nominal APR is simple interest scaled to a year, before fees and before compounding; only the effective APR includes both. On a short loan, a 10 fee on 100 can push the effective APR to roughly 435%. The source: “The nominal APR is the simple-interest rate (for a year). The effective APR is the fee+compound interest rate”, and “Despite the word annual in APR, it is not necessarily a direct reference for the interest rate paid on a stable balance over one year”.',
@@ -299,11 +299,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Lãi tiền gửi 10%/năm, lạm phát 25%. Mất bao nhiêu sức mua?' },
     choices: {
       a: { vi: '15%' },
-      b: { vi: '12%' },
-      c: { vi: '25%' },
+      b: { vi: '25%' },
+      c: { vi: '12%' },
       d: { vi: '10%' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Phép trừ 10 − 25 = −15% chỉ là xấp xỉ. Công thức Fisher chính xác: 1,1/1,25 − 1 = −12%. Nguồn ghi rõ: “the actual loss of purchasing power is exactly 12%”. Phép trừ chỉ gần đúng khi cả lãi suất lẫn lạm phát đều thấp.',
     },
@@ -324,11 +324,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Công thức Fisher chính xác' },
-      b: { vi: 'Phép trừ: lãi suất danh nghĩa − tỷ lệ lạm phát' },
-      c: { vi: 'Chia cho chỉ số CPI' },
-      d: { vi: 'Nhân với hệ số điều chỉnh' },
+      b: { vi: 'Chia cho chỉ số CPI' },
+      c: { vi: 'Nhân với hệ số điều chỉnh' },
+      d: { vi: 'Phép trừ: lãi suất danh nghĩa − tỷ lệ lạm phát' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; Tạp chí Thị trường Tài chính Tiền tệ cũng dùng cùng công thức. Đây là trường hợp ngộ nhận được củng cố từ chính nguồn chính thống — app nên hiện cả hai cách tính.',
     },
@@ -346,12 +346,12 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Quy tắc 72 chính xác nhất ở vùng lãi suất nào?' },
     choices: {
-      a: { vi: 'Mọi mức lãi suất' },
-      b: { vi: 'Khoảng 6–10%, chuẩn nhất quanh 8%' },
+      a: { vi: 'Khoảng 6–10%, chuẩn nhất quanh 8%' },
+      b: { vi: 'Mọi mức lãi suất' },
       c: { vi: 'Dưới 3%' },
       d: { vi: 'Trên 20%' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Chính xác nhất quanh mức lãi 8% một kỳ, và càng lệch xa mốc ấy sai số càng lớn, nhất là về phía lãi suất cao. Lãi suất thấp nên đổi tử số sang 69,3, lãi suất cao thì 78 sát hơn. “the rule of 72 is most accurate for periodically compounded interests around 8%” và “the approximations are less accurate at higher interest rates”.',
       en: 'Most accurate around 8% a period, with the error growing the further you move from that point, especially toward higher rates. At low rates swap the numerator for 69.3, at high rates 78 fits better. The source: “the rule of 72 is most accurate for periodically compounded interests around 8%” and “the approximations are less accurate at higher interest rates”.',
@@ -395,11 +395,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Danh mục lãi 8% trong một quý. Có nên công bố “hơn 36%/năm” không?' },
     choices: {
       a: { vi: 'Nên, đó là cách quy chuẩn' },
-      b: { vi: 'Không — chuẩn mực đo hiệu quả khuyến cáo không năm hoá kỳ dưới một năm' },
-      c: { vi: 'Nên nếu ghi chú rõ' },
-      d: { vi: 'Nên với quỹ mở' },
+      b: { vi: 'Nên nếu ghi chú rõ' },
+      c: { vi: 'Nên với quỹ mở' },
+      d: { vi: 'Không — chuẩn mực đo hiệu quả khuyến cáo không năm hoá kỳ dưới một năm' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Không nên. Nhân một quý lên thành cả năm là ngầm khẳng định ba quý còn lại cũng sẽ lãi như thế, điều không ai biết được. Chuẩn đo hiệu quả đầu tư cấm hẳn việc này: “Returns for periods of less than one year must not be annualized”, vì làm vậy “might be interpreted as suggesting that the rest of the year is most likely to have the same rate of return”. Cách nói gọn của một nguồn khác: con số ấy “technically defined and practically misleading”.',
       en: 'No. Scaling one quarter up to a year quietly claims the other three will do the same, which nobody knows. The performance standards forbid it outright: “Returns for periods of less than one year must not be annualized”, because doing so “might be interpreted as suggesting that the rest of the year is most likely to have the same rate of return”. As another source puts it, the figure is “technically defined and practically misleading”.',
@@ -418,14 +418,14 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Vì sao năm hoá một kỳ ngắn lại gây hiểu nhầm mạnh nhất với lợi suất cao?' },
     choices: {
-      a: { vi: 'Do làm tròn' },
-      b: {
+      a: {
         vi: 'Vì phép năm hoá nhân chồng, ngầm giả định phần còn lại của năm cũng sinh lời như thế',
       },
+      b: { vi: 'Do làm tròn' },
       c: { vi: 'Do phí giao dịch' },
       d: { vi: 'Do thuế' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Vì phép năm hoá nhân sai số lên theo luỹ thừa: lợi suất kỳ ngắn càng cao thì con số quy năm càng phóng đại, và một kỳ vài tuần thì chưa đủ dữ liệu để tin rằng tốc độ ấy giữ được cả năm. Chuẩn đo hiệu quả đầu tư nói thẳng: “Investment performance professionals generally advise against quoting annualized return over a holding period of less than a year”.',
       en: 'Because annualizing compounds the error: the higher the short-period return, the more the annualized figure exaggerates, and a few weeks is nowhere near enough evidence that the pace holds for a year. The performance standards say it plainly: “Investment performance professionals generally advise against quoting annualized return over a holding period of less than a year”.',
@@ -469,11 +469,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Bạn tính lợi suất quỹ bằng phần trăm thay đổi của giá. Sai sót là gì?' },
     choices: {
       a: { vi: 'Quên trừ phí' },
-      b: { vi: 'Bỏ qua cổ tức và lãi được tái đầu tư nên khai thiếu lợi suất' },
-      c: { vi: 'Quên điều chỉnh lạm phát' },
+      b: { vi: 'Quên điều chỉnh lạm phát' },
+      c: { vi: 'Bỏ qua cổ tức và lãi được tái đầu tư nên khai thiếu lợi suất' },
       d: { vi: 'Quên thuế' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Sai sót là bỏ mất phần cổ tức và lãi được tái đầu tư: phần trăm thay đổi của giá chỉ đo phần tăng giá, nên kết quả thấp hơn lợi suất thật. Tổng lợi suất mới là thước đo đầy đủ. “Total Return assumes that dividends and interest are reinvested in the funds”, còn cách tính bỏ qua tái đầu tư “slightly understates the total return”.',
       en: 'It drops the dividends and interest that were reinvested: a percentage change in price captures only the capital gain, so the answer comes in below the real return. Total return is the complete measure. The source: “Total Return assumes that dividends and interest are reinvested in the funds”, while the price-only calculation “slightly understates the total return”.',
@@ -546,11 +546,11 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Doanh nghiệp làm ăn tốt hơn' },
-      b: { vi: 'Giá cổ phiếu đã giảm một nửa — tỷ suất tăng “ảo”' },
-      c: { vi: 'Doanh nghiệp tăng cổ tức' },
+      b: { vi: 'Doanh nghiệp tăng cổ tức' },
+      c: { vi: 'Giá cổ phiếu đã giảm một nửa — tỷ suất tăng “ảo”' },
       d: { vi: 'Số cổ phiếu lưu hành giảm' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” — và nếu giá giảm vì kinh doanh suy yếu thì chính mức cổ tức đó cũng khó duy trì. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
     },

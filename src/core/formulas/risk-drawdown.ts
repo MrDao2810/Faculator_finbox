@@ -24,7 +24,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import type { CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import type { FormulaSource } from '../registry/types';
-import { FPT_57_PHIEN, VNINDEX_71_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_57_PHIEN, VNINDEX_2026, VNINDEX_71_PHIEN } from './market-series-2026';
 import { maxDrawdown, mean, requireCloses, simpleReturns } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
@@ -380,6 +380,7 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       },
       inputs: { lookback: 55 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 15.0273,
       note: {
         vi: 'Khoảng rơi được đo từ đỉnh đầu tháng 7 xuống đáy cuối tháng 7/2026 — mức đau mà người vào lệnh sai thời điểm thực sự phải ngồi qua, thứ độ lệch chuẩn không nói ra. Càng sụt sâu thì càng khó giữ đủ lâu để chờ hồi.',
@@ -510,6 +511,7 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       },
       inputs: { lookback: 55 },
       series: FPT_57_PHIEN,
+      dataset: FPT_2026,
       expected: 2.4161,
       note: {
         vi: 'Khác mức sụt giảm sâu nhất vốn soi cả quá khứ, con số này chỉ so phiên gần nhất với đỉnh nằm trong cửa sổ. Về 0 nghĩa là giá vừa lập đỉnh mới của kỳ.',
@@ -669,6 +671,7 @@ export const VAR_LICH_SU: FormulaModule = {
       },
       inputs: { confidence: 95, lookback: 71 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: 1.9755,
       note: {
         vi: 'Đây là NGƯỠNG mà 95% số phiên không vượt qua, chứ không phải mức mất của phiên tệ nhất: ngay trong mẫu này đã có một phiên rơi 3,58%, sâu hơn hẳn ngưỡng. Ví dụ phải dùng chuỗi VN-Index vì phép tính đòi tối thiểu 60 phiên, mà chuỗi FPT thu thập được chỉ có 57.',
@@ -842,6 +845,7 @@ export const CVAR_LICH_SU: FormulaModule = {
       },
       inputs: { confidence: 95, lookback: 71 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: 2.6858,
       note: {
         vi: 'Phép tính lấy bình quân riêng nhóm phiên tệ hơn ngưỡng VaR nên kết quả luôn sâu hơn chính ngưỡng ấy: một bên nói cửa nằm ở đâu, một bên nói phía sau cửa sâu tới đâu. Cũng như VaR, ví dụ phải dùng chuỗi VN-Index vì đòi tối thiểu 60 phiên mà chuỗi FPT chỉ có 57.',

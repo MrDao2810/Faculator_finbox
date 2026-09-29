@@ -57,6 +57,76 @@ describe('đang nhận giá trị tự động', () => {
 
     expect(screen.queryByRole('button', { name: 'Nhận tự động' })).toBeNull();
   });
+
+  /*
+   * ── Nhìn một ô KHÔNG phải là ghi đè nó ────────────────────────────────────────────────────
+   *
+   * Lỗi thật, chủ dự án chụp màn ngày 29/09/2026. `NumberInput.onBlur` từng chốt giá trị vô
+   * điều kiện, mà ở đây mọi lượt `onChange` đều được hiểu là "người dùng ghi đè" — nên chỉ cần
+   * bấm vào ô để đọc cho rõ rồi bấm ra chỗ khác là ô bị dán nhãn "đã nhập tay" và ĐỨT khỏi CAPM.
+   * Sau đó sửa beta ở trên thì con số này không đổi theo nữa, và không dòng nào trên màn nói vì
+   * sao. Đó là mất liên kết dữ liệu chứ không phải phiền phức về nhãn.
+   *
+   * Ghi đè phải là một hành động có chủ ý: gõ vào ô. Ca ghim đúng ranh giới ấy.
+   */
+  it('chạm vào ô rồi rời ra KHÔNG biến nó thành ô nhập tay', async () => {
+    const onOverrideChange = vi.fn();
+    render(<LinkedInput spec={wacc} upstream={capmOk} onOverrideChange={onOverrideChange} />);
+
+    await userEvent.click(screen.getByLabelText('WACC'));
+    await userEvent.tab();
+
+    expect(onOverrideChange).not.toHaveBeenCalled();
+    expect(screen.queryByText('đã nhập tay')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Nhận tự động' })).toBeNull();
+    // Và con số vẫn là của CAPM, không bị chốt lại thành bản đã làm tròn.
+    expect((screen.getByLabelText('WACC') as HTMLInputElement).value).toBe('14,3');
+  });
+
+  /*
+   * Nửa còn lại của ranh giới: gõ thật thì PHẢI ghi đè. Không có ca này thì cờ `edited` ở
+   * `NumberInput` có thể bị siết tới mức không còn ghi đè được nữa mà không ai hay.
+   */
+  it('gõ vào ô thì vẫn ghi đè như cũ', async () => {
+    const onOverrideChange = vi.fn();
+    render(<LinkedInput spec={wacc} upstream={capmOk} onOverrideChange={onOverrideChange} />);
+
+    const o = screen.getByLabelText('WACC');
+    await userEvent.clear(o);
+    await userEvent.type(o, '9');
+    await userEvent.tab();
+
+    expect(onOverrideChange).toHaveBeenLastCalledWith(9);
+  });
+
+  /*
+   * ── Gõ một phím KHÔNG LỌT được cũng không được tính là ghi đè ─────────────────────────────
+   *
+   * Lỗ hổng tự tìm ra khi rà lại đợt sửa 29/09/2026, và đường đi thật KHÔNG phải chỗ ngỡ ban
+   * đầu. Chữ cái bị `keepViNumberChars()` lọc sạch nên chuỗi sau khi lọc giống hệt chuỗi trước
+   * đó — nhưng `NumberInput` có HAI đường gọi `onChange` lên trên, và bản vá đầu chỉ bịt một:
+   *
+   * 1. Lượt SỐNG THEO TAY GÕ (`if (parsed !== null) onChange(parsed)`, chạy ngay trong sự kiện
+   *    gõ) — đây mới là đường thật gây lỗi. Chuỗi không đổi thì số đọc ra vẫn là số CŨ, mà cửa
+   *    cũ chỉ hỏi "có ra số không", không hỏi "số có đổi không", nên `onChange` NỔ NGAY LÚC GÕ,
+   *    trước cả khi rời ô — cờ "đã gõ" ở dưới chưa kịp có việc để làm.
+   * 2. Lượt CHỐT lúc `onBlur`, gác bằng cờ `edited` — đúng chỗ bản vá đầu nhắm tới, nhưng nó chỉ
+   *    là lớp phòng thủ THỨ HAI, không phải chỗ lỗi thật lộ ra trong ca kiểm này.
+   *
+   * Ca dưới đây kiểm CẢ HAI mốc — ngay sau khi gõ (bắt lượt 1) và sau khi rời ô (bắt lượt 2) —
+   * nên một trong hai đường có tái phát thì ca này bắt được, không cần biết đường nào.
+   */
+  it('gõ một chữ cái bị lọc sạch KHÔNG cắt liên kết CAPM, ở cả lượt gõ lẫn lượt rời ô', async () => {
+    const onOverrideChange = vi.fn();
+    render(<LinkedInput spec={wacc} upstream={capmOk} onOverrideChange={onOverrideChange} />);
+
+    await userEvent.type(screen.getByLabelText('WACC'), 'a');
+    expect(onOverrideChange).not.toHaveBeenCalled();
+
+    await userEvent.tab();
+    expect(onOverrideChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Nhận tự động' })).toBeNull();
+  });
 });
 
 describe('đã nhập tay', () => {

@@ -476,6 +476,36 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
     expect(thieu.map((item) => item.id)).toHaveLength(SO_CAU_QUY_DINH_CHUA_CO_NGAY);
   });
 
+  /**
+   * Đáp án đúng KHÔNG dồn vào một chữ cái (29/09/2026).
+   *
+   * Chủ dự án làm bài và nhận ra "toàn bộ đáp án đúng đều đang để là chọn B". Đo lúc ấy: 259 trên
+   * 305 câu trắc nghiệm đáp án là B, và 12 trên 18 câu chọn nhiều đáp án là A và B — người soạn (và
+   * agent soạn theo lô) quen đặt câu đúng ngay sau một phương án mồi. Người làm bài nhận ra quy luật
+   * sau vài câu là đoán trúng mà không cần hiểu, nên bài kiểm tra hết đo được gì.
+   *
+   * Đã đảo lại bằng cây cú pháp: xếp câu theo băm của mã, chia vòng a/b/c/d, ba phương án sai giữ
+   * thứ tự tương đối; lời giải nào gọi phương án bằng chữ cái thì đổi chữ theo. Ngưỡng 20–30% mỗi
+   * chữ cái chứ không đòi đúng 25%: câu mới thêm vào không phải tính lại cả ngân hàng, nhưng một lô
+   * lại dồn về B thì đỏ ngay.
+   */
+  it('đáp án đúng rải đều bốn chữ cái, không dồn vào một vị trí', () => {
+    const tn = QUIZ_ITEMS.filter((item) => item.format === 'trac-nghiem');
+    for (const key of QUIZ_CHOICE_KEYS) {
+      const tyLe = tn.filter((item) => item.answer === key).length / tn.length;
+      expect(tyLe, `đáp án ${key}: ${(tyLe * 100).toFixed(1)}%`).toBeGreaterThanOrEqual(0.2);
+      expect(tyLe, `đáp án ${key}: ${(tyLe * 100).toFixed(1)}%`).toBeLessThanOrEqual(0.3);
+    }
+
+    const cn = QUIZ_ITEMS.filter((item) => item.format === 'chon-nhieu');
+    const boDem = new Map<string, number>();
+    for (const item of cn) {
+      const bo = [...item.answers].sort().join('');
+      boDem.set(bo, (boDem.get(bo) ?? 0) + 1);
+    }
+    expect(Math.max(...boDem.values()) / cn.length).toBeLessThanOrEqual(0.34);
+  });
+
   it('khối số liệu của đề bài không có ô trống', () => {
     for (const item of QUIZ_ITEMS) {
       for (const fact of item.facts ?? []) {

@@ -149,8 +149,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'variable.noDescription': '—',
   'example.title': 'Worked example',
   /* `example.editHint` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
-  'example.original': 'Original example gives:',
-  'example.reset': 'Back to example numbers',
+  /* `example.original` / `example.reset` đã BỎ cùng bản tiếng Việt — 29/09/2026. */
   /* Label before `example.source` — see `vi.ts`. */
   'example.source': 'Source:',
   'source.title': 'References',
@@ -188,7 +187,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.presetNoData': 'This formula uses no data from ticker',
   'detail.presetNoDataFix':
     'It runs on your own numbers — type them into the fields above, or tap "See the worked ' +
-    'example" for a ready-made set.',
+    'example" to use the example numbers.',
   'detail.restoredNote': 'saved calculation from',
   'detail.restoredMissing':
     'saved calculation not found — it may have been deleted on this device.',
@@ -211,7 +210,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.exampleLoaded': 'Illustrative example loaded ✓',
   /* `detail.exampleSeriesNote` đã bỏ cùng bản tiếng Việt — câu ấy nói sai về số liệu thật đứng
      cạnh nó; lý do đầy đủ ghi ở `FormulaDetail.tsx`. */
-  'detail.exampleSeriesLabel': 'the illustrative example',
+  /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index').
+     Bỏ: 29/09/2026. */
   /* `detail.applyToTable` / `detail.appliedToTable` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.liveSeriesShort':
@@ -684,15 +684,14 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   /* ── Understanding check block (WF-19) ────────────────────────────────────────────────── */
   'quiz.title': 'Practice',
-  /* Mộ chí: `quiz.lead` bỏ hẳn 24/09/2026 — lý do ghi ở `vi.ts`. */
-  'quiz.countUnit': 'question(s)',
+  /* Mộ chí: `quiz.lead` bỏ hẳn 24/09/2026, `quiz.countUnit` bỏ 29/09/2026 — lý do ghi ở `vi.ts`. */
   'quiz.step': 'Question {n} / {total}',
   'quiz.start': 'Start the check',
-  'quiz.startFew': 'Try a question',
+  /* Mộ chí: `quiz.startFew` và `quiz.few.body` bỏ 29/09/2026 — lý do ghi ở `vi.ts`. */
   'quiz.check': 'Check',
   'quiz.exit': 'Exit',
   'quiz.skip': 'Skip this question',
-  'quiz.skippedNote': 'A ? marks a question you skipped — unanswered, so it counts as not known.',
+  /* Mộ chí: `quiz.skippedNote` bỏ 29/09/2026 — lý do ghi ở `vi.ts`. */
   'quiz.next': 'Next question',
   'quiz.seeResult': 'See result',
   'quiz.retry': 'Start over',
@@ -724,8 +723,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.empty.title': 'No questions for this formula yet',
   'quiz.empty.body':
     'We only write a question when a real source records where people misread the formula. This one has none yet.',
-  'quiz.few.body':
-    'Only a few questions here, because that is all the sourced material there is — we do not pad it out.',
   'quiz.notTranslated': 'These questions are not translated yet — showing the Vietnamese text.',
   /* Mộ chí: `quiz.sourceKind.*` bị bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
   /* Mộ chí: `quiz.kind.*` (5 khoá) bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */

@@ -100,49 +100,20 @@ describe('ExampleBlock — gõ được ngay tại dòng số của ví dụ', (
   });
 });
 
-describe('ExampleBlock — giữ được con số gốc của ví dụ (FR-02)', () => {
+describe('ExampleBlock — gõ được ngay tại dòng số của ví dụ, không có nút quay về', () => {
   /*
-   * Ca này từng đòi khối NÓI RA rằng sửa được ngay tại đây. Câu ấy đã bỏ — chủ dự án chốt
-   * 10/09/2026, cùng đợt với dòng dẫn của khối Chuỗi công thức.
+   * Dòng "Ví dụ gốc cho:" và nút "Về số của ví dụ" đã BỎ — chủ dự án chốt 29/09/2026 để khối
+   * gọn hơn. Khối giờ chỉ có tiêu đề, mô tả, bộ số gõ được và dòng "→ kết quả".
    *
-   * Điều đáng gác vẫn nguyên và nằm ở vế thứ hai: đang đúng bộ số của ví dụ thì KHÔNG có nút quay
-   * về, vì chẳng có gì để quay về. Ghim thêm chiều ngược — câu nhắc không được mọc lại — theo cùng
-   * khuôn `SettingsScreen.test.tsx` và `DataTableScreen.test.tsx` đã dùng cho những lượt bỏ chữ
-   * khác trong tuần này.
+   * Ca ghim: dù số đang nhập lệch khỏi ví dụ, khối vẫn không mọc thêm nút hay câu nhắc nào.
    */
-  it('đang đúng bộ của ví dụ thì không có nút quay về, và cũng không còn câu nhắc nào', () => {
-    draw('pe');
-
-    expect(screen.queryByRole('button')).toBeNull();
-    expect(screen.queryByText(/Sửa được ngay tại đây/)).toBeNull();
-  });
-
-  /*
-   * 17 trên 108 công thức có ví dụ cố ý dùng chu kỳ ngắn hơn giá trị mặc định để tính tay kiểm
-   * được. Với chúng, mở màn ra là số đang nhập ĐÃ lệch khỏi ví dụ — nên phải nói ra con số gốc
-   * ngay, chứ không để người đọc tưởng dòng "→" là kết quả của ví dụ.
-   */
-  it('số đang nhập lệch khỏi ví dụ thì hiện con số gốc kèm nút quay về', () => {
+  it('dù số lệch khỏi ví dụ, khối vẫn không có nút quay về và không có câu nhắc "Ví dụ gốc"', () => {
     const spec = specOf('pe');
     draw('pe', { ...defaultInputs(spec), ...spec.example.inputs, price: 50_000 });
 
-    expect(screen.getByText(/Ví dụ gốc cho:/)).not.toBeNull();
-    expect(screen.getByRole('button', { name: 'Về số của ví dụ' })).not.toBeNull();
-  });
-
-  it('bấm quay về thì đặt lại TRỌN bộ số của ví dụ, không riêng ô vừa sửa', async () => {
-    const spec = specOf('pe');
-    const { onChange } = draw('pe', {
-      ...defaultInputs(spec),
-      price: 50_000,
-      eps: 1_000,
-    });
-
-    await userEvent.click(screen.getByRole('button', { name: 'Về số của ví dụ' }));
-
-    expect(onChange).toHaveBeenCalledWith('price', spec.example.inputs.price);
-    expect(onChange).toHaveBeenCalledWith('eps', spec.example.inputs.eps);
-    expect(onChange).toHaveBeenCalledTimes(Object.keys(spec.example.inputs).length);
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.queryByText(/Ví dụ gốc cho:/)).toBeNull();
+    expect(screen.queryByText(/Về số của ví dụ/)).toBeNull();
   });
 });
 

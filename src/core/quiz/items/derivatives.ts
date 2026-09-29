@@ -47,11 +47,11 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     ],
     choices: {
       a: { vi: 'Không lỗ vì mua đúng giá khớp' },
-      b: { vi: '4,845 triệu đồng' },
-      c: { vi: '480.000 đồng' },
+      b: { vi: '480.000 đồng' },
+      c: { vi: '4,845 triệu đồng' },
       d: { vi: '48,45 triệu đồng' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Lãi/lỗ ngày đáo hạn tính theo giá thanh toán dựa trên chỉ số VN30, không theo giá HĐTL. Chênh 48,45 điểm × hệ số nhân 100.000 đồng = 4,845 triệu đồng/hợp đồng. Báo chí ghi nhận: “mức lỗ đến từ sự chênh lệch giữa giá phái sinh và chỉ số cơ sở là 4,845 triệu đồng/hợp đồng”.',
     },
@@ -70,11 +70,11 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Cùng phiên 21/05/2020, người BÁN trong phiên ATC ở giá trần thì sao?' },
     choices: {
       a: { vi: 'Lỗ nặng vì giá tăng kịch trần' },
-      b: { vi: 'Lãi đúng phần chênh 48,45 điểm khi thanh toán về VN30' },
-      c: { vi: 'Hoà vốn' },
+      b: { vi: 'Hoà vốn' },
+      c: { vi: 'Lãi đúng phần chênh 48,45 điểm khi thanh toán về VN30' },
       d: { vi: 'Bị huỷ lệnh' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Với hợp đồng đáo hạn, thanh toán về chỉ số cơ sở nên bên bán ở giá trần hưởng đúng phần chênh. Tổng chênh lệch giá trị trong phiên ATC gần 17,5 tỷ đồng, chuyển từ bên mua sang bên bán.',
     },
@@ -117,12 +117,12 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: { vi: 'Hệ số nhân hợp đồng VN30F là bao nhiêu?' },
     choices: {
-      a: { vi: '10.000 đồng/điểm' },
-      b: { vi: '100.000 đồng/điểm' },
+      a: { vi: '100.000 đồng/điểm' },
+      b: { vi: '10.000 đồng/điểm' },
       c: { vi: '1 triệu đồng/điểm' },
       d: { vi: 'Thay đổi theo phiên' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Quy định giao dịch HĐTL chỉ số VN30: “Hệ số nhân hợp đồng: 100.000 đồng”. Nghĩa là biến động 10 điểm chỉ số bằng 1 triệu đồng mỗi hợp đồng — con số mà nhiều người mới coi là “vài điểm thì có đáng bao nhiêu”.',
     },
@@ -140,12 +140,12 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: { vi: 'Thuế TNCN với giao dịch phái sinh tính trên cái gì?' },
     choices: {
-      a: { vi: 'Phần lãi' },
-      b: { vi: 'Giá chuyển nhượng từng lần — lỗ vẫn phải nộp' },
+      a: { vi: 'Giá chuyển nhượng từng lần — lỗ vẫn phải nộp' },
+      b: { vi: 'Phần lãi' },
       c: { vi: 'Số hợp đồng' },
       d: { vi: 'Tiền ký quỹ' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Quy định: “Thuế TNCN = Giá chuyển nhượng từng lần * 0,1%”. Giống thuế chứng khoán cơ sở, nghĩa vụ thuế không phụ thuộc lãi hay lỗ.',
     },
@@ -163,14 +163,14 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Ký quỹ phái sinh có phải là khoản vay margin không?' },
     choices: {
-      a: { vi: 'Phải, và phải trả lãi vay' },
-      b: {
+      a: {
         vi: 'Không — đó là tài sản đảm bảo thanh toán, không chịu lãi vay nhưng phải thanh toán lãi/lỗ hằng ngày',
       },
+      b: { vi: 'Phải, và phải trả lãi vay' },
       c: { vi: 'Phải, nhưng lãi suất thấp hơn' },
       d: { vi: 'Tuỳ công ty chứng khoán' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Không. Ký quỹ phái sinh là tài sản đặt cọc bảo đảm nghĩa vụ thanh toán, không phải tiền vay, nên không phát sinh lãi vay. VnEconomy gọi nó là “tài sản đảm bảo thanh toán”; BSC khẳng định “nhà đầu tư không phải chịu thêm bất cứ một khoản lãi vay nào”; CME Group nói thẳng rằng đây không phải khoản trả trước và người đặt ký quỹ cũng không sở hữu tài sản cơ sở, nguyên văn: “It is not a down payment and you do not own the underlying commodity”.',
       en: 'No. Derivatives margin is collateral posted to secure the settlement obligation, not borrowed money, so no loan interest arises. VnEconomy calls it “tài sản đảm bảo thanh toán” (settlement collateral); BSC states “nhà đầu tư không phải chịu thêm bất cứ một khoản lãi vay nào” (the investor bears no loan interest at all); CME Group puts it plainly: “It is not a down payment and you do not own the underlying commodity”.',
@@ -190,11 +190,11 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Mức lỗ tối đa khi giao dịch phái sinh có bằng số tiền đã ký quỹ không?' },
     choices: {
       a: { vi: 'Có, đó là toàn bộ rủi ro' },
-      b: { vi: 'Không — có thể lỗ vượt 100% vốn khi giá gap qua điểm cắt lỗ' },
-      c: { vi: 'Có nếu đặt lệnh dừng lỗ' },
-      d: { vi: 'Có với hợp đồng tháng gần' },
+      b: { vi: 'Có nếu đặt lệnh dừng lỗ' },
+      c: { vi: 'Có với hợp đồng tháng gần' },
+      d: { vi: 'Không — có thể lỗ vượt 100% vốn khi giá gap qua điểm cắt lỗ' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Nguồn VN: “có thể mất hơn 100% vốn nếu không quản lý rủi ro”. Đây là khác biệt cốt lõi với mua cổ phiếu bằng tiền mặt, nơi mức lỗ tối đa đúng bằng số tiền bỏ ra.',
     },
@@ -213,13 +213,13 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Vị thế của bạn đang LÃI. Có thể bị gọi ký quỹ bổ sung không?' },
     choices: {
       a: { vi: 'Không bao giờ' },
-      b: {
+      b: { vi: 'Chỉ khi giữ qua đêm' },
+      c: {
         vi: 'Có — khi giá trị tài sản tăng thì quy mô giao dịch tăng, yêu cầu ký quỹ tăng theo',
       },
-      c: { vi: 'Chỉ khi giữ qua đêm' },
       d: { vi: 'Chỉ với vị thế bán' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'VnEconomy nêu đúng nghịch lý này: “vị thế có lãi, nhưng nhà đầu tư vẫn có thể bị call margin” vì “Khi giá trị tài sản tăng lên tức là quy mô giao dịch cũng tăng, đồng nghĩa với việc phải tăng khoản đặt cọc”.',
     },
@@ -240,13 +240,13 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Cố định theo luật' },
-      b: {
+      b: { vi: 'Cố định 10 lần' },
+      c: {
         vi: 'Không — phụ thuộc tỷ lệ ký quỹ do VSDC/CTCK áp dụng và mức điểm chỉ số; các nguồn ghi 13%, 15%, 17%, 15–20% ở những thời điểm khác nhau',
       },
-      c: { vi: 'Cố định 10 lần' },
       d: { vi: 'Do nhà đầu tư tự chọn' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'VFS tính đòn bẩy “cao gấp khoảng 6 lần chứng khoán cơ sở” với ký quỹ 13%; BSC nêu 15%; nguồn khác nêu 15–20%; tài liệu Pinetree nêu IM 17%. Vì vậy tỷ lệ ký quỹ phải là tham số cấu hình trong app, không hard-code.',
     },
@@ -288,13 +288,13 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Lấy toàn bộ vốn chia cho ký quỹ ban đầu để mở tối đa số hợp đồng. Sai ở đâu?' },
     choices: {
       a: { vi: 'Không sai nếu có lệnh dừng lỗ' },
-      b: {
+      b: { vi: 'Phải chia cho 2' },
+      c: {
         vi: 'Phải chừa tiền cho ký quỹ biến đổi và call margin — khuyến nghị giữ dự phòng tiền mặt bằng 200% ký quỹ ban đầu',
       },
-      c: { vi: 'Phải chia cho 2' },
       d: { vi: 'Chỉ sai với vị thế bán' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Bộ quy tắc trong nguồn VN: không dùng quá 30% tổng vốn cho phái sinh, và giữ sẵn tiền mặt bằng 200% ký quỹ ban đầu. DNSE khuyến nghị “phân bổ nguồn vốn hợp lý”, tránh đánh tất tay.',
     },
@@ -313,11 +313,11 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Tỷ lệ sử dụng ký quỹ chạm 100%. Điều gì xảy ra?' },
     choices: {
       a: { vi: 'Vẫn giao dịch bình thường' },
-      b: { vi: 'VSD đề nghị tạm ngừng giao dịch; CTCK còn đặt ngưỡng xử lý thấp hơn nhiều' },
-      c: { vi: 'Tài khoản bị đóng' },
+      b: { vi: 'Tài khoản bị đóng' },
+      c: { vi: 'VSD đề nghị tạm ngừng giao dịch; CTCK còn đặt ngưỡng xử lý thấp hơn nhiều' },
       d: { vi: 'Được tự động nạp thêm' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: '“Khi tỷ lệ sử dụng ký quỹ đạt 100%, VSD sẽ gửi thông báo cho sở giao dịch đề nghị tạm ngừng giao dịch”, kèm không cho mở vị thế mới. Pinetree cảnh báo và đóng vị thế từ mức 75–90%, nên số hợp đồng thực mở được luôn ít hơn tính toán lý thuyết.',
     },
@@ -335,14 +335,14 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Bạn đọc “basis âm” ở hai nguồn khác nhau. Vì sao có thể hiểu ngược?' },
     choices: {
-      a: { vi: 'Một nguồn sai' },
-      b: {
+      a: {
         vi: 'Hai quy ước dấu ngược nhau: giáo khoa quốc tế dùng Spot − Futures, bản tin VN dùng Futures − Spot',
       },
+      b: { vi: 'Một nguồn sai' },
       c: { vi: 'Do làm tròn' },
       d: { vi: 'Do khác hợp đồng tháng' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Finhay dùng “Basis = Giá giao ngay (Spot Price) − Giá tương lai (Futures Price)” và cảnh báo “quy ước tính basis khác nhau giữa các sàn”; trong khi bản tin MBS ghi “basis được nới rất rộng -15,29 điểm” với nghĩa phái sinh thấp hơn cơ sở. App cần nêu rõ quy ước mình dùng.',
     },
@@ -361,13 +361,13 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Basis nới rộng mạnh. Đây có phải cơ hội dễ kiếm lời không?' },
     choices: {
       a: { vi: 'Có, chênh lệch sẽ thu hẹp' },
-      b: {
+      b: { vi: 'Có nếu basis dương' },
+      c: {
         vi: 'Bản tin phái sinh ghi ngược lại: basis nới rộng khiến hoạt động trading khó khăn hơn',
       },
-      c: { vi: 'Có nếu basis dương' },
       d: { vi: 'Có với hợp đồng tháng xa' },
     },
-    answer: 'b',
+    answer: 'c',
     explain: {
       vi: 'Tiêu đề bản tin MBS: “HĐTL VN30 – CHÊNH LỆCH BASIS KHIẾN HOẠT ĐỘNG TRADING GẶP NHIỀU KHÓ KHĂN”, và “với độ lệch pha mạnh giữa hai thị trường vẫn đang -15,29 điểm thì hoạt động trading của giới đầu tư sẽ gặp nhiều khó khăn”.',
     },
@@ -385,14 +385,14 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: { vi: 'Càng gần đáo hạn basis càng hội tụ êm ả về 0. Đúng không?' },
     choices: {
-      a: { vi: 'Đúng, đó là quy luật' },
-      b: {
+      a: {
         vi: 'Không — phiên ATC ngày đáo hạn có thể bật ra basis rất lớn, như +48,45 điểm ngày 21/05/2020',
       },
+      b: { vi: 'Đúng, đó là quy luật' },
       c: { vi: 'Đúng với hợp đồng tháng gần' },
       d: { vi: 'Đúng nếu thanh khoản cao' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'Ngày 21/05/2020, “giá hợp đồng tương lai đáo hạn trong phiên này vọt tăng, đóng cửa tại mức trần, đạt 864 điểm, cao hơn 48,45 điểm so với mức giá đóng cửa của VN30 (815,55 điểm)”.',
     },
@@ -411,11 +411,11 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     prompt: { vi: 'Giá lý thuyết của HĐTL VN30 là gì?' },
     choices: {
       a: { vi: 'Dự báo VN30 sẽ ở đâu khi đáo hạn' },
-      b: { vi: 'Giá cân bằng theo chi phí nắm giữ: giá cơ sở cộng lãi vay trừ cổ tức' },
-      c: { vi: 'Trung bình giá 30 phiên' },
-      d: { vi: 'Giá do sở giao dịch công bố' },
+      b: { vi: 'Trung bình giá 30 phiên' },
+      c: { vi: 'Giá do sở giao dịch công bố' },
+      d: { vi: 'Giá cân bằng theo chi phí nắm giữ: giá cơ sở cộng lãi vay trừ cổ tức' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Giá lý thuyết là giá chỉ số cơ sở cộng chi phí nắm giữ tới ngày đáo hạn, chứ không phải mức chỉ số mà thị trường dự đoán. BSC viết công thức “Fair Value of the Futures = Spot Price + Cost of Carry”, và bản tiếng Việt trên chính trang ấy: “Giá tương lai = Giá cơ sở + (Lãi vay – cổ tức)”. Phần cộng thêm chỉ là lãi vay trừ đi cổ tức nhận được trong kỳ nắm giữ.',
       en: 'The theoretical price is the spot index plus the cost of carrying the position to expiry, not the level the market expects the index to reach. BSC gives the formula “Fair Value of the Futures = Spot Price + Cost of Carry”, and in Vietnamese on the same page: “Giá tương lai = Giá cơ sở + (Lãi vay – cổ tức)”. The add-on is only the borrowing cost less the dividends received over the holding period.',
@@ -437,13 +437,13 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Có, rất dễ' },
-      b: {
+      b: { vi: 'Có nếu chênh trên 1 điểm' },
+      c: { vi: 'Chỉ tổ chức nước ngoài làm được' },
+      d: {
         vi: 'Rất khó — khó dựng rổ chỉ số chính xác, bị hạn chế bán khống cơ sở, chi phí có thể triệt tiêu lợi nhuận',
       },
-      c: { vi: 'Có nếu chênh trên 1 điểm' },
-      d: { vi: 'Chỉ tổ chức nước ngoài làm được' },
     },
-    answer: 'b',
+    answer: 'd',
     explain: {
       vi: 'Nguồn phân tích rào cản tại VN: cần vốn lớn để dựng rổ chỉ số, hạn chế bán khống cổ phiếu cơ sở, cộng spread và trượt giá; mức chênh cần thiết thường phải từ 5 điểm trở lên mới đáng làm.',
     },
@@ -488,12 +488,12 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       vi: 'Theo thống kê được báo chí dẫn, tỷ lệ nhà đầu tư có lợi nhuận trên thị trường phái sinh VN là bao nhiêu?',
     },
     choices: {
-      a: { vi: 'Khoảng 50%' },
-      b: { vi: 'Khoảng 5%' },
+      a: { vi: 'Khoảng 5%' },
+      b: { vi: 'Khoảng 50%' },
       c: { vi: 'Khoảng 30%' },
       d: { vi: 'Không có số liệu' },
     },
-    answer: 'b',
+    answer: 'a',
     explain: {
       vi: 'CafeF: “chỉ có 5% nhà đầu tư thu được lợi nhuận trên thị trường phái sinh, còn lại đa phần thua lỗ”. Ông Vũ Duy Khánh chỉ ra lỗi phổ biến: “giao dịch nhiều nhưng hiệu quả thấp, vì thường chốt lời các khoản lãi nhỏ, trong khi lỗ lớn”.',
     },

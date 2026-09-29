@@ -32,13 +32,16 @@
 /*
  * Hàng tiêu đề — chủ dự án 24/09/2026.
  *
- * Nghỉ:      BÀI TẬP  5 câu                              Bắt đầu kiểm tra »
+ * Nghỉ:      BÀI TẬP                                     Bắt đầu kiểm tra »
  * Đang làm:  BÀI TẬP  Câu 2 / 5  ▬▬ ▭ ▭ ▭ ▭                            Thoát
  *
- * KHÔNG `space-between`. Trên khung 1600px nó ném con số đếm ra tận mép phải, cách nhãn gần cả
- * bề ngang trang, và người đọc không còn ghép được hai thứ ấy làm một. Nhãn nói khối là gì, số
- * đếm nói khối lớn cỡ nào — chúng thuộc về nhau nên đứng sát nhau, chỗ trống dồn về giữa, và chỉ
- * nút bên phải tự đẩy mình ra mép (`.headAction`).
+ * KHÔNG `space-between`. Trên khung 1600px nó ném cụm tiến độ ra tận mép phải, cách nhãn gần cả
+ * bề ngang trang, và người đọc không còn ghép được hai thứ ấy làm một. Nhãn nói khối là gì, cụm
+ * tiến độ nói đang ở đâu trong bài — chúng thuộc về nhau nên đứng sát nhau, chỗ trống dồn về
+ * giữa, và chỉ nút bên phải tự đẩy mình ra mép (`.headAction`).
+ *
+ * Hàng nghỉ từng có số câu cạnh nhãn ("4 câu", lớp `.count`); bỏ ngày 29/09/2026 theo chủ dự án:
+ * "không cần hiển thị số câu ở ngoài".
  *
  * `min-height` bằng chiều cao nút: hàng luôn có đúng MỘT nút bên phải — "Bắt đầu kiểm tra" lúc
  * nghỉ, "Thoát" lúc đang làm — nên hàng không nảy khi đổi trạng thái.
@@ -48,16 +51,6 @@
   align-items: center;
   gap: var(--space-3);
   min-height: 2rem;
-}
-
-/*
- * Số câu của cả bài, hiện ở trạng thái nghỉ. Màu mờ chứ không cùng màu nhãn: nó là số liệu phụ
- * đứng cạnh tên khối, không phải vế thứ hai của tên khối.
- */
-.count {
-  font-size: 0.75rem;
-  white-space: nowrap;
-  color: var(--color-muted);
 }
 
 /*

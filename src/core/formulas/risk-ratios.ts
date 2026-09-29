@@ -31,7 +31,7 @@ import type { FormulaModule } from '../calc/types';
 import type { Bilingual, CalcWarning } from '../types';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
-import { VNINDEX_71_PHIEN } from './market-series-2026';
+import { VNINDEX_2026, VNINDEX_71_PHIEN } from './market-series-2026';
 import {
   maxDrawdown,
   mean,
@@ -393,6 +393,7 @@ export const BETA: FormulaModule = {
       },
       inputs: { sessions: 71 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       marketSeries: VNINDEX_71_PHIEN,
       expected: 1,
       note: {
@@ -584,6 +585,7 @@ export const TY_SO_SHARPE: FormulaModule = {
       },
       inputs: { riskFree: 4.57, sessionsPerYear: 250 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: -0.3851,
       note: {
         vi: 'Chỉ số gần như đi ngang mà vẫn dao động mạnh, nên tử số âm còn mẫu số lớn. Tỷ số âm nói thẳng một điều: giai đoạn này nhà đầu tư chịu đủ biến động mà lợi suất vẫn thấp hơn lãi suất phi rủi ro.',
@@ -779,6 +781,7 @@ export const TY_SO_SORTINO: FormulaModule = {
       },
       inputs: { riskFree: 4.57, sessionsPerYear: 250 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: -0.5055,
       note: {
         vi: 'Mẫu số chỉ đếm các phiên rơi dưới ngưỡng nên nhỏ hơn độ lệch chuẩn toàn phần. Tử số đang âm, nên chính mẫu số nhỏ ấy kéo Sortino xuống THẤP hơn Sharpe của cùng chuỗi — đúng trường hợp mục Cách đọc kết quả đã dặn.',
@@ -966,6 +969,7 @@ export const TY_SO_TREYNOR: FormulaModule = {
       },
       inputs: { riskFree: 4.57, sessionsPerYear: 250, beta: 0.9043 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: -7.6147,
       note: {
         vi: 'Beta ở đây là mức hồi quy được của FPT theo VN-Index, tính ngoài app vì chuỗi FPT chưa đủ 60 phiên. Con số âm vì lợi suất giai đoạn này thấp hơn lãi suất phi rủi ro: mỗi đơn vị rủi ro hệ thống đang lỗ chứ không sinh lời.',
@@ -1173,6 +1177,7 @@ export const TY_SO_THONG_TIN: FormulaModule = {
       },
       inputs: { benchmarkReturn: 6.8, sessionsPerYear: 250 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: -0.5031,
       note: {
         vi: 'Chỉ số gần như đi ngang nên phần vượt chuẩn là số âm: nắm theo thị trường giai đoạn này còn thua một sổ tiết kiệm 12 tháng. Nhớ rằng chuẩn nhập bằng một con số cả năm, nên mẫu số là độ lệch chuẩn lợi suất của chính danh mục chứ không phải sai số bám chuẩn từng phiên.',
@@ -1311,6 +1316,7 @@ export const TY_SO_CALMAR: FormulaModule = {
       },
       inputs: { sessionsPerYear: 250 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: -0.3515,
       note: {
         vi: 'Chỉ số kết thúc thấp hơn điểm đầu kỳ nên lợi suất năm hoá âm, kéo cả tỷ số xuống dưới 0 — lúc đó hãy đọc thẳng mức sụt giảm sâu nhất (hơn 11% từ đỉnh 24/06 xuống đáy 22/07) thay vì xếp hạng bằng con số này. Calmar nguyên bản tính trên 36 tháng, cửa sổ vài tháng ở đây chỉ minh hoạ cơ chế.',
@@ -1489,6 +1495,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
       },
       inputs: { threshold: 0 },
       series: VNINDEX_71_PHIEN,
+      dataset: VNINDEX_2026,
       expected: 0.8719,
       note: {
         vi: 'Dưới 1 nghĩa là biên độ một phiên tăng bình quân không bù nổi một phiên giảm bình quân. Giai đoạn này phiên xanh còn NHIỀU hơn phiên đỏ mà chỉ số vẫn thấp hơn điểm đầu kỳ — đúng cái bẫy của một tỷ số chỉ đo biên độ, nên phải đọc kèm lợi suất tích luỹ.',

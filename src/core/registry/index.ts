@@ -11,6 +11,7 @@ export type {
   Category,
   ChartType,
   Explanation,
+  ExampleDataset,
   FormulaDependency,
   FormulaExample,
   FormulaQuery,

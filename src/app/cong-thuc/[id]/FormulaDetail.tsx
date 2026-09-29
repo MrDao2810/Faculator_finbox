@@ -934,6 +934,9 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
     setBars(record.rows);
     setSeriesCount(record.rows.length);
     setMarketSeriesOverride(record.marketSeries);
+    // Xoá fill mã để ô không bị khoá khi màn có mã dính cộng với chuỗi ví dụ.
+    setLoadedPreset(null);
+    setPresetFill(null);
     // Ghi chú "đây là chuỗi minh hoạ, không phải số thật" phải theo đúng dữ liệu vừa khôi phục.
     setExampleLoaded(record.source === 'example');
   }, []);
@@ -1328,11 +1331,11 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
   const showChart = hasChart(spec);
 
   /**
-   * Tên nguồn chuỗi để câu mô tả biểu đồ nói rõ "của FPT" hay "của ví dụ minh hoạ" — ưu tiên mã
-   * mẫu thật, vì `loadedPreset` luôn về `null` khi `loadIllustrativeExample()` chạy (xem hàm đó).
+   * Tên nguồn chuỗi để câu mô tả biểu đồ nói rõ "của FPT" hay "của VN-Index" — ưu tiên mã
+   * mẫu thật (loadedPreset), rồi tên dataset của ví dụ minh hoạ (vd "FPT" / "VN-Index").
    */
   const chartSeriesLabel =
-    loadedPreset ?? (exampleLoaded ? t('detail.exampleSeriesLabel') : undefined);
+    loadedPreset ?? (exampleLoaded ? (spec.example.dataset?.name ?? undefined) : undefined);
 
   const shown = variablesForLevel(spec, mode);
   const hiddenCount = spec.variables.length - shown.length;
@@ -1696,22 +1699,25 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
   }, [spec.id, applyWorkingSeries]);
 
   /**
-   * Nạp chuỗi MINH HOẠ có sẵn trong `spec.example` — lối thứ ba cho người chưa hiểu bộ mẫu 4
-   * công ty (PRNG bịa, không mang ý nghĩa gì cho công thức chuỗi) và cũng không có chuỗi giá thật
-   * nào của riêng mình để dán. Khác hẳn "Nạp mẫu": số ở đây KHÔNG PHẢI giá cổ phiếu của công ty
-   * nào — chỉ là chuỗi dựng tay để công thức ra ĐÚNG kết quả minh hoạ đã ghi ở `example.expected`
-   * (vd Beta ra đúng 1,5, thay vì một số gần 0 vô nghĩa mà 4 preset PRNG độc lập cho ra — xem
-   * docblock đầu `risk-ratios.ts`). Không bịa số liệu mới: dùng lại đúng hằng số mỗi công thức đã
-   * tự khai trong `spec.example`/`spec.tests` để tự kiểm ở `formulas.test.ts`.
+   * Tính thử trên dữ liệu thật của ví dụ — nạp cả chuỗi giá lẫn ô nhập đúng một lần.
    *
-   * `date` đặt bằng chỉ số phiên dạng chuỗi ('1', '2'…) chứ không phải ngày thật: biểu đồ vốn đã
-   * vẽ theo CHỈ SỐ phiên chứ không theo mốc thời gian (xem docblock `historyPoints()`), và một
-   * ngày ISO bịa ra dễ bị hiểu lầm là phiên giao dịch thật đã từng xảy ra.
+   * Hàm này thay `loadIllustrativeExample` (trước đây chỉ nạp chuỗi, bỏ qua `example.inputs`).
+   * Hậu quả của việc bỏ qua: 7 công thức vẫn báo MISSING_SERIES (sessions mặc định 60 > FPT 57
+   * phiên), 4 công thức ra số khác ví dụ thực tế vì ô lãi suất / beta / lợi suất chuẩn lệch.
+   *
+   * Rows lấy từ `example.dataset.rows` (ngày ISO, OHLCV đầy đủ) thay vì `example.bars`/`series`
+   * bịa index, nhờ vậy trục thời gian biểu đồ hiện ngày thật. Fallback về `example.bars` / phiên
+   * index khi công thức chưa khai `dataset` (ví dụ không có chuỗi giá thì không có nút này).
+   *
+   * `setInputs` gọi TRỰC TIẾP, không qua `setValue`, nên không dính cửa khoá `lockedNoteFor`.
+   * `setPresetFill(null)` phải được gọi TRƯỚC để xoá cờ khoá trước khi ô nhập bị đặt giá trị.
    */
-  function loadIllustrativeExample(): void {
-    const rows =
-      spec.example.bars ??
-      spec.example.series?.map((close, index) => ({
+  function applyExample(): void {
+    const { example } = spec;
+    const rows: ReadonlyArray<SeriesRow> | undefined =
+      (example.dataset?.rows as ReadonlyArray<SeriesRow> | undefined) ??
+      example.bars ??
+      example.series?.map((close, index) => ({
         date: String(index + 1),
         open: null,
         high: null,
@@ -1721,15 +1727,19 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
       }));
     if (rows === undefined || rows.length === 0) return;
 
-    // Chuỗi này chỉ sống trong state của màn, nên phải tự cất để sống sót cú "Mở bảng dữ liệu →
-    // rồi Back" — xem `WORKING_SERIES_KEY`. Cờ bật trước, effect ghi bám `bars` lo phần còn lại.
+    // Xoá khoá ô nhập trước khi đặt số của ví dụ — phải chạy trước setInputs.
+    setLoadedPreset(null);
+    setPresetFill(null);
+    // Đặt ô nhập theo example.inputs (không qua setValue, không dính khoá).
+    setInputs((current) => ({ ...current, ...example.inputs }));
+    markUsed();
+    editedRef.current = true;
+
+    // Nạp chuỗi — cờ bật trước, effect ghi bám `bars` lo phần còn lại.
     workingSourceRef.current = 'example';
     setBars(rows);
     setSeriesCount(rows.length);
-    setMarketSeriesOverride(spec.example.marketSeries ?? null);
-    setLoadedPreset(null);
-    // Số của ví dụ minh hoạ không phải số của mã nào — viền `↳ HPG` phải tắt cùng lúc.
-    setPresetFill(null);
+    setMarketSeriesOverride(example.marketSeries ?? null);
     setExampleLoaded(true);
   }
 
@@ -1782,7 +1792,11 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
          * nhãn "HPG" lên số của người khác — đúng cái điều 2 ngay trên vừa cấm.
          */
         const code =
-          workingSourceRef.current === 'paste' ? '' : (stickyTicker ?? loadedPreset ?? '');
+          workingSourceRef.current === 'paste'
+            ? ''
+            : workingSourceRef.current === 'example'
+              ? (spec.example.dataset?.ticker ?? '')
+              : (stickyTicker ?? loadedPreset ?? '');
         window.localStorage.setItem(PRICE_SERIES_KEY, serializeStoredSeries({ code, rows: bars }));
       }
     } catch {
@@ -2579,19 +2593,39 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
 
               {/*
               Lối thứ ba cho người chưa có chuỗi giá thật để dán VÀ không hiểu bộ mẫu 4 công ty —
-              xem docblock `loadIllustrativeExample()`. Ẩn hẳn với công thức không khai
+              xem docblock `applyExample()`. Ẩn hẳn với công thức không khai
               `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
             */}
               {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
-                <Button variant="secondary" size="sm" onClick={loadIllustrativeExample}>
+                <Button variant="secondary" size="sm" onClick={applyExample}>
                   {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
                 </Button>
+              )}
+            </div>
+          )}
+
+          {/*
+          Hàng chân của khối chuỗi: số phiên đã nạp bên trái, lối sang bảng dữ liệu bên phải.
+
+          Link từng đứng cuối hàng nút ở trên. Cột Số liệu hẹp nên hàng ấy gãy, và link rơi xuống
+          một dòng riêng lơ lửng giữa hai nút và dòng số phiên — chủ dự án chụp màn, khoanh chỗ
+          trống bên phải dòng "Đã nạp số phiên giá" và bảo chuyển xuống đó (29/09/2026). Hai thứ
+          ấy cùng nói về CHUỖI đang nạp — có bao nhiêu phiên, và xem/sửa nó ở đâu — nên đứng chung
+          một hàng là đúng nghĩa, còn hàng nút giữ đúng vai "đưa dữ liệu vào".
+        */}
+          {wantsSeries && (
+            <div className={styles.seriesFoot}>
+              {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
+              {seriesCount !== null && (
+                <p className={styles.pendingNote}>
+                  {t('detail.seriesLoaded')} {seriesCount}
+                </p>
               )}
 
               {/*
               Nút "Áp dụng vào bảng dữ liệu" đã BỎ — việc của nó nay chạy tự động trong `onClick`
-              của link ngay dưới. Đừng dựng lại: hai lối làm cùng một việc thì người dùng phải
-              đoán cái nào đã chạy.
+              của link này. Đừng dựng lại: hai lối làm cùng một việc thì người dùng phải đoán cái
+              nào đã chạy.
             */}
 
               {/*
@@ -2624,13 +2658,6 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
                 {t('detail.openDataTable')}
               </Link>
             </div>
-          )}
-
-          {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
-          {wantsSeries && seriesCount !== null && (
-            <p className={styles.pendingNote}>
-              {t('detail.seriesLoaded')} {seriesCount}
-            </p>
           )}
 
           {/*

@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import {
+  INPUT_MAX_DECIMALS,
   commitValue,
+  draftViNumber,
   formatNumber,
   keepViNumberChars,
   parseViNumber,
-  rawViNumber,
   resolveInputState,
   unitLabel,
 } from '@/application';
@@ -67,7 +68,7 @@ const TONE_BY_STATE: Readonly<Record<InputState, InputTone>> = {
  * WF-16 chốt đúng năm trạng thái; bảng chuyển trạng thái nằm ở `resolveInputState()` tầng
  * Domain nên test được bằng Node, ở đây chỉ là phần vẽ.
  *
- * Ba điều dễ làm sai, đã xử ở đây:
+ * Năm điều dễ làm sai, đã xử ở đây:
  *
  * 1. **Không kẹp giá trị trong lúc gõ.** Người dùng gõ '−4' thì ô hiện '−4' kèm '! min 0',
  *    chứ không tự nhảy về 0 ngay giữa chừng — sửa giá trị dưới tay người đang gõ là cách
@@ -86,6 +87,22 @@ const TONE_BY_STATE: Readonly<Record<InputState, InputTone>> = {
  * 4. **Chữ cái không bao giờ xuất hiện trong ô.** Chặn ở `onChange` qua `keepViNumberChars()`,
  *    không phải bằng `type` — xem bình luận ở thuộc tính `type` bên dưới. Chỉ chặn KÝ TỰ; việc
  *    chuỗi ấy có phải một con số không thì vẫn là của `parseViNumber()`, y như trước.
+ * 5. **Chạm vào ô mà không gõ thì KHÔNG có gì xảy ra cả** — không đổi chữ số đang hiện, không
+ *    chốt giá trị. Hai vế, và cả hai đều là lỗi thật chủ dự án chụp màn ngày 29/09/2026:
+ *
+ *    · Vế hiển thị: `onFocus` từng dựng lại chuỗi bằng `rawViNumber(value)`, tức đủ độ chính
+ *      xác của con số, trong khi lúc nghỉ ô chỉ hiện bốn chữ số thập phân. Ô "Suất sinh lời yêu
+ *      cầu (r)" nhận 12,33291875 từ CAPM nên nghỉ thì hiện '12,3329', chạm vào thì nhảy thành
+ *      '12,33291875'. Nay đi qua `draftViNumber()`, vốn lấy chính chuỗi trên màn rồi bỏ dấu
+ *      ngăn nghìn — hai bên không thể lệch nhau vì chỉ có một chuỗi.
+ *    · Vế giá trị: `onBlur` từng chốt vô điều kiện. Ghép với vế trên sau khi sửa, nó còn tệ hơn
+ *      cũ — chạm vào ô rồi bấm ra chỗ khác sẽ ghi đè 12,33291875 bằng 12,3329 thật. Nên hai vế
+ *      phải đi CÙNG NHAU; sửa một vế mà quên vế kia là biến một lỗi nhìn thấy được thành một
+ *      lỗi mất số liệu âm thầm.
+ *
+ *    Ai đọc tới đây mà định bỏ cờ `edited`: nó không chỉ giữ con số. `LinkedInput` hiểu mọi lượt
+ *    `onChange` là "người dùng ghi đè", nên không có cờ này thì chỉ nhìn một ô cũng đủ cắt nó
+ *    khỏi công thức thượng nguồn.
  *
  * Không cần CSS Module: mọi khác biệt về hình đã nằm ở bốn sắc thái của primitive
  * (viền đứt cho ô nhận tự động, nền chìm cho ô khoá, viền đỏ cho ngoài miền).
@@ -104,10 +121,17 @@ export function NumberInput({
   const [focused, setFocused] = useState(false);
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
   const [draft, setDraft] = useState<string | null>(null);
+  /**
+   * Người dùng đã GÕ gì vào ô kể từ lúc chạm vào nó chưa — xem quy tắc 5 ở docblock.
+   *
+   * `ref` chứ không `state`: không dòng nào trên màn đọc cờ này, nên đổi nó mà dựng lại cả ô là
+   * dựng thừa. Đặt lại ở `onFocus` chứ không ở `onBlur`, để mỗi lần chạm vào ô là một lượt mới.
+   */
+  const edited = useRef(false);
   const t = useT();
   const pick = usePick();
 
-  const raw = draft ?? formatNumber(value, { maxDecimals: 4 });
+  const raw = draft ?? formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS });
   const { state, note } = resolveInputState({
     raw,
     spec,
@@ -169,14 +193,25 @@ export function NumberInput({
       title={locked && !lockedByTicker ? t('input.lockedHint') : undefined}
       onFocus={() => {
         setFocused(true);
-        /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '92.000' thành '92000'. Qua `rawViNumber()`
-           chứ không `String()`: `String(100.449)` ra '100.449', mà chuỗi ấy đọc ngược lại thành
-           100449 — chạm vào ô rồi bấm ra chỗ khác là giá nhân lên nghìn lần. */
-        setDraft(rawViNumber(value));
+        edited.current = false;
+        /* Vào ô thì bỏ dấu ngăn nghìn cho dễ sửa: '92.000' thành '92000' — nhưng giữ NGUYÊN
+           những chữ số đang hiện. `draftViNumber()` lấy chính chuỗi trên màn rồi bỏ dấu chấm,
+           nên con số không nhảy khi người dùng chạm vào ô; lý do đầy đủ ở chính hàm ấy. */
+        setDraft(draftViNumber(value));
       }}
       onChange={(event) => {
         /* Chữ cái rụng ngay tại đây, con trỏ giữ nguyên chỗ — quy tắc 4 ở docblock. */
         const next = filterTypedValue(event, keepViNumberChars);
+        /*
+         * Chỉ tính là ĐÃ GÕ khi chuỗi thật sự đổi — không phải mỗi lần sự kiện `onChange` nổ ra.
+         *
+         * Một ký tự bị lọc sạch (chữ cái, hay dấu Backspace tự động của bộ gõ tiếng Việt khi ghép
+         * dấu) khiến `filterTypedValue()` trả về đúng `raw` — ký tự gõ vào và ký tự bị loại triệt
+         * tiêu nhau, ô không đổi một chữ số nào. Đặt `edited` vô điều kiện ở đây thì gõ một phím
+         * KHÔNG LỌT vẫn bị coi là "đã sửa", và với `LinkedInput` thì chỉ một chữ gõ nhầm rồi rời ô
+         * là đủ cắt đứt liên kết CAPM — lỗi thật, không phải giả định.
+         */
+        if (next !== raw) edited.current = true;
         setDraft(next);
 
         /*
@@ -186,15 +221,31 @@ export function NumberInput({
          * '1,'. Những lúc ấy giữ nguyên giá trị cũ, vì đẩy lên `null` thì phải quy nó thành 0
          * hoặc NaN — cả hai đều là thứ FR-06 cấm. Rời ô thì `commitValue()` lo nốt: trống
          * thì về `defaultValue` của chính biến đó.
+         *
+         * `parsed !== value` là cửa THỨ HAI, thiếu tới lúc rà lại đợt sửa 29/09/2026 — chỉ có ở
+         * `InlineNumber` chứ không có ở đây. Thiếu nó thì đúng lượt gõ chữ cái bị lọc sạch mà cửa
+         * `edited` ở trên vừa chặn lại LỌT QUA NGAY ĐƯỜNG NÀY: chuỗi không đổi nên `parsed` vẫn
+         * bằng con số cũ, mà cửa cũ chỉ hỏi "có ra số không" chứ không hỏi "số có đổi không", nên
+         * `onChange` vẫn nổ ngay TRONG lúc gõ — không cần đợi tới `onBlur` mà cờ `edited` canh.
+         * Với ô nhập tay bình thường cửa này vô hại: `value` là con số đã đẩy ở phím trước, nên
+         * mọi phím gõ thật đều cho ra số khác nó.
          */
         const parsed = parseViNumber(next);
-        if (parsed !== null) onChange(parsed);
+        if (parsed !== null && parsed !== value) onChange(parsed);
       }}
       onBlur={(event) => {
         resetFilteredDelete(event.currentTarget);
         setFocused(false);
         setDraft(null);
-        onChange(commitValue(raw, spec));
+        /*
+         * Chỉ chốt khi người dùng THẬT SỰ có gõ — quy tắc 5 ở docblock.
+         *
+         * Bản trước chốt vô điều kiện, nên chạm vào ô rồi bấm ra chỗ khác vẫn là một lượt
+         * `onChange`. Với ô nhập thường thì vô hại (chốt lại đúng con số cũ), nhưng `LinkedInput`
+         * đọc mọi lượt `onChange` là "người dùng ghi đè", nên chỉ NHÌN một ô đang nhận số từ
+         * CAPM cũng đủ cắt đứt nó khỏi CAPM — dán nhãn "đã nhập tay" lên một con số không ai gõ.
+         */
+        if (edited.current) onChange(commitValue(raw, spec));
       }}
       onKeyDown={(event) => {
         /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. */

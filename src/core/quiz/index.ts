@@ -54,6 +54,9 @@ export const QUIZ_ITEMS: ReadonlyArray<QuizItem> = [
  * thật là tham số mặc định `minForProgress` của `QuizBody`, và tầng giao diện không với tới
  * module này được (CON-03, cộng cửa gác chỉ-đọc-lúc-build). Hai con số 3 nằm hai nơi, đổi chỗ này
  * thì màn hình không đổi theo — nên bỏ hẳn chỗ này, giữ một nguồn sự thật ở `QuizBody.tsx`.
+ *
+ * Từ 29/09/2026 ngưỡng ấy không còn ở đâu cả: chủ dự án bỏ trạng thái "ít câu", mọi bài dựng cùng
+ * một hình — xem quyết định 1 ở đầu `QuizBody.tsx`.
  */
 
 function groupByFormula(): ReadonlyMap<string, ReadonlyArray<QuizItem>> {

@@ -35,8 +35,10 @@ export { clampToSpec, fail, inherited, isCalculated, ok, snapToStep } from '@/co
 // ── Định dạng số theo quy ước Việt Nam (CON-05) ─────────────────────────────
 export type { FormatNumberOptions, UnitScaleId } from '@/core/format';
 export {
+  INPUT_MAX_DECIMALS,
   NO_VALUE,
   UNIT_SCALES,
+  draftViNumber,
   findUnitScale,
   formatCalcOutput,
   formatIsoDate,
@@ -309,6 +311,7 @@ export type {
   Category,
   ChartType,
   Explanation,
+  ExampleDataset,
   FormulaDependency,
   FormulaExample,
   FormulaSource,

@@ -263,6 +263,24 @@
   border-color: var(--color-border-strong);
 }
 
+/*
+ * Ô đã KHOÁ — câu đã chấm, hoặc câu mở lại ở dải lịch sử (đã trả lời hay bỏ qua) — mang con trỏ
+ * cấm, không phải bàn tay (29/09/2026, chủ dự án). Bàn tay hứa một cú bấm có tác dụng, mà bấm vào
+ * đây không đổi được gì. Khoá theo `input:disabled` chứ không theo lớp riêng: `disabled` chính là
+ * thứ quyết định ô còn bấm được không, nên con trỏ không thể lệch khỏi nó.
+ *
+ * Nút radio/checkbox bên trong phải `inherit`: trình duyệt cho nó con trỏ mặc định chứ không kế
+ * thừa từ nhãn, nên trước đây rê vào chấm tròn là mũi tên dù cả ô quanh nó là bàn tay. Kế thừa thì
+ * nó theo đúng ô: bàn tay khi còn chọn được, biển cấm khi đã khoá.
+ */
+.choice input {
+  cursor: inherit;
+}
+
+.choice:has(input:disabled) {
+  cursor: not-allowed;
+}
+
 /* Vòng tiêu điểm bám đúng ô, vì `input` bên trong nhỏ hơn hẳn vùng bấm. */
 .choice:has(input:focus-visible) {
   outline: 2px solid var(--color-accent-vivid);
@@ -885,9 +903,22 @@
   border-top: 1.5px solid currentcolor;
 }
 
+/*
+ * LŨY THỪA — cơ số căn DƯỚI, số mũ nổi lên TRÊN.
+ *
+ * `ctBoc` dùng `align-items: center` nên `<sup>` bị flex kéo về giữa — `vertical-align: super`
+ * không có tác dụng trên flex item. Tách riêng class này: cơ số căn theo đáy (`flex-end`), số
+ * mũ tự đẩy lên đỉnh container bằng `align-self: flex-start`.
+ */
+.ctLuyThua {
+  display: inline-flex;
+  align-items: flex-end;
+}
+
 .ctMu {
   font-size: 0.7em;
   line-height: 1;
+  align-self: flex-start;
 }
 
 /* ── Ô trống trong công thức ───────────────────────────────────────────────── */
@@ -927,6 +958,8 @@
   color: var(--color-ink);
   -webkit-text-fill-color: var(--color-ink);
   opacity: 1;
+  /* Cùng lý do với `.choice:has(input:disabled)`: ô đã khoá mang con trỏ cấm. */
+  cursor: not-allowed;
 }
 
 /*

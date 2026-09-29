@@ -127,7 +127,7 @@ function ve(nut: Nut, oNhap: CongThucDienProps['oNhap']): ReactNode {
 
     case 'luythua':
       return (
-        <span className={styles.ctBoc}>
+        <span className={styles.ctLuyThua}>
           {ve(nut.a, oNhap)}
           <sup className={styles.ctMu}>{ve(nut.b, oNhap)}</sup>
         </span>

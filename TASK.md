@@ -4,6 +4,17 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Sửa hiển thị số mũ trong khối bài tập — 29/09/2026
+
+`<sup>` bên trong `.ctBoc` (`display: inline-flex; align-items: center`) mất tác dụng `vertical-align`,
+khiến số mũ căn giữa thay vì nổi lên trên. Tách riêng class `ctLuyThua` với `align-items: flex-end`
+và `.ctMu { align-self: flex-start }`.
+
+- **Đã sửa**: `CongThucDien.tsx` dùng `styles.ctLuyThua` cho case `luythua`; `QuizBody.module.css` thêm `.ctLuyThua` + cập nhật `.ctMu`.
+- **Trạng thái**: Xong — 74/74 test xanh.
+
+---
+
 ## Sửa nút "Xem ví dụ minh hoạ" — 29/09/2026
 
 Chủ dự án: bấm nút → biểu đồ thay đổi nhưng không rõ thay đổi theo cái gì.
@@ -333,6 +344,11 @@ lại — con số đứng yên ở mọi bước, không còn chỗ nào nhảy
 5. **Bỏ dòng "Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là chưa nắm."** ở màn tổng kết (chủ
    dự án: "đang quá thừa") — xoá `quiz.skippedNote` (mộ chí ở `vi.ts`); dấu `?` vẫn giữ. Hai ca test
    gộp thành một ca đỏ nếu dòng ấy quay lại.
+6. **Con trỏ trên ô đã khoá là biển cấm, không phải bàn tay** — `QuizBody.module.css`:
+   `.choice:has(input:disabled)` và `.blankInput:disabled` mang `cursor: not-allowed`; nút radio bên
+   trong `inherit` (trước đây là mũi tên dù cả ô là bàn tay). Đo `getComputedStyle` trên Chrome thật ở
+   năm trạng thái: chưa trả lời → bàn tay; vừa kiểm tra, xem lại câu đã làm, xem lại câu bỏ qua, ô
+   điền số đã chấm → biển cấm.
 
 Chụp thật `thoi-gian-nhan-doi` (2 câu) ở 1440: nghỉ, đang làm "Câu 1 / 2" có thanh, bỏ qua rồi mở
 lại. `npm run check` phần của tôi: lint, tsc, 129 file · 3.057 ca xanh.

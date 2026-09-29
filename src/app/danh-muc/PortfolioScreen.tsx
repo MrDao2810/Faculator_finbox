@@ -71,6 +71,7 @@ import styles from './PortfolioScreen.module.css';
  * Sáu con số đầu màn đều là **kết quả tính** nên đi qua `StatTile` nhận thẳng `CalcOutput`:
  * thiếu dữ liệu thì ô hiện "_ _" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm
  * nhất trong cả sản phẩm — một danh mục mới toanh có tổng giá trị chưa xác định, không phải 0 ₫.
+ * Ô Beta và ô XIRR hiện "_ _" mà không kèm câu lý do, từ 29/09/2026 — xem `showReason`.
  *
  * ── Sáu ô ở chế độ Nâng cao, bốn ô ở Cơ bản (FR-09) ─────────────────────────────────────────
  *
@@ -238,6 +239,7 @@ interface FormErrors {
   code?: string;
   quantity?: string;
   costPrice?: string;
+  buyDate?: string;
   beta?: string;
   form?: string;
 }
@@ -738,6 +740,7 @@ export function PortfolioScreen() {
      * Chỉ bắt lỗi beta khi ô beta ĐANG HIỆN — câu lỗi trên một ô vô hình là form từ chối lưu mà
      * không nói được vì sao.
      */
+    if (form.buyDate !== '' && form.buyDate > todayIso()) next.buyDate = t('portfolio.errBuyDate');
     if (advanced && betaTyped !== '' && typedBeta === null) next.beta = t('portfolio.errBeta');
 
     /*
@@ -937,16 +940,22 @@ export function PortfolioScreen() {
         */}
           {advanced && (
             <>
+              {/*
+                Hai ô này KHÔNG in câu lý do dưới "_ _" — chủ dự án bỏ 29/09/2026. Lý do ở
+                docblock `StatTileProps.showReason`; bốn ô còn lại vẫn in như cũ.
+              */}
               <StatTile
                 label={t('portfolio.beta')}
                 output={summary.beta}
                 showEyebrow={false}
+                showReason={false}
                 icon={<StatIcon d={TILE_ICONS.beta} />}
               />
               <StatTile
                 label={t('portfolio.xirr')}
                 output={summary.xirr}
                 showEyebrow={false}
+                showReason={false}
                 decimals={1}
                 icon={<StatIcon d={TILE_ICONS.xirr} />}
               />
@@ -1623,6 +1632,7 @@ export function PortfolioScreen() {
                   label={t('portfolio.formBuyDate')}
                   type="date"
                   value={form.buyDate}
+                  error={errors.buyDate}
                   onChange={(event) => {
                     setField('buyDate', event.target.value);
                   }}

@@ -8,7 +8,7 @@
  * lời đều bày đường dẫn nguồn; và khối dưới ba câu không dựng thanh tiến độ.
  */
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { t } from '@/application';
@@ -653,6 +653,30 @@ describe('khối lời giải có cấu trúc — QuizGiai', () => {
     [...khoi().children].map((dong) => dong.querySelector(':scope > dt')?.textContent);
   const dongCo = (nhan: string) =>
     [...khoi().children].find((dong) => dong.querySelector(':scope > dt')?.textContent === nhan);
+
+  /*
+   * Dòng "Áp vào công thức" VẼ phép tính, không in chữ trơn (29/09/2026). Chủ dự án chụp dòng
+   * "√(76,18 ÷ (54 − 1))" — dấu căn không có vạch trên, trông như lỗi hiển thị. Nay căn có vạch,
+   * phép chia thành phân số xếp tầng, và `aria-label` giữ phép tính dạng chữ cho trình đọc màn hình.
+   */
+  it('dòng áp vào công thức vẽ căn và phân số, không in chữ trơn "√("', () => {
+    const item = cauGiai();
+    if (item.giai === undefined) throw new Error('thiếu giai');
+    traLoi({ ...item, giai: { ...item.giai, thaySo: { vi: '√(76,18 ÷ (54 − 1))' } } }, true);
+    const dong = dongCo(t('quiz.giai.apVao'));
+    const hinh = within(dong as HTMLElement).getByRole('math', { name: '√(76,18 ÷ (54 − 1))' });
+    expect(hinh.querySelector('[data-cong-thuc]')).toBeTruthy();
+    expect(hinh.querySelector('[data-phan-so]')).toBeTruthy();
+    expect(dong?.textContent).not.toContain('√(');
+  });
+
+  it('dòng áp vào không đọc được thành cây thì lùi về chữ, không mất nội dung', () => {
+    const item = cauGiai();
+    if (item.giai === undefined) throw new Error('thiếu giai');
+    traLoi({ ...item, giai: { ...item.giai, thaySo: { vi: 'không phải phép tính' } } }, true);
+    expect(dongCo(t('quiz.giai.apVao'))?.textContent).toContain('không phải phép tính');
+    expect(document.querySelector('[role="math"]')).toBeNull();
+  });
 
   it('năm dòng theo đúng thứ tự: công thức · thay số · áp vào công thức · kết quả · nguồn', () => {
     traLoi(cauGiai(), true);

@@ -2,7 +2,7 @@ import { runFormula } from '../calc/run';
 import type { CalcContext, FormulaModule } from '../calc/types';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
-import { evaluateWorked } from '../quiz/worked-line';
+import { evaluateWorked, expressionShape } from '../quiz/worked-line';
 import type { ViDuGiai } from './types';
 
 /**
@@ -167,6 +167,13 @@ export function viDuProblems(formula: FormulaModule, giai: ViDuGiai): string[] {
         loi.push(`thaySo.vi tính ra ${gia}, calc của ví dụ ra ${out.value}`);
     }
     if (/d,d/.test(thaySo.en)) loi.push('thaySo.en còn dấu ngăn nghìn (viết liền: 72700)');
+    /*
+     * Dòng này được VẼ bằng `CongThucDien` (căn có vạch, phân số xếp tầng) từ cây dựng lúc build; bản
+     * nào không dựng được cây thì âm thầm lùi về chữ trơn "√(…)" — đúng thứ chủ dự án gọi là lỗi.
+     */
+    for (const ngon of ['vi', 'en'] as const)
+      if (expressionShape(thaySo[ngon]) === null)
+        loi.push(`thaySo.${ngon} không dựng được cây để vẽ`);
     const dem = (x: string) => (x.match(/[0-9]/g) ?? []).length;
     if (dem(thaySo.en) !== dem(thaySo.vi))
       loi.push(`thaySo: số chữ số hai bản lệch nhau (${dem(thaySo.vi)} / ${dem(thaySo.en)})`);

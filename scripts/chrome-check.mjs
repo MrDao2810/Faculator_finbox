@@ -3321,6 +3321,75 @@ window.__themeLog = [];
     `${String(pcMoHang.soNut)} nút · hở phải ${String(pcMoHang.hoPhaiNut)}px`,
   );
 
+  /*
+   * ── Ô số đầu màn Danh mục: số dài không được đâm thủng thẻ (29/09/2026) ────────────────────
+   *
+   * Chủ dự án chụp ô "Vốn đã bỏ ra" hiện "866.777.778.513.713.70…" tràn sang ô Lãi/lỗ: một con số
+   * là một "từ" không có chỗ ngắt. `StatTile` nay co chữ theo bề ngang thẻ (`cqi`) và ngắt sau dấu
+   * chấm phân nhóm — luật CSS mà jsdom không dựng, nên chỉ ở đây đo được.
+   *
+   * Giá vốn khổng lồ cho ô "Vốn đã bỏ ra" 25 ký tự mà KHÔNG cần mạng: ô ấy không đọc thị giá. Đo
+   * CHỮ bằng Range chứ không đo hộp `<span>`: hộp giãn theo cột flex nên luôn vừa thẻ, chữ thì không.
+   * Đo ở 1440 (khổ đang đặt) và 360 (thẻ hẹp nhất, ~136px lòng), rồi trả khổ về như cũ.
+   *
+   * Chế độ Nâng cao là BẮT BUỘC: ở Cơ bản chỉ có bốn ô, mỗi ô ~340px ở khổ 1440, và 25 ký tự vừa
+   * khít ở 20px — phép kiểm sẽ xanh cả khi bỏ hẳn luật co chữ (đã thử). Sáu ô thì mỗi ô ~212px.
+   */
+  await evaluate(`(() => {
+    localStorage.setItem('ffb.prefs.v1', JSON.stringify({ mode: 'advanced' }));
+    localStorage.setItem('ffb.portfolio.v1', JSON.stringify([
+      { code: 'FPT', quantity: 1000, costPrice: 866777778513713 },
+    ]));
+    return true;
+  })()`);
+  for (const [rong, cao, dsf, mobile] of [
+    [1440, 900, 1, false],
+    [360, 780, 2, true],
+  ]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: rong,
+      height: cao,
+      deviceScaleFactor: dsf,
+      mobile,
+    });
+    await open('/danh-muc/');
+    await waitFor(`/866/.test(document.querySelector('main [class*="stats"]')?.textContent ?? '')`);
+    const oSo = await evaluate(`(() => {
+      const luoi = document.querySelector('main [class*="stats"]');
+      const so = [...luoi.querySelectorAll('[class*="value"]')];
+      const tran = [...luoi.children].flatMap((the) => {
+        const chu = the.querySelector('[class*="value"]');
+        if (chu === null) return [];
+        const cs = getComputedStyle(the);
+        const khung = the.getBoundingClientRect();
+        const trai = khung.left + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+        const phai = khung.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth);
+        const range = document.createRange();
+        range.selectNodeContents(chu);
+        const lo = Math.max(0, ...[...range.getClientRects()].flatMap((r) => [r.right - phai, trai - r.left]));
+        return lo > 0.5 ? [chu.textContent + ' lố ' + Math.round(lo) + 'px'] : [];
+      });
+      return {
+        daiNhat: Math.max(0, ...so.map((el) => el.textContent.length)),
+        tran,
+        trangTran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      };
+    })()`);
+
+    check(
+      `${String(rong)} · ô số đầu màn Danh mục: số dài ${String(oSo.daiNhat)} ký tự vẫn nằm trong thẻ`,
+      oSo.daiNhat >= 25 && oSo.tran.length === 0 && oSo.trangTran === false,
+      oSo.tran.length === 0 ? `trang tràn ngang: ${String(oSo.trangTran)}` : oSo.tran.join(' · '),
+    );
+  }
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
+
   await evaluate(`localStorage.removeItem('ffb.portfolio.v1'), true`);
 
   await open('/du-lieu/');

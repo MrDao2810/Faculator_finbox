@@ -197,3 +197,35 @@
 .giaiDoc {
   color: var(--color-ink);
 }
+
+/*
+ * Dòng "Áp vào công thức" VẼ phép tính (29/09/2026) bằng bộ vẽ của ô điền số — căn có vạch trên,
+ * phân số xếp tầng, số mũ nổi lên. Hình không xuống dòng được (một phân số ngắt giữa tử và mẫu là vô
+ * nghĩa), nên nó cuộn ngang trong khung của chính nó, cùng bộ ba `min-width: 0` + `overflow-x` +
+ * `overflow-y: hidden` với `.workedExpr` của bài tập. Phần "≈ 0 ₫" của phương trình ẩn đứng ngay sau,
+ * xuống dòng khi hết chỗ.
+ */
+.giaiSoDong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.4em;
+  min-width: 0;
+}
+
+.giaiSoHinh {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 2px;
+}
+
+/* Cỡ chữ của hình trong lời giải nhỏ hơn hình của ô điền số một bậc: đây là một dòng kết luận. */
+.giaiSoHinh [data-cong-thuc] {
+  font-size: 1.05rem;
+}
+
+.giaiSoRa {
+  white-space: nowrap;
+}

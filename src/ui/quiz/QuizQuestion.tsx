@@ -6,7 +6,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
 import { formatNumber, hasChoices, keepViNumberChars } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
-import { workedShape } from '@/application/quiz-math';
+import { expressionShape, workedShape } from '@/application/quiz-math';
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from '@/ui/inputs';
 import { LoiGiai } from '@/ui/result/LoiGiai';
 import type { LoiGiaiKyHieu } from '@/ui/result/LoiGiai';
@@ -151,6 +151,20 @@ export function QuizQuestion({
     locale === 'en' && value.en !== undefined ? value.en : value.vi;
 
   /** Chỉ các đoạn TRONG ngoặc kép của lời giải — câu trích nguyên văn của nguồn. */
+  /*
+   * Cây vẽ được của dòng "Áp vào công thức" (29/09/2026) — dòng ấy nay VẼ phép tính (căn có vạch,
+   * phân số xếp tầng, số mũ nổi lên) thay cho chữ trơn. Dựng một lần mỗi câu; bản `en` vắng thì
+   * `LoiGiai` dùng cây của bản `vi`.
+   */
+  const thaySoCay = useMemo(() => {
+    const giai = item.giai;
+    if (giai === undefined) return undefined;
+    return {
+      vi: expressionShape(giai.thaySo.vi),
+      ...(giai.thaySo.en === undefined ? {} : { en: expressionShape(giai.thaySo.en) }),
+    };
+  }, [item.giai]);
+
   const trichDan = quoteParts(chu(item.explain))
     .filter((part) => part.quoted)
     .map((part) => part.text);
@@ -423,6 +437,7 @@ export function QuizQuestion({
                 gan={item.giai.gan ?? []}
                 {...(kyHieu === undefined ? {} : { kyHieu })}
                 thaySo={item.giai.thaySo}
+                {...(thaySoCay === undefined ? {} : { thaySoCay })}
                 ketQua={chu(item.giai.ketQua)}
                 nguon={
                   <>

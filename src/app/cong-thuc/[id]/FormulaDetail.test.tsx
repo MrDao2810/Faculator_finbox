@@ -771,7 +771,7 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 
     render(<Man spec={specOf('pe')} />);
 
-    await screen.findByText(/không lấy được số liệu của mã/);
+    await screen.findByText(/không lấy được dữ liệu của mã/);
     // Vẫn còn lối đi khác: bộ mẫu WF-10 không cần mạng.
     expect(screen.getByRole('button', { name: 'Nạp mẫu' })).not.toBeNull();
   });
@@ -806,9 +806,9 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 
     render(<Man spec={specOf('pe')} />);
 
-    await screen.findByText(/chưa có đủ số liệu cơ bản để nạp/);
+    await screen.findByText(/chưa có đủ dữ liệu cơ bản để nạp/);
     // Và tuyệt đối KHÔNG được nói câu của lỗi mạng — lời khuyên của hai ca ngược nhau.
-    expect(screen.queryByText(/không lấy được số liệu của mã/)).toBeNull();
+    expect(screen.queryByText(/không lấy được dữ liệu của mã/)).toBeNull();
   });
 
   it('nạp preset thì giá trị chảy về ô nhập và kết quả tính lại (FR-10)', async () => {

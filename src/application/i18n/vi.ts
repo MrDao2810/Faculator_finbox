@@ -325,12 +325,16 @@ export const vi = {
    * một câu. Mất mạng thì thử lại là hợp lý; còn mã không có số liệu cơ bản (khoảng 100 trên 1.005
    * mã — báo cáo chưa đủ bốn quý liền nhau, hoặc bộ số không tự khớp) thì thử lại bao nhiêu lần
    * cũng vậy. Một câu chung khiến người dùng bấm lại mãi một thứ không bao giờ chạy.
+   *
+   * Viết "dữ liệu", không "số liệu" — chủ dự án đổi 29/09/2026 ("chuyển số liệu thành dữ liệu thì
+   * hợp lý hơn"). Hai nhãn `ticker.noData*` của sheet chọn mã đổi cùng lượt, vì chúng nói về đúng
+   * thứ này. Chữ "Số liệu" ở những chỗ khác (tên khối nhập, "Nạp mẫu") chưa đổi.
    */
-  'detail.tickerLoading': 'đang lấy số liệu thật của mã…',
+  'detail.tickerLoading': 'đang lấy dữ liệu thật của mã…',
   'detail.tickerFailed':
-    'không lấy được số liệu của mã — nhập tay, hoặc bấm “Nạp mẫu” để dùng bộ số liệu sẵn có.',
+    'không lấy được dữ liệu của mã — nhập tay, hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có.',
   'detail.tickerNoData':
-    'mã này chưa có đủ số liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
+    'mã này chưa có đủ dữ liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
     'không khớp nhau). Thử lại cũng vậy — chọn mã khác, hoặc nhập tay.',
   /*
    * ── Hai nút icon ở hàng tiêu đề ────────────────────────────────────────────
@@ -867,6 +871,7 @@ export const vi = {
   'portfolio.errCode': 'Chọn mã cổ phiếu trước đã.',
   'portfolio.errQuantity': 'Nhập số cổ phiếu nắm giữ, lớn hơn 0.',
   'portfolio.errCostPrice': 'Nhập giá vốn một cổ phiếu, lớn hơn 0.',
+  'portfolio.errBuyDate': 'Thời gian mua mã là ngày hiện tại hoặc ngày đã qua.',
   'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 — hoặc để trống nếu chưa biết.',
   'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
 
@@ -1007,12 +1012,14 @@ export const vi = {
    * Nhãn cạnh mã chưa có báo cáo dùng được. Ngắn hết mức: nó đứng trong một dòng đã có mã, tên
    * doanh nghiệp và nút chọn, ở khổ 360px.
    *
-   * Hai bản vì bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo. Còn mới thì nói thẳng "chưa có số
+   * Hai bản vì bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo. Còn mới thì nói thẳng "chưa có dữ
    * liệu"; quá một kỳ rồi thì hạ giọng thành "có thể chưa có" — khẳng định một mã hợp lệ là không
    * dùng được thì người dùng bỏ qua nó, và đó là cái giá đắt hơn hẳn một cú bấm thừa.
+   *
+   * "dữ liệu" chứ không "số liệu" từ 29/09/2026, cùng lượt với `detail.tickerFailed`.
    */
-  'ticker.noData': 'chưa có số liệu',
-  'ticker.noDataStale': 'có thể chưa có số liệu',
+  'ticker.noData': 'chưa có dữ liệu',
+  'ticker.noDataStale': 'có thể chưa có dữ liệu',
   'ticker.pickHeld': 'Cộng thêm',
   'ticker.loading': 'Đang tải danh sách mã…',
   'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
@@ -1021,7 +1028,19 @@ export const vi = {
   'ticker.retry': 'Thử lại',
   'ticker.errorNetwork': 'Không tải được danh sách mã. Kiểm tra kết nối mạng rồi thử lại.',
   'ticker.errorSource': 'Nguồn dữ liệu trả về thứ không đọc được. Thử lại sau ít phút.',
-  'ticker.stale': 'Đang hiện danh sách của lần tải trước, có thể đã cũ.',
+  /*
+   * ⚠ `ticker.stale` đã XOÁ — chủ dự án chốt 29/09/2026 ("bỏ đoạn text này đi").
+   *
+   * "Đang hiện danh sách của lần tải trước, có thể đã cũ."
+   *
+   * Bỏ câu, giữ hành vi: cache quá 24 giờ mà làm mới hỏng thì sheet vẫn hiện danh sách cũ, chỉ
+   * không còn dòng ghi chú. Câu này còn nháy lên ở MỖI lần mở sheet sau 24 giờ, trong lúc lượt làm
+   * mới ngầm chưa về.
+   *
+   * Đừng suy ra từ đây rằng giá cũ cũng được im lặng. Danh sách này chỉ có mã và tên doanh nghiệp,
+   * không có con số nào. Giá cũ mà không nói là cũ thì đúng là "con số sai trông như đúng" FR-06
+   * cấm, nên ngày phiên vẫn bắt buộc đi kèm, xem `price-cache-store.ts`.
+   */
 
   // ── Bảng dữ liệu WF-05 (gói 3.3.1) ────────────────────────────────────────
   'series.title': 'Chuỗi giá OHLCV',

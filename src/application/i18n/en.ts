@@ -346,6 +346,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.errCode': 'Pick a ticker first.',
   'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
   'portfolio.errCostPrice': 'Enter the cost per share, above 0.',
+  'portfolio.errBuyDate': 'Purchase date must be today or in the past.',
   'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 — or leave it blank if unknown.',
   'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
 
@@ -393,7 +394,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.errorNetwork': 'Could not load the ticker list. Check your connection and try again.',
   'ticker.errorSource':
     'The data source returned something unreadable. Try again in a few minutes.',
-  'ticker.stale': 'Showing the list from a previous load — it may be out of date.',
+  /* `ticker.stale` đã xoá cùng bản Việt (29/09/2026) — xem bia mộ ở `vi.ts`. */
 
   'series.title': 'OHLCV price series',
   'series.subtitle': 'used for Beta / Sharpe / VaR',

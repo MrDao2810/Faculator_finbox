@@ -1,0 +1,144 @@
+/*
+ * Bộ vẽ công thức (`CongThucDien.tsx`) — tách khỏi `QuizBody.module.css` ngày 29/09/2026, khi dòng
+ * "Áp vào công thức" của lời giải (bài tập và khối Ví dụ thực tế) chuyển sang vẽ bằng bộ này thay cho
+ * chữ trơn. Khối Ví dụ nằm ngay trên màn chi tiết; nhập cả CSS của khối Bài tập cho nó là kéo phần
+ * CSS vốn chỉ tải cùng gói tải muộn của `QuizPanel` vào mọi trang.
+ */
+
+/* ── Bộ vẽ công thức (CongThucDien.tsx) ────────────────────────────────────── */
+
+/*
+ * `font-family: math` là generic của CSS, đúng thứ trình duyệt dùng để vẽ MathML. Nhờ nó khối
+ * này cùng phông với 111 công thức KaTeX ở đầu màn, dù nó tự vẽ bằng `<span>`.
+ */
+.congThuc {
+  display: inline-flex;
+  align-items: center;
+  font-family: math, 'Times New Roman', serif;
+  font-size: 1.25rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--color-ink);
+}
+
+.ctBoc,
+.ctCan {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ctSo {
+  padding-inline: 0.05em;
+}
+
+.ctDau {
+  margin-inline: 0.28em;
+}
+
+/* Dấu âm dính liền số đứng sau: `−21` là một số, không phải một phép trừ. */
+.ctDauLien {
+  margin-inline: 0 0.02em;
+}
+
+.ctHam {
+  margin-inline: 0.1em 0.05em;
+  font-style: italic;
+}
+
+/*
+ * Dấu ngoặc và vạch trị tuyệt đối kéo dãn theo số tầng chúng bọc. `--cao` do `chieuCao()` tính
+ * TRÊN CÂY, không đo lúc chạy — đo lúc chạy thì lượt dựng đầu tiên trên trình duyệt khác HTML
+ * tĩnh, đúng lớp lỗi hydration mà cả thư mục này phải tránh.
+ *
+ * `scaleY` không chiếm thêm chỗ trong dòng, nên `padding-inline` phải tự chừa khoảng hai bên.
+ */
+.ctNgoac {
+  display: inline-block;
+  padding-inline: 0.12em;
+  transform: scaleY(var(--cao, 1));
+}
+
+/*
+ * PHÂN SỐ — hình mà chủ dự án đòi: "trình bày trên dưới có gạch phân rõ như công thức kìa thì mới
+ * hiểu." Hai tầng xếp dọc, gạch là `border-top` của mẫu số, đúng thứ trình duyệt vẽ cho `<mfrac>`.
+ *
+ * KHÔNG được đặt `align-items: center` ở đây. Trục ngang là trục CHÉO của hộp flex dọc, nên
+ * `center` làm hai tầng co lại vừa nội dung của chính nó — và gạch phân, vốn là `border-top` của
+ * mẫu số, chỉ còn dài bằng MẪU SỐ. Đo được trên `so-graham`: tử số `22,5 × (▢ + ▢ + ▢)` rộng 340px
+ * mà gạch chỉ 26px, nằm lọt thỏm dưới giữa tử số. Để mặc định `stretch` thì hai tầng luôn rộng
+ * bằng tầng rộng hơn, và việc căn giữa nội dung do `justify-content` của từng tầng lo.
+ */
+.ctPhanSo {
+  display: inline-flex;
+  flex-direction: column;
+  margin-inline: 0.22em;
+}
+
+.ctTu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.35em 0.2em;
+}
+
+.ctMau {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2em 0.35em 0;
+  border-top: 1.5px solid currentcolor;
+}
+
+/*
+ * DẤU CĂN: glyph `√` kéo dãn đứng cạnh phần thân có vạch trên. Hai mảnh rời nhau chứ không phải
+ * một ký tự, vì `√` của phông không đủ dài để trùm một biểu thức nhiều tầng.
+ */
+.ctCanDau {
+  display: inline-block;
+  transform: scaleY(var(--cao, 1));
+  transform-origin: bottom;
+}
+
+.ctCanThan {
+  display: flex;
+  align-items: center;
+  padding: 0.12em 0.2em 0 0.1em;
+  border-top: 1.5px solid currentcolor;
+}
+
+/*
+ * LŨY THỪA — cơ số căn DƯỚI, số mũ nổi lên TRÊN.
+ *
+ * `ctBoc` dùng `align-items: center` nên `<sup>` bị flex kéo về giữa — `vertical-align: super`
+ * không có tác dụng trên flex item. Tách riêng class này: cơ số căn theo đáy (`flex-end`), số
+ * mũ tự đẩy lên đỉnh container bằng `align-self: flex-start`.
+ */
+.ctLuyThua {
+  display: inline-flex;
+  align-items: flex-end;
+}
+
+.ctMu {
+  font-size: 0.7em;
+  line-height: 1;
+  align-self: flex-start;
+}
+
+/*
+ * Chế độ xuống dòng của lời giải (`xuongDong`): các số hạng cộng/trừ tầng ngoài cùng là con trực tiếp
+ * của khung, nên `flex-wrap` ngắt được giữa chúng. `max-width: 100%` là thứ cho khung inline-flex một
+ * bề ngang để ngắt — thiếu nó khung cứ rộng bằng nội dung và không bao giờ xuống dòng.
+ */
+.congThuc[data-xuong-dong] {
+  flex-wrap: wrap;
+  row-gap: 0.4em;
+  max-width: 100%;
+}
+
+/* Phần đuôi "≈ 0 ₫": chữ giao diện, không phải phông toán — nó là lời kết, không phải một số hạng. */
+.ctDuoi {
+  margin-inline-start: 0.4em;
+  font-family: var(--font-sans, inherit);
+  font-size: 0.8em;
+  white-space: nowrap;
+}

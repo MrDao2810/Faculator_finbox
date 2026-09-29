@@ -4,6 +4,9 @@ import { Fragment, useMemo } from 'react';
 import type { ReactNode } from 'react';
 
 import { usePreferences, useT } from '@/application/preferences-context';
+import type { Nut } from '@/application/quiz-cay';
+
+import { CongThucDien } from '../quiz/CongThucDien';
 
 import styles from './LoiGiai.module.css';
 
@@ -49,6 +52,19 @@ export interface LoiGiaiProps {
    * chỉ khi hình công thức không có phép tính nào (xem `KHONG_CO_PHEP_TINH` ở `src/core/vi-du/kiem.ts`).
    */
   thaySo?: Chu;
+  /**
+   * Cây vẽ được của `thaySo`, theo từng ngôn ngữ (29/09/2026). Có thì dòng "Áp vào công thức" VẼ
+   * phép tính bằng `CongThucDien` — căn có vạch trên, phân số xếp tầng, số mũ nổi lên — thay cho chữ
+   * trơn "√(76,18 ÷ (54 − 1))", "^(9 ÷ 365)" mà chủ dự án chụp và gọi là lỗi. Vắng, hoặc `null` vì
+   * dòng không đọc được, thì lùi về chữ.
+   *
+   * Bên gọi dựng cây, không phải thành phần này: khối Ví dụ nằm trong First Load JS của mọi trang
+   * chi tiết, nên cây của nó dựng sẵn lúc build (`page.tsx`) và trình duyệt không phải tải bộ phân
+   * tích; bài tập thì đã có bộ phân tích trong gói tải muộn của nó.
+   */
+  thaySoCay?: { vi: Nut | null; en?: Nut | null };
+  /** Phần in sau phép tính của phương trình ẩn: "≈ 0 ₫" — xem `ViDuGiai.thaySoRa`. */
+  thaySoRa?: ReactNode;
   /** Dòng "Kết quả", đã định dạng kèm đơn vị. */
   ketQua: ReactNode;
   /**
@@ -95,6 +111,8 @@ export function LoiGiai({
   gan = [],
   kyHieu,
   thaySo,
+  thaySoCay,
+  thaySoRa,
   ketQua,
   docKetQua,
   nguon,
@@ -185,7 +203,39 @@ export function LoiGiai({
       {thaySo !== undefined && (
         <div className={styles.giaiHang}>
           <dt>{t('quiz.giai.apVao')}</dt>
-          <dd className={styles.giaiSo}>{chu(thaySo)}</dd>
+          <dd className={styles.giaiSo}>
+            {(() => {
+              const cay =
+                thaySoCay === undefined
+                  ? null
+                  : locale === 'en' && thaySoCay.en !== undefined
+                    ? thaySoCay.en
+                    : thaySoCay.vi;
+              return (
+                <span className={styles.giaiSoDong}>
+                  {cay === null ? (
+                    <span>{chu(thaySo)}</span>
+                  ) : (
+                    /*
+                      `role="math"` + `aria-label` là phép tính dạng chữ: cây vẽ bằng `<span>` xếp
+                      tầng, trình đọc màn hình đọc nó ra thành một dãy số rời, mất phép chia, mất căn.
+                    */
+                    <span className={styles.giaiSoHinh} role="math" aria-label={chu(thaySo)}>
+                      <CongThucDien
+                        cay={cay}
+                        oNhap={() => null}
+                        xuongDong
+                        {...(thaySoRa === undefined ? {} : { duoi: thaySoRa })}
+                      />
+                    </span>
+                  )}
+                  {cay === null && thaySoRa !== undefined && (
+                    <span className={styles.giaiSoRa}>{thaySoRa}</span>
+                  )}
+                </span>
+              );
+            })()}
+          </dd>
         </div>
       )}
       <div className={styles.giaiHang}>

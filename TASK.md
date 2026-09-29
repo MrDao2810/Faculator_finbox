@@ -229,6 +229,101 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Danh mục — số dài đâm thủng ô "Vốn đã bỏ ra" / "Lãi/lỗ" (29/09/2026)
+
+**Trạng thái: phần ô số xong, chờ chủ dự án xác nhận. Bảng Nắm giữ ở khổ điện thoại còn lỗi cùng loại,
+chưa sửa, chờ quyết.** Chủ dự án chụp "866.777.778.513.713.70…" tràn khỏi ô "Vốn đã bỏ ra" sang ô
+"Lãi/lỗ" (_"vẫn xảy ra lỗi vỡ giao diện trong ảnh"_). Một con số là một "từ" không có chỗ ngắt. Không
+riêng số rác: ở 360px lòng thẻ ~136px, và "1.234.567.890 ₫" đã chạm mép ở 20px.
+
+- `ui/result/StatTile.tsx`: đặt `--ky-tu` (số ký tự của chuỗi, đếm lúc dựng) và chèn `<wbr>` sau mỗi
+  dấu chấm phân nhóm. `textContent` không đổi; số luôn định dạng `vi-VN` nên dấu chấm luôn là dấu
+  phân nhóm.
+- `ui/result/StatTile.module.css`: `@supports (width: 1cqi)` → `.tile` là container theo trục dòng;
+  `.value` lấy `clamp(12px, 100cqi / (n × 0.56), 20px)`; thêm `overflow-wrap: anywhere` làm lưới an
+  toàn cuối. Luật `.value { font-size: var(--text-lg) }` giữ nguyên (`result-card.test.ts` ghim).
+  Hệ số 0,56 lấy từ số đo: chuỗi tiền đậm ra 0,50–0,51em mỗi ký tự trên Windows, cộng lề cho chữ số
+  macOS rộng hơn.
+- `ui/tokens.test.ts`: thêm `--ky-tu` vào danh sách biến do JS đặt.
+- `PortfolioScreen.test.tsx`: +1 ca ghim `--ky-tu`, 5 `<wbr>` và `textContent` nguyên vẹn.
+- `scripts/chrome-check.mjs`: +2 phép kiểm (1440 và 360, chế độ Nâng cao), đo CHỮ bằng Range. Đã
+  chạy đúng đoạn đo này trên dev server: xanh với bản sửa; đỏ với hành vi cũ dựng lại trong trang
+  (lố 48px ở 1440, 100px ở 360). Ở chế độ Cơ bản phép kiểm "mù" ở 1440 (4 ô, mỗi ô ~340px), nên bắt
+  buộc Nâng cao. **Chưa chạy `npm run check:chrome` thật**: cần build, mà dev server đang giữ :3000.
+- Đo trên dev server, 1440 / 1024 / 560 / 360: không ô nào tràn, trang không cuộn ngang. Số 25–26
+  ký tự: 1 dòng cỡ ~13px ở 1440, 2 dòng cỡ 12px (ngắt sau dấu chấm) từ 1024 trở xuống. Số thường
+  (462.150.000 ₫) giữ 20px ở khổ rộng, còn 18,4px ở 360.
+- **Treo — bảng Nắm giữ:** cùng bộ số, ô giá vốn và ô lãi/lỗ của mã AAA lấn sang cột bên cạnh ở 1440
+  (vẫn đọc được, không đè chữ); ở 360 dòng gọn vỡ thật (cột giữa bị bóp, chữ xếp từng từ). Chưa sửa vì
+  không nằm trong ảnh và bảng có nhiều luật bố cục. Hai hướng: làm ô bảng chịu được số dài (cùng cách
+  ô số), hoặc chặn giá vốn / số lượng vô lý ngay ở form.
+- lint · tsc · prettier xanh; vitest 130 file / 3.074 ca xanh.
+
+---
+
+## Danh mục — ô Beta và ô XIRR bỏ câu giải thích dưới `_ _` (29/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** Chủ dự án khoanh hai câu dưới ô "Beta danh mục" ("Chưa
+có beta của APG, AAA… Beta danh mục là bình quân gia quyền…") và ô "XIRR toàn DM" ("Thiếu hoặc sai ngày
+mua của … không có ngày thì không dựng được dòng tiền."), bảo _"không cần phải có đoạn giải thích này.
+xóa đi"_. Bỏ câu, giữ hành vi: hai ô vẫn `_ _` viền đứt, không bao giờ hiện 0. Cảnh báo vẫn nằm trong
+`summarisePortfolio`, chỉ màn thôi in.
+
+- `ui/result/StatTile.tsx`: thêm prop `showReason` (mặc định có); tắt thì không in câu lý do, cũng
+  không in dòng phụ. `StatTile.module.css`: sửa chú thích `.empty`.
+- `app/danh-muc/PortfolioScreen.tsx`: `showReason={false}` cho ô Beta và ô XIRR; bốn ô còn lại vẫn in
+  lý do như cũ (thiếu thị giá, thiếu giá vốn, danh mục trống).
+- `PortfolioScreen.test.tsx`: ca nhập beta dò giá trị ô thay vì câu cảnh báo; ca "danh mục trống ở
+  chế độ Nâng cao" đếm lại 3 câu thay vì 5, và vẫn ghim `_ _` chứ không phải 0; thêm một ca ghim hai
+  ô không in câu lý do. Thử ngược: bật lại câu thì cả hai ca đỏ.
+- `CLAUDE.md`: một câu ở đoạn sáu ô của Danh mục.
+- lint · tsc · prettier xanh; vitest 130 file / 3.073 ca xanh.
+
+---
+
+## Dòng "AAA · không lấy được…": Finbox sập DNS; đổi "số liệu" thành "dữ liệu" (29/09/2026)
+
+**Trạng thái: phần đổi chữ xong, chờ chủ dự án xác nhận. Còn treo một quyết định: ẩn hay đánh dấu mã
+chưa có dữ liệu.** Chủ dự án chụp dòng "AAA · không lấy được số liệu của mã — …", hỏi vì sao nó hiện,
+và vì sao mã không lấy được dữ liệu vẫn nằm trong sheet chọn mã.
+
+- **Nguyên nhân, đo lúc ~15:50:** `dcs.finbox.vn` và cả `finbox.vn` không phân giải được. DNS của
+  máy, Google 8.8.8.8 và Cloudflare 1.1.1.1 đều trả SERVFAIL. Google DoH ghi "Name servers did not
+  respond [ns2.matbao.vn (13.250.228.99), 103.138.89.11]" (EDE 22, No Reachable Authority); `cafef.vn`
+  vẫn phân giải bình thường. Tức nguồn Finbox sập ở máy chủ tên miền, và mã nào lúc này cũng ra câu
+  ấy. AAA có trong bảng 1.104 mã có dữ liệu cơ bản (quét 08/09/2026). Câu "danh sách của lần tải
+  trước" ở mục ngay dưới hiện ra cũng vì lý do này.
+- **Đổi chữ** "số liệu" thành "dữ liệu" ở 5 câu: `detail.tickerLoading`, `detail.tickerFailed`,
+  `detail.tickerNoData`, `ticker.noData`, `ticker.noDataStale`. Các test dò chữ
+  (`TickerPickerSheet.test.tsx`, `FormulaDetail.test.tsx`) và 3 chú thích trích nhãn đổi theo. Chữ "Số
+  liệu" ở những chỗ khác chưa đổi.
+- **Treo, chờ chủ dự án:** có ẩn hẳn khoảng 545 mã không có trong bảng khỏi sheet chọn mã của màn
+  công thức không. Hiện các mã này được làm mờ, gắn nhãn và vẫn bấm được — quyết định cũ, vì bảng cũ
+  đi mỗi kỳ báo cáo. Ẩn cũng không cứu được ca hôm nay, vì AAA có dữ liệu.
+- Kiểm: `TickerPickerSheet` 5 ca, `FormulaDetail` 146 ca, i18n 21 ca xanh; lint · tsc · prettier sạch.
+
+---
+
+## Sheet chọn mã — bỏ câu "Đang hiện danh sách của lần tải trước, có thể đã cũ." (29/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** Chủ dự án: _"bỏ đoạn text này đi"_. Bỏ câu, giữ hành
+vi: cache danh sách mã quá 24 giờ mà lượt làm mới hỏng thì sheet vẫn hiện danh sách cũ, chỉ không còn
+dòng ghi chú. Câu này còn nháy lên ở mỗi lần mở sheet sau 24 giờ, trong lúc lượt làm mới ngầm chưa về.
+
+- `application/i18n/vi.ts`: xoá `ticker.stale`, để bia mộ. Bia mộ ghi rõ luật này KHÔNG áp cho giá:
+  giá cũ vẫn bắt buộc kèm ngày phiên (`price-cache-store.ts`). `en.ts`: xoá theo, trỏ về bia mộ.
+- `ui/sheets/TickerPickerSheet.tsx` + `.module.css`: bỏ khối `role="note"` và lớp `.stale`; docblock
+  "ba trạng thái" sửa thành hai.
+- `application/use-ticker-list.ts`: bỏ cờ `stale`, vì sheet là nơi duy nhất đọc nó; docblock của
+  `failure` ghi lại lý do.
+- `CLAUDE.md`: một câu ở mục cache danh sách mã, để không ai lấy việc này làm tiền lệ cho kho giá.
+- Test: +1 ca `TickerPickerSheet.test.tsx`. Cache quá hạn và làm mới hỏng thì sheet vẫn hiện danh
+  sách, không có `alert`, không có `note`, không có câu cũ. Ca này viết thẳng câu ra vì khoá đã xoá.
+- lint · tsc · prettier xanh; vitest 130 file / 3.072 ca xanh (48 ca skip là `.skip`/`skipIf` có sẵn
+  ở file khác).
+
+---
+
 ## Ô nhập số lẻ: chạm vào ô là con số nhảy thêm chữ số (29/09/2026)
 
 **Trạng thái: xong, `npm run check` xanh trọn (128 file · 3.040 ca).** Vòng hai bên dưới sửa một lỗ
@@ -322,6 +417,28 @@ lại — con số đứng yên ở mọi bước, không còn chỗ nào nhảy
 
 `src/core/format.ts` · `src/application/index.ts` (xuất `INPUT_MAX_DECIMALS`, `draftViNumber`) ·
 `src/ui/inputs/NumberInput.tsx` · `src/ui/inputs/InlineNumber.tsx` · ba file test kể trên.
+
+---
+
+## Lời giải — dòng "Áp vào công thức" VẼ công thức thay cho chữ trơn (29/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** Chủ dự án chụp dòng "√(76,18 ÷ (54 − 1))" (dấu căn không
+có vạch, số mũ in "^(…)") và bảo sửa. Dòng này nay vẽ bằng bộ vẽ của ô điền số (`CongThucDien`), ở cả
+bài tập lẫn khối Ví dụ: căn có vạch, phân số xếp tầng, số mũ nổi lên; `role="math"` + `aria-label` giữ
+phép tính dạng chữ cho trình đọc màn hình; không dựng được cây thì lùi về chữ.
+
+- `core/quiz/nut.ts` (mới): kiểu `Nut` + `chieuCao` tách thành module lá; `worked-line.ts` xuất lại,
+  thêm `expressionShape()`. `application/quiz-cay.ts` (mới) — lối nhỏ cho bộ vẽ, không kéo bộ phân tích
+  vào First Load JS; `quiz-math.ts` xuất thêm `expressionShape`.
+- `ui/quiz/CongThucDien.tsx` + `CongThucDien.module.css` (CSS tách từ `QuizBody.module.css`): chế độ
+  `xuongDong` (xuống dòng trước dấu +/− tầng ngoài cùng) và `duoi` ("≈ 0 ₫" liền sau số hạng cuối).
+- `ui/result/LoiGiai.tsx` + CSS: vẽ dòng Áp vào từ `thaySoCay`. `ExampleBlock.tsx`: nhận cây dựng sẵn.
+  `page.tsx`: dựng cây lúc build; `FormulaDetail.tsx`: chuyển xuống. `QuizQuestion.tsx`: dựng cây lúc chạy.
+- `core/vi-du/kiem.ts`: bản vi và en của dòng Áp vào phải dựng được cây.
+- Test: +2 ca `QuizBody.test.tsx` (căn + phân số; lùi về chữ), +1 ca `ExampleBlock.test.tsx`.
+- Chụp thật 1440: do-lech-chuan-ban-phan (căn có vạch), xirr (xuống dòng, "≈ 0 ₫" liền sau), irr-nien-kim
+  (số mũ −240), so-hop-dong-toi-da, ty-so-thong-tin; xirr ở 390. lint · tsc · prettier · 130 file /
+  3.071 ca xanh.
 
 ---
 

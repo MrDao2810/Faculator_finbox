@@ -42,15 +42,15 @@ export type TickerListStatus = 'loading' | 'ready' | 'error';
 export interface UseTickerListResult {
   items: ReadonlyArray<TickerRef>;
   status: TickerListStatus;
-  /** Vì sao hỏng — `null` khi không hỏng. Có thể khác `null` mà vẫn `status: 'ready'`: xem `stale`. */
-  failure: FeedFailureKind | null;
   /**
-   * Đang hiện một bản cũ.
+   * Vì sao hỏng — `null` khi không hỏng.
    *
-   * Xảy ra khi cache đã quá hạn mà lần làm mới lại hỏng. Danh sách vẫn dùng được nên KHÔNG che
-   * nó bằng màn lỗi — chỉ nói cho người dùng biết là số liệu cũ.
+   * Có thể khác `null` mà vẫn `status: 'ready'`: cache đã quá hạn và lượt làm mới hỏng. Danh sách
+   * cũ vẫn dùng được nên KHÔNG che nó bằng màn lỗi, và cũng không kèm câu "có thể đã cũ" nào — chủ
+   * dự án bỏ câu ấy 29/09/2026, xem bia mộ `ticker.stale` trong `vi.ts`. Cờ `stale` từng nằm cạnh
+   * trường này đã bỏ theo câu ấy, vì không còn ai đọc.
    */
-  stale: boolean;
+  failure: FeedFailureKind | null;
   reload: () => void;
 }
 
@@ -75,7 +75,6 @@ export function useTickerList(active: boolean): UseTickerListResult {
   const [items, setItems] = useState<ReadonlyArray<TickerRef>>([]);
   const [status, setStatus] = useState<TickerListStatus>('loading');
   const [failure, setFailure] = useState<FeedFailureKind | null>(null);
-  const [stale, setStale] = useState(false);
 
   /** Tăng lên mỗi lần bấm "Thử lại" — để effect chạy lại mà không cần state phụ nào khác. */
   const [attempt, setAttempt] = useState(0);
@@ -101,11 +100,9 @@ export function useTickerList(active: boolean): UseTickerListResult {
       setItems(cached.items);
       setStatus('ready');
       setFailure(null);
-      setStale(!fresh);
     } else {
       setStatus('loading');
       setFailure(null);
-      setStale(false);
     }
 
     // Còn hạn và không phải người dùng chủ động bấm Thử lại thì dừng ở đây, không chạm mạng.
@@ -121,7 +118,6 @@ export function useTickerList(active: boolean): UseTickerListResult {
         setItems(list);
         setStatus('ready');
         setFailure(null);
-        setStale(false);
       } catch (error) {
         if (id !== runId.current || isAbortError(error)) return;
 
@@ -129,9 +125,8 @@ export function useTickerList(active: boolean): UseTickerListResult {
           error instanceof MarketFeedError ? error.kind : ('network' as const);
 
         setFailure(kind);
-        // Có bản cũ thì giữ nguyên danh sách và chỉ đánh dấu là cũ; không có gì thì mới là lỗi.
+        // Có bản cũ thì giữ nguyên danh sách, không báo gì; không có gì thì mới là lỗi.
         if (cached === null) setStatus('error');
-        else setStale(true);
       }
     })();
 
@@ -140,5 +135,5 @@ export function useTickerList(active: boolean): UseTickerListResult {
     };
   }, [active, attempt]);
 
-  return { items, status, failure, stale, reload };
+  return { items, status, failure, reload };
 }

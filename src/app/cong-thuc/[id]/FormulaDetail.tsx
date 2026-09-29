@@ -72,6 +72,7 @@ import {
   serializeWorkingSeries,
   variablesForLevel,
 } from '@/application';
+import type { Nut } from '@/application/quiz-cay';
 import type {
   QuizItem,
   QuizProgress,
@@ -227,6 +228,11 @@ export interface FormulaDetailProps {
    * mình. Vắng thì khối Ví dụ lùi về hình chỉ-để-đọc.
    */
   viDu?: ViDuGiai;
+  /**
+   * Cây vẽ được của dòng "Áp vào công thức" của ví dụ, dựng sẵn lúc build ở `page.tsx` — xem
+   * `ExampleBlockProps.thaySoCay`.
+   */
+  viDuCay?: { vi: Nut | null; en: Nut | null };
 }
 
 type SheetKind = 'preset' | 'paste' | 'export' | 'save';
@@ -308,7 +314,7 @@ function LinkIcon() {
  * Hai công thức có khối kết quả riêng (WF-08 phí & thuế, WF-14 lịch trả nợ) được nạp qua
  * `DetailBody`, tải trễ theo id — đúng chữ "tải trễ khối nặng" của gói 3.2.1.
  */
-export function FormulaDetail({ spec, asOf, notation, quiz, viDu }: FormulaDetailProps) {
+export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
   const pick = usePick();
@@ -2892,6 +2898,7 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu }: FormulaDetai
             {...(viDu === undefined ? {} : { giai: viDu })}
             hinhCongThuc={viDuPicture}
             kyHieu={quizKyHieu}
+            {...(viDuCay === undefined ? {} : { thaySoCay: viDuCay })}
           />
         </div>
       </div>
@@ -3071,7 +3078,7 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu }: FormulaDetai
           // Mũi tên ‹ bên trái khi đóng là LÙI về sheet mẫu; dấu × khi đóng là thoát hẳn.
           dismiss={pickerShowsBack ? 'back' : 'close'}
           /*
-            Bật đánh dấu "chưa có số liệu" — chỉ ở màn này, KHÔNG ở tab Danh mục.
+            Bật đánh dấu "chưa có dữ liệu" — chỉ ở màn này, KHÔNG ở tab Danh mục.
             Ở đây người dùng chọn mã để NẠP SỐ LIỆU vào công thức, nên mã thiếu báo cáo là vô dụng
             và phải nói trước khi họ bấm. Ở Danh mục thì họ chỉ cần THỊ GIÁ — thêm một mã không có
             báo cáo vào danh mục là hoàn toàn hợp lệ, dán nhãn ở đó là nói sai.

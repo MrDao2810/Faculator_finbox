@@ -15,5 +15,11 @@
  * vẫn nguyên vẹn — `Nut` là dữ liệu thuần, `src/core` không biết gì về React.
  */
 
-export { blankAccepts, blanksOf, chieuCao, workedShape } from '@/core/quiz/worked-line';
+export {
+  blankAccepts,
+  blanksOf,
+  chieuCao,
+  expressionShape,
+  workedShape,
+} from '@/core/quiz/worked-line';
 export type { Nut, WorkedShape } from '@/core/quiz/worked-line';

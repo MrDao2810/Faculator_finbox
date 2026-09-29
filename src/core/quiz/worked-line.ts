@@ -84,6 +84,8 @@
  * cấu trúc siết lại thành "mọi dòng đều phải vẽ được" — chặt hơn bản cũ.
  */
 
+import type { Nut } from './nut';
+
 /** Khoảng trắng mọi loại, gồm cả khoảng hẹp và khoảng không ngắt dòng. */
 const TRANG = /[\s   ]+/g;
 
@@ -171,31 +173,13 @@ export function arithmeticOf(line: string): string | null {
 
 /* ── Cây cú pháp ──────────────────────────────────────────────────────────────────────────── */
 
-/**
- * Một nút của cây công thức.
- *
- * Xuất ra ngoài vì tầng giao diện phải tự đi hết cây để vẽ: ô nhập nằm TRONG tử số của phân số,
- * nên không thể giao cho Domain sinh sẵn một chuỗi HTML rồi nhét vào. CON-02 vẫn nguyên vẹn —
- * đây là dữ liệu thuần, `src/core` không biết gì về React.
+/*
+ * Kiểu `Nut` và `chieuCao` nằm ở module lá `./nut` (29/09/2026): bộ VẼ công thức chỉ cần hai thứ
+ * ấy, và khối Ví dụ thực tế — nằm trong First Load JS của mọi trang chi tiết — vẽ dòng "Áp vào công
+ * thức" từ cây dựng sẵn lúc build. Nhập chúng từ đây thì cả bộ phân tích đi theo vào mọi trang.
  */
-export type Nut =
-  | { t: 'so'; raw: string }
-  /** Ô trống: `thuTu` là chỗ của nó trong mảng người dùng gõ, `dap` là đáp án đúng. */
-  | { t: 'o'; thuTu: number; dap: string }
-  | { t: 'cong' | 'tru' | 'nhan' | 'chia' | 'luythua'; a: Nut; b: Nut }
-  /**
-   * Phép chia vẽ trên MỘT dòng, bằng dấu "÷" — chỉ `themNgoac` sinh ra, cho phép chia nằm bên
-   * trong tử hoặc mẫu của một phân số khác. Bộ phân tích không bao giờ tạo nút này.
-   */
-  | { t: 'chiaDong'; a: Nut; b: Nut }
-  /**
-   * `san` = ⌊…⌋ làm tròn xuống, `tran` = ⌈…⌉ làm tròn lên (29/09/2026) — cho các công thức mà hình
-   * của trang có bước làm tròn: số hợp đồng tối đa, số kỳ DCA. Thiếu chúng thì dòng "Áp vào công
-   * thức" của khối Ví dụ ra 6,09 trong khi kết quả là 6.
-   */
-  | { t: 'can' | 'ln' | 'am' | 'tri' | 'san' | 'tran'; a: Nut }
-  /** Dấu ngoặc tròn, do `themNgoac` cài sẵn trước khi trao cho giao diện. */
-  | { t: 'ngoac'; a: Nut };
+export type { Nut } from './nut';
+export { chieuCao } from './nut';
 
 /** Đọc một con số viết theo quy ước Việt: `1.234,56` → 1234.56, `−21` → -21. */
 function docSo(raw: string): number {
@@ -502,38 +486,6 @@ function themNgoac(nut: Nut, canToiThieu: number, trongPhanSo = false): Nut {
   }
 }
 
-/**
- * Chiều cao của một nhánh, tính theo số tầng phân số.
- *
- * Giao diện dùng con số này để kéo dãn dấu ngoặc và dấu căn cho vừa thứ chúng bọc: CSS không tự
- * biết một `<span>` cao bao nhiêu dòng, mà đo lúc chạy thì lượt dựng đầu tiên trên trình duyệt sẽ
- * khác HTML tĩnh — đúng lớp lỗi hydration mà cả thư mục `src/ui/quiz/` phải tránh. Đếm trên cây là
- * hàm thuần nên máy chủ và trình duyệt luôn ra cùng một con số.
- */
-export function chieuCao(nut: Nut): number {
-  switch (nut.t) {
-    case 'so':
-    case 'o':
-      return 1;
-    case 'chia':
-      return chieuCao(nut.a) + chieuCao(nut.b);
-    case 'chiaDong':
-      return Math.max(chieuCao(nut.a), chieuCao(nut.b));
-    case 'am':
-    case 'tri':
-    case 'san':
-    case 'tran':
-    case 'can':
-    case 'ln':
-    case 'ngoac':
-      return chieuCao(nut.a);
-    case 'luythua':
-      return chieuCao(nut.a);
-    default:
-      return Math.max(chieuCao(nut.a), chieuCao(nut.b));
-  }
-}
-
 /** Dòng công thức đã sẵn sàng để vẽ. */
 export interface WorkedShape {
   /** Tên đại lượng, in bên trái dấu `=`. */
@@ -559,6 +511,21 @@ export function workedShape(line: string): WorkedShape | null {
   if (cay === null) return null;
 
   return { ten, cay: themNgoac(cay, 0), dapAn: blanksOf(line) };
+}
+
+/**
+ * Cây vẽ được của một BIỂU THỨC trơn — không tên, không dấu "=", không ô trống — hoặc `null` nếu
+ * không đọc được (29/09/2026).
+ *
+ * Dòng "Áp vào công thức" của lời giải (bài tập và khối Ví dụ thực tế) là đúng thứ này: các con số
+ * đặt vào hình, chỉ phép tính. In nó thành chữ trơn thì dấu căn chỉ còn "√(76,18 ÷ (54 − 1))" không
+ * có vạch trên, số mũ thành "^(9 ÷ 365)" — chủ dự án chụp màn và gọi đó là lỗi. Vẽ nó bằng chính bộ
+ * vẽ của ô điền số (`CongThucDien`) thì căn có vạch, phân số xếp tầng, số mũ nổi lên, và ngoặc do
+ * `themNgoac` cài như mọi dòng khác.
+ */
+export function expressionShape(expr: string): Nut | null {
+  const cay = parseWorked(expr);
+  return cay === null ? null : themNgoac(cay, 0);
 }
 
 /**

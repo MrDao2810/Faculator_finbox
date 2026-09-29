@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { FORMULAS, clampToSpec, t } from '@/application';
 import type { FormulaSpec, ViDuGiai } from '@/application';
+import { expressionShape } from '@/application/quiz-math';
 import { viDuGiaiFor } from '@/application/vi-du';
 
 import { ExampleBlock } from './ExampleBlock';
@@ -173,5 +174,26 @@ describe('ExampleBlock — hợp đồng với Registry, quét cả 111 công th
       }
       unmount();
     }
+  });
+});
+
+/*
+ * Dòng "Áp vào công thức" của khối Ví dụ VẼ phép tính từ cây dựng sẵn lúc build (29/09/2026) — căn có
+ * vạch, phân số xếp tầng — thay cho chữ trơn. Chủ dự án chụp "√(76,18 ÷ (54 − 1))" và gọi đó là lỗi.
+ */
+describe('ExampleBlock — dòng áp vào công thức vẽ bằng cây dựng sẵn', () => {
+  it('có cây thì vẽ phân số, giữ phép tính dạng chữ trong aria-label', () => {
+    const cay = expressionShape('72.700 ÷ 5.867');
+    const { container } = render(
+      <ExampleBlock
+        formula={specOf('pe')}
+        giai={GIAI_PE}
+        hinhCongThuc={HINH}
+        thaySoCay={{ vi: cay, en: cay }}
+      />,
+    );
+    const hinh = screen.getByRole('math', { name: '72.700 ÷ 5.867' });
+    expect(hinh.querySelector('[data-phan-so]')).toBeTruthy();
+    expect(container.textContent).not.toContain('72.700 ÷ 5.867');
   });
 });

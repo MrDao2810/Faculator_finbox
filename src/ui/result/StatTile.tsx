@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
@@ -27,7 +27,27 @@ export interface StatTileProps {
    * thứ trình đọc màn hình đọc, và `textContent` của thẻ không được đổi.
    */
   icon?: ReactNode;
+  /**
+   * In câu lý do dưới "_ _" khi không tính được. Mặc định có.
+   *
+   * Tắt ở ô Beta và ô XIRR của màn Danh mục — chủ dự án bỏ 29/09/2026 ("không cần phải có đoạn
+   * giải thích này"). Hai ô ấy gần như LUÔN ở "_ _" với người mới: beta phải nhập tay cho từng mã,
+   * XIRR đòi ngày mua ở mọi mã. Nên câu lý do thành một đoạn cố định kể lại danh sách mã. Tắt câu
+   * không đổi hành vi: ô vẫn "_ _" viền đứt, không bao giờ hiện 0 (FR-06).
+   */
+  showReason?: boolean;
   className?: string;
+}
+
+/**
+ * Con số với một chỗ ngắt dòng sau mỗi dấu chấm phân nhóm.
+ *
+ * Số khổng lồ co tới cỡ sàn mà vẫn không vừa thẻ thì phải xuống dòng. Không có chỗ ngắt nào thì
+ * `overflow-wrap: anywhere` cắt ngay giữa một nhóm ("…713.00" / "0 ₫"). `<wbr>` không thêm ký tự,
+ * nên `textContent` giữ nguyên. Dấu chấm luôn là dấu phân nhóm: `format.ts` khoá cứng 'vi-VN'.
+ */
+function coChoNgat(text: string): ReactNode[] {
+  return text.split('.').flatMap((nhom, i) => (i === 0 ? [nhom] : ['.', <wbr key={i} />, nhom]));
 }
 
 /**
@@ -46,6 +66,7 @@ export function StatTile({
   decimals = 2,
   showEyebrow = true,
   icon,
+  showReason = true,
   className,
 }: StatTileProps) {
   const t = useT();
@@ -54,6 +75,7 @@ export function StatTile({
   const classes = [styles.tile, isCalculated(output) ? undefined : styles.empty, className]
     .filter(Boolean)
     .join(' ');
+  const text = calcText(output, { maxDecimals: decimals });
 
   return (
     <div className={classes}>
@@ -70,13 +92,21 @@ export function StatTile({
       )}
       {showEyebrow && <span className={styles.eyebrow}>{t('stat.eyebrow')}</span>}
       <span className={styles.label}>{label}</span>
-      <span className={styles.value}>{calcText(output, { maxDecimals: decimals })}</span>
-      {/* Không tính được thì lý do quan trọng hơn dòng phụ — thay chỗ luôn. */}
-      {output.warning !== undefined ? (
-        <span className={styles.warning}>{pick(output.warning.message)}</span>
-      ) : (
-        note !== undefined && <span className={styles.note}>{note}</span>
-      )}
+      {/*
+        `--ky-tu` là số ký tự của con số, để CSS co cỡ chữ cho vừa bề ngang thẻ — xem `.value`
+        trong `StatTile.module.css`. Đếm trên CHUỖI lúc dựng chứ không đo lúc chạy: đo thì lượt dựng
+        đầu ở máy khách lệch HTML tĩnh.
+      */}
+      <span className={styles.value} style={{ '--ky-tu': text.length } as CSSProperties}>
+        {coChoNgat(text)}
+      </span>
+      {/*
+        Không tính được thì lý do quan trọng hơn dòng phụ — thay chỗ luôn. Ô tắt lý do
+        (`showReason={false}`) cũng không in dòng phụ: dòng phụ nói về một con số không có ở đây.
+      */}
+      {output.warning !== undefined
+        ? showReason && <span className={styles.warning}>{pick(output.warning.message)}</span>
+        : note !== undefined && <span className={styles.note}>{note}</span>}
     </div>
   );
 }

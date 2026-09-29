@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 
 import type { FormulaSpec, ViDuGiai } from '@/application';
+import type { Nut } from '@/application/quiz-cay';
 import { usePick, useT } from '@/application/preferences-context';
 
 import { useValueText } from '../i18n/units';
@@ -23,6 +24,12 @@ export interface ExampleBlockProps {
   hinhCongThuc?: ReactNode;
   /** Bảng ký hiệu của trang, cho dòng "Thay số". */
   kyHieu?: ReadonlyArray<LoiGiaiKyHieu>;
+  /**
+   * Cây vẽ được của dòng "Áp vào công thức", dựng SẴN lúc build ở `page.tsx` — khối này nằm trong
+   * First Load JS của mọi trang chi tiết, nên trình duyệt không được phải tải bộ phân tích để dựng
+   * nó. Xem `LoiGiaiProps.thaySoCay`.
+   */
+  thaySoCay?: { vi: Nut | null; en: Nut | null };
   className?: string;
 }
 
@@ -57,6 +64,7 @@ export function ExampleBlock({
   giai,
   hinhCongThuc,
   kyHieu,
+  thaySoCay,
   className,
 }: ExampleBlockProps) {
   const t = useT();
@@ -71,15 +79,10 @@ export function ExampleBlock({
    * con số KHÁC kết quả — tổng dòng tiền ≈ 0 ₫, hay đúng khoản vay P. In con số ấy cuối dòng, để người
    * đọc thấy nghiệm ở dòng Kết quả làm phương trình đứng được. Xem `ViDuGiai.thaySoRa`.
    */
-  const thaySo =
-    giai?.thaySo === undefined
+  const thaySoRa =
+    giai?.thaySoRa === undefined
       ? undefined
-      : giai.thaySoRa === undefined
-        ? giai.thaySo
-        : (() => {
-            const ra = ` ≈ ${valueText(giai.thaySoRa.giaTri, giai.thaySoRa.donVi)}`;
-            return { vi: giai.thaySo.vi + ra, en: giai.thaySo.en + ra };
-          })();
+      : `≈ ${valueText(giai.thaySoRa.giaTri, giai.thaySoRa.donVi)}`;
 
   return (
     <section className={classes} aria-labelledby="khoi-vi-du">
@@ -94,7 +97,9 @@ export function ExampleBlock({
           tinh={giai.tinh}
           gan={giai.gan}
           {...(kyHieu === undefined ? {} : { kyHieu })}
-          {...(thaySo === undefined ? {} : { thaySo })}
+          {...(giai.thaySo === undefined ? {} : { thaySo: giai.thaySo })}
+          {...(thaySoCay === undefined ? {} : { thaySoCay })}
+          {...(thaySoRa === undefined ? {} : { thaySoRa })}
           ketQua={ketQua}
           {...(example.note === undefined ? {} : { docKetQua: pick(example.note) })}
           nguon={

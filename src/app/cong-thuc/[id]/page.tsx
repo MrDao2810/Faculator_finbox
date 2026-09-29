@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { FORMULAS, findCategory } from '@/application';
+import { expressionShape } from '@/application/quiz-math';
 import { viDuGiaiFor } from '@/application/vi-du';
 
 import { FormulaDetail } from './FormulaDetail';
@@ -103,6 +104,14 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * dụng" như lời giải bài tập, nên nó cũng cần bản hình gắn dấu mọi ký hiệu.
    */
   const viDu = viDuGiaiFor(formula.id);
+  /*
+   * Cây vẽ được của dòng "Áp vào công thức" — dựng ở ĐÂY, lúc build, để khối Ví dụ (nằm trong First
+   * Load JS của mọi trang) vẽ căn, phân số, số mũ mà trình duyệt không phải tải bộ phân tích.
+   */
+  const viDuCay =
+    viDu?.thaySo === undefined
+      ? undefined
+      : { vi: expressionShape(viDu.thaySo.vi), en: expressionShape(viDu.thaySo.en) };
   return (
     <FormulaDetail
       spec={formula}
@@ -112,6 +121,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
       })}
       quiz={quiz}
       {...(viDu === undefined ? {} : { viDu })}
+      {...(viDuCay === undefined ? {} : { viDuCay })}
     />
   );
 }

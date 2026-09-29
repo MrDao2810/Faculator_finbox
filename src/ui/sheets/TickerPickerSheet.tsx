@@ -54,7 +54,7 @@ export interface TickerPickerSheetProps {
    */
   placement?: 'bottom' | 'center';
   /**
-   * Ngày ISO của màn — bật phần đánh dấu "mã này chưa có số liệu cơ bản".
+   * Ngày ISO của màn — bật phần đánh dấu "mã này chưa có dữ liệu cơ bản".
    *
    * Có mặt thì sheet nạp trễ bảng mã (`@/application/ticker-coverage`) và dán nhãn lên những mã
    * `toFundamentals()` sẽ từ chối; vắng mặt thì sheet chạy y như trước. Là **opt-in** vì hai lối
@@ -73,7 +73,7 @@ export interface TickerPickerSheetProps {
  *
  * Thay cho `<Select>` cũ chỉ có 4 mã mẫu. Cùng khuôn `PresetSheet` (WF-10) để hai ô chọn mã của
  * sản phẩm trông và dùng giống nhau, nhưng nguồn khác hẳn: `PresetSheet` đọc `DataProvider`
- * đồng bộ, còn ở đây là `MarketFeed` bất đồng bộ nên có thêm ba trạng thái đang tải / lỗi / cũ.
+ * đồng bộ, còn ở đây là `MarketFeed` bất đồng bộ nên có thêm hai trạng thái đang tải / lỗi.
  */
 export function TickerPickerSheet({
   open,
@@ -88,7 +88,7 @@ export function TickerPickerSheet({
   const [query, setQuery] = useState('');
 
   // Chỉ chạm mạng khi sheet thật sự mở — xem docblock `useTickerList`.
-  const { items, status, failure, stale, reload } = useTickerList(open);
+  const { items, status, failure, reload } = useTickerList(open);
 
   /**
    * Bảng mã có số liệu cơ bản — nạp TRỄ, và chỉ khi sheet mở với `markUnusableAsOf`.
@@ -191,12 +191,10 @@ export function TickerPickerSheet({
         disabled={status === 'error'}
       />
 
-      {stale && (
-        <p className={styles.stale} role="note">
-          {t('ticker.stale')}
-        </p>
-      )}
-
+      {/*
+        Không còn dòng "danh sách có thể đã cũ" — chủ dự án bỏ 29/09/2026. Cache quá hạn mà làm mới
+        hỏng thì danh sách cũ vẫn hiện như thường; lý do ở bia mộ `ticker.stale` trong `vi.ts`.
+      */}
       {status === 'loading' && <p className={styles.state}>{t('ticker.loading')}</p>}
 
       {status === 'error' && (

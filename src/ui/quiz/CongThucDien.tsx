@@ -2,10 +2,10 @@
 
 import type { CSSProperties, ReactNode } from 'react';
 
-import type { Nut } from '@/application/quiz-math';
-import { chieuCao } from '@/application/quiz-math';
+import type { Nut } from '@/application/quiz-cay';
+import { chieuCao } from '@/application/quiz-cay';
 
-import styles from './QuizBody.module.css';
+import styles from './CongThucDien.module.css';
 
 /**
  * Vẽ dòng công thức của câu điền số, với Ô NHẬP nằm ngay trong công thức.
@@ -41,12 +41,46 @@ export interface CongThucDienProps {
   cay: Nut;
   /** Dựng ô nhập thứ `thuTu`. Trả về cả `<input>` lẫn phần trang trí quanh nó. */
   oNhap: (thuTu: number, dap: string) => ReactNode;
+  /**
+   * Cho hình XUỐNG DÒNG giữa các số hạng cộng/trừ ở tầng ngoài cùng (29/09/2026) — dòng "Áp vào công
+   * thức" của lời giải. Tổng bốn phân số của XIRR rộng gần 900px: không xuống dòng thì nó bị cắt ở mép
+   * cột, số hạng cuối phải cuộn ngang mới thấy. Ngắt TRƯỚC dấu, như lối viết toán; từng số hạng vẫn là
+   * một khối (một phân số ngắt giữa tử và mẫu là vô nghĩa). Ô điền số của bài tập không bật cờ này.
+   */
+  xuongDong?: boolean;
+  /**
+   * Phần đứng SAU hình, trong cùng khung — "≈ 0 ₫" của phương trình ẩn. Nằm ngoài khung thì khi hình
+   * xuống dòng nó rớt thành một dòng riêng, tách khỏi số hạng cuối mà nó kết luận.
+   */
+  duoi?: ReactNode;
 }
 
-export function CongThucDien({ cay, oNhap }: CongThucDienProps) {
+export function CongThucDien({ cay, oNhap, xuongDong = false, duoi }: CongThucDienProps) {
+  if (xuongDong && (cay.t === 'cong' || cay.t === 'tru')) {
+    /* Trải phẳng chuỗi cộng/trừ kết hợp trái `((a − b) − c) + d` thành a · −b · −c · +d. */
+    const doan: Array<{ dau?: 'cong' | 'tru'; nut: Nut }> = [];
+    let nut: Nut = cay;
+    while (nut.t === 'cong' || nut.t === 'tru') {
+      doan.unshift({ dau: nut.t, nut: nut.b });
+      nut = nut.a;
+    }
+    doan.unshift({ nut });
+    return (
+      <span className={styles.congThuc} data-cong-thuc data-xuong-dong>
+        {doan.map((d, i) => (
+          <span key={i} className={styles.ctBoc}>
+            {d.dau !== undefined && <span className={styles.ctDau}>{DAU[d.dau]}</span>}
+            {ve(d.nut, oNhap)}
+          </span>
+        ))}
+        {duoi !== undefined && <span className={styles.ctDuoi}>{duoi}</span>}
+      </span>
+    );
+  }
   return (
     <span className={styles.congThuc} data-cong-thuc>
       {ve(cay, oNhap)}
+      {duoi !== undefined && <span className={styles.ctDuoi}>{duoi}</span>}
     </span>
   );
 }

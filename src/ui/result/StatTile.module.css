@@ -47,6 +47,37 @@
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   color: var(--color-ink);
+  /* Lưới an toàn cuối: co tới cỡ sàn mà vẫn không vừa thì xuống dòng TRONG thẻ, không tràn ra. */
+  overflow-wrap: anywhere;
+}
+
+/*
+ * ── Số dài co chữ cho vừa thẻ (29/09/2026) ──────────────────────────────────
+ *
+ * Chủ dự án chụp ô "Vốn đã bỏ ra" hiện "866.777.778.513.713.70…" tràn qua ô bên cạnh. Một con số
+ * là một "từ" không có chỗ ngắt, nên nó không xuống dòng mà đâm thủng khung. Không riêng số rác:
+ * ở 360px một thẻ chỉ còn ~136px lòng, và "1.234.567.890 ₫" (một tỷ, danh mục rất thường) đã chạm
+ * mép ở 20px.
+ *
+ * Cỡ chữ = bề ngang lòng thẻ chia cho số ký tự nhân bề rộng trung bình một ký tự, kẹp giữa 12px và
+ * 20px. `--ky-tu` do `StatTile.tsx` đếm trên chuỗi lúc dựng. Hệ số 0,56em lấy DƯ: đo trong Chrome
+ * trên Windows, chuỗi tiền đậm ra 0,50–0,51em mỗi ký tự, còn chữ số đậm của macOS rộng hơn một
+ * chút. Nên con số luôn hụt mép chứ không chạm mép; lỡ đoán hụt thì số xuống dòng sau một dấu chấm
+ * phân nhóm (`<wbr>` trong `StatTile.tsx`) chứ không tràn. Số ngắn thì phép chia ra lớn hơn 20px và
+ * bị kẹp về 20px, tức số thường không đổi gì. `.value` trên vẫn ghi 20px: `result-card.test.ts`
+ * ghim đúng dòng ấy, và trình duyệt không hiểu `cqi` thì dùng dòng ấy.
+ *
+ * `container-type` đặt trên `.tile`, mà thẻ lấy bề ngang từ cột lưới `minmax(150px, 1fr)` chứ
+ * không từ nội dung, nên khoá bề ngang theo trục dòng không làm thẻ co lại.
+ */
+@supports (width: 1cqi) {
+  .tile {
+    container-type: inline-size;
+  }
+
+  .value {
+    font-size: clamp(var(--text-xs), calc(100cqi / (var(--ky-tu, 1) * 0.56)), var(--text-lg));
+  }
 }
 
 .note {
@@ -55,7 +86,8 @@
 }
 
 /*
- * Chưa tính được: viền đứt VÀ câu lý do bằng chữ, không phải chỉ đổi màu con số — NFR-USA-06.
+ * Chưa tính được: viền đứt VÀ chữ "_ _" (kèm câu lý do, trừ ô tắt `showReason`), không phải chỉ
+ * đổi màu con số — NFR-USA-06.
  */
 .empty {
   border-style: dashed;

@@ -209,8 +209,11 @@ function usedNames(css: string): Set<string> {
  * của khối công thức câu điền số: số tầng mà dấu ngoặc phải kéo dãn theo, và số ký tự của ô trống.
  * Cả hai tính TRÊN CÂY lúc dựng (xem `chieuCao` ở `worked-line.ts`) chứ không đo lúc chạy, nên
  * chúng không bao giờ được khai trong `:root`.
+ *
+ * `--ky-tu` là số ký tự của con số trong `StatTile`, để CSS co cỡ chữ cho vừa thẻ. Mỗi thẻ một giá
+ * trị, đếm trên chuỗi lúc dựng.
  */
-const LOCAL_VARIABLES = new Set(['--fill', '--weight', '--cao', '--rong']);
+const LOCAL_VARIABLES = new Set(['--fill', '--weight', '--cao', '--rong', '--ky-tu']);
 
 /**
  * Gọi `var()` tới một biến chưa ai khai thì CSS lặng thinh: thuộc tính coi như không hợp lệ, và

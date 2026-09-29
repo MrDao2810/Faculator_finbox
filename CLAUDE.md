@@ -64,7 +64,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 42 assertions against a built out/ — run after build
-npm run check:chrome   # 147 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 149 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -236,7 +236,11 @@ The service worker does not touch these calls at all: `handles()` in `public/sw.
 cross-origin and non-GET. Offline behaviour is therefore hand-rolled, with **two** caches and one
 rule that governs the second:
 
-- The ticker list, in `localStorage` with a 24 h TTL (`ticker-list-store.ts`).
+- The ticker list, in `localStorage` with a 24 h TTL (`ticker-list-store.ts`). Expired and the
+  refresh fails, the old list is shown with **no note**: the owner removed "Đang hiện danh sách của
+  lần tải trước, có thể đã cũ." on 29/09/2026 (tombstone `ticker.stale` in `vi.ts`). That is safe
+  only because the list holds codes and names, no number. It is not a precedent for the price cache
+  below.
 - Market prices, in `localStorage` with a 7-day TTL (`price-cache-store.ts`). This one used to be
   forbidden — `ticker-list-store.ts` carried the reason in writing: showing a stale price without
   saying it is stale is exactly the "wrong number that looks right" FR-06 exists to stop. That
@@ -255,7 +259,24 @@ The 4 portfolio tiles are now **6**: total value, invested, gain/loss (with the 
 `note`), beta, XIRR, holdings count. `totalCost` is deliberately independent of market price — it
 is the one real number that survives an outage, which is why the header does not go blank offline.
 `gain` **inherits** rather than computing: `total` sums `row.value ?? 0`, so subtracting cost from
-it directly would invent a loss exactly the size of an unpriced holding's cost basis.
+it directly would invent a loss exactly the size of an unpriced holding's cost basis. The beta and
+XIRR tiles print `_ _` with **no reason line** (`StatTile`'s `showReason={false}`, owner's call on
+29/09/2026). A new user sees both at `_ _` almost always, so the reason had become a fixed paragraph
+that listed every ticker. The warning still exists in `summarisePortfolio`'s output; only the tile
+stops printing it. The other four tiles keep their reason.
+
+**A long number shrinks to fit its tile instead of breaking it** (29/09/2026). The owner photographed
+"866.777.778.513.713.70…" running out of "Vốn đã bỏ ra" into the next tile: a number is one "word"
+with no break point. This is not only a junk-input problem, because at 360px a tile has ~136px of room
+and "1.234.567.890 ₫" already reaches the edge at 20px. `StatTile` sets `--ky-tu` to the string's
+length. Under `@supports (width: 1cqi)` the tile becomes an inline-size container, and `.value`
+takes `clamp(12px, 100cqi / (n × 0.56), 20px)`. The 0.56em factor is a measured 0.50–0.51em for bold
+money strings on Windows, plus room for macOS's wider digits. A `<wbr>` after every thousands dot is
+the fallback break, and `overflow-wrap: anywhere` is the last resort. Keep the override in its own
+rule: `result-card.test.ts` pins `.value { font-size: var(--text-lg) }`, which is also what a
+browser without `cqi` uses. Two `check:chrome` assertions measure the text with a `Range` at 1440 and
+at 360. They must run in **advanced** mode: with four tiles each one is ~340px wide at 1440, so the
+check stayed green even with the rule removed.
 
 **The holdings list is ONE `<table>` that takes three shapes** (22/09/2026, from a design the owner
 supplied). At ≥1024px it is an eight-column table — code, company, quantity, avg cost, market
@@ -1186,6 +1207,29 @@ the quiz" would otherwise be a promise that drifts. Seven things are load-bearin
   panel state; the `idPrefix` prop (`vi-du` / default `bai-tap`) keeps two open panels from sharing an
   `id`. `page.tsx` now builds `latexHtmlAllSymbols` whenever the example has a solution, not only when a
   quiz question needs it.
+
+**The "Áp vào công thức" row is DRAWN, not printed** (29/09/2026), in the quiz and the example alike.
+Printed as text, a radical was just "√(76,18 ÷ (54 − 1))" with no bar over it and a power was
+"^(9 ÷ 365)"; the owner screenshotted it as broken. The row now goes through the fill-in formula's
+own renderer, `CongThucDien` (radical with a bar, stacked fractions, raised exponents, `themNgoac`'s
+parentheses), wrapped in `role="math"` with the text form as `aria-label` so screen readers still get
+"÷" and "√". Four details hold it together:
+
+- **The example's tree is built at BUILD time** (`page.tsx` → `expressionShape()` → `viDuCay` prop), and
+  the renderer imports only the leaf `@/core/quiz/nut` (the `Nut` type and `chieuCao`) through
+  `@/application/quiz-cay`. The example block is in every detail page's First Load JS; importing via
+  `@/application/quiz-math` would drag the whole parser there. The quiz builds its trees at runtime, as
+  before — the parser is already in `QuizPanel`'s lazy chunk. `worked-line.ts` re-exports both, so no
+  existing import changed.
+- **The renderer's CSS moved to `CongThucDien.module.css`** — importing the whole `QuizBody.module.css`
+  into the example block would put the quiz's CSS on every page.
+- **Solutions set `xuongDong`**: the top-level +/− chain is flattened into sibling terms so the line
+  wraps BEFORE an operator, each fraction staying whole. XIRR's four fractions are ~900px; without it
+  the last term was clipped at the column edge. `duoi` puts the implicit equation's "≈ 0 ₫" inside the
+  same box so it follows the last term instead of dropping onto a line of its own. The quiz's fill-in
+  formula sets neither.
+- **`viDuProblems()` requires both the `vi` and `en` line to parse into a tree** — a line that doesn't
+  would silently fall back to the old text.
 
 **Three shapes don't fit "the arithmetic line equals the result", and each has a PINNED escape hatch**
 in `kiem.ts` rather than a looser rule:

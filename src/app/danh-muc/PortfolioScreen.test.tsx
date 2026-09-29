@@ -292,11 +292,17 @@ describe('WF-06 — danh mục rỗng', () => {
     expect(screen.queryByText(/^0\s*₫$/)).toBeNull();
   });
 
-  it('chế độ Nâng cao: hai ô nâng cao cũng nói rõ chưa có mã nào (FR-06)', async () => {
+  /*
+   * Ca này từng đòi Beta và XIRR CŨNG nói "Danh mục chưa có mã nào." (5 câu). Từ 29/09/2026 hai ô
+   * ấy không in câu lý do nào nữa (chủ dự án bỏ, xem `StatTileProps.showReason`), nên ca giữ phần
+   * FR-06 — "_ _" chứ không phải 0 — và đếm lại: câu ấy chỉ còn ở ba ô của chế độ Cơ bản.
+   */
+  it('chế độ Nâng cao: Beta và XIRR hiện “_ _” chứ không hiện 0, không lặp câu chưa có mã (FR-06)', async () => {
     await moManNangCao();
 
-    // Ba ô của chế độ Cơ bản, cộng Beta và XIRR.
-    expect(screen.getAllByText('Danh mục chưa có mã nào.')).toHaveLength(5);
+    expect(screen.getAllByText('Danh mục chưa có mã nào.')).toHaveLength(3);
+    expect((await oThongKe('Beta danh mục')).textContent).toContain('_ _');
+    expect((await oThongKe('XIRR toàn DM')).textContent).toContain('_ _');
     expect(screen.queryByText(/^0\s*₫$/)).toBeNull();
   });
 
@@ -686,23 +692,28 @@ describe('WF-06 — sửa một mã đã thêm', () => {
   });
 
   /*
-   * Lời khuyên của cảnh báo beta là "bấm vào mã còn thiếu để sửa và nhập beta". Ca này kiểm rằng
-   * đường đi ấy có thật — trước gói này câu đó chỉ tới một chức năng không tồn tại.
+   * Lời khuyên (`fix`) của cảnh báo beta là "bấm vào mã còn thiếu để sửa và nhập beta". Ca này
+   * kiểm rằng đường đi ấy có thật — trước gói này câu đó chỉ tới một chức năng không tồn tại.
+   *
+   * Dò bằng GIÁ TRỊ của ô chứ không bằng câu cảnh báo: từ 29/09/2026 ô Beta không in câu lý do
+   * nữa (ca ngay dưới), nên "_ _" thành con số là bằng chứng duy nhất nhìn thấy được.
    */
-  it('nhập được beta qua form sửa, đúng như cảnh báo beta chỉ dẫn', async () => {
+  it('nhập được beta qua form sửa, và ô Beta danh mục tính ra ngay', async () => {
     seedHolding();
-    // Cả cảnh báo beta lẫn ô nhập beta đều thuộc chế độ Nâng cao — FR-09.
+    // Cả ô Beta lẫn ô nhập beta đều thuộc chế độ Nâng cao — FR-09.
     await moManNangCao();
 
-    expect(await screen.findByText(/Chưa có beta của FPT/)).toBeTruthy();
+    expect((await oThongKe('Beta danh mục')).textContent).toContain('_ _');
 
     await moChiTiet();
     await userEvent.click(screen.getByRole('button', { name: 'Sửa FPT' }));
     await userEvent.type(screen.getByLabelText('Beta'), '1,1');
     await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
 
-    await waitFor(() => {
-      expect(screen.queryByText(/Chưa có beta của FPT/)).toBeNull();
+    await waitFor(async () => {
+      const oBeta = await oThongKe('Beta danh mục');
+      expect(oBeta.textContent).toContain('1,1');
+      expect(oBeta.textContent).not.toContain('_ _');
     });
 
     /*
@@ -715,6 +726,61 @@ describe('WF-06 — sửa một mã đã thêm', () => {
     const chiTiet = (await dongMa()).nextElementSibling as HTMLElement;
     expect(within(chiTiet).getByText('beta')).toBeTruthy();
     expect(chiTiet.textContent).toContain('1,1');
+  });
+
+  /*
+   * Ô Beta và ô XIRR hiện "_ _" mà KHÔNG kèm câu lý do — chủ dự án bỏ 29/09/2026 ("không cần phải
+   * có đoạn giải thích này"). Với người mới hai ô này gần như luôn ở "_ _", nên câu lý do thành một
+   * đoạn cố định kể lại danh sách mã.
+   *
+   * Viết thẳng câu ra chứ không đọc từ `summarisePortfolio`: cảnh báo vẫn nằm trong dữ liệu, chỉ
+   * màn thôi in. Chờ ô Tổng giá trị ra số trước, vì lúc thị giá chưa về thì hai ô này mang một
+   * câu khác ("…vì tổng giá trị danh mục đang lỗi") và ca sẽ xanh mà không kiểm được gì.
+   */
+  it('ô Beta và ô XIRR hiện “_ _” mà không kèm câu lý do', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([{ code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '', beta: null }]),
+    );
+    await moManNangCao();
+
+    await waitFor(async () => {
+      expect((await oThongKe('Tổng giá trị')).textContent).toContain('7.140.000');
+    });
+
+    const oBeta = await oThongKe('Beta danh mục');
+    const oXirr = await oThongKe('XIRR toàn DM');
+    expect(oBeta.textContent).toContain('_ _');
+    expect(oXirr.textContent).toContain('_ _');
+    expect(screen.queryByText(/Chưa có beta của|bình quân gia quyền/)).toBeNull();
+    expect(screen.queryByText(/Thiếu hoặc sai ngày mua|dựng được dòng tiền/)).toBeNull();
+  });
+
+  /*
+   * Số dài không đâm thủng thẻ (29/09/2026) — chủ dự án chụp "866.777.778.513.713.70…" tràn qua ô
+   * bên cạnh. Bố cục chỉ đo được trong Chrome (`check:chrome`); ca này ghim hai thứ CSS dựa vào:
+   * `--ky-tu` đúng bằng số ký tự, và một `<wbr>` sau mỗi dấu chấm phân nhóm mà `textContent` không
+   * đổi một ký tự nào — nhiều ca ở file này dò con số qua đúng `textContent`.
+   */
+  it('số dài: thẻ mang số ký tự cho CSS co chữ, và có chỗ ngắt sau mỗi dấu chấm phân nhóm', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 1000, costPrice: 866_777_778_513_713, buyDate: '' },
+      ]),
+    );
+    render(<PortfolioScreen />);
+
+    const oVon = await oThongKe('Vốn đã bỏ ra');
+    await waitFor(() => {
+      expect(oVon.textContent).toContain('866.777.778.513.713.000 ₫');
+    });
+
+    const so = oVon.querySelector('[style]');
+    if (!(so instanceof HTMLElement)) throw new Error('Không thấy phần tử mang con số');
+    expect(so.textContent).toBe('866.777.778.513.713.000 ₫');
+    expect(so.style.getPropertyValue('--ky-tu')).toBe(String('866.777.778.513.713.000 ₫'.length));
+    expect(so.querySelectorAll('wbr')).toHaveLength(5);
   });
 });
 

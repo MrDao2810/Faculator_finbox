@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+
+import { TICKER_LIST_KEY, TICKER_LIST_TTL_MS, serializeCachedTickers } from '@/application';
 
 import { TickerPickerSheet } from './TickerPickerSheet';
 
@@ -65,12 +67,12 @@ async function moSheet(props: Partial<Parameters<typeof TickerPickerSheet>[0]> =
   await screen.findByText('FPT');
 }
 
-describe('TickerPickerSheet — đánh dấu mã chưa có số liệu', () => {
+describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   it('không bật đánh dấu thì không dòng nào bị dán nhãn', async () => {
     await moSheet();
 
-    expect(screen.queryByText('chưa có số liệu')).toBeNull();
-    expect(screen.queryByText('có thể chưa có số liệu')).toBeNull();
+    expect(screen.queryByText('chưa có dữ liệu')).toBeNull();
+    expect(screen.queryByText('có thể chưa có dữ liệu')).toBeNull();
   });
 
   /*
@@ -80,9 +82,9 @@ describe('TickerPickerSheet — đánh dấu mã chưa có số liệu', () => {
   it('bật đánh dấu: mã ngoài bảng bị dán nhãn, mã trong bảng thì không', async () => {
     await moSheet({ markUnusableAsOf: '2026-09-08' });
 
-    expect(within(dong('E1VFVN30')).getByText('chưa có số liệu')).not.toBeNull();
-    expect(within(dong('FPT')).queryByText('chưa có số liệu')).toBeNull();
-    expect(within(dong('HPG')).queryByText('chưa có số liệu')).toBeNull();
+    expect(within(dong('E1VFVN30')).getByText('chưa có dữ liệu')).not.toBeNull();
+    expect(within(dong('FPT')).queryByText('chưa có dữ liệu')).toBeNull();
+    expect(within(dong('HPG')).queryByText('chưa có dữ liệu')).toBeNull();
   });
 
   /*
@@ -106,7 +108,47 @@ describe('TickerPickerSheet — đánh dấu mã chưa có số liệu', () => {
   it('bảng đã cũ thì nói "có thể chưa có", không khẳng định', async () => {
     await moSheet({ markUnusableAsOf: '2027-06-01' });
 
-    expect(within(dong('E1VFVN30')).getByText('có thể chưa có số liệu')).not.toBeNull();
-    expect(screen.queryByText('chưa có số liệu')).toBeNull();
+    expect(within(dong('E1VFVN30')).getByText('có thể chưa có dữ liệu')).not.toBeNull();
+    expect(screen.queryByText('chưa có dữ liệu')).toBeNull();
+  });
+});
+
+/*
+ * Cache quá hạn mà lượt làm mới hỏng: danh sách cũ vẫn dùng được, và không kèm câu nào.
+ *
+ * Câu "Đang hiện danh sách của lần tải trước, có thể đã cũ." đã bỏ 29/09/2026 theo yêu cầu chủ dự
+ * án, xem bia mộ `ticker.stale` trong `vi.ts`. Ca này viết thẳng câu ra chứ không đọc qua `t()`, vì
+ * khoá đã xoá: câu quay lại thì phải là một quyết định, không phải một sơ suất.
+ */
+describe('TickerPickerSheet — cache quá hạn mà làm mới hỏng', () => {
+  afterEach(() => {
+    window.localStorage.removeItem(TICKER_LIST_KEY);
+  });
+
+  it('vẫn hiện danh sách cũ, không báo lỗi, không kèm câu "có thể đã cũ"', async () => {
+    window.localStorage.setItem(
+      TICKER_LIST_KEY,
+      serializeCachedTickers(DANH_SACH, Date.now() - 2 * TICKER_LIST_TTL_MS),
+    );
+    let tuChoi: (loi: unknown) => void = () => undefined;
+    feed.listTickers.mockReturnValue(
+      new Promise((_, reject) => {
+        tuChoi = reject;
+      }),
+    );
+
+    render(<TickerPickerSheet open onClose={() => undefined} onPick={() => undefined} />);
+    // Bản cache hiện ngay, trước khi lượt làm mới kịp về.
+    await screen.findByText('FPT');
+
+    await act(async () => {
+      tuChoi(new Error('mất mạng'));
+    });
+
+    expect(feed.listTickers).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('HPG')).not.toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByRole('note')).toBeNull();
+    expect(screen.queryByText(/lần tải trước|có thể đã cũ/)).toBeNull();
   });
 });

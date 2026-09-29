@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { FORMULAS, findCategory } from '@/application';
+import { viDuGiaiFor } from '@/application/vi-du';
 
 import { FormulaDetail } from './FormulaDetail';
 import { buildNotationView } from './notation-view';
@@ -96,14 +97,21 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * hiệu cho khối lời giải hay không — xem `NotationView.latexHtmlAllSymbols`.
    */
   const quiz = quizViewFor(formula);
+  /*
+   * Lời giải có cấu trúc của khối Ví dụ thực tế (29/09/2026) — cùng khuôn: chữ của cả 111 ví dụ chỉ
+   * đọc ở đây, trang này mang đúng phần của mình. Khối Ví dụ in HÌNH công thức ở dòng "Công thức áp
+   * dụng" như lời giải bài tập, nên nó cũng cần bản hình gắn dấu mọi ký hiệu.
+   */
+  const viDu = viDuGiaiFor(formula.id);
   return (
     <FormulaDetail
       spec={formula}
       asOf={AS_OF}
       notation={buildNotationView(formula, undefined, {
-        allSymbols: quiz.needsFormulaPicture,
+        allSymbols: quiz.needsFormulaPicture || viDu !== undefined,
       })}
       quiz={quiz}
+      {...(viDu === undefined ? {} : { viDu })}
     />
   );
 }

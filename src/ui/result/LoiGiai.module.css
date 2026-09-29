@@ -1,0 +1,199 @@
+/*
+ * Lời giải có cấu trúc — dùng chung cho khối Bài tập và khối Ví dụ thực tế (29/09/2026).
+ *
+ * Tách khỏi `QuizBody.module.css` khi khối Ví dụ chuyển sang cùng hình với lời giải bài tập: hai
+ * khối dùng MỘT thành phần (`LoiGiai.tsx`) và một bộ luật trình bày, nên chúng không lệch nhau.
+ * Chỉ dùng token của `globals.css`.
+ */
+
+/*
+ * KHỐI LỜI GIẢI CÓ CẤU TRÚC — chủ dự án 24/09/2026, hình công thức 25/09/2026.
+ *
+ *   Tính       Biên an toàn
+ *   Công thức  MOS = (V − P) ÷ V × 100%     ← hình KaTeX; rê vào ký hiệu thì mở khung như thẻ trên
+ *   Thay số    (42.500 − 33.850) ÷ 42.500 × 100
+ *   Kết quả    20,35 %
+ *   Nguồn      24hmoney.vn/…
+ *
+ * Lưới thay cho đoạn văn: các dòng là Ô DỮ LIỆU, và nhãn của chúng phải thẳng hàng để mắt quét
+ * dọc được. Viết thành văn xuôi thì đúng là thứ chủ dự án đã bác.
+ *
+ * `max-content` cho cột nhãn: nhãn nào cũng ngắn, nên cột chỉ rộng bằng nhãn dài nhất và phần
+ * còn lại dồn hết cho nội dung.
+ */
+.giai {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Khổ hẹp: nhãn nằm TRÊN giá trị, không cạnh nó. Nhãn dài nhất ("CÔNG THỨC ÁP DỤNG") rộng ~130px;
+ * đứng thành cột thì ở 390px nó ăn gần nửa bề ngang, hình công thức bị cắt mất đuôi "× 100%" và
+ * nghĩa của ký hiệu vỡ ba bốn dòng. Từ 560px — mốc bảng danh mục cũng đổi hình — mới đủ chỗ cho hai cột.
+ */
+@media (min-width: 560px) {
+  .giai {
+    grid-template-columns: max-content minmax(0, 1fr);
+    row-gap: var(--space-2);
+  }
+}
+
+/*
+ * `subgrid`: mỗi hàng MƯỢN cột của `.giai` thay vì tự dựng lưới riêng. Bản đầu cho mỗi hàng một
+ * lưới `max-content` của riêng nó, nên cột nhãn rộng theo nhãn của chính hàng ấy — "TÍNH" hẹp,
+ * "CÔNG THỨC" rộng — và bốn dòng nội dung bắt đầu ở bốn chỗ khác nhau.
+ *
+ * Không dùng `display: contents` cho việc này: nó gỡ `<div>` khỏi cây trợ năng ở vài trình duyệt,
+ * mà `<div>` ấy là thứ nhóm cặp `<dt>`/`<dd>` lại cho bộ đọc màn hình.
+ *
+ * `baseline`: nhãn "CÔNG THỨC" đứng ngang trục chính của hình (vạch phân số), không treo ở mép
+ * trên của một hình cao gấp ba dòng chữ.
+ */
+.giaiHang {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  row-gap: 2px;
+  align-items: baseline;
+}
+
+.giaiHang > dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.giaiHang > dd {
+  margin: 0;
+  min-width: 0;
+}
+
+/*
+ * Dòng Công thức là HÌNH công thức của trang, kèm khung "cách tính" khi rê vào ký hiệu. Cả hai do
+ * `QuizFormulaPicture` (src/app/cong-thuc/[id]/) dựng và tự lo CSS — cuộn ngang, căn trái, cỡ chữ —
+ * nên ô này KHÔNG được mang `overflow`: khung nổi định vị tuyệt đối bên trong nó, và một ô cuộn
+ * sẽ cắt cụt khung.
+ */
+.giaiHinh {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--color-ink);
+}
+
+/*
+ * Dòng công thức: hình, rồi đuôi "để tính …" đứng ngay cạnh — cùng một câu của chủ dự án. Hình
+ * dài thì đuôi xuống dòng dưới (`wrap`) chứ không đẩy hình cuộn sớm. `baseline` để đuôi chữ đứng
+ * ngang trục chính của hình (vạch phân số), không treo lơ lửng ở mép trên.
+ */
+.giaiCongThuc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-2);
+}
+
+.giaiDeTinh {
+  color: var(--color-ink-soft);
+}
+
+/*
+ * Dòng "Thay số": `<dl>` con hai cột — ký hiệu, rồi "= con số" và nghĩa. Ký hiệu in bằng MathML
+ * của bảng ký hiệu nên trông y như trong hình ngay trên; cụm `\text{…}` tự nói nghĩa thì in chữ.
+ */
+.giaiThay {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--space-2);
+  row-gap: var(--space-1);
+  align-items: baseline;
+  margin: 0;
+}
+
+.giaiThay dt {
+  margin: 0;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.giaiThay dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.giaiKyHieu :global(math) {
+  font-size: 1.1em;
+}
+
+.giaiGiaTri {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* Câu mô tả của dòng Thay số — chữ thường màu đậm như con số, để nó không chìm như phần nghĩa. */
+.giaiMoTa {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.giaiNghia {
+  margin-left: var(--space-2);
+  color: var(--color-muted);
+}
+
+/* Bản chữ của câu ghi đè dòng Công thức (Q088) — chữ thường, như ba dòng còn lại. */
+.giaiGhiDe {
+  color: var(--color-ink);
+}
+
+/*
+ * `tabular-nums` để các chữ số cùng bề ngang, đọc phép tính không bị giật. Hai dòng này là CHỮ,
+ * phông giao diện: bản đầu dùng `font-family: math`, và chữ Việt có dấu trong phông toán ra một
+ * thứ nét chân lệch hẳn phần còn lại của khối.
+ */
+.giaiSo,
+.giaiKetQua {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+
+.giaiKetQua {
+  font-weight: 600;
+}
+
+/* Dòng Nguồn: link trên, từng câu trích một dòng bên dưới. */
+.giaiNguon {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/*
+ * `anywhere`: đường dẫn rút gọn không có dấu cách, và nhiều trang không có cả dấu gạch nối để ngắt
+ * (`corporate.vanguard.com/content/dam/corp/research/…`), nên ở 390px nó tràn qua mép khối.
+ */
+.giaiNguon a {
+  font-weight: 600;
+  color: var(--color-accent);
+  overflow-wrap: anywhere;
+}
+
+/* Cụm `	ext{…}` tự nói nghĩa — in bằng chữ, cùng màu với ký hiệu MathML. */
+.giaiKyHieuChu {
+  color: var(--color-ink);
+}
+
+/*
+ * Dòng "Đọc kết quả" của khối Ví dụ: câu diễn giải của ví dụ (`spec.example.note`), chủ dự án giữ
+ * nó thành dòng cuối (29/09/2026). Màu chữ thường như các dòng trên — nó là nội dung, không phải chú
+ * thích bên lề.
+ */
+.giaiDoc {
+  color: var(--color-ink);
+}

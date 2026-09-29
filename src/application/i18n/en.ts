@@ -152,6 +152,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `example.original` / `example.reset` đã BỎ cùng bản tiếng Việt — 29/09/2026. */
   /* Label before `example.source` — see `vi.ts`. */
   'example.source': 'Source:',
+  'example.docKetQua': 'Reading the result',
   'source.title': 'References',
   /* Cả nhóm `flow.*` và `chain.intro` đã bỏ cùng hình vẽ chuỗi — xem lý do ở `vi.ts`. */
 

@@ -271,3 +271,34 @@ describe('chấm từng ô', () => {
     expect(blankAccepts('1', Number.POSITIVE_INFINITY)).toBe(false);
   });
 });
+
+/*
+ * Làm tròn xuống ⌊…⌋ và lên ⌈…⌉ (29/09/2026) — cho các công thức mà hình của trang có bước làm
+ * tròn: số hợp đồng tối đa ⌊V ÷ (F × m × k)⌋, số kỳ DCA ⌈…⌉. Thiếu chúng thì dòng "Áp vào công thức"
+ * của khối Ví dụ ra 6,09 hay 44,15 trong khi kết quả là 6 hay 45.
+ */
+describe('làm tròn xuống và lên', () => {
+  it('tính đúng: ⌊6,09⌋ = 6, ⌈44,15⌉ = 45, và làm tròn cả biểu thức bên trong', () => {
+    expect(evaluateWorked('⌊6,09⌋')).toBe(6);
+    expect(evaluateWorked('⌈44,15⌉')).toBe(45);
+    expect(evaluateWorked('⌊200.000.000 ÷ (1.930,9 × 100.000 × 17 ÷ 100)⌋')).toBe(6);
+    expect(evaluateWorked('⌈10 ÷ 4⌉ + 1')).toBe(4);
+  });
+
+  it('thiếu vạch đóng, hoặc vạch đóng sai loại, thì không đọc được', () => {
+    expect(evaluateWorked('⌊6,09')).toBeNull();
+    expect(evaluateWorked('⌊6,09⌉')).toBeNull();
+  });
+
+  it('không sinh ngoặc thừa bên trong, và cao bằng thứ nó bọc', () => {
+    const cay = parseWorked('⌊(1 + 2) × 3⌋');
+    expect(cay?.t).toBe('san');
+    const phanSo = parseWorked('⌈10 ÷ 4⌉');
+    expect(phanSo === null ? 0 : chieuCao(phanSo)).toBe(2);
+  });
+
+  it('ô trống nằm trong vạch làm tròn vẫn chấm được', () => {
+    expect(blanksOf('N = ⌊[200] ÷ [30]⌋')).toEqual(['200', '30']);
+    expect(workedProblems('N = ⌊[200] ÷ [30]⌋')).toEqual([]);
+  });
+});

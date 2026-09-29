@@ -480,6 +480,11 @@ export type {
 // `expected`.
 export { hasChoices, isAccepted } from '@/core/quiz/types';
 
+// KIỂU lời giải của khối Ví dụ thực tế (29/09/2026) — cùng lý do với kiểu câu hỏi ở trên: giao diện
+// cần kiểu để nhận prop, còn DỮ LIỆU chỉ có ở `@/application/vi-du`, đọc lúc build. Lấy từ module lá
+// `@/core/vi-du/types`, không từ chỉ mục (chỉ mục kéo theo chữ của cả 111 ví dụ).
+export type { ViDuGiai, ViDuNguon } from '@/core/vi-du/types';
+
 export type { QuizProgress } from './quiz-progress';
 export {
   MAX_QUIZ_ENTRIES,

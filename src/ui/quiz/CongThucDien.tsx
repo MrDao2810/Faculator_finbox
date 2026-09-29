@@ -78,13 +78,18 @@ function ve(nut: Nut, oNhap: CongThucDienProps['oNhap']): ReactNode {
       );
 
     case 'tri':
+    case 'san':
+    case 'tran': {
+      /* Ba cặp vạch cùng một hình: trị tuyệt đối |…|, làm tròn xuống ⌊…⌋, làm tròn lên ⌈…⌉. */
+      const [mo, dong] = nut.t === 'tri' ? ['|', '|'] : nut.t === 'san' ? ['⌊', '⌋'] : ['⌈', '⌉'];
       return (
         <span className={styles.ctBoc}>
-          <Glyph cao={chieuCao(nut.a)} chu="|" lop={styles.ctNgoac} />
+          <Glyph cao={chieuCao(nut.a)} chu={mo} lop={styles.ctNgoac} />
           {ve(nut.a, oNhap)}
-          <Glyph cao={chieuCao(nut.a)} chu="|" lop={styles.ctNgoac} />
+          <Glyph cao={chieuCao(nut.a)} chu={dong} lop={styles.ctNgoac} />
         </span>
       );
+    }
 
     case 'am':
       return (

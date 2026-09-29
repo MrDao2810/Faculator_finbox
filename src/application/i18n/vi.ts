@@ -264,6 +264,12 @@ export const vi = {
    * dòng này.
    */
   'example.source': 'Nguồn:',
+  /*
+   * Nhãn dòng cuối của lời giải khối Ví dụ thực tế (29/09/2026): câu diễn giải của ví dụ
+   * (`spec.example.note`) — chủ dự án giữ nó thành dòng riêng khi khối chuyển sang hình lời giải
+   * của bài tập. Xem `LoiGiai.tsx`.
+   */
+  'example.docKetQua': 'Đọc kết quả',
   'source.title': 'Nguồn tham khảo',
   /*
    * ── Cả nhóm `flow.*` đã BỎ ngày 16/09/2026 ─────────────────────────────────

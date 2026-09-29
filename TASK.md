@@ -325,6 +325,61 @@ lại — con số đứng yên ở mọi bước, không còn chỗ nào nhảy
 
 ---
 
+## Khối Ví dụ thực tế — lời giải có cấu trúc như bài tập, nguồn thành link (29/09/2026)
+
+**Trạng thái: xong phần code và nội dung, chờ chủ dự án xác nhận; còn một danh sách chỗ lệch trong
+DỮ LIỆU ví dụ (cuối mục) cần chủ dự án quyết.**
+
+Nội dung: workflow 25 agent (1 tìm nguồn chung, 12 soạn, 12 soát đối kháng), 0 lỗi hạ tầng. 69 đạt
+ngay, 29 người soát sửa, 13 vướng — 4 vì bộ tính (làm tròn, phương trình ẩn), đã gỡ bằng
+`⌊…⌋`/`⌈…⌉` trong `worked-line.ts` (+4 ca test), `thaySoRa` cho `PHUONG_TRINH_AN` (xirr, irr-nien-kim)
+và bỏ dòng Áp vào cho `KHONG_CO_PHEP_TINH` (chuoi-phien-giam-dai-nhat); còn lại là lệch dữ liệu. 111/111
+qua `viDuProblems()`; 215 link giữ, 6 link bị bỏ vì không chứa đúng con số; 1 ví dụ không có link
+(`vwap`, ghim trong test). `npm run lint` · tsc · prettier · 130 file / 3.066 ca xanh. Chụp thật 10 công
+thức ở 1440 (pe, wacc, rsi-wilder, xirr, irr-nien-kim, chuoi-phien-giam-dai-nhat, so-hop-dong-toi-da,
+phi-giao-dich-mua, lai-kep, stochastic-k) và pe ở 390. Chưa chạy build → verify:static (dev đang chạy).
+
+**Chỗ lệch trong dữ liệu ví dụ (chưa sửa, cần chủ dự án quyết):**
+
+1. `vwap`, `ty-le-khoi-luong`: cột KHỐI LƯỢNG của chuỗi FPT 57 phiên không khớp nguồn nào (chỉ 14/09,
+   15/09 khớp). Tính bằng khớp lệnh thật: VWAP 71.931 ₫ (ví dụ 71.726), RVOL ≈ 0,70 (ví dụ 0,55).
+2. `fcff`: EBIT 13.848,8 không trang nào in; ΔNWC 3.608,7 ngược dấu với stockanalysis (−1.249,1).
+   `fcfe`: vay ròng 6.256,7, stockanalysis ghi 6.178,8.
+3. `so-graham`, `gia-muc-tieu`: tên nguồn ghi stockanalysis, nhưng trang ấy nay in EPS đã điều chỉnh cổ
+   phiếu thưởng (5.063,65); số thật lấy từ CafeF.
+4. ~37 ví dụ ghi nguồn Investing.com — trang chặn mọi truy cập tự động; link trỏ CafeF/VNDirect có cùng
+   giá đóng cửa. Nên đổi tên nguồn cho khớp link?
+5. `hpr`: tên nguồn ghi "đợt chốt quyền cổ tức gần nhất 02/12/2025" — đợt gần nhất là 29/05/2026.
+6. `xirr`: câu diễn giải "kỳ nắm giữ chỉ 22–58 ngày" — 21/08 → 11/09 là 21 ngày.
+7. `ev-ebitda`: câu "trùng khớp với bội số 8,14 lần stockanalysis công bố" không kiểm được.
+8. `diem-hoa-von`: định phí 2.431,8 tỷ (nguồn 2.431,6), biến phí 689.600 (nguồn ≈ 689.700).
+9. `so-hop-dong-toi-da`: tên nguồn "hiệu lực 20/12/2024", thông báo VSDC đang áp dụng hiệu lực 21/08/2026.
+10. `pe`: EPS 5.867 không trang ghim ngày nào in (CafeF 5,87 nghìn; tự chia ra 5.865,7) nên không link.
+11. Vài link là trang sống sẽ đổi số: Trading Economics (`capm`), cotuc.vn, trang tính EPS của CafeF.
+
+Chủ dự án: _"điều chỉnh lại cách giải thích cho phần Ví dụ thực tế cho giống với cách giải thích trong
+phần bài tập. thêm nữa nguồn của phần ví dụ thực tế nên đưa về kiểu link"_. Đã chốt: không cho gõ tại chỗ
+nữa; giữ câu diễn giải thành dòng "Đọc kết quả"; làm luôn (phiên kia bỏ bước 9 "ExampleBlock hiện kết quả
+thực"); chạy workflow cả 111.
+
+Đã xong:
+
+- `ui/result/LoiGiai.tsx` + `.module.css` — thành phần lời giải dùng chung (tách từ `QuizQuestion` và
+  `QuizBody.module.css`); bài tập và ví dụ cùng dùng.
+- `ui/result/ExampleBlock.tsx` — dựng `LoiGiai`; bỏ ô gõ; dòng Nguồn = link (kèm nhãn) + tên nguồn cũ;
+  chưa có lời giải thì lùi về bảng số chỉ-để-đọc. Test viết lại.
+- `core/vi-du/` (types, kiem `viDuProblems()`, index, items, test) + `application/vi-du.ts` (chỉ lúc
+  build) + kiểu qua barrel; `page.tsx` đọc và truyền xuống; `FormulaDetail` truyền hình thứ hai
+  (`QuizFormulaPicture idPrefix="vi-du"`), bỏ `deferred` ở khối Ví dụ.
+- Cửa gác: `build-only-imports.test.ts` (+2 luật), `verify:static` (+2 phép kiểm), `FormulaDetail.test.tsx`
+  (4 khối hoãn; ca "không còn ô gõ"; ca chế độ Nâng cao tìm ô chọn thay ô gõ).
+- `CLAUDE.md` — mục "The worked example block".
+- Chụp thật `pe` ở 1440/390 với lời giải mẫu: đúng sáu dòng, rê `P` mở khung cách tính không bị cắt.
+
+Còn lại: chủ dự án quyết các chỗ lệch dữ liệu ở trên; chạy build → verify:static → size khi dừng dev.
+
+---
+
 ## Bài tập — đáp án dồn về B; câu bỏ qua lộ lời giải; bỏ trạng thái "ít câu" (29/09/2026)
 
 **Trạng thái: xong, chờ chủ dự án xác nhận.** Bốn lỗi chủ dự án liệt kê:

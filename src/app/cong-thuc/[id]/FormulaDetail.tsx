@@ -75,6 +75,7 @@ import {
 import type {
   QuizItem,
   QuizProgress,
+  ViDuGiai,
   CalcContext,
   CalcInputs,
   CalcOutput,
@@ -220,6 +221,12 @@ export interface FormulaDetailProps {
     items: ReadonlyArray<QuizItem>;
     needsFormulaPicture?: boolean;
   };
+  /**
+   * Lời giải có cấu trúc của khối Ví dụ thực tế (29/09/2026) — đọc lúc build ở `page.tsx` qua
+   * `@/application/vi-du`, cùng lý do với `quiz`: chữ của cả 111 ví dụ, mỗi trang chỉ cần phần của
+   * mình. Vắng thì khối Ví dụ lùi về hình chỉ-để-đọc.
+   */
+  viDu?: ViDuGiai;
 }
 
 type SheetKind = 'preset' | 'paste' | 'export' | 'save';
@@ -301,7 +308,7 @@ function LinkIcon() {
  * Hai công thức có khối kết quả riêng (WF-08 phí & thuế, WF-14 lịch trả nợ) được nạp qua
  * `DetailBody`, tải trễ theo id — đúng chữ "tải trễ khối nặng" của gói 3.2.1.
  */
-export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps) {
+export function FormulaDetail({ spec, asOf, notation, quiz, viDu }: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
   const pick = usePick();
@@ -649,6 +656,18 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
     () =>
       notation.latexHtmlAllSymbols === undefined ? undefined : (
         <QuizFormulaPicture spec={spec} notation={notation} />
+      ),
+    [spec, notation],
+  );
+  /*
+   * Cùng hình ấy cho dòng "Công thức áp dụng" của khối Ví dụ thực tế (29/09/2026) — một NÚT riêng,
+   * không dùng lại `quizPicture`: mỗi hình giữ khung "cách tính" của riêng nó, và `idPrefix` khác
+   * nhau để hai khung mở cùng lúc không mang trùng `id`.
+   */
+  const viDuPicture = useMemo(
+    () =>
+      notation.latexHtmlAllSymbols === undefined ? undefined : (
+        <QuizFormulaPicture spec={spec} notation={notation} idPrefix="vi-du" />
       ),
     [spec, notation],
   );
@@ -2858,23 +2877,21 @@ export function FormulaDetail({ spec, asOf, notation, quiz }: FormulaDetailProps
 
           {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
           {/*
-        Dòng số của ví dụ gõ được tại chỗ. Trước đây khối này là ngõ cụt: nó bày một bộ số hoàn
-        chỉnh rồi để người đọc tự cuộn lên gõ lại từng ô.
+        Khối Ví dụ in LỜI GIẢI có cấu trúc, cùng thành phần với lời giải bài tập (29/09/2026) — chủ
+        dự án: "điều chỉnh lại cách giải thích cho phần Ví dụ thực tế cho giống với cách giải thích
+        trong phần bài tập", và "không cho gõ được vào ví dụ thực tế nữa". Nên khối không còn nhận
+        `inputs`/`output`/`setValue` của màn: một lời giải mẫu đứng yên, dòng "Áp vào công thức"
+        in đúng các con số của ví dụ. Thử số khác thì gõ ở khối Số liệu.
 
-        Truyền thẳng `inputs` với `setValue` chứ không dựng state riêng cho khối — nhờ vậy ô ở đây
-        và ô ở khối Số liệu là CÙNG một con số, không phải hai bản sao có ngày lệch nhau. Kết quả
-        cũng lấy đúng `output` mà khối Kết quả đang hiện.
-      */}
-          {/*
-        `effectiveInputs` chứ không phải `inputs`: ô móc nối cũng xuất hiện ở đây, và nó phải bày
-        đúng con số mà khối Số liệu đang bày. Gõ vào nó thì `setValue()` tự lái sang ghi đè.
+        KHÔNG mang lớp `deferred` — cùng lý do khối Bài tập bỏ nó ngày 25/09/2026: `content-visibility:
+        auto` kéo theo `contain: paint`, nên khung "cách tính" bật ra từ hình công thức bị cắt ở
+        mép khối.
       */}
           <ExampleBlock
             formula={spec}
-            inputs={effectiveInputs}
-            output={output}
-            onChange={setValue}
-            className={styles.deferred}
+            {...(viDu === undefined ? {} : { giai: viDu })}
+            hinhCongThuc={viDuPicture}
+            kyHieu={quizKyHieu}
           />
         </div>
       </div>

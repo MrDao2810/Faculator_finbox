@@ -204,12 +204,6 @@ async function napDongDau(): Promise<string> {
   return ma;
 }
 
-/** Ô gõ số trong khối **Ví dụ thực tế**. */
-function oViDu(name: RegExp): HTMLElement {
-  const khoi = screen.getByRole('region', { name: t('example.title') });
-  return within(khoi).getByRole('textbox', { name });
-}
-
 /** Bốn nhãn mục của khối Giải thích, đúng thứ tự wireframe (FR-03). */
 const NHAN_GIAI_THICH = [
   'explain.meaning',
@@ -310,14 +304,15 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
 
     // `lai-kep` có biến `perYear` khai `level: 'advanced'`, nên sự có mặt của ô đó là dấu hiệu
     // KIỂM CHỨNG ĐƯỢC rằng chế độ Nâng cao đã thật sự vào — không phải một ca đỗ giả vì Provider
-    // chưa kịp đọc localStorage.
+    // chưa kịp đọc localStorage. Ô ấy là ô CHỌN ở khối Số liệu; ca này từng tìm một ô GÕ cùng tên,
+    // thứ chỉ có ở khối Ví dụ — khối ấy thôi cho gõ ngày 29/09/2026.
     render(
       <PreferencesProvider>
         <Man spec={specOf('lai-kep')} />
       </PreferencesProvider>,
     );
 
-    expect(await screen.findByRole('textbox', { name: /Số lần nhập lãi/ })).not.toBeNull();
+    expect(await screen.findByRole('combobox', { name: /Số lần nhập lãi/ })).not.toBeNull();
 
     expect(mucGiaiThich().every((item) => item.open)).toBe(true);
   });
@@ -899,14 +894,15 @@ describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
  * tác) hay ra ngoài các khối có phần tử cần thoát khỏi hộp cha.
  */
 describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', () => {
-  it('năm khối cuối màn có lớp, khối Số liệu và khối Bài tập thì không', () => {
+  it('bốn khối cuối màn có lớp; khối Số liệu, khối Ví dụ và khối Bài tập thì không', () => {
     const { container } = render(<Man spec={specOf('pe')} />);
 
     const hoan = [...container.querySelectorAll('[class*="deferred"]')];
-    // Giải thích · Bảng biến · Ví dụ thực tế · Nguồn tham khảo · Biểu đồ.
+    // Giải thích · Bảng biến · Nguồn tham khảo · Biểu đồ.
     // Khối Bài tập vào danh sách 23/09/2026 rồi ra lại 25/09/2026: hình công thức trong lời giải
     // của nó bật khung "cách tính" lấn ra ngoài hộp, và `contain: paint` của lớp này cắt cụt khung.
-    expect(hoan).toHaveLength(5);
+    // Khối Ví dụ thực tế ra theo đúng lý do ấy ngày 29/09/2026, khi nó in cùng hình lời giải.
+    expect(hoan).toHaveLength(4);
 
     const soLieu = screen.getByRole('region', { name: t('detail.inputs') });
     expect(String(soLieu.className)).not.toMatch(/deferred/);
@@ -914,6 +910,10 @@ describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', (
     const baiTap = container.querySelector('#quiz-pe-title')?.closest('section');
     expect(baiTap).not.toBeNull();
     expect(String(baiTap?.className)).not.toMatch(/deferred/);
+
+    const viDu = container.querySelector('#khoi-vi-du')?.closest('section');
+    expect(viDu).not.toBeNull();
+    expect(String(viDu?.className)).not.toMatch(/deferred/);
   });
 });
 
@@ -1131,49 +1131,24 @@ describe.skip('WF-03 — người dùng gõ được số cụ thể của mã h
   });
 });
 
-describe('WF-03 — gõ số ngay tại khối Ví dụ thực tế', () => {
-  it('dòng số của ví dụ là ô gõ được, không phải chữ chết', () => {
-    render(<Man spec={specOf('pe')} />);
-
-    expect((oViDu(/Giá thị trường/) as HTMLInputElement).readOnly).toBe(false);
-    expect((oViDu(/EPS/) as HTMLInputElement).readOnly).toBe(false);
-  });
-
+describe('WF-03 — khối Ví dụ thực tế là lời giải mẫu, không còn gõ được (29/09/2026)', () => {
   /*
-   * Đây là ca then chốt của cả khối, và là câu trả lời cho lo ngại "hai bộ ô thì có ngày nói hai
-   * kết quả": ô ở khối Ví dụ KHÔNG giữ state riêng, nó ghi thẳng vào state của màn. Nên gõ ở dưới
-   * thì ô ở trên đổi theo, và ngược lại — chúng không phải hai bản sao mà LÀ một con số.
+   * Từ 10/09/2026 dòng số của ví dụ là ô nhập nối thẳng vào state của màn; chủ dự án bỏ khi khối
+   * chuyển sang hình lời giải của bài tập: "không cho gõ được vào ví dụ thực tế nữa". Bốn ca cũ
+   * (ô gõ được, gõ dưới thì trên đổi, hai chiều, biểu đồ vẽ lại) kiểm đúng thứ đã bỏ nên đã xoá; ca
+   * này ghim chiều ngược lại — và gõ ở khối Số liệu thì con số của ví dụ vẫn đứng yên.
    */
-  it('gõ ở khối Ví dụ thì ô ở khối Số liệu đổi theo, và kết quả tính lại', async () => {
+  it('khối Ví dụ không có ô nhập nào, và gõ ở khối Số liệu không đổi số của ví dụ', async () => {
     render(<Man spec={specOf('pe')} />);
-
-    const duoi = oViDu(/Giá thị trường/);
-    await userEvent.clear(duoi);
-    await userEvent.type(duoi, '120000{Enter}');
-
-    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('120.000');
-    expect(screen.getByTestId('result-text').textContent).toBe('19,83 lần');
-  });
-
-  it('gõ ở khối Số liệu thì ô ở khối Ví dụ cũng đổi — hai chiều', async () => {
-    render(<Man spec={specOf('pe')} />);
+    const khoi = screen.getByRole('region', { name: t('example.title') });
+    expect(khoi.querySelector('input')).toBeNull();
+    const truoc = khoi.textContent;
 
     const tren = oNhap(/EPS/);
     await userEvent.clear(tren);
     await userEvent.type(tren, '7000{Enter}');
 
-    expect((oViDu(/EPS/) as HTMLInputElement).value).toBe('7.000');
-  });
-
-  it('biểu đồ vẽ lại theo số vừa gõ ở khối Ví dụ', async () => {
-    render(<Man spec={specOf('pe')} />);
-    const figure = await screen.findByRole('figure');
-
-    const duoi = oViDu(/Giá thị trường/);
-    await userEvent.clear(duoi);
-    await userEvent.type(duoi, '120000{Enter}');
-
-    expect(within(figure).getByRole('table').textContent).toContain('19,83');
+    expect(khoi.textContent).toBe(truoc);
   });
 
   /*

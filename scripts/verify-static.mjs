@@ -462,6 +462,44 @@ check(
   'out/cong-thuc/pe/index.html · out/cong-thuc/roe/index.html',
 );
 
+/*
+ * ── Lời giải khối Ví dụ thực tế (29/09/2026) ─────────────────────────────
+ *
+ * Cùng bất biến với câu hỏi ở trên: lời giải của 111 ví dụ là chữ mà mỗi trang chỉ cần phần của chính
+ * nó, nên `page.tsx` đọc lúc build qua `@/application/vi-du` rồi truyền xuống bằng prop — xem docblock
+ * `src/core/vi-du/types.ts`. `build-only-imports.test.ts` gác tầng import; phép kiểm này gác tầng
+ * kết quả dựng. Mẫu là các câu mô tả của dòng Thay số (`moTa.vi`), đủ dài để không trùng chữ khác.
+ */
+const FILE_VI_DU = 'src/core/vi-du/items.ts';
+const nguonViDu = existsSync(FILE_VI_DU) ? readFileSync(FILE_VI_DU, 'utf8') : '';
+const moTaViDu = [...nguonViDu.matchAll(/moTa: \{\s*vi:\s*'([^'$]{30,})'/g)].map((m) => m[1]);
+const viDuRoVaoJs = existsSync('out/_next/static')
+  ? tatCaFile('out/_next/static', '.js').filter((file) => {
+      const noiDung = giaiMa(readFileSync(file, 'utf8'));
+      return moTaViDu.some((dong) => noiDung.includes(dong));
+    })
+  : ['không thấy out/_next/static'];
+check(
+  'chữ lời giải khối Ví dụ thực tế không lọt vào file JS nào',
+  moTaViDu.length > 0 && viDuRoVaoJs.length === 0,
+  viDuRoVaoJs.length === 0
+    ? `${String(moTaViDu.length)} câu mẫu, 0 file JS`
+    : viDuRoVaoJs.join(', '),
+);
+
+/* Phép kiểm dương: lời giải ví dụ của `pe` có trong HTML trang `pe`, không có trong trang `roe`. */
+const dauPe = nguonViDu.indexOf('\n  pe: {');
+const khoiPe = dauPe < 0 ? '' : nguonViDu.slice(dauPe, nguonViDu.indexOf('\n  },\n', dauPe));
+const moTaPe = [...khoiPe.matchAll(/moTa: \{\s*vi:\s*'([^'$]{20,})'/g)].map((m) => m[1]);
+check(
+  'lời giải ví dụ của một công thức chỉ nằm trong HTML trang của chính nó',
+  moTaPe.length > 0 &&
+    moTaPe.every((dong) => detailHtml.includes(dong)) &&
+    roeHtml !== '' &&
+    !moTaPe.some((dong) => roeHtml.includes(dong)),
+  'out/cong-thuc/pe/index.html · out/cong-thuc/roe/index.html',
+);
+
 /* ── Màn "Về chúng tôi" ──────────────────────────────────────────────────── */
 
 let aboutHtml = '';

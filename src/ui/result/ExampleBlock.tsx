@@ -1,150 +1,157 @@
 'use client';
 
-import type { CalcInputs, CalcOutput, FormulaSpec } from '@/application';
-import { usePick, useT } from '@/application/preferences-context';
-import { InlineNumber } from '@/ui/inputs';
+import type { ReactNode } from 'react';
 
-import { useCalcText, useValueText } from '../i18n/units';
+import type { FormulaSpec, ViDuGiai } from '@/application';
+import { usePick, useT } from '@/application/preferences-context';
+
+import { useValueText } from '../i18n/units';
+import { shortUrl } from '../quiz/short-url';
 import styles from './ExampleBlock.module.css';
+import { LoiGiai } from './LoiGiai';
+import type { LoiGiaiKyHieu } from './LoiGiai';
 
 export interface ExampleBlockProps {
   formula: FormulaSpec;
   /**
-   * Giá trị đang nằm ở các ô nhập của màn. Truyền vào thì dòng số của ví dụ **gõ được tại chỗ**;
-   * không truyền thì khối chỉ bày số của ví dụ để đọc.
+   * Lời giải có cấu trúc của ví dụ — đọc lúc build ở `page.tsx` (`@/application/vi-du`) rồi truyền
+   * xuống. Vắng thì khối lùi về hình chỉ-để-đọc cũ: một công thức mới thêm vào Registry chưa có lời
+   * giải ngay, và một khối trống thì tệ hơn một bảng số.
    */
-  inputs?: CalcInputs;
-  /** Kết quả đang hiện ở khối Kết quả — để dòng "→" nói đúng con số ấy. */
-  output?: CalcOutput;
-  /** Sửa một ô. Cùng đường với ô nhập ở khối Số liệu, nên không sinh ra state thứ hai. */
-  onChange?: (key: string, value: number) => void;
+  giai?: ViDuGiai;
+  /** Hình công thức của trang, dựng sẵn ở màn chi tiết — xem `LoiGiaiProps.hinh`. */
+  hinhCongThuc?: ReactNode;
+  /** Bảng ký hiệu của trang, cho dòng "Thay số". */
+  kyHieu?: ReadonlyArray<LoiGiaiKyHieu>;
   className?: string;
 }
 
 /**
- * Khối ví dụ thực tế — gói WBS 2.4.5.
+ * Khối ví dụ thực tế — gói WBS 2.4.5, viết lại ngày 29/09/2026.
  *
- * WF-03 khối 8: 'FPT — Giá 92.000đ, EPS 6.050đ → P/E ≈ 15,2 lần.'
- * Số liệu lấy từ `formula.example` của Registry (FR-02) và định dạng qua cùng bộ format với
- * khối kết quả, để hai chỗ không hiện số theo hai kiểu.
+ * Chủ dự án đặt ảnh khối này (một đoạn văn, một dòng nguồn chữ trơn, rồi bảng số) cạnh ảnh lời giải
+ * của khối Bài tập và bảo: "điều chỉnh lại cách giải thích cho phần Ví dụ thực tế cho giống với cách
+ * giải thích trong phần bài tập. thêm nữa nguồn của phần ví dụ thực tế nên đưa về kiểu link để người
+ * dùng click vào về trang nguồn". Nên khối nay in ĐÚNG các dòng của lời giải bài tập, bằng chính
+ * thành phần ấy (`LoiGiai`):
  *
- * Nhãn của từng đầu vào tra ngược từ `variables` theo key — nếu Registry khai một key không
- * có trong danh sách biến thì hiện thẳng key, để lỗi lộ ra chứ không im lặng bỏ qua.
+ *   FPT — giá 72.700 ₫ phiên 11/09/2026, EPS bốn quý gần nhất 5.867 ₫        ← `example.title`
+ *   Công thức áp dụng   P/E = P / EPS   để tính hệ số P/E của FPT phiên 11/09/2026
+ *   Thay số             P    là giá đóng cửa FPT phiên 11/09/2026: 72.700 ₫
+ *                       EPS  là lợi nhuận bốn quý gần nhất trên một cổ phiếu FPT…: 5.867 ₫
+ *   Áp vào công thức    72.700 ÷ 5.867
+ *   Kết quả             12,39 lần                                               ← `example.expected`
+ *   Đọc kết quả         <example.note>
+ *   Nguồn               cafef.vn/… · fpt.com.vn/…  +  <example.source>
  *
- * ── Vì sao dòng số ở đây gõ được, mà vẫn KHÔNG có hai kết quả ────────────────────────────────
+ * ── KHÔNG còn gõ được tại chỗ (29/09/2026) ──────────────────────────────────────────────────────
  *
- * Khối này bày một bộ số hoàn chỉnh nhưng trước đây là ngõ cụt: người đọc thấy "Giá 92.000 ₫, EPS
- * 6.050 ₫" rồi phải tự cuộn lên gõ lại từng ô mới thấy biểu đồ vẽ theo bộ số ấy.
- *
- * Cách tránh cái bẫy "hai bộ ô nói hai kết quả": ô ở đây **không giữ state riêng**. Chúng đọc
- * `inputs` và bắn `onChange` của chính màn chi tiết, tức là cùng một biến state với ô ở khối Số
- * liệu. Gõ ở đây hay gõ ở trên là một việc; hai chỗ luôn hiện cùng con số vì chúng LÀ cùng con số.
- *
- * Còn con số của ví dụ trong Registry thì vẫn phải giữ được — nó là tài liệu (FR-02), và với 17
- * công thức thì ví dụ cố ý dùng chu kỳ ngắn hơn mặc định để tính tay kiểm được. Nên khi giá trị
- * đang nhập lệch khỏi ví dụ, khối hiện thêm một dòng "Ví dụ gốc" kèm nút quay về. Không bao giờ có
- * hai con số cùng đứng mà không nói rõ cái nào là cái nào.
+ * Từ 10/09/2026 dòng số của ví dụ là ô nhập nối thẳng vào state của màn. Chủ dự án bỏ khi chuyển
+ * sang hình lời giải: "không cho gõ được vào ví dụ thực tế nữa". Một lời giải mẫu phải đứng yên —
+ * dòng "Áp vào công thức" in đúng các con số của ví dụ, và nếu ô bên trên đổi được con số thì dòng ấy
+ * nói dối. Muốn thử số khác thì gõ ở khối Số liệu, hoặc bấm "Xem ví dụ minh hoạ" để nạp bộ số này
+ * vào đó. `InlineNumber` vẫn còn, `SliderInput` dùng nó.
  */
-export function ExampleBlock({ formula, inputs, output, onChange, className }: ExampleBlockProps) {
+export function ExampleBlock({
+  formula,
+  giai,
+  hinhCongThuc,
+  kyHieu,
+  className,
+}: ExampleBlockProps) {
   const t = useT();
   const pick = usePick();
-  const calcText = useCalcText();
   const valueText = useValueText();
   const { example } = formula;
   const classes = [styles.block, className].filter(Boolean).join(' ');
+  const ketQua = valueText(example.expected, formula.resultUnit);
 
-  /** Gõ được khi màn có truyền cả giá trị hiện tại lẫn đường ghi lại. */
-  const editable = inputs !== undefined && onChange !== undefined;
-
-  const rows = Object.entries(example.inputs).map(([key, exampleValue]) => {
-    const variable = formula.variables.find((v) => v.key === key);
-    const current = inputs?.[key] ?? exampleValue;
-    return {
-      key,
-      variable,
-      label: variable !== undefined ? pick(variable.label) : key,
-      exampleValue,
-      current,
-    };
-  });
+  /*
+   * Phương trình ẩn (XIRR, IRR niên kim): dòng "Áp vào công thức" giữ đúng hình của trang và ra một
+   * con số KHÁC kết quả — tổng dòng tiền ≈ 0 ₫, hay đúng khoản vay P. In con số ấy cuối dòng, để người
+   * đọc thấy nghiệm ở dòng Kết quả làm phương trình đứng được. Xem `ViDuGiai.thaySoRa`.
+   */
+  const thaySo =
+    giai?.thaySo === undefined
+      ? undefined
+      : giai.thaySoRa === undefined
+        ? giai.thaySo
+        : (() => {
+            const ra = ` ≈ ${valueText(giai.thaySoRa.giaTri, giai.thaySoRa.donVi)}`;
+            return { vi: giai.thaySo.vi + ra, en: giai.thaySo.en + ra };
+          })();
 
   return (
-    /*
-      Vùng CÓ TÊN, không phải một `<section>` trơn. Khối này bày cùng những giá trị mà khối Số liệu
-      bày, nên ô hai bên mang cùng tên — đúng nghĩa, vì đó là một con số chứ không phải hai. Tên
-      vùng là thứ giúp người dùng biết mình đang gõ ở đâu.
-    */
     <section className={classes} aria-labelledby="khoi-vi-du">
       <h2 className={styles.title} id="khoi-vi-du">
         {t('example.title')}
       </h2>
       <p className={styles.subtitle}>{pick(example.title)}</p>
 
-      {/*
-        Mô tả đứng NGAY dưới tiêu đề, trước cả bộ số — người đọc phải thấy "chuyện gì đã xảy ra"
-        trong tầm mắt đầu tiên, không phải cuộn qua hết bộ số và dòng kết quả mới tới.
-
-        Trích dẫn (`example.source`) tách thành DÒNG RIÊNG ngay dưới, không lẫn vào câu mô tả:
-        một câu kể chuyện, một dòng ghi nguồn — gộp chung từng đọc rối, vừa mô tả vừa dẫn nguồn
-        trong cùng một câu. Chỉ khoảng một phần ba công thức neo ví dụ vào một trường hợp có thật
-        mới có dòng này; phần còn lại không hiện.
-      */}
-      {example.note !== undefined && <p className={styles.note}>{pick(example.note)}</p>}
-      {example.source !== undefined && (
-        <p className={styles.source}>
-          {t('example.source')} {pick(example.source)}
-        </p>
-      )}
-
-      <dl className={styles.inputs}>
-        {rows.map((row) => (
-          <div key={row.key} className={styles.pair}>
-            <dt className={styles.term}>
+      {giai !== undefined ? (
+        <LoiGiai
+          hinh={hinhCongThuc}
+          tinh={giai.tinh}
+          gan={giai.gan}
+          {...(kyHieu === undefined ? {} : { kyHieu })}
+          {...(thaySo === undefined ? {} : { thaySo })}
+          ketQua={ketQua}
+          {...(example.note === undefined ? {} : { docKetQua: pick(example.note) })}
+          nguon={
+            <>
               {/*
-                Nhãn của ô nằm ở cột `<dt>` chứ không phải một `<label>`, nên ô nhận tên qua
-                `aria-label`. Nếu bọc `<label>` quanh `<dt>` thì HTML không hợp lệ.
+                Mỗi link một dòng, trước link là nhãn nói nó cho con số nào ("Giá FPT phiên
+                11/09/2026") — ví dụ ghép hai nguồn thì hai link trỏ hai trang khác nhau, và người
+                đọc phải biết bấm cái nào để kiểm con số nào. Chữ của link là đường dẫn rút gọn,
+                `title` giữ đường dẫn đầy đủ — cùng nếp dòng Nguồn của bài tập.
+
+                Tên nguồn cũ (`example.source`) vẫn đứng dưới cùng: nó nói nguồn là GÌ và lấy lúc nào
+                ("báo cáo tài chính quý 2/2026"), thứ đường dẫn không nói. Ví dụ không tìm được trang
+                nào chứa đúng con số thì chỉ còn dòng này — không bịa link.
               */}
-              {row.label}
-            </dt>
-            <dd className={styles.value}>
-              {editable && row.variable !== undefined ? (
-                <InlineNumber
-                  spec={row.variable}
-                  value={row.current}
-                  onChange={(next) => {
-                    onChange(row.key, next);
-                  }}
-                  ariaLabel={row.label}
-                />
-              ) : (
-                valueText(row.exampleValue, row.variable?.unit ?? '')
+              {giai.nguon.map((n) => (
+                <span key={n.url} className={styles.nguonDong}>
+                  {n.nhan !== undefined && (
+                    <span className={styles.nguonNhan}>{pick(n.nhan)}: </span>
+                  )}
+                  <a href={n.url} target="_blank" rel="noreferrer noopener" title={n.url}>
+                    {shortUrl(n.url)}
+                  </a>
+                </span>
+              ))}
+              {example.source !== undefined && (
+                <span className={styles.nguonTen}>{pick(example.source)}</span>
               )}
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      <p className={styles.result}>
-        <span aria-hidden="true">→ </span>
-        {pick(formula.name)} ≈{' '}
-        <strong>
-          {editable && output !== undefined
-            ? calcText(output)
-            : valueText(example.expected, formula.resultUnit)}
-        </strong>
-      </p>
-
-      {/*
-        Dòng "Sửa được ngay tại đây — thay bằng số thật của mã bạn đang xem." đã BỎ — chủ dự án
-        chốt 10/09/2026.
-
-        Nó là câu hướng dẫn cách dùng, và nó đứng ở đúng chỗ người dùng đã tự làm được việc ấy: ô
-        nhập nằm ngay trên, sửa vào là kết quả đổi theo từng phím. Câu này chỉ còn nghĩa với lần mở
-        màn ĐẦU TIÊN, mà nó thì hiện ở cả 111 màn, mọi lần.
-
-        `styles.note` vẫn còn dùng — nó là luật của `example.note`, ghi chú riêng của từng công
-        thức, thứ khác hẳn và vẫn hiện.
-      */}
+            </>
+          }
+        />
+      ) : (
+        <>
+          {example.note !== undefined && <p className={styles.note}>{pick(example.note)}</p>}
+          {example.source !== undefined && (
+            <p className={styles.source}>
+              {t('example.source')} {pick(example.source)}
+            </p>
+          )}
+          <dl className={styles.inputs}>
+            {Object.entries(example.inputs).map(([key, value]) => {
+              const variable = formula.variables.find((v) => v.key === key);
+              return (
+                <div key={key} className={styles.pair}>
+                  <dt className={styles.term}>
+                    {variable !== undefined ? pick(variable.label) : key}
+                  </dt>
+                  <dd className={styles.value}>{valueText(value, variable?.unit ?? '')}</dd>
+                </div>
+              );
+            })}
+          </dl>
+          <p className={styles.result}>
+            <span aria-hidden="true">→ </span>
+            {pick(formula.name)} ≈ <strong>{ketQua}</strong>
+          </p>
+        </>
+      )}
     </section>
   );
 }

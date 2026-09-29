@@ -78,3 +78,21 @@
  * `.action` đã BỎ cùng dòng "Ví dụ gốc cho" + nút "Về số của ví dụ" — 29/09/2026.
  * Lý do: chủ dự án bỏ phần đó để khối gọn hơn; xem ExampleBlock.tsx và tombstone i18n.
  */
+
+/*
+ * Dòng Nguồn của lời giải (29/09/2026): mỗi link một dòng, nhãn nói link ấy cho con số nào đứng
+ * trước, tên nguồn cũ (`example.source`) đứng cuối, nhạt hơn. Màu và độ đậm của chính link do
+ * `.giaiNguon a` của `LoiGiai.module.css` lo — cùng một kiểu với link nguồn của bài tập.
+ */
+.nguonDong {
+  display: block;
+}
+
+.nguonNhan {
+  color: var(--color-muted);
+}
+
+.nguonTen {
+  display: block;
+  color: var(--color-muted);
+}

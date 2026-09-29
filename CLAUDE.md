@@ -836,7 +836,7 @@ under them ("Chọn một đáp án để mở nút Kiểm tra") is gone too —
 already says that. Do not add a `margin-left: auto` to anything in that row.
 
 **`quiz.test.ts` RE-COMPUTES the line rather than eyeballing it.** It strips the square brackets,
-parses what follows the `=` (Vietnamese number notation, `+ − × ÷ ^ ( ) √ ln | |`) and requires the
+parses what follows the `=` (Vietnamese number notation, `+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`) and requires the
 result inside that question's own tolerance. The line prints the actual figures, so it is a promise:
 swap one digit and a learner who places the data correctly is marked WRONG at that slot — and will
 believe themselves wrong rather than the formula. Nothing else can see that failure; `expected` is
@@ -1028,8 +1028,9 @@ commentary. Eight things are load-bearing:
   `deferred`**: `content-visibility: auto` implies `contain: paint` even on screen, and the panel
   is clamped to the VIEWPORT edge, not the block's, so at narrow widths it poked out of the
   block's left side and was cut in half (the owner's screenshot showed `MOS`'s panel reading just
-  "S"). `FormulaDetail.test.tsx` now pins five deferred blocks, not six, and asserts the quiz
-  section is not one of them. A title-only panel carries `data-title-only` and shrinks to its text
+  "S"). `FormulaDetail.test.tsx` now pins FOUR deferred blocks (the example block left on
+  29/09/2026 for the same reason — see "The worked example block" below) and asserts neither the
+  quiz section nor the example block is one of them. A title-only panel carries `data-title-only` and shrinks to its text
   (`width: max-content`) instead of the 22rem the step pictures need. Keyboard users cannot open
   these panels yet: the card reaches them from its legend buttons, and this row has none.
 - **The source row keeps the verbatim quote**, pulled out of `explain` by `quoteParts`. `explain`
@@ -1136,6 +1137,79 @@ onward is bilingual from the start while the 206 of the first pass were Vietname
 now have `explain.en`, but not yet `prompt.en` or `choices.en`). `QuizBody` falls back to
 Vietnamese and says so. The verbatim quote stays in its source's language in BOTH versions:
 translating it away is what removes the reader's ability to check it.
+
+## The worked example block ("Ví dụ thực tế") — same shape as a quiz solution
+
+**Since 29/09/2026 the example block renders the quiz's structured solution, with the SAME
+component** (`src/ui/result/LoiGiai.tsx`, its CSS moved out of `QuizBody.module.css`). The owner put a
+screenshot of the old block — a paragraph, a plain-text source line, a table of numbers — beside one of
+a quiz solution and said: _"điều chỉnh lại cách giải thích cho phần Ví dụ thực tế cho giống với cách giải
+thích trong phần bài tập. thêm nữa nguồn của phần ví dụ thực tế nên đưa về kiểu link để người dùng click
+vào về trang nguồn"_. The rows are the quiz's — Công thức áp dụng (the page's picture, hover panels and
+all) · Thay số · Áp vào công thức · Kết quả — plus **Đọc kết quả** (the example's `note`, kept as the last
+row at the owner's choice) and **Nguồn**, which prints one link per source (each with a `nhan` saying
+which figure it backs) above the old source name. One component, not two copies of the JSX: "looks like
+the quiz" would otherwise be a promise that drifts. Seven things are load-bearing:
+
+- **The block is no longer editable.** From 10/09/2026 its figures were inputs wired to the page's
+  state; the owner dropped that with the new shape — _"không cho gõ được vào ví dụ thực tế nữa"_. A worked
+  example must hold still: "Áp vào công thức" prints the example's own figures, and an input above it
+  would make that line lie. `ExampleBlock` no longer takes `inputs`/`output`/`onChange`; four
+  `FormulaDetail.test.tsx` cases that typed into it were replaced by one that pins the opposite.
+  `InlineNumber` stays — `SliderInput` uses it.
+- **The presentation data is build-only, the figures are not duplicated.** `src/core/vi-du/` holds, per
+  formula, only `tinh` / `gan` / `thaySo` / `nguon` (`ViDuGiai`). The numbers, result, note and source
+  name stay in `spec.example`, which `formulas.test.ts` already checks against `calc`. The new text is
+  read ONLY by `page.tsx` through `@/application/vi-du` and passed down as a prop — anything in `spec`
+  ships in all 111 pages' JS. `build-only-imports.test.ts` pins both import sites (the barrel may
+  re-export TYPES from the leaf `@/core/vi-du/types` only), and `verify:static` fails if a Thay số
+  sentence turns up in any `out/` JS chunk or if `pe`'s appears on `roe`'s page.
+- **The rules live in ONE function, `viDuProblems()` in `src/core/vi-du/kiem.ts`.** `vi-du.test.ts`
+  runs it over every entry, and the drafting run used the same function on every draft, so the gate
+  and the authoring tool cannot disagree. It re-computes "Áp vào công thức" with `evaluateWorked` and
+  requires it within 0.5% of what `calc` returns for the example's inputs and series; checks every
+  `kyHieu` against `spec.symbols`/`	ext{…}`; requires every number in a Thay số row to appear in the
+  example (title, note, source, inputs, series and its dates) or in the arithmetic line; bans long
+  dashes; requires `en` everywhere (no thousands separators in the `en` line); requires https links and
+  a `nhan` on each when there are two or more. What it cannot see is two same-unit figures swapped
+  (price into EPS) — every row was read by meaning in the adversarial pass, and new ones must be too.
+- **Series formulas do not spell out 20–57 closes.** Their Thay số row describes the session window in
+  words and the arithmetic line uses the aggregates `calc` itself computes (`extras`: RSI's average gain
+  and loss, SMA's sum…), rounded to ≥4 significant figures so the 0.5% gate still holds.
+- **Links point at pages that hold the exact figure, and session prices are date-pinned.** Prices go to
+  CafeF's price-history endpoint with `StartDate`/`EndDate` (20 rows a page; `GiaDongCua` is the
+  unadjusted close the examples use, `GiaDieuChinh` the bonus-adjusted one) — never a "latest" page,
+  which scrolls the example's session away within weeks. An empty `nguon` is allowed when no reachable
+  page holds the figure: the row then prints only the source name. A made-up link is worse than none.
+- **No `deferred` class on the block**, for the quiz's reason: `contain: paint` clips the hover panel.
+- **Two formula pictures per page** (example + quiz), each its own `QuizFormulaPicture` with its own
+  panel state; the `idPrefix` prop (`vi-du` / default `bai-tap`) keeps two open panels from sharing an
+  `id`. `page.tsx` now builds `latexHtmlAllSymbols` whenever the example has a solution, not only when a
+  quiz question needs it.
+
+**Three shapes don't fit "the arithmetic line equals the result", and each has a PINNED escape hatch**
+in `kiem.ts` rather than a looser rule:
+
+- **Rounding.** `so-hop-dong-toi-da` draws `⌊V ÷ (F × m × k)⌋` and `so-ky-dca` `⌈…⌉`. The shared parser
+  (`worked-line.ts`) learned `⌊…⌋` and `⌈…⌉` (nodes `san`/`tran`, drawn by `CongThucDien` like `|…|`), so
+  the line keeps the picture's rounding and evaluates to 6 / 45 instead of 6,09 / 44,15.
+- **Implicit equations** (`PHUONG_TRINH_AN`: `xirr`, `irr-nien-kim`). The result is a root found by
+  search, so the line keeps the page's picture and evaluates to `thaySoRa` — XIRR's discounted cash
+  flows ≈ 0 ₫, the annuity's right-hand side ≈ the 3.000.000.000 ₫ loan — and the block appends
+  "≈ <that>" to the line. The first drafts rearranged the annuity to isolate IRR, i.e. drew a
+  different formula; that is what the hatch exists to avoid.
+- **No arithmetic at all** (`KHONG_CO_PHEP_TINH`: `chuoi-phien-giam-dai-nhat`, a count then a max). The
+  row is omitted (`thaySo` absent) — "4" there would only repeat the Kết quả row below it — and the
+  Thay số row is allowed to state the result.
+
+**What the drafting run found wrong in the EXAMPLES themselves** (not fixed — the figures are
+`spec.example`, checked against `calc` and quoted in prose; changing them is the owner's call, listed in
+TASK.md 29/09/2026): the FPT 57-session dataset's VOLUME column matches no source (`vwap`, the one
+example pinned with no link, and `ty-le-khoi-luong` cannot be reproduced from any page); several
+inputs of `fcff`/`fcfe` don't match the named source; ~37 source names say Investing.com, which blocks
+every automated read, so their links go to CafeF/VNDirect pages that carry the same closes; CafeF's
+VN-Index history mangles 11 sessions (links use VNDirect's API) and its Q1–Q2/2026 statement tables
+are shifted one row (links avoid the misaligned lines or use stockanalysis).
 
 ## Notes
 

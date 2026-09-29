@@ -13,8 +13,14 @@ import styles from './FormulaNotationCard.module.css';
 
 export interface QuizFormulaPictureProps {
   spec: FormulaSpec;
-  /** Nên có `latexHtmlAllSymbols` — `page.tsx` chỉ dựng nó cho trang có câu cần hình này. */
+  /** Nên có `latexHtmlAllSymbols` — `page.tsx` chỉ dựng nó cho trang có lời giải cần hình này. */
   notation: NotationView;
+  /**
+   * Tiền tố `id` của khung "cách tính" (29/09/2026). Một trang có HAI hình này — ở lời giải bài tập
+   * và ở lời giải khối Ví dụ thực tế — mỗi hình một khung riêng, nên tiền tố phải khác nhau để hai
+   * khung mở cùng lúc không mang trùng `id`. Mặc định `bai-tap`, đúng id cũ.
+   */
+  idPrefix?: string;
 }
 
 /** Khung cuộn ngang của hình — cuộn thì điểm chạm trôi theo, khung phải đặt lại. */
@@ -49,6 +55,7 @@ function pictureScroller(card: HTMLDivElement): Element | null {
 export const QuizFormulaPicture = memo(function QuizFormulaPicture({
   spec,
   notation,
+  idPrefix = 'bai-tap',
 }: QuizFormulaPictureProps) {
   const pick = usePick();
   const { locale } = usePreferences();
@@ -102,7 +109,7 @@ export const QuizFormulaPicture = memo(function QuizFormulaPicture({
       />
       {state !== null && symbol !== undefined && howTo !== undefined && (
         <HowToPanel
-          id={`bai-tap-${spec.id}-${String(state.sym)}`}
+          id={`${idPrefix}-${spec.id}-${String(state.sym)}`}
           howTo={howTo}
           symbolHtml={notation.symbolsHtml[state.sym] ?? ''}
           meaning={pick(symbol.meaning)}

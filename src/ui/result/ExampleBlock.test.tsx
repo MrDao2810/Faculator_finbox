@@ -1,25 +1,15 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 
-import {
-  FORMULAS,
-  MARKET_CONFIG,
-  clampToSpec,
-  defaultInputs,
-  findFormulaModule,
-  runFormula,
-  scheduleOrDefault,
-} from '@/application';
-import type { CalcInputs, FormulaSpec } from '@/application';
+import { FORMULAS, clampToSpec, t } from '@/application';
+import type { FormulaSpec, ViDuGiai } from '@/application';
+import { viDuGiaiFor } from '@/application/vi-du';
 
 import { ExampleBlock } from './ExampleBlock';
 
 afterEach(cleanup);
-
-const CTX = { asOf: '2026-08-04', schedule: scheduleOrDefault(MARKET_CONFIG) };
 
 function specOf(id: string): FormulaSpec {
   const found = FORMULAS.find((spec) => spec.id === id);
@@ -27,102 +17,111 @@ function specOf(id: string): FormulaSpec {
   return found;
 }
 
-/** Dựng khối ở chế độ gõ được, với `inputs` do ca kiểm quyết. */
-function draw(id: string, inputs?: CalcInputs) {
-  const spec = specOf(id);
-  const formula = findFormulaModule(id);
-  if (formula === undefined) throw new Error(`Registry thiếu hàm tính '${id}'.`);
+/** Lời giải mẫu của P/E — cùng hình dữ liệu `src/core/vi-du/` mang, dựng tại chỗ cho ca kiểm. */
+const GIAI_PE: ViDuGiai = {
+  tinh: { vi: 'hệ số P/E của FPT phiên 11/09/2026', en: "FPT's P/E on the 2026-09-11 session" },
+  gan: [
+    {
+      kyHieu: 'P',
+      moTa: {
+        vi: 'là giá đóng cửa FPT phiên 11/09/2026: 72.700 ₫',
+        en: "is FPT's close on the 2026-09-11 session: 72700 ₫",
+      },
+    },
+    { kyHieu: 'EPS', giaTri: { vi: '5.867', en: '5867' } },
+  ],
+  thaySo: { vi: '72.700 ÷ 5.867', en: '72700 ÷ 5867' },
+  nguon: [
+    {
+      url: 'https://cafef.vn/du-lieu/lich-su-gia-fpt',
+      nhan: { vi: 'Giá FPT phiên 11/09/2026', en: 'FPT price, 2026-09-11' },
+    },
+    {
+      url: 'https://fpt.com.vn/bao-cao-tai-chinh-q2-2026',
+      nhan: { vi: 'EPS bốn quý gần nhất', en: 'Trailing EPS' },
+    },
+  ],
+};
 
-  const values = inputs ?? { ...defaultInputs(spec), ...spec.example.inputs };
-  const onChange = vi.fn();
+const HINH = <span data-testid="hinh">P/E = P / EPS</span>;
 
-  const view = render(
-    <ExampleBlock
-      formula={spec}
-      inputs={values}
-      output={runFormula(formula, values, CTX)}
-      onChange={onChange}
-    />,
-  );
-  return { ...view, onChange, spec };
-}
+describe('ExampleBlock — lời giải có cấu trúc, cùng hình lời giải bài tập (29/09/2026)', () => {
+  function veLoiGiai() {
+    return render(<ExampleBlock formula={specOf('pe')} giai={GIAI_PE} hinhCongThuc={HINH} />);
+  }
 
-describe('ExampleBlock — chỉ để đọc khi màn không truyền giá trị vào', () => {
-  it('không có inputs/onChange thì bày số của ví dụ dạng chữ, không có ô nào', () => {
-    render(<ExampleBlock formula={specOf('pe')} />);
-
-    expect(screen.queryByRole('textbox')).toBeNull();
-    expect(screen.getByText('Ví dụ thực tế')).not.toBeNull();
-    // Vẫn phải đọc được con số của ví dụ — giá thật của FPT, xem `multiples.ts`.
-    expect(screen.getByText('72.700 ₫')).not.toBeNull();
-  });
-});
-
-describe('ExampleBlock — gõ được ngay tại dòng số của ví dụ', () => {
-  it('mỗi dòng số thành một ô nhập, mang đúng nhãn của biến', () => {
-    draw('pe');
-
-    expect(screen.getByRole('textbox', { name: /Giá thị trường/ })).not.toBeNull();
-    expect(screen.getByRole('textbox', { name: /EPS/ })).not.toBeNull();
-  });
-
-  it('gõ vào ô ở đây thì bắn onChange của màn — KHÔNG giữ state riêng', async () => {
-    const { onChange } = draw('pe');
-
-    const price = screen.getByRole('textbox', { name: /Giá thị trường/ });
-    await userEvent.clear(price);
-    await userEvent.type(price, '120000{Enter}');
-
-    /*
-     * Đây là chi tiết quan trọng nhất của khối: ô không tự giữ giá trị, nó bắn lên cho màn chi
-     * tiết. Nhờ vậy ô ở đây và ô ở khối Số liệu là cùng một con số chứ không phải hai bản sao —
-     * không có đường nào để hai chỗ nói hai kết quả.
-     */
-    expect(onChange).toHaveBeenCalledWith('price', 120_000);
-  });
-
-  it('gõ số lẻ cũng được, và miền vẫn kẹp', async () => {
-    const { onChange } = draw('pe');
-
-    const eps = screen.getByRole('textbox', { name: /EPS/ });
-    await userEvent.clear(eps);
-    await userEvent.type(eps, '6.050,75{Enter}');
-
-    expect(onChange).toHaveBeenCalledWith('eps', 6_050.75);
-  });
-
-  it('dòng "→" nói đúng con số của khối Kết quả, không phải con số cứng của ví dụ', () => {
-    const spec = specOf('pe');
-    // Giá gấp đôi ví dụ thì P/E phải gấp đôi — nếu dòng này vẫn ghi 12,32 là nó đang bịa.
-    draw('pe', { ...defaultInputs(spec), ...spec.example.inputs, price: 144_600 });
-
-    expect(screen.getByText(/24,65/)).not.toBeNull();
-  });
-});
-
-describe('ExampleBlock — gõ được ngay tại dòng số của ví dụ, không có nút quay về', () => {
   /*
-   * Dòng "Ví dụ gốc cho:" và nút "Về số của ví dụ" đã BỎ — chủ dự án chốt 29/09/2026 để khối
-   * gọn hơn. Khối giờ chỉ có tiêu đề, mô tả, bộ số gõ được và dòng "→ kết quả".
-   *
-   * Ca ghim: dù số đang nhập lệch khỏi ví dụ, khối vẫn không mọc thêm nút hay câu nhắc nào.
+   * Thứ tự dòng của lời giải bài tập, cộng dòng "Đọc kết quả" — chủ dự án giữ câu diễn giải của ví
+   * dụ thành dòng cuối, ngay trước Nguồn.
    */
-  it('dù số lệch khỏi ví dụ, khối vẫn không có nút quay về và không có câu nhắc "Ví dụ gốc"', () => {
-    const spec = specOf('pe');
-    draw('pe', { ...defaultInputs(spec), ...spec.example.inputs, price: 50_000 });
+  it('sáu dòng theo đúng thứ tự: công thức · thay số · áp vào · kết quả · đọc kết quả · nguồn', () => {
+    const { container } = veLoiGiai();
+    const nhan = [...container.querySelectorAll('dl > div > dt')].map((dt) => dt.textContent);
+    expect(nhan).toEqual([
+      t('quiz.giai.congThuc'),
+      t('quiz.giai.thaySo'),
+      t('quiz.giai.apVao'),
+      t('quiz.giai.ketQua'),
+      t('example.docKetQua'),
+      t('quiz.source'),
+    ]);
+  });
 
-    expect(screen.queryByRole('button')).toBeNull();
-    expect(screen.queryByText(/Ví dụ gốc cho:/)).toBeNull();
-    expect(screen.queryByText(/Về số của ví dụ/)).toBeNull();
+  it('dòng công thức đặt hình của trang kèm đuôi "để tính …", dòng áp vào in đúng phép tính', () => {
+    veLoiGiai();
+    expect(screen.getByTestId('hinh')).toBeTruthy();
+    expect(screen.getByText(/để tính hệ số P\/E của FPT phiên 11\/09\/2026/)).toBeTruthy();
+    expect(screen.getByText('72.700 ÷ 5.867')).toBeTruthy();
+  });
+
+  it('kết quả lấy từ ví dụ của Registry, câu diễn giải của ví dụ thành dòng Đọc kết quả', () => {
+    const spec = specOf('pe');
+    veLoiGiai();
+    expect(screen.getByText(/12,39/)).toBeTruthy();
+    expect(screen.getByText(spec.example.note?.vi ?? '∅')).toBeTruthy();
+  });
+
+  /*
+   * "nguồn của phần ví dụ thực tế nên đưa về kiểu link để người dùng click vào về trang nguồn" — mỗi
+   * link là một `<a>` thật mở tab mới, có nhãn nói nó cho con số nào; tên nguồn cũ vẫn đứng dưới.
+   */
+  it('nguồn là link bấm được, mở tab mới, mỗi link có nhãn; tên nguồn cũ vẫn còn', () => {
+    const spec = specOf('pe');
+    veLoiGiai();
+    const links = screen.getAllByRole('link');
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(GIAI_PE.nguon.map((n) => n.url));
+    for (const a of links) {
+      expect(a.getAttribute('target')).toBe('_blank');
+      expect(a.getAttribute('rel')).toContain('noopener');
+    }
+    expect(screen.getByText(/Giá FPT phiên 11\/09\/2026/)).toBeTruthy();
+    expect(screen.getByText(spec.example.source?.vi ?? '∅')).toBeTruthy();
+  });
+
+  /* Chủ dự án 29/09/2026: "không cho gõ được vào ví dụ thực tế nữa". */
+  it('không còn ô nhập nào — lời giải mẫu đứng yên', () => {
+    const { container } = veLoiGiai();
+    expect(container.querySelector('input')).toBeNull();
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+});
+
+describe('ExampleBlock — chưa có lời giải thì lùi về hình chỉ-để-đọc', () => {
+  it('bày số của ví dụ dạng chữ, không có ô nào, vẫn có dòng kết quả', () => {
+    const { container } = render(<ExampleBlock formula={specOf('pe')} />);
+    expect(container.querySelector('input')).toBeNull();
+    expect(screen.getByText('Ví dụ thực tế')).toBeTruthy();
+    expect(screen.getByText('72.700 ₫')).toBeTruthy();
+    expect(screen.getByText(/12,39/)).toBeTruthy();
   });
 });
 
 /*
  * ── Ca rẻ mà đắt giá ──────────────────────────────────────────────────────────────────────────
  *
- * Khối này dựng ô nhập theo khoá của `example.inputs`. Chỉ cần MỘT công thức khai lệch khoá là chỗ
- * đó không tra ra `VariableSpec`, ô im lặng rơi về chữ chỉ để đọc — không lỗi, không hiện gì, người
- * dùng chỉ thấy một dòng không gõ được. Một vòng lặp chặn được chuyện đó cho cả 111 công thức.
+ * Khối này tra nhãn của từng số theo khoá của `example.inputs`. Chỉ cần MỘT công thức khai lệch khoá
+ * là chỗ đó không tra ra `VariableSpec` và in thẳng khoá thô. Một vòng lặp chặn được chuyện đó cho cả
+ * 111 công thức.
  */
 describe('ExampleBlock — hợp đồng với Registry, quét cả 111 công thức', () => {
   it('mọi example.inputs đều khớp khoá biến và nằm trong miền hợp lệ', () => {
@@ -140,16 +139,16 @@ describe('ExampleBlock — hợp đồng với Registry, quét cả 111 công th
 
         expect(Number.isFinite(value), `${spec.id}.${key}`).toBe(true);
         /*
-         * Phải nằm sẵn trong miền, chứ không trông vào việc `clampToSpec` sẽ sửa hộ: nếu ví dụ
-         * khai một số ngoài miền thì con số hiện trong khối ví dụ khác con số chảy vào ô nhập, và
-         * hai chỗ trên cùng một màn nói hai số về cùng một ví dụ.
+         * Phải nằm sẵn trong miền, chứ không trông vào việc `clampToSpec` sẽ sửa hộ: "Xem ví dụ
+         * minh hoạ" nạp bộ số này vào khối Số liệu, và một số ngoài miền sẽ bị kẹp — ô nhập và lời
+         * giải của ví dụ khi ấy nói hai số về cùng một ví dụ.
          */
         expect(clampToSpec(value, variable), `${spec.id}.${key} ngoài miền`).toBe(value);
       }
     }
   });
 
-  it('ví dụ điền TRỌN mọi biến của công thức — gõ ở đây là đủ để tính', () => {
+  it('ví dụ điền TRỌN mọi biến của công thức', () => {
     const thieu = FORMULAS.filter(
       (spec) => Object.keys(spec.example.inputs).length < spec.variables.length,
     ).map((spec) => spec.id);
@@ -157,24 +156,21 @@ describe('ExampleBlock — hợp đồng với Registry, quét cả 111 công th
     expect(thieu, 'ví dụ của những công thức này khai thiếu ô').toEqual([]);
   });
 
-  it('mọi công thức đều dựng đủ ô gõ được, không sót dòng nào thành chữ chết', () => {
+  it('cả 111 khối dựng được với lời giải thật của mình, và không khối nào có ô nhập', () => {
     for (const spec of FORMULAS) {
-      const formula = findFormulaModule(spec.id);
-      if (formula === undefined) throw new Error(`thiếu hàm tính ${spec.id}`);
-
-      const values = { ...defaultInputs(spec), ...spec.example.inputs };
-      const { unmount } = render(
+      const giai = viDuGiaiFor(spec.id);
+      const { container, unmount } = render(
         <ExampleBlock
           formula={spec}
-          inputs={values}
-          output={runFormula(formula, values, CTX)}
-          onChange={vi.fn()}
+          {...(giai === undefined ? {} : { giai })}
+          hinhCongThuc={HINH}
         />,
       );
-
-      expect(screen.getAllByRole('textbox'), spec.id).toHaveLength(
-        Object.keys(spec.example.inputs).length,
-      );
+      expect(container.querySelector('input'), spec.id).toBeNull();
+      if (giai !== undefined) {
+        const nguon = within(container).queryAllByRole('link');
+        expect(nguon.length, spec.id).toBe(giai.nguon.length);
+      }
       unmount();
     }
   });

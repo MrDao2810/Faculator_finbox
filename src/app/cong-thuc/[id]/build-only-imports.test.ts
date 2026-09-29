@@ -77,6 +77,22 @@ const LUAT: ReadonlyArray<{ ten: string; khop: (spec: string) => boolean; duocPh
     khop: (spec) => spec === '@/core/how-to' || spec.startsWith('@/core/how-to/'),
     duocPhep: ['application/how-to.ts'],
   },
+  {
+    // Lời giải có cấu trúc của khối Ví dụ thực tế (29/09/2026) — chữ của cả 111 ví dụ, mỗi trang chỉ
+    // cần phần của mình. Xem docblock `src/core/vi-du/types.ts`.
+    ten: '@/application/vi-du',
+    khop: (spec) => spec === '@/application/vi-du',
+    duocPhep: ['app/cong-thuc/[id]/page.tsx'],
+  },
+  {
+    // Trừ module LÁ `types` — barrel `@/application` xuất KIỂU từ đó (`export type`, bị xoá lúc biên
+    // dịch), đúng nếp kiểu câu hỏi đi qua `@/core/quiz/types`.
+    ten: 'src/core/vi-du',
+    khop: (spec) =>
+      (spec === '@/core/vi-du' || spec.startsWith('@/core/vi-du/')) &&
+      spec !== '@/core/vi-du/types',
+    duocPhep: ['application/vi-du.ts'],
+  },
 ];
 
 describe('thứ chỉ-lúc-build không lọt vào gói máy khách', () => {

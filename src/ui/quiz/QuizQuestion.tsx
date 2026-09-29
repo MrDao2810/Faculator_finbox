@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
@@ -8,6 +8,8 @@ import { formatNumber, hasChoices, keepViNumberChars } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
 import { workedShape } from '@/application/quiz-math';
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from '@/ui/inputs';
+import { LoiGiai } from '@/ui/result/LoiGiai';
+import type { LoiGiaiKyHieu } from '@/ui/result/LoiGiai';
 
 import { CongThucDien } from './CongThucDien';
 import { laDungCua, oDungChua } from './cham';
@@ -98,25 +100,10 @@ function beNgangO(dap: string): number {
 
 /**
  * Một dòng bảng ký hiệu của trang — thứ dòng "Thay số" của lời giải cần để in ký hiệu và nghĩa.
- * `html` là MathML dựng lúc build (cùng chuỗi thẻ Công thức in), `nghia` là `spec.symbols[].meaning`.
+ * Nay là kiểu của `LoiGiai`, thành phần lời giải dùng chung với khối Ví dụ thực tế (29/09/2026);
+ * tên cũ giữ lại để `QuizBody` và màn chi tiết không phải đổi chỗ import.
  */
-export interface QuizKyHieu {
-  latex: string;
-  html: string;
-  nghia: QuizText;
-}
-
-/**
- * Hạ chữ hoa đầu một cụm danh từ để nó đứng được giữa câu: "để tính Biên an toàn" thành "để tính
- * biên an toàn". Chữ viết tắt thì giữ nguyên — chữ thứ hai cũng hoa ("P/E", "EPS") hoặc không phải
- * chữ cái ("P/E") nghĩa là cụm mở bằng một ký hiệu, và "p/E" là sai.
- */
-function giuaCau(cum: string): string {
-  const [dau, hai] = [...cum];
-  if (dau === undefined || hai === undefined) return cum;
-  const laChuThuong = hai.toLowerCase() === hai && hai.toUpperCase() !== hai;
-  return laChuThuong ? dau.toLowerCase() + cum.slice(dau.length) : cum;
-}
+export type QuizKyHieu = LoiGiaiKyHieu;
 
 export interface QuizQuestionProps {
   item: QuizItem;
@@ -175,17 +162,6 @@ export function QuizQuestion({
    */
   const ghiDe = item.giai?.congThuc;
   const coHinh = ghiDe === undefined && hinhCongThuc !== undefined;
-
-  /*
-   * Dòng "Thay số", gộp theo ký hiệu: năm giá đóng cửa cùng là `P_{t-i}` thì in MỘT dòng
-   * "P = 25.100 · 25.300 · …", đúng thứ tự khai. `{ __html }` của ký hiệu dựng một lần — React so
-   * `dangerouslySetInnerHTML` theo danh tính object, dựng lại là thay cây MathML mỗi lượt render.
-   */
-  const kyHieuInner = useMemo(
-    () => new Map((kyHieu ?? []).map((k) => [k.latex, { __html: k.html }])),
-    [kyHieu],
-  );
-  const thayKyHieu = item.giai?.gan ?? [];
 
   const laDung = laDungCua(item, picked, typed);
   const khoa = readOnly || answered;
@@ -430,109 +406,26 @@ export function QuizQuestion({
               một lần được, và một khối rỗng thì tệ hơn một đoạn văn dài.
             */}
             {item.giai !== undefined && (ghiDe !== undefined || coHinh) ? (
-              <dl className={styles.giai}>
-                {/*
-                  Thứ tự dòng do chủ dự án đặt 25/09/2026: "Công thức áp dụng … để tính Biên an
-                  toàn → Thay số: 42500 là gì tương ứng với ký hiệu nào … → áp dụng vào công thức".
-                  Dòng "Tính" riêng cũ gộp thành đuôi "để tính …" của dòng công thức.
-                */}
-                <div className={styles.giaiHang}>
-                  <dt>{t('quiz.giai.congThuc')}</dt>
-                  <dd className={styles.giaiCongThuc}>
-                    {ghiDe === undefined ? (
-                      <div className={styles.giaiHinh}>{hinhCongThuc}</div>
-                    ) : (
-                      <span className={styles.giaiGhiDe}>{chu(ghiDe)}</span>
-                    )}
-                    <span className={styles.giaiDeTinh}>
-                      {t('quiz.giai.deTinh').replace('{x}', giuaCau(chu(item.giai.tinh)))}
-                    </span>
-                  </dd>
-                </div>
-                {thayKyHieu.length > 0 && (
-                  <div className={styles.giaiHang}>
-                    <dt>{t('quiz.giai.thaySo')}</dt>
-                    <dd>
-                      {/*
-                        `<dl>` con: mỗi ký hiệu là một `<dt>`, con số và nghĩa là `<dd>` — "V: bằng
-                        42.500, là giá trị nội tại…" đọc đúng thành một cặp với trình đọc màn hình.
-                        Ký hiệu có dòng trong bảng thì in MathML của bảng và nghĩa của bảng; cụm
-                        `\text{…}` tự nói nghĩa (bảng không có dòng riêng) thì in đúng chữ ấy.
-                      */}
-                      <dl className={styles.giaiThay}>
-                        {thayKyHieu.map((dong) => {
-                          const dongBang = (kyHieu ?? []).find((k) => k.latex === dong.kyHieu);
-                          const chuTho = /^\\text\{([^{}]+)\}$/.exec(dong.kyHieu)?.[1];
-                          return (
-                            <Fragment key={dong.kyHieu}>
-                              {dongBang !== undefined ? (
-                                <dt
-                                  className={styles.giaiKyHieu}
-                                  // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem `notation-view.ts`
-                                  dangerouslySetInnerHTML={kyHieuInner.get(dong.kyHieu)}
-                                />
-                              ) : (
-                                <dt className={styles.giaiKyHieuChu}>{chuTho ?? dong.kyHieu}</dt>
-                              )}
-                              <dd>
-                                {/*
-                                  Con số trơn in "= 42.500"; câu mô tả in liền sau ký hiệu, không
-                                  có dấu "=" — "C_i của cả 3 đợt cùng bằng 12.000.000". Xem
-                                  docblock `QuizGan.moTa`: dàn nhiều số nối bằng "·" đã bị bác, vì
-                                  "·" là dấu nhân trong chính các công thức của trang.
-                                */}
-                                {dong.moTa !== undefined ? (
-                                  <span className={styles.giaiMoTa}>{chu(dong.moTa)}</span>
-                                ) : (
-                                  <span className={styles.giaiGiaTri}>
-                                    = {dong.giaTri === undefined ? '' : chu(dong.giaTri)}
-                                  </span>
-                                )}
-                                {/*
-                                  Nghĩa từ bảng ký hiệu CHỈ đi với con số trơn. Câu mô tả tự nói
-                                  nghĩa bằng lời của chính bài: nghĩa trong bảng viết cho công thức
-                                  tổng quát ("tiền mua đợt i"), đặt cạnh một bài cụ thể thì chủ dự
-                                  án đọc không ra — "tiền mua giá đợt i nghĩa là gì?" (25/09/2026).
-                                */}
-                                {dongBang !== undefined && dong.moTa === undefined && (
-                                  <span className={styles.giaiNghia}>{chu(dongBang.nghia)}</span>
-                                )}
-                              </dd>
-                            </Fragment>
-                          );
-                        })}
-                      </dl>
-                    </dd>
-                  </div>
-                )}
-                <div className={styles.giaiHang}>
-                  <dt>{t('quiz.giai.apVao')}</dt>
-                  <dd className={styles.giaiSo}>{chu(item.giai.thaySo)}</dd>
-                </div>
-                <div className={styles.giaiHang}>
-                  <dt>{t('quiz.giai.ketQua')}</dt>
-                  <dd className={styles.giaiKetQua}>{chu(item.giai.ketQua)}</dd>
-                </div>
-                {/*
-                  Câu trích nguyên văn của nguồn, nếu câu hỏi có. Chủ dự án chỉ đòi "bên dưới
-                  cùng ghi nguồn", và ĐÂY LÀ nguồn: đường dẫn nói nguồn ở đâu, câu trích nói
-                  nguồn viết gì. Bỏ nó đi là lấy mất của người đọc khả năng mở trang gốc ra đối
-                  chiếu — thứ mà `quiz.test.ts` bắt mọi câu `ngo-nhan` phải có bằng được.
+              /*
+                Các dòng lời giải dựng bằng `LoiGiai` — thành phần DÙNG CHUNG với khối Ví dụ thực tế
+                từ 29/09/2026, khi chủ dự án bảo khối Ví dụ giải thích "giống với cách giải thích trong
+                phần bài tập". Thứ tự dòng, luật Thay số và hình công thức nằm ở đó, không chép ra đây.
 
-                  Chỉ lấy phần TRONG ngoặc kép, không lấy cả đoạn văn: đoạn văn chính là thứ
-                  vừa bị bác vì dài.
-                */}
-                {/*
-                  MỘT dòng Nguồn, nằm trong cùng lưới với bốn dòng trên để nhãn thẳng hàng. Bản
-                  đầu dựng câu trích thành một dòng "Nguồn" RIÊNG rồi vẫn giữ dòng "Nguồn" có
-                  link ở dưới — hai dòng cùng tên, chụp ra là thấy ngay.
-
-                  Mỗi câu trích một dòng (`.giaiTrich` là khối): hai đoạn trích đứng liền nhau
-                  trên một dòng thì dấu đóng của đoạn trước dính vào dấu mở của đoạn sau.
-                */}
-                <div className={styles.giaiHang}>
-                  <dt>{t('quiz.source')}</dt>
-                  <dd className={styles.giaiNguon}>
+                Dòng Nguồn thì bài tập tự dựng: link rồi từng câu trích nguyên văn một dòng. Câu trích
+                là thứ cho người đọc mở trang gốc ra đối chiếu — `quiz.test.ts` bắt mọi câu
+                `ngo-nhan` phải có — và hai đoạn trích đứng liền trên một dòng thì dấu đóng của đoạn
+                trước dính vào dấu mở của đoạn sau.
+              */
+              <LoiGiai
+                hinh={hinhCongThuc}
+                {...(ghiDe === undefined ? {} : { ghiDe })}
+                tinh={item.giai.tinh}
+                gan={item.giai.gan ?? []}
+                {...(kyHieu === undefined ? {} : { kyHieu })}
+                thaySo={item.giai.thaySo}
+                ketQua={chu(item.giai.ketQua)}
+                nguon={
+                  <>
                     <span>
                       <a
                         href={item.source.url}
@@ -554,9 +447,9 @@ export function QuizQuestion({
                         {doan}
                       </q>
                     ))}
-                  </dd>
-                </div>
-              </dl>
+                  </>
+                }
+              />
             ) : (
               <p className={styles.explainBody}>
                 {quoteParts(chu(item.explain)).map((part, i) =>

@@ -188,7 +188,12 @@ export type Nut =
    * trong tử hoặc mẫu của một phân số khác. Bộ phân tích không bao giờ tạo nút này.
    */
   | { t: 'chiaDong'; a: Nut; b: Nut }
-  | { t: 'can' | 'ln' | 'am' | 'tri'; a: Nut }
+  /**
+   * `san` = ⌊…⌋ làm tròn xuống, `tran` = ⌈…⌉ làm tròn lên (29/09/2026) — cho các công thức mà hình
+   * của trang có bước làm tròn: số hợp đồng tối đa, số kỳ DCA. Thiếu chúng thì dòng "Áp vào công
+   * thức" của khối Ví dụ ra 6,09 trong khi kết quả là 6.
+   */
+  | { t: 'can' | 'ln' | 'am' | 'tri' | 'san' | 'tran'; a: Nut }
   /** Dấu ngoặc tròn, do `themNgoac` cài sẵn trước khi trao cho giao diện. */
   | { t: 'ngoac'; a: Nut };
 
@@ -266,7 +271,7 @@ export function parseWorked(expr: string): Nut | null {
     return co;
   }
 
-  /** donVi := '−'? (số | ô trống | '(' expr ')' | '|' expr '|' | '√' luyThua | 'ln(' expr ')') */
+  /** donVi := '−'? (số | ô trống | '(' expr ')' | '|' expr '|' | '⌊' expr '⌋' | '⌈' expr '⌉' | '√' luyThua | 'ln(' expr ')') */
   function docDonVi(): Nut | null {
     const c = xem();
     if (c === undefined) return null;
@@ -302,6 +307,14 @@ export function parseWorked(expr: string): Nut | null {
       if (v === null || xem() !== '|') return null;
       i += 1;
       return { t: 'tri', a: v };
+    }
+    if (c === '⌊' || c === '⌈') {
+      const dong = c === '⌊' ? '⌋' : '⌉';
+      i += 1;
+      const v = doc();
+      if (v === null || xem() !== dong) return null;
+      i += 1;
+      return { t: c === '⌊' ? 'san' : 'tran', a: v };
     }
     if (c === '√') {
       i += 1;
@@ -339,6 +352,14 @@ function tinh(nut: Nut): number | null {
     case 'tri': {
       const v = tinh(nut.a);
       return v === null ? null : Math.abs(v);
+    }
+    case 'san': {
+      const v = tinh(nut.a);
+      return v === null ? null : Math.floor(v);
+    }
+    case 'tran': {
+      const v = tinh(nut.a);
+      return v === null ? null : Math.ceil(v);
     }
     case 'can': {
       const v = tinh(nut.a);
@@ -388,6 +409,8 @@ const UU_TIEN: Readonly<Record<Nut['t'], number>> = {
   can: 5,
   ln: 5,
   tri: 5,
+  san: 5,
+  tran: 5,
   so: 5,
   o: 5,
   ngoac: 5,
@@ -469,7 +492,9 @@ function themNgoac(nut: Nut, canToiThieu: number, trongPhanSo = false): Nut {
     case 'can':
       return { t: 'can', a: themNgoac(nut.a, 0, trong) };
     case 'tri':
-      return { t: 'tri', a: themNgoac(nut.a, 0, trong) };
+    case 'san':
+    case 'tran':
+      return { t: nut.t, a: themNgoac(nut.a, 0, trong) };
     case 'ln':
       return { t: 'ln', a: themNgoac(nut.a, 0, trong) };
     case 'ngoac':
@@ -496,6 +521,8 @@ export function chieuCao(nut: Nut): number {
       return Math.max(chieuCao(nut.a), chieuCao(nut.b));
     case 'am':
     case 'tri':
+    case 'san':
+    case 'tran':
     case 'can':
     case 'ln':
     case 'ngoac':

@@ -27,6 +27,15 @@ export interface ExplanationAccordionProps {
    * Kết quả lẫn Biểu đồ, còn câu "công thức này là gì" phải đến trước ô nhập.
    */
   showMeaning?: boolean;
+  /**
+   * Dựng mục "Cách đọc kết quả". Mặc định có.
+   *
+   * Màn chi tiết công thức tắt nó — cùng đợt và cùng lý do với `showMeaning`. Câu
+   * `explanation.howToRead` nay in ngay dưới con số ở khối Kết quả (`ResultBlock.interpretation`),
+   * để LUÔN đứng cạnh con số nó giải thích ở MỌI khổ màn hình — khối Giải thích này, ở điện
+   * thoại, từng bị đẩy xuống dưới cả Biểu đồ, tức câu ấy tách rất xa khỏi con số.
+   */
+  showHowToRead?: boolean;
   className?: string;
 }
 
@@ -52,12 +61,16 @@ export function ExplanationAccordion({
   explanation,
   defaultOpen = true,
   showMeaning = true,
+  showHowToRead = true,
   className,
 }: ExplanationAccordionProps) {
   const t = useT();
   const pick = usePick();
   const classes = [styles.wrap, className].filter(Boolean).join(' ');
-  const sections = showMeaning ? SECTIONS : SECTIONS.filter((section) => section.key !== 'meaning');
+  const sections = SECTIONS.filter(
+    (section) =>
+      (showMeaning || section.key !== 'meaning') && (showHowToRead || section.key !== 'howToRead'),
+  );
 
   return (
     <section className={classes}>

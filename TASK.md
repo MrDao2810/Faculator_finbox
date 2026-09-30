@@ -4,6 +4,78 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bỏ câu "These questions are not translated yet…" (30/09/2026)
+
+**Trạng thái: xong.** Chủ dự án: đưa ví dụ cụ thể câu này, rồi xác nhận "trước kia có yêu cầu bỏ
+bớt câu giải thích vô nghĩa rồi. những loại câu giải thích như này tôi không cần. xóa bớt đi để
+tiết kiệm không gian" — cùng nếp với `quiz.lead`, `quiz.few.body`, `quiz.localOnly` đã bỏ trước đó.
+
+- Câu chỉ hiện khi đang ở chế độ tiếng Anh **và** bài của công thức đó còn câu hỏi chưa dịch
+  (205/411 câu đã dịch, phần còn lại rơi về tiếng Việt) — xác nhận có xuất hiện thật trên trang
+  P/E và CAPM lúc rà theo yêu cầu trước đó.
+- **Đã bỏ**: đoạn `<p>` in câu này và biến `chuaDich` tính điều kiện của nó ở
+  `src/ui/quiz/QuizBody.tsx`; class CSS `.note` không còn ai dùng nên gộp lại còn một mình `.lead`
+  ở `QuizBody.module.css`. Hành vi rơi về tiếng Việt (`chu()`) giữ nguyên — chỉ bỏ CÂU THÔNG BÁO
+  việc đó, không đổi cách hiện câu hỏi.
+- Tombstone khoá `quiz.notTranslated` ở cả `vi.ts` và `en.ts`, đúng khuôn "Mộ chí" các khoá quiz
+  khác đã bỏ.
+- Thêm một ca ĐẢO NGƯỢC trong `QuizBody.test.tsx` (không xoá, theo đúng nếp `quiz.localOnly`):
+  dựng bài ở locale `en` với câu chưa có bản dịch, chốt đề bài vẫn hiện tiếng Việt nhưng câu
+  "chưa dịch" không còn xuất hiện — để ai lỡ thêm lại câu này sẽ thấy test đỏ và biết đây là một
+  quyết định, không phải một câu bị quên.
+- `CLAUDE.md`: sửa đoạn mô tả gói WF-19 phần tiếng Anh, ghi rõ fallback giờ ÂM THẦM.
+- lint · tsc · prettier xanh; vitest 3.084 ca xanh (thêm 2 ca).
+
+---
+
+## Mục "Cách đọc kết quả" viết lại cho 111 công thức (30/09/2026)
+
+**Trạng thái: xong phần code và nội dung, chờ chủ dự án duyệt câu chữ.** Câu hỏi tiếp nối "Khi nào
+dùng": chủ dự án hỏi "phân tích kỹ cách đọc của công thức: cần đọc như nào cho hợp lý".
+
+- **Đo trên 111 đoạn cũ:** 5 đoạn trích số của ví dụ CŨ (CAPM ghi "13,1%/năm", màn nay hiện 11,92%);
+  5 đoạn phí/thuế chép số tính sẵn từ biểu phí hiện hành (sẽ sai lặng lẽ khi biểu phí đổi); 13 đoạn
+  không có câu nào dạy đọc con số, chỉ tả tính chất hay độ nhạy; khoảng 20 đoạn không nêu mốc so sánh
+  ("P/E cao nghĩa là…" — cao so với gì?); 53/111 đoạn có gạch ngang dài; dài từ 75 tới 407 ký tự.
+- **Chủ dự án chốt:** khuôn "mốc so sánh + giá trị đặc biệt" — câu 1 bắt buộc "So với [mốc]: cao hơn
+  nghĩa là…, thấp hơn nghĩa là…"; câu 2 tuỳ chọn, chỉ cho giá trị `calc` thật sự trả về mà dễ đọc sai
+  (âm, 0, vượt 100%, làm tròn). Phần bị cắt ra thì **bỏ hẳn**, không chuyển sang mục khác. Làm luôn cả 111.
+- **Cách làm:** cùng khuôn workflow của đợt "Khi nào dùng" — 10 agent (5 soạn + 5 phản biện đối chiếu
+  `calc`), 0 lỗi hạ tầng. Phản biện sửa 50 đoạn: chiều đọc sai (WACC thiếu chủ ngữ nên đọc ngược;
+  Đòn bẩy tổng hợp chỉ có vế "lớn hơn 1" vì calc không bao giờ trả dưới 1), câu tả tính chất lọt lưới
+  ("phí lưu ký nhỏ hơn nhiều là bình thường" — sai với mã giá thấp giữ lâu năm), mốc không phải thứ
+  người dùng tự có (phí giao dịch mua đổi mốc từ "phí công ty khác" sang "tiền mua của cả lệnh").
+- `src/core/how-to-read-rules.ts` (mới): bộ luật dùng chung cho công cụ soạn và test, dùng lại
+  `TEN_CONG_THUC`/`RA_LENH`/`CHU_VIET` của `when-to-use-rules.ts`. Luật riêng: mở đầu "So với ", đúng
+  một dấu ":" tách mốc, tối đa 2 câu, trần 260/340 ký tự, không trỏ vào ví dụ/biểu đồ, không tả cơ chế
+  ("mẫu số"…), số chỉ được 0/1/100 trừ một danh sách quy ước có tên xin phép từng công thức
+  (`QUY_UOC`: RSI 70/30/50, Stochastic 80/20). `how-to-read-rules.test.ts` (mới): cả 111 đạt, không
+  trùng đoạn, luật vẫn bắt ba kiểu đoạn cũ đã bị chỉ ra.
+- 17 file `src/core/formulas/*.ts`: thay đúng 111 × 2 chuỗi `howToRead` bằng script sửa theo cây cú
+  pháp TypeScript. Sửa tay thêm một chỗ: `pb` đổi "trên 1/dưới 1" thành "cao hơn 1/thấp hơn 1" — cửa
+  gác `prose-audit.test.ts` có sẵn coi "trên/dưới N nghĩa là" là một ngưỡng phải nằm trong vùng biểu đồ
+  quét được từ ví dụ mặc định, và vùng quét của `pb` (1,85–7,42) không chạm mốc kế toán "1"; đổi chữ để
+  né đúng cụm đó, không đổi mốc hay nới cửa gác.
+- **Lỗi `calc` phát hiện khi soạn, CHƯA sửa:** `mo-hinh-gordon` canh `dividend === 0` bằng
+  `fail(MEANINGLESS)` và có docblock giải thích rõ đây là bẫy FR-06 (một `ok(0 ₫)` thầm lặng đọc như
+  một mức giá cổ phiếu thật). `ddm-hai-giai-doan` nhận chung biến `dividend` (min 0, cùng ô nhập) nhưng
+  không có canh gác này — cổ phiếu chưa từng trả cổ tức sẽ ra thẳng "0 ₫" ở `valuation-dcf.ts`. Đề nghị
+  thêm đúng canh gác ấy, chờ chủ dự án quyết.
+- `CLAUDE.md`: một đoạn về khuôn, cửa gác, và lỗi `calc` nói trên.
+- **Treo, chờ chủ dự án:** 33 đoạn phản biện còn phân vân. Trang duyệt trước/sau:
+  <https://claude.ai/artifact/AYqB86C97b1YuDBtRBoupe>. Đáng xem nhất:
+  - `ddm-hai-giai-doan` — lỗi `calc` nêu trên, không phải lỗi chữ;
+  - `var-lich-su`/`cvar-lich-su` nay dùng chung một mốc ("mức lỗ một phiên bạn chịu được"), cố ý vì đó
+    là thứ người dùng tự có; mốc riêng cho CVaR đòi nạp thêm một chuỗi giá khác;
+  - `ty-so-sharpe`/`ty-so-sortino` bỏ thang quen thuộc "dưới 1 bình thường, trên 2 tốt" theo luật 8,
+    đổi sang mốc "quỹ khác cùng kỳ" — xin ý kiến có nên xếp thang đó vào `QUY_UOC` như RSI không;
+  - `lai-lo-vi-the-long` dùng mốc "tiền lãi bạn nhắm tới", `lai-lo-vi-the-short` dùng "tiền chấp nhận
+    mất" — hai mốc khác nhau cho hai vị thế đối xứng, cần quyết có thống nhất không;
+  - `roc-toc-do-thay-doi` dùng mốc biến động VN-Index, nhưng Finbox không có chuỗi VN-Index.
+- lint · tsc · prettier xanh; vitest 3.082 ca xanh (thêm 4 ca).
+
+---
+
 ## Sửa hiển thị số mũ trong khối bài tập — 29/09/2026
 
 `<sup>` bên trong `.ctBoc` (`display: inline-flex; align-items: center`) mất tác dụng `vertical-align`,

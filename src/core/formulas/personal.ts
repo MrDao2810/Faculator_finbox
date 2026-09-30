@@ -161,8 +161,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
         en: 'Use it when you are about to take a home or car loan repaid with the same amount every month and want to know how much you must set aside for the bank each month.',
       },
       howToRead: {
-        vi: 'So khoản trả hằng tháng này với thu nhập của bạn để biết có kham nổi lâu dài không. Con số này giữ nguyên suốt toàn bộ kỳ hạn vay — không giảm dần theo thời gian như ở trả góp gốc đều.',
-        en: 'Compare this monthly payment with your income to judge whether it is affordable over the long run. The figure stays the same for the entire loan term — it does not decrease over time the way the equal-principal payment does.',
+        vi: 'So với số tiền bạn còn dư mỗi tháng sau chi tiêu thiết yếu: thấp hơn nghĩa là tháng nào cũng trả nổi mà không phải cắt bớt sinh hoạt, cao hơn là tháng nào cũng hụt, suốt cả kỳ hạn vay.',
+        en: 'Compared with what you have left each month after essential spending: lower means you can meet every payment without cutting back, and higher means you will fall short every month for the whole term of the loan.',
       },
       commonMistakes: {
         vi: 'Chỉ nhìn số tiền hằng tháng thấy vừa sức mà không cộng lại tổng lãi phải trả cả kỳ hạn.',
@@ -317,8 +317,8 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
         en: 'Use it when you are offered an equal-principal loan whose payments shrink month by month and want to know the first, heaviest payment to see whether your income can cover it.',
       },
       howToRead: {
-        vi: 'Kỳ đầu nặng nhất — đây chính là con số cần cân đối với thu nhập hằng tháng.',
-        en: 'The first period is the heaviest — this is the figure to weigh against monthly income.',
+        vi: 'So với phần thu nhập hằng tháng bạn dành riêng được cho khoản vay: thấp hơn nghĩa là trả nổi ngay từ tháng đầu và mọi tháng sau, cao hơn là ngay tháng đầu đã thiếu, dù những tháng sau có thể nhẹ dần.',
+        en: 'Compared with the share of your monthly income you can set aside for the loan: lower means you can pay from the very first month and every month after, and higher means you fall short from the first month, even though later payments may ease.',
       },
       commonMistakes: {
         vi: 'So sánh kỳ đầu của gốc đều với khoản cố định của niên kim rồi kết luận gốc đều đắt hơn.',
@@ -471,8 +471,8 @@ export const LICH_TRA_NO: FormulaModule = {
         en: 'Use it when you are weighing a home or car loan and want to know the total interest you will pay the bank over the whole term, to compare two repayment methods or a shorter term with a longer one.',
       },
       howToRead: {
-        vi: 'Với cùng lãi suất và kỳ hạn, gốc đều không bao giờ cho tổng lãi cao hơn niên kim — bằng nhau khi lãi suất 0%/năm, còn lại đều thấp hơn — đổi lại kỳ đầu nặng hơn.',
-        en: 'For the same rate and term, equal-principal never yields higher total interest than annuity — they tie when the rate is 0%/year, and equal-principal is lower otherwise — at the cost of a heavier first period.',
+        vi: 'So với số tiền gốc đã vay: tổng lãi vượt số gốc nghĩa là mỗi đồng cầm về bạn trả ngân hàng thêm hơn một đồng tiền lãi, thấp hơn là chưa tới một đồng. Kết quả 0 ₫ không phải lỗi mà là khoản vay lãi suất 0%.',
+        en: 'Compared with the principal you borrowed: total interest above the principal means that for every dong you received you pay the bank more than one extra dong in interest, and below it means less than one. A result of 0 ₫ is not an error but a loan at 0% interest.',
       },
       commonMistakes: {
         vi: 'Chỉ nhìn lãi suất mà bỏ qua kỳ hạn. Kéo dài kỳ hạn làm khoản trả hằng tháng nhẹ đi nhưng tổng lãi tăng mạnh.',
@@ -787,8 +787,8 @@ export const LAI_KEP: FormulaModule = {
         en: 'Use it when you have a lump sum to leave on deposit for years, with each round of interest added back to the principal, and want to know what it will grow to.',
       },
       howToRead: {
-        vi: 'Chênh lệch so với lãi đơn nhỏ ở vài năm đầu và rõ rệt sau mười năm — đó là điểm mạnh của thời gian.',
-        en: 'The gap versus simple interest is small in the first few years and becomes pronounced after ten years — that is the power of time.',
+        vi: 'So với số tiền bạn cần có khi hết thời gian gửi: cao hơn nghĩa là chỉ cần gửi một lần rồi để yên là đủ, thấp hơn là phải gửi thêm hoặc chờ lâu hơn. Con số đã gồm cả tiền gốc, phần lãi là con số này trừ đi số tiền gốc.',
+        en: 'Compared with the amount you need by the end of the deposit period: higher means a single deposit left alone is enough, and lower means you must add more or wait longer. The figure already includes the principal, and the interest is this figure minus the amount you put in.',
       },
       commonMistakes: {
         vi: 'Nhầm lãi suất danh nghĩa với lãi suất thực nhận. Nhập lãi 12 lần một năm cho kết quả cao hơn nhập lãi một lần.',
@@ -915,8 +915,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
         en: 'Use it when you are about to open a fixed-term savings deposit and want to know how much interest you will get at maturity, or are weighing two terms or two banks against each other.',
       },
       howToRead: {
-        vi: 'Con số này là tổng tiền lãi cho cả kỳ hạn đã chọn, không phải mức lãi suất theo năm — so nó với mục tiêu tiết kiệm của bạn hoặc với đề nghị của một kỳ hạn hay ngân hàng khác.',
-        en: 'This figure is the total interest for the whole term you chose, not an annual rate — compare it with your savings goal or with an offer for a different term or bank.',
+        vi: 'So với tiền lãi mà ngân hàng khác trả cho cùng số tiền và cùng kỳ hạn: cao hơn nghĩa là nơi bạn đang tính trả nhiều lãi hơn, thấp hơn là ít hơn. Con số là tiền lãi của cả kỳ hạn, chưa cộng tiền gốc và không phải lãi mỗi tháng.',
+        en: 'Compared with the interest another bank pays on the same amount for the same term: higher means the bank you are pricing pays more, and lower means less. The figure is the interest for the whole term, not including the principal and not a monthly amount.',
       },
       commonMistakes: {
         vi: 'Rút trước hạn thì phần lớn ngân hàng chỉ trả lãi không kỳ hạn, thấp hơn nhiều con số này.',
@@ -1044,8 +1044,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         en: 'Use it when you have set a goal of having a certain sum by a fixed date, such as buying a car in three years, and want to know how much to put aside each month.',
       },
       howToRead: {
-        vi: 'Kéo dài thời gian làm khoản gửi hằng tháng nhẹ đi rất nhanh, mạnh hơn là nâng lãi suất kỳ vọng.',
-        en: 'Extending the time horizon lowers the monthly deposit much faster than raising the expected interest rate does.',
+        vi: 'So với số tiền bạn thực sự để dành được mỗi tháng: thấp hơn nghĩa là mục tiêu nằm trong tầm với đúng hạn nếu lãi thực nhận bằng mức kỳ vọng, cao hơn là cần kéo dài thời gian, hạ mục tiêu hoặc tăng thu nhập.',
+        en: 'Compared with what you can actually put aside each month: lower means the goal is within reach on time if the interest you earn matches your expectation, and higher means you need a longer timeline, a smaller goal or more income.',
       },
       commonMistakes: {
         vi: 'Lấy mục tiêu chia đều cho số tháng rồi coi là đủ — cách đó bỏ qua phần tiền lãi tích luỹ.',

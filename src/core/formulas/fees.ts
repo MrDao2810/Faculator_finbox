@@ -159,8 +159,8 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
         en: 'Use it when you are about to place a buy order and want to know how much the brokerage will take from your account in fees on top of the cost of the shares.',
       },
       howToRead: {
-        vi: 'Kết quả là số tiền bị trừ thêm ngoài tiền mua: ví dụ trên màn, lệnh 92.000.000 ₫ mất 138.000 ₫, tức mỗi cổ phiếu đắt thêm 138 ₫ so với giá khớp. Cộng số này vào giá vốn trước khi tính lãi.',
-        en: 'The result is the amount deducted on top of the purchase money: on the example above, a 92,000,000 ₫ order costs 138,000 ₫, meaning each share is 138 ₫ more expensive than the matched price. Add it to your cost basis before computing any profit.',
+        vi: 'So với tiền mua cổ phiếu của cả lệnh: con số này bị trừ thêm ngoài số tiền ấy, nên giá vốn thật của mỗi cổ phiếu cao hơn giá khớp đúng bằng con số này chia cho khối lượng mua.',
+        en: 'Compared with the cost of the shares in the whole order: this amount is charged on top of that cost, so your true cost per share sits above the matched price by exactly this figure divided by the number of shares bought.',
       },
       commonMistakes: {
         vi: 'Tưởng phí đã nằm trong giá khớp lệnh — phí được trừ riêng khỏi tiền trong tài khoản. Và vì phí tính trên giá trị giao dịch chứ không trên khoản lãi, mua rồi bán ngay vẫn mất phí.',
@@ -258,8 +258,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
         en: 'Use it when you are about to place a sell order for a block of shares and want to know how much of the proceeds the brokerage will keep as its fee.',
       },
       howToRead: {
-        vi: 'Kết quả là số tiền bị trừ khỏi tiền bán: bán 1.000 CP giá 97.000 ₫ mất 145.500 ₫, tức 145,5 ₫ mỗi cổ phiếu. Đây mới là một chiều — cả vòng mua rồi bán còn cõng thêm thuế bán và phí lưu ký.',
-        en: 'The result is the amount deducted from the sale proceeds: selling 1,000 shares at 97,000 ₫ costs 145,500 ₫, or 145.5 ₫ per share. That is only one leg — a full buy-sell round trip also carries the sell tax and the custody fee.',
+        vi: 'So với khoản chênh giữa tiền bán và tiền mua của cả lô: phí bán nhỏ hơn khoản ấy thì lần bán vẫn còn lãi trước thuế và các phí khác, lớn hơn thì lần bán này đã lỗ ngay cả trước khi tính thuế.',
+        en: 'Compared with the gap between sale proceeds and purchase cost for the whole lot: a sell fee smaller than that gap leaves the sale in profit before tax and other fees, a larger one means the sale is already a loss before tax is even counted.',
       },
       commonMistakes: {
         vi: 'Chỉ trừ phí mua mà quên phí bán khi ước tính lãi.',
@@ -352,8 +352,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
         en: 'Use it when you are about to sell shares, even at a loss, and want to know how much tax the state will withhold from the sale proceeds before the money reaches your account.',
       },
       howToRead: {
-        vi: 'Kết quả là khoản trừ thẳng vào tiền bán: bán 1.000 CP giá 97.000 ₫ nộp 97.000 ₫, tức 97 ₫ mỗi cổ phiếu. Cộng nó vào giá hoà vốn, vì số này chỉ đổi theo giá bán và khối lượng.',
-        en: 'The result is a direct deduction from the sale proceeds: selling 1,000 shares at 97,000 ₫ owes 97,000 ₫, or 97 ₫ per share. Add it into your break-even price, since the amount moves only with the sale price and the quantity.',
+        vi: 'So với tiền bán của cả lô: số tiền về tài khoản sẽ ít hơn tiền bán đúng bằng con số này cộng với phí bán, vì cả hai bị trừ trước khi tiền về.',
+        en: 'Compared with the sale proceeds for the whole lot: the money reaching your account will be lower than the proceeds by exactly this amount plus the sell fee, since both are taken out before the money arrives.',
       },
       commonMistakes: {
         vi: 'Tưởng lỗ thì được miễn thuế. Cách tính hiện hành thu theo giá trị bán, không theo lãi.',
@@ -455,8 +455,8 @@ export const THUE_CO_TUC: FormulaModule = {
         en: 'Use it when you hold a stock that has just announced a cash dividend and want to know how much tax will be taken out before the dividend reaches your account.',
       },
       howToRead: {
-        vi: 'Kết quả là phần cổ tức bị giữ lại: 1.000 CP × 2.000 ₫ là 2.000.000 ₫ công bố, nộp 100.000 ₫, còn 1.900.000 ₫ về tài khoản. Lấy số thực nhận này mới ra đúng tỷ suất cổ tức.',
-        en: 'The result is the slice of the dividend held back: 1,000 shares × 2,000 ₫ is 2,000,000 ₫ announced, 100,000 ₫ withheld, 1,900,000 ₫ reaching the account. Use that net figure to get the dividend yield right.',
+        vi: 'So với tổng cổ tức công bố cho số cổ phiếu bạn đang giữ: cổ tức thật sự về tài khoản bằng tổng ấy trừ đi con số này.',
+        en: 'Compared with the total dividend announced for the shares you hold: the dividend that actually reaches your account is that total minus this figure.',
       },
       commonMistakes: {
         vi: 'Lấy nguyên mức cổ tức công bố để tính tỷ suất cổ tức thực nhận, thành ra cao hơn thực tế.',
@@ -561,8 +561,8 @@ export const PHI_LUU_KY: FormulaModule = {
         en: 'Use it when you plan to hold a block of shares for many months or years and want to know how much the fee for keeping them in custody adds up to over that whole stretch.',
       },
       howToRead: {
-        vi: 'Kết quả là tổng phí cho cả kỳ nắm giữ chứ không phải mỗi tháng: 1.000 CP giữ 5 tháng hết 1.350 ₫, tức 1,35 ₫ mỗi cổ phiếu. Chia cho khối lượng rồi cộng vào giá mua để thấy khoản này đẩy giá hoà vốn lên bao nhiêu.',
-        en: 'The result is the total for the whole holding period, not a monthly amount: 1,000 shares held for 5 months costs 1,350 ₫, or 1.35 ₫ per share. Divide it by the quantity and add it to the buy price to see how far it pushes the break-even price up.',
+        vi: 'So với phí mua bạn đã trả cho cùng lô: nhỏ hơn nghĩa là tiền giữ hộ vẫn chỉ là khoản phụ trong chi phí của lô, lớn hơn nghĩa là riêng tiền giữ hộ đã tốn hơn cả lúc mua vào. Đây là tổng cho cả thời gian nắm giữ, không phải phí mỗi tháng.',
+        en: 'Compared with the buy fee you paid on the same lot: smaller means keeping the shares is still a minor part of what the lot has cost you, larger means keeping them has already cost more than buying them did. This is the total for the whole holding period, not a monthly fee.',
       },
       commonMistakes: {
         vi: 'Bỏ hẳn phí lưu ký khỏi giá hoà vốn vì thấy nó nhỏ. Khoản này đã bị trừ khỏi tài khoản trước khi bạn bán, nên không cộng vào thì giá hoà vốn tính ra thấp hơn thực tế.',
@@ -694,8 +694,8 @@ export const GIA_HOA_VON: FormulaModule = {
         en: 'Use it when you are holding a stock, the price has just crept a little above what you paid, and you want to know what sell price brings back enough to cover your purchase plus every fee and tax.',
       },
       howToRead: {
-        vi: 'Luôn cao hơn giá mua, vì phải gánh cả phí mua, phí bán, thuế bán và phí lưu ký.',
-        en: 'Always higher than the buy price, since it must cover the buy fee, sell fee, sell tax, and custody fee.',
+        vi: 'So với giá thị trường hiện tại của mã: giá thị trường cao hơn con số này thì bán lúc này là có lãi sau mọi khoản phí và thuế, thấp hơn thì bán lúc này vẫn lỗ.',
+        en: "Compared with the stock's current market price: if the market price is higher, selling now leaves a profit after every fee and tax, and if it is lower, selling now is still a loss.",
       },
       commonMistakes: {
         vi: 'Lấy đúng giá mua làm mốc hoà vốn. Bán bằng giá mua là đã lỗ đúng bằng tổng chi phí.',
@@ -866,8 +866,8 @@ export const LOI_NHUAN_RONG: FormulaModule = {
         en: 'Use it when you have just sold a block of shares, or have a target sell price in mind, and want to know how many dong you actually gain or lose after every fee and tax.',
       },
       howToRead: {
-        vi: 'Luôn nhỏ hơn lãi gộp trên bảng giá. Khoảng cách giữa hai con số chính là tổng chi phí.',
-        en: 'Always smaller than the gross profit shown on the price board. The gap between the two figures is the total cost.',
+        vi: 'So với số tiền lãi bạn nhắm tới cho lần mua bán này: cao hơn nghĩa là đã đạt mục tiêu ngay cả sau mọi khoản phí và thuế, thấp hơn là chưa đạt. Số âm nghĩa là lỗ thật, dù giá bán có thể đang cao hơn giá mua một chút.',
+        en: 'Compared with the profit you were aiming for on this round trip: higher means you have hit that target even after every fee and tax, lower means you have not. A negative figure is a real loss, even if the sell price sits slightly above the buy price.',
       },
       commonMistakes: {
         vi: 'Lấy chênh lệch giá nhân khối lượng rồi coi đó là lãi. Với biên lãi mỏng, chi phí có thể nuốt hết.',
@@ -999,8 +999,8 @@ export const ROI_RONG: FormulaModule = {
         en: 'Use it when you review the trades you bought and sold this year and want to compare a small one with a large one to see which put your money to better use after fees and taxes.',
       },
       howToRead: {
-        vi: 'Luôn thấp hơn tỷ suất tính trên giá thuần, tức (Giá bán − Giá mua) ÷ Giá mua. Giữ càng lâu khoảng cách càng rộng, vì phí lưu ký cộng dồn thêm mỗi tháng.',
-        en: 'Always lower than the rate computed on the raw prices alone — (Sell price − Buy price) ÷ Buy price. The longer you hold, the wider the gap, because the custody fee keeps adding up month after month.',
+        vi: 'So với lãi tiết kiệm tính cho đúng số tháng bạn giữ cổ phiếu, không phải lãi suất cả năm: cao hơn nghĩa là sau mọi khoản phí và thuế lần mua bán này vẫn lời hơn gửi tiền, thấp hơn là gửi tiết kiệm còn lời hơn. Số âm nghĩa là lần này lỗ.',
+        en: 'Compared with the savings interest earned over exactly the months you held the shares, not the annual rate: higher means this round trip beat a deposit even after every fee and tax, lower means a deposit would have paid more. A negative figure means this round trip lost money.',
       },
       commonMistakes: {
         vi: 'Chia lãi ròng cho giá trị mua thuần thay vì cho tổng vốn bỏ ra, làm tỷ suất đẹp hơn thực tế.',

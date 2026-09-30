@@ -341,8 +341,8 @@ export const SMA_N_PHIEN: FormulaModule = {
         en: 'Use it when you open the chart of a stock you hold, see the price zigzag from session to session, and want to know whether over the past few weeks it has been heading up or down overall.',
       },
       howToRead: {
-        vi: 'Giá nằm trên đường và đường đang dốc lên là xu hướng tăng; giá cắt xuống dưới đường là tín hiệu suy yếu. Chu kỳ càng dài đường càng mượt nhưng càng chậm.',
-        en: 'Price sitting above the line while the line slopes upward signals an uptrend; price crossing below the line signals weakening. The longer the period, the smoother the line but the slower it reacts.',
+        vi: 'So với giá đóng cửa phiên gần nhất của mã: giá cao hơn con số này nghĩa là giá đang đứng trên mặt bằng của n phiên vừa qua, hay gặp khi giá đang đi lên, thấp hơn là đứng dưới mặt bằng ấy, hay gặp khi giá đang đi xuống.',
+        en: "Compared with the stock's latest closing price: a close above this figure means the price sits above its average level of the last n sessions, as is common when prices are rising, and a close below it means it sits under that level, as is common when prices are falling.",
       },
       commonMistakes: {
         vi: 'Dùng chu kỳ dài cho giao dịch ngắn hạn rồi trách đường báo trễ. SMA luôn nhìn về quá khứ — nó xác nhận xu hướng chứ không dự báo.',
@@ -489,8 +489,8 @@ export const EMA_N_PHIEN: FormulaModule = {
         en: 'Use it when you trade short-term swings and need an average price line that hugs the latest sessions, so you do not have to wait long to see the price turn.',
       },
       howToRead: {
-        vi: 'Kết quả là một mức giá tính bằng đồng, đọc bằng cách đem so với giá đóng cửa phiên cuối: giá nằm trên EMA và đường dốc lên là đà tăng còn giữ, giá cắt xuống dưới đường là đà đang yếu đi. Vì phiên mới nặng ký hơn nên EMA quay đầu sớm hơn SMA, đổi lại nó cũng đổi chiều theo cả những nhịp nhiễu khi thị trường đi ngang.',
-        en: 'The result is a price in dong, read by comparing it with the latest closing price: price above the EMA with the line sloping up means the advance is holding, price crossing below means it is fading. Because recent periods carry more weight, the EMA turns sooner than the SMA — and in exchange it also turns on noise while the market moves sideways.',
+        vi: 'So với giá đóng cửa phiên gần nhất: giá nằm trên con số này nghĩa là đà của những phiên mới nhất vẫn đang kéo giá lên, nằm dưới là đà ấy đã yếu đi hoặc giá vừa quay đầu giảm.',
+        en: 'Compared with the latest closing price: a close above this figure means the most recent sessions are still pulling the price up, and a close below it means that pull has faded or the price has just turned down.',
       },
       commonMistakes: {
         vi: 'Đọc EMA tính trên chuỗi quá ngắn: khi chuỗi vừa đúng bằng chu kỳ, EMA rơi về đúng SMA vì mới chỉ có phần mồi, chưa có phiên nào được làm mượt.',
@@ -635,8 +635,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         en: "Use it when you hold a stock that has been moving for a while and want to know whether the price's push over the last couple of weeks is still upward or has turned downward against its longer-run level.",
       },
       howToRead: {
-        vi: 'Cắt lên trên 0 là đà chuyển sang tăng, cắt xuống dưới 0 là chuyển sang giảm. Giá trị tính bằng ₫ nên chỉ so được với chính cổ phiếu đó, không so ngang giữa hai mã khác thị giá.',
-        en: 'Crossing above 0 signals momentum turning upward, crossing below 0 signals it turning downward. The value is denominated in VND, so it can only be compared within the same stock, not across stocks with different prices.',
+        vi: 'So với 0: dương nghĩa là mặt bằng giá mấy phiên gần đây đang cao hơn mặt bằng của một quãng dài hơn, tức đà đang kéo giá lên, âm là đang thấp hơn, tức đà đang kéo giá xuống.',
+        en: "Compared with 0: positive means the recent price level is above the stock's own longer-run level, so the price is being pulled up, and negative means it is below that level, so the price is being pulled down.",
       },
       commonMistakes: {
         vi: 'So MACD của cổ phiếu 25.000 ₫ với cổ phiếu 200.000 ₫ rồi kết luận mã nào mạnh hơn — đơn vị là đồng nên độ lớn phụ thuộc thị giá.',
@@ -784,8 +784,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         en: "Use it when you already watch a stock's MACD line and want a clear marker for the moment the price's drive has just shifted, instead of judging it by eye.",
       },
       howToRead: {
-        vi: 'Đường tín hiệu là một con số tính bằng đồng, chỉ có nghĩa khi đọc kèm đường MACD: MACD nằm trên đường tín hiệu là đà đang nghiêng lên, nằm dưới là đang nghiêng xuống. Hiệu của hai đường chính là cột histogram trả kèm ở phần kết quả phụ — trong ví dụ 12/26/9, đường tín hiệu 25,07 ₫ còn MACD −247,35 ₫ nên histogram âm sâu.',
-        en: 'The signal line is a figure in dong that only means something read next to the MACD line: MACD above the signal line means momentum is leaning up, below it means leaning down. The gap between the two is the familiar histogram bar, returned in the extra results — in the 12/26/9 example the signal line is 25.07 VND while MACD is −247.35 VND, so the histogram is deeply negative.',
+        vi: 'So với đường MACD ở cùng phiên: MACD nằm trên con số này nghĩa là đà giá đang nghiêng lên, nằm dưới là đang nghiêng xuống, còn hai số gần bằng nhau là đà chưa rõ nghiêng về bên nào.',
+        en: 'Compared with the MACD line on the same session: MACD above this figure means momentum is tilting up, MACD below it means momentum is tilting down, and two nearly equal numbers mean it has not yet leaned either way.',
       },
       commonMistakes: {
         vi: 'Ngạc nhiên khi đường tín hiệu còn dương trong lúc MACD đã âm — đó đúng là bản chất của một đường trung bình chạy sau, không phải lỗi tính toán.',
@@ -962,8 +962,8 @@ export const RSI_WILDER: FormulaModule = {
         en: 'Use it when you see a price rise or fall for many sessions in a row and want to know whether the move has overshot, before deciding to chase it or sell in a panic.',
       },
       howToRead: {
-        vi: 'Trên 70 là vùng quá mua, dưới 30 là vùng quá bán, quanh 50 là cân bằng. Không phiên nào giảm thì RSI chạm đúng trần 100, đó là giá trị thật chứ không phải lỗi.',
-        en: 'Above 70 is the overbought zone, below 30 is the oversold zone, and around 50 is balance. If no period declined, RSI hits the ceiling of exactly 100 — that is a genuine value, not an error.',
+        vi: 'So với hai mốc quen dùng 70 và 30: trên 70 nghĩa là phần tăng giá gần đây đang lấn át phần giảm, dưới 30 là ngược lại, quanh 50 là hai phần ngang nhau. Đúng 100 là cả chuỗi giá không có phiên giảm nào, đúng 0 là không có phiên tăng nào, không phải lỗi.',
+        en: 'Compared with the usual 70 and 30 marks: above 70 means recent gains clearly outweigh recent losses, below 30 means the reverse, and around 50 means the two are balanced. Exactly 100 means the whole price series has no down session and exactly 0 means it has no up session, neither being an error.',
       },
       commonMistakes: {
         vi: 'Bán ngay khi RSI vượt 70: trong một xu hướng tăng mạnh, RSI có thể nằm lì trên 70 hàng chục phiên. Sai thứ hai là làm mượt bằng EMA hệ số 2/(n+1) thay vì cách làm mượt của Wilder, khiến số lệch hẳn so với bảng giá.',
@@ -1147,8 +1147,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
         en: 'Use it when you are weighing a few stocks whose prices are far apart, say one near ten thousand dong and one near several hundred thousand, and want to know which moved faster over the same few weeks.',
       },
       howToRead: {
-        vi: 'Dương là giá cao hơn n phiên trước, âm là thấp hơn. Vì tính bằng phần trăm nên so ngang giữa các mã được, khác với động lượng tính bằng đồng.',
-        en: 'Positive means price is higher than n periods ago, negative means lower. Because it is expressed as a percentage it can be compared across different stocks, unlike momentum measured in VND.',
+        vi: 'So với mức tăng giảm của VN-Index trong đúng số phiên ấy: cao hơn nghĩa là mã đã đi khoẻ hơn thị trường chung, thấp hơn là yếu hơn. Số âm nghĩa là giá đang thấp hơn n phiên trước, 0 là giá đứng đúng chỗ cũ.',
+        en: 'Compared with the VN-Index change over exactly the same number of sessions: higher means the stock has moved more strongly than the market as a whole, lower means more weakly. A negative figure means the price is below where it was n sessions ago, and 0 means it is right where it was.',
       },
       commonMistakes: {
         vi: 'Chọn cửa sổ n trùng đúng một nhịp sóng của cổ phiếu, khiến ROC luôn quanh 0 dù giá vẫn đang chạy — đổi vài chu kỳ để đối chiếu trước khi kết luận.',
@@ -1301,8 +1301,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
         en: 'Use it when you follow one familiar stock closely and want to know how many dong a share has gained or lost compared with a few weeks ago, counted in money rather than as a percentage.',
       },
       howToRead: {
-        vi: 'Dấu cho biết chiều, độ lớn cho biết sức. Động lượng thu hẹp dần trong khi giá vẫn tạo đỉnh mới là dấu hiệu xu hướng đang đuối.',
-        en: 'The sign tells you direction, the magnitude tells you strength. Momentum shrinking while price keeps making new highs is a sign the trend is losing steam.',
+        vi: 'So với 0: dương nghĩa là giá mỗi cổ phiếu lúc này cao hơn giá đóng cửa của n phiên trước đúng bấy nhiêu đồng, âm là đang thấp hơn bấy nhiêu đồng, còn đúng 0 là giá đứng yên ở chỗ cũ.',
+        en: 'Compared with 0: positive means each share now trades that many dong above its closing price n sessions ago, negative means that many dong below it, and exactly 0 means the price is right where it was.',
       },
       commonMistakes: {
         vi: 'Đem động lượng của hai mã khác thị giá ra so: 1.000 ₫ trên cổ phiếu 25.000 ₫ mạnh hơn hẳn 1.000 ₫ trên cổ phiếu 200.000 ₫. Muốn so ngang thì dùng ROC.',
@@ -1458,8 +1458,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
         en: 'Use it when you are about to place a buy order and want to know how far the current price sits above or below its average of the past few weeks, instead of eyeballing it on the chart.',
       },
       howToRead: {
-        vi: 'Dương là giá nằm trên đường, âm là nằm dưới. Càng xa 0 thì càng căng, nhưng ngưỡng bao nhiêu là căng thì tuỳ độ biến động từng mã — phải đối chiếu với chính lịch sử của mã đó.',
-        en: "Positive means price is above the line, negative means below. The farther from 0, the more stretched — but how much counts as stretched depends on each stock's volatility, so it has to be checked against that stock's own history.",
+        vi: 'So với khoảng cách mà chính mã này thường có trong vài tháng qua: xa 0 hơn mức ấy nghĩa là giá đang giãn khỏi đường trung bình nhiều hơn thường lệ, gần 0 hơn là vẫn trong mức quen thuộc. Số dương là giá nằm trên đường trung bình, số âm là nằm dưới.',
+        en: 'Compared with the distance this stock usually shows over the past few months: further from 0 than that means the price has stretched away from its moving average more than usual, closer to 0 means it is still within its normal range. A positive figure means the price is above the average, a negative one below it.',
       },
       commonMistakes: {
         vi: 'Áp một ngưỡng cố định kiểu “trên 10% là quá xa” cho mọi cổ phiếu. Mã biến động mạnh thường xuyên lệch 15–20% mà chưa có gì bất thường.',
@@ -1604,8 +1604,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         en: 'Use it when you hold a stock and want to decide whether to keep it or exit by one clear marker, namely whether its short average price line sits above or below the long one, rather than by gut feeling.',
       },
       howToRead: {
-        vi: 'Kết quả tính bằng đồng: dương là đường ngắn đang nằm trên đường dài, âm là nằm dưới, và cả hai đường SMA thành phần đều trả kèm ở phần kết quả phụ. Hiệu gần 0 chỉ nói hai đường đang chồng nhau — có thể vì giá đi ngang, mà cũng có thể vì một nhịp đảo chiều đang diễn ra, nên phải nhìn cả chuỗi giá chứ đừng kết luận từ một con số.',
-        en: 'The result is in dong: positive means the short line currently sits above the long line, negative means below, and both component SMAs come back in the extra results. A difference near 0 only says the two lines overlap — that can be a sideways market, but it is just as much what a reversal looks like while it happens, so read the price series alongside it rather than concluding from a single number.',
+        vi: 'So với con số này ở phiên liền trước: đổi từ âm sang dương nghĩa là đường trung bình ngắn vừa cắt lên đường dài, từ dương sang âm là vừa cắt xuống, giữ nguyên dấu là chưa có lần cắt mới. Rất gần 0 là hai đường đang chồng lên nhau, chưa ngả về phía nào.',
+        en: 'Compared with this figure on the previous session: a switch from negative to positive means the short moving average has just crossed above the long one, from positive to negative means it has just crossed below, and an unchanged sign means no new cross. Very close to 0 means the two lines overlap and point neither way.',
       },
       commonMistakes: {
         vi: 'Giao dịch mọi lần cắt trong thị trường đi ngang: cặp đường sẽ cắt qua cắt lại liên tục và phí giao dịch ăn hết phần lãi. Sai thứ hai là quên rằng tín hiệu chỉ chốt khi phiên đã đóng cửa.',

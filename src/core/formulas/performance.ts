@@ -120,8 +120,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
         en: 'Use it when you see a fund or an investment product quoting its return per month or per week and want to convert it to a full-year figure to set beside a savings rate.',
       },
       howToRead: {
-        vi: 'So kết quả với lãi suất gửi tiết kiệm cùng kỳ hạn: cao hơn nghĩa là khoản lãi ngắn hạn đang thắng kênh gửi tiết kiệm nếu giữ nguyên nhịp đó cả năm. Vì tính theo lãi kép nên con số cao hơn phép nhân đơn thuần khi có nhiều hơn một kỳ mỗi năm — 2%/tháng ra 26,8%/năm chứ không phải 24%.',
-        en: 'Compare the result against a savings rate over the same horizon: higher means the short-term gain is beating a savings account if that pace held for a whole year. Because it compounds, the figure comes out higher than simple multiplication whenever there is more than one period per year — 2%/month becomes 26.8%/year, not 24%.',
+        vi: 'So với lãi suất tiết kiệm ngân hàng niêm yết theo năm: cao hơn nghĩa là nếu giữ được nhịp lãi của kỳ ngắn ấy suốt năm thì khoản này thắng gửi tiền, thấp hơn là thua. Số âm nghĩa là nếu kỳ nào cũng lỗ như kỳ ấy thì sau một năm vốn hụt đi chừng ấy phần trăm.',
+        en: 'Compared with the yearly savings rate banks quote: higher means that, if the short-period pace held all year, this would beat a deposit, and lower means it would lose to one. A negative figure means that if every period lost as much as this one, the capital would be down by that percentage after a year.',
       },
       commonMistakes: {
         vi: 'Coi con số năm hoá là mức chắc chắn đạt được — nó chỉ đúng nếu kỳ nào cũng lặp lại y hệt, điều hiếm khi xảy ra.',
@@ -275,8 +275,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
         en: 'Use it when you receive your savings or bond interest at year end and want to know whether, with prices rising too, your money can actually buy more than before.',
       },
       howToRead: {
-        vi: 'Kết quả âm nghĩa là tiền vẫn tăng trên sổ nhưng sức mua đang giảm. Lấy lợi suất trừ thẳng lạm phát chỉ là xấp xỉ; phép chia ở trên mới cho con số đúng.',
-        en: 'A negative result means the balance still grows on paper while purchasing power is shrinking. Simply subtracting inflation from the return is only an approximation; the division above gives the correct figure.',
+        vi: 'So với 0: dương nghĩa là sau một năm tiền của bạn mua được nhiều hàng hoá hơn lúc đầu, âm là mua được ít hơn dù số dư trên sổ có thể vẫn tăng, đúng 0 là tiền lãi chỉ vừa bù trượt giá.',
+        en: 'Compared with 0: positive means that after a year your money buys more goods than it did at the start, negative means it buys less even if the balance on your statement has grown, and exactly 0 means the interest only just kept pace with rising prices.',
       },
       commonMistakes: {
         vi: 'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77% — lệch càng lớn khi lạm phát càng cao.',
@@ -447,8 +447,8 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
         en: 'Use it when you come across two places to save that both quote a yearly rate, one adding the interest to your balance every month and the other every quarter or once a year, and want to know which really pays more.',
       },
       howToRead: {
-        vi: 'EAR luôn lớn hơn hoặc bằng lãi danh nghĩa; chênh lệch càng rõ khi lãi suất cao và ghép dày.',
-        en: 'EAR is always greater than or equal to the nominal rate; the gap widens as the rate rises and compounding gets more frequent.',
+        vi: 'So với lãi suất hiệu dụng của nơi gửi khác, tính cùng cách: cao hơn nghĩa là nơi này thực trả nhiều lãi hơn mỗi năm dù lãi suất niêm yết có thể thấp hơn, thấp hơn là trả ít hơn. Kết quả bằng đúng lãi suất niêm yết khi lãi chỉ nhập gốc mỗi năm một lần.',
+        en: 'Compared with the effective annual rate of another place to save, worked out the same way: higher means this one really pays more interest per year, even if its quoted rate is lower, and lower means it really pays less. The result equals the quoted rate exactly when interest is added to the balance only once a year.',
       },
       commonMistakes: {
         vi: 'So thẳng lãi danh nghĩa của hai sản phẩm mà bỏ qua tần suất ghép — bên ghép dày hơn thực chất trả nhiều lãi hơn.',
@@ -603,8 +603,8 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
         en: 'Use it when you plan to hold a steady dividend payer for years, using each dividend to buy more of the same stock, and want to estimate how much your money grows over that time.',
       },
       howToRead: {
-        vi: 'Phần chênh so với chỉ tính tăng giá chính là công của cổ tức tái đầu tư — nắm càng lâu phần này càng lớn.',
-        en: 'The gap versus price growth alone is the contribution of reinvested dividends — the longer the holding period, the larger that gap grows.',
+        vi: 'So với tổng tiền lãi gửi tiết kiệm cùng số năm, lãi nhập gốc, tính ra phần trăm: cao hơn nghĩa là giữ cổ phiếu và đem cổ tức mua thêm sinh lời hơn gửi ngân hàng, thấp hơn là kém hơn. Con số là mức tăng của cả quãng, nên vượt 100% nghĩa là vốn đã hơn gấp đôi.',
+        en: 'Compared with the total savings interest over the same number of years, compounded, as a percentage: higher means holding the stock and reinvesting its dividends beat a bank deposit, and lower means it did worse. The figure covers the whole period, so above 100% means the capital has more than doubled.',
       },
       commonMistakes: {
         vi: 'Bỏ quên cổ tức khi tính lợi suất dài hạn, hoặc quên rằng cổ tức thực nhận đã bị khấu trừ thuế nên con số thực tế thấp hơn.',
@@ -790,8 +790,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         en: "Use it when you have a portfolio's or fund's result for each year, some up and some down, and want to fold those two or three years into one average yearly rate.",
       },
       howToRead: {
-        vi: 'Luôn thấp hơn trung bình cộng khi lợi suất có biến động — biến động càng mạnh thì khoảng cách càng lớn.',
-        en: 'Always lower than the arithmetic average whenever returns fluctuate — the more volatile the returns, the larger the gap.',
+        vi: 'So với lãi suất tiết kiệm cho một kỳ cùng độ dài: cao hơn nghĩa là gộp cả kỳ lãi lẫn kỳ lỗ, bình quân mỗi kỳ vẫn sinh lời hơn gửi ngân hàng, thấp hơn là kém hơn. Số âm nghĩa là vốn cuối cùng thấp hơn vốn ban đầu, kể cả khi trong đó có một kỳ lãi lớn.',
+        en: 'Compared with the savings rate for a period of the same length: higher means that, good and bad periods together, each period on average earned more than a deposit, and lower means less. A negative figure means the capital ended below where it started, even if one period posted a big gain.',
       },
       commonMistakes: {
         vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%/kỳ — trong khi trung bình hình học đúng của hai kỳ này là khoảng −13,4%/kỳ, gộp lại đúng bằng mức vốn đã giảm 25% sau hai kỳ.',
@@ -967,8 +967,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
         en: 'Use it when you borrow on installments or lend to someone, know the upfront sum, the equal payment each period and the number of periods, and want to uncover the true interest rate behind those payments.',
       },
       howToRead: {
-        vi: 'IRR tính theo KỲ — dòng tiền theo tháng thì đây là %/tháng, muốn so với lãi suất năm phải năm hoá thêm một bước.',
-        en: 'IRR is expressed PER PERIOD — for monthly cash flows this is %/month; comparing it to an annual rate requires an extra annualizing step.',
+        vi: 'So với lãi suất năm được báo chia cho số kỳ trong năm, để cùng tính theo kỳ: cao hơn nghĩa là lãi thật trong các khoản trả đều cao hơn mức được báo, thấp hơn là thấp hơn. Kết quả 0 nghĩa là tổng các khoản trả vừa bằng vốn ban đầu, số âm là còn ít hơn.',
+        en: 'Compared with the quoted yearly rate divided by the number of periods in a year, so both are per period: higher means the true rate built into the equal payments is above the quoted one, and lower means below it. A result of 0 means the payments add up to exactly the initial capital, and a negative one means they add up to less.',
       },
       commonMistakes: {
         vi: 'Cộng thô các khoản thu rồi chia cho vốn: cách đó bỏ qua chuyện tiền nhận sớm giá trị hơn tiền nhận muộn.',
@@ -1194,8 +1194,8 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
         en: 'Use it when you are looking at the yearly rate of a savings account or a fund and want to know how many years your money must stay there to double.',
       },
       howToRead: {
-        vi: 'Kết quả chính là công thức chính xác ln(2) ÷ ln(1 + r); số phụ kèm theo là ước lượng 72 chia lợi suất — hai con số gần nhau ở mức lãi 5–12%.',
-        en: 'The result is the exact formula ln(2) ÷ ln(1 + r); the extra figure shown alongside is the 72-divided-by-rate approximation — the two are close in the 5–12% range.',
+        vi: 'So với số năm còn lại tới lúc bạn cần dùng khoản tiền: ít hơn nghĩa là tiền kịp gấp đôi trước lúc ấy, nhiều hơn là tới lúc cần dùng vẫn chưa gấp đôi. Phần lẻ sau dấu phẩy là phần của một năm, không phải số tháng.',
+        en: 'Compared with the number of years left until you need the money: fewer means it doubles in time, and more means it will not yet have doubled when you need it. The decimal part is a fraction of a year, not a number of months.',
       },
       commonMistakes: {
         vi: 'Dùng quy tắc 72 cho lợi suất rất cao hoặc rất thấp — ngoài vùng 5–12% ước lượng lệch rõ so với công thức chính xác.',
@@ -1341,8 +1341,8 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
         en: 'Use it when you have just closed a trade you held for only a few weeks and want to scale that gain to a yearly figure to compare with a savings deposit or a longer holding.',
       },
       howToRead: {
-        vi: 'Nắm giữ càng ngắn thì phép quy năm phóng đại càng mạnh — lãi 7,5% trong 90 ngày quy năm thành hơn 34%.',
-        en: 'The shorter the holding period, the more the annualization magnifies it — a 7.5% gain in 90 days annualizes to more than 34%.',
+        vi: 'So với lãi suất tiết kiệm kỳ hạn một năm, hay lợi suất mỗi năm của một khoản bạn giữ lâu hơn: cao hơn nghĩa là lệnh này sinh lời nhanh hơn, thấp hơn là chậm hơn. Số âm nghĩa là lệnh đã bán lỗ, nhưng đó là mức lỗ quy ra năm, không phải phần vốn đã mất.',
+        en: 'Compared with the one-year savings rate, or the yearly return of a position you held longer: higher means this trade earned faster, and lower means slower. A negative figure means the trade was closed at a loss, but it is that loss restated per year, not the share of capital you actually lost.',
       },
       commonMistakes: {
         vi: 'Coi con số quy năm là thành tích chắc chắn lặp lại được, và quên trừ phí với thuế vốn chiếm phần lớn ở các lệnh ngắn ngày.',
@@ -1538,8 +1538,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
         en: 'Use it when you review your portfolio at year end and want to know how far your own stock picks came out ahead of or behind the VN-Index over the same period.',
       },
       howToRead: {
-        vi: 'Dương nghĩa là thắng chuẩn, âm là thua chuẩn — thua chuẩn kéo dài nhiều kỳ liên tiếp là tín hiệu đáng xem lại cách chọn cổ phiếu hoặc mức phí đang trả, không phải một kỳ lẻ tẻ.',
-        en: 'Positive means beating the benchmark, negative means trailing it — a losing streak across many consecutive periods is a signal worth reviewing your stock-picking approach or the fees you are paying, not just a single off period.',
+        vi: 'So với 0: dương nghĩa là danh mục đã làm tốt hơn chuẩn so sánh bạn chọn trong cùng kỳ, âm là kém hơn, 0 là ngang bằng. Con số là khoảng cách tính bằng điểm phần trăm, không phải phần trăm của lợi suất chuẩn.',
+        en: 'Compared with 0: positive means the portfolio did better than the benchmark you chose over the same period, negative means worse, and 0 means level. The figure is a gap in percentage points, not a percentage of the benchmark return.',
       },
       commonMistakes: {
         vi: 'So với chuẩn không cùng mức rủi ro, hoặc lệch kỳ tính — hai lợi suất phải đo trên cùng một khoảng thời gian.',

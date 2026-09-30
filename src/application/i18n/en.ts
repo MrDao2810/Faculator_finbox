@@ -685,7 +685,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'notFound.formulas': 'Go to the formula list',
 
   /* ── Understanding check block (WF-19) ────────────────────────────────────────────────── */
-  'quiz.title': 'Practice',
+  'quiz.title': 'Exercise',
   /* Mộ chí: `quiz.lead` bỏ hẳn 24/09/2026, `quiz.countUnit` bỏ 29/09/2026 — lý do ghi ở `vi.ts`. */
   'quiz.step': 'Question {n} / {total}',
   'quiz.start': 'Start the check',
@@ -725,7 +725,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.empty.title': 'No questions for this formula yet',
   'quiz.empty.body':
     'We only write a question when a real source records where people misread the formula. This one has none yet.',
-  'quiz.notTranslated': 'These questions are not translated yet — showing the Vietnamese text.',
+  /* Mộ chí: `quiz.notTranslated` bỏ 30/09/2026 — lý do ghi ở `vi.ts`. */
   /* Mộ chí: `quiz.sourceKind.*` bị bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
   /* Mộ chí: `quiz.kind.*` (5 khoá) bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
 };

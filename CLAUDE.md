@@ -95,6 +95,28 @@ runs those rules over all 111 and also checks that two formulas never share a se
 cannot see a sentence promising a use `calc` does not support, such as describing monthly deposits
 for a lump-sum formula, so a new sentence must still be read against `calc`.
 
+**"Cách đọc kết quả" (`explanation.howToRead`) follows "So với [mốc]: …" / "Compared with [anchor]:
+…"** (30/09/2026), the owner's follow-up question on the same screen: "cần đọc như nào cho hợp lý".
+Measured on the old texts: 5 quoted the OLD worked example's own numbers (CAPM said "13.1%/year",
+the screen now shows 11.92%), 5 for the fee/tax formulas baked in a number computed from the current
+fee schedule, 13 carried no reading rule at all — only a property or sensitivity of the formula — and
+about 20 gave no comparison anchor ("a high P/E means…" high compared with what?). The fix: one
+sentence naming an anchor the reader actually has (the market price, 0, 1, 100%, a savings rate for
+the same term, a peer company, the same stock's own prior period, the loss you can tolerate…) plus
+AT MOST one more sentence for a value `calc` genuinely returns that reads as wrong at first glance
+(negative, zero, past 100%, rounded, a sign convention). Nothing that fell outside that shape was
+moved anywhere — the owner chose to drop it, not relocate it. `src/core/how-to-read-rules.ts` holds
+the rules (shares its acronym list and buy/sell patterns with `when-to-use-rules.ts`): the opening
+words, an anchor named before the colon, a length cap, no long dash, no pointing at the worked
+example or the chart, no "numerator/denominator", no other formula's acronym, and numbers restricted
+to 0/1/100 plus a **per-formula, written-reason** allowlist (`QUY_UOC`) for a few named market
+conventions (RSI's 70/30/50, Stochastic's 80/20) — an ad-hoc threshold like "ROE above 15%" is not
+allowed even though the old text had ones like it. Same 10-agent draft-plus-adversarial-pass shape as
+the sentence above; `how-to-read-rules.test.ts` gates all 111. One real `calc` defect surfaced while
+writing prose, not fixed here: `mo-hinh-gordon` guards `dividend === 0` with `fail(MEANINGLESS)` and
+documents exactly why (FR-06 — a silent `ok(0 ₫)` reads as a real share price), but the sibling
+`ddm-hai-giai-doan` takes the same `dividend` input with no such guard.
+
 Tests are `src/**/*.test.ts` and `*.test.tsx`, colocated next to the module under test. The default
 environment is `node` (`vitest.config.ts`); a file that needs a DOM opts in with a
 `// @vitest-environment jsdom` comment on line 1 rather than a global config — `environmentMatchGlobs`
@@ -1167,8 +1189,13 @@ The English side splits in two. The 40 UI strings are all translated; the questi
 of 411, counted out loud by a case in `quiz.test.ts`, because every question written from batch 1
 onward is bilingual from the start while the 206 of the first pass were Vietnamese only (93 of them
 now have `explain.en`, but not yet `prompt.en` or `choices.en`). `QuizBody` falls back to
-Vietnamese and says so. The verbatim quote stays in its source's language in BOTH versions:
-translating it away is what removes the reader's ability to check it.
+Vietnamese **silently** — it said so out loud (`quiz.notTranslated`) until the owner called that
+sentence one more "meaningless explanation line" and had it dropped (30/09/2026, same reasoning
+and same shape as `quiz.lead`/`quiz.few.body`): the fallback itself is unchanged, only the
+announcement of it is gone. `QuizBody.test.tsx` pins the inverted case — the sentence never
+renders, even for a formula whose bank is still Vietnamese-only — so anyone who reads it coming
+back knows that is a decision, not a slip. The verbatim quote stays in its source's language in
+BOTH versions: translating it away is what removes the reader's ability to check it.
 
 ## The worked example block ("Ví dụ thực tế") — same shape as a quiz solution
 

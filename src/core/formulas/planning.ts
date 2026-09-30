@@ -174,8 +174,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         en: 'Use it when you suddenly need cash partway through a term and want to know how much interest you would still get by closing your savings deposit before maturity.',
       },
       howToRead: {
-        vi: 'So con số này với phần lãi đáng lẽ được hưởng nếu tính theo lãi suất hợp đồng cho cùng số tháng đã gửi — chênh lệch chính là cái giá của việc rút sớm.',
-        en: 'Compare this figure with the interest you would have earned at the contract rate for the same number of months held — the gap is the price of withdrawing early.',
+        vi: 'So với tiền lãi tính theo lãi suất ghi trên sổ cho đúng số tháng đã gửi: con số này thấp hơn bao nhiêu thì bạn bỏ lại bấy nhiêu tiền lãi vì rút sớm. Kết quả 0 ₫ nghĩa là chưa gửi đủ tháng nào hoặc ngân hàng không trả lãi không kỳ hạn.',
+        en: 'Compared with the interest the rate on your deposit book would pay for the same months held: the gap between the two is the interest you give up by withdrawing early. A result of 0 ₫ means not a single full month has passed, or the bank pays no interest on demand deposits.',
       },
       commonMistakes: {
         vi: 'Tưởng gửi được gần hết kỳ hạn thì lãi mất ít. Rút trước hạn dù chỉ một ngày, cả quãng đã gửi vẫn chỉ được trả lãi không kỳ hạn; ngân hàng còn tính theo số ngày thực gửi nên con số thực tế có thể lệch nhẹ so với ước tính theo tháng.',
@@ -398,8 +398,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
         en: 'Use it when you have cash you will not need for a while and are torn between short deposits you keep rolling over and locking it into one longer deposit at a higher rate.',
       },
       howToRead: {
-        vi: 'Kết quả dương là quay vòng kỳ ngắn được nhiều tiền hơn; âm là sổ kỳ dài thắng. Chênh lệch lãi suất giữa hai kỳ hạn càng lớn thì kỳ dài càng khó bị đuổi kịp.',
-        en: 'A positive result means rolling over short terms yields more money; a negative one means the long-term book wins. The larger the rate gap between the two terms, the harder it is for the long term to be caught up.',
+        vi: 'So với 0: dương nghĩa là quay vòng kỳ ngắn rốt cuộc cầm về nhiều hơn sổ kỳ dài đúng chừng ấy đồng, âm là sổ kỳ dài cầm về nhiều hơn chừng ấy. Số âm không có nghĩa là mất tiền gốc, chỉ là quay vòng thu về ít lãi hơn.',
+        en: 'Compared with 0: positive means rolling over short terms ends with that many more dong than the long-term deposit, and negative means the long-term deposit ends with that much more. A negative figure does not mean losing principal, only that rolling over earns less interest.',
       },
       commonMistakes: {
         vi: 'Quên rằng khi quay vòng, lãi suất kỳ ngắn của các vòng sau có thể đã đổi — công thức giả định mức lãi giữ nguyên suốt các vòng.',
@@ -664,8 +664,8 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         en: 'Use it when you have bought the same stock in two or three rounds at different prices and want to know what you really paid per share on average, before deciding whether to buy more or wait.',
       },
       howToRead: {
-        vi: 'So giá vốn trung bình vừa tính với thị giá hiện tại: thấp hơn thị giá là đang lãi, cao hơn là đang lỗ. Con số này luôn nằm giữa mức giá thấp nhất và cao nhất trong các đợt đã mua, không bao giờ vượt ra ngoài khoảng đó.',
-        en: "Compare this average cost with the stock's current market price: below it means you are in profit, above it means a loss. The figure always falls between the lowest and highest prices among your purchase rounds, never outside that range.",
+        vi: 'So với giá khớp hiện tại của mã trên bảng giá: giá thị trường cao hơn giá vốn này nghĩa là tính gộp mọi đợt mua, bạn đang lãi, thấp hơn là đang lỗ, chưa trừ phí và thuế.',
+        en: "Compared with the stock's current market price: a market price above this average cost means that, taking all rounds together, you are in profit, and below it means a loss, before fees and taxes.",
       },
       commonMistakes: {
         vi: 'Cộng các mức giá rồi chia ba, coi đó là giá vốn. Cách tính này bỏ qua số tiền khác nhau ở mỗi đợt, nên có thể lệch khá xa so với giá vốn thực — lệch theo hướng nào còn tuỳ đợt nào được rót nhiều tiền hơn.',
@@ -898,8 +898,8 @@ export const SO_KY_DCA: FormulaModule = {
         en: 'Use it when you know how much you can put into a fund or stocks each month and want to know how many months of steady contributions it takes to reach your target sum.',
       },
       howToRead: {
-        vi: 'Kết quả đã làm tròn lên kỳ trọn vẹn gần nhất. Tăng mức góp rút ngắn thời gian chắc chắn hơn nhiều so với kỳ vọng lợi suất cao — lợi suất là thứ không hứa trước được.',
-        en: 'The result is rounded up to the nearest whole period. Increasing the contribution shortens the timeline far more reliably than counting on a high expected return — returns are never guaranteed in advance.',
+        vi: 'So với số tháng còn lại tới lúc bạn cần tiền: ít hơn nghĩa là kịp đích nếu góp đều và lợi suất đúng kỳ vọng, nhiều hơn là phải góp nhiều hơn mỗi tháng hoặc lùi mốc. Kết quả đã làm tròn lên tháng trọn vẹn, nên tháng cuối số tiền có thể nhỉnh hơn mục tiêu.',
+        en: 'Compared with the months left until you need the money: fewer means you get there on time if you contribute steadily and the return matches your expectation, and more means you must contribute more each month or push the date back. The result is rounded up to a whole month, so by the last month the balance may slightly exceed the goal.',
       },
       commonMistakes: {
         vi: 'Lấy mục tiêu chia cho mức góp rồi coi đó là số tháng — cách đó bỏ qua lợi nhuận tích luỹ nên cho thời gian dài hơn hoặc bằng thực tế (bằng nhau khi lợi suất kỳ vọng là 0%), chênh lệch rõ nhất ở kế hoạch nhiều năm.',
@@ -1091,8 +1091,8 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
         en: 'Use it when you receive a cash dividend on a stock and then sell those shares during the year, and want to add up how much personal income tax was withheld across both.',
       },
       howToRead: {
-        vi: 'So tổng thuế này với phần lãi hoặc lỗ thực tế từ giao dịch, để thấy thuế chiếm bao nhiêu trong khoản tiền nhận về. Biểu đồ bóc tách bên dưới tách riêng phần đến từ bán và phần đến từ cổ tức.',
-        en: 'Compare this total tax with the actual gain or loss from the transaction, to see how much of the money you receive it takes up. The breakdown chart below separates the portion from the sale from the portion from the dividend.',
+        vi: 'So với khoản lời của khoản đầu tư này trong năm, gồm tiền chênh giữa giá bán với giá mua cộng cổ tức: thấp hơn nghĩa là nộp thuế xong bạn vẫn còn lời, cao hơn nghĩa là sau thuế bạn lỗ, dù trước thuế có thể vẫn lời.',
+        en: "Compared with this investment's profit for the year, the gap between sale and purchase price plus dividends: lower means you still keep a profit after paying the tax, and higher means you are at a loss after tax, even if you were in profit before it.",
       },
       commonMistakes: {
         vi: 'Tưởng bán lỗ thì cả năm không mất đồng thuế nào — thuế chuyển nhượng thu theo giá trị bán, không theo lãi.',

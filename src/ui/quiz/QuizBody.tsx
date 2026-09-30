@@ -142,18 +142,6 @@ export function QuizBody({
     [locale],
   );
 
-  /*
-   * Soi ĐỦ mọi đoạn chữ của câu, không riêng đề bài: câu dịch nửa vời — có `prompt.en` nhưng
-   * thiếu `explain.en` — vẫn rơi về tiếng Việt ở phần giải thích, nên vẫn phải nói là chưa dịch.
-   */
-  const chuaDich =
-    locale === 'en' &&
-    items.some((entry) =>
-      [entry.prompt, entry.explain].some(
-        (value) => value.en === undefined || value.en.trim() === '',
-      ),
-    );
-
   const item = queue[index];
   const total = queue.length;
 
@@ -369,11 +357,14 @@ export function QuizBody({
         )}
       </div>
 
-      {chuaDich && <p className={styles.note}>{t('quiz.notTranslated')}</p>}
-
       {/*
         Câu "Công thức này mới có ít câu, vì tư liệu thật chỉ có thế…" (`quiz.few.body`) đã BỎ
         ngày 29/09/2026 — chủ dự án gọi nó là chữ thừa. Hàng này nay chỉ còn điểm lần trước.
+
+        Câu "These questions are not translated yet…" (`quiz.notTranslated`) BỎ cùng lý do,
+        30/09/2026: chủ dự án gọi nó là "câu giải thích vô nghĩa", muốn tiết kiệm không gian.
+        Bản tiếng Việt vẫn hiện y như cũ khi câu chưa có `en` (`chu()` ở trên tự rơi về `.vi`) —
+        chỉ bỏ CÂU THÔNG BÁO việc đó, không đổi hành vi rơi về tiếng Việt.
       */}
       {phase === 'idle' && saved !== null && (
         <div className={styles.intro}>

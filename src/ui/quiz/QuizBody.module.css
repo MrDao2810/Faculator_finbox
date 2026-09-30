@@ -73,15 +73,10 @@
   color: var(--color-accent);
 }
 
-.lead,
-.note {
+.lead {
   margin: 0;
   font-size: 0.8125rem;
   color: var(--color-ink-soft);
-}
-
-.note {
-  color: var(--color-muted);
 }
 
 .intro,

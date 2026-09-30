@@ -201,8 +201,8 @@ export const EPS_CO_BAN: FormulaModule = {
         en: "Use it when you have just read a company's quarterly or yearly profit report and want to know how many dong of profit each share you hold earned, compared with the same period last year.",
       },
       howToRead: {
-        vi: 'EPS tăng đều qua các năm là dấu hiệu tốt; EPS âm nghĩa là doanh nghiệp đang lỗ trên mỗi cổ phiếu.',
-        en: 'EPS rising steadily year after year is a good sign; a negative EPS means the company is losing money on a per-share basis.',
+        vi: 'So với EPS của chính công ty ở cùng kỳ năm trước: cao hơn nghĩa là mỗi cổ phiếu bạn cầm đang làm ra nhiều lãi hơn, thấp hơn là ít hơn. Số âm nghĩa là công ty đang lỗ, tính trên mỗi cổ phiếu.',
+        en: "Compared with the company's own EPS for the same period a year earlier: higher means each share you hold is earning more profit, lower means it is earning less. A negative figure means the company is making a loss, counted per share.",
       },
       commonMistakes: {
         vi: 'So EPS tuyệt đối giữa hai doanh nghiệp có số cổ phiếu khác nhau — EPS 1.000 ₫ không tệ hơn EPS 6.000 ₫ nếu thị giá cũng thấp tương ứng.',
@@ -327,8 +327,8 @@ export const BVPS: FormulaModule = {
         en: "Use it when you read a financial statement and want to turn equity worth trillions of dong into dong per share, to set beside the share price or against last year's figure.",
       },
       howToRead: {
-        vi: 'Thị giá thấp hơn BVPS nghĩa là thị trường định giá doanh nghiệp dưới giá trị sổ sách — cần tìm hiểu vì sao trước khi kết luận là rẻ.',
-        en: 'A market price below BVPS means the market is valuing the company under its book value — find out why before concluding it is cheap.',
+        vi: 'So với giá thị trường hiện tại của cổ phiếu: giá cao hơn con số này nghĩa là thị trường trả thêm cho khả năng làm ra lãi của công ty, giá thấp hơn nghĩa là thị trường định giá công ty dưới số vốn ghi trên sổ, thường vì lo công ty làm ăn kém đi.',
+        en: "Compared with the current market price of the share: a price above this figure means the market is paying extra for the company's ability to earn profit, and a price below it means the market values the company at less than the equity on its books, usually out of worry that business is weakening.",
       },
       commonMistakes: {
         vi: 'Coi BVPS là giá trị thanh lý thật. Sổ sách ghi theo giá gốc, tài sản thực tế có thể bán được cao hơn hoặc thấp hơn nhiều.',
@@ -457,8 +457,8 @@ export const ROE: FormulaModule = {
         en: 'Use it when you are shortlisting a few companies to hold for the long run and want to know which one earns more profit on the money that belongs to its shareholders.',
       },
       howToRead: {
-        vi: 'ROE giữ được trên 15% nhiều năm liền thường là doanh nghiệp tốt. ROE cao đột biến một năm thì phải xem có phải nhờ lợi nhuận bất thường hay vay nợ nhiều.',
-        en: 'An ROE holding above 15% for several years in a row usually signals a good company. A sudden spike in ROE for one year should be checked — it may come from a one-off gain or heavy borrowing.',
+        vi: 'So với lãi suất gửi tiết kiệm kỳ hạn một năm, khi lợi nhuận nhập vào là của cả năm: cao hơn nghĩa là vốn của cổ đông đang sinh lời hơn gửi ngân hàng, thấp hơn là kém cả gửi tiền. Số âm nghĩa là công ty đang lỗ trên vốn của cổ đông.',
+        en: "Compared with the one-year savings deposit rate, when the profit entered covers a full year: higher means shareholders' capital is earning more than a bank deposit would, lower means it is earning less. A negative figure means the company is losing money on its shareholders' capital.",
       },
       commonMistakes: {
         vi: 'Chỉ nhìn ROE mà quên đòn bẩy: vay nợ nhiều làm vốn chủ nhỏ đi và thổi ROE lên cao, kèm theo rủi ro lớn hơn.',
@@ -584,8 +584,8 @@ export const ROA: FormulaModule = {
         en: 'Use it when you compare two companies in the same industry where one borrows far more than the other, and want to know which earns more profit on everything it owns, including what was bought with borrowed money.',
       },
       howToRead: {
-        vi: 'So ROA với trung bình ngành là cách đọc đáng tin cậy nhất, vì mỗi ngành cần lượng tài sản khác nhau để tạo ra doanh thu. Trong cùng một doanh nghiệp có lãi, ROA thường thấp hơn ROE vì tổng tài sản bao gồm cả vốn chủ lẫn nợ phải trả — khoảng cách càng rộng thì vay nợ càng nhiều.',
-        en: 'Comparing ROA with the industry average is the most reliable way to read it, since different industries need different amounts of assets to generate revenue. Within the same profitable company, ROA is usually lower than ROE because total assets include both equity and liabilities — the wider the gap, the more debt the company carries.',
+        vi: 'So với ROA của các công ty cùng ngành trong cùng kỳ: cao hơn nghĩa là công ty làm ra nhiều lãi hơn trên mỗi đồng tài sản đang dùng, thấp hơn là dùng tài sản kém hiệu quả hơn đối thủ. Số âm nghĩa là công ty đang lỗ.',
+        en: 'Compared with the ROA of companies in the same industry for the same period: higher means the company earns more profit on each dong of assets it uses, lower means it uses its assets less efficiently than its rivals. A negative figure means the company is making a loss.',
       },
       commonMistakes: {
         vi: 'So ROA giữa hai ngành khác cấu trúc tài sản — ngân hàng và bán lẻ có mặt bằng ROA hoàn toàn khác nhau.',
@@ -694,8 +694,8 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
         en: 'Use it when you read a financial statement where revenue jumped but profit lagged behind, and want to know how much of each dong of sales the company keeps after every expense.',
       },
       howToRead: {
-        vi: "Biên ròng mỏng nghĩa là chỉ cần chi phí nhích nhẹ là lợi nhuận bốc hơi; biên dày cho doanh nghiệp sức chịu đựng tốt hơn khi thị trường xấu. Mức 'mỏng' hay 'dày' phụ thuộc vào ngành, nên chỉ nên so sánh biên ròng giữa các doanh nghiệp cùng lĩnh vực hoặc so với chính doanh nghiệp đó ở các kỳ trước.",
-        en: "A thin net margin means a small uptick in costs can wipe out profit; a thick margin gives a company more resilience when the market turns bad. What counts as 'thin' or 'thick' depends on the industry, so only compare net margin across companies in the same field, or against the same company's own prior periods.",
+        vi: 'So với biên ròng của chính công ty ở các kỳ trước: cao hơn nghĩa là mỗi đồng doanh thu giữ lại được nhiều lãi hơn, thấp hơn là chi phí đang ăn vào lãi nhiều hơn. Số âm nghĩa là công ty đang lỗ, trên 100% là lãi đến chủ yếu từ khoản ngoài bán hàng.',
+        en: "Compared with the company's own net margin in earlier periods: higher means each dong of revenue is keeping more profit, lower means costs are eating more of it than before. A negative figure means the company is making a loss, and above 100% means profit comes mainly from sources other than sales.",
       },
       commonMistakes: {
         vi: 'So biên ròng giữa bán lẻ (thường vài phần trăm) với phần mềm (vài chục phần trăm) rồi kết luận bán lẻ kém.',
@@ -821,8 +821,8 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
         en: 'Use it when you read news of rising raw-material costs or rivals cutting prices, and want to know how much of each dong of sales is left after subtracting just the cost of making the goods themselves.',
       },
       howToRead: {
-        vi: 'Biên gộp ổn định hoặc tăng dần là dấu hiệu doanh nghiệp giữ được giá bán; biên gộp co lại thường do cạnh tranh ép giá hoặc chi phí đầu vào tăng.',
-        en: 'A stable or rising gross margin signals the company is holding its selling price; a shrinking gross margin usually comes from competitive price pressure or rising input costs.',
+        vi: 'So với biên gộp của các công ty cùng ngành trong cùng kỳ: cao hơn nghĩa là công ty bán được giá tốt hơn so với chi phí làm ra hàng, thấp hơn là đang phải bán sát giá vốn hơn đối thủ. Số âm nghĩa là công ty đang bán dưới giá vốn.',
+        en: 'Compared with the gross margin of companies in the same industry for the same period: higher means the company gets a better price relative to what the goods cost to make, lower means it sells closer to cost than its rivals. A negative figure means the company is selling below cost.',
       },
       commonMistakes: {
         vi: 'Nhầm biên gộp với biên ròng — biên gộp cao vẫn có thể lỗ ròng nếu chi phí vận hành và lãi vay quá lớn.',
@@ -957,8 +957,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         en: 'Use it when you hear that lending rates are rising and want to know how large a debt load the company whose shares you plan to buy is carrying compared with the capital that belongs to its shareholders.',
       },
       howToRead: {
-        vi: 'D/E trên 2 lần là mức đòn bẩy cao với phần lớn ngành sản xuất; riêng ngân hàng và bất động sản có mặt bằng nợ khác hẳn.',
-        en: 'A D/E above 2x is high leverage for most manufacturing industries; banks and real estate, however, sit on an entirely different debt baseline.',
+        vi: 'So với hệ số của các công ty cùng ngành ở cùng thời điểm: cao hơn nghĩa là công ty gánh nhiều nợ hơn đối thủ trên mỗi đồng vốn của cổ đông, thấp hơn là nhẹ nợ hơn. Trên 1 nghĩa là tổng nợ phải trả đã nhiều hơn số vốn thuộc về cổ đông.',
+        en: "Compared with the ratio of companies in the same industry at the same time: higher means the company carries more debt than its rivals for each dong of shareholders' capital, lower means it is less indebted. Above 1 means total liabilities already exceed the capital that belongs to shareholders.",
       },
       commonMistakes: {
         vi: 'Coi mọi khoản nợ như nhau — nợ chiếm dụng nhà cung cấp không tốn lãi, khác hẳn nợ vay ngân hàng.',
@@ -1083,8 +1083,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         en: 'Use it when you read that a company has a large debt coming due and want to know whether its cash, the money customers still owe it and the goods in its warehouse can cover the debts falling due within the year.',
       },
       howToRead: {
-        vi: 'Dưới 1 lần nghĩa là nợ đến hạn nhiều hơn tài sản có thể xoay — dấu hiệu căng thẳng thanh khoản; quá cao lại có thể là ứ đọng vốn.',
-        en: 'Below 1x means liabilities coming due exceed the assets available to cover them — a sign of liquidity stress; too high can instead mean idle, poorly deployed capital.',
+        vi: 'So với 1: trên 1 nghĩa là tài sản ngắn hạn đủ trả hết nợ đến hạn trong năm và còn dư, dưới 1 là chưa đủ, công ty phải trông vào tiền làm ra sau này hoặc vay thêm mới trả kịp.',
+        en: 'Compared with 1: above 1 means current assets are enough to pay off all the debts falling due within the year with some to spare, below 1 means they fall short, so the company must count on cash it has yet to earn or on new borrowing to pay on time.',
       },
       commonMistakes: {
         vi: 'Yên tâm với hệ số cao mà không nhìn cơ cấu: tài sản ngắn hạn toàn hàng tồn kho khó bán thì hệ số cao cũng không cứu được.',
@@ -1204,8 +1204,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         en: 'Use it when you are looking at a property, steel or retail company sitting on a lot of unsold goods and want to know whether it could still meet its debts coming due if those goods do not sell.',
       },
       howToRead: {
-        vi: 'Quanh 1 lần trở lên là an toàn; thấp hơn hẳn hệ số hiện hành nghĩa là thanh khoản đang phụ thuộc nặng vào việc bán được hàng tồn.',
-        en: 'Around 1x or higher is safe; a quick ratio much lower than the current ratio means liquidity depends heavily on being able to sell inventory.',
+        vi: 'So với 1: trên 1 nghĩa là chưa cần bán món hàng nào trong kho, phần tài sản ngắn hạn còn lại vẫn đủ trả hết nợ đến hạn trong năm, dưới 1 là việc trả nợ đúng hạn phụ thuộc vào chuyện bán được hàng trong kho.',
+        en: 'Compared with 1: above 1 means that without selling anything from inventory, the rest of the current assets can still pay off all the debts falling due within the year, and below 1 means paying on time depends on selling the goods in inventory.',
       },
       commonMistakes: {
         vi: 'Quên rằng khoản phải thu trong tử số cũng có thể khó đòi — hệ số nhanh cao chưa chắc tiền đã về kịp.',
@@ -1327,8 +1327,8 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
         en: 'Use it when you see a company that has just opened many new stores or plants and want to know how much revenue its assets now bring in, compared with before or with a rival in the same industry.',
       },
       howToRead: {
-        vi: 'Bán lẻ quay nhanh (trên 2 vòng) nhưng biên mỏng; điện nước hay bất động sản quay chậm (dưới 0,5 vòng) nhưng biên dày. So sánh phải trong cùng ngành.',
-        en: 'Retail turns quickly (above 2x) but with thin margins; utilities or real estate turn slowly (below 0.5x) but with thick margins. Comparisons must stay within the same industry.',
+        vi: 'So với vòng quay của chính công ty ở các năm trước, khi doanh thu nhập vào là của cả năm: cao hơn nghĩa là mỗi đồng tài sản đang mang về nhiều doanh thu hơn, thấp hơn là mỗi đồng tài sản đang mang về ít doanh thu hơn trước.',
+        en: "Compared with the company's own turnover in earlier years, when the revenue entered covers a full year: higher means each dong of assets is bringing in more revenue, lower means each dong of assets is bringing in less revenue than before.",
       },
       commonMistakes: {
         vi: 'Kết luận vòng quay thấp là kém mà không nhìn mô hình kinh doanh — doanh nghiệp thâm dụng tài sản vốn dĩ quay chậm.',
@@ -1470,8 +1470,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         en: 'Use it when you hold a stock for its cash dividend and want to know how big a slice of the per-share profit that dividend takes, especially right after the company reports lower profit.',
       },
       howToRead: {
-        vi: 'Trên 100% nghĩa là trả nhiều hơn số lãi làm ra — phải lấy từ tiền tích luỹ, khó bền. Doanh nghiệp tăng trưởng nhanh thường giữ hệ số thấp để tái đầu tư.',
-        en: 'Above 100% means the company is paying out more than it earns — it must draw on accumulated cash, which is hard to sustain. Fast-growing companies tend to keep this ratio low to reinvest.',
+        vi: 'So với 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra, phải lấy thêm từ tiền tích luỹ. Kết quả 0 chưa chắc là công ty không chia gì, vì cổ tức bằng cổ phiếu không tính ở đây.',
+        en: 'Compared with 100%: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned and must dip into accumulated cash. A result of 0 does not necessarily mean the company paid nothing, because stock dividends are not counted here.',
       },
       commonMistakes: {
         vi: 'Chỉ nhìn tỷ suất cổ tức cao mà không xem hệ số chi trả — cổ tức cao nhờ trả vượt khả năng lợi nhuận là cổ tức sắp bị cắt.',

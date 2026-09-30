@@ -199,8 +199,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         en: 'Use it when you are about to trade VN30F and want to know what price, in points, the contract ought to sit near once interest rates, dividends and the days left to expiry are counted, to set beside the matched price.',
       },
       howToRead: {
-        vi: 'Giá thị trường cao hơn giá lý thuyết đáng kể là thị trường đang hưng phấn; thấp hơn nhiều là đang bi quan về chỉ số.',
-        en: 'A market price significantly above the theoretical price signals bullish exuberance; well below it signals pessimism about the index.',
+        vi: 'So với giá VN30F đang khớp trên bảng điện: giá khớp cao hơn con số này nghĩa là người giao dịch đang trả thêm vì kỳ vọng chỉ số tăng, thấp hơn là thị trường đang bi quan hơn mức hợp lý.',
+        en: 'Compared with the VN30F price currently matched on the board: a matched price above this figure means traders are paying extra because they expect the index to rise, and one below it means the market is gloomier than the fair level.',
       },
       commonMistakes: {
         vi: 'So giá hợp đồng với chỉ số hiện tại rồi kết luận đắt rẻ ngay — phần chênh do lãi suất và cổ tức là bình thường, không phải định giá sai.',
@@ -371,8 +371,8 @@ export const BASIS_VN30F: FormulaModule = {
         en: 'Use it when you see VN30F trading above or below the VN30 index on the board and want to know exactly how many points apart they are before you place an order.',
       },
       howToRead: {
-        vi: 'Không đọc thẳng mọi basis dương là kỳ vọng tăng — một phần mức đó thường chỉ là chi phí nắm giữ hợp lý (xem mục Sai lầm thường gặp). Basis vượt hẳn mức chi phí đó, hoặc basis âm sâu bất thường, mới đáng đọc là tâm lý thị trường. Càng gần đáo hạn basis càng co về 0.',
-        en: "Don't read every positive basis as a bullish signal — a part of it is usually just the fair cost of carry (see Common mistakes). Only a basis that clearly exceeds that cost, or an unusually deep negative basis, is worth reading as market sentiment. The basis converges to 0 as expiry approaches.",
+        vi: 'So với khoảng chênh hợp lý, tức giá lý thuyết hợp đồng tương lai trừ chỉ số VN30 cùng lúc: basis lớn hơn nghĩa là hợp đồng đang được trả thêm vì lạc quan, nhỏ hơn hoặc âm sâu nghĩa là thị trường đang bi quan về chỉ số.',
+        en: 'Compared with the fair gap, the theoretical futures price minus the VN30 index at the same moment: a larger basis means buyers are paying extra out of optimism, and a smaller or deeply negative one means the market is pessimistic about the index.',
       },
       commonMistakes: {
         vi: 'Quên rằng một phần basis là chi phí nắm giữ hợp lý (lãi suất trừ cổ tức) — không phải cứ basis dương là thị trường hưng phấn.',
@@ -523,8 +523,8 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
         en: 'Use it when you have opened a long VN30F position expecting the market to rise and want to know how much money you make or lose if you close it once the contract reaches a given level.',
       },
       howToRead: {
-        vi: 'Điểm đóng cao hơn điểm mở là lãi, thấp hơn là lỗ. Lãi lỗ được thanh toán bù trừ hằng ngày chứ không đợi tới lúc đóng vị thế.',
-        en: 'Closing points above opening points means a profit, below means a loss. P&L is settled daily through mark-to-market, not just when the position is closed.',
+        vi: 'So với số tiền lãi bạn nhắm tới khi mở vị thế: lớn hơn nghĩa là đóng ở mức điểm ấy đã vượt mục tiêu, nhỏ hơn là chưa tới. Số âm là khoản lỗ, xảy ra khi điểm đóng thấp hơn điểm mở.',
+        en: 'Compared with the profit you were aiming for when you opened the position: larger means closing at that level already beats your target, smaller means it falls short. A negative figure is a loss, which happens when the closing level is below the opening level.',
       },
       commonMistakes: {
         vi: 'Quên rằng con số này chưa trừ phí giao dịch và thuế, và quên rằng lỗ chạm mức cảnh báo sẽ bị gọi ký quỹ bổ sung giữa chừng.',
@@ -686,8 +686,8 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
         en: 'Use it when you have opened a short VN30F position expecting the market to fall and want to know how much money you make or lose if you close it at a given level, whether above or below where you opened.',
       },
       howToRead: {
-        vi: 'Điểm đóng thấp hơn điểm mở là lãi, cao hơn là lỗ — ngược chiều hoàn toàn với vị thế Long.',
-        en: 'Closing points below opening points means a profit, above means a loss — exactly the opposite of a long position.',
+        vi: 'So với số tiền bạn chấp nhận mất cho vị thế này: khoản lỗ lớn hơn nghĩa là đóng ở mức điểm ấy bạn đã mất quá sức chịu, nhỏ hơn là còn trong mức đã định. Kết quả dương là lãi, có được khi điểm đóng thấp hơn điểm mở.',
+        en: 'Compared with the amount you accept losing on this position: a loss larger than that means closing at that level costs more than you can bear, a smaller one keeps it within your limit. A positive result is a profit, earned when the closing level is below the opening level.',
       },
       commonMistakes: {
         vi: 'Nghĩ rằng lỗ của vị thế bán có giới hạn. Chỉ số tăng không có trần, nên lỗ của Short về lý thuyết không có đáy.',
@@ -869,8 +869,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         en: 'Use it when you have just deposited money into a derivatives account and want to know the largest number of VN30F contracts that deposit can cover in margin.',
       },
       howToRead: {
-        vi: 'Kết quả làm tròn xuống số nguyên; ra 0 nghĩa là vốn chưa đủ ký quỹ cho dù chỉ một hợp đồng. Mở kín trần thì một nhịp ngược nhỏ đã bị gọi ký quỹ.',
-        en: 'The result is rounded down to a whole number; a result of 0 means the capital is not even enough to margin a single contract. Opening right up to the ceiling means even a small adverse move triggers a margin call.',
+        vi: 'So với số hợp đồng bạn định mở: định mở nhiều hơn con số này thì tài khoản không đủ tiền ký quỹ ban đầu, ít hơn thì còn tiền dư ngoài phần ký quỹ. Kết quả đã làm tròn xuống, 0 nghĩa là vốn chưa đủ ký quỹ cho dù chỉ một hợp đồng.',
+        en: 'Compared with the number of contracts you plan to open: planning more than this means the account lacks the initial margin for them, planning fewer leaves spare cash beyond the margin. The result is rounded down, so 0 means the capital does not cover the margin for even one contract.',
       },
       commonMistakes: {
         vi: 'Coi số tối đa là số nên mở. Trần này chỉ nói tài khoản đủ tiền ký quỹ, không nói gì về mức rủi ro hợp lý — cỡ vị thế nên tính theo % rủi ro.',
@@ -1085,8 +1085,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
         en: 'Use it when you are about to open a VN30F trade with your stop-loss distance in points already set, and want to know how many contracts to open so hitting the stop costs no more than the amount you set aside.',
       },
       howToRead: {
-        vi: 'Kết quả làm tròn xuống số nguyên hợp đồng, nên rủi ro thực luôn nhỏ hơn hoặc bằng mức đã định. Ra 0 nghĩa là mức cắt lỗ này quá rộng cho số vốn hiện có.',
-        en: 'The result is rounded down to a whole number of contracts, so the actual risk is always less than or equal to the defined level. A result of 0 means this stop-loss distance is too wide for the available capital.',
+        vi: 'So với số hợp đồng bạn định mở cho lệnh này: mở nhiều hơn con số này thì lỡ chạm cắt lỗ sẽ mất quá số tiền rủi ro đã đặt, ít hơn hoặc bằng thì khoản mất nằm trong mức ấy. Kết quả 0 nghĩa là với khoảng cắt lỗ này, một hợp đồng thôi cũng đã vượt mức rủi ro.',
+        en: 'Compared with the number of contracts you plan to open on this trade: opening more than this means a hit on the stop-loss would cost more than the risk amount you set, and this many or fewer keeps the loss within it. A result of 0 means that with this stop distance even one contract exceeds your risk.',
       },
       commonMistakes: {
         vi: 'Mở theo số hợp đồng tối đa mà ký quỹ cho phép rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là chọn điểm cắt lỗ trước, số hợp đồng suy ra sau.',
@@ -1266,8 +1266,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
         en: 'Use it when you have held VN30F contracts through a few sessions of gains and losses and want to know how many times larger their total value now is than the real money left in your account.',
       },
       howToRead: {
-        vi: 'Con số càng cao thì biên an toàn trước một lệnh gọi ký quỹ càng mỏng. Vốn thực giảm vì thua lỗ sẽ tự đẩy đòn bẩy lên mà không cần mở thêm hợp đồng nào.',
-        en: 'The higher the number, the thinner the safety margin before a margin call. Equity shrinking from losses pushes leverage up on its own, without opening any new contracts.',
+        vi: 'So với mức trần, tức 100 chia cho tỷ lệ ký quỹ ban đầu tính theo %: thấp hơn nhiều nghĩa là tài khoản còn dư tiền làm đệm, sát hoặc vượt trần nghĩa là tiền thật chỉ còn vừa đủ hoặc đã hụt so với mức ký quỹ ban đầu đòi hỏi.',
+        en: 'Compared with the ceiling, 100 divided by the initial margin ratio in percent: well below it means the account still has spare cash as a cushion, and at or above it means the real money left only just covers, or already falls short of, the initial margin required.',
       },
       commonMistakes: {
         vi: 'Nghĩ nghịch đảo tỷ lệ ký quỹ là đòn bẩy cố định của mọi lệnh. Đó chỉ là mức TRẦN — mức cao nhất được phép khi nộp đúng ký quỹ tối thiểu; nộp ký quỹ dày hơn thì đòn bẩy thực đã thấp hơn ngay từ lúc vào lệnh, còn thua lỗ theo thời gian lại tự đẩy đòn bẩy thực lên cao hơn con số ban đầu.',

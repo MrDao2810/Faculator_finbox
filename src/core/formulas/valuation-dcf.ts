@@ -171,8 +171,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         en: 'Use it when you are eyeing a stock that pays a steady cash dividend every year, such as a power or water utility, and want to know what it is worth based on those dividends alone.',
       },
       howToRead: {
-        vi: 'Giá trị tính ra cao hơn thị giá nghĩa là cổ phiếu đang rẻ theo mô hình. Kết quả rất nhạy với hiệu r − g nên hãy thử vài kịch bản.',
-        en: 'A computed value higher than the market price means the stock looks cheap under this model. The result is highly sensitive to the r − g spread, so try a few scenarios.',
+        vi: 'So với giá thị trường hiện tại của mã: giá trị tính ra cao hơn nghĩa là riêng dòng cổ tức tăng đều như bạn giả định đã đáng hơn giá đang giao dịch, thấp hơn là giá hiện tại đòi nhiều hơn những gì dòng cổ tức ấy đem lại, tức đắt nếu chỉ tính cổ tức.',
+        en: "Compared with the stock's current market price: a higher value means the steadily growing dividend stream you assumed is, on its own, worth more than the trading price, and a lower one means the price asks for more than those dividends deliver, so it is expensive on dividends alone.",
       },
       commonMistakes: {
         vi: 'Chọn g cao gần bằng r làm giá trị phóng đại vô lý — không doanh nghiệp nào tăng cổ tức nhanh hơn nền kinh tế mãi mãi.',
@@ -459,8 +459,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         en: 'Use it when you are eyeing a stock whose cash dividend has been rising fast year after year and want to know what it is worth if that pace lasts a few more years before slowing down.',
       },
       howToRead: {
-        vi: "Con số là giá trị một cổ phiếu theo mô hình — ví dụ trên cho 40.506,6 ₫; cao hơn thị giá là cổ phiếu đang rẻ theo cách tính này, thấp hơn là đang đắt. Nhìn thêm cột 'Giá trị cuối kỳ' trên biểu đồ: ở ví dụ nó chiếm khoảng ba phần tư tổng số, nên con số bạn đọc dựa vào giả định dài hạn nhiều hơn vào mấy năm tăng nhanh.",
-        en: "The figure is the value of one share under this model — the example gives 40,506.6 ₫; above the market price the stock looks cheap by this calculation, below it looks expensive. Also look at the 'Terminal value' bar on the chart: in the example it accounts for about three quarters of the total, so the number you read leans more on the long-term assumption than on the fast-growth years.",
+        vi: 'So với giá thị trường hiện tại của mã: con số cao hơn nghĩa là cổ phiếu đang rẻ nếu cổ tức tăng nhanh vài năm rồi chậm lại đúng như bạn giả định, thấp hơn là đắt theo chính các giả định ấy.',
+        en: "Compared with the stock's current market price: a higher figure means the stock is cheap if dividends grow fast for a few years and then slow down exactly as you assume, and a lower one means it is expensive under those same assumptions.",
       },
       commonMistakes: {
         vi: 'Để g2 cao gần bằng r khiến giá trị cuối kỳ phồng lên vô lý, hoặc kéo giai đoạn tăng nhanh dài quá mức doanh nghiệp giữ được.',
@@ -699,8 +699,8 @@ export const CAPM: FormulaModule = {
         en: 'Use it when you are torn between a savings deposit and a stock and want to know the minimum yearly return the stock must earn to be worth its extra risk.',
       },
       howToRead: {
-        vi: 'Con số là mức sinh lợi tối thiểu mỗi năm cổ đông nên đòi ở cổ phiếu này: ví dụ trên ra 13,1%/năm, cao hơn lãi suất phi rủi ro 3,5% gần mười điểm phần trăm — đó là phần bù cho rủi ro. Lấy nó so với lãi gửi tiết kiệm hoặc lợi suất trái phiếu Chính phủ; mốc dễ nhớ là beta bằng 1, khi ấy con số ra đúng bằng mức sinh lợi kỳ vọng của cả thị trường.',
-        en: 'The figure is the minimum annual return a shareholder should demand from this stock: the example gives 13.1%/year, nearly ten percentage points above the 3.5% risk-free rate — that gap is the compensation for risk. Compare it with deposit rates or government bond yields; a handy landmark is a beta of 1, where the figure equals the expected return of the market as a whole.',
+        vi: 'So với mức lãi mỗi năm bạn thực sự kỳ vọng ở cổ phiếu này: kỳ vọng cao hơn con số này nghĩa là phần lãi ấy đủ bù cho rủi ro của mã, thấp hơn là chưa đủ bù, dù có khi vẫn cao hơn lãi gửi tiết kiệm.',
+        en: "Compared with the yearly return you really expect from this stock: an expectation above this figure means that return is enough to pay for the stock's risk, and one below it means it is not, even if it still beats a savings deposit.",
       },
       commonMistakes: {
         vi: 'Lấy beta của thị trường khác áp cho cổ phiếu Việt Nam, hoặc quên rằng beta quá khứ không chắc lặp lại trong tương lai.',
@@ -906,8 +906,8 @@ export const WACC: FormulaModule = {
         en: "Use it when you read that a company is about to put both bank loans and shareholders' money into a new project, and want to know the minimum yearly return that project must earn to satisfy both its lenders and its shareholders.",
       },
       howToRead: {
-        vi: 'Dự án chỉ tạo giá trị khi sinh lợi vượt WACC. Thêm nợ chỉ kéo WACC xuống chừng nào lãi vay sau thuế còn rẻ hơn chi phí vốn chủ — và ngay cả khi rẻ hơn thì rủi ro tài chính vẫn tăng, phần rủi ro ấy con số này không phản ánh.',
-        en: 'A project only creates value when its return exceeds WACC. Adding debt pulls WACC down only for as long as after-tax interest stays cheaper than the cost of equity — and even when it is cheaper, financial risk still rises, a side this figure does not capture.',
+        vi: 'So với mức sinh lời mỗi năm mà dự án hay công ty làm ra trên toàn bộ vốn đang dùng: mức ấy cao hơn con số này nghĩa là đủ trả công cho cả chủ nợ lẫn cổ đông mà còn dư, thấp hơn là chưa đủ bù chi phí vốn, dù sổ sách vẫn có thể báo lãi.',
+        en: 'Compared with the yearly return the project or company earns on all the capital it uses: a return above this figure means it pays both lenders and shareholders what they ask and has some left over, and a return below it falls short of the cost of that capital, even if the books still show a profit.',
       },
       commonMistakes: {
         vi: 'Lấy giá trị sổ sách của vốn chủ thay vì vốn hoá thị trường, hoặc quên nhân chi phí nợ với (1 − thuế suất).',
@@ -1161,8 +1161,8 @@ export const FCFF: FormulaModule = {
         en: 'Use it when you see a company report a big profit and want to know how much cash is actually left for both its lenders and its shareholders after tax, new factories and machines, and money tied up in inventory.',
       },
       howToRead: {
-        vi: 'FCFF âm không hẳn là xấu — doanh nghiệp đang tăng trưởng có thể chi đầu tư lớn hơn dòng tiền tạo ra; điều cần xem là nó âm vì đầu tư hay vì kinh doanh yếu.',
-        en: "A negative FCFF is not necessarily bad — a growing company may spend more on investment than the cash flow it generates; what matters is whether it's negative because of investment or because of weak operations.",
+        vi: 'So với lợi nhuận sau thuế cùng kỳ: ngang hoặc cao hơn nghĩa là lãi trên báo cáo đã thành tiền thật, thấp hơn hẳn là phần lớn lãi đã chi vào tài sản mới hoặc còn nằm trong hàng tồn kho, khoản khách nợ. Số âm nghĩa là kỳ này công ty chi nhiều hơn số tiền làm ra.',
+        en: 'Compared with net profit after tax for the same period: about equal or higher means the reported profit has turned into real cash, and much lower means much of it went into new assets or is tied up in inventory and unpaid customer bills. A negative figure means the company spent more this period than it brought in.',
       },
       commonMistakes: {
         vi: 'Lấy lợi nhuận sau thuế thay cho EBIT × (1 − t) — làm vậy đã trừ lãi vay một lần rồi lại chiết khấu bằng WACC vốn đã chứa chi phí nợ, thành trừ hai lần.',
@@ -1398,8 +1398,8 @@ export const FCFE: FormulaModule = {
         en: 'Use it when you own shares in a company that borrows from banks and want to know how much real cash is left for shareholders like you after it pays interest and takes on or repays debt.',
       },
       howToRead: {
-        vi: 'FCFE cao hơn cổ tức thực trả nghĩa là doanh nghiệp còn dư địa tăng cổ tức hoặc mua lại cổ phiếu; thấp hơn kéo dài thì mức cổ tức hiện tại khó giữ.',
-        en: 'FCFE higher than the actual dividend paid means the company has room to raise dividends or buy back shares; if it stays lower for a long time, the current dividend level is hard to sustain.',
+        vi: 'So với tổng cổ tức tiền mặt đã chi cùng kỳ: cao hơn nghĩa là tiền còn lại cho cổ đông đủ trả cổ tức ấy mà còn dư, thấp hơn là phần cổ tức vượt ra đang lấy từ tiền để dành. Số âm nghĩa là kỳ này không còn đồng nào cho cổ đông, phải bù bằng tiền đang có.',
+        en: 'Compared with total cash dividends paid in the same period: higher means the cash left for shareholders covers those dividends with some to spare, and lower means the excess dividend is coming out of savings. A negative figure means nothing is left for shareholders this period and the gap is covered from cash on hand.',
       },
       commonMistakes: {
         vi: 'Chiết khấu FCFE bằng WACC — FCFE là dòng tiền của riêng cổ đông nên phải chiết khấu bằng chi phí vốn chủ.',
@@ -1639,8 +1639,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         en: "Use it when you are eyeing a company that generates cash steadily but pays small dividends, and want to estimate for yourself what each share is worth from the whole company's cash flow after its debt.",
       },
       howToRead: {
-        vi: 'So con số này với thị giá: cao hơn nhiều là cổ phiếu đang rẻ theo mô hình. Kết quả cực nhạy với hiệu WACC − g, nên hãy thử vài kịch bản thay vì tin một con số.',
-        en: 'Compare this figure with the market price: much higher means the stock looks cheap under this model. The result is extremely sensitive to the WACC − g spread, so try several scenarios rather than trusting a single number.',
+        vi: 'So với giá thị trường hiện tại của mã: giá trị nội tại cao hơn nghĩa là với dòng tiền và các giả định bạn nhập, mỗi cổ phiếu đáng hơn giá đang bán, thấp hơn là thị trường đang trả nhiều hơn mức dòng tiền ấy biện minh được.',
+        en: "Compared with the stock's current market price: a higher intrinsic value means that, on the cash flow and assumptions you entered, each share is worth more than it is selling for, and a lower one means the market is paying more than that cash flow can justify.",
       },
       commonMistakes: {
         vi: 'Chọn g gần bằng WACC làm giá trị phồng lên vô lý; và quên trừ nợ vay ròng — đó là phần thuộc về chủ nợ, không phải cổ đông.',
@@ -1911,8 +1911,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
         en: "Use it when you are due to receive a sum some years from now, such as from a house sold on deferred payment or a maturing insurance policy, and want to know what it is worth in today's money.",
       },
       howToRead: {
-        vi: 'Con số là số tiền hôm nay tương đương với khoản tiền tương lai: 1 tỷ ₫ nhận sau 10 năm, chiết khấu 8%/năm, chỉ đáng khoảng 463 triệu ₫ ở hôm nay. Hãy đem nó so với cái giá phải trả ngay bây giờ để có khoản tiền ấy, hoặc so với một khoản khác đã quy về cùng mốc hôm nay — đó là cách duy nhất để hai khoản tiền ở hai thời điểm so được với nhau.',
-        en: 'The figure is the amount today that is equivalent to that future sum: 1 billion ₫ received in 10 years, discounted at 8%/year, is worth only about 463 million ₫ today. Compare it with the price you would have to pay right now to secure that sum, or with another amount already brought back to today — that is the only way two amounts at two different dates can be compared.',
+        vi: 'So với số tiền bạn có thể nhận ngay hôm nay thay cho khoản tương lai ấy: số nhận ngay lớn hơn con số này thì nhận ngay có lợi hơn, nhỏ hơn thì chờ nhận sau có lợi hơn, tính theo tỷ lệ chiết khấu bạn đã chọn.',
+        en: 'Compared with the amount you could take today instead of that future sum: if the amount today is larger than this figure, taking it now is the better deal, and if it is smaller, waiting pays more, judged at the discount rate you chose.',
       },
       commonMistakes: {
         vi: 'Chọn tỷ lệ chiết khấu tuỳ hứng — nó phải phản ánh mức rủi ro của chính khoản tiền đó, tiền chắc chắn chiết khấu thấp, tiền bấp bênh chiết khấu cao.',
@@ -2093,8 +2093,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         en: 'Use it when you plan to put a lump sum into a fund or stocks just once and leave it for years, and want to know how much you will end up with if it earns a steady yearly return you assume.',
       },
       howToRead: {
-        vi: 'Con số là số tiền bạn sẽ có ở cuối kỳ nếu mức sinh lợi giả định giữ nguyên suốt thời gian đó: 100 triệu ₫ để yên 15 năm ở 10%/năm thành gần 418 triệu ₫. Đem nó so với mục tiêu bạn đặt cho mốc thời gian ấy — còn thiếu thì thử lại với vốn ban đầu lớn hơn hoặc thời gian dài hơn, chờ thêm 5 năm nữa con số đã lên hơn 670 triệu ₫.',
-        en: 'The figure is what you would hold at the end of the period if the assumed return holds throughout: 100 million ₫ left alone for 15 years at 10%/year becomes nearly 418 million ₫. Compare it with the target you set for that date — if it falls short, try again with a larger starting amount or a longer horizon; waiting another 5 years already takes the figure past 670 million ₫.',
+        vi: 'So với số tiền bạn cần có vào đúng mốc thời gian ấy: cao hơn nghĩa là khoản tiền hôm nay đủ cho mục tiêu nếu mức sinh lời giả định giữ được suốt chặng, thấp hơn là còn thiếu đúng phần chênh.',
+        en: "Compared with the amount you need at that exact date: higher means today's money is enough for the goal if the assumed return holds the whole way, and lower means you are short by exactly the difference.",
       },
       commonMistakes: {
         vi: 'Quên trừ lạm phát: con số tương lai là tiền danh nghĩa, sức mua thực của nó thấp hơn con số hiện ra.',
@@ -2244,8 +2244,8 @@ export const BIEN_AN_TOAN: FormulaModule = {
         en: 'Use it when you have already estimated what a stock is worth and want to know how far below that figure the quoted price sits, before deciding whether to buy more or wait.',
       },
       howToRead: {
-        vi: 'Biên 25% nghĩa là mua rẻ hơn ước tính một phần tư; biên âm nghĩa là đang trả giá cao hơn giá trị tính ra. Trường phái đầu tư giá trị thường đòi biên 20–50%.',
-        en: 'A 25% margin means buying a quarter cheaper than the estimate; a negative margin means paying more than the computed value. Value investors typically demand a margin of 20–50%.',
+        vi: 'So với mức bạn nghĩ ước tính giá trị của mình có thể sai: biên lớn hơn nghĩa là dù ước tính cao quá cỡ ấy, giá mua vẫn chưa vượt giá trị thật, nhỏ hơn là chỉ cần sai cỡ ấy là đã trả đắt. Số âm nghĩa là giá thị trường đã cao hơn chính giá trị bạn ước tính.',
+        en: 'Compared with how far off you think your own value estimate could be: a larger margin means that even if the estimate is too high by that much, the price still does not exceed the true value, and a smaller one means an error that size already makes you overpay. A negative figure means the market price is already above your own estimate.',
       },
       commonMistakes: {
         vi: 'Tin con số tuyệt đối của biên trong khi giá trị nội tại chỉ là ước tính — biên an toàn lớn không cứu được một mô hình định giá sai đầu vào.',

@@ -204,8 +204,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         en: 'Use it when you trade in and out within days, are weighing two stocks, and want one number that tells you which one usually jumps up and down more from one session to the next.',
       },
       howToRead: {
-        vi: 'Số càng lớn thì giá càng nhảy mạnh giữa các phiên. Với chuỗi lợi suất phân phối chuẩn, khoảng hai phần ba số phiên nằm trong khoảng một lần độ lệch chuẩn quanh mức trung bình.',
-        en: 'The larger the number, the more sharply the price swings between sessions. For a normally distributed return series, about two-thirds of sessions fall within one standard deviation of the mean.',
+        vi: 'So với cùng con số của một mã khác tính trên cùng các phiên: cao hơn nghĩa là giá mã này mỗi phiên thường nhảy lên xuống mạnh hơn, thấp hơn là êm hơn. Kết quả 0 nghĩa là phiên nào giá cũng đổi cùng một tỷ lệ, thường là giá đứng yên suốt các phiên đã chọn.',
+        en: "Compared with the same figure for another stock over the same sessions: higher means this stock's price usually jumps around more between sessions, lower means it moves more calmly. A result of 0 means the price changed by the same percentage every session, usually because it did not move at all in the sessions chosen.",
       },
       commonMistakes: {
         vi: 'Tính trên vài chục phiên rồi coi là mức biến động ổn định của cổ phiếu — mẫu càng mỏng, con số càng nhảy theo kỳ chọn. Một lỗi khác là đem so thẳng độ lệch chuẩn theo phiên với con số theo năm của báo cáo quỹ.',
@@ -348,8 +348,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         en: 'Use it when you read a fund report that quotes volatility per year and want to measure the stock you hold on that same yearly scale so the two compare fairly.',
       },
       howToRead: {
-        vi: 'Đọc là mức dao động của cả một năm: 22%/năm nghĩa là trong một năm bình thường, giá có thể lệch khoảng 22% so với mức trung bình, lên hoặc xuống. Số càng lớn thì đường giá càng gập ghềnh; muốn biết mức đó là cao hay thấp thì so với một mã cùng ngành trong cùng kỳ, hoặc với con số biến động mà báo cáo quỹ công bố, vì tất cả đều đã quy về cùng đơn vị năm.',
-        en: "Read it as a full year's swing: 22%/year means that in a normal year the price can drift about 22% away from its average, up or down. The larger the number, the bumpier the price line; to judge whether that level is high or low, compare it with a peer ticker over the same period, or with the volatility figure a fund report publishes, since all of them are already stated per year.",
+        vi: 'So với mức biến động theo năm của một mã cùng ngành, hay con số một quỹ công bố, cho cùng khoảng thời gian: cao hơn nghĩa là đường giá mã này gập ghềnh hơn, thấp hơn là êm hơn.',
+        en: "Compared with the yearly volatility of a stock in the same industry, or the figure a fund publishes, for the same period: higher means this stock's price path is bumpier, lower means it is smoother.",
       },
       commonMistakes: {
         vi: 'Nhân độ lệch chuẩn phiên với 250 thay vì với căn bậc hai của 250. Sai lầm thứ hai là dùng 365 ngày lịch trong khi chuỗi giá chỉ có ngày giao dịch.',
@@ -531,8 +531,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         en: 'Use it when you are sizing up a stock prone to sudden jumps and want to measure how rough its down sessions alone are, without those jumps being counted as risk.',
       },
       howToRead: {
-        vi: 'Với ngưỡng mặc định 0% (chỉ tính phiên giảm giá), thường nhỏ hơn hoặc bằng độ lệch chuẩn đầy đủ vì đã bỏ hết phần tăng giá. Nâng ngưỡng lên cao thì số này tăng theo và có thể VƯỢT QUA độ lệch chuẩn đầy đủ — mẫu số đo khoảng cách tới ngưỡng, không phải tới lợi suất trung bình. Bằng 0 nghĩa là trong kỳ không phiên nào rơi xuống dưới ngưỡng, đó là kết quả thật chứ không phải thiếu dữ liệu.',
-        en: 'With the default 0% threshold (only losing sessions counted), the figure is usually smaller than or equal to the full standard deviation because all the up sessions are excluded. Raising the threshold pushes this number up, and it can EXCEED the full standard deviation — the denominator measures distance to the threshold, not to the average return. A value of 0 means no session in the period fell below the threshold, a genuine result rather than missing data.',
+        vi: 'So với độ lệch chuẩn lợi suất theo phiên của chính mã ấy, cùng các phiên: sát hoặc vượt nó nghĩa là dao động dồn vào các phiên dưới ngưỡng, nhỏ hơn hẳn là dao động chủ yếu đến từ phiên trên ngưỡng. Kết quả 0 nghĩa là không phiên nào rơi dưới ngưỡng.',
+        en: "Compared with the same stock's per-session return standard deviation over the same sessions: close to it or above it means the swings are concentrated in sessions below your threshold, well below it means they come mostly from sessions above it. A result of 0 means no session fell below the threshold.",
       },
       commonMistakes: {
         vi: 'Chia cho số phiên nằm dưới ngưỡng thay vì cho tổng số phiên quan sát — làm thế thì danh mục càng ít phiên xấu lại càng bị chấm rủi ro cao. Lỗi thứ hai là quên đặt ngưỡng theo cùng đơn vị kỳ với chuỗi lợi suất.',
@@ -669,8 +669,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
         en: 'Use it when you are torn between two stocks, one that earns little but moves calmly and one that earns more but swings wildly, and want to know which asks for less bumpiness per unit of return.',
       },
       howToRead: {
-        vi: '3,3 lần nghĩa là mỗi 1% lợi suất bình quân một phiên phải đổi bằng 3,3% dao động. Số càng NHỎ càng tốt, nhưng nó chỉ có nghĩa khi đem so: đo hai mã trên cùng một kỳ, mã nào hệ số thấp hơn thì mỗi phần lãi kèm ít dao động hơn.',
-        en: 'A value of 3.3 means every 1% of average per-session return is paid for with 3.3% of volatility. The SMALLER the better, but the number only means something in comparison: measure two tickers over the same period, and the one with the lower coefficient carries less volatility per unit of return.',
+        vi: 'So với hệ số của mã còn lại bạn đang phân vân, tính trên cùng các phiên: thấp hơn nghĩa là mỗi phần lãi bình quân của mã này đi kèm ít dao động hơn, cao hơn là phải chịu nhiều dao động hơn cho cùng phần lãi.',
+        en: "Compared with the coefficient of the other stock you are weighing, over the same sessions: lower means each unit of this stock's average return comes with less swinging, higher means it takes more swinging to earn the same return.",
       },
       commonMistakes: {
         vi: 'Dùng khi lợi suất bình quân âm — lúc đó tỷ số ra số âm và xếp hạng ngược hoàn toàn, nên công thức này chỉ dùng cho kỳ có lợi suất bình quân dương.',
@@ -835,8 +835,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         en: 'Use it when you open a price chart of the last few months and want to know how wide a band the closing price has moved within, before picking your buy price or your take-profit price.',
       },
       howToRead: {
-        vi: 'Tính theo đáy làm gốc, nên đọc là "từ đáy lên đỉnh tăng bao nhiêu phần trăm": 8,25% nghĩa là đỉnh cao hơn đáy 8,25%. Muốn biết rộng hay hẹp thì so với chính mã đó ở một kỳ trước dài bằng đúng kỳ này, hoặc với một mã cùng ngành trong cùng kỳ — biên độ càng rộng thì vào lệnh lệch vùng càng chênh nhiều.',
-        en: 'It is computed with the trough as the base, so read it as "how many percent from trough to peak": 8.25% means the peak sits 8.25% above the trough. To judge whether that is wide or narrow, compare it with the same ticker over an equally long earlier period, or with a peer ticker over the same period — the wider the range, the more it costs to enter at the wrong zone.',
+        vi: 'So với biên độ của chính mã ấy ở kỳ trước dài bằng kỳ này: rộng hơn nghĩa là giá đang đi trong vùng rộng hơn trước, mua gần đáy hay gần đỉnh chênh nhau nhiều hơn, hẹp hơn là vùng giá đang co lại. Con số là đỉnh cao hơn đáy bao nhiêu phần trăm, lấy đáy làm gốc.',
+        en: "Compared with the same stock's range over an earlier period of equal length: wider means the price moves through a broader band than before, so buying near its bottom or its top makes a bigger difference, and narrower means the band is tightening. The figure is how many percent the peak sits above the trough, measured from the trough.",
       },
       commonMistakes: {
         vi: 'Nhầm với mức sụt giảm sâu nhất từ đỉnh: biên độ không quan tâm đỉnh và đáy cái nào tới trước, còn drawdown thì bắt buộc đáy phải nằm SAU đỉnh.',
@@ -980,8 +980,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
         en: 'Use it when you have just bought a stock and want to know the longest run of back-to-back down sessions it has had, so a few red sessions in a row do not throw you into a panic.',
       },
       howToRead: {
-        vi: 'Đơn vị là phiên, không phải phần trăm — chuỗi dài chưa chắc mất nhiều tiền nếu mỗi phiên chỉ giảm nhẹ. Kết quả 0 nghĩa là trong kỳ không phiên nào giảm.',
-        en: 'The unit is sessions, not percent — a long streak does not necessarily mean heavy losses if each session only dips slightly. A result of 0 means no session declined during the period.',
+        vi: 'So với số phiên giảm liền mà mã đang đi qua lúc này: con số này lớn hơn nghĩa là trong kỳ mã từng giảm liền lâu hơn thế, bằng nghĩa là đợt đang gặp đã dài ngang đợt dài nhất của kỳ. Kết quả 0 nghĩa là trong kỳ không phiên nào đóng cửa thấp hơn phiên trước.',
+        en: 'Compared with the run of down sessions the stock is in right now: a larger figure means it had a longer losing streak earlier in the period, and an equal one means the current run is already as long as the longest in the period. A result of 0 means no session closed below the one before it.',
       },
       commonMistakes: {
         vi: 'Coi đây là thước đo mức lỗ. Muốn biết mất bao nhiêu thì xem mức sụt giảm sâu nhất từ đỉnh; chuỗi phiên giảm chỉ đo độ dai của đợt giảm.',

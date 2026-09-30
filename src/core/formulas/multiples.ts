@@ -88,8 +88,8 @@ export const PE: FormulaModule = {
         en: 'Use it when you are looking at a stock and want to know whether its price is expensive or cheap relative to the profit the company makes, especially when comparing two companies in the same industry.',
       },
       howToRead: {
-        vi: 'P/E cao nghĩa là thị trường kỳ vọng tăng trưởng lớn, hoặc cổ phiếu đang đắt. Thấp thì rẻ, hoặc đang có rủi ro.',
-        en: 'A high P/E means the market expects strong growth, or the share is expensive. A low P/E means it is cheap, or carries risk.',
+        vi: 'So với P/E của các công ty cùng ngành ở cùng thời điểm: cao hơn nghĩa là thị trường đang trả đắt hơn cho mỗi đồng lợi nhuận, thường vì kỳ vọng công ty lớn nhanh, thấp hơn là rẻ hơn hoặc thị trường đang lo lợi nhuận sắp giảm.',
+        en: 'Compared with the P/E of companies in the same industry at the same time: higher means the market is paying more for each dong of profit, usually because it expects fast growth, and lower means cheaper, or the market fears profit is about to fall.',
       },
       commonMistakes: {
         vi: 'So P/E giữa hai ngành khác nhau, hoặc dùng P/E cho doanh nghiệp có lợi nhuận bất thường hay đang lỗ.',
@@ -238,8 +238,8 @@ export const PB: FormulaModule = {
         en: "Use it when you are looking at a bank, or a company that owns lots of factories and land, even one posting a loss, and want to know whether its share price is expensive or cheap relative to the shareholders' equity on its books.",
       },
       howToRead: {
-        vi: 'Dưới 1 nghĩa là thị giá thấp hơn giá trị sổ sách — có thể rẻ, cũng có thể do thị trường nghi ngờ chất lượng tài sản.',
-        en: 'Below 1 means the market price is lower than book value — it may be cheap, or the market may doubt the quality of the assets.',
+        vi: 'So với mốc 1: cao hơn 1 nghĩa là thị trường trả cho mỗi cổ phiếu nhiều hơn phần vốn cổ đông ghi trên sổ, thấp hơn 1 là trả ít hơn cả phần ấy, có thể vì đang rẻ, cũng có thể vì thị trường nghi tài sản trên sổ không đáng như ghi.',
+        en: "Compared with 1: higher than 1 means the market pays more for each share than the shareholders' equity recorded on the books behind it, and lower than 1 means it pays less than even that, either because the stock is cheap or because the market doubts the assets are worth their book value.",
       },
       commonMistakes: {
         vi: 'Áp dụng cho doanh nghiệp công nghệ hay dịch vụ, nơi giá trị nằm ở thương hiệu và con người chứ không ở sổ sách.',

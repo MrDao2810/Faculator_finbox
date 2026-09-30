@@ -347,8 +347,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         en: 'Use it when you set a price alert for a stock in your trading app and want to know at what price it would count as unusually high compared with its own last few weeks.',
       },
       howToRead: {
-        vi: 'Giá chạm hoặc vượt dải trên nghĩa là đang ở mép trên vùng dao động quen thuộc — trong xu hướng tăng mạnh, giá có thể bám dải trên rất lâu.',
-        en: 'Price touching or breaking above the upper band means it is at the edge of its usual trading range — in a strong uptrend, price can hug the upper band for a long time.',
+        vi: 'So với giá đóng cửa phiên gần nhất của mã: giá chạm hoặc vượt lên trên con số này nghĩa là giá đã ra tới mép trên vùng lên xuống quen thuộc của n phiên vừa qua, còn thấp hơn là giá chưa chạm tới mép trên ấy.',
+        en: "Compared with the stock's latest closing price: a close at or above this figure means the price has reached the top edge of its usual range over the last n sessions, and a close below it means the price has not yet reached that top edge.",
       },
       commonMistakes: {
         vi: 'Coi chạm dải trên là tín hiệu bán. Bollinger nói rõ dải chỉ mô tả vùng giá, không phải lệnh mua bán. Ngoài ra độ lệch chuẩn ở đây chia cho n−1, một số bảng giá chia cho n nên dải của họ hẹp hơn chút ít.',
@@ -495,8 +495,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         en: 'Use it when you hold a stock that is being sold off hard and want to know at what price it would count as unusually low for that stock over the past few weeks, rather than just one of its usual swings.',
       },
       howToRead: {
-        vi: 'Giá thủng dải dưới nghĩa là đang ở mép dưới vùng dao động quen thuộc; trong xu hướng giảm, giá có thể bám dải dưới suốt nhiều phiên chứ không bật lên ngay.',
-        en: 'Price breaking below the lower band means it is at the edge of its usual trading range; in a downtrend, price can hug the lower band for many sessions instead of bouncing back right away.',
+        vi: 'So với giá đóng cửa phiên gần nhất: giá chạm hoặc rơi xuống dưới con số này nghĩa là giá đã ra tới mép dưới vùng dao động thường ngày của mã trong n phiên qua, còn cao hơn là giá chưa chạm tới mép ấy.',
+        en: "Compared with the latest closing price: a close at or below this figure means the price has dropped to the bottom edge of the stock's everyday range over the past n sessions, and a close above it means the price has not reached that edge.",
       },
       commonMistakes: {
         vi: 'Mua chỉ vì giá chạm dải dưới. Dải mô tả độ phân tán của giá, không nói gì về việc doanh nghiệp đang tốt hay xấu — chạm dải dưới trong xu hướng giảm là chuyện bình thường.',
@@ -644,8 +644,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         en: 'Use it when you notice a stock drifting quietly sideways for weeks, its price squeezed into a narrow range, and want a single number for how narrow that range has become.',
       },
       howToRead: {
-        vi: 'Con số càng nhỏ thì giá càng lặng. So với chính mã đó vài tháng trước mới có nghĩa; không có ngưỡng chung cho mọi cổ phiếu.',
-        en: 'The smaller the number, the quieter the price. It is only meaningful compared with that same stock a few months earlier; there is no universal threshold for every stock.',
+        vi: 'So với độ rộng của chính mã này ở những tháng trước: nhỏ hơn nghĩa là giá đang co vào một khoảng hẹp hơn thường lệ, lớn hơn là giá đang lên xuống mạnh hơn thường lệ. Đúng 0 nghĩa là giá đóng cửa không đổi suốt n phiên, không phải lỗi.',
+        en: "Compared with this stock's own width in earlier months: smaller means the price is squeezed into a tighter range than usual, larger means it is swinging harder than usual. Exactly 0 means the closing price did not change at all over the n sessions, not an error.",
       },
       commonMistakes: {
         vi: 'Đoán hướng từ độ rộng. Dải bóp chỉ nói biến động đang thấp, hoàn toàn không nói giá sắp lên hay xuống. Cũng đừng so độ rộng của hai mã có chu kỳ tính khác nhau.',
@@ -830,8 +830,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
         en: "Use it when you are about to set a stop-loss or take-profit order and want to know roughly how many dong the stock's price moves in an ordinary session.",
       },
       howToRead: {
-        vi: 'ATR là số tiền của một phiên, không phải phần trăm và không có hướng — ATR cao chỉ nói biên độ rộng, không nói giá lên hay xuống. Muốn biết rộng tới đâu thì đem so với thị giá: ATR 500 ₫ trên cổ phiếu 26.800 ₫ là gần 1,9% thị giá mỗi phiên.',
-        en: 'ATR is a per-session amount in VND, not a percentage, and it has no direction — a high ATR only means a wide range, not that price is rising or falling. To see how wide, compare it with the market price: an ATR of 500 VND on a 26,800 VND stock is close to 1.9% of the price per session.',
+        vi: 'So với khoảng cách từ giá mua tới mức cắt lỗ bạn định đặt: khoảng cách ấy nhỏ hơn con số này nghĩa là chỉ một phiên lên xuống bình thường cũng có thể chạm mức cắt lỗ, lớn hơn thì một phiên bình thường thường chưa chạm tới.',
+        en: 'Compared with the gap between your buying price and the stop-loss level you plan to set: a gap smaller than this figure means one ordinary session could reach your stop-loss, and a larger gap means a single ordinary session usually falls short of it.',
       },
       commonMistakes: {
         vi: 'So ATR giữa hai mã có thị giá khác xa nhau: 500 ₫ trên cổ phiếu 26.000 ₫ khác hẳn 500 ₫ trên cổ phiếu 200.000 ₫. Muốn so thì chia ATR cho giá.',
@@ -1010,8 +1010,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         en: 'Use it when you are comparing a few stocks on your watchlist with very different prices and want to see, on one common scale, which sit near the top and which near the bottom of their own recent trading range.',
       },
       howToRead: {
-        vi: 'Trên 100% nghĩa là giá đã vượt hẳn dải trên, dưới 0% là đã thủng dải dưới — hai trạng thái này hoàn toàn xảy ra được, không phải lỗi.',
-        en: 'Above 100% means price has broken clearly above the upper band; below 0% means it has broken below the lower band — both are entirely possible states, not errors.',
+        vi: 'So với hai mép 0% và 100%: gần 100% nghĩa là giá đóng cửa đang sát dải trên, gần 0% là đang sát dải dưới, còn ở khoảng giữa là giá vẫn nằm trong dải. Trên 100% hay dưới 0% nghĩa là giá đã ra hẳn ngoài dải, đó là số thật chứ không phải lỗi.',
+        en: 'Compared with the 0% and 100% edges: near 100% means the close is hugging the upper band, near 0% means it is hugging the lower band, and in between means the price is still inside the band. Above 100% or below 0% means the price has broken right out of the band, a real value, not an error.',
       },
       commonMistakes: {
         vi: 'Đọc %B như một chỉ báo quá mua quá bán kiểu RSI. Nó chỉ nói vị trí tương đối trong dải; giá trong xu hướng mạnh có thể ở trên 100% nhiều phiên liền.',
@@ -1218,8 +1218,8 @@ export const STOCHASTIC_K: FormulaModule = {
         en: "Use it when you follow a stock that keeps bouncing between two familiar price levels and want to know whether today's session closed near the top or near the bottom of the past few weeks.",
       },
       howToRead: {
-        vi: 'Trên 80% là đóng cửa sát đỉnh của n phiên, dưới 20% là sát đáy. Đây là hai mốc quy ước phổ biến chứ không phải ngưỡng mua bán.',
-        en: 'Above 80% means the close is near the n-session high; below 20% means it is near the low. These are common conventional markers, not buy/sell thresholds.',
+        vi: 'So với hai mốc quen dùng 80 và 20: trên 80 nghĩa là phiên cuối đóng cửa sát đỉnh của n phiên gần nhất, dưới 20 là sát đáy, ở giữa là chưa nghiêng về mép nào. Đúng 100 là đóng cửa ở mức cao nhất của cả n phiên, đúng 0 là ở mức thấp nhất.',
+        en: 'Compared with the usual 80 and 20 marks: above 80 means the last session closed near the top of the last n sessions, below 20 means near the bottom, and in between means it leans toward neither edge. Exactly 100 means it closed at the highest price of all n sessions, and exactly 0 at the lowest.',
       },
       commonMistakes: {
         vi: 'Bán ngay khi %K trên 80 trong một xu hướng tăng mạnh — chỉ báo này có thể nằm trên 80 rất lâu. Nó chỉ dùng tốt khi giá dao động trong biên độ.',
@@ -1391,8 +1391,8 @@ export const VWAP: FormulaModule = {
         en: 'Use it when you have been buying a stock bit by bit over a few weeks and want to know whether your average cost is better or worse than the average price the whole market paid for it over the same stretch.',
       },
       howToRead: {
-        vi: 'Giá hiện tại trên VWAP nghĩa là người mua BÌNH QUÂN của kỳ đang lãi, dưới VWAP thì đang lỗ. Chỉ là bình quân thôi: một phiên khối lượng lớn kéo VWAP về phía giá của nó, nên phần đông người mua vẫn có thể đang lỗ dù giá nằm trên VWAP.',
-        en: 'Price above VWAP means the AVERAGE buyer of the period is in profit; below it, at a loss. On average only: one heavy-volume session pulls VWAP toward its own price, so most buyers can still be under water even when price sits above VWAP.',
+        vi: 'So với giá vốn bình quân của bạn trong cùng các phiên ấy: giá vốn thấp hơn con số này nghĩa là bạn đã mua rẻ hơn mức bình quân cả thị trường trả cho mã, cao hơn là bạn đã mua đắt hơn.',
+        en: 'Compared with your own average buying price over the same sessions: a cost lower than this figure means you bought cheaper than the market as a whole paid for the stock, and a higher one means you paid more.',
       },
       commonMistakes: {
         vi: 'Nhầm với VWAP trong phiên của bảng giá: bản trong phiên tính theo từng lệnh khớp và giá điển hình (cao + thấp + đóng) chia 3, còn công thức này gộp theo PHIÊN và dùng giá đóng cửa, nên hai con số không trùng nhau.',
@@ -1623,8 +1623,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         en: 'Use it when you are eyeing a covered warrant on the price board and want to know how strongly its underlying stock has actually swung over the past few months, summed up as a single yearly figure.',
       },
       howToRead: {
-        vi: '40%/năm nghĩa là trong khoảng hai phần ba số năm, lợi suất một năm nằm trong khoảng cộng trừ 40% quanh mức trung bình — nếu lợi suất phân phối chuẩn, giả định vốn dĩ chỉ đúng gần đúng.',
-        en: '40%/year means that in roughly two-thirds of years, the one-year return falls within plus or minus 40% of the average — assuming returns are normally distributed, an assumption that only holds approximately.',
+        vi: 'So với con số này của các mã cùng ngành trong cùng khoảng thời gian: cao hơn nghĩa là giá mã này đã lên xuống dữ dội hơn, người cầm nó thấy lãi lỗ chao đảo mạnh hơn, thấp hơn là giá đã đi êm hơn.',
+        en: "Compared with the same figure for stocks in the same industry over the same period: higher means this stock's price has swung more violently, so holders saw their gains and losses lurch harder, and lower means it has moved more calmly.",
       },
       commonMistakes: {
         vi: 'Quy năm bằng cách nhân với số phiên thay vì nhân với CĂN BẬC HAI của số phiên. Và đây là biến động ĐÃ XẢY RA, không phải dự báo cho kỳ tới.',
@@ -1825,8 +1825,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         en: "Use it when you see a stock break out of a long sideways range and want to know whether that session's matched volume far exceeded the weeks before, or just a few thin orders moved the price.",
       },
       howToRead: {
-        vi: 'Bằng 1 lần là đúng mức trung bình, 2 lần là gấp đôi. Chỉ số này không có hướng: khối lượng đột biến đi kèm giá giảm mạnh lại là dấu hiệu bán tháo.',
-        en: 'A value of 1x is exactly the average, 2x is double. This indicator has no direction: a volume spike accompanied by a sharp price drop is actually a sign of a sell-off.',
+        vi: 'So với 1: lớn hơn 1 nghĩa là phiên gần nhất khớp nhiều hơn mức bình quân của n phiên liền trước, gấp bấy nhiêu lần, nhỏ hơn 1 là thanh khoản đang mỏng hơn thường lệ. Đúng 0 nghĩa là phiên gần nhất không khớp được cổ phiếu nào.',
+        en: 'Compared with 1: above 1 means the latest session traded more shares than the average of the n sessions before it, by that many times, and below 1 means trading is thinner than usual. Exactly 0 means not a single share changed hands in the latest session.',
       },
       commonMistakes: {
         vi: 'Tính trung bình có gộp cả phiên gần nhất — làm vậy thì chính phiên đột biến kéo mốc so sánh lên và tỷ lệ bị nén lại. Ở đây mốc chỉ gồm các phiên LIỀN TRƯỚC.',

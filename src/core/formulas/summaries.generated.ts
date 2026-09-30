@@ -138,7 +138,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ev-ebitda',
     categoryId: 'valuation',
-    name: { vi: 'EV/EBITDA', en: 'EV to EBITDA ratio' },
+    name: { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
     description: { vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần lợi nhuận trước lãi vay, thuế và khấu hao.', en: 'How many times the price to buy the whole company sits above earnings before interest, tax, and depreciation.' },
     level: 'advanced',
     isFeatured: true,

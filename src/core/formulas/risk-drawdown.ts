@@ -365,8 +365,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
         en: 'Use it when you plan to hold a stock for a long time and want to know the deepest peak-to-trough fall it went through recently, so you can ask yourself whether you could sit through one like it.',
       },
       howToRead: {
-        vi: 'Kết quả là số dương và nghĩa là MẤT: 25 nghĩa là từng rơi 25% khỏi đỉnh. Rơi 25% phải lãi lại 33% mới hoà vốn, nên con số này tăng nhanh hơn cảm giác.',
-        en: 'The result is a positive number and it means LOSS: 25 means it once fell 25% from its peak. A 25% drop needs a 33% gain to break even, so this figure compounds faster than intuition suggests.',
+        vi: 'So với mức rơi từ đỉnh mà bạn chịu được trước khi muốn bán tháo: con số lớn hơn nghĩa là mã này từng rơi quá sức chịu ấy, nhỏ hơn là cú rơi tệ nhất vẫn trong sức chịu. Kết quả 0 nghĩa là trong các phiên đã chọn giá chưa từng rơi khỏi đỉnh.',
+        en: 'Compared with the drop from a peak you could sit through without wanting to sell in a panic: a larger figure means this stock has already fallen further than that, a smaller one means its worst fall stayed within it. A result of 0 means the price never fell back from a peak in the sessions chosen.',
       },
       commonMistakes: {
         vi: 'Đo trên cửa sổ quá ngắn rồi kết luận cổ phiếu ít rủi ro — chưa gặp phiên xấu không có nghĩa là không có. Sụt giảm sâu nhất luôn phụ thuộc độ dài chuỗi, so hai mã thì phải so trên cùng một cửa sổ.',
@@ -496,8 +496,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
         en: "Use it when you hold a stock that has slipped from its highest point of recent months and want to know how far today's price still sits below that high, before deciding whether to add more or cut the loss.",
       },
       howToRead: {
-        vi: 'Số dương nghĩa là đang thấp hơn đỉnh: 10 nghĩa là còn kém đỉnh 10%. Bằng 0 nghĩa là giá vừa lập đỉnh mới của cửa sổ. Mức lãi cần để về lại đỉnh luôn lớn hơn mức đang chìm: chìm 20% phải lãi 25%, chìm 50% phải lãi 100%.',
-        en: 'A positive number means it is below the peak: 10 means it is still 10% short of the peak. Zero means the price has just set a new peak within the window. The gain needed to climb back to the peak is always larger than the drawdown itself: 20% underwater needs a 25% gain, 50% underwater needs a 100% gain.',
+        vi: 'So với mức sụt giảm hiện tại của VN-Index hay một mã cùng ngành, đo trên cùng số phiên: lớn hơn nghĩa là mã này đang nằm dưới đỉnh sâu hơn, nhỏ hơn là đang ở gần đỉnh hơn. Kết quả 0 nghĩa là phiên cuối chính là đỉnh của các phiên đã chọn.',
+        en: 'Compared with the current drawdown of the VN-Index or a stock in the same industry, over the same number of sessions: larger means this stock sits further below its peak, smaller means it sits closer to its peak. A result of 0 means the last session is itself the peak of the sessions chosen.',
       },
       commonMistakes: {
         vi: 'Nhầm sang mức sụt giảm sâu nhất: chỉ số này đo đúng khoảng cách tới đỉnh HIỆN TẠI, giá hồi lên là nó giảm ngay, còn sụt giảm sâu nhất thì đã ghi vào lịch sử và không bao giờ giảm.',
@@ -656,8 +656,8 @@ export const VAR_LICH_SU: FormulaModule = {
         en: 'Use it when you hold a stock and want to know how much an ordinary bad session, the kind that comes around every so often, could cost you in a single day.',
       },
       howToRead: {
-        vi: 'Kết quả là SỐ DƯƠNG và nghĩa là MẤT: 2,5 nghĩa là lỗ 2,5% trong phiên tệ. Đây là chỗ hay hiểu ngược dấu — con số càng lớn thì rủi ro càng cao, chứ không phải càng tốt. VaR nói NGƯỠNG chứ không nói lỗ tối đa: 5% số phiên còn lại có thể lỗ nặng hơn nhiều, phần đó phải xem tiếp bằng CVaR.',
-        en: 'The result is a POSITIVE number and it means LOSS: 2.5 means a 2.5% loss in a bad session. This is where the sign is often misread — a larger number means higher risk, not something better. VaR states a THRESHOLD, not the maximum possible loss: the remaining 5% of sessions could lose much more, and that part needs CVaR to see.',
+        vi: 'So với mức lỗ một phiên bạn chịu được: con số lớn hơn nghĩa là những phiên xấu đã vượt sức chịu ấy, nhỏ hơn là còn trong sức chịu. Kết quả dương nghĩa là lỗ, không phải lãi.',
+        en: 'Compared with the one-session loss you can live with: a larger figure means bad sessions already go beyond it, a smaller one means they stay within it. A positive result means a loss, not a gain.',
       },
       commonMistakes: {
         vi: 'Coi VaR là mức lỗ tối đa và bỏ qua phần đuôi phía sau nó. Hai sai lầm khác cũng phổ biến: nhân thẳng VaR ngày với số ngày để ra VaR tuần (phải nhân với căn bậc hai của số ngày nếu chấp nhận giả định lợi suất độc lập), và dùng cửa sổ toàn thị trường tăng rồi tưởng rủi ro thấp.',
@@ -830,8 +830,8 @@ export const CVAR_LICH_SU: FormulaModule = {
         en: 'Use it when you worry about the sharpest crashes, the sessions worse than an ordinary bad day, and want to know how much the stock you hold loses on average each time one hits.',
       },
       howToRead: {
-        vi: 'Cùng quy ước với VaR — số dương nghĩa là mất. CVaR luôn lớn hơn hoặc bằng VaR cùng độ tin cậy; khoảng cách giữa hai con số chính là độ dày của đuôi. VaR 1% mà CVaR 4,25% nghĩa là khi phiên xấu xảy ra thật thì mức lỗ điển hình gấp hơn bốn lần ngưỡng.',
-        en: 'Same sign convention as VaR — a positive number means loss. CVaR is always greater than or equal to VaR at the same confidence level; the gap between the two is exactly how fat the tail is. A VaR of 1% with a CVaR of 4.25% means that when a bad session actually hits, the typical loss runs over four times the threshold.',
+        vi: 'So với mức lỗ một phiên bạn chịu được: lớn hơn nghĩa là những phiên sập của mã này trung bình đã làm mất quá sức chịu ấy, nhỏ hơn là trung bình vẫn còn trong sức chịu. Kết quả dương là mức mất bình quân của nhóm phiên tệ nhất, không phải lãi.',
+        en: "Compared with the one-session loss you can live with: larger means this stock's crash sessions on average already cost more than that, smaller means on average they stay within it. A positive result is the average loss of the worst group of sessions, not a gain.",
       },
       commonMistakes: {
         vi: 'Dừng lại ở VaR rồi quên phần đuôi. Sai lầm thứ hai là tính CVaR trên cửa sổ quá ngắn: ở mức 99% với 60 phiên, phần đuôi chỉ còn một quan sát nên con số phụ thuộc hoàn toàn vào đúng phiên đó.',

@@ -55,7 +55,7 @@ const VAI_TRO: Readonly<Record<'vi' | 'en', RegExp>> = {
  * Luật 6: tên viết tắt của các công thức trong thư viện. Được dùng khi nó nằm trong TÊN của chính
  * công thức đang viết (RSI được nói "RSI"), cấm khi mượn tên công thức khác.
  */
-const TEN_CONG_THUC = [
+export const TEN_CONG_THUC = [
   'DCF',
   'FCFF',
   'FCFE',
@@ -101,7 +101,7 @@ const TEN_CONG_THUC = [
 const NGUONG = /(?:trên|dưới|vượt|quá|từ|above|below|over|under)\s+-?\d/i;
 
 /** Luật 8 — bản sao rút gọn của `RA_LENH_VI` / `RA_LENH_EN` trong `prose-audit.test.ts`. */
-const RA_LENH: Readonly<Record<'vi' | 'en', readonly RegExp[]>> = {
+export const RA_LENH: Readonly<Record<'vi' | 'en', readonly RegExp[]>> = {
   vi: [
     /(?:khuyến nghị|gợi ý|khuyên)\s+(?:mua|bán)/i,
     /(?:bạn|nhà đầu tư|người dùng|nhà giao dịch)\s+nên\s+(?:mua|bán|giải ngân|vào lệnh|xuống tiền)/i,
@@ -118,9 +118,9 @@ const RA_LENH: Readonly<Record<'vi' | 'en', readonly RegExp[]>> = {
 };
 
 /** Luật 9. */
-const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/i;
+export const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/i;
 
-function coTen(text: string, ten: string): boolean {
+export function coTen(text: string, ten: string): boolean {
   const thoat = ten.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
   return new RegExp(`(?<![\\p{L}\\p{N}])${thoat}(?![\\p{L}\\p{N}])`, 'u').test(text);
 }

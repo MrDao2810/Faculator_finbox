@@ -205,17 +205,15 @@ async function napDongDau(): Promise<string> {
 }
 
 /**
- * Ba nhãn mục của khối Giải thích, đúng thứ tự wireframe (FR-03).
+ * Hai nhãn mục còn lại của khối Giải thích, đúng thứ tự wireframe (FR-03).
  *
- * Mục thứ tư của FR-03, "Công thức này nói lên điều gì" (`explain.meaning`), KHÔNG còn ở khối này
- * từ 30/09/2026: nó in lại đúng câu của khối "Ý nghĩa" đầu màn, nên màn tắt nó
- * (`showMeaning={false}`). Ca "câu Ý nghĩa chỉ in MỘT lần" bên dưới gác chuyện ấy.
+ * Hai mục kia của FR-03 KHÔNG còn ở khối này: "Công thức này nói lên điều gì"
+ * (`explain.meaning`) in lại đúng câu của khối "Ý nghĩa" đầu màn từ 30/09/2026
+ * (`showMeaning={false}`); "Cách đọc kết quả" (`explain.howToRead`) in ngay dưới con số
+ * ở khối Kết quả (`showHowToRead={false}`). Hai ca "câu … chỉ in MỘT lần" bên dưới gác
+ * chuyện đó.
  */
-const NHAN_GIAI_THICH = [
-  'explain.whenToUse',
-  'explain.howToRead',
-  'explain.commonMistakes',
-] as const;
+const NHAN_GIAI_THICH = ['explain.whenToUse', 'explain.commonMistakes'] as const;
 
 /**
  * Ba mục của khối Giải thích, dưới dạng thẻ `<details>` để đọc được thuộc tính `open`.
@@ -290,13 +288,14 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    *
    * Đã qua hai bản trung gian: gập hết ở chế độ Nâng cao (FR-09), rồi chỉ mở mục đầu. Cả hai đều bắt
    * người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để đọc.
-   * Khối nay có ba mục — mục ý nghĩa nằm ở khối "Ý nghĩa" đầu màn (xem `NHAN_GIAI_THICH`).
+   * Khối nay có hai mục — ý nghĩa nằm ở khối "Ý nghĩa", cách đọc kết quả nằm ở khối "Kết quả"
+   * (xem `NHAN_GIAI_THICH`).
    */
-  it('cả ba mục của phần Giải thích mở sẵn khi vào màn', () => {
+  it('cả hai mục của phần Giải thích mở sẵn khi vào màn', () => {
     render(<Man spec={specOf('pe')} />);
 
     const items = mucGiaiThich();
-    expect(items).toHaveLength(3);
+    expect(items).toHaveLength(2);
     for (const [index, item] of items.entries()) {
       expect(item.open, `mục thứ ${String(index + 1)}`).toBe(true);
     }
@@ -343,6 +342,29 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
         screen
           .queryAllByText('Công thức này nói lên điều gì')
           .filter((el) => el.tagName === 'SUMMARY'),
+        id,
+      ).toHaveLength(0);
+
+      unmount();
+    }
+  });
+
+  /*
+   * Câu "Cách đọc kết quả" chỉ in MỘT lần, ngay dưới con số ở khối Kết quả — không còn lặp lại ở
+   * khối Giải thích (`showHowToRead={false}`, `ResultBlock.interpretation`).
+   *
+   * Cùng lý do và cùng khuôn với ca "câu Ý nghĩa chỉ in MỘT lần" ở trên: chủ dự án chỉ ra ảnh chụp
+   * khối Kết quả đứng một mình, không câu nào giải thích con số — câu ấy trước đó nằm ở khối Giải
+   * thích, và trên điện thoại khối ấy bị đẩy xuống dưới cả Biểu đồ.
+   */
+  it('câu Cách đọc kết quả chỉ in MỘT lần — nằm ở khối Kết quả, không lặp ở khối Giải thích', () => {
+    for (const id of ['pe', 'capm', 'fcfe']) {
+      const spec = specOf(id);
+      const { unmount } = render(<Man spec={spec} />);
+
+      expect(screen.getAllByText(spec.explanation.howToRead.vi), id).toHaveLength(1);
+      expect(
+        screen.queryAllByText(t('explain.howToRead')).filter((el) => el.tagName === 'SUMMARY'),
         id,
       ).toHaveLength(0);
 

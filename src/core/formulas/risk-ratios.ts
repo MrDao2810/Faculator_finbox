@@ -378,8 +378,8 @@ export const BETA: FormulaModule = {
         en: 'Use it when you see the VN-Index swinging hard and want to know whether the stock you hold usually moves more or less than the market as a whole.',
       },
       howToRead: {
-        vi: 'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn — vùng của các ngành phòng thủ như điện, nước hay hàng thiết yếu: VN-Index giảm 10% thì một cổ phiếu beta 0,5 vẫn giảm khoảng 5%, chỉ giảm ít hơn chứ không đi ngược. Beta âm, tức cổ phiếu tăng khi thị trường giảm, rất hiếm; gặp beta âm trên một cửa sổ ngắn thì hãy kéo dài cửa sổ trước khi tin.',
-        en: 'A beta above 1 means the stock swings more than the market, between 0 and 1 means it swings less — where defensive sectors such as utilities and staples sit: if the VN-Index drops 10%, a beta-0.5 stock still drops about 5%, it simply drops less rather than moving the other way. A negative beta, where the stock rises as the market falls, is genuinely rare; if a short window produces one, extend the window before trusting it.',
+        vi: 'So với 1: lớn hơn nghĩa là mỗi khi VN-Index lên hay xuống, cổ phiếu thường lên hay xuống mạnh hơn, nhỏ hơn là nhẹ hơn. Beta âm nghĩa là cổ phiếu thường đi ngược chiều VN-Index trong các phiên đã chọn.',
+        en: 'Compared with 1: above means that whenever the VN-Index moves, the stock usually moves further in the same direction, below means it moves less. A negative beta means the stock usually moved against the VN-Index over the sessions chosen.',
       },
       commonMistakes: {
         vi: 'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
@@ -570,8 +570,8 @@ export const TY_SO_SHARPE: FormulaModule = {
         en: 'Use it when you are weighing a fund or a stock portfolio against a savings deposit and want to know whether the extra return over savings is worth the ups and downs you have to sit through.',
       },
       howToRead: {
-        vi: 'Dưới 1 là bình thường, quanh 1 là khá, trên 2 là rất tốt nhưng phải nghi ngờ mẫu quá ngắn. Số âm nghĩa là danh mục còn thua gửi tiết kiệm mà vẫn phải chịu biến động.',
-        en: 'Below 1 is ordinary, around 1 is decent, above 2 is very good but should raise suspicion of too short a sample. A negative value means the portfolio underperformed a savings deposit while still bearing volatility.',
+        vi: 'So với tỷ số Sharpe của một quỹ hay danh mục khác, cùng kỳ và cùng lãi suất phi rủi ro: cao hơn nghĩa là mỗi phần lên xuống phải chịu đổi được nhiều lãi vượt mức phi rủi ro hơn, thấp hơn là kém hơn. Số âm nghĩa là danh mục sinh lời kém lãi suất phi rủi ro.',
+        en: 'Compared with the Sharpe ratio of another fund or portfolio over the same period and risk-free rate: higher means each unit of swinging you sit through earns more return above the risk-free rate, lower means it earns less. A negative figure means the portfolio earned less than the risk-free rate over the period.',
       },
       commonMistakes: {
         vi: 'So Sharpe của hai kỳ dài ngắn khác nhau, hoặc quên rằng độ lệch chuẩn phạt cả những phiên TĂNG mạnh — danh mục lãi đột biến vài phiên có thể bị Sharpe chấm điểm thấp oan.',
@@ -766,8 +766,8 @@ export const TY_SO_SORTINO: FormulaModule = {
         en: 'Use it when you are comparing two funds, one of which has the odd session that shoots up, and want to know whether its return above savings is worth the losing sessions it puts you through, without counting those jumps as risk.',
       },
       howToRead: {
-        vi: 'Đọc theo cùng thang với Sharpe: quanh 1 là khá, trên 2 là tốt, số âm nghĩa là danh mục còn thua ngưỡng phi rủi ro. Khi lợi suất bình quân vượt ngưỡng, Sortino thường cao hơn Sharpe của cùng chuỗi vì mẫu số bỏ qua các phiên tăng; nhưng khi lợi suất tụt dưới ngưỡng thì chính mẫu số nhỏ ấy kéo tỷ số xuống THẤP hơn Sharpe.',
-        en: 'Read it on the same scale as Sharpe: around 1 is decent, above 2 is good, and a negative value means the portfolio fell short of the risk-free threshold. When the average return clears that threshold, Sortino usually sits higher than the Sharpe ratio for the same series because the denominator ignores rising sessions; but once the return drops below the threshold, that same smaller denominator drags the ratio LOWER than Sharpe.',
+        vi: 'So với tỷ số Sortino của quỹ hay danh mục bạn đang đặt cạnh, cùng kỳ và cùng lãi suất phi rủi ro: cao hơn nghĩa là phần lãi vượt mức phi rủi ro bù cho các phiên lỗ tốt hơn, thấp hơn là kém hơn. Số âm nghĩa là lãi bình quân còn thua mức phi rủi ro.',
+        en: 'Compared with the Sortino ratio of the fund or portfolio you are weighing it against, over the same period and risk-free rate: higher means its return above the risk-free rate pays better for the losing sessions, lower means it pays worse. A negative figure means the average return fell short of the risk-free rate.',
       },
       commonMistakes: {
         vi: 'So thẳng Sortino với Sharpe rồi kết luận danh mục "tốt hơn" — hai thước đo có mẫu số khác nhau. Ngoài ra mẫu số chia cho TỔNG số phiên, nên chuỗi hầu như không có phiên giảm sẽ cho ra con số rất lớn, cần cảnh giác.',
@@ -954,8 +954,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
         en: 'Use it when you have already spread your money across many stocks and want to grade one fund or one slice of those holdings, checking whether its return above savings is worth how much it moves with the market.',
       },
       howToRead: {
-        vi: 'Đọc như một mức lãi vượt chuẩn quy năm cho mỗi 1 đơn vị beta. Con số càng cao càng tốt; so sánh chỉ có nghĩa giữa các danh mục cùng đo theo một chỉ số tham chiếu.',
-        en: 'Read it as an annualized excess return per 1 unit of beta. The higher the better; comparisons are only meaningful between portfolios measured against the same benchmark index.',
+        vi: 'So với phần VN-Index lãi hơn lãi suất phi rủi ro trong cùng kỳ, tính theo năm: cao hơn nghĩa là mỗi phần rủi ro theo thị trường mà danh mục gánh được trả công hơn chính thị trường, thấp hơn là kém hơn. Số âm nghĩa là lãi của danh mục còn thua mức phi rủi ro.',
+        en: "Compared with how much the VN-Index earned above the risk-free rate over the same period, per year: higher means each unit of market risk the portfolio carries is paid better than the market itself, lower means it is paid worse. A negative figure means the portfolio's return fell short of the risk-free rate.",
       },
       commonMistakes: {
         vi: 'Dùng Treynor cho một danh mục chỉ có vài mã: khi chưa đa dạng hoá thì rủi ro riêng lẻ còn rất lớn mà beta không hề đo tới, nên tỷ số vẽ ra bức tranh quá đẹp.',
@@ -1158,8 +1158,8 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         en: 'Use it when you hold a fund or a portfolio of hand-picked stocks and want to know whether it beat the VN-Index, and whether that edge was worth the ups and downs it took.',
       },
       howToRead: {
-        vi: 'Số âm nghĩa là đi lệch khỏi chuẩn mà vẫn thua chuẩn; càng cao thì phần thắng chuẩn càng đáng với mức biến động phải chịu. Nhưng đừng chấm theo thang quen thuộc của quản lý chủ động: bản rút gọn này nhập chuẩn bằng MỘT con số cả năm nên mẫu số là độ lệch chuẩn lợi suất của chính danh mục chứ không phải sai số bám chuẩn từng phiên. Hãy so với mốc 0 và với chính danh mục ở kỳ trước, nhập theo cùng một cách.',
-        en: "A negative value means deviating from the benchmark while still underperforming it; the higher the number, the more the outperformance justifies the volatility borne. But do not score it on the familiar active-management scale: this simplified version takes the benchmark as a SINGLE annual figure, so the denominator is the standard deviation of the portfolio's own returns rather than a session-by-session tracking error. Compare it against 0 and against the same portfolio in an earlier period, entered the same way.",
+        vi: 'So với tỷ số thông tin của chính danh mục ở kỳ trước, nhập mức chuẩn theo cùng cách: cao hơn nghĩa là phần thắng chuẩn kỳ này xứng với độ lên xuống phải chịu hơn kỳ trước, thấp hơn là kém đi. Số âm nghĩa là danh mục đang thua mức chuẩn bạn nhập.',
+        en: "Compared with the same portfolio's information ratio in an earlier period, with the benchmark entered the same way: higher means its lead over the benchmark now pays better for the swings you sit through, lower means it pays worse. A negative figure means the portfolio is trailing the benchmark you entered.",
       },
       commonMistakes: {
         vi: 'Đọc tỷ số thông tin như Sharpe. Sharpe so với lãi suất phi rủi ro, tỷ số thông tin so với chuẩn thị trường — một danh mục có thể tốt theo thước này và tệ theo thước kia.',
@@ -1301,8 +1301,8 @@ export const TY_SO_CALMAR: FormulaModule = {
         en: 'Use it when you dread a deep plunge that could scare you into selling, and want to know how much a fund or strategy earns each year compared with the worst fall it has put you through.',
       },
       howToRead: {
-        vi: 'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất. Số âm nghĩa là cả giai đoạn đang lỗ — ví dụ bên dưới cho −0,35 lần đúng vào trường hợp đó, nên đọc thẳng mức sụt giảm chứ đừng xếp hạng bằng tỷ số. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
-        en: 'Above 1 means the annual gain already exceeds the deepest drawdown. A negative value means the whole period is a loss — the example below gives −0.35, exactly that case, so read the drawdown itself rather than ranking by the ratio. The original Calmar is computed over 36 months; with a window of only 60 sessions, annualizing inflates the numerator, so the figure can look deceptively good.',
+        vi: 'So với 1: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm. Số âm nghĩa là giá cuối kỳ thấp hơn đầu kỳ, tức cả giai đoạn đang lỗ.',
+        en: "Compared with 1: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger than a year's return. A negative figure means the price ended the period below where it started, so the whole stretch is a loss.",
       },
       commonMistakes: {
         vi: 'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',
@@ -1480,8 +1480,8 @@ export const TY_SO_THANG_THUA: FormulaModule = {
         en: 'Use it when you see a stock with plenty of green sessions whose price still is not going anywhere, and want to know whether its up sessions usually rise by more or by less than its down sessions fall.',
       },
       howToRead: {
-        vi: 'Đây là tỷ số về BIÊN ĐỘ, không phải về tần suất: 0,87 lần nghĩa là một phiên tăng lãi trung bình chỉ bằng 0,87 lần mức lỗ của một phiên giảm — phiên giảm đang "đau" hơn phiên tăng "lãi". Mốc để so là số phiên tăng và số phiên giảm: hai bên ngang nhau thì 1 lần là hoà, phiên tăng càng ít thì tỷ số phải càng lớn mới bù lại.',
-        en: 'This is a ratio of MAGNITUDE, not frequency: 0.87 means the average gain of a rising session is only 0.87 times the average loss of a falling one — a falling session "hurts" more than a rising one "helps". The yardstick is the count of rising versus falling sessions: with the two sides equal, 1 is break-even, and the fewer the rising sessions, the larger the ratio has to be to make up for them.',
+        vi: 'So với số phiên giảm chia cho số phiên tăng trong cùng kỳ, bỏ các phiên đi ngang: cao hơn nghĩa là phần tăng cộng lại của các phiên xanh đã nhiều hơn phần giảm cộng lại của các phiên đỏ, thấp hơn là phần giảm đang lấn phần tăng.',
+        en: 'Compared with the number of down sessions divided by the number of up sessions in the same period, flat sessions left out: higher means the gains of the green sessions add up to more than the losses of the red ones, lower means the losses outweigh the gains.',
       },
       commonMistakes: {
         vi: 'Coi tỷ số trên 1 là chắc chắn có lãi. Phải cân với tỷ lệ thắng: kỳ vọng bằng tỷ lệ thắng × mức lãi bình quân TRỪ tỷ lệ thua × mức lỗ bình quân, nên với tỷ lệ thắng 30% thì tỷ số phải hơn 2,3 lần mới hoà, còn 1,2 lần vẫn là một chiến lược thua.',

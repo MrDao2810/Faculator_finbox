@@ -135,8 +135,8 @@ export const DIEM_HOA_VON: FormulaModule = {
         en: "Use it when you plan to open a small shop or read that a company's sales are slipping, and want to know the minimum number of units that must be sold each month or quarter to avoid a loss.",
       },
       howToRead: {
-        vi: 'Điểm hoà vốn càng thấp so với sản lượng thực tế thì biên an toàn càng dày. Muốn so với doanh thu trên báo cáo, nhân sản lượng hoà vốn với giá bán để ra doanh thu hoà vốn tương ứng.',
-        en: 'The lower the break-even point is relative to actual output, the thicker the margin of safety. To compare against reported revenue, multiply the break-even quantity by the selling price to get the matching break-even revenue.',
+        vi: 'So với số sản phẩm thực bán được trong đúng khoảng thời gian của định phí: bán nhiều hơn con số này nghĩa là đang có lãi, phần dôi ra là khoảng sản lượng có thể hụt trước khi lỗ, bán ít hơn là đang lỗ. Kết quả có phần lẻ thì làm tròn lên mới đủ hoà vốn.',
+        en: 'Compared with the units actually sold over the same stretch of time the fixed cost covers: selling more than this figure means a profit, and the surplus is how far sales can slip before turning into a loss, while selling fewer means a loss. If the result has a fraction, round it up to reach break-even.',
       },
       commonMistakes: {
         vi: 'Xếp nhầm chi phí nửa cố định nửa biến đổi (điện, lương có thưởng doanh số) vào một cột duy nhất, làm điểm hoà vốn lệch xa thực tế.',
@@ -365,8 +365,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         en: "Use it when you read the revenue plan a company puts to its shareholders' meeting for next year and want to know how many times harder its profit per share would move if revenue misses or beats the plan by a little.",
       },
       howToRead: {
-        vi: 'Đòn bẩy 4 lần nghĩa là doanh thu tăng 1% thì EPS tăng khoảng 4%, nhưng giảm 1% thì EPS cũng giảm 4% — con số càng lớn, lợi nhuận càng dễ vỡ khi doanh thu hụt.',
-        en: 'A leverage of 4 times means a 1% increase in revenue drives roughly a 4% increase in EPS, but a 1% decrease in revenue also drives a 4% drop in EPS — the larger the number, the more fragile profit becomes when revenue falls short.',
+        vi: 'So với 1: bằng 1 nghĩa là lãi trên mỗi cổ phiếu tăng giảm cùng nhịp với doanh thu, còn lớn hơn 1 thì lãi dao động mạnh hơn doanh thu khoảng bấy nhiêu lần, cả khi doanh thu vượt kế hoạch lẫn khi hụt.',
+        en: 'Compared with 1: exactly 1 means profit per share rises and falls in step with revenue, while above 1 means profit swings roughly that many times harder than revenue, whether revenue beats the plan or misses it.',
       },
       commonMistakes: {
         vi: 'Coi đòn bẩy cao là điểm cộng vô điều kiện; nó chỉ có lợi khi doanh thu đi lên, và hệ số này chỉ đúng cho thay đổi nhỏ quanh mức doanh thu hiện tại.',

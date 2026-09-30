@@ -674,7 +674,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'EV = Market cap + Debt − Cash + Minority interest = 5,000 + 1,200 − 300 + 400 = VND 6,300 billion. EV/EBITDA = 6,300 / 800 = 7.875x. Corporate Finance Institute explains why this add-back is required: “the consolidated financial statements of XYZ will reflect 100% of the Total Sales, EBIT, and EBITDA, etc. of the subsidiary ABC even though XYZ only owns 80% of ABC.” The EBITDA in the denominator already reflects 100% of the subsidiary, so the EV in the numerator must also include the full minority stake; skipping it would give only 5,900 / 800 = 7.375x, an artificially cheap-looking multiple.',
     },
     giai: {
-      tinh: { vi: 'EV/EBITDA', en: 'EV to EBITDA ratio' },
+      tinh: { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
       thaySo: { vi: '(5.000 + 1.200 + 400 − 300) ÷ 800', en: '(5000 + 1200 + 400 − 300) ÷ 800' },
       ketQua: { vi: '7,88 lần', en: '7.88 x' },
       gan: [

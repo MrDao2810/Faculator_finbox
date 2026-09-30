@@ -81,8 +81,8 @@ export const ROI: FormulaModule = {
         en: 'Use it when you check your brokerage account, see the total you have put in next to what it is worth today, and want to know how much you are up or down against that capital.',
       },
       howToRead: {
-        vi: '25% nghĩa là 100 triệu ₫ bỏ ra nay thành 125 triệu ₫ — cứ 100 đồng vốn lãi thêm 25 đồng. Số âm là đang lỗ, 0% là vừa đủ hoà vốn; muốn biết hơn kém thì so với lãi suất tiết kiệm của đúng khoảng thời gian ấy.',
-        en: 'A value of 25% means 100 million ₫ put in is now 125 million ₫ — every 100 đồng of capital earned 25 đồng more. A negative figure means a loss and 0% means exactly break-even; to judge it, compare against a savings rate over the same span of time.',
+        vi: 'So với lãi suất tiết kiệm của đúng khoảng thời gian ấy: cao hơn nghĩa là khoản đầu tư sinh lời hơn gửi tiền, thấp hơn là kém hơn. Số âm nghĩa là đang lỗ, 0 là vừa hoà vốn.',
+        en: 'Compared with the savings interest you would have earned over exactly the same stretch of time: higher means the investment beat a bank deposit, and lower means it did worse. A negative figure means you are at a loss, and 0 means you have just broken even.',
       },
       commonMistakes: {
         vi: 'Dùng ROI để so hai khoản có thời gian nắm giữ khác nhau. Muốn so thì dùng CAGR.',
@@ -203,8 +203,8 @@ export const HPR: FormulaModule = {
         en: 'Use it when you have just sold a stock you held through a cash dividend and want to know how much you made against your purchase price, counting both the price gain and the dividends.',
       },
       howToRead: {
-        vi: 'Cao hơn tỷ suất tính trên giá thuần — tức (Giá cuối kỳ − Giá đầu kỳ) ÷ Giá đầu kỳ — đúng bằng phần cổ tức chia cho giá đầu kỳ: ví dụ trên màn ra 20,51%, còn bỏ cổ tức đi chỉ còn 17,95%.',
-        en: 'It exceeds the price-only return — (Ending price − Starting price) ÷ Starting price — by exactly the dividend divided by the starting price: the example above gives 20.51%, while dropping the dividend leaves 17.95%.',
+        vi: 'So với tiền lãi gửi tiết kiệm cùng số vốn trong đúng thời gian nắm giữ, tính ra phần trăm: cao hơn nghĩa là giữ cổ phiếu, tính cả cổ tức, lời hơn gửi tiền, thấp hơn là kém hơn. Số âm nghĩa là cổ tức nhận được chưa bù nổi phần giá đã giảm.',
+        en: 'Compared with the savings interest the same money would have earned over exactly the holding period, as a percentage: higher means holding the stock, dividends included, paid better than a deposit, and lower means worse. A negative figure means the dividends received did not make up for the fall in price.',
       },
       commonMistakes: {
         vi: 'Nhầm HPR với ROI. ROI chỉ nhìn chênh lệch giá trị; HPR cộng thêm dòng tiền cổ tức.',
@@ -327,8 +327,8 @@ export const CAGR: FormulaModule = {
         en: 'Use it when you are reading a fund report or reviewing money you put in once and held for several years, know only its starting and current value, and want its average growth per year.',
       },
       howToRead: {
-        vi: 'Con số là mức tăng đều mỗi năm: 14,87% nghĩa là 100 triệu ₫ tăng 14,87% mỗi năm thì sau 5 năm thành 200 triệu ₫. Số âm nghĩa là vốn co lại đều mỗi năm; đem so với lãi suất tiết kiệm cùng kỳ hạn để biết nhanh hay chậm.',
-        en: 'The figure is the steady per-year rate: 14.87% means 100 million ₫ growing 14.87% a year becomes 200 million ₫ after 5 years. A negative figure means the capital shrinks every year; compare it against a savings rate of the same term to see whether it is fast or slow.',
+        vi: 'So với lãi suất tiết kiệm kỳ hạn một năm: cao hơn nghĩa là khoản tiền lớn lên bình quân mỗi năm nhanh hơn gửi ngân hàng, thấp hơn là chậm hơn. Số âm nghĩa là giá trị cuối thấp hơn lúc đầu, bình quân mỗi năm hụt đi chừng ấy phần trăm.',
+        en: 'Compared with the one-year savings deposit rate: higher means the money grew faster each year on average than it would in a bank, and lower means slower. A negative figure means the ending value is below the starting value, shrinking by roughly that percentage each year on average.',
       },
       commonMistakes: {
         vi: 'Coi CAGR như lợi suất chắc chắn của năm tới. Nó là số liệu quá khứ đã được làm mượt.',
@@ -482,8 +482,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
         en: "Use it when you are looking for a stock to hold for its dividends and want to know, if you buy at today's quoted price, how much the company pays in dividends each year relative to the money you put in.",
       },
       howToRead: {
-        vi: '2,17% nghĩa là bỏ ra 100.000 ₫ mua cổ phiếu thì một năm nhận về 2.170 ₫ tiền mặt, trước thuế. Tỷ suất cao bất thường thường do giá vừa giảm mạnh chứ không hẳn do doanh nghiệp hào phóng.',
-        en: 'A value of 2.17% means 100,000 ₫ spent on the stock returns 2,170 ₫ in cash over a year, before tax. An unusually high yield is often the result of a sharp price drop rather than a generous company.',
+        vi: 'So với lãi suất tiết kiệm kỳ hạn một năm: cao hơn nghĩa là chỉ riêng tiền cổ tức mỗi năm đã nhiều hơn tiền lãi gửi ngân hàng, thấp hơn là giá cổ phiếu còn phải tăng thêm mới bằng gửi tiền. Kết quả 0 nghĩa là công ty không trả cổ tức tiền mặt.',
+        en: 'Compared with the one-year savings deposit rate: higher means the cash dividend alone pays more each year than bank interest, and lower means the share price must also rise to match a deposit. A result of 0 means the company pays no cash dividend.',
       },
       commonMistakes: {
         vi: 'Lấy mức cổ tức công bố mà quên thuế cổ tức bị khấu trừ, nên số thực nhận thấp hơn.',
@@ -764,8 +764,8 @@ export const XIRR: FormulaModule = {
         en: 'Use it when you have added or withdrawn money several times on irregular dates and want to know the average yearly return of the whole investment, counted by the actual days.',
       },
       howToRead: {
-        vi: 'Đọc như một mức lãi suất kép mỗi năm, đem so với lãi suất tiết kiệm cùng kỳ hạn: một khoản thành gấp đôi sau đúng một năm ứng với XIRR khoảng 100%/năm. Quãng giữa các dòng tiền càng ngắn thì con số quy ra năm càng bị phóng đại — lãi 7% trong hai ngày đã thành hàng triệu %/năm.',
-        en: 'Read it as a compound annual interest rate and compare it against a savings rate of the same term: an amount doubling after exactly one year corresponds to an XIRR of roughly 100%/year. The shorter the span between cash flows, the more the annualized figure is magnified — a 7% gain over two days already becomes millions of percent per year.',
+        vi: 'So với lãi suất tiết kiệm kỳ hạn một năm: cao hơn nghĩa là tính bình quân mỗi năm, cả khoản đầu tư sinh lời hơn gửi ngân hàng, thấp hơn là kém hơn. Số âm nghĩa là gộp mọi lần nạp và rút lại, khoản đầu tư đang lỗ.',
+        en: 'Compared with the one-year savings deposit rate: higher means the investment as a whole earned more per year than a bank deposit, and lower means less. A negative figure means that, with every deposit and withdrawal counted, the investment is at a loss.',
       },
       commonMistakes: {
         vi: 'Quên rằng dòng tiền cuối cùng phải là GIÁ TRỊ HIỆN TẠI của khoản đầu tư (một khoản thu về GIẢ ĐỊNH nếu bán hết hôm nay), không phải chỉ tính tới lần rót tiền gần nhất.',

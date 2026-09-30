@@ -2767,11 +2767,12 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         đọc. Không truyền `defaultOpen` ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không
         có điều kiện nào để về sau lệch với nó.
 
-        Chỉ BA mục ở đây (`showMeaning={false}`), từ 30/09/2026. Mục "Công thức này nói lên điều gì"
-        in đúng câu của khối "Ý nghĩa" (mục 2), nên cả 111 trang lặp nguyên đoạn đó hai lần. Chủ dự
-        án chọn giữ bản ở đầu màn. FR-03 vẫn đủ bốn mục TRÊN MÀN: phần ý nghĩa nằm ở khối "Ý nghĩa",
-        ba phần còn lại ở đây. Bản xuất PDF vẫn in đủ bốn mục, vì nó không có khối "Ý nghĩa" riêng
-        (`export-content.ts`).
+        Chỉ HAI mục ở đây (`showMeaning={false}`, `showHowToRead={false}`). Mục "Công thức này nói
+        lên điều gì" in đúng câu của khối "Ý nghĩa" (mục 2) từ 30/09/2026; mục "Cách đọc kết quả"
+        nay in ngay dưới con số ở khối Kết quả (`ResultBlock.interpretation`, mục 5) — cùng lý do:
+        cả 111 trang từng lặp nguyên một đoạn hai lần. FR-03 vẫn đủ bốn mục TRÊN MÀN: ý nghĩa ở
+        khối "Ý nghĩa", cách đọc ở khối "Kết quả", hai phần còn lại ở đây. Bản xuất PDF vẫn in đủ
+        bốn mục, vì nó không có khối "Ý nghĩa" hay "Kết quả" riêng (`export-content.ts`).
       */}
         {/*
         Năm khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
@@ -2781,6 +2782,7 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         <ExplanationAccordion
           explanation={spec.explanation}
           showMeaning={false}
+          showHowToRead={false}
           className={`${styles.deferred} ${styles.blockExplain}`}
         />
       </div>
@@ -2831,6 +2833,11 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         `.result` nới thêm khoảng trên: chín khối trước đây cách đều nhau `--space-5`, nên khối
         Kết quả không tách khỏi phần nhập liệu ngay trên nó. Bản rà soát báo đúng thế —
         "khoảng cách giữa các khối chưa rõ ràng".
+
+        `interpretation` truyền câu `explanation.howToRead` — đường ống này đã dựng sẵn ở
+        `ResultBlock` (component + CSS) từ lâu nhưng chưa nơi gọi nào bơm vào (TASK.md). Đặt NGAY
+        DƯỚI con số nó giải thích, ở MỌI khổ màn hình, thay vì mục cùng tên trong khối Giải thích
+        vốn bị đẩy xuống dưới cả Biểu đồ ở điện thoại — xem `showHowToRead={false}` phía trên.
       */}
         <section className={styles.result} aria-labelledby="khoi-ket-qua">
           <h2 className="visually-hidden" id="khoi-ket-qua">
@@ -2838,7 +2845,9 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
           </h2>
 
           {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
-          {!ownsResult(spec.id) && <ResultBlock output={output} />}
+          {!ownsResult(spec.id) && (
+            <ResultBlock output={output} interpretation={pick(spec.explanation.howToRead)} />
+          )}
 
           {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
           {hasCustomBody(spec.id) && (

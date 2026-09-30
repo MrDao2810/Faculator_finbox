@@ -161,8 +161,8 @@ export const PS: FormulaModule = {
         en: 'Use it when you are eyeing a newly listed or fast-expanding company that has no profit yet, and want to know whether its share price is expensive or cheap relative to the revenue it brings in.',
       },
       howToRead: {
-        vi: 'P/S thấp hơn các doanh nghiệp cùng ngành gợi ý cổ phiếu đang rẻ so với quy mô doanh thu. So khác ngành thì vô nghĩa vì biên lợi nhuận mỗi ngành một khác.',
-        en: 'A P/S lower than industry peers suggests the stock is cheap relative to its revenue scale. Comparing across industries is meaningless, since profit margins differ by industry.',
+        vi: 'So với P/S của các công ty cùng ngành ở cùng thời điểm: thấp hơn nghĩa là mỗi đồng doanh thu của công ty này đang được trả rẻ hơn, cao hơn là đang trả đắt hơn, thường vì thị trường tin doanh thu ấy sẽ sớm thành lợi nhuận hoặc còn tăng mạnh.',
+        en: "Compared with the P/S of companies in the same industry at the same time: lower means each dong of this company's revenue is being priced more cheaply, and higher means the market is paying more for it, usually because it believes that revenue will soon turn into profit or keep growing fast.",
       },
       commonMistakes: {
         vi: 'Quên rằng doanh thu lớn không đồng nghĩa có lãi — P/S thấp ở doanh nghiệp biên lợi nhuận mỏng không phải là món hời.',
@@ -339,8 +339,8 @@ export const EV: FormulaModule = {
         en: 'Use it when you read that a company is about to be bought out, or see that it carries heavy debt, and want to know what buying the whole company would cost once the debt you take on and the cash it holds are counted.',
       },
       howToRead: {
-        vi: 'EV lớn hơn vốn hoá nghĩa là doanh nghiệp vay nhiều hơn tiền mặt đang giữ. EV âm là hiếm — tiền mặt vượt cả vốn hoá cộng nợ.',
-        en: 'EV greater than market cap means the company owes more debt than the cash it holds. A negative EV is rare — cash exceeds market cap plus debt.',
+        vi: 'So với vốn hoá thị trường của chính công ty: EV lớn hơn nghĩa là nợ vay nhiều hơn tiền mặt, người mua trọn công ty phải gánh thêm phần chênh, nhỏ hơn là tiền mặt nhiều hơn nợ. Số âm nghĩa là tiền mặt còn vượt cả vốn hoá cộng nợ vay.',
+        en: "Compared with the company's own market cap: a larger EV means debt exceeds the cash on hand, so a buyer of the whole company takes on that gap, and a smaller one means cash exceeds debt. A negative figure means cash exceeds market cap and debt combined.",
       },
       commonMistakes: {
         vi: 'Lấy vốn hoá làm giá mua doanh nghiệp mà quên khoản nợ người mua phải gánh — hai công ty cùng vốn hoá có thể đắt rẻ rất khác nhau.',
@@ -424,7 +424,7 @@ export const EV_EBITDA: FormulaModule = {
   spec: {
     id: 'ev-ebitda',
     categoryId: 'valuation',
-    name: { vi: 'EV/EBITDA', en: 'EV to EBITDA ratio' },
+    name: { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
     description: {
       vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần lợi nhuận trước lãi vay, thuế và khấu hao.',
       en: 'How many times the price to buy the whole company sits above earnings before interest, tax, and depreciation.',
@@ -477,8 +477,8 @@ export const EV_EBITDA: FormulaModule = {
         en: 'Use it when you compare two companies in the same industry, one heavily in debt and the other barely borrowing, and want to know which is pricier relative to the profit its core business earns.',
       },
       howToRead: {
-        vi: 'Thấp hơn trung bình ngành gợi ý đang rẻ. Nhưng EBITDA chưa trừ chi đầu tư, nên ngành thâm dụng vốn thường có bội số thấp một cách tự nhiên.',
-        en: 'Lower than the industry average suggests the stock is cheap. But EBITDA has not deducted capital expenditure, so capital-intensive industries naturally carry lower multiples.',
+        vi: 'So với EV/EBITDA của các công ty cùng ngành, dù họ vay nhiều hay ít: thấp hơn nghĩa là mua trọn công ty này rẻ hơn tính trên mỗi đồng lãi từ kinh doanh chính, cao hơn là đắt hơn. Số âm nghĩa là tiền mặt công ty giữ đã vượt cả vốn hoá cộng nợ vay.',
+        en: 'Compared with the EV/EBITDA of companies in the same industry, however much they borrow: lower means buying this whole company costs less per dong of core operating profit, and higher means it costs more. A negative figure means the company holds more cash than its market cap and debt combined.',
       },
       commonMistakes: {
         vi: 'Coi EBITDA là dòng tiền thật — nó bỏ qua chi đầu tư và thay đổi vốn lưu động, dùng cho ngành nặng tài sản dễ lạc quan quá mức.',
@@ -621,8 +621,8 @@ export const EV_SALES: FormulaModule = {
         en: 'Use it when you are looking at a company that loses money even from its core business yet still carries large debt, and want to know whether it is expensive or cheap relative to its revenue, counting the debt a buyer takes on.',
       },
       howToRead: {
-        vi: 'So trong cùng ngành: thấp hơn trung bình gợi ý đang rẻ so với quy mô kinh doanh. Ngành biên lợi nhuận cao thì EV/Sales cao là bình thường.',
-        en: 'Compare within the same industry: lower than average suggests cheap relative to business scale. A high-margin industry naturally carries a higher EV/Sales.',
+        vi: 'So với EV/Sales của các công ty cùng ngành, cùng cỡ biên lợi nhuận: thấp hơn nghĩa là mỗi đồng doanh thu của công ty này, tính cả nợ phải gánh, đang được định giá rẻ hơn, cao hơn là đắt hơn. Số âm nghĩa là tiền mặt đang giữ nhiều hơn cả vốn hoá cộng nợ vay.',
+        en: "Compared with the EV/Sales of same-industry companies with similar profit margins: lower means each dong of this company's revenue, debt included, is valued more cheaply, and higher means more expensively. A negative figure means the company is holding more cash than its market cap plus debt.",
       },
       commonMistakes: {
         vi: 'Dùng vốn hoá thay cho EV ở tử số — như vậy hai doanh nghiệp cùng doanh thu nhưng nợ khác hẳn nhau lại trông giống nhau.',
@@ -781,8 +781,8 @@ export const PEG: FormulaModule = {
         en: 'Use it when you see a company with fast-rising profits trading at a much higher P/E than its peers and want to know whether it is truly expensive or only looks that way once the profit growth you expect is counted.',
       },
       howToRead: {
-        vi: 'Quanh 1 thường coi là hợp lý: P/E tương xứng tốc độ tăng trưởng. Dưới 1 gợi ý rẻ so với tăng trưởng, trên 2 là đắt trừ khi tăng trưởng rất chắc chắn.',
-        en: 'Around 1 is usually considered fair: P/E matches the growth rate. Below 1 suggests cheap relative to growth, above 2 is expensive unless the growth is very certain.',
+        vi: 'So với mốc 1: dưới 1 nghĩa là giá đang rẻ so với tốc độ tăng lợi nhuận bạn kỳ vọng, trên 1 là giá đã cao hơn mức đà tăng ấy xứng đáng, bằng 1 là hai bên tương xứng.',
+        en: 'Compared with 1: below 1 means the price is cheap relative to the profit growth you expect, above 1 means the price is already more expensive than that growth justifies, and exactly 1 means the two are in balance.',
       },
       commonMistakes: {
         vi: 'Dùng con số tăng trưởng quá lạc quan — g là một dự phóng, không chắc chắn như P/E vốn tính từ số liệu đã có, nên sai lệch vài điểm phần trăm ở g dễ kéo PEG lệch xa kết luận ban đầu.',
@@ -947,8 +947,8 @@ export const VON_HOA: FormulaModule = {
         en: 'Use it when you come across an unfamiliar ticker and want to know how big the company is next to others on the exchange, instead of guessing from whether one share looks pricey or cheap.',
       },
       howToRead: {
-        vi: 'Vốn hoá là giá thị trường gán cho phần vốn cổ đông, chưa tính nợ. Doanh nghiệp lớn thường biến động giá êm hơn doanh nghiệp vốn hoá nhỏ.',
-        en: 'Market cap is the market value assigned to shareholders’ equity, not counting debt. Large companies tend to have smoother price swings than small-cap ones.',
+        vi: 'So với vốn hoá của các công ty cùng ngành ở cùng một phiên: lớn hơn nghĩa là thị trường đang trả cho toàn bộ cổ phiếu công ty này nhiều tiền hơn, tức xếp nó vào hàng lớn hơn trong ngành, nhỏ hơn là xếp vào hàng nhỏ hơn.',
+        en: "Compared with the market caps of same-industry companies in the same session: larger means the market is paying more for all of this company's shares, ranking it among the bigger players in the industry, and smaller means ranking it among the smaller ones.",
       },
       commonMistakes: {
         vi: 'Nhầm vốn hoá với giá mua trọn doanh nghiệp — người mua còn phải gánh nợ vay, con số đó là EV.',
@@ -1120,8 +1120,8 @@ export const SO_GRAHAM: FormulaModule = {
         en: 'Use it when you are quickly screening a long list of steady, long-established companies and want a cautious price ceiling for each ticker, worked out only from its earnings and book value per share.',
       },
       howToRead: {
-        vi: 'Giá thị trường thấp hơn số Graham gợi ý cổ phiếu chưa đắt theo chuẩn Graham. Đây là bộ lọc bảo thủ, dễ bỏ sót doanh nghiệp tăng trưởng nhanh.',
-        en: 'A market price below the Graham number suggests the stock is not yet expensive by Graham’s standard. This is a conservative filter that can easily miss fast-growing companies.',
+        vi: 'So với giá thị trường hiện tại của mã: giá đang thấp hơn số Graham nghĩa là cổ phiếu còn nằm dưới mức giá trần thận trọng theo chuẩn Graham, giá cao hơn là đã vượt trần ấy, tức đắt theo chuẩn này.',
+        en: "Compared with the stock's current market price: a price below the Graham number means the stock is still under the cautious ceiling set by Graham's standard, and a price above it means it has broken through that ceiling and is expensive by this standard.",
       },
       commonMistakes: {
         vi: 'Áp cho doanh nghiệp tăng trưởng hoặc công ty công nghệ ít tài sản hữu hình — chuẩn 22,5 sinh ra cho doanh nghiệp truyền thống ổn định.',
@@ -1323,8 +1323,8 @@ export const NCAV: FormulaModule = {
         en: 'Use it when you see a stock fall very hard and want to know what each share would still be worth if the company shut down and paid off all its debts using only its cash, the money customers still owe it and its inventory.',
       },
       howToRead: {
-        vi: 'Giá dưới NCAV là tín hiệu rẻ hiếm gặp, thường chỉ xuất hiện lúc thị trường hoảng loạn. NCAV âm là chuyện bình thường — chỉ nghĩa là doanh nghiệp không thuộc dạng net-net.',
-        en: 'A price below NCAV is a rare cheap signal, usually appearing only during market panics. A negative NCAV is normal — it just means the company is not a net-net.',
+        vi: 'So với giá thị trường hiện tại của mã: giá thấp hơn nghĩa là cổ phiếu đang bán rẻ hơn cả phần tài sản ngắn hạn đã trừ hết nợ, cao hơn là thị trường trả thêm cho nhà xưởng và lợi nhuận sau này. Số âm không phải lỗi, chỉ là tổng nợ lớn hơn tài sản ngắn hạn.',
+        en: "Compared with the stock's current market price: a lower price means the share sells for less than its current assets net of every debt, and a higher price means the market is paying extra for factories and future profit. A negative figure is not an error and only means total liabilities exceed current assets.",
       },
       commonMistakes: {
         vi: 'Quên rằng phải thu và hàng tồn kho có thể không thu hồi đủ giá trị sổ sách — Graham còn khuyên chỉ mua dưới hai phần ba NCAV.',
@@ -1464,8 +1464,8 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
         en: "Use it when you have idle cash, look at the bank's deposit rate and then at a stock, and want to know how much profit the company earns each year for every dong you would pay at today's price.",
       },
       howToRead: {
-        vi: 'Cao hơn lãi suất tiết kiệm đáng kể thì cổ phiếu đang cho suất sinh lời lợi nhuận hấp dẫn hơn gửi tiền — đổi lại rủi ro cao hơn hẳn.',
-        en: 'Meaningfully higher than the savings rate means the stock offers a more attractive earnings yield than a deposit — in exchange for far higher risk.',
+        vi: 'So với lãi suất tiết kiệm kỳ hạn một năm: cao hơn nghĩa là lợi nhuận công ty làm ra một năm, tính trên giá bạn trả, nhiều hơn tiền lãi cùng số tiền ấy gửi ngân hàng, thấp hơn là ít hơn. Số âm nghĩa là công ty đang lỗ.',
+        en: 'Compared with the one-year savings deposit rate: higher means the profit the company earns in a year, measured against the price you pay, is more than the interest the same money would earn in a bank, and lower means less. A negative figure means the company is making a loss.',
       },
       commonMistakes: {
         vi: 'Coi tỷ suất này là tiền thật về túi — doanh nghiệp thường chỉ chia một phần lợi nhuận làm cổ tức, phần còn lại giữ lại tái đầu tư.',
@@ -1630,8 +1630,8 @@ export const GIA_MUC_TIEU: FormulaModule = {
         en: 'Use it when you hold a stock and want to work out a take-profit price in advance, assuming the market pays as much for each dong of its profit as it does for industry peers or did for the stock itself in past years.',
       },
       howToRead: {
-        vi: 'Giá mục tiêu cao hơn thị giá hiện tại nghĩa là còn dư địa tăng NẾU P/E mục tiêu thành hiện thực — đây là một kịch bản, không phải một lời hứa.',
-        en: 'A target price above the current market price means there is upside room IF the target P/E materialises — this is a scenario, not a promise.',
+        vi: 'So với giá thị trường hiện tại của mã: giá mục tiêu cao hơn nghĩa là hôm nay thị trường đang trả cho mỗi đồng lợi nhuận ít hơn mức bạn chọn, thấp hơn là đang trả nhiều hơn, còn khoảng chênh cho biết giá phải đi bao xa để khớp đúng mức ấy.',
+        en: "Compared with the stock's current market price: a higher target means the market today pays less for each dong of profit than the multiple you chose, a lower one means it already pays more, and the gap shows how far the price would have to move to match your multiple exactly.",
       },
       commonMistakes: {
         vi: 'Lấy P/E mục tiêu từ một doanh nghiệp khác ngành, hoặc quên rằng giá mục tiêu tính trên EPS HIỆN TẠI — EPS có thể đổi trước khi P/E kịp đạt mức mục tiêu.',

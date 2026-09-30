@@ -13,10 +13,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { t } from '@/application';
 import type { QuizItem, QuizTolerance } from '@/application';
+import { PreferencesProvider } from '@/application/preferences-context';
 
 import { QuizBody } from './QuizBody';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+});
 
 function cau(id: string, answer: 'a' | 'b' = 'b'): QuizItem {
   return {
@@ -1119,5 +1123,30 @@ describe('sắp xếp lại hàng nút và lưới đáp án — 24/09/2026', ()
     const sau = render(<QuizBody formulaId="pe" items={[dai]} />);
     fireEvent.click(screen.getByRole('button'));
     expect(khoCua(sau.container)).toBe('0');
+  });
+});
+
+/*
+ * `quiz.notTranslated` ("These questions are not translated yet…") đã BỎ 30/09/2026, chủ dự án
+ * gọi nó là "câu giải thích vô nghĩa" — cùng nếp với `quiz.lead`/`quiz.few.body`. Ca dưới đây
+ * ĐẢO NGƯỢC thay vì xoá, đúng khuôn `quiz.localOnly`: nó chốt câu ấy không còn xuất hiện, để
+ * người thêm lại vô tình đọc thấy đỏ và biết đây là một quyết định chứ không phải một câu quên.
+ * Hành vi rơi về tiếng Việt (`chu()` trong `QuizBody.tsx`) không đổi — `BA_CAU` không khai `.en`
+ * nên câu hỏi vẫn hiện bằng tiếng Việt, chỉ không còn dòng thông báo việc đó.
+ */
+describe('locale tiếng Anh — câu chưa dịch rơi về tiếng Việt, không kèm câu thông báo', () => {
+  it('bài chưa có bản tiếng Anh: hiện đề bài tiếng Việt, không hiện câu "chưa dịch"', () => {
+    window.localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' }));
+
+    render(
+      <PreferencesProvider>
+        <QuizBody formulaId="pe" items={BA_CAU} />
+      </PreferencesProvider>,
+    );
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(screen.getByText('Đề bài Q001')).not.toBeNull();
+    expect(screen.queryByText(/not translated/i)).toBeNull();
+    expect(screen.queryByText(/chưa có bản tiếng Anh/i)).toBeNull();
   });
 });

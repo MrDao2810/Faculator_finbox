@@ -1595,7 +1595,12 @@ export const vi = {
   'quiz.empty.title': 'Công thức này chưa có bộ câu hỏi',
   'quiz.empty.body':
     'Chúng tôi chỉ soạn câu khi tìm được nguồn thật ghi nhận người dùng hay hiểu sai ở đâu. Công thức này chưa có nguồn nào như vậy.',
-  'quiz.notTranslated': 'Câu hỏi chưa có bản tiếng Anh — đang hiện bản tiếng Việt.',
+  /*
+   * Mộ chí: `quiz.notTranslated` ('Câu hỏi chưa có bản tiếng Anh — đang hiện bản tiếng Việt.')
+   * bỏ ngày 30/09/2026 theo yêu cầu chủ dự án — cùng nếp với `quiz.lead`/`quiz.few.body`: chủ dự
+   * án gọi nó là "câu giải thích vô nghĩa", muốn tiết kiệm không gian. Hành vi rơi về tiếng Việt
+   * khi câu chưa có `en` (`chu()` trong `QuizBody.tsx`) không đổi — chỉ bỏ câu THÔNG BÁO việc đó.
+   */
   /*
    * Mộ chí: `quiz.sourceKind.*` (4 khoá) bị bỏ ngày 24/09/2026 theo yêu cầu chủ dự án — chip
    * "Chuyên gia" / "Tài liệu chuẩn" / "Người trong cuộc" / "Văn bản quy định" không còn hiện cạnh

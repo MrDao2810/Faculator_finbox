@@ -112,8 +112,8 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         en: 'Use it when you are about to place a buy order for a stock, have picked your entry and stop-loss prices, and want to know how many shares to buy so a losing trade costs only the amount you accept.',
       },
       howToRead: {
-        vi: 'Con số là khối lượng tối đa của riêng lệnh này: 2.272,73 CP nghĩa là cỡ lệnh dừng ở 2.200 CP sau khi làm tròn xuống bội 100 cổ phiếu. Nhân khối lượng với giá vào rồi so với vốn tài khoản trước khi đặt lệnh — cắt lỗ càng sát giá vào thì số tiền phải bỏ ra càng dễ vượt quá vốn.',
-        en: 'The number is the maximum quantity for this one order: 2,272.73 shares means the order stops at 2,200 shares once rounded down to a multiple of 100. Multiply the quantity by the entry price and compare it with your account capital before placing the order — the tighter the stop sits to the entry, the more easily that amount exceeds your capital.',
+        vi: 'So với số cổ phiếu bạn định mua: định mua nhiều hơn con số này thì lỡ chạm cắt lỗ sẽ mất quá mức rủi ro đã đặt, ít hơn hoặc bằng thì khoản mất nằm trong mức ấy. Kết quả có thể lẻ vì chưa làm tròn, số mua thật phải làm tròn xuống.',
+        en: 'Compared with the number of shares you plan to buy: buying more than this figure means hitting the stop-loss would cost more than the risk you set, while this many or fewer keeps the loss within it. The result can be fractional because it is not rounded, so the shares you actually buy must be rounded down.',
       },
       commonMistakes: {
         vi: 'Mua theo số tiền chẵn rồi mới nghĩ tới cắt lỗ. Thứ tự đúng là: chọn mức cắt lỗ trước, khối lượng suy ra sau.',

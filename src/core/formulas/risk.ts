@@ -108,8 +108,8 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         en: 'The quantity for which, if the price hits the stop-loss level, the loss equals exactly the risk you set in advance. This is a ceiling set by RISK, not by the cash you hold: a narrow stop distance can produce a quantity that costs more than the whole account.',
       },
       whenToUse: {
-        vi: 'Trước mỗi lệnh mua, để khối lượng do kỷ luật quyết chứ không do cảm xúc.',
-        en: 'Before every buy order, so the quantity is decided by discipline rather than emotion.',
+        vi: 'Dùng khi bạn sắp đặt lệnh mua một cổ phiếu, đã chọn giá mua và giá cắt lỗ, và muốn biết được mua bao nhiêu cổ phiếu để lỡ thua cũng chỉ mất đúng số tiền mình chấp nhận.',
+        en: 'Use it when you are about to place a buy order for a stock, have picked your entry and stop-loss prices, and want to know how many shares to buy so a losing trade costs only the amount you accept.',
       },
       howToRead: {
         vi: 'Con số là khối lượng tối đa của riêng lệnh này: 2.272,73 CP nghĩa là cỡ lệnh dừng ở 2.200 CP sau khi làm tròn xuống bội 100 cổ phiếu. Nhân khối lượng với giá vào rồi so với vốn tài khoản trước khi đặt lệnh — cắt lỗ càng sát giá vào thì số tiền phải bỏ ra càng dễ vượt quá vốn.',

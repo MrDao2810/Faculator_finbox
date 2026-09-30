@@ -2256,6 +2256,10 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
       </header>
 
       {/* ── 2. Ý nghĩa ───────────────────────────────────────────────────── */}
+      {/*
+        Chỗ DUY NHẤT màn in `explanation.meaning` — mục đầu của khối Giải thích (mục 7) đã tắt từ
+        30/09/2026 vì in lại đúng câu này. Bỏ khối này là màn mất hẳn phần ý nghĩa của FR-03.
+      */}
       <section className={styles.block}>
         <h2 className={styles.blockTitle}>{t('detail.meaning')}</h2>
         <p className={styles.prose}>{pick(spec.explanation.meaning)}</p>
@@ -2756,12 +2760,18 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         Đứng NGAY SAU Số liệu trong DOM, trước Kết quả — là điều kiện của bọc `.ask` (xem chú thích
         trên bọc ấy), không phải mạch đọc. Ở khổ hẹp `order` đưa nó xuống sau Biểu đồ như cũ.
 
-        LUÔN mở sẵn CẢ BỐN mục, không phụ thuộc chế độ — chủ dự án chốt.
+        LUÔN mở sẵn mọi mục, không phụ thuộc chế độ — chủ dự án chốt.
 
         Bản đầu gập hết ở chế độ Nâng cao cho gọn màn (FR-09), bản sau chỉ mở mục đầu. Cả hai đều bắt
         người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để
-        đọc. Không truyền prop nào ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không có
-        điều kiện nào để về sau lệch với nó.
+        đọc. Không truyền `defaultOpen` ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không
+        có điều kiện nào để về sau lệch với nó.
+
+        Chỉ BA mục ở đây (`showMeaning={false}`), từ 30/09/2026. Mục "Công thức này nói lên điều gì"
+        in đúng câu của khối "Ý nghĩa" (mục 2), nên cả 111 trang lặp nguyên đoạn đó hai lần. Chủ dự
+        án chọn giữ bản ở đầu màn. FR-03 vẫn đủ bốn mục TRÊN MÀN: phần ý nghĩa nằm ở khối "Ý nghĩa",
+        ba phần còn lại ở đây. Bản xuất PDF vẫn in đủ bốn mục, vì nó không có khối "Ý nghĩa" riêng
+        (`export-content.ts`).
       */}
         {/*
         Năm khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
@@ -2770,6 +2780,7 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
       */}
         <ExplanationAccordion
           explanation={spec.explanation}
+          showMeaning={false}
           className={`${styles.deferred} ${styles.blockExplain}`}
         />
       </div>

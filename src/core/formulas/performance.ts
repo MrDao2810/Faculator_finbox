@@ -116,8 +116,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
         en: 'How much the whole year would gain if that same short-period return repeated every period.',
       },
       whenToUse: {
-        vi: 'Khi so một khoản lãi vài tuần, vài tháng với lãi suất tiết kiệm tính theo năm.',
-        en: 'When comparing a gain earned over a few weeks or months against a savings rate quoted per year.',
+        vi: 'Dùng khi bạn thấy một quỹ hay một sản phẩm đầu tư báo lãi theo tháng hoặc theo tuần và muốn quy ra mức cả năm để đặt cạnh lãi suất tiết kiệm.',
+        en: 'Use it when you see a fund or an investment product quoting its return per month or per week and want to convert it to a full-year figure to set beside a savings rate.',
       },
       howToRead: {
         vi: 'So kết quả với lãi suất gửi tiết kiệm cùng kỳ hạn: cao hơn nghĩa là khoản lãi ngắn hạn đang thắng kênh gửi tiết kiệm nếu giữ nguyên nhịp đó cả năm. Vì tính theo lãi kép nên con số cao hơn phép nhân đơn thuần khi có nhiều hơn một kỳ mỗi năm — 2%/tháng ra 26,8%/năm chứ không phải 24%.',
@@ -271,8 +271,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
         en: 'The return that remains once the portion that merely offsets rising prices is removed.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá gửi tiết kiệm hay trái phiếu dài hạn — kênh có lợi suất danh nghĩa cố định.',
-        en: 'When evaluating savings deposits or long-term bonds — instruments with a fixed nominal return.',
+        vi: 'Dùng khi bạn nhận lãi tiết kiệm hay lãi trái phiếu cuối năm và muốn biết trong lúc giá cả cũng tăng, tiền của mình có thật sự mua được nhiều hơn không.',
+        en: 'Use it when you receive your savings or bond interest at year end and want to know whether, with prices rising too, your money can actually buy more than before.',
       },
       howToRead: {
         vi: 'Kết quả âm nghĩa là tiền vẫn tăng trên sổ nhưng sức mua đang giảm. Lấy lợi suất trừ thẳng lạm phát chỉ là xấp xỉ; phép chia ở trên mới cho con số đúng.',
@@ -443,8 +443,8 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
         en: 'Two rates both labeled 12%/year can differ in practice — EAR converts them all to one common measure.',
       },
       whenToUse: {
-        vi: 'Khi so hai khoản vay hay hai sổ tiết kiệm có tần suất ghép lãi khác nhau, ví dụ ghép quý với ghép tháng.',
-        en: 'When comparing two loans or two savings accounts with different compounding frequencies, e.g. quarterly versus monthly.',
+        vi: 'Dùng khi bạn gặp hai nơi gửi tiền cùng ghi lãi năm nhưng một bên cộng lãi vào gốc hằng tháng, bên kia hằng quý hay cuối năm, và muốn biết thực chất bên nào lãi hơn.',
+        en: 'Use it when you come across two places to save that both quote a yearly rate, one adding the interest to your balance every month and the other every quarter or once a year, and want to know which really pays more.',
       },
       howToRead: {
         vi: 'EAR luôn lớn hơn hoặc bằng lãi danh nghĩa; chênh lệch càng rõ khi lãi suất cao và ghép dày.',
@@ -599,8 +599,8 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
         en: 'Each year the investor earns two layers of gain — price appreciation and dividends buying more shares — the two multiply together and compound over the years.',
       },
       whenToUse: {
-        vi: 'Khi ước tính kết quả nắm giữ dài hạn một cổ phiếu trả cổ tức đều, thay vì chỉ nhìn mức tăng giá.',
-        en: 'When estimating the long-term result of holding a steady dividend payer, rather than looking at price appreciation alone.',
+        vi: 'Dùng khi bạn định giữ lâu một cổ phiếu trả cổ tức đều, nhận cổ tức lại mua thêm chính cổ phiếu đó, và muốn ước sau vài năm số vốn lớn lên được bao nhiêu.',
+        en: 'Use it when you plan to hold a steady dividend payer for years, using each dividend to buy more of the same stock, and want to estimate how much your money grows over that time.',
       },
       howToRead: {
         vi: 'Phần chênh so với chỉ tính tăng giá chính là công của cổ tức tái đầu tư — nắm càng lâu phần này càng lớn.',
@@ -786,8 +786,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         en: 'A compounding-aware average: an erratic up-and-down sequence is converted to one steady per-period rate that yields the same end result.',
       },
       whenToUse: {
-        vi: 'Khi tổng kết thành tích vài năm liền của một danh mục hay một quỹ, mỗi năm một con số.',
-        en: "When summarizing a portfolio or fund's track record across several consecutive years, one figure per year.",
+        vi: 'Dùng khi bạn có kết quả từng năm của danh mục hay một quỹ, năm lãi năm lỗ, và muốn gộp hai, ba năm đó thành một mức tăng bình quân mỗi năm.',
+        en: "Use it when you have a portfolio's or fund's result for each year, some up and some down, and want to fold those two or three years into one average yearly rate.",
       },
       howToRead: {
         vi: 'Luôn thấp hơn trung bình cộng khi lợi suất có biến động — biến động càng mạnh thì khoảng cách càng lớn.',
@@ -963,8 +963,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
         en: 'The discount rate at which the present value of all payments received exactly equals the capital invested.',
       },
       whenToUse: {
-        vi: 'Khi thẩm định một khoản cho vay trả đều, một hợp đồng trả góp, hay một dự án thu tiền đều đặn mỗi kỳ mà không có khoản hoàn vốn nào ở kỳ cuối — trái phiếu coupon trả lại mệnh giá khi đáo hạn thì mô hình này KHÔNG tính đúng.',
-        en: 'When appraising an even-installment loan, an installment purchase contract, or a project with equal periodic receipts and no lump-sum payback at the end — a coupon bond that returns face value at maturity is NOT correctly modeled by this formula.',
+        vi: 'Dùng khi bạn vay trả góp hay cho ai vay, đã biết số tiền ban đầu, khoản trả đều mỗi kỳ và số kỳ, và muốn tìm ra lãi suất thật ẩn sau các khoản trả đó.',
+        en: 'Use it when you borrow on installments or lend to someone, know the upfront sum, the equal payment each period and the number of periods, and want to uncover the true interest rate behind those payments.',
       },
       howToRead: {
         vi: 'IRR tính theo KỲ — dòng tiền theo tháng thì đây là %/tháng, muốn so với lãi suất năm phải năm hoá thêm một bước.',
@@ -1190,8 +1190,8 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
         en: 'Converts an abstract percentage into an easy-to-picture time horizon.',
       },
       whenToUse: {
-        vi: 'Khi cần nhẩm nhanh sức mạnh của lãi kép — 8%/năm nghĩa là khoảng 9 năm tiền gấp đôi.',
-        en: 'When you need a quick mental estimate of compounding power — 8%/year means money roughly doubles in 9 years.',
+        vi: 'Dùng khi bạn đang nhìn mức lãi mỗi năm của một sổ tiết kiệm hay một quỹ và muốn biết phải để tiền ở đó bao nhiêu năm thì số tiền mới tăng gấp đôi.',
+        en: 'Use it when you are looking at the yearly rate of a savings account or a fund and want to know how many years your money must stay there to double.',
       },
       howToRead: {
         vi: 'Kết quả chính là công thức chính xác ln(2) ÷ ln(1 + r); số phụ kèm theo là ước lượng 72 chia lợi suất — hai con số gần nhau ở mức lãi 5–12%.',
@@ -1337,8 +1337,8 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
         en: 'How much a full year would return if this trade repeated continuously for 365 days — a common yardstick for trades of different lengths.',
       },
       whenToUse: {
-        vi: 'Khi so một thương vụ lướt sóng vài tuần với gửi tiết kiệm hay một khoản nắm giữ cả năm.',
-        en: 'When comparing a few-week swing trade against a savings deposit or a full-year holding.',
+        vi: 'Dùng khi bạn vừa chốt một lệnh mua bán chỉ giữ vài tuần và muốn quy khoản lãi đó ra theo năm để so với gửi tiết kiệm hay với một khoản giữ lâu hơn.',
+        en: 'Use it when you have just closed a trade you held for only a few weeks and want to scale that gain to a yearly figure to compare with a savings deposit or a longer holding.',
       },
       howToRead: {
         vi: 'Nắm giữ càng ngắn thì phép quy năm phóng đại càng mạnh — lãi 7,5% trong 90 ngày quy năm thành hơn 34%.',
@@ -1534,8 +1534,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
         en: 'The share of performance genuinely created by the investment choices, after subtracting the general market backdrop.',
       },
       whenToUse: {
-        vi: 'Khi tổng kết một kỳ đầu tư: lãi 18% chưa chắc giỏi nếu cả thị trường cùng kỳ tăng 25%.',
-        en: "When wrapping up an investment period: an 18% gain isn't necessarily impressive if the whole market rose 25% over the same period.",
+        vi: 'Dùng khi bạn tổng kết danh mục cuối năm và muốn biết việc tự chọn mã đã giúp mình hơn hay kém VN-Index cùng kỳ bao nhiêu.',
+        en: 'Use it when you review your portfolio at year end and want to know how far your own stock picks came out ahead of or behind the VN-Index over the same period.',
       },
       howToRead: {
         vi: 'Dương nghĩa là thắng chuẩn, âm là thua chuẩn — thua chuẩn kéo dài nhiều kỳ liên tiếp là tín hiệu đáng xem lại cách chọn cổ phiếu hoặc mức phí đang trả, không phải một kỳ lẻ tẻ.',

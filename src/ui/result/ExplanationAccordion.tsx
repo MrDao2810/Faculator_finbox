@@ -18,6 +18,15 @@ export interface ExplanationAccordionProps {
    * và đó là chiều đúng — mặc định là thấy, thu gọn là lựa chọn.
    */
   defaultOpen?: boolean;
+  /**
+   * Dựng mục đầu "Công thức này nói lên điều gì". Mặc định có.
+   *
+   * Màn chi tiết công thức tắt nó — chủ dự án chốt 30/09/2026. Màn ấy đã in đúng câu
+   * `explanation.meaning` ở khối "Ý nghĩa" ngay dưới tên công thức, nên cả 111 trang lặp nguyên một
+   * đoạn hai lần. Giữ bản ở đầu màn chứ không giữ bản ở đây: trên điện thoại khối này nằm dưới cả
+   * Kết quả lẫn Biểu đồ, còn câu "công thức này là gì" phải đến trước ô nhập.
+   */
+  showMeaning?: boolean;
   className?: string;
 }
 
@@ -42,17 +51,19 @@ const SECTIONS: ReadonlyArray<{ key: keyof Explanation; labelKey: MessageKey }> 
 export function ExplanationAccordion({
   explanation,
   defaultOpen = true,
+  showMeaning = true,
   className,
 }: ExplanationAccordionProps) {
   const t = useT();
   const pick = usePick();
   const classes = [styles.wrap, className].filter(Boolean).join(' ');
+  const sections = showMeaning ? SECTIONS : SECTIONS.filter((section) => section.key !== 'meaning');
 
   return (
     <section className={classes}>
       <h2 className={styles.title}>{t('explain.title')}</h2>
 
-      {SECTIONS.map((section) => (
+      {sections.map((section) => (
         <details key={section.key} className={styles.item} open={defaultOpen}>
           <summary className={styles.summary}>{t(section.labelKey)}</summary>
           <p className={styles.body}>{pick(explanation[section.key])}</p>

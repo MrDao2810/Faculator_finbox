@@ -84,8 +84,8 @@ export const PE: FormulaModule = {
         en: 'The number of years of profit needed to recoup the money spent buying the share, if profit stays unchanged.',
       },
       whenToUse: {
-        vi: 'So sánh nhanh định giá giữa các doanh nghiệp cùng ngành, cùng giai đoạn.',
-        en: 'For a quick valuation comparison between companies in the same industry and the same period.',
+        vi: 'Dùng khi bạn đang xem một cổ phiếu và muốn biết giá của nó đắt hay rẻ so với lợi nhuận công ty làm ra, nhất là khi so hai công ty cùng ngành.',
+        en: 'Use it when you are looking at a stock and want to know whether its price is expensive or cheap relative to the profit the company makes, especially when comparing two companies in the same industry.',
       },
       howToRead: {
         vi: 'P/E cao nghĩa là thị trường kỳ vọng tăng trưởng lớn, hoặc cổ phiếu đang đắt. Thấp thì rẻ, hoặc đang có rủi ro.',
@@ -234,8 +234,8 @@ export const PB: FormulaModule = {
         en: 'How many dong the market pays for each dong of equity recorded on the books.',
       },
       whenToUse: {
-        vi: 'Khi doanh nghiệp đang lỗ nên P/E không dùng được, hoặc với ngân hàng và công ty nhiều tài sản.',
-        en: 'When the company is posting a loss so P/E cannot be used, or for banks and asset-heavy companies.',
+        vi: 'Dùng khi bạn xem cổ phiếu ngân hàng hay công ty nắm nhiều nhà xưởng, đất đai, kể cả khi lỗ, và muốn biết giá cổ phiếu đắt hay rẻ so với vốn cổ đông ghi trên sổ sách.',
+        en: "Use it when you are looking at a bank, or a company that owns lots of factories and land, even one posting a loss, and want to know whether its share price is expensive or cheap relative to the shareholders' equity on its books.",
       },
       howToRead: {
         vi: 'Dưới 1 nghĩa là thị giá thấp hơn giá trị sổ sách — có thể rẻ, cũng có thể do thị trường nghi ngờ chất lượng tài sản.',

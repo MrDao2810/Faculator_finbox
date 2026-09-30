@@ -77,8 +77,8 @@ export const ROI: FormulaModule = {
         en: 'How much profit each hundred đồng invested is generating.',
       },
       whenToUse: {
-        vi: 'Khi so sánh nhanh hiệu quả giữa các khoản đầu tư có quy mô khác nhau.',
-        en: 'For a quick comparison of performance between investments of different sizes.',
+        vi: 'Dùng khi bạn xem tài khoản chứng khoán, thấy tổng tiền đã nạp vào và giá trị danh mục hôm nay, và muốn biết mình đang lãi hay lỗ bao nhiêu so với số vốn đó.',
+        en: 'Use it when you check your brokerage account, see the total you have put in next to what it is worth today, and want to know how much you are up or down against that capital.',
       },
       howToRead: {
         vi: '25% nghĩa là 100 triệu ₫ bỏ ra nay thành 125 triệu ₫ — cứ 100 đồng vốn lãi thêm 25 đồng. Số âm là đang lỗ, 0% là vừa đủ hoà vốn; muốn biết hơn kém thì so với lãi suất tiết kiệm của đúng khoảng thời gian ấy.',
@@ -199,8 +199,8 @@ export const HPR: FormulaModule = {
         en: 'Over the holding period, how many đồng each hundred đồng spent on the stock returns — counting both the price move and the dividends received.',
       },
       whenToUse: {
-        vi: 'Khi chốt lại một khoản đã bán và muốn tính trọn cả lãi giá lẫn cổ tức đã nhận trong suốt thời gian nắm giữ.',
-        en: 'When closing out a position that has been sold and you want to capture the full return — price gains plus dividends received throughout the holding period.',
+        vi: 'Dùng khi bạn vừa bán một cổ phiếu đã giữ qua đợt chia cổ tức tiền mặt và muốn biết tính cả tiền chênh giá lẫn cổ tức thì mình lời được bao nhiêu so với giá mua.',
+        en: 'Use it when you have just sold a stock you held through a cash dividend and want to know how much you made against your purchase price, counting both the price gain and the dividends.',
       },
       howToRead: {
         vi: 'Cao hơn tỷ suất tính trên giá thuần — tức (Giá cuối kỳ − Giá đầu kỳ) ÷ Giá đầu kỳ — đúng bằng phần cổ tức chia cho giá đầu kỳ: ví dụ trên màn ra 20,51%, còn bỏ cổ tức đi chỉ còn 17,95%.',
@@ -323,8 +323,8 @@ export const CAGR: FormulaModule = {
         en: 'The steady annual growth rate that, if sustained, would carry the starting value to the ending value.',
       },
       whenToUse: {
-        vi: 'Khi so sánh các khoản đầu tư có thời gian nắm giữ khác nhau.',
-        en: 'When comparing investments with different holding periods.',
+        vi: 'Dùng khi bạn đọc báo cáo quỹ hay xem lại khoản bỏ vào một lần đã giữ nhiều năm, chỉ biết giá trị lúc đầu và bây giờ, và muốn biết bình quân mỗi năm nó tăng bao nhiêu.',
+        en: 'Use it when you are reading a fund report or reviewing money you put in once and held for several years, know only its starting and current value, and want its average growth per year.',
       },
       howToRead: {
         vi: 'Con số là mức tăng đều mỗi năm: 14,87% nghĩa là 100 triệu ₫ tăng 14,87% mỗi năm thì sau 5 năm thành 200 triệu ₫. Số âm nghĩa là vốn co lại đều mỗi năm; đem so với lãi suất tiết kiệm cùng kỳ hạn để biết nhanh hay chậm.',
@@ -478,8 +478,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
         en: 'How many đồng in dividends you receive each year for every hundred đồng spent buying the stock.',
       },
       whenToUse: {
-        vi: 'Khi tìm cổ phiếu tạo dòng tiền đều, so với lãi suất tiết kiệm ngân hàng.',
-        en: 'When looking for stocks that generate steady cash flow, comparable to a bank savings rate.',
+        vi: 'Dùng khi bạn đang tìm cổ phiếu để giữ lâu nhận cổ tức và muốn biết nếu mua ở giá trên bảng hôm nay thì mỗi năm công ty trả cổ tức được bao nhiêu so với số tiền bỏ ra.',
+        en: "Use it when you are looking for a stock to hold for its dividends and want to know, if you buy at today's quoted price, how much the company pays in dividends each year relative to the money you put in.",
       },
       howToRead: {
         vi: '2,17% nghĩa là bỏ ra 100.000 ₫ mua cổ phiếu thì một năm nhận về 2.170 ₫ tiền mặt, trước thuế. Tỷ suất cao bất thường thường do giá vừa giảm mạnh chứ không hẳn do doanh nghiệp hào phóng.',
@@ -760,8 +760,8 @@ export const XIRR: FormulaModule = {
         en: 'The annualized rate of return of an investment with multiple contributions or withdrawals on IRREGULARLY spaced DATES — unlike ordinary IRR, which assumes evenly spaced periods.',
       },
       whenToUse: {
-        vi: 'Khi đầu tư định kỳ không đều (góp thêm lệch tháng, rút một phần giữa chừng), hoặc cần so một danh mục thực tế với một kênh đầu tư khác theo đúng ngày thực đã xảy ra.',
-        en: "When investing on an irregular schedule (contributions that don't line up monthly, partial withdrawals along the way), or when comparing an actual portfolio against another investment channel using the real dates involved.",
+        vi: 'Dùng khi bạn đã nạp thêm hay rút bớt tiền nhiều lần vào những ngày lệch nhau và muốn biết cả khoản đầu tư đó bình quân mỗi năm lãi bao nhiêu, tính đúng theo ngày.',
+        en: 'Use it when you have added or withdrawn money several times on irregular dates and want to know the average yearly return of the whole investment, counted by the actual days.',
       },
       howToRead: {
         vi: 'Đọc như một mức lãi suất kép mỗi năm, đem so với lãi suất tiết kiệm cùng kỳ hạn: một khoản thành gấp đôi sau đúng một năm ứng với XIRR khoảng 100%/năm. Quãng giữa các dòng tiền càng ngắn thì con số quy ra năm càng bị phóng đại — lãi 7% trong hai ngày đã thành hàng triệu %/năm.',

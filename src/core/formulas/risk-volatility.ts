@@ -200,8 +200,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         en: "The most basic measure of risk: how many percentage points each session's return typically deviates from the average.",
       },
       whenToUse: {
-        vi: 'Khi cần một con số duy nhất để so mức dao động của hai cổ phiếu trong cùng một kỳ, hoặc khi cần mẫu số cho tỷ số Sharpe và số liệu đầu vào để quy độ biến động về năm.',
-        en: 'When you need a single number to compare the volatility of two stocks over the same period, or when you need the denominator of the Sharpe ratio and the input for annualizing volatility.',
+        vi: 'Dùng khi bạn hay mua bán ngắn ngày, đang cân hai cổ phiếu và muốn một con số cho biết mã nào mỗi phiên thường nhảy lên xuống mạnh hơn.',
+        en: 'Use it when you trade in and out within days, are weighing two stocks, and want one number that tells you which one usually jumps up and down more from one session to the next.',
       },
       howToRead: {
         vi: 'Số càng lớn thì giá càng nhảy mạnh giữa các phiên. Với chuỗi lợi suất phân phối chuẩn, khoảng hai phần ba số phiên nằm trong khoảng một lần độ lệch chuẩn quanh mức trung bình.',
@@ -344,8 +344,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         en: 'The same level of risk, but measured in yearly terms, so it can be compared against interest rates or the volatility of an index or a fund.',
       },
       whenToUse: {
-        vi: 'Khi báo cáo mức rủi ro của danh mục, hoặc khi cần đầu vào cho công thức định giá quyền chọn và VaR theo năm.',
-        en: "When reporting a portfolio's risk level, or when you need an input for option pricing formulas and annual VaR.",
+        vi: 'Dùng khi bạn đọc báo cáo quỹ thấy mức biến động ghi theo năm và muốn đo cổ phiếu mình đang cầm trên cùng thước đo ấy để so cho ngang.',
+        en: 'Use it when you read a fund report that quotes volatility per year and want to measure the stock you hold on that same yearly scale so the two compare fairly.',
       },
       howToRead: {
         vi: 'Đọc là mức dao động của cả một năm: 22%/năm nghĩa là trong một năm bình thường, giá có thể lệch khoảng 22% so với mức trung bình, lên hoặc xuống. Số càng lớn thì đường giá càng gập ghềnh; muốn biết mức đó là cao hay thấp thì so với một mã cùng ngành trong cùng kỳ, hoặc với con số biến động mà báo cáo quỹ công bố, vì tất cả đều đã quy về cùng đơn vị năm.',
@@ -527,8 +527,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         en: 'The part of risk investors actually dread: the volatility of only those sessions that fall below the chosen threshold.',
       },
       whenToUse: {
-        vi: 'Khi so hai danh mục có cùng độ lệch chuẩn nhưng một bên hay rơi sâu hơn, hoặc khi cần mẫu số cho tỷ số Sortino.',
-        en: 'When comparing two portfolios with the same standard deviation where one tends to fall deeper, or when you need the denominator for the Sortino ratio.',
+        vi: 'Dùng khi bạn đang cân một cổ phiếu hay có phiên tăng vọt và muốn đo riêng độ dữ của các phiên giảm, không để mấy cú tăng ấy bị tính là rủi ro.',
+        en: 'Use it when you are sizing up a stock prone to sudden jumps and want to measure how rough its down sessions alone are, without those jumps being counted as risk.',
       },
       howToRead: {
         vi: 'Với ngưỡng mặc định 0% (chỉ tính phiên giảm giá), thường nhỏ hơn hoặc bằng độ lệch chuẩn đầy đủ vì đã bỏ hết phần tăng giá. Nâng ngưỡng lên cao thì số này tăng theo và có thể VƯỢT QUA độ lệch chuẩn đầy đủ — mẫu số đo khoảng cách tới ngưỡng, không phải tới lợi suất trung bình. Bằng 0 nghĩa là trong kỳ không phiên nào rơi xuống dưới ngưỡng, đó là kết quả thật chứ không phải thiếu dữ liệu.',
@@ -665,8 +665,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
         en: 'Puts risk and return on the same scale, making it possible to compare two stocks with very different return levels.',
       },
       whenToUse: {
-        vi: 'Khi chọn giữa hai cơ hội mà một bên vừa lãi cao hơn vừa dao động mạnh hơn, nên không nhìn riêng chỉ số nào mà quyết được.',
-        en: 'When choosing between two opportunities where one has both a higher return and stronger volatility, so neither metric alone can decide it.',
+        vi: 'Dùng khi bạn phân vân giữa hai cổ phiếu, một mã lãi ít mà giá êm, một mã lãi nhiều mà giá nhảy dữ, và muốn biết mỗi phần lãi của mã nào phải đổi bằng ít dao động hơn.',
+        en: 'Use it when you are torn between two stocks, one that earns little but moves calmly and one that earns more but swings wildly, and want to know which asks for less bumpiness per unit of return.',
       },
       howToRead: {
         vi: '3,3 lần nghĩa là mỗi 1% lợi suất bình quân một phiên phải đổi bằng 3,3% dao động. Số càng NHỎ càng tốt, nhưng nó chỉ có nghĩa khi đem so: đo hai mã trên cùng một kỳ, mã nào hệ số thấp hơn thì mỗi phần lãi kèm ít dao động hơn.',
@@ -831,8 +831,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         en: 'The distance between the peak and trough closing prices in the period — the width of the price zone the stock has traveled through.',
       },
       whenToUse: {
-        vi: 'Khi ước lượng nhanh mức dao động của một mã trước khi đặt cắt lỗ hoặc chốt lời, và khi so vùng giá giữa các kỳ.',
-        en: "When quickly estimating a stock's volatility before setting a stop-loss or take-profit order, and when comparing price zones across periods.",
+        vi: 'Dùng khi bạn mở biểu đồ giá mấy tháng gần đây của một mã và muốn biết giá đóng cửa đã đi trong một vùng rộng cỡ nào, trước khi chọn giá mua vào hay giá chốt lời.',
+        en: 'Use it when you open a price chart of the last few months and want to know how wide a band the closing price has moved within, before picking your buy price or your take-profit price.',
       },
       howToRead: {
         vi: 'Tính theo đáy làm gốc, nên đọc là "từ đáy lên đỉnh tăng bao nhiêu phần trăm": 8,25% nghĩa là đỉnh cao hơn đáy 8,25%. Muốn biết rộng hay hẹp thì so với chính mã đó ở một kỳ trước dài bằng đúng kỳ này, hoặc với một mã cùng ngành trong cùng kỳ — biên độ càng rộng thì vào lệnh lệch vùng càng chênh nhiều.',
@@ -976,8 +976,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
         en: 'The longest unbroken decline in the period, counted as the number of sessions whose closing price is lower than the one right before it.',
       },
       whenToUse: {
-        vi: 'Khi chuẩn bị tâm lý và kế hoạch cho một chuỗi thua: biết mã này từng giảm liền năm phiên thì không hoảng ở phiên thứ ba.',
-        en: 'When preparing mentally and planning for a losing streak: knowing this stock has fallen for five straight sessions before means not panicking on the third one.',
+        vi: 'Dùng khi bạn vừa mua một cổ phiếu và muốn biết trước đây nó từng giảm liền nhiều nhất bao nhiêu phiên, để không hoảng khi gặp vài phiên đỏ liên tiếp.',
+        en: 'Use it when you have just bought a stock and want to know the longest run of back-to-back down sessions it has had, so a few red sessions in a row do not throw you into a panic.',
       },
       howToRead: {
         vi: 'Đơn vị là phiên, không phải phần trăm — chuỗi dài chưa chắc mất nhiều tiền nếu mỗi phiên chỉ giảm nhẹ. Kết quả 0 nghĩa là trong kỳ không phiên nào giảm.',

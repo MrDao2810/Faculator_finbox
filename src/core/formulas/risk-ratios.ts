@@ -374,8 +374,8 @@ export const BETA: FormulaModule = {
         en: "A beta of 1.5 means that when the VN-Index rises or falls 1%, this stock typically rises or falls about 1.5% — the slope of the regression line of the stock's return against the market return.",
       },
       whenToUse: {
-        vi: 'Khi ước lượng chi phí vốn chủ theo CAPM, xếp mức nhạy cảm của một cổ phiếu với thị trường chung, hoặc làm mẫu số cho tỷ số Treynor.',
-        en: 'When estimating cost of equity under CAPM, ranking how sensitive a stock is to the broader market, or as the denominator of the Treynor ratio.',
+        vi: 'Dùng khi bạn thấy VN-Index đang chao đảo và muốn biết cổ phiếu mình cầm thường lên xuống mạnh hơn hay nhẹ hơn cả thị trường.',
+        en: 'Use it when you see the VN-Index swinging hard and want to know whether the stock you hold usually moves more or less than the market as a whole.',
       },
       howToRead: {
         vi: 'Beta trên 1 là biến động mạnh hơn thị trường, giữa 0 và 1 là yếu hơn — vùng của các ngành phòng thủ như điện, nước hay hàng thiết yếu: VN-Index giảm 10% thì một cổ phiếu beta 0,5 vẫn giảm khoảng 5%, chỉ giảm ít hơn chứ không đi ngược. Beta âm, tức cổ phiếu tăng khi thị trường giảm, rất hiếm; gặp beta âm trên một cửa sổ ngắn thì hãy kéo dài cửa sổ trước khi tin.',
@@ -566,8 +566,8 @@ export const TY_SO_SHARPE: FormulaModule = {
         en: 'A high return on a bumpy price line is not necessarily better than a lower, smoother one. Sharpe weighs the return earned above the risk-free rate against the standard deviation of session-by-session returns.',
       },
       whenToUse: {
-        vi: 'Khi so hai danh mục hay hai quỹ có mức lãi khác nhau và mức biến động cũng khác nhau, trên cùng một khoảng thời gian.',
-        en: 'When comparing two portfolios or funds with different returns and different volatility over the same period.',
+        vi: 'Dùng khi bạn cân nhắc để tiền trong một quỹ hay danh mục cổ phiếu thay vì gửi tiết kiệm, và muốn biết phần lãi hơn tiết kiệm có xứng với độ lên xuống phải chịu không.',
+        en: 'Use it when you are weighing a fund or a stock portfolio against a savings deposit and want to know whether the extra return over savings is worth the ups and downs you have to sit through.',
       },
       howToRead: {
         vi: 'Dưới 1 là bình thường, quanh 1 là khá, trên 2 là rất tốt nhưng phải nghi ngờ mẫu quá ngắn. Số âm nghĩa là danh mục còn thua gửi tiết kiệm mà vẫn phải chịu biến động.',
@@ -762,8 +762,8 @@ export const TY_SO_SORTINO: FormulaModule = {
         en: 'Sharpe penalizes even sharply rising sessions, since they also inflate the standard deviation. Sortino measures only the return that falls below an acceptable threshold, matching how investors actually perceive risk.',
       },
       whenToUse: {
-        vi: 'Khi danh mục có vài phiên lãi đột biến, hoặc khi so các chiến lược mà mức lỗ mới là thứ đáng quan tâm — quỹ mở, chiến lược quyền chọn, danh mục hưu trí.',
-        en: 'When a portfolio has a handful of outsized gaining sessions, or when comparing strategies where losses are what matters — open-end funds, options strategies, retirement portfolios.',
+        vi: 'Dùng khi bạn so hai quỹ mà một quỹ hay có phiên tăng vọt, và muốn biết phần lãi hơn tiết kiệm có xứng với các phiên lỗ phải chịu không, không coi cú tăng vọt là rủi ro.',
+        en: 'Use it when you are comparing two funds, one of which has the odd session that shoots up, and want to know whether its return above savings is worth the losing sessions it puts you through, without counting those jumps as risk.',
       },
       howToRead: {
         vi: 'Đọc theo cùng thang với Sharpe: quanh 1 là khá, trên 2 là tốt, số âm nghĩa là danh mục còn thua ngưỡng phi rủi ro. Khi lợi suất bình quân vượt ngưỡng, Sortino thường cao hơn Sharpe của cùng chuỗi vì mẫu số bỏ qua các phiên tăng; nhưng khi lợi suất tụt dưới ngưỡng thì chính mẫu số nhỏ ấy kéo tỷ số xuống THẤP hơn Sharpe.',
@@ -950,8 +950,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
         en: 'Sharpe divides by TOTAL volatility, Treynor divides only by the volatility that moves with the market. Anyone holding a diversified portfolio has already eliminated the idiosyncratic part, so only beta is worth pricing.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá một quỹ hay một danh mục con NẰM TRONG một danh mục lớn đã đa dạng hoá, hoặc khi xếp hạng nhiều quỹ cùng đo theo VN-Index.',
-        en: 'When evaluating a fund or a sub-portfolio that sits INSIDE a larger, already diversified portfolio, or when ranking several funds measured against the same VN-Index.',
+        vi: 'Dùng khi bạn đã chia tiền ra nhiều mã và muốn chấm riêng một quỹ hay một phần trong đó, xem phần lãi hơn tiết kiệm có xứng với mức nó lên xuống theo thị trường không.',
+        en: 'Use it when you have already spread your money across many stocks and want to grade one fund or one slice of those holdings, checking whether its return above savings is worth how much it moves with the market.',
       },
       howToRead: {
         vi: 'Đọc như một mức lãi vượt chuẩn quy năm cho mỗi 1 đơn vị beta. Con số càng cao càng tốt; so sánh chỉ có nghĩa giữa các danh mục cùng đo theo một chỉ số tham chiếu.',
@@ -1154,8 +1154,8 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         en: 'Beating the benchmark by 5 percentage points while tracking it closely is very different from beating it by 5 points through a bold bet away from it. The information ratio divides that outperformance by the degree of deviation.',
       },
       whenToUse: {
-        vi: 'Khi chấm điểm một quỹ chủ động hay chính danh mục của mình so với VN-Index, và muốn biết phần thắng có xứng với rủi ro đi lệch hay không.',
-        en: 'When scoring an actively managed fund or your own portfolio against the VN-Index, and wanting to know whether the outperformance is worth the risk taken by deviating.',
+        vi: 'Dùng khi bạn cầm một quỹ hay một danh mục tự chọn mã và muốn biết nó có thắng VN-Index không, và phần thắng ấy có xứng với độ lên xuống phải chịu không.',
+        en: 'Use it when you hold a fund or a portfolio of hand-picked stocks and want to know whether it beat the VN-Index, and whether that edge was worth the ups and downs it took.',
       },
       howToRead: {
         vi: 'Số âm nghĩa là đi lệch khỏi chuẩn mà vẫn thua chuẩn; càng cao thì phần thắng chuẩn càng đáng với mức biến động phải chịu. Nhưng đừng chấm theo thang quen thuộc của quản lý chủ động: bản rút gọn này nhập chuẩn bằng MỘT con số cả năm nên mẫu số là độ lệch chuẩn lợi suất của chính danh mục chứ không phải sai số bám chuẩn từng phiên. Hãy so với mốc 0 và với chính danh mục ở kỳ trước, nhập theo cùng một cách.',
@@ -1297,8 +1297,8 @@ export const TY_SO_CALMAR: FormulaModule = {
         en: 'Standard deviation measures average bumpiness, while maximum drawdown captures exactly what triggers panic selling. Calmar asks: for each 1% of maximum drawdown endured, how much annual return was earned in return.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá một chiến lược hay một quỹ mà điều kiện chịu đựng của người bỏ tiền là có hạn — thường dùng cho quỹ phòng hộ và hệ thống giao dịch.',
-        en: "When evaluating a strategy or fund where the investor's tolerance for pain is limited — commonly used for hedge funds and trading systems.",
+        vi: 'Dùng khi bạn sợ nhất là một cú rơi sâu làm mình bán tháo, và muốn biết mỗi năm một quỹ hay chiến lược lãi được bao nhiêu so với cú rơi sâu nhất nó từng gây ra.',
+        en: 'Use it when you dread a deep plunge that could scare you into selling, and want to know how much a fund or strategy earns each year compared with the worst fall it has put you through.',
       },
       howToRead: {
         vi: 'Trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất. Số âm nghĩa là cả giai đoạn đang lỗ — ví dụ bên dưới cho −0,35 lần đúng vào trường hợp đó, nên đọc thẳng mức sụt giảm chứ đừng xếp hạng bằng tỷ số. Nguyên bản Calmar tính trên 36 tháng; cửa sổ chỉ 60 phiên thì phép quy năm phóng đại tử số nên con số dễ đẹp quá mức.',
@@ -1476,8 +1476,8 @@ export const TY_SO_THANG_THUA: FormulaModule = {
         en: 'Measures the "lopsidedness" of a price series: how much it rises when it rises, and how much it falls when it falls. Above 1 means rising moves are larger in magnitude than falling ones.',
       },
       whenToUse: {
-        vi: 'Khi soi tính cách của một cổ phiếu trước khi vào lệnh, hoặc khi kiểm lại một chiến lược: cỡ lãi trung bình có bù nổi cỡ lỗ trung bình không.',
-        en: "When sizing up a stock's personality before placing an order, or when reviewing a strategy: does the average gain size offset the average loss size.",
+        vi: 'Dùng khi bạn thấy một cổ phiếu có nhiều phiên xanh mà giá vẫn không đi lên, và muốn biết phiên tăng của nó thường tăng mạnh hơn hay yếu hơn phiên giảm.',
+        en: 'Use it when you see a stock with plenty of green sessions whose price still is not going anywhere, and want to know whether its up sessions usually rise by more or by less than its down sessions fall.',
       },
       howToRead: {
         vi: 'Đây là tỷ số về BIÊN ĐỘ, không phải về tần suất: 0,87 lần nghĩa là một phiên tăng lãi trung bình chỉ bằng 0,87 lần mức lỗ của một phiên giảm — phiên giảm đang "đau" hơn phiên tăng "lãi". Mốc để so là số phiên tăng và số phiên giảm: hai bên ngang nhau thì 1 lần là hoà, phiên tăng càng ít thì tỷ số phải càng lớn mới bù lại.',

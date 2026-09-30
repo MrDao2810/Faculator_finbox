@@ -337,8 +337,8 @@ export const SMA_N_PHIEN: FormulaModule = {
         en: 'The average price the market has paid over the last n periods, smoothing out noisy sessions to reveal the direction of price.',
       },
       whenToUse: {
-        vi: 'Khi cần một mốc tham chiếu đơn giản cho xu hướng, hoặc làm đường hỗ trợ / kháng cự động cho điểm mua bán.',
-        en: 'When you need a simple reference point for the trend, or a dynamic support/resistance line for entry and exit points.',
+        vi: 'Dùng khi bạn mở biểu đồ một cổ phiếu đang giữ, thấy giá lên xuống lộn xộn từng phiên và muốn biết mấy tuần qua giá nhìn chung đang đi lên hay đi xuống.',
+        en: 'Use it when you open the chart of a stock you hold, see the price zigzag from session to session, and want to know whether over the past few weeks it has been heading up or down overall.',
       },
       howToRead: {
         vi: 'Giá nằm trên đường và đường đang dốc lên là xu hướng tăng; giá cắt xuống dưới đường là tín hiệu suy yếu. Chu kỳ càng dài đường càng mượt nhưng càng chậm.',
@@ -485,8 +485,8 @@ export const EMA_N_PHIEN: FormulaModule = {
         en: 'Also an average price, but the more recent a period is, the more weight it carries, so the line reacts sooner when price changes direction.',
       },
       whenToUse: {
-        vi: 'Khi giao dịch theo xu hướng ngắn hạn và độ trễ của SMA là quá lớn; EMA 12 và 26 phiên còn là nguyên liệu của MACD.',
-        en: "When trading short-term trends and SMA's lag is too large; the 12- and 26-period EMAs are also the building blocks of MACD.",
+        vi: 'Dùng khi bạn lướt sóng ngắn hạn và cần một đường giá bình quân bám sát những phiên mới nhất, để không phải chờ lâu mới thấy giá đã quay đầu.',
+        en: 'Use it when you trade short-term swings and need an average price line that hugs the latest sessions, so you do not have to wait long to see the price turn.',
       },
       howToRead: {
         vi: 'Kết quả là một mức giá tính bằng đồng, đọc bằng cách đem so với giá đóng cửa phiên cuối: giá nằm trên EMA và đường dốc lên là đà tăng còn giữ, giá cắt xuống dưới đường là đà đang yếu đi. Vì phiên mới nặng ký hơn nên EMA quay đầu sớm hơn SMA, đổi lại nó cũng đổi chiều theo cả những nhịp nhiễu khi thị trường đi ngang.',
@@ -631,8 +631,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         en: 'The gap between the two moving averages: a positive value means the fast line is above the slow line, i.e. upward momentum is dominant.',
       },
       whenToUse: {
-        vi: 'Khi cần một thước đo xu hướng đã lọc bớt nhiễu, hoặc khi tìm điểm đảo chiều bằng lúc MACD cắt qua mốc 0.',
-        en: 'When you need a trend measure with some noise filtered out, or when looking for a reversal point where MACD crosses the zero line.',
+        vi: 'Dùng khi bạn đang giữ một mã đã chạy một thời gian và muốn biết đà giá mấy phiên gần đây còn đang kéo lên hay đã quay sang kéo xuống so với mặt bằng dài hơn của nó.',
+        en: "Use it when you hold a stock that has been moving for a while and want to know whether the price's push over the last couple of weeks is still upward or has turned downward against its longer-run level.",
       },
       howToRead: {
         vi: 'Cắt lên trên 0 là đà chuyển sang tăng, cắt xuống dưới 0 là chuyển sang giảm. Giá trị tính bằng ₫ nên chỉ so được với chính cổ phiếu đó, không so ngang giữa hai mã khác thị giá.',
@@ -780,8 +780,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         en: 'A smoothed version of the MACD line. Because it is smoothed it always lags, and the point where the two lines cross is exactly when momentum has just shifted.',
       },
       whenToUse: {
-        vi: 'Khi cần một mốc cụ thể để đọc đà giá thay vì chỉ nhìn xu hướng: theo quy ước MACD của Gerald Appel, MACD cắt lên trên đường tín hiệu là đà chuyển sang tăng, cắt xuống là đà chuyển sang giảm.',
-        en: 'When you need a concrete marker for reading momentum rather than just the trend: by Gerald Appel’s MACD convention, the MACD crossing above the signal line means momentum has turned upward, crossing below means it has turned downward.',
+        vi: 'Dùng khi bạn đã quen xem đường MACD của một mã và muốn có một mốc rõ ràng để biết lúc nào đà giá vừa đổi nhịp, thay vì tự đoán bằng mắt.',
+        en: "Use it when you already watch a stock's MACD line and want a clear marker for the moment the price's drive has just shifted, instead of judging it by eye.",
       },
       howToRead: {
         vi: 'Đường tín hiệu là một con số tính bằng đồng, chỉ có nghĩa khi đọc kèm đường MACD: MACD nằm trên đường tín hiệu là đà đang nghiêng lên, nằm dưới là đang nghiêng xuống. Hiệu của hai đường chính là cột histogram trả kèm ở phần kết quả phụ — trong ví dụ 12/26/9, đường tín hiệu 25,07 ₫ còn MACD −247,35 ₫ nên histogram âm sâu.',
@@ -958,8 +958,8 @@ export const RSI_WILDER: FormulaModule = {
         en: 'Over the most recent n periods, how much of the total movement was upward — rescaled to a 0-to-100 range.',
       },
       whenToUse: {
-        vi: 'Khi muốn biết một nhịp tăng hay giảm đã đi quá đà chưa, hoặc khi giá lập đỉnh mới mà RSI lại lập đỉnh thấp hơn — hiện tượng đó gọi là phân kỳ, dấu hiệu đà tăng đang đuối dần.',
-        en: 'When you want to know whether an up- or down-move has gone too far, or when price makes a new high while RSI makes a lower high — that pattern is called divergence, a sign that momentum is running out.',
+        vi: 'Dùng khi bạn thấy giá vừa tăng hoặc giảm liền nhiều phiên và muốn biết nhịp đó đã đi quá đà chưa, trước khi quyết định mua đuổi hay bán tháo.',
+        en: 'Use it when you see a price rise or fall for many sessions in a row and want to know whether the move has overshot, before deciding to chase it or sell in a panic.',
       },
       howToRead: {
         vi: 'Trên 70 là vùng quá mua, dưới 30 là vùng quá bán, quanh 50 là cân bằng. Không phiên nào giảm thì RSI chạm đúng trần 100, đó là giá trị thật chứ không phải lỗi.',
@@ -1143,8 +1143,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
         en: 'Momentum measured in percent: how fast price has moved within the last n-period window.',
       },
       whenToUse: {
-        vi: 'Khi cần so sức bật của nhiều cổ phiếu khác thị giá với nhau, hoặc xếp hạng sức mạnh tương đối trong danh mục.',
-        en: 'When you need to compare the bounce strength of several stocks with different prices, or rank relative strength within a portfolio.',
+        vi: 'Dùng khi bạn đang cân vài mã có giá chênh nhau rất xa, như mã giá chục nghìn với mã giá vài trăm nghìn, và muốn biết mã nào đã chạy nhanh hơn trong cùng mấy tuần qua.',
+        en: 'Use it when you are weighing a few stocks whose prices are far apart, say one near ten thousand dong and one near several hundred thousand, and want to know which moved faster over the same few weeks.',
       },
       howToRead: {
         vi: 'Dương là giá cao hơn n phiên trước, âm là thấp hơn. Vì tính bằng phần trăm nên so ngang giữa các mã được, khác với động lượng tính bằng đồng.',
@@ -1297,8 +1297,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
         en: 'How many VND price has moved over n periods — the original, rawest form of every momentum indicator.',
       },
       whenToUse: {
-        vi: 'Khi theo dõi một mã quen và muốn cảm nhận biên độ bằng chính đơn vị tiền, thay vì quy ra phần trăm.',
-        en: 'When tracking a familiar stock and wanting to gauge the swing in actual currency terms rather than as a percentage.',
+        vi: 'Dùng khi bạn theo dõi sát một mã quen và muốn biết giá mỗi cổ phiếu đã lên hay xuống bao nhiêu đồng so với vài tuần trước, tính thẳng bằng tiền chứ không quy ra tỷ lệ.',
+        en: 'Use it when you follow one familiar stock closely and want to know how many dong a share has gained or lost compared with a few weeks ago, counted in money rather than as a percentage.',
       },
       howToRead: {
         vi: 'Dấu cho biết chiều, độ lớn cho biết sức. Động lượng thu hẹp dần trong khi giá vẫn tạo đỉnh mới là dấu hiệu xu hướng đang đuối.',
@@ -1454,8 +1454,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
         en: 'How far price currently stands from the moving average, expressed as a percentage so it can be compared across stocks with different prices.',
       },
       whenToUse: {
-        vi: 'Khi cân nhắc mua đuổi một mã vừa chạy nhanh: con số này cho biết giá đang đứng cách đường trung bình bao nhiêu phần trăm, để bạn đối chiếu với mức lệch thường thấy của chính mã đó thay vì ước lượng bằng mắt.',
-        en: "When you are weighing whether to chase a stock that has just run: this figure says how many percent price currently stands away from the moving average, so you can hold it against that stock's own usual stretch instead of eyeballing the chart.",
+        vi: 'Dùng khi bạn sắp đặt lệnh mua một mã và muốn biết giá lúc này đang cách giá bình quân mấy tuần gần đây bao xa, cao hơn hay thấp hơn, thay vì ước bằng mắt.',
+        en: 'Use it when you are about to place a buy order and want to know how far the current price sits above or below its average of the past few weeks, instead of eyeballing it on the chart.',
       },
       howToRead: {
         vi: 'Dương là giá nằm trên đường, âm là nằm dưới. Càng xa 0 thì càng căng, nhưng ngưỡng bao nhiêu là căng thì tuỳ độ biến động từng mã — phải đối chiếu với chính lịch sử của mã đó.',
@@ -1600,8 +1600,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         en: 'The difference between the two moving averages. A positive sign means the short line is above — an upward crossover has occurred; a negative sign means the short line has crossed below.',
       },
       whenToUse: {
-        vi: 'Khi muốn một mốc cơ học để bám xu hướng thay vì đoán bằng cảm nhận: hiệu đổi từ âm sang dương là lúc đường ngắn vừa cắt lên đường dài, đổi từ dương sang âm là vừa cắt xuống — quy ước đọc tín hiệu của cặp trung bình động là vậy.',
-        en: 'When you want a mechanical marker for following the trend instead of going by feel: the difference turning from negative to positive is the moment the short line has just crossed above the long one, and the other way round for a downward crossover — that is how a moving-average pair is read by convention.',
+        vi: 'Dùng khi bạn đang giữ một mã và muốn quyết định giữ tiếp hay thoát theo một mốc rõ ràng là đường giá bình quân ngắn nằm trên hay dưới đường dài, thay vì theo cảm tính.',
+        en: 'Use it when you hold a stock and want to decide whether to keep it or exit by one clear marker, namely whether its short average price line sits above or below the long one, rather than by gut feeling.',
       },
       howToRead: {
         vi: 'Kết quả tính bằng đồng: dương là đường ngắn đang nằm trên đường dài, âm là nằm dưới, và cả hai đường SMA thành phần đều trả kèm ở phần kết quả phụ. Hiệu gần 0 chỉ nói hai đường đang chồng nhau — có thể vì giá đi ngang, mà cũng có thể vì một nhịp đảo chiều đang diễn ra, nên phải nhìn cả chuỗi giá chứ đừng kết luận từ một con số.',

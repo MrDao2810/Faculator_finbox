@@ -195,8 +195,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         en: 'If you borrowed money to buy the entire VN30 basket and held it to expiry, the cost of capital minus the dividends received is exactly the fair gap between the contract price and the index.',
       },
       whenToUse: {
-        vi: 'Khi muốn biết giá VN30F trên bảng điện đang đắt hay rẻ so với mức mà lãi suất và cổ tức biện minh được.',
-        en: 'When you want to know whether the VN30F price on the board is expensive or cheap relative to what interest rates and dividends justify.',
+        vi: 'Dùng khi bạn sắp giao dịch VN30F và muốn biết giá hợp đồng lẽ ra nên ở quanh mức nào khi tính cả lãi suất, cổ tức và số ngày còn tới đáo hạn, để đặt cạnh giá đang khớp.',
+        en: 'Use it when you are about to trade VN30F and want to know what price, in points, the contract ought to sit near once interest rates, dividends and the days left to expiry are counted, to set beside the matched price.',
       },
       howToRead: {
         vi: 'Giá thị trường cao hơn giá lý thuyết đáng kể là thị trường đang hưng phấn; thấp hơn nhiều là đang bi quan về chỉ số.',
@@ -367,8 +367,8 @@ export const BASIS_VN30F: FormulaModule = {
         en: 'The difference between the futures price and the underlying index: a positive basis means the contract is priced above the index, a negative basis means below.',
       },
       whenToUse: {
-        vi: 'Theo dõi trước khi vào lệnh — basis đang rộng bất thường hay hẹp dần về ngày đáo hạn đều là thông tin.',
-        en: 'Watch it before placing an order — an unusually wide basis, or one narrowing toward expiry, both carry information.',
+        vi: 'Dùng khi bạn nhìn bảng giá thấy VN30F đang khớp cao hơn hoặc thấp hơn chỉ số VN30 và muốn biết chính xác đang chênh bao nhiêu điểm, trước khi vào lệnh.',
+        en: 'Use it when you see VN30F trading above or below the VN30 index on the board and want to know exactly how many points apart they are before you place an order.',
       },
       howToRead: {
         vi: 'Không đọc thẳng mọi basis dương là kỳ vọng tăng — một phần mức đó thường chỉ là chi phí nắm giữ hợp lý (xem mục Sai lầm thường gặp). Basis vượt hẳn mức chi phí đó, hoặc basis âm sâu bất thường, mới đáng đọc là tâm lý thị trường. Càng gần đáo hạn basis càng co về 0.',
@@ -519,8 +519,8 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
         en: 'Each point the index rises earns the long position an amount equal to the multiplier, times the number of contracts held.',
       },
       whenToUse: {
-        vi: 'Khi ước tính nhanh lãi lỗ một vị thế mua đang mở, hoặc thử kịch bản chỉ số chạy tới một mốc điểm.',
-        en: 'When quickly estimating the P&L of an open long position, or testing a scenario where the index reaches a given level.',
+        vi: 'Dùng khi bạn đã mở vị thế mua hợp đồng VN30F chờ thị trường tăng và muốn biết nếu giá hợp đồng chạy tới một mức điểm nào đó rồi đóng lệnh thì lãi hay lỗ bao nhiêu tiền.',
+        en: 'Use it when you have opened a long VN30F position expecting the market to rise and want to know how much money you make or lose if you close it once the contract reaches a given level.',
       },
       howToRead: {
         vi: 'Điểm đóng cao hơn điểm mở là lãi, thấp hơn là lỗ. Lãi lỗ được thanh toán bù trừ hằng ngày chứ không đợi tới lúc đóng vị thế.',
@@ -682,8 +682,8 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
         en: 'A short position profits when the index falls: each point of decline earns an amount equal to the multiplier, times the number of contracts.',
       },
       whenToUse: {
-        vi: 'Khi ước tính lãi lỗ một vị thế bán đang mở — cách kiếm lời lúc thị trường giảm mà chứng khoán cơ sở không làm được.',
-        en: 'When estimating the P&L of an open short position — a way to profit from a falling market that owning the underlying stocks cannot do.',
+        vi: 'Dùng khi bạn đã mở vị thế bán hợp đồng VN30F chờ thị trường giảm và muốn biết nếu đóng lệnh ở một mức điểm nào đó, cao hay thấp hơn lúc mở, thì lãi hay lỗ bao nhiêu tiền.',
+        en: 'Use it when you have opened a short VN30F position expecting the market to fall and want to know how much money you make or lose if you close it at a given level, whether above or below where you opened.',
       },
       howToRead: {
         vi: 'Điểm đóng thấp hơn điểm mở là lãi, cao hơn là lỗ — ngược chiều hoàn toàn với vị thế Long.',
@@ -865,8 +865,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         en: 'Each contract requires initial margin equal to its notional value (contract points times the multiplier) times the margin ratio; capital divided by that amount gives the number of contracts you can open.',
       },
       whenToUse: {
-        vi: 'Trước khi đặt lệnh, để biết trần khối lượng mà tài khoản chịu được — rồi mới cân nhắc có nên đi tới trần hay không.',
-        en: 'Before placing an order, to know the maximum size your account can support — then decide whether to actually trade up to that ceiling.',
+        vi: 'Dùng khi bạn vừa nộp tiền vào tài khoản phái sinh và muốn biết số tiền đó đủ ký quỹ để mở nhiều nhất bao nhiêu hợp đồng VN30F.',
+        en: 'Use it when you have just deposited money into a derivatives account and want to know the largest number of VN30F contracts that deposit can cover in margin.',
       },
       howToRead: {
         vi: 'Kết quả làm tròn xuống số nguyên; ra 0 nghĩa là vốn chưa đủ ký quỹ cho dù chỉ một hợp đồng. Mở kín trần thì một nhịp ngược nhỏ đã bị gọi ký quỹ.',
@@ -1081,8 +1081,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
         en: 'The largest position size you can open such that, if price hits the stop-loss, the loss does not exceed the predefined risk level.',
       },
       whenToUse: {
-        vi: 'Trước mỗi lệnh phái sinh — đòn bẩy cao khiến vào lệnh quá tay là lỗi đắt nhất của người mới.',
-        en: 'Before every derivatives trade — high leverage makes oversizing a position the most costly mistake beginners make.',
+        vi: 'Dùng khi bạn sắp mở một lệnh VN30F, đã định sẵn cắt lỗ cách giá vào mấy điểm, và muốn biết được mở mấy hợp đồng để lỡ chạm cắt lỗ cũng không mất quá số tiền đã định.',
+        en: 'Use it when you are about to open a VN30F trade with your stop-loss distance in points already set, and want to know how many contracts to open so hitting the stop costs no more than the amount you set aside.',
       },
       howToRead: {
         vi: 'Kết quả làm tròn xuống số nguyên hợp đồng, nên rủi ro thực luôn nhỏ hơn hoặc bằng mức đã định. Ra 0 nghĩa là mức cắt lỗ này quá rộng cho số vốn hiện có.',
@@ -1262,8 +1262,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
         en: 'The true amplification of the account: 5x leverage means a 1% move in the index moves your equity by roughly 5%.',
       },
       whenToUse: {
-        vi: 'Sau khi mở vị thế, hoặc khi lãi lỗ bù trừ hằng ngày làm vốn thực co giãn — đòn bẩy trượt theo từng phiên chứ không đứng yên.',
-        en: 'After opening a position, or whenever daily mark-to-market P&L changes the actual equity — leverage shifts session by session, it does not stay fixed.',
+        vi: 'Dùng khi bạn đang giữ hợp đồng VN30F qua vài phiên lãi lỗ và muốn biết tổng giá trị hợp đồng lúc này đang gấp bao nhiêu lần số tiền thật còn lại trong tài khoản.',
+        en: 'Use it when you have held VN30F contracts through a few sessions of gains and losses and want to know how many times larger their total value now is than the real money left in your account.',
       },
       howToRead: {
         vi: 'Con số càng cao thì biên an toàn trước một lệnh gọi ký quỹ càng mỏng. Vốn thực giảm vì thua lỗ sẽ tự đẩy đòn bẩy lên mà không cần mở thêm hợp đồng nào.',

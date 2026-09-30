@@ -84,6 +84,17 @@ the Application layer because one of its seven checks reads `@/data/samples.ts`,
 removed for producing 169 false positives between them, and the reasons are recorded there so nobody
 rebuilds them.
 
+**"Khi nào dùng" (`explanation.whenToUse`) is ONE sentence that opens "Dùng khi bạn …" / "Use it
+when you …"** (30/09/2026). The owner found the old section "quá khó hiểu". Measured on the old texts,
+4 of 111 spoke to the reader and 11 described the formula as an input to another one. The owner chose
+one templated sentence per formula with no "Không hợp khi …" line. All 111 were rewritten (a
+10-agent draft plus adversarial pass against `calc`). `src/core/when-to-use-rules.ts` holds the rules:
+the prefix, one sentence, a length cap, no long dash, no "đầu vào / mẫu số / suất chiết khấu", no
+other formula's acronym, no `%` or threshold, and no buy/sell phrasing. `when-to-use-rules.test.ts`
+runs those rules over all 111 and also checks that two formulas never share a sentence. The rules
+cannot see a sentence promising a use `calc` does not support, such as describing monthly deposits
+for a lump-sum formula, so a new sentence must still be read against `calc`.
+
 Tests are `src/**/*.test.ts` and `*.test.tsx`, colocated next to the module under test. The default
 environment is `node` (`vitest.config.ts`); a file that needs a DOM opts in with a
 `// @vitest-environment jsdom` comment on line 1 rather than a global config — `environmentMatchGlobs`

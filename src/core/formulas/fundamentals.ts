@@ -197,8 +197,8 @@ export const EPS_CO_BAN: FormulaModule = {
         en: "The portion of profit belonging to one common share after subtracting the preferred shareholders' portion.",
       },
       whenToUse: {
-        vi: 'Khi đọc báo cáo tài chính theo quý hoặc theo năm và muốn biết lợi nhuận mỗi cổ phiếu đang tăng hay giảm so với kỳ trước.',
-        en: 'When reading quarterly or annual financial reports and wanting to see whether profit per share is rising or falling compared with the previous period.',
+        vi: 'Dùng khi bạn vừa đọc tin công ty công bố lợi nhuận quý hoặc năm và muốn biết mỗi cổ phiếu mình cầm làm ra bao nhiêu đồng lãi, so với cùng kỳ năm trước.',
+        en: "Use it when you have just read a company's quarterly or yearly profit report and want to know how many dong of profit each share you hold earned, compared with the same period last year.",
       },
       howToRead: {
         vi: 'EPS tăng đều qua các năm là dấu hiệu tốt; EPS âm nghĩa là doanh nghiệp đang lỗ trên mỗi cổ phiếu.',
@@ -323,8 +323,8 @@ export const BVPS: FormulaModule = {
         en: 'The theoretical amount each share would receive if the company were liquidated and its assets sold at exactly book value.',
       },
       whenToUse: {
-        vi: 'Khi thị giá rơi sâu hoặc cổ phiếu bị bán tháo, dùng làm mốc so sánh xem thị trường đang định giá doanh nghiệp thấp hơn giá trị sổ sách bao nhiêu.',
-        en: 'When the market price drops sharply or the stock is being sold off, use it as a reference point to see how far below book value the market is pricing the company.',
+        vi: 'Dùng khi bạn đọc báo cáo tài chính và muốn quy vốn chủ sở hữu hàng nghìn tỷ đồng ra mỗi cổ phiếu được bao nhiêu đồng, để đặt cạnh giá cổ phiếu hay so với năm trước.',
+        en: "Use it when you read a financial statement and want to turn equity worth trillions of dong into dong per share, to set beside the share price or against last year's figure.",
       },
       howToRead: {
         vi: 'Thị giá thấp hơn BVPS nghĩa là thị trường định giá doanh nghiệp dưới giá trị sổ sách — cần tìm hiểu vì sao trước khi kết luận là rẻ.',
@@ -453,8 +453,8 @@ export const ROE: FormulaModule = {
         en: 'How efficiently shareholder capital is used: for every 100 units of capital invested, how many units of profit it generates each year.',
       },
       whenToUse: {
-        vi: 'Là chỉ số đầu tiên để sàng lọc doanh nghiệp làm ăn hiệu quả, và để so sánh trong cùng ngành.',
-        en: 'The first metric for screening efficiently run companies, and for comparing within the same industry.',
+        vi: 'Dùng khi bạn đang lọc vài công ty để giữ lâu dài và muốn biết công ty nào làm ra nhiều lãi hơn trên chính số vốn thuộc về cổ đông.',
+        en: 'Use it when you are shortlisting a few companies to hold for the long run and want to know which one earns more profit on the money that belongs to its shareholders.',
       },
       howToRead: {
         vi: 'ROE giữ được trên 15% nhiều năm liền thường là doanh nghiệp tốt. ROE cao đột biến một năm thì phải xem có phải nhờ lợi nhuận bất thường hay vay nợ nhiều.',
@@ -580,8 +580,8 @@ export const ROA: FormulaModule = {
         en: 'How efficiently all assets — both equity-funded and debt-funded — are used to generate profit.',
       },
       whenToUse: {
-        vi: 'Khi so sánh doanh nghiệp có mức vay nợ khác nhau, hoặc khi ROE bị đòn bẩy làm méo.',
-        en: 'When comparing companies with different levels of debt, or when leverage is distorting ROE.',
+        vi: 'Dùng khi bạn so hai công ty cùng ngành mà một bên vay nợ nhiều hơn hẳn, và muốn biết bên nào làm ra nhiều lãi hơn trên toàn bộ tài sản, kể cả phần mua bằng tiền vay.',
+        en: 'Use it when you compare two companies in the same industry where one borrows far more than the other, and want to know which earns more profit on everything it owns, including what was bought with borrowed money.',
       },
       howToRead: {
         vi: 'So ROA với trung bình ngành là cách đọc đáng tin cậy nhất, vì mỗi ngành cần lượng tài sản khác nhau để tạo ra doanh thu. Trong cùng một doanh nghiệp có lãi, ROA thường thấp hơn ROE vì tổng tài sản bao gồm cả vốn chủ lẫn nợ phải trả — khoảng cách càng rộng thì vay nợ càng nhiều.',
@@ -690,8 +690,8 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
         en: 'The percentage of revenue left after deducting all costs, taxes, and interest expense.',
       },
       whenToUse: {
-        vi: 'Khi so sánh khả năng kiểm soát chi phí giữa các doanh nghiệp cùng ngành.',
-        en: 'When comparing cost-control ability between companies in the same industry.',
+        vi: 'Dùng khi bạn đọc báo cáo tài chính thấy doanh thu tăng mạnh mà lãi không tăng theo, và muốn biết mỗi đồng bán hàng công ty còn giữ lại được bao nhiêu sau mọi khoản chi.',
+        en: 'Use it when you read a financial statement where revenue jumped but profit lagged behind, and want to know how much of each dong of sales the company keeps after every expense.',
       },
       howToRead: {
         vi: "Biên ròng mỏng nghĩa là chỉ cần chi phí nhích nhẹ là lợi nhuận bốc hơi; biên dày cho doanh nghiệp sức chịu đựng tốt hơn khi thị trường xấu. Mức 'mỏng' hay 'dày' phụ thuộc vào ngành, nên chỉ nên so sánh biên ròng giữa các doanh nghiệp cùng lĩnh vực hoặc so với chính doanh nghiệp đó ở các kỳ trước.",
@@ -817,8 +817,8 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
         en: 'Pricing power relative to direct costs — before selling, administrative, or interest expenses.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá lợi thế cạnh tranh: doanh nghiệp có thương hiệu hay công nghệ riêng thường giữ được biên gộp cao.',
-        en: 'When assessing competitive advantage: companies with a strong brand or proprietary technology tend to hold a higher gross margin.',
+        vi: 'Dùng khi bạn đọc tin giá vật tư tăng hay đối thủ hạ giá bán, và muốn biết mỗi đồng bán hàng còn lại bao nhiêu sau khi trừ riêng chi phí làm ra món hàng đó.',
+        en: 'Use it when you read news of rising raw-material costs or rivals cutting prices, and want to know how much of each dong of sales is left after subtracting just the cost of making the goods themselves.',
       },
       howToRead: {
         vi: 'Biên gộp ổn định hoặc tăng dần là dấu hiệu doanh nghiệp giữ được giá bán; biên gộp co lại thường do cạnh tranh ép giá hoặc chi phí đầu vào tăng.',
@@ -953,8 +953,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         en: 'The degree of financial leverage: how much the company relies on borrowed money relative to its own capital.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá rủi ro tài chính trước lúc mua, nhất là giai đoạn lãi suất tăng.',
-        en: 'When assessing financial risk before buying, especially during periods of rising interest rates.',
+        vi: 'Dùng khi bạn nghe tin lãi suất cho vay đang tăng và muốn biết công ty có cổ phiếu mình định mua đang gánh khoản nợ lớn cỡ nào so với phần vốn thuộc về cổ đông.',
+        en: 'Use it when you hear that lending rates are rising and want to know how large a debt load the company whose shares you plan to buy is carrying compared with the capital that belongs to its shareholders.',
       },
       howToRead: {
         vi: 'D/E trên 2 lần là mức đòn bẩy cao với phần lớn ngành sản xuất; riêng ngân hàng và bất động sản có mặt bằng nợ khác hẳn.',
@@ -1079,8 +1079,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         en: 'The ability to use current assets to pay off liabilities coming due.',
       },
       whenToUse: {
-        vi: 'Khi kiểm tra sức khoẻ thanh khoản trước lúc đầu tư, nhất là với doanh nghiệp vay nợ nhiều.',
-        en: 'When checking liquidity health before investing, especially for heavily indebted companies.',
+        vi: 'Dùng khi bạn đọc tin một công ty sắp phải trả một khoản nợ lớn và muốn biết tiền mặt, tiền khách còn nợ và hàng trong kho của nó có đủ trả nợ đến hạn trong năm không.',
+        en: 'Use it when you read that a company has a large debt coming due and want to know whether its cash, the money customers still owe it and the goods in its warehouse can cover the debts falling due within the year.',
       },
       howToRead: {
         vi: 'Dưới 1 lần nghĩa là nợ đến hạn nhiều hơn tài sản có thể xoay — dấu hiệu căng thẳng thanh khoản; quá cao lại có thể là ứ đọng vốn.',
@@ -1200,8 +1200,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         en: 'A stricter test than the current ratio: it excludes inventory because selling goods takes time.',
       },
       whenToUse: {
-        vi: 'Với doanh nghiệp có tồn kho lớn hoặc quay vòng chậm — bất động sản, thép, bán lẻ — nơi hệ số hiện hành dễ gây ảo giác an toàn.',
-        en: 'For companies with large or slow-turning inventory — real estate, steel, retail — where the current ratio can create a false sense of safety.',
+        vi: 'Dùng khi bạn xem một công ty bất động sản, thép hay bán lẻ đang tồn nhiều hàng, và muốn biết nếu số hàng ấy chưa bán được thì nó còn đủ sức trả nợ sắp đến hạn không.',
+        en: 'Use it when you are looking at a property, steel or retail company sitting on a lot of unsold goods and want to know whether it could still meet its debts coming due if those goods do not sell.',
       },
       howToRead: {
         vi: 'Quanh 1 lần trở lên là an toàn; thấp hơn hẳn hệ số hiện hành nghĩa là thanh khoản đang phụ thuộc nặng vào việc bán được hàng tồn.',
@@ -1323,8 +1323,8 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
         en: 'The speed at which assets are "turned" into revenue — a measure of operating efficiency.',
       },
       whenToUse: {
-        vi: 'Khi phân tích vì sao ROA cao hay thấp: ROA chính là biên lợi nhuận ròng nhân với vòng quay này.',
-        en: 'When analyzing why ROA is high or low: ROA is exactly net margin multiplied by this turnover ratio.',
+        vi: 'Dùng khi bạn thấy một công ty vừa mở thêm nhiều cửa hàng, nhà máy và muốn biết tài sản của nó giờ mang về bao nhiêu doanh thu, so với trước đó hay đối thủ cùng ngành.',
+        en: 'Use it when you see a company that has just opened many new stores or plants and want to know how much revenue its assets now bring in, compared with before or with a rival in the same industry.',
       },
       howToRead: {
         vi: 'Bán lẻ quay nhanh (trên 2 vòng) nhưng biên mỏng; điện nước hay bất động sản quay chậm (dưới 0,5 vòng) nhưng biên dày. So sánh phải trong cùng ngành.',
@@ -1466,8 +1466,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         en: 'How the company splits its profit: the part paid out to shareholders right away and the part retained for reinvestment.',
       },
       whenToUse: {
-        vi: 'Khi chọn cổ phiếu cổ tức, hoặc khi đánh giá mức cổ tức hiện tại có duy trì được lâu dài không.',
-        en: 'When picking dividend stocks, or when assessing whether the current dividend level is sustainable long term.',
+        vi: 'Dùng khi bạn giữ một cổ phiếu vì cổ tức tiền mặt và muốn biết khoản cổ tức ấy chiếm bao nhiêu trong số lãi mỗi cổ phiếu làm ra, nhất là khi công ty vừa báo lãi giảm.',
+        en: 'Use it when you hold a stock for its cash dividend and want to know how big a slice of the per-share profit that dividend takes, especially right after the company reports lower profit.',
       },
       howToRead: {
         vi: 'Trên 100% nghĩa là trả nhiều hơn số lãi làm ra — phải lấy từ tiền tích luỹ, khó bền. Doanh nghiệp tăng trưởng nhanh thường giữ hệ số thấp để tái đầu tư.',

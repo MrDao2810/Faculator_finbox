@@ -131,8 +131,8 @@ export const DIEM_HOA_VON: FormulaModule = {
         en: 'The output level at which the company neither profits nor loses; every unit sold beyond this point starts generating profit.',
       },
       whenToUse: {
-        vi: 'Khi lập kế hoạch kinh doanh, định giá sản phẩm mới, hoặc đánh giá một doanh nghiệp có cấu trúc định phí nặng.',
-        en: 'When drafting a business plan, pricing a new product, or assessing a company with a heavy fixed-cost structure.',
+        vi: 'Dùng khi bạn định mở một quán nhỏ hay đọc tin một công ty đang hụt doanh thu, và muốn biết mỗi tháng hay mỗi quý phải bán tối thiểu bao nhiêu sản phẩm mới không bị lỗ.',
+        en: "Use it when you plan to open a small shop or read that a company's sales are slipping, and want to know the minimum number of units that must be sold each month or quarter to avoid a loss.",
       },
       howToRead: {
         vi: 'Điểm hoà vốn càng thấp so với sản lượng thực tế thì biên an toàn càng dày. Muốn so với doanh thu trên báo cáo, nhân sản lượng hoà vốn với giá bán để ra doanh thu hoà vốn tương ứng.',
@@ -361,8 +361,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         en: 'The amplification factor from revenue to EPS: DOL measures the amplification from operating fixed cost, DFL measures the part from interest expense, and multiplying them gives the degree of total leverage. EBIT here is operating profit before interest and tax, equal to revenue minus variable cost minus operating fixed cost.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá độ nhạy lợi nhuận của doanh nghiệp nhiều định phí hoặc vay nợ lớn, nhất là lúc dự phóng kịch bản doanh thu tăng giảm.',
-        en: 'When assessing the profit sensitivity of a company with heavy fixed costs or large debt, especially when projecting revenue-increase or revenue-decrease scenarios.',
+        vi: 'Dùng khi bạn đọc kế hoạch doanh thu năm tới công ty trình đại hội cổ đông và muốn biết doanh thu lệch kế hoạch một chút thì lãi mỗi cổ phiếu lệch theo mạnh gấp mấy lần.',
+        en: "Use it when you read the revenue plan a company puts to its shareholders' meeting for next year and want to know how many times harder its profit per share would move if revenue misses or beats the plan by a little.",
       },
       howToRead: {
         vi: 'Đòn bẩy 4 lần nghĩa là doanh thu tăng 1% thì EPS tăng khoảng 4%, nhưng giảm 1% thì EPS cũng giảm 4% — con số càng lớn, lợi nhuận càng dễ vỡ khi doanh thu hụt.',

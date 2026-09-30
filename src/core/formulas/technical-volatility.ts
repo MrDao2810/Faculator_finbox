@@ -343,8 +343,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         en: 'The upper boundary of the "normal" price zone: the band widens on its own when the market is volatile and narrows when it is quiet, because its distance from the middle line is exactly k times the standard deviation of price.',
       },
       whenToUse: {
-        vi: 'Khi muốn biết giá hiện tại đã cao tới đâu so với chính nó vài tuần gần đây, thay vì so với một mốc cố định.',
-        en: 'When you want to know how high the current price is relative to itself over the past few weeks, rather than against a fixed benchmark.',
+        vi: 'Dùng khi bạn đặt cảnh báo giá cho một mã trên ứng dụng và muốn biết tới mức giá bao nhiêu thì được coi là cao bất thường so với chính nó trong mấy tuần gần đây.',
+        en: 'Use it when you set a price alert for a stock in your trading app and want to know at what price it would count as unusually high compared with its own last few weeks.',
       },
       howToRead: {
         vi: 'Giá chạm hoặc vượt dải trên nghĩa là đang ở mép trên vùng dao động quen thuộc — trong xu hướng tăng mạnh, giá có thể bám dải trên rất lâu.',
@@ -491,8 +491,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         en: 'The lower boundary of the "normal" price zone, mirroring the upper band around the n-session moving average.',
       },
       whenToUse: {
-        vi: 'Khi tìm mốc tham chiếu cho vùng giá thấp bất thường so với chính cổ phiếu đó trong vài tuần gần đây.',
-        en: 'When looking for a reference point for an unusually low price zone relative to that same stock over the past few weeks.',
+        vi: 'Dùng khi bạn đang giữ một mã bị bán mạnh và muốn biết tới mức giá nào thì đã là thấp bất thường so với chính nó mấy tuần qua, chứ không chỉ là một nhịp lên xuống quen.',
+        en: 'Use it when you hold a stock that is being sold off hard and want to know at what price it would count as unusually low for that stock over the past few weeks, rather than just one of its usual swings.',
       },
       howToRead: {
         vi: 'Giá thủng dải dưới nghĩa là đang ở mép dưới vùng dao động quen thuộc; trong xu hướng giảm, giá có thể bám dải dưới suốt nhiều phiên chứ không bật lên ngay.',
@@ -640,8 +640,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         en: 'A single number showing whether the band is expanding or squeezing: dividing by the middle line makes a 10,000 VND stock comparable with a 200,000 VND one.',
       },
       whenToUse: {
-        vi: 'Khi rà tìm những mã đang "thắt nút" — biến động co lại rất hẹp, thường đi trước một nhịp giá mạnh mà không nói trước hướng nào.',
-        en: 'When screening for stocks that are "squeezing" — volatility contracted very tight, which often precedes a strong price move without indicating which direction.',
+        vi: 'Dùng khi bạn thấy một mã mấy tuần nay đi ngang lặng lẽ, giá co vào một khoảng hẹp, và muốn một con số cho biết khoảng ấy đã hẹp tới mức nào.',
+        en: 'Use it when you notice a stock drifting quietly sideways for weeks, its price squeezed into a narrow range, and want a single number for how narrow that range has become.',
       },
       howToRead: {
         vi: 'Con số càng nhỏ thì giá càng lặng. So với chính mã đó vài tháng trước mới có nghĩa; không có ngưỡng chung cho mọi cổ phiếu.',
@@ -826,8 +826,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
         en: "A measure of a session's range in VND that also includes overnight price gaps — so it reflects real risk better than simply taking high minus low.",
       },
       whenToUse: {
-        vi: 'Khi đặt khoảng cắt lỗ hoặc tính cỡ lệnh: cắt lỗ hẹp hơn một ATR gần như chắc chắn bị quét bởi dao động thường ngày.',
-        en: 'When setting a stop-loss distance or sizing a position: a stop tighter than one ATR is almost certain to get swept out by ordinary daily noise.',
+        vi: 'Dùng khi bạn sắp đặt lệnh cắt lỗ hay chốt lời cho một mã và muốn biết một phiên bình thường giá của nó lên xuống khoảng bao nhiêu đồng.',
+        en: "Use it when you are about to set a stop-loss or take-profit order and want to know roughly how many dong the stock's price moves in an ordinary session.",
       },
       howToRead: {
         vi: 'ATR là số tiền của một phiên, không phải phần trăm và không có hướng — ATR cao chỉ nói biên độ rộng, không nói giá lên hay xuống. Muốn biết rộng tới đâu thì đem so với thị giá: ATR 500 ₫ trên cổ phiếu 26.800 ₫ là gần 1,9% thị giá mỗi phiên.',
@@ -1006,8 +1006,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         en: "Converts the price's position within the band to a common scale: 0% is exactly the lower band, 50% is the middle line, 100% is exactly the upper band.",
       },
       whenToUse: {
-        vi: 'Khi cần so vị trí giá giữa nhiều mã có thị giá khác nhau, hoặc khi lọc cổ phiếu theo mức "cao trong dải" mà không phải nhìn từng biểu đồ.',
-        en: 'When comparing price position across stocks with different price levels, or when screening for stocks that are "high in the band" without inspecting each chart individually.',
+        vi: 'Dùng khi bạn so vài mã đang theo dõi có giá chênh nhau xa và muốn xem trên cùng một thang mã nào sát mép trên, mã nào sát mép dưới vùng dao động gần đây của nó.',
+        en: 'Use it when you are comparing a few stocks on your watchlist with very different prices and want to see, on one common scale, which sit near the top and which near the bottom of their own recent trading range.',
       },
       howToRead: {
         vi: 'Trên 100% nghĩa là giá đã vượt hẳn dải trên, dưới 0% là đã thủng dải dưới — hai trạng thái này hoàn toàn xảy ra được, không phải lỗi.',
@@ -1214,8 +1214,8 @@ export const STOCHASTIC_K: FormulaModule = {
         en: 'Shows where the closing price sits within the highest–lowest range of the last n sessions, on a 0–100% scale. The original idea: when the market is strong the close sits near the top of that range; when weak, near the bottom.',
       },
       whenToUse: {
-        vi: 'Khi thị trường đi ngang trong một biên độ và cần biết giá đang ở mép trên hay mép dưới của biên độ đó.',
-        en: 'When the market is trading sideways within a range and you need to know whether price is near the top or bottom of that range.',
+        vi: 'Dùng khi bạn theo dõi một mã cứ lên xuống qua lại giữa hai mức giá quen thuộc và muốn biết phiên hôm nay đóng cửa đang gần đỉnh hay gần đáy của mấy tuần qua.',
+        en: "Use it when you follow a stock that keeps bouncing between two familiar price levels and want to know whether today's session closed near the top or near the bottom of the past few weeks.",
       },
       howToRead: {
         vi: 'Trên 80% là đóng cửa sát đỉnh của n phiên, dưới 20% là sát đáy. Đây là hai mốc quy ước phổ biến chứ không phải ngưỡng mua bán.',
@@ -1387,8 +1387,8 @@ export const VWAP: FormulaModule = {
         en: 'The average cost basis for the whole period: every session contributes in proportion to the shares it actually matched, so a heavily traded session pulls the number toward its own price far more than a quiet one does.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá một lần mua bán lớn đã khớp tốt hay xấu so với mặt bằng của kỳ, hoặc khi cần một mốc giá có tính tới khối lượng thay vì trung bình cộng các phiên.',
-        en: 'When judging whether a large trade executed well or poorly against the overall level of the period, or when you need a price benchmark that takes volume into account instead of a plain average of sessions.',
+        vi: 'Dùng khi bạn đã mua dần một mã trong mấy tuần và muốn biết giá vốn của mình tốt hay kém so với mức giá bình quân cả thị trường đã trả cho mã đó cùng thời gian.',
+        en: 'Use it when you have been buying a stock bit by bit over a few weeks and want to know whether your average cost is better or worse than the average price the whole market paid for it over the same stretch.',
       },
       howToRead: {
         vi: 'Giá hiện tại trên VWAP nghĩa là người mua BÌNH QUÂN của kỳ đang lãi, dưới VWAP thì đang lỗ. Chỉ là bình quân thôi: một phiên khối lượng lớn kéo VWAP về phía giá của nó, nên phần đông người mua vẫn có thể đang lỗ dù giá nằm trên VWAP.',
@@ -1619,8 +1619,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         en: "A single number showing how strongly a stock's price fluctuates, scaled to an annual basis so it can be compared with interest rates and with other stocks.",
       },
       whenToUse: {
-        vi: 'Khi cần định lượng rủi ro biến động của một mã trước khi vào lệnh, hoặc khi cần tham số độ biến động cho các mô hình định giá quyền chọn.',
-        en: "When you need to quantify a stock's volatility risk before placing an order, or when you need a volatility parameter for option pricing models.",
+        vi: 'Dùng khi bạn để ý một chứng quyền trên bảng giá và muốn biết mấy tháng qua cổ phiếu cơ sở của nó đã thật sự dao động mạnh cỡ nào, gói lại thành một con số cho cả năm.',
+        en: 'Use it when you are eyeing a covered warrant on the price board and want to know how strongly its underlying stock has actually swung over the past few months, summed up as a single yearly figure.',
       },
       howToRead: {
         vi: '40%/năm nghĩa là trong khoảng hai phần ba số năm, lợi suất một năm nằm trong khoảng cộng trừ 40% quanh mức trung bình — nếu lợi suất phân phối chuẩn, giả định vốn dĩ chỉ đúng gần đúng.',
@@ -1821,8 +1821,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         en: 'Measures how unusual liquidity is: whether the most recent session is trading actively or quietly compared with its own level over the past few weeks.',
       },
       whenToUse: {
-        vi: 'Khi cần xác nhận một phiên phá vỡ vùng giá — cùng một mức tăng giá, phiên có khối lượng gấp mấy lần bình thường đáng tin hơn phiên khối lượng lèo tèo.',
-        en: 'When confirming a breakout session — for the same price gain, a session with volume several times the norm is more credible than one with thin volume.',
+        vi: 'Dùng khi bạn thấy một mã vừa bứt khỏi vùng giá đi ngang lâu nay và muốn biết khối lượng khớp phiên đó có vượt hẳn mấy tuần trước không, hay chỉ vài lệnh lèo tèo đẩy giá.',
+        en: "Use it when you see a stock break out of a long sideways range and want to know whether that session's matched volume far exceeded the weeks before, or just a few thin orders moved the price.",
       },
       howToRead: {
         vi: 'Bằng 1 lần là đúng mức trung bình, 2 lần là gấp đôi. Chỉ số này không có hướng: khối lượng đột biến đi kèm giá giảm mạnh lại là dấu hiệu bán tháo.',

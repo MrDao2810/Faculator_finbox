@@ -167,8 +167,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         en: 'How much all future dividends are worth today, assuming they grow at a steady rate forever.',
       },
       whenToUse: {
-        vi: 'Với doanh nghiệp trả cổ tức ổn định và tăng trưởng chậm, đều — điện, nước, hàng tiêu dùng thiết yếu.',
-        en: 'For companies that pay stable, slow and steady-growing dividends — utilities, water, essential consumer goods.',
+        vi: 'Dùng khi bạn nhắm một cổ phiếu năm nào cũng trả cổ tức tiền mặt đều đặn, như công ty điện, nước, và muốn biết nó đáng giá bao nhiêu nếu chỉ tính dòng cổ tức ấy.',
+        en: 'Use it when you are eyeing a stock that pays a steady cash dividend every year, such as a power or water utility, and want to know what it is worth based on those dividends alone.',
       },
       howToRead: {
         vi: 'Giá trị tính ra cao hơn thị giá nghĩa là cổ phiếu đang rẻ theo mô hình. Kết quả rất nhạy với hiệu r − g nên hãy thử vài kịch bản.',
@@ -455,8 +455,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         en: 'How much one share is worth today when dividends are assumed to grow fast for the first few years before settling into a steady rate forever — instead of growing steadily from year one.',
       },
       whenToUse: {
-        vi: 'Với doanh nghiệp đang tăng trưởng nhanh hơn mức bền vững, điều mô hình Gordon một giai đoạn không tả được.',
-        en: 'For companies growing faster than a sustainable rate — something the single-stage Gordon model cannot capture.',
+        vi: 'Dùng khi bạn nhắm một cổ phiếu có cổ tức tiền mặt đang tăng nhanh qua từng năm và muốn biết nó đáng giá bao nhiêu nếu đà tăng ấy giữ thêm vài năm rồi mới chậm lại.',
+        en: 'Use it when you are eyeing a stock whose cash dividend has been rising fast year after year and want to know what it is worth if that pace lasts a few more years before slowing down.',
       },
       howToRead: {
         vi: "Con số là giá trị một cổ phiếu theo mô hình — ví dụ trên cho 40.506,6 ₫; cao hơn thị giá là cổ phiếu đang rẻ theo cách tính này, thấp hơn là đang đắt. Nhìn thêm cột 'Giá trị cuối kỳ' trên biểu đồ: ở ví dụ nó chiếm khoảng ba phần tư tổng số, nên con số bạn đọc dựa vào giả định dài hạn nhiều hơn vào mấy năm tăng nhanh.",
@@ -695,8 +695,8 @@ export const CAPM: FormulaModule = {
         en: 'Holding a stock is riskier than a savings deposit, so it must demand a correspondingly higher return — CAPM quantifies that through beta.',
       },
       whenToUse: {
-        vi: 'Khi cần suất chiết khấu cho các mô hình định giá (Gordon, DDM, DCF) hoặc phần vốn chủ trong WACC.',
-        en: 'When you need a discount rate for valuation models (Gordon, DDM, DCF) or the equity component of WACC.',
+        vi: 'Dùng khi bạn phân vân giữa gửi tiết kiệm và mua một cổ phiếu, và muốn biết cổ phiếu đó phải lãi tối thiểu bao nhiêu mỗi năm mới bõ công chịu rủi ro.',
+        en: 'Use it when you are torn between a savings deposit and a stock and want to know the minimum yearly return the stock must earn to be worth its extra risk.',
       },
       howToRead: {
         vi: 'Con số là mức sinh lợi tối thiểu mỗi năm cổ đông nên đòi ở cổ phiếu này: ví dụ trên ra 13,1%/năm, cao hơn lãi suất phi rủi ro 3,5% gần mười điểm phần trăm — đó là phần bù cho rủi ro. Lấy nó so với lãi gửi tiết kiệm hoặc lợi suất trái phiếu Chính phủ; mốc dễ nhớ là beta bằng 1, khi ấy con số ra đúng bằng mức sinh lợi kỳ vọng của cả thị trường.',
@@ -902,8 +902,8 @@ export const WACC: FormulaModule = {
         en: 'How much each unit of capital a company uses actually costs, blending more expensive equity with cheaper debt made cheaper still by the tax deduction.',
       },
       whenToUse: {
-        vi: 'Làm suất chiết khấu cho FCFF trong định giá DCF toàn doanh nghiệp, hoặc làm ngưỡng sàng lọc dự án đầu tư.',
-        en: 'As the discount rate for FCFF in whole-firm DCF valuation, or as a hurdle rate for screening investment projects.',
+        vi: 'Dùng khi bạn đọc tin công ty sắp rót cả tiền vay lẫn tiền cổ đông vào dự án mới, và muốn biết dự án phải sinh lời tối thiểu bao nhiêu mỗi năm mới đủ bù cho cả hai bên.',
+        en: "Use it when you read that a company is about to put both bank loans and shareholders' money into a new project, and want to know the minimum yearly return that project must earn to satisfy both its lenders and its shareholders.",
       },
       howToRead: {
         vi: 'Dự án chỉ tạo giá trị khi sinh lợi vượt WACC. Thêm nợ chỉ kéo WACC xuống chừng nào lãi vay sau thuế còn rẻ hơn chi phí vốn chủ — và ngay cả khi rẻ hơn thì rủi ro tài chính vẫn tăng, phần rủi ro ấy con số này không phản ánh.',
@@ -1157,8 +1157,8 @@ export const FCFF: FormulaModule = {
         en: 'The cash a company actually generates in the period for all capital providers, after paying tax and reinvesting to keep operations running.',
       },
       whenToUse: {
-        vi: 'Làm dòng tiền gốc cho định giá DCF toàn doanh nghiệp, chiết khấu bằng WACC ra giá trị doanh nghiệp.',
-        en: 'As the base cash flow for whole-firm DCF valuation, discounted by WACC to get enterprise value.',
+        vi: 'Dùng khi bạn thấy công ty báo lãi lớn và muốn biết sau khi nộp thuế, xây xưởng, mua máy, ôm thêm hàng tồn kho, thực sự còn dư bao nhiêu tiền cho cả chủ nợ lẫn cổ đông.',
+        en: 'Use it when you see a company report a big profit and want to know how much cash is actually left for both its lenders and its shareholders after tax, new factories and machines, and money tied up in inventory.',
       },
       howToRead: {
         vi: 'FCFF âm không hẳn là xấu — doanh nghiệp đang tăng trưởng có thể chi đầu tư lớn hơn dòng tiền tạo ra; điều cần xem là nó âm vì đầu tư hay vì kinh doanh yếu.',
@@ -1394,8 +1394,8 @@ export const FCFE: FormulaModule = {
         en: 'The cash ultimately belonging to shareholders after creditors have received their interest and debt has been raised or repaid.',
       },
       whenToUse: {
-        vi: 'Làm dòng tiền gốc cho định giá DCF phần vốn chủ, chiết khấu bằng chi phí vốn chủ từ CAPM — thay cho DDM khi doanh nghiệp trả cổ tức ít hơn khả năng.',
-        en: 'As the base cash flow for equity DCF valuation, discounted by the cost of equity from CAPM — used in place of DDM when a company pays out less in dividends than it could afford.',
+        vi: 'Dùng khi bạn cầm cổ phiếu một công ty có vay ngân hàng và muốn biết sau khi trả lãi, vay thêm hay trả bớt nợ, còn bao nhiêu tiền thật thuộc về cổ đông như bạn.',
+        en: 'Use it when you own shares in a company that borrows from banks and want to know how much real cash is left for shareholders like you after it pays interest and takes on or repays debt.',
       },
       howToRead: {
         vi: 'FCFE cao hơn cổ tức thực trả nghĩa là doanh nghiệp còn dư địa tăng cổ tức hoặc mua lại cổ phiếu; thấp hơn kéo dài thì mức cổ tức hiện tại khó giữ.',
@@ -1635,8 +1635,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         en: 'All the cash a company will generate in the future, brought back to today, with debt paid off and the remainder split evenly across shares.',
       },
       whenToUse: {
-        vi: 'Khi doanh nghiệp có dòng tiền dương và ổn định nhưng trả cổ tức ít hơn khả năng — lúc đó mô hình cổ tức định giá thấp hơn thực chất.',
-        en: 'When a company has positive, stable cash flow but pays out less in dividends than it could afford — a dividend model would then undervalue it.',
+        vi: 'Dùng khi bạn nhắm một công ty làm ra tiền đều đặn nhưng chia cổ tức ít, và muốn tự ước mỗi cổ phiếu đáng giá bao nhiêu từ dòng tiền của cả công ty sau khi trừ nợ vay.',
+        en: "Use it when you are eyeing a company that generates cash steadily but pays small dividends, and want to estimate for yourself what each share is worth from the whole company's cash flow after its debt.",
       },
       howToRead: {
         vi: 'So con số này với thị giá: cao hơn nhiều là cổ phiếu đang rẻ theo mô hình. Kết quả cực nhạy với hiệu WACC − g, nên hãy thử vài kịch bản thay vì tin một con số.',
@@ -1907,8 +1907,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
         en: 'Money received later is worth less than money received now, because money in hand can earn a return — PV converts every future amount to the same measuring stick, today.',
       },
       whenToUse: {
-        vi: 'Khi so sánh các khoản tiền nhận ở thời điểm khác nhau, hoặc làm viên gạch cho DDM, DCF, NPV.',
-        en: 'When comparing amounts received at different points in time, or as a building block for DDM, DCF, and NPV.',
+        vi: 'Dùng khi bạn sẽ nhận một khoản tiền sau vài năm, như bán nhà cho trả chậm hay bảo hiểm đáo hạn, và muốn biết khoản đó đáng bao nhiêu nếu quy về tiền hôm nay.',
+        en: "Use it when you are due to receive a sum some years from now, such as from a house sold on deferred payment or a maturing insurance policy, and want to know what it is worth in today's money.",
       },
       howToRead: {
         vi: 'Con số là số tiền hôm nay tương đương với khoản tiền tương lai: 1 tỷ ₫ nhận sau 10 năm, chiết khấu 8%/năm, chỉ đáng khoảng 463 triệu ₫ ở hôm nay. Hãy đem nó so với cái giá phải trả ngay bây giờ để có khoản tiền ấy, hoặc so với một khoản khác đã quy về cùng mốc hôm nay — đó là cách duy nhất để hai khoản tiền ở hai thời điểm so được với nhau.',
@@ -2089,8 +2089,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         en: 'The mirror of present value: how much money today becomes, after accumulating compound returns, at a future point in time.',
       },
       whenToUse: {
-        vi: 'Khi ước tính một khoản đầu tư một lần sẽ lớn tới đâu, hoặc đặt mục tiêu tài sản cho ngày nghỉ hưu.',
-        en: 'When estimating how large a one-time investment will grow, or setting an asset target for retirement.',
+        vi: 'Dùng khi bạn định bỏ một khoản tiền vào quỹ hay cổ phiếu rồi để yên nhiều năm, và muốn biết nếu mỗi năm sinh lời đều một mức bạn giả định thì cuối cùng sẽ có bao nhiêu.',
+        en: 'Use it when you plan to put a lump sum into a fund or stocks just once and leave it for years, and want to know how much you will end up with if it earns a steady yearly return you assume.',
       },
       howToRead: {
         vi: 'Con số là số tiền bạn sẽ có ở cuối kỳ nếu mức sinh lợi giả định giữ nguyên suốt thời gian đó: 100 triệu ₫ để yên 15 năm ở 10%/năm thành gần 418 triệu ₫. Đem nó so với mục tiêu bạn đặt cho mốc thời gian ấy — còn thiếu thì thử lại với vốn ban đầu lớn hơn hoặc thời gian dài hơn, chờ thêm 5 năm nữa con số đã lên hơn 670 triệu ₫.',
@@ -2240,8 +2240,8 @@ export const BIEN_AN_TOAN: FormulaModule = {
         en: 'The cushion between the purchase price and the estimated value — a buffer for when your own estimate turns out to be wrong.',
       },
       whenToUse: {
-        vi: 'Bước cuối của mọi chuỗi định giá: có giá trị nội tại rồi, so với thị giá để quyết định mua hay chờ.',
-        en: 'The final step of any valuation chain: once you have an intrinsic value, compare it with the market price to decide whether to buy or wait.',
+        vi: 'Dùng khi bạn đã tự ước được một cổ phiếu đáng giá bao nhiêu và muốn biết giá trên bảng đang rẻ hơn con số ấy bao xa, trước khi quyết định mua thêm hay chờ.',
+        en: 'Use it when you have already estimated what a stock is worth and want to know how far below that figure the quoted price sits, before deciding whether to buy more or wait.',
       },
       howToRead: {
         vi: 'Biên 25% nghĩa là mua rẻ hơn ước tính một phần tư; biên âm nghĩa là đang trả giá cao hơn giá trị tính ra. Trường phái đầu tư giá trị thường đòi biên 20–50%.',

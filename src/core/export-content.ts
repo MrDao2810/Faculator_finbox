@@ -102,6 +102,11 @@ export function buildExportContent(
       }))
     : [];
 
+  /*
+   * Đủ bốn mục, kể cả "Công thức này nói lên điều gì" mà màn chi tiết đã bỏ khỏi khối Giải thích
+   * (30/09/2026). Màn bỏ vì câu ấy đã in ở khối "Ý nghĩa" đầu màn; file xuất không có khối đó
+   * (phụ đề là `description`), nên bỏ ở đây là file mất hẳn phần ý nghĩa.
+   */
   const explanationLines: ExportLine[] = options.includeDetails
     ? [
         { label: 'Công thức này nói lên điều gì', value: formula.explanation.meaning.vi },

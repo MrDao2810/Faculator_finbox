@@ -170,8 +170,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         en: 'The meager interest still received when breaking the term early: the entire holding period is recalculated at the demand-deposit rate.',
       },
       whenToUse: {
-        vi: 'Trước khi quyết định rút sổ sớm để tiêu việc gấp, hoặc khi cân nhắc chia tiền thành nhiều sổ nhỏ.',
-        en: 'Before deciding to withdraw early for an urgent need, or when considering splitting the money into several smaller books.',
+        vi: 'Dùng khi bạn cần tiền gấp giữa chừng và muốn biết nếu rút sổ tiết kiệm trước ngày đáo hạn thì còn nhận được bao nhiêu tiền lãi.',
+        en: 'Use it when you suddenly need cash partway through a term and want to know how much interest you would still get by closing your savings deposit before maturity.',
       },
       howToRead: {
         vi: 'So con số này với phần lãi đáng lẽ được hưởng nếu tính theo lãi suất hợp đồng cho cùng số tháng đã gửi — chênh lệch chính là cái giá của việc rút sớm.',
@@ -394,8 +394,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
         en: "When rolling over short terms, each round's interest is folded back into the principal for the next round, so even a lower rate can catch up with a long-term book.",
       },
       whenToUse: {
-        vi: 'Khi phân vân giữa chốt một sổ dài lãi cao và giữ sự linh hoạt của các kỳ ngắn nối nhau.',
-        en: 'When torn between locking in a single high-rate long-term book and keeping the flexibility of successive short terms.',
+        vi: 'Dùng khi bạn có khoản tiền chưa cần dùng tới trong một thời gian và phân vân giữa gửi kỳ ngắn, hết kỳ lại gửi tiếp, hay khoá luôn một sổ kỳ dài lãi cao hơn.',
+        en: 'Use it when you have cash you will not need for a while and are torn between short deposits you keep rolling over and locking it into one longer deposit at a higher rate.',
       },
       howToRead: {
         vi: 'Kết quả dương là quay vòng kỳ ngắn được nhiều tiền hơn; âm là sổ kỳ dài thắng. Chênh lệch lãi suất giữa hai kỳ hạn càng lớn thì kỳ dài càng khó bị đuổi kịp.',
@@ -660,8 +660,8 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         en: 'The average price actually paid per share after combining several purchases spread out over time (DCA) at both high and low prices.',
       },
       whenToUse: {
-        vi: 'Sau vài đợt mua rải, để biết cổ phiếu phải về giá nào thì hoà vốn và đợt mua tiếp theo nên chờ vùng giá nào.',
-        en: 'After several staggered purchases, to know what price the stock must reach to break even and what price range to wait for on the next purchase.',
+        vi: 'Dùng khi bạn đã mua một cổ phiếu hai, ba đợt ở các giá khác nhau và muốn biết bình quân mình đã trả bao nhiêu cho mỗi cổ phiếu, trước khi quyết định mua thêm hay chờ.',
+        en: 'Use it when you have bought the same stock in two or three rounds at different prices and want to know what you really paid per share on average, before deciding whether to buy more or wait.',
       },
       howToRead: {
         vi: 'So giá vốn trung bình vừa tính với thị giá hiện tại: thấp hơn thị giá là đang lãi, cao hơn là đang lỗ. Con số này luôn nằm giữa mức giá thấp nhất và cao nhất trong các đợt đã mua, không bao giờ vượt ra ngoài khoảng đó.',
@@ -894,8 +894,8 @@ export const SO_KY_DCA: FormulaModule = {
         en: 'The minimum number of months of contributing a fixed amount each period (DCA) for total contributions plus accumulated returns to reach the target.',
       },
       whenToUse: {
-        vi: 'Khi lập kế hoạch tích sản dài hạn và muốn biết đích đến còn cách bao nhiêu tháng với sức góp hiện tại.',
-        en: 'When planning long-term wealth accumulation and wanting to know how many months away the goal is at the current contribution rate.',
+        vi: 'Dùng khi bạn đã biết mỗi tháng góp được bao nhiêu vào quỹ hay cổ phiếu và muốn biết phải góp đều bao nhiêu tháng mới chạm số tiền mình đặt ra.',
+        en: 'Use it when you know how much you can put into a fund or stocks each month and want to know how many months of steady contributions it takes to reach your target sum.',
       },
       howToRead: {
         vi: 'Kết quả đã làm tròn lên kỳ trọn vẹn gần nhất. Tăng mức góp rút ngắn thời gian chắc chắn hơn nhiều so với kỳ vọng lợi suất cao — lợi suất là thứ không hứa trước được.',
@@ -1087,8 +1087,8 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
         en: 'The total personal income tax the state collects on an investment during the year, combining two amounts withheld at two different points in time.',
       },
       whenToUse: {
-        vi: 'Khi quyết toán lại một khoản đầu tư cả năm, hoặc ước tính trước phần thuế của một kế hoạch vừa nhận cổ tức vừa chốt lời.',
-        en: 'When finalizing a year of investment activity, or estimating in advance the tax on a plan that both receives dividends and takes profit.',
+        vi: 'Dùng khi bạn nhận cổ tức tiền mặt của một mã rồi bán số cổ phiếu ấy trong năm, và muốn cộng lại xem cả hai lần bị khấu trừ bao nhiêu tiền thuế thu nhập cá nhân.',
+        en: 'Use it when you receive a cash dividend on a stock and then sell those shares during the year, and want to add up how much personal income tax was withheld across both.',
       },
       howToRead: {
         vi: 'So tổng thuế này với phần lãi hoặc lỗ thực tế từ giao dịch, để thấy thuế chiếm bao nhiêu trong khoản tiền nhận về. Biểu đồ bóc tách bên dưới tách riêng phần đến từ bán và phần đến từ cổ tức.',

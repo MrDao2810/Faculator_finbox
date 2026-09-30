@@ -155,8 +155,8 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
         en: 'The amount the brokerage collects on the value of a matched buy order.',
       },
       whenToUse: {
-        vi: 'Khi muốn biết giá vốn thật của một lệnh mua, không chỉ là giá khớp lệnh.',
-        en: 'When you want the true cost basis of a buy order, not just the matched price.',
+        vi: 'Dùng khi bạn sắp đặt lệnh mua và muốn biết ngoài tiền cổ phiếu, công ty chứng khoán sẽ trừ thêm bao nhiêu tiền phí khỏi tài khoản của bạn.',
+        en: 'Use it when you are about to place a buy order and want to know how much the brokerage will take from your account in fees on top of the cost of the shares.',
       },
       howToRead: {
         vi: 'Kết quả là số tiền bị trừ thêm ngoài tiền mua: ví dụ trên màn, lệnh 92.000.000 ₫ mất 138.000 ₫, tức mỗi cổ phiếu đắt thêm 138 ₫ so với giá khớp. Cộng số này vào giá vốn trước khi tính lãi.',
@@ -254,8 +254,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
         en: 'The amount the brokerage collects on the value of a matched sell order.',
       },
       whenToUse: {
-        vi: 'Khi ước tính chi phí của lệnh bán, hoặc khi so mức phí giữa các công ty chứng khoán — đây là khoản thương lượng được, khác thuế và phí lưu ký.',
-        en: 'When estimating the cost of a sell order, or comparing fee rates across brokerages — this is a negotiable cost, unlike tax and custody fees.',
+        vi: 'Dùng khi bạn sắp đặt lệnh bán một lô cổ phiếu và muốn biết công ty chứng khoán sẽ giữ lại bao nhiêu tiền phí trên số tiền bán ra.',
+        en: 'Use it when you are about to place a sell order for a block of shares and want to know how much of the proceeds the brokerage will keep as its fee.',
       },
       howToRead: {
         vi: 'Kết quả là số tiền bị trừ khỏi tiền bán: bán 1.000 CP giá 97.000 ₫ mất 145.500 ₫, tức 145,5 ₫ mỗi cổ phiếu. Đây mới là một chiều — cả vòng mua rồi bán còn cõng thêm thuế bán và phí lưu ký.',
@@ -348,8 +348,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
         en: 'The tax the State collects when securities are sold, charged on the sell value.',
       },
       whenToUse: {
-        vi: 'Mỗi lần bán, để biết số tiền thực về tài khoản.',
-        en: 'Every time you sell, to know the actual amount that lands in your account.',
+        vi: 'Dùng khi bạn sắp bán cổ phiếu, kể cả bán cắt lỗ, và muốn biết Nhà nước sẽ khấu trừ bao nhiêu tiền thuế trên số tiền bán trước khi tiền về tài khoản.',
+        en: 'Use it when you are about to sell shares, even at a loss, and want to know how much tax the state will withhold from the sale proceeds before the money reaches your account.',
       },
       howToRead: {
         vi: 'Kết quả là khoản trừ thẳng vào tiền bán: bán 1.000 CP giá 97.000 ₫ nộp 97.000 ₫, tức 97 ₫ mỗi cổ phiếu. Cộng nó vào giá hoà vốn, vì số này chỉ đổi theo giá bán và khối lượng.',
@@ -451,8 +451,8 @@ export const THUE_CO_TUC: FormulaModule = {
         en: 'The portion of the dividend withheld as tax before it is transferred to the investor account.',
       },
       whenToUse: {
-        vi: 'Khi ước tính dòng tiền cổ tức thực nhận trong năm.',
-        en: 'When estimating the actual dividend cash flow received during the year.',
+        vi: 'Dùng khi bạn đang giữ một cổ phiếu vừa báo chia cổ tức tiền mặt và muốn biết sẽ bị trừ bao nhiêu tiền thuế trước khi cổ tức về tài khoản.',
+        en: 'Use it when you hold a stock that has just announced a cash dividend and want to know how much tax will be taken out before the dividend reaches your account.',
       },
       howToRead: {
         vi: 'Kết quả là phần cổ tức bị giữ lại: 1.000 CP × 2.000 ₫ là 2.000.000 ₫ công bố, nộp 100.000 ₫, còn 1.900.000 ₫ về tài khoản. Lấy số thực nhận này mới ra đúng tỷ suất cổ tức.',
@@ -557,8 +557,8 @@ export const PHI_LUU_KY: FormulaModule = {
         en: 'A small fee charged monthly for holding shares in the account.',
       },
       whenToUse: {
-        vi: 'Khi tính chi phí của một khoản đầu tư nắm giữ dài.',
-        en: 'When computing the cost of a long-held investment.',
+        vi: 'Dùng khi bạn định giữ một lô cổ phiếu nhiều tháng hay nhiều năm và muốn biết tiền phí giữ hộ cổ phiếu cộng dồn cả quãng đó là bao nhiêu.',
+        en: 'Use it when you plan to hold a block of shares for many months or years and want to know how much the fee for keeping them in custody adds up to over that whole stretch.',
       },
       howToRead: {
         vi: 'Kết quả là tổng phí cho cả kỳ nắm giữ chứ không phải mỗi tháng: 1.000 CP giữ 5 tháng hết 1.350 ₫, tức 1,35 ₫ mỗi cổ phiếu. Chia cho khối lượng rồi cộng vào giá mua để thấy khoản này đẩy giá hoà vốn lên bao nhiêu.',
@@ -690,8 +690,8 @@ export const GIA_HOA_VON: FormulaModule = {
         en: 'The sell price at which the proceeds exactly equal the money put in — no profit, no loss.',
       },
       whenToUse: {
-        vi: 'Trước khi đặt lệnh bán, để biết bán dưới mức nào là thực sự lỗ.',
-        en: 'Before placing a sell order, to know below which price you are actually at a loss.',
+        vi: 'Dùng khi bạn đang cầm một cổ phiếu, giá vừa nhích qua giá mua một chút, và muốn biết phải bán ở giá nào thì tiền về mới bù đủ tiền mua cùng mọi khoản phí và thuế.',
+        en: 'Use it when you are holding a stock, the price has just crept a little above what you paid, and you want to know what sell price brings back enough to cover your purchase plus every fee and tax.',
       },
       howToRead: {
         vi: 'Luôn cao hơn giá mua, vì phải gánh cả phí mua, phí bán, thuế bán và phí lưu ký.',
@@ -862,8 +862,8 @@ export const LOI_NHUAN_RONG: FormulaModule = {
         en: 'The money that actually ends up in your pocket after a buy-sell round trip, net of everything owed.',
       },
       whenToUse: {
-        vi: 'Khi đánh giá một giao dịch đã thực hiện, hoặc thử một kịch bản giá bán.',
-        en: 'When evaluating a completed trade, or testing a hypothetical sell-price scenario.',
+        vi: 'Dùng khi bạn vừa bán xong một lô cổ phiếu, hoặc đang nhắm một giá bán, và muốn biết sau mọi khoản phí và thuế mình thực sự lãi hay lỗ bao nhiêu đồng.',
+        en: 'Use it when you have just sold a block of shares, or have a target sell price in mind, and want to know how many dong you actually gain or lose after every fee and tax.',
       },
       howToRead: {
         vi: 'Luôn nhỏ hơn lãi gộp trên bảng giá. Khoảng cách giữa hai con số chính là tổng chi phí.',
@@ -995,8 +995,8 @@ export const ROI_RONG: FormulaModule = {
         en: 'After every fee and tax, how many đồng of profit each hundred đồng of capital actually deployed brings back.',
       },
       whenToUse: {
-        vi: 'Khi so sánh hiệu quả giữa các giao dịch có quy mô vốn khác nhau.',
-        en: 'When comparing the efficiency of trades with different capital sizes.',
+        vi: 'Dùng khi bạn tổng kết các lần mua rồi bán trong năm và muốn so một lần bỏ ít vốn với một lần bỏ nhiều vốn, xem lần nào tiền bỏ ra sinh lãi tốt hơn sau phí và thuế.',
+        en: 'Use it when you review the trades you bought and sold this year and want to compare a small one with a large one to see which put your money to better use after fees and taxes.',
       },
       howToRead: {
         vi: 'Luôn thấp hơn tỷ suất tính trên giá thuần, tức (Giá bán − Giá mua) ÷ Giá mua. Giữ càng lâu khoảng cách càng rộng, vì phí lưu ký cộng dồn thêm mỗi tháng.',

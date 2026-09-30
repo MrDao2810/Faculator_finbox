@@ -361,8 +361,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
         en: 'How much you would lose if you bought at the worst possible peak and sold at the trough that followed — a measure of the deepest pain this price series has ever put a holder through.',
       },
       whenToUse: {
-        vi: 'Khi chọn giữa hai cổ phiếu hay hai danh mục có lợi suất na ná nhau: cái nào sụt giảm sâu hơn là cái khó ngồi yên hơn.',
-        en: 'When choosing between two stocks or portfolios with similar returns: whichever has the deeper drawdown is the harder one to sit through.',
+        vi: 'Dùng khi bạn định cầm một cổ phiếu lâu dài và muốn biết quãng vừa qua nó từng rơi từ đỉnh xuống đáy sâu nhất bao nhiêu, để tự hỏi mình có chịu nổi cú rơi như thế không.',
+        en: 'Use it when you plan to hold a stock for a long time and want to know the deepest peak-to-trough fall it went through recently, so you can ask yourself whether you could sit through one like it.',
       },
       howToRead: {
         vi: 'Kết quả là số dương và nghĩa là MẤT: 25 nghĩa là từng rơi 25% khỏi đỉnh. Rơi 25% phải lãi lại 33% mới hoà vốn, nên con số này tăng nhanh hơn cảm giác.',
@@ -492,8 +492,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
         en: 'The remaining distance for price to return to its old peak — the "underwater" portion a current holder is sitting through right now.',
       },
       whenToUse: {
-        vi: 'Khi cân nhắc mua thêm hay cắt lỗ: biết mình đang cách đỉnh bao xa rõ ràng hơn là nhìn giá trần trụi.',
-        en: 'When weighing whether to buy more or cut losses: knowing exactly how far you are from the peak is clearer than looking at the raw price alone.',
+        vi: 'Dùng khi bạn đang cầm một cổ phiếu đã lùi khỏi mức cao nhất gần đây và muốn biết giá hôm nay còn cách mức đó bao xa, trước khi quyết định mua thêm hay cắt lỗ.',
+        en: "Use it when you hold a stock that has slipped from its highest point of recent months and want to know how far today's price still sits below that high, before deciding whether to add more or cut the loss.",
       },
       howToRead: {
         vi: 'Số dương nghĩa là đang thấp hơn đỉnh: 10 nghĩa là còn kém đỉnh 10%. Bằng 0 nghĩa là giá vừa lập đỉnh mới của cửa sổ. Mức lãi cần để về lại đỉnh luôn lớn hơn mức đang chìm: chìm 20% phải lãi 25%, chìm 50% phải lãi 100%.',
@@ -652,8 +652,8 @@ export const VAR_LICH_SU: FormulaModule = {
         en: 'The loss threshold of a bad session: at 95% confidence, only 5% of sessions in the observation window lose more than this figure.',
       },
       whenToUse: {
-        vi: 'Khi định hạn mức rủi ro cho một vị thế hoặc cả tài khoản — biết mức lỗ ngày điển hình của một phiên xấu rồi mới đặt cỡ lệnh.',
-        en: 'When setting a risk limit for a position or an entire account — know the typical loss of a bad session before sizing an order.',
+        vi: 'Dùng khi bạn đang cầm một cổ phiếu và muốn biết một phiên xấu kiểu thỉnh thoảng vẫn gặp có thể làm mình mất bao nhiêu chỉ trong một ngày.',
+        en: 'Use it when you hold a stock and want to know how much an ordinary bad session, the kind that comes around every so often, could cost you in a single day.',
       },
       howToRead: {
         vi: 'Kết quả là SỐ DƯƠNG và nghĩa là MẤT: 2,5 nghĩa là lỗ 2,5% trong phiên tệ. Đây là chỗ hay hiểu ngược dấu — con số càng lớn thì rủi ro càng cao, chứ không phải càng tốt. VaR nói NGƯỠNG chứ không nói lỗ tối đa: 5% số phiên còn lại có thể lỗ nặng hơn nhiều, phần đó phải xem tiếp bằng CVaR.',
@@ -826,8 +826,8 @@ export const CVAR_LICH_SU: FormulaModule = {
         en: 'The average of the left tail: it gathers exactly the sessions that lost more than the VaR threshold and averages them, so it measures how deep a bad scenario runs rather than just where "bad" starts.',
       },
       whenToUse: {
-        vi: 'Khi so hai danh mục có VaR ngang nhau: cái nào đuôi dày hơn thì CVaR cao hơn, và đó mới là cái gây cháy tài khoản.',
-        en: 'When comparing two portfolios with similar VaR: whichever has the fatter tail has the higher CVaR, and that is the one that actually blows up an account.',
+        vi: 'Dùng khi bạn lo những phiên sập mạnh nhất, tệ hơn cả một phiên xấu thường gặp, và muốn biết mỗi lần gặp phiên như thế thì cổ phiếu mình cầm mất trung bình bao nhiêu.',
+        en: 'Use it when you worry about the sharpest crashes, the sessions worse than an ordinary bad day, and want to know how much the stock you hold loses on average each time one hits.',
       },
       howToRead: {
         vi: 'Cùng quy ước với VaR — số dương nghĩa là mất. CVaR luôn lớn hơn hoặc bằng VaR cùng độ tin cậy; khoảng cách giữa hai con số chính là độ dày của đuôi. VaR 1% mà CVaR 4,25% nghĩa là khi phiên xấu xảy ra thật thì mức lỗ điển hình gấp hơn bốn lần ngưỡng.',

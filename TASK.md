@@ -229,6 +229,66 @@ Nhánh 3.6 xong 3.6.1 và 3.6.2.
 
 ---
 
+## Mục "Khi nào dùng" viết lại cho 111 công thức (30/09/2026)
+
+**Trạng thái: xong phần code và nội dung, chờ chủ dự án duyệt câu chữ.** Chủ dự án: _"phần khi nào
+dùng đang quá khó hiểu và vẫn chưa nhận biết rõ ràng là nên sử dụng khi nào"_.
+
+- **Đo trên 111 câu cũ:** chỉ 4 câu nói với người đọc; 48 câu có ít nhất một lỗi đo được. Trong đó
+  11 câu tả công thức là "đầu vào" của công thức khác, 27 câu dùng thuật ngữ người mới chưa biết, 6 câu
+  dạy cách đọc kết quả, 14 câu dài quá 140 ký tự.
+- **Chủ dự án chốt:** một câu theo khuôn "Dùng khi bạn …", không kèm dòng "Không hợp khi …", làm luôn
+  cả 111.
+- **Cách làm:** workflow 10 agent (5 soạn + 5 phản biện đối chiếu `calc`), 0 lỗi hạ tầng. Phản biện sửa
+  57 câu: hứa sai với calc (so biểu phí hai công ty khi calc chỉ có một biểu phí; EV là "giá mua thật"),
+  trùng tình huống giữa anh em (BVPS/NCAV, giá trị tương lai/lãi kép), thuật ngữ ("giá vốn" dễ lẫn với
+  giá mua của người dùng). Tôi sửa tay thêm một câu: `loi-suat-nam-hoa` bỏ cụm "một lời mời góp vốn".
+- `src/core/when-to-use-rules.ts` (mới): bộ luật dùng chung cho công cụ soạn và test. Luật gồm mở đầu,
+  một câu, trần 170/230 ký tự, không gạch dài, không "đầu vào"…, không tên công thức khác, không
+  %/ngưỡng, không ra lệnh mua/bán. `src/core/when-to-use-rules.test.ts` (mới): cả 111 đạt, không trùng
+  câu, luật vẫn bắt hai câu cũ đã bị chê.
+- 17 file `src/core/formulas/*.ts`: thay đúng 111 × 2 chuỗi `whenToUse` bằng script sửa theo cây cú
+  pháp TypeScript (222 dòng thêm, 222 dòng bớt).
+- `CLAUDE.md`: một đoạn về khuôn và cửa gác.
+- **Treo, chờ chủ dự án:** 27 câu phản biện còn phân vân. Trang duyệt trước/sau:
+  <https://claude.ai/artifact/SGHbND1fCRWFDvGD6SKRim>. Đáng xem nhất:
+  - `diem-hoa-von` dùng tình huống "mở một quán nhỏ", vì đó là lúc có đủ ba số calc cần;
+  - `do-bien-dong-lich-su` dùng tình huống "chứng quyền", để tách khỏi hai công thức độ biến động
+    cùng loại;
+  - `gia-muc-tieu` dùng cụm "tính sẵn giá chốt lời";
+  - ví dụ của `gia-tri-tuong-lai` là gửi tiết kiệm trong khi câu mới nói quỹ, cổ phiếu.
+- lint · tsc · prettier xanh; vitest 3.078 ca xanh (thêm 3 ca).
+
+---
+
+## Màn chi tiết — câu "Ý nghĩa" in hai lần trên cả 111 trang (30/09/2026)
+
+**Trạng thái: xong, chờ chủ dự án xác nhận.** Chủ dự án: _"tất cả công thức thì ở trên phần ý nghĩa
+đang giống hệt với phần công thức này nói lên điều gì? đưa ra giải pháp để điều chỉnh lại"_. Lỗi đã
+ghi ở mục 17/09/2026 (bảng ký hiệu `fcfe`) và để chờ quyết từ đó.
+
+- **Nguyên nhân:** khối "Ý nghĩa" dưới tên công thức và mục đầu "Công thức này nói lên điều gì" của
+  khối "Giải thích cho người mới" cùng in `explanation.meaning`. Mỗi công thức chỉ có một câu cho cả
+  hai chỗ, nên 111/111 trang lặp. Ở PC hai đoạn cách nhau ~500px trong cùng cột trái; ở 390px khối
+  Giải thích nằm dưới cả Kết quả lẫn Biểu đồ (y=1455 so với y=200).
+- **Ba hướng đã đưa:** (1) giữ "Ý nghĩa" đầu màn, bỏ mục trùng khỏi khối Giải thích; (2) bỏ khối
+  "Ý nghĩa", giữ khối Giải thích 4 mục (đầu màn mất câu giới thiệu duy nhất, vì dòng mô tả đã bỏ
+  trước đó chính nhờ khối này); (3) viết hai đoạn khác nhau, 222 đoạn mới. **Chủ dự án chọn (1).**
+- `ui/result/ExplanationAccordion.tsx`: prop `showMeaning` (mặc định có). Component vẫn là bốn mục
+  của FR-03 cho nơi gọi khác.
+- `app/cong-thuc/[id]/FormulaDetail.tsx`: `showMeaning={false}`; chú thích ở khối "Ý nghĩa" ghi đây
+  là chỗ DUY NHẤT màn in câu ý nghĩa. FR-03 vẫn đủ bốn mục trên màn.
+- `core/export-content.ts`: không đổi hành vi, chỉ thêm chú thích. PDF vẫn in đủ bốn mục vì file xuất
+  không có khối "Ý nghĩa" riêng (phụ đề là `description`).
+- `FormulaDetail.test.tsx`: danh sách nhãn còn 3; "cả bốn mục mở sẵn" thành "cả ba mục"; ca "không
+  in lại dòng mô tả" đổi `getAllByText` sang `getByText` (nay đúng một bản); +1 ca ghim câu ý nghĩa
+  chỉ in một lần và không còn `<summary>` "Công thức này nói lên điều gì" (pe, capm, fcfe). Thử ngược:
+  bỏ `showMeaning={false}` thì hai ca đỏ.
+- Chụp lại `pe` ở 1440 và 390: khối Giải thích còn ba mục; trang ở 390 ngắn đi 141px.
+- lint · tsc · prettier xanh; vitest 3.075 ca xanh.
+
+---
+
 ## Danh mục — số dài đâm thủng ô "Vốn đã bỏ ra" / "Lãi/lỗ" (29/09/2026)
 
 **Trạng thái: phần ô số xong, chờ chủ dự án xác nhận. Bảng Nắm giữ ở khổ điện thoại còn lỗi cùng loại,
@@ -3315,7 +3375,8 @@ Chủ dự án khoanh hai dòng đầu bảng ký hiệu của `fcfe` ở khổ 
 ### Việc còn lại
 
 - [ ] Chủ dự án soi câu chữ mới.
-- [ ] Chủ dự án quyết có bỏ một trong hai đoạn "Ý nghĩa" trùng nhau không.
+- [x] Chủ dự án quyết có bỏ một trong hai đoạn "Ý nghĩa" trùng nhau không. **Đã quyết 30/09/2026:** giữ
+      khối "Ý nghĩa" đầu màn, bỏ mục trùng khỏi khối Giải thích; xem mục cùng ngày ở đầu file.
 
 ## Nút nhỏ ẩn bảng ký hiệu ở khổ điện thoại (17/09/2026)
 

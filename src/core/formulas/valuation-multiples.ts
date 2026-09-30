@@ -157,8 +157,8 @@ export const PS: FormulaModule = {
         en: 'How much capital the market assigns to each dong of the company’s revenue.',
       },
       whenToUse: {
-        vi: 'Khi doanh nghiệp chưa có lãi nên P/E không dùng được — công ty tăng trưởng, công ty mới niêm yết.',
-        en: 'When the company has no profit yet so P/E does not work — growth companies, newly listed companies.',
+        vi: 'Dùng khi bạn để ý một công ty mới lên sàn hoặc đang mở rộng nhanh nên chưa có lãi, và muốn biết giá cổ phiếu đắt hay rẻ so với doanh thu công ty bán được.',
+        en: 'Use it when you are eyeing a newly listed or fast-expanding company that has no profit yet, and want to know whether its share price is expensive or cheap relative to the revenue it brings in.',
       },
       howToRead: {
         vi: 'P/S thấp hơn các doanh nghiệp cùng ngành gợi ý cổ phiếu đang rẻ so với quy mô doanh thu. So khác ngành thì vô nghĩa vì biên lợi nhuận mỗi ngành một khác.',
@@ -335,8 +335,8 @@ export const EV: FormulaModule = {
         en: 'The price of buying the whole company from an acquirer’s point of view: pay shareholders the market cap, take on its debt, and keep the cash already in the vault.',
       },
       whenToUse: {
-        vi: 'Khi so sánh các doanh nghiệp có cơ cấu nợ khác nhau — vốn hoá bỏ qua nợ nên dễ đánh lừa.',
-        en: 'When comparing companies with different debt structures — market cap ignores debt and is easily misleading.',
+        vi: 'Dùng khi bạn đọc tin một công ty sắp bị mua lại, hoặc thấy nó vay nợ rất nhiều, và muốn biết mua trọn công ty tốn bao nhiêu khi tính cả nợ phải gánh lẫn tiền mặt có sẵn.',
+        en: 'Use it when you read that a company is about to be bought out, or see that it carries heavy debt, and want to know what buying the whole company would cost once the debt you take on and the cash it holds are counted.',
       },
       howToRead: {
         vi: 'EV lớn hơn vốn hoá nghĩa là doanh nghiệp vay nhiều hơn tiền mặt đang giữ. EV âm là hiếm — tiền mặt vượt cả vốn hoá cộng nợ.',
@@ -473,8 +473,8 @@ export const EV_EBITDA: FormulaModule = {
         en: 'How many years of operating earnings it would take to recover the full purchase price, if EBITDA stays constant.',
       },
       whenToUse: {
-        vi: 'So sánh định giá giữa các doanh nghiệp có mức nợ và chính sách khấu hao khác nhau — chỗ mà P/E dễ méo.',
-        en: 'Comparing valuations across companies with different debt levels and depreciation policies — a spot where P/E is easily distorted.',
+        vi: 'Dùng khi bạn so hai công ty cùng ngành mà một bên vay nợ nặng, một bên gần như không vay, và muốn biết bên nào đang đắt hơn so với khoản lãi làm ra từ kinh doanh chính.',
+        en: 'Use it when you compare two companies in the same industry, one heavily in debt and the other barely borrowing, and want to know which is pricier relative to the profit its core business earns.',
       },
       howToRead: {
         vi: 'Thấp hơn trung bình ngành gợi ý đang rẻ. Nhưng EBITDA chưa trừ chi đầu tư, nên ngành thâm dụng vốn thường có bội số thấp một cách tự nhiên.',
@@ -617,8 +617,8 @@ export const EV_SALES: FormulaModule = {
         en: 'How much each dong of revenue is being valued at, including the debt the buyer must take on.',
       },
       whenToUse: {
-        vi: 'Khi cả lợi nhuận lẫn EBITDA đều âm nên các bội số lợi nhuận không dùng được, hoặc khi so doanh nghiệp có cơ cấu nợ khác nhau.',
-        en: 'When both earnings and EBITDA are negative so earnings multiples do not work, or when comparing companies with different debt structures.',
+        vi: 'Dùng khi bạn xem một công ty lỗ ngay từ hoạt động kinh doanh mà vẫn còn nợ vay lớn, và muốn biết nó đắt hay rẻ so với doanh thu khi tính cả nợ người mua phải gánh.',
+        en: 'Use it when you are looking at a company that loses money even from its core business yet still carries large debt, and want to know whether it is expensive or cheap relative to its revenue, counting the debt a buyer takes on.',
       },
       howToRead: {
         vi: 'So trong cùng ngành: thấp hơn trung bình gợi ý đang rẻ so với quy mô kinh doanh. Ngành biên lợi nhuận cao thì EV/Sales cao là bình thường.',
@@ -777,8 +777,8 @@ export const PEG: FormulaModule = {
         en: 'Whether a high P/E is justified depends on the earnings growth rate — PEG folds both into one number.',
       },
       whenToUse: {
-        vi: 'So sánh các cổ phiếu tăng trưởng có P/E chênh nhau nhiều, khi P/E đứng một mình dễ kết luận nhầm là đắt.',
-        en: 'Comparing growth stocks whose P/E differs a lot, where P/E alone can wrongly look expensive.',
+        vi: 'Dùng khi bạn thấy một công ty có lợi nhuận tăng nhanh và P/E cao hơn hẳn các mã cùng ngành, rồi muốn biết nó đắt thật hay chỉ trông đắt khi tính cả đà tăng bạn kỳ vọng.',
+        en: 'Use it when you see a company with fast-rising profits trading at a much higher P/E than its peers and want to know whether it is truly expensive or only looks that way once the profit growth you expect is counted.',
       },
       howToRead: {
         vi: 'Quanh 1 thường coi là hợp lý: P/E tương xứng tốc độ tăng trưởng. Dưới 1 gợi ý rẻ so với tăng trưởng, trên 2 là đắt trừ khi tăng trưởng rất chắc chắn.',
@@ -943,8 +943,8 @@ export const VON_HOA: FormulaModule = {
         en: 'The amount of money needed to buy every share of the company at its current market price.',
       },
       whenToUse: {
-        vi: 'Khi mới tìm hiểu một cổ phiếu lạ, hoặc muốn cân đối danh mục theo tỷ trọng vốn hoá lớn, vừa, nhỏ phù hợp khẩu vị rủi ro của bản thân.',
-        en: 'When first researching an unfamiliar stock, or wanting to balance a portfolio across large-, mid-, and small-cap weights to match your own risk appetite.',
+        vi: 'Dùng khi bạn gặp một mã cổ phiếu lạ và muốn biết công ty đó lớn hay nhỏ so với các công ty khác trên sàn, thay vì đoán qua giá một cổ phiếu cao hay thấp.',
+        en: 'Use it when you come across an unfamiliar ticker and want to know how big the company is next to others on the exchange, instead of guessing from whether one share looks pricey or cheap.',
       },
       howToRead: {
         vi: 'Vốn hoá là giá thị trường gán cho phần vốn cổ đông, chưa tính nợ. Doanh nghiệp lớn thường biến động giá êm hơn doanh nghiệp vốn hoá nhỏ.',
@@ -1116,8 +1116,8 @@ export const SO_GRAHAM: FormulaModule = {
         en: 'A price ceiling combining two limits Graham set — P/E no more than 15 and P/B no more than 1.5 (15 × 1.5 = 22.5).',
       },
       whenToUse: {
-        vi: 'Sàng lọc nhanh cổ phiếu theo trường phái đầu tư giá trị cổ điển: giá dưới số Graham mới xem tiếp.',
-        en: 'A quick classical value-investing screen: only stocks priced below the Graham number are worth a closer look.',
+        vi: 'Dùng khi bạn lọc nhanh một danh sách dài công ty làm ăn ổn định lâu năm và muốn có cho từng mã một mức giá trần thận trọng, chỉ từ lợi nhuận và giá trị sổ sách.',
+        en: 'Use it when you are quickly screening a long list of steady, long-established companies and want a cautious price ceiling for each ticker, worked out only from its earnings and book value per share.',
       },
       howToRead: {
         vi: 'Giá thị trường thấp hơn số Graham gợi ý cổ phiếu chưa đắt theo chuẩn Graham. Đây là bộ lọc bảo thủ, dễ bỏ sót doanh nghiệp tăng trưởng nhanh.',
@@ -1319,8 +1319,8 @@ export const NCAV: FormulaModule = {
         en: 'Graham’s most pessimistic valuation: treat long-term assets as worthless and count only current assets minus all liabilities.',
       },
       whenToUse: {
-        vi: 'Săn cổ phiếu net-net — giá thị trường thấp hơn cả NCAV, tức mua rẻ hơn giá trị thanh lý dè dặt nhất.',
-        en: 'Hunting for net-net stocks — a market price below NCAV means buying for less than the most conservative liquidation value.',
+        vi: 'Dùng khi bạn thấy cổ phiếu rơi giá sâu và muốn biết nếu công ty dừng hẳn, chỉ gom tiền mặt, tiền khách còn thiếu, hàng tồn kho trả hết nợ, thì mỗi cổ phiếu còn bao nhiêu.',
+        en: 'Use it when you see a stock fall very hard and want to know what each share would still be worth if the company shut down and paid off all its debts using only its cash, the money customers still owe it and its inventory.',
       },
       howToRead: {
         vi: 'Giá dưới NCAV là tín hiệu rẻ hiếm gặp, thường chỉ xuất hiện lúc thị trường hoảng loạn. NCAV âm là chuyện bình thường — chỉ nghĩa là doanh nghiệp không thuộc dạng net-net.',
@@ -1460,8 +1460,8 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
         en: 'Flips P/E into a percentage yield, so a stock can be compared directly with a deposit rate or bond yield.',
       },
       whenToUse: {
-        vi: 'Khi cân nhắc bỏ tiền vào cổ phiếu hay kênh lãi suất cố định — hai bên cùng một đơn vị phần trăm nên so được ngay.',
-        en: 'When weighing whether to put money into stocks or a fixed-income channel — both sides share the same percentage unit so they can be compared directly.',
+        vi: 'Dùng khi bạn có tiền nhàn rỗi, nhìn lãi suất ngân hàng rồi nhìn một cổ phiếu, và muốn biết ở giá hôm nay, mỗi năm công ty làm ra bao nhiêu lợi nhuận trên số tiền bỏ ra.',
+        en: "Use it when you have idle cash, look at the bank's deposit rate and then at a stock, and want to know how much profit the company earns each year for every dong you would pay at today's price.",
       },
       howToRead: {
         vi: 'Cao hơn lãi suất tiết kiệm đáng kể thì cổ phiếu đang cho suất sinh lời lợi nhuận hấp dẫn hơn gửi tiền — đổi lại rủi ro cao hơn hẳn.',
@@ -1626,8 +1626,8 @@ export const GIA_MUC_TIEU: FormulaModule = {
         en: 'The price the stock would reach if the market valued it at a user-chosen target P/E, holding current EPS constant.',
       },
       whenToUse: {
-        vi: 'Khi ước tính điểm chốt lời hoặc so dư địa tăng giá với thị giá đang có, dựa trên kỳ vọng P/E sẽ đi về đâu.',
-        en: 'When estimating a take-profit level or comparing upside against the current market price, based on where P/E is expected to head.',
+        vi: 'Dùng khi bạn cầm một cổ phiếu và muốn tính sẵn giá chốt lời, nếu thị trường trả cho mỗi đồng lợi nhuận của nó ngang công ty cùng ngành hay ngang chính nó những năm trước.',
+        en: 'Use it when you hold a stock and want to work out a take-profit price in advance, assuming the market pays as much for each dong of its profit as it does for industry peers or did for the stock itself in past years.',
       },
       howToRead: {
         vi: 'Giá mục tiêu cao hơn thị giá hiện tại nghĩa là còn dư địa tăng NẾU P/E mục tiêu thành hiện thực — đây là một kịch bản, không phải một lời hứa.',

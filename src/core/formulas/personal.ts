@@ -157,8 +157,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
         en: 'The same amount is paid every period, with the interest portion shrinking and the principal portion growing over time.',
       },
       whenToUse: {
-        vi: 'Khi vay mua nhà hoặc vay tiêu dùng theo phương thức trả đều hằng tháng.',
-        en: 'For home loans or consumer loans repaid with equal monthly instalments.',
+        vi: 'Dùng khi bạn sắp vay mua nhà hay mua xe với cách trả mỗi tháng một khoản như nhau và muốn biết mỗi tháng phải trích ra bao nhiêu để trả ngân hàng.',
+        en: 'Use it when you are about to take a home or car loan repaid with the same amount every month and want to know how much you must set aside for the bank each month.',
       },
       howToRead: {
         vi: 'So khoản trả hằng tháng này với thu nhập của bạn để biết có kham nổi lâu dài không. Con số này giữ nguyên suốt toàn bộ kỳ hạn vay — không giảm dần theo thời gian như ở trả góp gốc đều.',
@@ -313,8 +313,8 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
         en: 'Each period repays the same amount of principal plus interest on the remaining balance, so the payment decreases over time.',
       },
       whenToUse: {
-        vi: 'Khi thu nhập hiện tại đủ mạnh và muốn tổng lãi phải trả thấp hơn niên kim.',
-        en: 'When current income is strong enough and the goal is a lower total interest cost than an annuity loan.',
+        vi: 'Dùng khi bạn được ngân hàng cho chọn trả gốc đều, số tiền trả giảm dần theo tháng, và muốn biết tháng đầu tiên phải trả bao nhiêu để xem thu nhập có kham nổi không.',
+        en: 'Use it when you are offered an equal-principal loan whose payments shrink month by month and want to know the first, heaviest payment to see whether your income can cover it.',
       },
       howToRead: {
         vi: 'Kỳ đầu nặng nhất — đây chính là con số cần cân đối với thu nhập hằng tháng.',
@@ -467,8 +467,8 @@ export const LICH_TRA_NO: FormulaModule = {
         en: 'The total interest owed to the bank from the first period until the loan is fully settled.',
       },
       whenToUse: {
-        vi: 'Khi so sánh hai phương thức trả, hoặc cân nhắc rút ngắn kỳ hạn.',
-        en: 'When comparing the two repayment methods, or considering shortening the term.',
+        vi: 'Dùng khi bạn đang cân một khoản vay mua nhà hay mua xe và muốn biết suốt kỳ hạn phải trả tổng cộng bao nhiêu tiền lãi, để so hai cách trả hay vay ngắn với vay dài.',
+        en: 'Use it when you are weighing a home or car loan and want to know the total interest you will pay the bank over the whole term, to compare two repayment methods or a shorter term with a longer one.',
       },
       howToRead: {
         vi: 'Với cùng lãi suất và kỳ hạn, gốc đều không bao giờ cho tổng lãi cao hơn niên kim — bằng nhau khi lãi suất 0%/năm, còn lại đều thấp hơn — đổi lại kỳ đầu nặng hơn.',
@@ -783,8 +783,8 @@ export const LAI_KEP: FormulaModule = {
         en: 'The interest from a previous period itself earns interest in later periods, so the balance grows at an accelerating pace.',
       },
       whenToUse: {
-        vi: 'Khi ước tính khoản tiết kiệm dài hạn hoặc so sánh các kỳ hạn gửi.',
-        en: 'When estimating long-term savings or comparing different deposit terms.',
+        vi: 'Dùng khi bạn có một khoản tiền để dành gửi lâu năm, lãi đến hạn lại gộp vào gốc gửi tiếp, và muốn biết sau nhiều năm số tiền sẽ thành bao nhiêu.',
+        en: 'Use it when you have a lump sum to leave on deposit for years, with each round of interest added back to the principal, and want to know what it will grow to.',
       },
       howToRead: {
         vi: 'Chênh lệch so với lãi đơn nhỏ ở vài năm đầu và rõ rệt sau mười năm — đó là điểm mạnh của thời gian.',
@@ -911,8 +911,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
         en: 'The interest amount the bank pays when a savings deposit is held to full maturity.',
       },
       whenToUse: {
-        vi: 'Khi so sánh các kỳ hạn gửi tại một hoặc nhiều ngân hàng.',
-        en: 'When comparing deposit terms at one bank or across several banks.',
+        vi: 'Dùng khi bạn sắp gửi tiết kiệm có kỳ hạn và muốn biết tới ngày đáo hạn sẽ nhận bao nhiêu tiền lãi, hoặc đang cân hai kỳ hạn hay hai ngân hàng với nhau.',
+        en: 'Use it when you are about to open a fixed-term savings deposit and want to know how much interest you will get at maturity, or are weighing two terms or two banks against each other.',
       },
       howToRead: {
         vi: 'Con số này là tổng tiền lãi cho cả kỳ hạn đã chọn, không phải mức lãi suất theo năm — so nó với mục tiêu tiết kiệm của bạn hoặc với đề nghị của một kỳ hạn hay ngân hàng khác.',
@@ -1040,8 +1040,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         en: 'The equal monthly deposit that is just enough to accumulate to the target amount.',
       },
       whenToUse: {
-        vi: 'Khi đặt mục tiêu mua nhà, mua xe, hoặc lập quỹ dự phòng có thời hạn rõ ràng.',
-        en: 'When setting a goal to buy a house, buy a car, or build an emergency fund with a clear deadline.',
+        vi: 'Dùng khi bạn đặt mục tiêu có một khoản tiền vào một mốc cụ thể, như mua xe sau ba năm, và muốn biết mỗi tháng phải để dành bao nhiêu.',
+        en: 'Use it when you have set a goal of having a certain sum by a fixed date, such as buying a car in three years, and want to know how much to put aside each month.',
       },
       howToRead: {
         vi: 'Kéo dài thời gian làm khoản gửi hằng tháng nhẹ đi rất nhanh, mạnh hơn là nâng lãi suất kỳ vọng.',

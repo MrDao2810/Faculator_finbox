@@ -204,16 +204,21 @@ async function napDongDau(): Promise<string> {
   return ma;
 }
 
-/** Bốn nhãn mục của khối Giải thích, đúng thứ tự wireframe (FR-03). */
+/**
+ * Ba nhãn mục của khối Giải thích, đúng thứ tự wireframe (FR-03).
+ *
+ * Mục thứ tư của FR-03, "Công thức này nói lên điều gì" (`explain.meaning`), KHÔNG còn ở khối này
+ * từ 30/09/2026: nó in lại đúng câu của khối "Ý nghĩa" đầu màn, nên màn tắt nó
+ * (`showMeaning={false}`). Ca "câu Ý nghĩa chỉ in MỘT lần" bên dưới gác chuyện ấy.
+ */
 const NHAN_GIAI_THICH = [
-  'explain.meaning',
   'explain.whenToUse',
   'explain.howToRead',
   'explain.commonMistakes',
 ] as const;
 
 /**
- * Bốn mục của khối Giải thích, dưới dạng thẻ `<details>` để đọc được thuộc tính `open`.
+ * Ba mục của khối Giải thích, dưới dạng thẻ `<details>` để đọc được thuộc tính `open`.
  *
  * Lọc theo thẻ chứ không lấy phần tử đầu tiên: vùng in của `ExportSheet` dựng cùng bốn nhãn ấy
  * thành `<h2>`, nên một truy vấn theo chữ trần khớp hai phần tử ngay khi sheet đã mở. (Từ đợt vá
@@ -281,16 +286,17 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   });
 
   /*
-   * CẢ BỐN mục giải thích phải mở sẵn ngay khi vào màn, ở cả hai chế độ.
+   * MỌI mục giải thích phải mở sẵn ngay khi vào màn, ở cả hai chế độ.
    *
    * Đã qua hai bản trung gian: gập hết ở chế độ Nâng cao (FR-09), rồi chỉ mở mục đầu. Cả hai đều bắt
    * người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để đọc.
+   * Khối nay có ba mục — mục ý nghĩa nằm ở khối "Ý nghĩa" đầu màn (xem `NHAN_GIAI_THICH`).
    */
-  it('cả bốn mục của phần Giải thích mở sẵn khi vào màn', () => {
+  it('cả ba mục của phần Giải thích mở sẵn khi vào màn', () => {
     render(<Man spec={specOf('pe')} />);
 
     const items = mucGiaiThich();
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(3);
     for (const [index, item] of items.entries()) {
       expect(item.open, `mục thứ ${String(index + 1)}`).toBe(true);
     }
@@ -315,6 +321,33 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(await screen.findByRole('combobox', { name: /Số lần nhập lãi/ })).not.toBeNull();
 
     expect(mucGiaiThich().every((item) => item.open)).toBe(true);
+  });
+
+  /*
+   * Câu ý nghĩa chỉ in MỘT lần, ở khối "Ý nghĩa" đầu màn — chủ dự án chốt 30/09/2026.
+   *
+   * Khối ấy và mục đầu của khối Giải thích cùng đọc `explanation.meaning`, nên cả 111 trang từng lặp
+   * nguyên một đoạn hai lần, cách nhau chừng nửa màn ở PC. Chủ dự án chọn giữ bản ở đầu màn: trên điện
+   * thoại khối Giải thích nằm dưới cả Kết quả lẫn Biểu đồ.
+   *
+   * Viết thẳng nhãn ra chứ không đọc qua `t()` ở vế "không còn": nhãn `explain.meaning` vẫn còn trong
+   * từ điển (bản xuất PDF và mặc định của `ExplanationAccordion` dùng), chỉ màn này thôi in.
+   */
+  it('câu Ý nghĩa chỉ in MỘT lần — khối Giải thích không lặp lại nó', () => {
+    for (const id of ['pe', 'capm', 'fcfe']) {
+      const spec = specOf(id);
+      const { unmount } = render(<Man spec={spec} />);
+
+      expect(screen.getAllByText(spec.explanation.meaning.vi), id).toHaveLength(1);
+      expect(
+        screen
+          .queryAllByText('Công thức này nói lên điều gì')
+          .filter((el) => el.tagName === 'SUMMARY'),
+        id,
+      ).toHaveLength(0);
+
+      unmount();
+    }
   });
 
   /*
@@ -1270,12 +1303,10 @@ describe('WF-03 — khối Ví dụ thực tế là lời giải mẫu, không c
       /*
         Khối trả lời cùng câu hỏi ấy vẫn còn — bỏ mô tả không làm màn mất phần giới thiệu.
 
-        `getAllByText` chứ không `getByText`: câu này vốn đã hiện HAI chỗ trong màn — khối "Ý
-        nghĩa" (mục 2) và mục `meaning` của đàn xếp "Giải thích cho người mới" (mục 7, xem
-        `ExplanationAccordion`). Cả hai đều có từ trước đợt này; ca kiểm chỉ cần biết câu ấy còn có
-        mặt, không phải đếm xem mấy bản.
+        `getByText`: câu này nay chỉ hiện MỘT chỗ, khối "Ý nghĩa" (mục 2). Nó từng hiện hai chỗ,
+        cả ở mục `meaning` của khối "Giải thích cho người mới", cho tới 30/09/2026.
       */
-      expect(screen.getAllByText(spec.explanation.meaning.vi).length).toBeGreaterThan(0);
+      expect(screen.getByText(spec.explanation.meaning.vi)).not.toBeNull();
 
       unmount();
     }

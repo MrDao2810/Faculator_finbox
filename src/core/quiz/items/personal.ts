@@ -16,16 +16,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Vay 120 triệu, 12%/năm, 12 tháng. Tổng lãi theo dư nợ gốc ban đầu và theo dư nợ giảm dần lần lượt là?',
+      en: 'Borrow 120 million, 12%/year, over 12 months. What is the total interest under the flat-rate method (interest on the original principal) and under the declining-balance method, respectively?',
     },
     choices: {
-      a: { vi: '14,4 triệu cả hai' },
-      b: { vi: '7,8 triệu và 14,4 triệu' },
-      c: { vi: 'Bằng nhau' },
-      d: { vi: '14,4 triệu và 7,8 triệu' },
+      a: { vi: '14,4 triệu cả hai', en: '14.4 million for both' },
+      b: { vi: '7,8 triệu và 14,4 triệu', en: '7.8 million and 14.4 million' },
+      c: { vi: 'Bằng nhau', en: 'The same' },
+      d: { vi: '14,4 triệu và 7,8 triệu', en: '14.4 million and 7.8 million' },
     },
     answer: 'd',
     explain: {
       vi: 'Nguồn tính sẵn: “Theo dư nợ gốc: Tiền lãi mỗi tháng 1.200.000 VND (không đổi), Tổng lãi 12 tháng: 14.400.000 VND” so với “Theo dư nợ giảm dần... Tổng lãi 12 tháng: 7.800.000 VND” — cùng một con số 12%/năm nhưng chênh gần gấp đôi.',
+      en: 'The source has already worked this out: under the original-balance method the monthly interest is a constant 1,200,000 VND and the 12-month total is 14,400,000 VND — “Theo dư nợ gốc: Tiền lãi mỗi tháng 1.200.000 VND (không đổi), Tổng lãi 12 tháng: 14.400.000 VND” — versus a 12-month total of 7,800,000 VND under the declining-balance method — “Theo dư nợ giảm dần... Tổng lãi 12 tháng: 7.800.000 VND”. Same 12%/year rate, but the difference is nearly double.',
     },
     source: {
       url: 'https://wiki.batdongsan.com.vn/wiki/du-no-goc-va-du-no-giam-dan-la-gi-109402',
@@ -41,16 +43,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Gói A ghi 2,2%/tháng trên dư nợ gốc, gói B ghi 3,75%/tháng trên dư nợ giảm dần. Gói nào đắt hơn?',
+      en: 'Package A states 2.2%/month on the original balance, package B states 3.75%/month on the declining balance. Which package is more expensive?',
     },
     choices: {
-      a: { vi: 'Gói B vì con số lớn hơn' },
-      b: { vi: 'Gói A' },
-      c: { vi: 'Không so được' },
-      d: { vi: 'Số tiền phải trả như nhau — hai con số chỉ là hai cách diễn đạt' },
+      a: { vi: 'Gói B vì con số lớn hơn', en: 'Package B, because the figure is bigger' },
+      b: { vi: 'Gói A', en: 'Package A' },
+      c: { vi: 'Không so được', en: 'They cannot be compared' },
+      d: {
+        vi: 'Số tiền phải trả như nhau — hai con số chỉ là hai cách diễn đạt',
+        en: 'The amount payable is the same — the two figures are just two ways of expressing it',
+      },
     },
     answer: 'd',
     explain: {
       vi: 'Nguồn nêu đúng cặp số này: “với lãi suất trên dư nợ gốc là 2.2%/tháng thì mức lãi suất trên dư nợ giảm dần sẽ là 3.75%/tháng, nhưng số tiền bạn phải trả như nhau”. Vì vậy phải hỏi phương pháp tính trước khi so hai con số.',
+      en: 'The source gives exactly this pair of figures: a 2.2%/month rate on the original balance is equivalent to a 3.75%/month rate on the declining balance, with the amount actually payable being the same — “với lãi suất trên dư nợ gốc là 2.2%/tháng thì mức lãi suất trên dư nợ giảm dần sẽ là 3.75%/tháng, nhưng số tiền bạn phải trả như nhau”. So you have to ask which method is used before comparing two rates.',
     },
     source: {
       url: 'https://wiki.batdongsan.com.vn/wiki/du-no-goc-va-du-no-giam-dan-la-gi-109402',
@@ -66,12 +73,13 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Trả góp niên kim 30 năm. Ở kỳ trả đầu tiên, bao nhiêu phần trăm tiền đi vào lãi?',
+      en: 'A 30-year annuity loan. In the very first payment, what percentage of the money goes to interest?',
     },
     choices: {
-      a: { vi: 'Khoảng 80–90%' },
-      b: { vi: 'Khoảng 50%' },
-      c: { vi: 'Khoảng 20%' },
-      d: { vi: 'Chia đều gốc và lãi' },
+      a: { vi: 'Khoảng 80–90%', en: 'About 80–90%' },
+      b: { vi: 'Khoảng 50%', en: 'About 50%' },
+      c: { vi: 'Khoảng 20%', en: 'About 20%' },
+      d: { vi: 'Chia đều gốc và lãi', en: 'Split evenly between principal and interest' },
     },
     answer: 'a',
     explain: {
@@ -90,16 +98,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Khoản trả hằng tháng cố định có nghĩa là gốc cũng được trả đều không?' },
+    prompt: {
+      vi: 'Khoản trả hằng tháng cố định có nghĩa là gốc cũng được trả đều không?',
+      en: 'Does a fixed monthly payment mean the principal is also paid off evenly?',
+    },
     choices: {
-      a: { vi: 'Có' },
-      b: { vi: 'Có nếu lãi suất cố định' },
-      c: { vi: 'Có với khoản vay dưới 5 năm' },
-      d: { vi: 'Không — tổng tiền giữ nguyên nhưng giai đoạn đầu phần lãi lớn hơn phần gốc' },
+      a: { vi: 'Có', en: 'Yes' },
+      b: { vi: 'Có nếu lãi suất cố định', en: 'Yes, if the interest rate is fixed' },
+      c: { vi: 'Có với khoản vay dưới 5 năm', en: 'Yes, for loans under 5 years' },
+      d: {
+        vi: 'Không — tổng tiền giữ nguyên nhưng giai đoạn đầu phần lãi lớn hơn phần gốc',
+        en: 'No — the total payment stays the same, but early on the interest portion is larger than the principal portion',
+      },
     },
     answer: 'd',
     explain: {
       vi: 'Bài trên Thời báo Ngân hàng: ngân hàng “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”; có phương án 21 tháng đầu khách hàng “chỉ trả lãi cho khoản vay”, từ tháng 22 mới “trả cả lãi lẫn gốc”.',
+      en: 'A Thời báo Ngân hàng article explains that banks spread principal and interest evenly across the loan term so the monthly payment stays roughly fixed — “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”. Under one plan, the customer pays interest only for the first 21 months — “chỉ trả lãi cho khoản vay” — and only starts paying both principal and interest from month 22 — “trả cả lãi lẫn gốc”.',
     },
     source: {
       url: 'https://thoibaonganhang.vn/nien-kim-co-dinh-don-gian-hoa-bai-toan-tai-chinh-cho-nguoi-mua-nha-84990.html',
@@ -115,16 +130,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Anh Khôi vay 353 triệu mua xe, năm đầu ưu đãi 8,2%/năm. Sau ưu đãi, lãi suất thả nổi là bao nhiêu?',
+      en: 'Mr. Khôi borrows 353 million to buy a car, with a first-year promotional rate of 8.2%/year. After the promotional period, what does the floating rate become?',
     },
     choices: {
-      a: { vi: 'Khoảng 10%' },
-      b: { vi: '12%' },
-      c: { vi: '18%/năm, và biên độ tăng từ 3,6% lên 6,6%' },
-      d: { vi: 'Giữ nguyên 8,2%' },
+      a: { vi: 'Khoảng 10%', en: 'About 10%' },
+      b: { vi: '12%', en: '12%' },
+      c: {
+        vi: '18%/năm, và biên độ tăng từ 3,6% lên 6,6%',
+        en: '18%/year, with the margin rising from 3.6% to 6.6%',
+      },
+      d: { vi: 'Giữ nguyên 8,2%', en: 'Stays at 8.2%' },
     },
     answer: 'c',
     explain: {
       vi: 'Trường hợp thật trên VietnamFinance: “khoản vay chuyển qua lãi suất thả nổi từ kỳ thanh toán tháng 7 với mức 18%/năm”. Điểm ít ai lường: không chỉ lãi suất cơ sở tăng mà BIÊN ĐỘ cũng bị nâng lên.',
+      en: 'A real case reported by VietnamFinance: the loan switched to the floating rate from the July payment period, at 18%/year — “khoản vay chuyển qua lãi suất thả nổi từ kỳ thanh toán tháng 7 với mức 18%/năm”. The part few people expect: it is not only the base rate that rises — the MARGIN gets raised too.',
     },
     source: {
       url: 'https://vietnamfinance.vn/lai-tha-noi-cham-dinh-18-nam-nguoi-mua-nha-xe-tra-gop-ban-het-de-thoat-no-d150828.html',
@@ -140,16 +160,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Khoản vay 3 tỷ đồng, lãi suất tăng 4 điểm phần trăm. Tiền trả hằng tháng thay đổi thế nào?',
+      en: 'A 3 billion dong loan, with the interest rate rising 4 percentage points. How does the monthly payment change?',
     },
     choices: {
-      a: { vi: 'Tăng khoảng 2 triệu' },
-      b: { vi: 'Từ 30 triệu lên gần 40 triệu' },
-      c: { vi: 'Không đổi, chỉ kéo dài kỳ hạn' },
-      d: { vi: 'Tăng khoảng 5%' },
+      a: { vi: 'Tăng khoảng 2 triệu', en: 'Rises by about 2 million' },
+      b: { vi: 'Từ 30 triệu lên gần 40 triệu', en: 'From 30 million to nearly 40 million' },
+      c: { vi: 'Không đổi, chỉ kéo dài kỳ hạn', en: 'Unchanged — only the term is extended' },
+      d: { vi: 'Tăng khoảng 5%', en: 'Rises by about 5%' },
     },
     answer: 'b',
     explain: {
       vi: 'Trường hợp chị Nguyễn Huyền (Hà Nội): “mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng” — tăng khoảng một phần ba.',
+      en: 'The case of Ms. Nguyễn Huyền (Hanoi): she now bears an extra roughly 10 million dong of interest each month, raising her total monthly principal-and-interest payment from 30 million to nearly 40 million — “mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng” — a rise of about a third.',
     },
     source: {
       url: 'https://docnhanh.vn/kinh-te/cu-soc-lai-suat-tha-noi-nguoi-mua-nha-ngop-tho-vi-chi-phi-tra-no-tang-them-ca-chuc-trieu-moi-thang-tintuc1033352',
@@ -163,16 +185,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dinh-che',
     evidence: 'quy-dinh',
-    prompt: { vi: 'Thời gian ưu đãi lãi suất vay mua nhà ở VN phổ biến kéo dài bao lâu?' },
+    prompt: {
+      vi: 'Thời gian ưu đãi lãi suất vay mua nhà ở VN phổ biến kéo dài bao lâu?',
+      en: 'In Vietnam, how long does a promotional home-loan interest rate typically last?',
+    },
     choices: {
-      a: { vi: '3–5 năm' },
-      b: { vi: 'Toàn bộ kỳ hạn' },
-      c: { vi: '6–12 tháng, sau đó lãi thực tế phổ biến 13–15%/năm' },
-      d: { vi: '24–36 tháng' },
+      a: { vi: '3–5 năm', en: '3–5 years' },
+      b: { vi: 'Toàn bộ kỳ hạn', en: 'The entire loan term' },
+      c: {
+        vi: '6–12 tháng, sau đó lãi thực tế phổ biến 13–15%/năm',
+        en: '6–12 months, after which the actual rate is typically 13–15%/year',
+      },
+      d: { vi: '24–36 tháng', en: '24–36 months' },
     },
     answer: 'c',
     explain: {
       vi: '“Lãi suất vay mua nhà trong thời gian ưu đãi hiện phổ biến 8,5-11%/năm, với thời gian áp dụng thường kéo dài 6-12 tháng”, còn “Lãi suất thực tế người vay phải chịu hiện phổ biến 13-15%/năm”, tính bằng lãi suất cơ sở cộng biên độ khoảng 3,3–3,5%.',
+      en: 'The promotional home-loan rate is typically 8.5–11%/year, usually lasting 6 to 12 months — “Lãi suất vay mua nhà trong thời gian ưu đãi hiện phổ biến 8,5-11%/năm, với thời gian áp dụng thường kéo dài 6-12 tháng” — while the actual rate borrowers end up paying is typically 13–15%/year — “Lãi suất thực tế người vay phải chịu hiện phổ biến 13-15%/năm” — computed as the base rate plus a margin of about 3.3–3.5%.',
     },
     source: {
       url: 'https://dantri.com.vn/bat-dong-san/lai-vay-mua-nha-len-13-15-sau-uu-dai-lam-gi-de-tranh-can-kiet-dong-tien-20260811163931692.htm',
@@ -186,18 +215,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dinh-che',
     evidence: 'quy-dinh',
-    prompt: { vi: 'Có tiền và muốn tất toán khoản vay sớm. Chi phí phát sinh?' },
+    prompt: {
+      vi: 'Có tiền và muốn tất toán khoản vay sớm. Chi phí phát sinh?',
+      en: 'You have the money and want to close out the loan early. What cost does that trigger?',
+    },
     choices: {
-      a: { vi: 'Không có' },
+      a: { vi: 'Không có', en: 'None' },
       b: {
         vi: 'Phí trả nợ trước hạn tính bằng tỷ lệ % nhân số tiền trả trước, giảm dần theo số năm đã vay',
+        en: 'An early-repayment fee, calculated as a percentage of the prepaid amount, that decreases the longer the loan has run',
       },
-      c: { vi: 'Phí cố định theo hợp đồng' },
-      d: { vi: 'Chỉ mất phần lãi còn lại' },
+      c: { vi: 'Phí cố định theo hợp đồng', en: 'A fixed fee set by the contract' },
+      d: { vi: 'Chỉ mất phần lãi còn lại', en: 'Only the remaining interest is lost' },
     },
     answer: 'b',
     explain: {
       vi: 'Thông tư 39/2016/TT-NHNN cho phép các bên thoả thuận phí trả nợ trước hạn. Mức công bố: Vietcombank 0,3–1% (khoản trung/dài hạn) hoặc 1,5% năm đầu và miễn từ năm thứ 6; Techcombank 2–3% tuỳ năm; OCB 3–5%; BVBank 3% năm đầu, miễn sau 4 năm.',
+      en: 'Circular 39/2016/TT-NHNN lets the two parties agree on an early-repayment fee. Published rates: Vietcombank 0.3–1% (medium/long-term loans) or 1.5% in the first year, waived from year 6 onward; Techcombank 2–3% depending on the year; OCB 3–5%; BVBank 3% in the first year, waived after 4 years.',
     },
     source: {
       url: 'https://vnba.org.vn/vi/phi-phat-tra-no-truoc-han-duoc-tinh-nhu-the-nao-11962.htm',
@@ -213,18 +247,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Gửi 100 triệu kỳ hạn 12 tháng lãi 5,5%/năm, rút toàn bộ ở tháng thứ 6. Nhận được bao nhiêu lãi?',
+      en: 'You deposit 100 million for a 12-month term at 5.5%/year, then withdraw the whole amount in month 6. How much interest do you get?',
     },
     choices: {
-      a: { vi: 'Khoảng 2,75 triệu (một nửa)' },
-      b: { vi: 'Mất trắng toàn bộ lãi' },
+      a: { vi: 'Khoảng 2,75 triệu (một nửa)', en: 'About 2.75 million (half)' },
+      b: { vi: 'Mất trắng toàn bộ lãi', en: 'You lose all the interest entirely' },
       c: {
         vi: 'Vài chục nghìn đồng — toàn bộ thời gian gửi tính lại theo lãi không kỳ hạn 0,1–0,2%/năm',
+        en: 'A few tens of thousands of dong — the whole deposit period is recalculated at the demand-deposit rate of 0.1–0.2%/year',
       },
-      d: { vi: 'Lãi theo kỳ hạn 6 tháng' },
+      d: { vi: 'Lãi theo kỳ hạn 6 tháng', en: 'Interest at the 6-month term rate' },
     },
     answer: 'c',
     explain: {
       vi: 'Nguồn nêu đúng ví dụ này: người gửi chỉ nhận vài chục nghìn đồng thay vì hơn 2,5 triệu đồng tiền lãi kỳ hạn. Lưu ý thêm: nhiều người tưởng rút trước hạn là “mất trắng” lãi, thực tế vẫn được hưởng lãi suất không kỳ hạn.',
+      en: 'The source gives exactly this example: the depositor receives only a few tens of thousands of dong instead of the more than 2.5 million dong of term interest. Worth noting: many people assume an early withdrawal means “mất trắng” (losing it all) on the interest, but in fact you still earn the demand-deposit rate.',
     },
     source: {
       url: 'https://kenh14.vn/rut-tien-tiet-kiem-giua-chung-ban-se-mat-bao-nhieu-lai-215251004185554376.chn',
@@ -240,16 +277,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Gửi 1 tỷ lãi 6%/năm, cần gấp 500 triệu. Theo Thông tư 04/2022 (hiệu lực 01/8/2022), nên làm gì?',
+      en: 'You have 1 billion on deposit at 6%/year and urgently need 500 million. Under Circular 04/2022 (effective 01/08/2022), what should you do?',
     },
     choices: {
-      a: { vi: 'Tất toán cả sổ' },
-      b: { vi: 'Vay cầm cố sổ' },
-      c: { vi: 'Rút một phần — phần rút chịu lãi không kỳ hạn, 500 triệu còn lại vẫn hưởng 6%' },
-      d: { vi: 'Không rút được trước hạn' },
+      a: { vi: 'Tất toán cả sổ', en: 'Close out the whole account' },
+      b: { vi: 'Vay cầm cố sổ', en: 'Take a loan against the passbook' },
+      c: {
+        vi: 'Rút một phần — phần rút chịu lãi không kỳ hạn, 500 triệu còn lại vẫn hưởng 6%',
+        en: 'Make a partial withdrawal — the withdrawn portion earns the demand-deposit rate, while the remaining 500 million still earns 6%',
+      },
+      d: { vi: 'Không rút được trước hạn', en: 'You cannot withdraw early at all' },
     },
     answer: 'c',
     explain: {
       vi: '“chỉ phần rút trước hạn chịu lãi suất không kỳ hạn, phần tiền gửi còn lại được ngân hàng giữ nguyên mức lãi suất”. Trước Thông tư 04/2022, rút trước hạn buộc phải tất toán toàn bộ và chịu lãi không kỳ hạn trên cả sổ.',
+      en: 'Only the early-withdrawn portion earns the demand-deposit rate, while the bank keeps the remaining deposit at its original rate — “chỉ phần rút trước hạn chịu lãi suất không kỳ hạn, phần tiền gửi còn lại được ngân hàng giữ nguyên mức lãi suất”. Before Circular 04/2022, an early withdrawal forced a full closeout, with the demand-deposit rate applied across the entire account.',
     },
     source: {
       url: 'https://cafef.vn/rut-mot-phan-tien-tiet-kiem-truoc-ky-han-co-duoc-huong-lai-cao-188230918105219101.chn',
@@ -264,16 +306,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
-    prompt: { vi: 'Công thức tính lãi ngân hàng VN công bố dùng mẫu số nào?' },
+    prompt: {
+      vi: 'Công thức tính lãi ngân hàng VN công bố dùng mẫu số nào?',
+      en: 'What denominator does the interest formula published by Vietnamese banks use?',
+    },
     choices: {
-      a: { vi: '365 ngày và số ngày sử dụng thực tế' },
-      b: { vi: '360 ngày' },
-      c: { vi: '12 tháng tròn' },
-      d: { vi: '30 ngày mỗi tháng' },
+      a: {
+        vi: '365 ngày và số ngày sử dụng thực tế',
+        en: '365 days, with the actual number of days used',
+      },
+      b: { vi: '360 ngày', en: '360 days' },
+      c: { vi: '12 tháng tròn', en: '12 whole months' },
+      d: { vi: '30 ngày mỗi tháng', en: '30 days per month' },
     },
     answer: 'a',
     explain: {
       vi: 'Công thức ngân hàng công bố: “Tiền lãi = ∑ (Dư nợ thực tế x Lãi suất/365 x Số ngày sử dụng)”. Nếu app dùng quy ước 30 ngày/tháng thì kết quả sẽ lệch so với số ngân hàng trả — ví dụ 1 tỷ gửi 6 tháng lãi 8,1%: quy ước 30 ngày ra 40,5 triệu, tính theo ngày thực ra khoảng 39,9 triệu.',
+      en: 'The formula the bank publishes: interest equals the sum, over the period, of actual balance times rate divided by 365 times days used — “Tiền lãi = ∑ (Dư nợ thực tế x Lãi suất/365 x Số ngày sử dụng)”. If an app instead assumes 30 days per month, the result will differ from what the bank actually pays — for example, 1 billion deposited for 6 months at 8.1%: the 30-day convention gives 40.5 million, while the actual-days calculation gives about 39.9 million.',
     },
     source: {
       url: 'https://techcombank.com/thong-tin/blog/cach-tinh-lai-vay-ngan-hang',
@@ -351,7 +400,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: 'Nguồn bác bỏ thẳng cách hiểu “để lâu thì lãi suất tự lên”: “Một số người vẫn cho rằng lãi suất sẽ tăng dần theo thời gian, suy nghĩ này về gửi tiết kiệm là sai lầm. Lãi suất được cố định cho mỗi kỳ hạn gửi tiết kiệm và không thay đổi trong suốt kỳ hạn đó.” Mức 6% chỉ chắc chắn trong đúng kỳ hạn đã chọn; các kỳ sau phải tái tục theo lãi suất tại thời điểm đó, nên con số công thức đưa ra là một kịch bản chứ không phải một cam kết.',
-      en: "The source rejects the idea that a rate rises on its own the longer you leave the money: “Một số người vẫn cho rằng lãi suất sẽ tăng dần theo thời gian, suy nghĩ này về gửi tiết kiệm là sai lầm. Lãi suất được cố định cho mỗi kỳ hạn gửi tiết kiệm và không thay đổi trong suốt kỳ hạn đó.” The 6% is locked only for the term you picked; later terms roll over at whatever rate applies then, so the formula's output is a scenario, not a commitment.",
+      en: "The source directly rejects the idea that “để lâu thì lãi suất tự lên” (a rate rises on its own the longer you leave the money): “Một số người vẫn cho rằng lãi suất sẽ tăng dần theo thời gian, suy nghĩ này về gửi tiết kiệm là sai lầm. Lãi suất được cố định cho mỗi kỳ hạn gửi tiết kiệm và không thay đổi trong suốt kỳ hạn đó.” The 6% is locked only for the term you picked; later terms roll over at whatever rate applies then, so the formula's output is a scenario, not a commitment.",
     },
     source: {
       url: 'https://timo.vn/blogs/nhung-lam-tuong-ve-gui-tiet-kiem-lai-kep/',
@@ -443,12 +492,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Số tiền cuối kỳ do lãi kép tạo ra có phải mức giàu lên thật sự không?' },
+    prompt: {
+      vi: 'Số tiền cuối kỳ do lãi kép tạo ra có phải mức giàu lên thật sự không?',
+      en: 'Is the ending balance produced by compound interest a real increase in wealth?',
+    },
     choices: {
-      a: { vi: 'Phải' },
-      b: { vi: 'Phải nếu gửi trên 10 năm' },
-      c: { vi: 'Phải với lãi suất trên 8%' },
-      d: { vi: 'Không — phải trừ lạm phát; nếu giá cả tăng nhanh hơn thì vẫn lỗ sức mua' },
+      a: { vi: 'Phải', en: 'Yes' },
+      b: { vi: 'Phải nếu gửi trên 10 năm', en: 'Yes, if deposited for more than 10 years' },
+      c: { vi: 'Phải với lãi suất trên 8%', en: 'Yes, if the rate is above 8%' },
+      d: {
+        vi: 'Không — phải trừ lạm phát; nếu giá cả tăng nhanh hơn thì vẫn lỗ sức mua',
+        en: 'No — inflation must be subtracted; if prices rise faster, you still lose purchasing power',
+      },
     },
     answer: 'd',
     explain: {
@@ -469,12 +524,16 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Nghiên cứu về hành vi tài chính ghi nhận con người có thiên lệch gì với tăng trưởng kép?',
+      en: 'What bias does financial-behavior research find people have toward compound growth?',
     },
     choices: {
-      a: { vi: 'Đánh giá quá cao' },
-      b: { vi: 'Ước lượng chính xác' },
-      c: { vi: 'Đánh giá thấp (exponential growth bias)' },
-      d: { vi: 'Không có thiên lệch nào' },
+      a: { vi: 'Đánh giá quá cao', en: 'They overestimate it' },
+      b: { vi: 'Ước lượng chính xác', en: 'They estimate it accurately' },
+      c: {
+        vi: 'Đánh giá thấp (exponential growth bias)',
+        en: 'They underestimate it (exponential growth bias)',
+      },
+      d: { vi: 'Không có thiên lệch nào', en: 'There is no bias at all' },
     },
     answer: 'c',
     explain: {
@@ -493,16 +552,23 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Gửi tiết kiệm là tự động có lãi kép. Đúng không?' },
+    prompt: {
+      vi: 'Gửi tiết kiệm là tự động có lãi kép. Đúng không?',
+      en: 'Does putting money in a savings account automatically mean compound interest? True or false?',
+    },
     choices: {
-      a: { vi: 'Đúng' },
-      b: { vi: 'Đúng với kỳ hạn trên 12 tháng' },
-      c: { vi: 'Đúng nếu lãi suất trên 6%' },
-      d: { vi: 'Không — phải nhập lãi vào gốc và tái tục đều đặn thì mới thành lãi chồng lãi' },
+      a: { vi: 'Đúng', en: 'True' },
+      b: { vi: 'Đúng với kỳ hạn trên 12 tháng', en: 'True, for terms over 12 months' },
+      c: { vi: 'Đúng nếu lãi suất trên 6%', en: 'True, if the rate is above 6%' },
+      d: {
+        vi: 'Không — phải nhập lãi vào gốc và tái tục đều đặn thì mới thành lãi chồng lãi',
+        en: 'False — the interest must be added back into the principal and rolled over regularly for it to actually compound',
+      },
     },
     answer: 'd',
     explain: {
       vi: 'Lãi kép là khi “số tiền lãi được cộng dồn vào số tiền gốc để tiếp tục chu kỳ đầu tư mới” — tức phải tái tục đều đặn; hiệu quả thường chỉ rõ sau 10–20 năm.',
+      en: 'Compound interest is when the interest earned gets added into the principal to start a new investment cycle — “số tiền lãi được cộng dồn vào số tiền gốc để tiếp tục chu kỳ đầu tư mới” — meaning it must be rolled over regularly; the effect usually only becomes clear after 10 to 20 years.',
     },
     source: {
       url: 'https://timo.vn/blogs/lai-suat-kep-la-gi/',
@@ -516,12 +582,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dinh-che',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Sổ tiết kiệm đáo hạn mà bạn không chỉ định gì. Rủi ro của tự động tái tục?' },
+    prompt: {
+      vi: 'Sổ tiết kiệm đáo hạn mà bạn không chỉ định gì. Rủi ro của tự động tái tục?',
+      en: 'A savings passbook matures and you give no instructions. What is the risk of automatic rollover?',
+    },
     choices: {
-      a: { vi: 'Không có rủi ro' },
-      b: { vi: 'Bị chuyển sang không kỳ hạn' },
-      c: { vi: 'Tiền bị khoá thêm một kỳ, và có nơi tái tục ở lãi suất thấp hơn kỳ ban đầu' },
-      d: { vi: 'Mất lãi kỳ trước' },
+      a: { vi: 'Không có rủi ro', en: 'There is no risk' },
+      b: { vi: 'Bị chuyển sang không kỳ hạn', en: 'It gets converted to a no-term deposit' },
+      c: {
+        vi: 'Tiền bị khoá thêm một kỳ, và có nơi tái tục ở lãi suất thấp hơn kỳ ban đầu',
+        en: 'The money gets locked up for another term, and some banks roll it over at a lower rate than the original term',
+      },
+      d: { vi: 'Mất lãi kỳ trước', en: 'You lose the interest from the previous term' },
     },
     answer: 'c',
     explain: {
@@ -542,12 +614,16 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Có một khoản tiền lớn. Chia nhỏ giải ngân dần (DCA) hay bỏ vào một lần? Nghiên cứu Vanguard trên dữ liệu 1976–2022 nói gì?',
+      en: 'You have a large lump sum. Phase it in gradually (DCA) or invest it all at once? What does Vanguard research on 1976–2022 data say?',
     },
     choices: {
-      a: { vi: 'Bỏ một lần thắng khoảng hai phần ba số lần' },
-      b: { vi: 'DCA thắng đa số' },
-      c: { vi: 'Hai cách như nhau' },
-      d: { vi: 'Chưa có nghiên cứu' },
+      a: {
+        vi: 'Bỏ một lần thắng khoảng hai phần ba số lần',
+        en: 'Investing it all at once wins about two-thirds of the time',
+      },
+      b: { vi: 'DCA thắng đa số', en: 'DCA wins the majority of the time' },
+      c: { vi: 'Hai cách như nhau', en: 'The two approaches are the same' },
+      d: { vi: 'Chưa có nghiên cứu', en: 'No research exists on this' },
     },
     answer: 'a',
     explain: {
@@ -566,12 +642,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Vậy khi nào DCA vẫn là lựa chọn hợp lý?' },
+    prompt: {
+      vi: 'Vậy khi nào DCA vẫn là lựa chọn hợp lý?',
+      en: 'So when is DCA still a reasonable choice?',
+    },
     choices: {
-      a: { vi: 'Khi muốn lợi nhuận cao nhất' },
-      b: { vi: 'Khi thị trường đang tăng' },
-      c: { vi: 'Khi nhà đầu tư sợ lỗ — đổi lợi nhuận kỳ vọng lấy giảm rủi ro' },
-      d: { vi: 'Không bao giờ' },
+      a: { vi: 'Khi muốn lợi nhuận cao nhất', en: 'When you want the highest possible return' },
+      b: { vi: 'Khi thị trường đang tăng', en: 'When the market is rising' },
+      c: {
+        vi: 'Khi nhà đầu tư sợ lỗ — đổi lợi nhuận kỳ vọng lấy giảm rủi ro',
+        en: 'When the investor is loss-averse — trading expected return for lower risk',
+      },
+      d: { vi: 'Không bao giờ', en: 'Never' },
     },
     answer: 'c',
     explain: {
@@ -590,12 +672,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Rải vốn càng nhiều kỳ, càng lâu thì càng an toàn và càng lợi. Đúng không?' },
+    prompt: {
+      vi: 'Rải vốn càng nhiều kỳ, càng lâu thì càng an toàn và càng lợi. Đúng không?',
+      en: 'The more periods and the longer you spread the capital out, the safer and more profitable it is. True or false?',
+    },
     choices: {
-      a: { vi: 'Không — thời gian rải càng dài thì chi phí cơ hội càng lớn' },
-      b: { vi: 'Đúng' },
-      c: { vi: 'Đúng nếu trên 12 kỳ' },
-      d: { vi: 'Đúng với danh mục 60/40' },
+      a: {
+        vi: 'Không — thời gian rải càng dài thì chi phí cơ hội càng lớn',
+        en: 'False — the longer the phase-in period, the greater the opportunity cost',
+      },
+      b: { vi: 'Đúng', en: 'True' },
+      c: { vi: 'Đúng nếu trên 12 kỳ', en: 'True, if spread over more than 12 periods' },
+      d: { vi: 'Đúng với danh mục 60/40', en: 'True, for a 60/40 portfolio' },
     },
     answer: 'a',
     explain: {
@@ -614,12 +702,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Phần lớn tranh luận “DCA có tốt không” thực ra đang nói về tình huống nào?' },
+    prompt: {
+      vi: 'Phần lớn tranh luận “DCA có tốt không” thực ra đang nói về tình huống nào?',
+      en: 'Most of the “is DCA good?” debate is actually about which situation?',
+    },
     choices: {
-      a: { vi: 'Rải một khoản tiền lớn bất ngờ (thừa kế, tiền bảo hiểm)' },
-      b: { vi: 'Đầu tư đều đặn từ thu nhập hằng tháng' },
-      c: { vi: 'Mua bình quân giá xuống' },
-      d: { vi: 'Đầu tư vào quỹ chỉ số' },
+      a: {
+        vi: 'Rải một khoản tiền lớn bất ngờ (thừa kế, tiền bảo hiểm)',
+        en: 'Phasing in a large windfall (an inheritance, an insurance payout)',
+      },
+      b: {
+        vi: 'Đầu tư đều đặn từ thu nhập hằng tháng',
+        en: 'Investing steadily out of monthly income',
+      },
+      c: { vi: 'Mua bình quân giá xuống', en: 'Averaging down on a falling price' },
+      d: { vi: 'Đầu tư vào quỹ chỉ số', en: 'Investing in an index fund' },
     },
     answer: 'a',
     explain: {

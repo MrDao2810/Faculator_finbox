@@ -623,9 +623,18 @@ describe('đa ngôn ngữ (FR-08)', () => {
    * 0 → 23 → 34 → 76 → 107 → 139 → 205 → 247 → 267 ngày 23–25/09/2026. Từ lô 1 trở đi MỌI câu mới đều soạn
    * song ngữ ngay từ đầu, nên con số này bằng đúng số câu của đợt mở rộng; 139 → 205 là 66 câu
    * tính toán Q346–Q411; 205 → 247 là 42 câu thực hành điền số Q412–Q453; 247 → 267 là 20 câu điền
-   * số Q454–Q473 cho các công thức chưa có câu tính toán nào (25/09/2026). 206 câu của đợt đầu vẫn chỉ có `explain` song ngữ (đợt sửa
-   * 24/09/2026 thêm `explain.en` cho 93 câu), còn đề bài và lựa chọn thì chưa — dịch nốt chúng là
-   * một đợt riêng, chưa làm.
+   * số Q454–Q473 cho các công thức chưa có câu tính toán nào (25/09/2026).
+   *
+   * 267 → 473 ngày 30/09/2026: dịch nốt 206 câu Q001–Q206 của lô đầu (đề bài + lựa chọn +
+   * phần `explain` còn thiếu — 93 câu trong số đó đã có `explain.en` từ đợt sửa 24/09/2026).
+   * Toàn bộ ngân hàng 473 câu nay song ngữ đầy đủ. Chín file dịch song song, mỗi file một
+   * agent, rồi một script tạm đối chiếu byte-từng-chữ mọi cặp trích dẫn “…” giữa `.vi`/`.en`
+   * trên cả 473 câu (không chỉ 206 câu mới) — bắt được và sửa 26 chỗ lệch, phần lớn là dấu
+   * chấm/phẩy đặt trong hay ngoài ngoặc kép, cộng vài trích dẫn bị dịch nhầm (kể cả hai chỗ có
+   * từ trước đợt này). Ba trường hợp còn "lệch" sau khi sửa là hợp lệ, không phải lỗi: chúng là
+   * lời diễn giải riêng của tác giả dịch sang từng ngôn ngữ (không phải trích nguyên văn một
+   * nguồn ngoài), hoặc đúng ngoại lệ chính tả Anh-Mỹ đã ghi nhận ở trên (quote gốc tiếng Anh giữ
+   * đúng chính tả Anh trong `.vi`, chuyển sang chính tả Mỹ trong `.en`).
    *
    * Đoạn TRÍCH NGUYÊN VĂN giữ nguyên ngôn ngữ của nguồn ở CẢ hai bản, kể cả khi bản tiếng Anh
    * phải mang một câu tiếng Việt: trích đúng từng chữ là thứ cho người học mở nguồn đối chiếu,
@@ -633,7 +642,7 @@ describe('đa ngôn ngữ (FR-08)', () => {
    */
   it('đếm số câu đã dịch đủ hai ngôn ngữ', () => {
     const daDich = QUIZ_ITEMS.filter(isTranslated).length;
-    expect(daDich).toBe(267);
+    expect(daDich).toBe(473);
   });
 
   /**

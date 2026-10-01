@@ -14,12 +14,24 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'VaR 99% một ngày của danh mục là 5%. Điều này KHÔNG nói gì?' },
+    prompt: {
+      vi: 'VaR 99% một ngày của danh mục là 5%. Điều này KHÔNG nói gì?',
+      en: "A portfolio's one-day 99% VaR is 5%. What does this NOT tell you?",
+    },
     choices: {
-      a: { vi: 'Ngưỡng lỗ ở mức tin cậy 99%' },
-      b: { vi: 'Phân vị của phân phối lợi suất' },
-      c: { vi: 'Mức lỗ có thể xảy ra trong 1% trường hợp còn lại' },
-      d: { vi: 'Kết quả dựa trên dữ liệu quá khứ' },
+      a: {
+        vi: 'Ngưỡng lỗ ở mức tin cậy 99%',
+        en: 'The loss threshold at the 99% confidence level',
+      },
+      b: { vi: 'Phân vị của phân phối lợi suất', en: 'A percentile of the return distribution' },
+      c: {
+        vi: 'Mức lỗ có thể xảy ra trong 1% trường hợp còn lại',
+        en: 'How much can be lost in the remaining 1% of cases',
+      },
+      d: {
+        vi: 'Kết quả dựa trên dữ liệu quá khứ',
+        en: 'That the result is based on historical data',
+      },
     },
     answer: 'c',
     explain: {
@@ -38,12 +50,18 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Điều trần trước Quốc hội Mỹ sau khủng hoảng 2008 kết luận gì về VaR?' },
+    prompt: {
+      vi: 'Điều trần trước Quốc hội Mỹ sau khủng hoảng 2008 kết luận gì về VaR?',
+      en: 'What did testimony before the US Congress after the 2008 crisis conclude about VaR?',
+    },
     choices: {
-      a: { vi: 'VaR không được thiết kế để xử lý rủi ro khủng hoảng — hỏng đúng lúc cần nhất' },
-      b: { vi: 'VaR đo được rủi ro khủng hoảng' },
-      c: { vi: 'VaR chỉ sai với trái phiếu' },
-      d: { vi: 'VaR cần mẫu lớn hơn là đủ' },
+      a: {
+        vi: 'VaR không được thiết kế để xử lý rủi ro khủng hoảng — hỏng đúng lúc cần nhất',
+        en: 'VaR was not designed to handle crisis risk — it fails exactly when it is needed most',
+      },
+      b: { vi: 'VaR đo được rủi ro khủng hoảng', en: 'VaR can measure crisis risk' },
+      c: { vi: 'VaR chỉ sai với trái phiếu', en: 'VaR is only wrong for bonds' },
+      d: { vi: 'VaR cần mẫu lớn hơn là đủ', en: 'VaR just needs a larger sample to be reliable' },
     },
     answer: 'a',
     explain: {
@@ -64,12 +82,16 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Gộp hai danh mục độc lập lại, VaR của danh mục tổng có luôn nhỏ hơn tổng hai VaR riêng không?',
+      en: 'When two independent portfolios are combined, is the VaR of the combined portfolio always smaller than the sum of the two individual VaRs?',
     },
     choices: {
-      a: { vi: 'Có, nhờ đa dạng hoá' },
-      b: { vi: 'Không — VaR không có tính cộng dưới, có trường hợp VaR gộp lớn hơn' },
-      c: { vi: 'Có nếu tương quan âm' },
-      d: { vi: 'Luôn bằng nhau' },
+      a: { vi: 'Có, nhờ đa dạng hoá', en: 'Yes, thanks to diversification' },
+      b: {
+        vi: 'Không — VaR không có tính cộng dưới, có trường hợp VaR gộp lớn hơn',
+        en: 'No — VaR is not subadditive; the combined VaR can be larger',
+      },
+      c: { vi: 'Có nếu tương quan âm', en: 'Yes, if the correlation is negative' },
+      d: { vi: 'Luôn bằng nhau', en: 'They are always equal' },
     },
     answer: 'b',
     explain: {
@@ -173,12 +195,18 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'CVaR 99% bằng 8%. Cách hiểu đúng?' },
+    prompt: {
+      vi: 'CVaR 99% bằng 8%. Cách hiểu đúng?',
+      en: 'CVaR at 99% is 8%. What is the correct way to read this?',
+    },
     choices: {
-      a: { vi: 'Không thể lỗ quá 8%' },
-      b: { vi: 'Xác suất lỗ 8% là 99%' },
-      c: { vi: 'Lỗ tối đa trong lịch sử là 8%' },
-      d: { vi: 'Trung bình của phần đuôi, ước lượng từ rất ít quan sát nên rất nhiễu' },
+      a: { vi: 'Không thể lỗ quá 8%', en: 'The loss can never exceed 8%' },
+      b: { vi: 'Xác suất lỗ 8% là 99%', en: 'There is a 99% probability of an 8% loss' },
+      c: { vi: 'Lỗ tối đa trong lịch sử là 8%', en: 'The maximum historical loss is 8%' },
+      d: {
+        vi: 'Trung bình của phần đuôi, ước lượng từ rất ít quan sát nên rất nhiễu',
+        en: 'The average of the tail, estimated from very few observations and therefore very noisy',
+      },
     },
     answer: 'd',
     explain: {
@@ -266,14 +294,21 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'hau-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Một chiến lược có Sharpe ratio rất cao. Điều gì vẫn có thể xảy ra?' },
+    prompt: {
+      vi: 'Một chiến lược có Sharpe ratio rất cao. Điều gì vẫn có thể xảy ra?',
+      en: 'A strategy has a very high Sharpe ratio. What can still happen?',
+    },
     choices: {
-      a: { vi: 'Không gì cả, Sharpe cao là an toàn' },
-      b: { vi: 'Lợi nhuận thấp nhưng ổn định' },
+      a: { vi: 'Không gì cả, Sharpe cao là an toàn', en: 'Nothing — a high Sharpe ratio is safe' },
+      b: { vi: 'Lợi nhuận thấp nhưng ổn định', en: 'Low but stable returns' },
       c: {
         vi: 'Mất toàn bộ tiền — đã có bài báo toán học chứng minh điều này tương thích với Sharpe cao',
+        en: 'Losing all the money — a mathematical paper has proven this is compatible with a high Sharpe ratio',
       },
-      d: { vi: 'Chỉ lỗ tối đa bằng độ lệch chuẩn' },
+      d: {
+        vi: 'Chỉ lỗ tối đa bằng độ lệch chuẩn',
+        en: 'The loss is capped at the standard deviation',
+      },
     },
     answer: 'c',
     explain: {
@@ -294,12 +329,16 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Cách đơn giản nhất để đẩy Sharpe ratio lên mà không tạo thêm giá trị cho nhà đầu tư là gì?',
+      en: 'What is the simplest way to push up the Sharpe ratio without creating any extra value for the investor?',
     },
     choices: {
-      a: { vi: 'Bán quyền chọn ngoài giá rồi gửi phần còn lại ở tài sản phi rủi ro' },
-      b: { vi: 'Tăng số lệnh giao dịch' },
-      c: { vi: 'Giảm phí quản lý' },
-      d: { vi: 'Đổi chỉ số tham chiếu' },
+      a: {
+        vi: 'Bán quyền chọn ngoài giá rồi gửi phần còn lại ở tài sản phi rủi ro',
+        en: 'Sell out-of-the-money options and park the rest in the risk-free asset',
+      },
+      b: { vi: 'Tăng số lệnh giao dịch', en: 'Increase the number of trades' },
+      c: { vi: 'Giảm phí quản lý', en: 'Cut the management fee' },
+      d: { vi: 'Đổi chỉ số tham chiếu', en: 'Switch the benchmark' },
     },
     answer: 'a',
     explain: {
@@ -318,12 +357,15 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Giả định ẩn nào của Sharpe ratio khiến nó che mất rủi ro sập?' },
+    prompt: {
+      vi: 'Giả định ẩn nào của Sharpe ratio khiến nó che mất rủi ro sập?',
+      en: 'Which hidden assumption of the Sharpe ratio causes it to hide crash risk?',
+    },
     choices: {
-      a: { vi: 'Lãi suất phi rủi ro bằng 0' },
-      b: { vi: 'Danh mục đã đa dạng hoá' },
-      c: { vi: 'Lợi suất phân phối chuẩn' },
-      d: { vi: 'Không có phí giao dịch' },
+      a: { vi: 'Lãi suất phi rủi ro bằng 0', en: 'The risk-free rate is zero' },
+      b: { vi: 'Danh mục đã đa dạng hoá', en: 'The portfolio is already diversified' },
+      c: { vi: 'Lợi suất phân phối chuẩn', en: 'Returns are normally distributed' },
+      d: { vi: 'Không có phí giao dịch', en: 'There are no trading costs' },
     },
     answer: 'c',
     explain: {
@@ -344,14 +386,16 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Nhân Sharpe theo phiên với căn bậc hai của 252 để ra Sharpe năm. Vấn đề của phép này?',
+      en: 'Multiplying the per-session Sharpe ratio by the square root of 252 gives the annual Sharpe ratio. What is the problem with this?',
     },
     choices: {
       a: {
         vi: 'Nó giả định lợi suất nhiều ngày bằng tổng lợi suất từng ngày, trong khi lợi suất nhân chồng',
+        en: 'It assumes the multi-day return equals the sum of the daily returns, when returns actually compound',
       },
-      b: { vi: 'Không có vấn đề, đây là chuẩn' },
-      c: { vi: 'Phải dùng 365 thay vì 252' },
-      d: { vi: 'Chỉ sai với quỹ mở' },
+      b: { vi: 'Không có vấn đề, đây là chuẩn', en: 'There is no problem, this is standard' },
+      c: { vi: 'Phải dùng 365 thay vì 252', en: '365 should be used instead of 252' },
+      d: { vi: 'Chỉ sai với quỹ mở', en: "It's only wrong for open-ended funds" },
     },
     answer: 'a',
     explain: {
@@ -409,12 +453,18 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Khi nào Sortino xếp hạng danh mục y hệt Sharpe?' },
+    prompt: {
+      vi: 'Khi nào Sortino xếp hạng danh mục y hệt Sharpe?',
+      en: 'When does Sortino rank portfolios exactly the same as Sharpe?',
+    },
     choices: {
-      a: { vi: 'Không bao giờ' },
-      b: { vi: 'Khi MAR bằng lãi suất phi rủi ro và lợi suất phân phối chuẩn' },
-      c: { vi: 'Khi danh mục có lợi suất âm' },
-      d: { vi: 'Khi số quan sát dưới 100' },
+      a: { vi: 'Không bao giờ', en: 'Never' },
+      b: {
+        vi: 'Khi MAR bằng lãi suất phi rủi ro và lợi suất phân phối chuẩn',
+        en: 'When MAR equals the risk-free rate and returns are normally distributed',
+      },
+      c: { vi: 'Khi danh mục có lợi suất âm', en: 'When the portfolio has a negative return' },
+      d: { vi: 'Khi số quan sát dưới 100', en: 'When the number of observations is under 100' },
     },
     answer: 'b',
     explain: {
@@ -589,12 +639,21 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Cách tính downside deviation phổ biến nhất — và cũng sai nhất — là gì?' },
+    prompt: {
+      vi: 'Cách tính downside deviation phổ biến nhất — và cũng sai nhất — là gì?',
+      en: 'What is the most common — and also most wrong — way to compute downside deviation?',
+    },
     choices: {
-      a: { vi: 'Chia cho tổng số quan sát' },
-      b: { vi: 'Dùng MAR bằng 0' },
-      c: { vi: 'Bỏ hết phiên dương rồi lấy độ lệch chuẩn phần còn lại' },
-      d: { vi: 'Lấy căn của phương sai' },
+      a: {
+        vi: 'Chia cho tổng số quan sát',
+        en: 'Dividing by the total number of observations',
+      },
+      b: { vi: 'Dùng MAR bằng 0', en: 'Using a MAR of zero' },
+      c: {
+        vi: 'Bỏ hết phiên dương rồi lấy độ lệch chuẩn phần còn lại',
+        en: 'Discarding every positive session and taking the standard deviation of what remains',
+      },
+      d: { vi: 'Lấy căn của phương sai', en: 'Taking the square root of the variance' },
     },
     answer: 'c',
     explain: {
@@ -764,8 +823,8 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: "Nguồn (bài “The Sortino Ratio”, Deborah Kidd CFA, CFA Institute 2012, dẫn lời Amelia Hopkins) đưa đúng con số này: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010) and a monthly MAR of 0.4167% (5 percent annually) gives a downside deviation of 3.71%. Annualizing the number by multiplying by the square root of 12 (which is another problem) gives 12.84%.” Lấy 3,71 nhân căn 12 (≈3,4641) ra khoảng 12,85%, khớp con số bài viết nêu (12,84%, chỉ lệch do làm tròn). Chú ý: ngay trong ngoặc, tác giả đã gọi bước nhân căn 12 này là “một vấn đề khác” — bài viết còn nói thẳng phía sau: “I have read that you cannot annualize downside deviation in the same manner as standard deviation... but analytical packages I've seen do it anyway,” tức quy ước này bị dùng phổ biến dù giới chuyên môn không coi là đúng đắn về mặt lý thuyết. Ba đáp án còn lại là ba lỗi hay gặp: 3,71% là bỏ quên bước quy năm và báo thẳng con số theo tháng; 44,52% là nhân với 12 thay vì với căn 12; 1,07% là chia cho căn 12 thay vì nhân.",
-      en: "The source (“The Sortino Ratio”, Deborah Kidd CFA, CFA Institute 2012, quoting Amelia Hopkins) gives exactly this: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010) and a monthly MAR of 0.4167% (5 percent annually) gives a downside deviation of 3.71%. Annualizing the number by multiplying by the square root of 12 (which is another problem) gives 12.84%.” 3.71 × √12 (≈3.4641) works out to about 12.85%, matching the article's 12.84% (the small gap is rounding). Note that the parenthetical already flags the ×√12 step as “another problem,” and the article states outright afterward: “I have read that you cannot annualize downside deviation in the same manner as standard deviation... but analytical packages I've seen do it anyway” — a widely used convention that experts do not consider theoretically sound. The other three are common slips: 3.71% skips the annualizing step and reports the monthly figure as is; 44.52% multiplies by 12 instead of by the square root of 12; 1.07% divides by the square root instead of multiplying.",
+      vi: "Nguồn (bài “The Sortino Ratio”, Deborah Kidd CFA, CFA Institute 2012, dẫn lời Amelia Hopkins) đưa đúng con số này: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010) and a monthly MAR of 0.4167% (5 percent annually) gives a downside deviation of 3.71%. Annualizing the number by multiplying by the square root of 12 (which is another problem) gives 12.84%.” Lấy 3,71 nhân căn 12 (≈3,4641) ra khoảng 12,85%, khớp con số bài viết nêu (12,84%, chỉ lệch do làm tròn). Chú ý: ngay trong ngoặc, tác giả đã gọi bước nhân căn 12 này là “một vấn đề khác” — bài viết còn nói thẳng phía sau: “I have read that you cannot annualize downside deviation in the same manner as standard deviation... but analytical packages I've seen do it anyway”, tức quy ước này bị dùng phổ biến dù giới chuyên môn không coi là đúng đắn về mặt lý thuyết. Ba đáp án còn lại là ba lỗi hay gặp: 3,71% là bỏ quên bước quy năm và báo thẳng con số theo tháng; 44,52% là nhân với 12 thay vì với căn 12; 1,07% là chia cho căn 12 thay vì nhân.",
+      en: "The source (“The Sortino Ratio”, Deborah Kidd CFA, CFA Institute 2012, quoting Amelia Hopkins) gives exactly this: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010) and a monthly MAR of 0.4167% (5 percent annually) gives a downside deviation of 3.71%. Annualizing the number by multiplying by the square root of 12 (which is another problem) gives 12.84%.” 3.71 × √12 (≈3.4641) works out to about 12.85%, matching the article's 12.84% (the small gap is rounding). Note that the parenthetical already flags the ×√12 step as “another problem”, and the article states outright afterward: “I have read that you cannot annualize downside deviation in the same manner as standard deviation... but analytical packages I've seen do it anyway” — a widely used convention that experts do not consider theoretically sound. The other three are common slips: 3.71% skips the annualizing step and reports the monthly figure as is; 44.52% multiplies by 12 instead of by the square root of 12; 1.07% divides by the square root instead of multiplying.",
     },
     source: {
       url: 'https://rpc.cfainstitute.org/sites/default/files/-/media/documents/code/gips/the-sortino-ratio.pdf',
@@ -781,12 +840,16 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Hai danh mục cùng beta, một tập trung 3 mã, một đa dạng 40 mã. Treynor chấm điểm thế nào?',
+      en: 'Two portfolios share the same beta — one is concentrated in 3 stocks, the other diversified across 40. How does Treynor score them?',
     },
     choices: {
-      a: { vi: 'Danh mục đa dạng cao hơn' },
-      b: { vi: 'Danh mục tập trung cao hơn' },
-      c: { vi: 'Không tính được' },
-      d: { vi: 'Như nhau — Treynor chỉ chia cho rủi ro hệ thống' },
+      a: { vi: 'Danh mục đa dạng cao hơn', en: 'The diversified portfolio scores higher' },
+      b: { vi: 'Danh mục tập trung cao hơn', en: 'The concentrated portfolio scores higher' },
+      c: { vi: 'Không tính được', en: 'It cannot be computed' },
+      d: {
+        vi: 'Như nhau — Treynor chỉ chia cho rủi ro hệ thống',
+        en: 'The same — Treynor only divides by systematic risk',
+      },
     },
     answer: 'd',
     explain: {
@@ -830,7 +893,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: 'Nguồn liệt kê tính nhìn-về-quá-khứ là một hạn chế của tỉ lệ Treynor: “Hạn chế của tỉ lệ Treynor là bản chất nhìn về quá khứ. Việc đầu tư có khả năng thực hiện và phản ứng khác trong tương lai so với trước đây.” Một tỷ số Treynor cao trong quá khứ không đảm bảo gì cho tương lai, vì cả beta lẫn mối quan hệ với thị trường đều có thể thay đổi.',
-      en: 'The source lists the backward-looking nature as a limitation of the Treynor ratio: “Hạn chế của tỉ lệ Treynor là bản chất nhìn về quá khứ. Việc đầu tư có khả năng thực hiện và phản ứng khác trong tương lai so với trước đây” (the investment may perform and react differently in the future than it did before). A high past Treynor ratio guarantees nothing about the future, since both beta and the relationship with the market can change.',
+      en: 'The source lists the backward-looking nature as a limitation of the Treynor ratio: “Hạn chế của tỉ lệ Treynor là bản chất nhìn về quá khứ. Việc đầu tư có khả năng thực hiện và phản ứng khác trong tương lai so với trước đây.” (The investment may perform and react differently in the future than it did before.) A high past Treynor ratio guarantees nothing about the future, since both beta and the relationship with the market can change.',
     },
     source: {
       url: 'https://vietnambiz.vn/ti-le-treynor-treynor-ratio-la-gi-dac-diem-cong-thuc-tinh-va-han-che-20200506145207118.htm',
@@ -937,7 +1000,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Nguồn tính ví dụ mẫu: “For investment C, the Treynor ratio comes out to be ( 22 – 1 ) / (2.5 * 100) = 0.084”. Cách viết (2,5 × 100) chỉ là mẹo đổi hiệu số phần trăm (22 − 1 = 21) sang số thập phân trước khi chia cho beta — bản chất vẫn là (22% − 1%) / 2,5 = 0,21 / 2,5 = 0,084. Người quen các tỷ số kiểu Sharpe hay nhân kết quả với 100, hoặc quên đổi % sang số thập phân trước khi chia cho beta, nên hay tính sai bước này.',
-      en: "The source's worked example: “For investment C, the Treynor ratio comes out to be ( 22 – 1 ) / (2.5 * 100) = 0.084.” Writing (2.5 × 100) is just a trick to turn the percentage-point difference (22 − 1 = 21) into a decimal before dividing by beta — it is really (22% − 1%) / 2.5 = 0.21 / 2.5 = 0.084. People used to Sharpe-style ratios often multiply the result by 100, or forget to convert the % figures to a decimal before dividing by beta, and get this step wrong.",
+      en: "The source's worked example: “For investment C, the Treynor ratio comes out to be ( 22 – 1 ) / (2.5 * 100) = 0.084”. Writing (2.5 × 100) is just a trick to turn the percentage-point difference (22 − 1 = 21) into a decimal before dividing by beta — it is really (22% − 1%) / 2.5 = 0.21 / 2.5 = 0.084. People used to Sharpe-style ratios often multiply the result by 100, or forget to convert the % figures to a decimal before dividing by beta, and get this step wrong.",
     },
     giai: {
       tinh: { vi: 'Tỷ số Treynor', en: 'Treynor ratio' },
@@ -978,12 +1041,19 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Vì sao Information Ratio có thể ra âm ngay cả khi nhà quản lý thực sự tạo alpha?',
+      en: 'Why can the Information Ratio come out negative even when the manager is genuinely generating alpha?',
     },
     choices: {
-      a: { vi: 'Do tracking error quá nhỏ' },
-      b: { vi: 'Do IR dùng lợi suất số học và bỏ qua đòn bẩy' },
-      c: { vi: 'Do chọn sai chỉ số' },
-      d: { vi: 'Do chưa trừ phí quản lý' },
+      a: { vi: 'Do tracking error quá nhỏ', en: 'Because tracking error is too small' },
+      b: {
+        vi: 'Do IR dùng lợi suất số học và bỏ qua đòn bẩy',
+        en: 'Because the IR uses arithmetic returns and ignores leverage',
+      },
+      c: { vi: 'Do chọn sai chỉ số', en: 'Because the wrong benchmark was chosen' },
+      d: {
+        vi: 'Do chưa trừ phí quản lý',
+        en: 'Because management fees have not been deducted yet',
+      },
     },
     answer: 'b',
     explain: {
@@ -1119,7 +1189,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: '“Rules of thumb from institutional practice call roughly 0.5 good and 1.0 excellent when sustained over multiple years”. Cùng nguồn cảnh báo thêm: “Short backtests routinely print far higher values that regress sharply out of sample”, nên một IR rất cao đo trên vài tháng không nói lên điều gì; mốc 0,5 chỉ có ý nghĩa khi giữ được qua nhiều năm.',
-      en: '“Rules of thumb from institutional practice call roughly 0.5 good and 1.0 excellent when sustained over multiple years.” The same source warns: “Short backtests routinely print far higher values that regress sharply out of sample”, so a very high IR measured over a few months proves nothing; the 0.5 benchmark only carries weight when sustained over years.',
+      en: '“Rules of thumb from institutional practice call roughly 0.5 good and 1.0 excellent when sustained over multiple years”. The same source warns: “Short backtests routinely print far higher values that regress sharply out of sample”, so a very high IR measured over a few months proves nothing; the 0.5 benchmark only carries weight when sustained over years.',
     },
     source: {
       url: 'https://www.luxalgo.com/library/concept/information-ratio/',
@@ -1133,12 +1203,24 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Nhược điểm cốt lõi của tỷ số Calmar là gì?' },
+    prompt: {
+      vi: 'Nhược điểm cốt lõi của tỷ số Calmar là gì?',
+      en: 'What is the core weakness of the Calmar ratio?',
+    },
     choices: {
-      a: { vi: 'Không tính lãi suất phi rủi ro' },
-      b: { vi: 'Mẫu số là một sự kiện lịch sử duy nhất nên chỉ số rất nhiễu' },
-      c: { vi: 'Chỉ dùng cho quỹ phòng hộ' },
-      d: { vi: 'Không tính được khi lợi suất âm' },
+      a: {
+        vi: 'Không tính lãi suất phi rủi ro',
+        en: 'It does not account for the risk-free rate',
+      },
+      b: {
+        vi: 'Mẫu số là một sự kiện lịch sử duy nhất nên chỉ số rất nhiễu',
+        en: 'The denominator is a single historical event, so the ratio is very noisy',
+      },
+      c: { vi: 'Chỉ dùng cho quỹ phòng hộ', en: 'It only applies to hedge funds' },
+      d: {
+        vi: 'Không tính được khi lợi suất âm',
+        en: 'It cannot be computed when returns are negative',
+      },
     },
     answer: 'b',
     explain: {
@@ -1221,7 +1303,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Hai tỷ số khác nhau ở cửa sổ dữ liệu, không ở công thức: Calmar chỉ lấy 36 tháng gần nhất, còn MAR lấy toàn bộ dữ liệu kể từ khi quỹ thành lập. Cả hai đều chia lợi nhuận năm hoá cho mức sụt giảm sâu nhất. “Although the Calmar ratio and MAR ratio are sometimes assumed to be identical, they are in fact different: Calmar ratio uses 36 months of performance data, whereas MAR ratio uses all performance data from inception onwards”.',
-      en: 'The two differ in the data window, not the formula: Calmar takes only the most recent 36 months, while MAR takes all data since the fund was launched. Both divide annualized return by maximum drawdown. “Although the Calmar ratio and MAR ratio are sometimes assumed to be identical, they are in fact different: Calmar ratio uses 36 months of performance data, whereas MAR ratio uses all performance data from inception onwards.”',
+      en: 'The two differ in the data window, not the formula: Calmar takes only the most recent 36 months, while MAR takes all data since the fund was launched. Both divide annualized return by maximum drawdown. “Although the Calmar ratio and MAR ratio are sometimes assumed to be identical, they are in fact different: Calmar ratio uses 36 months of performance data, whereas MAR ratio uses all performance data from inception onwards”.',
     },
     source: {
       url: 'https://en.wikipedia.org/wiki/Calmar_ratio',
@@ -1235,12 +1317,15 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Trader chuyên nghiệp Peter Brandt có tỷ lệ thắng bao nhiêu trong sự nghiệp?' },
+    prompt: {
+      vi: 'Trader chuyên nghiệp Peter Brandt có tỷ lệ thắng bao nhiêu trong sự nghiệp?',
+      en: "What is professional trader Peter Brandt's career win rate?",
+    },
     choices: {
-      a: { vi: 'Trên 70%' },
-      b: { vi: 'Dưới 50%' },
-      c: { vi: 'Khoảng 60%' },
-      d: { vi: 'Không công bố' },
+      a: { vi: 'Trên 70%', en: 'Above 70%' },
+      b: { vi: 'Dưới 50%', en: 'Below 50%' },
+      c: { vi: 'Khoảng 60%', en: 'About 60%' },
+      d: { vi: 'Không công bố', en: 'Never disclosed' },
     },
     answer: 'b',
     explain: {
@@ -1375,12 +1460,13 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Hệ thống có tỷ lệ thắng 25%, chạy 100 lệnh. Chuỗi thua dài nhất nên chuẩn bị tinh thần là bao nhiêu?',
+      en: 'A system has a 25% win rate over 100 trades. What is the longest losing streak you should mentally prepare for?',
     },
     choices: {
-      a: { vi: '3 lệnh' },
-      b: { vi: '50 lệnh' },
-      c: { vi: 'Khoảng 16 lệnh' },
-      d: { vi: 'Không dự đoán được' },
+      a: { vi: '3 lệnh', en: '3 trades' },
+      b: { vi: '50 lệnh', en: '50 trades' },
+      c: { vi: 'Khoảng 16 lệnh', en: 'About 16 trades' },
+      d: { vi: 'Không dự đoán được', en: 'It cannot be predicted' },
     },
     answer: 'c',
     explain: {
@@ -1477,16 +1563,20 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'hau-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Tài khoản lỗ 50%. Cần lãi bao nhiêu để hoà vốn?' },
+    prompt: {
+      vi: 'Tài khoản lỗ 50%. Cần lãi bao nhiêu để hoà vốn?',
+      en: 'An account is down 50%. How much gain is needed to break even?',
+    },
     choices: {
-      a: { vi: '100%' },
-      b: { vi: '50%' },
-      c: { vi: '75%' },
-      d: { vi: '150%' },
+      a: { vi: '100%', en: '100%' },
+      b: { vi: '50%', en: '50%' },
+      c: { vi: '75%', en: '75%' },
+      d: { vi: '150%', en: '150%' },
     },
     answer: 'a',
     explain: {
       vi: 'Toán hồi phục phi tuyến, nguồn liệt kê: “Lỗ 10% cần lãi 11,1%... Lỗ 30% cần lãi 42,8%... Lỗ 50% cần lãi 100% để hòa vốn”, và cảnh báo “Khả năng phục hồi tài khoản giảm đi đáng kể, nếu mức lỗ vượt quá 25%”.',
+      en: "Recovery math is nonlinear. The source lists it out: “Lỗ 10% cần lãi 11,1%... Lỗ 30% cần lãi 42,8%... Lỗ 50% cần lãi 100% để hòa vốn” (a 10% loss needs an 11.1% gain... a 30% loss needs 42.8%... a 50% loss needs 100% to break even), and warns “Khả năng phục hồi tài khoản giảm đi đáng kể, nếu mức lỗ vượt quá 25%” (the account's ability to recover drops sharply once the loss exceeds 25%).",
     },
     source: {
       url: 'https://casin.vn/hoc/chung-khoan-co-ban/gong-lo-chung-khoan-thong-tin/',
@@ -1500,12 +1590,24 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Quỹ có max drawdown lịch sử −20%. Suy luận nào sai?' },
+    prompt: {
+      vi: 'Quỹ có max drawdown lịch sử −20%. Suy luận nào sai?',
+      en: 'A fund has a historical max drawdown of −20%. Which inference is wrong?',
+    },
     choices: {
-      a: { vi: 'Con số phụ thuộc cửa sổ đo' },
-      b: { vi: 'Nó rút gọn cả lịch sử về một số duy nhất' },
-      c: { vi: 'Mức giảm tương lai sẽ không vượt −20%' },
-      d: { vi: 'Quỹ lập năm 2010 sẽ bỏ sót khủng hoảng 2008' },
+      a: { vi: 'Con số phụ thuộc cửa sổ đo', en: 'The figure depends on the measurement window' },
+      b: {
+        vi: 'Nó rút gọn cả lịch sử về một số duy nhất',
+        en: 'It compresses the entire history into a single number',
+      },
+      c: {
+        vi: 'Mức giảm tương lai sẽ không vượt −20%',
+        en: 'Future drawdowns will not exceed −20%',
+      },
+      d: {
+        vi: 'Quỹ lập năm 2010 sẽ bỏ sót khủng hoảng 2008',
+        en: 'A fund launched in 2010 would miss the 2008 crisis',
+      },
     },
     answer: 'c',
     explain: {
@@ -1665,12 +1767,16 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Sụt giảm −17% hồi phục trong 6 tháng so với sụt giảm −5% kéo dài 36 tháng. Cái nào bào mòn nhà đầu tư hơn?',
+      en: 'A −17% drawdown that recovers in 6 months versus a −5% drawdown that drags on for 36 months — which wears an investor down more?',
     },
     choices: {
-      a: { vi: 'Có lập luận rằng cái −5% kéo dài 36 tháng khó chịu hơn' },
-      b: { vi: 'Cái −17%' },
-      c: { vi: 'Như nhau' },
-      d: { vi: 'Không so sánh được' },
+      a: {
+        vi: 'Có lập luận rằng cái −5% kéo dài 36 tháng khó chịu hơn',
+        en: 'A case can be made that the −5% one lasting 36 months is more painful',
+      },
+      b: { vi: 'Cái −17%', en: 'The −17% one' },
+      c: { vi: 'Như nhau', en: 'They are the same' },
+      d: { vi: 'Không so sánh được', en: 'They cannot be compared' },
     },
     answer: 'a',
     explain: {
@@ -1805,12 +1911,13 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Được báo beta của một cổ phiếu Mỹ là 1,10. Khoảng giá trị thật hợp lý là bao nhiêu?',
+      en: "A US stock's reported beta is 1.10. What is a reasonable range for its true value?",
     },
     choices: {
-      a: { vi: '1,09 – 1,11' },
-      b: { vi: 'Khoảng 0,70 – 1,50' },
-      c: { vi: '1,00 – 1,20' },
-      d: { vi: 'Beta không có sai số' },
+      a: { vi: '1,09 – 1,11', en: '1.09 – 1.11' },
+      b: { vi: 'Khoảng 0,70 – 1,50', en: 'About 0.70 – 1.50' },
+      c: { vi: '1,00 – 1,20', en: '1.00 – 1.20' },
+      d: { vi: 'Beta không có sai số', en: 'Beta has no estimation error' },
     },
     answer: 'b',
     explain: {
@@ -1840,16 +1947,21 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Theo quy ước của CafeF, cổ phiếu mới niêm yết dưới 30 phiên được tính beta thế nào?',
+      en: "Under CafeF's convention, how is beta computed for a stock listed for fewer than 30 sessions?",
     },
     choices: {
-      a: { vi: 'Tính trên số phiên có sẵn' },
-      b: { vi: 'Gán beta bằng 1' },
-      c: { vi: 'Lấy beta trung bình ngành' },
-      d: { vi: 'Không tính beta' },
+      a: {
+        vi: 'Tính trên số phiên có sẵn',
+        en: 'Computed using however many sessions are available',
+      },
+      b: { vi: 'Gán beta bằng 1', en: 'Beta is set to 1' },
+      c: { vi: 'Lấy beta trung bình ngành', en: 'The industry average beta is used' },
+      d: { vi: 'Không tính beta', en: 'Beta is not computed' },
     },
     answer: 'd',
     explain: {
       vi: 'CafeF quy định: beta “được tính dựa trên dữ liệu giao dịch 100 phiên liên tiếp gần thời điểm hiện tại nhất”; dưới 30 phiên thì không tính; từ 30 đến dưới 100 phiên thì tính từ lúc bắt đầu giao dịch. VnExpress bổ sung beta “không phù hợp để đánh giá các công ty mới thành lập, mới lên sàn”.',
+      en: "CafeF's rule: beta “được tính dựa trên dữ liệu giao dịch 100 phiên liên tiếp gần thời điểm hiện tại nhất” (is computed from the 100 most recent consecutive trading sessions); under 30 sessions it is not computed; from 30 up to under 100 sessions it is computed from the start of trading. VnExpress adds that beta “không phù hợp để đánh giá các công ty mới thành lập, mới lên sàn” (is not suitable for evaluating newly founded or newly listed companies).",
     },
     source: {
       url: 'https://cafef.vn/du-lieu/help/hesobeta.aspx',
@@ -1863,16 +1975,26 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'quy-dinh',
-    prompt: { vi: 'Cổ phiếu UPCoM thanh khoản thấp cho beta rất nhỏ. Kết luận nào đúng?' },
+    prompt: {
+      vi: 'Cổ phiếu UPCoM thanh khoản thấp cho beta rất nhỏ. Kết luận nào đúng?',
+      en: 'A low-liquidity UPCoM stock produces a very small beta. Which conclusion is correct?',
+    },
     choices: {
-      a: { vi: 'Giao dịch thưa làm beta bị lệch xuống một cách có hệ thống' },
-      b: { vi: 'Cổ phiếu này ít rủi ro hơn thị trường' },
-      c: { vi: 'Beta nhỏ do vốn hoá nhỏ' },
-      d: { vi: 'Do sàn UPCoM biên độ rộng' },
+      a: {
+        vi: 'Giao dịch thưa làm beta bị lệch xuống một cách có hệ thống',
+        en: 'Thin trading systematically biases beta downward',
+      },
+      b: {
+        vi: 'Cổ phiếu này ít rủi ro hơn thị trường',
+        en: 'This stock is less risky than the market',
+      },
+      c: { vi: 'Beta nhỏ do vốn hoá nhỏ', en: 'The small beta is due to its small market cap' },
+      d: { vi: 'Do sàn UPCoM biên độ rộng', en: "It's because UPCoM has a wider price band" },
     },
     answer: 'a',
     explain: {
       vi: 'Nghiên cứu về thin trading: các phương pháp hiệu chỉnh (Scholes-Williams, Dimson, Hansen-Hodrick) giảm được độ lệch nhưng “less bias comes at the cost of a higher standard error”. Giao dịch không đồng bộ khiến beta ước lượng thấp hơn thực tế.',
+      en: 'Research on thin trading: correction methods (Scholes-Williams, Dimson, Hansen-Hodrick) reduce the bias, but “less bias comes at the cost of a higher standard error”. Asynchronous, infrequent trading causes the estimated beta to understate the true value.',
     },
     source: {
       url: 'https://ideas.repec.org/a/bla/jbfnac/v35y2008i9-10p1196-1219.html',
@@ -1968,12 +2090,15 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Buffett đánh giá thế nào về việc dùng biến động làm đại diện cho rủi ro?' },
+    prompt: {
+      vi: 'Buffett đánh giá thế nào về việc dùng biến động làm đại diện cho rủi ro?',
+      en: 'How does Buffett assess using volatility as a proxy for risk?',
+    },
     choices: {
-      a: { vi: 'Đó là chuẩn mực đúng đắn' },
-      b: { vi: 'Chỉ đúng với danh mục lớn' },
-      c: { vi: 'Đúng trong ngắn hạn' },
-      d: { vi: 'Cách dạy đó dễ nhưng sai bét' },
+      a: { vi: 'Đó là chuẩn mực đúng đắn', en: 'It is the correct standard' },
+      b: { vi: 'Chỉ đúng với danh mục lớn', en: 'It only holds for large portfolios' },
+      c: { vi: 'Đúng trong ngắn hạn', en: 'It holds in the short term' },
+      d: { vi: 'Cách dạy đó dễ nhưng sai bét', en: 'That teaching is easy but dead wrong' },
     },
     answer: 'd',
     explain: {
@@ -1992,14 +2117,18 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Quy tắc nhân căn bậc hai của thời gian để quy biến động về năm đúng khi nào?' },
+    prompt: {
+      vi: 'Quy tắc nhân căn bậc hai của thời gian để quy biến động về năm đúng khi nào?',
+      en: 'When is the square-root-of-time rule for annualizing volatility actually valid?',
+    },
     choices: {
-      a: { vi: 'Luôn đúng' },
+      a: { vi: 'Luôn đúng', en: 'Always' },
       b: {
         vi: 'Khi lợi suất độc lập và phân phối chuẩn — thực tế thị trường có xu hướng và phụ thuộc đường đi',
+        en: 'When returns are independent and normally distributed — in practice, markets trend and are path-dependent',
       },
-      c: { vi: 'Chỉ đúng với cổ phiếu' },
-      d: { vi: 'Chỉ đúng khi biến động dưới 20%' },
+      c: { vi: 'Chỉ đúng với cổ phiếu', en: 'Only for stocks' },
+      d: { vi: 'Chỉ đúng khi biến động dưới 20%', en: 'Only when volatility is under 20%' },
     },
     answer: 'b',
     explain: {
@@ -2118,16 +2247,26 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Khi nào hệ số biến thiên mất ý nghĩa?' },
+    prompt: {
+      vi: 'Khi nào hệ số biến thiên mất ý nghĩa?',
+      en: 'When does the coefficient of variation lose its meaning?',
+    },
     choices: {
-      a: { vi: 'Khi độ lệch chuẩn quá lớn' },
-      b: { vi: 'Khi số quan sát dưới 30' },
-      c: { vi: 'Khi lợi suất kỳ vọng ở mẫu số bằng 0 hoặc âm' },
-      d: { vi: 'Khi danh mục có trên 20 mã' },
+      a: { vi: 'Khi độ lệch chuẩn quá lớn', en: 'When the standard deviation is too large' },
+      b: { vi: 'Khi số quan sát dưới 30', en: 'When the number of observations is under 30' },
+      c: {
+        vi: 'Khi lợi suất kỳ vọng ở mẫu số bằng 0 hoặc âm',
+        en: 'When the expected return in the denominator is zero or negative',
+      },
+      d: {
+        vi: 'Khi danh mục có trên 20 mã',
+        en: 'When the portfolio holds more than 20 stocks',
+      },
     },
     answer: 'c',
     explain: {
       vi: 'Nguồn tiếng Việt: “nếu lợi nhuận kì vọng nằm ở mẫu số bằng 0 hoặc âm thì hệ số biến thiên có thể sẽ sai” — tình huống rất thường gặp ở danh mục đang lỗ.',
+      en: 'The Vietnamese source: “nếu lợi nhuận kì vọng nằm ở mẫu số bằng 0 hoặc âm thì hệ số biến thiên có thể sẽ sai” (if the expected return in the denominator is zero or negative, the coefficient of variation can be wrong) — a situation very common for a portfolio that is currently losing money.',
     },
     source: {
       url: 'https://vietnambiz.vn/he-so-bien-thien-coefficient-of-variation-cv-la-gi-nhung-dac-diem-can-luu-y-20191121233238319.htm',
@@ -2172,7 +2311,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: '“the dispersion per unit monthly return of T-Bills is less than that of Y. Therefore, investment Y is riskier than an investment on T-Bills” — CV(Y) = 6/1,5 = 4 lần, cao hơn hẳn CV(T-Bill) = 0,58/0,5 = 1,16 lần. Đáng chú ý: nếu chỉ so độ lệch chuẩn thô (6% so với 0,58%, cách nhau hơn 10 lần) sẽ đánh giá chênh lệch rủi ro lớn hơn nhiều so với con số CV thực (chỉ khoảng 3,4 lần) — CV mới là con số đọc đúng rủi ro trên mỗi đơn vị lợi suất khi hai khoản đầu tư có lợi suất kỳ vọng khác nhau.',
-      en: '“the dispersion per unit monthly return of T-Bills is less than that of Y. Therefore, investment Y is riskier than an investment on T-Bills.” CV(Y) = 6/1.5 = 4x, well above CV(T-Bill) = 0.58/0.5 = 1.16x. Note that comparing raw standard deviations alone (6% vs 0.58%, a 10x+ gap) would suggest a far bigger risk difference than the actual CV gap (about 3.4x) — CV is the number that correctly reads risk per unit of return when two investments have different expected returns.',
+      en: '“the dispersion per unit monthly return of T-Bills is less than that of Y. Therefore, investment Y is riskier than an investment on T-Bills”. CV(Y) = 6/1.5 = 4x, well above CV(T-Bill) = 0.58/0.5 = 1.16x. Note that comparing raw standard deviations alone (6% vs 0.58%, a 10x+ gap) would suggest a far bigger risk difference than the actual CV gap (about 3.4x) — CV is the number that correctly reads risk per unit of return when two investments have different expected returns.',
     },
     giai: {
       tinh: { vi: 'Hệ số biến thiên', en: 'Coefficient of variation' },
@@ -2249,7 +2388,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: '“the stock λ is the best-performing stock instead of the fact that it has the lowest return out of all. Same way, β having the highest return of all, is the least performing among the three” — λ có CV thấp nhất (37,5%) nên là cổ phiếu tốt nhất theo rủi ro trên mỗi đơn vị lợi suất, dù lợi suất bình quân 8% là thấp nhất trong ba mã; ngược lại β lợi suất cao nhất (25%) nhưng CV cũng cao nhất (80%) nên lại là cổ phiếu kém nhất.',
-      en: '“the stock λ is the best-performing stock instead of the fact that it has the lowest return out of all. Same way, β having the highest return of all, is the least performing among the three.” λ has the lowest CV (37.5%), making it the best stock on a risk-per-return basis even though its 8% average return is the lowest of the three; conversely, β has the highest return (25%) but also the highest CV (80%), making it the worst performer.',
+      en: '“the stock λ is the best-performing stock instead of the fact that it has the lowest return out of all. Same way, β having the highest return of all, is the least performing among the three”. λ has the lowest CV (37.5%), making it the best stock on a risk-per-return basis even though its 8% average return is the lowest of the three; conversely, β has the highest return (25%) but also the highest CV (80%), making it the worst performer.',
     },
     source: {
       url: 'https://efinancemanagement.com/investment-decisions/coefficient-of-variation',
@@ -2288,7 +2427,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answers: ['a', 'b'],
     explain: {
       vi: '“The test statistic is complex which may not be accessible by many ordinary investors” — nên (a) đúng. Bài viết cũng nói thẳng điều kiện để phép kiểm định đáng tin (đủ số chứng khoán so sánh, CV đủ nhỏ) “is rarely achieved in securities, especially in stock market”, nên (b) cũng đúng. Không có căn cứ nào cho (c) — phần mềm giao dịch tích hợp sẵn phép kiểm định này — hay cho (d) — chỉ cần giá đóng cửa cuối năm.',
-      en: '“The test statistic is complex which may not be accessible by many ordinary investors,” so (a) is true. The paper also states outright that the condition for the test to be reliable (enough securities, small enough CV) “is rarely achieved in securities, especially in stock market,” so (b) is true too. Nothing in the source supports (c) — brokerages building this test into trading software — or (d) — needing only year-end closing prices.',
+      en: '“The test statistic is complex which may not be accessible by many ordinary investors”, so (a) is true. The paper also states outright that the condition for the test to be reliable (enough securities, small enough CV) “is rarely achieved in securities, especially in stock market”, so (b) is true too. Nothing in the source supports (c) — brokerages building this test into trading software — or (d) — needing only year-end closing prices.',
     },
     source: {
       url: 'https://arxiv.org/pdf/2109.03977',
@@ -2341,16 +2480,20 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dinh-che',
     evidence: 'quy-dinh',
-    prompt: { vi: 'Biên độ dao động giá một phiên trên HOSE, HNX và UPCoM lần lượt là bao nhiêu?' },
+    prompt: {
+      vi: 'Biên độ dao động giá một phiên trên HOSE, HNX và UPCoM lần lượt là bao nhiêu?',
+      en: 'What is the one-session price band on HOSE, HNX and UPCoM, respectively?',
+    },
     choices: {
-      a: { vi: '±5%, ±7%, ±10%' },
-      b: { vi: '±10%, ±15%, ±20%' },
-      c: { vi: '±7%, ±10%, ±15%' },
-      d: { vi: 'Giống nhau cả ba sàn' },
+      a: { vi: '±5%, ±7%, ±10%', en: '±5%, ±7%, ±10%' },
+      b: { vi: '±10%, ±15%, ±20%', en: '±10%, ±15%, ±20%' },
+      c: { vi: '±7%, ±10%, ±15%', en: '±7%, ±10%, ±15%' },
+      d: { vi: 'Giống nhau cả ba sàn', en: 'The same on all three exchanges' },
     },
     answer: 'c',
     explain: {
       vi: 'Biên độ bị chặn theo SÀN chứ không theo cổ phiếu: HOSE ±7%, HNX ±10%, UPCoM ±15%; phiên chào sàn lần lượt ±20%, ±30%, ±40%. Vì vậy so biên độ một mã HOSE với một mã UPCoM là so hai trần khác nhau, không phải so mức biến động tự nhiên.',
+      en: 'The band is capped by EXCHANGE, not by stock: HOSE ±7%, HNX ±10%, UPCoM ±15%; on a first listing day it is ±20%, ±30%, ±40% respectively. So comparing the price range of a HOSE stock with a UPCoM stock compares two different caps, not two genuinely different levels of natural volatility.',
     },
     source: {
       url: 'https://www.dnse.com.vn/hoc/bien-do-dao-dong-gia-co-phieu',
@@ -2442,14 +2585,18 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Quy tắc 2% trong quản trị vốn nghĩa là gì?' },
+    prompt: {
+      vi: 'Quy tắc 2% trong quản trị vốn nghĩa là gì?',
+      en: 'What does the 2% rule in money management mean?',
+    },
     choices: {
-      a: { vi: 'Mua cổ phiếu bằng 2% tài khoản' },
-      b: { vi: 'Lãi mục tiêu 2% mỗi lệnh' },
+      a: { vi: 'Mua cổ phiếu bằng 2% tài khoản', en: 'Buy stock worth 2% of the account' },
+      b: { vi: 'Lãi mục tiêu 2% mỗi lệnh', en: 'A target gain of 2% per trade' },
       c: {
         vi: 'Phần vốn chịu rủi ro tối đa 2% — tính bằng khoảng cách tới điểm dừng lỗ nhân khối lượng',
+        en: 'At most 2% of capital at risk — computed as the distance to the stop-loss times the position size',
       },
-      d: { vi: 'Giữ 2% tiền mặt' },
+      d: { vi: 'Giữ 2% tiền mặt', en: 'Hold 2% in cash' },
     },
     answer: 'c',
     explain: {
@@ -2468,16 +2615,23 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'hau-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Nhà sáng lập FinPeace kể lại việc “all in full margin” để bắt đáy. Kết cục?' },
+    prompt: {
+      vi: 'Nhà sáng lập FinPeace kể lại việc “all in full margin” để bắt đáy. Kết cục?',
+      en: 'FinPeace\'s founder recounts going "all in full margin" trying to catch the bottom. What happened?',
+    },
     choices: {
-      a: { vi: 'Cháy tài khoản, mất khoảng 1 triệu USD' },
-      b: { vi: 'Lãi lớn khi thị trường hồi' },
-      c: { vi: 'Hoà vốn sau 2 năm' },
-      d: { vi: 'Chỉ lỗ 30%' },
+      a: {
+        vi: 'Cháy tài khoản, mất khoảng 1 triệu USD',
+        en: 'Blew up the account, losing about USD 1 million',
+      },
+      b: { vi: 'Lãi lớn khi thị trường hồi', en: 'Made huge gains when the market recovered' },
+      c: { vi: 'Hoà vốn sau 2 năm', en: 'Broke even after 2 years' },
+      d: { vi: 'Chỉ lỗ 30%', en: 'Only lost 30%' },
     },
     answer: 'a',
     explain: {
       vi: 'Ông Nguyễn Tuấn Anh: “tôi quyết định tất tay - all in full margin vào cổ phiếu chứng khoán này”; “Ông bị cháy tài khoản và mất toàn bộ tài sản khi đó có được, khoảng 1 triệu USD”. Kết luận của ông: kiểu chơi này “về dài hạn gần như chắc chắn sẽ thua, bất kể trước đó họ đã thắng được bao nhiêu tiền”.',
+      en: 'Nguyễn Tuấn Anh: “tôi quyết định tất tay - all in full margin vào cổ phiếu chứng khoán này” (I decided to go all-in, full margin, into this stock); “Ông bị cháy tài khoản và mất toàn bộ tài sản khi đó có được, khoảng 1 triệu USD” (he blew up his account and lost all the assets he had at the time, about USD 1 million). His conclusion: this style of trading “về dài hạn gần như chắc chắn sẽ thua, bất kể trước đó họ đã thắng được bao nhiêu tiền” (over the long run is almost certain to lose, no matter how much was won before).',
     },
     source: {
       url: 'https://cafebiz.vn/tung-chay-tai-khoan-mat-1-trieu-usd-vi-all-in-full-margin-nha-sang-lap-finpeace-chia-se-bi-kip-giup-nha-dau-tu-ne-nhung-cu-sap-tren-thi-truong-176221117102257897.chn',
@@ -2532,18 +2686,21 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Danh mục gồm 15 mã thuộc nhiều ngành khác nhau. Rủi ro đã được giảm đáng kể chưa?',
+      en: 'A portfolio holds 15 stocks across many different sectors. Has risk already been meaningfully reduced?',
     },
     choices: {
-      a: { vi: 'Rồi, đó là đa dạng hoá chuẩn' },
+      a: { vi: 'Rồi, đó là đa dạng hoá chuẩn', en: 'Yes, that is proper diversification' },
       b: {
         vi: 'Chưa — danh mục vẫn nằm trong một loại tài sản, cùng chịu tác động khi thị trường chung giảm',
+        en: 'Not yet — the portfolio is still all within one asset class, exposed to the same hit when the broad market falls',
       },
-      c: { vi: 'Rồi nếu có trên 10 mã' },
-      d: { vi: 'Chỉ cần thêm cổ phiếu ngân hàng' },
+      c: { vi: 'Rồi nếu có trên 10 mã', en: 'Yes, once it holds more than 10 stocks' },
+      d: { vi: 'Chỉ cần thêm cổ phiếu ngân hàng', en: 'Just add bank stocks' },
     },
     answer: 'b',
     explain: {
       vi: 'Ông Nguyễn Khoa (FinSuccess): “nhiều nhà đầu tư đang đa dạng hóa theo tên gọi tài sản thay vì bản chất rủi ro”. Bài chỉ ra khi thị trường suy giảm, sở hữu 10–20 mã vẫn không giúp giảm rủi ro đáng kể.',
+      en: 'Nguyễn Khoa (FinSuccess): “nhiều nhà đầu tư đang đa dạng hóa theo tên gọi tài sản thay vì bản chất rủi ro” (many investors diversify by asset name rather than by the actual nature of the risk). The article shows that during a broad market downturn, holding 10–20 stocks still does not meaningfully reduce risk.',
     },
     source: {
       url: 'https://tuoitre.vn/vi-sao-danh-muc-co-co-phieu-nhieu-nganh-nhung-van-rui-ro-100260810133658464.htm',

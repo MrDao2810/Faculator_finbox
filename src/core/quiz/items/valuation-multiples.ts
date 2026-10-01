@@ -16,18 +16,27 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'P/E của một doanh nghiệp thép là 12,5 trong khi trung bình ngành 18,0. Nhận định nào hợp lý nhất?',
+      en: "A steel company's P/E is 12.5 while the industry average is 18.0. Which assessment is most reasonable?",
     },
     choices: {
-      a: { vi: 'Cổ phiếu đang rẻ hơn ngành, nên mua vào' },
-      b: { vi: 'Doanh nghiệp làm ăn kém hơn trung bình ngành' },
-      c: { vi: 'P/E thấp nghĩa là EPS đang âm' },
+      a: {
+        vi: 'Cổ phiếu đang rẻ hơn ngành, nên mua vào',
+        en: 'The stock is cheaper than the sector, so it should be bought',
+      },
+      b: {
+        vi: 'Doanh nghiệp làm ăn kém hơn trung bình ngành',
+        en: 'The company is performing worse than the industry average',
+      },
+      c: { vi: 'P/E thấp nghĩa là EPS đang âm', en: 'A low P/E means EPS is negative' },
       d: {
         vi: 'Chưa kết luận được — thép là ngành chu kỳ, P/E thấp thường rơi vào đỉnh lợi nhuận',
+        en: 'No conclusion yet — steel is a cyclical sector, and a low P/E usually falls right at a profit peak',
       },
     },
     answer: 'd',
     explain: {
       vi: 'Với cổ phiếu chu kỳ, quan hệ đảo ngược: P/E thấp là dấu hiệu ngành đã tới đỉnh. Dẫn Peter Lynch: “Với hầu hết các cổ phiếu, tỷ lệ P/E thấp được coi là một điều tốt lành, nhưng với các cổ phiếu chu kỳ thì điều này lại ngược lại”. HPG từng có P/E 3,41 sau khi giá đã giảm 59%.',
+      en: 'For cyclical stocks, the relationship inverts: a low P/E is a sign the sector has already peaked. Quoting Peter Lynch: “Với hầu hết các cổ phiếu, tỷ lệ P/E thấp được coi là một điều tốt lành, nhưng với các cổ phiếu chu kỳ thì điều này lại ngược lại”. HPG once had a P/E of 3.41 right after its price had fallen 59%.',
     },
     source: {
       url: 'https://cafef.vn/chuyen-nguoc-doi-nhung-co-that-p-e-thap-khong-phai-la-diem-hap-dan-cua-co-phieu-hoa-phat-2022100819552941.chn',
@@ -43,16 +52,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'GMD năm 2018 có P/E 4,42 lần ở giá 27.700 đồng. Trong 1.830 tỷ lợi nhuận có 1.350 tỷ từ bán tài sản. P/E cốt lõi xấp xỉ bao nhiêu?',
+      en: "GMD's 2018 P/E was 4.42x at a price of VND 27,700. Of its VND 1,830 billion profit, VND 1,350 billion came from an asset sale. What is its approximate core P/E?",
     },
     choices: {
-      a: { vi: 'Khoảng 17 lần' },
-      b: { vi: 'Vẫn 4,42 lần — lợi nhuận là lợi nhuận' },
-      c: { vi: 'Khoảng 2 lần' },
-      d: { vi: 'Không tính được nếu chưa có báo cáo kiểm toán' },
+      a: { vi: 'Khoảng 17 lần', en: 'About 17x' },
+      b: { vi: 'Vẫn 4,42 lần — lợi nhuận là lợi nhuận', en: 'Still 4.42x — profit is profit' },
+      c: { vi: 'Khoảng 2 lần', en: 'About 2x' },
+      d: {
+        vi: 'Không tính được nếu chưa có báo cáo kiểm toán',
+        en: 'Cannot be calculated without an audited report',
+      },
     },
     answer: 'a',
     explain: {
       vi: 'Loại 1.350 tỷ lợi nhuận một lần, lợi nhuận cốt lõi còn khoảng 480 tỷ, P/E cốt lõi khoảng 17 lần — gấp gần 4 lần con số hiển thị. Nguồn kết luận: “P/E cốt lõi trong tương lai của doanh nghiệp mới là yếu tố cần quan tâm”.',
+      en: 'Stripping out the one-time VND 1,350 billion gain leaves core profit at about VND 480 billion, giving a core P/E of about 17x — nearly 4 times the displayed figure. The source concludes: “P/E cốt lõi trong tương lai của doanh nghiệp mới là yếu tố cần quan tâm”.',
     },
     source: {
       url: 'https://azfin.vn/p-e-thap-can-than-voi-bay-gia-tri/',
@@ -68,16 +82,27 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Doanh nghiệp báo lỗ, EPS bốn quý gần nhất là −1.200 đồng. App nên hiển thị P/E thế nào?',
+      en: 'A company reports a loss, with trailing-four-quarter EPS of −VND 1,200. How should the app display its P/E?',
     },
     choices: {
-      a: { vi: 'P/E âm, càng âm sâu càng rẻ' },
-      b: { vi: 'Hiện “— , —” kèm cảnh báo kết quả không có ý nghĩa' },
-      c: { vi: 'P/E = 0 vì không tính được' },
-      d: { vi: 'Lấy trị tuyệt đối của EPS rồi tính bình thường' },
+      a: {
+        vi: 'P/E âm, càng âm sâu càng rẻ',
+        en: 'A negative P/E, and the more negative, the cheaper',
+      },
+      b: {
+        vi: 'Hiện “— , —” kèm cảnh báo kết quả không có ý nghĩa',
+        en: 'Show “—, —” with a warning that the result is meaningless',
+      },
+      c: { vi: 'P/E = 0 vì không tính được', en: 'P/E = 0 because it cannot be calculated' },
+      d: {
+        vi: 'Lấy trị tuyệt đối của EPS rồi tính bình thường',
+        en: 'Take the absolute value of EPS and calculate as normal',
+      },
     },
     answer: 'b',
     explain: {
       vi: 'Khi EPS âm, P/E mất ý nghĩa so sánh. Nghịch lý được ghi nhận: P/E âm sâu hơn (−100) lại hàm ý khoản lỗ NHỎ hơn so với thị giá chứ không phải tệ hơn (−10) — tức con số không đọc theo trực giác được. Đây đúng là mã cảnh báo MEANINGLESS trong WarningCode.',
+      en: 'When EPS is negative, P/E loses its comparative meaning. A recorded paradox: a more deeply negative P/E (−100) actually implies a SMALLER loss relative to the market price than a less negative one (−10), not a worse one — meaning the number cannot be read intuitively. This is exactly the case the MEANINGLESS warning code in WarningCode exists for.',
     },
     source: {
       url: 'https://24hmoney.vn/news/chi-so-pe-5-su-that-gay-soc-ma-90-nha-dau-tu-bo-qua-c30a2690593.html',
@@ -93,16 +118,18 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Hai doanh nghiệp cùng ngành, A có P/E thấp hơn B 24%. Điều gì có thể giải thích chênh lệch này mà không liên quan tới việc A rẻ hơn?',
+      en: "Two companies in the same industry: A's P/E is 24% lower than B's. What could explain this gap without it being about A being cheaper?",
     },
     choices: {
-      a: { vi: 'A có nhiều tiền mặt hơn' },
-      b: { vi: 'A trả cổ tức đều hơn' },
-      c: { vi: 'A có đòn bẩy nợ cao hơn' },
-      d: { vi: 'A có vốn hoá lớn hơn' },
+      a: { vi: 'A có nhiều tiền mặt hơn', en: 'A holds more cash' },
+      b: { vi: 'A trả cổ tức đều hơn', en: 'A pays dividends more consistently' },
+      c: { vi: 'A có đòn bẩy nợ cao hơn', en: 'A carries higher debt leverage' },
+      d: { vi: 'A có vốn hoá lớn hơn', en: 'A has a larger market capitalization' },
     },
     answer: 'c',
     explain: {
       vi: 'P/E chịu ảnh hưởng của cấu trúc vốn còn EV/EBITDA thì không. Nguồn ghi: “Higher leverage usually (but not always) results in a lower price earnings ratio, but this does not necessarily indicate a better value stock” — và dẫn cặp Greggs/Dominos cho tín hiệu ngược nhau giữa hai chỉ số.',
+      en: 'P/E is affected by capital structure, while EV/EBITDA is not. The source notes: “Higher leverage usually (but not always) results in a lower price earnings ratio, but this does not necessarily indicate a better value stock” — and cites the Greggs/Dominos pair as sending opposite signals between the two metrics.',
     },
     source: {
       url: 'https://www.footnotesanalyst.com/relative-valuation-conflicts-ev-ebitda-versus-p-e/',
@@ -116,16 +143,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Ngành nào sau đây P/E kém tác dụng nhất do đặc thù ghi nhận doanh thu?' },
+    prompt: {
+      vi: 'Ngành nào sau đây P/E kém tác dụng nhất do đặc thù ghi nhận doanh thu?',
+      en: 'Which of the following sectors is P/E least useful for, due to its particular revenue-recognition practice?',
+    },
     choices: {
-      a: { vi: 'Ngân hàng' },
-      b: { vi: 'Xây dựng' },
-      c: { vi: 'Bán lẻ' },
-      d: { vi: 'Điện' },
+      a: { vi: 'Ngân hàng', en: 'Banking' },
+      b: { vi: 'Xây dựng', en: 'Construction' },
+      c: { vi: 'Bán lẻ', en: 'Retail' },
+      d: { vi: 'Điện', en: 'Electricity/power' },
     },
     answer: 'b',
     explain: {
       vi: 'Ngành xây dựng ghi nhận doanh thu theo tiến độ dự án nên lợi nhuận từng kỳ không phản ánh nhịp kinh doanh thật. Nguồn cũng nêu P/E hợp lý khác nhau theo ngành — ví dụ ngân hàng 12–14 lần.',
+      en: 'The construction sector recognizes revenue by project completion percentage, so profit in any given period does not reflect the real pace of business. The source also notes that a reasonable P/E differs by sector — for example, 12–14x for banking.',
     },
     source: {
       url: 'https://simplize.vn/learn/chi-so-pe',
@@ -139,16 +170,26 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Một cổ phiếu ngân hàng có P/B 0,7 lần. Cách đọc nào đúng nhất?' },
+    prompt: {
+      vi: 'Một cổ phiếu ngân hàng có P/B 0,7 lần. Cách đọc nào đúng nhất?',
+      en: 'A bank stock has a P/B of 0.7x. Which reading is most correct?',
+    },
     choices: {
-      a: { vi: 'Chắc chắn rẻ vì mua tài sản dưới giá sổ sách' },
-      b: { vi: 'Ngân hàng sắp phá sản' },
-      c: { vi: 'P/B dưới 1 là lỗi dữ liệu' },
-      d: { vi: 'Thị trường đang chiết khấu rủi ro chất lượng tài sản, cần soi nợ xấu' },
+      a: {
+        vi: 'Chắc chắn rẻ vì mua tài sản dưới giá sổ sách',
+        en: 'Definitely cheap, since you are buying assets below book value',
+      },
+      b: { vi: 'Ngân hàng sắp phá sản', en: 'The bank is about to go bankrupt' },
+      c: { vi: 'P/B dưới 1 là lỗi dữ liệu', en: 'A P/B below 1 is a data error' },
+      d: {
+        vi: 'Thị trường đang chiết khấu rủi ro chất lượng tài sản, cần soi nợ xấu',
+        en: 'The market is discounting asset-quality risk; bad debt needs to be checked',
+      },
     },
     answer: 'd',
     explain: {
       vi: 'Với ngân hàng, giá trị sổ sách chủ yếu là dư nợ cho vay. Nguồn cảnh báo: “khi nợ xấu tăng cao, giá trị thực tế của các khoản vay này có thể thấp hơn nhiều so với con số ghi chép trên sổ sách”, và nhắc nguyên tắc “Đừng bao giờ nhầm lẫn giữa rẻ và tốt”.',
+      en: 'For banks, book value mostly consists of the loan portfolio. The source warns: “khi nợ xấu tăng cao, giá trị thực tế của các khoản vay này có thể thấp hơn nhiều so với con số ghi chép trên sổ sách”, and invokes the principle “Đừng bao giờ nhầm lẫn giữa rẻ và tốt”.',
     },
     source: {
       url: 'https://vimo.cuthongthai.vn/blog/pb-ratio-bi-mat-dinh-gia-co-phieu-ngan-hang',
@@ -162,16 +203,29 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Vì sao Damodaran nói mua dưới giá trị sổ sách không đảm bảo là mua rẻ?' },
+    prompt: {
+      vi: 'Vì sao Damodaran nói mua dưới giá trị sổ sách không đảm bảo là mua rẻ?',
+      en: 'Why does Damodaran say buying below book value does not guarantee buying cheap?',
+    },
     choices: {
-      a: { vi: 'Vì giá trị sổ sách luôn bị khai thấp' },
-      b: { vi: 'Vì giá trị sổ sách là một ý kiến kế toán, không phải giá trị thanh lý' },
-      c: { vi: 'Vì P/B chỉ dùng được cho công ty Mỹ' },
-      d: { vi: 'Vì thị trường luôn đúng' },
+      a: {
+        vi: 'Vì giá trị sổ sách luôn bị khai thấp',
+        en: 'Because book value is always understated',
+      },
+      b: {
+        vi: 'Vì giá trị sổ sách là một ý kiến kế toán, không phải giá trị thanh lý',
+        en: 'Because book value is an accounting opinion, not a liquidation value',
+      },
+      c: {
+        vi: 'Vì P/B chỉ dùng được cho công ty Mỹ',
+        en: 'Because P/B can only be used for U.S. companies',
+      },
+      d: { vi: 'Vì thị trường luôn đúng', en: 'Because the market is always right' },
     },
     answer: 'b',
     explain: {
       vi: 'Damodaran: “The book value is an opinion and not a fact”. Niềm tin “P/B < 1 là rẻ” dựa trên hai giả định sai: thị trường kém tin cậy hơn kế toán, và giá trị sổ sách bằng giá trị thanh lý. Doanh nghiệp ROE thấp hoặc rủi ro cao xứng đáng giao dịch dưới book value.',
+      en: 'Damodaran: “The book value is an opinion and not a fact”. The belief that “P/B < 1 là rẻ” rests on two false assumptions: that the market is less reliable than accounting, and that book value equals liquidation value. A company with low ROE or high risk deserves to trade below book value.',
     },
     source: {
       url: 'https://pages.stern.nyu.edu/~adamodar/pdfiles/invfables/ch4new.pdf',
@@ -185,16 +239,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Loại doanh nghiệp nào khiến P/B trông đắt một cách sai lệch?' },
+    prompt: {
+      vi: 'Loại doanh nghiệp nào khiến P/B trông đắt một cách sai lệch?',
+      en: 'What type of company makes P/B look deceptively expensive?',
+    },
     choices: {
-      a: { vi: 'Doanh nghiệp thép' },
-      b: { vi: 'Công ty bất động sản' },
-      c: { vi: 'Ngân hàng' },
-      d: { vi: 'Công ty phần mềm và thương hiệu mạnh' },
+      a: { vi: 'Doanh nghiệp thép', en: 'Steel companies' },
+      b: { vi: 'Công ty bất động sản', en: 'Real estate companies' },
+      c: { vi: 'Ngân hàng', en: 'Banks' },
+      d: {
+        vi: 'Công ty phần mềm và thương hiệu mạnh',
+        en: 'Software companies and strong-brand companies',
+      },
     },
     answer: 'd',
     explain: {
       vi: 'Giá trị sổ sách chỉ ghi nhận tài sản hữu hình. P/B “KHÔNG phù hợp với những công ty có tài sản vô hình lớn (như các công ty phần mềm)” vì thương hiệu, bằng sáng chế, uy tín không nằm trên bảng cân đối.',
+      en: 'Book value only records tangible assets. P/B “KHÔNG phù hợp với những công ty có tài sản vô hình lớn (như các công ty phần mềm)” because brand, patents, and reputation do not sit on the balance sheet.',
     },
     source: {
       url: 'https://simplize.vn/learn/chi-so-pb',
@@ -208,12 +269,18 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'P/S của một doanh nghiệp thấp hơn hẳn đối thủ. Kết luận nào đúng?' },
+    prompt: {
+      vi: 'P/S của một doanh nghiệp thấp hơn hẳn đối thủ. Kết luận nào đúng?',
+      en: "A company's P/S is much lower than its rivals'. Which conclusion is correct?",
+    },
     choices: {
-      a: { vi: 'Cổ phiếu rẻ hơn' },
-      b: { vi: 'Chỉ biết trả ít hơn cho mỗi đồng doanh thu, chưa biết gì về biên lợi nhuận và nợ' },
-      c: { vi: 'Doanh thu đang giảm' },
-      d: { vi: 'Doanh nghiệp sắp có lãi' },
+      a: { vi: 'Cổ phiếu rẻ hơn', en: 'The stock is cheaper' },
+      b: {
+        vi: 'Chỉ biết trả ít hơn cho mỗi đồng doanh thu, chưa biết gì về biên lợi nhuận và nợ',
+        en: 'It only tells you that you pay less per dong of revenue — it says nothing yet about profit margin or debt',
+      },
+      c: { vi: 'Doanh thu đang giảm', en: 'Revenue is declining' },
+      d: { vi: 'Doanh nghiệp sắp có lãi', en: 'The company is about to turn a profit' },
     },
     answer: 'b',
     explain: {
@@ -257,7 +324,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     answers: ['a', 'b'],
     explain: {
       vi: "Damodaran chỉ ra P/S là thước đo thô, không tách được đòn bẩy biên lợi nhuận: “Yahoo trades at 130 times sales. But few would say that Amazon, which trades at 20 times sales, is only one-third as richly valued as Yahoo.” Amazon phải trừ giá vốn hàng bán khỏi doanh thu còn Yahoo gần như không có giá vốn, nên hai con số P/S không thể so sánh trực tiếp. Tương tự, AOL không nên gộp một P/S chung vì “AOL's revenue comes from two very different businesses -- dialup access and advertising/commerce”, hai mảng có biên lợi nhuận khác hẳn nhau.",
-      en: "Damodaran points out that P/S is a crude measure that cannot separate out margin leverage: “Yahoo trades at 130 times sales. But few would say that Amazon, which trades at 20 times sales, is only one-third as richly valued as Yahoo.” Amazon has to subtract cost of goods sold from revenue while Yahoo carries almost none, so the two P/S figures are not directly comparable. Likewise, AOL should not be assigned one blended P/S because “AOL's revenue comes from two very different businesses -- dialup access and advertising/commerce,” two segments with very different margins.",
+      en: "Damodaran points out that P/S is a crude measure that cannot separate out margin leverage: “Yahoo trades at 130 times sales. But few would say that Amazon, which trades at 20 times sales, is only one-third as richly valued as Yahoo.” Amazon has to subtract cost of goods sold from revenue while Yahoo carries almost none, so the two P/S figures are not directly comparable. Likewise, AOL should not be assigned one blended P/S because “AOL's revenue comes from two very different businesses -- dialup access and advertising/commerce”, two segments with very different margins.",
     },
     source: {
       url: 'https://pages.stern.nyu.edu/~adamodar/New_Home_Page/darkside/articles/parsingps.htm',
@@ -296,7 +363,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: 'Nguồn cảnh báo: “Nếu các khoản phải thu của doanh nghiệp đang tăng nhanh hơn rất nhiều so với doanh số, có khả năng một số doanh thu ghi nhận sớm nhưng chưa đem lại dòng tiền thực cho doanh nghiệp.” Doanh thu tăng theo cách này chỉ là con số kế toán, chưa phải tiền thật, nên P/S giảm không đồng nghĩa cổ phiếu thực sự rẻ đi.',
-      en: "The source warns: “Nếu các khoản phải thu của doanh nghiệp đang tăng nhanh hơn rất nhiều so với doanh số, có khả năng một số doanh thu ghi nhận sớm nhưng chưa đem lại dòng tiền thực cho doanh nghiệp” (roughly, “if a company's receivables are growing much faster than its sales, some revenue may have been booked early without yet bringing in real cash”). Revenue that grows this way is only an accounting figure, not real cash, so a falling P/S does not mean the stock has genuinely gotten cheaper.",
+      en: "The source warns: “Nếu các khoản phải thu của doanh nghiệp đang tăng nhanh hơn rất nhiều so với doanh số, có khả năng một số doanh thu ghi nhận sớm nhưng chưa đem lại dòng tiền thực cho doanh nghiệp.” (Roughly, if a company's receivables are growing much faster than its sales, some revenue may have been booked early without yet bringing in real cash.) Revenue that grows this way is only an accounting figure, not real cash, so a falling P/S does not mean the stock has genuinely gotten cheaper.",
     },
     source: {
       url: 'https://govalue.vn/chi-so-ps/',
@@ -346,7 +413,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Nguồn tính lại P/S ngay sau khi có báo cáo Q1/2019: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” Lấy 71.150,89 chia cho 57.798 tỷ đồng doanh thu lũy kế 4 quý ra khoảng 1,23 lần — thấp hơn 1,26 lần nếu vẫn dùng doanh thu cả năm 2018 đã lỗi thời so với báo cáo mới nhất.',
-      en: "The source recalculates P/S right after the Q1/2019 results come out: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG” (roughly, “for more accuracy we need to use HPG's trailing four-quarter revenue”). Dividing VND 71,150.89 billion by the trailing four-quarter revenue of VND 57,798 billion gives about 1.23x — lower than the 1.26x you would get by still using the now-outdated full-year-2018 revenue.",
+      en: "The source recalculates P/S right after the Q1/2019 results come out: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” (Roughly, for more accuracy we need to use HPG's trailing four-quarter revenue.) Dividing VND 71,150.89 billion by the trailing four-quarter revenue of VND 57,798 billion gives about 1.23x — lower than the 1.26x you would get by still using the now-outdated full-year-2018 revenue.",
     },
     giai: {
       tinh: { vi: 'hệ số giá trên doanh thu', en: 'Price to sales ratio' },
@@ -381,12 +448,18 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Vì sao Enterprise Value trừ đi tiền mặt?' },
+    prompt: {
+      vi: 'Vì sao Enterprise Value trừ đi tiền mặt?',
+      en: 'Why does Enterprise Value subtract cash?',
+    },
     choices: {
-      a: { vi: 'Vì bên mua nhận luôn số tiền đó nên nó bù trừ vào giá phải trả' },
-      b: { vi: 'Vì tiền mặt không sinh lời' },
-      c: { vi: 'Vì tiền mặt đã tính vào nợ' },
-      d: { vi: 'Vì chuẩn kế toán yêu cầu' },
+      a: {
+        vi: 'Vì bên mua nhận luôn số tiền đó nên nó bù trừ vào giá phải trả',
+        en: 'Because the buyer also receives that cash, which offsets the price to be paid',
+      },
+      b: { vi: 'Vì tiền mặt không sinh lời', en: 'Because cash does not generate returns' },
+      c: { vi: 'Vì tiền mặt đã tính vào nợ', en: 'Because cash is already counted in debt' },
+      d: { vi: 'Vì chuẩn kế toán yêu cầu', en: 'Because accounting standards require it' },
     },
     answer: 'a',
     explain: {
@@ -405,16 +478,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Bội số nào sau đây là ghép sai tử số với mẫu số?' },
+    prompt: {
+      vi: 'Bội số nào sau đây là ghép sai tử số với mẫu số?',
+      en: 'Which of the following multiples pairs the wrong numerator with its denominator?',
+    },
     choices: {
-      a: { vi: 'P/E' },
-      b: { vi: 'EV/EBITDA' },
-      c: { vi: 'P/B' },
-      d: { vi: 'P/EBITDA' },
+      a: { vi: 'P/E', en: 'P/E' },
+      b: { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
+      c: { vi: 'P/B', en: 'P/B' },
+      d: { vi: 'P/EBITDA', en: 'P/EBITDA' },
     },
     answer: 'd',
     explain: {
       vi: 'Tử số vốn chủ (giá, vốn hoá) phải đi với mẫu số vốn chủ; mẫu số toàn doanh nghiệp (EBITDA, doanh thu) phải đi với EV. Damodaran gọi thẳng: “Price to EBITDA is an inconsistent abomination and Price to Sales is almost as badly constructed”.',
+      en: 'An equity numerator (price, market cap) must pair with an equity denominator; a whole-firm denominator (EBITDA, revenue) must pair with EV. Damodaran states it bluntly: “Price to EBITDA is an inconsistent abomination and Price to Sales is almost as badly constructed”.',
     },
     source: {
       url: 'https://aswathdamodaran.blogspot.com/2020/04/a-viral-market-update-vii-mayhem-with.html',
@@ -506,16 +583,29 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Vì sao Buffett và Munger phản đối dùng EBITDA làm thước đo dòng tiền?' },
+    prompt: {
+      vi: 'Vì sao Buffett và Munger phản đối dùng EBITDA làm thước đo dòng tiền?',
+      en: 'Why do Buffett and Munger object to using EBITDA as a cash-flow measure?',
+    },
     choices: {
-      a: { vi: 'Vì EBITDA khó tính' },
-      b: { vi: 'Vì EBITDA chỉ dùng cho công ty niêm yết' },
-      c: { vi: 'Vì EBITDA bỏ qua lãi vay, thuế và capex duy trì — đều là chi phí thật' },
-      d: { vi: 'Vì EBITDA thay đổi theo chuẩn kế toán' },
+      a: { vi: 'Vì EBITDA khó tính', en: 'Because EBITDA is hard to calculate' },
+      b: {
+        vi: 'Vì EBITDA chỉ dùng cho công ty niêm yết',
+        en: 'Because EBITDA can only be used for listed companies',
+      },
+      c: {
+        vi: 'Vì EBITDA bỏ qua lãi vay, thuế và capex duy trì — đều là chi phí thật',
+        en: 'Because EBITDA ignores interest, tax, and maintenance capex — all of which are real costs',
+      },
+      d: {
+        vi: 'Vì EBITDA thay đổi theo chuẩn kế toán',
+        en: 'Because EBITDA changes depending on the accounting standard',
+      },
     },
     answer: 'c',
     explain: {
       vi: "Munger: “every time you see the word EBITDA, you should substitute the word bullshit earnings”. Buffett: “Telecoms, for example, spend every dime that's coming in. Interest and taxes are real costs”. Doanh nghiệp EBITDA 2 triệu mà phải chi 2 triệu mua thiết bị mỗi năm thì không sinh lời cho chủ sở hữu.",
+      en: "Munger: “every time you see the word EBITDA, you should substitute the word bullshit earnings”. Buffett: “Telecoms, for example, spend every dime that's coming in. Interest and taxes are real costs”. A company with EBITDA of 2 million that has to spend 2 million on equipment every year generates no profit for its owners.",
     },
     source: {
       url: 'https://www.permanentequity.com/content/ebitda-is-bs-earnings',
@@ -529,16 +619,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'EBITDA bỏ sót yếu tố nào khiến nó không thay thế được dòng tiền?' },
+    prompt: {
+      vi: 'EBITDA bỏ sót yếu tố nào khiến nó không thay thế được dòng tiền?',
+      en: 'What does EBITDA leave out that keeps it from substituting for cash flow?',
+    },
     choices: {
-      a: { vi: 'Doanh thu tài chính' },
-      b: { vi: 'Thay đổi vốn lưu động và dòng tiền đầu tư' },
-      c: { vi: 'Lợi nhuận gộp' },
-      d: { vi: 'Chi phí bán hàng' },
+      a: { vi: 'Doanh thu tài chính', en: 'Financial income' },
+      b: {
+        vi: 'Thay đổi vốn lưu động và dòng tiền đầu tư',
+        en: 'Changes in working capital and investing cash flow',
+      },
+      c: { vi: 'Lợi nhuận gộp', en: 'Gross profit' },
+      d: { vi: 'Chi phí bán hàng', en: 'Selling expenses' },
     },
     answer: 'b',
     explain: {
       vi: 'Nguồn tiếng Việt: “EBITDA là một chỉ tiêu quan trọng trong đánh giá khả năng sinh lời của doanh nghiệp, tuy nhiên, nó không phải là thước đo để đánh giá dòng tiền của doanh nghiệp” — do không tính thay đổi vốn lưu động, dòng tiền đầu tư và tài chính.',
+      en: 'The Vietnamese-language source states: “EBITDA là một chỉ tiêu quan trọng trong đánh giá khả năng sinh lời của doanh nghiệp, tuy nhiên, nó không phải là thước đo để đánh giá dòng tiền của doanh nghiệp” — because it excludes changes in working capital and investing and financing cash flows.',
     },
     source: {
       url: 'https://simplize.vn/learn/ev-ebitda',
@@ -702,16 +799,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Sai lầm cốt lõi khi so EV/Sales giữa hai doanh nghiệp khác mô hình kinh doanh là gì?',
+      en: 'What is the core mistake when comparing EV/Sales between two companies with different business models?',
     },
     choices: {
-      a: { vi: 'Ngầm tin rằng mọi đồng doanh thu đều có khả năng sinh lời như nhau' },
-      b: { vi: 'Quên trừ tiền mặt' },
-      c: { vi: 'Dùng doanh thu năm cũ' },
-      d: { vi: 'Không điều chỉnh lạm phát' },
+      a: {
+        vi: 'Ngầm tin rằng mọi đồng doanh thu đều có khả năng sinh lời như nhau',
+        en: 'Implicitly assuming that every dollar of revenue has the same profit-generating potential',
+      },
+      b: { vi: 'Quên trừ tiền mặt', en: 'Forgetting to subtract cash' },
+      c: { vi: 'Dùng doanh thu năm cũ', en: 'Using stale, prior-year revenue' },
+      d: { vi: 'Không điều chỉnh lạm phát', en: 'Not adjusting for inflation' },
     },
     answer: 'a',
     explain: {
       vi: 'Nguồn chỉ ra lỗi gốc là tin “all dollars of revenue are equal in their profit generation potential”, và nhắc rằng chỉ tiêu càng nằm trên cao trong báo cáo kết quả kinh doanh thì càng ít nói về dòng tiền tương lai. Hai doanh nghiệp biên gộp khác hẳn nhau xứng đáng có EV/Sales khác hẳn nhau.',
+      en: 'The source identifies the root error as believing “all dollars of revenue are equal in their profit generation potential”, and notes that the higher a line item sits on the income statement, the less it says about future cash flow. Two companies with very different gross margins deserve very different EV/Sales multiples.',
     },
     source: {
       url: 'https://www.sleeperthoughts.com/post/why-evrev-is-bad',
@@ -881,12 +983,24 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'PEG = 0,8. Vì sao đây chưa phải bằng chứng cổ phiếu là món hời?' },
+    prompt: {
+      vi: 'PEG = 0,8. Vì sao đây chưa phải bằng chứng cổ phiếu là món hời?',
+      en: "PEG = 0.8. Why isn't this proof that the stock is a bargain?",
+    },
     choices: {
-      a: { vi: 'Vì PEG chỉ dùng cho công ty Mỹ' },
-      b: { vi: 'Vì PEG luôn nhỏ hơn 1' },
-      c: { vi: 'Vì PEG cần P/E trên 20 mới có nghĩa' },
-      d: { vi: 'Vì PEG không tính giá trị thời gian của tiền và không giả định gì về tái đầu tư' },
+      a: {
+        vi: 'Vì PEG chỉ dùng cho công ty Mỹ',
+        en: 'Because PEG can only be used for U.S. companies',
+      },
+      b: { vi: 'Vì PEG luôn nhỏ hơn 1', en: 'Because PEG is always below 1' },
+      c: {
+        vi: 'Vì PEG cần P/E trên 20 mới có nghĩa',
+        en: 'Because PEG is only meaningful when P/E is above 20',
+      },
+      d: {
+        vi: 'Vì PEG không tính giá trị thời gian của tiền và không giả định gì về tái đầu tư',
+        en: 'Because PEG ignores the time value of money and makes no assumption about reinvestment',
+      },
     },
     answer: 'd',
     explain: {
@@ -907,16 +1021,24 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Rủi ro lớn nhất khi lấy tốc độ tăng trưởng mấy năm gần nhất làm G trong PEG là gì?',
+      en: 'What is the biggest risk in using the growth rate of the past few years as G in PEG?',
     },
     choices: {
-      a: { vi: 'G quá khứ luôn thấp hơn thực tế' },
-      b: { vi: 'G phải tính theo quý' },
-      c: { vi: 'PEG thừa hưởng toàn bộ sai số của một con số không ai dự báo nổi' },
-      d: { vi: 'G không được vượt 10%' },
+      a: {
+        vi: 'G quá khứ luôn thấp hơn thực tế',
+        en: 'Historical G is always understated relative to reality',
+      },
+      b: { vi: 'G phải tính theo quý', en: 'G must be calculated quarterly' },
+      c: {
+        vi: 'PEG thừa hưởng toàn bộ sai số của một con số không ai dự báo nổi',
+        en: 'PEG inherits the full error of a number nobody can reliably forecast',
+      },
+      d: { vi: 'G không được vượt 10%', en: 'G cannot exceed 10%' },
     },
     answer: 'c',
     explain: {
       vi: 'Nguồn tiếng Việt: “không có 1 công thức cụ thể nào giúp xác định chính xác con số này”, và với G quá khứ cao thì đặt câu hỏi ngược: “bạn có dám chắc, con số 50% này sẽ kéo dài trong dài hạn?”',
+      en: 'The Vietnamese-language source states: “không có 1 công thức cụ thể nào giúp xác định chính xác con số này”, and for a high historical G it asks the reverse question: “bạn có dám chắc, con số 50% này sẽ kéo dài trong dài hạn?”',
     },
     source: {
       url: 'https://govalue.vn/chi-so-peg/',
@@ -1031,16 +1153,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Mã A giá 8.000 đồng, mã B giá 120.000 đồng. Kết luận nào đúng?' },
+    prompt: {
+      vi: 'Mã A giá 8.000 đồng, mã B giá 120.000 đồng. Kết luận nào đúng?',
+      en: 'Stock A trades at VND 8,000, stock B at VND 120,000. Which conclusion is correct?',
+    },
     choices: {
-      a: { vi: 'A rẻ hơn B' },
-      b: { vi: 'Không kết luận được gì — thị giá phụ thuộc số cổ phiếu lưu hành' },
-      c: { vi: 'B là doanh nghiệp lớn hơn' },
-      d: { vi: 'A có thanh khoản tốt hơn' },
+      a: { vi: 'A rẻ hơn B', en: 'A is cheaper than B' },
+      b: {
+        vi: 'Không kết luận được gì — thị giá phụ thuộc số cổ phiếu lưu hành',
+        en: 'No conclusion can be drawn — share price depends on the number of shares outstanding',
+      },
+      c: { vi: 'B là doanh nghiệp lớn hơn', en: 'B is the larger company' },
+      d: { vi: 'A có thanh khoản tốt hơn', en: 'A has better liquidity' },
     },
     answer: 'b',
     explain: {
       vi: 'Đây là “ảo giác giá rẻ” mà CTCK Phú Hưng cảnh báo: “thị giá thấp không đồng nghĩa với cổ phiếu rẻ nếu giá trị nội tại không tương xứng”; đánh giá chỉ dựa trên thị giá mà bỏ qua EPS, ROE hay năng lực tạo dòng tiền “có thể khiến nhà đầu tư dễ rơi vào bẫy định giá”.',
+      en: 'This is the “ảo giác giá rẻ” (illusion of cheapness) that brokerage PHS warns about: “thị giá thấp không đồng nghĩa với cổ phiếu rẻ nếu giá trị nội tại không tương xứng”; judging a stock by price alone while ignoring EPS, ROE, or cash-generating ability “có thể khiến nhà đầu tư dễ rơi vào bẫy định giá”.',
     },
     source: {
       url: 'https://www.phs.vn/tin-tuc/bung-no-co-phieu-luu-hanh-va-bai-toan-giu-gia-tri-that-cho-nha-dau-tu/6312838',
@@ -1056,16 +1185,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Bạn nhận cổ phiếu thưởng tỷ lệ 20%. Tài sản của bạn thay đổi thế nào ngay tại thời điểm đó?',
+      en: 'You receive a 20% stock bonus. How does your wealth change at that exact moment?',
     },
     choices: {
-      a: { vi: 'Tăng 20%' },
-      b: { vi: 'Giảm 20%' },
-      c: { vi: 'Tăng 20% nhưng phải nộp thuế 5%' },
-      d: { vi: 'Không đổi — giá tham chiếu bị điều chỉnh tương ứng' },
+      a: { vi: 'Tăng 20%', en: 'Increases 20%' },
+      b: { vi: 'Giảm 20%', en: 'Decreases 20%' },
+      c: { vi: 'Tăng 20% nhưng phải nộp thuế 5%', en: 'Increases 20% but a 5% tax applies' },
+      d: {
+        vi: 'Không đổi — giá tham chiếu bị điều chỉnh tương ứng',
+        en: 'Unchanged — the reference price is adjusted accordingly',
+      },
     },
     answer: 'd',
     explain: {
       vi: 'Không có dòng tiền mới vào doanh nghiệp. Nguồn cảnh báo hệ quả dài hạn: “Khi số lượng cổ phiếu tăng quá nhanh và quá nhiều, giá trị lợi nhuận trên mỗi cổ phần (EPS) giảm sút... có thể làm thị giá cổ phiếu bị điều chỉnh, thậm chí lao dốc nếu kết quả kinh doanh không cải thiện tương ứng”.',
+      en: 'No new cash flows into the company. The source warns of the longer-term consequence: “Khi số lượng cổ phiếu tăng quá nhanh và quá nhiều, giá trị lợi nhuận trên mỗi cổ phần (EPS) giảm sút... có thể làm thị giá cổ phiếu bị điều chỉnh, thậm chí lao dốc nếu kết quả kinh doanh không cải thiện tương ứng”.',
     },
     source: {
       url: 'https://www.phs.vn/tin-tuc/bung-no-co-phieu-luu-hanh-va-bai-toan-giu-gia-tri-that-cho-nha-dau-tu/6312838',
@@ -1193,17 +1327,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     format: 'trac-nghiem',
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
-    prompt: { vi: 'Cách dùng Số Graham bị phê phán nhiều nhất là gì?' },
+    prompt: {
+      vi: 'Cách dùng Số Graham bị phê phán nhiều nhất là gì?',
+      en: 'What is the most criticized way the Graham Number gets used?',
+    },
     choices: {
-      a: { vi: 'Dùng cho công ty công nghệ' },
-      b: { vi: 'Dùng một mình, tách khỏi các tiêu chí phòng thủ còn lại' },
-      c: { vi: 'Dùng hệ số 22,5' },
-      d: { vi: 'Dùng EPS thay vì EBIT' },
+      a: { vi: 'Dùng cho công ty công nghệ', en: 'Using it for technology companies' },
+      b: {
+        vi: 'Dùng một mình, tách khỏi các tiêu chí phòng thủ còn lại',
+        en: 'Using it alone, detached from the other defensive criteria',
+      },
+      c: { vi: 'Dùng hệ số 22,5', en: 'Using the 22.5 coefficient' },
+      d: { vi: 'Dùng EPS thay vì EBIT', en: 'Using EPS instead of EBIT' },
     },
     answer: 'b',
     explain: {
       vi: "Lỗi bị phê phán nhiều nhất là dùng Số Graham một mình, tách khỏi năm tiêu chí còn lại mà Graham đặt cho nhóm cổ phiếu phòng thủ. “The most common misuse of the Graham Number today is that it's used in isolation almost everywhere, while the five other supporting criteria for Defensive stock selection are completely ignored”. Lấy số liệu đúng một năm để tính cũng bị chính nguồn ấy gọi là “is not only excessively simplistic, but also potentially dangerous”.",
-      en: "The most criticised error is using the Graham Number on its own, detached from the five other criteria Graham set for defensive stock selection. The source: “The most common misuse of the Graham Number today is that it's used in isolation almost everywhere, while the five other supporting criteria for Defensive stock selection are completely ignored”. Computing it from a single year of figures is, in the same source, “not only excessively simplistic, but also potentially dangerous”.",
+      en: "The most criticized error is using the Graham Number on its own, detached from the five other criteria Graham set for defensive stock selection. The source: “The most common misuse of the Graham Number today is that it's used in isolation almost everywhere, while the five other supporting criteria for Defensive stock selection are completely ignored”. In the same source, computing it from a single year of figures “is not only excessively simplistic, but also potentially dangerous”.",
     },
     source: {
       url: 'https://www.grahamvalue.com/article/using-graham-number-correctly',
@@ -1410,12 +1550,16 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Bạn tìm được 2 cổ phiếu giá thấp hơn NCAV/cp và định dồn tiền vào đó. Vấn đề là gì?',
+      en: 'You find 2 stocks trading below NCAV per share and plan to concentrate your money into them. What is the problem?',
     },
     choices: {
-      a: { vi: 'NCAV chỉ dùng cho công ty lớn' },
-      b: { vi: 'Phương pháp chỉ cho kết quả thống kê khi phân tán ít nhất khoảng 20 mã' },
-      c: { vi: 'NCAV phải tính theo quý' },
-      d: { vi: 'Không có vấn đề gì' },
+      a: { vi: 'NCAV chỉ dùng cho công ty lớn', en: 'NCAV can only be used for large companies' },
+      b: {
+        vi: 'Phương pháp chỉ cho kết quả thống kê khi phân tán ít nhất khoảng 20 mã',
+        en: 'The method only delivers a statistical edge when spread across at least about 20 names',
+      },
+      c: { vi: 'NCAV phải tính theo quý', en: 'NCAV must be calculated quarterly' },
+      d: { vi: 'Không có vấn đề gì', en: 'There is no problem at all' },
     },
     answer: 'b',
     explain: {
@@ -1608,16 +1752,24 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'P/E thị trường Việt Nam 16,5 lần, thấp hơn Philippines và Indonesia trên 20 lần. Cách so sánh đúng là gì?',
+      en: "Vietnam's market P/E is 16.5x, lower than the Philippines and Indonesia at over 20x. What is the correct way to make this comparison?",
     },
     choices: {
-      a: { vi: 'Kết luận chứng khoán VN rẻ hơn' },
-      b: { vi: 'So thêm P/B' },
-      c: { vi: 'Đổi sang E/P rồi đặt cạnh lãi suất phi rủi ro của chính nước đó' },
-      d: { vi: 'So theo vốn hoá thị trường' },
+      a: {
+        vi: 'Kết luận chứng khoán VN rẻ hơn',
+        en: 'Conclude that Vietnamese stocks are cheaper',
+      },
+      b: { vi: 'So thêm P/B', en: 'Also compare P/B' },
+      c: {
+        vi: 'Đổi sang E/P rồi đặt cạnh lãi suất phi rủi ro của chính nước đó',
+        en: "Convert to E/P and set it against that same country's own risk-free rate",
+      },
+      d: { vi: 'So theo vốn hoá thị trường', en: 'Compare by market capitalization' },
     },
     answer: 'c',
     explain: {
       vi: 'Bài trên Vietstock gọi so P/E thuần giữa các thị trường là sai lầm về bản chất. Khi đổi sang E/P, Việt Nam chỉ cho 6,1% — thấp hơn lãi suất tiết kiệm khoảng 6,5%, tức kênh cổ phiếu không hấp dẫn hơn gửi tiết kiệm. Bản gốc đặt tiêu đề đây là sai lầm phổ biến ở giới chuyên gia.',
+      en: 'The Vietstock article calls comparing raw P/E across markets a fundamental mistake. Converted to E/P, Vietnam yields only 6.1% — below the roughly 6.5% savings deposit rate, meaning stocks are not more attractive than a bank deposit. The original piece titles this a common mistake among professionals.',
     },
     source: {
       url: 'https://vietstock.vn/2017/09/so-sanh-pe-thuan-giua-cac-thi-truong-nha-dau-tu-can-hieu-ban-chat-3355-559371.htm',
@@ -1808,18 +1960,27 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Báo cáo phân tích khuyến nghị MUA với giá mục tiêu 73.000 đồng, thị giá hiện tại 52.000. Cách hiểu đúng?',
+      en: 'An analyst report recommends BUY with a target price of VND 73,000, while the current market price is VND 52,000. What is the correct interpretation?',
     },
     choices: {
-      a: { vi: 'Cổ phiếu sẽ đạt 73.000 trong 12 tháng' },
+      a: {
+        vi: 'Cổ phiếu sẽ đạt 73.000 trong 12 tháng',
+        en: 'The stock will reach VND 73,000 within 12 months',
+      },
       b: {
         vi: 'Đây là ước lượng có điều kiện, và chính CTCK từ chối trách nhiệm trong phần miễn trừ',
+        en: 'This is a conditional estimate, and the brokerage itself disclaims responsibility for it in its fine print',
       },
-      c: { vi: 'Công ty chứng khoán cam kết mức giá đó' },
-      d: { vi: 'Nên mua vì chênh lệch 40%' },
+      c: {
+        vi: 'Công ty chứng khoán cam kết mức giá đó',
+        en: 'The brokerage guarantees that price',
+      },
+      d: { vi: 'Nên mua vì chênh lệch 40%', en: 'It should be bought because of the 40% gap' },
     },
     answer: 'b',
     explain: {
       vi: 'Trường hợp thật: TLG được TPS khuyến nghị mua “lợi nhuận kỳ vọng 36%”, giá mục tiêu 73.000 đồng trong khi cổ phiếu cả năm dao động 45.000–55.000. Điều khoản miễn trừ ghi “TPS sẽ không chịu trách nhiệm đối với tất cả thiệt hại nào”.',
+      en: 'A real case: TPS recommended TLG as a buy, citing an “lợi nhuận kỳ vọng 36%”, with a target price of VND 73,000, while the stock actually traded in a VND 45,000–55,000 range for the whole year. Its disclaimer reads: “TPS sẽ không chịu trách nhiệm đối với tất cả thiệt hại nào”.',
     },
     source: {
       url: 'https://thanhtra.com.vn/kinh-doanh-A08BE54D6/bai-1-phat-sot-voi-nhung-khuyen-nghi-mua-chung-khoan-loi-nhuan-ky-vong--EE057B864.html',
@@ -1835,16 +1996,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'CTCK nâng giá mục tiêu một cổ phiếu. Lý do nào KHÔNG liên quan tới nội tại doanh nghiệp?',
+      en: "A brokerage raises a stock's target price. Which reason is NOT related to the company's own fundamentals?",
     },
     choices: {
-      a: { vi: 'Lợi nhuận quý vượt dự báo' },
-      b: { vi: 'Giảm lãi suất chiết khấu trong mô hình' },
-      c: { vi: 'Ký được hợp đồng lớn' },
-      d: { vi: 'Biên lợi nhuận cải thiện' },
+      a: { vi: 'Lợi nhuận quý vượt dự báo', en: 'Quarterly profit beat forecasts' },
+      b: {
+        vi: 'Giảm lãi suất chiết khấu trong mô hình',
+        en: 'Lowering the discount rate used in the model',
+      },
+      c: { vi: 'Ký được hợp đồng lớn', en: 'Signing a large contract' },
+      d: { vi: 'Biên lợi nhuận cải thiện', en: 'Improved profit margin' },
     },
     answer: 'b',
     explain: {
       vi: '“Đằng sau mỗi lần nâng giá mục tiêu... có thể là do đánh giá lại triển vọng lợi nhuận, cũng có thể do giảm lãi suất chiết khấu”, cộng áp lực đi theo thị trường: “việc làm người cô đơn, giữ nguyên định giá cũ trong khi cả thị trường đã nâng đánh giá là không dễ”.',
+      en: 'The source: “Đằng sau mỗi lần nâng giá mục tiêu... có thể là do đánh giá lại triển vọng lợi nhuận, cũng có thể do giảm lãi suất chiết khấu”, plus the pressure to follow the crowd: “việc làm người cô đơn, giữ nguyên định giá cũ trong khi cả thị trường đã nâng đánh giá là không dễ”.',
     },
     source: {
       url: 'https://www.tinnhanhchungkhoan.vn/rui-ro-khi-chay-theo-khuyen-nghi-dinh-gia-cua-chuyen-gia-phan-tich-post271706.html',
@@ -1883,7 +2049,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'Slide “Relative Valuation” của Damodaran nêu thẳng cách chọn thiên lệch này: “Use the multiple that best fits your objective. Thus, if you want the company to be undervalued, you pick the multiple that yields the highest value.” Hai cách hợp lý ông nêu là chọn bội số khớp thống kê tốt nhất (R-squared cao nhất khi hồi quy với biến nền tảng ngành) hoặc bội số phù hợp nhất với cách ngành đó tạo giá trị — không phải chọn theo kết luận có sẵn từ trước.',
-      en: 'Damodaran\'s "Relative Valuation" slide names this biased approach directly: "Use the multiple that best fits your objective. Thus, if you want the company to be undervalued, you pick the multiple that yields the highest value." The two legitimate approaches he gives are picking the multiple with the best statistical fit (highest R-squared against sector fundamentals) or the one that best matches how that sector creates value — not picking to match a conclusion already decided in advance.',
+      en: "Damodaran's “Relative Valuation” slide names this biased approach directly: “Use the multiple that best fits your objective. Thus, if you want the company to be undervalued, you pick the multiple that yields the highest value.” The two legitimate approaches he gives are picking the multiple with the best statistical fit (highest R-squared against sector fundamentals) or the one that best matches how that sector creates value — not picking to match a conclusion already decided in advance.",
     },
     source: {
       url: 'https://pages.stern.nyu.edu/~adamodar/pdfiles/country/relval.pdf',
@@ -1984,7 +2150,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Theo bài trên Tin nhanh chứng khoán (đăng lại trên Tuổi Trẻ), cơ quan quản lý “đã xử phạt một trường hợp cụ thể là Công ty cổ phần Đầu tư ITP vì đăng tải báo cáo phân tích và khuyến nghị đầu tư khi chưa được cấp phép” — chỉ công ty chứng khoán hoặc công ty quản lý quỹ được cấp phép mới được công khai đưa ra giá mục tiêu và khuyến nghị mua/bán.',
-      en: 'According to the article on Tin nhanh chứng khoán (republished on Tuổi Trẻ), regulators "đã xử phạt một trường hợp cụ thể là Công ty cổ phần Đầu tư ITP vì đăng tải báo cáo phân tích và khuyến nghị đầu tư khi chưa được cấp phép" (sanctioned a specific case, Đầu tư ITP JSC, for publishing an analysis report and an investment recommendation without a license) — only a licensed securities company or fund manager may publicly issue a target price and a buy/sell recommendation.',
+      en: 'According to the article on Tin nhanh chứng khoán (republished on Tuổi Trẻ), regulators “đã xử phạt một trường hợp cụ thể là Công ty cổ phần Đầu tư ITP vì đăng tải báo cáo phân tích và khuyến nghị đầu tư khi chưa được cấp phép” (sanctioned a specific case, Đầu tư ITP JSC, for publishing an analysis report and an investment recommendation without a license) — only a licensed securities company or fund manager may publicly issue a target price and a buy/sell recommendation.',
     },
     source: {
       /*

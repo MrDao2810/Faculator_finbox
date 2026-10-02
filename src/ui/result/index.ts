@@ -36,6 +36,9 @@ export type { ConstantsNoteProps } from './ConstantsNote';
 export { DerivedNote } from './DerivedNote';
 export type { DerivedNoteProps } from './DerivedNote';
 
+export { SourceMark } from './SourceMark';
+export type { MarkSource, SourceMarkProps } from './SourceMark';
+
 /*
  * `FlowChainStrip`/`FlowChainTree` đã BỎ ngày 16/09/2026 — hình vẽ chuỗi phụ thuộc không giữ
  * chức năng nào mà thẻ bước của `ChainBody` không có sẵn. Lý do đầy đủ ở docblock `ChainBody.tsx`.

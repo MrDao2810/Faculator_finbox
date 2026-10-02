@@ -90,3 +90,55 @@
 }
 
 /* Huy hiệu "nâng cao" nay là primitive `Badge` tone `advanced`. */
+
+/* Con dấu nguồn chỉ thuộc về ô nhỏ ở khổ PC — xem `.sourceMark` ở `Input.module.css`. */
+.sourceMark {
+  display: none;
+}
+
+/*
+ * ── Ô NHỎ của khối gộp — chỉ từ 1280px ───────────────────────────────────────────────────────
+ *
+ * Cùng luật và cùng lý do với `.compact` ở `Input.module.css` (đọc docblock ở đó trước).
+ *
+ * Khác hai ô kia một chỗ: khung của nhóm nút KHÔNG tháo. Nền chìm cộng viền là thứ duy nhất nói
+ * "hai nút này là một nhóm chọn một"; bỏ đi thì chúng đọc ra như hai nút bấm rời. Thứ phải hạ là
+ * CHIỀU CAO — vùng chạm 44px sinh ra cho ngón tay ở khổ điện thoại, mà ô nhỏ chỉ có ở khổ PC nơi
+ * người dùng đang dùng chuột, và 44px đẩy ô cao hơn hẳn mấy ô số đứng cạnh.
+ */
+@media (min-width: 1280px) {
+  .compact {
+    position: relative;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .compact .label {
+    /* Chừa chỗ cho con dấu nguồn ở góc trên bên phải. */
+    padding-right: var(--space-8);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+    color: var(--color-muted);
+  }
+
+  .compact .option {
+    min-height: 32px;
+    padding: 0 var(--space-3);
+  }
+
+  .compact .sourceMark {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+}

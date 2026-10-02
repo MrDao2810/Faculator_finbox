@@ -57,12 +57,15 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
         )}
       </section>
 
-      {/* Giá hoà vốn: mốc quan trọng nhất của màn, và tính được ngay cả khi chưa nhập giá bán. */}
+      {/*
+        Giá hoà vốn: mốc quan trọng nhất của màn, và tính được ngay cả khi chưa nhập giá bán.
+
+        Dòng phụ "bán dưới giá này là lỗ" đã BỎ (01/10/2026, chủ dự án) — chữ "hoà vốn" đã nói
+        đúng điều ấy, nên dòng dưới chỉ là một lần nói lại. Lớp bọc `.statBody` đi theo: nó sinh ra
+        để xếp nhãn và dòng phụ thành cột, mà nay chỉ còn nhãn.
+      */}
       <div className={styles.stat}>
-        <div className={styles.statBody}>
-          <span className={styles.statLabel}>{t('fee.breakEven')}</span>
-          <span className={styles.statNote}>{t('fee.breakEvenNote')}</span>
-        </div>
+        <span className={styles.statLabel}>{t('fee.breakEven')}</span>
         <span className={styles.statValue}>
           {calcText(breakdown.breakEven, { maxDecimals: 0 })}
         </span>

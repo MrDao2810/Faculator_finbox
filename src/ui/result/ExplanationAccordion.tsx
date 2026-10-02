@@ -30,10 +30,13 @@ export interface ExplanationAccordionProps {
   /**
    * Dựng mục "Cách đọc kết quả". Mặc định có.
    *
-   * Màn chi tiết công thức tắt nó — cùng đợt và cùng lý do với `showMeaning`. Câu
-   * `explanation.howToRead` nay in ngay dưới con số ở khối Kết quả (`ResultBlock.interpretation`),
-   * để LUÔN đứng cạnh con số nó giải thích ở MỌI khổ màn hình — khối Giải thích này, ở điện
-   * thoại, từng bị đẩy xuống dưới cả Biểu đồ, tức câu ấy tách rất xa khỏi con số.
+   * Từng bị màn chi tiết công thức tắt (30/09/2026 → 01/10/2026): câu `explanation.howToRead`
+   * chuyển sang in ngay dưới con số ở khối Kết quả (`ResultBlock.interpretation`), với lý do đứng
+   * cạnh con số nó giải thích ở mọi khổ màn hình. Chủ dự án chỉ ảnh chụp khối Kết quả của thẻ gộp
+   * — số lớn cộng cả đoạn văn ngay dưới, nằm cạnh các ô nhập — gọi đó là chữ thừa và yêu cầu xoá.
+   * Câu trở lại khối Giải thích; `ResultBlock` không còn nơi gọi nào truyền `interpretation`. Giữ
+   * tham số này (mặc định `true`, không ai truyền `false`) cho cân với `showMeaning` và để ngỏ nếu
+   * có công thức nào sau này cần giấu riêng mục này.
    */
   showHowToRead?: boolean;
   className?: string;

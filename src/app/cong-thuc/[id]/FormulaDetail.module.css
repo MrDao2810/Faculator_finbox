@@ -973,6 +973,32 @@ button.iconButton::after {
   display: contents;
 }
 
+/*
+ * ── Thẻ gộp "Số liệu + Kết quả" — chỉ từ 1280px (01/10/2026) ────────────────────────────────
+ *
+ * Chủ dự án đưa bốn ảnh thiết kế: con số kết quả và hàng ô nhập về chung một thẻ ở đầu trang, rồi
+ * Giải thích đẩy lên ngay dưới. **Chỉ màn web**; khổ điện thoại giữ nguyên từng pixel.
+ *
+ * Vì vậy ở đây cả `.merged` lẫn `.passthrough` đều là `display: contents`: lớp bọc không sinh hộp
+ * nào, hai khối con rơi lại đúng chỗ cũ trong dòng chảy của `.detail`, và thứ tự nhìn thấy ở khổ
+ * hẹp — Số liệu → Kết quả → Biểu đồ → Giải thích — vẫn do `order` ở ngay trên quyết, không đổi.
+ *
+ * `.passthrough` là nhánh của 46 công thức CHƯA dùng khuôn mới: nó `display: contents` ở MỌI khổ,
+ * nên cây DOM của chúng thêm một thẻ mà bố cục không đổi một pixel nào. Xem `hasMergedCard()`.
+ */
+.merged,
+.passthrough {
+  display: contents;
+}
+
+/*
+ * Dòng thay số dưới đáy thẻ gộp: CHỮ MỚI, nên không được có mặt ở khổ điện thoại. Ẩn bằng
+ * `display: none` ở đây và chỉ bật lại trong khối 1280 bên dưới.
+ */
+.substitution {
+  display: none;
+}
+
 .blockExplain,
 .aside,
 .answer ~ * {
@@ -1098,5 +1124,173 @@ button.iconButton::after {
    */
   .result {
     margin-top: 0;
+  }
+
+  /*
+   * ── THẺ GỘP: con số kết quả bên trái, hàng ô nhập bên phải ────────────────────────────────
+   *
+   *     r5   [ tên công thức · 15,21 lần             |  ô nhập · ô nhập · ô nhập ]
+   *          [ 92.000 ÷ 6.050 = 15,21                                            ]
+   *     r6   GIẢI THÍCH                              |  BIỂU ĐỒ, BẢNG BIẾN, VÍ DỤ
+   *
+   * Chỉ cho công thức trong `hasMergedCard()`. `.ask` của chúng chuyển sang `display: contents`
+   * để `.merged` và Giải thích thành hai ô lưới riêng của `.detail` — nếu không, cả thẻ gộp lẫn
+   * Giải thích đều kẹt trong cột trái 35%.
+   *
+   * Bộ chọn ghép `.ask.askMerged` chứ không chỉ `.askMerged`: cùng độ ưu tiên với `.ask` ngay trên
+   * thì chỉ còn thứ tự khai quyết định — cùng cái bẫy đã ghi ở `.panelCenter` của `BottomSheet`.
+   */
+  .ask.askMerged {
+    display: contents;
+  }
+
+  .merged {
+    grid-column: 1 / -1;
+
+    display: grid;
+    grid-template-columns: minmax(220px, 7fr) minmax(0, 13fr);
+    column-gap: var(--space-7);
+    row-gap: var(--space-4);
+    align-items: start;
+
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  /*
+   * Kết quả bên TRÁI dù trong DOM nó đứng sau Số liệu. Thứ tự DOM ấy là của khổ hẹp (Số liệu rồi
+   * mới tới Kết quả, đúng mạch đọc), còn ở đây hai khối đứng cạnh nhau nên trái phải là chuyện của
+   * mắt, không phải của mạch đọc. Khai cột tường minh cho cả hai, không trông vào tự xếp.
+   */
+  .merged .result {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /*
+   * Khung thẻ của khối Số liệu tháo ra: thẻ gộp bao ngoài đã là khung. Giữ lại thì thành thẻ
+   * trong thẻ, đúng thứ bản thiết kế không vẽ.
+   */
+  .merged .blockInputs {
+    grid-column: 2;
+    grid-row: 1;
+
+    padding: 0;
+    background: none;
+    border: none;
+  }
+
+  /*
+   * Tiêu đề "SỐ LIỆU" thôi hiện bằng MẮT: trong thẻ gộp, hàng ô nhập tự nói nó là gì, và một
+   * tiêu đề khối nằm giữa thẻ đọc ra như thẻ bị chia đôi.
+   *
+   * Ẩn khỏi mắt chứ KHÔNG `display: none`, vì hai thứ bám vào nó: `aria-labelledby` của khối Số
+   * liệu trỏ thẳng vào `<h2>` này (ẩn hẳn là vùng mất tên trong cây trợ năng), và nó là một bậc
+   * trong nhịp heading của trang. Chỉ ẩn ĐÚNG tiêu đề — dòng "N ô ẩn ở chế độ Cơ bản" đứng cùng
+   * hàng với nó và vẫn phải đọc được.
+   */
+  .merged .blockTitle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /*
+   * Hàng ô nhập. `auto-fit` + `minmax(200px, 1fr)` chứ không ghim ba cột: công thức hai ô (như
+   * `pe`) sẽ chia đôi hàng thay vì để trống một phần ba bên phải, còn công thức năm ô vẫn rơi
+   * xuống ba cột rồi xuống hàng thứ hai như bản thiết kế.
+   *
+   * `subgrid` của khổ hẹp tháo ra ở đây: nó sinh ra để canh nhãn và khung nhập của hai ô cùng
+   * hàng thẳng nhau khi ô KHÔNG có viền. Nay mỗi ô là một hộp có viền, chiều cao bằng nhau do
+   * chính lưới kéo (`stretch`), nên bốn hàng con chỉ làm khe hở giữa hai hàng ô dính vào
+   * `row-gap` nhỏ của bản cũ.
+   */
+  .fields.tileGrid {
+    /*
+     * TRẦN BA CỘT, nhưng không ghim cứng ba cột.
+     *
+     * Đáy của mỗi rãnh là "một phần ba bề ngang khung" (trừ hai khe), nên lưới không bao giờ chia
+     * quá ba cột — đúng bản thiết kế, công thức sáu ô rơi thành 3 + 3 chứ không 4 + 2. Nhưng
+     * `auto-fit` vẫn XOÁ rãnh rỗng, nên công thức hai ô (46 trong 111 công thức) chia đôi hết bề
+     * ngang chứ không để trống một phần ba bên phải.
+     *
+     * `max(200px, …)` là sàn: khung hẹp thì thà hai cột rộng còn hơn ba cột không đọc nổi nhãn.
+     */
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(max(200px, calc((100% - 2 * var(--space-3)) / 3)), 1fr)
+    );
+    gap: var(--space-3);
+  }
+
+  .fields.tileGrid > .field,
+  .fields.tileGrid > .fieldWide {
+    grid-column: auto;
+    grid-row: auto;
+    grid-template-rows: none;
+  }
+
+  /*
+   * Công thức CHỈ CÓ MỘT ô nhập: chặn ô ấy nuốt trọn bề ngang.
+   *
+   * `auto-fit` xoá rãnh rỗng (đó là lý do nó được chọn — công thức hai ô chia đôi hàng thay vì bỏ
+   * trống một phần ba). Mặt trái chỉ lộ ra ở đúng một công thức trong 111: `thoi-gian-nhan-doi` có
+   * một biến, nên cả hai rãnh kia biến mất và ô độc nhất nở ra 795px ở 1440 — thanh trượt dài bằng
+   * nửa màn, đọc như một khối riêng chứ không phải một ô.
+   *
+   * Chặn ở NỬA hàng, không phải một phần ba: 390px là đúng bề ngang ô của 46 công thức hai ô, nên
+   * một ô nhìn vẫn cùng cỡ với phần còn lại của thư viện. `max-width` trên ô chứ không đổi
+   * `grid-template-columns`: rãnh vẫn là `1fr`, nên luật trên vẫn đúng và không cần `:has()`.
+   */
+  .fields.tileGrid > :only-child {
+    max-width: calc((100% - var(--space-3)) / 2);
+  }
+
+  /*
+   * Dải đáy thẻ: phép tính đã thay số (`92.000 ÷ 6.050 = 15,21`).
+   *
+   * Trải hết hai cột và có nền chìm riêng — nó nói về CẢ hai nửa phía trên (lấy số ở hàng ô nhập,
+   * ra con số bên trái), nên đứng trong một nửa nào cũng sai nghĩa.
+   *
+   * Từng có thêm câu chỉ đường "Bấm một ô để sửa, kết quả đổi ngay" (`tile.editHint`) in mờ bên
+   * phải — BỎ 01/10/2026, chủ dự án gọi đó cũng là chữ thừa. Dải chỉ còn một dòng nên không cần
+   * `flex`/`justify-content` để chia hai nửa nữa.
+   */
+  .substitution {
+    /*
+     * `display` PHẢI có mặt ở đây, và đây là chỗ DUY NHẤT bật nó.
+     *
+     * Luật gốc phía trên đặt `display: none` để khổ điện thoại không thấy dòng chữ mới này, nên
+     * khối 1280 phải tự bật lại. Từ lúc dựng tới 02/10/2026 chỗ này chỉ khai nền, đệm và cỡ chữ:
+     * dòng thay số nằm đúng trong thẻ, dựng đúng nội dung, mà KHÔNG BAO GIỜ hiện — trên cả 48
+     * công thức có `spec.substitution`. Nó từng là `display: flex` (chia hàng với câu chỉ đường
+     * "Bấm một ô để sửa, kết quả đổi ngay"); bỏ câu ấy đi thì `flex` bị xoá theo và không có gì
+     * thay chỗ, nên luật gốc thắng ở mọi khổ màn.
+     *
+     * Hai cửa gác giữ chuyện này không lặp lại: `merged-card-css.test.ts` đọc thẳng file này, và
+     * `check:chrome` đo dải thật ở 1440 (hiện) lẫn 360 (không hiện).
+     */
+    display: block;
+
+    grid-column: 1 / -1;
+
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-sunken);
+    border-radius: var(--radius-sm);
+
+    font-size: var(--text-base);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+  }
+
+  /* Giải thích nay là ô lưới riêng, nằm đúng cột trái dưới thẻ gộp. */
+  .askMerged .blockExplain {
+    grid-column: 1;
   }
 }

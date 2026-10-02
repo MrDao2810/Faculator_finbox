@@ -147,9 +147,15 @@ export const vi = {
   'list.empty.registry.title': 'Chưa có công thức nào',
   'list.empty.registry.hint': 'Thư viện công thức đang được bổ sung dần.',
   'list.empty.noMatch.title': 'Không tìm thấy công thức nào',
-  'list.empty.noMatch.scope':
-    'Sản phẩm chỉ có công thức chứng khoán và tài chính cá nhân Việt Nam — không có tiền mã hoá.',
-  'list.empty.noMatch.hint': 'Thử bớt từ khoá, hoặc xoá bộ lọc để xem lại toàn bộ danh sách.',
+  /*
+   * Mộ chí: `list.empty.noMatch.scope` ('Sản phẩm chỉ có công thức chứng khoán và tài chính cá
+   * nhân Việt Nam — không có tiền mã hoá.') và `list.empty.noMatch.hint` ('Thử bớt từ khoá, hoặc
+   * xoá bộ lọc để xem lại toàn bộ danh sách.') bỏ 01/10/2026 theo yêu cầu chủ dự án — gọi đích
+   * danh là "đoạn text thừa". Đây đảo lại chủ đích WF-09 trạng thái B từng chốt ("phải nói rõ
+   * phạm vi sản phẩm"), ghi ở docblock `EmptyState.tsx`: tiêu đề cộng nút xoá lọc/xoá tìm coi là
+   * đủ. Dùng ở hai nơi — `FormulaListScreen.tsx` (cả hai dòng) và `SearchScreen.tsx` (chỉ dòng
+   * `.scope`) — cả hai nay truyền `lines={[]}` ở đúng nhánh này.
+   */
 
   /*
    * Chế độ Cơ bản đang giấu bớt công thức — vế thứ hai của FR-09.
@@ -214,6 +220,33 @@ export const vi = {
   'input.revert': 'Nhận tự động',
   'input.overridden': 'đã nhập tay',
   'input.autoFrom': 'Nhận tự động từ',
+
+  /*
+   * ── Khối gộp "Số liệu + Kết quả" ở khổ PC (01/10/2026) ────────────────────────────────────
+   *
+   * Chỉ hiện từ 1280px; khổ điện thoại giữ nguyên giao diện cũ nên không khoá nào trong nhóm này
+   * có mặt trên màn ở đó (CSS `display: none`). Chữ "Bấm" chứ không "Chạm" vì đúng một lý do:
+   * khối này không bao giờ xuất hiện ở khổ cảm ứng.
+   */
+  /*
+   * Mộ chí: `tile.countTicker` ('{n} ô · {m} ô lấy theo mã') và `tile.count` ('{n} ô') bỏ
+   * 01/10/2026, cùng ảnh chụp và cùng yêu cầu đã bỏ câu "Cách đọc kết quả" khỏi đúng chỗ này —
+   * chủ dự án khoanh đỏ cả dòng đếm ô, gọi là chữ thừa.
+   *
+   * Mộ chí: `tile.editHint` ('Bấm một ô để sửa, kết quả đổi ngay') bỏ 01/10/2026, cùng đợt rà —
+   * chủ dự án gọi đây cũng là một câu giải thích thừa. Dòng thay số dưới đáy thẻ gộp
+   * (`92.000 ÷ 6.050 = 15,21`) vẫn còn, chỉ bỏ câu chỉ đường bên cạnh nó.
+   *
+   * Mộ chí: `tile.manual` ('Tự nhập') bỏ 02/10/2026 — câu thứ ba trong nhóm này ra đi vì cùng
+   * một lý do, và lần này lý do mạnh hơn hai lần trước: nó in trên GẦN NHƯ MỌI ô. "Tự nhập" là
+   * trạng thái mặc định của ô nhập, nên nó không phân biệt được gì; thứ đáng nói là ngoại lệ —
+   * ô đang mang số của một mã, hay của một công thức khác. Hai ngoại lệ ấy vẫn giữ con dấu
+   * (`SourceMark` với `ticker`/`formula`), và nay chúng nổi hẳn lên vì không còn đứng lẫn giữa
+   * một rừng nhãn "Tự nhập". Góc trên bên phải ô trống ra, đơn vị dọn về đó.
+   *
+   * Hệ quả cần biết nếu khôi phục: nhánh `manual` của `MarkSource` cũng đã bỏ, cùng hình ngòi
+   * bút `PencilGlyph` chỉ nó dùng.
+   */
 
   // Kết quả & diễn giải — WF-03, WF-15, gói 2.4
   'result.eyebrow': 'KẾT QUẢ',
@@ -533,11 +566,22 @@ export const vi = {
 
   // Màn phí & thuế — WF-08, gói 3.2.3
   'fee.schedule': 'Biểu phí',
-  'fee.scheduleNote': 'Hằng số lấy từ Market Config — sửa một chỗ, áp dụng toàn hệ thống.',
+  /*
+   * Vế "— sửa một chỗ, áp dụng toàn hệ thống." đã BỎ (01/10/2026, chủ dự án). Nó nói về cách
+   * hệ thống lưu hằng số, không nói gì về việc người dùng đang làm; còn vế CÒN LẠI vẫn gánh
+   * CON-10 — nói ra rằng con số phí có nguồn, không phải app tự bịa.
+   */
+  'fee.scheduleNote': 'Hằng số lấy từ Market Config',
   'fee.breakdown': 'Bóc tách chi phí',
   'fee.totalCost': 'Tổng chi phí',
   'fee.breakEven': 'Giá hoà vốn thực',
-  'fee.breakEvenNote': 'bán dưới giá này là lỗ',
+  /*
+   * Mộ chí `fee.breakEvenNote` — "bán dưới giá này là lỗ", bỏ 01/10/2026 theo yêu cầu chủ dự án.
+   * Hai chữ "hoà vốn" ngay trên nó đã nói đúng điều ấy. Cùng nếp với `quiz.lead`,
+   * `quiz.notTranslated`, `portfolio.localOnly` và hai dòng của trạng thái rỗng: bỏ CÂU, giữ
+   * HÀNH VI. Ca kiểm ở `screens.test.tsx` đã ĐẢO lại chứ không xoá, để câu này quay về là một
+   * quyết định chứ không phải một cú lỡ tay.
+   */
   'fee.netProfit': 'Lợi nhuận ròng',
   'fee.grossProfit': 'lãi gộp',
   'fee.netRoi': 'ROI ròng',

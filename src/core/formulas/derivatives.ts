@@ -105,6 +105,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       vi: 'Giá lý thuyết = Chỉ số cơ sở × [1 + (Lãi suất phi rủi ro − Tỷ suất cổ tức) × Số ngày đến đáo hạn ÷ 365]',
       en: 'Theoretical price = Underlying index × [1 + (Risk-free rate − Dividend yield) × Days to expiry ÷ 365]',
     },
+    substitution: '{indexValue} × (1 + ({riskFreeRate} − {dividendYield}) ÷ 100 × {days} ÷ 365)',
     symbols: [
       {
         latex: 'F',
@@ -315,6 +316,7 @@ export const BASIS_VN30F: FormulaModule = {
       vi: 'Basis = Giá hợp đồng tương lai − Chỉ số cơ sở',
       en: 'Basis = Futures contract price − Underlying index',
     },
+    substitution: '{futuresPoints} − {indexValue}',
     symbols: [
       {
         latex: 'Basis',

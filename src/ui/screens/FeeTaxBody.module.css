@@ -109,20 +109,15 @@
   background: var(--color-surface);
 }
 
-.statBody {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
+/*
+ * `.statBody` và `.statNote` đã BỎ cùng dòng phụ "bán dưới giá này là lỗ" (01/10/2026) — lớp bọc
+ * tồn tại chỉ để xếp nhãn trên dòng phụ, và dòng phụ thì không còn. Nhãn nay là con trực tiếp của
+ * `.stat`, vốn đã là flex đẩy hai đầu.
+ */
 .statLabel {
+  min-width: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-}
-
-.statNote {
-  font-size: var(--text-xs);
-  color: var(--color-muted);
 }
 
 .statValue {
@@ -238,6 +233,103 @@
  */
 .headlineNote {
   color: var(--color-on-result);
+}
+
+/*
+ * ── Khổ PC: khối bóc tách ĐÓNG KHUNG, mép trên trùng thẻ Số liệu ──────────────────────────────
+ *
+ * Từ 1280px màn chi tiết là lưới hai cột, và luật đã chốt ở `FormulaDetail.module.css` là "hai thẻ
+ * cùng mép trên, chữ SỐ LIỆU và dòng KẾT QUẢ lùi vào đúng một khoảng như nhau". Khối này phá luật
+ * ấy: tiêu đề "Bóc tách chi phí" đứng NGOÀI bảng nên đẩy khung bảng xuống 26px so với thẻ Số liệu
+ * bên trái, còn chữ tiêu đề thì lại cao hơn chữ "SỐ LIỆU" 17px — đo trên màn thật ở 1440px. Chủ dự
+ * án chụp màn, khoanh đỏ đúng dải ấy: _"đưa đoạn text 'Bóc tách chi phí' cao lên và giao diện nằm
+ * trong khung bên dưới bóc tách đưa cao lên để bằng với khung dữ liệu"_ (01/10/2026).
+ *
+ * Cách sửa: khung chuyển ra ngoài cùng — `.block` mang viền, nền và đệm `--space-4` y hệt
+ * `.blockInputs`, nên mép trên của nó LÀ mép trên của ô lưới (trùng thẻ Số liệu), và tiêu đề lùi vào
+ * đúng một khoảng như "SỐ LIỆU" nên hai chữ nằm trên CÙNG một hàng ngang. Bảng bên trong bỏ khung
+ * riêng: hai viền lồng nhau đọc thành hai khối chứ không phải một.
+ *
+ * Chỉ từ 1280px, vì dưới đó hai cột xếp chồng nên không có gì để ngang hàng, và bản điện thoại đã
+ * được duyệt — cùng lý do `.blockInputs` chỉ đóng khung ở khổ PC.
+ *
+ * Khối này phải đứng SAU luật gốc của `.row` và `.total`: cùng một lớp, cùng độ ưu tiên, mà
+ * `@media` không cộng thêm điểm nào — chỉ còn thứ tự khai quyết định. Khai ở đầu file thì
+ * `padding: var(--space-2) var(--space-3)` của `.row` bên dưới thắng và lề ngang không bao giờ về 0.
+ * Cùng cái bẫy đã ghi ở `.panelCenter` của `BottomSheet`.
+ */
+@media (min-width: 1280px) {
+  .block {
+    padding: var(--space-4);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .table {
+    border: none;
+    border-radius: 0;
+    background: none;
+  }
+
+  /*
+   * Hàng hết lề ngang: mép thẻ nay do `.block` lo, nên giữ `--space-3` ở đây thì chữ trong hàng lùi
+   * vào 28px trong khi tiêu đề ngay trên nó lùi 16px.
+   */
+  .row {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /*
+   * Dải "Tổng chi phí" LÙI VÀO khỏi mép thẻ, không chạy hết bề ngang (01/10/2026).
+   *
+   * Bản trước kéo nó tràn ra sát hai mép thẻ bằng lề âm, với lập luận "nền chìm bị đệm cắt cụt hai
+   * bên đọc như lỗi". Chủ dự án khoanh đỏ đúng dải ấy và chốt ngược lại: tràn sát mép thì dải không
+   * còn khoảng thở nào với nền thẻ bao quanh, đọc ra như chữ bị dán vào viền.
+   *
+   * Nên lề âm bỏ hẳn — dải nay rộng đúng bằng vùng nội dung của thẻ, tức đã lùi vào 16px nhờ đệm
+   * của `.block`. Bo góc thêm vào để nó đọc ra là MỘT DẢI có chủ đích chứ không phải một mảng nền
+   * bị cắt ngang, đúng chỗ lập luận cũ lo ngại. Đệm trong trả về `--space-3` cho chữ không dính
+   * mép dải, trong khi các hàng phí phía trên vẫn thẳng cột với tiêu đề.
+   */
+  .total {
+    margin-top: var(--space-2);
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+  }
+
+  /*
+   * ── Thẻ Lợi nhuận ròng: con số bên TRÁI, huy hiệu ROI và lãi gộp bên PHẢI ──────────────────
+   *
+   * Chủ dự án (01/10/2026): _"chuyển nội dung vùng khoanh đỏ ở dưới lên ngang hàng bên phải để cân
+   * đối với số liệu tính toán ở trên"_. Ba hàng xếp dọc bỏ trống gần hết nửa phải thẻ, trong khi
+   * mọi dòng phí ngay trên đều là cặp nhãn-trái / số-phải — thẻ đáp án đọc ra như thuộc một bố cục
+   * khác. Cùng đúng cách thẻ Kết quả chung đã xử ở `ResultBlock.module.css`, cùng mốc 1280.
+   *
+   * Lưới hai cột chứ không bọc thêm phần tử: DOM giữ nguyên nên ba ca kiểm ở `screens.test.tsx` dò
+   * chuỗi trong thẻ này không phải sửa. Nhãn trải hết hàng trên, con số rơi vào ô (2,1), chân thẻ
+   * vào ô (2,2) và dạt phải.
+   *
+   * `align-items: end` chứ không `center`: huy hiệu cao 20px canh giữa con số 40px sẽ trôi lên lưng
+   * chừng; canh theo đường chân mới đọc ra "hai thứ cùng một hàng".
+   */
+  .headline {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+    align-items: end;
+  }
+
+  .headlineLabel {
+    grid-column: 1 / -1;
+  }
+
+  .headlineFoot {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
 }
 
 /* Bản in trả thẻ về khuôn nền trắng viền xanh — xem docblock ở `ResultBlock.module.css`. */

@@ -33,6 +33,7 @@ export const ROI: FormulaModule = {
       vi: 'ROI = (Giá trị hiện tại − Vốn bỏ ra) ÷ Vốn bỏ ra × 100',
       en: 'ROI = (Current value − Capital invested) ÷ Capital invested × 100',
     },
+    substitution: '({current} − {cost}) ÷ {cost} × 100',
     symbols: [
       { latex: 'ROI', meaning: { vi: 'tỷ suất lợi nhuận, %', en: 'return on investment, %' } },
       {
@@ -152,6 +153,7 @@ export const HPR: FormulaModule = {
       vi: 'HPR = (Giá cuối kỳ − Giá đầu kỳ + Cổ tức) ÷ Giá đầu kỳ × 100',
       en: 'HPR = (Ending price − Starting price + Dividend) ÷ Starting price × 100',
     },
+    substitution: '({endPrice} − {startPrice} + {dividend}) ÷ {startPrice} × 100',
     symbols: [
       { latex: 'HPR', meaning: { vi: 'lợi suất kỳ nắm giữ, %', en: 'holding period return, %' } },
       { latex: 'P_{cuoi}', meaning: { vi: 'giá cuối kỳ, ₫', en: 'ending price, ₫' } },
@@ -282,6 +284,7 @@ export const CAGR: FormulaModule = {
       vi: 'CAGR = (Giá trị cuối ÷ Giá trị đầu)^(1 ÷ Số năm) − 1',
       en: 'CAGR = (Ending value ÷ Starting value)^(1 ÷ Number of years) − 1',
     },
+    substitution: '(({end} ÷ {start})^(1 ÷ {years}) − 1) × 100',
     symbols: [
       {
         latex: 'CAGR',
@@ -445,6 +448,7 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       vi: 'Tỷ suất cổ tức = Cổ tức cả năm ÷ Thị giá × 100',
       en: 'Dividend yield = Annual dividend ÷ Market price × 100',
     },
+    substitution: '{dividendPerShare} ÷ {price} × 100',
     symbols: [
       { latex: 'DY', meaning: { vi: 'tỷ suất cổ tức, %', en: 'dividend yield, %' } },
       {

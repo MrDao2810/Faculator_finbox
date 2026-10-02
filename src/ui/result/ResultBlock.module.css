@@ -68,6 +68,14 @@
   color: var(--color-on-result);
 }
 
+/*
+ * Dòng nhãn mang TÊN RIÊNG của con số (khối gộp đưa tên công thức vào) — chỉ hiện ở khổ PC, trong
+ * biến thể `flat`. Ở mọi khổ còn lại thẻ giữ nguyên chữ "KẾT QUẢ", vì màn điện thoại không đổi.
+ */
+.eyebrowNamed {
+  display: none;
+}
+
 .figure {
   margin: 0;
   display: flex;
@@ -189,6 +197,75 @@
 
   .block > :not(.eyebrow):not(.figure) {
     grid-column: 1 / -1;
+  }
+
+  /*
+   * ── Biến thể `flat`: thẻ đáp án nằm TRONG khối gộp "Số liệu + Kết quả" ────────────────────
+   *
+   * Khối gộp đã là một thẻ có viền và lề riêng, nên ở đây phải trả hết: không dải xanh, không
+   * lề, không bo góc — giữ nguyên thì thành thẻ trong thẻ. Chữ quay về `--color-ink` vì nền
+   * dưới nó nay là nền thẻ thường, không còn dải xanh để `--color-on-result` đọc được.
+   *
+   * Và khuôn quay lại DỌC: nhãn trên, con số dưới. Khuôn ngang ở trên sinh ra cho thẻ rộng
+   * ~780px chiếm trọn cột phải; trong khối gộp thẻ chỉ còn cột trái ~260px, mà bản thiết kế đặt
+   * con số LỚN ngay dưới tên công thức.
+   *
+   * Bộ chọn ghép `.block.flat` chứ không chỉ `.flat`: hai lớp cùng một phần tử và cùng độ ưu
+   * tiên thì chỉ còn thứ tự khai quyết định — cùng cái bẫy đã ghi ở `.panelCenter` trong
+   * `BottomSheet.module.css`. Dưới 1280 không có luật nào ở đây, nên biến thể này vẽ y hệt thẻ
+   * thường: khối gộp là thiết kế riêng cho màn web.
+   */
+  .block.flat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+
+    padding: 0;
+    background: none;
+    color: var(--color-ink);
+    border-radius: 0;
+  }
+
+  /*
+   * Đổi nhãn: "KẾT QUẢ" nhường chỗ cho tên riêng của con số. Hai dòng đổi chỗ bằng `display`, nên
+   * ở khổ này chỉ một dòng nằm trong cây trợ năng — xem docblock chỗ dựng ở `ResultBlock.tsx`.
+   *
+   * Thiếu `.eyebrowNamed` (nơi gọi không đưa tên) thì KHÔNG ẩn nhãn chung, nếu không thẻ mất hẳn
+   * dòng nhãn. `:has()` là cách duy nhất hỏi được điều đó từ CSS.
+   */
+  .block.flat:has(.eyebrowNamed) .eyebrow {
+    display: none;
+  }
+
+  .block.flat .eyebrowNamed {
+    display: block;
+  }
+
+  .block.flat .eyebrow,
+  .block.flat .eyebrowNamed {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-regular);
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--color-muted);
+  }
+
+  .block.flat .figure {
+    justify-content: flex-start;
+  }
+
+  .block.flat .value {
+    font-size: var(--text-3xl);
+    color: var(--color-ink);
+  }
+
+  .block.flat .unit {
+    font-size: var(--text-md);
+    color: var(--color-muted);
+  }
+
+  .block.flat .interpretation {
+    color: var(--color-ink-soft);
   }
 }
 

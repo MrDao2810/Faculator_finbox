@@ -205,15 +205,22 @@ async function napDongDau(): Promise<string> {
 }
 
 /**
- * Hai nhãn mục còn lại của khối Giải thích, đúng thứ tự wireframe (FR-03).
+ * Ba nhãn mục còn lại của khối Giải thích, đúng thứ tự wireframe (FR-03).
  *
- * Hai mục kia của FR-03 KHÔNG còn ở khối này: "Công thức này nói lên điều gì"
- * (`explain.meaning`) in lại đúng câu của khối "Ý nghĩa" đầu màn từ 30/09/2026
- * (`showMeaning={false}`); "Cách đọc kết quả" (`explain.howToRead`) in ngay dưới con số
- * ở khối Kết quả (`showHowToRead={false}`). Hai ca "câu … chỉ in MỘT lần" bên dưới gác
- * chuyện đó.
+ * Mục thứ tư, "Công thức này nói lên điều gì" (`explain.meaning`), KHÔNG còn ở khối này từ
+ * 30/09/2026: nó in lại đúng câu của khối "Ý nghĩa" đầu màn, nên màn tắt nó (`showMeaning={false}`).
+ * Ca "câu Ý nghĩa chỉ in MỘT lần" bên dưới gác chuyện ấy.
+ *
+ * "Cách đọc kết quả" (`explain.howToRead`) có một ngày (30/09 → 01/10/2026) bị tắt ở đây và chuyển
+ * sang in dưới con số ở khối Kết quả — rồi chủ dự án chỉ đúng ảnh chụp cảnh đó và gọi là chữ thừa,
+ * nên câu trở lại khối này. Ca "câu Cách đọc kết quả" bên dưới gác chiều ngược: không còn lặp ở
+ * khối Kết quả.
  */
-const NHAN_GIAI_THICH = ['explain.whenToUse', 'explain.commonMistakes'] as const;
+const NHAN_GIAI_THICH = [
+  'explain.whenToUse',
+  'explain.howToRead',
+  'explain.commonMistakes',
+] as const;
 
 /**
  * Ba mục của khối Giải thích, dưới dạng thẻ `<details>` để đọc được thuộc tính `open`.
@@ -288,14 +295,13 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    *
    * Đã qua hai bản trung gian: gập hết ở chế độ Nâng cao (FR-09), rồi chỉ mở mục đầu. Cả hai đều bắt
    * người đọc phải bấm mới thấy phần giải thích, mà FR-03 bắt buộc bốn mục ấy có mặt chính là để đọc.
-   * Khối nay có hai mục — ý nghĩa nằm ở khối "Ý nghĩa", cách đọc kết quả nằm ở khối "Kết quả"
-   * (xem `NHAN_GIAI_THICH`).
+   * Khối nay có ba mục — mục ý nghĩa nằm ở khối "Ý nghĩa" đầu màn (xem `NHAN_GIAI_THICH`).
    */
-  it('cả hai mục của phần Giải thích mở sẵn khi vào màn', () => {
+  it('cả ba mục của phần Giải thích mở sẵn khi vào màn', () => {
     render(<Man spec={specOf('pe')} />);
 
     const items = mucGiaiThich();
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(3);
     for (const [index, item] of items.entries()) {
       expect(item.open, `mục thứ ${String(index + 1)}`).toBe(true);
     }
@@ -350,14 +356,15 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   });
 
   /*
-   * Câu "Cách đọc kết quả" chỉ in MỘT lần, ngay dưới con số ở khối Kết quả — không còn lặp lại ở
-   * khối Giải thích (`showHowToRead={false}`, `ResultBlock.interpretation`).
+   * Câu "Cách đọc kết quả" chỉ in MỘT lần, trong khối Giải thích — không còn lặp lại dưới con số ở
+   * khối Kết quả.
    *
-   * Cùng lý do và cùng khuôn với ca "câu Ý nghĩa chỉ in MỘT lần" ở trên: chủ dự án chỉ ra ảnh chụp
-   * khối Kết quả đứng một mình, không câu nào giải thích con số — câu ấy trước đó nằm ở khối Giải
-   * thích, và trên điện thoại khối ấy bị đẩy xuống dưới cả Biểu đồ.
+   * Đảo lại một quyết định một ngày tuổi: câu này bị tắt ở khối Giải thích hôm 30/09/2026 rồi
+   * chuyển sang in dưới con số (`ResultBlock.interpretation`) hôm 01/10/2026, với lý do đứng cạnh
+   * con số nó giải thích. Chủ dự án chỉ đúng ảnh chụp cảnh ấy — thẻ gộp với số lớn, các ô nhập, và
+   * nguyên đoạn văn ngay dưới — và gọi là chữ thừa, nên câu trở lại khối Giải thích như cũ.
    */
-  it('câu Cách đọc kết quả chỉ in MỘT lần — nằm ở khối Kết quả, không lặp ở khối Giải thích', () => {
+  it('câu Cách đọc kết quả in trong khối Giải thích, không lặp ở khối Kết quả', () => {
     for (const id of ['pe', 'capm', 'fcfe']) {
       const spec = specOf(id);
       const { unmount } = render(<Man spec={spec} />);
@@ -366,7 +373,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
       expect(
         screen.queryAllByText(t('explain.howToRead')).filter((el) => el.tagName === 'SUMMARY'),
         id,
-      ).toHaveLength(0);
+      ).toHaveLength(1);
 
       unmount();
     }
@@ -533,8 +540,66 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
   });
 
   it('công thức thường vẫn có khối kết quả chung', () => {
-    render(<Man spec={specOf('pe')} />);
+    /*
+     * `ev` chứ không `pe`: `pe` đã vào khuôn gộp. `ev` nằm NGOÀI khuôn ấy vì biểu đồ mặc định của
+     * nó là biểu đồ bóc tách (xem `hasMergedCard()`), mà vẫn là công thức ba ô số bình thường —
+     * tức đúng ca mà câu hỏi của ca kiểm này muốn hỏi.
+     */
+    render(<Man spec={specOf('ev')} />);
     expect(screen.getByText('KẾT QUẢ')).not.toBeNull();
+  });
+
+  /*
+   * Thẻ gộp "Số liệu + Kết quả" ở khổ PC (01/10/2026) đổi dòng nhãn nhỏ trên con số: thay chữ
+   * "KẾT QUẢ" chung bằng TÊN công thức, đúng bản thiết kế chủ dự án đưa và đúng nếp "cạnh một con
+   * số là tên CỦA con số ấy".
+   *
+   * Ca này gác cả hai vế, vì bỏ sót vế nào cũng thành lỗi im lặng: công thức dùng khuôn mới phải
+   * THÔI in "KẾT QUẢ" (nếu không, màn có hai cái tên cho một con số), và công thức ngoài danh sách
+   * phải GIỮ nguyên — khuôn mới áp cho 65 trong 111 công thức, xem `hasMergedCard()`.
+   */
+  it('thẻ gộp mang SẴN cả hai dòng nhãn, để CSS chọn theo khổ màn', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    // Tìm TRONG khối Kết quả: tên công thức còn đứng ở `<h1>` đầu màn nữa, nên tìm cả trang sẽ
+    // thấy hai chỗ và không nói được chỗ nào là dòng nhãn của con số.
+    const khoiKetQua = screen.getByRole('region', { name: 'Kết quả' });
+
+    expect(within(khoiKetQua).getByText('KẾT QUẢ')).not.toBeNull();
+    expect(within(khoiKetQua).getByText('P/E — hệ số giá trên lợi nhuận')).not.toBeNull();
+  });
+
+  /*
+   * Công thức NGOÀI khuôn gộp không được dựng dòng nhãn thứ hai: nó chỉ có nghĩa trong thẻ gộp,
+   * và một dòng chữ thừa trong DOM là một dòng trình đọc màn hình có thể đọc ra nếu CSS lỡ tay.
+   */
+  it('công thức ngoài khuôn gộp chỉ có một dòng nhãn', () => {
+    const spec = specOf('ev');
+    render(<Man spec={spec} />);
+
+    // Đọc tên từ chính spec, không chép chuỗi: đổi tên công thức thì ca kiểm đi theo.
+    const khoiKetQua = screen.getByRole('region', { name: 'Kết quả' });
+    expect(within(khoiKetQua).getByText('KẾT QUẢ')).not.toBeNull();
+    expect(within(khoiKetQua).queryByText(spec.name.vi)).toBeNull();
+  });
+
+  /*
+   * Ca ĐẢO, không phải ca xoá — cùng nếp đã dùng cho `quiz.localOnly` và `quiz.notTranslated`:
+   * câu chữ quay lại thì phải là một quyết định, không phải một lần lỡ tay.
+   *
+   * Nhãn "✎ Tự nhập" ở góc mỗi ô nhỏ BỎ 02/10/2026 theo chủ dự án. Nó in trên gần như mọi ô, mà
+   * "tự nhập" đúng là trạng thái mặc định của một ô nhập, nên nó không phân biệt được gì; thứ
+   * đáng đánh dấu là ngoại lệ (ô mang số của một mã, hay của công thức khác). Xem docblock
+   * `SourceMark` và mộ chí ở khoá `tile.manual` trong `vi.ts`.
+   *
+   * Dò ở tầng DOM chứ không tầng CSS, và đó là điều kiện để ca này có nghĩa: nhãn bị bỏ ở REACT
+   * (không truyền `sourceMark` nữa) chứ không bị CSS giấu đi, nên jsdom thấy được. Nếu ai đó dựng
+   * lại nó rồi ẩn bằng `display: none` thì ca này vẫn đỏ — đúng ý: trình đọc màn hình không nên
+   * đọc một nhãn vô nghĩa trên từng ô.
+   */
+  it('ô nhỏ của thẻ gộp KHÔNG in nhãn "Tự nhập" — đã bỏ 02/10/2026', () => {
+    render(<Man spec={specOf('pe')} />);
+    expect(screen.queryByText(/Tự nhập/)).toBeNull();
   });
 
   /*

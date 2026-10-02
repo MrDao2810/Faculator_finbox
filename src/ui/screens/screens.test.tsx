@@ -146,9 +146,18 @@ describe('FeeTaxBody — WF-08', () => {
     expect(screen.getByText('+5,01 %')).not.toBeNull();
   });
 
-  it('nói rõ bán dưới giá hoà vốn là lỗ', () => {
+  /*
+   * Ca kiểm ĐẢO: dòng phụ "bán dưới giá này là lỗ" KHÔNG được quay lại.
+   *
+   * Chủ dự án bỏ nó ngày 01/10/2026 — hai chữ "hoà vốn" ngay trên đã nói đúng điều ấy. Giữ ca
+   * kiểm ở dạng đảo thay vì xoá, cùng nếp `quiz.localOnly`: câu ấy xuất hiện lại là một quyết
+   * định có người ký, không phải một dòng lọt vào lúc nào không hay. Con số giá hoà vốn thì vẫn
+   * phải còn — ca ngay trên gác nó.
+   */
+  it('KHÔNG nhắc lại "bán dưới giá này là lỗ" — chữ hoà vốn đã nói rồi', () => {
     render(<FeeTaxBody inputs={WF08} ctx={CTX} />);
-    expect(screen.getByText('bán dưới giá này là lỗ')).not.toBeNull();
+    expect(screen.queryByText('bán dưới giá này là lỗ')).toBeNull();
+    expect(screen.getByText('Giá hoà vốn thực')).not.toBeNull();
   });
 
   it('thiếu giá bán thì báo đúng ô còn thiếu, TUYỆT ĐỐI không hiện 0 (FR-06)', () => {

@@ -618,6 +618,7 @@ export const CAPM: FormulaModule = {
       vi: 'Chi phí vốn chủ = Lãi suất phi rủi ro + Beta × Phần bù rủi ro thị trường',
       en: 'Cost of equity = Risk-free rate + Beta × Equity risk premium',
     },
+    substitution: '{riskFree} + {beta} × {erp}',
     symbols: [
       {
         latex: 'r_e',
@@ -1829,6 +1830,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
       vi: 'Giá trị hiện tại = Số tiền tương lai ÷ (1 + Tỷ lệ chiết khấu)^Số năm',
       en: 'Present value = Future amount ÷ (1 + Discount rate)^Years',
     },
+    substitution: '{futureValue} ÷ (1 + {rate} ÷ 100) ^ {years}',
     symbols: [
       {
         latex: 'PV',
@@ -2011,6 +2013,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       vi: 'Giá trị tương lai = Số tiền hiện tại × (1 + Tỷ suất sinh lợi)^Số năm',
       en: 'Future value = Present amount × (1 + Rate of return)^Years',
     },
+    substitution: '{presentValue} × (1 + {rate} ÷ 100) ^ {years}',
     symbols: [
       {
         latex: 'FV',

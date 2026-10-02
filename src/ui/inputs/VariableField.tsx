@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import type { ControlType, Level, VariableSpec } from '@/application';
 
 import { ButtonGroup } from './ButtonGroup';
@@ -35,6 +37,16 @@ export interface VariableFieldProps {
    * kiểu là để lọt đúng thứ vừa hứa là đã khoá.
    */
   lockedNote?: string;
+  /**
+   * Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`.
+   *
+   * Bốn kiểu điều khiển nhận cờ này: ô số, thanh trượt, danh sách chọn, nhóm nút — đúng bốn kiểu
+   * mà 111 công thức thật sự dùng. `radio` và `toggle` có trong `ControlType` nhưng KHÔNG công
+   * thức nào khai, nên chúng bỏ qua cờ thay vì mang một bản thu gọn chưa ai nhìn thấy bao giờ.
+   */
+  compact?: boolean;
+  /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
+  sourceMark?: ReactNode;
   className?: string;
 }
 
@@ -73,22 +85,32 @@ export function VariableField({
   derivedFrom,
   derivedNote,
   lockedNote,
+  compact,
+  sourceMark,
   className,
 }: VariableFieldProps) {
   const shared = { spec, value, onChange, mode, lockedNote, className };
 
   switch (spec.type) {
     case 'slider':
-      return <SliderInput {...shared} />;
+      return <SliderInput {...shared} compact={compact} sourceMark={sourceMark} />;
     case 'buttonGroup':
-      return <ButtonGroup {...shared} />;
+      return <ButtonGroup {...shared} compact={compact} sourceMark={sourceMark} />;
     case 'radio':
       return <RadioGroup {...shared} />;
     case 'select':
-      return <SelectInput {...shared} />;
+      return <SelectInput {...shared} compact={compact} sourceMark={sourceMark} />;
     case 'toggle':
       return <Toggle {...shared} sourceNote={sourceNote} />;
     case 'number':
-      return <NumberInput {...shared} derivedFrom={derivedFrom} derivedNote={derivedNote} />;
+      return (
+        <NumberInput
+          {...shared}
+          derivedFrom={derivedFrom}
+          derivedNote={derivedNote}
+          compact={compact}
+          sourceMark={sourceMark}
+        />
+      );
   }
 }

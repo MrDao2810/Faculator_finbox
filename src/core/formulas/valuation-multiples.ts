@@ -116,6 +116,7 @@ export const PS: FormulaModule = {
       vi: 'P/S = Giá thị trường ÷ Doanh thu trên mỗi cổ phiếu',
       en: 'P/S = Market price ÷ Revenue per share',
     },
+    substitution: '{price} ÷ {salesPerShare}',
     symbols: [
       {
         latex: 'P/S',
@@ -434,6 +435,7 @@ export const EV_EBITDA: FormulaModule = {
       vi: 'EV/EBITDA = Giá trị doanh nghiệp ÷ EBITDA',
       en: 'EV/EBITDA = Enterprise value ÷ EBITDA',
     },
+    substitution: '{ev} ÷ {ebitda}',
     symbols: [
       {
         latex: 'EV/EBITDA',
@@ -579,6 +581,7 @@ export const EV_SALES: FormulaModule = {
       vi: 'EV/Sales = Giá trị doanh nghiệp ÷ Doanh thu thuần',
       en: 'EV/Sales = Enterprise value ÷ Net revenue',
     },
+    substitution: '{ev} ÷ {revenue}',
     symbols: [
       {
         latex: 'EV/Sales',
@@ -723,6 +726,7 @@ export const PEG: FormulaModule = {
       vi: 'PEG = P/E ÷ Tăng trưởng lợi nhuận kỳ vọng (%/năm)',
       en: 'PEG = P/E ÷ Expected earnings growth (%/year)',
     },
+    substitution: '{pe} ÷ {growth}',
     symbols: [
       {
         latex: 'PEG',
@@ -907,6 +911,7 @@ export const VON_HOA: FormulaModule = {
       vi: 'Vốn hoá = Giá thị trường × Số cổ phiếu lưu hành ÷ 1.000',
       en: 'Market cap = Market price × Shares outstanding ÷ 1,000',
     },
+    substitution: '{price} × {shares} ÷ 1.000',
     symbols: [
       {
         latex: '\\text{Vốn hoá}',
@@ -1052,6 +1057,7 @@ export const SO_GRAHAM: FormulaModule = {
       vi: 'Số Graham = Căn bậc hai của (22,5 × EPS × Giá trị sổ sách mỗi cổ phiếu)',
       en: 'Graham number = Square root of (22.5 × EPS × Book value per share)',
     },
+    substitution: '√(22,5 × {eps} × {bvps})',
     symbols: [
       {
         latex: '\\text{Graham}',
@@ -1415,6 +1421,7 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
       vi: 'Tỷ suất lợi nhuận = EPS ÷ Giá thị trường × 100',
       en: 'Earnings yield = EPS ÷ Market price × 100',
     },
+    substitution: '{eps} ÷ {price} × 100',
     symbols: [
       {
         latex: 'E/P',
@@ -1572,6 +1579,7 @@ export const GIA_MUC_TIEU: FormulaModule = {
       vi: 'Giá mục tiêu = P/E mục tiêu × EPS',
       en: 'Target price = Target P/E × EPS',
     },
+    substitution: '{targetPe} × {eps}',
     symbols: [
       {
         latex: 'P_{\\text{mục tiêu}}',

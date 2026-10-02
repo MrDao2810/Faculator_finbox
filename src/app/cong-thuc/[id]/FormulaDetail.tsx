@@ -31,6 +31,8 @@ import {
   defaultInputs,
   derivedStages,
   encodeShareInputs,
+  fillSubstitution,
+  formatNumber,
   displayCalcName,
   draftFor,
   emptyCashflowRow,
@@ -103,6 +105,7 @@ import {
   ExplanationAccordion,
   ResultBlock,
   SourceBlock,
+  SourceMark,
   VariableTable,
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
@@ -115,6 +118,7 @@ import {
   DetailConfig,
   hasConfigBlock,
   hasCustomBody,
+  hasMergedCard,
   ownsResult,
 } from '@/ui/screens';
 
@@ -2076,6 +2080,89 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
     target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
+  /*
+   * ── Khối gộp "Số liệu + Kết quả" ở khổ PC (01/10/2026) ──────────────────────────────────────
+   *
+   * Chủ dự án đưa bốn ảnh thiết kế: con số kết quả và hàng ô nhập về chung MỘT thẻ ở đầu trang,
+   * Giải thích đẩy lên ngay dưới. **Chỉ màn web** — khổ điện thoại giữ nguyên từng pixel, nên mọi
+   * luật hình nằm trong `@media (min-width: 1280px)` chứ không ở React. Thứ React quyết chỉ là
+   * CÂY DOM: khối Kết quả nằm trong thẻ gộp hay nằm ở cột phải như cũ.
+   *
+   * Một cây DOM cho cả hai khổ, không dựng hai cây — trình đọc màn hình sẽ đọc mọi con số hai lần
+   * và `getByText` báo "multiple elements" (cùng luật đã ghi cho bảng Danh mục ở CLAUDE.md).
+   *
+   * Danh sách công thức dùng khuôn mới là `hasMergedCard()` ở `@/ui/screens` — viết tay, đợt đầu ba
+   * công thức mẫu. Công thức ngoài danh sách đi nhánh dưới, không đổi một nút DOM nào.
+   */
+  const merged = hasMergedCard(spec.id);
+
+  /*
+   * Dòng `92.000 ÷ 6.050 = 15,21` dưới đáy thẻ gộp.
+   *
+   * Vế trái do `spec.substitution` thay số (cửa gác tính lại ở `formulas.test.ts`), vế phải lấy
+   * THẲNG từ `output` — không tự nhân chia lại, nếu không màn có hai chỗ cùng tính một con số.
+   * Thiếu mẫu, thiếu số hay kết quả đang lỗi thì bỏ hẳn dòng, không in một vế cụt.
+   */
+  const thaySo = merged ? fillSubstitution(spec, effectiveInputs) : null;
+  const dongThaySo =
+    thaySo === null || output.value === null
+      ? null
+      : /*
+         * `formatNumber` KHÔNG tham số, đúng như `ResultBlock` gọi nó — tức cùng số chữ số lẻ.
+         * Để mặc định khác nhau thì dải đáy ghi `= 15,2066` ngay dưới con số lớn ghi `15,21`, và
+         * người đọc có hai con số cho cùng một phép tính.
+         */
+        `${thaySo} = ${formatNumber(output.value)}`;
+
+  /*
+   * Khối Kết quả dựng một lần rồi đặt vào một trong hai chỗ — xem `merged` ngay trên. Dựng tại chỗ
+   * ở cả hai nhánh thì hai bản sẽ trôi khỏi nhau ngay lần sửa sau.
+   */
+  const ketQuaBlock = (
+    <section className={styles.result} aria-labelledby="khoi-ket-qua">
+      <h2 className="visually-hidden" id="khoi-ket-qua">
+        {t('result.heading')}
+      </h2>
+
+      {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
+      {!ownsResult(spec.id) && (
+        <ResultBlock
+          output={output}
+          /*
+            Không còn truyền `interpretation` từ 01/10/2026 — chủ dự án chỉ ảnh chụp đúng khối
+            này ở thẻ gộp (số lớn, cạnh các ô nhập, kèm nguyên đoạn "Cách đọc kết quả" ngay dưới)
+            và gọi đó là chữ thừa. Câu `explanation.howToRead` trở lại khối Giải thích — xem
+            `showHowToRead` ở `ExplanationAccordion` phía dưới, nay không còn bị tắt.
+          */
+          /*
+            Trong thẻ gộp, dòng nhãn nhỏ trên con số gọi TÊN CÔNG THỨC thay vì chữ "KẾT QUẢ" chung
+            — đúng bản thiết kế, và cũng là thứ `con-so-tren-man-phai-co-ten` đã chốt: cạnh một con
+            số là tên CỦA con số ấy. Ngoài thẻ gộp thì giữ nguyên "KẾT QUẢ".
+          */
+          {...(merged ? { eyebrow: pick(spec.name), variant: 'flat' as const } : {})}
+        />
+      )}
+
+      {/*
+        Dòng đếm ô dưới con số ("2 ô · 2 ô lấy theo mã") đã BỎ 01/10/2026 — cùng ảnh chụp và cùng
+        yêu cầu đã bỏ câu "Cách đọc kết quả" ở đúng chỗ này. Tombstone `tile.count`/
+        `tile.countTicker` ở `vi.ts`.
+      */}
+
+      {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
+      {hasCustomBody(spec.id) && (
+        <DetailBody
+          id={spec.id}
+          inputs={inputs}
+          ctx={ctx}
+          output={output}
+          cashflowRows={cashflowRows}
+          onCashflowRowsChange={setCashflowRows}
+        />
+      )}
+    </section>
+  );
+
   return (
     <div className={styles.detail}>
       {/* ── 1. Đầu màn: tên, nhóm, ba nút hành động ───────────────────────── */}
@@ -2488,31 +2575,44 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         Chuỗi định giá (4b) đứng GIỮA hai bọc: nó cần trọn bề ngang cho bốn thẻ bước, nên không vào
         cột trái được; `dense` của lưới đưa nó xuống hàng trống đầu tiên dưới cả hai cột.
       */}
-      <div className={styles.ask}>
+      <div className={merged ? `${styles.ask} ${styles.askMerged}` : styles.ask}>
         {/*
+          Thẻ gộp: Số liệu và Kết quả về chung một khung ở khổ PC — xem `merged` chỗ dựng
+          `ketQuaBlock`.
+
+          Lớp bọc luôn có mặt, chỉ đổi lớp CSS, và đó là chủ ý: `.passthrough` là
+          `display: contents` ở MỌI khổ, tức nó không sinh hộp nào: 46 công thức ngoài danh sách
+          `hasMergedCard()` vẫn xếp y hệt trước — `.blockInputs` vẫn là con flex trực tiếp của
+          `.ask`. Dựng lớp bọc có điều kiện thì phải tách cả khối Số liệu (~280 dòng) ra biến, tức
+          sửa nhiều gấp bội cho cùng một kết quả.
+
+          `.merged` cũng là `display: contents` ở khổ hẹp, nên màn điện thoại không đổi một pixel.
+        */}
+        <div className={merged ? styles.merged : styles.passthrough}>
+          {/*
           Rời một ô nhập là ghi nốt bản nháp ngay, không đợi hết 300 ms hẹn giờ (21/09/2026).
 
           `onBlur` của React là `focusout`, nên nó nổi lên từ mọi ô con — một lần ghi cho mỗi lần
           rời ô, không phải mỗi phím. Có nó thì lời hứa "gõ xong là số đã được cất" vẫn đúng ngay
           cả khi cú rời màn tới sớm hơn hẹn giờ, và ca kiểm đang gác lời hứa ấy không phải nới ra.
         */}
-        <section
-          className={`${styles.block} ${styles.blockInputs}`}
-          aria-labelledby="khoi-so-lieu"
-          onBlur={flushDraft}
-        >
-          <div className={styles.blockHead}>
-            <h2 className={styles.blockTitle} id="khoi-so-lieu">
-              {t('detail.inputs')}
-            </h2>
-            {hiddenCount > 0 && (
-              <span className={styles.hiddenNote}>
-                {hiddenCount} {t('detail.hiddenInBasic')}
-              </span>
-            )}
-          </div>
+          <section
+            className={`${styles.block} ${styles.blockInputs}`}
+            aria-labelledby="khoi-so-lieu"
+            onBlur={flushDraft}
+          >
+            <div className={styles.blockHead}>
+              <h2 className={styles.blockTitle} id="khoi-so-lieu">
+                {t('detail.inputs')}
+              </h2>
+              {hiddenCount > 0 && (
+                <span className={styles.hiddenNote}>
+                  {hiddenCount} {t('detail.hiddenInBasic')}
+                </span>
+              )}
+            </div>
 
-          {/*
+            {/*
           ── Dải "AAA điền được 2 trong 4 ô…" đã BỎ HẲN ────────────────────────────────────────
 
           Chủ dự án: *"không cần phải giải thích … cho tốn không gian. bỏ đi. thay vào đó các ô kia
@@ -2527,50 +2627,60 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
           một đoạn văn thứ hai nói cùng một điều ở xa hơn.
         */}
 
-          {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
-          {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
+            {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
+            {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
 
-          <div className={styles.fields}>
-            {shown.map((variable) => {
-              const linked = linkedFields.get(variable.key);
-              // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
-              const wide = linked !== undefined || isWideControl(variable.type);
+            {/*
+            Hai lớp trên CÙNG một thẻ, không phải lớp này thay lớp kia: `.fields` giữ nguyên lưới
+            và luật `subgrid` của khổ hẹp, `.tileGrid` chỉ đè số cột từ 1280px. Giữ `.fields` là
+            điều kiện — luật `.fields > .field` chỉ với tới CON TRỰC TIẾP, nên đổi tên lớp là mất
+            canh thẳng hàng giữa hai ô cùng hàng ở khổ điện thoại.
+          */}
+            <div className={merged ? `${styles.fields} ${styles.tileGrid}` : styles.fields}>
+              {shown.map((variable) => {
+                const linked = linkedFields.get(variable.key);
+                // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
+                const wide = linked !== undefined || isWideControl(variable.type);
 
-              /*
+                /*
               Điều khiển LÀ ô lưới, không bọc thêm một <div> quanh nó.
               Bọc thì nhãn / khung nhập / dòng phụ nằm sâu thêm một tầng, và `subgrid` — thứ giữ
               cho hai ô cùng hàng thẳng nhau khi một nhãn dài hơn — chỉ với tới con TRỰC TIẾP.
               Khối chuỗi WF-04 vốn đã dựng theo lối này, nên bỏ lớp bọc cũng là đưa hai màn về
               cùng một hình dạng DOM.
             */
-              const className = wide ? styles.fieldWide : styles.field;
+                const className = wide ? styles.fieldWide : styles.field;
 
-              return linked === undefined ? (
-                <VariableField
-                  key={variable.key}
-                  spec={variable}
-                  value={inputs[variable.key] ?? variable.defaultValue}
-                  onChange={(value) => {
-                    setValue(variable.key, value);
-                  }}
-                  mode={mode}
-                  sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
-                  /*
-                  Ô này đang mang số của mã vừa nạp → trạng thái `derived` của WF-16: viền đứt +
-                  dòng phụ `↳ HPG`.
+                /*
+                  Mã đang cấp số cho ô này, hoặc `undefined` nếu không.
 
-                  Đọc `edited` chứ không gỡ khoá khỏi `filled`: gõ đè lên thì dấu `↳ HPG` phải tắt
-                  (nếu không màn nói dối về nguồn con số), nhưng ô vẫn phải MỞ — mà `filled` nay là
-                  thứ quyết định khoá. Xem docblock của `presetFill`.
+                  MỘT phép xét cho hai chỗ dùng (viền `derived` + dòng phụ bên dưới ô, và con dấu
+                  nguồn ở góc ô trong thẻ gộp): cả hai nói về cùng một sự thật — "con số này còn
+                  là của mã không" — nên hai bản sao của cùng biểu thức sẽ là hai chỗ có thể lệch
+                  nhau. Đọc `edited` chứ không gỡ khoá khỏi `filled`: gõ đè lên thì dấu nguồn phải
+                  tắt (nếu không màn nói dối về nguồn con số), nhưng ô vẫn phải MỞ — mà `filled`
+                  nay là thứ quyết định khoá. Xem docblock của `presetFill`.
                 */
-                  derivedFrom={
-                    presetFill !== null &&
-                    presetFill.filled.has(variable.key) &&
-                    !presetFill.edited.has(variable.key)
-                      ? presetFill.code
-                      : undefined
-                  }
-                  /*
+                const maCapSo =
+                  presetFill !== null &&
+                  presetFill.filled.has(variable.key) &&
+                  !presetFill.edited.has(variable.key)
+                    ? presetFill.code
+                    : undefined;
+
+                return linked === undefined ? (
+                  <VariableField
+                    key={variable.key}
+                    spec={variable}
+                    value={inputs[variable.key] ?? variable.defaultValue}
+                    onChange={(value) => {
+                      setValue(variable.key, value);
+                    }}
+                    mode={mode}
+                    sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
+                    /* Ô mang số của mã vừa nạp → trạng thái `derived` của WF-16 — xem `maCapSo`. */
+                    derivedFrom={maCapSo}
+                    /*
                   Dòng phụ viết thành chữ, KHÔNG để mặc định `↳ VHM`.
 
                   Chủ dự án nhìn `↳ VHM` và hỏi *"ký hiệu này nghĩa là gì? ký hiệu có thể nhập liệu
@@ -2579,61 +2689,76 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
                   giải thích nó. Nay ô mở nói 'dữ liệu của VHM', ô khoá nói 'dữ liệu mẫu' — chung
                   một danh từ, khác đúng một vế, nên liếc một cái là phân được.
                 */
-                  derivedNote={
-                    presetFill === null ? undefined : `${t('input.fromTicker')} ${presetFill.code}`
-                  }
-                  // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
-                  lockedNote={lockedNoteFor(variable.key)}
-                  className={className}
-                />
-              ) : (
-                /*
+                    derivedNote={
+                      presetFill === null
+                        ? undefined
+                        : `${t('input.fromTicker')} ${presetFill.code}`
+                    }
+                    // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
+                    lockedNote={lockedNoteFor(variable.key)}
+                    /*
+                  Ô nhỏ của thẻ gộp — chỉ đổi hình từ 1280px, xem `InputProps.compact`.
+
+                  Con dấu nguồn CHỈ gắn khi ô thật sự mang số của một mã. Ô người dùng tự gõ không
+                  mang dấu nào: nhãn "Tự nhập" bỏ 02/10/2026 theo chủ dự án, vì nó in trên gần như
+                  mọi ô nên không phân biệt được gì — xem docblock `SourceMark`. Không truyền prop
+                  thay vì truyền một con dấu rỗng, để `Input` khỏi dựng thẻ `<span>` không nội
+                  dung mà luật `:has(.sourceMark)` của nhãn vẫn đếm là có dấu.
+                */
+                    compact={merged}
+                    {...(merged && maCapSo !== undefined
+                      ? { sourceMark: <SourceMark source={{ kind: 'ticker', code: maCapSo }} /> }
+                      : {})}
+                    className={className}
+                  />
+                ) : (
+                  /*
                 Ô nhận giá trị từ bước trước (FR-15). Dựng TẠI CHỖ trong lưới chứ không gom
                 xuống khối chuỗi bên dưới: nó vẫn là một biến của công thức này, đứng đúng
                 thứ tự của nó trong bảng biến. Gom xuống dưới là người dùng phải ghép hai
                 danh sách ô nhập trong đầu mới biết công thức cần những gì.
               */
-                <LinkedInput
-                  key={variable.key}
-                  spec={variable}
-                  upstream={linked.upstream}
-                  {...(linked.override === undefined ? {} : { override: linked.override })}
-                  onOverrideChange={(value) => {
-                    setOverride(spec.id, variable.key, value);
+                  <LinkedInput
+                    key={variable.key}
+                    spec={variable}
+                    upstream={linked.upstream}
+                    {...(linked.override === undefined ? {} : { override: linked.override })}
+                    onOverrideChange={(value) => {
+                      setOverride(spec.id, variable.key, value);
+                    }}
+                    mode={mode}
+                    className={className}
+                  />
+                );
+              })}
+            </div>
+
+            {wantsSeries && (
+              <div className={styles.actions}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    openSheet('paste');
                   }}
-                  mode={mode}
-                  className={className}
-                />
-              );
-            })}
-          </div>
+                >
+                  {t('detail.pasteSeries')}
+                </Button>
 
-          {wantsSeries && (
-            <div className={styles.actions}>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  openSheet('paste');
-                }}
-              >
-                {t('detail.pasteSeries')}
-              </Button>
-
-              {/*
+                {/*
               Lối thứ ba cho người chưa có chuỗi giá thật để dán VÀ không hiểu bộ mẫu 4 công ty —
               xem docblock `applyExample()`. Ẩn hẳn với công thức không khai
               `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
             */}
-              {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
-                <Button variant="secondary" size="sm" onClick={applyExample}>
-                  {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
-                </Button>
-              )}
-            </div>
-          )}
+                {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
+                  <Button variant="secondary" size="sm" onClick={applyExample}>
+                    {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
+                  </Button>
+                )}
+              </div>
+            )}
 
-          {/*
+            {/*
           Hàng chân của khối chuỗi: số phiên đã nạp bên trái, lối sang bảng dữ liệu bên phải.
 
           Link từng đứng cuối hàng nút ở trên. Cột Số liệu hẹp nên hàng ấy gãy, và link rơi xuống
@@ -2642,22 +2767,22 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
           ấy cùng nói về CHUỖI đang nạp — có bao nhiêu phiên, và xem/sửa nó ở đâu — nên đứng chung
           một hàng là đúng nghĩa, còn hàng nút giữ đúng vai "đưa dữ liệu vào".
         */}
-          {wantsSeries && (
-            <div className={styles.seriesFoot}>
-              {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
-              {seriesCount !== null && (
-                <p className={styles.pendingNote}>
-                  {t('detail.seriesLoaded')} {seriesCount}
-                </p>
-              )}
+            {wantsSeries && (
+              <div className={styles.seriesFoot}>
+                {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
+                {seriesCount !== null && (
+                  <p className={styles.pendingNote}>
+                    {t('detail.seriesLoaded')} {seriesCount}
+                  </p>
+                )}
 
-              {/*
+                {/*
               Nút "Áp dụng vào bảng dữ liệu" đã BỎ — việc của nó nay chạy tự động trong `onClick`
               của link này. Đừng dựng lại: hai lối làm cùng một việc thì người dùng phải đoán cái
               nào đã chạy.
             */}
 
-              {/*
+                {/*
               Lối vào bảng WF-05. Dán tại chỗ chỉ đọc được chuỗi vào công thức đang mở; muốn
               sửa từng phiên, xem dòng nào sai, hay giữ chuỗi lại thì phải sang bảng. Trước đợt
               này màn đó không có link nào trỏ tới từ bất kỳ đâu trong giao diện.
@@ -2679,30 +2804,30 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
               công thức này", còn việc trang có mặt trên màn thì không nói lên điều gì — cùng lập
               luận với `markReturning` của `BackLink`.
             */}
-              <Link
-                className={styles.dataLink}
-                href={`${ROUTES.data}?from=${spec.id}`}
-                onClick={handOverToDataTable}
-              >
-                {t('detail.openDataTable')}
-              </Link>
-            </div>
-          )}
+                <Link
+                  className={styles.dataLink}
+                  href={`${ROUTES.data}?from=${spec.id}`}
+                  onClick={handOverToDataTable}
+                >
+                  {t('detail.openDataTable')}
+                </Link>
+              </div>
+            )}
 
-          {/*
+            {/*
           Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`presetFromSnapshot()`), nên
           ở một công thức cần chuỗi thì "nạp mã xong" và "tính được" là hai chuyện khác nhau.
           Không nói ra thì người dùng đọc màn hình này ra là sản phẩm hỏng — cùng lý do FR-06
           cấm trả 0 thay cho lỗi. Ngưỡng < 2 chứ không phải === 1: mã không tra được giá cho
           `bars: []`, và ca đó cũng cần đúng câu này.
         */}
-          {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
-            <p className={styles.seriesShortNote} role="note">
-              {t('detail.liveSeriesShort')}
-            </p>
-          )}
+            {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
+              <p className={styles.seriesShortNote} role="note">
+                {t('detail.liveSeriesShort')}
+              </p>
+            )}
 
-          {/*
+            {/*
           ── Hai câu chú thích đã GỠ ngày 22/09/2026 ────────────────────────────────────────
 
           `detail.exampleSeriesNote` — "Đây là chuỗi số dựng sẵn để minh hoạ…, không phải giá cổ
@@ -2720,13 +2845,13 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
           chụp màn lại. Điều kiện bật nay xét thêm override, và câu chữ nói đúng nửa còn lại:
           chuỗi giá của bộ mẫu mới là phần chưa thật.
         */}
-          {usesMarketSeries && marketSeriesOverride === null && hasDraftMarketSeries() && (
-            <p className={styles.seriesShortNote} role="note">
-              {t('detail.draftMarketSeries')}
-            </p>
-          )}
+            {usesMarketSeries && marketSeriesOverride === null && hasDraftMarketSeries() && (
+              <p className={styles.seriesShortNote} role="note">
+                {t('detail.draftMarketSeries')}
+              </p>
+            )}
 
-          {/*
+            {/*
           Hằng số thuế & phí đang áp — đặt CUỐI khối Số liệu, không tách thành khối riêng.
           Nó thuộc về đầu vào: cùng là thứ quyết định con số ở khối Kết quả, chỉ khác chỗ người
           dùng không gõ được. Tách ra thành khối số 5 thì nó rơi xuống dưới Kết quả, tức là người
@@ -2735,9 +2860,9 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
           Tự trả về null khi công thức không tra hằng số nào, nên 98 trong 111 trang không thêm
           một nút DOM nào.
         */}
-          <ConstantsNote constants={constantsUsedBy(spec, ctx)} />
+            <ConstantsNote constants={constantsUsedBy(spec, ctx)} compact={merged} />
 
-          {/*
+            {/*
           Đại lượng công thức TỰ TÍNH RA — đứng cạnh `ConstantsNote` vì cùng một vai: thứ quyết
           định con số ở khối Kết quả mà người dùng không gõ được, nên phải đọc được TRƯỚC khi tới
           Kết quả. Lý do đầy đủ ở docblock `DerivedNote.tsx`.
@@ -2749,11 +2874,23 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
           Tự trả về null khi công thức không khai `breakdown` hoặc mọi chặng đều là ô nhập — 102
           trong 111 trang không thêm một nút DOM nào.
         */}
-          <DerivedNote
-            stages={derivedStages(spec, effectiveInputs, output)}
-            unit={spec.resultUnit}
-          />
-        </section>
+            <DerivedNote
+              stages={derivedStages(spec, effectiveInputs, output)}
+              unit={spec.resultUnit}
+            />
+          </section>
+
+          {/*
+            Hai phần cuối của thẻ gộp, chỉ dựng cho công thức dùng khuôn mới: khối Kết quả (đã rời
+            khỏi cột phải) và dòng thay số dưới đáy thẻ.
+
+            Dòng thay số KHÔNG hiện ở khổ hẹp — nó là chữ mới, mà màn điện thoại phải giữ nguyên.
+            Việc ẩn do CSS lo (`display: none` dưới 1280), không do React: một điều kiện ở React sẽ
+            cần biết bề ngang màn, mà lượt dựng đầu tiên phải khớp HTML dựng sẵn lúc build.
+          */}
+          {merged && ketQuaBlock}
+          {merged && dongThaySo !== null && <p className={styles.substitution}>{dongThaySo}</p>}
+        </div>
 
         {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}
         {/*
@@ -2767,12 +2904,15 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         đọc. Không truyền `defaultOpen` ở đây: mặc định của component ĐÃ là mở hết, nên chỗ này không
         có điều kiện nào để về sau lệch với nó.
 
-        Chỉ HAI mục ở đây (`showMeaning={false}`, `showHowToRead={false}`). Mục "Công thức này nói
-        lên điều gì" in đúng câu của khối "Ý nghĩa" (mục 2) từ 30/09/2026; mục "Cách đọc kết quả"
-        nay in ngay dưới con số ở khối Kết quả (`ResultBlock.interpretation`, mục 5) — cùng lý do:
-        cả 111 trang từng lặp nguyên một đoạn hai lần. FR-03 vẫn đủ bốn mục TRÊN MÀN: ý nghĩa ở
-        khối "Ý nghĩa", cách đọc ở khối "Kết quả", hai phần còn lại ở đây. Bản xuất PDF vẫn in đủ
-        bốn mục, vì nó không có khối "Ý nghĩa" hay "Kết quả" riêng (`export-content.ts`).
+        Chỉ BA mục ở đây (`showMeaning={false}`), từ 30/09/2026. Mục "Công thức này nói lên điều gì"
+        in đúng câu của khối "Ý nghĩa" (mục 2), nên cả 111 trang lặp nguyên đoạn đó hai lần. Chủ dự
+        án chọn giữ bản ở đầu màn. FR-03 vẫn đủ bốn mục TRÊN MÀN: phần ý nghĩa nằm ở khối "Ý nghĩa",
+        ba phần còn lại ở đây. Bản xuất PDF vẫn in đủ bốn mục, vì nó không có khối "Ý nghĩa" riêng
+        (`export-content.ts`).
+
+        "Cách đọc kết quả" từng bị tắt ở đây thêm một hôm (01/10/2026), chuyển sang in dưới con số ở
+        khối Kết quả (`ResultBlock.interpretation`) — rồi bị chính chủ dự án chỉ ảnh chụp khối đó và
+        gọi là chữ thừa, nên câu trở lại đây. Xem docblock `showHowToRead` ở `ExplanationAccordion.tsx`.
       */}
         {/*
         Năm khối cuối màn (theo mắt nhìn) mang lớp `deferred` — xem chú thích trong
@@ -2782,7 +2922,6 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         <ExplanationAccordion
           explanation={spec.explanation}
           showMeaning={false}
-          showHowToRead={false}
           className={`${styles.deferred} ${styles.blockExplain}`}
         />
       </div>
@@ -2834,33 +2973,15 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         Kết quả không tách khỏi phần nhập liệu ngay trên nó. Bản rà soát báo đúng thế —
         "khoảng cách giữa các khối chưa rõ ràng".
 
-        `interpretation` truyền câu `explanation.howToRead` — đường ống này đã dựng sẵn ở
-        `ResultBlock` (component + CSS) từ lâu nhưng chưa nơi gọi nào bơm vào (TASK.md). Đặt NGAY
-        DƯỚI con số nó giải thích, ở MỌI khổ màn hình, thay vì mục cùng tên trong khối Giải thích
-        vốn bị đẩy xuống dưới cả Biểu đồ ở điện thoại — xem `showHowToRead={false}` phía trên.
+        `ResultBlock` có sẵn một đường ống `interpretation` để in `explanation.howToRead` ngay dưới
+        con số (TASK.md), nhưng không nơi gọi nào ở đây bơm vào: chủ dự án chỉ ảnh chụp đúng cảnh ấy
+        — số lớn cộng nguyên đoạn văn ngay dưới, nằm cạnh các ô nhập ở thẻ gộp — và gọi là chữ thừa
+        (01/10/2026). Câu ấy đọc ở khối Giải thích, như trước gói "Cách đọc kết quả" tách đi.
+
+        Công thức dùng KHỐI GỘP thì khối này đã nằm trong thẻ gộp ở trên, không dựng lại ở đây —
+        xem `merged` chỗ dựng `ketQuaBlock`.
       */}
-        <section className={styles.result} aria-labelledby="khoi-ket-qua">
-          <h2 className="visually-hidden" id="khoi-ket-qua">
-            {t('result.heading')}
-          </h2>
-
-          {/* Thân riêng nào đã bày ra chính con số này thì bỏ khối chung, không hiện hai lần. */}
-          {!ownsResult(spec.id) && (
-            <ResultBlock output={output} interpretation={pick(spec.explanation.howToRead)} />
-          )}
-
-          {/* Khối kết quả riêng của WF-08 và WF-14, nạp trễ theo id công thức. */}
-          {hasCustomBody(spec.id) && (
-            <DetailBody
-              id={spec.id}
-              inputs={inputs}
-              ctx={ctx}
-              output={output}
-              cashflowRows={cashflowRows}
-              onCashflowRowsChange={setCashflowRows}
-            />
-          )}
-        </section>
+        {!merged && ketQuaBlock}
 
         {/* ── 6. Biểu đồ — FR-07, FR-08 ─────────────────────────────────────── */}
         {/*

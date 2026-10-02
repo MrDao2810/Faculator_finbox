@@ -35,8 +35,8 @@ const PHI_MOI_GIOI: TypedMarketConstant = {
   },
   // Cùng câu mà bản ghi thật trong `schedules.ts` mang — xem ca kiểm về ghi chú ở cuối file.
   note: {
-    vi: 'Mức phổ biến trên thị trường, không phải mức luật định. Sửa được ở màn Cài đặt.',
-    en: 'A common market rate, not a statutory rate. Editable in Settings.',
+    vi: 'Mức phổ biến trên thị trường, không phải mức luật định.',
+    en: 'A common market rate, not a statutory rate.',
   },
 };
 
@@ -121,5 +121,36 @@ describe('ConstantsNote', () => {
 
     expect(screen.getByText('0,1 %')).toBeTruthy();
     expect(screen.getByText(that.label.vi)).toBeTruthy();
+  });
+
+  /*
+   * `compact` — khối đang đứng trong THẺ GỘP ở khổ PC, nên bày hai cột từ 1280px (02/10/2026).
+   *
+   * Hai cột là chuyện của CSS, mà jsdom không chạy CSS Module; thứ test này kiểm được là điều
+   * kiện CẦN để luật CSS ấy với tới được — lớp `compact` có mặt trên thẻ gốc, và CHỈ khi được
+   * yêu cầu. Đó cũng đúng là nửa dễ hỏng: một prop quên nối dây thì không có gì báo, khối vẫn
+   * dựng ra đủ chữ và mọi ca kiểm khác vẫn xanh.
+   *
+   * Bề ngang thật thì đã đo bằng Chrome ở 1440 (xem TASK.md 02/10/2026): 4 hằng số 376 → 253px,
+   * còn công thức một hằng số không đổi một pixel nhờ luật `.row:only-child`.
+   */
+  it('không truyền compact thì thẻ gốc chỉ mang một lớp — khuôn hai cột không với tới', () => {
+    const { container } = render(<ConstantsNote constants={[PHI_MOI_GIOI, PHI_LUU_KY]} />);
+    const khoi = container.querySelector('section');
+
+    expect(khoi).not.toBeNull();
+    expect(khoi?.className.split(' ').filter(Boolean)).toHaveLength(1);
+  });
+
+  it('truyền compact thì thẻ gốc mang thêm đúng một lớp nữa', () => {
+    const { container } = render(<ConstantsNote constants={[PHI_MOI_GIOI, PHI_LUU_KY]} compact />);
+    const khoi = container.querySelector('section');
+
+    expect(khoi).not.toBeNull();
+    expect(khoi?.className.split(' ').filter(Boolean)).toHaveLength(2);
+
+    // Và không đụng gì tới nội dung: hai hằng số vẫn là hai hàng, đủ chữ như bản thường.
+    expect(container.querySelectorAll('dl > div')).toHaveLength(2);
+    expect(screen.getByText(PHI_LUU_KY.label.vi)).toBeTruthy();
   });
 });

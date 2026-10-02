@@ -27,6 +27,7 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       vi: 'Cỡ lệnh = Vốn tài khoản × Rủi ro mỗi lệnh ÷ (Giá vào lệnh − Giá cắt lỗ)',
       en: 'Position size = Account capital × Risk per trade ÷ (Entry price − Stop-loss price)',
     },
+    substitution: '{capital} × {riskPercent} ÷ 100 ÷ ({entryPrice} − {stopPrice})',
     symbols: [
       {
         latex: 'Q',

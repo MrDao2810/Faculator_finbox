@@ -56,6 +56,112 @@ const CONFIG_BLOCKS = ['loi-nhuan-rong'] as const;
  */
 const OWN_RESULT = ['loi-nhuan-rong', 'xirr'] as const;
 
+/**
+ * id công thức dùng KHỐI GỘP "Số liệu + Kết quả" ở khổ PC (01/10/2026).
+ *
+ * Danh sách viết tay, KHÔNG suy ra từ cấu trúc, và đó là chủ ý: khuôn mới đổi hẳn hình dạng đầu
+ * trang, nên một công thức chỉ vào danh sách sau khi đã mở ra nhìn ở 1280px. Suy từ cấu trúc
+ * ("≤6 ô, không cần chuỗi giá…") thì công thức thứ 112 thêm vào Registry sẽ tự nhảy vào một khuôn
+ * chưa ai soi. Chuyển sang điều kiện cấu trúc khi cả bốn hình dạng đã dựng xong và chủ dự án duyệt.
+ *
+ * Phạm vi đợt 2 là **65 công thức** — toàn bộ thư viện trừ bốn nhóm, và `merged-card.test.ts` ghim
+ * đúng bốn phép trừ ấy để danh sách không trôi khỏi lý do của nó:
+ *
+ *   · 35 công thức ăn chuỗi giá (`needsPriceSeries`) — chuỗi giá không có ô nhỏ nào đại diện
+ *     được, chủ dự án chốt giữ bố cục hai cột cho chúng.
+ *   · 3 công thức có thân kết quả riêng (`loi-nhuan-rong`, `lich-tra-no`, `xirr`) — bảng của
+ *     chúng chưa có bản thiết kế cho khuôn mới.
+ *   · 5 công thức nhận số từ công thức khác (chuỗi FR-15) — ô móc nối cần con dấu `ⓘ <công thức>`
+ *     và lối ghi đè, chưa dựng.
+ *   · 4 công thức lấy biểu đồ bóc tách làm biểu đồ mặc định (`ev`, `fcff`, `fcfe`,
+ *     `ncav-tren-co-phieu`) — thiết kế đưa biểu đồ ấy LÊN thẻ gộp, cũng chưa dựng.
+ *
+ * `fcfe` nằm cả nhóm chuỗi lẫn nhóm bóc tách, nên bốn nhóm cộng lại trừ đúng 46 công thức.
+ */
+const MERGED_CARDS = [
+  // corporate.ts
+  'diem-hoa-von',
+  'don-bay-tong-hop',
+  // derivatives.ts
+  'gia-ly-thuyet-vn30f',
+  'basis-vn30f',
+  'lai-lo-vi-the-long',
+  'lai-lo-vi-the-short',
+  'so-hop-dong-toi-da',
+  'co-vi-the-phai-sinh',
+  'don-bay-hieu-dung',
+  // fees.ts — trừ `loi-nhuan-rong` (có bảng bóc tách riêng)
+  'phi-giao-dich-mua',
+  'phi-giao-dich-ban',
+  'thue-chuyen-nhuong',
+  'thue-co-tuc',
+  'phi-luu-ky',
+  'gia-hoa-von',
+  'roi-rong',
+  // fundamentals.ts
+  'eps-co-ban',
+  'bvps',
+  'roe',
+  'roa',
+  'bien-loi-nhuan-rong',
+  'bien-loi-nhuan-gop',
+  'no-tren-von-chu',
+  'thanh-toan-hien-hanh',
+  'thanh-toan-nhanh',
+  'vong-quay-tong-tai-san',
+  'ty-le-chi-tra-co-tuc',
+  // multiples.ts
+  'pe',
+  'pb',
+  // performance.ts
+  'loi-suat-nam-hoa',
+  'loi-suat-thuc',
+  'lai-suat-hieu-dung',
+  'tong-loi-suat-tai-dau-tu',
+  'loi-suat-trung-binh-hinh-hoc',
+  'irr-nien-kim',
+  'thoi-gian-nhan-doi',
+  'loi-suat-quy-nam-theo-ngay',
+  'loi-suat-vuot-chuan',
+  // personal.ts — trừ `lich-tra-no` (có bảng lịch trả nợ riêng)
+  'tra-gop-nien-kim',
+  'tra-gop-goc-deu',
+  'lai-kep',
+  'lai-tien-gui',
+  'tiet-kiem-muc-tieu',
+  // planning.ts
+  'rut-truoc-han',
+  'gui-quay-vong',
+  'gia-von-trung-binh-dca',
+  'so-ky-dca',
+  'thue-tncn-dau-tu',
+  // returns.ts — trừ `xirr` (có bảng dòng tiền riêng)
+  'roi',
+  'hpr',
+  'cagr',
+  'ty-suat-co-tuc',
+  // risk.ts
+  'co-lenh-rui-ro',
+  // valuation-dcf.ts — trừ 5 công thức trong chuỗi và `fcff` (biểu đồ bóc tách mặc định)
+  'capm',
+  'ddm-hai-giai-doan',
+  'gia-tri-hien-tai',
+  'gia-tri-tuong-lai',
+  // valuation-multiples.ts — trừ `ev` và `ncav-tren-co-phieu` (biểu đồ bóc tách mặc định)
+  'ps',
+  'ev-ebitda',
+  'ev-sales',
+  'peg',
+  'von-hoa-thi-truong',
+  'so-graham',
+  'ty-suat-loi-nhuan-tren-gia',
+  'gia-muc-tieu',
+] as const;
+
+export function hasMergedCard(id: string): boolean {
+  return (MERGED_CARDS as ReadonlyArray<string>).includes(id);
+}
+
 export function hasCustomBody(id: string): boolean {
   return (CUSTOM_BODIES as ReadonlyArray<string>).includes(id);
 }

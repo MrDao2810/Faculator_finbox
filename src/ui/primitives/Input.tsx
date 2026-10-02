@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, type InputHTMLAttributes } from 'react';
+import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
 
 import styles from './Input.module.css';
 
@@ -22,6 +22,21 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   tone?: InputTone;
   /** Ẩn nhãn khỏi mắt nhưng vẫn để trình đọc màn hình đọc được. */
   hideLabel?: boolean;
+  /**
+   * Bản "ô nhỏ" của khối gộp — CHỈ có hiệu lực từ 1280px trở lên.
+   *
+   * Luật nằm trong một `@media` ở `Input.module.css`, không nằm ở React, và đó là điều kiện chứ
+   * không phải sở thích: khối gộp là thiết kế riêng cho màn web, còn khổ điện thoại phải giữ
+   * nguyên từng pixel. Một cờ React sẽ đổi hình ở MỌI khổ màn.
+   */
+  compact?: boolean;
+  /**
+   * Con dấu nguồn của giá trị ('Tự nhập', mã cổ phiếu, tên công thức cấp số) — chỉ hiện ở ô nhỏ.
+   *
+   * Đứng CUỐI trong DOM và `display: none` ở khổ hẹp, nên nó không bao giờ chen vào bộ bốn hàng
+   * `subgrid` mà lưới ô nhập của màn chi tiết dựng cho mỗi ô (nhãn · khung · dòng phụ · dòng lỗi).
+   */
+  sourceMark?: ReactNode;
 }
 
 /**
@@ -37,6 +52,8 @@ export function Input({
   error,
   tone = 'default',
   hideLabel = false,
+  compact = false,
+  sourceMark,
   className,
   id,
   ...rest
@@ -55,7 +72,12 @@ export function Input({
     .filter(Boolean)
     .join(' ');
 
-  const wrapperClasses = [styles.field, styles[`tone-${effectiveTone}`], className]
+  const wrapperClasses = [
+    styles.field,
+    styles[`tone-${effectiveTone}`],
+    compact ? styles.compact : undefined,
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -90,6 +112,8 @@ export function Input({
           {error}
         </span>
       )}
+
+      {sourceMark !== undefined && <span className={styles.sourceMark}>{sourceMark}</span>}
     </div>
   );
 }

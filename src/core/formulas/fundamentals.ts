@@ -144,6 +144,7 @@ export const EPS_CO_BAN: FormulaModule = {
       vi: 'EPS = (Lợi nhuận sau thuế − Cổ tức ưu đãi) ÷ Số cổ phiếu lưu hành × 10^9',
       en: 'EPS = (Net income after tax − Preferred dividends) ÷ Shares outstanding × 10^9',
     },
+    substitution: '({netIncome} − {preferredDividend}) ÷ {sharesOutstanding} × 10^9',
     symbols: [
       {
         latex: 'EPS',
@@ -288,6 +289,7 @@ export const BVPS: FormulaModule = {
       vi: 'BVPS = Vốn chủ sở hữu ÷ Số cổ phiếu lưu hành × 10^9',
       en: 'BVPS = Equity ÷ Shares outstanding × 10^9',
     },
+    substitution: '{equity} ÷ {sharesOutstanding} × 10^9',
     symbols: [
       {
         latex: 'BVPS',
@@ -425,6 +427,7 @@ export const ROE: FormulaModule = {
       vi: 'ROE = Lợi nhuận sau thuế ÷ Vốn chủ sở hữu × 100',
       en: 'ROE = Net income after tax ÷ Equity × 100',
     },
+    substitution: '{netIncome} ÷ {equity} × 100',
     symbols: [
       {
         latex: 'ROE',
@@ -552,6 +555,7 @@ export const ROA: FormulaModule = {
       vi: 'ROA = Lợi nhuận sau thuế ÷ Tổng tài sản × 100',
       en: 'ROA = Net income after tax ÷ Total assets × 100',
     },
+    substitution: '{netIncome} ÷ {totalAssets} × 100',
     symbols: [
       {
         latex: 'ROA',
@@ -662,6 +666,7 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
       vi: 'ROS = Lợi nhuận sau thuế ÷ Doanh thu thuần × 100',
       en: 'ROS = Net income after tax ÷ Net revenue × 100',
     },
+    substitution: '{netIncome} ÷ {revenue} × 100',
     symbols: [
       {
         latex: 'ROS',
@@ -772,6 +777,7 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
       vi: 'Biên gộp = (Doanh thu thuần − Giá vốn hàng bán) ÷ Doanh thu thuần × 100',
       en: 'Gross margin = (Net revenue − Cost of goods sold) ÷ Net revenue × 100',
     },
+    substitution: '({revenue} − {cogs}) ÷ {revenue} × 100',
     symbols: [
       {
         latex: '\\text{Biên gộp}',
@@ -895,6 +901,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
       vi: 'D/E = Tổng nợ phải trả ÷ Vốn chủ sở hữu',
       en: 'D/E = Total liabilities ÷ Equity',
     },
+    substitution: '{totalLiabilities} ÷ {equity}',
     symbols: [
       {
         latex: 'D/E',
@@ -1052,6 +1059,7 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
       vi: 'Hệ số hiện hành = Tài sản ngắn hạn ÷ Nợ ngắn hạn',
       en: 'Current ratio = Current assets ÷ Current liabilities',
     },
+    substitution: '{currentAssets} ÷ {currentLiabilities}',
     symbols: [
       {
         latex: '\\text{Current ratio}',
@@ -1165,6 +1173,7 @@ export const THANH_TOAN_NHANH: FormulaModule = {
       vi: 'Hệ số nhanh = (Tài sản ngắn hạn − Hàng tồn kho) ÷ Nợ ngắn hạn',
       en: 'Quick ratio = (Current assets − Inventory) ÷ Current liabilities',
     },
+    substitution: '({currentAssets} − {inventory}) ÷ {currentLiabilities}',
     symbols: [
       {
         latex: '\\text{Quick ratio}',
@@ -1303,6 +1312,7 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
       vi: 'Vòng quay tài sản = Doanh thu thuần ÷ Tổng tài sản',
       en: 'Asset turnover = Net revenue ÷ Total assets',
     },
+    substitution: '{revenue} ÷ {totalAssets}',
     symbols: [
       {
         latex: '\\text{Vòng quay}',
@@ -1405,6 +1415,7 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
       vi: 'Hệ số chi trả = Cổ tức tiền mặt mỗi cổ phiếu ÷ EPS × 100',
       en: 'Payout ratio = Cash dividend per share ÷ EPS × 100',
     },
+    substitution: '{dividendPerShare} ÷ {eps} × 100',
     symbols: [
       {
         latex: '\\text{Payout}',

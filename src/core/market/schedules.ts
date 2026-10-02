@@ -42,9 +42,16 @@ export const HOSE_2026: FeeSchedule = {
         vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch, không mức sàn',
         en: 'Circular 102/2021/TT-BTC — brokerage fee capped at 0.45% of transaction value, no floor',
       },
+      /*
+       * Câu "Sửa được ở màn Cài đặt." đã BỎ (01/10/2026, chủ dự án) — cùng nếp với các câu giải
+       * thích thừa đã gỡ trước đó. Ô chọn biểu phí nằm ngay trên khối số liệu của WF-08, nên lối
+       * đổi đã ở trong tầm tay rồi; câu ấy chỉ chỉ đường tới một chỗ xa hơn chỗ người dùng đang
+       * đứng. Vế CÒN LẠI thì không được bỏ: nó là thứ ngăn người đọc kết luận 0,15% là mức luật
+       * định (`ConstantsNote.test.tsx` gác đúng vế ấy).
+       */
       note: {
-        vi: 'Mức phổ biến trên thị trường, không phải mức luật định. Sửa được ở màn Cài đặt.',
-        en: 'A common market rate, not a statutory rate. Editable in Settings.',
+        vi: 'Mức phổ biến trên thị trường, không phải mức luật định.',
+        en: 'A common market rate, not a statutory rate.',
       },
     },
     {
@@ -57,9 +64,10 @@ export const HOSE_2026: FeeSchedule = {
         vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch, không mức sàn',
         en: 'Circular 102/2021/TT-BTC — brokerage fee capped at 0.45% of transaction value, no floor',
       },
+      /* Cùng câu, cùng lý do cắt vế sau — xem ghi chú ở `fee.brokerage.buy` ngay trên. */
       note: {
-        vi: 'Mức phổ biến trên thị trường, không phải mức luật định. Sửa được ở màn Cài đặt.',
-        en: 'A common market rate, not a statutory rate. Editable in Settings.',
+        vi: 'Mức phổ biến trên thị trường, không phải mức luật định.',
+        en: 'A common market rate, not a statutory rate.',
       },
     },
     /*

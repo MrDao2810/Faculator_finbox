@@ -96,6 +96,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
       en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1]',
     },
+    substitution:
+      '{amount} × {rate} ÷ 100 ÷ 12 × (1 + {rate} ÷ 100 ÷ 12)^({years} × 12) ÷ ((1 + {rate} ÷ 100 ÷ 12)^({years} × 12) − 1)',
     symbols: [
       {
         latex: 'EMI',
@@ -264,6 +266,7 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       vi: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
       en: 'First period = Loan amount ÷ Number of periods + Loan amount × Period rate',
     },
+    substitution: '{amount} ÷ ({years} × 12) + {amount} × {rate} ÷ 100 ÷ 12',
     symbols: [
       {
         latex: 'A_1',
@@ -689,6 +692,7 @@ export const LAI_KEP: FormulaModule = {
       vi: 'Số tiền cuối = Gốc × (1 + Lãi suất năm ÷ Số lần nhập lãi)^(Số lần nhập lãi × Số năm)',
       en: 'Final amount = Principal × (1 + Annual rate ÷ Compounding frequency)^(Compounding frequency × Years)',
     },
+    substitution: '{principal} × (1 + {rate} ÷ 100 ÷ {perYear})^({perYear} × {years})',
     symbols: [
       {
         latex: 'A',
@@ -871,6 +875,7 @@ export const LAI_TIEN_GUI: FormulaModule = {
       vi: 'Tiền lãi = Số tiền gửi × Lãi suất năm ÷ 12 × Số tháng',
       en: 'Interest = Deposit amount × Annual rate ÷ 12 × Number of months',
     },
+    substitution: '{principal} × {rate} ÷ 100 ÷ 12 × {months}',
     symbols: [
       {
         latex: 'I',
@@ -976,6 +981,7 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
       en: 'Monthly deposit = Goal × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
     },
+    substitution: '{target} × {rate} ÷ 100 ÷ 12 ÷ ((1 + {rate} ÷ 100 ÷ 12)^{months} − 1)',
     symbols: [
       {
         latex: 'PMT',

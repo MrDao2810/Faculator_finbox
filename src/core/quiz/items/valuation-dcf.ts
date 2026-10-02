@@ -729,7 +729,7 @@ export const DCF: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: '“chữ sổ sách là phần dễ bị bỏ qua nhất. BCTC ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền”; “Bẫy giá trị xuất hiện khi cổ phiếu trông rẻ nhưng thiếu cơ chế mở khóa giá trị”.',
-      en: '“chữ sổ sách là phần dễ bị bỏ qua nhất. BCTC ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền”; “Bẫy giá trị xuất hiện khi cổ phiếu trông rẻ nhưng thiếu cơ chế mở khóa giá trị”.',
+      en: 'Not yet — book value is an accounting figure, not a margin of safety: “chữ sổ sách là phần dễ bị bỏ qua nhất. BCTC ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền”; “Bẫy giá trị xuất hiện khi cổ phiếu trông rẻ nhưng thiếu cơ chế mở khóa giá trị”.',
     },
     source: {
       url: 'https://nguoiquansat.vn/co-phieu-duoi-gia-tri-so-sach-bai-hoc-benjamin-graham-va-chiec-bay-p-b-thap-tren-san-chung-khoan-viet-nam-296389.html',

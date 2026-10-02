@@ -244,9 +244,9 @@ export function SearchScreen() {
                 ? t('list.empty.basicOnly.title')
                 : `${t('search.noMatch')} “${trimmed}”`
             }
-            lines={
-              hiddenByLevel > 0 ? [t('list.empty.basicOnly.hint')] : [t('list.empty.noMatch.scope')]
-            }
+            /* Nhánh else từng in `list.empty.noMatch.scope` ("Sản phẩm chỉ có công thức…") — bỏ
+               01/10/2026 cùng lúc và cùng lý do với `FormulaListScreen.tsx`. */
+            lines={hiddenByLevel > 0 ? [t('list.empty.basicOnly.hint')] : []}
           />
 
           <HiddenByLevelNote count={hiddenByLevel} />

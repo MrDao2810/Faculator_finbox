@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 
 import {
   INPUT_MAX_DECIMALS,
@@ -49,6 +49,10 @@ export interface NumberInputProps {
   lockedNote?: string;
   /** Ẩn nhãn khi ô nằm trong bảng đã có tiêu đề cột. */
   hideLabel?: boolean;
+  /** Bản thu gọn cho ô nhỏ của khối gộp — chuyền thẳng xuống primitive, xem `InputProps.compact`. */
+  compact?: boolean;
+  /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
+  sourceMark?: ReactNode;
   className?: string;
 }
 
@@ -116,6 +120,8 @@ export function NumberInput({
   derivedNote,
   lockedNote,
   hideLabel = false,
+  compact = false,
+  sourceMark,
   className,
 }: NumberInputProps) {
   const [focused, setFocused] = useState(false);
@@ -174,6 +180,8 @@ export function NumberInput({
       className={className}
       label={pick(spec.label)}
       hideLabel={hideLabel}
+      compact={compact}
+      sourceMark={sourceMark}
       // `Input` là primitive nhận chuỗi đã sẵn sàng hiển thị, nên đơn vị dịch ở đây.
       unit={pick(unitLabel(spec.unit))}
       tone={TONE_BY_STATE[state]}

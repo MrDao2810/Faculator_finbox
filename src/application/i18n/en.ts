@@ -103,10 +103,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'list.empty.registry.title': 'No formulas yet',
   'list.empty.registry.hint': 'The library is being filled in step by step.',
   'list.empty.noMatch.title': 'No formula found',
-  'list.empty.noMatch.scope':
-    'This product only covers Vietnamese stocks and personal finance — no crypto.',
-  'list.empty.noMatch.hint':
-    'Try fewer keywords, or clear the filters to see the whole list again.',
+  /* Mộ chí: `list.empty.noMatch.scope` và `.hint` bỏ 01/10/2026 — lý do ghi ở `vi.ts`. */
   'list.hiddenByLevel': 'advanced formula(s) hidden',
   'list.showAdvanced': 'Turn on Advanced mode',
   'list.empty.basicOnly.title': 'Only advanced formulas here',
@@ -130,6 +127,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'input.revert': 'Reset',
   'input.overridden': 'overridden',
   'input.autoFrom': 'Auto-filled from',
+
+  // Khối gộp "Số liệu + Kết quả" ở khổ PC — xem chú thích ở `vi.ts`.
+  /* Mộ chí: `tile.countTicker` và `tile.count` bỏ 01/10/2026 — lý do ghi ở `vi.ts`. */
+  /* Mộ chí: `tile.editHint` bỏ 01/10/2026 — lý do ghi ở `vi.ts`. */
+  /* Mộ chí: `tile.manual` ('Your own figure') bỏ 02/10/2026 — lý do ghi ở `vi.ts`. */
 
   'result.eyebrow': 'RESULT',
   /* Tiêu đề ẩn của khối Kết quả — vì sao tách khoá, xem chú thích ở `vi.ts`. */
@@ -237,11 +239,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.rotateUnlock': 'If rotation is locked, open Quick Settings and turn on Auto-rotate.',
 
   'fee.schedule': 'Fee schedule',
-  'fee.scheduleNote': 'Constants come from Market Config — change them once, applied everywhere.',
+  // Vế sau đã bỏ 01/10/2026 — lý do ghi ở `vi.ts`.
+  'fee.scheduleNote': 'Constants come from Market Config',
   'fee.breakdown': 'Cost breakdown',
   'fee.totalCost': 'Total cost',
   'fee.breakEven': 'True break-even price',
-  'fee.breakEvenNote': 'selling below this price is a loss',
+  // Mộ chí `fee.breakEvenNote` — bỏ 01/10/2026, lý do ghi ở `vi.ts`.
   'fee.netProfit': 'Net profit',
   'fee.grossProfit': 'gross profit',
   'fee.netRoi': 'Net ROI',

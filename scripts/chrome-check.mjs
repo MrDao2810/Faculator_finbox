@@ -852,7 +852,7 @@ window.__themeLog = [];
   const khoi = [...document.querySelectorAll('section, table')].filter((el) => getComputedStyle(el).contentVisibility === 'auto');
   const soLieu = [...document.querySelectorAll('section')].find((s) => s.getAttribute('aria-labelledby') === 'khoi-so-lieu');
 
-  const giaiThich = [...document.querySelectorAll('section')].find((s) => s.querySelectorAll('details').length >= 4);
+  const giaiThich = [...document.querySelectorAll('section')].find((s) => s.querySelectorAll('details').length >= 2);
   if (!giaiThich) return null;
   giaiThich.scrollIntoView({ block: 'center' });
   await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
@@ -864,15 +864,32 @@ window.__themeLog = [];
   };
 })()`);
 
+  /*
+   * BỐN khối, không phải năm: khối Ví dụ thực tế bỏ `deferred` ngày 29/09/2026 vì
+   * `content-visibility: auto` kéo theo `contain: paint` và cắt mất khung "cách tính" bật ra từ
+   * hình công thức — cùng lý do khối Bài tập đã bỏ trước đó (xem `FormulaDetail.tsx`). Còn lại
+   * đúng bốn: Giải thích · Biểu đồ · Bảng biến · Nguồn tham khảo.
+   */
   check(
-    'đúng năm khối dưới nếp gấp được hoãn dựng hình, khối Số liệu thì không',
-    hoan !== null && hoan.hoan.length === 5 && hoan.soLieuCv === 'visible',
+    'đúng bốn khối dưới nếp gấp được hoãn dựng hình, khối Số liệu thì không',
+    hoan !== null && hoan.hoan.length === 4 && hoan.soLieuCv === 'visible',
     hoan === null ? 'không thấy khối Giải thích' : `hoãn: ${hoan.hoan.join(' · ')}`,
   );
 
+  /*
+   * BA mục, không phải bốn: chỉ "Công thức này nói lên điều gì" rời đi (30/09/2026, nó in đúng
+   * câu của khối Ý nghĩa ở đầu màn). Xem chú thích dài hơn ở phép kiểm "các mục Giải thích xếp
+   * dọc" trong khối PC 1440.
+   *
+   * Con số này đã từng SAI và làm cả `check:chrome` đỏ: đợt 30/09 tắt cả `showMeaning` lẫn
+   * `showHowToRead` nên lúc ấy đúng là 2, rồi "Cách đọc kết quả" được trả về khối này mà hai phép
+   * kiểm Chrome không đổi theo — phía vitest thì có (`FormulaDetail.test.tsx:304`). Nguồn sự thật
+   * là `SECTIONS` trong `ExplanationAccordion.tsx` trừ đi các cờ `show*` mà `FormulaDetail` thật
+   * sự truyền: nay chỉ còn `showMeaning={false}`, tức 4 − 1 = 3.
+   */
   check(
-    'cuộn tới thì khối Giải thích dựng đủ bốn mục, không mất chữ',
-    hoan !== null && hoan.caoMuc.length === 4 && hoan.caoMuc.every((h) => h > 0),
+    'cuộn tới thì mọi mục của khối Giải thích dựng xong, không mất chữ',
+    hoan !== null && hoan.caoMuc.length === 3 && hoan.caoMuc.every((h) => h > 0),
     hoan === null ? '' : `cao: ${hoan.caoMuc.join(' · ')}`,
   );
 
@@ -2165,6 +2182,22 @@ window.__themeLog = [];
           soKetQua: r(khoi?.querySelector('[class*="figure"]') ?? null),
         };
       })(),
+      /*
+       * Dải thay số dưới đáy THẺ GỘP ('92.000 ÷ 6.050 = 15,21').
+       *
+       * Đo cả display, không chỉ hình hộp: luật gốc đặt display none để khổ điện thoại không thấy
+       * dòng chữ mới này, và khối 1280 phải tự bật lại. Từ lúc dựng tới 02/10/2026 nó không bật —
+       * phần tử nằm đúng chỗ, nội dung đúng, mà cả 48 công thức có mẫu đều không hiện dải nào. Hộp
+       * của một phần tử ẩn là 0x0 ở toạ độ 0, nên chỉ đo toạ độ là đọc ra 'có nhưng lệch' chứ không
+       * đọc ra 'không hiện'.
+       *
+       * Không dùng dấu backtick trong chú thích này: cả khối đang nằm trong một template literal.
+       */
+      thaySo: (() => {
+        const el = document.querySelector('[class*="substitution"]');
+        if (el === null) return null;
+        return { hien: getComputedStyle(el).display, ...r(el) };
+      })(),
       /* Nhóm Đường/Cột: bo góc đã tính ra của khung và của nút đầu — phải cùng một số. */
       boDuongCot: (() => {
         const khung = document.querySelector('figure [class*="kindGroup"]');
@@ -2179,7 +2212,17 @@ window.__themeLog = [];
     };
   })()`;
 
-  await open('/cong-thuc/pe/');
+  /*
+   * Khối đo này nói về KHUÔN HAI CỘT — Số liệu trái, Kết quả rồi Biểu đồ phải. Từ 01/10/2026 khuôn
+   * ấy không còn là khuôn duy nhất: 65 công thức chuyển sang THẺ GỘP (Số liệu và Kết quả chung một
+   * khung, xem `hasMergedCard()`), 46 công thức còn lại giữ nguyên khuôn hai cột.
+   *
+   * Nên nó đổi từ `pe` sang `bien-an-toan`: `pe` đã vào thẻ gộp, còn `bien-an-toan` nằm ngoài (nó nhận
+   * số từ Mô hình Gordon qua chuỗi FR-15) mà vẫn là công thức hai ô số có đường quét — tức vẫn đúng ca mà từng cạnh
+   * của khuôn này muốn đo. Thẻ gộp có khối đo riêng ngay sau khối này; đừng gộp hai khối làm một,
+   * chúng gác hai khuôn khác nhau và cả hai đều đang sống.
+   */
+  await open('/cong-thuc/bien-an-toan/');
   const pcPe = await evaluate(DOC_CHI_TIET);
 
   check('PC 1440 · trang chi tiết không tràn ngang', pcPe.tran === false);
@@ -2355,19 +2398,103 @@ window.__themeLog = [];
   );
 
   /*
-   * Bốn mục Giải thích xếp DỌC ở khổ PC — chủ dự án bỏ lưới 2×2 sau khi thấy ba thẻ gập trống hoác
+   * Các mục Giải thích xếp DỌC ở khổ PC — chủ dự án bỏ lưới 2×2 sau khi thấy ba thẻ gập trống hoác
    * cao bằng thẻ mở (xem docblock `ExplanationAccordion.module.css`). Đo: cùng mép trái, mục sau
    * bắt đầu dưới đáy mục trước.
+   *
+   * BA mục, không phải bốn: chỉ "Công thức này nói lên điều gì" rời đi (30/09/2026 — cả 111 trang
+   * đang in đúng đoạn ấy hai lần, bản ở khối Ý nghĩa đầu màn được giữ). FR-03 vẫn đủ bốn mục TRÊN
+   * MÀN, chỉ là một mục đứng ở khối khác.
+   *
+   * "Cách đọc kết quả" từng cũng bị tắt trong cùng đợt ấy rồi được TRẢ LẠI khối này, nên con số
+   * đúng đã đi 4 → 2 → 3. Hai phép kiểm Chrome (đây và phép "cuộn tới thì mọi mục…" ở khổ 360)
+   * kẹt lại ở 2 và làm cả `check:chrome` đỏ; sửa phải sửa cả cặp. Nguồn sự thật là `SECTIONS`
+   * trong `ExplanationAccordion.tsx` trừ các cờ `show*` mà `FormulaDetail` thật sự truyền — nay
+   * chỉ còn `showMeaning={false}`.
    */
   check(
-    'PC 1440 · bốn mục Giải thích là bốn hàng dọc, không phải lưới 2×2',
+    'PC 1440 · các mục Giải thích xếp dọc, không phải lưới 2×2',
     pcPe.mucGiaiThich !== null &&
-      pcPe.mucGiaiThich.length === 4 &&
+      pcPe.mucGiaiThich.length === 3 &&
       pcPe.mucGiaiThich.every(
         (muc, i, all) =>
           muc.left === all[0].left && (i === 0 || muc.top >= (all[i - 1]?.bottom ?? Infinity)),
       ),
-    `top: ${String(pcPe.mucGiaiThich?.map((m) => m.top).join(' · '))}`,
+    `${String(pcPe.mucGiaiThich?.length)} mục · top: ${String(pcPe.mucGiaiThich?.map((m) => m.top).join(' · '))}`,
+  );
+
+  /*
+   * ── THẺ GỘP "Số liệu + Kết quả" ở khổ PC (01/10/2026) ──────────────────────────────────────
+   *
+   * Khuôn thứ hai của trang chi tiết, cho 65 công thức: con số kết quả bên TRÁI, hàng ô nhập bên
+   * PHẢI, cả hai trong một khung; dưới đáy khung là dòng thay số; rồi Giải thích và Biểu đồ chia
+   * hai cột như cũ.
+   *
+   * Đo bằng toạ độ chứ không đọc CSS, cùng lý do với khuôn hai cột ở trên: luật nằm trong media
+   * query 1280, và "hai khối nằm trong cùng một khung" là thứ chỉ trình duyệt mới trả lời được.
+   * `pe` chính là công thức mà khuôn này được dựng và soi đầu tiên.
+   */
+  await open('/cong-thuc/pe/');
+  const pcGop = await evaluate(DOC_CHI_TIET);
+
+  check('PC 1440 · trang thẻ gộp không tràn ngang', pcGop.tran === false);
+
+  check(
+    'PC 1440 · thẻ gộp: Kết quả bên TRÁI, hàng ô nhập bên PHẢI, cùng mép trên',
+    pcGop.soLieu !== null &&
+      pcGop.ketQua !== null &&
+      Math.abs(pcGop.soLieu.top - pcGop.ketQua.top) <= 1 &&
+      pcGop.soLieu.left >= pcGop.ketQua.right,
+    `Kết quả ${String(pcGop.ketQua?.left)}–${String(pcGop.ketQua?.right)} · Số liệu ${String(pcGop.soLieu?.left)}–${String(pcGop.soLieu?.right)}`,
+  );
+
+  /*
+   * Khung của khối Số liệu THÁO ra trong thẻ gộp — thẻ bao ngoài đã là khung. Còn viền ở đây là
+   * khung lồng khung, đúng thứ bản thiết kế không vẽ.
+   */
+  check(
+    'PC 1440 · thẻ gộp: khối Số liệu không còn khung riêng',
+    pcGop.vienSoLieu === '0px',
+    `viền ${String(pcGop.vienSoLieu)}`,
+  );
+
+  /* Hàng ô nhỏ xếp NHIỀU cột — ngược hẳn khuôn hai cột, nơi ô nhập mỗi tham số một hàng. */
+  check(
+    'PC 1440 · thẻ gộp: ô nhập xếp thành hàng ô nhỏ, không phải một cột',
+    pcGop.soCot !== null && pcGop.soCot >= 2,
+    `${String(pcGop.soCot)} cột`,
+  );
+
+  /*
+   * Dải thay số: thứ bản thiết kế vẽ ở đáy thẻ, và nửa lý do khuôn gộp tồn tại.
+   *
+   * Khối đo này từng chỉ mô tả dải ấy trong docblock mà không đo nó, nên suốt từ lúc dựng tới
+   * 02/10/2026 dải không hiện trên bất kỳ công thức nào trong 48 công thức có `spec.substitution`
+   * mà 149 phép kiểm vẫn xanh. Ba điều kiện, mỗi điều kiện gác một cách hỏng khác nhau: còn hiện,
+   * nằm DƯỚI cả hai cột, và trải hết bề ngang thẻ (nó nói về cả hai nửa trên, đứng trong một nửa
+   * nào cũng sai nghĩa). `merged-card-css.test.ts` gác cùng chuyện này ở tầng file CSS.
+   */
+  check(
+    'PC 1440 · thẻ gộp: dòng thay số hiện ở đáy thẻ, trải hết hai cột',
+    pcGop.thaySo !== null &&
+      pcGop.thaySo.hien !== 'none' &&
+      pcGop.soLieu !== null &&
+      pcGop.ketQua !== null &&
+      pcGop.thaySo.top >= pcGop.soLieu.bottom &&
+      pcGop.thaySo.left <= pcGop.ketQua.left + 1 &&
+      pcGop.thaySo.right >= pcGop.soLieu.right - 1,
+    `display=${String(pcGop.thaySo?.hien)} · dải ${String(pcGop.thaySo?.left)}–${String(pcGop.thaySo?.right)} top=${String(pcGop.thaySo?.top)} · Kết quả left=${String(pcGop.ketQua?.left)} · Số liệu right=${String(pcGop.soLieu?.right)} bottom=${String(pcGop.soLieu?.bottom)}`,
+  );
+
+  check(
+    'PC 1440 · thẻ gộp: Giải thích nằm dưới cả thẻ, Biểu đồ cùng hàng với nó ở cột phải',
+    pcGop.giaiThich !== null &&
+      pcGop.soLieu !== null &&
+      pcGop.bieuDo !== null &&
+      pcGop.giaiThich.top >= pcGop.soLieu.bottom &&
+      Math.abs(pcGop.giaiThich.top - pcGop.bieuDo.top) <= 1 &&
+      pcGop.bieuDo.left >= pcGop.giaiThich.right,
+    `Giải thích top=${String(pcGop.giaiThich?.top)} · Biểu đồ top=${String(pcGop.bieuDo?.top)}`,
   );
 
   /*
@@ -2749,6 +2876,21 @@ window.__themeLog = [];
       dt360.giaiThich.top >= dt360.bieuDo.bottom &&
       dt360.bangBien.top >= dt360.giaiThich.bottom,
     `top: Số liệu ${String(dt360.soLieu?.top)} · Kết quả ${String(dt360.ketQua?.top)} · Biểu đồ ${String(dt360.bieuDo?.top)} · Giải thích ${String(dt360.giaiThich?.top)} · Bảng biến ${String(dt360.bangBien?.top)}`,
+  );
+
+  /*
+   * Vế kia của dải thay số, và lý do nó phải là một phép kiểm riêng chứ không gộp vào phép trên:
+   * lời hứa của khuôn gộp là "chỉ màn web, màn điện thoại giữ nguyên từng pixel". Dải ấy là CHỮ
+   * MỚI, nên ở 360 nó phải không tồn tại trên màn. `pe` dựng ra nó (`spec.substitution` có), nên
+   * đây đúng là trang kiểm được: thấy một dải ở đây nghĩa là luật gốc `display: none` đã bị gỡ
+   * hoặc bị một luật ngoài media query đè, và 47 công thức có mẫu còn lại cũng đang mọc thêm một
+   * dòng ở khổ điện thoại. (46 công thức ngoài khuôn gộp không dựng phần tử này bao giờ — React
+   * chỉ dựng nó khi `merged`, nên chúng không nằm trong rủi ro ấy.)
+   */
+  check(
+    'Điện thoại 360 · dòng thay số KHÔNG hiện — khuôn gộp chỉ dành cho màn web',
+    dt360.thaySo !== null && dt360.thaySo.hien === 'none',
+    `display=${String(dt360.thaySo?.hien)}`,
   );
 
   /*

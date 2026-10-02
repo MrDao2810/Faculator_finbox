@@ -38,6 +38,13 @@ export interface InlineNumberProps {
   /** Dùng khi ô không có `<label>` riêng trỏ vào — ví dụ khi nhãn nằm ở cột bảng. */
   ariaLabel?: string;
   describedBy?: string;
+  /**
+   * Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`.
+   *
+   * Con số thôi ghim 14ch canh phải mà co theo chữ và dạt trái: trong ô nhỏ rộng ~180px, một ô
+   * 14ch canh phải đẩy con số ra tận mép phải, cách nhãn của chính nó gần hết bề ngang ô.
+   */
+  compact?: boolean;
   className?: string;
 }
 
@@ -80,6 +87,7 @@ export function InlineNumber({
   id,
   ariaLabel,
   describedBy,
+  compact = false,
   className,
 }: InlineNumberProps) {
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
@@ -104,6 +112,7 @@ export function InlineNumber({
     styles.box,
     readOnly ? styles.locked : undefined,
     outOfRange ? styles.invalid : undefined,
+    compact ? styles.compact : undefined,
     className,
   ]
     .filter(Boolean)

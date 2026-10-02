@@ -24,6 +24,8 @@ import {
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { latexSymbolTokens } from '../latex-symbols';
+import { evaluateWorked } from '../quiz/worked-line';
+import { fillSubstitution, substitutionKeys } from '../substitution';
 import { createRegistry, defaultInputs } from '../registry/build';
 import { errorsOnly, formatIssues } from '../registry/validate';
 import { buildFeeBreakdown } from './fees';
@@ -101,6 +103,63 @@ describe('Registry với toàn bộ công thức thật', () => {
 
       expect(out.value, `${id} — ví dụ phải tính được`).not.toBeNull();
       expect(Math.abs((out.value ?? 0) - example.expected), id).toBeLessThanOrEqual(1);
+    }
+  });
+
+  /*
+   * Dòng "thay số" của khối gộp (`spec.substitution`, 01/10/2026) — in ra thứ như
+   * `92.000 ÷ 6.050 = 15,21` ngay dưới con số kết quả.
+   *
+   * Nó là một lời hứa: ai lấy máy tính bấm lại đúng dòng ấy phải ra đúng con số bên trên. Mẫu lại
+   * viết tay (xem docblock `FormulaSpec.substitution`), nên chỗ duy nhất chặn được là tính lại —
+   * cùng cách `worked` của bài tập và `thaySo` của ví dụ thực tế đang được gác.
+   *
+   * Thay số của `example.inputs` chứ không phải số mặc định: ví dụ đã có sẵn `expected` được ca
+   * kiểm ngay trên đối chiếu với `calc`, nên chỉ cần một mốc là đủ cho cả hai đầu.
+   */
+  /*
+   * Mẫu thay số KHÔNG được chép giá trị của một hằng số thị trường.
+   *
+   * Lỗi thật, bắt được khi rà tay 01/10/2026: 12 mẫu viết thẳng `× 0,15 ÷ 100` (phí giao dịch),
+   * `× 5 ÷ 100` (thuế cổ tức), `× 100.000` (hệ số nhân hợp đồng VN30F). Ca kiểm tính lại ngay dưới
+   * vẫn XANH — vì với biểu phí mặc định thì con số đúng. Nó chỉ sai khi mức phí đổi, hoặc ngay lập
+   * tức với người dùng đã chọn biểu phí khác ở màn Cài đặt: dòng in ra nói 0,15% trong khi con số
+   * bên cạnh nó tính theo mức khác.
+   *
+   * Đây đúng là thứ `ConstantsNote` tồn tại để chặn — khai KHOÁ, không khai giá trị, để mức phí
+   * đổi thì màn đổi theo. Nên luật ở đây là luật cấu trúc, không phải luật số học: công thức nào
+   * đọc hằng số thì chưa được có mẫu, cho tới khi mẫu tham chiếu được hằng số qua khoá.
+   */
+  it('mẫu thay số không chép giá trị hằng số thị trường', () => {
+    const pham = ALL_FORMULAS.filter(
+      (spec) => spec.substitution !== undefined && (spec.usesConstants?.length ?? 0) > 0,
+    ).map((spec) => spec.id);
+
+    expect(pham).toEqual([]);
+  });
+
+  it('dòng thay số bấm lại ra đúng kết quả của ví dụ', () => {
+    for (const formula of FORMULA_MODULES) {
+      const { id, substitution, variables, example } = formula.spec;
+      if (substitution === undefined) continue;
+
+      const keys = new Set(variables.map((variable) => variable.key));
+      for (const key of substitutionKeys(substitution)) {
+        expect(keys.has(key), `${id} — mẫu thay số nhắc tới ô không có: ${key}`).toBe(true);
+      }
+
+      const line = fillSubstitution(formula.spec, {
+        ...defaultInputs(formula.spec),
+        ...example.inputs,
+      });
+      expect(line, `${id} — thiếu số cho một chỗ trống của mẫu thay số`).not.toBeNull();
+
+      const again = evaluateWorked(line ?? '');
+      expect(again, `${id} — không đọc được dòng thay số: ${String(line)}`).not.toBeNull();
+      expect(
+        Math.abs((again ?? 0) - example.expected) / Math.max(Math.abs(example.expected), 1),
+        `${id} — dòng thay số ra ${String(again)}, ví dụ ra ${String(example.expected)}`,
+      ).toBeLessThanOrEqual(0.005);
     }
   });
 

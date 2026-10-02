@@ -1861,7 +1861,13 @@
       "PowerShell(try { $r = Resolve-DnsName cafef.vn -Server 8.8.8.8 -DnsOnly -ErrorAction Stop; \"8.8.8.8 cafef.vn -> \" + \\(\\($r | Where-Object { $_.IPAddress } | ForEach-Object { $_.IPAddress }\\) -join ', '\\) } catch { \"8.8.8.8 cafef.vn -> \" + $_.Exception.Message }; try { $r = Resolve-DnsName vn -Type NS -Server 8.8.8.8 -DnsOnly -ErrorAction Stop; \"NS .vn -> \" + \\(\\($r | Select-Object -First 3 | ForEach-Object { $_.NameHost }\\) -join ', '\\) } catch { \"NS vn -> \" + $_.Exception.Message })",
       "Bash(awk -F: '{sum+=$2; print} END {print \"TOTAL:\", sum}')",
       "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(Object.keys\\({...p.dependencies,...p.devDependencies}\\).filter\\(k=>/tsx|ts-node|esbuild|vite/i.test\\(k\\)\\).join\\('\\\\n'\\)\\)\")",
-      "Bash(echo \"EXIT_CODE=$?\")"
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-bilingual.js\" src/core)",
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-explain-en.js\" src/core/quiz/items)",
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/quiz/items)",
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/formulas)",
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/how-to)",
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/vi-du)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

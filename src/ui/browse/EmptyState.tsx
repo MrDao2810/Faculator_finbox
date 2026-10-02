@@ -13,8 +13,12 @@ export interface EmptyStateProps {
 /**
  * Trạng thái rỗng — gói WBS 2.2.
  *
- * WF-09 trạng thái B chốt: khi không có kết quả thì phải nói rõ PHẠM VI SẢN PHẨM
- * (không có tiền mã hoá) và chỉ ra lối đi tiếp, chứ không để một màn trắng.
+ * WF-09 trạng thái B từng chốt: khi không có kết quả thì phải nói rõ PHẠM VI SẢN PHẨM (không có
+ * tiền mã hoá) và chỉ ra lối đi tiếp, chứ không để một màn trắng. Vế "nói rõ phạm vi sản phẩm" bị
+ * đảo lại 01/10/2026 — chủ dự án gọi câu đó là "đoạn text thừa" (`FormulaListScreen.tsx`,
+ * `SearchScreen.tsx` nay truyền `lines={[]}` ở nhánh không khớp). Tiêu đề cộng nút xoá lọc/xoá
+ * tìm (`action`) coi là đủ lối đi tiếp; `lines` giữ lại cho hai trạng thái KHÁC vẫn còn dùng
+ * (thư viện rỗng, chỉ còn công thức nâng cao) nên tham số không đổi, chỉ đổi chỗ gọi.
  */
 export function EmptyState({ title, lines, action }: EmptyStateProps) {
   return (

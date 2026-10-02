@@ -86,3 +86,40 @@
   line-height: 1.45;
   color: var(--color-ink);
 }
+
+/*
+ * ── Trong THẺ GỘP của khổ PC: hai cột (02/10/2026) ────────────────────────────────────────────
+ *
+ * Chỉ khi `ConstantsNote` nhận `compact` — tức nó đang đứng trong thẻ gộp "Số liệu + Kết quả" ở
+ * cột phải, bên cạnh một cột trái chỉ cao 75px. Đo ở 1440: `roi-rong` và `gia-hoa-von` khai 4 hằng
+ * số, cột dọc cao 376px kéo thẻ lên 620px và để trống gần 550px bên trái. Hai cột hạ còn ~200px.
+ *
+ * Mốc 1280 chứ không phải mọi khổ: dưới mốc ấy thẻ gộp chưa tồn tại (xem `.merged` trong
+ * `FormulaDetail.module.css`), khối này vẫn nằm trong khối Số liệu một cột như cũ, và cột dọc là
+ * đúng — ở 360px riêng nhãn "Thuế chuyển nhượng chứng khoán" đã gần hết bề ngang.
+ *
+ * `--space-5` cho khe ngang: `.basis` và `.note` đều `flex-basis: 100%` nên mỗi cột là một khối
+ * chữ đặc; khe bằng khe dọc thì hai khối dính vào nhau, đọc như một đoạn văn bốn dòng.
+ */
+@media (min-width: 1280px) {
+  .compact .list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-5);
+  }
+
+  /*
+   * Công thức chỉ tra MỘT hằng số: hàng ấy trải cả hai cột.
+   *
+   * Thiếu luật này thì hai cột làm công thức một hằng số CAO LÊN chứ không thấp đi — đo ở 1440
+   * ngày 02/10/2026: 10 trong 13 công thức tra hằng số chỉ khai một khoá, hàng độc nhất của chúng
+   * rơi vào cột 340px thay vì 712px, nên căn cứ pháp lý (dài nhất 96 ký tự) vỡ thêm một dòng và
+   * khối cao thêm 17–35px. `thue-co-tuc` nặng nhất: 122 → 157px.
+   *
+   * Hai cột chỉ lãi khi có từ hai hằng số trở lên, và đó đúng là ba công thức từng lệch nhất:
+   * `roi-rong` và `gia-hoa-von` (4 khoá) 376 → 253px, `thue-tncn-dau-tu` (2 khoá) 214 → 157px.
+   */
+  .compact .list > .row:only-child {
+    grid-column: 1 / -1;
+  }
+}

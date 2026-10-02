@@ -10,6 +10,10 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
   hint?: string;
   /** Ẩn nhãn khỏi mắt nhưng vẫn để trình đọc màn hình đọc được. */
   hideLabel?: boolean;
+  /** Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`. */
+  compact?: boolean;
+  /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
+  sourceMark?: ReactNode;
   children: ReactNode;
 }
 
@@ -25,6 +29,8 @@ export function Select({
   label,
   hint,
   hideLabel = false,
+  compact = false,
+  sourceMark,
   className,
   id,
   children,
@@ -34,7 +40,9 @@ export function Select({
   const selectId = id ?? generatedId;
   const hintId = `${selectId}-hint`;
 
-  const classes = [styles.field, className].filter(Boolean).join(' ');
+  const classes = [styles.field, compact ? styles.compact : undefined, className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={classes}>
@@ -56,6 +64,9 @@ export function Select({
           {hint}
         </span>
       )}
+
+      {/* Đứng CUỐI và `display: none` ở khổ hẹp — xem `.sourceMark` ở `Input.module.css`. */}
+      {sourceMark !== undefined && <span className={styles.sourceMark}>{sourceMark}</span>}
     </div>
   );
 }

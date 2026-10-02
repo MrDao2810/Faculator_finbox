@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
@@ -19,6 +21,10 @@ export interface ButtonGroupProps {
    * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
    */
   lockedNote?: string;
+  /** Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`. */
+  compact?: boolean;
+  /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
+  sourceMark?: ReactNode;
 
   className?: string;
 }
@@ -38,6 +44,8 @@ export function ButtonGroup({
   onChange,
   mode = 'advanced',
   lockedNote,
+  compact = false,
+  sourceMark,
   className,
 }: ButtonGroupProps) {
   const t = useT();
@@ -49,7 +57,9 @@ export function ButtonGroup({
   // `resolveInputState()`, nơi ô số giữ đúng thứ tự ấy.
   const lyDo = khoaTheoChe ? t('input.lockedBadge') : lockedNote;
 
-  const classes = [styles.wrap, className].filter(Boolean).join(' ');
+  const classes = [styles.wrap, compact ? styles.compact : undefined, className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={classes}>
@@ -82,6 +92,9 @@ export function ButtonGroup({
 
       {/* `spec.description` không hiện ở đây — bảng biến cùng màn đã in đúng câu ấy; xem docblock
           trong `NumberInput.tsx`. */}
+
+      {/* Đứng CUỐI và `display: none` ở khổ hẹp — xem `.sourceMark` ở `Input.module.css`. */}
+      {sourceMark !== undefined && <span className={styles.sourceMark}>{sourceMark}</span>}
     </div>
   );
 }

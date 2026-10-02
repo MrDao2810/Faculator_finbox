@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { isLockedForMode } from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { usePick } from '@/application/preferences-context';
@@ -18,6 +20,10 @@ export interface SelectInputProps {
    * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
    */
   lockedNote?: string;
+  /** Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`. */
+  compact?: boolean;
+  /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
+  sourceMark?: ReactNode;
 
   className?: string;
 }
@@ -35,6 +41,8 @@ export function SelectInput({
   mode = 'advanced',
   lockedNote,
   hideLabel = false,
+  compact = false,
+  sourceMark,
   className,
 }: SelectInputProps) {
   const pick = usePick();
@@ -45,6 +53,8 @@ export function SelectInput({
       className={className}
       label={pick(spec.label)}
       hideLabel={hideLabel}
+      compact={compact}
+      sourceMark={sourceMark}
       // `spec.description` không hiện ở đây — bảng biến cùng màn đã in đúng câu ấy; xem docblock
       // trong `NumberInput.tsx`.
       value={String(value)}

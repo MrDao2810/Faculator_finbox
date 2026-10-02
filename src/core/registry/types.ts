@@ -312,6 +312,39 @@ export interface FormulaSpec extends FormulaSummary {
    */
   expression?: Bilingual;
   /**
+   * Phép tính của công thức viết bằng CHỖ TRỐNG, để khối gộp thay số đang nhập vào rồi in ra một
+   * dòng như `92.000 ÷ 6.050 = 15,21` (khổ PC, 01/10/2026).
+   *
+   * Mỗi chỗ trống là `{khoá}` của một biến trong `variables`; phần còn lại là toán tử mà
+   * `evaluateWorked()` đọc được (`+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`). KHÔNG viết vế trái và dấu `=`:
+   * con số kết quả do màn nối vào, lấy thẳng từ `calc`.
+   *
+   * Vì sao viết tay chứ không sinh từ `latex`: `latex` không có đường nào trỏ về khoá biến, và
+   * đoán theo nhãn thì sai ngay ở công thức đầu tiên (`EPS` trong hình, nhãn ô là
+   * "EPS — lợi nhuận trên mỗi cổ phiếu"). Viết tay thì có cửa gác máy móc: `formulas.test.ts` thay
+   * số của `example.inputs` vào rồi tính lại bằng `evaluateWorked()` và đối chiếu với `calc` —
+   * cùng cách `worked` của bài tập và `thaySo` của ví dụ thực tế đang được gác.
+   *
+   * **Mọi con số viết thẳng trong mẫu phải là hằng số CỦA PHÉP TÍNH** — hệ số đơn vị (`10^9`,
+   * `1000`), `100` của phần trăm, `365`, `22,5` của số Graham. TUYỆT ĐỐI không chép vào đây một
+   * giá trị đến từ `usesConstants` (mức phí 0,15%, thuế 0,1%, hệ số nhân 100.000…): những số ấy
+   * chảy từ `schedules.ts` và người dùng còn đổi được biểu phí, nên một bản chép sẽ nói sai ngay
+   * trong lúc con số bên cạnh nó nói đúng. Cùng lý do `ConstantsNote` chỉ khai KHOÁ chứ không khai
+   * giá trị. `formulas.test.ts` gác: công thức có `usesConstants` thì không được có `substitution`.
+   *
+   * Tuỳ chọn: công thức chưa khai thì khối gộp bỏ hẳn dòng này, không in một dòng nửa vời. Hiện
+   * 48 trên 111 công thức có mẫu. Những ca cố ý BỎ, để khỏi ai viết lại:
+   *
+   *   · 14 công thức đọc hằng số thị trường — xem đoạn ngay trên. Muốn có dòng thay số cho chúng
+   *     thì phải cho mẫu tham chiếu được KHOÁ hằng số, không phải chép giá trị.
+   *   · `ddm-hai-giai-doan`, `gia-von-trung-binh-dca` — cộng dồn qua một số kỳ / số đợt do người
+   *     dùng đặt, nên số hạng của phép cộng không cố định.
+   *   · `loi-suat-trung-binh-hinh-hoc` — nút chọn 2 hay 3 kỳ quyết định có dùng ô thứ ba hay không.
+   *   · `irr-nien-kim`, `xirr` — dò nghiệm, không có biểu thức đóng. Cùng ca với `PHUONG_TRINH_AN`
+   *     của khối Ví dụ thực tế (`src/core/vi-du/kiem.ts`).
+   */
+  substitution?: string;
+  /**
    * Bảng ký hiệu của hình công thức — mỗi chữ trong `latex` là gì, theo kiểu "L: chuỗi giảm dài
    * nhất · k: số phiên giảm liên tiếp · r_t: lợi suất phiên t". Màn chi tiết bày nó BÊN PHẢI hình
    * công thức (dưới hình ở khổ hẹp), chủ dự án chốt bố cục ngày 16/09/2026 sau khi chỉ vào hình

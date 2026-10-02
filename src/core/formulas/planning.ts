@@ -57,6 +57,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số tháng đã gửi ÷ 12',
       en: 'Interest received = Deposit amount × Annual demand-deposit rate × Months held ÷ 12',
     },
+    substitution: '{principal} × {demandRate} ÷ 100 ÷ 12 × {monthsHeld}',
     symbols: [
       {
         latex: 'I',
@@ -298,6 +299,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
       vi: 'Chênh lệch = Tiền gửi × (1 + Lãi suất kỳ ngắn × Kỳ hạn ngắn ÷ 12)^Số vòng quay − Tiền gửi × (1 + Lãi suất kỳ dài × Tổng số tháng ÷ 12)',
       en: 'Difference = Deposit × (1 + Short-term rate × Short term ÷ 12)^Number of rounds − Deposit × (1 + Long-term rate × Total months ÷ 12)',
     },
+    substitution:
+      '{principal} × (1 + {shortRate} ÷ 100 × {shortMonths} ÷ 12)^({totalMonths} ÷ {shortMonths}) − {principal} × (1 + {longRate} ÷ 100 × {totalMonths} ÷ 12)',
     symbols: [
       {
         latex: '\\Delta',
@@ -813,6 +816,13 @@ export const SO_KY_DCA: FormulaModule = {
       vi: 'Số kỳ = ln(1 + Mục tiêu × Lợi suất kỳ ÷ Mức góp mỗi kỳ) ÷ ln(1 + Lợi suất kỳ), làm tròn lên',
       en: 'Number of periods = ln(1 + Target × Period rate ÷ Contribution per period) ÷ ln(1 + Period rate), rounded up',
     },
+    /*
+     * `{rate}` nhập theo %/năm còn công thức chạy theo lợi suất MỖI THÁNG, nên nó xuất hiện hai
+     * lần và lần nào cũng kèm `÷ 100 ÷ 12` — đúng phép `calc` làm. Viết gọn thành một biến phụ thì
+     * dòng in ra có một ký hiệu không ô nhập nào mang.
+     */
+    substitution:
+      '⌈ln(1 + {target} × {rate} ÷ 100 ÷ 12 ÷ {contribution}) ÷ ln(1 + {rate} ÷ 100 ÷ 12)⌉',
     symbols: [
       {
         latex: 'n',

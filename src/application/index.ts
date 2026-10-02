@@ -52,6 +52,9 @@ export {
   unitLabel,
 } from '@/core/format';
 
+// ── Dòng thay số của khối gộp ở khổ PC (01/10/2026) ─────────────────────────
+export { fillSubstitution } from '@/core/substitution';
+
 // ── Trạng thái ô nhập — 5 trạng thái WF-16 (gói 2.3.1) ──────────────────────
 export type { InputState, InputStateArgs, InputStateResult } from '@/core/input-state';
 export {

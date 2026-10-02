@@ -43,6 +43,7 @@ export const DIEM_HOA_VON: FormulaModule = {
       vi: 'Sản lượng hoà vốn = Định phí ÷ (Giá bán một sản phẩm − Biến phí một sản phẩm)\nDoanh thu hoà vốn = Sản lượng hoà vốn × Giá bán một sản phẩm',
       en: 'Break-even output = Fixed cost ÷ (Selling price per unit − Variable cost per unit)\nBreak-even revenue = Break-even output × Selling price per unit',
     },
+    substitution: '{fixedCost} ÷ ({unitPrice} − {variableCost})',
     symbols: [
       {
         latex: 'Q_{hv}',
@@ -259,6 +260,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       vi: 'Đòn bẩy tổng hợp = Đòn bẩy hoạt động × Đòn bẩy tài chính = (Doanh thu − Tổng biến phí) ÷ (EBIT − Lãi vay)',
       en: 'Degree of total leverage = Degree of operating leverage × Degree of financial leverage = (Revenue − Total variable cost) ÷ (EBIT − Interest expense)',
     },
+    substitution:
+      '({revenue} − {variableCost}) ÷ ({revenue} − {variableCost} − {fixedCost} − {interest})',
     symbols: [
       {
         latex: 'DTL',

@@ -1,0 +1,18 @@
+/*
+ * Con dấu nguồn của ô nhỏ. Chỗ đứng (góc trên bên phải) và việc ẩn ở khổ hẹp do chính ô nhập lo —
+ * xem `.sourceMark` ở `Input.module.css`. Ở đây chỉ còn hình của con dấu.
+ */
+.glyph {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/*
+ * Tên nguồn đậm hơn chữ quanh nó: cả dòng là chữ mờ 12px, nên mã cổ phiếu hay tên công thức —
+ * thứ duy nhất đổi theo từng ô — phải đọc được trước.
+ */
+.source {
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+}

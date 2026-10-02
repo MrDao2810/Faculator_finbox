@@ -5,7 +5,14 @@
  * là bố cục riêng của đúng một màn trong wireframe.
  */
 
-export { DetailBody, DetailConfig, hasConfigBlock, hasCustomBody, ownsResult } from './DetailBody';
+export {
+  DetailBody,
+  DetailConfig,
+  hasConfigBlock,
+  hasCustomBody,
+  hasMergedCard,
+  ownsResult,
+} from './DetailBody';
 export type { DetailBodyProps } from './DetailBody';
 
 /*

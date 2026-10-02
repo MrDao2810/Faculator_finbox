@@ -9,6 +9,20 @@ import styles from './ConstantsNote.module.css';
 
 export interface ConstantsNoteProps {
   constants: ReadonlyArray<TypedMarketConstant>;
+  /**
+   * Khối đang nằm trong THẺ GỘP của khổ PC — xếp hai cột từ 1280px thay vì một cột dọc.
+   *
+   * Cùng lối với `InputProps.compact`: React chỉ gắn thêm một lớp, còn hình dạng do media query
+   * 1280 trong `ConstantsNote.module.css` quyết, nên khổ điện thoại không đổi một pixel.
+   *
+   * Vì sao cần: trong thẻ gộp, khối này đứng ở CỘT PHẢI dưới hàng ô nhập, còn cột trái chỉ có con
+   * số kết quả cao 75px. Đo ngày 02/10/2026 ở 1440: `roi-rong` và `gia-hoa-von` có 4 hằng số, một
+   * cột dọc cao 376px, nên thẻ cao 620px với gần 550px trống bên trái. Hai cột hạ xuống còn ~200px.
+   *
+   * Ở khuôn hai cột cũ (46 công thức) khối vẫn một cột dọc: ở đó cột Số liệu chỉ rộng 35% màn, hai
+   * cột hằng số trong đó thì căn cứ pháp lý (dài nhất 96 ký tự) vỡ thành bốn dòng.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -36,14 +50,14 @@ export interface ConstantsNoteProps {
  * Không có ô nào cho người dùng sửa ở đây: mức thuế và phí lưu ký là luật định, còn phí môi giới
  * sửa ở màn Cài đặt qua ô chọn biểu phí. Khối này chỉ nói đang dùng mức nào.
  */
-export function ConstantsNote({ constants }: ConstantsNoteProps) {
+export function ConstantsNote({ constants, compact = false }: ConstantsNoteProps) {
   const t = useT();
   const pick = usePick();
   const valueText = useValueText();
   if (constants.length === 0) return null;
 
   return (
-    <section className={styles.block}>
+    <section className={compact ? `${styles.block} ${styles.compact}` : styles.block}>
       <h3 className={styles.title}>{t('detail.constantsInUse')}</h3>
       <dl className={styles.list}>
         {constants.map((constant) => (

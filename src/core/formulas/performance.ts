@@ -61,6 +61,7 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       vi: 'Lợi suất năm = (1 + Lợi suất một kỳ)^Số kỳ trong năm − 1',
       en: 'Annual return = (1 + Return per period)^Number of periods per year − 1',
     },
+    substitution: '((1 + {periodReturn} ÷ 100)^{periodsPerYear} − 1) × 100',
     symbols: [
       {
         latex: 'r_{nam}',
@@ -214,6 +215,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
       vi: 'Lợi suất thực = (1 + Lợi suất danh nghĩa) ÷ (1 + Lạm phát) − 1',
       en: 'Real return = (1 + Nominal return) ÷ (1 + Inflation) − 1',
     },
+    substitution: '((1 + {nominal} ÷ 100) ÷ (1 + {inflation} ÷ 100) − 1) × 100',
     symbols: [
       {
         latex: 'r_{thuc}',
@@ -377,6 +379,7 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
       vi: 'EAR = (1 + Lãi suất danh nghĩa ÷ Số lần ghép lãi)^Số lần ghép lãi − 1',
       en: 'EAR = (1 + Nominal rate ÷ Compounding frequency)^Compounding frequency − 1',
     },
+    substitution: '((1 + {rate} ÷ 100 ÷ {perYear})^{perYear} − 1) × 100',
     symbols: [
       {
         latex: 'EAR',
@@ -537,6 +540,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       vi: 'Tổng lợi suất = [(1 + Tăng giá mỗi năm) × (1 + Tỷ suất cổ tức)]^Số năm − 1',
       en: 'Total return = [(1 + Annual price growth) × (1 + Dividend yield)]^Years − 1',
     },
+    substitution: '(((1 + {priceGrowth} ÷ 100) × (1 + {dividendYield} ÷ 100))^{years} − 1) × 100',
     symbols: [
       {
         latex: 'TR',
@@ -1125,6 +1129,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       vi: 'Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm), xấp xỉ nhanh bằng 72 ÷ Lợi suất năm (%)',
       en: 'Years to double = ln(2) ÷ ln(1 + Annual return), roughly 72 ÷ Annual return (%)',
     },
+    substitution: 'ln(2) ÷ ln(1 + {rate} ÷ 100)',
     symbols: [
       {
         latex: 't',
@@ -1289,6 +1294,7 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       vi: 'Lợi suất quy năm = (Giá bán ÷ Giá mua)^(365 ÷ Số ngày nắm giữ) − 1',
       en: 'Annualized return = (Sell price ÷ Buy price)^(365 ÷ Days held) − 1',
     },
+    substitution: '(({sellPrice} ÷ {buyPrice})^(365 ÷ {days}) − 1) × 100',
     symbols: [
       {
         latex: 'r_{nam}',
@@ -1472,6 +1478,7 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
       vi: 'Lợi suất vượt chuẩn = Lợi suất danh mục − Lợi suất chuẩn so sánh',
       en: 'Excess return = Portfolio return − Benchmark return',
     },
+    substitution: '{portfolioReturn} − {benchmarkReturn}',
     symbols: [
       {
         latex: 'ER',

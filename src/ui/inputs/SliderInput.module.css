@@ -143,3 +143,103 @@
 .max {
   margin-left: auto;
 }
+
+/* Con dấu nguồn chỉ thuộc về ô nhỏ ở khổ PC — xem `.sourceMark` ở `Input.module.css`. */
+.sourceMark {
+  display: none;
+}
+
+/*
+ * ── Ô NHỎ của khối gộp — chỉ từ 1280px ───────────────────────────────────────────────────
+ *
+ * Cùng luật và cùng lý do với `.compact` ở `Input.module.css` (đọc docblock ở đó trước): khung
+ * chuyển ra thẻ gốc, nhãn nhỏ lại, con số to lên, con dấu nguồn lên góc. Hai khác biệt của thanh
+ * trượt:
+ *
+ *   · Nhãn và con số thôi đứng chung một hàng. Trong ô nhỏ chỉ có ~200px bề ngang, mà hàng ấy đang
+ *     gánh nhãn + con dấu + con số; xếp dọc thì con số mới to lên được như bản thiết kế.
+ *   · Hai mốc min/max ẩn khỏi MẮT nhưng ở lại cho trình đọc màn hình: `aria-describedby` của thanh
+ *     trượt trỏ vào chúng, nên `display: none` là cắt mất lời mô tả miền giá trị. Rãnh trượt tự nó
+ *     đã nói vị trí tương đối, còn hai con số thì không đủ chỗ.
+ */
+@media (min-width: 1280px) {
+  .compact {
+    position: relative;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .compact.locked {
+    background: var(--color-sunken);
+  }
+
+  .compact .head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .compact .label {
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+    color: var(--color-muted);
+  }
+
+  /* Chỉ chừa chỗ khi ô thật sự có con dấu — cùng luật và cùng lý do với `Input.module.css`. */
+  .compact:has(.sourceMark) .label {
+    padding-right: var(--space-8);
+  }
+
+  /*
+   * Trải hết bề ngang ô thay vì ôm lấy con số: đơn vị bên trong phải ra được tới mép phải, đúng
+   * như ô nhập thường (xem `.compact .unit` ở `Input.module.css`). Hai kiểu ô đứng cạnh nhau
+   * trong cùng một thẻ, nên đơn vị của chúng phải thẳng một hàng dọc.
+   */
+  .compact .valueBox {
+    align-self: stretch;
+    font-size: var(--text-xl);
+    color: var(--color-ink);
+  }
+
+  .compact .slider {
+    min-height: 20px;
+  }
+
+  .compact .slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+    /* Tâm nút trùng tâm rãnh: (16 − 6) / 2 − 1 viền. */
+    margin-top: -5px;
+  }
+
+  .compact .slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Ẩn khỏi mắt, giữ cho trình đọc màn hình — xem docblock trên. */
+  .compact .marks {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .compact .sourceMark {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-3);
+
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+}

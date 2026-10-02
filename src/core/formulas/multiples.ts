@@ -35,6 +35,7 @@ export const PE: FormulaModule = {
       vi: 'P/E = Giá thị trường ÷ EPS',
       en: 'P/E = Market price ÷ EPS',
     },
+    substitution: '{price} ÷ {eps}',
     symbols: [
       {
         latex: 'P/E',
@@ -186,6 +187,7 @@ export const PB: FormulaModule = {
       vi: 'P/B = Giá thị trường ÷ Giá trị sổ sách mỗi cổ phiếu',
       en: 'P/B = Market price ÷ Book value per share',
     },
+    substitution: '{price} ÷ {bookValuePerShare}',
     symbols: [
       {
         latex: 'P/B',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, type CSSProperties } from 'react';
+import { useId, type CSSProperties, type ReactNode } from 'react';
 
 import { formatValueWithUnit, isLockedForMode, snapToStep, unitLabel } from '@/application';
 import type { Level, VariableSpec } from '@/application';
@@ -22,6 +22,10 @@ export interface SliderInputProps {
    * nâng cao đang ở chế độ Cơ bản thì vẫn phải khoá dù mã có cấp được số hay không.
    */
   lockedNote?: string;
+  /** Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`. */
+  compact?: boolean;
+  /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
+  sourceMark?: ReactNode;
 
   className?: string;
 }
@@ -86,6 +90,8 @@ export function SliderInput({
   onChange,
   mode = 'advanced',
   lockedNote,
+  compact = false,
+  sourceMark,
   className,
 }: SliderInputProps) {
   const inputId = useId();
@@ -112,7 +118,12 @@ export function SliderInput({
   const max = spec.max ?? 100;
   const step = spec.step ?? 1;
 
-  const classes = [styles.field, locked ? styles.locked : undefined, className]
+  const classes = [
+    styles.field,
+    locked ? styles.locked : undefined,
+    compact ? styles.compact : undefined,
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -153,6 +164,7 @@ export function SliderInput({
           editable={GO_SO_TRUC_TIEP}
           id={boxId}
           describedBy={marksId}
+          compact={compact}
           className={styles.valueBox}
         />
       </div>
@@ -206,6 +218,8 @@ export function SliderInput({
           {formatValueWithUnit(max, pick(unitLabel(spec.unit)), { maxDecimals: 4 })}
         </span>
       </p>
+
+      {sourceMark !== undefined && <span className={styles.sourceMark}>{sourceMark}</span>}
     </div>
   );
 }

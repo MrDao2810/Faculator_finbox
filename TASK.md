@@ -4,6 +4,351 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ô nhỏ thẻ gộp: bỏ nhãn "Tự nhập", đơn vị dạt mép phải (02/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi.** Chủ dự án chụp hai ô `EV` / `EBITDA`, khoanh đỏ chữ
+"tỷ đ" rồi vẽ mũi tên sang phải: _"chuyển các phần khoanh đỏ sang phần bên phải như tôi vẽ. đồng
+thời xóa đoạn text 'Tự nhập' trong phần ảnh trên đi"_.
+
+- **Bỏ nhãn "✎ Tự nhập"**: `SourceMark` mất hẳn nhánh `manual` (cùng hình `PencilGlyph` chỉ nó
+  dùng), `FormulaDetail` chỉ truyền `sourceMark` khi ô THẬT SỰ mang số của một mã. Lý do: nhãn ấy
+  in trên gần như mọi ô, mà "tự nhập" là trạng thái mặc định của ô nhập nên nó không phân biệt
+  được gì — thứ đáng đánh dấu là ngoại lệ. Hai ngoại lệ (`ticker`, `formula`) giữ con dấu và nay
+  nổi hẳn lên. Mộ chí ở khoá `tile.manual`; `tile.manual` bỏ khỏi cả `vi.ts` lẫn `en.ts`.
+- **Ca kiểm ĐẢO**, không phải ca xoá (`FormulaDetail.test.tsx`): màn chi tiết không được in chữ
+  "Tự nhập" ở đâu nữa. Cùng nếp đã dùng cho `quiz.localOnly` — câu chữ quay lại thì phải là một
+  quyết định, không phải một lần lỡ tay. Dò ở tầng DOM vì nhãn bị bỏ ở React chứ không bị CSS giấu.
+- **Đơn vị dạt mép phải, và CẢ HÀNG là vùng bấm để gõ.** Chốt sau bốn đời, chủ dự án bấm thử rồi
+  mới ra được bản cuối: (1) bản gốc `flex: 1` đẩy đơn vị ra mép — bị coi là lỗi vì "92.000" và "₫"
+  đọc như hai thứ rời nhau; (2) `field-sizing: content` cho ô co bằng con số; (3) giữ
+  `field-sizing` nhưng đẩy đơn vị bằng `margin-left: auto` — hình đúng, nhưng _"khi muốn chỉnh sửa
+  số liệu thì phải bấm được cả vào vùng khoanh đỏ"_: ô co theo chữ thì chỉ bấm trúng mấy con số;
+  (4) **thôi đè** — luật gốc `.input { flex: 1; min-width: 0; align-self: stretch }` vốn đã dựng
+  sẵn cả hai thứ cần, và vế vùng chạm chính là NFR-USA-01 ghi ở docblock của nó. Bản thu gọn nay
+  chỉ còn đổi cỡ chữ.
+- **8px chết sát đơn vị**: khe `gap` giữa ô nhập và đơn vị chuyển thành ĐỆM của chính ô nhập
+  (`gap: 0` + `padding-right`). Khoảng cách nhìn thấy không đổi, nhưng bấm vào đệm của `<input>`
+  là trúng ô, còn bấm vào khe `gap` thì trúng `<div>` và không có gì xảy ra.
+- **Ô thanh trượt KHÔNG đổi theo** — chúng cố ý không gõ được (`GO_SO_TRUC_TIEP = false` ở
+  `SliderInput.tsx`, có docblock: một con số trông như chữ mà gõ được, không dấu hiệu nào nói ra,
+  là thứ nhánh `<span>` ấy sinh ra để tránh). Ở đó thanh trượt là điều khiển. Chỉ đơn vị của chúng
+  dạt phải cho thẳng hàng với ô số.
+- **Đo vùng bấm trên CẢ 65 trang** bằng `elementFromPoint` tại ba điểm mỗi hàng (sát trái, giữa,
+  sát ngay trước đơn vị): 130 ô gõ số, **130 trúng cả ba điểm**, 0 hỏng. 42 điều khiển còn lại là
+  thanh trượt / ô chọn / nhóm nút. Trước khi khép khe `gap`, điểm sát đơn vị rơi vào `div`.
+- **Hai kiểu ô phải thẳng một hàng dọc.** Đo sau bước trên: ô số cách mép phải 1px, ô thanh trượt
+  6px — mà `lai-kep` có cả hai kiểu trong cùng một thẻ. Nguyên nhân là đệm ngang `--space-1` của
+  `.box` (chỗ thở cho vòng tiêu điểm) trong `InlineNumber`; bỏ nó ở khổ ≥1280. Đo lại: 1–2px đều
+  trên `ev-ebitda`, `tra-gop-nien-kim`, `lai-kep`, `capm`.
+- **Trả lại chỗ nhãn đang chừa cho con dấu**: `padding-right` của nhãn chuyển sang
+  `:has(.sourceMark)`, nên ô không có dấu (phần lớn) dùng được trọn bề ngang cho nhãn.
+- Soi ở 1440 (`ev-ebitda`, `tra-gop-nien-kim`) và 390 (`tra-gop-nien-kim`) — màn điện thoại không
+  đổi: mọi luật mới nằm trong `@media (min-width: 1280px)`, còn thay đổi React chỉ gỡ một phần tử
+  mà khổ hẹp vốn đã `display: none` (tức cũng đã nằm ngoài cây trợ năng).
+
+### Sửa theo đợt rà đối kháng cùng ngày
+
+Một workflow 5 chiều × 3 thẩm định đối kháng chạy trên chính diff này. 18 phát hiện sống sót; đã
+xử trong đợt này:
+
+- **`check:chrome` đang ĐỎ vì hai con số lạc hậu** (nặng nhất, và không cửa gác nào trong CI thấy
+  vì `check:chrome` không nằm trong CI). Khối Giải thích nay dựng BA mục — đợt 30/09 tắt cả
+  `showMeaning` lẫn `showHowToRead` nên lúc ấy đúng là 2, rồi "Cách đọc kết quả" được trả về mà
+  hai phép kiểm Chrome không đi theo (phía vitest thì có). Sửa `=== 2` → `=== 3` ở cả cặp
+  (`chrome-check.mjs` dòng 886 và 2407) kèm ghi lại đường đi 4 → 2 → 3 để lần sau không sửa lẻ một
+  dòng.
+- **Cửa gác CSS mới của chính tôi mù thứ tự cascade.** Hai ca đầu vẫn xanh nếu ai đó chuyển dòng
+  `display: block` sang khối `min-width: 1280px` THỨ NHẤT của file (khối ấy đứng TRƯỚC luật gốc) —
+  cùng độ ưu tiên 0-1-0 thì chỉ thứ tự khai quyết, nên dải thay số sẽ ẩn lại trên cả 48 công thức
+  mà `npm test` vẫn xanh. Thêm ca thứ ba so vị trí hai luật trong file; đã dựng lại đúng kịch bản
+  ấy để xác nhận ca mới đỏ còn hai ca cũ xanh.
+- **`ConstantsNoteProps.compact` chưa có ca kiểm nào** — thêm hai ca (có / không có lớp `compact`,
+  và không đụng nội dung).
+- **Chú thích lạc hậu**: "108 công thức ngoài khuôn gộp" → 46 (hai chỗ), "ba công thức mẫu" → 65,
+  `SliderInput.module.css` trỏ sang `.badge` (lớp đã đổi tên thành `.sourceMark`), hai chữ "and"
+  lẫn trong chú thích tiếng Việt ở `en.ts`, và một câu sai của chính tôi trong `chrome-check.mjs`.
+
+### Còn lại — cần chủ dự án quyết
+
+- **Ba dải thay số in ra `0 ÷ 0`** khi kéo thanh trượt lãi suất về 0: `tra-gop-nien-kim`,
+  `tiet-kiem-muc-tieu`, `so-ky-dca`. `calc` có nhánh lãi suất 0 và trả về số ĐÚNG, còn mẫu thay số
+  là công thức tổng quát nên tử và mẫu cùng bằng 0. Con số lớn đúng, dải dưới bấm lại ra NaN —
+  đúng loại "số trông đúng" mà dải này sinh ra để chặn. Cửa gác hiện có không thấy vì nó chỉ thay
+  `example.inputs`. Đề xuất: thêm `substitutionNonZero?: ReadonlyArray<string>` vào `FormulaSpec`,
+  `fillSubstitution` trả `null` nếu một khoá trong đó bằng 0 → dải tự biến mất thay vì nói sai.
+- **19 trong 48 mẫu thay số in hằng số mà hình công thức không có** (ví dụ `× 100`, `^(365 ÷ n)`).
+  Cần đọc lại từng mẫu đối chiếu `latex`; là việc nội dung, không phải bố cục.
+- **Công thức 4 ô**: ô thứ tư đứng lẻ ở hàng hai với ~524px rãnh trống cạnh nó.
+- **`ddm-hai-giai-doan`** vẫn lệch hai cột (trái 75 / phải 358px).
+- **8px chết** phía trên hàng ô: `.blockHead` thành hộp rỗng khi tiêu đề "SỐ LIỆU" bị ẩn bằng
+  `position: absolute`. Sửa được bằng `display: contents`, nhưng thẻ ấy mang đích `aria-labelledby`
+  nên muốn làm thì phải soi kỹ hơn một dòng CSS.
+
+---
+
+## Thẻ gộp: dòng thay số chưa bao giờ hiện, và hai ca bố cục lệch (02/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi trên màn thật.** Chủ dự án yêu cầu rà lại toàn bộ giao diện
+công thức ở màn web sau đợt gộp. Đã quét **cả 65 công thức** dùng khuôn gộp bằng Chrome thật ở
+1440px và 1280px (đo hình học từng thẻ, không chụp ảnh đoán).
+
+**Kết quả quét**: không công thức nào tràn ngang, không con số kết quả nào vỡ dòng, mốc 1280 vẫn đủ
+chỗ cho 3 cột ô (229px/ô). Ba lỗi, trong đó lỗi đầu là lỗi nặng.
+
+### 1. Dòng thay số ẩn trên cả 48 công thức có mẫu
+
+`.substitution` khai `display: none` ở luật gốc (để chữ mới này không lọt xuống màn điện thoại), và
+chú thích ngay cạnh ghi _"chỉ bật lại trong khối 1280 bên dưới"_ — nhưng khối 1280 **chỉ khai nền,
+đệm, cỡ chữ, không có dòng `display` nào**. Nó từng là `display: flex` để chia hàng với câu chỉ
+đường "Bấm một ô để sửa, kết quả đổi ngay"; bỏ câu ấy đi thì `flex` bị xoá theo và không có gì thay
+chỗ, nên luật gốc thắng ở mọi khổ màn. Dải đáy thẻ — thứ bản thiết kế vẽ và là nửa lý do khuôn gộp
+tồn tại — chưa bao giờ hiện, kể từ lúc dựng.
+
+**Vì sao không cửa gác nào thấy**: test React dựng DOM chứ không chạy CSS Module, nên `<p>` ấy vẫn
+`toBeInTheDocument()`; `verify:static` đọc HTML, mà HTML đúng; còn `check:chrome` CÓ khối đo thẻ gộp
+và docblock của nó còn ghi _"dưới đáy khung là dòng thay số"_, nhưng bốn phép đo trong đó không đo
+dải ấy — chú thích hứa một đằng, phép kiểm làm một nẻo.
+
+- **Sửa**: thêm `display: block` vào `.substitution` trong khối 1280 (`FormulaDetail.module.css`).
+- **Gác hai lớp**, vì một lớp đã chứng minh là không đủ:
+  - `src/app/cong-thuc/[id]/merged-card-css.test.ts` (MỚI) — đọc thẳng file CSS, bỏ chú thích trước
+    khi dò (chú thích của file nói về chính luật nó đứng cạnh, nên chữ `display: none` có trong lời
+    văn), gom cả **hai** khối `@media (min-width: 1280px)` của file. Đã thử gỡ `display: block` ra:
+    ca kiểm đỏ đúng chỗ.
+  - `scripts/chrome-check.mjs` — trường `thaySo` trong `DOC_CHI_TIET` đo cả `display` chứ không chỉ
+    hình hộp (hộp của phần tử ẩn là 0×0 ở toạ độ 0, đo toạ độ chỉ đọc ra "lệch" chứ không đọc ra
+    "không hiện"), cộng một phép ở 1440 (hiện, nằm dưới cả hai cột, trải hết hai cột) và một phép ở
+    360 (KHÔNG hiện — vế giữ lời hứa "chỉ màn web").
+
+### 2. Bốn công thức có thẻ lệch hẳn hai cột
+
+Đo ở 1440: cột trái chỉ có con số cao 75px, cột phải cao 358–578px.
+
+| Công thức           | Trái / Phải | Nguyên nhân                               |
+| ------------------- | ----------- | ----------------------------------------- |
+| `roi-rong`          | 75 / 578px  | bảng hằng số 4 mức, một cột dọc cao 376px |
+| `gia-hoa-von`       | 75 / 487px  | như trên                                  |
+| `thue-tncn-dau-tu`  | 75 / 438px  | bảng hằng số 2 mức, 214px                 |
+| `ddm-hai-giai-doan` | 75 / 358px  | 5 ô (2 hàng trượt) + khối "Từ các ô trên" |
+
+Ba ca đầu còn trùng lỗi 1 theo kiểu khác: chúng **cố ý không có dòng thay số** (công thức đọc hằng
+số thị trường thì không được chép trị số vào mẫu — xem docblock `substitution` ở `registry/types.ts`),
+nên dải đáy trống hẳn, mất luôn thứ lẽ ra cân lại chiều ngang.
+
+- **Sửa**: `ConstantsNote` nhận prop `compact`, bày bảng hằng số thành **hai cột từ 1280px**; thẻ
+  gộp truyền `compact={merged}`. Cùng lối với `InputProps.compact` — React chỉ gắn thêm một lớp,
+  hình dạng do media query quyết, nên khổ điện thoại không đổi.
+- Khuôn hai cột cũ (46 công thức) giữ một cột dọc: ở đó cột Số liệu chỉ rộng 35% màn, hai cột trong
+  đó thì căn cứ pháp lý (dài nhất 96 ký tự) vỡ bốn dòng.
+- **Bản sửa đầu làm 10 công thức CAO LÊN, và bản quét lại là thứ bắt được.** 10 trong 13 công thức
+  tra hằng số chỉ khai MỘT khoá; hàng độc nhất của chúng rơi vào cột 340px thay vì 712px nên căn cứ
+  pháp lý vỡ thêm một dòng — cao thêm 17–35px (`thue-co-tuc` nặng nhất: 122 → 157px). Thêm
+  `.compact .list > .row:only-child { grid-column: 1 / -1 }`: hàng độc nhất trải cả hai cột.
+- **Đo lại cả 13 công thức tra hằng số** ở 1440 sau khi chữa: 10 ca một khoá về đúng số cũ (100,9 /
+  122,3px — không đổi một pixel), `thue-tncn-dau-tu` 214 → 157px, `roi-rong` và `gia-hoa-von`
+  376 → 253px. Thẻ `roi-rong` từ 620 xuống 497px. Không ca nào xấu đi.
+- **Chưa xử lý**: `ddm-hai-giai-doan` không có hằng số nào nên cách sửa trên không với tới nó — thẻ
+  vẫn trái 75 / phải 358px. Chờ chủ dự án quyết (để nguyên, hay canh giữa con số ở cột trái cho cả
+  65 công thức).
+
+### 3. `thoi-gian-nhan-doi` — ô nhập độc nhất nuốt trọn 795px
+
+Công thức duy nhất trong 111 có đúng một biến. `auto-fit` xoá rãnh rỗng (đó là lý do nó được chọn —
+công thức hai ô chia đôi hàng thay vì bỏ trống một phần ba), nên ô độc nhất nở hết cột phải và thanh
+trượt dài bằng nửa màn.
+
+- **Sửa**: `.fields.tileGrid > :only-child { max-width: calc((100% - var(--space-3)) / 2) }` — chặn
+  ở NỬA hàng chứ không một phần ba, vì 390px đúng bằng bề ngang ô của 46 công thức hai ô.
+  `max-width` trên ô chứ không đổi `grid-template-columns`, nên không cần `:has()`.
+
+### Kiểm chứng
+
+- `npm run check` xanh: 134 file, 3.097 ca (tăng 3 ca mới).
+- **Quét lại cả 65 công thức** bằng Chrome thật ở 1440 (cùng bàn đo đã dùng để tìm lỗi): dòng thay
+  số ẩn **48 → 0**, ô độc nhất 795 → 391,5px, không công thức nào tràn ngang, không con số nào vỡ
+  dòng, không ca nào xấu đi.
+- Chạy đúng logic của HAI phép kiểm Chrome mới lên server thật: ở 1440 dải chạy 85–1340px (đúng hộp
+  nội dung thẻ), top 505 ≥ đáy khối Số liệu 489 — xanh; ở 360 `display: none` — xanh.
+- Soi mắt ở 390px (`pe`, `roi-rong`): màn điện thoại không đổi.
+- **Còn lại**: chưa chạy được `npm run build` → `verify:static` → `check:chrome`, vì cửa chắn
+  `prebuild` thấy một `next dev` ở cổng 3001 (tiến trình không phải do đợt này bật, và đang treo
+  không trả lời). Tắt nó rồi chạy ba lệnh ấy là xong.
+
+---
+
+## WF-08: khối "Bóc tách chi phí" đóng khung, ngang hàng thẻ Số liệu (01/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi trên màn thật.** Chủ dự án chụp màn `loi-nhuan-rong` ở khổ PC,
+khoanh đỏ dải đầu hai cột: _"điều chỉnh lại cho các đoạn này ngang hàng nhau. text thì để 1 hàng ngang
+bên trên thôi"_, rồi nói rõ hơn: _"đưa đoạn text 'Bóc tách chi phí' cao lên và giao diện nằm trong
+khung bên dưới bóc tách đưa cao lên để bằng với khung dữ liệu"_.
+
+- **Đo trước khi sửa** (Chrome thật, 1440px): thẻ Số liệu bắt đầu ở y=518, chữ "SỐ LIỆU" ở y=535
+  (lùi vào đúng `--space-4` của thẻ). Bên phải, chữ "BÓC TÁCH CHI PHÍ" ở y=518 còn **khung bảng** mãi
+  y=544,5 — tức khung lệch 26px và hai tiêu đề lệch 17px.
+- **Nguyên nhân**: khối này để tiêu đề ĐỨNG NGOÀI bảng, nên tiêu đề ăn mất phần đầu ô lưới và đẩy
+  khung xuống. Luật đã chốt ở `FormulaDetail.module.css` là ngược lại — _"hai thẻ cùng mép trên, chữ
+  SỐ LIỆU và dòng KẾT QUẢ lùi vào đúng một khoảng như nhau"_ — và 110 công thức còn lại giữ đúng luật
+  ấy vì tiêu đề "Kết quả" của chúng ẩn khỏi mắt.
+- **Đã sửa** (`src/ui/screens/FeeTaxBody.module.css`, chỉ thêm một khối `@media (min-width: 1280px)`):
+  khung chuyển ra ngoài cùng — `.block` mang viền, nền và đệm `--space-4` y hệt `.blockInputs`; `.table`
+  bỏ viền/bo/nền riêng (hai viền lồng nhau đọc thành hai khối); `.row` bỏ lề ngang để chữ trong hàng
+  lùi vào bằng tiêu đề; `.total` kéo nền chìm ra sát hai mép thẻ bằng lề âm.
+- **Khối media đặt CUỐI file**, sau luật gốc của `.row`/`.total`: cùng lớp, cùng độ ưu tiên, mà
+  `@media` không cộng điểm nào — khai ở đầu file thì `padding` của `.row` bên dưới thắng và lề ngang
+  không bao giờ về 0. Cùng cái bẫy đã ghi ở `.panelCenter` của `BottomSheet`.
+- **Đo lại sau khi sửa**, bằng bàn thử dựng từ chính hai file CSS thật (đổi tiền tố lớp đúng như CSS
+  Modules làm): ở 1280px và 1440px — lệch mép trên hai thẻ **0px**, lệch hai tiêu đề **0px**, tiêu đề
+  và nhãn hàng cùng lùi vào 17px, dải "Tổng chi phí" chạy hết bề ngang thẻ. Ở 1100px và 390px hai khối
+  vẫn xếp chồng và hàng vẫn lùi 13px như cũ — khổ điện thoại không đổi một pixel.
+- lint · tsc · prettier xanh; vitest 3.094 ca xanh, trong đó `section-title.test.ts`, `result-card.test.ts`
+  và `tokens.test.ts` là ba cửa gác đang khoá kiểu tiêu đề, kiểu thẻ đáp án và bộ token của file này.
+- **Còn lại**: chưa soi được trên dev server thật — lúc làm có hai tiến trình `next dev` (cổng 3001 và 3002) cùng dùng một thư mục `.next` và cả hai đều trả 500 ("Jest worker"), không phải do thay đổi này
+  (sửa một file CSS Module không gây lỗi ấy, và mọi trang đều 500). Cần khởi động lại đúng MỘT dev
+  server rồi mở `/cong-thuc/loi-nhuan-rong/` ở 1440px để xác nhận bằng mắt.
+
+---
+
+## Khối Kết quả: bỏ câu "Cách đọc kết quả", dòng đếm ô và câu chỉ đường thẻ gộp (01/10/2026)
+
+**Trạng thái: xong.** Chủ dự án gửi ảnh chụp thẻ gộp của CAPM (xem mục "Gộp 'Số liệu + Kết quả'"
+ngay dưới đây), khoanh đỏ đoạn văn đứng ngay dưới số "13,1%" cạnh các ô nhập Rf/beta/ERP, nói đây
+là loại chữ thừa cần xoá khỏi mọi công thức. Ngay sau đó yêu cầu thêm hai lần nữa, cùng mạch "chữ
+thừa": bỏ dòng đếm ô ("3 ô") đứng cùng chỗ, rồi bỏ nốt câu "Bấm một ô để sửa, kết quả đổi ngay"
+(`tile.editHint`) đứng cạnh dòng thay số dưới đáy thẻ.
+
+- Đoạn văn đó là `explanation.howToRead`, được nối vào `ResultBlock.interpretation` trong lúc dựng
+  thẻ gộp — thay cho việc nó từng nằm trong khối "Giải thích cho người mới". Lý do khi đó là để câu
+  đứng cạnh con số ở mọi khổ màn hình; chủ dự án không chấp nhận cách đặt chỗ ấy.
+- **Đã sửa**: `FormulaDetail.tsx` — bỏ `interpretation={pick(spec.explanation.howToRead)}` khỏi lời
+  gọi `ResultBlock` (một chỗ dựng dùng chung cho cả khối gộp lẫn khối thường); bỏ
+  `showHowToRead={false}` khỏi `ExplanationAccordion` nên câu trở lại khối Giải thích. Khối Giải
+  thích nay lại có BA mục (Khi nào dùng · Cách đọc kết quả · Sai lầm thường gặp); mục Ý nghĩa vẫn
+  tắt như cũ — quyết định đó không đổi.
+- **Đã sửa thêm**: bỏ hẳn dòng đếm ô ("2 ô · 2 ô lấy theo mã") cùng biến `soOLayTheoMa` tính cho nó.
+  Tombstone `tile.count`/`tile.countTicker` ở `vi.ts`/`en.ts`; bỏ class `.tileCount` khỏi
+  `FormulaDetail.module.css` (tách khỏi rule dùng chung với `.substitution`, vẫn còn dùng).
+- **Đã sửa thêm lần ba**: bỏ câu `tile.editHint` ("Bấm một ô để sửa, kết quả đổi ngay") khỏi dải
+  thay số dưới đáy thẻ gộp. Dải đó giờ chỉ còn MỘT dòng — phép tính đã thay số
+  (`3,5 + 1,2 × 8 = 13,1`) — nên `<p className={styles.substitution}>` không còn bọc hai `<span>`
+  nữa, chỉ in thẳng `dongThaySo`. CSS `.substitution` bỏ `display: flex`/`justify-content:
+space-between` (không còn hai nửa cần chia); xoá hẳn `.substitutionSum`/`.substitutionHint`.
+  Tombstone `tile.editHint` ở `vi.ts`/`en.ts`. Không ca kiểm nào (kể cả `merged-card.test.ts`)
+  từng chạm khoá này nên không phải sửa test nào cho phần này.
+- `FormulaDetail.test.tsx`: `NHAN_GIAI_THICH` thêm lại `explain.howToRead`; ca "mở sẵn khi vào màn"
+  đổi 2 → 3 mục; ca "chỉ in MỘT lần" đảo chiều — nay chốt câu nằm trong khối Giải thích (summary tồn
+  tại), không còn lặp dưới khối Kết quả. Không ca kiểm nào từng chạm dòng đếm ô nên không phải sửa gì
+  cho phần đó.
+- `ExplanationAccordion.tsx`: sửa lại docblock `showHowToRead` ghi nhận việc đảo quyết định.
+- Xác nhận lại trên dev server thật, trang `/cong-thuc/capm/` — khối Kết quả chỉ còn tên công thức,
+  số và dòng phép tính (`3,5 + 1,2 × 8 = 13,1`, không còn câu chỉ đường cạnh nó); khối Giải thích
+  hiện đủ ba mục. Dò `document.body.innerText` xác nhận không còn "Bấm một ô"/"kết quả đổi ngay".
+- lint · tsc · prettier xanh (chỉ các file đã đổi); vitest 3.094 ca xanh (không ca nào vỡ, kể cả
+  `merged-card.test.ts` của gói "Gộp 'Số liệu + Kết quả'" bên dưới).
+
+---
+
+## Gộp "Số liệu + Kết quả" thành một thẻ ở khổ PC — đợt 1/5 (01/10/2026)
+
+**Trạng thái: đợt 1 xong, chờ chủ dự án soi trước khi mở rộng.** Chủ dự án đưa 4 ảnh thiết kế:
+con số kết quả và hàng ô nhập về chung MỘT thẻ ở đầu trang, Giải thích đẩy lên ngay dưới. **Chỉ
+màn web; khổ điện thoại giữ nguyên từng pixel.** Kế hoạch 5 đợt ở
+`~/.claude/plans/prancy-sprouting-lemon.md`.
+
+- **Phạm vi đã chốt**: 74/111 công thức sẽ dùng khuôn mới. Loại ra 35 công thức cần chuỗi giá
+  (chủ dự án chọn giữ bố cục 2 cột) và `loi-nhuan-rong` + `lich-tra-no` (chưa có thiết kế cho
+  bảng riêng của chúng). Khảo sát thật: **không công thức nào quá 6 ô nhập** (nhiều nhất 6), và
+  chỉ 4 kiểu điều khiển được dùng (`number` 74, `slider` 64, `select` 4, `buttonGroup` 2 —
+  `toggle`/`radio` khai trong kiểu TS nhưng không công thức nào dùng).
+- **Đợt này làm 3 công thức mẫu**: `pe`, `roe`, `capm` (danh sách `hasMergedCard()` ở
+  `src/ui/screens/DetailBody.tsx` — viết tay, KHÔNG suy từ cấu trúc, để công thức mới thêm vào
+  Registry không tự nhảy vào khuôn chưa ai soi).
+- **Hai quyết định của chủ dự án**: bỏ hộp nền xanh gradient của con số trong thẻ gộp (biến thể
+  `ResultBlock variant="flat"`, chỉ từ 1280px — khuôn chung ba thẻ đáp án mà `result-card.test.ts`
+  khoá vẫn nguyên); công thức không vừa khuôn giữ bố cục 2 cột.
+- **Mọi luật hình nằm trong `@media (min-width: 1280px)`, không nằm ở React** — khối gộp là thiết
+  kế riêng cho màn web, mà cả 111 trang dùng chung MỘT cây DOM (dựng hai cây thì trình đọc màn
+  hình đọc mọi con số hai lần). Đã soi lại bằng Chrome thật ở 390px: màn điện thoại không đổi một
+  pixel.
+- **Đã sửa**: `Input.tsx`/`.module.css`, `NumberInput.tsx`, `SliderInput.tsx`/`.module.css`,
+  `InlineNumber.tsx`/`.module.css`, `VariableField.tsx` — thêm cờ `compact` và chỗ cắm `sourceMark`
+  (con dấu nguồn). `ResultBlock.tsx`/`.module.css` — thêm `variant` và dòng nhãn thứ hai mang tên
+  công thức. Mới: `src/ui/result/SourceMark.tsx` (+css). `FormulaDetail.tsx` + `.module.css` —
+  thẻ gộp, lưới ô nhỏ, dải thay số. `src/core/substitution.ts` + `FormulaSpec.substitution` cho 3
+  công thức mẫu. 4 khoá i18n `tile.*` ở `vi.ts`/`en.ts`.
+- **Cửa gác mới**: `formulas.test.ts` thay số của `example.inputs` vào `spec.substitution` rồi tính
+  lại bằng `evaluateWorked()` và đối chiếu `calc` — dòng `92.000 ÷ 6.050 = 15,21` không thể nói
+  khác con số ngay trên nó. Cùng cách `worked` của bài tập đang được gác.
+- Con dấu nguồn đặt tên `sourceMark`, KHÔNG phải `badge`: `Badge.test.ts` chỉ cho
+  `Badge.module.css` khai lớp `.badge` (đã đụng cửa này một lần rồi sửa).
+- `FormulaDetail.test.tsx`: ca dò chữ "KẾT QUẢ" đổi sang `pb` (công thức còn khuôn cũ), thêm 2 ca
+  mới cho dòng nhãn kép. lint · tsc · prettier xanh; 3.090 ca vitest xanh.
+- **Còn lại**: đợt 3 hình B (5 công thức chuỗi); đợt 4 hình C (4 công thức bóc tách, kéo
+  `WaterfallChart` lên thẻ); đợt 5 hình D (`xirr`, kèm "Dán từ Excel" là tính năng MỚI).
+
+---
+
+## Khuôn gộp đợt 2/5: mở ra 65 công thức (01/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi.** Hình A (thẻ gộp cơ bản) nay phủ **65 công thức** — toàn
+bộ thư viện trừ 46 công thức của bốn nhóm chưa có thiết kế (ăn chuỗi giá · thân kết quả riêng ·
+nhận số từ công thức khác · biểu đồ bóc tách mặc định).
+
+- **`hasMergedCard()` mở từ 3 lên 65 id**, và có cửa gác mới `src/ui/screens/merged-card.test.ts`:
+  nó TÍNH LẠI tập hợp từ chính bốn tiêu chí (`needsPriceSeries`, `hasCustomBody`, `hasConfigBlock`,
+  `chainFor`, `chartType: 'waterfall'`) rồi so với danh sách viết tay. Thêm công thức thứ 112 vào
+  Registry là ca này đỏ — đúng điều mong muốn.
+- **Ô nhỏ cho hai kiểu điều khiển còn lại**: `SelectInput`/`Select` và `ButtonGroup` nhận `compact`
+  - `sourceMark`. Mũi tên của `<select>` ở lại (nó là dấu hiệu duy nhất nói "ô này mở ra chọn" sau
+    khi khung tháo); khung nhóm nút cũng ở lại, chỉ hạ chiều cao từ 44px xuống 32px vì ô nhỏ chỉ có
+    ở khổ chuột. `radio`/`toggle` KHÔNG làm: không công thức nào trong 111 dùng hai kiểu ấy.
+- **Hàng ô nhỏ trần ba cột** (`minmax(max(200px, (100% − 2 khe) / 3), 1fr)` + `auto-fit`): công
+  thức 5–6 ô rơi 3 + 2 đúng bản thiết kế, công thức 2 ô vẫn chia đôi hết bề ngang.
+- **48 mẫu `spec.substitution`** (12 agent chạy song song, mỗi agent một file nhóm). 17 công thức
+  cố ý KHÔNG có mẫu — lý do từng ca ghi ở docblock `FormulaSpec.substitution`.
+- **Lỗi bắt được khi rà tay, không cửa gác nào thấy**: 12 mẫu chép CỨNG hằng số thị trường vào
+  dòng thay số (`× 0,15 ÷ 100` phí giao dịch, `× 5 ÷ 100` thuế cổ tức, `× 100.000` hệ số nhân
+  VN30F). Ca kiểm tính lại vẫn XANH vì với biểu phí mặc định thì con số đúng — nó chỉ sai khi mức
+  phí đổi, hoặc NGAY LẬP TỨC với người dùng đã chọn biểu phí khác ở Cài đặt. Đã gỡ cả 12 và thêm
+  cửa gác cấu trúc: công thức có `usesConstants` thì không được có `substitution`.
+- **`chrome-check.mjs`**: khối đo khuôn hai cột khổ 1440 chuyển từ `pe` sang `bien-an-toan` (công
+  thức còn khuôn cũ, vẫn có đường quét và nhóm nút Đường/Cột); thêm khối đo riêng cho thẻ gộp trên
+  `pe` (Kết quả trái · ô nhỏ phải · khối Số liệu không còn khung riêng · hàng ô nhiều cột · Giải
+  thích dưới thẻ, Biểu đồ cùng hàng cột phải). Sửa hai ca đếm "bốn mục Giải thích" → hai mục
+  (30/09/2026 đã chuyển hai mục sang khối khác) và "năm khối hoãn dựng hình" → bốn (29/09/2026 khối
+  Ví dụ bỏ `deferred`). Ba ca này đỏ từ trước, lộ ra vì đợt này mới chạy lại `check:chrome`.
+- Đã soi bằng Chrome thật trên bản BUILD ở 1440px (`lai-suat-hieu-dung` ô chọn, `gui-quay-vong` 5
+  ô, `phi-giao-dich-mua` có ghi chú hằng số) và 390px (màn điện thoại không đổi một pixel).
+- lint · tsc · prettier xanh; 3.094 ca vitest xanh; `verify:static` 43/43; `check:chrome` còn **7
+  ca đỏ CÓ TỪ TRƯỚC, không liên quan khuôn mới**: 5 ca nhãn biểu đồ tràn viewBox (`lich-tra-no`,
+  `diem-hoa-von`, `lai-kep` ×2, `fcff` — hai cái đầu và `fcff` còn chẳng dùng khuôn gộp), 1 ca căn
+  giữa hàng nav, 1 ca hàng nút form thêm mã. **Việc còn lại: chủ dự án quyết có sửa 7 ca này không
+  — chúng là lỗi thật nhưng thuộc phần khác.**
+- `npm run size` vẫn CHƯA ĐẠT như trước đợt này (cửa 180 kB, trang chi tiết ~381 kB First Load) —
+  48 mẫu thay số chỉ thêm ~2,1 kB thô cho cả 111 trang.
+
+---
+
+## Trạng thái rỗng "Không tìm thấy công thức": bỏ hai câu giải thích (01/10/2026)
+
+**Trạng thái: xong.** Chủ dự án trích nguyên hai câu và yêu cầu xoá: _"Sản phẩm chỉ có công thức
+chứng khoán và tài chính cá nhân Việt Nam — không có tiền mã hoá."_ và _"Thử bớt từ khoá, hoặc xoá
+bộ lọc để xem lại toàn bộ danh sách."_ — cùng nếp "câu giải thích vô nghĩa" với `quiz.notTranslated`
+hôm qua.
+
+- Đảo lại chủ đích WF-09 trạng thái B đã chốt từ trước (ghi ở docblock `EmptyState.tsx`): từng bắt
+  buộc phải nói PHẠM VI SẢN PHẨM mỗi lần tìm trượt. Nay tiêu đề "Không tìm thấy công thức nào" cộng
+  nút xoá lọc/xoá tìm ngay dưới coi là đủ.
+- **Đã sửa**: `FormulaListScreen.tsx` và `SearchScreen.tsx` — nhánh "không khớp" của `EmptyState`
+  nay truyền `lines={[]}` thay vì `[scope, hint]` / `[scope]`. Hai trạng thái rỗng KHÁC của cùng
+  component (thư viện trống, chỉ còn công thức nâng cao) không đụng tới — vẫn giữ dòng hint riêng.
+- Tombstone `list.empty.noMatch.scope` và `list.empty.noMatch.hint` ở `vi.ts`/`en.ts`.
+- Không có ca kiểm nào sẵn chạm hai khoá này nên không phải sửa test; xác nhận lại trên dev server
+  thật ở cả ba đường: `/cong-thuc/?q=…` (vi và en) và `/tim-kiem/?q=…` — chỉ còn tiêu đề và nút.
+- lint · tsc · prettier xanh; vitest 3.084 ca xanh (không ca nào vỡ).
+
+---
+
 ## Bỏ câu "These questions are not translated yet…" (30/09/2026)
 
 **Trạng thái: xong.** Chủ dự án: đưa ví dụ cụ thể câu này, rồi xác nhận "trước kia có yêu cầu bỏ

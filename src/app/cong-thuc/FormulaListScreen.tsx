@@ -452,7 +452,15 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
         ) : (
           <EmptyState
             title={t('list.empty.noMatch.title')}
-            lines={[t('list.empty.noMatch.scope'), t('list.empty.noMatch.hint')]}
+            /*
+              `lines` rỗng từ 01/10/2026 — chủ dự án gọi hai câu cũ
+              ("Sản phẩm chỉ có công thức chứng khoán và tài chính cá nhân Việt Nam — không có
+              tiền mã hoá." · "Thử bớt từ khoá, hoặc xoá bộ lọc để xem lại toàn bộ danh sách.") là
+              "đoạn text thừa". Đây đảo lại chủ đích ban đầu của WF-09 trạng thái B (ghi ở docblock
+              `EmptyState.tsx`): tiêu đề "Không tìm thấy công thức nào" cộng nút xoá lọc/xoá tìm
+              ngay dưới coi là đủ, không cần nói lại phạm vi sản phẩm mỗi lần tìm trượt.
+            */
+            lines={[]}
             /*
               Nút này xoá SẠCH, khác hẳn nút cùng tên ở dòng đếm phía trên — và sự khác nhau ấy là
               cố ý. Ở đây danh sách đang RỖNG, nên thứ giữ nó rỗng thường là chuỗi tìm chứ không phải

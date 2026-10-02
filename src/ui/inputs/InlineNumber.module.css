@@ -77,3 +77,49 @@
   font-weight: 600;
   color: var(--color-danger);
 }
+
+/*
+ * ── Ô nhỏ của khối gộp — chỉ từ 1280px ───────────────────────────────────────────────────────
+ *
+ * Bề rộng ghim 14ch + canh phải ở trên sinh ra cho một con số nằm LẪN TRONG DÒNG CHỮ, cạnh nhãn
+ * của thanh trượt: ghim bề rộng để bố cục không nhích từng phím, canh phải để con số luôn dính
+ * đơn vị. Trong ô nhỏ thì hai luật ấy quay ra chống nhau — ô rộng ~180px, nhãn nằm hẳn hàng trên,
+ * nên 14ch canh phải đẩy con số ra tận mép phải, xa nhãn của chính nó.
+ *
+ * Trong ô nhỏ, ô gõ TRẢI HẾT hàng: con số dạt trái, đơn vị bị đẩy ra mép phải, và cả khoảng giữa
+ * hai thứ ấy là vùng bấm để gõ. Đó là lời yêu cầu của chủ dự án ngày 02/10/2026 — *"khi muốn chỉnh
+ * sửa số liệu thì phải bấm được cả vào vùng khoanh đỏ"* — và cũng là hình mà ô nhập thường đang
+ * dựng; lý do đầy đủ cùng ba đời đã thử nằm ở `.compact .control` trong `Input.module.css`.
+ *
+ * Từng thử `field-sizing: content` cho ô co đúng bằng con số (để đơn vị dính ngay sau), rồi đẩy
+ * đơn vị bằng `margin-left: auto`. Cả hai đã BỎ: ô co theo chữ thì chỉ bấm trúng mấy con số, phần
+ * hàng còn lại chết, mà đó đúng là thứ chủ dự án chỉ ra. Đừng thêm lại.
+ */
+@media (min-width: 1280px) {
+  .compact .input {
+    /*
+     * `flex: 1` đè bề rộng ghim 14ch của luật gốc. Ghim ấy sinh ra cho con số nằm LẪN TRONG DÒNG
+     * CHỮ cạnh nhãn thanh trượt — ở đó nó giữ bố cục khỏi nhích từng phím. Trong ô nhỏ thì nhãn
+     * đã nằm hẳn hàng trên và ô có bề rộng cố định của lưới, nên không còn gì để nhích.
+     */
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    text-align: left;
+  }
+
+  /*
+   * `width: 100%` vì `.box` là `inline-flex`, tức nó ôm lấy nội dung — một hộp ôm nội dung thì
+   * `flex: 1` của ô con bên trong không có bề ngang nào để trải ra.
+   *
+   * `padding-inline: 0` vì đệm `var(--space-1)` của `.box` (chỗ thở cho vòng tiêu điểm) đẩy đơn vị
+   * vào trong 4px so với ô nhập thường, mà hai kiểu ô ĐỨNG CẠNH NHAU trong cùng một thẻ —
+   * `lai-kep` có một ô số và hai thanh trượt. Đo ở 1440 trước khi bỏ: ô số cách mép phải 1px, ô
+   * trượt 6px, tức ba đơn vị trên cùng một hàng không thẳng. Vòng tiêu điểm hẹp lại 4px mỗi bên,
+   * đổi lại cả hàng thẳng — vòng ấy chỉ hiện lúc đang gõ, còn hàng thì luôn nhìn thấy.
+   */
+  .compact {
+    width: 100%;
+    padding-inline: 0;
+  }
+}

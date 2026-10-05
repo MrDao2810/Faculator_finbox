@@ -169,6 +169,13 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
   ],
 ];
 
+/*
+ * Mộ chí: `ui/guide/GuideBody.module.css → .table thead th` nằm trong danh sách này đúng một ngày
+ * (02→03/10/2026). Bảng ô nhập của bài hướng dẫn đã bỏ ở đợt 5 cùng cả lớp `.table`: nhãn và đơn vị
+ * của mỗi ô nằm ngay trên chính ô nhập, còn mô tả thì "Bảng biến đầu vào" ở cuối trang tính in đủ —
+ * bài nay chỉ chỉ đường tới bảng ấy. Nên mục này không bị "hạ xuống hairline", nó mất đối tượng.
+ */
+
 describe('kẻ chia cố ý ở lại --color-border', () => {
   it('đúng chín chỗ, không thừa không thiếu', () => {
     const thucTe: string[] = [];

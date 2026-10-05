@@ -4,6 +4,865 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## WF-21 đợt 9: gộp tiêu đề trùng, và sửa văn phong bài sang giọng văn bản (05/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.174 ca vitest). Đã soi bằng
+Chrome thật trên dev server của chủ dự án (PID 48740 — không đụng). **CHƯA build lại**: cổng 3000
+vẫn đang có dev server ấy, nên `build` + `verify:static` + `size` còn nợ như đợt 8.
+
+### Chủ dự án giao gì
+
+Ba việc trong một tin:
+
+> "bỏ một số text dư như này trong hướng dẫn sử dụng đi «Chấm sáng là số bạn đang nhập.»
+> «Nhập số vào đâu»"
+
+> "một số câu từ đọc lên nghe như là lời người nói vậy, sửa lại sao cho nghe chuyên nghiệp hơn như
+> văn bản chứ không phải thuật lại lời nói"
+
+> "học hỏi cách viết của tôi để sửa cho các phần sau mà tôi liệt kê thiếu. đồng thời có thể đổi
+> text «điền» → «nhập»"
+
+Kèm **mười cặp sửa mẫu** viết sẵn. Mười cặp ấy là LUẬT, không bàn lại; phần còn lại là suy ra từ
+chúng.
+
+### Việc 1 — gộp hai tiêu đề trùng
+
+Trên màn, mục ô nhập in `<h2>` 'Nhập số vào đâu' rồi NGAY DƯỚI là `<h3>` 'LẤY SỐ Ở ĐÂU'. Hai tiêu
+đề nói cùng một việc, trước khi tới hàng ô nhập đầu tiên.
+
+Hai chỉ dẫn của chủ dự án — bỏ 'Nhập số vào đâu', và đổi 'Lấy số ở đâu' → 'Lấy số liệu ở đâu' —
+chỉ ăn khớp theo MỘT cách: còn một tiêu đề, mang tên mới. Tiêu đề sống sót phải là `<h2>` của mục
+vì mục lục đọc nó và `aria-labelledby` trỏ vào nó. Neo `#nhap-so` GIỮ NGUYÊN tên: nó là một URL.
+
+- `guide.section.input` → 'Lấy số liệu ở đâu'; `guide.input.whereHeading` BỎ (mộ chí ở `vi.ts`).
+- `KhoiNhapSo` thôi dựng `<div class=noiDung><h3>`, trả `<dl>` thẳng làm con của `<section>`.
+- Cặp 'Đọc biểu đồ' + 'BIỂU ĐỒ QUÉT ĐỘ NHẠY' **không** gộp theo: `<h3>` ở đó gọi tên LOẠI hình
+  đang vẽ, tức một thông tin `<h2>` không nói. Docblock `KhoiNhapSo` ghi rõ để không ai gộp lây.
+- Một ca kiểm mới gác chiều ngược: tiêu đề cũ không được quay lại, và `<dl>` phải là con trực tiếp
+  của `<section>`.
+
+**Câu 'Chấm sáng là số bạn đang nhập.' BỎ.** Chủ dự án kê đúng nó trong danh sách text dư; và sau
+khi câu đầu đã nói biểu đồ đổi theo thao tác thì nó chỉ nhắc lại. Chữ chủ dự án dạy cho nó
+("đang nhập" → "đang thao tác") được dùng làm luật áp chỗ khác. **Mất gì:** không còn câu nào nói
+chấm sáng trên đường quét là giá trị đang nhập. Cần lại thì một dòng là xong.
+
+### Việc 2 — sửa văn phong: 86 chỗ trong kho chữ, 7 câu i18n
+
+Đo trước khi sửa: kho có **766 câu** (111 `deLamGi` · 269 `layODau` · 164 `luuY` · 111 `docKetQua`
+· 111 `deSai`). Rút từ mười cặp mẫu ra **13 luật**, rồi quét cả 766 câu: **96 câu riêng biệt** vi
+phạm, nằm ở **134 chỗ** — nhiều câu dùng lại tới 6 lần, nên một quyết định áp cho mọi chỗ.
+
+Chia việc: **7 câu chủ dự án viết sẵn** áp nguyên văn (20 chỗ), **90 câu còn lại** đọc từng câu
+qua một workflow 12 agent (6 tổ sửa, 6 tổ phản biện có nhiệm vụ CỐ LOẠI từng bản sửa). Kết quả:
+**64 duyệt · 2 bị loại · 24 agent chủ động giữ nguyên**. Tôi đọc lại cả 64 và sửa thêm **6 chỗ
+fan-out tự mâu thuẫn** — cùng một dạng câu mà tổ này sửa tổ kia giữ:
+
+- `thue-chuyen-nhuong` sửa "Tưởng lỗ thì…" còn `thue-tncn-dau-tu` giữ, hai câu gần y nhau.
+- "1,47 tỷ cổ phiếu thì nhập 1470." thêm "nếu" còn "Trả góp 5 năm theo tháng thì nhập 60." thì không.
+- Bollinger "Tăng lên 2,5 thì…" giữ, trong khi mọi câu cùng dạng đều thêm "nếu".
+- **`gui-quay-vong` nặng nhất**: bốn ô nằm CÙNG một danh sách trên màn, hai ô bỏ "bạn", hai ô giữ.
+
+Tổng lại: trong 96 câu bị gắn cờ, **76 câu được sửa, áp vào 113 chỗ** trong `items.ts`; **20 câu
+giữ nguyên**, mỗi câu một lý do viết ra.
+
+Đo lại sau khi sửa, theo từng luật: `điền` 6→0 · `Đừng` 2→0 · `cho gọn/cho nhanh` 2→0 ·
+`hay gặp` 5→0 · `mấy` 4→0 · số trơ 13→3 · `bạn` định ngữ 43→9 · `đổi` trơ 15→9 · thiếu `nếu` 31→20.
+
+**Phần dư là ngoại lệ có chủ ý, không phải việc bỏ sót:**
+
+- 9 chỗ còn "bạn" đều là "bạn tin / bạn muốn / bạn tự đòi hỏi / bạn vừa nhập" — bỏ đi thì câu sai
+  ngữ pháp, và chính chủ dự án GIỮ "bạn" khi nó là chủ thể đang làm việc gì ("số bạn đang thao tác").
+- 9 chỗ còn "đổi" đều mang nghĩa quy đổi, đánh đổi hoặc bất biến ("Đổi P/E thành phần trăm",
+  "đổi lại rủi ro cao hơn", "chi phí không đổi") — luật A không với tới.
+- 20 chỗ còn "thì" đều là "càng … thì càng …" và "Biết … thì …", vốn là văn viết chuẩn.
+- 3 chỗ số trơ là "để 0" và "0,1–0,5%/năm", gắn đơn vị vào không thêm nghĩa gì.
+
+**Cái KHÔNG làm, và đó là quyết định:** bộ quét còn gắn cờ 5 luật nữa do chính tôi nghĩ ra —
+`bao nhiêu` (56 chỗ), `muốn` (18), `rất/khá` (13), `cái/thứ` (8), `con số` nghĩa kết quả (27).
+Chủ dự án không nêu luật nào trong số đó, và chúng là văn viết bình thường. Sửa chúng là viết lại
+chữ của chủ dự án, đúng thứ luật đợt 8 cấm. Để nguyên.
+
+### Việc 3 — 7 câu i18n cũng là chữ `guide-111.json`
+
+Chủ dự án tự sửa một câu (`chartKind.sensitivity.body`), nên sáu câu cùng khối áp cùng bộ luật:
+`càng hay xảy ra` → `càng thường xảy ra` · `Đổi ô đó sang số khác 0.` → `Nhập số khác 0 vào ô đó.`
+· `phá điều kiện` → `vi phạm điều kiện` · `Tính ra được số nhưng…` → `Công thức vẫn tính ra một con
+số, nhưng…` · `Đường chỉ báo vẽ đè lên.` → `…được vẽ đè lên.` · `Tính với số của bạn` → `Tính với
+số liệu của bạn`. Bản `en` đi theo ở 4 câu đổi nghĩa thật.
+
+### Việc 4 — lượt soát thứ hai, chủ dự án đọc trên màn rồi kê thêm bốn câu
+
+> "đoạn này vẫn còn text khó hiểu"
+
+Bốn cặp viết sẵn, áp nguyên văn — **17 chỗ**:
+
+| Trước                                               | Sau                                                         | Chỗ |
+| --------------------------------------------------- | ----------------------------------------------------------- | --: |
+| `…cho mọi tỷ số để chúng so được với nhau.`         | `…cho mọi tỷ số để so với nhau.`                            |   5 |
+| `Cộng bốn quý nếu muốn số cả năm.`                  | `Cộng bốn quý nếu muốn tính cả năm.`                        |   9 |
+| `…dòng tổng cộng tài sản.`                          | `…dòng tổng tài sản.`                                       |   2 |
+| `Lấy số sổ sách cũng được nhưng kém chính xác hơn.` | `Có thể lấy số liệu trong sổ sách, nhưng sẽ kém chính xác.` |   1 |
+
+Bốn luật rút ra, rồi quét cả 766 câu tìm chỗ chủ dự án kê thiếu:
+
+- **chủ ngữ dư + `được` bị động** trong mệnh đề so sánh (`chúng so được với nhau` → `so với nhau`).
+  Tìm thêm **1 câu, 4 chỗ**: `ty-so-sharpe.riskFree.luuY` viết `để các tỷ số so được với nhau` —
+  câu song sinh của chính câu chủ dự án vừa sửa, nằm ngay trên nó cùng một màn. Áp cùng phép sửa.
+- **danh từ trơ sau `muốn`** thiếu động từ (`muốn số cả năm` → `muốn tính cả năm`). 0 chỗ khác.
+- **chữ dư** (`tổng cộng tài sản` → `tổng tài sản`). 0 chỗ khác.
+- **`cũng được nhưng … hơn`** → `Có thể …, nhưng sẽ …`. 0 chỗ khác.
+
+Đọc trọn bốn bài chủ dự án đang xem (`wacc`, `roa`, `ty-so-sharpe`, `vong-quay-tong-tai-san`) thì
+thấy thêm **`wacc.deSai`** dùng đúng lối nói chủ dự án đã bắt sửa hai lần trong ngày:
+`Tưởng cứ vay thêm là WACC giảm; chỉ đúng chừng nào…` → `Tưởng rằng nếu vay thêm thì WACC giảm;
+điều đó chỉ đúng khi…`. Ba thứ trong một câu: `cứ … là` → `nếu … thì` (luật B), `chừng nào` → `khi`,
+và vế sau vốn không có chủ ngữ nay có `điều đó`. Hai câu chị em `thue-chuyen-nhuong` /
+`thue-tncn-dau-tu` đã mang khuôn `Tưởng rằng nếu … thì …` từ lượt trước, nên đây là kéo chỗ lẻ về
+đúng cặp. Năm câu `Tưởng …` còn lại đã là văn viết, không đụng.
+
+Tổng lượt này: **6 câu riêng biệt, 22 chỗ**.
+
+### Việc 5 — `"so với nhau"` không nói ra so CÁI GÌ
+
+> "tôi kiểm tra thấy có rất nhiều câu cứ dùng đoạn «để so với nhau.» so gì với nhau? đổi thành
+> «so sánh với nhau» mới có ý nghĩa. điều chỉnh lại toàn bộ"
+
+Chủ dự án đọc đúng một lỗi ngữ pháp: trong `để so với nhau`, `nhau` là bổ ngữ duy nhất nên không gì
+nói ra đang so cái gì, và `so` trơ đọc như câu bỏ lửng. Khác hẳn `so với <một thứ có tên>` — cụm ấy
+là giới từ chuẩn và là **khuôn mở đầu bắt buộc của cả 111 dòng `explanation.howToRead`**
+("So với giá đóng cửa phiên gần nhất…"), nên không được đụng tới.
+
+Quét cả `src/`, không chỉ kho hướng dẫn:
+
+- **9 chỗ / 2 câu** mang đúng cụm `so với nhau` trong kho hướng dẫn → `so sánh với nhau`.
+- **1 chỗ NGOÀI kho**: `technical-volatility.ts` (dòng `explanation` của `do-rong-dai-bollinger`,
+  hiện trên MÀN CHI TIẾT) viết "…cổ phiếu 200 nghìn so với nhau được." Sửa luôn: bỏ sót nó thì
+  đúng cụm chủ dự án vừa gạch còn sống ở một màn khác. Đây là lần đầu lượt biên tập văn phong này
+  bước ra khỏi `src/core/huong-dan/`, và nó không vướng cửa gác nào của prose Registry.
+- **3 câu `so được`** cùng lỗi (động từ trơ, không bổ ngữ) → `so sánh được`: `lai-suat-hieu-dung`,
+  `ty-so-treynor`, `macd-duong-chinh`.
+
+Đo lại: `so với nhau` còn **0 chỗ trong toàn bộ `src/`**.
+
+**KHÔNG đụng, vì bổ ngữ đã có mặt nên không mắc lỗi chủ dự án nêu:** 21 dòng mở bằng
+`So <cái gì> với <cái gì>` ("So ROA của ngân hàng với ROA của bán lẻ"), 2 chỗ `so thẳng với <một
+mức cụ thể>`, 3 chỗ `so ngang` (động từ ghép, có nghĩa riêng là so trên cùng mặt bằng), và mọi
+`so với <một thứ có tên>`.
+
+**Hai chỗ KHÓ HIỂU tôi KHÔNG tự sửa, vì sửa là đổi nghĩa chứ không phải đổi văn phong** — cần chủ
+dự án chốt:
+
+- `wacc.deLamGi`: "…để **không huỷ giá trị**, tính cả vốn lẫn nợ." Thuật ngữ "huỷ giá trị"
+  (value destruction) không giải thích ở đâu trên màn.
+- `ty-so-sharpe.docKetQua`: "…trên 2 là rất tốt nhưng **phải nghi ngờ mẫu quá ngắn**." Câu nén
+  một lập luận thống kê vào sáu chữ.
+
+### Đổi file nào
+
+| File                                        | Vì sao                                                   |
+| ------------------------------------------- | -------------------------------------------------------- |
+| `core/huong-dan/noi-dung/items.ts`          | 87 câu riêng biệt → 147 chỗ                              |
+| `application/i18n/vi.ts`                    | tiêu đề mục, bỏ `whereHeading`, 7 câu, nhãn nút "?"      |
+| `application/i18n/en.ts`                    | theo `vi`                                                |
+| `ui/guide/GuideBody.tsx`                    | bỏ `<h3>` trùng, docblock ghi lý do để không ai dựng lại |
+| `ui/guide/GuideBody.module.css`             | đổi tên trong chú thích                                  |
+| `core/formulas/technical-volatility.ts`     | 1 dòng `explanation` mang đúng cụm `so với nhau`         |
+| `core/huong-dan/noi-dung/types.ts`          | đổi tên trong chú thích                                  |
+| `app/huong-dan/.../GuideScreen.test.tsx`    | 3 ca theo chữ mới, 1 ca MỚI gác chiều ngược              |
+| `app/cong-thuc/[id]/FormulaDetail.test.tsx` | 7 nhãn aria + 1 assert + 2 chú thích                     |
+| `scripts/verify-static.mjs`                 | chuỗi dò, và vế 2 đổi từ dò CHỮ sang dò neo `id`         |
+
+`verify-static.mjs` đáng nói riêng: phép kiểm "khung chưa dựng hình" trước đây dò chuỗi
+'Lấy số ở đâu' — chính nhãn `<h3>` vừa bỏ. Nay dò `id="goi-y-nhap-so"`. Neo chắc hơn một câu chữ:
+nó là cấu trúc, không ai sửa nó khi biên tập văn phong.
+
+### Còn lại
+
+- **`npm run build` + `verify:static` + `size`** — vẫn chờ cổng 3000, như đợt 8.
+- **Tiêu đề cột phải `MỞ MÀN THẬT`** — "màn thật" là tiếng lóng nội bộ, người dùng đọc sẽ lạ. Chưa
+  đụng vì chủ dự án chưa nêu.
+- 20 câu `luuY` còn viết khoảng bằng gạch en ("3–5%") — vẫn chờ chủ dự án chốt, không thuộc đợt này.
+- Kho `explanation.*` và ngân hàng câu hỏi cũng có ~25 chỗ "hay gặp" — màn khác, đợt khác, không đụng.
+
+---
+
+## WF-21 đợt 8: bài chỉ còn mang chữ chủ dự án giao (05/10/2026)
+
+**Trạng thái: code xong, lint · tsc · 3.173 ca vitest · prettier xanh. CHƯA build lại** — cổng 3000
+vẫn có dev server của chủ dự án (PID 48740), không đụng tới. Đã soi bằng Chrome thật trên chính dev
+server ấy.
+
+### Chủ dự án giao gì
+
+> "nhưng câu thừa trước đó thì bỏ đi, chỉ để lại những câu đã tạo trong file tôi gửi thôi"
+
+Tức mọi chữ trong bài phải truy được về `guide-111.json`. Mọi câu thao tác dùng chung viết ở đợt 5
+là "câu thừa trước đó".
+
+### Bài sau khi cắt
+
+| Mục              | In gì                   | Khoá trong file                  |
+| ---------------- | ----------------------- | -------------------------------- |
+| dải mở đầu trang | `deLamGi`               | `formulas[id].purpose`           |
+| `#nhap-so`       | một hàng mỗi ô nhập     | `variables[id][key].where/.hint` |
+| `#doc-ket-qua`   | `docKetQua` rồi `deSai` | `.read` · `.pitfall`             |
+| `#doc-bieu-do`   | một đoạn theo LOẠI hình | `charts[kind]`                   |
+| `#ket-qua-trong` | một câu mỗi mã          | `warnings[code]`                 |
+
+Trang `pe` đo trên dev server: **3.000+ px → 1.505 px**. Khung "?" khối Số liệu: **663 → 232 px**.
+
+### Đã bỏ gì, và cái giá của từng chỗ
+
+**Cả mục `#hieu-cong-thuc` và nút "?" cạnh khối Công thức.** File không có chữ nào cho việc đọc
+hình công thức, nên mục hết nội dung. Đây là nút được lập luận chắc nhất trong ba nút — khung
+"Cách tính" đã có sẵn (112 khung trên 61 công thức) mà dấu hiệu mời duy nhất là con trỏ bàn tay,
+thứ ngón tay không bao giờ thấy. Nó đi vì mục nó mở rỗng, không vì nó thừa. **Ba nút "?" còn hai.**
+
+**36 khoá i18n**, kèm hai mất mát đã cân nhắc và ghi rõ trong `vi.ts`:
+
+1. `guide.chart.apply` / `applyTime` là bản PHỤC HỒI của `chart.applyHintReady` — câu bị bỏ khỏi
+   dưới hình 14/09/2026, và chú thích khi ấy ghi cái giá: _"cú bấm đầu tiên trên những màn đó trông
+   như tính năng không hoạt động"_. Nay lại không còn câu nào nói việc bấm vào hình ghi giá trị vào
+   ô nhập.
+2. `guide.input.locked` là chỗ DUY NHẤT dạy cách mở khoá ô sau khi nạp mã (dấu × trên con chip).
+   Không còn chỗ nào nói điều đó.
+
+**Mười cờ của `BaiHuongDan`** (`coKhungCachTinh` · `hinhNhieuDong` · `duongNapSo` ·
+`soPhienToiThieu` · `oNhanTuCongThuc` · `coONangCao` · `hangSo` · `ghiChuPhamVi` · `coBocTach` ·
+`coTrucThoiGian`), cả `TuyChonBai` và phép dò số phiên chạy `calc` 300 lượt. Không cờ nào sai —
+chúng mất chỗ dùng, và dữ liệu chết tệ hơn không có vì nó trông như đang làm việc gì đó.
+
+`ketQuaTrong` đổi từ `CalcWarning[]` sang `WarningCode[]`: phép CHẠY `calc` giữ nguyên (nó quyết
+định mã nào có mặt — một sự thật), chỉ câu chữ đổi sang chữ trong file.
+
+### Đã đổi file nào
+
+| File                                                | Sửa gì                                                                                                        |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `core/huong-dan/types.ts`                           | `MucId` 5 → 4; bỏ 10 cờ; `coBieuDo` → `kieuBieuDo?: ChartType`; `ketQuaTrong` → `WarningCode[]`               |
+| `core/huong-dan/bai.ts`                             | bỏ `TuyChonBai`, `soPhienToiThieu`, `oNhanTuCongThuc`; `caKetQuaTrong` trả mã theo thứ tự WF-15               |
+| `core/huong-dan/index.ts`                           | barrel theo kiểu mới                                                                                          |
+| `application/huong-dan.ts`                          | bỏ 4 nguồn ngoài (`LIVE_PRESET_FORMULAS`, `presetInputs`, `SAMPLE_DATA`, `howToFor`)                          |
+| `ui/guide/GuideBody.tsx`                            | viết lại: bỏ `KhoiHinhCongThuc`, `Buoc`, `LoiRa`, `TuCongThuc`, `NAP_SO`, prop `onRoiBai`; thêm `CHU_BIEU_DO` |
+| `ui/guide/GuideWarning.tsx`                         | MỚI — lá `'use client'` duy nhất, đọc câu theo mã                                                             |
+| `ui/guide/GuideBody.module.css`                     | bỏ 16 lớp chết                                                                                                |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`              | bỏ nút "?" khối Công thức                                                                                     |
+| `app/cong-thuc/[id]/GuideHintPanel.tsx`             | thôi truyền `onRoiBai`                                                                                        |
+| `application/i18n/vi.ts` · `en.ts`                  | bỏ 36 khoá, thêm 26 (`guide.chartKind.*` ×20, `guide.warn.*` ×6); đổi `guide.section.result`                  |
+| `core/huong-dan/huong-dan.test.ts`                  | 24 → 14 ca: bỏ 10 ca của cờ đã mất, thêm ca ô nhập và kiểu biểu đồ                                            |
+| `app/huong-dan/cong-thuc/[id]/GuideScreen.test.tsx` | bỏ 7 ca chữ dùng chung, thêm ca mục biểu đồ                                                                   |
+| `app/cong-thuc/[id]/FormulaDetail.test.tsx`         | BA nút "?" → HAI                                                                                              |
+| `app/cong-thuc/[id]/build-only-imports.test.ts`     | `@/application/how-to` còn một nơi được phép                                                                  |
+| `scripts/verify-static.mjs`                         | 3 assert đổi chiều: mã cảnh báo thay câu `calc`, hai neo thay ba                                              |
+
+### Sự cố trong lúc làm — đã khôi phục đủ
+
+Tôi chạy `git checkout -- src/application/i18n/*.ts` để hoàn tác một script sửa hỏng, và nó xoá
+luôn **toàn bộ khối `guide.*` chưa commit của đợt 2–7** (54 khoá × 2 từ điển). Khôi phục bằng cách
+trích bản biên dịch trong `.next/server/app/_not-found/page.js` — đủ cả câu chữ lẫn chú thích, và
+cửa gác "khoá mồ côi" của `i18n.test.ts` xác nhận đúng 54 khoá trở lại. Bài học: `git checkout --`
+trên file có thay đổi chưa commit là lệnh phá, không phải lệnh hoàn tác.
+
+### Còn lại
+
+1. **`npm run build` + `verify:static` + `size`** — chờ cổng 3000.
+2. **Mục `#hieu-cong-thuc` chờ chữ.** Có chữ cho việc đọc hình công thức thì dựng lại được ngay:
+   thêm một chuỗi vào `MucId`, một nhánh ở `GuideMuc`, và chép nút "?" từ `git log`.
+3. **20 câu `luuY` còn gạch en** và **6 ngưỡng tự đặt** — vẫn chờ chủ dự án chốt, như đợt 7.
+4. **Không có bản tiếng Anh** cho 111 mục + 269 ô; 26 khoá mới thì đã dịch.
+
+---
+
+## WF-21 đợt 7: chữ "lấy số ở đâu" gắn theo TỪNG Ô NHẬP — 433 chuỗi (05/10/2026)
+
+**Trạng thái: code xong, lint · tsc · 3.188 ca vitest · prettier xanh. CHƯA build lại** — cổng 3000
+vẫn có dev server của chủ dự án (PID 48740), không đụng tới. Đã soi bằng Chrome thật trên chính dev
+server ấy: trang đầy đủ, khung "?" khối Số liệu, dấu Nâng cao, và khổ 390px đều đúng.
+
+### Chủ dự án giao gì
+
+`guide-111.json` — _"bây giờ update từng câu hướng dẫn sử dụng cho từng công thức mà tôi đã cung
+cấp"_.
+
+### Đo trước khi ghi: file này đóng đúng chỗ đợt 6 còn hở
+
+Đối chiếu bằng Registry thật, không ước lượng:
+
+| Đo                                                                             | Kết quả                                         |
+| ------------------------------------------------------------------------------ | ----------------------------------------------- |
+| id công thức                                                                   | **111/111**, đúng thứ tự Registry, 0 lạ 0 thiếu |
+| `name` ↔ `spec.name.vi` · `category` ↔ `categoryId` · `chart` ↔ `chartType` | khớp 111/111                                    |
+| khoá ô nhập ↔ `spec.variables[].key`                                          | **269/269**, đúng thứ tự, 0 lạ 0 thiếu          |
+| `unit` ↔ `spec.unit` · `control` ↔ `spec.type`                               | khớp **269/269**                                |
+| `purpose`/`read`/`pitfall` ↔ `deLamGi`/`docKetQua`/`deSai` đã ghi ở đợt 6     | **giống 111/111**                               |
+
+Nên **phạm vi ghi đúng 433 chuỗi mới** (269 `layODau` + 164 `luuY`). Ba dòng kia không đụng một
+chữ. `name`/`unit`/`control`/`chart`/`warnings` KHÔNG chép vào: dự án đã suy chúng từ `spec` và từ
+`calc`, chép vào là dựng nguồn thứ hai để lệch — đúng loại lỗi `spec.usesConstants` tránh bằng cách
+khai khoá chứ không khai giá trị.
+
+### Việc chính: `canNhap` một chuỗi → `oNhap` có khoá
+
+Đợt 6 ghi "Cần nhập" là một chuỗi dài ngăn nhau bằng `" · "`, và `GuideBody` tách theo dấu ấy.
+Chạy được, nhưng không gắn vào ô nào — **74/111 công thức có số cụm khác số ô**, vì nhiều cụm nói
+chung cho hai ô. Hai hệ quả đo được: không đặt được nút "?" cạnh MỘT ô mà chỉ hiện phần của ô đó,
+và đổi tên một khoá biến thì chuỗi hướng dẫn trôi khỏi biến mà không gì đỏ. Chính tài liệu đợt 6
+cũng nêu đúng việc này ở mục "Việc cần làm tiếp".
+
+Giờ: `oNhap: Record<VariableSpec['key'], { layODau, luuY? }>`. `bai.ts` duyệt `spec.variables` RỒI
+MỚI tra kho, nên thứ tự ô trong bài bằng đúng thứ tự khối Số liệu bày chúng, và nhãn luôn là bản
+thật của `spec` — kho chữ không khai lại nhãn, đơn vị hay cấp độ.
+
+**Thêm dấu "Nâng cao" cạnh tên của 12/269 ô** chỉ hiện ở chế độ Nâng cao. Không phải trang trí: bài
+chỉ vào một ô mà người đọc ở chế độ Cơ bản không tìm thấy trên màn là đúng lỗi đợt 5 đã trả giá một
+lần (bài kê nút "Nạp mẫu" cho cả 111 trong khi 38 công thức không bày nút ấy).
+
+### Đã đổi file nào, vì sao
+
+| File                                                | Sửa gì                                                                                             |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `core/huong-dan/noi-dung/items.ts`                  | 111 khối `canNhap` → `oNhap`, sinh bằng script từ JSON (433 chuỗi, không gõ tay)                   |
+| `core/huong-dan/noi-dung/types.ts`                  | `canNhap: SongNgu` → `oNhap`; thêm `ONhapRieng`; bảng độ trùng viết lại                            |
+| `core/huong-dan/noi-dung/index.ts`                  | xuất thêm `ONhapRieng`                                                                             |
+| `core/huong-dan/types.ts`                           | `BaiRiengDaChuan.canNhap` → `oNhap: ONhapHuongDan[]`; thêm `ONhapHuongDan`                         |
+| `core/huong-dan/bai.ts`                             | `baiRiengCua(spec)` ghép nhãn + cờ Nâng cao từ `spec.variables`                                    |
+| `ui/guide/GuideBody.tsx`                            | `<ul>` cụm tách → `<dl>` một hàng mỗi ô; bỏ `tachCum()` (để mộ chí)                                |
+| `ui/guide/GuideBody.module.css`                     | bỏ `.sourceList`; thêm `.fieldSources/.fieldRow/.fieldLabel/.fieldAdvanced/.fieldWhere/.fieldNote` |
+| `application/i18n/vi.ts` · `en.ts`                  | thêm `guide.input.advancedField`                                                                   |
+| `core/huong-dan/noi-dung/noi-dung.test.ts`          | 11 → 17 ca: bỏ 2 ca gác phép tách " · ", thêm 8 ca gác khoá/phủ/trần/gạch/trùng mô tả              |
+| `app/huong-dan/cong-thuc/[id]/GuideScreen.test.tsx` | sửa ca danh sách → ca `<dt>`/`<dd>`; thêm ca dấu Nâng cao                                          |
+| `scripts/verify-static.mjs`                         | đổi chuỗi dò (chuỗi cũ không còn tồn tại), thêm assert `<dt>` + tên ô có trong HTML tĩnh           |
+
+### Cửa gác mới — chỗ này mới là phần đáng giá
+
+`noi-dung.test.ts` giờ gác điều mà đợt 6 KHÔNG gác được:
+
+- mọi khoá trong kho phải là `VariableSpec.key` thật (`bai.ts` im lặng bỏ qua khoá lạ, nên đây là
+  chỗ duy nhất thấy được), và mọi ô thật phải có chữ — **269/269**;
+- `layODau` không ô nào là bản chép của `variables[].description` — **0/269**, tức bằng chứng máy
+  đọc được cho lời phê đợt 5;
+- 20 ô mà Registry còn thiếu `description` được ghim riêng, để đừng ai tưởng đợt này đã lấp.
+
+### Còn lại
+
+1. **`npm run build` + `verify:static` + `size`** — chờ cổng 3000. `size` lần này quan trọng: phải
+   xác nhận 433 chuỗi mới không vào First Load JS.
+2. **17 mã cảnh báo file JSON khai thiếu**, mỗi mã đều có ca kiểm đang chạy chứng minh `calc` phát
+   ra nó (`cagr` MODEL_VIOLATION, `ty-so-sharpe` DIVIDE_BY_ZERO, 9 công thức kỹ thuật MEANINGLESS…).
+   Chưa chạm: mục "Khi kết quả hiện \_ \_" đang tự chạy `calc` lúc build nên KHÔNG đọc danh sách
+   này — tức bài vẫn đủ. Ghi lại vì nếu sau này ai dựng gì từ danh sách ấy thì nó thiếu.
+3. **20 câu `luuY` còn viết khoảng bằng gạch en** ("3–5%", "7–9%", "1–2%"). Giữ nguyên văn vì đợt
+   này là chép vào, không phải biên tập; đã ghim đúng 20 chỗ trong ca kiểm. Chủ dự án chốt thì đổi
+   sang "từ 3 đến 5%" — một dòng mỗi chỗ.
+4. **6 ngưỡng tự đặt** trong dòng "Đọc kết quả" vẫn chờ chốt, y như đợt 6 (JSON giao lại nguyên văn).
+5. **Không có bản tiếng Anh** — 111 mục + 269 ô, rơi về tiếng Việt im lặng, đếm thành tiếng trong ca kiểm.
+6. **2 mục `charts` chết** trong JSON (`heatmap`, `tornado`) — không công thức nào dùng, không ghi vào.
+
+---
+
+## WF-21 đợt 6: 444 câu hướng dẫn riêng của 111 công thức (03/10/2026)
+
+**Trạng thái: code xong, lint · tsc · 3.181 ca vitest · prettier xanh. CHƯA build lại** — cổng 3000
+vẫn có dev server của chủ dự án. Đã soi bằng Chrome thật trên dev server ấy: ba khung và trang đầy
+đủ đều đúng chỗ.
+
+### Chủ dự án giao gì
+
+Một tài liệu — _"HUONG DAN SU DUNG tung cong thuc - 111 cong thuc (03-10-2026).md"_ — mỗi công thức
+đúng bốn dòng: **Để làm gì · Cần nhập · Đọc kết quả · Dễ sai**. Kèm yêu cầu _"ẩn tạm button text
+'Mở toàn trang'"_.
+
+### Phân tích trước khi ghi: bốn dòng KHÔNG ngang giá trị nhau
+
+Đo trên `pe`, đối chiếu từng dòng với chữ đã có trên màn:
+
+| Dòng        | Trùng với gì                          | Kết luận         |
+| ----------- | ------------------------------------- | ---------------- |
+| `deLamGi`   | gần `spec.description` (khối Ý nghĩa) | trùng nhiều      |
+| `canNhap`   | **không trùng gì**                    | giá trị cao nhất |
+| `docKetQua` | gần `explanation.howToRead`           | trùng nhiều      |
+| `deSai`     | **khác** `explanation.commonMistakes` | bổ sung thật     |
+
+`canNhap` khác chất: Registry nói biến LÀ GÌ ("Lợi nhuận sau thuế chia cho số cổ phiếu đang lưu
+hành"), tài liệu nói LẤY SỐ ẤY Ở ĐÂU ("báo cáo tài chính, mục lãi cơ bản trên cổ phiếu, cộng bốn
+quý gần nhất"). Chính tài liệu cũng nhận ra điều đó.
+
+**Chỗ đứng chọn theo số đo ấy**, và đó là cách gắn lời phê đợt 5 vào cấu trúc thay vì vào trí nhớ:
+`deLamGi` ở dải mở đầu TRANG · `canNhap` ở `#nhap-so` — mục duy nhất trong ba khung "?" nhận chữ
+riêng, và là dòng không trùng gì · `docKetQua` và `deSai` chỉ ở `#doc-ket-qua`, mục KHÔNG có nút "?"
+nào mở. Nên hai dòng trùng nhiều nhất không bao giờ hiện cạnh bản gốc của chúng.
+
+### Ba chỗ tài liệu đề xuất mà repo không làm theo, kèm lý do
+
+1. **Khoá i18n `guide.f.<id>.*`** — không. Từ điển `vi.ts` đi vào gói JS của MỌI trang (`useT()`
+   đọc lúc chạy), nên 444 câu ở đó là vài chục kB nằm trên cả màn không ai mở hướng dẫn. Dự án đã
+   ba lần gặp bài này và ba lần giải cùng cách: kho nằm ở `src/core/huong-dan/noi-dung/`, chỉ
+   `page.tsx` đọc lúc build. Thêm một phép kiểm `verify:static` chặn chữ rò vào JS.
+2. **Tách `canNhap` theo từng `VariableSpec`** — chưa. Tách thật đòi viết lại câu của chủ dự án
+   (nhiều cụm nói chung cho hai ô). Tách ở tầng HIỆN HÌNH theo dấu " · ", chuỗi giữ nguyên văn. Đo
+   phần việc còn lại: **74/111** công thức có số cụm khác số ô — ghim thành tripwire chỉ được giảm.
+3. **Ngưỡng số trong "Đọc kết quả"** — tài liệu tự ghi là _"nên chốt lại với chủ dự án"_ và đoán có
+   4 chỗ. **Đo thật ra 6**, và tài liệu sót 3 (PEG, Sortino, vòng quay tổng tài sản) trong khi RSI
+   nó kể tên lại không thuộc nhóm này.
+
+   Phép đo phải tách HAI LOẠI SỐ mà tài liệu trộn chung:
+
+   - **Ngưỡng đánh giá** ("trên 15% thường là doanh nghiệp tốt") — thứ `how-to-read-rules.ts` cấm.
+   - **Số minh hoạ** ("25% nghĩa là cứ 100 đồng vốn lãi thêm 25 đồng") — dạy đọc đơn vị, không phán
+     xét. Chủ dự án đã duyệt loại này từ trước. 11 công thức dùng, không chỗ nào phải sửa.
+
+   Sáu ngưỡng thật: `roe` 15% · `no-tren-von-chu` 2 lần · `vong-quay-tong-tai-san` 2/0,5 vòng ·
+   `peg` 2 · `ty-so-sharpe` 2 · `ty-so-sortino` 2. **Giữ nguyên có chủ ý** (chữ chủ dự án giao, cắt
+   đi thì dòng mất gần hết giá trị), ghim danh sách để khi chốt có đúng một chỗ sửa.
+
+### Nút "Mở toàn trang" — ẩn TẠM, không phải mộ chí
+
+`const HIEN_MO_TOAN_TRANG = false` — hằng số có tên chứ không bọc chú thích, nên `Link`, `guidePath`
+và lớp `.full` vẫn được tsc và lint soi tới; bật lại là đổi một chữ. Cùng khuôn `PHONG_TO_BAT` của
+`ChartBody`. Lối sang trang đầy đủ KHÔNG mất: chính nút "?" là `<a href>` thật trỏ tới
+`/huong-dan/cong-thuc/<id>/#<mục>`.
+
+### Đã đổi file nào
+
+- `src/core/huong-dan/noi-dung/` **mới** — `types.ts` (`BaiRieng`, `SongNgu`, `songNgu()`),
+  `items.ts` (111 mục, 444 câu, chép nguyên văn), `index.ts`, `noi-dung.test.ts` (11 ca).
+- `src/core/huong-dan/types.ts` · `bai.ts` — thêm `BaiHuongDan.rieng`, chuẩn hoá `en` rỗng để
+  `pick()` rơi về tiếng Việt im lặng (nếp ngân hàng câu hỏi).
+- `src/ui/guide/GuideBody.tsx` · `.module.css` — khối "Lấy số ở đâu" (`tachCum()`), dòng
+  `docKetQua` mở đầu mục, dòng `deSai` đóng mục; `.noiDung`/`.sourceList`/`.caution`/`.prose`.
+- `src/app/huong-dan/cong-thuc/[id]/GuideScreen.tsx` — dải mở đầu in `deLamGi`.
+- `src/app/cong-thuc/[id]/GuideHintPanel.tsx` — ẩn tạm "Mở toàn trang".
+- `src/application/i18n/vi.ts` · `en.ts` — 2 nhãn mới, đổi tiêu đề mục `guide.section.result`.
+- `scripts/verify-static.mjs` — đổi chuỗi ghim, thêm phép kiểm chữ riêng không rò vào JS.
+- `GuideScreen.test.tsx` 19 ca · `noi-dung.test.ts` 11 ca mới.
+
+### Còn lại
+
+1. **`npm run build` + `verify:static` + `size`** khi cổng 3000 rảnh. Lần này `size` quan trọng
+   riêng: phải xác nhận 444 câu KHÔNG vào First Load JS.
+2. Bản `en`: **111/111 mục chưa dịch** — đếm thành tiếng ở `noi-dung.test.ts`, chỉ được phép giảm.
+3. Sáu ngưỡng tự đặt chờ chủ dự án chốt.
+4. Tách `canNhap` theo từng ô nhập — 74 công thức cần đọc lại câu.
+
+---
+
+## WF-21 đợt 5: bài hướng dẫn nói VIỆC, không in lại thông tin — và "?" lên ba chỗ (03/10/2026)
+
+**Trạng thái: code xong, lint · tsc · 3.163 ca vitest · prettier đều xanh. CHƯA build lại** —
+cổng 3000 vẫn có dev server của chủ dự án. Đã soi bằng Chrome thật trên chính dev server ấy ở
+1440px: ba khung bật đúng chỗ, trang đầy đủ trả 200 cho `pe` · `rsi-wilder` · `phi-giao-dich-mua`.
+
+### Chủ dự án nói gì
+
+> _"đây là hướng dẫn sử dụng nên khi bấm vào đó thì nó là hướng dẫn sử dụng như nào chứ không
+> phải viết lại thông tin của phần đó, đồng thời thêm "?" ở những nơi mà công thức đang khó hiểu
+> để hướng dẫn người dùng. Xóa các loại text thừa như sau đi "Mức phí và thuế đang hiệu lực do sản
+> phẩm tự tra, bạn không phải nhập ô nào cho chúng.""_
+
+### Lời phê đúng, và đo được
+
+Bốn trong sáu mục của đợt 1–4 là bản sao thứ hai của chữ người đọc vừa đi qua:
+
+| Mục cũ           | In cái gì                    | Đã có ở đâu trên màn                             |
+| ---------------- | ---------------------------- | ------------------------------------------------ |
+| `dung-de-lam-gi` | `explanation.whenToUse`      | khối Giải thích, cách nút "?" đúng một hàng      |
+| `doc-ket-qua`    | `explanation.howToRead`      | khối Giải thích                                  |
+| `sai-lam`        | `explanation.commonMistakes` | khối Giải thích                                  |
+| `can-so-gi`      | bảng nhãn · đơn vị · mô tả   | nhãn+đơn vị trên chính ô nhập; mô tả ở Bảng biến |
+
+Một cửa gác còn ghim đúng điều ấy: `huong-dan.test.ts` đòi ba trường phải `toEqual`
+`spec.explanation.*` NGUYÊN VĂN. Ca ấy xanh suốt — nó gác một lời hứa đáng thu hồi.
+
+### Năm mục mới, đều là thao tác
+
+`hieu-cong-thuc` · `nhap-so` · `doc-ket-qua` · `doc-bieu-do` · `ket-qua-trong`. Không mục nào còn
+đọc `explanation.*`. `BaiHuongDan` mất bốn trường diễn giải và chỉ còn khai CỜ; câu chữ là chuỗi
+i18n dùng chung, vì thao tác thì 111 công thức giống nhau.
+
+Cờ nào Registry không trả lời được thì mục ấy KHÔNG có: 9 công thức `chartType: 'none'` không có
+mục "Đọc biểu đồ", 11 công thức không khai ca hỏng thì không có "Khi kết quả hiện \_ \_".
+
+**Một cờ phải gắn chứ không được nói chung**, và đây là chỗ dễ sai nhất: trên thẻ Công thức, rê vào
+một ký hiệu KHÔNG CÓ khung "cách tính" thì không ra gì cả — `hasHowTo` chặn ở tầng điểm chạm, đến
+con trỏ bàn tay cũng không có. **61/111** công thức có khung. In câu dạy cú rê ấy cho cả 111 bài là
+50 bài dạy một cú rê không làm gì.
+
+### Ba nút "?", và một nút bị gỡ
+
+| Chỗ            | Mục               | Khoảng trống ĐO ĐƯỢC trên màn                                                                                                                                  |
+| -------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Khối Công thức | `#hieu-cong-thuc` | Cơ chế đã có (112 khung / 61 công thức), nhưng dấu hiệu duy nhất là CON TRỎ BÀN TAY — ngón tay không thấy con trỏ. Trên cảm ứng khối này không có lời mời nào. |
+| Khối Số liệu   | `#nhap-so`        | "Nạp mẫu" và chip mã nằm ở khối KHÁC; ô khoá chỉ in "dữ liệu mẫu" mà cách mở khoá không ai nói; quy ước dấu phẩy/chấm chưa từng được nói.                      |
+| Khối Biểu đồ   | `#doc-bieu-do`    | Dự án TỰ GHI khoảng trống này ở `vi.ts` khi bỏ hai câu gợi ý ngày 14/09/2026. Cộng dải quét ±50% (`SWEEP_SPAN`) chưa từng được giải thích.                     |
+
+**Gỡ nút ở khối Giải thích** (có từ đợt 3): mục nó mở in `explanation.whenToUse`, đúng câu khối ấy
+đang in ngay dưới nút. Khối Giải thích là chữ để ĐỌC, không có thao tác nào. Prop `action` của
+`ExplanationAccordion` trả về bản gốc cùng lượt.
+
+**Đảo một quyết định cũ, nói rõ ở đây**: hai câu `chart.applyHintReady` / `chart.applyHintTimeAxis`
+bị chủ dự án cho bỏ ngày 14/09/2026 nay quay lại, trong mục `#doc-bieu-do`. Khác biệt là CHỖ ĐỨNG —
+trước kia chúng nằm thường trú dưới hình, chắn giữa việc đang làm; nay chỉ hiện sau một cú bấm
+người đọc tự chọn. Đúng luật dự án đã chốt ba lần. **Đừng dựng lại dòng gợi ý dưới hình.**
+
+### Chữ thừa đã xoá
+
+- `guide.constants` — chính câu chủ dự án nêu. Nó thừa đo được: `ConstantsNote` cuối khối Số liệu
+  đã in nhãn, trị số, đơn vị, ngày hiệu lực và căn cứ pháp lý, tức màn đã CHỨNG MINH việc sản phẩm
+  tự tra. Link "Đổi biểu phí ở Cài đặt" ở lại — nó là hành động duy nhất của cả đoạn.
+- `guide.resultUnit` — đơn vị đã in dưới con số và cạnh mọi ô nhập.
+- `guide.advancedOnly` — màn đã in "N biến nâng cao đang ẩn — chuyển chế độ để xem". Thay bằng một
+  câu nói ĐƯỜNG ĐI THẬT, vì **trên màn tính không có công tắc chế độ nào** (`ModeToggle` chỉ ở hàng
+  "Mức độ" của danh sách và ở Cài đặt) — câu trên màn đang bảo người dùng làm một việc màn đó không
+  cho làm.
+- `guide.col.*`, `guide.section.whatFor`, `guide.section.mistakes`, `guide.entry`,
+  `guide.hintInputs` — đi theo bảng và hai mục bị bỏ. Mộ chí kèm lý do tại chỗ ở `vi.ts`/`en.ts`.
+
+### BA LỖI THẬT, chỉ lộ ra khi MỞ trang chứ không ca kiểm nào thấy
+
+**(a) Bài dạy bấm một nút KHÔNG có trên màn.** `duongNapSo` luôn chứa `'mau'`, mà màn chi tiết giấu
+hẳn nút "Nạp mẫu" với **38 công thức** (vay, tiết kiệm, lãi kép, phái sinh, trả góp) nơi cờ
+`presetHelps` tắt. Đọc trang thật của `lai-kep` mới thấy. Thêm cờ `coNapMau`, dựng lại ĐÚNG biểu
+thức `presetHelps` ở tầng Application (`needsPriceSeries || id === 'xirr' || presetInputs(mẫu) có
+khoá`) chứ không ghim danh sách id thứ hai. Đo lại: **73 bày / 38 không**, khớp màn.
+**Ca kiểm cũ ghim đúng điều sai** ("Nạp mẫu và gõ tay có ở mọi bài") — nay đổi chiều.
+
+**(b) Nhãn link sai nghĩa.** Câu về chế độ Nâng cao dùng lại `guide.openSettings` = "Đổi biểu phí ở
+Cài đặt", nên giữa một đoạn nói về chế độ hiển thị lại mọc ra chữ "biểu phí". Thêm
+`guide.openModeSettings`.
+
+**(c) Trang hướng dẫn trả 500 — lỗi có từ đợt 2.**
+`/huong-dan/cong-thuc/<id>/` trả **500** — `LoiRa`/`TuCongThuc` truyền `onClick={() => onRoiBai?.()}`
+vào `next/link` (client component) từ `GuideScreen` (server component). Một arrow viết thẳng vào JSX
+vẫn là một hàm MỚI kể cả khi `onRoiBai` là `undefined`, nên nó nổ đúng ở trang đầy đủ. Đã sửa: chỉ
+gắn `onClick` khi thật sự có `onRoiBai`.
+
+**Vì sao không cửa gác nào thấy**: `GuideScreen.test.tsx` chạy trong jsdom, tức dựng ở phía CLIENT.
+Thứ bắt được nó là `npm run build`, và build chưa chạy lần nào kể từ đợt 1 vì cổng 3000 bận. Đây là
+cái giá cụ thể của việc hoãn build ba đợt liền.
+
+### Bốn mảnh rác của chính các đợt trước, dọn luôn
+
+1. `GuideMuc` và `GuideBody` là **hai bản JSX song song** — docblock của chính nó hứa "một
+   renderer", lời hứa trôi ngay khi viết. Nay `GuideBody` CHỈ map `mucCo` qua `<GuideMuc>`.
+2. Ba prop mồ côi `GuideToc.onPick` · `GuideToc.hrefMuc` · `GuideBody.onRoiBai` — không nơi nào
+   truyền. Hai cái đầu gỡ; `onRoiBai` chuyển xuống `GuideMuc` và `GuideHintPanel` truyền thật.
+3. `styles.blockFormula` và `styles.blockChart` **không được khai ở đâu trong CSS** → hai thẻ mang
+   `class="block undefined"`. Gỡ cả hai. `.guideLink` (CSS chết của đợt 1) gỡ kèm mộ chí.
+4. `verify-static.mjs:573` nói khung "nằm sau `next/dynamic`" — sai từ đợt 4, nó là import tĩnh.
+   Sửa chú thích và ghi rằng con số "+3,0 kB" chưa đo lại cho bản này.
+
+### Đã đổi file nào
+
+- `src/core/huong-dan/types.ts` · `bai.ts` · `index.ts` — `MucId` năm giá trị mới, `BaiHuongDan`
+  bỏ 4 trường diễn giải và thêm 6 cờ (`coKhungCachTinh`, `hinhNhieuDong`, `coONangCao`, `coBieuDo`,
+  `coBocTach`, `coTrucThoiGian`), `oNhap` → `oNhanTuCongThuc` (chỉ ô có công thức nguồn).
+  `coTrucThoiGian` dùng thẳng `historyPlan()` của `src/core/chart/` chứ không chép `CURRENT_LEG`.
+- `src/application/huong-dan.ts` · `index.ts` — truyền `coKhungCachTinh` (từ `howToFor(id).entries`)
+  và `coNapMau` (dựng lại biểu thức `presetHelps` của màn).
+- `src/application/i18n/vi.ts` · `en.ts` — khối `guide.*` viết lại: 5 tiêu đề mục, 5 bước hình công
+  thức, 4 đường nạp số + 5 câu điều kiện, 4 bước đọc kết quả, 7 bước đọc biểu đồ, 3 nhãn nút "?".
+- `src/ui/guide/GuideBody.tsx` · `.module.css` — một renderer thật; bỏ `.table`/`.prose`/`.tag`,
+  thêm `.steps`/`.step`/`.fieldList`.
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx` · `.module.css` — ba `GuideHint`, lớp
+  `.hintCanhTieuDe` (`margin-right: auto`, vì `space-between` quăng nút biểu đồ ra xa chữ "BIỂU ĐỒ"
+  ~700px ở 1440px — đo trên bản dựng thật).
+- `src/app/cong-thuc/[id]/GuideHintPanel.tsx` — truyền `onRoiBai={onClose}`.
+- `src/ui/result/ExplanationAccordion.tsx` · `.module.css` — **trả về bản gốc**, diff rỗng.
+- `huong-dan.test.ts` (25 ca) · `GuideScreen.test.tsx` (14 ca) · `FormulaDetail.test.tsx` (164 ca)
+  · `hairline.test.ts` (về "chín chỗ") · `scripts/verify-static.mjs` (3 assert sửa, 1 assert mới). Tổng 3.166 ca xanh.
+
+### Còn lại
+
+1. **`npm run build` + `verify:static` + `size`** khi cổng 3000 rảnh. Lần này nó quan trọng hơn mọi
+   đợt trước: build là cửa gác DUY NHẤT bắt được lớp lỗi vừa tìm ra ở trên.
+2. `check:chrome` chưa có phép đo nào cho nút "?" (hộp chạm 44px, không chồng vùng chạm nút cạnh
+   nó) lẫn cho khung bật ra. Vùng chạm `::after` tràn 10px mỗi phía trong một hàng `gap: 8px`.
+3. `src/ui/README.md` chưa cập nhật bậc nút icon viền tròn.
+4. 13 trong 18 phát hiện của vòng rà đối kháng đợt 2 vẫn chưa phân loại (35/62 agent chết vì hạn
+   phiên).
+
+---
+
+## WF-21 đợt 4: khung hướng dẫn bật ra NGAY TẠI nút "?" (03/10/2026)
+
+**Trạng thái: code xong, CHƯA build lại** — cổng 3000 vẫn có dev server của chủ dự án. Đã soi
+bằng ảnh chụp trên chính dev server ấy ở 1440px: khung xổ ra ngay dưới nút, mang đúng một mục.
+
+- **Chủ dự án đảo thiết kế đợt 2**: _"bấm vào '?' thì có một popup xổ ra ở chỗ trỏ chuột ấy chứ
+  không phải là ở slide"_. Ngăn kéo trượt từ mép phải sống đúng một ngày.
+- **Lý do đọc được ngay trên màn**, không chỉ là sở thích: một tấm 520px dán mép phải không nói
+  được nó trả lời cho CHỖ NÀO — người bấm dấu hỏi cạnh khối Số liệu phải đưa mắt sang đầu kia màn
+  hình để tìm câu trả lời. Đúng khoảng cách chủ dự án đã bác ở khối chuỗi công thức 17/09/2026.
+- **Dùng lại cơ chế đã có, không dựng bản thứ hai**: sản phẩm đã có đúng hình này ở khung "cách
+  tính" bật ra khi rê vào một ký hiệu, và chính chủ dự án từng chỉ vào nó làm mẫu (25/09/2026).
+  `GuideHintPanel` dùng lại `placePanel` + `anchorBox` + `viewportBounds` của cơ chế ấy — hai hàm
+  sau được mở `export` thay vì chép lại, đúng điều docblock của file ấy đã cảnh báo.
+- **Khác một điểm có lý do**: `usePanelPlacement` trả toạ độ tương đối so với một khối cha
+  `position: relative`, vì khung "cách tính" luôn sống trong thẻ Công thức. Nút "?" thì rải trên
+  cả màn và mọi khối cha đều có thể mang `overflow` hay `content-visibility` — hai thứ cắt mất
+  khung (bài học đã trả giá ở khối Bài tập và khối Ví dụ). Nên khung này `position: fixed`.
+- **Khung mang ĐÚNG MỘT mục**, mục của chỗ vừa bấm, cộng một link "Mở toàn trang ↗". Ai chỉ vướng
+  một chỗ thì đóng lại gõ tiếp; ai muốn đọc cả bài thì đi tiếp. `GuideMuc` tách ra khỏi
+  `GuideBody` để khung và cả bài dựng bằng CÙNG một renderer.
+- **Cuộn thì ĐÓNG chứ không chạy theo**: khung bám một nút, nút trôi khỏi màn thì khung treo giữa
+  không trung không còn trỏ vào đâu. Esc và bấm ra ngoài cũng đóng.
+
+### Đã gỡ, kèm mộ chí
+
+- `GuidePanel` / `GuidePanelBody` / CSS / ca kiểm của chúng — mộ chí ở `src/ui/guide/index.ts`.
+- `BottomSheet placement: "right"` cùng toàn bộ CSS và ba ca kiểm của nó: không call site nào còn
+  dùng, và một dạng chết nằm trong primitive là thứ đợt sau sẽ dựng lại nhầm. Mộ chí ở chỗ khai
+  `placement`. Ba file primitive được trả về đúng bản gốc rồi chỉ thêm mộ chí, nên diff của chúng
+  nay chỉ còn 6 dòng chú thích.
+- Ba ca kiểm của đợt 2 ĐỔI CHIỀU chứ không xoá: ca "đóng panel thì thẻ dialog ở lại" nay chốt
+  điều ngược lại (khung không phải `<dialog>` nên đóng là tháo hẳn), và ca mở panel nay chốt khung
+  mang đúng một mục chứ không phải cả bài.
+
+### Một lỗi tôi tự gây ra và đã sửa
+
+Lúc thay khối trạng thái trong `FormulaDetail.tsx` tôi cắt theo hai mốc văn bản và lỡ xoá mất ~10
+khai báo `useState` không liên quan (`mountedSheets`, `loadedPreset`, `presetFill`, `bars`…).
+`tsc` bắt được ngay. Đã phục hồi bằng cách lấy lại đúng khối ấy từ `git show HEAD` rồi gắn state
+mới vào sau. Bài học: cắt theo mốc "từ A tới B" trong một file 3.200 dòng là cắt mù — phải đọc
+xem giữa A và B có gì trước khi cắt.
+
+- lint · tsc · prettier xanh; **3.152 ca vitest xanh**.
+- **Còn lại**: (1) build + `verify:static` khi cổng 3000 rảnh; (2) error boundary cho khung —
+  nay nhẹ hơn trước vì khung KHÔNG còn nằm sau `next/dynamic`, nên không có `import()` nào trượt
+  được khi mất mạng; rủi ro ở mục 2 của đợt 3 coi như đã tự tan; (3) `check:chrome` chưa đo nút
+  "?" và chưa đo khung; (4) cập nhật `src/ui/README.md` cho bậc dáng nút icon mới.
+
+---
+
+## WF-21 đợt 3: nút "?" tròn, chỉ ở hai chỗ (02/10/2026)
+
+**Trạng thái: code xong, CHƯA build lại** — cổng 3000 đang có dev server của chủ dự án, mà
+`prebuild` từ chối chạy khi cổng ấy bận. Đã soi bằng ảnh chụp trên CHÍNH dev server ấy ở 1440px.
+
+- **Yêu cầu**: _"đổi sang icon ? kèm bo tròn xung quanh… nhưng cần làm rõ là những chỗ khó hiểu
+  và quan trọng thì mới cần ?"_. Luật rút ra và ghim lại: **một "?" chỉ xuất hiện ở chỗ màn TỰ NÓ
+  không trả lời được câu hỏi nó vừa gây ra.**
+- **ĐÚNG HAI nút**, và danh sách kèm lý do từng chỗ — cả chỗ được lẫn chỗ bị loại — ghim ở
+  `FormulaDetail.test.tsx` với một ca đếm. Được: (1) hàng tiêu đề khối **Số liệu** → mục "Cần số
+  gì"; (2) hàng tiêu đề khối **Giải thích** → đầu bài, THAY cho dòng chữ "Cách dùng công thức
+  này ↗" của đợt 1.
+- **Bốn chỗ bị loại, mỗi chỗ một lý do đo được**: thẻ cảnh báo khi không tính được (màn đã in
+  nguyên nhân + cách sửa do `calc` viết, kèm cả hai lối ra; thêm nữa `INCOMPLETE_INPUT` không có
+  mục nào trong bài và 11 công thức không có mục "Khi kết quả hiện \_ \_") · hàng "Dán chuỗi giá"
+  (màn đã nói số phiên cụ thể và hai lối ra) · ô `LinkedInput` (5 công thức, đã tự nói ở ba tầng
+  cộng khối chuỗi — thêm "?" là dựng lại đúng sơ đồ đã bỏ 16/09/2026) · `ConstantsNote` /
+  `DerivedNote` / dòng "N ô ẩn". Cảnh báo của một phép tính hiện ở BỐN chỗ, nên rải theo cảnh báo
+  là một màn hỏng mọc 3–4 nút cùng trỏ về một mục.
+- **Nút là `<a href>`, không phải `<button>`** — giữ ba thứ: bấm được khi JS chưa tải, Ctrl-bấm mở
+  tab mới, và `verify-static` vẫn thấy lối vào trong HTML tĩnh. Khai `aria-haspopup="dialog"`,
+  không `aria-expanded`. Nhãn đọc được nói CHỖ NÀO ("Hướng dẫn: cần số gì và lấy ở đâu"), vì
+  người dùng bàn phím chỉ gặp một vòng tròn không chữ.
+- **Hình**: vòng tròn 24px viền `--color-border-strong`, chữ `--color-ink-soft`; rê chuột đổi CẢ
+  nền (`--color-sunken`) lẫn màu chữ (`--color-accent`) — hai dấu hiệu, không chỉ màu (NFR-USA-06).
+  Vùng chạm 44px mở rộng cả hai chiều bằng `::after`, không bằng kích thước thật. Đây là mặt mới:
+  repo có 10 nút icon, hai cái đã tròn về hình học nhưng không cái nào ĐỌC RA là vòng tròn.
+- **Nút ở khối Số liệu phải `margin-left: auto`.** Ở khuôn thẻ gộp, luật `.merged .blockTitle`
+  đẩy chữ "SỐ LIỆU" thành ẩn-khỏi-mắt, nên không dạt phải thì nút là phần tử duy nhất còn trong
+  luồng và đứng lơ lửng giữa khoảng trống đầu vùng ô nhập — đã chụp ảnh thấy, rồi mới sửa.
+- **Panel nhận `mucMo`**: nút đứng cạnh chỗ nào thì panel mở ở mục của chỗ ấy, cuộn sau khi
+  `<dialog>` đã mở (trước đó tấm chưa có kích thước nào).
+
+### Bốn lỗi của đợt 2 do vòng soi phản biện tìm ra, đã sửa
+
+- **Tên công thức trong panel ghim cứng tiếng Việt** (`subtitle={bai.ten.vi}`): bật tiếng Anh thì
+  tiêu đề panel là tiếng Anh mà dòng dưới vẫn tiếng Việt, trong khi trang đầy đủ in đúng. Đổi sang
+  `pick()`. Không cửa gác nào thấy — `i18n.test.ts` chỉ quét ai import `t` tĩnh.
+- **Mục lục trong panel trỏ neo KHÔNG tồn tại trên màn chi tiết**: Ctrl-bấm hay chuột-giữa-bấm đi
+  theo `href` thật `/cong-thuc/pe/#can-so-gi`, mà trang ấy không có neo nào tên vậy (bản trong
+  panel mang tiền tố `bai-`). `onClick` không cứu được: chuột giữa bắn `auxclick`. Thêm `hrefMuc`.
+- **Hai link trong panel trỏ về chính trang panel đang che**: Next chỉ đổi hash, panel đứng nguyên,
+  cú bấm trông như trơ, và URL dính một hash. Panel nay truyền `onRoiBai` để tự đóng trước.
+- **Bóng của ngăn kéo bị `.sheet { overflow: hidden }` cắt sạch**: hộp viền của tấm trùng khít hộp
+  đệm của `<dialog>`, mà bóng vẽ hoàn toàn bên ngoài hộp viền. Chuyển bóng lên chính `<dialog>`.
+- **Cú cuộn tới mục nay có kiểm trước khi gọi**: `scrollIntoView` không tồn tại trong jsdom, và lời
+  gọi nằm trong một effect — ngoại lệ ở đó làm mất cả panel chứ không chỉ mất cú cuộn.
+- lint · tsc · prettier xanh; **3.161 ca vitest xanh** (trước đợt này 3.156).
+
+### Còn lại
+
+1. **Chạy `npm run build` + `verify:static` + soi lại** sau khi cổng 3000 rảnh.
+2. **Lỗi đợt 2 CHƯA sửa, nặng nhất trong số còn lại**: chunk của panel không được HTML nào tham
+   chiếu nên service worker chưa bao giờ cache nó. Mất mạng rồi bấm "?" thì `preventDefault()` đã
+   chạy, `import()` trượt, và `src/app` không có `error.tsx` lẫn `global-error.tsx` — lỗi leo tới
+   boundary gốc của Next và cả màn chi tiết bị thay bằng trang lỗi, **mất sạch số liệu đang gõ**,
+   đúng thứ panel được dựng ra để giữ. Cần một error boundary quanh `GuidePanel` rơi về điều hướng
+   sang trang đầy đủ. 13 phát hiện khác của vòng soi chưa phân loại (35/62 agent phản biện chết vì
+   chạm giới hạn phiên, nên mức "sống sót" của chúng yếu hơn con số nói).
+3. `check:chrome` chưa có phép đo nào cho nút "?" (vùng chạm 44px thật, không chồng lên nút cạnh
+   nó) lẫn cho ngăn kéo phải — jsdom trả 0 cho mọi phép đo hình học.
+4. Cập nhật mục "nút icon" và bảng "Màu nói gì" trong `src/ui/README.md` cho bậc dáng mới.
+
+---
+
+## WF-21 đợt 2: panel hướng dẫn mở tại chỗ trên màn công thức (02/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi.** Đã dựng và soi trên bản BUILD thật: 1440px ra ngăn kéo
+phải 520px, 390px ra bottom sheet — đúng hai dáng bản vẽ HD-04.
+
+- **Lối vào là CHÍNH cái link của đợt 1, không phải nút mới.** Nó vẫn là `<a href>` thật, chỉ
+  chặn cú bấm thường để mở panel. Ba thứ một `<button>` sẽ làm mất: JavaScript chưa tải xong thì
+  bấm vẫn sang trang đầy đủ; Ctrl/⌘-bấm và chuột giữa vẫn mở tab mới; và `verify-static.mjs:561`
+  vẫn thấy `href="/huong-dan/cong-thuc/pe/"` trong HTML tĩnh — phép kiểm ấy chính là lời hứa
+  "bấm vào là xem được" ở dạng đo được.
+- **Một renderer, không phải hai.** Thân bài chuyển sang `src/ui/guide/GuideBody.tsx`, dùng chung
+  cho trang đầy đủ (server) và panel (client). Component KHÔNG khai `use client` nên đi theo nơi
+  gọi. Dựng hai cây JSX song song thì "panel giống trang" là lời hứa phải nhớ giữ, và nó trôi ở
+  lần sửa thứ hai.
+- **`BottomSheet` thêm `placement: "right"`**, đi đúng con đường `"center"` đã đi (6 chỗ TSX +
+  luật CSS khai SAU `.panel`/`.panelTall`). Ba điểm riêng: biến `centered` cũ gánh BA việc nên
+  phải tách làm ba cờ, nếu không ngăn kéo mọc ra vạch kéo hứa "kéo xuống để đóng"; file CSS có
+  khối `@media` ĐẦU TIÊN của nó, vì "ngăn kéo bên phải" không còn nghĩa ở 390px — khác hai dạng
+  kia vốn nghĩa như nhau ở mọi khổ; và `@starting-style` cho cú trượt, chuyển động duy nhất của
+  cả primitive, trình duyệt không hỗ trợ thì tấm hiện ra ngay chứ không hỏng.
+- **Đo trước khi chọn cách nối dữ liệu**: server-render sẵn cả bài vào trang chi tiết tốn
+  **+20,5 kB/trang**, truyền prop cho panel mount-theo-yêu-cầu chỉ **+3,0 kB**. Chọn cách thứ hai,
+  và `verify:static` nay gác đúng ranh giới ấy theo HAI VẾ ngược nhau: dữ liệu bài CÓ trong HTML
+  (câu cảnh báo của `calc` chỉ hiện khi EPS = 0 nên không lọt vào bằng đường nào khác), còn markup
+  của panel thì KHÔNG. First Load JS của trang chi tiết đứng yên ở 382 kB.
+- **Panel giữ lại sau lần mở đầu, không tháo lúc đóng.** Tháo thì React gỡ thẳng thẻ `<dialog>`
+  khỏi tài liệu khi nó đang mở, nên `close()` không bao giờ chạy — mà `close()` mới là chỗ trình
+  duyệt trả tiêu điểm về nút vừa bấm, đúng câu bản vẽ ghi: "con trỏ về đúng ô đang dở".
+- **Mục lục trong panel KHÔNG nhảy bằng hash**: màn đang mở là `/cong-thuc/pe/`, một cú nhảy hash
+  sẽ ghi `#can-so-gi` vào URL của màn ấy rồi để lại đó sau khi panel đóng. Panel tự cuộn trong
+  thân nó; neo mang tiền tố `bai-` để không đụng `khoi-so-lieu`/`khoi-vi-du` của màn. Trên trang
+  đầy đủ thì ngược lại — ở đó `#can-so-gi` trên thanh địa chỉ chính là thứ người ta copy gửi đi.
+- **Nút "?" cạnh nhãn ô nhập bị HOÃN, có lý do đo được**: `FormulaDetail.test.tsx:650` đòi
+  `<label>` là con TRỰC TIẾP của mỗi ô lưới, và năm kiểu điều khiển dựng nhãn bằng năm thẻ khác
+  nhau (`<label>`, `<span>`, `<legend>`…) nên không có chỗ cắm chung. Nó cần một đợt riêng cho
+  lưới ô nhập, không phải một dòng thêm vào đợt này.
+- **File mới**: `src/ui/guide/` (`GuideBody.tsx` + css, `GuideToc`, `GuidePanelBody.tsx`,
+  `GuidePanel.tsx` ranh giới `next/dynamic`, `GuidePanel.module.css`, `index.ts`,
+  `GuidePanel.test.tsx`). Sửa: `BottomSheet.tsx`/`.module.css`/`.test.ts`, `GuideScreen.tsx` +
+  css (rút còn khung), `page.tsx` và `FormulaDetail.tsx`/`.module.css` của màn chi tiết,
+  `verify-static.mjs`, `hairline.test.ts` (luật kẻ đầu bảng theo thân bài sang file mới),
+  `build-only-imports.test.ts`, hai từ điển i18n (`guide.openFull`).
+- **Khảo sát bằng workflow 5 agent trước khi code** — và nó đổi ba quyết định thiết kế: giữ link
+  thay vì đổi thành nút (vì `verify-static`), truyền prop thay vì server-render (vì +20,5 kB), và
+  hoãn nút "?" cạnh nhãn (vì cửa gác lưới ô nhập). Không có khảo sát thì cả ba đều đi sai rồi mới
+  biết.
+- lint · tsc · prettier xanh; **3.159 ca vitest xanh** (trước đợt này 3.144);
+  **`verify:static` 48/48** (trước 47).
+- **Còn lại**: (1) `check:chrome` chưa có phép đo nào cho ngăn kéo phải — nên thêm ở đợt sau
+  (bề ngang 520, dán mép phải, đổi dáng ở 1279/1280); (2) đợt 3 — `GUIDE_ANCHORS` hai chiều, nút
+  "?" ở thanh trên, mục lục bám cuộn, tô sáng khối đích; (3) khổ điện thoại: mục lục của TRANG
+  đầy đủ vẫn rơi xuống cuối, bản vẽ HD-03 muốn nó thành hàng gấp mở ở đầu bài.
+
+---
+
+## WF-21 đợt 1: dựng 111 trang hướng dẫn `/huong-dan/cong-thuc/<id>/` (02/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi.** Đã dựng và soi trên bản BUILD thật ở 1440px và 390px.
+(Phải tắt ba tiến trình `next dev` cũ đang giữ cổng 3000/3001/3002 mới build được — chúng dùng
+chung `.next` với `next build`; chủ dự án đồng ý tắt.)
+
+- **Trang dựng sẵn lúc build, không một dòng chữ nào viết tay.** Bài của mỗi công thức SUY RA từ
+  Registry: `#dung-de-lam-gi` (`description` + `whenToUse`) · `#can-so-gi` (`variables[]` +
+  ba dòng điều kiện theo cờ) · `#nap-so` (chuỗi i18n chung, bật tắt theo cờ) · `#doc-ket-qua`
+  (`resultUnit` + `howToRead`) · `#ket-qua-trong` · `#sai-lam` (`commonMistakes`). Viết tay lần nữa
+  là tạo nguồn sự thật thứ hai cho cùng một câu rồi hai bên lệch nhau mà không cửa gác nào thấy.
+- **Mục "Khi kết quả hiện `_ _`" CHẠY `calc` lúc build**: lấy các `spec.tests[]` có
+  `expectedWarning`, gọi `runFormula` rồi in NGUYÊN câu cảnh báo và câu `fix` do chính `calc` viết
+  — đọc mã cảnh báo khai trong ca kiểm thì không lấy được câu chữ, vì câu ấy nằm trong thân hàm.
+  **100/111 công thức có mục này**; 11 công thức còn lại không khai ca hỏng nào nên bài của chúng
+  thiếu mục đó, không bịa thêm. Mã `INCOMPLETE_INPUT` bị loại: nó xảy ra với cả 111 công thức.
+- **Số phiên tối thiểu ĐO BẰNG CÁCH CHẠY, không khai tay** (`soPhienToiThieu()`): dò 1 → 300 phiên
+  tới khi công thức thôi báo `MISSING_SERIES`. Không trường nào khai con số ấy, mà mỗi công thức
+  tự đếm theo cách riêng — một con số khai tay sẽ lệch ngay lần đầu ai đó đổi cửa sổ mặc định.
+  Cùng cách nghĩ với `needsPriceSeries()` ngay cạnh.
+- **`spec.note` của 3 công thức cuối cùng cũng có chỗ hiện.** Nó có trong Registry từ lâu và
+  **chưa bao giờ hiện ở đâu** (lỗi đã ghi ở `REVIEW.md:944`): giới hạn phạm vi duy nhất của
+  `thue-co-tuc` nằm trong đó mà người dùng không đọc được. Nay in ở mục "Cần số gì".
+- **Dùng lại `InlineWarning` của màn tính**, không dựng mặt vàng thứ sáu: `warning-surface.test.ts`
+  khoá đúng năm mặt đang có, và người đọc phải thấy CHÍNH cái thẻ họ sẽ gặp trên màn.
+- **File mới**: `src/core/huong-dan/` (`types.ts`, `bai.ts`, `index.ts`, `huong-dan.test.ts`) ·
+  `src/application/huong-dan.ts` (cửa chỉ-lúc-build) · `src/app/huong-dan/cong-thuc/[id]/`
+  (`page.tsx`, `GuideScreen.tsx` + css + test) · `src/ui/i18n/TFill.tsx`.
+- **`TFill` là lá i18n thứ ba**, sau `<T>` và `<Pick>`: server component không gọi hook nên trước
+  đợt này một câu có chỗ trống ("cần ít nhất 20 phiên") chỉ có hai đường, tách ba mảnh JSX (vỡ khi
+  tiếng Anh đảo trật tự từ) hoặc đóng băng bằng `t()` tĩnh (mất chế độ tiếng Anh).
+- **Route**: `ROUTES.guide = '/huong-dan/'` + `guidePath(id)` + `guideFormulaId(path)`. KHÔNG lên
+  thanh nav (`NavKey` loại nó ra) — lối vào nằm cạnh thứ gây vướng, không phải một mục phải nhớ
+  ghé. `backLinkFor()` cho bài trỏ về chính công thức ấy; `activeRouteKey()` cho nó sáng mục Công
+  thức. Bậc `cong-thuc/` chừa chỗ cho các bài CHUNG của `docs/wf20/` mà không đụng slug.
+- **Lối vào**: một link "Cách dùng công thức này ↗" ở cuối khối Giải thích của màn chi tiết. 111
+  trang dựng sẵn mà không có lối vào thì chỉ là 111 URL không ai biết.
+- **Cửa gác**: `huong-dan.test.ts` (17 ca — bài không được nói khác Registry, không bịa mục, số
+  phiên đo được, ghim 100/111 và 35/14/5) · `GuideScreen.test.tsx` (10 ca — neo, mục lục, ba lối
+  ra) · một ca mới ở `FormulaDetail.test.tsx` cho lối vào · `build-only-imports.test.ts` thêm hai
+  luật và mở `@/application/how-to` cho nơi thứ hai · `section-title.test.ts` và `hairline.test.ts`
+  thêm một dòng mỗi file (kẻ đầu bảng dùng `--color-border` — lý do khác ba bảng cũ: ở đây không
+  có nền chìm, lý do là phân cấp) · `verify-static.mjs` thêm 4 phép kiểm.
+- **Lỗi bắt được nhờ ca kiểm**: link "Mở Bảng dữ liệu" in HAI lần trên cùng một trang (mục "Cần số
+  gì" và mục "Nạp số"). Đã bỏ bản ở "Cần số gì" — ở đó là ĐIỀU KIỆN, không phải hành động.
+- **`verify-static.mjs` cố ý KHÔNG đi tìm chữ rò vào gói JS** như ba khối how-to/quiz/ví dụ: nội
+  dung bài là dữ liệu Registry vốn đã nằm trong gói của màn chi tiết, không có khối chữ MỚI nào để
+  rò. Ranh giới chỉ-lúc-build vẫn cần nhưng vì lý do khác — một client component gọi
+  `baiHuongDanFor` sẽ chạy hàng trăm lượt `calc` trên máy người dùng — và cửa gác import lo việc ấy.
+- **Hai lỗi hình bắt được khi soi bản build**, cả hai cùng một gốc: cột đơn vị để `width: 1%`
+  nên chính ba NHÃN cột là thứ bị bóp — "ĐƠN VỊ" vỡ hai dòng, rồi tới lượt "Ô NHẬP" vỡ ở công
+  thức chỉ có một ô ngắn. Chữa bằng `white-space: nowrap` cho `thead th`; ô dữ liệu vẫn xuống
+  dòng tự do.
+- lint · tsc · prettier xanh; **3.137 ca vitest xanh** (trước đợt này 3.094);
+  **`verify:static` 47/47** (trước 43); `npm run size`: 111 trang hướng dẫn **143 kB First Load,
+  dưới cửa 180 kB**, không trang nào vượt. Trang chi tiết 381 → 382 kB (một link + một import).
+- **Còn lại**: (1) `check:chrome` chưa chạy lại — nó đang có 7 ca đỏ CÓ TỪ TRƯỚC và đợt này không
+  thêm phép đo nào ở đó; (2) khổ điện thoại: mục lục hiện rơi xuống CUỐI trang, bản vẽ HD-03 nói
+  nó phải thành một hàng gấp mở ở đầu bài — để cùng đợt 3; (3) đợt 2 — panel "?" mở tại chỗ (HD-04),
+  `BottomSheet` thêm `placement: 'right'`; (4) đợt 3 — `GUIDE_ANCHORS` hai chiều, nút "?" cạnh nhãn
+  ô nhập và ở thanh trên, mục lục bám cuộn, tô sáng khối đích (HD-06).
+
+---
+
+## WF-21: bản vẽ "Hướng dẫn sử dụng riêng cho từng công thức" (02/10/2026)
+
+**Trạng thái: bản vẽ xong, chờ chủ dự án soi. Chưa dựng một dòng mã nào trong `src/`.** Chủ dự án
+yêu cầu "vẽ giao diện và cách sử dụng dành riêng cho từng công thức theo hướng làm của hướng dẫn
+sử dụng, đầu tiên là bản web", rồi nêu lại yêu cầu gốc: _"Ai muốn xem lúc nào thì bấm vào là xem
+được, trong hướng dẫn sử dụng có link để bấm vào các phần luôn là đẹp nhất"_, và hỏi **xác định
+mục đích** của yêu cầu ấy.
+
+- **Mục đích đọc ra được, và nó quyết định cả thiết kế**: hướng dẫn là **chỗ tra cứu tại chỗ lúc
+  đang vướng**, trả lời "giờ tôi phải làm gì / số này lấy ở đâu / sao ô kết quả trống" ngay trên
+  màn đang làm dở rồi đóng lại làm tiếp — không phải tài liệu đọc từ đầu đến cuối, và **không dạy
+  lại tài chính** (Ý nghĩa · Khi nào dùng · Cách đọc kết quả · Sai lầm thường gặp đã có trên màn).
+  Hai hệ quả: đơn vị nội dung là "một câu hỏi vướng — một mục có neo", và "các phần" phải chạy
+  **hai chiều** (mục lục trong bài, _và_ bấm từ bài vào đúng khối trên màn thật rồi quay lại được).
+- **Vì sao chữ thao tác thuộc về đây**: dự án đã ba lần gỡ loại chữ này khỏi màn làm việc
+  (`example.editHint` 10/09, `tile.editHint` 01/10, luật `vi.ts:791`). Nó không bị cấm — nó bị cấm
+  **đứng chắn giữa việc đang làm**. Chỗ người dùng tự bấm mở ra là nơi duy nhất nó được chào đón.
+- **Đã thêm** `docs/wf21/`: `HD-04-panel-tai-cho` (panel 520px trượt từ phải + năm lối vào + ba
+  luật), `HD-05-trang-day-du` (trang `/huong-dan/cong-thuc/<id>/` hai cột, bài 880px + mục lục dính
+  400px, sáu mục của một bài), `HD-06-neo-hai-chieu-va-bon-bien-the` (bảng `GUIDE_ANCHORS`, nhảy
+  sang màn thật rồi quay lại, bốn biến thể), mỗi bản một cặp `.svg` + `.png`, kèm `README.md`.
+- **Bài lắp từ dữ liệu đã có, không câu prose nào viết mới.** Sáu mục: `#dung-de-lam-gi`
+  (`description` + `whenToUse`) · `#can-so-gi` (`variables[]` + ba dòng điều kiện sinh theo cờ) ·
+  `#nap-so` (chuỗi i18n chung, chọn theo cờ) · `#doc-ket-qua` (`resultUnit` + `howToRead`) ·
+  `#ket-qua-trong` (chạy `runFormula` lúc build trên các `tests[]` có `expectedWarning`, in NGUYÊN
+  câu cảnh báo và câu `fix` mà chính `calc` viết) · `#sai-lam` (`commonMistakes`).
+- **Đo thật trước khi vẽ, không ước lượng**: 111 công thức · **100** có ca cảnh báo khai sẵn ·
+  **14** khai `usesConstants` · **5** có `dependsOn` · **35** cần chuỗi giá (trọn 5 file nhóm kỹ
+  thuật/rủi ro) · **158/178** ô nhập khai thẳng đã có `description`. Lệnh đếm ghi nguyên trong
+  `docs/wf21/README.md` để soát lại được. Bốn biến thể rời nhau: 57 + 35 + 5 + 14 = 111.
+- **Hai ô trống nhận là ô trống, không bịa**: 11 công thức không khai ca hỏng nào thì bài của chúng
+  KHÔNG có mục `#ket-qua-trong`; 11 công thức còn ô thiếu `description` thì bài để trống chỗ đó.
+- **Lỗi tài liệu bắt được nhân tiện**: `CLAUDE.md` ghi "13 công thức khai `usesConstants`", đếm
+  thật là **14** (`fees.ts` có 8, `roi-rong` nằm trong đó). Chưa sửa — ghi ở `docs/wf21/README.md`.
+- `npm run format:check` xanh toàn kho. Không chạy lint/typecheck/test vì không file nào trong
+  `src/` bị đụng.
+- **Còn lại**: chủ dự án duyệt bản vẽ; sau đó mới tới route `/huong-dan/cong-thuc/<id>/`,
+  `src/core/huong-dan/` đọc-lúc-build, `GUIDE_ANCHORS` trong `routes.ts`, `BottomSheet`
+  `placement: 'right'`, nút "?", mục lục bám cuộn. Khổ điện thoại làm sau — chủ dự án chốt web
+  trước. Bộ `docs/wf20/` (hướng dẫn CHUNG của sản phẩm, 25/09/2026) vẫn chưa dựng và không bị đợt
+  này thay thế.
+
+---
+
 ## Ô nhỏ thẻ gộp: bỏ nhãn "Tự nhập", đơn vị dạt mép phải (02/10/2026)
 
 **Trạng thái: xong, chờ chủ dự án soi.** Chủ dự án chụp hai ô `EV` / `EBITDA`, khoanh đỏ chữ

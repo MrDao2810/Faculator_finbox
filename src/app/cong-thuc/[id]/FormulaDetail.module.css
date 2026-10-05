@@ -1006,6 +1006,13 @@ button.iconButton::after {
 }
 
 /*
+ * Mộ chí: `.guideLink` (đợt 1 của WF-21) gỡ ngày 03/10/2026. Nó là lối vào dạng DÒNG CHỮ "Cách
+ * dùng công thức này ↗" dưới khối Giải thích, và đã bị nút "?" thay ngay hôm sau (đợt 3) — nhưng
+ * luật CSS thì ở lại thêm một ngày nữa mà không còn phần tử nào mang lớp ấy. Đừng dựng lại: lối
+ * vào hướng dẫn nay là ba nút "?" ở ba khối có việc phải làm.
+ */
+
+/*
  * ── KHỔ PC LỚN: Công thức trải ngang, rồi hai cột — nhập bên TRÁI, đáp án và biểu đồ bên PHẢI ──
  *
  * Bậc 1280 — bảng "BẬC MÀN" ở `globals.css` là nơi khai và giải thích các bậc. Dưới mốc này màn
@@ -1293,4 +1300,45 @@ button.iconButton::after {
   .askMerged .blockExplain {
     grid-column: 1;
   }
+}
+
+/*
+ * Nút "?" của khối Số liệu dạt về mép phải hàng tiêu đề.
+ *
+ * `margin-left: auto` chứ không `justify-content: space-between` trên hàng — cùng bài học đã ghi
+ * ở hàng tiêu đề khối Bài tập: khung trang chạy tới `--desktop-max`, nên space-between quăng nút
+ * ra xa cái tiêu đề nó thuộc về.
+ *
+ * Việc này quan trọng nhất ở khuôn THẺ GỘP: ở đó luật `.merged .blockTitle` đẩy chữ "SỐ LIỆU"
+ * thành ẩn-khỏi-mắt, nên nếu không dạt phải thì nút là phần tử duy nhất còn trong luồng và nó
+ * đứng lơ lửng ở mép trái vùng ô nhập, không đọc ra là trợ giúp cho cái gì.
+ */
+.blockHead .hintSoLieu {
+  margin-left: auto;
+}
+
+/*
+ * Nút "?" của khối Công thức và khối Biểu đồ đứng NGAY SAU tiêu đề, không dạt phải — ngược với
+ * nút khối Số liệu ở trên, và ngược có lý do.
+ *
+ * `.blockHead` dùng `justify-content: space-between`, nên một nút không bị ghìm sẽ trôi ra mép
+ * phải. Đo trên bản dựng thật ở 1440px: nút của khối Biểu đồ nằm cách chữ "BIỂU ĐỒ" khoảng 700px,
+ * tức gần trọn bề ngang cột phải — đúng cái lỗi hàng tiêu đề khối Bài tập đã ghi lại một lần
+ * ("khung trang chạy tới `--desktop-max`, nên space-between quăng nút ra xa cái tiêu đề nó thuộc
+ * về"). `margin-right: auto` dồn toàn bộ khoảng trống về SAU nút: nút dính vào tiêu đề, còn
+ * `.actions` của khối Công thức vẫn ở mép phải.
+ *
+ * Khối Số liệu thì phải ngược lại, và cũng có lý do riêng: ở khuôn thẻ gộp, luật
+ * `.merged .blockTitle` đẩy chữ "SỐ LIỆU" thành ẩn-khỏi-mắt, nên nút là phần tử duy nhất còn
+ * trong luồng — dính trái thì nó đứng lơ lửng ở mép trái vùng ô nhập, không đọc ra là trợ giúp
+ * cho cái gì.
+ *
+ * Chỗ đứng ấy cũng giải luôn một bài khác: vùng chạm 44px của `GuideHint` (lớp phủ `::after`) tràn
+ * ra 10px mỗi phía ngoài vòng tròn 24px, mà `.blockHead` chỉ có `gap: --space-2` = 8px. Đứng cạnh
+ * tiêu đề thì nó chỉ tràn vào CHỮ; nếu đặt sát `.actions` thì hai vùng chạm chồng nhau và cú chạm
+ * ở rìa rơi vào nút khác. Ở khổ hẹp `.blockHeadActions` cho xuống hàng nên `.actions` tụt xuống
+ * dòng dưới, càng không còn chạm nhau.
+ */
+.blockHead .hintCanhTieuDe {
+  margin-right: auto;
 }

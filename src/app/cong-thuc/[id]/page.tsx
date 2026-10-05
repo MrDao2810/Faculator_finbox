@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { FORMULAS, findCategory } from '@/application';
+import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
 import { viDuGiaiFor } from '@/application/vi-du';
 
@@ -112,6 +113,17 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
     viDu?.thaySo === undefined
       ? undefined
       : { vi: expressionShape(viDu.thaySo.vi), en: expressionShape(viDu.thaySo.en) };
+  /*
+   * Bài hướng dẫn của chính công thức này (WF-21 đợt 2) — dựng ở đây rồi truyền prop, vì dựng một
+   * bài phải CHẠY `calc` hàng trăm lượt: dò số phiên tối thiểu, và lấy lại câu cảnh báo thật từ
+   * các ca kiểm có `expectedWarning`. Chừng ấy việc chỉ được xảy ra trên máy build.
+   *
+   * Đo thật trên bản dựng 02/10: truyền prop cho panel mount-theo-yêu-cầu tốn ~+3,0 kB mỗi trang
+   * (chỉ phần flight), còn server-render sẵn cả bài vào HTML thì tốn +20,5 kB — gấp bảy, cho một
+   * khối mà phần lớn lượt xem không bao giờ mở ra.
+   */
+  const bai = baiHuongDanFor(formula.id, AS_OF);
+
   return (
     <FormulaDetail
       spec={formula}
@@ -122,6 +134,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
       quiz={quiz}
       {...(viDu === undefined ? {} : { viDu })}
       {...(viDuCay === undefined ? {} : { viDuCay })}
+      {...(bai === undefined ? {} : { bai })}
     />
   );
 }

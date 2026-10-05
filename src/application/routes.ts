@@ -42,16 +42,31 @@ export const ROUTES = {
    * và `/du-lieu/`, đây là nội dung thật sự để đọc, không trùng nội dung với màn nào khác.
    */
   about: '/ve-chung-toi/',
+  /**
+   * Hướng dẫn sử dụng (WF-21, 02/10/2026). KHÔNG có trong `NAV_ITEMS`: hướng dẫn là chỗ tra cứu
+   * TẠI CHỖ lúc đang vướng, nên lối vào nằm cạnh đúng thứ gây vướng — không phải một mục nav mà
+   * người dùng phải nhớ ghé qua. CÓ trong `sitemap.xml` vì nó là nội dung thật để đọc.
+   *
+   * Bài riêng của từng công thức nằm dưới một bậc nữa, `/huong-dan/cong-thuc/<id>/` — xem
+   * `guidePath()`. Bậc `cong-thuc/` ấy chừa chỗ cho các bài CHUNG của `docs/wf20/`
+   * (`/huong-dan/nap-so-lieu/`…) mà không đụng slug: một công thức tên `nap-so-lieu` là đủ để hai
+   * bộ giẫm lên nhau.
+   *
+   * Bản thân `/huong-dan/` chưa có trang — đợt này chỉ dựng bài của từng công thức. Hằng số có mặt
+   * ở đây vì nó là TIỀN TỐ mà `activeRouteKey()` và `backLinkFor()` đọc, không phải vì có link
+   * nào trỏ vào nó.
+   */
+  guide: '/huong-dan/',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
 
 /**
  * Bốn mục có mặt ở thanh nav.
- * `search` và `data` là route thật nhưng không phải mục điều hướng — tách kiểu ra để component
- * thanh nav không phải bịa một icon cho chúng.
+ * `search`, `data` và `guide` là route thật nhưng không phải mục điều hướng — tách kiểu ra để
+ * component thanh nav không phải bịa một icon cho chúng.
  */
-export type NavKey = Exclude<RouteKey, 'search' | 'data'>;
+export type NavKey = Exclude<RouteKey, 'search' | 'data' | 'guide'>;
 
 /**
  * `id` của khối "Danh sách công thức" trên màn Công thức, dùng làm neo `#…`.
@@ -79,6 +94,24 @@ export function savedCalcsPath(): string {
 /** Đường dẫn tới một công thức, ví dụ '/cong-thuc/wacc/'. */
 export function formulaPath(id: string): string {
   return `${ROUTES.formulas}${id}/`;
+}
+
+/** Đường dẫn tới bài hướng dẫn của một công thức, ví dụ '/huong-dan/cong-thuc/wacc/'. */
+export function guidePath(id: string): string {
+  return `${ROUTES.guide}cong-thuc/${id}/`;
+}
+
+/**
+ * id công thức đọc ngược từ một đường dẫn hướng dẫn, hoặc `null` nếu không phải đường dẫn ấy.
+ *
+ * Kiểm DẠNG slug chứ không kiểm sự tồn tại, đúng lẽ đã ghi ở nhánh `?from=` của `backLinkFor()`:
+ * hàm này chạy trong `HeaderIdentity` ở layout GỐC, nên mọi thứ `routes.ts` import sẽ rơi vào gói
+ * của MỌI trang — đối chiếu với Registry là kéo chỉ mục 111 công thức vào đó.
+ */
+export function guideFormulaId(pathname: string): string | null {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+  const match = /^\/huong-dan\/cong-thuc\/([a-z0-9-]+)\/$/.exec(path);
+  return match?.[1] ?? null;
 }
 
 /**
@@ -242,6 +275,23 @@ export function backLinkFor(pathname: string, search = ''): HeaderBackLink | nul
     return { fallbackHref: ROUTES.formulas, labelKey: 'nav.backToList', rememberOrigin: true };
   }
 
+  /*
+   * Bài hướng dẫn của một công thức — đường ra là chính công thức ấy, không phải danh sách.
+   *
+   * `rememberOrigin: false`, cùng lẽ với nhánh `?from=` dưới đây: người đọc tới đây TỪ màn công
+   * thức (nút "Cách dùng …"), nên "màn gốc" đọc từ sessionStorage cũng chính là màn ấy — đọc rồi
+   * ghi đè bằng cùng một href chỉ tổ nhấp nháy một nhịp. Và khi họ tới thẳng từ một link được gửi,
+   * màn công thức vẫn là chỗ đúng để đi tiếp.
+   */
+  const idHuongDan = guideFormulaId(path);
+  if (idHuongDan !== null) {
+    return {
+      fallbackHref: formulaPath(idHuongDan),
+      labelKey: 'nav.backToFormula',
+      rememberOrigin: false,
+    };
+  }
+
   if (path === ROUTES.data) {
     const from = (new URLSearchParams(search).get('from') ?? '').trim();
     /*
@@ -320,10 +370,16 @@ export function showsFooterDisclaimer(pathname: string): boolean {
 export function activeRouteKey(pathname: string): NavKey | null {
   const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
 
-  // Màn tìm kiếm WF-09 và bảng dữ liệu WF-05 không có mục riêng ở thanh nav. WF-18 xếp cả hai
-  // trong luồng công thức, nên chúng sáng mục Công thức — tắt hết mọi mục sẽ khiến người dùng
-  // tưởng bị lạc.
-  if (path.startsWith(ROUTES.search) || path.startsWith(ROUTES.data)) return 'formulas';
+  // Màn tìm kiếm WF-09, bảng dữ liệu WF-05 và bài hướng dẫn WF-21 không có mục riêng ở thanh nav.
+  // WF-18 xếp cả ba trong luồng công thức, nên chúng sáng mục Công thức — tắt hết mọi mục sẽ
+  // khiến người dùng tưởng bị lạc.
+  if (
+    path.startsWith(ROUTES.search) ||
+    path.startsWith(ROUTES.data) ||
+    path.startsWith(ROUTES.guide)
+  ) {
+    return 'formulas';
+  }
 
   for (const item of NAV_ITEMS) {
     if (path === item.href || path.startsWith(item.href)) return item.key;

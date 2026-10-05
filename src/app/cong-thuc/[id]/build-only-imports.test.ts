@@ -68,6 +68,10 @@ const LUAT: ReadonlyArray<{ ten: string; khop: (spec: string) => boolean; duocPh
     duocPhep: ['app/cong-thuc/[id]/page.tsx'],
   },
   {
+    // Nơi thứ hai, `application/huong-dan.ts`, đã BỎ ngày 05/10/2026. Bài hướng dẫn WF-21 từng đọc
+    // khung "cách tính" để biết ô gõ tay nào có công thức riêng trong thư viện, và để biết thẻ
+    // Công thức có khung nào không. Cả hai câu trả lời chỉ dùng để bật tắt chữ dùng chung, thứ đã
+    // đi khi chủ dự án chốt bài chỉ mang chữ của `guide-111.json`.
     ten: '@/application/how-to',
     khop: (spec) => spec === '@/application/how-to',
     duocPhep: ['app/cong-thuc/[id]/notation-view.ts'],
@@ -92,6 +96,26 @@ const LUAT: ReadonlyArray<{ ten: string; khop: (spec: string) => boolean; duocPh
       (spec === '@/core/vi-du' || spec.startsWith('@/core/vi-du/')) &&
       spec !== '@/core/vi-du/types',
     duocPhep: ['application/vi-du.ts'],
+  },
+  {
+    // Bài "Hướng dẫn sử dụng" của 111 công thức (WF-21, 02/10/2026). Ranh giới này nặng hơn ba cái
+    // trên: dựng một bài phải CHẠY `calc` hàng trăm lượt (dò số phiên tối thiểu, lấy lại câu cảnh
+    // báo thật), nên nó kéo theo cả Registry lẫn hàm tính. Xem `src/core/huong-dan/index.ts`.
+    ten: '@/application/huong-dan',
+    khop: (spec) => spec === '@/application/huong-dan',
+    duocPhep: [
+      'app/huong-dan/cong-thuc/[id]/page.tsx',
+      /* Đợt 2 (02/10/2026): màn chi tiết dựng sẵn bài để panel mở tại chỗ không phải tải gì. */
+      'app/cong-thuc/[id]/page.tsx',
+    ],
+  },
+  {
+    // Trừ module LÁ `types`, cùng lẽ với `src/core/vi-du` ngay trên.
+    ten: 'src/core/huong-dan',
+    khop: (spec) =>
+      (spec === '@/core/huong-dan' || spec.startsWith('@/core/huong-dan/')) &&
+      spec !== '@/core/huong-dan/types',
+    duocPhep: ['application/huong-dan.ts'],
   },
 ];
 

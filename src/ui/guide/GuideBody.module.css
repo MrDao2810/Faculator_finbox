@@ -1,0 +1,219 @@
+/*
+ * Thân bài "Hướng dẫn sử dụng" — dùng chung cho trang đầy đủ và cho khung mở tại nút (WF-21).
+ *
+ * File này cố ý KHÔNG biết mình đang nằm trong trang hay trong khung: không luật nào ở đây nhắc
+ * tới bề ngang khung ngoài. Khung là việc của nơi gọi — `GuideScreen.module.css` cho trang,
+ * `GuideHintPanel.module.css` cho khung tại nút.
+ *
+ * Đợt 5 (03/10/2026) gỡ cả khối luật của BẢNG ô nhập (`.table`, `.unitCell`, `.tag`) cùng với bảng
+ * ấy. Chúng không bỏ vì thẩm mỹ: bài nay nói việc chứ không in lại thông tin — xem
+ * `src/core/huong-dan/types.ts`. Một hệ quả phải sửa kèm: mục `.table thead th` trong
+ * `GIU_COLOR_BORDER` của `hairline.test.ts` không còn đối tượng, nên nó được gỡ và tên ca kiểm
+ * trở về "đúng chín chỗ".
+ *
+ * Đợt 8 (05/10/2026) gỡ MƯỜI SÁU lớp nữa — `.note` · `.steps` · `.step` · `.step::marker` ·
+ * `.fieldList` · `.fieldName` · `.fromFormula` · `.scope` · `.scopeLabel` · `.loadList` ·
+ * `.loadItem` · `.loadName` · `.loadNote` · `.inlineLink` và hai trạng thái của nó. Không lớp nào
+ * sai; chúng mất đối tượng, vì chủ dự án chốt bài chỉ mang chữ trong `guide-111.json` và mọi câu
+ * thao tác dùng chung đã đi. File còn đúng những lớp có chữ để mặc.
+ */
+
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  /*
+   * Neo `#muc` là đích cuộn. Chừa chỗ cho thanh trên DÍNH, nếu không tiêu đề mục bị nó che đúng
+   * lúc người ta vừa bấm vào link của mục ấy.
+   */
+  scroll-margin-top: var(--space-8);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+}
+
+.prose {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+/* ── "Lấy số liệu ở đâu" — chữ riêng của từng công thức ───────────────────────────────────────── */
+
+.noiDung {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Nhãn khối bên trong một mục: nhỏ hơn `<h2>` của mục một bậc và viết hoa nhỏ, để nó đọc ra là
+ * NHÃN chứ không phải một mục thứ hai. Cùng bậc với `<h3>` của `ConstantsNote` trên màn tính.
+ */
+.blockLabel {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/*
+ * Một ô một hàng: TÊN Ô ở trên, nơi lấy số ở dưới.
+ *
+ * KHÔNG dùng hai cột. Khung "?" hẹp 32rem, và tên ô dài nhất của thư viện là "Lợi nhuận trước lãi
+ * vay và thuế (EBIT)" — một cột tên đủ rộng cho nó sẽ ăn hơn nửa khung, để lại cho câu "lấy ở đâu"
+ * một dải hẹp vắt bốn dòng. Xếp dọc thì cả hai được trọn chiều ngang, và thụt lề của `<dd>` là thứ
+ * duy nhất phải nói ra quan hệ giữa hai dòng.
+ *
+ * `.sourceList` của đợt 6 đã bỏ cùng với `tachCum()` — xem mộ chí trong `GuideBody.tsx`.
+ */
+.fieldSources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * `<div>` gói từng cặp `<dt>`/`<dd>`, KHÔNG phải `display: contents`: thứ ấy làm một số trình đọc
+ * màn hình bỏ luôn khối gói ra khỏi cây trợ năng — cùng lý do khối `QuizGiai` chọn `subgrid` thay
+ * vì `contents`. Ở đây không cần `subgrid` vì hai dòng xếp dọc, không chia cột nào.
+ */
+.fieldRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.fieldLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+}
+
+/*
+ * Dấu "Nâng cao" — chữ nhỏ viền mảnh, cùng bậc với thẻ cấp độ ở tiêu đề màn tính. Không dùng mặt
+ * vàng cảnh báo: đây là một điều kiện để thấy ô, không phải một phép tính vừa hỏng, và
+ * `warning-surface.test.ts` khoá đúng năm mặt vàng đang có.
+ */
+.fieldAdvanced {
+  flex: none;
+  padding: 0 var(--space-2);
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-muted);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.fieldWhere {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  /*
+   * Thụt lề là thứ nói ra "dòng này thuộc tên phía trên". Trình duyệt mặc định cho `<dd>` một
+   * `margin-inline-start: 40px`, rộng quá cho một khung 32rem — đặt lại bằng thang của dự án.
+   */
+  margin: 0 0 0 var(--space-4);
+  min-width: 0;
+
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+/* Lưu ý khi điền ô ấy — 164/269 ô có. Nhạt hơn một bậc để không tranh chỗ với câu "lấy ở đâu". */
+.fieldNote {
+  color: var(--color-muted);
+}
+
+/* ── "Dễ sai" — một lỗi, đóng mục Đọc kết quả ────────────────────────────────────────────── */
+
+/*
+ * Mặt phẳng CHÌM, không phải mặt vàng cảnh báo: `warning-surface.test.ts` khoá đúng năm mặt vàng
+ * đang có, và quan trọng hơn — dòng này là một lời nhắc khi đọc, không phải một phép tính vừa
+ * hỏng. `.scope` từng dùng chung hình này cho câu giới hạn phạm vi của `spec.note`; nó đi ngày
+ * 05/10/2026 cùng mọi chữ không có trong `guide-111.json`.
+ */
+.caution {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+
+  background: var(--color-sunken);
+  border-left: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.cautionLabel {
+  margin-right: var(--space-1);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+}
+
+/* ── Khi kết quả hiện _ _ ────────────────────────────────────────────────────────────────── */
+
+/*
+ * Dùng lại `InlineWarning` của màn tính, không dựng mặt vàng thứ sáu: `warning-surface.test.ts`
+ * khoá đúng năm mặt đang có, và quan trọng hơn — người đọc phải thấy ở đây CHÍNH cái thẻ họ sẽ
+ * gặp trên màn, không phải một bản vẽ lại của nó.
+ */
+.warnings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.toc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tocLink {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+  text-decoration: none;
+}
+
+.tocLink:hover,
+.tocLink:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}

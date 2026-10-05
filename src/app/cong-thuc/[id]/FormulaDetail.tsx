@@ -7,7 +7,15 @@ import Link from 'next/link';
  * mất phần MathML dựng sẵn (xem chú thích chỗ đọc `?ma=` bằng `window.location.search`).
  */
 import { useRouter } from 'next/navigation';
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from 'react';
 
 import {
   ACTIVE_TICKER_KEY,
@@ -38,6 +46,7 @@ import {
   emptyCashflowRow,
   findFormulaModule,
   formulaOriginToStore,
+  guidePath,
   formatIsoDate,
   formatValueWithUnit,
   hasDraftData,
@@ -76,6 +85,8 @@ import {
 } from '@/application';
 import type { Nut } from '@/application/quiz-cay';
 import type {
+  BaiHuongDan,
+  MucId,
   QuizItem,
   QuizProgress,
   ViDuGiai,
@@ -110,6 +121,7 @@ import {
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
+import { GuideHint } from '@/ui/guide';
 import { QuizPanel } from '@/ui/quiz';
 import { ExportSheet, PasteImportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
@@ -123,6 +135,7 @@ import {
 } from '@/ui/screens';
 
 import { FormulaNotationCard } from './FormulaNotationCard';
+import { GuideHintPanel, type GuideHintPanelState } from './GuideHintPanel';
 import type { NotationView } from './notation-types';
 import { QuizFormulaPicture } from './QuizFormulaPicture';
 import { TickerPickerPanel } from './TickerPickerPanel';
@@ -237,6 +250,19 @@ export interface FormulaDetailProps {
    * `ExampleBlockProps.thaySoCay`.
    */
   viDuCay?: { vi: Nut | null; en: Nut | null };
+  /**
+   * Bài "Hướng dẫn sử dụng" của chính công thức này (WF-21 đợt 2), dựng sẵn lúc build ở
+   * `page.tsx` qua `@/application/huong-dan`.
+   *
+   * Cùng lý do với `quiz` và `viDu`, nhưng gắt hơn: dựng một bài phải CHẠY `calc` hàng trăm lượt
+   * (dò số phiên tối thiểu, lấy lại câu cảnh báo thật), nên cửa gác `build-only-imports.test.ts`
+   * chỉ cho `page.tsx` nhập module ấy. Kiểu thì nhập được qua barrel vì `export type` bị xoá lúc
+   * biên dịch.
+   *
+   * Tuỳ chọn: thiếu nó thì nút "Cách dùng công thức này" vẫn là một link thật sang trang đầy đủ,
+   * chỉ không mở được panel. Đó cũng đúng là hành vi khi JavaScript chưa tải xong.
+   */
+  bai?: BaiHuongDan;
 }
 
 type SheetKind = 'preset' | 'paste' | 'export' | 'save';
@@ -318,7 +344,15 @@ function LinkIcon() {
  * Hai công thức có khối kết quả riêng (WF-08 phí & thuế, WF-14 lịch trả nợ) được nạp qua
  * `DetailBody`, tải trễ theo id — đúng chữ "tải trễ khối nặng" của gói 3.2.1.
  */
-export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: FormulaDetailProps) {
+export function FormulaDetail({
+  spec,
+  asOf,
+  notation,
+  quiz,
+  viDu,
+  viDuCay,
+  bai,
+}: FormulaDetailProps) {
   const { mode, feeScheduleId } = usePreferences();
   const t = useT();
   const pick = usePick();
@@ -510,6 +544,24 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
    * chunk chỉ tải khi người dùng thật sự bấm "Đổi mã", `pickerOpen` để đóng/mở mà không tháo
    * component (mất luôn từ khoá họ vừa gõ và danh sách 1.649 mã vừa tải).
    */
+  /*
+   * Khung hướng dẫn bật ra tại nút "?" — một ô trạng thái mang cả ba thứ khung cần: mục nào, bám
+   * nút nào, và điểm chạm nào. `null` là đang đóng.
+   *
+   * Không gộp vào `SheetKind`: bốn sheet kia loại trừ nhau vì chúng là các bước của cùng một
+   * việc, còn khung này bật lên TRÊN bất cứ việc nào đang dở.
+   */
+  const [goiY, setGoiY] = useState<GuideHintPanelState | null>(null);
+
+  /* Ổn định qua các lượt dựng: `GuideHintPanel` gắn/gỡ bộ nghe theo nó. */
+  const dongGoiY = useCallback(() => {
+    setGoiY(null);
+  }, []);
+
+  function moGoiY(muc: MucId, event: ReactMouseEvent<HTMLAnchorElement>): void {
+    setGoiY({ muc, anchor: event.currentTarget, point: { x: event.clientX, y: event.clientY } });
+  }
+
   const [pickerMounted, setPickerMounted] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   /**
@@ -2353,7 +2405,9 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
       </section>
 
       {/* ── 3. Công thức — ký hiệu toán học (gói 2.4.3) rồi tới bản dạng chữ ─ */}
-      <section className={`${styles.block} ${styles.blockFormula}`}>
+      {/* `styles.blockFormula` đã gỡ ở đợt 5: lớp ấy không được khai ở đâu trong CSS, nên thẻ này
+          suốt thời gian qua mang `class="block undefined"`. Cùng lượt với `styles.blockChart`. */}
+      <section className={styles.block}>
         {/*
           Hàng nút "Nạp mẫu" / "Xem ví dụ thực tế ↓" nay đi CHUNG hàng với tiêu đề khối, không còn
           đứng thành một hàng riêng ngay dưới tên công thức.
@@ -2375,6 +2429,25 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         <div className={`${styles.blockHead} ${styles.blockHeadActions}`}>
           <h2 className={styles.blockTitle}>{t('detail.formula')}</h2>
 
+          {/*
+            ── Mộ chí: nút "?" cạnh tiêu đề khối Công thức ──────────────────────────────────
+
+            Bỏ ngày 05/10/2026, và lý do KHÔNG phải là nó thừa — ngược hẳn lại. Đây là nút được
+            lập luận chắc nhất trong ba nút: hình công thức là chỗ khó hiểu nhất của màn, khung
+            "Cách tính" đã có sẵn (61/111 công thức, 112 khung cả thư viện) mà dấu hiệu duy nhất
+            mời người ta rê vào là CON TRỎ BÀN TAY — thứ ngón tay trên điện thoại không bao giờ
+            thấy. Cái thiếu khi ấy không phải cơ chế, mà là lời mời.
+
+            Nó đi vì mục nó mở đã HẾT NỘI DUNG. Chủ dự án chốt bài hướng dẫn chỉ được mang chữ
+            trong `guide-111.json`, và file ấy không có chữ nào cho việc đọc hình công thức — nên
+            mục `hieu-cong-thuc` không còn gì để in, và một nút mở ra mục rỗng còn tệ hơn không có
+            nút. `guide.hint.formula` bỏ theo.
+
+            Dựng lại cần đúng một thứ: chữ cho mục ấy. Có chữ rồi thì thêm `'hieu-cong-thuc'` vào
+            `MucId`, một nhánh ở `GuideMuc`, và chép lại khối `<GuideHint>` này từ `git log` —
+            nhớ cả `margin-right: auto` của `.blockHead .hintCanhTieuDe`, vì `.blockHead` dùng
+            `justify-content: space-between` và sẽ ném nút ra giữa hàng nếu thiếu.
+          */}
           <div className={styles.actions}>
             {/*
               Ẩn hẳn với 38 công thức mà nạp mã không đổi được gì — xem `presetHelps`. Ẩn chứ không
@@ -2610,6 +2683,22 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
                   {hiddenCount} {t('detail.hiddenInBasic')}
                 </span>
               )}
+              {/*
+                Nút "?" thứ hai — xem danh sách ba chỗ được phép và lý do loại những chỗ khác ở
+                `FormulaDetail.test.tsx`. Nó KHÔNG nằm trong `<h2>`: ở khuôn thẻ gộp (65 công thức,
+                từ 1280px) luật `.merged .blockTitle` đẩy tiêu đề thành ẩn-khỏi-mắt, và một nút nằm
+                trong đó sẽ ẩn theo ở đúng khổ màn web.
+              */}
+              <GuideHint
+                className={styles.hintSoLieu}
+                href={`${guidePath(spec.id)}#nhap-so`}
+                nhan={t('guide.hint.input')}
+                {...(bai === undefined
+                  ? {}
+                  : {
+                      onMo: (event: ReactMouseEvent<HTMLAnchorElement>) => moGoiY('nhap-so', event),
+                    })}
+              />
             </div>
 
             {/*
@@ -2919,6 +3008,21 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         `FormulaDetail.module.css`. Chúng luôn nằm dưới nếp gấp ở khổ điện thoại, nên bỏ qua phần
         dựng hình của chúng cho tới lúc cuộn tới là cắt được phần lớn lượt layout đầu tiên của màn.
       */}
+        {/*
+          ── Nút "?" ở hàng tiêu đề khối Giải thích đã BỎ (đợt 5, 03/10/2026) ──────────────────
+
+          Nó mở mục "Dùng để làm gì", và mục ấy in `explanation.whenToUse` — ĐÚNG câu mà chính khối
+          Giải thích ngay dưới nút đang in, cách nó một hàng. Tức cú bấm trả về thứ người đọc vừa
+          đọc. Chủ dự án chốt: *"đây là hướng dẫn sử dụng nên khi bấm vào đó thì nó là hướng dẫn sử
+          dụng như nào chứ không phải viết lại thông tin của phần đó"* — và chỗ này là bản mẫu của
+          đúng lỗi ấy, nên mục bị bỏ thì nút bỏ theo.
+
+          Khối Giải thích là chữ để ĐỌC, không có thao tác nào ở đó. Ba nút "?" còn lại đứng ở ba
+          khối có việc phải làm: hình công thức · ô nhập · biểu đồ. Prop `action` của
+          `ExplanationAccordion` cũng trả về bản gốc cùng lượt — không call site nào còn dùng nó.
+
+          ĐỪNG thêm lại "?" ở đây mà không mang theo một mục nói VIỆC.
+        */}
         <ExplanationAccordion
           explanation={spec.explanation}
           showMeaning={false}
@@ -2994,8 +3098,38 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         trên đó, nên không bày lối vào lần hai.
       */}
         {showChart && formula !== undefined && (
-          <section className={`${styles.block} ${styles.deferred} ${styles.blockChart}`}>
-            <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
+          <section className={`${styles.block} ${styles.deferred}`}>
+            {/*
+              Nút "?" thứ ba. Khối này trước đây là `<h2>` trần trong một flex column, nên nút
+              thêm vào sẽ thành một hàng riêng dưới tiêu đề — phải bọc lại bằng `.blockHead`, luật
+              đã có sẵn trong file này.
+
+              Lý do có "?" ở đây, và nó là lý do do CHÍNH dự án ghi lại: hai câu gợi ý dưới hình
+              (`chart.applyHintReady`, `chart.applyHintTimeAxis`) bị bỏ ngày 14/09/2026 theo yêu cầu
+              chủ dự án, và chú thích tại chỗ ở `vi.ts` ghi cái giá phải trả — *"Không còn câu nào
+              nói ra điều ấy, nên cú bấm đầu tiên trên những màn đó trông như tính năng không hoạt
+              động."* Thêm một điều chưa từng được nói ở đâu: dải quét là ±50% quanh con số đang
+              nhập, nên hình có đường cong dù người dùng chỉ nhập một bộ số. Câu mô tả dưới hình chỉ
+              kể SỐ ĐO ("Quét … từ … tới … qua 41 mức"), không nói nghĩa.
+
+              Lớp `styles.blockChart` cũ đã gỡ ở đợt 5: nó KHÔNG được khai ở đâu trong CSS, nên thẻ
+              này suốt thời gian qua mang `class="block deferred undefined"`. Cùng lượt với
+              `styles.blockFormula` ở khối Công thức.
+            */}
+            <div className={styles.blockHead}>
+              <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
+              <GuideHint
+                className={styles.hintCanhTieuDe}
+                href={`${guidePath(spec.id)}#doc-bieu-do`}
+                nhan={t('guide.hint.chart')}
+                {...(bai === undefined
+                  ? {}
+                  : {
+                      onMo: (event: ReactMouseEvent<HTMLAnchorElement>) =>
+                        moGoiY('doc-bieu-do', event),
+                    })}
+              />
+            </div>
             <FormulaChart
               formula={formula}
               inputs={chartInputs}
@@ -3061,6 +3195,21 @@ export function FormulaDetail({ spec, asOf, notation, quiz, viDu, viDuCay }: For
         chữ "S"). Hoãn dựng hình ở đây cũng chẳng được gì: lúc nghỉ khối chỉ là một hàng tiêu đề,
         lúc làm bài thì nó đang nằm trên màn.
       */}
+      {/*
+        Khung hướng dẫn bật ra NGAY TẠI nút "?" vừa bấm (03/10/2026).
+
+        Thay cho ngăn kéo trượt từ mép phải của đợt 2 — chủ dự án: *"bấm vào '?' thì có một popup
+        xổ ra ở chỗ trỏ chuột ấy chứ không phải là ở slide"*. Lý do đọc được ngay trên màn: một
+        tấm dán mép phải không nói được nó trả lời cho CHỖ NÀO, và người bấm dấu hỏi cạnh khối Số
+        liệu phải đưa mắt sang đầu kia màn hình để tìm câu trả lời.
+
+        Dựng CÓ ĐIỀU KIỆN chứ không giữ lại như sheet: khung này không phải `<dialog>` nên không
+        có `close()` nào để trả tiêu điểm, và nó không giữ trạng thái gì đáng tiếc khi tháo.
+      */}
+      {bai !== undefined && goiY !== null && (
+        <GuideHintPanel id={`goi-y-${spec.id}`} bai={bai} state={goiY} onClose={dongGoiY} />
+      )}
+
       <QuizPanel
         formulaId={spec.id}
         items={quiz?.items ?? []}

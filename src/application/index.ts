@@ -383,6 +383,14 @@ export { LOCALES, isLocale, missingKeys, pick, t } from './i18n';
 // ── Link chia sẻ mang theo bộ số liệu đang nhập ────────────────────────────
 export { SHARE_INPUTS_PARAM, decodeShareInputs, encodeShareInputs } from './share-inputs';
 
+/*
+ * Bài hướng dẫn từng công thức (WF-21) — barrel chỉ xuất KIỂU, và đi thẳng tới module LÁ
+ * `@/core/huong-dan/types`. `export type` bị xoá lúc biên dịch nên không sinh import runtime nào;
+ * phần chạy được nằm sau cửa chỉ-lúc-build `@/application/huong-dan`, vì dựng một bài phải chạy
+ * `calc` hàng trăm lượt. Cùng nếp kiểu câu hỏi đi qua `@/core/quiz/types`.
+ */
+export type { BaiHuongDan, BaiRiengDaChuan, MucId, ONhapHuongDan } from '@/core/huong-dan/types';
+
 export type { HeaderBackLink, NavItem, NavKey, RouteKey } from './routes';
 export {
   FORMULA_LIST_ANCHOR,
@@ -394,6 +402,8 @@ export {
   backLinkFor,
   formulaListPath,
   formulaPath,
+  guideFormulaId,
+  guidePath,
   headerTitleKey,
   showsFooterDisclaimer,
 } from './routes';

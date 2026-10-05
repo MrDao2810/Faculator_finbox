@@ -1,0 +1,48 @@
+/*
+ * Khung hướng dẫn bật ra tại nút "?" — WF-21 đợt 4.
+ *
+ * Số đo chép từ khung "cách tính" (`FormulaNotationCard.module.css` `.panel`) vì chúng là MỘT
+ * hình: cùng nền, cùng viền, cùng bóng, cùng bề ngang. Khác đúng hai chỗ, và cả hai có lý do —
+ * `position: fixed` thay cho `absolute` (nút "?" rải trên cả màn, mọi khối cha đều có thể mang
+ * `overflow` hoặc `content-visibility` và cắt mất khung), và bề ngang rộng hơn một bậc vì nội dung
+ * ở đây là một BẢNG ô nhập chứ không phải hai dòng công thức.
+ */
+
+.panel {
+  position: fixed;
+  z-index: 40;
+  width: min(32rem, calc(100vw - 2 * var(--space-4)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+}
+
+/*
+ * Tiêu đề mục bên trong khung nhỏ hơn một bậc so với trong bài: ở đây nó là nhãn của một khung
+ * bật ra, không phải một chương của trang.
+ */
+.panel h2 {
+  font-size: var(--text-base);
+}
+
+.full {
+  align-self: flex-start;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.full:hover,
+.full:focus-visible {
+  text-decoration: underline;
+}

@@ -1867,7 +1867,16 @@
       "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/quiz/items)",
       "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/formulas)",
       "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/how-to)",
-      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/vi-du)"
+      "Bash(node \"/c/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/8dbee72c-18dc-49c4-96d2-231c3c4b1d66/scratchpad/scan-any-en.js\" src/core/vi-du)",
+      "Bash(sed -n '/danh sách công thức không có khung nào/,/^  }\\);/p' src/core/how-to/how-to.test.ts | grep -c \"^        '\" && echo \"^ số công thức không có khung how-to\")",
+      "Bash(node \"C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/4caa5edc-cee0-4753-8950-ce1f3efe54bd/scratchpad/ve-wf21.mjs\" docs/wf21)",
+      "Bash(node \"C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/4caa5edc-cee0-4753-8950-ce1f3efe54bd/scratchpad/png-wf21.mjs\" docs/wf21)",
+      "Bash(node C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/4caa5edc-cee0-4753-8950-ce1f3efe54bd/scratchpad/ve-wf21.mjs docs/wf21)",
+      "Bash(node C:/Users/daoqu/AppData/Local/Temp/claude/c--Faculator-finbox/4caa5edc-cee0-4753-8950-ce1f3efe54bd/scratchpad/png-wf21.mjs docs/wf21)",
+      "Bash(node -e 'const fs=require\\('\\\\''fs'\\\\''\\),p='\\\\''src/core/formulas/'\\\\'';let n=0,w=0,u=0,d=0; *)",
+      "Bash(grep -vE '^\\\\s*\\\\*|^\\\\s*/\\\\*')",
+      "Bash(grep -n \"quiz-\\\\${\\\\|tieuDeId\\\\|-title\" src/ui/quiz/QuizBody.tsx)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"ProcessId=48612 or ProcessId=32048 or ProcessId=43524\" | Select-Object ProcessId, Name, @{n='Cmd';e={$_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\)}} | Format-List)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",
@@ -1880,7 +1889,8 @@
       "c:\\Faculator_finbox\\src\\app",
       "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\cfbac60d-8ed5-474e-8daf-59b9f8ce8810\\scratchpad\\audit",
       "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\cfbac60d-8ed5-474e-8daf-59b9f8ce8810\\scratchpad\\audit\\refs",
-      "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\scratchpad"
+      "C:\\Users\\daoqu\\AppData\\Local\\Temp\\claude\\c--Faculator-finbox\\45be4e5c-5720-4c7d-90a3-7e8f7da7b5ad\\scratchpad",
+      "C:\\Faculator_finbox\\src\\core\\how-to"
     ]
   }
 }

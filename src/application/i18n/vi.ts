@@ -1663,4 +1663,198 @@ export const vi = {
    * `quiz.evidence.*` thì SỐNG và không được bỏ theo: nó đổi cả tiêu đề hộp lời giải bên dưới
    * ("Quy định hiện hành" thay cho "Vì sao đúng"), và hai cửa gác ở `quiz.test.ts` khoá theo nó.
    */
+
+  /* ── Hướng dẫn sử dụng từng công thức — WF-21 (02/10/2026) ───────────────────────────────── */
+
+  /*
+   * ── ĐỢT 8 (05/10/2026): bài chỉ còn mang chữ chủ dự án giao ─────────────────────────────
+   *
+   * Lời chốt: *"câu thừa trước đó thì bỏ đi, chỉ để lại những câu đã tạo trong file tôi gửi
+   * thôi"*. Nên 36 khoá của đợt 5 đã BỎ, và danh sách ấy đáng đọc một lần vì nó là một bài học
+   * về chỗ đứng chứ không phải về chất lượng câu chữ:
+   *
+   *   · `guide.section.formula` + `guide.formula.*` (5) — cả mục "Đọc hình công thức". Mục này
+   *     không bị chê, nó HẾT NỘI DUNG: `guide-111.json` không có chữ nào cho việc đọc hình. Nút
+   *     "?" cạnh khối Công thức đi theo, nên `guide.hint.formula` cũng bỏ.
+   *   · `guide.load.*` (8) — bốn thẻ "đường nạp số". Chúng tả bốn nút trên màn.
+   *   · `guide.input.locked` · `needsSeries` · `advanced` · `whereNumbers` · `fromFormula` —
+   *     năm câu điều kiện của mục Nhập số.
+   *   · `guide.result.example` · `quiz` · `save` · `export` — bốn bước "làm gì tiếp". Cả bốn kể
+   *     tên bốn khối người đọc đang nhìn thấy.
+   *   · `guide.chart.*` (7) — bảy bước đọc biểu đồ, thay bằng `guide.chartKind.*` dưới đây.
+   *   · `guide.fromFormula` · `openData` · `openSettings` · `openModeSettings` · `openList` ·
+   *     `scopeNote` — sáu nhãn và lối ra đi cùng những câu mang chúng.
+   *
+   * Hai mất mát đã cân nhắc và vẫn chấp nhận, ghi ra để không ai tưởng là sơ suất:
+   *
+   *   1. `guide.chart.apply` / `applyTime` là bản phục hồi của `chart.applyHintReady` — câu bị bỏ
+   *      khỏi dưới hình ngày 14/09/2026, và chú thích khi ấy ghi rõ cái giá: *"cú bấm đầu tiên
+   *      trên những màn đó trông như tính năng không hoạt động"*. Nay không còn câu nào nói ra
+   *      việc bấm vào hình ghi giá trị vào ô nhập. Tính năng vẫn còn nguyên.
+   *   2. `guide.input.locked` là chỗ DUY NHẤT dạy cách mở khoá ô sau khi nạp mã (dấu × trên con
+   *      chip mã). Không còn chỗ nào nói điều đó.
+   *
+   * Cần lại thì `git log` còn nguyên câu chữ. Nhưng đừng thêm một câu nào vào khối này trước khi
+   * có nó trong file chủ dự án giao — đó là luật của đợt 8, và nó được giữ bằng cấu trúc:
+   * `GuideBody` không còn `<T>` nào cho NỘI DUNG, chỉ còn cho tiêu đề và nhãn khối.
+   */
+
+  'guide.howToUse': 'Hướng dẫn sử dụng',
+  'guide.toc': 'Trong bài này',
+  'guide.openScreen': 'Mở màn thật',
+  'guide.related': 'Công thức liên quan',
+
+  /*
+   * ── Tiêu đề bốn mục ─────────────────────────────────────────────────────────────────────
+   *
+   * Mỗi tiêu đề là một CÂU HỎI THAO TÁC, không phải tên một loại thông tin. Đó là khác biệt giữa
+   * "Cần số gì" (một danh mục) và "Nhập số vào đâu" (một việc) — và nó là cả nội dung của lời phê
+   * đợt 5: *"nó là hướng dẫn sử dụng như nào chứ không phải viết lại thông tin của phần đó"*.
+   *
+   * `guide.section.result` bỏ đuôi "và làm gì tiếp" ở đợt 8, vì bốn bước ấy đã đi: một tiêu đề
+   * hứa một thứ không còn trong mục là loại sai tệ hơn im lặng.
+   *
+   * `guide.section.input` đổi từ 'Nhập số vào đâu' sang 'Lấy số liệu ở đâu' ngày 05/10/2026, và
+   * đó là MỘT NỬA của việc gộp hai tiêu đề thành một — xem mộ chí `guide.input.whereHeading` ngay
+   * dưới. Chữ "số liệu" thay chữ "số" theo đúng chỉ dẫn của chủ dự án ở cùng lượt.
+   */
+  'guide.section.input': 'Lấy số liệu ở đâu',
+  'guide.section.result': 'Đọc kết quả',
+  'guide.section.chart': 'Đọc biểu đồ',
+  'guide.section.blank': 'Khi kết quả hiện _ _',
+
+  /*
+   * Mộ chí: `guide.input.whereHeading` ('Lấy số ở đâu') bỏ ngày 05/10/2026, cùng với `<h3>` nó in
+   * trong `KhoiNhapSo`.
+   *
+   * Nó không sai, nó TRÙNG: trên màn, `<h2>` 'Nhập số vào đâu' và `<h3>` 'LẤY SỐ Ở ĐÂU' xếp liền
+   * nhau, hai tiêu đề nói cùng một việc trước khi tới hàng ô nhập đầu tiên. Chủ dự án chỉ thẳng
+   * vào 'Nhập số vào đâu' và gọi nó là "text dư", rồi ở cùng lượt đổi tên tiêu đề còn lại thành
+   * 'Lấy số liệu ở đâu'. Hai chỉ dẫn đó chỉ ăn khớp theo một cách: giữ MỘT tiêu đề, mang tên mới.
+   *
+   * Tiêu đề sống sót phải là `<h2>` của mục, không phải `<h3>`: mục lục đọc nó, `aria-labelledby`
+   * trỏ vào nó, và neo `#nhap-so` là một URL nên tên neo GIỮ NGUYÊN.
+   *
+   * Khác với 'Đọc biểu đồ' + 'BIỂU ĐỒ QUÉT ĐỘ NHẠY' — cặp ấy KHÔNG trùng, vì `<h3>` ở đó gọi tên
+   * LOẠI hình công thức này đang vẽ. Đừng gộp cặp ấy theo.
+   */
+  /*
+   * Dấu in cạnh tên của 12/269 ô chỉ hiện ở chế độ Nâng cao — NGOẠI LỆ DUY NHẤT của luật "chỉ chữ
+   * trong file chủ dự án giao".
+   *
+   * Hai chữ, không thành câu: nó là một THẺ cạnh tên ô, cùng loại với thẻ "Cơ bản" ở tiêu đề màn
+   * tính, không phải một lời giải thích. Giữ nó vì thiếu nó thì bài kê một ô mà người đọc ở chế độ
+   * Cơ bản không tìm thấy trên màn — đúng hình dạng lỗi đợt 5 đã trả giá với nút "Nạp mẫu".
+   *
+   * Câu giải thích dài (`guide.input.advanced`, kèm hai link đổi chế độ) đã bỏ cùng 35 khoá kia.
+   */
+  'guide.input.advancedField': 'Nâng cao',
+
+  /* Nhãn mở đầu dòng 'Dễ sai' — ĐÚNG MỘT lỗi, luật của chính tài liệu. */
+  'guide.result.pitfall': 'Dễ sai:',
+
+  /*
+   * ── Mục "Đọc biểu đồ" — một đoạn cho mỗi LOẠI hình ──────────────────────────────────────
+   *
+   * Chép nguyên văn khối `charts` của `guide-111.json`. Mười loại, dù Registry hiện chỉ dùng tám:
+   * `heatmap` và `tornado` chưa công thức nào vẽ, nhưng `ChartType` khai chúng, nên thiếu khoá là
+   * một lỗ chờ sẵn cho công thức đầu tiên dùng tới.
+   *
+   * Thay cho bảy bước dùng chung của đợt 5. Bảy bước ấy nói cho MỌI loại hình nên không bước nào
+   * nói đúng hình đang vẽ: một đoạn về biểu đồ quét độ nhạy không có nghĩa gì với người đang nhìn
+   * biểu đồ nến. Khối này gọn hơn mà nói được nhiều hơn, và đó là lý do nó đáng đổi.
+   *
+   * `none` KHÔNG có khoá: 9 công thức ấy không dựng khối biểu đồ, nên bài của chúng không có mục
+   * này — `kieuBieuDo` là `undefined`, không bao giờ là `'none'`.
+   */
+  'guide.chartKind.sensitivity.title': 'Biểu đồ quét độ nhạy',
+  /*
+   * Chủ dự án viết lại câu này nguyên văn ngày 05/10/2026 — chép đúng, không biên tập lại.
+   *
+   * Câu cũ mắc hai lỗi chính chủ dự án chỉ ra: "Chọn một ô ở ô …" lặp chữ "ô" ngay cạnh nhau, và
+   * cả đoạn đọc lên như lời nói. Câu thứ hai của bản cũ ("Chấm sáng là số bạn đang nhập.") BỎ —
+   * chủ dự án kê đúng nó trong danh sách "text dư", và sau khi câu đầu đã nói biểu đồ đổi theo
+   * thao tác thì nó chỉ nhắc lại. Lượt ấy chủ dự án cũng dạy chữ thay thế cho nó
+   * ("đang nhập" → "đang thao tác"), và chữ ấy được áp ở những chỗ khác còn dùng lối nói đó.
+   */
+  'guide.chartKind.sensitivity.body':
+    'Chọn ô trong "Xem kết quả đổi theo", biểu đồ thay đổi theo thao tác của bạn trên biểu đồ.',
+  'guide.chartKind.waterfall.title': 'Biểu đồ bóc tách',
+  'guide.chartKind.waterfall.body':
+    'Mỗi cột là một khoản cộng vào hoặc trừ đi. Cột cuối vẽ từ 0 lên và bằng đúng con số ở khối Kết quả.',
+  'guide.chartKind.stackedBar.title': 'Biểu đồ cột chồng',
+  'guide.chartKind.stackedBar.body':
+    'Mỗi cột chia thành các phần hợp thành. Chiều cao cả cột là tổng, từng khúc là từng khoản.',
+  'guide.chartKind.candlestick.title': 'Biểu đồ nến',
+  'guide.chartKind.candlestick.body':
+    'Mỗi nến là một phiên: thân nến là giá mở và đóng, râu là giá cao nhất và thấp nhất. Đường chỉ báo được vẽ đè lên.',
+  'guide.chartKind.histogram.title': 'Biểu đồ phân phối',
+  'guide.chartKind.histogram.body':
+    'Mỗi cột đếm số phiên rơi vào một khoảng lợi suất. Cột càng cao thì khoảng đó càng thường xảy ra.',
+  'guide.chartKind.underwater.title': 'Biểu đồ sụt giảm',
+  'guide.chartKind.underwater.body':
+    'Đường luôn nằm dưới mức 0. Mỗi điểm cho biết giá khi đó thấp hơn đỉnh gần nhất bao nhiêu phần trăm.',
+  'guide.chartKind.scatter.title': 'Biểu đồ hồi quy',
+  'guide.chartKind.scatter.body':
+    'Mỗi chấm là một phiên: trục ngang là thị trường, trục dọc là cổ phiếu. Độ dốc của đường chính là kết quả.',
+  'guide.chartKind.heatmap.title': 'Biểu đồ nhiệt',
+  'guide.chartKind.heatmap.body':
+    'Hai biến chạy trên hai trục, màu ô cho biết kết quả tương ứng. Dùng để thấy vùng nào an toàn, vùng nào không.',
+  'guide.chartKind.tornado.title': 'Biểu đồ xếp hạng ảnh hưởng',
+  'guide.chartKind.tornado.body':
+    'Mỗi thanh là một ô nhập. Thanh càng dài thì ô đó đẩy kết quả càng mạnh.',
+
+  /*
+   * ── Mục "Khi kết quả hiện _ _" — một câu cho mỗi mã WF-15 ───────────────────────────────
+   *
+   * Chép nguyên văn khối `warnings` của `guide-111.json`.
+   *
+   * Trước 05/10/2026 mục này in nguyên câu `calc` viết kèm dòng "cách sửa" của nó — câu riêng của
+   * từng công thức ("Chưa tính được P/E vì EPS bằng 0."), lấy bằng cách CHẠY LẠI ca kiểm. Phép
+   * chạy ấy GIỮ, vì nó quyết định mã nào xuất hiện trong bài; chỉ câu chữ là đổi sang chữ ở đây.
+   *
+   * Mất gì: câu của `calc` nói đúng công thức đang đọc, câu ở đây nói chung cho cả sáu mã. Được
+   * gì: một nguồn chữ duy nhất, và nó của chủ dự án. `INCOMPLETE_INPUT` vẫn không bao giờ in ra
+   * (xem `BO_QUA` ở `bai.ts`), nhưng khoá vẫn khai đủ sáu để bảng mã không khuyết.
+   */
+  'guide.warn.INCOMPLETE_INPUT': 'Còn ô chưa nhập. Ô thiếu đang được viền đỏ ở khối Số liệu.',
+  'guide.warn.DIVIDE_BY_ZERO': 'Một ô ở mẫu số đang bằng 0. Nhập số khác 0 vào ô đó.',
+  'guide.warn.MEANINGLESS':
+    'Công thức vẫn tính ra một con số, nhưng con số đó không nói lên điều gì với bộ số liệu này.',
+  'guide.warn.MISSING_SERIES': 'Chưa đủ số phiên giá. Nạp mã hoặc dán thêm dữ liệu.',
+  'guide.warn.MODEL_VIOLATION':
+    'Số liệu vi phạm điều kiện của mô hình. Dòng ↳ nói điều kiện nào bị vi phạm.',
+  'guide.warn.INHERITED':
+    'Công thức nguồn đang lỗi nên công thức này chưa tính được. Sửa ở công thức nguồn.',
+
+  /*
+   * Mộ chí: `guide.resultUnit` ('Kết quả tính bằng' + đơn vị) bỏ ngày 03/10/2026 cùng đợt với
+   * `guide.constants`, cùng một lý do: đơn vị đã in ngay dưới con số ở khối Kết quả, và nó cũng
+   * đứng cạnh mọi ô nhập. Một dòng nữa nói lại đơn vị là dòng thứ ba.
+   *
+   * Mộ chí: `guide.entry` ('Cách dùng công thức này') và `guide.hintInputs` ('Hướng dẫn: cần số gì
+   * và lấy ở đâu') bỏ cùng ngày, khi nút "?" chuyển từ hai chỗ sang ba chỗ và mỗi chỗ cần một nhãn
+   * nói đúng mục nó mở — xem `guide.hint.*` dưới đây.
+   *
+   * Mộ chí: `guide.constants` ('Mức phí và thuế đang hiệu lực do sản phẩm tự tra, bạn không phải
+   * nhập ô nào cho chúng.') bỏ ngày 03/10/2026, chủ dự án gọi thẳng tên nó là "text thừa":
+   * `ConstantsNote` ở cuối khối Số liệu đã in nhãn, trị số, đơn vị, ngày hiệu lực và căn cứ pháp
+   * lý của từng hằng số — màn đã CHỨNG MINH việc sản phẩm tự tra. Link `guide.openSettings` đi
+   * theo ở đợt 8, cùng cả trường `BaiHuongDan.hangSo` từng quyết định có bày link hay không.
+   */
+  'guide.openExample': 'Xem ví dụ thực tế',
+  'guide.openQuiz': 'Làm bài tập',
+  'guide.openCalc': 'Tính với số liệu của bạn',
+  'guide.openFull': 'Mở toàn trang',
+
+  /*
+   * Nhãn cho trình đọc màn hình của hai nút "?" — phải nói CHỖ NÀO, vì người dùng bàn phím chỉ gặp
+   * một vòng tròn không chữ. Nhãn phải là tiêu đề mục nó mở, nói ra thành câu. Ký tự "?" nhìn thấy
+   * được mang `aria-hidden`.
+   *
+   * BA nút ở đợt 5, hai nút từ đợt 8: nút cạnh khối Công thức đi cùng mục `hieu-cong-thuc`, và
+   * `guide.hint.formula` bỏ theo nó.
+   */
+  'guide.hint.input': 'Hướng dẫn: lấy số liệu ở đâu',
+  'guide.hint.chart': 'Hướng dẫn: đọc biểu đồ',
 } as const;

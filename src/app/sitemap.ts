@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-import { FORMULA_SUMMARIES, ROUTES, formulaPath } from '@/application';
+import { FORMULA_SUMMARIES, ROUTES, formulaPath, guidePath } from '@/application';
 
 import { absoluteUrl } from './site-url';
 
@@ -36,5 +36,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: formula.isFeatured === true ? 0.8 : 0.7,
   }));
 
-  return [...staticPages, ...formulaPages];
+  /*
+   * Bài hướng dẫn của từng công thức (WF-21). CÓ trong sitemap vì đây là nội dung thật để đọc,
+   * không trùng nội dung với trang công thức — trang kia để TÍNH, bài này trả lời "lấy số ở đâu,
+   * đọc thế nào, sao ô kết quả trống".
+   *
+   * Xếp dưới trang công thức ở mọi mức: ai tìm "P/E" thì thứ họ cần trước là màn tính.
+   * `/huong-dan/` trơn KHÔNG có mặt — đợt này chưa dựng trang ấy, và khai một URL chưa tồn tại là
+   * mời bộ máy tìm kiếm đi vào 404.
+   */
+  const guidePages: MetadataRoute.Sitemap = FORMULA_SUMMARIES.map((formula) => ({
+    url: absoluteUrl(guidePath(formula.id)),
+    priority: 0.4,
+  }));
+
+  return [...staticPages, ...formulaPages, ...guidePages];
 }

@@ -26,7 +26,7 @@ import {
   serializeStoredSeries,
   t,
 } from '@/application';
-import type { FormulaSpec } from '@/application';
+import type { BaiHuongDan, FormulaSpec } from '@/application';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
 /*
@@ -38,6 +38,8 @@ import { PreferencesProvider } from '@/application/preferences-context';
 import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 
 import { FormulaDetail } from './FormulaDetail';
+import { baiHuongDanFor } from '@/application/huong-dan';
+
 import { buildNotationView } from './notation-view';
 import type { NotationView } from './notation-types';
 
@@ -131,13 +133,20 @@ const notationCache = new WeakMap<FormulaSpec, NotationView>();
  * được đưa — còn việc 111 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
  * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX và khung cách tính kèm theo, miễn phí.
  */
-function Man({ spec }: { spec: FormulaSpec }) {
+function Man({ spec, bai }: { spec: FormulaSpec; bai?: BaiHuongDan }) {
   let notation = notationCache.get(spec);
   if (notation === undefined) {
     notation = buildNotationView(spec);
     notationCache.set(spec, notation);
   }
-  return <FormulaDetail spec={spec} asOf={AS_OF} notation={notation} />;
+  return (
+    <FormulaDetail
+      spec={spec}
+      asOf={AS_OF}
+      notation={notation}
+      {...(bai === undefined ? {} : { bai })}
+    />
+  );
 }
 
 /**
@@ -288,6 +297,213 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(screen.getByText('Số liệu')).not.toBeNull();
     expect(screen.getByText('Giải thích cho người mới')).not.toBeNull();
     expect(screen.getByText('Nguồn tham khảo')).not.toBeNull();
+  });
+
+  /*
+   * Lối vào bài hướng dẫn (WF-21, 02/10/2026) — từ đợt 5 là nút "?" ở hàng tiêu đề khối Công thức.
+   *
+   * Đây là thứ DUY NHẤT của cả gói hướng dẫn mà người dùng chạm tới: 111 trang dựng sẵn mà không
+   * có lối vào thì chỉ là 111 URL không ai biết. Yêu cầu gốc nói "ai muốn xem lúc nào thì bấm vào
+   * là xem được", nên lối vào là một phần của tính năng, không phải chi tiết trang trí.
+   *
+   * Nó là `<a href>` thật kèm NEO của mục — nên nó vẫn sang được bài khi JavaScript chưa tải xong,
+   * và `verify-static.mjs` vẫn đọc được lối vào trong HTML tĩnh.
+   */
+  it('có lối vào bài hướng dẫn của chính công thức này', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    const link = screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ });
+    expect(link.getAttribute('href')).toMatch(/^\/huong-dan\/cong-thuc\/pe\/?#nhap-so$/);
+  });
+
+  /*
+   * Đợt 2 (02/10/2026): lối vào ấy VẪN là một link thật, chỉ chặn cú bấm thường để mở panel.
+   *
+   * Ca thứ ba là ca dễ mất nhất khi ai đó "dọn" nó thành một nút: không có prop bai — tức khi
+   * JavaScript chưa tải xong, hoặc id lạ — thì nó phải quay về đúng vai trò link, không nuốt cú
+   * bấm rồi chẳng làm gì.
+   */
+  it('bấm lối vào thì MỞ PANEL, không rời trang', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+
+    const khung = await screen.findByRole('dialog');
+    /* Khung bật tại nút mang ĐÚNG MỘT mục — mục của chỗ vừa bấm, không phải cả bài. */
+    expect(khung.textContent).toContain('Lấy số liệu ở đâu');
+    expect(khung.textContent).toContain('Báo cáo tài chính, mục lãi cơ bản trên cổ phiếu.');
+    /* Mục "Đọc kết quả" sống ở trang đầy đủ, không khung nào mang nó. */
+    expect(khung.textContent).not.toContain('Cao là thị trường kỳ vọng tăng trưởng');
+  });
+
+  /*
+   * Mục bật ra phải nói VIỆC, không in lại thông tin khối người dùng vừa bấm — đợt 5, chủ dự án:
+   * *"đây là hướng dẫn sử dụng nên khi bấm vào đó thì nó là hướng dẫn sử dụng như nào chứ không
+   * phải viết lại thông tin của phần đó"*.
+   *
+   * Không máy nào đọc được "câu này có phải chữ thao tác không". Đọc được điều kề bên và đủ: ba câu
+   * `explanation.*` KHÔNG có trong khung, dù khung mở ở bất cứ mục nào. Câu `whenToUse` của `pe` là
+   * mẫu tốt nhất — đợt 2–4 nó CHÍNH LÀ nội dung của mục mở ra từ khối Giải thích.
+   */
+  it('khung không bao giờ in lại ba câu của khối Giải thích', async () => {
+    const user = userEvent.setup();
+    const spec = specOf('pe');
+    render(<Man spec={spec} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    for (const nhan of [/Hướng dẫn: lấy số liệu ở đâu/, /Hướng dẫn: đọc biểu đồ/]) {
+      await user.click(screen.getByRole('link', { name: nhan }));
+      const khung = await screen.findByRole('dialog');
+      for (const cau of [
+        spec.explanation.whenToUse.vi,
+        spec.explanation.howToRead.vi,
+        spec.explanation.commonMistakes.vi,
+      ]) {
+        expect(khung.textContent, String(nhan)).not.toContain(cau);
+      }
+      await user.keyboard('{Escape}');
+    }
+  });
+
+  it('Ctrl-bấm thì KHÔNG mở panel — trình duyệt lo việc mở tab mới', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    await user.keyboard('{Control>}');
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+    await user.keyboard('{/Control}');
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('không có bài thì link về đúng vai trò link, không nuốt cú bấm', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  /*
+   * Esc đóng khung. Từ 03/10/2026 khung là một hộp nổi bật ra tại nút, không phải `<dialog>`
+   * trượt từ mép phải — nên đóng là tháo hẳn, và ca kiểm đổi chiều theo (trước đây nó gác điều
+   * ngược lại: thẻ phải Ở LẠI để `close()` kịp trả tiêu điểm).
+   */
+  it('bấm nút Đóng thì khung biến mất', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+    await screen.findByRole('dialog');
+
+    await user.keyboard('{Escape}');
+
+    /* Khung bật tại nút không phải `<dialog>`: đóng là tháo hẳn, không có trạng thái gì tiếc. */
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  /*
+   * ĐÚNG BA nút "?" trên màn, và danh sách này là chỗ trả lời câu "vì sao chỗ kia không có".
+   *
+   * Chủ dự án chốt 02/10/2026: *"cần làm rõ là những chỗ khó hiểu và quan trọng thì mới cần ?"*,
+   * rồi 03/10/2026 bổ sung: *"thêm ? ở những nơi mà công thức đang khó hiểu"*. Luật rút ra, và nó
+   * chặt hơn luật đợt 3: một "?" chỉ xuất hiện ở chỗ màn TỰ NÓ không trả lời được câu hỏi nó vừa
+   * gây ra, VÀ ở đó có một việc phải làm. Khối chỉ để đọc thì không cần "?".
+   *
+   * ĐƯỢC PHÉP, mỗi chỗ một khoảng trống ĐO ĐƯỢC trên màn:
+   *   1. Hàng tiêu đề khối Số liệu → "Lấy số liệu ở đâu". Màn in nhãn và đơn vị cạnh mỗi ô, nhưng
+   *      không chỗ nào nói LẤY con số ấy ở đâu — báo cáo nào, dòng nào. 269 ô, 269 câu, và
+   *      `guide-111.json` là nguồn duy nhất có chúng.
+   *   2. Hàng tiêu đề khối Biểu đồ → "Đọc biểu đồ". Dự án đã TỰ GHI khoảng trống này: hai câu
+   *      `chart.applyHintReady` / `chart.applyHintTimeAxis` bị bỏ ngày 14/09/2026, và chú thích
+   *      tại chỗ ghi *"Không còn câu nào nói ra điều ấy, nên cú bấm đầu tiên trên những màn đó
+   *      trông như tính năng không hoạt động."* Bài nay nói thứ khác — một đoạn cho đúng LOẠI hình
+   *      đang vẽ — nhưng khoảng trống thì vẫn là khoảng trống ấy.
+   *
+   * BỊ LOẠI, mỗi chỗ một lý do đo được — đừng thêm lại mà không đọc:
+   *   · Hàng tiêu đề khối Công thức. CÓ ở đợt 5–7 và BỎ ở đợt 8, và lý do KHÁC HẲN mọi mục khác ở
+   *     danh sách này: nút ấy được lập luận chắc nhất trong ba nút (khung "Cách tính" đã có sẵn,
+   *     112 khung trên 61 công thức, mà dấu hiệu mời duy nhất là con trỏ bàn tay — thứ ngón tay
+   *     không bao giờ thấy). Nó đi vì MỤC NÓ MỞ hết nội dung: chủ dự án chốt bài chỉ mang chữ
+   *     trong `guide-111.json`, và file ấy không có chữ nào cho việc đọc hình. Có chữ cho mục ấy
+   *     thì dựng lại — đó là việc duy nhất còn thiếu.
+   *   · Hàng tiêu đề khối Giải thích. CÓ ở đợt 3–4 và BỎ ở đợt 5: mục nó mở in
+   *     `explanation.whenToUse`, đúng câu khối ấy đang in ở ngay dưới nút. Khối Giải thích là chữ
+   *     để đọc, không có thao tác nào. Thêm lại thì phải mang theo một mục nói VIỆC.
+   *   · Khối Kết quả. Không có hàng tiêu đề nào để bấu: `<h2 id="khoi-ket-qua">` mang lớp
+   *     `visually-hidden`, nên một nút thêm vào sẽ thành một hàng riêng trên hoặc dưới thẻ, không
+   *     cạnh chữ nào — và ở khuôn thẻ gộp nó lọt vào ô lưới cạnh hàng ô nhập. Mục "Có kết quả rồi
+   *     thì làm gì" đọc được từ trang đầy đủ.
+   *   · Thẻ cảnh báo khi không tính được. Màn đã in NGUYÊN NHÂN và CÁCH SỬA do chính `calc` viết,
+   *     kèm cả hai lối ra dưới dạng nút. Khung chỉ thêm được các ca hỏng KHÁC của cùng công thức —
+   *     không phải câu người dùng đang hỏi. Thêm nữa: `INCOMPLETE_INPUT` không có mục nào trong
+   *     bài, và 11 công thức không có mục "Khi kết quả hiện _ _" nào cả.
+   *   · Hàng "Dán chuỗi giá". Khối Kết quả đã nói số phiên cụ thể của chính công thức đó ("Cần ít
+   *     nhất 20 phiên giá, hiện mới có 0.") và cả hai lối ra nằm ngay trên màn. Câu số phiên của
+   *     bài cũng đã nằm trong mục "Lấy số liệu ở đâu" mà nút thứ hai mở.
+   *   · Ô nhận số từ công thức khác (`LinkedInput`) và khối "Số liệu lấy từ công thức khác". 5 công
+   *     thức, chỉ ở Nâng cao, đã tự nói ở ba tầng. Thêm "?" là dựng lại đúng cái sơ đồ đã bỏ ngày
+   *     16/09/2026.
+   *   · `ConstantsNote`, `DerivedNote`. Cả hai mang sẵn câu trả lời và lối ra trong chính câu chữ
+   *     của chúng.
+   *
+   * Cảnh báo của một phép tính hiện ở BỐN chỗ (khối Kết quả, ô móc nối, khối chuỗi, biểu đồ).
+   * Rải "?" theo từng chỗ cảnh báo hiện ra là một màn hỏng mọc 3–4 nút cùng trỏ về một mục.
+   */
+  it('đúng HAI nút "?" trên màn, không hơn', () => {
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    const nut = screen.getAllByRole('link', { name: /^Hướng dẫn:/ });
+    expect(nut).toHaveLength(2);
+
+    const dich = nut.map((a) => a.getAttribute('href') ?? '');
+    for (const neo of ['#nhap-so', '#doc-bieu-do']) {
+      expect(
+        dich.some((h) => h.endsWith(neo)),
+        neo,
+      ).toBe(true);
+    }
+    /* Cả ba trỏ về bài của CHÍNH công thức này, không phải một trang hướng dẫn chung. */
+    for (const h of dich) expect(h).toMatch(/^\/huong-dan\/cong-thuc\/pe\/?#/);
+  });
+
+  /*
+   * 9 công thức `chartType: 'none'` không dựng khối biểu đồ, nên nút thứ ba không có — và bài của
+   * chúng cũng không có mục "Đọc biểu đồ". Hai điều ấy phải đi cùng nhau: một nút trỏ vào mục
+   * không tồn tại là một cú bấm rơi xuống đầu trang.
+   */
+  it('công thức không có biểu đồ thì không có nút "?" của biểu đồ', () => {
+    render(
+      <Man spec={specOf('phi-giao-dich-mua')} bai={baiHuongDanFor('phi-giao-dich-mua', AS_OF)} />,
+    );
+
+    const nut = screen.getAllByRole('link', { name: /^Hướng dẫn:/ });
+    expect(nut).toHaveLength(1);
+    expect(screen.queryByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ })).toBeNull();
+  });
+
+  /* Công thức ở khuôn thẻ gộp cũng phải có đủ ba nút: luật `.merged .blockTitle` chỉ ẩn CHỮ
+     tiêu đề, không ẩn hàng chứa nó — nên nút sống sót. `pe` nằm trong `MERGED_CARDS`. */
+  it('nút ở khối Số liệu mở panel ĐÚNG MỤC của nó', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+
+    const khung = await screen.findByRole('dialog');
+    expect(khung.querySelector('#goi-y-nhap-so')).not.toBeNull();
+  });
+
+  it('nút ở khối Biểu đồ mở mục của biểu đồ, không mở mục của ô nhập', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+
+    const khung = await screen.findByRole('dialog');
+    expect(khung.querySelector('#goi-y-doc-bieu-do')).not.toBeNull();
+    expect(khung.querySelector('#goi-y-nhap-so')).toBeNull();
   });
 
   /*

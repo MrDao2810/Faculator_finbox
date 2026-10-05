@@ -500,6 +500,169 @@ check(
   'out/cong-thuc/pe/index.html · out/cong-thuc/roe/index.html',
 );
 
+/*
+ * ── Bài "Hướng dẫn sử dụng" từng công thức (WF-21, 02/10/2026) ───────────
+ *
+ * Khác ba khối ngay trên, phép kiểm ở đây KHÔNG đi tìm chữ rò vào gói JS — và đó là một điểm đáng
+ * ghi chứ không phải chỗ bị bỏ sót. Nội dung bài là dữ liệu Registry (`explanation`, `variables`)
+ * vốn đã nằm sẵn trong gói của màn chi tiết, cộng chuỗi i18n dùng chung; không có khối chữ nào
+ * MỚI để rò. Ranh giới chỉ-lúc-build của `@/application/huong-dan` vẫn cần, nhưng vì lý do khác —
+ * một client component gọi nó sẽ chạy hàng trăm lượt `calc` ngay trên máy người dùng — và
+ * `build-only-imports.test.ts` gác đúng việc ấy ở tầng import.
+ *
+ * Thứ cần gác ở đây là lời hứa của chính bản thiết kế: bài phải DỰNG SẴN (đọc được khi mất mạng,
+ * in được, Google đọc được), phải có đủ cho cả 111 công thức, và phải BẤM TỚI ĐƯỢC từ màn công
+ * thức — "bấm vào là xem được" mà không có lối vào thì chỉ là một URL không ai biết.
+ */
+const DIR_HUONG_DAN = 'out/huong-dan/cong-thuc';
+let guideHtml = '';
+try {
+  guideHtml = readFileSync(`${DIR_HUONG_DAN}/pe/index.html`, 'utf8');
+} catch {
+  // check dưới tự trượt vì chuỗi rỗng.
+}
+
+/*
+ * Mục "Khi kết quả hiện _ _" in câu của `guide-111.json` theo MÃ, nhưng mã nào có mặt thì vẫn do
+ * CHẠY `calc` lúc build quyết định. Hai assert dưới đây đo đúng điều ấy trên bản dựng thật:
+ *
+ *   · `pe` chia cho 0 được → câu của mã `DIVIDE_BY_ZERO` phải có mặt;
+ *   · `pe` KHÔNG bao giờ thiếu chuỗi giá → câu của mã `MISSING_SERIES` phải VẮNG.
+ *
+ * Một bảng mã khai tay sẽ trượt vế thứ hai. Và câu của `calc` ("Chưa tính được P/E vì EPS bằng
+ * 0.") phải VẮNG hẳn khỏi bài từ 05/10/2026 — nó vẫn sống trên màn tính, chỉ không vào bài nữa.
+ */
+check(
+  'bài hướng dẫn dựng sẵn trong HTML tĩnh, mã cảnh báo lấy bằng cách chạy calc',
+  guideHtml !== '' &&
+    !guideHtml.includes(BAILOUT) &&
+    guideHtml.includes('Một ô ở mẫu số đang bằng 0.') &&
+    !guideHtml.includes('Chưa đủ số phiên giá.') &&
+    !guideHtml.includes('Chưa tính được P/E vì EPS bằng 0.') &&
+    /* Chữ "lấy số ở đâu" viết riêng cho ô `eps` của P/E: nó chỉ sinh ra khi thân bài dựng THẬT,
+       nên nó là vế "bài dựng ĐỦ" bên cạnh vế "bài có dựng" ở trên. Chuỗi này cũng chứng minh kho
+       chữ riêng (766 câu, `guide-111.json` 05/10/2026) đã vào được tới HTML tĩnh. */
+    guideHtml.includes('Báo cáo tài chính, mục lãi cơ bản trên cổ phiếu.') &&
+    /* Và nó phải đứng cạnh TÊN Ô lấy từ Registry, trong một `<dl>` — đó là thứ phân biệt bản
+       `oNhap` có khoá với bản trước (một `<ul>` các cụm tách từ chuỗi " · ", nơi tên ô chỉ là mấy
+       chữ đầu câu). Thiếu `<dt>` thì chữ vẫn in ra nhưng không gắn vào ô nào. */
+    guideHtml.includes('<dt') &&
+    guideHtml.includes('EPS — lợi nhuận trên mỗi cổ phiếu'),
+  'out/huong-dan/cong-thuc/pe/index.html',
+);
+
+/*
+ * Bài KHÔNG được in lại ba câu của khối "Giải thích cho người mới" — cửa gác của lời phê đợt 5
+ * (03/10/2026): *"đây là hướng dẫn sử dụng nên khi bấm vào đó thì nó là hướng dẫn sử dụng như nào
+ * chứ không phải viết lại thông tin của phần đó"*.
+ *
+ * Đo trên bản DỰNG THẬT chứ chỉ ở tầng kiểu: `huong-dan.test.ts` đã gác bằng cách bỏ hẳn bốn
+ * trường diễn giải khỏi `BaiHuongDan`, nhưng một câu vẫn có thể quay lại bằng đường khác (ai đó
+ * thêm `<Pick value={...}>` vào `GuideBody`, hoặc dựng lại bảng ô nhập). Chuỗi dưới đây là câu
+ * `whenToUse` của P/E — chính là nội dung của mục "Dùng để làm gì" ở đợt 1–4.
+ */
+check(
+  'bài hướng dẫn không in lại ba câu của khối Giải thích',
+  guideHtml !== '' &&
+    !guideHtml.includes('Dùng khi bạn đang xem một cổ phiếu') &&
+    !guideHtml.includes('Lấy con số này ở đâu'),
+  'out/huong-dan/cong-thuc/pe/index.html',
+);
+
+/*
+ * 766 câu chữ riêng (03/10/2026 và `guide-111.json` 05/10/2026) KHÔNG được rò vào gói JS — đây là
+ * lý do kho ấy nằm ở `src/core/huong-dan/` chứ không ở từ điển i18n. Từ điển `vi.ts` đi vào gói
+ * của MỌI trang, nên 766 câu ở đó là vài chục kB nằm trên cả những màn không ai mở hướng dẫn.
+ *
+ * `build-only-imports.test.ts` đã gác ở tầng import, nhưng cửa ấy không thấy chữ được CHÉP sang
+ * một module khác — đúng lý do ba khối how-to / quiz / ví dụ đều có thêm một phép kiểm trên bản
+ * dựng. Chuỗi dò lấy từ câu `luuY` của ô `eps`, thứ chỉ có trong kho chữ và không câu nào khác
+ * trong sản phẩm mang.
+ */
+const CHU_RIENG = 'Lấy một quý rồi đọc như cả năm là lỗi thường gặp nhất';
+const chuRiengRoVaoJs = existsSync('out/_next/static')
+  ? tatCaFile('out/_next/static', '.js').filter((file) =>
+      readFileSync(file, 'utf8').includes(CHU_RIENG),
+    )
+  : ['không thấy out/_next/static'];
+check(
+  'chữ riêng của bài hướng dẫn không rò vào gói JS — nó chỉ được đọc lúc build',
+  chuRiengRoVaoJs.length === 0,
+  chuRiengRoVaoJs.length === 0 ? '0 tệp' : chuRiengRoVaoJs.join(', '),
+);
+
+check(
+  'bài hướng dẫn có đúng một <h1> — thân màn tự mang tiêu đề, thanh trên bày nút quay lại',
+  (guideHtml.match(/<h1[\s>]/g) ?? []).length === 1,
+  `${String((guideHtml.match(/<h1[\s>]/g) ?? []).length)} thẻ h1`,
+);
+
+const soBaiHuongDan = existsSync(DIR_HUONG_DAN)
+  ? readdirSync(DIR_HUONG_DAN).filter((ten) => existsSync(`${DIR_HUONG_DAN}/${ten}/index.html`))
+      .length
+  : 0;
+check(
+  'đủ bài hướng dẫn cho cả thư viện — không công thức nào bị bỏ lại',
+  soBaiHuongDan === TONG_CONG_THUC,
+  `${String(soBaiHuongDan)} / ${String(TONG_CONG_THUC)} bài`,
+);
+
+/*
+ * Lối vào: màn công thức phải có link sang bài của CHÍNH nó. Đây là vế "ai muốn xem lúc nào thì
+ * bấm vào là xem được" của yêu cầu gốc, và là thứ duy nhất trong cả gói mà người dùng chạm tới.
+ */
+/*
+ * Lối vào là HAI nút "?" (ô nhập · biểu đồ), mỗi nút mang neo của mục nó mở — nên không còn href
+ * trần `/huong-dan/cong-thuc/pe/` nào. Kiểm cả hai neo chứ một: mỗi nút đi với một khối, và mất
+ * một nút là mất lối vào của đúng khối ấy, thứ không nút nào khác bù được.
+ *
+ * BA nút ở đợt 5; nút cạnh khối Công thức đi ngày 05/10/2026 cùng mục `hieu-cong-thuc`, vì
+ * `guide-111.json` không có chữ nào cho việc đọc hình công thức. Vế thứ hai của phép kiểm gác điều
+ * ấy: neo cũ không được còn sót lại ở đâu, vì một nút trỏ vào mục không tồn tại là một cú bấm rơi
+ * xuống đầu trang.
+ *
+ * Vẫn là `<a href>` thật, nên phép kiểm này đo đúng lời hứa "bấm vào là xem được" cả khi
+ * JavaScript chưa tải xong.
+ */
+check(
+  'màn công thức có hai nút "?" trỏ vào hai mục của bài hướng dẫn của chính nó',
+  ['nhap-so', 'doc-bieu-do'].every((muc) =>
+    detailHtml.includes(`href="/huong-dan/cong-thuc/pe/#${muc}"`),
+  ) && !detailHtml.includes('#hieu-cong-thuc'),
+  'out/cong-thuc/pe/index.html',
+);
+
+/*
+ * Khung hướng dẫn mở tại nút — ranh giới "dựng khi có người bấm".
+ *
+ * Hai vế, và chúng cố ý NGƯỢC nhau:
+ *
+ *   1. DỮ LIỆU của bài CÓ trong trang, vì `page.tsx` dựng nó lúc build rồi truyền prop. Chữ "lấy
+ *      số ở đâu" của ô `eps` là mẫu tốt: nó nằm trong kho chỉ-đọc-lúc-build, nên nó không thể lọt
+ *      vào HTML bằng đường nào khác.
+ *   2. MARKUP của khung thì KHÔNG, vì `goiY === null` lúc dựng — khung chỉ mount sau một cú bấm.
+ *      Neo `id="goi-y-nhap-so"` chỉ sinh ra lúc thân bài dựng thật.
+ *
+ * Vế 2 từng dò chuỗi "Lấy số ở đâu" — nhãn `<h3>` của khối ô nhập. Nhãn ấy BỎ ngày 05/10/2026
+ * (trùng với `<h2>` của mục; lý do ở `vi.ts`), nên phép dò đổi sang neo `id`. Neo chắc hơn hẳn
+ * một câu chữ: nó là cấu trúc, không ai sửa nó khi biên tập văn phong.
+ *
+ * Mất vế 1 nghĩa là khung phải tự đi lấy dữ liệu lúc chạy; mất vế 2 nghĩa là cả 111 trang gánh
+ * thêm một khối chữ mà phần lớn lượt xem không mở ra.
+ *
+ * Chú thích cũ ở đây nói khung "nằm sau `next/dynamic`" — SAI từ đợt 4, và sai một cách đáng sửa
+ * chứ không phải lỗi chính tả: `FormulaDetail` import `GuideHintPanel` TĨNH, nên cả module
+ * `GuideBody` nằm trong gói của 111 trang chi tiết dù người dùng có bấm "?" hay không. Phép kiểm
+ * vẫn đúng (markup không có trong HTML tĩnh), chỉ LÝ DO là khác. Con số "+3,0 kB so với +20,5 kB"
+ * cũng đo cho kiến trúc đợt 2 và chưa đo lại cho bản tĩnh này — `npm run size` là chỗ biết.
+ */
+check(
+  'dữ liệu bài hướng dẫn dựng sẵn trong trang chi tiết, nhưng khung thì chưa dựng hình',
+  detailHtml.includes('Báo cáo tài chính, mục lãi cơ bản trên cổ phiếu.') &&
+    !detailHtml.includes('id="goi-y-nhap-so"'),
+  'out/cong-thuc/pe/index.html',
+);
+
 /* ── Màn "Về chúng tôi" ──────────────────────────────────────────────────── */
 
 let aboutHtml = '';

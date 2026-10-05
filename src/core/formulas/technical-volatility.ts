@@ -636,7 +636,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
     variables: [BOLLINGER_PERIOD, BOLLINGER_K],
     explanation: {
       meaning: {
-        vi: 'Một con số cho biết dải đang nở hay đang bóp: chia cho đường giữa nên cổ phiếu 10 nghìn và cổ phiếu 200 nghìn so với nhau được.',
+        vi: 'Một con số cho biết dải đang nở hay đang bóp: chia cho đường giữa nên cổ phiếu 10 nghìn và cổ phiếu 200 nghìn so sánh với nhau được.',
         en: 'A single number showing whether the band is expanding or squeezing: dividing by the middle line makes a 10,000 VND stock comparable with a 200,000 VND one.',
       },
       whenToUse: {

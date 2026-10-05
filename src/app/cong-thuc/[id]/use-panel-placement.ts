@@ -14,7 +14,7 @@ const EDGE = 8;
  * Vùng đặt được khung: khung nhìn trừ header dính ở trên và thanh tab dính ở dưới. Đo lúc mở khung
  * chứ không nhớ sẵn — ở PC thanh tab không có, và header có thể đã cuộn khỏi màn.
  */
-function viewportBounds(): Bounds {
+export function viewportBounds(): Bounds {
   let top = EDGE;
   let bottom = window.innerHeight - EDGE;
 
@@ -36,7 +36,7 @@ function viewportBounds(): Bounds {
 }
 
 /** Khối của điểm chạm; cụm chữ xuống dòng thì lấy đúng DÒNG đang có con trỏ. */
-function anchorBox(anchor: Element, point: { x: number; y: number } | null) {
+export function anchorBox(anchor: Element, point: { x: number; y: number } | null) {
   const rects = [...anchor.getClientRects()];
   const hit =
     point === null

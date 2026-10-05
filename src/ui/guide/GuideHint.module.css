@@ -1,0 +1,57 @@
+/*
+ * Nút "?" tròn — lối vào hướng dẫn đặt ngay tại chỗ gây khó hiểu (WF-21 đợt 3).
+ *
+ * Đây là MẶT MỚI của dự án: repo có 10 nút chỉ-có-icon, hai cái đã tròn về hình học
+ * (`.close`/`.back` của BottomSheet, `.clear` của SearchBox) nhưng không cái nào ĐỌC RA là vòng
+ * tròn — nền trong suốt, không viền, vòng chỉ hiện lúc rê chuột. Ở đây vòng tròn phải thấy được
+ * ngay, vì nó là thứ duy nhất nói "có giải thích ở đây".
+ */
+
+.hint {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--color-ink-soft);
+  text-decoration: none;
+
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+/*
+ * Vùng chạm 44px (NFR-USA-01) mở rộng CẢ HAI chiều bằng lớp phủ, không bằng kích thước thật:
+ * vòng tròn 24px là thứ phải nhìn thấy, 44px là thứ ngón tay phải chạm được. Mẫu lấy từ
+ * `RecentSearches.module.css` — nơi duy nhất trong repo đã nới cả hai chiều cho một icon nhỏ.
+ */
+.hint::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  transform: translate(-50%, -50%);
+}
+
+/*
+ * Hai dấu hiệu khi rê chuột / lấy tiêu điểm, không chỉ màu (NFR-USA-06): nền chìm hiện ra VÀ chữ
+ * đổi sang màu nhấn. Không đổi kích thước, đệm hay độ dày viền — luật "không có gì xê dịch" của
+ * khung cách tính; một vòng tròn phình ra dưới con trỏ làm hàng tiêu đề nhảy.
+ */
+.hint:hover,
+.hint:focus-visible {
+  color: var(--color-accent);
+  background: var(--color-sunken);
+  border-color: var(--color-accent);
+}
+
+/* Vòng tiêu điểm để luật chung của `globals.css` lo — khai lại ở đây là một bậc dư. */

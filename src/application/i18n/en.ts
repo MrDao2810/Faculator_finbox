@@ -731,4 +731,80 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* Mộ chí: `quiz.notTranslated` bỏ 30/09/2026 — lý do ghi ở `vi.ts`. */
   /* Mộ chí: `quiz.sourceKind.*` bị bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
   /* Mộ chí: `quiz.kind.*` (5 khoá) bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
+
+  /* ── Hướng dẫn sử dụng từng công thức — WF-21 (02/10/2026) ───────────────────────────────── */
+  'guide.howToUse': 'How to use',
+  'guide.toc': 'In this guide',
+  'guide.openScreen': 'Open the screen',
+  'guide.related': 'Related formulas',
+
+  /* Bốn tiêu đề mục — mỗi tiêu đề là một câu hỏi thao tác. Lý do, và 36 khoá bỏ ở đợt 8 (05/10/2026),
+     ghi ở `vi.ts`. */
+  'guide.section.input': 'Where to find the figures',
+  'guide.section.result': 'Reading the result',
+  'guide.section.chart': 'Reading the chart',
+  'guide.section.blank': 'When the result shows _ _',
+
+  /* Mộ chí: `guide.input.whereHeading` bỏ 05/10/2026 — hai tiêu đề trùng nhau, lý do ở `vi.ts`. */
+  'guide.input.advancedField': 'Advanced',
+  'guide.result.pitfall': 'Easy to get wrong:',
+
+  /*
+   * Mục "Đọc biểu đồ" — một đoạn cho mỗi loại hình, dịch từ khối `charts` của `guide-111.json`.
+   * Mười loại dù Registry hiện dùng tám; lý do ghi ở `vi.ts`.
+   */
+  'guide.chartKind.sensitivity.title': 'Sensitivity sweep',
+  /* Chủ dự án viết lại bản `vi` ngày 05/10/2026 và bỏ câu thứ hai; bản `en` theo đúng hình ấy. */
+  'guide.chartKind.sensitivity.body':
+    'Pick a field in the "See the result change with" select; the chart changes as you work on it.',
+  'guide.chartKind.waterfall.title': 'Breakdown chart',
+  'guide.chartKind.waterfall.body':
+    'Each bar is one amount added or subtracted. The last bar stands on 0 and equals the number in the Result block.',
+  'guide.chartKind.stackedBar.title': 'Stacked bar chart',
+  'guide.chartKind.stackedBar.body':
+    'Each bar splits into its parts. The whole bar is the total, each segment one amount.',
+  'guide.chartKind.candlestick.title': 'Candlestick chart',
+  'guide.chartKind.candlestick.body':
+    'Each candle is one session: the body is the open and close, the wicks the high and low. Indicator lines are drawn over it.',
+  'guide.chartKind.histogram.title': 'Distribution chart',
+  'guide.chartKind.histogram.body':
+    'Each bar counts the sessions that fall in one return range. A taller bar means that range happens more often.',
+  'guide.chartKind.underwater.title': 'Drawdown chart',
+  'guide.chartKind.underwater.body':
+    'The line never rises above 0. Each point says how far below the most recent peak the price was, as a percentage.',
+  'guide.chartKind.scatter.title': 'Regression chart',
+  'guide.chartKind.scatter.body':
+    'Each dot is one session: the market on the horizontal axis, the stock on the vertical one. The slope of the line is the result.',
+  'guide.chartKind.heatmap.title': 'Heat map',
+  'guide.chartKind.heatmap.body':
+    'Two variables run along the two axes and each cell is colored by its result. Use it to see which region is safe and which is not.',
+  'guide.chartKind.tornado.title': 'Influence ranking chart',
+  'guide.chartKind.tornado.body':
+    'Each bar is one input field. A longer bar means that field moves the result harder.',
+
+  /*
+   * Mục "Khi kết quả hiện _ _" — một câu cho mỗi mã WF-15, dịch từ khối `warnings` của
+   * `guide-111.json`. Lý do thay câu của `calc` bằng câu ở đây ghi ở `vi.ts`.
+   */
+  'guide.warn.INCOMPLETE_INPUT':
+    'A field is still blank. The missing one has a red outline in the Figures block.',
+  'guide.warn.DIVIDE_BY_ZERO':
+    'A field in the denominator is 0. Enter a number other than 0 in that field.',
+  'guide.warn.MEANINGLESS':
+    'The formula still returns a number, but that number says nothing with this set of figures.',
+  'guide.warn.MISSING_SERIES': 'Not enough price sessions yet. Load a ticker or paste more data.',
+  'guide.warn.MODEL_VIOLATION':
+    'The figures violate a condition of the model. The ↳ line says which one.',
+  'guide.warn.INHERITED':
+    'The source formula is failing, so this one cannot compute yet. Fix it at the source.',
+
+  /* Mộ chí: `guide.resultUnit`, `guide.entry`, `guide.hintInputs` bỏ 03/10/2026 — lý do ở `vi.ts`. */
+  'guide.openExample': 'See the worked example',
+  'guide.openQuiz': 'Try the practice questions',
+  'guide.openCalc': 'Calculate with your own numbers',
+  'guide.openFull': 'Open the full page',
+
+  /* Hai nút "?" từ đợt 8 — `guide.hint.formula` bỏ cùng mục `hieu-cong-thuc`. Lý do ở `vi.ts`. */
+  'guide.hint.input': 'Guide: where to find the figures',
+  'guide.hint.chart': 'Guide: reading the chart',
 };

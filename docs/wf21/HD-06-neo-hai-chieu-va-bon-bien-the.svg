@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1548" viewBox="0 0 1680 1548" fill="none">
+<rect width="1680" height="1548" fill="#0b101c"/>
+<title>Hướng dẫn từng công thức — bảng neo hai chiều và bốn biến thể bài</title>
+<defs><marker id="mui" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#5b9ae8"/></marker></defs>
+<text x="56" y="52" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#e6ecf7">Hướng dẫn từng công thức — bảng neo hai chiều và bốn biến thể bài</text>
+<text x="56" y="78" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#8a99b5">Thứ làm cho &quot;bấm vào các phần&quot; chạy được cả hai đường, và cách một khuôn duy nhất phủ hết 111 công thức.</text>
+<rect x="56" y="118" width="26" height="26" fill="#1a2740" rx="6" stroke="#5b9ae8" stroke-width="1"/>
+<text x="69" y="136" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#5b9ae8" text-anchor="middle">A</text>
+<text x="94" y="136" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#e6ecf7">Bảng neo hai chiều</text>
+<text x="257.79999999999995" y="136" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#8a99b5">— một bảng duy nhất, đọc được cả hai đường — đúng lẽ mà SAVED_CALCS_ANCHOR trong routes.ts đã làm</text>
+<rect x="56" y="160" width="724" height="236" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="900" y="160" width="724" height="236" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<text x="76" y="186" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.1" fill="#5d6c88">TRONG HƯỚNG DẪN</text>
+<text x="920" y="186" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.1" fill="#5d6c88">TRONG SẢN PHẨM</text>
+<rect x="76" y="214" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="88" y="235" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">…/pe/#can-so-gi</text>
+<rect x="920" y="214" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="932" y="235" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">/cong-thuc/pe/#khoi-so-lieu</text>
+<path d="M768 230L908 230" stroke="#5b9ae8" stroke-width="1.5" fill="none" marker-end="url(#mui)"/>
+<rect x="76" y="258" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="88" y="279" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">…/pe/#nap-so</text>
+<rect x="920" y="258" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="932" y="279" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">/du-lieu/?from=pe</text>
+<path d="M768 274L908 274" stroke="#5b9ae8" stroke-width="1.5" fill="none" marker-end="url(#mui)"/>
+<rect x="76" y="302" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="88" y="323" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">…/pe/#can-so-gi</text>
+<rect x="920" y="302" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="932" y="323" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">nút &quot;?&quot; cạnh nhãn ô EPS</text>
+<path d="M908 318L768 318" stroke="#5b9ae8" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#mui)"/>
+<rect x="76" y="346" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="88" y="367" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">…/pe/#ket-qua-trong</text>
+<rect x="920" y="346" width="684" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="932" y="367" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">dòng cuối thẻ cảnh báo DIVIDE_BY_ZERO</text>
+<path d="M908 362L768 362" stroke="#5b9ae8" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#mui)"/>
+<rect x="790" y="260" width="100" height="22" fill="#0b101c" rx="0"/>
+<text x="840" y="276" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5b9ae8" text-anchor="middle">bài → màn</text>
+<rect x="790" y="348" width="100" height="22" fill="#0b101c" rx="0"/>
+<text x="840" y="364" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5b9ae8" text-anchor="middle">màn → bài</text>
+<rect x="56" y="421" width="3" height="3" fill="#8a99b5" rx="0"/>
+<text x="68" y="428" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#8a99b5">Hai bên tự gõ chuỗi neo thì lệch một chữ là bấm xong rơi xuống đầu trang mà không ai biết — nên GUIDE_ANCHORS là MỘT bảng, cả hai bên đọc chung.</text>
+<rect x="56" y="441" width="3" height="3" fill="#8a99b5" rx="0"/>
+<text x="68" y="448" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#8a99b5">Neo phải cuộn được trên trang tĩnh: output: export nên không có router phía máy chủ. Đọc hash trong effect và cuộn tay, đừng dùng useSearchParams — nó ép cả nhánh vào Suspense và bay mất HTML tĩnh.</text>
+<rect x="56" y="494" width="26" height="26" fill="#16281f" rx="6" stroke="#3f8f6a" stroke-width="1"/>
+<text x="69" y="512" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#3f8f6a" text-anchor="middle">B</text>
+<text x="94" y="512" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#e6ecf7">Bấm &quot;Mở khối Số liệu ↗&quot; trong bài</text>
+<text x="394.3" y="512" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#8a99b5">— sang đúng chỗ, tô sáng hai giây, và có đường quay lại</text>
+<rect x="56" y="534" width="1568" height="300" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="534" width="1568" height="28" fill="#141c2b" rx="10"/>
+<rect x="56" y="552" width="1568" height="10" fill="#141c2b" rx="0"/>
+<circle cx="72" cy="548" r="4" fill="#3d4863"/>
+<circle cx="86" cy="548" r="4" fill="#3d4863"/>
+<circle cx="100" cy="548" r="4" fill="#3d4863"/>
+<text x="118" y="552" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5d6c88">faculator · /cong-thuc/pe/#khoi-so-lieu</text>
+<rect x="56" y="562" width="1568" height="46" fill="#141c2b" rx="0"/>
+<path d="M56 608L1624 608" stroke="#212c40" stroke-width="1"/>
+<text x="72" y="590" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#c3cee1">Faculator Finbox</text>
+<text x="226" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#c3cee1">Công thức</text>
+<text x="312" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#8a99b5">Danh mục</text>
+<text x="398" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#8a99b5">Cài đặt</text>
+<text x="484" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#8a99b5">Giới thiệu</text>
+<text x="1526" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#8a99b5" text-anchor="middle">?</text>
+<text x="1562" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#8a99b5">VI</text>
+<text x="1594" y="590" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#8a99b5">☀</text>
+<rect x="56" y="608" width="1568" height="34" fill="#1a2740" rx="0"/>
+<path d="M56 642L1624 642" stroke="#2f5a96" stroke-width="1"/>
+<text x="76" y="630" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#5b9ae8">‹  Quay lại hướng dẫn</text>
+<text x="252" y="630" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#8a99b5">P/E — cách dùng · mục 2 / 6</text>
+<text x="1604" y="630" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" fill="#5b9ae8" text-anchor="end">Mục tiếp  ›</text>
+<rect x="80" y="662" width="1520" height="128" fill="#1a2740" rx="10" stroke="#5b9ae8" stroke-width="1"/>
+<text x="100" y="688" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.1" fill="#5b9ae8">SỐ LIỆU</text>
+<text x="200" y="688" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5b9ae8">VỪA CUỘN TỚI — nền sáng 2 giây rồi nhạt dần về bình thường</text>
+<text x="100" y="718" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#5d6c88">Giá thị trường</text>
+<rect x="100" y="726" width="380" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="112" y="747" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#c3cee1">92.000</text>
+<text x="468" y="747" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5d6c88" text-anchor="end">₫</text>
+<text x="520" y="718" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#5d6c88">EPS — lợi nhuận trên mỗi cổ phiếu</text>
+<rect x="520" y="726" width="380" height="32" fill="#131a28" rx="6" stroke="#1e2739" stroke-width="1"/>
+<text x="532" y="747" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="600" fill="#c3cee1">6.050</text>
+<text x="888" y="747" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5d6c88" text-anchor="end">₫</text>
+<rect x="56" y="853" width="3" height="3" fill="#8a99b5" rx="0"/>
+<text x="68" y="860" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#8a99b5">Thanh mảnh chỉ hiện khi vào màn TỪ một bài hướng dẫn; đóng là mất, không dính lại.</text>
+<rect x="56" y="873" width="3" height="3" fill="#8a99b5" rx="0"/>
+<text x="68" y="880" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#8a99b5">Tô sáng phải tự tắt sau hai giây. Tô mãi thì lần sau vào thẳng màn ấy người ta tưởng có lỗi.</text>
+<rect x="56" y="893" width="3" height="3" fill="#8a99b5" rx="0"/>
+<text x="68" y="900" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#8a99b5">&quot;Mục tiếp ›&quot; đi thẳng mục sau mà không phải quay về bài rồi tìm lại chỗ đang đọc.</text>
+<rect x="56" y="946" width="26" height="26" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="69" y="964" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#d99b3c" text-anchor="middle">C</text>
+<text x="94" y="964" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#e6ecf7">Một khuôn, bốn biến thể — phủ đủ 111 công thức</text>
+<text x="512.5999999999999" y="964" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="400" fill="#8a99b5">— chọn theo cờ có sẵn trong Registry, không phải viết tay từng bài</text>
+<rect x="56" y="986" width="380" height="218" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="74" y="1004" width="24" height="24" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="86" y="1021" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#d99b3c" text-anchor="middle">A</text>
+<text x="108" y="1021" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#e6ecf7">Cơ bản</text>
+<text x="74" y="1062" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#e6ecf7">57</text>
+<text x="112" y="1062" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5d6c88">công thức</text>
+<text x="74" y="1094" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">Sáu mục đúng khuôn chung.</text>
+<text x="74" y="1112" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">Không cần thêm dòng điều kiện nào.</text>
+<path d="M74 1158L418 1158" stroke="#1e2739" stroke-width="1"/>
+<text x="74" y="1180" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5d6c88">pe · roe · lai-kep</text>
+<rect x="452" y="986" width="380" height="218" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="470" y="1004" width="24" height="24" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="482" y="1021" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#d99b3c" text-anchor="middle">B</text>
+<text x="504" y="1021" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#e6ecf7">Cần chuỗi giá</text>
+<text x="470" y="1062" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#e6ecf7">35</text>
+<text x="508" y="1062" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5d6c88">công thức</text>
+<text x="470" y="1094" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">#nap-so thêm &quot;Dán từ Excel&quot; và nút</text>
+<text x="470" y="1112" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">Mở Bảng dữ liệu ↗.</text>
+<text x="470" y="1130" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">#can-so-gi nêu số phiên tối thiểu.</text>
+<path d="M470 1158L814 1158" stroke="#1e2739" stroke-width="1"/>
+<text x="470" y="1180" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5d6c88">rsi-wilder · sma-n-phien</text>
+<rect x="848" y="986" width="380" height="218" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="866" y="1004" width="24" height="24" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="878" y="1021" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#d99b3c" text-anchor="middle">C</text>
+<text x="900" y="1021" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#e6ecf7">Nhận số từ công thức khác</text>
+<text x="866" y="1062" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#e6ecf7">5</text>
+<text x="885" y="1062" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5d6c88">công thức</text>
+<text x="866" y="1094" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">#can-so-gi nêu &quot;số này là kết quả của</text>
+<text x="866" y="1112" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">&lt;công thức&gt; ↗&quot;, và nói khối chuỗi chỉ</text>
+<text x="866" y="1130" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">hiện ở mức Nâng cao.</text>
+<path d="M866 1158L1210 1158" stroke="#1e2739" stroke-width="1"/>
+<text x="866" y="1180" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5d6c88">wacc · bien-an-toan</text>
+<rect x="1244" y="986" width="380" height="218" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="1262" y="1004" width="24" height="24" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="1274" y="1021" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#d99b3c" text-anchor="middle">D</text>
+<text x="1296" y="1021" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#e6ecf7">Dùng hằng số thị trường</text>
+<text x="1262" y="1062" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#e6ecf7">14</text>
+<text x="1300" y="1062" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12" font-weight="400" fill="#5d6c88">công thức</text>
+<text x="1262" y="1094" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">#can-so-gi nêu hằng số sản phẩm tự lấy,</text>
+<text x="1262" y="1112" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">ngày hiệu lực, căn cứ pháp lý, và lối</text>
+<text x="1262" y="1130" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">sang Cài đặt đổi biểu phí.</text>
+<path d="M1262 1158L1606 1158" stroke="#1e2739" stroke-width="1"/>
+<text x="1262" y="1180" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11" font-weight="400" fill="#5d6c88">phi-giao-dich-mua</text>
+<text x="56" y="1234" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#8a99b5">57 + 35 + 5 + 14 = 111 — bốn nhóm rời nhau, không công thức nào rơi vào hai nhóm, không công thức nào không có bài.</text>
+<rect x="56" y="1272" width="26" height="26" fill="#2a2318" rx="6" stroke="#d99b3c" stroke-width="1"/>
+<text x="69" y="1290" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#d99b3c" text-anchor="middle">D</text>
+<text x="94" y="1290" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="16" font-weight="600" fill="#e6ecf7">Những chỗ dễ làm hỏng</text>
+<rect x="56" y="1310" width="380" height="136" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="56" y="1310" width="3" height="136" fill="#d99b3c" rx="0"/>
+<text x="74" y="1336" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">Chữ bài không được lọt vào gói JS</text>
+<text x="74" y="1360" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">473 câu hỏi và 112 khung how-to đã phải</text>
+<text x="74" y="1377" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">học bài này: đọc CHỈ lúc build, gác bằng</text>
+<text x="74" y="1394" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">build-only-imports.test.ts và</text>
+<text x="74" y="1411" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">verify-static.</text>
+<rect x="452" y="1310" width="380" height="136" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="452" y="1310" width="3" height="136" fill="#d99b3c" rx="0"/>
+<text x="470" y="1336" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">Nút &quot;?&quot; không được nhét vào</text>
+<text x="470" y="1354" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">BottomTabBar</text>
+<text x="470" y="1378" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">Bốn tab đang chia đều; thêm tab thứ năm</text>
+<text x="470" y="1395" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">là bóp cả bốn xuống dưới ngưỡng dễ bấm.</text>
+<text x="470" y="1412" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">Nó ở thanh trên, cạnh VI và nút</text>
+<text x="470" y="1429" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">sáng/tối.</text>
+<rect x="848" y="1310" width="380" height="136" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="848" y="1310" width="3" height="136" fill="#d99b3c" rx="0"/>
+<text x="866" y="1336" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">Mục lục sáng theo cuộn cần</text>
+<text x="866" y="1354" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">IntersectionObserver</text>
+<text x="866" y="1378" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">Không nghe sự kiện scroll. Và mục đang</text>
+<text x="866" y="1395" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">sáng ghi vào URL bằng replaceState,</text>
+<text x="866" y="1412" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">không phải push.</text>
+<rect x="1244" y="1310" width="380" height="136" fill="#0f1523" rx="10" stroke="#212c40" stroke-width="1"/>
+<rect x="1244" y="1310" width="3" height="136" fill="#d99b3c" rx="0"/>
+<text x="1262" y="1336" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">Không bịa mục cho công thức không</text>
+<text x="1262" y="1354" font-family="Be Vietnam Pro, Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#e6ecf7">có dữ liệu</text>
+<text x="1262" y="1378" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">11 công thức không khai ca hỏng nào thì</text>
+<text x="1262" y="1395" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">bài của chúng KHÔNG có mục &quot;Khi kết quả</text>
+<text x="1262" y="1412" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">hiện _ _&quot;. Thiếu mục là đúng, bịa mới là</text>
+<text x="1262" y="1429" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#8a99b5">sai.</text>
+</svg>

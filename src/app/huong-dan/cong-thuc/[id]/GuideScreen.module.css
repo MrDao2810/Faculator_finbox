@@ -1,0 +1,139 @@
+/*
+ * Bài "Hướng dẫn sử dụng" của một công thức — WF-21.
+ *
+ * Bề ngang KHÔNG phải việc của file này: `AppShell.module.css` đã nới `main` lên `--desktop-max`
+ * từ 1024px, nên lưới dưới đây chỉ việc lấp ô của nó.
+ *
+ * Hai cột chỉ bật từ 1280px — cùng mốc với bố cục hai cột của màn chi tiết. Dưới mốc đó mục lục
+ * KHÔNG biến mất mà xuống dưới đầu bài: nó là "link để bấm vào các phần", tức đúng thứ yêu cầu
+ * gốc đòi, nên nó không được là thứ đầu tiên bị cắt ở khổ hẹp.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* ── Đầu bài ─────────────────────────────────────────────────────────────────────────────── */
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+  /* Tên công thức dài, nhiều từ ghép — ở 360px phải xuống dòng được chứ đừng tràn ngang. */
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* ── Hai cột ─────────────────────────────────────────────────────────────────────────────── */
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* ── Cột phải ────────────────────────────────────────────────────────────────────────────── */
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+@media (min-width: 1280px) {
+  .body {
+    display: grid;
+    /* Bài 880px cố định, mục lục ăn phần còn lại — đúng số đo bản vẽ HD-05. */
+    grid-template-columns: minmax(0, 880px) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  /*
+   * Mục lục bám dính khi cuộn. `align-items: start` ở trên là điều kiện bắt buộc: mặc định
+   * `stretch` kéo cột phải cao bằng bài, và một phần tử cao bằng vùng cuộn thì `sticky` không
+   * còn gì để dính.
+   */
+  .rail {
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railLink {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+  text-decoration: none;
+}
+
+.railLink:hover,
+.railLink:focus-visible {
+  color: var(--color-accent);
+  text-decoration: underline;
+}

@@ -45,6 +45,8 @@ const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> 
   ['app/cong-thuc/DailyShelf.module.css', 'blockTitle'],
   ['app/cong-thuc/FormulaListScreen.module.css', 'blockTitle'],
   ['app/danh-muc/PortfolioScreen.module.css', 'blockTitle'],
+  /* Ba thẻ ở cột phải của bài hướng dẫn WF-21: Trong bài này · Mở màn thật · Công thức liên quan. */
+  ['app/huong-dan/cong-thuc/[id]/GuideScreen.module.css', 'blockTitle'],
   ['app/ve-chung-toi/AboutScreen.module.css', 'blockTitle'],
   ['ui/screens/ChainBody.module.css', 'title'],
   ['ui/screens/FeeTaxBody.module.css', 'blockTitle'],

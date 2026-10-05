@@ -44,6 +44,13 @@ export interface BottomSheetProps {
    * Dạng `'center'` giấu luôn vạch kéo: vạch ấy hứa "kéo xuống để đóng", một cử chỉ chỉ đúng với
    * tấm dán đáy.
    */
+  /*
+   * Mộ chí: dạng 'right' (ngăn kéo dán mép phải, rộng 520px) sống đúng một ngày — thêm 02/10/2026
+   * cho panel hướng dẫn WF-21, gỡ 03/10/2026 khi chủ dự án chốt khung phải bật ra NGAY TẠI nút "?"
+   * chứ không trượt ở mép màn. Lý do đầy đủ ở `src/ui/guide/index.ts`. Đừng dựng lại nó cho một
+   * màn khác mà chưa đọc chỗ ấy: cái hỏng không nằm ở kỹ thuật mà ở chỗ một tấm dán mép màn không
+   * nói được nó trả lời cho CHỖ NÀO.
+   */
   placement?: 'bottom' | 'center';
 }
 

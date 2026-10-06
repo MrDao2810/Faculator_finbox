@@ -4,6 +4,403 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Điều khiển chết: bỏ thanh trượt "Suất sinh lợi khởi điểm" của `xirr` (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.189 ca vitest). Đã soi bằng
+Chrome thật trên dev server của chủ dự án (PID 48740 — không đụng). Vẫn nợ `build` +
+`verify:static` + `size` + `check:chrome` vì cổng 3000 còn bận.
+
+### Chủ dự án giao gì
+
+> "sao kéo thả thông số trong ô khoanh đỏ thấy % thay đổi mà sao chả có gì thay đổi ở xung quanh
+> vậy? kiểm tra lại các phần có thanh slider tương tự xem có lỗi không để sửa"
+
+### Quét cả 269 ô, và phép đo đầu tiên SAI
+
+Lượt đo đầu so **trị số thô** của `calc` và báo 5 ô chết — trong đó **không có ô `guess` của
+`xirr`**, tức bỏ sót đúng ô chủ dự án đang chỉ. Nguyên do: điểm xuất phát Newton-Raphson làm con số
+lệch ở chữ số thứ mười hai, đủ để phép so thấy "có đổi", trong khi người kéo thanh trượt nhìn con số
+đã làm tròn thì thấy nó đứng yên.
+
+Đo lại theo **đúng chuỗi mà khối Kết quả in ra** (`formatNumber`), cộng mã cảnh báo và các số phụ:
+**2 trên 269**, cả hai đều là thanh trượt. Bài học ghi lại: phép đo về giao diện phải so thứ MẮT
+THẤY, không so thứ máy tính ra.
+
+### Hai ô, hai kết luận trái ngược
+
+| Ô                              | Đo                                                                                                        | Kết luận                    |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `xirr · guess`                 | 151 điểm xuất phát × 4 bộ dòng tiền (kể cả bộ đổi dấu nhiều lần, tức nhiều nghiệm) → **luôn một kết quả** | **chết theo thiết kế**, bỏ  |
+| `sut-giam-hien-tai · lookback` | kéo 30→60 trên chuỗi ví dụ → 1 kết quả                                                                    | **sống**, chết theo DỮ LIỆU |
+
+Bằng chứng ô thứ hai sống: công thức anh em `sut-giam-sau-nhat` dùng **đúng ô ấy trên đúng chuỗi
+ấy** và cho 6 kết quả khác nhau (4,87 · 7,3 · 8,53 · 11,77 · 13,73 · 15,03). Chuỗi 57 phiên của ví
+dụ tình cờ có đỉnh nằm trong 30 phiên cuối, mà 30 là sàn `MIN_DRAWDOWN_BARS`, nên cắt ngắn hay dài
+đều ra một đáp số. Ghim tên kèm bằng chứng, không sửa.
+
+### Vì sao `guess` không thể đổi được gì
+
+`xirr()` hỏng vòng Newton-Raphson thì rơi xuống `bisectXirr`, quét chia đôi cả khoảng −0,9999…10 —
+**rộng hơn cả dải thanh trượt (−50…100%)**. Nên điểm xuất phát chỉ đổi SỐ VÒNG LẶP. Mô tả cũ của ô,
+_"chỉ chỉnh nếu công thức báo không tìm được suất sinh lợi"_, vì thế là lời hứa suông: bisection
+không tìm ra thì không điểm xuất phát nào tìm ra.
+
+### Đổi file nào
+
+| File                                       | Sửa gì                                                                                                                                                                            |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/formulas/returns.ts`             | bỏ `XIRR_GUESS_VAR`, `variables: []`, hạt giống thành hằng `XIRR_DIEM_XUAT_PHAT = 0.1` (đúng mặc định cũ nên không con số nào trên màn đổi), 5 ca kiểm bỏ `inputs: { guess: 10 }` |
+| `src/core/registry/validate.ts`            | `NHAP_NGOAI_BANG_BIEN` — danh sách ghim tên công thức được phép khai `variables: []`                                                                                              |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx` | `khoiSoLieuTrong` — không dựng khối "SỐ LIỆU" khi nó rỗng hoàn toàn                                                                                                               |
+| `src/core/huong-dan/noi-dung/items.ts`     | `xirr.oNhap` thành `{}` kèm lý do                                                                                                                                                 |
+| `src/core/formulas/formulas.test.ts`       | cửa gác mới "không ô nhập nào là một điều khiển chết", gác cả hai chiều                                                                                                           |
+| 3 file ca kiểm đếm                         | 269→268 ô, 164→163 lưu ý, 12→11 ô Nâng cao, và `example.inputs` rỗng hợp lệ khi công thức không có ô nhập                                                                         |
+| `CLAUDE.md`                                | mục mới về luật này, và sửa đoạn cũ còn nói `guess` "stayed untouched"                                                                                                            |
+
+### Chỗ dễ làm hỏng, ghi lại
+
+- **Bỏ ô nhập cuối cùng làm lộ một cái hộp trống.** Khối "SỐ LIỆU" trước nay luôn có ít nhất một ô
+  nên chưa ai thấy. Điều kiện ẩn phải liệt kê ĐỦ mọi thứ khối ấy có thể chứa (ô nhập, khối cấu hình,
+  nút chuỗi giá, bảng hằng số, khối dẫn xuất, khuôn gộp) — thiếu một vế là giấu mất một thứ đang
+  dùng được. Đã soi lại `pe`, `tra-gop-nien-kim`, `rsi-wilder` trên Chrome: khối vẫn nguyên, thanh
+  trượt vẫn đủ.
+- **Dùng `spec.variables` chứ không dùng `shown`**: công thức chỉ có ô Nâng cao thì ở chế độ Cơ bản
+  `shown` rỗng, nhưng khối vẫn phải hiện dòng "N ô ẩn ở chế độ Cơ bản".
+
+---
+
+## "Cách đọc kết quả": mốc so sánh không được là con số trần (05/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.188 ca vitest). Đã soi bằng
+Chrome thật trên dev server của chủ dự án (PID 48740 — không đụng). Vẫn nợ `build` +
+`verify:static` + `size` + `check:chrome` vì cổng 3000 còn bận.
+
+### Chủ dự án giao gì
+
+Ảnh chụp `ty-so-calmar`, khoanh đỏ mục "Cách đọc kết quả":
+
+> "'so với 1: ..' nghĩa là gì? '1:' là gì? trong công thức tôi chưa thấy có '1:' rà xoát lại lỗi"
+
+### Lỗi thật, và nó nằm ở chỗ khuôn gặp con số
+
+Khuôn `"So với [mốc]: …"` không sai. Chỗ gãy là khi `[mốc]` rút lại thành đúng một chữ số: dấu hai
+chấm của khuôn dính vào số, và `1:` đọc ra thành **ký hiệu tỷ lệ** (1:2), không ai đọc nó thành "so
+với mốc 1, rồi hai chấm". Chủ dự án đi tìm "1:" trong công thức là phản ứng đúng với cái mình đọc
+được.
+
+Đo trên cả 111 đoạn: **12 đoạn `vi` và 14 đoạn `en`** có mốc là số trần — `So với 1:` (6),
+`So với 0:` (5), `So với 100%:` (1), cộng bản tiếng Anh của `pb` và `peg`.
+
+**Cách chữa đã có sẵn trong chính sản phẩm**, nên lượt này không phát minh gì:
+
+| Đã viết đúng từ trước        | Dạng                                                                       |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `pb`, `peg` (bản `vi`)       | "So với **mốc** 1:"                                                        |
+| `rsi-wilder`, `stochastic-k` | "So với **hai mốc quen dùng** 70 và 30:" · "the usual 70 and 30 **marks**" |
+| `phan-tram-b-bollinger`      | "So với **hai mép** 0% và 100%:" · "the 0% and 100% **edges**"             |
+| `don-bay-hieu-dung`          | "So với **mức trần**, tức 100 chia cho…"                                   |
+
+Tức luật thật là: **con số phải có một danh từ đứng trước đỡ lấy**. 26 chỗ còn thiếu đã đưa về cùng
+dạng — `vi` thêm "mốc", `en` thành "the N mark".
+
+### Đổi file nào
+
+| File                                 | Sửa gì                                                               |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| `src/core/formulas/` (8 file nhóm)   | 26 đoạn `howToRead`: thêm từ chỉ loại trước con số, cả `vi` lẫn `en` |
+| `src/core/how-to-read-rules.ts`      | Luật 9 `MOC_SO_TRAN` + docblock ghi lại nguyên do và phép đo         |
+| `src/core/how-to-read-rules.test.ts` | ca mới: mốc số trần thì bị bắt, có từ chỉ loại thì qua               |
+| `CLAUDE.md`                          | bổ sung luật 9 vào đoạn liệt kê luật của mục "Cách đọc kết quả"      |
+
+### Bẫy gặp phải, ghi để lần sau không mất công
+
+Lượt thay chuỗi đầu neo vào dấu nháy đơn trước cụm `Compared with 1:` và **sót 3 chỗ**: `pb`, `ty-so-calmar`
+và `macd-duong-chinh` có dấu `'` trong câu (`shareholders' equity`, `one year's return`, `the
+stock's own level`) nên prettier bọc chuỗi bằng nháy kép. Đo lại sau khi sửa mới lòi ra. **Thay
+chuỗi trong mã TS phải quét cả hai loại nháy**, hoặc tốt hơn là đo lại chứ đừng tin lượt thay.
+
+### Những chỗ cố ý KHÔNG đổi
+
+- **Mốc không phải số thì không đụng** — 89 kiểu mốc còn lại đều là một cụm danh từ ("giá thị
+  trường hiện tại của mã", "lãi suất tiết kiệm kỳ hạn một năm"), không có chữ số nào dính dấu hai
+  chấm.
+- **Luật 9 chỉ chặn mốc TRỐNG TRƠN một con số**, không ép thêm chữ vào mốc đã có danh từ. "mức
+  trần, tức 100 chia cho tỷ lệ ký quỹ" vẫn qua.
+
+---
+
+## Tên ký hiệu: hàng dẫn xuất gọi đúng tên dòng biểu thức đang gọi (05/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.187 ca vitest). Đã soi bằng
+Chrome thật trên dev server của chủ dự án (PID 48740 — không đụng). Vẫn nợ `build` +
+`verify:static` + `size` + `check:chrome` vì cổng 3000 còn bận.
+
+### Chủ dự án giao gì
+
+Ảnh chụp `tra-gop-nien-kim`, khoanh đỏ ba chỗ cùng nói về ký hiệu `i`:
+
+> "đây là lãi suất kỳ mà. tại sao bên dưới lại ghi là lãi suất kỳ tháng? 'lãi suất kỳ tháng' nghĩa
+> là gì nếu là 'lãi suất kỳ/tháng' thì phải sửa lại cho đúng chính tả, tôi kiểm tra lại toàn bộ
+> công thức, điều chỉnh với các công thức khác để đồng bộ. không đối phó"
+
+### Hai lỗi chồng nhau, cái thứ hai mới là gốc
+
+**Lỗi 1 — chuỗi sai ngữ pháp.** `'lãi suất một kỳ tháng'`: danh từ chồng danh từ, không đọc được.
+Quét cả 57 dòng ký hiệu lãi suất/lợi suất của thư viện thì chỉ 3 chỗ mang dạng ấy
+(`tra-gop-nien-kim`, `tra-gop-goc-deu`, `tiet-kiem-muc-tieu` — đều ở `personal.ts`), còn mọi chỗ
+khác đã viết đúng: "mỗi kỳ", "một kỳ ngắn", "mỗi tháng", "kỳ ngắn / kỳ dài". Tức đây là một chỗ
+trượt lẻ, không phải quy ước. Sửa thành `'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô … chia 12, dạng
+thập phân'` (và bản `en` tương ứng), cộng một docstring của `monthlyRate`.
+
+**Lỗi 2 — NGHĨA không phải TÊN.** `nhanCuaKhoa` có bốn nguồn tên; ba nguồn trả về tên thật (vế trái
+dòng biểu thức, nhãn ô nhập, `shortLabel` của chặng) còn nguồn thứ tư cắt **mệnh đề đầu trong nghĩa
+ở bảng ký hiệu**. Mà bảng ký hiệu cố ý viết định nghĩa dài hơn tên — đo được **85 trên 101** dòng
+có cụm chữ khác nghĩa, và đó là THIẾT KẾ (`pe` in "EPS" trên dòng chữ, bảng giải "lợi nhuận sau
+thuế trên mỗi cổ phiếu"). Nên cắt mệnh đề đầu là lấy một thứ **không bao giờ hứa sẽ trùng tên**.
+Hậu quả thấy được ngay trên ảnh: `Số tiền vay × lãi suất một kỳ tháng` — hoa cạnh thường, hai giọng
+trong một phép nhân.
+
+Đo trên 12 mẫu `derivedSubstitution` đang có: đúng **3 khoá** rơi vào nhánh ấy (`i` của
+`tra-gop-nien-kim`, `i` và `n` của `tra-gop-goc-deu`); 9 khoá còn lại đi nhánh ô nhập hoặc nhánh
+chặng nên vẫn ra tên thật.
+
+### Chữa ở gốc, không chữa chuỗi
+
+Tên đúng **đã có sẵn trên màn**: `notation.expression` gắn mỗi cụm chữ với ký hiệu của nó
+(`HowToEntry.phrases`, khai nguyên văn), và `segmentExpressionLines` ném lỗi lúc build nếu cụm ấy
+không có thật trong dòng chữ. `FormulaDetail` đọc bảng đó rồi truyền xuống qua `tenKyHieu`, nên hai
+dòng trên màn dùng **chung một chuỗi** chứ không phải hai chuỗi giống nhau.
+
+Nhánh cắt nghĩa giữ lại làm lưới an toàn cho ký hiệu chưa khai cụm chữ — hiện không ký hiệu nào rơi
+vào đó, và hai cửa gác giữ cho vẫn vậy.
+
+### Đổi file nào
+
+| File                                            | Sửa gì                                                                                                                       |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/substitution-cay.ts`                  | `nhanCuaKhoa` + `datNhanDanXuat` nhận `tenKyHieu` tuỳ chọn, tra trước nhánh bảng ký hiệu; docblock ghi lại cả phép đo 85/101 |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`      | memo `tenKyHieu` dựng từ `notation.expression` (không prop mới, không chuỗi mới)                                             |
+| `src/core/formulas/personal.ts`                 | 3 nghĩa ký hiệu `i` + 1 docstring, cả `vi` lẫn `en`                                                                          |
+| `src/core/how-to/how-to.test.ts`                | cửa gác: ký hiệu dùng trong mẫu dẫn xuất phải khai `phrases`                                                                 |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` | ca mới so hai chỗ trên cùng một lượt dựng; sửa ca cũ vốn ghim chuỗi sai                                                      |
+
+### Những chỗ cố ý KHÔNG đổi
+
+- **85/101 chỗ "lệch" giữa dòng chữ và bảng ký hiệu**: đó là thiết kế, không phải lỗi. Dòng chữ in
+  tên ngắn, bảng ký hiệu in định nghĩa. Ép hai bên bằng nhau là lấy mất chỗ viết định nghĩa.
+- **Cửa gác không so hai chuỗi**, chỉ đòi có `phrases`. So chuỗi sẽ ép bảng ký hiệu phải mở đầu
+  bằng tên — cùng cái mất mát trên.
+- **Khoá là Ô NHẬP vẫn lấy nhãn ô**, dù nhãn ô dài hơn cụm chữ (`fcff` in "Lợi nhuận trước lãi vay
+  và thuế (EBIT)" trong khi dòng chữ in "EBIT"). Người dùng vừa gõ vào ô mang đúng nhãn ấy, nên đó
+  mới là tên họ nhận ra.
+
+### Phép đo đã chạy
+
+- 554 dòng ký hiệu, dạng "kỳ &lt;đơn vị thời gian&gt;": **0 chỗ còn lại** (trước: 3).
+- 70 cách dùng chữ "kỳ" đọc lại bằng mắt — không còn chỗ nào chồng danh từ.
+- Chrome thật, `tra-gop-nien-kim` và `tra-gop-goc-deu`: dòng chữ, hàng dẫn xuất và bảng ký hiệu đều
+  gọi "Lãi suất kỳ" / "Số kỳ".
+
+---
+
+## Màn chi tiết: dòng thay số vẽ thành hình, và đại lượng dẫn xuất có công thức (05/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.180 ca vitest). Đã soi bằng
+Chrome thật trên dev server của chủ dự án (PID 48740 — không đụng). **CHƯA build lại**: cổng 3000
+vẫn bận, nên `build` + `verify:static` + `size` + `check:chrome` còn nợ.
+
+### Chủ dự án giao gì
+
+Một ảnh chụp `tra-gop-nien-kim`, hai khoanh đỏ, hai lỗi khác nhau:
+
+> "Với ô khoanh đỏ bên trên thì như ảnh Gốc kỳ đầu là gì? tại sao lại có gốc kỳ đầu? Lãi kỳ đầu là
+> gì và tại sao lại có ở đây? nếu được tính ra thì công thức để tính đâu? tại sao chưa cho vào."
+
+> "Với ô khoanh đỏ bên dưới thì đang hiển thị quá loạn khiến tôi là người code cũng khó hiểu →
+> bên trên công thức đang biểu thị như nào thì ở chỗ này cũng cần hiển thị như vậy và chỉ là thay
+> số liệu vào thôi"
+
+Chủ dự án chốt thêm hai điều khi được hỏi: thay số ở mức **KÝ HIỆU** (không khai triển), và làm
+**cả hai** phần cùng lượt.
+
+### Lỗi 2 — dòng thay số: lần THỨ BA cùng một lỗi bị chụp màn
+
+Dòng ấy in ra chữ một dòng:
+
+```text
+800.000.000 × 9,5 ÷ 100 ÷ 12 × (1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) ÷ ((1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) − 1)
+```
+
+Ngày 29/09/2026 chủ dự án đã chụp đúng lỗi này hai lần — dòng "Áp vào công thức" của bài tập và của
+khối Ví dụ thực tế — và lời giải khi ấy là VẼ bằng `CongThucDien`. Dòng ở màn tính là chỗ cuối cùng
+còn in chữ. Nay nó dùng lại chính bộ vẽ ấy.
+
+**Cây dựng LÚC BUILD, số đặt LÚC CHẠY.** Đây là khác biệt duy nhất so với hai dòng kia, và nó quyết
+định cả thiết kế: số của dòng này đổi theo TỪNG PHÍM GÕ, nên không dựng sẵn cả cây được. Nhưng hình
+dạng cây thì không đổi — gõ lại một ô không biến phép nhân thành phép chia. Nên `page.tsx` phân
+tích mẫu một lần (`substitutionShape`), chừa mỗi `{khoá}` thành một Ô TRỐNG — thứ `Nut` đã có sẵn
+cho câu điền số, `CongThucDien` đã vẽ được, `chieuCao` đã đếm được, nên không phải thêm loại nút
+mới — rồi trình duyệt chỉ đi cây đặt số (`datSoThaySo`). Bộ phân tích cú pháp 24 kB không vào gói
+của 111 trang; cửa gác ở `build-only-imports.test.ts` khoá đúng một nơi được nhập nó.
+
+**Thay ở mức ký hiệu — 17 mẫu viết lại.** Đo trên cả 48 mẫu: 27 mẫu vốn đã thay thẳng ký hiệu
+(`{price} ÷ {eps}`), 21 mẫu có số không có trong hình. Bốn trong 21 thực ra đúng (`1.000` của vốn
+hoá, `22,5` của Graham, `365 ÷ d`, và `× 100` cuối dòng phải giữ để dòng vẫn ra đúng con số trên
+màn). 17 mẫu còn lại khai thêm `spec.substitutionDerived`:
+
+```ts
+substitutionDerived: { i: '{rate} ÷ 100 ÷ 12', n: '{years} × 12' },
+substitution: '{amount} × {i} × (1 + {i})^{n} ÷ ((1 + {i})^{n} − 1)',
+```
+
+### Lỗi 1 — khối "Từ các ô trên, công thức tính ra"
+
+Khối ấy (`DerivedNote`) sinh ra ngày 16/09/2026 để bịt đúng lỗ hổng này cho `fcfe`: một cột biểu đồ
+tên "Lãi vay sau thuế" cao 48 tỷ mà con số 48 không có ở đâu khác trên trang. Nhưng nó mới nói đại
+lượng ấy TỒN TẠI, chưa nói nó tính ra sao — lỗ hổng chỉ lùi xuống một tầng, và chủ dự án chỉ đúng
+tầng ấy.
+
+Thêm vào đó, trên `tra-gop-nien-kim` lý do tồn tại của hai dòng ấy là **vô hình**: chúng là nhãn
+hai cột của biểu đồ bóc tách, mà công thức này `chartType: 'stackedBar'` nên hình mặc định là đường
+quét — phải tự đổi ô "Xem kết quả đổi theo" sang "Bóc tách" mới thấy chúng.
+
+Đo được **15** đại lượng ở 9 công thức. **12 cái có công thức** (`spec.derivedSubstitution`), vẽ
+bằng chính bộ vẽ của lỗi 2. **BA cái cố ý để trống**, mỗi cái một lý do ghi ra:
+
+- `thue-tncn-dau-tu.transferTax` và `.dividendTax` — đọc thuế suất từ `usesConstants`. Chép trị số
+  hằng vào mẫu là đúng thứ `ConstantsNote` tồn tại để chặn.
+- `ddm-hai-giai-doan.pvStage1` — một tổng Σ qua n kỳ do người dùng đặt, số hạng không cố định.
+
+### Hai lỗi tự tôi tìm ra trong lúc làm, và cả hai đều vô hình với cửa gác cũ
+
+**1. Nhãn `aria-label` nói sai phép tính.** Hình gom bằng hình học — gạch phân số, vạch căn, chữ
+nhỏ nâng lên — còn chữ chỉ gom được bằng ngoặc. Bản đầu của `chuCuaCay` đọc ra
+`… ÷ (1 + i)^240 − 1`: mẫu số mất cặp ngoặc, nên người dùng bàn phím nghe một phép tính khác hẳn
+thứ người dùng chuột đang nhìn. Nay có cửa gác tính lại: viết cây ra chữ rồi ĐỌC LẠI bằng bộ phân
+tích, hai con số phải trùng tới 1e-9.
+
+**2. `Lãi kỳ đầu = 800.000.000 × 0,0079` — bấm lại ra 6.320.000, cạnh con số in 6.333.333,33.**
+Lãi suất một kỳ bị làm tròn 4 chữ số lẻ. Nó LỌT cửa gác vì lệch 0,21%, dưới ngưỡng 0,5%. Hai việc:
+số chữ số lẻ nay chọn theo cả khoá lẫn ĐỘ LỚN (nhỏ hơn 1 thì 8 chữ số), và ngưỡng của khối này siết
+xuống **0,01%** — ở đây công thức và con số của nó đứng SÁT NHAU trên một hàng, nên một chữ số lệch
+là đọc ra ngay.
+
+### Lượt soát thứ hai — chủ dự án nhìn bản vừa dựng rồi chỉ tiếp hai chỗ
+
+> "Gốc kỳ đầu và Lãi kỳ đầu tại sao lại sử dụng công thức trừ như kia? nguồn để tạo ra công thức đó
+> là gì? dẫn chứng đâu? tại sao không thêm vào? nếu có thì cần đưa ra dẫn chứng hoặc popup hiển thị
+> công thức áp dụng."
+
+> "cần căn chỉnh ra giữa và giảm size text để đẹp hơn, hoặc có thể in nghiêng. đồng thời điều chỉnh
+> tương tự ở toàn bộ các công thức khác"
+
+**Câu hỏi đầu đúng chỗ đáng hỏi.** Dòng `= 7.457.049,5027 − 6.333.333,3333` không nói nó đang TRỪ
+CÁI GÌ cho CÁI GÌ, nên không ai phán được nó đúng hay sai — kể cả người viết ra nó.
+
+Lời đáp là **một dòng thứ hai bằng TÊN, đặt TRÊN dòng số**:
+
+```text
+Gốc kỳ đầu                                     1.123.716,17 ₫/tháng
+= Trả hằng tháng − Lãi kỳ đầu
+= 7.457.049,5027 − 6.333.333,3333
+```
+
+Chọn dòng LUÔN HIỆN thay vì popup, dù chủ dự án cho cả hai lựa chọn: dòng này trả lời đúng câu người
+đọc đang hỏi ngay lúc họ đang nhìn, không bắt họ đoán là có cái gì rê chuột được.
+
+**Dòng tên KHÔNG viết mới một chữ nào.** Nó dựng từ CHÍNH mẫu thay số, chỉ thay lá số bằng lá tên,
+nên hai dòng không bao giờ nói hai phép tính khác nhau. Bốn nguồn tên đều có sẵn trong `spec`: ô
+nhập lấy `variables[].label` · khoá `extras` lấy `breakdown[].shortLabel` (đúng cái tên đang in
+ở hàng trên) · `__ketQua` lấy vế trái dòng biểu thức ("Trả hằng tháng") · ký hiệu dẫn xuất lấy mệnh
+đề đầu trong nghĩa ở bảng ký hiệu (`i` → "lãi suất một kỳ tháng", không in chữ cái trần bắt người
+đọc ngước lên tra bảng). Không nợ bản dịch nào.
+
+**Dẫn chứng: dùng đúng cơ chế `calcEvidence` của 112 khung "cách tính".** Mỗi trong 12 mẫu khai một
+mẩu mã PHẢI có thật trong khối `calc` của chính công thức ấy — `'firstPrincipal: payment -
+firstInterest'`, `"const equityPart = (equity / total) * v('costEquity')"`… Cửa gác đọc mã nguồn
+rồi đối chiếu, nên công thức in ra màn không phải lời của người viết tài liệu mà là mã đang chạy.
+Gác đặt ở `how-to.test.ts` vì bộ đọc mã `calc` nằm đó; chép nó sang file khác là dựng sẵn chỗ cho
+hai bản trôi khỏi nhau. Một ca thứ hai đòi mẫu nào cũng có dẫn chứng, không thừa không thiếu — đó là
+thứ nói cho người thêm mẫu thứ 13 biết họ còn nợ một việc.
+
+**Dải thay số: căn giữa, 20px → 16px.** Dải chạy hết bề ngang thẻ gộp (~1.250px ở 1440) mà hình của
+`pe` chỉ rộng ~180px, nên dồn trái thì nó đứng lẻ ở một góc của một dải gần như trống. Một luật
+CSS, áp cho cả 48 công thức. **KHÔNG in nghiêng** dù chủ dự án nêu như một lựa chọn: cả dòng là CON
+SỐ, mà nghiêng là quy ước của BIẾN — hình KaTeX ở đầu màn cũng nghiêng `P`, `i`, `n` và để số
+thẳng, nên nghiêng ở đây là nói ngược quy ước mà chính trang này vừa dạy.
+
+### Lượt soát thứ ba — thứ tự của khối dẫn xuất phi logic
+
+> "tại sao phải tính Gốc kỳ đầu? tác dụng là gì? còn công thức để tính Trả hàng tháng nhưng sao tự
+> dưng lại tính gốc kỳ đầu làm gì? rồi Lãi kỳ đầu tự dưng lôi đâu ra 21 triệu? xong bên dưới mới
+> tính lãi kỳ đầu? phi logic? cần tuần tự và hợp lý hơn"
+
+**Lỗi thật, và nó do chính lượt trước tạo ra.** Khối bày "Gốc kỳ đầu" trước, mà công thức của nó là
+`Trả hằng tháng − Lãi kỳ đầu` — dùng một con số 21,5 triệu chưa ai giới thiệu, rồi hàng DƯỚI mới
+tính con số ấy. Trước lượt trước thì không ai thấy, vì khối chỉ in nhãn và trị số; thêm công thức
+vào là phơi luôn thứ tự sai ra.
+
+Nguyên nhân: thứ tự cũ là thứ tự khai `spec.breakdown`, tức thứ tự **CỘT của biểu đồ bóc tách**.
+Nó đúng cho hình vẽ — cột chồng đọc từ dưới lên nên gốc đứng trước lãi — và sai cho một danh sách
+đọc từ trên xuống. Hai thứ tự trả lời hai câu hỏi khác nhau.
+
+`derivedStages()` nay sắp theo **thứ tự tính được**: chặng nào bị chặng khác nhắc tới thì đứng
+trước. Sắp xếp ỔN ĐỊNH, nên chặng không phụ thuộc ai giữ nguyên thứ tự khai — `tra-gop-goc-deu`
+không đổi gì vì hai chặng của nó độc lập. **Biểu đồ GIỮ thứ tự khai**: nó đọc `spec.breakdown`
+thẳng, không đi qua hàm này. Một ca kiểm ghim cả hai chiều để không ai "sửa cho đồng bộ".
+
+### Ba câu hỏi còn lại là câu hỏi về SẢN PHẨM, chưa sửa
+
+Chủ dự án hỏi _"tác dụng là gì"_ hai lần, và đó là câu hỏi đúng. Đo được:
+
+- Hai đại lượng ấy là **hai cột của biểu đồ bóc tách**, thứ `spec.breakdown` khai với lý do viết
+  sẵn: khoản trả hằng tháng không đổi suốt 240 kỳ nhưng RUỘT của nó đổi từng kỳ, và ở kỳ 1 phần lãi
+  cao nhất. Với bộ số chủ dự án đang gõ: 21,5 triệu lãi so với 3,8 triệu gốc — **85% khoản trả đầu
+  tiên là lãi**. Đó đúng là điều câu "Ý nghĩa" ở đầu trang đang nói ("phần lãi giảm dần còn phần gốc
+  tăng dần").
+- **Nhưng lý do ấy VÔ HÌNH**: `tra-gop-nien-kim` là `chartType: 'stackedBar'`, mà luật dự án cho
+  `stackedBar` lấy đường quét làm hình mặc định — phải tự đổi ô "Xem kết quả đổi theo" sang "Bóc
+  tách" mới thấy hai cột ấy.
+- Tiêu đề khối, `detail.derivedInUse` = "Từ các ô trên, công thức tính ra", nói chúng ĐẾN TỪ ĐÂU
+  chứ không nói chúng ĐỂ LÀM GÌ.
+
+Chưa tự sửa vì đây là quyết định sản phẩm, không phải lỗi: thêm một câu giải thích vào màn là đúng
+loại chữ chủ dự án đã gỡ nhiều lần. Ba lối ra đã nêu để chủ dự án chọn.
+
+### Đổi file nào
+
+| File                                        | Vì sao                                                            |
+| ------------------------------------------- | ----------------------------------------------------------------- |
+| `core/quiz/nut.ts`                          | `datSoVaoCay` · `tinhCay` · `chuCuaCay` — ba hàm thuần, module lá |
+| `core/how-to/how-to.test.ts`                | cửa gác dẫn chứng: 12 mẩu mã `calc`, và "không thừa không thiếu"  |
+| `core/chart/breakdown.ts`                   | `derivedStages()` sắp theo thứ tự tính; biểu đồ giữ thứ tự khai   |
+| `core/substitution-cay.ts` (mới)            | kiểu + đặt số lúc chạy, nhẹ, trình duyệt nhập được                |
+| `core/substitution-shape.ts` (mới)          | phân tích mẫu lúc build, nhập bộ phân tích cú pháp                |
+| `application/thay-so.ts` (mới)              | cầu nối CHỈ-LÚC-BUILD, không qua barrel                           |
+| `core/substitution.ts`                      | `fillSubstitution` bỏ, còn mộ chí; `substitutionKeys` ở lại       |
+| `core/registry/types.ts`                    | hai trường mới: `substitutionDerived`, `derivedSubstitution`      |
+| 8 file `core/formulas/*.ts`                 | 17 mẫu viết lại + 12 công thức của đại lượng dẫn xuất             |
+| `ui/result/DerivedNote.tsx` + `.module.css` | vẽ công thức dưới mỗi hàng                                        |
+| `ui/quiz/CongThucDien.module.css`           | cỡ chữ qua biến `--ct-co-chu`, mặc định giữ nguyên                |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`      | hai prop mới, dòng thay số vẽ thay vì in                          |
+| `app/cong-thuc/[id]/page.tsx`               | dựng hai cây lúc build                                            |
+| `core/formulas/formulas.test.ts`            | cửa gác đổi sang gác CHÍNH đường màn chạy, cộng ba phép kiểm mới  |
+| `app/cong-thuc/[id]/FormulaDetail.test.tsx` | 3 ca gác chiều ngược: chữ trơn không được quay lại                |
+| `ui/tokens.test.ts`                         | `--ct-co-chu` vào danh sách biến cục bộ, kèm lý do                |
+
+### Còn lại
+
+- **`build` + `verify:static` + `size` + `check:chrome`** — chờ cổng 3000. `size` đáng chạy nhất
+  lượt này: cây dựng sẵn làm First Load JS tăng một ít (dữ liệu cây), nhưng bộ phân tích 24 kB thì
+  không vào — cần con số thật để biết cán cân.
+- **Hai phép kiểm Chrome của dải thay số** dò `[class*="substitution"]`, nay khớp cả `.substitution`
+  lẫn hai lớp con mới. `querySelector` lấy phần tử ĐẦU theo thứ tự tài liệu, tức vẫn là `<p>` cha,
+  nên phép kiểm không đổi nghĩa — nhưng chưa chạy được để xác nhận.
+- **Ba đại lượng chưa có công thức** — hai cái chờ mẫu tham chiếu được KHOÁ hằng số (việc đã ghi
+  sẵn ở docblock `FormulaSpec.substitution` từ 01/10), một cái là tổng Σ.
+
+---
+
 ## WF-21 đợt 9: gộp tiêu đề trùng, và sửa văn phong bài sang giọng văn bản (05/10/2026)
 
 **Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.174 ca vitest). Đã soi bằng

@@ -1,39 +1,22 @@
-import { formatNumber } from './format';
 import type { FormulaSpec } from './registry/types';
 
-/**
- * Dòng "thay số" của khối gộp: lấy `spec.substitution` rồi đặt con số đang nhập vào từng chỗ trống.
+/*
+ * ── Mộ chí: `fillSubstitution()` — bỏ ngày 05/10/2026 ───────────────────────────────────────
  *
- * Mẫu viết bằng `{khoá}` của biến (xem docblock `FormulaSpec.substitution`). Hàm này CHỈ thay chữ —
- * nó không tính gì cả, vì con số kết quả luôn đến từ `calc`. Nhờ vậy dòng in ra không thể nói khác
- * khối Kết quả ngay cạnh nó.
+ * Nó thay con số vào mẫu rồi trả về MỘT DÒNG CHỮ, và màn in thẳng dòng ấy ra. Trên
+ * `tra-gop-nien-kim` dòng ấy đọc ra thế này:
  *
- * Số định dạng bằng `formatNumber` đúng như mọi con số khác trên màn, tức theo quy ước Việt Nam ở
- * cả hai ngôn ngữ (`formatNumber` ghim `LOCALE`). Đó cũng là thứ cửa gác ở `formulas.test.ts` tính
- * lại được: `evaluateWorked()` đọc đúng quy ước ấy.
+ *   800.000.000 × 9,5 ÷ 100 ÷ 12 × (1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) ÷ ((1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) − 1)
  *
- * Thiếu khoá nào thì trả `null` chứ không in `{price}` ra màn — một chỗ trống lọt ra giao diện là
- * lỗi phải thấy ngay, không phải lỗi để người dùng đọc.
+ * Chủ dự án chụp màn: *"đang hiển thị quá loạn khiến tôi là người code cũng khó hiểu"*. Dòng ấy nay
+ * là một HÌNH VẼ — `substitutionShape` dựng cây lúc build, `datSoThaySo` đặt số lúc chạy.
+ *
+ * ĐỪNG DỰNG LẠI. In một công thức thành chữ một dòng là lỗi đã bị chụp màn BA LẦN: dòng "Áp vào
+ * công thức" của bài tập, của khối Ví dụ thực tế (cả hai ngày 29/09/2026), rồi dòng này.
+ *
+ * `substitutionKeys` ở lại — cửa gác ở `formulas.test.ts` dùng nó để soát khoá của cả mẫu chính
+ * lẫn từng biểu thức `substitutionDerived`.
  */
-export function fillSubstitution(
-  spec: FormulaSpec,
-  values: Readonly<Record<string, number>>,
-): string | null {
-  const template = spec.substitution;
-  if (template === undefined) return null;
-
-  let missing = false;
-  const filled = template.replace(/\{([A-Za-z0-9_]+)\}/g, (_, key: string) => {
-    const value = values[key];
-    if (value === undefined || !Number.isFinite(value)) {
-      missing = true;
-      return '';
-    }
-    return formatNumber(value, { maxDecimals: 4 });
-  });
-
-  return missing ? null : filled;
-}
 
 /** Khoá biến mà một mẫu thay số nhắc tới — dùng cho cửa gác ở `formulas.test.ts`. */
 export function substitutionKeys(template: string): ReadonlyArray<string> {

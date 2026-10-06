@@ -40,6 +40,7 @@ import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 import { FormulaDetail } from './FormulaDetail';
 import { baiHuongDanFor } from '@/application/huong-dan';
 
+import { derivedShape, substitutionShape } from '@/application/thay-so';
 import { buildNotationView } from './notation-view';
 import type { NotationView } from './notation-types';
 
@@ -139,11 +140,20 @@ function Man({ spec, bai }: { spec: FormulaSpec; bai?: BaiHuongDan }) {
     notation = buildNotationView(spec);
     notationCache.set(spec, notation);
   }
+  /*
+   * Hai cây dựng SẴN LÚC BUILD ở `page.tsx`, dựng lại ở đây để màn trong jsdom giống màn thật.
+   * Thiếu chúng thì dải thay số và công thức của đại lượng dẫn xuất không bao giờ hiện, và mọi ca
+   * kiểm về chúng sẽ xanh vì rỗng.
+   */
+  const thaySoCay = substitutionShape(spec);
+  const danXuatCay = derivedShape(spec);
   return (
     <FormulaDetail
       spec={spec}
       asOf={AS_OF}
       notation={notation}
+      {...(thaySoCay === null ? {} : { thaySoCay })}
+      {...(Object.keys(danXuatCay).length === 0 ? {} : { danXuatCay })}
       {...(bai === undefined ? {} : { bai })}
     />
   );
@@ -3445,5 +3455,131 @@ describe('WF-03 — đại lượng công thức tự tính ra hiện ở khối
     render(<Man spec={specOf('pe')} />);
 
     expect(within(khoiSoLieu()).queryByText(t('detail.derivedInUse'))).toBeNull();
+  });
+});
+
+/*
+ * ── Dòng thay số và công thức của đại lượng dẫn xuất đều là HÌNH VẼ (05/10/2026) ─────────────
+ *
+ * Chủ dự án chụp màn `tra-gop-nien-kim` và nêu hai lỗi trong một tin:
+ *
+ *   · dòng thay số *"đang hiển thị quá loạn khiến tôi là người code cũng khó hiểu"*, kèm luật —
+ *     *"bên trên công thức đang biểu thị như nào thì ở chỗ này cũng cần hiển thị như vậy và chỉ là
+ *     thay số liệu vào thôi"*;
+ *   · khối "Từ các ô trên, công thức tính ra" bày hai con số có tên mà không nói chúng tính ra sao
+ *     — *"nếu được tính ra thì công thức để tính đâu? tại sao chưa cho vào"*.
+ *
+ * Hai ca dưới đây gác chiều NGƯỢC của cả hai: chữ trơn không được quay lại. Không cửa gác nào khác
+ * thấy được chuyện ấy — `formulas.test.ts` gác con số ĐÚNG, còn hình dạng thì chỉ ở đây.
+ */
+describe('WF-03 — dòng thay số vẽ thành hình, không in chữ trơn', () => {
+  it('dải thay số là hình có phân số, không phải một dòng chữ', () => {
+    render(<Man spec={specOf('tra-gop-nien-kim')} />);
+
+    const dai = document.querySelector('[class*="substitution"]');
+    expect(dai, 'không dựng dải thay số').not.toBeNull();
+
+    /* Có cây vẽ, và cây ấy có ít nhất một phân số xếp tầng — đúng hình công thức ở đầu màn. */
+    expect(dai?.querySelector('[data-cong-thuc]')).not.toBeNull();
+    expect(dai?.querySelector('[class*="ctPhanSo"]')).not.toBeNull();
+
+    /*
+     * Chuỗi `÷ 100 ÷ 12` là dấu vết của mẫu CŨ: nó khai triển ký hiệu `i` ra ba phép tính ngay
+     * giữa hình. Chủ dự án chốt thay ở mức ký hiệu, nên nó không được có mặt.
+     */
+    expect(dai?.textContent).not.toContain('÷ 100 ÷ 12');
+
+    /* Trình đọc màn hình vẫn nghe được cả phép tính, kèm ngoặc của mẫu số. */
+    const hinh = dai?.querySelector('[role="math"]');
+    expect(hinh?.getAttribute('aria-label')).toContain('÷ ((1 + ');
+  });
+
+  it('mỗi đại lượng "công thức tự tính ra" đi kèm công thức tính của chính nó', () => {
+    render(<Man spec={specOf('tra-gop-nien-kim')} />);
+
+    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
+    const hang = [...(khoi?.querySelectorAll('dl > div') ?? [])];
+    expect(hang).toHaveLength(2);
+
+    for (const row of hang) {
+      const ct = row.querySelector('[role="math"]');
+      expect(
+        ct,
+        `hàng "${String(row.querySelector('dt')?.textContent)}" chưa có công thức`,
+      ).not.toBeNull();
+      expect(ct?.querySelector('[data-cong-thuc]')).not.toBeNull();
+    }
+  });
+
+  /*
+   * Mỗi hàng có HAI dòng, và dòng TÊN phải có mặt.
+   *
+   * Chủ dự án nhìn bản chỉ-có-số và hỏi *"tại sao lại sử dụng công thức trừ như kia? nguồn để tạo
+   * ra công thức đó là gì?"*. Một dòng toàn số không nói nó đang trừ CÁI GÌ cho CÁI GÌ, nên không
+   * ai phán được nó đúng hay sai. Ca này gác chiều ngược: dòng tên không được biến mất.
+   *
+   * Tên ghép từ nhãn đã có trong `spec` — không câu prose nào viết mới — nên nó cũng gác luôn
+   * đường ghép ấy: `__ketQua` lấy vế trái dòng biểu thức, khoá `extras` lấy `shortLabel` của chặng,
+   * ký hiệu dẫn xuất lấy đúng cụm chữ dòng biểu thức dùng.
+   */
+  it('mỗi công thức có dòng TÊN đứng trên dòng số, ghép từ nhãn sẵn có', () => {
+    render(<Man spec={specOf('tra-gop-nien-kim')} />);
+
+    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
+    const hang = [...(khoi?.querySelectorAll('dl > div') ?? [])];
+
+    for (const row of hang) {
+      expect(row.querySelectorAll('[data-cong-thuc]')).toHaveLength(2);
+    }
+
+    const chu = khoi?.textContent ?? '';
+    /* `__ketQua` → vế trái dòng biểu thức; khoá `extras` → `shortLabel` của chặng. */
+    expect(chu).toContain('Trả hằng tháng');
+    expect(chu).toContain('Lãi kỳ đầu');
+  });
+
+  /*
+   * Hàng dẫn xuất gọi một ký hiệu bằng ĐÚNG cụm chữ dòng biểu thức dưới hình đang gọi.
+   *
+   * Lỗi thật, chủ dự án chụp màn ngày 05/10/2026: hình và dòng chữ gọi `i` là "Lãi suất kỳ", hàng
+   * dẫn xuất ngay dưới ghi "lãi suất một kỳ tháng" — *"đây là lãi suất kỳ mà. tại sao bên dưới lại
+   * ghi là lãi suất kỳ tháng?"*. Hai giọng cho một ký hiệu, cách nhau nửa màn.
+   *
+   * Ca này so hai chỗ trên CÙNG MỘT LƯỢT DỰNG chứ không ghim chuỗi "Lãi suất kỳ": ghim chuỗi thì
+   * đổi tên ký hiệu ở `phrases` sẽ làm đỏ ca kiểm mà không nói được chỗ nào lệch chỗ nào.
+   */
+  it('hàng dẫn xuất gọi ký hiệu đúng tên dòng biểu thức đang gọi', () => {
+    render(<Man spec={specOf('tra-gop-nien-kim')} />);
+
+    const spec = specOf('tra-gop-nien-kim');
+    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
+    const chu = khoi?.textContent ?? '';
+
+    /* Cụm chữ của `i` trong dòng biểu thức — đọc từ chính dòng ấy, không gõ lại. */
+    const cum = 'Lãi suất kỳ';
+    expect(spec.expression?.vi).toContain(cum);
+    expect(chu).toContain(cum);
+
+    /*
+     * Và KHÔNG rơi xuống lưới an toàn, tức mệnh đề đầu trong nghĩa ở bảng ký hiệu. Chữ thường là
+     * dấu hiệu của chính nhánh ấy: ba nguồn tên kia đều là tên thật nên viết hoa, nên một cụm viết
+     * thường đứng giữa phép nhân là hai giọng trong một dòng.
+     */
+    const nghia = spec.symbols?.find((s) => s.latex === 'i')?.meaning.vi ?? '';
+    expect(chu).not.toContain((nghia.split(',')[0] ?? '').trim());
+  });
+
+  /*
+   * Ba đại lượng cố ý KHÔNG có công thức, và ca này gác để chúng không bị lặng lẽ lấp bằng một mẫu
+   * sai: `thue-tncn-dau-tu` đọc thuế suất từ hằng số thị trường (chép trị số vào mẫu là đúng thứ
+   * `ConstantsNote` tồn tại để chặn). Khối vẫn bày nhãn và trị số như trước.
+   */
+  it('đại lượng đọc hằng số thị trường vẫn chỉ bày nhãn và trị số', () => {
+    render(<Man spec={specOf('thue-tncn-dau-tu')} />);
+
+    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
+    const hang = [...(khoi?.querySelectorAll('dl > div') ?? [])];
+    expect(hang).toHaveLength(2);
+    for (const row of hang) expect(row.querySelector('[role="math"]')).toBeNull();
   });
 });

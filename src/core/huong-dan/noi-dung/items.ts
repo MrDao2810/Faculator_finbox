@@ -939,14 +939,16 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     deLamGi: {
       vi: 'Biết lãi suất thực của một chuỗi giao dịch vào ra nhiều lần vào những ngày khác nhau.',
     },
-    oNhap: {
-      guess: {
-        layODau: { vi: 'Mức dự đoán ban đầu để phép lặp bắt đầu tìm nghiệm.' },
-        luuY: {
-          vi: 'Để nguyên 10% trong hầu hết trường hợp. Chỉ thay đổi khi kết quả không hội tụ.',
-        },
-      },
-    },
+    /*
+     * RỖNG, và đó là sự thật chứ không phải chỗ còn thiếu: số liệu của `xirr` vào bằng BẢNG DÒNG
+     * TIỀN, không qua bảng biến, nên công thức này không có ô nhập nào để viết chữ.
+     *
+     * Mục cũ tả ô "Suất sinh lợi khởi điểm" và dặn *"chỉ thay đổi khi kết quả không hội tụ"* — ô
+     * ấy đã bỏ ngày 06/10/2026 vì đo được là nó không đổi được kết quả ở bất kỳ giá trị nào, và
+     * lời dặn ấy cũng sai: `xirr()` có nhánh chia đôi dự phòng, không hội tụ thì không điểm xuất
+     * phát nào cứu được. Xem docblock mục 5 ở `src/core/formulas/returns.ts`.
+     */
+    oNhap: {},
     docKetQua: {
       vi: 'Đọc như một mức lãi kép mỗi năm, đem so với lãi suất tiết kiệm cùng kỳ hạn.',
     },

@@ -1825,8 +1825,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         en: "Use it when you see a stock break out of a long sideways range and want to know whether that session's matched volume far exceeded the weeks before, or just a few thin orders moved the price.",
       },
       howToRead: {
-        vi: 'So với 1: lớn hơn 1 nghĩa là phiên gần nhất khớp nhiều hơn mức bình quân của n phiên liền trước, gấp bấy nhiêu lần, nhỏ hơn 1 là thanh khoản đang mỏng hơn thường lệ. Đúng 0 nghĩa là phiên gần nhất không khớp được cổ phiếu nào.',
-        en: 'Compared with 1: above 1 means the latest session traded more shares than the average of the n sessions before it, by that many times, and below 1 means trading is thinner than usual. Exactly 0 means not a single share changed hands in the latest session.',
+        vi: 'So với mốc 1: lớn hơn 1 nghĩa là phiên gần nhất khớp nhiều hơn mức bình quân của n phiên liền trước, gấp bấy nhiêu lần, nhỏ hơn 1 là thanh khoản đang mỏng hơn thường lệ. Đúng 0 nghĩa là phiên gần nhất không khớp được cổ phiếu nào.',
+        en: 'Compared with the 1 mark: above 1 means the latest session traded more shares than the average of the n sessions before it, by that many times, and below 1 means trading is thinner than usual. Exactly 0 means not a single share changed hands in the latest session.',
       },
       commonMistakes: {
         vi: 'Tính trung bình có gộp cả phiên gần nhất — làm vậy thì chính phiên đột biến kéo mốc so sánh lên và tỷ lệ bị nén lại. Ở đây mốc chỉ gồm các phiên LIỀN TRƯỚC.',

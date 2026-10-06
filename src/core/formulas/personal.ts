@@ -73,7 +73,7 @@ const loanYears = sliderVar('years', { vi: 'Kỳ hạn', en: 'Term' }, 'năm', 2
 /** Bộ số của WF-14, dùng lại cho `example` và `tests` của cả ba công thức vay nợ. */
 const WF14 = { amount: 800_000_000, rate: 9.5, years: 20 } as const;
 
-/** Lãi suất một kỳ tháng, từ lãi suất năm dạng phần trăm. */
+/** Lãi suất một kỳ, mỗi kỳ là một tháng — từ lãi suất năm dạng phần trăm. */
 function monthlyRate(annualPercent: number): number {
   return annualPercent / 100 / 12;
 }
@@ -96,8 +96,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
       en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1]',
     },
-    substitution:
-      '{amount} × {rate} ÷ 100 ÷ 12 × (1 + {rate} ÷ 100 ÷ 12)^({years} × 12) ÷ ((1 + {rate} ÷ 100 ÷ 12)^({years} × 12) − 1)',
+    substitutionDerived: { i: '{rate} ÷ 100 ÷ 12', n: '{years} × 12' },
+    substitution: '{amount} × {i} × (1 + {i})^{n} ÷ ((1 + {i})^{n} − 1)',
     symbols: [
       {
         latex: 'EMI',
@@ -110,8 +110,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       {
         latex: 'i',
         meaning: {
-          vi: 'lãi suất một kỳ tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
-          en: 'monthly period rate, the Rate per year field ÷ 12, as a decimal',
+          vi: 'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
+          en: 'period rate, one period is one month, the Rate per year field ÷ 12, as a decimal',
         },
       },
       {
@@ -135,6 +135,10 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
      * ruột của nó đổi từng kỳ, và chính câu `howToRead` bên dưới nói điều đó: "những năm đầu
      * phần lớn tiền trả là lãi". Hai cột này là hình của đúng câu ấy — ở kỳ 1 phần lãi cao nhất.
      */
+    derivedSubstitution: {
+      firstInterest: '{amount} × {i}',
+      firstPrincipal: '{__ketQua} − {firstInterest}',
+    },
     breakdown: [
       {
         key: 'firstPrincipal',
@@ -266,7 +270,8 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       vi: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
       en: 'First period = Loan amount ÷ Number of periods + Loan amount × Period rate',
     },
-    substitution: '{amount} ÷ ({years} × 12) + {amount} × {rate} ÷ 100 ÷ 12',
+    substitutionDerived: { i: '{rate} ÷ 100 ÷ 12', n: '{years} × 12' },
+    substitution: '{amount} ÷ {n} + {amount} × {i}',
     symbols: [
       {
         latex: 'A_1',
@@ -286,13 +291,17 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       {
         latex: 'i',
         meaning: {
-          vi: 'lãi suất một kỳ tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
-          en: 'monthly period rate, the Rate per year field ÷ 12, as a decimal',
+          vi: 'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
+          en: 'period rate, one period is one month, the Rate per year field ÷ 12, as a decimal',
         },
       },
     ],
     chartType: 'stackedBar',
     /* Kỳ đầu chính là kết quả của công thức này, nên hai chặng ghép lại đúng bằng nó. */
+    derivedSubstitution: {
+      firstPrincipal: '{amount} ÷ {n}',
+      firstInterest: '{amount} × {i}',
+    },
     breakdown: [
       {
         key: 'firstPrincipal',
@@ -454,6 +463,9 @@ export const LICH_TRA_NO: FormulaModule = {
      * và nó nói thẳng đúng điều `commonMistakes` cảnh báo — vay 800 triệu mà phải trả 1.790
      * triệu.
      */
+    derivedSubstitution: {
+      totalPaid: '{amount} + {__ketQua}',
+    },
     breakdown: [
       { key: 'totalPaid', sign: 1, shortLabel: { vi: 'Tổng phải trả', en: 'Total repaid' } },
       { key: 'amount', sign: -1, shortLabel: { vi: 'Trừ gốc vay', en: 'Less loan principal' } },
@@ -692,7 +704,8 @@ export const LAI_KEP: FormulaModule = {
       vi: 'Số tiền cuối = Gốc × (1 + Lãi suất năm ÷ Số lần nhập lãi)^(Số lần nhập lãi × Số năm)',
       en: 'Final amount = Principal × (1 + Annual rate ÷ Compounding frequency)^(Compounding frequency × Years)',
     },
-    substitution: '{principal} × (1 + {rate} ÷ 100 ÷ {perYear})^({perYear} × {years})',
+    substitutionDerived: { r: '{rate} ÷ 100' },
+    substitution: '{principal} × (1 + {r} ÷ {perYear})^({perYear} × {years})',
     symbols: [
       {
         latex: 'A',
@@ -875,7 +888,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
       vi: 'Tiền lãi = Số tiền gửi × Lãi suất năm ÷ 12 × Số tháng',
       en: 'Interest = Deposit amount × Annual rate ÷ 12 × Number of months',
     },
-    substitution: '{principal} × {rate} ÷ 100 ÷ 12 × {months}',
+    substitutionDerived: { r: '{rate} ÷ 100' },
+    substitution: '{principal} × {r} ÷ 12 × {months}',
     symbols: [
       {
         latex: 'I',
@@ -981,7 +995,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
       en: 'Monthly deposit = Goal × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
     },
-    substitution: '{target} × {rate} ÷ 100 ÷ 12 ÷ ((1 + {rate} ÷ 100 ÷ 12)^{months} − 1)',
+    substitutionDerived: { i: '{rate} ÷ 100 ÷ 12' },
+    substitution: '{target} × {i} ÷ ((1 + {i})^{months} − 1)',
     symbols: [
       {
         latex: 'PMT',
@@ -997,8 +1012,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       {
         latex: 'i',
         meaning: {
-          vi: 'lãi suất một kỳ tháng, bằng ô Lãi suất kỳ vọng / năm chia 12, dạng thập phân',
-          en: 'monthly period rate, the Expected rate per year field ÷ 12, as a decimal',
+          vi: 'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô Lãi suất kỳ vọng / năm chia 12, dạng thập phân',
+          en: 'period rate, one period is one month, the Expected rate per year field ÷ 12, as a decimal',
         },
       },
       {

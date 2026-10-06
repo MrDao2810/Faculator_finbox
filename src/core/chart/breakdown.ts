@@ -168,7 +168,57 @@ export function derivedStages(
     found.push({ key: stage.key, label: stage.shortLabel ?? labelOf(spec, stage.key), value });
   }
 
-  return found;
+  return theoThuTuTinh(spec, found);
+}
+
+/**
+ * Sắp lại các chặng theo THỨ TỰ TÍNH: chặng nào bị chặng khác nhắc tới thì phải đứng trước.
+ *
+ * Lỗi thật, chủ dự án chỉ ngày 05/10/2026 trên `tra-gop-nien-kim`: khối bày "Gốc kỳ đầu" trước,
+ * mà công thức của nó là `Trả hằng tháng − Lãi kỳ đầu` — tức dùng một con số 21,5 triệu chưa ai
+ * giới thiệu, rồi hàng DƯỚI mới tính con số ấy. *"Lãi kỳ đầu tự dưng lôi đâu ra 21 triệu? xong bên
+ * dưới mới tính lãi kỳ đầu? phi logic? cần tuần tự và hợp lý hơn."*
+ *
+ * Thứ tự cũ là thứ tự khai `spec.breakdown`, tức thứ tự CỘT của biểu đồ bóc tách — đúng cho hình
+ * vẽ (gốc rồi lãi, như một cột chồng đọc từ dưới lên) nhưng sai cho một danh sách đọc từ trên
+ * xuống. Hai thứ tự khác nhau vì chúng trả lời hai câu hỏi khác nhau, nên biểu đồ GIỮ nguyên thứ
+ * tự khai: nó đọc `spec.breakdown` thẳng, không đi qua hàm này.
+ *
+ * Sắp xếp ỔN ĐỊNH: chặng không phụ thuộc ai giữ nguyên thứ tự khai. Chỉ chặng nào nhắc tới một
+ * chặng khác mới bị đẩy xuống sau chặng ấy.
+ */
+function theoThuTuTinh(
+  spec: FormulaSpec,
+  chang: ReadonlyArray<{ key: string; label: Bilingual; value: number }>,
+): ReadonlyArray<{ key: string; label: Bilingual; value: number }> {
+  const mau = spec.derivedSubstitution;
+  if (mau === undefined || chang.length < 2) return chang;
+
+  const coMat = new Set(chang.map((c) => c.key));
+  /** Chặng `key` nhắc tới những chặng nào — chỉ tính chặng cũng đang có mặt trong danh sách. */
+  const can = (key: string): ReadonlyArray<string> =>
+    [...(mau[key] ?? '').matchAll(/\{([A-Za-z0-9_]+)\}/g)]
+      .map((m) => m[1] ?? '')
+      .filter((k) => k !== key && coMat.has(k));
+
+  const ra: typeof chang extends ReadonlyArray<infer T> ? T[] : never = [];
+  const xong = new Set<string>();
+  const dangXet = new Set<string>();
+
+  const them = (key: string): void => {
+    if (xong.has(key) || dangXet.has(key)) return;
+    dangXet.add(key);
+    for (const truoc of can(key)) them(truoc);
+    dangXet.delete(key);
+    const c = chang.find((x) => x.key === key);
+    if (c !== undefined && !xong.has(key)) {
+      xong.add(key);
+      ra.push(c);
+    }
+  };
+
+  for (const c of chang) them(c.key);
+  return ra;
 }
 
 /** Giá trị của một chặng: tra ô nhập trước, rồi mới tới `extras` của kết quả. */

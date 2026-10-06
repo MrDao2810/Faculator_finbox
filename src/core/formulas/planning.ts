@@ -57,7 +57,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số tháng đã gửi ÷ 12',
       en: 'Interest received = Deposit amount × Annual demand-deposit rate × Months held ÷ 12',
     },
-    substitution: '{principal} × {demandRate} ÷ 100 ÷ 12 × {monthsHeld}',
+    substitutionDerived: { rKkh: '{demandRate} ÷ 100' },
+    substitution: '{principal} × {rKkh} × {monthsHeld} ÷ 12',
     symbols: [
       {
         latex: 'I',
@@ -299,8 +300,9 @@ export const GUI_QUAY_VONG: FormulaModule = {
       vi: 'Chênh lệch = Tiền gửi × (1 + Lãi suất kỳ ngắn × Kỳ hạn ngắn ÷ 12)^Số vòng quay − Tiền gửi × (1 + Lãi suất kỳ dài × Tổng số tháng ÷ 12)',
       en: 'Difference = Deposit × (1 + Short-term rate × Short term ÷ 12)^Number of rounds − Deposit × (1 + Long-term rate × Total months ÷ 12)',
     },
+    substitutionDerived: { rNgan: '{shortRate} ÷ 100', rDai: '{longRate} ÷ 100' },
     substitution:
-      '{principal} × (1 + {shortRate} ÷ 100 × {shortMonths} ÷ 12)^({totalMonths} ÷ {shortMonths}) − {principal} × (1 + {longRate} ÷ 100 × {totalMonths} ÷ 12)',
+      '{principal} × (1 + {rNgan} × {shortMonths} ÷ 12)^({totalMonths} ÷ {shortMonths}) − {principal} × (1 + {rDai} × {totalMonths} ÷ 12)',
     symbols: [
       {
         latex: '\\Delta',
@@ -401,8 +403,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
         en: 'Use it when you have cash you will not need for a while and are torn between short deposits you keep rolling over and locking it into one longer deposit at a higher rate.',
       },
       howToRead: {
-        vi: 'So với 0: dương nghĩa là quay vòng kỳ ngắn rốt cuộc cầm về nhiều hơn sổ kỳ dài đúng chừng ấy đồng, âm là sổ kỳ dài cầm về nhiều hơn chừng ấy. Số âm không có nghĩa là mất tiền gốc, chỉ là quay vòng thu về ít lãi hơn.',
-        en: 'Compared with 0: positive means rolling over short terms ends with that many more dong than the long-term deposit, and negative means the long-term deposit ends with that much more. A negative figure does not mean losing principal, only that rolling over earns less interest.',
+        vi: 'So với mốc 0: dương nghĩa là quay vòng kỳ ngắn rốt cuộc cầm về nhiều hơn sổ kỳ dài đúng chừng ấy đồng, âm là sổ kỳ dài cầm về nhiều hơn chừng ấy. Số âm không có nghĩa là mất tiền gốc, chỉ là quay vòng thu về ít lãi hơn.',
+        en: 'Compared with the 0 mark: positive means rolling over short terms ends with that many more dong than the long-term deposit, and negative means the long-term deposit ends with that much more. A negative figure does not mean losing principal, only that rolling over earns less interest.',
       },
       commonMistakes: {
         vi: 'Quên rằng khi quay vòng, lãi suất kỳ ngắn của các vòng sau có thể đã đổi — công thức giả định mức lãi giữ nguyên suốt các vòng.',
@@ -821,8 +823,8 @@ export const SO_KY_DCA: FormulaModule = {
      * lần và lần nào cũng kèm `÷ 100 ÷ 12` — đúng phép `calc` làm. Viết gọn thành một biến phụ thì
      * dòng in ra có một ký hiệu không ô nhập nào mang.
      */
-    substitution:
-      '⌈ln(1 + {target} × {rate} ÷ 100 ÷ 12 ÷ {contribution}) ÷ ln(1 + {rate} ÷ 100 ÷ 12)⌉',
+    substitutionDerived: { i: '{rate} ÷ 100 ÷ 12' },
+    substitution: '⌈ln(1 + {target} × {i} ÷ {contribution}) ÷ ln(1 + {i})⌉',
     symbols: [
       {
         latex: 'n',

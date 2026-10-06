@@ -11,11 +11,20 @@
  * `font-family: math` là generic của CSS, đúng thứ trình duyệt dùng để vẽ MathML. Nhờ nó khối
  * này cùng phông với 111 công thức KaTeX ở đầu màn, dù nó tự vẽ bằng `<span>`.
  */
+/*
+ * Cỡ chữ qua biến, mặc định 1.25rem (05/10/2026) — chỗ gọi nào cần nhỏ hơn thì tự đặt
+ * `--ct-co-chu`, không ai phải ghi đè một bộ chọn của module khác.
+ *
+ * Sinh ra khi khối "Từ các ô trên, công thức tính ra" bắt đầu vẽ công thức: ở đó nhãn là
+ * `--text-xs` và trị số là `--text-sm`, nên một công thức 20px bên cạnh đọc ra như tiêu đề của
+ * hàng chứ không như phần phụ của nó. Bài tập và khối Ví dụ giữ nguyên 1.25rem — ở đó hình là
+ * nhân vật chính.
+ */
 .congThuc {
   display: inline-flex;
   align-items: center;
   font-family: math, 'Times New Roman', serif;
-  font-size: 1.25rem;
+  font-size: var(--ct-co-chu, 1.25rem);
   line-height: 1.1;
   white-space: nowrap;
   color: var(--color-ink);

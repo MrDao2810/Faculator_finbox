@@ -378,8 +378,8 @@ export const BETA: FormulaModule = {
         en: 'Use it when you see the VN-Index swinging hard and want to know whether the stock you hold usually moves more or less than the market as a whole.',
       },
       howToRead: {
-        vi: 'So với 1: lớn hơn nghĩa là mỗi khi VN-Index lên hay xuống, cổ phiếu thường lên hay xuống mạnh hơn, nhỏ hơn là nhẹ hơn. Beta âm nghĩa là cổ phiếu thường đi ngược chiều VN-Index trong các phiên đã chọn.',
-        en: 'Compared with 1: above means that whenever the VN-Index moves, the stock usually moves further in the same direction, below means it moves less. A negative beta means the stock usually moved against the VN-Index over the sessions chosen.',
+        vi: 'So với mốc 1: lớn hơn nghĩa là mỗi khi VN-Index lên hay xuống, cổ phiếu thường lên hay xuống mạnh hơn, nhỏ hơn là nhẹ hơn. Beta âm nghĩa là cổ phiếu thường đi ngược chiều VN-Index trong các phiên đã chọn.',
+        en: 'Compared with the 1 mark: above means that whenever the VN-Index moves, the stock usually moves further in the same direction, below means it moves less. A negative beta means the stock usually moved against the VN-Index over the sessions chosen.',
       },
       commonMistakes: {
         vi: 'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
@@ -1301,8 +1301,8 @@ export const TY_SO_CALMAR: FormulaModule = {
         en: 'Use it when you dread a deep plunge that could scare you into selling, and want to know how much a fund or strategy earns each year compared with the worst fall it has put you through.',
       },
       howToRead: {
-        vi: 'So với 1: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm. Số âm nghĩa là giá cuối kỳ thấp hơn đầu kỳ, tức cả giai đoạn đang lỗ.',
-        en: "Compared with 1: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger than a year's return. A negative figure means the price ended the period below where it started, so the whole stretch is a loss.",
+        vi: 'So với mốc 1: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm. Số âm nghĩa là giá cuối kỳ thấp hơn đầu kỳ, tức cả giai đoạn đang lỗ.',
+        en: "Compared with the 1 mark: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger than a year's return. A negative figure means the price ended the period below where it started, so the whole stretch is a loss.",
       },
       commonMistakes: {
         vi: 'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',

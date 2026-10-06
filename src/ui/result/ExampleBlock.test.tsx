@@ -128,7 +128,18 @@ describe('ExampleBlock — hợp đồng với Registry, quét cả 111 công th
   it('mọi example.inputs đều khớp khoá biến và nằm trong miền hợp lệ', () => {
     for (const spec of FORMULAS) {
       const keys = Object.keys(spec.example.inputs);
-      expect(keys.length, spec.id).toBeGreaterThan(0);
+      /*
+       * `xirr` khai `variables: []` — số liệu vào bằng bảng dòng tiền ở thân riêng, không qua bảng
+       * biến — nên ví dụ của nó cũng không có khoá nào. Đếm theo `spec.variables` chứ không ghim
+       * tên: công thức thứ hai không có ô nhập sẽ tự được tính đúng mà không phải sửa ca này.
+       */
+      if (spec.variables.length === 0) {
+        expect(keys, `${spec.id}: không có ô nhập nào thì ví dụ cũng không khai khoá nào`).toEqual(
+          [],
+        );
+      } else {
+        expect(keys.length, spec.id).toBeGreaterThan(0);
+      }
 
       for (const [key, value] of Object.entries(spec.example.inputs)) {
         const variable = spec.variables.find((v) => v.key === key);

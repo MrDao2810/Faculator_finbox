@@ -105,7 +105,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       vi: 'Giá lý thuyết = Chỉ số cơ sở × [1 + (Lãi suất phi rủi ro − Tỷ suất cổ tức) × Số ngày đến đáo hạn ÷ 365]',
       en: 'Theoretical price = Underlying index × [1 + (Risk-free rate − Dividend yield) × Days to expiry ÷ 365]',
     },
-    substitution: '{indexValue} × (1 + ({riskFreeRate} − {dividendYield}) ÷ 100 × {days} ÷ 365)',
+    substitutionDerived: { r: '{riskFreeRate} ÷ 100', q: '{dividendYield} ÷ 100' },
+    substitution: '{indexValue} × (1 + ({r} − {q}) × {days} ÷ 365)',
     symbols: [
       {
         latex: 'F',

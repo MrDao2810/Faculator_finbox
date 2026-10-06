@@ -68,6 +68,24 @@ const CO_CHE: Readonly<Record<'vi' | 'en', RegExp>> = {
 const SO_CHUNG: ReadonlySet<string> = new Set(['0', '1', '100']);
 
 /**
+ * Luật 9: mốc so sánh không được là một CON SỐ TRẦN đứng sát dấu hai chấm.
+ *
+ * Chủ dự án chụp màn `ty-so-calmar` ngày 05/10/2026: *"'so với 1: ..' nghĩa là gì? '1:' là gì?
+ * trong công thức tôi chưa thấy có '1:'"*. Đúng vậy — `1:` đọc ra là ký hiệu tỷ lệ (1:2), không ai
+ * đọc nó thành "so với mốc 1, rồi hai chấm". Khuôn "So với [mốc]:" vẫn đúng; chỗ gãy là khi [mốc]
+ * rút lại thành một chữ số thì dấu hai chấm của khuôn dính vào số và đổi nghĩa.
+ *
+ * Cách chữa đã có sẵn trong chính sản phẩm, nên luật này không phát minh gì: `pb` và `peg` đã viết
+ * "So với mốc 1:", `rsi-wilder` viết "hai mốc quen dùng 70 và 30", `phan-tram-b-bollinger` viết
+ * "hai mép 0% và 100%". Đo lúc đặt luật: 12 trên 111 đoạn `vi` và 14 đoạn `en` còn thiếu từ chỉ
+ * loại; cả 26 đã sửa.
+ *
+ * Luật chỉ chặn mốc TRỐNG TRƠN một con số. "mốc 1", "the 1 mark", "hai mép 0% và 100%", "mức trần,
+ * tức 100 chia cho tỷ lệ ký quỹ" đều qua, vì ở đó con số có một danh từ đứng trước đỡ lấy.
+ */
+const MOC_SO_TRAN = /^\d+%?$/;
+
+/**
  * Luật 8: quy ước có tên, miễn theo từng công thức. Thêm vào đây là một quyết định có ý thức: con
  * số phải là quy ước được dạy rộng rãi kèm chính chỉ báo ấy, không phải ngưỡng ai đó tự đặt.
  */
@@ -132,6 +150,16 @@ export function howToReadProblems({ id, name, howToRead }: CachDocInput): string
     const haiCham = (doan.match(/:/g) ?? []).length;
     if (haiCham !== 1 || !(cau[0] ?? '').includes(':')) {
       loi.push(`${nhan}: câu đầu phải có đúng một ":" tách mốc so sánh khỏi phần đọc`);
+    }
+
+    const viTri = doan.indexOf(':');
+    if (viTri !== -1) {
+      const moc = doan.slice(CACH_DOC_MO_DAU[ngon].length, viTri).trim();
+      if (MOC_SO_TRAN.test(moc)) {
+        loi.push(
+          `${nhan}: mốc "${moc}" là số trần, dính dấu hai chấm thành ký hiệu tỷ lệ "${moc}:" — thêm từ chỉ loại ("mốc ${moc}", "the ${moc} mark")`,
+        );
+      }
     }
 
     if (doan.length > CACH_DOC_TOI_DA[ngon]) {

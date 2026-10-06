@@ -111,7 +111,13 @@ words, an anchor named before the colon, a length cap, no long dash, no pointing
 example or the chart, no "numerator/denominator", no other formula's acronym, and numbers restricted
 to 0/1/100 plus a **per-formula, written-reason** allowlist (`QUY_UOC`) for a few named market
 conventions (RSI's 70/30/50, Stochastic's 80/20) — an ad-hoc threshold like "ROE above 15%" is not
-allowed even though the old text had ones like it. Same 10-agent draft-plus-adversarial-pass shape as
+allowed even though the old text had ones like it. **The anchor may not be a bare number**
+(05/10/2026): the owner read `ty-so-calmar`'s "So với 1: …" and asked what "1:" was, because the
+template's colon lands against the digit and the pair reads as ratio notation. The anchor needs a
+noun holding the number up — "So với mốc 1", "Compared with the 1 mark", "hai mép 0% và 100%" — and
+the product already wrote it that way in `pb`, `peg`, `rsi-wilder`, `stochastic-k` and
+`phan-tram-b-bollinger`, so the sweep copied that shape onto the other 12 `vi` / 14 `en` passages
+rather than inventing one. Same 10-agent draft-plus-adversarial-pass shape as
 the sentence above; `how-to-read-rules.test.ts` gates all 111. One real `calc` defect surfaced while
 writing prose, not fixed here: `mo-hinh-gordon` guards `dividend === 0` with `fail(MEANINGLESS)` and
 documents exactly why (FR-06 — a silent `ok(0 ₫)` reads as a real share price), but the sibling
@@ -585,13 +591,31 @@ row, because the tokenizer only extends the "whole" match past the brace for a t
 `(`; a trailing `_h` after `\overline{...}` _does_ extend it, so the old bare row stops being a substring of
 the new `latex` and must be renamed in lockstep everywhere it is referenced, including inside
 `src/core/how-to/*.ts` step `latex` and `symbol` fields for that row. Four inputs stayed untouched on
-purpose — `xirr`'s `guess` (a Newton–Raphson seed, not a term of the equation), `rut-truoc-han`'s
+purpose — `xirr`'s `guess` (a Newton–Raphson seed, not a term of the equation; **the input is gone
+since 06/10/2026**, see the next paragraph), `rut-truoc-han`'s
 `termMonths` (a validity precondition, not a term) and `contractRate` (feeds only an `extras` field nothing
 reads), and `roi-rong`'s `sellPrice` (already reachable through `L_{rong}`'s own how-to panel, so only its
 legend _meaning_ grew a clause). The sweep also surfaced a gate the owner-facing docs above never named:
 `how-to.test.ts` requires **every** `spec.symbols` row, not just derived ones, to be classified — either an
 `entries[].symbol` or a `skipped` key — so a brand-new raw-input row needs a one-line
 `skipped: { n: 'nhap-tho' }` addition even though it will never carry a panel.
+
+**No input may be a control that cannot change anything** (06/10/2026). The owner dragged `xirr`'s
+"Suất sinh lợi khởi điểm" slider and asked why nothing around it moved. A sweep of all 269 inputs —
+each varied across its range, comparing **the rounded figure the Kết quả block prints**, not the raw
+value, because a difference in the twelfth decimal is a motionless number to whoever is dragging —
+found exactly two. One was that slider, dead by construction: `xirr()` falls back to `bisectXirr`
+over −0.9999…10, a range wider than the slider itself, so the seed changes the iteration count and
+never the answer, and the field's own "adjust it only if the formula reports it could not find a
+rate" was a promise of a rescue that does not exist. It was deleted, the seed became a constant, and
+`xirr` is now the only formula declaring `variables: []` — which needed a named exception in
+`validate.ts` (`NHAP_NGOAI_BANG_BIEN`) and a guard in `FormulaDetail` so an empty "SỐ LIỆU" box never
+renders; its real input is the cash-flow table in `XirrBody`. The other,
+`sut-giam-hien-tai`'s `lookback`, is **alive** and pinned with its evidence: it is inert only on that
+example's 57-bar series, whose peak happens to sit inside the 30-bar floor, while the sibling
+`sut-giam-sau-nhat` gives six different answers from the same slider on the same series. The gate
+lives in `formulas.test.ts` ("không ô nhập nào là một điều khiển chết") and checks both directions,
+so a pinned name that comes back to life must be removed from the list.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`

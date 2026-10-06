@@ -52,8 +52,28 @@ export {
   unitLabel,
 } from '@/core/format';
 
-// ── Dòng thay số của khối gộp ở khổ PC (01/10/2026) ─────────────────────────
-export { fillSubstitution } from '@/core/substitution';
+/*
+ * ── Dòng thay số của khối gộp ở khổ PC (01/10/2026, vẽ thành hình từ 05/10/2026) ────────────
+ *
+ * Mộ chí: `fillSubstitution` — phép thay chữ sinh ra một DÒNG như
+ * `800.000.000 × 9,5 ÷ 100 ÷ 12 × (1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) ÷ (…)`. Chủ dự án chụp màn ngày
+ * 05/10/2026 và gọi nó là *"hiển thị quá loạn khiến tôi là người code cũng khó hiểu"*. Dòng ấy nay
+ * là một HÌNH VẼ: phân số xếp tầng, số mũ nổi lên, đúng hình công thức ở trên nó.
+ *
+ * Đừng dựng lại. In một công thức thành chữ một dòng là lỗi đã bị chụp màn BA LẦN — dòng "Áp vào
+ * công thức" của bài tập (29/09), của khối Ví dụ thực tế (cùng ngày), rồi dòng này.
+ *
+ * `substitutionShape` dựng cây lúc build và nằm ở `@/application/thay-so` (không qua barrel, vì nó
+ * kéo theo bộ phân tích cú pháp); `datSoThaySo` đặt số lúc chạy và đi qua đây vì nó nhẹ.
+ */
+export type { DanXuatCay, ThaySoCay } from '@/core/substitution-cay';
+export {
+  datNhanDanXuat,
+  datSoDanXuat,
+  datSoThaySo,
+  giaTriChoDanXuat,
+  nhanCuaKhoa,
+} from '@/core/substitution-cay';
 
 // ── Trạng thái ô nhập — 5 trạng thái WF-16 (gói 2.3.1) ──────────────────────
 export type { InputState, InputStateArgs, InputStateResult } from '@/core/input-state';

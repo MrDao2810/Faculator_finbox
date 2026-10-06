@@ -54,3 +54,38 @@
   font-variant-numeric: tabular-nums;
   color: var(--color-ink);
 }
+
+/*
+ * Công thức tính của chặng — hàng riêng dưới cặp nhãn → trị số (05/10/2026).
+ *
+ * `flex-basis: 100%` trên một con của `.row` đang `flex-wrap: wrap` là cách bắt nó xuống hàng mà
+ * không phải dựng lưới: nó chiếm trọn bề ngang nên hai phần tử trên tự ở lại hàng đầu. Để nó chung
+ * hàng thì hàng nào có hình xếp hai tầng sẽ cao gấp đôi hàng không có, và cả khối gãy nhịp.
+ *
+ * Hình KHÔNG xuống dòng (một phân số cắt làm đôi là vô nghĩa) nên nó tự cuộn ngang trong chính nó —
+ * cùng bộ ba `min-width: 0` + `overflow-x: auto` + `overflow-y: hidden` mà `.formula` của màn chi
+ * tiết và `.workedExpr` của bài tập đang dùng, và vì cùng một lý do.
+ */
+.formula {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  /*
+   * Hình phải NHỎ HƠN trị số nó dẫn tới. Mặc định của bộ vẽ là 20px — cỡ của bài tập, nơi hình là
+   * nhân vật chính — còn ở đây nhãn 12px và trị số 14px, nên 20px đọc ra như tiêu đề của hàng.
+   */
+  --ct-co-chu: var(--text-base);
+
+  font-size: var(--text-base);
+  color: var(--color-ink-soft);
+}
+
+.formulaDau {
+  flex: none;
+}

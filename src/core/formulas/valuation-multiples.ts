@@ -786,7 +786,7 @@ export const PEG: FormulaModule = {
       },
       howToRead: {
         vi: 'So với mốc 1: dưới 1 nghĩa là giá đang rẻ so với tốc độ tăng lợi nhuận bạn kỳ vọng, trên 1 là giá đã cao hơn mức đà tăng ấy xứng đáng, bằng 1 là hai bên tương xứng.',
-        en: 'Compared with 1: below 1 means the price is cheap relative to the profit growth you expect, above 1 means the price is already more expensive than that growth justifies, and exactly 1 means the two are in balance.',
+        en: 'Compared with the 1 mark: below 1 means the price is cheap relative to the profit growth you expect, above 1 means the price is already more expensive than that growth justifies, and exactly 1 means the two are in balance.',
       },
       commonMistakes: {
         vi: 'Dùng con số tăng trưởng quá lạc quan — g là một dự phóng, không chắc chắn như P/E vốn tính từ số liệu đã có, nên sai lệch vài điểm phần trăm ở g dễ kéo PEG lệch xa kết luận ban đầu.',
@@ -1278,6 +1278,10 @@ export const NCAV: FormulaModule = {
      * số và lệch cả đơn vị. Bất biến "tổng các chặng bằng kết quả" bắt đúng ca này, nên hai số dưới
      * đây được chia sẵn ở `calc` rồi mới đưa lên hình.
      */
+    derivedSubstitution: {
+      assetsPerShare: '{currentAssets} × 1.000 ÷ {shares}',
+      liabilitiesPerShare: '{totalLiabilities} × 1.000 ÷ {shares}',
+    },
     breakdown: [
       {
         key: 'assetsPerShare',

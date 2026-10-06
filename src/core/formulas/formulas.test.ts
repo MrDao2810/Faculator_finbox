@@ -8,9 +8,12 @@
 
 import { describe, expect, it } from 'vitest';
 
+import { clampToSpec } from '../calc-output';
 import { runFormula } from '../calc/run';
 import { formatFailures, runSpecTests } from '../calc/run-tests';
 import type { CalcContext } from '../calc/types';
+import type { CalcOutput } from '../types';
+import type { FormulaSpec } from '../registry/types';
 import {
   DASHES,
   blocksInLatex,
@@ -21,11 +24,16 @@ import {
   numbersInLatex,
   numbersInText,
 } from '../expression-rules';
+import { formatNumber } from '../format';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { latexSymbolTokens } from '../latex-symbols';
 import { evaluateWorked } from '../quiz/worked-line';
-import { fillSubstitution, substitutionKeys } from '../substitution';
+import { substitutionKeys } from '../substitution';
+import { datSoDanXuat, datSoThaySo, giaTriChoDanXuat } from '../substitution-cay';
+import { derivedStages } from '../chart/breakdown';
+import { derivedShape, substitutionShape } from '../substitution-shape';
+import { chuCuaCay, tinhCay } from '../quiz/nut';
 import { createRegistry, defaultInputs } from '../registry/build';
 import { errorsOnly, formatIssues } from '../registry/validate';
 import { buildFeeBreakdown } from './fees';
@@ -38,6 +46,29 @@ import {
   condenseWithGaps,
 } from './personal';
 import { xirr } from './returns';
+
+/**
+ * Ngữ cảnh của VÍ DỤ một công thức — công thức ăn chuỗi/dòng tiền cần chúng mới ra số.
+ *
+ * Tách ra thành hàm vì hai chỗ cần: ca kiểm ví dụ khớp calc, và cửa gác điều khiển chết ở cuối file.
+ */
+function ctxCuaViDu(spec: FormulaSpec): CalcContext {
+  const ex = spec.example;
+  if (
+    ex.series === undefined &&
+    ex.bars === undefined &&
+    ex.marketSeries === undefined &&
+    ex.cashflows === undefined
+  )
+    return CTX;
+  return {
+    ...CTX,
+    series: ex.series,
+    bars: ex.bars,
+    marketSeries: ex.marketSeries,
+    cashflows: ex.cashflows,
+  };
+}
 
 /** Ngày tra hằng số. Cố định để kết quả xác định (NFR-REL-03). */
 const AS_OF = '2026-08-04';
@@ -138,28 +169,147 @@ describe('Registry với toàn bộ công thức thật', () => {
     expect(pham).toEqual([]);
   });
 
+  /*
+   * Ca này gác CHÍNH ĐƯỜNG MÀN ĐANG DÙNG, không gác một bản sao của nó (05/10/2026).
+   *
+   * Tới 05/10 nó chạy `fillSubstitution` — phép thay chữ sinh ra một DÒNG, rồi `evaluateWorked`
+   * đọc lại dòng ấy. Màn nay không đi đường đó nữa: nó nhận CÂY dựng sẵn lúc build rồi đặt số lúc
+   * chạy (`substitutionShape` → `datSoThaySo`). Gác đường cũ trong khi màn chạy đường mới là để
+   * ngỏ đúng khoảng trống mà một ca kiểm sinh ra để bịt.
+   *
+   * Lời hứa được gác vẫn y nguyên: ai lấy máy tính bấm lại đúng thứ đang hiện trên màn phải ra
+   * đúng con số khối Kết quả in. Khác ở chỗ "thứ đang hiện trên màn" giờ là một hình vẽ, nên phép
+   * tính lại chạy trên chính cái cây được vẽ.
+   */
   it('dòng thay số bấm lại ra đúng kết quả của ví dụ', () => {
     for (const formula of FORMULA_MODULES) {
-      const { id, substitution, variables, example } = formula.spec;
+      const { id, substitution, substitutionDerived, variables, example } = formula.spec;
       if (substitution === undefined) continue;
 
-      const keys = new Set(variables.map((variable) => variable.key));
-      for (const key of substitutionKeys(substitution)) {
-        expect(keys.has(key), `${id} — mẫu thay số nhắc tới ô không có: ${key}`).toBe(true);
+      const oNhap = new Set(variables.map((variable) => variable.key));
+      const danXuat = Object.entries(substitutionDerived ?? {});
+
+      /*
+       * Khoá dẫn xuất trùng tên một ô nhập thì giá trị tính ra sẽ ĐÈ lên số người dùng gõ, lặng lẽ.
+       * Không phép tính nào sai, chỉ con số trong hình là của người khác.
+       */
+      for (const [khoa] of danXuat) {
+        expect(oNhap.has(khoa), `${id} — khoá dẫn xuất "${khoa}" trùng tên một ô nhập`).toBe(false);
       }
 
-      const line = fillSubstitution(formula.spec, {
-        ...defaultInputs(formula.spec),
-        ...example.inputs,
-      });
-      expect(line, `${id} — thiếu số cho một chỗ trống của mẫu thay số`).not.toBeNull();
+      /* Biểu thức dẫn xuất chỉ được nhắc ô nhập và khoá khai TRƯỚC nó — thứ tự khai là thứ tự tính. */
+      const daKhai = new Set<string>();
+      for (const [khoa, bieuThuc] of danXuat) {
+        for (const key of substitutionKeys(bieuThuc)) {
+          expect(
+            oNhap.has(key) || daKhai.has(key),
+            `${id}.${khoa} — nhắc tới "${key}", không phải ô nhập và cũng chưa khai trước đó`,
+          ).toBe(true);
+        }
+        daKhai.add(khoa);
+      }
 
-      const again = evaluateWorked(line ?? '');
-      expect(again, `${id} — không đọc được dòng thay số: ${String(line)}`).not.toBeNull();
+      for (const key of substitutionKeys(substitution)) {
+        expect(
+          oNhap.has(key) || daKhai.has(key),
+          `${id} — mẫu thay số nhắc tới "${key}", không phải ô nhập và cũng không khai dẫn xuất`,
+        ).toBe(true);
+      }
+
+      const hinh = substitutionShape(formula.spec);
+      expect(hinh, `${id} — không phân tích được mẫu thay số`).not.toBeNull();
+      if (hinh === null) continue;
+
+      const cay = datSoThaySo(hinh, { ...defaultInputs(formula.spec), ...example.inputs });
+      expect(cay, `${id} — thiếu số cho một chỗ trống của mẫu thay số`).not.toBeNull();
+      if (cay === null) continue;
+
+      const again = tinhCay(cay);
+      expect(again, `${id} — không tính lại được hình thay số`).not.toBeNull();
       expect(
         Math.abs((again ?? 0) - example.expected) / Math.max(Math.abs(example.expected), 1),
-        `${id} — dòng thay số ra ${String(again)}, ví dụ ra ${String(example.expected)}`,
+        `${id} — hình thay số ra ${String(again)}, ví dụ ra ${String(example.expected)}`,
       ).toBeLessThanOrEqual(0.005);
+
+      /*
+       * Nhãn `aria-label` của hình phải nói ĐÚNG phép tính mà hình vẽ ra.
+       *
+       * Hình gom bằng hình học — gạch phân số, vạch căn, chữ nhỏ nâng lên — còn chữ thì chỉ gom
+       * được bằng dấu ngoặc. Lỗi thật đã gặp ngày 05/10/2026: nhãn của `tra-gop-nien-kim` đọc ra
+       * `… ÷ (1 + i)^240 − 1`, tức mẫu số mất cặp ngoặc, nên người dùng bàn phím nghe một phép tính
+       * khác hẳn thứ người dùng chuột đang nhìn. Không cửa gác nào khác thấy được: hình vẫn đúng,
+       * con số vẫn đúng, chỉ cái nhãn là sai.
+       *
+       * Phép kiểm chặt nhất có thể: viết cây ra chữ rồi ĐỌC LẠI bằng bộ phân tích, hai con số phải
+       * trùng nhau tới từng chữ số — đây là cùng một biểu thức nên không có chỗ cho dung sai.
+       */
+      const chu = chuCuaCay(cay);
+      const docLai = evaluateWorked(chu);
+      expect(docLai, `${id} — không đọc lại được nhãn chữ của hình: ${chu}`).not.toBeNull();
+      expect(
+        Math.abs((docLai ?? 0) - (again ?? 0)) / Math.max(Math.abs(again ?? 1), 1),
+        `${id} — nhãn chữ ra ${String(docLai)} còn hình ra ${String(again)}: ${chu}`,
+      ).toBeLessThanOrEqual(1e-9);
+    }
+  });
+
+  /*
+   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày (05/10/2026).
+   *
+   * Chủ dự án nhìn hai dòng "Gốc kỳ đầu 1.123.716,17" và "Lãi kỳ đầu 6.333.333,33" trên
+   * `tra-gop-nien-kim` rồi hỏi *"nếu được tính ra thì công thức để tính đâu? tại sao chưa cho vào"*.
+   *
+   * Mẫu viết tay, nên gác đúng cách đã gác mọi chữ viết tay khác của dự án: TÍNH LẠI. Mẫu phải dẫn
+   * tới chính con số `calc` trả về trong `extras` — tức con số in ngay cạnh nó. Không có đường nào
+   * để một mẫu sai mà vẫn xanh.
+   */
+  it('công thức của đại lượng dẫn xuất tính ra đúng con số đứng cạnh nó', () => {
+    /*
+     * Đếm thành tiếng, để ca kiểm không xanh vì rỗng: 12 trên 15 đại lượng có mẫu. Ba chỗ còn
+     * trống là `thue-tncn-dau-tu` (hai, đọc hằng số thuế) và `ddm-hai-giai-doan.pvStage1` (một
+     * tổng Σ qua n kỳ) — lý do từng chỗ ở docblock `FormulaSpec.derivedSubstitution`.
+     */
+    const soMau = ALL_FORMULAS.reduce(
+      (n, spec) => n + Object.keys(spec.derivedSubstitution ?? {}).length,
+      0,
+    );
+    expect(soMau).toBe(12);
+
+    for (const formula of FORMULA_MODULES) {
+      const { id, derivedSubstitution, example } = formula.spec;
+      if (derivedSubstitution === undefined) continue;
+
+      const inputs = { ...defaultInputs(formula.spec), ...example.inputs };
+      const out = runFormula(formula, inputs, CTX);
+      const hinhChinh = substitutionShape(formula.spec);
+      const bang = giaTriChoDanXuat(hinhChinh, inputs, out.extras, out.value);
+      const hinh = derivedShape(formula.spec);
+
+      for (const khoa of Object.keys(derivedSubstitution)) {
+        const that = out.extras?.[khoa];
+        expect(that, `${id}.${khoa} — calc không trả về extras này`).toBeDefined();
+
+        const cay = datSoDanXuat(
+          hinh[khoa] as NonNullable<(typeof hinh)[string]>,
+          bang,
+          hinhChinh?.danXuat ?? [],
+        );
+        expect(cay, `${id}.${khoa} — thiếu số cho một chỗ trống`).not.toBeNull();
+        if (cay === null) continue;
+
+        /*
+         * Dung sai 0,01%, CHẶT HƠN HẲN ngưỡng 0,5% của dòng thay số, và con số ấy là giá của một
+         * lỗi đã lọt: với 0,5%, mẫu `Lãi kỳ đầu = 800.000.000 × 0,0079` vẫn XANH — nó ra 6.320.000
+         * cạnh con số in 6.333.333,33, lệch 0,21%. Khác dòng thay số ở chỗ dòng ấy đứng một mình,
+         * còn ở đây công thức và con số của nó đứng SÁT NHAU trên cùng một hàng, nên một chữ số
+         * lệch là đọc ra ngay.
+         */
+        const ra = tinhCay(cay);
+        expect(
+          Math.abs((ra ?? 0) - (that ?? 0)) / Math.max(Math.abs(that ?? 1), 1),
+          `${id}.${khoa} — mẫu ra ${String(ra)}, calc ra ${String(that)}: ${chuCuaCay(cay)}`,
+        ).toBeLessThanOrEqual(0.0001);
+      }
     }
   });
 
@@ -624,5 +774,130 @@ describe('xirr() — phần toán đã xong, chờ bảng dòng tiền của gó
       { date: '2025-01-01', amount: -100_000_000 },
     ];
     expect((xirr(flows) ?? 0) * 100).toBeCloseTo(10, 1);
+  });
+});
+
+/*
+ * ── Khối "Từ các ô trên, công thức tính ra" đọc được TUẦN TỰ (05/10/2026) ────────────────────
+ *
+ * Chủ dự án chỉ trên `tra-gop-nien-kim`: khối bày "Gốc kỳ đầu" trước, mà công thức của nó là
+ * `Trả hằng tháng − Lãi kỳ đầu` — dùng một con số chưa ai giới thiệu, rồi hàng DƯỚI mới tính con số
+ * ấy. *"Lãi kỳ đầu tự dưng lôi đâu ra 21 triệu? xong bên dưới mới tính lãi kỳ đầu? phi logic?"*
+ *
+ * Thứ tự cũ là thứ tự cột của biểu đồ bóc tách — đúng cho hình vẽ, sai cho một danh sách đọc từ
+ * trên xuống. Ca này gác chiều ngược, và gác cho MỌI công thức chứ không riêng cái bị chỉ.
+ */
+describe('đại lượng dẫn xuất bày theo thứ tự tính được', () => {
+  it('không chặng nào dùng một chặng chỉ xuất hiện ở hàng dưới', () => {
+    const sai: string[] = [];
+
+    for (const formula of FORMULA_MODULES) {
+      const { id, derivedSubstitution } = formula.spec;
+      if (derivedSubstitution === undefined) continue;
+
+      const inputs = { ...defaultInputs(formula.spec), ...formula.spec.example.inputs };
+      const thuTu = derivedStages(formula.spec, inputs, runFormula(formula, inputs, CTX)).map(
+        (s) => s.key,
+      );
+
+      thuTu.forEach((khoa, i) => {
+        const nhacToi = [...(derivedSubstitution[khoa] ?? '').matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(
+          (m) => m[1] ?? '',
+        );
+        for (const can of nhacToi) {
+          const j = thuTu.indexOf(can);
+          if (j > i) sai.push(`${id}: "${khoa}" (hàng ${i + 1}) dùng "${can}" ở hàng ${j + 1}`);
+        }
+      });
+    }
+
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  /*
+   * Biểu đồ GIỮ thứ tự khai, và đó là chủ ý chứ không phải sót: cột chồng đọc từ dưới lên nên gốc
+   * đứng trước lãi, còn danh sách đọc từ trên xuống nên lãi phải đứng trước gốc. Hai thứ tự trả lời
+   * hai câu hỏi khác nhau. Ca này ghim để không ai "sửa cho đồng bộ".
+   */
+  it('biểu đồ vẫn giữ thứ tự khai của `spec.breakdown`', () => {
+    const nienKim = FORMULA_MODULES.find((f) => f.spec.id === 'tra-gop-nien-kim');
+    expect(nienKim?.spec.breakdown?.map((s) => s.key)).toEqual(['firstPrincipal', 'firstInterest']);
+
+    const inputs = defaultInputs(nienKim!.spec);
+    const bay = derivedStages(nienKim!.spec, inputs, runFormula(nienKim!, inputs, CTX));
+    expect(bay.map((s) => s.key)).toEqual(['firstInterest', 'firstPrincipal']);
+  });
+});
+
+/*
+ * ── Không ô nhập nào là một điều khiển CHẾT ────────────────────────────────────────────────
+ *
+ * Chủ dự án kéo thanh trượt "Suất sinh lợi khởi điểm" của `xirr` rồi hỏi (06/10/2026):
+ * *"sao kéo thả thông số trong ô khoanh đỏ thấy % thay đổi mà sao chả có gì thay đổi ở xung
+ * quanh vậy? kiểm tra lại các phần có thanh slider tương tự xem có lỗi không để sửa"*.
+ *
+ * Quét cả 269 ô lúc ấy: đúng 2 ô kéo mà màn không đổi gì. Một là ô kia — chết theo thiết kế, đã
+ * bỏ. Một là `sut-giam-hien-tai.lookback`, chết theo DỮ LIỆU của ví dụ chứ không theo thiết kế,
+ * nên ghim tên vào dưới đây kèm bằng chứng.
+ *
+ * So bằng số ĐÃ LÀM TRÒN như khối Kết quả in, không phải trị số thô: lệch ở chữ số thứ mười hai
+ * thì người kéo thanh trượt vẫn thấy một con số đứng yên, mà đó mới là thứ ca kiểm này gác. Đo
+ * bằng trị số thô thì ô `guess` của `xirr` LỌT.
+ */
+const O_KHONG_DOI_THEO_DU_LIEU: ReadonlyArray<string> = [
+  /*
+   * Cửa sổ nhìn lại của "Mức sụt giảm hiện tại". Ô này SỐNG: nó cắt `lookback` phiên cuối, nên
+   * đổi cửa sổ là đổi đỉnh. Chuỗi 57 phiên của ví dụ tình cờ có đỉnh nằm trong 30 phiên cuối —
+   * mà 30 là sàn `MIN_DRAWDOWN_BARS` — nên cắt ngắn hay dài đều ra một đáp số.
+   *
+   * Bằng chứng ô ấy sống: công thức anh em `sut-giam-sau-nhat` dùng ĐÚNG ô ấy trên ĐÚNG chuỗi ấy
+   * và cho 6 kết quả khác nhau khi kéo 30 → 60 (4,87 · 7,3 · 8,53 · 11,77 · 13,73 · 15,03).
+   */
+  'sut-giam-hien-tai.lookback',
+];
+
+describe('không ô nhập nào là một điều khiển chết', () => {
+  /** Thứ NGƯỜI DÙNG thấy: con số đã làm tròn như khối Kết quả in, cộng cảnh báo và các số phụ. */
+  const manThay = (o: CalcOutput): string => {
+    const so = o.value === null ? 'null' : formatNumber(o.value);
+    const phu = Object.entries(o.extras ?? {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}=${formatNumber(v)}`)
+      .join('|');
+    return `${so}#${o.warning?.code ?? '-'}#${phu}`;
+  };
+
+  it('kéo ô nào thì màn cũng phải đổi theo, trừ danh sách đã ghim', () => {
+    const chet: string[] = [];
+    for (const formula of FORMULA_MODULES) {
+      const spec = formula.spec;
+      const ctx = ctxCuaViDu(spec);
+      const goc: Record<string, number> = { ...spec.example.inputs };
+      const chuan = manThay(runFormula(formula, goc, ctx));
+
+      for (const bien of spec.variables) {
+        const thu =
+          bien.options !== undefined && bien.options.length > 0
+            ? bien.options.map((o) => o.value)
+            : [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1].map((t) => {
+                const min = bien.min ?? 0;
+                return min + ((bien.max ?? min + 100) - min) * t;
+              });
+
+        const doi = thu.some(
+          (x) =>
+            manThay(runFormula(formula, { ...goc, [bien.key]: clampToSpec(x, bien) }, ctx)) !==
+            chuan,
+        );
+        if (!doi) chet.push(`${spec.id}.${bien.key}`);
+      }
+    }
+
+    expect(
+      chet.filter((o) => !O_KHONG_DOI_THEO_DU_LIEU.includes(o)),
+      `ô kéo mà màn không đổi gì:\n${chet.join('\n')}`,
+    ).toEqual([]);
+    /* Chiều ngược: tên ghim mà nay đã sống thì phải gỡ khỏi danh sách, không để nó mục ở đó. */
+    expect(O_KHONG_DOI_THEO_DU_LIEU.filter((o) => !chet.includes(o))).toEqual([]);
   });
 });

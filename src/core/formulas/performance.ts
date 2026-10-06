@@ -61,7 +61,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       vi: 'Lợi suất năm = (1 + Lợi suất một kỳ)^Số kỳ trong năm − 1',
       en: 'Annual return = (1 + Return per period)^Number of periods per year − 1',
     },
-    substitution: '((1 + {periodReturn} ÷ 100)^{periodsPerYear} − 1) × 100',
+    substitutionDerived: { rKy: '{periodReturn} ÷ 100' },
+    substitution: '((1 + {rKy})^{periodsPerYear} − 1) × 100',
     symbols: [
       {
         latex: 'r_{nam}',
@@ -215,7 +216,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
       vi: 'Lợi suất thực = (1 + Lợi suất danh nghĩa) ÷ (1 + Lạm phát) − 1',
       en: 'Real return = (1 + Nominal return) ÷ (1 + Inflation) − 1',
     },
-    substitution: '((1 + {nominal} ÷ 100) ÷ (1 + {inflation} ÷ 100) − 1) × 100',
+    substitutionDerived: { rDanhNghia: '{nominal} ÷ 100', lamPhat: '{inflation} ÷ 100' },
+    substitution: '((1 + {rDanhNghia}) ÷ (1 + {lamPhat}) − 1) × 100',
     symbols: [
       {
         latex: 'r_{thuc}',
@@ -277,8 +279,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
         en: 'Use it when you receive your savings or bond interest at year end and want to know whether, with prices rising too, your money can actually buy more than before.',
       },
       howToRead: {
-        vi: 'So với 0: dương nghĩa là sau một năm tiền của bạn mua được nhiều hàng hoá hơn lúc đầu, âm là mua được ít hơn dù số dư trên sổ có thể vẫn tăng, đúng 0 là tiền lãi chỉ vừa bù trượt giá.',
-        en: 'Compared with 0: positive means that after a year your money buys more goods than it did at the start, negative means it buys less even if the balance on your statement has grown, and exactly 0 means the interest only just kept pace with rising prices.',
+        vi: 'So với mốc 0: dương nghĩa là sau một năm tiền của bạn mua được nhiều hàng hoá hơn lúc đầu, âm là mua được ít hơn dù số dư trên sổ có thể vẫn tăng, đúng 0 là tiền lãi chỉ vừa bù trượt giá.',
+        en: 'Compared with the 0 mark: positive means that after a year your money buys more goods than it did at the start, negative means it buys less even if the balance on your statement has grown, and exactly 0 means the interest only just kept pace with rising prices.',
       },
       commonMistakes: {
         vi: 'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77% — lệch càng lớn khi lạm phát càng cao.',
@@ -379,7 +381,8 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
       vi: 'EAR = (1 + Lãi suất danh nghĩa ÷ Số lần ghép lãi)^Số lần ghép lãi − 1',
       en: 'EAR = (1 + Nominal rate ÷ Compounding frequency)^Compounding frequency − 1',
     },
-    substitution: '((1 + {rate} ÷ 100 ÷ {perYear})^{perYear} − 1) × 100',
+    substitutionDerived: { r: '{rate} ÷ 100' },
+    substitution: '((1 + {r} ÷ {perYear})^{perYear} − 1) × 100',
     symbols: [
       {
         latex: 'EAR',
@@ -540,7 +543,8 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       vi: 'Tổng lợi suất = [(1 + Tăng giá mỗi năm) × (1 + Tỷ suất cổ tức)]^Số năm − 1',
       en: 'Total return = [(1 + Annual price growth) × (1 + Dividend yield)]^Years − 1',
     },
-    substitution: '(((1 + {priceGrowth} ÷ 100) × (1 + {dividendYield} ÷ 100))^{years} − 1) × 100',
+    substitutionDerived: { g: '{priceGrowth} ÷ 100', y: '{dividendYield} ÷ 100' },
+    substitution: '(((1 + {g}) × (1 + {y}))^{years} − 1) × 100',
     symbols: [
       {
         latex: 'TR',
@@ -1129,7 +1133,8 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       vi: 'Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm), xấp xỉ nhanh bằng 72 ÷ Lợi suất năm (%)',
       en: 'Years to double = ln(2) ÷ ln(1 + Annual return), roughly 72 ÷ Annual return (%)',
     },
-    substitution: 'ln(2) ÷ ln(1 + {rate} ÷ 100)',
+    substitutionDerived: { r: '{rate} ÷ 100' },
+    substitution: 'ln(2) ÷ ln(1 + {r})',
     symbols: [
       {
         latex: 't',
@@ -1545,8 +1550,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
         en: 'Use it when you review your portfolio at year end and want to know how far your own stock picks came out ahead of or behind the VN-Index over the same period.',
       },
       howToRead: {
-        vi: 'So với 0: dương nghĩa là danh mục đã làm tốt hơn chuẩn so sánh bạn chọn trong cùng kỳ, âm là kém hơn, 0 là ngang bằng. Con số là khoảng cách tính bằng điểm phần trăm, không phải phần trăm của lợi suất chuẩn.',
-        en: 'Compared with 0: positive means the portfolio did better than the benchmark you chose over the same period, negative means worse, and 0 means level. The figure is a gap in percentage points, not a percentage of the benchmark return.',
+        vi: 'So với mốc 0: dương nghĩa là danh mục đã làm tốt hơn chuẩn so sánh bạn chọn trong cùng kỳ, âm là kém hơn, 0 là ngang bằng. Con số là khoảng cách tính bằng điểm phần trăm, không phải phần trăm của lợi suất chuẩn.',
+        en: 'Compared with the 0 mark: positive means the portfolio did better than the benchmark you chose over the same period, negative means worse, and 0 means level. The figure is a gap in percentage points, not a percentage of the benchmark return.',
       },
       commonMistakes: {
         vi: 'So với chuẩn không cùng mức rủi ro, hoặc lệch kỳ tính — hai lợi suất phải đo trên cùng một khoảng thời gian.',

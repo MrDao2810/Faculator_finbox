@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { FORMULAS, findCategory } from '@/application';
 import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
+import { derivedShape, substitutionShape } from '@/application/thay-so';
 import { viDuGiaiFor } from '@/application/vi-du';
 
 import { FormulaDetail } from './FormulaDetail';
@@ -122,6 +123,24 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * (chỉ phần flight), còn server-render sẵn cả bài vào HTML thì tốn +20,5 kB — gấp bảy, cho một
    * khối mà phần lớn lượt xem không bao giờ mở ra.
    */
+  /*
+   * Cây vẽ được của DÒNG THAY SỐ dưới đáy thẻ gộp (05/10/2026).
+   *
+   * Dựng ở đây vì `substitutionShape` kéo theo bộ phân tích cú pháp 24 kB, thứ không được đi vào
+   * gói của 111 trang. Hình dạng cây không đổi theo số người dùng gõ — chỉ các lá đổi — nên phân
+   * tích một lần lúc build là đủ, trình duyệt chỉ đặt số (`datSoThaySo`).
+   *
+   * 48 trên 111 công thức có mẫu; số còn lại nhận `null` và thẻ gộp bỏ hẳn dòng ấy.
+   */
+  const thaySoCay = substitutionShape(formula);
+  /*
+   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày (05/10/2026).
+   *
+   * Dựng ở đây cùng lý do với `thaySoCay` ngay trên. Hai thứ phải ĐỘC LẬP chứ không gộp một hàm:
+   * `lich-tra-no` có đại lượng dẫn xuất mà không có mẫu thay số (kết quả của nó là một tổng qua n
+   * kỳ, không có dạng đóng), nên gộp lại là mất nó.
+   */
+  const danXuatCay = derivedShape(formula);
   const bai = baiHuongDanFor(formula.id, AS_OF);
 
   return (
@@ -134,6 +153,8 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
       quiz={quiz}
       {...(viDu === undefined ? {} : { viDu })}
       {...(viDuCay === undefined ? {} : { viDuCay })}
+      {...(thaySoCay === null ? {} : { thaySoCay })}
+      {...(Object.keys(danXuatCay).length === 0 ? {} : { danXuatCay })}
       {...(bai === undefined ? {} : { bai })}
     />
   );

@@ -39,7 +39,10 @@ import {
   defaultInputs,
   derivedStages,
   encodeShareInputs,
-  fillSubstitution,
+  datNhanDanXuat,
+  datSoDanXuat,
+  datSoThaySo,
+  giaTriChoDanXuat,
   formatNumber,
   displayCalcName,
   draftFor,
@@ -84,8 +87,13 @@ import {
   variablesForLevel,
 } from '@/application';
 import type { Nut } from '@/application/quiz-cay';
+import { chuCuaCay } from '@/application/quiz-cay';
+import { CongThucDien } from '@/ui/quiz/CongThucDien';
 import type {
   BaiHuongDan,
+  Bilingual,
+  DanXuatCay,
+  ThaySoCay,
   MucId,
   QuizItem,
   QuizProgress,
@@ -251,6 +259,23 @@ export interface FormulaDetailProps {
    */
   viDuCay?: { vi: Nut | null; en: Nut | null };
   /**
+   * Cây vẽ được của DÒNG THAY SỐ dưới đáy thẻ gộp, dựng sẵn lúc build ở `page.tsx` (05/10/2026).
+   *
+   * Khác `viDuCay` ở đúng một điểm, và điểm ấy quyết định cả thiết kế: dòng của ví dụ có số CỐ
+   * ĐỊNH nên cây dựng lúc build là xong, còn dòng này đổi theo TỪNG PHÍM GÕ. Hình dạng cây thì
+   * không đổi — gõ lại một ô không biến phép nhân thành phép chia — nên mẫu vẫn phân tích một lần
+   * lúc build, và trình duyệt chỉ đặt số vào lá bằng `datSoThaySo`. Nhờ vậy bộ phân tích cú pháp
+   * (24 kB) không phải có mặt trong gói của 111 trang.
+   *
+   * Vắng với 63 công thức chưa có `spec.substitution` — thẻ gộp bỏ hẳn dòng, không in một vế cụt.
+   */
+  thaySoCay?: ThaySoCay;
+  /**
+   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày, dựng sẵn lúc
+   * build. Chỉ 9 trên 111 công thức có khối ấy. Xem docblock trong thân component.
+   */
+  danXuatCay?: Readonly<Record<string, DanXuatCay>>;
+  /**
    * Bài "Hướng dẫn sử dụng" của chính công thức này (WF-21 đợt 2), dựng sẵn lúc build ở
    * `page.tsx` qua `@/application/huong-dan`.
    *
@@ -351,9 +376,11 @@ export function FormulaDetail({
   quiz,
   viDu,
   viDuCay,
+  thaySoCay,
+  danXuatCay,
   bai,
 }: FormulaDetailProps) {
-  const { mode, feeScheduleId } = usePreferences();
+  const { mode, feeScheduleId, locale } = usePreferences();
   const t = useT();
   const pick = usePick();
   const calcText = useCalcText();
@@ -2149,22 +2176,111 @@ export function FormulaDetail({
   const merged = hasMergedCard(spec.id);
 
   /*
-   * Dòng `92.000 ÷ 6.050 = 15,21` dưới đáy thẻ gộp.
+   * Khối "SỐ LIỆU" rỗng hoàn toàn thì KHÔNG dựng — một cái hộp chỉ có tiêu đề trông như chỗ hỏng
+   * (06/10/2026).
    *
-   * Vế trái do `spec.substitution` thay số (cửa gác tính lại ở `formulas.test.ts`), vế phải lấy
-   * THẲNG từ `output` — không tự nhân chia lại, nếu không màn có hai chỗ cùng tính một con số.
+   * Đúng một công thức rơi vào đây: `xirr`. Nó khai `variables: []` vì số liệu vào bằng bảng dòng
+   * tiền ở thân riêng, không qua bảng biến. Trước 06/10/2026 nó có một ô nhập giả — thanh trượt
+   * "Suất sinh lợi khởi điểm" — nên khối không bao giờ rỗng; bỏ ô ấy đi (nó không đổi được kết
+   * quả, xem `src/core/formulas/returns.ts`) là lộ ra cái hộp trống.
+   *
+   * Điều kiện liệt kê ĐỦ mọi thứ khối ấy có thể chứa, chứ không chỉ hỏi số ô nhập: thiếu một vế là
+   * giấu mất nút "Dán chuỗi giá", bảng hằng số hay khối Kết quả của khuôn gộp. `spec.variables`
+   * chứ không phải `shown`: công thức chỉ có ô Nâng cao thì ở chế độ Cơ bản `shown` rỗng nhưng
+   * khối vẫn phải hiện dòng "N ô ẩn ở chế độ Cơ bản".
+   */
+  const khoiSoLieuTrong =
+    spec.variables.length === 0 &&
+    !merged &&
+    !wantsSeries &&
+    !hasConfigBlock(spec.id) &&
+    constantsUsedBy(spec, ctx).length === 0 &&
+    derivedStages(spec, effectiveInputs, output).length === 0;
+
+  /*
+   * Dòng `92.000 ÷ 6.050 = 15,21` dưới đáy thẻ gộp — VẼ THÀNH HÌNH từ 05/10/2026.
+   *
+   * Trước đó nó in ra chữ một dòng, và trên `tra-gop-nien-kim` chữ ấy đọc ra thế này:
+   *
+   *   800.000.000 × 9,5 ÷ 100 ÷ 12 × (1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) ÷ ((1 + 9,5 ÷ 100 ÷ 12)^(20 × 12) − 1)
+   *
+   * Chủ dự án chụp màn: *"đang hiển thị quá loạn khiến tôi là người code cũng khó hiểu"*, rồi chốt
+   * luật — *"bên trên công thức đang biểu thị như nào thì ở chỗ này cũng cần hiển thị như vậy và
+   * chỉ là thay số liệu vào thôi"*. Đây là lần THỨ BA cùng một lỗi bị chụp màn: dòng "Áp vào công
+   * thức" của bài tập và của khối Ví dụ đã đổi sang vẽ ngày 29/09/2026, bằng chính `CongThucDien`
+   * dùng lại ở đây.
+   *
+   * Hai nửa, và chúng cố ý đi hai đường khác nhau:
+   *
+   *   · VẾ TRÁI là cây dựng sẵn lúc build (`thaySoCay`) rồi đặt số đang gõ vào lá. Không tính gì.
+   *   · VẾ PHẢI lấy THẲNG từ `output` — không tự nhân chia lại, nếu không màn có hai chỗ cùng tính
+   *     một con số và chúng sẽ lệch nhau ở lần sửa thứ hai.
+   *
    * Thiếu mẫu, thiếu số hay kết quả đang lỗi thì bỏ hẳn dòng, không in một vế cụt.
    */
-  const thaySo = merged ? fillSubstitution(spec, effectiveInputs) : null;
-  const dongThaySo =
-    thaySo === null || output.value === null
-      ? null
-      : /*
-         * `formatNumber` KHÔNG tham số, đúng như `ResultBlock` gọi nó — tức cùng số chữ số lẻ.
-         * Để mặc định khác nhau thì dải đáy ghi `= 15,2066` ngay dưới con số lớn ghi `15,21`, và
-         * người đọc có hai con số cho cùng một phép tính.
-         */
-        `${thaySo} = ${formatNumber(output.value)}`;
+  const cayThaySo =
+    merged && thaySoCay !== undefined ? datSoThaySo(thaySoCay, effectiveInputs) : null;
+  /*
+   * `formatNumber` KHÔNG tham số, đúng như `ResultBlock` gọi nó — tức cùng số chữ số lẻ. Để mặc
+   * định khác nhau thì dải đáy ghi `= 15,2066` ngay dưới con số lớn ghi `15,21`, và người đọc có
+   * hai con số cho cùng một phép tính.
+   */
+  const vePhaiThaySo = output.value === null ? null : formatNumber(output.value);
+
+  /*
+   * Tên của từng KÝ HIỆU, lấy đúng cụm chữ dòng biểu thức dưới hình đang dùng (05/10/2026).
+   *
+   * `notation.expression` đã gắn mỗi cụm với số thứ tự dòng bảng ký hiệu (`sym`) để tô sáng khi rê
+   * chuột, nên bảng tên này chỉ là đọc lại thứ đã có — không chuỗi mới, không bản dịch mới, và
+   * không thể lệch với dòng chữ vì nó LÀ dòng chữ. Lý do đầy đủ ở docblock `nhanCuaKhoa`.
+   *
+   * Lấy cụm ĐẦU TIÊN: một ký hiệu xuất hiện nhiều lần trong dòng (`i` của `tra-gop-nien-kim` có 3
+   * chỗ) thì mọi chỗ đều cùng một cụm, nên chỗ nào cũng được.
+   */
+  const tenKyHieu = useMemo(() => {
+    const ra: Record<string, Bilingual> = {};
+    (spec.symbols ?? []).forEach((kyHieu, chiSo) => {
+      const cum = (ngonNgu: 'vi' | 'en'): string | undefined =>
+        notation.expression[ngonNgu].flat().find((doan) => doan.sym === chiSo)?.text;
+      const vi = cum('vi');
+      const en = cum('en');
+      if (vi !== undefined && en !== undefined) ra[kyHieu.latex] = { vi, en };
+    });
+    return ra;
+  }, [spec.symbols, notation.expression]);
+
+  /*
+   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày (05/10/2026).
+   *
+   * Chủ dự án nhìn hai dòng "Gốc kỳ đầu" và "Lãi kỳ đầu" của `tra-gop-nien-kim` rồi hỏi *"nếu được
+   * tính ra thì công thức để tính đâu? tại sao chưa cho vào"*. Khối ấy bày nhãn và trị số, không
+   * gì khác — hai con số có tên mà không tra được ở đâu ra.
+   *
+   * Bảng giá trị gom ở Domain (`giaTriChoDanXuat`) chứ không gom tại chỗ, để cửa gác ở
+   * `formulas.test.ts` gom ĐÚNG bảng này. Nó gồm cả `extras` và `__ketQua`, vì "Gốc kỳ đầu" đúng
+   * là "khoản trả hằng tháng trừ đi lãi kỳ đầu" — nhắc tới chính kết quả và một đại lượng khác.
+   *
+   * 9 trên 111 công thức có khối này, nên 102 trang không chạy một dòng nào ở đây.
+   */
+  const congThucDanXuat = useMemo(() => {
+    if (danXuatCay === undefined) return undefined;
+    const bang = giaTriChoDanXuat(thaySoCay ?? null, effectiveInputs, output.extras, output.value);
+    const ra: Record<string, { nhan: Nut; so: Nut }> = {};
+    for (const [khoa, hinh] of Object.entries(danXuatCay)) {
+      const cay = datSoDanXuat(hinh, bang, thaySoCay?.danXuat ?? []);
+      if (cay !== null) ra[khoa] = { nhan: datNhanDanXuat(hinh, spec, locale, tenKyHieu), so: cay };
+    }
+    return ra;
+  }, [
+    danXuatCay,
+    thaySoCay,
+    effectiveInputs,
+    output.extras,
+    output.value,
+    spec,
+    locale,
+    tenKyHieu,
+  ]);
 
   /*
    * Khối Kết quả dựng một lần rồi đặt vào một trong hai chỗ — xem `merged` ngay trên. Dựng tại chỗ
@@ -2669,39 +2785,41 @@ export function FormulaDetail({
           rời ô, không phải mỗi phím. Có nó thì lời hứa "gõ xong là số đã được cất" vẫn đúng ngay
           cả khi cú rời màn tới sớm hơn hẹn giờ, và ca kiểm đang gác lời hứa ấy không phải nới ra.
         */}
-          <section
-            className={`${styles.block} ${styles.blockInputs}`}
-            aria-labelledby="khoi-so-lieu"
-            onBlur={flushDraft}
-          >
-            <div className={styles.blockHead}>
-              <h2 className={styles.blockTitle} id="khoi-so-lieu">
-                {t('detail.inputs')}
-              </h2>
-              {hiddenCount > 0 && (
-                <span className={styles.hiddenNote}>
-                  {hiddenCount} {t('detail.hiddenInBasic')}
-                </span>
-              )}
-              {/*
+          {!khoiSoLieuTrong && (
+            <section
+              className={`${styles.block} ${styles.blockInputs}`}
+              aria-labelledby="khoi-so-lieu"
+              onBlur={flushDraft}
+            >
+              <div className={styles.blockHead}>
+                <h2 className={styles.blockTitle} id="khoi-so-lieu">
+                  {t('detail.inputs')}
+                </h2>
+                {hiddenCount > 0 && (
+                  <span className={styles.hiddenNote}>
+                    {hiddenCount} {t('detail.hiddenInBasic')}
+                  </span>
+                )}
+                {/*
                 Nút "?" thứ hai — xem danh sách ba chỗ được phép và lý do loại những chỗ khác ở
                 `FormulaDetail.test.tsx`. Nó KHÔNG nằm trong `<h2>`: ở khuôn thẻ gộp (65 công thức,
                 từ 1280px) luật `.merged .blockTitle` đẩy tiêu đề thành ẩn-khỏi-mắt, và một nút nằm
                 trong đó sẽ ẩn theo ở đúng khổ màn web.
               */}
-              <GuideHint
-                className={styles.hintSoLieu}
-                href={`${guidePath(spec.id)}#nhap-so`}
-                nhan={t('guide.hint.input')}
-                {...(bai === undefined
-                  ? {}
-                  : {
-                      onMo: (event: ReactMouseEvent<HTMLAnchorElement>) => moGoiY('nhap-so', event),
-                    })}
-              />
-            </div>
+                <GuideHint
+                  className={styles.hintSoLieu}
+                  href={`${guidePath(spec.id)}#nhap-so`}
+                  nhan={t('guide.hint.input')}
+                  {...(bai === undefined
+                    ? {}
+                    : {
+                        onMo: (event: ReactMouseEvent<HTMLAnchorElement>) =>
+                          moGoiY('nhap-so', event),
+                      })}
+                />
+              </div>
 
-            {/*
+              {/*
           ── Dải "AAA điền được 2 trong 4 ô…" đã BỎ HẲN ────────────────────────────────────────
 
           Chủ dự án: *"không cần phải giải thích … cho tốn không gian. bỏ đi. thay vào đó các ô kia
@@ -2716,31 +2834,31 @@ export function FormulaDetail({
           một đoạn văn thứ hai nói cùng một điều ở xa hơn.
         */}
 
-            {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
-            {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
+              {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
+              {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
 
-            {/*
+              {/*
             Hai lớp trên CÙNG một thẻ, không phải lớp này thay lớp kia: `.fields` giữ nguyên lưới
             và luật `subgrid` của khổ hẹp, `.tileGrid` chỉ đè số cột từ 1280px. Giữ `.fields` là
             điều kiện — luật `.fields > .field` chỉ với tới CON TRỰC TIẾP, nên đổi tên lớp là mất
             canh thẳng hàng giữa hai ô cùng hàng ở khổ điện thoại.
           */}
-            <div className={merged ? `${styles.fields} ${styles.tileGrid}` : styles.fields}>
-              {shown.map((variable) => {
-                const linked = linkedFields.get(variable.key);
-                // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
-                const wide = linked !== undefined || isWideControl(variable.type);
+              <div className={merged ? `${styles.fields} ${styles.tileGrid}` : styles.fields}>
+                {shown.map((variable) => {
+                  const linked = linkedFields.get(variable.key);
+                  // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
+                  const wide = linked !== undefined || isWideControl(variable.type);
 
-                /*
+                  /*
               Điều khiển LÀ ô lưới, không bọc thêm một <div> quanh nó.
               Bọc thì nhãn / khung nhập / dòng phụ nằm sâu thêm một tầng, và `subgrid` — thứ giữ
               cho hai ô cùng hàng thẳng nhau khi một nhãn dài hơn — chỉ với tới con TRỰC TIẾP.
               Khối chuỗi WF-04 vốn đã dựng theo lối này, nên bỏ lớp bọc cũng là đưa hai màn về
               cùng một hình dạng DOM.
             */
-                const className = wide ? styles.fieldWide : styles.field;
+                  const className = wide ? styles.fieldWide : styles.field;
 
-                /*
+                  /*
                   Mã đang cấp số cho ô này, hoặc `undefined` nếu không.
 
                   MỘT phép xét cho hai chỗ dùng (viền `derived` + dòng phụ bên dưới ô, và con dấu
@@ -2750,26 +2868,28 @@ export function FormulaDetail({
                   tắt (nếu không màn nói dối về nguồn con số), nhưng ô vẫn phải MỞ — mà `filled`
                   nay là thứ quyết định khoá. Xem docblock của `presetFill`.
                 */
-                const maCapSo =
-                  presetFill !== null &&
-                  presetFill.filled.has(variable.key) &&
-                  !presetFill.edited.has(variable.key)
-                    ? presetFill.code
-                    : undefined;
+                  const maCapSo =
+                    presetFill !== null &&
+                    presetFill.filled.has(variable.key) &&
+                    !presetFill.edited.has(variable.key)
+                      ? presetFill.code
+                      : undefined;
 
-                return linked === undefined ? (
-                  <VariableField
-                    key={variable.key}
-                    spec={variable}
-                    value={inputs[variable.key] ?? variable.defaultValue}
-                    onChange={(value) => {
-                      setValue(variable.key, value);
-                    }}
-                    mode={mode}
-                    sourceNote={variable.type === 'toggle' ? t('detail.constantSource') : undefined}
-                    /* Ô mang số của mã vừa nạp → trạng thái `derived` của WF-16 — xem `maCapSo`. */
-                    derivedFrom={maCapSo}
-                    /*
+                  return linked === undefined ? (
+                    <VariableField
+                      key={variable.key}
+                      spec={variable}
+                      value={inputs[variable.key] ?? variable.defaultValue}
+                      onChange={(value) => {
+                        setValue(variable.key, value);
+                      }}
+                      mode={mode}
+                      sourceNote={
+                        variable.type === 'toggle' ? t('detail.constantSource') : undefined
+                      }
+                      /* Ô mang số của mã vừa nạp → trạng thái `derived` của WF-16 — xem `maCapSo`. */
+                      derivedFrom={maCapSo}
+                      /*
                   Dòng phụ viết thành chữ, KHÔNG để mặc định `↳ VHM`.
 
                   Chủ dự án nhìn `↳ VHM` và hỏi *"ký hiệu này nghĩa là gì? ký hiệu có thể nhập liệu
@@ -2778,14 +2898,14 @@ export function FormulaDetail({
                   giải thích nó. Nay ô mở nói 'dữ liệu của VHM', ô khoá nói 'dữ liệu mẫu' — chung
                   một danh từ, khác đúng một vế, nên liếc một cái là phân được.
                 */
-                    derivedNote={
-                      presetFill === null
-                        ? undefined
-                        : `${t('input.fromTicker')} ${presetFill.code}`
-                    }
-                    // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
-                    lockedNote={lockedNoteFor(variable.key)}
-                    /*
+                      derivedNote={
+                        presetFill === null
+                          ? undefined
+                          : `${t('input.fromTicker')} ${presetFill.code}`
+                      }
+                      // Ô mã không cấp được số thì khoá — xem `lockedNoteFor()`.
+                      lockedNote={lockedNoteFor(variable.key)}
+                      /*
                   Ô nhỏ của thẻ gộp — chỉ đổi hình từ 1280px, xem `InputProps.compact`.
 
                   Con dấu nguồn CHỈ gắn khi ô thật sự mang số của một mã. Ô người dùng tự gõ không
@@ -2794,60 +2914,60 @@ export function FormulaDetail({
                   thay vì truyền một con dấu rỗng, để `Input` khỏi dựng thẻ `<span>` không nội
                   dung mà luật `:has(.sourceMark)` của nhãn vẫn đếm là có dấu.
                 */
-                    compact={merged}
-                    {...(merged && maCapSo !== undefined
-                      ? { sourceMark: <SourceMark source={{ kind: 'ticker', code: maCapSo }} /> }
-                      : {})}
-                    className={className}
-                  />
-                ) : (
-                  /*
+                      compact={merged}
+                      {...(merged && maCapSo !== undefined
+                        ? { sourceMark: <SourceMark source={{ kind: 'ticker', code: maCapSo }} /> }
+                        : {})}
+                      className={className}
+                    />
+                  ) : (
+                    /*
                 Ô nhận giá trị từ bước trước (FR-15). Dựng TẠI CHỖ trong lưới chứ không gom
                 xuống khối chuỗi bên dưới: nó vẫn là một biến của công thức này, đứng đúng
                 thứ tự của nó trong bảng biến. Gom xuống dưới là người dùng phải ghép hai
                 danh sách ô nhập trong đầu mới biết công thức cần những gì.
               */
-                  <LinkedInput
-                    key={variable.key}
-                    spec={variable}
-                    upstream={linked.upstream}
-                    {...(linked.override === undefined ? {} : { override: linked.override })}
-                    onOverrideChange={(value) => {
-                      setOverride(spec.id, variable.key, value);
+                    <LinkedInput
+                      key={variable.key}
+                      spec={variable}
+                      upstream={linked.upstream}
+                      {...(linked.override === undefined ? {} : { override: linked.override })}
+                      onOverrideChange={(value) => {
+                        setOverride(spec.id, variable.key, value);
+                      }}
+                      mode={mode}
+                      className={className}
+                    />
+                  );
+                })}
+              </div>
+
+              {wantsSeries && (
+                <div className={styles.actions}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      openSheet('paste');
                     }}
-                    mode={mode}
-                    className={className}
-                  />
-                );
-              })}
-            </div>
+                  >
+                    {t('detail.pasteSeries')}
+                  </Button>
 
-            {wantsSeries && (
-              <div className={styles.actions}>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => {
-                    openSheet('paste');
-                  }}
-                >
-                  {t('detail.pasteSeries')}
-                </Button>
-
-                {/*
+                  {/*
               Lối thứ ba cho người chưa có chuỗi giá thật để dán VÀ không hiểu bộ mẫu 4 công ty —
               xem docblock `applyExample()`. Ẩn hẳn với công thức không khai
               `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
             */}
-                {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
-                  <Button variant="secondary" size="sm" onClick={applyExample}>
-                    {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
-                  </Button>
-                )}
-              </div>
-            )}
+                  {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
+                    <Button variant="secondary" size="sm" onClick={applyExample}>
+                      {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
+                    </Button>
+                  )}
+                </div>
+              )}
 
-            {/*
+              {/*
           Hàng chân của khối chuỗi: số phiên đã nạp bên trái, lối sang bảng dữ liệu bên phải.
 
           Link từng đứng cuối hàng nút ở trên. Cột Số liệu hẹp nên hàng ấy gãy, và link rơi xuống
@@ -2856,22 +2976,22 @@ export function FormulaDetail({
           ấy cùng nói về CHUỖI đang nạp — có bao nhiêu phiên, và xem/sửa nó ở đâu — nên đứng chung
           một hàng là đúng nghĩa, còn hàng nút giữ đúng vai "đưa dữ liệu vào".
         */}
-            {wantsSeries && (
-              <div className={styles.seriesFoot}>
-                {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
-                {seriesCount !== null && (
-                  <p className={styles.pendingNote}>
-                    {t('detail.seriesLoaded')} {seriesCount}
-                  </p>
-                )}
+              {wantsSeries && (
+                <div className={styles.seriesFoot}>
+                  {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
+                  {seriesCount !== null && (
+                    <p className={styles.pendingNote}>
+                      {t('detail.seriesLoaded')} {seriesCount}
+                    </p>
+                  )}
 
-                {/*
+                  {/*
               Nút "Áp dụng vào bảng dữ liệu" đã BỎ — việc của nó nay chạy tự động trong `onClick`
               của link này. Đừng dựng lại: hai lối làm cùng một việc thì người dùng phải đoán cái
               nào đã chạy.
             */}
 
-                {/*
+                  {/*
               Lối vào bảng WF-05. Dán tại chỗ chỉ đọc được chuỗi vào công thức đang mở; muốn
               sửa từng phiên, xem dòng nào sai, hay giữ chuỗi lại thì phải sang bảng. Trước đợt
               này màn đó không có link nào trỏ tới từ bất kỳ đâu trong giao diện.
@@ -2893,30 +3013,30 @@ export function FormulaDetail({
               công thức này", còn việc trang có mặt trên màn thì không nói lên điều gì — cùng lập
               luận với `markReturning` của `BackLink`.
             */}
-                <Link
-                  className={styles.dataLink}
-                  href={`${ROUTES.data}?from=${spec.id}`}
-                  onClick={handOverToDataTable}
-                >
-                  {t('detail.openDataTable')}
-                </Link>
-              </div>
-            )}
+                  <Link
+                    className={styles.dataLink}
+                    href={`${ROUTES.data}?from=${spec.id}`}
+                    onClick={handOverToDataTable}
+                  >
+                    {t('detail.openDataTable')}
+                  </Link>
+                </div>
+              )}
 
-            {/*
+              {/*
           Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`presetFromSnapshot()`), nên
           ở một công thức cần chuỗi thì "nạp mã xong" và "tính được" là hai chuyện khác nhau.
           Không nói ra thì người dùng đọc màn hình này ra là sản phẩm hỏng — cùng lý do FR-06
           cấm trả 0 thay cho lỗi. Ngưỡng < 2 chứ không phải === 1: mã không tra được giá cho
           `bars: []`, và ca đó cũng cần đúng câu này.
         */}
-            {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
-              <p className={styles.seriesShortNote} role="note">
-                {t('detail.liveSeriesShort')}
-              </p>
-            )}
+              {wantsSeries && loadedPreset !== null && seriesCount !== null && seriesCount < 2 && (
+                <p className={styles.seriesShortNote} role="note">
+                  {t('detail.liveSeriesShort')}
+                </p>
+              )}
 
-            {/*
+              {/*
           ── Hai câu chú thích đã GỠ ngày 22/09/2026 ────────────────────────────────────────
 
           `detail.exampleSeriesNote` — "Đây là chuỗi số dựng sẵn để minh hoạ…, không phải giá cổ
@@ -2934,13 +3054,13 @@ export function FormulaDetail({
           chụp màn lại. Điều kiện bật nay xét thêm override, và câu chữ nói đúng nửa còn lại:
           chuỗi giá của bộ mẫu mới là phần chưa thật.
         */}
-            {usesMarketSeries && marketSeriesOverride === null && hasDraftMarketSeries() && (
-              <p className={styles.seriesShortNote} role="note">
-                {t('detail.draftMarketSeries')}
-              </p>
-            )}
+              {usesMarketSeries && marketSeriesOverride === null && hasDraftMarketSeries() && (
+                <p className={styles.seriesShortNote} role="note">
+                  {t('detail.draftMarketSeries')}
+                </p>
+              )}
 
-            {/*
+              {/*
           Hằng số thuế & phí đang áp — đặt CUỐI khối Số liệu, không tách thành khối riêng.
           Nó thuộc về đầu vào: cùng là thứ quyết định con số ở khối Kết quả, chỉ khác chỗ người
           dùng không gõ được. Tách ra thành khối số 5 thì nó rơi xuống dưới Kết quả, tức là người
@@ -2949,9 +3069,9 @@ export function FormulaDetail({
           Tự trả về null khi công thức không tra hằng số nào, nên 98 trong 111 trang không thêm
           một nút DOM nào.
         */}
-            <ConstantsNote constants={constantsUsedBy(spec, ctx)} compact={merged} />
+              <ConstantsNote constants={constantsUsedBy(spec, ctx)} compact={merged} />
 
-            {/*
+              {/*
           Đại lượng công thức TỰ TÍNH RA — đứng cạnh `ConstantsNote` vì cùng một vai: thứ quyết
           định con số ở khối Kết quả mà người dùng không gõ được, nên phải đọc được TRƯỚC khi tới
           Kết quả. Lý do đầy đủ ở docblock `DerivedNote.tsx`.
@@ -2963,11 +3083,13 @@ export function FormulaDetail({
           Tự trả về null khi công thức không khai `breakdown` hoặc mọi chặng đều là ô nhập — 102
           trong 111 trang không thêm một nút DOM nào.
         */}
-            <DerivedNote
-              stages={derivedStages(spec, effectiveInputs, output)}
-              unit={spec.resultUnit}
-            />
-          </section>
+              <DerivedNote
+                stages={derivedStages(spec, effectiveInputs, output)}
+                unit={spec.resultUnit}
+                {...(congThucDanXuat === undefined ? {} : { congThuc: congThucDanXuat })}
+              />
+            </section>
+          )}
 
           {/*
             Hai phần cuối của thẻ gộp, chỉ dựng cho công thức dùng khuôn mới: khối Kết quả (đã rời
@@ -2978,7 +3100,23 @@ export function FormulaDetail({
             cần biết bề ngang màn, mà lượt dựng đầu tiên phải khớp HTML dựng sẵn lúc build.
           */}
           {merged && ketQuaBlock}
-          {merged && dongThaySo !== null && <p className={styles.substitution}>{dongThaySo}</p>}
+          {/*
+            `role="math"` + `aria-label`: cây vẽ bằng `<span>` xếp tầng, nên trình đọc màn hình đọc
+            nó thành một dãy số rời — mất phép chia, mất dấu căn. Nhãn là chính dòng chữ cũ, tức
+            thứ người dùng bàn phím vẫn nghe được y như trước. Cùng khuôn `LoiGiai` đã dựng.
+          */}
+          {merged && cayThaySo !== null && vePhaiThaySo !== null && (
+            <p className={styles.substitution}>
+              <span
+                className={styles.substitutionHinh}
+                role="math"
+                aria-label={`${chuCuaCay(cayThaySo)} = ${vePhaiThaySo}`}
+              >
+                <CongThucDien cay={cayThaySo} oNhap={() => null} />
+              </span>
+              <span className={styles.substitutionRa}>{`= ${vePhaiThaySo}`}</span>
+            </p>
+          )}
         </div>
 
         {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}

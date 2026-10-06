@@ -1294,6 +1294,52 @@ button.iconButton::after {
     font-size: var(--text-base);
     font-variant-numeric: tabular-nums;
     color: var(--color-ink);
+
+    /*
+     * Hình và vế phải "= 15,21" nằm cùng một HÀNG, căn theo đường giữa của hình (05/10/2026).
+     *
+     * `align-items: center` chứ `baseline`: một phân số xếp hai tầng không có đường cơ sở chung với
+     * một con số một dòng, nên baseline kéo dấu "=" lên ngang tử số. `flex-wrap` để ở khổ 1280 hẹp
+     * nhất, hình dài như `gui-quay-vong` đẩy được vế phải xuống dòng thay vì ép hình co lại.
+     *
+     * `justify-content: center` và cỡ chữ nhỏ lại — chủ dự án chốt cùng ngày sau khi nhìn hình vẽ
+     * đầu tiên. Dải chạy hết bề ngang thẻ gộp (~1.250px ở 1440), mà hình của `pe` chỉ rộng ~180px,
+     * nên dồn trái thì nó đứng lẻ loi ở một góc của một dải gần như trống. Căn giữa cũng đúng chỗ
+     * hình công thức ở đầu màn đang đứng.
+     *
+     * KHÔNG in nghiêng, dù chủ dự án có nêu như một lựa chọn: cả dòng này là CON SỐ, mà chữ nghiêng
+     * là quy ước của BIẾN. Hình KaTeX ở đầu màn cũng nghiêng `P`, `i`, `n` và để số thẳng — nghiêng
+     * ở đây là nói ngược lại quy ước mà chính trang này vừa dạy.
+     */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+
+    /*
+     * 16px thay cho mặc định 20px của bộ vẽ. Mặc định ấy là cỡ của bài tập, nơi hình là nhân vật
+     * chính; ở đây hình là phần phụ chú dưới đáy thẻ, và nó phải nhỏ hơn con số kết quả 32px mà nó
+     * dẫn tới, chứ không tranh chỗ với con số ấy.
+     */
+    --ct-co-chu: var(--text-base);
+  }
+
+  /*
+   * Hình KHÔNG xuống dòng (một phân số cắt làm đôi là vô nghĩa), nên nó tự cuộn ngang trong chính
+   * nó — bộ ba `min-width: 0` + `overflow-x: auto` + `overflow-y: hidden`, đúng bộ mà `.formula` và
+   * `.workedExpr` đang dùng và vì cùng một lý do. Thiếu `min-width: 0` thì một con flex không co
+   * được dưới kích thước nội dung, và cả thẻ gộp bị đẩy rộng ra.
+   */
+  .substitutionHinh {
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .substitutionRa {
+    flex: none;
+    font-weight: var(--weight-bold);
   }
 
   /* Giải thích nay là ô lưới riêng, nằm đúng cột trái dưới thẻ gộp. */

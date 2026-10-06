@@ -8,5 +8,5 @@
  * trình duyệt chỉ cần module LÁ `@/core/quiz/nut`, không cần bộ phân tích.
  */
 
-export { chieuCao } from '@/core/quiz/nut';
+export { chieuCao, chuCuaCay } from '@/core/quiz/nut';
 export type { Nut } from '@/core/quiz/nut';

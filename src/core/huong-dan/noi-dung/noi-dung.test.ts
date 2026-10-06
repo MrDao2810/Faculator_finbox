@@ -82,13 +82,16 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
   });
 
   /*
-   * 269 ô, đếm thành tiếng. Con số này là tổng ô nhập của cả thư viện và nó chỉ đổi khi Registry
+   * 268 ô, đếm thành tiếng. Con số này là tổng ô nhập của cả thư viện và nó chỉ đổi khi Registry
    * đổi — ghim để một ô thêm vào hay bỏ đi không lặng lẽ kéo kho lệch theo.
+   *
+   * Từ 269 xuống 268 ngày 06/10/2026: bỏ ô `guess` của `xirr`, một thanh trượt không đổi được kết
+   * quả ở bất kỳ giá trị nào. Xem docblock mục 5 ở `src/core/formulas/returns.ts`.
    */
-  it('phủ đúng 269 ô nhập của cả thư viện', () => {
-    expect(MOI_O).toHaveLength(269);
+  it('phủ đúng 268 ô nhập của cả thư viện', () => {
+    expect(MOI_O).toHaveLength(268);
     const soMucTrongKho = MUC.reduce((n, [, bai]) => n + Object.keys(bai.oNhap).length, 0);
-    expect(soMucTrongKho).toBe(269);
+    expect(soMucTrongKho).toBe(268);
   });
 
   it('mọi ô đều có câu "lấy số ở đâu", không câu nào rỗng', () => {
@@ -98,12 +101,12 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
   });
 
   /*
-   * 164/269 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
+   * 163/268 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
    * lưu ý cho một ô là việc tốt. Ghim để thấy nó đi lên, và để không ai xoá bớt mà không ai biết.
    */
-  it('164 ô có thêm câu lưu ý', () => {
+  it('163 ô có thêm câu lưu ý', () => {
     const coLuuY = MOI_O.filter(({ o }) => (o?.luuY?.vi ?? '').trim() !== '');
-    expect(coLuuY).toHaveLength(164);
+    expect(coLuuY).toHaveLength(163);
   });
 
   /*
@@ -213,9 +216,9 @@ describe('nợ bản tiếng Anh, đếm thành tiếng', () => {
     expect(chuaDich).toHaveLength(111);
   });
 
-  it('269 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
+  it('268 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
     const chuaDich = MOI_O.filter(({ o }) => (o?.layODau.en ?? '').trim() === '');
-    expect(chuaDich).toHaveLength(269);
+    expect(chuaDich).toHaveLength(268);
   });
 });
 

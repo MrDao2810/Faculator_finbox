@@ -81,4 +81,45 @@ describe('mục "Cách đọc kết quả" theo khuôn "So với [mốc]: …"',
       }),
     ).toEqual([]);
   });
+
+  /*
+   * Luật 9. Chủ dự án chụp màn `ty-so-calmar` ngày 05/10/2026: *"'so với 1: ..' nghĩa là gì?
+   * '1:' là gì? trong công thức tôi chưa thấy có '1:'"*. Dấu hai chấm của khuôn dính vào con số
+   * và đổi nghĩa thành ký hiệu tỷ lệ.
+   */
+  it('mốc là số trần thì bị bắt, có từ chỉ loại đứng trước thì không', () => {
+    const calmarCu = howToReadProblems({
+      id: 'ty-so-calmar',
+      name: { vi: 'Tỷ số Calmar', en: 'Calmar ratio' },
+      howToRead: {
+        vi: 'So với 1: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm.',
+        en: "Compared with 1: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger.",
+      },
+    });
+    expect(calmarCu.some((loi) => loi.includes('ty-so-calmar.vi: mốc "1" là số trần'))).toBe(true);
+    expect(calmarCu.some((loi) => loi.includes('ty-so-calmar.en: mốc "1" là số trần'))).toBe(true);
+
+    /* Mốc 100% cũng vậy, và từ chỉ loại đứng trước thì qua. */
+    expect(
+      howToReadProblems({
+        id: 'ty-le-chi-tra-co-tuc',
+        name: { vi: 'Tỷ lệ chi trả cổ tức', en: 'Dividend payout ratio' },
+        howToRead: {
+          vi: 'So với 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra.',
+          en: 'Compared with 100%: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned.',
+        },
+      }).filter((loi) => loi.includes('số trần')),
+    ).toHaveLength(2);
+
+    expect(
+      howToReadProblems({
+        id: 'ty-le-chi-tra-co-tuc',
+        name: { vi: 'Tỷ lệ chi trả cổ tức', en: 'Dividend payout ratio' },
+        howToRead: {
+          vi: 'So với mốc 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra.',
+          en: 'Compared with the 100% mark: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned.',
+        },
+      }),
+    ).toEqual([]);
+  });
 });

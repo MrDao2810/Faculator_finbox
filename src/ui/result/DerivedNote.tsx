@@ -2,7 +2,10 @@
 
 import type { Bilingual } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import type { Nut } from '@/application/quiz-cay';
+import { chuCuaCay } from '@/application/quiz-cay';
 
+import { CongThucDien } from '../quiz/CongThucDien';
 import { useValueText } from '../i18n/units';
 import styles from './DerivedNote.module.css';
 
@@ -11,6 +14,13 @@ export interface DerivedNoteProps {
   stages: ReadonlyArray<{ key: string; label: Bilingual; value: number }>;
   /** Đơn vị của kết quả: mọi chặng bóc tách đều cộng lại ra kết quả nên cùng đơn vị với nó. */
   unit: string;
+  /**
+   * Công thức tính của từng chặng, đã thay số và dựng thành cây vẽ được — khoá là khoá chặng.
+   *
+   * Vắng chặng nào thì chặng ấy chỉ in nhãn và trị số như trước. Ba chặng cố ý không có mẫu; lý do
+   * từng chỗ ở docblock `FormulaSpec.derivedSubstitution`.
+   */
+  congThuc?: Readonly<Record<string, { nhan: Nut; so: Nut }>>;
 }
 
 /**
@@ -36,7 +46,7 @@ export interface DerivedNoteProps {
  * 'Lãi vay sau thuế' là nói rằng tiền lãi âm — thứ mà chính `calc` của `fcfe` chặn bằng
  * `MEANINGLESS`.
  */
-export function DerivedNote({ stages, unit }: DerivedNoteProps) {
+export function DerivedNote({ stages, unit, congThuc }: DerivedNoteProps) {
   const t = useT();
   const pick = usePick();
   const valueText = useValueText();
@@ -46,12 +56,51 @@ export function DerivedNote({ stages, unit }: DerivedNoteProps) {
     <section className={styles.block}>
       <h3 className={styles.title}>{t('detail.derivedInUse')}</h3>
       <dl className={styles.list}>
-        {stages.map((stage) => (
-          <div key={stage.key} className={styles.row}>
-            <dt className={styles.label}>{pick(stage.label)}</dt>
-            <dd className={styles.value}>{valueText(stage.value, unit)}</dd>
-          </div>
-        ))}
+        {stages.map((stage) => {
+          const ct = congThuc?.[stage.key];
+          return (
+            <div key={stage.key} className={styles.row}>
+              <dt className={styles.label}>{pick(stage.label)}</dt>
+              <dd className={styles.value}>{valueText(stage.value, unit)}</dd>
+              {/*
+                HAI dòng, và dòng TÊN phải đứng trước (05/10/2026).
+
+                Chủ dự án nhìn dòng chỉ-có-số `= 7.457.049,5027 − 6.333.333,3333` và hỏi *"tại sao
+                lại sử dụng công thức trừ như kia? nguồn để tạo ra công thức đó là gì?"*. Câu hỏi
+                đúng: một dòng toàn số không nói nó đang trừ CÁI GÌ cho CÁI GÌ, nên không ai phán
+                được nó đúng hay sai. Dòng tên trả lời ngay — "Trả hằng tháng − Lãi kỳ đầu" — và
+                nó ghép từ nhãn đã có trong `spec`, không phải một câu ai đó viết thêm.
+
+                Cả hai chiếm TRỌN một hàng lưới của riêng mình, dưới cặp nhãn → trị số: nhét chung
+                một hàng thì hàng nào có hình xếp hai tầng sẽ cao gấp đôi, và cả khối gãy nhịp.
+
+                `role="math"` + `aria-label` ở dòng SỐ: hình là các `<span>` xếp tầng nên trình đọc
+                màn hình đọc ra một dãy số rời. Dòng tên vốn đã là chữ nên không cần nhãn, và thêm
+                nhãn vào đó là bắt người dùng bàn phím nghe cùng một phép tính hai lần.
+              */}
+              {ct !== undefined && (
+                <>
+                  <span className={styles.formula}>
+                    <span aria-hidden="true" className={styles.formulaDau}>
+                      =
+                    </span>
+                    <CongThucDien cay={ct.nhan} oNhap={() => null} />
+                  </span>
+                  <span
+                    className={styles.formula}
+                    role="math"
+                    aria-label={`${pick(stage.label)} = ${chuCuaCay(ct.so)}`}
+                  >
+                    <span aria-hidden="true" className={styles.formulaDau}>
+                      =
+                    </span>
+                    <CongThucDien cay={ct.so} oNhap={() => null} />
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })}
       </dl>
     </section>
   );

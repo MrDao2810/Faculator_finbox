@@ -671,29 +671,35 @@ export function xirrNotConverged(): CalcWarning {
  *
  * Công thức DUY NHẤT trong Registry đọc `ctx.cashflows` thay vì tính từ `spec.variables` —
  * dòng tiền có ngày là một BẢNG độ dài tuỳ ý, không phải thứ `VariableSpec` biểu diễn được.
- * Biến `guess` là tham số duy nhất thật sự đi qua ô nhập chuẩn; bảng dòng tiền sống trong
- * thân riêng `ui/screens/XirrBody.tsx` (xem `hasCustomBody`/`ownsResult` ở `DetailBody.tsx`).
+ * Bảng ấy sống trong thân riêng `ui/screens/XirrBody.tsx` (xem `hasCustomBody`/`ownsResult` ở
+ * `DetailBody.tsx`), nên đây là công thức duy nhất khai `variables: []`.
  *
- * `chartType: 'none'` cố ý: biến duy nhất sweep được là điểm xuất phát của Newton-Raphson,
- * không phải một tham số tài chính — quét nó không nói lên điều gì về khoản đầu tư.
+ * `chartType: 'none'` cố ý: không có tham số tài chính nào để quét — mọi thứ quyết định con số
+ * đều nằm trong bảng dòng tiền.
+ *
+ * ## Ô "Suất sinh lợi khởi điểm" đã BỎ (06/10/2026) — một điều khiển không đổi được gì
+ *
+ * Trang từng có một thanh trượt `guess` (−50…100 %/năm, mức nâng cao) làm điểm xuất phát cho
+ * Newton-Raphson. Chủ dự án kéo nó và hỏi *"sao kéo thả thông số thấy % thay đổi mà chả có gì
+ * thay đổi ở xung quanh vậy?"*. Đo lại: **151 điểm xuất phát trên cả dải, bốn bộ dòng tiền khác
+ * nhau (gồm cả bộ đổi dấu nhiều lần, tức nhiều nghiệm) — luôn ra đúng MỘT kết quả.**
+ *
+ * Nguyên do nằm ngay trong `xirr()`: hỏng vòng Newton-Raphson thì nó rơi xuống `bisectXirr`, quét
+ * chia đôi cả khoảng −0,9999…10. Khoảng ấy rộng hơn cả dải thanh trượt, nên điểm xuất phát chỉ
+ * đổi được SỐ VÒNG LẶP, không đổi được đáp số. Mô tả cũ của ô — *"chỉ chỉnh nếu công thức báo
+ * không tìm được suất sinh lợi"* — vì thế là một lời hứa suông: bisection không tìm ra thì không
+ * điểm xuất phát nào tìm ra.
+ *
+ * Nên hạt giống thành hằng số trong `calc`. Giữ đúng 0,1 mà `xirr()` vẫn mặc định, nên không con
+ * số nào trên màn đổi theo lượt sửa này.
  */
 
-const XIRR_GUESS_VAR = sliderVar(
-  'guess',
-  { vi: 'Suất sinh lợi khởi điểm', en: 'Initial rate guess' },
-  '%/năm',
-  10,
-  -50,
-  100,
-  1,
-  {
-    level: 'advanced',
-    description: {
-      vi: 'Điểm xuất phát cho thuật toán tìm nghiệm. Hiếm khi cần đổi — chỉ chỉnh nếu công thức báo không tìm được suất sinh lợi.',
-      en: 'The starting point for the solver algorithm. Rarely needs changing — adjust it only if the formula reports that it could not find a rate of return.',
-    },
-  },
-);
+/**
+ * Điểm xuất phát của Newton-Raphson. Hằng số, không phải ô nhập — xem docblock ngay trên.
+ *
+ * Bằng đúng mặc định của `xirr()`, để hai chỗ không thể nói hai con số khác nhau.
+ */
+const XIRR_DIEM_XUAT_PHAT = 0.1;
 
 export const XIRR: FormulaModule = {
   spec: {
@@ -757,7 +763,7 @@ export const XIRR: FormulaModule = {
     isFeatured: true,
     tags: ['xirr', 'suat sinh loi noi tai', 'dong tien khong deu', 'irr thuc te'],
     resultUnit: '%/năm',
-    variables: [XIRR_GUESS_VAR],
+    variables: [],
     explanation: {
       meaning: {
         vi: 'Suất sinh lợi năm hoá của một khoản đầu tư có nhiều lần rót thêm hoặc rút bớt tiền vào những NGÀY KHÔNG ĐỀU nhau — khác IRR thường vốn giả định các kỳ cách đều nhau.',
@@ -781,7 +787,7 @@ export const XIRR: FormulaModule = {
         vi: 'FPT — ba lần mua trong tháng 7 và 8/2026, bán hết 300 CP ngày 11/09/2026',
         en: 'FPT — three purchases across July and August 2026, all 300 shares sold on 2026-09-11',
       },
-      inputs: { guess: 10 },
+      inputs: {},
       cashflows: [
         { date: '2026-07-15', amount: -6_680_000 },
         { date: '2026-07-24', amount: -6_290_000 },
@@ -801,7 +807,7 @@ export const XIRR: FormulaModule = {
     tests: [
       {
         name: 'một khoản chi và một khoản thu sau đúng một năm — 10%/năm',
-        inputs: { guess: 10 },
+        inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: -100_000_000 },
           { date: '2026-01-01', amount: 110_000_000 },
@@ -810,7 +816,7 @@ export const XIRR: FormulaModule = {
       },
       {
         name: 'lỗ sau một năm thì suất sinh lợi âm — -20%/năm',
-        inputs: { guess: 10 },
+        inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: -100_000_000 },
           { date: '2026-01-01', amount: 80_000_000 },
@@ -819,14 +825,14 @@ export const XIRR: FormulaModule = {
       },
       {
         name: 'chưa đủ hai dòng tiền thì chưa tính được',
-        inputs: { guess: 10 },
+        inputs: {},
         cashflows: [{ date: '2025-01-01', amount: -100_000_000 }],
         expected: null,
         expectedWarning: 'INCOMPLETE_INPUT',
       },
       {
         name: 'dòng tiền toàn cùng dấu thì không có nghiệm',
-        inputs: { guess: 10 },
+        inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: 100_000 },
           { date: '2026-01-01', amount: 200_000 },
@@ -853,7 +859,7 @@ export const XIRR: FormulaModule = {
       );
     }
 
-    const rate = xirr(flows, { guess: v('guess') / 100 });
+    const rate = xirr(flows, { guess: XIRR_DIEM_XUAT_PHAT });
     if (rate === null) return fail(unit, xirrNotConverged());
 
     return ok(rate * 100, unit);

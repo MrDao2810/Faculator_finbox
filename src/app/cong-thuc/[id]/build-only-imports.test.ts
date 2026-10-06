@@ -82,6 +82,20 @@ const LUAT: ReadonlyArray<{ ten: string; khop: (spec: string) => boolean; duocPh
     duocPhep: ['application/how-to.ts'],
   },
   {
+    // Mẫu thay số phân tích thành CÂY (05/10/2026). Ranh giới này không phải vì khối lượng chữ như
+    // ba cái dưới, mà vì một module: `substitution-shape.ts` nhập `worked-line.ts`, bộ phân tích cú
+    // pháp 24 kB. Cây dựng xong thì đứng yên — chỉ các lá đổi theo phím gõ — nên trình duyệt chỉ
+    // cần `datSoThaySo` ở `@/core/substitution-cay`, thứ đi qua barrel bình thường.
+    ten: '@/application/thay-so',
+    khop: (spec) => spec === '@/application/thay-so',
+    duocPhep: ['app/cong-thuc/[id]/page.tsx'],
+  },
+  {
+    ten: 'src/core/substitution-shape',
+    khop: (spec) => spec === '@/core/substitution-shape',
+    duocPhep: ['application/thay-so.ts'],
+  },
+  {
     // Lời giải có cấu trúc của khối Ví dụ thực tế (29/09/2026) — chữ của cả 111 ví dụ, mỗi trang chỉ
     // cần phần của mình. Xem docblock `src/core/vi-du/types.ts`.
     ten: '@/application/vi-du',

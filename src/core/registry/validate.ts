@@ -17,6 +17,25 @@ const NEEDS_OPTIONS: ReadonlyArray<ControlType> = ['select', 'radio', 'toggle', 
 /** id chỉ dùng chữ thường, số, dấu chấm và gạch ngang — vì id đi thẳng vào URL (FR-25). */
 const ID_PATTERN = /^[a-z0-9]+([.-][a-z0-9]+)*$/;
 
+/**
+ * Công thức được phép khai `variables: []` vì số liệu vào bằng một đường KHÁC, không phải bảng
+ * biến (06/10/2026).
+ *
+ * Luật "phải có ít nhất một biến" sinh ra để chặn một công thức không có đường nào nạp số. `xirr`
+ * có đường ấy, chỉ là không đi qua `VariableSpec`: dòng tiền có ngày là một BẢNG độ dài tuỳ ý,
+ * sống trong `ui/screens/XirrBody.tsx` và tới `calc` qua `ctx.cashflows`.
+ *
+ * Trước 06/10/2026 nó lách luật bằng một ô nhập giả: thanh trượt "Suất sinh lợi khởi điểm", tức
+ * điểm xuất phát của Newton-Raphson. Đo được là ô ấy không đổi được kết quả ở BẤT KỲ giá trị nào
+ * (`xirr()` có nhánh chia đôi dự phòng quét cả khoảng rộng hơn dải thanh trượt), nên nó là một
+ * điều khiển chết — chủ dự án kéo và hỏi vì sao không có gì đổi. Lý do đầy đủ ở docblock mục 5
+ * trong `src/core/formulas/returns.ts`.
+ *
+ * Danh sách viết tay chứ không suy ra từ cấu trúc: thêm một id vào đây là nhận rằng màn của công
+ * thức ấy tự lo việc nạp số, và đó là một quyết định về giao diện chứ không phải về dữ liệu.
+ */
+const NHAP_NGOAI_BANG_BIEN: ReadonlySet<string> = new Set(['xirr']);
+
 function isBlank(text: string | undefined): boolean {
   return text === undefined || text.trim() === '';
 }
@@ -203,7 +222,7 @@ export function validateFormula(
   }
 
   // Biến
-  if (formula.variables.length === 0) {
+  if (formula.variables.length === 0 && !NHAP_NGOAI_BANG_BIEN.has(formula.id)) {
     issues.push(err(`${path}.variables`, 'Công thức không có biến đầu vào nào.'));
   }
   const seenKeys = new Set<string>();

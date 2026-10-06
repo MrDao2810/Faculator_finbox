@@ -361,6 +361,10 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       },
     ],
     chartType: 'stackedBar',
+    derivedSubstitution: {
+      pvTerminal:
+        '{dividend} × (1 + {growthStage1} ÷ 100)^{years} × (1 + {growthTerminal} ÷ 100) ÷ (({requiredReturn} ÷ 100 − {growthTerminal} ÷ 100) × (1 + {requiredReturn} ÷ 100)^{years})',
+    },
     breakdown: [
       {
         key: 'pvStage1',
@@ -827,6 +831,10 @@ export const WACC: FormulaModule = {
     ],
     chartType: 'stackedBar',
     /* Đúng hai vế của chính công thức, nên cộng lại ra đúng WACC — không cần xử lý gì thêm. */
+    derivedSubstitution: {
+      equityPart: '{equity} ÷ ({equity} + {debt}) × {costEquity}',
+      debtPart: '{debt} ÷ ({equity} + {debt}) × {costDebt} × (1 − {taxRate} ÷ 100)',
+    },
     breakdown: [
       { key: 'equityPart', sign: 1, shortLabel: { vi: 'Phần vốn chủ', en: 'Equity portion' } },
       { key: 'debtPart', sign: 1, shortLabel: { vi: 'Phần nợ vay', en: 'Debt portion' } },
@@ -1072,6 +1080,9 @@ export const FCFF: FormulaModule = {
      * phóng tiền) thì dấu `-1` biến nó thành cột cộng — đúng về toán và đúng về nghĩa, tiền quay
      * về doanh nghiệp thật.
      */
+    derivedSubstitution: {
+      ebitAfterTax: '{ebit} × (1 − {taxRate} ÷ 100)',
+    },
     breakdown: [
       { key: 'ebitAfterTax', sign: 1, shortLabel: { vi: 'EBIT sau thuế', en: 'After-tax EBIT' } },
       { key: 'depreciation', sign: 1, shortLabel: { vi: 'Khấu hao', en: 'Depreciation' } },
@@ -1330,6 +1341,9 @@ export const FCFE: FormulaModule = {
      * án báo hình bóc tách hiện một chặng mà khối Công thức và khối Số liệu không nhắc tới ở đâu
      * cả, chỉ có "(1 − Thuế suất)" ẩn trong công thức chứ không đặt tên cho chặng.
      */
+    derivedSubstitution: {
+      interestAfterTax: '{interest} × (1 − {taxRate} ÷ 100)',
+    },
     breakdown: [
       { key: 'fcff', sign: 1, shortLabel: { vi: 'FCFF', en: 'FCFF' } },
       {
@@ -1830,7 +1844,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
       vi: 'Giá trị hiện tại = Số tiền tương lai ÷ (1 + Tỷ lệ chiết khấu)^Số năm',
       en: 'Present value = Future amount ÷ (1 + Discount rate)^Years',
     },
-    substitution: '{futureValue} ÷ (1 + {rate} ÷ 100) ^ {years}',
+    substitutionDerived: { r: '{rate} ÷ 100' },
+    substitution: '{futureValue} ÷ (1 + {r})^{years}',
     symbols: [
       {
         latex: 'PV',
@@ -2013,7 +2028,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       vi: 'Giá trị tương lai = Số tiền hiện tại × (1 + Tỷ suất sinh lợi)^Số năm',
       en: 'Future value = Present amount × (1 + Rate of return)^Years',
     },
-    substitution: '{presentValue} × (1 + {rate} ÷ 100) ^ {years}',
+    substitutionDerived: { r: '{rate} ÷ 100' },
+    substitution: '{presentValue} × (1 + {r})^{years}',
     symbols: [
       {
         latex: 'FV',

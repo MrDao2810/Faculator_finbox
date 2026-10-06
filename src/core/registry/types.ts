@@ -345,6 +345,78 @@ export interface FormulaSpec extends FormulaSummary {
    */
   substitution?: string;
   /**
+   * Ký hiệu của hình công thức mà NGƯỜI DÙNG KHÔNG GÕ — mẫu tính ra chúng từ các ô nhập.
+   *
+   * Chốt ngày 05/10/2026, sau khi chủ dự án chụp màn `tra-gop-nien-kim` và nói dòng thay số
+   * *"đang hiển thị quá loạn khiến tôi là người code cũng khó hiểu"*, rồi ra luật:
+   * *"bên trên công thức đang biểu thị như nào thì ở chỗ này cũng cần hiển thị như vậy và chỉ là
+   * thay số liệu vào thôi"*.
+   *
+   * Trước đó mẫu tự KHAI TRIỂN những ký hiệu ấy, nên dòng in ra không còn hình dạng của hình vẽ:
+   *
+   * ```text
+   * hình : EMI = P·i(1+i)ⁿ ÷ ((1+i)ⁿ − 1)
+   * mẫu cũ: {amount} × {rate} ÷ 100 ÷ 12 × (1 + {rate} ÷ 100 ÷ 12)^({years} × 12) ÷ (…)
+   * ```
+   *
+   * `i` xuất hiện ba lần, mỗi lần là một cụm ba phép tính; `n` thành `20 × 12`. Đọc ra thì không
+   * còn nhận ra hình nào nữa. Nay:
+   *
+   * ```ts
+   * substitutionDerived: { i: '{rate} ÷ 100 ÷ 12', n: '{years} × 12' },
+   * substitution: '{amount} × {i} × (1 + {i})^{n} ÷ ((1 + {i})^{n} − 1)',
+   * ```
+   *
+   * Luật của trường này:
+   *
+   *   · KHOÁ là ký hiệu trong `latex`, viết thường không dấu (`i`, `n`, `g`). Nó không được trùng
+   *     khoá của một biến trong `variables` — trùng thì giá trị tính ra sẽ đè lên ô nhập.
+   *   · GIÁ TRỊ là một biểu thức cùng cú pháp `substitution`, nhắc tới ô nhập và các khoá khai
+   *     TRƯỚC nó. Thứ tự khai là thứ tự tính.
+   *   · Cùng cấm chép hằng số từ `usesConstants` như `substitution`, và cùng một lý do.
+   *
+   * 21 trên 48 mẫu cần trường này; 27 mẫu còn lại vốn đã thay thẳng ký hiệu (`{price} ÷ {eps}`).
+   *
+   * Cửa gác: `formulas.test.ts` tính lại cả dòng rồi đối chiếu `calc`, nên một mẫu dẫn xuất sai sẽ
+   * làm lệch kết quả và đỏ ngay — không có đường nào để nó sai mà vẫn xanh.
+   */
+  substitutionDerived?: Readonly<Record<string, string>>;
+  /**
+   * Công thức tính của từng đại lượng mà khối "Từ các ô trên, công thức tính ra" bày ra.
+   *
+   * Chốt ngày 05/10/2026. Chủ dự án nhìn khối ấy trên `tra-gop-nien-kim` và hỏi bốn câu:
+   * *"Gốc kỳ đầu là gì? tại sao lại có gốc kỳ đầu? Lãi kỳ đầu là gì và tại sao lại có ở đây? nếu
+   * được tính ra thì công thức để tính đâu? tại sao chưa cho vào."*
+   *
+   * Khối ấy (`DerivedNote`) bày NHÃN và TRỊ SỐ, không gì khác. Nó sinh ra ngày 16/09/2026 để bịt
+   * đúng lỗ hổng này cho `fcfe` — một cột biểu đồ tên "Lãi vay sau thuế" cao 48 tỷ mà con số 48
+   * không có ở đâu khác trên trang. Nhưng nó mới nói ĐẠI LƯỢNG ẤY TỒN TẠI, chưa nói nó tính ra sao,
+   * nên lỗ hổng chỉ lùi xuống một tầng. Trường này đóng nốt tầng ấy.
+   *
+   * Khoá là khoá của chặng `breakdown` (tức khoá trong `extras`). Mẫu cùng cú pháp `substitution`,
+   * và nhắc tới được:
+   *
+   *   · ô nhập trong `variables`;
+   *   · ký hiệu khai ở `substitutionDerived`;
+   *   · một khoá `extras` KHÁC — `calc` đã tính sẵn nên không phải sắp thứ tự;
+   *   · `{__ketQua}` — chính con số khối Kết quả đang in. Khoản gốc kỳ đầu của một khoản vay niên
+   *     kim đúng là "khoản trả hằng tháng trừ đi lãi kỳ đầu", và viết thế mới đọc ra được.
+   *
+   * 12 trên 15 đại lượng có mẫu. BA chỗ cố ý để trống, mỗi chỗ một lý do, ghi ra để khỏi ai tưởng
+   * là bỏ sót:
+   *
+   *   · `thue-tncn-dau-tu.transferTax` và `.dividendTax` — đọc thuế suất từ `usesConstants`. Cùng
+   *     lệnh cấm đã áp cho `substitution`: chép trị số hằng vào mẫu thì người đổi biểu phí ở màn
+   *     Cài đặt sẽ thấy mẫu nói một đằng, con số bên cạnh nói một nẻo.
+   *   · `ddm-hai-giai-doan.pvStage1` — một tổng Σ qua n kỳ do người dùng đặt, nên số hạng không cố
+   *     định. Cùng ca với những công thức cố ý không có `substitution`.
+   *
+   * Cửa gác: `formulas.test.ts` tính lại từng mẫu rồi đối chiếu với chính `extras` mà `calc` trả
+   * về. Một mẫu sai thì đỏ — không có đường nào để nó in ra một phép tính không dẫn tới con số
+   * đứng ngay cạnh nó.
+   */
+  derivedSubstitution?: Readonly<Record<string, string>>;
+  /**
    * Bảng ký hiệu của hình công thức — mỗi chữ trong `latex` là gì, theo kiểu "L: chuỗi giảm dài
    * nhất · k: số phiên giảm liên tiếp · r_t: lợi suất phiên t". Màn chi tiết bày nó BÊN PHẢI hình
    * công thức (dưới hình ở khổ hẹp), chủ dự án chốt bố cục ngày 16/09/2026 sau khi chỉ vào hình

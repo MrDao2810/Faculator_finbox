@@ -212,8 +212,21 @@ function usedNames(css: string): Set<string> {
  *
  * `--ky-tu` là số ký tự của con số trong `StatTile`, để CSS co cỡ chữ cho vừa thẻ. Mỗi thẻ một giá
  * trị, đếm trên chuỗi lúc dựng.
+ *
+ * `--ct-co-chu` khác ba cái trên: nó không do JS đặt mà do CHỖ GỌI đặt trong CSS của chính nó
+ * (05/10/2026). Bộ vẽ công thức dùng ở ba nơi với ba cỡ khác nhau — bài tập và khối Ví dụ lấy mặc
+ * định 20px vì ở đó hình là nhân vật chính, còn khối "Từ các ô trên, công thức tính ra" hạ xuống
+ * 16px vì nhãn của nó chỉ 12px. Nó không phải một token bảng màu: không màn nào khác dùng tới, và
+ * khai nó ở `:root` sẽ mời người ta đặt lại cỡ chữ của bộ vẽ từ xa.
  */
-const LOCAL_VARIABLES = new Set(['--fill', '--weight', '--cao', '--rong', '--ky-tu']);
+const LOCAL_VARIABLES = new Set([
+  '--fill',
+  '--weight',
+  '--cao',
+  '--rong',
+  '--ky-tu',
+  '--ct-co-chu',
+]);
 
 /**
  * Gọi `var()` tới một biến chưa ai khai thì CSS lặng thinh: thuộc tính coi như không hợp lệ, và

@@ -11,7 +11,7 @@
  * ghim danh sách chỉ chạy khi không lọc.
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
@@ -437,5 +437,127 @@ describe('khung cách tính — các bước', () => {
       }
     }
     expect(sai, sai.join('\n')).toEqual([]);
+  });
+});
+
+/*
+ * ── Dẫn chứng cho công thức của ĐẠI LƯỢNG DẪN XUẤT (05/10/2026) ──────────────────────────────
+ *
+ * Khối này sống ở đây, không ở `formulas.test.ts`, vì nó cần `maCuaCongThuc()` — bộ đọc mã `calc`
+ * ngay trên. Chép bộ đọc ấy sang file khác là dựng sẵn một chỗ để hai bản trôi khỏi nhau.
+ *
+ * Vì sao có: chủ dự án nhìn dòng `Gốc kỳ đầu = 7.457.049,5027 − 6.333.333,3333` ở khối "Từ các ô
+ * trên, công thức tính ra" và hỏi *"tại sao lại sử dụng công thức trừ như kia? nguồn để tạo ra
+ * công thức đó là gì? dẫn chứng đâu?"*.
+ *
+ * Màn đã trả lời nửa đầu bằng một dòng TÊN đặt trên dòng số ("Trả hằng tháng − Lãi kỳ đầu"). Nửa
+ * sau — dẫn chứng — là việc của cửa gác này, và nó dùng đúng cơ chế `calcEvidence` mà 112 khung
+ * "cách tính" đang dùng: mẩu mã khai ở đây PHẢI có thật trong khối `calc` của chính công thức ấy.
+ * Nhờ vậy công thức in ra màn không phải lời của người viết tài liệu, mà là mã đang chạy.
+ *
+ * Bảng khai ở TEST chứ không ở `spec`: nó chỉ phục vụ phép đối chiếu này, mà mọi byte trong `spec`
+ * đi vào gói JS của cả 111 trang chi tiết.
+ */
+const DAN_CHUNG_DAN_XUAT: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  'ncav-tren-co-phieu': {
+    assetsPerShare: "(v('currentAssets') / shares) * 1_000",
+    liabilitiesPerShare: "(v('totalLiabilities') / shares) * 1_000",
+  },
+  'ddm-hai-giai-doan': {
+    pvTerminal: 'const pvTerminal = terminal / Math.pow(1 + i, n)',
+  },
+  wacc: {
+    equityPart: "const equityPart = (equity / total) * v('costEquity')",
+    debtPart: "const debtPart = (debt / total) * v('costDebt') * (1 - v('taxRate') / 100)",
+  },
+  fcff: { ebitAfterTax: "const ebitAfterTax = ebit * (1 - v('taxRate') / 100)" },
+  fcfe: { interestAfterTax: "const interestAfterTax = interest * (1 - v('taxRate') / 100)" },
+  'tra-gop-nien-kim': {
+    firstInterest: "const firstInterest = amount * monthlyRate(v('rate'))",
+    firstPrincipal: 'firstPrincipal: payment - firstInterest',
+  },
+  'tra-gop-goc-deu': {
+    firstPrincipal: 'const firstPrincipal = amount / n',
+    firstInterest: "const firstInterest = amount * monthlyRate(v('rate'))",
+  },
+  'lich-tra-no': { totalPaid: "const totalPaid = v('amount') + totalInterest" },
+};
+
+describe('công thức của đại lượng dẫn xuất chỉ ra được mẩu mã calc sinh ra nó', () => {
+  /** Mã `calc` của một công thức, dò qua mọi file nhóm — không cần biết nó nằm file nào. */
+  function maCua(id: string): string | undefined {
+    for (const file of readdirSync(FORMULAS_DIR)) {
+      if (!file.endsWith('.ts') || file.endsWith('.test.ts') || file.endsWith('.generated.ts'))
+        continue;
+      const ma = maCuaCongThuc(file, id);
+      if (ma !== undefined) return ma;
+    }
+    return undefined;
+  }
+
+  /*
+   * Mọi mẫu đều phải có dẫn chứng, không có đường nào khai mẫu mà bỏ qua bước này — đây là thứ
+   * nói cho người thêm mẫu thứ 13 biết họ còn nợ một việc.
+   */
+  it('mọi mẫu `derivedSubstitution` đều khai dẫn chứng, không thừa không thiếu', () => {
+    const coMau: string[] = [];
+    for (const spec of ALL_FORMULAS) {
+      for (const khoa of Object.keys(spec.derivedSubstitution ?? {}))
+        coMau.push(`${spec.id}.${khoa}`);
+    }
+    const coDanChung = Object.entries(DAN_CHUNG_DAN_XUAT).flatMap(([id, ban]) =>
+      Object.keys(ban).map((khoa) => `${id}.${khoa}`),
+    );
+    expect(coDanChung.sort()).toEqual(coMau.sort());
+  });
+
+  it('mẩu mã khai ra có thật trong khối calc của chính công thức ấy', () => {
+    const sai: string[] = [];
+    for (const [id, ban] of Object.entries(DAN_CHUNG_DAN_XUAT)) {
+      const ma = maCua(id);
+      if (ma === undefined) {
+        sai.push(`${id}: không đọc được mã calc`);
+        continue;
+      }
+      for (const [khoa, manh] of Object.entries(ban)) {
+        if (!ma.includes(gonKhoangTrang(manh)))
+          sai.push(`${id}.${khoa}: mã calc không có "${manh}"`);
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  /*
+   * Ký hiệu nào xuất hiện trong một mẫu `derivedSubstitution` thì phải khai `phrases`, vì hàng dẫn
+   * xuất gọi tên nó bằng ĐÚNG cụm chữ của dòng biểu thức dưới hình.
+   *
+   * Lỗi thật, chủ dự án chụp màn ngày 05/10/2026 trên `tra-gop-nien-kim`: hình và dòng chữ gọi `i`
+   * là "Lãi suất kỳ", hàng dẫn xuất ngay dưới ghi "lãi suất một kỳ tháng" — *"đây là lãi suất kỳ
+   * mà. tại sao bên dưới lại ghi là lãi suất kỳ tháng?"*. Nguyên do: không khai `phrases` thì
+   * `nhanCuaKhoa` rơi xuống lưới an toàn, cắt mệnh đề đầu trong NGHĨA ở bảng ký hiệu. Mà nghĩa cố ý
+   * dài hơn tên — 85 trên 101 dòng toàn thư viện có cụm chữ khác nghĩa, và đó là thiết kế — nên
+   * mệnh đề đầu không bao giờ hứa sẽ trùng tên.
+   *
+   * Ca này chặn đúng điều kiện ấy chứ không so hai chuỗi: so chuỗi là ép bảng ký hiệu phải mở đầu
+   * bằng tên, tức lấy mất chỗ viết định nghĩa. Có `phrases` là đủ, vì `segmentExpressionLines` đã
+   * ném lỗi lúc build nếu cụm ấy không có thật trong dòng chữ.
+   */
+  it('ký hiệu dùng trong mẫu dẫn xuất đều khai cụm chữ của dòng biểu thức', () => {
+    const thieu: string[] = [];
+    for (const spec of ALL_FORMULAS) {
+      const kyHieu = new Set((spec.symbols ?? []).map((s) => s.latex));
+      const coCum = new Set(
+        (HOW_TO[spec.id]?.entries ?? [])
+          .filter((e) => e.phrases?.vi !== undefined && e.phrases.en !== undefined)
+          .map((e) => e.symbol),
+      );
+      for (const mau of Object.values(spec.derivedSubstitution ?? {})) {
+        for (const [, khoa] of mau.matchAll(/\{([A-Za-z0-9_]+)\}/g)) {
+          if (khoa !== undefined && kyHieu.has(khoa) && !coCum.has(khoa))
+            thieu.push(`${spec.id} · ${khoa}`);
+        }
+      }
+    }
+    expect([...new Set(thieu)], `thiếu phrases:\n${thieu.join('\n')}`).toEqual([]);
   });
 });

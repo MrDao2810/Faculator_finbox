@@ -635,8 +635,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         en: "Use it when you hold a stock that has been moving for a while and want to know whether the price's push over the last couple of weeks is still upward or has turned downward against its longer-run level.",
       },
       howToRead: {
-        vi: 'So với 0: dương nghĩa là mặt bằng giá mấy phiên gần đây đang cao hơn mặt bằng của một quãng dài hơn, tức đà đang kéo giá lên, âm là đang thấp hơn, tức đà đang kéo giá xuống.',
-        en: "Compared with 0: positive means the recent price level is above the stock's own longer-run level, so the price is being pulled up, and negative means it is below that level, so the price is being pulled down.",
+        vi: 'So với mốc 0: dương nghĩa là mặt bằng giá mấy phiên gần đây đang cao hơn mặt bằng của một quãng dài hơn, tức đà đang kéo giá lên, âm là đang thấp hơn, tức đà đang kéo giá xuống.',
+        en: "Compared with the 0 mark: positive means the recent price level is above the stock's own longer-run level, so the price is being pulled up, and negative means it is below that level, so the price is being pulled down.",
       },
       commonMistakes: {
         vi: 'So MACD của cổ phiếu 25.000 ₫ với cổ phiếu 200.000 ₫ rồi kết luận mã nào mạnh hơn — đơn vị là đồng nên độ lớn phụ thuộc thị giá.',
@@ -1301,8 +1301,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
         en: 'Use it when you follow one familiar stock closely and want to know how many dong a share has gained or lost compared with a few weeks ago, counted in money rather than as a percentage.',
       },
       howToRead: {
-        vi: 'So với 0: dương nghĩa là giá mỗi cổ phiếu lúc này cao hơn giá đóng cửa của n phiên trước đúng bấy nhiêu đồng, âm là đang thấp hơn bấy nhiêu đồng, còn đúng 0 là giá đứng yên ở chỗ cũ.',
-        en: 'Compared with 0: positive means each share now trades that many dong above its closing price n sessions ago, negative means that many dong below it, and exactly 0 means the price is right where it was.',
+        vi: 'So với mốc 0: dương nghĩa là giá mỗi cổ phiếu lúc này cao hơn giá đóng cửa của n phiên trước đúng bấy nhiêu đồng, âm là đang thấp hơn bấy nhiêu đồng, còn đúng 0 là giá đứng yên ở chỗ cũ.',
+        en: 'Compared with the 0 mark: positive means each share now trades that many dong above its closing price n sessions ago, negative means that many dong below it, and exactly 0 means the price is right where it was.',
       },
       commonMistakes: {
         vi: 'Đem động lượng của hai mã khác thị giá ra so: 1.000 ₫ trên cổ phiếu 25.000 ₫ mạnh hơn hẳn 1.000 ₫ trên cổ phiếu 200.000 ₫. Muốn so ngang thì dùng ROC.',

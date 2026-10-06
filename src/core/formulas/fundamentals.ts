@@ -1091,8 +1091,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         en: 'Use it when you read that a company has a large debt coming due and want to know whether its cash, the money customers still owe it and the goods in its warehouse can cover the debts falling due within the year.',
       },
       howToRead: {
-        vi: 'So với 1: trên 1 nghĩa là tài sản ngắn hạn đủ trả hết nợ đến hạn trong năm và còn dư, dưới 1 là chưa đủ, công ty phải trông vào tiền làm ra sau này hoặc vay thêm mới trả kịp.',
-        en: 'Compared with 1: above 1 means current assets are enough to pay off all the debts falling due within the year with some to spare, below 1 means they fall short, so the company must count on cash it has yet to earn or on new borrowing to pay on time.',
+        vi: 'So với mốc 1: trên 1 nghĩa là tài sản ngắn hạn đủ trả hết nợ đến hạn trong năm và còn dư, dưới 1 là chưa đủ, công ty phải trông vào tiền làm ra sau này hoặc vay thêm mới trả kịp.',
+        en: 'Compared with the 1 mark: above 1 means current assets are enough to pay off all the debts falling due within the year with some to spare, below 1 means they fall short, so the company must count on cash it has yet to earn or on new borrowing to pay on time.',
       },
       commonMistakes: {
         vi: 'Yên tâm với hệ số cao mà không nhìn cơ cấu: tài sản ngắn hạn toàn hàng tồn kho khó bán thì hệ số cao cũng không cứu được.',
@@ -1213,8 +1213,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         en: 'Use it when you are looking at a property, steel or retail company sitting on a lot of unsold goods and want to know whether it could still meet its debts coming due if those goods do not sell.',
       },
       howToRead: {
-        vi: 'So với 1: trên 1 nghĩa là chưa cần bán món hàng nào trong kho, phần tài sản ngắn hạn còn lại vẫn đủ trả hết nợ đến hạn trong năm, dưới 1 là việc trả nợ đúng hạn phụ thuộc vào chuyện bán được hàng trong kho.',
-        en: 'Compared with 1: above 1 means that without selling anything from inventory, the rest of the current assets can still pay off all the debts falling due within the year, and below 1 means paying on time depends on selling the goods in inventory.',
+        vi: 'So với mốc 1: trên 1 nghĩa là chưa cần bán món hàng nào trong kho, phần tài sản ngắn hạn còn lại vẫn đủ trả hết nợ đến hạn trong năm, dưới 1 là việc trả nợ đúng hạn phụ thuộc vào chuyện bán được hàng trong kho.',
+        en: 'Compared with the 1 mark: above 1 means that without selling anything from inventory, the rest of the current assets can still pay off all the debts falling due within the year, and below 1 means paying on time depends on selling the goods in inventory.',
       },
       commonMistakes: {
         vi: 'Quên rằng khoản phải thu trong tử số cũng có thể khó đòi — hệ số nhanh cao chưa chắc tiền đã về kịp.',
@@ -1481,8 +1481,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         en: 'Use it when you hold a stock for its cash dividend and want to know how big a slice of the per-share profit that dividend takes, especially right after the company reports lower profit.',
       },
       howToRead: {
-        vi: 'So với 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra, phải lấy thêm từ tiền tích luỹ. Kết quả 0 chưa chắc là công ty không chia gì, vì cổ tức bằng cổ phiếu không tính ở đây.',
-        en: 'Compared with 100%: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned and must dip into accumulated cash. A result of 0 does not necessarily mean the company paid nothing, because stock dividends are not counted here.',
+        vi: 'So với mốc 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra, phải lấy thêm từ tiền tích luỹ. Kết quả 0 chưa chắc là công ty không chia gì, vì cổ tức bằng cổ phiếu không tính ở đây.',
+        en: 'Compared with the 100% mark: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned and must dip into accumulated cash. A result of 0 does not necessarily mean the company paid nothing, because stock dividends are not counted here.',
       },
       commonMistakes: {
         vi: 'Chỉ nhìn tỷ suất cổ tức cao mà không xem hệ số chi trả — cổ tức cao nhờ trả vượt khả năng lợi nhuận là cổ tức sắp bị cắt.',

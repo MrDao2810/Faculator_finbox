@@ -272,11 +272,16 @@ describe('chữ riêng của công thức đi vào bài, đủ và đúng ô', (
     }
   });
 
-  /* 12/269 ô chỉ hiện ở chế độ Nâng cao — con số này ghim để dấu trong bài không lặng lẽ lệch. */
-  it('đúng 12 ô mang cờ Nâng cao', () => {
+  /*
+   * 11/268 ô chỉ hiện ở chế độ Nâng cao — con số này ghim để dấu trong bài không lặng lẽ lệch.
+   *
+   * Từ 12 xuống 11 ngày 06/10/2026: bỏ ô `guess` của `xirr`, một thanh trượt mức Nâng cao không
+   * đổi được kết quả ở bất kỳ giá trị nào.
+   */
+  it('đúng 11 ô mang cờ Nâng cao', () => {
     const nangCao = BAI.flatMap((bai) =>
       (bai.rieng?.oNhap ?? []).filter((o) => o.nangCao).map((o) => `${bai.id}.${o.key}`),
     );
-    expect(nangCao).toHaveLength(12);
+    expect(nangCao).toHaveLength(11);
   });
 });

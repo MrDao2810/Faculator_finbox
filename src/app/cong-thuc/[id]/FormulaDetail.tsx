@@ -2189,13 +2189,23 @@ export function FormulaDetail({
    * chứ không phải `shown`: công thức chỉ có ô Nâng cao thì ở chế độ Cơ bản `shown` rỗng nhưng
    * khối vẫn phải hiện dòng "N ô ẩn ở chế độ Cơ bản".
    */
+  /*
+   * Các đại lượng công thức TỰ TÍNH RA, tra một lần rồi dùng ở ba chỗ: điều kiện "khối Số liệu
+   * rỗng" ngay dưới, chỗ dựng khối trong khuôn gộp, và chính khối ấy. Trước 06/10/2026 nó được gọi
+   * hai lần với cùng bộ tham số — thứ chỉ không sai vì hàm thuần.
+   */
+  const changDanXuat = useMemo(
+    () => derivedStages(spec, effectiveInputs, output),
+    [spec, effectiveInputs, output],
+  );
+
   const khoiSoLieuTrong =
     spec.variables.length === 0 &&
     !merged &&
     !wantsSeries &&
     !hasConfigBlock(spec.id) &&
     constantsUsedBy(spec, ctx).length === 0 &&
-    derivedStages(spec, effectiveInputs, output).length === 0;
+    changDanXuat.length === 0;
 
   /*
    * Dòng `92.000 ÷ 6.050 = 15,21` dưới đáy thẻ gộp — VẼ THÀNH HÌNH từ 05/10/2026.
@@ -2281,6 +2291,39 @@ export function FormulaDetail({
     locale,
     tenKyHieu,
   ]);
+
+  /*
+   * Khối "Từ các ô trên, công thức tính ra" — cũng dựng MỘT lần cho hai chỗ đặt, cùng lý do như
+   * khối Kết quả ngay dưới.
+   *
+   * Ở khuôn gộp nó không nằm trong cột Số liệu nữa (06/10/2026). Chủ dự án chụp màn
+   * `rut-truoc-han` và chỉ đúng chỗ: *"không gian bên trái đang thừa thãi rất nhiều … có thể căn
+   * chỉnh hoặc giàn số liệu ngang hàng sang 2 bên"*. Khối Kết quả bên trái chỉ cao ~100px, còn
+   * khối này đứng trong cột phải và đẩy thẻ cao thêm ~260px, nên nửa trái của dải ấy trống trơn —
+   * đúng cảnh `ConstantsNote` đã gặp ngày 02/10/2026, chỉ khác chỗ không chữa được bằng hai cột:
+   * mỗi hàng ở đây mang một HÌNH công thức rộng ~450px, mà cột phải chỉ 780px.
+   *
+   * Nên nó trải hết bề ngang thẻ, thành một hàng lưới riêng dưới cả hai nửa — đúng chỗ dòng thay
+   * số đã đứng, và đúng mạch: các ô ở trên → đại lượng tính ra → phép thay số → con số bên trái.
+   * `compact` là vế thứ hai, và cần cả hai: nó chia bề ngang mới cho HAI chặng đứng cạnh nhau. Chỉ
+   * trải rộng mà không chia thì chỗ trống đổi chỗ chứ không mất, và đó đúng là bản đầu tiên bị trả
+   * lại — *"căn chỉnh như này thì lại có thừa khoảng trống"*.
+   *
+   * Đọc `effectiveInputs`/`output` chứ không phải `inputs`: ô móc nối (chuỗi định giá) nhận số từ
+   * công thức trên, và chặng tính ra phải nói theo đúng bộ số đang cho ra kết quả đang hiện.
+   *
+   * `null` khi công thức không khai `breakdown` hoặc mọi chặng đều là ô nhập — 102 trong 111 trang
+   * không thêm một nút DOM nào, kể cả bọc `.derivedRow`.
+   */
+  const khoiDanXuat =
+    changDanXuat.length === 0 ? null : (
+      <DerivedNote
+        stages={changDanXuat}
+        unit={spec.resultUnit}
+        compact={merged}
+        {...(congThucDanXuat === undefined ? {} : { congThuc: congThucDanXuat })}
+      />
+    );
 
   /*
    * Khối Kết quả dựng một lần rồi đặt vào một trong hai chỗ — xem `merged` ngay trên. Dựng tại chỗ
@@ -3074,22 +3117,24 @@ export function FormulaDetail({
               {/*
           Đại lượng công thức TỰ TÍNH RA — đứng cạnh `ConstantsNote` vì cùng một vai: thứ quyết
           định con số ở khối Kết quả mà người dùng không gõ được, nên phải đọc được TRƯỚC khi tới
-          Kết quả. Lý do đầy đủ ở docblock `DerivedNote.tsx`.
+          Kết quả. Lý do đầy đủ ở docblock `DerivedNote.tsx`; chỗ dựng ở docblock `khoiDanXuat`.
 
-          Đọc `effectiveInputs`/`output` chứ không phải `inputs`: ô móc nối (chuỗi định giá) nhận
-          số từ công thức trên, và chặng tính ra phải nói theo đúng bộ số đang cho ra kết quả đang
-          hiện. Cùng cặp mà khối Kết quả đang dùng, nên hai chỗ không thể lệch nhau.
-
-          Tự trả về null khi công thức không khai `breakdown` hoặc mọi chặng đều là ô nhập — 102
-          trong 111 trang không thêm một nút DOM nào.
+          CHỈ ở khuôn một cột. Khuôn gộp đặt nó thành hàng lưới riêng ngay dưới đây, vì ở đó cột
+          phải chỉ rộng 780px và nửa trái của dải bỏ trống — xem `khoiDanXuat`.
         */}
-              <DerivedNote
-                stages={derivedStages(spec, effectiveInputs, output)}
-                unit={spec.resultUnit}
-                {...(congThucDanXuat === undefined ? {} : { congThuc: congThucDanXuat })}
-              />
+              {!merged && khoiDanXuat}
             </section>
           )}
+
+          {/*
+            Khuôn gộp: khối "Từ các ô trên, công thức tính ra" trải hết bề ngang thẻ.
+
+            Bọc một `<div>` chứ không gắn thẳng lớp lên khối: lớp này nói về CHỖ ĐỨNG trong thẻ gộp
+            (ô lưới nào, khe trên bao nhiêu), còn hình dạng bên trong khối là việc của chính nó —
+            hai mô-đun CSS khác nhau, và FormulaDetail không với tới được tên lớp đã băm của
+            `DerivedNote.module.css`.
+          */}
+          {merged && khoiDanXuat !== null && <div className={styles.derivedRow}>{khoiDanXuat}</div>}
 
           {/*
             Hai phần cuối của thẻ gộp, chỉ dựng cho công thức dùng khuôn mới: khối Kết quả (đã rời

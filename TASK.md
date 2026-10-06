@@ -4,6 +4,195 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Khối "Từ các ô trên" lấp nốt nửa trái thẻ gộp — ba vòng (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh.** **Chưa soi được bằng Chrome** — chủ dự án đang chạy dev
+server cổng 3000 của mình và tự xem từng vòng; mình không khởi máy chủ nào. Vẫn nợ `build` +
+`verify:static` + `size` + `check:chrome` như đợt ngay dưới.
+
+### Chủ dự án giao gì — và trả lại hai lần
+
+> (1) "nhìn vào 2 ô khoanh đỏ … cần căn chỉnh lại khi không gian bên trái đang thừa thãi rất nhiều.
+> có thể căn chỉnh hoặc giàn số liệu ngang hàng sang 2 bên"
+>
+> (2) "căn chỉnh như này thì lại có thừa khoảng trống như khoanh đỏ đây? sửa tiếp"
+>
+> (3) "để đáp án trơ trọi 1 mình thì không hợp lý, đổi xuống vị trí xuống chỗ tôi vẽ mũi tên"
+
+Triệu chứng gốc là hệ quả trực tiếp của đợt ngay dưới: `rut-truoc-han` vừa có khối "Từ các ô trên,
+công thức tính ra", khối ấy nằm trong cột Số liệu (cột phải) và kéo thẻ gộp cao thêm ~260px, trong
+khi khối Kết quả ở cột trái chỉ cao ~100px. Nửa trái của dải ấy là một ô trống 480 × 260.
+
+### Ba vòng, và vì sao hai vòng đầu chưa đủ
+
+| Vòng | Làm gì                                                                                                               | Vì sao chưa đủ                                                                                                              |
+| ---- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Đưa khối ra thành **hàng lưới riêng trải hết bề ngang thẻ**, rồi chia mỗi hàng làm ba cột `tên · công thức · trị số` | Trị số dính mép phải thẻ, nên khe thừa chỉ **đổi chỗ**: từ giữa nhãn và trị số sang giữa công thức và trị số, ~630px ở 1360 |
+| 2    | Bỏ ba cột, chia **hai chặng thành hai cột** (đúng cách `ConstantsNote` đã chữa 02/10/2026)                           | Trị số vẫn giữ chỗ cũ của khuôn một cột, tức đứng một mình ở góc phải ô, cách công thức sinh ra nó một dòng                 |
+| 3    | Trị số xuống **cuối dòng thay số**, sau một dấu "=" `aria-hidden`                                                    | —                                                                                                                           |
+
+**Vế trải rộng và vế chia đôi cần cả hai.** Chia đôi ngay trong cột Số liệu 780px thì mỗi cột còn
+~370px, hẹp hơn chính hình công thức của `rut-truoc-han` (~455px) nên hình nào cũng phải cuộn ngang;
+trải rộng mà không chia thì bề ngang mới chảy hết vào khe. Trải trước rồi chia thì mỗi cột ~615px —
+không hẹp hơn cột Số liệu cũ bao nhiêu, và không hình nào cuộn.
+
+Sau vòng 3 một ô đọc liền một mạch `tên = công thức = con số`, đúng dáng dòng thay số dưới đáy thẻ
+gộp và dòng "Áp vào công thức" của khối Ví dụ.
+
+### Đã đổi file nào
+
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — gom `derivedStages()` vào một `useMemo`
+  (`changDanXuat`; trước đó gọi hai lần cùng tham số), dựng khối **một lần** thành `khoiDanXuat` rồi
+  đặt vào một trong hai chỗ, đúng lối `ketQuaBlock` đã có: trong `<section>` Số liệu ở khuôn một
+  cột, hoặc trong bọc `.derivedRow` đứng ngay sau `<section>` ấy ở khuôn gộp. Truyền `compact={merged}`.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`** — `.derivedRow`: `grid-column: 1 / -1` trong
+  khối 1280, và `margin-top` âm bù `gap` của `.detail` ở khổ hẹp (khối rời khỏi thẻ Số liệu thì nhận
+  khe `--space-5` thay cho `--space-2`, nên trừ lại đúng phần chênh — khổ điện thoại không đổi một
+  pixel). Không khai `grid-row`: hai ô của hàng 1 đã khai tường minh nên khối tự rơi xuống hàng 2,
+  dòng thay số xuống hàng 3.
+- **`src/ui/result/DerivedNote.tsx`** — thêm prop `compact` (cùng tên, cùng lối, cùng lý do với
+  `ConstantsNote.compact`), và một `<span aria-hidden>=</span>` dẫn trị số bên trong `<dd>`.
+- **`src/ui/result/DerivedNote.module.css`** — khối `@media (min-width: 1280px)`: `.compact .list`
+  hai cột, chặng lẻ cuối trải cả hai; `.compact .row` bỏ `space-between`, nhãn chiếm trọn dòng, dòng
+  thay số (`.formula:last-of-type`) thôi chiếm trọn bề ngang để trị số (`order: 1`) đứng cạnh nó.
+  `.valueDau` ẩn mặc định, chỉ hiện ở đây.
+- **`src/app/cong-thuc/[id]/FormulaDetail.test.tsx`** — khối ca kiểm đổi tên (lời khẳng định "hiện ở
+  khối Số liệu" nay chỉ đúng với khuôn một cột, nên tên nói đúng cả hai nửa) và thêm hai ca gác
+  **cả hai chiều**: `rut-truoc-han` phải đứng ngoài `<section>` Số liệu, cùng bọc với khối Kết quả,
+  vẫn trước nó trong DOM, và mang lớp `compact`; `fcfe` phải vẫn nằm trong `<section>` và **không**
+  mang lớp ấy. Trả khối về chỗ cũ là lỗ trống quay lại; đẩy khối ra ở khuôn một cột là 5 công thức
+  kia mất chỗ đứng — không chiều nào tự lộ ra.
+- **`CLAUDE.md`** — ghi cả ba vòng vào đoạn `rut-truoc-han`, kèm luật "cần cả hai vế" và danh sách
+  4 công thức đi nhánh gộp / 5 công thức giữ khuôn một cột.
+
+### Còn lại
+
+- Chưa đo bằng Chrome ở 1440 / 1280 / 360. Luật hình nằm trong `@media`, thứ jsdom không chạy, nên
+  ca kiểm chỉ gác được ĐIỀU KIỆN của luật (cây DOM và tên lớp), không gác được bề ngang thật.
+- `ddm-hai-giai-doan` có một chặng **không có mẫu thay số** (`pvStage1`), nên trong khuôn hai cột
+  trị số của nó rơi xuống dòng riêng ngay dưới nhãn thay vì bám đuôi một dòng công thức. Đúng theo
+  thiết kế, nhưng chưa ai nhìn tận mắt.
+
+---
+
+## Phép quét điều khiển chết đã SAI, và `rut-truoc-han` lọt qua (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.190 ca vitest). **Chưa soi được
+bằng Chrome**: dev server cổng 3000 đã tắt. Vẫn nợ `build` + `verify:static` + `size` + `check:chrome`.
+
+### Chủ dự án giao gì
+
+> "tôi đã yêu cầu ở trên là kiểm tra tất cả công thức ở phần slider rồi cơ mà. tại sao ở công thức
+> này khi kéo thanh slider này mà không có gì thay đổi ????"
+
+### Lỗi nằm ở PHÉP ĐO, không ở chỗ bỏ sót công thức
+
+Lượt quét trước tính **mọi khoá `extras` đổi** là "màn đổi". Sai: `extras` chỉ ra tới màn bằng đúng
+hai đường —
+
+- khoá khai thành chặng trong `spec.breakdown` → `DerivedNote` và cột của hình bóc tách đọc;
+- ba công thức có thân riêng (`CUSTOM_BODIES`) tự bày lấy.
+
+`ResultBlock` chỉ in `value` và đơn vị, không gì khác — điều này `REVIEW-2.md` đã ghi sẵn từ trước.
+Mọi thứ `calc` tính ra ngoài hai đường ấy là **vô hình**, nên đếm chúng là đếm một con số không ai
+nhìn thấy. `rut-truoc-han.contractRate` nuôi đúng hai khoá vô hình, nên nó được phép qua.
+
+**Bài học: phép đo về giao diện phải so thứ MẮT THẤY.** Đã sai hai lần liên tiếp theo cùng một kiểu
+— lần trước là so trị số thô thay vì số đã làm tròn, lần này là đếm cả `extras` không hiện.
+
+### Chữa ngược hẳn với ca `xirr`
+
+Ô "Lãi suất hợp đồng / năm" **không** phải điều khiển chết theo nghĩa của `xirr.guess`. Rút trước
+hạn thì lãi trả theo lãi suất **không kỳ hạn**, nên lãi suất hợp đồng đúng là không nằm trong phép
+tính ra kết quả — nhưng nó quyết định `lostInterest`, tức **số tiền mất vì rút sớm**, thứ `calc` đã
+tính sẵn từ đầu mà không khối nào đọc. Với bộ số chủ dự án đang gõ:
+
+| Lãi suất hợp đồng | Kết quả  | Lãi mất do rút sớm |
+| ----------------- | -------- | ------------------ |
+| 5%                | 80.000 ₫ | 3.253.333,33 ₫     |
+| 9,9%              | 80.000 ₫ | **6.520.000 ₫**    |
+| 15%               | 80.000 ₫ | 9.920.000 ₫        |
+
+Nên chữa bằng cách **bày ra**, không bằng cách bỏ ô. Khai `spec.breakdown` hai chặng
+(`interestAtContractRate` dấu +, `lostInterest` dấu −, cộng đúng về kết quả) là đủ: `derivedStages()`
+đọc thẳng `spec.breakdown` nên khối "Từ các ô trên, công thức tính ra" hiện hai hàng, kèm công thức
+của từng hàng qua `derivedSubstitution`.
+
+**Và hình KHÔNG mọc thêm**: `canDrawBreakdown()` loại hẳn `chartType: 'none'`, nên lý do giữ `none`
+(đường quét là đoạn thẳng qua gốc) vẫn nguyên. Đây là công thức ĐẦU TIÊN khai chặng mà vẫn `none`.
+
+### Đổi file nào
+
+| File                                 | Sửa gì                                                                                                               |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `src/core/formulas/formulas.test.ts` | sửa phép đo của cửa gác: chỉ tính `extras` thật sự hiện; lưới thử dày lên 11 điểm; `soMau` 12 → 14                   |
+| `src/core/formulas/planning.ts`      | `rut-truoc-han` khai `breakdown` + `derivedSubstitution`                                                             |
+| `src/core/chart/chart.test.ts`       | bất biến "chặng cộng đúng về kết quả" đọc `breakdownBars()` thay vì đi qua `buildChartModel`; danh sách ghim 10 → 11 |
+| `src/core/how-to/how-to.test.ts`     | hai dẫn chứng mã `calc` cho hai mẫu mới                                                                              |
+| `CLAUDE.md`                          | ghi lại lỗi phép đo, và sửa hai câu nay đã sai (`contractRate` "nothing reads", "all ten formulas")                  |
+
+### Chỗ dễ làm hỏng
+
+Cửa gác cũ kiểm bất biến **qua hình vẽ** (`buildChartModel` phải trả `waterfall`). Khai chặng cho một
+công thức `chartType: 'none'` làm nó đỏ — không phải vì chặng sai mà vì cửa gác hỏi nhầm chỗ. Bất
+biến thuộc về **chặng**, không thuộc về hình, nên nó đọc `breakdownBars()`. Nới luật ở đây sẽ mất
+luôn phép kiểm cho công thức mới.
+
+---
+
+## Sheet chọn mã: mã chưa có dữ liệu thì khoá nút "Chọn" (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.190 ca vitest). **CHƯA soi
+được bằng Chrome**: dev server cổng 3000 của chủ dự án đã tắt giữa chừng (`ERR_CONNECTION_REFUSED`),
+và tôi không tự bật lại. Vẫn nợ `build` + `verify:static` + `size` + `check:chrome`.
+
+### Chủ dự án giao gì
+
+> "sửa lỗi đang chưa có dữ liệu thì không cho bấm vào button Chọn. sửa lại"
+
+### Đây là ĐẢO một quyết định cũ, và quyết định ấy có lý do viết sẵn
+
+`TickerPickerSheet.tsx` dán nhãn "chưa có dữ liệu" lên mã mà `toFundamentals()` sẽ từ chối, nhưng cố
+ý **không khoá nút**, với lý do ghi ngay tại chỗ: bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo, nên
+một mã bị dán nhãn hôm nay hoàn toàn có thể đã công bố thêm quý và dùng được rồi — _"khoá lại là
+biến một dự đoán thành một lệnh cấm"_. Có cả một ca kiểm khẳng định nút KHÔNG khoá.
+
+Chủ dự án nhìn màn thật và chốt ngược. Lý do đứng về phía chủ dự án: bấm vào rồi mới nhận câu "chưa
+có đủ số liệu cơ bản" ở màn là một chuyến đi uổng, và cái nhãn đứng ngay cạnh nút đã nói đủ vì sao
+nút xám.
+
+### Nhưng khoá THEO ĐỘ CHẮC của chính cái nhãn
+
+Nhãn vốn có hai giọng, và luật khoá đi theo đúng hai giọng ấy:
+
+| Bảng mã                  | Nhãn                                  | Nút      |
+| ------------------------ | ------------------------------------- | -------- |
+| còn tươi (dưới 100 ngày) | "chưa có dữ liệu" — khẳng định        | **khoá** |
+| quá hạn                  | "có thể chưa có dữ liệu" — phỏng đoán | **mở**   |
+
+Một câu nói "có thể" mà đi kèm một nút cấm thì hai thứ nói hai chuyện. Nhánh thứ hai cũng đúng là
+chỗ lý do cũ còn đứng vững, nên nó không mất đi mà thu hẹp lại. Bảng hiện lấy ngày 08/09/2026 nên
+tới ~17/12/2026 mới sang nhánh hai.
+
+### Đổi file nào
+
+| File                                       | Sửa gì                                                                    |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| `src/ui/sheets/TickerPickerSheet.tsx`      | `khoaNutChon()` + `disabled` + `aria-describedby` trỏ vào chính cái nhãn  |
+| `src/ui/sheets/TickerPickerSheet.test.tsx` | ĐẢO ca cũ (giữ nguyên chỗ, đổi lời khẳng định), thêm ca cho nhánh bảng cũ |
+
+Một component, hai lối vào: màn chi tiết công thức (`TickerPickerPanel` chỉ là lớp bọc `next/dynamic`)
+và tab Danh mục. Tab Danh mục **không** truyền `markUnusableAsOf` nên không dán nhãn và cũng không
+khoá — đúng như trước, vì ở đó chỉ cần thị giá, thêm một mã không có báo cáo vào danh mục là hợp lệ.
+
+### Chỗ dễ làm hỏng
+
+Nút `disabled` rơi khỏi thứ tự tab, nên người dùng bàn phím lướt qua mà không biết vì sao. Nhãn
+"chưa có dữ liệu" nay mang `id` theo mã và nút trỏ `aria-describedby` vào đó — một ca kiểm ghim cặp
+ấy, vì nút xám không giải thích gì là một lỗi khác thay cho lỗi vừa sửa.
+
+---
+
 ## Điều khiển chết: bỏ thanh trượt "Suất sinh lợi khởi điểm" của `xirr` (06/10/2026)
 
 **Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.189 ca vitest). Đã soi bằng

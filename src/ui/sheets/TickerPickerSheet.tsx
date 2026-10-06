@@ -123,6 +123,23 @@ export function TickerPickerSheet({
     coverage !== null && !coverage.codes.has(code.toUpperCase());
 
   /**
+   * Khoá nút "Chọn" — chủ dự án chốt ngày 06/10/2026, ĐẢO quyết định cũ của chính chỗ này.
+   *
+   * Trước đó nhãn "chưa có dữ liệu" chỉ là lời báo trước, nút vẫn bấm được, với lý do ghi sẵn:
+   * bảng mã sinh lúc build nên một mã bị dán nhãn hôm nay có thể đã công bố thêm quý và dùng được
+   * rồi, khoá lại là biến một dự đoán thành một lệnh cấm. Chủ dự án nhìn màn thật và chốt ngược:
+   * *"đang chưa có dữ liệu thì không cho bấm vào button Chọn"*. Bấm vào một mã rồi nhận câu
+   * "chưa có đủ số liệu cơ bản" ở màn là một chuyến đi uổng, và nhãn đứng ngay cạnh nút đã nói
+   * đủ vì sao nút xám.
+   *
+   * Nhưng khoá THEO ĐỘ CHẮC của chính cái nhãn, không khoá bừa: bảng còn tươi thì nhãn khẳng định
+   * ("chưa có dữ liệu") và nút khoá; bảng quá một kỳ báo cáo thì nhãn đã tự hạ giọng ("có thể chưa
+   * có dữ liệu") nên nút mở, vì đó đúng là trường hợp lý do cũ còn đứng vững. Một câu nói "có thể"
+   * mà đi kèm một nút cấm thì hai thứ nói hai chuyện.
+   */
+  const khoaNutChon = (code: string): boolean => khongDungDuoc(code) && coverage?.stale !== true;
+
+  /**
    * Lọc bỏ dấu, và **mã khớp đầu chuỗi đứng trước**.
    *
    * Gõ "vn" mà kết quả đầu là một công ty có chữ "vận" trong tên thì ô này vô dụng: người dùng
@@ -234,15 +251,16 @@ export function TickerPickerSheet({
 
                   {/*
                     Mã không có báo cáo dùng được — nói TRƯỚC khi bấm, thay vì để họ chọn rồi mới
-                    nhận câu "chưa có đủ số liệu cơ bản" ở màn.
+                    nhận câu "chưa có đủ số liệu cơ bản" ở màn. Từ 06/10/2026 nhãn này còn khoá
+                    luôn nút bên cạnh; luật và lý do ở `khoaNutChon` phía trên.
 
-                    Vẫn CHỌN ĐƯỢC, không khoá nút: bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo,
-                    nên một mã bị dán nhãn hôm nay hoàn toàn có thể đã công bố thêm quý và dùng
-                    được rồi. Khoá lại là biến một dự đoán thành một lệnh cấm. Khi bảng đã quá một
-                    kỳ, câu chữ hạ giọng theo (`stale`) chứ không khẳng định.
+                    `id` để nút khoá trỏ `aria-describedby` vào đây: một nút xám không giải thích
+                    gì thì người dùng bàn phím và trình đọc màn hình chỉ nghe "Chọn, không dùng
+                    được" mà không biết vì sao. Lấy theo mã nên không cần `useId`, và không hai
+                    dòng nào trùng id.
                   */}
                   {khongDungDuoc(ticker.code) && (
-                    <span className={styles.unusable}>
+                    <span className={styles.unusable} id={`ticker-chua-co-${ticker.code}`}>
                       {coverage?.stale === true ? t('ticker.noDataStale') : t('ticker.noData')}
                     </span>
                   )}
@@ -250,6 +268,9 @@ export function TickerPickerSheet({
                   <Button
                     variant="secondary"
                     size="sm"
+                    {...(khoaNutChon(ticker.code)
+                      ? { disabled: true, 'aria-describedby': `ticker-chua-co-${ticker.code}` }
+                      : {})}
                     onClick={() => {
                       onPick(ticker);
                       close();

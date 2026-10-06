@@ -421,6 +421,9 @@ union minus `unavailable` — so a fourth kind only needs a branch in `ChartBody
 A formula gets a waterfall by declaring `spec.breakdown` (ordered stages, each with a `sign` and
 an optional `shortLabel`, keyed to an input variable **or** to a key in the result's `extras`).
 **All ten** formulas tagged `waterfall`/`stackedBar` now declare stages — nothing is left waiting.
+An eleventh, `rut-truoc-han`, declares stages while keeping `chartType: 'none'`: it wants the two rows
+in the Số liệu block, not a picture. `canDrawBreakdown()` rejects `none`, so declaring stages there
+never conjures a chart.
 
 `chartType` decides whether the breakdown is the _default_ view or merely an entry in the picker,
 and across all ten the split is not arbitrary: the four `waterfall` ones (`ev`, `fcff`, `fcfe`,
@@ -593,8 +596,8 @@ the new `latex` and must be renamed in lockstep everywhere it is referenced, inc
 `src/core/how-to/*.ts` step `latex` and `symbol` fields for that row. Four inputs stayed untouched on
 purpose — `xirr`'s `guess` (a Newton–Raphson seed, not a term of the equation; **the input is gone
 since 06/10/2026**, see the next paragraph), `rut-truoc-han`'s
-`termMonths` (a validity precondition, not a term) and `contractRate` (feeds only an `extras` field nothing
-reads), and `roi-rong`'s `sellPrice` (already reachable through `L_{rong}`'s own how-to panel, so only its
+`termMonths` (a validity precondition, not a term) and `contractRate` (which fed only an `extras` field
+nothing read — **the screen reads it since 06/10/2026**, see below), and `roi-rong`'s `sellPrice` (already reachable through `L_{rong}`'s own how-to panel, so only its
 legend _meaning_ grew a clause). The sweep also surfaced a gate the owner-facing docs above never named:
 `how-to.test.ts` requires **every** `spec.symbols` row, not just derived ones, to be classified — either an
 `entries[].symbol` or a `skipped` key — so a brand-new raw-input row needs a one-line
@@ -616,6 +619,50 @@ example's 57-bar series, whose peak happens to sit inside the 30-bar floor, whil
 `sut-giam-sau-nhat` gives six different answers from the same slider on the same series. The gate
 lives in `formulas.test.ts` ("không ô nhập nào là một điều khiển chết") and checks both directions,
 so a pinned name that comes back to life must be removed from the list.
+
+**That first sweep was wrong, and the way it was wrong is the lesson.** It counted a change in ANY
+`extras` key as a visible change, so it cleared `rut-truoc-han`'s "Lãi suất hợp đồng / năm" — which
+the owner photographed hours later with the same question. `extras` reach the screen by exactly two
+routes: a key declared in `spec.breakdown` (which `DerivedNote` and the waterfall read), or one of
+the three `CUSTOM_BODIES` formulas that render their own. `ResultBlock` prints `value` and the unit,
+nothing else — `REVIEW-2.md` had already written that down. Everything else `calc` computes is
+invisible, so counting it is counting a number nobody can see. **A measurement about the screen
+compares what the screen shows.** The fix there was the opposite of `xirr`'s: the contract rate is
+not inert, it decides `lostInterest` — what early withdrawal costs you, the whole point of the
+formula — so the cure was to publish the number, not delete the control. `rut-truoc-han` now
+declares two `breakdown` stages (`interestAtContractRate` +, `lostInterest` −, summing to the result)
+and is the **first formula to declare stages while keeping `chartType: 'none'`**: `canDrawBreakdown()`
+rejects `none`, so no chart appears and the documented reason for `none` stands, while
+`derivedStages()` reads `spec.breakdown` directly and the Số liệu block gains the two rows. The
+registry-wide sum gate in `chart.test.ts` was rewritten to read `breakdownBars()` instead of going
+through `buildChartModel`, because the invariant belongs to the stages, not to the picture.
+
+**Publishing those rows then broke the merged card's balance, and fixing it took three rounds with
+the owner** (06/10/2026 — the whole sequence is worth reading before touching `DerivedNote` again).
+In the merged card the Kết quả block is ~100px tall in the left column while the Số liệu column on
+the right now carried the derived rows too, so the left half of a 260px band was empty: _"không
+gian bên trái đang thừa thãi rất nhiều … có thể căn chỉnh hoặc **giàn số liệu ngang hàng sang 2
+bên**"_. Round 1 moved the block out of the Số liệu `<section>` into its own full-width row of the
+card (`.derivedRow`, `grid-column: 1 / -1`, auto-placed into row 2) and laid each row out as three
+columns — name · derivation · value. Rejected: with the value right-aligned to the card edge the
+hole only **moved**, to the ~630px between the end of a formula and its own number. Round 2 is the
+shape that stuck, and it is `ConstantsNote`'s own cure from 02/10/2026 — two columns — except that
+it only works **after** the block is full width: half of the 780px Số liệu column is narrower than
+`rut-truoc-han`'s own 455px formula picture, while half of the 1.250px card is 615px and nothing
+scrolls. **Both halves are needed; neither alone fixes it.** Round 3 moved the number itself: it
+had kept the one-column shape's place beside the label, so it sat alone in the cell's top-right
+corner a line away from the arithmetic that produces it — _"để đáp án trơ trọi 1 mình thì không
+hợp lý"_, with an arrow drawn at the tail of the substituted line. It now ends that line behind an
+`aria-hidden` "=", so a cell reads `tên = công thức = con số`, the same shape as the card's own
+substitution strip and the Ví dụ block's "Áp vào công thức" row. All three live under
+`compact` + `@media (min-width: 1280px)`, the same prop name and gate as `ConstantsNote`, so the
+one-column layout and every phone width are untouched; the one thing React decides is the DOM
+position, and the `.derivedRow` wrapper carries a negative top margin below 1280 so that leaving
+the section does not widen the gap there by the `--space-5` of `.detail`. Four formulas reach this
+path (`ddm-hai-giai-doan`, `tra-gop-nien-kim`, `tra-gop-goc-deu`, `rut-truoc-han`) — all with
+exactly two stages — and five more (`ncav-tren-co-phieu`, `wacc`, `fcff`, `fcfe`, `lich-tra-no`)
+keep the one-column shape inside the section, which is why `FormulaDetail.test.tsx` pins **both**
+directions.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`

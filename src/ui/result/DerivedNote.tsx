@@ -21,6 +21,13 @@ export interface DerivedNoteProps {
    * từng chỗ ở docblock `FormulaSpec.derivedSubstitution`.
    */
   congThuc?: Readonly<Record<string, { nhan: Nut; so: Nut }>>;
+  /**
+   * Khối đang đứng trong thẻ gộp của khổ PC — chia các chặng thành hai cột từ 1280px.
+   *
+   * Cùng tên, cùng lối và cùng lý do với `ConstantsNote.compact`: React chỉ gắn thêm một lớp, hình
+   * dạng do media query quyết. Mặc định `false`, tức dáng xếp dọc của khuôn một cột.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -46,14 +53,14 @@ export interface DerivedNoteProps {
  * 'Lãi vay sau thuế' là nói rằng tiền lãi âm — thứ mà chính `calc` của `fcfe` chặn bằng
  * `MEANINGLESS`.
  */
-export function DerivedNote({ stages, unit, congThuc }: DerivedNoteProps) {
+export function DerivedNote({ stages, unit, congThuc, compact = false }: DerivedNoteProps) {
   const t = useT();
   const pick = usePick();
   const valueText = useValueText();
   if (stages.length === 0) return null;
 
   return (
-    <section className={styles.block}>
+    <section className={compact ? `${styles.block} ${styles.compact}` : styles.block}>
       <h3 className={styles.title}>{t('detail.derivedInUse')}</h3>
       <dl className={styles.list}>
         {stages.map((stage) => {
@@ -61,7 +68,26 @@ export function DerivedNote({ stages, unit, congThuc }: DerivedNoteProps) {
           return (
             <div key={stage.key} className={styles.row}>
               <dt className={styles.label}>{pick(stage.label)}</dt>
-              <dd className={styles.value}>{valueText(stage.value, unit)}</dd>
+              {/*
+                Dấu "=" dẫn trị số — CHỈ hiện ở khuôn hai cột, nơi trị số đứng cuối dòng thay số
+                chứ không đứng cạnh nhãn (06/10/2026).
+
+                Chủ dự án nhìn bản hai cột đầu tiên — nhãn một dòng, trị số một mình ở góc phải,
+                công thức nằm dưới — và chốt: *"để đáp án trơ trọi 1 mình thì không hợp lý, đổi
+                xuống vị trí … tôi vẽ mũi tên"*, mũi tên trỏ đúng vào đuôi dòng thay số. Đặt ở đó
+                thì cả hàng đọc liền một mạch `tên = công thức = con số`, đúng dáng dòng thay số
+                dưới đáy thẻ gộp và dòng "Áp vào công thức" của khối Ví dụ.
+
+                `aria-hidden`: `<dd>` vốn đã là "trị số của `<dt>` này", nên trình đọc màn hình
+                nghe thêm chữ "bằng" là nghe thừa. Chỗ đứng do CSS quyết, không do React — khuôn
+                một cột vẫn là cặp nhãn → trị số trên cùng một dòng như cũ.
+              */}
+              <dd className={styles.value}>
+                <span aria-hidden="true" className={styles.valueDau}>
+                  =
+                </span>
+                {valueText(stage.value, unit)}
+              </dd>
               {/*
                 HAI dòng, và dòng TÊN phải đứng trước (05/10/2026).
 

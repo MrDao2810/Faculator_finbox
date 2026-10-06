@@ -88,17 +88,25 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   });
 
   /*
-   * Dán nhãn nhưng KHÔNG khoá nút.
+   * ĐẢO CHIỀU 06/10/2026. Ca này trước đây tên là "mã bị dán nhãn vẫn chọn được — nhãn là dự
+   * đoán, không phải lệnh cấm", và nó khẳng định nút KHÔNG khoá.
    *
-   * Bảng mã sinh lúc build và cũ đi mỗi kỳ báo cáo, nên một mã bị dán nhãn hôm nay hoàn toàn có thể
-   * đã công bố thêm quý và dùng được rồi. Khoá lại là biến một dự đoán thành một lệnh cấm.
+   * Chủ dự án nhìn màn thật rồi chốt ngược: *"đang chưa có dữ liệu thì không cho bấm vào button
+   * Chọn"*. Bấm vào rồi mới nhận câu "chưa có đủ số liệu cơ bản" ở màn là một chuyến đi uổng, và
+   * nhãn đứng ngay cạnh nút đã nói đủ vì sao nút xám. Ca giữ nguyên chỗ, đổi lời khẳng định —
+   * để ai đọc lại biết đây là một quyết định, không phải một ca kiểm bị bỏ quên.
    */
-  it('mã bị dán nhãn vẫn chọn được — nhãn là dự đoán, không phải lệnh cấm', async () => {
+  it('mã bị dán nhãn thì KHOÁ nút Chọn', async () => {
     const onPick = vi.fn();
     await moSheet({ markUnusableAsOf: '2026-09-08', onPick });
 
     const nut = within(dong('E1VFVN30')).getByRole('button');
-    expect(nut.hasAttribute('disabled')).toBe(false);
+    expect(nut.hasAttribute('disabled')).toBe(true);
+    /* Nút xám phải nói được vì sao xám, cho người dùng bàn phím và trình đọc màn hình. */
+    expect(nut.getAttribute('aria-describedby')).toBe('ticker-chua-co-E1VFVN30');
+
+    /* Mã có dữ liệu thì không bị vạ lây. */
+    expect(within(dong('FPT')).getByRole('button').hasAttribute('disabled')).toBe(false);
   });
 
   /*
@@ -110,6 +118,19 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
 
     expect(within(dong('E1VFVN30')).getByText('có thể chưa có dữ liệu')).not.toBeNull();
     expect(screen.queryByText('chưa có dữ liệu')).toBeNull();
+  });
+
+  /*
+   * Khoá THEO ĐỘ CHẮC của nhãn. Bảng đã cũ thì nhãn tự hạ giọng thành "có thể chưa có dữ liệu" —
+   * một câu nói "có thể" mà đi kèm một nút cấm thì hai thứ nói hai chuyện, nên nút mở lại. Đây
+   * đúng là trường hợp lý do cũ (bảng sinh lúc build, mã có thể đã công bố thêm quý) còn đứng
+   * vững, nên nó không mất đi mà thu hẹp lại.
+   */
+  it('bảng đã cũ thì nút MỞ lại, vì nhãn chỉ còn là phỏng đoán', async () => {
+    await moSheet({ markUnusableAsOf: '2027-06-01' });
+
+    const nut = within(dong('E1VFVN30')).getByRole('button');
+    expect(nut.hasAttribute('disabled')).toBe(false);
   });
 });
 

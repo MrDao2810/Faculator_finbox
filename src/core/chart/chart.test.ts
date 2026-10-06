@@ -6,7 +6,7 @@ import { FORMULA_MODULES } from '../formulas';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
-import { BREAKDOWN_KEY, derivedStages } from './breakdown';
+import { BREAKDOWN_KEY, breakdownBars, derivedStages } from './breakdown';
 import { buildChartModel } from './build';
 import { HISTORY_KEY, closePriceSeries, historyPlan } from './history';
 import { areaPath, gapsOf, linePath } from './path';
@@ -1948,6 +1948,7 @@ describe('bóc tách — thác nước', () => {
       'fcff',
       'lich-tra-no',
       'ncav-tren-co-phieu',
+      'rut-truoc-han',
       'thue-tncn-dau-tu',
       'tra-gop-goc-deu',
       'tra-gop-nien-kim',
@@ -1957,19 +1958,20 @@ describe('bóc tách — thác nước', () => {
     for (const formula of declared) {
       const inputs = defaultInputs(formula.spec);
       const output = runFormula(formula, inputs, CTX);
-      const model = buildChartModel({
-        formula,
-        inputs,
-        ctx: CTX,
-        output,
-        level: 'advanced',
-        sweepKey: BREAKDOWN_KEY,
-      });
 
-      expect(model.kind, formula.spec.id).toBe('waterfall');
-      if (model.kind !== 'waterfall') continue;
-
-      const stages = model.bars.filter((bar) => bar.isTotal !== true);
+      /*
+       * Lấy chặng từ `breakdownBars()`, tức NGUỒN của bất biến, chứ không qua `buildChartModel`.
+       *
+       * Bản trước đi qua hình vẽ và vì thế đòi mọi công thức khai `breakdown` phải vẽ được thác
+       * nước. Từ 06/10/2026 điều đó hết đúng: `rut-truoc-han` khai chặng để khối "Từ các ô trên"
+       * bày ra hai con số (`derivedStages()` đọc thẳng `spec.breakdown`), nhưng vẫn giữ
+       * `chartType: 'none'` vì đường quét của nó là một đoạn thẳng qua gốc. `canDrawBreakdown()`
+       * loại hẳn `none`, nên hình của nó là `line` — mà bất biến "các chặng cộng đúng về kết quả"
+       * thì vẫn phải đúng, và nay còn đúng ở một chỗ NGƯỜI DÙNG ĐỌC ĐƯỢC chứ không chỉ ở hình.
+       */
+      const stages = breakdownBars(formula.spec, inputs, output).filter(
+        (bar) => bar.isTotal !== true,
+      );
       const cong = stages.reduce((sum, bar) => sum + bar.delta, 0);
 
       expect(stages.length, formula.spec.id).toBeGreaterThanOrEqual(2);

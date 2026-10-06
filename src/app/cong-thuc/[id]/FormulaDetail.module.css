@@ -999,6 +999,20 @@ button.iconButton::after {
   display: none;
 }
 
+/*
+ * Bọc của khối "Từ các ô trên, công thức tính ra" ở khuôn gộp (06/10/2026).
+ *
+ * Ở khổ hẹp `.merged` là `display: contents`, nên bọc này rơi thẳng vào dòng chảy của `.detail` —
+ * nơi khe giữa hai khối là `--space-5`, chứ không phải `--space-2` của khối Số liệu mà nó vừa rời
+ * khỏi. Trừ lại đúng phần chênh (20px − 8px) để khổ điện thoại không đổi một pixel: khối vẫn nối
+ * ngay dưới hàng ô nhập, đúng khoảng cũ, với vạch kẻ và tiêu đề của chính nó làm ranh giới.
+ *
+ * Trừ bằng `margin` âm trên bọc chứ không nới `gap`: `gap` của `.detail` là của CẢ chín khối.
+ */
+.derivedRow {
+  margin-top: calc(var(--space-2) - var(--space-5));
+}
+
 .blockExplain,
 .aside,
 .answer ~ * {
@@ -1187,6 +1201,32 @@ button.iconButton::after {
     padding: 0;
     background: none;
     border: none;
+  }
+
+  /*
+   * Khối "Từ các ô trên, công thức tính ra": HÀNG RIÊNG, trải cả hai cột (06/10/2026).
+   *
+   * Nó từng là phần đuôi của khối Số liệu, tức nằm gọn trong cột phải. Chủ dự án chụp màn
+   * `rut-truoc-han` ở 1360px: khối Kết quả bên trái cao ~100px, khối này kéo cột phải xuống thêm
+   * ~260px, nên nửa trái của dải ấy là một ô trống 480 × 260 — *"không gian bên trái đang thừa
+   * thãi rất nhiều … có thể căn chỉnh hoặc giàn số liệu ngang hàng sang 2 bên"*.
+   *
+   * Chữa như `ConstantsNote` (02/10/2026, cùng triệu chứng) — chia các chặng thành hai cột — nhưng
+   * phải ĐỔI CHỖ trước rồi mới chia. Ở đó mỗi hàng là mấy dòng chữ nên chia đôi cột phải 780px là
+   * đủ; ở đây mỗi hàng mang một HÌNH công thức, của `rut-truoc-han` rộng ~455px, nên nửa của 780px
+   * còn hẹp hơn chính cái hình. Trải hết bề ngang thẻ trước thì mỗi cột được ~615px và không hình
+   * nào phải cuộn. Luật chia cột nằm ở `DerivedNote.module.css` (`.compact`), không ở đây.
+   *
+   * Không khai `grid-row`: hai ô của hàng 1 đã khai tường minh, nên khối này tự rơi xuống hàng
+   * trống đầu tiên, và dòng thay số rơi tiếp xuống hàng sau nó. Đúng mạch đọc của thẻ — ô nhập →
+   * đại lượng tính ra → phép thay số → con số bên trái.
+   *
+   * `margin-top` trả về 0: phần trừ ở luật gốc chỉ để bù `gap` của `.detail` ở khổ hẹp, còn ở đây
+   * khe là `row-gap` của chính thẻ.
+   */
+  .derivedRow {
+    grid-column: 1 / -1;
+    margin-top: 0;
   }
 
   /*

@@ -265,15 +265,18 @@ describe('Registry với toàn bộ công thức thật', () => {
    */
   it('công thức của đại lượng dẫn xuất tính ra đúng con số đứng cạnh nó', () => {
     /*
-     * Đếm thành tiếng, để ca kiểm không xanh vì rỗng: 12 trên 15 đại lượng có mẫu. Ba chỗ còn
+     * Đếm thành tiếng, để ca kiểm không xanh vì rỗng: 14 trên 17 đại lượng có mẫu. Ba chỗ còn
      * trống là `thue-tncn-dau-tu` (hai, đọc hằng số thuế) và `ddm-hai-giai-doan.pvStage1` (một
      * tổng Σ qua n kỳ) — lý do từng chỗ ở docblock `FormulaSpec.derivedSubstitution`.
+     *
+     * Từ 12 lên 14 ngày 06/10/2026: `rut-truoc-han` khai hai chặng, để ô "Lãi suất hợp đồng / năm"
+     * thôi là một thanh trượt kéo mà màn không đổi gì.
      */
     const soMau = ALL_FORMULAS.reduce(
       (n, spec) => n + Object.keys(spec.derivedSubstitution ?? {}).length,
       0,
     );
-    expect(soMau).toBe(12);
+    expect(soMau).toBe(14);
 
     for (const formula of FORMULA_MODULES) {
       const { id, derivedSubstitution, example } = formula.spec;
@@ -858,13 +861,34 @@ const O_KHONG_DOI_THEO_DU_LIEU: ReadonlyArray<string> = [
 
 describe('không ô nhập nào là một điều khiển chết', () => {
   /** Thứ NGƯỜI DÙNG thấy: con số đã làm tròn như khối Kết quả in, cộng cảnh báo và các số phụ. */
-  const manThay = (o: CalcOutput): string => {
-    const so = o.value === null ? 'null' : formatNumber(o.value);
-    const phu = Object.entries(o.extras ?? {})
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([k, v]) => `${k}=${formatNumber(v)}`)
-      .join('|');
-    return `${so}#${o.warning?.code ?? '-'}#${phu}`;
+  /**
+   * Khoá `extras` nào THẬT SỰ hiện ra màn — phần còn lại tính vào là nói dối.
+   *
+   * Bản đầu của ca kiểm này (06/10/2026) đếm MỌI khoá `extras`, và vì thế **bỏ sót đúng ô chủ dự
+   * án hỏi tiếp ngay sau đó**: `rut-truoc-han.contractRate` chỉ nuôi hai khoá `extras` mà không
+   * khối nào trên trang đọc, nên kéo thanh trượt thì `extras` đổi mà màn đứng im. Ca kiểm thấy
+   * `extras` đổi và kết luận ô ấy sống.
+   *
+   * Hai đường duy nhất đưa `extras` ra màn, đã rà lại trong mã:
+   *   · `spec.breakdown` → `DerivedNote` (và cột của hình bóc tách) — chỉ các khoá khai thành chặng
+   *   · thân riêng ở `ui/screens/DetailBody.tsx` — ba công thức, chúng tự bày lấy
+   * `ResultBlock` chỉ in `value` và đơn vị. Điều này đã ghi sẵn ở `REVIEW-2.md`.
+   */
+  const THAN_RIENG: ReadonlySet<string> = new Set(['loi-nhuan-rong', 'lich-tra-no', 'xirr']);
+
+  const manThayCua = (spec: FormulaSpec): ((o: CalcOutput) => string) => {
+    const hien = THAN_RIENG.has(spec.id)
+      ? null
+      : new Set((spec.breakdown ?? []).map((chang) => chang.key));
+    return (o) => {
+      const so = o.value === null ? 'null' : formatNumber(o.value);
+      const phu = Object.entries(o.extras ?? {})
+        .filter(([k]) => hien === null || hien.has(k))
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([k, v]) => `${k}=${formatNumber(v)}`)
+        .join('|');
+      return `${so}#${o.warning?.code ?? '-'}#${phu}`;
+    };
   };
 
   it('kéo ô nào thì màn cũng phải đổi theo, trừ danh sách đã ghim', () => {
@@ -873,13 +897,15 @@ describe('không ô nhập nào là một điều khiển chết', () => {
       const spec = formula.spec;
       const ctx = ctxCuaViDu(spec);
       const goc: Record<string, number> = { ...spec.example.inputs };
+      const manThay = manThayCua(spec);
       const chuan = manThay(runFormula(formula, goc, ctx));
 
       for (const bien of spec.variables) {
+        /* 11 điểm chứ 7: ô có ngưỡng hẹp (`rut-truoc-han.monthsHeld`) dễ lọt qua lưới thưa. */
         const thu =
           bien.options !== undefined && bien.options.length > 0
             ? bien.options.map((o) => o.value)
-            : [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1].map((t) => {
+            : [0, 0.05, 0.1, 0.25, 0.4, 0.5, 0.6, 0.75, 0.9, 0.95, 1].map((t) => {
                 const min = bien.min ?? 0;
                 return min + ((bien.max ?? min + 100) - min) * t;
               });

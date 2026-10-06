@@ -481,6 +481,11 @@ const DAN_CHUNG_DAN_XUAT: Readonly<Record<string, Readonly<Record<string, string
     firstInterest: "const firstInterest = amount * monthlyRate(v('rate'))",
   },
   'lich-tra-no': { totalPaid: "const totalPaid = v('amount') + totalInterest" },
+  'rut-truoc-han': {
+    interestAtContractRate:
+      "const atContractRate = ((principal * v('contractRate')) / 100 / 12) * v('monthsHeld')",
+    lostInterest: 'lostInterest: atContractRate - received',
+  },
 };
 
 describe('công thức của đại lượng dẫn xuất chỉ ra được mẩu mã calc sinh ra nó', () => {

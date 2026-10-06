@@ -3422,12 +3422,24 @@ describe('WF-03 — mở bảng dữ liệu thì mang theo chuỗi và mã đang
  * đâu khác trên trang. Ca kiểm bám vào khối Số liệu THẬT (`aria-labelledby="khoi-so-lieu"`) chứ
  * không quét cả màn: quét cả màn thì chữ trong hình cũng khớp, và ca sẽ xanh ngay cả khi khối Số
  * liệu vẫn trống — đúng cảnh cần chặn.
+ *
+ * Từ 06/10/2026 lời khẳng định tách làm hai, nên tên khối ca kiểm nói đúng cả hai nửa. Ở khuôn một
+ * cột (46 công thức, và mọi công thức ở khổ hẹp) khối ấy vẫn là phần đuôi của khối Số liệu. Ở khuôn
+ * gộp nó ra đứng thành hàng riêng trải hết bề ngang thẻ — vẫn trong cùng cái thẻ, vẫn trước khối
+ * Kết quả, chỉ không còn nằm trong thẻ `<section>` của Số liệu. Lý do ở docblock `khoiDanXuat`.
  */
-describe('WF-03 — đại lượng công thức tự tính ra hiện ở khối Số liệu', () => {
+describe('WF-03 — đại lượng công thức tự tính ra đứng trước Kết quả', () => {
   function khoiSoLieu(): HTMLElement {
     const heading = screen.getByRole('heading', { name: t('detail.inputs') });
     const section = heading.closest('section');
     if (section === null) throw new Error('Không tìm thấy khối Số liệu — kịch bản test đã đổi.');
+    return section;
+  }
+
+  function khoiDanXuat(): HTMLElement {
+    const heading = screen.getByRole('heading', { name: t('detail.derivedInUse') });
+    const section = heading.closest('section');
+    if (section === null) throw new Error('Không tìm thấy khối dẫn xuất — kịch bản test đã đổi.');
     return section;
   }
 
@@ -3454,7 +3466,45 @@ describe('WF-03 — đại lượng công thức tự tính ra hiện ở khối
   it('công thức không khai bóc tách thì không thêm khối nào — 102/111 trang không đổi', () => {
     render(<Man spec={specOf('pe')} />);
 
-    expect(within(khoiSoLieu()).queryByText(t('detail.derivedInUse'))).toBeNull();
+    expect(screen.queryByText(t('detail.derivedInUse'))).toBeNull();
+  });
+
+  /*
+   * ── Khuôn gộp: khối ra khỏi cột Số liệu, thành hàng riêng của thẻ (06/10/2026) ──────────────
+   *
+   * Chủ dự án chụp màn `rut-truoc-han` ở 1360px: nửa trái của dải khối này chiếm là một ô trống
+   * 480 × 260 — *"không gian bên trái đang thừa thãi rất nhiều"*. Luật hình nằm trong
+   * `@media (min-width: 1280px)`, thứ jsdom không chạy, nên ca kiểm gác ĐIỀU KIỆN của luật ấy:
+   * khối phải là anh em ruột của khối Kết quả trong thẻ gộp thì `grid-column: 1 / -1` mới với tới
+   * nó, và phải mang lớp `compact` thì nó mới chia hai cột.
+   *
+   * Hai chiều, vì cả hai đều hỏng được lặng lẽ: trả khối về trong `<section>` Số liệu là lỗ trống
+   * quay lại, mà đẩy khối ra khỏi `<section>` ở khuôn một cột là 5 công thức kia mất chỗ đứng.
+   */
+  it('khuôn gộp: khối đứng ngoài <section> Số liệu, cùng cấp với khối Kết quả', () => {
+    render(<Man spec={specOf('rut-truoc-han')} />);
+
+    const khoi = khoiDanXuat();
+    expect(khoiSoLieu().contains(khoi)).toBe(false);
+
+    /* Cùng một bọc với khối Kết quả — tức cùng một lưới, nên trải được cả hai cột. */
+    const ketQua = screen.getByRole('heading', { name: t('result.heading') }).closest('section');
+    expect(khoi.parentElement?.parentElement).toBe(ketQua?.parentElement);
+
+    /* Và vẫn đọc TRƯỚC Kết quả: đại lượng tính ra là thứ dẫn tới con số, không phải chú thích sau. */
+    expect(khoi.compareDocumentPosition(ketQua as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
+    expect(String(khoi.className)).toMatch(/compact/);
+  });
+
+  it('khuôn một cột: khối vẫn là phần đuôi của khối Số liệu, không mang lớp hai cột', () => {
+    render(<Man spec={specOf('fcfe')} />);
+
+    const khoi = khoiDanXuat();
+    expect(khoiSoLieu().contains(khoi)).toBe(true);
+    expect(String(khoi.className)).not.toMatch(/compact/);
   });
 });
 

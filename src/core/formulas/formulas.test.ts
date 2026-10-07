@@ -23,6 +23,7 @@ import {
   expressionLines,
   numbersInLatex,
   numbersInText,
+  thieuPhepToan,
 } from '../expression-rules';
 import { formatNumber } from '../format';
 import { MARKET_CONFIG } from '../market';
@@ -30,9 +31,8 @@ import { scheduleOrDefault } from '../market/resolve';
 import { latexSymbolTokens } from '../latex-symbols';
 import { evaluateWorked } from '../quiz/worked-line';
 import { substitutionKeys } from '../substitution';
-import { datSoDanXuat, datSoThaySo, giaTriChoDanXuat } from '../substitution-cay';
-import { derivedStages } from '../chart/breakdown';
-import { derivedShape, substitutionShape } from '../substitution-shape';
+import { datSoThaySo } from '../substitution-cay';
+import { substitutionShape } from '../substitution-shape';
 import { chuCuaCay, tinhCay } from '../quiz/nut';
 import { createRegistry, defaultInputs } from '../registry/build';
 import { errorsOnly, formatIssues } from '../registry/validate';
@@ -254,67 +254,11 @@ describe('Registry với toàn bộ công thức thật', () => {
   });
 
   /*
-   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày (05/10/2026).
+   * ── Mộ chí: cửa gác `derivedSubstitution` (05/10/2026 → 06/10/2026) ───────────────────
    *
-   * Chủ dự án nhìn hai dòng "Gốc kỳ đầu 1.123.716,17" và "Lãi kỳ đầu 6.333.333,33" trên
-   * `tra-gop-nien-kim` rồi hỏi *"nếu được tính ra thì công thức để tính đâu? tại sao chưa cho vào"*.
-   *
-   * Mẫu viết tay, nên gác đúng cách đã gác mọi chữ viết tay khác của dự án: TÍNH LẠI. Mẫu phải dẫn
-   * tới chính con số `calc` trả về trong `extras` — tức con số in ngay cạnh nó. Không có đường nào
-   * để một mẫu sai mà vẫn xanh.
+   * Nó tính lại từng mẫu rồi đối chiếu `extras` mà `calc` trả về. Cả trường lẫn khối đọc nó đã
+   * bỏ hẳn — lý do ở mộ chí `detail.derivedInUse` trong `vi.ts`.
    */
-  it('công thức của đại lượng dẫn xuất tính ra đúng con số đứng cạnh nó', () => {
-    /*
-     * Đếm thành tiếng, để ca kiểm không xanh vì rỗng: 14 trên 17 đại lượng có mẫu. Ba chỗ còn
-     * trống là `thue-tncn-dau-tu` (hai, đọc hằng số thuế) và `ddm-hai-giai-doan.pvStage1` (một
-     * tổng Σ qua n kỳ) — lý do từng chỗ ở docblock `FormulaSpec.derivedSubstitution`.
-     *
-     * Từ 12 lên 14 ngày 06/10/2026: `rut-truoc-han` khai hai chặng, để ô "Lãi suất hợp đồng / năm"
-     * thôi là một thanh trượt kéo mà màn không đổi gì.
-     */
-    const soMau = ALL_FORMULAS.reduce(
-      (n, spec) => n + Object.keys(spec.derivedSubstitution ?? {}).length,
-      0,
-    );
-    expect(soMau).toBe(14);
-
-    for (const formula of FORMULA_MODULES) {
-      const { id, derivedSubstitution, example } = formula.spec;
-      if (derivedSubstitution === undefined) continue;
-
-      const inputs = { ...defaultInputs(formula.spec), ...example.inputs };
-      const out = runFormula(formula, inputs, CTX);
-      const hinhChinh = substitutionShape(formula.spec);
-      const bang = giaTriChoDanXuat(hinhChinh, inputs, out.extras, out.value);
-      const hinh = derivedShape(formula.spec);
-
-      for (const khoa of Object.keys(derivedSubstitution)) {
-        const that = out.extras?.[khoa];
-        expect(that, `${id}.${khoa} — calc không trả về extras này`).toBeDefined();
-
-        const cay = datSoDanXuat(
-          hinh[khoa] as NonNullable<(typeof hinh)[string]>,
-          bang,
-          hinhChinh?.danXuat ?? [],
-        );
-        expect(cay, `${id}.${khoa} — thiếu số cho một chỗ trống`).not.toBeNull();
-        if (cay === null) continue;
-
-        /*
-         * Dung sai 0,01%, CHẶT HƠN HẲN ngưỡng 0,5% của dòng thay số, và con số ấy là giá của một
-         * lỗi đã lọt: với 0,5%, mẫu `Lãi kỳ đầu = 800.000.000 × 0,0079` vẫn XANH — nó ra 6.320.000
-         * cạnh con số in 6.333.333,33, lệch 0,21%. Khác dòng thay số ở chỗ dòng ấy đứng một mình,
-         * còn ở đây công thức và con số của nó đứng SÁT NHAU trên cùng một hàng, nên một chữ số
-         * lệch là đọc ra ngay.
-         */
-        const ra = tinhCay(cay);
-        expect(
-          Math.abs((ra ?? 0) - (that ?? 0)) / Math.max(Math.abs(that ?? 1), 1),
-          `${id}.${khoa} — mẫu ra ${String(ra)}, calc ra ${String(that)}: ${chuCuaCay(cay)}`,
-        ).toBeLessThanOrEqual(0.0001);
-      }
-    }
-  });
 
   it('ví dụ có chuỗi giá phải khai báo dataset', () => {
     for (const formula of FORMULA_MODULES) {
@@ -442,6 +386,35 @@ describe('Registry với toàn bộ công thức thật', () => {
         );
     });
     expect(lech, `hình và dòng chữ khác số dòng:\n${lech.join('\n')}`).toEqual([]);
+  });
+
+  /*
+   * Luật 7. Lỗi thật đã gặp: hình của `gia-hoa-von` vẽ `Q · P_mua` ở tử, dòng chữ ngay dưới ghi
+   * "Tiền mua" — hai ký hiệu có tên hẳn hoi trong bảng bên phải ("khối lượng cổ phiếu mua rồi bán",
+   * "giá mua một cổ phiếu") bị thay bằng một danh từ không có hàng nào. Chủ dự án khoanh đỏ đúng
+   * hai ô ấy: "Q.P mua bên trên ký hiệu ra sao thì bên dưới giải thích y nguyên. tôi có cần bạn ăn
+   * bớt vậy đâu?" (06/10/2026).
+   *
+   * Thước đo KHÔNG phải "cấm gộp": gộp là đúng khi cụm gộp có một hàng trong bảng ký hiệu, vì lúc
+   * ấy trang có gọi tên nó — `roi-rong` ("Vốn thực bỏ ra") và `loi-nhuan-rong` ("Tổng chi phí") đều
+   * khai cụm thành một hàng, và đó là chỗ `gia-hoa-von` khác chúng. Toàn bộ lý lẽ ở
+   * `thieuPhepToan()`.
+   *
+   * Quét cả 111 ra ba công thức, không công thức nào bị oan: `gia-hoa-von`, `wacc` (hai phân số
+   * `E/(E+D)` và `D/(E+D)` thành "Tỷ trọng vốn chủ" / "Tỷ trọng nợ", mà bảng chỉ có hàng `E`, `D`,
+   * `E+D`) và `ddm-hai-giai-doan` (cả hình thành hai mệnh đề, không nhắc một ký hiệu nào trong bảy
+   * ký hiệu của bảng).
+   */
+  it('dòng chữ đọc đủ phép toán của hình, trừ phần bảng ký hiệu đã đặt tên', () => {
+    const an = ALL_FORMULAS.flatMap((spec) => {
+      const kyHieu = (spec.symbols ?? []).map((s) => s.latex);
+      return (['vi', 'en'] as const).flatMap((ngon) =>
+        thieuPhepToan(spec.latex, spec.expression?.[ngon] ?? '', kyHieu).map(
+          (loi) => `${spec.id} · ${ngon} — ${loi}`,
+        ),
+      );
+    });
+    expect(an, `dòng chữ nuốt phép toán của hình:\n${an.join('\n')}`).toEqual([]);
   });
 
   /*
@@ -781,56 +754,13 @@ describe('xirr() — phần toán đã xong, chờ bảng dòng tiền của gó
 });
 
 /*
- * ── Khối "Từ các ô trên, công thức tính ra" đọc được TUẦN TỰ (05/10/2026) ────────────────────
+ * ── Mộ chí: bộ ca kiểm "đại lượng dẫn xuất bày theo thứ tự tính được" (05/10 → 06/10/2026) ──
  *
- * Chủ dự án chỉ trên `tra-gop-nien-kim`: khối bày "Gốc kỳ đầu" trước, mà công thức của nó là
- * `Trả hằng tháng − Lãi kỳ đầu` — dùng một con số chưa ai giới thiệu, rồi hàng DƯỚI mới tính con số
- * ấy. *"Lãi kỳ đầu tự dưng lôi đâu ra 21 triệu? xong bên dưới mới tính lãi kỳ đầu? phi logic?"*
- *
- * Thứ tự cũ là thứ tự cột của biểu đồ bóc tách — đúng cho hình vẽ, sai cho một danh sách đọc từ
- * trên xuống. Ca này gác chiều ngược, và gác cho MỌI công thức chứ không riêng cái bị chỉ.
+ * Thứ tự ấy chỉ có nghĩa với một DANH SÁCH đọc từ trên xuống, tức khối "Từ các ô trên, công
+ * thức tính ra". Khối bỏ rồi thì chỉ còn biểu đồ, mà biểu đồ cố ý giữ thứ tự khai của
+ * `spec.breakdown` (cột chồng đọc từ dưới lên: gốc trước, lãi sau) — và điều đó không cần ca
+ * kiểm riêng, vì `breakdownBars()` đọc thẳng `spec.breakdown` chứ không sắp lại.
  */
-describe('đại lượng dẫn xuất bày theo thứ tự tính được', () => {
-  it('không chặng nào dùng một chặng chỉ xuất hiện ở hàng dưới', () => {
-    const sai: string[] = [];
-
-    for (const formula of FORMULA_MODULES) {
-      const { id, derivedSubstitution } = formula.spec;
-      if (derivedSubstitution === undefined) continue;
-
-      const inputs = { ...defaultInputs(formula.spec), ...formula.spec.example.inputs };
-      const thuTu = derivedStages(formula.spec, inputs, runFormula(formula, inputs, CTX)).map(
-        (s) => s.key,
-      );
-
-      thuTu.forEach((khoa, i) => {
-        const nhacToi = [...(derivedSubstitution[khoa] ?? '').matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(
-          (m) => m[1] ?? '',
-        );
-        for (const can of nhacToi) {
-          const j = thuTu.indexOf(can);
-          if (j > i) sai.push(`${id}: "${khoa}" (hàng ${i + 1}) dùng "${can}" ở hàng ${j + 1}`);
-        }
-      });
-    }
-
-    expect(sai, sai.join('\n')).toEqual([]);
-  });
-
-  /*
-   * Biểu đồ GIỮ thứ tự khai, và đó là chủ ý chứ không phải sót: cột chồng đọc từ dưới lên nên gốc
-   * đứng trước lãi, còn danh sách đọc từ trên xuống nên lãi phải đứng trước gốc. Hai thứ tự trả lời
-   * hai câu hỏi khác nhau. Ca này ghim để không ai "sửa cho đồng bộ".
-   */
-  it('biểu đồ vẫn giữ thứ tự khai của `spec.breakdown`', () => {
-    const nienKim = FORMULA_MODULES.find((f) => f.spec.id === 'tra-gop-nien-kim');
-    expect(nienKim?.spec.breakdown?.map((s) => s.key)).toEqual(['firstPrincipal', 'firstInterest']);
-
-    const inputs = defaultInputs(nienKim!.spec);
-    const bay = derivedStages(nienKim!.spec, inputs, runFormula(nienKim!, inputs, CTX));
-    expect(bay.map((s) => s.key)).toEqual(['firstInterest', 'firstPrincipal']);
-  });
-});
 
 /*
  * ── Không ô nhập nào là một điều khiển CHẾT ────────────────────────────────────────────────
@@ -870,8 +800,13 @@ describe('không ô nhập nào là một điều khiển chết', () => {
    * `extras` đổi và kết luận ô ấy sống.
    *
    * Hai đường duy nhất đưa `extras` ra màn, đã rà lại trong mã:
-   *   · `spec.breakdown` → `DerivedNote` (và cột của hình bóc tách) — chỉ các khoá khai thành chặng
+   *   · `spec.breakdown` → cột và bảng số của hình bóc tách — chỉ các khoá khai thành chặng
    *   · thân riêng ở `ui/screens/DetailBody.tsx` — ba công thức, chúng tự bày lấy
+   *
+   * Ngày 06/10/2026 đường thứ nhất mất một nhánh: khối "Từ các ô trên, công thức tính ra" bỏ
+   * hẳn, nên các chặng ấy nay chỉ ra màn bằng hình. Phép lọc không đổi — `rut-truoc-han` đổi
+   * sang `chartType: waterfall` trong cùng lượt nên chặng của nó vẫn vẽ.
+   *
    * `ResultBlock` chỉ in `value` và đơn vị. Điều này đã ghi sẵn ở `REVIEW-2.md`.
    */
   const THAN_RIENG: ReadonlySet<string> = new Set(['loi-nhuan-rong', 'lich-tra-no', 'xirr']);

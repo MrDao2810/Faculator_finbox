@@ -207,7 +207,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantSource': 'Market Config · CON-10',
   'detail.constantsInUse': 'Calculated at these rates',
   'detail.constantSince': 'in effect since',
-  'detail.derivedInUse': 'From the inputs above, the formula works out',
   'detail.pasteSeries': 'Paste a price series from Excel',
   'detail.loadExample': 'View illustrative example',
   'detail.exampleLoaded': 'Illustrative example loaded ✓',
@@ -754,9 +753,16 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
    * Mười loại dù Registry hiện dùng tám; lý do ghi ở `vi.ts`.
    */
   'guide.chartKind.sensitivity.title': 'Sensitivity sweep',
-  /* Chủ dự án viết lại bản `vi` ngày 05/10/2026 và bỏ câu thứ hai; bản `en` theo đúng hình ấy. */
+  /*
+   * Theo bản `vi` viết lại ngày 06/10/2026 — lý do ba lỗi của bản cũ ghi ở `vi.ts`.
+   *
+   * Bản cũ còn mắc một lỗi thứ tư mà bản `vi` không có, và nó chỉ lộ ra khi quét: nhãn trong
+   * ngoặc kép là "See the result change with", còn nhãn THẬT trên màn (`chart.sweepLabel`) là
+   * "See how the result changes with". Bài trỏ vào một cái tên không có trên màn. Từ nay
+   * `i18n.test.ts` gác chuyện đó cho cả hai thứ tiếng.
+   */
   'guide.chartKind.sensitivity.body':
-    'Pick a field in the "See the result change with" select; the chart changes as you work on it.',
+    'The curve shows how the result moves as one field runs across its whole range. The "See how the result changes with" row just above the chart decides which field that is.',
   'guide.chartKind.waterfall.title': 'Breakdown chart',
   'guide.chartKind.waterfall.body':
     'Each bar is one amount added or subtracted. The last bar stands on 0 and equals the number in the Result block.',

@@ -471,10 +471,32 @@ export const vi = {
   'detail.constantsInUse': 'Đang tính theo các mức sau',
   'detail.constantSince': 'áp dụng từ',
   /*
-   * Nhãn khối bày những đại lượng công thức TỰ TÍNH RA từ các ô trên — thứ biểu đồ bóc tách gọi
-   * tên và vẽ thành cột, nhưng không có ô nhập nào mang tên ấy. Xem `DerivedNote.tsx`.
+   * ── Mộ chí: `detail.derivedInUse` — "Từ các ô trên, công thức tính ra" (16/09 → 06/10/2026) ──
+   *
+   * Đây là mộ chí GỐC của cả khối: `DerivedNote`, `derivedStages()`, `derivedSubstitution`,
+   * `derivedShape()`, `datNhanDanXuat`/`datSoDanXuat`/`giaTriChoDanXuat`/`nhanCuaKhoa` và bốn cửa
+   * gác của chúng đều bỏ trong cùng một lượt. Chỗ nào gỡ cũng trỏ về đây.
+   *
+   * Khối sinh ra ngày 16/09/2026 để bịt một lỗ hổng thật: hình bóc tách của `fcfe` có cột "Lãi vay
+   * sau thuế" cao 48 tỷ ₫, mà khối Số liệu chỉ có "Chi phí lãi vay" 60 và "Thuế suất" 20% đứng rời
+   * nhau — người đọc thấy một đại lượng có tên, có cột vẽ, mà không tra được từ đâu ra. Ngày
+   * 05/10/2026 nó được bổ sung dòng công thức, để trả lời nốt "tính ra sao".
+   *
+   * Chủ dự án hỏi về nó BA LẦN trên `tra-gop-nien-kim` — *"tác dụng của việc đặt 2 công thức này
+   * là gì?"*, *"tôi đang không nghĩ nó có tác dụng"* — rồi chốt: *"xoá hẳn cái này đi. cảm giác
+   * không có tác dụng và dụng ý gì"*, kèm một điều kiện: *"xác định trước nó có quan trọng không?
+   * nếu không thì ở 9 công thức bỏ đi"*.
+   *
+   * PHÉP ĐO trả lời điều kiện ấy, chạy trên cả 9 công thức có khối: **8 trong 9 vẽ đúng các chặng
+   * ấy thành cột bóc tách**, cùng nhãn và cùng trị số đã định dạng, cộng thêm bảng số dưới hình
+   * (3–5 dòng). Tức khối là bản sao thứ hai của thứ hình đã nói. Công thức thứ chín,
+   * `rut-truoc-han`, là ca duy nhất không có hình — và nó đổi sang `chartType: 'waterfall'` trong
+   * cùng lượt, vì đường quét thẳng của nó vốn đã đúng tiêu chí của nhóm thác nước.
+   *
+   * Nếu lỗ hổng 16/09 quay lại (một cột có tên và trị số mà không tra được từ ô nào), chỗ chữa
+   * KHÔNG phải dựng lại khối này: hình đã nói tên và trị số rồi, thứ còn thiếu là "tính ra sao" —
+   * mà đó đúng là việc của khung "cách tính" khi rê chuột vào ký hiệu (`src/core/how-to/`).
    */
-  'detail.derivedInUse': 'Từ các ô trên, công thức tính ra',
   'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
   'detail.loadExample': 'Xem ví dụ minh hoạ',
   'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
@@ -1769,16 +1791,28 @@ export const vi = {
    */
   'guide.chartKind.sensitivity.title': 'Biểu đồ quét độ nhạy',
   /*
-   * Chủ dự án viết lại câu này nguyên văn ngày 05/10/2026 — chép đúng, không biên tập lại.
+   * VIẾT LẠI LẦN BA, 06/10/2026 — và lần này chính chủ dự án đảo lại câu mình đã viết.
    *
-   * Câu cũ mắc hai lỗi chính chủ dự án chỉ ra: "Chọn một ô ở ô …" lặp chữ "ô" ngay cạnh nhau, và
-   * cả đoạn đọc lên như lời nói. Câu thứ hai của bản cũ ("Chấm sáng là số bạn đang nhập.") BỎ —
-   * chủ dự án kê đúng nó trong danh sách "text dư", và sau khi câu đầu đã nói biểu đồ đổi theo
-   * thao tác thì nó chỉ nhắc lại. Lượt ấy chủ dự án cũng dạy chữ thay thế cho nó
-   * ("đang nhập" → "đang thao tác"), và chữ ấy được áp ở những chỗ khác còn dùng lối nói đó.
+   * Bản 05/10/2026 do chủ dự án tự viết nên chỗ này từng ghi "chép đúng, không biên tập lại".
+   * Ngày hôm sau đọc lại nó trên màn, chủ dự án kê ba lỗi: *"«Xem kết quả đổi theo» là phần nào?
+   * rồi «Chọn ô» nghĩa là sao? sai bảo ai chọn ô?"*, và chốt hướng — *"nếu muốn người dùng hiểu
+   * thì phải là «Lựa chọn», hoặc «Biểu đồ sẽ thay đổi khi người dùng thao tác trong biểu đồ»"*.
+   * Ba lỗi ấy là ba thứ khác nhau, và câu mới chữa cả ba:
+   *
+   *   · "ô" ở đây KHÔNG phải ô nhập — nó là một mục trong danh sách chọn trục. Cả sản phẩm dùng
+   *     chữ "ô" cho ô nhập ("Ô thiếu đang được viền đỏ…"), nên mượn nó cho một thứ khác là bắt
+   *     người đọc đi tìm nhầm chỗ. Câu mới chỉ gọi "ô nhập" đúng nghĩa cũ của nó.
+   *   · nhãn trần trong ngoặc kép không nói nó nằm đâu. Nay có danh từ và chỗ đứng: "dòng … ngay
+   *     trên biểu đồ" — đúng chỗ `.controls` của `ChartFrame` dựng nó.
+   *   · câu sai khiến người đọc, trong khi chín đoạn anh em của nó đều TẢ cái hình. Câu mới về
+   *     cùng một giọng với chúng, và nhân tiện hết vòng vo ("biểu đồ thay đổi theo thao tác của
+   *     bạn trên biểu đồ" lấy chính nó làm lời giải thích cho nó).
+   *
+   * Phép quét cả 764 câu riêng của 111 công thức lẫn 36 khoá `guide.*`: đây là đoạn DUY NHẤT trỏ
+   * vào một phần của màn bằng nhãn trần. Nó hiện trên 66 trong 111 bài — nhóm hình đông nhất.
    */
   'guide.chartKind.sensitivity.body':
-    'Chọn ô trong "Xem kết quả đổi theo", biểu đồ thay đổi theo thao tác của bạn trên biểu đồ.',
+    'Đường cong cho biết kết quả đổi thế nào khi một ô nhập chạy hết dải giá trị của nó. Lựa chọn ở dòng "Xem kết quả đổi theo" ngay trên biểu đồ quyết định đó là ô nhập nào.',
   'guide.chartKind.waterfall.title': 'Biểu đồ bóc tách',
   'guide.chartKind.waterfall.body':
     'Mỗi cột là một khoản cộng vào hoặc trừ đi. Cột cuối vẽ từ 0 lên và bằng đúng con số ở khối Kết quả.',

@@ -94,32 +94,33 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       },
     ],
     /*
-     * Tích của ba đầu vào với một hằng — quét biến nào cũng ra đoạn thẳng qua gốc. Cùng luật với
-     * nhóm phí & thuế (xem docblock đầu `fees.ts`).
+     * ── Vì sao THÁC NƯỚC, sau khi đã là `none` suốt từ đầu ──────────────────────────────────
      *
-     * Điều đáng nói của công thức này KHÔNG nằm ở hình mà ở chỗ so sánh: rút trước hạn thì lãi
-     * tính theo lãi suất KHÔNG KỲ HẠN chứ không theo lãi suất đã cam kết. Việc ấy do `explanation`
-     * và `commonMistakes` lo, một đường thẳng không nói thêm được gì.
+     * Quét biến nào cũng ra đoạn thẳng qua gốc (tích của ba đầu vào với một hằng, cùng luật với
+     * nhóm phí & thuế — xem docblock đầu `fees.ts`), nên đường quét đúng là thứ không đáng vẽ.
+     * Nhưng đó chính là tiêu chí của nhóm `waterfall`: bốn công thức mang nhãn ấy đều có đường
+     * quét thẳng, nên với chúng BÓC TÁCH mới là cái hình. Công thức này nay là công thức thứ năm.
+     *
+     * Đường đi tới đây, ghi lại vì nó là một quyết định bị đảo (06/10/2026):
+     *
+     *   · Chủ dự án kéo thanh trượt "Lãi suất hợp đồng / năm" và hỏi vì sao không có gì đổi. Đúng
+     *     vậy, và KHÔNG phải lỗi số học: rút trước hạn thì lãi trả theo lãi suất không kỳ hạn, nên
+     *     lãi suất hợp đồng không nằm trong phép tính ra kết quả. Nhưng nó quyết định **số tiền bị
+     *     mất vì rút sớm** (`lostInterest`) — thứ `calc` đã tính sẵn mà không khối nào đọc tới.
+     *   · Lần chữa đầu khai `breakdown` và giữ `none`, vì lúc ấy khối "Từ các ô trên, công thức
+     *     tính ra" đọc thẳng `spec.breakdown` nên hai con số có chỗ bày mà không cần hình.
+     *   · Cùng ngày chủ dự án cho bỏ hẳn khối ấy trên cả 9 công thức — đo ra nó chép lại đúng cột
+     *     và trị số mà hình bóc tách đã vẽ. Công thức này là ca DUY NHẤT không có hình để chép,
+     *     nên bỏ khối mà giữ `none` là ô "Lãi suất hợp đồng" chết trở lại.
+     *
+     * Nên nó nhận đúng cái hình mà hình dạng đường quét của nó vốn đã đủ tiêu chuẩn. Dấu: kết quả
+     * = lãi theo lãi suất hợp đồng TRỪ phần bị mất, nên hai chặng cộng đúng về kết quả — bất biến
+     * `chart.test.ts` quét toàn Registry.
+     *
+     * Điều đáng nói còn lại — rút trước hạn thì lãi tính theo lãi suất KHÔNG KỲ HẠN chứ không theo
+     * lãi suất đã cam kết — vẫn do `explanation` và `commonMistakes` lo, như trước.
      */
-    chartType: 'none',
-    /*
-     * Hai đại lượng `calc` vẫn tính mà màn CHƯA bày — khai ra ngày 06/10/2026.
-     *
-     * Chủ dự án kéo thanh trượt "Lãi suất hợp đồng / năm" và hỏi vì sao không có gì đổi. Đúng vậy,
-     * và đó KHÔNG phải lỗi số học: rút trước hạn thì lãi trả theo lãi suất không kỳ hạn, nên lãi
-     * suất hợp đồng không nằm trong phép tính ra kết quả. Nhưng nó quyết định **số tiền bị mất vì
-     * rút sớm** — thứ `calc` đã tính sẵn thành `lostInterest` từ đầu mà không khối nào trên trang
-     * đọc tới.
-     *
-     * Nên chữa bằng cách BÀY RA, không bằng cách bỏ ô đi (khác hẳn ca `xirr.guess`, nơi ô ấy
-     * không quyết định gì cả). Khai `breakdown` là đủ: `derivedStages()` đọc thẳng `spec.breakdown`
-     * nên khối "Từ các ô trên, công thức tính ra" hiện hai hàng này, còn hình thì KHÔNG mọc thêm —
-     * `FormulaChart.veDuoc()` loại hẳn `chartType: 'none'`, và lý do giữ `none` ở ngay trên vẫn
-     * nguyên.
-     *
-     * Dấu: kết quả = lãi theo lãi suất hợp đồng TRỪ phần bị mất, nên hai chặng cộng đúng về kết
-     * quả — bất biến mà `chart.test.ts` quét toàn Registry.
-     */
+    chartType: 'waterfall',
     breakdown: [
       {
         key: 'interestAtContractRate',
@@ -135,10 +136,6 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         shortLabel: { vi: 'Lãi mất do rút sớm', en: 'Interest lost by withdrawing early' },
       },
     ],
-    derivedSubstitution: {
-      interestAtContractRate: '{principal} × {contractRate} ÷ 100 ÷ 12 × {monthsHeld}',
-      lostInterest: '{interestAtContractRate} − {__ketQua}',
-    },
     level: 'basic',
     tags: ['rut truoc han', 'lai khong ky han', 'tiet kiem', 'early withdrawal'],
     resultUnit: '₫',

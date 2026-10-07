@@ -66,7 +66,6 @@ export { buildChartModel } from './build';
  * `breakdown.ts`. Nằm ở đây chứ không ở `registry` vì nó suy từ `spec.breakdown`, thứ chỉ có
  * nghĩa với biểu đồ.
  */
-export { derivedStages } from './breakdown';
 
 /*
  * Biểu đồ NẾN của màn bảng chuỗi giá WF-05 — loại riêng, không phải nhánh của `ChartModel`.

@@ -37,12 +37,8 @@ import {
   SHARE_INPUTS_PARAM,
   decodeShareInputs,
   defaultInputs,
-  derivedStages,
   encodeShareInputs,
-  datNhanDanXuat,
-  datSoDanXuat,
   datSoThaySo,
-  giaTriChoDanXuat,
   formatNumber,
   displayCalcName,
   draftFor,
@@ -92,7 +88,6 @@ import { CongThucDien } from '@/ui/quiz/CongThucDien';
 import type {
   BaiHuongDan,
   Bilingual,
-  DanXuatCay,
   ThaySoCay,
   MucId,
   QuizItem,
@@ -118,7 +113,6 @@ import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
 import { Badge, Button } from '@/ui/primitives';
 import {
   ConstantsNote,
-  DerivedNote,
   ErrorState,
   ExampleBlock,
   ExplanationAccordion,
@@ -271,11 +265,6 @@ export interface FormulaDetailProps {
    */
   thaySoCay?: ThaySoCay;
   /**
-   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày, dựng sẵn lúc
-   * build. Chỉ 9 trên 111 công thức có khối ấy. Xem docblock trong thân component.
-   */
-  danXuatCay?: Readonly<Record<string, DanXuatCay>>;
-  /**
    * Bài "Hướng dẫn sử dụng" của chính công thức này (WF-21 đợt 2), dựng sẵn lúc build ở
    * `page.tsx` qua `@/application/huong-dan`.
    *
@@ -377,7 +366,6 @@ export function FormulaDetail({
   viDu,
   viDuCay,
   thaySoCay,
-  danXuatCay,
   bai,
 }: FormulaDetailProps) {
   const { mode, feeScheduleId, locale } = usePreferences();
@@ -2190,22 +2178,18 @@ export function FormulaDetail({
    * khối vẫn phải hiện dòng "N ô ẩn ở chế độ Cơ bản".
    */
   /*
-   * Các đại lượng công thức TỰ TÍNH RA, tra một lần rồi dùng ở ba chỗ: điều kiện "khối Số liệu
-   * rỗng" ngay dưới, chỗ dựng khối trong khuôn gộp, và chính khối ấy. Trước 06/10/2026 nó được gọi
-   * hai lần với cùng bộ tham số — thứ chỉ không sai vì hàm thuần.
+   * Bảng hằng số — phụ lục duy nhất còn lại ở cuối khối Số liệu. Tra một lần rồi dùng ở ba chỗ:
+   * điều kiện "khối Số liệu rỗng" ngay dưới, chỗ dựng khối, và chính khối ấy. Trước 06/10/2026 nó
+   * được gọi hai lần với cùng bộ tham số — thứ chỉ không sai vì đó là hàm thuần.
    */
-  const changDanXuat = useMemo(
-    () => derivedStages(spec, effectiveInputs, output),
-    [spec, effectiveInputs, output],
-  );
+  const hangSoDung = useMemo(() => constantsUsedBy(spec, ctx), [spec, ctx]);
 
   const khoiSoLieuTrong =
     spec.variables.length === 0 &&
     !merged &&
     !wantsSeries &&
     !hasConfigBlock(spec.id) &&
-    constantsUsedBy(spec, ctx).length === 0 &&
-    changDanXuat.length === 0;
+    hangSoDung.length === 0;
 
   /*
    * Dòng `92.000 ÷ 6.050 = 15,21` dưới đáy thẻ gộp — VẼ THÀNH HÌNH từ 05/10/2026.
@@ -2238,92 +2222,29 @@ export function FormulaDetail({
   const vePhaiThaySo = output.value === null ? null : formatNumber(output.value);
 
   /*
-   * Tên của từng KÝ HIỆU, lấy đúng cụm chữ dòng biểu thức dưới hình đang dùng (05/10/2026).
+   * ── Bảng hằng số, và ở khuôn gộp nó RỜI khỏi cột phải (06/10/2026) ──────────────────────────
    *
-   * `notation.expression` đã gắn mỗi cụm với số thứ tự dòng bảng ký hiệu (`sym`) để tô sáng khi rê
-   * chuột, nên bảng tên này chỉ là đọc lại thứ đã có — không chuỗi mới, không bản dịch mới, và
-   * không thể lệch với dòng chữ vì nó LÀ dòng chữ. Lý do đầy đủ ở docblock `nhanCuaKhoa`.
+   * Dựng MỘT lần cho hai chỗ đặt, cùng lý do như khối Kết quả ngay dưới.
    *
-   * Lấy cụm ĐẦU TIÊN: một ký hiệu xuất hiện nhiều lần trong dòng (`i` của `tra-gop-nien-kim` có 3
-   * chỗ) thì mọi chỗ đều cùng một cụm, nên chỗ nào cũng được.
-   */
-  const tenKyHieu = useMemo(() => {
-    const ra: Record<string, Bilingual> = {};
-    (spec.symbols ?? []).forEach((kyHieu, chiSo) => {
-      const cum = (ngonNgu: 'vi' | 'en'): string | undefined =>
-        notation.expression[ngonNgu].flat().find((doan) => doan.sym === chiSo)?.text;
-      const vi = cum('vi');
-      const en = cum('en');
-      if (vi !== undefined && en !== undefined) ra[kyHieu.latex] = { vi, en };
-    });
-    return ra;
-  }, [spec.symbols, notation.expression]);
-
-  /*
-   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày (05/10/2026).
-   *
-   * Chủ dự án nhìn hai dòng "Gốc kỳ đầu" và "Lãi kỳ đầu" của `tra-gop-nien-kim` rồi hỏi *"nếu được
-   * tính ra thì công thức để tính đâu? tại sao chưa cho vào"*. Khối ấy bày nhãn và trị số, không
-   * gì khác — hai con số có tên mà không tra được ở đâu ra.
-   *
-   * Bảng giá trị gom ở Domain (`giaTriChoDanXuat`) chứ không gom tại chỗ, để cửa gác ở
-   * `formulas.test.ts` gom ĐÚNG bảng này. Nó gồm cả `extras` và `__ketQua`, vì "Gốc kỳ đầu" đúng
-   * là "khoản trả hằng tháng trừ đi lãi kỳ đầu" — nhắc tới chính kết quả và một đại lượng khác.
-   *
-   * 9 trên 111 công thức có khối này, nên 102 trang không chạy một dòng nào ở đây.
-   */
-  const congThucDanXuat = useMemo(() => {
-    if (danXuatCay === undefined) return undefined;
-    const bang = giaTriChoDanXuat(thaySoCay ?? null, effectiveInputs, output.extras, output.value);
-    const ra: Record<string, { nhan: Nut; so: Nut }> = {};
-    for (const [khoa, hinh] of Object.entries(danXuatCay)) {
-      const cay = datSoDanXuat(hinh, bang, thaySoCay?.danXuat ?? []);
-      if (cay !== null) ra[khoa] = { nhan: datNhanDanXuat(hinh, spec, locale, tenKyHieu), so: cay };
-    }
-    return ra;
-  }, [
-    danXuatCay,
-    thaySoCay,
-    effectiveInputs,
-    output.extras,
-    output.value,
-    spec,
-    locale,
-    tenKyHieu,
-  ]);
-
-  /*
-   * Khối "Từ các ô trên, công thức tính ra" — cũng dựng MỘT lần cho hai chỗ đặt, cùng lý do như
-   * khối Kết quả ngay dưới.
-   *
-   * Ở khuôn gộp nó không nằm trong cột Số liệu nữa (06/10/2026). Chủ dự án chụp màn
-   * `rut-truoc-han` và chỉ đúng chỗ: *"không gian bên trái đang thừa thãi rất nhiều … có thể căn
-   * chỉnh hoặc giàn số liệu ngang hàng sang 2 bên"*. Khối Kết quả bên trái chỉ cao ~100px, còn
-   * khối này đứng trong cột phải và đẩy thẻ cao thêm ~260px, nên nửa trái của dải ấy trống trơn —
-   * đúng cảnh `ConstantsNote` đã gặp ngày 02/10/2026, chỉ khác chỗ không chữa được bằng hai cột:
-   * mỗi hàng ở đây mang một HÌNH công thức rộng ~450px, mà cột phải chỉ 780px.
+   * Chủ dự án chụp màn `rut-truoc-han` rồi `gia-hoa-von`, hai lượt cách nhau một giờ, cùng một
+   * câu: *"không gian bên trái đang thừa thãi rất nhiều"*, *"tại sao vẫn còn những phần mà để thừa
+   * không gian như này"*. Khối Kết quả bên trái chỉ cao ~100px, còn phụ lục đứng trong cột phải và
+   * đẩy thẻ cao thêm 260–300px, nên nửa trái của dải ấy trống trơn.
    *
    * Nên nó trải hết bề ngang thẻ, thành một hàng lưới riêng dưới cả hai nửa — đúng chỗ dòng thay
-   * số đã đứng, và đúng mạch: các ô ở trên → đại lượng tính ra → phép thay số → con số bên trái.
-   * `compact` là vế thứ hai, và cần cả hai: nó chia bề ngang mới cho HAI chặng đứng cạnh nhau. Chỉ
-   * trải rộng mà không chia thì chỗ trống đổi chỗ chứ không mất, và đó đúng là bản đầu tiên bị trả
-   * lại — *"căn chỉnh như này thì lại có thừa khoảng trống"*.
+   * số đã đứng, và đúng mạch: các ô ở trên → mức đang áp → phép thay số → con số bên trái.
+   * `compact` là vế thứ hai, và cần cả hai: nó chia bề ngang mới thành hai cột. Chỉ trải rộng mà
+   * không chia thì chỗ trống đổi chỗ chứ không mất — đó đúng là bản đầu tiên bị trả lại.
    *
-   * Đọc `effectiveInputs`/`output` chứ không phải `inputs`: ô móc nối (chuỗi định giá) nhận số từ
-   * công thức trên, và chặng tính ra phải nói theo đúng bộ số đang cho ra kết quả đang hiện.
+   * Đo trên cả 65 công thức dùng khuôn gộp: 13 công thức có bảng hằng số, và KHÔNG công thức nào
+   * cần chuỗi giá hay có khối cấu hình. Nghĩa là cột phải của thẻ gộp chỉ còn đúng tiêu đề và hàng
+   * ô nhập — không còn thứ gì khác có thể kéo nó dài ra.
    *
-   * `null` khi công thức không khai `breakdown` hoặc mọi chặng đều là ô nhập — 102 trong 111 trang
-   * không thêm một nút DOM nào, kể cả bọc `.derivedRow`.
+   * `null` khi công thức không tra hằng số nào, nên 98 trong 111 trang không thêm một nút DOM nào,
+   * kể cả bọc `.cuoiSoLieu`.
    */
-  const khoiDanXuat =
-    changDanXuat.length === 0 ? null : (
-      <DerivedNote
-        stages={changDanXuat}
-        unit={spec.resultUnit}
-        compact={merged}
-        {...(congThucDanXuat === undefined ? {} : { congThuc: congThucDanXuat })}
-      />
-    );
+  const hangSoBlock =
+    hangSoDung.length === 0 ? null : <ConstantsNote constants={hangSoDung} compact={merged} />;
 
   /*
    * Khối Kết quả dựng một lần rồi đặt vào một trong hai chỗ — xem `merged` ngay trên. Dựng tại chỗ
@@ -3104,37 +3025,27 @@ export function FormulaDetail({
               )}
 
               {/*
-          Hằng số thuế & phí đang áp — đặt CUỐI khối Số liệu, không tách thành khối riêng.
-          Nó thuộc về đầu vào: cùng là thứ quyết định con số ở khối Kết quả, chỉ khác chỗ người
-          dùng không gõ được. Tách ra thành khối số 5 thì nó rơi xuống dưới Kết quả, tức là người
-          dùng đọc xong con số rồi mới biết nó tính theo mức nào — muộn.
-
-          Tự trả về null khi công thức không tra hằng số nào, nên 98 trong 111 trang không thêm
-          một nút DOM nào.
-        */}
-              <ConstantsNote constants={constantsUsedBy(spec, ctx)} compact={merged} />
-
-              {/*
-          Đại lượng công thức TỰ TÍNH RA — đứng cạnh `ConstantsNote` vì cùng một vai: thứ quyết
-          định con số ở khối Kết quả mà người dùng không gõ được, nên phải đọc được TRƯỚC khi tới
-          Kết quả. Lý do đầy đủ ở docblock `DerivedNote.tsx`; chỗ dựng ở docblock `khoiDanXuat`.
+          Mức thuế & phí đang áp — thuộc về đầu vào: cùng là thứ quyết định con số ở khối Kết quả,
+          chỉ khác chỗ người dùng không gõ được, nên phải đọc được TRƯỚC khi tới Kết quả. Tách
+          thành khối riêng đứng sau Kết quả thì người dùng đọc xong con số rồi mới biết nó tính
+          theo mức nào — muộn.
 
           CHỈ ở khuôn một cột. Khuôn gộp đặt nó thành hàng lưới riêng ngay dưới đây, vì ở đó cột
-          phải chỉ rộng 780px và nửa trái của dải bỏ trống — xem `khoiDanXuat`.
+          phải chỉ rộng 780px và nửa trái của dải bỏ trống — xem docblock `hangSoBlock`.
         */}
-              {!merged && khoiDanXuat}
+              {!merged && hangSoBlock}
             </section>
           )}
 
           {/*
-            Khuôn gộp: khối "Từ các ô trên, công thức tính ra" trải hết bề ngang thẻ.
+            Khuôn gộp: bảng hằng số trải hết bề ngang thẻ.
 
             Bọc một `<div>` chứ không gắn thẳng lớp lên khối: lớp này nói về CHỖ ĐỨNG trong thẻ gộp
             (ô lưới nào, khe trên bao nhiêu), còn hình dạng bên trong khối là việc của chính nó —
             hai mô-đun CSS khác nhau, và FormulaDetail không với tới được tên lớp đã băm của
-            `DerivedNote.module.css`.
+            `ConstantsNote.module.css`.
           */}
-          {merged && khoiDanXuat !== null && <div className={styles.derivedRow}>{khoiDanXuat}</div>}
+          {merged && hangSoBlock !== null && <div className={styles.cuoiSoLieu}>{hangSoBlock}</div>}
 
           {/*
             Hai phần cuối của thẻ gộp, chỉ dựng cho công thức dùng khuôn mới: khối Kết quả (đã rời

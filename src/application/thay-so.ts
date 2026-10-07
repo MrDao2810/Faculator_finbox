@@ -11,4 +11,4 @@
  * Nơi được import file này: `src/app/cong-thuc/[id]/page.tsx`. `build-only-imports.test.ts` gác.
  */
 
-export { derivedShape, substitutionShape } from '@/core/substitution-shape';
+export { substitutionShape } from '@/core/substitution-shape';

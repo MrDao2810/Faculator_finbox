@@ -312,8 +312,14 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     latex:
       'V_0 = \\sum_{t=1}^{n} \\frac{D_0 (1+g_1)^t}{(1+r)^t} + \\frac{D_0 (1+g_1)^n (1+g_2)}{(r - g_2)(1+r)^n}',
     expression: {
-      vi: 'Giá trị cổ phiếu = Tổng cổ tức giai đoạn đầu chiết khấu về hiện tại + Giá trị cuối kỳ chiết khấu về hiện tại',
-      en: 'Share value = Sum of first-stage dividends discounted to present + Terminal value discounted to present',
+      // Dòng cũ — "Tổng cổ tức giai đoạn đầu chiết khấu về hiện tại + Giá trị cuối kỳ chiết khấu về
+      // hiện tại" — là bản TẢ hình chứ không phải bản ĐỌC hình: bảng ký hiệu gọi tên đủ bảy ký hiệu
+      // (V_0, t, n, D_0, g_1, r, g_2) mà dòng chữ không nhắc một cái nào, nên người đọc không có
+      // đường nào đi từ chữ sang hình. Cùng lỗi với `gia-hoa-von` (06/10/2026), chỉ nặng hơn vì
+      // nuốt cả hình. Dòng dài là cái giá phải trả: hình có hai phân số và sáu dấu cộng thì dòng
+      // chữ cũng phải có bấy nhiêu.
+      vi: 'Giá trị cổ phiếu = Tổng n năm đầu của [Cổ tức vừa trả × (1 + Tăng trưởng giai đoạn đầu)^t ÷ (1 + Suất sinh lợi yêu cầu)^t] + Cổ tức vừa trả × (1 + Tăng trưởng giai đoạn đầu)^n × (1 + Tăng trưởng dài hạn) ÷ [(Suất sinh lợi yêu cầu − Tăng trưởng dài hạn) × (1 + Suất sinh lợi yêu cầu)^n]',
+      en: 'Share value = Sum over the first n years of [Dividend just paid × (1 + First-stage growth)^t ÷ (1 + Required return)^t] + Dividend just paid × (1 + First-stage growth)^n × (1 + Long-run growth) ÷ [(Required return − Long-run growth) × (1 + Required return)^n]',
     },
     symbols: [
       {
@@ -361,10 +367,6 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       },
     ],
     chartType: 'stackedBar',
-    derivedSubstitution: {
-      pvTerminal:
-        '{dividend} × (1 + {growthStage1} ÷ 100)^{years} × (1 + {growthTerminal} ÷ 100) ÷ (({requiredReturn} ÷ 100 − {growthTerminal} ÷ 100) × (1 + {requiredReturn} ÷ 100)^{years})',
-    },
     breakdown: [
       {
         key: 'pvStage1',
@@ -786,8 +788,12 @@ export const WACC: FormulaModule = {
     },
     latex: 'WACC = \\frac{E}{E+D} \\, r_e + \\frac{D}{E+D} \\, r_d \\, (1 - t)',
     expression: {
-      vi: 'WACC = Tỷ trọng vốn chủ × Chi phí vốn chủ + Tỷ trọng nợ × Chi phí nợ × (1 − Thuế suất)',
-      en: 'WACC = Equity weight × Cost of equity + Debt weight × Cost of debt × (1 − Tax rate)',
+      // "Tỷ trọng vốn chủ" / "Tỷ trọng nợ" từng đứng thay cho `E/(E+D)` và `D/(E+D)`, nuốt luôn hai
+      // phân số của hình: bảng ký hiệu có hàng `E`, `D` và `E+D` nhưng KHÔNG có hàng nào tên "tỷ
+      // trọng", nên hai chữ ấy không nối được với hình (06/10/2026, cùng đợt `gia-hoa-von`). Viết
+      // thẳng phép chia thì mỗi chữ trong dòng này đều là một hàng của bảng bên phải.
+      vi: 'WACC = (Vốn chủ sở hữu ÷ Tổng nguồn vốn) × Chi phí vốn chủ + (Nợ vay ÷ Tổng nguồn vốn) × Chi phí nợ vay × (1 − Thuế suất)',
+      en: 'WACC = (Equity ÷ Total capital) × Cost of equity + (Debt ÷ Total capital) × Cost of debt × (1 − Tax rate)',
     },
     symbols: [
       {
@@ -831,10 +837,6 @@ export const WACC: FormulaModule = {
     ],
     chartType: 'stackedBar',
     /* Đúng hai vế của chính công thức, nên cộng lại ra đúng WACC — không cần xử lý gì thêm. */
-    derivedSubstitution: {
-      equityPart: '{equity} ÷ ({equity} + {debt}) × {costEquity}',
-      debtPart: '{debt} ÷ ({equity} + {debt}) × {costDebt} × (1 − {taxRate} ÷ 100)',
-    },
     breakdown: [
       { key: 'equityPart', sign: 1, shortLabel: { vi: 'Phần vốn chủ', en: 'Equity portion' } },
       { key: 'debtPart', sign: 1, shortLabel: { vi: 'Phần nợ vay', en: 'Debt portion' } },
@@ -1080,9 +1082,6 @@ export const FCFF: FormulaModule = {
      * phóng tiền) thì dấu `-1` biến nó thành cột cộng — đúng về toán và đúng về nghĩa, tiền quay
      * về doanh nghiệp thật.
      */
-    derivedSubstitution: {
-      ebitAfterTax: '{ebit} × (1 − {taxRate} ÷ 100)',
-    },
     breakdown: [
       { key: 'ebitAfterTax', sign: 1, shortLabel: { vi: 'EBIT sau thuế', en: 'After-tax EBIT' } },
       { key: 'depreciation', sign: 1, shortLabel: { vi: 'Khấu hao', en: 'Depreciation' } },
@@ -1341,9 +1340,6 @@ export const FCFE: FormulaModule = {
      * án báo hình bóc tách hiện một chặng mà khối Công thức và khối Số liệu không nhắc tới ở đâu
      * cả, chỉ có "(1 − Thuế suất)" ẩn trong công thức chứ không đặt tên cho chặng.
      */
-    derivedSubstitution: {
-      interestAfterTax: '{interest} × (1 − {taxRate} ÷ 100)',
-    },
     breakdown: [
       { key: 'fcff', sign: 1, shortLabel: { vi: 'FCFF', en: 'FCFF' } },
       {

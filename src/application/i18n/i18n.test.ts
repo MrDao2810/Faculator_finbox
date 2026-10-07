@@ -377,3 +377,45 @@ describe('từ điển không được có khoá mồ côi', () => {
     expect(orphans, `khoá không nơi nào dùng: ${orphans.join(', ')}`).toEqual([]);
   });
 });
+
+/**
+ * Bài hướng dẫn trỏ vào màn tính bằng NHÃN đặt trong ngoặc kép, nên nhãn ấy phải có thật.
+ *
+ * Lỗi thật, lộ ra ngày 06/10/2026 khi chủ dự án hỏi *"«Xem kết quả đổi theo» là phần nào?"*. Bản
+ * tiếng Việt quả có nhãn ấy; bản tiếng Anh của cùng đoạn lại viết "See the result change with",
+ * còn nhãn thật trên màn là "See how the result changes with" — bài chỉ người đọc đi tìm một cái
+ * tên không tồn tại, và không cửa gác nào thấy được: cả hai đều là chuỗi hợp lệ.
+ *
+ * Quét theo NGOẶC KÉP THẲNG (`"…"`) chứ không quét mọi dấu nháy: đó là dấu duy nhất bài dùng để
+ * trích nhãn màn hình, trong khi `“…”` là dấu trích nguồn của ngân hàng câu hỏi.
+ */
+describe('bài hướng dẫn chỉ trích nhãn có thật trên màn', () => {
+  it.each(['vi', 'en'] as const)('mọi nhãn bài %s trích đều là một nhãn của chính màn ấy', (ma) => {
+    const tuDien: Readonly<Record<string, string>> = ma === 'vi' ? vi : en;
+    /* So với TOÀN BỘ từ điển cùng thứ tiếng: nhãn có thể là tiêu đề khối, nhãn ô hay nhãn nút. */
+    const nhanCo = new Set(Object.values(tuDien).filter((chu) => chu.length > 0));
+
+    const sai: string[] = [];
+    for (const [khoa, chu] of Object.entries(tuDien)) {
+      if (!khoa.startsWith('guide.')) continue;
+      for (const m of chu.matchAll(/"([^"]+)"/g)) {
+        const nhan = m[1] ?? '';
+        if (!nhanCo.has(nhan)) sai.push(`${khoa}: không có nhãn nào tên "${nhan}"`);
+      }
+    }
+
+    expect(sai, sai.join(' · ')).toEqual([]);
+  });
+
+  /*
+   * Chặn kiểu đỗ giả: ca trên vẫn xanh nếu bài không còn trích nhãn nào. Giữ ít nhất một chỗ
+   * trích thật để phép quét có việc để làm — và để ai bỏ nốt chỗ trích ấy phải đọc đoạn này.
+   */
+  it('có ít nhất một đoạn bài đang trích nhãn màn hình', () => {
+    const dem = Object.entries(vi).filter(
+      ([khoa, chu]) => khoa.startsWith('guide.') && /"[^"]+"/.test(chu),
+    );
+
+    expect(dem.length).toBeGreaterThan(0);
+  });
+});

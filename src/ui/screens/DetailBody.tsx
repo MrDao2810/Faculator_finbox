@@ -129,8 +129,7 @@ const MERGED_CARDS = [
   'lai-kep',
   'lai-tien-gui',
   'tiet-kiem-muc-tieu',
-  // planning.ts
-  'rut-truoc-han',
+  // planning.ts — trừ `rut-truoc-han` (từ 06/10/2026 là biểu đồ bóc tách mặc định)
   'gui-quay-vong',
   'gia-von-trung-binh-dca',
   'so-ky-dca',

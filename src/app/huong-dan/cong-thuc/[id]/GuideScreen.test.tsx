@@ -270,7 +270,9 @@ describe('GuideScreen', () => {
   it('mục "Đọc biểu đồ" in đoạn của đúng loại hình, không lẫn sang loại khác', () => {
     dungMan('pe');
     expect(screen.getByText('Biểu đồ quét độ nhạy')).toBeTruthy();
-    expect(screen.getByText(/biểu đồ thay đổi theo thao tác của bạn/)).toBeTruthy();
+    expect(
+      screen.getByText(/Lựa chọn ở dòng "Xem kết quả đổi theo" ngay trên biểu đồ/),
+    ).toBeTruthy();
     expect(screen.queryByText('Biểu đồ bóc tách')).toBeNull();
 
     cleanup();

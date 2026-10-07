@@ -23,13 +23,15 @@ section 3.8 still says 94 / 13 / 107 and has to be corrected to 98 / 13 / 111.**
 
 WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as are
 packages 2.4.3 (maths notation) and **3.2.2 + 5.2.3** (the valuation chain and the WF-04 advanced
-screen). Charts cover **102 of 111** formulas; the other 9 declare `chartType: 'none'` deliberately.
-The test is **"is the sweep a straight line"**, not "is the formula simple": the 9 are all a product
+screen). Charts cover **103 of 111** formulas; the other 8 declare `chartType: 'none'` deliberately.
+The test is **"is the sweep a straight line"**, not "is the formula simple": the 8 are all a product
 or a difference of their inputs, so the sweep is a line through the origin that the `expression`
-line above it already tells you. An audit re-derived this from the Registry and moved two formulas
+line above it already tells you. A ninth left the group on 06/10/2026 — `rut-truoc-han` became a
+`waterfall`, because a straight-line sweep is exactly the criterion for drawing the breakdown
+instead. An audit re-derived this from the Registry and moved two formulas
 out of that group — `so-hop-dong-toi-da` (a floor division, so the sweep is a **staircase**) and
 `gia-von-trung-binh-dca` (the unknown sits in the denominator, so the sweep is a **curve**). Each of
-the 9 now carries its reason at the declaration; the shared one for the five fee/tax formulas is in
+the 8 now carries its reason at the declaration; the shared one for the five fee/tax formulas is in
 `fees.ts`'s file docblock.
 
 The remaining work plan lives in the external "WBS v7" estimate and the SRS, referenced throughout
@@ -420,21 +422,21 @@ union minus `unavailable` — so a fourth kind only needs a branch in `ChartBody
 
 A formula gets a waterfall by declaring `spec.breakdown` (ordered stages, each with a `sign` and
 an optional `shortLabel`, keyed to an input variable **or** to a key in the result's `extras`).
-**All ten** formulas tagged `waterfall`/`stackedBar` now declare stages — nothing is left waiting.
-An eleventh, `rut-truoc-han`, declares stages while keeping `chartType: 'none'`: it wants the two rows
-in the Số liệu block, not a picture. `canDrawBreakdown()` rejects `none`, so declaring stages there
-never conjures a chart.
+**All eleven** formulas tagged `waterfall`/`stackedBar` declare stages — nothing is left waiting.
+The eleventh is `rut-truoc-han`, which spent one day declaring stages while still `none`; the reason
+that stopped working is in its own docblock.
 
 `chartType` decides whether the breakdown is the _default_ view or merely an entry in the picker,
-and across all ten the split is not arbitrary: the four `waterfall` ones (`ev`, `fcff`, `fcfe`,
-`ncav-tren-co-phieu`) each have a **straight-line** sweep — slopes 1, 1−t, 1 and 1000/N — which is
-exactly what `chartType: 'none'` exists to reject, so for them the breakdown _is_ the chart. The
+and across all eleven the split is not arbitrary: the five `waterfall` ones (`ev`, `fcff`, `fcfe`,
+`ncav-tren-co-phieu`, `rut-truoc-han`) each have a **straight-line** sweep — slopes 1, 1−t, 1,
+1000/N and a product of three inputs — which is exactly what `chartType: 'none'` exists to reject,
+so for them the breakdown _is_ the chart. The
 six `stackedBar` ones keep the sweep as the default because it still says something: total interest
 against term is a convex curve, and it is precisely what `lich-tra-no`'s own `commonMistakes` warns
 about. Never promote a `stackedBar` formula to breakdown-by-default without checking what its sweep
-would lose. Current split of the 102 that have a chart: **63 sweeps + 4 waterfalls that draw at
+would lose. Current split of the 103 that have a chart: **63 sweeps + 5 waterfalls that draw at
 once, + 35 waiting on a price series** — and those 35 all draw the moment a series is loaded, which
-`history.test.ts` pins. Plus the 9 `none` that makes 111.
+`history.test.ts` pins. Plus the 8 `none` that makes 111.
 
 Two invariants hold it honest: the stages must sum to the formula's own result — a registry-wide
 sweep in `chart.test.ts` enforces this for **every** formula that declares stages, and pins the
@@ -518,6 +520,29 @@ turn that text node into a blank line. Multi-line blocks switch from per-line ce
 centered one-column grid with left-aligned lines and a 1.5em hanging indent, so a wrapped line
 cannot be mistaken for a new equation; the 106 single-line formulas match `[data-lines='1']` and
 are untouched.
+
+**The expression line is a TRANSLITERATION of the picture, not a paraphrase** (06/10/2026). The
+owner circled two boxes on `gia-hoa-von`: the picture's `Q \cdot P_{mua}` and the words "Tiền mua"
+under it — _"'Tiền mua' là cái gì? … 'Q.P mua' bên trên ký hiệu ra sao thì bên dưới giải thích y
+nguyên. tôi có cần bạn ăn bớt vậy đâu?"_ Two symbols the legend names ("khối lượng cổ phiếu mua rồi
+bán", "giá mua một cổ phiếu") had been replaced by one invented noun that appears in no legend row,
+no field label and nowhere else on the page — while the same `Q` was spelled out as "Khối lượng" in
+the denominator of that same line, so the line named one symbol two different ways. Rule 7 in
+`expression-rules.ts` (`thieuPhepToan`) is the gate: every arithmetic operator the picture draws must
+survive into the line, **minus** the ones sitting inside a compound `spec.symbols` row. That
+subtraction is the whole rule — collapsing a group into one noun is right when the page names the
+group and wrong when it does not. `roi-rong` writes "Vốn thực bỏ ra" for `Q·P_mua + F_mua + F_lk` and
+`loi-nhuan-rong` writes "Tổng chi phí" for `F_mua + F_ban + T + F_lk`, and both declare that exact
+sub-expression as a legend row, so hovering the group in the picture gives the noun back;
+`gia-hoa-von` declared no such row. `\,` and `\;` count as multiplication, because an implicit
+product in a picture has to become an explicit `×` in words — and that detail is what lets the gate
+see this bug at all: the line carried exactly one `×`, enough to cover the `\cdot` in the numerator,
+so without counting the denominator's `Q\,(…)` it stayed green. The sweep over all 111 found three,
+with no false positive: `gia-hoa-von`, `wacc` (`E/(E+D)` and `D/(E+D)` written as "Tỷ trọng vốn chủ" /
+"Tỷ trọng nợ", with legend rows for `E`, `D` and `E+D` but none for either weight) and
+`ddm-hai-giai-doan`, whose line named none of its seven legend symbols and is now written out in
+full, two fractions and six plus signs included. Rules 4 and 5 are blind to this: a swallowed group
+carries no unusual constant, and swallowing symbols leaves the `=` count intact.
 
 **Hovering or tapping a symbol opens a "how it is computed" panel** (17/09/2026). The owner pointed at
 Sharpe's card and said users cannot tell how "Lợi suất bình quân một phiên" is computed. Hovering (mouse)
@@ -623,50 +648,63 @@ so a pinned name that comes back to life must be removed from the list.
 **That first sweep was wrong, and the way it was wrong is the lesson.** It counted a change in ANY
 `extras` key as a visible change, so it cleared `rut-truoc-han`'s "Lãi suất hợp đồng / năm" — which
 the owner photographed hours later with the same question. `extras` reach the screen by exactly two
-routes: a key declared in `spec.breakdown` (which `DerivedNote` and the waterfall read), or one of
-the three `CUSTOM_BODIES` formulas that render their own. `ResultBlock` prints `value` and the unit,
-nothing else — `REVIEW-2.md` had already written that down. Everything else `calc` computes is
-invisible, so counting it is counting a number nobody can see. **A measurement about the screen
+routes: a key declared in `spec.breakdown` (which the waterfall's columns and its data table read),
+or one of the three `CUSTOM_BODIES` formulas that render their own. `ResultBlock` prints `value` and
+the unit, nothing else — `REVIEW-2.md` had already written that down. Everything else `calc` computes
+is invisible, so counting it is counting a number nobody can see. **A measurement about the screen
 compares what the screen shows.** The fix there was the opposite of `xirr`'s: the contract rate is
 not inert, it decides `lostInterest` — what early withdrawal costs you, the whole point of the
-formula — so the cure was to publish the number, not delete the control. `rut-truoc-han` now
-declares two `breakdown` stages (`interestAtContractRate` +, `lostInterest` −, summing to the result)
-and is the **first formula to declare stages while keeping `chartType: 'none'`**: `canDrawBreakdown()`
-rejects `none`, so no chart appears and the documented reason for `none` stands, while
-`derivedStages()` reads `spec.breakdown` directly and the Số liệu block gains the two rows. The
-registry-wide sum gate in `chart.test.ts` was rewritten to read `breakdownBars()` instead of going
-through `buildChartModel`, because the invariant belongs to the stages, not to the picture.
+formula — so the cure was to publish the number, not delete the control. `rut-truoc-han` declares
+two `breakdown` stages (`interestAtContractRate` +, `lostInterest` −, summing to the result) and
+**became a `waterfall`** so they draw; it spent one day declaring stages while still `none`, for a
+reason that stopped holding the same day (below). The registry-wide sum gate in `chart.test.ts` was
+rewritten to read `breakdownBars()` instead of going through `buildChartModel`, because the
+invariant belongs to the stages, not to the picture.
 
-**Publishing those rows then broke the merged card's balance, and fixing it took three rounds with
-the owner** (06/10/2026 — the whole sequence is worth reading before touching `DerivedNote` again).
-In the merged card the Kết quả block is ~100px tall in the left column while the Số liệu column on
-the right now carried the derived rows too, so the left half of a 260px band was empty: _"không
-gian bên trái đang thừa thãi rất nhiều … có thể căn chỉnh hoặc **giàn số liệu ngang hàng sang 2
-bên**"_. Round 1 moved the block out of the Số liệu `<section>` into its own full-width row of the
-card (`.derivedRow`, `grid-column: 1 / -1`, auto-placed into row 2) and laid each row out as three
-columns — name · derivation · value. Rejected: with the value right-aligned to the card edge the
-hole only **moved**, to the ~630px between the end of a formula and its own number. Round 2 is the
-shape that stuck, and it is `ConstantsNote`'s own cure from 02/10/2026 — two columns — except that
-it only works **after** the block is full width: half of the 780px Số liệu column is narrower than
-`rut-truoc-han`'s own 455px formula picture, while half of the 1.250px card is 615px and nothing
-scrolls. **Both halves are needed; neither alone fixes it.** Round 3 moved the number itself: it
-had kept the one-column shape's place beside the label, so it sat alone in the cell's top-right
-corner a line away from the arithmetic that produces it — _"để đáp án trơ trọi 1 mình thì không
-hợp lý"_, with an arrow drawn at the tail of the substituted line. It now ends that line behind an
-`aria-hidden` "=", so a cell reads `tên = công thức = con số`, the same shape as the card's own
-substitution strip and the Ví dụ block's "Áp vào công thức" row. All three live under
-`compact` + `@media (min-width: 1280px)`, the same prop name and gate as `ConstantsNote`, so the
-one-column layout and every phone width are untouched; the one thing React decides is the DOM
-position, and the `.derivedRow` wrapper carries a negative top margin below 1280 so that leaving
-the section does not widen the gap there by the `--space-5` of `.detail`. Four formulas reach this
-path (`ddm-hai-giai-doan`, `tra-gop-nien-kim`, `tra-gop-goc-deu`, `rut-truoc-han`) — all with
-exactly two stages — and five more (`ncav-tren-co-phieu`, `wacc`, `fcff`, `fcfe`, `lich-tra-no`)
-keep the one-column shape inside the section, which is why `FormulaDetail.test.tsx` pins **both**
-directions.
+**`DerivedNote` — the "Từ các ô trên, công thức tính ra" block — is GONE (06/10/2026), and the way
+it went is worth more than the block was.** It existed from 16/09/2026 to name a quantity the
+breakdown chart drew but nothing on the page could explain: `fcfe`'s "Lãi vay sau thuế" column at
+48 tỷ ₫, with only "Chi phí lãi vay" 60 and "Thuế suất" 20% in the Số liệu block beside it. On
+05/10/2026 it gained a substituted formula per row, to answer "and how is it worked out". Then the
+owner, having asked three times on `tra-gop-nien-kim` what it was for, set a condition rather than
+an order: _"xác định trước nó có quan trọng không? nếu không thì ở 9 công thức bỏ đi"_. The
+measurement that answers it, run across all nine formulas that had the block: **eight of the nine
+already drew those exact stages as breakdown columns**, with the same label and the same formatted
+value, plus a 3–5 row data table under the chart — the block was a second copy. The ninth,
+`rut-truoc-han`, was the only one with no chart to copy, and it became a `waterfall` in the same
+round rather than keeping a block for one page. Going with it: `derivedStages()`,
+`FormulaSpec.derivedSubstitution`, `derivedShape()`, four helpers in `substitution-cay.ts`, the
+`detail.derivedInUse` key and four gates. Every removal site carries a tombstone pointing at the one
+in `vi.ts`, which holds the full measurement. **If the 16/09 hole reappears** — a column with a name
+and a number that traces back to no field — the fix is NOT to rebuild this block: the chart already
+says the name and the value, so what is missing is "how", and that is what the hover panel on a
+symbol (`src/core/how-to/`) is for.
+
+**Before that, three rounds went into balancing the merged card, and the lesson survives the
+deletion** (06/10/2026). In the merged card the Kết quả block is ~100px tall in the left column
+while the Số liệu column on the right carried the appendix too, so the left half of a 260–300px
+band was empty: _"không gian bên trái đang thừa thãi rất nhiều … có thể căn chỉnh hoặc **giàn số
+liệu ngang hàng sang 2 bên**"_, and an hour later, on `gia-hoa-von`, _"tại sao vẫn còn những phần
+mà để thừa không gian như này"_. Round 1 moved the block out of the Số liệu `<section>` into its own
+full-width row of the card (`.cuoiSoLieu`, `grid-column: 1 / -1`, auto-placed into row 2) and laid
+each row out as three columns — name · derivation · value. Rejected: with the value right-aligned to
+the card edge the hole only **moved**, to the ~630px between the end of a formula and its own
+number. Round 2 split the rows into two columns, which is `ConstantsNote`'s own cure from
+02/10/2026 — and that is the durable lesson: **splitting into columns lowers a block but does not
+move it**, so `ConstantsNote` had had its empty rectangle merely shortened, and it came back a month
+later. The pair is what works: move it to full width **and** keep two columns, which then measure
+~615px instead of ~340px. Round 3 moved the number to the tail of its own substituted line behind an
+`aria-hidden` "=" — _"để đáp án trơ trọi 1 mình thì không hợp lý"_ — and that shape died with the
+block, but the first two rounds are exactly what `ConstantsNote` now does. The sweep that settles
+the rest of the card: measured across all merged formulas, **none needs a price series and none has
+a config block**, so `.actions`, `.seriesFoot` and `DetailConfig` can never appear there; the right
+column holds only its heading and the input tiles, and nothing else can stretch it. `rut-truoc-han`
+left `hasMergedCard()` in the same round (65 → 64) because that list excludes every `waterfall`
+formula, and the gate recomputes the list from its four criteria rather than trusting it.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
-`spec.usesConstants` — 13 of them do, across `derivatives.ts` (5), `fees.ts` (7) and `planning.ts`
-(1). The declaration is what `ConstantsNote` reads to print the label, value, unit, effective date
+`spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
+(1); 13 use the merged card and only `loi-nhuan-rong` does not, because it has a custom body. The declaration is what `ConstantsNote` reads to print the label, value, unit, effective date
 and legal basis at the end of the Số liệu block; before it existed, `phi-giao-dich-mua` showed
 138.000 ₫ without the 0,15% rate appearing anywhere on the page. Declare the **key only** — the
 value keeps flowing from `schedules.ts`, so a rate change moves the screen with it, whereas a

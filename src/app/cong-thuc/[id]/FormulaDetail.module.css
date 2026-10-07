@@ -1000,16 +1000,20 @@ button.iconButton::after {
 }
 
 /*
- * Bọc của khối "Từ các ô trên, công thức tính ra" ở khuôn gộp (06/10/2026).
+ * Bọc của bảng hằng số cuối khối Số liệu, ở khuôn gộp (06/10/2026).
  *
  * Ở khổ hẹp `.merged` là `display: contents`, nên bọc này rơi thẳng vào dòng chảy của `.detail` —
  * nơi khe giữa hai khối là `--space-5`, chứ không phải `--space-2` của khối Số liệu mà nó vừa rời
- * khỏi. Trừ lại đúng phần chênh (20px − 8px) để khổ điện thoại không đổi một pixel: khối vẫn nối
- * ngay dưới hàng ô nhập, đúng khoảng cũ, với vạch kẻ và tiêu đề của chính nó làm ranh giới.
+ * khỏi. Trừ lại đúng phần chênh (20px − 8px) để khổ điện thoại không đổi một pixel: phụ lục vẫn
+ * nối ngay dưới hàng ô nhập, đúng khoảng cũ, với vạch kẻ và tiêu đề của chính nó làm ranh giới.
  *
  * Trừ bằng `margin` âm trên bọc chứ không nới `gap`: `gap` của `.detail` là của CẢ chín khối.
+ *
+ * Giữ một lớp bọc riêng dù bên trong chỉ còn một khối: lớp này nói về CHỖ ĐỨNG trong thẻ gộp, còn
+ * hình dạng bên trong là việc của `ConstantsNote.module.css` — hai mô-đun CSS khác nhau, và tên
+ * lớp đã băm nên file này không với tới được.
  */
-.derivedRow {
+.cuoiSoLieu {
   margin-top: calc(var(--space-2) - var(--space-5));
 }
 
@@ -1204,27 +1208,33 @@ button.iconButton::after {
   }
 
   /*
-   * Khối "Từ các ô trên, công thức tính ra": HÀNG RIÊNG, trải cả hai cột (06/10/2026).
+   * Bảng hằng số: HÀNG RIÊNG, trải cả hai cột (06/10/2026).
    *
-   * Nó từng là phần đuôi của khối Số liệu, tức nằm gọn trong cột phải. Chủ dự án chụp màn
-   * `rut-truoc-han` ở 1360px: khối Kết quả bên trái cao ~100px, khối này kéo cột phải xuống thêm
-   * ~260px, nên nửa trái của dải ấy là một ô trống 480 × 260 — *"không gian bên trái đang thừa
-   * thãi rất nhiều … có thể căn chỉnh hoặc giàn số liệu ngang hàng sang 2 bên"*.
+   * Nó từng là phần đuôi của khối Số liệu, tức nằm gọn trong cột phải. Chủ dự án chụp màn hai
+   * lần cách nhau một giờ, cùng một lỗi: `rut-truoc-han` (khối dẫn xuất, nay đã bỏ) rồi `gia-hoa-von` (bảng
+   * hằng số) — *"không gian bên trái đang thừa thãi rất nhiều"*, *"tại sao vẫn còn những phần mà
+   * để thừa không gian như này"*. Khối Kết quả bên trái cao ~100px, phụ lục kéo cột phải xuống
+   * thêm 260–300px, nên nửa trái của dải ấy là một ô trống cỡ 480 × 280.
    *
-   * Chữa như `ConstantsNote` (02/10/2026, cùng triệu chứng) — chia các chặng thành hai cột — nhưng
-   * phải ĐỔI CHỖ trước rồi mới chia. Ở đó mỗi hàng là mấy dòng chữ nên chia đôi cột phải 780px là
-   * đủ; ở đây mỗi hàng mang một HÌNH công thức, của `rut-truoc-han` rộng ~455px, nên nửa của 780px
-   * còn hẹp hơn chính cái hình. Trải hết bề ngang thẻ trước thì mỗi cột được ~615px và không hình
-   * nào phải cuộn. Luật chia cột nằm ở `DerivedNote.module.css` (`.compact`), không ở đây.
+   * ĐỔI CHỖ trước rồi mới chia cột, và cần cả hai vế. `ConstantsNote` đã thử vế chia cột một mình
+   * ngày 02/10/2026: nó hạ được chiều cao nhưng ô trống bên trái thì còn nguyên, nên một tháng
+   * sau vẫn bị chụp lại. Trải hết bề ngang thẻ trước thì mỗi cột được ~615px thay vì ~340px, và
+   * căn cứ pháp lý dài nhất (96 ký tự) gọn trong một dòng. Luật chia cột nằm ở
+   * `ConstantsNote.module.css` (`.compact`), không ở đây.
    *
-   * Không khai `grid-row`: hai ô của hàng 1 đã khai tường minh, nên khối này tự rơi xuống hàng
+   * Vì sao chỉ khối này mà không phải mọi thứ trong cột phải: đã đo cả 64 công thức dùng khuôn
+   * gộp — không công thức nào cần chuỗi giá (nên `.actions`/`.seriesFoot` không bao giờ có mặt) và
+   * không công thức nào có khối cấu hình. Cột phải của thẻ gộp vì thế chỉ còn tiêu đề và hàng ô
+   * nhập, tức không còn thứ gì khác kéo dài nó ra được.
+   *
+   * Không khai `grid-row`: hai ô của hàng 1 đã khai tường minh, nên bọc này tự rơi xuống hàng
    * trống đầu tiên, và dòng thay số rơi tiếp xuống hàng sau nó. Đúng mạch đọc của thẻ — ô nhập →
-   * đại lượng tính ra → phép thay số → con số bên trái.
+   * mức đang áp → phép thay số → con số bên trái.
    *
    * `margin-top` trả về 0: phần trừ ở luật gốc chỉ để bù `gap` của `.detail` ở khổ hẹp, còn ở đây
    * khe là `row-gap` của chính thẻ.
    */
-  .derivedRow {
+  .cuoiSoLieu {
     grid-column: 1 / -1;
     margin-top: 0;
   }

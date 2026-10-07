@@ -1278,10 +1278,6 @@ export const NCAV: FormulaModule = {
      * số và lệch cả đơn vị. Bất biến "tổng các chặng bằng kết quả" bắt đúng ca này, nên hai số dưới
      * đây được chia sẵn ở `calc` rồi mới đưa lên hình.
      */
-    derivedSubstitution: {
-      assetsPerShare: '{currentAssets} × 1.000 ÷ {shares}',
-      liabilitiesPerShare: '{totalLiabilities} × 1.000 ÷ {shares}',
-    },
     breakdown: [
       {
         key: 'assetsPerShare',

@@ -88,11 +88,18 @@
 }
 
 /*
- * ── Trong THẺ GỘP của khổ PC: hai cột (02/10/2026) ────────────────────────────────────────────
+ * ── Trong THẺ GỘP của khổ PC: hai cột (02/10/2026, đổi bối cảnh 06/10/2026) ───────────────────
  *
- * Chỉ khi `ConstantsNote` nhận `compact` — tức nó đang đứng trong thẻ gộp "Số liệu + Kết quả" ở
- * cột phải, bên cạnh một cột trái chỉ cao 75px. Đo ở 1440: `roi-rong` và `gia-hoa-von` khai 4 hằng
- * số, cột dọc cao 376px kéo thẻ lên 620px và để trống gần 550px bên trái. Hai cột hạ còn ~200px.
+ * Chỉ khi `ConstantsNote` nhận `compact` — tức nó đang đứng trong thẻ gộp "Số liệu + Kết quả".
+ * Lý do gốc: cột trái của thẻ chỉ cao 75px, mà `roi-rong` và `gia-hoa-von` khai 4 hằng số nên cột
+ * dọc cao 376px kéo thẻ lên 620px, để trống gần 550px bên trái. Hai cột hạ còn ~200px.
+ *
+ * **Chia cột MỘT MÌNH đã không đủ, và ngày 06/10/2026 chủ dự án chụp lại đúng `gia-hoa-von`:**
+ * *"tại sao vẫn còn những phần mà để thừa không gian như này"*. Đúng — hạ chiều cao thì ô trống
+ * bên trái hẹp lại chứ không mất, vì khối vẫn nằm trong cột phải. Vế còn thiếu là ĐỔI CHỖ: từ
+ * 06/10/2026 `FormulaDetail` đưa khối ra thành hàng lưới riêng trải hết bề ngang thẻ
+ * (`.cuoiSoLieu`), nên hai cột ở đây nay rộng ~615px mỗi cột thay vì ~340px — căn cứ pháp lý dài
+ * nhất (96 ký tự) gọn trong một dòng, và nửa trái của dải không còn trống.
  *
  * Mốc 1280 chứ không phải mọi khổ: dưới mốc ấy thẻ gộp chưa tồn tại (xem `.merged` trong
  * `FormulaDetail.module.css`), khối này vẫn nằm trong khối Số liệu một cột như cũ, và cột dọc là
@@ -118,6 +125,10 @@
    *
    * Hai cột chỉ lãi khi có từ hai hằng số trở lên, và đó đúng là ba công thức từng lệch nhất:
    * `roi-rong` và `gia-hoa-von` (4 khoá) 376 → 253px, `thue-tncn-dau-tu` (2 khoá) 214 → 157px.
+   *
+   * Luật này càng đúng từ 06/10/2026, khi khối trải hết bề ngang thẻ: một hằng số nằm trong nửa
+   * khung thì nửa kia trống hẳn — đúng lỗi cả lượt này đi chữa. Trải cả hai cột thì bốn dòng chữ
+   * của nó chỉ so le mép phải, thứ đoạn văn nào cũng vậy.
    */
   .compact .list > .row:only-child {
     grid-column: 1 / -1;

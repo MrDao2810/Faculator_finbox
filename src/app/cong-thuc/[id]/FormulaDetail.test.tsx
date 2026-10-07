@@ -40,7 +40,8 @@ import { CHART_GEOMETRY } from '@/ui/charts/LineChart';
 import { FormulaDetail } from './FormulaDetail';
 import { baiHuongDanFor } from '@/application/huong-dan';
 
-import { derivedShape, substitutionShape } from '@/application/thay-so';
+import { substitutionShape } from '@/application/thay-so';
+import { hasMergedCard } from '@/ui/screens';
 import { buildNotationView } from './notation-view';
 import type { NotationView } from './notation-types';
 
@@ -146,14 +147,12 @@ function Man({ spec, bai }: { spec: FormulaSpec; bai?: BaiHuongDan }) {
    * kiểm về chúng sẽ xanh vì rỗng.
    */
   const thaySoCay = substitutionShape(spec);
-  const danXuatCay = derivedShape(spec);
   return (
     <FormulaDetail
       spec={spec}
       asOf={AS_OF}
       notation={notation}
       {...(thaySoCay === null ? {} : { thaySoCay })}
-      {...(Object.keys(danXuatCay).length === 0 ? {} : { danXuatCay })}
       {...(bai === undefined ? {} : { bai })}
     />
   );
@@ -455,8 +454,8 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    *   · Ô nhận số từ công thức khác (`LinkedInput`) và khối "Số liệu lấy từ công thức khác". 5 công
    *     thức, chỉ ở Nâng cao, đã tự nói ở ba tầng. Thêm "?" là dựng lại đúng cái sơ đồ đã bỏ ngày
    *     16/09/2026.
-   *   · `ConstantsNote`, `DerivedNote`. Cả hai mang sẵn câu trả lời và lối ra trong chính câu chữ
-   *     của chúng.
+   *   · `ConstantsNote` — nó mang sẵn câu trả lời và lối ra trong chính câu chữ của nó. (Khối thứ
+   *     hai từng kê ở đây, `DerivedNote`, đã bỏ ngày 06/10/2026.)
    *
    * Cảnh báo của một phép tính hiện ở BỐN chỗ (khối Kết quả, ô móc nối, khối chuỗi, biểu đồ).
    * Rải "?" theo từng chỗ cảnh báo hiện ra là một màn hỏng mọc 3–4 nút cùng trỏ về một mục.
@@ -888,12 +887,26 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
    * trống. Người dùng thấy con số phí mà không có cách nào biết nó tính theo tỷ lệ nào, trong khi
    * đó lại đúng là thứ khác nhau giữa các công ty chứng khoán.
    */
+  /*
+   * Khoanh vùng CHÍNH bảng hằng số, không dò cả trang: khối Nguồn cũng trích đúng thông tư ấy, nên
+   * một truy vấn trần khớp hai chỗ.
+   *
+   * Trước 06/10/2026 chỗ khoanh là vùng Số liệu (`aria-labelledby="khoi-so-lieu"`). Từ lượt ấy
+   * bảng hằng số rời khỏi `<section>` đó ở khuôn gộp để trải hết bề ngang thẻ — mà cả 13 công thức
+   * tra hằng số đều dùng khuôn gộp, nên không ca nào ở đây còn tìm thấy nó trong vùng cũ. Lời
+   * khẳng định của khối ca kiểm thì không đổi, và ca "đứng trước Kết quả" ngay dưới gác đúng nó.
+   */
+  function bangHangSo(): HTMLElement {
+    const heading = screen.getByRole('heading', { name: t('detail.constantsInUse') });
+    const section = heading.closest('section');
+    if (section === null) throw new Error('Không tìm thấy bảng hằng số — kịch bản test đã đổi.');
+    return section;
+  }
+
   it('phí giao dịch mua nói rõ đang tính theo 0,15%, kèm ngày hiệu lực và căn cứ', () => {
     render(<Man spec={specOf('phi-giao-dich-mua')} />);
 
-    // Khoanh vùng Số liệu, không dò cả trang: khối Nguồn cũng trích đúng thông tư ấy, nên một
-    // truy vấn trần khớp hai chỗ — mà chỗ phải đúng là chỗ đứng cạnh ô nhập.
-    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
+    const khoi = bangHangSo();
 
     expect(within(khoi).getByText('0,15 %')).not.toBeNull();
     expect(within(khoi).getByText(/01\/01\/2022/)).not.toBeNull();
@@ -904,13 +917,25 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
     expect(screen.getAllByText('138.000 ₫').length).toBeGreaterThan(0);
   });
 
+  /*
+   * Lời khẳng định của cả khối ca kiểm — "không được ẩn sau kết quả" — nay có ca riêng, vì chỗ
+   * đứng của bảng đã đổi và không còn suy ra được từ việc nó nằm trong vùng Số liệu.
+   */
+  it('bảng hằng số vẫn đọc được TRƯỚC khối Kết quả', () => {
+    render(<Man spec={specOf('phi-giao-dich-mua')} />);
+
+    const ketQua = screen.getByRole('heading', { name: t('result.heading') }).closest('section');
+    expect(
+      bangHangSo().compareDocumentPosition(ketQua as Node) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it('công thức tra nhiều mức thì bày đủ — giá hoà vốn ăn cả bốn', () => {
     render(<Man spec={specOf('gia-hoa-von')} />);
 
     // Đúng 4, không phải "ít nhất 4": bảng biến cũng dựng dt nhưng nằm ở khối khác, nên một con
     // số dôi ra ở đây nghĩa là khối bị dựng hai lần hoặc lọt hằng số của công thức khác.
-    const khoi = screen.getByRole('region', { name: t('detail.inputs') });
-    expect(within(khoi).getAllByRole('term')).toHaveLength(4);
+    expect(within(bangHangSo()).getAllByRole('term')).toHaveLength(4);
   });
 
   it('công thức không tra hằng số nào thì không mọc thêm khối — P/E phải sạch', () => {
@@ -3415,20 +3440,17 @@ describe('WF-03 — mở bảng dữ liệu thì mang theo chuỗi và mã đang
 });
 
 /*
- * Chặng bóc tách công thức tự tính ra phải đọc được ở khối Số liệu — chủ dự án báo 16/09/2026.
+ * ── Bảng hằng số ra khỏi cột Số liệu, thành hàng riêng của thẻ gộp (06/10/2026) ──────────────
  *
- * Triệu chứng: hình bóc tách của `fcfe` có cột 'Lãi vay sau thuế' 48 tỷ ₫, còn khối Số liệu chỉ có
- * 'Chi phí lãi vay' 60 và 'Thuế suất' 20% đứng rời nhau — cái tên ấy và con số 48 không xuất hiện ở
- * đâu khác trên trang. Ca kiểm bám vào khối Số liệu THẬT (`aria-labelledby="khoi-so-lieu"`) chứ
- * không quét cả màn: quét cả màn thì chữ trong hình cũng khớp, và ca sẽ xanh ngay cả khi khối Số
- * liệu vẫn trống — đúng cảnh cần chặn.
+ * Chủ dự án chụp màn `gia-hoa-von`: *"tại sao vẫn còn những phần mà để thừa không gian như
+ * này"*. Bảng 4 hằng số đứng trong cột phải kéo thẻ cao thêm ~300px, còn khối Kết quả bên trái
+ * chỉ cao ~100px, nên nửa trái của dải ấy trống hẳn.
  *
- * Từ 06/10/2026 lời khẳng định tách làm hai, nên tên khối ca kiểm nói đúng cả hai nửa. Ở khuôn một
- * cột (46 công thức, và mọi công thức ở khổ hẹp) khối ấy vẫn là phần đuôi của khối Số liệu. Ở khuôn
- * gộp nó ra đứng thành hàng riêng trải hết bề ngang thẻ — vẫn trong cùng cái thẻ, vẫn trước khối
- * Kết quả, chỉ không còn nằm trong thẻ `<section>` của Số liệu. Lý do ở docblock `khoiDanXuat`.
+ * Luật hình nằm trong `@media (min-width: 1280px)`, thứ jsdom không chạy, nên ca kiểm gác ĐIỀU
+ * KIỆN của luật ấy: bảng phải là cháu của cùng bọc chứa khối Kết quả thì `grid-column: 1 / -1`
+ * mới với tới nó, và phải mang lớp `compact` thì nó mới chia hai cột.
  */
-describe('WF-03 — đại lượng công thức tự tính ra đứng trước Kết quả', () => {
+describe('WF-03 — bảng hằng số trải hết bề ngang thẻ gộp', () => {
   function khoiSoLieu(): HTMLElement {
     const heading = screen.getByRole('heading', { name: t('detail.inputs') });
     const section = heading.closest('section');
@@ -3436,62 +3458,24 @@ describe('WF-03 — đại lượng công thức tự tính ra đứng trước 
     return section;
   }
 
-  function khoiDanXuat(): HTMLElement {
-    const heading = screen.getByRole('heading', { name: t('detail.derivedInUse') });
+  function bangHangSo(): HTMLElement {
+    const heading = screen.getByRole('heading', { name: t('detail.constantsInUse') });
     const section = heading.closest('section');
-    if (section === null) throw new Error('Không tìm thấy khối dẫn xuất — kịch bản test đã đổi.');
+    if (section === null) throw new Error('Không tìm thấy bảng hằng số — kịch bản test đã đổi.');
     return section;
   }
 
-  it('fcfe: khối Số liệu gọi đúng tên mà biểu đồ gọi, kèm trị số', () => {
-    render(<Man spec={specOf('fcfe')} />);
+  it('bảng đứng ngoài <section> Số liệu, cùng cấp với khối Kết quả', () => {
+    render(<Man spec={specOf('gia-hoa-von')} />);
 
-    const khoi = khoiSoLieu();
-    expect(within(khoi).getByText('Lãi vay sau thuế')).not.toBeNull();
-    // 60 tỷ × (1 − 20%) = 48 tỷ ₫.
-    expect(within(khoi).getByText('48 tỷ ₫')).not.toBeNull();
-  });
-
-  it('đổi thuế suất thì trị số tính lại theo, không đứng yên ở số cũ', async () => {
-    const user = userEvent.setup();
-    render(<Man spec={specOf('fcfe')} />);
-
-    await user.clear(oNhap(/^Chi phí lãi vay/));
-    await user.type(oNhap(/^Chi phí lãi vay/), '100');
-
-    // 100 tỷ × (1 − 20%) = 80 tỷ ₫.
-    expect(within(khoiSoLieu()).getByText('80 tỷ ₫')).not.toBeNull();
-  });
-
-  it('công thức không khai bóc tách thì không thêm khối nào — 102/111 trang không đổi', () => {
-    render(<Man spec={specOf('pe')} />);
-
-    expect(screen.queryByText(t('detail.derivedInUse'))).toBeNull();
-  });
-
-  /*
-   * ── Khuôn gộp: khối ra khỏi cột Số liệu, thành hàng riêng của thẻ (06/10/2026) ──────────────
-   *
-   * Chủ dự án chụp màn `rut-truoc-han` ở 1360px: nửa trái của dải khối này chiếm là một ô trống
-   * 480 × 260 — *"không gian bên trái đang thừa thãi rất nhiều"*. Luật hình nằm trong
-   * `@media (min-width: 1280px)`, thứ jsdom không chạy, nên ca kiểm gác ĐIỀU KIỆN của luật ấy:
-   * khối phải là anh em ruột của khối Kết quả trong thẻ gộp thì `grid-column: 1 / -1` mới với tới
-   * nó, và phải mang lớp `compact` thì nó mới chia hai cột.
-   *
-   * Hai chiều, vì cả hai đều hỏng được lặng lẽ: trả khối về trong `<section>` Số liệu là lỗ trống
-   * quay lại, mà đẩy khối ra khỏi `<section>` ở khuôn một cột là 5 công thức kia mất chỗ đứng.
-   */
-  it('khuôn gộp: khối đứng ngoài <section> Số liệu, cùng cấp với khối Kết quả', () => {
-    render(<Man spec={specOf('rut-truoc-han')} />);
-
-    const khoi = khoiDanXuat();
+    const khoi = bangHangSo();
     expect(khoiSoLieu().contains(khoi)).toBe(false);
 
     /* Cùng một bọc với khối Kết quả — tức cùng một lưới, nên trải được cả hai cột. */
     const ketQua = screen.getByRole('heading', { name: t('result.heading') }).closest('section');
     expect(khoi.parentElement?.parentElement).toBe(ketQua?.parentElement);
 
-    /* Và vẫn đọc TRƯỚC Kết quả: đại lượng tính ra là thứ dẫn tới con số, không phải chú thích sau. */
+    /* Và vẫn đọc TRƯỚC Kết quả: mức đang áp là thứ dẫn tới con số, không phải chú thích sau nó. */
     expect(khoi.compareDocumentPosition(ketQua as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
@@ -3499,10 +3483,23 @@ describe('WF-03 — đại lượng công thức tự tính ra đứng trước 
     expect(String(khoi.className)).toMatch(/compact/);
   });
 
-  it('khuôn một cột: khối vẫn là phần đuôi của khối Số liệu, không mang lớp hai cột', () => {
-    render(<Man spec={specOf('fcfe')} />);
+  /*
+   * Chiều NGƯỢC lại — bảng vẫn là phần đuôi của khối Số liệu ở khuôn một cột.
+   *
+   * Đúng một công thức trong 14 công thức tra hằng số đi nhánh ấy: `loi-nhuan-rong`, vì nó có thân
+   * riêng (`hasCustomBody`) nên nằm ngoài khuôn gộp. 13 công thức còn lại đi nhánh trên. Ca này
+   * ghim cả hai con số, nên một id rời khỏi `hasMergedCard()` — danh sách viết tay — là đỏ ở đây.
+   */
+  it('khuôn một cột: bảng vẫn nằm trong <section> Số liệu', () => {
+    const tra = FORMULAS.filter((spec) => (spec.usesConstants ?? []).length > 0);
+    expect(tra).toHaveLength(14);
+    expect(tra.filter((spec) => !hasMergedCard(spec.id)).map((spec) => spec.id)).toEqual([
+      'loi-nhuan-rong',
+    ]);
 
-    const khoi = khoiDanXuat();
+    render(<Man spec={specOf('loi-nhuan-rong')} />);
+
+    const khoi = bangHangSo();
     expect(khoiSoLieu().contains(khoi)).toBe(true);
     expect(String(khoi.className)).not.toMatch(/compact/);
   });
@@ -3542,94 +3539,5 @@ describe('WF-03 — dòng thay số vẽ thành hình, không in chữ trơn', (
     /* Trình đọc màn hình vẫn nghe được cả phép tính, kèm ngoặc của mẫu số. */
     const hinh = dai?.querySelector('[role="math"]');
     expect(hinh?.getAttribute('aria-label')).toContain('÷ ((1 + ');
-  });
-
-  it('mỗi đại lượng "công thức tự tính ra" đi kèm công thức tính của chính nó', () => {
-    render(<Man spec={specOf('tra-gop-nien-kim')} />);
-
-    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
-    const hang = [...(khoi?.querySelectorAll('dl > div') ?? [])];
-    expect(hang).toHaveLength(2);
-
-    for (const row of hang) {
-      const ct = row.querySelector('[role="math"]');
-      expect(
-        ct,
-        `hàng "${String(row.querySelector('dt')?.textContent)}" chưa có công thức`,
-      ).not.toBeNull();
-      expect(ct?.querySelector('[data-cong-thuc]')).not.toBeNull();
-    }
-  });
-
-  /*
-   * Mỗi hàng có HAI dòng, và dòng TÊN phải có mặt.
-   *
-   * Chủ dự án nhìn bản chỉ-có-số và hỏi *"tại sao lại sử dụng công thức trừ như kia? nguồn để tạo
-   * ra công thức đó là gì?"*. Một dòng toàn số không nói nó đang trừ CÁI GÌ cho CÁI GÌ, nên không
-   * ai phán được nó đúng hay sai. Ca này gác chiều ngược: dòng tên không được biến mất.
-   *
-   * Tên ghép từ nhãn đã có trong `spec` — không câu prose nào viết mới — nên nó cũng gác luôn
-   * đường ghép ấy: `__ketQua` lấy vế trái dòng biểu thức, khoá `extras` lấy `shortLabel` của chặng,
-   * ký hiệu dẫn xuất lấy đúng cụm chữ dòng biểu thức dùng.
-   */
-  it('mỗi công thức có dòng TÊN đứng trên dòng số, ghép từ nhãn sẵn có', () => {
-    render(<Man spec={specOf('tra-gop-nien-kim')} />);
-
-    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
-    const hang = [...(khoi?.querySelectorAll('dl > div') ?? [])];
-
-    for (const row of hang) {
-      expect(row.querySelectorAll('[data-cong-thuc]')).toHaveLength(2);
-    }
-
-    const chu = khoi?.textContent ?? '';
-    /* `__ketQua` → vế trái dòng biểu thức; khoá `extras` → `shortLabel` của chặng. */
-    expect(chu).toContain('Trả hằng tháng');
-    expect(chu).toContain('Lãi kỳ đầu');
-  });
-
-  /*
-   * Hàng dẫn xuất gọi một ký hiệu bằng ĐÚNG cụm chữ dòng biểu thức dưới hình đang gọi.
-   *
-   * Lỗi thật, chủ dự án chụp màn ngày 05/10/2026: hình và dòng chữ gọi `i` là "Lãi suất kỳ", hàng
-   * dẫn xuất ngay dưới ghi "lãi suất một kỳ tháng" — *"đây là lãi suất kỳ mà. tại sao bên dưới lại
-   * ghi là lãi suất kỳ tháng?"*. Hai giọng cho một ký hiệu, cách nhau nửa màn.
-   *
-   * Ca này so hai chỗ trên CÙNG MỘT LƯỢT DỰNG chứ không ghim chuỗi "Lãi suất kỳ": ghim chuỗi thì
-   * đổi tên ký hiệu ở `phrases` sẽ làm đỏ ca kiểm mà không nói được chỗ nào lệch chỗ nào.
-   */
-  it('hàng dẫn xuất gọi ký hiệu đúng tên dòng biểu thức đang gọi', () => {
-    render(<Man spec={specOf('tra-gop-nien-kim')} />);
-
-    const spec = specOf('tra-gop-nien-kim');
-    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
-    const chu = khoi?.textContent ?? '';
-
-    /* Cụm chữ của `i` trong dòng biểu thức — đọc từ chính dòng ấy, không gõ lại. */
-    const cum = 'Lãi suất kỳ';
-    expect(spec.expression?.vi).toContain(cum);
-    expect(chu).toContain(cum);
-
-    /*
-     * Và KHÔNG rơi xuống lưới an toàn, tức mệnh đề đầu trong nghĩa ở bảng ký hiệu. Chữ thường là
-     * dấu hiệu của chính nhánh ấy: ba nguồn tên kia đều là tên thật nên viết hoa, nên một cụm viết
-     * thường đứng giữa phép nhân là hai giọng trong một dòng.
-     */
-    const nghia = spec.symbols?.find((s) => s.latex === 'i')?.meaning.vi ?? '';
-    expect(chu).not.toContain((nghia.split(',')[0] ?? '').trim());
-  });
-
-  /*
-   * Ba đại lượng cố ý KHÔNG có công thức, và ca này gác để chúng không bị lặng lẽ lấp bằng một mẫu
-   * sai: `thue-tncn-dau-tu` đọc thuế suất từ hằng số thị trường (chép trị số vào mẫu là đúng thứ
-   * `ConstantsNote` tồn tại để chặn). Khối vẫn bày nhãn và trị số như trước.
-   */
-  it('đại lượng đọc hằng số thị trường vẫn chỉ bày nhãn và trị số', () => {
-    render(<Man spec={specOf('thue-tncn-dau-tu')} />);
-
-    const khoi = screen.getByRole('heading', { name: t('detail.derivedInUse') }).parentElement;
-    const hang = [...(khoi?.querySelectorAll('dl > div') ?? [])];
-    expect(hang).toHaveLength(2);
-    for (const row of hang) expect(row.querySelector('[role="math"]')).toBeNull();
   });
 });

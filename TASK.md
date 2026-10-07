@@ -4,6 +4,293 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Dòng chữ dưới hình phải đọc hình, không được tả hình (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.176 ca vitest).
+
+### Chủ dự án giao gì
+
+> "lỗi giải thích công thức 1 cách quá qua loa. 'Tiền mua' là cái gì? tự dưng giải thích tiền mua.
+> 'Q.P mua' bên trên ký hiệu ra sao thì bên dưới giải thích y nguyên. tôi có cần bạn ăn bớt vậy
+> đâu? sửa lỗi nghiêm trọng"
+
+Ảnh chụp `gia-hoa-von`, khoanh đỏ hai ô: `Q \cdot P_{mua}` trong hình, và chữ "(Tiền mua)" ở dòng
+ngay dưới.
+
+### Lỗi là gì
+
+Dòng chữ dưới hình là HÌNH ĐỌC THÀNH LỜI. "Tiền mua" không phải tên của thứ gì trên trang ấy: bảng
+ký hiệu bên phải có hàng `Q` ("khối lượng cổ phiếu mua rồi bán") và hàng `P_{mua}` ("giá mua một cổ
+phiếu"), không có hàng nào tên "tiền mua". Người đọc nhìn `Q · P_mua` rồi nhìn xuống thì mất một
+phép nhân và mất hai cái tên. Nặng hơn nữa: chính `Q` ấy lại được đọc thành "Khối lượng" ở mẫu của
+cùng một dòng — một ký hiệu, hai cách gọi, cách nhau 20 ký tự.
+
+### Quét cả thư viện
+
+Thước đo đầu tiên (đếm phép toán của hình so với của chữ) **không bắt được** chính ca được báo: dòng
+chữ có đúng một dấu `×`, vừa đủ cho `\cdot` ở tử, vì dấu `×` của "Khối lượng ×" ở mẫu đã lấp chỗ.
+Phải đếm cả phép nhân VIẾT LIỀN (`Q\,(…)`) thì hình mới ra hai phép nhân và lỗi mới lộ.
+
+Thước đo thứ hai (đếm toán hạng) thì ồn: 50 công thức lệch 1–3 vì cách tách token, không dùng được.
+
+Thước đo giữ lại, và là phép thử của chính chủ dự án — **danh từ gộp có được trang gọi tên không**:
+
+|                                                                                         |             |
+| --------------------------------------------------------------------------------------- | ----------: |
+| Công thức có dòng chữ nuốt phép toán của hình, sau khi trừ phần bảng ký hiệu đã đặt tên | **3 / 111** |
+| Trong đó bị oan                                                                         |           0 |
+
+Hai công thức anh em cùng file cũng gộp cụm nhưng **hợp lệ**, và đó là chỗ phân biệt: `roi-rong` khai
+hàng `Q \cdot P_{mua} + F_{mua} + F_{lk}` → "vốn thực bỏ ra…", `loi-nhuan-rong` khai hàng
+`F_{mua} + F_{ban} + T + F_{lk}` → "tổng chi phí của cả vòng mua rồi bán". Rê vào cụm trong hình là
+ra đúng danh từ ở dòng chữ. `gia-hoa-von` không có hàng nào như thế.
+
+### Đã sửa
+
+| Công thức           | Trước                                                                 | Sau                                                                                   |
+| ------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `gia-hoa-von`       | "(Tiền mua + Phí mua + Phí lưu ký)"                                   | "(Khối lượng × Giá mua + Phí mua + Phí lưu ký)"                                       |
+| `wacc`              | "Tỷ trọng vốn chủ × Chi phí vốn chủ + Tỷ trọng nợ × …"                | "(Vốn chủ sở hữu ÷ Tổng nguồn vốn) × Chi phí vốn chủ + (Nợ vay ÷ Tổng nguồn vốn) × …" |
+| `ddm-hai-giai-doan` | "Tổng cổ tức giai đoạn đầu chiết khấu về hiện tại + Giá trị cuối kỳ…" | đọc đủ hình: hai phân số, sáu dấu cộng, bảy ký hiệu đều có tên                        |
+
+`wacc`: bảng có hàng `E`, `D`, `E+D` nhưng KHÔNG có hàng nào tên "tỷ trọng", nên hai chữ ấy không
+dẫn đi đâu. `ddm-hai-giai-doan`: dòng cũ không nhắc một ký hiệu nào trong bảy ký hiệu của bảng —
+đó là bản TẢ hình, không phải bản ĐỌC hình. Dòng mới dài, và dài là cái giá đúng.
+
+### Đã đổi file nào
+
+- `src/core/expression-rules.ts` — thêm **luật 7** vào docblock; tách `boChiSoVaChu()` ra khỏi
+  `equationsInLatex()` (luật 5 và luật 7 cùng cần nó); thêm `PhepToan`, `phepToanTrongLatex()`,
+  `phepToanTrongChu()`, `thieuPhepToan()`. Docblock của `thieuPhepToan()` giữ toàn bộ lý lẽ "vì sao
+  phải trừ đi phần đã có tên trong bảng ký hiệu".
+- `src/core/formulas/formulas.test.ts` — ca kiểm mới "dòng chữ đọc đủ phép toán của hình, trừ phần
+  bảng ký hiệu đã đặt tên". **Đã chứng minh đỏ trên bản chưa sửa**: ra đúng 3 công thức, 10 dòng
+  lỗi, trong đó có đúng ô chủ dự án khoanh.
+- `src/core/formulas/fees.ts` — dòng chữ `gia-hoa-von`, kèm chú thích ghi lại lỗi và chỗ khác nhau
+  với hai công thức anh em.
+- `src/core/formulas/valuation-dcf.ts` — dòng chữ `wacc` và `ddm-hai-giai-doan`.
+- `CLAUDE.md` — đoạn mới về luật 7, đặt ngay trước đoạn khung "cách tính".
+
+### Đã kiểm những gì trước khi sửa
+
+- `how-to` của ba công thức có khai `phrases` neo vào dòng chữ không: `gia-hoa-von` khai "Phí mua"
+  và "Phí lưu ký" (còn nguyên sau khi sửa), `wacc` khai "Chi phí vốn chủ" (còn nguyên),
+  `ddm-hai-giai-doan` không khai cụm nào. `segmentExpressionLines()` NÉM lúc build nếu một cụm biến
+  mất, nên đây là chỗ bắt buộc phải soi trước.
+- Luật 4 (hằng số), luật 5 (số vế), luật 6 (số dòng) đều không đổi với ba dòng mới.
+
+### Còn lại
+
+- Chưa soi bằng Chrome. Dòng của `ddm-hai-giai-doan` dài ~250 ký tự — `.expression` có
+  `overflow-x: auto` nên nó cuộn trong khung chứ không đẩy trang, nhưng cần nhìn tận mắt ở 1440 và
+  ở 390px.
+
+---
+
+## Bỏ hẳn khối "Từ các ô trên, công thức tính ra" (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.175 ca vitest). Chưa soi được
+bằng Chrome: cổng 3000 không phản hồi.
+
+### Chủ dự án giao gì
+
+> "xóa hẳn cái này đi. cảm giác không có tác dụng và dụng ý gì"
+>
+> (khi được hỏi phạm vi) "xác định trước nó có quan trọng không? nếu không thì ở 9 công thức bỏ đi"
+
+Đây là lần thứ **ba** chủ dự án hỏi về khối ấy trên `tra-gop-nien-kim` — trước đó là _"tác dụng của
+việc đặt 2 công thức này là gì?"_ và _"tôi đang không nghĩ nó có tác dụng"_.
+
+### Phép đo trả lời điều kiện "có quan trọng không"
+
+Chạy trên cả 9 công thức có khối, với bộ số của chính ví dụ từng công thức:
+
+|                                                                                                                              |           |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------: |
+| Công thức mà **hình bóc tách đã vẽ đúng các chặng ấy** — cùng nhãn, cùng trị số đã định dạng, kèm bảng số 3–5 dòng dưới hình | **8 / 9** |
+| Công thức không có hình nào để chép (`rut-truoc-han`, `chartType: 'none'`)                                                   |     1 / 9 |
+
+Nên câu trả lời là **không quan trọng**: với 8 công thức nó là bản sao thứ hai của thứ hình đã nói.
+
+`rut-truoc-han` xử lý bằng cách cho nó cái hình mà hình dạng đường quét của nó vốn đã đủ tiêu chuẩn:
+`chartType: 'none'` → `'waterfall'`. Luật của dự án nói đúng điều đó — bốn công thức `waterfall` đều
+có đường quét THẲNG, và với chúng bóc tách mới là cái hình. Nay là năm.
+
+### Đã gỡ những gì
+
+`DerivedNote.tsx` + `.module.css` · `derivedStages()` + `theoThuTuTinh()` · `FormulaSpec.derivedSubstitution`
+(9 spec) · `derivedShape()` · `giaTriChoDanXuat` / `nhanCuaKhoa` / `datNhanDanXuat` / `datSoDanXuat` ·
+khoá i18n `detail.derivedInUse` (vi + en) · bốn cửa gác (mẫu tính lại, thứ tự tuần tự, bảng
+`DAN_CHUNG_DAN_XUAT` + 3 ca của nó, bộ ca `derivedStages()`) · prop `danXuatCay` và memo
+`tenKyHieu`/`congThucDanXuat` ở `FormulaDetail`.
+
+**Mỗi chỗ gỡ đều để lại mộ chí trỏ về một chỗ duy nhất** — `detail.derivedInUse` trong `vi.ts` — nơi
+ghi cả phép đo lẫn câu dặn: nếu lỗ hổng 16/09/2026 quay lại (một cột có tên và trị số mà không tra
+được từ ô nào), chỗ chữa KHÔNG phải dựng lại khối này. Hình đã nói tên và trị số; thứ còn thiếu là
+"tính ra sao", và đó là việc của khung "cách tính" khi rê chuột vào ký hiệu.
+
+### Số đếm phải dời theo
+
+`rut-truoc-han` thành `waterfall` kéo theo bảy con số ghim ở cửa gác, và một hệ quả về bố cục:
+
+|                                            | trước |    sau |
+| ------------------------------------------ | ----: | -----: |
+| Công thức có biểu đồ                       |   102 |    103 |
+| Công thức `chartType: 'none'`              |     9 |      8 |
+| Thác nước vẽ ngay khi mở màn               |     4 |      5 |
+| Công thức dùng khuôn gộp (`hasMergedCard`) |    65 | **64** |
+
+Con số cuối là hệ quả **phải nói rõ**: luật của `hasMergedCard()` loại mọi công thức `waterfall`
+(biểu đồ bóc tách là mặc định), nên `rut-truoc-han` rời khuôn gộp và trở lại bố cục một cột — ô nhập
+cột trái, Kết quả và biểu đồ cột phải. Không phải tôi chọn; cửa gác `merged-card.test.ts` **tính
+lại** danh sách từ bốn tiêu chí chứ không tin danh sách viết tay, nên giữ nó trong khuôn gộp là đỏ.
+
+### Việc lượt trước còn sót, sửa luôn
+
+Lượt "bảng hằng số" ngay dưới đếm **4** công thức có khối dẫn xuất; đúng ra là **5** —
+`thue-tncn-dau-tu` lọt vì phép đo đầu thiếu `schedule` trong `ctx` nên `calc` của nó hỏng và không
+ra chặng nào. Đã sửa ở mọi chỗ ghi con số ấy. (Khối nay bỏ hẳn nên con số chỉ còn giá trị lịch sử.)
+
+Và `CLAUDE.md` ghi 13 công thức tra hằng số; đo lại là **14** — `fees.ts` có 8 chứ không 7. Công
+thức thứ 14 là `loi-nhuan-rong`, và nó chính là ca duy nhất đi nhánh một cột của bảng hằng số, nên
+ca kiểm chiều ngược nay có công thức thật để chạy.
+
+### Còn lại
+
+- Chưa đo bằng Chrome. Đáng nhìn nhất: `rut-truoc-han` nay là một trang **khác hẳn** — bố cục một
+  cột, và hình thác nước hai cột "Lãi theo lãi suất hợp đồng" / "Lãi mất do rút sớm".
+- `REVIEW-2.md:722` còn nhắc `DerivedNote`. Đó là nhật ký rà soát theo ngày nên để nguyên.
+
+---
+
+## Bảng hằng số mắc đúng lỗi của khối dẫn xuất — và quét nốt cột phải thẻ gộp (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh.** Vẫn chưa soi được bằng Chrome: cổng 3000 không phản hồi.
+
+### Chủ dự án giao gì
+
+> "tôi đã yêu cầu ở trên rồi mà. tại sao vẫn còn những phần mà để thừa không gian như này. kiểm tra
+> lại toàn bộ công thức xem nếu có xuất hiện những lỗi như này thì cần cải tiến lại và sửa cho tôi"
+
+Ảnh chụp `gia-hoa-von`: bảng "Đang tính theo các mức sau" (4 hằng số) nằm trong cột phải thẻ gộp,
+nửa trái của dải ấy trống hẳn — **đúng hình dạng lỗi của khối dẫn xuất một giờ trước**.
+
+### Vì sao lượt 02/10/2026 chưa chữa xong
+
+Bảng hằng số **đã** được chia hai cột ngày 02/10/2026, cho đúng lời phê này. Chia cột hạ chiều cao
+376 → 253px, nhưng khối vẫn nằm trong cột phải, nên ô trống bên trái chỉ **hẹp lại** chứ không mất —
+và một tháng sau bị chụp lại.
+
+**Bài học: chia cột làm khối THẤP xuống, không làm nó ĐỔI CHỖ.** Phải có cả hai vế, và vế đổi chỗ
+phải đi trước: ra hàng lưới riêng trải hết bề ngang thẻ, rồi mới chia đôi — lúc ấy mỗi cột ~615px
+thay vì ~340px, nên căn cứ pháp lý dài nhất (96 ký tự) gọn trong một dòng.
+
+### Quét cả 65 công thức dùng khuôn gộp
+
+| Thứ có thể nằm trong cột phải    | Số công thức | Xử lý                                                          |
+| -------------------------------- | -----------: | -------------------------------------------------------------- |
+| Bảng hằng số (`ConstantsNote`)   |           13 | Ra hàng riêng, lượt này                                        |
+| Khối dẫn xuất (`DerivedNote`)    |            5 | Ra hàng riêng, lượt trước                                      |
+| Nút "Dán chuỗi giá" / chân chuỗi |        **0** | Không công thức gộp nào cần chuỗi giá                          |
+| Khối cấu hình (`DetailConfig`)   |        **0** | `CONFIG_BLOCKS` chỉ có `loi-nhuan-rong`, mà nó dùng thân riêng |
+
+17 trong 65 công thức có phụ lục, và `thue-tncn-dau-tu` có **cả hai** — đây cũng là chỗ sửa một con
+số đã ghi sai hôm nay: lượt trước đếm 4 công thức có khối dẫn xuất, đúng ra là **5**. Phép đo đầu
+thiếu `schedule` trong `ctx` nên `thue-tncn-dau-tu` tính hỏng và không ra chặng nào.
+
+**Sau lượt này cột phải của thẻ gộp chỉ còn tiêu đề và hàng ô nhập** — không còn thứ gì khác có thể
+kéo dài nó ra. Đó là câu trả lời đầy đủ cho "kiểm tra lại toàn bộ công thức".
+
+### Đã đổi file nào
+
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`** — gom `constantsUsedBy()` vào `useMemo` (trước đó
+  gọi hai lần), dựng `hangSoBlock` một lần, và đặt **cả hai** phụ lục vào chung một bọc
+  `.cuoiSoLieu` ở khuôn gộp. Chung một bọc chứ không hai hàng lưới: `thue-tncn-dau-tu` có cả hai, và
+  chúng là hai mục của một chặng.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`** — `.derivedRow` đổi tên thành `.cuoiSoLieu`,
+  chú thích ghi cả phép quét 65 công thức.
+- **`src/ui/result/ConstantsNote.module.css`** — chú thích `.compact` ghi rõ vì sao lượt 02/10 chưa
+  đủ và bối cảnh hai cột nay là ~615px.
+- **`src/ui/result/DerivedNote.module.css`** — sửa "4 công thức" thành 5.
+- **`src/app/cong-thuc/[id]/FormulaDetail.test.tsx`** — ca gác chỗ đứng tách thành hàm dùng chung,
+  chạy cho cả `rut-truoc-han` (khối dẫn xuất) lẫn `gia-hoa-von` (bảng hằng số), thêm ca riêng cho
+  `thue-tncn-dau-tu` (hai phụ lục chung một bọc).
+- **`CLAUDE.md`**, **`TASK.md`** — ghi vòng thứ tư và sửa con số 4 → 5.
+
+### Còn lại
+
+- Cả 13 công thức tra hằng số đều dùng khuôn gộp, nên hiện **không công thức nào** đi nhánh một cột
+  của bảng hằng số. Nhánh ấy vẫn giữ (danh sách `hasMergedCard()` viết tay, một id rời khỏi nó là
+  bảng hằng số rơi về nhánh này), nhưng ca kiểm chiều ngược lại chỉ gác được bằng khối dẫn xuất.
+- Chưa đo bằng Chrome ở 1440 / 1280 / 360.
+
+---
+
+## Đoạn "Đọc biểu đồ quét độ nhạy" trỏ vào một chỗ không ai tìm ra (06/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.195 ca vitest).
+
+### Chủ dự án giao gì
+
+> "«Xem kết quả đổi theo» là phần nào? rồi «Chọn ô» nghĩa là sao? sai bảo ai chọn ô? nếu muốn
+> người dùng hiểu thì phải là «Lựa chọn» hoặc «Biểu đồ sẽ thay đổi khi người dùng thao tác trong
+> biểu đồ». kiểm tra lại toàn bộ công thức để sửa"
+
+Câu bị chỉ: `guide.chartKind.sensitivity.body` — _"Chọn ô trong «Xem kết quả đổi theo», biểu đồ
+thay đổi theo thao tác của bạn trên biểu đồ."_ Nó hiện trên **66 trong 111 bài** (nhóm hình đông
+nhất), và chính chủ dự án viết nó ngày 05/10/2026 — đây là lượt chủ dự án đảo lại câu của mình.
+
+### Ba lỗi, không phải một
+
+| Lỗi                       | Vì sao sai                                                                                                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "ô"                       | Cả sản phẩm dùng chữ "ô" cho **ô nhập** ("Ô thiếu đang được viền đỏ…"). Ở đây nó chỉ một mục trong danh sách chọn trục — mượn chữ ấy là bắt người đọc đi tìm nhầm chỗ |
+| Nhãn trần trong ngoặc kép | `"Xem kết quả đổi theo"` không nói nó nằm đâu trên màn                                                                                                                |
+| Câu sai khiến             | Chín đoạn anh em cùng mục đều **tả cái hình** ở ngôi thứ ba. Chỉ đoạn này ra lệnh, và còn vòng vo: "biểu đồ thay đổi theo thao tác của bạn **trên biểu đồ**"          |
+
+Câu mới: _"Đường cong cho biết kết quả đổi thế nào khi một ô nhập chạy hết dải giá trị của nó. Lựa
+chọn ở dòng «Xem kết quả đổi theo» ngay trên biểu đồ quyết định đó là ô nhập nào."_ — tả hình như
+chín đoạn kia, gọi "ô nhập" đúng nghĩa cũ, và nhãn có danh từ kèm chỗ đứng (đúng hàng `.controls`
+mà `ChartFrame` dựng ngay trên hình).
+
+### Quét cả thư viện: một chỗ ở tiếng Việt, hai chỗ ở tiếng Anh
+
+Quét **800 đoạn** — 764 câu riêng của 111 công thức (`huong-dan/noi-dung/items.ts`) và 36 khoá
+`guide.*` — theo ba dấu hiệu: trích nhãn màn hình trong ngoặc kép, xưng "bạn", mở đầu bằng động từ
+bấm/chọn.
+
+- **Trích nhãn trần: đúng 1** — chính đoạn trên. Không còn chỗ nào khác.
+- **Xưng "bạn": 42**, tất cả đều là sở hữu chứ không phải sai khiến ("Số tiền **bạn** có trong tay
+  hôm nay", "Giá khớp lệnh mua của **bạn**"). Giữ nguyên.
+- **Mở đầu bằng "Chọn…": 12**, tất cả nằm trong dòng "Dễ sai" (tả cái sai: "Chọn tỷ lệ chiết khấu
+  quá thấp…") hoặc dòng "lấy số ở đâu" của một ô kiểu danh sách, nơi chọn ĐÚNG là câu trả lời và
+  dòng ấy in ngay cạnh tên ô. Giữ nguyên.
+
+**Bản tiếng Anh còn một lỗi thứ tư mà bản Việt không có**, và chỉ phép quét mới thấy: nó trích
+`"See the result change with"`, còn nhãn thật trên màn (`chart.sweepLabel`) là
+`"See how the result changes with"`. Bài chỉ người đọc đi tìm một cái tên **không tồn tại**, mà
+không cửa gác nào thấy được — cả hai đều là chuỗi hợp lệ.
+
+### Đã đổi file nào
+
+- **`src/application/i18n/vi.ts`** — viết lại `guide.chartKind.sensitivity.body`; docblock ghi rõ
+  đây là lượt chủ dự án đảo lại câu mình viết hôm trước, nên dòng "chép đúng, không biên tập lại"
+  của bản cũ không còn đúng nữa.
+- **`src/application/i18n/en.ts`** — theo bản `vi` mới, và sửa nhãn trích sai.
+- **`src/application/i18n/i18n.test.ts`** — cửa gác mới: mọi nhãn bài hướng dẫn trích trong `"…"`
+  phải khớp một giá trị có thật của từ điển **cùng thứ tiếng**, chạy cho cả `vi` và `en`, kèm một
+  ca chặn đỗ giả (phải còn ít nhất một chỗ trích để phép quét có việc). Đã thử ngược: dán lại nhãn
+  sai của bản `en` cũ thì ca đỏ đúng chỗ.
+- **`src/app/huong-dan/cong-thuc/[id]/GuideScreen.test.tsx`** — ca "in đoạn của đúng loại hình" bám
+  vào câu cũ, đổi sang bám câu mới.
+
+### Còn lại
+
+- `guide.openCalc` ('Tính với số liệu của bạn') vẫn xưng "bạn" — đó là nhãn NÚT, không phải câu
+  giải thích, nên không nằm trong phạm vi lượt này.
+
+---
+
 ## Khối "Từ các ô trên" lấp nốt nửa trái thẻ gộp — ba vòng (06/10/2026)
 
 **Trạng thái: xong, `npm run check` xanh.** **Chưa soi được bằng Chrome** — chủ dự án đang chạy dev
@@ -63,7 +350,7 @@ gộp và dòng "Áp vào công thức" của khối Ví dụ.
   mang lớp ấy. Trả khối về chỗ cũ là lỗ trống quay lại; đẩy khối ra ở khuôn một cột là 5 công thức
   kia mất chỗ đứng — không chiều nào tự lộ ra.
 - **`CLAUDE.md`** — ghi cả ba vòng vào đoạn `rut-truoc-han`, kèm luật "cần cả hai vế" và danh sách
-  4 công thức đi nhánh gộp / 5 công thức giữ khuôn một cột.
+  5 công thức đi nhánh gộp / 4 công thức giữ khuôn một cột.
 
 ### Còn lại
 

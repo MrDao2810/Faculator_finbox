@@ -33,9 +33,6 @@ export type { SourceBlockProps } from './SourceBlock';
 export { ConstantsNote } from './ConstantsNote';
 export type { ConstantsNoteProps } from './ConstantsNote';
 
-export { DerivedNote } from './DerivedNote';
-export type { DerivedNoteProps } from './DerivedNote';
-
 export { SourceMark } from './SourceMark';
 export type { MarkSource, SourceMarkProps } from './SourceMark';
 

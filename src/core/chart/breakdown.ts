@@ -131,95 +131,18 @@ export function breakdownExtent(
   return [lo, hi];
 }
 
-/**
- * Những chặng bóc tách KHÔNG phải ô nhập — công thức tự tính ra rồi mới đem vẽ.
+/*
+ * ── Mộ chí: derivedStages() + theoThuTuTinh() (16/09/2026 → 06/10/2026) ──────────────────
  *
- * Sinh ra từ một lỗ hổng chủ dự án chỉ đúng chỗ (16/09/2026) trên `fcfe`: hình bóc tách có cột
- * `Lãi vay sau thuế` 48 tỷ ₫, mà khối Số liệu chỉ có `Chi phí lãi vay` 60 và `Thuế suất` 20% đứng
- * rời nhau — con số 48 và cái tên ấy không xuất hiện ở bất kỳ đâu ngoài hình. Người đọc thấy một
- * đại lượng có tên, có độ dài, nhưng không tra được nó ở đâu ra.
+ * Hai hàm này phục vụ khối "Từ các ô trên, công thức tính ra", khối đã BỎ HẲN ngày 06/10/2026.
+ * Phép đo dẫn tới quyết định ấy ghi ở mộ chí `detail.derivedInUse` trong `vi.ts`; phần liên quan
+ * tới chỗ này: 8 trong 9 công thức có khối ấy đều VẼ đúng các chặng ấy thành cột, cùng nhãn và
+ * cùng trị số đã định dạng, cộng thêm bảng số dưới hình. Công thức thứ chín, `rut-truoc-han`,
+ * đổi sang `chartType: 'waterfall'` trong cùng lượt nên nay cũng vẽ.
  *
- * Đây ĐÚNG lớp vấn đề mà `ConstantsNote` đã giải cho hằng số thuế/phí: một con số công thức đang
- * tính theo, không phải ô nhập, nên không có chỗ nào trên trang nói tới. Cách chữa cũng cùng một
- * lối — bày thẳng ra ở cuối khối Số liệu, không bắt người dùng tự suy.
- *
- * Lọc bằng `inputs[key] === undefined` chứ không bằng `spec.variables`: đó đúng là phép mà
- * `stageValue()` ngay dưới dùng để quyết định tra ô nhập hay tra `extras`, nên hai chỗ không thể
- * lệch nhau. Chặng nào tra không ra số thì bỏ hẳn khỏi danh sách — cùng lẽ với `canDrawBreakdown()`:
- * thà không nói còn hơn bày một cái tên kèm chỗ trống.
- *
- * Nhãn lấy y hệt cách hình lấy (`shortLabel` trước, rồi mới tới nhãn biến), vì mục đích của cả
- * hàm này là để HAI CHỖ GỌI CÙNG MỘT TÊN.
+ * Đừng dựng lại để "bày chặng ở khối Số liệu": `breakdownBars()` ngay trên đã trả về đúng cặp
+ * nhãn → trị số ấy, và hình đọc thẳng nó.
  */
-export function derivedStages(
-  spec: FormulaSpec,
-  inputs: CalcInputs,
-  output: CalcOutput,
-): ReadonlyArray<{ key: string; label: Bilingual; value: number }> {
-  const stages = spec.breakdown ?? [];
-  const found: { key: string; label: Bilingual; value: number }[] = [];
-
-  for (const stage of stages) {
-    if (inputs[stage.key] !== undefined) continue;
-
-    const value = output.extras?.[stage.key];
-    if (value === undefined || !Number.isFinite(value)) continue;
-
-    found.push({ key: stage.key, label: stage.shortLabel ?? labelOf(spec, stage.key), value });
-  }
-
-  return theoThuTuTinh(spec, found);
-}
-
-/**
- * Sắp lại các chặng theo THỨ TỰ TÍNH: chặng nào bị chặng khác nhắc tới thì phải đứng trước.
- *
- * Lỗi thật, chủ dự án chỉ ngày 05/10/2026 trên `tra-gop-nien-kim`: khối bày "Gốc kỳ đầu" trước,
- * mà công thức của nó là `Trả hằng tháng − Lãi kỳ đầu` — tức dùng một con số 21,5 triệu chưa ai
- * giới thiệu, rồi hàng DƯỚI mới tính con số ấy. *"Lãi kỳ đầu tự dưng lôi đâu ra 21 triệu? xong bên
- * dưới mới tính lãi kỳ đầu? phi logic? cần tuần tự và hợp lý hơn."*
- *
- * Thứ tự cũ là thứ tự khai `spec.breakdown`, tức thứ tự CỘT của biểu đồ bóc tách — đúng cho hình
- * vẽ (gốc rồi lãi, như một cột chồng đọc từ dưới lên) nhưng sai cho một danh sách đọc từ trên
- * xuống. Hai thứ tự khác nhau vì chúng trả lời hai câu hỏi khác nhau, nên biểu đồ GIỮ nguyên thứ
- * tự khai: nó đọc `spec.breakdown` thẳng, không đi qua hàm này.
- *
- * Sắp xếp ỔN ĐỊNH: chặng không phụ thuộc ai giữ nguyên thứ tự khai. Chỉ chặng nào nhắc tới một
- * chặng khác mới bị đẩy xuống sau chặng ấy.
- */
-function theoThuTuTinh(
-  spec: FormulaSpec,
-  chang: ReadonlyArray<{ key: string; label: Bilingual; value: number }>,
-): ReadonlyArray<{ key: string; label: Bilingual; value: number }> {
-  const mau = spec.derivedSubstitution;
-  if (mau === undefined || chang.length < 2) return chang;
-
-  const coMat = new Set(chang.map((c) => c.key));
-  /** Chặng `key` nhắc tới những chặng nào — chỉ tính chặng cũng đang có mặt trong danh sách. */
-  const can = (key: string): ReadonlyArray<string> =>
-    [...(mau[key] ?? '').matchAll(/\{([A-Za-z0-9_]+)\}/g)]
-      .map((m) => m[1] ?? '')
-      .filter((k) => k !== key && coMat.has(k));
-
-  const ra: typeof chang extends ReadonlyArray<infer T> ? T[] : never = [];
-  const xong = new Set<string>();
-  const dangXet = new Set<string>();
-
-  const them = (key: string): void => {
-    if (xong.has(key) || dangXet.has(key)) return;
-    dangXet.add(key);
-    for (const truoc of can(key)) them(truoc);
-    dangXet.delete(key);
-    const c = chang.find((x) => x.key === key);
-    if (c !== undefined && !xong.has(key)) {
-      xong.add(key);
-      ra.push(c);
-    }
-  };
-
-  for (const c of chang) them(c.key);
-  return ra;
-}
 
 /** Giá trị của một chặng: tra ô nhập trước, rồi mới tới `extras` của kết quả. */
 function stageValue(stage: BreakdownStage, inputs: CalcInputs, output: CalcOutput): number | null {

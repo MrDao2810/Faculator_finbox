@@ -67,13 +67,7 @@ export {
  * kéo theo bộ phân tích cú pháp); `datSoThaySo` đặt số lúc chạy và đi qua đây vì nó nhẹ.
  */
 export type { DanXuatCay, ThaySoCay } from '@/core/substitution-cay';
-export {
-  datNhanDanXuat,
-  datSoDanXuat,
-  datSoThaySo,
-  giaTriChoDanXuat,
-  nhanCuaKhoa,
-} from '@/core/substitution-cay';
+export { datSoThaySo } from '@/core/substitution-cay';
 
 // ── Trạng thái ô nhập — 5 trạng thái WF-16 (gói 2.3.1) ──────────────────────
 export type { InputState, InputStateArgs, InputStateResult } from '@/core/input-state';
@@ -287,7 +281,6 @@ export {
   areaPath,
   buildCandleModel,
   buildChartModel,
-  derivedStages,
   gapsOf,
   linePath,
   linearScale,

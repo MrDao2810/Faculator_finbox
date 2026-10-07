@@ -20,6 +20,11 @@
  *    nối hai vế bằng ", với …", chủ dự án bác tiếp — "cần xuống dòng giải thích công thức thứ 2
  *    thay vì dùng dấu phẩy khó nhìn như này. cần xử lý khoa học hơn" (18/09/2026). Chỗ ngắt của
  *    hình là `\quad`, `\qquad` hay `\\`; chỗ ngắt của chữ là ký tự xuống dòng.
+ * 7. Hình có bao nhiêu PHÉP TOÁN thì dòng chữ đọc ra bấy nhiêu, trừ phần đã có tên trong bảng ký
+ *    hiệu: `gia-hoa-von` vẽ `Q · P_mua` mà dòng chữ ghi "Tiền mua" — một danh từ không có hàng nào
+ *    trong bảng bên phải. "Q.P mua bên trên ký hiệu ra sao thì bên dưới giải thích y nguyên. tôi có
+ *    cần bạn ăn bớt vậy đâu?" (06/10/2026). Xem `thieuPhepToan()` để biết vì sao "trừ phần đã có
+ *    tên" mới là chỗ phân biệt đúng và sai.
  *
  * Luật 5 và luật 6 đo hai thứ khác nhau, nên giữ cả hai: `don-bay-tong-hop` là đẳng thức DÂY
  * CHUYỀN `DTL = DOL × DFL = …`, hai dấu bằng trong MỘT khối, nên luật 5 đòi hai dấu bằng còn luật 6
@@ -136,6 +141,17 @@ export function expressionBlockProblems(text: string): string[] {
  * tên cho một đại lượng mới.
  */
 export function equationsInLatex(latex: string): number {
+  const sach = boChiSoVaChu(latex).replace(/\\(leq|geq|le|ge|neq|ne|approx|equiv)\b/gu, '§');
+  return (sach.match(/=/gu) ?? []).length;
+}
+
+/**
+ * Thay mỗi chỉ số trên dưới (`_{…}`, `^{…}`) và mỗi `\text{…}` bằng một ký tự `§`.
+ *
+ * Luật 5 và luật 7 cùng cần: dấu `=` trong `\sum_{t=1}^{n}` không mở vế mới, và dấu `-` trong
+ * `P_{t-1}` hay `r_{danh\,nghia}` không phải phép trừ — cả hai chỉ là NHÃN của một ký hiệu.
+ */
+function boChiSoVaChu(latex: string): string {
   let out = '';
   for (let i = 0; i < latex.length; i += 1) {
     const laText = latex.startsWith('\\text{', i);
@@ -157,8 +173,96 @@ export function equationsInLatex(latex: string): number {
     }
     out += ky;
   }
-  const sach = out.replace(/\\(leq|geq|le|ge|neq|ne|approx|equiv)\b/gu, '§');
-  return (sach.match(/=/gu) ?? []).length;
+  return out;
+}
+
+/** Luật 7: bốn phép toán của một công thức, đếm riêng từng loại. */
+export interface PhepToan {
+  nhan: number;
+  chia: number;
+  cong: number;
+  tru: number;
+}
+
+/** Tên hiển thị của từng phép, để câu báo lỗi nói bằng ký hiệu người đọc thấy trên màn. */
+const DAU_PHEP: Record<keyof PhepToan, string> = { nhan: '×', chia: '÷', cong: '+', tru: '−' };
+
+/**
+ * Luật 7: phép toán của một HÌNH.
+ *
+ * `\,` và `\;` tính là phép NHÂN: `Q\,(1 - r)` là một khoảng trắng mỏng trong hình, nhưng đọc thành
+ * lời thì bắt buộc phải có dấu `×` — và chính chỗ này là chỗ `gia-hoa-von` lọt lưới nếu không đếm.
+ * Dòng chữ của nó có đúng một dấu `×`, vừa đủ cho `\cdot` ở tử, nên nếu bỏ qua `\,` ở mẫu thì cửa
+ * gác xanh trong khi `Q · P_mua` đã bị nuốt mất.
+ */
+export function phepToanTrongLatex(latex: string): PhepToan {
+  const s = boChiSoVaChu(latex);
+  return {
+    nhan: (s.match(/\\cdot|\\times|\\,|\\;/gu) ?? []).length,
+    chia: (s.match(/\\frac|\\dfrac|\\div/gu) ?? []).length,
+    cong: (s.match(/\+/gu) ?? []).length,
+    tru: (s.match(/-/gu) ?? []).length,
+  };
+}
+
+/** Luật 7: phép toán của một DÒNG CHỮ. Dấu trừ là `−` (U+2212), không phải gạch nối. */
+export function phepToanTrongChu(text: string): PhepToan {
+  return {
+    nhan: (text.match(/×/gu) ?? []).length,
+    chia: (text.match(/÷/gu) ?? []).length,
+    cong: (text.match(/\+/gu) ?? []).length,
+    tru: (text.match(/−/gu) ?? []).length,
+  };
+}
+
+/**
+ * Luật 7: phép toán hình vẽ ra mà dòng chữ không đọc. Mảng rỗng nghĩa là đạt.
+ *
+ * ## Vì sao phải trừ đi phần nằm trong một hàng GỘP của bảng ký hiệu
+ *
+ * Gộp mấy ký hiệu thành một danh từ không phải lúc nào cũng sai — nó sai khi danh từ ấy KHÔNG được
+ * trang nào gọi tên. `roi-rong` viết "Vốn thực bỏ ra" thay cho `Q · P_mua + F_mua + F_lk`, và đó là
+ * hàng thứ bảy của bảng ký hiệu ngay cạnh hình ("vốn thực bỏ ra: tiền mua cộng phí mua và phí lưu
+ * ký"); `loi-nhuan-rong` viết "Tổng chi phí" thay cho `F_mua + F_ban + T + F_lk`, cũng là một hàng.
+ * Người đọc rê vào cụm trong hình là thấy đúng cái tên ấy. `gia-hoa-von` viết "Tiền mua" thay cho
+ * `Q · P_mua` mà bảng không có hàng nào như thế — chữ ấy không dẫn đi đâu cả.
+ *
+ * Nên thước đo là: phép toán của hình, TRỪ phép toán nằm trong các hàng gộp (mỗi hàng trừ đúng số
+ * lần nó xuất hiện trong hình), phải không nhiều hơn phép toán của dòng chữ. Chiều ngược lại để
+ * ngỏ: dòng chữ được phép có THÊM dấu, vì phép nhân viết liền của hình phải thành `×` khi đọc ra
+ * lời, và vì một hàng gộp vẫn được viết bung ra nếu người viết muốn.
+ *
+ * Đo trên cả 111 công thức (06/10/2026): ba công thức hỏng, không công thức nào bị oan. Những chỗ
+ * tưởng là gộp mà thực ra đọc đủ đều xanh — `√` đọc thành "căn bậc hai của" (không phải một trong
+ * bốn phép này), `\frac{1}{n}\sum` đọc thành "Trung bình" (là một hàng gộp của `ty-le-khoi-luong`).
+ *
+ * Luật 4 (hằng số) và luật 5 (số vế) đều không thấy được lỗi này: cụm bị nuốt chẳng mang con số lạ
+ * nào, và nuốt bao nhiêu ký hiệu thì dấu bằng vẫn đúng một cái.
+ */
+export function thieuPhepToan(
+  latex: string,
+  text: string,
+  kyHieuTrongBang: ReadonlyArray<string>,
+): string[] {
+  const hinh = phepToanTrongLatex(latex);
+  const chu = phepToanTrongChu(text);
+
+  const daCoTen: PhepToan = { nhan: 0, chia: 0, cong: 0, tru: 0 };
+  for (const kyHieu of kyHieuTrongBang) {
+    const soLan = latex.split(kyHieu).length - 1;
+    if (soLan === 0) continue;
+    const trongHang = phepToanTrongLatex(kyHieu);
+    for (const phep of Object.keys(DAU_PHEP) as (keyof PhepToan)[]) {
+      daCoTen[phep] += trongHang[phep] * soLan;
+    }
+  }
+
+  return (Object.keys(DAU_PHEP) as (keyof PhepToan)[])
+    .filter((phep) => chu[phep] < hinh[phep] - daCoTen[phep])
+    .map(
+      (phep) =>
+        `${DAU_PHEP[phep]}: hình có ${String(hinh[phep])}, bảng ký hiệu đặt tên cho ${String(daCoTen[phep])}, dòng chữ chỉ đọc ${String(chu[phep])}`,
+    );
 }
 
 /**

@@ -607,13 +607,13 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
 });
 
 describe('hasChart() — phạm vi', () => {
-  it('phủ đúng 102 công thức: mọi công thức trừ nhóm khai chartType none', () => {
+  it('phủ đúng 103 công thức: mọi công thức trừ nhóm khai chartType none', () => {
     const drawn = FORMULAS.filter((spec) => hasChart(spec));
     const skipped = FORMULAS.filter((spec) => !hasChart(spec));
 
     expect(FORMULAS).toHaveLength(111);
-    expect(drawn).toHaveLength(102);
-    expect(skipped).toHaveLength(9);
+    expect(drawn).toHaveLength(103);
+    expect(skipped).toHaveLength(8);
     // Bỏ qua thì phải vì chính cái nhãn ấy, không vì lý do nào khác lẫn vào.
     expect(skipped.every((spec) => spec.chartType === 'none')).toBe(true);
   });

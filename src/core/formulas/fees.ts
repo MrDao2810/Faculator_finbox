@@ -623,8 +623,14 @@ export const GIA_HOA_VON: FormulaModule = {
     },
     latex: 'P_{hv} = \\frac{Q \\cdot P_{mua} + F_{mua} + F_{lk}}{Q\\,(1 - r_{ban} - r_{thue})}',
     expression: {
-      vi: 'Giá hoà vốn = (Tiền mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
-      en: 'Break-even price = (Buy value + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
+      // "Tiền mua" từng đứng ở chỗ `Khối lượng × Giá mua` bây giờ — một danh từ tự nghĩ ra, không
+      // có hàng nào trong bảng ký hiệu bên phải, nên người đọc không nối được nó với `Q · P_mua`
+      // của hình. Chủ dự án khoanh đúng hai ô ấy: "Q.P mua bên trên ký hiệu ra sao thì bên dưới
+      // giải thích y nguyên. tôi có cần bạn ăn bớt vậy đâu?" (06/10/2026). Hai công thức anh em
+      // `roi-rong` và `loi-nhuan-rong` gộp cũng gộp cụm, nhưng chúng KHAI cụm ấy thành một hàng
+      // bảng ký hiệu, nên trang có gọi tên; `gia-hoa-von` thì không, và đó là chỗ khác nhau.
+      vi: 'Giá hoà vốn = (Khối lượng × Giá mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
+      en: 'Break-even price = (Quantity × Buy price + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
     },
     symbols: [
       {

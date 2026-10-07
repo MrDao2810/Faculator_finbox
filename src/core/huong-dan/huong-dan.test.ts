@@ -44,8 +44,8 @@ const CTX: CalcContext = { asOf: '2026-08-04', schedule: scheduleOrDefault(MARKE
 
 const BAI = FORMULA_MODULES.map((formula) => baiHuongDan(formula, CTX));
 
-/** Công thức có khối biểu đồ trên màn — 111 trừ 9 công thức `chartType: 'none'`. */
-const SO_CT_CO_BIEU_DO = 102;
+/** Công thức có khối biểu đồ trên màn — 111 trừ 8 công thức `chartType: 'none'`. */
+const SO_CT_CO_BIEU_DO = 103;
 
 describe('bài hướng dẫn dựng được cho cả thư viện', () => {
   it('mọi công thức đều có bài, không ca nào ném lỗi', () => {
@@ -167,7 +167,7 @@ describe('mục "Đọc biểu đồ" chỉ có khi màn thật có khối biể
    * chặn sớm ở `FormulaDetail`. Một mục dạy đọc hình ở đó là dạy đọc một thứ không có trên màn, và
    * nút "?" của khối biểu đồ cũng không tồn tại để mở nó.
    */
-  it('đúng 102 bài có mục, và 9 bài không có là 9 công thức không có biểu đồ', () => {
+  it('đúng 103 bài có mục, và 8 bài không có là 8 công thức không có biểu đồ', () => {
     const co = BAI.filter((bai) => bai.mucCo.includes('doc-bieu-do'));
     expect(co).toHaveLength(SO_CT_CO_BIEU_DO);
 
@@ -179,7 +179,6 @@ describe('mục "Đọc biểu đồ" chỉ có khi màn thật có khối biể
         'phi-giao-dich-ban',
         'phi-giao-dich-mua',
         'phi-luu-ky',
-        'rut-truoc-han',
         'thue-chuyen-nhuong',
         'thue-co-tuc',
         'xirr',
@@ -223,7 +222,7 @@ describe('mục "Đọc biểu đồ" chỉ có khi màn thật có khối biể
       candlestick: 11,
       histogram: 9,
       stackedBar: 6,
-      waterfall: 4,
+      waterfall: 5,
       underwater: 4,
       scatter: 2,
     });

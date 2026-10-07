@@ -381,41 +381,17 @@ export interface FormulaSpec extends FormulaSummary {
    * làm lệch kết quả và đỏ ngay — không có đường nào để nó sai mà vẫn xanh.
    */
   substitutionDerived?: Readonly<Record<string, string>>;
-  /**
-   * Công thức tính của từng đại lượng mà khối "Từ các ô trên, công thức tính ra" bày ra.
+  /*
+   * ── Mộ chí: `derivedSubstitution` (05/10/2026 → 06/10/2026) ──────────────────────────────
    *
-   * Chốt ngày 05/10/2026. Chủ dự án nhìn khối ấy trên `tra-gop-nien-kim` và hỏi bốn câu:
-   * *"Gốc kỳ đầu là gì? tại sao lại có gốc kỳ đầu? Lãi kỳ đầu là gì và tại sao lại có ở đây? nếu
-   * được tính ra thì công thức để tính đâu? tại sao chưa cho vào."*
+   * Trường này mang công thức tính của từng đại lượng mà khối "Từ các ô trên, công thức tính ra"
+   * bày. Khối ấy BỎ HẲN ngày 06/10/2026 nên trường đi theo — phép đo dẫn tới quyết định ấy ghi ở
+   * mộ chí `detail.derivedInUse` trong `vi.ts`.
    *
-   * Khối ấy (`DerivedNote`) bày NHÃN và TRỊ SỐ, không gì khác. Nó sinh ra ngày 16/09/2026 để bịt
-   * đúng lỗ hổng này cho `fcfe` — một cột biểu đồ tên "Lãi vay sau thuế" cao 48 tỷ mà con số 48
-   * không có ở đâu khác trên trang. Nhưng nó mới nói ĐẠI LƯỢNG ẤY TỒN TẠI, chưa nói nó tính ra sao,
-   * nên lỗ hổng chỉ lùi xuống một tầng. Trường này đóng nốt tầng ấy.
-   *
-   * Khoá là khoá của chặng `breakdown` (tức khoá trong `extras`). Mẫu cùng cú pháp `substitution`,
-   * và nhắc tới được:
-   *
-   *   · ô nhập trong `variables`;
-   *   · ký hiệu khai ở `substitutionDerived`;
-   *   · một khoá `extras` KHÁC — `calc` đã tính sẵn nên không phải sắp thứ tự;
-   *   · `{__ketQua}` — chính con số khối Kết quả đang in. Khoản gốc kỳ đầu của một khoản vay niên
-   *     kim đúng là "khoản trả hằng tháng trừ đi lãi kỳ đầu", và viết thế mới đọc ra được.
-   *
-   * 12 trên 15 đại lượng có mẫu. BA chỗ cố ý để trống, mỗi chỗ một lý do, ghi ra để khỏi ai tưởng
-   * là bỏ sót:
-   *
-   *   · `thue-tncn-dau-tu.transferTax` và `.dividendTax` — đọc thuế suất từ `usesConstants`. Cùng
-   *     lệnh cấm đã áp cho `substitution`: chép trị số hằng vào mẫu thì người đổi biểu phí ở màn
-   *     Cài đặt sẽ thấy mẫu nói một đằng, con số bên cạnh nói một nẻo.
-   *   · `ddm-hai-giai-doan.pvStage1` — một tổng Σ qua n kỳ do người dùng đặt, nên số hạng không cố
-   *     định. Cùng ca với những công thức cố ý không có `substitution`.
-   *
-   * Cửa gác: `formulas.test.ts` tính lại từng mẫu rồi đối chiếu với chính `extras` mà `calc` trả
-   * về. Một mẫu sai thì đỏ — không có đường nào để nó in ra một phép tính không dẫn tới con số
-   * đứng ngay cạnh nó.
+   * Đừng dựng lại một mình: thiếu khối đọc nó thì đây là dữ liệu chết trong 9 spec, và cửa gác đi
+   * kèm (`formulas.test.ts` tính lại từng mẫu rồi đối chiếu `extras`) là một phép kiểm cho thứ
+   * không ai nhìn thấy.
    */
-  derivedSubstitution?: Readonly<Record<string, string>>;
   /**
    * Bảng ký hiệu của hình công thức — mỗi chữ trong `latex` là gì, theo kiểu "L: chuỗi giảm dài
    * nhất · k: số phiên giảm liên tiếp · r_t: lợi suất phiên t". Màn chi tiết bày nó BÊN PHẢI hình

@@ -135,10 +135,6 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
      * ruột của nó đổi từng kỳ, và chính câu `howToRead` bên dưới nói điều đó: "những năm đầu
      * phần lớn tiền trả là lãi". Hai cột này là hình của đúng câu ấy — ở kỳ 1 phần lãi cao nhất.
      */
-    derivedSubstitution: {
-      firstInterest: '{amount} × {i}',
-      firstPrincipal: '{__ketQua} − {firstInterest}',
-    },
     breakdown: [
       {
         key: 'firstPrincipal',
@@ -298,10 +294,6 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     ],
     chartType: 'stackedBar',
     /* Kỳ đầu chính là kết quả của công thức này, nên hai chặng ghép lại đúng bằng nó. */
-    derivedSubstitution: {
-      firstPrincipal: '{amount} ÷ {n}',
-      firstInterest: '{amount} × {i}',
-    },
     breakdown: [
       {
         key: 'firstPrincipal',
@@ -463,9 +455,6 @@ export const LICH_TRA_NO: FormulaModule = {
      * và nó nói thẳng đúng điều `commonMistakes` cảnh báo — vay 800 triệu mà phải trả 1.790
      * triệu.
      */
-    derivedSubstitution: {
-      totalPaid: '{amount} + {__ketQua}',
-    },
     breakdown: [
       { key: 'totalPaid', sign: 1, shortLabel: { vi: 'Tổng phải trả', en: 'Total repaid' } },
       { key: 'amount', sign: -1, shortLabel: { vi: 'Trừ gốc vay', en: 'Less loan principal' } },

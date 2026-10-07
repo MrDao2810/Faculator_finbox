@@ -53,22 +53,3 @@ export function substitutionShape(spec: FormulaSpec): ThaySoCay | null {
 
   return { cay: chinh.cay, khoa: chinh.khoa, danXuat };
 }
-
-/**
- * Cây công thức của từng đại lượng khối "Từ các ô trên, công thức tính ra" đang bày (05/10/2026).
- *
- * Độc lập hẳn với `substitutionShape`: `lich-tra-no` có đại lượng dẫn xuất mà KHÔNG có mẫu thay số
- * (kết quả của nó là một tổng qua n kỳ, không có dạng đóng), nên gộp hai thứ vào một hàm là mất nó.
- *
- * Trả `{}` chứ `null` khi công thức không khai gì: khối vẫn bày nhãn và trị số như cũ, chỉ không có
- * dòng công thức — đúng ba chỗ cố ý để trống, xem docblock `FormulaSpec.derivedSubstitution`.
- */
-export function derivedShape(spec: FormulaSpec): Readonly<Record<string, DanXuatCay>> {
-  const ra: Record<string, DanXuatCay> = {};
-  for (const [khoaDat, mau] of Object.entries(spec.derivedSubstitution ?? {})) {
-    const phan = cayCua(mau);
-    if (phan === null) continue;
-    ra[khoaDat] = { khoaDat, cay: phan.cay, khoa: phan.khoa };
-  }
-  return ra;
-}

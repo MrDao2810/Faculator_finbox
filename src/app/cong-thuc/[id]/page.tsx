@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { FORMULAS, findCategory } from '@/application';
 import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
-import { derivedShape, substitutionShape } from '@/application/thay-so';
+import { substitutionShape } from '@/application/thay-so';
 import { viDuGiaiFor } from '@/application/vi-du';
 
 import { FormulaDetail } from './FormulaDetail';
@@ -133,14 +133,6 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * 48 trên 111 công thức có mẫu; số còn lại nhận `null` và thẻ gộp bỏ hẳn dòng ấy.
    */
   const thaySoCay = substitutionShape(formula);
-  /*
-   * Công thức tính của từng đại lượng khối "Từ các ô trên, công thức tính ra" bày (05/10/2026).
-   *
-   * Dựng ở đây cùng lý do với `thaySoCay` ngay trên. Hai thứ phải ĐỘC LẬP chứ không gộp một hàm:
-   * `lich-tra-no` có đại lượng dẫn xuất mà không có mẫu thay số (kết quả của nó là một tổng qua n
-   * kỳ, không có dạng đóng), nên gộp lại là mất nó.
-   */
-  const danXuatCay = derivedShape(formula);
   const bai = baiHuongDanFor(formula.id, AS_OF);
 
   return (
@@ -154,7 +146,6 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
       {...(viDu === undefined ? {} : { viDu })}
       {...(viDuCay === undefined ? {} : { viDuCay })}
       {...(thaySoCay === null ? {} : { thaySoCay })}
-      {...(Object.keys(danXuatCay).length === 0 ? {} : { danXuatCay })}
       {...(bai === undefined ? {} : { bai })}
     />
   );

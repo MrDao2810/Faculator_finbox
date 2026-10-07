@@ -6,7 +6,7 @@ import { FORMULA_MODULES } from '../formulas';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
-import { BREAKDOWN_KEY, breakdownBars, derivedStages } from './breakdown';
+import { BREAKDOWN_KEY, breakdownBars } from './breakdown';
 import { buildChartModel } from './build';
 import { HISTORY_KEY, closePriceSeries, historyPlan } from './history';
 import { areaPath, gapsOf, linePath } from './path';
@@ -1730,7 +1730,7 @@ describe('buildChartModel()', () => {
    * đường quét của chúng KHÔNG thẳng (bậc thang do làm tròn xuống, và đường cong do ẩn số nằm ở
    * mẫu). Lý do nằm ngay tại chỗ khai của từng công thức.
    */
-  it('chưa nạp dữ liệu: 63 đường quét + 4 bóc tách, 35 công thức chờ chuỗi giá', () => {
+  it('chưa nạp dữ liệu: 63 đường quét + 5 bóc tách, 35 công thức chờ chuỗi giá', () => {
     const wanted = FORMULA_MODULES.filter((f) => f.spec.chartType !== 'none');
     const drawn = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'line');
     const bocTach = wanted.filter((f) => modelOf(f.spec.id, 'advanced').kind === 'waterfall');
@@ -1739,11 +1739,11 @@ describe('buildChartModel()', () => {
       return model.kind === 'unavailable' && model.warning.code === 'MISSING_SERIES';
     });
 
-    expect(wanted).toHaveLength(102);
+    expect(wanted).toHaveLength(103);
     expect(drawn).toHaveLength(63);
     /*
-     * BỐN công thức bày thác nước NGAY khi mở màn — đúng bốn cái khai `chartType: 'waterfall'`:
-     * `ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`. Điểm chung của chúng không phải là tình cờ:
+     * NĂM công thức bày thác nước NGAY khi mở màn — đúng năm cái khai `chartType: 'waterfall'`:
+     * `ev`, `fcff`, `fcfe`, `ncav-tren-co-phieu`, và từ 06/10/2026 thêm `rut-truoc-han`. Điểm chung của chúng không phải là tình cờ:
      * đường quét của cả bốn đều là ĐƯỜNG THẲNG (FCFF theo EBIT có hệ số góc 1 − t, FCFE theo FCFF
      * hệ số góc 1, NCAV theo tài sản ngắn hạn hệ số góc 1.000/N), tức đúng loại hình mà luật
      * `chartType: 'none'` sinh ra để loại.
@@ -1751,7 +1751,7 @@ describe('buildChartModel()', () => {
      * Sáu công thức khai `breakdown` còn lại mang `stackedBar` nên vẫn nằm trong nhóm `drawn`:
      * bóc tách của chúng nằm trong ô chọn trục, không đè lên đường quét vốn nói được điều riêng.
      */
-    expect(bocTach).toHaveLength(4);
+    expect(bocTach).toHaveLength(5);
     expect(waiting).toHaveLength(35);
     // Không ca nào rơi ra ngoài ba nhóm ấy — không có "không vẽ được vì lý do khác".
     expect(drawn.length + bocTach.length + waiting.length).toBe(wanted.length);
@@ -1771,7 +1771,7 @@ describe('buildChartModel()', () => {
    * GHIM DANH SÁCH chứ không chỉ đếm: đếm thì bỏ một cái rồi thêm một cái khác là hoà, và ca kiểm
    * im lặng. Muốn đổi thì phải sửa danh sách, và lúc đó sẽ đọc lý do viết tại chỗ khai.
    */
-  it('nhóm chartType none — đúng 9 công thức, đều có đường quét thẳng', () => {
+  it('nhóm chartType none — đúng 8 công thức, đều có đường quét thẳng', () => {
     const none = FORMULA_MODULES.filter((f) => f.spec.chartType === 'none').map((f) => f.spec.id);
 
     expect([...none].sort()).toEqual(
@@ -1782,8 +1782,6 @@ describe('buildChartModel()', () => {
         'thue-chuyen-nhuong',
         'thue-co-tuc',
         'phi-luu-ky',
-        // Cũng là tích, ở nhóm tiết kiệm.
-        'rut-truoc-han',
         // Hiệu của đúng hai đầu vào — hệ số góc ±1.
         'loi-suat-vuot-chuan',
         'basis-vn30f',
@@ -1962,12 +1960,10 @@ describe('bóc tách — thác nước', () => {
       /*
        * Lấy chặng từ `breakdownBars()`, tức NGUỒN của bất biến, chứ không qua `buildChartModel`.
        *
-       * Bản trước đi qua hình vẽ và vì thế đòi mọi công thức khai `breakdown` phải vẽ được thác
-       * nước. Từ 06/10/2026 điều đó hết đúng: `rut-truoc-han` khai chặng để khối "Từ các ô trên"
-       * bày ra hai con số (`derivedStages()` đọc thẳng `spec.breakdown`), nhưng vẫn giữ
-       * `chartType: 'none'` vì đường quét của nó là một đoạn thẳng qua gốc. `canDrawBreakdown()`
-       * loại hẳn `none`, nên hình của nó là `line` — mà bất biến "các chặng cộng đúng về kết quả"
-       * thì vẫn phải đúng, và nay còn đúng ở một chỗ NGƯỜI DÙNG ĐỌC ĐƯỢC chứ không chỉ ở hình.
+       * Bản trước đi qua hình vẽ, nên nó thật ra đang kiểm HAI điều cùng lúc: chặng cộng đúng, và
+       * công thức vẽ được thác nước. Hai điều ấy tách nhau trong một ngày (06/10/2026) khi
+       * `rut-truoc-han` khai chặng lúc còn `chartType: 'none'` — và dù cuối ngày nó đã sang
+       * `waterfall`, phép kiểm vẫn nên hỏi đúng một điều nó mang tên.
        */
       const stages = breakdownBars(formula.spec, inputs, output).filter(
         (bar) => bar.isTotal !== true,
@@ -2233,69 +2229,10 @@ describe('bóc tách — ba công thức vay', () => {
 });
 
 /*
- * `derivedStages()` — chặng bóc tách công thức tự tính ra, thứ khối Số liệu đem bày.
+ * ── Mộ chí: bộ ca kiểm `derivedStages()` (16/09/2026 → 06/10/2026) ───────────────────────
  *
- * Ca kiểm bám vào `fcfe` vì đó đúng là ca chủ dự án báo, và nó có đủ CẢ HAI loại chặng trong cùng
- * một công thức: hai chặng là ô nhập (`fcff`, `netBorrowing`) và một chặng tính ra
- * (`interestAfterTax`). Công thức chỉ có một loại thì không phân biệt được phép lọc có chạy không.
+ * Hàm ấy và khối "Từ các ô trên, công thức tính ra" mà nó phục vụ đã bỏ hẳn — lý do ở mộ chí
+ * `detail.derivedInUse` trong `vi.ts`. Bất biến mà bộ ca này gác ("khối Số liệu gọi đúng cái tên
+ * mà biểu đồ gọi") nay không còn hai chỗ để lệch: chỉ còn hình, và hình đọc thẳng
+ * `breakdownBars()`.
  */
-describe('derivedStages()', () => {
-  const fcfe = moduleOf('fcfe');
-  const inputs = defaultInputs(fcfe.spec);
-
-  function stagesOf() {
-    return derivedStages(fcfe.spec, inputs, runFormula(fcfe, inputs, CTX));
-  }
-
-  it('chỉ giữ chặng KHÔNG phải ô nhập', () => {
-    expect(stagesOf().map((stage) => stage.key)).toEqual(['interestAfterTax']);
-  });
-
-  it('gọi ĐÚNG cái tên mà biểu đồ gọi — đó là lý do hàm này tồn tại', () => {
-    const model = buildChartModel({
-      formula: fcfe,
-      inputs,
-      ctx: CTX,
-      output: runFormula(fcfe, inputs, CTX),
-      level: 'advanced',
-    });
-    if (model.kind !== 'waterfall') throw new Error('fcfe phải ra thác nước');
-
-    const tenTrenHinh = model.bars.map((bar) => bar.label.vi);
-    for (const stage of stagesOf()) expect(tenTrenHinh).toContain(stage.label.vi);
-  });
-
-  /* Trị số là ĐỘ LỚN của đại lượng, không mang dấu trừ của vai chặng — xem docblock `DerivedNote`. */
-  it('trị số khớp extras và luôn dương với lãi vay sau thuế', () => {
-    const stage = stagesOf()[0];
-
-    expect(stage?.value).toBeCloseTo(
-      (inputs['interest'] ?? 0) * (1 - (inputs['taxRate'] ?? 0) / 100),
-      6,
-    );
-    expect(stage?.value).toBeGreaterThan(0);
-  });
-
-  it('công thức không khai bóc tách thì không có chặng nào', () => {
-    const pe = moduleOf('pe');
-    const inputsPe = defaultInputs(pe.spec);
-
-    expect(derivedStages(pe.spec, inputsPe, runFormula(pe, inputsPe, CTX))).toEqual([]);
-  });
-
-  /*
-   * Quét cả Registry: mọi chặng `derivedStages()` trả về đều phải tra ra số thật. Đây là cửa chặn
-   * ca "đổi key chặng mà quên đổi key trong `extras`" — lúc ấy hình vẫn vẽ (nó có nhánh tra ô
-   * nhập) nhưng khối Số liệu sẽ im lặng bỏ trống, đúng kiểu hỏng không ai thấy.
-   */
-  it('mọi công thức: chặng tính ra đều có trị số hữu hạn', () => {
-    for (const formula of FORMULA_MODULES) {
-      const values = defaultInputs(formula.spec);
-      const stages = derivedStages(formula.spec, values, runFormula(formula, values, CTX));
-
-      for (const stage of stages) {
-        expect(Number.isFinite(stage.value), `${formula.spec.id} · ${stage.key}`).toBe(true);
-      }
-    }
-  });
-});

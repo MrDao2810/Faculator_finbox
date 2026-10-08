@@ -69,7 +69,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng cuối cùng, phần thuộc cổ đông công ty mẹ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
       preferredDividend: {
         layODau: { vi: 'Thuyết minh báo cáo tài chính, phần cổ phiếu ưu đãi.' },
@@ -77,7 +77,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       sharesOutstanding: {
         layODau: { vi: 'Báo cáo quản trị hoặc bản cáo bạch, mục cổ phiếu đang lưu hành.' },
-        luuY: { vi: 'Dùng số đang lưu hành, không dùng số đăng ký.' },
+        luuY: { vi: 'Sử dụng số liệu đang lưu hành, không dùng số liệu đăng ký.' },
       },
     },
     docKetQua: {
@@ -98,7 +98,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       sharesOutstanding: {
         layODau: { vi: 'Báo cáo quản trị hoặc bản cáo bạch, mục cổ phiếu đang lưu hành.' },
-        luuY: { vi: 'Dùng số đang lưu hành, không dùng số đăng ký.' },
+        luuY: { vi: 'Sử dụng số liệu đang lưu hành, không dùng số liệu đăng ký.' },
       },
     },
     docKetQua: {
@@ -118,7 +118,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng cuối cùng, phần thuộc cổ đông công ty mẹ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
       equity: {
         layODau: { vi: 'Bảng cân đối kế toán, dòng tổng vốn chủ sở hữu.' },
@@ -141,7 +141,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng cuối cùng, phần thuộc cổ đông công ty mẹ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
       totalAssets: {
         layODau: { vi: 'Bảng cân đối kế toán, dòng tổng tài sản.' },
@@ -164,13 +164,13 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng cuối cùng, phần thuộc cổ đông công ty mẹ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
       revenue: {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng doanh thu thuần sau khi trừ các khoản giảm trừ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
     },
     docKetQua: {
@@ -190,7 +190,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng doanh thu thuần sau khi trừ các khoản giảm trừ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
       cogs: {
         layODau: { vi: 'Báo cáo kết quả kinh doanh, dòng giá vốn hàng bán.' },
@@ -278,7 +278,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng doanh thu thuần sau khi trừ các khoản giảm trừ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
       totalAssets: {
         layODau: { vi: 'Bảng cân đối kế toán, dòng tổng tài sản.' },
@@ -373,7 +373,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       ebitda: {
         layODau: { vi: 'Lợi nhuận trước lãi vay, thuế và khấu hao. Lấy EBIT cộng khấu hao.' },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
     },
     docKetQua: {
@@ -396,7 +396,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Báo cáo kết quả kinh doanh, dòng doanh thu thuần sau khi trừ các khoản giảm trừ.',
         },
-        luuY: { vi: 'Cộng bốn quý nếu muốn tính cả năm.' },
+        luuY: { vi: 'Cộng tất cả bốn quý khi tính cả năm.' },
       },
     },
     docKetQua: {

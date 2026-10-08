@@ -68,22 +68,32 @@ const CO_CHE: Readonly<Record<'vi' | 'en', RegExp>> = {
 const SO_CHUNG: ReadonlySet<string> = new Set(['0', '1', '100']);
 
 /**
- * Luật 9: mốc so sánh không được là một CON SỐ TRẦN đứng sát dấu hai chấm.
+ * Luật 9: mốc so sánh không được KẾT THÚC bằng chữ số, vì dấu hai chấm của khuôn sẽ dính vào nó.
  *
  * Chủ dự án chụp màn `ty-so-calmar` ngày 05/10/2026: *"'so với 1: ..' nghĩa là gì? '1:' là gì?
- * trong công thức tôi chưa thấy có '1:'"*. Đúng vậy — `1:` đọc ra là ký hiệu tỷ lệ (1:2), không ai
- * đọc nó thành "so với mốc 1, rồi hai chấm". Khuôn "So với [mốc]:" vẫn đúng; chỗ gãy là khi [mốc]
- * rút lại thành một chữ số thì dấu hai chấm của khuôn dính vào số và đổi nghĩa.
+ * trong công thức tôi chưa thấy có '1:'"*. Đúng vậy: `1:` đọc ra là ký hiệu tỷ lệ (1:2), không ai
+ * đọc nó thành "so với mốc 1, rồi hai chấm".
  *
- * Cách chữa đã có sẵn trong chính sản phẩm, nên luật này không phát minh gì: `pb` và `peg` đã viết
- * "So với mốc 1:", `rsi-wilder` viết "hai mốc quen dùng 70 và 30", `phan-tram-b-bollinger` viết
- * "hai mép 0% và 100%". Đo lúc đặt luật: 12 trên 111 đoạn `vi` và 14 đoạn `en` còn thiếu từ chỉ
- * loại; cả 26 đã sửa.
+ * ── Bản luật ĐẦU TIÊN sai, và cái sai ấy là bài học ─────────────────────────────────────────
  *
- * Luật chỉ chặn mốc TRỐNG TRƠN một con số. "mốc 1", "the 1 mark", "hai mép 0% và 100%", "mức trần,
- * tức 100 chia cho tỷ lệ ký quỹ" đều qua, vì ở đó con số có một danh từ đứng trước đỡ lấy.
+ * Bản 05/10 chặn mốc TRỐNG TRƠN một con số (`/^\d+%?$/`) và coi "mốc 1" là đã chữa xong, vì ở đó
+ * con số có một danh từ đứng trước đỡ lấy. Nhưng thứ hỏng không phải là con số đứng một mình —
+ * nó là CẶP KÝ TỰ `1:`, và "So với mốc 1:" vẫn in ra đúng cặp ấy. Chủ dự án quay lại ngày
+ * 08/10/2026 với ảnh chụp `don-bay-tong-hop`: *"vẫn còn lỗi '1:' ? tôi có yêu cầu là nói rõ ràng
+ * cách sửa rồi mà"*. Một danh từ đứng TRƯỚC con số không gỡ được cặp ký tự đứng SAU nó.
+ *
+ * Nên luật đọc đúng chỗ hỏng: ký tự cuối của mốc không được là chữ số. Chữa bằng cách đặt đơn vị
+ * hoặc một danh từ SAU con số, đúng như bản tiếng Anh vốn đã làm ("the 1 mark", "the usual 70 and
+ * 30 marks") — đó là lý do 111 trên 111 đoạn `en` chưa bao giờ mắc lỗi này, trong khi 15 đoạn `vi`
+ * thì mắc. Quét ngày 08/10/2026: 93 đoạn `vi` đã kết bằng chữ cái, 15 kết bằng chữ số (đã sửa),
+ * 3 kết bằng `%`.
+ *
+ * `%` KHÔNG bị chặn, và đó là một quyết định: `100%:` không đọc ra ký hiệu tỷ lệ, vì dấu `%` đã
+ * đóng con số lại. Ba đoạn ấy — `ty-le-chi-tra-co-tuc` "mốc 100%", `phan-tram-b-bollinger` "hai
+ * mép 0% và 100%", `don-bay-hieu-dung` "mức trần, tức 100 chia cho tỷ lệ ký quỹ ban đầu tính theo
+ * %" — giữ nguyên.
  */
-const MOC_SO_TRAN = /^\d+%?$/;
+const MOC_KET_BANG_SO = /\d$/;
 
 /**
  * Luật 8: quy ước có tên, miễn theo từng công thức. Thêm vào đây là một quyết định có ý thức: con
@@ -155,9 +165,9 @@ export function howToReadProblems({ id, name, howToRead }: CachDocInput): string
     const viTri = doan.indexOf(':');
     if (viTri !== -1) {
       const moc = doan.slice(CACH_DOC_MO_DAU[ngon].length, viTri).trim();
-      if (MOC_SO_TRAN.test(moc)) {
+      if (MOC_KET_BANG_SO.test(moc)) {
         loi.push(
-          `${nhan}: mốc "${moc}" là số trần, dính dấu hai chấm thành ký hiệu tỷ lệ "${moc}:" — thêm từ chỉ loại ("mốc ${moc}", "the ${moc} mark")`,
+          `${nhan}: mốc "${moc}" kết bằng chữ số, dính dấu hai chấm thành ký hiệu tỷ lệ "${moc.slice(-1)}:" — đặt đơn vị hay danh từ SAU con số ("mốc 1 lần", "mốc 0 đồng", "the 1 mark")`,
         );
       }
     }

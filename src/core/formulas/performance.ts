@@ -279,7 +279,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
         en: 'Use it when you receive your savings or bond interest at year end and want to know whether, with prices rising too, your money can actually buy more than before.',
       },
       howToRead: {
-        vi: 'So với mốc 0: dương nghĩa là sau một năm tiền của bạn mua được nhiều hàng hoá hơn lúc đầu, âm là mua được ít hơn dù số dư trên sổ có thể vẫn tăng, đúng 0 là tiền lãi chỉ vừa bù trượt giá.',
+        vi: 'So với mốc 0% một năm: dương nghĩa là sau một năm tiền của bạn mua được nhiều hàng hoá hơn lúc đầu, âm là mua được ít hơn dù số dư trên sổ có thể vẫn tăng, đúng 0 là tiền lãi chỉ vừa bù trượt giá.',
         en: 'Compared with the 0 mark: positive means that after a year your money buys more goods than it did at the start, negative means it buys less even if the balance on your statement has grown, and exactly 0 means the interest only just kept pace with rising prices.',
       },
       commonMistakes: {
@@ -1550,7 +1550,7 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
         en: 'Use it when you review your portfolio at year end and want to know how far your own stock picks came out ahead of or behind the VN-Index over the same period.',
       },
       howToRead: {
-        vi: 'So với mốc 0: dương nghĩa là danh mục đã làm tốt hơn chuẩn so sánh bạn chọn trong cùng kỳ, âm là kém hơn, 0 là ngang bằng. Con số là khoảng cách tính bằng điểm phần trăm, không phải phần trăm của lợi suất chuẩn.',
+        vi: 'So với mốc 0 điểm phần trăm: dương nghĩa là danh mục đã làm tốt hơn chuẩn so sánh bạn chọn trong cùng kỳ, âm là kém hơn, 0 là ngang bằng. Con số là khoảng cách tính bằng điểm phần trăm, không phải phần trăm của lợi suất chuẩn.',
         en: 'Compared with the 0 mark: positive means the portfolio did better than the benchmark you chose over the same period, negative means worse, and 0 means level. The figure is a gap in percentage points, not a percentage of the benchmark return.',
       },
       commonMistakes: {

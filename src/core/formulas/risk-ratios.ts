@@ -378,7 +378,7 @@ export const BETA: FormulaModule = {
         en: 'Use it when you see the VN-Index swinging hard and want to know whether the stock you hold usually moves more or less than the market as a whole.',
       },
       howToRead: {
-        vi: 'So với mốc 1: lớn hơn nghĩa là mỗi khi VN-Index lên hay xuống, cổ phiếu thường lên hay xuống mạnh hơn, nhỏ hơn là nhẹ hơn. Beta âm nghĩa là cổ phiếu thường đi ngược chiều VN-Index trong các phiên đã chọn.',
+        vi: 'So với mốc 1 của thị trường: lớn hơn nghĩa là mỗi khi VN-Index lên hay xuống, cổ phiếu thường lên hay xuống mạnh hơn, nhỏ hơn là nhẹ hơn. Beta âm nghĩa là cổ phiếu thường đi ngược chiều VN-Index trong các phiên đã chọn.',
         en: 'Compared with the 1 mark: above means that whenever the VN-Index moves, the stock usually moves further in the same direction, below means it moves less. A negative beta means the stock usually moved against the VN-Index over the sessions chosen.',
       },
       commonMistakes: {
@@ -1301,7 +1301,7 @@ export const TY_SO_CALMAR: FormulaModule = {
         en: 'Use it when you dread a deep plunge that could scare you into selling, and want to know how much a fund or strategy earns each year compared with the worst fall it has put you through.',
       },
       howToRead: {
-        vi: 'So với mốc 1: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm. Số âm nghĩa là giá cuối kỳ thấp hơn đầu kỳ, tức cả giai đoạn đang lỗ.',
+        vi: 'So với mốc 1 lần: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm. Số âm nghĩa là giá cuối kỳ thấp hơn đầu kỳ, tức cả giai đoạn đang lỗ.',
         en: "Compared with the 1 mark: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger than a year's return. A negative figure means the price ended the period below where it started, so the whole stretch is a loss.",
       },
       commonMistakes: {

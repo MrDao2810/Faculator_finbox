@@ -86,8 +86,13 @@ describe('mục "Cách đọc kết quả" theo khuôn "So với [mốc]: …"',
    * Luật 9. Chủ dự án chụp màn `ty-so-calmar` ngày 05/10/2026: *"'so với 1: ..' nghĩa là gì?
    * '1:' là gì? trong công thức tôi chưa thấy có '1:'"*. Dấu hai chấm của khuôn dính vào con số
    * và đổi nghĩa thành ký hiệu tỷ lệ.
+   *
+   * Luật này đã SỬA một lần (08/10/2026) và ca kiểm giữ cả chỗ sửa. Bản đầu chỉ chặn mốc trống
+   * trơn một con số, nên "So với mốc 1:" được coi là đã chữa xong — nhưng nó vẫn in ra đúng cặp
+   * `1:` mà chủ dự án đã chỉ, và chủ dự án quay lại với ảnh chụp `don-bay-tong-hop`. Ca thứ hai
+   * dưới đây là chỗ ghim điều đó: danh từ đứng TRƯỚC con số không gỡ được cặp ký tự đứng SAU nó.
    */
-  it('mốc là số trần thì bị bắt, có từ chỉ loại đứng trước thì không', () => {
+  it('mốc kết bằng chữ số thì bị bắt, dù có từ chỉ loại đứng trước', () => {
     const calmarCu = howToReadProblems({
       id: 'ty-so-calmar',
       name: { vi: 'Tỷ số Calmar', en: 'Calmar ratio' },
@@ -96,20 +101,52 @@ describe('mục "Cách đọc kết quả" theo khuôn "So với [mốc]: …"',
         en: "Compared with 1: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger.",
       },
     });
-    expect(calmarCu.some((loi) => loi.includes('ty-so-calmar.vi: mốc "1" là số trần'))).toBe(true);
-    expect(calmarCu.some((loi) => loi.includes('ty-so-calmar.en: mốc "1" là số trần'))).toBe(true);
+    expect(calmarCu.some((loi) => loi.includes('ty-so-calmar.vi: mốc "1" kết bằng chữ số'))).toBe(
+      true,
+    );
+    expect(calmarCu.some((loi) => loi.includes('ty-so-calmar.en: mốc "1" kết bằng chữ số'))).toBe(
+      true,
+    );
 
-    /* Mốc 100% cũng vậy, và từ chỉ loại đứng trước thì qua. */
+    /* Chỗ bản luật đầu bỏ lọt: "mốc 1" vẫn in ra `1:`. */
     expect(
       howToReadProblems({
-        id: 'ty-le-chi-tra-co-tuc',
-        name: { vi: 'Tỷ lệ chi trả cổ tức', en: 'Dividend payout ratio' },
+        id: 'ty-so-calmar',
+        name: { vi: 'Tỷ số Calmar', en: 'Calmar ratio' },
         howToRead: {
-          vi: 'So với 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra.',
-          en: 'Compared with 100%: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned.',
+          vi: 'So với mốc 1: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm.',
+          en: "Compared with the 1 mark: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger.",
         },
-      }).filter((loi) => loi.includes('số trần')),
-    ).toHaveLength(2);
+      }).filter((loi) => loi.includes('kết bằng chữ số')),
+    ).toHaveLength(1);
+
+    /* Chữa đúng: đơn vị đứng SAU con số, và bản `en` vốn đã làm thế. */
+    expect(
+      howToReadProblems({
+        id: 'ty-so-calmar',
+        name: { vi: 'Tỷ số Calmar', en: 'Calmar ratio' },
+        howToRead: {
+          vi: 'So với mốc 1 lần: trên 1 nghĩa là lãi một năm đã lớn hơn cú sụt sâu nhất phải chịu, dưới 1 là cú sụt ấy còn lớn hơn phần lãi một năm.',
+          en: "Compared with the 1 mark: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger.",
+        },
+      }),
+    ).toEqual([]);
+  });
+
+  /*
+   * `%` đóng con số lại, nên `100%:` không đọc ra ký hiệu tỷ lệ và luật 9 cố ý KHÔNG chặn nó. Ba
+   * đoạn thật đang dựa vào chỗ miễn này — xem docblock của luật.
+   */
+  it('mốc kết bằng dấu phần trăm thì qua, có hay không có từ chỉ loại', () => {
+    const khongTuChiLoai = howToReadProblems({
+      id: 'ty-le-chi-tra-co-tuc',
+      name: { vi: 'Tỷ lệ chi trả cổ tức', en: 'Dividend payout ratio' },
+      howToRead: {
+        vi: 'So với 100%: dưới 100% nghĩa là công ty chia một phần lãi và giữ phần còn lại để tái đầu tư, trên 100% là chia nhiều hơn số lãi làm ra.',
+        en: 'Compared with 100%: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned.',
+      },
+    });
+    expect(khongTuChiLoai.filter((loi) => loi.includes('kết bằng chữ số'))).toEqual([]);
 
     expect(
       howToReadProblems({

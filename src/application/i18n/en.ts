@@ -299,15 +299,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.colValue': 'Value',
   'portfolio.colWeight': 'Weight',
   /* Câu nói rõ MẪU SỐ của tỷ trọng — xem lý do ở `vi.ts`. */
-  'portfolio.weightNote':
-    'Weight is a holding’s share of total portfolio value, measured at market prices rather than at cost.',
+  /* Mộ chí: `portfolio.weightNote` bỏ 08/10/2026 — lý do đầy đủ ghi ở `vi.ts`. */
   'portfolio.weightPartial':
     'Holdings with no market price yet are left out of the total, so weights are measured against the priced part of the portfolio.',
   'portfolio.tableCaption': 'Tickers you hold',
   'portfolio.tickerUnit': 'tickers',
   'portfolio.add': 'Add ticker',
   'portfolio.remove': 'Remove',
-  'portfolio.empty': 'Nothing here yet. Add your first ticker to see total value and weights.',
+  /* Một câu, không hai — xem chú thích ở `vi.ts`. */
+  'portfolio.empty': 'Nothing here yet.',
   /* `portfolio.localTag` và `portfolio.localOnly` đã xoá cùng lúc với bản Việt — xem docblock ở
      `vi.ts`, chỗ ghi vì sao lượt xoá này khác một lượt dọn chú thích thường. */
   'portfolio.formCode': 'Ticker',
@@ -391,7 +391,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.pickHeld': 'Add more',
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
-  'ticker.capped': 'tickers · type more to narrow the list',
+  /* Chỉ còn đơn vị, bỏ vế chỉ đường — xem chú thích ở `vi.ts`. */
+  'ticker.capped': 'tickers',
   'ticker.retry': 'Try again',
   'ticker.errorNetwork': 'Could not load the ticker list. Check your connection and try again.',
   'ticker.errorSource':
@@ -623,8 +624,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'aboutUs.can.lookupNote':
     'Every formula ships with its meaning, when to use it, how to read the result and the common mistakes.',
   'aboutUs.can.instant': 'Instant calculation',
-  'aboutUs.can.instantNote':
-    'Results and charts change as you type; there is no Calculate button to press.',
+  /* Ngôi thứ ba, không nói với người đọc — xem chú thích ở `vi.ts`. */
+  'aboutUs.can.instantNote': 'Charts update when the user enters or changes a figure.',
   'aboutUs.can.chain': 'Controlled chaining',
   'aboutUs.can.chainNote':
     'The output of one formula feeds straight into the input of the next, and you can still override it with your own number.',
@@ -632,11 +633,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'aboutUs.can.feesNote':
     'Trading fees, income tax and dividend tax follow the domestic rules, declared in one place in Market Config.',
   'aboutUs.can.data': 'Sample data and flexible input',
-  'aboutUs.can.dataNote':
-    'Load a sample data set by ticker, or type and paste your own price table.',
+  /* Gộp "gõ" và "dán" thành một vế, ngôi thứ ba — xem chú thích ở `vi.ts`. */
+  'aboutUs.can.dataNote': 'Load a sample data set by ticker, or use the user’s own figures.',
   'aboutUs.can.portfolio': 'A personal portfolio on your device',
   'aboutUs.can.portfolioNote':
-    'Track the tickers you hold and their cost basis, with XIRR and related measures, without having to sign in.',
+    'Track the tickers held and their cost basis, with XIRR and related measures, with no sign-in needed.',
 
   'aboutUs.arch.title': 'Client-only architecture (zero backend)',
   'aboutUs.arch.ui': 'Presentation layer',
@@ -664,8 +665,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'aboutUs.not.realtimeNote':
     'The market price on the Portfolio tab is the latest session price, pulled from a data provider and always stamped with its session date. It is not a live order-book feed.',
   'aboutUs.not.history': 'Not a historical data warehouse',
+  /* Rút còn một vế mô tả cộng một lối đi — xem chú thích ở `vi.ts`. */
   'aboutUs.not.historyNote':
-    'The bundled sample data is only enough to show how a formula runs. To compute on a real, long price series you enter or paste it into the Data table yourself.',
+    'The bundled sample data is only enough to show how a formula runs. You can add your own data in the Data table.',
   'aboutUs.not.advice': 'Not an investment advisory tool',
   'aboutUs.not.adviceNote':
     'Every number on screen is a calculation for reference, not a buy or sell recommendation.',

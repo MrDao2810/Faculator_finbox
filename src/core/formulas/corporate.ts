@@ -368,7 +368,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         en: "Use it when you read the revenue plan a company puts to its shareholders' meeting for next year and want to know how many times harder its profit per share would move if revenue misses or beats the plan by a little.",
       },
       howToRead: {
-        vi: 'So với mốc 1: bằng 1 nghĩa là lãi trên mỗi cổ phiếu tăng giảm cùng nhịp với doanh thu, còn lớn hơn 1 thì lãi dao động mạnh hơn doanh thu khoảng bấy nhiêu lần, cả khi doanh thu vượt kế hoạch lẫn khi hụt.',
+        vi: 'So với mốc 1 lần: bằng 1 nghĩa là lãi trên mỗi cổ phiếu tăng giảm cùng nhịp với doanh thu, còn lớn hơn 1 thì lãi dao động mạnh hơn doanh thu khoảng bấy nhiêu lần, cả khi doanh thu vượt kế hoạch lẫn khi hụt.',
         en: 'Compared with the 1 mark: exactly 1 means profit per share rises and falls in step with revenue, while above 1 means profit swings roughly that many times harder than revenue, whether revenue beats the plan or misses it.',
       },
       commonMistakes: {

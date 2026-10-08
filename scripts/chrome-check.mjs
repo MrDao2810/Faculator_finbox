@@ -2570,6 +2570,46 @@ window.__themeLog = [];
     pcDs.theDs.map((t) => `${String(t.left)},${String(t.top)}`).join(' · '),
   );
 
+  /*
+   * Nhãn nhóm của ba thẻ cùng hàng phải thẳng chân nhau.
+   *
+   * Lưới kéo ba thẻ cao bằng thẻ cao nhất, nên một tên dài đẩy huy hiệu cấp độ xuống dòng hai là
+   * hai thẻ bên cạnh thừa chiều cao. Chủ dự án chụp đúng cảnh ấy ở hàng đầu (08/10/2026): nhãn của
+   * XIRR chạm đáy, hai nhãn kia treo lơ lửng. Ba khai báo chữa nó nằm ở `FormulaCard.module.css`
+   * và có cửa gác đọc-nguồn riêng (`formula-card-css.test.ts`); phép kiểm này là chỗ duy nhất đo
+   * HÌNH HỌC thật, thứ jsdom không trả lời được.
+   *
+   * PHẢI cuộn từng dòng vào khung nhìn trước khi đo. `.item` mang `content-visibility: auto` kèm
+   * `contain-intrinsic-size: auto 122px`, nên thẻ ngoài khung nhìn trả về đúng 122px giữ chỗ chứ
+   * không phải chiều cao thật — đo mà không cuộn là đo cái khung rỗng, và phép kiểm sẽ vừa bỏ sót
+   * lỗi thật vừa dựng ra lỗi giả. Cùng họ với bẫy `content-visibility` của biểu đồ đã ghi ở trên.
+   */
+  const chanNhan = await evaluate(`(async () => {
+    const ul = document.querySelector('#danh-sach-cong-thuc ul');
+    if (!ul) return null;
+    const hang = new Map();
+    for (const li of ul.querySelectorAll('li')) {
+      const a = li.querySelector('a');
+      if (!a) continue;
+      li.scrollIntoView({ block: 'center' });
+      await new Promise((xong) => requestAnimationFrame(() => requestAnimationFrame(xong)));
+      const nhan = a.querySelector('[class*="FormulaCard_category__"]');
+      if (!nhan) continue;
+      const ho = Math.round(a.getBoundingClientRect().bottom - nhan.getBoundingClientRect().bottom);
+      const khoa = li.offsetTop;
+      if (!hang.has(khoa)) hang.set(khoa, []);
+      hang.get(khoa).push(ho);
+    }
+    const lech = [...hang.values()].map((hs) => Math.max(...hs) - Math.min(...hs));
+    return { soHang: lech.length, hangLech: lech.filter((l) => l > 1).length, lechToiDa: Math.max(0, ...lech) };
+  })()`);
+
+  check(
+    'PC 1440 · nhãn nhóm của ba thẻ cùng hàng thẳng chân nhau',
+    chanNhan !== null && chanNhan.soHang > 1 && chanNhan.hangLech === 0,
+    JSON.stringify(chanNhan),
+  );
+
   /* Hàng chip tràn ở 1440 (13 lựa chọn) — nút ‹ tắt ở đầu hàng, bấm › thì cuộn và ‹ bật. */
   const hangChip = await evaluate(`(async () => {
     const khoi = document.getElementById('danh-sach-cong-thuc');

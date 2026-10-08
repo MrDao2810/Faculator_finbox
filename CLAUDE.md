@@ -66,7 +66,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 42 assertions against a built out/ — run after build
-npm run check:chrome   # 149 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 152 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -113,13 +113,20 @@ words, an anchor named before the colon, a length cap, no long dash, no pointing
 example or the chart, no "numerator/denominator", no other formula's acronym, and numbers restricted
 to 0/1/100 plus a **per-formula, written-reason** allowlist (`QUY_UOC`) for a few named market
 conventions (RSI's 70/30/50, Stochastic's 80/20) — an ad-hoc threshold like "ROE above 15%" is not
-allowed even though the old text had ones like it. **The anchor may not be a bare number**
-(05/10/2026): the owner read `ty-so-calmar`'s "So với 1: …" and asked what "1:" was, because the
-template's colon lands against the digit and the pair reads as ratio notation. The anchor needs a
-noun holding the number up — "So với mốc 1", "Compared with the 1 mark", "hai mép 0% và 100%" — and
-the product already wrote it that way in `pb`, `peg`, `rsi-wilder`, `stochastic-k` and
-`phan-tram-b-bollinger`, so the sweep copied that shape onto the other 12 `vi` / 14 `en` passages
-rather than inventing one. Same 10-agent draft-plus-adversarial-pass shape as
+allowed even though the old text had ones like it. **The anchor may not END in a digit**
+(05/10/2026, corrected 08/10/2026): the owner read `ty-so-calmar`'s "So với 1: …" and asked what
+"1:" was, because the template's colon lands against the digit and the pair reads as ratio
+notation. **The first fix was wrong and the way it was wrong is the point.** It read the defect as
+"the anchor is a bare number" and treated a noun in front of it as the cure, so `pb`, `peg` and 13
+others were rewritten to "So với mốc 1:" — which prints the very pair the owner had circled. They
+came back on 08/10 with `don-bay-tong-hop`: _"vẫn còn lỗi '1:' ? tôi có yêu cầu là nói rõ ràng cách
+sửa rồi mà"_. A noun BEFORE the number does nothing about the two characters AFTER it. The cure is
+a unit or noun **after** the number, which is what the English side had been doing all along ("the
+1 mark", "the usual 70 and 30 marks") — measured 08/10: 111 of 111 `en` anchors already ended in a
+letter while 15 `vi` anchors ended in a digit, and all 15 were rewritten ("mốc 1 lần", "mốc 0 đồng",
+"mốc 1 của thị trường", "70 và 30 điểm"). `%` is deliberately **not** blocked: `100%:` does not read
+as ratio notation because the sign closes the number, so `ty-le-chi-tra-co-tuc`, `phan-tram-b-bollinger`
+and `don-bay-hieu-dung` keep their `%` anchors. Same 10-agent draft-plus-adversarial-pass shape as
 the sentence above; `how-to-read-rules.test.ts` gates all 111. One real `calc` defect surfaced while
 writing prose, not fixed here: `mo-hinh-gordon` guards `dividend === 0` with `fail(MEANINGLESS)` and
 documents exactly why (FR-06 — a silent `ok(0 ₫)` reads as a real share price), but the sibling

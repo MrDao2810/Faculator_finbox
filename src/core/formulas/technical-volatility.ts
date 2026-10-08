@@ -1218,7 +1218,7 @@ export const STOCHASTIC_K: FormulaModule = {
         en: "Use it when you follow a stock that keeps bouncing between two familiar price levels and want to know whether today's session closed near the top or near the bottom of the past few weeks.",
       },
       howToRead: {
-        vi: 'So với hai mốc quen dùng 80 và 20: trên 80 nghĩa là phiên cuối đóng cửa sát đỉnh của n phiên gần nhất, dưới 20 là sát đáy, ở giữa là chưa nghiêng về mép nào. Đúng 100 là đóng cửa ở mức cao nhất của cả n phiên, đúng 0 là ở mức thấp nhất.',
+        vi: 'So với hai mốc quen dùng 80 và 20 điểm: trên 80 nghĩa là phiên cuối đóng cửa sát đỉnh của n phiên gần nhất, dưới 20 là sát đáy, ở giữa là chưa nghiêng về mép nào. Đúng 100 là đóng cửa ở mức cao nhất của cả n phiên, đúng 0 là ở mức thấp nhất.',
         en: 'Compared with the usual 80 and 20 marks: above 80 means the last session closed near the top of the last n sessions, below 20 means near the bottom, and in between means it leans toward neither edge. Exactly 100 means it closed at the highest price of all n sessions, and exactly 0 at the lowest.',
       },
       commonMistakes: {
@@ -1825,7 +1825,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         en: "Use it when you see a stock break out of a long sideways range and want to know whether that session's matched volume far exceeded the weeks before, or just a few thin orders moved the price.",
       },
       howToRead: {
-        vi: 'So với mốc 1: lớn hơn 1 nghĩa là phiên gần nhất khớp nhiều hơn mức bình quân của n phiên liền trước, gấp bấy nhiêu lần, nhỏ hơn 1 là thanh khoản đang mỏng hơn thường lệ. Đúng 0 nghĩa là phiên gần nhất không khớp được cổ phiếu nào.',
+        vi: 'So với mốc 1 lần: lớn hơn 1 nghĩa là phiên gần nhất khớp nhiều hơn mức bình quân của n phiên liền trước, gấp bấy nhiêu lần, nhỏ hơn 1 là thanh khoản đang mỏng hơn thường lệ. Đúng 0 nghĩa là phiên gần nhất không khớp được cổ phiếu nào.',
         en: 'Compared with the 1 mark: above 1 means the latest session traded more shares than the average of the n sessions before it, by that many times, and below 1 means trading is thinner than usual. Exactly 0 means not a single share changed hands in the latest session.',
       },
       commonMistakes: {

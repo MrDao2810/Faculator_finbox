@@ -635,7 +635,7 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         en: "Use it when you hold a stock that has been moving for a while and want to know whether the price's push over the last couple of weeks is still upward or has turned downward against its longer-run level.",
       },
       howToRead: {
-        vi: 'So với mốc 0: dương nghĩa là mặt bằng giá mấy phiên gần đây đang cao hơn mặt bằng của một quãng dài hơn, tức đà đang kéo giá lên, âm là đang thấp hơn, tức đà đang kéo giá xuống.',
+        vi: 'So với mốc 0 đồng: dương nghĩa là mặt bằng giá mấy phiên gần đây đang cao hơn mặt bằng của một quãng dài hơn, tức đà đang kéo giá lên, âm là đang thấp hơn, tức đà đang kéo giá xuống.',
         en: "Compared with the 0 mark: positive means the recent price level is above the stock's own longer-run level, so the price is being pulled up, and negative means it is below that level, so the price is being pulled down.",
       },
       commonMistakes: {
@@ -962,7 +962,7 @@ export const RSI_WILDER: FormulaModule = {
         en: 'Use it when you see a price rise or fall for many sessions in a row and want to know whether the move has overshot, before deciding to chase it or sell in a panic.',
       },
       howToRead: {
-        vi: 'So với hai mốc quen dùng 70 và 30: trên 70 nghĩa là phần tăng giá gần đây đang lấn át phần giảm, dưới 30 là ngược lại, quanh 50 là hai phần ngang nhau. Đúng 100 là cả chuỗi giá không có phiên giảm nào, đúng 0 là không có phiên tăng nào, không phải lỗi.',
+        vi: 'So với hai mốc quen dùng 70 và 30 điểm: trên 70 nghĩa là phần tăng giá gần đây đang lấn át phần giảm, dưới 30 là ngược lại, quanh 50 là hai phần ngang nhau. Đúng 100 là cả chuỗi giá không có phiên giảm nào, đúng 0 là không có phiên tăng nào, không phải lỗi.',
         en: 'Compared with the usual 70 and 30 marks: above 70 means recent gains clearly outweigh recent losses, below 30 means the reverse, and around 50 means the two are balanced. Exactly 100 means the whole price series has no down session and exactly 0 means it has no up session, neither being an error.',
       },
       commonMistakes: {
@@ -1301,7 +1301,7 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
         en: 'Use it when you follow one familiar stock closely and want to know how many dong a share has gained or lost compared with a few weeks ago, counted in money rather than as a percentage.',
       },
       howToRead: {
-        vi: 'So với mốc 0: dương nghĩa là giá mỗi cổ phiếu lúc này cao hơn giá đóng cửa của n phiên trước đúng bấy nhiêu đồng, âm là đang thấp hơn bấy nhiêu đồng, còn đúng 0 là giá đứng yên ở chỗ cũ.',
+        vi: 'So với mốc 0 đồng: dương nghĩa là giá mỗi cổ phiếu lúc này cao hơn giá đóng cửa của n phiên trước đúng bấy nhiêu đồng, âm là đang thấp hơn bấy nhiêu đồng, còn đúng 0 là giá đứng yên ở chỗ cũ.',
         en: 'Compared with the 0 mark: positive means each share now trades that many dong above its closing price n sessions ago, negative means that many dong below it, and exactly 0 means the price is right where it was.',
       },
       commonMistakes: {

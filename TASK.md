@@ -4,6 +4,319 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Lỗi "1:" ở "Cách đọc kết quả" — bản sửa 05/10 đã SAI (08/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (138 file, 3.181 ca).
+
+### Chủ dự án giao gì
+
+> "vẫn còn lỗi '1:' ? tôi có yêu cầu là nói rõ ràng cách sửa rồi mà. quét lại toàn bộ tất cả công
+> thức và sửa những lỗi liên quan đến '1:' này"
+
+Ảnh chụp `don-bay-tong-hop`: "**So với mốc 1:** bằng 1 nghĩa là…".
+
+### Bản sửa 05/10 sai ở chỗ nào — đây mới là phần đáng ghi
+
+Ngày 05/10 chủ dự án chỉ vào `ty-so-calmar` "So với 1: …" và hỏi "1:" là gì. Tôi đọc lỗi ấy thành
+**"mốc là một con số trần"**, nên cách chữa là thêm một danh từ ĐỠ LẤY con số, và luật 9 dựng theo
+đúng cách đọc ấy: `/^d+%?$/` chỉ chặn mốc trống trơn một con số. 15 đoạn được viết lại thành
+"So với mốc 1:" và cửa gác báo xanh.
+
+Nhưng thứ hỏng chưa bao giờ là con số đứng một mình — nó là **cặp ký tự `1:`**, và "mốc 1:" in ra
+đúng cặp ấy. **Một danh từ đứng TRƯỚC con số không gỡ được hai ký tự đứng SAU nó.** Cửa gác xanh
+suốt ba ngày trong khi lỗi còn nguyên trên 15 màn, vì nó gác đúng cái tôi hiểu sai.
+
+### Chỗ chữa đã có sẵn, ở bản tiếng Anh
+
+Quét cả 111 × 2 đoạn theo ký tự CUỐI của mốc:
+
+| Kết bằng |   `vi` |    `en` |
+| -------- | -----: | ------: |
+| chữ cái  |     93 | **111** |
+| chữ số   | **15** |       0 |
+| `%`      |      3 |       0 |
+
+Bản `en` chưa bao giờ mắc, vì tiếng Anh đặt danh từ SAU con số: "the 1 mark", "the usual 70 and 30
+marks". Tiếng Việt đặt loại từ TRƯỚC ("mốc 1"), nên khuôn chung của sản phẩm vô tình dựng ra cặp
+`1:` ở đúng một bên. Phép chữa là chép lối của bản `en`: thêm ĐƠN VỊ hoặc danh từ sau con số.
+
+### 15 công thức đã sửa
+
+| Mốc mới                           | Công thức                                                                                                       |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `mốc 1 lần`                       | `pb`, `peg`, `thanh-toan-hien-hanh`, `thanh-toan-nhanh`, `ty-so-calmar`, `ty-le-khoi-luong`, `don-bay-tong-hop` |
+| `mốc 1 của thị trường`            | `beta` (beta thị trường đúng bằng 1, nên câu tự nói ra mốc ở đâu ra)                                            |
+| `mốc 0 đồng`                      | `macd-duong-chinh`, `dong-luong-momentum`, `gui-quay-vong` (cả ba đều trả về số tiền)                           |
+| `mốc 0% một năm`                  | `loi-suat-thuc`                                                                                                 |
+| `mốc 0 điểm phần trăm`            | `loi-suat-vuot-chuan` (chính đoạn ấy đã nói "tính bằng điểm phần trăm")                                         |
+| `70 và 30 điểm` · `80 và 20 điểm` | `rsi-wilder`, `stochastic-k` (thang 0–100, đọc là điểm)                                                         |
+
+Đơn vị lấy theo thứ `calc` thật sự trả về, không phải một chữ đệm cho đủ: số tiền thì "đồng", tỷ số
+thì "lần", thang điểm thì "điểm". Dài nhất sau khi sửa là `rsi-wilder` 257/260 ký tự, vẫn dưới trần.
+
+### `%` KHÔNG sửa, và đó là một quyết định
+
+Ba đoạn kết bằng `%` — `ty-le-chi-tra-co-tuc` "mốc 100%", `phan-tram-b-bollinger` "hai mép 0% và
+100%", `don-bay-hieu-dung` "…tính theo %" — giữ nguyên. `100%:` không đọc ra ký hiệu tỷ lệ, vì dấu
+`%` đã đóng con số lại; lỗi chủ dự án chỉ là chữ số dính thẳng vào dấu hai chấm. Muốn đồng loạt kết
+bằng chữ cái thì sửa thêm ba câu nữa, nói một tiếng.
+
+### Cửa gác sửa theo, và ca kiểm giữ luôn chỗ từng sai
+
+`how-to-read-rules.ts` luật 9: `/^d+%?$/` → `/d$/` (ký tự cuối của mốc không được là chữ số).
+Câu báo lỗi nay chỉ đúng cách chữa: _"đặt đơn vị hay danh từ SAU con số"_.
+
+`how-to-read-rules.test.ts` tách ca cũ thành hai và thêm một phép khẳng định mới: **"So với mốc 1:"
+phải BỊ BẮT**. Đó chính là chỗ bản luật đầu bỏ lọt, nên nó phải là một ca kiểm chứ không phải một
+dòng chú thích.
+
+### Đã đổi file nào
+
+| File                             | Vì sao                                                                            |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| `core/formulas/*.ts` (9 file)    | 15 mốc, thêm đơn vị sau con số                                                    |
+| `core/how-to-read-rules.ts`      | luật 9 đọc đúng chỗ hỏng, kèm ghi lại vì sao bản đầu sai                          |
+| `core/how-to-read-rules.test.ts` | tách hai ca, ghim "mốc 1" phải đỏ                                                 |
+| `CLAUDE.md`                      | đoạn tả luật này đang nêu `pb`/`peg` "So với mốc 1" làm MẪU ĐÚNG — nay là mẫu sai |
+| `TASK.md`                        | mục này                                                                           |
+
+`npm run gen:summaries` không trôi (bản tóm tắt không mang `howToRead`).
+
+### Còn lại
+
+Bản `en` không đụng gì: 111/111 đã đúng khuôn từ đầu.
+
+---
+
+## Nhãn nhóm trong danh sách công thức không thẳng chân nhau (08/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh.** Đã đo bằng Chrome thật trước và sau.
+
+### Chủ dự án giao gì
+
+> "sửa lỗi khoanh đỏ, các phân loại trong ô khoanh đỏ đang không căn dưới như bên trái. điều
+> chỉnh lại toàn bộ"
+
+Ảnh chụp hàng đầu danh sách `/cong-thuc/` ở khổ PC, khoanh đỏ dải đáy của ba thẻ: nhãn nhóm
+"Lợi nhuận & cổ tức" của XIRR chạm đáy thẻ, còn "Phân tích kỹ thuật" của %B và ATR thì treo lơ
+lửng cao hơn.
+
+### Lỗi là gì
+
+"XIRR — suất sinh lợi nội tại theo ngày thực" là tên dài, nó đẩy huy hiệu "Nâng cao" xuống dòng
+hai, nên thẻ ấy cao hơn hai thẻ bên cạnh. Lưới ba cột KÉO cả ba thẻ cao bằng nhau
+(`VirtualList.module.css` cho `.listStatic > .item > * { height: 100% }`) — nhưng chỉ cái THẺ
+cao lên, còn khối chữ bên trong nó thì không: `.card` khai `align-items: flex-start`, nên
+`.body` vẫn chỉ cao bằng nội dung của chính nó và chiều cao thừa rơi xuống phía dưới khối chữ.
+Nhãn nhóm là dòng cuối của khối chữ, nên nó dừng ở đúng chỗ nội dung hết.
+
+Nhánh Ô (`.tileCategory`, kệ trang chủ) đã làm đúng từ lâu bằng `margin-top: auto`; nhánh Hàng
+chưa bao giờ có phần tương ứng.
+
+### Ba khai báo, bỏ một là hỏng
+
+| Luật                                          | Việc                          |
+| --------------------------------------------- | ----------------------------- |
+| `.card { align-items: stretch }`              | kéo khối chữ cao bằng thẻ     |
+| `.body { grid-template-rows: auto auto 1fr }` | hàng cuối nuốt chiều cao thừa |
+| `.category { align-self: end }`               | nhãn bám đáy hàng ấy          |
+
+Hàng cuối phải khai rõ `1fr`, không được để ba hàng `auto`: `align-content` của lưới mặc định là
+`stretch` và nó CHIA ĐỀU chỗ thừa cho mọi hàng `auto`, tức mô tả cũng bị đẩy xuống theo chứ không
+riêng nhãn nhóm. Một hàng `1fr` không phải hàng `auto` nên nó lấy hết, hai hàng trên đứng yên.
+
+`align-self: end` chứ không `margin-top: auto` như nhánh Ô: `margin-top: var(--space-2)` ở đây còn
+việc khác — giữ khoảng cách với dòng mô tả khi thẻ KHÔNG bị kéo cao. Hai thứ không đá nhau.
+
+### Đo, không nhìn bằng mắt
+
+Chrome thật ở 1440px, **cuộn từng dòng vào khung nhìn rồi mới đo**. Lần đo đầu tiên không cuộn và
+nó nói dối: `.item` mang `content-visibility: auto` kèm `contain-intrinsic-size: auto 122px`, nên
+mọi thẻ ngoài khung nhìn trả về đúng 122px giữ chỗ — đo ra ba "hàng lệch" không có thật, trong đó
+một nhãn còn nằm 14px DƯỚI đáy thẻ. Cùng họ với bẫy `content-visibility` mà khối biểu đồ của
+`check:chrome` đã ghi.
+
+Đo đúng cách, hai lượt trong cùng một lần tải (lượt "cũ" chèn một `<style>` dựng lại ba khai báo
+trước khi sửa):
+
+| Chế độ   | Thẻ | Hàng | Hàng lệch TRƯỚC | Lệch nhất | Hàng lệch SAU |
+| -------- | --: | ---: | --------------: | --------: | ------------: |
+| Cơ bản   |  79 |   27 |              14 |      42px |         **0** |
+| Nâng cao | 111 |   37 |              20 |      42px |         **0** |
+
+Khổ hẹp không đổi một pixel: đo hộp của cả sáu phần (icon · tên · mô tả · nhãn · mũi tên · thẻ) của
+79 thẻ ở **360, 390, 768, 1024 và 1279px**, có và không có bản cũ — **0 thẻ đổi hộp** ở cả năm khổ.
+Đúng như trông đợi, vì thẻ chỉ bị kéo cao từ 1280px trở lên.
+
+### Hai cửa gác, và vì sao cần cả hai
+
+- **`src/ui/browse/formula-card-css.test.ts`** (mới, 4 ca) — đọc file CSS, dò cả ba khai báo cộng
+  `margin-top: auto` của nhánh Ô. Chạy trong CI. Đã chứng minh bằng cách lần lượt bỏ từng khai báo:
+  mỗi lần bỏ một cái thì có thêm đúng một ca đỏ. Phải bóc chú thích trước khi dò — chú thích của
+  chính file CSS ấy nhắc lại nguyên văn `flex-start`, `margin-top: auto` và `align-self: end` khi
+  kể vì sao chọn cái này thay cái kia.
+- **`scripts/chrome-check.mjs`** (+1 phép kiểm) — chỗ duy nhất đo HÌNH HỌC thật. jsdom không bố cục
+  nên mọi hộp đều 0 × 0 và "nhãn nào chạm đáy" không có nghĩa ở đó. Biểu thức đo đã chạy thử trên
+  Chrome thật theo cả hai chiều: **đỏ với bản CSS cũ (14/27 hàng lệch), xanh với bản mới (0/27)**.
+  Nhưng **cả `npm run check:chrome` thì chưa chạy được** — nó cần `out/`, mà `prebuild` từ chối chạy
+  khi cổng 3000 còn dev server.
+
+### Đã đổi file nào
+
+| File                                 | Vì sao                                                       |
+| ------------------------------------ | ------------------------------------------------------------ |
+| `ui/browse/FormulaCard.module.css`   | ba khai báo ghim nhãn nhóm xuống đáy, kèm lý do từng cái     |
+| `ui/browse/formula-card-css.test.ts` | MỚI — cửa gác đọc nguồn, 4 ca                                |
+| `scripts/chrome-check.mjs`           | +1 phép kiểm hình học, kèm cảnh báo bẫy `content-visibility` |
+| `CLAUDE.md`                          | số phép kiểm Chrome 149 → 152 (đã lệch 2 từ đợt 06/10)       |
+| `TASK.md`                            | mục này                                                      |
+
+### Còn lại
+
+- **`build` + `verify:static` + `check:chrome`** — vẫn chờ cổng 3000 trống. Phép kiểm Chrome mới là
+  thứ đáng chạy đầu tiên khi chạy được.
+- Lưới thẻ NHÓM (`FormulaFolders`, `SearchResults`) không dính lỗi này và cố ý không sửa: cả hai
+  khai `align-items: start`, tức thẻ cao theo nội dung chứ không bị kéo bằng nhau — bản vẽ chọn thế.
+
+---
+
+## Rà giọng văn: bỏ chữ thừa, chuyển sang ngôi "người dùng" (08/10/2026)
+
+**Trạng thái: xong, chờ chủ dự án soi.** Bảy chuỗi, chủ dự án chỉ đích danh từng câu.
+
+| Khoá                        | Trước                                                                              | Sau                                                                       |
+| --------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `ticker.capped`             | `mã · gõ thêm để thu hẹp danh sách`                                                | `mã`                                                                      |
+| `portfolio.weightNote`      | "Tỷ trọng là phần giá trị của một mã…"                                             | **xoá hẳn**                                                               |
+| `portfolio.empty`           | "Chưa có mã nào. Thêm mã đầu tiên để xem tổng giá trị và tỷ trọng."                | "Chưa có mã nào."                                                         |
+| `aboutUs.can.instantNote`   | "Gõ số tới đâu thì kết quả và biểu đồ đổi tới đó, không có nút Tính nào phải bấm." | "Biểu đồ thay đổi khi người dùng nhập số liệu mới hoặc thay đổi số liệu." |
+| `aboutUs.can.dataNote`      | "…hoặc **tự gõ và dán** bảng giá **của riêng bạn**."                               | "…hoặc **sử dụng số liệu riêng của người dùng**."                         |
+| `aboutUs.can.portfolioNote` | "…mà **không bắt buộc** đăng nhập."                                                | "…mà **người dùng không cần** đăng nhập."                                 |
+| `aboutUs.not.historyNote`   | "Muốn tính trên chuỗi giá thật và dài, **bạn tự nhập hoặc dán** vào Bảng dữ liệu." | "**Bạn có thể thêm dữ liệu riêng** vào Bảng dữ liệu."                     |
+
+Cả bảy đổi ở **cả `vi.ts` lẫn `en.ts`**; khoá xoá mang mộ chí ở `vi.ts`, `en.ts` trỏ sang.
+
+### `portfolio.weightNote` kéo theo một thay đổi hành vi, không chỉ một chuỗi
+
+Câu ấy dùng chung một thẻ `<p>` với `portfolio.weightPartial` — câu chỉ hiện khi có mã chưa tra
+được thị giá, và là phần THÀNH THẬT về mẫu số (`total` cộng bằng `row.value ?? 0`, nên mã không có
+giá rơi khỏi tổng và tỷ trọng các mã còn lại cộng đủ 100% trong khi danh mục thì chưa đủ — đúng
+loại "số sai mà trông có lý" FR-06 dựng ra để chặn). `weightPartial` **ở lại**.
+
+Nên điều kiện dựng đổi theo: trước là `holdings.length > 0` (câu định nghĩa luôn đúng), nay là
+"có mã nào chưa có giá không". Danh mục đủ giá không còn thẻ `<p>` nào ở đó, chứ không phải một thẻ
+rỗng.
+
+Mộ chí ở `vi.ts` ghi rõ câu ấy **không phải chữ thừa ngay từ đầu** — nó sinh ra 22/09/2026 để trả
+lời đúng câu hỏi của chính chủ dự án ("chưa hiểu tác dụng" khi đọc cột Tỷ trọng), và ghi sẵn chỗ
+phải sửa nếu câu hỏi ấy quay lại: nhãn cột hoặc chú giải gắn vào đầu cột, không dựng lại một đoạn
+văn dưới chân bảng.
+
+### `aboutUs.not.historyNote` — câu mất một lời khẳng định, và chỗ giữ nó nằm ở đâu
+
+Câu cũ nói hai việc: bộ mẫu chỉ để minh hoạ, VÀ muốn chuỗi giá "thật và dài" thì phải tự nạp. Câu
+mới chỉ còn việc thứ nhất cộng một lối đi. Lời khẳng định bị bỏ đi là phần kiểm chứng được —
+chuỗi trong bộ mẫu là số dựng sẵn (`isDraft`), và API `dcs.finbox.vn` chỉ trả **10 phiên**, không
+đủ cho RSI-14 hay SMA-20.
+
+Nó không mất khỏi màn: **tiêu đề của chính thẻ ấy** vẫn là "Không phải kho dữ liệu lịch sử", và
+docblock trên khoá vẫn ghi nguyên cớ chọn tiêu đề đó cùng con số 10 phiên. Nếu sau này có người
+đọc thẻ mà không hiểu vì sao bộ mẫu không đủ, chỗ sửa là tiêu đề hoặc màn Bảng dữ liệu, không
+phải nhồi lại câu này.
+
+Một điều đáng ghi về ngôi: câu chủ dự án tự viết **mở đầu bằng "Bạn có thể"**. Vậy thứ bị bác là
+"tự gõ" / "tự nhập" / "của riêng bạn" — giọng đẩy việc về phía người đọc — chứ không phải chữ
+"bạn". Điều đó cũng là câu trả lời cho mục còn mở ở dưới: không nên quét "bạn" thành "người dùng"
+trên diện rộng.
+
+### Ca kiểm: sửa, không xoá
+
+Ba ca trong `PortfolioScreen.test.tsx` đang ghim hai chuỗi vừa đổi. Ca "cuối khối có câu nói rõ tỷ
+trọng tính trên cái gì" **đảo thành ca kiểm sự vắng mặt** — cùng nếp đã dùng cho `quiz.localOnly`
+và `quiz.notTranslated`: câu chữ quay lại thì phải là một quyết định, không phải một lần lỡ tay. Hai
+ca còn lại dò thẳng vào `weightPartial` thay vì soi phần đuôi của câu định nghĩa, và chờ
+`findByRole('table')` trước khi khẳng định sự vắng mặt.
+
+`npm run check` xanh: 137 file, 3.176 ca.
+
+### Trả lời câu hỏi "tại sao cứ dùng 'tự gõ'"
+
+Đo trên 520 chuỗi hiện ra màn của `vi.ts`: **"tự gõ" có đúng MỘT chuỗi**, chính là
+`aboutUs.can.dataNote` vừa sửa — nay là **0**. Mọi chỗ còn lại trong kho (19 kết quả) đều là chú
+thích mã nguồn, tên ca kiểm hoặc docblock, không hiện trên màn.
+
+Chữ **"bạn"** thì khác, và nó vướng một quyết định cũ của chính chủ dự án:
+
+- 22 chuỗi trong `vi.ts`.
+- **111 chuỗi trong `src/core`** — mục "Khi nào dùng" của **toàn bộ** 111 công thức bắt buộc mở đầu
+  `Dùng khi bạn …`, chốt 30/09/2026 và ghim bằng hằng số `KHI_NAO_MO_DAU` ở `when-to-use-rules.ts`
+  cùng một cửa gác quét cả 111.
+
+Nên đổi "bạn" thành "người dùng" trên diện rộng là **đảo quyết định 30/09**, không phải dọn chữ
+thừa. Chưa làm — và chuỗi thứ bảy ở trên là bằng chứng không nên làm: chủ dự án tự viết "Bạn có
+thể thêm dữ liệu riêng", tức chữ "bạn" không phải thứ bị bác.
+
+---
+
+## Kho hướng dẫn 111 bài: hai cặp câu nữa, lượt soát thứ ba (08/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh.** Tiếp lượt "Việc 4" của mục WF-21 đợt 9 (05/10/2026) —
+cùng kho `src/core/huong-dan/noi-dung/items.ts`, cùng nếp: chủ dự án viết sẵn cặp trước/sau, áp
+nguyên văn mọi chỗ, rồi quét tìm chỗ chủ dự án kê thiếu.
+
+| Trước                                           | Sau                                                          | Chỗ |
+| ----------------------------------------------- | ------------------------------------------------------------ | --: |
+| `Cộng bốn quý nếu muốn tính cả năm.`            | `Cộng tất cả bốn quý khi tính cả năm.`                       |   9 |
+| `Dùng số đang lưu hành, không dùng số đăng ký.` | `Sử dụng số liệu đang lưu hành, không dùng số liệu đăng ký.` |   2 |
+
+Hai phép sửa ấy mang ba luật: điều kiện viết theo ý muốn (`nếu muốn …`) thành điều kiện theo việc
+(`khi …`); `bốn quý` thành `tất cả bốn quý` để nói rõ là đủ bốn, không phải bốn quý nào cũng được;
+và `số` trơ nghĩa số liệu thành `số liệu` — luật thứ ba này chủ dự án đã nêu hai lượt trước
+(`Tính với số của bạn` → `Tính với số liệu của bạn`, 05/10) và một lượt sau (`sử dụng số liệu riêng
+của người dùng`, cùng ngày 08/10), nên nó là chỗ nhất quán nhất của cả ba đợt.
+
+Độ dài: câu dài nhất của kho vẫn 87 ký tự, trần vẫn 90 — câu mới dài nhất là 58.
+
+### Quét xong, và quyết định KHÔNG sửa bốn chỗ
+
+Quét cả 764 câu tiếng Việt của kho theo ba luật trên. Không chỗ nào áp được phép sửa của chủ dự án
+mà câu không xấu đi, nên không đụng câu nào. Kê ra đây để chủ dự án chốt nếu muốn:
+
+- **`eps-co-ban.deSai`** (cùng MỘT màn với câu vừa sửa): "Dùng số cổ phiếu đăng ký thay vì **số
+  đang lưu hành**, khiến EPS thấp hơn thực tế." Đúng cụm vừa bị gạch — nhưng áp máy móc thì nửa sau
+  thành `số liệu đang lưu hành` trong khi nửa trước là `số cổ phiếu đăng ký`, hai danh từ khác nhau
+  cho hai vế của một phép đối chiếu, đọc tệ hơn bản đang có. Lỗi câu luuY mắc là `số` **không có
+  danh từ nào nói đếm cái gì**; câu này có (`số cổ phiếu`), vế sau chỉ lược theo lối bình thường.
+- **2 câu `nếu muốn` còn lại**: `roi.cost.layODau` ("gồm cả phí **nếu muốn** con số sát thực")
+  và `roi.deSai` ("**nếu muốn** con số thật thì dùng công thức ROI ròng"). Cả hai là `nếu muốn` +
+  danh từ, không phải `nếu muốn` + động từ như câu chủ dự án sửa, nên phép đổi `nếu muốn X` → `khi X`
+  không chạy máy móc được — phải tự nghĩ ra cụm thay, tức viết lại chữ của chủ dự án.
+- **5 chỗ `Cộng bốn quý gần nhất.`** (`pe`, `ty-le-chi-tra-co-tuc`, `so-graham`,
+  `ty-suat-loi-nhuan-tren-gia`, `gia-muc-tieu`): `gần nhất` đã chốt
+  đúng bốn quý nào, nên thêm `tất cả` không thêm nghĩa.
+- **22 câu mở đầu bằng `Dùng `**: không đổi sang `Sử dụng `. Chủ dự án đổi `Dùng số` → `Sử dụng số
+liệu`, và thứ sửa được đo là chữ `số`; không có bằng chứng `Dùng` → `Sử dụng` là một luật. 20 trong
+  22 câu ấy nằm ở dòng "Dễ sai", nơi `Dùng X` là **danh động từ** chỉ cái lỗi ("Dùng cho ngân hàng và
+  công ty công nghệ như nhau"), không phải lời dặn — đổi thành `Sử dụng` là viết lại 22 câu của chủ
+  dự án mà không được thêm nghĩa nào. Cùng loại quyết định đã ghi ở "Việc 2" lượt 05/10.
+
+### Đã đổi file nào
+
+| File                               | Vì sao                                 |
+| ---------------------------------- | -------------------------------------- |
+| `core/huong-dan/noi-dung/items.ts` | 11 chỗ, hai cặp câu chủ dự án viết sẵn |
+| `TASK.md`                          | mục này                                |
+
+Không ca kiểm nào ghim hai chuỗi ấy; 31 ca của `huong-dan` xanh, trong đó có cửa gác trần độ dài và
+cửa gác "163 ô có câu lưu ý" (số lượng không đổi).
+
+### Còn lại
+
+Không có `en` cho kho này — tài liệu chủ dự án chỉ có tiếng Việt, `pick()` rơi về tiếng Việt im
+lặng, và hai ca "nợ bản tiếng Anh" vẫn đếm đúng như trước.
+
+---
+
 ## Dòng chữ dưới hình phải đọc hình, không được tả hình (06/10/2026)
 
 **Trạng thái: xong, `npm run check` xanh** (lint · tsc · prettier · 3.176 ca vitest).

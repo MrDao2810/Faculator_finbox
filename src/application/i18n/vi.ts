@@ -755,20 +755,24 @@ export const vi = {
   'portfolio.colValue': 'Giá trị',
   'portfolio.colWeight': 'Tỷ trọng',
   /*
-   * ── Tỷ trọng nghĩa là gì ──────────────────────────────────────────────────
+   * ── Tỷ trọng: còn ĐÚNG câu cảnh báo, bỏ câu định nghĩa ────────────────────
    *
-   * Chủ dự án đọc cột ấy và báo "chưa hiểu tác dụng" (22/09/2026). Rà lại cả sản phẩm thì chữ
-   * "tỷ trọng" đang mang BA nghĩa: phần của một mã trong danh mục (chỗ này), tỷ trọng vốn chủ và
-   * vốn nợ trong `wacc`, và hệ số làm mượt `k` của `ema-n-phien`. Ba nghĩa không bao giờ đứng
-   * chung một màn nên không phải đổi tên cái nào; thiếu là một câu nói rõ mẫu số, vì "6%" đứng
-   * trần thì mẫu số có tới hai lựa chọn hợp lý — giá trị thị trường và vốn đã bỏ ra.
+   * Mộ chí: `portfolio.weightNote` ('Tỷ trọng là phần giá trị của một mã trên tổng giá trị danh
+   * mục, tính theo thị giá chứ không theo vốn đã bỏ ra') BỎ 08/10/2026 theo chủ dự án.
    *
-   * Câu thứ hai chỉ hiện khi có mã chưa tra được giá, và nó là phần THÀNH THẬT về mẫu số: mã ấy
-   * bị coi như 0 nên rơi khỏi tổng, khiến tỷ trọng các mã còn lại cộng đủ 100% trong khi danh mục
-   * thì chưa đủ.
+   * Ghi lại vì nó KHÔNG phải một câu thừa ngay từ đầu — nó sinh ra ngày 22/09/2026 để trả lời
+   * đúng một câu hỏi của chính chủ dự án ("chưa hiểu tác dụng" khi đọc cột ấy): "6%" đứng trần
+   * thì mẫu số có hai lựa chọn hợp lý, giá trị thị trường và vốn đã bỏ ra. Chữ "tỷ trọng" còn
+   * mang BA nghĩa trong sản phẩm — phần của một mã trong danh mục, tỷ trọng vốn chủ / vốn nợ của
+   * `wacc`, và hệ số làm mượt `k` của `ema-n-phien` — tuy ba nghĩa không bao giờ đứng chung một
+   * màn. Nếu câu hỏi ấy quay lại thì chỗ sửa là NHÃN CỘT hoặc một chú giải gắn vào đầu cột, đừng
+   * dựng lại một đoạn văn dưới chân bảng.
+   *
+   * `weightPartial` Ở LẠI, và nó không cùng loại: nó chỉ hiện khi có mã chưa tra được giá, và nó
+   * là phần THÀNH THẬT về mẫu số — mã ấy bị coi như 0 nên rơi khỏi tổng, khiến tỷ trọng các mã
+   * còn lại cộng đủ 100% trong khi danh mục thì chưa đủ. Im lặng chỗ đó đúng là loại "số sai mà
+   * trông có lý" FR-06 dựng ra để chặn. Nay nó đứng một mình, nên câu tự mở đầu bằng chủ ngữ.
    */
-  'portfolio.weightNote':
-    'Tỷ trọng là phần giá trị của một mã trên tổng giá trị danh mục, tính theo thị giá chứ không theo vốn đã bỏ ra.',
   'portfolio.weightPartial':
     'Mã chưa tra được thị giá không nằm trong tổng, nên tỷ trọng đang tính trên phần danh mục đã có giá.',
   /*
@@ -787,7 +791,12 @@ export const vi = {
    */
   'portfolio.add': 'Thêm mã',
   'portfolio.remove': 'Bỏ mã',
-  'portfolio.empty': 'Chưa có mã nào. Thêm mã đầu tiên để xem tổng giá trị và tỷ trọng.',
+  /*
+   * Một câu, không hai (08/10/2026, chủ dự án). Vế thứ hai ("Thêm mã đầu tiên để xem tổng giá trị
+   * và tỷ trọng") chỉ đường tới đúng cái nút "Thêm mã" đang đứng ngay cạnh nó, và kể ra hai thứ
+   * người dùng sẽ thấy sau khi thêm — cả hai đều là chữ thừa cạnh một khối trống.
+   */
+  'portfolio.empty': 'Chưa có mã nào.',
   /*
    * ⚠ `portfolio.localTag` ("CỤC BỘ") và `portfolio.localOnly` đã XOÁ — chủ dự án chốt 09/09/2026.
    *
@@ -1089,8 +1098,14 @@ export const vi = {
   'ticker.pickHeld': 'Cộng thêm',
   'ticker.loading': 'Đang tải danh sách mã…',
   'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
-  // Đứng ngay SAU cặp số "60/1.649", nên câu phải mở đầu bằng đơn vị và không viết hoa.
-  'ticker.capped': 'mã · gõ thêm để thu hẹp danh sách',
+  /*
+   * Đứng ngay SAU cặp số "60/1.649", nên chỉ còn đúng đơn vị và không viết hoa.
+   *
+   * Vế chỉ đường "· gõ thêm để thu hẹp danh sách" BỎ 08/10/2026 (chủ dự án). Dòng này chỉ hiện khi
+   * danh sách đã bị cắt, và nó nằm ngay dưới ô tìm mà người dùng vừa gõ vào để tới được đây — cặp
+   * số "60/1.649" đã nói đủ rằng còn mã chưa hiện. Việc của dòng là ĐẾM, không phải dặn.
+   */
+  'ticker.capped': 'mã',
   'ticker.retry': 'Thử lại',
   'ticker.errorNetwork': 'Không tải được danh sách mã. Kiểm tra kết nối mạng rồi thử lại.',
   'ticker.errorSource': 'Nguồn dữ liệu trả về thứ không đọc được. Thử lại sau ít phút.',
@@ -1451,8 +1466,14 @@ export const vi = {
   'aboutUs.can.lookupNote':
     'Mỗi công thức đi kèm ý nghĩa, lúc nào nên dùng, cách đọc kết quả và những lỗi thường gặp.',
   'aboutUs.can.instant': 'Tính toán tức thì',
+  /*
+   * Viết ở ngôi thứ ba, không nói với người đọc (08/10/2026, chủ dự án) — đây là màn giới thiệu
+   * sản phẩm, nên nó MÔ TẢ hành vi chứ không hướng dẫn ai làm gì. Bản cũ ("Gõ số tới đâu thì kết
+   * quả và biểu đồ đổi tới đó, không có nút Tính nào phải bấm") còn mang thêm một vế phủ định —
+   * kể ra thứ sản phẩm KHÔNG có để khoe thứ nó có.
+   */
   'aboutUs.can.instantNote':
-    'Gõ số tới đâu thì kết quả và biểu đồ đổi tới đó, không có nút Tính nào phải bấm.',
+    'Biểu đồ thay đổi khi người dùng nhập số liệu mới hoặc thay đổi số liệu.',
   'aboutUs.can.chain': 'Chuỗi móc nối có kiểm soát',
   'aboutUs.can.chainNote':
     'Đầu ra của một công thức nạp thẳng vào ô nhập của công thức sau, và bạn vẫn ghi đè được bằng số của mình.',
@@ -1460,11 +1481,19 @@ export const vi = {
   'aboutUs.can.feesNote':
     'Phí giao dịch, thuế thu nhập và thuế cổ tức theo quy định trong nước, khai một chỗ ở Market Config.',
   'aboutUs.can.data': 'Dữ liệu mẫu và nhập liệu linh hoạt',
+  /*
+   * "sử dụng số liệu riêng của người dùng" gộp cả hai lối nhập mà bản cũ kể tên ("tự gõ và dán").
+   * Chủ dự án chốt 08/10/2026, cùng đợt với hai câu trên dưới: màn giới thiệu nói CÁI GÌ LÀM ĐƯỢC,
+   * còn gõ hay dán là thao tác — chỗ dạy thao tác là `paste.subtitle` ngay trên lưới nhập.
+   *
+   * Đây cũng là chuỗi DUY NHẤT trên màn từng mang chữ "tự gõ"; mọi chỗ còn lại của kho là chú
+   * thích mã nguồn. Đừng đưa nó trở lại đây.
+   */
   'aboutUs.can.dataNote':
-    'Nạp bộ số liệu mẫu theo mã cổ phiếu, hoặc tự gõ và dán bảng giá của riêng bạn.',
+    'Nạp bộ số liệu mẫu theo mã cổ phiếu, hoặc sử dụng số liệu riêng của người dùng.',
   'aboutUs.can.portfolio': 'Danh mục cá nhân tại thiết bị',
   'aboutUs.can.portfolioNote':
-    'Theo dõi các mã đang nắm giữ kèm giá vốn, hỗ trợ XIRR và các phép tính liên quan mà không bắt buộc đăng nhập.',
+    'Theo dõi các mã đang nắm giữ kèm giá vốn, hỗ trợ XIRR và các phép tính liên quan mà người dùng không cần đăng nhập.',
 
   'aboutUs.arch.title': 'Kiến trúc client-only (zero backend)',
   'aboutUs.arch.ui': 'Tầng trình bày',
@@ -1505,8 +1534,16 @@ export const vi = {
    * người đọc sang đúng việc cần làm tiếp là màn Bảng dữ liệu.
    */
   'aboutUs.not.history': 'Không phải kho dữ liệu lịch sử',
+  /*
+   * Rút còn một vế mô tả cộng một lối đi (08/10/2026, chủ dự án). Bản cũ nói thêm "muốn tính trên
+   * chuỗi giá thật và dài, bạn tự nhập hoặc dán" — vế ấy mang lời khẳng định kiểm chứng được ngay
+   * trên, nhưng lời khẳng định ấy là việc của TIÊU ĐỀ thẻ, không phải của câu dưới nó.
+   *
+   * Chủ dự án tự viết "Bạn có thể", nên thứ bị bác ở đợt này là giọng "tự gõ / tự nhập / của riêng
+   * bạn" — đẩy việc về phía người đọc — chứ không phải chữ "bạn".
+   */
   'aboutUs.not.historyNote':
-    'Bộ số liệu mẫu dựng sẵn chỉ đủ để minh hoạ cách một công thức chạy. Muốn tính trên chuỗi giá thật và dài, bạn tự nhập hoặc dán vào Bảng dữ liệu.',
+    'Bộ số liệu mẫu dựng sẵn chỉ đủ để minh hoạ cách một công thức chạy. Bạn có thể thêm dữ liệu riêng vào Bảng dữ liệu.',
   'aboutUs.not.advice': 'Không phải công cụ tư vấn đầu tư',
   'aboutUs.not.adviceNote':
     'Mọi con số trên màn là kết quả tính toán để tham khảo, không phải khuyến nghị mua bán.',

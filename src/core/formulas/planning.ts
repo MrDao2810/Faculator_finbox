@@ -437,7 +437,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         en: 'Use it when you have cash you will not need for a while and are torn between short deposits you keep rolling over and locking it into one longer deposit at a higher rate.',
       },
       howToRead: {
-        vi: 'So với mốc 0: dương nghĩa là quay vòng kỳ ngắn rốt cuộc cầm về nhiều hơn sổ kỳ dài đúng chừng ấy đồng, âm là sổ kỳ dài cầm về nhiều hơn chừng ấy. Số âm không có nghĩa là mất tiền gốc, chỉ là quay vòng thu về ít lãi hơn.',
+        vi: 'So với mốc 0 đồng: dương nghĩa là quay vòng kỳ ngắn rốt cuộc cầm về nhiều hơn sổ kỳ dài đúng chừng ấy đồng, âm là sổ kỳ dài cầm về nhiều hơn chừng ấy. Số âm không có nghĩa là mất tiền gốc, chỉ là quay vòng thu về ít lãi hơn.',
         en: 'Compared with the 0 mark: positive means rolling over short terms ends with that many more dong than the long-term deposit, and negative means the long-term deposit ends with that much more. A negative figure does not mean losing principal, only that rolling over earns less interest.',
       },
       commonMistakes: {

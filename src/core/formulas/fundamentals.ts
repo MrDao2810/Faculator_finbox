@@ -1091,7 +1091,7 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         en: 'Use it when you read that a company has a large debt coming due and want to know whether its cash, the money customers still owe it and the goods in its warehouse can cover the debts falling due within the year.',
       },
       howToRead: {
-        vi: 'So với mốc 1: trên 1 nghĩa là tài sản ngắn hạn đủ trả hết nợ đến hạn trong năm và còn dư, dưới 1 là chưa đủ, công ty phải trông vào tiền làm ra sau này hoặc vay thêm mới trả kịp.',
+        vi: 'So với mốc 1 lần: trên 1 nghĩa là tài sản ngắn hạn đủ trả hết nợ đến hạn trong năm và còn dư, dưới 1 là chưa đủ, công ty phải trông vào tiền làm ra sau này hoặc vay thêm mới trả kịp.',
         en: 'Compared with the 1 mark: above 1 means current assets are enough to pay off all the debts falling due within the year with some to spare, below 1 means they fall short, so the company must count on cash it has yet to earn or on new borrowing to pay on time.',
       },
       commonMistakes: {
@@ -1213,7 +1213,7 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         en: 'Use it when you are looking at a property, steel or retail company sitting on a lot of unsold goods and want to know whether it could still meet its debts coming due if those goods do not sell.',
       },
       howToRead: {
-        vi: 'So với mốc 1: trên 1 nghĩa là chưa cần bán món hàng nào trong kho, phần tài sản ngắn hạn còn lại vẫn đủ trả hết nợ đến hạn trong năm, dưới 1 là việc trả nợ đúng hạn phụ thuộc vào chuyện bán được hàng trong kho.',
+        vi: 'So với mốc 1 lần: trên 1 nghĩa là chưa cần bán món hàng nào trong kho, phần tài sản ngắn hạn còn lại vẫn đủ trả hết nợ đến hạn trong năm, dưới 1 là việc trả nợ đúng hạn phụ thuộc vào chuyện bán được hàng trong kho.',
         en: 'Compared with the 1 mark: above 1 means that without selling anything from inventory, the rest of the current assets can still pay off all the debts falling due within the year, and below 1 means paying on time depends on selling the goods in inventory.',
       },
       commonMistakes: {

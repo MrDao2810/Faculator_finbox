@@ -1472,31 +1472,21 @@ export function PortfolioScreen() {
           )}
 
           {/*
-            ── Tỷ trọng là gì, nói thành câu (22/09/2026) ─────────────────────────────────────
+            ── Mẫu số đang hụt: nói ra, và CHỈ khi nó hụt ────────────────────────────────────
 
-            Chủ dự án đọc cột TỶ TRỌNG và báo "chưa hiểu tác dụng". Rà lại thì ra gốc: sản phẩm
-            dùng đúng chữ ấy cho BA thứ khác nhau — phần của một mã trong danh mục (chỗ này), tỷ
-            trọng vốn chủ và vốn nợ trong `wacc`, và hệ số làm mượt `k` của `ema-n-phien`. Ba
-            nghĩa không bao giờ đứng chung một màn nên không xung đột, nhưng ở đây con số đứng
-            trần: "6%" mà không nói 6% CỦA CÁI GÌ, trong khi mẫu số có tới hai lựa chọn hợp lý là
-            giá trị thị trường và vốn đã bỏ ra.
+            `total` cộng bằng `row.value ?? 0`, nên một mã chưa tra được giá bị coi như 0 và rơi
+            khỏi mẫu số — tỷ trọng của các mã còn lại vì thế cộng lại đủ 100% trong khi danh mục
+            thì chưa đủ. Im lặng ở đây đúng là loại "số sai mà trông có lý" mà FR-06 dựng ra để
+            chặn.
 
-            Đặt thành một dòng dưới bảng chứ không nhét vào tiêu đề cột: tiêu đề cột rộng 10% bề
-            ngang, không chở nổi một mệnh đề. Cùng nếp `ConstantsNote` ở màn chi tiết — câu giải
-            thích cho cả khối thì đứng cuối khối.
-
-            Câu thứ hai là phần THÀNH THẬT về mẫu số, và nó chỉ hiện khi cần. `total` cộng bằng
-            `row.value ?? 0`, nên một mã chưa tra được giá bị coi như 0 và rơi khỏi mẫu số — tỷ
-            trọng của các mã còn lại vì thế cộng lại đủ 100% trong khi danh mục thì chưa đủ. Im
-            lặng ở đây đúng là loại "số sai mà trông có lý" mà FR-06 dựng ra để chặn.
+            Câu định nghĩa tỷ trọng từng đứng TRƯỚC câu này trong cùng thẻ `<p>`, bỏ 08/10/2026
+            theo chủ dự án — mộ chí đầy đủ ở khoá `portfolio.weightNote` trong `vi.ts`, kèm chỗ
+            phải sửa nếu câu hỏi "tỷ trọng của cái gì" quay lại. Vì thế điều kiện dựng đổi theo:
+            trước là "có mã nào không" (câu định nghĩa luôn đúng), nay là "có mã nào chưa có giá
+            không". Danh mục đủ giá KHÔNG còn thẻ `<p>` nào ở đây, chứ không phải một thẻ rỗng.
           */}
-          {holdings.length > 0 && (
-            <p className={styles.weightNote}>
-              {t('portfolio.weightNote')}
-              {summary.rows.some((row) => row.value === null) && (
-                <> {t('portfolio.weightPartial')}</>
-              )}
-            </p>
+          {summary.rows.some((row) => row.value === null) && (
+            <p className={styles.weightNote}>{t('portfolio.weightPartial')}</p>
           )}
 
           {/*

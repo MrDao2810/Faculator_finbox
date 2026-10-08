@@ -4,8 +4,17 @@
  */
 .card {
   display: flex;
-  /* Chỉ còn hai ô ở bậc này: khối chữ và mũi tên. Icon đã chuyển vào trong `.body` — xem đó. */
-  align-items: flex-start;
+  /*
+   * Chỉ còn hai ô ở bậc này: khối chữ và mũi tên. Icon đã chuyển vào trong `.body` — xem đó.
+   *
+   * `stretch` chứ KHÔNG `flex-start`, và đây là điều kiện cần của việc ghim nhãn nhóm xuống đáy
+   * (xem `.body` và `.category`). Ở khổ PC lưới ba cột cho thẻ `height: 100%`
+   * (`VirtualList.module.css`), nhưng `flex-start` thì `.body` vẫn chỉ cao bằng nội dung của nó,
+   * nên chiều cao thừa rơi xuống dưới khối chữ và nhãn nhóm đứng lơ lửng giữa thẻ.
+   *
+   * Mũi tên không bị ảnh hưởng: nó tự khai `align-self: center` ngay dưới đây.
+   */
+  align-items: stretch;
   gap: var(--space-3);
 
   min-height: var(--tap-min);
@@ -76,6 +85,19 @@
   /* `minmax(0, 1fr)` chứ không `1fr`: ô lưới mặc định không co dưới nội dung, nên tên dài không
      xuống dòng mà đẩy rộng cả thẻ. Cùng vai trò với `min-width: 0` của một flex item. */
   grid-template-columns: auto minmax(0, 1fr);
+  /*
+   * Ba hàng khai sẵn — tên+icon · mô tả · nhãn nhóm — và hàng CUỐI là `1fr`, tức nó nuốt trọn
+   * chiều cao thừa của thẻ. Đây là thứ ghim nhãn nhóm xuống đáy (`.category` khai `align-self: end`).
+   *
+   * Phải khai rõ chứ không để ba hàng `auto`: khi thẻ bị kéo cao hơn nội dung, `align-content` của
+   * lưới mặc định là `stretch` và nó CHIA ĐỀU chỗ thừa cho mọi hàng `auto` — cả ba hàng cùng dãn,
+   * mô tả bị đẩy xuống theo, chứ không phải chỉ hàng cuối. Một hàng `1fr` không phải hàng `auto`
+   * nên nó lấy hết, hai hàng trên đứng yên.
+   *
+   * Thẻ KHÔNG bị kéo cao (dưới 1280px, màn Tìm kiếm) thì `1fr` tụt về đúng chiều cao nội dung —
+   * `1fr` là `minmax(auto, 1fr)` — nên bố cục ở đó không đổi một pixel.
+   */
+  grid-template-rows: auto auto 1fr;
   align-items: center;
   column-gap: var(--space-3);
 }
@@ -153,6 +175,21 @@
   /* Cùng lý do với `.description`: bắt đầu từ mép trái thẻ, không chừa cột icon. */
   grid-column: 1 / -1;
   justify-self: start;
+  /*
+   * Bám ĐÁY ô lưới của mình, nên ba thẻ cùng một hàng ở khổ PC thẳng chân nhau dù tên dài ngắn
+   * khác nhau — cùng việc mà `.tileCategory` làm bằng `margin-top: auto` ở nhánh ô.
+   *
+   * Chủ dự án chụp hàng đầu danh sách ngày 08/10/2026: "XIRR — suất sinh lợi nội tại theo ngày
+   * thực" đẩy huy hiệu "Nâng cao" xuống dòng hai, thẻ ấy cao hơn hai thẻ bên cạnh, lưới kéo cả ba
+   * bằng nhau — nhưng chỉ nhãn của XIRR chạm đáy, hai nhãn kia treo lơ lửng. Đo ở 1440px: 14 trong
+   * 27 hàng lệch, chỗ lệch nhất 42px.
+   *
+   * `end` chứ không `margin-top: auto`: `margin-top` ở đây còn giữ khoảng cách với dòng mô tả khi
+   * thẻ KHÔNG bị kéo cao, nên không thể đổi nó thành `auto`. Hai thứ không đá nhau — thẻ bị kéo
+   * cao thì `end` quyết, thẻ cao theo nội dung thì hàng `1fr` bằng đúng nội dung và `margin-top`
+   * quyết như cũ.
+   */
+  align-self: end;
 
   display: inline-flex;
   max-width: 100%;

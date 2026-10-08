@@ -1046,9 +1046,8 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
 
     expect(screen.getByText('Nhập số cổ phiếu nắm giữ, lớn hơn 0.')).toBeTruthy();
-    expect(
-      screen.getByText('Chưa có mã nào. Thêm mã đầu tiên để xem tổng giá trị và tỷ trọng.'),
-    ).toBeTruthy();
+    // Một câu, không hai — vế chỉ đường bỏ 08/10/2026, xem `portfolio.empty` ở `vi.ts`.
+    expect(screen.getByText('Chưa có mã nào.')).toBeTruthy();
   });
 
   /*
@@ -1396,44 +1395,46 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
   });
 
   /*
-   * ── Tỷ trọng phải nói rõ MẪU SỐ ──────────────────────────────────────────────────────────
+   * ── Câu định nghĩa tỷ trọng đã BỎ, câu cảnh báo mẫu số hụt thì KHÔNG ──────────────────────
    *
-   * Chủ dự án đọc cột ấy và báo "chưa hiểu tác dụng" (22/09/2026). "6%" đứng trần thì mẫu số có
-   * hai lựa chọn hợp lý — giá trị thị trường và vốn đã bỏ ra — mà cột chỉ rộng 10% bề ngang,
-   * không chở nổi một mệnh đề. Nên câu giải nghĩa đứng cuối khối.
+   * Ca ĐẢO, không phải ca xoá — cùng nếp đã dùng cho `quiz.localOnly` và `quiz.notTranslated`:
+   * câu chữ quay lại thì phải là một quyết định, không phải một lần lỡ tay.
+   *
+   * "Tỷ trọng là phần giá trị của một mã trên tổng giá trị danh mục, tính theo thị giá chứ không
+   * theo vốn đã bỏ ra" đứng cuối khối từ 22/09/2026 để trả lời chính câu hỏi của chủ dự án lúc ấy
+   * ("chưa hiểu tác dụng"), và bỏ ngày 08/10/2026 cũng theo chủ dự án. Mộ chí đầy đủ ở khoá
+   * `portfolio.weightNote` trong `vi.ts`, kèm chỗ phải sửa nếu câu hỏi ấy quay lại.
    */
-  it('cuối khối có câu nói rõ tỷ trọng tính trên cái gì', async () => {
+  it('KHÔNG còn câu định nghĩa tỷ trọng dưới bảng — đã bỏ 08/10/2026', async () => {
     seedHolding();
     render(<PortfolioScreen />);
 
-    const cau = await screen.findByText(/Tỷ trọng là phần giá trị/);
-    expect(cau.textContent).toContain('tổng giá trị danh mục');
-    // Vế phân biệt với mẫu số kia — thiếu nó thì câu vẫn mơ hồ đúng chỗ nó đi giải quyết.
-    expect(cau.textContent).toContain('không theo vốn đã bỏ ra');
+    // Chờ bảng dựng xong rồi mới khẳng định sự vắng mặt, kẻo xanh chỉ vì màn chưa kịp vẽ.
+    await screen.findByRole('table');
+    expect(screen.queryByText(/Tỷ trọng là phần giá trị/)).toBeNull();
   });
 
   /*
    * `total` cộng bằng `row.value ?? 0`, nên một mã chưa tra được giá bị coi như 0 và rơi khỏi
    * mẫu số — tỷ trọng các mã còn lại cộng đủ 100% trong khi danh mục thì chưa đủ. Im lặng ở đây
    * đúng là loại "số sai mà trông có lý" mà FR-06 dựng ra để chặn.
+   *
+   * Nay câu này đứng MỘT MÌNH: trước nó là vế thứ hai nối sau câu định nghĩa, nên ca kiểm cũ dò
+   * câu định nghĩa rồi soi phần đuôi. Dò thẳng vào chính nó.
    */
-  it('thiếu giá một mã thì câu ấy nói thêm là mẫu số đang hụt', async () => {
+  it('thiếu giá một mã thì nói ra là mẫu số đang hụt', async () => {
     feed.snapshots.mockResolvedValue(new Map());
     seedHolding();
     render(<PortfolioScreen />);
 
-    await waitFor(async () => {
-      expect((await screen.findByText(/Tỷ trọng là phần giá trị/)).textContent).toContain(
-        'đang tính trên phần danh mục đã có giá',
-      );
-    });
+    expect(await screen.findByText(/đang tính trên phần danh mục đã có giá/)).toBeTruthy();
   });
 
   it('đủ giá thì KHÔNG nói câu mẫu số hụt — nó chỉ đúng khi thật sự hụt', async () => {
     seedHolding();
     render(<PortfolioScreen />);
 
-    await screen.findByText(/Tỷ trọng là phần giá trị/);
+    await screen.findByRole('table');
     await waitFor(() => {
       expect(screen.queryByText(/đang tính trên phần danh mục đã có giá/)).toBeNull();
     });

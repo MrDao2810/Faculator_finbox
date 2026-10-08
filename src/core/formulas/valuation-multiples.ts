@@ -785,7 +785,7 @@ export const PEG: FormulaModule = {
         en: 'Use it when you see a company with fast-rising profits trading at a much higher P/E than its peers and want to know whether it is truly expensive or only looks that way once the profit growth you expect is counted.',
       },
       howToRead: {
-        vi: 'So với mốc 1: dưới 1 nghĩa là giá đang rẻ so với tốc độ tăng lợi nhuận bạn kỳ vọng, trên 1 là giá đã cao hơn mức đà tăng ấy xứng đáng, bằng 1 là hai bên tương xứng.',
+        vi: 'So với mốc 1 lần: dưới 1 nghĩa là giá đang rẻ so với tốc độ tăng lợi nhuận bạn kỳ vọng, trên 1 là giá đã cao hơn mức đà tăng ấy xứng đáng, bằng 1 là hai bên tương xứng.',
         en: 'Compared with the 1 mark: below 1 means the price is cheap relative to the profit growth you expect, above 1 means the price is already more expensive than that growth justifies, and exactly 1 means the two are in balance.',
       },
       commonMistakes: {

@@ -2498,6 +2498,50 @@ window.__themeLog = [];
   );
 
   /*
+   * Khung "?" bật ra phải nằm TRỌN trong vùng vẽ được.
+   *
+   * Nút "?" của khối Số liệu đứng sát mép phải thẻ, nên khung bật ra từ nó là chỗ phép kẹp ngang
+   * của `placePanel` thật sự phải làm việc. Nó từng hỏng: `viewportBounds()` lấy mép phải bằng
+   * `window.innerWidth`, mà con số ấy TÍNH CẢ thanh cuộn dọc (15px trên Chrome Windows), nên khung
+   * thò ra ngoài cửa sổ đúng 15 trừ lề 8 là 7px. Chủ dự án chụp được ngày 09/10/2026.
+   *
+   * So với `document.documentElement.clientWidth`, KHÔNG phải `window.innerWidth` — dùng
+   * `innerWidth` ở đây là viết lại chính con số sai rồi tự khen mình đúng.
+   *
+   * `place-panel.test.ts` không thấy được lỗi này vì `placePanel()` kẹp đúng theo `bounds` nó
+   * nhận; `use-panel-placement.test.ts` gác phần vá được trong jsdom. Phép kiểm này là chỗ duy
+   * nhất đo khung THẬT trong một trình duyệt có thanh cuộn thật.
+   */
+  const khungGoiY = await evaluate(`(async () => {
+    const nut = [...document.querySelectorAll('[class*="GuideHint_hint__"]')];
+    if (nut.length === 0) return null;
+    nut.sort((a, b) => b.getBoundingClientRect().right - a.getBoundingClientRect().right);
+    nut[0].click();
+    await new Promise((xong) => setTimeout(xong, 400));
+    const p = document.querySelector('[class*="GuideHintPanel_panel__"]');
+    if (!p) return { moDuoc: false };
+    const r = p.getBoundingClientRect();
+    const veDuoc = document.documentElement.clientWidth;
+    return {
+      moDuoc: true,
+      veDuoc,
+      thanhCuon: window.innerWidth - veDuoc,
+      trai: Math.round(r.left),
+      phai: Math.round(r.right),
+      thua: Math.round(r.right - veDuoc),
+    };
+  })()`);
+
+  check(
+    'PC 1440 · khung "?" nằm trọn trong vùng vẽ được, không chui dưới thanh cuộn',
+    khungGoiY !== null &&
+      khungGoiY.moDuoc === true &&
+      khungGoiY.trai >= 0 &&
+      khungGoiY.phai <= khungGoiY.veDuoc,
+    JSON.stringify(khungGoiY),
+  );
+
+  /*
    * ── Màn Công thức: trang chủ + danh sách gộp làm một (bản vẽ 15/09/2026) ────────────────────
    *
    * Thay cụm kiểm "thanh tab 40% + hai ô lọc" của màn danh sách cũ — ba tab mảng và ô chọn nhóm đã

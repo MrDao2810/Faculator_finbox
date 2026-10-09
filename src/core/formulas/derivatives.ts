@@ -1261,8 +1261,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Mức khuếch đại thật của tài khoản: đòn bẩy 5 lần nghĩa là chỉ số nhúc nhích 1% thì vốn của bạn biến động khoảng 5%.',
-        en: 'The true amplification of the account: 5x leverage means a 1% move in the index moves your equity by roughly 5%.',
+        vi: 'Mức khuếch đại thực tế của tài khoản: giá trị danh nghĩa của vị thế đang gấp bao nhiêu lần vốn thực có, nên tài khoản chịu lãi lỗ của một lượng tài sản lớn gấp chừng ấy lần so với số tiền thực tế đang có.',
+        en: 'The true amplification of the account: the notional value of the position is that many times actual equity, so the account carries the gains and losses of a holding that many times larger than the money actually in it.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang giữ hợp đồng VN30F qua vài phiên lãi lỗ và muốn biết tổng giá trị hợp đồng lúc này đang gấp bao nhiêu lần số tiền thật còn lại trong tài khoản.',

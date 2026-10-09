@@ -106,8 +106,15 @@ export const QUY_UOC: Readonly<Record<string, readonly string[]>> = {
   'stochastic-k': ['80', '20'],
 };
 
-/** Tên riêng có chữ số, bỏ ra trước khi đếm số. */
-const TEN_CO_SO = /VN30F?\w*|VN-?Index/gi;
+/**
+ * Tên riêng có chữ số, bỏ ra trước khi đếm số.
+ *
+ * Xuất ra để `meaning-rules.ts` dùng chung — cùng lối `when-to-use-rules.ts` cho mô-đun này mượn
+ * `CHU_VIET`, `RA_LENH`, `TEN_CONG_THUC`. Mẫu mang cờ `g` nên CHỈ được dùng với `.replace()`
+ * (hàm này đặt lại `lastIndex` khi chạy hết chuỗi); gọi `.test()` trên nó là mở cửa cho lỗi
+ * trạng thái nhảy cách một lần đúng một lần sai.
+ */
+export const TEN_CO_SO = /VN30F?\w*|VN-?Index/gi;
 
 const SO = /\d+(?:[.,]\d+)*/g;
 

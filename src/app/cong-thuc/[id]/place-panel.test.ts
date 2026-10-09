@@ -3,9 +3,17 @@ import { describe, expect, it } from 'vitest';
 import { PANEL_GAP, placePanel } from './place-panel';
 import type { Bounds } from './place-panel';
 
-/** Hai khổ màn mà `check:chrome` đo: điện thoại 360×780 và PC 1440×900, trừ lề 8px. */
+/**
+ * Hai khổ màn mà `check:chrome` đo: điện thoại 360×780 và PC 1440×900, trừ lề 8px.
+ *
+ * Mép phải của khổ PC là **1417**, không phải 1432, và con số ấy là một bài học: cửa sổ rộng
+ * 1440 nhưng thanh cuộn dọc của Chrome Windows ăn 15px, nên vùng VẼ ĐƯỢC chỉ còn 1425 — trừ lề
+ * 8px ra 1417. Bản cũ của `viewportBounds()` lấy `window.innerWidth` (tính cả thanh cuộn) nên nó
+ * đưa 1432 vào đây, và khung thò ra ngoài cửa sổ đúng 7px; chủ dự án chụp được ngày 09/10/2026.
+ * Fixture này từng chép lại chính con số sai ấy, nên nó dạy sai luôn.
+ */
 const DIEN_THOAI: Bounds = { top: 8, left: 8, right: 352, bottom: 772 };
-const PC: Bounds = { top: 72, left: 8, right: 1432, bottom: 892 };
+const PC: Bounds = { top: 72, left: 8, right: 1417, bottom: 892 };
 
 describe('placePanel()', () => {
   it('đủ chỗ thì nằm dưới điểm chạm, căn giữa theo nó', () => {

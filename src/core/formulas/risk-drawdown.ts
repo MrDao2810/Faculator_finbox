@@ -648,8 +648,8 @@ export const VAR_LICH_SU: FormulaModule = {
     variables: [confidenceVar(), varLookback()],
     explanation: {
       meaning: {
-        vi: 'Ngưỡng lỗ của một phiên xấu: với độ tin cậy 95%, chỉ 5% số phiên trong cửa sổ quan sát lỗ nặng hơn con số này.',
-        en: 'The loss threshold of a bad session: at 95% confidence, only 5% of sessions in the observation window lose more than this figure.',
+        vi: 'Ngưỡng lỗ của một phiên xấu: trong cửa sổ quan sát, chỉ số ít phiên nằm ngoài mức độ tin cậy đang chọn mới lỗ nặng hơn con số này.',
+        en: 'The loss threshold of a bad session: within the observation window, only the few sessions falling outside the confidence level you set lose more than this figure.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang cầm một cổ phiếu và muốn biết một phiên xấu kiểu thỉnh thoảng vẫn gặp có thể làm mình mất bao nhiêu chỉ trong một ngày.',

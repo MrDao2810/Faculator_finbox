@@ -13,6 +13,23 @@ const EDGE = 8;
 /**
  * Vùng đặt được khung: khung nhìn trừ header dính ở trên và thanh tab dính ở dưới. Đo lúc mở khung
  * chứ không nhớ sẵn — ở PC thanh tab không có, và header có thể đã cuộn khỏi màn.
+ *
+ * ── Mép phải đo bằng `clientWidth`, KHÔNG phải `innerWidth` ─────────────────────────────────
+ *
+ * `window.innerWidth` tính cả THANH CUỘN DỌC; `document.documentElement.clientWidth` thì không.
+ * Trên Chrome Windows thanh ấy rộng 15px, mà `EDGE` chỉ 8px — nên lấy `innerWidth` là cho khung
+ * đặt tới 15px quá mép vẽ được, tức nó chui xuống dưới thanh cuộn rồi thò ra ngoài cửa sổ đúng
+ * 7px. Đo được trên `roi-rong` ở khổ 1440 ngày 09/10/2026: `innerWidth` 1440, `clientWidth` 1425,
+ * mép phải khung 1432. Chủ dự án chụp đúng cảnh ấy.
+ *
+ * Phép kẹp trong `placePanel` vẫn đúng từ đầu tới cuối — nó kẹp theo `bounds` được đưa cho, và
+ * `bounds` mới là thứ nói dối. Nên chỗ sửa là ở đây, và một ca kiểm thuần trên `placePanel` không
+ * bao giờ bắt được lỗi này.
+ *
+ * Chiều DỌC giữ `innerHeight` có chủ ý: cặp tương ứng của nó là thanh cuộn NGANG, mà sản phẩm
+ * không bao giờ có thanh ấy (có hẳn phép kiểm Chrome "màn Công thức không tràn ngang"). Đổi sang
+ * `clientHeight` thì trên điện thoại lại vướng chuyện thanh địa chỉ co giãn, tức đổi một thứ đang
+ * đúng lấy một rủi ro mới.
  */
 export function viewportBounds(): Bounds {
   let top = EDGE;
@@ -32,7 +49,7 @@ export function viewportBounds(): Bounds {
     }
   }
 
-  return { top, left: EDGE, right: window.innerWidth - EDGE, bottom };
+  return { top, left: EDGE, right: document.documentElement.clientWidth - EDGE, bottom };
 }
 
 /** Khối của điểm chạm; cụm chữ xuống dòng thì lấy đúng DÒNG đang có con trỏ. */

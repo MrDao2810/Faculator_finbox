@@ -445,8 +445,8 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Hai mức lãi cùng ghi 12%/năm có thể khác nhau — EAR quy tất cả về một thước đo.',
-        en: 'Two rates both labeled 12%/year can differ in practice — EAR converts them all to one common measure.',
+        vi: 'Lãi niêm yết chưa nói hết: cùng một mức ghi trên sổ, số lần nhập lãi trong năm khác nhau thì tiền thực nhận khác nhau. EAR quy mọi cách ghi về một thước đo so được với nhau.',
+        en: 'A quoted rate does not tell the whole story: at the same headline rate, the number of times interest compounds in a year changes what is actually paid. EAR converts every quoting convention to one comparable measure.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn gặp hai nơi gửi tiền cùng ghi lãi năm nhưng một bên cộng lãi vào gốc hằng tháng, bên kia hằng quý hay cuối năm, và muốn biết thực chất bên nào lãi hơn.',

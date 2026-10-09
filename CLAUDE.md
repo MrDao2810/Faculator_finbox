@@ -66,7 +66,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 42 assertions against a built out/ — run after build
-npm run check:chrome   # 152 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 153 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -131,6 +131,32 @@ the sentence above; `how-to-read-rules.test.ts` gates all 111. One real `calc` d
 writing prose, not fixed here: `mo-hinh-gordon` guards `dividend === 0` with `fail(MEANINGLESS)` and
 documents exactly why (FR-06 — a silent `ok(0 ₫)` reads as a real share price), but the sibling
 `ddm-hai-giai-doan` takes the same `dividend` input with no such guard.
+
+**"Ý nghĩa" (`explanation.meaning`) states what the formula MEASURES and may carry no sample
+figure** (09/10/2026). This is the fourth FR-03 section and the last to get a rule, which is
+exactly why it still held the defect the other two had been swept for: `don-bay-hieu-dung` read
+_"đòn bẩy 5 lần nghĩa là chỉ số nhúc nhích 1% thì vốn của bạn biến động khoảng 5%"_. The owner:
+_"ý nghĩa thì làm gì có chuyện có số liệu cụ thể trong đó, nếu cho vào để dễ hiểu thì nó lại là ví
+dụ thực tế hoặc bài tập rồi"_. The 5 came from nowhere — not the `latex` (which has no digit), not
+a market constant, and not the example, which returns 5,7927 today and returned 4,27 on the day the
+sentence was written, so it never matched even once. `L = (F × m × N) / E`, so a 1% index move
+moves equity by `L%`; freezing `L = 5` forces the 5% and leaves a sentence true only of an account
+levered exactly 5 times. **The first rewrite was wrong in an instructive way**: it spelled the
+digits out ("một phần trăm", "gấp đúng bấy nhiêu lần") and the owner rejected that immediately —
+_"bạn chuyển số liệu thành text để đối phó với tôi"_. The defect is the SCENARIO, not the
+spelling; a meaning sentence names the quantity and why it matters, and the illustration lives in
+the worked example or the quiz. Six passages were rewritten (`don-bay-hieu-dung`, `beta`,
+`lai-suat-hieu-dung`, `ty-so-thong-tin`, `var-lich-su`, `do-rong-dai-bollinger`), all bilingual.
+`src/core/meaning-rules.ts` gates the machine-visible half over all 111 × 2: a number is allowed
+only if it is 0/1/100 (the same three `how-to-read-rules.ts` allows), appears verbatim in that
+formula's own `latex` — a self-maintaining test, since changing the picture changes the allowed set
+— or sits in `QUY_UOC` with a written reason (two entries: `so-graham`'s 15 and 1,5, whose product
+is the 22,5 the picture does draw, and `phan-tram-b-bollinger`'s 50, the midpoint of the 0–100
+scale). Nine other passages keep their numbers because they pass the owner's own test — a figure
+that holds for every use: Graham's constants, the 365-day base, the 0–100 scales, the 0 and 1
+pivots, ROE's "per 100 units". `portfolio.betaHint` deliberately keeps its "1,5": it sits under an
+input the user must type a beta into, where a magnitude is doing real work, and the i18n canary
+that used to anchor both places on that shared number was re-anchored on "VN-Index" instead.
 
 Tests are `src/**/*.test.ts` and `*.test.tsx`, colocated next to the module under test. The default
 environment is `node` (`vitest.config.ts`); a file that needs a DOM opts in with a

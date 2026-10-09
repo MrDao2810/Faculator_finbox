@@ -370,8 +370,8 @@ export const BETA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Beta 1,5 nghĩa là VN-Index tăng hay giảm 1% thì cổ phiếu này thường tăng hay giảm khoảng 1,5% — hệ số góc của đường hồi quy lợi suất cổ phiếu theo lợi suất thị trường.',
-        en: "A beta of 1.5 means that when the VN-Index rises or falls 1%, this stock typically rises or falls about 1.5% — the slope of the regression line of the stock's return against the market return.",
+        vi: 'Mức nhạy của cổ phiếu với nhịp chung của thị trường: hệ số góc của đường hồi quy lợi suất cổ phiếu theo lợi suất VN-Index, cho biết cổ phiếu khuếch đại hay làm dịu nhịp của chỉ số.',
+        en: "How sensitive the stock is to the market's own swings: the slope of the regression line of the stock's return against the VN-Index return, showing whether the stock amplifies or dampens the index.",
       },
       whenToUse: {
         vi: 'Dùng khi bạn thấy VN-Index đang chao đảo và muốn biết cổ phiếu mình cầm thường lên xuống mạnh hơn hay nhẹ hơn cả thị trường.',
@@ -1150,8 +1150,8 @@ export const TY_SO_THONG_TIN: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Thắng chuẩn 5 điểm phần trăm bằng cách bám sát chuẩn khác hẳn thắng 5 điểm bằng cách đánh cược lệch hẳn khỏi chuẩn. Tỷ số thông tin chia phần thắng đó cho mức độ đi lệch.',
-        en: 'Beating the benchmark by 5 percentage points while tracking it closely is very different from beating it by 5 points through a bold bet away from it. The information ratio divides that outperformance by the degree of deviation.',
+        vi: 'Phần thắng so với chuẩn, chia cho mức độ đi lệch khỏi chuẩn: thắng bằng cách bám sát chuẩn được chấm cao hơn thắng cùng chừng ấy bằng một cú đánh cược lệch hẳn.',
+        en: 'Outperformance against the benchmark divided by how far the portfolio strays from it: beating the benchmark while tracking it closely scores higher than beating it by the same margin through a bold bet away from it.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn cầm một quỹ hay một danh mục tự chọn mã và muốn biết nó có thắng VN-Index không, và phần thắng ấy có xứng với độ lên xuống phải chịu không.',

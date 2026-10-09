@@ -4,6 +4,304 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Khung "?" thò ra ngoài mép phải cửa sổ (09/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (140 file, 3.189 ca). Đo bằng Chrome thật, hai chiều.
+
+### Chủ dự án giao gì
+
+> "lỗi popup hiển thị đang bị vượt khỏi màn web. sửa lỗi"
+
+Ảnh chụp khung hướng dẫn bật ra từ nút "?" của khối Số liệu, mép phải chạy quá mép cửa sổ.
+
+### Lỗi: `window.innerWidth` TÍNH CẢ thanh cuộn dọc
+
+`viewportBounds()` ở `use-panel-placement.ts` trả mép phải bằng `window.innerWidth - EDGE`.
+`innerWidth` tính cả thanh cuộn dọc, còn `document.documentElement.clientWidth` thì không. Trên
+Chrome Windows thanh ấy rộng 15px mà `EDGE` chỉ 8px, nên phép kẹp cho khung đặt tới 15px quá mép
+vẽ được — chui dưới thanh cuộn 8px rồi thò ra ngoài cửa sổ 7px.
+
+Đo trên `roi-rong` ở 1440 trước khi sửa:
+
+```text
+innerWidth 1440 · clientWidth 1425 · thanh cuộn 15
+mép phải khung 1432  →  quá vùng vẽ được 7px   (= 15 − 8)
+```
+
+Sau khi sửa: 1417, tức đúng `1425 − 8`, thừa 8px lề như thiết kế. Đo lại trên bốn công thức
+(`roi-rong`, `thue-chuyen-nhuong`, `pe`, `so-ky-dca`) đều ra 1417.
+
+**`placePanel()` không hề sai.** Nó kẹp đúng theo `bounds` được đưa cho; thứ nói dối là `bounds`.
+Đó là lý do cả 5 ca kiểm thuần của `place-panel.test.ts` xanh suốt thời gian lỗi sống — và vì sao
+chỗ sửa phải là `viewportBounds()`.
+
+Chiều DỌC giữ `innerHeight`, có chủ ý: cặp tương ứng của nó là thanh cuộn NGANG, mà sản phẩm không
+bao giờ có (đã có phép kiểm Chrome "màn Công thức không tràn ngang"). Đổi sang `clientHeight` là
+đem một thứ đang đúng đổi lấy rủi ro mới với thanh địa chỉ co giãn trên điện thoại.
+
+### Khung "cách tính" dùng chung hàm ấy, nên cũng được chữa luôn
+
+`usePanelPlacement` (khung bật ra khi rê vào một ký hiệu trong hình công thức, và khung của hình
+công thức trong Bài tập / Ví dụ) gọi cùng `viewportBounds()`, nên nó mang cùng lỗi. Đo trên `pe` và
+`wacc`: mép phải khung cách mép vẽ được 125–140px, tức neo của nó nằm giữa trang nên phép kẹp chưa
+bao giờ phải làm việc — lỗi có thật nhưng chưa lộ. Một chỗ sửa chữa cả ba khung.
+
+### Ba cửa gác, và vì sao phải ba
+
+| Cửa gác                                   | Thấy được gì                                     |
+| ----------------------------------------- | ------------------------------------------------ |
+| `place-panel.test.ts` (có sẵn)            | phép kẹp đúng — KHÔNG thấy được lỗi này          |
+| `use-panel-placement.test.ts` (MỚI, 3 ca) | mép phải lấy từ `clientWidth`, **chạy trong CI** |
+| `chrome-check.mjs` (+1)                   | khung THẬT trong trình duyệt có thanh cuộn thật  |
+
+Ca jsdom phải vá `clientWidth` thủ công (jsdom không bố cục nên nó trả 0), đổi lại được một cửa gác
+nằm trong CI — thứ `check:chrome` không cho, vì nó không chạy trong CI.
+
+Cả hai cửa gác mới đã chứng minh hai chiều: trả `viewportBounds()` về `innerWidth` thì ca jsdom đỏ
+và phép kiểm Chrome đỏ (đo lại ra đúng 1432 / thừa 7px); khôi phục thì cả hai xanh.
+
+**Fixture `PC` của `place-panel.test.ts` đang chép chính con số sai**: nó ghi `right: 1432` kèm chú
+thích "PC 1440×900, trừ lề 8px". Sửa thành 1417 và ghi lý do ngay tại đó — một fixture sai thì nó
+dạy sai cho mọi người đọc sau.
+
+### Đã đổi file nào
+
+| File                                             | Vì sao                                                           |
+| ------------------------------------------------ | ---------------------------------------------------------------- |
+| `app/cong-thuc/[id]/use-panel-placement.ts`      | mép phải lấy `clientWidth`, kèm số đo và lý do giữ `innerHeight` |
+| `app/cong-thuc/[id]/use-panel-placement.test.ts` | MỚI — cửa gác chạy trong CI                                      |
+| `app/cong-thuc/[id]/place-panel.test.ts`         | fixture `PC` 1432 → 1417, ghi lý do                              |
+| `scripts/chrome-check.mjs`                       | +1 phép kiểm hình học khung "?"                                  |
+| `CLAUDE.md`                                      | số phép kiểm Chrome 152 → 153                                    |
+| `TASK.md`                                        | mục này                                                          |
+
+### Còn lại
+
+`check:chrome` vẫn chưa chạy được cả bộ (cần `out/`, mà `prebuild` từ chối khi cổng 3000 còn dev
+server). Riêng biểu thức của phép kiểm mới đã chạy thử trên Chrome thật theo cả hai chiều.
+
+---
+
+## Mục Ý NGHĨA không được nêu số liệu mẫu (09/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (139 file, 3.186 ca).
+
+### Chủ dự án giao gì
+
+Ảnh chụp `don-bay-hieu-dung`, khoanh đỏ dòng Ý NGHĨA:
+
+> "Mức khuếch đại thật của tài khoản: đòn bẩy **5 lần** nghĩa là chỉ số nhúc nhích **1%** thì vốn
+> của bạn biến động khoảng **5%**."
+
+> "ý nghĩa thì làm gì có chuyện có số liệu cụ thể trong đó, nếu cho vào để dễ hiểu thì nó lại là ví
+> dụ thực tế hoặc bài tập rồi … nếu số liệu kia là mặc định sẽ áp dụng cho mọi trường hợp thì ok
+> thôi đồng ý, nhưng bạn đang nói nó là bịa ra thì làm sao đúng."
+
+### "5" ở đâu ra: không ở đâu cả
+
+Truy lại: câu sinh ra ở `d834179` ngày **07/08/2026**, trong chính commit dựng công thức, chưa ai
+sửa từ đó. Con số 5 không có trong `latex` (hình không mang chữ số nào), không phải hằng số thị
+trường, và **không khớp ví dụ** — ví dụ hôm nay ra **5,7927**, còn ví dụ NGÀY CÂU ĐƯỢC VIẾT ra
+**4,27**, với `note` của chính nó ghi "chỉ số giảm 1% là vốn hụt hơn 4%". Nó chưa khớp kể cả hôm
+đầu tiên.
+
+Ba con số trong câu chỉ là MỘT chỗ bịa: `L = (F × m × N) / E`, nên chỉ số đi 1% thì vốn đi đúng
+`L%`. Đóng băng `L = 5` thì 5% bị ép ra theo, và câu chỉ còn đúng với tài khoản nào tình cờ có
+đòn bẩy bằng 5.
+
+### Bản sửa VÒNG 1 SAI, và chủ dự án bác ngay
+
+Vòng 1 viết "chỉ số nhúc nhích **một phần trăm** thì vốn thực biến động mạnh **gấp đúng bấy nhiêu
+lần**" — tức chỉ đánh vần con số ra chữ.
+
+> "đọc quá khó hiểu. 'Một phần trăm' ? là kiểu giải thích kiểu gì … chứ không phải bạn chuyển số
+> liệu thành text để đối phó với tôi"
+
+Đúng. Thứ hỏng là **cái kịch bản**, không phải chính tả của con số: "hãy tưởng tượng chỉ số đi chừng
+này thì vốn đi chừng kia" vẫn là một ví dụ đã làm sẵn, dù viết bằng chữ hay bằng số. Vòng 2 bỏ hẳn
+kịch bản: câu Ý nghĩa gọi tên ĐẠI LƯỢNG và nói vì sao nó đáng quan tâm, còn minh hoạ để khối Ví dụ
+thực tế hoặc Bài tập gánh.
+
+### Vòng 3: bản vòng 2 của `don-bay-hieu-dung` cũng sai, hai lỗi
+
+Chủ dự án soi lại chính câu tôi vừa viết. Hai lỗi, cả hai kiểm chứng được:
+
+**1. Danh từ không có trên màn.** Tôi viết "tổng giá trị hợp đồng". Danh từ của chính trang ấy, ở
+cả ba chỗ, là **"giá trị danh nghĩa"** — `description`, hàng chú giải của `L` ("tức giá trị danh
+nghĩa gấp mấy lần vốn thực"), và `tags`. Đặt một từ đồng nghĩa tự nghĩ ra vào đúng chỗ người đọc
+cần tra lại là lỗi 06/10/2026 đã ghi ("'Tiền mua' là cái gì?").
+
+**2. Nói sai cái gì làm vốn biến động, và nói quá chắc.** Tôi viết "lãi lỗ của **chỉ số** phóng to
+… theo **đúng** tỷ lệ ấy". Tài khoản ăn theo **giá hợp đồng** `F`, không phải chỉ số `S` — chính
+sản phẩm tách hai thứ ấy ra bằng một công thức riêng (`basis = F − S`). Và "đúng tỷ lệ" chỉ đúng
+với `F`; so với chỉ số thì chỉ xấp xỉ, vì basis cũng xê dịch. Câu CŨ ít ra còn rào bằng chữ
+"khoảng"; bản của tôi bỏ mất cái rào ấy.
+
+Bản cuối tránh cả hai bằng cách không viện tới tỷ lệ phần trăm nào:
+
+> "Mức khuếch đại thật của tài khoản: **giá trị danh nghĩa** của vị thế đang gấp bao nhiêu lần vốn
+> thực, nên tài khoản chịu lãi lỗ của một lượng tài sản lớn gấp chừng ấy so với số tiền thật đang
+> có."
+
+Kiểm lại bằng toán: lãi lỗ vị thế là `ΔF × m × N`, giá trị danh nghĩa là `F × m × N`, nên lãi lỗ
+chia cho giá trị danh nghĩa đúng bằng `ΔF / F` — tức tài khoản chịu đúng lãi lỗ của một lượng tài
+sản bằng giá trị danh nghĩa. Câu đúng không cần chữ "khoảng".
+
+**Một chỗ KHÔNG phải lỗi, kiểm rồi mới dám nói:** nửa đầu câu nghe như lặp `spec.description`.
+Không phải — `description` đã gỡ khỏi màn chi tiết ngày trước đó, và docblock chỗ gỡ ghi rõ Ý nghĩa
+là nơi trả lời lại câu "công thức này là gì", "dài hơn và đúng ngôn ngữ người mới hơn". Trùng ý ở
+đây là thiết kế, không phải sót.
+
+### Vòng 4: chủ dự án tự viết lại câu chữ, nhận nguyên
+
+> "một số từ ngữ đang không hay như 'thật'? nghe giả tạo kiểu gì ấy"
+
+Chủ dự án đưa thẳng bản thay: `thật` → `thực tế` ở hai chỗ, và `gấp chừng ấy` → `gấp chừng ấy lần`.
+Nhận cả hai. `lần` còn đúng `resultUnit` của công thức, nên con số trên màn và câu chữ gọi cùng
+một đơn vị.
+
+Tôi thêm đúng MỘT chữ ngoài bản ấy: `vốn thực` → `vốn thực **có**`. Lý do là luật vừa rút ra ở vòng
+3 — dùng đúng danh từ trang đó đang dùng — và trang này gọi nó là "Vốn thực có" ở cả bốn chỗ: nhãn
+ô nhập, dòng chữ của khối Công thức ("÷ Vốn thực có"), hàng chú giải `E`, và câu cảnh báo chia cho 0. Vế đuôi "số tiền thực tế đang có" giữ nguyên lối nói thường, vì đó là chỗ diễn giải lại cho
+người mới chứ không phải chỗ người đọc tra ngược về ô nhập.
+
+Bản `en` đi theo một chỗ: `that much larger` → `that many times larger`. "Much larger" không nói ra
+đây là một TỶ LỆ, mà tỷ lệ chính là thứ công thức trả về.
+
+Câu cuối:
+
+> "Mức khuếch đại thực tế của tài khoản: giá trị danh nghĩa của vị thế đang gấp bao nhiêu lần vốn
+> thực có, nên tài khoản chịu lãi lỗ của một lượng tài sản lớn gấp chừng ấy lần so với số tiền thực
+> tế đang có."
+
+**Đo thêm chữ "thật" trên cả thư viện:** 27 chỗ trong chữ hiện ra màn của 111 công thức. Phần lớn
+là lối nói bình thường và KHÔNG mắc lỗi chủ dự án nêu — "thật sự", "tiền thật", "lãi thật", "giá
+trị thanh lý thật". Chỗ chướng là khi `thật` làm tính từ cho một danh từ trừu tượng, và đếm được
+hai chỗ còn lại cùng kiểu: `atr-dao-dong-thuc.meaning` ("phản ánh rủi ro thật hơn là…") và
+`co-lenh-rui-ro.howToRead` ("số mua thật phải làm tròn xuống"). Chưa sửa — chờ chủ dự án chốt.
+
+### Quét cả 111, phân ba nhóm theo đúng tiêu chí chủ dự án nêu
+
+15 đoạn `vi` có chữ số. Tiêu chí: con số ấy có "mặc định áp dụng cho mọi trường hợp" không?
+
+**Nhóm A — đã sửa (6, cả `vi` lẫn `en`):**
+
+| Công thức               | Số bịa                           | Ví dụ của chính nó ra                  |
+| ----------------------- | -------------------------------- | -------------------------------------- |
+| `don-bay-hieu-dung`     | 5 lần · 1% · 5%                  | 5,7927                                 |
+| `beta`                  | Beta 1,5                         | **1** (hồi quy VN-Index theo chính nó) |
+| `lai-suat-hieu-dung`    | 12%/năm                          | ví dụ dùng 6,6%/năm                    |
+| `ty-so-thong-tin`       | "thắng chuẩn 5 điểm %"           | **−0,5031** (đang THUA chuẩn)          |
+| `var-lich-su`           | 95% · 5%                         | `confidence` là ô nhập kéo được        |
+| `do-rong-dai-bollinger` | "cổ phiếu 10 nghìn và 200 nghìn" | —                                      |
+
+`beta` nặng nhất: `note` của ví dụ TỰ NÓI "hồi quy một chuỗi theo chính nó luôn cho beta đúng bằng
+1, nên đây là phép kiểm định hàm hồi quy chứ không phải beta thật" — trong khi Ý NGHĨA phía trên
+tuyên bố 1,5. Hai khối trên cùng một trang nói khác nhau về con số công thức sinh ra.
+
+**Nhóm B — GIỮ (9), vì đúng với mọi lần dùng:** `so-graham` (15 · 1,5 · 22,5 là hằng số Graham,
+`22{,}5` nằm trong hình) · `loi-suat-quy-nam-theo-ngay` (365 trong hình) · `ncav-tren-co-phieu` (0
+là chính phương pháp) · `rsi-wilder` · `stochastic-k` · `phan-tram-b-bollinger` (0/50/100 là thang
+đo) · `ty-so-thang-thua` (1 là mốc toán) · `roe` ("bỏ 100 đồng vốn" là cách đọc phần trăm) ·
+`ty-so-calmar` ("mỗi 1%" là đơn giá).
+
+### Cửa gác: `meaning-rules.ts` — mục thứ tư, và là mục cuối cùng có luật
+
+Ba mục kia đã có luật từ lâu, nên lỗi này sống đúng ở mục chưa ai quét:
+
+| Mục              | Mô-đun luật     | Luật về con số                             |
+| ---------------- | --------------- | ------------------------------------------ |
+| `whenToUse`      | có (30/09)      | cấm hẳn `%` và ngưỡng                      |
+| `howToRead`      | có (30/09)      | chỉ 0/1/100 + quy ước có tên               |
+| `commonMistakes` | —               | một phần qua `prose-audit`                 |
+| **`meaning`**    | **MỚI (09/10)** | **0/1/100 · có trong `latex` · `QUY_UOC`** |
+
+Vế "có trong `latex` của chính công thức" là phần đáng giá nhất: nó **tự bảo trì** — đổi hình thì
+tập số hợp lệ đổi theo, không ai phải nhớ cập nhật danh sách. Nhờ nó `so-graham` (22,5) và
+`loi-suat-quy-nam-theo-ngay` (365) qua tự động; chỉ còn hai dòng `QUY_UOC` kèm lý do (`so-graham`
+15 · 1,5, và `phan-tram-b-bollinger` 50). Đã thử bỏ cả hai dòng ấy — cửa gác đỏ, nên chúng không
+phải dòng chết.
+
+`meaning-rules.test.ts` quét 111 × 2 và ghim nguyên văn câu chủ dự án khoanh đỏ: bỏ luật tới mức nó
+lọt là mở cửa lại cho đúng lỗi này.
+
+### Một chỗ CỐ Ý giữ con số, và nó làm đỏ một cửa gác cũ
+
+`portfolio.betaHint` ở form Danh mục cũng dùng ví dụ "1,5", và một ca trong `i18n.test.ts` neo hai
+chỗ vào chung con số ấy — nên nó đỏ ngay khi `beta` bỏ số. **Giữ con số ở câu gợi ý**: nó đứng dưới
+một ô người dùng phải tự gõ beta vào, nên một mức ví dụ nói cho họ biết con số phải cỡ nào. Đó là
+việc của dòng gợi ý ô nhập, không phải việc của mục Ý nghĩa. Mỏ neo của ca kiểm chuyển sang
+"VN-Index" — thứ hai chỗ vẫn phải chia nhau — kèm ghi lý do nửa mỏ neo kia đã bỏ.
+
+### Đã đổi file nào
+
+| File                            | Vì sao                                                       |
+| ------------------------------- | ------------------------------------------------------------ |
+| `core/formulas/` (5 file)       | 6 đoạn Ý nghĩa, bỏ kịch bản, cả `vi` lẫn `en`                |
+| `core/meaning-rules.ts`         | MỚI — luật con số của mục thứ tư                             |
+| `core/meaning-rules.test.ts`    | MỚI — quét 111 × 2, 5 ca                                     |
+| `core/how-to-read-rules.ts`     | xuất `TEN_CO_SO` để dùng chung, kèm cảnh báo mẫu mang cờ `g` |
+| `application/i18n/i18n.test.ts` | đổi mỏ neo của ca canary beta, ghi lý do                     |
+| `CLAUDE.md`                     | đoạn mới cho luật mục thứ tư, kèm cả chỗ vòng 1 sai          |
+| `TASK.md`                       | mục này                                                      |
+
+### Còn lại
+
+Luật không thấy được một câu khái quát nhưng SAI về bản chất công thức. Sáu đoạn sửa đợt này đều đã
+đọc lại cùng `calc`; đoạn mới về sau cũng phải đọc như vậy.
+
+---
+
+## Đoạn văn của bài Hướng dẫn to hơn mọi câu quanh nó (09/10/2026)
+
+**Trạng thái: xong, `npm run check` xanh** (138 file, 3.181 ca). Đã đo bằng Chrome thật.
+
+### Chủ dự án giao gì
+
+> "giảm size text trong phần hướng dẫn sử dụng của 'Đọc biểu đồ' xuống, hiện tại đang quá to"
+
+### Đo cỡ chữ thật của cả trang trước khi sửa
+
+Trang `/huong-dan/cong-thuc/pe/` ở 1440px, đọc `getComputedStyle` chứ không ước lượng:
+
+| Lớp                                                                                       |       Cỡ |
+| ----------------------------------------------------------------------------------------- | -------: |
+| `GuideScreen_title`                                                                       |     26px |
+| `GuideBody_sectionTitle`                                                                  |     20px |
+| `GuideScreen_lead`                                                                        |     18px |
+| **`GuideBody_prose`**                                                                     | **18px** |
+| `GuideBody_fieldLabel` · `fieldWhere` · `fieldNote` · `caution` · `InlineWarning_message` |     14px |
+| `GuideBody_blockLabel`                                                                    |     12px |
+
+`.prose` là **đoạn văn DUY NHẤT trong bài** không ở 14px: nó to hơn hàng xóm 4px và chỉ kém `<h2>`
+của chính mục ấy 2px. Rõ nhất ở mục "Đọc kết quả", nơi `.prose` 18px đứng ngay trên `.caution`
+14px — cùng một mục, hai cỡ chữ.
+
+### Sửa gì
+
+`.prose`: `--text-md` (18px) → `--text-sm` (14px). Cả bài nay một cỡ, thứ bậc do tiêu đề 20px gánh.
+
+**Hai nơi dùng `.prose` phải cùng cỡ** — `docKetQua` ở mục "Đọc kết quả" và đoạn theo loại hình ở
+mục "Đọc biểu đồ". Chúng là cùng một thứ (một đoạn văn xuôi của bài), nên hạ riêng mục biểu đồ chỉ
+là dời chỗ lệch sang mục bên cạnh. Chủ dự án chỉ vào mục đang đọc, không phải vào một trong hai.
+
+**`.lead` của TRANG giữ 18px** và cố ý không đụng: nó đứng ngay dưới tiêu đề 26px, không nằm trong
+bài, và là câu tóm tắt cả trang — một vai khác.
+
+Khung "?" mở tại nút dùng chung `GuideBody` nên đi theo cùng lúc, đúng điều bản vẽ HD-04 hứa ("hai
+cách hiện, một nội dung"); khung ấy rộng 32rem, chữ nhỏ hơn chỉ dễ đọc hơn.
+
+### Đã đổi file nào
+
+| File                            | Vì sao                                                            |
+| ------------------------------- | ----------------------------------------------------------------- |
+| `ui/guide/GuideBody.module.css` | `.prose` xuống `--text-sm`, kèm số đo và lý do không đụng `.lead` |
+| `TASK.md`                       | mục này                                                           |
+
+Không ca kiểm nào ghim cỡ chữ của `.prose`; `typography.test.ts` chỉ gác bản thân thang chữ.
+
+---
+
 ## Lỗi "1:" ở "Cách đọc kết quả" — bản sửa 05/10 đã SAI (08/10/2026)
 
 **Trạng thái: xong, `npm run check` xanh** (138 file, 3.181 ca).

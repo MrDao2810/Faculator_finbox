@@ -45,9 +45,24 @@
   color: var(--color-ink);
 }
 
+/*
+ * Đoạn văn của bài — `docKetQua` ở mục "Đọc kết quả" và đoạn theo loại hình ở mục "Đọc biểu đồ".
+ *
+ * `--text-sm`, BẰNG mọi câu khác trong bài, và đó là chỗ sửa ngày 09/10/2026. Trước đó nó là
+ * `--text-md` (18px) trong khi `.caution` ngay dưới nó cùng một mục, `.fieldWhere`, `.fieldNote`
+ * và câu của `InlineWarning` đều 14px — tức đoạn văn duy nhất của bài to hơn hàng xóm 4px, và chỉ
+ * kém `<h2>` của chính mục ấy 2px. Chủ dự án chỉ vào mục "Đọc biểu đồ": *"giảm size text … xuống,
+ * hiện tại đang quá to"*.
+ *
+ * Hai nơi dùng `.prose` phải cùng cỡ: chúng là cùng một thứ — một đoạn văn xuôi của bài — nên hạ
+ * riêng mục biểu đồ chỉ là dời chỗ lệch sang mục bên cạnh.
+ *
+ * Dải mở đầu TRANG (`.lead` ở `GuideScreen.module.css`) vẫn `--text-md` và không thuộc diện này:
+ * nó đứng ngay dưới tiêu đề 26px, không nằm trong bài, và là câu tóm tắt cả trang.
+ */
 .prose {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-sm);
   line-height: var(--leading-normal);
   color: var(--color-ink-soft);
 }

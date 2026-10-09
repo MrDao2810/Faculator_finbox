@@ -161,10 +161,22 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
    */
   it('gợi ý beta ở form Danh mục dùng chung mỏ neo với công thức beta của Registry', () => {
     const meaning = findFormulaModule('beta')?.spec.explanation.meaning.vi ?? '';
-    // Canary: đổi ví dụ bên Registry mà quên bên này thì phải đỏ ở đây, không đỏ mơ hồ bên dưới.
-    expect(meaning, 'công thức beta thôi dùng ví dụ 1,5 — soi lại câu gợi ý ở form').toContain(
-      '1,5',
-    );
+
+    /*
+     * ── Mỏ neo CON SỐ đã bỏ 09/10/2026, và hai chỗ nay cố ý KHÁC nhau ở chỗ đó ────────────
+     *
+     * Ca này từng ghim cả hai bên cùng mang ví dụ "1,5". Nửa Registry của mỏ neo ấy không còn:
+     * chủ dự án chốt mục Ý nghĩa không được nêu số liệu mẫu (*"ý nghĩa thì làm gì có chuyện có
+     * số liệu cụ thể trong đó"*), và `meaning-rules.ts` nay gác điều đó cho cả 111 công thức.
+     *
+     * Câu gợi ý ở form thì GIỮ con số, và đó là một quyết định chứ không phải bỏ sót: nó đứng
+     * dưới một ô người dùng phải tự gõ beta vào, nên một mức ví dụ nói cho họ biết con số phải
+     * cỡ nào. Đó là việc của một dòng gợi ý ô nhập, không phải việc của mục Ý nghĩa.
+     *
+     * Thứ ca này còn ghim được, và là thứ nó sinh ra để ghim: hai chỗ phải giải thích CÙNG MỘT
+     * khái niệm theo cùng một mỏ neo — tên chỉ số thật mà `beta` hồi quy theo.
+     */
+    expect(meaning).toContain('VN-Index');
 
     const hint = vi['portfolio.betaHint'];
     expect(hint).toContain('1,5');

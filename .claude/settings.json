@@ -1876,7 +1876,14 @@
       "Bash(node -e 'const fs=require\\('\\\\''fs'\\\\''\\),p='\\\\''src/core/formulas/'\\\\'';let n=0,w=0,u=0,d=0; *)",
       "Bash(grep -vE '^\\\\s*\\\\*|^\\\\s*/\\\\*')",
       "Bash(grep -n \"quiz-\\\\${\\\\|tieuDeId\\\\|-title\" src/ui/quiz/QuizBody.tsx)",
-      "PowerShell(Get-CimInstance Win32_Process -Filter \"ProcessId=48612 or ProcessId=32048 or ProcessId=43524\" | Select-Object ProcessId, Name, @{n='Cmd';e={$_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\)}} | Format-List)"
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"ProcessId=48612 or ProcessId=32048 or ProcessId=43524\" | Select-Object ProcessId, Name, @{n='Cmd';e={$_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\)}} | Format-List)",
+      "Bash(echo \"eslint exit=$?\")",
+      "Bash(echo \"eslint=$?\")",
+      "Bash(grep -n '\\\\\\\\\\\\\\\\b\\\\|\\\\\\\\b/' src/app/danh-muc/PortfolioScreen.test.tsx)",
+      "Bash(sed -i -e 's#\\\\\\\\\\\\\\\\b`#\\(?:\\\\\\\\\\\\\\\\s|$\\)`#g' -e 's#/^Mã\\\\\\\\b/#/^Mã\\(?:\\\\\\\\s|$\\)/#g' -e 's#/^Công thức\\\\\\\\b/#/^Công thức\\(?:\\\\\\\\s|$\\)/#g' src/app/danh-muc/PortfolioScreen.test.tsx)",
+      "Bash(grep -n '\\(?:\\\\\\\\\\\\\\\\s|\\\\$\\)\\\\|\\(?:\\\\\\\\s|\\\\$\\)' src/app/danh-muc/PortfolioScreen.test.tsx)",
+      "Bash(grep -n 'Công thức\\\\\\\\b' src/app/danh-muc/PortfolioScreen.test.tsx)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000,4173 -State Listen -ErrorAction SilentlyContinue)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

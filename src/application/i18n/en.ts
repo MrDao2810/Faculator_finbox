@@ -340,10 +340,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.details': 'Details',
   /* `portfolio.editHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.formSave': 'Save changes',
-  'portfolio.mergeNote':
-    'This ticker is already in the portfolio. Adding again will add up the quantity and recalculate the average cost price — it will not create a second row. To correct the existing numbers instead, cancel this form, tap the ticker in the list, then tap Edit.',
-  'portfolio.formMerge': 'Add to the existing holding',
-  'portfolio.formMergeOpen': 'Add to it and open the formula',
+  /*
+   * `portfolio.mergeNote`, `portfolio.formMerge` và `portfolio.formMergeOpen` đã xoá cùng bản
+   * Việt (10/10/2026) — mã đang giữ không thêm lại được nữa nên form hết trạng thái cộng dồn.
+   * Nguyên văn ba câu và lý do ở bia mộ trong `vi.ts`.
+   */
 
   'portfolio.errCode': 'Pick a ticker first.',
   'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
@@ -373,7 +374,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
 
-  /* Khối "Phép tính đã lưu" quay lại, không tab — lý do và ba khoá tab đã xoá ghi ở `vi.ts`. */
+  /* Cụm tab "Mã · Công thức" quay lại ngày 10/10/2026 — lịch sử các lần gỡ/đưa lại ghi ở `vi.ts`. */
+  'portfolio.tabHoldings': 'Tickers',
+  'portfolio.tabSaved': 'Formulas',
+  'portfolio.savedEmpty':
+    'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
+  'portfolio.savedEmptyAction': 'Browse formulas',
   'portfolio.savedTitle': 'Saved calculations',
   'portfolio.savedOpen': 'View',
   'portfolio.savedRemove': 'Delete',
@@ -388,7 +394,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.held': 'already held',
   'ticker.noData': 'no fundamentals',
   'ticker.noDataStale': 'may lack fundamentals',
-  'ticker.pickHeld': 'Add more',
+  /* `ticker.pickHeld` ('Add more') đã xoá cùng bản Việt (10/10/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
   /* Chỉ còn đơn vị, bỏ vế chỉ đường — xem chú thích ở `vi.ts`. */

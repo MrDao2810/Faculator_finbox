@@ -186,9 +186,14 @@ function bayScrollIntoView(): { goi: ReturnType<typeof vi.fn>; go: () => void } 
 /**
  * Mở form thêm mã rồi chọn một mã trong sheet. Màn phải đã render trước khi gọi.
  *
- * Tìm dòng theo MÃ chứ không lấy `getAllByRole('button', { name: 'Chọn' })[0]`: mã đang giữ có
- * nhãn nút khác ("Chọn thêm"), nên khi danh mục đã có FPT thì nút 'Chọn' đầu tiên lại là của HPG
- * — chọn nhầm mã, và mọi khẳng định sau đó sai theo một cách rất khó đoán.
+ * Tìm dòng theo MÃ chứ không lấy `getAllByRole('button', { name: 'Chọn' })[0]`: mọi dòng đều có
+ * đúng một nút cùng nhãn "Chọn", nên lấy theo thứ tự là chọn nhầm mã, và mọi khẳng định sau đó
+ * sai theo một cách rất khó đoán.
+ *
+ * Khẳng định nút KHÔNG bị khoá trước khi bấm, và đó không phải sự cẩn thận thừa: từ 10/10/2026
+ * nút của mã đang giữ bị khoá, mà `userEvent.click` trên một nút khoá KHÔNG báo lỗi — nó chỉ im
+ * lặng không làm gì. Thiếu dòng này thì ca kiểm đỏ ở một chỗ cách đây mười dòng ("không tìm thấy
+ * ô Số cổ phiếu…") và không ai đoán ra vì sao.
  */
 async function chonMaTrongForm(code = 'FPT'): Promise<void> {
   await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
@@ -198,28 +203,47 @@ async function chonMaTrongForm(code = 'FPT'): Promise<void> {
     .getAllByRole('listitem')
     .find((item) => item.textContent?.startsWith(code) === true);
 
-  await userEvent.click(within(dong as HTMLElement).getByRole('button'));
+  const nut = within(dong as HTMLElement).getByRole('button') as HTMLButtonElement;
+  expect(nut.disabled, `nút chọn của ${code} đang bị khoá`).toBe(false);
+  await userEvent.click(nut);
 }
 
 /**
- * Mở sheet chọn công thức — nay là một Ô TRONG FORM, không còn là nút ở dòng mã.
+ * Mở sheet chọn công thức từ form THÊM MÃ — nay là một Ô TRONG FORM, không còn là nút ở dòng mã.
  *
- * Vẫn gieo sẵn FPT vào danh mục trước khi render, dù form thêm mã không cần: sheet in ra tỷ lệ
- * "2/2 ô điền sẵn" của từng công thức, mà tỷ lệ ấy phụ thuộc mã có thị giá hay không. Danh mục
- * rỗng thì màn KHÔNG gọi mạng lần nào (đúng thiết kế, có ca kiểm riêng), nên `quotes` rỗng và
- * mọi dòng sẽ tụt một ô. Gieo trước là cách để sheet thấy đúng ca thường gặp.
+ * Chọn HPG, không phải FPT, và đó là hệ quả trực tiếp của quyết định 10/10/2026: FPT đã gieo sẵn
+ * vào danh mục nên nút chọn của nó bị khoá, mã đã có không thêm lại được nữa. Vẫn gieo FPT để màn
+ * có thật một lượt tra thị giá — danh mục rỗng thì màn KHÔNG gọi mạng lần nào (đúng thiết kế, có
+ * ca kiểm riêng) và dòng "Giá phiên" không bao giờ hiện ra để mà chờ.
+ *
+ * Mã vừa chọn chưa có bản ghi trong `quotes` (màn chỉ tra giá mã ĐANG GIỮ), và màn đọc "chưa có
+ * bản ghi" là CHƯA BIẾT chứ không phải "không có giá" — xem docblock `hasPrice` ở
+ * `PortfolioScreen`. Nên sheet ở đây hiện đủ 31 dòng. Ca cần nhánh thiếu thị giá thì đi đường
+ * `moSheetCongThucKhiSua()` ngay dưới.
  */
 async function moSheetCongThuc(): Promise<HTMLElement> {
   seedHolding();
   render(<PortfolioScreen />);
-  /*
-   * Chờ lượt tra thị giá xong HẲN rồi mới mở form. Thiếu bước này thì `quotes` còn rỗng lúc sheet
-   * dựng, `hasPrice` thành false, và danh sách rụng 8 dòng — ca "hiện đủ 31 công thức" đỏ vì một
-   * lý do không liên quan gì tới thứ nó đang kiểm. Dòng "Giá phiên" có ở cả hai ca (có giá và
-   * `priceVnd: null`), nên nó là mốc chờ dùng được cho mọi ca trong nhóm này.
-   */
   await screen.findByText(/giá phiên/);
-  await chonMaTrongForm();
+  await chonMaTrongForm('HPG');
+  await userEvent.click(screen.getByRole('button', { name: 'Thêm công thức' }));
+  return tamTrenCung();
+}
+
+/**
+ * Cùng sheet ấy nhưng mở từ form SỬA của FPT — đường duy nhất còn lại tới nhánh "thiếu thị giá".
+ *
+ * `quotes` chỉ chứa mã đang giữ, nên chỉ ở form sửa thì mã của form mới có một bản ghi để mà
+ * thiếu giá. Form thêm không còn tới được nhánh ấy từ 10/10/2026 (mã đang giữ bị khoá), và một
+ * `feed.snapshots` trả về mã KHÔNG nằm trong danh mục là thứ nguồn thật không bao giờ gửi về —
+ * dựng ca kiểm trên một phản hồi không thể có là ca đỗ vì lý do sai.
+ */
+async function moSheetCongThucKhiSua(): Promise<HTMLElement> {
+  seedHolding();
+  render(<PortfolioScreen />);
+  await screen.findByText(/giá phiên/);
+  await moChiTiet();
+  await userEvent.click(await screen.findByRole('button', { name: /^Sửa FPT/ }));
   await userEvent.click(screen.getByRole('button', { name: 'Thêm công thức' }));
   return tamTrenCung();
 }
@@ -259,14 +283,14 @@ describe('WF-06 — danh mục rỗng', () => {
    * Ô miễn trừ đứng CUỐI MÀN — chủ dự án chốt 15/09/2026: *"nội dung cảnh báo cho xuống cuối
    * trang"*. Trước đó ca này ghim chiều ngược lại (ô đứng trên sáu ô tiền, theo UI-04 mức M).
    *
-   * Ghim cả khối Phép tính đã lưu: khối ấy dựng SAU khi kho nạp, nên một ô chèn nhầm vào giữa
-   * Nắm giữ và khối ấy sẽ lọt qua nếu ca này chỉ dựng danh mục rỗng. Và vẫn đúng MỘT ô — đây là
-   * câu miễn trừ duy nhất của màn, chân trang không dựng dải xám ở `/danh-muc/`.
+   * Ghim cả hai tab: tab Công thức dựng SAU khi kho nạp và bấm sang, nên một ô chèn nhầm vào giữa
+   * thanh tab và khối ấy sẽ lọt qua nếu ca này chỉ nhìn tab Mã. Và vẫn đúng MỘT ô — đây là câu
+   * miễn trừ duy nhất của màn, chân trang không dựng dải xám ở `/danh-muc/`.
    */
-  it('câu miễn trừ đứng CUỐI MÀN, sau sáu ô tiền, Nắm giữ và Phép tính đã lưu (FR-24)', async () => {
+  it('câu miễn trừ đứng CUỐI MÀN ở cả hai tab: sau sáu ô tiền và Nắm giữ, sau Phép tính đã lưu (FR-24)', async () => {
     seedSaved();
     const { container } = render(<PortfolioScreen />);
-    const saved = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+    await screen.findByText('Nắm giữ');
 
     const notes = screen.getAllByText(t('disclaimer.text'));
     expect(notes).toHaveLength(1);
@@ -276,10 +300,15 @@ describe('WF-06 — danh mục rỗng', () => {
 
     // compareDocumentPosition thay vì so toạ độ: jsdom không dựng bố cục, nhưng thứ tự trong cây
     // đúng là thứ quyết định cái nào đọc trước trên màn hình và với trình đọc màn hình.
-    for (const truoc of [stats, screen.getByText('Nắm giữ'), saved.closest('section')]) {
-      if (truoc === null) throw new Error('thiếu khối Phép tính đã lưu');
+    for (const truoc of [stats, screen.getByText('Nắm giữ')]) {
       expect(note.compareDocumentPosition(truoc) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
     }
+
+    await userEvent.click(screen.getByRole('tab', { name: tenTab('Công thức') }));
+    const saved = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+    const khoi = saved.closest('section');
+    if (khoi === null) throw new Error('thiếu khối Phép tính đã lưu');
+    expect(note.compareDocumentPosition(khoi) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 
   it('mọi ô nói rõ chưa có mã nào, KHÔNG ô nào hiện 0 (FR-06)', async () => {
@@ -437,24 +466,25 @@ describe('WF-06 — từ mã sang công thức', () => {
     expect(screen.queryByRole('button', { name: 'Thêm vào danh mục' })).toBeNull();
     /*
      * Phải có chữ "và mở": từ 22/09/2026 nhãn ô chọn công thức là "Thêm công thức", nên một biểu
-     * thức `/^(Thêm|Cộng thêm).*công thức$/` trần bắt được CẢ ô ấy lẫn nút gửi form. Hai nhãn gần
-     * nhau là cố ý — cả hai đều nói về công thức — nên chỗ phân biệt phải là lời hứa riêng của
-     * nút gửi: nó mở trang công thức ra, còn ô kia chỉ chọn.
+     * thức `/^Thêm.*công thức$/` trần bắt được CẢ ô ấy lẫn nút gửi form. Hai nhãn gần nhau là cố
+     * ý — cả hai đều nói về công thức — nên chỗ phân biệt phải là lời hứa riêng của nút gửi: nó
+     * mở trang công thức ra, còn ô kia chỉ chọn.
      */
-    const nutLuu = screen.getByRole('button', { name: /^(Thêm|Cộng thêm).* và mở công thức$/ });
+    const nutLuu = screen.getByRole('button', { name: /^Thêm.* và mở công thức$/ });
 
     await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '100');
     await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
     await userEvent.click(nutLuu);
 
     /*
-     * `?ma=FPT` là thứ FormulaDetail đọc để tự nạp số liệu của mã.
+     * `?ma=HPG` là thứ FormulaDetail đọc để tự nạp số liệu của mã. HPG vì danh mục đã có FPT và
+     * mã đã có thì không thêm lại được (10/10/2026) — xem `moSheetCongThuc`.
      *
      * Điều hướng bằng `router.push` chứ không bằng `<Link>`: mã phải được LƯU trước đã, và lệnh
      * mở nằm trong một effect khai sau effect ghi localStorage — xem docblock ở `pendingOpen`.
      */
     await waitFor(() => {
-      expect(router.push).toHaveBeenCalledWith('/cong-thuc/pe/?ma=FPT');
+      expect(router.push).toHaveBeenCalledWith('/cong-thuc/pe/?ma=HPG');
     });
   });
 
@@ -517,24 +547,21 @@ describe('WF-06 — từ mã sang công thức', () => {
      * nhãn "Thêm công thức", nên tên nút không đổi theo nội dung bên trong — y hệt ô chọn mã.
      */
     expect(screen.getByText('Chọn công thức')).toBeTruthy();
-    // FPT đã có sẵn trong danh mục nên nhãn là bản "cộng dồn", không phải "Thêm vào danh mục".
-    expect(screen.getByRole('button', { name: 'Cộng thêm vào mã đã có' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Thêm vào danh mục' })).toBeTruthy();
   });
 
   /*
-   * Nhãn nút phải nói đúng CẢ HAI việc nó sắp làm.
+   * ── Ca "cộng dồn mà có chọn công thức" đã BỎ (10/10/2026) ─────────────────────────────────
    *
-   * Chọn một mã đang giữ là cộng dồn, không phải thêm dòng mới — đó là lý do `portfolio.formMerge`
-   * ra đời. Bản đầu của nhánh có công thức đã lặng lẽ dựng lại đúng lỗi ấy: ba tầng toán tử ba
-   * ngôi lồng nhau để lọt tổ hợp "cộng dồn + mở công thức" và nhãn ra "Thêm và mở công thức".
+   * Nó khoá nhãn nút cho tổ hợp "chọn một mã đang giữ RỒI chọn công thức" — phải ra "Cộng thêm và
+   * mở công thức", không được ra "Thêm và mở công thức". Tổ hợp ấy nay không dựng được nữa: sheet
+   * chọn mã khoá nút của mã đang giữ, nên form thêm không bao giờ nhận một mã đã có.
+   *
+   * Không chuyển thành ca đảo ở đây vì chỗ khoá đã dời sang ca "sheet khoá nút của mã đang giữ"
+   * trong nhóm dưới — nó chặn ngay ở cửa, tức là chặn cả lỗi nhãn này cùng mọi lỗi khác của
+   * trạng thái cộng dồn. Bảng tra `submitLabel` trong `PortfolioScreen.tsx` ghi lại vì sao vẫn
+   * giữ dạng bảng dù chỉ còn hai nhánh.
    */
-  it('cộng dồn mà có chọn công thức: nhãn nút nói cả hai việc, không hứa một dòng mới', async () => {
-    const sheet = await moSheetCongThuc();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
-
-    expect(screen.getByRole('button', { name: 'Cộng thêm và mở công thức' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Thêm và mở công thức' })).toBeNull();
-  });
 
   it('không gọi mạng để dựng danh sách công thức', async () => {
     await moSheetCongThuc();
@@ -609,7 +636,7 @@ describe('WF-06 — từ mã sang công thức', () => {
    */
   it('mã thiếu thị giá: bỏ công thức không điền được ô nào và nói rõ lý do', async () => {
     feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
-    const sheet = await moSheetCongThuc();
+    const sheet = await moSheetCongThucKhiSua();
 
     expect(within(sheet).getByText(/Chưa tra được thị giá của mã này/)).toBeTruthy();
     // 34 − 6 công thức chỉ điền được đúng ô thị giá.
@@ -620,7 +647,7 @@ describe('WF-06 — từ mã sang công thức', () => {
 
   it('mã thiếu thị giá: P/E hạ từ 2/2 xuống 1/2 ô, không hứa quá', async () => {
     feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
-    const sheet = await moSheetCongThuc();
+    const sheet = await moSheetCongThucKhiSua();
 
     expect(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }).textContent).toContain(
       '1/2',
@@ -893,53 +920,98 @@ describe('WF-06 — chế độ hiển thị giấu bớt ô nâng cao (FR-09)',
  * Chủ dự án báo hai chuyện sau đợt vá 8 đề mục: không tìm thấy chỗ sửa, và "có vẻ đang tạo được
  * mã trùng nhau". Kiểm bằng máy: KHÔNG có mã trùng — `addHolding()` cộng dồn đúng như thiết kế.
  * Cái sai là màn làm việc đó trong im lặng, cộng với nút Sửa không có tín hiệu nào cho biết nó
- * bấm được. Ba ca dưới đây khoá cả hai.
+ * bấm được.
+ *
+ * ── Cách chữa đã ĐẢO ngày 10/10/2026 ──────────────────────────────────────────────────────────
+ *
+ * Bản cũ chữa bằng CHỮ: sheet dán nhãn "đã có", nút đổi nhãn thành "Cộng thêm", và form in một
+ * câu nói trước rằng số sẽ được cộng dồn. Chủ dự án chốt ngược — *"mã nào đã thêm rồi thì không
+ * cho thêm nữa chứ không phải hiển button 'Cộng thêm' làm gì"* — nên nay chữa bằng CỬA: mã đang
+ * giữ không chọn được, và muốn đổi số thì bấm vào mã rồi bấm Sửa.
+ *
+ * Ba ca dưới đây là ca ĐẢO của ba ca cũ, không phải ba ca bị xoá: ai nối lại đường cộng dồn qua
+ * sheet sẽ làm chúng đỏ, nên việc ấy là một quyết định chứ không phải một cú trượt tay.
  */
-describe('WF-06 — thêm lại mã đang giữ thì phải nói rõ là cộng dồn', () => {
-  async function chonLaiFPT(): Promise<void> {
+describe('WF-06 — mã đang giữ thì không thêm lại được', () => {
+  async function moSheetChonMa(): Promise<HTMLElement> {
     seedHolding();
     render(<PortfolioScreen />);
     await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
-    const sheet = await tamTrenCung();
-    await userEvent.click(within(sheet).getAllByRole('button', { name: /Chọn|Cộng thêm/ })[0]!);
+    return tamTrenCung();
   }
 
-  it('không tạo dòng thứ hai — cộng dồn vào dòng cũ', async () => {
-    await chonLaiFPT();
-    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '50');
-    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
-    await userEvent.click(screen.getByRole('button', { name: 'Cộng thêm vào mã đã có' }));
+  /** Dòng của một mã trong sheet, tìm theo mã chứ không theo thứ tự. */
+  function dongTrongSheet(sheet: HTMLElement, code: string): HTMLElement {
+    const dong = within(sheet)
+      .getAllByRole('listitem')
+      .find((item) => item.textContent?.startsWith(code) === true);
+    if (dong === undefined) throw new Error(`Sheet không có dòng nào của ${code}`);
+    return dong;
+  }
 
-    /*
-     * Đếm HÀNG MÃ, không đếm `<tr>`: bảng còn một hàng tiêu đề, và một hàng mở ra nữa nếu người
-     * dùng đã bấm vào mã. Nút phủ "Chi tiết <mã>" có đúng một cái trên mỗi mã, nên nó là thứ đếm
-     * đúng số mã đang giữ.
-     */
-    expect(screen.getAllByRole('button', { name: /^Chi tiết / })).toHaveLength(1);
-    // 100 + 50 = 150 CP, giá vốn bình quân vẫn 60.000 ₫.
-    expect((await dongMa()).textContent).toContain('150');
+  it('nút chọn của mã đang giữ bị khoá, mã chưa giữ thì không', async () => {
+    const sheet = await moSheetChonMa();
+
+    const nutFpt = within(dongTrongSheet(sheet, 'FPT')).getByRole('button') as HTMLButtonElement;
+    const nutHpg = within(dongTrongSheet(sheet, 'HPG')).getByRole('button') as HTMLButtonElement;
+
+    expect(nutFpt.disabled).toBe(true);
+    expect(nutHpg.disabled).toBe(false);
   });
 
-  it('form nói trước là sẽ cộng dồn, và nhãn nút đổi theo', async () => {
-    await chonLaiFPT();
+  /*
+   * Nhãn nút KHÔNG đổi theo trạng thái nữa — `ticker.pickHeld` ("Cộng thêm") đã xoá. Một nhãn
+   * riêng cho mã đang giữ sẽ hứa đúng cái việc nút vừa thôi làm.
+   */
+  it('cả hai nút cùng nhãn "Chọn", không còn nhãn "Cộng thêm" nào', async () => {
+    const sheet = await moSheetChonMa();
 
-    expect(screen.getByText(/sẽ cộng dồn số lượng/)).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Cộng thêm vào mã đã có' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Thêm vào danh mục' })).toBeNull();
+    expect(within(sheet).getAllByRole('button', { name: 'Chọn' })).toHaveLength(2);
+    expect(within(sheet).queryByRole('button', { name: /Cộng thêm/ })).toBeNull();
   });
 
-  it('sheet chọn mã đánh dấu mã đang giữ ngay trên dòng', async () => {
+  /*
+   * Một nút xám không giải thích gì thì người dùng bàn phím và trình đọc màn hình chỉ nghe "Chọn,
+   * không dùng được". Nhãn "đã có" là lý do duy nhất có trên màn, nên nút phải trỏ vào đúng nó.
+   */
+  it('nhãn "đã có" vừa hiện trên dòng vừa là lời giải thích của nút khoá', async () => {
+    const sheet = await moSheetChonMa();
+
+    const dongFpt = dongTrongSheet(sheet, 'FPT');
+    expect(dongFpt.textContent).toContain('đã có');
+    expect(dongTrongSheet(sheet, 'HPG').textContent).not.toContain('đã có');
+
+    const nut = within(dongFpt).getByRole('button');
+    const idLyDo = nut.getAttribute('aria-describedby');
+    expect(idLyDo).not.toBeNull();
+    expect(dongFpt.querySelector(`#${idLyDo ?? ''}`)?.textContent).toBe('đã có');
+  });
+
+  /*
+   * Câu "Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng…" đã xoá. Ca ĐẢO: nó không
+   * được quay lại ngay cả khi ai đó nối lại đường cộng dồn — câu ấy giải thích một việc mà sản
+   * phẩm nay không cho xảy ra.
+   */
+  it('không còn câu nào nói về việc cộng dồn số lượng', async () => {
+    await moSheetChonMa();
+
+    expect(screen.queryByText(/cộng dồn/)).toBeNull();
+    expect(screen.queryByText(/giá vốn bình quân/)).toBeNull();
+  });
+
+  /*
+   * Đường thay thế phải có thật, nếu không thì cái cửa vừa đóng là một ngõ cụt: muốn đổi số của
+   * một mã đang giữ thì bấm vào mã rồi bấm Sửa. Ca "sửa một mã đã thêm" ở nhóm trên khoá phần
+   * lưu; ca này chỉ khoá rằng lối vào ấy vẫn còn và nó đổ sẵn đúng số đang lưu.
+   */
+  it('đường thay thế vẫn mở: bấm vào mã rồi bấm Sửa thì đổi được số đang có', async () => {
     seedHolding();
     render(<PortfolioScreen />);
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
-    await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
-    const sheet = await tamTrenCung();
+    await moChiTiet();
+    await userEvent.click(await screen.findByRole('button', { name: /^Sửa FPT/ }));
 
-    const items = within(sheet).getAllByRole('listitem');
-    // FPT đang giữ → có nhãn "đã có"; HPG chưa giữ → không.
-    expect(items[0]?.textContent).toContain('đã có');
-    expect(items[1]?.textContent).not.toContain('đã có');
+    expect((screen.getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement).value).toBe('100');
   });
 
   /*
@@ -1693,10 +1765,11 @@ describe('WF-06 — form thôi giải thích thay cho người dùng', () => {
 });
 
 /*
- * ── Khối "Phép tính đã lưu": phép tính cất từ màn chi tiết ─────────────────────────────────
+ * ── Tab "Công thức": phép tính cất từ màn chi tiết ─────────────────────────────────────────
  *
- * Từng là tab "Công thức", bị gỡ cùng cụm tab (14/09/2026) rồi quay lại thành khối thứ hai của màn
- * (15/09/2026) — vì nút Lưu ở màn chi tiết vẫn ghi vào kho mà không còn chỗ nào bày kho ra.
+ * Tab "Công thức", bị gỡ cùng cụm tab (14/09/2026), quay lại thành khối thứ hai của màn
+ * (15/09/2026) — vì nút Lưu ở màn chi tiết vẫn ghi vào kho mà không còn chỗ nào bày kho ra — rồi
+ * thành tab trở lại (10/10/2026) khi chủ dự án muốn màn tách làm hai phần riêng.
  *
  * Khối cố ý KHÔNG tính lại con số nào — tính lại đòi cả Registry trong gói của `/danh-muc/`, đã đo
  * một lần là 131 kB lên 217 kB, vượt cửa 180 kB. Nên điều kiện để nó lương thiện là bày NGÀY LƯU,
@@ -1721,19 +1794,168 @@ function seedSaved(): void {
   );
 }
 
-describe('WF-06 — phép tính đã lưu là khối thứ hai của màn', () => {
-  /*
-   * Khối nằm thường trực dưới danh mục của MỌI người. Một ô rỗng thường trực kèm câu hướng dẫn là
-   * đúng thứ chủ dự án gỡ khi bỏ tabbar — nên chưa lưu gì thì không có khối nào cả.
-   */
-  it('chưa lưu phép tính nào thì không dựng khối', async () => {
+/**
+ * Tên khả truy cập của một tab là "Mã 1" / "Công thức 0" — chữ rồi số đếm. Khớp phần chữ, bỏ số.
+ *
+ * KHÔNG dùng `\b`: JS chỉ coi `[A-Za-z0-9_]` là ký tự chữ, nên giữa "ã" và dấu cách không có ranh
+ * giới và `/^Mã\b/` không bao giờ khớp.
+ */
+function tenTab(nhan: string): RegExp {
+  return new RegExp(`^${nhan}(?:\\s|$)`);
+}
+
+/** Bấm sang một tab của cụm "Mã · Công thức" theo tên khả truy cập đầu tiên (không tính số đếm). */
+async function bamTab(nhan: string): Promise<void> {
+  await userEvent.click(await screen.findByRole('tab', { name: tenTab(nhan) }));
+}
+
+describe('WF-06 — cụm hai tab Mã · Công thức', () => {
+  it('mặc định mở tab Mã: có khối Nắm giữ, chưa có khối Phép tính đã lưu', async () => {
+    seedSaved();
     render(<PortfolioScreen />);
 
-    // Chờ effect đọc localStorage chạy xong, không thì ca này luôn xanh.
     await screen.findByText('Nắm giữ');
+    const tabMa = screen.getByRole('tab', { name: tenTab('Mã') });
+    expect(tabMa.getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByRole('tab', { name: /^Công thức\b/ }).getAttribute('aria-selected')).toBe(
+      'false',
+    );
     expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
   });
 
+  /*
+   * Bài học 15/09/2026: lưu xong mà không thấy đâu bị chủ dự án gọi là lỗi. Số đếm của tab ĐANG
+   * ĐÓNG là chỗ duy nhất nói kho có mục mà không phải bấm sang tìm.
+   */
+  it('số đếm của cả hai tab hiện ngay trên thanh, kể cả tab đang đóng', async () => {
+    seedHolding();
+    seedSaved();
+    render(<PortfolioScreen />);
+
+    expect(await screen.findByRole('tab', { name: 'Mã 1' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Công thức 1' })).toBeTruthy();
+  });
+
+  it('bấm tab Công thức thì đổi nội dung, ghi ?tab= vào URL và không thêm mục lịch sử', async () => {
+    seedHolding();
+    seedSaved();
+    const truoc = window.history.length;
+    render(<PortfolioScreen />);
+    await screen.findByText('Nắm giữ');
+
+    await bamTab('Công thức');
+
+    expect(screen.getByRole('heading', { name: t('portfolio.savedTitle') })).toBeTruthy();
+    expect(screen.queryByText('Nắm giữ')).toBeNull();
+    expect(window.location.search).toBe('?tab=cong-thuc');
+    expect(window.history.length).toBe(truoc);
+
+    await bamTab('Mã');
+
+    expect(screen.getByText('Nắm giữ')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
+    expect(window.location.search).toBe('');
+  });
+
+  it('mọi tab trỏ aria-controls vào đúng MỘT vùng nội dung có thật, và vùng ấy nhận lại tên tab', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+    await screen.findByText('Nắm giữ');
+
+    for (const ten of ['Mã', 'Công thức']) {
+      await bamTab(ten);
+      const tab = screen.getByRole('tab', { name: tenTab(ten) });
+      const vung = screen.getByRole('tabpanel');
+      expect(vung.id).toBe(tab.getAttribute('aria-controls'));
+      expect(vung.getAttribute('aria-labelledby')).toBe(tab.id);
+    }
+  });
+
+  it('?tab=cong-thuc mở thẳng tab Công thức', async () => {
+    seedSaved();
+    window.history.replaceState(null, '', '/danh-muc/?tab=cong-thuc');
+    render(<PortfolioScreen />);
+
+    expect(await screen.findByRole('heading', { name: t('portfolio.savedTitle') })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: /^Công thức\b/ }).getAttribute('aria-selected')).toBe(
+      'true',
+    );
+  });
+
+  /*
+   * Đích của nút Lưu ở màn chi tiết là `/danh-muc/#phep-tinh-da-luu` (`savedCalcsPath()`). Hợp
+   * đồng ấy không đổi khi quay lại cụm tab, nhưng nay neo chỉ cần MỞ ĐÚNG TAB: tab Công thức có
+   * đúng khối ấy dưới thanh tab nên không còn gì để cuộn tới, và effect cuộn-giữ-neo đã xoá.
+   */
+  it('vào bằng neo #phep-tinh-da-luu thì mở thẳng tab Công thức và KHÔNG cuộn', async () => {
+    const bay = bayScrollIntoView();
+    try {
+      seedHolding();
+      seedSaved();
+      window.history.replaceState(null, '', '/danh-muc/#phep-tinh-da-luu');
+      render(<PortfolioScreen />);
+
+      const tieuDe = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+      expect(tieuDe.closest('section')?.id).toBe('phep-tinh-da-luu');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(bay.goi).not.toHaveBeenCalled();
+    } finally {
+      bay.go();
+    }
+  });
+
+  it('về tab Mã thì bỏ neo #phep-tinh-da-luu khỏi URL — không nói dối về chỗ đang đứng', async () => {
+    seedSaved();
+    window.history.replaceState(null, '', '/danh-muc/#phep-tinh-da-luu');
+    render(<PortfolioScreen />);
+    await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+
+    await bamTab('Mã');
+
+    expect(window.location.hash).toBe('');
+  });
+
+  it('kho rỗng: tab Công thức hiện câu hướng dẫn và đường sang danh sách công thức', async () => {
+    render(<PortfolioScreen />);
+    await screen.findByText('Nắm giữ');
+
+    await bamTab('Công thức');
+
+    expect(screen.getByText(t('portfolio.savedEmpty'))).toBeTruthy();
+    const duong = screen.getByRole('link', { name: t('portfolio.savedEmptyAction') });
+    expect(duong.getAttribute('href')).toMatch(/^\/cong-thuc\/?$/);
+  });
+
+  it('đổi tab không gọi lại Finbox và không làm mất mã đang giữ', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await screen.findByText(/giá phiên/);
+    const soLanGoi = feed.snapshots.mock.calls.length;
+
+    await bamTab('Công thức');
+    await bamTab('Mã');
+
+    expect(await screen.findByRole('button', { name: /^Chi tiết FPT/ })).toBeTruthy();
+    expect(feed.snapshots.mock.calls.length).toBe(soLanGoi);
+  });
+
+  /*
+   * Câu miễn trừ nằm NGOÀI cả hai tab: `usePathname()` không nhìn thấy `?tab=`, nên một tab trắng
+   * câu miễn trừ không có cách nào được bù ở `routes.ts`.
+   */
+  it('câu miễn trừ còn đúng một ô ở cả hai tab', async () => {
+    seedSaved();
+    render(<PortfolioScreen />);
+    await screen.findByText('Nắm giữ');
+    expect(screen.getAllByText(t('disclaimer.text'))).toHaveLength(1);
+
+    await bamTab('Công thức');
+
+    expect(screen.getAllByText(t('disclaimer.text'))).toHaveLength(1);
+  });
+});
+
+describe('WF-06 — tab Công thức: phép tính đã lưu', () => {
   /*
    * Đây là vế "thấy lại được" của lỗi chủ dự án báo 15/09/2026. Trước bản vá, kho có mục mà màn
    * không có một chữ nào về nó.
@@ -1741,6 +1963,7 @@ describe('WF-06 — phép tính đã lưu là khối thứ hai của màn', () =
   it('có phép tính đã lưu thì bày tên, ngày lưu, và "Xem" mở lại đúng bản lưu', async () => {
     seedSaved();
     render(<PortfolioScreen />);
+    await bamTab('Công thức');
 
     const tieuDe = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
     const khoi = tieuDe.closest('section') as HTMLElement;
@@ -1762,105 +1985,16 @@ describe('WF-06 — phép tính đã lưu là khối thứ hai của màn', () =
     );
   });
 
-  it('bấm Xoá thì gỡ khỏi kho, và hết mục thì khối biến mất', async () => {
+  it('bấm Xoá thì gỡ khỏi kho, hết mục thì tab hiện câu rỗng và số đếm về 0', async () => {
     seedSaved();
     render(<PortfolioScreen />);
+    await bamTab('Công thức');
 
     await userEvent.click(await screen.findByRole('button', { name: 'Xoá HPG · P/E' }));
 
     expect(JSON.parse(window.localStorage.getItem(SAVED_CALCS_KEY) ?? 'null')).toEqual([]);
-    expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
-  });
-
-  /*
-   * Đích của nút Lưu ở màn chi tiết là `/danh-muc/#phep-tinh-da-luu`. Không trông vào việc trình
-   * duyệt tự nhảy tới neo: khối chỉ dựng SAU khi kho nạp trong effect, và danh sách Nắm giữ phía
-   * trên nạp cùng lượt ấy đẩy khối xuống thêm. Ca này ghim rằng màn tự cuộn, và cuộn đúng khối.
-   */
-  it('vào bằng neo của khối thì cuộn tới đúng khối ấy, sau khi kho đã nạp', async () => {
-    const bay = bayScrollIntoView();
-    try {
-      seedHolding();
-      seedSaved();
-      window.history.replaceState(null, '', '/danh-muc/#phep-tinh-da-luu');
-      render(<PortfolioScreen />);
-
-      const tieuDe = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
-      await waitFor(() => {
-        expect(bay.goi).toHaveBeenCalledTimes(1);
-      });
-
-      expect(bay.goi.mock.contexts[0]).toBe(tieuDe.closest('section'));
-      expect(bay.goi.mock.calls[0]?.[0]).toMatchObject({ block: 'start' });
-    } finally {
-      bay.go();
-    }
-  });
-
-  /*
-   * Cuộn một lần là không đủ — đo trên Chrome thật: thị giá về SAU lượt cuộn, mỗi dòng Nắm giữ cao
-   * thêm một hàng và đẩy khối xuống tận đáy màn. Màn giữ neo bằng `ResizeObserver` cho tới khi bố
-   * cục ổn định. Nhưng điều kiện dừng mới là thứ quyết định việc giữ neo có được phép hay không:
-   * người dùng đã tự cuộn đi mà màn còn kéo họ về là một lỗi tệ hơn lỗi đang chữa.
-   *
-   * jsdom không có `ResizeObserver` nên dựng bản giả nắm lấy callback, rồi tự bắn nó.
-   */
-  it('khung màn đổi cỡ thì canh lại khối, nhưng người dùng tự thao tác là thôi ngay', async () => {
-    const bay = bayScrollIntoView();
-    const cu = globalThis.ResizeObserver;
-    let bao: (() => void) | null = null;
-    const ngat = vi.fn();
-    globalThis.ResizeObserver = class {
-      constructor(callback: () => void) {
-        bao = callback;
-      }
-      observe(): void {}
-      unobserve(): void {}
-      disconnect(): void {
-        ngat();
-      }
-    } as unknown as typeof ResizeObserver;
-
-    try {
-      seedHolding();
-      seedSaved();
-      window.history.replaceState(null, '', '/danh-muc/#phep-tinh-da-luu');
-      render(<PortfolioScreen />);
-
-      await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
-      await waitFor(() => {
-        expect(bay.goi).toHaveBeenCalled();
-      });
-      expect(bao).not.toBeNull();
-
-      // Thị giá về, khung màn cao thêm → canh lại.
-      const truoc = bay.goi.mock.calls.length;
-      (bao as unknown as () => void)();
-      expect(bay.goi).toHaveBeenCalledTimes(truoc + 1);
-
-      // Người dùng lăn chuột → thôi giữ neo, và bộ quan sát được tháo hẳn.
-      window.dispatchEvent(new Event('wheel'));
-      expect(ngat).toHaveBeenCalled();
-    } finally {
-      globalThis.ResizeObserver = cu;
-      bay.go();
-    }
-  });
-
-  it('không có neo thì KHÔNG cuộn — mở tab Danh mục thường vẫn đứng ở đầu màn', async () => {
-    const bay = bayScrollIntoView();
-    try {
-      seedSaved();
-      render(<PortfolioScreen />);
-
-      await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
-      // Qua hẳn một nhịp khung hình — lượt cuộn (nếu có) được hẹn bằng requestAnimationFrame.
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
-      expect(bay.goi).not.toHaveBeenCalled();
-    } finally {
-      bay.go();
-    }
+    expect(screen.getByText(t('portfolio.savedEmpty'))).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Công thức 0' })).toBeTruthy();
   });
 });
 

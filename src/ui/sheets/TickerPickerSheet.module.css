@@ -94,9 +94,13 @@
 /*
  * Nhãn "đã có" của mã đang nắm giữ.
  *
- * Không khoá nút chọn: chọn lại một mã đang giữ là hợp lệ và sẽ cộng dồn vào dòng cũ. Việc của
- * nhãn này chỉ là nói ra điều đó trước khi bấm, để người dùng không tưởng mình vừa tạo dòng thứ
- * hai cùng mã.
+ * Từ 10/10/2026 nhãn này đi kèm một nút CHỌN ĐÃ KHOÁ: mã đã có trong danh mục thì không thêm lại
+ * được nữa (trước đó chọn lại là cộng dồn vào dòng cũ — xem docblock `heldCodes`). Nên nó không
+ * còn là một lời báo trước mà là lý do duy nhất giải thích vì sao nút bên cạnh xám.
+ *
+ * Giữ nguyên bộ màu trung tính, KHÔNG dùng `danger`/`warning`: mã đang giữ không phải một lỗi, và
+ * dòng cũng không làm mờ như `.itemMuted` — người dùng cần đọc rõ mã nào mình đã có, trong khi mã
+ * thiếu báo cáo là mã để mắt lướt qua.
  */
 .held {
   flex-shrink: 0;
@@ -112,9 +116,12 @@
 /*
  * Dòng của mã chưa có báo cáo dùng được.
  *
- * Làm mờ chứ KHÔNG ẩn và KHÔNG khoá nút: bảng mã sinh lúc build, một mã hôm nay thiếu quý liền
- * nhau thì quý sau công bố thêm là dùng được — ẩn vĩnh viễn một mã hợp lệ vì một file cũ là đúng
- * kiểu "im lặng bớt đi" mà FR-06 cấm. Mờ đủ để mắt lướt qua, không mờ đến mức đọc không nổi.
+ * Làm mờ chứ KHÔNG ẩn: bảng mã sinh lúc build, một mã hôm nay thiếu quý liền nhau thì quý sau
+ * công bố thêm là dùng được — ẩn vĩnh viễn một mã hợp lệ vì một file cũ là đúng kiểu "im lặng bớt
+ * đi" mà FR-06 cấm. Mờ đủ để mắt lướt qua, không mờ đến mức đọc không nổi.
+ *
+ * (Nút thì đã khoá từ 06/10/2026, theo độ chắc của nhãn — luật ở `khoaNutChon`. Câu cũ ở đây còn
+ * ghi "KHÔNG khoá nút" là sót lại từ trước quyết định ấy.)
  */
 .itemMuted {
   composes: item;
@@ -124,8 +131,9 @@
 /*
  * Nhãn "chưa có dữ liệu" — cùng hình dạng nhãn `.held` để hai loại đọc như một hệ, khác ở màu.
  *
- * Dùng bộ token `warning` chứ không `danger`: mã thiếu báo cáo không phải một lỗi, và người dùng
- * vẫn chọn được. Đây cũng đúng bộ màu mà ô nhận giá trị tự động ở màn chi tiết đang dùng.
+ * Dùng bộ token `warning` chứ không `danger`: mã thiếu báo cáo không phải một lỗi của người dùng,
+ * và khi bảng mã đã cũ thì nút vẫn bấm được (`khoaNutChon`). Đây cũng đúng bộ màu mà ô nhận giá
+ * trị tự động ở màn chi tiết đang dùng.
  */
 .unusable {
   flex-shrink: 0;

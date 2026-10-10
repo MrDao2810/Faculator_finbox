@@ -135,6 +135,77 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
 });
 
 /*
+ * Mã đã có trong danh mục — KHOÁ, không phải cộng dồn (chủ dự án chốt 10/10/2026).
+ *
+ * Trước đó mã đang giữ vẫn chọn được và chỉ mang nhãn "đã có" cùng một nhãn nút riêng "Cộng
+ * thêm"; nguyên văn yêu cầu và lý do ở bia mộ `portfolio.mergeNote` trong `vi.ts`.
+ *
+ * Nhóm này ở ĐÂY chứ không chỉ ở `PortfolioScreen.test.tsx` vì một ca không màn nào dựng nổi: màn
+ * Danh mục không truyền `markUnusableAsOf`, nên tổ hợp "vừa đang giữ VỪA chưa có báo cáo" chỉ tới
+ * được từ cấp component.
+ */
+describe('TickerPickerSheet — mã đang giữ', () => {
+  it('vắng `heldCodes` thì không dòng nào bị khoá hay dán nhãn', async () => {
+    await moSheet();
+
+    expect(screen.queryByText('đã có')).toBeNull();
+    for (const ma of ['FPT', 'HPG', 'E1VFVN30']) {
+      expect(within(dong(ma)).getByRole('button').hasAttribute('disabled')).toBe(false);
+    }
+  });
+
+  it('mã đang giữ: nút khoá, nhãn "đã có", và nút trỏ vào đúng nhãn ấy', async () => {
+    const onPick = vi.fn();
+    await moSheet({ heldCodes: new Set(['FPT']), onPick });
+
+    const nut = within(dong('FPT')).getByRole('button');
+    expect(nut.hasAttribute('disabled')).toBe(true);
+    expect(nut.getAttribute('aria-describedby')).toBe('ticker-da-co-FPT');
+    expect(within(dong('FPT')).getByText('đã có')).not.toBeNull();
+
+    /* Mã chưa giữ không bị vạ lây. */
+    expect(within(dong('HPG')).getByRole('button').hasAttribute('disabled')).toBe(false);
+    expect(within(dong('HPG')).queryByText('đã có')).toBeNull();
+  });
+
+  /* Nhãn nút không đổi theo trạng thái nữa — `ticker.pickHeld` ("Cộng thêm") đã xoá. */
+  it('nút của mã đang giữ vẫn ghi "Chọn", không có nhãn riêng', async () => {
+    await moSheet({ heldCodes: new Set(['FPT']) });
+
+    expect(screen.getAllByRole('button', { name: 'Chọn' })).toHaveLength(3);
+    expect(screen.queryByRole('button', { name: /Cộng thêm|Thêm/ })).toBeNull();
+  });
+
+  /*
+   * Vướng cả hai lý do thì `aria-describedby` phải kể cả hai, theo đúng thứ tự nhãn hiện trên
+   * dòng. Bỏ bớt một lý do là cho người dùng bàn phím nghe một nửa sự thật: họ sẽ đi tìm mã khác
+   * để thay, không biết rằng mã này còn vướng cả chuyện thiếu báo cáo.
+   */
+  it('vừa đang giữ vừa thiếu báo cáo: nút trỏ vào CẢ HAI nhãn', async () => {
+    await moSheet({ heldCodes: new Set(['E1VFVN30']), markUnusableAsOf: '2026-09-08' });
+
+    const nut = within(dong('E1VFVN30')).getByRole('button');
+    expect(nut.hasAttribute('disabled')).toBe(true);
+    expect(nut.getAttribute('aria-describedby')).toBe(
+      'ticker-da-co-E1VFVN30 ticker-chua-co-E1VFVN30',
+    );
+  });
+
+  /*
+   * Bảng mã đã cũ thì nhãn "chưa có dữ liệu" hạ giọng và nút MỞ lại (xem nhóm trên) — nhưng
+   * "đã có" thì không bao giờ là phỏng đoán: màn đọc thẳng từ danh mục trên máy người dùng. Nên
+   * nút vẫn khoá, và chỉ còn một lý do được kể.
+   */
+  it('bảng mã cũ không làm nhẹ lệnh khoá của "đã có"', async () => {
+    await moSheet({ heldCodes: new Set(['E1VFVN30']), markUnusableAsOf: '2027-06-01' });
+
+    const nut = within(dong('E1VFVN30')).getByRole('button');
+    expect(nut.hasAttribute('disabled')).toBe(true);
+    expect(nut.getAttribute('aria-describedby')).toBe('ticker-da-co-E1VFVN30');
+  });
+});
+
+/*
  * Cache quá hạn mà lượt làm mới hỏng: danh sách cũ vẫn dùng được, và không kèm câu nào.
  *
  * Câu "Đang hiện danh sách của lần tải trước, có thể đã cũ." đã bỏ 29/09/2026 theo yêu cầu chủ dự

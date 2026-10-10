@@ -436,6 +436,44 @@ none of them is cosmetic:
   attaches a formula, and the calculating happens after save, when the screen navigates. That
   label now shares a prefix with the submit button ("Thêm và mở công thức"), so any test matching
   it must anchor on "và mở".
+- **A ticker already in the portfolio cannot be added again** (10/10/2026). `TickerPickerSheet`
+  locks the "Chọn" button of every code in `heldCodes` and the "đã có" label beside it is the
+  button's `aria-describedby`; the second lock reason (no fundamentals, 06/10) stacks, so the
+  attribute is a **list** of ids. This reverses the earlier fix for the same complaint, and the
+  reversal is the point: re-adding a held code made `addHolding()` **merge** quantities and
+  recompute the average cost — correct behaviour ("buying more"), but it used to happen silently,
+  so the screen explained it in words instead (a note under the ticker field, plus "Cộng thêm"
+  labels on the sheet row and the submit button). The owner: _"mã nào đã thêm rồi thì không cho
+  thêm nữa chứ không phải hiển button 'Cộng thêm' làm gì"_. So the cure moved from prose to a
+  closed door, and `portfolio.mergeNote`, `portfolio.formMerge`, `portfolio.formMergeOpen` and
+  `ticker.pickHeld` are all gone (tombstones in `vi.ts`), as is `mergingInto` — `submitLabel`'s
+  table is 2×2 now. `addHolding()` still merges and is now the only place that does, so bringing a
+  held code back into the add form means rebuilding the submit label in the same round. Two knock-on
+  facts: changing a held holding's numbers is reachable **only** through the row's Sửa button, and
+  the add form's code never has a quote (`quotes` holds held codes only), so `hasPrice` reads a
+  missing quote as "don't know" rather than "no price" — otherwise every add would hide 8 formulas
+  under a sentence claiming a lookup that never happened.
+
+**`/danh-muc/` is TWO TABS again, "Mã · Công thức"** (10/10/2026). The owner asked for the screen
+to be split into two dedicated parts and chose tabs when told it reverses their own 14/09/2026
+call (_"bỏ tabbar đi"_). History worth keeping straight: the tab cluster was removed 14/09; the
+saved-calculations list came back 15/09 as a second block under Nắm giữ because "save, then see
+nothing" was reported as a bug; it is now the second tab. **Tab Mã** is the old `.panel` (six tiles,
+price strip, Nắm giữ, the add/edit dialog); **tab Công thức** is the "Phép tính đã lưu" block and is
+now **always built** when its tab is open, empty state included (the person chose the tab, which is
+the condition the first tab version used to allow an empty box). The two lessons of 14–15/09 stay
+load-bearing: both tabs show their count on the bar even while closed, and the anchor
+`#phep-tinh-da-luu` (`savedCalcsPath()`, the Save button's destination) opens the Công thức tab.
+Things that are easy to break: the tab is read from `?tab=cong-thuc` or that hash **inside an
+effect** (never `useSearchParams()`, same static-export reason as `?ma=`), the first render is
+always the Mã tab so it equals the static HTML, `switchTab` uses `replaceState` and passes the
+existing `history.state` through (a bare `null` strips Next's `__NA`), and only ONE tabpanel is in
+the DOM so every tab's `aria-controls` points at the single `portfolio-panel` id. Prices, the
+ticker list and the saved store live in the screen's state, not in a panel, so switching tabs never
+refetches. The old scroll-and-hold-the-anchor effect (`ResizeObserver`, `HOLD_ANCHOR_MS`) is gone:
+it existed because the block sat under Nắm giữ and prices arriving pushed it to 702/780px; on its
+own tab nothing sits above it. In tests, never match a tab by `/^Mã\b/` — JS does not count "ã" as
+a word character, so `\b` never fires there (use `tenTab()`).
 
 **"Tỷ trọng" means three different things in this product**, so the portfolio column has to say
 which one: a holding's share of total portfolio value (here), the equity and debt weights of

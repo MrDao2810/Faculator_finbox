@@ -4,6 +4,126 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Mã đã có trong danh mục thì không thêm lại được (10/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xác nhận trên màn thật.** `npm run lint`, `typecheck`,
+`format:check` xanh; `npm test` còn đúng nhóm ca hay quá hạn sẵn có (xem "Đã kiểm" dưới).
+
+### Chủ dự án giao gì
+
+> "trong phần lựa chọn mã khi thêm mã trong phần danh mục thì mã nào đã thểm rồi thì không cho
+> thêm nữa chứ không phải hiển button "Cộng thêm" làm gì. đồng thời xóa text này đi "Mã này đã có
+> trong danh mục. Thêm nữa sẽ cộng dồn số lượng và tính lại giá vốn bình quân, không tạo dòng thứ
+> hai. Muốn sửa số đang có thì huỷ form, bấm vào mã trong danh sách rồi bấm Sửa.""
+
+### Đây là ĐẢO cách chữa cũ của cùng một lỗi
+
+Thêm lại một mã đang giữ thì `addHolding()` **cộng dồn** số lượng và tính lại giá vốn bình quân —
+hành vi đúng ("mua thêm"), nhưng trước đây nó xảy ra trong im lặng, nên chủ dự án từng báo "có vẻ
+đang tạo được mã trùng nhau". Cách chữa cũ là **nói ra bằng chữ**: nhãn "đã có" trên dòng sheet,
+nhãn nút "Cộng thêm", và một câu dưới ô mã. Cách chữa mới là **đóng cửa**: mã đã có không chọn
+được, muốn đổi số thì bấm vào mã rồi bấm Sửa. Nên cả ba câu chữ kia đi theo.
+
+`addHolding()` **không** đổi — nó vẫn cộng dồn, và nay là chỗ duy nhất còn giữ hành vi ấy.
+
+### Đã đổi
+
+| File                                      | Sửa gì / vì sao                                                                                                                                                                                                                               |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui/sheets/TickerPickerSheet.tsx`         | nút của mã trong `heldCodes` nay `disabled`, nhãn luôn là "Chọn"; thêm `daGiu()` và `lyDoKhoa()` — `aria-describedby` là **danh sách** id vì một mã có thể vướng cả hai lý do (đang giữ + chưa có báo cáo); nhãn "đã có" mang `id`            |
+| `ui/sheets/TickerPickerSheet.module.css`  | viết lại comment `.held` (nay là lời từ chối, không phải lời báo trước); sửa hai comment đã sai từ 06/10 ở `.itemMuted` và `.unusable` (còn ghi "KHÔNG khoá nút" / "vẫn chọn được")                                                           |
+| `app/danh-muc/PortfolioScreen.tsx`        | xoá `mergingInto` + chỗ dựng `portfolio.mergeNote`; `submitLabel` còn **bốn** tổ hợp (giữ dạng bảng, lý do ghi tại chỗ); `hasPrice` đọc "chưa có bản ghi" là **chưa biết** chứ không phải "không có giá"                                      |
+| `app/danh-muc/PortfolioScreen.module.css` | xoá `.mergeNote` (bia mộ tại chỗ); sửa comment `.holdDetailInner` vốn trỏ sang `.mergeNote` như ví dụ của cùng thủ pháp                                                                                                                       |
+| `application/i18n/vi.ts`, `en.ts`         | xoá `portfolio.mergeNote`, `portfolio.formMerge`, `portfolio.formMergeOpen`, `ticker.pickHeld` — bia mộ có nguyên văn cả bốn câu và nguyên văn yêu cầu; viết lại comment `ticker.held`                                                        |
+| `app/danh-muc/PortfolioScreen.test.tsx`   | nhóm "thêm lại mã đang giữ" → **nhóm ca ĐẢO** "mã đang giữ thì không thêm lại được" (5 ca); `moSheetCongThuc()` chọn HPG; thêm `moSheetCongThucKhiSua()` cho nhánh thiếu thị giá; `chonMaTrongForm()` khẳng định nút không khoá trước khi bấm |
+| `ui/sheets/TickerPickerSheet.test.tsx`    | +5 ca ở tầng component, trong đó một ca không màn nào dựng nổi: "vừa đang giữ vừa thiếu báo cáo" (màn Danh mục không truyền `markUnusableAsOf`)                                                                                               |
+| `CLAUDE.md`                               | một gạch đầu dòng mới trong khối Danh mục: luật, lý do đảo, và hai hệ quả kéo theo                                                                                                                                                            |
+
+### Hai hệ quả kéo theo, không phải việc phát sinh ngoài lề
+
+1. **Trạng thái cộng dồn của form chết theo.** `form.code` ở nhánh thêm chỉ được ghi bởi `onPick`
+   của sheet, nên khoá sheet là khoá luôn đường vào. Để `mergingInto` lại thì nó là một nhánh
+   không bao giờ chạy, hứa một việc màn không còn cho làm.
+2. **`hasPrice` của sheet chọn công thức.** `quotes` chỉ chứa mã ĐANG GIỮ, nên từ nay mã ở form
+   thêm luôn không có bản ghi. Bản cũ đọc "không có bản ghi" thành "không có giá", nên sau đợt này
+   **mọi** lượt thêm mã sẽ ẩn 8 công thức kèm câu "Chưa tra được thị giá của mã này" — trong khi
+   màn chưa hề tra giá mã ấy. Câu đó mới là chỗ sai, nên `undefined` nay đọc là "chưa biết". Mã
+   thật sự thiếu thị giá vẫn vào đúng nhánh cũ qua form SỬA.
+
+### Đã kiểm
+
+- Mutation cả hai chiều: bỏ vế khoá → **5 ca đỏ** (3 ở tầng component, 2 ở tầng màn); trả nhãn
+  "Cộng thêm" về → **2 ca đỏ**. Khôi phục thì xanh lại.
+- `npm run lint` · `npm run typecheck` · `prettier --check` xanh.
+- `npm test`: 140 file, 3.249 ca. Còn đỏ đúng nhóm `FormulaDetail.test.tsx` → "WF-03 — không công
+  thức nào lọt giá trị vô nghĩa ra màn": 2 ca ở lượt một, 3 ca ở lượt hai, **khác thành viên mỗi
+  lượt**, đều là `Test timed out in 5000ms`. Chạy riêng file ấy thì **162 ca đạt**. Mỗi ca trong
+  nhóm dựng cả 111 màn chi tiết trong hạn 5 giây, nên nó quá hạn do tranh CPU khi chạy song song cả
+  bộ — không liên quan file nào của đợt này. **Chưa chạm tới**: đã có sẵn trước đợt này.
+
+### Còn lại
+
+- Chủ dự án soi màn thật: mở form thêm mã, bấm ô "Mã cổ phiếu", xem mã đang giữ có xám đúng không.
+- `npm run build` → `verify:static` → `size` → `check:chrome` vẫn chờ cổng 3000 trống (chung với
+  đợt tab ngay dưới). Đợt này không thêm khẳng định Chrome nào: nút xám và một thuộc tính
+  `aria-describedby` thì jsdom thấy đủ, không cần hình học thật.
+
+---
+
+## Danh mục tách thành hai tab "Mã · Công thức" (10/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xác nhận.** Đã xong và xanh: `npm run check` (140 file,
+3.195 ca đạt, 48 bỏ qua), SSR của `/danh-muc/` có thanh tab và tab Mã. **Chưa chạy được**: `npm run
+build` → `verify:static` → `size` → `check:chrome`, vì máy đang có dev server giữ cổng 3000 (PID 125100) và `next build` chung `.next` với `next dev` — build lúc ấy làm dev server chết với
+`Cannot find module './NNN.js'`. Cần tắt dev server rồi chạy bốn lệnh ấy.
+
+### Chủ dự án giao gì
+
+> "xem xét để cải tiến phần Danh mục của dự để tách thành 2 phần dành riêng cho Mã công thức"
+
+Hiểu là hai phần **Mã** (các mã đang nắm giữ) và **Công thức** (phép tính đã lưu). Hỏi lại hai điều,
+chủ dự án chọn: hình thức **hai tab**, nội dung tab Công thức **chỉ phép tính đã lưu**.
+
+### Đây là ĐẢO quyết định 14/09/2026
+
+Cụm tab này đã bị chủ dự án gỡ ngày 14/09/2026 (_"bỏ tabbar đi và giữ lại toàn bộ giao diện và logic
+thêm mã cổ phiếu cũ"_), rồi danh sách phép tính đã lưu quay lại ngày 15/09/2026 thành khối thứ hai
+sau khi chủ dự án báo "lưu xong không thấy đâu" là lỗi. Chủ dự án đã được nói rõ điều này trước khi
+chọn tab. Hai bài học của hai lượt ấy được giữ:
+
+- số đếm của **cả hai** tab hiện ngay trên thanh tab, kể cả tab đang đóng;
+- neo `#phep-tinh-da-luu` (`savedCalcsPath()`, nút Lưu ở màn chi tiết) mở thẳng tab Công thức.
+
+### Đã đổi
+
+| File                                      | Sửa gì / vì sao                                                                                                                                                                                                                                                                               |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/danh-muc/PortfolioScreen.tsx`        | `TabBar` (primitive có sẵn) + state `tab` + `switchTab`; tab Mã = `.panel` cũ làm tabpanel; tab Công thức = khối Phép tính đã lưu, nay **luôn dựng**, kho rỗng thì có câu hướng dẫn và link sang `/cong-thuc/`; đọc `?tab=cong-thuc` hoặc hash trong effect nạp kho (không `useSearchParams`) |
+| `app/danh-muc/PortfolioScreen.tsx`        | **xoá** effect cuộn-giữ-neo (`ResizeObserver`, `HOLD_ANCHOR_MS`, `savedRef`): nó sinh ra vì thị giá về sau đẩy khối xuống 702/780px; tab Công thức chỉ có đúng khối ấy dưới thanh tab nên không còn gì đẩy                                                                                    |
+| `app/danh-muc/PortfolioScreen.module.css` | xoá `.savedBlock` (chỉ có `scroll-margin-top` cho `scrollIntoView`), sửa comment; **không** khôi phục `.tabsWrap` — `.screen` đã có `gap`, wrapper cũ chỉ để giữ `ref` cho `scrollIntoView` mà nay không còn                                                                                  |
+| `application/i18n/vi.ts`, `en.ts`         | `portfolio.tabHoldings` ("Mã"/"Tickers"), `portfolio.tabSaved` ("Công thức"/"Formulas"), `portfolio.savedEmpty` (chữ bản cũ), `portfolio.savedEmptyAction` (mới); tombstone ghi đủ ba lần gỡ/đưa lại                                                                                          |
+| `app/danh-muc/PortfolioScreen.test.tsx`   | viết lại 6 ca giả định khối đứng dưới Nắm giữ và biến mất khi rỗng; thêm 10 ca cho cụm tab (mặc định tab Mã, số đếm hai tab, bấm tab ghi `?tab=` không thêm lịch sử, `aria-controls`, `?tab=`, neo mở tab và KHÔNG cuộn, về tab Mã bỏ hash, kho rỗng, không gọi lại Finbox, miễn trừ một ô)   |
+| `scripts/chrome-check.mjs`                | bước EN bấm sang tab "Formulas" trước khi dò; +3 khẳng định ở 360px (neo mở tab Công thức và khối nằm trong màn đầu; thanh tab không tràn ngang; bấm tab Mã gỡ khối và bỏ hash). Số khẳng định 153 → 156 (chưa xác nhận bằng lần chạy thật)                                                   |
+| `CLAUDE.md`                               | ghi cụm tab quay lại                                                                                                                                                                                                                                                                          |
+
+Không đụng: `src/core`, `src/data`, `saved-calc-store.ts`, `routes.ts`, `FormulaDetail.tsx`,
+`SaveCalcSheet.tsx`, `TabBar.tsx`. Không thêm dependency.
+
+### Bẫy đã gặp khi viết ca kiểm
+
+`/^Mã\b/` **không bao giờ khớp** tên tab "Mã 1": JS chỉ coi `[A-Za-z0-9_]` là ký tự chữ, nên giữa
+"ã" và dấu cách không có ranh giới từ. Dùng `(?:\s|$)` (helper `tenTab()` trong test).
+
+### Việc còn lại
+
+- Tắt dev server, chạy `npm run build && npm run verify:static && npm run size && npm run check:chrome`;
+  nếu số khẳng định không phải 156 thì sửa con số trong `CLAUDE.md`.
+- Chủ dự án duyệt **chữ** `portfolio.savedEmpty` / `savedEmptyAction` (bản cũ + một link, chưa ai nhìn).
+- Nhìn bằng mắt ở 360 và 1440, sáng và tối: khoảng cách giữa thanh tab và nội dung (bản cũ có thêm
+  `margin-bottom: var(--space-1)` ở wrapper, bản này không).
+
+---
+
 ## Khung "?" thò ra ngoài mép phải cửa sổ (09/10/2026)
 
 **Trạng thái: xong, `npm run check` xanh** (140 file, 3.189 ca). Đo bằng Chrome thật, hai chiều.

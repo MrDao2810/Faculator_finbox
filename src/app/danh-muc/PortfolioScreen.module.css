@@ -6,7 +6,8 @@
 }
 
 /*
- * Lớp bọc nội dung màn — từng là thân của tab "Mã", nay là thân của cả màn (cụm tab bỏ 14/09/2026).
+ * Lớp bọc thân của tab "Mã" — và là tabpanel của nó từ 10/10/2026, khi cụm tab quay lại (bỏ
+ * 14/09/2026, xem `PortfolioTab` trong `PortfolioScreen.tsx`).
  *
  * Chép lại luật giãn cách của `.screen` vì nó đứng CHEN vào giữa: sáu ô số · thanh thị giá · khối
  * Nắm giữ vốn là con TRỰC TIẾP của `.screen` và ăn `gap` của nó. Bọc chúng vào một `<div>` trần là
@@ -125,36 +126,24 @@
 }
 
 /*
- * ── Đã xoá cùng cụm tab (14/09/2026) ────────────────────────────────────────
+ * ── Phép tính đã lưu — thân của tab "Công thức" ─────────────────────────────
  *
- * `.tabsWrap` và `.list` đi theo cụm tab — chủ dự án chốt *"bỏ tabbar đi và giữ lại toàn bộ giao
- * diện và logic thêm mã cổ phiếu cũ"*. Danh sách mã có `.holdList` riêng, nên đừng thấy tên chung
- * chung mà gắn bừa vào đó — hai danh sách khác nhịp dọc.
- */
-
-/*
- * ── Phép tính đã lưu — khối thứ hai của màn (15/09/2026) ────────────────────
+ * Lịch sử: bản tab đầu (đến 14/09/2026) là một panel chiếm trọn màn, mỗi mục một dòng trôi tự do
+ * có gạch chân `--color-border`; rồi cụm tab bị gỡ, `.tabsWrap` và `.list` đi theo — nên đừng gắn
+ * bừa `.list` vào `.holdList`, hai danh sách khác nhịp dọc. Khối quay lại 15/09/2026 thành khối
+ * thứ hai dưới Nắm giữ, và từ 10/10/2026 là tab "Công thức".
  *
- * Quay lại sau khi bị gỡ cùng cụm tab, vì nút Lưu ở màn chi tiết vẫn ghi vào kho mà không còn chỗ
- * nào bày kho ra. Bản tab cũ là một panel chiếm trọn màn, mỗi mục một dòng trôi tự do có gạch chân
- * `--color-border`; luật ấy KHÔNG chép lại: nay khối đứng ngay dưới khối Nắm giữ, và hai danh sách
- * sát nhau mà khác dáng thì đọc ra như hai sản phẩm.
+ * Luật gạch chân cũ KHÔNG chép lại: hai danh sách trong cùng một màn mà khác dáng thì đọc ra như
+ * hai sản phẩm, dù nay chúng không còn hiện cùng lúc. Nên khối mượn đúng DÁNG của `.holdList`: một
+ * khung bọc cả danh sách, các mục là băng bên trong. Kẻ chia giữa hai mục là `--color-hairline`
+ * chứ không `--color-border` như `.holdRow`: đã có khung ngoài lo phần ranh giới thì kẻ trong chỉ
+ * cần tách dòng, và `hairline.test.ts` ghim đích danh bảy chỗ được phép giữ `--color-border` cho
+ * kẻ một phía — `.holdRow` có lý do riêng (mỗi dòng là một đích bấm cả dòng), dòng ở đây thì không:
+ * đích bấm là hai nút có vỏ.
  *
- * Nên nó mượn đúng DÁNG của `.holdList`: một khung bọc cả danh sách, các mục là băng bên trong.
- * Kẻ chia giữa hai mục là `--color-hairline` chứ không `--color-border` như `.holdRow`: đã có
- * khung ngoài lo phần ranh giới thì kẻ trong chỉ cần tách dòng, và `hairline.test.ts` ghim đích
- * danh bảy chỗ được phép giữ `--color-border` cho kẻ một phía — `.holdRow` có lý do riêng (mỗi dòng
- * là một đích bấm cả dòng), dòng ở đây thì không: đích bấm là hai nút có vỏ.
+ * `.savedBlock` (scroll-margin cho `scrollIntoView` tới neo) đã xoá cùng effect cuộn-giữ-neo: tab
+ * này chỉ có đúng khối ấy dưới thanh tab, không còn gì để cuộn tới.
  */
-/*
- * Chừa chỗ cho thanh trên DÍNH khi cuộn tới khối bằng neo — cùng luật `scroll-margin-top` của
- * form thêm/sửa mã. Thiếu dòng này thì `scrollIntoView({ block: 'start' })` đặt tiêu đề "PHÉP
- * TÍNH ĐÃ LƯU" ngay mép trên cửa sổ, tức nằm gọn dưới thanh trên.
- */
-.savedBlock {
-  scroll-margin-top: calc(var(--header-height) + var(--space-2));
-}
-
 .savedList {
   display: flex;
   flex-direction: column;
@@ -665,8 +654,8 @@
 /*
  * Hàng mở ra — ngày mua, beta, và hai nút hành động.
  *
- * Mặt phẳng CHÌM (`--color-paper`) trong khung trắng của danh sách — cùng thủ pháp `.mergeNote`
- * dùng trong `.form`, nên không đẻ ra kiểu mới nào.
+ * Mặt phẳng CHÌM (`--color-paper`) trong khung trắng của danh sách. Thủ pháp này trước đây dùng
+ * chung với `.mergeNote` trong `.form`; hộp ấy đã xoá 10/10/2026 nên đây là chỗ duy nhất còn lại.
  *
  * Đã đi qua hai bản sai trước khi tới đây, và cả hai đều là **cùng một lỗi**: tô khối này bằng
  * đúng token nền của thứ đang bọc nó, nên nó tàng hình. Lần đầu là paper trên nền trang (cũng
@@ -1272,22 +1261,13 @@
 }
 
 /*
- * Lời nhắc "mã này đã có, thêm nữa là cộng dồn".
+ * ⚠ `.mergeNote` đã XOÁ (10/10/2026) — hộp "mã này đã có, thêm nữa là cộng dồn".
  *
- * Không phải lỗi nên không dùng màu cảnh báo — thao tác vẫn hợp lệ. Nhưng phải nổi hơn dòng gợi
- * ý thường, vì nó đang đính chính một hiểu nhầm chứ không chỉ bổ sung thông tin.
+ * Nền `--color-paper` chìm, viền trái 2px `--color-accent`: không phải lỗi nên không dùng màu
+ * cảnh báo, nhưng nổi hơn một dòng gợi ý thường vì nó đang đính chính một hiểu nhầm. Mã đang giữ
+ * nay không thêm lại được nên form hết trạng thái cộng dồn — lý do ở bia mộ `portfolio.mergeNote`
+ * trong `vi.ts`. Thủ pháp "mặt phẳng chìm trong khung trắng" thì còn, ở `.holdDetailInner`.
  */
-.mergeNote {
-  padding: var(--space-2);
-
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-ink-soft);
-
-  background: var(--color-paper);
-  border-left: 2px solid var(--color-accent);
-  border-radius: var(--radius-sm);
-}
 
 /* Lỗi không thuộc ô nào — hiện chỉ có một ca: danh mục đã đủ MAX_HOLDINGS mã. */
 .formError {

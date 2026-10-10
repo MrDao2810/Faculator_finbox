@@ -32,10 +32,19 @@ export interface TickerPickerSheetProps {
   /** Gọi khi người dùng chọn một mã. Sheet tự đóng sau đó. */
   onPick: (ticker: TickerRef) => void;
   /**
-   * Mã đã có trong danh mục, để đánh dấu ngay trong danh sách.
+   * Mã đã có trong danh mục — dán nhãn "đã có" và **khoá nút chọn** của chúng.
    *
-   * Chọn lại một mã đang giữ là hợp lệ — nó sẽ cộng dồn vào dòng cũ. Nhưng người dùng phải biết
-   * điều đó TRƯỚC khi bấm, nếu không họ tưởng mình vừa tạo một dòng thứ hai.
+   * Chủ dự án chốt ngày 10/10/2026, ĐẢO quyết định cũ của chính chỗ này: *"mã nào đã thêm rồi thì
+   * không cho thêm nữa chứ không phải hiển button 'Cộng thêm' làm gì"*. Trước đó chọn lại một mã
+   * đang giữ là hợp lệ — `addHolding()` cộng dồn vào dòng cũ, đúng nghĩa "mua thêm" — và sheet chỉ
+   * nói ra điều đó trước khi bấm, bằng nhãn này cộng một nhãn nút riêng ("Cộng thêm").
+   *
+   * Cách chữa mới triệt hơn: hai lối đi khác nhau thì tách hẳn ra. Thêm mã là việc của form thêm
+   * mã, còn đổi số của một mã đang giữ là bấm vào mã trong danh sách rồi bấm Sửa — một lối không
+   * cần ai giải thích rằng số cũ và số mới sẽ được cộng vào nhau.
+   *
+   * Vắng mặt (màn chi tiết công thức) thì sheet không biết danh mục có gì và không khoá mã nào —
+   * ở đó chọn mã là để NẠP SỐ LIỆU, không liên quan gì tới danh mục.
    */
   heldCodes?: ReadonlySet<string>;
   /**
@@ -139,6 +148,24 @@ export function TickerPickerSheet({
    */
   const khoaNutChon = (code: string): boolean => khongDungDuoc(code) && coverage?.stale !== true;
 
+  /** Mã đã có trong danh mục — từ 10/10/2026 là một lời từ chối, xem docblock `heldCodes`. */
+  const daGiu = (code: string): boolean => heldCodes?.has(code) === true;
+
+  /**
+   * Hai lý do khoá nút, và nút phải chỉ `aria-describedby` vào ĐÚNG (những) nhãn đang hiện.
+   *
+   * Một mã có thể vướng cả hai cùng lúc (đang giữ VÀ chưa có báo cáo), nên đây là danh sách chứ
+   * không phải một id: `aria-describedby` nhận nhiều id cách nhau bằng dấu cách, và bỏ bớt một lý
+   * do là để người dùng bàn phím nghe một nửa sự thật. Rỗng thì KHÔNG đặt thuộc tính — trỏ vào một
+   * id không tồn tại thì trình đọc màn hình im lặng, tệ hơn hẳn việc không trỏ gì.
+   *
+   * Id lấy theo mã nên không cần `useId`, và không hai dòng nào trùng id.
+   */
+  const lyDoKhoa = (code: string): string[] => [
+    ...(daGiu(code) ? [`ticker-da-co-${code}`] : []),
+    ...(khoaNutChon(code) ? [`ticker-chua-co-${code}`] : []),
+  ];
+
   /**
    * Lọc bỏ dấu, và **mã khớp đầu chuỗi đứng trước**.
    *
@@ -241,12 +268,14 @@ export function TickerPickerSheet({
                   <span className={styles.name}>{ticker.name}</span>
 
                   {/*
-                    Mã đang giữ vẫn chọn được — nó sẽ cộng dồn vào dòng cũ, đó là hành vi đúng.
-                    Nhưng phải nói ra TRƯỚC khi bấm, nếu không người dùng tưởng vừa tạo dòng thứ
-                    hai cùng mã. Nhãn nút cũng đổi theo, để đích bấm không hứa sai.
+                    Mã đang giữ: nhãn này là LÝ DO nút bên cạnh xám, không còn là lời báo trước về
+                    việc cộng dồn (10/10/2026 — xem docblock `heldCodes`). `id` để nút khoá trỏ
+                    `aria-describedby` vào đây, cùng khuôn với nhãn "chưa có dữ liệu" ngay dưới.
                   */}
-                  {heldCodes?.has(ticker.code) === true && (
-                    <span className={styles.held}>{t('ticker.held')}</span>
+                  {daGiu(ticker.code) && (
+                    <span className={styles.held} id={`ticker-da-co-${ticker.code}`}>
+                      {t('ticker.held')}
+                    </span>
                   )}
 
                   {/*
@@ -256,8 +285,7 @@ export function TickerPickerSheet({
 
                     `id` để nút khoá trỏ `aria-describedby` vào đây: một nút xám không giải thích
                     gì thì người dùng bàn phím và trình đọc màn hình chỉ nghe "Chọn, không dùng
-                    được" mà không biết vì sao. Lấy theo mã nên không cần `useId`, và không hai
-                    dòng nào trùng id.
+                    được" mà không biết vì sao. Xem `lyDoKhoa` phía trên.
                   */}
                   {khongDungDuoc(ticker.code) && (
                     <span className={styles.unusable} id={`ticker-chua-co-${ticker.code}`}>
@@ -265,18 +293,27 @@ export function TickerPickerSheet({
                     </span>
                   )}
 
+                  {/*
+                    Nhãn nút KHÔNG đổi theo trạng thái nữa — luôn là "Chọn". Mã đang giữ thì nút
+                    xám, và nhãn "đã có" ngay cạnh nói vì sao; một nhãn riêng ("Cộng thêm") sẽ hứa
+                    một việc nút không còn làm. Khoá chứ không ẩn, cùng lý do đã ghi cho mã thiếu
+                    báo cáo: cột nút thẳng hàng thì mắt dò cả danh sách bằng một đường.
+                  */}
                   <Button
                     variant="secondary"
                     size="sm"
-                    {...(khoaNutChon(ticker.code)
-                      ? { disabled: true, 'aria-describedby': `ticker-chua-co-${ticker.code}` }
+                    {...(lyDoKhoa(ticker.code).length > 0
+                      ? {
+                          disabled: true,
+                          'aria-describedby': lyDoKhoa(ticker.code).join(' '),
+                        }
                       : {})}
                     onClick={() => {
                       onPick(ticker);
                       close();
                     }}
                   >
-                    {heldCodes?.has(ticker.code) === true ? t('ticker.pickHeld') : t('ticker.pick')}
+                    {t('ticker.pick')}
                   </Button>
                 </li>
               ))}

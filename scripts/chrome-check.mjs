@@ -1859,9 +1859,9 @@ window.__themeLog = [];
    * Phép kiểm này gieo thẳng một bản lưu mang tên TIẾNG VIỆT vào kho, đúng như bản lưu cũ nằm sẵn
    * trên máy người dùng. Khối dò ở trên không thấy được ca này: máy Chrome của nó có kho rỗng.
    *
-   * Không còn bước bấm sang tab "Công thức": cụm tab bỏ từ 14/09/2026, và danh sách phép tính đã
-   * lưu quay lại ngày 15/09/2026 thành khối thứ hai nằm thẳng trên màn. Bước bấm cũ dò mọi nút có
-   * chữ "Công thức" — giữ lại thì nó có thể bấm nhầm một nút khác trùng chữ.
+   * Bước bấm sang tab "Công thức" (EN: "Formulas") QUAY LẠI ngày 10/10/2026 cùng cụm tab. Bản cũ
+   * dò mọi nút có chữ "Công thức" rồi bấm — nên nó từng có thể bấm nhầm một nút khác trùng chữ.
+   * Nay chỉ dò trong `[role="tab"]`, nơi chỉ có đúng hai nút.
    */
   await evaluate(`(() => {
     const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
@@ -1878,6 +1878,14 @@ window.__themeLog = [];
     return true;
   })()`);
   await open('/danh-muc/');
+  await waitFor(`document.querySelectorAll('[role="tab"]').length === 2`);
+  await evaluate(`(() => {
+    const nut = [...document.querySelectorAll('[role="tab"]')].find((b) =>
+      (b.textContent ?? '').startsWith('Formulas'),
+    );
+    if (nut !== undefined) nut.click();
+    return true;
+  })()`);
 
   const tenDaLuu = await evaluate(`(async () => {
     // Kho đọc trong effect — chờ khối dựng xong rồi mới đọc chữ.
@@ -1895,6 +1903,72 @@ window.__themeLog = [];
     'tên phép tính đã lưu dựng lại theo ngôn ngữ — bản lưu cũ bằng tiếng Việt cũng đổi',
     coTenEn && !conTenVi,
     coTenEn ? 'hiện "Margin of safety · 25/08/2026"' : 'không thấy tên đã dịch trong danh sách',
+  );
+
+  /*
+   * ── Cụm tab Mã · Công thức ở khổ 360 (10/10/2026) ──────────────────────────────────────────
+   *
+   * Đích của nút Lưu ở màn chi tiết là `/danh-muc/#phep-tinh-da-luu`. Bản khối-thứ-hai phải cuộn
+   * tới neo và giữ nó bằng `ResizeObserver` vì thị giá về sau đẩy khối xuống 702/780px. Nay neo chỉ
+   * cần MỞ ĐÚNG TAB, và tab Công thức có đúng khối ấy dưới thanh tab — nhưng "không còn gì để đẩy"
+   * là một suy luận, nên số đo trên Chrome thật mới là thứ khoá nó.
+   *
+   * Điều hướng tới URL KHÁC trang hiện tại (đang là `?tab=cong-thuc` do lượt bấm ở trên ghi vào):
+   * một lệnh navigate chỉ đổi hash là điều hướng cùng tài liệu, không tải lại, và React sẽ không
+   * đọc lại neo — phép kiểm xanh giả.
+   */
+  await open('/danh-muc/#phep-tinh-da-luu');
+  const neo = await evaluate(`(async () => {
+    for (let i = 0; i < 30 && !document.getElementById('phep-tinh-da-luu'); i += 1) {
+      await new Promise((d) => setTimeout(d, 100));
+    }
+    const khoi = document.getElementById('phep-tinh-da-luu');
+    const chon = [...document.querySelectorAll('[role="tab"]')].find(
+      (b) => b.getAttribute('aria-selected') === 'true',
+    );
+    const thanh = document.querySelector('[role="tablist"]');
+    return {
+      coKhoi: khoi !== null,
+      tabChon: chon === undefined ? '' : (chon.textContent ?? ''),
+      mepTren: khoi === null ? -1 : Math.round(khoi.getBoundingClientRect().top),
+      cao: window.innerHeight,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      thanhPhai: thanh === null ? -1 : Math.round(thanh.getBoundingClientRect().right),
+      rong: window.innerWidth,
+    };
+  })()`);
+
+  check(
+    '360 · neo #phep-tinh-da-luu mở thẳng tab Công thức, khối nằm trong màn đầu',
+    neo.coKhoi === true &&
+      neo.tabChon.startsWith('Formulas') &&
+      neo.mepTren >= 0 &&
+      neo.mepTren < neo.cao,
+    `tab "${String(neo.tabChon)}" · mép trên khối ${String(neo.mepTren)}/${String(neo.cao)}px`,
+  );
+
+  check(
+    '360 · thanh tab Mã · Công thức nằm trọn trong màn, không làm trang tràn ngang',
+    neo.tran === false && neo.thanhPhai > 0 && neo.thanhPhai <= neo.rong,
+    `mép phải thanh tab ${String(neo.thanhPhai)}/${String(neo.rong)}px`,
+  );
+
+  const veMa = await evaluate(`(async () => {
+    const nut = [...document.querySelectorAll('[role="tab"]')].find((b) =>
+      (b.textContent ?? '').startsWith('Tickers'),
+    );
+    if (nut !== undefined) nut.click();
+    await new Promise((d) => setTimeout(d, 300));
+    return {
+      hash: location.hash,
+      conKhoi: document.getElementById('phep-tinh-da-luu') !== null,
+    };
+  })()`);
+
+  check(
+    'bấm tab Mã thì khối phép tính đã lưu biến đi và neo bị bỏ khỏi URL',
+    veMa.conKhoi === false && veMa.hash === '',
+    `hash "${String(veMa.hash)}" · khối ${veMa.conKhoi === true ? 'còn' : 'đã gỡ'}`,
   );
 
   await evaluate(`localStorage.removeItem('ffb.saved.v1'), true`);

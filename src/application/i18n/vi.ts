@@ -917,22 +917,28 @@ export const vi = {
   'portfolio.formSave': 'Lưu thay đổi',
 
   /*
-   * Thêm lại một mã đang giữ thì `addHolding()` CỘNG DỒN vào dòng cũ chứ không tạo dòng thứ hai
-   * — hành vi đúng ("thêm FPT lần nữa" = mua thêm), nhưng trước đây nó xảy ra trong im lặng nên
-   * người dùng tưởng màn đang cho tạo mã trùng. Nhãn nút đổi theo luôn: hứa đúng việc sắp làm,
-   * ngay tại chỗ người ta đọc kỹ nhất.
-   */
-  'portfolio.mergeNote':
-    'Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng và tính lại giá vốn bình quân, không tạo dòng thứ hai. Muốn sửa số đang có thì huỷ form, bấm vào mã trong danh sách rồi bấm Sửa.',
-  'portfolio.formMerge': 'Cộng thêm vào mã đã có',
-  /*
-   * Nhãn nút khi VỪA cộng dồn VỪA mở công thức.
+   * ── Cả BA khoá "cộng dồn" đã XOÁ (10/10/2026) ──────────────────────────────────────────────
    *
-   * Không gộp vào `formSubmitOpen` ("Thêm và mở công thức"): chữ "Thêm" ở đó hứa một dòng mới,
-   * mà việc sắp xảy ra là cộng vào dòng đã có. Đây đúng là lý do `formMerge` ra đời — hứa sai
-   * ngay trên đích bấm, chỗ người ta đọc kỹ nhất — nên nhánh có công thức phải giữ nguyên luật ấy.
+   * `portfolio.mergeNote` — "Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng và tính
+   * lại giá vốn bình quân, không tạo dòng thứ hai. Muốn sửa số đang có thì huỷ form, bấm vào mã
+   * trong danh sách rồi bấm Sửa."
+   * `portfolio.formMerge` — "Cộng thêm vào mã đã có" (nhãn nút lưu)
+   * `portfolio.formMergeOpen` — "Cộng thêm và mở công thức" (nhãn nút lưu, nhánh có công thức)
+   *
+   * Chủ dự án chốt: *"mã nào đã thêm rồi thì không cho thêm nữa chứ không phải hiển button 'Cộng
+   * thêm' làm gì"*, và chỉ đích danh câu `mergeNote` để bỏ. Sheet chọn mã nay KHOÁ nút "Chọn" của
+   * mã đang giữ (`TickerPickerSheet`), nên `form.code` ở form THÊM không còn đường nào nhận một
+   * mã đã có — trạng thái cộng dồn của form tắt theo, và cả ba câu trên hết chỗ hiện.
+   *
+   * Ba câu ấy sinh ra để chữa một lỗi thật: thao tác THÀNH CÔNG nhưng làm việc khác điều người
+   * dùng tưởng (thêm 50 CP rồi thấy dòng cũ nhảy lên 150 CP). Cách chữa mới triệt hơn — không
+   * cho xảy ra, thay vì giải thích sau khi đã xảy ra. Muốn đổi số của một mã đang giữ thì bấm
+   * vào mã trong danh sách rồi bấm Sửa, và `ticker.held` là chỗ nói mã nào đã có.
+   *
+   * ⚠ Nếu có ngày cho chọn lại mã đang giữ thì phải dựng lại NHÃN NÚT cùng lúc: `addHolding()`
+   * vẫn cộng dồn (xem `portfolio-store.ts`), nên một nút ghi "Thêm vào danh mục" sẽ hứa sai ngay
+   * trên đích bấm — đúng lỗi mà `formMerge` từng ra đời để chữa.
    */
-  'portfolio.formMergeOpen': 'Cộng thêm và mở công thức',
 
   /*
    * Câu lỗi của form.
@@ -1047,16 +1053,28 @@ export const vi = {
     'Chưa tra được thị giá của mã này, nên các công thức cần giá đã bị lược bớt hoặc điền ít ô hơn.',
 
   /*
-   * ── Khối "Phép tính đã lưu" ở màn Danh mục ──────────────────────────────────
+   * ── Cụm tab "Mã · Công thức" và khối "Phép tính đã lưu" ở màn Danh mục ───────
    *
-   * Ba khoá của cụm tab đã XOÁ hẳn (14/09/2026): `tabHoldings` · `tabSaved` · `savedEmpty`. Chủ dự
-   * án bỏ cụm tab: *"bỏ tabbar đi và giữ lại toàn bộ giao diện và logic thêm mã cổ phiếu cũ"*.
+   * Lịch sử của cụm tab, để ai thấy ba khoá `tab*`/`savedEmpty` đừng tưởng đó là đồ cũ bỏ sót:
    *
-   * Bốn khoá dưới đây từng xoá cùng lượt ấy rồi QUAY LẠI (15/09/2026), kèm một khoá tiêu đề mới:
-   * nút Lưu ở 111 màn chi tiết vẫn ghi vào kho mà không còn chỗ nào bày kho ra, và chủ dự án báo
-   * đó là lỗi. Danh sách nay là khối thứ hai của màn, không tab. `savedEmpty` không quay lại vì
-   * khối chỉ dựng khi kho có mục — xem chú thích cạnh khối trong `PortfolioScreen.tsx`.
+   *   - 14/09/2026: ba khoá `tabHoldings` · `tabSaved` · `savedEmpty` bị XOÁ hẳn. Chủ dự án bỏ cụm
+   *     tab: *"bỏ tabbar đi và giữ lại toàn bộ giao diện và logic thêm mã cổ phiếu cũ"*.
+   *   - 15/09/2026: bốn khoá `saved*` dưới đây quay lại kèm khoá tiêu đề mới — nút Lưu ở 111 màn
+   *     chi tiết vẫn ghi vào kho mà không còn chỗ nào bày kho ra, và chủ dự án báo đó là lỗi. Danh
+   *     sách thành khối thứ hai của màn, không tab; `savedEmpty` không quay lại vì khối chỉ dựng
+   *     khi kho có mục.
+   *   - 10/10/2026: chủ dự án yêu cầu tách màn thành HAI PHẦN riêng, và chọn hình thức tab. Ba
+   *     khoá `tabHoldings` · `tabSaved` · `savedEmpty` quay lại, thêm `savedEmptyAction`. Ô rỗng
+   *     đúng chỗ ở đây vì người dùng chủ động bấm sang tab — điều kiện bản tab đầu tiên đã dùng.
+   *
+   * Nhãn tab là MỘT chữ mỗi tab ("Mã", "Công thức") vì số đếm đứng ngay sau; nhãn dài hơn thì thanh
+   * tab tràn ở 360px.
    */
+  'portfolio.tabHoldings': 'Mã',
+  'portfolio.tabSaved': 'Công thức',
+  'portfolio.savedEmpty':
+    'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
+  'portfolio.savedEmptyAction': 'Mở danh sách công thức',
   'portfolio.savedTitle': 'Phép tính đã lưu',
   'portfolio.savedOpen': 'Xem',
   'portfolio.savedRemove': 'Xoá',
@@ -1081,7 +1099,17 @@ export const vi = {
   'ticker.searchLabel': 'Tìm mã hoặc tên doanh nghiệp',
   'ticker.searchPlaceholder': 'FPT, Hoà Phát…',
   'ticker.pick': 'Chọn',
-  // Mã đang giữ vẫn chọn được (sẽ cộng dồn), nên đây là NHÃN chứ không phải lời từ chối.
+  /*
+   * Nhãn của mã ĐANG GIỮ, và từ 10/10/2026 nó là LỜI TỪ CHỐI chứ không còn là lời báo trước.
+   *
+   * Trước đó mã đang giữ vẫn chọn được — chọn lại là cộng dồn vào dòng cũ — và nhãn này chỉ nói
+   * ra điều đó trước khi bấm. Chủ dự án chốt ngược: *"mã nào đã thêm rồi thì không cho thêm nữa
+   * chứ không phải hiển button 'Cộng thêm' làm gì"*. Nay nút bên cạnh xám, và nhãn này là thứ
+   * duy nhất nói vì sao, nên nó cũng là `aria-describedby` của nút ấy.
+   *
+   * Vẫn chỉ hai chữ: dòng đã có mã, tên doanh nghiệp và nút chọn, ở khổ 360px. "đã có" đứng cạnh
+   * một nút xám trong sheet mở ra từ form THÊM MÃ thì không còn chỗ nào mà hiểu lệch.
+   */
   'ticker.held': 'đã có',
   /*
    * Nhãn cạnh mã chưa có báo cáo dùng được. Ngắn hết mức: nó đứng trong một dòng đã có mã, tên
@@ -1095,7 +1123,13 @@ export const vi = {
    */
   'ticker.noData': 'chưa có dữ liệu',
   'ticker.noDataStale': 'có thể chưa có dữ liệu',
-  'ticker.pickHeld': 'Cộng thêm',
+  /*
+   * ⚠ `ticker.pickHeld` ("Cộng thêm") đã XOÁ 10/10/2026 — nhãn nút của mã đang giữ.
+   *
+   * Cùng quyết định với ba khoá `portfolio.*merge*` (bia mộ ở trên, có nguyên văn yêu cầu): mã
+   * đang giữ không thêm được nữa, nên nút giữ nhãn "Chọn" và chỉ xám đi. Một nhãn riêng ở đây sẽ
+   * hứa một việc mà nút không còn làm.
+   */
   'ticker.loading': 'Đang tải danh sách mã…',
   'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
   /*

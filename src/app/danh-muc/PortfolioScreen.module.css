@@ -83,7 +83,7 @@
 }
 
 /*
- * Dòng tiêu đề khối: tiêu đề + số đếm bên trái, ô tìm và nút hành động chính dạt phải.
+ * Dòng tiêu đề khối: tiêu đề bên trái, ô tìm và nút hành động chính dạt phải.
  *
  * Flex xuống dòng được chứ không lưới cố định: ba mẩu có bề rộng tự nhiên khác hẳn nhau, và khi cột
  * phải hẹp (1024px) ô tìm phải xuống hàng thay vì đè lên nút. `.headTools` có `margin-left: auto` nên
@@ -95,19 +95,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2) var(--space-3);
-}
-
-.titleGroup {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.titleCount {
-  font-size: var(--text-sm);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-muted);
 }
 
 .headTools {
@@ -217,6 +204,61 @@
 .addButton:hover {
   background: var(--color-selected-strong);
   border-color: var(--color-selected-strong);
+}
+
+/*
+ * ── Hai cột GIÓNG MÉP TRÊN: thẻ tab bên trái và bảng bên phải bắt đầu cùng một độ cao ───────────
+ *
+ * Chủ dự án khoanh chỗ lệch (12/10/2026): thẻ tab đứng cao hơn bảng 12–13px. Cả hai cột cùng là
+ * "một dòng tiêu đề + khe `--space-3` + thẻ", nên chúng lệch đúng bằng độ chênh của hai dòng tiêu đề:
+ * bên trái chỉ có chữ (~31px), bên phải có ô tìm và nút 44px đội dòng lên 44px.
+ *
+ * Cách sửa do chủ dự án chỉ định: THU NHỎ ô tìm và nút. Cả hai về 36px (ô tìm qua prop `compact` của
+ * `SearchBox`), và hai dòng tiêu đề cùng nhận `min-height: 36px` — nên mép trên của thẻ tab và của bảng
+ * trùng nhau dù chữ tiêu đề đổi cỡ. Ô tìm cũng hẹp lại (trước co giãn tới 22rem).
+ *
+ * Chỉ từ 1024px: dưới đó hai cột xếp chồng nên không có gì để gióng, và nút phải giữ 44px cho tay chạm.
+ * Ở khổ này nút vẫn có vùng chạm 44px nhờ `::after` (NFR-USA-01), cùng cách với `.rowLink`.
+ *
+ * Khai SAU `.sideTitle`, `.blockHead`, `.search` và `.addButton`: cùng một lớp đơn, thứ tự file quyết định.
+ */
+@media (min-width: 1024px) {
+  .sideTitle {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+  }
+
+  .blockHead {
+    min-height: 36px;
+  }
+
+  /*
+   * `width` chứ không `flex-basis`: `.headTools` tự co theo nội dung, và phần đóng góp bề ngang của một
+   * mục không-giãn bị kẹp ở max-content của nó (ô `<input>` mặc định chỉ ~180px). Khai 13.5rem bằng
+   * `flex-basis` thì khay hẹp hơn tổng hai mục, và `flex-wrap` đẩy nút xuống hàng thứ hai — dòng tiêu
+   * đề cao 80px thay vì 36px.
+   */
+  .search {
+    flex: 0 1 auto;
+    width: 13.5rem;
+  }
+
+  .addButton {
+    position: relative;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+  }
+
+  .addButton::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
 }
 
 /*

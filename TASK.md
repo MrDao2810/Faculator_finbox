@@ -34,6 +34,50 @@ nằm trong ô.
   1280px); đo lại `scrollWidth === clientWidth` ở 1440 và 1024.
 - Các mục "chip lọc theo mã", "sắp xếp" và giả định số 7 ở phần dưới của mục này **không còn đúng**.
 
+**Sửa tiếp lần ba, cùng ngày:** chủ dự án khoanh con số "6 / 50" cạnh "Mã nắm giữ" và con số "7" cạnh "Phép
+tính đã lưu", bảo **xoá cả hai**.
+
+- `PortfolioScreen.tsx`: bỏ hai `<span>` số đếm, khối bọc `.titleGroup`, và `holdCount` / `holdCountAria` /
+  `savedCountText`; mỗi `<h2>` đứng một mình trong dòng tiêu đề.
+- `PortfolioScreen.module.css`: bỏ `.titleGroup`, `.titleCount`.
+- `vi.ts`, `en.ts`: xoá `portfolio.holdingsCountAria`, có bia mộ.
+- `PortfolioScreen.test.tsx`: ca "số đếm 5 / 50" thay bằng ca ghim việc bỏ (tiêu đề hai tab đứng một mình); ca
+  "không khớp mã nào" nay kiểm số đếm trên tab. Vẫn 108 ca.
+- **Hệ quả:** số mã và số phép tính chỉ còn trên tab ở cột trái. **Trần 50 mã không còn hiện thường trực ở
+  đâu**, chỉ câu `portfolio.errFull` nói ra lúc chạm trần. Dòng "số mã nằm ở tab và ở 5 / 50" ở phần dưới của
+  mục này không còn đúng.
+- `npm run check` xanh (141 file, 3.225 ca); chụp lại hai tab ở 1440px. `check:chrome` chưa chạy lại sau ba
+  lượt sửa tiếp (cần build trên bản sao).
+
+**Sửa tiếp lần bốn, cùng ngày:** hai yêu cầu của chủ dự án.
+
+1. _"sửa 'Mã nắm giữ' thành Mã, sửa 'Phép tính đã lưu' thành Công thức. cả ở 2 tab luôn"_
+   - `vi.ts`, `en.ts`: `portfolio.holdings` → 'Mã' ('Tickers'), `portfolio.savedTitle` → 'Công thức' ('Formulas').
+     Hai khoá này vừa là nhãn tab vừa là `<h2>`, nên đổi một chỗ là đổi cả hai.
+   - **Đổi theo, ngoài lời giao:** `save.nameHint` và `save.done` gọi tên chỗ này ("Đã lưu vào Danh mục › Phép
+     tính đã lưu.") nên nay là "… › Công thức." / "Tên hiện ở tab Công thức của màn Danh mục." — không đổi thì
+     chúng chỉ đường tới một cái tên không còn trên màn. **Giữ nguyên:** `data.saved` ("Phép tính đã lưu") ở
+     màn Cài đặt và chú thích ẩn của bảng — hai chỗ ấy tả loại dữ liệu, không gọi tên tab.
+   - `PortfolioScreen.test.tsx`: 53 chỗ đổi theo nhãn (chuỗi dò, tên ca, chú thích). `chrome-check.mjs`: tab EN
+     dò bằng 'Formulas' / 'Tickers'.
+   - Cần biết: "Mã" và "Công thức" nay trùng chữ với tiêu đề cột đầu của chính bảng bên dưới, và "Công thức"
+     trùng mục trên thanh điều hướng.
+2. _"điều chỉnh để gióng cho 2 cái này đều nhau. giảm kích thước của ô tìm kiếm và thêm mã, cả ở tab Mã lẫn
+   Công thức"_ — thẻ tab bên trái đứng cao hơn bảng bên phải 12px vì dòng tiêu đề bên phải bị ô tìm và nút 44px
+   đội lên.
+   - `ui/browse/SearchBox.tsx`, `.module.css`: prop `compact` (ô cao 36px, chữ `--text-sm`, nút xoá 28px có vùng
+     chạm 44px). +2 ca.
+   - `PortfolioScreen.module.css`: khối `@media (min-width: 1024px)` mới — hai dòng tiêu đề cùng `min-height:
+36px`, nút "Thêm mã" / "Tính công thức mới" cao 36px (vùng chạm 44px bằng `::after`), ô tìm rộng 216px
+     (trước co giãn tới 352px).
+   - **Chỉ từ 1024px.** Dưới đó hai cột xếp chồng nên không có gì để gióng, và ô tìm, nút giữ 44px cho tay chạm.
+   - Đo bằng Chrome ở 1440 và 1024, cả hai tab: mép trên thẻ tab = mép trên bảng (125px = 125px), tâm chữ
+     "Danh mục" = tâm tiêu đề bên phải, trang không tràn ngang.
+   - Vấp một lần: khai bề rộng ô tìm bằng `flex-basis` làm nút rớt xuống hàng hai (dòng tiêu đề cao 80px); đổi
+     sang `width` — lý do ghi ở CSS.
+
+- `npm run check` xanh: 141 file, **3.227 ca**. `check:chrome` vẫn chưa chạy lại.
+
 ### Chủ dự án giao gì
 
 > "sau đây là thiết kế mới dành cho phần danh mục. đọc và điều chỉnh lại."

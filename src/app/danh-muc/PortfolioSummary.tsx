@@ -28,7 +28,7 @@ import styles from './PortfolioSummary.module.css';
  *    dò con số bằng `findByText(nhãn).parentElement`; bọc nhãn vào một khối riêng là mười bốn ca đỏ
  *    mà không ca nào nói được lý do thật.
  *
- * Số mã (`summary.count`) KHÔNG còn ở đây: nó nằm ở số đếm trên tab và ở "5 / 50" cạnh tiêu đề bảng.
+ * Số mã (`summary.count`) KHÔNG còn ở đây: nó nằm ở số đếm trên tab.
  */
 
 /** Chuỗi cỡ chữ co theo độ dài — xem `.heroValue` trong CSS. */
@@ -146,7 +146,7 @@ export interface HoldingsSummaryProps {
   footer: ReactNode;
 }
 
-/** Thẻ tóm tắt của tab Mã nắm giữ. */
+/** Thẻ tóm tắt của tab Mã. */
 export function HoldingsSummary({
   totalValue,
   totalCost,
@@ -231,7 +231,7 @@ export interface SavedSummaryProps {
   lastSaved: string | null;
 }
 
-/** Thẻ tóm tắt của tab Phép tính đã lưu. */
+/** Thẻ tóm tắt của tab Công thức. */
 export function SavedSummary({ count, tickers, formulas, reload, lastSaved }: SavedSummaryProps) {
   const t = useT();
 

@@ -287,7 +287,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.xirr': 'Portfolio XIRR',
   /* Mười ba khoá đã xoá ngày 12/10/2026 (thiết kế hai cột) — danh sách và lý do ở `vi.ts`. */
   'portfolio.hiddenByLevel': 'advanced tile(s) hidden',
-  'portfolio.holdings': 'Holdings',
+  'portfolio.holdings': 'Tickers',
   /* Tiêu đề cột của bảng Nắm giữ — xem `vi.ts`. */
   'portfolio.colCode': 'Ticker',
   'portfolio.colShares': 'Shares',
@@ -301,7 +301,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'Holdings with no market price yet are left out of the total, so weights are measured against the priced part of the portfolio.',
   'portfolio.tableCaption': 'Tickers you hold',
   'portfolio.searchTicker': 'Search tickers',
-  'portfolio.holdingsCountAria': '{n} of {max} tickers',
+  /* `portfolio.holdingsCountAria` đã xoá 12/10/2026 — lý do ở `vi.ts`. */
   'portfolio.noMatch': 'No ticker matches.',
   'portfolio.sideTitle': 'Portfolio',
   'portfolio.add': 'Add ticker',
@@ -376,7 +376,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.savedEmpty':
     'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
   'portfolio.savedEmptyAction': 'Browse formulas',
-  'portfolio.savedTitle': 'Saved calculations',
+  'portfolio.savedTitle': 'Formulas',
   'portfolio.savedOpen': 'Open',
   'portfolio.savedReload': 'Reload',
   'portfolio.savedRemove': 'Delete',
@@ -544,10 +544,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'save.title': 'Save to portfolio',
   'save.subtitle': 'Keep these inputs and this result to reopen later',
   'save.nameLabel': 'Name this calculation',
-  'save.nameHint': 'The name appears under Saved calculations on the Portfolio screen.',
+  'save.nameHint': 'The name appears on the Formulas tab of the Portfolio screen.',
   'save.suggestions': 'Suggested names',
   'save.submit': 'Save to portfolio',
-  'save.done': 'Saved to Portfolio › Saved calculations.',
+  'save.done': 'Saved to Portfolio › Formulas.',
   'save.goToPortfolio': 'View in portfolio',
   'save.errEmpty': 'Give it a name first — an unnamed entry is one you will never find again.',
   'save.errDuplicate':

@@ -83,3 +83,39 @@
 .clear:hover {
   background: var(--color-sunken);
 }
+
+/*
+ * ── Bản GỌN (`compact`) — chỉ từ 1024px ──────────────────────────────────────────────────────
+ *
+ * Ô cao 36px, chữ `--text-sm`: để một ô tìm đứng cùng hàng với tiêu đề mà không đội hàng ấy lên 44px.
+ * Trong `@media` chứ không vô điều kiện: dưới 1024px là khổ chạm tay (ô phải đủ 44px, NFR-USA-01) và
+ * iOS phóng to cả trang khi chạm vào ô nhập có chữ dưới 16px.
+ *
+ * Nút xoá co còn 28px cho vừa ô, vùng chạm vẫn 44px nhờ `::after`. Khai SAU `.control` / `.input` /
+ * `.clear` vì cùng một lớp đơn ở vế phải — đứng trước là thua theo thứ tự file.
+ */
+@media (min-width: 1024px) {
+  .compact .control {
+    min-height: 36px;
+  }
+
+  .compact .input {
+    font-size: var(--text-sm);
+  }
+
+  .compact .clear {
+    position: relative;
+    width: 28px;
+    height: 28px;
+  }
+
+  .compact .clear::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    transform: translate(-50%, -50%);
+  }
+}

@@ -30,6 +30,14 @@ export interface SearchBoxProps {
   label?: string;
   /** Chữ mờ trong ô khi trống. Mặc định `search.placeholder`. */
   placeholder?: string;
+  /**
+   * Bản GỌN: ô cao 36px và chữ nhỏ hơn, CHỈ từ khổ 1024px (xem `.compact` trong CSS).
+   *
+   * Dành cho ô tìm đứng cùng hàng với một tiêu đề, nơi ô 44px làm cả hàng cao hơn chữ — màn Danh mục
+   * cần hàng ấy cao bằng nhãn cột trái để mép trên hai cột thẳng nhau. Dưới 1024px ô giữ nguyên 44px
+   * và cỡ chữ gốc: đó là khổ chạm tay, và iOS tự phóng to trang khi ô nhập có chữ dưới 16px.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -53,6 +61,7 @@ export function SearchBox({
   inputRef,
   label,
   placeholder,
+  compact = false,
 }: SearchBoxProps) {
   const inputId = useId();
   const ownRef = useRef<HTMLInputElement>(null);
@@ -60,7 +69,7 @@ export function SearchBox({
   const t = useT();
 
   return (
-    <div className={styles.field}>
+    <div className={compact ? `${styles.field} ${styles.compact}` : styles.field}>
       <label className="visually-hidden" htmlFor={inputId}>
         {label ?? t('search.label')}
       </label>

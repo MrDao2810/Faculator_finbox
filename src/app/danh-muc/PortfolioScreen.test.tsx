@@ -113,17 +113,17 @@ async function moManNangCao(): Promise<void> {
 }
 
 /**
- * Tiêu đề của khối Nắm giữ — `<h2>` "Mã nắm giữ".
+ * Tiêu đề của khối Nắm giữ — `<h2>` "Mã".
  *
- * Tra bằng VAI heading chứ không bằng chữ: từ 12/10/2026 nhãn của tab dọc cũng là "Mã nắm giữ" (cùng
- * một khoá i18n), nên `findByText('Mã nắm giữ')` thấy hai phần tử. Trước đó chữ là "Nắm giữ" và chỉ
- * có `<h2>` mang nó.
+ * Tra bằng VAI heading chứ không bằng chữ: chữ "Mã" nằm ở BA chỗ — `<h2>` này, nhãn của tab dọc
+ * (cùng một khoá i18n) và tiêu đề cột đầu của bảng — nên `findByText('Mã')` thấy ba phần tử. Chữ đã
+ * đi qua "Nắm giữ" → "Mã nắm giữ" (sáng 12/10/2026) → "Mã" (chiều cùng ngày, theo chủ dự án).
  *
  * Không còn `moChiTiet()` ở đây: bảng bỏ hàng mở rộng (12/10/2026), Sửa và Bỏ mã là hai nút biểu
  * tượng ngay trên dòng, nên không có khối nào cần mở trước khi chạm tới chúng.
  */
 async function tieuDeNamGiu(): Promise<HTMLElement> {
-  return screen.findByRole('heading', { name: 'Mã nắm giữ' });
+  return screen.findByRole('heading', { name: 'Mã' });
 }
 
 /**
@@ -289,7 +289,7 @@ describe('WF-06 — danh mục rỗng', () => {
    * thanh tab và khối ấy sẽ lọt qua nếu ca này chỉ nhìn tab Mã. Và vẫn đúng MỘT ô — đây là câu
    * miễn trừ duy nhất của màn, chân trang không dựng dải xám ở `/danh-muc/`.
    */
-  it('câu miễn trừ đứng CUỐI MÀN ở cả hai tab: sau thẻ tóm tắt và Mã nắm giữ, sau Phép tính đã lưu (FR-24)', async () => {
+  it('câu miễn trừ đứng CUỐI MÀN ở cả hai tab: sau thẻ tóm tắt và Mã, sau Công thức (FR-24)', async () => {
     seedSaved();
     const { container } = render(<PortfolioScreen />);
     await tieuDeNamGiu();
@@ -302,14 +302,14 @@ describe('WF-06 — danh mục rỗng', () => {
 
     // compareDocumentPosition thay vì so toạ độ: jsdom không dựng bố cục, nhưng thứ tự trong cây
     // đúng là thứ quyết định cái nào đọc trước trên màn hình và với trình đọc màn hình.
-    for (const truoc of [stats, screen.getByRole('heading', { name: 'Mã nắm giữ' })]) {
+    for (const truoc of [stats, screen.getByRole('heading', { name: 'Mã' })]) {
       expect(note.compareDocumentPosition(truoc) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
     }
 
-    await userEvent.click(screen.getByRole('tab', { name: tenTab('Phép tính đã lưu') }));
+    await userEvent.click(screen.getByRole('tab', { name: tenTab('Công thức') }));
     const saved = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
     const khoi = saved.closest('section');
-    if (khoi === null) throw new Error('thiếu khối Phép tính đã lưu');
+    if (khoi === null) throw new Error('thiếu khối Công thức');
     expect(note.compareDocumentPosition(khoi) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 
@@ -319,7 +319,7 @@ describe('WF-06 — danh mục rỗng', () => {
     const notes = await screen.findAllByText('Danh mục chưa có mã nào.');
     // Tổng giá trị · Vốn đã bỏ ra. Dòng lãi/lỗ không dựng khi chưa tính được (lý do đã nằm ở
     // "Tổng giá trị"), Beta và XIRR chỉ có ở chế độ Nâng cao (ca ngay dưới), còn "Số mã" không còn
-    // trong thẻ — số đếm nằm ở tab và ở "0 / 50" cạnh tiêu đề.
+    // trong thẻ — số đếm nằm ở tab.
     expect(notes).toHaveLength(2);
     expect(screen.queryByText('Lãi/lỗ', { selector: 'span' })).toBeNull();
     expect(screen.queryByText(/^0\s*₫$/)).toBeNull();
@@ -1376,7 +1376,7 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
 
     expect(screen.queryByRole('button', { name: 'Sửa HPG' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Sửa FPT' })).toBeTruthy();
-    expect(screen.getByRole('tab', { name: 'Mã nắm giữ 1' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Mã 1' })).toBeTruthy();
     await waitFor(() => {
       const saved: unknown = JSON.parse(window.localStorage.getItem(PORTFOLIO_KEY) ?? '[]');
       expect(saved).toEqual([expect.objectContaining({ code: 'FPT' })]);
@@ -1540,7 +1540,7 @@ describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
     expect(sau).toBe(truoc);
   });
 
-  it('không khớp mã nào thì nói rõ, không dựng một bảng rỗng — và số đếm vẫn là của cả danh mục', async () => {
+  it('không khớp mã nào thì nói rõ, không dựng một bảng rỗng — và số đếm trên tab vẫn là của cả danh mục', async () => {
     seedHaiMa();
     render(<PortfolioScreen />);
 
@@ -1548,7 +1548,7 @@ describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
 
     expect(screen.getByText('Không có mã nào khớp.')).toBeTruthy();
     expect(screen.queryByRole('table')).toBeNull();
-    expect(screen.getByText('2 / 50')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Mã 2' })).toBeTruthy();
   });
 
   it('danh mục trống thì không có ô tìm — không có gì để lọc', async () => {
@@ -1558,12 +1558,29 @@ describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
     expect(screen.queryByRole('searchbox')).toBeNull();
   });
 
-  it('số đếm "5 / 50" lấy trần từ MAX_HOLDINGS, và có bản đọc thành lời', async () => {
+  /*
+   * Con số "5 / 50" cạnh "Mã" và con số cạnh "Công thức" từng có (bản thiết kế
+   * 12/10/2026); chủ dự án khoanh cả hai và bảo xoá cùng ngày. Ca này ghim việc BỎ: tiêu đề đứng một
+   * mình trong dòng của nó, còn số đếm chỉ nằm trên tab.
+   */
+  it('tiêu đề hai tab đứng một mình: không còn số đếm cạnh "Mã" hay "Công thức"', async () => {
     seedHaiMa();
+    seedSaved();
     render(<PortfolioScreen />);
 
-    expect(await screen.findByText(`2 / ${String(MAX_HOLDINGS)}`)).toBeTruthy();
-    expect(screen.getByText(`2 trên ${String(MAX_HOLDINGS)} mã`)).toBeTruthy();
+    const namGiu = await tieuDeNamGiu();
+    await dongMa('HPG');
+    expect(namGiu.parentElement?.firstElementChild).toBe(namGiu);
+    expect(namGiu.nextElementSibling?.textContent ?? '').not.toMatch(/^\s*\d/);
+    expect(screen.queryByText(`2 / ${String(MAX_HOLDINGS)}`)).toBeNull();
+    expect(screen.queryByText(new RegExp(`trên ${String(MAX_HOLDINGS)} mã`))).toBeNull();
+    expect(screen.getByRole('tab', { name: 'Mã 2' })).toBeTruthy();
+
+    await bamTab('Công thức');
+    const daLuu = await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
+    expect(daLuu.parentElement?.firstElementChild).toBe(daLuu);
+    expect(daLuu.nextElementSibling?.textContent ?? '').not.toMatch(/^\s*\d/);
+    expect(screen.getByRole('tab', { name: 'Công thức 1' })).toBeTruthy();
   });
 });
 
@@ -1820,8 +1837,8 @@ function seedSaved(): void {
 }
 
 /**
- * Tên khả truy cập của một tab là "Mã nắm giữ 1" / "Phép tính đã lưu 0" — chữ rồi số đếm. Khớp phần
- * chữ, bỏ số. (Trước 12/10/2026 nhãn tab là "Mã" và "Công thức".)
+ * Tên khả truy cập của một tab là "Mã 1" / "Công thức 0" — chữ rồi số đếm. Khớp phần
+ * chữ, bỏ số. (Nhãn tab từng là "Mã nắm giữ" và "Phép tính đã lưu" trong vài giờ ngày 12/10/2026.)
  *
  * KHÔNG dùng `\b`: JS chỉ coi `[A-Za-z0-9_]` là ký tự chữ, nên giữa "ã" và dấu cách không có ranh
  * giới và `/^Mã\b/` không bao giờ khớp.
@@ -1835,16 +1852,16 @@ async function bamTab(nhan: string): Promise<void> {
   await userEvent.click(await screen.findByRole('tab', { name: tenTab(nhan) }));
 }
 
-describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lưu', () => {
-  it('mặc định mở tab Mã: có khối Nắm giữ, chưa có khối Phép tính đã lưu', async () => {
+describe('WF-06 — cụm hai tab dọc: Mã · Công thức', () => {
+  it('mặc định mở tab Mã: có khối Nắm giữ, chưa có khối Công thức', async () => {
     seedSaved();
     render(<PortfolioScreen />);
 
     await tieuDeNamGiu();
-    const tabMa = screen.getByRole('tab', { name: tenTab('Mã nắm giữ') });
+    const tabMa = screen.getByRole('tab', { name: tenTab('Mã') });
     expect(tabMa.getAttribute('aria-selected')).toBe('true');
     expect(
-      screen.getByRole('tab', { name: tenTab('Phép tính đã lưu') }).getAttribute('aria-selected'),
+      screen.getByRole('tab', { name: tenTab('Công thức') }).getAttribute('aria-selected'),
     ).toBe('false');
     expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
   });
@@ -1858,8 +1875,8 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     seedSaved();
     render(<PortfolioScreen />);
 
-    expect(await screen.findByRole('tab', { name: 'Mã nắm giữ 1' })).toBeTruthy();
-    expect(screen.getByRole('tab', { name: 'Phép tính đã lưu 1' })).toBeTruthy();
+    expect(await screen.findByRole('tab', { name: 'Mã 1' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Công thức 1' })).toBeTruthy();
   });
 
   it('bấm tab Công thức thì đổi nội dung, ghi ?tab= vào URL và không thêm mục lịch sử', async () => {
@@ -1869,16 +1886,16 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     render(<PortfolioScreen />);
     await tieuDeNamGiu();
 
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     expect(screen.getByRole('heading', { name: t('portfolio.savedTitle') })).toBeTruthy();
-    expect(screen.queryByRole('heading', { name: 'Mã nắm giữ' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Mã' })).toBeNull();
     expect(window.location.search).toBe('?tab=cong-thuc');
     expect(window.history.length).toBe(truoc);
 
-    await bamTab('Mã nắm giữ');
+    await bamTab('Mã');
 
-    expect(screen.getByRole('heading', { name: 'Mã nắm giữ' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Mã' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: t('portfolio.savedTitle') })).toBeNull();
     expect(window.location.search).toBe('');
   });
@@ -1888,7 +1905,7 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     render(<PortfolioScreen />);
     await tieuDeNamGiu();
 
-    for (const ten of ['Mã nắm giữ', 'Phép tính đã lưu']) {
+    for (const ten of ['Mã', 'Công thức']) {
       await bamTab(ten);
       const tab = screen.getByRole('tab', { name: tenTab(ten) });
       const vung = screen.getByRole('tabpanel');
@@ -1904,7 +1921,7 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
 
     expect(await screen.findByRole('heading', { name: t('portfolio.savedTitle') })).toBeTruthy();
     expect(
-      screen.getByRole('tab', { name: tenTab('Phép tính đã lưu') }).getAttribute('aria-selected'),
+      screen.getByRole('tab', { name: tenTab('Công thức') }).getAttribute('aria-selected'),
     ).toBe('true');
   });
 
@@ -1936,7 +1953,7 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     render(<PortfolioScreen />);
     await screen.findByRole('heading', { name: t('portfolio.savedTitle') });
 
-    await bamTab('Mã nắm giữ');
+    await bamTab('Mã');
 
     expect(window.location.hash).toBe('');
   });
@@ -1945,7 +1962,7 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     render(<PortfolioScreen />);
     await tieuDeNamGiu();
 
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     expect(screen.getByText(t('portfolio.savedEmpty'))).toBeTruthy();
     const duong = screen.getByRole('link', { name: t('portfolio.savedEmptyAction') });
@@ -1958,8 +1975,8 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     await screen.findByText(/Giá phiên/);
     const soLanGoi = feed.snapshots.mock.calls.length;
 
-    await bamTab('Phép tính đã lưu');
-    await bamTab('Mã nắm giữ');
+    await bamTab('Công thức');
+    await bamTab('Mã');
 
     expect(await screen.findByRole('button', { name: 'Sửa FPT' })).toBeTruthy();
     expect(feed.snapshots.mock.calls.length).toBe(soLanGoi);
@@ -1975,7 +1992,7 @@ describe('WF-06 — cụm hai tab dọc: Mã nắm giữ · Phép tính đã lư
     await tieuDeNamGiu();
     expect(screen.getAllByText(t('disclaimer.text'))).toHaveLength(1);
 
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     expect(screen.getAllByText(t('disclaimer.text'))).toHaveLength(1);
   });
@@ -2056,7 +2073,7 @@ function seedChuoi(soDong: number): void {
   );
 }
 
-/** Các dòng dữ liệu của bảng Phép tính đã lưu, theo thứ tự đang hiện (bỏ hàng tiêu đề). */
+/** Các dòng dữ liệu của bảng Công thức, theo thứ tự đang hiện (bỏ hàng tiêu đề). */
 function dongDaLuu(): HTMLElement[] {
   return screen.getAllByRole('row').slice(1);
 }
@@ -2065,7 +2082,7 @@ function chuCuaO(dong: HTMLElement, chiSo: number): string {
   return within(dong).getAllByRole('cell')[chiSo]?.textContent ?? '';
 }
 
-describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
+describe('WF-06 — tab Công thức: bảng', () => {
   /*
    * Đây là vế "thấy lại được" của lỗi chủ dự án báo 15/09/2026. Trước bản vá, kho có mục mà màn
    * không có một chữ nào về nó.
@@ -2073,7 +2090,7 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
   it('mỗi phép tính một dòng, mới nhất trước, đủ năm cột', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     const tieuDe = (await screen.findAllByRole('columnheader')).map((th) => th.textContent);
     expect(tieuDe).toEqual(['Công thức', 'Mã', 'Kết quả', 'Ngày lưu', 'Thao tác']);
@@ -2088,7 +2105,7 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
   it('tên GỢI Ý chỉ còn tên công thức; tên người dùng tự đặt giữ nguyên, tên công thức làm dòng phụ', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
     await screen.findAllByRole('columnheader');
 
     const [b, c] = dongDaLuu();
@@ -2104,7 +2121,7 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
     seedSavedMany();
     seedChuoi(120);
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
     await screen.findAllByRole('columnheader');
 
     const [b, c, a] = dongDaLuu();
@@ -2128,7 +2145,7 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
   it('chuỗi giá trong máy trống: dòng cần chuỗi in “_ _”, kèm lý do và nút “Nạp”; số đã lưu KHÔNG hiện', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
     await screen.findAllByRole('columnheader');
 
     const [b] = dongDaLuu();
@@ -2146,7 +2163,7 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
     seedSavedMany();
     seedChuoi(120);
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
     await screen.findAllByRole('columnheader');
 
     expect(screen.queryByText('Cần nạp lại chuỗi giá')).toBeNull();
@@ -2157,7 +2174,7 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
     seedSavedMany();
     seedChuoi(119);
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
     await screen.findAllByRole('columnheader');
 
     expect(chuCuaO(dongDaLuu()[0] as HTMLElement, 2)).toBe('_ _');
@@ -2166,30 +2183,30 @@ describe('WF-06 — tab Phép tính đã lưu: bảng', () => {
   it('bấm thùng rác thì gỡ khỏi kho, hết mục thì tab hiện câu rỗng và số đếm về 0', async () => {
     seedSaved();
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     await userEvent.click(await screen.findByRole('button', { name: 'Xoá HPG · P/E' }));
 
     expect(JSON.parse(window.localStorage.getItem(SAVED_CALCS_KEY) ?? 'null')).toEqual([]);
     expect(screen.getByText(t('portfolio.savedEmpty'))).toBeTruthy();
-    expect(screen.getByRole('tab', { name: 'Phép tính đã lưu 0' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Công thức 0' })).toBeTruthy();
   });
 
   it('nút xoá của dòng tên gợi ý nói rõ cả mã lẫn công thức — hai phép tính cùng công thức không lẫn', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     expect(await screen.findByRole('button', { name: `Xoá FPT · ${TEN_BETA_VI}` })).toBeTruthy();
   });
 });
 
-describe('WF-06 — tab Phép tính đã lưu: tìm và thứ tự', () => {
+describe('WF-06 — tab Công thức: tìm và thứ tự', () => {
   async function moTab(): Promise<void> {
     seedSavedMany();
     seedChuoi(120);
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
     await screen.findAllByRole('columnheader');
   }
 
@@ -2250,7 +2267,7 @@ describe('WF-06 — tab Phép tính đã lưu: tìm và thứ tự', () => {
   it('thẻ tóm tắt đếm cả kho: số phép tính, số mã, số công thức, số cần nạp lại và ngày gần nhất', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
-    await bamTab('Phép tính đã lưu');
+    await bamTab('Công thức');
 
     expect((await oThongKe('Trên số mã')).textContent).toContain('2');
     expect((await oThongKe('Công thức khác nhau')).textContent).toContain('2');

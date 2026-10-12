@@ -343,7 +343,10 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   holding's cost basis. Beta and XIRR print `_ _` with **no reason line** (owner, 29/09/2026: a new user sees
   both at `_ _` almost always, so the reason had become a fixed paragraph listing every ticker) and exist only
   in **advanced** mode (FR-09); in Basic the card ends with the "N ô nâng cao đang ẩn" note. The "Số mã" tile is
-  gone — the count sits on the tab and in "5 / 50" beside the title. Rows print **bare numbers** (`1,04`,
+  gone — the count sits on the tab **only**. The design also drew "5 / 50" beside the holdings title and a bare
+  count beside the saved title; the owner circled both and had them deleted the same day, so each `<h2>` stands alone
+  in its row (a case pins it) and the 50-holding cap is now stated only by `portfolio.errFull`, when it is
+  hit. Rows print **bare numbers** (`1,04`,
   `14,2 %`, `195.750.000`) because the design does; only the hero and the gain line carry ₫. Labels and values
   are sibling `<span>`s so the `oThongKe` test helper (`findByText(label).parentElement`) keeps working.
 - **A long number still must not break the card** (29/09/2026, "866.777.778.513.713.70…" ran out of its tile).
@@ -381,11 +384,21 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   descendant when it is that descendant's containing block — without it they sat at their static position
   (one at x=520) and widened the whole page to 569px on a 345px screen, with the table itself scrolling
   correctly inside its frame.
-- **The block titles here are the one exception to `section-title.test.ts`.** "Mã nắm giữ" and "Phép tính đã
-  lưu" are 26px sentence case (`.mainTitle`), level with the "Danh mục" label, because on this screen they act
+- **The block titles here are the one exception to `section-title.test.ts`.** "Mã" and "Công thức" are 26px
+  sentence case (`.mainTitle`), level with the "Danh mục" label, because on this screen they act
   as page titles and the design makes them a pair. `PortfolioScreen.module.css` left that test's list with a
   tombstone saying why. The header still owns the `<h1>` ("Danh mục của tôi"), so the left-column label is
   a plain `<p>`, not a heading.
+- **The tab card and the table start at the same height, and that is why the search box and the add button
+  are 36px here** (12/10/2026). Both columns are "a title row + a `--space-3` gap + a card", so they were off by
+  exactly the difference between the two title rows: text only on the left (~31px), a 44px search box and
+  button on the right. The owner circled the 12px step and named the cure — shrink the two controls. Both
+  title rows now carry `min-height: 36px`, the button drops to 36px with a 44px `::after` tap area, and
+  `SearchBox` gained a `compact` prop for the same. **All of it sits inside `@media (min-width: 1024px)`**:
+  below that the columns stack (nothing to align), touch needs 44px, and iOS zooms the page on an input under
+  16px. `.search` takes a `width`, not a `flex-basis`: `.headTools` shrink-wraps, a non-growing item's
+  contribution is capped at its max-content (~180px for a bare `<input>`), so a 13.5rem basis made the tray
+  narrower than its two items and `flex-wrap` dropped the button to a second line — an 80px title row.
 
 Two rules about the form and the picker, unchanged by the redesign:
 
@@ -427,7 +440,12 @@ Two rules about the form and the picker, unchanged by the redesign:
   missing quote as "don't know" rather than "no price" — otherwise every add would hide 8 formulas
   under a sentence claiming a lookup that never happened.
 
-**The two tabs are a VERTICAL card, "Mã nắm giữ · Phép tính đã lưu"** (tabs back 10/10/2026, vertical 12/10/2026).
+**The two tabs are a VERTICAL card, "Mã · Công thức"** (tabs back 10/10/2026, vertical 12/10/2026). The
+labels were "Mã nắm giữ" and "Phép tính đã lưu" for a few hours on 12/10, as the design drew them; the owner cut
+both back the same afternoon, for the tab and the `<h2>` alike. Three knock-ons: each label now also equals a
+column header of its own table and "Công thức" equals a nav item, so nothing may look them up by text;
+`save.done` and `save.nameHint` name this place and moved with it ("Danh mục › Công thức"); and the EN labels are
+"Tickers" / "Formulas", which `chrome-check.mjs` matches inside `[role="tab"]` only.
 The owner asked on 10/10 for the screen to be split into two dedicated parts and chose tabs when told it
 reverses their own 14/09/2026 call (_"bỏ tabbar đi"_). History worth keeping straight: the tab cluster was
 removed 14/09; the saved-calculations list came back 15/09 as a second block under Nắm giữ because "save, then
@@ -435,7 +453,7 @@ see nothing" was reported as a bug; it is now the second tab. `TabBar` gained `o
 (`aria-orientation`, ↑/↓ instead of ←/→, a white bordered card with the count pushed right) — the screen is its
 only user. The tab labels are the block titles themselves (`portfolio.holdings`, `portfolio.savedTitle`; the
 one-word `tabHoldings`/`tabSaved` keys are gone), so in tests the `<h2>` is found by **role** (`tieuDeNamGiu()`),
-never by text, which now matches the tab too. The Phép tính đã lưu tab is **always built** when open, empty
+never by text, which now matches the tab too. The Công thức tab is **always built** when open, empty
 state included (the person chose the tab). The two lessons of 14–15/09 stay load-bearing: both tabs show their
 count on the bar even while closed, and the anchor `#phep-tinh-da-luu` (`savedCalcsPath()`, the Save button's
 destination) opens the saved tab.

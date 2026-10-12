@@ -1859,9 +1859,10 @@ window.__themeLog = [];
    * Phép kiểm này gieo thẳng một bản lưu mang tên TIẾNG VIỆT vào kho, đúng như bản lưu cũ nằm sẵn
    * trên máy người dùng. Khối dò ở trên không thấy được ca này: máy Chrome của nó có kho rỗng.
    *
-   * Bước bấm sang tab "Phép tính đã lưu" (EN: "Saved calculations") QUAY LẠI ngày 10/10/2026 cùng cụm
-   * tab. Bản cũ dò mọi nút có chữ "Công thức" rồi bấm — nên nó từng có thể bấm nhầm một nút khác
-   * trùng chữ. Nay chỉ dò trong `[role="tab"]`, nơi chỉ có đúng hai nút.
+   * Bước bấm sang tab "Công thức" (EN: "Formulas") QUAY LẠI ngày 10/10/2026 cùng cụm tab. Bản cũ dò
+   * mọi nút có chữ "Công thức" rồi bấm — nên nó từng có thể bấm nhầm một nút khác trùng chữ. Nay chỉ
+   * dò trong `[role="tab"]`, nơi chỉ có đúng hai nút — và từ chiều 12/10/2026 điều ấy thành BẮT BUỘC:
+   * nhãn tab trùng chữ với mục "Formulas" trên thanh điều hướng.
    *
    * Từ 12/10/2026 danh sách là một BẢNG: tên nằm trong ô đầu của mỗi dòng (`<td>`), không còn là thẻ
    * `<p>`. Với một tên GỢI Ý ("Biên an toàn · 25/08/2026") ô ấy chỉ in tên công thức — mã và ngày đã có
@@ -1885,7 +1886,7 @@ window.__themeLog = [];
   await waitFor(`document.querySelectorAll('[role="tab"]').length === 2`);
   await evaluate(`(() => {
     const nut = [...document.querySelectorAll('[role="tab"]')].find((b) =>
-      (b.textContent ?? '').startsWith('Saved calculations'),
+      (b.textContent ?? '').startsWith('Formulas'),
     );
     if (nut !== undefined) nut.click();
     return true;
@@ -1945,9 +1946,9 @@ window.__themeLog = [];
   })()`);
 
   check(
-    '360 · neo #phep-tinh-da-luu mở thẳng tab Phép tính đã lưu, khối nằm trong màn đầu',
+    '360 · neo #phep-tinh-da-luu mở thẳng tab Công thức, khối nằm trong màn đầu',
     neo.coKhoi === true &&
-      neo.tabChon.startsWith('Saved calculations') &&
+      neo.tabChon.startsWith('Formulas') &&
       neo.mepTren >= 0 &&
       neo.mepTren < neo.cao,
     `tab "${String(neo.tabChon)}" · mép trên khối ${String(neo.mepTren)}/${String(neo.cao)}px`,
@@ -1961,7 +1962,7 @@ window.__themeLog = [];
 
   const veMa = await evaluate(`(async () => {
     const nut = [...document.querySelectorAll('[role="tab"]')].find((b) =>
-      (b.textContent ?? '').startsWith('Holdings'),
+      (b.textContent ?? '').startsWith('Tickers'),
     );
     if (nut !== undefined) nut.click();
     await new Promise((d) => setTimeout(d, 300));
@@ -1972,7 +1973,7 @@ window.__themeLog = [];
   })()`);
 
   check(
-    'bấm tab Mã nắm giữ thì khối phép tính đã lưu biến đi và neo bị bỏ khỏi URL',
+    'bấm tab Mã thì khối phép tính đã lưu biến đi và neo bị bỏ khỏi URL',
     veMa.conKhoi === false && veMa.hash === '',
     `hash "${String(veMa.hash)}" · khối ${veMa.conKhoi === true ? 'còn' : 'đã gỡ'}`,
   );

@@ -731,8 +731,8 @@ export const vi = {
    * chúng KHÔNG phải chữ thừa ngay từ đầu — nếu khổ điện thoại quay lại với dòng gọn thì đây là danh
    * sách phải dựng lại:
    *
-   *   - `portfolio.count` ('Số mã'), nhãn ô thứ sáu. Số mã nay nằm ở số đếm trên tab và ở "5 / 50"
-   *     cạnh tiêu đề bảng.
+   *   - `portfolio.count` ('Số mã'), nhãn ô thứ sáu. Số mã nay nằm ở số đếm trên tab (con số
+   *     "5 / 50" cạnh tiêu đề bảng cũng từng mang nó, đã bỏ cùng ngày).
    *   - `portfolio.shares` ('CP'), `portfolio.costPrice` ('giá vốn'), `portfolio.weight` ('tỷ
    *     trọng'): mảnh chữ đi liền con số trên dòng gọn dưới 560px.
    *   - `portfolio.colName` ('Doanh nghiệp'), `portfolio.colQuantity` ('Số lượng' — nay là `colShares`,
@@ -758,8 +758,12 @@ export const vi = {
   /*
    * Vừa là tiêu đề `<h2>` của tab Mã, vừa là nhãn của tab dọc ở cột trái — cùng một chữ, một khoá
    * (xem khối mộ chí ở đầu danh sách `portfolio.*`).
+   *
+   * Từng là 'Mã nắm giữ' (bản thiết kế hai cột, sáng 12/10/2026). Chủ dự án rút lại còn 'Mã' cùng
+   * ngày, cho cả tab lẫn tiêu đề, cặp với 'Công thức' ở `portfolio.savedTitle`. Chữ này nay TRÙNG với
+   * tiêu đề cột đầu của bảng (`portfolio.colCode`), nên ca kiểm tìm tiêu đề bằng vai heading.
    */
-  'portfolio.holdings': 'Mã nắm giữ',
+  'portfolio.holdings': 'Mã',
   /*
    * ── Tiêu đề cột của bảng Nắm giữ ──────────────────────────────────────────
    *
@@ -816,11 +820,13 @@ export const vi = {
    */
   'portfolio.searchTicker': 'Tìm mã',
   /*
-   * Con số "5 / 50" cạnh tiêu đề chỉ là hai con số trần nên trình đọc màn hình đọc thành "5 gạch
-   * chéo 50". Nhãn đọc này nói thành lời. `{max}` lấy từ `MAX_HOLDINGS`, không gõ cứng ở đây
-   * (nếu trần đổi thì câu `portfolio.errFull` cũng phải đổi — `i18n.test.ts` canh cặp ấy).
+   * ⚠ `portfolio.holdingsCountAria` ('{n} trên {max} mã') đã XOÁ — chủ dự án chốt 12/10/2026.
+   *
+   * Nó là bản đọc thành lời của con số "5 / 50" đứng cạnh tiêu đề "Mã nắm giữ". Chủ dự án khoanh
+   * con số ấy, cùng con số "7" cạnh "Phép tính đã lưu", và bảo xoá: cả hai đã có trên tab ở cột
+   * trái. Hệ quả cần biết: trần 50 mã không còn hiện thường trực ở đâu, chỉ còn câu
+   * `portfolio.errFull` nói ra lúc chạm trần.
    */
-  'portfolio.holdingsCountAria': '{n} trên {max} mã',
   /* Bộ lọc của ô "Tìm mã" không khớp mã nào. Khác `portfolio.empty`: danh mục KHÔNG rỗng. */
   'portfolio.noMatch': 'Không có mã nào khớp.',
   /*
@@ -1101,12 +1107,19 @@ export const vi = {
    *   - 12/10/2026: thiết kế hai cột. Tab dọc đủ chỗ cho tên đầy đủ nên `tabHoldings` · `tabSaved`
    *     đi tiếp một lần nữa, lần này vì tab dùng thẳng `portfolio.holdings` và `portfolio.savedTitle`.
    *     `savedEmpty` ở lại.
+   *   - 12/10/2026, chiều: chủ dự án rút hai nhãn về "Mã" và "Công thức" cho cả tab lẫn tiêu đề —
+   *     đúng cặp chữ của bản tab 10/10. Vẫn hai khoá ấy, chỉ đổi chữ. `save.nameHint` và
+   *     `save.done` đổi theo vì chúng gọi tên chỗ này.
    */
   'portfolio.savedEmpty':
     'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
   'portfolio.savedEmptyAction': 'Mở danh sách công thức',
-  /* Vừa là `<h2>` của tab, vừa là nhãn của tab dọc ở cột trái — xem `portfolio.holdings`. */
-  'portfolio.savedTitle': 'Phép tính đã lưu',
+  /*
+   * Vừa là `<h2>` của tab, vừa là nhãn của tab dọc ở cột trái — xem `portfolio.holdings`. Từng là
+   * 'Phép tính đã lưu'; trùng chữ với mục "Công thức" trên thanh điều hướng và với tiêu đề cột đầu
+   * của bảng (`portfolio.savedColFormula`), nên dò nó theo vai (tab / heading), đừng theo chữ.
+   */
+  'portfolio.savedTitle': 'Công thức',
   /*
    * ── Bảng "Phép tính đã lưu" (12/10/2026) ──────────────────────────────────────────────────
    *
@@ -1390,13 +1403,15 @@ export const vi = {
   'save.subtitle': 'Giữ lại bộ số liệu và kết quả này để mở lại sau',
   'save.nameLabel': 'Đặt tên cho phép tính',
   /*
-   * `nameHint` và `done` từng gọi tên "tab Công thức" / "Danh mục › Công thức" — một tab đã bỏ
-   * từ 14/09/2026. Nay gọi đúng tên khối mà người dùng sẽ thấy ngay sau khi lưu.
+   * `nameHint` và `done` gọi đúng TÊN CHỖ mà người dùng sẽ thấy ngay sau khi lưu, nên chúng đi theo
+   * nhãn của tab: "tab Công thức" (tới 14/09/2026, khi tab bị bỏ) → "khối Phép tính đã lưu" → lại
+   * "tab Công thức" từ 12/10/2026, khi chủ dự án đổi nhãn tab và tiêu đề về "Công thức". Đổi
+   * `portfolio.savedTitle` mà quên hai câu này là để lại một lời chỉ đường tới cái tên không còn.
    */
-  'save.nameHint': 'Tên hiện ở khối Phép tính đã lưu của màn Danh mục.',
+  'save.nameHint': 'Tên hiện ở tab Công thức của màn Danh mục.',
   'save.suggestions': 'Gợi ý tên',
   'save.submit': 'Lưu vào danh mục',
-  'save.done': 'Đã lưu vào Danh mục › Phép tính đã lưu.',
+  'save.done': 'Đã lưu vào Danh mục › Công thức.',
   'save.goToPortfolio': 'Xem trong danh mục',
   'save.errEmpty': 'Đặt một cái tên trước đã — tên trống thì sau này không tìm lại được.',
   'save.errDuplicate': 'Đã có một phép tính tên này. Đặt tên khác để hai mục không lẫn nhau.',

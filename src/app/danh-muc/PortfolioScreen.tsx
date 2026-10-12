@@ -192,7 +192,7 @@ const ADVANCED_TILES = 2;
  *
  * Luôn `aria-hidden` và tuyệt đối không chứa `<title>`/`<desc>`/`<text>` — chúng sẽ chui vào
  * `textContent` của thẻ, mà nhiều ca kiểm ở màn này dò giá trị qua đúng `textContent`. Chữ "fx" của
- * tab Phép tính đã lưu vì thế được VẼ bằng nét, không phải gõ bằng phần tử `<text>`.
+ * tab Công thức vì thế được VẼ bằng nét, không phải gõ bằng phần tử `<text>`.
  */
 function StatIcon({ d, size = 18 }: { d: string; size?: number }) {
   return (
@@ -215,10 +215,10 @@ function StatIcon({ d, size = 18 }: { d: string; size?: number }) {
 const TILE_ICONS = {
   /* Cột — trạng thái rỗng của tab Mã. */
   count: 'M5 20V11M12 20V4M19 20v-6',
-  /* Đồng xu có chữ S dựng đứng — tab Mã nắm giữ. */
+  /* Đồng xu có chữ S dựng đứng — tab Mã. */
   tabHoldings:
     'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM14.5 9.2c-.4-.8-1.3-1.2-2.5-1.2-1.4 0-2.5.7-2.5 1.8 0 2.5 5 1.2 5 3.7 0 1.1-1.1 1.8-2.5 1.8-1.2 0-2.1-.4-2.5-1.2M12 6.5V8m0 8v1.5',
-  /* "fx" vẽ bằng nét — tab Phép tính đã lưu. */
+  /* "fx" vẽ bằng nét — tab Công thức. */
   tabSaved: 'M8.5 18v-9a3 3 0 0 1 3-3h.5M6 11.5h5.5M13 12.5l5 6m0-6-5 6',
   /* Dấu cộng — nút Thêm mã. */
   plus: 'M12 5v14M5 12h14',
@@ -330,7 +330,7 @@ export function PortfolioScreen() {
    */
   /** Chữ gõ ở ô "Tìm mã". Chỉ lọc HÀNG HIỆN — tỷ trọng vẫn tính trên cả danh mục. */
   const [holdQuery, setHoldQuery] = useState('');
-  /** Chữ gõ ở ô tìm của tab Phép tính đã lưu. */
+  /** Chữ gõ ở ô tìm của tab Công thức. */
   const [savedQuery, setSavedQuery] = useState('');
   /**
    * Số dòng của chuỗi giá đang nằm trong máy (`ffb.series.v1`).
@@ -993,12 +993,6 @@ export function PortfolioScreen() {
   const lastSavedAt = savedCalcs.reduce((latest, saved) => Math.max(latest, saved.savedAt), 0);
   const lastSaved = lastSavedAt > 0 ? formatIsoDate(isoDayOf(lastSavedAt)) : null;
 
-  const holdCount = formatNumber(holdings.length) ?? String(holdings.length);
-  const holdCountAria = t('portfolio.holdingsCountAria')
-    .replace('{n}', holdCount)
-    .replace('{max}', String(MAX_HOLDINGS));
-  const savedCountText = formatNumber(savedCalcs.length) ?? String(savedCalcs.length);
-
   /**
    * Dải thị giá — chân thẻ tóm tắt.
    *
@@ -1138,26 +1132,15 @@ export function PortfolioScreen() {
             >
               <section className={styles.block} aria-labelledby="portfolio-holdings">
                 {/*
-                  `<h2>` giữ nguyên chữ "Mã nắm giữ" MỘT MÌNH; số đếm "5 / 50" ở phần tử em kế bên.
-                  Không nhét chung một phần tử: tên khả truy cập của cả khối lấy từ `<h2>` này qua
-                  `aria-labelledby`, nên trộn số đếm vào đó là mỗi lần thêm/bỏ một mã thì tên khối đổi
-                  theo — trình đọc màn hình thông báo lại cả khối vì một con số vừa đổi.
-
-                  "5 / 50" là hai con số trần, đọc ra "5 gạch chéo 50": bản nhìn thấy `aria-hidden`,
-                  bản đọc nói thành lời. Con số 50 là `MAX_HOLDINGS`, không gõ cứng.
+                  Tiêu đề đứng MỘT MÌNH. Số đếm "5 / 50" từng đứng cạnh nó (bản thiết kế 12/10/2026) và
+                  chủ dự án bảo bỏ cùng ngày, cùng với con số cạnh "Phép tính đã lưu": số mã đã có trên
+                  tab ở cột trái. Trần 50 mã vì thế chỉ còn nói ra ở câu lỗi `portfolio.errFull`, lúc
+                  người dùng chạm trần.
                 */}
                 <div className={styles.blockHead}>
-                  <div className={styles.titleGroup}>
-                    <h2 className={styles.mainTitle} id="portfolio-holdings">
-                      {t('portfolio.holdings')}
-                    </h2>
-                    <span className={styles.titleCount}>
-                      <span aria-hidden="true">
-                        {holdCount} / {MAX_HOLDINGS}
-                      </span>
-                      <span className="visually-hidden">{holdCountAria}</span>
-                    </span>
-                  </div>
+                  <h2 className={styles.mainTitle} id="portfolio-holdings">
+                    {t('portfolio.holdings')}
+                  </h2>
 
                   <div className={styles.headTools}>
                     {/* Danh mục trống thì không có gì để lọc — ô tìm chỉ chiếm chỗ. */}
@@ -1168,6 +1151,7 @@ export function PortfolioScreen() {
                           onChange={setHoldQuery}
                           label={t('portfolio.searchTicker')}
                           placeholder={t('portfolio.searchTicker')}
+                          compact
                         />
                       </div>
                     )}
@@ -1665,7 +1649,7 @@ export function PortfolioScreen() {
           )}
 
           {/*
-            Tab Phép tính đã lưu — đích của nút Lưu ở màn chi tiết công thức.
+            Tab Công thức — đích của nút Lưu ở màn chi tiết công thức.
 
             LUÔN dựng khi tab này đang mở, kể cả kho rỗng. Bản khối-thứ-hai (15/09/2026) chỉ dựng khi
             có mục, vì khi ấy nó nằm thường trực dưới danh mục của MỌI người — kể cả người chưa từng
@@ -1693,12 +1677,10 @@ export function PortfolioScreen() {
                 aria-labelledby="portfolio-saved"
               >
                 <div className={styles.blockHead}>
-                  <div className={styles.titleGroup}>
-                    <h2 className={styles.mainTitle} id="portfolio-saved">
-                      {t('portfolio.savedTitle')}
-                    </h2>
-                    <span className={styles.titleCount}>{savedCountText}</span>
-                  </div>
+                  {/* Không còn số đếm cạnh tiêu đề — xem chú thích ở tiêu đề "Mã nắm giữ". */}
+                  <h2 className={styles.mainTitle} id="portfolio-saved">
+                    {t('portfolio.savedTitle')}
+                  </h2>
 
                   <div className={styles.headTools}>
                     {savedCalcs.length > 0 && (
@@ -1708,6 +1690,7 @@ export function PortfolioScreen() {
                           onChange={setSavedQuery}
                           label={t('portfolio.savedSearch')}
                           placeholder={t('portfolio.savedSearch')}
+                          compact
                         />
                       </div>
                     )}

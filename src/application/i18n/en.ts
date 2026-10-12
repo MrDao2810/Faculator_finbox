@@ -300,7 +300,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.weightPartial':
     'Holdings with no market price yet are left out of the total, so weights are measured against the priced part of the portfolio.',
   'portfolio.tableCaption': 'Tickers you hold',
-  'portfolio.searchTicker': 'Search tickers',
+  /* Một cặp chữ cho cả hai tab; ba khoá riêng từng tab đã xoá 12/10/2026 — lý do ở `vi.ts`. */
+  'portfolio.search': 'Search',
+  'portfolio.addNew': 'Add new',
   /* `portfolio.holdingsCountAria` đã xoá 12/10/2026 — lý do ở `vi.ts`. */
   'portfolio.noMatch': 'No ticker matches.',
   'portfolio.sideTitle': 'Portfolio',
@@ -385,8 +387,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.savedColFormula': 'Formula',
   'portfolio.savedColResult': 'Result',
   'portfolio.savedColDate': 'Saved on',
-  'portfolio.savedSearch': 'Search formulas or tickers',
-  'portfolio.savedNew': 'New calculation',
   /* Bốn khoá lọc theo mã / sắp xếp đã xoá 12/10/2026 — lý do ở `vi.ts`. */
   'portfolio.savedNoMatch': 'No calculation matches.',
   'portfolio.savedStatTitle': 'Saved',

@@ -78,6 +78,30 @@ tính đã lưu", bảo **xoá cả hai**.
 
 - `npm run check` xanh: 141 file, **3.227 ca**. `check:chrome` vẫn chưa chạy lại.
 
+**Sửa tiếp lần năm, cùng ngày:** _"đồng bộ 2 chức năng này để khi đổi tab thì vẫn giữ nguyên 2 chức năng này.
+đổi tên thành 'Tìm kiếm', button kia thành 'Thêm mới'. khi search ở tab nào thì tab đó hiển thị tương ứng, tương
+tự với button Thêm mới đang ở tab nào thì thêm mới ở tab đó"_
+
+- `PortfolioScreen.tsx`: ô tìm và nút hành động dựng MỘT lần (`headTools`) rồi cả hai tab cùng đặt vào dòng
+  tiêu đề. Hai chuỗi tìm riêng (`holdQuery`, `savedQuery`) gộp thành một `query`.
+- `vi.ts`, `en.ts`: thêm `portfolio.search` ('Tìm kiếm' / 'Search') và `portfolio.addNew` ('Thêm mới' / 'Add
+  new'); xoá `portfolio.searchTicker`, `portfolio.savedSearch`, `portfolio.savedNew` có bia mộ. `portfolio.add`
+  ('Thêm mã') ở lại, chỉ còn làm tiêu đề hộp thoại thêm mã.
+- `PortfolioScreen.test.tsx`: 14 chỗ dò nút mở form và 7 chỗ dò ô tìm đổi theo tên mới; ca "danh mục trống thì
+  không có ô tìm" **đảo lại**; thêm ba ca cho cụm dùng chung. 108 → 110 ca.
+- `chrome-check.mjs`: ba chỗ dò nút bằng chữ "Thêm mã" đổi sang "Thêm mới".
+- **Ba quyết định tôi tự chốt trong phạm vi lời giao, chủ dự án liếc lại:**
+  1. **Một chuỗi tìm cho cả hai tab, sống qua lượt đổi tab.** Gõ "hpg" ở tab Mã rồi sang tab Công thức thì ô vẫn
+     là "hpg" và bảng chỉ còn phép tính của HPG. Đọc "đồng bộ … giữ nguyên" theo nghĩa ấy; nếu ý là mỗi tab nhớ
+     chuỗi riêng thì đổi lại là một dòng.
+  2. **"Thêm mới" ở tab Công thức vẫn DẪN sang danh sách công thức** như nút "Tính công thức mới" cũ: phép tính
+     chỉ sinh ra khi bấm Lưu ở màn chi tiết công thức, màn này không có form nào để thêm tại chỗ.
+  3. **Ô tìm luôn có mặt, kể cả tab rỗng** (trước giấu khi không có gì để lọc) — không thế thì tab có dữ liệu
+     và tab rỗng cho hai dòng tiêu đề khác nhau.
+- Đo bằng Chrome ở 1440 và 1024: ô tìm và nút nằm ở **đúng một toạ độ, một kích thước** trên cả hai tab (ô 216 ×
+  36, nút 119 × 36); mép trên thẻ tab vẫn trùng mép trên bảng.
+- `npm run check` xanh: 141 file, **3.229 ca**. `check:chrome` vẫn chưa chạy lại.
+
 ### Chủ dự án giao gì
 
 > "sau đây là thiết kế mới dành cho phần danh mục. đọc và điều chỉnh lại."

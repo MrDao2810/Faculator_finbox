@@ -812,13 +812,24 @@ export const vi = {
    */
   'portfolio.tableCaption': 'Các mã đang nắm giữ',
   /*
-   * Ô tìm mã ở góc phải tiêu đề bảng. Một chữ làm cả nhãn ẩn lẫn chữ mờ (`SearchBox` nhận `label`
-   * và `placeholder` riêng nhưng ở đây hai thứ trùng nhau).
+   * ── Ô tìm và nút hành động ở góc phải dòng tiêu đề — MỘT cặp chữ cho cả hai tab ──────────────
    *
-   * Cố ý KHÔNG chứa chữ "Thêm mã": mười lăm ca kiểm của màn tìm nút bằng `{ name: /Thêm mã/ }`,
-   * và một ô tìm tên là "Tìm mã" thì không khớp, còn "Thêm mã hay tìm mã" thì khớp cả hai.
+   * Chủ dự án, 12/10/2026: *"đồng bộ 2 chức năng này để khi đổi tab thì vẫn giữ nguyên … đổi tên
+   * thành 'Tìm kiếm', button kia thành 'Thêm mới'"*. Một chữ làm cả nhãn ẩn lẫn chữ mờ của ô tìm.
+   * Việc mỗi thứ làm thì theo tab đang mở — xem `headTools` ở `PortfolioScreen.tsx`.
+   *
+   * ⚠ Bốn chuỗi riêng từng tab đã mất chỗ trên dòng tiêu đề:
+   *   - `portfolio.searchTicker` ('Tìm mã') và `portfolio.savedSearch` ('Tìm công thức hoặc mã'):
+   *     XOÁ, thay bằng `portfolio.search`.
+   *   - `portfolio.savedNew` ('Tính công thức mới'): XOÁ, thay bằng `portfolio.addNew`.
+   *   - `portfolio.add` ('Thêm mã') CÒN, nhưng chỉ làm TIÊU ĐỀ của hộp thoại thêm mã — ở đó nó
+   *     nói đúng thứ đang thêm, còn trên nút thì chữ chung "Thêm mới" đã thay.
+   *
+   * Hai chữ chung này nói ÍT hơn bốn chữ cũ (ô tìm không còn nói tìm theo gì, nút không còn nói
+   * thêm cái gì); ngữ cảnh do tiêu đề ngay bên trái gánh. Đó là giá của yêu cầu, đã biết.
    */
-  'portfolio.searchTicker': 'Tìm mã',
+  'portfolio.search': 'Tìm kiếm',
+  'portfolio.addNew': 'Thêm mới',
   /*
    * ⚠ `portfolio.holdingsCountAria` ('{n} trên {max} mã') đã XOÁ — chủ dự án chốt 12/10/2026.
    *
@@ -827,7 +838,7 @@ export const vi = {
    * trái. Hệ quả cần biết: trần 50 mã không còn hiện thường trực ở đâu, chỉ còn câu
    * `portfolio.errFull` nói ra lúc chạm trần.
    */
-  /* Bộ lọc của ô "Tìm mã" không khớp mã nào. Khác `portfolio.empty`: danh mục KHÔNG rỗng. */
+  /* Ô "Tìm kiếm" không khớp mã nào ở tab Mã. Khác `portfolio.empty`: danh mục KHÔNG rỗng. */
   'portfolio.noMatch': 'Không có mã nào khớp.',
   /*
    * Nhãn cột trái, đầu màn (12/10/2026). Nhãn chứ không phải `<h1>`: tên màn do thanh trên dựng
@@ -836,9 +847,8 @@ export const vi = {
    */
   'portfolio.sideTitle': 'Danh mục',
   /*
-   * Nhãn NGẮN vì nút đã rời khung nét đứt cuối khối để lên góc phải dòng tiêu đề (22/09/2026,
-   * chủ dự án đưa ảnh thiết kế). Dấu '+' vẫn là SVG `aria-hidden`, KHÔNG nằm trong chuỗi — xem
-   * chú thích ở chỗ dựng nút.
+   * Tiêu đề của hộp thoại thêm mã. Từng là nhãn của CẢ nút mở hộp thoại ấy; từ 12/10/2026 nút mang
+   * chữ chung `portfolio.addNew` ("Thêm mới") — xem khối chú thích ở `portfolio.search`.
    */
   'portfolio.add': 'Thêm mã',
   'portfolio.remove': 'Bỏ mã',
@@ -1141,8 +1151,7 @@ export const vi = {
   'portfolio.savedColFormula': 'Công thức',
   'portfolio.savedColResult': 'Kết quả',
   'portfolio.savedColDate': 'Ngày lưu',
-  'portfolio.savedSearch': 'Tìm công thức hoặc mã',
-  'portfolio.savedNew': 'Tính công thức mới',
+  /* `portfolio.savedSearch` và `portfolio.savedNew` đã xoá 12/10/2026 — xem `portfolio.search`. */
   /*
    * ⚠ Bốn khoá đã XOÁ — chủ dự án chốt 12/10/2026, ngay sau khi bản thiết kế hai cột vào màn:
    *

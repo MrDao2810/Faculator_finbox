@@ -199,7 +199,7 @@ function bayScrollIntoView(): { goi: ReturnType<typeof vi.fn>; go: () => void } 
  * ô Số cổ phiếu…") và không ai đoán ra vì sao.
  */
 async function chonMaTrongForm(code = 'FPT'): Promise<void> {
-  await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
   await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
   const sheet = await tamTrenCung();
   const dong = within(sheet)
@@ -407,7 +407,7 @@ describe('WF-06 — thị giá lấy từ Finbox', () => {
       expect(feed.snapshots).toHaveBeenCalledTimes(1);
     });
 
-    await userEvent.click(screen.getByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm mới' }));
     await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '5');
 
     expect(feed.snapshots).toHaveBeenCalledTimes(1);
@@ -418,7 +418,7 @@ describe('WF-06 — chọn mã trong toàn thị trường', () => {
   it('ô chọn mã mở sheet và nhận mã đã chọn', async () => {
     render(<PortfolioScreen />);
 
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
     await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
 
     // Danh sách mã chỉ được tải khi sheet thật sự mở.
@@ -439,7 +439,7 @@ describe('WF-06 — chọn mã trong toàn thị trường', () => {
     ]);
     render(<PortfolioScreen />);
 
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
     await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
 
     const sheet = await tamTrenCung();
@@ -518,7 +518,7 @@ describe('WF-06 — từ mã sang công thức', () => {
    */
   it('chưa chọn mã: ô công thức tự nói cần mã, và bấm vào thì mở sheet chọn mã', async () => {
     render(<PortfolioScreen />);
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     const o = screen.getByRole('button', { name: 'Thêm công thức' }) as HTMLButtonElement;
 
@@ -868,7 +868,7 @@ describe('WF-06 — chế độ hiển thị giấu bớt ô nâng cao (FR-09)',
 
   it('Cơ bản: form thêm mã không có ô Beta', async () => {
     render(<PortfolioScreen />);
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     // Ba ô kia vẫn còn — chỉ đúng một ô bị giấu.
     expect(screen.getByLabelText('Số cổ phiếu nắm giữ')).toBeTruthy();
@@ -926,7 +926,7 @@ describe('WF-06 — mã đang giữ thì không thêm lại được', () => {
   async function moSheetChonMa(): Promise<HTMLElement> {
     seedHolding();
     render(<PortfolioScreen />);
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
     await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
     return tamTrenCung();
   }
@@ -1031,7 +1031,7 @@ describe('WF-06 — mã đang giữ thì không thêm lại được', () => {
 describe('WF-06 — form không được hỏng trong im lặng', () => {
   async function moForm(): Promise<void> {
     render(<PortfolioScreen />);
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
   }
 
   it('chưa chọn mã: nói lý do, và form KHÔNG đóng lại như đã thêm xong', async () => {
@@ -1072,7 +1072,7 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
   it('beta không đọc được: nói rõ, không lặng lẽ biến thành “chưa có beta”', async () => {
     // Ô beta chỉ có ở chế độ Nâng cao, nên câu lỗi của nó cũng chỉ có nghĩa ở đó — FR-09.
     await moManNangCao();
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     const beta = screen.getByLabelText('Beta') as HTMLInputElement;
     await userEvent.type(beta, 'abc');
@@ -1148,7 +1148,7 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
    */
   it('bấm nhầm chữ rồi bấm xoá: ba ô số đều không mất chữ số', async () => {
     await moManNangCao();
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     for (const nhan of ['Số cổ phiếu nắm giữ', 'Giá vốn một cổ phiếu (₫)', 'Beta']) {
       const o = screen.getByLabelText(nhan) as HTMLInputElement;
@@ -1451,13 +1451,13 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
 
   /*
    * Cột Doanh nghiệp đã bỏ (12/10/2026) nên tên công ty không còn in trên hàng. Nó vẫn được LƯU khi
-   * người dùng chọn mã qua sheet — và có một việc thật để làm: ô "Tìm mã" tìm cả theo tên, nên gõ
+   * người dùng chọn mã qua sheet — và có một việc thật để làm: ô "Tìm kiếm" tìm cả theo tên, nên gõ
    * "corp" ra đúng mã FPT dù trên màn không có chữ "Corp" nào.
    */
   it('tên doanh nghiệp chọn ở sheet không in trên hàng, nhưng ô tìm vẫn tìm ra theo tên', async () => {
     render(<PortfolioScreen />);
 
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
     await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
     const sheet = await tamTrenCung();
     await userEvent.click(within(sheet).getAllByRole('button', { name: 'Chọn' })[0] as HTMLElement);
@@ -1469,12 +1469,12 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
     const row = await dongMa();
     expect(within(row).queryByText('FPT Corp')).toBeNull();
 
-    await userEvent.type(screen.getByRole('searchbox', { name: 'Tìm mã' }), 'corp');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Tìm kiếm' }), 'corp');
     expect(screen.getByRole('button', { name: 'Sửa FPT' })).toBeTruthy();
   });
 });
 
-describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
+describe('WF-06 — ô "Tìm kiếm" lọc bảng Nắm giữ', () => {
   const HPG_SNAPSHOT = {
     ...FPT_SNAPSHOT,
     code: 'HPG',
@@ -1501,7 +1501,7 @@ describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
   it('gõ mã thì chỉ còn hàng khớp; gõ KHÔNG DẤU tên doanh nghiệp cũng ra', async () => {
     seedHaiMa();
     render(<PortfolioScreen />);
-    const o = await screen.findByRole('searchbox', { name: 'Tìm mã' });
+    const o = await screen.findByRole('searchbox', { name: 'Tìm kiếm' });
     await dongMa('HPG');
 
     await userEvent.type(o, 'hpg');
@@ -1534,7 +1534,7 @@ describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
       return o?.textContent;
     });
 
-    await userEvent.type(screen.getByRole('searchbox', { name: 'Tìm mã' }), 'hpg');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Tìm kiếm' }), 'hpg');
 
     const sau = within(await dongMa('HPG')).getAllByRole('cell')[6]?.textContent;
     expect(sau).toBe(truoc);
@@ -1544,18 +1544,24 @@ describe('WF-06 — ô "Tìm mã" lọc bảng Nắm giữ', () => {
     seedHaiMa();
     render(<PortfolioScreen />);
 
-    await userEvent.type(await screen.findByRole('searchbox', { name: 'Tìm mã' }), 'zzzz');
+    await userEvent.type(await screen.findByRole('searchbox', { name: 'Tìm kiếm' }), 'zzzz');
 
     expect(screen.getByText('Không có mã nào khớp.')).toBeTruthy();
     expect(screen.queryByRole('table')).toBeNull();
     expect(screen.getByRole('tab', { name: 'Mã 2' })).toBeTruthy();
   });
 
-  it('danh mục trống thì không có ô tìm — không có gì để lọc', async () => {
+  /*
+   * Ca này từng ghim điều NGƯỢC LẠI ("danh mục trống thì không có ô tìm — không có gì để lọc"). Chủ dự
+   * án đảo nó ngày 12/10/2026: ô tìm và nút hành động phải đứng yên khi đổi tab, mà giấu ô tìm lúc rỗng
+   * thì một tab có dữ liệu và một tab rỗng cho hai dòng tiêu đề khác nhau.
+   */
+  it('danh mục trống vẫn có ô tìm — dòng tiêu đề không đổi theo việc tab có dữ liệu hay không', async () => {
     render(<PortfolioScreen />);
     await tieuDeNamGiu();
 
-    expect(screen.queryByRole('searchbox')).toBeNull();
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Thêm mới' })).toBeTruthy();
   });
 
   /*
@@ -1769,7 +1775,7 @@ describe('WF-06 — form thôi giải thích thay cho người dùng', () => {
         <PortfolioScreen />
       </PreferencesProvider>,
     );
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     expect(screen.getByLabelText('Beta')).not.toBeNull();
     expect(screen.queryByLabelText(/để trống nếu chưa biết/)).toBeNull();
@@ -1778,7 +1784,7 @@ describe('WF-06 — form thôi giải thích thay cho người dùng', () => {
 
   it('form thêm mã không còn dòng nói về nguồn thị giá', async () => {
     render(<PortfolioScreen />);
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     expect(screen.queryByText(/Thị giá lấy từ Finbox/)).toBeNull();
     expect(screen.queryByText(/không phải giá khớp lệnh/)).toBeNull();
@@ -2218,7 +2224,7 @@ describe('WF-06 — tab Công thức: tìm và thứ tự', () => {
   it('chỉ có ô tìm: không còn chip lọc theo mã, không còn ô chọn sắp xếp', async () => {
     await moTab();
 
-    expect(screen.getByRole('searchbox', { name: 'Tìm công thức hoặc mã' })).toBeTruthy();
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeTruthy();
     expect(screen.queryAllByRole('radio')).toHaveLength(0);
     expect(screen.queryByRole('group', { name: 'Lọc theo mã' })).toBeNull();
     expect(screen.queryByRole('combobox')).toBeNull();
@@ -2236,7 +2242,7 @@ describe('WF-06 — tab Công thức: tìm và thứ tự', () => {
 
   it('ô tìm khớp theo tên công thức (cả không dấu), tên tự đặt và mã', async () => {
     await moTab();
-    const o = screen.getByRole('searchbox', { name: 'Tìm công thức hoặc mã' });
+    const o = screen.getByRole('searchbox', { name: 'Tìm kiếm' });
 
     await userEvent.type(o, 'beta');
     expect(dongDaLuu()).toHaveLength(1);
@@ -2254,10 +2260,7 @@ describe('WF-06 — tab Công thức: tìm và thứ tự', () => {
   it('không khớp gì thì nói rõ, và thẻ tóm tắt vẫn đếm cả kho', async () => {
     await moTab();
 
-    await userEvent.type(
-      screen.getByRole('searchbox', { name: 'Tìm công thức hoặc mã' }),
-      'khong co gi',
-    );
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Tìm kiếm' }), 'khong co gi');
 
     expect(screen.getByText('Không có phép tính nào khớp.')).toBeTruthy();
     expect(screen.queryByRole('table')).toBeNull();
@@ -2276,12 +2279,103 @@ describe('WF-06 — tab Công thức: tìm và thứ tự', () => {
     expect(screen.getByText('09/10/2026', { selector: 'span' })).toBeTruthy();
     expect(screen.getByText('Đã lưu').parentElement?.textContent).toContain('3');
   });
+});
 
-  it('nút "Tính công thức mới" dẫn sang danh sách công thức', async () => {
-    await moTab();
+/*
+ * ── Ô "Tìm kiếm" và nút "Thêm mới": MỘT cụm cho cả hai tab (12/10/2026) ───────────────────────
+ *
+ * Chủ dự án: *"đồng bộ 2 chức năng này để khi đổi tab thì vẫn giữ nguyên 2 chức năng này. đổi tên
+ * thành 'Tìm kiếm', button kia thành 'Thêm mới'. khi search ở tab nào thì tab đó hiển thị tương ứng,
+ * tương tự với button Thêm mới đang ở tab nào thì thêm mới ở tab đó"*.
+ *
+ * Trước đó mỗi tab có chữ riêng ("Tìm mã" + "Thêm mã", "Tìm công thức hoặc mã" + "Tính công thức
+ * mới") và một chuỗi tìm riêng. Ba ca dưới ghim ba vế của câu trên: cùng chữ ở hai tab, chuỗi tìm đi
+ * theo người dùng qua lượt đổi tab, và nút làm việc của tab đang mở.
+ */
+describe('WF-06 — ô Tìm kiếm và nút Thêm mới dùng chung cho hai tab', () => {
+  function seedCaHaiTab(): void {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '2026-01-02', beta: null },
+        { code: 'HPG', quantity: 200, costPrice: 25_000, buyDate: '2026-01-03', beta: null },
+      ]),
+    );
+    feed.snapshots.mockResolvedValue(
+      new Map([
+        ['FPT', FPT_SNAPSHOT],
+        ['HPG', { ...FPT_SNAPSHOT, code: 'HPG', name: 'Tập đoàn Hoà Phát', priceVnd: 26_000 }],
+      ]),
+    );
+    seedSavedMany();
+    seedChuoi(120);
+  }
 
-    const lien = screen.getByRole('link', { name: 'Tính công thức mới' });
-    expect(lien.getAttribute('href')).toMatch(/^\/cong-thuc\/?$/);
+  it('hai tab mang cùng một ô "Tìm kiếm" và cùng một chữ "Thêm mới"', async () => {
+    seedCaHaiTab();
+    render(<PortfolioScreen />);
+    await dongMa('HPG');
+
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Thêm mới' })).toBeTruthy();
+
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Thêm mới' })).toBeTruthy();
+    // Chữ cũ của từng tab không còn ở đâu trên màn.
+    expect(screen.queryByText('Thêm mã')).toBeNull();
+    expect(screen.queryByText('Tính công thức mới')).toBeNull();
+  });
+
+  it('chữ đang gõ sống qua lượt đổi tab và lọc bảng của tab đang mở', async () => {
+    seedCaHaiTab();
+    render(<PortfolioScreen />);
+    await dongMa('HPG');
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Tìm kiếm' }), 'hpg');
+    expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Sửa HPG' })).toBeTruthy();
+
+    // Sang tab Công thức: ô vẫn giữ "hpg" và bảng chỉ còn hai phép tính của HPG.
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+    expect((screen.getByRole('searchbox', { name: 'Tìm kiếm' }) as HTMLInputElement).value).toBe(
+      'hpg',
+    );
+    expect(dongDaLuu().map((d) => chuCuaO(d, 1))).toEqual(['HPG', 'HPG']);
+
+    // Quay lại tab Mã: vẫn chuỗi ấy, vẫn chỉ hàng HPG.
+    await bamTab('Mã');
+    await dongMa('HPG');
+    expect((screen.getByRole('searchbox', { name: 'Tìm kiếm' }) as HTMLInputElement).value).toBe(
+      'hpg',
+    );
+    expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
+  });
+
+  /*
+   * Cùng chữ, khác việc. Ở tab Mã là `<button>` mở hộp thoại thêm mã (tiêu đề hộp thoại vẫn nói rõ
+   * "Thêm mã"). Ở tab Công thức là `<a>` sang danh sách công thức: một phép tính chỉ sinh ra ở màn chi
+   * tiết công thức, màn này không có form nào để thêm nó tại chỗ — và điều hướng thì phải là liên kết.
+   */
+  it('"Thêm mới" làm việc của tab đang mở: tab Mã mở form thêm mã, tab Công thức dẫn sang danh sách công thức', async () => {
+    seedCaHaiTab();
+    render(<PortfolioScreen />);
+    await dongMa('HPG');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm mới' }));
+    const hop = await tamTrenCung();
+    expect(within(hop).getByRole('heading', { name: 'Thêm mã' })).toBeTruthy();
+    await userEvent.click(within(hop).getByRole('button', { name: t('portfolio.formCancel') }));
+
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+    expect(screen.queryByRole('button', { name: 'Thêm mới' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Thêm mới' }).getAttribute('href')).toMatch(
+      /^\/cong-thuc\/?$/,
+    );
   });
 });
 
@@ -2323,10 +2417,10 @@ describe('WF-06 — form mở thành hộp thoại giữa màn', () => {
     }
   });
 
-  it('bấm "Thêm mã" mở cùng một hộp thoại, tiêu đề nói là thêm chứ không phải sửa', async () => {
+  it('bấm "Thêm mới" mở cùng một hộp thoại, tiêu đề nói là thêm mã chứ không phải sửa', async () => {
     render(<PortfolioScreen />);
 
-    await userEvent.click(await screen.findByRole('button', { name: /Thêm mã/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     const hop = await tamTrenCung();
     expect(within(hop).getByRole('heading', { name: 'Thêm mã' })).toBeTruthy();

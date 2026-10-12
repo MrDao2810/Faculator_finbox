@@ -151,7 +151,7 @@
   color: var(--color-muted);
 }
 
-/* Danh mục KHÔNG rỗng nhưng ô "Tìm mã" không khớp mã nào — khác `.empty`, nên không có icon lớn. */
+/* Tab KHÔNG rỗng nhưng ô "Tìm kiếm" không khớp dòng nào — khác `.empty`, nên không có icon lớn. */
 .noMatch {
   margin: 0;
   padding: var(--space-4);
@@ -176,7 +176,7 @@
  * Bài học từ lần hỏng đầu vẫn giữ nguyên giá trị: một khung nét đứt trên nền trắng với chữ xám đọc ra
  * như "ô trống chờ điền". Nền đặc thì không còn chỗ cho hiểu lầm ấy.
  *
- * Dùng cho CẢ `<button>` (Thêm mã) lẫn `<Link>` (Tính công thức mới): `text-decoration: none` và
+ * Dùng cho CẢ `<button>` (tab Mã) lẫn `<Link>` (tab Công thức), cùng chữ "Thêm mới": `text-decoration: none` và
  * `white-space: nowrap` có mặt vì link, không phải vì nút. `min-height` giữ vùng chạm 44px (NFR-USA-01).
  */
 .addButton {

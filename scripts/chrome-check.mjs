@@ -1991,7 +1991,7 @@ window.__themeLog = [];
    * bảng chỉ là phương án tạm — hai cột xếp chồng, bảng cuộn ngang TRONG khung của nó.
    *
    * Nên các phép đo kia đi cùng cái chúng đo. Giữ lại hai điều kiện KHÔNG phụ thuộc thiết kế khổ nhỏ,
-   * vì chúng là điều trang phải đúng ở mọi khổ: không tràn ngang cả trang, và nút "Thêm mã" — hành
+   * vì chúng là điều trang phải đúng ở mọi khổ: không tràn ngang cả trang, và nút "Thêm mới" — hành
    * động chính của màn — vẫn bấm được. Khi có bản vẽ khổ nhỏ, viết lại bộ đo cho đúng bản vẽ ấy.
    *
    * HPG cố ý KHÔNG có ngày mua: hai mã giữ cho các phép đo ở khổ PC bên dưới có hai hàng để so.
@@ -2012,7 +2012,7 @@ window.__themeLog = [];
     evaluate(`(() => {
     const bang = document.querySelector('main table');
     const khung = bang === null ? null : bang.closest('[class*="tableWrap"]');
-    const nut = [...document.querySelectorAll('button')].find((b) => /Thêm mã/.test(b.textContent ?? ''));
+    const nut = [...document.querySelectorAll('button')].find((b) => /Thêm mới/.test(b.textContent ?? ''));
     const hop = nut === undefined ? null : nut.getBoundingClientRect();
     return {
       thay: bang !== null,
@@ -2031,7 +2031,7 @@ window.__themeLog = [];
     `bảng ${dmHep.cuonTrongKhung === true ? 'cuộn ngang trong khung' : 'vừa khung'}`,
   );
   check(
-    '360 · nút "Thêm mã" nằm trọn trong màn',
+    '360 · nút "Thêm mới" nằm trọn trong màn',
     dmHep.nutTrongMan === true,
     `nút rộng ${String(dmHep.rongNut)}px`,
   );
@@ -2049,7 +2049,7 @@ window.__themeLog = [];
 
   const dmVua = await doKhoNho();
   check(
-    '560 · màn Danh mục có mã không tràn ngang, nút "Thêm mã" nằm trọn trong màn',
+    '560 · màn Danh mục có mã không tràn ngang, nút "Thêm mới" nằm trọn trong màn',
     dmVua.thay === true && dmVua.tran === false && dmVua.nutTrongMan === true,
     `bảng ${dmVua.cuonTrongKhung === true ? 'cuộn ngang trong khung' : 'vừa khung'}`,
   );
@@ -3129,7 +3129,7 @@ window.__themeLog = [];
    */
   await open('/danh-muc/');
   await evaluate(
-    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Thêm mã/.test(x.textContent ?? '')); if (b) b.click(); return Boolean(b); })()`,
+    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Thêm mới/.test(x.textContent ?? '')); if (b) b.click(); return Boolean(b); })()`,
   );
   await waitFor(
     `[...document.querySelectorAll('button')].some((b) => /Thêm vào danh mục/.test(b.textContent ?? ''))`,

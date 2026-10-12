@@ -220,7 +220,7 @@ const TILE_ICONS = {
     'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM14.5 9.2c-.4-.8-1.3-1.2-2.5-1.2-1.4 0-2.5.7-2.5 1.8 0 2.5 5 1.2 5 3.7 0 1.1-1.1 1.8-2.5 1.8-1.2 0-2.1-.4-2.5-1.2M12 6.5V8m0 8v1.5',
   /* "fx" vẽ bằng nét — tab Công thức. */
   tabSaved: 'M8.5 18v-9a3 3 0 0 1 3-3h.5M6 11.5h5.5M13 12.5l5 6m0-6-5 6',
-  /* Dấu cộng — nút Thêm mã. */
+  /* Dấu cộng — nút Thêm mới. */
   plus: 'M12 5v14M5 12h14',
   /* Bút chì — Sửa. */
   edit: 'M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4',
@@ -328,10 +328,18 @@ export function PortfolioScreen() {
    * và Bỏ mã là hai nút biểu tượng ngay trên dòng. Ngày mua và beta vì thế chỉ còn thấy trong form
    * Sửa. Lịch sử của accordion (một mã mở một lúc, vì sao không giữ một `Set`) nằm ở git, không ở đây.
    */
-  /** Chữ gõ ở ô "Tìm mã". Chỉ lọc HÀNG HIỆN — tỷ trọng vẫn tính trên cả danh mục. */
-  const [holdQuery, setHoldQuery] = useState('');
-  /** Chữ gõ ở ô tìm của tab Công thức. */
-  const [savedQuery, setSavedQuery] = useState('');
+  /**
+   * Chữ gõ ở ô "Tìm kiếm" — MỘT ô, một chuỗi, dùng chung cho hai tab (12/10/2026).
+   *
+   * Chủ dự án: *"đồng bộ 2 chức năng này để khi đổi tab thì vẫn giữ nguyên … khi search ở tab nào thì
+   * tab đó hiển thị tương ứng"*. Trước đó mỗi tab giữ một chuỗi riêng (`holdQuery`, `savedQuery`) với
+   * hai nhãn khác nhau ("Tìm mã", "Tìm công thức hoặc mã"). Nay chuỗi SỐNG QUA lượt đổi tab và lọc
+   * bảng của tab đang mở: gõ "hpg" ở tab Mã rồi sang tab Công thức thì thấy các phép tính của HPG.
+   * Cả hai bảng đều tìm được theo mã, nên một chuỗi phục vụ được cả hai.
+   *
+   * Ở tab Mã nó chỉ lọc HÀNG HIỆN — tỷ trọng vẫn tính trên cả danh mục.
+   */
+  const [query, setQuery] = useState('');
   /**
    * Số dòng của chuỗi giá đang nằm trong máy (`ffb.series.v1`).
    *
@@ -873,7 +881,7 @@ export function PortfolioScreen() {
   // ── Dữ liệu của hai bảng ────────────────────────────────────────────────────
 
   /**
-   * Hàng của bảng Nắm giữ sau khi lọc bằng ô "Tìm mã".
+   * Hàng của bảng Nắm giữ sau khi lọc bằng ô "Tìm kiếm".
    *
    * `normalizeVi()` bỏ dấu và hạ chữ thường — cùng hàm với sheet chọn mã, nên gõ "fpt" hay "FPT" hay
    * gõ không dấu tên doanh nghiệp đều ra đúng. Lọc chỉ ẨN HÀNG: `summary.rows` vẫn là cả danh mục, nên
@@ -881,16 +889,14 @@ export function PortfolioScreen() {
    * phần đang hiện). Tên doanh nghiệp lấy bù từ `quotes` như cột Doanh nghiệp ngày trước vẫn làm —
    * cùng gói dữ liệu đã tải để tra thị giá, không thêm lời gọi mạng nào.
    */
-  const holdNeedle = normalizeVi(holdQuery).trim();
+  const needle = normalizeVi(query).trim();
   const visibleRows = useMemo(() => {
-    if (holdNeedle === '') return summary.rows;
+    if (needle === '') return summary.rows;
     return summary.rows.filter((row) => {
       const name = row.holding.name ?? quotes.get(row.holding.code)?.name ?? '';
-      return (
-        normalizeVi(row.holding.code).includes(holdNeedle) || normalizeVi(name).includes(holdNeedle)
-      );
+      return normalizeVi(row.holding.code).includes(needle) || normalizeVi(name).includes(needle);
     });
-  }, [summary.rows, holdNeedle, quotes]);
+  }, [summary.rows, needle, quotes]);
 
   /*
    * Mọi dòng của bảng Phép tính đã lưu, dựng MỘT lượt — xem `SavedRowView`. Không bọc `useMemo`: hai
@@ -979,9 +985,8 @@ export function PortfolioScreen() {
    * thiết kế 12/10/2026) và đã bị chủ dự án bảo bỏ ngay sau đó: ô tìm đã tìm được theo mã, còn
    * kho tối đa 30 phép tính nên một chiều xếp cố định là đủ.
    */
-  const savedNeedle = normalizeVi(savedQuery).trim();
   const shownSaved = savedRows
-    .filter((row) => savedNeedle === '' || row.haystack.includes(savedNeedle))
+    .filter((row) => needle === '' || row.haystack.includes(needle))
     .sort((a, b) => b.saved.savedAt - a.saved.savedAt);
 
   // Số đếm của thẻ tóm tắt tính trên CẢ kho, không theo ô tìm đang gõ.
@@ -992,6 +997,61 @@ export function PortfolioScreen() {
   const savedReload = savedRows.filter((row) => row.needsReload).length;
   const lastSavedAt = savedCalcs.reduce((latest, saved) => Math.max(latest, saved.savedAt), 0);
   const lastSaved = lastSavedAt > 0 ? formatIsoDate(isoDayOf(lastSavedAt)) : null;
+
+  /**
+   * Cụm công cụ ở góc phải dòng tiêu đề: ô "Tìm kiếm" và nút "Thêm mới" — MỘT khuôn cho cả hai tab.
+   *
+   * Dựng một lần ở đây rồi cả hai tab cùng đặt vào dòng tiêu đề của mình, nên hai tab không thể lệch
+   * nhau về chữ, cỡ hay vị trí: đổi tab thì hai thứ này đứng yên (chủ dự án, 12/10/2026 — trước đó
+   * là "Tìm mã" + "Thêm mã" bên này và "Tìm công thức hoặc mã" + "Tính công thức mới" bên kia, hai
+   * nút rộng khác nhau nên ô tìm nhảy chỗ mỗi lần đổi tab).
+   *
+   * Cùng chữ, khác việc — theo tab đang mở:
+   *   - Ô tìm lọc bảng của tab ấy (xem `query`).
+   *   - "Thêm mới" ở tab Mã MỞ FORM thêm mã, nên là `<button>`. Ở tab Công thức nó DẪN sang danh sách
+   *     công thức, nên là `<Link>` — một phép tính chỉ sinh ra ở màn chi tiết công thức (bấm Lưu ở
+   *     đó), màn này không có form nào để "thêm" nó tại chỗ. Điều hướng thì phải là liên kết: mở được
+   *     bằng chuột giữa và menu ngữ cảnh.
+   *
+   * Ô tìm LUÔN có mặt, kể cả khi tab đang mở chưa có dòng nào. Bản trước giấu nó lúc rỗng ("không có
+   * gì để lọc"); giữ luật ấy thì một tab có dữ liệu và một tab rỗng sẽ cho hai dòng tiêu đề khác
+   * nhau, đúng thứ yêu cầu này bảo bỏ.
+   *
+   * Dấu cộng là SVG `aria-hidden` chứ không phải ký tự '+' trong nhãn — nếu không, tên khả truy cập
+   * của nút thành "+ Thêm mới". Nút ở tab Mã không bị form thay chỗ: form là hộp thoại nổi giữa màn,
+   * và phần trang phía sau đã `inert` nên nút không với tới được trong lúc hộp thoại mở.
+   */
+  const headTools = (
+    <div className={styles.headTools}>
+      <div className={styles.search}>
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          label={t('portfolio.search')}
+          placeholder={t('portfolio.search')}
+          compact
+        />
+      </div>
+
+      {tab === 'holdings' ? (
+        <button
+          type="button"
+          className={styles.addButton}
+          onClick={() => {
+            setFormOpen(true);
+          }}
+        >
+          <StatIcon d={TILE_ICONS.plus} />
+          {t('portfolio.addNew')}
+        </button>
+      ) : (
+        <Link className={styles.addButton} href={ROUTES.formulas}>
+          <StatIcon d={TILE_ICONS.plus} />
+          {t('portfolio.addNew')}
+        </Link>
+      )}
+    </div>
+  );
 
   /**
    * Dải thị giá — chân thẻ tóm tắt.
@@ -1142,41 +1202,8 @@ export function PortfolioScreen() {
                     {t('portfolio.holdings')}
                   </h2>
 
-                  <div className={styles.headTools}>
-                    {/* Danh mục trống thì không có gì để lọc — ô tìm chỉ chiếm chỗ. */}
-                    {holdings.length > 0 && (
-                      <div className={styles.search}>
-                        <SearchBox
-                          value={holdQuery}
-                          onChange={setHoldQuery}
-                          label={t('portfolio.searchTicker')}
-                          placeholder={t('portfolio.searchTicker')}
-                          compact
-                        />
-                      </div>
-                    )}
-
-                    {/*
-                      Nút hành động chính của cả màn, ở GÓC PHẢI dòng tiêu đề (22/09/2026, chủ dự án
-                      đưa ảnh thiết kế). Hai thứ giữ lại vì chúng là bài học chứ không phải kiểu dáng:
-                      chữ ĐẬM trên nền có màu (khung nét đứt trên nền trắng từng bị đọc ra như một ô
-                      trống chờ điền), và dấu cộng là SVG `aria-hidden` chứ không phải ký tự '+' trong
-                      nhãn — nếu không, tên khả truy cập của nút thành "+ Thêm mã".
-
-                      Nút không bị form thay chỗ: form là hộp thoại nổi giữa màn, và phần trang phía
-                      sau đã `inert` nên nút này không với tới được trong lúc hộp thoại mở.
-                    */}
-                    <button
-                      type="button"
-                      className={styles.addButton}
-                      onClick={() => {
-                        setFormOpen(true);
-                      }}
-                    >
-                      <StatIcon d={TILE_ICONS.plus} />
-                      {t('portfolio.add')}
-                    </button>
-                  </div>
+                  {/* Ô "Tìm kiếm" và nút "Thêm mới" — một khuôn cho cả hai tab, xem `headTools`. */}
+                  {headTools}
                 </div>
 
                 {holdings.length === 0 ? (
@@ -1682,25 +1709,8 @@ export function PortfolioScreen() {
                     {t('portfolio.savedTitle')}
                   </h2>
 
-                  <div className={styles.headTools}>
-                    {savedCalcs.length > 0 && (
-                      <div className={styles.search}>
-                        <SearchBox
-                          value={savedQuery}
-                          onChange={setSavedQuery}
-                          label={t('portfolio.savedSearch')}
-                          placeholder={t('portfolio.savedSearch')}
-                          compact
-                        />
-                      </div>
-                    )}
-
-                    {/* Cùng đích với nút ở trạng thái rỗng bên dưới: danh sách công thức. */}
-                    <Link className={styles.addButton} href={ROUTES.formulas}>
-                      <StatIcon d={TILE_ICONS.plus} />
-                      {t('portfolio.savedNew')}
-                    </Link>
-                  </div>
+                  {/* Cùng cụm với tab Mã; "Thêm mới" ở đây dẫn sang danh sách công thức. */}
+                  {headTools}
                 </div>
 
                 {savedCalcs.length === 0 ? (

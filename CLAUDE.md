@@ -368,7 +368,21 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   together so they cannot drift apart, and `table-layout: fixed` with per-column widths. Below 1280px the weight
   bar is hidden and the cell padding and `min-width` shrink: the left column is ~300px, so at 1024px the table
   only has ~600px and Tỷ trọng plus the two buttons would sit off-screen.
-- **The "Tìm mã" box hides rows only.** Weight is still measured against the whole portfolio — a ticker
+- **The search box and the action button are ONE pair shared by both tabs: "Tìm kiếm" and "Thêm mới"**
+  (12/10/2026). They were "Tìm mã" + "Thêm mã" on one tab and "Tìm công thức hoặc mã" + "Tính công thức mới" on
+  the other, each tab with its own query; the two buttons had different widths, so the search box jumped on
+  every tab switch. The owner: _"đồng bộ 2 chức năng này để khi đổi tab thì vẫn giữ nguyên … khi search ở tab
+  nào thì tab đó hiển thị tương ứng, tương tự với button Thêm mới"_. So `headTools` is built once in
+  `PortfolioScreen.tsx` and dropped into both title rows — measured: identical rectangles on both tabs at 1440
+  and 1024. Same words, different job by open tab. **There is one `query`**, it survives a tab switch and
+  filters whichever table is open (both match by ticker). "Thêm mới" is a `<button>` that opens the add form
+  on the Mã tab and a `<Link>` to the formula list on the Công thức tab, because a saved calculation is only
+  ever created from a formula's detail screen. The search box is now **always** rendered, empty tab included —
+  hiding it when there was nothing to filter would give the two tabs different title rows again; a case that
+  pinned the opposite was inverted. `portfolio.add` ("Thêm mã") survives only as the add dialog's title, so
+  **tests find the opener by `{ name: 'Thêm mới' }`** and the dialog by its "Thêm mã" heading. The cost, known:
+  the two generic words say less than the four they replaced, and the title to their left carries the context.
+- **On the Mã tab the search hides rows only.** Weight is still measured against the whole portfolio — a ticker
   alone on screen must not read "100%". It matches code and company name through `normalizeVi()`, like the
   ticker picker; the company name comes from the holding or, failing that, from `quotes`.
 - **The price strip moved into the summary card's footer** and is still ONE `<p role="status|alert">` carrying
@@ -377,7 +391,7 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   and tests find the date with a single `getByText`.
 - **Small screens are NOT designed — the owner deferred them** ("phần dành cho mobile thì tạm thời tính sau").
   Below 1024px the columns stack and each table scrolls sideways inside `.tableWrap`. The compact row of
-  WF-06, the 560px shape and their `check:chrome` assertions are gone; two remain (no page overflow, "Thêm mã"
+  WF-06, the 560px shape and their `check:chrome` assertions are gone; two remain (no page overflow, "Thêm mới"
   reachable at 360 and 560). When a small-screen design arrives: add an `@media` in the `.layout` block and
   rewrite both tables, do not restore from git. `.tableWrap` **must** be `position: relative`: the
   `visually-hidden` labels in the table are `position: absolute`, and a scroller only clips an absolute

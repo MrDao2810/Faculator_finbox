@@ -851,7 +851,17 @@ export const vi = {
    * chữ chung `portfolio.addNew` ("Thêm mới") — xem khối chú thích ở `portfolio.search`.
    */
   'portfolio.add': 'Thêm mã',
-  'portfolio.remove': 'Bỏ mã',
+  /*
+   * Tên của nút thùng rác trên mỗi dòng bảng Mã — vừa là chú thích khi rê chuột, vừa là nửa đầu của
+   * `aria-label` ("Xoá FPT"). Từng là 'Bỏ mã'; chủ dự án sửa ngày 12/10/2026: *"khi hover vào ở màn
+   * Mã là xóa chứ không phải bỏ mã"*. Nay cùng chữ với `portfolio.savedRemove` của bảng Công thức —
+   * một biểu tượng, một tên, ở cả hai bảng. Hai khoá tách theo bảng, nên đổi chữ bên này thì đổi cả
+   * bên kia.
+   *
+   * Đừng lẫn với `detail.tickerClear` ('Bỏ mã') ở màn chi tiết công thức: đó là thôi theo dõi một mã,
+   * không xoá gì khỏi danh mục, và nó giữ nguyên chữ.
+   */
+  'portfolio.remove': 'Xoá',
   /*
    * Một câu, không hai (08/10/2026, chủ dự án). Vế thứ hai ("Thêm mã đầu tiên để xem tổng giá trị
    * và tỷ trọng") chỉ đường tới đúng cái nút "Thêm mã" đang đứng ngay cạnh nó, và kể ra hai thứ
@@ -1137,6 +1147,10 @@ export const vi = {
    * nhưng chỉ xuất hiện ở dòng mà chuỗi giá trong máy KHÔNG khớp lúc lưu, nơi việc người dùng cần
    * làm là nạp lại chuỗi chứ không phải "xem". Hai nhãn khác nhau để nút nói đúng việc sắp xảy ra.
    * (`portfolio.savedOpen` từng là 'Xem'.)
+   *
+   * Từ chiều 12/10/2026 ba chữ này KHÔNG còn in trên màn: cả ba nút là biểu tượng (chủ dự án: "đổi
+   * text button Mở thành Icon mở để đồng bộ"), và chúng chỉ còn sống trong `aria-label` — "Mở HPG ·
+   * P/E", "Nạp …", "Xoá …". Vì thế chúng là thứ duy nhất nói nút làm gì; đừng coi là khoá mồ côi.
    */
   'portfolio.savedOpen': 'Mở',
   'portfolio.savedReload': 'Nạp',

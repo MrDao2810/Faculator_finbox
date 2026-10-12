@@ -102,6 +102,49 @@ tự với button Thêm mới đang ở tab nào thì thêm mới ở tab đó"_
   36, nút 119 × 36); mép trên thẻ tab vẫn trùng mép trên bảng.
 - `npm run check` xanh: 141 file, **3.229 ca**. `check:chrome` vẫn chưa chạy lại.
 
+**Sửa tiếp lần sáu, cùng ngày:** _"đổi text button Mở thành Icon mở để đồng bộ."_
+
+- `PortfolioScreen.tsx`: liên kết chữ "Mở" ở cuối mỗi dòng của bảng Công thức thành nút BIỂU TƯỢNG (mũi tên đi
+  ra khỏi khung), cùng khuôn `.rowAction` với bút chì và thùng rác của bảng Mã. Vẫn là `<Link>` vì nó điều
+  hướng. Thêm hai nét vẽ `open`, `reload` vào `TILE_ICONS`.
+- **"Nạp" cũng thành biểu tượng (mũi tên vòng)** — ngoài lời giao, nhưng để một dòng chữ "Nạp" đứng giữa cột
+  toàn biểu tượng là lệch đúng thứ yêu cầu này muốn đồng bộ. Hai biểu tượng khác nhau để dòng bị cờ vẫn nói
+  việc khác; dòng ấy còn nền vàng và câu "Cần nạp lại chuỗi giá".
+- Chữ rời màn nên `aria-label` ("Mở HPG · P/E", "Nạp …") là thứ duy nhất còn nói nút làm gì. Ba khoá
+  `savedOpen` / `savedReload` / `savedRemove` ở lại cho việc ấy.
+- `PortfolioScreen.module.css`: bỏ `.rowLink` (38 dòng); cột nút của bảng Công thức về lại 96px (88px dưới
+  1280px), bằng đúng bảng Mã — con số 116px của lượt sửa hai chỉ cần khi "Mở" còn là chữ.
+- `PortfolioScreen.test.tsx`: +1 ca (không chữ, có tên, hai biểu tượng khác nhau). 110 → 111 ca.
+- Đo bằng Chrome ở 1440 và 1024: bảng vừa khung, không thanh cuộn ngang; hai nút mỗi dòng 36 × 36.
+- `npm run check` xanh: 141 file, **3.230 ca**. `check:chrome` vẫn chưa chạy lại.
+
+**Sửa tiếp lần tám, cùng ngày:** _"cái này khi hover vào ở màn Mã là xóa chứ không phải bỏ mã"_ (kèm ảnh nút thùng
+rác).
+
+- `vi.ts`, `en.ts`: `portfolio.remove` đổi từ 'Bỏ mã' ('Remove') sang **'Xoá'** ('Delete') — cùng chữ với nút
+  thùng rác của bảng Công thức (`portfolio.savedRemove`).
+- Đổi **cả tên đọc cho trình đọc màn hình** ("Bỏ mã FPT" → "Xoá FPT"), không chỉ chú thích khi rê chuột: để
+  người nhìn thấy "Xoá" còn người nghe thấy "Bỏ mã" là một nút mang hai tên.
+- Không đụng nút "Bỏ mã" ở màn chi tiết công thức (`detail.tickerClear`): đó là thôi theo dõi một mã, không xoá
+  gì khỏi danh mục.
+- `PortfolioScreen.test.tsx`: ba chỗ dò nút theo tên mới, thêm một dòng ghim không còn nút nào tên "Bỏ mã".
+  `chrome-check.mjs`: sửa chữ trong tên một phép kiểm.
+- `npm run check` xanh: 141 file, **3.230 ca**. `check:chrome` vẫn chưa chạy lại.
+
+**Sửa tiếp lần bảy, cùng ngày:** _"thêm khi hover chuột vào thì hiện tên của icon đó"_
+
+- `PortfolioScreen.tsx`: năm nút biểu tượng của hai bảng (Sửa, Bỏ mã · Mở, Nạp, Xoá) nhận thêm `title` — chú
+  thích gốc của trình duyệt, hiện khi rê chuột. Cùng cách với nút đổi giao diện (`ThemeSwitch`) và nút xoá lịch
+  sử tìm (`RecentSearches`), không dựng tooltip riêng.
+- `title` mang **tên ngắn** ("Sửa", "Mở"…), không kèm mã hay tên phép tính: người rê chuột đang nhìn đúng dòng
+  ấy. `aria-label` giữ nguyên bản đầy đủ ("Sửa FPT", "Mở HPG · P/E") cho trình đọc màn hình.
+- Áp cho **cả bảng Mã**, không chỉ nút "Mở" vừa đổi: bút chì và thùng rác bên ấy cũng là biểu tượng trần.
+- `PortfolioScreen.test.tsx`: hai ca nút biểu tượng kiểm thêm `title`. Vẫn 111 ca.
+- Giới hạn cần biết: chú thích gốc hiện sau khoảng nửa giây đến một giây, kiểu chữ do hệ điều hành vẽ, và
+  **không hiện trên màn cảm ứng** (không có "rê"). Muốn hiện tức thì, đúng màu sản phẩm thì phải dựng tooltip
+  riêng — việc lớn hơn vì khung bảng đang cắt mọi thứ thò ra ngoài.
+- `npm run check` xanh: 141 file, **3.230 ca**. `check:chrome` vẫn chưa chạy lại.
+
 ### Chủ dự án giao gì
 
 > "sau đây là thiết kế mới dành cho phần danh mục. đọc và điều chỉnh lại."

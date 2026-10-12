@@ -307,7 +307,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.noMatch': 'No ticker matches.',
   'portfolio.sideTitle': 'Portfolio',
   'portfolio.add': 'Add ticker',
-  'portfolio.remove': 'Remove',
+  'portfolio.remove': 'Delete',
   /* Một câu, không hai — xem chú thích ở `vi.ts`. */
   'portfolio.empty': 'Nothing here yet.',
   /* `portfolio.localTag` và `portfolio.localOnly` đã xoá cùng lúc với bản Việt — xem docblock ở

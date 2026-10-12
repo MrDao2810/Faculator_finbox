@@ -1346,10 +1346,15 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
 
     const row = await dongMa();
     const sua = within(row).getByRole('button', { name: 'Sửa FPT' });
-    const boMa = within(row).getByRole('button', { name: 'Bỏ mã FPT' });
+    const boMa = within(row).getByRole('button', { name: 'Xoá FPT' });
 
     expect(sua.textContent).toBe('');
     expect(boMa.textContent).toBe('');
+    // Rê chuột thì hiện tên ngắn của nút (12/10/2026) — không kèm mã, người rê đang nhìn đúng dòng ấy.
+    expect(sua.getAttribute('title')).toBe('Sửa');
+    // "Xoá", KHÔNG phải "Bỏ mã": chủ dự án sửa tên nút thùng rác cho khớp bảng Công thức (12/10/2026).
+    expect(boMa.getAttribute('title')).toBe('Xoá');
+    expect(screen.queryByRole('button', { name: /Bỏ mã/ })).toBeNull();
     // Chỉ hai nút — không có nút phủ cả dòng nào ngoài chúng.
     expect(within(row).getAllByRole('button')).toHaveLength(2);
     expect(screen.queryByRole('button', { name: 'Thêm công thức FPT' })).toBeNull();
@@ -1372,7 +1377,7 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
     render(<PortfolioScreen />);
 
     const row = await dongMa('HPG');
-    await userEvent.click(within(row).getByRole('button', { name: 'Bỏ mã HPG' }));
+    await userEvent.click(within(row).getByRole('button', { name: 'Xoá HPG' }));
 
     expect(screen.queryByRole('button', { name: 'Sửa HPG' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Sửa FPT' })).toBeTruthy();
@@ -2163,6 +2168,40 @@ describe('WF-06 — tab Công thức: bảng', () => {
     expect(
       dongDaLuu().filter((d) => d.textContent?.includes('Cần nạp lại chuỗi giá')),
     ).toHaveLength(1);
+  });
+
+  /*
+   * "Mở" và "Nạp" là nút BIỂU TƯỢNG từ 12/10/2026 — chủ dự án: "đổi text button Mở thành Icon mở để
+   * đồng bộ" (với bút chì và thùng rác của bảng Mã). Trước đó chúng là chữ gạch chân. Chữ đã rời màn
+   * nên `aria-label` là thứ duy nhất còn nói nút làm gì; ca này giữ cả hai nửa: không chữ, có tên.
+   * Hai biểu tượng phải KHÁC nhau — dòng bị cờ đi cùng đích nhưng việc người dùng sắp làm thì khác.
+   */
+  it('"Mở" và "Nạp" là nút biểu tượng: không mang chữ, tên đi qua aria-label, hai biểu tượng khác nhau', async () => {
+    seedSavedMany();
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+
+    const [b, , a] = dongDaLuu() as [HTMLElement, HTMLElement, HTMLElement];
+    const nap = within(b).getByRole('link', { name: /^Nạp / });
+    const mo = within(a).getByRole('link', { name: 'Mở HPG · P/E' });
+
+    for (const nut of [nap, mo]) {
+      expect(nut.textContent).toBe('');
+      expect(nut.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    }
+    // Cả ô hành động không còn chữ nào: hai nút biểu tượng, như bảng Mã.
+    expect(chuCuaO(a, 4)).toBe('');
+    expect(chuCuaO(b, 4)).toBe('');
+    // Rê chuột thì hiện tên ngắn của từng nút — thứ duy nhất người nhìn màn còn đọc được về chúng.
+    expect(mo.getAttribute('title')).toBe('Mở');
+    expect(nap.getAttribute('title')).toBe('Nạp');
+    expect(within(a).getByRole('button', { name: 'Xoá HPG · P/E' }).getAttribute('title')).toBe(
+      'Xoá',
+    );
+    expect(nap.querySelector('path')?.getAttribute('d')).not.toBe(
+      mo.querySelector('path')?.getAttribute('d'),
+    );
   });
 
   it('chuỗi giá đủ đúng số phiên lúc lưu thì hết cờ, hiện lại số đã lưu', async () => {

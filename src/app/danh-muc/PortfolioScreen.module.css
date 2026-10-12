@@ -218,7 +218,7 @@
  * trùng nhau dù chữ tiêu đề đổi cỡ. Ô tìm cũng hẹp lại (trước co giãn tới 22rem).
  *
  * Chỉ từ 1024px: dưới đó hai cột xếp chồng nên không có gì để gióng, và nút phải giữ 44px cho tay chạm.
- * Ở khổ này nút vẫn có vùng chạm 44px nhờ `::after` (NFR-USA-01), cùng cách với `.rowLink`.
+ * Ở khổ này nút vẫn có vùng chạm 44px nhờ `::after` (NFR-USA-01), cùng cách với `.rowAction`.
  *
  * Khai SAU `.sideTitle`, `.blockHead`, `.search` và `.addButton`: cùng một lớp đơn, thứ tự file quyết định.
  */
@@ -373,17 +373,15 @@
   width: 16%;
 }
 
-.holdList th:nth-child(8) {
-  width: 96px;
-}
-
 /*
- * Rộng hơn cột nút của bảng Nắm giữ: ở đây ô chở một liên kết CHỮ ("Mở" / "Nạp") cạnh nút thùng rác,
- * không phải hai nút 36px. Với 96px thì ô tràn 11px, và vùng chạm `::after` của nút cuối thò thêm 4px
- * ra ngoài khung — đủ để `.tableWrap` mọc một thanh cuộn ngang dưới bảng ở cả khổ 1440px.
+ * Cột nút của HAI bảng cùng một bề rộng: mỗi bảng chở đúng hai nút biểu tượng 36px (bút chì + thùng rác;
+ * mở/nạp + thùng rác). Bảng Công thức từng cần 116px trong vài giờ ngày 12/10/2026, khi "Mở"/"Nạp" còn
+ * là liên kết CHỮ: với 96px ô ấy tràn 11px và `.tableWrap` mọc một thanh cuộn ngang. Chữ thành biểu
+ * tượng thì hai cột lại khớp nhau — nếu một trong hai nút quay về dạng chữ, phải nới cột theo.
  */
+.holdList th:nth-child(8),
 .savedList th:nth-child(5) {
-  width: 116px;
+  width: 96px;
 }
 
 .savedList th:nth-child(2) {
@@ -525,7 +523,7 @@
   border-radius: var(--radius-pill);
 }
 
-/* Cột cuối chở hai nút biểu tượng (hoặc "Mở" + thùng rác): xếp ngang, dạt phải, không xuống dòng. */
+/* Cột cuối chở hai nút biểu tượng ở cả hai bảng: xếp ngang, dạt phải, không xuống dòng. */
 .holdActions {
   white-space: nowrap;
 }
@@ -539,6 +537,9 @@
  *
  * Hộp 36px, vùng chạm 44px bằng `::after` (NFR-USA-01) — hai nút đứng sát nhau nên vùng phủ chỉ nới
  * 4px mỗi phía, vừa đủ chạm 44 mà không chồng lên nút bên cạnh.
+ *
+ * Dùng cho cả `<button>` (sửa, bỏ mã, xoá) lẫn `<Link>` (mở/nạp một phép tính đã lưu) — khuôn không khai
+ * gì riêng của nút, nên một thẻ `<a>` mang nó ra đúng một hộp như ba nút kia.
  */
 .rowAction {
   position: relative;
@@ -636,47 +637,9 @@
 }
 
 /*
- * "Mở"/"Nạp" — liên kết chữ có gạch chân, đúng bản thiết kế. Là `<Link>` chứ không `<button>`: điều
- * hướng sang màn khác thì phải mở được bằng chuột giữa và menu ngữ cảnh. Vùng chạm 44px nằm ở `::after`
- * và chỉ nới theo chiều cao — nở ngang là bấm "Mở" lại trúng thùng rác.
- */
-.rowLink {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* Cùng bề rộng cho "Mở" và "Nạp": hai chữ khác độ dài mà không có chỗ này thì thùng rác lệch cột. */
-  min-width: 48px;
-  min-height: 36px;
-  padding: 0 var(--space-2);
-
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.rowLink::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: var(--tap-min);
-  transform: translateY(-50%);
-}
-
-.rowLink:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}
-
-/*
  * Nút CÓ VỎ cho đích bấm của trạng thái RỖNG ("Mở danh sách công thức"). Dòng của bảng không dùng
- * nó nữa: từ 12/10/2026 "Mở"/"Nạp" là liên kết chữ gạch chân (`.rowLink`) đúng bản thiết kế, còn nút
- * xoá là biểu tượng thùng rác (`.rowAction`). Chỉ giữ lại nửa "có nền" của cặp cũ.
+ * nó nữa: từ 12/10/2026 cả mở/nạp lẫn xoá đều là nút biểu tượng (`.rowAction`). Chỉ giữ lại nửa "có
+ * nền" của cặp cũ.
  */
 .savedAction {
   position: relative;
@@ -1023,12 +986,9 @@
     min-width: 560px;
   }
 
-  .holdList th:nth-child(8) {
-    width: 88px;
-  }
-
+  .holdList th:nth-child(8),
   .savedList th:nth-child(5) {
-    width: 108px;
+    width: 88px;
   }
 
   /*

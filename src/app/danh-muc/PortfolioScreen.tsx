@@ -224,8 +224,12 @@ const TILE_ICONS = {
   plus: 'M12 5v14M5 12h14',
   /* Bút chì — Sửa. */
   edit: 'M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4',
-  /* Thùng rác — Bỏ mã, Xoá. */
+  /* Thùng rác — Xoá, ở cả hai bảng. */
   trash: 'M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v5M14 11v5',
+  /* Mũi tên đi ra khỏi khung — Mở một phép tính đã lưu. */
+  open: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3',
+  /* Mũi tên vòng — Nạp lại: dòng mà chuỗi giá trong máy không còn khớp lúc lưu. */
+  reload: 'M23 4v6h-6M20.49 15a9 9 0 1 1-2.12-9.36L23 10',
   /* Vòng tròn chấm than — dòng phép tính cần nạp lại chuỗi giá. */
   warn: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 8v5M12 16.5v.01',
 } as const;
@@ -1365,19 +1369,27 @@ export function PortfolioScreen() {
                               {/*
                                 Hai nút biểu tượng thay cho khối mở ra khi bấm một dòng (12/10/2026).
                                 Biểu tượng KHÔNG mang chữ nên tên khả truy cập đi qua `aria-label`
-                                ("Sửa FPT", "Bỏ mã FPT"); từng có bài học ngược lại ở đây — nút `ƒ`
+                                ("Sửa FPT", "Xoá FPT"); từng có bài học ngược lại ở đây — nút `ƒ`
                                 và `×` trần trên nền trong suốt bị chủ dự án báo "mờ nhạt và không
                                 biết có thể thao tác", nên cả hai nút có viền focus, vùng chạm 44px
                                 và màu chữ đủ đậm (xem `.rowAction`).
 
-                                Nút Bỏ mã KHÔNG hỏi lại và không hoàn tác — đúng bản thiết kế. Từng
+                                Nút Xoá (từng mang tên "Bỏ mã" tới 12/10/2026, chủ dự án đổi cho khớp
+                                bảng Công thức) KHÔNG hỏi lại và không hoàn tác — đúng bản thiết kế. Từng
                                 phải mở khối chi tiết rồi mới bấm tới, tức hai thao tác.
+
+                                `title` là chú thích hiện khi RÊ CHUỘT (chủ dự án, 12/10/2026: "thêm
+                                khi hover chuột vào thì hiện tên của icon đó") — cùng cách với nút đổi
+                                giao diện và nút xoá lịch sử tìm. Nó mang TÊN NGẮN của việc ("Sửa"),
+                                không kèm mã: người rê chuột đang nhìn đúng dòng ấy. `aria-label` thì
+                                giữ đủ mã, vì trình đọc màn hình không có "dòng đang nhìn".
                               */}
                               <td className={styles.holdActions}>
                                 <button
                                   type="button"
                                   className={styles.rowAction}
                                   aria-label={`${t('portfolio.edit')} ${holding.code}`}
+                                  title={t('portfolio.edit')}
                                   onClick={() => {
                                     startEdit(holding);
                                   }}
@@ -1388,6 +1400,7 @@ export function PortfolioScreen() {
                                   type="button"
                                   className={`${styles.rowAction} ${styles.rowActionDanger}`}
                                   aria-label={`${t('portfolio.remove')} ${holding.code}`}
+                                  title={t('portfolio.remove')}
                                   onClick={() => {
                                     removeRow(holding.code);
                                   }}
@@ -1793,26 +1806,39 @@ export function PortfolioScreen() {
                             <td className={styles.savedDate}>{row.date}</td>
 
                             {/*
-                                  "Mở" là `<Link>` chứ không `<button>`: điều hướng sang màn khác thì
-                                  phải mở được bằng chuột giữa và menu ngữ cảnh. Dòng bị cờ đổi chữ
-                                  thành "Nạp" nhưng đi cùng một đích — màn chi tiết nạp chuỗi từ chính
-                                  kho mà cờ này đọc. Tên khả truy cập mở đầu bằng đúng chữ nhìn thấy
-                                  (WCAG 2.5.3) rồi nói tiếp là mở cái gì.
+                                  "Mở" là nút BIỂU TƯỢNG, cùng khuôn `.rowAction` với bút chì và thùng
+                                  rác của bảng Mã — chủ dự án, 12/10/2026: "đổi text button Mở thành
+                                  Icon mở để đồng bộ". Trước đó nó là chữ gạch chân đúng bản thiết kế.
+
+                                  Vẫn là `<Link>` chứ không `<button>`: điều hướng sang màn khác thì
+                                  phải mở được bằng chuột giữa và menu ngữ cảnh. Dòng bị cờ đổi sang
+                                  biểu tượng mũi tên vòng ("Nạp") nhưng đi cùng một đích — màn chi tiết
+                                  nạp chuỗi từ chính kho mà cờ này đọc. Chữ không còn trên màn nên nút
+                                  nói việc của mình qua hai đường: `aria-label` cho trình đọc màn hình
+                                  ("Mở HPG · P/E", "Nạp FPT · Beta…") và `title` cho người rê chuột
+                                  ("Mở", "Nạp"). Bỏ một trong hai là một nhóm người dùng mất tên nút.
                                 */}
                             <td className={styles.holdActions}>
                               <Link
-                                className={styles.rowLink}
+                                className={styles.rowAction}
                                 href={`${formulaPath(row.saved.formulaId)}?luu=${row.saved.id}`}
                                 aria-label={`${row.needsReload ? t('portfolio.savedReload') : t('portfolio.savedOpen')} ${row.label}`}
+                                // Chú thích khi rê chuột: tên ngắn của nút — xem bảng Mã ở trên.
+                                title={
+                                  row.needsReload
+                                    ? t('portfolio.savedReload')
+                                    : t('portfolio.savedOpen')
+                                }
                               >
-                                {row.needsReload
-                                  ? t('portfolio.savedReload')
-                                  : t('portfolio.savedOpen')}
+                                <StatIcon
+                                  d={row.needsReload ? TILE_ICONS.reload : TILE_ICONS.open}
+                                />
                               </Link>
                               <button
                                 type="button"
                                 className={`${styles.rowAction} ${styles.rowActionDanger}`}
                                 aria-label={`${t('portfolio.savedRemove')} ${row.label}`}
+                                title={t('portfolio.savedRemove')}
                                 onClick={() => {
                                   persistSaved(removeSavedCalc(savedCalcs, row.saved.id));
                                 }}

@@ -359,9 +359,11 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   pins, when someone decides to.
 - **The holdings table is one `<table>`, eight columns**: code chip (`Badge tone="code"`), shares, avg cost,
   market price (bold), gain, "Lãi/lỗ %" (arrow + number; the header was a bare "%" until the owner asked
-  for the full label on 12/10/2026), weight (bar + number), and two icon buttons (`Sửa X`, `Bỏ mã X`
-  by `aria-label`). **No company column, no value column, no expanding row, no overlay button.** That
-  reverses 22/09: buy date and beta are now visible **only in the edit dialog**. `Bỏ mã` is **one tap, no
+  for the full label on 12/10/2026), weight (bar + number), and two icon buttons (`Sửa X`, `Xoá X`
+  by `aria-label`; the trash was named "Bỏ mã" until the owner corrected it on 12/10/2026 — _"là xóa chứ
+  không phải bỏ mã"_ — so it now carries the same name as the trash of the Công thức table).
+  **No company column, no value column, no expanding row, no overlay button.** That
+  reverses 22/09: buy date and beta are now visible **only in the edit dialog**. `Xoá` is **one tap, no
   confirmation, no undo** — as designed; it used to take two taps. Percentages print one decimal fixed
   (`+11,0%`, `15,6%`), the gain line two. A ticker with no market price shows `_ _` in all four dependent
   cells (price, gain, %, weight), never `0`. `text-align` is keyed to column position on `<th>` and `<td>`
@@ -479,7 +481,14 @@ a row whose series no longer matches **prints `_ _` instead of the saved number*
 rowsInStore !== (seriesCount ?? 0)` — by session COUNT, not by "is there a series", so one session off still
 flags. Such a row gets a warm background, the line "Cần nạp lại chuỗi giá" under its name (the design put this
 in a "Số liệu dùng" column the owner then dropped, so the chip moved), and "Nạp" instead of "Mở"; both go to the
-same `?luu=` URL. The name cell shows only the formula name when the stored name is an auto-generated
+same `?luu=` URL. **Both are ICON buttons since the afternoon of 12/10** (_"đổi text button Mở thành Icon mở để
+đồng bộ"_): a box-with-arrow for Mở, a circular arrow for Nạp, in the same `.rowAction` shell as the pencil and
+trash of the Mã table — still a `<Link>`, because it navigates. The words no longer print, so every icon button
+in both tables says what it does twice: `aria-label` for screen readers, with the row's identity ("Mở HPG · P/E",
+"Sửa FPT"), and a native `title` for the mouse, with the short name only ("Mở", "Nạp", "Xoá", "Sửa") —
+the owner asked for the hover name the same afternoon, and `title` is how `ThemeSwitch` and `RecentSearches`
+already do it. A case pins "no text, has a name, has a title, two different icons". The action column of both tables is 96px again (it needed 116px while "Mở" was text).
+The name cell shows only the formula name when the stored name is an auto-generated
 suggestion (detected by rebuilding `suggestCalcNames()`, as `displayCalcName()` does — code and date have their
 own columns), and a hand-typed name with the formula name beneath it otherwise. **Only a search box sits above
 the table, and the order is fixed newest-first.** The design also drew a row of ticker chips ("Tất cả 7 · BHN 1

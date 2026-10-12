@@ -3402,7 +3402,7 @@ window.__themeLog = [];
    * của ô cộng nửa khe giữa nút với mép chạm — nếu chúng rơi về giữa ô thì con số này lên hàng chục.
    */
   check(
-    'PC 1440 · mỗi hàng đúng hai nút biểu tượng (Sửa, Bỏ mã), dạt về mép phải',
+    'PC 1440 · mỗi hàng đúng hai nút biểu tượng (Sửa, Xoá), dạt về mép phải',
     pcBang.soNut === 2 && pcBang.hoPhai !== null && pcBang.hoPhai <= 40,
     `${String(pcBang.soNut)} nút · hở phải ${String(pcBang.hoPhai)}px`,
   );

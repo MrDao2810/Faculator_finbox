@@ -171,6 +171,56 @@
 }
 
 /*
+ * ── Thẻ tab DỌC (`orientation="vertical"`) — cột trái màn Danh mục, 10/2026 ─────────────────
+ *
+ * Khác cụm ngang ở BẢN CHẤT chứ không chỉ ở hướng: cụm ngang là một khay màu chia đều bề ngang cho
+ * 2–3 nhãn ngắn; cột trái là một danh sách điều hướng, nhãn dài ("Phép tính đã lưu") nên căn trái,
+ * số đếm đẩy về mép phải để mắt dò dọc theo một đường thẳng, và mục đang chọn là một dải nền xanh nhạt
+ * chứ không phải viên gradient — hai mục xếp chồng mà một viên gradient đậm thì nặng hơn cả nội dung.
+ *
+ * Mọi luật dưới đây đều có tiền tố `.vertical` và khai SAU luật gốc: `.tabs`/`.tab`/`.active` là lớp
+ * đơn, nên với cùng độ ưu tiên thì THỨ TỰ trong file là thứ quyết định ai thắng. Đừng dời khối này lên
+ * trên `.active`.
+ */
+.vertical {
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  /* `--radius-md` như mọi thẻ khác: `--radius-lg` chỉ dành cho bottom sheet (`radius.test.ts`). */
+  border-radius: var(--radius-md);
+}
+
+.vertical .tab {
+  flex: none;
+  justify-content: flex-start;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+/* Khay trắng nên hover của cụm ngang (`--color-tab-hover` là trắng) sẽ tàng hình: dùng nền chìm. */
+.vertical .tab:hover:not(:disabled) {
+  background: var(--color-sunken);
+}
+
+.vertical .active,
+.vertical .active:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.vertical .count {
+  margin-left: auto;
+}
+
+.vertical .active .count {
+  color: var(--color-accent);
+}
+
+/*
  * Số đếm dùng ĐÚNG màu của nhãn, không chìm hơn một bậc.
  *
  * Bản trước lấy `--color-muted` cho nó chìm xuống. Không dùng được nữa kể từ lúc khay đổi màu:

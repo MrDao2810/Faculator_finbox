@@ -20,6 +20,16 @@ export interface SearchBoxProps {
    * ví dụ chip "Tìm gần đây" ở màn Công thức. Không truyền thì ô tự giữ tham chiếu riêng.
    */
   inputRef?: RefObject<HTMLInputElement | null>;
+  /**
+   * Nhãn ẩn của ô (cho trình đọc màn hình). Mặc định là câu của ô tìm công thức, `search.label`.
+   *
+   * Màn Danh mục dùng lại ô này để lọc mã và phép tính đã lưu — hai chỗ không tìm công thức trong
+   * thư viện, nên nhãn "Tên công thức…" ở đó sẽ nói sai việc ô làm. Hai chữ này đi cùng nhau: đổi
+   * `placeholder` mà quên `label` là người nhìn thấy một câu còn người nghe một câu khác.
+   */
+  label?: string;
+  /** Chữ mờ trong ô khi trống. Mặc định `search.placeholder`. */
+  placeholder?: string;
 }
 
 /**
@@ -35,7 +45,15 @@ export interface SearchBoxProps {
  * Không tự giữ state: nơi gọi quyết định giá trị đi đâu — `/tim-kiem/` đẩy lên URL qua
  * `useListParams()`, còn màn Công thức giữ trong state rồi ghi URL sau (xem `use-list-url-state.ts`).
  */
-export function SearchBox({ value, onChange, onCancel, onSubmit, inputRef }: SearchBoxProps) {
+export function SearchBox({
+  value,
+  onChange,
+  onCancel,
+  onSubmit,
+  inputRef,
+  label,
+  placeholder,
+}: SearchBoxProps) {
   const inputId = useId();
   const ownRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? ownRef;
@@ -44,7 +62,7 @@ export function SearchBox({ value, onChange, onCancel, onSubmit, inputRef }: Sea
   return (
     <div className={styles.field}>
       <label className="visually-hidden" htmlFor={inputId}>
-        {t('search.label')}
+        {label ?? t('search.label')}
       </label>
 
       <div className={styles.control}>
@@ -71,7 +89,7 @@ export function SearchBox({ value, onChange, onCancel, onSubmit, inputRef }: Sea
           inputMode="search"
           autoComplete="off"
           spellCheck={false}
-          placeholder={t('search.placeholder')}
+          placeholder={placeholder ?? t('search.placeholder')}
           value={value}
           onChange={(event) => {
             onChange(event.target.value);

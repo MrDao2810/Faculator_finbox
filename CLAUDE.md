@@ -329,93 +329,66 @@ rule that governs the second:
 both mean "could not reach the source", so the advice is "retry", never "remove the ticker".
 Never let a network failure produce a `0` (FR-06).
 
-The 4 portfolio tiles are now **6**: total value, invested, gain/loss (with the percentage as its
-`note`), beta, XIRR, holdings count. `totalCost` is deliberately independent of market price — it
-is the one real number that survives an outage, which is why the header does not go blank offline.
-`gain` **inherits** rather than computing: `total` sums `row.value ?? 0`, so subtracting cost from
-it directly would invent a loss exactly the size of an unpriced holding's cost basis. The beta and
-XIRR tiles print `_ _` with **no reason line** (`StatTile`'s `showReason={false}`, owner's call on
-29/09/2026). A new user sees both at `_ _` almost always, so the reason had become a fixed paragraph
-that listed every ticker. The warning still exists in `summarisePortfolio`'s output; only the tile
-stops printing it. The other four tiles keep their reason.
+**`/danh-muc/` is TWO COLUMNS since 12/10/2026** (the owner's new design, desktop only): a left
+column with a "Danh mục" label, a vertical tab card and a summary card, and the table of the open tab on
+the right. It replaced, in one move, the six `StatTile`s, the strip above the list, the expanding rows and
+the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was decided, and what it cost:
 
-**A long number shrinks to fit its tile instead of breaking it** (29/09/2026). The owner photographed
-"866.777.778.513.713.70…" running out of "Vốn đã bỏ ra" into the next tile: a number is one "word"
-with no break point. This is not only a junk-input problem, because at 360px a tile has ~136px of room
-and "1.234.567.890 ₫" already reaches the edge at 20px. `StatTile` sets `--ky-tu` to the string's
-length. Under `@supports (width: 1cqi)` the tile becomes an inline-size container, and `.value`
-takes `clamp(12px, 100cqi / (n × 0.56), 20px)`. The 0.56em factor is a measured 0.50–0.51em for bold
-money strings on Windows, plus room for macOS's wider digits. A `<wbr>` after every thousands dot is
-the fallback break, and `overflow-wrap: anywhere` is the last resort. Keep the override in its own
-rule: `result-card.test.ts` pins `.value { font-size: var(--text-lg) }`, which is also what a
-browser without `cqi` uses. Two `check:chrome` assertions measure the text with a `Range` at 1440 and
-at 360. They must run in **advanced** mode: with four tiles each one is ~340px wide at 1440, so the
-check stayed green even with the rule removed.
+- **The summary card is `PortfolioSummary.tsx`.** Hero "Tổng giá trị", a gain line (`+3.950.000 ₫ ↑ +2,02%`,
+  built only when `gain` is calculable — its reason is already printed under the hero), then "Vốn đã bỏ ra" ·
+  Beta · XIRR rows. Everything is still a `CalcOutput` printed through `useCalcText()`: not calculable →
+  `_ _` plus the reason, never `0` (FR-06). `totalCost` is deliberately independent of market price — it is
+  the one real number that survives an outage. `gain` **inherits** rather than computing: `total` sums
+  `row.value ?? 0`, so subtracting cost from it directly would invent a loss exactly the size of an unpriced
+  holding's cost basis. Beta and XIRR print `_ _` with **no reason line** (owner, 29/09/2026: a new user sees
+  both at `_ _` almost always, so the reason had become a fixed paragraph listing every ticker) and exist only
+  in **advanced** mode (FR-09); in Basic the card ends with the "N ô nâng cao đang ẩn" note. The "Số mã" tile is
+  gone — the count sits on the tab and in "5 / 50" beside the title. Rows print **bare numbers** (`1,04`,
+  `14,2 %`, `195.750.000`) because the design does; only the hero and the gain line carry ₫. Labels and values
+  are sibling `<span>`s so the `oThongKe` test helper (`findByText(label).parentElement`) keeps working.
+- **A long number still must not break the card** (29/09/2026, "866.777.778.513.713.70…" ran out of its tile).
+  The hero sets `--ky-tu` and shrinks with `clamp(…, 100cqi / (n × 0.56), 26px)` (0.56em is a measured
+  0.50–0.51em for bold money on Windows plus room for macOS); every value gets a `<wbr>` after each thousands
+  dot (`coChoNgat`, now in `ui/result/number-breaks.tsx`, shared). `check:chrome` measures the "Vốn đã bỏ ra"
+  row at 1440 and 360 — it needs no network. The hero needs a price, and the script has no Finbox, so only the
+  vitest case ("số dài") pins its `--ky-tu` and `<wbr>`. **`StatTile` has no caller any more.** It stays
+  (its tests and CSS pins still pass) rather than being deleted inside a redesign diff; delete it, with its
+  pins, when someone decides to.
+- **The holdings table is one `<table>`, eight columns**: code chip (`Badge tone="code"`), shares, avg cost,
+  market price (bold), gain, "Lãi/lỗ %" (arrow + number; the header was a bare "%" until the owner asked
+  for the full label on 12/10/2026), weight (bar + number), and two icon buttons (`Sửa X`, `Bỏ mã X`
+  by `aria-label`). **No company column, no value column, no expanding row, no overlay button.** That
+  reverses 22/09: buy date and beta are now visible **only in the edit dialog**. `Bỏ mã` is **one tap, no
+  confirmation, no undo** — as designed; it used to take two taps. Percentages print one decimal fixed
+  (`+11,0%`, `15,6%`), the gain line two. A ticker with no market price shows `_ _` in all four dependent
+  cells (price, gain, %, weight), never `0`. `text-align` is keyed to column position on `<th>` and `<td>`
+  together so they cannot drift apart, and `table-layout: fixed` with per-column widths. Below 1280px the weight
+  bar is hidden and the cell padding and `min-width` shrink: the left column is ~300px, so at 1024px the table
+  only has ~600px and Tỷ trọng plus the two buttons would sit off-screen.
+- **The "Tìm mã" box hides rows only.** Weight is still measured against the whole portfolio — a ticker
+  alone on screen must not read "100%". It matches code and company name through `normalizeVi()`, like the
+  ticker picker; the company name comes from the holding or, failing that, from `quotes`.
+- **The price strip moved into the summary card's footer** and is still ONE `<p role="status|alert">` carrying
+  the loading / failed / stale / none spans and the refresh button. The session date is printed **once on the
+  whole screen**: a stale price is only allowed because the screen names its session (`price-cache-store.ts`),
+  and tests find the date with a single `getByText`.
+- **Small screens are NOT designed — the owner deferred them** ("phần dành cho mobile thì tạm thời tính sau").
+  Below 1024px the columns stack and each table scrolls sideways inside `.tableWrap`. The compact row of
+  WF-06, the 560px shape and their `check:chrome` assertions are gone; two remain (no page overflow, "Thêm mã"
+  reachable at 360 and 560). When a small-screen design arrives: add an `@media` in the `.layout` block and
+  rewrite both tables, do not restore from git. `.tableWrap` **must** be `position: relative`: the
+  `visually-hidden` labels in the table are `position: absolute`, and a scroller only clips an absolute
+  descendant when it is that descendant's containing block — without it they sat at their static position
+  (one at x=520) and widened the whole page to 569px on a 345px screen, with the table itself scrolling
+  correctly inside its frame.
+- **The block titles here are the one exception to `section-title.test.ts`.** "Mã nắm giữ" and "Phép tính đã
+  lưu" are 26px sentence case (`.mainTitle`), level with the "Danh mục" label, because on this screen they act
+  as page titles and the design makes them a pair. `PortfolioScreen.module.css` left that test's list with a
+  tombstone saying why. The header still owns the `<h1>` ("Danh mục của tôi"), so the left-column label is
+  a plain `<p>`, not a heading.
 
-**The holdings list is ONE `<table>` that takes three shapes** (22/09/2026, from a design the owner
-supplied). At ≥1024px it is an eight-column table — code, company, quantity, avg cost, market
-price, value, gain/loss (amount over percentage), weight (number plus a bar) — plus a ninth column
-carrying the chevron. From 560px to 1023px it is the same table minus its two widest columns,
-company and value: both `<th>` and `<td>` go `display: none`, so the column stops existing rather
-than standing empty, and the `:nth-child` alignment rules keep working because `:nth-child` counts
-hidden cells too. Below 560px CSS drops it back to the three-column compact row of wireframe WF-06,
-which reverses the 09/2026 decision that had moved market price, gain percentage, buy date, beta
-and the company name _down_ into the expanded block; only buy date and beta stay there now.
+Two rules about the form and the picker, unchanged by the redesign:
 
-The middle shape was added the same day, after the owner photographed a narrow window: the compact
-row is a **two-sided** layout, so every pixel of spare width drains into the gap between the left
-text and the right numbers — at 900px that gap was over 400px wide ("ở giữa đang thừa quá nhiều
-không gian… màn web và mobile phải khác nhau về giao diện"). 560 is the floor because that is where
-`60.000 ₫` still fits its cell; the padding drops to `--space-2` there to buy the 48px that makes it
-fit, and phones in portrait (up to 430px) never reach it. Five rules hold all of this together and
-none of them is cosmetic:
-
-- **One DOM, not two.** Rendering a table and a card list and hiding one would put every number in
-  the document twice — screen readers read both, and `getByText` reports "multiple elements".
-  Picking a tree from the viewport at runtime is also out: the first client render must equal the
-  static HTML, which does not know the screen width. So `<table>`, `<tbody>` and `<caption>` all
-  switch `display` together; leaving any of them at a `table-*` value inside a `display: block`
-  table makes the browser generate an anonymous table box and every grid rule on `<tr>` dies
-  silently, at exactly the width no gate measures. `chrome-check.mjs` counts distinct cell tops at
-  360, at 560 and at 1440 for that reason — many at 360, exactly one at the other two.
-- **The clickable thing stays an empty overlay `<button>`** anchored on the `<tr>` by
-  `position: relative`. Wrapping the row in a button makes `aria-label` swallow every number in it
-  — already broken twice, see the docblock in `PortfolioScreen.tsx`. A Chrome assertion measures
-  the button's box against the row's.
-- **The detail row's `<td>` switches `display` with the table, and the two halves are one rule.**
-  In either _table_ shape it must stay `table-cell`: any other value makes the browser wrap it in
-  an anonymous cell with `colspan=1`, which silently throws away `colSpan={9}` — the expanded
-  content lands in column one, stretches it to the width of the button row, and shoves the other
-  columns right, but only on the open row, so the whole table jumps on every click. In the compact
-  shape it must become `block` for the mirror-image reason: the table itself is `display: block`
-  there, so a lone `table-cell` is a stray table fragment, the browser wraps it in an anonymous
-  table box, and that box **shrinks to fit** — the expanded block ends up only as wide as the
-  Sửa/Bỏ mã buttons, hard against the left edge, with half the card empty beside it. Both were live
-  bugs on 22/09/2026 and both now have a Chrome assertion. For the same family of reasons the table
-  is `table-layout: fixed` with per-column widths, `text-align` is keyed to the column position so
-  a `<th>` and its `<td>` cannot drift apart, and the action buttons are pushed right with
-  `margin-left: auto` (most holdings have neither buy date nor beta, so `space-between` with a
-  single child leaves them on the left).
-- **Nothing optional renders an empty shell.** The expanded block's `<dl>` is built only when the
-  holding actually has a buy date or a beta — an empty `<dl>` still eats a `gap` and still leaves
-  `.actions`' top divider ruling off a blank strip, which is the _common_ case since both fields are
-  optional. `.holdDetailInner > .actions:first-child` drops the divider to match. Same day, the
-  compact row's gain cell was pinned to `grid-row: 2 / span 2`: auto-placement had been dropping it
-  into row three (the cursor was already there after three stacked middle cells), leaving the right
-  half of row two blank and letting the percentage hang below the row — the hole in the middle of
-  the card the owner circled.
-- **A ticker with no market price shows `_ _` in all four dependent cells**, never `0`. The owner
-  chose that over repeating a sentence four times across one row; the reason and the way out live
-  on the block's title line, which now carries `NẮM GIỮ · N mã · giá phiên <date>` **and** the
-  refresh button — merged from the strip that used to sit above the list, because printing the
-  session date twice would make two sources of truth for it. `portfolio.priceMissing` was deleted
-  in that round (tombstone in `vi.ts`); the session-date pairing that `price-cache-store.ts`
-  depends on is unchanged. **That title line has two shapes of its own**: below 1024px it is a
-  two-column grid with the price strip on its own full-width row (`grid-column: 1 / -1`), above it
-  a flex row of three. It used to be nested flex boxes relying on wrapping, and at phone width the
-  price strip wrapped to a second line but kept its _content_ width — stopping mid-screen, forcing
-  "Làm mới" onto a third line inside itself, with "+ Thêm mã" left hanging. A grid track is a
-  promise about width; wrapping is only a measurement result.
 - **The add/edit form is a centred modal**, `BottomSheet` with `placement="center"` — 720px wide,
   exactly half of the 1440 gate — and it only mounts while open, so its labelled fields cannot be
   found while it is closed. The ticker and formula sheets open _on top_ of it, so any test looking
@@ -454,26 +427,44 @@ none of them is cosmetic:
   missing quote as "don't know" rather than "no price" — otherwise every add would hide 8 formulas
   under a sentence claiming a lookup that never happened.
 
-**`/danh-muc/` is TWO TABS again, "Mã · Công thức"** (10/10/2026). The owner asked for the screen
-to be split into two dedicated parts and chose tabs when told it reverses their own 14/09/2026
-call (_"bỏ tabbar đi"_). History worth keeping straight: the tab cluster was removed 14/09; the
-saved-calculations list came back 15/09 as a second block under Nắm giữ because "save, then see
-nothing" was reported as a bug; it is now the second tab. **Tab Mã** is the old `.panel` (six tiles,
-price strip, Nắm giữ, the add/edit dialog); **tab Công thức** is the "Phép tính đã lưu" block and is
-now **always built** when its tab is open, empty state included (the person chose the tab, which is
-the condition the first tab version used to allow an empty box). The two lessons of 14–15/09 stay
-load-bearing: both tabs show their count on the bar even while closed, and the anchor
-`#phep-tinh-da-luu` (`savedCalcsPath()`, the Save button's destination) opens the Công thức tab.
-Things that are easy to break: the tab is read from `?tab=cong-thuc` or that hash **inside an
-effect** (never `useSearchParams()`, same static-export reason as `?ma=`), the first render is
-always the Mã tab so it equals the static HTML, `switchTab` uses `replaceState` and passes the
-existing `history.state` through (a bare `null` strips Next's `__NA`), and only ONE tabpanel is in
-the DOM so every tab's `aria-controls` points at the single `portfolio-panel` id. Prices, the
-ticker list and the saved store live in the screen's state, not in a panel, so switching tabs never
-refetches. The old scroll-and-hold-the-anchor effect (`ResizeObserver`, `HOLD_ANCHOR_MS`) is gone:
-it existed because the block sat under Nắm giữ and prices arriving pushed it to 702/780px; on its
-own tab nothing sits above it. In tests, never match a tab by `/^Mã\b/` — JS does not count "ã" as
-a word character, so `\b` never fires there (use `tenTab()`).
+**The two tabs are a VERTICAL card, "Mã nắm giữ · Phép tính đã lưu"** (tabs back 10/10/2026, vertical 12/10/2026).
+The owner asked on 10/10 for the screen to be split into two dedicated parts and chose tabs when told it
+reverses their own 14/09/2026 call (_"bỏ tabbar đi"_). History worth keeping straight: the tab cluster was
+removed 14/09; the saved-calculations list came back 15/09 as a second block under Nắm giữ because "save, then
+see nothing" was reported as a bug; it is now the second tab. `TabBar` gained `orientation="vertical"` for it
+(`aria-orientation`, ↑/↓ instead of ←/→, a white bordered card with the count pushed right) — the screen is its
+only user. The tab labels are the block titles themselves (`portfolio.holdings`, `portfolio.savedTitle`; the
+one-word `tabHoldings`/`tabSaved` keys are gone), so in tests the `<h2>` is found by **role** (`tieuDeNamGiu()`),
+never by text, which now matches the tab too. The Phép tính đã lưu tab is **always built** when open, empty
+state included (the person chose the tab). The two lessons of 14–15/09 stay load-bearing: both tabs show their
+count on the bar even while closed, and the anchor `#phep-tinh-da-luu` (`savedCalcsPath()`, the Save button's
+destination) opens the saved tab.
+
+**The saved tab is a table with a RESULT column** (12/10/2026), reversing the 10/2026 rule that the list shows
+no figure ("số liệu thì khi mở lại thì mới thấy được"). The condition that makes it honest is in `SavedRowView`:
+a row whose series no longer matches **prints `_ _` instead of the saved number**. "Matches" is the exact rule
+`FormulaDetail` uses for `seriesMismatch` and reads the same store (`ffb.series.v1`): `needsSeries &&
+rowsInStore !== (seriesCount ?? 0)` — by session COUNT, not by "is there a series", so one session off still
+flags. Such a row gets a warm background, the line "Cần nạp lại chuỗi giá" under its name (the design put this
+in a "Số liệu dùng" column the owner then dropped, so the chip moved), and "Nạp" instead of "Mở"; both go to the
+same `?luu=` URL. The name cell shows only the formula name when the stored name is an auto-generated
+suggestion (detected by rebuilding `suggestCalcNames()`, as `displayCalcName()` does — code and date have their
+own columns), and a hand-typed name with the formula name beneath it otherwise. **Only a search box sits above
+the table, and the order is fixed newest-first.** The design also drew a row of ticker chips ("Tất cả 7 · BHN 1
+· AAA 1") and a sort select; both shipped for a few hours and the owner had the whole row deleted the same day
+(_"xóa cái này đi"_) — the search box already matches by ticker and the store holds at most 30 entries. A case
+in `PortfolioScreen.test.tsx` pins their absence, and the four keys carry a tombstone in `vi.ts`; ask before
+rebuilding them. The summary counts the WHOLE store, not the rows the search leaves. Dropped on request:
+the "Tính lại theo giá mới" button (recomputing needs the whole Registry in this route's bundle — measured
+131 kB → 217 kB against a 180 kB gate, the reason the tab has never recomputed anything), the "Số liệu dùng"
+column, and the footer sentences "N trong 50 mã · còn M chỗ" and "N phép tính trên M mã · lưu trên máy này".
+Things that are easy to break: the tab is read from `?tab=cong-thuc` or that hash **inside an effect** (never
+`useSearchParams()`, same static-export reason as `?ma=`), the first render is always the holdings tab so it
+equals the static HTML, `switchTab` uses `replaceState` and passes the existing `history.state` through (a bare
+`null` strips Next's `__NA`), and only ONE tabpanel is in the DOM so every tab's `aria-controls` points at the
+single `portfolio-panel` id. Prices, the ticker list and the saved store live in the screen's state, not in a
+panel, so switching tabs never refetches. In tests, never match a tab by `/^Mã\b/` — JS does not count "ã" as a
+word character, so `\b` never fires there (use `tenTab()`).
 
 **"Tỷ trọng" means three different things in this product**, so the portfolio column has to say
 which one: a holding's share of total portfolio value (here), the equity and debt weights of

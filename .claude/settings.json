@@ -1883,7 +1883,10 @@
       "Bash(sed -i -e 's#\\\\\\\\\\\\\\\\b`#\\(?:\\\\\\\\\\\\\\\\s|$\\)`#g' -e 's#/^Mã\\\\\\\\b/#/^Mã\\(?:\\\\\\\\s|$\\)/#g' -e 's#/^Công thức\\\\\\\\b/#/^Công thức\\(?:\\\\\\\\s|$\\)/#g' src/app/danh-muc/PortfolioScreen.test.tsx)",
       "Bash(grep -n '\\(?:\\\\\\\\\\\\\\\\s|\\\\$\\)\\\\|\\(?:\\\\\\\\s|\\\\$\\)' src/app/danh-muc/PortfolioScreen.test.tsx)",
       "Bash(grep -n 'Công thức\\\\\\\\b' src/app/danh-muc/PortfolioScreen.test.tsx)",
-      "PowerShell(Get-NetTCPConnection -LocalPort 3000,4173 -State Listen -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000,4173 -State Listen -ErrorAction SilentlyContinue)",
+      "Bash(grep -n \"^  return \\($\\\\|^  const setField\\\\|^}$\" src/app/danh-muc/PortfolioScreen.tsx)",
+      "Bash(grep -n '^  return \\($\\\\|formOpen && \\(\\\\|Form thêm/sửa mã — hộp thoại\\\\|⚠ Dải \"CỤC BỘ' src/app/danh-muc/PortfolioScreen.tsx)",
+      "Bash(grep -n \"^  return \\($\" src/app/danh-muc/PortfolioScreen.tsx)"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

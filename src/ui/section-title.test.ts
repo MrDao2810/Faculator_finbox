@@ -44,7 +44,14 @@ const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> 
   /* Hai khối của màn Công thức — trang chủ `app/page.module.css` gộp vào đây ngày 15/09/2026. */
   ['app/cong-thuc/DailyShelf.module.css', 'blockTitle'],
   ['app/cong-thuc/FormulaListScreen.module.css', 'blockTitle'],
-  ['app/danh-muc/PortfolioScreen.module.css', 'blockTitle'],
+  /*
+   * Mộ chí: `app/danh-muc/PortfolioScreen.module.css → .blockTitle` rời danh sách này ngày 12/10/2026.
+   * Bản thiết kế hai cột của màn Danh mục đặt tiêu đề cột phải ("Mã nắm giữ", "Phép tính đã lưu") cỡ lớn,
+   * chữ thường, ngang hàng với nhãn "Danh mục" ở cột trái — cả hai là tiêu đề TRANG chứ không phải nhãn
+   * của một khối trong trang. Lớp mới là `.mainTitle`; đây là ngoại lệ có chủ đích và duy nhất, và lý do
+   * viết cạnh luật CSS của nó. Nếu một màn khác muốn dùng cỡ lớn, đó là một cuộc hỏi chủ dự án, không phải
+   * một dòng thêm vào bảng này.
+   */
   /* Ba thẻ ở cột phải của bài hướng dẫn WF-21: Trong bài này · Mở màn thật · Công thức liên quan. */
   ['app/huong-dan/cong-thuc/[id]/GuideScreen.module.css', 'blockTitle'],
   ['app/ve-chung-toi/AboutScreen.module.css', 'blockTitle'],

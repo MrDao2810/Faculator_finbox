@@ -1,0 +1,170 @@
+/*
+ * Thẻ tóm tắt ở cột trái màn Danh mục (12/10/2026).
+ *
+ * Cùng khuôn với `StatTile` ở ba chỗ vì chúng là bài học chứ không phải kiểu dáng: số dài co chữ theo
+ * bề ngang lòng thẻ (`cqi`), `_ _` và câu lý do khi chưa tính được, và nhãn–giá trị là hai phần tử
+ * anh em. Khác ở chỗ đây là MỘT thẻ nhiều dòng chứ không phải lưới nhiều thẻ.
+ */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.heroLabel {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/*
+ * Số lớn. 26px là trần; số dài co xuống theo `--ky-tu` do `PortfolioSummary.tsx` đếm trên chuỗi lúc
+ * dựng. Hệ số 0,56em lấy DƯ so với bề rộng đo được của chữ số đậm (0,50–0,51em trên Windows, rộng hơn
+ * chút trên macOS) — cùng con số và cùng lý do với `StatTile.module.css`, nên số luôn hụt mép chứ không
+ * chạm mép, và lỡ đoán hụt thì `<wbr>` cho nó xuống dòng sau một dấu chấm phân nhóm chứ không tràn.
+ *
+ * Dòng đầu là cỡ chữ tĩnh cho trình duyệt không hiểu `cqi`; số ngắn thì phép chia ra lớn hơn trần và
+ * bị kẹp về trần, tức số thường không đổi gì.
+ */
+.heroValue {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+@supports (width: 1cqi) {
+  .card {
+    container-type: inline-size;
+  }
+
+  .heroValue {
+    font-size: clamp(var(--text-sm), calc(100cqi / (var(--ky-tu, 1) * 0.56)), var(--text-xl));
+  }
+}
+
+.reason {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  color: var(--color-warning);
+}
+
+/* Lãi/lỗ: màu theo dấu, nhưng dấu +/− và mũi tên mới là thứ mang tin (NFR-USA-06). */
+.gain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.up {
+  color: var(--color-success);
+}
+
+.down {
+  color: var(--color-danger);
+}
+
+.gainPercent {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--text-sm);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+}
+
+/*
+ * Lưới hai cột chứ không `flex`: câu lý do ở dòng dưới phải trải hết bề ngang (`grid-column: 1 / -1`
+ * ở `.reason`), mà một hộp flex không hứa điều đó — nó chỉ rộng bằng nội dung. Cùng bài học với
+ * `.blockHead` ở `PortfolioScreen.module.css`.
+ */
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--space-3);
+  row-gap: 2px;
+}
+
+.rowLabel {
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+.rowValue {
+  justify-self: end;
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.footLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.savedCount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.unit {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/*
+ * Hai lớp đổi màu chữ đứng CUỐI file, sau `.heroValue` và `.rowValue`: cả bốn là lớp đơn, nên với cùng
+ * độ ưu tiên thì thứ tự khai báo quyết định ai thắng (cùng bẫy với `.panelCenter` ở
+ * `BottomSheet.module.css`). Đặt trước là `_ _` vẫn đen và số đếm cảnh báo vẫn không cam.
+ *
+ * `.muted`: chưa có số nên chữ nhạt đi. Chỉ là một trong ba dấu hiệu — hai dấu kia là chính chữ
+ * `_ _` và câu lý do bên dưới (NFR-USA-06).
+ */
+.muted {
+  color: var(--color-muted);
+}
+
+.warn {
+  color: var(--color-warning);
+}

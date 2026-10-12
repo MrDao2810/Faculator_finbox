@@ -285,25 +285,25 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.totalValue': 'Total value',
   'portfolio.beta': 'Portfolio beta',
   'portfolio.xirr': 'Portfolio XIRR',
-  'portfolio.count': 'Tickers',
+  /* Mười ba khoá đã xoá ngày 12/10/2026 (thiết kế hai cột) — danh sách và lý do ở `vi.ts`. */
   'portfolio.hiddenByLevel': 'advanced tile(s) hidden',
   'portfolio.holdings': 'Holdings',
-  'portfolio.shares': 'sh',
-  'portfolio.costPrice': 'avg cost',
-  'portfolio.weight': 'weight',
-  /* Tiêu đề cột của bảng Nắm giữ — xem `vi.ts` để biết vì sao không dùng lại bốn khoá ngay trên. */
+  /* Tiêu đề cột của bảng Nắm giữ — xem `vi.ts`. */
   'portfolio.colCode': 'Ticker',
-  'portfolio.colName': 'Company',
-  'portfolio.colQuantity': 'Quantity',
+  'portfolio.colShares': 'Shares',
   'portfolio.colCostPrice': 'Avg cost',
-  'portfolio.colValue': 'Value',
+  'portfolio.colPercent': 'Gain/loss %',
   'portfolio.colWeight': 'Weight',
+  'portfolio.colActions': 'Actions',
   /* Câu nói rõ MẪU SỐ của tỷ trọng — xem lý do ở `vi.ts`. */
   /* Mộ chí: `portfolio.weightNote` bỏ 08/10/2026 — lý do đầy đủ ghi ở `vi.ts`. */
   'portfolio.weightPartial':
     'Holdings with no market price yet are left out of the total, so weights are measured against the priced part of the portfolio.',
   'portfolio.tableCaption': 'Tickers you hold',
-  'portfolio.tickerUnit': 'tickers',
+  'portfolio.searchTicker': 'Search tickers',
+  'portfolio.holdingsCountAria': '{n} of {max} tickers',
+  'portfolio.noMatch': 'No ticker matches.',
+  'portfolio.sideTitle': 'Portfolio',
   'portfolio.add': 'Add ticker',
   'portfolio.remove': 'Remove',
   /* Một câu, không hai — xem chú thích ở `vi.ts`. */
@@ -335,9 +335,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'portfolio.marketPrice': 'Market price',
   /* `portfolio.priceMissing` ('no price yet') đã xoá cùng bản Việt — xem bia mộ ở `vi.ts`. */
-  'portfolio.betaShort': 'beta',
   'portfolio.edit': 'Edit',
-  'portfolio.details': 'Details',
   /* `portfolio.editHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.formSave': 'Save changes',
   /*
@@ -355,7 +353,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   /* Ghép ngay trước ngày phiên: "Prices as of 03/09/2026". */
   /* Viết thường vì nay là mảnh giữa câu ở dòng tiêu đề khối — xem `vi.ts`. */
-  'portfolio.priceSession': 'prices as of',
+  'portfolio.priceSession': 'Prices as of',
   'portfolio.priceRefresh': 'Refresh',
   'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
   'portfolio.priceNone': 'No market price found for any ticker yet.',
@@ -374,17 +372,29 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
 
-  /* Cụm tab "Mã · Công thức" quay lại ngày 10/10/2026 — lịch sử các lần gỡ/đưa lại ghi ở `vi.ts`. */
-  'portfolio.tabHoldings': 'Tickers',
-  'portfolio.tabSaved': 'Formulas',
+  /* Cụm tab dọc ở cột trái — lịch sử các lần gỡ/đưa lại ghi ở `vi.ts`. */
   'portfolio.savedEmpty':
     'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
   'portfolio.savedEmptyAction': 'Browse formulas',
   'portfolio.savedTitle': 'Saved calculations',
-  'portfolio.savedOpen': 'View',
+  'portfolio.savedOpen': 'Open',
+  'portfolio.savedReload': 'Reload',
   'portfolio.savedRemove': 'Delete',
-  'portfolio.savedAt': 'saved',
-  'portfolio.savedNeedsSeries': 'Needs price series',
+  'portfolio.savedNeedsSeries': 'Price series needs reloading',
+  'portfolio.savedTableCaption': 'Saved calculations',
+  'portfolio.savedColFormula': 'Formula',
+  'portfolio.savedColResult': 'Result',
+  'portfolio.savedColDate': 'Saved on',
+  'portfolio.savedSearch': 'Search formulas or tickers',
+  'portfolio.savedNew': 'New calculation',
+  /* Bốn khoá lọc theo mã / sắp xếp đã xoá 12/10/2026 — lý do ở `vi.ts`. */
+  'portfolio.savedNoMatch': 'No calculation matches.',
+  'portfolio.savedStatTitle': 'Saved',
+  'portfolio.savedStatUnit': 'calculations',
+  'portfolio.savedStatTickers': 'Across tickers',
+  'portfolio.savedStatFormulas': 'Distinct formulas',
+  'portfolio.savedStatReload': 'Series to reload',
+  'portfolio.savedStatLast': 'Last saved',
 
   'ticker.title': 'Pick a ticker',
   /* `ticker.subtitle` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */

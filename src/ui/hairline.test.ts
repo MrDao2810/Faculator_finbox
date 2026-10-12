@@ -118,24 +118,21 @@ describe('--color-hairline chỉ làm kẻ chia, không làm ranh giới', () =>
  * im lặng. Cùng lối với danh sách id trong `chart.test.ts` — một mục mới không được lọt qua mà
  * không có người xem xét.
  *
- * Ai muốn hạ một trong chín dòng này xuống hairline thì phải sửa cả danh sách, và lúc đó sẽ đọc
+ * Ai muốn hạ một trong bảy dòng này xuống hairline thì phải sửa cả danh sách, và lúc đó sẽ đọc
  * đúng lý do vì sao nó ở đây.
  */
 const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, lyDo: string]> = [
-  [
-    'app/danh-muc/PortfolioScreen.module.css',
-    '.holdRow',
-    'Kẻ chia giữa hai mã. Mỗi hàng là một đích bấm cao 44px và không có nền xen kẽ, nên đường kẻ là thứ DUY NHẤT tách chúng — đúng cả ở khổ dòng gọn lẫn khổ bảng.',
-  ],
-  [
-    'app/danh-muc/PortfolioScreen.module.css',
-    '.holdDetailRow',
-    'Hàng mở ra là <tr> thứ hai, nên nó phải mang kẻ chia thay cho hàng gọn phía trên (hàng ấy tắt kẻ khi đang mở, để cặp hàng đọc ra là một). Cùng lý do và cùng độ đậm với .holdRow.',
-  ],
+  /*
+   * Mộ chí: `app/danh-muc/PortfolioScreen.module.css → .holdRow` và `→ .holdDetailRow` rời danh sách này
+   * ngày 12/10/2026. Cả hai đều ở đây vì lý do "mỗi hàng là một đích bấm cao 44px": hàng bảng Nắm giữ
+   * là một nút phủ cả dòng, và hàng mở rộng là `<tr>` thứ hai của cùng cặp. Bản thiết kế hai cột bỏ cả nút
+   * phủ lẫn hàng mở rộng — Sửa và Bỏ mã là hai nút biểu tượng riêng — nên hàng dữ liệu hết là đích bấm,
+   * và kẻ chia giữa hai hàng đã chuyển sang `--color-hairline` như mọi danh sách khung-bọc khác.
+   */
   [
     'app/danh-muc/PortfolioScreen.module.css',
     '.holdHead th',
-    'Mép dưới hàng tiêu đề cột (chỉ có từ 1024px). Cùng cảnh với .table th của màn Dữ liệu: nó ngăn tên cột khỏi con số đầu tiên, mà tên cột lại có nền paper — hairline nhạt hơn nền ấy nên sẽ tàng hình.',
+    'Mép dưới hàng tiêu đề cột — dùng chung cho cả bảng Nắm giữ lẫn bảng Phép tính đã lưu. Cùng cảnh với .table th của màn Dữ liệu: nó ngăn tên cột khỏi con số đầu tiên, mà tên cột lại có nền paper — hairline nhạt hơn nền ấy nên sẽ tàng hình.',
   ],
   [
     'ui/browse/GroupCard.module.css',
@@ -177,7 +174,7 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
  */
 
 describe('kẻ chia cố ý ở lại --color-border', () => {
-  it('đúng chín chỗ, không thừa không thiếu', () => {
+  it('đúng bảy chỗ, không thừa không thiếu', () => {
     const thucTe: string[] = [];
 
     for (const file of moduleCssFiles()) {

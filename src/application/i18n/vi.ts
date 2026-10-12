@@ -722,7 +722,31 @@ export const vi = {
   'portfolio.totalValue': 'Tổng giá trị',
   'portfolio.beta': 'Beta danh mục',
   'portfolio.xirr': 'XIRR toàn DM',
-  'portfolio.count': 'Số mã',
+  /*
+   * ── Thiết kế lại màn Danh mục: mười ba khoá đã XOÁ (12/10/2026) ──────────────────────────────
+   *
+   * Chủ dự án đưa bản thiết kế mới (hai cột: tab dọc và thẻ tóm tắt bên trái, bảng bên phải) và yêu
+   * cầu làm lại. Bản mới bỏ hàng mở rộng, cột Doanh nghiệp, cột Giá trị, ô "Số mã" và mọi mảnh chữ
+   * đi liền con số của dòng gọn, nên các khoá sau mất chỗ dùng. Ghi lại giá trị cũ vì ba trong số
+   * chúng KHÔNG phải chữ thừa ngay từ đầu — nếu khổ điện thoại quay lại với dòng gọn thì đây là danh
+   * sách phải dựng lại:
+   *
+   *   - `portfolio.count` ('Số mã'), nhãn ô thứ sáu. Số mã nay nằm ở số đếm trên tab và ở "5 / 50"
+   *     cạnh tiêu đề bảng.
+   *   - `portfolio.shares` ('CP'), `portfolio.costPrice` ('giá vốn'), `portfolio.weight` ('tỷ
+   *     trọng'): mảnh chữ đi liền con số trên dòng gọn dưới 560px.
+   *   - `portfolio.colName` ('Doanh nghiệp'), `portfolio.colQuantity` ('Số lượng' — nay là `colShares`,
+   *     'Số CP'), `portfolio.colValue` ('Giá trị'): ba cột bảng đã bỏ hoặc đổi tên.
+   *   - `portfolio.tickerUnit` ('mã'): chữ sau số đếm trong dải "NẮM GIỮ · 2 mã · giá phiên …".
+   *   - `portfolio.betaShort` ('beta') và `portfolio.details` ('Chi tiết'): nhãn ô beta trong khối
+   *     mở ra, và tên khả truy cập của nút phủ cả dòng. Không còn khối mở, không còn nút phủ.
+   *   - `portfolio.savedAt` ('lưu'): tiền tố của ngày trong dòng phụ. Ngày lưu nay có cột riêng.
+   *   - `portfolio.tabHoldings` ('Mã') và `portfolio.tabSaved` ('Công thức'): nhãn tab một chữ.
+   *     Tab dọc đủ chỗ cho tên đầy đủ, nên tab dùng thẳng `portfolio.holdings` và
+   *     `portfolio.savedTitle` — một nguồn chữ, không hai khoá cùng nội dung chờ lệch nhau.
+   *
+   * Hệ quả cho ngày mua và beta: chúng chỉ còn thấy trong form Sửa.
+   */
   /*
    * Chế độ Cơ bản đang giấu hai ô Beta và XIRR — FR-09.
    *
@@ -731,29 +755,31 @@ export const vi = {
    * đọc không biết mình đang thiếu công thức, thiếu biến hay thiếu con số.
    */
   'portfolio.hiddenByLevel': 'ô nâng cao đang ẩn',
-  'portfolio.holdings': 'Nắm giữ',
-  'portfolio.shares': 'CP',
-  'portfolio.costPrice': 'giá vốn',
-  'portfolio.weight': 'tỷ trọng',
   /*
-   * ── Tiêu đề cột của bảng Nắm giữ (từ 1024px) ──────────────────────────────
-   *
-   * Tách riêng chứ KHÔNG dùng lại bốn khoá ngay trên, dù chữ gần giống. `portfolio.costPrice`
-   * và `portfolio.weight` là MẢNH CHỮ đi liền con số trên dòng gọn của khổ điện thoại ('giá vốn
-   * 60.000 ₫'); ở đây là NHÃN đứng một mình trên đầu một cột. Hai vai khác nhau nên viết hoa
-   * khác nhau — và quan trọng hơn: dùng chung một khoá thì cả hai cùng nằm trong DOM một lúc
-   * (bảng và dòng gọn là MỘT cây, chỉ khác nhau ở CSS), nên mọi `getByText('giá vốn')` trong ca
-   * kiểm bắt được hai phần tử và đỏ.
+   * Vừa là tiêu đề `<h2>` của tab Mã, vừa là nhãn của tab dọc ở cột trái — cùng một chữ, một khoá
+   * (xem khối mộ chí ở đầu danh sách `portfolio.*`).
+   */
+  'portfolio.holdings': 'Mã nắm giữ',
+  /*
+   * ── Tiêu đề cột của bảng Nắm giữ ──────────────────────────────────────────
    *
    * Chữ VIẾT HOA TOÀN BỘ trong bản thiết kế là việc của CSS (`.colLabel`), không nằm trong chuỗi
-   * — cùng luật với `.blockTitle` và `.cellLabel`.
+   * — cùng luật với `.blockTitle`. Viết hoa trong JS là đổi chính chuỗi mà ca kiểm và trình đọc
+   * màn hình dò theo.
+   *
+   * `colShares` là 'Số CP', bản rút gọn của 'Số cổ phiếu nắm giữ' trong form: cột chỉ rộng chừng
+   * mười phần trăm bảng. `colPercent` là 'Lãi/lỗ %': cột ngay sau cột Lãi/lỗ (tiền) và đo cùng thứ ấy
+   * theo phần trăm. Từ 12/10/2026 chiều chủ dự án đổi nhãn từ một dấu '%' trần sang đủ chữ: một '%'
+   * đứng một mình không nói phần trăm của cái gì, còn trình đọc màn hình xướng cột là "phần trăm".
+   * `colActions` KHÔNG hiện ra màn (ẩn bằng `visually-hidden`): cột chỉ chở hai nút biểu tượng,
+   * nhưng một `<th>` rỗng làm trình đọc màn hình xướng "cột 9" mà không nói gì.
    */
   'portfolio.colCode': 'Mã',
-  'portfolio.colName': 'Doanh nghiệp',
-  'portfolio.colQuantity': 'Số lượng',
+  'portfolio.colShares': 'Số CP',
   'portfolio.colCostPrice': 'Giá vốn',
-  'portfolio.colValue': 'Giá trị',
+  'portfolio.colPercent': 'Lãi/lỗ %',
   'portfolio.colWeight': 'Tỷ trọng',
+  'portfolio.colActions': 'Thao tác',
   /*
    * ── Tỷ trọng: còn ĐÚNG câu cảnh báo, bỏ câu định nghĩa ────────────────────
    *
@@ -781,13 +807,32 @@ export const vi = {
    * ngay trên, in thêm một câu nữa là nói hai lần.
    */
   'portfolio.tableCaption': 'Các mã đang nắm giữ',
-  /* Đơn vị sau con số đếm ở đầu khối: "2 mã". Cùng nếp với `list.count` ('công thức'). */
-  'portfolio.tickerUnit': 'mã',
+  /*
+   * Ô tìm mã ở góc phải tiêu đề bảng. Một chữ làm cả nhãn ẩn lẫn chữ mờ (`SearchBox` nhận `label`
+   * và `placeholder` riêng nhưng ở đây hai thứ trùng nhau).
+   *
+   * Cố ý KHÔNG chứa chữ "Thêm mã": mười lăm ca kiểm của màn tìm nút bằng `{ name: /Thêm mã/ }`,
+   * và một ô tìm tên là "Tìm mã" thì không khớp, còn "Thêm mã hay tìm mã" thì khớp cả hai.
+   */
+  'portfolio.searchTicker': 'Tìm mã',
+  /*
+   * Con số "5 / 50" cạnh tiêu đề chỉ là hai con số trần nên trình đọc màn hình đọc thành "5 gạch
+   * chéo 50". Nhãn đọc này nói thành lời. `{max}` lấy từ `MAX_HOLDINGS`, không gõ cứng ở đây
+   * (nếu trần đổi thì câu `portfolio.errFull` cũng phải đổi — `i18n.test.ts` canh cặp ấy).
+   */
+  'portfolio.holdingsCountAria': '{n} trên {max} mã',
+  /* Bộ lọc của ô "Tìm mã" không khớp mã nào. Khác `portfolio.empty`: danh mục KHÔNG rỗng. */
+  'portfolio.noMatch': 'Không có mã nào khớp.',
+  /*
+   * Nhãn cột trái, đầu màn (12/10/2026). Nhãn chứ không phải `<h1>`: tên màn do thanh trên dựng
+   * (`headerTitleKey()` → `portfolio.title`), và thanh ấy vẫn giữ nguyên. Hai chữ gần nhau là
+   * đúng bản thiết kế; nếu thấy thừa thì gỡ MỘT dòng ở `PortfolioScreen.tsx`, không đụng `routes.ts`.
+   */
+  'portfolio.sideTitle': 'Danh mục',
   /*
    * Nhãn NGẮN vì nút đã rời khung nét đứt cuối khối để lên góc phải dòng tiêu đề (22/09/2026,
-   * chủ dự án đưa ảnh thiết kế). Ở đó nó đứng cạnh "NẮM GIỮ · 2 mã · giá phiên …" nên một nhãn
-   * bốn chữ đẩy dòng xuống hàng thứ hai ngay ở khổ 360px. Dấu '+' vẫn là SVG `aria-hidden`,
-   * KHÔNG nằm trong chuỗi — xem chú thích ở chỗ dựng nút.
+   * chủ dự án đưa ảnh thiết kế). Dấu '+' vẫn là SVG `aria-hidden`, KHÔNG nằm trong chuỗi — xem
+   * chú thích ở chỗ dựng nút.
    */
   'portfolio.add': 'Thêm mã',
   'portfolio.remove': 'Bỏ mã',
@@ -866,19 +911,8 @@ export const vi = {
   'portfolio.gain': 'Lãi/lỗ',
 
   /*
-   * ── Nhãn của lưới số liệu trong khối chi tiết ─────────────────────────────
-   *
-   * Đây là NHÃN đứng riêng một dòng phía trên giá trị, không phải mảnh ghép giữa câu, nên viết
-   * hoa chữ đầu và đủ nghĩa khi đứng một mình. Bản trước là mảnh câu viết thường ('giá', 'mua')
-   * ghép thành `100 CP · giá vốn 21 ₫ · chưa có giá` — đọc được nhưng không dò được.
-   *
-   * `portfolio.costPrice` và `portfolio.weight` vẫn viết thường: từ đợt dựng lại theo bản vẽ
-   * WF-06 chúng KHÔNG còn là nhãn của lưới nữa mà là chữ đi liền con số ngay trên dòng gọn
-   * ('giá vốn 60.000 ₫' · 'tỷ trọng'), nên chữ thường là đúng chỗ chứ không còn là chuyện CSS.
-   *
-   * `portfolio.cellQuantity` ('Số lượng') đã bỏ ở đợt ấy: số lượng lên dòng gọn, nơi đơn vị 'CP'
-   * ngay sau con số đã nói đủ, nên nhãn thành thừa. Cửa "khoá mồ côi" ở `i18n.test.ts` bắt được
-   * ngay lúc nó thành thừa.
+   * Tiêu đề cột "Thị giá" của bảng Nắm giữ. (Từng còn là nhãn của lưới số liệu trong khối chi tiết
+   * mở ra khi bấm một dòng — khối ấy đã bỏ 12/10/2026, xem mộ chí ở đầu danh sách `portfolio.*`.)
    */
   'portfolio.marketPrice': 'Thị giá',
   /*
@@ -897,13 +931,11 @@ export const vi = {
    * FR-06 không bị nới: `_ _` không phải một con số, nên không có `0 ₫` nào thế chỗ. Ca kiểm
    * "thiếu thị giá: bốn ô hiện _ _" ghim cả hai vế.
    */
-  'portfolio.betaShort': 'beta',
-  'portfolio.edit': 'Sửa',
   /*
-   * Nhãn của nút phủ lên cả dòng mã — nút mở khối chi tiết. Không hiện thành chữ trên màn (dòng
-   * đã có mũi tên), nhưng là toàn bộ tên khả truy cập của nút nên phải nói đúng việc nó làm.
+   * Chỉ còn là TÊN KHẢ TRUY CẬP của nút bút chì trên mỗi dòng ("Sửa FPT") và tiêu đề của hộp thoại
+   * sửa — biểu tượng không mang chữ. Cùng chuyện với `portfolio.remove` ở trên.
    */
-  'portfolio.details': 'Chi tiết',
+  'portfolio.edit': 'Sửa',
   /*
    * ── `portfolio.editHint` đã XOÁ (14/09/2026) ──────────────────────────────────────────────
    *
@@ -966,7 +998,7 @@ export const vi = {
    * một helper trong `PortfolioScreen.test.tsx` chờ đúng chữ này sẽ báo "nhiều kết quả" — 13 ca
    * đỏ theo.
    */
-  'portfolio.priceSession': 'giá phiên',
+  'portfolio.priceSession': 'Giá phiên',
   'portfolio.priceRefresh': 'Làm mới',
   'portfolio.priceStale': 'Chưa làm mới được thị giá — đang dùng giá đã lưu.',
   /*
@@ -1066,21 +1098,61 @@ export const vi = {
    *   - 10/10/2026: chủ dự án yêu cầu tách màn thành HAI PHẦN riêng, và chọn hình thức tab. Ba
    *     khoá `tabHoldings` · `tabSaved` · `savedEmpty` quay lại, thêm `savedEmptyAction`. Ô rỗng
    *     đúng chỗ ở đây vì người dùng chủ động bấm sang tab — điều kiện bản tab đầu tiên đã dùng.
-   *
-   * Nhãn tab là MỘT chữ mỗi tab ("Mã", "Công thức") vì số đếm đứng ngay sau; nhãn dài hơn thì thanh
-   * tab tràn ở 360px.
+   *   - 12/10/2026: thiết kế hai cột. Tab dọc đủ chỗ cho tên đầy đủ nên `tabHoldings` · `tabSaved`
+   *     đi tiếp một lần nữa, lần này vì tab dùng thẳng `portfolio.holdings` và `portfolio.savedTitle`.
+   *     `savedEmpty` ở lại.
    */
-  'portfolio.tabHoldings': 'Mã',
-  'portfolio.tabSaved': 'Công thức',
   'portfolio.savedEmpty':
     'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
   'portfolio.savedEmptyAction': 'Mở danh sách công thức',
+  /* Vừa là `<h2>` của tab, vừa là nhãn của tab dọc ở cột trái — xem `portfolio.holdings`. */
   'portfolio.savedTitle': 'Phép tính đã lưu',
-  'portfolio.savedOpen': 'Xem',
+  /*
+   * ── Bảng "Phép tính đã lưu" (12/10/2026) ──────────────────────────────────────────────────
+   *
+   * Hai nút ở cuối dòng: "Mở" dẫn tới màn chi tiết với đúng bộ số đã lưu; "Nạp" cũng dẫn tới đó
+   * nhưng chỉ xuất hiện ở dòng mà chuỗi giá trong máy KHÔNG khớp lúc lưu, nơi việc người dùng cần
+   * làm là nạp lại chuỗi chứ không phải "xem". Hai nhãn khác nhau để nút nói đúng việc sắp xảy ra.
+   * (`portfolio.savedOpen` từng là 'Xem'.)
+   */
+  'portfolio.savedOpen': 'Mở',
+  'portfolio.savedReload': 'Nạp',
   'portfolio.savedRemove': 'Xoá',
-  // Đứng TRƯỚC một ngày: "lưu 15/09/2026".
-  'portfolio.savedAt': 'lưu',
-  'portfolio.savedNeedsSeries': 'Cần chuỗi giá',
+  /*
+   * Dòng phụ dưới tên công thức ở dòng bị cờ, và là LÝ DO của ô Kết quả đang hiện `_ _` (FR-06):
+   * chuỗi giá trong máy không còn là chuỗi lúc lưu, nên mở lại sẽ ra con số khác con số đã cất.
+   * Từng là 'Cần chuỗi giá'. Bản thiết kế đặt dòng này trong cột "Số liệu dùng", cột đã bỏ.
+   */
+  'portfolio.savedNeedsSeries': 'Cần nạp lại chuỗi giá',
+  'portfolio.savedTableCaption': 'Các phép tính đã lưu',
+  'portfolio.savedColFormula': 'Công thức',
+  'portfolio.savedColResult': 'Kết quả',
+  'portfolio.savedColDate': 'Ngày lưu',
+  'portfolio.savedSearch': 'Tìm công thức hoặc mã',
+  'portfolio.savedNew': 'Tính công thức mới',
+  /*
+   * ⚠ Bốn khoá đã XOÁ — chủ dự án chốt 12/10/2026, ngay sau khi bản thiết kế hai cột vào màn:
+   *
+   *   `portfolio.savedFilterLabel` ('Lọc theo mã'), `portfolio.savedFilterAll` ('Tất cả'),
+   *   `portfolio.savedSortNewest` ('Mới nhất trước'), `portfolio.savedSortOldest` ('Cũ nhất trước').
+   *
+   * Đó là hàng chip lọc theo mã ("Tất cả 7 · BHN 1 · AAA 1") cùng ô chọn chiều sắp xếp nằm trên bảng
+   * Phép tính đã lưu; chủ dự án chụp đúng hàng ấy và bảo xoá. Lý do hợp lý: ô tìm bên cạnh đã tìm
+   * được theo mã, và kho giữ tối đa 30 phép tính nên một chiều xếp cố định — mới nhất trước — là đủ.
+   * `sort.label` ở lại vì danh sách công thức vẫn dùng. Muốn có lại bộ lọc thì hỏi trước, đừng dựng
+   * lại từ git: chip là radio thật trong `<fieldset>` và tên khả truy cập cần `{' '}` trước số đếm.
+   */
+  'portfolio.savedNoMatch': 'Không có phép tính nào khớp.',
+  /*
+   * Thẻ tóm tắt ở cột trái khi đang ở tab Phép tính đã lưu. Mọi số đếm tính trên TOÀN BỘ kho, không
+   * theo chữ đang gõ ở ô tìm: thẻ nói về cái kho có, bảng bên phải mới là thứ lọc được.
+   */
+  'portfolio.savedStatTitle': 'Đã lưu',
+  'portfolio.savedStatUnit': 'phép tính',
+  'portfolio.savedStatTickers': 'Trên số mã',
+  'portfolio.savedStatFormulas': 'Công thức khác nhau',
+  'portfolio.savedStatReload': 'Cần nạp lại chuỗi',
+  'portfolio.savedStatLast': 'Lưu gần nhất',
 
   // ── Chọn mã từ toàn thị trường — gói "Danh mục dùng số liệu thật" ──────────
   'ticker.title': 'Chọn mã cổ phiếu',

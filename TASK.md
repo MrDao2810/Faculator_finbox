@@ -4,6 +4,121 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Màn Danh mục thiết kế lại thành hai cột (12/10/2026)
+
+**Trạng thái: CHƯA XONG.** Khổ máy tính đã làm xong và chạy trên Chrome thật, chờ chủ dự án xác nhận trên
+màn thật. **Khổ điện thoại và máy tính bảng chưa làm** — chủ dự án giao "tính sau", vì bản thiết kế chỉ có
+khổ máy tính. `npm run check` xanh.
+
+**Sửa tiếp cùng ngày:** tiêu đề cột thứ sáu của bảng Nắm giữ đổi từ "%" thành **"Lãi/lỗ %"** (EN "Gain/loss %")
+theo yêu cầu của chủ dự án — `portfolio.colPercent` trong `vi.ts`/`en.ts`, ca "mỗi số liệu có tiêu đề cột thật"
+cập nhật theo. Nhãn dài hơn nên ở khổ 1024–1279px cột này nhận 15% bề ngang (trước 11%), lấy 1% của Số CP và
+3% của Tỷ trọng (ở khổ ấy Tỷ trọng không còn thanh); đo bằng Chrome ở 1024 và 1440: nhãn và "↑ +11,0%" đều
+nằm trong ô.
+
+**Sửa tiếp lần hai, cùng ngày:** chủ dự án chụp hàng chip lọc theo mã ("Tất cả 7 · BHN 1 · AAA 1") cùng ô
+"Mới nhất trước" trên bảng Phép tính đã lưu và bảo **"xóa cái này đi"** — đã gỡ cả hàng.
+
+- `PortfolioScreen.tsx`: bỏ `savedCode`, `savedSort`, `codeChips`, `activeCode`, `ALL_CODES`, `SavedSort` và khối
+  `.filterRow`; bảng xếp **mới nhất trước, cố định**; ô tìm là công cụ lọc duy nhất (vẫn tìm được theo mã). Bỏ
+  import `Select`.
+- `PortfolioScreen.module.css`: bỏ `.filterRow`, `.chips`, `.chip`, `.chipFace`, `.chipCode`, `.chipCount`, `.sort`
+  (105 dòng).
+- `vi.ts`, `en.ts`: xoá `savedFilterLabel`, `savedFilterAll`, `savedSortNewest`, `savedSortOldest`, có bia mộ.
+  `sort.label` ở lại vì danh sách công thức còn dùng.
+- `PortfolioScreen.test.tsx`: ba ca chip và ca đảo chiều sắp xếp thay bằng hai ca — "chỉ có ô tìm" (ghim việc
+  bỏ) và "bảng luôn xếp phép tính lưu gần nhất lên đầu". 110 → 108 ca.
+- **Lỗi của chính đợt hai cột, thấy khi chụp lại và sửa luôn:** cột nút của bảng đã lưu rộng 96px như bảng Nắm
+  giữ, nhưng ở đây ô chở liên kết chữ "Mở"/"Nạp" cạnh nút thùng rác nên tràn 11px, và vùng chạm `::after` thò
+  thêm 4px ra ngoài khung → **một thanh cuộn ngang thừa dưới bảng ở cả khổ 1440px**. Nay 116px (108px dưới
+  1280px); đo lại `scrollWidth === clientWidth` ở 1440 và 1024.
+- Các mục "chip lọc theo mã", "sắp xếp" và giả định số 7 ở phần dưới của mục này **không còn đúng**.
+
+### Chủ dự án giao gì
+
+> "sau đây là thiết kế mới dành cho phần danh mục. đọc và điều chỉnh lại."
+
+kèm hai ảnh (tab Mã nắm giữ, tab Phép tính đã lưu). Bốn chỗ ảnh không trả lời được đã hỏi lại, và câu trả
+lời nguyên văn:
+
+| Hỏi                             | Chốt                                                                                                |
+| ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Nút "Tính lại theo giá mới"     | "không cần button Tính theo giá mới"                                                                |
+| Cột "Số liệu dùng"              | "không cần Số liệu dùng, và đồng thời bỏ các đoạn text thừa trong ảnh" — đã bỏ cả hai câu chân bảng |
+| Chữ "Danh mục" đầu cột trái     | làm đúng ảnh, thanh trên giữ nguyên (nhãn, không phải `<h1>`)                                       |
+| Khổ máy tính bảng và điện thoại | "phần dành cho mobile thì tạm thời tính sau"                                                        |
+
+### Quyết định cũ bị ĐẢO (nêu rõ để chủ dự án nhìn thấy)
+
+- Hàng mã mở ra khối chi tiết (22/09) → **bỏ**. Ngày mua và beta nay chỉ thấy trong form Sửa.
+- Cột Doanh nghiệp (22/09) và cột Giá trị → **bỏ**. Tên công ty vẫn lưu và ô "Tìm mã" tìm được theo tên.
+- Danh sách đã lưu không bày con số kết quả → **có cột Kết quả**, với điều kiện: dòng nào mở lại sẽ ra số khác
+  thì in `_ _` (xem "Giả định").
+- Sáu ô `StatTile` đầu màn, ô "Số mã" → **thẻ tóm tắt** ở cột trái; số mã nằm ở tab và ở "5 / 50".
+- Dải thị giá đứng ở dòng tiêu đề khối → **chân thẻ tóm tắt**.
+- Sửa / Bỏ mã nằm trong khối mở (hai thao tác) → **hai nút biểu tượng ngay trên dòng**. Bỏ mã là **một lần
+  bấm, không hỏi lại, không hoàn tác** — đúng ảnh.
+
+### Đã đổi
+
+| File                                                     | Sửa gì / vì sao                                                                                                                                                                                                         |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui/primitives/TabBar.tsx`, `.module.css`                | `orientation="vertical"`: `aria-orientation`, phím ↑/↓, thẻ trắng nhãn trái số đếm phải. Màn Danh mục là nơi duy nhất dùng. +4 ca                                                                                       |
+| `ui/browse/SearchBox.tsx`                                | nhận `label` và `placeholder` (mặc định giữ nguyên chữ của ô tìm công thức). File test mới, 2 ca                                                                                                                        |
+| `ui/result/number-breaks.tsx` (mới)                      | `coChoNgat()` tách khỏi `StatTile.tsx` để thẻ tóm tắt dùng chung, không chép hai bản                                                                                                                                    |
+| `app/danh-muc/PortfolioSummary.tsx`, `.module.css` (mới) | thẻ tóm tắt hai dạng (Mã / Đã lưu); mọi số vẫn là `CalcOutput` → `_ _` + lý do, không bao giờ 0 (FR-06); số lớn co chữ bằng `--ky-tu` + `cqi`                                                                           |
+| `app/danh-muc/PortfolioScreen.tsx`                       | khung hai cột; bảng Nắm giữ tám cột + ô "Tìm mã"; bảng Phép tính đã lưu năm cột + ô tìm, chip lọc theo mã, sắp xếp; bỏ `expanded`, `HOLD_COLUMNS`, `PortfolioCell`                                                      |
+| `app/danh-muc/PortfolioScreen.module.css`                | viết lại phần bảng (1.493 → ~1.080 dòng): bỏ bảng ba dạng, hàng mở rộng, dòng gọn; giữ form, `.empty`, `.priceError`, ô chọn mã                                                                                         |
+| `application/i18n/vi.ts`, `en.ts`                        | +25 khoá, 13 khoá xoá có bia mộ (danh sách ở đầu khối `portfolio.*`), 4 khoá đổi chữ                                                                                                                                    |
+| `app/danh-muc/PortfolioScreen.test.tsx`                  | 93 → 110 ca: bỏ ca accordion / hàng mở / nút phủ, thêm ca bỏ mã, lọc mã, tỷ trọng không đổi khi lọc, luật "cần nạp lại chuỗi" cả hai phía, chip, sắp xếp, thẻ tóm tắt                                                   |
+| `ui/section-title.test.ts`, `ui/hairline.test.ts`        | `.blockTitle` của màn rời danh sách (nay là `.mainTitle` cỡ lớn — ngoại lệ có ghi lý do); `.holdRow` và `.holdDetailRow` rời danh sách giữ `--color-border` (chín → bảy chỗ)                                            |
+| `scripts/chrome-check.mjs`                               | viết lại phần Danh mục: bảng tám cột, hai cột, tab dọc, số dài trong thẻ; khổ 360/560 chỉ còn "không tràn ngang" và "Thêm mã bấm được"; **sửa hai chỗ dấu backtick trong chú thích nằm giữa chuỗi template** (xem dưới) |
+| `CLAUDE.md`                                              | thay đoạn "6 tile" và "ONE table that takes three shapes" bằng đoạn hai cột; viết lại đoạn hai tab                                                                                                                      |
+
+### Giả định cần chủ dự án liếc
+
+1. **Luật "cần nạp lại chuỗi"**: `needsSeries && số dòng ffb.series.v1 ≠ seriesCount` — đúng luật
+   `seriesMismatch` của `FormulaDetail`, đọc cùng kho, nên danh sách và màn chi tiết không nói hai điều khác
+   nhau. Dòng bị cờ in `_ _` thay con số đã lưu, có dòng "Cần nạp lại chuỗi giá" dưới tên (chip này ở cột
+   "Số liệu dùng" trong ảnh, cột đã bỏ), nút đổi "Nạp".
+2. **Ngày lưu in đủ `dd/mm/yyyy`**, không rút còn `dd/mm` như ảnh: kho giữ tới 30 mục nên "10/10" có thể là
+   hai năm.
+3. **Beta và XIRR vẫn chỉ ở chế độ Nâng cao** (FR-09). Ảnh có lẽ chụp ở Nâng cao; Cơ bản thấy dòng "2 ô nâng
+   cao đang ẩn".
+4. **Ba dòng của thẻ in số trần** (`1,04`, `14,2 %`, `195.750.000`) vì ảnh vẽ thế; trước đó in kèm "lần",
+   "%/năm", "₫".
+5. **Phần trăm in một số lẻ cố định** (`+11,0%`, `15,6%`) như ảnh; dòng lãi/lỗ ở thẻ hai số lẻ.
+6. **Tiêu đề hai cột** ("Mã nắm giữ", "Phép tính đã lưu") cỡ lớn, chữ thường — khác kiểu tiêu đề khối chung
+   của sản phẩm (13px hoa) — vì ảnh đặt chúng ngang hàng với nhãn "Danh mục".
+7. **Ô sắp xếp** có hai lựa chọn: mới nhất trước / cũ nhất trước.
+
+### Đã kiểm
+
+- `npm run check`: lint, typecheck, prettier xanh; **141 file, 3.227 ca đạt**, 48 bỏ qua (như trước).
+- **Build chạy trên một BẢN SAO**, không trong repo: dev server của chủ dự án đang giữ cổng 3000 và build
+  trong cùng thư mục làm hỏng nó. `verify:static` **50/50**.
+- `size`: `/danh-muc/` **184,1 → 187,4 kB** First Load JS (+3,3 kB: `SearchBox`, `Select`, `Badge`, logic lọc). Cả
+  hai đều **trên cửa kiểm 180 kB** — bản gốc đã vượt sẵn — và 111 trang chi tiết vẫn ở 430 kB như đã ghi.
+  Con số "131 kB" của `/danh-muc/` trong CLAUDE.md là số đo cũ.
+- `check:chrome`: **146/153**. Bảy ca đỏ **giống hệt bản gốc** (đã chạy cả hai): hàng nav khi đổi màn, hàng nút
+  form thêm mã dạt phải (hở 20px), và năm ca nhãn biểu đồ (`diem-hoa-von`, `lai-kep` ×2, `lich-tra-no`, `fcff`).
+  Không ca nào thuộc đợt này; chưa sửa vì ngoài phạm vi.
+- **Hai lỗi có sẵn ở HEAD đã sửa trong `chrome-check.mjs`**: chú thích có dấu backtick nằm GIỮA một chuỗi
+  template (quanh `.control`, `<input>`, `<button>`) làm đứt chuỗi, nên script chết ở dòng ~3350 và mọi phép đo
+  sau đó (hộp thoại form, sheet, bảng 1440, trang Dữ liệu…) **không chạy được**. Cả bản gốc cũng chết ở đó.
+- Chụp màn bằng Chrome riêng ở 1440, 1024, 360, chế độ Cơ bản/Nâng cao, sáng/tối, có giả lập Finbox.
+- Tìm ra bằng mắt rồi sửa: khung bảng không `position: relative` nên các nhãn `visually-hidden` (absolute) thoát
+  ra ngoài khung cuộn và làm trang rộng 569px trên màn 345px; cột Tỷ trọng dính cột `%`; thanh tỷ trọng co còn
+  40px; ở 1024px cột Tỷ trọng và hai nút nằm ngoài tầm nhìn.
+
+### Còn lại
+
+- **Khổ < 1024px**: chỉ là phương án tạm (hai cột xếp chồng, bảng cuộn ngang trong khung). Cần bản vẽ để làm.
+- `StatTile` không còn ai gọi — để nguyên, chưa xoá cùng các ca ghim của nó.
+- Chưa có xác nhận trên màn thật của chủ dự án nên chưa chuyển sang xong.
+
+---
+
 ## Mã đã có trong danh mục thì không thêm lại được (10/10/2026)
 
 **Trạng thái: CHƯA XONG — chờ chủ dự án xác nhận trên màn thật.** `npm run lint`, `typecheck`,

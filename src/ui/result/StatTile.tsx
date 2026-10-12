@@ -7,6 +7,7 @@ import type { CalcOutput } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
 import { useCalcText } from '../i18n/units';
+import { coChoNgat } from './number-breaks';
 import styles from './StatTile.module.css';
 
 export interface StatTileProps {
@@ -37,17 +38,6 @@ export interface StatTileProps {
    */
   showReason?: boolean;
   className?: string;
-}
-
-/**
- * Con số với một chỗ ngắt dòng sau mỗi dấu chấm phân nhóm.
- *
- * Số khổng lồ co tới cỡ sàn mà vẫn không vừa thẻ thì phải xuống dòng. Không có chỗ ngắt nào thì
- * `overflow-wrap: anywhere` cắt ngay giữa một nhóm ("…713.00" / "0 ₫"). `<wbr>` không thêm ký tự,
- * nên `textContent` giữ nguyên. Dấu chấm luôn là dấu phân nhóm: `format.ts` khoá cứng 'vi-VN'.
- */
-function coChoNgat(text: string): ReactNode[] {
-  return text.split('.').flatMap((nhom, i) => (i === 0 ? [nhom] : ['.', <wbr key={i} />, nhom]));
 }
 
 /**

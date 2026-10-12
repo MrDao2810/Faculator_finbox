@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ import {
   MAX_HOLDINGS,
   PORTFOLIO_KEY,
   PRICE_CACHE_KEY,
+  PRICE_SERIES_KEY,
   ROUTES,
   SAVED_CALCS_ANCHOR,
   SAVED_CALCS_KEY,
@@ -21,19 +22,21 @@ import {
   formatValueWithUnit,
   formulaPath,
   isAbortError,
-  isCalculated,
   isPriceCacheFresh,
   keepViNumberChars,
+  normalizeVi,
   oldestAsOf,
   parseCachedPrices,
   parseHoldings,
   parseSavedCalcs,
+  parseStoredSeries,
   parseViNumber,
   removeHolding,
   removeSavedCalc,
   serializeCachedPrices,
   serializeHoldings,
   serializeSavedCalcs,
+  suggestCalcNames,
   summarisePortfolio,
   updateHolding,
 } from '@/application';
@@ -47,35 +50,43 @@ import type {
   TickerSnapshot,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
-import { HiddenByLevelNote } from '@/ui/browse';
-import { useCalcText, useValueText } from '@/ui/i18n/units';
+import { SearchBox } from '@/ui/browse';
+import { useValueText } from '@/ui/i18n/units';
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from '@/ui/inputs';
 import { DisclaimerBar } from '@/ui/navigation';
-import { BottomSheet, Button, Input, TabBar, tabId } from '@/ui/primitives';
-import { StatTile } from '@/ui/result';
+import { Badge, BottomSheet, Button, Input, TabBar, tabId } from '@/ui/primitives';
 import { FormulaForTickerSheet, TickerPickerSheet } from '@/ui/sheets';
 
 import styles from './PortfolioScreen.module.css';
+import { HoldingsSummary, SavedSummary } from './PortfolioSummary';
 
 /**
  * Màn WF-06 Danh mục cá nhân — gói WBS 3.4.1, mở rộng ở gói "Danh mục dùng số liệu thật" và
  * gói "Tám đề mục còn hở".
  *
- * Sáu con số đầu màn đều là **kết quả tính** nên đi qua `StatTile` nhận thẳng `CalcOutput`:
- * thiếu dữ liệu thì ô hiện "_ _" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm
- * nhất trong cả sản phẩm — một danh mục mới toanh có tổng giá trị chưa xác định, không phải 0 ₫.
- * Ô Beta và ô XIRR hiện "_ _" mà không kèm câu lý do, từ 29/09/2026 — xem `showReason`.
+ * ── Bố cục hai cột (từ 12/10/2026) ──────────────────────────────────────────────────────────
  *
- * ── Sáu ô ở chế độ Nâng cao, bốn ô ở Cơ bản (FR-09) ─────────────────────────────────────────
+ * Cột trái: nhãn "Danh mục", tab dọc, thẻ tóm tắt (`PortfolioSummary`). Cột phải: bảng của tab
+ * đang mở. Trước đó là sáu ô `StatTile` đầu màn rồi danh sách mã với hàng mở rộng — xem mục
+ * "Danh mục thiết kế lại thành hai cột" trong `TASK.md` và đoạn "TWO COLUMNS" trong `CLAUDE.md`.
+ * Khổ nhỏ hơn 1024px CHƯA có thiết kế: hai cột xếp chồng, bảng cuộn ngang trong khung của nó.
+ *
+ * Các con số trong thẻ tóm tắt đều là **kết quả tính** nên đi qua `CalcOutput`: thiếu dữ liệu thì
+ * hiện "_ _" kèm lý do chứ không hiện 0 (FR-06). Đây là chỗ dễ vi phạm nhất trong cả sản phẩm — một
+ * danh mục mới toanh có tổng giá trị chưa xác định, không phải 0 ₫. Beta và XIRR hiện "_ _" mà không
+ * kèm câu lý do, từ 29/09/2026.
+ *
+ * ── Beta và XIRR chỉ ở chế độ Nâng cao (FR-09) ──────────────────────────────────────────────
  *
  * Beta và XIRR là hai khái niệm nâng cao thật, và với người dùng F0 chúng gần như **luôn** ở
- * trạng thái "_ _": beta là bình quân gia quyền nên thiếu beta của một mã là hỏng cả ô, mà
- * beta thì phải nhập tay; XIRR đòi ngày mua hợp lệ ở mọi mã. Bốn trên sáu ô nói được điều gì
- * đó ngay sau khi thêm mã đầu tiên, hai ô còn lại thì không — nên chế độ Cơ bản (mặc định của
- * sản phẩm, SRS 1.3.3) chỉ dựng bốn ô ấy, kèm dòng nói ra là đang giấu hai ô.
+ * trạng thái "_ _": beta là bình quân gia quyền nên thiếu beta của một mã là hỏng cả dòng, mà
+ * beta thì phải nhập tay; XIRR đòi ngày mua hợp lệ ở mọi mã. Hai dòng ấy không nói được điều gì
+ * ngay sau khi thêm mã đầu tiên — nên chế độ Cơ bản (mặc định của sản phẩm, SRS 1.3.3) không dựng
+ * chúng, kèm dòng nói ra là đang giấu `ADVANCED_TILES` dòng.
  *
- * Ô nhập Beta trong form và ô `beta` trong thẻ nắm giữ đi theo cùng luật — bày một con số mà
- * chính chế độ đang xem không cho sửa là một ngõ cụt.
+ * Ô nhập Beta trong form đi theo cùng luật — bày một con số mà chính chế độ đang xem không cho
+ * sửa là một ngõ cụt. Beta và ngày mua KHÔNG còn hiện ở bảng (bỏ hàng mở rộng), nên form Sửa là
+ * nơi duy nhất người dùng đọc lại được chúng.
  *
  * ── Thứ gì rời khỏi máy người dùng, thứ gì không ────────────────────────────────────────────
  *
@@ -165,38 +176,29 @@ const PORTFOLIO_PANEL_ID = 'portfolio-panel';
 const SAVED_TAB_PARAM = 'cong-thuc';
 
 /**
- * Số ô mà chế độ Cơ bản giấu đi — Beta và XIRR.
+ * Số dòng mà chế độ Cơ bản giấu đi trong thẻ tóm tắt — Beta và XIRR.
  *
- * Con số này phải khớp số `StatTile` nằm trong nhánh `advanced &&` bên dưới. Không đếm được tự
- * động vì chúng là JSX, nên `PortfolioScreen.test.tsx` gác bằng cách đếm ô thật ở cả hai chế độ
- * rồi so hiệu số với chính hằng số này — thêm một ô nâng cao mà quên sửa đây là đỏ ngay.
+ * Con số này phải khớp số dòng nằm trong nhánh `advanced &&` của `HoldingsSummary`. Không đếm được tự
+ * động vì chúng là JSX, nên `PortfolioScreen.test.tsx` gác bằng cách đếm dòng thật ở cả hai chế độ
+ * rồi so hiệu số với con số "N ô nâng cao đang ẩn" — thêm một dòng nâng cao mà quên sửa đây là đỏ ngay.
+ * (Tên giữ chữ "TILES" từ thời sáu ô `StatTile`; đổi tên chỉ để đẩy một diff không mang nghĩa gì.)
  */
 const ADVANCED_TILES = 2;
 
 /**
- * Số cột của bảng Nắm giữ — tám cột số liệu cộng một cột chở mũi tên.
+ * Icon của hai tab, hai nút trên mỗi dòng và các trạng thái rỗng.
  *
- * Dùng cho `colSpan` của hàng mở ra. Đếm hụt thì hàng ấy không trải hết bề ngang và trình duyệt
- * độn thêm một ô trống vào cuối bảng; đếm dư thì bảng rộng hơn chính nó. Cả hai đều là lỗi lặng,
- * nên `PortfolioScreen.test.tsx` đối chiếu hằng số này với số `<th>` thật trong hàng tiêu đề.
+ * Vẽ tay như `TabIcon` và `CategoryIcon`, không thêm thư viện (NFR-PER-04).
+ *
+ * Luôn `aria-hidden` và tuyệt đối không chứa `<title>`/`<desc>`/`<text>` — chúng sẽ chui vào
+ * `textContent` của thẻ, mà nhiều ca kiểm ở màn này dò giá trị qua đúng `textContent`. Chữ "fx" của
+ * tab Phép tính đã lưu vì thế được VẼ bằng nét, không phải gõ bằng phần tử `<text>`.
  */
-const HOLD_COLUMNS = 9;
-
-/**
- * Icon của sáu ô chỉ số và hai tab — bản thiết kế đợt 12.
- *
- * Vẽ tay như `TabIcon` và `CategoryIcon`, không thêm thư viện (NFR-PER-04). Khai ở màn này chứ
- * không đẩy vào `@/ui/result`: `StatTile` là component chung, nó không nên biết danh mục có
- * những chỉ số nào.
- *
- * Luôn `aria-hidden` và tuyệt đối không chứa `<title>`/`<desc>` — chúng sẽ chui vào `textContent`
- * của thẻ, mà nhiều ca kiểm ở màn này dò giá trị qua đúng `textContent`.
- */
-function StatIcon({ d }: { d: string }) {
+function StatIcon({ d, size = 18 }: { d: string; size?: number }) {
   return (
     <svg
-      width="18"
-      height="18"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -211,24 +213,21 @@ function StatIcon({ d }: { d: string }) {
 }
 
 const TILE_ICONS = {
-  /* Ví tiền — tổng giá trị đang nắm. */
-  totalValue:
-    'M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm13 4h4v4h-4Z',
-  /* Đồng xu — số vốn đã bỏ ra. */
-  totalCost:
-    'M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Zm0 0v8c0 1.7 3.6 3 8 3s8-1.3 8-3V8',
-  /* Mũi tên lên — lãi/lỗ. */
-  gain: 'M4 17l5-5 3 3 7-7M15 8h5v5',
-  /* Con lắc — beta là độ dao động so với thị trường. */
-  beta: 'M12 4v6M12 10a5 5 0 1 0 0 10 5 5 0 0 0 0-10ZM6 6l1.5 1.5M18 6l-1.5 1.5',
-  /* Đồng hồ — XIRR là lợi suất có tính tới thời điểm. */
-  xirr: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2',
-  /* Cột — số mã đang giữ. */
+  /* Cột — trạng thái rỗng của tab Mã. */
   count: 'M5 20V11M12 20V4M19 20v-6',
-  /* Danh sách mã. */
-  tabHoldings: 'M4 6h16M4 12h16M4 18h10',
-  /* Ô vuông xếp — các phép tính đã lưu. */
-  tabSaved: 'M4 5h6v6H4V5ZM14 5h6v6h-6V5ZM4 13h6v6H4v-6ZM14 13h6v6h-6v-6Z',
+  /* Đồng xu có chữ S dựng đứng — tab Mã nắm giữ. */
+  tabHoldings:
+    'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM14.5 9.2c-.4-.8-1.3-1.2-2.5-1.2-1.4 0-2.5.7-2.5 1.8 0 2.5 5 1.2 5 3.7 0 1.1-1.1 1.8-2.5 1.8-1.2 0-2.1-.4-2.5-1.2M12 6.5V8m0 8v1.5',
+  /* "fx" vẽ bằng nét — tab Phép tính đã lưu. */
+  tabSaved: 'M8.5 18v-9a3 3 0 0 1 3-3h.5M6 11.5h5.5M13 12.5l5 6m0-6-5 6',
+  /* Dấu cộng — nút Thêm mã. */
+  plus: 'M12 5v14M5 12h14',
+  /* Bút chì — Sửa. */
+  edit: 'M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4',
+  /* Thùng rác — Bỏ mã, Xoá. */
+  trash: 'M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v5M14 11v5',
+  /* Vòng tròn chấm than — dòng phép tính cần nạp lại chuỗi giá. */
+  warn: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 8v5M12 16.5v.01',
 } as const;
 
 interface FormState {
@@ -263,24 +262,32 @@ interface FormErrors {
 type SheetKind = 'ticker' | 'formulas';
 
 /**
- * Một ô số liệu trong thẻ của một mã.
+ * Một dòng của bảng Phép tính đã lưu, ĐÃ dựng sẵn mọi chữ cần in.
  *
- * `kind` có mặt vì bản rà soát thiết kế bắt được rằng NGÀY MUA đang hiện y hệt một khoản tiền:
- * cùng cỡ chữ, cùng độ đậm, cùng `tabular-nums`. Trước đợt này ô nào cũng là một cặp nhãn–giá trị
- * vô danh, nên CSS không có cách nào biết ô nào là số ô nào là ngày.
- *
- * Phân biệt bằng MẶT CHỮ và MÀU, không bằng căn lề: một bản thử căn phải cho ô số đã bị chủ dự án
- * bác ngay khi nhìn thấy — lý do đầy đủ ở chú thích "Căn lề: TẤT CẢ căn trái" trong
- * `PortfolioScreen.module.css`.
- *
- * `absent` tách "chưa có giá" và "_ _" khỏi một giá trị thật. Chúng chiếm đúng chỗ của một con số
- * nên phải trông khác một con số (FR-06: thiếu dữ liệu thì nói ra, không hiện 0).
+ * Dựng một lượt ở thân component rồi bảng chỉ việc in: tìm, đếm cho thẻ tóm tắt và vẽ dòng
+ * đều đọc cùng một mảng, nên không có chỗ nào tự suy ra "cần nạp lại chuỗi" lần thứ hai và lệch nhau.
  */
-interface PortfolioCell {
+interface SavedRowView {
+  saved: SavedCalc;
+  /** Dòng chính của ô Công thức: tên công thức, hoặc tên người dùng tự đặt. */
+  title: string;
+  /**
+   * Tên để ĐỌC cho trình đọc màn hình ở hai nút cuối dòng, có mã đứng trước ("GVR · P/E…").
+   * Hai phép tính cùng công thức khác mã mà chỉ nói "Xoá P/E" thì không biết xoá cái nào.
+   */
   label: string;
-  value: string;
-  kind: 'number' | 'date';
-  absent?: boolean;
+  /** Dòng phụ: tên công thức, CHỈ khi dòng chính là tên tự đặt mà chưa nhắc tới nó. */
+  subtitle: string | null;
+  /**
+   * Chuỗi giá trong máy không còn khớp lúc lưu — luật của `FormulaDetail` (`seriesMismatch`).
+   * Dòng bị cờ in `_ _` thay con số đã lưu: mở lại sẽ ra con số khác, mà một con số cũ đứng cạnh
+   * cái tên cũ là đúng loại "số sai mà trông có lý" FR-06 chặn.
+   */
+  needsReload: boolean;
+  result: string;
+  date: string;
+  /** Chuỗi đã bỏ dấu để ô tìm so khớp: tên, tên công thức hai ngôn ngữ, mã. */
+  haystack: string;
 }
 
 /** Tra tên công thức theo id, dạng song ngữ. `undefined` khi id không còn trong Registry. */
@@ -304,7 +311,6 @@ function snapshotFromCache(quote: CachedQuote): TickerSnapshot {
 export function PortfolioScreen() {
   const t = useT();
   const pick = usePick();
-  const calcText = useCalcText();
   const valueText = useValueText();
 
   const router = useRouter();
@@ -317,21 +323,23 @@ export function PortfolioScreen() {
   const [errors, setErrors] = useState<FormErrors>({});
   /** Mã đang được SỬA. `null` nghĩa là form đang ở chế độ thêm mới. */
   const [editing, setEditing] = useState<string | null>(null);
-  /**
-   * Mã đang MỞ khối chi tiết. `null` nghĩa là mọi dòng đều đang đóng.
-   *
-   * Danh sách nay là dòng gọn ba cột đúng bản vẽ WF-06 — mã · số lượng/giá vốn · tỷ trọng/lãi lỗ
-   * — nên thị giá, ngày mua, beta và ba nút hành động chuyển xuống khối mở ra khi bấm vào dòng.
-   * Không thứ nào bị bỏ đi, chỉ đổi chỗ.
-   *
-   * Là MỘT mã chứ không phải một tập hợp: kiểu accordion, mở dòng này thì dòng đang mở tự đóng.
-   * Bản trước giữ một `Set` với lập luận "so hai mã cạnh nhau là việc thật" — chủ dự án đã bác lập
-   * luận ấy trên màn hình thật: mỗi khối chi tiết cao gần bằng ba dòng gọn, nên hai khối cùng mở
-   * đẩy mã thứ hai xuống dưới nếp gấp và cái người dùng nhìn thấy không còn là hai mã cạnh nhau,
-   * mà là một khối số lơ lửng không rõ thuộc về ai. So sánh vốn đã có chỗ riêng và chỗ ấy làm tốt
-   * hơn: dòng gọn ba cột luôn bày sẵn tỷ trọng và lãi/lỗ của MỌI mã cùng lúc.
+  /*
+   * Không còn state "mã đang mở khối chi tiết" (`expanded`, 12/10/2026): bảng bỏ hàng mở rộng, Sửa
+   * và Bỏ mã là hai nút biểu tượng ngay trên dòng. Ngày mua và beta vì thế chỉ còn thấy trong form
+   * Sửa. Lịch sử của accordion (một mã mở một lúc, vì sao không giữ một `Set`) nằm ở git, không ở đây.
    */
-  const [expanded, setExpanded] = useState<string | null>(null);
+  /** Chữ gõ ở ô "Tìm mã". Chỉ lọc HÀNG HIỆN — tỷ trọng vẫn tính trên cả danh mục. */
+  const [holdQuery, setHoldQuery] = useState('');
+  /** Chữ gõ ở ô tìm của tab Phép tính đã lưu. */
+  const [savedQuery, setSavedQuery] = useState('');
+  /**
+   * Số dòng của chuỗi giá đang nằm trong máy (`ffb.series.v1`).
+   *
+   * Đọc đúng kho mà `FormulaDetail` đọc lúc mở một phép tính đã lưu (nó nạp chuỗi từ kho này ngay
+   * lúc mount), để cờ "cần nạp lại chuỗi" ở đây và `seriesMismatch` ở màn chi tiết không thể nói hai
+   * điều khác nhau về cùng một phép tính. Xem `needsReload` bên dưới.
+   */
+  const [seriesRows, setSeriesRows] = useState(0);
   const [asOf, setAsOf] = useState('');
   const [loaded, setLoaded] = useState(false);
 
@@ -414,6 +422,12 @@ export function PortfolioScreen() {
       setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
     } catch {
       // Cùng lý do ngay trên — không đọc được thì coi như chưa lưu gì, khối tự ẩn.
+    }
+
+    try {
+      setSeriesRows(parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY)).rows.length);
+    } catch {
+      // Không đọc được kho chuỗi thì coi như trong máy không có chuỗi nào (0 dòng).
     }
 
     /*
@@ -664,27 +678,21 @@ export function PortfolioScreen() {
   }, []);
 
   /**
-   * Đóng/mở khối chi tiết của một mã, kiểu accordion.
+   * Bỏ một mã khỏi danh mục — việc nút thùng rác ở mỗi dòng gọi.
    *
-   * Mở một mã khác thì mã đang mở tự đóng — đó là toàn bộ việc phép gán này làm, chứ không cần một
-   * bước "đóng cái cũ" riêng: trạng thái chỉ giữ được một mã nên không có cách nào để hai khối cùng
-   * mở. Bấm lại đúng mã đang mở thì về `null`, tức đóng.
-   */
-  const toggleDetail = useCallback((code: string): void => {
-    setExpanded((current) => (current === code ? null : code));
-  }, []);
-
-  /**
-   * Đóng khối chi tiết của một mã, dù nó đang mở hay không.
+   * Đang sửa đúng mã vừa bị bỏ thì form phải đóng, nếu không nó sẽ lưu ngược một mã không còn tồn
+   * tại (`updateHolding` lên một mã vắng thì không làm gì, và form thì cứ báo như đã lưu).
    *
-   * Tách khỏi `toggleDetail` chứ không gọi lại nó: "đóng" và "đảo trạng thái" chỉ trùng nhau khi
-   * dòng đang mở. Chỗ dùng là lúc BỎ một mã — hôm nay nút Bỏ chỉ với tới được từ trong khối đang
-   * mở nên hai hàm cho cùng kết quả, nhưng ai đưa nút Bỏ ra chỗ khác (vuốt ngang, menu…) sẽ khiến
-   * `toggleDetail` MỞ khối chi tiết của đúng mã vừa xoá.
+   * MỘT lần bấm là mất, không hỏi lại, không hoàn tác — đúng bản thiết kế 12/10/2026. Trước đó nút Bỏ
+   * nằm trong khối mở của dòng nên cần hai thao tác; nay là một nút biểu tượng đứng cạnh nút Sửa.
    */
-  const collapseDetail = useCallback((code: string): void => {
-    setExpanded((current) => (current === code ? null : current));
-  }, []);
+  const removeRow = useCallback(
+    (code: string): void => {
+      setHoldings((current) => removeHolding(current, code));
+      if (editing === code) closeForm();
+    },
+    [editing, closeForm],
+  );
 
   /** Mở form ở chế độ SỬA, đổ sẵn số đang lưu. */
   const startEdit = useCallback((holding: Holding): void => {
@@ -862,657 +870,542 @@ export function PortfolioScreen() {
     setErrors((current) => ({ ...current, [key]: undefined, form: undefined }));
   }, []);
 
+  // ── Dữ liệu của hai bảng ────────────────────────────────────────────────────
+
+  /**
+   * Hàng của bảng Nắm giữ sau khi lọc bằng ô "Tìm mã".
+   *
+   * `normalizeVi()` bỏ dấu và hạ chữ thường — cùng hàm với sheet chọn mã, nên gõ "fpt" hay "FPT" hay
+   * gõ không dấu tên doanh nghiệp đều ra đúng. Lọc chỉ ẨN HÀNG: `summary.rows` vẫn là cả danh mục, nên
+   * tỷ trọng của một mã không đổi khi người dùng gõ vào ô tìm (mẫu số là cả danh mục, không phải
+   * phần đang hiện). Tên doanh nghiệp lấy bù từ `quotes` như cột Doanh nghiệp ngày trước vẫn làm —
+   * cùng gói dữ liệu đã tải để tra thị giá, không thêm lời gọi mạng nào.
+   */
+  const holdNeedle = normalizeVi(holdQuery).trim();
+  const visibleRows = useMemo(() => {
+    if (holdNeedle === '') return summary.rows;
+    return summary.rows.filter((row) => {
+      const name = row.holding.name ?? quotes.get(row.holding.code)?.name ?? '';
+      return (
+        normalizeVi(row.holding.code).includes(holdNeedle) || normalizeVi(name).includes(holdNeedle)
+      );
+    });
+  }, [summary.rows, holdNeedle, quotes]);
+
+  /*
+   * Mọi dòng của bảng Phép tính đã lưu, dựng MỘT lượt — xem `SavedRowView`. Không bọc `useMemo`: hai
+   * hook định dạng (`pick`, `valueText`) trả hàm mới mỗi lượt render nên phụ thuộc của nó đổi mỗi lần,
+   * mà kho chỉ giữ tối đa ba mươi mục.
+   */
+  const savedRows: SavedRowView[] = savedCalcs.map((saved) => {
+    const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
+    // Công thức bị gỡ khỏi Registry thì id vẫn là thứ nhận ra được, hơn là một dòng trống.
+    const formulaName = summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
+    const viResult =
+      saved.resultValue === null
+        ? undefined
+        : formatValueWithUnit(saved.resultValue, saved.resultUnit);
+    const localResult =
+      saved.resultValue === null ? undefined : valueText(saved.resultValue, saved.resultUnit);
+
+    /*
+     * Tên đã cất là chuỗi ĐÃ GHÉP ở ngôn ngữ lúc bấm Lưu, nên đổi sang EN nó vẫn tiếng Việt.
+     * `displayCalcName()` nhận ra tên nào vốn là GỢI Ý rồi dựng lại ở ngôn ngữ đang xem; tên người
+     * dùng tự gõ giữ nguyên từng chữ.
+     */
+    const savedName =
+      summaryOf === undefined
+        ? saved.name
+        : displayCalcName({
+            stored: saved.name,
+            viName: summaryOf.name.vi,
+            localName: formulaName,
+            ...(saved.code === undefined ? {} : { code: saved.code }),
+            ...(viResult === undefined || localResult === undefined
+              ? {}
+              : { viResult, localResult }),
+            savedAt: saved.savedAt,
+          });
+
+    /*
+     * Tên nào là GỢI Ý tự sinh ("GVR · P/E · 10/10/2026") thì cột Công thức chỉ cần tên công thức —
+     * mã đã có cột riêng ngay cạnh, ngày cũng vậy, in lại là nói ba lần. Tên người dùng tự đặt thì giữ
+     * nguyên làm dòng chính, tên công thức xuống làm dòng phụ để người ta còn biết nó tính gì.
+     *
+     * Nhận ra gợi ý bằng cách dựng lại đúng bộ gợi ý rồi so — cùng cách `displayCalcName()` làm, nên
+     * không cần thêm một trường cờ vào kho (chỉ cứu được bản lưu từ nay về sau). Hậu tố né trùng
+     * " (2)" do `dedupe()` gắn SAU khi ghép nên phải tách ra trước khi so.
+     */
+    const suffix = /\s\(\d+\)$/.exec(savedName);
+    const base = (suffix === null ? savedName : savedName.slice(0, suffix.index))
+      .trim()
+      .toLowerCase();
+    const suggested = suggestCalcNames({
+      formulaName,
+      ...(saved.code === undefined ? {} : { code: saved.code }),
+      ...(localResult === undefined ? {} : { resultText: localResult }),
+      savedAt: saved.savedAt,
+    }).some((name) => name.trim().toLowerCase() === base);
+
+    /*
+     * Luật "cần nạp lại chuỗi" — đúng luật `seriesMismatch` của `FormulaDetail`, đọc cùng kho
+     * (`ffb.series.v1`). Phép tính không dùng chuỗi giá thì không bao giờ bị cờ.
+     */
+    const needsReload = saved.needsSeries && seriesRows !== (saved.seriesCount ?? 0);
+
+    const title = suggested ? formulaName : savedName;
+
+    return {
+      saved,
+      title,
+      // Tên tự đặt hay mang sẵn mã ("HPG · P/E") — thêm mã nữa là đọc "HPG · HPG · P/E".
+      label:
+        saved.code === undefined || title.includes(saved.code) ? title : `${saved.code} · ${title}`,
+      subtitle: suggested || savedName.includes(formulaName) ? null : formulaName,
+      needsReload,
+      // `_ _` chứ không 0 (FR-06): dòng bị cờ, hoặc bản lưu cũ/hỏng không còn kết quả.
+      result: needsReload || localResult === undefined ? '_ _' : localResult,
+      date: formatIsoDate(isoDayOf(saved.savedAt)),
+      haystack: normalizeVi(
+        [savedName, formulaName, summaryOf?.name.vi, summaryOf?.name.en, saved.code]
+          .filter((part): part is string => part !== undefined)
+          .join(' '),
+      ),
+    };
+  });
+
+  /*
+   * Bảng luôn xếp mới nhất trước. Chip lọc theo mã và ô chọn chiều sắp xếp từng nằm trên bảng (bản
+   * thiết kế 12/10/2026) và đã bị chủ dự án bảo bỏ ngay sau đó: ô tìm đã tìm được theo mã, còn
+   * kho tối đa 30 phép tính nên một chiều xếp cố định là đủ.
+   */
+  const savedNeedle = normalizeVi(savedQuery).trim();
+  const shownSaved = savedRows
+    .filter((row) => savedNeedle === '' || row.haystack.includes(savedNeedle))
+    .sort((a, b) => b.saved.savedAt - a.saved.savedAt);
+
+  // Số đếm của thẻ tóm tắt tính trên CẢ kho, không theo ô tìm đang gõ.
+  const savedTickers = new Set(
+    savedCalcs.flatMap((saved) => (saved.code === undefined ? [] : [saved.code])),
+  ).size;
+  const savedFormulas = new Set(savedCalcs.map((saved) => saved.formulaId)).size;
+  const savedReload = savedRows.filter((row) => row.needsReload).length;
+  const lastSavedAt = savedCalcs.reduce((latest, saved) => Math.max(latest, saved.savedAt), 0);
+  const lastSaved = lastSavedAt > 0 ? formatIsoDate(isoDayOf(lastSavedAt)) : null;
+
+  const holdCount = formatNumber(holdings.length) ?? String(holdings.length);
+  const holdCountAria = t('portfolio.holdingsCountAria')
+    .replace('{n}', holdCount)
+    .replace('{max}', String(MAX_HOLDINGS));
+  const savedCountText = formatNumber(savedCalcs.length) ?? String(savedCalcs.length);
+
+  /**
+   * Dải thị giá — chân thẻ tóm tắt.
+   *
+   * Từng là dải đứng riêng ngay dưới lưới sáu ô, rồi (22/09/2026) gộp vào dòng tiêu đề của khối Nắm
+   * giữ; từ 12/10/2026 nó nằm ở chân thẻ tóm tắt, đúng chỗ bản thiết kế vẽ "Giá phiên 10/10/2026".
+   * GỘP chứ không nhân đôi: ngày phiên là lời hứa "số này thuộc phiên nào", nói hai lần là dựng hai
+   * nguồn sự thật cho cùng một điều.
+   *
+   * Luôn hiện khi danh mục có mã, kể cả lúc mọi thứ bình thường: "giá của phiên nào" là thông tin
+   * cần thường trực chứ không phải chỉ lúc hỏng — mở app chiều thứ Bảy thì con số đang nhìn là giá
+   * thứ Sáu. Nút làm mới cũng vì thế mà luôn có mặt.
+   *
+   * Vẫn MỘT phần tử duy nhất mang `role="status"`/`"alert"`, và ngày phiên in đúng MỘT lần trên cả
+   * màn: giá cũ (`'stale'`) chỉ được phép hiện khi màn nói ra nó là giá của phiên nào
+   * (`price-cache-store.ts`), và ca kiểm tìm ngày ấy bằng `getByText` đơn.
+   */
+  const priceStrip =
+    holdings.length === 0 ? null : (
+      <p
+        className={priceState === 'ready' ? styles.priceNote : styles.priceError}
+        role={priceState === 'ready' ? 'status' : 'alert'}
+      >
+        <span className={styles.priceText}>
+          {priceLoading && <span>{t('portfolio.priceLoading')}</span>}
+          {!priceLoading && priceState === 'failed' && <span>{t('portfolio.priceFailed')}</span>}
+          {!priceLoading && priceState === 'stale' && <span>{t('portfolio.priceStale')}</span>}
+          {!priceLoading && priceAsOf !== null && (
+            <span>
+              {t('portfolio.priceSession')} {formatIsoDate(priceAsOf)}
+            </span>
+          )}
+          {/*
+            Nguồn TRẢ LỜI ĐƯỢC nhưng không mã nào có giá — ca thật, gặp ngay khi người dùng gõ một
+            mã không nằm trong danh sách Finbox (ví dụ 'VNI', vốn là chỉ số chứ không phải cổ
+            phiếu). Bốn nhánh trên đều tắt: không đang tải, không hỏng, không giá cũ, và không có
+            ngày phiên nào để khoe.
+
+            Không có nhánh này thì dòng chỉ còn mỗi nút "Làm mới" đứng chơ vơ — người dùng thấy một
+            thao tác được mời gọi mà không biết để làm gì. Lý do đầy đủ (mã nào thiếu, nên làm gì)
+            đã nằm ở dòng "Tổng giá trị" ngay trên, nên ở đây chỉ cần một câu ngắn.
+          */}
+          {!priceLoading && priceState === 'ready' && priceAsOf === null && (
+            <span>{t('portfolio.priceNone')}</span>
+          )}
+        </span>
+
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={priceLoading}
+          onClick={() => {
+            setPriceAttempt((n) => n + 1);
+          }}
+        >
+          {priceState === 'ready' ? t('portfolio.priceRefresh') : t('portfolio.priceRetry')}
+        </Button>
+      </p>
+    );
+
   return (
     <div className={styles.screen}>
       {/*
-        KHÔNG có `<h1>` ở đây — tiêu đề "Danh mục của tôi" nay do thanh trên dựng
-        (`HeaderIdentity` + `headerTitleKey()`). Trang vẫn đúng một `<h1>`, chỉ đổi chỗ.
+        KHÔNG có `<h1>` ở đây — tiêu đề "Danh mục của tôi" do thanh trên dựng (`HeaderIdentity` +
+        `headerTitleKey()`). Chữ "Danh mục" đầu cột trái chỉ là NHÃN của cột (12/10/2026, theo bản
+        thiết kế); trang vẫn đúng một `<h1>`.
 
-        Phụ đề "Lưu tại thiết bị · không cần đăng nhập" cũng bỏ theo, chủ dự án chốt.
+        ── Hai cột (từ 1024px) ──────────────────────────────────────────────────────────────────
+        Cột trái: nhãn · tab dọc · thẻ tóm tắt đổi theo tab. Cột phải: tabpanel. Dưới 1024px hai cột
+        xếp chồng — phương án TẠM, chờ thiết kế khổ điện thoại (chủ dự án: "tạm thời tính sau").
+
+        Tab dọc nằm ở cột trái còn tabpanel ở cột phải, không liền kề trong DOM: `aria-controls` của
+        mọi tab trỏ vào MỘT id chung (`PORTFOLIO_PANEL_ID`) nên không phụ thuộc chuyện ai đứng cạnh ai.
+        Chỉ MỘT tabpanel nằm trong DOM tại một thời điểm. Thị giá, kho đã lưu và hai sheet sống ở
+        state của CẢ MÀN chứ không ở panel, nên đổi tab không gọi lại Finbox và không làm mất gì.
       */}
-
-      {/*
-        Hai tab: các mã đang nắm giữ · phép tính đã lưu. Xem `PortfolioTab` về lịch sử của cụm này
-        (gỡ 14/09/2026, quay lại 10/10/2026).
-
-        Số đếm của CẢ HAI tab hiện ngay trên thanh, kể cả tab đang đóng: đó là cách người vừa bấm
-        "Lưu vào danh mục" ở màn chi tiết biết kho có mục mà không phải đoán tab nào chứa nó.
-        Icon luôn `aria-hidden` trong primitive, nên tên khả truy cập vẫn là "Mã 1".
-      */}
-      <TabBar
-        label={t('portfolio.title')}
-        idBase={PORTFOLIO_TABS_ID}
-        panelId={PORTFOLIO_PANEL_ID}
-        value={tab}
-        onChange={switchTab}
-        items={[
-          {
-            value: 'holdings',
-            label: t('portfolio.tabHoldings'),
-            count: holdings.length,
-            icon: <StatIcon d={TILE_ICONS.tabHoldings} />,
-          },
-          {
-            value: 'saved',
-            label: t('portfolio.tabSaved'),
-            count: savedCalcs.length,
-            icon: <StatIcon d={TILE_ICONS.tabSaved} />,
-          },
-        ]}
-      />
-
-      {/*
-        `styles.panel` KHÔNG được bỏ.
-
-        `.screen` là flex column có `gap`, nên sáu ô số · thanh thị giá · khối Nắm giữ phải là con
-        TRỰC TIẾP của một flex column cùng luật giãn cách. Bọc chúng vào một `<div>` trần là cắt
-        đứt quan hệ ấy: cả ba dính sát nhau, thanh thị giá đè lên tiêu đề "NẮM GIỮ". `.panel` chép
-        lại đúng luật giãn cách đó.
-
-        Chỉ MỘT tabpanel nằm trong DOM tại một thời điểm, nên cả hai nhánh dùng chung
-        `PORTFOLIO_PANEL_ID` — để `aria-controls` của mọi tab luôn trỏ vào một id có thật.
-        Thị giá, kho đã lưu và hai sheet sống ở state của CẢ MÀN chứ không ở panel, nên đổi tab
-        không gọi lại Finbox và không làm mất gì.
-      */}
-      {tab === 'holdings' && (
-        <div
-          className={styles.panel}
-          id={PORTFOLIO_PANEL_ID}
-          role="tabpanel"
-          aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'holdings')}
-        >
-          <div className={styles.stats}>
-            <StatTile
-              label={t('portfolio.totalValue')}
-              output={summary.totalValue}
-              showEyebrow={false}
-              decimals={0}
-              icon={<StatIcon d={TILE_ICONS.totalValue} />}
-            />
-            <StatTile
-              label={t('portfolio.totalCost')}
-              output={summary.totalCost}
-              showEyebrow={false}
-              decimals={0}
-              icon={<StatIcon d={TILE_ICONS.totalCost} />}
-            />
-            <StatTile
-              label={t('portfolio.gain')}
-              output={summary.gain}
-              showEyebrow={false}
-              decimals={0}
-              icon={<StatIcon d={TILE_ICONS.gain} />}
-              /*
-               * Phần trăm đi làm dòng phụ của chính ô Lãi/lỗ thay vì chiếm một ô thứ bảy: hai con số
-               * là hai cách đọc CÙNG một đại lượng. Chỉ truyền khi nó thật sự tính được — không thì
-               * `StatTile` in ra "— %" thừa, mà lý do đã nằm ngay trên đó rồi.
-               */
-              note={
-                isCalculated(summary.gainPercent)
-                  ? calcText(summary.gainPercent, { maxDecimals: 1 })
-                  : undefined
-              }
-            />
-            {/*
-          Hai ô nâng cao — FR-09. Đặt TRƯỚC ô "Số mã" chứ không dồn xuống cuối, để thứ tự bốn ô
-          còn lại ở chế độ Cơ bản vẫn là thứ tự người dùng đã quen: giá trị · vốn · lãi/lỗ · số mã.
-        */}
-            {advanced && (
-              <>
-                {/*
-                Hai ô này KHÔNG in câu lý do dưới "_ _" — chủ dự án bỏ 29/09/2026. Lý do ở
-                docblock `StatTileProps.showReason`; bốn ô còn lại vẫn in như cũ.
-              */}
-                <StatTile
-                  label={t('portfolio.beta')}
-                  output={summary.beta}
-                  showEyebrow={false}
-                  showReason={false}
-                  icon={<StatIcon d={TILE_ICONS.beta} />}
-                />
-                <StatTile
-                  label={t('portfolio.xirr')}
-                  output={summary.xirr}
-                  showEyebrow={false}
-                  showReason={false}
-                  decimals={1}
-                  icon={<StatIcon d={TILE_ICONS.xirr} />}
-                />
-              </>
-            )}
-            <StatTile
-              label={t('portfolio.count')}
-              output={summary.count}
-              showEyebrow={false}
-              decimals={0}
-              icon={<StatIcon d={TILE_ICONS.count} />}
-            />
-          </div>
+      <div className={styles.layout}>
+        <div className={styles.side}>
+          <p className={styles.sideTitle}>{t('portfolio.sideTitle')}</p>
 
           {/*
-        Dòng "2 ô nâng cao đang ẩn · Bật chế độ Nâng cao", ngay dưới lưới ô chứ không phải cuối
-        màn: trình đọc màn hình phải gặp nó ngay sau bốn ô, đúng lúc câu hỏi "còn gì nữa không"
-        nảy ra.
-      */}
-          {!advanced && (
-            <HiddenByLevelNote count={ADVANCED_TILES} labelKey="portfolio.hiddenByLevel" />
+            Số đếm của CẢ HAI tab hiện ngay trên thanh, kể cả tab đang đóng: đó là cách người vừa bấm
+            "Lưu vào danh mục" ở màn chi tiết biết kho có mục mà không phải đoán tab nào chứa nó.
+            Nhãn tab dùng thẳng tiêu đề của hai khối — một nguồn chữ (xem mộ chí ở `vi.ts`).
+          */}
+          <TabBar
+            label={t('portfolio.title')}
+            idBase={PORTFOLIO_TABS_ID}
+            panelId={PORTFOLIO_PANEL_ID}
+            orientation="vertical"
+            value={tab}
+            onChange={switchTab}
+            items={[
+              {
+                value: 'holdings',
+                label: t('portfolio.holdings'),
+                count: holdings.length,
+                icon: <StatIcon d={TILE_ICONS.tabHoldings} />,
+              },
+              {
+                value: 'saved',
+                label: t('portfolio.savedTitle'),
+                count: savedCalcs.length,
+                icon: <StatIcon d={TILE_ICONS.tabSaved} />,
+              },
+            ]}
+          />
+
+          {tab === 'holdings' ? (
+            <HoldingsSummary
+              totalValue={summary.totalValue}
+              totalCost={summary.totalCost}
+              gain={summary.gain}
+              gainPercent={summary.gainPercent}
+              beta={summary.beta}
+              xirr={summary.xirr}
+              advanced={advanced}
+              hiddenCount={ADVANCED_TILES}
+              footer={priceStrip}
+            />
+          ) : (
+            <SavedSummary
+              count={savedCalcs.length}
+              tickers={savedTickers}
+              formulas={savedFormulas}
+              reload={savedReload}
+              lastSaved={lastSaved}
+            />
           )}
+        </div>
 
-          <section className={styles.block} aria-labelledby="portfolio-holdings">
-            {/*
-        Dòng tiêu đề khối — dựng lại 22/09/2026 theo ảnh thiết kế chủ dự án đưa:
-        "NẮM GIỮ · 2 mã · giá phiên 22/09/2026" bên trái, nút "+ Thêm mã" bên phải.
+        <div className={styles.main}>
+          {tab === 'holdings' && (
+            <div
+              id={PORTFOLIO_PANEL_ID}
+              role="tabpanel"
+              aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'holdings')}
+            >
+              <section className={styles.block} aria-labelledby="portfolio-holdings">
+                {/*
+                  `<h2>` giữ nguyên chữ "Mã nắm giữ" MỘT MÌNH; số đếm "5 / 50" ở phần tử em kế bên.
+                  Không nhét chung một phần tử: tên khả truy cập của cả khối lấy từ `<h2>` này qua
+                  `aria-labelledby`, nên trộn số đếm vào đó là mỗi lần thêm/bỏ một mã thì tên khối đổi
+                  theo — trình đọc màn hình thông báo lại cả khối vì một con số vừa đổi.
 
-        Dải trạng thái thị giá trước đây đứng RIÊNG, ngay dưới lưới ô thống kê, với lý do "đặt
-        ngay cạnh chỗ người dùng đang nhìn con số". Lý do ấy không mất: dòng này vẫn nằm giữa
-        lưới ô và danh sách mã. Thứ đổi là nó thôi chiếm một hàng riêng. GỘP chứ không nhân đôi
-        — để cả hai thì ngày phiên in hai lần trên một màn, mà ngày phiên là lời hứa "số này
-        thuộc phiên nào", nói hai lần là dựng hai nguồn sự thật cho cùng một điều.
-
-        Luôn hiện khi danh mục có mã, kể cả lúc mọi thứ bình thường: "giá của phiên nào" là
-        thông tin cần thường trực chứ không phải chỉ lúc hỏng — mở app chiều thứ Bảy thì con số
-        đang nhìn là giá thứ Sáu. Nút làm mới cũng vì thế mà luôn có mặt.
-
-        `<h2>` giữ nguyên chữ "Nắm giữ" MỘT MÌNH, phần đếm mã và trạng thái giá ở `<p>` em kế
-        bên. Không nhét chung một phần tử: tên khả truy cập của cả khối lấy từ `<h2>` này qua
-        `aria-labelledby`, nên trộn ngày phiên vào đó là mỗi lượt làm mới giá thì tên khối đổi
-        theo — trình đọc màn hình thông báo lại cả khối vì một con số vừa đổi.
-      */}
-            <div className={styles.blockHead}>
-              <h2 className={styles.blockTitle} id="portfolio-holdings">
-                {t('portfolio.holdings')}
-              </h2>
-
-              {holdings.length > 0 && (
-                <p
-                  className={priceState === 'ready' ? styles.priceNote : styles.priceError}
-                  role={priceState === 'ready' ? 'status' : 'alert'}
-                >
-                  <span className={styles.priceText}>
-                    {/*
-                      Số mã đang giữ. Đọc thẳng `holdings.length` chứ không lấy `summary.count`:
-                      ô thống kê kia là một `CalcOutput` có thể `fail`, còn đây chỉ đếm số dòng
-                      ngay bên dưới — một con số không bao giờ hỏng được.
-                    */}
-                    <span>
-                      {formatNumber(holdings.length) ?? holdings.length} {t('portfolio.tickerUnit')}
-                    </span>
-                    {priceLoading && <span>{t('portfolio.priceLoading')}</span>}
-                    {!priceLoading && priceState === 'failed' && (
-                      <span>{t('portfolio.priceFailed')}</span>
-                    )}
-                    {!priceLoading && priceState === 'stale' && (
-                      <span>{t('portfolio.priceStale')}</span>
-                    )}
-                    {!priceLoading && priceAsOf !== null && (
-                      <span>
-                        {t('portfolio.priceSession')} {formatIsoDate(priceAsOf)}
+                  "5 / 50" là hai con số trần, đọc ra "5 gạch chéo 50": bản nhìn thấy `aria-hidden`,
+                  bản đọc nói thành lời. Con số 50 là `MAX_HOLDINGS`, không gõ cứng.
+                */}
+                <div className={styles.blockHead}>
+                  <div className={styles.titleGroup}>
+                    <h2 className={styles.mainTitle} id="portfolio-holdings">
+                      {t('portfolio.holdings')}
+                    </h2>
+                    <span className={styles.titleCount}>
+                      <span aria-hidden="true">
+                        {holdCount} / {MAX_HOLDINGS}
                       </span>
+                      <span className="visually-hidden">{holdCountAria}</span>
+                    </span>
+                  </div>
+
+                  <div className={styles.headTools}>
+                    {/* Danh mục trống thì không có gì để lọc — ô tìm chỉ chiếm chỗ. */}
+                    {holdings.length > 0 && (
+                      <div className={styles.search}>
+                        <SearchBox
+                          value={holdQuery}
+                          onChange={setHoldQuery}
+                          label={t('portfolio.searchTicker')}
+                          placeholder={t('portfolio.searchTicker')}
+                        />
+                      </div>
                     )}
+
                     {/*
-                      Nguồn TRẢ LỜI ĐƯỢC nhưng không mã nào có giá — ca thật, gặp ngay khi người
-                      dùng gõ một mã không nằm trong danh sách Finbox (ví dụ 'VNI', vốn là chỉ số
-                      chứ không phải cổ phiếu). Bốn nhánh trên đều tắt: không đang tải, không
-                      hỏng, không giá cũ, và không có ngày phiên nào để khoe.
+                      Nút hành động chính của cả màn, ở GÓC PHẢI dòng tiêu đề (22/09/2026, chủ dự án
+                      đưa ảnh thiết kế). Hai thứ giữ lại vì chúng là bài học chứ không phải kiểu dáng:
+                      chữ ĐẬM trên nền có màu (khung nét đứt trên nền trắng từng bị đọc ra như một ô
+                      trống chờ điền), và dấu cộng là SVG `aria-hidden` chứ không phải ký tự '+' trong
+                      nhãn — nếu không, tên khả truy cập của nút thành "+ Thêm mã".
 
-                      Không có nhánh này thì dòng chỉ còn mỗi nút "Làm mới" đứng chơ vơ — người
-                      dùng thấy một thao tác được mời gọi mà không biết để làm gì. Lý do đầy đủ
-                      (mã nào thiếu, nên làm gì) đã nằm ở ô "Tổng giá trị" ngay trên, nên ở đây
-                      chỉ cần một câu ngắn nói vì sao chỗ này trống.
+                      Nút không bị form thay chỗ: form là hộp thoại nổi giữa màn, và phần trang phía
+                      sau đã `inert` nên nút này không với tới được trong lúc hộp thoại mở.
                     */}
-                    {!priceLoading && priceState === 'ready' && priceAsOf === null && (
-                      <span>{t('portfolio.priceNone')}</span>
-                    )}
-                  </span>
+                    <button
+                      type="button"
+                      className={styles.addButton}
+                      onClick={() => {
+                        setFormOpen(true);
+                      }}
+                    >
+                      <StatIcon d={TILE_ICONS.plus} />
+                      {t('portfolio.add')}
+                    </button>
+                  </div>
+                </div>
 
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={priceLoading}
-                    onClick={() => {
-                      setPriceAttempt((n) => n + 1);
-                    }}
-                  >
-                    {priceState === 'ready'
-                      ? t('portfolio.priceRefresh')
-                      : t('portfolio.priceRetry')}
-                  </Button>
-                </p>
-              )}
-
-              {/*
-              Nút hành động chính của cả màn. Từ 22/09/2026 nó đứng ở GÓC PHẢI dòng tiêu đề, không
-              còn là khung nét đứt rộng hết hàng ở cuối khối như bản vẽ WF-06 — chủ dự án đưa ảnh
-              thiết kế mới và chốt "làm đủ như ảnh, ở cả hai khổ".
-
-              Hai thứ giữ lại từ bản cũ vì chúng là bài học chứ không phải kiểu dáng: chữ ĐẬM màu
-              nhấn trên nền có màu (khung nét đứt trên nền trắng từng bị đọc ra như một ô trống
-              chờ điền), và dấu cộng là SVG `aria-hidden` chứ không phải ký tự '+' trong nhãn —
-              nếu không, tên khả truy cập của nút thành "+ Thêm mã".
-
-              Nút KHÔNG còn bị form thay chỗ: form nay mở thành hộp thoại nổi giữa màn, và phần
-              trang phía sau đã `inert` nên nút này không với tới được trong lúc hộp thoại mở.
-            */}
-              <div className={styles.addRow}>
-                <button
-                  type="button"
-                  className={styles.addButton}
-                  onClick={() => {
-                    setFormOpen(true);
-                  }}
-                >
-                  <StatIcon d="M12 5v14M5 12h14" />
-                  {t('portfolio.add')}
-                </button>
-              </div>
-            </div>
-
-            {holdings.length === 0 ? (
-              <div className={styles.empty}>
-                <span className={styles.emptyIcon} aria-hidden="true">
-                  <StatIcon d={TILE_ICONS.count} />
-                </span>
-                <p className={styles.emptyText}>{t('portfolio.empty')}</p>
-              </div>
-            ) : (
-              <table className={styles.holdList}>
-                {/*
-                Chú thích bảng, ẩn khỏi mắt: `<h2>` "NẮM GIỮ" ngay trên đã nói đúng điều này cho
-                người nhìn thấy. Trình đọc màn hình thì cần nó — nó là câu đọc trước khi bước vào
-                bảng, và không có nó thì bảng chỉ được xướng tên là "bảng".
-              */}
-                <caption className="visually-hidden">{t('portfolio.tableCaption')}</caption>
-
-                {/*
-                Hàng tiêu đề chỉ hiện từ 1024px. Ở khổ hẹp hơn nó `display: none` vì hàng lúc ấy
-                không còn xếp theo cột — nhãn đi liền con số ngay trong ô (`.cellTag`).
-
-                Ô cuối để trống chứ không đặt một nhãn ẩn: cột ấy chỉ chở mũi tên trang trí, mà
-                nút mở hàng thì đã tự xưng tên đủ ("Chi tiết FPT").
-              */}
-                <thead className={styles.holdHead}>
-                  <tr>
-                    <th scope="col">{t('portfolio.colCode')}</th>
-                    <th scope="col">{t('portfolio.colName')}</th>
-                    <th scope="col">{t('portfolio.colQuantity')}</th>
-                    <th scope="col">{t('portfolio.colCostPrice')}</th>
-                    <th scope="col">{t('portfolio.marketPrice')}</th>
-                    <th scope="col">{t('portfolio.colValue')}</th>
-                    <th scope="col">{t('portfolio.gain')}</th>
-                    <th scope="col">{t('portfolio.colWeight')}</th>
-                    <th scope="col" />
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {summary.rows.map((row) => {
-                    const { holding } = row;
-                    const open = expanded === holding.code;
-
-                    /*
-                     * Số liệu của HÀNG MỞ RA, dựng thành các ô NHÃN–GIÁ TRỊ thay vì một câu nối bằng
-                     * dấu chấm.
-                     *
-                     * Bản trước ghép tất cả thành `100 CP · giá vốn 21 ₫ · chưa có giá` rồi thêm một
-                     * dòng `mua 02/08/2026 · beta 1,1` nữa, cả hai cùng cỡ chữ nhỏ nhất và cùng màu
-                     * xám. Đọc ra thì được, nhưng KHÔNG dò được: mắt phải đọc hết cả câu mới biết con
-                     * số nào là giá vốn, và nhãn lẫn giá trị trông y hệt nhau. Tách nhãn ra chữ nhỏ in
-                     * hoa, giá trị để cỡ chữ thường màu đậm — đúng khuôn `StatTile` ở đầu màn, nên hai
-                     * khối số của cùng một màn nói cùng một thứ tiếng.
-                     *
-                     * Nay chỉ còn NGÀY MUA và BETA. Thị giá và phần trăm lãi/lỗ đã LÊN hàng bảng
-                     * (22/09/2026, ảnh thiết kế chủ dự án đưa), cùng lý do số lượng và giá vốn rời
-                     * khỏi đây từ trước: một con số bày hai chỗ trên cùng một màn là hai nguồn sự
-                     * thật, và mắt không biết chỗ nào mới đúng.
-                     *
-                     * Cả hai chỉ hiện khi có. Ngày mua đáng ngại nhất trong nhóm — gõ nhầm năm là
-                     * đúng cái bẫy mà luật `MODEL_VIOLATION` ở `summarisePortfolio()` dựng ra để
-                     * chặn, mà người dùng lại không có cách nào nhìn thấy ngày đang lưu để sửa.
-                     */
-                    const cells: ReadonlyArray<PortfolioCell> = [
-                      ...(holding.buyDate === ''
-                        ? []
-                        : [
-                            {
-                              label: t('portfolio.formBuyDate'),
-                              value: formatIsoDate(holding.buyDate),
-                              /*
-                               * NGÀY, không phải số. Bản rà soát thiết kế bắt đúng chỗ này: ngày mua
-                               * trước đây hiện y hệt một khoản tiền — cùng cỡ, cùng độ đậm, cùng
-                               * `tabular-nums` — nên `02/08/2026` đọc thoáng qua ra một con số.
-                               */
-                              kind: 'date' as const,
-                            },
-                          ]),
-                      /*
-                       * Beta chỉ hiện ở chế độ Nâng cao — cùng luật với ô Beta ở đầu màn và ô nhập
-                       * trong form. Ở chế độ Cơ bản, form không có ô beta nên bày con số ra đây là
-                       * bày một thứ chính chế độ đang xem không cho sửa.
-                       */
-                      ...(!advanced || holding.beta === undefined || holding.beta === null
-                        ? []
-                        : [
-                            {
-                              label: t('portfolio.betaShort'),
-                              value:
-                                formatNumber(holding.beta, { maxDecimals: 4 }) ??
-                                String(holding.beta),
-                              kind: 'number' as const,
-                            },
-                          ]),
-                    ];
-
-                    const up = row.gain !== null && row.gain >= 0;
-
-                    /* Thiếu thị giá thì BỐN ô cùng vắng: giá trị, lãi/lỗ và tỷ trọng đều tính từ nó. */
-                    const noPrice = row.marketPrice === null;
-
-                    return (
-                      <Fragment key={holding.code}>
-                        {/*
-                      Hàng bảng tám cột (từ 1024px) — cũng chính là dòng gọn ba cột của bản vẽ
-                      WF-06 ở khổ hẹp hơn. MỘT cây DOM cho cả hai, chỉ khác nhau ở CSS.
-
-                      Vì sao không dựng hai cây rồi ẩn bớt một: hai bản cùng nằm trong DOM thì mọi
-                      con số có mặt hai lần, và `getByText` trong ca kiểm báo "nhiều kết quả" —
-                      chưa kể trình đọc màn hình đọc cả hai. Vì sao không chọn cây theo bề ngang
-                      màn lúc chạy: lần dựng đầu ở trình duyệt phải khớp HTML tĩnh, mà HTML tĩnh
-                      thì không biết màn rộng bao nhiêu.
-
-                      Cái bấm được vẫn là một nút PHỦ LÊN cả hàng (`.holdToggle`, xem CSS), không
-                      phải một nút bọc quanh nội dung. Lý do là quy tắc tính tên trợ năng:
-                      `aria-label` NUỐT toàn bộ nội dung bên trong nút, nên bọc cả hàng vào nút sẽ
-                      làm số lượng, giá vốn, thị giá, giá trị, lãi/lỗ và tỷ trọng biến mất khỏi
-                      bản đọc. Đã thử hướng ngược lại (bỏ `aria-label`, để tên nút tự ghép từ nội
-                      dung) và nó hỏng: tên được ghép SAU KHI cắt khoảng trắng hai đầu từng thẻ
-                      con, nên nghe thành "FPT500 CPgiá vốn 78.000 ₫".
-
-                      Nút neo vào `.holdRow` bằng `position: relative` đặt trên chính `<tr>`. Được
-                      phép, và cả ba engine đều dựng đúng — nhưng vì đây là chỗ dễ hỏng âm thầm,
-                      `chrome-check.mjs` đo hộp của nút so với hộp của hàng ở khổ 1440.
-                    */}
-                        <tr className={styles.holdRow}>
-                          <td className={styles.holdCode}>
-                            <button
-                              type="button"
-                              className={styles.holdToggle}
-                              aria-expanded={open}
-                              aria-label={`${t('portfolio.details')} ${holding.code}${
-                                holding.name === undefined ? '' : ` ${holding.name}`
-                              }`}
-                              onClick={() => {
-                                toggleDetail(holding.code);
-                              }}
-                            />
-                            {holding.code}
-                          </td>
-
-                          {/*
-                        Tên doanh nghiệp LÊN hàng (22/09/2026), đảo lại chỗ cũ của nó trong khối
-                        mở ra. Lý do cũ — "cột mã trên dòng gọn chỉ rộng ba đến bốn ký tự" — chỉ
-                        đúng với dòng gọn; bảng có hẳn một cột cho nó.
-
-                        `holding.name` chỉ được ghi khi người dùng chọn mã qua sheet, nên mã lưu
-                        từ trước có thể thiếu. Lấy bù từ `quotes` — cùng gói dữ liệu đã tải về để
-                        tra thị giá, KHÔNG thêm lời gọi mạng nào. Thiếu cả hai thì ô để trống:
-                        tên doanh nghiệp không phải một con số, nên chỗ trống ở đây không phải cái
-                        FR-06 đi chặn.
+                {holdings.length === 0 ? (
+                  <div className={styles.empty}>
+                    <span className={styles.emptyIcon} aria-hidden="true">
+                      <StatIcon d={TILE_ICONS.count} />
+                    </span>
+                    <p className={styles.emptyText}>{t('portfolio.empty')}</p>
+                  </div>
+                ) : visibleRows.length === 0 ? (
+                  <p className={styles.noMatch}>{t('portfolio.noMatch')}</p>
+                ) : (
+                  <div className={styles.tableWrap}>
+                    <table className={styles.holdList}>
+                      {/*
+                        Chú thích bảng, ẩn khỏi mắt: `<h2>` ngay trên đã nói đúng điều này cho người
+                        nhìn thấy. Trình đọc màn hình thì cần nó — nó là câu đọc trước khi bước vào
+                        bảng, và không có nó thì bảng chỉ được xướng tên là "bảng".
                       */}
-                          <td className={styles.holdName}>
-                            {holding.name ?? quotes.get(holding.code)?.name ?? ''}
-                          </td>
+                      <caption className="visually-hidden">{t('portfolio.tableCaption')}</caption>
 
-                          <td className={`${styles.holdCell} ${styles.holdQuantity}`}>
-                            {formatNumber(holding.quantity) ?? holding.quantity}
-                            <span className={styles.cellUnit}> {t('portfolio.shares')}</span>
-                          </td>
+                      <thead className={styles.holdHead}>
+                        <tr>
+                          <th scope="col">{t('portfolio.colCode')}</th>
+                          <th scope="col">{t('portfolio.colShares')}</th>
+                          <th scope="col">{t('portfolio.colCostPrice')}</th>
+                          <th scope="col">{t('portfolio.marketPrice')}</th>
+                          <th scope="col">{t('portfolio.gain')}</th>
+                          <th scope="col">{t('portfolio.colPercent')}</th>
+                          <th scope="col">{t('portfolio.colWeight')}</th>
+                          {/* Cột chỉ chở hai nút biểu tượng: nhãn ẩn khỏi mắt nhưng trình đọc màn hình có tên. */}
+                          <th scope="col">
+                            <span className="visually-hidden">{t('portfolio.colActions')}</span>
+                          </th>
+                        </tr>
+                      </thead>
 
-                          <td className={`${styles.holdCell} ${styles.holdCost}`}>
-                            <span className={styles.cellTag}>{t('portfolio.costPrice')} </span>
-                            {formatNumber(holding.costPrice) ?? '_ _'} ₫
-                          </td>
+                      <tbody>
+                        {visibleRows.map((row) => {
+                          const { holding } = row;
+                          const up = row.gain !== null && row.gain >= 0;
 
-                          {/*
-                        Bốn ô cuối cùng sống chết theo thị giá. Thiếu giá thì cả bốn hiện `_ _` —
-                        đúng ký hiệu "chưa có số" mà cả sản phẩm đang dùng — chứ KHÔNG hiện 0 ₫
-                        hay 0% (FR-06). Lý do và lối xử lý đã nằm ở dòng tiêu đề khối ngay trên,
-                        chỗ có nút "Làm mới", nên không lặp lại ở từng hàng.
-                      */}
-                          <td className={`${styles.holdCell} ${styles.holdPrice}`}>
-                            <span className={styles.cellTag}>{t('portfolio.marketPrice')} </span>
-                            {row.marketPrice === null ? (
-                              <span className={styles.holdMissing}>_ _</span>
-                            ) : (
-                              `${formatNumber(row.marketPrice) ?? '_ _'} ₫`
-                            )}
-                          </td>
+                          return (
+                            <tr key={holding.code} className={styles.holdRow}>
+                              <td className={styles.holdCode}>
+                                <Badge tone="code">{holding.code}</Badge>
+                              </td>
 
-                          <td className={`${styles.holdCell} ${styles.holdValue}`}>
-                            {row.value === null ? (
-                              <span className={styles.holdMissing}>_ _</span>
-                            ) : (
-                              `${formatNumber(row.value, { maxDecimals: 0 }) ?? '_ _'} ₫`
-                            )}
-                          </td>
+                              <td className={`${styles.holdCell} ${styles.holdMuted}`}>
+                                {formatNumber(holding.quantity) ?? holding.quantity}
+                              </td>
 
-                          {/*
-                        Lãi/lỗ hai vế: số tiền ở trên, phần trăm ngay dưới. Dấu +/− mang tin chứ
-                        không chỉ có màu (NFR-USA-06) — đây là chỗ duy nhất của màn mà màu đỏ và
-                        màu xanh nói ngược nhau, nên nó phải đọc được cả khi không phân biệt màu.
-                      */}
-                          <td className={`${styles.holdCell} ${styles.holdGainCell}`}>
-                            {row.gain === null ? (
-                              <span className={styles.holdMissing}>_ _</span>
-                            ) : (
-                              <>
-                                <span
-                                  className={[
-                                    styles.holdGain,
-                                    up ? styles.holdGainUp : styles.holdGainDown,
-                                  ].join(' ')}
-                                >
-                                  {up ? '+' : '−'}
-                                  {formatNumber(Math.abs(row.gain), { maxDecimals: 0 }) ?? '_ _'} ₫
-                                </span>
-                                {row.gainPercent !== null && (
+                              <td className={`${styles.holdCell} ${styles.holdMuted}`}>
+                                {formatNumber(holding.costPrice) ?? '_ _'}
+                              </td>
+
+                              {/*
+                                Bốn ô sau (thị giá, lãi/lỗ, %, tỷ trọng) sống chết theo thị giá. Thiếu
+                                giá thì cả bốn hiện `_ _` — đúng ký hiệu "chưa có số" mà cả sản phẩm
+                                đang dùng — chứ KHÔNG hiện 0 ₫ hay 0% (FR-06). Lý do và lối xử lý nằm ở
+                                chân thẻ tóm tắt, chỗ có nút Làm mới, nên không lặp ở từng hàng.
+                              */}
+                              <td className={`${styles.holdCell} ${styles.holdPrice}`}>
+                                {row.marketPrice === null ? (
+                                  <span className={styles.holdMissing}>_ _</span>
+                                ) : (
+                                  (formatNumber(row.marketPrice) ?? '_ _')
+                                )}
+                              </td>
+
+                              {/*
+                                Lãi/lỗ hai cột: số tiền, rồi mũi tên + phần trăm. Dấu +/− nằm TRONG
+                                chữ chứ không chỉ ở màu và mũi tên (NFR-USA-06) — đây là chỗ duy nhất
+                                của màn mà màu đỏ và màu xanh nói ngược nhau, nên nó phải đọc được cả
+                                khi không phân biệt màu. Mũi tên chỉ là trang trí (`aria-hidden`).
+                              */}
+                              <td className={styles.holdCell}>
+                                {row.gain === null ? (
+                                  <span className={styles.holdMissing}>_ _</span>
+                                ) : (
+                                  <span
+                                    className={[
+                                      styles.holdGain,
+                                      up ? styles.holdGainUp : styles.holdGainDown,
+                                    ].join(' ')}
+                                  >
+                                    {up ? '+' : '−'}
+                                    {formatNumber(Math.abs(row.gain), { maxDecimals: 0 }) ?? '_ _'}
+                                  </span>
+                                )}
+                              </td>
+
+                              <td className={styles.holdCell}>
+                                {row.gain === null || row.gainPercent === null ? (
+                                  <span className={styles.holdMissing}>_ _</span>
+                                ) : (
                                   <span
                                     className={[
                                       styles.holdGainPct,
                                       up ? styles.holdGainUp : styles.holdGainDown,
                                     ].join(' ')}
                                   >
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      aria-hidden="true"
+                                    >
+                                      <path
+                                        d={up ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M19 12l-7 7-7-7'}
+                                      />
+                                    </svg>
                                     {up ? '+' : '−'}
-                                    {formatNumber(Math.abs(row.gainPercent), { maxDecimals: 1 }) ??
-                                      '_ _'}
+                                    {formatNumber(Math.abs(row.gainPercent), {
+                                      minDecimals: 1,
+                                      maxDecimals: 1,
+                                    }) ?? '_ _'}
                                     %
                                   </span>
                                 )}
-                              </>
-                            )}
-                          </td>
+                              </td>
 
-                          {/*
-                        Tỷ trọng: con số, chữ "tỷ trọng" (chỉ hiện ở khổ dòng gọn, nơi không có
-                        tiêu đề cột nào nói tên nó), rồi một thanh ngang.
-
-                        Thanh là `aria-hidden`: nó vẽ lại đúng con số ngay bên cạnh, nên để trình
-                        đọc màn hình nghe thấy là nghe hai lần. Bề rộng đi qua biến CSS chứ không
-                        qua `width` thẳng, để CSS giữ quyền quyết định thanh dài tối đa bao nhiêu.
-                      */}
-                          <td className={`${styles.holdCell} ${styles.holdWeightCell}`}>
-                            {row.weight === null ? (
-                              <span className={styles.holdMissing}>_ _</span>
-                            ) : (
-                              <>
-                                <span className={styles.holdWeight}>
-                                  {formatNumber(row.weight, { maxDecimals: 0 }) ?? '_ _'}%
-                                </span>{' '}
-                                {/*
-                                Dấu cách là một NÚT VĂN BẢN thật, không phải lề CSS: ở khổ bảng
-                                nhãn này `display: none`, và một lề thì biến mất cùng nó, nhưng
-                                trình đọc màn hình vẫn đọc liền "8%tỷ trọng" nếu hai thẻ dính
-                                nhau trong DOM. Chủ dự án chụp đúng chỗ dính ấy (22/09/2026).
+                              {/*
+                                Tỷ trọng: thanh ngang rồi con số. Thanh là `aria-hidden`: nó vẽ lại
+                                đúng con số ngay bên cạnh, nên để trình đọc màn hình nghe thấy là nghe
+                                hai lần. Bề rộng đi qua biến CSS chứ không qua `width` thẳng, để CSS
+                                giữ quyền quyết định thanh dài tối đa bao nhiêu.
                               */}
-                                <span className={styles.holdWeightLabel}>
-                                  {t('portfolio.weight')}
-                                </span>
-                                <span
-                                  className={styles.weightBar}
-                                  style={
-                                    {
-                                      '--weight': `${String(Math.max(0, Math.min(100, row.weight)))}%`,
-                                    } as CSSProperties
-                                  }
-                                  aria-hidden="true"
-                                />
-                              </>
-                            )}
-                          </td>
-
-                          {/*
-                        Mũi tên là thứ DUY NHẤT nói cho người dùng biết hàng này bấm được. Bản
-                        trước học đúng bài này với dấu bút chì: hai lượt đầu nó chỉ đổi màu lúc rê
-                        chuột, mà màn thiết kế cho 360px và điện thoại không có trạng thái rê
-                        chuột.
-
-                        Trình đọc màn hình không nghe thấy ký hiệu này: `aria-label` của nút phủ
-                        đã nói "Chi tiết FPT", và `aria-expanded` nói đang mở hay đóng.
-                      */}
-                          <td className={styles.holdMarkCell}>
-                            <span
-                              className={
-                                open ? `${styles.holdMark} ${styles.holdMarkOpen}` : styles.holdMark
-                              }
-                              aria-hidden="true"
-                            >
-                              <StatIcon d="m6 9 6 6 6-6" />
-                            </span>
-                          </td>
-                        </tr>
-
-                        {open && (
-                          <tr className={styles.holdDetailRow}>
-                            {/*
-                            `<td>` phải GIỮ NGUYÊN là một table-cell — mọi kiểu dáng đi vào `<div>`
-                            bên trong.
-
-                            Bản đầu đặt thẳng `display: flex` lên chính `<td>` này, và nó hỏng
-                            theo một cách rất khó đoán: một phần tử flex KHÔNG còn là table-cell,
-                            nên trình duyệt bọc nó vào một ô ẩn danh mang `colspan=1`. Ô ấy rơi
-                            vào CỘT MỘT, kéo cột "Mã" rộng ra bằng cả cụm nút, và đẩy bảy cột còn
-                            lại sang phải — nhưng chỉ ở hàng đang mở, nên bảng nhảy chỗ mỗi lần
-                            bấm. Chủ dự án bắt được đúng triệu chứng ấy (22/09/2026): tiêu đề
-                            "Doanh nghiệp" nhảy từ x≈110 sang x≈390 khi mở một hàng.
-                          */}
-                            <td className={styles.holdDetail} colSpan={HOLD_COLUMNS}>
-                              <div className={styles.holdDetailInner}>
-                                {/*
-                                `<dl>` chỉ dựng khi CÓ ô. Ngày mua và beta đều tuỳ chọn, nên phần
-                                lớn mã không có ô nào — mà một `<dl>` rỗng vẫn ăn trọn một khe
-                                `gap` của khối và vẫn để lại vạch ngăn phía trên cụm nút, tức một
-                                mảng trống có kẻ chỉ huy ngay giữa khối. Chủ dự án chụp đúng mảng
-                                ấy ở khổ điện thoại (22/09/2026).
-                              */}
-                                {cells.length > 0 && (
-                                  <dl className={styles.cells}>
-                                    {cells.map((cell) => (
-                                      /*
-                                Chỉ ô NGÀY mang lớp riêng. Ô số không cần lớp nào — mọi ô căn trái như
-                                nhau, xem chú thích "Căn lề: TẤT CẢ căn trái" ở `PortfolioScreen.module.css`.
-                              */
-                                      <div
-                                        key={cell.label}
-                                        className={`${styles.cell} ${cell.kind === 'date' ? styles.cellDate : ''}`.trimEnd()}
-                                      >
-                                        <dt className={styles.cellLabel}>{cell.label}</dt>
-                                        <dd
-                                          className={`${styles.cellValue} ${cell.absent === true ? styles.cellAbsent : ''}`.trimEnd()}
-                                        >
-                                          {cell.value}
-                                        </dd>
-                                      </div>
-                                    ))}
-                                  </dl>
+                              <td className={styles.holdCell}>
+                                {row.weight === null ? (
+                                  <span className={styles.holdMissing}>_ _</span>
+                                ) : (
+                                  <span className={styles.holdWeightCell}>
+                                    <span
+                                      className={styles.weightBar}
+                                      style={
+                                        {
+                                          '--weight': `${String(Math.max(0, Math.min(100, row.weight)))}%`,
+                                        } as CSSProperties
+                                      }
+                                      aria-hidden="true"
+                                    />
+                                    <span className={styles.holdWeight}>
+                                      {formatNumber(row.weight, {
+                                        minDecimals: 1,
+                                        maxDecimals: 1,
+                                      }) ?? '_ _'}
+                                      %
+                                    </span>
+                                  </span>
                                 )}
+                              </td>
 
-                                {/*
-                        Hai nút cuối khối là NÚT THẬT có chữ, không còn là ký tự `ƒ` và `×` trần.
+                              {/*
+                                Hai nút biểu tượng thay cho khối mở ra khi bấm một dòng (12/10/2026).
+                                Biểu tượng KHÔNG mang chữ nên tên khả truy cập đi qua `aria-label`
+                                ("Sửa FPT", "Bỏ mã FPT"); từng có bài học ngược lại ở đây — nút `ƒ`
+                                và `×` trần trên nền trong suốt bị chủ dự án báo "mờ nhạt và không
+                                biết có thể thao tác", nên cả hai nút có viền focus, vùng chạm 44px
+                                và màu chữ đủ đậm (xem `.rowAction`).
 
-                        Bản trước để hai ký tự ấy trên nền trong suốt, màu chữ mờ, không viền — chủ dự
-                        án báo là "hiển thị mờ nhạt và không biết có thể thao tác", và đúng: một ký
-                        tự xám không có gì phân biệt với chữ trang trí. Dùng primitive `Button` thì
-                        được luôn viền, vòng focus và vùng chạm 44px đã chuẩn hoá sẵn.
+                                Nút Bỏ mã KHÔNG hỏi lại và không hoàn tác — đúng bản thiết kế. Từng
+                                phải mở khối chi tiết rồi mới bấm tới, tức hai thao tác.
+                              */}
+                              <td className={styles.holdActions}>
+                                <button
+                                  type="button"
+                                  className={styles.rowAction}
+                                  aria-label={`${t('portfolio.edit')} ${holding.code}`}
+                                  onClick={() => {
+                                    startEdit(holding);
+                                  }}
+                                >
+                                  <StatIcon d={TILE_ICONS.edit} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`${styles.rowAction} ${styles.rowActionDanger}`}
+                                  aria-label={`${t('portfolio.remove')} ${holding.code}`}
+                                  onClick={() => {
+                                    removeRow(holding.code);
+                                  }}
+                                >
+                                  <StatIcon d={TILE_ICONS.trash} />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
 
-                        Từng có nút thứ ba, "Tính công thức", và nó đã bỏ ở đợt gộp luồng thêm mã:
-                        chọn công thức nay nằm ngay trong form, nên với mã đã có thì đường đi là
-                        Sửa → chọn công thức → "Lưu và mở". Một cửa cho cả thêm mới lẫn mã cũ, thay
-                        vì hai lối làm cùng một việc.
-                      */}
-                                <div className={styles.actions}>
-                                  {/* Nút Sửa thay chỗ dấu bút chì cũ: dòng gọn nay mở khối chi tiết chứ không mở form. */}
-                                  <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    aria-label={`${t('portfolio.edit')} ${holding.code}`}
-                                    onClick={() => {
-                                      startEdit(holding);
-                                    }}
-                                  >
-                                    {t('portfolio.edit')}
-                                  </Button>
+                {/*
+                  ── Mẫu số đang hụt: nói ra, và CHỈ khi nó hụt ────────────────────────────────
 
-                                  <Button
-                                    variant="danger"
-                                    size="sm"
-                                    aria-label={`${t('portfolio.remove')} ${holding.code}`}
-                                    onClick={() => {
-                                      setHoldings((current) =>
-                                        removeHolding(current, holding.code),
-                                      );
-                                      // Đang sửa đúng mã vừa bị bỏ thì form phải đóng, nếu không nó sẽ lưu
-                                      // ngược một mã không còn tồn tại.
-                                      if (editing === holding.code) closeForm();
-                                      /*
-                                       * Gỡ mã khỏi tập đang mở. Không gỡ thì thêm lại đúng mã ấy sau này
-                                       * sẽ hiện ra với khối chi tiết bung sẵn — dấu vết của một thao tác
-                                       * người dùng đã quên từ lâu.
-                                       */
-                                      collapseDetail(holding.code);
-                                    }}
-                                  >
-                                    {t('portfolio.remove')}
-                                  </Button>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
+                  `total` cộng bằng `row.value ?? 0`, nên một mã chưa tra được giá bị coi như 0 và rơi
+                  khỏi mẫu số — tỷ trọng của các mã còn lại vì thế cộng lại đủ 100% trong khi danh mục
+                  thì chưa đủ. Im lặng ở đây đúng là loại "số sai mà trông có lý" mà FR-06 dựng ra để
+                  chặn. Câu định nghĩa tỷ trọng đã bỏ 08/10/2026 theo chủ dự án — mộ chí ở khoá
+                  `portfolio.weightNote` trong `vi.ts`.
+                */}
+                {summary.rows.some((row) => row.value === null) && (
+                  <p className={styles.weightNote}>{t('portfolio.weightPartial')}</p>
+                )}
 
-            {/*
-            ── Mẫu số đang hụt: nói ra, và CHỈ khi nó hụt ────────────────────────────────────
-
-            `total` cộng bằng `row.value ?? 0`, nên một mã chưa tra được giá bị coi như 0 và rơi
-            khỏi mẫu số — tỷ trọng của các mã còn lại vì thế cộng lại đủ 100% trong khi danh mục
-            thì chưa đủ. Im lặng ở đây đúng là loại "số sai mà trông có lý" mà FR-06 dựng ra để
-            chặn.
-
-            Câu định nghĩa tỷ trọng từng đứng TRƯỚC câu này trong cùng thẻ `<p>`, bỏ 08/10/2026
-            theo chủ dự án — mộ chí đầy đủ ở khoá `portfolio.weightNote` trong `vi.ts`, kèm chỗ
-            phải sửa nếu câu hỏi "tỷ trọng của cái gì" quay lại. Vì thế điều kiện dựng đổi theo:
-            trước là "có mã nào không" (câu định nghĩa luôn đúng), nay là "có mã nào chưa có giá
-            không". Danh mục đủ giá KHÔNG còn thẻ `<p>` nào ở đây, chứ không phải một thẻ rỗng.
-          */}
-            {summary.rows.some((row) => row.value === null) && (
-              <p className={styles.weightNote}>{t('portfolio.weightPartial')}</p>
-            )}
-
-            {/*
+                {/*
             Form thêm/sửa mã — hộp thoại NỔI GIỮA MÀN từ 22/09/2026, theo yêu cầu của chủ dự án:
             "bấm vào Sửa thì bật popup mới lên giữa màn chiếm tầm 50% màn hình". Trước đó nó là
             một khối chạy thẳng trong trang, dựng ở cuối danh sách.
@@ -1527,64 +1420,68 @@ export function PortfolioScreen() {
             lúc form đóng là mọi `getByLabelText('Số cổ phiếu nắm giữ')` tìm thấy một ô mà người
             dùng không nhìn thấy.
           */}
-            {formOpen && (
-              <BottomSheet
-                open
-                onClose={closeForm}
-                placement="center"
-                title={editing === null ? t('portfolio.add') : `${t('portfolio.edit')} ${editing}`}
-                className={styles.formSheet}
-                footer={
-                  <>
-                    {/*
+                {formOpen && (
+                  <BottomSheet
+                    open
+                    onClose={closeForm}
+                    placement="center"
+                    title={
+                      editing === null ? t('portfolio.add') : `${t('portfolio.edit')} ${editing}`
+                    }
+                    className={styles.formSheet}
+                    footer={
+                      <>
+                        {/*
                     Nhãn nút đổi theo việc nút sắp làm. "Thêm vào danh mục" khi thật ra là cộng
                     dồn vào một dòng đã có là hứa sai ngay trên đích bấm — chỗ người dùng đọc kỹ
                     nhất.
                   */}
-                    <Button onClick={submit}>{submitLabel}</Button>
-                    {/*
+                        <Button onClick={submit}>{submitLabel}</Button>
+                        {/*
                     `secondary` chứ không `ghost`: trong một hàng nút của hộp thoại, một nhãn chữ
                     trần đứng cạnh một nút nền đặc đọc ra như một liên kết lạc chỗ, và hai thứ cao
                     thấp khác nhau làm hàng nút lệch. Viền nhẹ giữ đúng thứ bậc (nút chính vẫn là
                     cái duy nhất có nền) mà vẫn cho hai nút cùng một khối hình.
                   */}
-                    <Button variant="secondary" onClick={closeForm}>
-                      {t('portfolio.formCancel')}
-                    </Button>
-                  </>
-                }
-              >
-                <div className={styles.form}>
-                  {/*
+                        <Button variant="secondary" onClick={closeForm}>
+                          {t('portfolio.formCancel')}
+                        </Button>
+                      </>
+                    }
+                  >
+                    <div className={styles.form}>
+                      {/*
               Ô chọn mã là một NÚT mở sheet, không phải <select>: danh sách có ~1.649 mã, mà một
               <select> chừng ấy option thì không gõ tìm được và dựng ra 1.649 nút DOM.
 
               Ở chế độ SỬA, nút này khoá lại: đổi mã của một dòng đang có không phải là "sửa" mà
               là hai thao tác khác nhau (bỏ mã cũ, thêm mã mới) với hai con số vốn khác nhau.
             */}
-                  <div className={styles.codeField}>
-                    <span className={styles.codeLabel} id="portfolio-code-label">
-                      {t('portfolio.formCode')}
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.codeButton}
-                      aria-labelledby="portfolio-code-label"
-                      disabled={editing !== null}
-                      onClick={() => {
-                        openSheet('ticker');
-                      }}
-                    >
-                      {form.code === '' ? (
-                        <span className={styles.codePlaceholder}>{t('portfolio.pickCode')}</span>
-                      ) : (
-                        <>
-                          <span className={styles.codeBadge}>{form.code}</span>
-                          <span className={styles.codeName}>{form.name}</span>
-                        </>
-                      )}
-                    </button>
-                    {/*
+                      <div className={styles.codeField}>
+                        <span className={styles.codeLabel} id="portfolio-code-label">
+                          {t('portfolio.formCode')}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.codeButton}
+                          aria-labelledby="portfolio-code-label"
+                          disabled={editing !== null}
+                          onClick={() => {
+                            openSheet('ticker');
+                          }}
+                        >
+                          {form.code === '' ? (
+                            <span className={styles.codePlaceholder}>
+                              {t('portfolio.pickCode')}
+                            </span>
+                          ) : (
+                            <>
+                              <span className={styles.codeBadge}>{form.code}</span>
+                              <span className={styles.codeName}>{form.name}</span>
+                            </>
+                          )}
+                        </button>
+                        {/*
                   Ô mã KHÔNG còn câu gợi ý nào, ở cả hai chế độ — chủ dự án chốt bỏ 14/09/2026,
                   hai đợt liền nhau.
 
@@ -1599,85 +1496,85 @@ export function PortfolioScreen() {
                   rồi thêm lại" là lối đi vòng cho một việc hiếm, không đáng một dòng thường trực
                   trên mọi lượt sửa.
                 */}
-                    {errors.code !== undefined && (
-                      <span className={styles.fieldError} role="alert">
-                        {errors.code}
-                      </span>
-                    )}
-                    {/*
+                        {errors.code !== undefined && (
+                          <span className={styles.fieldError} role="alert">
+                            {errors.code}
+                          </span>
+                        )}
+                        {/*
                   Không còn câu "Mã này đã có trong danh mục. Thêm nữa sẽ cộng dồn số lượng…" —
                   chủ dự án chốt bỏ 10/10/2026 cùng lượt với việc khoá nút chọn của mã đang giữ.
                   Câu ấy giải thích một việc nay không xảy ra được nữa; nguyên văn và lý do ở bia
                   mộ `portfolio.mergeNote` trong `vi.ts`.
                 */}
-                  </div>
+                      </div>
 
-                  <Input
-                    label={t('portfolio.formQuantity')}
-                    type="text"
-                    inputMode="decimal"
-                    value={form.quantity}
-                    error={errors.quantity}
-                    onChange={(event) => {
-                      setField('quantity', filterTypedValue(event, keepViNumberChars));
-                    }}
-                    onKeyDown={guardFilteredDelete}
-                    onBlur={(event) => {
-                      resetFilteredDelete(event.currentTarget);
-                    }}
-                  />
+                      <Input
+                        label={t('portfolio.formQuantity')}
+                        type="text"
+                        inputMode="decimal"
+                        value={form.quantity}
+                        error={errors.quantity}
+                        onChange={(event) => {
+                          setField('quantity', filterTypedValue(event, keepViNumberChars));
+                        }}
+                        onKeyDown={guardFilteredDelete}
+                        onBlur={(event) => {
+                          resetFilteredDelete(event.currentTarget);
+                        }}
+                      />
 
-                  <Input
-                    label={t('portfolio.formCostPrice')}
-                    type="text"
-                    inputMode="decimal"
-                    value={form.costPrice}
-                    error={errors.costPrice}
-                    onChange={(event) => {
-                      setField('costPrice', filterTypedValue(event, keepViNumberChars));
-                    }}
-                    onKeyDown={guardFilteredDelete}
-                    onBlur={(event) => {
-                      resetFilteredDelete(event.currentTarget);
-                    }}
-                  />
+                      <Input
+                        label={t('portfolio.formCostPrice')}
+                        type="text"
+                        inputMode="decimal"
+                        value={form.costPrice}
+                        error={errors.costPrice}
+                        onChange={(event) => {
+                          setField('costPrice', filterTypedValue(event, keepViNumberChars));
+                        }}
+                        onKeyDown={guardFilteredDelete}
+                        onBlur={(event) => {
+                          resetFilteredDelete(event.currentTarget);
+                        }}
+                      />
 
-                  <Input
-                    label={t('portfolio.formBuyDate')}
-                    type="date"
-                    value={form.buyDate}
-                    error={errors.buyDate}
-                    onChange={(event) => {
-                      setField('buyDate', event.target.value);
-                    }}
-                  />
+                      <Input
+                        label={t('portfolio.formBuyDate')}
+                        type="date"
+                        value={form.buyDate}
+                        error={errors.buyDate}
+                        onChange={(event) => {
+                          setField('buyDate', event.target.value);
+                        }}
+                      />
 
-                  {/*
+                      {/*
               Ô nhập beta chỉ có ở chế độ Nâng cao — FR-09.
 
               `form.beta` VẪN được `startEdit()` đổ đầy dù ô không dựng ra, và `submit()` vẫn ghi
               lại đúng giá trị ấy. Bỏ đi là mỗi lần sửa một mã ở chế độ Cơ bản sẽ xoá mất beta
               người dùng đã nhập trước đó — mất dữ liệu, không phải ẩn hiển thị.
             */}
-                  {advanced && (
-                    <Input
-                      label={t('portfolio.formBeta')}
-                      type="text"
-                      inputMode="decimal"
-                      hint={t('portfolio.betaHint')}
-                      value={form.beta}
-                      error={errors.beta}
-                      onChange={(event) => {
-                        setField('beta', filterTypedValue(event, keepViNumberChars));
-                      }}
-                      onKeyDown={guardFilteredDelete}
-                      onBlur={(event) => {
-                        resetFilteredDelete(event.currentTarget);
-                      }}
-                    />
-                  )}
+                      {advanced && (
+                        <Input
+                          label={t('portfolio.formBeta')}
+                          type="text"
+                          inputMode="decimal"
+                          hint={t('portfolio.betaHint')}
+                          value={form.beta}
+                          error={errors.beta}
+                          onChange={(event) => {
+                            setField('beta', filterTypedValue(event, keepViNumberChars));
+                          }}
+                          onKeyDown={guardFilteredDelete}
+                          onBlur={(event) => {
+                            resetFilteredDelete(event.currentTarget);
+                          }}
+                        />
+                      )}
 
-                  {/*
+                      {/*
               Ô chọn công thức — TUỲ CHỌN, và là thứ gộp hai luồng của màn làm một.
 
               Cùng khuôn `.codeField` ngay trên: một nút mở sheet, không phải `<select>`. Ở đây lý
@@ -1689,40 +1586,42 @@ export function PortfolioScreen() {
               `FormulaForTickerSheet`). Mở sheet khi chưa biết mã là in ra 31 con số chưa chắc
               đúng — đúng loại "số sai mà trông có lý" mà FR-06 dựng ra để chặn.
             */}
-                  <div className={styles.codeField}>
-                    <span className={styles.codeLabel} id="portfolio-formula-label">
-                      {t('portfolio.formulas')}
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.codeButton}
-                      aria-labelledby="portfolio-formula-label"
-                      onClick={() => {
-                        /*
-                         * Chưa có mã thì mở sheet CHỌN MÃ, không phải không làm gì.
-                         *
-                         * Bản đầu để `disabled` và chủ dự án báo ngay: "bấm vào chọn công thức không
-                         * thấy hiệu ứng gì". Đúng — kiểu dáng khoá (viền nét đứt, nền chìm) quá nhẹ
-                         * so với ô chọn mã ngay trên, mà chữ trên nút vẫn hứa "Chọn công thức". Một
-                         * nút hứa một việc rồi im lặng là hỏng, dù câu gợi ý bên dưới có nói lý do.
-                         *
-                         * Nay nút nói đúng thứ nó sẽ làm ("Chọn mã cổ phiếu trước") và làm đúng thứ
-                         * ấy. Ngõ cụt thành một bước đi tiếp.
-                         */
-                        openSheet(formulaLocked ? 'ticker' : 'formulas');
-                      }}
-                    >
-                      {formulaLocked ? (
-                        <span className={styles.codePlaceholder}>
-                          {t('portfolio.pickCodeFirst')}
+                      <div className={styles.codeField}>
+                        <span className={styles.codeLabel} id="portfolio-formula-label">
+                          {t('portfolio.formulas')}
                         </span>
-                      ) : plannedFormulaName === null ? (
-                        <span className={styles.codePlaceholder}>{t('portfolio.pickFormula')}</span>
-                      ) : (
-                        <span className={styles.formulaName}>{plannedFormulaName}</span>
-                      )}
-                    </button>
-                    {/*
+                        <button
+                          type="button"
+                          className={styles.codeButton}
+                          aria-labelledby="portfolio-formula-label"
+                          onClick={() => {
+                            /*
+                             * Chưa có mã thì mở sheet CHỌN MÃ, không phải không làm gì.
+                             *
+                             * Bản đầu để `disabled` và chủ dự án báo ngay: "bấm vào chọn công thức không
+                             * thấy hiệu ứng gì". Đúng — kiểu dáng khoá (viền nét đứt, nền chìm) quá nhẹ
+                             * so với ô chọn mã ngay trên, mà chữ trên nút vẫn hứa "Chọn công thức". Một
+                             * nút hứa một việc rồi im lặng là hỏng, dù câu gợi ý bên dưới có nói lý do.
+                             *
+                             * Nay nút nói đúng thứ nó sẽ làm ("Chọn mã cổ phiếu trước") và làm đúng thứ
+                             * ấy. Ngõ cụt thành một bước đi tiếp.
+                             */
+                            openSheet(formulaLocked ? 'ticker' : 'formulas');
+                          }}
+                        >
+                          {formulaLocked ? (
+                            <span className={styles.codePlaceholder}>
+                              {t('portfolio.pickCodeFirst')}
+                            </span>
+                          ) : plannedFormulaName === null ? (
+                            <span className={styles.codePlaceholder}>
+                              {t('portfolio.pickFormula')}
+                            </span>
+                          ) : (
+                            <span className={styles.formulaName}>{plannedFormulaName}</span>
+                          )}
+                        </button>
+                        {/*
                   Ô này KHÔNG còn câu gợi ý nào — chủ dự án chốt bỏ nốt câu cuối 22/09/2026.
 
                   Lượt một (14/09/2026) bỏ `portfolio.formulaHint` ("Tuỳ chọn. Chọn rồi thì lưu
@@ -1740,150 +1639,205 @@ export function PortfolioScreen() {
                   thì trình đọc màn hình lặng thinh — không lỗi, không cảnh báo, chỉ mất phần mô
                   tả; đúng kiểu hỏng mà không cửa nào bắt được.
                 */}
-                    {plannedFormula !== null && (
-                      <button
-                        type="button"
-                        className={styles.clearFormula}
-                        onClick={() => {
-                          setPlannedFormula(null);
-                        }}
-                      >
-                        {t('portfolio.formulaClear')}
-                      </button>
-                    )}
-                  </div>
-
-                  {errors.form !== undefined && (
-                    <p className={styles.formError} role="alert">
-                      {errors.form}
-                    </p>
-                  )}
-                </div>
-              </BottomSheet>
-            )}
-          </section>
-        </div>
-      )}
-
-      {/*
-        Tab Công thức — khối "Phép tính đã lưu", đích của nút Lưu ở màn chi tiết công thức.
-
-        LUÔN dựng khi tab này đang mở, kể cả kho rỗng. Bản khối-thứ-hai (15/09/2026) chỉ dựng khi
-        có mục, vì khi ấy nó nằm thường trực dưới danh mục của MỌI người — kể cả người chưa từng
-        bấm Lưu, và một ô rỗng thường trực là thứ chủ dự án đã gỡ cùng cụm tab. Nay người dùng
-        chủ động bấm sang tab, đúng điều kiện bản tab đầu tiên dùng để cho phép ô rỗng.
-
-        `id={SAVED_CALCS_ANCHOR}` ở lại trên `<section>` chứ không lên tabpanel: đó là phần tử mà
-        `savedCalcsPath()` và `chrome-check.mjs` nhắm tới, và nó vẫn là thứ có tiêu đề.
-      */}
-      {tab === 'saved' && (
-        <div
-          id={PORTFOLIO_PANEL_ID}
-          role="tabpanel"
-          aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'saved')}
-        >
-          <section
-            id={SAVED_CALCS_ANCHOR}
-            className={styles.block}
-            aria-labelledby="portfolio-saved"
-          >
-            <h2 className={styles.blockTitle} id="portfolio-saved">
-              {t('portfolio.savedTitle')}
-            </h2>
-
-            {savedCalcs.length === 0 ? (
-              <div className={styles.empty}>
-                <span className={styles.emptyIcon} aria-hidden="true">
-                  <StatIcon d={TILE_ICONS.tabSaved} />
-                </span>
-                <p className={styles.emptyText}>{t('portfolio.savedEmpty')}</p>
-                <Link
-                  className={`${styles.savedAction} ${styles.savedActionOpen}`}
-                  href={ROUTES.formulas}
-                >
-                  {t('portfolio.savedEmptyAction')}
-                </Link>
-              </div>
-            ) : (
-              <ul className={styles.savedList}>
-                {savedCalcs.map((saved) => {
-                  const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
-                  // Công thức bị gỡ khỏi Registry thì id vẫn là thứ nhận ra được, hơn là một dòng trống.
-                  const formulaName =
-                    summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
-
-                  /*
-                Tên đã cất là chuỗi ĐÃ GHÉP ở ngôn ngữ lúc bấm Lưu, nên đổi sang EN nó vẫn tiếng
-                Việt trong khi dòng phụ ngay dưới đã dịch. `displayCalcName()` nhận ra tên nào vốn
-                là GỢI Ý rồi dựng lại ở ngôn ngữ đang xem; tên người dùng tự gõ giữ nguyên từng chữ.
-              */
-                  const savedName =
-                    summaryOf === undefined
-                      ? saved.name
-                      : displayCalcName({
-                          stored: saved.name,
-                          viName: summaryOf.name.vi,
-                          localName: formulaName,
-                          ...(saved.code === undefined ? {} : { code: saved.code }),
-                          ...(saved.resultValue === null
-                            ? {}
-                            : {
-                                viResult: formatValueWithUnit(saved.resultValue, saved.resultUnit),
-                                localResult: valueText(saved.resultValue, saved.resultUnit),
-                              }),
-                          savedAt: saved.savedAt,
-                        });
-
-                  /*
-                Dòng phụ chỉ nói những gì DÒNG TÊN chưa nói: tên tự sinh có dạng "<mã> · <tên công
-                thức> · <ngày>", nên mảnh nào đã nằm trong tên thì bỏ. "lưu <ngày>" thì KHÔNG bao
-                giờ bị lọc — đó là chỗ duy nhất nói con số này thuộc một MỐC chứ không vừa tính xong.
-              */
-                  const metaParts = [saved.code, formulaName]
-                    .filter((part): part is string => part !== undefined)
-                    .filter((part) => !savedName.includes(part));
-                  metaParts.push(
-                    `${t('portfolio.savedAt')} ${formatIsoDate(isoDayOf(saved.savedAt))}`,
-                  );
-                  if (saved.needsSeries) metaParts.push(t('portfolio.savedNeedsSeries'));
-
-                  return (
-                    <li key={saved.id} className={styles.savedRow}>
-                      <p className={styles.savedName}>{savedName}</p>
-
-                      {/*
-                    "Xem" là `<Link>` chứ không `<button>`: điều hướng sang màn khác thì phải mở
-                    được bằng chuột giữa và menu ngữ cảnh. Con số kết quả không bày ở đây — chủ dự
-                    án chốt từ bản tab: *"số liệu thì khi mở lại thì mới thấy được"*.
-                  */}
-                      <div className={styles.savedActions}>
-                        <Link
-                          className={`${styles.savedAction} ${styles.savedActionOpen}`}
-                          href={`${formulaPath(saved.formulaId)}?luu=${saved.id}`}
-                        >
-                          {t('portfolio.savedOpen')}
-                        </Link>
-                        <button
-                          type="button"
-                          className={`${styles.savedAction} ${styles.savedActionRemove}`}
-                          aria-label={`${t('portfolio.savedRemove')} ${savedName}`}
-                          onClick={() => {
-                            persistSaved(removeSavedCalc(savedCalcs, saved.id));
-                          }}
-                        >
-                          {t('portfolio.savedRemove')}
-                        </button>
+                        {plannedFormula !== null && (
+                          <button
+                            type="button"
+                            className={styles.clearFormula}
+                            onClick={() => {
+                              setPlannedFormula(null);
+                            }}
+                          >
+                            {t('portfolio.formulaClear')}
+                          </button>
+                        )}
                       </div>
 
-                      <p className={styles.savedMeta}>{metaParts.join(' · ')}</p>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
+                      {errors.form !== undefined && (
+                        <p className={styles.formError} role="alert">
+                          {errors.form}
+                        </p>
+                      )}
+                    </div>
+                  </BottomSheet>
+                )}
+              </section>
+            </div>
+          )}
+
+          {/*
+            Tab Phép tính đã lưu — đích của nút Lưu ở màn chi tiết công thức.
+
+            LUÔN dựng khi tab này đang mở, kể cả kho rỗng. Bản khối-thứ-hai (15/09/2026) chỉ dựng khi
+            có mục, vì khi ấy nó nằm thường trực dưới danh mục của MỌI người — kể cả người chưa từng
+            bấm Lưu, và một ô rỗng thường trực là thứ chủ dự án đã gỡ cùng cụm tab. Nay người dùng
+            chủ động bấm sang tab, đúng điều kiện bản tab đầu tiên dùng để cho phép ô rỗng.
+
+            `id={SAVED_CALCS_ANCHOR}` ở lại trên `<section>` chứ không lên tabpanel: đó là phần tử mà
+            `savedCalcsPath()` và `chrome-check.mjs` nhắm tới, và nó vẫn là thứ có tiêu đề.
+
+            Từ 12/10/2026 danh sách `<ul>` thành BẢNG (công thức · mã · kết quả · ngày lưu · hành động)
+            kèm ô tìm (chip lọc theo mã và ô sắp xếp trong bản vẽ đã bỏ cùng ngày). Bảng đảo lại lời
+            chủ dự án chốt từ bản tab —
+            *"số liệu thì khi mở lại thì mới thấy được"* — vì bản thiết kế mới có cột Kết quả; điều kiện
+            để cột ấy lương thiện là dòng nào mở lại sẽ ra số khác thì in `_ _` (xem `SavedRowView`).
+          */}
+          {tab === 'saved' && (
+            <div
+              id={PORTFOLIO_PANEL_ID}
+              role="tabpanel"
+              aria-labelledby={tabId(PORTFOLIO_TABS_ID, 'saved')}
+            >
+              <section
+                id={SAVED_CALCS_ANCHOR}
+                className={styles.block}
+                aria-labelledby="portfolio-saved"
+              >
+                <div className={styles.blockHead}>
+                  <div className={styles.titleGroup}>
+                    <h2 className={styles.mainTitle} id="portfolio-saved">
+                      {t('portfolio.savedTitle')}
+                    </h2>
+                    <span className={styles.titleCount}>{savedCountText}</span>
+                  </div>
+
+                  <div className={styles.headTools}>
+                    {savedCalcs.length > 0 && (
+                      <div className={styles.search}>
+                        <SearchBox
+                          value={savedQuery}
+                          onChange={setSavedQuery}
+                          label={t('portfolio.savedSearch')}
+                          placeholder={t('portfolio.savedSearch')}
+                        />
+                      </div>
+                    )}
+
+                    {/* Cùng đích với nút ở trạng thái rỗng bên dưới: danh sách công thức. */}
+                    <Link className={styles.addButton} href={ROUTES.formulas}>
+                      <StatIcon d={TILE_ICONS.plus} />
+                      {t('portfolio.savedNew')}
+                    </Link>
+                  </div>
+                </div>
+
+                {savedCalcs.length === 0 ? (
+                  <div className={styles.empty}>
+                    <span className={styles.emptyIcon} aria-hidden="true">
+                      <StatIcon d={TILE_ICONS.tabSaved} />
+                    </span>
+                    <p className={styles.emptyText}>{t('portfolio.savedEmpty')}</p>
+                    <Link
+                      className={`${styles.savedAction} ${styles.savedActionOpen}`}
+                      href={ROUTES.formulas}
+                    >
+                      {t('portfolio.savedEmptyAction')}
+                    </Link>
+                  </div>
+                ) : shownSaved.length === 0 ? (
+                  <p className={styles.noMatch}>{t('portfolio.savedNoMatch')}</p>
+                ) : (
+                  <div className={styles.tableWrap}>
+                    <table className={styles.savedList}>
+                      <caption className="visually-hidden">
+                        {t('portfolio.savedTableCaption')}
+                      </caption>
+
+                      <thead className={styles.holdHead}>
+                        <tr>
+                          <th scope="col">{t('portfolio.savedColFormula')}</th>
+                          <th scope="col">{t('portfolio.colCode')}</th>
+                          <th scope="col">{t('portfolio.savedColResult')}</th>
+                          <th scope="col">{t('portfolio.savedColDate')}</th>
+                          <th scope="col">
+                            <span className="visually-hidden">{t('portfolio.colActions')}</span>
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {shownSaved.map((row) => (
+                          <tr
+                            key={row.saved.id}
+                            className={
+                              row.needsReload
+                                ? `${styles.savedRow} ${styles.savedRowWarn}`
+                                : styles.savedRow
+                            }
+                          >
+                            <td className={styles.savedName}>
+                              <span className={styles.savedTitle}>{row.title}</span>
+                              {row.subtitle !== null && (
+                                <span className={styles.savedSub}>{row.subtitle}</span>
+                              )}
+                              {/*
+                                    Lý do của ô Kết quả đang `_ _` (FR-06) — thứ bản thiết kế đặt ở cột
+                                    "Số liệu dùng", cột đã bỏ nên dòng cảnh báo xuống đây, dưới tên.
+                                  */}
+                              {row.needsReload && (
+                                <span className={styles.savedWarn}>
+                                  <StatIcon d={TILE_ICONS.warn} size={14} />
+                                  {t('portfolio.savedNeedsSeries')}
+                                </span>
+                              )}
+                            </td>
+
+                            <td className={styles.holdCode}>
+                              {row.saved.code === undefined ? null : (
+                                <Badge tone="code">{row.saved.code}</Badge>
+                              )}
+                            </td>
+
+                            <td
+                              className={
+                                row.result === '_ _'
+                                  ? `${styles.savedResult} ${styles.holdMissing}`
+                                  : styles.savedResult
+                              }
+                            >
+                              {row.result}
+                            </td>
+
+                            <td className={styles.savedDate}>{row.date}</td>
+
+                            {/*
+                                  "Mở" là `<Link>` chứ không `<button>`: điều hướng sang màn khác thì
+                                  phải mở được bằng chuột giữa và menu ngữ cảnh. Dòng bị cờ đổi chữ
+                                  thành "Nạp" nhưng đi cùng một đích — màn chi tiết nạp chuỗi từ chính
+                                  kho mà cờ này đọc. Tên khả truy cập mở đầu bằng đúng chữ nhìn thấy
+                                  (WCAG 2.5.3) rồi nói tiếp là mở cái gì.
+                                */}
+                            <td className={styles.holdActions}>
+                              <Link
+                                className={styles.rowLink}
+                                href={`${formulaPath(row.saved.formulaId)}?luu=${row.saved.id}`}
+                                aria-label={`${row.needsReload ? t('portfolio.savedReload') : t('portfolio.savedOpen')} ${row.label}`}
+                              >
+                                {row.needsReload
+                                  ? t('portfolio.savedReload')
+                                  : t('portfolio.savedOpen')}
+                              </Link>
+                              <button
+                                type="button"
+                                className={`${styles.rowAction} ${styles.rowActionDanger}`}
+                                aria-label={`${t('portfolio.savedRemove')} ${row.label}`}
+                                onClick={() => {
+                                  persistSaved(removeSavedCalc(savedCalcs, row.saved.id));
+                                }}
+                              >
+                                <StatIcon d={TILE_ICONS.trash} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/*
         ⚠ Dải "CỤC BỘ · Số lượng và giá vốn chỉ lưu trên thiết bị này. Chỉ mã cổ phiếu được gửi tới

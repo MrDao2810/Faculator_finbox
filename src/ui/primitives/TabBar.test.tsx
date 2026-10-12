@@ -122,3 +122,64 @@ describe('TabBar — cụm chọn một trong nhiều', () => {
     expect(screen.getByRole('tab', { name: 'Tất cả 111' })).not.toBeNull();
   });
 });
+
+describe('TabBar — thẻ tab dọc', () => {
+  function dungDoc(value: 'all' | 'stock' | 'personal' = 'all') {
+    const onChange = vi.fn();
+    render(
+      <TabBar
+        items={MANG}
+        value={value}
+        onChange={onChange}
+        label="Mảng"
+        idBase="mang"
+        orientation="vertical"
+      />,
+    );
+    return onChange;
+  }
+
+  /*
+   * Ba thứ đổi cùng nhau: kiểu dáng, `aria-orientation`, phím. Ca này canh vế thứ hai và thứ ba —
+   * vế đầu là CSS nên không có ca nào soi được.
+   */
+  it('báo aria-orientation dọc, còn cụm ngang thì không khai gì', () => {
+    dungDoc();
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe('vertical');
+
+    cleanup();
+    dung();
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBeNull();
+  });
+
+  it('↑/↓ chạy giữa các tab và chạy vòng; ←/→ không làm gì', async () => {
+    const onChange = dungDoc('all');
+    screen.getByRole('tab', { name: /Tất cả/ }).focus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    expect(onChange).toHaveBeenLastCalledWith('stock');
+
+    await userEvent.keyboard('{ArrowUp}');
+    expect(onChange).toHaveBeenLastCalledWith('personal');
+
+    onChange.mockClear();
+    await userEvent.keyboard('{ArrowRight}{ArrowLeft}');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('Home và End vẫn nhảy về hai đầu', async () => {
+    const onChange = dungDoc('stock');
+    screen.getByRole('tab', { name: /Chứng khoán/ }).focus();
+
+    await userEvent.keyboard('{End}');
+    expect(onChange).toHaveBeenLastCalledWith('personal');
+  });
+
+  it('cụm ngang không nghe ↑/↓', async () => {
+    const onChange = dung('all');
+    screen.getByRole('tab', { name: /Tất cả/ }).focus();
+
+    await userEvent.keyboard('{ArrowDown}{ArrowUp}');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+});

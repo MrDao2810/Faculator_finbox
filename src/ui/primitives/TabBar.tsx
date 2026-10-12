@@ -30,6 +30,15 @@ export interface TabBarProps<T extends string> {
   idBase: string;
   /** id của vùng nội dung cụm này điều khiển, nếu có. */
   panelId?: string;
+  /**
+   * Chiều xếp của cụm. Mặc định `'horizontal'`, tức thanh tab ngang như mọi nơi khác.
+   *
+   * `'vertical'` là thẻ tab dọc ở cột trái màn Danh mục (10/2026). Nó đổi BA thứ cùng lúc, và phải
+   * đổi cùng lúc: kiểu dáng (thẻ trắng, nhãn trái, số đếm phải), `aria-orientation`, và phím điều
+   * hướng (↑/↓ thay cho ←/→). Đổi mỗi kiểu dáng mà quên hai thứ sau là cụm nhìn ra dọc nhưng trình
+   * đọc màn hình vẫn báo ngang và mũi tên lên/xuống không làm gì.
+   */
+  orientation?: 'horizontal' | 'vertical';
   className?: string;
 }
 
@@ -69,8 +78,8 @@ export function tabId(idBase: string, value: string): string {
  * ── Bàn phím ─────────────────────────────────────────────────────────────────────────────────
  *
  * Roving tabindex đúng khuôn WAI-ARIA: cả cụm chỉ chiếm MỘT nấc Tab, rồi ←/→/Home/End chạy giữa
- * các tab. Đây là thứ hàng chip cũ không có và cụm tab dựng tay ở màn Danh mục cũng chưa có —
- * ở đó mỗi tab là một nấc Tab riêng.
+ * các tab (↑/↓ thay ←/→ khi `orientation="vertical"`). Đây là thứ hàng chip cũ không có và cụm tab
+ * dựng tay ở màn Danh mục cũng chưa có — ở đó mỗi tab là một nấc Tab riêng.
  */
 export function TabBar<T extends string>({
   items,
@@ -79,10 +88,17 @@ export function TabBar<T extends string>({
   label,
   idBase,
   panelId,
+  orientation = 'horizontal',
   className,
 }: TabBarProps<T>) {
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
-  const classes = [styles.tabs, className].filter(Boolean).join(' ');
+  const vertical = orientation === 'vertical';
+  const classes = [styles.tabs, vertical ? styles.vertical : undefined, className]
+    .filter(Boolean)
+    .join(' ');
+  // Hai phím đi tới / đi lui đổi theo chiều xếp; Home và End giống nhau ở cả hai chiều.
+  const forwardKey = vertical ? 'ArrowDown' : 'ArrowRight';
+  const backwardKey = vertical ? 'ArrowUp' : 'ArrowLeft';
 
   function moveTo(index: number) {
     const item = items[index];
@@ -97,9 +113,9 @@ export function TabBar<T extends string>({
     if (here < 0 || items.length === 0) return;
 
     const next =
-      event.key === 'ArrowRight'
+      event.key === forwardKey
         ? (here + 1) % items.length
-        : event.key === 'ArrowLeft'
+        : event.key === backwardKey
           ? (here - 1 + items.length) % items.length
           : event.key === 'Home'
             ? 0
@@ -108,13 +124,19 @@ export function TabBar<T extends string>({
               : null;
 
     if (next === null) return;
-    // Chặn mặc định: ←/→ trong vùng cuộn ngang, Home/End nhảy đầu/cuối trang.
+    // Chặn mặc định: mũi tên cuộn vùng chứa, Home/End nhảy đầu/cuối trang.
     event.preventDefault();
     moveTo(next);
   }
 
   return (
-    <div className={classes} role="tablist" aria-label={label} onKeyDown={onKeyDown}>
+    <div
+      className={classes}
+      role="tablist"
+      aria-label={label}
+      aria-orientation={vertical ? 'vertical' : undefined}
+      onKeyDown={onKeyDown}
+    >
       {items.map((item, index) => {
         const selected = item.value === value;
         return (

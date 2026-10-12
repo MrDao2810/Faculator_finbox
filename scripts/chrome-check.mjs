@@ -1859,9 +1859,13 @@ window.__themeLog = [];
    * Phép kiểm này gieo thẳng một bản lưu mang tên TIẾNG VIỆT vào kho, đúng như bản lưu cũ nằm sẵn
    * trên máy người dùng. Khối dò ở trên không thấy được ca này: máy Chrome của nó có kho rỗng.
    *
-   * Bước bấm sang tab "Công thức" (EN: "Formulas") QUAY LẠI ngày 10/10/2026 cùng cụm tab. Bản cũ
-   * dò mọi nút có chữ "Công thức" rồi bấm — nên nó từng có thể bấm nhầm một nút khác trùng chữ.
-   * Nay chỉ dò trong `[role="tab"]`, nơi chỉ có đúng hai nút.
+   * Bước bấm sang tab "Phép tính đã lưu" (EN: "Saved calculations") QUAY LẠI ngày 10/10/2026 cùng cụm
+   * tab. Bản cũ dò mọi nút có chữ "Công thức" rồi bấm — nên nó từng có thể bấm nhầm một nút khác
+   * trùng chữ. Nay chỉ dò trong `[role="tab"]`, nơi chỉ có đúng hai nút.
+   *
+   * Từ 12/10/2026 danh sách là một BẢNG: tên nằm trong ô đầu của mỗi dòng (`<td>`), không còn là thẻ
+   * `<p>`. Với một tên GỢI Ý ("Biên an toàn · 25/08/2026") ô ấy chỉ in tên công thức — mã và ngày đã có
+   * cột riêng — nên điều cần thấy là tên công thức đã dịch, và KHÔNG còn chữ tiếng Việt nào.
    */
   await evaluate(`(() => {
     const savedAt = new Date(2026, 7, 25, 10, 0, 0).getTime();
@@ -1881,7 +1885,7 @@ window.__themeLog = [];
   await waitFor(`document.querySelectorAll('[role="tab"]').length === 2`);
   await evaluate(`(() => {
     const nut = [...document.querySelectorAll('[role="tab"]')].find((b) =>
-      (b.textContent ?? '').startsWith('Formulas'),
+      (b.textContent ?? '').startsWith('Saved calculations'),
     );
     if (nut !== undefined) nut.click();
     return true;
@@ -1893,20 +1897,22 @@ window.__themeLog = [];
       await new Promise((d) => setTimeout(d, 100));
     }
     const khoi = document.getElementById('phep-tinh-da-luu');
-    return khoi === null ? [] : [...khoi.querySelectorAll('p')].map((p) => p.textContent ?? '');
+    return khoi === null
+      ? []
+      : [...khoi.querySelectorAll('tbody tr')].map((tr) => tr.firstElementChild?.textContent ?? '');
   })()`);
 
-  const coTenEn = (tenDaLuu ?? []).some((line) => line.includes('Margin of safety · 25/08/2026'));
-  const conTenVi = (tenDaLuu ?? []).some((line) => line.trim() === 'Biên an toàn · 25/08/2026');
+  const coTenEn = (tenDaLuu ?? []).some((line) => line.includes('Margin of safety'));
+  const conTenVi = (tenDaLuu ?? []).some((line) => line.includes('Biên an toàn'));
 
   check(
     'tên phép tính đã lưu dựng lại theo ngôn ngữ — bản lưu cũ bằng tiếng Việt cũng đổi',
     coTenEn && !conTenVi,
-    coTenEn ? 'hiện "Margin of safety · 25/08/2026"' : 'không thấy tên đã dịch trong danh sách',
+    coTenEn ? 'ô công thức hiện "Margin of safety…"' : 'không thấy tên đã dịch trong bảng',
   );
 
   /*
-   * ── Cụm tab Mã · Công thức ở khổ 360 (10/10/2026) ──────────────────────────────────────────
+   * ── Cụm tab dọc ở khổ 360 (10/10/2026, viết lại 12/10/2026) ──────────────────────────────────────────
    *
    * Đích của nút Lưu ở màn chi tiết là `/danh-muc/#phep-tinh-da-luu`. Bản khối-thứ-hai phải cuộn
    * tới neo và giữ nó bằng `ResizeObserver` vì thị giá về sau đẩy khối xuống 702/780px. Nay neo chỉ
@@ -1939,23 +1945,23 @@ window.__themeLog = [];
   })()`);
 
   check(
-    '360 · neo #phep-tinh-da-luu mở thẳng tab Công thức, khối nằm trong màn đầu',
+    '360 · neo #phep-tinh-da-luu mở thẳng tab Phép tính đã lưu, khối nằm trong màn đầu',
     neo.coKhoi === true &&
-      neo.tabChon.startsWith('Formulas') &&
+      neo.tabChon.startsWith('Saved calculations') &&
       neo.mepTren >= 0 &&
       neo.mepTren < neo.cao,
     `tab "${String(neo.tabChon)}" · mép trên khối ${String(neo.mepTren)}/${String(neo.cao)}px`,
   );
 
   check(
-    '360 · thanh tab Mã · Công thức nằm trọn trong màn, không làm trang tràn ngang',
+    '360 · cụm tab nằm trọn trong màn, không làm trang tràn ngang',
     neo.tran === false && neo.thanhPhai > 0 && neo.thanhPhai <= neo.rong,
     `mép phải thanh tab ${String(neo.thanhPhai)}/${String(neo.rong)}px`,
   );
 
   const veMa = await evaluate(`(async () => {
     const nut = [...document.querySelectorAll('[role="tab"]')].find((b) =>
-      (b.textContent ?? '').startsWith('Tickers'),
+      (b.textContent ?? '').startsWith('Holdings'),
     );
     if (nut !== undefined) nut.click();
     await new Promise((d) => setTimeout(d, 300));
@@ -1966,7 +1972,7 @@ window.__themeLog = [];
   })()`);
 
   check(
-    'bấm tab Mã thì khối phép tính đã lưu biến đi và neo bị bỏ khỏi URL',
+    'bấm tab Mã nắm giữ thì khối phép tính đã lưu biến đi và neo bị bỏ khỏi URL',
     veMa.conKhoi === false && veMa.hash === '',
     `hash "${String(veMa.hash)}" · khối ${veMa.conKhoi === true ? 'còn' : 'đã gỡ'}`,
   );
@@ -1975,19 +1981,19 @@ window.__themeLog = [];
   await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
 
   /*
-   * ── Danh sách Nắm giữ ở khổ ĐIỆN THOẠI (22/09/2026) ──────────────────────
+   * ── Màn Danh mục ở khổ NHỎ: chỉ còn hai điều kiện (12/10/2026) ───────────────────────────────
    *
-   * Từ đợt này danh sách là một `<table>` tám cột, và dưới 1024px nó phải trở lại dòng gọn ba cột
-   * của bản vẽ WF-06 bằng `display: block` + lưới. Đây đúng là loại luật chỉ trình duyệt mới trả
-   * lời được: jsdom không áp `@media` của CSS Module, nên một ca vitest xanh bất kể file CSS viết
-   * gì — và nếu luật ấy sai thì tám cột trải ngang một màn 360px.
+   * Từ 22/09 đến 12/10 chỗ này đo ba hình dạng của bảng Nắm giữ: dòng gọn ba cột dưới 560px, bảng bảy
+   * cột từ 560px, bảng tám cột từ 1024px — và bốn lỗi hình học chủ dự án đã chụp ở khổ điện thoại
+   * (lãi/lỗ rơi hàng ba, "tỷ trọng" dính con số, khối chi tiết co lại bằng cụm nút, `<dl>` rỗng). Bản
+   * thiết kế hai cột bỏ cả hàng mở rộng lẫn dòng gọn, và CHỦ DỰ ÁN GIAO KHỔ NHỎ "tính sau": dưới 1024px
+   * bảng chỉ là phương án tạm — hai cột xếp chồng, bảng cuộn ngang TRONG khung của nó.
    *
-   * Trước mục này, `/danh-muc/` KHÔNG có một khẳng định tràn ngang nào ở khổ 360: khẳng định duy
-   * nhất của màn nằm ở khổ 1440, chỗ form thêm mã.
-   */
-  /*
-   * HPG cố ý KHÔNG có ngày mua. Ngày mua và beta đều tuỳ chọn, nên "mã không có ô số liệu nào"
-   * là ca THƯỜNG của khối chi tiết, và nó có lỗi riêng (xem phép kiểm về vạch ngăn bên dưới).
+   * Nên các phép đo kia đi cùng cái chúng đo. Giữ lại hai điều kiện KHÔNG phụ thuộc thiết kế khổ nhỏ,
+   * vì chúng là điều trang phải đúng ở mọi khổ: không tràn ngang cả trang, và nút "Thêm mã" — hành
+   * động chính của màn — vẫn bấm được. Khi có bản vẽ khổ nhỏ, viết lại bộ đo cho đúng bản vẽ ấy.
+   *
+   * HPG cố ý KHÔNG có ngày mua: hai mã giữ cho các phép đo ở khổ PC bên dưới có hai hàng để so.
    */
   await evaluate(`(() => {
     localStorage.setItem('ffb.portfolio.v1', JSON.stringify([
@@ -1998,120 +2004,37 @@ window.__themeLog = [];
   })()`);
   await open('/danh-muc/');
   await waitFor(
-    `[...document.querySelectorAll('button')].some((b) => /^Chi tiết FPT/.test(b.getAttribute('aria-label') ?? ''))`,
+    `[...document.querySelectorAll('button')].some((b) => /^Sửa FPT/.test(b.getAttribute('aria-label') ?? ''))`,
   );
 
-  const dmHep = await evaluate(`(() => {
+  const doKhoNho = () =>
+    evaluate(`(() => {
     const bang = document.querySelector('main table');
-    const dau = bang === null ? null : bang.querySelector('thead');
-    const hang = bang === null ? null : bang.querySelector('tbody tr');
-    const o = hang === null ? [] : [...hang.children];
-    const khung = (el) => {
-      const b = el.getBoundingClientRect();
-      return { top: Math.round(b.top), left: Math.round(b.left), w: Math.round(b.width) };
-    };
+    const khung = bang === null ? null : bang.closest('[class*="tableWrap"]');
+    const nut = [...document.querySelectorAll('button')].find((b) => /Thêm mã/.test(b.textContent ?? ''));
+    const hop = nut === undefined ? null : nut.getBoundingClientRect();
     return {
-      thay: bang !== null && hang !== null,
-      dauHien: dau === null ? null : getComputedStyle(dau).display,
-      soO: o.length,
-      // Ở khổ dòng gọn các ô xếp CHỒNG, nên số mép trên khác nhau phải > 1.
-      soMepTren: new Set(o.map((el) => khung(el).top)).size,
+      thay: bang !== null,
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-      rongBang: bang === null ? 0 : Math.round(bang.getBoundingClientRect().width),
+      // Bảng rộng hơn khung thì cuộn TRONG khung — đúng phương án tạm, không phải lỗi.
+      cuonTrongKhung: khung !== null && khung.scrollWidth > khung.clientWidth + 1,
+      nutTrongMan: hop !== null && hop.left >= 0 && hop.right <= window.innerWidth,
+      rongNut: hop === null ? 0 : Math.round(hop.width),
     };
   })()`);
 
+  const dmHep = await doKhoNho();
   check(
-    '360 · danh sách Nắm giữ trở lại dòng gọn — hàng tiêu đề cột tắt hẳn',
-    dmHep.thay === true && dmHep.dauHien === 'none',
-    dmHep.thay !== true ? 'không thấy bảng' : `thead display: ${String(dmHep.dauHien)}`,
+    '360 · màn Danh mục có mã không tràn ngang — bảng cuộn trong khung của nó',
+    dmHep.thay === true && dmHep.tran === false,
+    `bảng ${dmHep.cuonTrongKhung === true ? 'cuộn ngang trong khung' : 'vừa khung'}`,
+  );
+  check(
+    '360 · nút "Thêm mã" nằm trọn trong màn',
+    dmHep.nutTrongMan === true,
+    `nút rộng ${String(dmHep.rongNut)}px`,
   );
 
-  check(
-    '360 · các ô của một mã xếp chồng chứ không trải thành tám cột',
-    dmHep.soMepTren > 1,
-    `${String(dmHep.soO)} ô · ${String(dmHep.soMepTren)} mức mép trên`,
-  );
-
-  check(
-    '360 · màn Danh mục có mã không tràn ngang',
-    dmHep.tran === false,
-    `bảng rộng ${String(dmHep.rongBang)}px`,
-  );
-
-  /*
-   * ── Bốn chỗ chủ dự án chụp ở khổ điện thoại (22/09/2026) ─────────────────
-   *
-   * _"ở giữa đang thừa quá nhiều không gian… màn mobile sai tùm lum"_. Cả bốn đều là lỗi hình
-   * học chỉ trình duyệt mới thấy: jsdom không áp `@media` của CSS Module và trả 0 cho mọi phép
-   * đo, nên 84 ca vitest của màn này xanh suốt trong lúc màn hỏng.
-   */
-  const dmMo = await evaluate(`(async () => {
-    const nut = (ma) =>
-      [...document.querySelectorAll('button')].find((b) =>
-        new RegExp('^Chi tiết ' + ma).test(b.getAttribute('aria-label') ?? ''),
-      );
-    const rong = (el) => (el === null ? 0 : Math.round(el.getBoundingClientRect().width));
-    const mepTren = (el) => (el === null ? 0 : Math.round(el.getBoundingClientRect().top));
-    const doi = () => new Promise((r) => setTimeout(r, 150));
-
-    const hang = nut('FPT').closest('tr');
-    const lai = hang.querySelector('[class*="holdGainCell"]');
-    const gia = hang.querySelector('[class*="holdPrice"]');
-    const trong = hang.querySelector('[class*="holdWeightCell"]');
-    const laiTren = mepTren(lai);
-    const giaTren = mepTren(gia);
-
-    nut('FPT').click();
-    await doi();
-    const rongChiTiet = rong(document.querySelector('[class*="holdDetailInner"]'));
-    const rongBang = rong(document.querySelector('main table'));
-    nut('FPT').click();
-    await doi();
-
-    nut('HPG').click();
-    await doi();
-    const khoiHpg = document.querySelector('[class*="holdDetailInner"]');
-    const cumNut = khoiHpg === null ? null : khoiHpg.querySelector('[class*="actions"]');
-    const soDl = khoiHpg === null ? -1 : khoiHpg.querySelectorAll('dl').length;
-    const vienTren = cumNut === null ? '' : getComputedStyle(cumNut).borderTopWidth;
-    nut('HPG').click();
-
-    return { laiTren, giaTren, chuTrong: (trong.textContent ?? '').trim(), rongChiTiet, rongBang, soDl, vienTren };
-  })()`);
-
-  check(
-    '360 · lãi/lỗ lên hàng hai, không bỏ trống nửa phải của dòng',
-    dmMo.laiTren < dmMo.giaTren,
-    `lãi/lỗ ở y=${String(dmMo.laiTren)}, thị giá ở y=${String(dmMo.giaTren)}`,
-  );
-
-  check(
-    '360 · "tỷ trọng" tách khỏi con số bằng một dấu cách thật',
-    /\d\s*%\s+\S/.test(dmMo.chuTrong),
-    `ô tỷ trọng đọc ra "${String(dmMo.chuTrong)}"`,
-  );
-
-  check(
-    '360 · khối chi tiết trải hết bề ngang thẻ, không co lại bằng cụm nút',
-    dmMo.rongChiTiet >= dmMo.rongBang * 0.85,
-    `khối rộng ${String(dmMo.rongChiTiet)}px / bảng ${String(dmMo.rongBang)}px`,
-  );
-
-  check(
-    '360 · mã không có ngày mua: không dựng <dl> rỗng, không kẻ vạch ngăn trống',
-    dmMo.soDl === 0 && dmMo.vienTren === '0px',
-    `${String(dmMo.soDl)} <dl> · viền trên cụm nút ${String(dmMo.vienTren)}`,
-  );
-
-  /* ── Khổ BẢNG GỌN 560px — mốc thứ ba, thêm 22/09/2026 ────────────────────
-   *
-   * Giữa dòng gọn và bảng tám cột nay có một khổ nữa: bảng SÁU cột số, bỏ "Doanh nghiệp" và
-   * "Giá trị". Nó ra đời vì dòng gọn là bố cục hai mép — mọi bề ngang thừa chảy hết vào khoảng
-   * giữa, và ở 900px khoảng ấy rộng hơn 400px.
-   *
-   * Đo ở đúng 560 (mép dưới của khổ) chứ không ở giữa dải: chỗ chật nhất mới là chỗ chữ bị cắt.
-   */
   await send('Emulation.setDeviceMetricsOverride', {
     width: 560,
     height: 900,
@@ -2120,46 +2043,14 @@ window.__themeLog = [];
   });
   await open('/danh-muc/');
   await waitFor(
-    `[...document.querySelectorAll('button')].some((b) => /^Chi tiết FPT/.test(b.getAttribute('aria-label') ?? ''))`,
+    `[...document.querySelectorAll('button')].some((b) => /^Sửa FPT/.test(b.getAttribute('aria-label') ?? ''))`,
   );
 
-  const dmVua = await evaluate(`(() => {
-    const bang = document.querySelector('main table');
-    const dau = bang.querySelector('thead');
-    const hang = bang.querySelector('tbody tr');
-    const hien = (el) => getComputedStyle(el).display !== 'none';
-    const oHien = [...hang.children].filter(hien);
-    const tieuDe = [...bang.querySelectorAll('thead th')];
-    return {
-      dauHien: getComputedStyle(dau).display,
-      soOHien: oHien.length,
-      // Bảng thật thì mọi ô của một hàng chung một mép trên.
-      soMepTren: new Set(oHien.map((el) => Math.round(el.getBoundingClientRect().top))).size,
-      tenHien: hien(tieuDe[1]),
-      giaTriHien: hien(tieuDe[5]),
-      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-      // Ô nào có chữ rộng hơn lòng ô là ô đang cắt mất chữ số.
-      cat: [...bang.querySelectorAll('td, th')].filter((el) => el.scrollWidth > el.clientWidth + 1)
-        .length,
-    };
-  })()`);
-
+  const dmVua = await doKhoNho();
   check(
-    '560 · danh sách Nắm giữ thành bảng — mọi ô của một mã về cùng một hàng',
-    dmVua.dauHien === 'table-header-group' && dmVua.soMepTren === 1,
-    `thead ${String(dmVua.dauHien)} · ${String(dmVua.soMepTren)} mức mép trên`,
-  );
-
-  check(
-    '560 · bảng bỏ đúng hai cột rộng nhất, còn bảy cột',
-    dmVua.soOHien === 7 && dmVua.tenHien === false && dmVua.giaTriHien === false,
-    `${String(dmVua.soOHien)} ô hiện · Doanh nghiệp ${String(dmVua.tenHien)} · Giá trị ${String(dmVua.giaTriHien)}`,
-  );
-
-  check(
-    '560 · không tràn ngang và không ô nào cắt mất chữ số',
-    dmVua.tran === false && dmVua.cat === 0,
-    `${String(dmVua.cat)} ô bị cắt`,
+    '560 · màn Danh mục có mã không tràn ngang, nút "Thêm mã" nằm trọn trong màn',
+    dmVua.thay === true && dmVua.tran === false && dmVua.nutTrongMan === true,
+    `bảng ${dmVua.cuonTrongKhung === true ? 'cuộn ngang trong khung' : 'vừa khung'}`,
   );
 
   /* ── 8. Khổ PC lớn: bố cục nhiều cột ─────────────────────────────────────
@@ -3347,15 +3238,10 @@ window.__themeLog = [];
     ].map((v) => Math.round(parseFloat(v)));
 
     const o = [...form.children].filter((el) => !/formError/.test(String(el.className)));
-    /*
-     * Đo đúng cái hộp CÓ VIỀN của mỗi trường, không đo thứ nằm trong nó: ô nhập thật thì viền ở
-     * `.control` còn ` <
-      input >
-      ` bên trong chỉ cao bằng dòng chữ, ô mở sheet thì viền ở chính
-     * ` <
-      button >
-      `. Đo lẫn hai tầng là phép so luôn lệch, kể cả khi màn đúng.
-     */
+    // Đo đúng cái hộp CÓ VIỀN của mỗi trường, không đo thứ nằm trong nó: ô nhập thật thì viền ở
+    // .control còn thẻ input bên trong chỉ cao bằng dòng chữ, ô mở sheet thì viền ở chính thẻ button.
+    // Đo lẫn hai tầng là phép so luôn lệch, kể cả khi màn đúng. (Không dùng dấu backtick trong chú
+    // thích này: nó nằm TRONG một chuỗi template, và một backtick sẽ cắt đứt chuỗi.)
     const cao = o.map((el) => {
       const c = el.querySelector('[class*="control"], button');
       return c === null ? null : Math.round(c.getBoundingClientRect().height);
@@ -3406,9 +3292,7 @@ window.__themeLog = [];
    */
   const pcSheetTren = await evaluate(
     `(async () => {
-    // Ô đầu tiên của form là ô chọn mã, và nút của nó là ` <
-      button >
-      ` đầu tiên trong form.
+    // Ô đầu tiên của form là ô chọn mã, và nút của nó là thẻ button đầu tiên trong form.
     const than = document.querySelector('dialog[open] [class*="body"]');
     const form = than === null ? null : than.firstElementChild;
     const nut = form === null ? null : form.querySelector('button');
@@ -3450,19 +3334,15 @@ window.__themeLog = [];
   );
 
   /*
-   * ── Bảng Nắm giữ ở khổ PC ────────────────────────────────────────────────
+   * ── Bảng Nắm giữ và khung hai cột ở khổ PC (viết lại 12/10/2026) ─────────────────────────────
    *
    * Đóng hộp thoại trước, vì nó đang che chính cái bảng cần đo.
    *
-   * Khẳng định thứ hai là chỗ dễ hỏng âm thầm nhất của cả đợt: nút mở hàng là một `<button>`
-   * `position: absolute; inset: 0` neo vào `<tr>` bằng `position: relative`. Định vị tương đối
-   * trên một hàng bảng ĐƯỢC PHÉP và cả ba engine dựng đúng, nhưng nếu nó hỏng thì nút vẫn tồn
-   * tại, vẫn bấm được bằng bàn phím, chỉ là hộp của nó tụt về đâu đó — không ca vitest nào thấy,
-   * vì jsdom không tính bố cục. Nên đo bằng toạ độ thật.
-   *
-   * Lời giải thay thế (bọc cả hàng vào một nút) thì KHÔNG được: `aria-label` nuốt toàn bộ nội
-   * dung bên trong nút, nên mọi con số biến mất khỏi bản đọc màn hình. Đã hỏng hai lần, ghi ở
-   * `PortfolioScreen.tsx`.
+   * Ba phép đo cũ ở đây đi cùng hàng mở rộng và nút phủ cả hàng nên đã bỏ: "nút mở hàng phủ trùng khít
+   * cả hàng" (không còn nút phủ), "mở một hàng thì chín cột đứng yên" và "hàng mở giữ nguyên colspan"
+   * (không còn hàng mở). Cái bẫy chúng gác — `display` khác `table-cell` trên một `<td>` khiến trình
+   * duyệt bọc nó vào ô ẩn danh `colspan=1` — vẫn có thật, nhưng chỗ duy nhất từng dính nó đã biến mất;
+   * ghi lại để ai dựng lại một hàng chi tiết sẽ đọc được và đo lại.
    */
   await evaluate(
     `(() => { const h = document.querySelector('dialog[open]'); if (h === null) return true; const n = [...h.querySelectorAll('button')].find((b) => /Huỷ/.test(b.textContent ?? '')); if (n) n.click(); return true; })()`,
@@ -3476,9 +3356,9 @@ window.__themeLog = [];
     if (bang === null || dau === null || hang === null) return { thay: false };
 
     const o = [...hang.children];
-    const hangKhung = hang.getBoundingClientRect();
-    const nut = hang.querySelector('button');
-    const nutKhung = nut === null ? null : nut.getBoundingClientRect();
+    const khung = bang.closest('[class*="tableWrap"]');
+    const nut = [...hang.querySelectorAll('button')];
+    const cuoi = nut[nut.length - 1];
 
     return {
       thay: true,
@@ -3487,24 +3367,23 @@ window.__themeLog = [];
       soO: o.length,
       // Xếp thành cột thì mọi ô cùng một mép trên.
       soMepTren: new Set(o.map((el) => Math.round(el.getBoundingClientRect().top))).size,
-      lechNut:
-        nutKhung === null
+      soNut: nut.length,
+      // Hở từ nút cuối tới mép phải bảng — dạt phải thì nhỏ (đệm của ô), dạt trái thì hàng trăm.
+      hoPhai:
+        cuoi === undefined
           ? null
-          : Math.round(
-              Math.abs(nutKhung.top - hangKhung.top) +
-                Math.abs(nutKhung.left - hangKhung.left) +
-                Math.abs(nutKhung.width - hangKhung.width) +
-                Math.abs(nutKhung.height - hangKhung.height),
-            ),
+          : Math.round(bang.getBoundingClientRect().right - cuoi.getBoundingClientRect().right),
+      cuonNgang: khung !== null && khung.scrollWidth > khung.clientWidth + 1,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     };
   })()`);
 
   check(
-    'PC 1440 · bảng Nắm giữ dựng đủ chín cột, mọi ô của một mã trên cùng một hàng',
+    'PC 1440 · bảng Nắm giữ dựng đủ tám cột, mọi ô của một mã trên cùng một hàng',
     pcBang.thay === true &&
       pcBang.dauHien === 'table-header-group' &&
-      pcBang.soCot === 9 &&
-      pcBang.soO === 9 &&
+      pcBang.soCot === 8 &&
+      pcBang.soO === 8 &&
       pcBang.soMepTren === 1,
     pcBang.thay !== true
       ? 'không thấy bảng'
@@ -3512,9 +3391,19 @@ window.__themeLog = [];
   );
 
   check(
-    'PC 1440 · nút mở hàng phủ trùng khít cả hàng, không tụt khỏi nó',
-    pcBang.lechNut !== null && pcBang.lechNut <= 2,
-    `lệch tổng cộng ${String(pcBang.lechNut)}px`,
+    'PC 1440 · bảng vừa khung của nó: không cuộn ngang, không tràn trang',
+    pcBang.cuonNgang === false && pcBang.tran === false,
+    `cuộn trong khung: ${String(pcBang.cuonNgang)} · tràn trang: ${String(pcBang.tran)}`,
+  );
+
+  /*
+   * Hai nút biểu tượng thay cho khối mở ra: đúng hai nút, và dạt về mép phải hàng. Ngưỡng 40px là đệm
+   * của ô cộng nửa khe giữa nút với mép chạm — nếu chúng rơi về giữa ô thì con số này lên hàng chục.
+   */
+  check(
+    'PC 1440 · mỗi hàng đúng hai nút biểu tượng (Sửa, Bỏ mã), dạt về mép phải',
+    pcBang.soNut === 2 && pcBang.hoPhai !== null && pcBang.hoPhai <= 40,
+    `${String(pcBang.soNut)} nút · hở phải ${String(pcBang.hoPhai)}px`,
   );
 
   /*
@@ -3539,7 +3428,7 @@ window.__themeLog = [];
   })()`);
 
   check(
-    'PC 1440 · tiêu đề cột và ô số căn cùng một mép ở cả chín cột',
+    'PC 1440 · tiêu đề cột và ô số căn cùng một mép ở cả tám cột',
     pcCanLe.thay === true && pcCanLe.lech.length === 0,
     pcCanLe.thay !== true
       ? `số ô lệch nhau: ${String(pcCanLe.soTh)} tiêu đề / ${String(pcCanLe.soTd)} ô`
@@ -3547,93 +3436,56 @@ window.__themeLog = [];
   );
 
   /*
-   * ── Mở một hàng thì bảng KHÔNG được nhảy chỗ ─────────────────────────────
+   * ── Khung hai cột: tab dọc và thẻ tóm tắt nằm BÊN TRÁI bảng ────────────────────────────────
    *
-   * Đây là phép kiểm quan trọng nhất của đợt, vì nó gác đúng cái bẫy đã làm hỏng bản đầu: đặt
-   * `display: flex` lên `<td>` của hàng mở ra khiến nó thôi là table-cell, trình duyệt bọc nó
-   * vào một ô ẩn danh `colspan=1`, và ô ấy rơi vào CỘT MỘT — kéo cột "Mã" rộng bằng cả cụm nút,
-   * đẩy bảy cột còn lại sang phải. Triệu chứng chỉ lộ ra ở hàng ĐANG MỞ, nên cả bảng nhảy chỗ
-   * mỗi lần bấm. Không ca vitest nào thấy được: jsdom không tính bố cục.
-   *
-   * Đo ba thứ cùng lúc: mép trái của chín tiêu đề cột trước và sau khi mở, `colspan` còn nguyên
-   * không, và ô ấy có thật sự rộng bằng cả bảng không.
+   * Hai thứ chỉ đo được bằng toạ độ thật, và cả hai đều hỏng lặng: `@media (min-width: 1024px)` của
+   * CSS Module mà jsdom không áp (nên 110 ca vitest xanh dù lưới hai cột chưa bật), và tab dọc —
+   * `flex-direction: column` nằm sau luật gốc của `.tabs`, mà thứ tự file là thứ duy nhất quyết định
+   * ai thắng giữa hai lớp đơn (xem `TabBar.module.css`). Thua thì hai tab xếp ngang trong một khay.
    */
-  const pcMoHang = await evaluate(`(async () => {
-    const mepCot = () =>
-      [...document.querySelectorAll('main table thead th')].map((el) =>
-        Math.round(el.getBoundingClientRect().left),
-      );
-
-    const truoc = mepCot();
-    const nut = [...document.querySelectorAll('main table tbody button')].find((b) =>
-      /^Chi tiết /.test(b.getAttribute('aria-label') ?? ''),
-    );
-    if (nut === undefined) return { thay: false };
-    nut.click();
-    await new Promise((d) => requestAnimationFrame(() => requestAnimationFrame(() => d(null))));
-
-    const sau = mepCot();
+  const pcHaiCot = await evaluate(`(() => {
     const bang = document.querySelector('main table');
-    const hangCT = document.querySelectorAll('main table tbody tr')[1];
-    const oCT = hangCT === undefined ? null : hangCT.querySelector('td');
-    const nutCT = hangCT === undefined ? [] : [...hangCT.querySelectorAll('button')];
-    const cuoi = nutCT[nutCT.length - 1];
-    const bangKhung = bang === null ? null : bang.getBoundingClientRect();
-
+    const tabs = [...document.querySelectorAll('[role="tablist"] [role="tab"]')];
+    const the = document.querySelector('[class*="card"]');
+    const r = (el) => el.getBoundingClientRect();
+    if (bang === null || tabs.length !== 2 || the === null) return { thay: false, soTab: tabs.length };
+    const thanh = r(tabs[0].closest('[role="tablist"]'));
     return {
       thay: true,
-      lechCot: Math.max(...truoc.map((x, i) => Math.abs(x - (sau[i] ?? x)))),
-      colspan: oCT === null ? null : oCT.getAttribute('colspan'),
-      // Ô trải hết bảng thì bề ngang của nó gần bằng bề ngang bảng.
-      hutO:
-        oCT === null || bangKhung === null
-          ? null
-          : Math.round(bangKhung.width - oCT.getBoundingClientRect().width),
-      soNut: nutCT.length,
-      hoPhaiNut:
-        cuoi === undefined || bangKhung === null
-          ? null
-          : Math.round(bangKhung.right - cuoi.getBoundingClientRect().right),
+      tabXepDoc: r(tabs[1]).top >= r(tabs[0]).bottom - 1 && Math.abs(r(tabs[1]).left - r(tabs[0]).left) <= 1,
+      thanhTraiBang: Math.round(thanh.right) <= Math.round(r(bang).left),
+      theTraiBang: Math.round(r(the).right) <= Math.round(r(bang).left),
+      theDuoiTab: Math.round(r(the).top) >= Math.round(thanh.bottom),
+      rongCotTrai: Math.round(thanh.width),
     };
   })()`);
 
   check(
-    'PC 1440 · mở một hàng thì chín cột đứng yên, không bị đẩy sang phải',
-    pcMoHang.thay === true && pcMoHang.lechCot <= 1,
-    pcMoHang.thay !== true
-      ? 'không mở được hàng nào'
-      : `cột lệch tối đa ${String(pcMoHang.lechCot)}px`,
-  );
-
-  check(
-    'PC 1440 · ô của hàng mở ra giữ nguyên colspan và trải hết bề ngang bảng',
-    pcMoHang.colspan === '9' && pcMoHang.hutO !== null && pcMoHang.hutO <= 2,
-    `colspan ${String(pcMoHang.colspan)} · hụt ${String(pcMoHang.hutO)}px so với bảng`,
-  );
-
-  /*
-   * Hai nút Sửa · Bỏ mã dạt hẳn phải, theo yêu cầu chủ dự án. Ngưỡng 48px là khoảng đệm của ô
-   * cộng khoảng đệm của khối bên trong — nếu nút nằm bên trái thì con số này lên tới hàng trăm.
-   */
-  check(
-    'PC 1440 · nút Sửa và Bỏ mã của hàng mở ra dạt về mép phải',
-    pcMoHang.soNut === 2 && pcMoHang.hoPhaiNut !== null && pcMoHang.hoPhaiNut <= 48,
-    `${String(pcMoHang.soNut)} nút · hở phải ${String(pcMoHang.hoPhaiNut)}px`,
+    'PC 1440 · hai cột: tab xếp dọc, thẻ tóm tắt ngay dưới tab, cả hai nằm bên trái bảng',
+    pcHaiCot.thay === true &&
+      pcHaiCot.tabXepDoc === true &&
+      pcHaiCot.thanhTraiBang === true &&
+      pcHaiCot.theTraiBang === true &&
+      pcHaiCot.theDuoiTab === true,
+    pcHaiCot.thay !== true
+      ? `không dựng được: ${String(pcHaiCot.soTab)} tab`
+      : `cột trái rộng ${String(pcHaiCot.rongCotTrai)}px · tab dọc ${String(pcHaiCot.tabXepDoc)} · thẻ dưới tab ${String(pcHaiCot.theDuoiTab)}`,
   );
 
   /*
-   * ── Ô số đầu màn Danh mục: số dài không được đâm thủng thẻ (29/09/2026) ────────────────────
+   * ── Thẻ tóm tắt: số dài không được đâm thủng thẻ (29/09/2026, chuyển sang thẻ mới 12/10/2026) ─
    *
-   * Chủ dự án chụp ô "Vốn đã bỏ ra" hiện "866.777.778.513.713.70…" tràn sang ô Lãi/lỗ: một con số
-   * là một "từ" không có chỗ ngắt. `StatTile` nay co chữ theo bề ngang thẻ (`cqi`) và ngắt sau dấu
-   * chấm phân nhóm — luật CSS mà jsdom không dựng, nên chỉ ở đây đo được.
+   * Chủ dự án chụp ô "Vốn đã bỏ ra" hiện "866.777.778.513.713.70…" tràn sang ô bên cạnh: một con số
+   * là một "từ" không có chỗ ngắt. Số trong các dòng của thẻ nay xuống dòng sau dấu chấm phân nhóm
+   * (`coChoNgat`) — luật CSS mà jsdom không dựng, nên chỉ ở đây đo được.
    *
-   * Giá vốn khổng lồ cho ô "Vốn đã bỏ ra" 25 ký tự mà KHÔNG cần mạng: ô ấy không đọc thị giá. Đo
-   * CHỮ bằng Range chứ không đo hộp `<span>`: hộp giãn theo cột flex nên luôn vừa thẻ, chữ thì không.
-   * Đo ở 1440 (khổ đang đặt) và 360 (thẻ hẹp nhất, ~136px lòng), rồi trả khổ về như cũ.
+   * Dòng "Vốn đã bỏ ra" vì nó là con số duy nhất KHÔNG đọc thị giá: giá vốn khổng lồ cho 23 ký tự mà
+   * không cần mạng. Số LỚN "Tổng giá trị" (co chữ bằng `cqi`) thì KHÔNG đo được ở đây — nó cần thị giá,
+   * mà script này không có Finbox; ca vitest "số dài" giữ phần `--ky-tu` và `<wbr>` của nó.
    *
-   * Chế độ Nâng cao là BẮT BUỘC: ở Cơ bản chỉ có bốn ô, mỗi ô ~340px ở khổ 1440, và 25 ký tự vừa
-   * khít ở 20px — phép kiểm sẽ xanh cả khi bỏ hẳn luật co chữ (đã thử). Sáu ô thì mỗi ô ~212px.
+   * Đo CHỮ bằng Range chứ không đo hộp `<span>`: hộp giãn theo lưới nên luôn vừa thẻ, chữ thì không.
+   * Đo ở 1440 (khổ đang đặt) và 360 (thẻ hẹp nhất), rồi trả khổ về như cũ. Chế độ Nâng cao để cả ba
+   * dòng (vốn, beta, XIRR) cùng có mặt.
    */
   await evaluate(`(() => {
     localStorage.setItem('ffb.prefs.v1', JSON.stringify({ mode: 'advanced' }));
@@ -3653,17 +3505,15 @@ window.__themeLog = [];
       mobile,
     });
     await open('/danh-muc/');
-    await waitFor(`/866/.test(document.querySelector('main [class*="stats"]')?.textContent ?? '')`);
+    await waitFor(`/866/.test(document.querySelector('[class*="card"]')?.textContent ?? '')`);
     const oSo = await evaluate(`(() => {
-      const luoi = document.querySelector('main [class*="stats"]');
-      const so = [...luoi.querySelectorAll('[class*="value"]')];
-      const tran = [...luoi.children].flatMap((the) => {
-        const chu = the.querySelector('[class*="value"]');
-        if (chu === null) return [];
-        const cs = getComputedStyle(the);
-        const khung = the.getBoundingClientRect();
-        const trai = khung.left + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
-        const phai = khung.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth);
+      const the = document.querySelector('[class*="card"]');
+      const so = [...the.querySelectorAll('[class*="rowValue"]')];
+      const cs = getComputedStyle(the);
+      const khung = the.getBoundingClientRect();
+      const trai = khung.left + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+      const phai = khung.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth);
+      const tran = so.flatMap((chu) => {
         const range = document.createRange();
         range.selectNodeContents(chu);
         const lo = Math.max(0, ...[...range.getClientRects()].flatMap((r) => [r.right - phai, trai - r.left]));
@@ -3677,8 +3527,8 @@ window.__themeLog = [];
     })()`);
 
     check(
-      `${String(rong)} · ô số đầu màn Danh mục: số dài ${String(oSo.daiNhat)} ký tự vẫn nằm trong thẻ`,
-      oSo.daiNhat >= 25 && oSo.tran.length === 0 && oSo.trangTran === false,
+      `${String(rong)} · thẻ tóm tắt Danh mục: số dài ${String(oSo.daiNhat)} ký tự vẫn nằm trong thẻ`,
+      oSo.daiNhat >= 20 && oSo.tran.length === 0 && oSo.trangTran === false,
       oSo.tran.length === 0 ? `trang tràn ngang: ${String(oSo.trangTran)}` : oSo.tran.join(' · '),
     );
   }

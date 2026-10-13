@@ -14,6 +14,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import { FORMULA_SUMMARIES } from '../formulas/summaries.generated';
 import type { FormulaSpec } from '../registry/types';
 import type { WarningCode } from '../types';
+import { BIEU_DO_RIENG, keHoachBieuDo, mucBieuDo } from './bieu-do';
 import { BAI_RIENG, songNgu } from './noi-dung';
 import type { BaiHuongDan, BaiRiengDaChuan, MucId, ONhapHuongDan } from './types';
 import { THU_TU_MUC } from './types';
@@ -174,17 +175,23 @@ export function baiHuongDan(formula: FormulaModule, ctx: CalcContext): BaiHuongD
   const { spec } = formula;
 
   const ketQuaTrong = caKetQuaTrong(formula, ctx);
-  const coBieuDo = spec.chartType !== 'none';
   const rieng = baiRiengCua(spec);
 
   /*
-   * Mục "Đọc biểu đồ" chỉ có khi màn thật có khối biểu đồ: 9 công thức `chartType: 'none'` không
+   * Mục "Đọc biểu đồ": hỏi chính bộ dựng biểu đồ xem màn tính có những hình nào (`keHoachBieuDo`),
+   * rồi ghép với chữ viết riêng cho từng hình. `ctx` ở đây không mang chuỗi giá — đúng trạng thái
+   * màn mở ra.
+   */
+  const bieuDo = mucBieuDo(keHoachBieuDo(formula, ctx), BIEU_DO_RIENG[spec.id]);
+
+  /*
+   * Mục "Đọc biểu đồ" chỉ có khi màn thật có khối biểu đồ: 8 công thức `chartType: 'none'` không
    * dựng cả `<section>` lẫn `<h2>Biểu đồ</h2>`, nên một mục dạy đọc hình ở đó là dạy đọc một thứ
    * không có trên màn. Mục "Khi kết quả hiện _ _" theo cùng một luật, với 11 công thức không khai
    * ca hỏng nào.
    */
   const mucCo: ReadonlyArray<MucId> = THU_TU_MUC.filter((muc) => {
-    if (muc === 'doc-bieu-do') return coBieuDo;
+    if (muc === 'doc-bieu-do') return bieuDo !== undefined;
     if (muc === 'ket-qua-trong') return ketQuaTrong.length > 0;
     return true;
   });
@@ -196,7 +203,7 @@ export function baiHuongDan(formula: FormulaModule, ctx: CalcContext): BaiHuongD
     nhomId: spec.categoryId,
     muc: spec.level,
 
-    ...(coBieuDo ? { kieuBieuDo: spec.chartType } : {}),
+    ...(bieuDo === undefined ? {} : { bieuDo }),
     ketQuaTrong,
     ...(rieng === undefined ? {} : { rieng }),
     mucCo,

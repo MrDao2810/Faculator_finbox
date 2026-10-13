@@ -63,8 +63,21 @@
  * dòng chữ dưới hình.
  */
 
-import type { ChartType } from '../registry/types';
 import type { Bilingual, Level, WarningCode } from '../types';
+// Chỉ KIỂU, và từ một file chỉ khai kiểu: `./bieu-do/types` không nhập kho chữ nào.
+import type { MucBieuDoBai } from './bieu-do/types';
+
+/*
+ * Xuất lại ba kiểu của mục "Đọc biểu đồ" từ CHÍNH module lá này.
+ *
+ * `build-only-imports.test.ts` chỉ cho barrel `@/application` với tới `src/core/huong-dan` qua đúng
+ * file này. Để barrel nhập thẳng `./bieu-do/types` là mở thêm một lối vào thư mục có kho chữ — đúng
+ * thứ cửa gác ấy sinh ra để chặn — nên kiểu đi vòng qua đây, còn lối vào vẫn là một.
+ *
+ * `HinhDangXem` đi cùng lối này dù nó không phải dữ liệu của bài: nó là thứ khối Biểu đồ của màn
+ * tính báo lên để khung "?" chỉ in đúng hình đang hiện, tức chìa nối hai bên của cùng một mục.
+ */
+export type { HinhDangXem, KhoiBieuDoBai, MucBieuDoBai } from './bieu-do/types';
 
 /**
  * Chữ riêng ĐÃ CHUẨN HOÁ về `Bilingual` — `en` rỗng thì `pick()` tự rơi về tiếng Việt.
@@ -177,16 +190,21 @@ export interface BaiHuongDan {
   /* ── Mục "Đọc biểu đồ" ─────────────────────────────────────────────────────────────────── */
 
   /**
-   * Loại biểu đồ của công thức, hoặc `undefined` với 9 công thức `chartType: 'none'`.
+   * Những hình màn tính của công thức này dựng được, kèm chữ viết riêng cho từng hình — hoặc
+   * `undefined` với 8 công thức `chartType: 'none'`.
    *
    * `undefined` thì mục "Đọc biểu đồ" không có trong bài — màn của chúng cũng không dựng khối biểu
    * đồ, nên một mục dạy đọc hình ở đó là dạy đọc một thứ không có trên màn.
    *
-   * Trước 05/10/2026 đây là cờ `coBieuDo: boolean` và mục in bảy câu dùng chung, bật tắt theo ba
-   * cờ khác. Nay nó mang LOẠI, vì `guide-111.json` viết một đoạn riêng cho mỗi loại biểu đồ: một
-   * đoạn nói đúng thứ hình đang vẽ, thay cho bảy câu nói cho mọi hình.
+   * Trường này đã đổi hình ba lần, và lần nào cũng vì chữ nói chưa đúng hình:
+   *
+   *   · tới 05/10/2026: cờ `coBieuDo: boolean`, mục in bảy câu dùng chung;
+   *   · 05/10 – 12/10/2026: `kieuBieuDo: ChartType`, một đoạn cho mỗi LOẠI khai trong Registry;
+   *   · từ 13/10/2026: từng HÌNH THẬT, hỏi thẳng `buildChartModel()`. `chartType` hoá ra chỉ là
+   *     nhãn — 26 công thức khai nến / phân phối / hồi quy trong khi màn vẽ một đường theo thời
+   *     gian — nên chữ chọn theo nhãn ấy tả những hình không tồn tại. Xem `./bieu-do/types.ts`.
    */
-  kieuBieuDo?: ChartType;
+  bieuDo?: MucBieuDoBai;
 
   /* ── Mục "Khi kết quả hiện _ _" ────────────────────────────────────────────────────────── */
 

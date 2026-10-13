@@ -4,6 +4,7 @@ import {
   checkRow,
   checkSeries,
   closesOf,
+  displaySeriesDate,
   emptyRow,
   keepSeriesDateChars,
   parseSeriesDate,
@@ -125,6 +126,29 @@ describe('checkSeries — cả bảng', () => {
     expect(check.rows[0]?.issues[0]?.message).not.toMatch(/dòng \d/);
   });
 
+  /*
+   * So theo NGÀY, không theo chữ (13/10/2026). Bộ mẫu ghi ISO còn người dùng gõ kiểu Việt, nên phép
+   * so theo chữ để lọt một phiên nằm hai dòng — và chuỗi có phiên lặp làm độ biến động tụt xuống mà
+   * không có gì trên màn nói ra.
+   */
+  it('cùng một ngày viết hai lối vẫn là ngày trùng, và câu báo in ngày/tháng/năm', () => {
+    const check = checkSeries([
+      row({ date: '2026-10-03' }),
+      row({ date: '02/10/2026' }),
+      row({ date: '3/10/2026' }),
+    ]);
+
+    expect(check.rows).toHaveLength(1);
+    expect(check.rows[0]?.index).toBe(2);
+    expect(check.rows[0]?.issues[0]?.code).toBe('DUPLICATE_DATE');
+    expect(check.rows[0]?.issues[0]?.message).toContain('03/10/2026');
+  });
+
+  it('ngày thiếu năm và ngày đủ năm không bị coi là trùng nhau', () => {
+    const check = checkSeries([row({ date: '03/10' }), row({ date: '03/10/2026' })]);
+    expect(check.rows).toEqual([]);
+  });
+
   it('một dòng hỏng không làm hỏng cả bảng', () => {
     const check = checkSeries([row({ date: '15/07' }), row({ date: '16/07', high: 1, low: 9 })]);
     expect(check.usableCount).toBe(1);
@@ -212,6 +236,28 @@ describe('parseSeriesDate — đọc ô ngày, không đoán', () => {
     // Tháng 13 và ngày 32 không tồn tại; nhận bừa là xếp chuỗi theo một ngày không có thật.
     expect(parseSeriesDate('2025-13-01')).toBeNull();
     expect(parseSeriesDate('32/01/2025')).toBeNull();
+  });
+});
+
+describe('displaySeriesDate — cột Ngày nói một lối viết', () => {
+  /* Ngày 3 tháng 10: loại ngày mà đảo ngày với tháng vẫn ra một ngày có thật, nên sai là không ai thấy. */
+  it('mọi lối viết đủ năm đều về ngày/tháng/năm', () => {
+    for (const cach of ['2026-10-03', '03/10/2026', '3/10/2026', '03-10-2026', '03.10.2026']) {
+      expect(displaySeriesDate(cach), cach).toBe('03/10/2026');
+    }
+    expect(displaySeriesDate('2026-10-03')).not.toBe('10/03/2026');
+  });
+
+  it('không suy ra năm, và không đụng tới thứ không phải ngày', () => {
+    expect(displaySeriesDate('15/07')).toBe('15/07');
+    for (const stt of ['1', '2', '248', 'hôm qua', '']) {
+      expect(displaySeriesDate(stt), `'${stt}'`).toBe(stt);
+    }
+  });
+
+  it('chạy hai lần cho cùng một kết quả', () => {
+    const mot = displaySeriesDate('2026-10-03');
+    expect(displaySeriesDate(mot)).toBe(mot);
   });
 });
 

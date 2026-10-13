@@ -461,6 +461,12 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
       vi: 'Lãi/lỗ Long = (Điểm đóng vị thế − Điểm mở vị thế) × Hệ số nhân × Số hợp đồng',
       en: 'Long P&L = (Closing points − Opening points) × Multiplier × Number of contracts',
     },
+    /*
+     * `{derivative.vn30f.multiplier}` là KHOÁ hằng số chứ không phải một ô nhập: màn tra hệ số nhân
+     * theo biểu phí đang chọn rồi đặt vào hình. Năm mẫu của file này đều viết theo lối ấy, và không
+     * mẫu nào được chép con số 100.000 vào — lý do ở `FormulaSpec.substitution`.
+     */
+    substitution: '({exitPoints} − {entryPoints}) × {derivative.vn30f.multiplier} × {contracts}',
     symbols: [
       {
         latex: 'PnL_{long}',
@@ -625,6 +631,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       vi: 'Lãi/lỗ Short = (Điểm mở vị thế − Điểm đóng vị thế) × Hệ số nhân × Số hợp đồng',
       en: 'Short P&L = (Opening points − Closing points) × Multiplier × Number of contracts',
     },
+    substitution: '({entryPoints} − {exitPoints}) × {derivative.vn30f.multiplier} × {contracts}',
     symbols: [
       {
         latex: 'PnL_{short}',
@@ -783,6 +790,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       vi: 'Số hợp đồng tối đa = Vốn ký quỹ ÷ (Điểm hợp đồng × Hệ số nhân × Tỷ lệ ký quỹ), làm tròn xuống',
       en: 'Maximum contracts = Margin capital ÷ (Contract points × Multiplier × Margin ratio), rounded down',
     },
+    substitutionDerived: { k: '{marginRatio} ÷ 100' },
+    substitution: '⌊{capital} ÷ ({futuresPoints} × {derivative.vn30f.multiplier} × {k})⌋',
     symbols: [
       {
         latex: 'N_{max}',
@@ -990,6 +999,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       vi: 'Số hợp đồng = Vốn × Rủi ro mỗi lệnh ÷ (Khoảng cách cắt lỗ × Hệ số nhân), làm tròn xuống',
       en: 'Number of contracts = Capital × Risk per trade ÷ (Stop-loss distance × Multiplier), rounded down',
     },
+    substitutionDerived: { r: '{riskPercent} ÷ 100' },
+    substitution: '⌊{capital} × {r} ÷ ({stopPoints} × {derivative.vn30f.multiplier})⌋',
     symbols: [
       {
         latex: 'N',
@@ -1206,6 +1217,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       vi: 'Đòn bẩy hiệu dụng = Điểm hợp đồng × Hệ số nhân × Số hợp đồng ÷ Vốn thực có',
       en: 'Effective leverage = Contract points × Multiplier × Number of contracts ÷ Actual equity',
     },
+    substitution: '{futuresPoints} × {derivative.vn30f.multiplier} × {contracts} ÷ {equity}',
     symbols: [
       {
         latex: 'L',

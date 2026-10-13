@@ -8,6 +8,7 @@ import {
   INPUT_DRAFT_KEY,
   LEGACY_HOME_RECENT_SEARCHES_KEY,
   MARKET_CONFIG,
+  PENDING_KEY,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
   PRICE_CACHE_KEY,
@@ -48,6 +49,7 @@ type StorageLabelKey =
   | 'data.quiz'
   | 'data.series'
   | 'data.portfolio'
+  | 'data.pending'
   | 'data.saved'
   | 'data.drafts'
   | 'data.tickers'
@@ -107,6 +109,11 @@ export const STORAGE_ITEMS: ReadonlyArray<{
   { key: QUIZ_PROGRESS_KEY, labelKey: 'data.quiz', noteKey: 'data.quiz.note' },
   { key: PRICE_SERIES_KEY, labelKey: 'data.series', noteKey: 'data.series.note' },
   { key: PORTFOLIO_KEY, labelKey: 'data.portfolio', noteKey: 'data.portfolio.note' },
+  /*
+   * Mã chờ số liệu đứng NGAY SAU danh mục: trên màn Danh mục hai kho là một bảng, nên người muốn xoá
+   * danh mục gần như chắc chắn muốn xoá luôn các dòng chờ — để xa nhau là để sót.
+   */
+  { key: PENDING_KEY, labelKey: 'data.pending', noteKey: 'data.pending.note' },
   { key: SAVED_CALCS_KEY, labelKey: 'data.saved', noteKey: 'data.saved.note' },
   /*
    * Bản nháp ô nhập đứng NGAY SAU phép tính đã lưu, vì người dùng dễ nhầm hai thứ này với nhau.

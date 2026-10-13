@@ -775,15 +775,22 @@ export const vi = {
    * mười phần trăm bảng. `colPercent` là 'Lãi/lỗ %': cột ngay sau cột Lãi/lỗ (tiền) và đo cùng thứ ấy
    * theo phần trăm. Từ 12/10/2026 chiều chủ dự án đổi nhãn từ một dấu '%' trần sang đủ chữ: một '%'
    * đứng một mình không nói phần trăm của cái gì, còn trình đọc màn hình xướng cột là "phần trăm".
-   * `colActions` KHÔNG hiện ra màn (ẩn bằng `visually-hidden`): cột chỉ chở hai nút biểu tượng,
-   * nhưng một `<th>` rỗng làm trình đọc màn hình xướng "cột 9" mà không nói gì.
+   *
+   * Mộ chí: `portfolio.colActions` ('Thao tác' / 'Actions') — tiêu đề ẨN của cột chở hai nút biểu
+   * tượng cuối dòng. Bỏ ngày 13/10/2026 cùng cột ấy, ở cả hai bảng: chủ dự án đổi bảng Mã sang "bấm
+   * cả dòng, dấu X hiện khi rê chuột" rồi bảo *"đồng bộ cả bên Công thức nữa chứ không phải mỗi bên
+   * mã"*. Bảng Mã giao cột cuối cho ngày mua; bảng Công thức còn bốn cột, kết bằng ngày lưu.
+   *
+   * `colBuyDate` là 'Ngày mua', trùng chữ với nhãn ô `formBuyDate` của form nhưng là khoá RIÊNG: một
+   * bên là tiêu đề cột rộng chừng trăm pixel, một bên là nhãn ô nhập, và bản EN của hai chỗ khác nhau
+   * ('Bought on' so với 'Purchase date' — chữ dài hơn thì tràn cột).
    */
   'portfolio.colCode': 'Mã',
   'portfolio.colShares': 'Số CP',
   'portfolio.colCostPrice': 'Giá vốn',
   'portfolio.colPercent': 'Lãi/lỗ %',
   'portfolio.colWeight': 'Tỷ trọng',
-  'portfolio.colActions': 'Thao tác',
+  'portfolio.colBuyDate': 'Ngày mua',
   /*
    * ── Tỷ trọng: còn ĐÚNG câu cảnh báo, bỏ câu định nghĩa ────────────────────
    *
@@ -973,6 +980,22 @@ export const vi = {
    * trực trên MỌI lượt sửa. Còn việc "mã đang khoá" thì nút mã `disabled` đã nói bằng hình.
    */
   'portfolio.formSave': 'Lưu thay đổi',
+  /*
+   * ── Mã chờ số liệu (13/10/2026) ───────────────────────────────────────────────────────────
+   *
+   * Mã lấy từ watchlist tài khoản Finbox về đứng ngay trong bảng Mã nhưng chưa có số lượng và giá
+   * vốn (một watchlist chỉ chứa mã). Chủ dự án: *"với những mã đó thì sẽ vẫn sẽ được phân loại vào
+   * danh mục nhưng sẽ có màu tượng trưng riêng để khi người dùng bấm vào sẽ hiển thị bảng nhập thêm
+   * thông số đang thiếu"*.
+   *
+   * `portfolio.complete` là TÊN của nút đầu cột thao tác trên dòng ấy ("Nhập số liệu FPT" cho trình
+   * đọc màn hình, "Nhập số liệu" khi rê chuột) và là tiêu đề hộp thoại. Không dùng lại "Sửa": chưa có
+   * con số nào để sửa. `portfolio.formComplete` là nhãn nút lưu của hộp thoại ấy — không dùng lại
+   * "Thêm vào danh mục", vì mã đã nằm trong bảng rồi; bản có mở công thức dùng chung
+   * `portfolio.formSaveOpen`.
+   */
+  'portfolio.complete': 'Nhập số liệu',
+  'portfolio.formComplete': 'Lưu số liệu',
 
   /*
    * ── Cả BA khoá "cộng dồn" đã XOÁ (10/10/2026) ──────────────────────────────────────────────
@@ -1011,8 +1034,20 @@ export const vi = {
   'portfolio.errQuantity': 'Nhập số cổ phiếu nắm giữ, lớn hơn 0.',
   'portfolio.errCostPrice': 'Nhập giá vốn một cổ phiếu, lớn hơn 0.',
   'portfolio.errBuyDate': 'Thời gian mua mã là ngày hiện tại hoặc ngày đã qua.',
+  /*
+   * Ô ngày mua là ô CHỮ từ 13/10/2026 (`DateField`), nên nó có thể mang một chuỗi chưa phải ngày:
+   * gõ dở, hoặc ngày không có trên lịch như 31/02. Ô `type="date"` cũ không cho gõ ra thứ ấy nên
+   * trước đó không cần câu này. Ví dụ trong câu viết đúng dạng ô in ra, ngày trước tháng.
+   */
+  'portfolio.errBuyDateFormat': 'Ngày mua chưa đọc được. Gõ theo ngày/tháng/năm, ví dụ 03/10/2026.',
   'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 — hoặc để trống nếu chưa biết.',
   'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
+  /*
+   * Lượt nhập mã từ ngoài chạm trần của bảng. Chỉ hiện khi CÓ mã bị bỏ lại, và nêu đích danh từng mã:
+   * nhập ba mươi mã mà thấy hai mươi dòng thì người dùng phải biết mười mã kia là mã nào. `{max}` do
+   * màn thay bằng `MAX_HOLDINGS`, nên con số không viết cứng ở đây như `portfolio.errFull`.
+   */
+  'portfolio.importFull': 'Danh mục chỉ chứa {max} mã, nên chưa đưa vào được: {codes}.',
 
   // ── Trạng thái thị giá: luôn hiện, luôn nói rõ giá thuộc phiên nào ─────────
   /*
@@ -1151,6 +1186,11 @@ export const vi = {
    * Từ chiều 12/10/2026 ba chữ này KHÔNG còn in trên màn: cả ba nút là biểu tượng (chủ dự án: "đổi
    * text button Mở thành Icon mở để đồng bộ"), và chúng chỉ còn sống trong `aria-label` — "Mở HPG ·
    * P/E", "Nạp …", "Xoá …". Vì thế chúng là thứ duy nhất nói nút làm gì; đừng coi là khoá mồ côi.
+   *
+   * Từ 13/10/2026 hai nút biểu tượng cuối dòng không còn: bảng được dựng lại theo bảng Mã. "Mở" và
+   * "Nạp" nay là tên của LIÊN KẾT bọc tên phép tính ở ô đầu (cả dòng cũng bấm được, cùng một đích),
+   * "Xoá" là tên của dấu X đỏ hiện sau tên khi rê chuột. Ba chữ vẫn chỉ sống ở `aria-label` và
+   * `title`, và vẫn là thứ duy nhất nói mỗi đích bấm làm gì.
    */
   'portfolio.savedOpen': 'Mở',
   'portfolio.savedReload': 'Nạp',
@@ -1330,6 +1370,13 @@ export const vi = {
   'xirr.usable': 'dòng tiền dùng được',
 
   /*
+   * Nút lịch của ô ngày (`DateField` ở form Danh mục, `DateCell` ở bảng dòng tiền XIRR). Ô ngày là
+   * ô chữ in ngày/tháng/năm từ 13/10/2026; nút này mở bảng lịch của trình duyệt để chọn bằng chuột.
+   * Tên của nút, in ở `title`; `aria-label` ghép thêm tên ô đứng trước.
+   */
+  'date.openCalendar': 'Chọn ngày trên lịch',
+
+  /*
    * Dán dữ liệu — WF-11.
    *
    * Câu chữ viết lại trọn ngày 22/09/2026, rồi cắt bớt ngay trong ngày.
@@ -1432,7 +1479,11 @@ export const vi = {
    * `portfolio.savedTitle` mà quên hai câu này là để lại một lời chỉ đường tới cái tên không còn.
    */
   'save.nameHint': 'Tên hiện ở tab Công thức của màn Danh mục.',
-  'save.suggestions': 'Gợi ý tên',
+  /*
+   * `save.suggestions` ("Gợi ý tên") đã BỎ ngày 13/10/2026, cùng hàng chip mang nó. Chủ dự án: *"bỏ
+   * phần gợi ý tên khi lưu công thức đi, để gọn gàng hơn"*. Ô tên vẫn được điền sẵn gợi ý đầu tiên,
+   * nên không có gì phải nói thêm bằng lời — lý do giữ việc điền sẵn ở docblock `SaveCalcSheet`.
+   */
   'save.submit': 'Lưu vào danh mục',
   'save.done': 'Đã lưu vào Danh mục › Công thức.',
   'save.goToPortfolio': 'Xem trong danh mục',
@@ -1529,11 +1580,15 @@ export const vi = {
   'data.series.note': 'Bảng giá theo từng phiên bạn nhập, dán hoặc nạp ở màn Bảng dữ liệu.',
   'data.portfolio': 'Danh mục cá nhân',
   'data.portfolio.note': 'Các mã bạn đã thêm vào Danh mục, kèm số lượng, giá vốn và ngày mua.',
+  // Kho mã chờ số liệu — đứng ngay sau Danh mục vì trên màn chúng là một bảng.
+  'data.pending': 'Mã chờ nhập số liệu',
+  'data.pending.note':
+    'Các mã đưa vào Danh mục từ danh sách theo dõi, chưa có số lượng và giá vốn.',
   'data.saved': 'Phép tính đã lưu',
   'data.saved.note': 'Những phép tính bạn bấm Lưu ở màn công thức, kèm tên bạn đặt cho chúng.',
   'data.drafts': 'Số đang gõ dở',
   'data.drafts.note':
-    'Số bạn vừa nhập ở màn công thức, giữ tạm để rời màn rồi quay lại không phải gõ lại từ đầu.',
+    'Số bạn vừa nhập ở màn công thức, giữ tạm để mở bảng dữ liệu hay trang hướng dẫn rồi quay lại không phải gõ lại từ đầu.',
   'data.usage': 'Công thức đã mở',
   'data.usage.note':
     'Công thức bạn hay mở, dùng để xếp lại khối Công thức dùng hằng ngày theo thói quen.',
@@ -1957,67 +2012,68 @@ export const vi = {
   'guide.result.pitfall': 'Dễ sai:',
 
   /*
-   * ── Mục "Đọc biểu đồ" — một đoạn cho mỗi LOẠI hình ──────────────────────────────────────
+   * ── Mục "Đọc biểu đồ" — NHÃN dùng chung của mục (13/10/2026) ─────────────────────────────
    *
-   * Chép nguyên văn khối `charts` của `guide-111.json`. Mười loại, dù Registry hiện chỉ dùng tám:
-   * `heatmap` và `tornado` chưa công thức nào vẽ, nhưng `ChartType` khai chúng, nên thiếu khoá là
-   * một lỗ chờ sẵn cho công thức đầu tiên dùng tới.
+   * Chữ riêng của từng công thức KHÔNG nằm ở đây: nó ở `src/core/huong-dan/bieu-do/noi-dung/`, chỉ
+   * đọc lúc build (sáu trăm đoạn × 2 thứ tiếng là thứ mỗi trang chỉ cần phần của chính nó). Ba khoá
+   * dưới là phần đúng cho MỌI công thức: nhãn hai dạng, và một dòng cho hình chỉ vẽ được khi đã nạp
+   * chuỗi giá.
    *
-   * Thay cho bảy bước dùng chung của đợt 5. Bảy bước ấy nói cho MỌI loại hình nên không bước nào
-   * nói đúng hình đang vẽ: một đoạn về biểu đồ quét độ nhạy không có nghĩa gì với người đang nhìn
-   * biểu đồ nến. Khối này gọn hơn mà nói được nhiều hơn, và đó là lý do nó đáng đổi.
+   * ⚠ NĂM khoá của chính mục này đã XOÁ cùng ngày 13/10/2026, vài giờ sau khi thêm — chủ dự án chốt:
    *
-   * `none` KHÔNG có khoá: 9 công thức ấy không dựng khối biểu đồ, nên bài của chúng không có mục
-   * này — `kieuBieuDo` là `undefined`, không bao giờ là `'none'`.
+   *   · `guide.chart.switchAxis` — 'Lựa chọn ở dòng "Xem kết quả đổi theo" ngay trên biểu đồ đổi ô
+   *     nhập nằm ở trục ngang, và tên biểu đồ đổi theo ô nhập ấy.'
+   *   · `guide.chart.switchKind` — 'Hai nút "Đường" và "Cột" ở dòng "Loại biểu đồ" đổi qua lại giữa
+   *     hai dạng.'
+   *   · `guide.chart.when.advanced` — 'Ở chế độ Nâng cao, biểu đồ mở ra là hình này.'
+   *   · `guide.chart.when.series` — 'Thay cho hình trên khi đã nạp mã cổ phiếu hoặc chuỗi giá.'
+   *   · `guide.chart.when.breakdown` — 'Hiện ra khi chọn mục Bóc tách ở dòng "Xem kết quả đổi theo".'
+   *
+   * Hai câu đầu đóng mục và chỉ tới hai dòng điều khiển ngay trên biểu đồ. Chủ dự án: *"không cần
+   * đoạn text sau"*, rồi nêu lỗi thật đứng sau nó: *"ô hướng dẫn sử dụng đang rất dài, sửa logic như
+   * sau: sau khi lựa chọn một select mới từ đường thì mới hiển thị xem biểu đồ dạng đường, tương tự
+   * khi click vào xem biểu đồ dạng cột. hoặc khi đổi dạng Xem theo thời gian, Khối lượng, thời gian
+   * nắm giữ,... với tất cả các loại biểu đồ của tất cả công thức"*. Khung "?" khi ấy in MỌI hình của
+   * công thức, mỗi hình hai dạng, rồi tới hai câu này — nên hai câu phải dạy người đọc tự dò xem
+   * đoạn nào ứng với hình mình đang nhìn. Nay khung chỉ in đúng hình đang hiện ở đúng dạng đang
+   * chọn (`HinhDangXem`), và việc "đổi lựa chọn thì chữ đổi theo" do chính màn làm, không cần câu
+   * nào nói ra.
+   *
+   * Ba dòng `when.*` đi theo cùng lý do: chúng nói "hình này hiện ra lúc nào" cho một danh sách
+   * hình đứng cạnh nhau. Khung giờ chỉ có một hình, và nó đang ở trên màn. Còn lại đúng một dòng,
+   * `when.seriesOnly`, cho ca hình CHƯA vẽ được vì chưa nạp chuỗi giá.
+   *
+   * Đừng dựng lại hai câu chỉ đường: thiếu chữ cho một lựa chọn nào đó của ô chọn thì viết chữ cho
+   * lựa chọn ấy ở kho, đừng thêm một câu bảo người đọc tự tìm.
+   *
+   * ⚠ MƯỜI TÁM khoá `guide.chartKind.<loại>.title` / `.body` đã XOÁ — chủ dự án chốt 13/10/2026.
+   *
+   * Chín loại: sensitivity ('Biểu đồ quét độ nhạy'), waterfall ('Biểu đồ bóc tách'), stackedBar
+   * ('Biểu đồ cột chồng'), candlestick ('Biểu đồ nến'), histogram ('Biểu đồ phân phối'), underwater
+   * ('Biểu đồ sụt giảm'), scatter ('Biểu đồ hồi quy'), heatmap ('Biểu đồ nhiệt'), tornado ('Biểu đồ
+   * xếp hạng ảnh hưởng'). Mỗi loại một tiêu đề và một đoạn, chép từ khối `charts` của
+   * `guide-111.json`; bài chọn đoạn theo `spec.chartType`.
+   *
+   * Chủ dự án đọc tiêu đề đầu tiên trên màn và hỏi: *"Biểu đồ quét độ nhạy nghĩa là sao? đây là biểu
+   * đồ về cái gì? đang hướng dẫn sử dụng biểu đồ gì? biểu đồ đang là dạng gì?"* — rồi: *"biểu đồ tên
+   * là gì thì ghi vào đó chứ không phải là 'Biểu đồ quét độ nhạy' vì nó vô nghĩa … sửa lại ở tất cả
+   * công thức, không được làm đối phó."*
+   *
+   * Cái tên chỉ là chỗ lộ ra. Phép đo trên `buildChartModel()` cho cả 111 công thức: màn tính chỉ
+   * dựng BA hình (đường theo một ô nhập, đường theo thời gian, thanh bóc tách), còn `chartType` là
+   * một nhãn khai trong Registry. Nên chọn chữ theo nhãn ấy là tả hình không có trên màn — 26 bài
+   * nói về nến, cột phân phối, đường sụt giảm, chấm hồi quy trong khi màn vẽ một đường theo thời
+   * gian; 6 bài nói "cột chồng" trong khi màn vẽ đường; 5 bài bóc tách nói "cột cuối vẽ từ 0 lên"
+   * trong khi thanh nằm NGANG. Đoạn `sensitivity.body` còn là đoạn chủ dự án tự viết lại ngày
+   * 06/10/2026 (chữa "ô" bị dùng cho mục chọn trục, nhãn trần không nói nằm đâu, câu sai khiến) —
+   * câu ấy sống thêm vài giờ ở `guide.chart.switchAxis`, rồi đi cùng khoá đó (xem trên).
+   *
+   * Đừng dựng lại một bảng "loại hình → đoạn chữ": muốn biết màn vẽ gì thì hỏi
+   * `keHoachBieuDo()`, đừng hỏi `chartType`.
    */
-  'guide.chartKind.sensitivity.title': 'Biểu đồ quét độ nhạy',
-  /*
-   * VIẾT LẠI LẦN BA, 06/10/2026 — và lần này chính chủ dự án đảo lại câu mình đã viết.
-   *
-   * Bản 05/10/2026 do chủ dự án tự viết nên chỗ này từng ghi "chép đúng, không biên tập lại".
-   * Ngày hôm sau đọc lại nó trên màn, chủ dự án kê ba lỗi: *"«Xem kết quả đổi theo» là phần nào?
-   * rồi «Chọn ô» nghĩa là sao? sai bảo ai chọn ô?"*, và chốt hướng — *"nếu muốn người dùng hiểu
-   * thì phải là «Lựa chọn», hoặc «Biểu đồ sẽ thay đổi khi người dùng thao tác trong biểu đồ»"*.
-   * Ba lỗi ấy là ba thứ khác nhau, và câu mới chữa cả ba:
-   *
-   *   · "ô" ở đây KHÔNG phải ô nhập — nó là một mục trong danh sách chọn trục. Cả sản phẩm dùng
-   *     chữ "ô" cho ô nhập ("Ô thiếu đang được viền đỏ…"), nên mượn nó cho một thứ khác là bắt
-   *     người đọc đi tìm nhầm chỗ. Câu mới chỉ gọi "ô nhập" đúng nghĩa cũ của nó.
-   *   · nhãn trần trong ngoặc kép không nói nó nằm đâu. Nay có danh từ và chỗ đứng: "dòng … ngay
-   *     trên biểu đồ" — đúng chỗ `.controls` của `ChartFrame` dựng nó.
-   *   · câu sai khiến người đọc, trong khi chín đoạn anh em của nó đều TẢ cái hình. Câu mới về
-   *     cùng một giọng với chúng, và nhân tiện hết vòng vo ("biểu đồ thay đổi theo thao tác của
-   *     bạn trên biểu đồ" lấy chính nó làm lời giải thích cho nó).
-   *
-   * Phép quét cả 764 câu riêng của 111 công thức lẫn 36 khoá `guide.*`: đây là đoạn DUY NHẤT trỏ
-   * vào một phần của màn bằng nhãn trần. Nó hiện trên 66 trong 111 bài — nhóm hình đông nhất.
-   */
-  'guide.chartKind.sensitivity.body':
-    'Đường cong cho biết kết quả đổi thế nào khi một ô nhập chạy hết dải giá trị của nó. Lựa chọn ở dòng "Xem kết quả đổi theo" ngay trên biểu đồ quyết định đó là ô nhập nào.',
-  'guide.chartKind.waterfall.title': 'Biểu đồ bóc tách',
-  'guide.chartKind.waterfall.body':
-    'Mỗi cột là một khoản cộng vào hoặc trừ đi. Cột cuối vẽ từ 0 lên và bằng đúng con số ở khối Kết quả.',
-  'guide.chartKind.stackedBar.title': 'Biểu đồ cột chồng',
-  'guide.chartKind.stackedBar.body':
-    'Mỗi cột chia thành các phần hợp thành. Chiều cao cả cột là tổng, từng khúc là từng khoản.',
-  'guide.chartKind.candlestick.title': 'Biểu đồ nến',
-  'guide.chartKind.candlestick.body':
-    'Mỗi nến là một phiên: thân nến là giá mở và đóng, râu là giá cao nhất và thấp nhất. Đường chỉ báo được vẽ đè lên.',
-  'guide.chartKind.histogram.title': 'Biểu đồ phân phối',
-  'guide.chartKind.histogram.body':
-    'Mỗi cột đếm số phiên rơi vào một khoảng lợi suất. Cột càng cao thì khoảng đó càng thường xảy ra.',
-  'guide.chartKind.underwater.title': 'Biểu đồ sụt giảm',
-  'guide.chartKind.underwater.body':
-    'Đường luôn nằm dưới mức 0. Mỗi điểm cho biết giá khi đó thấp hơn đỉnh gần nhất bao nhiêu phần trăm.',
-  'guide.chartKind.scatter.title': 'Biểu đồ hồi quy',
-  'guide.chartKind.scatter.body':
-    'Mỗi chấm là một phiên: trục ngang là thị trường, trục dọc là cổ phiếu. Độ dốc của đường chính là kết quả.',
-  'guide.chartKind.heatmap.title': 'Biểu đồ nhiệt',
-  'guide.chartKind.heatmap.body':
-    'Hai biến chạy trên hai trục, màu ô cho biết kết quả tương ứng. Dùng để thấy vùng nào an toàn, vùng nào không.',
-  'guide.chartKind.tornado.title': 'Biểu đồ xếp hạng ảnh hưởng',
-  'guide.chartKind.tornado.body':
-    'Mỗi thanh là một ô nhập. Thanh càng dài thì ô đó đẩy kết quả càng mạnh.',
+  'guide.chart.line': 'Dạng Đường',
+  'guide.chart.bar': 'Dạng Cột',
+  'guide.chart.when.seriesOnly': 'Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.',
 
   /*
    * ── Mục "Khi kết quả hiện _ _" — một câu cho mỗi mã WF-15 ───────────────────────────────

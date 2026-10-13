@@ -2461,3 +2461,106 @@ function nhanTrucY(): string[] {
     .filter((el) => el.getAttribute('text-anchor') === 'end')
     .map((el) => el.textContent ?? '');
 }
+
+/*
+ * Khối Biểu đồ báo lên hình ĐANG HIỆN — `ChartBodyProps.onViewChange` (13/10/2026).
+ *
+ * Khung hướng dẫn ở nút "?" cạnh tiêu đề khối chỉ in chữ của đúng hình đang hiện, ở đúng dạng đang
+ * chọn — chủ dự án: *"sau khi lựa chọn một select mới từ đường thì mới hiển thị xem biểu đồ dạng
+ * đường, tương tự khi click vào xem biểu đồ dạng cột"*. Trạng thái "đang chọn gì" sống trong
+ * `ChartBody`, sau ranh giới nạp trễ, nên nó phải tự báo lên. Lời báo sai một chữ là khung nói về
+ * một hình khác với hình đang vẽ, mà trên màn không có gì cho thấy là đã lệch.
+ */
+describe('báo hình đang hiện lên màn chi tiết', () => {
+  function drawBao(id: string, ctx: CalcContext = CTX) {
+    const formula = moduleOf(id);
+    const inputs = defaultInputs(formula.spec);
+    const bao = vi.fn();
+    const man = render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={ctx}
+        output={runFormula(formula, inputs, ctx)}
+        level="basic"
+        onViewChange={bao}
+      />,
+    );
+    return { bao, man, formula, inputs };
+  }
+
+  const loiBaoCuoi = (bao: ReturnType<typeof vi.fn>): unknown =>
+    bao.mock.calls[bao.mock.calls.length - 1]?.[0];
+
+  it('mở ra: báo ô nhập Domain tự chọn làm trục, dạng Đường, đã vẽ', () => {
+    const { bao } = drawBao('pe');
+
+    expect(bao).toHaveBeenCalledTimes(1);
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true });
+  });
+
+  it('bấm Cột rồi đổi mục ở ô chọn: mỗi lần đổi báo đúng hình mới', async () => {
+    const { bao } = drawBao('pe');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'cot', daVe: true });
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    // Lối vẽ là sở thích đọc của người dùng, không đặt lại khi đổi trục — lời báo cũng phải thế.
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'eps', dang: 'cot', daVe: true });
+    expect(bao).toHaveBeenCalledTimes(3);
+  });
+
+  it('hình bóc tách báo khoá của mục Bóc tách', () => {
+    const { bao } = drawBao('ev');
+
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: '__breakdown', dang: 'duong', daVe: true });
+  });
+
+  /*
+   * Dạng báo lên là dạng THẬT SỰ đang vẽ, không phải ý muốn của nút: hình theo thời gian của SMA vẽ
+   * kèm đường giá đóng cửa nên không có lối cột. Người dùng để nút ở Cột rồi quay về hình ấy thì màn
+   * vẽ đường — khung cũng phải nói về đường.
+   */
+  it('hình có đường vẽ kèm thì dạng báo lên luôn là Đường, kể cả khi nút đang để Cột', async () => {
+    const { bao } = drawBao('sma-n-phien', WITH_BARS);
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: '__time', dang: 'duong', daVe: true });
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+    await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'period', dang: 'cot', daVe: true });
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), '__time');
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: '__time', dang: 'duong', daVe: true });
+  });
+
+  /*
+   * Chưa nạp chuỗi giá thì mô hình là `unavailable` nhưng vẫn mang một `sweepKey` — ô nhập bộ dựng
+   * thử đầu tiên. Báo ô ấy lên là khung nói về "SMA theo Số phiên" trong khi hình sẽ hiện ra khi nạp
+   * xong là hình theo thời gian. Nên báo `null`: khung tự rơi về hình màn sẽ mở ra.
+   */
+  it('chưa vẽ được và chưa ai chọn mục nào thì báo khoá null', () => {
+    const { bao } = drawBao('sma-n-phien');
+
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: null, dang: 'duong', daVe: false });
+  });
+
+  /* Lời báo đi theo HÌNH, không đi theo phím gõ: màn chi tiết dựng lại mỗi lần nhận lời báo. */
+  it('gõ số ở khối Số liệu không làm khối báo lại', () => {
+    const { bao, man, formula, inputs } = drawBao('pe');
+    const moi = { ...inputs, price: 100_000 };
+
+    man.rerender(
+      <ChartBody
+        formula={formula}
+        inputs={moi}
+        ctx={CTX}
+        output={runFormula(formula, moi, CTX)}
+        level="basic"
+        onViewChange={bao}
+      />,
+    );
+
+    expect(bao).toHaveBeenCalledTimes(1);
+  });
+});

@@ -122,6 +122,12 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
       vi: 'Phí mua = Khối lượng × Giá mua × Tỷ lệ phí mua',
       en: 'Buy fee = Quantity × Buy price × Buy fee rate',
     },
+    /*
+     * `{fee.brokerage.buy}` là KHOÁ hằng số chứ không phải một ô nhập: màn tra nó theo biểu phí
+     * đang chọn rồi đặt tỷ số (0,15% → 0,0015) vào hình. Bảy mẫu của nhóm này đều viết theo lối ấy,
+     * và tuyệt đối không mẫu nào được chép con số 0,15 vào — lý do ở `FormulaSpec.substitution`.
+     */
+    substitution: '{quantity} × {buyPrice} × {fee.brokerage.buy}',
     symbols: [
       {
         latex: 'F_{mua}',
@@ -224,6 +230,7 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
       vi: 'Phí bán = Khối lượng × Giá bán × Tỷ lệ phí bán',
       en: 'Sell fee = Quantity × Sell price × Sell fee rate',
     },
+    substitution: '{quantity} × {sellPrice} × {fee.brokerage.sell}',
     symbols: [
       {
         latex: 'F_{ban}',
@@ -318,6 +325,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       vi: 'Thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng',
       en: 'Tax = Quantity × Sell price × Transfer tax rate',
     },
+    substitution: '{quantity} × {sellPrice} × {tax.transfer.sell}',
     symbols: [
       {
         latex: 'T',
@@ -415,6 +423,7 @@ export const THUE_CO_TUC: FormulaModule = {
       vi: 'Thuế cổ tức = Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
       en: 'Dividend tax = Quantity × Dividend per share × Dividend tax rate',
     },
+    substitution: '{quantity} × {dividendPerShare} × {tax.dividend.cash}',
     symbols: [
       { latex: 'T_{ct}', meaning: { vi: 'thuế cổ tức tiền mặt, ₫', en: 'cash dividend tax, ₫' } },
       {
@@ -524,6 +533,8 @@ export const PHI_LUU_KY: FormulaModule = {
       vi: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
       en: 'Custody fee = Quantity × Holding period × Rate per share per month',
     },
+    // Phí lưu ký tính bằng ₫/CP/tháng chứ không phải %, nên vào hình nguyên trị số (0,27).
+    substitution: '{quantity} × {months} × {fee.custody}',
     symbols: [
       {
         latex: 'F_{lk}',
@@ -632,6 +643,17 @@ export const GIA_HOA_VON: FormulaModule = {
       vi: 'Giá hoà vốn = (Khối lượng × Giá mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
       en: 'Break-even price = (Quantity × Buy price + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
     },
+    /*
+     * Hình viết `F_mua` và `F_lk` thành hai KÝ HIỆU, nên dải thay số đặt vào đó hai con số đã tính
+     * (thay số ở mức ký hiệu, không khai triển — luật 05/10/2026), còn `r_ban` và `r_thue` thì hình
+     * vẽ thẳng nên lấy thẳng từ biểu phí.
+     */
+    substitutionDerived: {
+      fMua: '{quantity} × {buyPrice} × {fee.brokerage.buy}',
+      fLk: '{quantity} × {months} × {fee.custody}',
+    },
+    substitution:
+      '({quantity} × {buyPrice} + {fMua} + {fLk}) ÷ ({quantity} × (1 − {fee.brokerage.sell} − {tax.transfer.sell}))',
     symbols: [
       {
         latex: 'P_{hv}',
@@ -947,6 +969,24 @@ export const ROI_RONG: FormulaModule = {
       vi: 'ROI ròng = Lợi nhuận ròng ÷ Vốn thực bỏ ra × 100',
       en: 'Net ROI = Net profit ÷ Actual capital deployed × 100',
     },
+    /*
+     * Chủ dự án mở `roi-rong`, thấy `cagr` có dải thay số còn màn này thì không, và hỏi vì sao
+     * (13/10/2026). Hình có ba ký hiệu phải tính trước — `L_rong`, `F_mua`, `F_lk` — nên chúng là
+     * ba khoá dẫn xuất. `fBan` và `thue` không có trong hình này (chúng nằm trong `L_rong`, là
+     * `F_ban` và `T` của hình `loi-nhuan-rong`), khai ra chỉ để dòng `lRong` đọc được bằng mắt.
+     *
+     * Giới hạn đã biết và đã nói với chủ dự án trước khi làm: trong dải, ba con số dẫn xuất không
+     * mang tên, và hai ô Giá bán, Thời gian nắm giữ không hiện ra vì chúng nằm trong `L_rong` và
+     * `F_lk`. Muốn biết từng con số từ đâu thì rê vào ký hiệu ở hình phía trên.
+     */
+    substitutionDerived: {
+      fMua: '{quantity} × {buyPrice} × {fee.brokerage.buy}',
+      fBan: '{quantity} × {sellPrice} × {fee.brokerage.sell}',
+      thue: '{quantity} × {sellPrice} × {tax.transfer.sell}',
+      fLk: '{quantity} × {months} × {fee.custody}',
+      lRong: '{quantity} × ({sellPrice} − {buyPrice}) − ({fMua} + {fBan} + {thue} + {fLk})',
+    },
+    substitution: '{lRong} ÷ ({quantity} × {buyPrice} + {fMua} + {fLk}) × 100',
     symbols: [
       {
         latex: 'ROI_{rong}',

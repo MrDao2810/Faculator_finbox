@@ -235,6 +235,8 @@ export function ExportSheet({
       open={open}
       onClose={onClose}
       title={t('export.title')}
+      // Hai thẻ định dạng và hai công tắc — ở khổ web tấm 720px là loãng, xem `BottomSheetProps.width`.
+      width="narrow"
       footer={
         <Button
           variant="primary"

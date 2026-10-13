@@ -60,6 +60,10 @@ export interface TickerPickerSheetProps {
    * dán đáy trượt lên đè lên một tấm đang nổi ở giữa thì hai lớp đọc ra như hai thứ không liên
    * quan. Màn chi tiết công thức giữ mặc định — ở đó nó mở thẳng từ trang, và dán đáy là dáng
    * đúng cho một danh sách dài cuộn bằng ngón tay.
+   *
+   * Từ 13/10/2026 "mặc định" chỉ còn dán đáy ở khổ HẸP: từ 1024px primitive tự đưa mọi tấm lên
+   * giữa màn, nên ở khổ web sheet này trông y hệt nhau ở cả hai màn. `'center'` của Danh mục vẫn
+   * cần, vì form ở đó nổi giữa màn cả trên điện thoại.
    */
   placement?: 'bottom' | 'center';
   /**

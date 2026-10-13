@@ -15,11 +15,28 @@
  * số khác hẳn thứ họ để lại — không phải mặc định, cũng không phải thứ họ vừa gõ. Chủ dự án báo
  * đúng hai triệu chứng này thành hai lỗi riêng; chúng là một.
  *
+ * ── Bản nháp chỉ còn sống TRONG một lượt xem (13/10/2026) ───────────────────────────────────
+ *
+ * Chủ dự án báo lỗi nghiêm trọng — vào lại một công thức thì nó vẫn mang mã và số của lần trước —
+ * và chốt: vào lại là về mặc định HẾT, cả số tự gõ. Nên bản nháp nay chỉ phục vụ đúng lỗi nó sinh
+ * ra để sửa: rời sang bảng dữ liệu (hay bài hướng dẫn) rồi quay lại, và F5. Vào lại công thức từ
+ * bất kỳ màn nào khác thì màn chi tiết xoá bản nháp của nó TRƯỚC khi đọc — xem `formula-visit.ts`
+ * và cửa gác lượt xem ở `FormulaDetail`.
+ *
+ * Việc này đảo lời hứa "đóng tab giữa chừng rồi mở lại vẫn còn số" ở mục ngay dưới: tab mới không
+ * mang dấu lượt xem, nên nó là một lượt mới. Mục ấy giữ lại làm lịch sử của quyết định, không còn
+ * là hành vi của sản phẩm.
+ *
  * ── Vì sao `localStorage` chứ không `sessionStorage` ────────────────────────────────────────
  *
  * `sessionStorage` khớp vòng đời của mã đang chọn hơn, và đó là đề xuất ban đầu. Chủ dự án chốt
  * `localStorage`: người dùng thật đóng tab giữa chừng rồi mở lại, và mất số lúc ấy cũng khó chịu
  * y như mất số khi bấm Back.
+ *
+ * Kho KHÔNG được dời sang `sessionStorage` ở đợt 13/10/2026 dù vòng đời nay đã là của một tab: dời
+ * là đổi khoá, đổi dòng "Số đang gõ dở" ở màn Cài đặt và cửa gác LDR-04, trong khi hành vi người
+ * dùng thấy không khác gì. Hạn bảy ngày và trần 40 bên dưới vì thế chỉ còn là lưới dọn cho những
+ * bản nháp không bao giờ được mở lại.
  *
  * Đổi lại phải trả hai thứ, và cả hai đã trả:
  *

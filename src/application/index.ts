@@ -128,6 +128,7 @@ export {
   checkRow,
   checkSeries,
   closesOf,
+  displaySeriesDate,
   emptyRow,
   keepSeriesDateChars,
   parseSeriesDate,
@@ -135,6 +136,15 @@ export {
   toCsv,
   withSeriesDateSlashes,
 } from '@/core/price-series';
+
+// ── Một ngày đơn do người dùng gõ: ngày mua, ngày dòng tiền — xem docblock của file ──
+export {
+  dateTextOf,
+  isIsoDay,
+  parseDateText,
+  settledDateValue,
+  typedDateValue,
+} from '@/core/date-text';
 
 // ── Dòng tiền có ngày sửa tay — thân riêng của XIRR (gói WBS 3.3.1) ─────────
 export type {
@@ -295,6 +305,8 @@ export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';
 
 // Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết
 export { constantsUsedBy } from '@/core/formulas';
+// …và giá trị số học của chính các hằng số ấy, để dải thay số đặt vào hình (13/10/2026)
+export { substitutionConstants } from '@/core/formulas';
 
 // Bóc tách phí & thuế — khối chính của WF-08 (gói 3.2.3)
 export type { FeeBreakdown, FeeBreakdownRow } from '@/core/formulas';
@@ -402,7 +414,16 @@ export { SHARE_INPUTS_PARAM, decodeShareInputs, encodeShareInputs } from './shar
  * phần chạy được nằm sau cửa chỉ-lúc-build `@/application/huong-dan`, vì dựng một bài phải chạy
  * `calc` hàng trăm lượt. Cùng nếp kiểu câu hỏi đi qua `@/core/quiz/types`.
  */
-export type { BaiHuongDan, BaiRiengDaChuan, MucId, ONhapHuongDan } from '@/core/huong-dan/types';
+export type {
+  BaiHuongDan,
+  BaiRiengDaChuan,
+  /* Ba kiểu của mục "Đọc biểu đồ" (13/10/2026) — module lá xuất lại, barrel không với sâu hơn. */
+  HinhDangXem,
+  KhoiBieuDoBai,
+  MucBieuDoBai,
+  MucId,
+  ONhapHuongDan,
+} from '@/core/huong-dan/types';
 
 export type { HeaderBackLink, NavItem, NavKey, RouteKey } from './routes';
 export {
@@ -531,6 +552,18 @@ export {
   updateHolding,
 } from './portfolio-store';
 
+// Kho MÃ CHỜ SỐ LIỆU — mã lấy từ watchlist Finbox về, chưa có số lượng và giá vốn (13/10/2026).
+export type { ImportResult } from './portfolio-pending-store';
+export {
+  PENDING_KEY,
+  importCodes,
+  parsePendingCodes,
+  reconcilePending,
+  removePendingCode,
+  serializePendingCodes,
+  splitCodeList,
+} from './portfolio-pending-store';
+
 export type { SavedCalc } from './saved-calc-store';
 export {
   MAX_SAVED_CALCS,
@@ -558,6 +591,9 @@ export {
 /* Bà con gần với `origin-screen` nhưng KHÔNG cùng vai — xem docblock đầu file ấy. */
 export type { FormulaOrigin } from './formula-origin';
 export { FORMULA_ORIGIN_KEY, formulaOriginToStore, parseFormulaOrigin } from './formula-origin';
+
+/* Ranh giới của một lượt xem công thức — vào lại thì về mặc định, xem docblock đầu file ấy. */
+export { FORMULA_VISIT_KEY, parseFormulaVisit, visitContinuesAt } from './formula-visit';
 
 export type { ActiveTicker } from './active-ticker';
 export {

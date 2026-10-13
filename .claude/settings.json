@@ -1886,7 +1886,8 @@
       "PowerShell(Get-NetTCPConnection -LocalPort 3000,4173 -State Listen -ErrorAction SilentlyContinue)",
       "Bash(grep -n \"^  return \\($\\\\|^  const setField\\\\|^}$\" src/app/danh-muc/PortfolioScreen.tsx)",
       "Bash(grep -n '^  return \\($\\\\|formOpen && \\(\\\\|Form thêm/sửa mã — hộp thoại\\\\|⚠ Dải \"CỤC BỘ' src/app/danh-muc/PortfolioScreen.tsx)",
-      "Bash(grep -n \"^  return \\($\" src/app/danh-muc/PortfolioScreen.tsx)"
+      "Bash(grep -n \"^  return \\($\" src/app/danh-muc/PortfolioScreen.tsx)",
+      "Bash(awk -F' > ' '{print $1}')"
     ],
     "additionalDirectories": [
       "C:\\Faculator_finbox\\src\\app\\cong-thuc\\[id]",

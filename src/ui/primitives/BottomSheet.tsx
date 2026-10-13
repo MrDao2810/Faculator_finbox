@@ -33,16 +33,22 @@ export interface BottomSheetProps {
    */
   size?: 'auto' | 'tall';
   /**
-   * Chỗ tấm đứng trên màn — `'bottom'` (mặc định) dán đáy, `'center'` nổi giữa màn.
+   * Chỗ tấm đứng trên màn.
    *
-   * Thêm 22/09/2026 cho form thêm/sửa mã của Danh mục: chủ dự án yêu cầu form ấy "bật popup mới
+   * - `'bottom'` (mặc định): dán đáy ở khổ hẹp, và **tự nổi giữa màn từ 1024px** (13/10/2026 —
+   *   chủ dự án: _"chuyển đổi toàn bộ dialog bottom ở màn web thành popup ở giữa màn hình … còn ở
+   *   màn mobile thì giữ nguyên dialog bottom"_). Việc đổi dáng nằm trọn trong CSS của primitive,
+   *   nên chỗ gọi không phải làm gì.
+   * - `'center'`: nổi giữa màn ở MỌI khổ, kể cả điện thoại.
+   *
+   * Dạng `'center'` thêm 22/09/2026 cho form thêm/sửa mã của Danh mục: chủ dự án yêu cầu form ấy "bật popup mới
    * lên giữa màn chiếm tầm 50% màn hình". Là một PROP chứ không phải một primitive thứ hai vì
    * phần khó của cái vỏ này không nằm ở chỗ nó đứng đâu — nó nằm ở `<dialog>` gốc: bẫy tiêu
    * điểm, phím Esc, `inert` cho phần trang phía sau, khoá cuộn nền, bấm ra ngoài thì đóng. Dựng
    * lại chừng ấy thứ cho một tấm nổi giữa màn là gần như chắc chắn sót một ca tiếp cận.
    *
    * Dạng `'center'` giấu luôn vạch kéo: vạch ấy hứa "kéo xuống để đóng", một cử chỉ chỉ đúng với
-   * tấm dán đáy.
+   * tấm dán đáy. Dạng mặc định thì vẫn dựng vạch ấy, và CSS ẩn nó từ 1024px.
    */
   /*
    * Mộ chí: dạng 'right' (ngăn kéo dán mép phải, rộng 520px) sống đúng một ngày — thêm 02/10/2026
@@ -52,6 +58,16 @@ export interface BottomSheetProps {
    * nói được nó trả lời cho CHỖ NÀO.
    */
   placement?: 'bottom' | 'center';
+  /**
+   * Bề ngang của tấm KHI NÓ NỔI GIỮA MÀN ở khổ web — `'regular'` (mặc định) là 720px, `'narrow'`
+   * là 560px.
+   *
+   * `'narrow'` dành cho tấm chỉ có vài điều khiển: ở 720px một ô tên hay hai thẻ định dạng trải
+   * thành những dải dài không ai cần. Tấm có DANH SÁCH (chọn mã, nạp mẫu) giữ `'regular'`.
+   *
+   * Dưới 1024px prop này không làm gì: tấm dán đáy thì rộng hết màn.
+   */
+  width?: 'regular' | 'narrow';
 }
 
 /**
@@ -74,6 +90,7 @@ export function BottomSheet({
   dismiss = 'close',
   size = 'auto',
   placement = 'bottom',
+  width = 'regular',
 }: BottomSheetProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -102,7 +119,12 @@ export function BottomSheet({
   return (
     <dialog
       ref={ref}
-      className={[styles.sheet, centered ? styles.sheetCenter : null, className]
+      className={[
+        styles.sheet,
+        centered ? styles.sheetCenter : null,
+        width === 'narrow' ? styles.sheetNarrow : null,
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       aria-labelledby={titleId}

@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   LIVE_PRESET_FORMULAS,
   MAX_HOLDINGS,
+  PENDING_KEY,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
   PRICE_CACHE_KEY,
@@ -163,8 +164,10 @@ async function oThongKe(nhan: string): Promise<HTMLElement> {
  * Hàng bảng của một mã.
  *
  * Neo qua nút Sửa của hàng chứ không qua chữ trong ô: nút là thứ trên hàng mang tên mã một cách chắc
- * chắn (`aria-label` "Sửa FPT"), còn mã trần thì trùng với mọi chỗ khác nhắc tới nó (chip mã, tên
- * hộp thoại). Trước 12/10/2026 neo là nút phủ "Chi tiết FPT"; nút ấy và hàng mở rộng đã bỏ.
+ * chắn (`aria-label` "Sửa FPT"), còn mã trần thì trùng với mọi chỗ khác nhắc tới nó (tên hộp thoại,
+ * bảng Công thức). Trước 12/10/2026 neo là nút phủ "Chi tiết FPT"; nút ấy và hàng mở rộng đã bỏ. Từ
+ * 13/10/2026 nút Sửa không còn là bút chì cuối hàng mà chính là MÃ ở ô đầu — cùng tên, nên neo này
+ * không phải đổi.
  */
 async function dongMa(code = 'FPT'): Promise<HTMLElement> {
   const nut = await screen.findByRole('button', { name: new RegExp(`^Sửa ${code}$`) });
@@ -682,7 +685,140 @@ describe('WF-06 — sửa một mã đã thêm', () => {
     expect((screen.getByLabelText('Giá vốn một cổ phiếu (₫)') as HTMLInputElement).value).toBe(
       '60.000',
     );
-    expect((screen.getByLabelText('Ngày mua') as HTMLInputElement).value).toBe('2026-01-02');
+    // Ngày/tháng/năm như cột của bảng, không phải chuỗi ISO của kho — xem khối ngay dưới.
+    expect((screen.getByLabelText('Ngày mua') as HTMLInputElement).value).toBe('02/01/2026');
+  });
+
+  /*
+   * ── Ô ngày mua nói cùng một lối với cột "Ngày mua" (13/10/2026) ─────────────────────────────
+   *
+   * Chủ dự án chụp màn: cột in `03/10/2026`, bấm vào dòng để sửa thì ô ngày trong hộp thoại in
+   * `10/03/2026`. Ô ấy từng là `<input type="date">`, do trình duyệt vẽ theo ngôn ngữ của trình
+   * duyệt (Chrome tiếng Anh: tháng/ngày/năm). jsdom không vẽ ô ngày nên không tái hiện được hai
+   * thứ tự, nhưng tái hiện được nguyên nhân: ô phải là ô CHỮ và chữ trong ô phải BẰNG chữ của cột.
+   */
+  function gieoMaMuaNgay(buyDate: string): void {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([{ code: 'FPT', quantity: 100, costPrice: 60_000, buyDate, beta: null }]),
+    );
+  }
+
+  function ngayDaLuu(): unknown {
+    const raw = window.localStorage.getItem(PORTFOLIO_KEY) ?? '[]';
+    return (JSON.parse(raw) as ReadonlyArray<{ buyDate?: unknown }>)[0]?.buyDate;
+  }
+
+  it('ô ngày mua trong form in ĐÚNG chữ của cột Ngày mua, và là ô chữ chứ không phải ô ngày của trình duyệt', async () => {
+    // Ngày 3 tháng 10: đúng ca chủ dự án chụp, và là ngày mà hai thứ tự đọc ra hai ngày khác nhau.
+    gieoMaMuaNgay('2026-10-03');
+    render(<PortfolioScreen />);
+
+    const dong = (await screen.findByRole('button', { name: 'Sửa FPT' })).closest('tr');
+    const oCuoi = dong?.querySelector('td:last-child')?.textContent;
+    expect(oCuoi).toBe('03/10/2026');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Sửa FPT' }));
+    const oNgay = screen.getByLabelText('Ngày mua') as HTMLInputElement;
+
+    expect(oNgay.value).toBe(oCuoi);
+    expect(oNgay.type).toBe('text');
+  });
+
+  it('gõ ngày theo ngày/tháng/năm thì kho nhận đúng ngày ấy ở dạng ISO', async () => {
+    gieoMaMuaNgay('');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+    await userEvent.type(screen.getByLabelText('Ngày mua'), '03/10/2026');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
+
+    // Ngày 3 tháng 10. Đọc theo tháng/ngày thì sẽ ra '2026-03-10'.
+    await waitFor(() => {
+      expect(ngayDaLuu()).toBe('2026-10-03');
+    });
+  });
+
+  /*
+   * Bàn phím số của điện thoại không có phím '/', nên tám chữ số liền phải thành một ngày lúc rời
+   * ô — cùng luật với cột Ngày của bảng dữ liệu (`withSeriesDateSlashes`).
+   */
+  it('gõ tám chữ số liền rồi rời ô thì ô tự thành ngày/tháng/năm', async () => {
+    gieoMaMuaNgay('');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+    const oNgay = screen.getByLabelText('Ngày mua') as HTMLInputElement;
+    await userEvent.type(oNgay, '03102026');
+    expect(oNgay.value).toBe('03102026');
+
+    await userEvent.tab();
+    expect(oNgay.value).toBe('03/10/2026');
+  });
+
+  it('chữ cái không vào được ô ngày mua', async () => {
+    gieoMaMuaNgay('');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+    const oNgay = screen.getByLabelText('Ngày mua') as HTMLInputElement;
+    await userEvent.type(oNgay, 'ngày 3');
+
+    expect(oNgay.value).toBe('3');
+  });
+
+  /*
+   * Ô `type="date"` cũ không cho gõ ra một ngày không có trên lịch. Ô chữ thì cho, nên form phải
+   * tự chặn: coi '31/02/2026' là ô trống thì kho mất ngày mua trong khi ô vẫn in một ngày, còn để
+   * nó trôi xuống `Date.parse()` thì V8 đọc thành ngày 3 tháng 3.
+   */
+  it('ngày không có trên lịch thì form báo lỗi và KHÔNG ghi gì xuống kho', async () => {
+    gieoMaMuaNgay('2026-01-02');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+    const oNgay = screen.getByLabelText('Ngày mua');
+    await userEvent.clear(oNgay);
+    await userEvent.type(oNgay, '31/02/2026');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
+
+    expect(await screen.findByText(/Ngày mua chưa đọc được/)).toBeTruthy();
+    expect(ngayDaLuu()).toBe('2026-01-02');
+  });
+
+  it('xoá trắng ô ngày mua rồi lưu thì kho ghi "không có ngày", không báo lỗi', async () => {
+    gieoMaMuaNgay('2026-01-02');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+    await userEvent.clear(screen.getByLabelText('Ngày mua'));
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu thay đổi' }));
+
+    await waitFor(() => {
+      expect(ngayDaLuu()).toBe('');
+    });
+  });
+
+  /*
+   * Nút lịch mở bảng lịch của trình duyệt qua một ô `type="date"` TÀNG HÌNH. jsdom không có
+   * `showPicker()`, nên ca này giả đúng thứ bảng lịch làm khi người dùng bấm một ngày: đặt giá trị
+   * ISO vào ô ấy. Ô chữ phải in lại theo ngày/tháng/năm.
+   */
+  it('chọn ngày trên lịch thì ô chữ in ngày ấy theo ngày/tháng/năm', async () => {
+    gieoMaMuaNgay('');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sửa FPT' }));
+    const nutLich = screen.getByRole('button', { name: 'Ngày mua · Chọn ngày trên lịch' });
+    const oLich = nutLich.parentElement?.querySelector('input[type="date"]');
+    expect(oLich).toBeTruthy();
+    // Ngoài thứ tự Tab và ngoài cây trợ năng: người dùng bàn phím gõ thẳng vào ô chữ.
+    expect(oLich?.getAttribute('tabindex')).toBe('-1');
+    expect(oLich?.getAttribute('aria-hidden')).toBe('true');
+
+    fireEvent.change(oLich as Element, { target: { value: '2026-10-03' } });
+
+    expect((screen.getByLabelText('Ngày mua') as HTMLInputElement).value).toBe('03/10/2026');
   });
 
   /*
@@ -1258,12 +1394,15 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
   });
 
   /*
-   * Ngày mua và beta từng nằm trong khối mở ra khi bấm một dòng (22/09/2026) — nơi DUY NHẤT hiện
-   * chúng. Bản thiết kế 12/10/2026 bỏ khối ấy và không vẽ chỗ nào khác, nên hai số này chỉ còn thấy
-   * trong form Sửa. Ca này ghim điều đó để mất chỗ hiện là một quyết định đã biết, không phải một
-   * lỗ hổng phát hiện sau.
+   * Ngày mua và beta từng nằm trong khối mở ra khi bấm một dòng (22/09/2026). Bản thiết kế 12/10/2026
+   * bỏ khối ấy, và trong một ngày cả hai chỉ còn thấy trong form Sửa — ca này khi đó ghim đúng điều ấy.
+   *
+   * ĐẢO một nửa ngày 13/10/2026: chủ dự án bỏ hai nút biểu tượng cuối dòng và giao chỗ ấy cho ngày —
+   * *"thay thế chỗ trước kia của 2 icon Sửa và Xóa thành hiển thị ngày vì đang chưa có ngày"*. Nên
+   * NGÀY MUA nay nằm ở ô cuối của hàng, dưới tiêu đề cột của chính nó. Beta thì vẫn như cũ: không ai
+   * giao chỗ cho nó, nên nó chỉ thấy khi mở form.
    */
-  it('ngày mua và beta KHÔNG còn ở trên hàng — chỉ thấy khi mở form Sửa', async () => {
+  it('ngày mua hiện ở ô cuối của hàng; beta vẫn chỉ thấy khi mở form Sửa', async () => {
     window.localStorage.setItem(
       PORTFOLIO_KEY,
       JSON.stringify([
@@ -1273,13 +1412,37 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
     await moManNangCao();
 
     const row = await dongMa();
-    expect(row.textContent).not.toContain('02/01/2026');
+    const o = within(row).getAllByRole('cell');
+    // Ngày kiểu Việt Nam, không phải chuỗi ISO đọc thẳng từ kho.
+    expect(o[o.length - 1]?.textContent).toBe('02/01/2026');
+    expect(screen.getByRole('columnheader', { name: 'Ngày mua' })).toBeTruthy();
     expect(row.textContent).not.toContain('1,1');
-    expect(screen.queryByText('Ngày mua')).toBeNull();
 
     await userEvent.click(within(row).getByRole('button', { name: 'Sửa FPT' }));
-    expect((screen.getByLabelText('Ngày mua') as HTMLInputElement).value).toBe('2026-01-02');
+    expect((screen.getByLabelText('Ngày mua') as HTMLInputElement).value).toBe('02/01/2026');
     expect((screen.getByLabelText('Beta') as HTMLInputElement).value).toBe('1,1');
+  });
+
+  /*
+   * Mã không có ngày mua (ô ấy không bắt buộc), hoặc kho bị sửa tay thành một chuỗi không phải ngày:
+   * ô in `_ _` — cùng ký hiệu "chưa có số liệu" của bốn ô thị giá. Không bỏ trống (ô trống trong cột
+   * ngày đọc ra là bảng dựng thiếu), và không in nguyên chuỗi rác như thể nó là một ngày.
+   */
+  it('thiếu ngày mua, hoặc ngày trong kho không phải một ngày: ô in “_ _”', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '', beta: null },
+        { code: 'HPG', quantity: 200, costPrice: 25_000, buyDate: 'hôm qua', beta: null },
+      ]),
+    );
+    render(<PortfolioScreen />);
+
+    for (const code of ['FPT', 'HPG']) {
+      const o = within(await dongMa(code)).getAllByRole('cell');
+      expect(o[o.length - 1]?.textContent, code).toBe('_ _');
+    }
+    expect(screen.queryByText('hôm qua')).toBeNull();
   });
 
   /*
@@ -1305,8 +1468,9 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
   });
 
   /*
-   * Tám cột đều có tiêu đề thật, đúng thứ tự trong bản thiết kế 12/10/2026. Cột cuối chỉ chở hai nút
-   * biểu tượng nên tiêu đề của nó ẩn khỏi mắt (`visually-hidden`) nhưng trình đọc màn hình vẫn nghe.
+   * Tám cột đều có tiêu đề thật, đúng thứ tự trong bản thiết kế 12/10/2026. Cột cuối từng chỉ chở hai
+   * nút biểu tượng với tiêu đề ẩn "Thao tác"; từ 13/10/2026 nó là "Ngày mua", tiêu đề hiện ra như bảy
+   * cột kia.
    *
    * Mỗi hàng phải có đúng bấy nhiêu ô: `<th>` và `<td>` thẳng cột nhờ cùng một quy tắc căn lề theo vị
    * trí (xem `.holdList` trong CSS), và đếm hụt hay dư là cách nó trôi mà không ai thấy.
@@ -1324,7 +1488,7 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
       'Lãi/lỗ',
       'Lãi/lỗ %',
       'Tỷ trọng',
-      'Thao tác',
+      'Ngày mua',
     ]);
 
     const row = await dongMa();
@@ -1332,32 +1496,86 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
   });
 
   /*
-   * Hai nút cuối hàng là nút BIỂU TƯỢNG: không mang chữ nên tên khả truy cập đi qua `aria-label`. Từng
-   * có bài học ngược lại — hai ký tự trần `ƒ` và `×` trên nền trong suốt bị chủ dự án báo "mờ nhạt và
-   * không biết có thể thao tác" — nên phần "nhìn ra là nút" nằm ở CSS (`.rowAction`), còn ca này giữ
-   * phần "đọc ra là nút gì".
+   * ── Ô Mã của hàng: mã là chữ trơn bấm được, thùng rác đứng ngay sau nó (13/10/2026) ──────────
    *
-   * Từng có nút thứ ba, "Tính công thức", đã bỏ ở đợt gộp luồng thêm mã: chọn công thức là một ô TRONG
-   * FORM. Ca này khoá luôn việc nó không quay lại.
+   * Chủ dự án vẽ lại hàng này trên ảnh chụp: *"bỏ bo viền ngoài xanh xanh của tên ticker … chỉ để hiển
+   * thị tên ticker thôi. bỏ 2 icon edit và xóa đi. thay vào đó … khi hover chuột vào một mã bất kỳ thì
+   * icon xóa sẽ hiển thị chỗ đó … nếu người dùng muốn sửa hoặc xem mã đó thì bấm luôn vào mã"*.
+   *
+   * Ca cũ ở đây tên là "hai nút biểu tượng trên hàng không mang chữ nhưng đọc được tên" và ghim bút chì
+   * cùng thùng rác ở CUỐI hàng. Vẫn hai nút, vẫn hai cái tên ấy — `dongMa()` và mọi ca khác neo vào
+   * "Sửa FPT" nên tên phải giữ — nhưng nút Sửa nay chính là MÃ (có chữ), và cả hai dời về ô đầu.
+   *
+   * Vì sao mã phải là một nút chứ không phải chữ trơn: `<tr>` không lấy được tiêu điểm, nên cú bấm cả
+   * dòng không với tới người dùng bàn phím và trình đọc màn hình. Phần "ẩn tới khi rê chuột" là việc
+   * của CSS (`.rowRemove`, có phép đo riêng ở `check:chrome`); ca này giữ phần "đọc ra là nút gì".
    */
-  it('hai nút biểu tượng trên hàng không mang chữ nhưng đọc được tên', async () => {
+  it('ô Mã: mã là chữ trơn mang tên "Sửa FPT", thùng rác không chữ đứng ngay sau, không còn chip', async () => {
     seedHolding();
     render(<PortfolioScreen />);
 
     const row = await dongMa();
     const sua = within(row).getByRole('button', { name: 'Sửa FPT' });
-    const boMa = within(row).getByRole('button', { name: 'Xoá FPT' });
+    const xoa = within(row).getByRole('button', { name: 'Xoá FPT' });
 
-    expect(sua.textContent).toBe('');
-    expect(boMa.textContent).toBe('');
-    // Rê chuột thì hiện tên ngắn của nút (12/10/2026) — không kèm mã, người rê đang nhìn đúng dòng ấy.
+    // Mã hiện bằng chữ, và tên khả truy cập chứa đúng chữ ấy (WCAG 2.5.3).
+    expect(sua.textContent).toBe('FPT');
+    expect(xoa.textContent).toBe('');
+    // Rê chuột thì hiện tên ngắn của việc — không kèm mã, người rê đang nhìn đúng dòng ấy.
     expect(sua.getAttribute('title')).toBe('Sửa');
     // "Xoá", KHÔNG phải "Bỏ mã": chủ dự án sửa tên nút thùng rác cho khớp bảng Công thức (12/10/2026).
-    expect(boMa.getAttribute('title')).toBe('Xoá');
+    expect(xoa.getAttribute('title')).toBe('Xoá');
     expect(screen.queryByRole('button', { name: /Bỏ mã/ })).toBeNull();
-    // Chỉ hai nút — không có nút phủ cả dòng nào ngoài chúng.
+
+    // Cả hai nằm trong Ô ĐẦU, mã trước thùng rác; ô cuối không còn nút nào.
+    const o = within(row).getAllByRole('cell');
+    expect(within(o[0] as HTMLElement).getAllByRole('button')).toEqual([sua, xoa]);
+    expect(within(o[o.length - 1] as HTMLElement).queryAllByRole('button')).toHaveLength(0);
+    // Chỉ hai nút trên cả hàng, và không còn bút chì.
     expect(within(row).getAllByRole('button')).toHaveLength(2);
     expect(screen.queryByRole('button', { name: 'Thêm công thức FPT' })).toBeNull();
+    // Hết chip: mã không còn bọc trong huy hiệu của `Badge`.
+    expect(sua.closest('[class*="badge"]')).toBeNull();
+    expect(row.querySelector('[class*="badge"]')).toBeNull();
+  });
+
+  /*
+   * Cả dòng là đích bấm mở form Sửa — không riêng gì chữ của mã. Bấm vào một ô SỐ là cách chắc nhất
+   * để chứng minh điều ấy: ô đó không có nút nào bên trong.
+   */
+  it('bấm vào bất kỳ chỗ nào trên hàng thì mở form Sửa của đúng mã ấy', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '2026-01-02', beta: null },
+        { code: 'HPG', quantity: 200, costPrice: 25_000, buyDate: '2026-01-03', beta: null },
+      ]),
+    );
+    render(<PortfolioScreen />);
+
+    const row = await dongMa('HPG');
+    await userEvent.click(within(row).getAllByRole('cell')[2] as HTMLElement);
+
+    const hop = await tamTrenCung();
+    expect(within(hop).getByRole('heading', { name: 'Sửa HPG' })).toBeTruthy();
+    expect((within(hop).getByLabelText('Ngày mua') as HTMLInputElement).value).toBe('03/01/2026');
+  });
+
+  /*
+   * Thùng rác nằm TRONG một dòng bấm được, nên cú bấm của nó không được nổi lên dòng: không chặn thì
+   * bấm Xoá vừa xoá mã vừa mở form Sửa cho chính mã vừa biến mất.
+   */
+  it('bấm thùng rác chỉ xoá — KHÔNG mở form Sửa của mã vừa xoá', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+
+    const row = await dongMa();
+    await userEvent.click(within(row).getByRole('button', { name: 'Xoá FPT' }));
+
+    expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
+    expect(screen.queryAllByRole('dialog').filter((tam) => tam.hasAttribute('open'))).toHaveLength(
+      0,
+    );
   });
 
   /*
@@ -2098,13 +2316,18 @@ describe('WF-06 — tab Công thức: bảng', () => {
    * Đây là vế "thấy lại được" của lỗi chủ dự án báo 15/09/2026. Trước bản vá, kho có mục mà màn
    * không có một chữ nào về nó.
    */
-  it('mỗi phép tính một dòng, mới nhất trước, đủ năm cột', async () => {
+  /*
+   * BỐN cột từ 13/10/2026. Cột thứ năm (tiêu đề ẩn "Thao tác", chở hai nút biểu tượng mở/nạp và thùng
+   * rác) bỏ khi bảng được dựng lại theo bảng Mã — chủ dự án: *"đồng bộ cả bên Công thức nữa chứ không
+   * phải mỗi bên mã"*. Ngày lưu nay là cột cuối, như ngày mua ở bảng Mã.
+   */
+  it('mỗi phép tính một dòng, mới nhất trước, đủ bốn cột và kết bằng ngày lưu', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
     await bamTab('Công thức');
 
     const tieuDe = (await screen.findAllByRole('columnheader')).map((th) => th.textContent);
-    expect(tieuDe).toEqual(['Công thức', 'Mã', 'Kết quả', 'Ngày lưu', 'Thao tác']);
+    expect(tieuDe).toEqual(['Công thức', 'Mã', 'Kết quả', 'Ngày lưu']);
 
     const dong = dongDaLuu();
     expect(dong).toHaveLength(3);
@@ -2171,12 +2394,17 @@ describe('WF-06 — tab Công thức: bảng', () => {
   });
 
   /*
-   * "Mở" và "Nạp" là nút BIỂU TƯỢNG từ 12/10/2026 — chủ dự án: "đổi text button Mở thành Icon mở để
-   * đồng bộ" (với bút chì và thùng rác của bảng Mã). Trước đó chúng là chữ gạch chân. Chữ đã rời màn
-   * nên `aria-label` là thứ duy nhất còn nói nút làm gì; ca này giữ cả hai nửa: không chữ, có tên.
-   * Hai biểu tượng phải KHÁC nhau — dòng bị cờ đi cùng đích nhưng việc người dùng sắp làm thì khác.
+   * ── Dòng của bảng Công thức theo đúng khuôn dòng của bảng Mã (13/10/2026) ────────────────────
+   *
+   * Ca ĐẢO của ca "Mở và Nạp là nút biểu tượng" (12/10/2026): hôm ấy cuối dòng có hai nút biểu tượng,
+   * mũi tên mở/nạp và thùng rác. Chủ dự án đổi bảng Mã sang "mã chữ trơn, bấm cả dòng, dấu X hiện khi
+   * rê chuột" rồi bảo: *"đồng bộ cả bên Công thức nữa chứ không phải mỗi bên mã"*. Nên: tên ở ô đầu là
+   * một LIÊN KẾT mang chữ (đường của bàn phím và "mở ở tab mới", vì `<tr>` không lấy được tiêu điểm),
+   * dấu X đứng ngay sau tên, mã hết là chip, và ô cuối chỉ còn ngày.
+   *
+   * Ba cái tên "Mở …", "Nạp …", "Xoá …" giữ nguyên từng chữ: mọi ca khác của khối này neo vào chúng.
    */
-  it('"Mở" và "Nạp" là nút biểu tượng: không mang chữ, tên đi qua aria-label, hai biểu tượng khác nhau', async () => {
+  it('ô đầu: tên là liên kết "Mở …"/"Nạp …", dấu X không chữ đứng ngay sau; ô cuối không còn nút, mã không còn chip', async () => {
     seedSavedMany();
     render(<PortfolioScreen />);
     await bamTab('Công thức');
@@ -2185,23 +2413,94 @@ describe('WF-06 — tab Công thức: bảng', () => {
     const [b, , a] = dongDaLuu() as [HTMLElement, HTMLElement, HTMLElement];
     const nap = within(b).getByRole('link', { name: /^Nạp / });
     const mo = within(a).getByRole('link', { name: 'Mở HPG · P/E' });
+    const xoa = within(a).getByRole('button', { name: 'Xoá HPG · P/E' });
 
-    for (const nut of [nap, mo]) {
-      expect(nut.textContent).toBe('');
-      expect(nut.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
-    }
-    // Cả ô hành động không còn chữ nào: hai nút biểu tượng, như bảng Mã.
-    expect(chuCuaO(a, 4)).toBe('');
-    expect(chuCuaO(b, 4)).toBe('');
-    // Rê chuột thì hiện tên ngắn của từng nút — thứ duy nhất người nhìn màn còn đọc được về chúng.
+    // Liên kết mang chính tên đang hiện (A do người dùng tự đặt, B là tên gợi ý nên chỉ còn tên
+    // công thức); dòng bị cờ đi cùng một đích nhưng tên việc thì khác.
+    expect(mo.textContent).toBe('HPG · P/E');
+    expect(nap.textContent).toBe(TEN_BETA_VI);
     expect(mo.getAttribute('title')).toBe('Mở');
     expect(nap.getAttribute('title')).toBe('Nạp');
-    expect(within(a).getByRole('button', { name: 'Xoá HPG · P/E' }).getAttribute('title')).toBe(
-      'Xoá',
-    );
-    expect(nap.querySelector('path')?.getAttribute('d')).not.toBe(
-      mo.querySelector('path')?.getAttribute('d'),
-    );
+
+    // Dấu X: không chữ, có tên, có `title`, và đứng ngay sau tên trong Ô ĐẦU.
+    expect(xoa.textContent).toBe('');
+    expect(xoa.getAttribute('title')).toBe('Xoá');
+    expect(xoa.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    const oDau = within(a).getAllByRole('cell')[0] as HTMLElement;
+    expect(oDau.contains(mo)).toBe(true);
+    expect(mo.nextElementSibling).toBe(xoa);
+
+    // Mỗi dòng đúng một liên kết và một nút; ô cuối chỉ còn ngày lưu.
+    expect(within(a).getAllByRole('link')).toHaveLength(1);
+    expect(within(a).getAllByRole('button')).toHaveLength(1);
+    const oCuoi = within(a).getAllByRole('cell')[3] as HTMLElement;
+    expect(oCuoi.querySelector('a, button')).toBeNull();
+    expect(oCuoi.textContent).toBe('25/08/2026');
+
+    // Hết chip: mã không còn bọc trong huy hiệu của `Badge`.
+    const oMa = within(a).getAllByRole('cell')[1] as HTMLElement;
+    expect(oMa.textContent).toBe('HPG');
+    expect(oMa.querySelector('[class*="badge"]')).toBeNull();
+  });
+
+  /* Cùng một hình cho cả hai bảng: dấu X của bảng Công thức vẽ đúng nét của dấu X bảng Mã. */
+  it('dấu X của bảng Công thức và của bảng Mã là cùng một biểu tượng', async () => {
+    seedHolding();
+    seedSavedMany();
+    render(<PortfolioScreen />);
+
+    const xMa = await screen.findByRole('button', { name: 'Xoá FPT' });
+    const netMa = xMa.querySelector('path')?.getAttribute('d');
+    expect(netMa).toBeTruthy();
+
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+    const xCongThuc = screen.getByRole('button', { name: 'Xoá HPG · P/E' });
+
+    expect(xCongThuc.querySelector('path')?.getAttribute('d')).toBe(netMa);
+    // Hai nét chéo, không phải thùng rác: nét vẽ không có đoạn nằm ngang hay thẳng đứng nào.
+    expect(netMa).not.toMatch(/[hHvV]/);
+  });
+
+  it('bấm vào bất kỳ chỗ nào trên dòng thì mở đúng bản lưu ấy', async () => {
+    seedSavedMany();
+    seedChuoi(120);
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+
+    const [, , a] = dongDaLuu() as [HTMLElement, HTMLElement, HTMLElement];
+    // Ô Kết quả: không phải liên kết, không phải nút — cú bấm phải do DÒNG nhận.
+    await userEvent.click(within(a).getAllByRole('cell')[2] as HTMLElement);
+
+    expect(router.push).toHaveBeenCalledTimes(1);
+    expect(router.push).toHaveBeenCalledWith('/cong-thuc/pe/?luu=pe-a');
+  });
+
+  /* Không chặn sự kiện nổi lên thì bấm X vừa xoá vừa mở chính phép tính vừa xoá. */
+  it('bấm dấu X chỉ xoá — KHÔNG mở phép tính vừa xoá', async () => {
+    seedSavedMany();
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Xoá HPG · P/E' }));
+
+    expect(router.push).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Xoá HPG · P/E' })).toBeNull();
+  });
+
+  /* Bấm thẳng vào tên: liên kết tự điều hướng, dòng không được gọi `router.push` thêm một lần nữa. */
+  it('bấm vào tên thì chỉ liên kết điều hướng, dòng không điều hướng lần hai', async () => {
+    seedSavedMany();
+    seedChuoi(120);
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+
+    const [, , a] = dongDaLuu() as [HTMLElement, HTMLElement, HTMLElement];
+    await userEvent.click(within(a).getByRole('link', { name: 'Mở HPG · P/E' }));
+
+    expect(router.push).not.toHaveBeenCalled();
   });
 
   it('chuỗi giá đủ đúng số phiên lúc lưu thì hết cờ, hiện lại số đã lưu', async () => {
@@ -2508,5 +2807,396 @@ describe('WF-06 — thanh thị giá luôn nói được điều gì đó', () =
       expect(bar.textContent).toContain('21/08/2026');
     });
     expect(bar.textContent).not.toContain('Chưa có mã nào tra được thị giá.');
+  });
+});
+
+/**
+ * ── Mã chờ số liệu: mã lấy từ watchlist Finbox về (13/10/2026) ────────────────────────────────
+ *
+ * Một watchlist chỉ chứa MÃ, còn một dòng nắm giữ thì bắt buộc có số lượng và giá vốn. Chủ dự án chốt
+ * cách đứng giữa: mã lấy về *"vẫn sẽ được phân loại vào danh mục nhưng sẽ có màu tượng trưng riêng để
+ * khi người dùng bấm vào sẽ hiển thị bảng nhập thêm thông số đang thiếu"*.
+ *
+ * Thứ cụm này gác trước hết là FR-06: một dòng chưa có số lượng KHÔNG được thành 0 CP, không được kéo
+ * "Vốn đã bỏ ra" của cả danh mục về `_ _`, và không được lọt vào mẫu số của tỷ trọng. Nó giữ được vì
+ * mã chờ nằm ở một kho riêng mà `summarisePortfolio()` không bao giờ nhìn thấy — các ca dưới đây ghim
+ * đúng hệ quả ấy trên màn.
+ *
+ * Cửa vào ở đây là `?nhap=`, bộ nối đầu tiên (tên tham số là tạm, chờ Finbox chốt link). Bộ nối API
+ * sau này đổ về đúng cửa `importCodes()` nên các ca này không phải viết lại.
+ */
+describe('WF-06 — mã chờ số liệu: nhập từ ngoài vào bảng Mã', () => {
+  const HPG_SNAPSHOT = {
+    ...FPT_SNAPSHOT,
+    code: 'HPG',
+    name: 'Tập đoàn Hoà Phát',
+    priceVnd: 27_300,
+  };
+
+  /** Mở màn bằng một đường link mang danh sách mã, như Finbox sẽ dựng. */
+  function vaoBangLink(codes: string): void {
+    window.history.replaceState(null, '', `/?nhap=${codes}`);
+  }
+
+  /** Hàng của một mã chờ — neo qua nút "Nhập số liệu <mã>", cùng lối `dongMa()` neo qua nút Sửa. */
+  async function dongCho(code: string): Promise<HTMLElement> {
+    const nut = await screen.findByRole('button', { name: `Nhập số liệu ${code}` });
+    const dong = nut.closest('tr');
+    if (dong === null) throw new Error(`Không tìm thấy hàng chờ của mã ${code}`);
+    return dong;
+  }
+
+  /** Chữ của từng ô trong một hàng, theo thứ tự cột. */
+  function chuCacO(dong: HTMLElement): string[] {
+    return [...dong.querySelectorAll('td')].map((o) => o.textContent ?? '');
+  }
+
+  /** Gieo `n` mã nắm giữ M0, M1, … để đẩy bảng tới sát trần. */
+  function seedNhieuMa(n: number): void {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify(
+        Array.from({ length: n }, (_, i) => ({
+          code: `M${String(i)}`,
+          quantity: 10,
+          costPrice: 1_000,
+          buyDate: '2026-01-02',
+        })),
+      ),
+    );
+  }
+
+  beforeEach(() => {
+    feed.snapshots.mockResolvedValue(
+      new Map([
+        ['FPT', FPT_SNAPSHOT],
+        ['HPG', HPG_SNAPSHOT],
+      ]),
+    );
+  });
+
+  it('mã trong link thành dòng chờ: thị giá thật, sáu ô còn lại “_ _”, KHÔNG ô nào là 0 (FR-06)', async () => {
+    vaoBangLink('hpg');
+    render(<PortfolioScreen />);
+
+    const dong = await dongCho('HPG');
+    await waitFor(() => {
+      expect(chuCacO(dong)[3]).toBe('27.300');
+    });
+
+    // Mã · Số CP · Giá vốn · Thị giá · Lãi/lỗ · Lãi/lỗ % · Tỷ trọng · Ngày mua.
+    // Ô cuối từng là hai nút không chữ; từ 13/10/2026 là ngày mua, mà mã chờ thì chưa có.
+    expect(chuCacO(dong)).toEqual(['HPG', '_ _', '_ _', '27.300', '_ _', '_ _', '_ _', '_ _']);
+    expect(dong.className).toMatch(/holdRowPending/);
+  });
+
+  it('gọi nguồn với cả mã đang giữ lẫn mã chờ, và chỉ MÃ rời máy', async () => {
+    seedHolding();
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    await dongCho('HPG');
+    await waitFor(() => {
+      expect(feed.snapshots.mock.calls.at(-1)?.[0]).toEqual(['FPT', 'HPG']);
+    });
+
+    const daGui = JSON.stringify(feed.snapshots.mock.calls);
+    expect(daGui).not.toContain('60000');
+    expect(daGui).not.toContain('2026-01-02');
+  });
+
+  it('nhập xong thì mã nằm trên đĩa và tham số rời URL; mở lại không sinh dòng đôi', async () => {
+    vaoBangLink('HPG,FPT');
+    const lanDau = render(<PortfolioScreen />);
+
+    await dongCho('HPG');
+    await waitFor(() => {
+      expect(window.location.search).toBe('');
+    });
+    expect(window.localStorage.getItem(PENDING_KEY)).toBe('["HPG","FPT"]');
+
+    // Mở lại bằng CHÍNH đường link ấy: hai mã đã ở trong bảng nên không mã nào vào lần hai.
+    lanDau.unmount();
+    vaoBangLink('HPG,FPT');
+    render(<PortfolioScreen />);
+
+    await dongCho('FPT');
+    expect(screen.getAllByRole('button', { name: /^Nhập số liệu / })).toHaveLength(2);
+    expect(window.localStorage.getItem(PENDING_KEY)).toBe('["HPG","FPT"]');
+  });
+
+  it('mã chờ KHÔNG vào thẻ tóm tắt: tổng giá trị và vốn đã bỏ ra giữ nguyên, tỷ trọng không hụt', async () => {
+    seedHolding();
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    await dongCho('HPG');
+    // 100 CP FPT × 71.400 và 100 × 60.000 — đúng hai con số của một danh mục chỉ có FPT.
+    await waitFor(async () => {
+      expect((await oThongKe('Tổng giá trị')).textContent).toContain('7.140.000');
+    });
+    expect((await oThongKe('Vốn đã bỏ ra')).textContent).toContain('6.000.000');
+
+    // FPT vẫn là 100% của phần có số: mã chờ không nằm trong mẫu số, nên cũng không có câu "mẫu số hụt".
+    expect(chuCacO(await dongMa('FPT'))[6]).toContain('100,0%');
+    expect(screen.queryByText(t('portfolio.weightPartial'))).toBeNull();
+
+    // Số trên tab là số DÒNG của bảng.
+    expect(screen.getByRole('tab', { name: 'Mã 2' })).toBeTruthy();
+  });
+
+  it('bảng chỉ có mã chờ: thẻ tóm tắt “_ _” với đúng lý do, và vẫn nêu ngày phiên của thị giá', async () => {
+    vaoBangLink('FPT');
+    render(<PortfolioScreen />);
+
+    await dongCho('FPT');
+    expect(await screen.findAllByText('Chưa mã nào có số lượng và giá vốn.')).toHaveLength(2);
+    // Bảng đang có một dòng — nói "chưa có mã nào" là nói sai về chính màn hình này.
+    expect(screen.queryByText('Danh mục chưa có mã nào.')).toBeNull();
+    expect(screen.queryByText(t('portfolio.empty'))).toBeNull();
+    expect(screen.queryByText(/^0\s*₫$/)).toBeNull();
+
+    const bar = await screen.findByRole('status');
+    await waitFor(() => {
+      expect(bar.textContent).toContain('21/08/2026');
+    });
+  });
+
+  /*
+   * Giá cũ chỉ được hiện khi màn nêu tên phiên của nó (`price-cache-store.ts`). Luật ấy phải giữ cả
+   * khi con số duy nhất trên màn là thị giá của một dòng chờ.
+   */
+  it('mất mạng, bảng chỉ có mã chờ: thị giá lấy từ kho đã lưu vẫn đi kèm ngày phiên', async () => {
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(['FPT']));
+    window.localStorage.setItem(
+      PRICE_CACHE_KEY,
+      JSON.stringify({
+        fetchedAt: Date.now(),
+        items: [{ code: 'FPT', name: 'FPT Corp', priceVnd: 71_400, asOfDate: '2026-08-21' }],
+      }),
+    );
+    feed.snapshots.mockRejectedValue(new Error('mất mạng'));
+    render(<PortfolioScreen />);
+
+    const dong = await dongCho('FPT');
+    await waitFor(() => {
+      expect(chuCacO(dong)[3]).toBe('71.400');
+    });
+    expect(screen.getByText(/Chưa làm mới được thị giá/)).toBeTruthy();
+    expect(screen.getByText(/21\/08\/2026/)).toBeTruthy();
+  });
+
+  it('bấm vào dòng chờ mở hộp thoại nhập số: đúng mã, ô mã khoá, ô số để trống', async () => {
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    const dong = await dongCho('HPG');
+    // Bấm vào một Ô của dòng chứ không phải nút: cả dòng là đích bấm.
+    await userEvent.click(dong.querySelectorAll('td')[1] as HTMLElement);
+
+    const hop = await tamTrenCung();
+    expect(within(hop).getByRole('heading', { name: 'Nhập số liệu HPG' })).toBeTruthy();
+    const oMa = within(hop).getByRole('button', { name: 'Mã cổ phiếu' }) as HTMLButtonElement;
+    expect(oMa.disabled).toBe(true);
+    expect(oMa.textContent).toContain('HPG');
+    expect((within(hop).getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement).value).toBe('');
+    expect((within(hop).getByLabelText('Giá vốn một cổ phiếu (₫)') as HTMLInputElement).value).toBe(
+      '',
+    );
+    // Nút lưu không hứa "Thêm vào danh mục" (mã đã ở trong bảng) lẫn "Lưu thay đổi" (chưa có gì để đổi).
+    expect(within(hop).getByRole('button', { name: 'Lưu số liệu' })).toBeTruthy();
+  });
+
+  it('để trống mà bấm lưu thì nói lý do, và dòng vẫn là dòng chờ', async () => {
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Nhập số liệu HPG' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu số liệu' }));
+
+    expect(screen.getByText('Nhập số cổ phiếu nắm giữ, lớn hơn 0.')).toBeTruthy();
+    expect(window.localStorage.getItem(PENDING_KEY)).toBe('["HPG"]');
+    expect(window.localStorage.getItem(PORTFOLIO_KEY)).toBe('[]');
+  });
+
+  it('nhập đủ số rồi lưu: dòng thành nắm giữ, rời kho chờ và vào tổng', async () => {
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Nhập số liệu HPG' }));
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '200');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '25000');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu số liệu' }));
+
+    // Hết nút "Nhập số liệu", có nút "Sửa": một dòng, không phải hai.
+    const dong = await dongMa('HPG');
+    expect(screen.queryByRole('button', { name: 'Nhập số liệu HPG' })).toBeNull();
+    expect(dong.className).not.toMatch(/holdRowPending/);
+    expect(chuCacO(dong).slice(0, 4)).toEqual(['HPG', '200', '25.000', '27.300']);
+
+    // 200 × 27.300 = 5.460.000; vốn 200 × 25.000 = 5.000.000.
+    await waitFor(async () => {
+      expect((await oThongKe('Tổng giá trị')).textContent).toContain('5.460.000');
+    });
+    expect((await oThongKe('Vốn đã bỏ ra')).textContent).toContain('5.000.000');
+
+    await waitFor(() => {
+      expect(window.localStorage.getItem(PENDING_KEY)).toBeNull();
+    });
+    const daLuu = JSON.parse(window.localStorage.getItem(PORTFOLIO_KEY) ?? '[]') as Array<{
+      code: string;
+      quantity: number;
+      costPrice: number;
+    }>;
+    expect(daLuu).toHaveLength(1);
+    expect(daLuu[0]).toMatchObject({ code: 'HPG', quantity: 200, costPrice: 25_000 });
+
+    // Số vừa gõ không rời máy.
+    expect(JSON.stringify(feed.snapshots.mock.calls)).not.toContain('25000');
+  });
+
+  it('thùng rác trên dòng chờ gỡ đúng mã ấy, và KHÔNG mở hộp thoại', async () => {
+    vaoBangLink('HPG,FPT');
+    render(<PortfolioScreen />);
+
+    await dongCho('FPT');
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá HPG' }));
+
+    expect(screen.queryByRole('button', { name: 'Nhập số liệu HPG' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Nhập số liệu FPT' })).toBeTruthy();
+    // Bấm nút nằm TRONG dòng không được nổi lên thành bấm dòng.
+    expect(screen.queryAllByRole('dialog').filter((tam) => tam.hasAttribute('open'))).toHaveLength(
+      0,
+    );
+    await waitFor(() => {
+      expect(window.localStorage.getItem(PENDING_KEY)).toBe('["FPT"]');
+    });
+  });
+
+  it('gỡ hết mã chờ thì kho rời máy hẳn, không để lại một khoá rỗng', async () => {
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Xoá HPG' }));
+
+    await waitFor(() => {
+      expect(window.localStorage.getItem(PENDING_KEY)).toBeNull();
+    });
+    expect(await screen.findByText(t('portfolio.empty'))).toBeTruthy();
+  });
+
+  it('sheet chọn mã khoá mã đang chờ như mã đang giữ — đã ở trong bảng thì không thêm lần nữa', async () => {
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    await dongCho('HPG');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm mới' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
+    const sheet = await tamTrenCung();
+
+    const nutCua = (code: string): HTMLButtonElement => {
+      const dong = within(sheet)
+        .getAllByRole('listitem')
+        .find((item) => item.textContent?.startsWith(code) === true);
+      return within(dong as HTMLElement).getByRole('button') as HTMLButtonElement;
+    };
+    expect(nutCua('HPG').disabled).toBe(true);
+    expect(nutCua('FPT').disabled).toBe(false);
+  });
+
+  it('ô tìm lọc cả dòng chờ, theo mã lẫn tên doanh nghiệp gõ không dấu', async () => {
+    seedHolding();
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+
+    const dong = await dongCho('HPG');
+    await waitFor(() => {
+      expect(chuCacO(dong)[3]).toBe('27.300');
+    });
+
+    const o = screen.getByRole('searchbox', { name: 'Tìm kiếm' });
+    await userEvent.type(o, 'hoa phat');
+    expect(screen.getByRole('button', { name: 'Nhập số liệu HPG' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /^Sửa FPT$/ })).toBeNull();
+
+    await userEvent.clear(o);
+    await userEvent.type(o, 'fpt');
+    expect(screen.queryByRole('button', { name: 'Nhập số liệu HPG' })).toBeNull();
+    expect(screen.getByRole('button', { name: /^Sửa FPT$/ })).toBeTruthy();
+  });
+
+  it('link có mã đang giữ, mã lặp và thứ không phải mã: chỉ mã mới vào, không báo gì', async () => {
+    seedHolding();
+    vaoBangLink('FPT,a-b,HPG,hpg,ABCDEFGHIJKLMNOP');
+    render(<PortfolioScreen />);
+
+    await dongCho('HPG');
+    expect(screen.getAllByRole('button', { name: /^Nhập số liệu / })).toHaveLength(1);
+    // FPT vẫn là MỘT dòng nắm giữ với số cũ — không cộng dồn, không thành dòng chờ.
+    expect(screen.getAllByRole('button', { name: /^Sửa FPT$/ })).toHaveLength(1);
+    expect(chuCacO(await dongMa('FPT'))[1]).toBe('100');
+    expect(screen.queryByText(/chưa đưa vào được/)).toBeNull();
+  });
+
+  it('chạm trần của bảng: mã không vào được bị nêu ĐÍCH DANH, mã còn chỗ vẫn vào', async () => {
+    seedNhieuMa(MAX_HOLDINGS - 1);
+    vaoBangLink('AAA,BBB,CCC');
+    render(<PortfolioScreen />);
+
+    await dongCho('AAA');
+    expect(screen.queryByRole('button', { name: 'Nhập số liệu BBB' })).toBeNull();
+    expect(
+      screen.getByText(
+        `Danh mục chỉ chứa ${String(MAX_HOLDINGS)} mã, nên chưa đưa vào được: BBB, CCC.`,
+      ),
+    ).toBeTruthy();
+    expect(screen.getByRole('tab', { name: `Mã ${String(MAX_HOLDINGS)}` })).toBeTruthy();
+  });
+
+  it('bảng đã đủ dòng nhờ mã chờ: thêm mã mới bị chặn, nhưng nhập số cho mã chờ thì không', async () => {
+    seedNhieuMa(MAX_HOLDINGS - 1);
+    vaoBangLink('HPG');
+    render(<PortfolioScreen />);
+    await dongCho('HPG');
+
+    // 49 dòng nắm giữ + 1 dòng chờ = đủ trần: FPT là mã MỚI nên không còn chỗ.
+    await chonMaTrongForm('FPT');
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '100');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+    expect(screen.getByText(/Danh mục đã đủ/)).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Huỷ' }));
+
+    // HPG thì đã có dòng sẵn: nhập số chỉ đổi dòng ấy từ chờ sang nắm giữ, không thêm dòng nào.
+    await userEvent.click(screen.getByRole('button', { name: 'Nhập số liệu HPG' }));
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '200');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '25000');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu số liệu' }));
+
+    await dongMa('HPG');
+    expect(screen.queryByText(/Danh mục đã đủ/)).toBeNull();
+    expect(screen.getByRole('tab', { name: `Mã ${String(MAX_HOLDINGS)}` })).toBeTruthy();
+  });
+
+  it('mã chờ đã thành nắm giữ ở nơi khác thì lúc mở lại không còn là dòng chờ', async () => {
+    seedHolding();
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(['FPT', 'HPG']));
+    render(<PortfolioScreen />);
+
+    await dongCho('HPG');
+    expect(screen.queryByRole('button', { name: 'Nhập số liệu FPT' })).toBeNull();
+    expect(screen.getAllByRole('button', { name: /^Sửa FPT$/ })).toHaveLength(1);
+    await waitFor(() => {
+      expect(window.localStorage.getItem(PENDING_KEY)).toBe('["HPG"]');
+    });
+  });
+
+  it('không có tham số, không có kho chờ: màn như cũ, không ghi khoá nào mới', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+
+    await dongMa('FPT');
+    expect(screen.queryByRole('button', { name: /^Nhập số liệu / })).toBeNull();
+    expect(window.localStorage.getItem(PENDING_KEY)).toBeNull();
   });
 });

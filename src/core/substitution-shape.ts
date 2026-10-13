@@ -1,5 +1,6 @@
 import { expressionShape } from './quiz/worked-line';
 import type { FormulaSpec } from './registry/types';
+import { choTrong } from './substitution';
 import type { DanXuatCay, ThaySoCay } from './substitution-cay';
 
 /**
@@ -22,7 +23,7 @@ import type { DanXuatCay, ThaySoCay } from './substitution-cay';
 /** Một mẫu đã phân tích: cây, cộng danh sách khoá theo thứ tự ô trống trái sang phải. */
 function cayCua(mau: string): { cay: ThaySoCay['cay']; khoa: string[] } | null {
   const khoa: string[] = [];
-  const voiOTrong = mau.replace(/\{([A-Za-z0-9_]+)\}/g, (_, key: string) => {
+  const voiOTrong = mau.replace(choTrong(), (_, key: string) => {
     khoa.push(key);
     return '[0]';
   });
@@ -34,7 +35,7 @@ function cayCua(mau: string): { cay: ThaySoCay['cay']; khoa: string[] } | null {
 /**
  * Cây của dòng thay số, hoặc `null` nếu mẫu không đọc được.
  *
- * `null` là lưới an toàn chứ không phải nhánh sống: cửa gác ở `formulas.test.ts` quét cả 48 mẫu, nên
+ * `null` là lưới an toàn chứ không phải nhánh sống: cửa gác ở `formulas.test.ts` quét cả 61 mẫu, nên
  * một mẫu hỏng đỏ từ lúc chạy ca kiểm. Nơi gọi vẫn phải xử `null` vì nó là server component dựng
  * tĩnh — ném ra ở đó là làm hỏng cả trang.
  */

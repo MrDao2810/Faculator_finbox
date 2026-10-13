@@ -315,9 +315,11 @@ export interface FormulaSpec extends FormulaSummary {
    * Phép tính của công thức viết bằng CHỖ TRỐNG, để khối gộp thay số đang nhập vào rồi in ra một
    * dòng như `92.000 ÷ 6.050 = 15,21` (khổ PC, 01/10/2026).
    *
-   * Mỗi chỗ trống là `{khoá}` của một biến trong `variables`; phần còn lại là toán tử mà
-   * `evaluateWorked()` đọc được (`+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`). KHÔNG viết vế trái và dấu `=`:
-   * con số kết quả do màn nối vào, lấy thẳng từ `calc`.
+   * Mỗi chỗ trống là `{khoá}` của một biến trong `variables`, của một ký hiệu khai ở
+   * `substitutionDerived`, hoặc (từ 13/10/2026) của một HẰNG SỐ THỊ TRƯỜNG đã khai ở
+   * `usesConstants` — viết nguyên khoá có dấu chấm, `{fee.brokerage.buy}`. Phần còn lại là toán tử
+   * mà `evaluateWorked()` đọc được (`+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`). KHÔNG viết vế trái và dấu
+   * `=`: con số kết quả do màn nối vào, lấy thẳng từ `calc`.
    *
    * Vì sao viết tay chứ không sinh từ `latex`: `latex` không có đường nào trỏ về khoá biến, và
    * đoán theo nhãn thì sai ngay ở công thức đầu tiên (`EPS` trong hình, nhãn ô là
@@ -330,13 +332,24 @@ export interface FormulaSpec extends FormulaSummary {
    * giá trị đến từ `usesConstants` (mức phí 0,15%, thuế 0,1%, hệ số nhân 100.000…): những số ấy
    * chảy từ `schedules.ts` và người dùng còn đổi được biểu phí, nên một bản chép sẽ nói sai ngay
    * trong lúc con số bên cạnh nó nói đúng. Cùng lý do `ConstantsNote` chỉ khai KHOÁ chứ không khai
-   * giá trị. `formulas.test.ts` gác: công thức có `usesConstants` thì không được có `substitution`.
+   * giá trị.
+   *
+   * **Hằng số vào mẫu bằng KHOÁ, không bằng con số.** Từ 01/10 tới 13/10/2026 cách chặn lỗi trên là
+   * cấm hẳn: công thức có `usesConstants` thì không được có `substitution`. Ngày 13/10/2026 chủ dự
+   * án mở `roi-rong`, thấy nó thiếu dải thay số mà `cagr` có, và yêu cầu làm cho đủ. Nay mẫu viết
+   * `{fee.brokerage.buy}`; lúc chạy `substitutionConstants()` tra khoá ấy qua đúng `ctx` mà `calc`
+   * nhận, nên đổi biểu phí là dải đổi cùng lượt với con số kết quả. Hằng số phần trăm vào hình ở
+   * dạng TỶ SỐ (0,15% → 0,0015), cùng quy ước với mọi tỷ lệ người dùng gõ (`r = {rate} ÷ 100`).
+   * `formulas.test.ts` gác ba điều: khoá hằng số trong mẫu phải có ở `usesConstants`; mọi khoá của
+   * `usesConstants` phải được mẫu nhắc tới; và đổi mọi mức của biểu phí thì dải tính lại vẫn ra
+   * đúng số `calc` trả — ca cuối là thứ khiến một con số chép tay đỏ ngay.
    *
    * Tuỳ chọn: công thức chưa khai thì khối gộp bỏ hẳn dòng này, không in một dòng nửa vời. Hiện
-   * 48 trên 111 công thức có mẫu. Những ca cố ý BỎ, để khỏi ai viết lại:
+   * 61 trên 111 công thức có mẫu. Những ca cố ý BỎ, để khỏi ai viết lại:
    *
-   *   · 14 công thức đọc hằng số thị trường — xem đoạn ngay trên. Muốn có dòng thay số cho chúng
-   *     thì phải cho mẫu tham chiếu được KHOÁ hằng số, không phải chép giá trị.
+   *   · `loi-nhuan-rong` — công thức thứ 14 tra hằng số, và là công thức duy nhất trong số đó dùng
+   *     thân riêng (bảng bóc tách WF-08) chứ không dùng thẻ gộp. Dải thay số chỉ sống trong thẻ
+   *     gộp, nên một mẫu ở đây là dữ liệu không màn nào đọc.
    *   · `ddm-hai-giai-doan`, `gia-von-trung-binh-dca` — cộng dồn qua một số kỳ / số đợt do người
    *     dùng đặt, nên số hạng của phép cộng không cố định.
    *   · `loi-suat-trung-binh-hinh-hoc` — nút chọn 2 hay 3 kỳ quyết định có dùng ô thứ ba hay không.
@@ -373,9 +386,11 @@ export interface FormulaSpec extends FormulaSummary {
    *     khoá của một biến trong `variables` — trùng thì giá trị tính ra sẽ đè lên ô nhập.
    *   · GIÁ TRỊ là một biểu thức cùng cú pháp `substitution`, nhắc tới ô nhập và các khoá khai
    *     TRƯỚC nó. Thứ tự khai là thứ tự tính.
-   *   · Cùng cấm chép hằng số từ `usesConstants` như `substitution`, và cùng một lý do.
+   *   · Cùng cấm chép hằng số từ `usesConstants` như `substitution`, và cùng một lý do: cần mức phí
+   *     thì viết khoá của nó, `{fee.brokerage.buy}`.
    *
-   * 21 trên 48 mẫu cần trường này; 27 mẫu còn lại vốn đã thay thẳng ký hiệu (`{price} ÷ {eps}`).
+   * 21 trên 61 mẫu cần trường này; 40 mẫu còn lại vốn đã thay thẳng ký hiệu (`{price} ÷ {eps}`).
+   * (Câu này từng ghi "21 trên 48"; đếm lại ngày 13/10/2026 thì lúc ấy là 17 trên 48.)
    *
    * Cửa gác: `formulas.test.ts` tính lại cả dòng rồi đối chiếu `calc`, nên một mẫu dẫn xuất sai sẽ
    * làm lệch kết quả và đỏ ngay — không có đường nào để nó sai mà vẫn xanh.

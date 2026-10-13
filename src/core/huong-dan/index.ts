@@ -7,6 +7,14 @@
  * `build-only-imports.test.ts` gác danh sách nơi được import.
  */
 
-export type { BaiHuongDan, BaiRiengDaChuan, MucId, ONhapHuongDan } from './types';
+export type {
+  BaiHuongDan,
+  BaiRiengDaChuan,
+  HinhDangXem,
+  KhoiBieuDoBai,
+  MucBieuDoBai,
+  MucId,
+  ONhapHuongDan,
+} from './types';
 export { THU_TU_MUC } from './types';
 export { baiHuongDan, caKetQuaTrong } from './bai';

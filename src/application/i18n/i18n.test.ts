@@ -420,14 +420,29 @@ describe('bài hướng dẫn chỉ trích nhãn có thật trên màn', () => {
   });
 
   /*
-   * Chặn kiểu đỗ giả: ca trên vẫn xanh nếu bài không còn trích nhãn nào. Giữ ít nhất một chỗ
-   * trích thật để phép quét có việc để làm — và để ai bỏ nốt chỗ trích ấy phải đọc đoạn này.
+   * ── Mộ chí: ca "có ít nhất một đoạn bài đang trích nhãn màn hình" (bỏ 13/10/2026) ───────────
+   *
+   * Ca ấy chặn kiểu đỗ giả: phép quét ở trên vẫn xanh nếu bài không còn trích nhãn nào, nên nó đòi
+   * giữ ít nhất một chỗ trích thật "để ai bỏ nốt chỗ trích ấy phải đọc đoạn này". Chỗ trích cuối
+   * cùng đã đi, và đi có chủ ý: `guide.chart.switchAxis` · `switchKind` · `when.breakdown` là ba
+   * câu duy nhất còn chỉ tới nhãn của màn tính, và chủ dự án bảo gỡ cả (*"không cần đoạn text
+   * sau"* — mộ chí ở `vi.ts`). Khung "?" nay chỉ in hình đang hiện, nên không còn câu nào phải dắt
+   * người đọc tới một dòng điều khiển.
+   *
+   * Phép quét GIỮ NGUYÊN và hiện không có gì để quét. Ngày nào bài lại trích một nhãn trong ngoặc
+   * kép thẳng thì nó tự làm việc trở lại — và khi ấy nên dựng lại ca này cùng lúc.
    */
-  it('có ít nhất một đoạn bài đang trích nhãn màn hình', () => {
-    const dem = Object.entries(vi).filter(
-      ([khoa, chu]) => khoa.startsWith('guide.') && /"[^"]+"/.test(chu),
-    );
 
-    expect(dem.length).toBeGreaterThan(0);
+  /*
+   * Mục "Đọc biểu đồ" (13/10/2026) in nhãn hai dạng, và nhãn ấy phải mang đúng chữ của hai nút
+   * "Loại biểu đồ" trên màn tính. Bản tiếng Anh viết "As bars" trong khi nút tên "Bars", nên so
+   * không phân biệt hoa thường. Chữ riêng của từng công thức gọi các cột là "bars" cũng vì nút ấy
+   * (`kiem.ts` giữ vế đó).
+   */
+  it.each(['vi', 'en'] as const)('mục "Đọc biểu đồ" %s gọi đúng tên hai nút dạng của màn', (ma) => {
+    expect(t('guide.chart.line', ma).toLowerCase()).toContain(
+      t('chart.kindLine', ma).toLowerCase(),
+    );
+    expect(t('guide.chart.bar', ma).toLowerCase()).toContain(t('chart.kindBar', ma).toLowerCase());
   });
 });

@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from '
 
 import {
   MAX_SERIES_ROWS,
+  displaySeriesDate,
   formatNumber,
   parseCellNumber,
   parseCells,
@@ -142,13 +143,17 @@ function cellId(base: string, row: number, column: number): string {
  * `String(n)` — lưới là chỗ người dùng ĐỌC và SỬA, nên nó phải giống hệt thứ họ tự gõ vào.
  * Vì chính chỗ này viết ra, quy ước số là điều CHẮC CHẮN, không phải điều phải đoán: nơi gọi
  * chốt luôn `style = 'vi'` để sheet khỏi hỏi lại người dùng về số của chính nó.
+ *
+ * Ngày cũng vậy (13/10/2026): chuỗi của bộ mẫu mang ISO ('2026-09-08'), còn người dùng gõ và mọi
+ * chỗ khác của sản phẩm in ngày/tháng/năm. `displaySeriesDate()` đưa ngày đủ năm về lối ấy và để
+ * nguyên thứ không phải ngày.
  */
 function cellsFromRows(
   rows: NonNullable<PasteImportSheetProps['initialRows']>,
 ): ReadonlyArray<string[]> {
   const text = (value: number | null): string => (value === null ? '' : formatNumber(value));
   return rows.map((row) => [
-    row.date,
+    displaySeriesDate(row.date),
     text(row.open),
     text(row.high),
     text(row.low),
@@ -837,7 +842,7 @@ export function PasteImportSheet({
           <span className={styles.statusOk}>
             {formatNumber(result.rows.length)} {t('paste.validRows')}
             {first !== undefined && last !== undefined && first.date !== '' && last.date !== ''
-              ? `, ${t('paste.rangeFrom')} ${first.date} ${t('paste.rangeTo')} ${last.date}`
+              ? `, ${t('paste.rangeFrom')} ${displaySeriesDate(first.date)} ${t('paste.rangeTo')} ${displaySeriesDate(last.date)}`
               : ''}
           </span>
         )}

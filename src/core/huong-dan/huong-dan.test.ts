@@ -187,45 +187,33 @@ describe('mục "Đọc biểu đồ" chỉ có khi màn thật có khối biể
   });
 
   /*
-   * `kieuBieuDo` là thứ chọn đoạn chữ cho mục, nên nó phải khớp `spec.chartType` từng công thức —
-   * lệch một bài là bài ấy dạy đọc một loại hình khác với hình nó đang vẽ.
+   * Hai ca từng đứng ở đây ghim `kieuBieuDo === spec.chartType` và bảng phân bố bảy LOẠI hình
+   * (sensitivity 66 · candlestick 11 · histogram 9 · stackedBar 6 · waterfall 5 · underwater 4 ·
+   * scatter 2). Chúng đi ngày 13/10/2026 cùng trường ấy: `chartType` là nhãn khai trong Registry,
+   * còn màn tính chỉ dựng ba hình, nên "khớp `chartType`" chính là thứ làm 26 bài tả những hình
+   * không có trên màn. Cửa gác của mục nay ở `./bieu-do/bieu-do.test.ts`, đo trên hình THẬT.
    *
-   * Đợt 8 đổi trường này từ cờ `coBieuDo: boolean` sang LOẠI, vì `guide-111.json` viết một đoạn
-   * riêng cho mỗi loại thay cho bảy câu nói cho mọi loại.
+   * Ca dưới giữ đúng một điều của tầng này: mục có khối nào thì khối ấy phải có tên và có chữ.
    */
-  it('kiểu biểu đồ trong bài khớp `spec.chartType`, và vắng đúng ở 9 công thức không có hình', () => {
-    for (const formula of FORMULA_MODULES) {
-      const bai = baiHuongDan(formula, CTX);
-      if (formula.spec.chartType === 'none') {
-        expect(bai.kieuBieuDo, formula.spec.id).toBeUndefined();
-        expect(bai.mucCo, formula.spec.id).not.toContain('doc-bieu-do');
-      } else {
-        expect(bai.kieuBieuDo, formula.spec.id).toBe(formula.spec.chartType);
+  it('bài có mục thì mục có ít nhất một hình, hình nào cũng có tên và chữ ở cả hai thứ tiếng', () => {
+    for (const bai of BAI) {
+      if (!bai.mucCo.includes('doc-bieu-do')) {
+        expect(bai.bieuDo, bai.id).toBeUndefined();
+        continue;
+      }
+      if (bai.bieuDo === undefined) throw new Error(`${bai.id}: có mục mà không có hình`);
+
+      expect(bai.bieuDo.khoi.length, bai.id).toBeGreaterThan(0);
+      for (const khoi of bai.bieuDo.khoi) {
+        const chu = [khoi.ten, khoi.duong, khoi.cot, khoi.thanh].filter((mot) => mot !== undefined);
+        // Tên, cộng ít nhất một đoạn.
+        expect(chu.length, `${bai.id} · ${khoi.ten.vi}`).toBeGreaterThan(1);
+        for (const mot of chu) {
+          expect(mot.vi.trim(), bai.id).not.toBe('');
+          expect(mot.en.trim(), bai.id).not.toBe('');
+        }
       }
     }
-  });
-
-  /*
-   * Mỗi loại hình đang dùng phải có đoạn chữ của nó, nên ca này ghim BẢNG PHÂN BỐ: tám loại, và số
-   * công thức mỗi loại. Một loại thứ chín xuất hiện làm ca đỏ, đúng lúc cần thêm hai khoá
-   * `guide.chartKind.<loại>.*` — `heatmap` và `tornado` đã có sẵn khoá chờ, chưa công thức nào vẽ.
-   */
-  it('tám loại hình đang dùng, đúng số công thức mỗi loại', () => {
-    const dem: Record<string, number> = {};
-    for (const bai of BAI) {
-      if (bai.kieuBieuDo === undefined) continue;
-      dem[bai.kieuBieuDo] = (dem[bai.kieuBieuDo] ?? 0) + 1;
-    }
-
-    expect(dem).toEqual({
-      sensitivity: 66,
-      candlestick: 11,
-      histogram: 9,
-      stackedBar: 6,
-      waterfall: 5,
-      underwater: 4,
-      scatter: 2,
-    });
   });
 });
 

@@ -65,8 +65,8 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 42 assertions against a built out/ — run after build
-npm run check:chrome   # 153 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run verify:static  # 51 assertions against a built out/ — run after build
+npm run check:chrome   # 168 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -357,19 +357,63 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   vitest case ("số dài") pins its `--ky-tu` and `<wbr>`. **`StatTile` has no caller any more.** It stays
   (its tests and CSS pins still pass) rather than being deleted inside a redesign diff; delete it, with its
   pins, when someone decides to.
-- **The holdings table is one `<table>`, eight columns**: code chip (`Badge tone="code"`), shares, avg cost,
-  market price (bold), gain, "Lãi/lỗ %" (arrow + number; the header was a bare "%" until the owner asked
-  for the full label on 12/10/2026), weight (bar + number), and two icon buttons (`Sửa X`, `Xoá X`
-  by `aria-label`; the trash was named "Bỏ mã" until the owner corrected it on 12/10/2026 — _"là xóa chứ
-  không phải bỏ mã"_ — so it now carries the same name as the trash of the Công thức table).
-  **No company column, no value column, no expanding row, no overlay button.** That
-  reverses 22/09: buy date and beta are now visible **only in the edit dialog**. `Xoá` is **one tap, no
-  confirmation, no undo** — as designed; it used to take two taps. Percentages print one decimal fixed
+- **The holdings table is one `<table>`, eight columns**: code (plain text, see the next bullet), shares, avg
+  cost, market price (bold), gain, "Lãi/lỗ %" (arrow + number; the header was a bare "%" until the owner asked
+  for the full label on 12/10/2026), weight (bar + number), and **buy date** (`dd/mm/yyyy`, `_ _` when the
+  holding has none or the stored string is not an ISO day).
+  **No company column, no value column, no expanding row, no overlay button.** Beta is visible **only in the
+  edit dialog**; the buy date was too for one day (12/10), until the owner gave it the last column. `Xoá` is
+  **one tap, no confirmation, no undo** — as designed. Percentages print one decimal fixed
   (`+11,0%`, `15,6%`), the gain line two. A ticker with no market price shows `_ _` in all four dependent
   cells (price, gain, %, weight), never `0`. `text-align` is keyed to column position on `<th>` and `<td>`
   together so they cannot drift apart, and `table-layout: fixed` with per-column widths. Below 1280px the weight
   bar is hidden and the cell padding and `min-width` shrink: the left column is ~300px, so at 1024px the table
-  only has ~600px and Tỷ trọng plus the two buttons would sit off-screen.
+  only has ~600px and Tỷ trọng plus the date column would sit off-screen.
+- **The code is plain text, the whole row opens the edit dialog, and a red X shows only on hover**
+  (13/10/2026). The owner redrew the row on a screenshot: _"bỏ bo viền ngoài xanh xanh của tên ticker … chỉ để
+  hiển thị tên ticker thôi. bỏ 2 icon edit và xóa đi. thay vào đó … khi hover chuột vào một mã bất kỳ thì icon
+  xóa sẽ hiển thị chỗ đó … nếu người dùng muốn sửa hoặc xem mã đó thì bấm luôn vào mã … thay thế chỗ trước kia
+  của 2 icon Sửa và Xóa thành hiển thị ngày"_. That reverses the two icon buttons of 12/10 (the pencil is gone,
+  the delete button moved from the row's end to right after the code) and the chip. The row divider stays
+  `--color-hairline` although rows are click targets again; `hairline.test.ts` records why `.holdRow` did not
+  return to its `--color-border` list.
+
+  **The first build was corrected twice the same day, and both corrections are rules now.** It shipped a
+  trash can that grew a soft red box on hover, and it left the Công thức table alone because the request and
+  the screenshot covered the Mã table only; the reply asked whether to sync. The owner: _"khi nào hover vào mã
+  đó thì hiển thị icon X chứ không phải là icon xóa. thêm nữa là không cần border đỏ xung quanh icon X chỉ cần
+  icon ĐỎ X thôi. đồng bộ cả bên Công thức nữa chứ không phải mỗi bên mã"_. So: the delete control is an **X**
+  (`TILE_ICONS.close`), red from the moment it appears, with **no background and no border in any state**
+  (`.rowActionDanger:hover` is gone; `.rowRemove:hover` re-declares the colour and a transparent background so
+  `.rowAction:hover` cannot paint its grey box). And **both tables of this screen share one row design** — a
+  change to one is a change to the other; do not leave them apart and ask. A third note followed within the
+  hour, on the "one red in every state" build: _"di chuột vào icon X đó thì icon X đó cần đậm màu hơn thể hiện
+  là đang hover vào icon X đó"_. With the pointer **on the X itself** it is now a deeper colour and a slightly
+  heavier stroke (1.7 → 2.3), still with no background and no border. The colour is
+  `color-mix(in srgb, var(--color-danger) 62%, var(--color-ink))`, not a new token: ink is dark in the light
+  palette and light in the dark one, so the X deepens in one and brightens in the other — the same direction
+  `--color-accent-strong` takes in each palette. Computed, that colour reads `color(srgb …)` with 0–1
+  channels, not `rgb(…)`; `check:chrome` converts before comparing. Five things are easy to break:
+
+  - **The code is a `<button>`, not bare text.** A `<tr>` cannot take focus, so the row click never reaches a
+    keyboard or screen-reader user; the code button is the same action with a name. It keeps the names every
+    test and `check:chrome` anchor on — `Sửa FPT` on a held row, `Nhập số liệu HPG` on a pending one — and both
+    buttons in the cell stop propagation, or the X would delete the ticker **and** open the dialog for it.
+  - **The X hides with `opacity`, inside `@media (hover: hover)` only** (`.rowRemove`). Not `display`: it
+    must stay in the Tab order and appear on `:focus-within`. And not outside the media query: a touch screen
+    has no hover, so a transparent button there is an **invisible one-tap delete** beside every code.
+  - **`.rowRemove` must be declared after `.rowAction` and `.rowAction:hover`** in
+    `PortfolioScreen.module.css` — one class each, so file order decides: declared first, the box stays 36px
+    and hovering the X paints the grey box back (the `.panelCenter` trap again).
+  - **`.holdWeightCell` is `display: flex`, not `inline-flex`.** An inline box sizes to its content, so the bar
+    kept its 88px in a 130px cell and pushed the percentage into the next cell. Nobody saw it while that cell
+    held two icon buttons; with a date there, "100,0%" ran into the day at 1280px.
+  - **Column widths are a budget, measured, not taste**: seven percentage columns plus a fixed-pixel date
+    column (87% + 104px from 1280px; 85% + 90px below, which is exactly the 600px `min-width`). One more
+    percentage point and `.tableWrap` grows a horizontal scrollbar. Two `check:chrome` assertions (1440 and 1024) hold the hover reveal, the X's position, the date cell, "no sideways scroll", and — **with the
+    pointer on the X** — a colour that is still red but deeper than at rest, a heavier stroke, and a
+    transparent background with no border.
+
 - **The search box and the action button are ONE pair shared by both tabs: "Tìm kiếm" and "Thêm mới"**
   (12/10/2026). They were "Tìm mã" + "Thêm mã" on one tab and "Tìm công thức hoặc mã" + "Tính công thức mới" on
   the other, each tab with its own query; the two buttons had different widths, so the search box jumped on
@@ -433,11 +477,50 @@ Two rules about the form and the picker, unchanged by the redesign:
   control heights and the per-row tops. **The ticker and formula sheets this form opens are
   centred too** — `placement="center"` is passed at the portfolio call sites only, because a
   bottom sheet sliding up over a dialog that floats mid-screen reads as two unrelated layers. The
-  detail screen's ticker picker keeps the bottom sheet: it opens straight from the page, not from
-  a dialog. The formula field is labelled **"Thêm công thức"**, not "Tính công thức" — it only
+  detail screen's ticker picker keeps the bottom sheet **below 1024px only**: from 1024px every
+  sheet floats mid-screen (13/10/2026, see the next bullet), so the prop now matters on phones
+  alone. The formula field is labelled **"Thêm công thức"**, not "Tính công thức" — it only
   attaches a formula, and the calculating happens after save, when the screen navigates. That
   label now shares a prefix with the submit button ("Thêm và mở công thức"), so any test matching
   it must anchor on "và mở".
+- **From 1024px every bottom sheet is a centred popup; below it nothing changed** (13/10/2026).
+  The owner: _"chuyển đổi toàn bộ dialog bottom ở màn web thành popup ở giữa màn hình rồi tự căn
+  chỉnh cho phù hợp hơn. còn ở màn mobile thì giữ nguyên dialog bottom"_. Four sheets were still
+  docked on desktop (`PresetSheet`, `ExportSheet`, `SaveCalcSheet`, and the detail screen's
+  `TickerPickerSheet`); the change lives entirely in one `@media screen and (min-width: 1024px)`
+  block at the **end** of `BottomSheet.module.css`, so no call site passes anything to move. 1024 is the
+  breakpoint table's "nav goes to the top bar" mark. It is CSS and not `matchMedia` because
+  `/du-lieu/` has its `<dialog>` in the static HTML: reading the viewport during render mismatches
+  on hydrate, and reading it in an effect makes the sheet jump from the bottom to the middle. Five
+  things are easy to break, and one was left alone:
+  - **`screen and` is load-bearing.** `ExportSheet`'s `.print-region` sits inside this `<dialog>`
+    and is positioned against it, and under print media the query's width is the PAPER's: A4
+    landscape is 1123px. Measured with `Page.printToPDF`: without `screen` the landscape PDF changes
+    outright (73 kB to 172 kB, print region 720px to 560px and relocated) while portrait does not.
+    With it every paper size prints byte for byte as before. The test pins the word.
+  - **The block is a COPY of `.sheetCenter` / `.panelCenter`** and its four descendant rules. "From
+    1024px" lives in `@media` and `placement="center"` lives in a class name, and CSS cannot write
+    one rule for both; merging them means inverting the file (centre as the base, docked inside
+    `max-width: 1023px`), i.e. rewriting exactly the rules the request said to leave alone.
+    `BottomSheet.test.ts` compares the two copies declaration by declaration and requires the block
+    to be the last thing in the file, since `.header` / `.body` / `.footer` / `.title` share its
+    specificity and only order decides.
+  - **`width="narrow"` (560px) is for sheets with a few controls** — Export and Save. Sheets that
+    hold a LIST keep 720px: the ticker picker so it matches itself on the portfolio screen, and
+    the preset sheet because "Tìm mã khác" swaps the two back and forth. The prop does nothing
+    below 1024px.
+  - **`.sheetCenter` is `overflow: visible` and `.panelCenter` is `overflow: hidden`, and both are
+    fixes for defects that had been on the portfolio dialog since 22/09/2026.** The `<dialog>`'s
+    `hidden` clipped the panel's own `--shadow-modal` into a dark square behind each rounded corner;
+    and a sheet with no footer ends in the scrolling body, whose scrollbar is a rectangle painted
+    over the bottom-right corner — the radius read 16px while the corner on screen was square. The
+    radius assertion could not see either, because it reads the declared number. Do not "improve"
+    the new assertion with `elementFromPoint` at the corner: Chrome's hit test ignores an ancestor's
+    rounded clip, so it returns the body while a 4× screenshot shows the corner round.
+  - **The preset sheet is 586px against a 600px cap.** One wrapped line and its body grows a
+    scrollbar to scroll ten pixels; `check:chrome` measures that it does not.
+  - **`PasteImportSheet` is untouched** and still falls back to docked at 768px, not 1024px, so in
+    the 768–1023 band it floats while the other four dock. Nobody designed that band.
 - **A ticker already in the portfolio cannot be added again** (10/10/2026). `TickerPickerSheet`
   locks the "Chọn" button of every code in `heldCodes` and the "đã có" label beside it is the
   button's `aria-describedby`; the second lock reason (no fundamentals, 06/10) stacks, so the
@@ -455,6 +538,53 @@ Two rules about the form and the picker, unchanged by the redesign:
   the add form's code never has a quote (`quotes` holds held codes only), so `hasPrice` reads a
   missing quote as "don't know" rather than "no price" — otherwise every add would hide 8 formulas
   under a sentence claiming a lookup that never happened.
+
+**Tickers brought in from a Finbox watchlist are "pending" rows of the Mã table, kept in a SECOND store**
+(13/10/2026). The owner wants the tickers a user saved in their Finbox account to land in `/danh-muc/`, and
+decided three things: the source is the Finbox watchlist; _"với những mã đó thì sẽ vẫn sẽ được phân loại vào danh
+mục nhưng sẽ có màu tượng trưng riêng để khi người dùng bấm vào sẽ hiển thị bảng nhập thêm thông số đang thiếu"_;
+and the source _"sẽ có một đường link hoặc API"_, shape undecided. Measured the same day: a watchlist holds
+**codes only** (`options.values[]` where `header == 'ticker'`), it lives on `api2.finbox.vn`
+(`POST /watchlists/list`), not on `dcs.finbox.vn`, it needs a JWT (401 without one), and CORS is `*`.
+
+- **A second store, not nullable fields on `Holding`.** `ffb.portfolio.pending.v1` is an array of codes
+  (`portfolio-pending-store.ts`). `summarisePortfolio()` already has a branch that turns "Vốn đã bỏ ra" and the
+  gain of the WHOLE portfolio into `_ _` while one row lacks a quantity or cost, so importing ten codes into the
+  same list would wipe two real numbers; letting the sums skip such rows is the "count it as 0" FR-06 forbids. A
+  pending code never reaches a sum. `summarisePortfolio()` gained an optional `pendingCount`, used ONLY to word
+  the empty-portfolio reason ("Chưa mã nào có số lượng và giá vốn."), because a card saying "Danh mục chưa có mã
+  nào" beside a table with rows is false.
+- **One door: `importCodes(pending, heldCodes, incoming)`.** It drops, silently, anything that is not a code
+  (`/^[A-Z0-9]{1,12}$/` — dropped, never truncated into a different code), codes already held and codes already
+  pending, so re-opening the same link never doubles a row. `MAX_HOLDINGS` caps the TABLE, both stores together.
+  Codes that did not fit come back by name and print under the table (`portfolio.importFull`) as a plain `<p>`:
+  the screen keeps exactly one `status`/`alert`, the price strip.
+- **The first adapter is a link, `/danh-muc/?nhap=FPT,HPG`** (`IMPORT_PARAM`; the name is provisional until
+  Finbox fixes its link). It is read from `window.location.search` in the load effect, and **stripped in a
+  separate effect declared after the pending-store write**. Stripping inside the load effect loses the import
+  under React Strict Mode, which runs that effect twice before anything is persisted.
+- **On screen** a pending row comes after the holdings, carries `.holdRowPending` (the SAME
+  `--color-warning-soft` as `.savedRowWarn`: one colour, one meaning, "this row still needs one thing"), prints
+  the real market price and `_ _` in the other six cells (the buy date included). The whole row opens the
+  dialog; the code itself, a button named "Nhập số liệu FPT", is the keyboard path (it was a pencil-with-a-plus
+  icon at the row's end until 13/10/2026), and both buttons stop propagation. The
+  dialog has a third mode, `completing`: code locked, numbers empty, submit goes through `addHolding()` and then
+  removes the code from the pending store, labelled "Lưu số liệu". The tab count is rows, held plus pending.
+  `codesKey`, `priceAsOf` and the price strip all include pending codes — a pending row shows a price, and a
+  stale price must still name its session. The picker locks pending codes like held ones, so `quotes` now holds
+  every code that has a row, and tests find a pending row by `{ name: 'Nhập số liệu HPG' }`.
+- **Not built: login plus the API adapter — the owner's stated next step, deliberately deferred** (13/10/2026):
+  _"sau này sau khi dự án ổn định thì sẽ bắt đầu bước tiếp theo là sử dụng api từ finbox về, tức là sẽ có chức
+  năng đăng nhập rồi mới call api từ finbox về đây"_. So the real source is an authenticated call, and the link
+  above is the door that works without an account. Do not start it unprompted. The adapter will be its own port
+  (`WatchlistFeed`), separate from `MarketFeed` so that port's "only codes leave the device" stays checkable,
+  and it only has to call `importCodes()`; the receiving side needs no change. Seven things must be settled
+  first and are listed in `TASK.md`: `api2.finbox.vn` in `connect-src` (a second origin, the owner's sign-off
+  like `dcs.finbox.vn`, and it retires "no account, no backend"); which login methods (email and password work
+  through `/auth/login`, Google and Apple accounts have no password); where the token lives while the CSP still
+  allows `'unsafe-inline'` scripts; whether a login from here consumes one of the account's device slots
+  (`/devices/*`, NOT measured); which watchlist of several; one-way flow only, quantities and cost prices never
+  go up; and whether `?nhap=` stays once the API exists.
 
 **The two tabs are a VERTICAL card, "Mã · Công thức"** (tabs back 10/10/2026, vertical 12/10/2026). The
 labels were "Mã nắm giữ" and "Phép tính đã lưu" for a few hours on 12/10, as the design drew them; the owner cut
@@ -481,13 +611,22 @@ a row whose series no longer matches **prints `_ _` instead of the saved number*
 rowsInStore !== (seriesCount ?? 0)` — by session COUNT, not by "is there a series", so one session off still
 flags. Such a row gets a warm background, the line "Cần nạp lại chuỗi giá" under its name (the design put this
 in a "Số liệu dùng" column the owner then dropped, so the chip moved), and "Nạp" instead of "Mở"; both go to the
-same `?luu=` URL. **Both are ICON buttons since the afternoon of 12/10** (_"đổi text button Mở thành Icon mở để
-đồng bộ"_): a box-with-arrow for Mở, a circular arrow for Nạp, in the same `.rowAction` shell as the pencil and
-trash of the Mã table — still a `<Link>`, because it navigates. The words no longer print, so every icon button
-in both tables says what it does twice: `aria-label` for screen readers, with the row's identity ("Mở HPG · P/E",
-"Sửa FPT"), and a native `title` for the mouse, with the short name only ("Mở", "Nạp", "Xoá", "Sửa") —
-the owner asked for the hover name the same afternoon, and `title` is how `ThemeSwitch` and `RecentSearches`
-already do it. A case pins "no text, has a name, has a title, two different icons". The action column of both tables is 96px again (it needed 116px while "Mở" was text).
+same `?luu=` URL. **Its rows follow the Mã table's row design since 13/10/2026** (_"đồng bộ cả bên Công thức
+nữa chứ không phải mỗi bên mã"_), which retires the two end-of-row icon buttons of 12/10 (the box-with-arrow
+Mở / circular-arrow Nạp link and the trash) and the chip. The table has **four columns** and ends on the save
+date; the hidden "Thao tác" column and `portfolio.colActions` are gone (tombstone in `vi.ts`). Clicking
+anywhere on a row calls `router.push()` to the `?luu=` URL. **The name in the first cell is a real `<Link>`**
+to the same URL, styled as plain text (`.savedOpen`, no underline, no accent colour): a `<tr>` cannot take
+focus and cannot be opened in a new tab, so the link is the keyboard, screen-reader and middle-click path. It
+carries the names the old icon had — `aria-label` "Mở HPG · P/E" or "Nạp FPT · Beta…", `title` "Mở" / "Nạp" —
+so tests still find a row by `{ name: 'Mở HPG · P/E' }`. The red X (`{ name: 'Xoá HPG · P/E' }`, the same
+`.rowRemove` as the Mã table) sits right after the name and shows on row hover. Both the link and the X stop
+propagation: without it a click on the name navigates twice and a click on the X deletes the calculation
+**and** opens it. The code is a plain `<span class="savedCode">` in the Mã table's font. A row that needs its
+series reloaded keeps its warm background under the pointer, like a pending row. Two `check:chrome`
+assertions (1440 and 1024) hold all of this with a real pointer, including the row click landing on
+`/cong-thuc/pe/?luu=pe-a`. The date column of both tables is the same fixed width (104px, 90px below 1280px),
+because the two tables swap in place when the tab changes.
 The name cell shows only the formula name when the stored name is an auto-generated
 suggestion (detected by rebuilding `suggestCalcNames()`, as `displayCalcName()` does — code and date have their
 own columns), and a hand-typed name with the formula name beneath it otherwise. **Only a search box sits above
@@ -516,6 +655,114 @@ same way `ConstantsNote` explains a block from its foot, because a column 10% of
 carry a clause. A second sentence appears only when some holding has no price:
 `total` sums `row.value ?? 0`, so an unpriced holding drops out of the denominator and the
 remaining weights add up to 100% while the portfolio does not.
+
+## Dates — one written form on screen, day/month/year
+
+**Every date the product shows or accepts is written `DD/MM/YYYY`, and no date control may be drawn by the
+browser** (13/10/2026). The owner photographed `/danh-muc/`: the "Ngày mua" column read `03/10/2026`, and the
+edit dialog opened from that row read `10/03/2026` — _"kiểm tra lại toàn bộ logic và sửa lại sao cho đồng bộ
+những kiểu lỗi này"_. One date, two orders. The column is printed by `formatIsoDate()`; the dialog's field was
+an `<input type="date">`, which the **browser** draws in the browser's own UI language (English Chrome:
+month/day/year). No attribute changes that order — not `lang`, not CSS — so the only way to make the two
+places agree is to stop using the browser's control. `formatIsoDate()` is locale-agnostic, so the English UI
+shows day/month/year too.
+
+The sweep found the same class of defect in four more places, all fixed in the same round:
+
+- **`DateField` / `DateCell` (`src/ui/inputs/DateInput.tsx`) replace both native date inputs** — the portfolio
+  dialog's "Ngày mua" and the XIRR cash-flow table. A text field, numeric keyboard, placeholder `dd/mm/yyyy`.
+  Its `value` is ISO `YYYY-MM-DD` when it holds a real date and **the raw text being typed** otherwise
+  (`src/core/date-text.ts`), so the caller must never treat a non-ISO value as "empty": the portfolio form
+  re-parses with `parseDateText()` at submit (Enter submits before blur) and reports `portfolio.errBuyDateFormat`,
+  and `checkCashflowRow()` reports `INVALID_DATE`. Stored and computed form stays ISO — `xirr()` and
+  `summarisePortfolio()` depend on it. Three typing rules, the same as the WF-05 date cell: letters are
+  filtered at `onChange` (`keepSeriesDateChars` + `guardFilteredDelete`); **nothing is inserted or rewritten
+  while typing** — the value becomes ISO only when the text is already exactly `DD/MM/YYYY`, otherwise React
+  rewrites the field and the caret jumps; everything else (`3/10/2026`, `03-10-2026`, `2026-10-03`, the eight
+  digits `03102026` a phone keypad produces) is normalised on blur.
+- **`parseDateText()` rejects dates that are not on the calendar** (`31/02`, 29 February in a common year).
+  The native control could not produce them; a text field can, and V8 reads `2026-02-31` as 3 March instead
+  of failing, so XIRR would silently compute on a different day (FR-06).
+- **The calendar button keeps the picker.** It calls `showPicker()` on an `<input type="date">` that is
+  invisible (`opacity: 0`, not `display: none` — the picker needs a box to anchor to), out of the Tab order
+  and `aria-hidden`. That hidden input is the **only** `type="date"` allowed in `src/ui` + `src/app`; a
+  second gate in `numeric-gate.test.ts` scans for it, because jsdom draws no date control and no behavioural
+  test can see the defect.
+- **The WF-05 data table writes every full date as `DD/MM/YYYY`** (`displaySeriesDate()` in `price-series.ts`).
+  Presets and Finbox carry ISO, users type the Vietnamese order, so one column could print two forms and the
+  same session read `2026-09-08` there but `08/09/2026` on the detail chart's axis. `DataTableScreen`
+  normalises at its four entry points (storage load, preset, paste, blur — never while typing). It does not
+  guess: a year-less `15/07` and a session number stay as typed. **The duplicate-date check now compares
+  parsed dates, not strings** — before, `08/09/2026` typed next to a preset's `2026-09-08` was a repeated
+  session the check column said nothing about. `formatSessionDate()` / `formatSessionMonth()` in
+  `chart/history.ts` parse instead of splitting on `-`, so a hand-typed series gets the same axis labels as a
+  preset.
+- **Two places printed the raw ISO string from data**: the quiz source line ("Hiệu lực từ 2026-07-01", on the
+  same page where `ConstantsNote` prints `01/07/2026`) and XIRR's duplicate-date message.
+
+`check:chrome` holds the reported bug itself: it opens the edit dialog with a real mouse click and requires the
+field's text to equal the row's date cell, on a date (`02/01`) where swapping day and month still gives a
+real date — a swap on the 25th exposes itself as month 25, a swap on the 2nd does not.
+
+Not changed, on purpose: `toCsv()` still writes whatever the date cell holds, so a table loaded from a preset
+now exports `DD/MM/YYYY` where it used to export ISO (the file matches the screen); and the paste sheet's
+preview cells still show pasted text as pasted — only its "từ … đến …" line and the grid pre-filled from a
+series in use are normalised.
+
+## A formula visit — re-entering a formula resets it to defaults
+
+**Opening a formula always starts from its defaults, unless the user is still inside the same visit**
+(13/10/2026). The owner reported it as a serious bug: after adding a ticker to the portfolio and opening
+a formula, after saving a formula that carries a ticker, or after merely loading a ticker without saving,
+_"vào lại hoặc search lại công thức đó thì lại đang lưu lại mã cũ trong công thức đó … phải reset lại
+công thức về mặc định"_. The cause was in `FormulaDetail`, not in the portfolio: the screen keeps state
+in three stores (`ffb.activeTicker.v1` and `ffb.workingSeries.v1` in `sessionStorage`, `ffb.draft.v1` in
+`localStorage`) and restored all three on **every** mount, because none of them could tell "came back
+from the data table" from "came in again from the list".
+
+A **visit** to formula X lasts while the user stands on X's detail screen, on `/du-lieu/`, or on X's own
+guide page. Inside a visit (a reload, "Mở bảng dữ liệu →" and back, the guide and back) everything is
+kept exactly as before; that round trip is an older owner-reported bug and must not regress. Any other
+screen ends the visit — the list, search, the portfolio, settings, a **different** formula — and the next
+open starts clean. `?ma=`, `?luu=` and `?so=` still load what the URL asks for, onto a clean screen.
+
+The owner was asked one question and chose "reset everything", typed numbers included. That **reverses
+two earlier decisions**, so do not rebuild either without asking: the ticker no longer follows the user
+to other formulas (the "mã dính theo lượt duyệt" feature of `active-ticker.ts`), and an input draft no
+longer survives closing the tab (the owner's own earlier choice of `localStorage` in
+`input-draft-store.ts`). Both stores stay, serving the visit only.
+
+How it works, and what is easy to break:
+
+- **`ffb.visit.v1` in `sessionStorage` holds the id of the formula being visited**
+  (`src/application/formula-visit.ts`, pure). `FormulaDetail` compares it **on mount**: a different id,
+  or no readable marker, means a new visit, and `clearVisitStores()` wipes the three stores before any
+  restore effect reads them. It is checked at the door rather than cleaned up on unmount, because a
+  closed tab, a reload and a hard navigation run no cleanup, and the draft in `localStorage` would come
+  back in the next tab.
+- **The gate effect must be declared ABOVE the three restore effects.** React runs a component's effects
+  in declaration order and all three read their store synchronously on mount; a gate below them clears
+  the stores after the old numbers are already on screen. The restore effects themselves were not
+  changed by a single line.
+- **`FormulaVisitTracker` (a client leaf in `AppShell`, beside `OriginTracker`) removes the marker when
+  the pathname leaves the visit.** Without it, `pe` → list → `pe` still finds the `pe` marker. The order
+  of its effect against the screen's does not matter, on purpose: the screen decides by comparing its own
+  id, the leaf only handles screens that are not a detail screen. `visitContinuesAt()` compares the
+  **whole** path, never a prefix — `/cong-thuc/` and `/cong-thuc/peg/` are not the `pe` visit.
+- **An unreadable marker counts as a new visit**, not as "restore to be safe": the safe side of this bug
+  is the default numbers. `clearVisitStores()` uses two separate `try` blocks so a blocked
+  `sessionStorage` still deletes the draft.
+- **In tests, `cleanup()` + `render()` is a reload, not a re-entry.** jsdom runs no router and the test
+  wrapper has no `AppShell`, so the marker survives between the two renders. `sangManKhac()` in
+  `FormulaDetail.test.tsx` removes it, standing in for the tracker; the "giữ số đã gõ khi rời màn rồi
+  quay lại" block and the "vào lại công thức thì về mặc định" block differ by that one line.
+  `seedActiveTicker(id)` seeds the marker together with the ticker, because a ticker seeded without one
+  is wiped before the screen reads it and the case passes while proving nothing. Two `check:chrome`
+  assertions run the two halves together through a real client-side navigation.
+
+Known consequences, accepted: typing numbers on `wacc`, following a chain link to `capm` and coming
+back resets `wacc`; so does the browser's Back button after any other screen. The WF-05 data table
+(`ffb.series.v1`) is untouched — it is data the user manages on `/du-lieu/`.
 
 ## Chart kinds
 
@@ -814,6 +1061,36 @@ value keeps flowing from `schedules.ts`, so a rate change moves the screen with 
 number copied into prose rots silently and lint cannot see it. `constants-gate.test.ts` holds both
 directions: a source scan catches an undeclared call site, and pulling each declared key out of the
 schedule must break the formula, which catches a declaration the calc never uses.
+
+**The substitution strip under the result ("dải thay số", `spec.substitution`) reaches market
+constants by KEY too** (13/10/2026). The strip is the drawn line at the foot of the merged card,
+`(200.000.000 ÷ 100.000.000)^(1 ÷ 5) − 1) × 100 = 14,87` on `cagr`: the tree is parsed at build time
+(`substitutionShape`, `page.tsx` only) and the browser just places numbers into its leaves
+(`datSoThaySo`). From 01/10 to 13/10/2026 a gate forbade any formula with `usesConstants` from
+declaring a template, because a template could only reach input fields, and 12 templates had copied
+`× 0,15 ÷ 100` straight in — right for the default schedule, wrong the moment the rate changes. The
+owner opened `roi-rong`, saw that it had no strip while `cagr` did, and asked for it. So a
+placeholder may now be a constant key written verbatim with its dots, `{fee.brokerage.buy}`
+(`laKhoaHangSo()` tells it from an input key, which never has a dot), and `substitutionConstants()`
+resolves it through the same `ctx` that `calc` receives. **61 of 111 formulas have a strip**; 13 of
+the 14 constant-reading formulas got one, and `loi-nhuan-rong` deliberately did not, because the
+strip lives only in the merged card and that formula has a custom body. Three things to keep:
+
+- **A percent constant enters the picture as a RATIO** (0,15% → 0,0015), the same convention as
+  every rate the user types (`r = {rate} ÷ 100` in 21 templates). The "Đang tính theo các mức sau"
+  block right above the strip still prints `0,15 %`. Changing one of the two conventions means
+  changing all 61 strips at once, not these 13.
+- **Three gates in `formulas.test.ts` replaced the ban**: a constant key in a template must be in
+  `usesConstants`; every `usesConstants` key must be referenced by the template; and with every
+  rate of the schedule doubled, the strip must still re-compute to what `calc` returns _and_ differ
+  from the default-schedule result. The last one is what makes a hand-copied number go red.
+  `MARKET_CONFIG` has a single schedule today, which is why that test builds its own.
+- **`roi-rong` and `gia-hoa-von` substitute at symbol level**, so their strips show derived
+  figures that sit in no input field (`4.618.150 ÷ (1.000 × 92.000 + 138.000 + 1.350) × 100`:
+  the first, third and fourth numbers are `L_rong`, `F_mua`, `F_lk`), and on `roi-rong` the Giá bán
+  and Thời gian nắm giữ inputs do not appear in the strip at all. The owner was told this before
+  the work and chose the strip over reusing the WF-08 breakdown table. The hover panel on those
+  three symbols in the picture is where each number is explained.
 
 ## The understanding-check block — WF-19
 
@@ -1504,6 +1781,190 @@ inputs of `fcff`/`fcfe` don't match the named source; ~37 source names say Inves
 every automated read, so their links go to CafeF/VNDirect pages that carry the same closes; CafeF's
 VN-Index history mangles 11 sessions (links use VNDirect's API) and its Q1–Q2/2026 statement tables
 are shifted one row (links avoid the misaligned lines or use stockanalysis).
+
+## The usage guide's "Đọc biểu đồ" section — one text per REAL chart
+
+Every formula has a usage guide (WF-21, `/huong-dan/cong-thuc/<id>/`, built by `src/core/huong-dan/`, read
+only at build through `@/application/huong-dan`); the "?" button beside the chart block on the detail screen
+opens its "Đọc biểu đồ" section in a popover (`GuideHintPanel`). Three of the guide's four sections carry
+only text the owner supplied in `guide-111.json` (05/10/2026: _"chỉ để lại những câu đã tạo trong file tôi
+gửi thôi"_). **The chart section is the exception since 13/10/2026**, and what it replaced is the lesson.
+
+Until then the section printed ONE shared paragraph chosen by `spec.chartType`, under a heading naming the
+type: "Biểu đồ quét độ nhạy", "Biểu đồ nến"… The owner read the first one on screen and asked four
+questions in a row — _"nghĩa là sao? đây là biểu đồ về cái gì? đang hướng dẫn sử dụng biểu đồ gì? biểu đồ
+đang là dạng gì?"_ — then: _"biểu đồ tên là gì thì ghi vào đó chứ không phải là 'Biểu đồ quét độ nhạy' vì nó
+vô nghĩa … nói rõ là ở dạng đường thì đường cong đi từ đâu đến đâu và xu thế của thị trường hay xu thế của
+biểu đồ đang ám chỉ cái gì. còn dạng cột thì làm sao đó tương tự. sửa lại ở tất cả công thức, không được làm
+đối phó."_
+
+**`chartType` is a label, not what the screen draws.** Running `buildChartModel()` — the function the detail
+screen calls — over all 111 formulas: the screen builds exactly THREE shapes (`ChartModel`: a line of the
+result against one input, a line over time, horizontal breakdown bars). 63 formulas open on a line against
+an input (57 tagged `sensitivity`, 6 `stackedBar`); 35 draw nothing until a price series is loaded, then a
+line over time; 5 open on breakdown bars; 8 have no chart block. So text chosen by the label described
+charts that do not exist: 26 guides talked about candles, distribution columns, drawdown curves and
+regression dots (`candlestick`/`histogram`/`underwater`/`scatter` have no renderer), 6 about "stacked bars"
+over a line, and the 5 breakdown guides said "the last column stands on 0" while the bars lie
+**horizontally**. Every chart already has a NAME on the detail screen — the `<figcaption>` title, "P/E theo
+Giá thị trường" — and that is the heading now.
+
+How it is built, in `src/core/huong-dan/bieu-do/`:
+
+- **`keHoachBieuDo()` asks the chart engine, never `chartType`.** With `defaultInputs()` and a context that
+  carries no price series (the state the screen opens in), it reads back EVERY entry the "Xem kết quả đổi
+  theo" picker can offer and what each chart is called: `truc`, one plan per input that can sit on the
+  horizontal axis, taken at the Advanced level because that set contains the Basic one (**248 axes** across
+  the 103 formulas, 10 of them Advanced-only); `thoiGian` (47 formulas — `historyPlan() !== null`); `bocTach`
+  (5 default, 6 as a picker entry); and `moRa`, the key of the chart the screen opens on (an input for 63,
+  the breakdown for 5, the time chart for the 35 that wait on a series). Names are built with
+  `lineChartTitle()`, extracted from `build.ts` for this, because the time chart and 51 of the 248 axes draw
+  nothing until a series is loaded, so at build time there is no model to read a title from; a test loads a
+  synthetic series and compares every name against the real model.
+- **Measuring all 248 axes, not just the default one, turned up three things the first version could not
+  see.** 197 axes draw at once and carry `hinh` (direction, gaps, sign change); the 51 series-only axes carry
+  none, because their shape belongs to whatever series the user loads. **Four axes are FLAT** — `gia-hoa-von`
+  and `roi-rong` against Khối lượng (quantity cancels in numerator and denominator), `rut-truoc-han` against
+  the contract rate and the contract term — so the direction has a third value, `'ngang'`. It is asked with
+  `isFlatSpan()`, extracted from `niceAxis()` in `scale.ts`: that is the exact condition the screen uses to
+  draw a level line, and `max === min` is wrong there (the 41 points differ in the twelfth digit). And the
+  ±50% test compares the smaller and larger RATIO, not the left and right end, because a negative default
+  (`loi-suat-trung-binh-hinh-hoc`'s `r2` = −5) flips the two ends.
+- **`noi-dung/*.ts` holds the text: 600 paragraphs, Vietnamese AND English** (the owner asked for a proper
+  English version when approving — unlike the other guide sections, where `en` is optional and falls back).
+  One "Dạng Đường" and one "Dạng Cột" paragraph per line chart — the two buttons of the "Loại biểu đồ" row —
+  and a single paragraph for a breakdown, which has bars only. Line charts against an input sit under
+  `truc`, keyed by the input's own `VariableSpec.key`, not by role ("default", "advanced") as the first
+  version had it: a role is something the engine picks and can change, and text tied to a role silently
+  moves under a different chart the day a default axis changes. The English says **"bars", not "columns"**,
+  because the button is `chart.kindBar` = "Bars".
+- **`bieuDoProblems()` in `kiem.ts` is the one rule set**, run over all 111 by `bieu-do.test.ts`: a paragraph
+  exists if and only if the screen has that chart — per picker entry now, so a mistyped key shows up on both
+  sides at once — and `sma-n-phien`, whose time chart carries the closing-price overlay and therefore no
+  Line/Bars toggle, must have NO bar paragraph for it. A line paragraph must name the axis field verbatim ("ô
+  Giá thị trường"), say "một nửa … gấp rưỡi" exactly when the axis is the ±50% sweep, and say "không phải
+  diễn biến thị trường". Where the line is measured, the FIRST direction it mentions ("đi lên"/"đi xuống")
+  must match `sweepPoints()`, a flat line must be called "nằm ngang", "gạch chéo" appears iff the curve has an
+  uncomputable stretch and "vạch 0" iff the result changes sign. A series-only axis must say the chart is
+  computed on the series "đã nạp" and must say what rising or falling means; a time paragraph must say oldest
+  → most recent session, explain both directions, and quote every `spec.referenceLines` value; a breakdown
+  paragraph must quote every bar label. No long dash, no "quét"/"độ nhạy", and **no digits** except 0 and the
+  formula's own reference lines — the ends of a sweep move with whatever the user types, so a figure in the
+  text is wrong at the first keystroke. A pinned distribution (248 axes · 51 series-only · 4 flat · 26
+  reversible · 10 Advanced · 6 with an odd range · 47 time charts · 63 / 5 / 35 by opening chart · 8 without
+  a block) turns red when a formula changes shape, and no two paragraphs in the store may be identical.
+- **26 axes can be REVERSED by a number the user is allowed to type, and their text must say both
+  directions.** The measured direction belongs to the DEFAULT inputs, but the popover opens beside the chart
+  of whatever is typed: enter a loss and "ROE theo Vốn chủ" stops falling and rises, under a paragraph that
+  said "Đường đi xuống". `keHoachBieuDo()` therefore probes every measured axis (`KeHoachTruc.daoChieu`):
+  one input at a time, the axis's own included, over a sparse grid of typeable values (`min`/`max`, 0, a few
+  multiples of the default and its negative, every option of a selector). Only up↔down counts; a line that
+  merely goes FLAT when a factor hits 0 (P/E against EPS at price 0) does not — dozens of axes do that, and
+  the 0 on screen already says it. For the 26 the gate requires the Đường paragraph to contain both "đi lên" and
+  "đi xuống", and the Cột paragraph to describe either no bar direction or at least two of "cao dần · thấp
+  dần · dài dần · ngắn dần" (EN: "grow taller · shrink · grow longer · get shorter"). The Cột rule is
+  separate on purpose: the popover prints ONE form, so a hedge in the line paragraph does not cover the bars.
+  Write the condition in the formula's own terms ("Khi doanh nghiệp có lãi … đang lỗ thì đường đi lên"),
+  **never "với bộ số đang nhập"**: that phrase asserts something about the numbers on screen, which is
+  exactly what a build-time text cannot know. The probe changes one input at a time, so it is a detector,
+  not a proof.
+- **A series-only paragraph that mentions ONE direction is making a promise, and the promise is tested.**
+  Sharpe against the risk-free rate falls on any series; SMA against its period rises or falls with the data.
+  `chieuDuyNhat()` reads a paragraph that names only one direction as "every series gives this", and
+  `bieu-do.test.ts` tries that claim on four deliberately different synthetic series (up, down, sideways,
+  V-shaped; 400 sessions so the 370-session lookbacks have data) — none may run the other way. A paragraph
+  that explains both directions promises nothing and is skipped. The English side has two substring traps
+  the gate will catch you on: "flattens" contains "flat" (so it reads as a flat-line claim — write "levels
+  off"), and "one and a half times" contains "half" (so an axis that is NOT the ±50% sweep cannot use the
+  phrase at all — write "fifty percent more").
+- **What no gate sees is whether "what the trend means" is true of the formula.** That is the part the owner
+  asked for, and the answer differs by family, which each paragraph says outright: a sweep is a what-if,
+  **not** market history; a time line of SMA / EMA / VWAP / the Bollinger bands moves WITH the price, so its
+  trend is the price trend; a time line of RSI, MACD, ROC, ATR, drawdown, VaR, Sharpe… measures something
+  else, so rising does not mean the price rose; and earnings yield, dividend yield and margin of safety move
+  AGAINST the price. Every paragraph was read against `calc`; new ones must be too.
+- **That reading was done adversarially on 13/10/2026 — four read-only agents, all 600 paragraphs against
+  `calc` and the real engine — and it changed about 150 of them.** Five kinds of defect, none of which the
+  gate could see at the time, and each a rule for new text:
+  - _Calling the loaded series "real"._ Seventeen time paragraphs said "Đây là diễn biến thật của mã bạn
+    nạp". A sample preset's price path is 247 fabricated sessions and one real one (`samples.ts`), so the
+    sentence was false for every "Nạp mẫu". They now say the chart follows "chuỗi giá bạn đã nạp" and claim
+    nothing about where it came from. They do **not** add a sentence saying samples are fabricated: the owner
+    removed that block from the sheet on purpose (`preset.draftTitle` tombstone), and putting it back in 17
+    places is their call.
+  - _A direction or a "why" that only holds for the defaults_ — the 26 axes above, plus claims such as
+    "luôn nằm cao hơn lãi suất danh nghĩa" (not with yearly compounding) or "càng lúc càng dốc" on
+    `lich-tra-no` (straight under "Gốc đều", a Basic-level button).
+  - _Describing how steep a line LOOKS._ In line form the value axis hugs the data, so every straight line
+    runs corner to corner: "rất thoải" was true of the number and false of the picture (WACC against the tax
+    rate fills 72% of the frame). Say it in values ("không tăng một đổi một", "các mức ghi trên trục dọc cho
+    thấy cả đường chỉ hạ một khoảng hẹp") or leave it to the bars, whose axis contains 0.
+  - _A mechanism that is not the formula's._ Bollinger bandwidth "rising means the past was more volatile"
+    (the bands use the deviation of price LEVELS, which grows with the window by itself); "the reward for
+    reinvesting" on a chart where every bar already reinvests; `he-so-bien-thien` bars "below the zero
+    line" when `calc` fails on a negative average and the screen draws hatching there.
+  - _The chart itself being wrong._ Reading `beta`'s time paragraph against `calc` showed the paragraph was
+    right and the ENGINE was not: `historyPoints()` cut `bars` and `series` to each session but left
+    `ctx.marketSeries` whole, so every point but the last regressed an old stretch of the share against the
+    latest stretch of the index (a share built with beta 1.5 in every window drew a line from −0,37 to 1,5).
+    Fixed in `history.ts` by dropping the same number of sessions from the END of the index series; a case
+    in `history.test.ts` pins it. Text review is also a chart review.
+
+**The "?" popover prints ONE chart: the one on screen, in the form being drawn** (second round, the same
+13/10/2026). The first version printed every chart of the formula at once, two forms each, and closed with
+two sentences pointing at the "Xem kết quả đổi theo" and "Loại biểu đồ" rows. The owner: _"không cần đoạn
+text sau … ô hướng dẫn sử dụng đang rất dài, sửa logic như sau: sau khi lựa chọn một select mới từ đường thì
+mới hiển thị xem biểu đồ dạng đường, tương tự khi click vào xem biểu đồ dạng cột. hoặc khi đổi dạng Xem theo
+thời gian, Khối lượng, thời gian nắm giữ,... với tất cả các loại biểu đồ của tất cả công thức"_. That is two
+requests, and the second is the expensive one: a popover that follows the picker needs text for EVERY picker
+entry, and the first version had written 64 of the 248 axes — the default ones. The other 184 were written
+in this round; without them, picking "Khối lượng" would show either nothing or the text of a different chart.
+
+- **`ChartBody` reports what it is showing** through `onViewChange` → `HinhDangXem { khoa, dang, daVe }`:
+  the picker entry (`ChartModel.sweepKey`), the form actually drawn, and whether a chart is drawn at all.
+  The state lives behind the chart's lazy boundary, and it cannot be lifted to `FormulaDetail`: the DEFAULT
+  axis is chosen by `buildChartModel()`, which the detail screen must not import (the invariant in
+  `FormulaChart.tsx`). The prop goes through `memo(FormulaChart)`, so `FormulaDetail` passes the `useState`
+  setter itself, never a closure; the effect depends on three primitives, so it fires when the chart
+  changes, not on every keystroke. `dang` is the EFFECTIVE form, not the button's wish: SMA's time chart has
+  an overlay and no bars, so with the button left on Cột the screen draws a line and the popover must too.
+- **While nothing is drawn and the user has picked nothing, `khoa` is `null`.** An `unavailable` model still
+  carries a `sweepKey` — the first input the engine tried — but for the 35 formulas waiting on a series the
+  chart that will appear is the time chart, not that input's. `khoiDangXem()` in `GuideBody.tsx` falls back
+  to the first block (`moRa`) for `null`, for "not reported yet" and for a key with no text.
+- **One condition line is left: `guide.chart.when.seriesOnly`**, printed only when the chart being described
+  needs a series AND is not on screen. `guide.chart.switchAxis`, `switchKind`, `when.advanced`, `when.series`
+  and `when.breakdown` are gone (tombstone in `vi.ts`), and with the first three went the last `guide.*`
+  values that quoted an on-screen label — so the i18n canary "có ít nhất một đoạn bài đang trích nhãn màn
+  hình" was retired with a tombstone; the scan itself stays and currently has nothing to scan.
+- **The full page (`/huong-dan/cong-thuc/<id>/`) has no chart on screen to filter by**, so it lists every
+  chart as a `<details>`, name in the `<summary>` (still an `<h3>`), the opening chart open, an "Nâng cao"
+  tag on Advanced-only entries. Printing them all flat would rebuild the long box the owner had just
+  rejected, only longer — up to six charts a formula now.
+- Clicking the picker or the Line/Bars buttons closes the popover first (outside click), so the usual path
+  is pick → reopen. A keyboard user can change the chart with the popover open; the placement effect lists
+  `hinh` as a dependency for that, because new text is a new height.
+
+`check:chrome` measures the one thing vitest cannot — that the popover does not scroll inside itself — on
+`pe` at 1440, opened as a line and again after pressing Cột. The 18 `guide.chartKind.*` keys are gone
+(tombstone in `vi.ts`), as is `BaiHuongDan.kieuBieuDo`. `types.ts` of `src/core/huong-dan` re-exports the
+view types because `build-only-imports.test.ts` lets the `@/application` barrel reach that directory through
+that one leaf file only. Do not rebuild a "chart type → paragraph" table, and do not rebuild the two pointer
+sentences: to know what the screen draws, call `keHoachBieuDo()`; when a picker entry has no text, write
+its text.
+
+Five things this surfaced and did not fix, all outside the guide text: `eps-co-ban` in Advanced mode opens on
+"EPS cơ bản theo Cổ tức ưu đãi" swept across the field's whole 0 – 100.000 tỷ ₫ range (the default is 0, so
+there is no ±50% around it) and ends tens of thousands of dong below zero — a legal but odd default chart;
+the detail screen's own `<figcaption>` still opens "Quét … từ … tới … qua 41 mức", the same jargon the owner
+rejected in the guide; **a line chart whose computable points are isolated draws no stroke at all** —
+`gui-quay-vong` against "Tổng thời gian" is computable only at multiples of the short term, `linePath()`
+emits five `M` and no `L`, and the line form shows hatching edge to edge plus the marker dot (its paragraph
+now says so and sends the reader to Cột; the cure is a dot per lone point in `LineChart`);
+`sweepDomain()` only snaps to the step grid below 41 steps, so a 30–90 axis prints "31,5 phiên" for a value
+`calc` rounds to 32; and `ddm-hai-giai-doan`'s example note says one point of perpetual growth moves the
+result more than FIVE points of first-stage growth, which `calc` contradicts on the example's own inputs
+(+5.991 ₫ against +9.460 ₫ — it is true against ONE point, +1.770 ₫).
 
 ## Notes
 

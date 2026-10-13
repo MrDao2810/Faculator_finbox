@@ -13,6 +13,9 @@
  * "0,0015 %" ra màn.
  */
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -152,5 +155,53 @@ describe('ConstantsNote', () => {
     // Và không đụng gì tới nội dung: hai hằng số vẫn là hai hàng, đủ chữ như bản thường.
     expect(container.querySelectorAll('dl > div')).toHaveLength(2);
     expect(screen.getByText(PHI_LUU_KY.label.vi)).toBeTruthy();
+  });
+});
+
+/*
+ * Thứ bậc chữ trong một mức (13/10/2026). Chủ dự án khoanh bốn tên mức và ba dòng ghi chú: *"nếu nó
+ * là đề mục thì tại sao lại nhỏ hơn hoặc nhỏ bằng phần nội dung bên dưới? và màu của nó ko đủ nổi
+ * bật?"*. Bản cũ để tên mức 12px mờ, còn ghi chú 12px lại sáng nhất và đứng ngay trên tên mức kế
+ * tiếp, nên không ai phân biệt được dòng nào là đề mục.
+ *
+ * jsdom không áp CSS Module nên đọc thẳng file, cùng lối `SearchBox.test.tsx`. Hình thật đã đo bằng
+ * Chrome ở 1440 và 360 (TASK.md 13/10/2026).
+ */
+describe('ConstantsNote — tên mức là đề mục, ghi chú là lời bên lề', () => {
+  // `process.cwd()` chứ không `import.meta.url`: ở môi trường jsdom đó không phải một URL `file:`.
+  const css = readFileSync(
+    join(process.cwd(), 'src/ui/result/ConstantsNote.module.css'),
+    'utf8',
+  ).replace(/\/\*[\s\S]*?\*\//g, '');
+
+  /** Thân luật của một lớp ở tầng ngoài cùng — không lấy luật nằm trong `@media`. */
+  function luat(lop: string): string {
+    const khop = new RegExp(`^\\.${lop}\\s*\\{([^}]*)\\}`, 'm').exec(css);
+    if (khop === null) throw new Error(`không tìm thấy luật .${lop}`);
+    return khop[1] ?? '';
+  }
+
+  it('tên mức to, đậm và sáng nhất hàng — không dòng nào bên dưới vượt nó', () => {
+    const ten = luat('label');
+
+    expect(ten).toMatch(/font-size:\s*var\(--text-sm\)/);
+    expect(ten).toMatch(/font-weight:\s*var\(--weight-bold\)/);
+    expect(ten).toMatch(/color:\s*var\(--color-ink\)/);
+
+    // Trị số cùng cỡ thì phải nhẹ nét hơn; ba dòng còn lại thì nhỏ hơn một bậc.
+    expect(luat('amount')).toMatch(/font-size:\s*var\(--text-sm\)/);
+    expect(luat('amount')).toMatch(/font-weight:\s*var\(--weight-regular\)/);
+    for (const lop of ['since', 'basis', 'note']) {
+      expect(luat(lop), lop).toMatch(/font-size:\s*var\(--text-xs\)/);
+      expect(luat(lop), lop).not.toMatch(/font-weight/);
+    }
+  });
+
+  it('ghi chú mang vạch trái, và vẫn khác màu với căn cứ pháp lý', () => {
+    expect(luat('note')).toMatch(/border-left:\s*2px solid var\(--color-border-strong\)/);
+
+    // Hai câu nói ngược nhau ("Thông tư …" và "không phải mức luật định") không được cùng màu.
+    expect(luat('note')).toMatch(/color:\s*var\(--color-ink\)/);
+    expect(luat('basis')).toMatch(/color:\s*var\(--color-muted\)/);
   });
 });

@@ -109,3 +109,113 @@ describe('BottomSheet — dạng cao cố định', () => {
     ).toEqual(['FormulaForTickerSheet.tsx', 'TickerPickerSheet.tsx']);
   });
 });
+
+/**
+ * ── Khổ web: tấm dán đáy tự nổi giữa màn (13/10/2026) ────────────────────────────────────────
+ *
+ * Từ 1024px mọi tấm không truyền `placement` phải trông Y HỆT dạng `center`. CSS không viết chung
+ * được một luật cho "khổ từ 1024" (sống trong `@media`) và "`placement="center"`" (sống trong tên
+ * lớp), nên khối `@media` ở cuối file là một BẢN CHÉP — và bản chép thì trôi. Sửa khoảng đệm của
+ * hộp thoại Danh mục mà quên khối ấy là sheet chọn mã ở màn chi tiết lệch với chính nó ở màn Danh
+ * mục, hai màn cách nhau một cú bấm.
+ *
+ * Các ca dưới gác đúng những chỗ bản chép có thể hỏng mà không trình duyệt nào kêu.
+ *
+ * Hằng `MOC_WEB` ghim luôn chữ `screen`: vùng in của sheet Tải về nằm trong `<dialog>` này, và A4
+ * ngang rộng 1123px. Bỏ `screen` đi thì ca kiểm ném "Không thấy khối" — đúng lúc bản in ngang sắp
+ * đổi hình mà không ai hay (đo bằng `Page.printToPDF`: file 73 kB thành 172 kB).
+ */
+
+const MOC_WEB = '@media screen and (min-width: 1024px)';
+
+/** Cắt khối `@media` của khổ web ra khỏi phần còn lại — đếm ngoặc, vì bên trong nó còn luật con. */
+function tachKhoiWeb(): { trong: string; ngoai: string; sau: string } {
+  const dau = RULES.indexOf(MOC_WEB);
+  if (dau === -1) throw new Error(`Không thấy khối ${MOC_WEB} trong BottomSheet.module.css.`);
+
+  const mo = RULES.indexOf('{', dau);
+  let sau = 0;
+  for (let i = mo; i < RULES.length; i += 1) {
+    if (RULES[i] === '{') sau += 1;
+    if (RULES[i] === '}') sau -= 1;
+    if (sau === 0) {
+      return {
+        trong: RULES.slice(mo + 1, i),
+        ngoai: RULES.slice(0, dau),
+        sau: RULES.slice(i + 1),
+      };
+    }
+  }
+
+  throw new Error(`Khối ${MOC_WEB} không đóng ngoặc.`);
+}
+
+/** Các khai báo của một luật, theo đúng BỘ CHỌN (chịu được bộ chọn con như `.panelCenter .header`). */
+function khaiBao(css: string, selector: string): Record<string, string> {
+  for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if ((match[1] ?? '').trim() !== selector) continue;
+
+    return Object.fromEntries(
+      (match[2] ?? '')
+        .split(';')
+        .map((dong) => dong.trim())
+        .filter((dong) => dong !== '')
+        .map((dong) => {
+          const cat = dong.indexOf(':');
+          return [
+            dong.slice(0, cat).trim(),
+            dong
+              .slice(cat + 1)
+              .trim()
+              .replace(/\s+/g, ' '),
+          ];
+        }),
+    );
+  }
+
+  throw new Error(`Không thấy luật ${selector} trong BottomSheet.module.css.`);
+}
+
+describe('BottomSheet — khổ web tự nổi giữa màn', () => {
+  const { trong, ngoai, sau } = tachKhoiWeb();
+
+  /** Luật trong khối `@media` ↔ luật của dạng `center` mà nó phải chép. */
+  const CAP: ReadonlyArray<readonly [web: string, center: string]> = [
+    ['.sheet', '.sheetCenter'],
+    ['.panel', '.panelCenter'],
+    ['.header', '.panelCenter .header'],
+    ['.body', '.panelCenter .body'],
+    ['.footer', '.panelCenter .footer'],
+    ['.title', '.panelCenter .title'],
+  ];
+
+  it.each(CAP)('%s ở khổ web chép đúng từng khai báo của %s', (web, center) => {
+    expect(khaiBao(trong, web), 'đổi một bên thì phải đổi cả bên kia').toEqual(
+      khaiBao(ngoai, center),
+    );
+  });
+
+  it('khối khổ web đứng CUỐI file — sau mọi luật gốc mà nó đè', () => {
+    /*
+     * `.header`, `.body`, `.footer`, `.title` gốc cùng hạng độ ưu tiên với luật trong khối, và
+     * `@media` không cộng thêm gì — nên thứ tự khai là thứ duy nhất quyết định ai thắng. Khai một
+     * luật gốc phía sau khối là tấm nổi giữa màn lặng lẽ nhận lại khoảng đệm của tấm dán đáy.
+     * Cùng cái bẫy `.panelCenter` từng dính ngày 22/09/2026.
+     */
+    expect(sau.trim()).toBe('');
+  });
+
+  it('vạch kéo bị ẩn ở khổ web — nó hứa một cử chỉ tấm nổi giữa màn không có', () => {
+    expect(khaiBao(trong, '.grabber')).toEqual({ display: 'none' });
+  });
+
+  it('tấm hẹp chỉ đổi bề ngang, và hẹp hơn tấm thường', () => {
+    const hep = khaiBao(trong, '.sheetNarrow');
+    const thuong = khaiBao(trong, '.sheet');
+    const px = (value: string | undefined): number => Number(/min\((\d+)px/.exec(value ?? '')?.[1]);
+
+    expect(Object.keys(hep).sort()).toEqual(['max-width', 'width']);
+    expect(hep['width']).toBe(hep['max-width']);
+    expect(px(hep['width'])).toBeLessThan(px(thuong['width']));
+  });
+});

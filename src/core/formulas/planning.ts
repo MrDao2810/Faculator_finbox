@@ -1046,6 +1046,9 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
       vi: 'Tổng thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng + Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
       en: 'Total tax = Quantity × Sale price × Transfer tax rate + Quantity × Dividend per share × Dividend tax rate',
     },
+    // Hai thuế suất là KHOÁ hằng số, màn tra theo biểu phí đang chọn — xem `FormulaSpec.substitution`.
+    substitution:
+      '{quantity} × {sellPrice} × {tax.transfer.sell} + {quantity} × {dividendPerShare} × {tax.dividend.cash}',
     symbols: [
       {
         latex: 'T',

@@ -1,8 +1,8 @@
 /*
  * Tóm tắt thứ sắp được cất: công thức (kèm mã nếu có) bên trái, kết quả bên phải.
  *
- * Xếp ngang chứ không xếp dọc để khối này chỉ chiếm một dòng — sheet còn phải chứa ô tên và
- * hàng gợi ý, mà bàn phím ảo đã ăn mất nửa màn hình lúc người dùng gõ tên.
+ * Xếp ngang chứ không xếp dọc để khối này chỉ chiếm một dòng — sheet còn phải chứa ô tên, mà
+ * bàn phím ảo đã ăn mất nửa màn hình lúc người dùng gõ tên.
  */
 .summary {
   display: flex;
@@ -35,53 +35,10 @@
   color: var(--color-accent);
 }
 
-.suggestions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
-}
-
-.suggestionsLabel {
-  font-size: var(--text-xs);
-  color: var(--color-muted);
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
 /*
- * Một gợi ý. Là <button> chứ không phải thẻ trang trí: bấm vào là điền tên, tức một hành động
- * thật, nên nó phải tới được bằng bàn phím và phải đạt vùng chạm tối thiểu.
- *
- * Trạng thái "đang chọn" báo bằng CẢ viền đậm lẫn nền, không chỉ bằng màu (NFR-USA-06).
+ * Hàng chip "Gợi ý tên" từng đứng ở đây (`.suggestions`, `.chips`, `.chip`). Chủ dự án bỏ ngày
+ * 13/10/2026 — xem docblock của `SaveCalcSheet`.
  */
-.chip {
-  min-height: var(--tap-min);
-  padding: var(--space-2) var(--space-3);
-
-  font-family: inherit;
-  font-size: var(--text-xs);
-  color: var(--color-ink);
-  text-align: left;
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  /* Gợi ý dài (mã · tên · ngày) được phép xuống dòng thay vì tràn ngang ở màn 360px. */
-  overflow-wrap: anywhere;
-}
-
-.chip[aria-pressed='true'] {
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
-  border-color: var(--color-accent);
-  font-weight: var(--weight-medium);
-}
 
 .done {
   margin: var(--space-3) 0 0;

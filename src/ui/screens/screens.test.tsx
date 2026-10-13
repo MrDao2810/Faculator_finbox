@@ -111,6 +111,41 @@ describe('XirrBody — dải lỗi từng dòng', () => {
 
     expect(container.textContent).not.toContain('[object');
     expect(screen.getByText(/đã có ở dòng 1/)).not.toBeNull();
+    // Và ngày trong câu in theo lối của bảng ngay trên nó, không in khoá ISO (13/10/2026).
+    expect(screen.getByText(/Ngày 05\/01\/2026 đã có/)).not.toBeNull();
+    expect(container.textContent).not.toContain('2026-01-05');
+  });
+
+  /*
+   * Ô ngày của bảng từng là `<input type="date">`: trình duyệt vẽ nó theo ngôn ngữ của trình duyệt
+   * (Chrome tiếng Anh in tháng/ngày/năm), lệch với mọi chỗ khác của sản phẩm. Chủ dự án báo đúng
+   * kiểu lỗi ấy ở màn Danh mục ngày 13/10/2026 và yêu cầu rà cho đồng bộ.
+   */
+  it('ô ngày là ô chữ in ngày/tháng/năm', () => {
+    render(
+      <XirrBody
+        output={KHONG_TINH_DUOC}
+        rows={[{ date: '2026-10-03', amount: -100 }]}
+        onRowsChange={() => undefined}
+      />,
+    );
+
+    const oNgay = screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement;
+    expect(oNgay.type).toBe('text');
+    expect(oNgay.value).toBe('03/10/2026');
+  });
+
+  it('ngày gõ dở được nói ra là chưa đọc được, không bị gọi là thiếu ngày', () => {
+    render(
+      <XirrBody
+        output={KHONG_TINH_DUOC}
+        rows={[{ date: '03/1', amount: -100 }]}
+        onRowsChange={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText(/Ngày của dòng này chưa đọc được/)).not.toBeNull();
+    expect(screen.queryByText(/Thiếu ngày của dòng tiền này/)).toBeNull();
   });
 });
 

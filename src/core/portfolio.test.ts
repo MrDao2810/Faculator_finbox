@@ -61,6 +61,31 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
     expect(summary.count.value).toBe(0);
   });
 
+  /*
+   * Mã chờ số liệu (lấy từ watchlist về, chưa có số lượng và giá vốn) đứng trong bảng nhưng không
+   * nằm trong `holdings`. Thẻ tóm tắt vẫn chưa tính được gì — nhưng câu lý do phải đổi: bảng đang
+   * có dòng mà thẻ bảo "chưa có mã nào" là nói sai về chính màn hình người dùng đang nhìn.
+   */
+  it('chỉ có mã chờ số liệu: vẫn “_ _”, nhưng câu lý do nói đúng việc còn thiếu', () => {
+    const summary = summarisePortfolio([], PRICES, asOf, 'ready', 3);
+
+    for (const output of [summary.totalValue, summary.totalCost, summary.gain, summary.xirr]) {
+      expect(output.value).toBeNull();
+      expect(output.warning?.code).toBe('INCOMPLETE_INPUT');
+      expect(output.warning?.message.vi).toBe('Chưa mã nào có số lượng và giá vốn.');
+    }
+    // Mã chờ KHÔNG được đếm là mã nắm giữ.
+    expect(summary.count.value).toBe(0);
+  });
+
+  it('mã chờ không làm đổi con số nào của một danh mục đang có mã', () => {
+    const list = [holding({ code: 'FPT', quantity: 500 })];
+    const without = summarisePortfolio(list, PRICES, asOf);
+    const withPending = summarisePortfolio(list, PRICES, asOf, 'ready', 7);
+
+    expect(withPending).toEqual(without);
+  });
+
   it('tổng giá trị cộng đúng theo thị giá', () => {
     const summary = summarisePortfolio(
       [holding({ code: 'FPT', quantity: 500 }), holding({ code: 'HPG', quantity: 1_000 })],

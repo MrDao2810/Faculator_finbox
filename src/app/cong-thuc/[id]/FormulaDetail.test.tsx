@@ -7,6 +7,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import {
   FORMULAS,
   FORMULA_USAGE_KEY,
+  FORMULA_VISIT_KEY,
   INPUT_DRAFT_KEY,
   NO_VALUE,
   SAMPLE_DATA,
@@ -513,6 +514,104 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     const khung = await screen.findByRole('dialog');
     expect(khung.querySelector('#goi-y-doc-bieu-do')).not.toBeNull();
     expect(khung.querySelector('#goi-y-nhap-so')).toBeNull();
+  });
+
+  /*
+   * Khung "?" của khối Biểu đồ chỉ nói về hình ĐANG HIỆN, ở dạng đang chọn (13/10/2026).
+   *
+   * Bản đầu in mọi hình của công thức cùng lúc, mỗi hình hai dạng, rồi hai câu chỉ tới hai dòng điều
+   * khiển. Chủ dự án: *"ô hướng dẫn sử dụng đang rất dài, sửa logic như sau: sau khi lựa chọn một
+   * select mới từ đường thì mới hiển thị xem biểu đồ dạng đường, tương tự khi click vào xem biểu đồ
+   * dạng cột. hoặc khi đổi dạng Xem theo thời gian, Khối lượng, thời gian nắm giữ,... với tất cả các
+   * loại biểu đồ của tất cả công thức"*.
+   *
+   * Ca này đi đúng ba bước ấy trên màn thật: mở ra (dạng Đường) → bấm Cột → đổi mục ở ô chọn. Mỗi
+   * bước khung phải đổi theo, và không bước nào còn sót chữ của hình khác.
+   */
+  it('khung "?" của biểu đồ chỉ in hình đang hiện, và đổi theo nút Cột lẫn ô chọn trục', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+    await screen.findByRole('figure');
+
+    const moKhung = async () => {
+      await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+      return screen.findByRole('dialog');
+    };
+
+    let khung = await moKhung();
+    expect(within(khung).getByRole('heading', { name: 'P/E theo Giá thị trường' })).not.toBeNull();
+    expect(within(khung).getAllByRole('heading', { level: 3 })).toHaveLength(1);
+    expect(within(khung).getByText('Dạng Đường')).not.toBeNull();
+    expect(within(khung).queryByText('Dạng Cột')).toBeNull();
+    expect(khung.textContent).toContain('Đường chạy từ trái sang phải theo ô Giá thị trường');
+    // Không còn hai câu chỉ đường, và không sót chữ của hình nào khác.
+    expect(khung.textContent).not.toContain('Xem kết quả đổi theo');
+    expect(khung.textContent).not.toContain('Loại biểu đồ');
+    expect(khung.textContent).not.toContain('P/E theo EPS');
+    expect(khung.textContent).not.toContain('P/E theo thời gian');
+    // Hình đang vẽ ngay trên màn thì không có dòng "Chỉ vẽ sau khi…".
+    expect(khung.textContent).not.toContain('Chỉ vẽ sau khi');
+
+    // Bấm nút Cột: cú bấm ra ngoài đóng khung, mở lại là chữ của dạng Cột.
+    await user.click(screen.getByRole('button', { name: 'Cột' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    khung = await moKhung();
+    expect(within(khung).getByRole('heading', { name: 'P/E theo Giá thị trường' })).not.toBeNull();
+    expect(within(khung).getByText('Dạng Cột')).not.toBeNull();
+    expect(within(khung).queryByText('Dạng Đường')).toBeNull();
+    expect(khung.textContent).toContain('Mỗi cột là P/E ở một mức giá');
+
+    // Đổi mục ở ô chọn: khung sang hình của ô EPS, vẫn ở dạng Cột vì nút Cột còn đang bấm.
+    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    khung = await moKhung();
+    expect(within(khung).getByRole('heading', { name: 'P/E theo EPS' })).not.toBeNull();
+    expect(within(khung).getAllByRole('heading', { level: 3 })).toHaveLength(1);
+    expect(khung.textContent).toContain('Mỗi cột là P/E ở một mức EPS');
+    expect(khung.textContent).not.toContain('P/E theo Giá thị trường');
+  });
+
+  /*
+   * Hai cảnh còn lại của khối Biểu đồ, mỗi cảnh một chỗ khung dễ nói sai:
+   *
+   *   · `ev` mở ra hình bóc tách — chỉ có thanh, nên khung không được in nhãn Đường/Cột; chọn một ô
+   *     nhập ở ô chọn thì khung sang đường của ô ấy.
+   *   · `sma-n-phien` chưa nạp chuỗi giá thì khối không vẽ gì. Khung nói về hình sẽ hiện ra khi nạp
+   *     xong (hình theo thời gian) và phải nói rõ là hình ấy CHƯA có trên màn.
+   */
+  it('khung "?" theo đúng hình bóc tách của ev, rồi theo ô nhập vừa chọn', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('ev')} bai={baiHuongDanFor('ev', AS_OF)} />);
+    await screen.findByRole('figure');
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+    let khung = await screen.findByRole('dialog');
+    expect(within(khung).getByRole('heading', { name: 'EV — bóc tách' })).not.toBeNull();
+    expect(khung.textContent).toContain('các thanh nằm ngang');
+    expect(within(khung).queryByText('Dạng Đường')).toBeNull();
+    expect(within(khung).queryByText('Dạng Cột')).toBeNull();
+
+    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'totalDebt');
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+    khung = await screen.findByRole('dialog');
+    expect(within(khung).getByRole('heading', { name: 'EV theo Nợ vay' })).not.toBeNull();
+    expect(within(khung).getByText('Dạng Đường')).not.toBeNull();
+    expect(khung.textContent).not.toContain('bóc tách');
+  });
+
+  it('khung "?" của công thức đang chờ chuỗi giá nói về hình sẽ hiện ra, kèm điều kiện vẽ', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('sma-n-phien')} bai={baiHuongDanFor('sma-n-phien', AS_OF)} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+    const khung = await screen.findByRole('dialog');
+
+    expect(
+      within(khung).getByRole('heading', { name: 'Trung bình động đơn giản (SMA) theo thời gian' }),
+    ).not.toBeNull();
+    expect(
+      within(khung).getByText('Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.'),
+    ).not.toBeNull();
+    expect(within(khung).getAllByRole('heading', { level: 3 })).toHaveLength(1);
   });
 
   /*
@@ -1595,7 +1694,7 @@ describe('WF-03 — khối Ví dụ thực tế là lời giải mẫu, không c
    * tiêu đề, nút "Nạp mẫu" KHÔNG còn đứng song song với nó, và cả màn chỉ có MỘT chỗ mang mã.
    */
   it('nạp mã xong thì nút Nạp mẫu thành con chip, đứng đúng chỗ cũ và chỉ một chỗ', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
     render(<Man spec={specOf('pe')} />);
 
     const doiMa = await screen.findByRole('button', { name: /Đổi mã FPT/ });
@@ -1613,7 +1712,7 @@ describe('WF-03 — khối Ví dụ thực tế là lời giải mẫu, không c
 
   /* Nửa phải là dấu × — bấm vào là bỏ mã, không phải mở gì ra. */
   it('bấm dấu × trên chip thì bỏ mã, chip trở lại thành nút Nạp mẫu', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
     render(<Man spec={specOf('pe')} />);
 
     await screen.findByRole('button', { name: /Đổi mã FPT/ });
@@ -2188,11 +2287,14 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
    * hành vi vừa bị bác.
    */
   it('mã dính sang màn không nạp mã được: không dải, không thanh mã, không nút nào', async () => {
-    seedActiveTicker();
+    // Dấu lượt xem là của chính màn này: mã phải thật sự được nạp lại thì ca mới có gì để gác.
+    seedActiveTicker('tra-gop-goc-deu');
 
     render(<Man spec={specOf('tra-gop-goc-deu')} />);
-    // Chờ đúng thứ effect mã dính chạy xong mới soi — ô nhập giữ nguyên số mặc định của ví dụ.
+    // Chờ đúng thứ effect nạp lại mã chạy xong mới soi — ô nhập giữ nguyên số mặc định của ví dụ.
     await screen.findByRole('region', { name: t('detail.inputs') });
+    // Mã còn nguyên trong kho, tức màn im lặng là vì nó KHÔNG dựng, chứ không phải vì mã đã bị xoá.
+    expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).not.toBeNull();
 
     expect(screen.queryByText(new RegExp(t('detail.presetNoData')))).toBeNull();
     expect(thanhMa()).toBeNull();
@@ -2203,26 +2305,29 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
   });
 
   /*
-   * Mã vẫn SỐNG, chỉ là không dựng ra hình ở màn ấy. Đây là vế phải chứng minh, nếu không thì
-   * "ẩn giao diện" rất dễ trượt thành "xoá mất mã" — người dùng mở tiếp một công thức có ăn số
-   * của mã sẽ phải nạp lại từ đầu, đúng thao tác lặp mà cả tính năng này sinh ra để cắt.
+   * ĐẢO ngày 13/10/2026. Ca cũ ở đây tên là "mã không mất: mở tiếp màn có nạp mã được thì vẫn tự
+   * nạp, thanh mã đủ hai nút", và nó ghim đúng hành vi chủ dự án vừa báo là lỗi nghiêm trọng: mã ở
+   * lại trong kho phiên rồi tự hiện lên ở công thức mở sau, kể cả khi màn trước đó không hề nói
+   * gì về mã. Một mã vô hình đi theo người dùng là dạng tệ nhất của lỗi ấy — họ không thấy nó ở
+   * đâu để mà bỏ.
+   *
+   * Giữ ca này ở đúng chỗ cũ, với khẳng định ngược lại, để ai định nối lại đường "mã theo sang
+   * công thức khác" thì gặp nó trước. Luật mới nằm ở `formula-visit.ts`.
    */
-  it('mã không mất: mở tiếp màn có nạp mã được thì vẫn tự nạp, thanh mã đủ hai nút', async () => {
-    seedActiveTicker();
+  it('mã ẩn ở màn không nạp mã được KHÔNG theo sang công thức mở sau', async () => {
+    seedActiveTicker('tra-gop-goc-deu');
 
     render(<Man spec={specOf('tra-gop-goc-deu')} />);
     await screen.findByRole('region', { name: t('detail.inputs') });
     cleanup();
 
     render(<Man spec={specOf('pe')} />);
-    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    await screen.findByRole('region', { name: t('detail.inputs') });
 
-    expect(
-      screen.getByRole('button', { name: new RegExp(t('detail.tickerChange')) }),
-    ).not.toBeNull();
-    expect(
-      screen.getByRole('button', { name: new RegExp(t('detail.tickerClear')) }),
-    ).not.toBeNull();
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+    expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).toBeNull();
   });
 
   /*
@@ -2800,8 +2905,31 @@ const FPT_SNAPSHOT = {
   },
 };
 
-/** Gieo sẵn một mã vào kho phiên, đúng hình dạng `applyPreset()` ghi ra. */
-function seedActiveTicker(): void {
+/**
+ * Giả cú SANG MÀN KHÁC: xoá dấu lượt xem, đúng việc lá `FormulaVisitTracker` làm ở `AppShell` khi
+ * đường dẫn ra khỏi công thức đang xem.
+ *
+ * jsdom không chạy router và `Man` không dựng `AppShell`, nên ở đây "rời màn" (`cleanup()`) và "đã
+ * ghé một màn khác" là hai bước riêng. Chỉ `cleanup()` rồi `render()` lại là giả F5 / quay lại từ
+ * bảng dữ liệu — dấu còn nguyên, và mọi thứ phải được giữ. Thêm hàm này vào giữa mới là "vào lại
+ * từ danh sách", ca mà chủ dự án báo lỗi.
+ */
+function sangManKhac(): void {
+  window.sessionStorage.removeItem(FORMULA_VISIT_KEY);
+}
+
+/**
+ * Gieo sẵn một mã vào kho phiên, đúng hình dạng `applyPreset()` ghi ra — KÈM dấu lượt xem của công
+ * thức `dangXem`.
+ *
+ * Từ 13/10/2026 một mã trong kho phiên chỉ có nghĩa BÊN TRONG một lượt xem: màn nào gắn lên mà dấu
+ * không phải id của nó thì xoá kho trước khi đọc (cửa gác lượt xem của `FormulaDetail`). Nên gieo
+ * mã mà không gieo dấu là gieo một thứ sẽ bị xoá ngay, và ca kiểm đỗ mà không chứng minh gì.
+ * Truyền đúng id của màn sắp dựng để giả "F5 giữa lúc đang xem mã này"; truyền id KHÁC để giả "vừa
+ * xem mã này ở công thức kia rồi mở thẳng sang đây".
+ */
+function seedActiveTicker(dangXem: string): void {
+  window.sessionStorage.setItem(FORMULA_VISIT_KEY, dangXem);
   window.sessionStorage.setItem(
     ACTIVE_TICKER_KEY,
     JSON.stringify({
@@ -2824,19 +2952,43 @@ function seedActiveTicker(): void {
   );
 }
 
-describe('WF-03 — mã dính theo lượt duyệt', () => {
-  it('mở công thức khác thì mã tự theo sang, KHÔNG gọi mạng lần nữa', async () => {
-    seedActiveTicker();
+/*
+ * Khối này từng tên là "mã dính theo lượt duyệt" và ca đầu của nó từng là "mở công thức khác thì mã
+ * tự theo sang". Chủ dự án báo đúng hành vi ấy là lỗi nghiêm trọng ngày 13/10/2026, nên mã nay chỉ
+ * sống TRONG một lượt xem công thức (F5, đi bảng dữ liệu rồi quay lại). Các ca dưới gieo dấu lượt
+ * xem của đúng màn chúng dựng — xem `seedActiveTicker()`.
+ */
+describe('WF-03 — mã của lượt xem một công thức', () => {
+  /* ĐẢO của ca "mở công thức khác thì mã tự theo sang, KHÔNG gọi mạng lần nữa". */
+  it('mở công thức khác thì mã KHÔNG theo sang — màn mới về mặc định', async () => {
+    // Vừa xem FPT ở `pe`, rồi đi thẳng sang `pb` (link trong khối chuỗi, khung "cách tính"…).
+    seedActiveTicker('pe');
+
+    render(<Man spec={specOf('pb')} />);
+    await screen.findByRole('region', { name: t('detail.inputs') });
+
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+    // Kho bị xoá hẳn chứ không chỉ bị bỏ qua: bỏ qua thì quay lại `pe` là mã cũ hiện lên.
+    expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).toBeNull();
+    // Và lượt xem nay thuộc về màn vừa mở.
+    expect(window.sessionStorage.getItem(FORMULA_VISIT_KEY)).toBe('pb');
+    expect(feed.snapshots).not.toHaveBeenCalled();
+  });
+
+  /* Vế phải GIỮ của cùng luật ấy: gắn lại GIỮA lượt xem thì mã trở lại mà không tốn request nào. */
+  it('F5 giữa lượt xem thì mã trở lại, KHÔNG gọi mạng lần nữa', async () => {
+    seedActiveTicker('pb');
 
     render(<Man spec={specOf('pb')} />);
 
     await screen.findByRole('button', { name: /Đổi mã FPT/ });
-    // Đây là điểm mấu chốt: preset đã cất từ lượt tra đầu tiên, cả lượt duyệt chỉ tốn một request.
     expect(feed.snapshots).not.toHaveBeenCalled();
   });
 
   it('nói rõ đang dùng mã nào — không tự điền ô trong im lặng', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
 
     render(<Man spec={specOf('pe')} />);
 
@@ -2865,7 +3017,7 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
   });
 
   it('bỏ mã thì xoá kho VÀ trả ô nhập về mặc định', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
     render(<Man spec={specOf('pe')} />);
 
     await screen.findByRole('button', { name: /Đổi mã FPT/ });
@@ -2884,7 +3036,7 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
 
   /* `?ma=` là ý định vừa nói ra, còn kho phiên là ý định của lượt trước — cái mới thắng. */
   it('`?ma=` trên URL thắng mã đang có trong kho phiên', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
     feed.snapshots.mockResolvedValue(
       new Map([['HPG', { ...FPT_SNAPSHOT, code: 'HPG', name: 'Tập đoàn Hoà Phát' }]]),
     );
@@ -2897,7 +3049,7 @@ describe('WF-03 — mã dính theo lượt duyệt', () => {
   });
 
   it('`?luu=` thắng cả kho phiên — bộ số đã lưu là thứ người dùng tự chốt', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
     window.localStorage.setItem(
       SAVED_CALCS_KEY,
       JSON.stringify([
@@ -3009,7 +3161,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
 
   it('vào từ nút "Đổi mã" thì nút thoát vẫn là Đóng — ở đó đóng là thoát hẳn', async () => {
     feed.listTickers.mockResolvedValue([{ code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' }]);
-    seedActiveTicker();
+    seedActiveTicker('pe');
 
     render(<Man spec={specOf('pe')} />);
 
@@ -3041,7 +3193,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
 
   it('mã lấy từ kho lớn chỉ có một phiên giá thì nói rõ lý do và lối đi tiếp', async () => {
     // `seedActiveTicker()` gieo đúng hình dạng preset của kho lớn: một bar duy nhất.
-    seedActiveTicker();
+    seedActiveTicker('ty-so-sharpe');
 
     render(<Man spec={specOf('ty-so-sharpe')} />);
 
@@ -3073,6 +3225,11 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
  * Ở đây không điều hướng thật được (jsdom không chạy router), nên mỗi ca dựng lại component từ
  * đầu bằng `cleanup()` + `render()` — đúng thứ điều hướng gây ra, và cũng đúng thứ ca kiểm cần
  * chứng minh: `localStorage` là chỗ duy nhất nối hai lượt dựng ấy với nhau.
+ *
+ * ⚠ Từ 13/10/2026 khối này chỉ còn là đường TRONG một lượt xem: F5, hoặc đi bảng dữ liệu / bài
+ * hướng dẫn rồi quay lại. `cleanup()` + `render()` giả đúng cú ấy vì dấu lượt xem còn nguyên trong
+ * `sessionStorage` giữa hai lượt dựng. Ghé một màn KHÁC rồi vào lại thì mọi thứ về mặc định — đó là
+ * khối "vào lại công thức thì về mặc định" ngay dưới, và hai khối chỉ khác nhau một dòng.
  */
 describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => {
   /** Gõ một con số vào ô Giá thị trường của `pe`, rồi tháo màn như một cú điều hướng. */
@@ -3205,7 +3362,7 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
    * nháp lại thì đúng bộ số vừa bị bỏ quay về ngay lần mở kế — màn hình cãi lại thao tác vừa làm.
    */
   it('bỏ mã thì xoá luôn bản nháp, số không quay về ở lần mở sau', async () => {
-    seedActiveTicker();
+    seedActiveTicker('pe');
     render(<Man spec={specOf('pe')} />);
 
     await screen.findByRole('button', { name: /Đổi mã FPT/ });
@@ -3244,6 +3401,165 @@ describe('WF-03 — giữ số đã gõ khi rời màn rồi quay lại', () => 
 
     render(<Man spec={specOf('pe')} />);
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('12.345');
+  });
+});
+
+/**
+ * VÀO LẠI công thức thì về mặc định — lỗi nghiêm trọng chủ dự án báo ngày 13/10/2026.
+ *
+ * *"sau khi thêm mã vào danh mục hoặc thêm công thức có mã vào danh mục, vừa thêm mã nhưng chưa lưu
+ * gì cả,... thì vào lại hoặc search lại công thức đó thì lại đang lưu lại mã cũ trong công thức đó.
+ * sửa lỗi này, phải reset lại công thức về mặc định"*
+ *
+ * Ba kịch bản trong câu ấy là ba ca đầu, đi đúng thao tác thật. Gốc chung: màn cất mã, số đã gõ và
+ * chuỗi đã thay vào ba kho rồi nạp lại ở MỌI lần gắn. Cửa gác lượt xem của `FormulaDetail` nay hỏi
+ * trước "đây là quay lại hay vào lại", và vào lại thì xoá cả ba (`formula-visit.ts`).
+ *
+ * Khối ngay trên là VẾ PHẢI GIỮ của cùng luật ấy, và hai khối chỉ khác nhau đúng một dòng:
+ * `sangManKhac()`. Có dòng ấy là người dùng đã ghé danh sách, màn tìm kiếm hay Danh mục; không có
+ * là F5 hoặc quay lại từ bảng dữ liệu. Gỡ dòng ấy khỏi một ca ở đây thì ca phải ĐỎ — nếu nó vẫn
+ * xanh là cửa gác đang xoá cả những thứ đáng giữ.
+ */
+describe('WF-03 — vào lại công thức thì về mặc định', () => {
+  /** Màn `pe` vừa gắn xong và đang ở đúng trạng thái của một người chưa từng mở nó. */
+  async function mongManSach(): Promise<void> {
+    await screen.findByRole('region', { name: t('detail.inputs') });
+
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('92.000');
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+    // Kho bị XOÁ chứ không chỉ bị bỏ qua: bỏ qua thì lần gắn kế tiếp trong lượt này nạp lại mã cũ.
+    expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).toBeNull();
+  }
+
+  /** Rời màn, ghé một màn khác, rồi mở lại `pe` bằng đường trơn — đúng cú "tìm lại công thức". */
+  function roiRoiVaoLai(): void {
+    cleanup();
+    sangManKhac();
+    window.history.replaceState({}, '', '/cong-thuc/pe/');
+    render(<Man spec={specOf('pe')} />);
+  }
+
+  it('thêm mã ở Danh mục rồi mở công thức (`?ma=`), sau đó tìm lại: không còn mã cũ', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('71.400');
+
+    roiRoiVaoLai();
+
+    await mongManSach();
+    // Và không lặng lẽ tra lại mã ấy: lần gọi duy nhất là của lượt `?ma=` ban đầu.
+    expect(feed.snapshots).toHaveBeenCalledTimes(1);
+  });
+
+  it('lưu một công thức có mã vào Danh mục, rồi mở lại công thức ấy từ danh sách', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+    await userEvent.click(screen.getByRole('button', { name: t('save.submit') }));
+    // Lưu xong màn tự chuyển sang Danh mục — chính cú chuyển ấy kết thúc lượt xem.
+    expect(router.push).toHaveBeenCalledWith(savedCalcsPath());
+
+    roiRoiVaoLai();
+
+    await mongManSach();
+  });
+
+  it('nạp mã từ sheet mà chưa lưu gì, rời màn rồi vào lại', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
+    await userEvent.click(
+      (await screen.findAllByRole('button', { name: 'Nạp' }))[0] as HTMLElement,
+    );
+    // Có nạp thật thì ca mới chứng minh được gì: mã đã nằm trong kho phiên.
+    await screen.findByRole('button', { name: /Đổi mã/ });
+    expect(window.sessionStorage.getItem(ACTIVE_TICKER_KEY)).not.toBeNull();
+
+    roiRoiVaoLai();
+
+    await mongManSach();
+  });
+
+  /*
+   * Chủ dự án chốt "về mặc định HẾT", cả số tự gõ lúc không nạp mã. Việc này đảo lời hứa cũ của
+   * `input-draft-store.ts` (số gõ dở sống 7 ngày qua cả lần đóng tab), nên ca này gác luôn vế thứ
+   * hai: bản nháp bị XOÁ khỏi máy, không chỉ bị bỏ qua lúc dựng.
+   */
+  it('số tự gõ cũng về mặc định, và bản nháp bị xoá khỏi máy', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await userEvent.clear(oNhap(/Giá thị trường/));
+    await userEvent.type(oNhap(/Giá thị trường/), '77777');
+    fireEvent.blur(oNhap(/Giá thị trường/));
+    cleanup();
+    // Có bản nháp thật thì mới có gì để xoá.
+    expect(window.localStorage.getItem(INPUT_DRAFT_KEY) ?? '').toContain('77777');
+
+    sangManKhac();
+    render(<Man spec={specOf('pe')} />);
+
+    await mongManSach();
+    expect(window.localStorage.getItem(INPUT_DRAFT_KEY) ?? '').not.toContain('77777');
+  });
+
+  it('chuỗi minh hoạ đã nạp cũng không quay về', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
+    cleanup();
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).not.toBeNull();
+
+    sangManKhac();
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+
+    expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
+    expect(screen.queryByRole('button', { name: t('detail.exampleLoaded') })).toBeNull();
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
+  });
+
+  /*
+   * Đóng tab rồi mở lại: tab mới không mang `sessionStorage` nên không có dấu, trong khi bản nháp
+   * nằm ở `localStorage` vẫn còn. Đây là ca mà "dọn lúc rời màn" không bao giờ với tới được, và là
+   * lý do cửa gác kiểm ở lúc VÀO.
+   */
+  it('mở ở một tab mới thì bản nháp của tab cũ không quay về', async () => {
+    render(<Man spec={specOf('pe')} />);
+    await userEvent.clear(oNhap(/Giá thị trường/));
+    await userEvent.type(oNhap(/Giá thị trường/), '77777');
+    fireEvent.blur(oNhap(/Giá thị trường/));
+    cleanup();
+
+    window.sessionStorage.clear();
+    render(<Man spec={specOf('pe')} />);
+
+    await mongManSach();
+  });
+
+  /*
+   * Về mặc định không có nghĩa là bỏ qua URL: bấm ƒ trên HPG ở Danh mục là đòi số của HPG, và nó
+   * phải lên một màn đã sạch — không trộn với mã FPT của lượt trước.
+   */
+  it('ý định trên URL vẫn được tôn trọng ở lượt mới: `?ma=` nạp đúng mã vừa đòi', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=FPT');
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    cleanup();
+    sangManKhac();
+
+    feed.snapshots.mockResolvedValue(
+      new Map([['HPG', { ...FPT_SNAPSHOT, code: 'HPG', name: 'Hoà Phát', priceVnd: 28_500 }]]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?ma=HPG');
+    render(<Man spec={specOf('pe')} />);
+
+    await screen.findByRole('button', { name: /Đổi mã HPG/ });
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('28.500');
   });
 });
 
@@ -3539,5 +3855,60 @@ describe('WF-03 — dòng thay số vẽ thành hình, không in chữ trơn', (
     /* Trình đọc màn hình vẫn nghe được cả phép tính, kèm ngoặc của mẫu số. */
     const hinh = dai?.querySelector('[role="math"]');
     expect(hinh?.getAttribute('aria-label')).toContain('÷ ((1 + ');
+  });
+});
+
+/*
+ * ── Dải thay số của công thức tra HẰNG SỐ THỊ TRƯỜNG (13/10/2026) ────────────────────────────
+ *
+ * Chủ dự án mở `roi-rong`, thấy `cagr` có dải `(200.000.000 ÷ 100.000.000)^(1 ÷ 5) − 1) × 100 = 14,87`
+ * còn màn này thì không: *"công thức 'ROI ròng sau phí & thuế' đang không có áp dụng dữ liệu vào công
+ * thức để tính toán như ảnh"*. Lý do là một cửa gác cấm hẳn 14 công thức tra hằng số có mẫu (xem
+ * `formulas.test.ts`); nay mẫu nhắc tới hằng số bằng khoá và màn tra giá trị theo biểu phí đang chọn.
+ *
+ * `formulas.test.ts` gác con số ĐÚNG và việc dải đi theo biểu phí. Ba ca ở đây gác thứ chỉ tầng màn
+ * thấy: dây nối từ `ctx` tới dải có thật, và dải hiện ra ở đủ 13 màn.
+ */
+describe('WF-03 — dải thay số của công thức tra hằng số thị trường', () => {
+  function nhanCuaDai(): string | null {
+    return (
+      document.querySelector('[class*="substitution"] [role="math"]')?.getAttribute('aria-label') ??
+      null
+    );
+  }
+
+  /*
+   * Ba con số 4.618.150 · 138.000 · 1.350 không nằm ở ô nhập nào: chúng là `L_rong`, `F_mua` và
+   * `F_lk` của hình, tính từ bốn ô nhập và bốn mức của biểu phí mặc định. Ghim nguyên chuỗi để một
+   * mức phí không tới được dải (ra `_ _` hay ra số của biểu phí khác) là đỏ ngay.
+   */
+  it('roi-rong: đúng hình của công thức, số lấy từ ô nhập và biểu phí', () => {
+    render(<Man spec={specOf('roi-rong')} />);
+
+    expect(nhanCuaDai()).toBe('4.618.150 ÷ (1.000 × 92.000 + 138.000 + 1.350) × 100 = 5,01');
+  });
+
+  /*
+   * Mức phí vào hình ở dạng TỶ SỐ (0,0015), không phải "0,15%": hình viết `r_mua` như một tỷ lệ, và
+   * 21 mẫu có sẵn đã đặt mọi tỷ lệ người dùng gõ theo đúng kiểu ấy. Khối "Đang tính theo các mức
+   * sau" ngay phía trên dải vẫn in 0,15 %.
+   */
+  it('phi-giao-dich-mua: mức phí vào hình ở dạng tỷ số', () => {
+    render(<Man spec={specOf('phi-giao-dich-mua')} />);
+
+    expect(nhanCuaDai()).toBe('1.000 × 92.000 × 0,0015 = 138.000');
+  });
+
+  it('cả 13 công thức tra hằng số dùng thẻ gộp đều dựng dải', () => {
+    const can = FORMULAS.filter(
+      (spec) => (spec.usesConstants ?? []).length > 0 && hasMergedCard(spec.id),
+    );
+    expect(can).toHaveLength(13);
+
+    for (const spec of can) {
+      render(<Man spec={spec} />);
+      expect(nhanCuaDai(), `${spec.id} — không dựng dải thay số`).not.toBeNull();
+      cleanup();
+    }
   });
 });

@@ -51,7 +51,7 @@ export type { XirrOptions } from './returns';
 export { xirr, xirrNotConverged } from './returns';
 
 // Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết
-export { constantsUsedBy } from './shared';
+export { constantsUsedBy, substitutionConstants } from './shared';
 
 /** Toàn bộ công thức đã có hàm tính. */
 export const FORMULA_MODULES: ReadonlyArray<FormulaModule> = [

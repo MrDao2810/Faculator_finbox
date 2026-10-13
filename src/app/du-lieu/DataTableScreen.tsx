@@ -9,6 +9,7 @@ import {
   appendRow,
   checkSeries,
   defaultPresetPicks,
+  displaySeriesDate,
   emptyRow,
   formatNumber,
   keepSeriesDateChars,
@@ -81,6 +82,28 @@ const COLUMNS = [
 
 /** Số phiên tối thiểu để Beta và Sharpe có ý nghĩa thống kê — cùng ngưỡng với cảnh báo WF-15. */
 const MIN_USABLE_ROWS = 60;
+
+/**
+ * Chữ của ô Ngày khi một ngày ĐI VÀO bảng: mọi ngày đủ năm về 'DD/MM/YYYY'.
+ *
+ * Chủ dự án báo ngày 13/10/2026 ở màn Danh mục: cột in `03/10/2026`, ô sửa in `10/03/2026`, và yêu
+ * cầu rà cả sản phẩm cho đồng bộ. Bảng này mắc cùng kiểu lỗi theo cách riêng: bộ mẫu và Finbox ghi
+ * ISO ('2026-09-08'), người dùng gõ kiểu Việt ('08/09/2026'), nên một cột có thể in hai lối viết,
+ * và cùng một phiên hiện ISO ở đây nhưng '08/09/2026' trên trục biểu đồ của màn chi tiết.
+ *
+ * Gọi ở đúng BỐN cửa vào (đọc kho, nạp mẫu, dán, rời ô), KHÔNG gọi trong lúc gõ: đổi chữ dưới tay
+ * người đang gõ là con trỏ nhảy. Ngày thiếu năm ('15/07') và số thứ tự phiên đi qua nguyên vẹn —
+ * xem `displaySeriesDate()`.
+ */
+function ngayCuaBang(raw: string): string {
+  return displaySeriesDate(raw);
+}
+
+/** Một dòng đọc lên từ kho, ngày đã về lối viết của bảng. Dòng không đổi thì trả CHÍNH nó. */
+function dongCuaBang(row: SeriesRow): SeriesRow {
+  const date = ngayCuaBang(row.date);
+  return date === row.date ? row : { ...row, date };
+}
 
 /** id của ô ngày trên một dòng — chỗ mà nút "Tới dòng N" nhảy tới. */
 function oNgayId(index: number): string {
@@ -173,7 +196,9 @@ const SeriesRowFields = memo(function SeriesRowFields({
               onKeyDown={guardFilteredDelete}
               onBlur={(event) => {
                 resetFilteredDelete(event.currentTarget);
-                const tron = withSeriesDateSlashes(row.date);
+                /* Ghép dấu rồi đưa về MỘT lối viết: '20250715' và '2025-07-15' đều thành
+                   '15/07/2025' — xem `ngayCuaBang()`. */
+                const tron = ngayCuaBang(withSeriesDateSlashes(row.date));
                 if (tron !== row.date) onChange(index, { date: tron });
               }}
             />
@@ -248,8 +273,10 @@ export function DataTableScreen() {
     try {
       const stored = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY));
       setCode(stored.code);
-      /* Sắp một lần lúc nạp: bảng cũ trong máy có thể đã lộn thứ tự từ một lần dán ngược. */
-      setRows(sortRowsByDate(stored.rows));
+      /* Sắp một lần lúc nạp: bảng cũ trong máy có thể đã lộn thứ tự từ một lần dán ngược. Và đưa
+         ngày về một lối viết: bảng cất trước 13/10/2026, hay bảng do nút "Áp dụng vào bảng dữ
+         liệu" của màn chi tiết ghi, còn mang ngày ISO. */
+      setRows(sortRowsByDate(stored.rows.map(dongCuaBang)));
     } catch {
       // localStorage bị chặn (chế độ riêng tư của Safari) — màn vẫn dùng được, chỉ không nhớ.
     }
@@ -372,7 +399,7 @@ export function DataTableScreen() {
     setRows(
       sortRowsByDate(
         preset.bars.slice(-MAX_SERIES_ROWS).map((bar) => ({
-          date: bar.date,
+          date: ngayCuaBang(bar.date),
           open: bar.open,
           high: bar.high,
           low: bar.low,
@@ -392,7 +419,7 @@ export function DataTableScreen() {
         // giữ các phiên GẦN NHẤT. Cắt đuôi là giữ đúng phần cũ nhất, tức vứt đi phần người
         // dùng quan tâm. Sheet đã cắt sẵn và nói ra; chỗ này giữ bất biến cho mọi lối gọi khác.
         result.rows.slice(-MAX_SERIES_ROWS).map((bar) => ({
-          date: bar.date,
+          date: ngayCuaBang(bar.date),
           open: bar.open,
           high: bar.high,
           low: bar.low,

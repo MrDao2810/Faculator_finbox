@@ -21,7 +21,15 @@ import { baiHuongDan } from '@/core/huong-dan';
 import { MARKET_CONFIG } from '@/core/market';
 import { scheduleOrDefault } from '@/core/market/resolve';
 
-export type { BaiHuongDan, BaiRiengDaChuan, MucId, ONhapHuongDan } from '@/core/huong-dan';
+export type {
+  BaiHuongDan,
+  BaiRiengDaChuan,
+  HinhDangXem,
+  KhoiBieuDoBai,
+  MucBieuDoBai,
+  MucId,
+  ONhapHuongDan,
+} from '@/core/huong-dan';
 export { THU_TU_MUC } from '@/core/huong-dan';
 
 /**

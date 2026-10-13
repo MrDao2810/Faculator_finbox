@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -153,6 +153,83 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
 });
 
 /*
+ * ── Cột Ngày nói MỘT lối viết: ngày/tháng/năm (13/10/2026) ───────────────────────────────────
+ *
+ * Chủ dự án báo ở màn Danh mục: cột in `03/10/2026`, ô sửa in `10/03/2026`, và yêu cầu rà cả sản
+ * phẩm cho đồng bộ. Bảng này mắc cùng kiểu lỗi theo cách riêng: bộ mẫu và Finbox ghi ISO, người
+ * dùng gõ kiểu Việt, nên một cột in hai lối viết — và cùng một phiên hiện '2026-09-08' ở đây nhưng
+ * '08/09/2026' trên trục biểu đồ của màn chi tiết.
+ */
+describe('DataTableScreen — cột Ngày chỉ in ngày/tháng/năm', () => {
+  const MOT_PHIEN = { open: null, high: null, low: null, close: 100, volume: null } as const;
+
+  it('bảng cất dạng ISO thì mở ra in ngày/tháng/năm, và kho được ghi lại theo lối ấy', async () => {
+    napBang([{ date: '2026-10-03', ...MOT_PHIEN }]);
+    moMan();
+
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+
+    // Ngày 3 tháng 10 — không phải '2026-10-03', càng không phải '10/03/2026'.
+    expect(oNgay.value).toBe('03/10/2026');
+    await waitFor(() => {
+      expect(ngayDaLuu()).toEqual(['03/10/2026']);
+    });
+  });
+
+  it('gõ ngày kiểu ISO rồi rời ô thì ô tự về ngày/tháng/năm', async () => {
+    napBang([{ date: '', ...MOT_PHIEN }]);
+    moMan();
+
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+    await userEvent.type(oNgay, '2026-10-03');
+    // Đang gõ thì KHÔNG đổi chữ dưới tay: đổi là con trỏ nhảy.
+    expect(oNgay.value).toBe('2026-10-03');
+
+    await userEvent.tab();
+
+    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe('03/10/2026');
+  });
+
+  it('ngày thiếu năm giữ nguyên — bảng không tự suy ra năm', async () => {
+    napBang([{ date: '15/07', ...MOT_PHIEN }]);
+    moMan();
+
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+    await userEvent.click(oNgay);
+    await userEvent.tab();
+
+    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe('15/07');
+  });
+
+  /*
+   * Vế LOGIC của cùng lỗi, không chỉ là chuyện chữ: phép dò ngày trùng từng so theo chữ trong ô,
+   * nên '03/10/2026' gõ tay và '2026-10-03' của bộ mẫu là hai khoá khác nhau. Một phiên nằm hai
+   * dòng mà cột kiểm tra im lặng, và chuỗi có phiên lặp làm độ biến động tụt xuống (FR-06).
+   */
+  it('cùng một ngày viết hai lối vẫn bị báo là ngày trùng', async () => {
+    napBang([
+      { date: '2026-10-02', ...MOT_PHIEN },
+      { date: '2026-10-03', ...MOT_PHIEN },
+      { date: '', ...MOT_PHIEN },
+    ]);
+    moMan();
+
+    /*
+     * Dòng chưa có ngày nằm trên cùng (cuối mảng). Gõ kiểu ISO và CHƯA rời ô: lúc này ô mang
+     * '2026-10-03' còn dòng bên dưới đã được đưa về '03/10/2026' lúc mở màn — hai chữ khác nhau,
+     * một ngày. Câu báo in ngày theo lối của bảng.
+     */
+    const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
+    expect(oNgay.value).toBe('');
+    expect((screen.getByLabelText('Dòng 2 · Ngày') as HTMLInputElement).value).toBe('03/10/2026');
+    await userEvent.type(oNgay, '2026-10-03');
+    expect(oNgay.value).toBe('2026-10-03');
+
+    expect(await screen.findByText(/Ngày 03\/10\/2026 xuất hiện ở hơn một dòng/)).toBeTruthy();
+  });
+});
+
+/*
  * Dòng ghi chú "Chuỗi giá chỉ lưu trên thiết bị này (localStorage). Không gửi lên máy chủ." bị bỏ
  * ngày 25/08/2026 theo yêu cầu của chủ dự án — người dùng không cần đọc nó.
  *
@@ -219,7 +296,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
     await screen.findByLabelText('Dòng 1 · Ngày');
 
-    expect(ngayTrenMan()).toEqual(['2025-01-03', '2025-01-02', '2025-01-01']);
+    expect(ngayTrenMan()).toEqual(['03/01/2025', '02/01/2025', '01/01/2025']);
   });
 
   /* Vế đắt nhất: phần LƯU vẫn theo thời gian, vì cả nhóm công thức rủi ro đọc nó như chuỗi. */
@@ -228,7 +305,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
     await screen.findByLabelText('Dòng 1 · Ngày');
 
-    expect(ngayDaLuu()).toEqual(['2025-01-01', '2025-01-02', '2025-01-03']);
+    expect(ngayDaLuu()).toEqual(['01/01/2025', '02/01/2025', '03/01/2025']);
   });
 
   it('bảng nạp vào lộn thứ tự thì được xếp lại ngay lúc mở màn', async () => {
@@ -236,7 +313,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
     await screen.findByLabelText('Dòng 1 · Ngày');
 
-    expect(ngayTrenMan()).toEqual(['2025-01-03', '2025-01-02', '2025-01-01']);
+    expect(ngayTrenMan()).toEqual(['03/01/2025', '02/01/2025', '01/01/2025']);
   });
 
   it('số dòng đếm theo thứ tự NHÌN THẤY — dòng 1 là dòng trên cùng', async () => {
@@ -244,7 +321,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
 
     const dongMot = await screen.findByLabelText('Dòng 1 · Ngày');
-    expect((dongMot as HTMLInputElement).value).toBe('2025-01-03');
+    expect((dongMot as HTMLInputElement).value).toBe('03/01/2025');
   });
 });
 
@@ -256,7 +333,7 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
 
     fireEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
 
-    expect(ngayTrenMan()).toEqual(['', '2025-01-03', '2025-01-02', '2025-01-01']);
+    expect(ngayTrenMan()).toEqual(['', '03/01/2025', '02/01/2025', '01/01/2025']);
   });
 
   it('đang gõ ngày thì dòng ĐỨNG YÊN, chưa bị xếp đi chỗ khác', async () => {
@@ -272,7 +349,7 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
 
     expect(ngayTrenMan()[0]).toBe('2025-01-02');
     expect(ngayTrenMan()).toHaveLength(4);
-    expect(ngayTrenMan()[1]).toBe('2025-01-03');
+    expect(ngayTrenMan()[1]).toBe('03/01/2025');
   });
 
   it('tiêu điểm rời khỏi dòng thì mới xếp lại theo ngày', async () => {
@@ -288,8 +365,8 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
     fireEvent.focusOut(oNgay, { relatedTarget: document.body });
 
     // Hai phiên cùng ngày 02/01 nằm cạnh nhau, và phiên mới nhất vẫn trên cùng.
-    expect(ngayTrenMan()).toEqual(['2025-01-03', '2025-01-02', '2025-01-02', '2025-01-01']);
-    expect(ngayDaLuu()).toEqual(['2025-01-01', '2025-01-02', '2025-01-02', '2025-01-03']);
+    expect(ngayTrenMan()).toEqual(['03/01/2025', '02/01/2025', '02/01/2025', '01/01/2025']);
+    expect(ngayDaLuu()).toEqual(['01/01/2025', '02/01/2025', '02/01/2025', '03/01/2025']);
   });
 
   it('dòng mới chưa có ngày thì ở nguyên đầu bảng kể cả sau khi rời tiêu điểm', async () => {

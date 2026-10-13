@@ -32,6 +32,21 @@ const MIN_ABS_SPAN = 1e-6;
  */
 const MIN_REL_SPAN = 1e-9;
 
+/**
+ * Miền `[lo, hi]` hẹp tới mức coi như PHẲNG — đúng điều kiện `niceAxis()` dùng để nới hai bên.
+ *
+ * Tách thành hàm có tên (13/10/2026) vì bài hướng dẫn cũng phải hỏi đúng câu này: một đường mà màn
+ * vẽ thành vạch nằm ngang thì chữ phải tả là nằm ngang. Hỏi bằng `hi === lo` là sai ở chỗ dễ sai
+ * nhất — `gia-hoa-von` theo ô Khối lượng ra 41 điểm lệch nhau ở chữ số thứ mười hai, tức nhiễu của
+ * `double` chứ không phải độ dốc, và màn vẽ nó phẳng.
+ */
+export function isFlatSpan(lo: number, hi: number): boolean {
+  const low = Math.min(lo, hi);
+  const high = Math.max(lo, hi);
+  const magnitude = Math.max(Math.abs(low), Math.abs(high));
+  return high - low < Math.max(MIN_ABS_SPAN, magnitude * MIN_REL_SPAN);
+}
+
 export interface NiceAxis {
   domain: readonly [number, number];
   ticks: number[];
@@ -137,8 +152,7 @@ export function niceAxis(lo: number, hi: number, target = 5): NiceAxis {
    * Nới quanh TÂM, không quanh `low`: hai mốc chỉ trùng nhau khi miền phẳng thật, và ở miền hẹp
    * mà không phẳng thì nới quanh một đầu là đẩy lệch cả hình sang một bên.
    */
-  const magnitude = Math.max(Math.abs(low), Math.abs(high));
-  if (high - low < Math.max(MIN_ABS_SPAN, magnitude * MIN_REL_SPAN)) {
+  if (isFlatSpan(low, high)) {
     const center = (low + high) / 2;
     /* Mốc sàn là 1 chứ không phải `MIN_ABS_SPAN`: quanh tâm 0 thì `|center| * 0,1` bằng 0, và nới
        ra đúng một phần triệu là rơi thẳng lại vào chỗ vừa thoát ra. */

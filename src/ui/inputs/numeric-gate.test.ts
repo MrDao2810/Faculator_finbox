@@ -30,7 +30,7 @@ const CUA_LOC = /keepViNumberChars|keepSeriesDateChars/;
 const BU_PHIM_XOA = /guardFilteredDelete/;
 
 /**
- * Năm file được phép có bàn phím số, đúng bằng số chỗ gọi hôm nay.
+ * Các file được phép có bàn phím số, đúng bằng số chỗ gọi hôm nay (bảy, từ 13/10/2026).
  *
  * Ghim cả danh sách chứ không chỉ kiểm từng file: thêm một ô số ở chỗ thứ sáu cũng phải làm ca này
  * đỏ, để người thêm đọc docblock trên trước khi nối nó vào.
@@ -38,6 +38,12 @@ const BU_PHIM_XOA = /guardFilteredDelete/;
 const CHO_GOI = [
   'app/danh-muc/PortfolioScreen.tsx',
   'app/du-lieu/DataTableScreen.tsx',
+  /*
+   * Ô ngày in 'DD/MM/YYYY' — 13/10/2026, chỗ gọi thứ bảy. Thay hai ô `type="date"` của trình duyệt
+   * (ngày mua ở Danh mục, ngày dòng tiền ở XIRR), nên nó mở bàn phím số và lọc bằng
+   * `keepSeriesDateChars` như ô Ngày của bảng WF-05.
+   */
+  'ui/inputs/DateInput.tsx',
   'ui/inputs/InlineNumber.tsx',
   'ui/inputs/NumberCell.tsx',
   'ui/inputs/NumberInput.tsx',
@@ -76,7 +82,7 @@ describe('mọi ô mở bàn phím số đều phải lọc ký tự', () => {
     .map(duongDan)
     .sort();
 
-  it('đúng năm chỗ gọi, không hơn không kém', () => {
+  it('đúng bảy chỗ gọi, không hơn không kém', () => {
     expect(coBanPhimSo).toEqual(CHO_GOI);
   });
 
@@ -95,5 +101,39 @@ describe('mọi ô mở bàn phím số đều phải lọc ký tự', () => {
     for (const path of coBanPhimSo) {
       expect(BU_PHIM_XOA.test(readFileSync(join(SRC, path), 'utf8')), path).toBe(true);
     }
+  });
+});
+
+/*
+ * ── Cửa gác thứ hai: không file nào được dựng ô ngày giờ của TRÌNH DUYỆT ────────────────────────
+ *
+ * `<input type="date">` do trình duyệt vẽ theo NGÔN NGỮ CỦA TRÌNH DUYỆT (Chrome tiếng Anh in
+ * tháng/ngày/năm), còn sản phẩm in ngày/tháng/năm ở mọi chỗ khác bằng `formatIsoDate()`. Chủ dự án
+ * chụp đúng hậu quả ấy ở màn Danh mục ngày 13/10/2026: cột "Ngày mua" in `03/10/2026`, bấm vào để
+ * sửa thì ô ngày in `10/03/2026`. Không thuộc tính nào ép được ô ấy đổi thứ tự.
+ *
+ * Một ô ngày mới thêm sau này bằng `type="date"` sẽ lặp lại lỗi mà không ca kiểm jsdom nào thấy
+ * (jsdom không vẽ ô ngày), nên chặn ngay ở mức chữ trong file — cùng lối với cửa gác phía trên.
+ * Ô ngày của sản phẩm là `DateField`/`DateCell`. Chỗ duy nhất được phép giữ `type="date"` là ô
+ * TÀNG HÌNH của nút lịch trong chính `DateInput.tsx`: nó mở bảng lịch, không in chữ nào.
+ */
+describe('không ô ngày nào để trình duyệt tự vẽ', () => {
+  const O_CUA_TRINH_DUYET =
+    /(?:^|\s)type=(?:"|\{')(?:date|datetime-local|month|week|time)(?:"|'\})/m;
+
+  /*
+   * Bỏ mọi đoạn nằm giữa hai dấu huyền trước khi soi: chú thích trong repo nhắc tới ô ấy rất nhiều
+   * (kể cả chính docblock của `DateInput.tsx`), và luôn viết nó trong cặp dấu huyền. Thuộc tính
+   * thật của một thẻ JSX thì không bao giờ nằm trong dấu huyền.
+   */
+  const boDoanTrichMa = (text: string): string => text.replace(/`[^`\n]*`/g, '');
+
+  it('chỉ DateInput.tsx có, và đó là ô tàng hình của nút lịch', () => {
+    const coO = fileTrinhBay()
+      .filter((path) => O_CUA_TRINH_DUYET.test(boDoanTrichMa(readFileSync(path, 'utf8'))))
+      .map(duongDan)
+      .sort();
+
+    expect(coO).toEqual(['ui/inputs/DateInput.tsx']);
   });
 });

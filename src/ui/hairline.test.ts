@@ -128,6 +128,13 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
    * là một nút phủ cả dòng, và hàng mở rộng là `<tr>` thứ hai của cùng cặp. Bản thiết kế hai cột bỏ cả nút
    * phủ lẫn hàng mở rộng — Sửa và Bỏ mã là hai nút biểu tượng riêng — nên hàng dữ liệu hết là đích bấm,
    * và kẻ chia giữa hai hàng đã chuyển sang `--color-hairline` như mọi danh sách khung-bọc khác.
+   *
+   * 13/10/2026: hàng của bảng Mã LẠI là đích bấm cả dòng (chủ dự án bỏ hai nút biểu tượng, bấm vào dòng
+   * là mở form Sửa), nhưng `.holdRow` KHÔNG quay lại danh sách này. Hai lẽ. Bản chủ dự án vẽ lại là
+   * chính màn đang dùng hairline, và việc được giao là đổi ô Mã cùng cột cuối, không phải kẻ chia. Và
+   * cái lý do cũ "mất kẻ là dính thành một khối chữ" không còn đúng ở đây: mỗi hàng nay là tám cột số
+   * thẳng hàng, cao 52px, và hàng đang rê chuột tự đổi nền — thứ tách hai đích bấm là nền ấy, không
+   * phải độ đậm của kẻ.
    */
   [
     'app/danh-muc/PortfolioScreen.module.css',

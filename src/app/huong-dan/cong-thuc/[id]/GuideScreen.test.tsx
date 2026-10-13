@@ -260,27 +260,105 @@ describe('GuideScreen', () => {
   });
 
   /*
-   * Mục "Đọc biểu đồ" in đoạn của ĐÚNG LOẠI hình công thức đang vẽ.
+   * Mục "Đọc biểu đồ" gọi mỗi hình bằng đúng TÊN màn tính in dưới hình, và chỉ tả những dạng hình ấy
+   * thật sự có (13/10/2026).
    *
-   * Hai công thức, hai loại, và ca kiểm đọc chéo: `pe` vẽ đường quét độ nhạy, `ev` vẽ bóc tách.
-   * Mỗi bài chỉ được mang đoạn của loại mình — lẫn sang loại kia là bài dạy đọc một hình khác với
-   * hình trên màn, thứ bảy câu dùng chung của đợt 5 không thể nào bắt được vì chúng nói cho mọi
-   * loại.
+   * Ca này từng đòi tiêu đề "Biểu đồ quét độ nhạy" ở `pe` và "Biểu đồ bóc tách" ở `ev` — tên LOẠI
+   * khai trong Registry. Chủ dự án đọc tiêu đề ấy trên màn và hỏi nó nghĩa là gì: *"biểu đồ tên là
+   * gì thì ghi vào đó chứ không phải là 'Biểu đồ quét độ nhạy' vì nó vô nghĩa"*. Ba công thức dưới
+   * là ba cảnh của màn tính: mở ra một đường (`pe`), mở ra thanh bóc tách (`ev`), và không vẽ gì cho
+   * tới khi có chuỗi giá (`sma-n-phien`, công thức từng bị tả là "nến").
+   *
+   * Đợt hai cùng ngày đổi hai điều ở TRANG này. Một: mỗi mục của ô chọn "Xem kết quả đổi theo" có
+   * chữ riêng, nên `pe` có ba hình chứ không hai, và `ev` có cả ba đường theo ô nhập bên cạnh hình
+   * bóc tách. Hai: các hình xếp thành mục gập, hình màn mở ra thì mở sẵn — trang không có biểu đồ
+   * nào đang hiện để lọc theo như khung "?" làm, mà in hết ra thì dựng lại đúng cái khung dài chủ dự
+   * án vừa chê. Hai câu chỉ tới dòng "Xem kết quả đổi theo" và "Loại biểu đồ" thì đã bỏ theo lời họ.
    */
-  it('mục "Đọc biểu đồ" in đoạn của đúng loại hình, không lẫn sang loại khác', () => {
+  it('mục "Đọc biểu đồ" gọi đúng tên hình của màn tính và tả đúng dạng hình ấy có', () => {
+    const hinh = () =>
+      [...document.querySelectorAll('#doc-bieu-do details')].map((muc) => ({
+        ten: muc.querySelector('summary h3')?.textContent ?? '',
+        mo: (muc as HTMLDetailsElement).open,
+      }));
+
     dungMan('pe');
-    expect(screen.getByText('Biểu đồ quét độ nhạy')).toBeTruthy();
-    expect(
-      screen.getByText(/Lựa chọn ở dòng "Xem kết quả đổi theo" ngay trên biểu đồ/),
-    ).toBeTruthy();
-    expect(screen.queryByText('Biểu đồ bóc tách')).toBeNull();
+    // Đường theo ô Giá thị trường mở ra ngay nên đứng đầu và mở sẵn; hai hình kia theo thứ tự ô chọn.
+    expect(hinh()).toEqual([
+      { ten: 'P/E theo Giá thị trường', mo: true },
+      { ten: 'P/E theo thời gian', mo: false },
+      { ten: 'P/E theo EPS', mo: false },
+    ]);
+    // Tên hình vẫn là tiêu đề thật dù nằm trong hàng bấm của mục gập.
+    expect(screen.getByRole('heading', { name: 'P/E theo EPS' })).toBeTruthy();
+    expect(screen.getAllByText('Dạng Đường')).toHaveLength(3);
+    expect(screen.getAllByText('Dạng Cột')).toHaveLength(3);
+    // Chỉ hình theo thời gian cần chuỗi giá; hai đường theo ô nhập vẽ được ngay.
+    expect(screen.getAllByText('Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.')).toHaveLength(
+      1,
+    );
+    // Hai câu chỉ đường đã bỏ theo lời chủ dự án — "không cần đoạn text sau".
+    expect(screen.queryByText(/Lựa chọn ở dòng/)).toBeNull();
+    expect(screen.queryByText(/Hai nút/)).toBeNull();
+    expect(screen.queryByText(/Thay cho hình trên/)).toBeNull();
+    expect(screen.queryByText(/quét độ nhạy/i)).toBeNull();
 
     cleanup();
 
     dungMan('ev');
-    expect(screen.getByText('Biểu đồ bóc tách')).toBeTruthy();
-    expect(screen.getByText(/Mỗi cột là một khoản cộng vào hoặc trừ đi/)).toBeTruthy();
-    expect(screen.queryByText('Biểu đồ quét độ nhạy')).toBeNull();
+    expect(hinh()).toEqual([
+      { ten: 'EV — bóc tách', mo: true },
+      { ten: 'EV theo Vốn hoá thị trường', mo: false },
+      { ten: 'EV theo Nợ vay', mo: false },
+      { ten: 'EV theo Tiền và tương đương tiền', mo: false },
+    ]);
+    // Thanh NẰM NGANG — đoạn cũ nói "cột cuối vẽ từ 0 lên".
+    expect(screen.getByText(/các thanh nằm ngang, đọc từ trên xuống/)).toBeTruthy();
+    // Hình bóc tách không có nút Đường/Cột; hai nhãn dạng chỉ thuộc về ba đường theo ô nhập.
+    const bocTach = document.querySelector('#doc-bieu-do details');
+    expect(bocTach?.textContent).not.toContain('Dạng Đường');
+    expect(screen.getAllByText('Dạng Đường')).toHaveLength(3);
+    expect(screen.getAllByText('Dạng Cột')).toHaveLength(3);
+    expect(screen.queryByText(/Hiện ra khi chọn mục Bóc tách/)).toBeNull();
+    expect(screen.queryByText(/quét độ nhạy/i)).toBeNull();
+
+    cleanup();
+
+    dungMan('sma-n-phien');
+    // Chưa nạp chuỗi giá thì màn không vẽ gì; hình đầu tiên người dùng thấy là hình theo thời gian.
+    expect(hinh()).toEqual([
+      { ten: 'Trung bình động đơn giản (SMA) theo thời gian', mo: true },
+      { ten: 'Trung bình động đơn giản (SMA) theo Số phiên', mo: false },
+    ]);
+    // Cả hai hình của công thức này đều chờ chuỗi giá.
+    expect(screen.getAllByText('Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.')).toHaveLength(
+      2,
+    );
+    expect(screen.getAllByText('Dạng Đường')).toHaveLength(2);
+    // Hình theo thời gian vẽ kèm đường giá đóng cửa nên màn không bày nút Cột cho nó; hình theo ô
+    // Số phiên thì có.
+    expect(screen.getAllByText('Dạng Cột')).toHaveLength(1);
+    expect(screen.queryByText(/nến/)).toBeNull();
+  });
+
+  /*
+   * Ô nhập chỉ hiện ở chế độ Nâng cao thì mục của nó trong ô chọn cũng chỉ có ở chế độ ấy — hình ấy
+   * mang cùng dấu "Nâng cao" với ô nhập ở mục "Lấy số liệu ở đâu", vì cùng một lý do: bài không
+   * được kê một lựa chọn mà người đọc ở chế độ Cơ bản không tìm thấy trên màn.
+   */
+  it('hình của ô nhập Nâng cao mang dấu Nâng cao cạnh tên', () => {
+    dungMan('eps-co-ban');
+
+    const muc = [...document.querySelectorAll('#doc-bieu-do details')].map((mot) => ({
+      ten: mot.querySelector('summary h3')?.textContent ?? '',
+      nangCao: mot.querySelector('summary')?.textContent?.includes('Nâng cao') ?? false,
+    }));
+
+    expect(muc).toEqual([
+      { ten: 'EPS cơ bản theo Lợi nhuận sau thuế', nangCao: false },
+      { ten: 'EPS cơ bản theo Cổ tức ưu đãi', nangCao: true },
+      { ten: 'EPS cơ bản theo Số cổ phiếu lưu hành', nangCao: false },
+    ]);
   });
 
   /*

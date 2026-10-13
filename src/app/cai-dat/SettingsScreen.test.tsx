@@ -237,7 +237,12 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
       {
         key: 'ffb.activeTicker.v1',
         viSao:
-          'sessionStorage — mã dính theo lượt duyệt, tự hết khi đóng tab. Lối xoá nằm ngay tại chỗ nó có tác dụng: nút "Bỏ mã" trên thanh của màn chi tiết công thức',
+          'sessionStorage — mã đang xem trong MỘT lượt xem công thức (hết là "mã dính theo lượt duyệt" từ 13/10/2026), tự hết khi đóng tab và bị xoá ngay khi vào lại công thức từ màn khác. Lối xoá bằng tay nằm tại chỗ nó có tác dụng: nút "Bỏ mã" trên thanh của màn chi tiết công thức',
+      },
+      {
+        key: 'ffb.visit.v1',
+        viSao:
+          'sessionStorage — dấu "đang xem công thức nào", chỉ mang một slug công thức có sẵn trong Registry công khai. Nó là thứ ĐI XOÁ kho khác (vào lại công thức thì mã, chuỗi và số gõ dở bị dọn), tự mất khi sang màn khác và khi đóng tab — một nút xoá cho nó là nút không bao giờ có gì đáng xoá',
       },
       {
         key: 'ffb.workingSeries.v1',

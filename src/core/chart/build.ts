@@ -131,6 +131,42 @@ function shortLabel(text: Bilingual): Bilingual {
   return { vi: (headVi ?? text.vi).trim(), en: (headEn ?? text.en).trim() };
 }
 
+/*
+ * ── TÊN của biểu đồ — một nguồn cho cả màn tính lẫn bài hướng dẫn ───────────────────────────────
+ *
+ * Bốn thứ dưới đây tách khỏi thân `buildChartModel()` ngày 13/10/2026 mà KHÔNG đổi một ký tự nào của
+ * tiêu đề: mục "Đọc biểu đồ" của bài hướng dẫn phải gọi biểu đồ bằng ĐÚNG cái tên màn tính đang in
+ * dưới hình (chủ dự án: "biểu đồ tên là gì thì ghi vào đó"). Bài dựng lúc build, chưa có chuỗi giá
+ * nào để gọi cả `buildChartModel()` cho nhánh thời gian — nên nó gọi thẳng các hàm này, và hai nơi
+ * không thể viết hai kiểu tên. `src/core/huong-dan/bieu-do/` là nơi dùng thứ hai.
+ */
+
+/** Tên GỌN của công thức — nửa đầu của mọi tiêu đề biểu đồ ('P/E', không phải 'P/E — hệ số giá…'). */
+export function chartName(spec: FormulaSpec): Bilingual {
+  return shortLabel(spec.name);
+}
+
+/** Tên GỌN của một ô nhập khi nó nằm trên trục X — cũng là chữ trong ô chọn "Xem kết quả đổi theo". */
+export function axisLabel(label: Bilingual): Bilingual {
+  return shortLabel(label);
+}
+
+/** Tên trục X của đường theo thời gian, viết thường vì nó đứng sau chữ "theo". */
+export const TIME_AXIS_NAME: Bilingual = { vi: 'thời gian', en: 'time' };
+
+/** Tiêu đề của biểu đồ ĐƯỜNG: 'P/E theo Giá thị trường', 'P/E theo thời gian'. */
+export function lineChartTitle(name: Bilingual, axisName: Bilingual, onTime: boolean): Bilingual {
+  return {
+    vi: `${name.vi} theo ${axisName.vi}`,
+    en: onTime ? `${name.en} over ${axisName.en}` : `${name.en} vs ${axisName.en}`,
+  };
+}
+
+/** Tiêu đề của biểu đồ BÓC TÁCH: 'EV — bóc tách'. */
+export function breakdownTitle(name: Bilingual): Bilingual {
+  return { vi: `${name.vi} — bóc tách`, en: `${name.en} — breakdown` };
+}
+
 /**
  * Bề ngang tối đa của một nhãn vạch, tính bằng KÝ TỰ — hai con số vì hai trục có hai chỗ đứng khác
  * hẳn nhau, và gộp chúng làm một là hoặc để trục Y tràn, hoặc chia bậc trục X khi không cần.
@@ -405,7 +441,7 @@ function buildBreakdownModel(
 
   return {
     kind: 'waterfall',
-    title: { vi: `${name.vi} — bóc tách`, en: `${name.en} — breakdown` },
+    title: breakdownTitle(name),
     summary: {
       vi: sentencesVi.filter((sentence) => sentence !== '').join(' '),
       en: sentencesEn.filter((sentence) => sentence !== '').join(' '),
@@ -607,7 +643,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       ticks: sessionTicks(ctx.bars ?? []),
     };
     activeKey = HISTORY_KEY;
-    axisName = { vi: 'thời gian', en: 'time' };
+    axisName = TIME_AXIS_NAME;
   } else {
     const chosen =
       candidates.find((variable) => variable.key === sweepKey) ??
@@ -895,10 +931,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
 
   return {
     kind: 'line',
-    title: {
-      vi: `${name.vi} theo ${axisName.vi}`,
-      en: onTime ? `${name.en} over ${axisName.en}` : `${name.en} vs ${axisName.en}`,
-    },
+    title: lineChartTitle(name, axisName, onTime),
     summary: {
       vi: sentencesVi.filter((sentence) => sentence !== '').join(' '),
       en: sentencesEn.filter((sentence) => sentence !== '').join(' '),

@@ -4,6 +4,1042 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Danh mục: dấu X đỏ thay thùng rác, bảng Công thức theo khuôn bảng Mã (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Hai lượt, sau khi xem bảng Mã vừa dựng lại (mục ngay dưới):
+
+1. _"khi nào hover vào mã đó thì hiển thị icon X chứ không phải là icon xóa. thêm nữa là không cần border đỏ xung
+   quanh icon X chỉ cần icon ĐỎ X thôi. đồng bộ cả bên Công thức nữa chứ không phải mỗi bên mã"_
+2. _"khi hover vào mã để hiện icon X rồi rồi di chuột vào icon X đó thì icon X đó cần đậm màu hơn thể hiện là đang
+   hover vào icon X đó"_
+
+Câu "đồng bộ cả bên Công thức" cũng là câu trả lời cho điều 4 tôi để ngỏ ở mục dưới.
+
+### Đã làm
+
+| Việc được giao               | Làm thế nào                                                                                                                                                                       |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Icon X thay icon xoá         | Thùng rác thành hai nét chéo (`TILE_ICONS.close`), ở cả dòng nắm giữ, dòng chờ số liệu và bảng Công thức                                                                          |
+| Chỉ X đỏ, không viền đỏ      | X đỏ ngay từ lúc hiện ra; bỏ hẳn nền đỏ nhạt lúc rê (`.rowActionDanger:hover`). Không nền, không viền ở mọi trạng thái                                                            |
+| Rê vào X thì đậm màu hơn     | Màu thẫm hơn và nét dày hơn một chút (1,7 → 2,3). Màu pha từ hai token sẵn có (`--color-danger` với `--color-ink`), không thêm token; ở giao diện tối nó sáng lên thay vì thẫm đi |
+| Đồng bộ bảng Công thức       | Mã hết là chip; bỏ hai nút biểu tượng cuối dòng (mở/nạp, thùng rác) và cả cột chứa chúng; bấm cả dòng là mở phép tính; X hiện ngay sau tên khi rê chuột; cột cuối là ngày lưu     |
+| Đường cho bàn phím ở bảng ấy | Tên phép tính là một liên kết thật tới cùng đích, trông như chữ thường. Giữ nguyên tên cũ của nút ("Mở HPG · P/E", "Nạp …"), nên mở ở tab mới và trình đọc màn hình vẫn dùng được |
+
+| File                                          | Đổi gì                                                                                                                                                                                    |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx`        | Biểu tượng `close` thay `trash`, bỏ `open`/`reload`; dòng bảng Công thức dựng lại (liên kết tên + X, `onClick` trên `<tr>`, bốn cột); bỏ `Badge`                                          |
+| `src/app/danh-muc/PortfolioScreen.module.css` | `.rowRemove` mang màu đỏ và luật `:hover`; bỏ `.rowActionDanger`, `.holdActions`, `.savedTitle`; thêm `.savedHead`, `.savedOpen`, `.savedCode`; cột ngày của hai bảng rộng bằng nhau      |
+| `src/app/danh-muc/PortfolioScreen.test.tsx`   | 2 ca viết lại (bốn cột; ca "Mở/Nạp là nút biểu tượng" đảo thành khuôn mới), +4 ca (cùng một biểu tượng ở hai bảng, bấm dòng mở bản lưu, bấm X không mở, bấm tên không điều hướng hai lần) |
+| `src/application/i18n/vi.ts`, `en.ts`         | Bỏ khoá `portfolio.colActions` (tiêu đề ẩn của cột nút), kèm mộ chí                                                                                                                       |
+| `scripts/chrome-check.mjs`                    | 2 phép của bảng Mã đo thêm màu, nền, nét lúc rê vào X; +2 phép cho bảng Công thức (1440, 1024)                                                                                            |
+| `CLAUDE.md`                                   | Đoạn bảng Mã và đoạn bảng Công thức viết lại theo thiết kế mới                                                                                                                            |
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Ở bảng Công thức, X đứng sau TÊN (ô đầu), không sau mã.** Bảng Mã có mã ở ô đầu; bảng này có tên ở ô đầu,
+   còn mã ở ô thứ hai và có phép tính không gắn mã nào.
+2. **Rê vào X: ngoài màu đậm hơn còn nét dày hơn một chút.** Chỉ đổi màu trên một nét mảnh 18px thì khó thấy;
+   bỏ phần nét dày là sửa một dòng CSS nếu chủ dự án không muốn.
+3. **Dòng "Cần nạp lại chuỗi giá" giữ nền vàng khi rê chuột**, như dòng chờ số liệu ở bảng Mã: nền ấy đang báo
+   dòng còn thiếu một việc.
+4. **Trên màn cảm ứng X luôn hiện** ở cả hai bảng, cùng lý do đã ghi ở mục dưới.
+
+### Kiểm chứng
+
+Cây làm việc lúc đo có cả thay đổi chưa commit của việc khác, nên các tổng dưới là của cả cây.
+
+- `lint` sạch, `typecheck` sạch, vitest **149 file · 3647 đạt · 48 bỏ qua · 0 hỏng**.
+- **Đo trên màn thật** (Chrome riêng trỏ vào dev server) ở 1440 và 1024, cả hai bảng: X mờ `0` khi yên, `1` ở
+  đúng dòng đang rê; lúc hiện màu `rgb(179, 32, 47)` nét 1,7px; rê vào chính nó màu thẫm hơn, nét 2,3px, nền
+  trong suốt, viền 0, không bóng. Bảng Công thức bốn cột, không cuộn ngang, tên dài xuống dòng mà X vẫn nằm
+  trong ô; bấm vào ô Kết quả của một dòng thì sang `/cong-thuc/pe/?luu=pe-a`. Đã xem ảnh phóng to ở giao diện
+  sáng và tối.
+- `check:chrome` trên bản build ở BẢN SAO: **161/168**; cả bốn phép của hai bảng đạt. 7 phép hỏng vẫn là 7 phép
+  có từ trước.
+
+### Chưa làm
+
+- Chưa thử trên thiết bị cảm ứng thật (mới đọc lại CSS).
+
+---
+
+## Ngày: một lối viết ngày/tháng/năm trên cả sản phẩm (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"đang hiển thị trước khi bấm là 03/10/2026 mà lúc bấm vào để sửa thì lại hiện 10/03/2026 ? kiểm tra lại toàn bộ
+logic và sửa lại sao cho đồng bộ những kiểu lỗi này."_
+
+### Nguyên nhân
+
+Cột "Ngày mua" do `formatIsoDate()` của sản phẩm in (ngày/tháng/năm). Ô ngày trong hộp thoại Sửa là
+`<input type="date">`, do TRÌNH DUYỆT vẽ theo ngôn ngữ của chính trình duyệt: Chrome tiếng Anh in
+tháng/ngày/năm. Dữ liệu không sai (kho vẫn là `2026-10-03`), chỉ hai chỗ in hai thứ tự. Không thuộc tính HTML
+hay CSS nào ép được ô ấy đổi thứ tự, nên cách duy nhất là thôi dùng ô của trình duyệt.
+
+### Rà cả sản phẩm: năm chỗ cùng kiểu lỗi
+
+| Chỗ                            | Trước                                                                     | Nay                                                               |
+| ------------------------------ | ------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Ô "Ngày mua" của form Danh mục | Ô ngày của trình duyệt (tháng/ngày/năm trên Chrome tiếng Anh)             | Ô chữ in `dd/mm/yyyy`, đúng chuỗi của cột                         |
+| Ô ngày của bảng dòng tiền XIRR | Như trên                                                                  | Như trên                                                          |
+| Bảng dữ liệu `/du-lieu/`       | Bộ mẫu ghi `2026-09-08`, người dùng gõ `08/09/2026`: một cột hai lối viết | Mọi ngày đủ năm về `dd/mm/yyyy` (lúc mở màn, nạp mẫu, dán, rời ô) |
+| Dòng "Hiệu lực từ" của bài tập | `2026-07-01`, cạnh khối hằng số in `01/07/2026`                           | `01/07/2026`                                                      |
+| Câu báo ngày trùng của XIRR    | "Ngày 2026-10-03 đã có ở dòng 1"                                          | "Ngày 03/10/2026 đã có ở dòng 1"                                  |
+
+Và một lỗi LOGIC lộ ra từ cùng gốc: phép dò ngày trùng của bảng dữ liệu so theo chữ, nên `08/09/2026` gõ tay
+cạnh `2026-09-08` của bộ mẫu là một phiên nằm hai dòng mà cột kiểm tra không nói gì. Nay so theo ngày đã đọc.
+
+### Đã làm
+
+| File                                                           | Đổi gì                                                                                                                                              |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/date-text.ts` (mới) + test                           | Đọc và in một ngày gõ tay: `parseDateText`, `dateTextOf`, `typedDateValue`, `settledDateValue`, `isIsoDay`. Từ chối ngày không có trên lịch (31/02) |
+| `src/ui/inputs/DateInput.tsx` (mới) + CSS + test               | `DateField` (form) và `DateCell` (bảng): ô chữ, bàn phím số, nút lịch mở bảng lịch của trình duyệt qua một ô ngày tàng hình                         |
+| `src/ui/primitives/Input.tsx`                                  | Thêm chỗ đặt một điều khiển trong khung (`trailing`), dùng cho nút lịch                                                                             |
+| `src/app/danh-muc/PortfolioScreen.tsx` + test                  | Ô ngày mua dùng `DateField`; lúc lưu đọc lại bằng `parseDateText`, ngày không đọc được thì báo lỗi chứ không lưu thành "không có ngày"              |
+| `src/ui/screens/XirrBody.tsx` + CSS, `screens.test.tsx`        | Ô ngày dùng `DateCell`                                                                                                                              |
+| `src/core/cashflow-series.ts` + test (mới)                     | Mã lỗi mới `INVALID_DATE`; câu ngày trùng in theo lối của màn                                                                                       |
+| `src/core/price-series.ts` + test                              | `displaySeriesDate()`; dò ngày trùng theo ngày đã đọc                                                                                               |
+| `src/app/du-lieu/DataTableScreen.tsx` + test                   | Đưa ngày về một lối ở bốn cửa vào                                                                                                                   |
+| `src/core/chart/history.ts` + test                             | Nhãn trục thời gian đọc được cả hai lối viết (trước chỉ hiểu ISO)                                                                                   |
+| `src/ui/series/CandleChart.tsx`, `sheets/PasteImportSheet.tsx` | Dòng "từ … đến …" và lưới điền sẵn in theo lối của màn                                                                                              |
+| `src/ui/quiz/QuizQuestion.tsx`                                 | "Hiệu lực từ" qua `formatIsoDate`                                                                                                                   |
+| `src/ui/inputs/numeric-gate.test.ts`                           | Thêm `DateInput.tsx` vào danh sách ô bàn phím số; cửa gác mới: không file nào khác được dựng `type="date"`                                          |
+| `src/application/index.ts`, `i18n/vi.ts`, `en.ts`              | Xuất hàm mới; hai khoá mới `portfolio.errBuyDateFormat`, `date.openCalendar`                                                                        |
+| `scripts/chrome-check.mjs`                                     | +2 phép (ô ngày mua bằng đúng chuỗi của cột; kho ISO mở ra ngày/tháng/năm); 1 phép cũ ghim chuỗi ISO của bảng dữ liệu được cập nhật                 |
+| `CLAUDE.md`                                                    | Mục mới "Dates — one written form on screen, day/month/year"                                                                                        |
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Ô ngày nay gõ bằng bàn phím**, theo ngày/tháng/năm. Gõ `03102026` (tám số liền), `3/10/2026` hay
+   `03-10-2026` rồi rời ô đều ra `03/10/2026`. Ô không tự chèn dấu "/" giữa lúc gõ, cùng luật với cột Ngày của
+   bảng dữ liệu.
+2. **Vẫn chọn được bằng lịch**: nút lịch ở cuối ô mở bảng lịch của trình duyệt. Bảng lịch ấy vẫn do trình duyệt
+   vẽ (tên tháng theo ngôn ngữ trình duyệt), nhưng ngày chọn xong in vào ô theo ngày/tháng/năm.
+3. **Giao diện tiếng Anh cũng in ngày/tháng/năm**, vì mọi chỗ khác của sản phẩm vốn đã in như vậy.
+4. **Bảng dữ liệu đang cất trong máy sẽ đổi chữ ở cột Ngày** lần mở kế tiếp (`2026-09-08` thành `08/09/2026`),
+   và **file CSV tải về in theo đúng cột ấy**. Trước đây bảng nạp từ bộ mẫu xuất ra ngày ISO.
+5. **Ngày thiếu năm (`15/07`) ở bảng dữ liệu giữ nguyên**: bảng không tự suy ra năm.
+
+### Kiểm chứng
+
+- vitest như mục trên (149 file · 3647 đạt · 0 hỏng); `lint`, `typecheck` sạch.
+- **Đo trên màn thật** bằng Chrome đặt ngôn ngữ `en-US` (đúng môi trường sinh lỗi): cột in `03/10/2026`, ô ngày
+  của form in `03/10/2026`; gõ `05092026` rồi Tab ra `05/09/2026`, lưu xong cột in `05/09/2026` và kho ghi
+  `2026-09-05`. Bảng dữ liệu gieo ngày ISO mở ra `03/10/2026`, đầu biểu đồ nến in `01/10/2026 → 03/10/2026`.
+- `check:chrome` trên bản build ở BẢN SAO: **161/168**; các phép của việc này đạt. Tổng 164 → 168 (hai việc
+  của hôm nay cộng lại).
+
+### Chưa làm, chưa kiểm
+
+- Chưa mở được bảng lịch trong Chrome không giao diện, nên phần "bấm nút lịch thì lịch hiện ra" mới kiểm bằng
+  cách giả cú chọn ngày; cần chủ dự án bấm thử một lần.
+- Chưa thử ô ngày trên điện thoại thật.
+
+---
+
+## Bảng Mã của Danh mục: mã chữ trơn, bấm cả dòng, thùng rác hiện khi rê, cột ngày mua (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Kèm một ảnh chụp bảng Mã có ba chỗ đánh dấu: _"điều chỉnh lại thiết kế của phần danh mục bản web. bỏ bo viền
+ngoài xanh xanh của tên ticker mà tôi khoanh đi chỉ để hiển thị tên ticker thôi. bỏ 2 icon edit và xóa đi. thay
+vào đó chỗ tôi gạch chéo là khi hover chuột vào một mã bất kỳ thì icon xóa sẽ hiển thị chỗ đó và khi bấm vào sẽ
+xóa mã đó đi. nếu người dùng muốn sửa hoặc xem mã đó thì bấm luôn vào mã chỗ tôi bôi đỏ toàn ô đó. thay thế chỗ
+trước kia của 2 icon Sửa và Xóa thành hiển thị ngày vì đang chưa có ngày"_
+
+### Đã làm
+
+| Việc được giao               | Làm thế nào                                                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Bỏ chip quanh mã             | Mã là chữ trơn: giữ phông đơn cách, cỡ và độ đậm của chip cũ, bỏ nền và bo góc                                                          |
+| Bỏ hai nút Sửa/Xoá cuối dòng | Bút chì bỏ hẳn; thùng rác dời về ngay sau mã                                                                                            |
+| Thùng rác hiện khi rê chuột  | Ẩn bằng `opacity` trong `@media (hover: hover)`; rê vào DÒNG (hoặc dòng có tiêu điểm bàn phím) thì hiện. Bấm là xoá ngay, không hỏi lại |
+| Bấm vào dòng để sửa/xem      | Cả `<tr>` mở form Sửa; dòng đổi nền khi rê và mang con trỏ tay                                                                          |
+| Cột cuối thành ngày          | Tiêu đề "Ngày mua", in `dd/mm/yyyy`; mã không có ngày mua thì `_ _`                                                                     |
+
+| File                                          | Đổi gì                                                                                                                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx`        | Ô Mã của dòng nắm giữ và dòng chờ: nút mã + thùng rác; `<tr>` nắm giữ có `onClick`; ô cuối là ngày mua; tiêu đề cột cuối; bỏ hai biểu tượng `edit`/`fill` không còn ai dùng; hằng `ISO_DAY` |
+| `src/app/danh-muc/PortfolioScreen.module.css` | `.holdRowOpen`, `.codeCell`, `.codeOpen`, `.rowRemove`; chia lại bề ngang tám cột ở cả hai khổ máy tính; `.holdWeightCell` từ `inline-flex` sang `flex`                                     |
+| `src/app/danh-muc/PortfolioScreen.test.tsx`   | 4 ca viết lại theo thiết kế mới, +3 ca (thiếu ngày mua, bấm cả dòng mở form, bấm thùng rác không mở form)                                                                                   |
+| `src/application/i18n/vi.ts`, `en.ts`         | Khoá mới `portfolio.colBuyDate` ("Ngày mua" / "Bought on")                                                                                                                                  |
+| `src/ui/hairline.test.ts`                     | Chỉ chú thích: vì sao `.holdRow` không quay lại danh sách `--color-border` dù dòng lại là đích bấm                                                                                          |
+| `scripts/chrome-check.mjs`                    | +2 phép đo (1440 và 1024)                                                                                                                                                                   |
+| `CLAUDE.md`                                   | Viết lại đoạn về bảng Mã; thêm đoạn về năm chỗ dễ hỏng                                                                                                                                      |
+
+### Bốn điều tôi tự quyết, chủ dự án nên biết
+
+1. **"Ngày" là NGÀY MUA** — ngày duy nhất một mã nắm giữ có (ô "Ngày mua" của form). Việc này đảo câu 12/10 "ngày
+   mua chỉ thấy trong form Sửa". Beta vẫn chỉ thấy trong form.
+2. **Mã là một nút, không phải chữ trơn thuần.** `<tr>` không lấy được tiêu điểm, nên người dùng bàn phím và
+   trình đọc màn hình cần một nút thật để mở form. Nhìn thì vẫn là chữ trơn; tên nút giữ nguyên "Sửa FPT".
+3. **Trên màn cảm ứng thùng rác LUÔN hiện.** Ở đó không có "rê chuột", nên một nút trong suốt là một nút xoá vô
+   hình vẫn bấm trúng: chạm vào khoảng trống cạnh mã là mất mã, không hỏi lại.
+4. **Bảng Công thức (tab kia) KHÔNG đổi.** Nó vẫn có chip mã và hai nút biểu tượng cuối dòng, vì yêu cầu và ảnh
+   chụp chỉ nói về bảng Mã. Hai tab vì thế đang khác nhau — cần chủ dự án nói có đồng bộ hay không.
+   **Đã trả lời cùng ngày: đồng bộ.** Việc ấy và việc đổi thùng rác thành dấu X đỏ nằm ở mục trên cùng.
+
+### Hai lỗi tìm ra nhờ ĐO trên màn thật, không phải nhờ ca kiểm
+
+- **Con số tỷ trọng tràn sang ô ngày.** `.holdWeightCell` là `inline-flex` nên co theo nội dung: thanh giữ đủ
+  88px trong một ô 130px và đẩy "100,0%" sang ô bên phải. Hồi ô bên phải là hai nút biểu tượng thì không ai
+  thấy. Chuyển sang `flex` để thanh là thứ co lại.
+- **Tiêu đề "TỶ TRỌNG" dính vào "NGÀY MUA" ở 1024px** (khe 7px, đọc ra thành một nhãn). Cột cuối trước đây có
+  tiêu đề ẩn nên chỗ dính ấy vô hình. Chia lại bề ngang: khe nay 13px.
+
+### Kiểm chứng
+
+Cây làm việc lúc đo có cả thay đổi chưa commit của việc khác, nên các tổng dưới là của cả cây.
+
+- **Đo trên màn thật** (Chrome riêng trỏ vào dev server, số liệu thật từ Finbox, có một mã tám chữ và một mã
+  chờ), ở 1440, 1280 và 1024: bảng không cuộn ngang, trang không tràn; thùng rác mờ `0` khi yên và `1` ở đúng
+  dòng đang rê; dòng đang rê đổi nền; con số tỷ trọng nằm trọn trong ô của nó; khe tới chữ ngày mua 57 / 41 /
+  19px; khe giữa hai tiêu đề "TỶ TRỌNG" và "NGÀY MUA" ở 1024px là 13px. Đã xem ảnh chụp ở cả ba khổ.
+- `check:chrome` trên bản build ở BẢN SAO: **157/164**. Hai phép mới (1440, 1024) đạt; phép cũ "mỗi hàng đúng hai
+  nút biểu tượng, dạt về mép phải" ĐỎ ngay lần chạy đầu vì nó ghim đúng thiết kế vừa bị thay — đã ĐẢO thành
+  "hai nút của hàng nằm ở ô đầu, ô cuối không còn nút" và đạt. Tổng 162 → 164. **7 phép hỏng vẫn là 7 phép có
+  từ trước** (nhãn biểu đồ của `lich-tra-no`, `diem-hoa-von`, `lai-kep` × 2, `fcff`; "hàng nav đứng yên"; "hàng
+  nút của form thêm mã"), không phép nào thuộc việc này.
+- `build` xong, `verify:static` **51/51**.
+- `lint` sạch, `typecheck` sạch, `format:check` sạch, vitest **146 file · 3573 đạt · 48 bỏ qua · 0 hỏng**.
+
+Trường hợp biên còn chật, đã biết: ở 1024px một mã TÁM chữ (chứng quyền, chứng chỉ quỹ) cùng thùng rác rộng hơn ô
+Mã 72px, nên thùng rác lấn sang phần trống bên trái của ô Số CP. Chỉ đè lên chữ khi số lượng dài từ bảy chữ số.
+
+### Việc còn lại
+
+- Chủ dự án xem màn thật, và trả lời điều 4 ở trên (đồng bộ bảng Công thức hay giữ nguyên).
+- Khổ dưới 1024px vẫn là phương án tạm như trước (bảng cuộn ngang trong khung); thùng rác luôn hiện ở đó.
+
+---
+
+## Dải thay số cho 13 công thức tra hằng số thị trường (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, cửa gác và phép đo trên màn đã xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Gửi ảnh dải thay số của `cagr` (`(200.000.000 ÷ 100.000.000)^(1 ÷ 5) − 1) × 100 = 14,87`) và hỏi vì sao `roi-rong`
+không có: _"công thức 'ROI ròng sau phí & thuế' đang không có áp dụng dữ liệu vào công thức để tính toán như ảnh"_.
+Sau khi nghe nguyên nhân và hai hướng (dải thay số, hoặc dùng lại bảng bóc tách của `loi-nhuan-rong` cho hai công
+thức gộp), chốt: _"tiếp tục việc quay lại việc áp dụng công thức và áp số liệu vào thay thế khi đang xem công thức
+như ở trên"_ — tức dải thay số, như ảnh.
+
+### Nguyên nhân
+
+Không phải lỗi dựng hình. Từ 01/10/2026 `formulas.test.ts` cấm hẳn: công thức có `usesConstants` thì không được có
+`spec.substitution`, vì mẫu chỉ với tới ô nhập và 12 mẫu khi ấy đã chép thẳng `× 0,15 ÷ 100` vào (đúng với biểu
+phí mặc định, sai ngay khi mức phí đổi). 14 công thức bị chặn, 13 trong số đó dùng thẻ gộp nên thiếu dải.
+
+### Đã đổi
+
+| File                                                          | Sửa gì / vì sao                                                                                                                                                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/substitution.ts`                                        | chỗ trống của mẫu nhận khoá có dấu chấm (`{fee.brokerage.buy}`); `choTrong()` là một biểu thức dùng chung cho nơi phân tích mẫu và cửa gác; `laKhoaHangSo()`                                |
+| `core/substitution-shape.ts`                                  | dùng `choTrong()` thay cho bản chép riêng của biểu thức                                                                                                                                     |
+| `core/formulas/shared.ts`, `index.ts`, `application/index.ts` | `substitutionConstants(spec, ctx)`: giá trị số học của từng hằng số theo biểu phí đang chọn; hằng số % ra tỷ số qua chính `rateOf`, còn lại giữ trị số                                      |
+| `core/formulas/fees.ts`                                       | mẫu cho 7 công thức; `gia-hoa-von` và `roi-rong` khai ký hiệu dẫn xuất (`fMua`, `fLk`, `lRong`…)                                                                                            |
+| `core/formulas/derivatives.ts`                                | mẫu cho 5 công thức; hai công thức làm tròn xuống khai `k`, `r`                                                                                                                             |
+| `core/formulas/planning.ts`                                   | mẫu cho `thue-tncn-dau-tu`                                                                                                                                                                  |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`                        | dải nhận thêm hằng số: `datSoThaySo(cây, { ô nhập, hằng số })`                                                                                                                              |
+| `core/formulas/formulas.test.ts`                              | bỏ ca cấm; +3 ca: khoá hằng số trong mẫu phải có ở `usesConstants`, mọi khoá `usesConstants` phải được mẫu nhắc, và gấp đôi mọi mức của biểu phí thì dải vẫn tính lại ra đúng số `calc` trả |
+| `app/cong-thuc/[id]/FormulaDetail.test.tsx`                   | +3 ca: `roi-rong` và `phi-giao-dich-mua` ghim nguyên chuỗi của dải; cả 13 màn đều dựng dải                                                                                                  |
+| `core/registry/types.ts`, `page.tsx`, `CLAUDE.md`             | chú thích và số đếm: 48 → 61 mẫu; đoạn mới trong CLAUDE.md về việc đảo luật 01/10                                                                                                           |
+
+`loi-nhuan-rong` cố ý KHÔNG có mẫu: nó dùng thân riêng chứ không dùng thẻ gộp, mà dải chỉ sống trong thẻ gộp.
+
+### Hai quyết định cần chủ dự án biết
+
+- **Mức phí vào hình ở dạng tỷ số (0,0015), không phải "0,15%".** Lượt trước tôi nói nên in "0,15%"; đọc lại 48
+  mẫu có sẵn thì 21 mẫu đã đặt mọi tỷ lệ người dùng gõ ở dạng tỷ số (6 % → 0,06), và hình viết `r_mua` như một tỷ
+  lệ. Làm khác đi là có hai quy ước trong cùng loại dải. Khối "Đang tính theo các mức sau" ngay trên dải vẫn in
+  0,15 %. Muốn đổi sang dạng % thì nên đổi cả 61 dải một lượt.
+- **`roi-rong` và `gia-hoa-von` thay số ở mức ký hiệu**, nên dải có con số không nằm ở ô nhập nào (`L_rong`,
+  `F_mua`, `F_lk`), và trên `roi-rong` hai ô Giá bán, Thời gian nắm giữ không hiện trong dải. Đã nêu trước khi
+  làm. Ba ký hiệu ấy đều có khung "cách tính" khi rê vào hình.
+
+### Đo trên màn thật (Chrome không giao diện, dev server, bộ số mặc định)
+
+Cả 13 màn ở 1440 và 1280: dải hiện, nằm trong thẻ (cách mép phải 21px), trang không tràn, hình không phải cuộn.
+
+| Công thức             | Dải                                                                               |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `phi-giao-dich-mua`   | `1.000 × 92.000 × 0,0015 = 138.000`                                               |
+| `phi-giao-dich-ban`   | `1.000 × 97.000 × 0,0015 = 145.500`                                               |
+| `thue-chuyen-nhuong`  | `1.000 × 97.000 × 0,001 = 97.000`                                                 |
+| `thue-co-tuc`         | `1.000 × 2.000 × 0,05 = 100.000`                                                  |
+| `phi-luu-ky`          | `1.000 × 5 × 0,27 = 1.350`                                                        |
+| `gia-hoa-von`         | `(1.000 × 92.000 + 138.000 + 1.350) ÷ (1.000 × (1 − 0,0015 − 0,001)) = 92.370,28` |
+| `roi-rong`            | `4.618.150 ÷ (1.000 × 92.000 + 138.000 + 1.350) × 100 = 5,01`                     |
+| `thue-tncn-dau-tu`    | `1.000 × 97.000 × 0,001 + 1.000 × 2.000 × 0,05 = 197.000`                         |
+| `lai-lo-vi-the-long`  | `(1.288 − 1.280) × 100.000 × 1 = 800.000`                                         |
+| `lai-lo-vi-the-short` | `(1.280 − 1.272) × 100.000 × 1 = 800.000`                                         |
+| `so-hop-dong-toi-da`  | `⌊200.000.000 ÷ (1.280 × 100.000 × 0,17)⌋ = 9`                                    |
+| `co-vi-the-phai-sinh` | `⌊500.000.000 × 0,02 ÷ (15 × 100.000)⌋ = 6`                                       |
+| `don-bay-hieu-dung`   | `1.280 × 100.000 × 1 ÷ 30.000.000 = 4,27`                                         |
+
+### Kiểm
+
+- `src/core`, `src/application`, `src/app/cong-thuc/[id]`: 1989 đạt, 1 hỏng. Ca hỏng là "khoá mồ côi
+  `save.suggestions`" ở `i18n.test.ts`, thuộc việc bỏ hàng "Gợi ý tên" đang sửa dở trong cây; việc này không đụng
+  i18n.
+- `tsc --noEmit`: 0 lỗi. `eslint` và `prettier --check` trên các file sửa: sạch.
+- Chưa chạy `npm run check` trọn bộ, `npm run size`, `verify:static`, `check:chrome` (cần build, mà dev đang giữ
+  :3000). Phần thêm vào gói của 111 trang là 13 chuỗi mẫu và một hàm ngắn.
+
+### Việc còn lại
+
+- Chủ dự án xem dải trên màn, và chốt dạng tỷ số hay dạng %.
+- Thấy khi đọc, chưa sửa: một bước trong khung "cách tính" của `roi-rong` (`core/how-to/fees.ts`) còn vẽ
+  `F_{lk}(M)`, đúng kiểu `ký hiệu(tham số)` đã bị bác ngày 22/09/2026.
+- `MARKET_CONFIG` mới có một biểu phí, nên "đổi biểu phí thì dải đổi theo" hiện chỉ được gác bằng biểu phí dựng
+  trong ca kiểm, chưa thử được bằng tay trên màn Cài đặt.
+
+---
+
+## Bỏ hàng "Gợi ý tên" khỏi sheet lưu công thức (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code và ca kiểm xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"bỏ phần gợi ý tên khi lưu công thức đi, để gọn gàng hơn."_
+
+### Đã làm
+
+Dưới ô tên của sheet "Lưu vào danh mục" từng có nhãn "Gợi ý tên" và một hàng chip bày mọi cái tên
+`suggestCalcNames()` dựng ra (mã · tên, tên · kết quả, tên · ngày…). Hàng ấy đã gỡ; sheet nay chỉ còn khối tóm
+tắt, một ô tên và nút Lưu.
+
+| File                                     | Đổi gì                                                                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/sheets/SaveCalcSheet.tsx`        | Gỡ khối chip; `suggestions` thu lại thành `suggestedName` (chỉ gợi ý đầu, để điền sẵn); docblock ghi lý do và thứ còn giữ |
+| `src/ui/sheets/SaveCalcSheet.module.css` | Gỡ `.suggestions`, `.suggestionsLabel`, `.chips`, `.chip`; để lại một dòng mộ chí                                         |
+| `src/ui/sheets/SaveCalcSheet.test.tsx`   | Ca "bấm một gợi ý là điền tên đó vào ô" ĐẢO thành ca ghim hàng chip không còn; ca khối tóm tắt đổi sang `getByText` đơn   |
+| `src/application/i18n/vi.ts`, `en.ts`    | Xoá khoá `save.suggestions` (cửa "khoá mồ côi" đòi thế); mộ chí ở `vi.ts`                                                 |
+
+### Điều tôi tự quyết, cần chủ dự án xác nhận
+
+**Ô tên VẪN được điền sẵn gợi ý đầu tiên** (ví dụ `HPG · P/E`, đã né tên trùng). Tôi đọc "phần gợi ý tên" là
+hàng chip nhìn thấy trên màn, không phải việc điền sẵn, vì hai lẽ: bỏ điền sẵn thì mỗi lần lưu phải gõ một cái
+tên; và tab Công thức của màn Danh mục nhận ra "tên tự sinh" bằng cách dựng lại `suggestCalcNames()`
+(`displayCalcName()`), rồi mới quyết định ô tên in gì và có dịch được sang EN không. Nếu ý chủ dự án là bỏ cả
+việc điền sẵn thì nói lại, đó là một thay đổi riêng và chạm tới màn Danh mục.
+
+### Kiểm chứng
+
+- `typecheck` sạch, `eslint` sạch và `prettier --check` sạch trên các file đã sửa.
+- vitest trên `src/ui/sheets`, `src/application/i18n`, `FormulaDetail.test.tsx`, `src/app/danh-muc`: **9 file ·
+  730 đạt · 3 bỏ qua · 0 hỏng** — gồm cửa "khoá mồ côi" và luồng lưu rồi chuyển sang Danh mục.
+- Chưa build lại và chưa chạy `check:chrome`: không phép đo nào của nó mở sheet lưu, và gói chỉ nhẹ đi.
+
+### Việc còn lại
+
+- Chủ dự án xem sheet lưu trên màn thật, và trả lời câu về việc điền sẵn ở trên.
+
+---
+
+## Vào lại công thức thì về mặc định (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code và ca kiểm xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"sửa lỗi nghiêm trọng sau: sau khi thêm mã vào danh mục hoặc thêm công thức có mã vào danh mục, vừa thêm mã
+nhưng chưa lưu gì cả,... thì vào lại hoặc search lại công thức đó thì lại đang lưu lại mã cũ trong công thức đó.
+sửa lỗi này, phải reset lại công thức về mặc định"_
+
+### Gốc lỗi
+
+Không nằm ở Danh mục mà ở `FormulaDetail`. Màn cất trạng thái vào ba kho rồi nạp lại ở MỌI lần gắn, không kho
+nào phân biệt được "quay lại từ bảng dữ liệu" với "vào lại từ danh sách":
+
+| Kho                    | Ở đâu                | Ai nạp lại                             |
+| ---------------------- | -------------------- | -------------------------------------- |
+| `ffb.activeTicker.v1`  | sessionStorage       | effect "mã dính theo lượt duyệt"       |
+| `ffb.draft.v1`         | localStorage, 7 ngày | effect khôi phục bản nháp ô nhập       |
+| `ffb.workingSeries.v1` | sessionStorage       | effect khôi phục chuỗi đã thay tại chỗ |
+
+Ba kịch bản được báo là một lỗi: mã nằm lại trong kho phiên, mở công thức bằng đường trơn là nó tự điền lại.
+
+### Điều đã chốt lúc lên kế hoạch (đã duyệt)
+
+Hỏi chủ dự án một câu: số TỰ GÕ lúc không nạp mã có giữ không. Trả lời: **về mặc định hết**. Việc này **đảo hai
+quyết định cũ**:
+
+1. "Mã dính theo lượt duyệt, nạp một lần xem được mọi công thức" — mã không còn theo sang công thức khác.
+2. Bản nháp ô nhập sống 7 ngày qua cả lần đóng tab (chủ dự án từng chốt `localStorage`) — nay chỉ sống trong
+   một lượt xem.
+
+### Luật mới
+
+Một **lượt xem** công thức X còn tiếp diễn chừng nào người dùng chỉ đứng ở: màn chi tiết X, `/du-lieu/`,
+`/huong-dan/cong-thuc/X/`. Trong lượt xem (F5, đi bảng dữ liệu hay bài hướng dẫn rồi quay lại) thì giữ nguyên
+như trước. Sang bất kỳ màn nào khác là hết lượt, lần mở kế tiếp bắt đầu sạch. `?ma=`, `?luu=`, `?so=` vẫn nạp
+thứ URL nói ra, lên một màn đã sạch.
+
+### Đã làm
+
+Một dấu "đang xem công thức nào" ở `sessionStorage` (`ffb.visit.v1`), kiểm ở CỬA VÀO. Không dọn lúc tháo
+component: đóng tab, F5 và điều hướng cứng không chạy cleanup, và bản nháp ở `localStorage` sẽ quay về ở tab mới.
+
+| File                                               | Đổi gì                                                                                                                                                                  |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/formula-visit.ts` (mới)           | `FORMULA_VISIT_KEY`, `parseFormulaVisit()`, `visitContinuesAt()`. Thuần, so đường dẫn TUYỆT ĐỐI (`/cong-thuc/` trơn và `/cong-thuc/peg/` đều không phải lượt xem `pe`)  |
+| `src/application/formula-visit.test.ts` (mới)      | 10 ca                                                                                                                                                                   |
+| `src/ui/layout/FormulaVisitTracker.tsx` (mới)      | Lá client, `usePathname()`: đường dẫn ra khỏi lượt xem thì xoá dấu. Thiếu nó thì đi `pe` → danh sách → `pe` vẫn thấy dấu `pe`                                           |
+| `src/ui/layout/FormulaVisitTracker.test.tsx` (mới) | 6 ca                                                                                                                                                                    |
+| `src/ui/layout/AppShell.tsx`                       | Gắn lá mới cạnh `OriginTracker`                                                                                                                                         |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`         | Hàm `clearVisitStores()` (dùng chung với `resetAll()`); MỘT effect cửa gác khai TRÊN ba effect khôi phục. Ba effect ấy không sửa dòng nào. Sửa các docblock nay nói sai |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx`    | `seedActiveTicker()` nay gieo kèm dấu lượt xem; 2 ca đảo; khối mới "vào lại công thức thì về mặc định" 7 ca; 1 ca "F5 giữa lượt xem thì mã trở lại"                     |
+| `src/app/cai-dat/SettingsScreen.test.tsx`          | `ffb.visit.v1` vào danh sách miễn nút xoá, kèm lý do; sửa lý do của `ffb.activeTicker.v1`                                                                               |
+| `src/application/active-ticker.ts`                 | Docblock: phạm vi thu hẹp về một lượt xem, và lời dặn đừng nối lại đường "mã theo sang công thức khác"                                                                  |
+| `src/application/input-draft-store.ts`             | Docblock: bản nháp chỉ còn sống trong lượt xem; vì sao kho KHÔNG dời sang `sessionStorage`                                                                              |
+| `src/application/i18n/vi.ts`, `en.ts`              | `data.drafts.note`: "rời màn rồi quay lại" → "mở bảng dữ liệu hay trang hướng dẫn rồi quay lại"                                                                         |
+| `src/application/index.ts`                         | Xuất ba tên mới                                                                                                                                                         |
+| `scripts/chrome-check.mjs`                         | +2 phép đo bằng điều hướng thật                                                                                                                                         |
+| `CLAUDE.md`                                        | Đoạn mới về luật lượt xem                                                                                                                                               |
+
+Ba điều dễ làm hỏng:
+
+- **Cửa gác phải khai TRÊN ba effect khôi phục.** Cả ba đọc kho đồng bộ lúc gắn; đặt cửa gác ở dưới là nó xoá
+  kho sau khi số cũ đã lên màn.
+- **"Không đọc được dấu" là lượt MỚI**, không phải "cứ khôi phục cho chắc". Phía an toàn của lỗi này là bộ số
+  mặc định. `clearVisitStores()` dùng hai khối `try` riêng để `sessionStorage` bị chặn vẫn xoá được bản nháp.
+- **Thứ tự effect giữa màn và lá `FormulaVisitTracker` không quyết định gì**, và đó là chủ ý: màn tự quyết bằng
+  phép so id của chính nó, lá chỉ lo những màn không phải màn chi tiết.
+
+### Hệ quả đã biết
+
+- Đang gõ số ở `wacc`, bấm sang `capm` (khối chuỗi, link trong khung "cách tính") rồi quay lại: `wacc` về mặc định.
+- Bấm Back của trình duyệt về một công thức sau khi đã ghé màn khác: cũng về mặc định.
+- Bảng dữ liệu WF-05 (`ffb.series.v1`) không đụng tới: công thức chuỗi vẫn đọc nó như cũ.
+- Kho bản nháp vẫn ở `localStorage`: hạn 7 ngày và trần 40 chỉ còn là lưới dọn.
+
+### Kiểm chứng
+
+Cây làm việc lúc đo có cả thay đổi chưa commit của việc khác (khung "?" của biểu đồ, mã chờ số liệu ở Danh mục),
+nên các con số dưới là của cả cây, không riêng việc này.
+
+- `npm run check`: `lint` sạch, `typecheck` sạch, `format:check` sạch, vitest **146 file · 3559 đạt · 48 bỏ qua ·
+  0 hỏng**.
+- **Phép thử ngược:** tắt đúng một dòng `clearVisitStores()` trong cửa gác thì 8 ca đỏ (6 của khối mới và 2 ca
+  đảo); ca thứ bảy của khối mới (`?ma=` ở lượt mới) vẫn xanh, đúng như phải thế vì URL vốn thắng. Bật lại thì
+  192 ca của `FormulaDetail.test.tsx` xanh.
+- Build trên BẢN SAO (dev của chủ dự án giữ :3000): `build` xong, `verify:static` **51/51**.
+- `check:chrome` **155/162**. Hai phép mới đều đạt, với số đo thật: gõ `77.777` → bản nháp `{"price":77777,…}` →
+  về danh sách (dấu đã mất) → mở lại ra `92.000`, bản nháp `null`, cả hai cú chuyển màn là điều hướng trong ứng
+  dụng; gõ `66.666` → tải lại trang vẫn `66.666`. Tổng 159 → 162: hai phép của việc này, một phép của việc khác
+  đang dở trong cây. **7 phép hỏng là đúng 7 phép đã hỏng từ trước** (ghi ở mục "Tấm dán đáy" ngay dưới: nhãn
+  biểu đồ của `lich-tra-no`, `diem-hoa-von`, `lai-kep` × 2, `fcff`; "hàng nav đứng yên khi đổi màn"; "hàng nút
+  của form thêm mã"). Không phép nào chạm tới việc này.
+- `size` **CHƯA ĐẠT như trước**: 112 trang vượt cửa 180 kB, trang chi tiết 429,8 kB First Load JS (mục 13/10 về
+  bài hướng dẫn ghi 429,6 kB). Lá mới ở layout gốc và cửa gác cộng lại không quá 0,2 kB.
+
+Một bẫy gặp khi viết phép đo Chrome, ghi lại vì nó cho ra **phép đo xanh mà không đo gì**: Chrome không đầu coi
+tab là không có tiêu điểm, nên `el.focus()` không bắn sự kiện `focus`, ô không chuyển sang dạng đang sửa, và chữ
+gõ vào bị NỐI sau số cũ (`92.000` + `77777` bị kẹp về trần `10.000.000`). Bản đầu của phép đo vẫn đạt vì nó chỉ
+đòi "số đã gõ khác mặc định". Nay cụm ấy bật `Emulation.setFocusEmulationEnabled` rồi tắt lại, và đòi đúng
+`77.777` cùng bản nháp chứa `77777` trước khi rời màn.
+
+### Việc còn lại
+
+- Chủ dự án xem màn với đúng ba kịch bản đã báo, và hai đường phải giữ (F5, "Mở bảng dữ liệu →" rồi quay lại).
+
+---
+
+## Tấm dán đáy thành popup giữa màn ở khổ web (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code và phép đo xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"chuyển đổi toàn bộ dialog bottom ở màn web thành popup ở giữa màn hình rồi tự căn chỉnh cho phù hợp hơn.
+còn ở màn mobile thì giữ nguyên dialog bottom"_
+
+### Số đo làm nền
+
+Ở khổ web còn 4 tấm dán đáy: `PresetSheet` (màn chi tiết và `/du-lieu/`), `ExportSheet`, `SaveCalcSheet`, và
+`TickerPickerSheet` của màn chi tiết. Đã nổi giữa sẵn: form Danh mục cùng hai sheet của nó, `PasteImportSheet`.
+
+Hai điều chốt lúc lên kế hoạch (đã duyệt): mốc "màn web" là **1024px** (mốc "nav lên thanh trên" của bảng bậc màn
+trong `globals.css`), và việc này **đảo** câu 22/09/2026 "sheet chọn mã của màn chi tiết giữ dán đáy" ở khổ web.
+
+### Đã làm
+
+Chỉ CSS, đặt trong primitive, nên cả 4 tấm đổi cùng lúc. Luật dán đáy hiện có **không sửa dòng nào**.
+
+| File                                       | Đổi gì                                                                                                                                                                                                                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/primitives/BottomSheet.module.css` | Khối `@media screen and (min-width: 1024px)` ở cuối file: bản chép của dạng `center` cho mọi tấm không truyền `placement`, ẩn vạch kéo, thêm `.sheetNarrow` 560px. `.sheetCenter` thêm `overflow: visible`, `.panelCenter` thêm `overflow: hidden` (xem dưới) |
+| `src/ui/primitives/BottomSheet.tsx`        | Prop `width?: 'regular' \| 'narrow'`; viết lại docblock `placement`                                                                                                                                                                                           |
+| `src/ui/primitives/BottomSheet.test.ts`    | +9 ca: khối khổ web chép đúng từng khai báo của dạng `center` (6 cặp luật), đứng cuối file, ẩn vạch kéo, tấm hẹp chỉ đổi bề ngang; hằng dò khối ghim luôn chữ `screen`                                                                                        |
+| `src/ui/sheets/ExportSheet.tsx`            | `width="narrow"`                                                                                                                                                                                                                                              |
+| `src/ui/sheets/SaveCalcSheet.tsx`          | `width="narrow"`                                                                                                                                                                                                                                              |
+| `src/ui/sheets/TickerPickerSheet.tsx`      | Sửa docblock `placement` (từng ghi "màn chi tiết giữ dán đáy")                                                                                                                                                                                                |
+| `scripts/chrome-check.mjs`                 | +6 phép đo, 153 → 159                                                                                                                                                                                                                                         |
+| `CLAUDE.md`                                | Đoạn mới về luật 1024px; sửa câu cũ về sheet chọn mã; số phép kiểm                                                                                                                                                                                            |
+
+Bề ngang từng tấm ở khổ web: chọn mã 720 × 600 (trùng dáng của chính nó ở Danh mục), nạp mẫu 720 (bấm "Tìm mã
+khác" là đổi qua lại với sheet chọn mã, cùng bề ngang thì không giật), tải về và lưu 560.
+
+**Hai lỗi có sẵn của dạng nổi giữa, lộ ra khi soi ảnh phóng 4 lần, đã sửa** (cả hai có ở hộp thoại Danh mục từ
+22/09/2026; phép đo `border-radius` cũ không thấy vì nó đọc con số khai):
+
+- Góc dưới phải của sheet chọn mã VUÔNG: tấm không có hàng nút thì phần tử cuối là thân cuộn, và thanh cuộn của
+  nó đè lên góc bo. Chữa: `overflow: hidden` trên tấm.
+- Bóng đổ bị cắt thành một mảng vuông sẫm sau bốn góc: `<dialog>` mang `overflow: hidden` nên cắt luôn bóng của
+  tấm bên trong. Chữa: `overflow: visible` trên `<dialog>` dạng nổi giữa.
+
+### Kiểm chứng
+
+Dev của chủ dự án đang giữ :3000 và working tree đang có việc khác sửa dở, nên đo trên bản sạch: `HEAD` + đúng
+các file của việc này, build ở scratchpad.
+
+- `check:chrome` trên `HEAD` nguyên gốc: 146/153. Trên bản có thay đổi: 152/159, 6 phép mới đều đạt. 7 phép hỏng
+  là CÓ SẴN, giống hệt nhau ở hai bản, không phép nào thuộc việc này: 5 phép nhãn biểu đồ tràn viewBox (`lich-tra-no`,
+  `diem-hoa-von`, `lai-kep` × 2, `fcff`), "hàng nav đứng yên khi đổi màn" (712 so với 720), và "hàng nút của form
+  thêm mã dạt về mép phải" (hở 20px — đúng bằng khoảng đệm ngang của `footer` dạng `center`, có từ trước).
+- Số đo ở 1440×900: tải về 560 × 453, lưu 560 × 422, nạp mẫu 720 × 586 (thân lố 0px), chọn mã 720 × 600; lề trái
+  bằng lề phải ở cả bốn. Ở 1024×768 cùng số, không tấm nào tràn. Ở 360×780 cả bốn vẫn dán đáy, rộng 360, hai góc
+  dưới 0px, còn vạch kéo.
+- Ảnh chụp 15 cảnh (5 tấm × 3 khổ) bằng Chrome headless riêng, đã tự soát.
+- **Bản in không đổi.** Vùng in của sheet Tải về nằm trong `<dialog>` này, và A4 ngang rộng 1123px nên bản đầu
+  của khối mới (chưa có `screen`) đổi hẳn bản in ngang: file 73 kB thành 172 kB. Thêm `screen and` rồi in lại
+  bằng `Page.printToPDF` ở A4 dọc và A4 ngang, không lề: hai bản khác bản `HEAD` đúng 8 byte dấu thời gian.
+- Trên bản sạch (`HEAD` + các file của việc này): `lint` sạch, `typecheck` sạch, vitest 141 file · 3239 đạt · 48 bỏ
+  qua · 0 hỏng. `verify:static` 49/50 và `size` CHƯA ĐẠT ở CẢ HAI bản, giống nhau (xem dưới).
+
+### Thấy được khi đo, KHÔNG thuộc việc này và chưa sửa
+
+- **File PDF xuất ra đang bị cắt, từ trước đợt này.** Đo trên `HEAD` nguyên gốc, `/cong-thuc/pe/`, mở sheet Tải về
+  rồi `Page.printToPDF` A4 dọc: 3 trang, cả 3 lặp lại cùng một mảnh — tên công thức, câu phụ, kết quả, nửa trên
+  biểu đồ — bắt đầu ở 2/3 dưới trang và cắt ngang hình. Bảng đầu vào, bảng biến, phần diễn giải, nguồn và câu
+  miễn trừ (FR-24) không có trên trang nào. Số đo dưới media in: `<dialog>` là hộp 720 × 375px dán đáy mang
+  `overflow: hidden`, còn `.print-region` bên trong cao 906px. `check:chrome` không thấy vì bốn phép của nó đo
+  `visibility` và sự có mặt của hình, không đo hộp cắt. Chưa xem `window.print()` qua hộp thoại in thật.
+- `npm run size` ở `HEAD`: CHƯA ĐẠT, 112 trang vượt cửa kiểm; bảng của `next build` ghi `/cong-thuc/[id]` First
+  Load 385 kB, `/danh-muc` 184 kB (cửa 180 kB). Việc này không đổi hai con số ấy.
+- `verify:static` ở `HEAD`: 49/50, hỏng "lời giải ví dụ của một công thức chỉ nằm trong HTML trang của chính nó".
+- `npx tsc --noEmit` trên working tree (không phải `HEAD`) đang đỏ ở `src/core/huong-dan/types.ts:77` và
+  `src/ui/guide/GuideBody.tsx` — phần hướng dẫn "Đọc biểu đồ" đang sửa dở, không file nào của việc này.
+
+### Chưa làm, để quyết sau
+
+- `PasteImportSheet` về dán đáy ở 768px chứ không 1024px, nên ở dải 768–1023 nó nổi giữa trong khi bốn tấm kia
+  dán đáy. Dải tablet chưa ai thiết kế.
+- Form Danh mục ở mobile vẫn là popup giữa màn 92vw như cũ.
+- Thân tấm không có hàng nút (nạp mẫu, chọn mã) đệm đáy 16px trong khi đệm hai bên 20px — số của dạng `center`
+  từ 22/09, đặt cho thân có hàng nút đứng dưới. Lệch 4px, chưa đụng.
+
+---
+
+## Mã lấy từ watchlist Finbox vào Danh mục — Phần 1: phía nhận mã (13/10/2026)
+
+**Trạng thái: CHƯA XONG — Phần 1 code xong, chờ chủ dự án xem màn; Phần 2 (đăng nhập + API) để sau khi dự án
+ổn định.**
+
+### Chủ dự án giao gì
+
+Hỏi trước cho một việc "sau này": dùng dữ liệu gọi từ Finbox để đưa các mã đã lưu vào danh mục. Ba điều chốt:
+
+1. "Mã đã lưu" = watchlist tài khoản Finbox.
+2. _"với những mã đó thì sẽ vẫn sẽ được phân loại vào danh mục nhưng sẽ có màu tượng trưng riêng để khi người
+   dùng bấm vào sẽ hiển thị bảng nhập thêm thông số đang thiếu"_
+3. Nguồn: _"sẽ có một đường link hoặc API"_ — hình dạng chưa định.
+
+### Số đo làm nền
+
+- Watchlist chỉ có MÃ (`options.values[]`, `header == 'ticker'`): không số lượng, không giá vốn, không ngày mua.
+- Nó nằm ở `api2.finbox.vn` (`POST /watchlists/list`), KHÔNG phải `dcs.finbox.vn`. Cần JWT: gọi không token trả
+  `401 "Chưa đăng nhập: Thiếu thông tin đăng nhập"`. CORS mở `*`, cho phép header `authorization`.
+- `Holding` bắt buộc `quantity > 0` và `costPrice > 0`; `parseHoldings()` bỏ hẳn dòng thiếu.
+
+### Đã làm
+
+Mã chờ số liệu nằm ở **kho thứ hai, chỉ gồm mã** (`ffb.portfolio.pending.v1`), không phải `Holding` có ô trống.
+Lý do: nhánh sẵn có trong `summarisePortfolio()` làm "Vốn đã bỏ ra" và lãi/lỗ của cả danh mục ra `_ _` chừng nào
+còn một dòng thiếu số, và cho phép tổng bỏ qua dòng thiếu là "coi như 0" (FR-06). Tách kho thì mã chờ không vào
+phép cộng nào.
+
+| File                                                    | Đổi gì                                                                                                                                                                                                                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/portfolio-pending-store.ts` (mới)      | `importCodes()` là cửa DUY NHẤT nhận mã từ ngoài: viết hoa, bỏ thứ không phải mã (bỏ chứ không cắt), bỏ mã đã giữ và mã đang chờ, trần 50 tính chung hai kho, phần tràn trả về theo tên. Kèm đọc/ghi kho, `reconcilePending()`, `splitCodeList()`       |
+| `src/application/portfolio-pending-store.test.ts` (mới) | 21 ca                                                                                                                                                                                                                                                   |
+| `src/application/index.ts`                              | Xuất các tên mới qua barrel                                                                                                                                                                                                                             |
+| `src/core/portfolio.ts` + test                          | `summarisePortfolio()` nhận thêm `pendingCount` tuỳ chọn, CHỈ để đổi câu lý do của danh mục rỗng: bảng có dòng chờ mà thẻ nói "Danh mục chưa có mã nào" là sai. Không phép tính nào đổi (một ca ghim `toEqual` với và không có mã chờ)                  |
+| `src/app/danh-muc/PortfolioScreen.tsx`                  | State `pending` + `completing` + `overflow`; đọc `?nhap=`; `codesKey`, `priceAsOf` và dải thị giá gộp mã chờ; dòng chờ trong bảng; chế độ thứ ba của hộp thoại (mã khoá, ô số trống, lưu qua `addHolding()` rồi gỡ khỏi kho chờ); số trên tab = số dòng |
+| `src/app/danh-muc/PortfolioScreen.module.css`           | `.holdRowPending` dùng lại `--color-warning-soft` của `.savedRowWarn`: một màu, một nghĩa "dòng này còn thiếu một việc". Không token mới                                                                                                                |
+| `src/app/danh-muc/PortfolioScreen.test.tsx`             | +18 ca (cụm "mã chờ số liệu"). 111 ca cũ xanh mà không sửa ca nào                                                                                                                                                                                       |
+| `src/app/cai-dat/SettingsScreen.tsx`                    | Kho mới vào `STORAGE_ITEMS` (cửa gác kho đòi)                                                                                                                                                                                                           |
+| `src/application/i18n/vi.ts`, `en.ts`                   | `portfolio.complete`, `portfolio.formComplete`, `portfolio.importFull`, `data.pending`, `data.pending.note`                                                                                                                                             |
+
+Ba chỗ khác kế hoạch đã duyệt, đều có lý do:
+
+- `summarisePortfolio()` có đổi (tham số `pendingCount`), kế hoạch ghi "không đổi một dòng". Phát hiện lúc làm:
+  không đổi thì thẻ tóm tắt nói sai về màn.
+- Mã sai hình dạng bị BỎ, không "cắt 12 ký tự": cắt là dựng ra một mã khác mà không ai gửi.
+- Việc gỡ `?nhap=` khỏi URL nằm ở một effect riêng, khai sau effect ghi kho. React Strict Mode chạy effect nạp
+  hai lần; gỡ ngay trong đó thì lần hai không còn gì để đọc và lượt nhập mất. Đã thấy chạy đúng trên dev.
+
+### Kiểm chứng
+
+- `npm run lint`: sạch. Prettier: sạch trên các file đã sửa.
+- Vitest phạm vi đã sửa (danh mục, kho chờ, core portfolio, cài đặt, i18n): 220 xanh.
+- Mở dev thật `/danh-muc/?nhap=FPT,HPG,XXXX` bằng một Chrome headless riêng, 1440px và 500px: FPT và HPG có thị
+  giá thật, XXXX in `_ _`, mở lại không kèm link vẫn còn ba dòng, trang không tràn ngang.
+- **CHƯA chạy được `npm run check` trọn vẹn, `build`, `verify:static`, `size`**: lúc làm, `tsc` báo 7 lỗi và
+  vitest đỏ 71 ca, TẤT CẢ ở `src/core/huong-dan/` và `src/ui/guide/` — phần "Đọc biểu đồ" đang được sửa song
+  song trong cùng thư mục làm việc (file đổi lúc 10:52). Không file nào của đợt này dính. Cần chạy lại ba lệnh
+  ấy khi phần kia xanh; `/danh-muc/` chưa được đo lại với cửa 180 kB.
+
+### Còn lại
+
+- **Chủ dự án xem màn**: màu của dòng chờ (đang dùng nền cảnh báo sẵn có), biểu tượng bút chì kèm dấu cộng, vị
+  trí dòng chờ (sau các dòng nắm giữ).
+- Tên tham số `nhap` là TẠM, đổi theo link Finbox chốt (`IMPORT_PARAM`).
+- **Phần 2 — đăng nhập rồi gọi API Finbox.** Chủ dự án chốt hướng 13/10/2026, CHƯA làm: _"sau này sau khi dự án
+  ổn định thì sẽ bắt đầu bước tiếp theo là sử dụng api từ finbox về, tức là sẽ có chức năng đăng nhập rồi mới
+  call api từ finbox về đây"_. Tức là đường có tài khoản, không phải đường link. Bộ nối sẽ là cổng
+  `WatchlistFeed` riêng, tách khỏi `MarketFeed`, và chỉ việc gọi `importCodes()` — phía nhận mã không phải sửa.
+  Việc phải chốt TRƯỚC khi bắt đầu:
+  1. Mở `https://api2.finbox.vn` trong `connect-src` của `public/_headers` — origin thứ hai, cần chủ dự án ký
+     như lần mở `dcs.finbox.vn`. Câu "không tài khoản, không backend" ở `portfolio-store.ts` và SRS §3 đổi theo.
+  2. Đăng nhập bằng gì: email + mật khẩu (`/auth/login`) làm được ngay; tài khoản Google/Apple không có mật
+     khẩu, muốn hỗ trợ thì phải khai origin của Faculator với Google/Apple và mở thêm origin trong CSP.
+  3. Token cất ở đâu: CSP đang để `script-src 'unsafe-inline'`, nên token trong `localStorage` dễ lộ hơn bình
+     thường. Phương án an toàn nhất là chỉ giữ trong bộ nhớ, đổi lại mỗi lần mở app phải đăng nhập lại.
+  4. Giới hạn thiết bị của Finbox (`/devices/check`, `/devices/add`): CHƯA đo được một lượt đăng nhập từ
+     Faculator có tốn một suất thiết bị hay không — cần một tài khoản thật hoặc backend Finbox trả lời.
+  5. Tài khoản nhiều watchlist thì lấy danh sách nào (mặc định `default-set`, hay cho chọn).
+  6. Giữ một chiều Finbox → Faculator: số lượng và giá vốn không đẩy ngược lên.
+  7. Bộ nối link `?nhap=` lúc ấy giữ lại (đường không cần đăng nhập) hay bỏ.
+- Khổ nhỏ chưa có thiết kế (như cả màn): dòng chờ đi theo bảng, cuộn ngang trong khung.
+
+---
+
+## Khối "Đang tính theo các mức sau": tên mức là đề mục, ghi chú là lời bên lề (13/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem lại trên màn.** CSS và ca kiểm đã xong, đã đo bằng Chrome.
+
+### Chủ dự án giao gì
+
+Khoanh bốn tên mức và ba dòng ghi chú của khối trên `roi-rong`: _"các phần khoanh đỏ đang không rõ ràng rằng
+nó là thuộc dạng chú thích? hay giải thích việc nội dung bên dưới? nếu nó là đề mục thì tại sao lại nhỏ hơn
+hoặc nhỏ bằng phần nội dung bên dưới? và màu của nó ko đủ nổi bật?"_
+
+### Đo trên bản cũ
+
+Thứ bậc chữ lộn ngược: tên mức 12px thường `--color-ink-soft` (yếu nhất hàng), trị số 14px nét 500, căn cứ
+12px mờ, ghi chú 12px `--color-ink` (sáng nhất trong ba dòng 12px). Ghi chú đứng cuối hàng nên nằm ngay trên
+tên mức kế tiếp, cách 8px: một dòng sáng đè lên một dòng mờ cùng cỡ, đọc ra thành đề mục của mức bên dưới.
+
+### Đã đổi
+
+| File                                 | Sửa gì / vì sao                                                                                                                                                                                                     |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui/result/ConstantsNote.module.css` | tên mức 14px đậm `--color-ink`; trị số về nét thường (cùng cỡ thì đậm với thường là thứ tách tên khỏi giá trị); ghi chú thêm vạch trái 2px và giữ màu `--color-ink`; khe giữa hai mức 16px ở cả một cột lẫn hai cột |
+| `ui/result/ConstantsNote.test.tsx`   | +2 ca đọc thẳng file CSS: tên mức to, đậm, sáng nhất hàng; ghi chú có vạch trái và khác màu căn cứ pháp lý                                                                                                          |
+| `ui/result/ConstantsNote.module.css` | (lượt 2) tiêu đề khối sang đúng kiểu tiêu đề khối của sản phẩm: 14px đậm, chữ hoa giãn 0,04em, `--color-ink`; khe tiêu đề → danh sách 12px                                                                          |
+| `ui/section-title.test.ts`           | (lượt 2) ghim `ConstantsNote .title` vào danh sách tiêu đề khối, 12 → 13 ca                                                                                                                                         |
+
+DOM không đổi, không thêm khoá i18n. Khối này dùng chung cho 14 công thức tra hằng số.
+
+### Lượt 2 — quét cả 111 công thức xem còn lỗi này không
+
+Chủ dự án: _"xem xét toàn bộ tất cả công thức xem còn lỗi này không rồi sửa lại"_.
+
+**Cách đo.** Chrome không giao diện mở từng trang chi tiết trên dev server, lấy mọi cặp "tên/đề mục → nội dung
+bên dưới" (`dt → dd`, `label → ô nhập`, `h2–h6 → phần theo sau`, phần tử mang tên lớp kiểu nhãn, và MỌI nhóm 3–10
+dòng chữ xếp dọc bất kể tên lớp), đo cỡ · nét · tương phản của từng dòng. Một dòng "lấn át" tên khi nó không
+thua tên ở trục nào và hơn ở ít nhất một trục. Thêm một phép tìm cặp "ngang bằng" (cùng cỡ, nét, màu), vì chủ dự
+án nói cả "nhỏ bằng".
+
+| Lượt                                                                                                                                                   | Trang | Kiểu cặp | Bị lấn át |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- | -------- | --------- |
+| Cơ bản, 1440                                                                                                                                           | 111   | 58       | 35        |
+| Nâng cao, 1440                                                                                                                                         | 111   | 59       | 35        |
+| Cơ bản, 390                                                                                                                                            | 111   | 58       | 33        |
+| Phải bấm mới thấy: bài tập 6 trang (đủ ba dạng câu, tới tổng kết), mục đang gập 9 trang, khung "cách tính" 3 trang, khung "?" 3 trang, nạp mẫu 3 trang | 24    | 62       | 32        |
+
+Gộp bốn lượt: **35 cặp lớp CSS khác nhau** bị lấn át, **0 cặp ngang bằng**. Xếp loại từng cặp:
+
+- **1 cặp là đúng lỗi này**: tiêu đề khối "Đang tính theo các mức sau" (14px đậm, màu dịu) mờ hơn tên mức ngay
+  dưới nó (14px đậm, màu chính), 14 trang. Đây là phần còn sót của chính khối vừa sửa: nâng tên mức lên thì tiêu
+  đề thành bậc yếu hơn. Đã sửa (hai dòng "lượt 2" ở bảng trên).
+- **9 cặp là nhãn ô nhập** đứng trên một điều khiển có viền (`Input`, `Select`, `SliderInput`, `ButtonGroup`).
+  Giữ: cái hộp nói ra vai của hai dòng, không ai đọc nhầm số trong ô thành đề mục.
+- **6 cặp là nhãn nhỏ trên một con số lớn** (khối Kết quả, thẻ "Lợi nhuận ròng", thẻ "Trả hằng tháng", điểm bài
+  tập). Giữ: nội dung là một con số trần cỡ 32–40px, không phải dòng chữ.
+- **6 cặp là nhãn CHỮ HOA của khối lời giải** ("Công thức áp dụng", "Thay số", "Kết quả", "Nguồn", "Vì sao chưa
+  đúng") và bảng số liệu của câu hỏi. Giữ: ở khổ web chúng là một CỘT bên trái nội dung; ở điện thoại chúng xếp
+  trên nội dung nhưng chữ hoa giãn là dấu "đây là nhãn" của cả sản phẩm. Đây là nhóm sát ranh nhất: nhãn 11px
+  mờ thật sự nhỏ hơn nội dung 13px.
+- **13 cặp là nhiễu của phép đo**, không phải cặp tên → nội dung (dòng chú thích nguồn đứng cùng hàng với link
+  của nó rồi vỡ dòng, số mũ trong hình vẽ công thức, nút "Chú thích", dòng tiêu đề phụ của ví dụ…).
+
+Đo lại sau khi sửa, cả 14 trang ở hai khổ: tiêu đề khối 0/14 lần bị lấn át, tên mức 0/24.
+
+**Chưa phủ:** các hộp thoại Lưu, Tải về, Dán số liệu và sheet chọn mã (không thuộc nội dung công thức); bài tập
+chỉ đo 6 trên 111 trang (cùng một bộ CSS cho mọi trang); chế độ Nâng cao chưa đo ở khổ 390; bảng màu tối không
+đo riêng (phép so tương phản chạy trên bảng sáng, hai bảng dùng chung tên token).
+
+### Đo sau khi sửa (Chrome không giao diện, dev server, trang `roi-rong`)
+
+- 1440, hai cột: khối cao 221px, trang không tràn ngang, dòng chữ xa nhất còn cách mép phải của hàng 20px.
+- 360, một cột: khối cao 485px, trang không tràn ngang.
+- Nét 500 trên Windows vẽ ra đúng bằng nét 600 (cùng một chuỗi 14px: 183,42px cả hai; 700 là 192,36px, 400 là
+  180px), nên để trị số ở 500 thì nó đậm gần ngang tên mức. Vì vậy trị số về 400.
+
+### Kiểm
+
+- Sau lượt 2: `ConstantsNote.test.tsx` 13/13, `section-title.test.ts` 13/13 và bảy cửa quét CSS của `src/ui`
+  (tokens, contrast, hairline, radius, typography, warning-surface, result-card), tổng 515/515.
+- `prettier --check` và `eslint` trên ba file sửa: sạch.
+- `tsc --noEmit` báo 7 lỗi, KHÔNG lỗi nào thuộc file của đợt này: 1 ở `core/huong-dan/types.ts`, 6 ở
+  `ui/guide/GuideBody.tsx`, đều do `./bieu-do/types` chưa xuất `DieuKienBieuDo` / `nhieuTruc` / `coHaiDang` /
+  `dieuKien`. Đó là phần hướng dẫn đang sửa dở trong cây làm việc; không đụng tới.
+- Chưa chạy `npm run check` trọn bộ và chưa chạy `check:chrome` (cần build, mà dev đang giữ :3000).
+
+### Việc còn lại
+
+- Chủ dự án xem lại trên màn, kể cả tiêu đề khối nay viết hoa như "SỐ LIỆU" và "KẾT QUẢ".
+- Chủ dự án chốt nhóm sát ranh: nhãn chữ hoa 11px của khối lời giải (Ví dụ thực tế và Bài tập, 111 trang) có
+  cần to và đậm lên không. Hiện giữ nguyên.
+- Dòng thay số cho 14 công thức tra hằng số (lý do `roi-rong` không có dải thay số) vẫn chờ chốt hướng:
+  11 công thức dạng tích đơn, và 2 công thức gộp `roi-rong`, `gia-hoa-von`.
+
+---
+
+## Mục "Đọc biểu đồ" của bài hướng dẫn viết lại cho từng công thức (13/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem khung "?" trên màn và đọc lại chữ.** Đợt hai cùng ngày (mục
+"Sửa tiếp") đã xong code, cửa kiểm và 600 đoạn × 2 thứ tiếng; đợt ba (mục "Thẩm định chữ" ngay dưới) đã soát
+lại cả 600 đoạn với `calc` và sửa khoảng 150 đoạn. `npm run check` xanh. Chữ do tôi viết chứ không lấy từ
+file chủ dự án giao, nên vẫn cần được đọc lại.
+
+### Thẩm định chữ (tối 13/10/2026) — soát 600 đoạn với `calc`, sửa khoảng 150 đoạn, sửa một lỗi tính của hình beta
+
+**Vì sao có đợt này.** Chủ dự án dặn "không được làm đối phó", mà 600 đoạn là chữ tôi viết và cửa kiểm chỉ
+thấy được hình thức (đúng tên ô, đúng chiều của bộ số mặc định). Câu "xu thế ấy nghĩa là gì" có đúng với phép
+tính hay không thì không máy nào thấy. Nên trước khi báo xong, tôi cho bốn agent chỉ đọc soát độc lập toàn bộ
+kho chữ với `calc` và với bộ dựng biểu đồ thật, mỗi agent một nhóm file. Chúng không sửa gì trong repo.
+
+**Chúng tìm ra gì** (mọi phát hiện tôi đều đối chiếu lại với code trước khi sửa)
+
+| Loại lỗi                                   | Ví dụ                                                                                                                                                                                         | Số đoạn (ước) |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| Gọi chuỗi đã nạp là "diễn biến thật"       | 17 đoạn hình theo thời gian. Bộ mẫu "Nạp mẫu" có 247 phiên tự dựng và một phiên thật (`samples.ts`), nên câu ấy sai với mọi bộ mẫu                                                            | 17            |
+| Chiều đi chỉ đúng với bộ số mặc định       | ROE theo Vốn chủ: "Đường đi xuống". Nhập lợi nhuận âm thì đường đi lên. Đo được 26 trục như vậy                                                                                               | khoảng 50     |
+| "Vì sao" chỉ đúng với bộ số mặc định       | "luôn nằm cao hơn lãi suất danh nghĩa" (ghép mỗi năm một lần thì trùng); `lich-tra-no` "càng lúc càng dốc" (chọn Gốc đều thì đường thẳng)                                                     | khoảng 25     |
+| Tả độ dốc NHÌN bằng mắt                    | "đi xuống đều và rất thoải" ở WACC theo thuế suất. Ở dạng Đường trục dọc co khít theo dữ liệu, nên đường ấy chạy chéo 72% khung                                                               | khoảng 6      |
+| Sai cơ chế của công thức                   | độ rộng dải Bollinger "đi lên là trước đây dao động mạnh hơn" (dải tính trên độ lệch của MỨC GIÁ, cửa sổ dài tự rộng ra); "phần thưởng của việc tái đầu tư" ở hình mà cột nào cũng tái đầu tư | khoảng 20     |
+| Tả thứ màn không vẽ                        | `he-so-bien-thien`: "cột quay xuống dưới vạch 0" trong khi `calc` không tính khi lợi suất bình quân âm, màn vẽ vùng gạch chéo                                                                 | khoảng 9      |
+| Câu chữ nhỏ, lệch nghĩa giữa hai thứ tiếng | "bought elsewhere" cho "mua ở giá khác"; "vùng trống" cho vùng màn vẫn vẽ gạch chéo ở dạng Cột; "cycle" trong khi ô tên là "period"                                                           | khoảng 20     |
+
+**Lỗi nằm ở HÌNH chứ không ở chữ: `beta` theo thời gian vẽ sai số.** Đoạn chữ nói "mỗi điểm là beta hồi quy
+trên các phiên tính tới đó", và đó đúng là điều hình phải vẽ. Nhưng `historyPoints()` cắt `bars` và `series`
+tới từng phiên mà để nguyên `ctx.marketSeries`, nên mọi điểm trừ điểm cuối ghép lợi suất cổ phiếu của quãng cũ
+với lợi suất VN-Index của quãng gần nhất. Tái hiện: một cổ phiếu dựng có beta đúng 1,5 ở mọi cửa sổ vẽ ra
+đường chạy từ −0,37 tới 1,5. Đã sửa trong `src/core/chart/history.ts` (bỏ ở đuôi chuỗi chỉ số đúng số phiên vừa
+bỏ ở đuôi chuỗi cổ phiếu), kèm một ca kiểm đỏ trước, xanh sau. Chỉ `beta` đọc chuỗi ấy nên không hình nào khác
+đổi. **Đây là thay đổi ngoài phạm vi chữ, tôi làm vì để nguyên thì hoặc đoạn chữ nói sai, hoặc phải viết một
+đoạn tả lỗi như thể nó là tính năng; chủ dự án không muốn thì bỏ riêng commit ấy.**
+
+**Luật mới của cửa kiểm: trục đảo chiều được thì đoạn chữ phải nói cả hai chiều**
+
+- `keHoachBieuDo()` nay dò từng trục đo được (`KeHoachTruc.daoChieu`): đổi từng ô một, kể cả chính ô trên trục,
+  trên một lưới thưa các giá trị gõ được (`min`, `max`, 0, vài bội của con số mặc định và số đối của nó, mọi
+  lựa chọn của ô chọn). Chỉ tính lên thành xuống hoặc xuống thành lên; đường chỉ phẳng ra khi một thừa số về 0
+  thì không tính.
+- 26 trục như vậy: `eps-co-ban` · `roe` · `roa` · `bien-loi-nhuan-rong` (mẫu số, khi doanh nghiệp lỗ),
+  `ev-ebitda` · `ev-sales` (EV âm), `ncav-tren-co-phieu.shares`, `ty-suat-loi-nhuan-tren-gia.price`,
+  `ddm-hai-giai-doan.years`, `capm.erp` (beta âm), `wacc.equity` · `wacc.debt`, `gia-tri-tuong-lai.years`,
+  `loi-nhuan-rong.quantity`, `cagr.years`, `loi-suat-nam-hoa.periodsPerYear`, `tong-loi-suat-tai-dau-tu.years`,
+  `loi-suat-quy-nam-theo-ngay.days`, `gia-ly-thuyet-vn30f.days`, `lai-lo-vi-the-long.contracts` ·
+  `lai-lo-vi-the-short.contracts`, `gui-quay-vong.principal` · `.totalMonths`, `gia-von-trung-binh-dca.amount1`
+  · `.amount2` · `.amount3`.
+- Với 26 trục ấy đoạn Đường phải có cả "đi lên" lẫn "đi xuống"; đoạn Cột hoặc không tả dãy cột đổi dần theo
+  hướng nào, hoặc tả ít nhất hai trong "cao dần · thấp dần · dài dần · ngắn dần". Gác riêng đoạn Cột vì khung
+  "?" chỉ in một dạng.
+- Viết điều kiện bằng lời của chính công thức ("Khi doanh nghiệp có lãi … đang lỗ thì đường đi lên"), **không
+  viết "với bộ số đang nhập"**: câu ấy khẳng định một điều về con số đang có trên màn, thứ mà chữ viết lúc build
+  không thể biết. Mười mấy đoạn đang dùng cụm ấy đã được viết lại.
+
+**Đã đổi**
+
+| File                                             | Sửa gì / vì sao                                                                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `core/huong-dan/bieu-do/noi-dung/*.ts` (6 file)  | khoảng 150 đoạn, cả hai thứ tiếng, sửa bằng công cụ vá theo đúng vị trí từng đoạn (không gõ lại đoạn nào không nêu) |
+| `core/huong-dan/bieu-do/ke-hoach.ts`, `types.ts` | `KeHoachTruc.daoChieu` + phép dò `daoChieuDuoc()` / `luoiGoDuoc()`                                                  |
+| `core/huong-dan/bieu-do/kiem.ts`                 | hai luật cho trục đảo chiều được; bảng từ `cotDoi`                                                                  |
+| `core/huong-dan/bieu-do/bieu-do.test.ts`         | +5 ca: ghim 26 trục, phép dò thấy đúng trục, luật bắt được chính lỗi cũ của ROE theo Vốn chủ ở cả hai dạng          |
+| `core/chart/history.ts`, `history.test.ts`       | cắt `marketSeries` tới cùng phiên (lỗi hình beta); +1 ca                                                            |
+| `CLAUDE.md`                                      | luật mới, năm loại lỗi đã gặp, năm điều thấy mà chưa sửa                                                            |
+
+**Quyết định tôi tự chốt, chủ dự án liếc lại**
+
+1. **Bỏ chữ "thật", không thêm câu "bộ mẫu là số tự dựng".** 17 đoạn nay nói hình "đi theo đúng chuỗi giá bạn đã
+   nạp", không khẳng định chuỗi ấy từ đâu ra. Agent đề xuất viết rõ "bộ mẫu thì chỉ phiên gần nhất là giá thật".
+   Tôi không làm theo vì chủ dự án đã chủ động gỡ khối nói điều ấy khỏi sheet Nạp mẫu (bia mộ
+   `preset.draftTitle`); đưa nó trở lại ở 17 chỗ là việc của chủ dự án quyết.
+2. **Sửa lỗi tính của hình beta ngay trong đợt này** (xem trên), tách được thành commit riêng.
+3. **26 đoạn Đường dài thêm một câu.** Đoạn dài nhất vẫn dưới trần 600 ký tự; khung "?" của ROE theo Vốn chủ
+   cao 300px ở dạng Đường, 195px ở dạng Cột, không phải cuộn.
+4. **Đường chỉ phẳng ra khi một ô về 0 thì không rào.** Vài chục trục như thế (P/E theo EPS lúc giá bằng 0);
+   lúc ấy kết quả 0 trên màn đã nói đủ, thêm một câu cho mỗi đoạn là thêm chữ thừa.
+
+**Đã kiểm**
+
+- `npm run check` xanh: 146 file, **3.570 ca** đạt, 48 bỏ qua.
+- Build trên bản sao: build đạt; `verify:static` **51/51**; `check:chrome` **155/162**, bảy ca đỏ đúng là bảy
+  ca có sẵn (nhãn biểu đồ `lich-tra-no` · `diem-hoa-von` · `lai-kep` ×2 · `fcff`, hàng nav, hàng nút form thêm
+  mã); phép đo khung "?" của biểu đồ đạt. `size` vẫn thoát lỗi như trước (trang chi tiết quãng 430 kB, cửa 180
+  kB đã bị vượt từ lâu); chữ đi trong HTML nên gói JS không đổi. Bản sao đã dọn, gỡ junction trước.
+- Xem trên Chrome (dev server): ROE theo Vốn chủ ở dạng Đường và dạng Cột, khung in đúng đoạn hai chiều;
+  `gui-quay-vong` theo Tổng thời gian ở cả hai dạng (xem dưới).
+
+**Thấy mà chưa sửa** (đều nằm ngoài chữ của bài hướng dẫn)
+
+- **Hình đường có các điểm tính được đứng rời nhau thì không vẽ nét nào.** `gui-quay-vong` theo Tổng thời gian
+  chỉ tính được ở các mức chia hết cho kỳ hạn ngắn; `linePath()` ra năm lệnh `M` và không lệnh `L` nào, nên dạng
+  Đường chỉ còn vùng gạch chéo phủ kín và một chấm tròn (đã chụp ảnh xác nhận). Đoạn chữ nay nói đúng điều đó và
+  chỉ sang dạng Cột. Cách chữa thật là cho `LineChart` vẽ một chấm ở mỗi điểm lẻ.
+- **Trục 30 đến 90 phiên in nhãn lẻ.** `sweepDomain()` chỉ bám lưới bước khi số bước dưới 41, nên trục ấy có 41
+  điểm cách nhau 1,5 và in "31,5 phiên" trong khi `calc` làm tròn thành 32 (cũng gặp ở `tiet-kiem-muc-tieu` theo
+  Thời gian).
+- **Ghi chú ví dụ của `ddm-hai-giai-doan` nói sai.** Câu "sai một điểm phần trăm ở g vĩnh viễn làm kết quả xê
+  dịch mạnh hơn sai năm điểm ở g giai đoạn đầu" trái với `calc` trên chính bộ số của ví dụ: +1 điểm g dài hạn
+  cho +5.991 ₫, +5 điểm g giai đoạn đầu cho +9.460 ₫. Câu đúng là so với MỘT điểm (+1.770 ₫). Đây là
+  `spec.example.note`, hiện ở hàng "Đọc kết quả" của khối Ví dụ thực tế.
+- Hai điều đã ghi từ đợt trước vẫn còn: `<figcaption>` mở bằng "Quét … qua 41 mức", và hình mặc định của
+  `eps-co-ban` ở chế độ Nâng cao.
+
+**Còn lại**
+
+- Chủ dự án xem khung "?" trên màn thật và đọc lại chữ.
+- Chủ dự án quyết ba điều ở mục "Thấy mà chưa sửa" có sửa không, và có muốn bài hướng dẫn nói rõ bộ mẫu là số
+  tự dựng không.
+
+### Sửa tiếp (chiều 13/10/2026) — khung "?" chỉ in hình đang hiện; bỏ hai câu chỉ đường
+
+**Chủ dự án giao gì**
+
+> "không cần đoạn text sau 'Lựa chọn ở dòng "Xem kết quả đổi theo" ngay trên biểu đồ đổi ô nhập nằm ở trục
+> ngang, và tên biểu đồ đổi theo ô nhập ấy. Hai nút "Đường" và "Cột" ở dòng "Loại biểu đồ" đổi qua lại giữa
+> hai dạng.' sửa lại lỗi sau. ô hướng dẫn sử dụng đang rất dài, sửa logic như sau: sau khi lựa chọn một select
+> mới từ đường thì mới hiển thị xem biểu đồ dạng đường, tương tự khi click vào xem biểu đồ dạng cột. hoặc khi
+> đổi dạng Xem theo thời gian, Khối lượng, thời gian nắm giữ,... với tất cả các loại biểu đồ của tất cả công
+> thức"
+
+Hai việc. Việc đầu nhỏ (gỡ hai câu). Việc sau lớn hơn vẻ ngoài của nó: khung muốn "chọn gì thì nói nấy" thì
+MỌI mục của ô chọn "Xem kết quả đổi theo" phải có chữ, mà đợt đầu mới viết cho mục mặc định.
+
+**Phép đo làm nền** (chạy `buildChartModel()` cho từng ô nhập của cả 103 công thức có khối biểu đồ)
+
+| Đo được                                                                            | Số      |
+| ---------------------------------------------------------------------------------- | ------- |
+| Ô nhập đứng được trên trục ngang, tức mục của ô chọn (chưa kể Thời gian, Bóc tách) | **248** |
+| … đã có chữ từ đợt đầu (trục mặc định, cộng trục Nâng cao của `eps-co-ban`)        | 64      |
+| … phải viết thêm ở đợt này                                                         | **184** |
+| Trục vẽ được ngay khi mở màn                                                       | 197     |
+| Trục chỉ vẽ được sau khi nạp chuỗi giá (thuộc 35 công thức ăn chuỗi)               | 51      |
+| Trục cho ra đường NẰM NGANG với bộ số mặc định                                     | 4       |
+| Trục chỉ có ở chế độ Nâng cao                                                      | 10      |
+| Trục có dải không phải "một nửa → gấp rưỡi" (mặc định bằng 0, hoặc bị min/max cắt) | 6       |
+
+Bốn trục nằm ngang: `gia-hoa-von` và `roi-rong` theo Khối lượng (khối lượng rút gọn ở cả tử lẫn mẫu),
+`rut-truoc-han` theo Lãi suất hợp đồng và theo Kỳ hạn hợp đồng (rút trước hạn thì chỉ lãi không kỳ hạn được
+áp dụng). Đợt đầu không thấy chiều thứ ba này vì trục mặc định bao giờ cũng là trục làm kết quả đổi mạnh nhất.
+
+**Đã đổi**
+
+| File                                                         | Sửa gì / vì sao                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/huong-dan/bieu-do/noi-dung/*.ts` (6 file)              | +184 trục, mỗi trục một đoạn Dạng Đường và một đoạn Dạng Cột, tiếng Việt và tiếng Anh. Kho nay 600 đoạn × 2 thứ tiếng. Chữ của đường theo ô nhập nằm dưới `truc.<khoá ô nhập>` thay cho `quet` / `quetNangCao` (chép sang bằng cây cú pháp, không gõ lại) |
+| `core/huong-dan/bieu-do/types.ts`                            | `KeHoachTruc` + `HinhDoDuoc` (chiều có thêm `'ngang'`); `KhoiBieuDoBai` mang `khoa` · `nangCao` · `canChuoi` thay cho `dieuKien`; bỏ `nhieuTruc` / `coHaiDang`; kiểu mới `HinhDangXem`                                                                    |
+| `core/huong-dan/bieu-do/ke-hoach.ts`                         | đi qua MỌI ô nhập đứng được trên trục, không riêng ô mặc định; `moRa` (hình màn mở ra); `doHinh()`; dải ±50% so theo tỉ số nhỏ / lớn vì số mặc định âm đảo hai đầu                                                                                        |
+| `core/huong-dan/bieu-do/kiem.ts`                             | luật theo từng trục; đường phẳng phải gọi là "nằm ngang"; trục chờ chuỗi giá phải nói "đã nạp" và nói lên / xuống nghĩa là gì; `chieuDuyNhat()`                                                                                                           |
+| `core/huong-dan/bieu-do/muc.ts`                              | mỗi mục của ô chọn thành một khối mang đúng khoá của nó; hình màn mở ra đứng đầu                                                                                                                                                                          |
+| `core/huong-dan/bieu-do/bieu-do.test.ts`                     | 231 ca (xem "Cửa kiểm thêm")                                                                                                                                                                                                                              |
+| `core/chart/scale.ts`                                        | tách `isFlatSpan()` khỏi `niceAxis()` để bài hỏi "đường này phẳng không" bằng đúng điều kiện màn dùng — không đổi hành vi                                                                                                                                 |
+| `ui/charts/ChartBody.tsx`, `FormulaChart.tsx`                | prop `onViewChange`: khối Biểu đồ báo lên mục đang chọn, dạng đang vẽ, và hình đã vẽ hay chưa                                                                                                                                                             |
+| `app/cong-thuc/[id]/FormulaDetail.tsx`, `GuideHintPanel.tsx` | màn giữ lời báo ấy (`hinhBieuDo`) rồi đưa cho khung "?"                                                                                                                                                                                                   |
+| `ui/guide/GuideBody.tsx`, `.module.css`                      | `khoiDangXem()` chọn khối; khung in MỘT hình ở MỘT dạng; trang đầy đủ xếp mọi hình thành mục gập; bỏ hai câu chỉ đường và bảng `DIEU_KIEN`                                                                                                                |
+| `application/i18n/vi.ts`, `en.ts`                            | xoá năm khoá có bia mộ: `guide.chart.switchAxis` · `switchKind` · `when.advanced` · `when.series` · `when.breakdown`. Còn ba: `line`, `bar`, `when.seriesOnly`                                                                                            |
+| `core/huong-dan/types.ts`, `index.ts`, `application/*.ts`    | xuất `HinhDangXem`, thôi xuất `DieuKienBieuDo`                                                                                                                                                                                                            |
+| `ui/guide/GuideBody.test.tsx` (mới)                          | 10 ca cho phép chọn khối và hai cách hiện                                                                                                                                                                                                                 |
+| `FormulaDetail.test.tsx`, `charts.test.tsx`                  | +3 ca đi luồng thật (mở → bấm Cột → đổi ô chọn; `ev`; `sma-n-phien` chưa nạp chuỗi) và +6 ca cho lời báo của khối Biểu đồ                                                                                                                                 |
+| `GuideScreen.test.tsx`, `i18n.test.ts`                       | viết lại ca ba cảnh của trang, +1 ca dấu Nâng cao; bỏ ca canh "có ít nhất một đoạn trích nhãn màn hình" kèm bia mộ (ba câu trích nhãn cuối cùng vừa bị gỡ)                                                                                                |
+| `scripts/verify-static.mjs`, `scripts/chrome-check.mjs`      | phép kiểm bài `pe` thêm hai vế (có "P/E theo EPS", không còn "Lựa chọn ở dòng"); +1 phép kiểm Chrome đo khung "?" của biểu đồ                                                                                                                             |
+| `CLAUDE.md`                                                  | viết lại phần "How it is built" và thêm đoạn về khung "?"; số phép kiểm Chrome 159 → 160                                                                                                                                                                  |
+
+**Cửa kiểm thêm**
+
+- **Mục nào của ô chọn cũng có khối chữ mang đúng khoá của nó**, ở cả hai chế độ, trước và sau khi nạp chuỗi
+  giá. Đây là bất biến của chính yêu cầu: thiếu một khối là có một lựa chọn bấm "?" ra chữ của hình khác.
+- Trục chỉ vẽ được trên chuỗi giá đã nạp thì lúc build không đo được chiều. Đoạn nào ở đó CHỈ nhắc một chiều
+  là đang hứa "chuỗi nào cũng ra chiều này" (Sharpe theo lãi suất phi rủi ro bao giờ cũng đi xuống); ca kiểm
+  đem lời hứa ấy thử trên bốn chuỗi dựng khác hẳn nhau (lên, xuống, đi ngang, chữ V). Đoạn giải thích cả hai
+  chiều thì không hứa gì.
+- Tên của cả 248 hình được so từng chữ với mô hình thật; bảng phân bố ở trên được ghim.
+
+**Quyết định tôi tự chốt, chủ dự án liếc lại**
+
+1. **Khung "?" in tên hình, nhãn dạng, rồi đúng một đoạn.** Bấm ô chọn hay nút Đường/Cột là cú bấm ra ngoài
+   nên khung đóng; mở lại là ra chữ mới. Đây là đường đi "chọn rồi mới hiện" đúng như lời giao.
+2. **Màn chưa vẽ gì** (35 công thức đang chờ chuỗi giá): khung nói về hình sẽ hiện ra khi nạp xong, tức hình
+   theo thời gian, kèm dòng "Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá." Đó là dòng điều kiện duy nhất
+   còn lại, và nó chỉ in khi hình đang được tả chưa có trên màn.
+3. **Trang đầy đủ `/huong-dan/cong-thuc/<id>/`** không có biểu đồ nào đang hiện để lọc theo, nên mỗi hình là
+   một mục gập, tên hình là hàng bấm, hình màn mở ra thì mở sẵn. In hết ra thì dựng lại đúng cái khung dài vừa
+   bị chê, mà nay tới sáu hình một công thức.
+4. **Quyết định 3 của đợt đầu bị đảo**: hai câu dùng chung đóng mục đã gỡ, kể cả câu chủ dự án tự viết lại
+   ngày 06/10/2026.
+5. **Chữ của trục ăn chuỗi giá không hứa chiều** trừ khi phép tính bảo đảm chiều ấy; còn lại nó nói đường đi
+   lên nghĩa là gì và đi xuống nghĩa là gì trên chuỗi người dùng nạp.
+
+**Đã kiểm**
+
+- `npm run check` xanh: 146 file, **3.559 ca** đạt, 48 bỏ qua. (Lượt chạy giữa chừng có 10 ca đỏ, đều thuộc
+  đợt "Vào lại công thức thì về mặc định" đang làm dở ở phiên khác; lượt cuối đã xanh.)
+- **Build trên một bản sao** (dev server của chủ dự án giữ cổng 3000): build đạt; `verify:static` **51/51**;
+  `check:chrome` **153/160** — bảy ca đỏ đúng là bảy ca có sẵn từ trước (hàng nav, hàng nút form thêm mã, năm
+  ca nhãn biểu đồ `diem-hoa-von` · `lai-kep` ×2 · `lich-tra-no` · `fcff`). Phép kiểm mới đạt: khung "?" của
+  `pe` cao 216px ở dạng Đường, 174px ở dạng Cột, không phải cuộn. Bản sao đã dọn, gỡ junction trước.
+- `size`: trang chi tiết 429,9 kB First Load JS (trước đợt 429,6); chữ mới đi trong HTML của từng trang, không
+  vào gói JS. Lệnh vẫn thoát lỗi như trước vì cửa 180 kB đã bị vượt từ lâu.
+- Xem bằng Chrome trên dev server: `loi-nhuan-rong` qua bốn bước (Giá bán dạng Đường → dạng Cột → Khối lượng
+  dạng Cột → Thời gian nắm giữ dạng Đường), khung đổi theo từng bước và cao 174–237px; `pe` sau khi Nạp mẫu
+  (khung sang "P/E theo thời gian", không còn dòng điều kiện); `rsi-wilder` chưa nạp chuỗi (hình theo thời gian
+  kèm dòng điều kiện); trang bài `loi-nhuan-rong` và `ddm-hai-giai-doan` ở 1440 và 390 (mục gập, hàng bấm cao
+  44px, trang không tràn ngang).
+
+**Còn lại**
+
+- Chủ dự án xem khung "?" trên màn thật và đọc lại chữ.
+- Ở điện thoại, khung bật ra phía trên nút "?" khi nút nằm giữa màn nên chỉ còn khoảng 300px; một đoạn dài
+  vẫn phải cuộn vài dòng trong khung. Phép đặt khung không đổi ở đợt này.
+
+### Chủ dự án giao gì
+
+Đọc tiêu đề "Biểu đồ quét độ nhạy" trong bài hướng dẫn và hỏi: _"nghĩa là sao? đây là biểu đồ về cái gì? đang
+hướng dẫn sử dụng biểu đồ gì? biểu đồ đang là dạng gì?"_ Sau khi nghe trả lời:
+
+> "biểu đồ tên là gì thì Ghi vào đó chứ không phải là 'Biểu đồ quét độ nhạy' vì nó vô nghĩa. và biểu đồ đang
+> là dạng gì thì ? dạng Đường hay dạng cột. nói rõ là ở dạng đường thì đường cong đi từ đâu đến đâu và xu thế
+> của thị trường hay xu thế của biểu đồ đang ám chỉ cái gì. còn dạng cột thì làm sao đó tương tự. sửa lại ở
+> tất cả công thức, không được làm đối phó"
+
+Tôi trình khuôn và ba mẫu; chủ dự án duyệt, đổi một điểm: _"làm thêm cả bản tiếng Anh chuẩn nữa"_.
+
+### Phép đo làm nền (chạy `buildChartModel()` cho cả 111 công thức)
+
+Màn tính chỉ dựng BA hình; `spec.chartType` là một nhãn khai trong Registry, không phải thứ màn vẽ.
+
+| Màn vẽ                                                          | Số công thức |
+| --------------------------------------------------------------- | ------------ |
+| Đường "kết quả theo một ô nhập", đổi được sang Cột              | 63           |
+| Không vẽ gì cho tới khi nạp chuỗi giá, rồi đường theo thời gian | 35           |
+| Thanh bóc tách nằm ngang                                        | 5            |
+| Không có khối biểu đồ                                           | 8            |
+
+Thêm: 12 trong 63 công thức đổi sang đường theo thời gian khi nạp mã (tổng 47 có hình ấy); 6 công thức có
+bóc tách như một mục trong ô chọn; `eps-co-ban` mở ra trục khác ở chế độ Nâng cao.
+
+Bài cũ chọn chữ theo nhãn nên sai nhiều hơn một cái tên: 26 bài tả nến / phân phối / sụt giảm / hồi quy
+(không màn nào vẽ), 6 bài tả "cột chồng" trong khi màn vẽ đường, 5 bài bóc tách nói "cột cuối vẽ từ 0 lên"
+trong khi thanh nằm ngang, 9 bài "quét độ nhạy" thuộc công thức mà màn mặc định vẽ theo thời gian.
+
+### Đã đổi
+
+| File                                                        | Sửa gì / vì sao                                                                                                                                                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `core/huong-dan/bieu-do/types.ts` (mới)                     | kiểu của kho chữ, của kế hoạch và của khối in ra                                                                                                                                                  |
+| `core/huong-dan/bieu-do/ke-hoach.ts` (mới)                  | `keHoachBieuDo()`: hỏi chính bộ dựng biểu đồ xem công thức có những hình nào, tên gì, đường đi lên hay xuống, có quãng đứt không                                                                  |
+| `core/huong-dan/bieu-do/kiem.ts` (mới)                      | `bieuDoProblems()`: một bộ luật cho mọi đoạn (xem "Cửa kiểm")                                                                                                                                     |
+| `core/huong-dan/bieu-do/muc.ts` (mới)                       | ghép hình với chữ thành các khối, theo thứ tự người dùng gặp trên màn                                                                                                                             |
+| `core/huong-dan/bieu-do/noi-dung/*.ts` (mới, 6 file)        | 232 đoạn, tiếng Việt và tiếng Anh, cho 103 công thức                                                                                                                                              |
+| `core/huong-dan/bieu-do/bieu-do.test.ts` (mới)              | 117 ca                                                                                                                                                                                            |
+| `core/huong-dan/types.ts`, `bai.ts`, `index.ts`             | `BaiHuongDan.kieuBieuDo` → `bieuDo`; module lá xuất lại ba kiểu cho barrel                                                                                                                        |
+| `core/chart/build.ts`, `history.ts`                         | tách `chartName()` · `axisLabel()` · `lineChartTitle()` · `breakdownTitle()` · `TIME_AXIS_NAME` · `CLOSE_PRICE_LABEL` — KHÔNG đổi một ký tự nào của tiêu đề; để bài gọi hình bằng đúng tên màn in |
+| `ui/guide/GuideBody.tsx`, `.module.css`                     | `KhoiBieuDo` in một khối cho mỗi hình: tên · dòng điều kiện · Dạng Đường / Dạng Cột                                                                                                               |
+| `application/i18n/vi.ts`, `en.ts`                           | +8 khoá `guide.chart.*`; xoá 18 khoá `guide.chartKind.*` có bia mộ                                                                                                                                |
+| `application/index.ts`, `huong-dan.ts`                      | xuất thêm ba kiểu                                                                                                                                                                                 |
+| `huong-dan.test.ts`, `GuideScreen.test.tsx`, `i18n.test.ts` | bỏ hai ca ghim `chartType`; viết lại ca màn cho ba cảnh (`pe`, `ev`, `sma-n-phien`); thêm ca buộc nhãn mục vào tên nút thật                                                                       |
+| `scripts/verify-static.mjs`                                 | +1 phép kiểm: bài `pe` gọi đúng tên hình, không còn "quét độ nhạy", chữ riêng không rò vào gói JS                                                                                                 |
+| `CLAUDE.md`                                                 | mục mới "The usage guide's 'Đọc biểu đồ' section"                                                                                                                                                 |
+
+### Cửa kiểm (để chữ không nói khác hình)
+
+- Có đoạn nào là do HÌNH quyết định: màn có hình thì phải có chữ, không có thì không được có. `sma-n-phien`
+  vẽ kèm đường giá đóng cửa nên màn không có nút Cột → bài không được có đoạn "Dạng Cột".
+- Đoạn về một đường phải gọi đúng tên ô nhập ở trục ngang, nói "một nửa … gấp rưỡi" đúng khi trục là ±50%
+  quanh số đang nhập, nói "không phải diễn biến thị trường", và chiều đầu tiên nó nhắc ("đi lên" / "đi
+  xuống") phải khớp chiều ĐO được.
+- "gạch chéo" có mặt đúng khi đường có quãng không tính được; "vạch 0" đúng khi kết quả đổi dấu.
+- Đoạn theo thời gian phải nói từ phiên cũ nhất tới phiên gần nhất, giải thích cả hai chiều, nhắc đủ mốc
+  tham chiếu công thức khai (RSI 30 / 70…). Đoạn bóc tách phải gọi đủ tên từng thanh.
+- Không gạch ngang dài, không chữ "quét" / "độ nhạy", **không chữ số** ngoài 0 và mốc tham chiếu.
+- Không hai đoạn nào trong kho trùng nhau; bảng phân bố 63 / 1 / 5 / 6 / 47 / 35 / 8 được ghim.
+
+Máy không thấy được câu "xu thế ấy nghĩa là gì" có đúng với công thức không. Phần ấy tôi viết theo `calc`
+từng công thức và nói rõ nó thuộc họ nào: đường theo một ô nhập là phép thử "nếu … thì", không phải thị
+trường; đường thời gian của SMA / EMA / VWAP / dải Bollinger đi CÙNG giá; của RSI, MACD, ROC, ATR, sụt
+giảm, VaR, Sharpe… đo thứ khác nên đi lên không có nghĩa giá lên; tỷ suất lợi nhuận, tỷ suất cổ tức và
+biên an toàn đi NGƯỢC giá.
+
+### Quyết định tôi tự chốt, chủ dự án liếc lại
+
+1. **Không con số cụ thể nào trong chữ.** Hai đầu của đường đổi theo số người dùng gõ; bài tả "từ một nửa
+   đến gấp rưỡi con số bạn đang nhập".
+2. **Bản tiếng Anh gọi cột là "bars"**, vì nút trên màn tên "Bars".
+3. **Hai câu dùng chung đóng mục**, chỉ tới dòng "Xem kết quả đổi theo" và "Loại biểu đồ". Câu đầu là câu
+   chủ dự án tự viết lại ngày 06/10/2026, giữ gần nguyên chữ.
+4. **Chữ mô tả HÌNH MỞ RA** với bộ số mặc định. Người dùng gõ số khác thì đường có thể đổi chiều ở vài công
+   thức; bài không tả mọi trường hợp.
+
+### Thấy trong lúc làm, CHƯA sửa (ngoài phạm vi)
+
+- `eps-co-ban` ở chế độ Nâng cao mở ra "EPS cơ bản theo Cổ tức ưu đãi" quét cả dải 0 – 100.000 tỷ ₫ (số mặc
+  định là 0 nên không có ±50% quanh nó) và kết thúc ở EPS âm hàng chục nghìn đồng — hợp lệ nhưng là một hình
+  mặc định kỳ. Bài tả đúng hình ấy.
+- Câu mô tả dưới hình trên chính màn tính vẫn mở bằng "Quét … từ … tới … qua 41 mức" — cùng chữ chủ dự án
+  vừa chê ở bài hướng dẫn.
+- `chartType` trong Registry nay chỉ còn quyết định "bóc tách có phải hình mặc định không"; bảy giá trị kia
+  là nhãn không ai đọc.
+
+### Đã kiểm
+
+- `npm run check` xanh: 142 file, **3.348 ca** đạt, 48 bỏ qua.
+- **Build trên một bản sao** (dev server của chủ dự án giữ cổng 3000): build đạt; `verify:static` **51/51**
+  (thêm một phép kiểm của đợt này); `check:chrome` **146/153** — bảy ca đỏ đúng là bảy ca có sẵn từ trước
+  (hàng nav, hàng nút form thêm mã, năm ca nhãn biểu đồ `diem-hoa-von` · `lai-kep` ×2 · `lich-tra-no` ·
+  `fcff`), không ca nào thuộc đợt này.
+- `size`: trang chi tiết công thức vẫn 429,6 kB First Load JS, **không đổi** — chữ mới đi trong HTML của từng
+  trang (prop `bai`), không vào gói JS. Trang bài hướng dẫn 136 kB. Lệnh `size` vẫn thoát lỗi như trước vì
+  trang chi tiết và `/danh-muc/` (185,3 kB) đã vượt cửa 180 kB từ trước đợt này.
+- Xem bằng Chrome trên dev server: bài `pe` (hai hình, bốn đoạn); đối chiếu với biểu đồ thật của `pe` (đường,
+  vạch đứt có chấm, nút Đường/Cột), `ev` (thanh ngang, thanh trừ viền nét đứt, thanh tổng sẫm),
+  `loi-nhuan-rong` dạng Cột (cột quay xuống dưới vạch 0, cột tô đặc); khung "?" cạnh biểu đồ cuộn được trong
+  chính nó khi nội dung dài.
+
+### Còn lại
+
+- Chủ dự án đọc lại chữ. Chưa có ai ngoài tôi thẩm định 232 đoạn này.
+
+---
+
 ## Màn Danh mục thiết kế lại thành hai cột (12/10/2026)
 
 **Trạng thái: CHƯA XONG.** Khổ máy tính đã làm xong và chạy trên Chrome thật, chờ chủ dự án xác nhận trên

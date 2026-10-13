@@ -20,7 +20,8 @@
 
 import { needsPriceSeries, runFormula } from '../calc/run';
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
-import { NO_VALUE, formatCalcOutput, formatIsoDate, formatValueWithUnit } from '../format';
+import { NO_VALUE, formatCalcOutput, formatValueWithUnit } from '../format';
+import { displaySeriesDate, parseSeriesDate } from '../price-series';
 import type { SeriesRow } from '../price-series';
 import type { ChartPoint, ChartSeries } from './types';
 
@@ -34,6 +35,14 @@ export const HISTORY_KEY = '__time';
 
 /** Nhãn hiện trên ô chọn. */
 export const HISTORY_LABEL = { vi: 'Theo thời gian', en: 'Over time' };
+
+/**
+ * Tên đường giá vẽ kèm của `spec.priceOverlay`.
+ *
+ * Tách thành hằng (13/10/2026) vì bài hướng dẫn phải gọi đường ấy bằng đúng chữ legend đang in, mà
+ * lúc dựng bài thì chưa có phiên nào để gọi `closePriceSeries()` lấy nhãn ra.
+ */
+export const CLOSE_PRICE_LABEL = { vi: 'Giá đóng cửa', en: 'Closing price' };
 
 /**
  * Chân *giá hiện tại* — thay theo từng phiên.
@@ -100,16 +109,26 @@ export function canDrawHistory(formula: FormulaModule, ctx: CalcContext): boolea
  * hiệu lực: gói cơ sở giờ CÓ dùng, và giữ hai bản cắt chuỗi giống hệt nhau ở hai tầng mới là cái
  * giá đắt hơn. Thân hàm chuyển sang `formatIsoDate` trong `format.ts`; tên này giữ nguyên vì nó
  * mang nghĩa riêng của biểu đồ (nhãn một PHIÊN giao dịch) và đang được gọi ở nhiều chỗ.
+ *
+ * Từ 13/10/2026 đọc bằng `parseSeriesDate()` chứ không cắt chuỗi ISO. Ngày của một phiên là chữ
+ * của ô Ngày ở bảng WF-05, mà ô ấy có thể mang 'DD/MM/YYYY' (người dùng gõ, và nay là lối duy nhất
+ * bảng ghi) lẫn ISO (chuỗi của bộ mẫu nạp thẳng ở màn chi tiết). Cắt theo dấu '-' chỉ hiểu lối
+ * thứ hai: vạch trục của một chuỗi gõ tay in cả '08/09/2026' thay cho '09/2026', bốn nhãn dài
+ * chồng lên nhau ở khổ 360px. Hai hàm dưới nay cho cùng một nhãn với cả hai lối viết.
  */
-export function formatSessionDate(iso: string): string {
-  return formatIsoDate(iso);
+export function formatSessionDate(raw: string): string {
+  return displaySeriesDate(raw);
 }
 
-/** Nhãn ngắn cho vạch trục: chỉ tháng và năm, đủ gọn để bốn vạch không chồng nhau ở khổ 360px. */
-export function formatSessionMonth(iso: string): string {
-  const [year, month] = iso.split('-');
-  if (year === undefined || month === undefined) return iso;
-  return `${month}/${year}`;
+/**
+ * Nhãn ngắn cho vạch trục: chỉ tháng và năm, đủ gọn để bốn vạch không chồng nhau ở khổ 360px.
+ *
+ * Ô không đọc ra một ngày đủ năm (số thứ tự phiên, '15/07') thì in nguyên xi: không có năm để ghi.
+ */
+export function formatSessionMonth(raw: string): string {
+  const date = parseSeriesDate(raw);
+  if (date === null || date.year === null) return raw;
+  return `${String(date.month).padStart(2, '0')}/${String(date.year).padStart(4, '0')}`;
 }
 
 /**
@@ -148,7 +167,15 @@ export function historyPoints(
      *
      * Nếu chỉ cắt một trong hai thì công thức đọc `ctx.bars` sẽ thấy 12 phiên còn công thức đọc
      * `ctx.series` thấy 248 — hai chỉ báo trên cùng biểu đồ nói hai mốc thời gian khác nhau.
+     *
+     * Và cắt cả `marketSeries` (13/10/2026). `beta` hồi quy lợi suất cổ phiếu theo lợi suất
+     * VN-Index và ghép hai chuỗi theo phiên CUỐI (`slice(-n)` ở cả hai). Để nguyên chuỗi chỉ số thì
+     * mọi điểm trừ điểm cuối ghép cổ phiếu của quãng cũ với chỉ số của quãng gần nhất: một cổ phiếu
+     * dựng có beta đúng 1,5 ở mọi cửa sổ vẽ ra đường chạy từ −0,37 tới 1,5. Bỏ ở đuôi chuỗi chỉ số
+     * ĐÚNG số phiên vừa bỏ ở đuôi chuỗi cổ phiếu, chứ không ép hai chuỗi về cùng độ dài: chúng
+     * được phép dài khác nhau, miễn kết thúc ở cùng một phiên.
      */
+    const boDuoi = last - index;
     const sessionCtx = plan.truncateSeries
       ? {
           ...ctx,
@@ -157,6 +184,14 @@ export function historyPoints(
             .slice(0, index + 1)
             .map((row) => row.close)
             .filter((value): value is number => typeof value === 'number' && value > 0),
+          ...(ctx.marketSeries === undefined
+            ? {}
+            : {
+                marketSeries: ctx.marketSeries.slice(
+                  0,
+                  Math.max(0, ctx.marketSeries.length - boDuoi),
+                ),
+              }),
         }
       : ctx;
 
@@ -210,7 +245,7 @@ export function closePriceSeries(ctx: CalcContext): ChartSeries | null {
 
   return {
     key: 'gia-dong-cua',
-    label: { vi: 'Giá đóng cửa', en: 'Closing price' },
+    label: CLOSE_PRICE_LABEL,
     points: bars.map((bar, index) => {
       const close = bar.close;
       const ok = close !== null && Number.isFinite(close) && close > 0;

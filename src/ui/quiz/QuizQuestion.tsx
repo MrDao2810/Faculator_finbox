@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
-import { formatNumber, hasChoices, keepViNumberChars } from '@/application';
+import { formatIsoDate, formatNumber, hasChoices, keepViNumberChars } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
 import { expressionShape, workedShape } from '@/application/quiz-math';
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from '@/ui/inputs';
@@ -450,10 +450,13 @@ export function QuizQuestion({
                       >
                         {shortUrl(item.source.url)}
                       </a>
+                      {/* Ngày in theo lối của màn, không in chuỗi ISO của dữ liệu: khối hằng số
+                          cùng trang (`ConstantsNote`) in '01/07/2026' cho đúng văn bản này, còn
+                          chỗ này từng in '2026-07-01'. */}
                       {item.source.effectiveFrom !== undefined && (
                         <span className={styles.effective}>
                           {' · '}
-                          {t('quiz.effectiveFrom')} {item.source.effectiveFrom}
+                          {t('quiz.effectiveFrom')} {formatIsoDate(item.source.effectiveFrom)}
                         </span>
                       )}
                     </span>
@@ -500,7 +503,7 @@ export function QuizQuestion({
                 </a>
                 {item.source.effectiveFrom !== undefined && (
                   <span className={styles.effective}>
-                    {t('quiz.effectiveFrom')} {item.source.effectiveFrom}
+                    {t('quiz.effectiveFrom')} {formatIsoDate(item.source.effectiveFrom)}
                   </span>
                 )}
               </p>

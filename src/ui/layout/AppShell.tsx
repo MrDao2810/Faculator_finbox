@@ -6,6 +6,7 @@ import { BottomTabBar } from '../navigation/BottomTabBar';
 import { FooterDisclaimer } from '../navigation/FooterDisclaimer';
 import { OfflineBanner } from '../navigation/OfflineBanner';
 import styles from './AppShell.module.css';
+import { FormulaVisitTracker } from './FormulaVisitTracker';
 import { OriginTracker } from './OriginTracker';
 import { ServiceWorker } from './ServiceWorker';
 
@@ -41,13 +42,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       <FooterDisclaimer />
       <BottomTabBar />
 
-      {/* Hai đảo dưới đây không dựng ra gì, chỉ chạy effect — đặt ở đây để phủ mọi màn. */}
+      {/* Ba đảo dưới đây không dựng ra gì, chỉ chạy effect — đặt ở đây để phủ mọi màn. */}
 
       {/* Đăng ký service worker cho phần chạy ngoại tuyến (FR-23 · NFR-POR-03). */}
       <ServiceWorker />
 
       {/* Nhớ màn vừa rời đi và chỗ đang đứng, để nút quay lại về đúng chỗ đó. */}
       <OriginTracker />
+
+      {/* Sang màn khác là hết lượt xem một công thức — lần mở kế tiếp bắt đầu từ bộ số mặc định. */}
+      <FormulaVisitTracker />
     </div>
   );
 }

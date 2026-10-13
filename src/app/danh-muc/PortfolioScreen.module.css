@@ -271,7 +271,8 @@
  *
  * Khung ngoài là `--color-border`, kẻ trong là `--color-hairline`: khung đã lo phần ranh giới thì kẻ
  * trong chỉ cần tách dòng, và `hairline.test.ts` ghim danh sách những chỗ được giữ `--color-border`
- * cho kẻ một phía — hàng dữ liệu ở đây không còn là đích bấm cả dòng nên không có tên trong đó.
+ * cho kẻ một phía. Hàng dữ liệu KHÔNG có tên trong đó dù từ 13/10/2026 dòng của bảng Mã lại là đích
+ * bấm cả dòng: lý do giữ hairline ghi ở mộ chí của `.holdRow` trong chính ca kiểm ấy.
  */
 .tableWrap {
   /*
@@ -353,15 +354,24 @@
   text-align: left;
 }
 
-/* Bề ngang cột — tổng cố ý dưới 100% để chừa chỗ cho cột nút (tính bằng pixel, không co theo bảng). */
+/*
+ * Bề ngang cột — tổng cố ý dưới 100% để chừa chỗ cho cột cuối (tính bằng pixel, không co theo bảng).
+ *
+ * Cột Mã rộng hơn các cột số từ 13/10/2026: nó chở mã VÀ thùng rác 28px hiện khi rê chuột, nơi trước
+ * đó chỉ có một chip. Tổng bảy cột là 87% (trước là 85%): cột cuối nay là ngày mua, rộng cố định, nên
+ * phần dư mà nó từng nuốt được chia cho "Lãi/lỗ %". Ở bảng hẹp nhất của khổ này (~826px tại 1280px)
+ * 87% cộng 104px còn dư vài pixel — thêm một điểm phần trăm nữa là `.tableWrap` mọc thanh cuộn ngang.
+ */
 .holdList th:nth-child(1) {
-  width: 11%;
+  width: 13%;
 }
 
-.holdList th:nth-child(2),
+.holdList th:nth-child(2) {
+  width: 10%;
+}
+
 .holdList th:nth-child(3),
-.holdList th:nth-child(4),
-.holdList th:nth-child(6) {
+.holdList th:nth-child(4) {
   width: 11%;
 }
 
@@ -369,31 +379,38 @@
   width: 14%;
 }
 
+.holdList th:nth-child(6) {
+  width: 12%;
+}
+
 .holdList th:nth-child(7) {
   width: 16%;
 }
 
 /*
- * Cột nút của HAI bảng cùng một bề rộng: mỗi bảng chở đúng hai nút biểu tượng 36px (bút chì + thùng rác;
- * mở/nạp + thùng rác). Bảng Công thức từng cần 116px trong vài giờ ngày 12/10/2026, khi "Mở"/"Nạp" còn
- * là liên kết CHỮ: với 96px ô ấy tràn 11px và `.tableWrap` mọc một thanh cuộn ngang. Chữ thành biểu
- * tượng thì hai cột lại khớp nhau — nếu một trong hai nút quay về dạng chữ, phải nới cột theo.
+ * Cột cuối của bảng Mã là NGÀY MUA (13/10/2026): `dd/mm/yyyy` ở cỡ 14px rộng chừng 75px, cộng hai
+ * đệm 12px. Trước đó nó chở hai nút Sửa/Xoá và chung luật 96px với bảng Công thức ngay dưới.
  */
-.holdList th:nth-child(8),
-.savedList th:nth-child(5) {
-  width: 96px;
+.holdList th:nth-child(8) {
+  width: 104px;
 }
 
+/*
+ * Bảng Công thức: bốn cột từ 13/10/2026 (tên · mã · kết quả · ngày lưu). Cột thứ năm chở hai nút biểu
+ * tượng (mở/nạp + thùng rác, 96px) đã bỏ khi bảng được dựng lại theo bảng Mã: mở là cú bấm cả dòng,
+ * xoá là dấu X hiện sau tên. Cột ngày nay đứng CUỐI nên lấy bề ngang cố định bằng đúng cột ngày mua
+ * của bảng Mã ngay trên — hai bảng đổi qua lại bằng tab, cột ngày của chúng phải rộng như nhau.
+ */
 .savedList th:nth-child(2) {
   width: 14%;
 }
 
 .savedList th:nth-child(3) {
-  width: 16%;
+  width: 18%;
 }
 
 .savedList th:nth-child(4) {
-  width: 14%;
+  width: 104px;
 }
 
 /* Kẻ chia giữa hai dòng. Dòng đầu không có: ngay trên nó đã là kẻ dưới của hàng tiêu đề. */
@@ -409,13 +426,97 @@
   border-top: none;
 }
 
-/* Một hàng cần nạp lại chuỗi: nền cảnh báo — chữ vẫn là dấu hiệu chính, nền chỉ nhấn thêm (NFR-USA-06). */
-.savedRowWarn > td {
+/*
+ * Nền cảnh báo — MỘT màu, một nghĩa ở cả hai bảng: "dòng này còn thiếu một việc". Bảng Công thức: phép
+ * tính cần nạp lại chuỗi giá. Bảng Mã: mã chờ số liệu, tức mã lấy từ watchlist về chưa có số lượng và
+ * giá vốn (13/10/2026). Nền chỉ nhấn thêm chứ không phải dấu hiệu duy nhất (NFR-USA-06): bên kia có
+ * dòng chữ dưới tên, bên này là `_ _` ở đúng hai ô mà mọi dòng nắm giữ luôn có số, cộng một nút khác tên.
+ */
+.savedRowWarn > td,
+.holdRowPending > td {
   background: var(--color-warning-soft);
+}
+
+/*
+ * ── Cả dòng là đích bấm (13/10/2026) ─────────────────────────────────────────────────────────
+ *
+ * Chủ dự án bỏ hai nút biểu tượng cuối dòng: muốn sửa hay xem một mã thì bấm thẳng vào dòng của nó
+ * (`.holdRowOpen` mở form Sửa; `.holdRowPending` mở bảng nhập số, vốn đã thế từ trước). Con trỏ tay nói
+ * "bấm được"; nền đổi khi rê chuột nói "bấm vào DÒNG NÀY". Bàn phím đi qua chính mã ở ô đầu, vốn là
+ * một nút (`.codeOpen`).
+ *
+ * Nền rê chuột là `--color-paper`, KHÔNG phải `--color-sunken` như `.rowAction:hover`: kẻ chia giữa hai
+ * dòng là hairline, mà hairline sáng hơn nền chìm nên sẽ thành một vệt sáng chạy ngang dòng đang rê.
+ * Dòng chờ không đổi nền: nền vàng của nó là tín hiệu "còn thiếu số liệu", không được để cú rê xoá mất.
+ *
+ * Bọc trong `(hover: hover)`: trên màn cảm ứng `:hover` dính lại sau cú chạm, và dòng vừa bấm sẽ
+ * giữ nền xám cho tới khi chạm chỗ khác.
+ *
+ * Bảng Công thức theo đúng khuôn này từ cùng ngày (*"đồng bộ cả bên Công thức nữa chứ không phải mỗi
+ * bên mã"*): bấm dòng là mở phép tính. Dòng cần nạp lại chuỗi (`.savedRowWarn`) giữ nền vàng khi rê,
+ * cùng lý do với dòng chờ.
+ */
+.holdRowOpen,
+.holdRowPending,
+.savedRow {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .holdRowOpen:hover > td,
+  .savedRow:not(.savedRowWarn):hover > td {
+    background: var(--color-paper);
+  }
 }
 
 .holdCode {
   white-space: nowrap;
+}
+
+/*
+ * Mã rồi thùng rác, trên một dòng. Khối bọc là `<span>` bên TRONG ô chứ không đặt `display: flex` lên
+ * chính `<td>`: một `<td>` mà `display` khác `table-cell` thì `table-layout: fixed` mất tác dụng (cùng
+ * bài học đã ghi ở `.savedName`).
+ */
+.codeCell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/*
+ * Mã cổ phiếu — CHỮ TRƠN (13/10/2026). Từng là chip nền xanh nhạt (`Badge tone="code"`); chủ dự án
+ * khoanh đúng cái chip và bảo: *"bỏ bo viền ngoài xanh xanh của tên ticker … chỉ để hiển thị tên
+ * ticker thôi"*. Giữ nguyên phông đơn cách, cỡ và độ đậm của chip cũ để mã vẫn thẳng cột và vẫn là
+ * thứ đậm nhất của ô; bỏ nền, bo góc và `min-width`.
+ *
+ * Màu `--color-ink` chứ không `--color-accent` như chip cũ: chữ accent đứng trơn đọc ra thành một
+ * liên kết, mà đích bấm ở đây là CẢ DÒNG; và mực thì đủ tương phản trên cả nền vàng của dòng chờ.
+ *
+ * Là `<button>` để bàn phím và trình đọc màn hình mở được form — xem chú thích ở JSX. Cao 28px bằng
+ * thùng rác bên cạnh, để hai thứ thẳng hàng và vòng focus không dính vào kẻ chia dòng.
+ */
+.codeOpen {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0;
+
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.codeOpen:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* Ô số: thẳng cột nhờ `tabular-nums`, không xuống dòng — số bị bẻ đôi là số đọc sai. */
@@ -482,14 +583,23 @@
   padding-left: var(--space-4);
 }
 
-/* Tỷ trọng: thanh rồi con số, hai thứ nằm trên một dòng và cùng lùi về mép trái cột. */
+/*
+ * Tỷ trọng: thanh rồi con số, hai thứ nằm trên một dòng và cùng lùi về mép trái cột.
+ *
+ * `flex` (khối), KHÔNG phải `inline-flex` như trước 13/10/2026. Khối inline co theo NỘI DUNG, nên
+ * thanh luôn đủ 88px dù ô chỉ rộng 130px, và con số bị đẩy tràn sang ô bên phải. Hồi ô bên phải là
+ * hai nút biểu tượng thì không ai thấy; nay nó là NGÀY MUA, và ở 1280px "100,0%" đè lên chữ số đầu
+ * của ngày. Khối `flex` rộng đúng bằng ô, nên thanh là thứ co lại (tới `min-width` của nó) còn con
+ * số thì đứng yên trong ô của mình.
+ */
 .holdWeightCell {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: var(--space-2);
 }
 
 .holdWeight {
+  flex: none;
   min-width: 3.5em;
   font-variant-numeric: tabular-nums;
   color: var(--color-ink-soft);
@@ -507,7 +617,7 @@
  */
 .weightBar {
   display: block;
-  /* Rộng 88px thật (không chỉ flex-basis: ô là inline-flex nên basis không chống được co về min-width). */
+  /* Rộng 88px khi ô đủ chỗ, co dần tới 40px khi ô hẹp — xem `.holdWeightCell` về lý do cho co. */
   flex: 0 1 auto;
   width: 88px;
   min-width: 40px;
@@ -523,23 +633,19 @@
   border-radius: var(--radius-pill);
 }
 
-/* Cột cuối chở hai nút biểu tượng ở cả hai bảng: xếp ngang, dạt phải, không xuống dòng. */
-.holdActions {
-  white-space: nowrap;
-}
+/*
+ * Mộ chí: `.holdActions` — ô cuối chở hai nút biểu tượng xếp ngang. Bảng Mã bỏ nó 13/10/2026 (ô cuối
+ * thành ngày mua), bảng Công thức bỏ cùng ngày khi được dựng lại theo bảng Mã.
+ */
 
 /*
- * Nút biểu tượng ở cuối dòng. Biểu tượng không mang chữ nên tên khả truy cập đi qua `aria-label`.
+ * Khuôn của nút biểu tượng trong một dòng. Biểu tượng không mang chữ nên tên khả truy cập đi qua
+ * `aria-label`.
  *
- * Màu `--color-ink-soft` chứ không `--color-muted`: bản thẻ cũ có hai ký tự trần `ƒ` và `×` trên nền
- * trong suốt, màu mờ, và chủ dự án báo thẳng là "hiển thị mờ nhạt và không biết có thể thao tác". Vẽ
- * nét rõ và đổi nền khi rê chuột là cách cả hai nút nói "bấm được" mà không cần viền.
- *
- * Hộp 36px, vùng chạm 44px bằng `::after` (NFR-USA-01) — hai nút đứng sát nhau nên vùng phủ chỉ nới
- * 4px mỗi phía, vừa đủ chạm 44 mà không chồng lên nút bên cạnh.
- *
- * Dùng cho cả `<button>` (sửa, bỏ mã, xoá) lẫn `<Link>` (mở/nạp một phép tính đã lưu) — khuôn không khai
- * gì riêng của nút, nên một thẻ `<a>` mang nó ra đúng một hộp như ba nút kia.
+ * Từ 13/10/2026 chỉ còn MỘT loại nút mang khuôn này: dấu X xoá dòng, luôn đi kèm `.rowRemove` ngay
+ * dưới. Bút chì (Sửa), mũi tên (Mở/Nạp) và thùng rác đều đã bỏ. Khuôn giữ riêng vì nó là phần không
+ * đổi (hộp, vòng focus, vùng chạm nới bằng `::after` — NFR-USA-01), còn `.rowRemove` là phần riêng
+ * của dấu X.
  */
 .rowAction {
   position: relative;
@@ -574,10 +680,81 @@
   box-shadow: var(--focus-ring);
 }
 
-/* Khai SAU `.rowAction:hover` — cùng độ ưu tiên nên thứ tự quyết định: nút xoá phải đỏ khi rê chuột. */
-.rowActionDanger:hover {
+/*
+ * Mộ chí: `.rowActionDanger:hover` — chữ đỏ trên NỀN đỏ nhạt khi rê vào nút xoá. Chủ dự án xem màn
+ * ngày 13/10/2026 và gọi cái nền ấy là viền: *"không cần border đỏ xung quanh icon X chỉ cần icon ĐỎ X
+ * thôi"*. Màu đỏ nay nằm ở `.rowRemove`, và nút không có nền ở bất kỳ trạng thái nào.
+ */
+
+/*
+ * Dấu X đỏ đứng ngay sau mã (bảng Mã) hoặc sau tên (bảng Công thức) — chỉ HIỆN khi rê chuột vào dòng
+ * (13/10/2026). Chủ dự án đánh dấu đúng chỗ này trên ảnh chụp: *"khi hover chuột vào một mã bất kỳ thì
+ * icon xóa sẽ hiển thị chỗ đó và khi bấm vào sẽ xóa mã đó đi"*, rồi xem bản đầu (một thùng rác, rê vào
+ * thì nổi nền đỏ nhạt) và sửa: *"hiển thị icon X chứ không phải là icon xóa … không cần border đỏ xung
+ * quanh icon X chỉ cần icon ĐỎ X thôi. đồng bộ cả bên Công thức nữa"*.
+ *
+ * ⚠ PHẢI khai SAU `.rowAction`, `.rowAction::after` và `.rowAction:hover`: cùng độ ưu tiên một lớp,
+ * nên thứ tự trong file quyết định ai thắng. Khai ở trên là hộp vẫn 36px và rê vào vẫn nổi nền xám —
+ * cùng cái bẫy đã ghi ở `.panelCenter`.
+ *
+ * ĐỎ ngay từ lúc hiện ra, không phải đỏ khi rê vào chính nó: nó chỉ hiện khi dòng đang được rê, tức
+ * lúc người dùng đã ở sát nó, và màu là thứ duy nhất nói "đây là xoá" (không hỏi lại, không hoàn tác).
+ * Không nền, không viền ở mọi trạng thái; rê vào chính dấu X thì nó đậm màu hơn (luật `:hover` ngay
+ * dưới). Vòng focus của bàn phím (`.rowAction:focus-visible`) giữ nguyên: nó không hiện khi bấm chuột.
+ *
+ * Hộp 28px thay vì 36px: nó đứng TRONG ô Mã, và ở khổ máy tính hẹp ô ấy chỉ rộng chừng 70px. Vùng
+ * chạm nới lại 44px bằng `::after` (NFR-USA-01).
+ *
+ * Ẩn bằng `opacity`, KHÔNG bằng `display` hay `visibility`: nút phải còn trong thứ tự Tab, và hiện
+ * ra ngay khi dòng có tiêu điểm — không thì người dùng bàn phím không có đường nào xoá một dòng.
+ *
+ * ⚠ Luật ẩn CHỈ áp cho thiết bị có con trỏ rê. Màn cảm ứng không có "rê", nên một nút trong suốt ở
+ * đó là một nút xoá VÔ HÌNH vẫn bấm trúng — chạm vào khoảng trống cạnh mã là mất mã, không hỏi lại.
+ * Ngoài `(hover: hover)` dấu X luôn hiện.
+ */
+.rowRemove {
+  flex: none;
+  width: 28px;
+  height: 28px;
+
   color: var(--color-danger);
-  background: var(--color-danger-soft);
+}
+
+.rowRemove::after {
+  inset: -8px;
+}
+
+/*
+ * Rê vào CHÍNH dấu X: đậm màu hơn, nét dày hơn một chút — và vẫn không nền, không viền. Chủ dự án, xem
+ * bản "đỏ một màu ở mọi trạng thái" cùng ngày 13/10/2026: *"di chuột vào icon X đó thì icon X đó cần
+ * đậm màu hơn thể hiện là đang hover vào icon X đó"*. Không có nó, dấu X hiện ra lúc rê DÒNG rồi đứng
+ * yên khi con trỏ tới nơi, nên không có gì nói rằng cú bấm tiếp theo là xoá chứ không phải mở dòng.
+ *
+ * Màu pha từ hai token sẵn có chứ không thêm token: `--color-danger` trộn với `--color-ink`. Ở bảng
+ * sáng mực là màu thẫm nên dấu X THẪM đi; ở bảng tối mực là màu sáng nên nó SÁNG lên — đúng chiều
+ * "nhấn mạnh" của từng bảng, như `--color-accent-strong` (xem chú thích của token ấy ở `globals.css`).
+ * `background: transparent` khai lại là bắt buộc: thiếu nó thì `.rowAction:hover` vẽ lại ô nền xám.
+ */
+.rowRemove:hover {
+  color: color-mix(in srgb, var(--color-danger) 62%, var(--color-ink));
+  background: transparent;
+}
+
+.rowRemove:hover svg {
+  stroke-width: 2.3;
+}
+
+@media (hover: hover) {
+  .rowRemove {
+    opacity: 0;
+  }
+
+  .holdRow:hover .rowRemove,
+  .holdRow:focus-within .rowRemove,
+  .savedRow:hover .rowRemove,
+  .savedRow:focus-within .rowRemove {
+    opacity: 1;
+  }
 }
 
 /*
@@ -593,10 +770,52 @@
   overflow-wrap: anywhere;
 }
 
-.savedTitle {
-  display: block;
+/*
+ * Tên rồi dấu X, trên một dòng (13/10/2026) — cùng vai với `.codeCell` của bảng Mã. `flex` chứ không
+ * `inline-flex`: tên dài phải xuống dòng TRONG ô, mà một khối nội dòng thì rộng theo nội dung và đẩy
+ * dấu X ra ngoài ô. Dấu X giữ cỡ (`flex: none` ở `.rowRemove`), tên co lại (`min-width: 0` ở dưới).
+ */
+.savedHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/*
+ * Tên của phép tính — một `<Link>` trông như chữ thường. Từng là `<span class="savedTitle">`; nó thành
+ * liên kết khi hai nút biểu tượng cuối dòng bị bỏ, vì `<tr>` không lấy được tiêu điểm và không mở
+ * được ở tab mới. Không gạch chân, không màu accent: đích bấm là CẢ DÒNG, và một dòng chữ xanh gạch
+ * chân sẽ nói rằng chỉ riêng nó bấm được. Cao tối thiểu 28px bằng dấu X bên cạnh, như `.codeOpen`.
+ */
+.savedOpen {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 28px;
+
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  text-decoration: none;
+
+  border-radius: var(--radius-sm);
+}
+
+.savedOpen:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/*
+ * Mã của phép tính — chữ trơn, cùng phông, cỡ và độ đậm với mã của bảng Mã (`.codeOpen`). Từng là
+ * chip `Badge tone="code"`; bỏ cùng ngày với chip của bảng Mã. Ở đây nó không phải nút: mở phép tính
+ * là việc của tên ở ô đầu.
+ */
+.savedCode {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
   color: var(--color-ink);
 }
 
@@ -959,9 +1178,9 @@
  * ── Khổ máy tính HẸP (dưới 1280px) ───────────────────────────────────────────────────────────
  *
  * Cột trái cố định ~300px nên ở 1024px cột bảng chỉ còn ~600px, trong khi bảng tám cột cần ~760px: cột
- * Tỷ trọng và hai nút Sửa/Bỏ mã sẽ nằm ngoài tầm nhìn, phải cuộn ngang mới thấy — mà đó là hai thứ
- * người dùng bấm. Từ 1024px thanh điều hướng đã lên đầu trang (đây vẫn là KHỔ MÁY TÍNH, không thuộc
- * phần "khổ nhỏ tính sau"), nên chỗ này được thu gọn thay vì để cuộn.
+ * Tỷ trọng và cột cuối (ngày mua; trước 13/10/2026 là hai nút Sửa/Bỏ mã) sẽ nằm ngoài tầm nhìn, phải
+ * cuộn ngang mới thấy. Từ 1024px thanh điều hướng đã lên đầu trang (đây vẫn là KHỔ MÁY TÍNH, không
+ * thuộc phần "khổ nhỏ tính sau"), nên chỗ này được thu gọn thay vì để cuộn.
  *
  * Thu ba thứ, theo thứ tự mất ít nhất: thanh tỷ trọng (con số phần trăm ngay cạnh vẫn nói đủ), đệm
  * ngang của ô, và `min-width` của bảng. Khai CUỐI file vì phải thắng `.holdRow > td` và `.weightBar` ở
@@ -986,18 +1205,31 @@
     min-width: 560px;
   }
 
+  /*
+   * Cột ngày của cả hai bảng (ngày mua, ngày lưu): `dd/mm/yyyy` rộng 71px, đệm ô ở khổ này còn 8px
+   * mỗi bên — 90px là vừa, dư 3px.
+   */
   .holdList th:nth-child(8),
-  .savedList th:nth-child(5) {
-    width: 88px;
+  .savedList th:nth-child(4) {
+    width: 90px;
   }
 
   /*
-   * Cột "Lãi/lỗ %" cần rộng hơn 11% của 600px: "↑ +11,0%" và nhãn "Lãi/lỗ %" cùng tràn đệm. Phần
-   * thêm lấy của Tỷ trọng (không còn thanh nên chỉ là một con số) và của Số CP (con số ngắn nhất
-   * bảng). Tổng vẫn 85% như ở khổ rộng, nên cột nút không đổi.
+   * Chia lại bảy cột phần trăm cho bảng 600px. Tổng 85% (510px) cộng 90px cột ngày là vừa khít 600px
+   * của `min-width` — dư một điểm phần trăm là bảng rộng hơn khung và `.tableWrap` mọc thanh cuộn.
+   *
+   * Cột "Lãi/lỗ %" cần 15%: "↑ +11,0%" và nhãn "Lãi/lỗ %" cùng tràn đệm ở 11%. Cột Tỷ trọng giữ 13%
+   * dù không còn thanh: tiêu đề "TỶ TRỌNG" của nó đứng sát tiêu đề "NGÀY MUA" (13/10/2026), hẹp hơn
+   * là hai nhãn chữ hoa dính vào nhau và đọc ra thành MỘT nhãn. Phần ấy lấy của Số CP (con số ngắn
+   * nhất bảng) và của Mã: 12% là 72px, vừa khít một mã ba chữ cùng thùng rác 28px. Cột Lãi/lỗ KHÔNG
+   * bị lấy — nó chở con số dài nhất hàng, hẹp đi 6px là số tiền chạm vào mũi tên của cột bên cạnh.
    */
+  .holdList th:nth-child(1) {
+    width: 12%;
+  }
+
   .holdList th:nth-child(2) {
-    width: 10%;
+    width: 9%;
   }
 
   .holdList th:nth-child(6) {

@@ -66,8 +66,13 @@
   border-radius: var(--radius-sm);
 }
 
+/*
+ * 104px đủ cho '03/10/2026' ở cỡ chữ này cộng đệm hai bên. Từng là 148px, cỡ của ô `type="date"`
+ * do trình duyệt vẽ; từ 13/10/2026 ô là chữ và có nút lịch 28px đứng cạnh (`DateCell`), nên cả cụm
+ * vẫn không rộng hơn cột cũ.
+ */
 .dateCell {
-  min-width: 148px;
+  min-width: 104px;
   text-align: left;
 }
 

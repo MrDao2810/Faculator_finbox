@@ -160,29 +160,50 @@ export function valueHoldings(
  * `asOf` bắt buộc: XIRR cần một mốc "hôm nay" để quy giá trị hiện tại thành dòng tiền dương,
  * và Domain không được tự lấy ngày hệ thống — cùng lý do `resolveConstant()` bắt buộc nhận
  * `asOf` (NFR-REL-03).
+ *
+ * `pendingCount` là số MÃ CHỜ SỐ LIỆU đang đứng trong bảng (mã lấy từ watchlist về, chưa có số
+ * lượng và giá vốn — xem `portfolio-pending-store.ts`). Chúng KHÔNG nằm trong `holdings` và không
+ * vào phép tính nào ở đây; tham số này chỉ để câu lý do của danh mục rỗng nói đúng điều màn đang
+ * bày: bảng có năm dòng mà thẻ tóm tắt bảo "Danh mục chưa có mã nào" là một câu sai.
  */
 export function summarisePortfolio(
   holdings: ReadonlyArray<Holding>,
   prices: ReadonlyMap<string, number>,
   asOf: string,
   priceState: PriceState = 'ready',
+  pendingCount = 0,
 ): PortfolioSummary {
   const rows = valueHoldings(holdings, prices);
   const count = ok(holdings.length, 'mã');
 
   if (holdings.length === 0) {
     const empty = (unit: string): CalcOutput =>
-      fail(unit, {
-        code: 'INCOMPLETE_INPUT',
-        message: {
-          vi: 'Danh mục chưa có mã nào.',
-          en: 'The portfolio has no holdings yet.',
-        },
-        fix: {
-          vi: 'Bấm “Thêm mã cổ phiếu” để bắt đầu.',
-          en: 'Tap "Add a stock" to get started.',
-        },
-      });
+      fail(
+        unit,
+        pendingCount > 0
+          ? {
+              code: 'INCOMPLETE_INPUT',
+              message: {
+                vi: 'Chưa mã nào có số lượng và giá vốn.',
+                en: 'No ticker has a quantity and cost price yet.',
+              },
+              fix: {
+                vi: 'Bấm vào một mã trong bảng để nhập số lượng và giá vốn.',
+                en: 'Tap a ticker in the table to enter its quantity and cost price.',
+              },
+            }
+          : {
+              code: 'INCOMPLETE_INPUT',
+              message: {
+                vi: 'Danh mục chưa có mã nào.',
+                en: 'The portfolio has no holdings yet.',
+              },
+              fix: {
+                vi: 'Bấm “Thêm mã cổ phiếu” để bắt đầu.',
+                en: 'Tap "Add a stock" to get started.',
+              },
+            },
+      );
 
     return {
       rows,

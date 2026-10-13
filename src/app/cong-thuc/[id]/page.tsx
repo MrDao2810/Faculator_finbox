@@ -130,7 +130,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * gói của 111 trang. Hình dạng cây không đổi theo số người dùng gõ — chỉ các lá đổi — nên phân
    * tích một lần lúc build là đủ, trình duyệt chỉ đặt số (`datSoThaySo`).
    *
-   * 48 trên 111 công thức có mẫu; số còn lại nhận `null` và thẻ gộp bỏ hẳn dòng ấy.
+   * 61 trên 111 công thức có mẫu; số còn lại nhận `null` và thẻ gộp bỏ hẳn dòng ấy.
    */
   const thaySoCay = substitutionShape(formula);
   const bai = baiHuongDanFor(formula.id, AS_OF);

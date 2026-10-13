@@ -294,7 +294,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.colCostPrice': 'Avg cost',
   'portfolio.colPercent': 'Gain/loss %',
   'portfolio.colWeight': 'Weight',
-  'portfolio.colActions': 'Actions',
+  'portfolio.colBuyDate': 'Bought on',
+  /* Mộ chí: `portfolio.colActions` bỏ 13/10/2026 — xem `vi.ts`. */
   /* Câu nói rõ MẪU SỐ của tỷ trọng — xem lý do ở `vi.ts`. */
   /* Mộ chí: `portfolio.weightNote` bỏ 08/10/2026 — lý do đầy đủ ghi ở `vi.ts`. */
   'portfolio.weightPartial':
@@ -340,6 +341,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.edit': 'Edit',
   /* `portfolio.editHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.formSave': 'Save changes',
+  /* Mã chờ số liệu (13/10/2026) — lý do của từng nhãn ở `vi.ts`. */
+  'portfolio.complete': 'Enter figures',
+  'portfolio.formComplete': 'Save figures',
   /*
    * `portfolio.mergeNote`, `portfolio.formMerge` và `portfolio.formMergeOpen` đã xoá cùng bản
    * Việt (10/10/2026) — mã đang giữ không thêm lại được nữa nên form hết trạng thái cộng dồn.
@@ -350,8 +354,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
   'portfolio.errCostPrice': 'Enter the cost per share, above 0.',
   'portfolio.errBuyDate': 'Purchase date must be today or in the past.',
+  'portfolio.errBuyDateFormat':
+    'That purchase date cannot be read. Type it as day/month/year, for example 03/10/2026.',
   'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 — or leave it blank if unknown.',
   'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
+  /* `{max}` và `{codes}` do màn thay — xem `vi.ts`. */
+  'portfolio.importFull': 'The portfolio holds {max} tickers, so these were left out: {codes}.',
 
   /* Ghép ngay trước ngày phiên: "Prices as of 03/09/2026". */
   /* Viết thường vì nay là mảnh giữa câu ở dòng tiêu đề khối — xem `vi.ts`. */
@@ -479,6 +487,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'xirr.rowLabel': 'Row',
   'xirr.usable': 'usable cash flows',
 
+  'date.openCalendar': 'Pick a date on the calendar',
+
   'paste.title': 'Paste data',
   'paste.subtitle': 'Type into the grid, or paste from Excel with Ctrl + V',
   'paste.sample': 'Sample data',
@@ -545,7 +555,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'save.subtitle': 'Keep these inputs and this result to reopen later',
   'save.nameLabel': 'Name this calculation',
   'save.nameHint': 'The name appears on the Formulas tab of the Portfolio screen.',
-  'save.suggestions': 'Suggested names',
   'save.submit': 'Save to portfolio',
   'save.done': 'Saved to Portfolio › Formulas.',
   'save.goToPortfolio': 'View in portfolio',
@@ -590,12 +599,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.portfolio': 'Personal portfolio',
   'data.portfolio.note':
     'The tickers you added to your portfolio, with quantity, cost price and buy date.',
+  'data.pending': 'Tickers awaiting figures',
+  'data.pending.note':
+    'Tickers brought into your portfolio from a watchlist, with no quantity or cost price yet.',
   'data.saved': 'Saved calculations',
   'data.saved.note':
     'The calculations you saved from a formula screen, under the names you gave them.',
   'data.drafts': 'Unsaved inputs',
   'data.drafts.note':
-    'Numbers you were typing on a formula screen, kept so you need not start over after leaving.',
+    'Numbers you were typing on a formula screen, kept so you need not start over after opening the data table or the guide and coming back.',
   'data.usage': 'Formulas you opened',
   'data.usage.note': 'Which formulas you open most, used to reorder the Everyday formulas block.',
   'data.quiz': 'Understanding check results',
@@ -767,44 +779,18 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'guide.result.pitfall': 'Easy to get wrong:',
 
   /*
-   * Mục "Đọc biểu đồ" — một đoạn cho mỗi loại hình, dịch từ khối `charts` của `guide-111.json`.
-   * Mười loại dù Registry hiện dùng tám; lý do ghi ở `vi.ts`.
-   */
-  'guide.chartKind.sensitivity.title': 'Sensitivity sweep',
-  /*
-   * Theo bản `vi` viết lại ngày 06/10/2026 — lý do ba lỗi của bản cũ ghi ở `vi.ts`.
+   * Mục "Đọc biểu đồ" — nhãn dùng chung; chữ riêng từng công thức ở `src/core/huong-dan/bieu-do/`.
+   * Mười tám khoá `guide.chartKind.*` đã xoá 13/10/2026 — lý do đầy đủ ở `vi.ts`.
    *
-   * Bản cũ còn mắc một lỗi thứ tư mà bản `vi` không có, và nó chỉ lộ ra khi quét: nhãn trong
-   * ngoặc kép là "See the result change with", còn nhãn THẬT trên màn (`chart.sweepLabel`) là
-   * "See how the result changes with". Bài trỏ vào một cái tên không có trên màn. Từ nay
-   * `i18n.test.ts` gác chuyện đó cho cả hai thứ tiếng.
+   * Hai nhãn dạng viết "As a line" / "As bars" chứ không "Line view" / "Bar view": nút trên màn tên
+   * là "Line" và "Bars", và chữ riêng của từng công thức gọi các cột là "bars" cho khớp nút ấy.
+   *
+   * Năm khoá `guide.chart.switchAxis` · `switchKind` · `when.advanced` · `when.series` ·
+   * `when.breakdown` đã xoá cùng ngày: khung "?" nay chỉ in hình đang hiện — mộ chí ở `vi.ts`.
    */
-  'guide.chartKind.sensitivity.body':
-    'The curve shows how the result moves as one field runs across its whole range. The "See how the result changes with" row just above the chart decides which field that is.',
-  'guide.chartKind.waterfall.title': 'Breakdown chart',
-  'guide.chartKind.waterfall.body':
-    'Each bar is one amount added or subtracted. The last bar stands on 0 and equals the number in the Result block.',
-  'guide.chartKind.stackedBar.title': 'Stacked bar chart',
-  'guide.chartKind.stackedBar.body':
-    'Each bar splits into its parts. The whole bar is the total, each segment one amount.',
-  'guide.chartKind.candlestick.title': 'Candlestick chart',
-  'guide.chartKind.candlestick.body':
-    'Each candle is one session: the body is the open and close, the wicks the high and low. Indicator lines are drawn over it.',
-  'guide.chartKind.histogram.title': 'Distribution chart',
-  'guide.chartKind.histogram.body':
-    'Each bar counts the sessions that fall in one return range. A taller bar means that range happens more often.',
-  'guide.chartKind.underwater.title': 'Drawdown chart',
-  'guide.chartKind.underwater.body':
-    'The line never rises above 0. Each point says how far below the most recent peak the price was, as a percentage.',
-  'guide.chartKind.scatter.title': 'Regression chart',
-  'guide.chartKind.scatter.body':
-    'Each dot is one session: the market on the horizontal axis, the stock on the vertical one. The slope of the line is the result.',
-  'guide.chartKind.heatmap.title': 'Heat map',
-  'guide.chartKind.heatmap.body':
-    'Two variables run along the two axes and each cell is colored by its result. Use it to see which region is safe and which is not.',
-  'guide.chartKind.tornado.title': 'Influence ranking chart',
-  'guide.chartKind.tornado.body':
-    'Each bar is one input field. A longer bar means that field moves the result harder.',
+  'guide.chart.line': 'As a line',
+  'guide.chart.bar': 'As bars',
+  'guide.chart.when.seriesOnly': 'Drawn only after a ticker or a price series is loaded.',
 
   /*
    * Mục "Khi kết quả hiện _ _" — một câu cho mỗi mã WF-15, dịch từ khối `warnings` của

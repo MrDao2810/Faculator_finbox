@@ -1,28 +1,34 @@
 /**
- * Tầng APPLICATION — nhớ **mã cổ phiếu người dùng đang xem** trong suốt một lượt duyệt.
+ * Tầng APPLICATION — nhớ **mã cổ phiếu người dùng đang xem** trong suốt một LƯỢT XEM công thức.
  *
- * ## Vì sao cần
+ * ## Phạm vi đã thu hẹp (13/10/2026) — đọc trước khi dựng lại bất cứ thứ gì
  *
- * Trước module này, mã chỉ sống trong `useState` của một màn chi tiết: nạp `?ma=HPG`, xem P/E
- * xong, mở tiếp P/B là ô nhập về bộ mặc định và phải nạp lại từ đầu. Người dùng thật không xem
- * *một chỉ số của một mã* — họ xem *một mã qua nhiều chỉ số*, nên việc nạp lại lặp lại đúng bằng
- * số công thức họ muốn xem.
+ * Module này sinh ra cho "mã dính theo lượt duyệt": nạp `?ma=HPG`, xem P/E xong, mở tiếp P/B là HPG
+ * tự theo sang, vì người dùng xem *một mã qua nhiều chỉ số*. Chủ dự án báo đúng hành vi ấy là LỖI
+ * NGHIÊM TRỌNG: *"vào lại hoặc search lại công thức đó thì lại đang lưu lại mã cũ trong công thức
+ * đó … phải reset lại công thức về mặc định"*. Nên từ nay mã KHÔNG theo sang công thức khác, và
+ * cũng không quay về khi vào lại chính công thức ấy từ một màn khác.
+ *
+ * Kho còn lại đúng một việc: màn chi tiết gắn lại GIỮA một lượt xem — F5, hoặc bấm "Mở bảng dữ
+ * liệu →" / đọc bài hướng dẫn rồi quay lại — thì mã và số liệu của nó trở lại mà không gọi mạng.
+ * Ranh giới của lượt xem, và chỗ kho này bị xoá, nằm ở `formula-visit.ts`. Đừng nối lại đường
+ * "mã theo sang công thức khác" mà không hỏi: nó đã bị báo là lỗi, không phải bị bỏ quên.
  *
  * ## Vì sao cất cả `Preset` chứ không chỉ cất mã
  *
- * Cất mỗi mã thì mỗi lần mở một công thức khác lại là một lời gọi tới `dcs.finbox.vn` cho **cùng
- * một mã, cùng một phiên** — xem 5 chỉ số là 5 request giống hệt nhau. Cất luôn `Preset` đã dựng
- * thì cả lượt duyệt chỉ tốn một lời gọi, và các màn sau nạp tức thì, không cần mạng.
+ * Cất mỗi mã thì mỗi lần màn gắn lại là một lời gọi tới `dcs.finbox.vn` cho **cùng một mã, cùng
+ * một phiên**. Cất luôn `Preset` đã dựng thì cả lượt xem chỉ tốn một lời gọi, và lần gắn sau nạp
+ * tức thì, không cần mạng — kể cả khi quay lại từ bảng dữ liệu lúc mất sóng.
  *
  * Preset ở đây nhỏ: API Finbox trả **tối đa mười phiên** giá (`tendays`, xem `presetFromSnapshot`),
  * nên `bars` có nhiều nhất mười phần tử — khoảng một kilobyte, không phải 248 phiên như bộ mẫu
- * tĩnh. Cất cả chuỗi ấy là điều kiện để mã dính theo lượt duyệt giữ được đường biểu đồ theo thời
- * gian: mở tiếp P/B sau khi xem P/E thì hình vẫn là mười phiên thật, không tụt về đường quét giả
- * định — mà cũng không tốn thêm lời gọi nào.
+ * tĩnh. Cất cả chuỗi ấy là điều kiện để lần gắn lại giữ được đường biểu đồ theo thời gian: quay lại
+ * từ bảng dữ liệu thì hình vẫn là mười phiên thật, không tụt về đường quét giả định — mà cũng không
+ * tốn thêm lời gọi nào.
  *
  * ## Vì sao `sessionStorage` chứ không `localStorage`
  *
- * Đây là ngữ cảnh của MỘT lượt duyệt, không phải tuỳ chọn — cùng lý do `last-list-url.ts` chọn
+ * Đây là ngữ cảnh của MỘT lượt xem, không phải tuỳ chọn — cùng lý do `last-list-url.ts` chọn
  * `sessionStorage`. Và nó còn là **điều kiện để việc cất giá không thành nói dối**: giá cổ phiếu
  * cũ đi theo giờ, mà một bản cất trong `localStorage` sẽ sống qua đêm rồi âm thầm điền số của
  * hôm qua vào ô nhập hôm nay. Đóng tab là mất — đúng tuổi thọ của một phiên làm việc.

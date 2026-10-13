@@ -591,6 +591,42 @@ check(
   chuRiengRoVaoJs.length === 0 ? '0 tệp' : chuRiengRoVaoJs.join(', '),
 );
 
+/*
+ * Mục "Đọc biểu đồ" viết RIÊNG cho từng công thức (13/10/2026) — sáu trăm đoạn × 2 thứ tiếng ở
+ * `src/core/huong-dan/bieu-do/noi-dung/`.
+ *
+ * Năm vế, đo trên bản dựng thật của `pe`:
+ *
+ *   · bài gọi hình bằng đúng TÊN màn tính in dưới hình ("P/E theo Giá thị trường"), và có đoạn chữ
+ *     của riêng công thức ấy — chứng minh kho chữ mới đã vào tới HTML tĩnh;
+ *   · MỌI mục của ô chọn "Xem kết quả đổi theo" đều có hình của nó trong bài, không riêng mục mặc
+ *     định: `pe` phải có cả "P/E theo EPS". Khung "?" trên màn tính tra chữ theo đúng mục đang chọn,
+ *     nên thiếu một hình là có một lựa chọn bấm "?" ra chữ của hình khác;
+ *   · cái tên cũ không còn: chủ dự án đọc "Biểu đồ quét độ nhạy" trên màn và hỏi nó nghĩa là gì;
+ *   · hai câu chỉ tới dòng "Xem kết quả đổi theo" và "Loại biểu đồ" không còn — chủ dự án bảo gỡ;
+ *   · đoạn chữ ấy KHÔNG nằm trong tệp JS nào. Bài đi sang màn tính bằng prop `bai` (khung "?" cạnh
+ *     biểu đồ), tức nằm trong HTML của đúng trang đó; rò vào gói JS thì 103 trang cùng trả tiền cho
+ *     chữ của nhau. Cùng lý do và cùng cách dò với `CHU_RIENG` ngay trên.
+ */
+const CHU_BIEU_DO = 'Đây là phép thử nếu giá đổi thì P/E ra bao nhiêu';
+const chuBieuDoRoVaoJs = existsSync('out/_next/static')
+  ? tatCaFile('out/_next/static', '.js').filter((file) =>
+      readFileSync(file, 'utf8').includes(CHU_BIEU_DO),
+    )
+  : ['không thấy out/_next/static'];
+check(
+  'mục "Đọc biểu đồ" gọi đúng tên hình của màn tính, và chữ riêng của nó không rò vào gói JS',
+  guideHtml.includes('P/E theo Giá thị trường') &&
+    guideHtml.includes('P/E theo EPS') &&
+    guideHtml.includes(CHU_BIEU_DO) &&
+    !guideHtml.includes('quét độ nhạy') &&
+    !guideHtml.includes('Lựa chọn ở dòng') &&
+    chuBieuDoRoVaoJs.length === 0,
+  chuBieuDoRoVaoJs.length === 0
+    ? 'out/huong-dan/cong-thuc/pe/index.html · 0 tệp JS'
+    : chuBieuDoRoVaoJs.join(', '),
+);
+
 check(
   'bài hướng dẫn có đúng một <h1> — thân màn tự mang tiêu đề, thanh trên bày nút quay lại',
   (guideHtml.match(/<h1[\s>]/g) ?? []).length === 1,

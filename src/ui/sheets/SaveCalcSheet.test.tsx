@@ -53,11 +53,23 @@ describe('SaveCalcSheet', () => {
     expect(nameField().value).toBe('HPG · P/E');
   });
 
-  it('bấm một gợi ý là điền tên đó vào ô', async () => {
+  /*
+   * ĐẢO ngày 13/10/2026. Ca cũ ở đây là "bấm một gợi ý là điền tên đó vào ô": dưới ô tên có một
+   * hàng chip bày mọi cái tên tự sinh. Chủ dự án: *"bỏ phần gợi ý tên khi lưu công thức đi, để gọn
+   * gàng hơn"*. Giữ ca ở đúng chỗ cũ với khẳng định ngược lại, để hàng chip quay về là một quyết
+   * định chứ không phải một lần lỡ tay.
+   *
+   * Việc ĐIỀN SẴN gợi ý đầu tiên vào ô thì còn — ca ngay trên và ca "gợi ý tự né tên đã có" gác nó.
+   */
+  it('không còn hàng "Gợi ý tên" dưới ô tên — sheet chỉ có ô tên và nút Lưu', () => {
     renderSheet({ code: 'HPG' });
 
-    await userEvent.click(screen.getByRole('button', { name: 'P/E · 12,3 lần' }));
-    expect(nameField().value).toBe('P/E · 12,3 lần');
+    expect(screen.queryByText('Gợi ý tên')).toBeNull();
+    // Hai cái tên mà hàng chip cũ từng bày bên cạnh gợi ý đầu tiên.
+    expect(screen.queryByRole('button', { name: 'P/E · 12,3 lần' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /HPG · P\/E/ })).toBeNull();
+    // Chip cũ là nút bật/tắt; không còn nút nào mang trạng thái ấy trong sheet.
+    expect(document.querySelectorAll('dialog [aria-pressed]')).toHaveLength(0);
   });
 
   it('lưu đúng cái tên đang có trong ô', async () => {
@@ -148,11 +160,8 @@ describe('SaveCalcSheet', () => {
     renderSheet({ code: 'HPG' });
 
     expect(screen.getByText('12,3 lần')).not.toBeNull();
-    // 'HPG · P/E' xuất hiện hai chỗ: khối tóm tắt và một chip gợi ý. Khối tóm tắt là chỗ
-    // KHÔNG bấm được — tìm đúng nó thay vì đếm số lần khớp.
-    const summary = screen
-      .getAllByText('HPG · P/E')
-      .find((node) => node.closest('button') === null);
-    expect(summary).not.toBeUndefined();
+    // 'HPG · P/E' nay chỉ còn ở khối tóm tắt (ô tên giữ nó trong `value`, không phải chữ trên màn):
+    // `getByText` ném lỗi nếu khớp hơn một chỗ, nên nó gác luôn việc hàng chip không quay lại.
+    expect(screen.getByText('HPG · P/E').closest('button')).toBeNull();
   });
 });

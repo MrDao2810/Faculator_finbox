@@ -49,8 +49,20 @@ function key(value: string): string {
  *   ra nguyên nhân, chỉ còn cái tên do chính họ đặt bảo chứng cho nó. Đúng thứ FR-06 chặn.
  *
  * · **Không tự đặt tên rồi lưu ngay.** Ba mươi mục tên 'P/E', 'P/E (1)', 'P/E (2)' thì vô dụng
- *   đúng bằng không lưu gì. Gợi ý lo phần khó (ghép mã · kết quả · ngày), người dùng chỉ việc
- *   bấm — nhưng cái tên vẫn là của họ.
+ *   đúng bằng không lưu gì. Ô tên được ĐIỀN SẴN một cái tên ghép từ mã và tên công thức, đã né
+ *   trùng — bấm Lưu ngay là được, mà cái tên vẫn là của họ vì sửa được tại chỗ.
+ *
+ * ── Hàng "Gợi ý tên" đã BỎ (13/10/2026) ─────────────────────────────────────────────────────
+ *
+ * Dưới ô tên từng có một hàng chip bày mọi cái tên `suggestCalcNames()` dựng ra (mã · tên, tên ·
+ * kết quả, tên · ngày…), bấm chip nào là điền tên ấy. Chủ dự án: *"bỏ phần gợi ý tên khi lưu công
+ * thức đi, để gọn gàng hơn"*. Sheet nay chỉ còn khối tóm tắt, một ô tên và nút Lưu.
+ *
+ * Thứ KHÔNG bỏ là việc điền sẵn gợi ý ĐẦU TIÊN vào ô, và nó không chỉ là tiện tay: tab Công thức
+ * của màn Danh mục nhận ra "đây là tên tự sinh" bằng cách dựng lại chính `suggestCalcNames()`
+ * (`displayCalcName()`), rồi mới quyết định ô tên in gì và dịch được hay không. Bỏ luôn việc điền
+ * sẵn là mọi phép tính lưu về sau thành tên gõ tay, và người dùng phải gõ một cái tên cho mỗi lần
+ * lưu. Một ca trong `SaveCalcSheet.test.tsx` ghim hàng chip KHÔNG còn; muốn dựng lại thì hỏi trước.
  */
 export function SaveCalcSheet({
   open,
@@ -73,7 +85,8 @@ export function SaveCalcSheet({
   /** Giữ CỜ chứ không giữ câu lỗi đã dịch: đổi ngôn ngữ sẽ đóng băng bản dịch cũ (xem ExportSheet). */
   const [failed, setFailed] = useState(false);
 
-  const suggestions = useMemo(
+  /** Cái tên điền sẵn vào ô — gợi ý ĐẦU TIÊN, đã né tên đang có. Xem docblock về hàng chip đã bỏ. */
+  const suggestedName = useMemo(
     () =>
       suggestCalcNames({
         formulaName,
@@ -81,7 +94,7 @@ export function SaveCalcSheet({
         ...(resultText === '' ? {} : { resultText }),
         savedAt,
         existing: existingNames,
-      }),
+      })[0] ?? '',
     [formulaName, code, resultText, savedAt, existingNames],
   );
 
@@ -92,7 +105,7 @@ export function SaveCalcSheet({
    */
   useEffect(() => {
     if (!open) return;
-    setName(suggestions[0] ?? '');
+    setName(suggestedName);
     setTouched(false);
     setSaved(false);
     setFailed(false);
@@ -132,6 +145,8 @@ export function SaveCalcSheet({
       onClose={onClose}
       title={t('save.title')}
       subtitle={t('save.subtitle')}
+      // Chỉ một ô tên — ở khổ web tấm 720px là loãng, xem `BottomSheetProps.width`.
+      width="narrow"
       footer={
         saved ? (
           <Button variant="secondary" size="sm" onClick={onClose}>
@@ -182,28 +197,6 @@ export function SaveCalcSheet({
               setTouched(true);
             }}
           />
-
-          {suggestions.length > 0 && hasResult && !full && (
-            <div className={styles.suggestions}>
-              <span className={styles.suggestionsLabel}>{t('save.suggestions')}</span>
-              <div className={styles.chips}>
-                {suggestions.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    className={styles.chip}
-                    aria-pressed={key(suggestion) === key(name)}
-                    onClick={() => {
-                      setName(suggestion);
-                      setTouched(true);
-                    }}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {failed && (
             <p className={styles.failed} role="alert">

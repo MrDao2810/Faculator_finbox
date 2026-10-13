@@ -1,9 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { buildChartModel } from '@/application';
-import type { CalcContext, CalcInputs, CalcOutput, FormulaModule, Level } from '@/application';
+import type {
+  CalcContext,
+  CalcInputs,
+  CalcOutput,
+  FormulaModule,
+  HinhDangXem,
+  Level,
+} from '@/application';
 import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
@@ -55,6 +62,21 @@ export interface ChartBodyProps {
    * PHẢI có tham chiếu ổn định giữa các lượt render — prop này đi qua `memo(FormulaChart)`.
    */
   lockedKeys?: ReadonlySet<string>;
+  /**
+   * Báo lên hình ĐANG HIỆN mỗi khi nó đổi: mục đang chọn ở dòng "Xem kết quả đổi theo", dạng Đường
+   * hay Cột đang vẽ, và hình có vẽ được hay khối đang hiện cảnh báo (13/10/2026).
+   *
+   * Khung hướng dẫn mở từ nút "?" cạnh tiêu đề khối đọc đúng thứ này để chỉ in chữ của hình đang
+   * hiện — chủ dự án: *"sau khi lựa chọn một select mới từ đường thì mới hiển thị xem biểu đồ dạng
+   * đường, tương tự khi click vào xem biểu đồ dạng cột"*. Trạng thái ấy sống ở đây, sau ranh giới
+   * nạp trễ, còn nút "?" và khung thì ở màn chi tiết; một lời báo đi lên là mối nối rẻ nhất. Kéo
+   * state lên màn chi tiết thì không được: trục MẶC ĐỊNH do `buildChartModel()` chọn, mà màn chi
+   * tiết không được chạm vào bộ dựng biểu đồ (bất biến của `FormulaChart.tsx`).
+   *
+   * PHẢI có tham chiếu ổn định giữa các lượt render — prop này đi qua `memo(FormulaChart)`, và nó
+   * còn là phụ thuộc của effect bên dưới.
+   */
+  onViewChange?: (hinh: HinhDangXem) => void;
 }
 
 /**
@@ -85,6 +107,7 @@ export function ChartBody({
   seriesLabel,
   onApplyPoint,
   lockedKeys,
+  onViewChange,
 }: ChartBodyProps) {
   const t = useT();
 
@@ -145,6 +168,49 @@ export function ChartBody({
       }),
     [formula, inputs, ctx, output, level, sweepKey, seriesLabel, kind],
   );
+
+  /*
+   * Có mời người dùng đổi sang lối CỘT hay không.
+   *
+   * Hai điều kiện, cả hai đều là "vẽ ra sẽ đọc sai" chứ không phải "vẽ ra sẽ xấu":
+   *
+   *   - Thác nước VỐN ĐÃ là cột, với ý nghĩa khác hẳn (mỗi cột một THÀNH PHẦN của phép bóc tách,
+   *     không phải một mức của cùng một biến). Bày thêm nút "Cột" ở đó là hỏi một câu vô nghĩa.
+   *   - Nhiều chuỗi thì cột của chuỗi chính che mất đường phụ, mà đường phụ là bối cảnh người ta
+   *     cần để đọc chuỗi chính (giá đóng cửa dưới đường SMA chẳng hạn). Vẽ được, nhưng đọc thành
+   *     một hình khác với hình nó đang nói.
+   *
+   * Nút VẮNG MẶT chứ không phải bị làm mờ: một nút không bao giờ bấm được ở màn này thì bày ra chỉ
+   * để người dùng thử rồi thất vọng.
+   *
+   * Tính ở ĐÂY, trước nhánh `unavailable`, vì effect báo hình ngay dưới cần nó và hook thì không
+   * được đứng sau một lệnh `return` sớm.
+   */
+  const coCotDuoc =
+    model.kind === 'line' && (model.overlays === undefined || model.overlays.length === 0);
+
+  /* Lối vẽ THẬT SỰ đang dùng — `kind` là ý muốn, còn đây là ý muốn đã lọc qua điều kiện. */
+  const variant: ChartKind = coCotDuoc ? kind : 'line';
+
+  /*
+   * Báo hình đang hiện lên màn chi tiết — xem `ChartBodyProps.onViewChange`.
+   *
+   * Khoá báo lên là `model.sweepKey`, tức mục mà ô chọn đang chỉ vào, kể cả khi chưa ai chọn gì và
+   * trục do Domain tự quyết. Riêng lúc khối đang hiện cảnh báo thay cho hình thì chỉ báo lựa chọn
+   * người dùng ĐÃ TỰ bấm (`sweepKey` của state, có thể là `null`): mô hình `unavailable` vẫn mang
+   * một `sweepKey` — ô nhập mà bộ dựng thử đầu tiên — nhưng với 35 công thức đang chờ chuỗi giá thì
+   * hình sẽ hiện ra khi nạp xong là hình theo thời gian, không phải hình của ô ấy. Báo `null` để
+   * khung "?" nói về hình màn sẽ mở ra.
+   *
+   * Phụ thuộc là ba giá trị nguyên thuỷ, nên effect chỉ chạy khi hình thật sự đổi — không chạy theo
+   * từng phím gõ ở khối Số liệu.
+   */
+  const daVe = model.kind !== 'unavailable';
+  const khoaDangHien = model.kind === 'unavailable' ? sweepKey : model.sweepKey;
+  const dangDangVe = variant === 'bar' ? 'cot' : 'duong';
+  useEffect(() => {
+    onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe });
+  }, [onViewChange, khoaDangHien, dangDangVe, daVe]);
 
   if (model.kind === 'unavailable') {
     /*
@@ -237,26 +303,6 @@ export function ChartBody({
    * hai bản cùng nằm trong DOM khi lớp phủ mở, và `<label for>` trỏ vào node đầu tiên trùng `id`.
    * Dùng chung một element là ô chọn trong màn phóng to mất nhãn.
    */
-  /*
-   * Có mời người dùng đổi sang lối CỘT hay không.
-   *
-   * Hai điều kiện, cả hai đều là "vẽ ra sẽ đọc sai" chứ không phải "vẽ ra sẽ xấu":
-   *
-   *   - Thác nước VỐN ĐÃ là cột, với ý nghĩa khác hẳn (mỗi cột một THÀNH PHẦN của phép bóc tách,
-   *     không phải một mức của cùng một biến). Bày thêm nút "Cột" ở đó là hỏi một câu vô nghĩa.
-   *   - Nhiều chuỗi thì cột của chuỗi chính che mất đường phụ, mà đường phụ là bối cảnh người ta
-   *     cần để đọc chuỗi chính (giá đóng cửa dưới đường SMA chẳng hạn). Vẽ được, nhưng đọc thành
-   *     một hình khác với hình nó đang nói.
-   *
-   * Nút VẮNG MẶT chứ không phải bị làm mờ: một nút không bao giờ bấm được ở màn này thì bày ra chỉ
-   * để người dùng thử rồi thất vọng.
-   */
-  const coCotDuoc =
-    model.kind === 'line' && (model.overlays === undefined || model.overlays.length === 0);
-
-  /* Lối vẽ THẬT SỰ đang dùng — `kind` là ý muốn, còn đây là ý muốn đã lọc qua điều kiện. */
-  const variant: ChartKind = coCotDuoc ? kind : 'line';
-
   /*
    * MỘT ô chọn trục và MỘT nhóm nút lối vẽ, dựng hai lần ở hai chỗ — cùng lý do đã ghi ngay dưới:
    * `id` phải khác nhau nên đây là hàm dựng, không phải element giữ sẵn.

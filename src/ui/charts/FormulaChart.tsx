@@ -9,6 +9,7 @@ import type {
   CalcOutput,
   FormulaModule,
   FormulaSpec,
+  HinhDangXem,
 } from '@/application';
 
 /**
@@ -75,6 +76,15 @@ export interface FormulaChartProps {
    * Cùng ràng buộc tham chiếu ổn định như `onApplyPoint` ngay trên: prop này đi qua `memo`.
    */
   lockedKeys?: ReadonlySet<string>;
+  /**
+   * Nhận lời báo "hình nào đang hiện, ở dạng nào" mỗi khi người dùng đổi mục ở dòng "Xem kết quả
+   * đổi theo" hoặc bấm nút Đường/Cột — để khung hướng dẫn ở nút "?" chỉ in chữ của đúng hình ấy.
+   * Lý do đầy đủ ở `ChartBodyProps.onViewChange`.
+   *
+   * Cùng ràng buộc tham chiếu ổn định như hai prop trên. Một `setState` của `useState` là đủ: React
+   * giữ nguyên tham chiếu của nó suốt đời component.
+   */
+  onViewChange?: (hinh: HinhDangXem) => void;
 }
 
 /**

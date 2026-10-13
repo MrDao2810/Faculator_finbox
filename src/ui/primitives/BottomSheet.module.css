@@ -2,6 +2,9 @@
  * Bottom sheet — gói WBS 2.5.
  * Dán đáy màn hình, cao tối đa 88% để người dùng luôn thấy một dải nền phía trên và hiểu
  * rằng bấm ra ngoài là đóng được.
+ *
+ * Đó là dáng ở khổ HẸP, và ở mọi bản in. Trên màn từ 1024px tấm tự nổi giữa — xem khối `@media`
+ * ở cuối file.
  */
 .sheet {
   width: 100%;
@@ -39,6 +42,13 @@
 
   inset: 0;
   margin: auto;
+  /*
+   * `visible` chứ không `hidden` của tấm dán đáy: bóng đổ của `.panelCenter` vẽ RA NGOÀI khung
+   * `<dialog>`, mà `hidden` cắt mọi thứ con vẽ ngoài khung, kể cả bóng. Đo 13/10/2026 trên Chrome:
+   * bóng chỉ còn là một mảng vuông sẫm lấp sau bốn góc bo, đúng phần khung chữ nhật của `<dialog>`
+   * thò ra ngoài góc tròn của tấm. Tấm không tràn được ra ngoài — nó mang cùng `max-height`.
+   */
+  overflow: visible;
 }
 
 .sheet::backdrop {
@@ -94,6 +104,13 @@
 
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
+  /*
+   * Cắt con ở mép bo. Tấm không có hàng nút (sheet chọn mã, sheet nạp mẫu) thì phần tử cuối là
+   * thân cuộn, và THANH CUỘN của nó là một hình chữ nhật đè thẳng lên góc dưới phải: đo 13/10/2026,
+   * `border-radius` đọc ra vẫn 16px mà góc trên màn thì vuông. Bóng đổ không bị ảnh hưởng — `overflow`
+   * cắt con, không cắt bóng của chính phần tử.
+   */
+  overflow: hidden;
   /* Không chừa thanh gạt điện thoại: tấm không dán đáy nên nó không đè lên thanh ấy. */
   padding-bottom: 0;
   /*
@@ -217,4 +234,90 @@
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--color-hairline);
   background: var(--color-paper);
+}
+
+/*
+ * ── Khổ web: tấm dán đáy tự thành popup NỔI GIỮA MÀN (13/10/2026) ─────────────────────────────
+ *
+ * Chủ dự án: _"chuyển đổi toàn bộ dialog bottom ở màn web thành popup ở giữa màn hình … còn ở màn
+ * mobile thì giữ nguyên dialog bottom"_. Mốc 1024 là mốc của bảng bậc màn trong `globals.css` —
+ * "nav lên thanh trên, thanh dưới ẩn", tức đúng lúc sản phẩm đổi sang giao diện web.
+ *
+ * Làm bằng `@media` chứ không đọc khổ màn bằng JS: `<dialog>` của màn `/du-lieu/` nằm sẵn trong
+ * HTML tĩnh, nên đọc lúc render là lệch hydrate, còn đọc trong effect là tấm nháy từ đáy lên giữa.
+ *
+ * Khối này là BẢN CHÉP của dạng `center` ở trên (`.sheetCenter`, `.panelCenter` và bốn luật con
+ * của nó), áp cho mọi tấm không truyền `placement`. Chép chứ không gộp, vì hai điều kiện "khổ từ
+ * 1024" và "`placement="center"`" một cái sống trong `@media`, một cái sống trong tên lớp, và CSS
+ * không có cách nào viết chung một luật cho cả hai. Gộp được thì phải đảo cả file — dạng nổi giữa
+ * làm gốc, dạng dán đáy chui vào `@media (max-width: 1023px)` — tức sửa đúng những luật mà yêu cầu
+ * nói phải giữ nguyên. `BottomSheet.test.ts` so hai bản từng khai báo: đổi một bên mà quên bên kia
+ * là đỏ.
+ *
+ * Phải đứng CUỐI file. Các luật gốc `.header`, `.body`, `.footer`, `.title` cùng một hạng độ ưu
+ * tiên với luật ở đây (`@media` không cộng thêm gì), nên thứ tự khai là thứ duy nhất quyết định —
+ * cùng cái bẫy đã ghi ở `.panelCenter`. Ca kiểm gác luôn thứ tự này.
+ *
+ * `screen and` là BẮT BUỘC, không phải cẩn thận thừa. Vùng in của sheet Tải về (`.print-region`)
+ * nằm TRONG `<dialog>` này và định vị theo nó, mà dưới media in bề ngang của `@media` là bề ngang
+ * tờ giấy: A4 ngang rộng 1123px, tức vượt mốc. Đo 13/10/2026 bằng `Page.printToPDF`: thiếu `screen`
+ * thì bản in A4 ngang đổi hẳn (file 73 kB thành 172 kB, vùng in từ 720px xuống 560px và dời chỗ),
+ * còn A4 dọc thì không. Có `screen` thì mọi khổ giấy in ra đúng từng byte như trước đợt này.
+ */
+@media screen and (min-width: 1024px) {
+  .sheet {
+    width: min(720px, 92vw);
+    max-width: min(720px, 92vw);
+    max-height: min(600px, 88dvh);
+
+    inset: 0;
+    margin: auto;
+    overflow: visible;
+  }
+
+  /*
+   * Tấm hẹp — `width="narrow"`. Dành cho tấm chỉ có vài điều khiển (Tải về, Lưu vào danh mục):
+   * ở 720px hai thẻ định dạng và một ô tên trải ra thành những dải dài không ai cần.
+   *
+   * Chỉ có nghĩa ở khổ này: dưới 1024 tấm dán đáy và rộng hết màn, hẹp lại ở đó là để hở hai mép.
+   */
+  .sheetNarrow {
+    width: min(560px, 92vw);
+    max-width: min(560px, 92vw);
+  }
+
+  .panel {
+    max-height: min(600px, 88dvh);
+
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    padding-bottom: 0;
+    box-shadow: var(--shadow-modal);
+  }
+
+  .header {
+    padding: var(--space-4) var(--space-5) var(--space-3);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+
+  /* Vạch kéo hứa "kéo xuống để đóng" — một cử chỉ chỉ đúng với tấm dán đáy. */
+  .grabber {
+    display: none;
+  }
+
+  .body {
+    padding: var(--space-5) var(--space-5) var(--space-4);
+  }
+
+  .footer {
+    padding: var(--space-4) var(--space-5);
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
+
+  .title {
+    font-size: var(--text-lg);
+  }
 }

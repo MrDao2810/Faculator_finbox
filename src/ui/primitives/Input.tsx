@@ -37,6 +37,13 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
    * `subgrid` mà lưới ô nhập của màn chi tiết dựng cho mỗi ô (nhãn · khung · dòng phụ · dòng lỗi).
    */
   sourceMark?: ReactNode;
+  /**
+   * Một điều khiển đứng TRONG khung, sau ô gõ và đơn vị — nút mở lịch của ô ngày (`DateField`).
+   *
+   * Nằm trong `.control` chứ không cạnh nó, để vòng focus và viền lỗi của khung ôm cả hai: nút lịch
+   * là một cách khác để điền CHÍNH ô này, không phải một điều khiển thứ hai.
+   */
+  trailing?: ReactNode;
 }
 
 /**
@@ -54,6 +61,7 @@ export function Input({
   hideLabel = false,
   compact = false,
   sourceMark,
+  trailing,
   className,
   id,
   ...rest
@@ -100,6 +108,7 @@ export function Input({
             {unit}
           </span>
         )}
+        {trailing}
       </div>
 
       {hint !== undefined && (

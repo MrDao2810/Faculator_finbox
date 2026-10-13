@@ -2508,6 +2508,72 @@ window.__themeLog = [];
   );
 
   /*
+   * Khung "?" của khối Biểu đồ chỉ in hình ĐANG HIỆN, ở dạng đang chọn (13/10/2026).
+   *
+   * Bản đầu in mọi hình của công thức, mỗi hình hai dạng, kèm hai câu chỉ tới hai dòng điều khiển —
+   * chủ dự án: *"ô hướng dẫn sử dụng đang rất dài, sửa logic như sau: sau khi lựa chọn một select
+   * mới từ đường thì mới hiển thị xem biểu đồ dạng đường, tương tự khi click vào xem biểu đồ dạng
+   * cột"*. Vitest đi được cả luồng trong jsdom nhưng KHÔNG đo được chiều cao: "rất dài" là một số
+   * đo của trình duyệt thật. Nên ở đây đo đúng thứ đã bị chê — khung có phải cuộn trong chính nó
+   * không — ở hai bước: mở ra (dạng Đường), rồi bấm nút Cột và mở lại.
+   *
+   * Ô chọn trục không đụng tới ở đây: đổi mục là việc của `FormulaDetail.test.tsx` và
+   * `charts.test.tsx`, còn phép này chỉ cần chứng minh mối nối "khối Biểu đồ báo lên → khung đọc"
+   * sống được qua ranh giới nạp trễ của một bản build thật.
+   */
+  const khungBieuDo = await evaluate(`(async () => {
+    const cho = (ms) => new Promise((xong) => setTimeout(xong, ms));
+    const dong = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    const nut = () => document.querySelector('a[href$="#doc-bieu-do"]');
+    const doc = () => {
+      const p = document.querySelector('[class*="GuideHintPanel_panel__"]');
+      if (!p) return null;
+      return {
+        hinh: [...p.querySelectorAll('h3')].map((el) => el.textContent),
+        dang: [...p.querySelectorAll('dt')].map((el) => el.textContent),
+        cao: Math.round(p.getBoundingClientRect().height),
+        phaiCuon: p.scrollHeight > p.clientHeight + 1,
+      };
+    };
+
+    dong();
+    await cho(100);
+    if (!nut()) return null;
+    nut().scrollIntoView({ block: 'center' });
+    await cho(300);
+    nut().click();
+    await cho(400);
+    const duong = doc();
+
+    dong();
+    const nutCot = [...document.querySelectorAll('button')].find(
+      (b) => b.textContent.trim() === 'Cột',
+    );
+    if (!nutCot) return { duong, cot: null };
+    nutCot.click();
+    await cho(300);
+    nut().click();
+    await cho(400);
+    const cot = doc();
+    dong();
+    return { duong, cot };
+  })()`);
+
+  check(
+    'PC 1440 · khung "?" của biểu đồ chỉ in hình đang hiện ở dạng đang chọn, và không phải cuộn',
+    khungBieuDo !== null &&
+      khungBieuDo.duong !== null &&
+      khungBieuDo.cot !== null &&
+      khungBieuDo.duong.hinh.join('|') === 'P/E theo Giá thị trường' &&
+      khungBieuDo.duong.dang.join('|') === 'Dạng Đường' &&
+      khungBieuDo.duong.phaiCuon === false &&
+      khungBieuDo.cot.hinh.join('|') === 'P/E theo Giá thị trường' &&
+      khungBieuDo.cot.dang.join('|') === 'Dạng Cột' &&
+      khungBieuDo.cot.phaiCuon === false,
+    JSON.stringify(khungBieuDo),
+  );
+
+  /*
    * ── Màn Công thức: trang chủ + danh sách gộp làm một (bản vẽ 15/09/2026) ────────────────────
    *
    * Thay cụm kiểm "thanh tab 40% + hai ô lọc" của màn danh sách cũ — ba tab mảng và ô chọn nhóm đã
@@ -3369,11 +3435,14 @@ window.__themeLog = [];
       // Xếp thành cột thì mọi ô cùng một mép trên.
       soMepTren: new Set(o.map((el) => Math.round(el.getBoundingClientRect().top))).size,
       soNut: nut.length,
-      // Hở từ nút cuối tới mép phải bảng — dạt phải thì nhỏ (đệm của ô), dạt trái thì hàng trăm.
-      hoPhai:
+      // Hai nút của hàng nay ở Ô ĐẦU (mã, rồi dấu X xoá); ô cuối là ngày mua nên không còn nút nào.
+      soNutODau: o[0].querySelectorAll('button').length,
+      soNutOCuoi: o[o.length - 1].querySelectorAll('button').length,
+      // Hở từ nút cuối tới mép TRÁI bảng — đứng ngay sau mã thì vài chục pixel, dạt phải thì hàng trăm.
+      hoTrai:
         cuoi === undefined
           ? null
-          : Math.round(bang.getBoundingClientRect().right - cuoi.getBoundingClientRect().right),
+          : Math.round(cuoi.getBoundingClientRect().right - bang.getBoundingClientRect().left),
       cuonNgang: khung !== null && khung.scrollWidth > khung.clientWidth + 1,
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     };
@@ -3398,13 +3467,23 @@ window.__themeLog = [];
   );
 
   /*
-   * Hai nút biểu tượng thay cho khối mở ra: đúng hai nút, và dạt về mép phải hàng. Ngưỡng 40px là đệm
-   * của ô cộng nửa khe giữa nút với mép chạm — nếu chúng rơi về giữa ô thì con số này lên hàng chục.
+   * ĐẢO ngày 13/10/2026. Phép đo cũ ở đây là "mỗi hàng đúng hai nút biểu tượng (Sửa, Xoá), dạt về mép
+   * phải": bút chì và thùng rác ở cuối hàng. Chủ dự án bỏ cả hai chỗ ấy — Sửa thành cú bấm cả dòng,
+   * nút xoá (nay là dấu X) dời về ngay sau mã, và ô cuối thành ngày mua. Vẫn đúng hai nút trên một hàng (mã là nút,
+   * để bàn phím mở được form), nhưng cả hai nay ở Ô ĐẦU và dạt về mép TRÁI bảng.
+   *
+   * Ngưỡng 120px: đệm ô 12 + mã ba chữ 24 + khe 4 + dấu X 28 = 68px; mã tám chữ là 108px. Hai nút
+   * mà quay về cuối hàng thì con số này lên gần nghìn. Phần ẩn/hiện của dấu X có phép đo riêng ở
+   * dưới, với danh mục gieo sẵn.
    */
   check(
-    'PC 1440 · mỗi hàng đúng hai nút biểu tượng (Sửa, Xoá), dạt về mép phải',
-    pcBang.soNut === 2 && pcBang.hoPhai !== null && pcBang.hoPhai <= 40,
-    `${String(pcBang.soNut)} nút · hở phải ${String(pcBang.hoPhai)}px`,
+    'PC 1440 · hai nút của hàng (mã, dấu X xoá) nằm ở ô ĐẦU, sát mép trái; ô cuối không còn nút',
+    pcBang.soNut === 2 &&
+      pcBang.soNutODau === 2 &&
+      pcBang.soNutOCuoi === 0 &&
+      pcBang.hoTrai !== null &&
+      pcBang.hoTrai <= 120,
+    `${String(pcBang.soNut)} nút · ô đầu ${String(pcBang.soNutODau)} · ô cuối ${String(pcBang.soNutOCuoi)} · nút cuối cách mép trái ${String(pcBang.hoTrai)}px`,
   );
 
   /*
@@ -3541,7 +3620,414 @@ window.__themeLog = [];
   });
   await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
 
+  /*
+   * ── Bảng Mã: mã chữ trơn, dấu X hiện khi rê chuột, cột cuối là ngày mua (13/10/2026) ────────
+   *
+   * Chủ dự án vẽ lại dòng của bảng trên ảnh chụp: bỏ cái chip quanh mã, bỏ hai nút biểu tượng cuối
+   * dòng, nút xoá dời về ngay sau mã và chỉ hiện khi rê chuột, chỗ cũ của hai nút thành ngày mua.
+   * Cùng ngày, sau khi xem bản đầu: nút xoá là dấu X ĐỎ, không nền, thay cho thùng rác.
+   * Phần "đọc ra là nút gì" đã có ca vitest; ba thứ dưới đây thì chỉ đo được ở đây:
+   *
+   *   · Dấu X ẩn/hiện là luật `@media (hover: hover)` + `:hover` trong một CSS Module — jsdom
+   *     không áp CSS Module và không có con trỏ. Rê bằng `Input.dispatchMouseEvent`, tức con trỏ
+   *     thật: một `mouseover` giả không bật được `:hover`.
+   *   · Dấu X đứng NGAY SAU mã, trong ô đầu — vị trí chủ dự án đánh dấu, đo bằng hộp.
+   *   · Bảng không mọc thanh cuộn ngang. Cột ngày rộng cố định bằng pixel, bảy cột kia bằng phần
+   *     trăm; tổng lố một điểm phần trăm là `.tableWrap` cuộn — ở 1024px bảng chỉ còn ~600px.
+   *
+   * Hai mã: một có ngày mua, một không — ô ngày của mã sau phải là "_ _", không bỏ trống.
+   */
+  await evaluate(`(() => {
+    localStorage.setItem('ffb.portfolio.v1', JSON.stringify([
+      { code: 'FPT', quantity: 100, costPrice: 60000, buyDate: '2026-01-02', beta: null },
+      { code: 'HPG', quantity: 200, costPrice: 25000, buyDate: '', beta: null },
+    ]));
+    return true;
+  })()`);
+  /*
+   * Ba kênh màu 0–255 của một màu đã tính. Chrome in màu thường là "rgb(179, 32, 47)", còn màu ra
+   * từ `color-mix(in srgb, …)` là "color(srgb 0.46 0.11 0.18)" — dải 0–1, phải nhân lại.
+   */
+  const kenhMau = (mau) => {
+    const so = (mau.match(/\d+(?:\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+    return mau.startsWith('color(') ? so.map((k) => k * 255) : so;
+  };
+  /* Đỏ: kênh đỏ trội hẳn hai kênh kia. Không so mã màu cứng — token đổi theo bảng màu. */
+  const laMauDo = (mau) => {
+    const [r, g, b] = kenhMau(mau);
+    return (
+      r !== undefined && g !== undefined && b !== undefined && r > 90 && r > g * 2 && r > b * 2
+    );
+  };
+  /* Thẫm hơn hẳn (bảng sáng): tổng ba kênh tụt ít nhất 30 đơn vị, không phải chênh do làm tròn. */
+  const damHon = (a, b) => {
+    const tong = (mau) => kenhMau(mau).reduce((t, k) => t + k, 0);
+    return kenhMau(a).length === 3 && kenhMau(b).length === 3 && tong(a) <= tong(b) - 30;
+  };
+  const khongNen = (nen) => nen === 'rgba(0, 0, 0, 0)' || nen === 'transparent';
+
+  const DOC_BANG_MA = `(() => {
+    const hop = (el) => {
+      const b = el.getBoundingClientRect();
+      return { left: Math.round(b.left), right: Math.round(b.right), top: Math.round(b.top), bottom: Math.round(b.bottom) };
+    };
+    const khung = document.querySelector('[class*="tableWrap"]');
+    const dong = [...khung.querySelectorAll('tbody tr')].map((tr) => {
+      const o = [...tr.children];
+      const nut = [...o[0].querySelectorAll('button')];
+      return {
+        dong: hop(tr),
+        oDau: hop(o[0]),
+        ma: nut[0] === undefined ? null : { chu: nut[0].textContent, ten: nut[0].getAttribute('aria-label'), ...hop(nut[0]) },
+        xoa: nut[1] === undefined ? null : {
+          ten: nut[1].getAttribute('aria-label'),
+          mo: getComputedStyle(nut[1]).opacity,
+          mau: getComputedStyle(nut[1]).color,
+          nen: getComputedStyle(nut[1]).backgroundColor,
+          vien: getComputedStyle(nut[1]).borderTopWidth,
+          net: nut[1].querySelector('path')?.getAttribute('d') ?? '',
+          day: nut[1].querySelector('svg') === null ? '' : getComputedStyle(nut[1].querySelector('svg')).strokeWidth,
+          ...hop(nut[1]),
+        },
+        coChip: o[0].querySelector('[class*="badge"]') !== null,
+        nenMa: nut[0] === undefined ? '' : getComputedStyle(nut[0]).backgroundColor,
+        soNutCaDong: tr.querySelectorAll('button').length,
+        ngay: o[o.length - 1].textContent,
+        nutOCuoi: o[o.length - 1].querySelectorAll('button').length,
+      };
+    });
+    return {
+      cuonNgang: khung.scrollWidth - khung.clientWidth,
+      tieuDeCuoi: [...khung.querySelectorAll('thead th')].at(-1)?.textContent ?? '',
+      dong,
+    };
+  })()`;
+  for (const rong of [1440, 1024]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: rong,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await open('/danh-muc/');
+    await waitFor(
+      `[...document.querySelectorAll('button')].some((b) => b.getAttribute('aria-label') === 'Sửa FPT')`,
+    );
+    const yen = await evaluate(DOC_BANG_MA);
+    const d0 = yen.dong[0];
+    // Rê vào GIỮA dòng đầu, không phải vào dấu X: cái hiện ra là do rê DÒNG.
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: Math.round((d0.dong.left + d0.dong.right) / 2),
+      y: Math.round((d0.dong.top + d0.dong.bottom) / 2),
+    });
+    await new Promise((r) => setTimeout(r, 250));
+    const re = await evaluate(DOC_BANG_MA);
+    /*
+     * Rồi rê vào CHÍNH dấu X (13/10/2026, lượt hai). Bản đầu là một thùng rác nổi nền đỏ nhạt khi
+     * rê vào; chủ dự án: "hiển thị icon X chứ không phải là icon xóa … không cần border đỏ xung
+     * quanh icon X chỉ cần icon ĐỎ X thôi". Màu và nền đọc ở đúng trạng thái đang rê, vì cái nền
+     * ấy chỉ từng hiện ở `:hover`.
+     */
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: Math.round(((d0.xoa?.left ?? 0) + (d0.xoa?.right ?? 0)) / 2),
+      y: Math.round(((d0.xoa?.top ?? 0) + (d0.xoa?.bottom ?? 0)) / 2),
+    });
+    await new Promise((r) => setTimeout(r, 250));
+    const reX = (await evaluate(DOC_BANG_MA)).dong[0].xoa;
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 });
+
+    const ma = d0.ma;
+    const xoa = d0.xoa;
+    const sauMa =
+      ma !== null &&
+      xoa !== null &&
+      xoa.left >= ma.right &&
+      xoa.left - ma.right <= 12 &&
+      xoa.right <= d0.oDau.right;
+    check(
+      `PC ${String(rong)} · bảng Mã: mã là chữ trơn, dấu X đỏ không nền ngay sau mã chỉ hiện khi rê chuột vào dòng, cột cuối là ngày mua`,
+      yen.cuonNgang <= 1 &&
+        // Hai nét chéo, không phải thùng rác: nét vẽ không có đoạn ngang hay dọc nào.
+        (xoa?.net ?? '') !== '' &&
+        !/[hHvV]/.test(xoa?.net ?? 'h') &&
+        laMauDo(re.dong[0].xoa?.mau ?? '') &&
+        laMauDo(reX?.mau ?? '') &&
+        // Rê vào chính nó thì ĐẬM hơn lúc mới hiện: màu thẫm hơn, nét dày hơn — vẫn không nền, không viền.
+        damHon(reX?.mau ?? '', re.dong[0].xoa?.mau ?? '') &&
+        Number.parseFloat(reX?.day ?? '0') > Number.parseFloat(re.dong[0].xoa?.day ?? '0') &&
+        khongNen(reX?.nen ?? '') &&
+        reX?.vien === '0px' &&
+        yen.tieuDeCuoi === 'Ngày mua' &&
+        ma?.chu === 'FPT' &&
+        ma.ten === 'Sửa FPT' &&
+        d0.coChip === false &&
+        d0.nenMa === 'rgba(0, 0, 0, 0)' &&
+        xoa?.ten === 'Xoá FPT' &&
+        sauMa &&
+        d0.soNutCaDong === 2 &&
+        d0.nutOCuoi === 0 &&
+        // Ẩn ở MỌI dòng khi chưa rê; rê dòng đầu thì chỉ dòng ấy hiện.
+        yen.dong.every((d) => d.xoa?.mo === '0') &&
+        re.dong[0].xoa?.mo === '1' &&
+        re.dong[1].xoa?.mo === '0' &&
+        d0.ngay === '02/01/2026' &&
+        yen.dong[1].ngay === '_ _',
+      `cuộn ngang ${String(yen.cuonNgang)}px · tiêu đề cuối "${yen.tieuDeCuoi}" · mã "${String(ma?.chu)}" ${String(ma?.left)}..${String(ma?.right)} · dấu X ${String(xoa?.left)}..${String(xoa?.right)} (ô tới ${String(d0.oDau.right)}) · mờ ${yen.dong.map((d) => String(d.xoa?.mo)).join('/')} → rê ${re.dong.map((d) => String(d.xoa?.mo)).join('/')} · X lúc hiện: màu ${String(re.dong[0].xoa?.mau)} nét ${String(re.dong[0].xoa?.day)} → rê vào X: màu ${String(reX?.mau)} nét ${String(reX?.day)} nền ${String(reX?.nen)} viền ${String(reX?.vien)} · hình "${String(xoa?.net)}" · ngày "${d0.ngay}" / "${String(yen.dong[1]?.ngay)}" · chip: ${String(d0.coChip)}`,
+    );
+  }
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+
+  /*
+   * ── Ô ngày mua của form in ĐÚNG chữ của cột "Ngày mua" (13/10/2026) ──────────────────────────
+   *
+   * Chủ dự án chụp màn: cột in `03/10/2026`, bấm vào dòng để sửa thì ô ngày trong hộp thoại in
+   * `10/03/2026`. Ô ấy là `<input type="date">`, do TRÌNH DUYỆT vẽ theo ngôn ngữ của trình duyệt
+   * (Chrome tiếng Anh: tháng/ngày/năm) chứ không theo `formatIsoDate()` của bảng. Nay nó là ô chữ
+   * (`DateField`). jsdom không vẽ ô ngày nên vitest chỉ chứng minh được "là ô chữ"; đọc trên Chrome
+   * thật mới chứng minh được hai chỗ in cùng một chuỗi.
+   *
+   * Ngày gieo là 02/01: loại ngày mà đảo ngày với tháng vẫn ra một ngày có thật (01/02), nên sai là
+   * không tự lộ ra. Mở form bằng cú bấm CHUỘT vào giữa dòng, đúng đường chủ dự án đi.
+   */
+  await open('/danh-muc/');
+  await waitFor(
+    `[...document.querySelectorAll('button')].some((b) => b.getAttribute('aria-label') === 'Sửa FPT')`,
+  );
+  const dongFpt = (await evaluate(DOC_BANG_MA)).dong[0];
+  for (const type of ['mousePressed', 'mouseReleased']) {
+    await send('Input.dispatchMouseEvent', {
+      type,
+      x: Math.round((dongFpt.dong.left + dongFpt.dong.right) / 2),
+      y: Math.round((dongFpt.dong.top + dongFpt.dong.bottom) / 2),
+      button: 'left',
+      clickCount: 1,
+    });
+  }
+  await waitFor(`document.querySelector('dialog[open]') !== null`);
+  const oNgayMua = await evaluate(`(() => {
+    const hopThoai = [...document.querySelectorAll('dialog[open]')].pop();
+    const nhan = [...hopThoai.querySelectorAll('label')].find((l) => l.textContent === 'Ngày mua');
+    const o = nhan === undefined ? null : document.getElementById(nhan.htmlFor);
+    if (o === null) return { thay: false };
+    const khung = o.parentElement;
+    const lich = khung.querySelector('input[type="date"]');
+    const nut = khung.querySelector('button');
+    return {
+      thay: true,
+      loai: o.type,
+      chu: o.value,
+      caoKhung: Math.round(khung.getBoundingClientRect().height),
+      nutLich: nut === null ? '' : (nut.getAttribute('aria-label') ?? ''),
+      // Ô ngày của trình duyệt chỉ còn là ô TÀNG HÌNH của nút lịch: không in chữ, không nhận Tab.
+      lichMo: lich === null ? '' : getComputedStyle(lich).opacity,
+      lichTab: lich === null ? 0 : lich.tabIndex,
+      oNgayNhinThay: [...hopThoai.querySelectorAll('input[type="date"]')].filter(
+        (el) => getComputedStyle(el).opacity !== '0',
+      ).length,
+    };
+  })()`);
+  check(
+    'PC 1440 · form Sửa: ô Ngày mua là ô chữ và in đúng chuỗi của cột Ngày mua, không còn ô ngày do trình duyệt vẽ',
+    oNgayMua.thay === true &&
+      oNgayMua.loai === 'text' &&
+      oNgayMua.chu === '02/01/2026' &&
+      oNgayMua.chu === dongFpt.ngay &&
+      oNgayMua.caoKhung === 44 &&
+      oNgayMua.nutLich === 'Ngày mua · Chọn ngày trên lịch' &&
+      oNgayMua.lichMo === '0' &&
+      oNgayMua.lichTab === -1 &&
+      oNgayMua.oNgayNhinThay === 0,
+    `cột "${String(dongFpt.ngay)}" · ô "${String(oNgayMua.chu)}" (type=${String(oNgayMua.loai)}) · khung cao ${String(oNgayMua.caoKhung)}px · nút "${String(oNgayMua.nutLich)}" · ô lịch mờ ${String(oNgayMua.lichMo)}, tabindex ${String(oNgayMua.lichTab)} · ô ngày nhìn thấy: ${String(oNgayMua.oNgayNhinThay)}`,
+  );
+
+  /*
+   * ── Bảng Công thức theo đúng khuôn bảng Mã (13/10/2026) ──────────────────────────────────────
+   *
+   * Chủ dự án xem bảng Mã vừa dựng lại rồi bảo: "đồng bộ cả bên Công thức nữa chứ không phải mỗi
+   * bên mã". Nên ở đây cũng vậy: mã hết là chip, hai nút biểu tượng cuối dòng bỏ, cả dòng là đích
+   * bấm mở phép tính, dấu X đỏ không nền hiện ngay sau tên khi rê chuột, và cột cuối là ngày lưu.
+   *
+   * Hai dòng: một bình thường, một cần nạp lại chuỗi (nền vàng, liên kết mang tên "Nạp …"). Dòng
+   * sau có tên dài để ở 1024px tên xuống dòng — dấu X phải vẫn nằm trong ô đầu.
+   */
+  await evaluate(`(() => {
+    const t = (thang, ngay) => new Date(2026, thang - 1, ngay, 10, 0, 0).getTime();
+    localStorage.setItem('ffb.saved.v1', JSON.stringify([
+      { id: 'pe-a', formulaId: 'pe', name: 'HPG · P/E', code: 'HPG', inputs: {}, resultValue: 12.5, resultUnit: 'lần', savedAt: t(8, 25), needsSeries: false },
+      { id: 'beta-b', formulaId: 'beta', name: 'Beta của FPT, bản tôi tự đặt tên cho dễ tìm lại', code: 'FPT', inputs: {}, resultValue: 1.08, resultUnit: 'lần', savedAt: t(10, 3), needsSeries: true, seriesCount: 120 },
+    ]));
+    return true;
+  })()`);
+  const DOC_BANG_CONG_THUC = `(() => {
+    const hop = (el) => {
+      const b = el.getBoundingClientRect();
+      return { left: Math.round(b.left), right: Math.round(b.right), top: Math.round(b.top), bottom: Math.round(b.bottom) };
+    };
+    const khung = document.querySelector('[class*="tableWrap"]');
+    const dong = [...khung.querySelectorAll('tbody tr')].map((tr) => {
+      const o = [...tr.children];
+      const ten = o[0].querySelector('a');
+      const x = o[0].querySelector('button');
+      return {
+        dong: hop(tr),
+        oDau: hop(o[0]),
+        soO: o.length,
+        ten: ten === null ? null : { chu: ten.textContent, nhan: ten.getAttribute('aria-label'), gach: getComputedStyle(ten).textDecorationLine, ...hop(ten) },
+        xoa: x === null ? null : {
+          ten: x.getAttribute('aria-label'),
+          mo: getComputedStyle(x).opacity,
+          mau: getComputedStyle(x).color,
+          nen: getComputedStyle(x).backgroundColor,
+          net: x.querySelector('path')?.getAttribute('d') ?? '',
+          day: x.querySelector('svg') === null ? '' : getComputedStyle(x.querySelector('svg')).strokeWidth,
+          ...hop(x),
+        },
+        ma: o[1].textContent,
+        coChip: o[1].querySelector('[class*="badge"]') !== null,
+        ngay: o[o.length - 1].textContent,
+        nutOCuoi: o[o.length - 1].querySelectorAll('a, button').length,
+        soDichBam: tr.querySelectorAll('a, button').length,
+        oKetQua: hop(o[2]),
+      };
+    });
+    return {
+      cuonNgang: khung.scrollWidth - khung.clientWidth,
+      tieuDe: [...khung.querySelectorAll('thead th')].map((th) => th.textContent),
+      dong,
+    };
+  })()`;
+  for (const rong of [1440, 1024]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: rong,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await open('/danh-muc/?tab=cong-thuc');
+    await waitFor(`document.querySelector('[class*="tableWrap"] tbody a') !== null`);
+    const yen = await evaluate(DOC_BANG_CONG_THUC);
+    // Mới nhất trước: dòng đầu là Beta (cần nạp), dòng hai là P/E.
+    const [dNap, dMo] = yen.dong;
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: Math.round((dMo.oKetQua.left + dMo.oKetQua.right) / 2),
+      y: Math.round((dMo.dong.top + dMo.dong.bottom) / 2),
+    });
+    await new Promise((r) => setTimeout(r, 250));
+    const re = await evaluate(DOC_BANG_CONG_THUC);
+    await send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: Math.round(((dMo.xoa?.left ?? 0) + (dMo.xoa?.right ?? 0)) / 2),
+      y: Math.round(((dMo.xoa?.top ?? 0) + (dMo.xoa?.bottom ?? 0)) / 2),
+    });
+    await new Promise((r) => setTimeout(r, 250));
+    const reX = (await evaluate(DOC_BANG_CONG_THUC)).dong[1].xoa;
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 });
+
+    // Bấm CHUỘT vào ô Kết quả của dòng P/E (không phải liên kết, không phải nút): dòng phải mở bản lưu.
+    for (const type of ['mousePressed', 'mouseReleased']) {
+      await send('Input.dispatchMouseEvent', {
+        type,
+        x: Math.round((dMo.oKetQua.left + dMo.oKetQua.right) / 2),
+        y: Math.round((dMo.dong.top + dMo.dong.bottom) / 2),
+        button: 'left',
+        clickCount: 1,
+      });
+    }
+    await waitFor(`location.pathname.startsWith('/cong-thuc/')`);
+    const dich = await evaluate(`location.pathname + location.search`);
+
+    const sauTen = (d) =>
+      d.ten !== null &&
+      d.xoa !== null &&
+      d.xoa.left >= d.ten.right &&
+      d.xoa.left - d.ten.right <= 12 &&
+      d.xoa.right <= d.oDau.right;
+    check(
+      `PC ${String(rong)} · bảng Công thức theo khuôn bảng Mã: bốn cột kết bằng ngày lưu, tên là liên kết, dấu X đỏ không nền hiện khi rê chuột, bấm dòng mở bản lưu`,
+      yen.cuonNgang <= 1 &&
+        yen.tieuDe.join('|') === 'Công thức|Mã|Kết quả|Ngày lưu' &&
+        yen.dong.length === 2 &&
+        yen.dong.every((d) => d.soO === 4 && d.soDichBam === 2 && d.nutOCuoi === 0) &&
+        dMo.ten?.chu === 'HPG · P/E' &&
+        dMo.ten.nhan === 'Mở HPG · P/E' &&
+        dMo.ten.gach === 'none' &&
+        (dNap.ten?.nhan ?? '').startsWith('Nạp ') &&
+        dMo.xoa?.ten === 'Xoá HPG · P/E' &&
+        sauTen(dMo) &&
+        sauTen(dNap) &&
+        dMo.ma === 'HPG' &&
+        dMo.coChip === false &&
+        dMo.ngay === '25/08/2026' &&
+        dNap.ngay === '03/10/2026' &&
+        // Ẩn ở MỌI dòng khi chưa rê; rê dòng P/E thì chỉ dòng ấy hiện.
+        yen.dong.every((d) => d.xoa?.mo === '0') &&
+        re.dong[1].xoa?.mo === '1' &&
+        re.dong[0].xoa?.mo === '0' &&
+        laMauDo(re.dong[1].xoa?.mau ?? '') &&
+        laMauDo(reX?.mau ?? '') &&
+        damHon(reX?.mau ?? '', re.dong[1].xoa?.mau ?? '') &&
+        Number.parseFloat(reX?.day ?? '0') > Number.parseFloat(re.dong[1].xoa?.day ?? '0') &&
+        khongNen(reX?.nen ?? '') &&
+        !/[hHvV]/.test(dMo.xoa?.net ?? 'h') &&
+        /^\/cong-thuc\/pe\/\?luu=pe-a$/.test(dich),
+      `cuộn ngang ${String(yen.cuonNgang)}px · cột "${yen.tieuDe.join(' · ')}" · tên "${String(dMo.ten?.chu)}" ${String(dMo.ten?.left)}..${String(dMo.ten?.right)} · dấu X ${String(dMo.xoa?.left)}..${String(dMo.xoa?.right)} (ô tới ${String(dMo.oDau.right)}); dòng tên dài: X ${String(dNap.xoa?.left)}..${String(dNap.xoa?.right)} (ô tới ${String(dNap.oDau.right)}) · mờ ${yen.dong.map((d) => String(d.xoa?.mo)).join('/')} → rê ${re.dong.map((d) => String(d.xoa?.mo)).join('/')} · X lúc hiện: màu ${String(re.dong[1].xoa?.mau)} nét ${String(re.dong[1].xoa?.day)} → rê vào X: màu ${String(reX?.mau)} nét ${String(reX?.day)} nền ${String(reX?.nen)} · ngày "${dMo.ngay}" · chip: ${String(dMo.coChip)} · bấm dòng → ${String(dich)}`,
+    );
+  }
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await open('/danh-muc/');
+  await evaluate(`localStorage.removeItem('ffb.saved.v1'), true`);
+  // Cú bấm dòng vừa rồi mở một lượt xem công thức; dọn dấu để các phép đo sau bắt đầu sạch.
+  await evaluate(`sessionStorage.removeItem('ffb.visit.v1'), true`);
+
   await evaluate(`localStorage.removeItem('ffb.portfolio.v1'), true`);
+
+  /*
+   * ── Bảng dữ liệu: cột Ngày chỉ in ngày/tháng/năm (13/10/2026) ────────────────────────────────
+   *
+   * Cùng kiểu lỗi với ô ngày mua, theo cách riêng của bảng này: bộ mẫu và Finbox ghi ISO
+   * ('2026-10-03'), người dùng gõ kiểu Việt, nên một cột in hai lối viết và cùng một phiên hiện ISO
+   * ở đây nhưng '03/10/2026' trên trục biểu đồ của màn chi tiết. Gieo một bảng ISO như kho cũ đang
+   * cất, mở màn, rồi đọc cả ô lẫn kho: bảng phải tự đưa về một lối và ghi lại theo lối ấy.
+   */
+  await evaluate(`(() => {
+    localStorage.setItem('ffb.series.v1', JSON.stringify({ code: 'FPT', rows: [
+      { date: '2026-10-02', open: 105, high: 112, low: 104, close: 110, volume: 1100 },
+      { date: '2026-10-03', open: 110, high: 118, low: 109, close: 115, volume: 1200 },
+    ] }));
+    return true;
+  })()`);
+  await open('/du-lieu/');
+  await waitFor(`document.querySelector('input[aria-label="Dòng 1 · Ngày"]') !== null`);
+  await waitFor(
+    `(JSON.parse(localStorage.getItem('ffb.series.v1') ?? '{}').rows ?? []).some((r) => r.date === '03/10/2026')`,
+  );
+  const ngayBang = await evaluate(`(() => ({
+    o: [...document.querySelectorAll('input[aria-label$="· Ngày"]')].map((el) => el.value),
+    kho: JSON.parse(localStorage.getItem('ffb.series.v1')).rows.map((r) => r.date),
+    dauBieuDo: document.querySelector('figure')?.textContent ?? '',
+  }))()`);
+  check(
+    'PC 1440 · bảng dữ liệu: kho cất ngày ISO mở ra ngày/tháng/năm ở cột Ngày lẫn đầu biểu đồ, và được ghi lại theo lối ấy',
+    ngayBang.o.join('|') === '03/10/2026|02/10/2026' &&
+      ngayBang.kho.join('|') === '02/10/2026|03/10/2026' &&
+      ngayBang.dauBieuDo.includes('02/10/2026 → 03/10/2026') &&
+      !ngayBang.dauBieuDo.includes('2026-10'),
+    `cột Ngày "${ngayBang.o.join(' · ')}" · kho "${ngayBang.kho.join(' · ')}"`,
+  );
+  await evaluate(`localStorage.removeItem('ffb.series.v1'), true`);
 
   await open('/du-lieu/');
   const pcDuLieu = await evaluate(`(() => {
@@ -3672,14 +4158,18 @@ window.__themeLog = [];
    * Lật mảng đã lưu là cách sai hiển nhiên nhất để làm ra bảng "mới nhất lên đầu", và nó hỏng thứ
    * không ai nhìn thấy: `closesOf()` đọc mảng ấy như một chuỗi thời gian, nên Beta, độ biến động
    * và VaR sẽ tính trên chuỗi chạy ngược mà không có gì trên màn nói là đã ngược.
+   *
+   * Bốn chuỗi ngày viết kiểu ngày/tháng/năm từ 13/10/2026. `GIEO_CHUOI` vẫn gieo ISO như một kho cũ,
+   * và bảng đưa mọi ngày đủ năm về một lối lúc mở màn rồi ghi lại theo lối ấy (xem phép đo "kho cất
+   * ngày ISO…" ở trên). Thứ phép này gác KHÔNG đổi: màn mới nhất trước, kho cũ nhất trước.
    */
   check(
     'PC 1440 · bảng bày ngày MỚI NHẤT trước, còn mảng đã lưu vẫn theo thời gian cũ → mới',
     pcChuoi.soDong === 80 &&
-      pcChuoi.ngayDau === '2025-03-22' &&
-      pcChuoi.ngayCuoi === '2025-01-02' &&
-      pcChuoi.luuDau === '2025-01-02' &&
-      pcChuoi.luuCuoi === '2025-03-22',
+      pcChuoi.ngayDau === '22/03/2025' &&
+      pcChuoi.ngayCuoi === '02/01/2025' &&
+      pcChuoi.luuDau === '02/01/2025' &&
+      pcChuoi.luuCuoi === '22/03/2025',
     `màn ${String(pcChuoi.ngayDau)} → ${String(pcChuoi.ngayCuoi)} · lưu ${String(pcChuoi.luuDau)} → ${String(pcChuoi.luuCuoi)}`,
   );
 
@@ -3711,6 +4201,373 @@ window.__themeLog = [];
   );
 
   await evaluate(`localStorage.removeItem('ffb.series.v1'), true`);
+
+  /*
+   * ── Tấm dán đáy thành popup giữa màn ở khổ web, và GIỮ dán đáy ở điện thoại (13/10/2026) ─────
+   *
+   * Chủ dự án: _"chuyển đổi toàn bộ dialog bottom ở màn web thành popup ở giữa màn hình … còn ở màn
+   * mobile thì giữ nguyên dialog bottom"_. Việc đổi dáng nằm trọn trong một khối `@media` ở cuối
+   * `BottomSheet.module.css`, tức đúng loại thay đổi chỉ trình duyệt thật mới thấy: jsdom không áp
+   * CSS Module, còn ca vitest của primitive chỉ so được CHỮ của hai bản luật chứ không biết luật
+   * nào thắng trên màn.
+   *
+   * Đo bằng lề chứ không bằng tên lớp, cùng lối với phép đo sheet chọn mã của Danh mục ở trên: tấm
+   * nổi giữa có lề trái bằng lề phải VÀ có lề dưới; tấm dán đáy thì lề dưới bằng 0. Bốn góc bo là
+   * chỗ lần đổi vỏ 22/09/2026 từng hỏng (hai góc dưới vuông), nên đo cả hai chiều: bằng nhau ở khổ
+   * web, và hai góc dưới PHẢI vuông ở điện thoại — đó là dấu hiệu tấm vẫn tựa vào mép màn.
+   *
+   * Sheet chọn mã không đo ở đây: nó cần danh sách mã từ Finbox mà script không có mạng. Nó dùng
+   * chung primitive, và dáng nổi giữa của nó đã có phép đo riêng ở phần Danh mục.
+   */
+  const doTam = (nhanNut) =>
+    evaluate(`(async () => {
+    const nut = [...document.querySelectorAll('button')]
+      .filter((b) => b.closest('dialog') === null)
+      .find((b) => /${nhanNut}/.test(b.textContent ?? ''));
+    if (nut === undefined) return { thay: false, vi: 'không thấy nút mở' };
+    nut.click();
+
+    let hop = null;
+    for (let i = 0; i < 40 && hop === null; i += 1) {
+      hop = document.querySelector('dialog[open]');
+      if (hop === null) await new Promise((d) => setTimeout(d, 50));
+    }
+    if (hop === null) return { thay: false, vi: 'bấm rồi mà không tấm nào mở' };
+    await new Promise((d) => setTimeout(d, 150));
+
+    const tam = hop.querySelector('[class*="panel"]');
+    const than = hop.querySelector('[class*="body"]');
+    const vach = hop.querySelector('[class*="grabber"]');
+    const k = hop.getBoundingClientRect();
+    const s = getComputedStyle(tam);
+    const ket = {
+      thay: true,
+      rong: Math.round(k.width),
+      leTrai: Math.round(k.left),
+      lePhai: Math.round(window.innerWidth - k.right),
+      leDuoi: Math.round(window.innerHeight - k.bottom),
+      manRong: window.innerWidth,
+      goc: [
+        s.borderTopLeftRadius,
+        s.borderTopRightRadius,
+        s.borderBottomRightRadius,
+        s.borderBottomLeftRadius,
+      ].map((v) => Math.round(parseFloat(v))),
+      vachHien: vach !== null && getComputedStyle(vach).display !== 'none',
+      // Thân phải cuộn bao nhiêu px mới hết nội dung — 0 là vừa khít.
+      cuon: than.scrollHeight - than.clientHeight,
+    };
+
+    const dong = [...hop.querySelectorAll('button')].find((b) => /Đóng|Quay lại/.test(b.textContent ?? ''));
+    if (dong !== undefined) dong.click();
+    for (let i = 0; i < 40 && document.querySelector('dialog[open]') !== null; i += 1) {
+      await new Promise((d) => setTimeout(d, 50));
+    }
+    return ket;
+  })()`);
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await open('/cong-thuc/pe/');
+
+  const pcXuat = await doTam('Tải về');
+  check(
+    'PC 1440 · sheet Tải về nổi giữa màn, không dán đáy',
+    pcXuat.thay === true && Math.abs(pcXuat.leTrai - pcXuat.lePhai) <= 1 && pcXuat.leDuoi > 0,
+    pcXuat.thay !== true
+      ? String(pcXuat.vi)
+      : `lề ${String(pcXuat.leTrai)}/${String(pcXuat.lePhai)} · đáy ${String(pcXuat.leDuoi)}px`,
+  );
+  check(
+    'PC 1440 · sheet Tải về là tấm HẸP 560px, bốn góc bo đều, không còn vạch kéo',
+    pcXuat.thay === true &&
+      pcXuat.rong === 560 &&
+      pcXuat.goc.every((v) => v >= 8) &&
+      new Set(pcXuat.goc).size === 1 &&
+      pcXuat.vachHien === false,
+    pcXuat.thay !== true
+      ? String(pcXuat.vi)
+      : `rộng ${String(pcXuat.rong)}px · góc ${pcXuat.goc.join('/')}px · vạch kéo hiện: ${String(pcXuat.vachHien)}`,
+  );
+
+  /*
+   * Sheet Nạp mẫu là tấm sát trần nhất: bốn dòng mã, mỗi dòng ba hàng chữ, cộng lối sang kho mã
+   * lớn — ước tính ~586px trên trần 600px của dạng nổi giữa. Lố một chút là thân tấm mọc thanh
+   * cuộn để cuộn mươi pixel, một thứ không ai báo lỗi nhưng ai cũng thấy vướng.
+   */
+  const pcMau = await doTam('Nạp mẫu');
+  check(
+    'PC 1440 · sheet Nạp mẫu nổi giữa màn, rộng 720px, thân vừa khít không phải cuộn',
+    pcMau.thay === true &&
+      pcMau.rong === 720 &&
+      Math.abs(pcMau.leTrai - pcMau.lePhai) <= 1 &&
+      pcMau.leDuoi > 0 &&
+      pcMau.cuon <= 1,
+    pcMau.thay !== true
+      ? String(pcMau.vi)
+      : `rộng ${String(pcMau.rong)}px · lề ${String(pcMau.leTrai)}/${String(pcMau.lePhai)} · đáy ${String(pcMau.leDuoi)}px · thân lố ${String(pcMau.cuon)}px`,
+  );
+
+  /*
+   * Sheet chọn mã là tấm DUY NHẤT vừa không có hàng nút vừa có thân cuộn, và đó là chỗ hai lỗi của
+   * dạng nổi giữa lộ ra (đo 13/10/2026, cả hai có từ 22/09 mà phép đo `border-radius` ở phần Danh
+   * mục không thấy, vì nó đọc con số khai chứ không đọc cái vẽ ra):
+   *
+   *   1. Thanh cuộn của thân là một hình chữ nhật đè lên góc dưới phải — góc khai 16px mà trên màn
+   *      thì vuông. Chữa bằng `overflow: hidden` trên tấm, để nó cắt con theo mép bo.
+   *   2. `<dialog>` mang `overflow: hidden` nên cắt luôn bóng đổ của tấm bên trong, còn lại một
+   *      mảng vuông sẫm sau bốn góc. Chữa bằng `overflow: visible` trên `<dialog>` dạng nổi giữa.
+   *
+   * Cả hai đo bằng `getComputedStyle` trên ĐÚNG phần tử đang mở, tức kết quả của cả tầng luật chứ
+   * không phải một dòng khai. Đừng đổi sang `elementFromPoint` sát góc cho "thật" hơn: đã thử, và
+   * Chrome dò điểm KHÔNG tính mép bo của phần tử cha — nó vẫn trả về thân tấm trong khi ảnh chụp
+   * phóng 4 lần cho thấy góc đã tròn. Một phép đo đỏ trên màn đúng thì tệ hơn không đo.
+   *
+   * Danh sách mã lấy từ cache 24 giờ gieo sẵn — script không có mạng tới Finbox, và cache còn hạn
+   * thì sheet không gọi mạng. Vào bằng lối rẽ trong sheet Nạp mẫu, đúng đường người dùng đi.
+   */
+  await evaluate(`localStorage.setItem('ffb.tickers.v1', JSON.stringify({
+    fetchedAt: Date.now(),
+    items: Array.from({ length: 24 }, (_, i) => ({
+      code: 'M' + String(i + 10),
+      name: 'Công ty Cổ phần Mẫu số ' + String(i + 10),
+    })),
+  })), true`);
+
+  const pcChonMa = await evaluate(`(async () => {
+    const cho = (ms) => new Promise((d) => setTimeout(d, ms));
+    const moMau = [...document.querySelectorAll('button')]
+      .filter((b) => b.closest('dialog') === null)
+      .find((b) => /Nạp mẫu/.test(b.textContent ?? ''));
+    if (moMau === undefined) return { thay: false, vi: 'không thấy nút Nạp mẫu' };
+    moMau.click();
+
+    let re = undefined;
+    for (let i = 0; i < 40 && re === undefined; i += 1) {
+      re = [...document.querySelectorAll('dialog[open] button')].find((b) => /mã khác/.test(b.textContent ?? ''));
+      if (re === undefined) await cho(50);
+    }
+    if (re === undefined) return { thay: false, vi: 'sheet Nạp mẫu không có lối sang kho mã lớn' };
+    re.click();
+
+    let hop = null;
+    for (let i = 0; i < 80 && hop === null; i += 1) {
+      hop = [...document.querySelectorAll('dialog[open]')].find((d) => d.querySelectorAll('li').length > 0 && d.querySelector('input[type="search"]') !== null) ?? null;
+      if (hop === null) await cho(50);
+    }
+    if (hop === null) return { thay: false, vi: 'sheet chọn mã không mở hoặc không có dòng nào' };
+    await cho(150);
+
+    const k = hop.getBoundingClientRect();
+    const tam = hop.querySelector('[class*="panel"]');
+    const than = hop.querySelector('[class*="body"]');
+    const kieuTam = getComputedStyle(tam);
+    const ket = {
+      thay: true,
+      rong: Math.round(k.width),
+      cao: Math.round(k.height),
+      leTrai: Math.round(k.left),
+      lePhai: Math.round(window.innerWidth - k.right),
+      leDuoi: Math.round(window.innerHeight - k.bottom),
+      thanCuon: than.scrollHeight > than.clientHeight + 1,
+      catCon: kieuTam.overflowX + '/' + kieuTam.overflowY,
+      gocDuoiPhai: Math.round(parseFloat(kieuTam.borderBottomRightRadius)),
+      catBong: getComputedStyle(hop).overflow,
+      bong: kieuTam.boxShadow !== 'none',
+    };
+
+    const lui = [...hop.querySelectorAll('button')].find((b) => /Đóng|Quay lại/.test(b.textContent ?? ''));
+    if (lui !== undefined) lui.click();
+    await cho(200);
+    // Lùi là về lại sheet Nạp mẫu — đóng nốt để phép đo sau thấy màn trống.
+    const con = document.querySelector('dialog[open]');
+    const dong = con === null ? undefined : [...con.querySelectorAll('button')].find((b) => /Đóng/.test(b.textContent ?? ''));
+    if (dong !== undefined) dong.click();
+    for (let i = 0; i < 40 && document.querySelector('dialog[open]') !== null; i += 1) await cho(50);
+    return ket;
+  })()`);
+  await evaluate(`localStorage.removeItem('ffb.tickers.v1'), true`);
+
+  check(
+    'PC 1440 · sheet chọn mã ở màn chi tiết nổi giữa màn, 720 × 600, đúng dáng của nó ở Danh mục',
+    pcChonMa.thay === true &&
+      pcChonMa.rong === 720 &&
+      pcChonMa.cao === 600 &&
+      Math.abs(pcChonMa.leTrai - pcChonMa.lePhai) <= 1 &&
+      pcChonMa.leDuoi > 0,
+    pcChonMa.thay !== true
+      ? String(pcChonMa.vi)
+      : `${String(pcChonMa.rong)} × ${String(pcChonMa.cao)}px · lề ${String(pcChonMa.leTrai)}/${String(pcChonMa.lePhai)} · đáy ${String(pcChonMa.leDuoi)}px`,
+  );
+  check(
+    'PC 1440 · tấm có thân cuộn cắt con theo mép bo (thanh cuộn không đè góc), và bóng đổ không bị cắt',
+    pcChonMa.thay === true &&
+      pcChonMa.thanCuon === true &&
+      pcChonMa.catCon === 'hidden/hidden' &&
+      pcChonMa.gocDuoiPhai >= 8 &&
+      pcChonMa.catBong === 'visible' &&
+      pcChonMa.bong === true,
+    pcChonMa.thay !== true
+      ? String(pcChonMa.vi)
+      : `thân cuộn: ${String(pcChonMa.thanCuon)} · overflow của tấm: ${String(pcChonMa.catCon)} · góc dưới phải ${String(pcChonMa.gocDuoiPhai)}px · overflow của dialog: ${String(pcChonMa.catBong)} · có bóng: ${String(pcChonMa.bong)}`,
+  );
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 360,
+    height: 780,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await open('/cong-thuc/pe/');
+
+  const dtXuat = await doTam('Tải về');
+  check(
+    'Điện thoại 360 · sheet Tải về VẪN dán đáy: rộng hết màn, hai góc dưới vuông, còn vạch kéo',
+    dtXuat.thay === true &&
+      dtXuat.leDuoi === 0 &&
+      dtXuat.rong === dtXuat.manRong &&
+      dtXuat.goc[0] >= 8 &&
+      dtXuat.goc[1] >= 8 &&
+      dtXuat.goc[2] === 0 &&
+      dtXuat.goc[3] === 0 &&
+      dtXuat.vachHien === true,
+    dtXuat.thay !== true
+      ? String(dtXuat.vi)
+      : `rộng ${String(dtXuat.rong)}/${String(dtXuat.manRong)}px · đáy ${String(dtXuat.leDuoi)}px · góc ${dtXuat.goc.join('/')}px · vạch kéo hiện: ${String(dtXuat.vachHien)}`,
+  );
+
+  /*
+   * ── Vào lại công thức thì về mặc định; F5 giữa chừng thì giữ số (13/10/2026) ────────────────
+   *
+   * Lỗi nghiêm trọng chủ dự án báo: *"vào lại hoặc search lại công thức đó thì lại đang lưu lại mã
+   * cũ … phải reset lại công thức về mặc định"*. Phép chữa là một dấu lượt xem trong
+   * `sessionStorage`: màn chi tiết so nó lúc gắn (`FormulaDetail`), còn lá `FormulaVisitTracker` ở
+   * `AppShell` xoá nó khi người dùng sang màn khác. Hai nửa ấy nằm ở hai cây component và gặp nhau
+   * qua một cú điều hướng THẬT của router — đúng thứ jsdom không chạy, nên các ca vitest phải giả
+   * nửa thứ hai bằng tay. Chỉ ở đây hai nửa mới chạy cùng nhau.
+   *
+   * Đo bằng số TỰ GÕ chứ không bằng một mã: gõ số không cần mạng, mà nó đi qua đúng cửa gác ấy
+   * (bản nháp là một trong ba kho bị xoá, cùng một hàm với kho mã).
+   *
+   * Cờ `__ffbCungTrang` chứng minh hai cú chuyển màn là điều hướng trong ứng dụng: tải lại cả trang
+   * thì `window` mới và cờ mất. Thiếu nó, một `<a>` vô tình tải lại trang vẫn cho ra đúng kết quả
+   * và phép đo xanh mà không đo được thứ nó sinh ra để đo.
+   */
+  const oGia = `document.querySelectorAll('input[inputmode="decimal"]')[0]`;
+  /** Gõ đè một con số vào ô nhập đầu tiên của màn rồi rời ô — bằng bàn phím thật của Chrome. */
+  const goVaoOGia = async (so) => {
+    await evaluate(`${oGia}.focus(), true`);
+    /*
+     * Vào ô là ô dựng lại — '92.000' thành '92000' — và React gán lại `value`, việc ấy xoá vùng
+     * chọn. Chọn hết trước lượt dựng ấy thì chữ gõ vào bị NỐI vào sau số cũ ('9200077777', rồi bị
+     * kẹp về trần của ô) chứ không thay nó; bản đầu của phép đo này dính đúng thế và vẫn xanh. Nên
+     * chờ tới khi dấu ngăn nghìn biến mất, rồi mới chọn và gõ, trong CÙNG một nhịp.
+     */
+    await waitFor(`!${oGia}.value.includes('.')`);
+    await evaluate(`${oGia}.setSelectionRange(0, ${oGia}.value.length), true`);
+    await send('Input.insertText', { text: so });
+    await evaluate(`${oGia}.blur(), true`);
+    // Quá nhịp gom 300 ms của lần ghi bản nháp.
+    await new Promise((r) => setTimeout(r, 500));
+  };
+  /** Bộ số đang cất trong bản nháp của `pe`, hoặc `null` khi không có bản nháp nào của nó. */
+  const banNhapPe = `(() => {
+    try {
+      const kho = JSON.parse(localStorage.getItem('ffb.draft.v1') ?? '[]');
+      const muc = Array.isArray(kho) ? kho.find((m) => m?.id === 'pe') : undefined;
+      return muc === undefined ? null : JSON.stringify(muc.inputs);
+    } catch {
+      return 'kho hỏng';
+    }
+  })()`;
+
+  /*
+   * Chrome không đầu coi tab này là KHÔNG có tiêu điểm, nên `el.focus()` đổi `activeElement` mà
+   * không bắn sự kiện `focus` — `onFocus` của ô không chạy và ô không chuyển sang dạng đang sửa.
+   * Bật giả lập tiêu điểm cho riêng cụm này rồi tắt lại ngay sau, để các cụm khác vẫn chạy trong
+   * đúng điều kiện chúng được viết ra.
+   */
+  await send('Emulation.setFocusEmulationEnabled', { enabled: true });
+  await evaluate(`localStorage.removeItem('ffb.draft.v1'), sessionStorage.clear(), true`);
+  await open('/cong-thuc/pe/');
+  const giaMacDinh = await evaluate(`${oGia}?.value ?? null`);
+  await goVaoOGia('77777');
+  const giaDaGo = await evaluate(`${oGia}.value`);
+  // Có bản nháp thật thì phép đo "bản nháp bị xoá" phía dưới mới đo được gì.
+  const banNhapTruoc = await evaluate(banNhapPe);
+
+  const vaoLai = await evaluate(`(async () => {
+    const cho = async (dieuKien) => {
+      for (let i = 0; i < 80 && !dieuKien(); i += 1) await new Promise((d) => setTimeout(d, 100));
+      return dieuKien();
+    };
+    window.__ffbCungTrang = true;
+
+    const veDanhSach = document.querySelector('a[href="/cong-thuc/"]');
+    if (veDanhSach === null) return { loi: 'màn chi tiết không có link nào về /cong-thuc/' };
+    veDanhSach.click();
+    if (!(await cho(() => location.pathname === '/cong-thuc/'))) {
+      return { loi: 'không sang được màn danh sách' };
+    }
+    // Cho effect của màn danh sách và của AppShell chạy xong rồi mới đọc dấu.
+    await new Promise((d) => setTimeout(d, 400));
+    const dauODanhSach = sessionStorage.getItem('ffb.visit.v1');
+
+    const moLai = document.querySelector('a[href="/cong-thuc/pe/"]');
+    if (moLai === null) return { loi: 'màn danh sách không có link tới /cong-thuc/pe/' };
+    moLai.click();
+    if (!(await cho(() => location.pathname === '/cong-thuc/pe/' &&
+        document.querySelector('input[inputmode="decimal"]') !== null))) {
+      return { loi: 'không mở lại được màn chi tiết' };
+    }
+    await new Promise((d) => setTimeout(d, 400));
+
+    return {
+      loi: null,
+      cungTrang: window.__ffbCungTrang === true,
+      dauODanhSach,
+      gia: document.querySelectorAll('input[inputmode="decimal"]')[0].value,
+      dau: sessionStorage.getItem('ffb.visit.v1'),
+    };
+  })()`);
+  const banNhapSau = vaoLai.loi === null ? await evaluate(banNhapPe) : 'chưa đo';
+
+  check(
+    'gõ số ở P/E → về danh sách → mở lại P/E: ô về số mặc định, bản nháp bị xoá',
+    vaoLai.loi === null &&
+      giaMacDinh !== null &&
+      giaDaGo === '77.777' &&
+      String(banNhapTruoc).includes('77777') &&
+      vaoLai.cungTrang === true &&
+      vaoLai.dauODanhSach === null &&
+      vaoLai.gia === giaMacDinh &&
+      banNhapSau === null &&
+      vaoLai.dau === 'pe',
+    vaoLai.loi ??
+      `mặc định ${String(giaMacDinh)} · đã gõ ${String(giaDaGo)} · mở lại ${String(vaoLai.gia)} · bản nháp trước ${String(banNhapTruoc)} · sau ${String(banNhapSau)} · điều hướng trong ứng dụng: ${String(vaoLai.cungTrang)} · dấu ở danh sách: ${String(vaoLai.dauODanhSach)} · dấu sau khi mở lại: ${String(vaoLai.dau)}`,
+  );
+
+  /*
+   * Vế phải GIỮ của cùng luật ấy: tải lại trang giữa chừng là VẪN đang xem công thức đó. Thiếu phép
+   * đo này thì "xoá hết mỗi lần gắn" cũng qua được phép đo trên, và lỗi cũ chủ dự án đã báo — rời
+   * màn rồi quay lại là mất số — quay về mà không ai thấy.
+   */
+  await goVaoOGia('66666');
+  const giaTruocF5 = await evaluate(`${oGia}.value`);
+  await open('/cong-thuc/pe/');
+  const giaSauF5 = await evaluate(`${oGia}?.value ?? null`);
+  check(
+    'gõ số ở P/E → tải lại trang: số vừa gõ còn nguyên',
+    giaTruocF5 === '66.666' && giaSauF5 === giaTruocF5,
+    `trước ${String(giaTruocF5)} · sau ${String(giaSauF5)} · mặc định ${String(giaMacDinh)}`,
+  );
+  // Trả kho về trống để cụm service worker ngay dưới không thừa hưởng một bản nháp.
+  await evaluate(`localStorage.removeItem('ffb.draft.v1'), sessionStorage.clear(), true`);
+  await send('Emulation.setFocusEmulationEnabled', { enabled: false });
 
   /*
    * ── Service worker lúc MẤT MẠNG: trang vắng kho thì về khung /cong-thuc/ dưới ĐÚNG URL ───────

@@ -21,6 +21,10 @@ export type { InlineNumberProps } from './InlineNumber';
 export { NumberCell } from './NumberCell';
 export type { NumberCellProps } from './NumberCell';
 
+/* Ô ngày in 'DD/MM/YYYY' — thay `<input type="date">` của trình duyệt, xem docblock của file. */
+export { DateCell, DateField } from './DateInput';
+export type { DateCellProps, DateFieldProps } from './DateInput';
+
 export { SliderInput } from './SliderInput';
 export type { SliderInputProps } from './SliderInput';
 

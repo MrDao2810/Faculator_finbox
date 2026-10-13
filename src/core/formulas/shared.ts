@@ -75,6 +75,39 @@ export function constantsUsedBy(
   return dung;
 }
 
+/**
+ * Giá trị SỐ HỌC của từng hằng số một công thức tra, theo biểu phí và ngày của `ctx` — thứ dải
+ * thay số của màn tính đặt vào chỗ `{fee.brokerage.buy}` của mẫu (13/10/2026).
+ *
+ * "Số học" nghĩa là đúng con số `calc` đem nhân: hằng số phần trăm ra TỶ SỐ (0,15% → 0,0015, qua
+ * chính `rateOf`), còn lại giữ nguyên trị số (0,27 ₫/CP/tháng, 100.000 ₫/điểm). Hai đường ấy cũng
+ * là hai đường duy nhất `calc` tra hằng số — `rateOf()` và `constantOf().value` — nên ở đây không
+ * có phép đổi đơn vị thứ ba nào để lệch.
+ *
+ * Vì sao là tỷ số chứ không phải "0,15%": hình công thức viết `r_{mua}` như một tỷ lệ (quy ước của
+ * cả thư viện — tỷ lệ gõ bằng % thì vào hình ở dạng tỷ số, không kèm `÷ 100`), và 21 mẫu có sẵn đã
+ * đặt mọi tỷ lệ người dùng gõ theo đúng kiểu ấy (`r = {rate} ÷ 100` → 0,06). Hai kiểu trong cùng
+ * một dải là thứ khó đọc hơn cả.
+ *
+ * Khoá không tra được thì VẮNG khỏi bảng chứ không mang số 0 (FR-06): `datSoThaySo` thấy thiếu là
+ * bỏ hẳn dải, và đúng lúc ấy `calc` cũng đã hỏng bằng `missingConstant()`.
+ *
+ * Cửa gác ở `formulas.test.ts` đổi mọi mức của biểu phí rồi đòi dải tính lại ra đúng số `calc` trả
+ * về, nên một hằng số đi sai đường ở đây sẽ đỏ ngay — không dựa vào việc ai đó nhớ.
+ */
+export function substitutionConstants(
+  spec: Pick<FormulaSpec, 'usesConstants'>,
+  ctx: CalcContext,
+): Readonly<Record<string, number>> {
+  const giaTri: Record<string, number> = {};
+  for (const khoa of spec.usesConstants ?? []) {
+    const ban = constantOf(ctx, khoa);
+    if (ban === undefined) continue;
+    giaTri[khoa] = rateOf(ctx, khoa) ?? ban.value;
+  }
+  return giaTri;
+}
+
 /*
  * ── Nguồn tham khảo hay lặp (FR-04) ────────────────────────────────────────────────────
  */

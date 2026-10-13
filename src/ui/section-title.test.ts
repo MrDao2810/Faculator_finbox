@@ -55,6 +55,12 @@ const SECTION_TITLES: ReadonlyArray<readonly [file: string, className: string]> 
   /* Ba thẻ ở cột phải của bài hướng dẫn WF-21: Trong bài này · Mở màn thật · Công thức liên quan. */
   ['app/huong-dan/cong-thuc/[id]/GuideScreen.module.css', 'blockTitle'],
   ['app/ve-chung-toi/AboutScreen.module.css', 'blockTitle'],
+  /*
+   * Khối "Đang tính theo các mức sau" vào danh sách ngày 13/10/2026. Trước đó tiêu đề của nó cố ý nhẹ
+   * hơn một bậc (chữ thường, màu dịu); khi tên từng mức bên dưới lên 14px đậm thì tiêu đề thành ra mờ
+   * hơn chính nội dung của nó. Lý do đầy đủ viết cạnh luật `.title` của file ấy.
+   */
+  ['ui/result/ConstantsNote.module.css', 'title'],
   ['ui/screens/ChainBody.module.css', 'title'],
   ['ui/screens/FeeTaxBody.module.css', 'blockTitle'],
   ['ui/screens/LoanScheduleBody.module.css', 'blockTitle'],

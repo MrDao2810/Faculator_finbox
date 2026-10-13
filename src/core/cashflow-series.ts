@@ -10,6 +10,8 @@
  * một màn dùng chung như `/du-lieu/`.
  */
 
+import { isIsoDay } from './date-text';
+import { formatIsoDate } from './format';
 import type { Bilingual } from './types';
 
 /**
@@ -28,12 +30,20 @@ export interface Cashflow {
  * phải 0, cùng lý do `SeriesRow.close` của `price-series.ts` không phải 0.
  */
 export interface CashflowRow {
+  /**
+   * ISO 'YYYY-MM-DD' khi ô đang giữ một ngày có thật; chuỗi đang gõ dở khi chưa.
+   *
+   * Từ 13/10/2026 ô ngày của bảng là ô CHỮ in 'DD/MM/YYYY' (`date-text.ts`), không còn là
+   * `<input type="date">` của trình duyệt, nên trường này có thể mang một chuỗi chưa phải ngày.
+   * `checkCashflowRow()` báo `INVALID_DATE` cho chuỗi ấy và `cashflowsOf()` bỏ dòng đó ra.
+   */
   date: string;
   amount: number | null;
 }
 
 export type CashflowIssueCode =
   | 'MISSING_DATE'
+  | 'INVALID_DATE'
   | 'MISSING_AMOUNT'
   | 'ZERO_AMOUNT'
   | 'DUPLICATE_DATE';
@@ -72,6 +82,20 @@ export function checkCashflowRow(row: CashflowRow): ReadonlyArray<CashflowRowIss
       code: 'MISSING_DATE',
       message: { vi: 'Thiếu ngày của dòng tiền này.', en: 'This cash flow is missing a date.' },
     });
+  } else if (!isIsoDay(row.date.trim())) {
+    /*
+     * Chặn ở đây chứ không để trôi xuống `xirr()`: hàm ấy gặp một ngày không đọc được thì trả
+     * `null`, và màn chỉ nói được "không tìm ra suất sinh lợi" mà không chỉ ra dòng nào. Tệ hơn,
+     * V8 đọc '2026-02-31' thành ngày 3 tháng 3, tức tính ra một con số trên ngày người dùng không
+     * hề gõ (FR-06).
+     */
+    issues.push({
+      code: 'INVALID_DATE',
+      message: {
+        vi: 'Ngày của dòng này chưa đọc được. Gõ theo ngày/tháng/năm, ví dụ 03/10/2026.',
+        en: 'The date on this row cannot be read. Type it as day/month/year, for example 03/10/2026.',
+      },
+    });
   }
 
   if (row.amount === null) {
@@ -107,17 +131,25 @@ export function checkCashflowSeries(rows: ReadonlyArray<CashflowRow>): CashflowS
   rows.forEach((row, index) => {
     const issues = [...checkCashflowRow(row)];
 
+    /*
+     * Chỉ so trùng giữa các ngày ĐỌC ĐƯỢC: một chuỗi gõ dở đã mang `INVALID_DATE`, báo thêm "trùng"
+     * cho hai ô cùng gõ dở '03/1' là một câu sai về hai ngày chưa hề tồn tại.
+     *
+     * Câu in ngày theo lối của màn (`formatIsoDate`), không in khoá ISO: trước 13/10/2026 nó nói
+     * "Ngày 2026-10-03 đã có…" ngay dưới một bảng in '03/10/2026'.
+     */
     const key = row.date.trim();
-    if (key !== '') {
+    if (isIsoDay(key)) {
       const first = seen.get(key);
       if (first === undefined) {
         seen.set(key, index);
       } else {
+        const ngay = formatIsoDate(key);
         issues.push({
           code: 'DUPLICATE_DATE',
           message: {
-            vi: `Ngày ${key} đã có ở dòng ${String(first + 1)} — gộp hai dòng tiền cùng ngày lại thành một.`,
-            en: `The date ${key} already appears in row ${String(first + 1)} — merge the two cash flows on the same date into one.`,
+            vi: `Ngày ${ngay} đã có ở dòng ${String(first + 1)} — gộp hai dòng tiền cùng ngày lại thành một.`,
+            en: `The date ${ngay} already appears in row ${String(first + 1)} — merge the two cash flows on the same date into one.`,
           },
         });
       }

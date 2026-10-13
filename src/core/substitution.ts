@@ -18,7 +18,33 @@ import type { FormulaSpec } from './registry/types';
  * lẫn từng biểu thức `substitutionDerived`.
  */
 
+/**
+ * Chỗ trống `{khoá}` của một mẫu thay số — MỘT biểu thức cho cả nơi phân tích mẫu lúc build
+ * (`substitution-shape.ts`) lẫn cửa gác (`formulas.test.ts`), để hai bên không đọc mẫu theo hai kiểu.
+ *
+ * Dấu chấm vào bộ ký tự ngày 13/10/2026: khoá hằng số thị trường có dấu chấm
+ * (`fee.brokerage.buy`), và mẫu nay nhắc tới hằng số bằng CHÍNH khoá ấy — xem `laKhoaHangSo`.
+ *
+ * Là HÀM chứ không phải một hằng: biểu thức mang cờ `g` giữ `lastIndex` giữa các lượt gọi, nên một
+ * bản dùng chung sẽ đọc sai ngay lần đầu ai đó gọi `.test()` trên nó.
+ */
+export function choTrong(): RegExp {
+  return /\{([A-Za-z0-9_.]+)\}/g;
+}
+
 /** Khoá biến mà một mẫu thay số nhắc tới — dùng cho cửa gác ở `formulas.test.ts`. */
 export function substitutionKeys(template: string): ReadonlyArray<string> {
-  return [...template.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((match) => match[1] ?? '');
+  return [...template.matchAll(choTrong())].map((match) => match[1] ?? '');
+}
+
+/**
+ * Khoá này trỏ tới một HẰNG SỐ THỊ TRƯỜNG chứ không phải một ô nhập hay một ký hiệu dẫn xuất.
+ *
+ * Phân biệt bằng dấu chấm, và phép phân biệt ấy không thể nhập nhằng: mọi `MarketConstantKey` đều
+ * có dấu chấm, còn khoá ô nhập (`VariableSpec.key`) và khoá dẫn xuất thì không bao giờ có. Nhờ vậy
+ * mẫu không cần một trường bí danh riêng — nó khai KHOÁ, đúng như `usesConstants` và
+ * `ConstantsNote` đã làm, còn giá trị thì chảy từ biểu phí đang chọn lúc chạy.
+ */
+export function laKhoaHangSo(key: string): boolean {
+  return key.includes('.');
 }

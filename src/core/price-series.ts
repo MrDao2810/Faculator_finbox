@@ -22,7 +22,13 @@ import { formatNumber } from './format';
  * trống rơi về `defaultValue`.
  */
 export interface SeriesRow {
-  /** Ngày dạng thô đúng như người dùng gõ: '15/07', '2025-07-15'. Không tự suy ra năm. */
+  /**
+   * Ngày dạng chữ như người dùng gõ: '15/07', '08/09/2026'. Không tự suy ra năm.
+   *
+   * Bảng WF-05 đưa mọi ngày ĐỦ NĂM về 'DD/MM/YYYY' ở bốn cửa vào (đọc kho, nạp mẫu, dán, rời ô)
+   * qua `displaySeriesDate()`. Nơi khác vẫn có thể đưa ISO vào đây (chuỗi của bộ mẫu ở màn chi
+   * tiết), nên nơi ĐỌC không được giả định một lối viết: dùng `parseSeriesDate()`.
+   */
   date: string;
   open: number | null;
   high: number | null;
@@ -171,7 +177,13 @@ export function checkSeries(rows: ReadonlyArray<SeriesRow>): SeriesCheck {
   rows.forEach((row, index) => {
     const issues = [...checkRow(row)];
 
-    const key = row.date.trim();
+    /*
+     * So theo NGÀY đã đọc, không theo chữ (13/10/2026). Trước đó khoá là chính chuỗi trong ô, nên
+     * '08/09/2026' gõ tay và '2026-09-08' của bộ mẫu là hai khoá khác nhau: cùng một phiên nằm hai
+     * dòng mà cột kiểm tra không nói gì. `displaySeriesDate()` đưa mọi lối viết CÓ năm về một
+     * dạng, còn ô không đọc ra ngày (số thứ tự phiên, '15/07' thiếu năm) vẫn so theo chữ như cũ.
+     */
+    const key = displaySeriesDate(row.date);
     if (key !== '') {
       const first = seen.get(key);
       if (first === undefined) {
@@ -261,6 +273,33 @@ export function parseSeriesDate(raw: string): SeriesDate | null {
   }
 
   return null;
+}
+
+/**
+ * Ô ngày viết ra theo MỘT lối: 'DD/MM/YYYY'. Ô không đọc ra một ngày đủ năm thì trả nguyên xi
+ * (đã bỏ khoảng trắng hai đầu).
+ *
+ * Tồn tại vì bảng này nhận ngày từ ba nguồn viết ba kiểu: bộ mẫu và Finbox ghi ISO
+ * ('2026-09-08'), người dùng gõ kiểu Việt ('08/09/2026'), bảng dán thì tuỳ nguồn. Trước 13/10/2026
+ * cả ba đi thẳng lên màn, nên cùng một phiên hiện '2026-09-08' ở bảng dữ liệu và '08/09/2026' trên
+ * trục biểu đồ của màn chi tiết. Chủ dự án báo đúng kiểu lỗi ấy ở màn Danh mục (cột in
+ * '03/10/2026', ô sửa in '10/03/2026') và yêu cầu rà cho đồng bộ.
+ *
+ * Hai thứ hàm này KHÔNG làm, cùng lời hứa của `SeriesRow.date`:
+ *
+ *   • không suy ra năm: '15/07' vẫn là '15/07';
+ *   • không đụng tới thứ không phải ngày: số thứ tự phiên ('1', '2') và chữ tự do giữ nguyên.
+ *
+ * Ngày/tháng đọc theo lối Việt Nam như `parseSeriesDate()`: '03/10/2026' là ngày 3 tháng 10.
+ */
+export function displaySeriesDate(raw: string): string {
+  const text = raw.trim();
+  const date = parseSeriesDate(text);
+  if (date === null || date.year === null) return text;
+
+  const day = String(date.day).padStart(2, '0');
+  const month = String(date.month).padStart(2, '0');
+  return `${day}/${month}/${String(date.year).padStart(4, '0')}`;
 }
 
 /**

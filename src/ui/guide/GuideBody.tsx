@@ -1,4 +1,11 @@
-import type { BaiHuongDan, ChartType, MessageKey, MucId, ONhapHuongDan } from '@/application';
+import type {
+  BaiHuongDan,
+  HinhDangXem,
+  KhoiBieuDoBai,
+  MessageKey,
+  MucId,
+  ONhapHuongDan,
+} from '@/application';
 import { Pick } from '@/ui/i18n/Pick';
 import { T } from '@/ui/i18n/T';
 
@@ -9,19 +16,24 @@ import styles from './GuideBody.module.css';
  * Thân bài "Hướng dẫn sử dụng" — bốn mục, dùng CHUNG cho trang đầy đủ và cho khung mở tại nút
  * (WF-21, đợt 2 — 02/10/2026; nội dung viết lại ở đợt 5, rồi thay hẳn ở đợt 8 — 05/10/2026).
  *
- * ── Bài CHỈ mang chữ chủ dự án giao, không câu nào khác ──────────────────────────────────────
+ * ── Bài CHỈ mang chữ chủ dự án giao — trừ mục "Đọc biểu đồ" ──────────────────────────────────
  *
  * Đây là luật mạnh nhất của file, và nó là lời chốt của chủ dự án ngày 05/10/2026: *"câu thừa
- * trước đó thì bỏ đi, chỉ để lại những câu đã tạo trong file tôi gửi thôi"*. Mọi chữ trên màn này
- * phải truy được về `guide-111.json`:
+ * trước đó thì bỏ đi, chỉ để lại những câu đã tạo trong file tôi gửi thôi"*. Chữ của BA mục và dải
+ * mở đầu phải truy được về `guide-111.json`:
  *
  * | Mục              | In gì                            | Khoá trong file                |
  * | ---------------- | -------------------------------- | ------------------------------ |
  * | dải mở đầu trang | `deLamGi`                        | `formulas[id].purpose`         |
  * | `#nhap-so`       | một hàng mỗi ô nhập              | `variables[id][key].where/hint`|
  * | `#doc-ket-qua`   | `docKetQua` rồi `deSai`          | `.read` · `.pitfall`           |
- * | `#doc-bieu-do`   | một đoạn theo LOẠI biểu đồ       | `charts[kind]`                 |
  * | `#ket-qua-trong` | một câu mỗi mã cảnh báo          | `warnings[code]`               |
+ *
+ * Mục `#doc-bieu-do` là NGOẠI LỆ, và là ngoại lệ do chính chủ dự án mở ngày 13/10/2026: chín đoạn
+ * `charts[kind]` của file ấy tả LOẠI hình khai trong Registry chứ không tả hình màn tính thật sự
+ * vẽ, và chủ dự án yêu cầu viết lại cho từng công thức. Chữ của mục này nay nằm ở
+ * `src/core/huong-dan/bieu-do/noi-dung/`, do người viết code viết và có cửa kiểm riêng
+ * (`bieuDoProblems()`).
  *
  * Đợt 5 có thêm một mục `#hieu-cong-thuc` và khoảng hai mươi câu thao tác dùng chung (bốn đường
  * nạp số, câu số phiên tối thiểu, câu chế độ Nâng cao, câu hằng số, bốn bước "làm gì tiếp", bảy
@@ -29,9 +41,11 @@ import styles from './GuideBody.module.css';
  * thật — mà là chúng TẢ LẠI thứ màn đã bày, đúng loại chữ chủ dự án đã gọi tên ở đợt 5 ("Mức phí
  * và thuế đang hiệu lực do sản phẩm tự tra…") và nay chốt bỏ hết.
  *
- * Hệ quả cấu trúc, và nó là cách giữ luật này không trôi: **file này không còn `<T>` nào cho NỘI
- * DUNG** — `<T>` chỉ còn in tiêu đề mục và hai nhãn khối. Thêm một `<T k="guide.…">` mang câu chữ
- * vào đây là đang dựng lại thứ vừa gỡ.
+ * Hệ quả cấu trúc, và nó là cách giữ luật này không trôi: ở ba mục kia **`<T>` chỉ in tiêu đề mục
+ * và nhãn khối, không in NỘI DUNG**. Thêm một `<T k="guide.…">` mang câu chữ vào đó là đang dựng lại
+ * thứ vừa gỡ. Mục "Đọc biểu đồ" có thêm ba `<T>`: hai nhãn dạng và một dòng cho hình chỉ vẽ được
+ * khi đã nạp chuỗi giá. Hai câu chỉ tới dòng "Xem kết quả đổi theo" / "Loại biểu đồ" từng đóng mục
+ * này đã bỏ theo lời chủ dự án (13/10/2026) — xem `KhoiBieuDo`.
  *
  * ── Vì sao MỘT renderer, không phải hai ──────────────────────────────────────────────────────
  *
@@ -69,43 +83,19 @@ const TIEU_DE: Readonly<Record<MucId, MessageKey>> = {
   'ket-qua-trong': 'guide.section.blank',
 };
 
-/**
- * Đoạn chữ của từng LOẠI biểu đồ — chép từ khối `charts` của `guide-111.json`.
+/*
+ * ── Mộ chí: hai bảng từng đứng ở đây ────────────────────────────────────────────────────────
  *
- * Viết tường minh chứ dựng khoá bằng `guide.chartKind.${kieu}.title`, và đó không phải thẩm mỹ:
- * cửa gác "khoá mồ côi" ở `i18n.test.ts` tìm CHÍNH chuỗi khoá trong `src/`, nên một khoá chỉ tồn
- * tại dưới dạng chuỗi mẫu sẽ bị báo là không ai dùng. Bảng tường minh còn cho TypeScript kiểm thật
- * kiểu `MessageKey` thay vì một phép ép kiểu. Cùng khuôn `NAP_SO` của đợt 5.
+ * `CHU_BIEU_DO` (05/10 – 12/10/2026) ánh xạ `ChartType` sang chín đoạn dùng chung, tiêu đề là tên
+ * LOẠI ("Biểu đồ quét độ nhạy"…). Nó đi ngày 13/10/2026: xem `src/core/huong-dan/bieu-do/types.ts`
+ * và mộ chí `guide.chartKind.*` ở `vi.ts`.
  *
- * Mười loại, dù Registry hiện chỉ dùng tám: `ChartType` khai cả `heatmap` và `tornado`, nên thiếu
- * hai dòng ấy là một lỗ chờ sẵn cho công thức đầu tiên dùng tới. `none` không có mặt — 9 công thức
- * ấy không dựng mục biểu đồ, nên `kieuBieuDo` của chúng là `undefined`.
+ * `DIEU_KIEN` thay nó được vài giờ: bốn dòng "hình này hiện ra lúc nào" (ở chế độ Nâng cao · thay
+ * cho hình trên khi đã nạp chuỗi giá · chỉ vẽ sau khi nạp chuỗi giá · hiện ra khi chọn Bóc tách),
+ * in dưới tên từng hình khi khung "?" còn bày mọi hình cạnh nhau. Khung nay chỉ in hình ĐANG HIỆN,
+ * nên ba trong bốn dòng không còn gì để nói; dòng còn lại (`guide.chart.when.seriesOnly`) gọi thẳng
+ * ở `NoiDungHinh`, không cần bảng.
  */
-const CHU_BIEU_DO: Readonly<
-  Record<Exclude<ChartType, 'none'>, { tieuDe: MessageKey; than: MessageKey }>
-> = {
-  sensitivity: {
-    tieuDe: 'guide.chartKind.sensitivity.title',
-    than: 'guide.chartKind.sensitivity.body',
-  },
-  waterfall: { tieuDe: 'guide.chartKind.waterfall.title', than: 'guide.chartKind.waterfall.body' },
-  stackedBar: {
-    tieuDe: 'guide.chartKind.stackedBar.title',
-    than: 'guide.chartKind.stackedBar.body',
-  },
-  candlestick: {
-    tieuDe: 'guide.chartKind.candlestick.title',
-    than: 'guide.chartKind.candlestick.body',
-  },
-  histogram: { tieuDe: 'guide.chartKind.histogram.title', than: 'guide.chartKind.histogram.body' },
-  underwater: {
-    tieuDe: 'guide.chartKind.underwater.title',
-    than: 'guide.chartKind.underwater.body',
-  },
-  scatter: { tieuDe: 'guide.chartKind.scatter.title', than: 'guide.chartKind.scatter.body' },
-  heatmap: { tieuDe: 'guide.chartKind.heatmap.title', than: 'guide.chartKind.heatmap.body' },
-  tornado: { tieuDe: 'guide.chartKind.tornado.title', than: 'guide.chartKind.tornado.body' },
-};
 
 /*
  * `tachCum()` ĐÃ BỎ (05/10/2026) — mộ chí, vì nó rất dễ bị dựng lại.
@@ -149,15 +139,21 @@ export function GuideToc({ mucCo }: { mucCo: ReadonlyArray<MucId> }) {
  * `idPrefix` tách không gian `id` của bản trong khung khỏi mọi `id` sẵn có của màn chi tiết — màn
  * ấy đã có `khoi-so-lieu`, `khoi-ket-qua`, `khoi-vi-du`. Để trống là dùng neo trần, đúng thứ trang
  * đầy đủ cần cho URL.
+ *
+ * `hinh` chỉ mục "Đọc biểu đồ" đọc, và nó là chỗ khung với trang KHÁC nhau có chủ ý — xem
+ * `KhoiBieuDo`. Khung truyền hình đang hiện trên màn tính (hoặc `null` khi khối Biểu đồ chưa kịp
+ * báo); trang đầy đủ không truyền gì, vì ở đó không có biểu đồ nào đang hiện.
  */
 export function GuideMuc({
   bai,
   muc,
   idPrefix = '',
+  hinh,
 }: {
   bai: BaiHuongDan;
   muc: MucId;
   idPrefix?: string;
+  hinh?: HinhDangXem | null;
 }) {
   const neo = `${idPrefix}${muc}`;
 
@@ -169,7 +165,7 @@ export function GuideMuc({
 
       {muc === 'nhap-so' && <KhoiNhapSo bai={bai} />}
       {muc === 'doc-ket-qua' && <KhoiDocKetQua bai={bai} />}
-      {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} />}
+      {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} hinh={hinh} />}
       {muc === 'ket-qua-trong' && <KhoiKetQuaTrong bai={bai} />}
     </section>
   );
@@ -294,29 +290,177 @@ function KhoiDocKetQua({ bai }: { bai: BaiHuongDan }) {
 }
 
 /**
- * Mục "Đọc biểu đồ" — MỘT đoạn, chọn theo LOẠI biểu đồ công thức đang vẽ.
+ * Khối của hình ĐANG HIỆN trên màn tính và dạng đang vẽ — thứ khung "?" in.
  *
- * Chỉ có ở 102 công thức; 9 công thức `chartType: 'none'` không dựng khối biểu đồ nên bài của
- * chúng không có mục này.
+ * Tra bằng `KhoiBieuDoBai.khoa`, tức chính `ChartModel.sweepKey` mà khối Biểu đồ báo lên. Ba ca rơi
+ * về khối ĐẦU (hình màn mở ra): khối Biểu đồ chưa kịp báo (`hinh === null` — chunk biểu đồ nạp trễ),
+ * màn chưa vẽ gì và người dùng chưa chọn mục nào (`khoa === null`), và một khoá không có khối chữ.
+ * Ca cuối không xảy ra trong thư viện hiện tại — `bieu-do.test.ts` đòi mọi mục của ô chọn đều có khối
+ * — nên nó chỉ là lưới an toàn: thà nói về hình mặc định còn hơn để khung trống.
  *
- * Trước 05/10/2026 mục này in bảy bước dùng chung, ba trong số đó bật tắt theo cờ. Bảy bước ấy nói
- * cho MỌI loại hình, nên không bước nào nói đúng hình đang vẽ: một đoạn về biểu đồ quét độ nhạy
- * không có nghĩa gì với người đang nhìn biểu đồ nến. `guide-111.json` viết một đoạn riêng cho mỗi
- * loại, và đó là lý do khối này gọn đi mà nói được nhiều hơn.
+ * `chuaVe` quyết định dòng "Chỉ vẽ sau khi đã nạp…": nó chỉ đáng in khi hình đang được tả CHƯA có
+ * trên màn. Hình đã vẽ rồi mà còn in dòng ấy là nói một điều người đọc đang thấy là sai.
+ *
+ * Xuất ra để ca kiểm gọi thẳng; nó là phép chọn thuần, không đụng tới DOM.
  */
-function KhoiBieuDo({ bai }: { bai: BaiHuongDan }) {
-  if (bai.kieuBieuDo === undefined || bai.kieuBieuDo === 'none') return null;
-  const chu = CHU_BIEU_DO[bai.kieuBieuDo];
+export function khoiDangXem(
+  khoi: ReadonlyArray<KhoiBieuDoBai>,
+  hinh: HinhDangXem | null,
+): { khoi: KhoiBieuDoBai; dang: 'duong' | 'cot'; chuaVe: boolean } | undefined {
+  const dau = khoi[0];
+  if (dau === undefined) return undefined;
+
+  const dangHien =
+    hinh === null || hinh.khoa === null ? undefined : khoi.find((mot) => mot.khoa === hinh.khoa);
+  const chon = dangHien ?? dau;
+
+  return {
+    khoi: chon,
+    // Xin dạng Cột cho một hình không có dạng ấy thì in dạng Đường — màn cũng vẽ đúng như thế.
+    dang: hinh?.dang === 'cot' && chon.cot !== undefined ? 'cot' : 'duong',
+    chuaVe: hinh === null || !hinh.daVe,
+  };
+}
+
+/**
+ * Mục "Đọc biểu đồ" — chữ viết riêng cho từng HÌNH màn tính của công thức này dựng được.
+ *
+ * Chỉ có ở 103 công thức; 8 công thức `chartType: 'none'` không dựng khối biểu đồ nên bài của chúng
+ * không có mục này.
+ *
+ * ── Khung "?" chỉ in hình ĐANG HIỆN, ở dạng đang chọn (13/10/2026) ───────────────────────────
+ *
+ * Bản đầu in mọi hình của công thức, mỗi hình hai dạng, rồi đóng bằng hai câu chỉ tới dòng "Xem kết
+ * quả đổi theo" và dòng "Loại biểu đồ". Chủ dự án xem khung ấy và chốt: bỏ hai câu, và *"ô hướng dẫn
+ * sử dụng đang rất dài, sửa logic như sau: sau khi lựa chọn một select mới từ đường thì mới hiển thị
+ * xem biểu đồ dạng đường, tương tự khi click vào xem biểu đồ dạng cột. hoặc khi đổi dạng Xem theo
+ * thời gian, Khối lượng, thời gian nắm giữ,... với tất cả các loại biểu đồ của tất cả công thức"*.
+ *
+ * Nên khi có `hinh`, mục in ĐÚNG MỘT khối: tên của hình đang hiện — đúng chữ màn tính in dưới hình —
+ * rồi đúng một đoạn, của dạng đang vẽ. Đổi mục ở ô chọn hay bấm nút Đường/Cột rồi mở lại "?" là ra
+ * đoạn khác. Hai câu chỉ đường không còn việc gì: chính màn làm việc "chọn gì thì chữ theo nấy".
+ *
+ * ── Trang đầy đủ không có biểu đồ nào đang hiện, nên nó xếp MỌI hình thành mục gập ────────────
+ *
+ * Không có `hinh` (trang `/huong-dan/cong-thuc/<id>/`) thì không có "hình đang hiện" để lọc theo.
+ * In hết ra như bản đầu là dựng lại đúng cái khung dài vừa bị chê, mà giờ còn dài hơn: mỗi ô nhập
+ * đứng được trên trục ngang đã có chữ riêng, tới sáu hình một công thức. Nên mỗi hình là một
+ * `<details>`, tên hình làm `<summary>`, hình màn mở ra thì mở sẵn — "chọn rồi mới hiện" bằng thẻ
+ * gốc, bấm được cả khi JS chưa tải, và chữ vẫn nằm trọn trong HTML tĩnh.
+ *
+ * Tên hình là `<h3>` nằm TRONG `<summary>` chứ không thay nó: mục lục của trình đọc màn hình vẫn
+ * đi được qua từng hình dù mục đang gập.
+ *
+ * Lịch sử, để không ai dựng lại: bảy bước dùng chung (tới 05/10/2026) → một đoạn cho mỗi LOẠI khai
+ * trong Registry (tới 12/10/2026, tiêu đề "Biểu đồ quét độ nhạy"…) → mọi hình thật in cùng lúc kèm
+ * hai câu chỉ đường (sáng 13/10/2026) → từng hình, theo lựa chọn đang có trên màn.
+ */
+function KhoiBieuDo({ bai, hinh }: { bai: BaiHuongDan; hinh: HinhDangXem | null | undefined }) {
+  if (bai.bieuDo === undefined) return null;
+  const { khoi } = bai.bieuDo;
+
+  if (hinh !== undefined) {
+    const xem = khoiDangXem(khoi, hinh);
+    if (xem === undefined) return null;
+
+    return (
+      <div className={styles.noiDung}>
+        <h3 className={styles.blockLabel}>
+          <Pick value={xem.khoi.ten} />
+        </h3>
+        <NoiDungHinh khoi={xem.khoi} dang={xem.dang} chuaVe={xem.chuaVe} />
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.noiDung}>
-      <h3 className={styles.blockLabel}>
-        <T k={chu.tieuDe} />
-      </h3>
-      <p className={styles.prose}>
-        <T k={chu.than} />
-      </p>
+    <div className={styles.charts}>
+      {khoi.map((mot, i) => (
+        <details key={mot.khoa} className={styles.chartItem} open={i === 0}>
+          <summary className={styles.chartSummary}>
+            <h3 className={styles.blockLabel}>
+              <Pick value={mot.ten} />
+            </h3>
+            {/* Cùng dấu, cùng lý do với ô nhập ở mục "Lấy số liệu ở đâu": mục này của ô chọn chỉ
+                có ở chế độ Nâng cao, và bài không được kê một lựa chọn người đọc không tìm thấy. */}
+            {mot.nangCao && (
+              <span className={styles.fieldAdvanced}>
+                <T k="guide.input.advancedField" />
+              </span>
+            )}
+          </summary>
+          <div className={styles.chartBody}>
+            <NoiDungHinh khoi={mot} dang={undefined} chuaVe />
+          </div>
+        </details>
+      ))}
     </div>
+  );
+}
+
+/**
+ * Chữ của MỘT hình: dòng điều kiện (nếu hình chưa có trên màn), rồi đoạn của hình bóc tách hoặc
+ * từng dạng của hình đường.
+ *
+ * `dang` có giá trị là chỉ in dạng ấy — khung "?" theo đúng nút đang bấm ở dòng "Loại biểu đồ".
+ * `undefined` là in cả hai, cho trang đầy đủ. Nhãn dạng vẫn in cả khi chỉ còn một dạng: nó nói đoạn
+ * chữ đang tả dạng nào, và trùng với chữ của nút đang bấm.
+ *
+ * `<dl>` cho cặp "dạng → cách đọc", cùng khuôn và cùng lớp với `KhoiNhapSo`: hai mục liền nhau của
+ * một bài mà xếp chữ hai kiểu là thứ mắt bắt được trước cả khi đọc.
+ */
+function NoiDungHinh({
+  khoi,
+  dang,
+  chuaVe,
+}: {
+  khoi: KhoiBieuDoBai;
+  dang: 'duong' | 'cot' | undefined;
+  chuaVe: boolean;
+}) {
+  const inDuong = khoi.duong !== undefined && dang !== 'cot';
+  const inCot = khoi.cot !== undefined && dang !== 'duong';
+
+  return (
+    <>
+      {khoi.canChuoi && chuaVe && (
+        <p className={styles.chartWhen}>
+          <T k="guide.chart.when.seriesOnly" />
+        </p>
+      )}
+
+      {khoi.thanh !== undefined && (
+        <p className={styles.prose}>
+          <Pick value={khoi.thanh} />
+        </p>
+      )}
+
+      {(inDuong || inCot) && (
+        <dl className={styles.fieldSources}>
+          {inDuong && khoi.duong !== undefined && (
+            <div className={styles.fieldRow}>
+              <dt className={styles.fieldLabel}>
+                <T k="guide.chart.line" />
+              </dt>
+              <dd className={styles.fieldWhere}>
+                <Pick value={khoi.duong} />
+              </dd>
+            </div>
+          )}
+
+          {inCot && khoi.cot !== undefined && (
+            <div className={styles.fieldRow}>
+              <dt className={styles.fieldLabel}>
+                <T k="guide.chart.bar" />
+              </dt>
+              <dd className={styles.fieldWhere}>
+                <Pick value={khoi.cot} />
+              </dd>
+            </div>
+          )}
+        </dl>
+      )}
+    </>
   );
 }
 

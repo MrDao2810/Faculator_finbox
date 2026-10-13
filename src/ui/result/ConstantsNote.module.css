@@ -1,7 +1,7 @@
 .block {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 
   margin-top: var(--space-4);
   padding-top: var(--space-3);
@@ -9,25 +9,66 @@
 }
 
 /*
- * Tiêu đề của chặng "Giả định" — mức thuế/phí đang áp.
+ * Tiêu đề của chặng "Giả định" — mức thuế/phí đang áp. Từ 13/10/2026 nó mang ĐÚNG kiểu tiêu đề
+ * khối của cả sản phẩm (xem `section-title.test.ts`, nơi lớp này nay được ghim).
  *
- * Đậm lên và bớt mờ ở đợt rà soát phân cấp. Bản rà soát đòi luồng Input → Assumption/Phí →
- * Calculation → Result đọc ra được; chặng này vốn đã đứng đúng chỗ (cuối khối Số liệu, TRƯỚC
- * Kết quả — lý do ở `FormulaDetail.tsx`), nhưng nhãn của nó mờ ngang một dòng chú thích nên
- * không đọc ra là một chặng riêng.
+ * Trước đó nó là 14px đậm `--color-ink-soft`, chữ thường, với lý do "nhẹ hơn `.blockTitle` vì là
+ * khối con của khối Số liệu". Lý do ấy hết đứng được sau hai việc:
  *
- * Vẫn nhẹ hơn `.blockTitle`: đây là khối con nằm trong khối Số liệu, không phải khối ngang hàng.
+ *   · Từ 06/10/2026, ở thẻ gộp (13 trên 14 công thức tra hằng số) khối này là một hàng riêng trải
+ *     hết bề ngang thẻ, ngang hàng với "KẾT QUẢ" và "SỐ LIỆU" chứ không còn nằm trong khối nào.
+ *   · Ngày 13/10/2026 tên mức lên 14px đậm `--color-ink` (xem khối chú thích phía trên `.list`).
+ *     Giữ tiêu đề ở màu dịu thì chính nó thành cái lỗi vừa sửa, lùi lên một bậc: một đề mục mờ hơn
+ *     nội dung ngay dưới nó. Phép quét 111 trang chi tiết cùng ngày bắt đúng một cặp như thế, và
+ *     đó là cặp này (14 trang).
+ *
+ * Đổi màu lên `--color-ink` một mình thì tiêu đề và tên mức giống nhau từng thuộc tính — không ai
+ * lấn ai nhưng cũng không ai là đề mục của ai. Chữ hoa giãn nhẹ là thứ sản phẩm này đã dùng để nói
+ * "đây là tên khối", nên dùng lại nó thay vì bày một kiểu thứ ba.
  */
 .title {
+  margin: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  color: var(--color-ink-soft);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink);
 }
 
+/*
+ * ── Phân cấp trong MỘT mức: tên mức → trị số → căn cứ → ghi chú (13/10/2026) ─────────────────
+ *
+ * Chủ dự án khoanh bốn tên mức và ba dòng ghi chú rồi hỏi: *"các phần khoanh đỏ đang không rõ
+ * ràng rằng nó là thuộc dạng chú thích? hay giải thích việc nội dung bên dưới? nếu nó là đề mục
+ * thì tại sao lại nhỏ hơn hoặc nhỏ bằng phần nội dung bên dưới? và màu của nó ko đủ nổi bật?"*
+ *
+ * Đo trên bản cũ thì cả ba vế đều đúng, và chúng là MỘT lỗi: thứ bậc chữ bị lộn ngược.
+ *
+ *   tên mức    12px · thường · `--color-ink-soft`   ← đề mục, mà yếu nhất hàng
+ *   trị số     14px · đậm vừa · `--color-ink`
+ *   căn cứ     12px · thường · `--color-muted`
+ *   ghi chú    12px · thường · `--color-ink`        ← dòng phụ, mà sáng nhất trong ba dòng 12px
+ *
+ * Ghi chú lại đứng CUỐI hàng, tức ngay trên tên của mức kế tiếp: một dòng 12px sáng đè lên một
+ * dòng 12px mờ, cách nhau 8px. Đọc ra thành "ghi chú là đề mục của mức bên dưới".
+ *
+ * Ba thứ sửa, mỗi thứ chữa một vế:
+ *
+ *   · TÊN MỨC lên 14px đậm màu `--color-ink` — không dòng nào bên dưới nó to hơn hay sáng hơn.
+ *   · TRỊ SỐ về nét thường. Cỡ chữ không còn chỗ để tách (tiêu đề khối ngay trên cũng 14px), nên
+ *     đậm với thường là thứ duy nhất nói ra "đây là tên, kia là giá trị của nó". Giữ nét 500 thì
+ *     trên Windows hai dòng gần như đậm ngang nhau: Segoe UI không có nét 500 nên Chrome lấy nét
+ *     600 thay. Đo bề ngang cùng một chuỗi 14px: nét 500 và 600 đều 183,42px, 700 là 192,36px,
+ *     còn 400 là 180px.
+ *   · KHE giữa hai mức rộng gấp nhiều lần khe trong một mức, để dòng cuối của mức này dính vào
+ *     mức này chứ không dính vào tên mức sau.
+ *
+ * Ghi chú thì xem ở `.note`.
+ */
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
   margin: 0;
 }
 
@@ -42,8 +83,10 @@
 }
 
 .label {
-  font-size: var(--text-xs);
-  color: var(--color-ink-soft);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
 }
 
 .value {
@@ -56,7 +99,7 @@
 
 .amount {
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
   color: var(--color-ink);
   font-variant-numeric: tabular-nums;
 }
@@ -79,12 +122,20 @@
  * dòng phụ mờ hơn nữa: nội dung của nó là "mức này KHÔNG phải mức luật định" đặt cạnh một dòng
  * trích thông tư. Dùng `--color-ink` chứ không `--color-muted` vì cùng màu với căn cứ pháp lý thì
  * hai câu đọc như một, mà chúng nói ngược nhau.
+ *
+ * VẠCH TRÁI (13/10/2026) là thứ nói ra nó là một lời ghi bên lề của mức phía trên. Màu sáng một
+ * mình thì không nói được điều ấy — nó chỉ nói "dòng này quan trọng", và một dòng quan trọng đứng
+ * ngay trên tên mức kế tiếp bị đọc thành đề mục của mức đó (xem khối chú thích phía trên `.list`).
+ * Cùng hình với `.caution` của bài hướng dẫn: vạch 2px `--color-border-strong`, không tô nền —
+ * `warning-surface.test.ts` khoá số mặt vàng, và đây là một lời nhắc chứ không phải phép tính hỏng.
  */
 .note {
   flex-basis: 100%;
+  padding-left: var(--space-2);
   font-size: var(--text-xs);
   line-height: 1.45;
   color: var(--color-ink);
+  border-left: 2px solid var(--color-border-strong);
 }
 
 /*
@@ -112,7 +163,8 @@
   .compact .list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-3) var(--space-5);
+    /* Khe dọc bằng khe của bản một cột — lý do ở khối chú thích phía trên `.list`. */
+    gap: var(--space-4) var(--space-5);
   }
 
   /*

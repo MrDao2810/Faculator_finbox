@@ -30,14 +30,14 @@ import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { latexSymbolTokens } from '../latex-symbols';
 import { evaluateWorked } from '../quiz/worked-line';
-import { substitutionKeys } from '../substitution';
+import { laKhoaHangSo, substitutionKeys } from '../substitution';
 import { datSoThaySo } from '../substitution-cay';
 import { substitutionShape } from '../substitution-shape';
 import { chuCuaCay, tinhCay } from '../quiz/nut';
 import { createRegistry, defaultInputs } from '../registry/build';
 import { errorsOnly, formatIssues } from '../registry/validate';
 import { buildFeeBreakdown } from './fees';
-import { ALL_FORMULAS, FORMULA_MODULES, findFormulaModule } from './index';
+import { ALL_FORMULAS, FORMULA_MODULES, findFormulaModule, substitutionConstants } from './index';
 import {
   SCHEDULE_GAP,
   amortisationFor,
@@ -149,7 +149,8 @@ describe('Registry với toàn bộ công thức thật', () => {
    * kiểm ngay trên đối chiếu với `calc`, nên chỉ cần một mốc là đủ cho cả hai đầu.
    */
   /*
-   * Mẫu thay số KHÔNG được chép giá trị của một hằng số thị trường.
+   * Mẫu thay số KHÔNG được chép giá trị của một hằng số thị trường — nó phải nhắc tới hằng số bằng
+   * KHOÁ (`{fee.brokerage.buy}`), và màn tra giá trị theo biểu phí đang chọn.
    *
    * Lỗi thật, bắt được khi rà tay 01/10/2026: 12 mẫu viết thẳng `× 0,15 ÷ 100` (phí giao dịch),
    * `× 5 ÷ 100` (thuế cổ tức), `× 100.000` (hệ số nhân hợp đồng VN30F). Ca kiểm tính lại ngay dưới
@@ -157,16 +158,122 @@ describe('Registry với toàn bộ công thức thật', () => {
    * tức với người dùng đã chọn biểu phí khác ở màn Cài đặt: dòng in ra nói 0,15% trong khi con số
    * bên cạnh nó tính theo mức khác.
    *
-   * Đây đúng là thứ `ConstantsNote` tồn tại để chặn — khai KHOÁ, không khai giá trị, để mức phí
-   * đổi thì màn đổi theo. Nên luật ở đây là luật cấu trúc, không phải luật số học: công thức nào
-   * đọc hằng số thì chưa được có mẫu, cho tới khi mẫu tham chiếu được hằng số qua khoá.
+   * Từ 01/10 tới 13/10/2026 luật ở đây là CẤM HẲN: công thức nào đọc hằng số thì không được có mẫu,
+   * "cho tới khi mẫu tham chiếu được hằng số qua khoá". Ngày 13/10/2026 chủ dự án mở `roi-rong`,
+   * thấy `cagr` có dải thay số còn màn này thì không, và yêu cầu làm cho đủ — nên vế "cho tới khi"
+   * ấy được dựng: chỗ trống của mẫu nhận khoá có dấu chấm, `substitutionConstants()` tra giá trị.
+   *
+   * Ba ca dưới thay cho ca cấm cũ. Hai ca đầu là luật cấu trúc; ca thứ ba là thứ thật sự chặn lỗi
+   * 01/10 quay lại, vì nó ĐỔI biểu phí rồi mới tính — một con số chép tay sẽ đứng yên và đỏ ngay.
    */
-  it('mẫu thay số không chép giá trị hằng số thị trường', () => {
-    const pham = ALL_FORMULAS.filter(
-      (spec) => spec.substitution !== undefined && (spec.usesConstants?.length ?? 0) > 0,
-    ).map((spec) => spec.id);
+  it('mẫu thay số chỉ nhắc tới hằng số mà công thức đã khai ở usesConstants', () => {
+    for (const spec of ALL_FORMULAS) {
+      if (spec.substitution === undefined) continue;
 
-    expect(pham).toEqual([]);
+      const daKhai = new Set<string>(spec.usesConstants ?? []);
+      const mau = [spec.substitution, ...Object.values(spec.substitutionDerived ?? {})];
+      for (const key of mau.flatMap(substitutionKeys).filter(laKhoaHangSo)) {
+        expect(
+          daKhai.has(key),
+          `${spec.id} — mẫu nhắc tới hằng số "${key}" mà usesConstants không khai`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  /*
+   * Chiều ngược lại: `calc` tra một hằng số mà mẫu không nhắc tới thì chỉ có hai khả năng, và cả
+   * hai đều là lỗi — mẫu đã chép con số ấy vào, hoặc mẫu bỏ sót một số hạng của phép tính.
+   */
+  it('công thức có mẫu thì mẫu phải nhắc tới MỌI hằng số nó tra', () => {
+    for (const spec of ALL_FORMULAS) {
+      if (spec.substitution === undefined) continue;
+
+      const mau = [spec.substitution, ...Object.values(spec.substitutionDerived ?? {})];
+      const nhac = new Set(mau.flatMap(substitutionKeys));
+      for (const key of spec.usesConstants ?? []) {
+        expect(nhac.has(key), `${spec.id} — tra hằng số "${key}" nhưng mẫu không nhắc tới`).toBe(
+          true,
+        );
+      }
+    }
+  });
+
+  /*
+   * Lời hứa của cả việc này: ĐỔI BIỂU PHÍ THÌ DẢI ĐỔI THEO, và vẫn bấm lại ra đúng số `calc` trả.
+   *
+   * `MARKET_CONFIG` hiện chỉ có một biểu phí, nên không có biểu phí thật thứ hai để thử; ca này
+   * dựng một bản gấp đôi mọi mức. Gấp đôi chứ không phải một số lẻ để tổng `r_ban + r_thue` của
+   * `gia-hoa-von` vẫn xa mốc 100% (0,5%), tức không công thức nào rơi vào nhánh cảnh báo.
+   *
+   * Vế `khác kết quả của biểu phí gốc` chặn một ca kiểm xanh vì rỗng: nếu hằng số không thật sự
+   * chảy vào phép tính thì hai biểu phí ra cùng một số và vế so sánh phía trên chẳng chứng minh gì.
+   */
+  it('đổi biểu phí thì dải thay số đổi theo và vẫn khớp calc', () => {
+    const goc = CTX.schedule;
+    if (goc === undefined) throw new Error('không dựng được biểu phí mặc định');
+    const ctxDoi: CalcContext = {
+      ...CTX,
+      schedule: {
+        ...goc,
+        id: 'thu-gap-doi',
+        constants: goc.constants.map((hangSo) => ({ ...hangSo, value: hangSo.value * 2 })),
+      },
+    };
+
+    const daThu: string[] = [];
+    for (const formula of FORMULA_MODULES) {
+      const { id, usesConstants, substitution, example } = formula.spec;
+      if (substitution === undefined || (usesConstants?.length ?? 0) === 0) continue;
+
+      const hinh = substitutionShape(formula.spec);
+      if (hinh === null) throw new Error(`${id} — không phân tích được mẫu thay số`);
+
+      const oNhap = { ...defaultInputs(formula.spec), ...example.inputs };
+      const cay = datSoThaySo(hinh, { ...oNhap, ...substitutionConstants(formula.spec, ctxDoi) });
+      expect(cay, `${id} — thiếu số cho một chỗ trống khi đổi biểu phí`).not.toBeNull();
+      if (cay === null) continue;
+
+      const theoDai = tinhCay(cay);
+      const theoCalc = runFormula(formula, oNhap, ctxDoi).value;
+      const theoCalcGoc = runFormula(formula, oNhap, CTX).value;
+      expect(theoCalc, `${id} — calc phải tính được với biểu phí thử`).not.toBeNull();
+      expect(theoDai, `${id} — không tính lại được dải`).not.toBeNull();
+
+      expect(
+        Math.abs((theoDai ?? 0) - (theoCalc ?? 0)) / Math.max(Math.abs(theoCalc ?? 1), 1),
+        `${id} — biểu phí thử: dải ra ${String(theoDai)}, calc ra ${String(theoCalc)}`,
+      ).toBeLessThanOrEqual(1e-6);
+      expect(theoCalc, `${id} — đổi biểu phí mà kết quả đứng yên`).not.toBe(theoCalcGoc);
+
+      daThu.push(id);
+    }
+
+    /*
+     * Ghim danh sách: 13 công thức tra hằng số có mẫu. `loi-nhuan-rong` là công thức thứ 14 và cố ý
+     * KHÔNG có — nó dùng thân riêng (bảng bóc tách WF-08) chứ không dùng thẻ gộp, mà dải thay số
+     * chỉ sống trong thẻ gộp, nên một mẫu ở đó là dữ liệu không màn nào đọc.
+     */
+    expect(daThu.sort()).toEqual([
+      'co-vi-the-phai-sinh',
+      'don-bay-hieu-dung',
+      'gia-hoa-von',
+      'lai-lo-vi-the-long',
+      'lai-lo-vi-the-short',
+      'phi-giao-dich-ban',
+      'phi-giao-dich-mua',
+      'phi-luu-ky',
+      'roi-rong',
+      'so-hop-dong-toi-da',
+      'thue-chuyen-nhuong',
+      'thue-co-tuc',
+      'thue-tncn-dau-tu',
+    ]);
+    expect(
+      ALL_FORMULAS.filter(
+        (spec) => (spec.usesConstants?.length ?? 0) > 0 && spec.substitution === undefined,
+      ).map((spec) => spec.id),
+    ).toEqual(['loi-nhuan-rong']);
   });
 
   /*
@@ -186,6 +293,11 @@ describe('Registry với toàn bộ công thức thật', () => {
       const { id, substitution, substitutionDerived, variables, example } = formula.spec;
       if (substitution === undefined) continue;
 
+      /*
+       * Khoá hợp lệ của một mẫu gồm ba loại: ô nhập, ký hiệu dẫn xuất khai trước đó, và (từ
+       * 13/10/2026) hằng số thị trường. Loại thứ ba có ca riêng phía trên soát nó với
+       * `usesConstants`, nên ở đây chỉ cần nhận ra nó để khỏi báo nhầm là "không phải ô nhập".
+       */
       const oNhap = new Set(variables.map((variable) => variable.key));
       const danXuat = Object.entries(substitutionDerived ?? {});
 
@@ -202,7 +314,7 @@ describe('Registry với toàn bộ công thức thật', () => {
       for (const [khoa, bieuThuc] of danXuat) {
         for (const key of substitutionKeys(bieuThuc)) {
           expect(
-            oNhap.has(key) || daKhai.has(key),
+            oNhap.has(key) || daKhai.has(key) || laKhoaHangSo(key),
             `${id}.${khoa} — nhắc tới "${key}", không phải ô nhập và cũng chưa khai trước đó`,
           ).toBe(true);
         }
@@ -211,7 +323,7 @@ describe('Registry với toàn bộ công thức thật', () => {
 
       for (const key of substitutionKeys(substitution)) {
         expect(
-          oNhap.has(key) || daKhai.has(key),
+          oNhap.has(key) || daKhai.has(key) || laKhoaHangSo(key),
           `${id} — mẫu thay số nhắc tới "${key}", không phải ô nhập và cũng không khai dẫn xuất`,
         ).toBe(true);
       }
@@ -220,7 +332,12 @@ describe('Registry với toàn bộ công thức thật', () => {
       expect(hinh, `${id} — không phân tích được mẫu thay số`).not.toBeNull();
       if (hinh === null) continue;
 
-      const cay = datSoThaySo(hinh, { ...defaultInputs(formula.spec), ...example.inputs });
+      /* Ba nguồn số, đúng như màn trộn chúng: mặc định, số của ví dụ, rồi hằng số của biểu phí. */
+      const cay = datSoThaySo(hinh, {
+        ...defaultInputs(formula.spec),
+        ...example.inputs,
+        ...substitutionConstants(formula.spec, CTX),
+      });
       expect(cay, `${id} — thiếu số cho một chỗ trống của mẫu thay số`).not.toBeNull();
       if (cay === null) continue;
 

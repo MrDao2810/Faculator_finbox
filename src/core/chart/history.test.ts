@@ -95,6 +95,24 @@ describe('formatSessionDate — không đi qua new Date()', () => {
    * `getDate()` trên máy ở múi giờ âm trả về 30. Ngày lệch một hôm trên biểu đồ tài chính là lỗi
    * người dùng phát hiện được mà mình thì không, vì máy dev ở UTC+7 luôn ra đúng.
    */
+  /*
+   * Ngày của một phiên là chữ của ô Ngày ở bảng dữ liệu, mà ô ấy mang 'DD/MM/YYYY' khi người dùng
+   * gõ (và là lối duy nhất bảng ghi từ 13/10/2026). Hàm cũ cắt theo dấu '-' nên chỉ hiểu ISO: vạch
+   * trục của một chuỗi gõ tay in cả '03/10/2026' thay cho '10/2026'. Hai lối viết phải cho CÙNG nhãn.
+   */
+  it('ngày viết kiểu Việt cho đúng nhãn mà ngày ISO cho', () => {
+    expect(formatSessionDate('03/10/2026')).toBe(formatSessionDate('2026-10-03'));
+    expect(formatSessionMonth('03/10/2026')).toBe(formatSessionMonth('2026-10-03'));
+    expect(formatSessionDate('2026-10-03')).toBe('03/10/2026');
+    expect(formatSessionMonth('03/10/2026')).toBe('10/2026');
+  });
+
+  it('ngày thiếu năm và số thứ tự phiên in nguyên xi — không có năm để ghi', () => {
+    expect(formatSessionMonth('15/07')).toBe('15/07');
+    expect(formatSessionMonth('12')).toBe('12');
+    expect(formatSessionDate('15/07')).toBe('15/07');
+  });
+
   it('chuỗi lạ thì trả nguyên văn, không ném lỗi và không ra NaN', () => {
     expect(formatSessionDate('rác')).toBe('rác');
     expect(formatSessionMonth('')).toBe('');
@@ -227,6 +245,48 @@ describe('historyPoints — cắt tiền tố cho chỉ báo cuộn', () => {
     const stoch = pointsOf('stochastic-k').filter((point) => point.y !== null).length;
 
     expect(Math.abs(rsi - stoch)).toBeLessThan(20);
+  });
+
+  /*
+   * Beta đọc HAI chuỗi: cổ phiếu ở `ctx.series`, VN-Index ở `ctx.marketSeries`. Cắt tiền tố mà chỉ
+   * cắt chuỗi cổ phiếu thì mọi điểm trừ điểm cuối ghép lợi suất cổ phiếu của quãng CŨ với lợi suất
+   * chỉ số của quãng GẦN NHẤT — một con số trông như beta mà không là beta của quãng nào cả. Lỗi ấy
+   * có thật tới 13/10/2026, và lộ ra khi soát chữ "Đọc biểu đồ" của chính công thức này.
+   *
+   * Cổ phiếu dựng ở đây có lợi suất mỗi phiên bằng đúng 1,5 lần lợi suất chỉ số, nên beta của MỌI
+   * cửa sổ thẳng hàng là 1,5: đường theo thời gian phải nằm ngang ở mức ấy. Trước khi sửa nó chạy
+   * từ quãng −0,5 lên 1,5 và chỉ điểm cuối đúng.
+   */
+  it('beta: chuỗi VN-Index bị cắt tới cùng phiên với chuỗi cổ phiếu', () => {
+    const market = makeMarketCloses();
+    const closes = [50_000];
+    for (let i = 1; i < market.length; i += 1) {
+      const marketReturn = (market[i] ?? 0) / (market[i - 1] ?? 1) - 1;
+      closes.push((closes[i - 1] ?? 0) * (1 + 1.5 * marketReturn));
+    }
+    const bars = BARS.map((bar, i) => ({ ...bar, close: closes[i] ?? bar.close }));
+    const betaOf = (ctx: CalcContext): number[] =>
+      pointsOf('beta', ctx)
+        .map((point) => point.y)
+        .filter((y): y is number => y !== null);
+
+    const thangHang = betaOf({ ...BASE, bars, series: closes, marketSeries: market });
+    expect(thangHang.length).toBeGreaterThan(150);
+    for (const y of thangHang) expect(y).toBeCloseTo(1.5, 6);
+
+    /*
+     * `calc` ghép hai chuỗi theo phiên CUỐI (`slice(-n)` ở cả hai), nên chuỗi chỉ số dài hơn chuỗi
+     * cổ phiếu vẫn phải cho đúng kết quả ấy: cắt là bỏ cùng một số phiên ở ĐUÔI, không phải ép hai
+     * chuỗi về cùng một độ dài tiền tố.
+     */
+    const daiHon = betaOf({
+      ...BASE,
+      bars,
+      series: closes,
+      marketSeries: [900, 910, 905, 920, 915, ...market],
+    });
+    expect(daiHon).toHaveLength(thangHang.length);
+    for (const y of daiHon) expect(y).toBeCloseTo(1.5, 6);
   });
 });
 

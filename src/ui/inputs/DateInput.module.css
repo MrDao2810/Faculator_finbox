@@ -1,0 +1,82 @@
+/*
+ * Nút lịch của ô ngày — xem docblock ở `DateInput.tsx`.
+ *
+ * `.calendar` là khung định vị cho ô `type="date"` tàng hình: ô ấy phủ đúng lên nút để bảng lịch
+ * của trình duyệt (neo theo hộp của chính ô `type="date"`) mở ra ngay dưới chỗ vừa bấm.
+ */
+.calendar {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+
+/*
+ * Hộp nhìn thấy 28px, vùng chạm 44px (NFR-USA-01) nhờ `::after` — cùng lối với `.rowRemove` của
+ * bảng Mã. Nút đứng TRONG khung ô nhập cao 44px nên hộp to hơn 28px sẽ chạm viền khung.
+ */
+.calendarButton {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  color: var(--color-muted);
+
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.calendarButton::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.calendarButton:hover {
+  color: var(--color-accent);
+}
+
+.calendarButton:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/*
+ * Tàng hình bằng `opacity`, KHÔNG `display: none` hay `visibility: hidden`: `showPicker()` cần một
+ * ô có hộp thật để neo bảng lịch. `pointer-events: none` để cú bấm rơi xuống nút ở dưới, không rơi
+ * vào các ô ngày/tháng/năm vô hình của chính ô này.
+ */
+.calendarNative {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
+ * Ô ngày trong bảng: ô chữ co giãn, nút lịch giữ cỡ. Bề ngang tối thiểu của ô chữ do lớp của bảng
+ * chứa nó đặt (`.dateCell` ở `XirrBody.module.css`), không đặt ở đây.
+ */
+.cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cell > input:first-child {
+  flex: 1;
+}

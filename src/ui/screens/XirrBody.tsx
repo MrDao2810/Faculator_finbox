@@ -3,7 +3,7 @@
 import { cashflowsOf, checkCashflowSeries, emptyCashflowRow } from '@/application';
 import type { CalcOutput, CashflowRow } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
-import { NumberCell } from '@/ui/inputs';
+import { DateCell, NumberCell } from '@/ui/inputs';
 import { Button, Table } from '@/ui/primitives';
 import { ResultBlock } from '@/ui/result';
 
@@ -100,13 +100,15 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
                     )}
                   </td>
                   <td>
-                    <input
+                    {/* Ô chữ in ngày/tháng/năm, không phải `type="date"`: ô của trình duyệt in theo
+                        ngôn ngữ của trình duyệt (tháng/ngày/năm trên Chrome tiếng Anh), lệch với
+                        mọi chỗ khác của sản phẩm — xem `DateInput.tsx`. */}
+                    <DateCell
                       className={`${styles.cell} ${styles.dateCell}`}
-                      type="date"
-                      aria-label={`${t('xirr.rowLabel')} ${String(index + 1)} · ${t('xirr.colDate')}`}
+                      ariaLabel={`${t('xirr.rowLabel')} ${String(index + 1)} · ${t('xirr.colDate')}`}
                       value={row.date}
-                      onChange={(event) => {
-                        setCell(index, { date: event.target.value });
+                      onChange={(next) => {
+                        setCell(index, { date: next });
                       }}
                     />
                   </td>

@@ -22,6 +22,7 @@ import {
   FORMULA_MODULES,
   FORMULA_ORIGIN_KEY,
   FORMULA_USAGE_KEY,
+  FORMULA_VISIT_KEY,
   INPUT_DRAFT_KEY,
   MARKET_CONFIG,
   MAX_SAVED_CALCS,
@@ -34,6 +35,7 @@ import {
   cashflowsOf,
   chainFor,
   constantsUsedBy,
+  substitutionConstants,
   SHARE_INPUTS_PARAM,
   decodeShareInputs,
   defaultInputs,
@@ -55,6 +57,7 @@ import {
   parseActiveTicker,
   QUIZ_PROGRESS_KEY,
   parseFormulaUsage,
+  parseFormulaVisit,
   parseQuizProgress,
   parseInputDrafts,
   parseSavedCalcs,
@@ -88,6 +91,7 @@ import { CongThucDien } from '@/ui/quiz/CongThucDien';
 import type {
   BaiHuongDan,
   Bilingual,
+  HinhDangXem,
   ThaySoCay,
   MucId,
   QuizItem,
@@ -204,6 +208,43 @@ function isoDayOf(ms: number): string {
   return `${String(date.getFullYear())}-${month}-${day}`;
 }
 
+/**
+ * Xoá ba kho mà màn này cất trạng thái của MỘT lượt xem: mã đang theo dõi, chuỗi đã thay tại chỗ,
+ * và bản nháp ô nhập của đúng công thức `formulaId`.
+ *
+ * Hai nơi gọi, cùng một ý "bộ số ấy không còn được muốn nữa": cửa gác lượt xem lúc gắn màn (người
+ * dùng VÀO LẠI công thức — xem `formula-visit.ts`), và `resetAll()` (họ bấm "Bỏ mã" hoặc "Thoát").
+ * Gom về một hàm để hai nơi không bao giờ xoá lệch nhau một kho: sót kho nào thì đúng thứ vừa bị bỏ
+ * quay về ở lần mở sau.
+ *
+ * Hai khối `try` RIÊNG, và đó là phần có chủ ý: `sessionStorage` bị chặn mà `localStorage` còn chạy
+ * thì bản nháp vẫn phải được xoá. Gộp một khối là lần ném đầu tiên bỏ qua luôn vế sau.
+ *
+ * Chỉ chạm kho, không chạm state hay ref của component — nơi gọi tự lo phần ấy.
+ */
+function clearVisitStores(formulaId: string): void {
+  try {
+    window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
+    window.sessionStorage.removeItem(WORKING_SERIES_KEY);
+  } catch {
+    // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
+  }
+
+  try {
+    const now = Date.now();
+    const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
+    // Không có bản nháp của công thức này thì đừng ghi: mở 111 trang không được thành 111 lần ghi.
+    if (draftFor(stored, formulaId) === null) return;
+
+    window.localStorage.setItem(
+      INPUT_DRAFT_KEY,
+      serializeInputDrafts(removeDraft(stored, formulaId)),
+    );
+  } catch {
+    // localStorage bị chặn — không có bản nháp nào để xoá.
+  }
+}
+
 export interface FormulaDetailProps {
   spec: FormulaSpec;
   /**
@@ -261,7 +302,8 @@ export interface FormulaDetailProps {
    * lúc build, và trình duyệt chỉ đặt số vào lá bằng `datSoThaySo`. Nhờ vậy bộ phân tích cú pháp
    * (24 kB) không phải có mặt trong gói của 111 trang.
    *
-   * Vắng với 63 công thức chưa có `spec.substitution` — thẻ gộp bỏ hẳn dòng, không in một vế cụt.
+   * Vắng với 50 công thức chưa có `spec.substitution` — thẻ gộp bỏ hẳn dòng, không in một vế cụt.
+   * (63 cho tới 13/10/2026, khi 13 công thức tra hằng số thị trường có mẫu.)
    */
   thaySoCay?: ThaySoCay;
   /**
@@ -547,7 +589,11 @@ export function FormulaDetail({
    * lưu. Một mốc cho cả hai việc, nên cái tên gợi ý ra và cái mục cất đi luôn nói cùng một ngày.
    */
   /**
-   * Mã đang dùng cho CẢ LƯỢT DUYỆT — thứ làm nên "nạp một lần, xem được mọi công thức".
+   * Mã đang dùng cho CẢ LƯỢT XEM công thức này — sống qua F5 và cú đi bảng dữ liệu rồi quay lại.
+   *
+   * Từng là "mã cho cả lượt duyệt, nạp một lần xem được mọi công thức". Chủ dự án đảo điều ấy ngày
+   * 13/10/2026: vào lại công thức, hay mở một công thức khác, là về mặc định — xem cửa gác lượt xem
+   * phía dưới và `formula-visit.ts`.
    *
    * Tách khỏi `loadedPreset` dù hai thứ gần như luôn bằng nhau: `loadedPreset` về `null` mỗi khi
    * người dùng nạp chuỗi minh hoạ (`loadIllustrativeExample`), mà việc ấy KHÔNG có nghĩa là họ
@@ -576,6 +622,19 @@ export function FormulaDetail({
   function moGoiY(muc: MucId, event: ReactMouseEvent<HTMLAnchorElement>): void {
     setGoiY({ muc, anchor: event.currentTarget, point: { x: event.clientX, y: event.clientY } });
   }
+
+  /*
+   * Hình ĐANG HIỆN ở khối Biểu đồ — mục nào của dòng "Xem kết quả đổi theo", dạng Đường hay Cột.
+   *
+   * Khối Biểu đồ tự báo lên (`FormulaChart.onViewChange`) vì trạng thái ấy sống sau ranh giới nạp
+   * trễ của nó; màn chỉ giữ lại để đưa cho khung "?" của mục "Đọc biểu đồ", khung nhờ thế chỉ in
+   * chữ của đúng hình đang hiện (13/10/2026). `null` cho tới lời báo đầu tiên.
+   *
+   * Đưa thẳng `setHinhBieuDo` xuống làm `onViewChange`: prop ấy đi qua `memo(FormulaChart)` nên cần
+   * tham chiếu ổn định, và hàm đặt state của `useState` vốn đã thế. Không tốn lượt dựng theo phím
+   * gõ — khối Biểu đồ chỉ báo khi hình thật sự đổi.
+   */
+  const [hinhBieuDo, setHinhBieuDo] = useState<HinhDangXem | null>(null);
 
   const [pickerMounted, setPickerMounted] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -855,11 +914,58 @@ export function FormulaDetail({
   }, [spec.id]);
 
   /*
+   * ── Cửa gác lượt xem: VÀO LẠI công thức thì về mặc định (13/10/2026) ────────────────────────
+   *
+   * Chủ dự án báo lỗi nghiêm trọng: thêm mã vào Danh mục rồi mở công thức, lưu một công thức có
+   * mã, hay chỉ nạp mã mà chưa lưu gì — rồi *"vào lại hoặc search lại công thức đó thì lại đang lưu
+   * lại mã cũ trong công thức đó … phải reset lại công thức về mặc định"*.
+   *
+   * Ba effect khôi phục phía dưới (bản nháp, mã, chuỗi đã thay) nạp lại ở MỌI lần gắn, vì không cái
+   * nào phân biệt được "quay lại từ bảng dữ liệu" với "vào lại từ danh sách". Effect này trả lời
+   * đúng câu ấy, một lần, cho cả ba: dấu trong kho phiên khác id của màn thì đây là một lượt MỚI và
+   * ba kho bị xoá TRƯỚC khi có ai kịp đọc. Luật đầy đủ, và hai quyết định cũ bị đảo, nằm ở
+   * `formula-visit.ts`.
+   *
+   * ⚠ PHẢI khai TRÊN cả ba effect khôi phục. React chạy effect của một component theo thứ tự khai
+   * báo, và cả ba đều đọc kho đồng bộ ngay lúc gắn — đặt cửa gác ở dưới là nó xoá kho sau khi số cũ
+   * đã lên màn, tức lỗi còn nguyên mà kho thì sạch, không ai lần ra vì sao.
+   *
+   * Ba effect ấy KHÔNG sửa dòng nào: lượt mới thì chúng đọc kho rỗng, lượt đang tiếp diễn (F5, đi
+   * bảng dữ liệu hay bài hướng dẫn rồi quay lại) thì chạy y như trước. `?ma=`, `?luu=`, `?so=` cũng
+   * không cần biết tới cửa này — chúng nạp thứ URL vừa nói ra, lên trên một màn đã sạch.
+   *
+   * Không đọc được dấu thì coi là lượt MỚI, không phải "cứ khôi phục cho chắc": phía an toàn của
+   * lỗi này là bộ số mặc định, thứ người dùng đọc ra ngay là "chưa nhập gì". Cái giá là trình duyệt
+   * chặn `sessionStorage` thì số không sống qua cú đi bảng dữ liệu nữa.
+   *
+   * Chạy hai lần dưới Strict Mode vẫn đúng: lần đầu dọn và ghi dấu, lần hai thấy dấu trùng.
+   */
+  useEffect(() => {
+    let visiting: string | null = null;
+    try {
+      visiting = parseFormulaVisit(window.sessionStorage.getItem(FORMULA_VISIT_KEY));
+    } catch {
+      // sessionStorage bị chặn — không biết đang ở lượt nào, xử như lượt mới (xem chú thích trên).
+    }
+
+    if (visiting !== spec.id) clearVisitStores(spec.id);
+
+    try {
+      window.sessionStorage.setItem(FORMULA_VISIT_KEY, spec.id);
+    } catch {
+      // Không ghi được dấu thì lần gắn sau lại là một lượt mới — vẫn là phía an toàn.
+    }
+  }, [spec.id]);
+
+  /*
    * ── Bản nháp ô nhập: giữ số người dùng đã gõ qua cú rời màn ─────────────────────────────────
    *
    * Nút "Mở bảng dữ liệu →" là một `<Link>` — điều hướng thật, component tháo, `inputs` (một
    * `useState` thuần) mất sạch. Bấm Back về thì mọi ô trở lại mặc định. Xem `input-draft-store.ts`
    * để biết vì sao nó mất KHÔNG ĐỀU và vì sao đó là gốc chung của hai lỗi được báo.
+   *
+   * Chỉ còn tác dụng TRONG một lượt xem: vào lại công thức từ màn khác thì cửa gác ngay trên đã
+   * xoá bản nháp trước khi effect này đọc.
    *
    * Thứ tự ưu tiên khi mở trang, và cả ba đều có lý do:
    *
@@ -1634,15 +1740,16 @@ export function FormulaDetail({
     }
     /*
      * Ca không nạp được gì: không đụng ô nhập, không dựng dải "đã nạp" — nhưng VẪN ghi mã vào kho
-     * phiên như một lượt nạp bình thường (phần dưới), vì mã dính theo lượt duyệt là chuyện của cả
-     * lượt xem chứ không phải của riêng công thức này: mở tiếp một công thức ăn số của mã thì nó
-     * vẫn tự nạp.
+     * phiên như một lượt nạp bình thường (phần dưới), để F5 hay cú đi bảng dữ liệu rồi quay lại
+     * dựng lại đúng trạng thái này. Lý do cũ ("mở tiếp một công thức ăn số của mã thì nó vẫn tự
+     * nạp") hết đúng từ 13/10/2026: mã không còn theo sang công thức khác — xem `formula-visit.ts`.
      */
 
     setStickyTicker(preset.code);
 
     /*
-     * Ghi mã vào kho phiên để công thức MỞ SAU dùng lại — xem docblock `active-ticker.ts`.
+     * Ghi mã vào kho phiên để LƯỢT GẮN SAU của chính màn này (F5, quay lại từ bảng dữ liệu) nạp
+     * lại mà không gọi mạng — xem docblock `active-ticker.ts`.
      *
      * Bỏ qua khi chính preset này vừa đọc RA từ kho: ghi lại y nguyên thứ vừa đọc chỉ tốn một
      * lượt tuần tự hoá cho mỗi trang mở, không thêm được gì.
@@ -1654,7 +1761,7 @@ export function FormulaDetail({
           serializeActiveTicker({ code: preset.code, preset }),
         );
       } catch {
-        // sessionStorage bị chặn (chế độ riêng tư) — mã không dính sang màn sau, chỉ vậy thôi.
+        // sessionStorage bị chặn (chế độ riêng tư) — mã không sống qua F5, chỉ vậy thôi.
       }
 
       /*
@@ -1731,14 +1838,16 @@ export function FormulaDetail({
   });
 
   /*
-   * ── Mã dính theo lượt duyệt: dùng lại mã đang xem cho công thức vừa mở ──────────────────────
+   * ── Mã của lượt xem: nạp lại mã đang xem khi màn gắn lại GIỮA một lượt xem ──────────────────
    *
-   * Đây là phần cắt được thao tác lặp lớn nhất của sản phẩm. Trước đợt này mã chỉ sống trong
-   * state của MỘT màn, nên xem HPG qua 5 chỉ số là 5 lần nạp mẫu — trong khi người dùng thật xem
-   * *một mã qua nhiều chỉ số*, không phải *một chỉ số của nhiều mã*.
+   * Từng là "mã dính theo lượt duyệt": nạp HPG ở P/E rồi mở P/B là HPG tự theo sang. Chủ dự án đảo
+   * điều ấy ngày 13/10/2026 — *"vào lại hoặc search lại công thức đó thì lại đang lưu lại mã cũ"* —
+   * nên effect này nay chỉ còn chạy thật ở hai ca: F5, và quay lại từ bảng dữ liệu hay bài hướng
+   * dẫn. Vào lại từ màn khác, hoặc mở một công thức khác, thì cửa gác lượt xem (khai phía trên, xem
+   * `formula-visit.ts`) đã xoá kho trước khi effect này đọc, và nó thấy `null`.
    *
-   * KHÔNG gọi mạng: preset đã dựng sẵn và cất trong `sessionStorage` từ lượt tra đầu tiên, nên
-   * cả lượt duyệt chỉ tốn đúng một lời gọi tới `dcs.finbox.vn` cho mỗi mã.
+   * KHÔNG gọi mạng: preset đã dựng sẵn và cất trong `sessionStorage` từ lượt tra đầu tiên, nên cả
+   * lượt xem chỉ tốn đúng một lời gọi tới `dcs.finbox.vn` cho mỗi mã.
    *
    * Không im lặng: `stickyTicker` bật lên thì thanh dưới tiêu đề gọi tên mã ra kèm nút bỏ — cùng
    * ràng buộc mà mọi chỗ dùng số liệu đã cất trong sản phẩm này phải giữ (`price-cache-store.ts`).
@@ -1868,7 +1977,7 @@ export function FormulaDetail({
    *   2. Mã và chuỗi đi CÙNG NHAU, không bao giờ tách. Ghi mỗi mã lên bộ dòng cũ là dán nhãn "HPG"
    *      lên chuỗi của mã khác — đúng loại "số sai mà trông có lý" mà FR-06 tồn tại để chặn.
    *
-   * Mã lấy `stickyTicker` TRƯỚC `loadedPreset`: mã dính theo cả lượt duyệt, còn `loadedPreset` về
+   * Mã lấy `stickyTicker` TRƯỚC `loadedPreset`: mã dính theo cả lượt xem, còn `loadedPreset` về
    * `null` mỗi khi người dùng xem chuỗi minh hoạ — mà việc ấy không có nghĩa họ thôi theo dõi mã.
    * Không có mã nào thì để trống, đúng quy ước `StoredSeries.code` rỗng = "bảng tự nhập".
    */
@@ -1978,16 +2087,12 @@ export function FormulaDetail({
   function resetAll(): void {
     workingSourceRef.current = null;
     workingSeriesRef.current = null;
-    try {
-      window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
-      // Chuỗi đã thay tại chỗ cũng phải đi cùng: hàm này đưa màn về trạng thái sạch, mà một chuỗi
-      // quay lại ở lần mở sau thì màn hình cãi lại đúng thao tác người dùng vừa làm.
-      window.sessionStorage.removeItem(WORKING_SERIES_KEY);
-    } catch {
-      // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
-    }
 
     /*
+     * Ba kho (mã, chuỗi đã thay tại chỗ, bản nháp) xoá ở `clearVisitStores()` cuối khối này, dùng
+     * chung với cửa gác lượt xem. Chuỗi phải đi cùng mã: một chuỗi quay lại ở lần mở sau thì màn
+     * hình cãi lại đúng thao tác người dùng vừa làm.
+     *
      * Xoá luôn bản nháp, và đây là phần BẮT BUỘC chứ không phải dọn dẹp cho gọn.
      *
      * Hàm này đưa mọi ô về mặc định vì người dùng vừa nói rõ họ không muốn bộ số ấy nữa. Để bản
@@ -2006,16 +2111,7 @@ export function FormulaDetail({
      * đúng cái lỗi mà đoạn này sinh ra để chữa.
      */
     pendingDraftRef.current = null;
-    try {
-      const now = Date.now();
-      const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
-      window.localStorage.setItem(
-        INPUT_DRAFT_KEY,
-        serializeInputDrafts(removeDraft(stored, spec.id)),
-      );
-    } catch {
-      // localStorage bị chặn — không có bản nháp nào để xoá.
-    }
+    clearVisitStores(spec.id);
 
     setStickyTicker(null);
     setLoadedPreset(null);
@@ -2212,8 +2308,23 @@ export function FormulaDetail({
    *
    * Thiếu mẫu, thiếu số hay kết quả đang lỗi thì bỏ hẳn dòng, không in một vế cụt.
    */
-  const cayThaySo =
-    merged && thaySoCay !== undefined ? datSoThaySo(thaySoCay, effectiveInputs) : null;
+  /*
+   * Số đặt vào hình gồm HAI nguồn (13/10/2026): ô người dùng gõ, và hằng số thị trường của biểu phí
+   * đang chọn. Nguồn thứ hai là thứ cho 13 công thức phí, thuế và phái sinh có dải này — trước đó
+   * chúng bị cấm khai mẫu, vì mẫu chỉ với tới được ô nhập và cách duy nhất để có mức phí là chép
+   * thẳng con số vào mẫu (lỗi thật ngày 01/10/2026, xem docblock `FormulaSpec.substitution`).
+   *
+   * `substitutionConstants` tra qua đúng `ctx` mà `calc` nhận, nên đổi biểu phí ở Cài đặt là dải và
+   * con số kết quả đổi cùng một lượt dựng. Khoá hằng số có dấu chấm còn khoá ô nhập thì không, nên
+   * hai bảng trộn vào nhau không đè được lên nhau.
+   */
+  const cayThaySo = useMemo(
+    () =>
+      merged && thaySoCay !== undefined
+        ? datSoThaySo(thaySoCay, { ...effectiveInputs, ...substitutionConstants(spec, ctx) })
+        : null,
+    [merged, thaySoCay, effectiveInputs, spec, ctx],
+  );
   /*
    * `formatNumber` KHÔNG tham số, đúng như `ResultBlock` gọi nó — tức cùng số chữ số lẻ. Để mặc
    * định khác nhau thì dải đáy ghi `= 15,2066` ngay dưới con số lớn ghi `15,21`, và người đọc có
@@ -3234,6 +3345,8 @@ export function FormulaDetail({
               // KHÔNG thay bằng closure viết trực tiếp ở đây — xem docblock `onApplyPoint` ở trên.
               onApplyPoint={onChartApplyPoint}
               lockedKeys={chartLockedKeys}
+              // Cũng không bọc closure: `setHinhBieuDo` giữ nguyên tham chiếu, closure thì không.
+              onViewChange={setHinhBieuDo}
             />
           </section>
         )}
@@ -3301,7 +3414,13 @@ export function FormulaDetail({
         có `close()` nào để trả tiêu điểm, và nó không giữ trạng thái gì đáng tiếc khi tháo.
       */}
       {bai !== undefined && goiY !== null && (
-        <GuideHintPanel id={`goi-y-${spec.id}`} bai={bai} state={goiY} onClose={dongGoiY} />
+        <GuideHintPanel
+          id={`goi-y-${spec.id}`}
+          bai={bai}
+          state={goiY}
+          onClose={dongGoiY}
+          hinh={hinhBieuDo}
+        />
       )}
 
       <QuizPanel

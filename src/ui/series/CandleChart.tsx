@@ -2,7 +2,13 @@
 
 import { useMemo } from 'react';
 
-import { CANDLE_RANGE_SESSIONS, buildCandleModel, formatNumber, linearScale } from '@/application';
+import {
+  CANDLE_RANGE_SESSIONS,
+  buildCandleModel,
+  displaySeriesDate,
+  formatNumber,
+  linearScale,
+} from '@/application';
 import type { CandleRange, MessageKey, SeriesRow } from '@/application';
 import { useT } from '@/application/preferences-context';
 import { useChartSize, type ChartSize } from '@/ui/charts/use-chart-size';
@@ -195,7 +201,11 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
           {code !== '' && <span className={styles.code}>{code}</span>}
           <span className={styles.meta}>
             {formatNumber(model.drawnCount)} {t('series.sessions')}
-            {model.firstDate === '' ? '' : ` · ${model.firstDate} → ${model.lastDate}`}
+            {/* Cùng lối viết với cột Ngày của bảng ngay dưới (`displaySeriesDate`): một dòng vừa
+                gõ ISO mà chưa rời ô vẫn in ra ngày/tháng/năm ở đây. */}
+            {model.firstDate === ''
+              ? ''
+              : ` · ${displaySeriesDate(model.firstDate)} → ${displaySeriesDate(model.lastDate)}`}
           </span>
         </div>
 

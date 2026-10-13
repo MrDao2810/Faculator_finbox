@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { guidePath, type BaiHuongDan, type MucId } from '@/application';
+import { guidePath, type BaiHuongDan, type HinhDangXem, type MucId } from '@/application';
 import { useT } from '@/application/preferences-context';
 import { GuideMuc } from '@/ui/guide/GuideBody';
 
@@ -59,9 +59,18 @@ export interface GuideHintPanelProps {
   onClose: () => void;
   /** `id` để nút "?" trỏ `aria-controls` vào. */
   id: string;
+  /**
+   * Hình đang hiện ở khối Biểu đồ — `null` khi khối ấy chưa kịp báo (chunk biểu đồ nạp trễ).
+   *
+   * Chỉ mục "Đọc biểu đồ" đọc nó, để in đúng MỘT hình ở đúng dạng đang chọn thay vì mọi hình của
+   * công thức (13/10/2026 — chủ dự án: *"ô hướng dẫn sử dụng đang rất dài … sau khi lựa chọn … thì
+   * mới hiển thị"*). Luôn truyền, kể cả khi khung đang mở mục khác: `GuideMuc` tự bỏ qua, còn nơi
+   * gọi thì khỏi phải biết mục nào cần gì.
+   */
+  hinh: HinhDangXem | null;
 }
 
-export function GuideHintPanel({ bai, state, onClose, id }: GuideHintPanelProps) {
+export function GuideHintPanel({ bai, state, onClose, id, hinh }: GuideHintPanelProps) {
   const t = useT();
   const panelRef = useRef<HTMLDivElement>(null);
   const [cho, setCho] = useState<{ top: number; left: number; maxHeight: number | null } | null>(
@@ -94,7 +103,13 @@ export function GuideHintPanel({ bai, state, onClose, id }: GuideHintPanelProps)
       window.removeEventListener('resize', dat);
       window.removeEventListener('scroll', onClose);
     };
-  }, [state, onClose]);
+    /*
+     * `hinh` nằm trong danh sách phụ thuộc dù thân effect không đọc nó: đổi hình là đổi CHỮ trong
+     * khung, tức đổi chiều cao khung, nên phải đo và đặt lại. Bấm chuột vào ô chọn hay nút Đường/Cột
+     * thì khung đã đóng trước (bấm ra ngoài), nhưng đi bằng bàn phím thì khung vẫn mở trong lúc hình
+     * bên dưới đổi.
+     */
+  }, [state, onClose, hinh]);
 
   /* Esc đóng, và bấm ra ngoài đóng — hai lối thoát quen thuộc của mọi khung nổi trong sản phẩm. */
   useEffect(() => {
@@ -145,7 +160,7 @@ export function GuideHintPanel({ bai, state, onClose, id }: GuideHintPanelProps)
         TRƯỚC khi viết dòng JSX đầu tiên: đó là chỗ từng làm trang hướng dẫn trả HTTP 500 suốt ba
         đợt mà không ca kiểm nào thấy.
       */}
-      <GuideMuc bai={bai} muc={state.muc} idPrefix="goi-y-" />
+      <GuideMuc bai={bai} muc={state.muc} idPrefix="goi-y-" hinh={hinh} />
 
       {/*
         ── Nút "Mở toàn trang ↗" ĐANG ẨN TẠM (03/10/2026, theo yêu cầu chủ dự án) ──────────────

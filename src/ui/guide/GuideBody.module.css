@@ -77,6 +77,92 @@
 }
 
 /*
+ * ── "Đọc biểu đồ" (13/10/2026) ──────────────────────────────────────────────────────────────────
+ *
+ * Mục này có HAI cách hiện, và chỉ một trong hai dùng các lớp dưới đây.
+ *
+ * Khung "?" in đúng một hình — hình đang hiện trên màn tính — nên nó chỉ cần `.noiDung`: tên hình
+ * (`.blockLabel`) rồi một đoạn. Hai dạng Đường/Cột dùng lại đúng bộ `.fieldSources` / `.fieldRow` /
+ * `.fieldLabel` / `.fieldWhere` của mục "Lấy số liệu ở đâu" — hai mục liền nhau của một bài phải xếp
+ * chữ cùng một kiểu.
+ *
+ * Trang đầy đủ không có biểu đồ nào đang hiện để lọc theo, nên nó xếp MỌI hình của công thức thành
+ * mục gập (`.charts` → `.chartItem`): tên hình là hàng bấm được, hình màn mở ra thì mở sẵn. Khuôn
+ * hàng bấm — cao 44px, dấu ＋/− tự vẽ thay mũi tên của trình duyệt — chép của `ExplanationAccordion`,
+ * mục gập đã có sẵn trên màn tính, để người đọc không phải học hai kiểu.
+ *
+ * `.chartControls` (hai câu chỉ tới dòng "Xem kết quả đổi theo" và "Loại biểu đồ") đã bỏ cùng hai
+ * câu ấy — mộ chí ở `vi.ts`.
+ */
+.charts {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chartItem {
+  min-width: 0;
+}
+
+/* Vùng chạm tối thiểu 44px cho cả hàng tên hình — NFR-USA-01. */
+.chartSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: var(--tap-min);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Bỏ mũi tên mặc định của Safari để dùng dấu của mình. */
+.chartSummary::-webkit-details-marker {
+  display: none;
+}
+
+/*
+ * Dấu gập/mở tự vẽ bằng ký tự: hiện cả khi in ra giấy và khi không thấy màu. Ký tự đổi theo trạng
+ * thái nên đây là dấu hiệu hình, không phải dấu hiệu màu (NFR-USA-06).
+ */
+.chartSummary::after {
+  content: '＋';
+  margin-left: auto;
+  padding-left: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+}
+
+.chartItem[open] > .chartSummary::after {
+  content: '−';
+}
+
+.chartSummary:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Chữ của một hình khi mục đang mở; khe dưới tách nó khỏi tên của hình kế tiếp. */
+.chartBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding-bottom: var(--space-4);
+}
+
+/*
+ * Dòng điều kiện dưới tên hình — chỉ còn một câu, "Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi
+ * giá", và chỉ in khi hình đang được tả CHƯA có trên màn. Nhạt và nhỏ: nó là chú thích của cái tên.
+ */
+.chartWhen {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-muted);
+}
+
+/*
  * Nhãn khối bên trong một mục: nhỏ hơn `<h2>` của mục một bậc và viết hoa nhỏ, để nó đọc ra là
  * NHÃN chứ không phải một mục thứ hai. Cùng bậc với `<h3>` của `ConstantsNote` trên màn tính.
  */

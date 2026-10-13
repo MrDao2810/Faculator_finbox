@@ -14,6 +14,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 
@@ -31,6 +32,7 @@ import {
   SAMPLE_DATA,
   SAVED_CALCS_KEY,
   WORKING_SERIES_KEY,
+  addRepeatGroup,
   addSavedCalc,
   cashflowsOf,
   chainFor,
@@ -71,6 +73,10 @@ import {
   recordFormulaUsage,
   recordQuizResult,
   removeDraft,
+  removeRepeatGroup,
+  repeatControls,
+  resolveRepeat,
+  resolveRepeatSpec,
   runChain,
   runFormula,
   savedCalcId,
@@ -420,6 +426,30 @@ export function FormulaDetail({
   const back = useBackTarget();
 
   const [inputs, setInputs] = useState<Record<string, number>>(() => defaultInputs(spec));
+
+  /*
+   * ── Nhóm ô lặp: danh sách ô do CHÍNH bộ số quyết (13/10/2026) ────────────────────────────────
+   *
+   * Hai công thức cho người dùng thêm bớt ô nhập (`spec.repeat`): đợt mua của
+   * `gia-von-trung-binh-dca`, kỳ của `loi-suat-trung-binh-hinh-hoc`. Số nhóm đang dùng nằm trong
+   * `inputs` (biến đếm), nên `activeSpec` và `formula` dưới đây luôn khớp với bộ số — không có
+   * trạng thái thứ hai nào để lệch. 109 công thức còn lại nhận lại đúng `spec` của mình.
+   *
+   * LUẬT CHỌN `spec` HAY `activeSpec`:
+   *
+   *   · `activeSpec` cho mọi thứ nói về Ô ĐANG CÓ TRÊN MÀN: khối Số liệu, Bảng biến, link chia sẻ,
+   *     file xuất, tập ô khoá của biểu đồ. `formula` (bản đã giải) đi vào biểu đồ, để ô chọn trục
+   *     có mục của đợt vừa thêm.
+   *   · `spec` cho mọi thứ TĨNH của công thức (tên, hình, diễn giải, ví dụ) và cho "bộ mặc định":
+   *     `defaultInputs(spec)` phải ra ba đợt, vì vào lại công thức là về mặc định.
+   *
+   * Cả hai phép giải đều trả cùng một object cho cùng một số nhóm (xem `registry/repeat.ts`), nên
+   * dùng thẳng trong lượt dựng mà không cần `useMemo`, và vẫn an toàn khi làm phụ thuộc của hook.
+   */
+  const baseFormula = findFormulaModule(spec.id);
+  const formula = baseFormula === undefined ? undefined : resolveRepeat(baseFormula, inputs);
+  const activeSpec = resolveRepeatSpec(spec, inputs);
+
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   /**
    * Ba bottom sheet chỉ được DỰNG khi người dùng mở lần đầu, rồi giữ lại.
@@ -475,7 +505,8 @@ export function FormulaDetail({
     url.searchParams.delete('luu');
     url.searchParams.delete('ma');
 
-    const packed = encodeShareInputs(spec.variables, inputs);
+    // `activeSpec`: đợt mua thứ tư phải đi theo link, không thì người nhận thấy con số khác.
+    const packed = encodeShareInputs(activeSpec.variables, inputs);
     if (packed === '') url.searchParams.delete(SHARE_INPUTS_PARAM);
     else url.searchParams.set(SHARE_INPUTS_PARAM, packed);
 
@@ -491,7 +522,7 @@ export function FormulaDetail({
       }
       window.prompt(t('detail.shareLink'), link);
     })();
-  }, [inputs, spec.variables, t]);
+  }, [inputs, activeSpec.variables, t]);
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   /**
    * Lượt nạp mẫu gần nhất: mã nào, và mã đó điền được ĐÚNG những ô nào.
@@ -1184,7 +1215,16 @@ export function FormulaDetail({
    */
   useEffect(() => {
     const packed = new URLSearchParams(window.location.search).get(SHARE_INPUTS_PARAM);
-    const shared = decodeShareInputs(spec.variables, packed);
+    /*
+     * Hai lượt cho công thức có nhóm ô lặp. `decodeShareInputs()` chỉ nhận khoá có trong danh sách
+     * ô đưa vào, mà danh sách ấy lại tuỳ biến đếm nằm TRONG chính link: lượt đầu đọc bằng các ô
+     * khai sẵn để lấy số nhóm, lượt hai đọc bằng đúng những ô số nhóm ấy đòi. Đọc một lượt thì
+     * link mang bốn đợt mua mở ra báo thiếu hai ô của đợt bốn. Công thức thường thì hai danh sách
+     * là một, và lượt hai không chạy.
+     */
+    const luotDau = decodeShareInputs(spec.variables, packed);
+    const oCuaLink = resolveRepeatSpec(spec, { ...defaultInputs(spec), ...luotDau }).variables;
+    const shared = oCuaLink === spec.variables ? luotDau : decodeShareInputs(oCuaLink, packed);
     if (Object.keys(shared).length === 0) return;
     setInputs((current) => ({ ...current, ...shared }));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ chạy lúc mở màn, xem chú thích.
@@ -1279,7 +1319,7 @@ export function FormulaDetail({
     [asOf, feeScheduleId, bars, cashflowRows, marketSeriesOverride],
   );
 
-  const formula = findFormulaModule(spec.id);
+  // `formula` khai ở đầu component, cạnh `inputs` — xem "Nhóm ô lặp" ở đó.
   const soloOutput: CalcOutput = useMemo(
     () =>
       formula === undefined
@@ -1539,8 +1579,23 @@ export function FormulaDetail({
   const chartSeriesLabel =
     loadedPreset ?? (exampleLoaded ? (spec.example.dataset?.name ?? undefined) : undefined);
 
-  const shown = variablesForLevel(spec, mode);
-  const hiddenCount = spec.variables.length - shown.length;
+  const shown = variablesForLevel(activeSpec, mode);
+  const hiddenCount = activeSpec.variables.length - shown.length;
+
+  /*
+   * Hai nút Thêm / Bỏ của nhóm ô lặp, và biến đếm mà chúng điều khiển — `null` với 109 công thức
+   * không có nhóm lặp.
+   *
+   * Biến đếm KHÔNG có ô trong lưới: hai nút là điều khiển của nó, và một ô số "Số đợt mua" đứng
+   * cạnh chúng là hai cách đổi cùng một thứ, trong đó một cách (gõ 7) đòi sáu ô chưa hề tồn tại.
+   * Nó vẫn có hàng của mình trong Bảng biến và trong file xuất, vì đó là một con số của phép tính.
+   */
+  const repeat = repeatControls(spec, inputs);
+  const repeatCountKey = spec.repeat?.countKey;
+  const fieldsShown =
+    repeatCountKey === undefined ? shown : shown.filter((v) => v.key !== repeatCountKey);
+  /** Số ô của MỘT nhóm — lưới xếp mỗi nhóm một hàng khi nhóm có từ hai ô (xem `.fieldsRepeat`). */
+  const repeatWidth = spec.repeat?.fields.length ?? 0;
 
   /**
    * Dòng phụ khoá của một ô, hoặc `undefined` nếu ô ấy mở.
@@ -1582,8 +1637,10 @@ export function FormulaDetail({
     () =>
       presetFill === null || !presetFill.touched
         ? undefined
-        : new Set(spec.variables.map((v) => v.key).filter((key) => !presetFill.filled.has(key))),
-    [presetFill, spec.variables],
+        : new Set(
+            activeSpec.variables.map((v) => v.key).filter((key) => !presetFill.filled.has(key)),
+          ),
+    [presetFill, activeSpec.variables],
   );
 
   /** Ô nào của công thức đang xem đang nhận giá trị từ bước trước. */
@@ -1634,6 +1691,28 @@ export function FormulaDetail({
       return;
     }
     setInputs((current) => ({ ...current, [key]: value }));
+  }
+
+  /**
+   * Thêm một nhóm ô (một đợt mua, một kỳ) hoặc bỏ nhóm cuối.
+   *
+   * Cùng hai tín hiệu với `setValue()`: bấm nút là đã dùng công thức, và là thay đổi phải vào bản
+   * nháp — không thì thêm hai đợt, sang bảng dữ liệu rồi quay lại là mất cả hai. Đi qua hàm cập
+   * nhật của `setInputs` chứ không đọc `inputs` của lượt dựng: bấm nhanh hai lần phải ra hai nhóm.
+   *
+   * Cùng cửa khoá với `setValue()`: đang nạp một mã mà biến đếm không thuộc phần mã cấp số thì
+   * mọi ô đều khoá, và thêm một nhóm lúc ấy là mở ra hai ô không gõ được.
+   */
+  function changeRepeat(buoc: 'them' | 'bo'): void {
+    if (repeatCountKey === undefined || lockedNoteFor(repeatCountKey) !== undefined) return;
+
+    markUsed();
+    editedRef.current = true;
+    setInputs(
+      (current) =>
+        (buoc === 'them' ? addRepeatGroup(spec, current) : removeRepeatGroup(spec, current)) ??
+        current,
+    );
   }
 
   /** Ghi đè một ô móc nối, hoặc `undefined` để hoàn tác về giá trị tự động. */
@@ -2918,8 +2997,20 @@ export function FormulaDetail({
             điều kiện — luật `.fields > .field` chỉ với tới CON TRỰC TIẾP, nên đổi tên lớp là mất
             canh thẳng hàng giữa hai ô cùng hàng ở khổ điện thoại.
           */}
-              <div className={merged ? `${styles.fields} ${styles.tileGrid}` : styles.fields}>
-                {shown.map((variable) => {
+              <div
+                className={[
+                  styles.fields,
+                  merged ? styles.tileGrid : undefined,
+                  // Nhóm từ hai ô trở lên: mỗi nhóm một hàng — xem `.fieldsRepeat`.
+                  repeatWidth > 1 ? styles.fieldsRepeat : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                {...(repeatWidth > 1
+                  ? { style: { '--o-moi-nhom': repeatWidth } as CSSProperties }
+                  : {})}
+              >
+                {fieldsShown.map((variable) => {
                   const linked = linkedFields.get(variable.key);
                   // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
                   const wide = linked !== undefined || isWideControl(variable.type);
@@ -3016,6 +3107,48 @@ export function FormulaDetail({
                   );
                 })}
               </div>
+
+              {/*
+            ── Thêm / bỏ một nhóm ô — đợt mua, kỳ (13/10/2026) ────────────────────────────────
+
+            Chủ dự án chỉ vào ba đợt mua khai cứng: *"người dùng muốn test mà muốn nhập thêm 4 5 6
+            ,.... đợt nữa thì sao ? … cần thêm một button nữa dùng để tạo thêm ô nhập"*.
+
+            Đứng NGAY SAU lưới ô, ngoài lưới: nút đi theo ô cuối cùng nên luôn ở đúng chỗ ô mới sẽ
+            hiện ra, và không phải là một con của lưới để khỏi chen vào bộ hàng `subgrid` của các ô.
+
+            Nút Bỏ gọi đúng tên nhóm sẽ bỏ ("Bỏ đợt 4") và CHỈ có khi còn bỏ được; nút Thêm thì luôn
+            có và khoá lại khi chạm trần, vì một nút biến mất đúng lúc người dùng định bấm nó thì
+            trông như hỏng. Cả hai khoá khi đang nạp mã mà ô không thuộc phần mã cấp số, cùng luật
+            với mọi ô nhập (`lockedNoteFor`).
+          */}
+              {repeat !== null && repeatCountKey !== undefined && (
+                <div className={styles.repeatActions}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={!repeat.canAdd || lockedNoteFor(repeatCountKey) !== undefined}
+                    onClick={() => {
+                      changeRepeat('them');
+                    }}
+                  >
+                    <span aria-hidden="true">+ </span>
+                    {pick(repeat.addLabel)}
+                  </Button>
+                  {repeat.canRemove && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={lockedNoteFor(repeatCountKey) !== undefined}
+                      onClick={() => {
+                        changeRepeat('bo');
+                      }}
+                    >
+                      {pick(repeat.removeLabel)}
+                    </Button>
+                  )}
+                </div>
+              )}
 
               {wantsSeries && (
                 <div className={styles.actions}>
@@ -3361,7 +3494,8 @@ export function FormulaDetail({
         `--space-5` với `.detail`, nên điện thoại không đổi một pixel nào.
       */}
         <div className={styles.aside}>
-          <VariableTable formula={spec} mode={mode} className={styles.deferred} />
+          {/* `activeSpec`: đợt mua người dùng vừa thêm cũng là một hàng của bảng này. */}
+          <VariableTable formula={activeSpec} mode={mode} className={styles.deferred} />
 
           {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
           {/*
@@ -3492,6 +3626,9 @@ export function FormulaDetail({
           onBrowseMarket={() => {
             openTickerPicker(true);
           }}
+          // Cùng ngày với `markUnusableAsOf` của sheet chọn mã phía dưới: con số trên nút và luật
+          // khoá nút "Chọn" ở sheet kia phải đọc một bảng, xét cũ/mới theo một mốc.
+          marketAsOf={asOf}
         />
       )}
 
@@ -3541,7 +3678,8 @@ export function FormulaDetail({
           onClose={() => {
             setSheet(null);
           }}
-          formula={spec}
+          // `activeSpec`: file xuất kê đủ mọi đợt mua đang có trên màn.
+          formula={activeSpec}
           output={output}
           // Bản xuất phải mang con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
           inputs={effectiveInputs}

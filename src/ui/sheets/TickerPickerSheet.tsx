@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { normalizeVi, useTickerList } from '@/application';
 import type { TickerRef } from '@/application';
@@ -11,20 +11,42 @@ import { Badge, BottomSheet, Button } from '@/ui/primitives';
 import styles from './TickerPickerSheet.module.css';
 
 /**
- * Số dòng dựng tối đa một lượt.
+ * Số mã bày ra mỗi lượt: mở sheet là 20 dòng, cuộn tới đáy thì thêm 20 dòng nữa.
  *
- * ── Vì sao cắt bớt thay vì ảo hoá bằng `VirtualList` ────────────────────────────────────────
+ * ── Thay cho "cắt ở 60 dòng rồi ghi 60/1.649 mã" (13/10/2026) ───────────────────────────────
+ *
+ * Bản trước dựng 60 dòng đầu rồi in "60/1.649 mã" dưới danh sách để nói đã cắt. Chủ dự án đọc cặp
+ * số ấy ngay sau khi nút ngoài tấm mẫu ghi "Danh sách 1.100 mã khác": *"tại sao … bên ngoài ghi là
+ * 1000 mã mà lúc vào hiển thị có 60/1649 mã?"* — 60 là số DÒNG, nhưng đứng cạnh một tổng thì nó đọc
+ * ra như số mã dùng được. Rồi chốt luôn cách bày: *"ban đầu hiển thị 20 mã khi người dùng scroll
+ * xuống dưới thì hiển thị icon xoay tròn loading... rồi hiển thị thêm 20 mã nữa. còn nếu người dùng
+ * search thì cần loading để tìm mã tương ứng"*.
+ *
+ * Bày dần thì không còn gì bị cắt, nên dòng đếm ấy bỏ hẳn (bia mộ `ticker.capped` ở `vi.ts`): cuộn
+ * mãi là tới mã cuối.
+ *
+ * ── Vì sao KHÔNG ảo hoá bằng `VirtualList` ──────────────────────────────────────────────────
  *
  * `VirtualList` (`src/ui/browse/`) tính cửa sổ hiển thị từ `window.scroll` — nó cố ý KHÔNG tạo
  * khung cuộn lồng, xem docblock của nó. Nhưng thân `BottomSheet` lại chính là một khung cuộn
  * lồng (`overflow-y: auto`), nên cuộn trong sheet không hề làm `window.scrollY` nhúc nhích và
  * danh sách sẽ đứng im ở 40 mục đầu. Dùng nó ở đây là sai chỗ, không phải tiết kiệm.
- *
- * Cắt bớt hợp với cách người ta dùng ô này hơn: không ai duyệt 1.649 mã, họ gõ mã họ đã biết.
- * Điều kiện là **phải nói rõ đã cắt** — dòng "60/1.649 mã" ngay dưới danh sách, không im lặng
- * để người dùng tưởng thị trường chỉ có bấy nhiêu mã.
  */
-const MAX_ROWS = 60;
+const PAGE_SIZE = 20;
+
+/**
+ * Hai khoảng chờ có vòng xoay — CỐ Ý, không phải thời gian máy cần.
+ *
+ * Cả danh sách đã nằm sẵn trong bộ nhớ từ lúc sheet mở (một lượt gọi, ~1.649 mã), nên lọc hay bày
+ * thêm 20 dòng đều xong trong một khung hình. Hai khoảng chờ này là nhịp chủ dự án yêu cầu: người
+ * dùng phải THẤY danh sách đang được nạp thêm hay đang được tìm, thay vì dòng mới hiện ra câm lặng
+ * dưới ngón tay. Giữ ngắn — dài hơn là bắt người ta chờ một thứ đã có sẵn.
+ *
+ * Khoảng chờ khi gõ còn làm một việc thật: người dùng gõ "vnm" là ba phím, và danh sách chỉ lọc
+ * một lần sau phím cuối thay vì nháy ba lượt kết quả.
+ */
+const SEARCH_DELAY_MS = 300;
+const MORE_DELAY_MS = 350;
 
 export interface TickerPickerSheetProps {
   open: boolean;
@@ -98,7 +120,19 @@ export function TickerPickerSheet({
   markUnusableAsOf,
 }: TickerPickerSheetProps) {
   const t = useT();
+  /** Chữ đang nằm trong ô tìm — đổi theo từng phím. */
   const [query, setQuery] = useState('');
+  /**
+   * Từ khoá danh sách ĐANG lọc theo (đã bỏ dấu, bỏ khoảng trắng đầu cuối) — chạy sau `query` một
+   * nhịp `SEARCH_DELAY_MS`. Hai cái lệch nhau nghĩa là đang tìm, và màn hiện vòng xoay.
+   */
+  const [applied, setApplied] = useState('');
+  /** Đang bày bao nhiêu dòng đầu của kết quả. */
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  /** Đáy danh sách vừa vào tầm nhìn, đang chờ `MORE_DELAY_MS` để bày thêm một lượt. */
+  const [loadingMore, setLoadingMore] = useState(false);
+  /** Mốc cuối danh sách — vào tầm nhìn là tín hiệu bày thêm. */
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Chỉ chạm mạng khi sheet thật sự mở — xem docblock `useTickerList`.
   const { items, status, failure, reload } = useTickerList(open);
@@ -177,25 +211,107 @@ export function TickerPickerSheet({
    * gõ mã, nên thứ khớp mã phải lên trước tên doanh nghiệp.
    */
   const results = useMemo(() => {
-    const needle = normalizeVi(query).trim();
-    if (needle === '') return items;
+    if (applied === '') return items;
 
     const byCode: TickerRef[] = [];
     const byName: TickerRef[] = [];
 
     for (const item of items) {
       const code = normalizeVi(item.code);
-      if (code.startsWith(needle)) byCode.push(item);
-      else if (code.includes(needle) || normalizeVi(item.name).includes(needle)) byName.push(item);
+      if (code.startsWith(applied)) byCode.push(item);
+      else if (code.includes(applied) || normalizeVi(item.name).includes(applied))
+        byName.push(item);
     }
 
     return [...byCode, ...byName];
-  }, [items, query]);
+  }, [items, applied]);
 
-  const shown = results.slice(0, MAX_ROWS);
+  /**
+   * Đang tìm: ô đã đổi mà danh sách chưa lọc theo.
+   *
+   * So trên chuỗi ĐÃ chuẩn hoá chứ không so chữ thô: gõ thêm một dấu cách hay đổi "Fpt" thành
+   * "FPT" không đổi kết quả, nên không được dựng vòng xoay cho một lượt tìm ra đúng thứ đang hiện.
+   */
+  const needle = normalizeVi(query).trim();
+  const searching = needle !== applied;
+
+  useEffect(() => {
+    if (needle === applied) return;
+
+    const hen = window.setTimeout(() => {
+      setApplied(needle);
+      // Kết quả mới thì bày lại từ lượt đầu — giữ số dòng của kết quả cũ là dựng 200 dòng cho một
+      // từ khoá vừa gõ.
+      setVisible(PAGE_SIZE);
+      setLoadingMore(false);
+    }, SEARCH_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(hen);
+    };
+  }, [needle, applied]);
+
+  /**
+   * Trình duyệt không có `IntersectionObserver` thì bày hết, không bày dần.
+   *
+   * Mốc cuối danh sách là thứ DUY NHẤT gọi lượt kế; không có bộ quan sát thì vòng xoay ở đáy sẽ
+   * quay mãi và mã thứ 21 trở đi không bao giờ tới được. Bày hết một lần là chiều an toàn — cũng
+   * là thứ jsdom chạy, nên các ca kiểm bày dần phải tự dựng bộ quan sát giả.
+   */
+  const bayDan = typeof IntersectionObserver !== 'undefined';
+  const shown = bayDan ? results.slice(0, visible) : results;
+  const conNua = shown.length < results.length;
+
+  /*
+   * Đáy danh sách vào tầm nhìn → bật vòng xoay. Gốc quan sát để mặc định (khung nhìn): phần tử nằm
+   * ngoài vùng cuộn của thân sheet thì bị chính thân sheet cắt, nên không tính là đang thấy.
+   *
+   * `visible` nằm trong danh sách phụ thuộc để mỗi lượt bày thêm lại quan sát từ đầu: bộ quan sát
+   * mới báo ngay trạng thái hiện tại, nên nếu 20 dòng vừa thêm chưa đẩy được mốc ra khỏi tầm nhìn
+   * (màn rất cao, hoặc kết quả tìm ngắn) thì lượt kế tự chạy tiếp, không cần người dùng nhúc nhích.
+   */
+  useEffect(() => {
+    const moc = sentinelRef.current;
+    if (!bayDan || !conNua || loadingMore || searching || moc === null) return;
+
+    const quanSat = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) setLoadingMore(true);
+    });
+    quanSat.observe(moc);
+
+    return () => {
+      quanSat.disconnect();
+    };
+  }, [bayDan, conNua, loadingMore, searching, visible, status]);
+
+  useEffect(() => {
+    if (!loadingMore) return;
+
+    const hen = window.setTimeout(() => {
+      setVisible((n) => n + PAGE_SIZE);
+      setLoadingMore(false);
+    }, MORE_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(hen);
+    };
+  }, [loadingMore]);
+
+  /*
+   * Sheet đóng thì lần mở sau bắt đầu lại từ 20 dòng. Component ở lại DOM sau khi đóng (để khỏi
+   * tải lại danh sách), nên không tự về đầu — và một sheet đang giữ 400 dòng thì mở lại là dựng
+   * đủ 400 dòng trước khi người dùng thấy gì.
+   */
+  useEffect(() => {
+    if (open) return;
+    setVisible(PAGE_SIZE);
+    setLoadingMore(false);
+  }, [open]);
 
   function close(): void {
+    // Xoá cả hai cùng lúc: chỉ xoá ô thì lần mở sau sheet nháy vòng xoay "đang tìm" trên ô trống.
     setQuery('');
+    setApplied('');
     onClose();
   }
 
@@ -215,8 +331,8 @@ export function TickerPickerSheet({
       /*
        * Ghim chiều cao tấm — xem `BottomSheetProps.size`.
        *
-       * Ô lọc nằm ngay trong thân sheet này, và số dòng đổi theo từng ký tự: mở ra là 60 dòng
-       * (chạm trần), gõ "vnm" còn một. Để tấm co theo nội dung thì nó tụt từ gần hết màn xuống
+       * Ô lọc nằm ngay trong thân sheet này, và số dòng đổi theo từng từ khoá: mở ra là 20 dòng
+       * (cao hơn cả tấm), gõ "vnm" còn một. Để tấm co theo nội dung thì nó tụt từ gần hết màn xuống
        * chừng hai đốt ngón tay ngay giữa lúc người dùng đang gõ, kéo cả ô tìm kiếm chạy theo.
        */
       size="tall"
@@ -243,7 +359,12 @@ export function TickerPickerSheet({
         Không còn dòng "danh sách có thể đã cũ" — chủ dự án bỏ 29/09/2026. Cache quá hạn mà làm mới
         hỏng thì danh sách cũ vẫn hiện như thường; lý do ở bia mộ `ticker.stale` trong `vi.ts`.
       */}
-      {status === 'loading' && <p className={styles.state}>{t('ticker.loading')}</p>}
+      {status === 'loading' && (
+        <p className={styles.state} role="status">
+          <span className={styles.spinner} aria-hidden="true" />
+          {t('ticker.loading')}
+        </p>
+      )}
 
       {status === 'error' && (
         <div className={styles.state} role="alert">
@@ -256,7 +377,19 @@ export function TickerPickerSheet({
         </div>
       )}
 
-      {status === 'ready' && (
+      {/*
+        Đang tìm thì vòng xoay ĐỨNG THAY danh sách, không đè lên nó: để nguyên kết quả cũ dưới một
+        vòng xoay là mời người dùng bấm "Chọn" vào một dòng sắp biến mất. Sheet ghim chiều cao
+        (`size="tall"`) nên thay ruột không làm tấm co giật.
+      */}
+      {status === 'ready' && searching && (
+        <p className={styles.state} role="status">
+          <span className={styles.spinner} aria-hidden="true" />
+          {t('ticker.searching')}
+        </p>
+      )}
+
+      {status === 'ready' && !searching && (
         <>
           {shown.length === 0 ? (
             <p className={styles.state}>{t('ticker.noMatch')}</p>
@@ -324,11 +457,19 @@ export function TickerPickerSheet({
             </ul>
           )}
 
-          {/* Đã cắt bớt thì phải nói ra — im lặng sẽ thành "thị trường chỉ có 60 mã". */}
-          {results.length > shown.length && (
-            <p className={styles.footnote}>
-              {shown.length}/{results.length} {t('ticker.capped')}
-            </p>
+          {/*
+            Mốc cuối danh sách, chỉ dựng khi còn mã chưa bày. Vòng xoay nằm sẵn ở đây chứ không
+            đợi `loadingMore`: nó ở dưới đáy nên chỉ lọt vào mắt đúng lúc người dùng cuộn tới, và
+            dựng sẵn thì dòng thứ 21 không đẩy thêm một khối vào giữa lúc đang cuộn.
+
+            Chữ thì ẩn khỏi mắt, vòng xoay đã nói đủ; trình đọc màn hình nghe "Đang tải thêm mã…".
+            Không còn dòng "60/1.649 mã" — xem docblock `PAGE_SIZE`.
+          */}
+          {conNua && (
+            <div ref={sentinelRef} className={styles.more} role="status">
+              <span className={styles.spinner} aria-hidden="true" />
+              <span className="visually-hidden">{t('ticker.loadingMore')}</span>
+            </div>
           )}
         </>
       )}

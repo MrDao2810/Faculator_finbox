@@ -165,19 +165,23 @@ export {
 // ── Dán dữ liệu từ Excel / CSV — WF-11 (gói 2.5.2) ──────────────────────────
 export type {
   ColumnKind,
+  FittedTable,
   NumberStyle,
   PasteResult,
   PasteTable,
   PriceBar,
   RowOrder,
+  SeriesColumnKind,
   SkippedRow,
 } from '@/core/paste-import';
 export {
   COLUMN_LABELS,
   MAX_PASTE_LINES,
+  SERIES_COLUMNS,
   closeSeries,
   detectDelimiter,
   detectNumberStyle,
+  fitToSeriesColumns,
   guessColumns,
   orderOf,
   parseCellNumber,
@@ -250,7 +254,23 @@ export {
 
 // ── Bộ máy tính toán — chạy một công thức (nền cho nhánh 3 và 5) ────────────
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from '@/core/calc';
-export { missingInputLabels, needsPriceSeries, runFormula } from '@/core/calc';
+export { missingInputLabels, needsPriceSeries, resolveRepeat, runFormula } from '@/core/calc';
+
+/*
+ * ── Nhóm ô lặp — công thức có số ô nhập do người dùng thêm bớt (13/10/2026) ──
+ * Đi THẲNG tới file lá `registry/repeat`, không vòng qua `@/core/registry`: khung "?" của bài hướng
+ * dẫn (`ui/guide`) cần `fillRepeat` và `repeatIndexIn`, mà cửa gom kia kéo theo cả thư viện công
+ * thức.
+ */
+export type { RepeatControls, RepeatLimits } from '@/core/registry/repeat';
+export {
+  addRepeatGroup,
+  fillRepeat,
+  removeRepeatGroup,
+  repeatControls,
+  repeatIndexIn,
+  resolveRepeatSpec,
+} from '@/core/registry/repeat';
 
 // ── Chạy cả một chuỗi công thức nối nhau — FR-15 (gói 5.2.3) ────────────────
 export type { ChainField, ChainInputs, ChainOverrides, ChainResult, ChainStep } from '@/core/calc';
@@ -420,6 +440,7 @@ export type {
   /* Ba kiểu của mục "Đọc biểu đồ" (13/10/2026) — module lá xuất lại, barrel không với sâu hơn. */
   HinhDangXem,
   KhoiBieuDoBai,
+  KhoiLapBai,
   MucBieuDoBai,
   MucId,
   ONhapHuongDan,

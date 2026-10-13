@@ -388,6 +388,28 @@ describe('Registry với toàn bộ công thức thật', () => {
   });
 
   /*
+   * Bộ dữ liệu của ví dụ là thứ đổ vào bảng khi người dùng nạp ví dụ: lưới "Dán dữ liệu" và Bảng
+   * dữ liệu đều bày đủ sáu cột của nó. Tới 13/10/2026 bộ VN-Index chỉ có giá đóng cửa, nên chín
+   * công thức dùng nó cho ra một bảng trống bốn trên sáu cột — chủ dự án báo "một số cột sau khi
+   * nạp không thấy số liệu trên table". Ca này quét MỌI bộ dữ liệu, kể cả bộ thứ ba sau này.
+   */
+  it('bộ dữ liệu của ví dụ không để cột nào trống ở phiên nào', () => {
+    const thieu: string[] = [];
+    for (const formula of FORMULA_MODULES) {
+      const { id, example } = formula.spec;
+      for (const row of example.dataset?.rows ?? []) {
+        const trong = (['open', 'high', 'low', 'close', 'volume'] as const).filter(
+          (cot) => row[cot] === null,
+        );
+        if (row.date.trim() === '' || trong.length > 0) {
+          thieu.push(`${id} · ${row.date} · ${trong.join(', ')}`);
+        }
+      }
+    }
+    expect(thieu).toEqual([]);
+  });
+
+  /*
    * Lỗi thật đã gặp: bốn công thức thiếu `expression` nên màn chi tiết rơi về hiện LaTeX THÔ —
    * người dùng nhìn thấy `L_{rong} = Q\,(P_{ban} - P_{mua})`. Chỉ lộ ra khi mở màn ra nhìn,
    * không test nào bắt được. Hai ca dưới đây khoá lại.

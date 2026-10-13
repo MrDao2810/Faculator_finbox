@@ -289,6 +289,42 @@ export interface SymbolNote {
   meaning: Bilingual;
 }
 
+/**
+ * Nhóm ô LẶP — công thức có số ô nhập do người dùng quyết (13/10/2026).
+ *
+ * Chủ dự án chỉ vào khối Số liệu của `gia-von-trung-binh-dca`, lúc ấy khai cứng ba đợt mua: *"người
+ * dùng muốn test mà muốn nhập thêm 4 5 6 ,.... đợt nữa thì sao ? … cần thêm một button nữa dùng để
+ * tạo thêm ô nhập … tương tự với các công thức tương tự"*. Đo trên Registry: đúng hai công thức có
+ * ô đánh số cố định, công thức ấy và `loi-suat-trung-binh-hinh-hoc` (nút chọn "2 kỳ / 3 kỳ").
+ *
+ * ── `variables` vẫn khai các nhóm MẶC ĐỊNH, nhóm thêm sinh từ mẫu ────────────────────────────
+ *
+ * Ba đợt đầu vẫn là ba cặp `VariableSpec` viết tay trong `variables`. Nhờ vậy mọi thứ đang chốt
+ * theo danh sách biến (248 trục biểu đồ, bài hướng dẫn, ví dụ, bài tập, link chia sẻ cũ) vẫn đúng
+ * cho màn lúc mở ra. Nhóm thứ tư trở đi sinh từ `fields` — xem `resolveRepeatSpec()` ở `repeat.ts`.
+ *
+ * ── Số nhóm là một BIẾN khai trong `variables`, không phải trạng thái riêng của màn ───────────
+ *
+ * `countKey` trỏ vào một biến thật (`lots`, `periods`). Con số ấy vì thế đi cùng bộ số liệu qua
+ * mọi kho sẵn có (bản nháp, phép tính đã lưu, link `?so=`) mà không kho nào phải biết tới nhóm lặp,
+ * và `calc` đọc nó bằng `v()` như mọi ô khác. Miền của số nhóm là `min` / `max` của chính biến ấy.
+ * Màn KHÔNG dựng ô cho biến này: hai nút Thêm / Bỏ ở cuối khối Số liệu là điều khiển của nó.
+ */
+export interface RepeatGroup {
+  /** Khoá của biến giữ số nhóm đang dùng. Phải khai trong `variables`, kiểu `number`, bước 1. */
+  countKey: string;
+  /**
+   * Mẫu ô của MỘT nhóm, đúng thứ tự bày trên màn. `key` là TIỀN TỐ (`'amount'` sinh ra `amount4`),
+   * `label` và `description` mang `{n}` ở chỗ số thứ tự nhóm, `defaultValue` là con số một nhóm vừa
+   * thêm mang lúc đầu.
+   */
+  fields: ReadonlyArray<VariableSpec>;
+  /** Nhãn nút thêm một nhóm: 'Thêm đợt mua'. */
+  addLabel: Bilingual;
+  /** Nhãn nút bỏ nhóm cuối, `{n}` là số thứ tự nhóm sẽ bỏ: 'Bỏ đợt {n}'. */
+  removeLabel: Bilingual;
+}
+
 /** Metadata đầy đủ của một công thức (LDR-01, LDR-02). */
 export interface FormulaSpec extends FormulaSummary {
   /** Chuỗi LaTeX để KaTeX render (UI-03). */
@@ -352,7 +388,8 @@ export interface FormulaSpec extends FormulaSummary {
    *     gộp, nên một mẫu ở đây là dữ liệu không màn nào đọc.
    *   · `ddm-hai-giai-doan`, `gia-von-trung-binh-dca` — cộng dồn qua một số kỳ / số đợt do người
    *     dùng đặt, nên số hạng của phép cộng không cố định.
-   *   · `loi-suat-trung-binh-hinh-hoc` — nút chọn 2 hay 3 kỳ quyết định có dùng ô thứ ba hay không.
+   *   · `loi-suat-trung-binh-hinh-hoc` — số kỳ do người dùng thêm bớt (2 tới 12, xem `RepeatGroup`),
+   *     nên số thừa số của tích không cố định. Cùng ca với `gia-von-trung-binh-dca` ngay trên.
    *   · `irr-nien-kim`, `xirr` — dò nghiệm, không có biểu thức đóng. Cùng ca với `PHUONG_TRINH_AN`
    *     của khối Ví dụ thực tế (`src/core/vi-du/kiem.ts`).
    */
@@ -425,6 +462,8 @@ export interface FormulaSpec extends FormulaSummary {
   symbols?: ReadonlyArray<SymbolNote>;
   chartType: ChartType;
   variables: ReadonlyArray<VariableSpec>;
+  /** Nhóm ô lặp do người dùng thêm bớt — xem `RepeatGroup`. Hai công thức khai. */
+  repeat?: RepeatGroup;
   /** Đơn vị của kết quả, ví dụ 'lần', '%', '₫'. */
   resultUnit: string;
   explanation: Explanation;

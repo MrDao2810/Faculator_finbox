@@ -1,17 +1,26 @@
 'use client';
 
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 import {
   MAX_SERIES_ROWS,
+  SERIES_COLUMNS,
   displaySeriesDate,
+  fitToSeriesColumns,
   formatNumber,
   parseCellNumber,
   parseCells,
   splitPasteTable,
   summarizeSkipped,
 } from '@/application';
-import type { ColumnKind, MessageKey, NumberStyle, PasteResult } from '@/application';
+import type {
+  ColumnKind,
+  MessageKey,
+  NumberStyle,
+  PasteResult,
+  SeriesColumnKind,
+} from '@/application';
 import { useT } from '@/application/preferences-context';
 import { BottomSheet, Button } from '@/ui/primitives';
 
@@ -21,15 +30,17 @@ import styles from './PasteImportSheet.module.css';
  * Nhãn HIỂN THỊ của từng vai trò cột, tra theo locale. Bản gốc tiếng Việt là `COLUMN_LABELS`
  * ở Domain — ca kiểm trong i18n.test.ts giữ khoá vi khớp từng chữ với nó.
  * Từ vựng ĐOÁN cột từ header dán vào (`HEADER_WORDS`) vẫn ở Domain, không dính gì tới locale.
+ *
+ * Sáu nhãn cho sáu vai trò. Cột thừa (`'ignore'`) KHÔNG có nhãn ở đây: nó hiện dưới tên của chính
+ * nó — xem `labels` trong component.
  */
-const COLUMN_LABEL_KEYS: Readonly<Record<ColumnKind, MessageKey>> = {
+const COLUMN_LABEL_KEYS: Readonly<Record<SeriesColumnKind, MessageKey>> = {
   date: 'paste.col.date',
   open: 'paste.col.open',
   high: 'paste.col.high',
   low: 'paste.col.low',
   close: 'paste.col.close',
   volume: 'paste.col.volume',
-  ignore: 'paste.col.ignore',
 };
 
 /** Chữ mờ ví dụ theo vai trò cột, chỉ đặt ở dòng đầu của một lưới còn trắng. */
@@ -66,33 +77,29 @@ export interface PasteImportSheetProps {
   }>;
 }
 
-/** Thứ tự trong danh sách chọn vai trò cột. */
-const ASSIGNABLE: ReadonlyArray<ColumnKind> = [
-  'date',
-  'open',
-  'high',
-  'low',
-  'close',
-  'volume',
-  'ignore',
-];
-
 /**
  * Lưới mở ra với ĐỦ sáu cột, đúng hình dạng một bảng giá lịch sử.
  *
  * Bản trước chỉ mở hai cột (Ngày · Giá đóng cửa) kèm một nút "Thêm cột", lấy lý do bề ngang
  * điện thoại. Chủ dự án chốt ngược lại: mở sẵn đủ cột, và vì đã đủ nên không cần nút thêm nữa.
  * Đó cũng là hình dạng mọi nguồn (CafeF, Vietstock, investing.com) xuất ra, nên khối dán vào
- * khớp thẳng không phải sửa gì; cột nào không có dữ liệu thì để trống, hoặc đặt "Không dùng".
+ * khớp thẳng không phải sửa gì; cột nào không có dữ liệu thì để trống.
+ *
+ * ── 13/10/2026: sáu cột là CỐ ĐỊNH, không còn lựa chọn "Không dùng" ────────────────────────────
+ *
+ * Ô chọn vai trò cột từng có lựa chọn thứ bảy "Không dùng", và cột nào máy không đoán ra thì
+ * cũng đội nhãn ấy. Chủ dự án khoanh nó lại: *"tạo ô không dùng là cái gì … tạo đủ dữ liệu của 6
+ * cột là thôi không cần tạo gì nữa và cũng không thể tạo được thêm nữa. nếu khách nạp thừa thêm 1
+ * cột dữ liệu chưa rõ tên thì cứ tạo thêm 1 cột thừa ra đó"*. Ba luật rút ra, giữ ở file này:
+ *
+ *   1. Lưới LUÔN có đủ sáu vai trò, mỗi vai trò ở đúng một cột. Không thao tác nào gỡ được một vai
+ *      trò khỏi lưới, nên không cột số liệu nào bị bỏ lại lúc bấm Nạp.
+ *   2. Ô chọn chỉ có sáu lựa chọn, và chọn là ĐỔI CHỖ hai cột cho nhau (`setColumnKind`).
+ *   3. Dữ liệu đưa vào có thừa cột thì cột ấy đứng thêm ở cuối lưới, dưới tên của chính nó trong
+ *      dòng tiêu đề đã dán (`fitToSeriesColumns()` ở Domain). Nó không được nạp đi đâu: một phiên
+ *      giá chỉ có sáu trường.
  */
-const DEFAULT_COLUMNS: ReadonlyArray<ColumnKind> = [
-  'date',
-  'open',
-  'high',
-  'low',
-  'close',
-  'volume',
-];
+const DEFAULT_COLUMNS: ReadonlyArray<ColumnKind> = SERIES_COLUMNS;
 
 /** Số dòng trống mở sẵn: đủ để nhìn ra đây là bảng gõ được, chưa dài tới mức phải cuộn. */
 const BLANK_ROWS = 4;
@@ -129,6 +136,11 @@ function blankGrid(width: number, height: number): string[][] {
 
 function isBlank(grid: ReadonlyArray<ReadonlyArray<string>>): boolean {
   return grid.every((row) => row.every((cell) => cell.trim() === ''));
+}
+
+/** Mảng mới thiếu phần tử ở vị trí `at` — bỏ một cột khỏi dòng lưới, khỏi `columns`, khỏi `names`. */
+function dropAt<T>(list: ReadonlyArray<T>, at: number): T[] {
+  return list.filter((_, index) => index !== at);
 }
 
 /** Mã của một ô trong lưới, để phím Enter nhảy xuống đúng ô dưới. */
@@ -306,6 +318,11 @@ export function PasteImportSheet({
   const t = useT();
 
   const [columns, setColumns] = useState<ColumnKind[]>([...DEFAULT_COLUMNS]);
+  /**
+   * Tên từng cột trong dữ liệu đã dán, song song với `columns`; rỗng khi cột không có tiêu đề.
+   * Chỉ cột thừa mới in tên này lên màn — sáu cột kia mang nhãn của sản phẩm.
+   */
+  const [names, setNames] = useState<string[]>(() => blankRow(DEFAULT_COLUMNS.length));
   const [grid, setGrid] = useState<string[][]>(() => blankGrid(DEFAULT_COLUMNS.length, BLANK_ROWS));
   /** Người dùng chốt cách đọc số khi máy phải đoán. `null` nghĩa là theo máy. */
   const [style, setStyle] = useState<NumberStyle | null>(null);
@@ -324,8 +341,8 @@ export function PasteImportSheet({
    * Hai hàm truyền xuống `GridRow` phải ổn định để `memo` có tác dụng, nhưng chúng lại cần
    * trạng thái mới nhất. Giữ trạng thái trong một ref là cách rẻ nhất có cả hai.
    */
-  const latest = useRef({ grid, columns });
-  latest.current = { grid, columns };
+  const latest = useRef({ grid, columns, names });
+  latest.current = { grid, columns, names };
 
   const parsed = useMemo(
     () => parseCells(grid, columns, style ?? undefined),
@@ -380,7 +397,6 @@ export function PasteImportSheet({
   const first = result.rows[0];
   const last = result.rows[result.rows.length - 1];
   const canImport = result.rows.length > 0 && (badCount === 0 || skipBad);
-  const hasClose = columns.includes('close');
   const assigned = columns.filter((kind) => kind !== 'ignore').length;
 
   /** Ô số đầu tiên đọc được, để bày hai cách đọc khi quy ước số còn mập mờ. */
@@ -395,8 +411,26 @@ export function PasteImportSheet({
 
   const rowWord = t('paste.rowNo');
   const emptyMark = t('paste.emptyCell');
-  const labels = useMemo(() => columns.map((kind) => t(COLUMN_LABEL_KEYS[kind])), [columns, t]);
-  const numeric = useMemo(() => columns.map((kind) => kind !== 'date'), [columns]);
+  const columnWord = t('paste.column');
+  /*
+   * Tên đứng trên đầu từng cột. Sáu cột của chuỗi giá mang nhãn của sản phẩm; cột thừa mang tên
+   * của chính nó trong dòng tiêu đề đã dán, và khi dữ liệu không có tiêu đề thì chỉ còn số thứ
+   * tự ('Cột 7'). Không có nhãn chung nào kiểu "Không dùng" — xem docblock `DEFAULT_COLUMNS`.
+   */
+  const labels = useMemo(
+    () =>
+      columns.map((kind, index) => {
+        if (kind !== 'ignore') return t(COLUMN_LABEL_KEYS[kind]);
+        const own = names[index] ?? '';
+        return own === '' ? `${columnWord} ${index + 1}` : own;
+      }),
+    [columns, names, columnWord, t],
+  );
+  // Cột thừa có thể là chữ (ghi chú, tên sàn), nên không ép bàn phím số cho nó.
+  const numeric = useMemo(
+    () => columns.map((kind) => kind !== 'date' && kind !== 'ignore'),
+    [columns],
+  );
   const hints = useMemo(
     () =>
       columns.map((kind) => {
@@ -444,6 +478,7 @@ export function PasteImportSheet({
 
     const cells = cellsFromRows(initialRows.slice(-maxRows));
     setColumns([...DEFAULT_COLUMNS]);
+    setNames(blankRow(DEFAULT_COLUMNS.length));
     setGrid([...cells.map((row) => [...row]), blankRow(DEFAULT_COLUMNS.length)]);
     setStyle('vi');
   }, [open, primed, initialRows, maxRows]);
@@ -468,6 +503,7 @@ export function PasteImportSheet({
 
   const reset = useCallback(() => {
     setColumns([...DEFAULT_COLUMNS]);
+    setNames(blankRow(DEFAULT_COLUMNS.length));
     setGrid(blankGrid(DEFAULT_COLUMNS.length, BLANK_ROWS));
     setStyle(null);
     setDropped({ preamble: 0, truncated: 0 });
@@ -498,47 +534,63 @@ export function PasteImportSheet({
    * Đổ một khối vừa dán vào lưới. Trả `true` nếu đã nhận, để nơi gọi chặn hành vi dán mặc định.
    *
    * Dán một ô lẻ ('25,4') thì trả `false` — đó là dán vào một ô, cứ để trình duyệt làm.
+   *
+   * `replace` là của hai lối đưa vào CẢ MỘT BỘ dữ liệu — "Tải file CSV" và "Dữ liệu mẫu": bộ mới
+   * THAY lưới chứ không đè lên lưới. Trước 13/10/2026 file cũng đi đường "đè tại ô (0, 0)", mà từ
+   * khi sheet mở ra là thấy sẵn chuỗi đang dùng thì lưới gần như không bao giờ trống: tải một file
+   * hai cột Ngày · Đóng lên lưới đang có 57 phiên là giá đóng cửa rơi vào cột "Giá mở cửa" (dòng
+   * tiêu đề của file bị bỏ qua), cột Giá đóng cửa vẫn mang số của chuỗi CŨ, các dòng cũ phía dưới
+   * còn nguyên — và nút vẫn mời "Nạp 57 dòng". Hai bộ số trộn vào nhau mà không có gì báo (FR-06).
+   *
+   * Cùng lý do, một khối dán CÓ DÒNG TIÊU ĐỀ cũng thay lưới dù dán vào ô nào: mang theo tiêu đề
+   * nghĩa là người dùng chép cả một bảng, và tên cột của bảng ấy phải được dùng để xếp cột. Đè nó
+   * lên lưới là vứt dòng tiêu đề đi rồi rải số theo vị trí. Khối KHÔNG có tiêu đề thì vẫn là dán
+   * một mẩu vào chỗ con trỏ, như bảng tính.
    */
   const applyBlock = useCallback(
-    (text: string, atRow: number, atColumn: number): boolean => {
+    (text: string, atRow: number, atColumn: number, replace = false): boolean => {
       const table = splitPasteTable(text);
       const blockWidth = table.cells.reduce((most, row) => Math.max(most, row.length), 0);
-      if (table.cells.length === 0 || (table.cells.length === 1 && blockWidth <= 1)) return false;
+      if (table.cells.length === 0) return false;
+      if (!replace && table.cells.length === 1 && blockWidth <= 1) return false;
 
-      const { grid: current, columns: kinds } = latest.current;
-      const fresh = isBlank(current);
-      const startRow = fresh ? 0 : atRow;
-      const startColumn = fresh ? 0 : atColumn;
+      const { grid: current, columns: kinds, names: titles } = latest.current;
 
-      /*
-       * Lưới còn trống thì nhận luôn phỏng đoán vai trò cột của bộ đọc. Lưới đang có dữ liệu
-       * thì giữ nguyên vai trò người dùng đã chọn, cột mọc thêm để "Không dùng" — không tự ý
-       * đổi cột của họ chỉ vì vừa dán thêm một mẩu.
-       */
-      const nextColumns = Array.from(
-        { length: Math.max(fresh ? 0 : kinds.length, startColumn + blockWidth) },
-        (_, index): ColumnKind => {
-          if (!fresh) return kinds[index] ?? 'ignore';
-          return table.columns[index] ?? 'ignore';
-        },
-      );
+      let nextColumns: ColumnKind[];
+      let nextNames: string[];
+      let rows: string[][];
 
-      /*
-       * Dán một cột ngày vào lưới trống thì phỏng đoán chỉ ra đúng 'date', và nhận nguyên nó sẽ
-       * nuốt mất cột giá đóng cửa — người dùng đang định gõ giá vào đó. Cột bắt buộc không bao
-       * giờ được biến mất vì một cú dán.
-       */
-      if (!nextColumns.includes('close')) nextColumns.push('close');
-
-      const width = nextColumns.length;
-      const height = Math.max(fresh ? 0 : current.length, startRow + table.cells.length);
-      let rows = Array.from({ length: height }, (_, row) =>
-        Array.from({ length: width }, (_, column) => {
-          const incoming = table.cells[row - startRow]?.[column - startColumn];
-          if (incoming !== undefined) return incoming;
-          return fresh ? '' : (current[row]?.[column] ?? '');
-        }),
-      );
+      if (replace || table.hasHeader || isBlank(current)) {
+        /*
+         * Lưới trống (hoặc bộ mới thay lưới): nhận phỏng đoán vai trò cột của bộ đọc, rồi xếp vào
+         * khuôn sáu cột. Vai trò nào dữ liệu không có thì cột ấy vẫn đứng đó, trống; cột dữ liệu
+         * có thừa thì về cuối lưới dưới tên của chính nó — xem `fitToSeriesColumns()`.
+         */
+        const fitted = fitToSeriesColumns(table);
+        nextColumns = fitted.columns;
+        nextNames = fitted.names;
+        rows = fitted.cells;
+      } else {
+        /*
+         * Lưới đang có dữ liệu: đây là dán thêm một mẩu vào chỗ con trỏ. Giữ nguyên vai trò các
+         * cột đang có — không tự ý đổi cột của người dùng chỉ vì họ vừa dán thêm. Mẩu dán tràn
+         * quá bề ngang lưới thì phần tràn thành cột thừa.
+         */
+        const width = Math.max(kinds.length, atColumn + blockWidth);
+        const height = Math.max(current.length, atRow + table.cells.length);
+        nextColumns = Array.from(
+          { length: width },
+          (_, index): ColumnKind => kinds[index] ?? 'ignore',
+        );
+        nextNames = Array.from({ length: width }, (_, index) => titles[index] ?? '');
+        rows = Array.from({ length: height }, (_, row) =>
+          Array.from(
+            { length: width },
+            (_, column) =>
+              table.cells[row - atRow]?.[column - atColumn] ?? current[row]?.[column] ?? '',
+          ),
+        );
+      }
 
       /*
        * Quá trần thì cắt NGAY lúc dán, và cắt phần CŨ. Phần nào là cũ thì hỏi chính bộ đọc —
@@ -553,7 +605,8 @@ export function PasteImportSheet({
       }
 
       setColumns(nextColumns);
-      setGrid([...rows, blankRow(width)]);
+      setNames(nextNames);
+      setGrid([...rows, blankRow(nextColumns.length)]);
       // Bộ dữ liệu khác thì quy ước số và lời đồng ý bỏ dòng lỗi lần trước không còn đúng nữa.
       setStyle(null);
       setSkipBad(false);
@@ -565,18 +618,41 @@ export function PasteImportSheet({
     [maxRows, view.height],
   );
 
-  function setColumnKind(index: number, next: ColumnKind) {
-    /*
-     * Một vai trò chỉ được ở đúng MỘT cột. Bộ đọc lấy cột đầu tiên mang vai trò ấy
-     * (`indexOf`), nên để hai cột cùng là "Giá đóng cửa" thì cột sau thành ô chết: người dùng
-     * bấm đổi mà không có gì xảy ra và cũng không có gì báo. Gỡ vai trò khỏi cột cũ trước.
-     */
-    setColumns((current) =>
-      current.map((kind, at) => {
-        if (at === index) return next;
-        return next !== 'ignore' && kind === next ? 'ignore' : kind;
-      }),
-    );
+  /**
+   * Đặt vai trò cho một cột — tức ĐỔI CHỖ nó với cột đang giữ vai trò ấy.
+   *
+   * Một vai trò chỉ được ở đúng MỘT cột: bộ đọc lấy cột đầu tiên mang vai trò ấy (`indexOf`), nên
+   * hai cột cùng là "Giá đóng cửa" thì cột sau thành ô chết. Trước 13/10/2026 cột cũ bị đẩy sang
+   * "Không dùng", tức mỗi lần gán lại là lưới mất một vai trò và số liệu của cột ấy không được nạp.
+   * Nay hai cột đổi vai cho nhau, nên sáu vai trò luôn còn đủ.
+   *
+   * Cột được chọn là cột thừa thì cột kia thành cột thừa thay nó. Nếu cột vừa nhả vai ấy trống
+   * trơn và không có tên thì bỏ hẳn: đó là cột dựng sẵn cho một vai trò mà dữ liệu không có (bảng
+   * dán ghi 'KLGD', máy không nhận ra là khối lượng), giữ lại chỉ là một cột rỗng đứng thừa.
+   */
+  function setColumnKind(index: number, next: SeriesColumnKind) {
+    const previous = columns[index];
+    const from = columns.indexOf(next);
+    if (previous === undefined || from === index) return;
+
+    const kinds = columns.slice();
+    kinds[index] = next;
+    if (from !== -1) kinds[from] = previous;
+
+    const leftover =
+      from !== -1 &&
+      previous === 'ignore' &&
+      (names[from] ?? '') === '' &&
+      grid.every((row) => (row[from] ?? '').trim() === '');
+
+    if (!leftover) {
+      setColumns(kinds);
+      return;
+    }
+
+    setColumns(dropAt(kinds, from));
+    setNames(dropAt(names, from));
+    setGrid(grid.map((row) => dropAt(row, from)));
   }
 
   /** Nhảy tới dòng hỏng đầu tiên và đặt nó ngay dưới hàng tiêu đề. */
@@ -589,7 +665,8 @@ export function PasteImportSheet({
 
   async function loadFile(file: File) {
     const text = await file.text();
-    applyBlock(text, 0, 0);
+    // Một file là cả một bộ dữ liệu: nó THAY lưới, không đè lên chuỗi đang có — xem `applyBlock`.
+    applyBlock(text, 0, 0, true);
   }
 
   /**
@@ -601,7 +678,7 @@ export function PasteImportSheet({
    */
   async function loadSample() {
     const { PASTE_SAMPLE } = await import('./paste-sample');
-    applyBlock(PASTE_SAMPLE, 0, 0);
+    applyBlock(PASTE_SAMPLE, 0, 0, true);
   }
 
   return (
@@ -733,6 +810,7 @@ export function PasteImportSheet({
               key={index}
               index={index}
               kind={kind}
+              label={labels[index] ?? ''}
               onChange={(next) => {
                 setColumnKind(index, next);
               }}
@@ -749,7 +827,11 @@ export function PasteImportSheet({
           setView({ top: node.scrollTop, height: node.clientHeight });
         }}
       >
-        <table className={styles.grid}>
+        {/*
+          `--paste-cols`: số cột của lưới, để CSS tính mức sàn bề ngang — sáu cột thì vừa khung, có
+          cột thừa thì bảng rộng ra đúng một cột. Xem `.grid` trong file CSS kèm theo.
+        */}
+        <table className={styles.grid} style={{ '--paste-cols': columns.length } as CSSProperties}>
           <caption className="visually-hidden">{t('paste.gridCaption')}</caption>
           <colgroup>
             <col className={styles.colLine} />
@@ -767,6 +849,8 @@ export function PasteImportSheet({
                   <button
                     type="button"
                     className={kind === 'ignore' ? styles.head : `${styles.head} ${styles.headOn}`}
+                    // Tên cột thừa dài thì bị cắt bằng dấu ba chấm; rê chuột vào là đọc được đủ.
+                    title={kind === 'ignore' ? labels[index] : undefined}
                     onClick={() => {
                       setPicking(true);
                     }}
@@ -831,8 +915,6 @@ export function PasteImportSheet({
             </button>
           </>
         )}
-
-        {!hasClose && <span className={styles.statusBad}>{t('paste.needClose')}</span>}
 
         {/*
           Câu xác nhận đọc được cái gì. Khoảng ngày là chỗ duy nhất bắt được một cú dán nhầm
@@ -920,15 +1002,25 @@ export function PasteImportSheet({
  *
  * Vẫn là `<select>` gốc chứ không phải menu tự dựng: trên điện thoại nó mở bánh xe chọn quen
  * thuộc, bàn phím và trình đọc màn hình xử đúng sẵn, và không tốn thêm dung lượng gói.
+ *
+ * ĐÚNG SÁU lựa chọn, là sáu cột của chuỗi giá. Lựa chọn thứ bảy "Không dùng" đã bỏ ngày
+ * 13/10/2026 (xem docblock `DEFAULT_COLUMNS`) — đừng thêm lại một lựa chọn "bỏ cột" dưới tên nào
+ * khác: bỏ được một cột là có lại đường để số liệu của nó lặng lẽ không được nạp.
+ *
+ * Cột thừa thì ô chọn đang hiện TÊN của chính cột ấy, là một dòng không chọn được: nó chỉ nói
+ * cột này đang là gì. Chọn một trong sáu vai trò là đổi chỗ cột thừa với cột đang giữ vai trò đó.
  */
 function ColumnPicker({
   index,
   kind,
+  label,
   onChange,
 }: {
   index: number;
   kind: ColumnKind;
-  onChange: (kind: ColumnKind) => void;
+  /** Tên đang đứng trên đầu cột này trong lưới. Chỉ dùng tới khi cột là cột thừa. */
+  label: string;
+  onChange: (kind: SeriesColumnKind) => void;
 }) {
   const id = useId();
   const t = useT();
@@ -941,12 +1033,18 @@ function ColumnPicker({
       <select
         id={id}
         className={kind === 'ignore' ? styles.pick : `${styles.pick} ${styles.pickOn}`}
-        value={kind}
+        value={kind === 'ignore' ? '' : kind}
         onChange={(event) => {
-          onChange(event.target.value as ColumnKind);
+          const next = SERIES_COLUMNS.find((option) => option === event.target.value);
+          if (next !== undefined) onChange(next);
         }}
       >
-        {ASSIGNABLE.map((option) => (
+        {kind === 'ignore' && (
+          <option value="" disabled>
+            {label}
+          </option>
+        )}
+        {SERIES_COLUMNS.map((option) => (
           <option key={option} value={option}>
             {t(COLUMN_LABEL_KEYS[option])}
           </option>

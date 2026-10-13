@@ -33,6 +33,7 @@ import type {
   KeHoachBocTach,
   KeHoachThoiGian,
   KeHoachTruc,
+  KeHoachTrucLap,
 } from './types';
 
 /** Trần độ dài một đoạn, tính bằng ký tự. Quá mức này là đoạn đang kể thay vì chỉ cách đọc. */
@@ -252,6 +253,60 @@ function loiTruc(cho: string, rieng: HaiDang, keHoach: KeHoachTruc): string[] {
   return loi;
 }
 
+/**
+ * Luật cho đoạn MẪU của một ô nhóm lặp (`BieuDoRieng.trucLap`).
+ *
+ * Khác `loiTruc()` ở chỗ không có hình nào để đo: nhóm thêm chưa tồn tại lúc build. Nên luật chỉ
+ * đòi những điều đúng với MỌI nhóm thêm ở MỌI trạng thái:
+ *
+ *   · gọi đúng tên ô, còn nguyên `{n}` (khung "?" điền số khi mở);
+ *   · nói "không phải diễn biến thị trường";
+ *   · nói CẢ HAI ca của trục ngang: ô đã có số thì trục chạy "một nửa … gấp rưỡi", ô còn là 0
+ *     (trạng thái một nhóm vừa thêm mở ra) thì không — đoạn phải nhắc số 0;
+ *   · nói đường đi lên hay đi xuống nghĩa là gì.
+ *
+ * Chiều đi mà đoạn hứa (nếu chỉ hứa một chiều) được thử trên một nhóm thêm có số thật ở
+ * `bieu-do.test.ts`, cùng cách với trục chỉ vẽ được trên chuỗi giá.
+ */
+function loiTrucLap(cho: string, rieng: HaiDang, keHoach: KeHoachTrucLap): string[] {
+  const loi: string[] = [];
+  const so0 = new Set(['0']);
+
+  for (const ngon of NGON) {
+    const tu = TU[ngon];
+    const ten = [keHoach.truc[ngon], keHoach.ten[ngon]];
+    const duong = rieng.duong[ngon];
+    const dau = `${cho}.duong [${ngon}]`;
+    loi.push(...loiChung(`${cho}.duong`, duong, ngon, ten, so0));
+
+    if (!co(duong, tu.oNhap(keHoach.truc[ngon]))) {
+      loi.push(`${dau}: không gọi tên trục "${tu.oNhap(keHoach.truc[ngon])}"`);
+    }
+    if (!co(duong, tu.khongPhaiThiTruong)) {
+      loi.push(`${dau}: thiếu câu "${tu.khongPhaiThiTruong}"`);
+    }
+    if (!(co(duong, tu.nua) && co(duong, tu.gapRuoi))) {
+      loi.push(`${dau}: thiếu "${tu.nua}" … "${tu.gapRuoi}" cho ca ô đã có số`);
+    }
+    if (!/(^|\D)0(\D|$)/.test(duong)) {
+      loi.push(`${dau}: không nói trục ra sao khi ô còn là 0, trạng thái nhóm vừa thêm mở ra`);
+    }
+    if (chieuDauTien(duong, ngon) === null) {
+      loi.push(`${dau}: không nói đường "${tu.len}" hay "${tu.xuong}" nghĩa là gì`);
+    }
+
+    if (rieng.cot === undefined) {
+      loi.push(`${cho}.cot: thiếu — đường theo một ô nhập luôn có nút Cột`);
+      continue;
+    }
+    const cot = rieng.cot[ngon];
+    loi.push(...loiChung(`${cho}.cot`, cot, ngon, ten, so0));
+    if (!co(cot, tu.cot)) loi.push(`${cho}.cot [${ngon}]: không nói tới "${tu.cot}"`);
+  }
+
+  return loi;
+}
+
 function loiThoiGian(cho: string, rieng: HaiDang, keHoach: KeHoachThoiGian): string[] {
   const loi: string[] = [];
 
@@ -349,6 +404,17 @@ export function bieuDoProblems(
   }
   for (const khoa of Object.keys(rieng.truc ?? {})) {
     lechCap(`truc.${khoa}`, khoaHinh.has(khoa), true);
+  }
+
+  // Ô mẫu của nhóm lặp: cùng luật đi thành cặp, khoá là tiền tố của ô mẫu.
+  const tienToHinh = new Set(keHoach.trucLap.map((mot) => mot.tienTo));
+  for (const mot of keHoach.trucLap) {
+    const chu = rieng.trucLap?.[mot.tienTo];
+    lechCap(`trucLap.${mot.tienTo}`, true, chu !== undefined);
+    if (chu !== undefined) loi.push(...loiTrucLap(`trucLap.${mot.tienTo}`, chu, mot));
+  }
+  for (const tienTo of Object.keys(rieng.trucLap ?? {})) {
+    lechCap(`trucLap.${tienTo}`, tienToHinh.has(tienTo), true);
   }
 
   lechCap('thoiGian', keHoach.thoiGian !== undefined, rieng.thoiGian !== undefined);

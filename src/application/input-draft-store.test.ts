@@ -116,6 +116,26 @@ describe('putDraft()', () => {
     expect(putDraft([], 'pe', { price: 1 }, 'VCB', NOW)[0]?.code).toBe('VCB');
   });
 
+  /*
+   * `gia-von-trung-binh-dca` cho thêm tới 12 đợt mua (13/10/2026): 24 ô cộng biến đếm là 25 khoá.
+   * Trần cũ 24 làm rơi đúng khoá cuối — giá của đợt 12 — nên mở lại trang trong cùng lượt xem là
+   * màn báo thiếu một ô người dùng đã gõ. Ca này đi cả vòng ghi → đọc, vì trần chặn ở cả hai đầu.
+   */
+  it('bản nháp 12 đợt mua giữ đủ 25 ô qua vòng ghi rồi đọc', () => {
+    const inputs: Record<string, number> = { lots: 12 };
+    for (let n = 1; n <= 12; n += 1) {
+      inputs[`amount${String(n)}`] = 1_000_000 * n;
+      inputs[`price${String(n)}`] = 10_000 + n;
+    }
+    expect(Object.keys(inputs)).toHaveLength(25);
+
+    const doc = parseInputDrafts(
+      serializeInputDrafts(putDraft([], 'gia-von-trung-binh-dca', inputs, null, NOW)),
+      NOW,
+    );
+    expect(doc[0]?.inputs).toEqual(inputs);
+  });
+
   it('mã sai dạng thì cất `null`, không cất chuỗi bậy', () => {
     expect(putDraft([], 'pe', { price: 1 }, 'vcb thường', NOW)[0]?.code).toBeNull();
   });

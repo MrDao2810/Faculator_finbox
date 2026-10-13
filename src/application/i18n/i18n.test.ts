@@ -139,10 +139,21 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
   it('khoá nhãn cột paste.col.* khớp từng chữ với COLUMN_LABELS gốc của WF-11', () => {
     // Hai bản cùng tồn tại có chủ đích: Domain giữ chữ chuẩn WF-11 (CON-02 cấm nó đọc i18n),
     // UI tra khoá theo locale. Ca này là dây neo — sửa một bên mà quên bên kia là đỏ.
-    const kinds = ['date', 'open', 'high', 'low', 'close', 'volume', 'ignore'] as const;
+    const kinds = ['date', 'open', 'high', 'low', 'close', 'volume'] as const;
     for (const kind of kinds) {
       expect(vi[`paste.col.${kind}`]).toBe(COLUMN_LABELS[kind]);
     }
+  });
+
+  /*
+   * "Không dùng" đã bỏ ngày 13/10/2026 — xem mộ chí cạnh `paste.col.*` trong vi.ts. Ghim cả hai
+   * phía: khoá không quay lại từ điển, và Domain không quay lại nhãn thứ bảy. Ai cần một cột
+   * "bỏ qua" phải đọc lý do ở đó trước, vì chính lựa chọn ấy làm số liệu một cột không được nạp.
+   */
+  it('không còn nhãn "Không dùng" cho cột, ở cả từ điển lẫn Domain', () => {
+    expect(Object.keys(vi).filter((key) => key.startsWith('paste.col.'))).toHaveLength(6);
+    expect(Object.keys(COLUMN_LABELS)).toEqual(['date', 'open', 'high', 'low', 'close', 'volume']);
+    expect(Object.values(vi)).not.toContain('Không dùng');
   });
 
   /*

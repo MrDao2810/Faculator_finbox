@@ -18,10 +18,15 @@ import {
   SAVED_CALCS_KEY,
   TICKER_LIST_KEY,
 } from '@/application';
-import { usePick, usePreferences, useT } from '@/application/preferences-context';
+import { usePreferences, useT } from '@/application/preferences-context';
 import { UnitSwitcher } from '@/ui/inputs';
-import { Button, Select } from '@/ui/primitives';
+import { Button } from '@/ui/primitives';
 import { ModeToggle, ThemePicker } from '@/ui/navigation';
+/*
+ * Nhập THẲNG file, không qua barrel `@/ui/screens`: barrel ấy xuất cả `DetailBody` cùng các thân
+ * màn riêng của công thức, và CSS của chúng sẽ theo vào gói của `/cai-dat/`.
+ */
+import { FeeScheduleField } from '@/ui/screens/FeeScheduleField';
 
 import styles from './SettingsScreen.module.css';
 
@@ -223,9 +228,8 @@ function coDuLieu(key: string): boolean {
  * dựng lúc build — bản build là HTML tĩnh nên đọc sớm là lệch hydration (bài học đợt 2).
  */
 export function SettingsScreen() {
-  const { feeScheduleId, setFeeScheduleId, unitScale, setUnitScale } = usePreferences();
+  const { unitScale, setUnitScale } = usePreferences();
   const t = useT();
-  const pick = usePick();
 
   /**
    * Kho nào đang có dữ liệu — đúng một cờ mỗi hàng.
@@ -419,25 +423,16 @@ export function SettingsScreen() {
             <UnitSwitcher value={unitScale} onChange={setUnitScale} />
           </div>
 
+          {/*
+          Cùng một component với hàng biểu phí của màn lãi ròng (WF-08), chỉ khác nhãn và dòng phụ.
+          Nó tự quyết in chữ hay dựng ô chọn theo số biểu phí — xem docblock ở `FeeScheduleField`:
+          trước 13/10/2026 chỗ này là một `<select>` chép tay có đúng một lựa chọn.
+        */}
           <div className={styles.stack}>
-            <Select
+            <FeeScheduleField
               label={t('settings.units.schedule')}
               hint={t('settings.units.scheduleHint')}
-              value={feeScheduleId}
-              onChange={(event) => {
-                setFeeScheduleId(event.target.value);
-              }}
-            >
-              {/*
-              Chỉ hiện tên biểu phí. Không ghép thêm "— mặc định": tên trong MarketConfig đã là
-              "Mặc định HOSE 2026", ghép nữa thì ra "Mặc định HOSE 2026 — mặc định".
-            */}
-              {MARKET_CONFIG.schedules.map((schedule) => (
-                <option key={schedule.id} value={schedule.id}>
-                  {pick(schedule.name)}
-                </option>
-              ))}
-            </Select>
+            />
           </div>
         </section>
       </div>

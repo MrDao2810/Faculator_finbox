@@ -636,9 +636,9 @@ export const vi = {
    *
    * Và cặp `preset.draftTitle` / `preset.draftDetail` (khối vàng "giá quá khứ tự dựng") ở dưới.
    *
-   * Đừng dựng lại một khoá cùng nghĩa dưới tên khác. Cái đáng biết khi quay lại chỗ này: hai câu
-   * `seriesOnlyNote` / `noTickerNote` ngay dưới KHÔNG bị gỡ theo, và mỗi câu ở lại vì một lý do
-   * riêng — ghi tại `PresetSheet.tsx`.
+   * Đừng dựng lại một khoá cùng nghĩa dưới tên khác. Cái đáng biết khi quay lại chỗ này: câu
+   * `noTickerNote` ngay dưới KHÔNG bị gỡ theo, lý do ghi tại `PresetSheet.tsx`. Câu
+   * `seriesOnlyNote` ở lại thêm một tháng rồi cũng đi (13/10/2026) — mộ chí riêng ở dưới.
    *
    * ⚠ `preset.topPicks` ngay dưới đứng đúng chỗ `rankedNote` từng đứng, nhưng KHÔNG phải nó quay
    * lại: câu cũ tả CÁCH XẾP ("xếp từ thấp đến cao — nhìn một lượt là thấy biên độ"), nhãn mới chỉ
@@ -654,14 +654,27 @@ export const vi = {
    */
   'preset.topPicks': 'Mẫu ưu tiên — bốn mã hợp nhất để chạy thử công thức này',
   /*
-   * Hai câu dẫn còn lại của sheet — xem `PresetSheet`. Tách riêng chứ không gộp: gộp lại thì câu
-   * chung phải mờ tới mức không nói được gì, mà đây đúng chỗ người dùng cần biết bấm Nạp xong sẽ
-   * đổi cái gì.
+   * ── `preset.seriesOnlyNote` đã BỎ ngày 13/10/2026, theo yêu cầu của chủ dự án ────────────────
+   *
+   *   "Công thức này chạy bằng chuỗi phiên giá. Chỉ phiên gần nhất là giá thật; đường đi trước đó
+   *    là số tự dựng, nên đọc bốn con số dưới đây như ví dụ, đừng như so sánh thị trường."
+   *
+   * Chủ dự án: *"xóa đoạn text thừa"*. Nó là câu dẫn đầu sheet của những công thức CHỈ ăn chuỗi
+   * giá (không ô nhập nào lấy số của mã, nên không xếp hạng được); nay ca ấy mở sheet ra là thấy
+   * thẳng bốn mã, không có dòng nào phía trên.
+   *
+   * Cái giá, nói ra để không ai tưởng là sót: đây là câu CUỐI CÙNG trên màn nói rằng 247 phiên
+   * trước phiên gần nhất của bộ mẫu là số tự dựng (khối vàng `preset.draftTitle` đã đi từ
+   * 09/09/2026 — xem mộ chí phía dưới). Từ nay lời ấy chỉ còn ở hai chỗ người dùng không đọc được
+   * lúc bấm Nạp: cờ `isDraft` trong `samples.ts` (ba ca kiểm ghim) và `preset.draftExport` đính
+   * vào file xuất ra. Cùng nếp "bỏ câu, giữ hành vi" với `portfolio.localOnly`.
+   *
+   * Đừng dựng lại, kể cả dưới tên khác hay nhét vào dòng phụ của từng mã, khi chưa hỏi.
    */
-  'preset.seriesOnlyNote':
-    'Công thức này chạy bằng chuỗi phiên giá. Chỉ phiên gần nhất là giá thật; đường đi trước đó ' +
-    'là số tự dựng, nên đọc bốn con số dưới đây như ví dụ, đừng như so sánh thị trường.',
   /*
+   * Câu dẫn còn lại của sheet cho ca KHÔNG xếp hạng — xem `PresetSheet`: đây đúng chỗ người dùng
+   * cần biết bấm Nạp xong sẽ đổi cái gì.
+   *
    * Cố ý KHÔNG mở đầu bằng "Công thức này không dùng số liệu của mã" như `detail.presetNoData`.
    * Sheet vẫn nằm trong DOM sau khi đóng, nên hai câu gần trùng làm mọi truy vấn theo chữ trả về
    * hai phần tử — và người dùng nạp xong cũng đọc đúng một câu hai lần. Sheet trả lời "vì sao lại
@@ -676,6 +689,16 @@ export const vi = {
   /* Lối sang kho mã lớn. Cố ý không chép số mã vào câu: con số đó do nguồn quyết, chép vào
      đây là để nó rữa trong im lặng. */
   'preset.browseMarket': 'Tìm mã khác trong toàn thị trường →',
+  /*
+   * Cùng cái nút ấy khi ĐẾM ĐƯỢC số mã công thức đang xem dùng được (13/10/2026, chủ dự án:
+   * *"cần có thêm text ghi rõ có bao nhiêu mã có thể áp dụng được vào công thức đang dùng ví dụ
+   * như: Danh sách 60 mã khác"*). `{n}` là số mã có số liệu trong bảng mà sheet chọn mã dùng để
+   * khoá nút "Chọn", trừ những mã mẫu đang bày ngay phía trên — luật đếm ở `PresetSheet.soMaKhac`.
+   *
+   * Câu trên vẫn giữ cho ca KHÔNG đếm được (bảng chưa về, bảng đã cũ, công thức không dùng số của
+   * mã): ở đó "toàn thị trường" là điều duy nhất nói được mà không sai.
+   */
+  'preset.browseMarketCount': 'Danh sách {n} mã khác →',
   /*
    * Nhãn bản thảo nay nói ĐÚNG NỬA nào là số tự dựng.
    *
@@ -695,8 +718,8 @@ export const vi = {
    * Cái giá, đo được chứ không suy đoán: cả bốn mã mẫu đều `isDraft`, nên `mixedDraft` trong
    * `PresetSheet` luôn sai và `preset.draftTag` ngay trên KHÔNG bao giờ hiện với bộ mẫu hiện tại.
    * Tức màn hình không còn câu nào nói ra điều đó. Chỗ còn giữ lời hứa: cờ `isDraft` trong
-   * `samples.ts` (ba ca kiểm ghim), câu `preset.seriesOnlyNote` ở ca công thức ăn chuỗi, và
-   * `preset.draftExport` đính vào mọi file xuất ra.
+   * `samples.ts` (ba ca kiểm ghim) và `preset.draftExport` đính vào mọi file xuất ra. Câu
+   * `preset.seriesOnlyNote` ở ca công thức ăn chuỗi từng là chỗ thứ ba; nó đã bỏ ngày 13/10/2026.
    *
    * Cùng nếp với `portfolio.localOnly` và `settings.data.note` đã gỡ cùng ngày — quyết định có
    * chủ ý, không phải một cửa gác bị rơi.
@@ -1281,13 +1304,24 @@ export const vi = {
   'ticker.loading': 'Đang tải danh sách mã…',
   'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
   /*
-   * Đứng ngay SAU cặp số "60/1.649", nên chỉ còn đúng đơn vị và không viết hoa.
-   *
-   * Vế chỉ đường "· gõ thêm để thu hẹp danh sách" BỎ 08/10/2026 (chủ dự án). Dòng này chỉ hiện khi
-   * danh sách đã bị cắt, và nó nằm ngay dưới ô tìm mà người dùng vừa gõ vào để tới được đây — cặp
-   * số "60/1.649" đã nói đủ rằng còn mã chưa hiện. Việc của dòng là ĐẾM, không phải dặn.
+   * Hai lúc chờ có vòng xoay của sheet (13/10/2026): đang lọc theo từ khoá vừa gõ, và đang bày
+   * thêm một lượt 20 mã khi cuộn tới đáy. Câu sau chỉ trình đọc màn hình nghe — trên màn là vòng
+   * xoay trần. Vì sao có hai khoảng chờ ấy: docblock `SEARCH_DELAY_MS` ở `TickerPickerSheet.tsx`.
    */
-  'ticker.capped': 'mã',
+  'ticker.searching': 'Đang tìm mã…',
+  'ticker.loadingMore': 'Đang tải thêm mã…',
+  /*
+   * ⚠ `ticker.capped` ("mã", đứng sau cặp số "60/1.649") đã XOÁ 13/10/2026.
+   *
+   * Nó là đuôi của dòng "60/1.649 mã" dưới danh sách, thứ nói ra rằng sheet chỉ dựng 60 dòng đầu.
+   * Chủ dự án đọc dòng ấy ngay sau khi nút ngoài tấm mẫu ghi "Danh sách 1.100 mã khác" và hỏi
+   * *"tại sao … bên ngoài ghi là 1000 mã mà lúc vào hiển thị có 60/1649 mã?"*: 60 là số DÒNG đang
+   * bày, 1.649 là cả thị trường kể cả mã chưa có dữ liệu, và không số nào trong hai là số mã dùng
+   * được. Sheet nay bày dần 20 mã một lượt nên không còn gì bị cắt để phải đếm.
+   *
+   * Đừng dựng lại một dòng "x/y mã" trong sheet này: cặp số đứng cạnh nhau thì người đọc lấy số
+   * trước làm "số mã có".
+   */
   'ticker.retry': 'Thử lại',
   'ticker.errorNetwork': 'Không tải được danh sách mã. Kiểm tra kết nối mạng rồi thử lại.',
   'ticker.errorSource': 'Nguồn dữ liệu trả về thứ không đọc được. Thử lại sau ít phút.',
@@ -1418,6 +1452,18 @@ export const vi = {
    * Nhãn HIỂN THỊ của từng vai trò cột. Bản gốc là `COLUMN_LABELS` ở Domain — một ca kiểm
    * trong i18n.test.ts giữ hai bên khớp từng chữ. Từ vựng ĐOÁN cột từ header dán vào
    * (`HEADER_WORDS`) là chuyện khác, vẫn nằm nguyên trong Domain.
+   *
+   * ĐÚNG SÁU khoá. `paste.col.ignore` ("Không dùng") đã BỎ ngày 13/10/2026: chủ dự án khoanh ô
+   * chọn "Cột 6 · Không dùng" và hỏi nó là cái gì — *"tạo đủ dữ liệu của 6 cột là thôi không cần
+   * tạo gì nữa và cũng không thể tạo được thêm nữa. nếu khách nạp thừa thêm 1 cột dữ liệu chưa rõ
+   * tên thì cứ tạo thêm 1 cột thừa ra đó"*. Chữ ấy từng đứng ở hai chỗ: là lựa chọn thứ bảy của ô
+   * chọn vai trò cột, và là nhãn của cột máy không đoán ra. Chọn nó cho một cột là số liệu của
+   * cột ấy không được nạp, không có gì báo. Nay ô chọn có sáu lựa chọn và chọn là đổi chỗ hai
+   * cột; cột thừa hiện dưới tên của chính nó trong dữ liệu đã dán, không có tên thì là "Cột 7".
+   * Đừng dựng lại một lựa chọn "bỏ cột" dưới chữ nào khác — xem `PasteImportSheet.tsx`.
+   *
+   * `paste.needClose` ("Chưa cột nào được đặt là Giá đóng cửa…") đi theo: lưới luôn có đủ sáu
+   * vai trò nên câu ấy không còn ca nào để hiện.
    */
   'paste.col.date': 'Ngày',
   'paste.col.open': 'Giá mở cửa',
@@ -1425,11 +1471,9 @@ export const vi = {
   'paste.col.low': 'Giá thấp nhất',
   'paste.col.close': 'Giá đóng cửa',
   'paste.col.volume': 'Khối lượng',
-  'paste.col.ignore': 'Không dùng',
   'paste.validRows': 'phiên đọc được',
   'paste.rangeFrom': 'từ',
   'paste.rangeTo': 'tới',
-  'paste.needClose': 'Chưa cột nào được đặt là Giá đóng cửa. Bấm vào tên cột ở đầu lưới rồi chọn.',
   'paste.reordered': 'Dữ liệu xếp phiên mới trước. Đã đảo lại cho chuỗi chạy từ cũ tới mới.',
   'paste.orderUnknown':
     'Không đọc được thứ tự phiên. Hãy chắc phiên cũ nhất nằm trên cùng, nếu ngược thì kết quả sẽ sai.',

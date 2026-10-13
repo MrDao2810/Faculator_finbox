@@ -246,8 +246,30 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
           ? HISTORY_KEY
           : (truc[0]?.khoa ?? BREAKDOWN_KEY);
 
+  /*
+   * Ô mẫu của nhóm lặp (đợt mua thứ tư trở đi). Chúng không nằm trong `spec.variables` nên không có
+   * mặt ở `truc`, nhưng người dùng thêm một nhóm là ô chọn trục có ngay mục của chúng — và mục ấy
+   * cần chữ. Lọc bằng đúng điều kiện `sweepCandidates()` dùng cho một ô thật.
+   */
+  const trucLap = (spec.repeat?.fields ?? [])
+    .filter(
+      (mau) =>
+        (mau.type === 'number' || mau.type === 'slider') &&
+        sweepDomain(mau, mau.defaultValue) !== null,
+    )
+    .map((mau) => {
+      const tenTruc = axisLabel(mau.label);
+      return {
+        tienTo: mau.key,
+        ten: lineChartTitle(chartName(spec), tenTruc, false),
+        truc: tenTruc,
+        nangCao: mau.level === 'advanced',
+      };
+    });
+
   return {
     truc,
+    trucLap,
     ...(thoiGian === undefined ? {} : { thoiGian }),
     ...(bocTach === undefined ? {} : { bocTach }),
     moRa,

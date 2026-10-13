@@ -12,6 +12,7 @@ export type {
   BaiRiengDaChuan,
   HinhDangXem,
   KhoiBieuDoBai,
+  KhoiLapBai,
   MucBieuDoBai,
   MucId,
   ONhapHuongDan,

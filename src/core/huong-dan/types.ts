@@ -77,7 +77,7 @@ import type { MucBieuDoBai } from './bieu-do/types';
  * `HinhDangXem` đi cùng lối này dù nó không phải dữ liệu của bài: nó là thứ khối Biểu đồ của màn
  * tính báo lên để khung "?" chỉ in đúng hình đang hiện, tức chìa nối hai bên của cùng một mục.
  */
-export type { HinhDangXem, KhoiBieuDoBai, MucBieuDoBai } from './bieu-do/types';
+export type { HinhDangXem, KhoiBieuDoBai, KhoiLapBai, MucBieuDoBai } from './bieu-do/types';
 
 /**
  * Chữ riêng ĐÃ CHUẨN HOÁ về `Bilingual` — `en` rỗng thì `pick()` tự rơi về tiếng Việt.

@@ -215,10 +215,10 @@ export function DetailBody({
 /**
  * Khối cấu hình đặt trên ô nhập. Công thức không có thì không dựng gì.
  *
- * Không nạp trễ như hai khối kết quả: ô chọn biểu phí chỉ là một `Select` trên
- * `MARKET_CONFIG.schedules`, mà cấu hình ấy đã nằm sẵn trong gói vì màn chi tiết nào cũng gọi
- * `scheduleOrDefault()`. Nạp trễ ở đây không tiết kiệm được gì, đổi lại ô nhập nháy một nhịp
- * mới hiện — và làm khối này không kiểm được bằng một phép render đồng bộ.
+ * Không nạp trễ như hai khối kết quả: hàng biểu phí chỉ là vài dòng chữ (hoặc một `Select`, khi
+ * có từ hai biểu phí) trên `MARKET_CONFIG.schedules`, mà cấu hình ấy đã nằm sẵn trong gói vì màn
+ * chi tiết nào cũng gọi `scheduleOrDefault()`. Nạp trễ ở đây không tiết kiệm được gì, đổi lại ô
+ * nhập nháy một nhịp mới hiện — và làm khối này không kiểm được bằng một phép render đồng bộ.
  */
 export function DetailConfig({ id }: { id: string }) {
   if (id === 'loi-nhuan-rong') return <FeeScheduleField />;

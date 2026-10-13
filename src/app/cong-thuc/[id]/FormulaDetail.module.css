@@ -1438,3 +1438,41 @@ button.iconButton::after {
 .blockHead .hintCanhTieuDe {
   margin-right: auto;
 }
+
+/*
+ * ── Nhóm ô lặp: đợt mua, kỳ — do người dùng thêm bớt (13/10/2026) ───────────────────────────────
+ *
+ * Hai luật, và cả hai PHẢI nằm cuối file.
+ *
+ * `.fieldsRepeat` — công thức có nhóm từ hai ô trở lên (`gia-von-trung-binh-dca`: tiền và giá của
+ * một đợt) xếp MỖI NHÓM MỘT HÀNG. Lưới thường chia theo bề ngang: ba cột ở 1024px, tức "Tiền mua
+ * đợt 1 · Giá mua đợt 1 · Tiền mua đợt 2" rồi "Giá mua đợt 2 · …" — hai ô của một đợt rơi sang hai
+ * hàng. Với ba đợt thì còn dò được; người dùng thêm tới đợt tám thì không ai ghép nổi ô giá với ô
+ * tiền của nó. Số cột lấy từ `--o-moi-nhom`, màn đặt bằng đúng số ô mẫu của nhóm.
+ *
+ * Vì sao cuối file: luật này phải thắng cả `.fields` trong các `@media` phía trên (thắng nhờ hai
+ * lớp) lẫn `.fields.tileGrid` của thẻ gộp (cũng hai lớp, nên chỉ còn thứ tự trong file phân xử) —
+ * đúng cái bẫy `.panelCenter` phải khai sau `.panel`. Con của lưới giữ nguyên mọi luật `subgrid`:
+ * chúng khai theo `span 4` và `1 / -1`, đúng với mọi số cột.
+ *
+ * Nhóm một ô (`loi-suat-trung-binh-hinh-hoc`) KHÔNG mang lớp này: không có gì để ghép cặp, và
+ * lưới thường xếp được hai, ba kỳ một hàng thay vì kéo mười hai kỳ thành mười hai hàng.
+ */
+.fields.fieldsRepeat {
+  grid-template-columns: repeat(var(--o-moi-nhom, 2), minmax(0, 1fr));
+}
+
+/*
+ * Hàng hai nút "+ Thêm đợt mua" / "Bỏ đợt 4", ngay dưới ô cuối cùng.
+ *
+ * `margin-top` âm bù lại `padding-bottom` của hàng ô cuối (chỗ thở giữa hai hàng ô): không bù thì
+ * hai nút đứng cách ô cuối xa hơn khoảng cách giữa hai hàng ô, và đọc ra như thuộc về khối bên
+ * dưới. `flex-wrap` cho khổ 360px, nơi nhãn tiếng Anh ("Add a purchase round") dài hơn nửa hàng.
+ */
+.repeatActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: calc(-1 * var(--space-1));
+}

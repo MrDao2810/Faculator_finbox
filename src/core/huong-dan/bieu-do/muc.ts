@@ -12,7 +12,7 @@
 
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
 import { HISTORY_KEY } from '../../chart/history';
-import type { BieuDoRieng, KeHoachBieuDo, KhoiBieuDoBai, MucBieuDoBai } from './types';
+import type { BieuDoRieng, KeHoachBieuDo, KhoiBieuDoBai, KhoiLapBai, MucBieuDoBai } from './types';
 
 export function mucBieuDo(
   keHoach: KeHoachBieuDo | undefined,
@@ -62,5 +62,19 @@ export function mucBieuDo(
   // Hình màn mở ra lên đầu; phần còn lại giữ nguyên thứ tự ô chọn (`sort` của JS ổn định).
   khoi.sort((a, b) => Number(b.khoa === keHoach.moRa) - Number(a.khoa === keHoach.moRa));
 
-  return { khoi };
+  // Khối mẫu cho trục của nhóm do người dùng thêm — chỉ hai công thức có, xem `MucBieuDoBai.khoiLap`.
+  const khoiLap: KhoiLapBai[] = [];
+  for (const mot of keHoach.trucLap) {
+    const chu = rieng.trucLap?.[mot.tienTo];
+    if (chu === undefined) continue;
+    khoiLap.push({
+      tienTo: mot.tienTo,
+      ten: mot.ten,
+      duong: chu.duong,
+      ...(chu.cot === undefined ? {} : { cot: chu.cot }),
+      nangCao: mot.nangCao,
+    });
+  }
+
+  return khoiLap.length === 0 ? { khoi } : { khoi, khoiLap };
 }

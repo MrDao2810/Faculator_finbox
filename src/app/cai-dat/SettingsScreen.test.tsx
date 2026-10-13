@@ -88,24 +88,23 @@ describe('đơn vị & biểu phí — cài đặt ghi được và nhớ đư�
   });
 
   /*
-   * MarketConfig hiện chỉ có MỘT biểu phí, nên chưa đổi sang cái khác được — ca kiểm này chốt
-   * rằng ô chọn dựng từ cấu hình chứ không viết cứng, để ngày thêm biểu phí thứ hai thì màn
-   * tự có nó. Việc "ô chọn một lựa chọn" đã ghi vào TASK.md.
+   * ĐẢO ca cũ (13/10/2026). Ca cũ đòi hàng này là một `<select>` dựng từ MarketConfig; mà
+   * MarketConfig chỉ có MỘT biểu phí, nên đó là ô chọn một lựa chọn. Chủ dự án chỉ vào đúng ô ấy:
+   * *"chỉ có 1 lựa chọn thì không nên để select"*.
+   *
+   * Tên biểu phí vẫn đọc từ cấu hình chứ không viết cứng, và nhánh "từ hai biểu phí thì dựng lại ô
+   * chọn" được ghim ở `screens.test.tsx` — chỗ ấy truyền được danh sách thử, màn này thì không.
    */
-  it('ô chọn biểu phí dựng từ MarketConfig, đánh dấu cái mặc định', () => {
+  it('một biểu phí thì hàng biểu phí là chữ, không phải ô chọn', () => {
+    expect(MARKET_CONFIG.schedules).toHaveLength(1);
+
     open();
 
-    const select = screen.getByLabelText(/Biểu phí giao dịch/) as HTMLSelectElement;
-    expect(select.options).toHaveLength(MARKET_CONFIG.schedules.length);
-
-    for (const schedule of MARKET_CONFIG.schedules) {
-      const option = [...select.options].find((o) => o.value === schedule.id);
-      expect(option, schedule.id).toBeDefined();
-      expect(option?.textContent).toBe(schedule.name.vi);
-    }
-
-    // Biểu phí đang dùng phải là cái đang được chọn sẵn.
-    expect(select.value).toBe(MARKET_CONFIG.defaultScheduleId);
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.getByText('Biểu phí giao dịch')).not.toBeNull();
+    expect(screen.getByText(MARKET_CONFIG.schedules[0]?.name.vi ?? '')).not.toBeNull();
+    // Dòng phụ ghi nguồn (CON-10) đi cùng, không rơi mất theo cái khung.
+    expect(screen.getByText(/Nguồn: Market Config/)).not.toBeNull();
   });
 
   /*

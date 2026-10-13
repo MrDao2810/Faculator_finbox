@@ -66,7 +66,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 51 assertions against a built out/ — run after build
-npm run check:chrome   # 168 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 171 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -709,6 +709,54 @@ now exports `DD/MM/YYYY` where it used to export ISO (the file matches the scree
 preview cells still show pasted text as pasted — only its "từ … đến …" line and the grid pre-filled from a
 series in use are normalised.
 
+## The paste sheet ("Dán dữ liệu") — six fixed columns, no "Không dùng"
+
+**The grid of `PasteImportSheet` always holds the six columns of a price series, and its column picker offers
+exactly those six** (13/10/2026). The owner circled a select reading "Cột 6 · Không dùng": _"tạo ô không dùng là
+cái gì … tạo đủ dữ liệu của 6 cột là thôi không cần tạo gì nữa và cũng không thể tạo được thêm nữa. nếu khách nạp
+thừa thêm 1 cột dữ liệu chưa rõ tên thì cứ tạo thêm 1 cột thừa ra đó"_, and in the same message: _"sau khi nạp dữ
+liệu mẫu vào có một số cột sau khi nạp không thấy số liệu trên table"_. "Không dùng" had been two things at
+once: a seventh option of the role select, and the label of any column the reader could not guess. Picking it
+for a column meant that column's numbers were silently not imported. Both are gone (`paste.col.ignore` and, with
+it, `paste.needClose`; tombstone in `vi.ts`), and `COLUMN_LABELS` in the Domain has six entries. Do not bring
+back a "drop this column" choice under another word.
+
+- **`'ignore'` still exists in `ColumnKind`, but it now means "an extra column" and has no label.**
+  `fitToSeriesColumns()` (`src/core/paste-import.ts`) puts a pasted table into the grid's shape: the six
+  `SERIES_COLUMNS` first, in the grid's own order whatever the file's order was, each one present even when the
+  data has nothing for it; then every column that matched no role, at the end, under **its own name** from the
+  pasted header row (`PasteTable.header` → `FittedTable.names`), or "Cột 7" when there is no header. An extra
+  column with no data at all is not built. Extra columns are shown and never imported: a session has six fields.
+- **Picking a role SWAPS two columns** (`setColumnKind`), so all six roles are always in the grid and no
+  operation can leave a data column out of the import. An extra column keeps a select, showing its own name as
+  a disabled entry; giving it a role turns the column that held that role into the extra one, and if that one is
+  blank and nameless it is removed. That select is the only way to rescue a column whose header the reader does
+  not know ("KLGD").
+- **A date column that is blank on EVERY row is read as "no date column"** (`parseCells()`), because the grid
+  now always has a date column and a closes-only series (what FR-12 needs for Beta, Sharpe, VaR) must still
+  import, with the "session order unknown" note. One dated row brings the old rule back: a row missing its date
+  is flagged at that cell.
+- **A file and a paste that carries a header row REPLACE the grid.** Both used to be overlaid at the caret, and
+  since the sheet opens pre-filled with the series in use, a two-column "Ngày · Đóng" file dropped its closes
+  into "Giá mở cửa", left the old closes and the old rows below in place, and still offered "Nạp 57 dòng"
+  (FR-06). A headerless block is still pasted at the caret like a spreadsheet; when it is shorter than the series
+  already there, the old rows below it survive and are imported. **That is a known hazard, not decided yet.**
+- **Column widths are computed, not fixed.** The old `3rem + 11rem + 5 × 9.5rem` = 984px never fit the widest
+  popup's 966px scroller, so every screen had a horizontal scrollbar and at a 1025px window the Volume column
+  was mostly hidden, with the scrollbar itself below the popup's edge. Number columns now share the frame
+  (`table-layout: fixed`, no width), with a floor from `--paste-cols` (set inline; 8.25rem a column, measured on
+  a nine-digit volume). Six columns fit from a ~985px window; an extra column widens the floor instead of
+  squeezing the six.
+
+**Four causes of "empty columns after loading" were found, all reproduced**: the role set to "Không dùng"; the
+clipped Volume column; the overlaid file; and the **VN-Index example dataset, which carried closes only**, so
+loading the example on the nine formulas that use it (`beta`, the six ratios in `risk-ratios.ts`, `var-lich-su`,
+`cvar-lich-su`) filled two of six columns. `VNINDEX_71_BARS` in `market-series-2026.ts` now has open, high, low
+and volume for all 71 sessions, from VNDirect's `dchart` API, taken only after its 71 closes matched
+`VNINDEX_71_PHIEN` exactly. Closes are not copied: each bar takes its close from that array by position. A case
+in `formulas.test.ts` scans every `example.dataset` for a blank column. Not fixable here: a ticker loaded from
+Finbox (`?ma=`) still shows four blank columns, because `tendays` returns a close and nothing else.
+
 ## A formula visit — re-entering a formula resets it to defaults
 
 **Opening a formula always starts from its defaults, unless the user is still inside the same visit**
@@ -763,6 +811,80 @@ How it works, and what is easy to break:
 Known consequences, accepted: typing numbers on `wacc`, following a chain link to `capm` and coming
 back resets `wacc`; so does the browser's Back button after any other screen. The WF-05 data table
 (`ffb.series.v1`) is untouched — it is data the user manages on `/du-lieu/`.
+
+## Repeat groups — inputs the user adds and removes
+
+**Two formulas let the user add input rows: `gia-von-trung-binh-dca` (purchase rounds) and
+`loi-suat-trung-binh-hinh-hoc` (periods)** (13/10/2026). The owner pointed at the three hard-coded
+rounds of the DCA formula: _"người dùng muốn test mà muốn nhập thêm 4 5 6 ,.... đợt nữa thì sao ? …
+cần thêm một button nữa dùng để tạo thêm ô nhập … tương tự với các công thức tương tự"_, then: _"vì
+giao diện có thay đổi nên bạn cần thêm chức năng để giao diện thay đổi tương ứng"_. Measured on the
+Registry: exactly those two had numbered slots (`calc` looping over `[1, 2, 3]`, and a "2 kỳ / 3 kỳ"
+button group). `xirr` already had its own cash-flow table and is not part of this; `ddm-hai-giai-doan`
+sums over years but takes the year count as ONE input, so it has nothing to repeat. A pinned list in
+`registry/repeat.test.ts` holds the two ids.
+
+The declaration is `FormulaSpec.repeat` (`RepeatGroup` in `registry/types.ts`); the machinery is
+`src/core/registry/repeat.ts`. Both ends: 1 to 12 rounds, 2 to 12 periods.
+
+- **The group count is a declared VARIABLE, not screen state** (`repeat.countKey`: `lots`, `periods`).
+  It therefore travels inside `inputs` through every store that already exists (draft, saved
+  calculation, `?so=` link) with none of them knowing about repeat groups, and `calc` reads it with
+  `v()`. The screen builds **no field** for it: the two buttons at the end of the Số liệu block
+  ("+ Thêm đợt mua", "Bỏ đợt 4") are its control. It still has a row in the Bảng biến and in exports.
+  `sweepCandidates()` excludes it from the chart axes: sweeping it would demand fields of groups that
+  do not exist. `periods` kept its key and meaning on purpose, so links and saved calculations
+  written by the old button group (`periods` 2 or 3) still open on the same number.
+- **`spec.variables` still declares the DEFAULT groups (three), and groups beyond them come from the
+  template** (`repeat.fields`, `key` is a prefix, labels carry `{n}`). That is what kept every
+  registry-wide gate valid for the screen as it opens: the 248 chart axes, the guide texts, the
+  example, the quiz `verify` inputs. `resolveRepeatSpec(spec, inputs)` returns the spec whose
+  `variables` are exactly the fields in use. It returns the base spec itself when the count equals
+  the declared count, and the SAME object for the same count (a `WeakMap`), because the result goes
+  into `useMemo` deps and through `memo(FormulaChart)`.
+- **`runFormula()` resolves the group itself**, at the one door every caller goes through, so a count
+  of 4 with no `amount4` is `INCOMPLETE_INPUT` naming the field, never a silent 0 (FR-06). `calc`
+  must clamp the count with the same `clampRepeatCount()`, or it loops over a group nobody checked.
+- **In `FormulaDetail`, `activeSpec` vs `spec` is a rule, written at the declaration**: `activeSpec`
+  for anything about fields ON SCREEN (the grid, Bảng biến, share link, export, the chart's locked
+  keys; `formula` — the resolved module — goes to the chart so the axis picker lists the new round);
+  `spec` for everything static and for "the defaults". `defaultInputs(spec)` must stay three rounds,
+  because re-entering a formula resets it (the visit rule above).
+- **A new group opens at 0, because the number field has no empty state.** The plan offered "leave
+  the new fields blank" and that was wrong: `NumberInput` never pushes a blank value up, the draft
+  store drops non-finite numbers, and `VariableSpec.defaultValue` exists so that no field starts
+  empty. For DCA 0/0 is the existing "this round did not happen" convention, so the result holds
+  still until the user types, and money without a price gives `DIVIDE_BY_ZERO` naming that round's
+  price field. For the geometric mean 0% is a REAL period, so the result changes on the click; the 0
+  is visible in the field that just appeared.
+- **Removing deletes the group's keys; adding overwrites them.** Remove then add gives a round at 0,
+  not the old numbers back.
+- **A group of two or more fields takes one ROW per group** (`.fieldsRepeat`, column count from the
+  inline `--o-moi-nhom`). The normal grid is three columns at 1024px, so a round's amount and price
+  landed on different rows; unreadable by the fifth round. That rule must stay at the END of
+  `FormulaDetail.module.css`: it has to beat `.fields.tileGrid`, same specificity, so only file
+  order decides (the `.panelCenter` trap again). A one-field group (periods) does not take the
+  class. Three `check:chrome` assertions (360, 1024, 1440) measure row alignment, the button under
+  the last round, no sideways overflow, and an unchanged result.
+- **The draft store's key cap went from 24 to 40.** Twelve rounds are 24 fields plus the counter, 25
+  keys; at 24 the last price was dropped on write and a reload inside the visit reported a field
+  the user had typed as missing.
+- **`?so=` is decoded in two passes** in `FormulaDetail`: the field list depends on the counter that
+  is inside the link itself.
+- **The "?" chart popover has a TEMPLATE text per template field** (`BieuDoRieng.trucLap`, keyed by
+  prefix: `amount`, `price`, `r`; six paragraphs, outside the 600). Without it, picking "Giá mua
+  đợt 4" fell back to the first block, i.e. text about another chart. `khoiDangXem()` fills `{n}`.
+  The gate (`loiTrucLap` in `kiem.ts`) cannot measure a group that does not exist at build time, so
+  it requires what holds for every added group: the field named with `{n}`, both axis cases (half
+  to one-and-a-half times once the field holds a number, and the 0 state a new group opens in), and
+  a direction. A paragraph that promises one direction is tried on a fourth group with real numbers.
+  The full guide page does not list these blocks; it describes the screen as it opens.
+
+Three texts here were written with the code and are NOT from the owner's `guide-111.json`: the
+"lấy số ở đâu" sentence of `lots`, and the reworded `periods` / `r3` sentences (the old ones described
+the removed button group). Each carries a comment at the site; they need the owner's read like any
+unreviewed content. Cost, measured against the same tree without this package: detail pages 433,1 →
+435,5 kB First Load JS, `/danh-muc/` 189,1 → 189,2 kB. The size gate was already red before it.
 
 ## Chart kinds
 
@@ -1891,7 +2013,9 @@ How it is built, in `src/core/huong-dan/bieu-do/`:
     sentence was false for every "Nạp mẫu". They now say the chart follows "chuỗi giá bạn đã nạp" and claim
     nothing about where it came from. They do **not** add a sentence saying samples are fabricated: the owner
     removed that block from the sheet on purpose (`preset.draftTitle` tombstone), and putting it back in 17
-    places is their call.
+    places is their call. The sheet's last such sentence, `preset.seriesOnlyNote` (the lead line for
+    series-only formulas), went the same way later on 13/10/2026, so no on-screen text says it any more;
+    the `isDraft` flag in `samples.ts` and `preset.draftExport` in exported files still do.
   - _A direction or a "why" that only holds for the defaults_ — the 26 axes above, plus claims such as
     "luôn nằm cao hơn lãi suất danh nghĩa" (not with yearly compounding) or "càng lúc càng dốc" on
     `lich-tra-no` (straight under "Gốc đều", a Basic-level button).

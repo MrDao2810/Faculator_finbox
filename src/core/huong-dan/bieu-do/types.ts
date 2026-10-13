@@ -92,6 +92,17 @@ export interface BieuDoRieng {
    * ngày trục mặc định đổi, đoạn chữ lặng lẽ sang nằm dưới một hình khác.
    */
   truc?: Readonly<Record<string, HaiDang>>;
+  /**
+   * Đường theo một ô của NHÓM do người dùng thêm — đợt mua thứ tư, kỳ thứ tư trở đi (13/10/2026).
+   *
+   * Khoá là TIỀN TỐ của ô mẫu (`spec.repeat.fields[].key`): `amount` phục vụ `amount4`, `amount5`…
+   * Chữ mang `{n}` ở chỗ số thứ tự nhóm; khung "?" điền con số khi mở. Một đoạn cho mọi nhóm thêm
+   * vì chúng cùng một mẫu ô, và số nhóm là thứ lúc build không biết.
+   *
+   * Vì sao phải có: thiếu nó thì chọn "Giá mua đợt 4" ở ô chọn trục là khung "?" rơi về chữ của
+   * hình mở ra, tức nói về một hình khác với hình đang vẽ — đúng lỗi thư mục này sinh ra để chặn.
+   */
+  trucLap?: Readonly<Record<string, HaiDang>>;
   /** Đường theo thời gian — có khi đã nạp mã cổ phiếu hoặc chuỗi giá. 47 công thức. */
   thoiGian?: HaiDang;
   /** Các thanh bóc tách — mặc định ở 5 công thức, một mục trong ô chọn ở 6 công thức. */
@@ -151,6 +162,22 @@ export interface KeHoachTruc {
   daoChieu: boolean;
 }
 
+/**
+ * Kế hoạch của đường theo một ô MẪU của nhóm lặp — xem `BieuDoRieng.trucLap`.
+ *
+ * Không có số đo (`hinh`, `dai`, `daoChieu`) như `KeHoachTruc`: nhóm thêm chưa tồn tại lúc build,
+ * và khi tồn tại thì nó mở ra ở con số 0, nơi trục không phải dải "một nửa đến gấp rưỡi".
+ */
+export interface KeHoachTrucLap {
+  /** Tiền tố khoá của ô mẫu: `'amount'` cho `amount4`, `amount5`… */
+  tienTo: string;
+  /** Tên biểu đồ, `{n}` ở chỗ số thứ tự nhóm: 'Giá vốn trung bình khi mua DCA theo Tiền mua đợt {n}'. */
+  ten: Bilingual;
+  /** Tên ô nhập, `{n}` ở chỗ số thứ tự nhóm: 'Tiền mua đợt {n}'. */
+  truc: Bilingual;
+  nangCao: boolean;
+}
+
 export interface KeHoachThoiGian {
   /** 'P/E theo thời gian'. */
   ten: Bilingual;
@@ -180,6 +207,8 @@ export interface KeHoachBocTach {
 export interface KeHoachBieuDo {
   /** Mọi ô nhập đứng được trên trục ngang, đúng thứ tự ô chọn "Xem kết quả đổi theo" bày chúng. */
   truc: ReadonlyArray<KeHoachTruc>;
+  /** Ô mẫu của nhóm lặp đứng được trên trục ngang; mảng rỗng với 109 công thức không có nhóm lặp. */
+  trucLap: ReadonlyArray<KeHoachTrucLap>;
   thoiGian?: KeHoachThoiGian;
   bocTach?: KeHoachBocTach;
   /**
@@ -217,6 +246,24 @@ export interface KhoiBieuDoBai {
  */
 export interface MucBieuDoBai {
   khoi: ReadonlyArray<KhoiBieuDoBai>;
+  /**
+   * Khối MẪU cho trục của nhóm do người dùng thêm — vắng ở 109 công thức không có nhóm lặp.
+   *
+   * Chỉ khung "?" dùng: nó điền số thứ tự nhóm vào `{n}` khi hình đang hiện là hình của một ô như
+   * thế. Trang đầy đủ của bài không liệt kê các khối này, vì nó tả màn lúc mở ra, lúc chưa có nhóm
+   * thêm nào.
+   */
+  khoiLap?: ReadonlyArray<KhoiLapBai>;
+}
+
+/** Một khối mẫu — `ten`, `duong`, `cot` đều mang `{n}` ở chỗ số thứ tự nhóm. */
+export interface KhoiLapBai {
+  /** Tiền tố khoá của ô mẫu; hình mang `sweepKey` là tiền tố này cộng một số thì dùng khối này. */
+  tienTo: string;
+  ten: Bilingual;
+  duong: Bilingual;
+  cot?: Bilingual;
+  nangCao: boolean;
 }
 
 /**

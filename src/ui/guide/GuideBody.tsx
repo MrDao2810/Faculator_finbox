@@ -1,7 +1,9 @@
+import { fillRepeat, repeatIndexIn } from '@/application';
 import type {
   BaiHuongDan,
   HinhDangXem,
   KhoiBieuDoBai,
+  KhoiLapBai,
   MessageKey,
   MucId,
   ONhapHuongDan,
@@ -289,6 +291,24 @@ function KhoiDocKetQua({ bai }: { bai: BaiHuongDan }) {
   );
 }
 
+/** Khối chữ của một ô do người dùng thêm, dựng từ khối mẫu bằng cách điền số thứ tự nhóm. */
+function khoiTuMau(khoiLap: ReadonlyArray<KhoiLapBai>, khoa: string): KhoiBieuDoBai | undefined {
+  for (const mau of khoiLap) {
+    const n = repeatIndexIn(mau.tienTo, khoa);
+    if (n === null) continue;
+    return {
+      khoa,
+      ten: fillRepeat(mau.ten, n),
+      duong: fillRepeat(mau.duong, n),
+      ...(mau.cot === undefined ? {} : { cot: fillRepeat(mau.cot, n) }),
+      nangCao: mau.nangCao,
+      // Ô của nhóm thêm là ô số thường: hình của nó vẽ được ngay, không chờ chuỗi giá.
+      canChuoi: false,
+    };
+  }
+  return undefined;
+}
+
 /**
  * Khối của hình ĐANG HIỆN trên màn tính và dạng đang vẽ — thứ khung "?" in.
  *
@@ -301,17 +321,26 @@ function KhoiDocKetQua({ bai }: { bai: BaiHuongDan }) {
  * `chuaVe` quyết định dòng "Chỉ vẽ sau khi đã nạp…": nó chỉ đáng in khi hình đang được tả CHƯA có
  * trên màn. Hình đã vẽ rồi mà còn in dòng ấy là nói một điều người đọc đang thấy là sai.
  *
+ * ── Hình của một ô do người dùng THÊM (13/10/2026) ───────────────────────────────────────────
+ *
+ * Hai công thức cho thêm đợt mua / thêm kỳ, và ô chọn trục có ngay mục "Giá mua đợt 4". Ô ấy không
+ * có khối riêng (lúc build chưa ai biết sẽ có mấy đợt), nên trước khi rơi về khối đầu, phép chọn
+ * thử các khối MẪU (`khoiLap`): khoá là tiền tố của mẫu cộng một số thì lấy mẫu ấy và điền số vào
+ * `{n}`. Không có bước này thì khung nói về "…theo Giá mua đợt 3" cạnh một hình của đợt 4.
+ *
  * Xuất ra để ca kiểm gọi thẳng; nó là phép chọn thuần, không đụng tới DOM.
  */
 export function khoiDangXem(
   khoi: ReadonlyArray<KhoiBieuDoBai>,
   hinh: HinhDangXem | null,
+  khoiLap: ReadonlyArray<KhoiLapBai> = [],
 ): { khoi: KhoiBieuDoBai; dang: 'duong' | 'cot'; chuaVe: boolean } | undefined {
   const dau = khoi[0];
   if (dau === undefined) return undefined;
 
+  const khoa = hinh?.khoa ?? null;
   const dangHien =
-    hinh === null || hinh.khoa === null ? undefined : khoi.find((mot) => mot.khoa === hinh.khoa);
+    khoa === null ? undefined : (khoi.find((mot) => mot.khoa === khoa) ?? khoiTuMau(khoiLap, khoa));
   const chon = dangHien ?? dau;
 
   return {
@@ -357,10 +386,10 @@ export function khoiDangXem(
  */
 function KhoiBieuDo({ bai, hinh }: { bai: BaiHuongDan; hinh: HinhDangXem | null | undefined }) {
   if (bai.bieuDo === undefined) return null;
-  const { khoi } = bai.bieuDo;
+  const { khoi, khoiLap } = bai.bieuDo;
 
   if (hinh !== undefined) {
-    const xem = khoiDangXem(khoi, hinh);
+    const xem = khoiDangXem(khoi, hinh, khoiLap);
     if (xem === undefined) return null;
 
     return (

@@ -448,12 +448,19 @@ describe('WF-06 — chọn mã trong toàn thị trường', () => {
     const sheet = await tamTrenCung();
     await userEvent.type(within(sheet).getByRole('searchbox'), 'vc');
 
-    // 'VCB' khớp đầu mã; 'HPG' chỉ khớp trong TÊN ('Vận' → 'van' không chứa 'vc') nên bị loại.
-    const badges = within(sheet)
-      .getAllByRole('listitem')
-      .map((item) => item.textContent ?? '');
-    expect(badges).toHaveLength(1);
-    expect(badges[0]).toContain('VCB');
+    /*
+     * Chờ chứ không soi ngay: từ 13/10/2026 sheet lọc sau phím cuối một nhịp và hiện "Đang tìm
+     * mã…" trong lúc ấy (xem `SEARCH_DELAY_MS` ở `TickerPickerSheet.tsx`).
+     *
+     * 'VCB' khớp đầu mã; 'HPG' chỉ khớp trong TÊN ('Vận' → 'van' không chứa 'vc') nên bị loại.
+     */
+    await waitFor(() => {
+      const badges = within(sheet)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent ?? '');
+      expect(badges).toHaveLength(1);
+      expect(badges[0]).toContain('VCB');
+    });
   });
 });
 

@@ -18,6 +18,7 @@ import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { Bilingual, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
+import { clampRepeatCount } from '../registry/repeat';
 import type { FormulaSource } from '../registry/types';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
@@ -696,21 +697,32 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
  * ── 5. Lợi suất trung bình hình học nhiều kỳ ───────────────────────────────────────────
  */
 
+/** Miền của số kỳ. Một nguồn cho cả biến đếm lẫn `calc`. */
+const GEO_PERIODS_MIN = 2;
+const GEO_PERIODS_MAX = 12;
+
+/**
+ * Biến đếm số kỳ — tới 12/10/2026 là một nhóm nút "2 kỳ / 3 kỳ".
+ *
+ * Từ 13/10/2026 số kỳ do người dùng thêm bớt bằng hai nút cuối khối Số liệu (xem `RepeatGroup` ở
+ * `registry/types.ts`), nên nhóm nút ấy thừa: nó chỉ chọn được hai con số mà hai nút kia đi được
+ * từ 2 tới 12. Biến vẫn giữ khoá `periods` và nghĩa cũ, vì link chia sẻ và phép tính đã lưu trước
+ * đó mang `periods` là 2 hoặc 3 — chúng mở ra vẫn đúng số kỳ ấy.
+ */
 const geoPeriodCount: VariableSpec = {
   key: 'periods',
   label: { vi: 'Số kỳ nhập liệu', en: 'Number of periods entered' },
   unit: '',
-  type: 'buttonGroup',
+  type: 'number',
   defaultValue: 3,
+  min: GEO_PERIODS_MIN,
+  max: GEO_PERIODS_MAX,
+  step: 1,
   level: 'basic',
   description: {
-    vi: 'Chọn 2 kỳ thì ô lợi suất kỳ 3 được bỏ qua.',
-    en: 'Choosing 2 periods makes the period-3 return field ignored.',
+    vi: 'Số kỳ đang nhập, từ 2 tới 12. Đổi bằng nút Thêm kỳ và nút Bỏ kỳ ở cuối khối Số liệu.',
+    en: 'The number of periods entered, 2 to 12. Change it with the Add a period and Remove period buttons at the end of the Inputs block.',
   },
-  options: [
-    { value: 2, label: { vi: '2 kỳ', en: '2 periods' } },
-    { value: 3, label: { vi: '3 kỳ', en: '3 periods' } },
-  ],
 };
 
 export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
@@ -719,8 +731,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
     categoryId: 'returns',
     name: { vi: 'Lợi suất trung bình hình học', en: 'Geometric mean return' },
     description: {
-      vi: 'Mức lợi suất đều mỗi kỳ tương đương với một chuỗi 2–3 kỳ lên xuống thất thường.',
-      en: 'The steady per-period return equivalent to an erratic 2–3 period sequence of ups and downs.',
+      vi: 'Mức lợi suất đều mỗi kỳ tương đương với một chuỗi nhiều kỳ lên xuống thất thường.',
+      en: 'The steady per-period return equivalent to an erratic run of several up-and-down periods.',
     },
     latex: 'r_{G} = \\left[\\prod_{k=1}^{n} (1 + r_k)\\right]^{1/n} - 1',
     expression: {
@@ -745,8 +757,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       {
         latex: 'r_k',
         meaning: {
-          vi: 'lợi suất kỳ thứ k (ô Lợi suất kỳ 1, 2, 3), %',
-          en: 'return in period k (the Return in period 1, 2, 3 fields), %',
+          vi: 'lợi suất kỳ thứ k, lấy ở ô Lợi suất kỳ mang số ấy, %',
+          en: 'return in period k, from the Return in period field with that number, %',
         },
       },
       {
@@ -755,7 +767,10 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       },
       {
         latex: 'n',
-        meaning: { vi: 'số kỳ nhập liệu, 2 hoặc 3', en: 'number of periods entered, 2 or 3' },
+        meaning: {
+          vi: 'số kỳ bạn đang nhập, ít nhất là hai',
+          en: 'number of periods you have entered, at least two',
+        },
       },
       {
         latex: '1/n',
@@ -783,19 +798,40 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         min: -100,
         max: 200,
         description: {
-          vi: 'Chỉ dùng khi chọn 3 kỳ.',
-          en: 'Only used when 3 periods is selected.',
+          vi: 'Lợi suất của kỳ thứ ba. Kỳ lỗ thì nhập số âm.',
+          en: 'The return of the third period. Enter a negative number for a losing period.',
         },
       }),
     ],
+    /*
+     * Kỳ thứ tư trở đi. Ô của kỳ mới mang 0 %, và khác `gia-von-trung-binh-dca` ở chỗ 0 % là một
+     * kỳ THẬT (kỳ đi ngang): bấm Thêm là kết quả đổi ngay, vì tích không đổi mà số kỳ tăng một.
+     * Con số 0 ấy nằm ngay trong ô vừa hiện ra, nên màn không tính trên thứ gì người dùng không
+     * thấy; ô số của màn cũng không có trạng thái "để trống" để mà chọn (`NumberInput`, FR-06).
+     */
+    repeat: {
+      countKey: 'periods',
+      fields: [
+        numberVar('r', { vi: 'Lợi suất kỳ {n}', en: 'Return in period {n}' }, '%', 0, {
+          min: -100,
+          max: 200,
+          description: {
+            vi: 'Lợi suất của kỳ thứ {n}. Kỳ lỗ thì nhập số âm.',
+            en: 'The return of period {n}. Enter a negative number for a losing period.',
+          },
+        }),
+      ],
+      addLabel: { vi: 'Thêm kỳ', en: 'Add a period' },
+      removeLabel: { vi: 'Bỏ kỳ {n}', en: 'Remove period {n}' },
+    },
     explanation: {
       meaning: {
         vi: 'Trung bình có tính tới lãi kép: chuỗi lên xuống thất thường được quy về một mức đều mỗi kỳ cho cùng kết quả cuối.',
         en: 'A compounding-aware average: an erratic up-and-down sequence is converted to one steady per-period rate that yields the same end result.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn có kết quả từng năm của danh mục hay một quỹ, năm lãi năm lỗ, và muốn gộp hai, ba năm đó thành một mức tăng bình quân mỗi năm.',
-        en: "Use it when you have a portfolio's or fund's result for each year, some up and some down, and want to fold those two or three years into one average yearly rate.",
+        vi: 'Dùng khi bạn có kết quả từng năm của danh mục hay một quỹ, năm lãi năm lỗ, và muốn gộp các năm đó thành một mức tăng bình quân mỗi năm.',
+        en: "Use it when you have a portfolio's or fund's result for each year, some up and some down, and want to fold those years into one average yearly rate.",
       },
       howToRead: {
         vi: 'So với lãi suất tiết kiệm cho một kỳ cùng độ dài: cao hơn nghĩa là gộp cả kỳ lãi lẫn kỳ lỗ, bình quân mỗi kỳ vẫn sinh lời hơn gửi ngân hàng, thấp hơn là kém hơn. Số âm nghĩa là vốn cuối cùng thấp hơn vốn ban đầu, kể cả khi trong đó có một kỳ lãi lớn.',
@@ -839,13 +875,38 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
+      {
+        // (1,10 × 0,95 × 1,20 × 1,05)^(1/4) − 1
+        name: 'bốn kỳ +10%, −5%, +20%, +5% thành 7,12%/kỳ',
+        inputs: { periods: 4, r1: 10, r2: -5, r3: 20, r4: 5 },
+        expected: 7.1203,
+      },
+      {
+        // Tích không đổi, số kỳ tăng một: (1,10 × 0,95 × 1,20)^(1/4) − 1
+        name: 'kỳ vừa thêm còn 0% vẫn là một kỳ thật',
+        inputs: { periods: 4, r1: 10, r2: -5, r3: 20, r4: 0 },
+        expected: 5.8216,
+      },
+      {
+        name: 'số kỳ là 4 mà thiếu ô kỳ thứ tư thì báo chưa nhập đủ',
+        inputs: { periods: 4, r1: 10, r2: -5, r3: 20 },
+        expected: null,
+        expectedWarning: 'INCOMPLETE_INPUT',
+      },
+      {
+        name: 'kỳ thứ tư dưới −100% cũng bị chặn như ba kỳ đầu',
+        inputs: { periods: 4, r1: 10, r2: -5, r3: 20, r4: -150 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
     ],
     source: [SOURCE_CFA, SOURCE_INVESTMENTS],
   },
   calc: (v) => {
-    // Giá trị lạ của nút chọn rơi về 3 kỳ — cùng cách xử lý với `methodOf` bên personal.ts.
-    const n = v('periods') === 2 ? 2 : 3;
-    const rates = [v('r1'), v('r2'), v('r3')].slice(0, n);
+    // Cùng phép kẹp với `runFormula()`, nên mọi kỳ đọc ở đây đều đã được kiểm là có số.
+    const n = clampRepeatCount(v('periods'), GEO_PERIODS_MIN, GEO_PERIODS_MAX);
+    const rates: number[] = [];
+    for (let k = 1; k <= n; k += 1) rates.push(v(`r${k}`));
 
     for (const [index, r] of rates.entries()) {
       if (r < -100) {

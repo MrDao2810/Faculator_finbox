@@ -1052,9 +1052,11 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       vi: 'Tính mức lãi trung bình đúng cho nhiều kỳ liên tiếp, thay vì trung bình cộng sai lệch.',
     },
     oNhap: {
+      // Hai câu của ô này và câu của `r3` sửa 13/10/2026: nhóm nút "2 kỳ / 3 kỳ" đã thành hai nút
+      // Thêm / Bỏ, nên bản trong `guide-111.json` ("2 hoặc 3 kỳ…") nói về một điều khiển không còn.
       periods: {
-        layODau: { vi: 'Chọn số kỳ bạn có số liệu.' },
-        luuY: { vi: '2 hoặc 3 kỳ. Chọn 1 trong các kỳ thì kỳ còn lại sẽ ẩn đi.' },
+        layODau: { vi: 'Đếm số kỳ bạn có số liệu.' },
+        luuY: { vi: 'Từ 2 tới 12 kỳ. Bấm Thêm kỳ hoặc Bỏ kỳ ở cuối khối Số liệu để đổi.' },
       },
       r1: {
         layODau: { vi: 'Lãi của kỳ đầu tiên, tính bằng phần trăm.' },
@@ -1065,7 +1067,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         luuY: { vi: 'Kỳ lỗ nhập số âm.' },
       },
       r3: {
-        layODau: { vi: 'Lãi của kỳ thứ ba. Ẩn khi chọn 2 kỳ.' },
+        layODau: { vi: 'Lãi của kỳ thứ ba. Ẩn khi chỉ còn 2 kỳ.' },
         luuY: { vi: 'Kỳ lỗ nhập số âm.' },
       },
     },
@@ -2501,6 +2503,12 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       vi: 'Biết giá vốn thực sau khi mua rải nhiều đợt với giá khác nhau.',
     },
     oNhap: {
+      // Viết thêm 13/10/2026 cùng nhóm ô lặp; không có trong `guide-111.json` của chủ dự án.
+      lots: {
+        layODau: {
+          vi: 'Đếm số đợt bạn đã mua; bấm Thêm đợt mua ở cuối khối Số liệu để có thêm ô.',
+        },
+      },
       amount1: {
         layODau: { vi: 'Số tiền bạn chi ở đợt mua đầu tiên.' },
       },

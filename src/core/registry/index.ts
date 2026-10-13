@@ -23,9 +23,26 @@ export type {
   ListSort,
   Registry,
   RegistryIssue,
+  RepeatGroup,
   Segment,
   SegmentFilter,
 } from './types';
+
+export type { RepeatControls, RepeatLimits } from './repeat';
+export {
+  REPEAT_INDEX,
+  addRepeatGroup,
+  clampRepeatCount,
+  fillRepeat,
+  removeRepeatGroup,
+  repeatControls,
+  repeatCount,
+  repeatIndexIn,
+  repeatKey,
+  repeatLimits,
+  repeatSlotOf,
+  resolveRepeatSpec,
+} from './repeat';
 
 export type { SelectOptions } from './search';
 export {

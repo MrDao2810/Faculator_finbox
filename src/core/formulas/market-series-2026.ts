@@ -19,6 +19,9 @@ import type { SeriesRow } from '../price-series';
  *   - `FPT_57_PHIEN` / `FPT_57_BARS`: CTCP FPT (HOSE: FPT), 57 phiên 24/06/2026 → 15/09/2026,
  *     đơn vị ₫. Nguồn: investing.com (dữ liệu lịch sử FPT).
  *   - `VNINDEX_71_PHIEN`: VN-Index, 71 phiên 04/06/2026 → 15/09/2026, đơn vị điểm.
+ *   - `VNINDEX_71_BARS`: cùng 71 phiên ấy, thêm giá mở cửa, cao nhất, thấp nhất và khối lượng.
+ *     Bốn cột này KHÔNG nằm trong bảng của chủ dự án; lấy từ VNDirect ngày 13/10/2026 sau khi đối
+ *     chiếu 71/71 giá đóng cửa — nguồn và phép soát ghi ở `VNINDEX_71_OHLV`.
  *
  * ── Hai điều dễ vấp ──────────────────────────────────────────────────────────────────────────
  *
@@ -133,136 +136,117 @@ export const FPT_2026: ExampleDataset = {
 };
 
 /**
- * Bộ dữ liệu VN-Index cho nút và chip ví dụ. 71 phiên 04/06 → 15/09/2026, chỉ có giá đóng cửa
- * (các cột OHLCV khác là null). 14 phiên 04/06–23/06 trước giai đoạn FPT, 57 phiên tiếp theo
- * trùng ngày với FPT_57_BARS.
+ * VN-Index, cùng 71 phiên của `VNINDEX_71_PHIEN` — ngày, giá mở cửa, giá cao nhất, giá thấp nhất
+ * (điểm) và khối lượng giao dịch của chỉ số (cổ phiếu). Giá đóng cửa KHÔNG chép lại ở đây: nó lấy
+ * thẳng từ `VNINDEX_71_PHIEN` theo đúng vị trí, nên chuỗi mà công thức tính và chuỗi mà bảng bày
+ * ra không thể lệch nhau một phiên nào.
+ *
+ * ── Vì sao có bảng này (13/10/2026) ───────────────────────────────────────────────────────────
+ *
+ * Trước đó bộ dữ liệu VN-Index chỉ có giá đóng cửa, bốn cột kia là `null`. Chín công thức dùng nó
+ * làm ví dụ (Sharpe, Sortino, Treynor, Beta, VaR…) chỉ đọc giá đóng cửa nên con số không sai,
+ * nhưng nạp ví dụ xong rồi mở "Dán dữ liệu" hay Bảng dữ liệu thì bốn trên sáu cột trống trơn. Chủ
+ * dự án báo đúng hiện tượng ấy: *"sau khi nạp dữ liệu mẫu vào có một số cột sau khi nạp không thấy
+ * số liệu trên table đâu"*.
+ *
+ * Nguồn: VNDirect (`dchart-api.vndirect.com.vn/dchart/history`, mã VNINDEX, khung ngày), tải ngày
+ * 13/10/2026. Đã soát trước khi chép, bằng máy chứ không bằng mắt:
+ *
+ *   · 71/71 ngày của bộ dữ liệu đều có trong phản hồi, và giá đóng cửa của nguồn này BẰNG ĐÚNG
+ *     từng số trong `VNINDEX_71_PHIEN` (chuỗi chủ dự án cung cấp 16/09/2026) ở cả 71 phiên;
+ *   · 71/71 phiên thoả Thấp ≤ Mở ≤ Cao và Thấp ≤ Đóng ≤ Cao;
+ *   · khối lượng là số nguyên dương ở mọi phiên.
+ *
+ * `market-series-2026.test.ts` ghim lại ba điều ấy, nên sửa lệch một phiên là đỏ ngay.
+ */
+const VNINDEX_71_OHLV: ReadonlyArray<readonly [string, number, number, number, number]> = [
+  ['2026-06-04', 1822.08, 1831.55, 1812.65, 450_907_795],
+  ['2026-06-05', 1833.07, 1846.71, 1829.97, 444_418_387],
+  ['2026-06-08', 1822.1, 1822.95, 1784.72, 613_416_648],
+  ['2026-06-09', 1799.21, 1800.8, 1780.71, 423_962_378],
+  ['2026-06-10', 1793.45, 1805.03, 1789.48, 459_074_178],
+  ['2026-06-11', 1793.15, 1801.99, 1788.64, 376_827_746],
+  ['2026-06-12', 1813.07, 1813.57, 1783.16, 577_651_426],
+  ['2026-06-15', 1804.24, 1810.41, 1775.72, 620_696_256],
+  ['2026-06-16', 1808.56, 1811.59, 1799.86, 573_796_720],
+  ['2026-06-17', 1797.41, 1808.57, 1787.89, 626_382_635],
+  ['2026-06-18', 1822.37, 1836.4, 1819.62, 505_768_931],
+  ['2026-06-19', 1837.38, 1838.52, 1798.56, 526_745_031],
+  ['2026-06-22', 1827.53, 1859.78, 1822.58, 443_165_448],
+  ['2026-06-23', 1871.92, 1886.6, 1862.3, 694_888_207],
+  ['2026-06-24', 1873.19, 1894.75, 1861.72, 494_031_560],
+  ['2026-06-25', 1878.71, 1880.16, 1852.95, 400_816_982],
+  ['2026-06-26', 1857.24, 1873.91, 1854.94, 408_688_231],
+  ['2026-06-29', 1868.64, 1869.52, 1849.7, 444_788_551],
+  ['2026-06-30', 1855.67, 1863.14, 1844.66, 505_116_145],
+  ['2026-07-01', 1859.96, 1871.68, 1859.68, 491_315_339],
+  ['2026-07-02', 1869.87, 1873.87, 1862.01, 452_764_594],
+  ['2026-07-03', 1867.17, 1872.98, 1857.28, 538_080_668],
+  ['2026-07-06', 1873.24, 1873.58, 1829.05, 712_579_803],
+  ['2026-07-07', 1840.69, 1848.57, 1825.79, 462_997_990],
+  ['2026-07-08', 1847.42, 1855.74, 1842.19, 550_621_594],
+  ['2026-07-09', 1843.01, 1850.56, 1838.26, 459_418_630],
+  ['2026-07-10', 1840.33, 1845.86, 1824.06, 493_196_915],
+  ['2026-07-13', 1829.5, 1829.5, 1781.45, 728_451_859],
+  ['2026-07-14', 1793.23, 1806.77, 1774.22, 488_594_894],
+  ['2026-07-15', 1805.93, 1805.93, 1775.09, 508_398_737],
+  ['2026-07-16', 1772.52, 1804.47, 1757.42, 716_663_694],
+  ['2026-07-17', 1801.89, 1803.14, 1779.58, 385_810_817],
+  ['2026-07-20', 1782.93, 1783.83, 1733.25, 789_163_854],
+  ['2026-07-21', 1733.44, 1750.3, 1721.39, 573_145_977],
+  ['2026-07-22', 1729.33, 1736.91, 1664.18, 847_743_499],
+  ['2026-07-23', 1664.5, 1703.48, 1658.35, 767_199_044],
+  ['2026-07-24', 1683.23, 1696.78, 1674.64, 497_795_740],
+  ['2026-07-27', 1694.78, 1700.69, 1662.85, 542_734_230],
+  ['2026-07-28', 1653.51, 1684.54, 1651.2, 634_234_923],
+  ['2026-07-29', 1682.72, 1705.31, 1675.19, 457_457_780],
+  ['2026-07-30', 1703.94, 1745.93, 1701.14, 704_381_924],
+  ['2026-07-31', 1764.45, 1764.45, 1707.27, 607_287_517],
+  ['2026-08-03', 1745.06, 1767.58, 1737.26, 652_314_888],
+  ['2026-08-04', 1764.98, 1777.23, 1759.64, 533_722_479],
+  ['2026-08-05', 1784.94, 1790.87, 1769.44, 630_678_743],
+  ['2026-08-06', 1784.65, 1784.65, 1762.34, 470_876_516],
+  ['2026-08-07', 1761.23, 1774.61, 1756.07, 529_722_667],
+  ['2026-08-10', 1775.79, 1785.38, 1759.06, 622_931_255],
+  ['2026-08-11', 1781.08, 1789.35, 1766.4, 553_915_398],
+  ['2026-08-12', 1776.63, 1794.01, 1770.63, 452_560_911],
+  ['2026-08-13', 1793.81, 1798.79, 1762.96, 640_346_210],
+  ['2026-08-14', 1763.6, 1763.6, 1717.64, 635_802_237],
+  ['2026-08-17', 1727.81, 1735.2, 1715.91, 396_771_648],
+  ['2026-08-18', 1727.62, 1750.86, 1724.33, 450_739_454],
+  ['2026-08-19', 1732.02, 1734.39, 1719.16, 390_828_453],
+  ['2026-08-20', 1735.56, 1742.38, 1729.27, 339_514_782],
+  ['2026-08-21', 1733.52, 1768.31, 1725.4, 667_783_227],
+  ['2026-08-24', 1787.54, 1795.38, 1778.4, 669_160_018],
+  ['2026-08-25', 1792.19, 1812.18, 1785.22, 643_465_330],
+  ['2026-08-26', 1789.43, 1821.33, 1787.8, 587_417_275],
+  ['2026-08-27', 1821.82, 1838.25, 1815.42, 484_230_398],
+  ['2026-08-28', 1833.27, 1838.2, 1819.16, 562_184_482],
+  ['2026-09-03', 1821.82, 1829.84, 1802.11, 520_015_604],
+  ['2026-09-04', 1829.66, 1862.63, 1829.66, 500_988_851],
+  ['2026-09-07', 1857.32, 1874.48, 1809.21, 498_044_335],
+  ['2026-09-08', 1820.75, 1831.31, 1814.5, 403_071_199],
+  ['2026-09-09', 1836.98, 1848.17, 1812.18, 467_328_995],
+  ['2026-09-10', 1825.79, 1834.96, 1812.98, 383_185_655],
+  ['2026-09-11', 1820.11, 1822.44, 1791.85, 628_257_109],
+  ['2026-09-14', 1792.67, 1799.1, 1776.85, 663_718_670],
+  ['2026-09-15', 1795.12, 1813.94, 1776.88, 523_818_299],
+];
+
+/** Cùng 71 phiên VN-Index nhưng đủ OHLCV — thứ bảng dữ liệu bày ra khi nạp ví dụ. Ngày ISO. */
+export const VNINDEX_71_BARS: ReadonlyArray<SeriesRow> = VNINDEX_71_OHLV.map(
+  ([date, open, high, low, volume], index) =>
+    bar(date, open, high, low, VNINDEX_71_PHIEN[index]!, volume),
+);
+
+/**
+ * Bộ dữ liệu VN-Index cho nút và chip ví dụ. 71 phiên 04/06 → 15/09/2026, đủ OHLCV từ 13/10/2026
+ * (xem `VNINDEX_71_OHLV`). 14 phiên 04/06–23/06 trước giai đoạn FPT, 57 phiên tiếp theo trùng
+ * ngày với FPT_57_BARS.
  */
 export const VNINDEX_2026: ExampleDataset = {
   name: 'VN-Index',
   label: { vi: 'số liệu VN-Index', en: 'VN-Index data' },
   ticker: undefined,
-  rows: [
-    // 14 phiên 04/06–23/06/2026 (trước giai đoạn FPT)
-    {
-      date: '2026-06-04',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[0]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-05',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[1]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-08',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[2]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-09',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[3]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-10',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[4]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-11',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[5]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-12',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[6]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-15',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[7]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-16',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[8]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-17',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[9]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-18',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[10]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-19',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[11]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-22',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[12]!,
-      volume: null,
-    },
-    {
-      date: '2026-06-23',
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[13]!,
-      volume: null,
-    },
-    // 57 phiên 24/06–15/09/2026 — trùng ngày với FPT_57_BARS
-    ...FPT_57_BARS.map((fptRow, i) => ({
-      date: fptRow.date,
-      open: null,
-      high: null,
-      low: null,
-      close: VNINDEX_71_PHIEN[14 + i]!,
-      volume: null,
-    })),
-  ],
+  rows: VNINDEX_71_BARS,
 };

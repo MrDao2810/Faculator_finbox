@@ -215,13 +215,28 @@ dialog.wide > div {
  * cột theo nội dung thì mỗi lần cuộn các cột lại nhảy một kiểu.
  * `border-collapse: separate` — hàng tiêu đề dính, mà với `collapse` thì viền của nó bị vẽ lại
  * tại chỗ cũ, để lộ một đường kẻ trôi giữa bảng.
- * `width: max-content` + `min-width: 100%` — sáu cột cộng lại rộng hơn khung thì bảng tràn ra và
- * khung cuộn ngang. Để `width: 100%` thì trình duyệt bóp các cột cho vừa, và cột nào cũng hẹp
- * tới mức không đọc nổi.
+ * `width: 100%` + `min-width` tính theo số cột — bảng lấp vừa khung khi khung đủ rộng, và chỉ tràn
+ * ra cho khung cuộn ngang khi các cột sắp hẹp hơn mức đọc được.
+ *
+ * ── Bề ngang cột là một phép tính, đo ngày 13/10/2026 ────────────────────────────────────────
+ *
+ * Bản trước đặt cứng 3rem + 11rem + 5 × 9,5rem = 984px cho sáu cột, với `width: max-content`. Khung
+ * cuộn của popup rộng nhất (1040px) chỉ có 966px, nên sáu cột KHÔNG BAO GIỜ vừa: màn nào cũng có
+ * một thanh cuộn ngang, và ở cửa sổ 1025px cột Khối lượng chỉ còn ló ra một mẩu — chủ dự án chụp
+ * đúng cảnh ấy, kèm câu "một số cột sau khi nạp không thấy số liệu trên table". Thanh cuộn ngang
+ * lại nằm ở đáy khung 440px, thường khuất dưới mép popup, nên không có gì báo là còn cột bên phải.
+ *
+ * Nay cột số KHÔNG đặt bề ngang: với `table-layout: fixed` chúng chia đều phần còn lại. Mức sàn
+ * 8,25rem (132px) là số dài nhất bảng này thật sự gặp, khối lượng chín chữ số '450.907.795' — 11 ký
+ * tự đơn cách 9,6px cộng 24px đệm. Cột ngày 9rem cho 'dd/mm/yyyy' cộng dấu báo lỗi. Sáu cột cần
+ * 852px, vừa mọi cửa sổ từ khoảng 985px; hẹp hơn thì cuộn ngang như cũ.
+ *
+ * `--paste-cols` do PasteImportSheet.tsx đặt: số cột của lưới, sáu cộng số cột thừa. Cột thừa làm
+ * mức sàn rộng ra đúng một cột, nên nó đẩy bảng tràn chứ không bóp sáu cột kia.
  */
 .grid {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  min-width: calc(3rem + 9rem + (var(--paste-cols, 6) - 1) * 8.25rem);
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
@@ -233,11 +248,12 @@ dialog.wide > div {
 }
 
 .colDate {
-  width: 11rem;
+  width: 9rem;
 }
 
+/* Không đặt bề ngang: các cột số chia đều phần còn lại — xem khối chú thích của `.grid`. */
 .colNumber {
-  width: 9.5rem;
+  width: auto;
 }
 
 .grid thead th {
@@ -267,11 +283,21 @@ dialog.wide > div {
   text-align: right;
   color: var(--color-muted);
 
+  /*
+   * Cột thừa đứng dưới tên của chính nó trong dữ liệu đã dán, và tên ấy dài bao nhiêu thì sản
+   * phẩm không quyết được ('GD thoả thuận · Giá trị (tỷ VND)'). Cắt bằng dấu ba chấm, không cho
+   * xuống dòng: hàng tiêu đề dính cao cố định 44px.
+   */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
   background: none;
   border: 0;
   cursor: pointer;
 }
 
+/* Sáu cột của chuỗi giá. Cột thừa giữ màu mờ của `.head`: nó có mặt nhưng không được nạp. */
 .headOn {
   color: var(--color-ink);
 }

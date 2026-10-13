@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { runFormula } from '../../calc/run';
+import { resolveRepeat, runFormula } from '../../calc/run';
 import type { CalcContext, FormulaModule } from '../../calc/types';
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
 import { buildChartModel } from '../../chart/build';
@@ -10,6 +10,7 @@ import { FORMULA_MODULES } from '../../formulas';
 import { MARKET_CONFIG } from '../../market';
 import { scheduleOrDefault } from '../../market/resolve';
 import { defaultInputs } from '../../registry/build';
+import { addRepeatGroup, fillRepeat, repeatKey, repeatLimits } from '../../registry/repeat';
 import type { Level } from '../../types';
 import { doHinh, keHoachBieuDo } from './ke-hoach';
 import { bieuDoProblems, chieuDuyNhat } from './kiem';
@@ -521,5 +522,137 @@ describe.skipIf(CHI.length > 0)('trục đảo chiều được thì đoạn ch�
 
   it('chữ đang nằm trong kho của trục ấy qua được luật', () => {
     expect(bieuDoProblems(keHoach, rieng)).toEqual([]);
+  });
+});
+
+/*
+ * Trục của NHÓM DO NGƯỜI DÙNG THÊM — đợt mua thứ tư, kỳ thứ tư trở đi (13/10/2026).
+ *
+ * Hai công thức có nhóm ô lặp (`spec.repeat`). Ô của nhóm thêm không nằm trong `spec.variables`, nên
+ * 248 trục ghim ở trên không đếm chúng; nhưng bấm "Thêm đợt mua" là ô chọn "Xem kết quả đổi theo"
+ * có ngay mục của chúng. Mỗi ô MẪU một đoạn chữ dùng chung cho mọi nhóm thêm, mang `{n}` ở chỗ số
+ * thứ tự. Các ca dưới giữ ba điều: đúng những ô mẫu ấy có chữ, mục nào ô chọn bày ra sau khi thêm
+ * nhóm cũng tìm được khối của nó, và chiều đi mà đoạn hứa là chiều thật trên một nhóm có số.
+ */
+describe.skipIf(CHI.length > 0)('trục của nhóm do người dùng thêm', () => {
+  const CO_NHOM_LAP = FORMULA_MODULES.filter((formula) => formula.spec.repeat !== undefined);
+
+  /** Bộ số sau khi thêm MỘT nhóm, nhóm mới chép số của nhóm đầu để hình vẽ được ngay. */
+  function themMotNhom(formula: FormulaModule): { inputs: Record<string, number>; n: number } {
+    const goc = defaultInputs(formula.spec);
+    const inputs = addRepeatGroup(formula.spec, goc);
+    if (inputs === null) throw new Error(`${formula.spec.id}: không thêm được nhóm`);
+
+    const n = (repeatLimits(formula.spec)?.declared ?? 0) + 1;
+    for (const mau of formula.spec.repeat?.fields ?? []) {
+      inputs[repeatKey(mau.key, n)] = goc[repeatKey(mau.key, 1)] ?? mau.defaultValue;
+    }
+    return { inputs, n };
+  }
+
+  it('đúng ba ô mẫu có đoạn chữ: tiền và giá của một đợt mua, lợi suất của một kỳ', () => {
+    const coChu = CO_NHOM_LAP.flatMap((formula) =>
+      Object.keys(BIEU_DO_RIENG[formula.spec.id]?.trucLap ?? {}).map(
+        (tienTo) => `${formula.spec.id}.${tienTo}`,
+      ),
+    );
+    expect(coChu.sort()).toEqual([
+      'gia-von-trung-binh-dca.amount',
+      'gia-von-trung-binh-dca.price',
+      'loi-suat-trung-binh-hinh-hoc.r',
+    ]);
+
+    // Không công thức nào khác mang chữ mẫu: `kiem.ts` chặn từng công thức, ca này chặn cả kho.
+    const ngoai = FORMULA_MODULES.filter(
+      (formula) =>
+        formula.spec.repeat === undefined && BIEU_DO_RIENG[formula.spec.id]?.trucLap !== undefined,
+    ).map((formula) => formula.spec.id);
+    expect(ngoai).toEqual([]);
+  });
+
+  it('thêm một nhóm thì mục mới của ô chọn tìm được khối chữ của nó', () => {
+    for (const formula of CO_NHOM_LAP) {
+      const { inputs, n } = themMotNhom(formula);
+      const moRong = resolveRepeat(formula, inputs);
+      const muc = mucBieuDo(keHoachBieuDo(formula, CTX), BIEU_DO_RIENG[formula.spec.id]);
+      const khoaCo = new Set(muc?.khoi.map((khoi) => khoi.khoa));
+      const mauCo = new Set(muc?.khoiLap?.map((khoi) => repeatKey(khoi.tienTo, n)));
+
+      const model = buildChartModel({
+        formula: moRong,
+        inputs,
+        ctx: CTX,
+        output: runFormula(moRong, inputs, CTX),
+        level: 'advanced',
+      });
+      const muc4 = (model.options ?? []).map((option) => option.key);
+
+      // Ô chọn phải thật sự bày mục của nhóm vừa thêm, không thì ca này qua mà không thử gì.
+      for (const mau of formula.spec.repeat?.fields ?? []) {
+        expect(muc4, formula.spec.id).toContain(repeatKey(mau.key, n));
+      }
+      for (const khoa of muc4) {
+        expect(khoaCo.has(khoa) || mauCo.has(khoa), `${formula.spec.id}: mục "${khoa}"`).toBe(true);
+      }
+    }
+  });
+
+  it('điền số thứ tự xong thì đoạn mẫu không còn sót {n}, và gọi đúng tên ô của nhóm ấy', () => {
+    for (const formula of CO_NHOM_LAP) {
+      const { inputs, n } = themMotNhom(formula);
+      const moRong = resolveRepeat(formula, inputs);
+      const muc = mucBieuDo(keHoachBieuDo(formula, CTX), BIEU_DO_RIENG[formula.spec.id]);
+
+      for (const khoi of muc?.khoiLap ?? []) {
+        const bien = moRong.spec.variables.find((v) => v.key === repeatKey(khoi.tienTo, n));
+        expect(bien, `${formula.spec.id}.${khoi.tienTo}`).toBeDefined();
+
+        for (const doan of [khoi.ten, khoi.duong, ...(khoi.cot === undefined ? [] : [khoi.cot])]) {
+          const dien = fillRepeat(doan, n);
+          expect(dien.vi).not.toContain('{n}');
+          expect(dien.en).not.toContain('{n}');
+        }
+        expect(fillRepeat(khoi.duong, n).vi).toContain(`ô ${bien?.label.vi ?? '@@'}`);
+        expect(fillRepeat(khoi.duong, n).en).toContain(bien?.label.en ?? '@@');
+      }
+    }
+  });
+
+  /*
+   * Cùng lẽ với trục chỉ vẽ được trên chuỗi giá: đoạn CHỈ nhắc một chiều là đang hứa chiều ấy. Thử
+   * lời hứa trên một nhóm thứ tư mang số thật. Đoạn nêu cả hai chiều (tiền mua một đợt: lên hay
+   * xuống tuỳ giá đợt ấy so với giá vốn) không hứa gì và được bỏ qua.
+   */
+  it('chiều mà đoạn mẫu hứa là chiều thật của đường trên một nhóm có số', () => {
+    let daThu = 0;
+
+    for (const formula of CO_NHOM_LAP) {
+      const { inputs, n } = themMotNhom(formula);
+      const moRong = resolveRepeat(formula, inputs);
+
+      for (const [tienTo, chu] of Object.entries(BIEU_DO_RIENG[formula.spec.id]?.trucLap ?? {})) {
+        const hua = chieuDuyNhat(chu.duong.vi, 'vi');
+        expect(chieuDuyNhat(chu.duong.en, 'en'), `${formula.spec.id}.${tienTo}`).toBe(hua);
+        if (hua === null) continue;
+
+        const khoa = repeatKey(tienTo, n);
+        const hinh = doHinh(
+          buildChartModel({
+            formula: moRong,
+            inputs,
+            ctx: CTX,
+            output: runFormula(moRong, inputs, CTX),
+            level: 'advanced',
+            sweepKey: khoa,
+          }),
+          khoa,
+        );
+        expect(hinh?.chieu, `${formula.spec.id}.${khoa}`).toBe(hua);
+        daThu += 1;
+      }
+    }
+
+    // Lợi suất một kỳ là trục duy nhất hứa một chiều; về 0 nghĩa là ca này không còn thử gì.
+    expect(daThu).toBe(1);
   });
 });

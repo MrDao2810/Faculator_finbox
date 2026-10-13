@@ -629,6 +629,29 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    // Đợt thứ tư trở đi, do người dùng thêm — một đoạn mẫu cho mọi đợt thêm, xem `BieuDoRieng.trucLap`.
+    trucLap: {
+      amount: {
+        duong: d(
+          'Đường chạy từ trái sang phải theo ô Tiền mua đợt {n}; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Khi ô đã có số, trục chạy từ một nửa đến gấp rưỡi con số ấy; khi ô còn là 0, trục trải từ 0 tới mức lớn nhất ô cho nhập. Đây là phép thử nếu đợt này bỏ nhiều hay ít tiền hơn thì giá vốn trung bình ra bao nhiêu, không phải diễn biến thị trường. Khi giá của đợt này cao hơn giá vốn trung bình, đường đi lên; thấp hơn thì đường đi xuống. Đợt có tiền mà ô giá còn là 0 thì chưa tính được, và hình hiện vùng gạch chéo.',
+          'The line runs left to right along the Amount invested, round {n} field; the dashed vertical line with a dot marks your own figure. Once the field holds a number the axis runs from half to one and a half times it; while the field is still 0 the axis spans from 0 to the largest amount the field accepts. It is a what-if on putting more or less money into this round, not market history. When this round’s price is above the average cost the line rises; below it, the line falls. A round with money but a price still at 0 cannot be computed, and the chart shows a hatched area.',
+        ),
+        cot: d(
+          'Mỗi cột là giá vốn trung bình ứng với một mức tiền của đợt mua thứ {n}, cột tô đặc là mức bạn đang nhập. Đợt này đắt hơn giá vốn trung bình thì cột cao dần về bên phải, rẻ hơn thì cột thấp dần: dồn tiền vào đợt nào là kéo giá vốn về phía giá của đợt ấy.',
+          'Each bar is the average cost for one amount put into round {n}, and the solid one is the amount you have entered. When this round is dearer than the average cost the bars grow taller to the right, and when it is cheaper they shrink: money put into a round pulls the average cost toward that round’s price.',
+        ),
+      },
+      price: {
+        duong: d(
+          'Đường chạy từ trái sang phải theo ô Giá mua đợt {n}; vạch đứt dọc có chấm tròn là đúng mức giá bạn nhập. Khi ô đã có số, trục chạy từ một nửa đến gấp rưỡi mức giá ấy; khi ô còn là 0, trục trải từ 0 tới mức lớn nhất ô cho nhập. Đây là phép thử nếu đợt này khớp ở một giá khác thì giá vốn trung bình ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên nhưng thoải dần: giá càng cao thì cùng số tiền ấy mua được càng ít cổ phiếu, nên đợt này càng nhẹ cân trong mức trung bình. Ô tiền của đợt còn là 0 thì đợt bị bỏ qua và đường nằm ngang.',
+          'The line runs left to right along the Purchase price, round {n} field; the dashed vertical line with a dot marks your own price. Once the field holds a number the axis runs from half to one and a half times it; while the field is still 0 the axis spans from 0 to the highest price the field accepts. It is a what-if on this round filling at a different price, not market history. The line rises but levels off: the higher the price, the fewer shares the same money buys, so this round weighs less in the average. While this round’s amount is still 0 the round is skipped and the line is flat.',
+        ),
+        cot: d(
+          'Mỗi cột là giá vốn trung bình ứng với một mức giá của đợt mua thứ {n}, cột tô đặc là mức giá bạn đang nhập. Khi đợt này đã có tiền, cột cao dần về bên phải và bước giữa các cột bên trái lớn hơn bên phải: mua được giá thấp thì gom nhiều cổ phiếu nên kéo mức trung bình mạnh hơn. Đợt chưa có tiền thì các cột bằng nhau.',
+          'Each bar is the average cost for one price of round {n}, and the solid one is the price you have entered. Once this round has money in it the bars grow taller to the right, with larger steps on the left than on the right: a cheap fill gathers more shares and so pulls the average harder. While the round has no money the bars are all level.',
+        ),
+      },
+    },
   },
 
   'so-ky-dca': {

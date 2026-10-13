@@ -10,7 +10,9 @@ export type {
   HinhDangXem,
   KeHoachBieuDo,
   KeHoachTruc,
+  KeHoachTrucLap,
   KhoiBieuDoBai,
+  KhoiLapBai,
   MucBieuDoBai,
 } from './types';
 export { doHinh, keHoachBieuDo } from './ke-hoach';

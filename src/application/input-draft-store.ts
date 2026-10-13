@@ -87,8 +87,15 @@ const ID_PATTERN = /^[a-z0-9-]{1,40}$/;
 /** Khoá biến — cùng dạng `VariableSpec.key`, chữ và số kiểu camelCase. */
 const KEY_PATTERN = /^[A-Za-z][A-Za-z0-9]{0,39}$/;
 
-/** Số ô nhập tối đa của một công thức. Công thức nhiều biến nhất hiện có 6 biến. */
-const MAX_KEYS = 24;
+/**
+ * Số ô nhập tối đa của một bản nháp.
+ *
+ * Nới từ 24 lên 40 ngày 13/10/2026, khi `gia-von-trung-binh-dca` cho thêm đợt mua: 12 đợt là 24 ô
+ * cộng biến đếm, tức 25 khoá. Giữ 24 thì khoá thứ 25 (giá của đợt cuối) rơi mất lúc ghi, và mở lại
+ * trang trong cùng lượt xem sẽ báo thiếu đúng một ô mà người dùng đã gõ. Trần mới để dư cho một
+ * công thức có nhóm lặp ba ô một nhóm; nó vẫn là chặn rác chứ không phải ngân sách.
+ */
+const MAX_KEYS = 40;
 
 /** Dạng mã chứng khoán — cùng chuỗi với `active-ticker.ts`, nới tới 12 cho chứng quyền. */
 const CODE_PATTERN = /^[A-Z0-9]{3,12}$/;

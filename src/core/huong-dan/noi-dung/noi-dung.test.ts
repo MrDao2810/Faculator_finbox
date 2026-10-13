@@ -87,11 +87,15 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
    *
    * Từ 269 xuống 268 ngày 06/10/2026: bỏ ô `guess` của `xirr`, một thanh trượt không đổi được kết
    * quả ở bất kỳ giá trị nào. Xem docblock mục 5 ở `src/core/formulas/returns.ts`.
+   *
+   * Lên lại 269 ngày 13/10/2026: `gia-von-trung-binh-dca` thêm biến đếm `lots` ("Số đợt mua") khi
+   * số đợt thành thứ người dùng thêm bớt được. Ô của đợt thứ tư trở đi KHÔNG nằm trong con số này:
+   * chúng sinh từ mẫu `spec.repeat`, không khai trong `spec.variables`.
    */
-  it('phủ đúng 268 ô nhập của cả thư viện', () => {
-    expect(MOI_O).toHaveLength(268);
+  it('phủ đúng 269 ô nhập của cả thư viện', () => {
+    expect(MOI_O).toHaveLength(269);
     const soMucTrongKho = MUC.reduce((n, [, bai]) => n + Object.keys(bai.oNhap).length, 0);
-    expect(soMucTrongKho).toBe(268);
+    expect(soMucTrongKho).toBe(269);
   });
 
   it('mọi ô đều có câu "lấy số ở đâu", không câu nào rỗng', () => {
@@ -101,7 +105,7 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
   });
 
   /*
-   * 163/268 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
+   * 163/269 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
    * lưu ý cho một ô là việc tốt. Ghim để thấy nó đi lên, và để không ai xoá bớt mà không ai biết.
    */
   it('163 ô có thêm câu lưu ý', () => {
@@ -216,9 +220,9 @@ describe('nợ bản tiếng Anh, đếm thành tiếng', () => {
     expect(chuaDich).toHaveLength(111);
   });
 
-  it('268 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
+  it('269 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
     const chuaDich = MOI_O.filter(({ o }) => (o?.layODau.en ?? '').trim() === '');
-    expect(chuaDich).toHaveLength(268);
+    expect(chuaDich).toHaveLength(269);
   });
 });
 

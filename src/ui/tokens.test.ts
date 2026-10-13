@@ -218,6 +218,14 @@ function usedNames(css: string): Set<string> {
  * định 20px vì ở đó hình là nhân vật chính, còn khối "Từ các ô trên, công thức tính ra" hạ xuống
  * 16px vì nhãn của nó chỉ 12px. Nó không phải một token bảng màu: không màn nào khác dùng tới, và
  * khai nó ở `:root` sẽ mời người ta đặt lại cỡ chữ của bộ vẽ từ xa.
+ *
+ * `--paste-cols` là số cột của lưới "Dán dữ liệu" (13/10/2026), do `PasteImportSheet.tsx` đặt trên
+ * thẻ `<table>`: sáu, cộng số cột thừa của bộ dữ liệu vừa dán. CSS dùng nó tính mức sàn bề ngang
+ * của bảng, để sáu cột vừa khung mà cột thừa thì đẩy bảng tràn ra chứ không bóp sáu cột kia.
+ *
+ * `--o-moi-nhom` là số ô của MỘT nhóm ô lặp (13/10/2026), do `FormulaDetail.tsx` đặt trên lưới ô
+ * nhập của công thức cho thêm bớt nhóm: hai với `gia-von-trung-binh-dca` (tiền và giá của một đợt
+ * mua). CSS lấy nó làm số cột, để mỗi đợt nằm trọn một hàng.
  */
 const LOCAL_VARIABLES = new Set([
   '--fill',
@@ -226,6 +234,8 @@ const LOCAL_VARIABLES = new Set([
   '--rong',
   '--ky-tu',
   '--ct-co-chu',
+  '--paste-cols',
+  '--o-moi-nhom',
 ]);
 
 /**

@@ -4570,6 +4570,105 @@ window.__themeLog = [];
   await send('Emulation.setFocusEmulationEnabled', { enabled: false });
 
   /*
+   * ── Nhóm ô lặp: thêm đợt mua thì lưới ô vẫn mỗi đợt một hàng (13/10/2026) ────────────────────
+   *
+   * Chủ dự án chỉ vào ba đợt mua khai cứng của `gia-von-trung-binh-dca` và hỏi người muốn nhập bốn,
+   * năm, sáu đợt thì làm sao, rồi dặn: *"vì giao diện có thay đổi nên bạn cần thêm chức năng để
+   * giao diện thay đổi tương ứng"*. Nút "Thêm đợt mua" thêm hai ô (tiền, giá) cho mỗi đợt.
+   *
+   * Thứ chỉ Chrome thật đo được là BỐ CỤC sau khi thêm. Lưới thường chia cột theo bề ngang (ba cột
+   * ở 1024px), nên ô tiền và ô giá của cùng một đợt rơi sang hai hàng — với ba đợt còn dò được, tới
+   * đợt năm thì không ai ghép nổi. Lớp `.fieldsRepeat` ghim số cột bằng số ô của một nhóm; nó phải
+   * thắng cả `.fields` trong các `@media` lẫn `.fields.tileGrid` của thẻ gộp, mà cái sau chỉ thắng
+   * được nhờ THỨ TỰ trong file. Đo ở ba khổ vì mỗi khổ một luật cột khác nhau đang bị đè: 360 (lưới
+   * auto-fit), 1024 (ba cột) và 1440 (thẻ gộp).
+   *
+   * Bấm bằng `.click()` của DOM: nút là `<button>` thường, không có gì phụ thuộc con trỏ thật.
+   */
+  const DO_NHOM_LAP = `(() => {
+    const oCua = (nhan) => {
+      const label = [...document.querySelectorAll('label')].find((l) => l.textContent.trim().startsWith(nhan));
+      const o = label ? document.getElementById(label.htmlFor) : null;
+      return o ? o.getBoundingClientRect() : null;
+    };
+    const nut = [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === '+ Thêm đợt mua');
+    const hang = [];
+    for (let n = 1; n <= 5; n += 1) {
+      const tien = oCua('Tiền mua đợt ' + n);
+      const gia = oCua('Giá mua đợt ' + n);
+      if (!tien || !gia) return { loi: 'thiếu ô của đợt ' + n };
+      hang.push({
+        top: Math.round(tien.top),
+        lech: Math.abs(Math.round(tien.top) - Math.round(gia.top)),
+        tienTrai: tien.left < gia.left,
+        day: Math.round(Math.max(tien.bottom, gia.bottom)),
+        phai: Math.round(gia.right),
+        rongTien: Math.round(tien.width),
+        rongGia: Math.round(gia.width),
+      });
+    }
+    const n = nut ? nut.getBoundingClientRect() : null;
+    return {
+      hang,
+      nut: n ? { top: Math.round(n.top), left: Math.round(n.left), right: Math.round(n.right) } : null,
+      rongMan: window.innerWidth,
+      tranNgang: document.documentElement.scrollWidth > window.innerWidth + 1,
+      ketQua: document.querySelector('[data-testid="result-text"]')?.textContent ?? null,
+    };
+  })()`;
+
+  for (const kho of [
+    { width: 360, height: 780, mobile: true },
+    { width: 1024, height: 900, mobile: false },
+    { width: 1440, height: 900, mobile: false },
+  ]) {
+    await send('Emulation.setDeviceMetricsOverride', { ...kho, deviceScaleFactor: 1 });
+    await evaluate(`localStorage.removeItem('ffb.draft.v1'), sessionStorage.clear(), true`);
+    await open('/cong-thuc/gia-von-trung-binh-dca/');
+
+    const ketQuaTruoc = await evaluate(
+      `document.querySelector('[data-testid="result-text"]')?.textContent ?? null`,
+    );
+    for (let lan = 0; lan < 2; lan += 1) {
+      await evaluate(
+        `[...document.querySelectorAll('button')].find((b) => b.textContent.trim() === '+ Thêm đợt mua')?.click(), true`,
+      );
+    }
+    await waitFor(
+      `[...document.querySelectorAll('label')].some((l) => l.textContent.trim().startsWith('Giá mua đợt 5'))`,
+    );
+
+    const nhom = await evaluate(DO_NHOM_LAP);
+    const hang = nhom.hang ?? [];
+    const cungHang = hang.every((h) => h.lech <= 1 && h.tienTrai);
+    const xuongDan = hang.every((h, i) => i === 0 || h.top > (hang[i - 1]?.day ?? 0) - 1);
+    const trongMan = hang.every((h) => h.phai <= nhom.rongMan);
+    const cuoi = hang[hang.length - 1];
+    const nutDuoiOCuoi =
+      nhom.nut !== null &&
+      cuoi !== undefined &&
+      nhom.nut.top >= cuoi.day - 1 &&
+      nhom.nut.left >= 0 &&
+      nhom.nut.right <= nhom.rongMan;
+
+    check(
+      `${String(kho.width)} · giá vốn DCA thêm hai đợt: mỗi đợt một hàng (tiền trái, giá phải), nút Thêm ngay dưới đợt cuối, trang không tràn ngang, kết quả chưa đổi`,
+      nhom.loi === undefined &&
+        hang.length === 5 &&
+        cungHang &&
+        xuongDan &&
+        trongMan &&
+        nutDuoiOCuoi &&
+        nhom.tranNgang === false &&
+        nhom.ketQua === ketQuaTruoc,
+      nhom.loi ??
+        `lệch trong hàng ${hang.map((h) => String(h.lech)).join('/')}px · đỉnh các hàng ${hang.map((h) => String(h.top)).join('/')} · ô rộng ${String(cuoi?.rongTien)}/${String(cuoi?.rongGia)}px · nút ở ${String(nhom.nut?.top)} (đợt cuối kết ở ${String(cuoi?.day)}) · tràn ngang: ${String(nhom.tranNgang)} · kết quả ${String(ketQuaTruoc)} → ${String(nhom.ketQua)}`,
+    );
+  }
+  // Trả kho về trống: bản nháp năm đợt không được chảy sang cụm service worker ngay dưới.
+  await evaluate(`localStorage.removeItem('ffb.draft.v1'), sessionStorage.clear(), true`);
+
+  /*
    * ── Service worker lúc MẤT MẠNG: trang vắng kho thì về khung /cong-thuc/ dưới ĐÚNG URL ───────
    *
    * Lỗi thật chủ dự án báo 16/09/2026: mở link hay app lúc điện thoại chưa có mạng thì "vào một màn

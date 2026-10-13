@@ -264,19 +264,16 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'loan.condensed.after': 'periods: the first 12, each year-end, and the last one.',
 
   'preset.title': 'Load a sample dataset',
-  /* Sáu khoá của sheet này đã bỏ cùng bản tiếng Việt — xem `vi.ts` để biết khoá nào và vì sao. */
+  /* Bảy khoá của sheet này đã bỏ cùng bản tiếng Việt — xem `vi.ts` để biết khoá nào và vì sao. */
   'preset.load': 'Load',
   'preset.topPicks': 'Top picks — the four tickers best suited to trying this formula',
-  'preset.seriesOnlyNote':
-    'This formula runs on a price series. Only the latest session is a real price; the path ' +
-    'before it is fabricated, so read the four numbers below as examples, not as a market ' +
-    'comparison.',
   'preset.noTickerNote':
     'None of the four tickers below changes a field of this formula — it runs on your own ' +
     'numbers. Loading one here only carries it over to the formulas that do use a ticker.',
   'preset.cannotCompute': 'no result with this ticker',
   'preset.lastPrice': 'Latest session price',
   'preset.browseMarket': 'Find another ticker across the market →',
+  'preset.browseMarketCount': 'List of {n} other tickers →',
   'preset.draftTag': 'fabricated price history',
   'preset.draftExport':
     'Input numbers come from a fabricated sample dataset, not yet checked against real statements.',
@@ -415,8 +412,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `ticker.pickHeld` ('Add more') đã xoá cùng bản Việt (10/10/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
-  /* Chỉ còn đơn vị, bỏ vế chỉ đường — xem chú thích ở `vi.ts`. */
-  'ticker.capped': 'tickers',
+  'ticker.searching': 'Searching tickers…',
+  'ticker.loadingMore': 'Loading more tickers…',
+  /* `ticker.capped` ('tickers') đã xoá cùng bản Việt (13/10/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.retry': 'Try again',
   'ticker.errorNetwork': 'Could not load the ticker list. Check your connection and try again.',
   'ticker.errorSource':
@@ -515,12 +513,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'paste.col.low': 'Low price',
   'paste.col.close': 'Close price',
   'paste.col.volume': 'Volume',
-  'paste.col.ignore': 'Unused',
   'paste.validRows': 'session(s) read',
   'paste.rangeFrom': 'from',
   'paste.rangeTo': 'to',
-  'paste.needClose':
-    'No column is set as Close price. Tap a column name at the head of the grid and pick it.',
   'paste.reordered':
     'The data is newest first. It has been flipped so the series runs oldest to newest.',
   'paste.orderUnknown':

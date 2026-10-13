@@ -47,8 +47,30 @@
 import { parseSeriesDate } from './price-series';
 import { normalizeVi } from './registry/search';
 
-/** Vai trò của một cột trong bảng dán vào. */
+/**
+ * Vai trò của một cột trong bảng dán vào.
+ *
+ * `'ignore'` là CỘT THỪA: cột có trong dữ liệu người dùng đưa vào nhưng không phải cột nào trong
+ * sáu cột của chuỗi giá. Bộ đọc không lấy gì từ nó. Nó KHÔNG phải một lựa chọn bày ra cho người
+ * dùng, và không có nhãn riêng — xem `COLUMN_LABELS` ngay dưới.
+ */
 export type ColumnKind = 'date' | 'open' | 'high' | 'low' | 'close' | 'volume' | 'ignore';
+
+/** Sáu vai trò thật của một chuỗi giá — mọi `ColumnKind` trừ cột thừa. */
+export type SeriesColumnKind = Exclude<ColumnKind, 'ignore'>;
+
+/**
+ * Sáu cột của một chuỗi giá, đúng thứ tự lưới WF-11 mở ra và cũng là thứ tự Excel của các sàn
+ * Việt Nam. Lưới LUÔN có đủ sáu cột này, mỗi vai trò ở đúng một cột — xem `fitToSeriesColumns()`.
+ */
+export const SERIES_COLUMNS: ReadonlyArray<SeriesColumnKind> = [
+  'date',
+  'open',
+  'high',
+  'low',
+  'close',
+  'volume',
+];
 
 /**
  * Nhãn tiếng Việt của từng cột.
@@ -56,15 +78,19 @@ export type ColumnKind = 'date' | 'open' | 'high' | 'low' | 'close' | 'volume' |
  * WF-11 viết tắt là "Mở · Cao · Thấp · Đóng · KL". Đợt 22/09/2026 viết đủ chữ ra, vì chủ dự án
  * chốt sản phẩm nhắm người dùng thường: "Đóng" chỉ có nghĩa với người đã biết OHLC, còn người
  * mới thì không có cách nào đoán ra nó là giá đóng cửa.
+ *
+ * Chỉ SÁU nhãn. Nhãn thứ bảy "Không dùng" đã BỎ ngày 13/10/2026: chủ dự án khoanh ô chọn mang
+ * chữ ấy và hỏi nó là cái gì — *"tạo đủ dữ liệu của 6 cột là thôi không cần tạo gì nữa… nếu khách
+ * nạp thừa thêm 1 cột dữ liệu chưa rõ tên thì cứ tạo thêm 1 cột thừa ra đó"*. Cột thừa mang tên
+ * của chính nó trong dữ liệu đã dán (`FittedTable.names`), không mang một nhãn do sản phẩm đặt.
  */
-export const COLUMN_LABELS: Readonly<Record<ColumnKind, string>> = {
+export const COLUMN_LABELS: Readonly<Record<SeriesColumnKind, string>> = {
   date: 'Ngày',
   open: 'Giá mở cửa',
   high: 'Giá cao nhất',
   low: 'Giá thấp nhất',
   close: 'Giá đóng cửa',
   volume: 'Khối lượng',
-  ignore: 'Không dùng',
 };
 
 /**
@@ -170,23 +196,13 @@ const RAW_PREVIEW = 40;
 /** Số dòng thô trả về cho khung "cột nào là gì". Đủ nhận ra cột lệch, không thành bảng thứ hai. */
 const PREVIEW_CELL_ROWS = 4;
 
-/** Thứ tự cột mặc định khi đoán theo vị trí — đúng thứ tự Excel của các sàn Việt Nam. */
-const POSITIONAL_ORDER: ReadonlyArray<ColumnKind> = [
-  'date',
-  'open',
-  'high',
-  'low',
-  'close',
-  'volume',
-];
-
 /**
  * Từ khoá nhận diện tiêu đề cột, đã bỏ dấu. Cả tiếng Việt lẫn tiếng Anh vì file tải về hay lẫn.
  *
  * Danh sách này PHẢI phủ hết `COLUMN_LABELS` ngay trên — tức chính những cái tên sản phẩm tự in
  * ra. Ngày 22/09/2026 nó không phủ: nhãn hiển thị đổi sang viết đủ chữ ("Giá cao nhất") mà từ
  * vựng ở đây vẫn chỉ có "cao nhat", nên dán lại đúng bảng do sản phẩm xuất ra thì hai cột Cao
- * và Thấp rơi vào "Không dùng" — im lặng, và mọi công thức cần nến mất dữ liệu.
+ * và Thấp thành cột thừa — im lặng, và mọi công thức cần nến mất dữ liệu.
  */
 const HEADER_WORDS: ReadonlyArray<{ kind: ColumnKind; words: ReadonlyArray<string> }> = [
   { kind: 'date', words: ['ngay', 'date', 'thoi gian', 'time', 'phien'] },
@@ -501,7 +517,7 @@ function positionalValues(
   offset: number,
 ): ColumnKind[] {
   if (count <= 0) return [];
-  if (count >= 4) return [...POSITIONAL_ORDER.slice(1)].slice(0, count);
+  if (count >= 4) return [...SERIES_COLUMNS.slice(1)].slice(0, count);
 
   if (count === 2 && looksLikeVolume(sample, offset + 1, offset)) return ['close', 'volume'];
 
@@ -641,6 +657,11 @@ export interface PasteTable {
   cells: string[][];
   columns: ColumnKind[];
   hasHeader: boolean;
+  /**
+   * Các ô của dòng tiêu đề, đúng như người dùng dán; mảng rỗng khi bảng không có tiêu đề.
+   * Lưới lấy tên CỘT THỪA từ đây: cột không khớp vai trò nào thì hiện dưới tên của chính nó.
+   */
+  header: string[];
   delimiter: string;
   preamble: number;
   truncated: number;
@@ -651,6 +672,7 @@ function cutTable(text: string): {
   rows: TableRow[];
   columns: ColumnKind[];
   hasHeader: boolean;
+  header: string[];
   delimiter: string;
   preamble: number;
   truncated: number;
@@ -660,7 +682,15 @@ function cutTable(text: string): {
 
   const truncated = Math.max(0, all.length - MAX_PASTE_LINES);
   const lines = all.slice(0, MAX_PASTE_LINES);
-  const nothing = { rows: [], columns: [], hasHeader: false, delimiter, preamble: 0, truncated };
+  const nothing = {
+    rows: [],
+    columns: [],
+    hasHeader: false,
+    header: [],
+    delimiter,
+    preamble: 0,
+    truncated,
+  };
   if (lines.length === 0) return nothing;
 
   /*
@@ -688,7 +718,9 @@ function cutTable(text: string): {
     body.slice(0, 20).map((row) => row.cells),
   );
 
-  return { rows: body, columns, hasHeader, delimiter, preamble, truncated };
+  const header = hasHeader && first !== undefined ? [...first.cells] : [];
+
+  return { rows: body, columns, hasHeader, header, delimiter, preamble, truncated };
 }
 
 /**
@@ -703,9 +735,63 @@ export function splitPasteTable(text: string): PasteTable {
     cells: cut.rows.map((row) => [...row.cells]),
     columns: cut.columns,
     hasHeader: cut.hasHeader,
+    header: cut.header,
     delimiter: cut.delimiter,
     preamble: cut.preamble,
     truncated: cut.truncated,
+  };
+}
+
+/** Một bảng dán đã xếp vào khuôn sáu cột của lưới — kết quả của `fitToSeriesColumns()`. */
+export interface FittedTable {
+  /** Vai trò từng cột của lưới: sáu cột của chuỗi giá, rồi tới các cột thừa (`'ignore'`). */
+  columns: ColumnKind[];
+  /**
+   * Tên của CỘT THỪA đúng như dòng tiêu đề đã dán, cùng độ dài với `columns`. Chuỗi rỗng ở sáu
+   * cột của chuỗi giá (chúng mang nhãn của sản phẩm) và ở cột thừa không có tiêu đề.
+   */
+  names: string[];
+  cells: string[][];
+}
+
+/**
+ * Xếp một bảng vừa dán vào khuôn của lưới: ĐỦ sáu cột của chuỗi giá theo đúng thứ tự
+ * `SERIES_COLUMNS`, rồi mới tới những cột mà dữ liệu có thừa ra.
+ *
+ * Trước 13/10/2026 lưới nhận nguyên hình dạng bảng dán vào: dán hai cột thì lưới còn hai cột, và
+ * cột nào không đoán ra vai trò thì đội nhãn "Không dùng" kèm một ô chọn để đặt lại. Chủ dự án
+ * bỏ cả nhãn lẫn lựa chọn ấy: *"tạo đủ dữ liệu của 6 cột là thôi không cần tạo gì nữa và cũng
+ * không thể tạo được thêm nữa. nếu khách nạp thừa thêm 1 cột dữ liệu chưa rõ tên thì cứ tạo thêm
+ * 1 cột thừa ra đó"*. Ba hệ quả, cả ba đều nằm ở hàm này:
+ *
+ *   · Vai trò nào bảng dán không có thì cột của nó vẫn đứng đó, trống — sáu cột không bao giờ hụt.
+ *     Nhờ vậy cũng không còn ca "dán mỗi cột ngày thì lưới mất cột giá đóng cửa".
+ *   · Cột không khớp vai trò nào đi về CUỐI lưới, dưới tên của chính nó trong dòng tiêu đề.
+ *   · Cột thừa trống trơn thì không dựng: Excel hay kéo theo một Tab cuối dòng, và một cột rỗng
+ *     không tên chỉ làm lưới rộng ra.
+ *
+ * Ô vẫn là ô THÔ của người dùng, chỉ đổi chỗ đứng; đọc số vẫn là việc của `parseCells()`.
+ */
+export function fitToSeriesColumns(table: PasteTable): FittedTable {
+  const width = table.cells.reduce((most, row) => Math.max(most, row.length), table.columns.length);
+  const sources = SERIES_COLUMNS.map((kind) => table.columns.indexOf(kind));
+
+  const extras: number[] = [];
+  for (let index = 0; index < width; index += 1) {
+    if (sources.includes(index)) continue;
+    if (table.cells.some((row) => (row[index] ?? '').trim() !== '')) extras.push(index);
+  }
+
+  const order = [...sources, ...extras];
+  return {
+    columns: [...SERIES_COLUMNS, ...extras.map((): ColumnKind => 'ignore')],
+    names: [
+      ...SERIES_COLUMNS.map(() => ''),
+      ...extras.map((source) => (table.header[source] ?? '').trim()),
+    ],
+    cells: table.cells.map((row) =>
+      order.map((source) => (source === -1 ? '' : (row[source] ?? ''))),
+    ),
   };
 }
 
@@ -893,13 +979,35 @@ export function parseCells(
     body.push({ line: index + 1, text: row.join(' ').trim(), cells: row });
   });
 
-  return finish(body, columns, style, {
-    // Lưới không có ký tự ngăn cột và không có dòng tiêu đề: các cột đã là cột thật.
-    delimiter: '',
-    hasHeader: false,
-    preamble: 0,
-    truncated: 0,
-  });
+  /*
+   * Cột Ngày trống ở MỌI dòng thì đọc như bảng không có cột ngày.
+   *
+   * Từ 13/10/2026 lưới luôn mang đủ sáu cột (`fitToSeriesColumns()`), nên cột Ngày có mặt cả khi
+   * người dùng chỉ dán một cột giá đóng cửa — thứ FR-12 cần cho Beta, Sharpe và VaR. Đòi ngày ở
+   * đó là loại sạch mọi dòng của một chuỗi vẫn dùng được. Không có ngày nào thì `order` ra
+   * 'unknown' và giao diện nói thẳng là không đọc được thứ tự phiên, đúng như trước khi lưới cố
+   * định sáu cột. Chỉ cần MỘT dòng có ngày là luật cũ trở lại: dòng thiếu ngày bị chỉ đúng ô.
+   */
+  const dateAt = columns.indexOf('date');
+  const undated =
+    dateAt !== -1 &&
+    body.length > 0 &&
+    body.every((row) => (row.cells[dateAt] ?? '').trim() === '');
+  const reading = undated
+    ? columns.map((kind, index): ColumnKind => (index === dateAt ? 'ignore' : kind))
+    : columns;
+
+  return {
+    ...finish(body, reading, style, {
+      // Lưới không có ký tự ngăn cột và không có dòng tiêu đề: các cột đã là cột thật.
+      delimiter: '',
+      hasHeader: false,
+      preamble: 0,
+      truncated: 0,
+    }),
+    // Trả đúng các cột của lưới, không phải bản đã gạt cột ngày trống ra để đọc.
+    columns,
+  };
 }
 
 function optionalNumber(text: string | undefined, style: NumberStyle): number | null {

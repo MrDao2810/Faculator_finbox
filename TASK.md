@@ -4,6 +4,394 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Nhóm ô lặp: thêm bớt đợt mua và kỳ ngay trên màn công thức (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Khoanh khối Số liệu của `gia-von-trung-binh-dca`: _"nó đang chỉ mặc định là 3 đợt, mà người dùng muốn test mà
+muốn nhập thêm 4 5 6 ,.... đợt nữa thì sao ? … cần thêm một button nữa dùng để tạo thêm ô nhập … tương tự với các
+công thức tương tự"_. Sau khi xem kế hoạch: _"vì giao diện có thay đổi nên bạn cần thêm chức năng để giao diện
+thay đổi tương ứng"_.
+
+### Phạm vi, đo trên Registry
+
+Đúng 2 trong 111 công thức có ô đánh số cố định: `gia-von-trung-binh-dca` (3 đợt × 2 ô, `calc` lặp `[1, 2, 3]`)
+và `loi-suat-trung-binh-hinh-hoc` (nhóm nút "2 kỳ / 3 kỳ" cộng 3 ô). `xirr` đã có bảng dòng tiền riêng;
+`ddm-hai-giai-doan` lấy số năm bằng một ô nên không có gì để lặp.
+
+### Đã làm
+
+| Việc                          | Làm thế nào                                                                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Nút Thêm / Bỏ                 | Cuối khối Số liệu: "+ Thêm đợt mua" · "Bỏ đợt 4" (và "+ Thêm kỳ" · "Bỏ kỳ 4"). Từ 1 tới 12 đợt, từ 2 tới 12 kỳ                            |
+| Số nhóm là một biến           | `lots` (mới) và `periods` (giữ khoá cũ). Đi cùng bộ số qua bản nháp, phép tính đã lưu, link `?so=`. Màn không dựng ô cho nó               |
+| Mọi khối đọc cùng danh sách ô | Khối Số liệu, Bảng biến, biểu đồ và ô chọn trục, link chia sẻ, file xuất đều lấy danh sách ô từ `resolveRepeatSpec(spec, inputs)`         |
+| Không ô nào thành 0 lặng lẽ   | `runFormula()` tự giải nhóm lặp: số đợt là 4 mà thiếu ô đợt 4 thì báo "Chưa nhập đủ" kèm tên ô                                            |
+| Giao diện đổi theo            | Nhóm hai ô (tiền, giá) xếp MỖI ĐỢT MỘT HÀNG ở mọi khổ, thay cho lưới ba cột làm ô tiền và ô giá của một đợt rơi sang hai hàng             |
+| Bỏ nhóm nút "2 kỳ / 3 kỳ"     | Số kỳ nay do hai nút Thêm / Bỏ quyết. Link và phép tính đã lưu cũ mang `periods` 2 hoặc 3 vẫn mở ra đúng số kỳ ấy (có ca kiểm)            |
+| Khung "?" của biểu đồ         | Mỗi ô mẫu một đoạn chữ dùng cho mọi đợt/kỳ thêm, điền số thứ tự khi mở. Thiếu nó thì chọn "Giá mua đợt 4" là khung nói về hình của ô khác |
+| Kho bản nháp                  | Trần số ô một bản nháp 24 → 40: 12 đợt là 25 khoá, trần cũ làm rơi giá của đợt cuối                                                       |
+
+### Một chỗ làm KHÁC kế hoạch đã trình
+
+Kế hoạch đề xuất "ô của đợt mới để trống". Không làm được như thế: ô số của màn không có trạng thái để trống
+(`NumberInput` không bao giờ đẩy ô trống lên, kho bản nháp loại giá trị không phải số, `VariableSpec.defaultValue`
+sinh ra để không ô nào mở ra trống). Nên **ô của nhóm mới mang số 0**:
+
+- Giá vốn DCA: 0 ở cả hai ô vốn đã là quy ước "không có đợt này", nên bấm Thêm thì kết quả đứng yên; gõ tiền mà
+  chưa gõ giá thì màn báo đúng tên ô "Giá mua đợt 4".
+- Lợi suất hình học: 0 % là một kỳ THẬT (kỳ đi ngang), nên bấm Thêm là kết quả đổi ngay. Con số 0 nằm trong ô vừa
+  hiện ra. **Cần chủ dự án xem có chấp nhận không**; lối khác là cho kỳ mới chép số của kỳ trước.
+
+### File đã đổi
+
+| File                                                                    | Đổi gì                                                                                             |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `src/core/registry/types.ts`                                            | Kiểu `RepeatGroup`, trường `FormulaSpec.repeat`                                                    |
+| `src/core/registry/repeat.ts` (mới) + `repeat.test.ts` (mới)            | Giải danh sách ô theo số nhóm, thêm / bỏ nhóm, thứ màn cần cho hai nút. 27 ca                      |
+| `src/core/registry/validate.ts`, `index.ts`                             | Soát khai báo `repeat`; ca kiểm thử được mang ô của nhóm thêm                                      |
+| `src/core/calc/run.ts`, `index.ts`                                      | `runFormula()` giải nhóm lặp tại cửa; `resolveRepeat()` cho bản cấp module                         |
+| `src/core/chart/sweep.ts`                                               | Biến đếm không đứng trên trục biểu đồ                                                              |
+| `src/core/formulas/planning.ts`, `performance.ts`                       | Hai công thức: biến đếm, `repeat`, `calc` lặp theo số nhóm, chữ thôi nói cứng "ba", thêm 9 ca kiểm |
+| `src/core/formulas/summaries.generated.ts`                              | Sinh lại bằng `npm run gen:summaries` (hai mô tả đổi)                                              |
+| `src/core/huong-dan/bieu-do/*` + `noi-dung/khac.ts`, `loi-suat.ts`      | `trucLap`: 6 đoạn chữ mẫu, kế hoạch, ghép bài, luật kiểm, 4 ca kiểm                                |
+| `src/core/huong-dan/noi-dung/items.ts` (+ test, `types.ts`, `index.ts`) | Câu "lấy số ở đâu" của `lots`; sửa câu của `periods` và `r3`; ghim 268 → 269 ô                     |
+| `src/core/quiz/items/tinh-toan.ts`                                      | Q407 thêm `lots: 3` vào bộ số kiểm                                                                 |
+| `src/application/index.ts`, `input-draft-store.ts` (+ test)             | Xuất hàm nhóm lặp; trần 24 → 40 ô                                                                  |
+| `src/ui/guide/GuideBody.tsx` (+ test)                                   | Khung "?" dựng khối chữ của ô thêm từ khối mẫu                                                     |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`, `.module.css`, `.test.tsx`  | Hai nút, `activeSpec`, giải `?so=` hai lượt, lưới mỗi nhóm một hàng. 16 ca kiểm                    |
+| `src/ui/tokens.test.ts`, `scripts/chrome-check.mjs`                     | Khai biến `--o-moi-nhom`; 3 phép đo bố cục (360, 1024, 1440)                                       |
+| `CLAUDE.md`, `src/core/formulas/README.md`                              | Mục "Repeat groups"; cách khai `repeat` cho công thức thứ ba                                       |
+
+### Kiểm chứng
+
+- `npm run lint`, `tsc --noEmit`, `prettier --check .`: sạch. `vitest run`: **3.733 đạt**, 48 bỏ qua, 0 hỏng.
+- Build trên bản sao (dev của chủ dự án đang giữ :3000): `verify:static` **51/51**.
+- `check:chrome` **164/171**. Ba phép mới đều đạt: thêm hai đợt, năm hàng thẳng (lệch 0px ở cả năm hàng), ô rộng
+  114px ở 360, 406px ở 1024, 357px ở 1440, nút ngay dưới đợt cuối, trang không tràn ngang, kết quả đứng yên ở
+  35.294,12 ₫. **7 phép hỏng là đúng 7 phép đã hỏng từ trước** (nhãn biểu đồ của `lich-tra-no`, `diem-hoa-von`,
+  `lai-kep` × 2, `fcff`; "hàng nav đứng yên khi đổi màn"; "hàng nút của form thêm mã").
+- `size` **CHƯA ĐẠT như trước**. Đo trên cùng cây làm việc, có và không có gói này: trang chi tiết **433,1 →
+  435,5 kB** First Load JS (+2,4 kB), `/danh-muc/` 189,1 → 189,2 kB.
+
+### Việc còn lại, cần chủ dự án
+
+1. Xem màn hai công thức, nhất là: kỳ mới của lợi suất hình học mở ra ở 0 % và làm đổi kết quả ngay.
+2. Ba câu viết kèm code, không có trong `guide-111.json`: câu "lấy số ở đâu" của "Số đợt mua", hai câu sửa của
+   "Số kỳ nhập liệu" và một câu của "Lợi suất kỳ 3". Sáu đoạn "Đọc biểu đồ" mẫu cũng chưa ai đọc lại.
+3. Chưa làm: tiêu điểm bàn phím không tự nhảy vào ô mới sau khi bấm Thêm (ô mới đứng ngay trước nút, Shift+Tab
+   tới được). Trang đầy đủ của bài hướng dẫn không kê hình của đợt thêm, vì nó tả màn lúc mở ra.
+4. Ví dụ thực tế và Bài tập giữ ba đợt (số liệu có nguồn), không đổi.
+
+---
+
+## Tấm chọn mã: bày dần 20 mã một lượt, vòng xoay khi cuộn và khi tìm (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Sau khi thấy nút ngoài tấm mẫu ghi "Danh sách 1.100 mã khác" (mục "nút sang kho lớn" phía dưới): _"tại sao tôi
+check ra được bên ngoài ghi là 1000 mã mà lúc vào hiển thị có 60/1649 mã ? là sao ? ý tôi là số lượng mã có thể áp
+dụng được vào công thức ấy ví dụ là 60 chẳng hạn. còn nếu đầy đủ hơn 1000 mã thì thêm logic như sau: ban đầu hiển
+thị 20 mã khi người dùng scroll xuống dưới thì hiển thị icon xoay tròn loading... rồi hiển thị thêm 20 mã nữa. còn
+nếu người dùng search thì cần loading để tìm mã tương ứng"_
+
+### Ba con số ấy là gì
+
+| Số    | Là gì                                                                                          |
+| ----- | ---------------------------------------------------------------------------------------------- |
+| 1.649 | Cả thị trường, kể cả mã chưa có dữ liệu (dòng xám, nút "Chọn" khoá)                            |
+| 1.104 | Mã có dữ liệu, tức mã bấm "Chọn" được. Trừ bốn mã mẫu đang bày ở tấm mẫu thì ra 1.100 trên nút |
+| 60    | Số DÒNG tấm chọn mã dựng mỗi lần mở. Không phải số mã dùng được                                |
+
+Dòng "60/1.649 mã" đặt hai số cạnh nhau nên đọc ra như "có 60 mã". Đó là lỗi của dòng ấy, và nó đã bỏ.
+
+### Đã làm
+
+| Việc                        | Làm thế nào                                                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Mở ra là 20 mã              | `PAGE_SIZE = 20` thay cho trần 60 dòng                                                                                   |
+| Cuộn tới đáy thì thêm 20    | Mốc cuối danh sách mang vòng xoay; vào tầm nhìn thì chờ 0,35 giây rồi bày thêm 20 mã. Hết mã thì mốc biến mất            |
+| Tìm thì có loading          | Gõ xong 0,3 giây mới lọc; trong lúc ấy vòng xoay và chữ "Đang tìm mã…" đứng thay danh sách. Kết quả mới bày lại từ 20 mã |
+| Bỏ dòng "60/1.649 mã"       | Bày dần thì không còn gì bị cắt để phải đếm. Bỏ khoá `ticker.capped`, kèm bia mộ                                         |
+| Vòng xoay lúc tải danh sách | Câu "Đang tải danh sách mã…" có thêm cùng vòng xoay ấy, cho ba lúc chờ một hình                                          |
+| Áp cho cả hai màn           | Một component, nên màn chi tiết công thức và màn Danh mục cùng đổi                                                       |
+
+| File                                         | Đổi gì                                                                                                    |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `src/ui/sheets/TickerPickerSheet.tsx`        | Bày dần bằng `IntersectionObserver`, lọc trễ theo từ khoá, ba trạng thái chờ có vòng xoay, bỏ dòng đếm    |
+| `src/ui/sheets/TickerPickerSheet.module.css` | `.spinner`, `.more`; bỏ `.footnote`                                                                       |
+| `src/ui/sheets/TickerPickerSheet.test.tsx`   | +4 ca với bộ quan sát giả: 20 → 40 → 45 rồi hết · tìm thì hiện "Đang tìm mã…" · tìm lại về 20 · hết "x/y" |
+| `src/app/danh-muc/PortfolioScreen.test.tsx`  | Ca "lọc theo mã" chờ kết quả thay vì soi ngay                                                             |
+| `src/application/i18n/vi.ts`, `en.ts`        | +`ticker.searching`, +`ticker.loadingMore`; bỏ `ticker.capped`                                            |
+
+### Kiểm chứng
+
+- Lint, typecheck, format:check, `npm test` (149 file, 3682 ca) đều qua.
+- Chrome thật, trang `/cong-thuc/vwap/` trên dev đang chạy, danh sách mã thật từ Finbox: nút ghi "Danh sách 1.100
+  mã khác →"; mở ra 20 dòng; cuộn tới đáy thì vòng xoay nằm trong tầm nhìn và chưa thêm dòng, rồi lên 40, cuộn tiếp
+  lên 60; gõ "fpt" thì hiện "Đang tìm mã…" thay danh sách rồi ra 6 dòng, FPT đứng đầu. Chưa chạy `build` /
+  `check:chrome`.
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Hai khoảng chờ là cố ý, không phải máy cần.** Cả 1.649 mã đã nằm trong bộ nhớ từ lúc tấm mở, nên bày thêm hay
+   lọc đều xong tức thì. Tôi đặt 0,35 giây (cuộn) và 0,3 giây (tìm) để vòng xoay kịp thấy; muốn dài hay ngắn hơn là
+   đổi hai con số.
+2. **Vòng xoay vẫn xoay khi máy bật "giảm chuyển động", chỉ chậm đi một nửa.** Đo được trên máy này: Windows đang
+   tắt "Animation effects", nên Chrome báo giảm chuyển động. Theo luật chung của sản phẩm thì vòng sẽ đứng yên, và
+   bạn sẽ thấy một vòng tròn bất động ở đáy danh sách.
+3. **Tấm vẫn bày đủ 1.649 mã, mã chưa có dữ liệu thì xám.** Tức cuộn hết danh sách là qua cả 1.104 mã dùng được lẫn
+   545 mã xám, xen kẽ theo thứ tự nguồn. Con số 1.100 trên nút chỉ đếm mã dùng được.
+4. **Trình duyệt không có `IntersectionObserver` thì bày hết một lần**, vì ở đó không có gì gọi được lượt kế.
+
+### Việc còn lại
+
+- Chủ dự án xem màn.
+- Nếu muốn danh sách bên trong khớp hẳn với con số trên nút: hoặc đưa mã dùng được lên trước, hoặc ẩn mã xám khi
+  không tìm. Chưa làm, vì ẩn mã thì gõ một mã chưa có dữ liệu sẽ ra "không có mã nào khớp".
+
+---
+
+## "Dán dữ liệu": sáu cột cố định, bỏ "Không dùng", và các cột trống sau khi nạp (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Kèm ảnh khoanh ô chọn "Cột 6 · Không dùng": _"tạo ô không dùng là cái gì. tôi đã trước có task tôi đã yêu cầu là
+không có select của không dùng rồi. tạo đủ dữ liệu của 6 cột là thôi không cần tạo gì nữa và cũng không thể tạo
+được thêm nữa. nếu khách nạp thừa thêm 1 cột dữ liệu chưa rõ tên thì cứ tạo thêm 1 cột thừa ra đó. thêm nữa là
+kiểm tra lỗi sau khi nạp dữ liệu mẫu vào có một số cột sau khi nạp không thấy số liệu trên table đâu"_
+
+### "Không dùng" từ đâu ra
+
+Hai chỗ trong `PasteImportSheet.tsx`: nó là lựa chọn thứ bảy của ô chọn vai trò cột, và là nhãn máy gán cho cột
+không đoán ra vai trò. Chọn nó cho một cột là số liệu của cột ấy không được nạp, không có gì báo. Tôi không tìm
+thấy mục nào trong file này ghi yêu cầu bỏ nó trước đây, nên không nói được nó bị sót từ lượt nào.
+
+### Cột trống sau khi nạp: bốn nguyên nhân, cả bốn đều dựng lại được
+
+| #   | Nguyên nhân                                                                                                                                        | Dựng lại                                                                                      |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 1   | Bộ dữ liệu ví dụ VN-Index chỉ có giá đóng cửa, bốn cột kia là `null`                                                                               | Nạp ví dụ ở Sharpe, Beta, VaR… (9 công thức) rồi mở sheet: 4 trên 6 cột trống                 |
+| 2   | Đặt một cột sang "Không dùng" rồi bấm Nạp                                                                                                          | Đúng cảnh trong ảnh: cột Khối lượng mất trắng sau khi nạp                                     |
+| 3   | Sáu cột đặt cứng 984px, khung cuộn của popup rộng nhất chỉ 966px                                                                                   | Cửa sổ 1025px: cột Khối lượng chỉ ló một mẩu, thanh cuộn ngang khuất dưới mép popup           |
+| 4   | "Tải file CSV", và dán một bảng có dòng tiêu đề, ĐÈ lên lưới đang có chuỗi thay vì thay lưới (lưới gần như luôn có chuỗi từ khi mở ra là thấy sẵn) | File hai cột Ngày · Đóng: giá đóng cửa rơi vào "Giá mở cửa", cột Giá đóng cửa giữ số chuỗi cũ |
+
+### Đã làm
+
+| Việc                              | Làm thế nào                                                                                                                                                                   |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bỏ "Không dùng"                   | Ô chọn còn đúng sáu lựa chọn. Bỏ khoá `paste.col.ignore` và nhãn thứ bảy ở Domain; `paste.needClose` đi theo vì không còn ca nào hiện                                         |
+| Đủ sáu cột, không thêm được       | Lưới luôn có sáu vai trò, mỗi vai trò một cột. Dán bảng hai cột thì lưới vẫn sáu cột, số rơi đúng cột. Chọn vai trò cho một cột là ĐỔI CHỖ hai cột, không gỡ được vai trò nào |
+| Cột thừa chưa rõ tên              | Đứng thêm ở cuối lưới, chữ mờ, dưới tên của chính nó trong dòng tiêu đề đã dán; không có tiêu đề thì là "Cột 7". Nút đếm "Cột 6/7"                                            |
+| Cột trống ở ví dụ VN-Index        | Nạp Mở · Cao · Thấp · Khối lượng thật cho 71 phiên, nguồn VNDirect; 71/71 giá đóng cửa của nguồn này bằng đúng chuỗi chủ dự án đã cấp                                         |
+| Cột Khối lượng khuất ở cửa sổ hẹp | Cột số chia đều bề ngang khung thay vì đặt cứng; sáu cột vừa khung từ cửa sổ khoảng 985px                                                                                     |
+| File và bảng có tiêu đề           | Thay cả lưới, xếp cột theo tên trong dòng tiêu đề                                                                                                                             |
+
+| File                                                    | Đổi gì                                                                                                                                                                  |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/paste-import.ts` + test                       | `SERIES_COLUMNS`, `SeriesColumnKind`, `fitToSeriesColumns()`; `PasteTable.header`; `COLUMN_LABELS` còn sáu nhãn; `parseCells()` coi cột Ngày trống mọi dòng là không có |
+| `src/ui/sheets/PasteImportSheet.tsx` + CSS              | Ô chọn sáu lựa chọn, đổi chỗ cột, cột thừa mang tên riêng, file và bảng có tiêu đề thay lưới, bề ngang cột tính theo số cột                                             |
+| `src/ui/sheets/ExportSheet.test.tsx`                    | 3 ca cũ viết lại, +8 ca mới                                                                                                                                             |
+| `src/core/formulas/market-series-2026.ts` + test        | `VNINDEX_71_BARS` đủ OHLCV; +6 ca (khớp giá đóng cửa, không cột trống, Thấp ≤ Mở, Đóng ≤ Cao, khối lượng nguyên dương)                                                  |
+| `src/core/formulas/formulas.test.ts`                    | +1 ca quét MỌI bộ dữ liệu ví dụ: không phiên nào để cột trống                                                                                                           |
+| `src/application/index.ts`, `i18n/vi.ts`, `en.ts`, test | Xuất hàm mới; bỏ hai khoá kèm mộ chí; +1 ca ghim không còn "Không dùng" ở từ điển lẫn Domain                                                                            |
+| `src/ui/tokens.test.ts`                                 | Khai `--paste-cols` vào danh sách biến do JS đặt                                                                                                                        |
+| `CLAUDE.md`                                             | Mục mới "The paste sheet — six fixed columns"                                                                                                                           |
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Cột thừa vẫn có ô chọn, đang hiện tên của chính nó.** Chọn một trong sáu vai trò cho nó là đổi chỗ với cột
+   đang giữ vai trò ấy. Lý do: bảng dán ghi "KLGD" thì máy không nhận ra là khối lượng, không có đường này là
+   người dùng không cứu được cột ấy. Nếu chủ dự án muốn cột thừa chỉ đứng đó, không chọn được gì, thì bỏ một ô.
+2. **Cột thừa không được nạp đi đâu.** Một phiên giá chỉ có sáu trường, nên cột thừa chỉ để nhìn.
+3. **Lưới xếp cột theo thứ tự của lưới, không theo thứ tự của file.** File ghi Đóng · KL · Ngày thì lên lưới vẫn
+   là Ngày · … · Đóng · KL. Ô nào của người dùng cũng còn, chỉ đổi chỗ đứng.
+4. **Chuỗi chỉ có giá đóng cửa, không ngày, vẫn nạp được**, kèm câu "Không đọc được thứ tự phiên" như trước. Lưới
+   nay luôn có cột Ngày, nên luật là: cột Ngày trống ở MỌI dòng thì không đòi ngày; có một dòng có ngày là dòng
+   thiếu ngày bị báo lỗi.
+5. **Số liệu Mở · Cao · Thấp · Khối lượng của VN-Index không nằm trong bảng chủ dự án cấp ngày 16/09.** Tôi lấy
+   từ VNDirect và chỉ nhận sau khi 71/71 giá đóng cửa khớp. Chín công thức ấy chỉ đọc giá đóng cửa, nên không
+   kết quả nào đổi.
+6. **Cột Ngày hẹp lại** (176px còn 144px) để sáu cột vừa khung.
+
+### Kiểm chứng
+
+- `lint` sạch, `typecheck` sạch, vitest **149 file · 3678 đạt · 48 bỏ qua · 0 hỏng**. Cây làm việc lúc đo có cả
+  thay đổi chưa commit của việc khác (`PresetSheet`, `SettingsScreen`, `FeeScheduleField`).
+- **Đo trên màn thật** (Chrome riêng trỏ vào dev server), sheet mở từ ví dụ của Sharpe: sáu cột đều có số
+  (`04/06/2026 · 1.822,08 · 1.831,55 · 1.812,65 · 1.831,55 · 450.907.795`); không còn chữ "Không dùng"; sáu ô
+  chọn, mỗi ô sáu lựa chọn. Bề ngang: ở 1440, 1280, 1025 và 1000px bảng vừa khung, không cuộn ngang, không ô nào
+  bị cắt chữ; ở 900 và 390px cuộn ngang như cũ. Dán bảng thừa một cột: tiêu đề cột thừa chữ mờ, cắt bằng dấu ba
+  chấm, nút "Cột 6/7", ô chọn "Cột 7" hiện tên cột. Đã xem ảnh ở giao diện sáng và tối.
+- **Không chạy `build`, `size`, `check:chrome`.** `check:chrome` không có phép nào đo sheet này. Dung lượng: 71
+  dòng số của VN-Index nằm trong Registry nên đi theo gói của trang chi tiết; ước lượng thêm khoảng 1 kB nén,
+  CHƯA ĐO. Cửa 180 kB vốn đã vượt từ trước (trang chi tiết quãng 430 kB).
+
+### Chưa làm
+
+- **Dán một khối KHÔNG có dòng tiêu đề lên lưới đang có chuỗi vẫn là đè tại chỗ con trỏ**, kiểu bảng tính: bảng
+  dán ngắn hơn chuỗi cũ thì các dòng cũ còn lại phía dưới và vẫn được nạp. Sửa là đổi hẳn cách dán, cần chủ dự
+  án quyết: dán nhiều cột vào ô đầu lưới thì thay lưới, hay giữ như bảng tính.
+- **Mã lấy từ Finbox (`?ma=`) vẫn trống bốn cột.** API chỉ trả giá đóng cửa của 10 phiên, không sửa được ở đây.
+- Bảng dán ghi tên cột lạ ("KLGD", "Khối lượng khớp lệnh") vẫn thành cột thừa; gán lại được bằng ô chọn. Thêm
+  từ vào bộ nhận tiêu đề là việc riêng.
+- Lưới bảy cột ở 1440px cuộn ngang 3px.
+- Chưa thử trên điện thoại thật.
+
+---
+
+## Tấm "Nạp bộ số liệu mẫu": nút sang kho lớn nói ra bao nhiêu mã dùng được (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code và ca kiểm xong, chờ chủ dự án xem màn và chốt hai điểm ở dưới.**
+
+### Chủ dự án giao gì
+
+Khoanh nút "Tìm mã khác trong toàn thị trường →" ở cuối tấm: _"khi hiển thị cái này mà bên trong ví dụ chỉ có 60
+mã có thể áp dụng được vào công thức thì chỗ này cần có thêm text ghi rõ có bao nhiêu mã có thể áp dụng được vào
+công thức đang dùng ví dụ như: Danh sách 60 mã khác"_.
+
+### Đã làm
+
+Nút nay đọc **"Danh sách 1.100 mã khác →"** khi đếm được, và giữ nhãn cũ khi không đếm được.
+
+- **Con số là gì.** Số mã có số liệu trong bảng mà tấm chọn mã đang dùng để khoá nút "Chọn" (mã không có trong
+  bảng thì dán "chưa có dữ liệu" và nút xám), trừ những mã mẫu đang bày ngay phía trên. Bảng hiện có 1.104 mã,
+  bốn mã mẫu đều nằm trong đó, nên ra 1.100.
+- **Không phải 60.** 60 là số DÒNG tấm chọn mã bày ra mỗi lượt (`MAX_ROWS`, kèm dòng "60/1.649 mã" ở chân), không
+  phải số mã dùng được.
+- **Ba ca giữ nhãn cũ**, vì ở đó con số sẽ sai: bảng mã đã quá một kỳ báo cáo (tấm chọn mã lúc ấy mở khoá mọi
+  mã, không còn gì để đếm); công thức không dùng số của mã nào (câu dẫn phía trên vừa nói bốn mã không đổi được ô
+  nào); và màn bảng dữ liệu, nơi không có công thức.
+
+| File                                            | Đổi gì                                                                                                     |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `src/ui/sheets/PresetSheet.tsx`                 | Prop `marketAsOf`; nạp trễ bảng mã khi tấm mở (đúng lối `TickerPickerSheet`); `soMaKhac()`; nhãn nút       |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`      | Truyền `marketAsOf={asOf}`, cùng mốc ngày với tấm chọn mã                                                  |
+| `src/application/i18n/vi.ts`, `en.ts`           | Thêm khoá `preset.browseMarketCount`                                                                       |
+| `src/ui/sheets/ExportSheet.test.tsx`            | Bảng mã giả; +4 ca: in đúng số và trừ đúng mã trùng · hai ca giữ nhãn cũ · không truyền ngày thì không nạp |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx` | Ba chỗ dò nút theo "toàn thị trường" đổi sang phần chữ chung của hai nhãn                                  |
+
+Đã chạy: lint, typecheck, format trên các file của lượt này, `npm test` (149 file, 3678 ca qua). Chưa chụp màn,
+chưa chạy `build` / `size` / `check:chrome`.
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Con số không riêng cho từng công thức.** Bảng mã chỉ biết "mã này có số liệu cơ bản hay không", không biết
+   từng ô của từng công thức. Nên mọi công thức có dùng số của mã đều ra cùng 1.100. Muốn đếm riêng theo công thức
+   thì phải sinh thêm dữ liệu lúc build cho ~1.649 mã, là một việc khác.
+2. **Nhãn đổi sau khi tấm mở một nhịp.** Bảng mã nạp trễ (3,3 kB gzip, không nằm trong gói của 111 trang), nên
+   lần mở đầu nút hiện nhãn cũ rồi mới đổi sang nhãn có số.
+3. **Thay nhãn nút, không thêm dòng chữ cạnh nút.**
+4. **Tấm chọn mã không đổi.** Nó vẫn bày đủ 1.649 mã (mã không dùng được thì xám) và vẫn ghi "60/1.649 mã" ở
+   chân, nên con số ở đó khác con số trên nút. _Cập nhật cùng ngày: chủ dự án hỏi đúng chỗ lệch này; dòng
+   "60/1.649 mã" đã bỏ và tấm bày dần 20 mã một lượt, xem mục "Tấm chọn mã" phía trên._
+
+### Việc còn lại
+
+- Chủ dự án xem màn và chốt điểm 1 và 4.
+- Thấy trong lúc làm, chưa sửa: câu `preset.noTickerNote` còn nói "Nạp một mã ở đây chỉ để mã đó theo bạn sang
+  những công thức có dùng tới", mà từ lượt "vào lại công thức thì về mặc định" (13/10/2026) mã không còn theo sang
+  công thức khác.
+
+---
+
+## Tấm "Nạp bộ số liệu mẫu": bỏ câu dẫn của công thức chỉ ăn chuỗi giá (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code và ca kiểm xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"xóa đoạn text thừa 'Công thức này chạy bằng chuỗi phiên giá. Chỉ phiên gần nhất là giá thật; đường đi trước đó
+là số tự dựng, nên đọc bốn con số dưới đây như ví dụ, đừng như so sánh thị trường.'"_
+
+### Đã làm
+
+Câu ấy là khoá `preset.seriesOnlyNote`, câu dẫn đầu tấm ở những công thức chỉ ăn chuỗi giá (không ô nhập nào lấy
+số của mã). Đã bỏ khoá ở cả hai ngôn ngữ; ca ấy nay mở tấm ra là thấy thẳng bốn mã, mỗi dòng vẫn in "Giá phiên gần
+nhất … · … phiên". Hai câu dẫn kia (`topPicks`, `noTickerNote`) không đổi.
+
+| File                                  | Đổi gì                                                                                          |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `src/application/i18n/vi.ts`, `en.ts` | Bỏ khoá `preset.seriesOnlyNote`, kèm mộ chí; sửa ba chú thích còn nhắc tới nó                   |
+| `src/ui/sheets/PresetSheet.tsx`       | `cauDan()` trả `null` cho ca công thức ăn chuỗi; sửa docblock và chú thích                      |
+| `src/ui/sheets/ExportSheet.test.tsx`  | +1 ca: công thức chỉ ăn chuỗi thì không có câu dẫn nào (kể cả câu của ca khác), dòng giá vẫn in |
+| `CLAUDE.md`                           | Thêm một câu vào đoạn đã ghi việc bỏ khối "giá quá khứ tự dựng"                                 |
+
+### Điều chủ dự án nên biết
+
+**Đây là câu cuối cùng trên màn nói rằng 247 phiên trước phiên gần nhất của bộ mẫu là số tự dựng.** Khối vàng
+cùng nghĩa đã bỏ từ 09/09/2026. Từ nay điều ấy chỉ còn ở cờ `isDraft` trong `samples.ts` (ba ca kiểm ghim) và ở
+câu `preset.draftExport` trong file xuất ra. Cùng nếp "bỏ câu, giữ hành vi" như `portfolio.localOnly`.
+
+### Kiểm chứng
+
+- Lint qua; format qua trên các file của lượt này; ca mới và cả cụm `PresetSheet` qua.
+- `npm test`: 3658 qua, **3 đỏ**, cả ba thuộc cụm `PasteImportSheet — WF-11` trong `ExportSheet.test.tsx`.
+  `npm run typecheck`: 2 lỗi ở `src/core/paste-import.test.ts` (`ColumnKind` có `'ignore'`).
+  Cả hai **không do lượt này**: trong cây làm việc đang có thay đổi dở của một việc khác ở
+  `src/core/paste-import.ts`, `PasteImportSheet.tsx`, `PasteImportSheet.module.css`, `src/application/index.ts`,
+  `i18n.test.ts` và hai khoá `paste.*` trong `en.ts`/`vi.ts`. Lượt trước (mục dưới) chạy `npm test` lúc chưa có
+  các thay đổi ấy thì xanh hết. Tôi không đụng vào các file đó.
+- Cập nhật cùng ngày, ở lượt kế (mục trên): việc kia đã làm xong, `typecheck` sạch và `npm test` xanh trọn.
+
+### Việc còn lại
+
+- Chủ dự án xem tấm mẫu ở một công thức ăn chuỗi (ví dụ `sma-n-phien`).
+
+---
+
+## Biểu phí: một lựa chọn thì in chữ, không dựng ô chọn (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code và ca kiểm xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Chụp hàng "Biểu phí giao dịch" ở màn Cài đặt: _"phần này thì chỉ có 1 lựa chọn thì không nên để select, sửa"_.
+`MARKET_CONFIG.schedules` chỉ khai một biểu phí, nên ô ấy có khung, có mũi tên mà mở ra đúng một dòng.
+
+### Đã làm
+
+Hàng biểu phí nay in **chữ**: nhãn, tên biểu phí, dòng phụ ghi nguồn. Luật đếm theo số biểu phí chứ không viết
+cứng: từ hai biểu phí trở lên thì ô chọn tự quay lại. Áp cho **cả hai chỗ** có hàng này: màn Cài đặt và màn chi
+tiết `loi-nhuan-rong` (trước là hai bản `Select` chép tay giống nhau, nay chung một component).
+
+| File                                               | Đổi gì                                                                                                                                              |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/screens/FeeScheduleField.tsx`              | Một biểu phí → ba dòng chữ; từ hai → `Select` như cũ. Thêm prop `label`, `hint` (cho màn Cài đặt) và `schedules` (cửa cho ca kiểm nhánh nhiều)      |
+| `src/ui/screens/FeeScheduleField.module.css` (mới) | Nhãn và dòng phụ chép số đo của `Select.module.css`; dòng giá trị không giữ chiều cao 44px vì là chữ, không phải vùng bấm                           |
+| `src/app/cai-dat/SettingsScreen.tsx`               | Bỏ khối `Select` chép tay, gọi `FeeScheduleField`. Nhập thẳng file, không qua barrel `@/ui/screens` (barrel kéo `DetailBody` vào gói `/cai-dat/`)   |
+| `src/ui/screens/DetailBody.tsx`                    | Sửa docblock `DetailConfig` cho khớp                                                                                                                |
+| `src/ui/screens/screens.test.tsx`                  | Ca "dựng `<select>` từ MarketConfig" tách thành 3: một biểu phí là chữ · hai biểu phí là ô chọn đủ lựa chọn · nhãn và dòng phụ truyền vào được dùng |
+| `src/app/cai-dat/SettingsScreen.test.tsx`          | Đảo ca: hàng biểu phí là chữ, không còn `combobox`, dòng ghi nguồn vẫn còn                                                                          |
+| `src/app/cong-thuc/[id]/FormulaDetail.test.tsx`    | Ca WF-08 dò hàng biểu phí theo chữ thay vì theo nhãn của ô nhập                                                                                     |
+
+Đã chạy: lint, typecheck, format:check, `npm test` (149 file, 3651 ca qua). Trên dev đang chạy, HTML của
+`/cai-dat/` và `/cong-thuc/loi-nhuan-rong/` đều ra hàng chữ, `/cai-dat/` không còn thẻ `<select>` nào. Chưa
+chạy `build` / `check:chrome` (dev đang giữ `:3000`), chưa chụp màn.
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Giữ hàng này, chỉ bỏ cái vỏ ô chọn.** Tên biểu phí và dòng "Nguồn: Market Config" vẫn in. Muốn bỏ hẳn
+   hàng thì là một lượt khác.
+2. **Sửa luôn màn `loi-nhuan-rong`**, vì đó là cùng một ô, cùng một lỗi.
+3. **Không ai ghi `feeScheduleId` nữa khi chỉ có một biểu phí.** Kho cài đặt vẫn giữ trường ấy và vẫn rơi về
+   mặc định như cũ; hành vi tính toán không đổi.
+
+### Việc còn lại
+
+- Chủ dự án xem màn (sáng và tối, 360px).
+- Ngoài phạm vi lượt này, còn treo từ `REVIEW-2.md:872`: ghi chú của hai hằng số phí môi giới trong
+  `schedules.ts` vẫn nói "Sửa được ở màn Cài đặt", mà màn Cài đặt không có chỗ nào sửa mức 0,15%. Nay hàng biểu
+  phí đã thôi giả làm điều khiển thì câu ấy càng lệch.
+
+---
+
 ## Danh mục: dấu X đỏ thay thùng rác, bảng Công thức theo khuôn bảng Mã (13/10/2026)
 
 **Trạng thái: CHƯA XONG — code, ca kiểm và phép đo xong, chờ chủ dự án xem màn.**

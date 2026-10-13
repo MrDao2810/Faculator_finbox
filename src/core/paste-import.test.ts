@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   COLUMN_LABELS,
   MAX_PASTE_LINES,
+  SERIES_COLUMNS,
   closeSeries,
   detectDelimiter,
+  fitToSeriesColumns,
   guessColumns,
   parseCells,
   parsePaste,
@@ -96,11 +98,16 @@ describe('guessColumns()', () => {
     expect(guessColumns(['Đóng', 'Đóng'], true)).toEqual(['close', 'ignore']);
   });
 
-  it('có nhãn tiếng Việt cho mọi vai trò cột', () => {
-    const kinds: ColumnKind[] = ['date', 'open', 'high', 'low', 'close', 'volume', 'ignore'];
-    for (const kind of kinds) {
+  /*
+   * Sáu vai trò, sáu nhãn. Cột thừa ('ignore') KHÔNG có nhãn: "Không dùng" đã bỏ ngày 13/10/2026,
+   * cột thừa hiện dưới tên của chính nó — xem docblock `COLUMN_LABELS`.
+   */
+  it('có nhãn tiếng Việt cho đúng sáu cột của chuỗi giá, không có nhãn cho cột thừa', () => {
+    for (const kind of SERIES_COLUMNS) {
       expect(COLUMN_LABELS[kind].trim()).not.toBe('');
     }
+    expect(Object.keys(COLUMN_LABELS)).toEqual([...SERIES_COLUMNS]);
+    expect(Object.values(COLUMN_LABELS)).not.toContain('Không dùng');
   });
 });
 
@@ -551,20 +558,127 @@ describe('parseCells()', () => {
     expect(result.rows).toEqual([]);
     expect(result.skipped).toEqual([]);
   });
+
+  /*
+   * Lưới luôn có cột Ngày từ 13/10/2026, kể cả khi người dùng chỉ dán một cột giá đóng cửa —
+   * thứ FR-12 cần cho Beta, Sharpe và VaR. Cột Ngày trống ở MỌI dòng thì đọc như bảng không có
+   * cột ngày: phiên vẫn ra, và thứ tự là 'unknown' để giao diện nói thẳng.
+   */
+  it('cột Ngày trống ở mọi dòng thì không đòi ngày, và nói là không biết thứ tự', () => {
+    const result = parseCells(
+      [
+        ['', '', '', '', '25,4', ''],
+        ['', '', '', '', '25,7', ''],
+      ],
+      SERIES_COLUMNS,
+    );
+
+    expect(closeSeries(result)).toEqual([25.4, 25.7]);
+    expect(result.skipped).toEqual([]);
+    expect(result.order).toBe('unknown');
+    // Trả đúng các cột của lưới, không phải bản đã gạt cột ngày ra để đọc.
+    expect(result.columns).toEqual([...SERIES_COLUMNS]);
+  });
+
+  it('chỉ cần một dòng có ngày là dòng thiếu ngày lại bị chỉ đúng ô', () => {
+    const result = parseCells(
+      [
+        ['15/07/2026', '', '', '', '25,4', ''],
+        ['', '', '', '', '25,7', ''],
+      ],
+      SERIES_COLUMNS,
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.skipped).toHaveLength(1);
+    expect(result.skipped[0]?.line).toBe(2);
+    expect(result.skipped[0]?.column).toBe('date');
+  });
+});
+
+/*
+ * ── Khuôn sáu cột của lưới ───────────────────────────────────────────────────────────────
+ *
+ * Chủ dự án, 13/10/2026: *"tạo đủ dữ liệu của 6 cột là thôi không cần tạo gì nữa và cũng không
+ * thể tạo được thêm nữa. nếu khách nạp thừa thêm 1 cột dữ liệu chưa rõ tên thì cứ tạo thêm 1 cột
+ * thừa ra đó"*. `fitToSeriesColumns()` là chỗ giữ đúng câu ấy: sáu cột luôn đủ và luôn đứng đầu,
+ * cột dữ liệu có thừa thì về cuối dưới tên của chính nó.
+ */
+describe('fitToSeriesColumns()', () => {
+  it('bảng hai cột vẫn ra đủ sáu cột, số nằm đúng cột của nó', () => {
+    const fitted = fitToSeriesColumns(splitPasteTable('15/07/2026\t25,40\n16/07/2026\t25,70'));
+
+    expect(fitted.columns).toEqual([...SERIES_COLUMNS]);
+    expect(fitted.cells).toEqual([
+      ['15/07/2026', '', '', '', '25,40', ''],
+      ['16/07/2026', '', '', '', '25,70', ''],
+    ]);
+  });
+
+  it('cột xếp lộn thứ tự trong file thì về đúng thứ tự của lưới', () => {
+    const fitted = fitToSeriesColumns(
+      splitPasteTable('Đóng\tKL\tNgày\tMở\n25,4\t1000\t15/07/2026\t25,1'),
+    );
+
+    expect(fitted.columns).toEqual([...SERIES_COLUMNS]);
+    expect(fitted.cells).toEqual([['15/07/2026', '25,1', '', '', '25,4', '1000']]);
+  });
+
+  it('cột không rõ tên thành cột thừa ở cuối lưới, mang tên của chính nó', () => {
+    const fitted = fitToSeriesColumns(
+      splitPasteTable(
+        [
+          'Ngày\tGiá điều chỉnh\tGiá đóng cửa\tKhối lượng\tGT khớp lệnh',
+          '15/07/2026\t25,2\t25,4\t1000\t25,4',
+        ].join('\n'),
+      ),
+    );
+
+    expect(fitted.columns).toEqual([...SERIES_COLUMNS, 'ignore', 'ignore']);
+    expect(fitted.names).toEqual(['', '', '', '', '', '', 'Giá điều chỉnh', 'GT khớp lệnh']);
+    expect(fitted.cells).toEqual([['15/07/2026', '', '', '', '25,4', '1000', '25,2', '25,4']]);
+  });
+
+  it('bảng không có tiêu đề mà thừa cột thì cột thừa không có tên', () => {
+    const fitted = fitToSeriesColumns(splitPasteTable('15/07/2026\t1\t2\t0,5\t1,5\t1000\t77\t88'));
+
+    expect(fitted.columns).toEqual([...SERIES_COLUMNS, 'ignore', 'ignore']);
+    expect(fitted.names).toEqual(['', '', '', '', '', '', '', '']);
+    expect(fitted.cells[0]?.slice(6)).toEqual(['77', '88']);
+  });
+
+  // Excel hay kéo theo một Tab cuối dòng: một cột rỗng không tên chỉ làm lưới rộng ra.
+  it('cột thừa trống trơn thì không dựng', () => {
+    const fitted = fitToSeriesColumns(splitPasteTable('15/07/2026\t25,4\t\n16/07/2026\t25,7\t'));
+
+    expect(fitted.columns).toEqual([...SERIES_COLUMNS]);
+  });
+
+  it('không ô nào của người dùng bị mất: mọi ô có chữ đều còn trong lưới', () => {
+    const table = splitPasteTable(
+      'Ngày\tSàn\tĐóng\tGhi chú\n15/07/2026\tHOSE\t25,4\tphiên đầu\n16/07/2026\tHOSE\t25,7\t',
+    );
+    const fitted = fitToSeriesColumns(table);
+
+    const before = table.cells.flat().filter((cell) => cell.trim() !== '');
+    const after = fitted.cells.flat().filter((cell) => cell.trim() !== '');
+    expect([...after].sort()).toEqual([...before].sort());
+  });
 });
 
 /*
  * Bộ đoán tiêu đề phải nhận ra CHÍNH nhãn cột sản phẩm in ra.
  *
  * Ngày 22/09/2026 nó không nhận: nhãn đổi sang viết đủ chữ ("Giá cao nhất") mà từ vựng vẫn chỉ
- * có "cao nhat", nên nạp lại đúng bảng mình vừa xuất thì hai cột Cao và Thấp rơi vào "Không
- * dùng" mà không báo gì. Ca kiểm này quét cả sáu nhãn, nên nhãn nào đổi sau này cũng bị bắt.
+ * có "cao nhat", nên nạp lại đúng bảng mình vừa xuất thì hai cột Cao và Thấp không được nhận vai
+ * trò nào mà không báo gì. Ca kiểm này quét cả sáu nhãn, nên nhãn nào đổi sau này cũng bị bắt.
  */
 describe('guessColumns() — nhãn cột của chính sản phẩm', () => {
   it('mọi nhãn trong COLUMN_LABELS đều được nhận lại đúng vai trò', () => {
-    const kinds: ReadonlyArray<ColumnKind> = ['date', 'open', 'high', 'low', 'close', 'volume'];
-    const header = kinds.map((kind) => COLUMN_LABELS[kind]).join('\t');
+    const header = SERIES_COLUMNS.map((kind) => COLUMN_LABELS[kind]).join('\t');
 
-    expect(splitPasteTable(`${header}\n15/07/2026\t1\t2\t0,5\t1,5\t1000`).columns).toEqual(kinds);
+    expect(splitPasteTable(`${header}\n15/07/2026\t1\t2\t0,5\t1,5\t1000`).columns).toEqual([
+      ...SERIES_COLUMNS,
+    ]);
   });
 });

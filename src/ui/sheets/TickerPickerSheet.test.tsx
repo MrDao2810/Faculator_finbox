@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, render, screen, within } from '@testing-library/react';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TICKER_LIST_KEY, TICKER_LIST_TTL_MS, serializeCachedTickers } from '@/application';
 
@@ -242,5 +243,132 @@ describe('TickerPickerSheet — cache quá hạn mà làm mới hỏng', () => {
     expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.queryByRole('note')).toBeNull();
     expect(screen.queryByText(/lần tải trước|có thể đã cũ/)).toBeNull();
+  });
+});
+
+/*
+ * ── Bày dần 20 mã một lượt, và vòng xoay khi tìm (13/10/2026) ───────────────────────────────
+ *
+ * Chủ dự án: *"ban đầu hiển thị 20 mã khi người dùng scroll xuống dưới thì hiển thị icon xoay tròn
+ * loading... rồi hiển thị thêm 20 mã nữa. còn nếu người dùng search thì cần loading để tìm mã tương
+ * ứng"*. Thay cho bản cũ dựng 60 dòng rồi ghi "60/1.649 mã".
+ *
+ * jsdom không có `IntersectionObserver`, và ở đó sheet cố ý bày hết (xem `bayDan`) — nên nhóm này
+ * tự dựng một bộ quan sát giả và tự bắn tín hiệu "mốc cuối vào tầm nhìn".
+ */
+describe('TickerPickerSheet — bày dần và vòng xoay', () => {
+  /** 45 mã: hai lượt đầy và một lượt lẻ, để thấy cả lúc mốc cuối biến mất. */
+  const NHIEU_MA = Array.from({ length: 45 }, (_, i) => ({
+    code: `M${String(i + 1).padStart(2, '0')}`,
+    name: `Doanh nghiệp ${String(i + 1)}`,
+  }));
+
+  type GoiLai = (entries: ReadonlyArray<{ isIntersecting: boolean }>) => void;
+  let dangQuanSat: GoiLai[] = [];
+
+  beforeEach(() => {
+    dangQuanSat = [];
+    window.localStorage.removeItem(TICKER_LIST_KEY);
+
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        private readonly goi: GoiLai;
+        constructor(goi: GoiLai) {
+          this.goi = goi;
+        }
+        observe(): void {
+          dangQuanSat.push(this.goi);
+        }
+        disconnect(): void {
+          dangQuanSat = dangQuanSat.filter((item) => item !== this.goi);
+        }
+        unobserve(): void {
+          this.disconnect();
+        }
+      },
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    window.localStorage.removeItem(TICKER_LIST_KEY);
+  });
+
+  /** Giả lập "người dùng vừa cuộn tới đáy danh sách". */
+  function cuonToiDay(): void {
+    act(() => {
+      for (const goi of dangQuanSat) goi([{ isIntersecting: true }]);
+    });
+  }
+
+  async function moNhieuMa(): Promise<void> {
+    feed.listTickers.mockResolvedValue(NHIEU_MA);
+    render(<TickerPickerSheet open onClose={() => undefined} onPick={() => undefined} />);
+    await screen.findByText('M01');
+  }
+
+  it('mở ra là 20 mã; cuộn tới đáy thì thêm 20, rồi tới hết thì mốc cuối biến mất', async () => {
+    await moNhieuMa();
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(20);
+    expect(screen.getByText('Đang tải thêm mã…')).not.toBeNull();
+
+    cuonToiDay();
+    // Chưa thêm ngay: vòng xoay hiện một nhịp rồi dòng mới mới tới.
+    expect(screen.getAllByRole('listitem')).toHaveLength(20);
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem')).toHaveLength(40);
+    });
+
+    cuonToiDay();
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem')).toHaveLength(45);
+    });
+    // Hết mã thì không còn gì để chờ — vòng xoay ở đáy không được quay mãi.
+    expect(screen.queryByText('Đang tải thêm mã…')).toBeNull();
+    expect(dangQuanSat).toHaveLength(0);
+  });
+
+  it('gõ vào ô tìm thì hiện "Đang tìm mã…" thay danh sách, rồi mới ra kết quả', async () => {
+    await moNhieuMa();
+
+    await userEvent.type(screen.getByRole('searchbox'), 'm07');
+
+    expect(screen.getByText('Đang tìm mã…')).not.toBeNull();
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    });
+    expect(screen.getByText('M07')).not.toBeNull();
+    expect(screen.queryByText('Đang tìm mã…')).toBeNull();
+  });
+
+  /* Kết quả mới bày lại từ lượt đầu, không thừa hưởng số dòng của kết quả trước. */
+  it('đã cuộn thêm rồi mới tìm thì kết quả lại bắt đầu từ 20 mã', async () => {
+    await moNhieuMa();
+
+    cuonToiDay();
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem')).toHaveLength(40);
+    });
+
+    // "doanh nghiep" khớp tên của cả 45 mã.
+    await userEvent.type(screen.getByRole('searchbox'), 'doanh nghiep');
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem')).toHaveLength(20);
+    });
+  });
+
+  /*
+   * Dòng "60/1.649 mã" đã bỏ: chủ dự án đọc 60 thành "số mã có" (bia mộ `ticker.capped` ở
+   * `vi.ts`). Ca viết thẳng hình dạng của dòng ấy ra, vì khoá đã xoá — nó quay lại thì phải là một
+   * quyết định, không phải một sơ suất.
+   */
+  it('không còn dòng đếm "x/y mã" dưới danh sách', async () => {
+    await moNhieuMa();
+
+    expect(screen.queryByText(/\d+\s*\/\s*\d+/)).toBeNull();
   });
 });

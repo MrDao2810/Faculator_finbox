@@ -1,0 +1,31 @@
+/*
+ * Hàng biểu phí khi chỉ có MỘT biểu phí: ba dòng chữ, không khung, không mũi tên.
+ *
+ * `.field` / `.label` / `.hint` chép đúng số đo của `Select.module.css`: ngày có biểu phí thứ hai,
+ * hàng này đổi lại thành ô chọn, và nhãn với dòng phụ phải đứng yên chỗ cũ, chỉ dòng giữa đổi dạng.
+ *
+ * `.value` KHÔNG mang `min-height: var(--tap-min)` như `.select`: đây là chữ để đọc, không phải
+ * vùng bấm. Giữ 44px là để lại đúng cái khoảng trống của ô vừa bỏ.
+ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-soft);
+}
+
+.value {
+  font-size: var(--text-base);
+  color: var(--color-ink);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}

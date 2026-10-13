@@ -835,14 +835,19 @@ describe('WF-03 — lưới ô nhập', () => {
   });
 });
 
-describe('WF-08 — khối chọn biểu phí đặt trên ô nhập', () => {
-  it('công thức lãi ròng có ô chọn biểu phí; công thức khác thì không', () => {
+describe('WF-08 — hàng biểu phí đặt trên ô nhập', () => {
+  /*
+   * Dò theo CHỮ chứ không theo nhãn của một ô nhập: từ 13/10/2026 hàng này in tên biểu phí thành
+   * chữ khi MarketConfig chỉ có một biểu phí (xem `FeeScheduleField`), nên không còn điều khiển
+   * nào mang nhãn "Biểu phí".
+   */
+  it('công thức lãi ròng có hàng biểu phí; công thức khác thì không', () => {
     render(<Man spec={specOf('loi-nhuan-rong')} />);
-    expect(screen.getByLabelText('Biểu phí')).not.toBeNull();
+    expect(screen.getByText('Biểu phí')).not.toBeNull();
     cleanup();
 
     render(<Man spec={specOf('pe')} />);
-    expect(screen.queryByLabelText('Biểu phí')).toBeNull();
+    expect(screen.queryByText('Biểu phí')).toBeNull();
   });
 });
 
@@ -3104,6 +3109,16 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     return found;
   }
 
+  /**
+   * Nút sang kho lớn ở cuối sheet mẫu — dò theo phần chữ CHUNG của hai nhãn nó có thể mang.
+   *
+   * Từ 13/10/2026 nút đổi nhãn một nhịp sau khi sheet mở: "Tìm mã khác trong toàn thị trường →"
+   * lúc bảng mã chưa về, rồi "Danh sách 1.100 mã khác →" khi đã đếm được (xem
+   * `PresetSheet.soMaKhac`). Dò theo "toàn thị trường" là đua với lượt nạp trễ ấy; con số thì ca
+   * riêng ở `ExportSheet.test.tsx` gác bằng một bảng giả.
+   */
+  const NUT_SANG_KHO_LON = /mã khác/;
+
   it('từ sheet Nạp mẫu rẽ thẳng sang sheet chọn mã toàn thị trường', async () => {
     feed.listTickers.mockResolvedValue([
       { code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' },
@@ -3113,7 +3128,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
-    await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
+    await userEvent.click(await screen.findByRole('button', { name: NUT_SANG_KHO_LON }));
 
     /*
      * Mã dùng ở đây phải NẰM NGOÀI kho mẫu — thấy được nó tức là đã sang đúng kho lớn. Trước đợt
@@ -3141,7 +3156,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
-    await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
+    await userEvent.click(await screen.findByRole('button', { name: NUT_SANG_KHO_LON }));
     expect(await screen.findByText('SHB')).not.toBeNull();
 
     /*
@@ -3183,7 +3198,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadPreset') }));
-    await userEvent.click(await screen.findByRole('button', { name: /toàn thị trường/ }));
+    await userEvent.click(await screen.findByRole('button', { name: NUT_SANG_KHO_LON }));
     await userEvent.click(await screen.findByRole('button', { name: t('ticker.pick') }));
 
     await screen.findByRole('button', { name: /Đổi mã SHB/ });
@@ -3910,5 +3925,257 @@ describe('WF-03 — dải thay số của công thức tra hằng số thị tr�
       expect(nhanCuaDai(), `${spec.id} — không dựng dải thay số`).not.toBeNull();
       cleanup();
     }
+  });
+});
+
+/*
+ * ── Nhóm ô lặp: thêm bớt đợt mua, thêm bớt kỳ (13/10/2026) ───────────────────────────────────────
+ *
+ * Chủ dự án chỉ vào khối Số liệu của `gia-von-trung-binh-dca`, lúc ấy khai cứng ba đợt: *"người
+ * dùng muốn test mà muốn nhập thêm 4 5 6 ,.... đợt nữa thì sao ? … cần thêm một button nữa dùng để
+ * tạo thêm ô nhập … tương tự với các công thức tương tự"*, rồi dặn thêm: *"vì giao diện có thay
+ * đổi nên bạn cần thêm chức năng để giao diện thay đổi tương ứng"*.
+ *
+ * Phép tính của nhóm lặp đã có ca riêng ở `registry/repeat.test.ts`. Các ca dưới gác phần MÀN: ô
+ * mới hiện đúng chỗ với đúng nhãn, mọi khối đọc danh sách ô (Bảng biến, link chia sẻ, bản nháp)
+ * thấy cùng một danh sách, và hai luật cũ không bị thủng: không ô nào thành số 0 lặng lẽ (FR-06),
+ * và vào lại công thức thì về mặc định (ba đợt).
+ */
+describe('WF-03 — thêm bớt đợt mua và kỳ', () => {
+  const DCA = 'gia-von-trung-binh-dca';
+  const HINH_HOC = 'loi-suat-trung-binh-hinh-hoc';
+
+  const khoiSoLieu = (): HTMLElement => screen.getByRole('region', { name: t('detail.inputs') });
+  const nut = (name: RegExp): HTMLElement => within(khoiSoLieu()).getByRole('button', { name });
+  const nutNeuCo = (name: RegExp): HTMLElement | null =>
+    within(khoiSoLieu()).queryByRole('button', { name });
+  const oSo = (): HTMLElement[] => within(khoiSoLieu()).getAllByRole('textbox');
+  const ketQua = (): string => screen.getByTestId('result-text').textContent ?? '';
+  const giaTri = (name: RegExp): string => (oNhap(name) as HTMLInputElement).value;
+
+  async function go(name: RegExp, so: string): Promise<void> {
+    await userEvent.clear(oNhap(name));
+    await userEvent.type(oNhap(name), so);
+    fireEvent.blur(oNhap(name));
+  }
+
+  it('mở ra vẫn ba đợt như cũ, biến đếm không có ô, và có hai nút Thêm / Bỏ', () => {
+    render(<Man spec={specOf(DCA)} />);
+
+    expect(oSo()).toHaveLength(6);
+    expect(within(khoiSoLieu()).queryByRole('textbox', { name: /Số đợt mua/ })).toBeNull();
+    expect(nut(/^Thêm đợt mua$/)).not.toBeNull();
+    expect(nut(/^Bỏ đợt 3$/)).not.toBeNull();
+    expect(ketQua()).toContain('35.294,12');
+  });
+
+  it('công thức không có nhóm lặp thì không có nút nào trong hai nút ấy', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    expect(nutNeuCo(/^Thêm /)).toBeNull();
+    expect(nutNeuCo(/^Bỏ /)).toBeNull();
+  });
+
+  it('Thêm đợt mua: hai ô của đợt 4 hiện ra mang số 0, ngay sau đợt 3, và kết quả chưa đổi', async () => {
+    render(<Man spec={specOf(DCA)} />);
+    await userEvent.click(nut(/^Thêm đợt mua$/));
+
+    expect(giaTri(/^Tiền mua đợt 4/)).toBe('0');
+    expect(giaTri(/^Giá mua đợt 4/)).toBe('0');
+    expect(oSo()).toHaveLength(8);
+    // Ô mới đứng cuối, tiền trước giá — đúng thứ tự của ba đợt khai sẵn.
+    expect(oSo().slice(-4)).toEqual([
+      oNhap(/^Tiền mua đợt 3/),
+      oNhap(/^Giá mua đợt 3/),
+      oNhap(/^Tiền mua đợt 4/),
+      oNhap(/^Giá mua đợt 4/),
+    ]);
+    // 0 ở cả hai ô nghĩa là "chưa có đợt này": con số trên màn đứng yên cho tới khi gõ.
+    expect(ketQua()).toContain('35.294,12');
+    // Nút Bỏ nay gọi tên đợt vừa thêm.
+    expect(nut(/^Bỏ đợt 4$/)).not.toBeNull();
+    expect(nutNeuCo(/^Bỏ đợt 3$/)).toBeNull();
+  });
+
+  /*
+   * FR-06 ở đúng chỗ dễ thủng nhất của gói này: đợt mới có tiền mà chưa có giá. Màn phải nói thẳng
+   * ô nào còn thiếu, không được coi giá 0 là một mức giá rồi chia ra vô cực hay lặng lẽ bỏ đợt ấy.
+   */
+  it('đợt mới có tiền mà chưa có giá thì không ra số, và cảnh báo gọi đúng tên ô giá của đợt ấy', async () => {
+    render(<Man spec={specOf(DCA)} />);
+    await userEvent.click(nut(/^Thêm đợt mua$/));
+    await go(/^Tiền mua đợt 4/, '10000000');
+
+    expect(ketQua()).toContain(NO_VALUE);
+    expect(screen.getByRole('alert').textContent).toContain('Giá mua đợt 4');
+
+    await go(/^Giá mua đợt 4/, '20000');
+    // 40.000.000 ÷ (200 + 250 + 400 + 500) cổ phiếu.
+    expect(ketQua()).toContain('29.629,63');
+  });
+
+  it('Bảng biến kê cả ô của đợt vừa thêm, và hàng của biến đếm', async () => {
+    render(<Man spec={specOf(DCA)} />);
+    const bang = (): HTMLElement => screen.getByRole('table', { name: t('variable.tableCaption') });
+
+    expect(within(bang()).getByRole('rowheader', { name: 'Số đợt mua' })).not.toBeNull();
+    expect(within(bang()).queryByRole('rowheader', { name: 'Giá mua đợt 4' })).toBeNull();
+
+    await userEvent.click(nut(/^Thêm đợt mua$/));
+    expect(within(bang()).getByRole('rowheader', { name: 'Tiền mua đợt 4' })).not.toBeNull();
+    expect(within(bang()).getByRole('rowheader', { name: 'Giá mua đợt 4' })).not.toBeNull();
+  });
+
+  it('Bỏ đợt: ô của đợt cuối rời màn, bỏ tới còn một đợt thì nút Bỏ cũng rời', async () => {
+    render(<Man spec={specOf(DCA)} />);
+
+    await userEvent.click(nut(/^Bỏ đợt 3$/));
+    expect(within(khoiSoLieu()).queryByRole('textbox', { name: /Giá mua đợt 3/ })).toBeNull();
+    // Hai đợt 10 triệu ở 50.000 và 40.000: 20.000.000 ÷ 450 cổ phiếu.
+    expect(ketQua()).toContain('44.444,44');
+
+    await userEvent.click(nut(/^Bỏ đợt 2$/));
+    expect(oSo()).toHaveLength(2);
+    expect(ketQua()).toContain('50.000');
+    expect(nutNeuCo(/^Bỏ /)).toBeNull();
+    expect(nut(/^Thêm đợt mua$/)).not.toBeNull();
+  });
+
+  it('bỏ một đợt rồi thêm lại: đợt ấy mở ra ở số 0, không mang lại số cũ', async () => {
+    render(<Man spec={specOf(DCA)} />);
+    await userEvent.click(nut(/^Bỏ đợt 3$/));
+    await userEvent.click(nut(/^Thêm đợt mua$/));
+
+    expect(giaTri(/^Tiền mua đợt 3/)).toBe('0');
+    expect(giaTri(/^Giá mua đợt 3/)).toBe('0');
+  });
+
+  it('chạm trần 12 đợt thì nút Thêm khoá lại chứ không biến mất', async () => {
+    render(<Man spec={specOf(DCA)} />);
+    for (let i = 0; i < 9; i += 1) await userEvent.click(nut(/^Thêm đợt mua$/));
+
+    expect(oSo()).toHaveLength(24);
+    expect((nut(/^Thêm đợt mua$/) as HTMLButtonElement).disabled).toBe(true);
+    expect(nut(/^Bỏ đợt 12$/)).not.toBeNull();
+  });
+
+  /*
+   * Lưới ô của nhóm hai ô (tiền, giá) xếp mỗi đợt một hàng — lớp `.fieldsRepeat` cộng biến
+   * `--o-moi-nhom`. jsdom không dàn trang, nên ca này chỉ giữ thứ CSS cần để làm việc ấy; bề ngang
+   * thật thì `check:chrome` đo.
+   */
+  it('lưới ô mang số ô của một nhóm để mỗi đợt nằm trọn một hàng; nhóm một ô thì không', () => {
+    render(<Man spec={specOf(DCA)} />);
+    const luoi = oNhap(/^Tiền mua đợt 1/).closest<HTMLElement>('[style*="--o-moi-nhom"]');
+    expect(luoi?.style.getPropertyValue('--o-moi-nhom')).toBe('2');
+    cleanup();
+
+    render(<Man spec={specOf(HINH_HOC)} />);
+    expect(oNhap(/^Lợi suất kỳ 1/).closest('[style*="--o-moi-nhom"]')).toBeNull();
+  });
+
+  describe('lợi suất trung bình hình học', () => {
+    it('không còn nhóm nút "2 kỳ / 3 kỳ"; số kỳ đổi bằng Thêm kỳ và Bỏ kỳ', async () => {
+      render(<Man spec={specOf(HINH_HOC)} />);
+
+      expect(nutNeuCo(/^[23] kỳ$/)).toBeNull();
+      expect(oSo()).toHaveLength(3);
+      expect(ketQua()).toContain('7,84');
+
+      await userEvent.click(nut(/^Thêm kỳ$/));
+      expect(giaTri(/^Lợi suất kỳ 4/)).toBe('0');
+      // 0 % là một kỳ THẬT, nên kết quả đổi ngay: (1,10 × 0,95 × 1,20)^(1/4) − 1.
+      expect(ketQua()).toContain('5,82');
+
+      await go(/^Lợi suất kỳ 4/, '5');
+      expect(ketQua()).toContain('7,12');
+    });
+
+    it('bỏ tới hai kỳ là mức thấp nhất', async () => {
+      render(<Man spec={specOf(HINH_HOC)} />);
+      await userEvent.click(nut(/^Bỏ kỳ 3$/));
+
+      expect(oSo()).toHaveLength(2);
+      expect(ketQua()).toContain('2,23');
+      expect(nutNeuCo(/^Bỏ /)).toBeNull();
+    });
+
+    /*
+     * Link chia sẻ và phép tính đã lưu TRƯỚC 13/10/2026 mang `periods` là 2 hoặc 3, do nhóm nút cũ
+     * ghi ra, và luôn mang cả `r3`. Biến giữ nguyên khoá và nghĩa chính là để những link ấy mở ra
+     * đúng con số người gửi đã thấy.
+     */
+    it('link cũ mang periods_2 mở ra đúng hai kỳ và bỏ qua số của kỳ ba', async () => {
+      const url = ['/cong-thuc/', HINH_HOC, '/?so=periods_2~r1_10~r2_-5~r3_99'].join('');
+      window.history.replaceState({}, '', url);
+      render(<Man spec={specOf(HINH_HOC)} />);
+
+      await screen.findByRole('button', { name: /^Thêm kỳ$/ });
+      expect(oSo()).toHaveLength(2);
+      expect(ketQua()).toContain('2,23');
+    });
+  });
+
+  describe('đợt đã thêm đi cùng bộ số liệu', () => {
+    const BON_DOT =
+      'lots_4~amount1_10000000~price1_50000~amount2_10000000~price2_40000' +
+      '~amount3_10000000~price3_25000~amount4_10000000~price4_20000';
+
+    it('link ?so= mang bốn đợt mở ra đủ bốn đợt với đúng số', async () => {
+      window.history.replaceState({}, '', ['/cong-thuc/', DCA, '/?so=', BON_DOT].join(''));
+      render(<Man spec={specOf(DCA)} />);
+
+      await within(khoiSoLieu()).findByRole('textbox', { name: /^Giá mua đợt 4/ });
+      expect(giaTri(/^Giá mua đợt 4/)).toBe('20.000');
+      expect(ketQua()).toContain('29.629,63');
+    });
+
+    it('link nói bốn đợt mà thiếu số của đợt bốn thì báo thiếu đúng ô, không tính thành 0', async () => {
+      window.history.replaceState({}, '', ['/cong-thuc/', DCA, '/?so=lots_4'].join(''));
+      render(<Man spec={specOf(DCA)} />);
+
+      await within(khoiSoLieu()).findByRole('textbox', { name: /^Giá mua đợt 4/ });
+      expect(ketQua()).toContain(NO_VALUE);
+      expect(screen.getByRole('alert').textContent).toContain('Tiền mua đợt 4');
+    });
+
+    it('bấm Chia sẻ thì link mang cả biến đếm lẫn hai ô của đợt vừa thêm', async () => {
+      const user = userEvent.setup();
+      render(<Man spec={specOf(DCA)} />);
+      await user.click(nut(/^Thêm đợt mua$/));
+      await go(/^Tiền mua đợt 4/, '5000000');
+      await go(/^Giá mua đợt 4/, '30000');
+
+      await user.click(screen.getByRole('button', { name: t('detail.shareLink') }));
+      const link = await navigator.clipboard.readText();
+
+      expect(link).toContain('lots_4');
+      expect(link).toContain('amount4_5000000');
+      expect(link).toContain('price4_30000');
+    });
+
+    /*
+     * Hai nửa của luật lượt xem (13/10/2026), trên chính thứ gói này thêm vào. `cleanup()` rồi
+     * `render()` là F5: đợt đã thêm phải còn. Thêm `sangManKhac()` là đã ghé màn khác: về ba đợt.
+     */
+    it('F5 trong lượt xem giữ đợt đã thêm; sang màn khác rồi vào lại thì về ba đợt', async () => {
+      render(<Man spec={specOf(DCA)} />);
+      await userEvent.click(nut(/^Thêm đợt mua$/));
+      await go(/^Tiền mua đợt 4/, '5000000');
+      await go(/^Giá mua đợt 4/, '30000');
+      cleanup();
+
+      render(<Man spec={specOf(DCA)} />);
+      await within(khoiSoLieu()).findByRole('textbox', { name: /^Giá mua đợt 4/ });
+      expect(giaTri(/^Tiền mua đợt 4/)).toBe('5.000.000');
+      cleanup();
+
+      sangManKhac();
+      render(<Man spec={specOf(DCA)} />);
+      await screen.findByRole('region', { name: t('detail.inputs') });
+      expect(oSo()).toHaveLength(6);
+      expect(nut(/^Bỏ đợt 3$/)).not.toBeNull();
+      expect(ketQua()).toContain('35.294,12');
+    });
   });
 });

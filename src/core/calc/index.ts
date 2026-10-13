@@ -6,7 +6,7 @@
 
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from './types';
 
-export { missingInputLabels, needsPriceSeries, runFormula } from './run';
+export { missingInputLabels, needsPriceSeries, resolveRepeat, runFormula } from './run';
 
 export type {
   ChainArgs,

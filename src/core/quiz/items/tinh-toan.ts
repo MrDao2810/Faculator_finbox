@@ -3397,6 +3397,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     verify: {
       inputs: {
+        lots: 3,
         amount1: 12000000,
         price1: 60000,
         amount2: 12000000,

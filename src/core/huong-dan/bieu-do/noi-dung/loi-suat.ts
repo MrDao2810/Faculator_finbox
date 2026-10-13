@@ -412,12 +412,25 @@ export const BIEU_DO_LOI_SUAT: Readonly<Record<string, BieuDoRieng>> = {
       },
       r3: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Lợi suất kỳ 3, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu riêng kỳ cuối khác đi thì lợi suất đều mỗi kỳ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên, nhưng mức bình quân nhích lên ít hơn hẳn chính lợi suất kỳ ấy: một kỳ tốt lên chỉ kéo mức bình quân của cả chuỗi lên một phần. Nếu ô Số kỳ nhập liệu đang chọn hai kỳ thì kỳ này bị bỏ qua và đường nằm ngang.',
-          'The line runs left to right along the Return in period 3 field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the last period alone, not market history. The line rises, but the average moves up far less than that period’s own return: one better period lifts the average of the whole run only in part. If the Number of periods entered field is set to two periods, this period is ignored and the line is flat.',
+          'Đường chạy từ trái sang phải theo ô Lợi suất kỳ 3, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu riêng kỳ cuối khác đi thì lợi suất đều mỗi kỳ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên, nhưng mức bình quân nhích lên ít hơn hẳn chính lợi suất kỳ ấy: một kỳ tốt lên chỉ kéo mức bình quân của cả chuỗi lên một phần.',
+          'The line runs left to right along the Return in period 3 field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the last period alone, not market history. The line rises, but the average moves up far less than that period’s own return: one better period lifts the average of the whole run only in part.',
         ),
         cot: d(
           'Mỗi cột là lợi suất trung bình hình học ứng với một mức lợi suất kỳ cuối, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Các cột chênh nhau thấy rõ, nhưng quãng chênh ấy nhỏ hơn hẳn quãng đổi của riêng kỳ cuối: mức bình quân của nhiều kỳ chỉ nhận một phần cú đổi của một kỳ.',
           'Each bar is the geometric mean return for one level of the last period’s return; bars grow taller to the right and the solid one is the level you have entered. The bars do differ visibly, yet far less than the last period’s own return changes: an average over several periods takes on only part of one period’s move.',
+        ),
+      },
+    },
+    // Kỳ thứ tư trở đi, do người dùng thêm — một đoạn mẫu cho mọi kỳ thêm, xem `BieuDoRieng.trucLap`.
+    trucLap: {
+      r: {
+        duong: d(
+          'Đường chạy từ trái sang phải theo ô Lợi suất kỳ {n}; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Khi ô đã có số, trục chạy từ một nửa đến gấp rưỡi con số ấy; khi ô còn là 0, trục trải suốt miền của ô, từ mức mất trắng tới mức lãi lớn nhất ô cho nhập. Đây là phép thử nếu riêng kỳ này khác đi còn các kỳ kia đứng yên thì lợi suất trung bình hình học ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên: một kỳ tốt hơn kéo mức trung bình lên, nhưng chỉ kéo được một phần, vì nó bị chia đều cho mọi kỳ.',
+          'The line runs left to right along the Return in period {n} field; the dashed vertical line with a dot marks your own figure. Once the field holds a number the axis runs from half to one and a half times it; while the field is still 0 the axis spans the field’s whole range, from a total loss to the largest gain the field accepts. It is a what-if on this period alone with the other periods held still, not market history. The line rises: one better period lifts the average, but only by a fraction, because it is shared out across all the periods.',
+        ),
+        cot: d(
+          'Mỗi cột là lợi suất trung bình hình học ứng với một mức của kỳ thứ {n}, cột tô đặc là mức bạn đang nhập. Càng về bên phải kết quả càng lớn: cột mọc lên thì cao dần, còn cột đang treo dưới vạch 0 thì ngắn dần. Bước giữa hai cột nhỏ hơn hẳn bước của riêng kỳ ấy: một kỳ không quyết định được mức trung bình.',
+          'Each bar is the geometric mean return for one level of period {n}, and the solid one is the level you have entered. The result grows toward the right: bars standing up grow taller, and bars hanging below the zero line get shorter. The step between two bars is much smaller than the step in that period itself: one period alone does not decide the average.',
         ),
       },
     },

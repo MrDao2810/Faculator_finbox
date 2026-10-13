@@ -14,6 +14,7 @@
 
 import { fail } from '../calc-output';
 import { defaultInputs } from '../registry/build';
+import { resolveRepeatSpec } from '../registry/repeat';
 import type { FormulaSpec } from '../registry/types';
 import type { Bilingual, CalcOutput } from '../types';
 import { incompleteInput, meaningless } from '../warnings';
@@ -47,7 +48,14 @@ export function runFormula(
   inputs: CalcInputs,
   ctx: CalcContext,
 ): CalcOutput {
-  const { spec, calc } = formula;
+  const { calc } = formula;
+  /*
+   * Công thức có nhóm ô lặp thì danh sách ô phải có do CHÍNH bộ số này quyết: biến đếm nói bốn đợt
+   * thì ô của đợt bốn bị đòi, dù chúng không nằm trong `variables` khai sẵn. Giải ở đây, tại cửa
+   * bắt buộc, để mọi nơi gọi (màn, đường quét biểu đồ, ca kiểm thử) không phải tự nhớ. 109 công
+   * thức không khai nhóm lặp nhận lại đúng spec của mình.
+   */
+  const spec = resolveRepeatSpec(formula.spec, inputs);
 
   const missing = missingInputLabels(spec, inputs);
   if (missing.length > 0) return fail(spec.resultUnit, incompleteInput(missing));
@@ -73,6 +81,28 @@ export function runFormula(
       ),
     );
   }
+}
+
+/** Module của từng spec đã dựng lại — cùng một spec thì luôn là cùng một module. */
+const MODULE_THEO_SPEC = new WeakMap<FormulaSpec, FormulaModule>();
+
+/**
+ * Module với đúng những ô mà bộ số liệu này đang dùng — bản cấp module của `resolveRepeatSpec()`.
+ *
+ * Màn chi tiết đưa nó cho biểu đồ, Bảng biến và file xuất, để chúng thấy đợt mua thứ tư ngay khi
+ * người dùng thêm. Trả CHÍNH `formula` khi không có gì đổi, và cùng một module cho cùng một số
+ * nhóm: tham chiếu ổn định là điều kiện để `memo(FormulaChart)` còn tác dụng.
+ */
+export function resolveRepeat(formula: FormulaModule, inputs: CalcInputs): FormulaModule {
+  const spec = resolveRepeatSpec(formula.spec, inputs);
+  if (spec === formula.spec) return formula;
+
+  let found = MODULE_THEO_SPEC.get(spec);
+  if (found === undefined) {
+    found = { spec, calc: formula.calc };
+    MODULE_THEO_SPEC.set(spec, found);
+  }
+  return found;
 }
 
 /**

@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import type { BaiHuongDan, HinhDangXem, KhoiBieuDoBai } from '@/application';
+import type { BaiHuongDan, HinhDangXem, KhoiBieuDoBai, KhoiLapBai } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
 import { GuideMuc, khoiDangXem } from './GuideBody';
@@ -94,6 +94,48 @@ describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () 
 
   it('không có khối nào thì không có gì để in', () => {
     expect(khoiDangXem([], hinh('price'))).toBeUndefined();
+  });
+
+  /*
+   * Ô do người dùng THÊM (đợt mua thứ tư trở đi) không có khối riêng, chỉ có khối mẫu mang `{n}`.
+   * Thiếu bước dò mẫu thì chọn "Giá mua đợt 4" là khung rơi về khối đầu, tức nói về hình của một ô
+   * khác ngay cạnh hình đang vẽ — đúng lỗi "chữ nói khác hình".
+   */
+  describe('hình của một ô do người dùng thêm', () => {
+    const MAU: KhoiLapBai = {
+      tienTo: 'price',
+      ten: doan('Giá vốn theo Giá mua đợt {n}'),
+      duong: doan('Đường theo ô Giá mua đợt {n}.'),
+      cot: doan('Cột của đợt mua thứ {n}.'),
+      nangCao: false,
+    };
+    const GIA_DOT_3: KhoiBieuDoBai = {
+      ...GIA,
+      khoa: 'price3',
+      ten: doan('Giá vốn theo Giá mua đợt 3'),
+    };
+
+    it('lấy khối mẫu và điền đúng số thứ tự vào tên lẫn đoạn chữ', () => {
+      const xem = khoiDangXem([GIA_DOT_3], hinh('price4', 'cot'), [MAU]);
+      expect(xem?.khoi.khoa).toBe('price4');
+      expect(xem?.khoi.ten.vi).toBe('Giá vốn theo Giá mua đợt 4');
+      expect(xem?.khoi.duong?.vi).toBe('Đường theo ô Giá mua đợt 4.');
+      expect(xem?.khoi.cot?.en).toBe('Cột của đợt mua thứ 4.');
+      expect(xem?.dang).toBe('cot');
+      expect(xem?.khoi.canChuoi).toBe(false);
+      // Số có hai chữ số cũng điền trọn, không cắt còn "1".
+      expect(khoiDangXem([GIA_DOT_3], hinh('price12'), [MAU])?.khoi.ten.vi).toContain('đợt 12');
+    });
+
+    it('ô khai sẵn vẫn dùng khối viết riêng của nó, không dùng mẫu', () => {
+      expect(khoiDangXem([GIA_DOT_3], hinh('price3'), [MAU])?.khoi).toBe(GIA_DOT_3);
+    });
+
+    it('khoá không phải tiền tố cộng một số thì không khớp mẫu', () => {
+      for (const khoa of ['price', 'priceX', 'price04', 'amount4']) {
+        expect(khoiDangXem([GIA_DOT_3], hinh(khoa), [MAU])?.khoi, khoa).toBe(GIA_DOT_3);
+      }
+    });
   });
 });
 

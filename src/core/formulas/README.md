@@ -99,6 +99,27 @@ Cùng loại bẫy, chiều khác: `lich-tra-no` có kết quả là **một ph�
 Nhãn cột tổng suy từ tên công thức (`'EV — giá trị doanh nghiệp'` thành `'EV'`). Tên nào gọi tên
 CÔNG VIỆC chứ không gọi tên đại lượng thì khai `spec.breakdownTotal` — nó lợp cả nhãn trục giá trị.
 
+## Khai `repeat` — ô nhập do người dùng thêm bớt
+
+Hai công thức cho người dùng thêm bớt ô (13/10/2026): `gia-von-trung-binh-dca` (đợt mua) và
+`loi-suat-trung-binh-hinh-hoc` (kỳ). Kiểu khai ở `registry/types.ts` (`RepeatGroup`), phần máy ở
+`registry/repeat.ts`. Khai cho công thức thứ ba thì nhớ năm điều. Bốn điều đầu có máy giữ (validator,
+riêng điều thứ tư là `runFormula()` lúc chạy ca kiểm thử); điều thứ năm thì không:
+
+- **Số nhóm là một biến thật** trong `variables` (`countKey`): kiểu `number`, `step: 1`, `min` và
+  `max` nguyên. Màn không dựng ô cho nó; hai nút Thêm / Bỏ là điều khiển của nó.
+- **`variables` vẫn khai các nhóm mặc định** bằng tay, đứng liền nhau đúng thứ tự mẫu, và số nhóm
+  khai sẵn bằng `defaultValue` của biến đếm. Nhóm thêm sinh từ `repeat.fields`.
+- **Ô mẫu**: `key` là tiền tố (`amount` sinh ra `amount4`), nhãn mang `{n}` ở cả hai tiếng,
+  `defaultValue` là số một nhóm vừa thêm mang lúc đầu. Ô số của màn không có trạng thái để trống,
+  nên chọn con số ấy cho có nghĩa (0 của một đợt mua là "chưa có đợt này").
+- **Ca kiểm thử được mang ô của nhóm thêm** (`amount4`), nhưng phải mang kèm biến đếm.
+- **`calc` kẹp biến đếm bằng `clampRepeatCount()`** với đúng `min` / `max` đã khai, rồi mới lặp.
+  `runFormula()` chỉ kiểm số của những nhóm nằm trong miền ấy.
+
+Ngoài `spec`: viết đoạn chữ "Đọc biểu đồ" cho từng ô mẫu (`BieuDoRieng.trucLap`), và ghim id mới
+vào danh sách ở `registry/repeat.test.ts`.
+
 ## Nguồn số liệu kiểm chứng
 
 Con số trong `tests[]` không tự nghĩ ra, mà lấy từ nguồn độc lập rồi mới viết hàm:

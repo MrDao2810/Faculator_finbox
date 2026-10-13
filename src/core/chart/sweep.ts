@@ -140,10 +140,16 @@ function roundFloat(value: number): number {
  *
  * Lọc theo `level` chứ không lấy hết: chế độ Cơ bản ẩn biến nâng cao (FR-09), nên quét một biến
  * người dùng không thấy trên màn là vẽ ra thứ họ không đối chiếu được với ô nhập nào.
+ *
+ * Loại cả BIẾN ĐẾM của nhóm ô lặp (`spec.repeat.countKey`): nó không có ô trên màn (hai nút Thêm /
+ * Bỏ là điều khiển của nó), và quét nó là đòi ô của những nhóm chưa hề tồn tại — mọi điểm bên phải
+ * số nhóm đang có sẽ thành "chưa nhập đủ".
  */
 export function sweepCandidates(spec: FormulaSpec, level: Level): ReadonlyArray<VariableSpec> {
+  const bienDem = spec.repeat?.countKey;
   return variablesForLevel(spec, level).filter(
     (variable) =>
+      variable.key !== bienDem &&
       (variable.type === 'number' || variable.type === 'slider') &&
       sweepDomain(variable, variable.defaultValue) !== null,
   );

@@ -9,6 +9,7 @@
  */
 
 import type { Bilingual, ControlType, VariableSpec } from '../types';
+import { REPEAT_INDEX, repeatAllowedKeys, repeatKey, repeatLimits, repeatSlotOf } from './repeat';
 import type { Category, FormulaSpec, RegistryIssue } from './types';
 
 /** Điều khiển bắt buộc phải khai báo danh sách lựa chọn (LDR-02). */
@@ -235,6 +236,10 @@ export function validateFormula(
     issues.push(...validateVariable(variable, varPath));
   }
 
+  issues.push(...validateRepeat(formula, path));
+  // Ca kiểm thử và ví dụ được mang ô của nhóm lặp vượt số nhóm khai sẵn (`amount4`, `r5`…).
+  const allowedKeys = new Set([...seenKeys, ...repeatAllowedKeys(formula)]);
+
   // Ví dụ (FR-02)
   if (isBlankVi(formula.example.title)) {
     issues.push(err(`${path}.example.title`, 'Ví dụ thiếu tiêu đề.'));
@@ -242,7 +247,9 @@ export function validateFormula(
   if (isBlankEn(formula.example.title)) {
     issues.push(warn(`${path}.example.title.en`, 'Ví dụ thiếu tiêu đề tiếng Anh.'));
   }
-  issues.push(...checkInputs(formula.example.inputs, seenKeys, `${path}.example.inputs`));
+  issues.push(
+    ...checkInputs(formula.example.inputs, seenKeys, `${path}.example.inputs`, allowedKeys),
+  );
 
   // Ca kiểm thử (NFR-MNT-02)
   if (formula.tests.length === 0) {
@@ -259,7 +266,7 @@ export function validateFormula(
     if (testCase.expected !== null && !Number.isFinite(testCase.expected)) {
       issues.push(err(`${testPath}.expected`, 'Kết quả mong đợi phải là số hữu hạn hoặc null.'));
     }
-    issues.push(...checkInputs(testCase.inputs, seenKeys, `${testPath}.inputs`));
+    issues.push(...checkInputs(testCase.inputs, seenKeys, `${testPath}.inputs`, allowedKeys));
   }
 
   return issues;
@@ -336,15 +343,117 @@ export function formatIssues(issues: ReadonlyArray<RegistryIssue>): string {
     .join('\n');
 }
 
+/**
+ * Soát khai báo nhóm ô lặp (`FormulaSpec.repeat`). Công thức không khai thì không có gì để soát.
+ *
+ * Mọi luật ở đây đều giữ cho `resolveRepeatSpec()` không phải đoán: biến đếm có thật và là số
+ * nguyên có miền, nhóm khai sẵn đủ ô và đứng liền nhau đúng thứ tự mẫu, số nhóm khai sẵn bằng đúng
+ * giá trị mặc định của biến đếm (màn mở ra thấy bao nhiêu nhóm thì biến đếm nói bấy nhiêu).
+ */
+function validateRepeat(formula: FormulaSpec, path: string): RegistryIssue[] {
+  const { repeat } = formula;
+  if (repeat === undefined) return [];
+
+  const issues: RegistryIssue[] = [];
+  const repeatPath = `${path}.repeat`;
+
+  const counter = formula.variables.find((v) => v.key === repeat.countKey);
+  if (counter === undefined) {
+    issues.push(err(`${repeatPath}.countKey`, `Không có biến đếm '${repeat.countKey}'.`));
+    return issues;
+  }
+  if (
+    counter.type !== 'number' ||
+    counter.step !== 1 ||
+    counter.min === undefined ||
+    counter.max === undefined ||
+    !Number.isInteger(counter.min) ||
+    !Number.isInteger(counter.max) ||
+    !Number.isInteger(counter.defaultValue) ||
+    counter.min < 1
+  ) {
+    issues.push(
+      err(
+        `${repeatPath}.countKey`,
+        'Biến đếm phải là ô số nguyên: type number, step 1, min từ 1 trở lên và max đều là số nguyên.',
+      ),
+    );
+  }
+
+  if (repeat.fields.length === 0) {
+    issues.push(err(`${repeatPath}.fields`, 'Nhóm lặp phải có ít nhất một ô mẫu.'));
+    return issues;
+  }
+  for (const field of repeat.fields) {
+    const fieldPath = `${repeatPath}.fields.${field.key}`;
+    if (!field.label.vi.includes(REPEAT_INDEX) || !field.label.en.includes(REPEAT_INDEX)) {
+      issues.push(
+        err(`${fieldPath}.label`, `Nhãn ô mẫu phải mang ${REPEAT_INDEX} ở cả hai tiếng.`),
+      );
+    }
+    issues.push(...validateVariable(field, fieldPath));
+  }
+  if (isBlankVi(repeat.addLabel) || isBlankEn(repeat.addLabel)) {
+    issues.push(err(`${repeatPath}.addLabel`, 'Thiếu nhãn nút thêm nhóm.'));
+  }
+  if (
+    !repeat.removeLabel.vi.includes(REPEAT_INDEX) ||
+    !repeat.removeLabel.en.includes(REPEAT_INDEX)
+  ) {
+    issues.push(
+      err(
+        `${repeatPath}.removeLabel`,
+        `Nhãn nút bỏ nhóm phải mang ${REPEAT_INDEX} ở cả hai tiếng.`,
+      ),
+    );
+  }
+
+  const limits = repeatLimits(formula);
+  if (limits === null) return issues;
+
+  if (limits.declared !== counter.defaultValue) {
+    issues.push(
+      err(
+        `${repeatPath}.countKey`,
+        `Khai sẵn ${limits.declared} nhóm nhưng biến đếm mặc định là ${counter.defaultValue}.`,
+      ),
+    );
+  }
+
+  // Nhóm khai sẵn phải đủ ô, đứng liền nhau và đúng thứ tự mẫu — đó là thứ tự màn sẽ bày.
+  const mongDoi: string[] = [];
+  for (let n = 1; n <= limits.declared; n += 1) {
+    for (const field of repeat.fields) mongDoi.push(repeatKey(field.key, n));
+  }
+  const dau = Math.max(
+    0,
+    formula.variables.findIndex((v) => repeatSlotOf(repeat, v.key) !== null),
+  );
+  const thucTe = formula.variables.slice(dau, dau + mongDoi.length).map((v) => v.key);
+  const tongO = formula.variables.filter((v) => repeatSlotOf(repeat, v.key) !== null).length;
+  if (tongO !== mongDoi.length || thucTe.join('|') !== mongDoi.join('|')) {
+    issues.push(
+      err(
+        `${repeatPath}.fields`,
+        `Các ô của nhóm khai sẵn phải đứng liền nhau theo thứ tự: ${mongDoi.join(', ')}.`,
+      ),
+    );
+  }
+
+  return issues;
+}
+
 function checkInputs(
   inputs: Readonly<Record<string, number>>,
   variableKeys: ReadonlySet<string>,
   path: string,
+  /** Khoá được phép có mặt. Mặc định là chính `variableKeys`; rộng hơn khi công thức có nhóm lặp. */
+  allowedKeys: ReadonlySet<string> = variableKeys,
 ): RegistryIssue[] {
   const issues: RegistryIssue[] = [];
 
   for (const [key, value] of Object.entries(inputs)) {
-    if (!variableKeys.has(key)) {
+    if (!allowedKeys.has(key)) {
       issues.push(err(`${path}.${key}`, `Không có biến '${key}' trong công thức.`));
     }
     if (!Number.isFinite(value)) {

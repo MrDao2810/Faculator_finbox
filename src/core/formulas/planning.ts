@@ -15,7 +15,9 @@
 
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
+import { clampRepeatCount } from '../registry/repeat';
 import type { FormulaSource } from '../registry/types';
+import type { VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import {
   SOURCE_CORPORATE_FINANCE,
@@ -568,8 +570,38 @@ export const GUI_QUAY_VONG: FormulaModule = {
 
 /*
  * ── 3. Giá vốn trung bình DCA ──────────────────────────────────────────────────────────
- * Nhóm 'investing'. Ba cặp tiền/giá cho ba đợt mua; đợt nào chưa có thì để 0 ở cả hai ô.
+ * Nhóm 'investing'. Mỗi đợt mua một cặp tiền/giá; đợt nào chưa có thì để 0 ở cả hai ô.
+ *
+ * Số đợt do người dùng quyết (13/10/2026). Trước đó công thức khai cứng ba đợt và `calc` chạy vòng
+ * `[1, 2, 3]`; chủ dự án hỏi người muốn thử bốn, năm, sáu đợt thì làm sao. Nay ba đợt đầu vẫn khai
+ * sẵn trong `variables` (màn mở ra y như cũ), còn từ đợt thứ tư thì sinh từ mẫu ở `repeat` khi
+ * người dùng bấm "Thêm đợt mua" — xem `RepeatGroup` ở `registry/types.ts`.
  */
+
+/** Miền của số đợt mua. Một nguồn cho cả biến đếm lẫn vòng lặp của `calc`. */
+const DCA_LOTS_MIN = 1;
+const DCA_LOTS_MAX = 12;
+
+/**
+ * Biến đếm số đợt mua. Màn KHÔNG dựng ô cho nó: hai nút Thêm / Bỏ ở cuối khối Số liệu là điều
+ * khiển của nó. Nó vẫn là một biến thật để con số đi cùng bộ số liệu qua bản nháp, phép tính đã
+ * lưu và link chia sẻ.
+ */
+const dcaLotCount: VariableSpec = {
+  key: 'lots',
+  label: { vi: 'Số đợt mua', en: 'Number of purchase rounds' },
+  unit: '',
+  type: 'number',
+  defaultValue: 3,
+  min: DCA_LOTS_MIN,
+  max: DCA_LOTS_MAX,
+  step: 1,
+  level: 'basic',
+  description: {
+    vi: 'Số đợt đang nhập, từ 1 tới 12. Đổi bằng nút Thêm đợt mua và nút Bỏ đợt ở cuối khối Số liệu.',
+    en: 'The number of rounds entered, 1 to 12. Change it with the Add a purchase round and Remove round buttons at the end of the Inputs block.',
+  },
+};
 
 export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
   spec: {
@@ -577,8 +609,8 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
     categoryId: 'investing',
     name: { vi: 'Giá vốn trung bình khi mua DCA', en: 'DCA average cost per share' },
     description: {
-      vi: 'Giá vốn bình quân sau nhiều đợt mua với số tiền và giá khác nhau. Đợt nào không có thì nhập 0 vào cả ô tiền lẫn ô giá — đợt đó được bỏ qua.',
-      en: 'The average cost basis after several purchase rounds at different amounts and prices. For any round that did not happen, enter 0 in both the amount and price fields — that round is skipped.',
+      vi: 'Giá vốn bình quân sau nhiều đợt mua với số tiền và giá khác nhau. Mua nhiều hơn ba đợt thì bấm Thêm đợt mua; đợt nào không có thì nhập 0 vào cả ô tiền lẫn ô giá, đợt đó được bỏ qua.',
+      en: 'The average cost basis after several purchase rounds at different amounts and prices. For more than three rounds, press Add a purchase round; for any round that did not happen, enter 0 in both the amount and price fields and that round is skipped.',
     },
     latex: '\\bar{P} = \\frac{\\sum_i C_i}{\\sum_i C_i / P_i}',
     expression: {
@@ -592,7 +624,10 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       },
       {
         latex: 'i',
-        meaning: { vi: 'số thứ tự đợt mua, từ 1 tới 3', en: 'purchase round number, 1 to 3' },
+        meaning: {
+          vi: 'số thứ tự đợt mua, từ 1 tới số đợt bạn nhập',
+          en: 'purchase round number, 1 to the number of rounds entered',
+        },
       },
       { latex: 'C_i', meaning: { vi: 'tiền mua đợt i, ₫', en: 'amount invested in round i, ₫' } },
       { latex: 'P_i', meaning: { vi: 'giá mua đợt i, ₫', en: 'purchase price in round i, ₫' } },
@@ -626,6 +661,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
     tags: ['dca', 'gia von trung binh', 'trung binh gia', 'average cost', 'dau tu dinh ky'],
     resultUnit: '₫',
     variables: [
+      dcaLotCount,
       numberVar(
         'amount1',
         { vi: 'Tiền mua đợt 1', en: 'Amount invested, round 1' },
@@ -693,22 +729,51 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         },
       }),
     ],
+    /*
+     * Đợt thứ tư trở đi. Ô của đợt mới mang số 0, đúng quy ước "0 là không có đợt này" đã có từ
+     * trước: bấm Thêm thì kết quả đứng yên cho tới khi người dùng gõ, và gõ tiền mà chưa gõ giá thì
+     * `calc` báo đúng tên ô giá của đợt ấy. Ô số của màn không có trạng thái "để trống"
+     * (`NumberInput` không bao giờ đẩy ô trống lên, FR-06), nên 0 là cách duy nhất nói "chưa có".
+     */
+    repeat: {
+      countKey: 'lots',
+      fields: [
+        numberVar('amount', { vi: 'Tiền mua đợt {n}', en: 'Amount invested, round {n}' }, '₫', 0, {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Nhập 0 nếu không có đợt này.',
+            en: 'Enter 0 if this round did not happen.',
+          },
+        }),
+        numberVar('price', { vi: 'Giá mua đợt {n}', en: 'Purchase price, round {n}' }, '₫', 0, {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Nhập 0 nếu không có đợt này.',
+            en: 'Enter 0 if this round did not happen.',
+          },
+        }),
+      ],
+      addLabel: { vi: 'Thêm đợt mua', en: 'Add a purchase round' },
+      removeLabel: { vi: 'Bỏ đợt {n}', en: 'Remove round {n}' },
+    },
     explanation: {
       meaning: {
         vi: 'Mức giá bình quân thực sự đã trả cho mỗi cổ phiếu sau khi gom nhiều đợt mua rải đều theo thời gian (DCA) ở các mức giá cao lẫn thấp.',
         en: 'The average price actually paid per share after combining several purchases spread out over time (DCA) at both high and low prices.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn đã mua một cổ phiếu hai, ba đợt ở các giá khác nhau và muốn biết bình quân mình đã trả bao nhiêu cho mỗi cổ phiếu, trước khi quyết định mua thêm hay chờ.',
-        en: 'Use it when you have bought the same stock in two or three rounds at different prices and want to know what you really paid per share on average, before deciding whether to buy more or wait.',
+        vi: 'Dùng khi bạn đã mua một cổ phiếu nhiều đợt ở các giá khác nhau và muốn biết bình quân mình đã trả bao nhiêu cho mỗi cổ phiếu, trước khi quyết định mua thêm hay chờ.',
+        en: 'Use it when you have bought the same stock in several rounds at different prices and want to know what you really paid per share on average, before deciding whether to buy more or wait.',
       },
       howToRead: {
         vi: 'So với giá khớp hiện tại của mã trên bảng giá: giá thị trường cao hơn giá vốn này nghĩa là tính gộp mọi đợt mua, bạn đang lãi, thấp hơn là đang lỗ, chưa trừ phí và thuế.',
         en: "Compared with the stock's current market price: a market price above this average cost means that, taking all rounds together, you are in profit, and below it means a loss, before fees and taxes.",
       },
       commonMistakes: {
-        vi: 'Cộng các mức giá rồi chia ba, coi đó là giá vốn. Cách tính này bỏ qua số tiền khác nhau ở mỗi đợt, nên có thể lệch khá xa so với giá vốn thực — lệch theo hướng nào còn tuỳ đợt nào được rót nhiều tiền hơn.',
-        en: 'Adding up the prices and dividing by three, treating that as the cost basis. This ignores the different amount invested each round, so it can be well off the real average cost — which direction it drifts depends on which round received more money.',
+        vi: 'Cộng các mức giá rồi chia cho số đợt, coi đó là giá vốn. Cách tính này bỏ qua số tiền khác nhau ở mỗi đợt, nên có thể lệch khá xa so với giá vốn thực — lệch theo hướng nào còn tuỳ đợt nào được rót nhiều tiền hơn.',
+        en: 'Adding up the prices and dividing by the number of rounds, treating that as the cost basis. This ignores the different amount invested each round, so it can be well off the real average cost — which direction it drifts depends on which round received more money.',
       },
     },
     example: {
@@ -717,6 +782,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         en: 'Splitting capital into three 10 million VND FPT purchases, sessions from 2026-07-15 to 2026-08-21',
       },
       inputs: {
+        lots: 3,
         amount1: 10_000_000,
         price1: 66_800,
         amount2: 10_000_000,
@@ -738,6 +804,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       {
         name: 'ba đợt cùng số tiền, giá khác nhau',
         inputs: {
+          lots: 3,
           amount1: 10_000_000,
           price1: 50_000,
           amount2: 10_000_000,
@@ -751,6 +818,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       {
         name: 'đợt 3 nhập 0 thì chỉ tính hai đợt đầu',
         inputs: {
+          lots: 3,
           amount1: 10_000_000,
           price1: 50_000,
           amount2: 10_000_000,
@@ -764,6 +832,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       {
         name: 'có tiền mua nhưng giá đợt đó bằng 0 thì không chia được',
         inputs: {
+          lots: 3,
           amount1: 10_000_000,
           price1: 0,
           amount2: 0,
@@ -776,9 +845,87 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       },
       {
         name: 'cả ba đợt đều 0 thì chưa có đợt mua nào',
-        inputs: { amount1: 0, price1: 0, amount2: 0, price2: 0, amount3: 0, price3: 0 },
+        inputs: { lots: 3, amount1: 0, price1: 0, amount2: 0, price2: 0, amount3: 0, price3: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
+      },
+      {
+        // 40.000.000 ÷ (200 + 250 + 400 + 500) cổ phiếu.
+        name: 'thêm đợt thứ tư thì đợt ấy vào cả tử lẫn mẫu',
+        inputs: {
+          lots: 4,
+          amount1: 10_000_000,
+          price1: 50_000,
+          amount2: 10_000_000,
+          price2: 40_000,
+          amount3: 10_000_000,
+          price3: 25_000,
+          amount4: 10_000_000,
+          price4: 20_000,
+        },
+        expected: 29_629.63,
+        tolerance: 1,
+      },
+      {
+        name: 'đợt vừa thêm còn để 0 ở cả hai ô thì kết quả chưa đổi',
+        inputs: {
+          lots: 4,
+          amount1: 10_000_000,
+          price1: 50_000,
+          amount2: 10_000_000,
+          price2: 40_000,
+          amount3: 10_000_000,
+          price3: 25_000,
+          amount4: 0,
+          price4: 0,
+        },
+        expected: 35_294.12,
+        tolerance: 1,
+      },
+      {
+        name: 'đợt thứ tư có tiền mà chưa có giá thì không chia được',
+        inputs: {
+          lots: 4,
+          amount1: 10_000_000,
+          price1: 50_000,
+          amount2: 10_000_000,
+          price2: 40_000,
+          amount3: 10_000_000,
+          price3: 25_000,
+          amount4: 10_000_000,
+          price4: 0,
+        },
+        expected: null,
+        expectedWarning: 'DIVIDE_BY_ZERO',
+      },
+      {
+        name: 'số đợt là 4 mà thiếu ô của đợt thứ tư thì báo chưa nhập đủ',
+        inputs: {
+          lots: 4,
+          amount1: 10_000_000,
+          price1: 50_000,
+          amount2: 10_000_000,
+          price2: 40_000,
+          amount3: 10_000_000,
+          price3: 25_000,
+        },
+        expected: null,
+        expectedWarning: 'INCOMPLETE_INPUT',
+      },
+      {
+        // Bỏ bớt đợt: ô của đợt 2 và 3 còn số nhưng không còn được tính.
+        name: 'chỉ còn một đợt thì giá vốn bằng đúng giá đợt ấy',
+        inputs: {
+          lots: 1,
+          amount1: 10_000_000,
+          price1: 50_000,
+          amount2: 10_000_000,
+          price2: 40_000,
+          amount3: 10_000_000,
+          price3: 25_000,
+        },
+        expected: 50_000,
+        tolerance: 1,
       },
     ],
     source: [SOURCE_CORPORATE_FINANCE],
@@ -787,7 +934,10 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
     let totalInvested = 0;
     let totalShares = 0;
 
-    for (const lot of [1, 2, 3]) {
+    // Cùng phép kẹp với `runFormula()`, nên vòng lặp đi qua đúng những đợt đã được kiểm là có số.
+    const lots = clampRepeatCount(v('lots'), DCA_LOTS_MIN, DCA_LOTS_MAX);
+
+    for (let lot = 1; lot <= lots; lot += 1) {
       const amount = v(`amount${lot}`);
       if (amount === 0) continue; // Đợt bỏ trống — nhập 0 nghĩa là không có đợt này.
 

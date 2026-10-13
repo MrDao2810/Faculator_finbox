@@ -42,15 +42,48 @@ describe('hasConfigBlock()', () => {
   });
 });
 
-describe('FeeScheduleField — ô chọn biểu phí của WF-08', () => {
-  it('dựng lựa chọn từ MarketConfig chứ không viết cứng', () => {
+describe('FeeScheduleField — hàng biểu phí của WF-08', () => {
+  /*
+   * Chủ dự án, 13/10/2026: *"chỉ có 1 lựa chọn thì không nên để select"*. Một ô có khung và mũi tên
+   * mà mở ra đúng một dòng là điều khiển chết. Ca này ghim chiều ngược của ca cũ (ca cũ đòi một
+   * `<select>`): với cấu hình thật, hàng này là chữ.
+   */
+  it('một biểu phí thì in tên nó thành chữ, không dựng ô chọn', () => {
+    expect(MARKET_CONFIG.schedules).toHaveLength(1);
+
     render(<FeeScheduleField />);
+
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.getByText('Biểu phí')).not.toBeNull();
+    expect(screen.getByText(MARKET_CONFIG.schedules[0]?.name.vi ?? '')).not.toBeNull();
+  });
+
+  /*
+   * Luật đếm theo danh sách chứ không viết cứng "luôn in chữ": ngày MarketConfig có biểu phí thứ
+   * hai thì ô chọn phải tự quay lại. Cấu hình thật chỉ có một, nên ca này tự dựng cái thứ hai.
+   */
+  it('từ hai biểu phí thì dựng ô chọn đủ lựa chọn, chọn sẵn cái mặc định', () => {
+    const goc = MARKET_CONFIG.schedules[0];
+    if (goc === undefined) throw new Error('không dựng được biểu phí mặc định');
+    const haiBieuPhi = [
+      goc,
+      { ...goc, id: 'bieu-phi-thu', name: { vi: 'Biểu phí thử', en: 'Test schedule' } },
+    ];
+
+    render(<FeeScheduleField schedules={haiBieuPhi} />);
     const select = screen.getByLabelText('Biểu phí') as HTMLSelectElement;
 
-    expect([...select.options].map((o) => o.value)).toEqual(
-      MARKET_CONFIG.schedules.map((s) => s.id),
-    );
+    expect([...select.options].map((o) => o.value)).toEqual(haiBieuPhi.map((s) => s.id));
+    expect([...select.options].map((o) => o.textContent)).toEqual(haiBieuPhi.map((s) => s.name.vi));
     expect(select.value).toBe(MARKET_CONFIG.defaultScheduleId);
+  });
+
+  it('nhãn và dòng phụ truyền vào thì dùng chữ ấy — màn Cài đặt gọi theo lối này', () => {
+    render(<FeeScheduleField label="Biểu phí giao dịch" hint="Dòng phụ của màn khác." />);
+
+    expect(screen.getByText('Biểu phí giao dịch')).not.toBeNull();
+    expect(screen.getByText('Dòng phụ của màn khác.')).not.toBeNull();
+    expect(screen.queryByText('Biểu phí')).toBeNull();
   });
 
   it('nói rõ hằng số lấy từ đâu — CON-10', () => {

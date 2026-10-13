@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import type { FormulaSpec, Preset, PresetPick } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import type { TickerCoverage } from '@/application/ticker-coverage';
 import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
 import { useCalcText, useValueText } from '../i18n/units';
@@ -31,9 +34,10 @@ export interface PresetSheetProps {
   /**
    * Công thức này có ăn chuỗi phiên giá hay không.
    *
-   * Quyết định câu dẫn ở đầu sheet khi KHÔNG xếp hạng được: "chỉ dùng chuỗi giá" và "không dùng
-   * số liệu của mã nào" là hai chuyện khác hẳn nhau, mà từ `picks` không phân biệt được — cả hai
-   * đều cho `filled` rỗng.
+   * Quyết định đầu sheet và dòng phụ của từng mã khi KHÔNG xếp hạng được: "chỉ dùng chuỗi giá" và
+   * "không dùng số liệu của mã nào" là hai chuyện khác hẳn nhau, mà từ `picks` không phân biệt
+   * được — cả hai đều cho `filled` rỗng. Ca đầu không có câu dẫn và mỗi dòng in mức giá; ca sau có
+   * câu `noTickerNote` và dòng phụ để trống.
    */
   wantsSeries?: boolean;
   /**
@@ -43,6 +47,14 @@ export interface PresetSheetProps {
    * công thức thì luôn truyền — xem docblock ngay dưới.
    */
   onBrowseMarket?: () => void;
+  /**
+   * Ngày ISO của màn — bật con số trên nút sang kho lớn ("Danh sách 1.100 mã khác →").
+   *
+   * Cùng vai trò và cùng lý do truyền NGÀY như `TickerPickerSheetProps.markUnusableAsOf`: con số
+   * đọc từ đúng bảng mã mà sheet kia dùng để khoá nút "Chọn", và bảng ấy cũ đi mỗi kỳ báo cáo.
+   * Vắng mặt thì nút giữ nhãn không số.
+   */
+  marketAsOf?: string;
 }
 
 /** Số ô nhiều nhất kể ra ở một dòng. Quá ba thì dòng dài hơn khung điện thoại và mất tác dụng. */
@@ -110,11 +122,40 @@ export function PresetSheet({
   spec,
   wantsSeries = false,
   onBrowseMarket,
+  marketAsOf,
 }: PresetSheetProps) {
   const t = useT();
   const pick = usePick();
   const calcText = useCalcText();
   const valueText = useValueText();
+
+  /**
+   * Bảng mã có số liệu dùng được — nạp TRỄ khi sheet mở, đúng lối `TickerPickerSheet` đang nạp.
+   *
+   * `null` ở lượt render đầu, khi không bật (`marketAsOf` vắng) và khi nạp hỏng. Cả ba ca nút đều
+   * giữ nhãn không số: thiếu con số thì người dùng chỉ không được báo trước, còn in sai con số là
+   * hứa một danh sách không có thật.
+   */
+  const [coverage, setCoverage] = useState<TickerCoverage | null>(null);
+  const canDem = open && marketAsOf !== undefined && onBrowseMarket !== undefined;
+
+  useEffect(() => {
+    if (!canDem || marketAsOf === undefined) return;
+
+    let huy = false;
+    void (async () => {
+      try {
+        const { tickerCoverage } = await import('@/application/ticker-coverage');
+        if (!huy) setCoverage(tickerCoverage(marketAsOf));
+      } catch {
+        // Không nạp được bảng thì thôi đếm — xem docblock của `coverage`.
+      }
+    })();
+
+    return () => {
+      huy = true;
+    };
+  }, [canDem, marketAsOf]);
 
   /* Cảnh báo bản thảo xét trên CẢ BỘ: nó nói về nguồn dữ liệu, không về mấy dòng đang hiện. */
   const anyDraft = picks.some((item) => item.preset.isDraft);
@@ -162,7 +203,7 @@ export function PresetSheet({
   }
 
   /**
-   * Câu dẫn ở đầu sheet — ba ca, và ca nào cũng chỉ có ĐÚNG MỘT dòng.
+   * Câu dẫn ở đầu sheet — nhiều nhất MỘT dòng, và hai ca thì không có dòng nào.
    *
    * `topPicks` là nhãn chủ dự án đặt cho bốn dòng bên dưới, và nó chỉ đúng ở nhánh có xếp hạng:
    * chỉ ở đó `pickPresetsFor()` mới chạy thật công thức với từng mã rồi trải bốn mã trên biên độ
@@ -172,11 +213,17 @@ export function PresetSheet({
    *
    * Không có công thức nào (`spec === undefined`, màn bảng dữ liệu WF-05) thì không có gì để nói
    * "hợp nhất cho" cả, nên sheet lùi về đúng hình dạng cũ — mã, tên, dòng nguồn.
+   *
+   * Công thức ăn chuỗi giá cũng KHÔNG có câu dẫn từ 13/10/2026: câu `preset.seriesOnlyNote` đã bỏ
+   * theo yêu cầu chủ dự án — mộ chí và cái giá của việc ấy ghi ở `vi.ts`. Đừng trả `noTickerNote`
+   * cho ca này để "lấp chỗ": câu ấy nói bốn mã không đổi được ô nào, mà ở đây nạp một mã là có
+   * ngay chuỗi giá để tính.
    */
   function cauDan(): string | null {
     if (spec === undefined) return null;
     if (ranked) return t('preset.topPicks');
-    return t(wantsSeries ? 'preset.seriesOnlyNote' : 'preset.noTickerNote');
+    if (wantsSeries) return null;
+    return t('preset.noTickerNote');
   }
 
   /** Tên và đơn vị của một ô — tra từ spec, không đoán từ khoá. */
@@ -188,7 +235,38 @@ export function PresetSheet({
     };
   }
 
+  /**
+   * Số mã KHÁC bốn mã phía trên mà công thức đang xem dùng được — `null` thì nút giữ nhãn không số.
+   *
+   * Chủ dự án, 13/10/2026: nút từng chỉ nói "Tìm mã khác trong toàn thị trường →", mà bấm vào thì
+   * không phải mã nào cũng dùng được — *"chỗ này cần có thêm text ghi rõ có bao nhiêu mã có thể áp
+   * dụng được vào công thức đang dùng ví dụ như: Danh sách 60 mã khác"*.
+   *
+   * "Dùng được" ở đây là ĐÚNG luật sheet kia đang áp: mã có trong bảng số liệu cơ bản thì nút
+   * "Chọn" của nó mở, mã không có thì khoá (`khoaNutChon` ở `TickerPickerSheet`). Đếm theo một
+   * bảng khác là in ra con số mà sheet kế tiếp không giữ.
+   *
+   * Ba ca KHÔNG in số, mỗi ca vì con số sẽ sai:
+   *  - bảng đã cũ (`stale`): sheet kia mở khoá mọi mã, không còn ranh giới nào để đếm;
+   *  - công thức không dùng số của mã nào (không xếp hạng được, cũng không ăn chuỗi giá) — câu
+   *    dẫn phía trên vừa nói bốn mã không đổi được ô nào, in "1.100 mã" ngay dưới là cãi nó;
+   *  - không có công thức (màn bảng dữ liệu WF-05).
+   *
+   * Trừ đi những mã mẫu đang bày phía trên: nhãn nói "mã KHÁC", và bốn mã ấy cũng nằm trong bảng.
+   */
+  function soMaKhac(): number | null {
+    if (coverage === null || coverage.stale) return null;
+    if (spec === undefined || !(ranked || wantsSeries)) return null;
+
+    const dangBay = picks.filter((item) =>
+      coverage.codes.has(item.preset.code.toUpperCase()),
+    ).length;
+    const conLai = coverage.codes.size - dangBay;
+    return conLai > 0 ? conLai : null;
+  }
+
   const dan = cauDan();
+  const maKhac = soMaKhac();
 
   return (
     /*
@@ -220,9 +298,12 @@ export function PresetSheet({
         mỗi dòng đã in sẵn kết quả của chính nó, nên thứ tự tự nói ra nghĩa — thứ còn thiếu chỉ là
         một chữ gọi tên bốn dòng đó là gì.
 
-        Hai câu kia KHÔNG gỡ theo, và đó là chủ ý: `noTickerNote` là câu trả lời cho đúng lỗi chủ
-        dự án từng báo — "bấm Nạp xong không ô nào đổi" — còn `seriesOnlyNote` là chỗ duy nhất còn
-        lại nói ra rằng đường đi của giá là số tự dựng.
+        `noTickerNote` KHÔNG gỡ theo, và đó là chủ ý: nó là câu trả lời cho đúng lỗi chủ dự án từng
+        báo — "bấm Nạp xong không ô nào đổi".
+
+        `seriesOnlyNote` thì đã gỡ ngày 13/10/2026, theo yêu cầu chủ dự án. Nó từng là chỗ CUỐI CÙNG
+        trên màn nói ra rằng đường đi của giá là số tự dựng; nay lời ấy chỉ còn ở cờ `isDraft` và
+        trong file xuất ra — xem mộ chí ở `vi.ts`.
       */}
       {dan !== null && <p className={styles.lead}>{dan}</p>}
 
@@ -318,7 +399,9 @@ export function PresetSheet({
               onBrowseMarket();
             }}
           >
-            {t('preset.browseMarket')}
+            {maKhac === null
+              ? t('preset.browseMarket')
+              : t('preset.browseMarketCount').replace('{n}', valueText(maKhac, ''))}
           </Button>
           {/* Câu "Toàn bộ mã đang giao dịch… chỉ có MỘT phiên giá" đã gỡ — chủ dự án chốt. */}
         </div>

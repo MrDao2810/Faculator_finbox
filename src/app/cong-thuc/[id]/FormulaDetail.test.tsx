@@ -386,6 +386,30 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  /*
+   * Ca chủ dự án chụp (14/10/2026): bấm "Xem ví dụ minh hoạ" thì thanh trượt "Số phiên trong kỳ"
+   * sang 55, mà khung "?" vẫn ghi "60 phiên là khoảng ba tháng" — câu viết quanh số mặc định. Khung
+   * phải đọc số đang có trong ô. Đi đúng luồng đã chụp, không gõ tay một con số dựng sẵn.
+   */
+  it('câu minh hoạ trong khung đi theo số đang có trong ô, không theo số mặc định', async () => {
+    const user = userEvent.setup();
+    const id = 'bien-do-dao-dong-lon-nhat';
+    render(<Man spec={specOf(id)} bai={baiHuongDanFor(id, AS_OF)} />);
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+    expect((await screen.findByRole('dialog')).textContent).toContain(
+      '60 phiên là khoảng 3 tháng.',
+    );
+    await user.keyboard('{Escape}');
+
+    await user.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+
+    const khung = await screen.findByRole('dialog');
+    expect(khung.textContent).toContain('55 phiên là khoảng 2,5 tháng.');
+    expect(khung.textContent).not.toContain('60 phiên');
+  });
+
   it('không có bài thì link về đúng vai trò link, không nuốt cú bấm', async () => {
     const user = userEvent.setup();
     render(<Man spec={specOf('pe')} />);
@@ -1072,7 +1096,7 @@ describe('WF-03 — hằng số thuế & phí phải hiện ra, không được 
   /*
    * Ca chủ dự án chụp màn lại ngày 22/09/2026: đang xem ví dụ minh hoạ của Beta mà màn vẫn kêu
    * "chuỗi VN-Index là số tự dựng". Sai — ví dụ ấy nạp kèm `marketSeries` của riêng nó
-   * (`VNINDEX_71_PHIEN`, số liệu THẬT, đã đối chiếu với CafeF), tức con số đang bày không dính
+   * (`VNINDEX_PHIEN`, số liệu THẬT, đã đối chiếu với CafeF), tức con số đang bày không dính
    * gì tới chuỗi PRNG mà câu kia nói về. Câu cảnh báo bật sai chỗ thì lần sau nó bật đúng chỗ
    * cũng không ai đọc.
    */
@@ -1479,10 +1503,12 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
    * Ca hồi quy riêng cho Beta: công thức này đọc CẢ HAI chuỗi (cổ phiếu VÀ VN-Index) cùng lúc,
    * còn 34 công thức chuỗi khác chỉ đọc một. Nếu `loadIllustrativeExample()` chỉ nạp vế cổ phiếu
    * (`example.series`) mà bỏ quên `example.marketSeries`, hồi quy vẫn chạy nhưng lấy vế thị
-   * trường từ `VN_INDEX_CLOSES` (PRNG bịa cố định của màn) — beta ra một số KHÁC 1, sai âm thầm
-   * mà ca kiểm coi "không còn NO_VALUE" ở test bên trên không bắt được. Ca này bắt đúng lỗi đó.
+   * trường từ `VN_INDEX_CLOSES` (PRNG bịa cố định của màn) — beta ra một số KHÁC con số của ví
+   * dụ, sai âm thầm mà ca kiểm coi "không còn NO_VALUE" ở test bên trên không bắt được. Ca này bắt
+   * đúng lỗi đó. Con số đọc từ `example.expected` (0,8126 — beta FPT theo VN-Index từ 14/10/2026;
+   * trước đó ví dụ hồi quy VN-Index theo chính nó nên ra 1), so tới hai chữ số lẻ như màn in.
    */
-  it('với Beta, nút minh hoạ đổi CẢ chuỗi cổ phiếu lẫn chuỗi VN-Index — ra đúng 1 lần của ví dụ', async () => {
+  it('với Beta, nút minh hoạ đổi CẢ chuỗi cổ phiếu lẫn chuỗi VN-Index — ra đúng con số của ví dụ', async () => {
     render(<Man spec={specOf('beta')} />);
 
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
@@ -1492,7 +1518,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
     const shown = screen.getByTestId('result-text').textContent ?? '';
     expect(shown).not.toContain(NO_VALUE);
     const parsed = Number(shown.replace(' lần', '').replace(',', '.'));
-    expect(parsed).toBeCloseTo(1, 1);
+    expect(parsed).toBeCloseTo(specOf('beta').example.expected, 2);
   });
 });
 
@@ -3605,14 +3631,17 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
    * Beta đọc CẢ HAI chuỗi. Cất mỗi vế cổ phiếu thì mở lại nó lặng lẽ lấy vế thị trường từ hằng số
    * PRNG của màn và ra một con số khác — sai âm thầm mà ca "không còn NO_VALUE" không bắt được.
    */
-  it('Beta giữ cả chuỗi VN-Index — mở lại vẫn ra đúng 1 lần', async () => {
+  it('Beta giữ cả chuỗi VN-Index — mở lại vẫn ra đúng con số của ví dụ', async () => {
     render(<Man spec={specOf('beta')} />);
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
     cleanup();
 
     render(<Man spec={specOf('beta')} />);
     const shown = screen.getByTestId('result-text').textContent ?? '';
-    expect(Number(shown.replace(' lần', '').replace(',', '.'))).toBeCloseTo(1, 1);
+    expect(Number(shown.replace(' lần', '').replace(',', '.'))).toBeCloseTo(
+      specOf('beta').example.expected,
+      2,
+    );
   });
 
   it('chuỗi của công thức này không chảy sang công thức khác', async () => {

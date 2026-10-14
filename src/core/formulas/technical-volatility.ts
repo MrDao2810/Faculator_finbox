@@ -25,7 +25,7 @@ import type { SeriesRow } from '../price-series';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless, missingSeries } from '../warnings';
-import { FPT_2026, FPT_57_BARS, FPT_57_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_BARS, FPT_PHIEN } from './market-series-2026';
 import { mean, requireBars, requireCloses, sampleStdDev } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
@@ -357,11 +357,11 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Dải trên của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
-        en: 'FPT upper band over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
+        vi: 'Dải trên của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT upper band over the 250 sessions from 2025-09-12 to 2026-09-15, period 20, k = 2',
       },
       inputs: { period: 20, k: 2 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 74_988,
       note: {
@@ -369,8 +369,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         en: 'The upper band is the 20-session average plus twice the standard deviation, so under a normal distribution only about 5% of sessions land outside the two bands — touching the upper edge is rare. In a strong uptrend, though, price can hug the upper band for many sessions in a row: Bollinger bands measure volatility, they do not forecast direction.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -505,11 +505,11 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Dải dưới của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
-        en: 'FPT lower band over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
+        vi: 'Dải dưới của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT lower band over the 250 sessions from 2025-09-12 to 2026-09-15, period 20, k = 2',
       },
       inputs: { period: 20, k: 2 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 68_132,
       note: {
@@ -517,8 +517,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         en: 'The lower band mirrors the upper one around the middle line, so it only says price is at the bottom edge of its usual trading range. This very series has two late-July sessions that broke below it before price recovered in August, yet breaking below and continuing to fall is just as common when the bad news is real — Bollinger bands cannot tell the two cases apart.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -654,11 +654,11 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Độ rộng dải của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
-        en: 'FPT bandwidth over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
+        vi: 'Độ rộng dải của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT bandwidth over the 250 sessions from 2025-09-12 to 2026-09-15, period 20, k = 2',
       },
       inputs: { period: 20, k: 2 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 9.5816,
       note: {
@@ -666,8 +666,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         en: 'Dividing by the middle line makes this number comparable across time and across stocks at different price levels. A stretch of narrowing bands — what Bollinger calls a "squeeze" — often precedes a strong price move, but it only answers "when", never "which way", so it has to be read alongside a trend indicator.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -840,20 +840,20 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'ATR của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 14 phiên theo Wilder',
-        en: 'FPT ATR over the 57 sessions from 2026-06-24 to 2026-09-15, Wilder period 14',
+        vi: 'ATR của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, chu kỳ 14 phiên theo Wilder',
+        en: 'FPT ATR over the 250 sessions from 2025-09-12 to 2026-09-15, Wilder period 14',
       },
       inputs: { period: 14 },
-      bars: FPT_57_BARS,
+      bars: FPT_BARS,
       dataset: FPT_2026,
-      expected: 1_498,
+      expected: 1_502.87,
       note: {
         vi: 'Dao động thực lấy số lớn nhất trong ba khoảng nên tính được cả phần giá nhảy qua đêm mà biên độ trong phiên bỏ sót. Ứng dụng quen thuộc nhất là đặt cắt lỗ cách giá vào lệnh chừng 1,5–2 lần ATR, để nhiễu thường ngày không quét mất lệnh dừng.',
         en: 'The true range takes the largest of three gaps, so it captures the overnight jump that an intraday high-minus-low misses. Its most common use is placing a stop roughly 1.5–2 ATR away from the entry price, so ordinary daily noise does not sweep the stop out.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -1020,11 +1020,11 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
     },
     example: {
       title: {
-        vi: '%B của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 20 phiên, k = 2',
-        en: 'FPT %B over the 57 sessions from 2026-06-24 to 2026-09-15, period 20, k = 2',
+        vi: '%B của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, chu kỳ 20 phiên, k = 2',
+        en: 'FPT %B over the 250 sessions from 2025-09-12 to 2026-09-15, period 20, k = 2',
       },
       inputs: { period: 20, k: 2 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 66.6263,
       note: {
@@ -1032,8 +1032,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         en: '%B maps price position onto a common scale: 0 is the lower band, 50 is exactly the middle line, 100 is the upper band, and anything outside that range means price has left the band. That normalization is what lets FPT be compared with a 15,000 VND stock — something the three raw Bollinger lines cannot do.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -1228,21 +1228,21 @@ export const STOCHASTIC_K: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Stochastic %K của FPT trên chuỗi 57 phiên 24/06–15/09/2026, chu kỳ 14 phiên',
-        en: 'FPT stochastic %K over the 57 sessions from 2026-06-24 to 2026-09-15, period 14',
+        vi: 'Stochastic %K của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, chu kỳ 14 phiên',
+        en: 'FPT stochastic %K over the 250 sessions from 2025-09-12 to 2026-09-15, period 14',
       },
       inputs: { period: 14 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
-      bars: FPT_57_BARS,
+      bars: FPT_BARS,
       expected: 48.7805,
       note: {
         vi: 'Mười bốn phiên gần nhất của FPT dao động trong khoảng 70.700–74.800 ₫ và giá đóng cửa rơi vào quãng giữa, tức chưa sát đỉnh cũng chưa sát đáy của biên độ. Chỉ báo này lấy cả giá cao nhất và thấp nhất trong phiên chứ không chỉ giá đóng cửa như RSI, nên phản ứng nhanh hơn.',
         en: "FPT's last fourteen sessions ranged between 70,700 and 74,800 VND and the close lands in the middle of that band — neither near the high nor near the low. Unlike RSI, this indicator uses the intraday high and low as well as the close, so it reacts faster.",
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -1401,20 +1401,20 @@ export const VWAP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VWAP của FPT trên chuỗi 57 phiên 24/06–15/09/2026, gộp 20 phiên gần nhất',
-        en: 'FPT VWAP over the 57 sessions from 2026-06-24 to 2026-09-15, pooling the last 20 sessions',
+        vi: 'VWAP của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, gộp 20 phiên gần nhất',
+        en: 'FPT VWAP over the 250 sessions from 2025-09-12 to 2026-09-15, pooling the last 20 sessions',
       },
       inputs: { period: 20 },
-      bars: FPT_57_BARS,
+      bars: FPT_BARS,
       dataset: FPT_2026,
-      expected: 71_726,
+      expected: 71_930.86,
       note: {
         vi: 'Mỗi phiên góp vào theo đúng số cổ phiếu đã khớp, nên phiên sôi động kéo bình quân về phía giá của nó: hai mươi phiên này có trung bình cộng giá đóng cửa 71.560 ₫, còn VWAP nhỉnh hơn vì phiên khối lượng nặng nhất trong kỳ lại là phiên giá cao. Các quỹ lớn dùng VWAP làm chuẩn đánh giá chất lượng khớp lệnh.',
         en: 'Every session contributes in proportion to the shares it matched, so an active session pulls the average toward its own price: the plain average of these twenty closes is 71,560 VND, while VWAP comes out higher because the heaviest-volume session of the period was also a high-priced one. Large funds use VWAP as the benchmark for execution quality.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -1633,11 +1633,11 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Độ biến động năm hoá của FPT, lấy mẫu 55 phiên cuối trong chuỗi 24/06–15/09/2026',
-        en: 'FPT annualized volatility, sampled over the last 55 of the sessions from 2026-06-24 to 2026-09-15',
+        vi: 'Độ biến động năm hoá của FPT, lấy mẫu 55 phiên cuối trong chuỗi 12/09/2025–15/09/2026',
+        en: 'FPT annualized volatility, sampled over the last 55 of the sessions from 2025-09-12 to 2026-09-15',
       },
       inputs: { sample: 55, tradingDays: 252 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 30.3652,
       note: {
@@ -1645,8 +1645,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         en: 'This indicator follows the international convention of 252 sessions per year, unlike the risk group which uses 250: the gap is small, but if two screens disagree the same stock will show two different numbers. It is also the mandatory volatility input to Black-Scholes when pricing covered warrants.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -1835,20 +1835,20 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Phiên 15/09/2026 của FPT so với trung bình 20 phiên liền trước, trong chuỗi từ 24/06/2026',
-        en: "FPT's 2026-09-15 session against the average of the preceding 20, within the series starting 2026-06-24",
+        vi: 'Phiên 15/09/2026 của FPT so với trung bình 20 phiên liền trước, trong chuỗi từ 12/09/2025',
+        en: "FPT's 2026-09-15 session against the average of the preceding 20, within the series starting 2025-09-12",
       },
       inputs: { period: 20 },
-      bars: FPT_57_BARS,
+      bars: FPT_BARS,
       dataset: FPT_2026,
-      expected: 0.55,
+      expected: 0.6998,
       note: {
-        vi: 'Phiên gần nhất chỉ khớp chừng một nửa mức bình quân của hai mươi phiên liền trước, tức thanh khoản đang mỏng đi; phải từ khoảng 1,5 lần trở lên mới được coi là đột biến. Tỷ lệ này không có hướng: trong chính chuỗi FPT, phiên 15/07 khối lượng 21,5 triệu đi kèm giá giảm 5% còn phiên 03/08 khối lượng 19,5 triệu đi kèm giá tăng gần 7%.',
-        en: 'The latest session matched only about half the average of the preceding twenty, meaning liquidity is thinning; roughly 1.5x and above is what counts as a spike. The ratio has no direction: within this same FPT series, 15 July matched 21.5 million shares while price fell 5%, and 3 August matched 19.5 million while price rose nearly 7%.',
+        vi: 'Phiên gần nhất chỉ khớp chừng bảy phần mười mức bình quân của hai mươi phiên liền trước, tức thanh khoản đang mỏng đi; phải từ khoảng 1,5 lần trở lên mới được coi là đột biến. Tỷ lệ này không có hướng: trong chính chuỗi FPT, phiên 15/07 khớp 21,3 triệu cổ phiếu đi kèm giá giảm 5% còn phiên 03/08 khớp 16,3 triệu đi kèm giá tăng gần 7%.',
+        en: 'The latest session matched only about seven tenths of the average of the preceding twenty, meaning liquidity is thinning; roughly 1.5x and above is what counts as a spike. The ratio has no direction: within this same FPT series, 15 July matched 21.3 million shares while price fell 5%, and 3 August matched 16.3 million while price rose nearly 7%.',
       },
       source: {
-        vi: 'investing.com, dữ liệu lịch sử FPT, 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT historical data, 57 sessions from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT historical data, 250 sessions from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [

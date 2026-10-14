@@ -39,16 +39,16 @@ describe('lời giải khối Ví dụ thực tế', () => {
    * Ví dụ KHÔNG có link nào — GHIM từng id, chỉ được giảm. Dòng Nguồn của chúng chỉ in tên nguồn,
    * vì không trang nào mở được chứa đúng con số của ví dụ; bịa một link là tệ hơn không có.
    *
-   * `vwap`: cột khối lượng của chuỗi FPT 57 phiên trong ví dụ không khớp nguồn nào — khớp lệnh
-   * CafeF/VNDirect ra VWAP 71.931 ₫, khớp lệnh cộng thoả thuận ra 71.771 ₫, ví dụ ghi 71.726 ₫. Giá
-   * đóng cửa thì khớp. Gắn link là để người đọc tính lại ra một số khác; chủ dự án cần quyết sửa số
-   * liệu của ví dụ (xem TASK.md, 29/09/2026).
+   * Danh sách từng có đúng một id, `vwap`: cột khối lượng của chuỗi FPT 57 phiên không khớp nguồn
+   * nào — khớp lệnh CafeF/VNDirect ra VWAP 71.931 ₫, ví dụ ghi 71.726 ₫. Từ 14/10/2026 chuỗi ví dụ
+   * lấy cả cột khối lượng khớp lệnh từ VNDirect (xem `market-series-2026.ts`), ví dụ ra đúng
+   * 71.930,86 ₫ và có link trở lại, nên danh sách rỗng.
    */
   it('ví dụ không có link nào — ghim từng id', () => {
     const khongLink = Object.entries(VI_DU_GIAI)
       .filter(([, giai]) => giai.nguon.length === 0)
       .map(([id]) => id);
-    expect(khongLink).toEqual(['vwap']);
+    expect(khongLink).toEqual([]);
   });
 
   it('mọi lời giải qua đủ luật của viDuProblems()', () => {

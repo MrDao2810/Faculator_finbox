@@ -438,7 +438,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       shares: {
         layODau: { vi: 'Báo cáo quản trị, mục cổ phiếu đang lưu hành. Ô này nhận triệu CP.' },
-        luuY: { vi: 'Nếu có 1,47 tỷ cổ phiếu thì nhập 1470.' },
+        luuY: { vi: 'Nếu có {shares|coPhieu} cổ phiếu thì nhập {shares}.' },
       },
     },
     docKetQua: {
@@ -486,7 +486,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       shares: {
         layODau: { vi: 'Báo cáo quản trị, mục cổ phiếu đang lưu hành. Ô này nhận triệu CP.' },
-        luuY: { vi: 'Nếu có 1,47 tỷ cổ phiếu thì nhập 1470.' },
+        luuY: { vi: 'Nếu có {shares|coPhieu} cổ phiếu thì nhập {shares}.' },
       },
     },
     docKetQua: {
@@ -759,7 +759,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       shares: {
         layODau: { vi: 'Báo cáo quản trị, mục cổ phiếu đang lưu hành. Ô này nhận triệu CP.' },
-        luuY: { vi: 'Nếu có 1,47 tỷ cổ phiếu thì nhập 1470.' },
+        luuY: { vi: 'Nếu có {shares|coPhieu} cổ phiếu thì nhập {shares}.' },
       },
     },
     docKetQua: {
@@ -1056,7 +1056,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       // Thêm / Bỏ, nên bản trong `guide-111.json` ("2 hoặc 3 kỳ…") nói về một điều khiển không còn.
       periods: {
         layODau: { vi: 'Đếm số kỳ bạn có số liệu.' },
-        luuY: { vi: 'Từ 2 tới 12 kỳ. Bấm Thêm kỳ hoặc Bỏ kỳ ở cuối khối Số liệu để đổi.' },
+        luuY: {
+          vi: 'Từ {periods|min} tới {periods|max} kỳ. Bấm Thêm kỳ hoặc Bỏ kỳ ở cuối khối Số liệu để đổi.',
+        },
       },
       r1: {
         layODau: { vi: 'Lãi của kỳ đầu tiên, tính bằng phần trăm.' },
@@ -1204,7 +1206,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       lookback: {
         layODau: { vi: 'Độ dài cửa sổ quan sát, tính lùi từ phiên mới nhất.' },
-        luuY: { vi: '250 phiên là khoảng một năm. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.' },
+        luuY: {
+          vi: '{lookback} phiên là khoảng {lookback|thoiGian}. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.',
+        },
       },
     },
     docKetQua: {
@@ -1222,7 +1226,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       lookback: {
         layODau: { vi: 'Độ dài cửa sổ quan sát, tính lùi từ phiên mới nhất.' },
-        luuY: { vi: '250 phiên là khoảng một năm. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.' },
+        luuY: {
+          vi: '{lookback} phiên là khoảng {lookback|thoiGian}. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.',
+        },
       },
     },
     docKetQua: {
@@ -1244,7 +1250,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       lookback: {
         layODau: { vi: 'Độ dài cửa sổ quan sát, tính lùi từ phiên mới nhất.' },
-        luuY: { vi: '250 phiên là khoảng một năm. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.' },
+        luuY: {
+          vi: '{lookback} phiên là khoảng {lookback|thoiGian}. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.',
+        },
       },
     },
     docKetQua: {
@@ -1266,7 +1274,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       lookback: {
         layODau: { vi: 'Độ dài cửa sổ quan sát, tính lùi từ phiên mới nhất.' },
-        luuY: { vi: '250 phiên là khoảng một năm. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.' },
+        luuY: {
+          vi: '{lookback} phiên là khoảng {lookback|thoiGian}. Nếu cửa sổ quá ngắn thì kết quả nhảy liên tục.',
+        },
       },
     },
     docKetQua: {
@@ -1284,7 +1294,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sessions: {
         layODau: { vi: 'Số phiên gần nhất đưa vào phép tính.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng.' },
+        luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.' },
       },
     },
     docKetQua: {
@@ -1302,7 +1312,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sessions: {
         layODau: { vi: 'Số phiên gần nhất đưa vào phép tính.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng.' },
+        luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.' },
       },
       tradingDays: {
         layODau: { vi: 'Số phiên thị trường mở cửa trong một năm.' },
@@ -1324,7 +1334,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sessions: {
         layODau: { vi: 'Số phiên gần nhất đưa vào phép tính.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng.' },
+        luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.' },
       },
       threshold: {
         layODau: { vi: 'Mốc để tính phần dao động xuống.' },
@@ -1346,7 +1356,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sessions: {
         layODau: { vi: 'Số phiên gần nhất đưa vào phép tính.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng.' },
+        luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.' },
       },
     },
     docKetQua: {
@@ -1364,7 +1374,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sessions: {
         layODau: { vi: 'Độ dài kỳ quan sát tính bằng phiên.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng.' },
+        luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.' },
       },
     },
     docKetQua: {
@@ -1382,7 +1392,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sessions: {
         layODau: { vi: 'Độ dài kỳ quan sát tính bằng phiên.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng.' },
+        luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.' },
       },
     },
     docKetQua: {
@@ -1401,7 +1411,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       sessions: {
         layODau: { vi: 'Số phiên đưa vào phép hồi quy với chỉ số thị trường.' },
         luuY: {
-          vi: 'Tối thiểu 60 phiên, nên dùng 120 hoặc 250. Nếu quá ít phiên thì beta rất kém ổn định.',
+          vi: 'Tối thiểu {sessions|min} phiên, nên dùng 120 hoặc 250. Nếu quá ít phiên thì beta rất kém ổn định.',
         },
       },
     },
@@ -1861,7 +1871,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       period: {
         layODau: { vi: 'Số phiên gộp lại để tính giá bình quân theo khối lượng.' },
-        luuY: { vi: '20 phiên là khoảng một tháng giao dịch.' },
+        luuY: { vi: '{period} phiên là khoảng {period|thoiGian} giao dịch.' },
       },
     },
     docKetQua: {
@@ -1879,7 +1889,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       sample: {
         layODau: { vi: 'Số phiên gần nhất lấy để đo biến động.' },
-        luuY: { vi: '60 phiên là khoảng ba tháng, đủ ổn định mà vẫn bám tình hình hiện tại.' },
+        luuY: {
+          vi: '{sample} phiên là khoảng {sample|thoiGian}, cửa sổ ba tháng đủ ổn định mà vẫn bám tình hình hiện tại.',
+        },
       },
       tradingDays: {
         layODau: { vi: 'Số phiên thị trường mở cửa trong một năm.' },

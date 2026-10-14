@@ -31,7 +31,7 @@ import type { FormulaModule } from '../calc/types';
 import type { Bilingual, CalcWarning } from '../types';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
-import { VNINDEX_2026, VNINDEX_71_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_PHIEN, VNINDEX_2026, VNINDEX_PHIEN } from './market-series-2026';
 import {
   maxDrawdown,
   mean,
@@ -388,21 +388,21 @@ export const BETA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index hồi quy theo chính nó, 71 phiên tới 15/09/2026',
-        en: 'The VN-Index regressed against itself, 71 sessions to 2026-09-15',
+        vi: 'Beta của FPT theo VN-Index, 60 phiên tới 15/09/2026',
+        en: "FPT's beta against the VN-Index, 60 sessions to 2026-09-15",
       },
-      inputs: { sessions: 71 },
-      series: VNINDEX_71_PHIEN,
-      dataset: VNINDEX_2026,
-      marketSeries: VNINDEX_71_PHIEN,
-      expected: 1,
+      inputs: { sessions: 60 },
+      series: FPT_PHIEN,
+      dataset: FPT_2026,
+      marketSeries: VNINDEX_PHIEN,
+      expected: 0.8126,
       note: {
-        vi: 'Hồi quy một chuỗi theo chính nó luôn cho beta đúng bằng 1, nên đây là phép kiểm định chính hàm hồi quy chứ không phải beta thật của một cổ phiếu. Phải mượn chuỗi chỉ số vì chuỗi FPT chỉ có 57 phiên, chưa qua ngưỡng tối thiểu 60 phiên của công thức.',
-        en: 'Regressing a series against itself always yields a beta of exactly 1, so this checks the regression itself rather than showing a real stock beta. The index series stands in because the FPT series has only 57 sessions, short of the 60-session minimum this formula requires.',
+        vi: 'Dưới 1 nghĩa là trong 60 phiên này, mỗi khi VN-Index chạy thì FPT thường nhích ít hơn chỉ số. Cũng cửa sổ 60 phiên ấy trượt qua cả năm thì beta của FPT đi từ khoảng 0,26 tới khoảng 1,08, nên một con số beta chỉ đúng cho đúng quãng phiên đã dùng để tính.',
+        en: 'Below 1 means that over these 60 sessions, whenever the VN-Index moved, FPT usually moved less. Slide the same 60-session window across the year and FPT’s beta ranges from about 0.26 to about 1.08, so a beta figure holds only for the stretch of sessions it was computed on.',
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên, 04/06/2026 → 15/09/2026.',
-        en: 'VN-Index series of 71 sessions, 2026-06-04 → 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT) và VN-Index, chuỗi 250 phiên 12/09/2025 → 15/09/2026.',
+        en: 'VNDirect, closing prices of FPT Corp (ticker FPT) and the VN-Index, a 250-session series 2025-09-12 → 2026-09-15.',
       },
     },
     tests: [
@@ -580,20 +580,20 @@ export const TY_SO_SHARPE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index 71 phiên tới 15/09/2026, lãi suất phi rủi ro 4,57%/năm',
-        en: 'The VN-Index over 71 sessions to 2026-09-15, risk-free rate 4.57%/year',
+        vi: 'VN-Index 250 phiên tới 15/09/2026, lãi suất phi rủi ro 4,57%/năm',
+        en: 'The VN-Index over 250 sessions to 2026-09-15, risk-free rate 4.57%/year',
       },
       inputs: { riskFree: 4.57, sessionsPerYear: 250 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
-      expected: -0.3851,
+      expected: 0.2896,
       note: {
-        vi: 'Chỉ số gần như đi ngang mà vẫn dao động mạnh, nên tử số âm còn mẫu số lớn. Tỷ số âm nói thẳng một điều: giai đoạn này nhà đầu tư chịu đủ biến động mà lợi suất vẫn thấp hơn lãi suất phi rủi ro.',
-        en: 'The index barely moved yet kept swinging hard, so the numerator is negative while the denominator is large. A negative ratio says it plainly: over this stretch the investor bore the full volatility and still earned less than the risk-free rate.',
+        vi: 'Cả năm chỉ số tăng khoảng 8,6%, cao hơn lãi suất phi rủi ro, nên tử số dương. Nhưng chỉ số dao động mạnh từng phiên nên mẫu số lớn, và tỷ số chỉ còn khoảng 0,29: mỗi phần biến động phải chịu chỉ đổi được một phần nhỏ lợi suất vượt mức phi rủi ro.',
+        en: 'Over the year the index rose about 8.6%, more than the risk-free rate, so the numerator is positive. But the index swung hard from session to session, so the denominator is large and the ratio comes out at only about 0.29: each unit of volatility borne bought only a small slice of return above the risk-free rate.',
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên 04/06/2026 → 15/09/2026; lợi suất trái phiếu chính phủ kỳ hạn 10 năm, chốt 15/09/2026.',
-        en: 'VN-Index series of 71 sessions 2026-06-04 → 2026-09-15; 10-year government bond yield, locked in 2026-09-15.',
+        vi: 'Chuỗi VN-Index 250 phiên 12/09/2025 → 15/09/2026 (VNDirect); lợi suất trái phiếu chính phủ kỳ hạn 10 năm, chốt 15/09/2026.',
+        en: 'VN-Index series of 250 sessions 2025-09-12 → 2026-09-15 (VNDirect); 10-year government bond yield, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -776,20 +776,20 @@ export const TY_SO_SORTINO: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index 71 phiên tới 15/09/2026, ngưỡng là lãi suất phi rủi ro 4,57%/năm',
-        en: 'The VN-Index over 71 sessions to 2026-09-15, threshold at the 4.57%/year risk-free rate',
+        vi: 'VN-Index 250 phiên tới 15/09/2026, ngưỡng là lãi suất phi rủi ro 4,57%/năm',
+        en: 'The VN-Index over 250 sessions to 2026-09-15, threshold at the 4.57%/year risk-free rate',
       },
       inputs: { riskFree: 4.57, sessionsPerYear: 250 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
-      expected: -0.5055,
+      expected: 0.3896,
       note: {
-        vi: 'Mẫu số chỉ đếm các phiên rơi dưới ngưỡng nên nhỏ hơn độ lệch chuẩn toàn phần. Tử số đang âm, nên chính mẫu số nhỏ ấy kéo Sortino xuống THẤP hơn Sharpe của cùng chuỗi — đúng trường hợp mục Cách đọc kết quả đã dặn.',
-        en: 'The denominator counts only sessions falling below the threshold, so it is smaller than the full standard deviation. With a negative numerator, that smaller denominator drags Sortino LOWER than the Sharpe ratio of the same series — exactly the case the How to read section warns about.',
+        vi: 'Mẫu số chỉ đếm các phiên rơi dưới ngưỡng nên nhỏ hơn độ lệch chuẩn toàn phần. Tử số đang dương, nên chính mẫu số nhỏ ấy đẩy Sortino lên CAO hơn Sharpe của cùng chuỗi; khi tử số âm thì ngược lại, mẫu số nhỏ kéo Sortino xuống thấp hơn Sharpe.',
+        en: 'The denominator counts only sessions falling below the threshold, so it is smaller than the full standard deviation. With a positive numerator, that smaller denominator lifts Sortino HIGHER than the Sharpe ratio of the same series; with a negative numerator it works the other way and drags Sortino below Sharpe.',
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên 04/06/2026 → 15/09/2026; lợi suất trái phiếu chính phủ kỳ hạn 10 năm, chốt 15/09/2026.',
-        en: 'VN-Index series of 71 sessions 2026-06-04 → 2026-09-15; 10-year government bond yield, locked in 2026-09-15.',
+        vi: 'Chuỗi VN-Index 250 phiên 12/09/2025 → 15/09/2026 (VNDirect); lợi suất trái phiếu chính phủ kỳ hạn 10 năm, chốt 15/09/2026.',
+        en: 'VN-Index series of 250 sessions 2025-09-12 → 2026-09-15 (VNDirect); 10-year government bond yield, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -964,20 +964,20 @@ export const TY_SO_TREYNOR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index 71 phiên tới 15/09/2026, beta 0,9043 và lãi suất phi rủi ro 4,57%/năm',
-        en: 'The VN-Index over 71 sessions to 2026-09-15, beta 0.9043 and risk-free rate 4.57%/year',
+        vi: 'VN-Index 250 phiên tới 15/09/2026, beta 0,9043 và lãi suất phi rủi ro 4,57%/năm',
+        en: 'The VN-Index over 250 sessions to 2026-09-15, beta 0.9043 and risk-free rate 4.57%/year',
       },
       inputs: { riskFree: 4.57, sessionsPerYear: 250, beta: 0.9043 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
-      expected: -7.6147,
+      expected: 6.6148,
       note: {
-        vi: 'Beta ở đây là mức hồi quy được của FPT theo VN-Index, tính ngoài app vì chuỗi FPT chưa đủ 60 phiên. Con số âm vì lợi suất giai đoạn này thấp hơn lãi suất phi rủi ro: mỗi đơn vị rủi ro hệ thống đang lỗ chứ không sinh lời.',
-        en: 'The beta here is what FPT regresses at against the VN-Index, computed outside the app because the FPT series falls short of 60 sessions. The figure is negative because the return over this period trailed the risk-free rate: each unit of systematic risk lost money rather than earning any.',
+        vi: 'Beta ở đây là mức hồi quy được của FPT theo VN-Index trên 55 phiên tới 11/09/2026. Con số dương vì cả năm lợi suất của chỉ số cao hơn lãi suất phi rủi ro: mỗi đơn vị rủi ro hệ thống đổi được khoảng 6,6 điểm phần trăm lợi suất vượt mức phi rủi ro mỗi năm.',
+        en: 'The beta here is what FPT regresses at against the VN-Index over the 55 sessions to 2026-09-11. The figure is positive because over the year the index returned more than the risk-free rate: each unit of systematic risk earned about 6.6 percentage points a year above the risk-free rate.',
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên 04/06/2026 → 15/09/2026; lợi suất trái phiếu chính phủ kỳ hạn 10 năm, chốt 15/09/2026; beta FPT theo VN-Index, 55 phiên 24/06/2026 → 11/09/2026.',
-        en: 'VN-Index series of 71 sessions 2026-06-04 → 2026-09-15; 10-year government bond yield, locked in 2026-09-15; FPT beta against the VN-Index over 55 sessions 2026-06-24 → 2026-09-11.',
+        vi: 'Chuỗi VN-Index 250 phiên 12/09/2025 → 15/09/2026 (VNDirect); lợi suất trái phiếu chính phủ kỳ hạn 10 năm, chốt 15/09/2026; beta FPT theo VN-Index, 55 phiên 24/06/2026 → 11/09/2026.',
+        en: 'VN-Index series of 250 sessions 2025-09-12 → 2026-09-15 (VNDirect); 10-year government bond yield, locked in 2026-09-15; FPT beta against the VN-Index over 55 sessions 2026-06-24 → 2026-09-11.',
       },
     },
     tests: [
@@ -1172,20 +1172,20 @@ export const TY_SO_THONG_TIN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index 71 phiên tới 15/09/2026 so với chuẩn gửi tiết kiệm 6,8%/năm',
-        en: 'The VN-Index over 71 sessions to 2026-09-15 against a 6.8%/year savings benchmark',
+        vi: 'VN-Index 250 phiên tới 15/09/2026 so với chuẩn gửi tiết kiệm 6,8%/năm',
+        en: 'The VN-Index over 250 sessions to 2026-09-15 against a 6.8%/year savings benchmark',
       },
       inputs: { benchmarkReturn: 6.8, sessionsPerYear: 250 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
-      expected: -0.5031,
+      expected: 0.1874,
       note: {
-        vi: 'Chỉ số gần như đi ngang nên phần vượt chuẩn là số âm: nắm theo thị trường giai đoạn này còn thua một sổ tiết kiệm 12 tháng. Nhớ rằng chuẩn nhập bằng một con số cả năm, nên mẫu số là độ lệch chuẩn lợi suất của chính danh mục chứ không phải sai số bám chuẩn từng phiên.',
-        en: 'The index barely moved, so the return above the benchmark is negative: holding the market over this stretch trailed a 12-month savings deposit. Remember that the benchmark is entered as a single annual figure, so the denominator is the standard deviation of the portfolio returns themselves, not a session-by-session tracking error.',
+        vi: 'Cả năm nắm theo thị trường lãi hơn một sổ tiết kiệm 12 tháng nên phần vượt chuẩn dương, nhưng phần ấy nhỏ so với độ dao động của chỉ số nên tỷ số chỉ khoảng 0,19. Nhớ rằng chuẩn nhập bằng một con số cả năm, nên mẫu số là độ lệch chuẩn lợi suất của chính danh mục chứ không phải sai số bám chuẩn từng phiên.',
+        en: 'Over the year, holding the market earned more than a 12-month savings deposit, so the return above the benchmark is positive, but it is small next to how much the index swung, so the ratio comes out at only about 0.19. Remember that the benchmark is entered as a single annual figure, so the denominator is the standard deviation of the portfolio returns themselves, not a session-by-session tracking error.',
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên 04/06/2026 → 15/09/2026; lãi suất tiết kiệm trực tuyến 12 tháng nhóm ngân hàng Big4, tháng 9/2026.',
-        en: 'VN-Index series of 71 sessions 2026-06-04 → 2026-09-15; 12-month online savings rate at the Big4 banks, September 2026.',
+        vi: 'Chuỗi VN-Index 250 phiên 12/09/2025 → 15/09/2026 (VNDirect); lãi suất tiết kiệm trực tuyến 12 tháng nhóm ngân hàng Big4, tháng 9/2026.',
+        en: 'VN-Index series of 250 sessions 2025-09-12 → 2026-09-15 (VNDirect); 12-month online savings rate at the Big4 banks, September 2026.',
       },
     },
     tests: [
@@ -1311,20 +1311,20 @@ export const TY_SO_CALMAR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index 71 phiên tới 15/09/2026, gồm cả nhịp sập tháng 7',
-        en: 'The VN-Index over 71 sessions to 2026-09-15, including the July slump',
+        vi: 'VN-Index 250 phiên tới 15/09/2026, gồm cả nhịp giảm quý 1/2026',
+        en: 'The VN-Index over 250 sessions to 2026-09-15, including the Q1 2026 slide',
       },
       inputs: { sessionsPerYear: 250 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
-      expected: -0.3515,
+      expected: 0.529,
       note: {
-        vi: 'Chỉ số kết thúc thấp hơn điểm đầu kỳ nên lợi suất năm hoá âm, kéo cả tỷ số xuống dưới 0 — lúc đó hãy đọc thẳng mức sụt giảm sâu nhất (hơn 11% từ đỉnh 24/06 xuống đáy 22/07) thay vì xếp hạng bằng con số này. Calmar nguyên bản tính trên 36 tháng, cửa sổ vài tháng ở đây chỉ minh hoạ cơ chế.',
-        en: 'The index ended below where it started, so the annualized return is negative and pulls the whole ratio under 0 — read the maximum drawdown itself (over 11% from the 24 June peak to the 22 July trough) rather than ranking by this number. The original Calmar is computed over 36 months; a window of a few months here only illustrates the mechanism.',
+        vi: 'Lợi suất năm hoá của chỉ số khoảng 8,7%, còn mức sụt sâu nhất trong năm là hơn 16%, từ đỉnh 13/01 xuống đáy 23/03/2026, nên mỗi phần sụt giảm phải chịu chỉ đổi được khoảng nửa phần lợi suất. Calmar nguyên bản tính trên 36 tháng, cửa sổ một năm ở đây chỉ minh hoạ cơ chế.',
+        en: "The index's annualized return is about 8.7%, while its deepest drop of the year was over 16%, from the 13 January peak to the 23 March 2026 trough, so each unit of drawdown endured bought only about half a unit of return. The original Calmar is computed over 36 months; the one-year window here only illustrates the mechanism.",
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên, 04/06/2026 → 15/09/2026.',
-        en: 'VN-Index series of 71 sessions, 2026-06-04 → 2026-09-15.',
+        vi: 'Chuỗi VN-Index 250 phiên, 12/09/2025 → 15/09/2026 (VNDirect).',
+        en: 'VN-Index series of 250 sessions, 2025-09-12 → 2026-09-15 (VNDirect).',
       },
     },
     tests: [
@@ -1490,20 +1490,20 @@ export const TY_SO_THANG_THUA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN-Index 71 phiên tới 15/09/2026, tính hết mọi phiên tăng và giảm',
-        en: 'The VN-Index over 71 sessions to 2026-09-15, counting every rising and falling session',
+        vi: 'VN-Index 250 phiên tới 15/09/2026, tính hết mọi phiên tăng và giảm',
+        en: 'The VN-Index over 250 sessions to 2026-09-15, counting every rising and falling session',
       },
       inputs: { threshold: 0 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
-      expected: 0.8719,
+      expected: 0.9991,
       note: {
-        vi: 'Dưới 1 nghĩa là biên độ một phiên tăng bình quân không bù nổi một phiên giảm bình quân. Giai đoạn này phiên xanh còn NHIỀU hơn phiên đỏ mà chỉ số vẫn thấp hơn điểm đầu kỳ — đúng cái bẫy của một tỷ số chỉ đo biên độ, nên phải đọc kèm lợi suất tích luỹ.',
-        en: 'Below 1 means the size of an average rising session does not offset an average falling one. Over this stretch green sessions outnumbered red ones and the index still ended below where it started — exactly the trap of a ratio that measures only magnitude, so read it alongside the cumulative return.',
+        vi: 'Gần đúng bằng 1 nghĩa là một phiên tăng bình quân và một phiên giảm bình quân dài ngang nhau. Cả năm chỉ số vẫn tăng vì phiên xanh NHIỀU hơn phiên đỏ, đúng phần mà một tỷ số chỉ đo biên độ không nhìn thấy, nên phải đọc kèm số phiên thắng hoặc lợi suất tích luỹ.',
+        en: 'Close to exactly 1 means an average rising session and an average falling one are about the same size. The index still rose over the year because green sessions OUTNUMBERED red ones, precisely what a ratio that measures only magnitude cannot see, so read it alongside the count of winning sessions or the cumulative return.',
       },
       source: {
-        vi: 'Chuỗi VN-Index 71 phiên, 04/06/2026 → 15/09/2026.',
-        en: 'VN-Index series of 71 sessions, 2026-06-04 → 2026-09-15.',
+        vi: 'Chuỗi VN-Index 250 phiên, 12/09/2025 → 15/09/2026 (VNDirect).',
+        en: 'VN-Index series of 250 sessions, 2025-09-12 → 2026-09-15 (VNDirect).',
       },
     },
     tests: [

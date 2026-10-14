@@ -57,9 +57,16 @@ export function chayViDu(formula: FormulaModule) {
   return runFormula(formula, example.inputs, ctx);
 }
 
+/*
+ * Dựng MỘT lần cho cả file. Hàm dưới chạy cho mọi con số của chuỗi ví dụ — từ 14/10/2026 chuỗi dài
+ * 250 phiên, tức chừng 2.750 số mỗi công thức, hai ngôn ngữ, 35 công thức — và dựng bộ định dạng
+ * mới mỗi lần gọi đẩy ca kiểm `vi-du.test.ts` qua mốc 5 giây của Vitest khi chạy cả bộ test.
+ */
+const DINH_DANG_VI = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 10 });
+
 /** Cách viết một số theo kiểu Việt ("72.700", "6,8") và kiểu Anh viết liền ("72700", "6.8"). */
 function haiCachViet(value: number): string[] {
-  const vi = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 10 }).format(value);
+  const vi = DINH_DANG_VI.format(value);
   return [vi, String(value), vi.replace(/^-/, ''), String(Math.abs(value))];
 }
 

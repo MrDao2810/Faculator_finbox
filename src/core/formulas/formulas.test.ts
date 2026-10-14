@@ -909,24 +909,17 @@ describe('xirr() — phần toán đã xong, chờ bảng dòng tiền của gó
  * quanh vậy? kiểm tra lại các phần có thanh slider tương tự xem có lỗi không để sửa"*.
  *
  * Quét cả 269 ô lúc ấy: đúng 2 ô kéo mà màn không đổi gì. Một là ô kia — chết theo thiết kế, đã
- * bỏ. Một là `sut-giam-hien-tai.lookback`, chết theo DỮ LIỆU của ví dụ chứ không theo thiết kế,
- * nên ghim tên vào dưới đây kèm bằng chứng.
+ * bỏ. Một là `sut-giam-hien-tai.lookback`, chết theo DỮ LIỆU của ví dụ chứ không theo thiết kế:
+ * chuỗi FPT 57 phiên tình cờ có đỉnh nằm trong 30 phiên cuối, mà 30 là sàn `MIN_DRAWDOWN_BARS`,
+ * nên cắt ngắn hay dài đều ra một đáp số. Ô ấy từng được ghim tên ở danh sách dưới đây kèm bằng
+ * chứng. Từ 14/10/2026 chuỗi ví dụ dài 250 phiên (xem `market-series-2026.ts`), đỉnh không còn
+ * nằm trong 30 phiên cuối, và ca kiểm này tự báo ô ấy sống lại — nên tên đã gỡ, danh sách rỗng.
  *
  * So bằng số ĐÃ LÀM TRÒN như khối Kết quả in, không phải trị số thô: lệch ở chữ số thứ mười hai
  * thì người kéo thanh trượt vẫn thấy một con số đứng yên, mà đó mới là thứ ca kiểm này gác. Đo
  * bằng trị số thô thì ô `guess` của `xirr` LỌT.
  */
-const O_KHONG_DOI_THEO_DU_LIEU: ReadonlyArray<string> = [
-  /*
-   * Cửa sổ nhìn lại của "Mức sụt giảm hiện tại". Ô này SỐNG: nó cắt `lookback` phiên cuối, nên
-   * đổi cửa sổ là đổi đỉnh. Chuỗi 57 phiên của ví dụ tình cờ có đỉnh nằm trong 30 phiên cuối —
-   * mà 30 là sàn `MIN_DRAWDOWN_BARS` — nên cắt ngắn hay dài đều ra một đáp số.
-   *
-   * Bằng chứng ô ấy sống: công thức anh em `sut-giam-sau-nhat` dùng ĐÚNG ô ấy trên ĐÚNG chuỗi ấy
-   * và cho 6 kết quả khác nhau khi kéo 30 → 60 (4,87 · 7,3 · 8,53 · 11,77 · 13,73 · 15,03).
-   */
-  'sut-giam-hien-tai.lookback',
-];
+const O_KHONG_DOI_THEO_DU_LIEU: ReadonlyArray<string> = [];
 
 describe('không ô nhập nào là một điều khiển chết', () => {
   /** Thứ NGƯỜI DÙNG thấy: con số đã làm tròn như khối Kết quả in, cộng cảnh báo và các số phụ. */

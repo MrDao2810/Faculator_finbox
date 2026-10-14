@@ -523,8 +523,8 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     kind: 'dieu-kien',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Trang này tính Sortino từ chuỗi 71 phiên, tức hơn ba tháng giá. Theo Charles Schwab, chuỗi dài bao nhiêu thì con số mới đủ tin?',
-      en: 'This page computes the Sortino ratio from a 71-session series, a little over three months of prices. According to Charles Schwab, how long does the return history need to be before the number can be trusted?',
+      vi: 'Ví dụ trên trang này tính Sortino từ chuỗi 250 phiên, tức khoảng một năm giá. Theo Charles Schwab, chuỗi dài bao nhiêu thì con số mới đủ tin?',
+      en: 'The worked example on this page computes the Sortino ratio from a 250-session series, about one year of prices. According to Charles Schwab, how long does the return history need to be before the number can be trusted?',
     },
     choices: {
       a: {
@@ -546,8 +546,8 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: 'Chuỗi vài chục phiên chỉ có vài phiên rơi dưới ngưỡng, nên mẫu số dựng trên quá ít quan sát và tỷ số nhảy mạnh chỉ vì một phiên xấu. Schwab viết thẳng trong mục hạn chế: “Using less than three years of historical data can weaken the validity of Sortino ratio calculations.”, và dẫn lời Viraj Desai, giám đốc Schwab Asset Management, rằng mười năm dữ liệu mới là lý tưởng vì thường bao trọn một chu kỳ kinh doanh. Con số 71 phiên trên trang này vì thế nên đọc như một ảnh chụp ngắn hạn, không phải kết luận về chất lượng danh mục.',
-      en: 'With only a few dozen sessions, just a handful fall below the threshold, so the denominator rests on very few observations and the ratio swings on a single bad session. Schwab states it plainly in its limitations section: “Using less than three years of historical data can weaken the validity of Sortino ratio calculations.”, quoting Viraj Desai, director of Schwab Asset Management, that ten years of data is ideal because it usually spans a full business cycle. The 71-session figure on this page should therefore be read as a short-term snapshot, not a verdict on portfolio quality.',
+      vi: 'Một năm giá chỉ phản ánh những phiên xấu của riêng năm ấy, chưa đi hết một chu kỳ kinh doanh, nên mẫu số đổi hẳn khi cửa sổ trượt sang năm khác và tỷ số đổi theo. Schwab viết thẳng trong mục hạn chế: “Using less than three years of historical data can weaken the validity of Sortino ratio calculations.”, và dẫn lời Viraj Desai, giám đốc Schwab Asset Management, rằng mười năm dữ liệu mới là lý tưởng vì thường bao trọn một chu kỳ kinh doanh. Con số tính trên 250 phiên của ví dụ vì thế nên đọc như một ảnh chụp ngắn hạn, không phải kết luận về chất lượng danh mục.',
+      en: 'One year of prices reflects only that year’s bad sessions and falls short of a full business cycle, so the denominator shifts as soon as the window slides to another year and the ratio shifts with it. Schwab states it plainly in its limitations section: “Using less than three years of historical data can weaken the validity of Sortino ratio calculations.”, quoting Viraj Desai, director of Schwab Asset Management, that ten years of data is ideal because it usually spans a full business cycle. The 250-session figure in the worked example should therefore be read as a short-term snapshot, not a verdict on portfolio quality.',
     },
     source: {
       url: 'https://www.schwab.com/learn/story/using-sortino-ratio-to-gauge-downside-risk',

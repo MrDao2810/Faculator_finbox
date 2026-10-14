@@ -444,7 +444,13 @@ export type {
   MucBieuDoBai,
   MucId,
   ONhapHuongDan,
+  ThongSoO,
 } from '@/core/huong-dan/types';
+/*
+ * Hàm duy nhất của bài hướng dẫn chạy ở máy khách: điền số đang có trong ô vào câu (14/10/2026).
+ * Đi đúng lối module lá như các kiểu trên — xem docblock của nó ở `@/core/huong-dan/types`.
+ */
+export { dienCau } from '@/core/huong-dan/types';
 
 export type { HeaderBackLink, NavItem, NavKey, RouteKey } from './routes';
 export {

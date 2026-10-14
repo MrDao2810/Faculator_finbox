@@ -24,7 +24,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import type { CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import type { FormulaSource } from '../registry/types';
-import { FPT_2026, FPT_57_PHIEN, VNINDEX_2026, VNINDEX_71_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_PHIEN, VNINDEX_2026, VNINDEX_PHIEN } from './market-series-2026';
 import { maxDrawdown, mean, requireCloses, simpleReturns } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
@@ -379,7 +379,7 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
         en: 'How deep the loss runs if you buy FPT at the peak of the 55 sessions through 2026-09-15',
       },
       inputs: { lookback: 55 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 15.0273,
       note: {
@@ -387,8 +387,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
         en: 'The fall is measured from the early-July peak down to the late-July 2026 trough — the pain someone who timed the entry badly actually has to sit through, which a standard deviation never spells out. The deeper the fall, the harder it is to hold long enough for a recovery.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -510,7 +510,7 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
         en: 'How far FPT sits below the peak of its 55 most recent sessions, as of the 2026-09-15 close',
       },
       inputs: { lookback: 55 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 2.4161,
       note: {
@@ -518,8 +518,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
         en: 'Unlike maximum drawdown, which scans the whole past, this figure only compares the most recent session with the peak inside the window. Reaching 0 means the price has just set a new high for the period.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -670,16 +670,16 @@ export const VAR_LICH_SU: FormulaModule = {
         en: 'One-session loss threshold for a VN-Index-tracking portfolio, 95% confidence, 71 sessions through 2026-09-15',
       },
       inputs: { confidence: 95, lookback: 71 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
       expected: 1.9755,
       note: {
-        vi: 'Đây là NGƯỠNG mà 95% số phiên không vượt qua, chứ không phải mức mất của phiên tệ nhất: ngay trong mẫu này đã có một phiên rơi 3,58%, sâu hơn hẳn ngưỡng. Ví dụ phải dùng chuỗi VN-Index vì phép tính đòi tối thiểu 60 phiên, mà chuỗi FPT thu thập được chỉ có 57.',
-        en: 'This is the THRESHOLD that 95% of sessions stay within, not what the worst session loses: this very sample already holds a session that fell 3.58%, far deeper than the threshold. The example has to use the VN-Index series because the calculation needs at least 60 sessions and the FPT series on hand has only 57.',
+        vi: 'Đây là NGƯỠNG mà 95% số phiên không vượt qua, chứ không phải mức mất của phiên tệ nhất: ngay trong mẫu này đã có một phiên rơi 3,58%, sâu hơn hẳn ngưỡng.',
+        en: 'This is the THRESHOLD that 95% of sessions stay within, not what the worst session loses: this very sample already holds a session that fell 3.58%, far deeper than the threshold.',
       },
       source: {
-        vi: 'Investing.com, dữ liệu lịch sử VN-Index, chuỗi 71 phiên 04/06–15/09/2026, đối chiếu chéo Vietstock.',
-        en: 'Investing.com, VN-Index historical data, a 71-session series from 2026-06-04 to 2026-09-15, cross-checked against Vietstock.',
+        vi: 'VNDirect, dữ liệu lịch sử VN-Index, chuỗi 250 phiên 12/09/2025–15/09/2026; 71 phiên cuối trùng số liệu Investing.com, đối chiếu chéo Vietstock.',
+        en: 'VNDirect, VN-Index historical data, a 250-session series from 2025-09-12 to 2026-09-15; the last 71 sessions match the Investing.com figures, cross-checked against Vietstock.',
       },
     },
     tests: [
@@ -844,16 +844,16 @@ export const CVAR_LICH_SU: FormulaModule = {
         en: 'Average loss across the worst VN-Index sessions, 95% confidence, 71 sessions through 2026-09-15',
       },
       inputs: { confidence: 95, lookback: 71 },
-      series: VNINDEX_71_PHIEN,
+      series: VNINDEX_PHIEN,
       dataset: VNINDEX_2026,
       expected: 2.6858,
       note: {
-        vi: 'Phép tính lấy bình quân riêng nhóm phiên tệ hơn ngưỡng VaR nên kết quả luôn sâu hơn chính ngưỡng ấy: một bên nói cửa nằm ở đâu, một bên nói phía sau cửa sâu tới đâu. Cũng như VaR, ví dụ phải dùng chuỗi VN-Index vì đòi tối thiểu 60 phiên mà chuỗi FPT chỉ có 57.',
-        en: 'The calculation averages only the sessions worse than the VaR threshold, so the result always runs deeper than that threshold: one says where the doorway is, the other how far down it goes behind it. As with VaR, the example has to use the VN-Index series because it needs at least 60 sessions and the FPT series has only 57.',
+        vi: 'Phép tính lấy bình quân riêng nhóm phiên tệ hơn ngưỡng VaR nên kết quả luôn sâu hơn chính ngưỡng ấy: một bên nói cửa nằm ở đâu, một bên nói phía sau cửa sâu tới đâu.',
+        en: 'The calculation averages only the sessions worse than the VaR threshold, so the result always runs deeper than that threshold: one says where the doorway is, the other how far down it goes behind it.',
       },
       source: {
-        vi: 'Investing.com, dữ liệu lịch sử VN-Index, chuỗi 71 phiên 04/06–15/09/2026, đối chiếu chéo Vietstock.',
-        en: 'Investing.com, VN-Index historical data, a 71-session series from 2026-06-04 to 2026-09-15, cross-checked against Vietstock.',
+        vi: 'VNDirect, dữ liệu lịch sử VN-Index, chuỗi 250 phiên 12/09/2025–15/09/2026; 71 phiên cuối trùng số liệu Investing.com, đối chiếu chéo Vietstock.',
+        en: 'VNDirect, VN-Index historical data, a 250-session series from 2025-09-12 to 2026-09-15; the last 71 sessions match the Investing.com figures, cross-checked against Vietstock.',
       },
     },
     tests: [

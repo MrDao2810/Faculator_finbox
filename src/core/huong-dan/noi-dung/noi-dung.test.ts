@@ -1,8 +1,24 @@
 import { describe, expect, it } from 'vitest';
 
 import { ALL_FORMULAS, findFormulaModule } from '../../formulas';
+import type { FormulaSpec } from '../../registry/types';
+import { choTrongCua, dienCau, laKieuChoTrong, type ThongSoO } from './cho-trong';
 import { BAI_RIENG } from './items';
 import type { BaiRieng } from './types';
+
+/** Thông số của MỌI ô của một công thức — đủ để điền bất kỳ chỗ trống nào ở số mặc định. */
+function thongSoTu(spec: FormulaSpec): Record<string, ThongSoO> {
+  return Object.fromEntries(
+    spec.variables.map((bien) => [
+      bien.key,
+      {
+        macDinh: bien.defaultValue,
+        ...(bien.min === undefined ? {} : { min: bien.min }),
+        ...(bien.max === undefined ? {} : { max: bien.max }),
+      },
+    ]),
+  );
+}
 
 /**
  * Cửa gác của kho chữ hướng dẫn riêng (chủ dự án giao 03/10/2026, rồi `guide-111.json` 05/10/2026).
@@ -120,13 +136,21 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
    * đâu"). Một câu dài gấp đôi phần còn lại sẽ vắt bốn dòng, và công thức năm ô như `rut-truoc-han`
    * đẩy khung cao quá khung nhìn. Con số chỉ được phép đi XUỐNG.
    */
+  /*
+   * Đo CÂU ĐÃ ĐIỀN ở số mặc định, không đo chuỗi thô: chỗ trống `{sessions|thoiGian}` dài 19 ký tự
+   * mà in ra "3 tháng" có 7, nên đo chuỗi thô là phạt một câu vì cú pháp chứ không vì thứ khung
+   * phải bày (14/10/2026).
+   */
   it('không câu nào của ô nhập vượt trần độ dài', () => {
     for (const { id, key, o } of MOI_O) {
-      expect(o?.layODau.vi.length, `${id}.${key}.layODau: ${o?.layODau.vi}`).toBeLessThanOrEqual(
-        90,
-      );
-      if (o?.luuY === undefined) continue;
-      expect(o.luuY.vi.length, `${id}.${key}.luuY: ${o.luuY.vi}`).toBeLessThanOrEqual(90);
+      const spec = findFormulaModule(id)?.spec;
+      if (spec === undefined || o === undefined) continue;
+      const thongSo = thongSoTu(spec);
+      const layODau = dienCau(o.layODau.vi, thongSo);
+      expect(layODau.length, `${id}.${key}.layODau: ${layODau}`).toBeLessThanOrEqual(90);
+      if (o.luuY === undefined) continue;
+      const luuY = dienCau(o.luuY.vi, thongSo);
+      expect(luuY.length, `${id}.${key}.luuY: ${luuY}`).toBeLessThanOrEqual(90);
     }
   });
 });
@@ -349,6 +373,163 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
   it('20 ô vẫn chưa có mô tả trong Registry — việc còn lại, kho này không lấp', () => {
     const thieuMoTa = MOI_O.filter(({ bien }) => (bien.description?.vi ?? '').trim() === '');
     expect(thieuMoTa).toHaveLength(20);
+  });
+});
+
+/*
+ * ── Số minh hoạ đi theo ô, số quy ước đứng yên (14/10/2026) ──────────────────────────────────
+ *
+ * Chủ dự án chụp thanh trượt ở 55 phiên dưới khung "?" ghi "60 phiên là khoảng ba tháng", rồi chốt:
+ * số dùng để ví dụ trong hướng dẫn phải đổi theo khi người dùng đổi thông số hay nạp mã. Phép điền
+ * ở `./cho-trong.ts`; ba ca dưới gác KHO CHỮ: chỗ trống trỏ đúng ô thật, danh sách câu đã thành
+ * mẫu, và — ca quan trọng nhất — không câu nào lặng lẽ mang lại một con số cứng trùng số mặc định
+ * của chính ô ấy mà không ai xếp loại nó.
+ */
+describe('số trong câu của ô nhập: đi theo ô hay đứng yên có chủ ý', () => {
+  /** Mọi câu của ô nhập, kèm thông số của công thức để điền. */
+  const MOI_CAU = MOI_O.flatMap(({ id, key, bien, o }) => {
+    if (o === undefined) return [];
+    const ra = [{ id, key, bien, truong: 'layODau', cau: o.layODau }];
+    if (o.luuY !== undefined) ra.push({ id, key, bien, truong: 'luuY', cau: o.luuY });
+    return ra;
+  });
+
+  it('mọi chỗ trống trỏ vào một ô THẬT của chính công thức, với một kiểu đã biết', () => {
+    for (const { id, key, truong, cau } of MOI_CAU) {
+      const spec = findFormulaModule(id)?.spec;
+      if (spec === undefined) continue;
+      for (const ngonNgu of [cau.vi, cau.en ?? '']) {
+        for (const { khoa, kieu } of choTrongCua(ngonNgu)) {
+          const nhan = `${id}.${key}.${truong}: {${khoa}|${kieu}}`;
+          const bien = spec.variables.find((item) => item.key === khoa);
+          expect(bien, `${nhan} — không có ô nào khoá "${khoa}"`).toBeDefined();
+          expect(laKieuChoTrong(kieu), `${nhan} — kiểu lạ`).toBe(true);
+          if (kieu === 'min') expect(bien?.min, `${nhan} — ô không khai min`).toBeDefined();
+          if (kieu === 'max') expect(bien?.max, `${nhan} — ô không khai max`).toBeDefined();
+        }
+      }
+    }
+  });
+
+  it('điền ở số mặc định thì không còn dấu ngoặc nào sót lại', () => {
+    for (const { id, key, truong, cau } of MOI_CAU) {
+      const spec = findFormulaModule(id)?.spec;
+      if (spec === undefined) continue;
+      const ra = dienCau(cau.vi, thongSoTu(spec));
+      expect(ra, `${id}.${key}.${truong}: ${ra}`).not.toMatch(/[{}]/);
+    }
+  });
+
+  /*
+   * 17 câu đã thành mẫu. Đếm thành tiếng để một câu bị "sửa ngược" về số cứng thì đỏ ngay — đó
+   * đúng là lỗi vừa sửa.
+   */
+  it('đúng 17 câu có chỗ trống', () => {
+    const coChoTrong = MOI_CAU.filter(({ cau }) => choTrongCua(cau.vi).length > 0).map(
+      ({ id, key, truong }) => `${id}.${key}.${truong}`,
+    );
+    expect(coChoTrong.sort()).toEqual(
+      [
+        // Số phiên của ô → thời gian lịch.
+        'bien-do-dao-dong-lon-nhat.sessions.luuY',
+        'chuoi-phien-giam-dai-nhat.sessions.luuY',
+        'do-bien-dong-nam-hoa.sessions.luuY',
+        'do-lech-chuan-ban-phan.sessions.luuY',
+        'do-lech-chuan-loi-suat-phien.sessions.luuY',
+        'he-so-bien-thien.sessions.luuY',
+        'do-bien-dong-lich-su.sample.luuY',
+        'cvar-lich-su.lookback.luuY',
+        'sut-giam-hien-tai.lookback.luuY',
+        'sut-giam-sau-nhat.lookback.luuY',
+        'var-lich-su.lookback.luuY',
+        'vwap.period.luuY',
+        // Số cổ phiếu của ô → cách đọc theo tỷ/triệu.
+        'gia-tri-noi-tai-fcff.shares.luuY',
+        'ncav-tren-co-phieu.shares.luuY',
+        'von-hoa-thi-truong.shares.luuY',
+        // Cận của ô → đi theo MÃ, không theo số đang nhập.
+        'beta.sessions.luuY',
+        'loi-suat-trung-binh-hinh-hoc.periods.luuY',
+      ].sort(),
+    );
+  });
+
+  /*
+   * Ca chặn lỗi QUAY LẠI. Một con số đứng cứng trong câu của ô X mà trùng đúng số mặc định của ô X
+   * là dấu hiệu mạnh nhất của loại câu vừa sửa: câu viết quanh số mặc định, và ô sẽ rời số ấy ngay
+   * khi người dùng kéo hay nạp mã.
+   *
+   * Nhưng không phải số nào như thế cũng sai: "12 là mặc định phổ biến" dưới ô chu kỳ nhanh của
+   * MACD là một QUY ƯỚC, mặc định của ô được chọn theo đúng quy ước ấy, và cho nó chạy theo ô thì
+   * thành "10 là mặc định phổ biến" — một câu sai. Nên ca này không cấm; nó bắt XẾP LOẠI. Mỗi câu
+   * trùng số mặc định mà không phải chỗ trống phải nằm trong một trong ba nhóm dưới, mỗi nhóm một
+   * lý do. Ba nhóm cộng lại 43 câu; câu thứ 44 làm đỏ, và người thêm nó phải chọn: thành chỗ
+   * trống, hay ghi vào một nhóm.
+   *
+   * 0, 1 và 100 không tính: chúng là mốc tự nhiên ("để 0 nếu chưa có"), không phải số minh hoạ.
+   */
+  it('mọi con số cứng trùng số mặc định của chính ô đều đã được xếp loại', () => {
+    /** Quy ước thị trường hay kỹ thuật: mặc định của ô được CHỌN theo nó. */
+    const QUY_UOC = [
+      'atr-dao-dong-thuc.period.luuY',
+      'cvar-lich-su.confidence.luuY',
+      'dai-bollinger-duoi.k.luuY',
+      'dai-bollinger-duoi.period.luuY',
+      'dai-bollinger-tren.k.luuY',
+      'dai-bollinger-tren.period.luuY',
+      'ddm-hai-giai-doan.years.luuY',
+      'do-rong-dai-bollinger.k.luuY',
+      'do-rong-dai-bollinger.period.luuY',
+      'gui-quay-vong.shortMonths.luuY',
+      'khoang-cach-gia-so-sma.period.luuY',
+      'macd-duong-chinh.fastPeriod.luuY',
+      'macd-duong-chinh.slowPeriod.luuY',
+      'macd-duong-tin-hieu.fastPeriod.luuY',
+      'macd-duong-tin-hieu.signalPeriod.luuY',
+      'macd-duong-tin-hieu.slowPeriod.luuY',
+      'phan-tram-b-bollinger.k.luuY',
+      'phan-tram-b-bollinger.period.luuY',
+      'rsi-wilder.period.luuY',
+      'sma-n-phien.period.luuY',
+      'stochastic-k.period.luuY',
+      'ty-le-khoi-luong.period.luuY',
+      'var-lich-su.confidence.luuY',
+      'co-lenh-rui-ro.riskPercent.luuY',
+      'co-vi-the-phai-sinh.riskPercent.luuY',
+    ];
+    /** Sự thật về thị trường hay luật Việt Nam — đúng bất kể người dùng nhập gì. */
+    const SU_THAT = [
+      'do-bien-dong-nam-hoa.tradingDays.luuY',
+      'fcfe.taxRate.luuY',
+      'fcff.taxRate.luuY',
+      'wacc.taxRate.luuY',
+      'loi-suat-thuc.inflation.luuY',
+      'mo-hinh-gordon.growth.luuY',
+      'lai-kep.rate.luuY',
+      'so-ky-dca.rate.luuY',
+      'tiet-kiem-muc-tieu.rate.luuY',
+      'rut-truoc-han.demandRate.luuY',
+      'so-hop-dong-toi-da.marginRatio.luuY',
+      'ty-so-calmar.sessionsPerYear.luuY',
+      'ty-so-sharpe.sessionsPerYear.luuY',
+      'ty-so-sortino.sessionsPerYear.luuY',
+      'ty-so-thong-tin.sessionsPerYear.luuY',
+      'ty-so-treynor.sessionsPerYear.luuY',
+    ];
+    /** Cách điền: một phép đổi hay một bảng tra, đúng với mọi số trong ô. */
+    const CACH_DIEN = ['irr-nien-kim.periods.luuY', 'loi-suat-nam-hoa.periodsPerYear.luuY'];
+
+    const SO = /(?<![\p{L}\p{N}])\d+(?:[.,]\d+)*(?![\p{L}\p{N}])/gu;
+    const docSo = (chu: string) => Number(chu.replace(/\./g, '').replace(',', '.'));
+
+    const trungMacDinh = MOI_CAU.filter(({ bien, cau }) => {
+      const conLai = cau.vi.replace(/\{[^}]*\}/g, ' ');
+      return [...conLai.matchAll(SO)]
+        .map((m) => docSo(m[0]))
+        .some((so) => ![0, 1, 100].includes(so) && so === bien.defaultValue);
+    }).map(({ id, key, truong }) => `${id}.${key}.${truong}`);
+
+    expect(trungMacDinh.sort()).toEqual([...QUY_UOC, ...SU_THAT, ...CACH_DIEN].sort());
   });
 });
 

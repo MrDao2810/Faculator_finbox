@@ -3110,49 +3110,35 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   'he-so-bien-thien': {
     tinh: {
-      vi: 'hệ số biến thiên lợi suất của FPT, 55 phiên tính tới 15/09/2026',
-      en: "FPT's coefficient of variation over the 55 sessions through 2026-09-15",
+      vi: 'hệ số biến thiên lợi suất của STB, 90 phiên tính tới 15/09/2026',
+      en: "STB's coefficient of variation over the 90 sessions through 2026-09-15",
     },
     gan: [
       {
         kyHieu: 's',
         moTa: {
-          vi: 'là độ lệch chuẩn lợi suất phiên của FPT, tính trên giá đóng cửa 55 phiên từ 26/06 đến 15/09/2026: 1,92504%',
-          en: "is the standard deviation of FPT's session returns, from the closes of the 55 sessions from 2026-06-26 to 2026-09-15: 1.92504%",
+          vi: 'là độ lệch chuẩn lợi suất phiên của STB, tính trên giá đóng cửa 90 phiên từ 08/05 đến 15/09/2026: 1,79443%',
+          en: "is the standard deviation of STB's session returns, from the closes of the 90 sessions from 2026-05-08 to 2026-09-15: 1.79443%",
         },
       },
       {
         kyHieu: '\\bar{r}',
         moTa: {
-          vi: 'là lợi suất bình quân mỗi phiên của FPT trong cùng 55 phiên ấy: 0,067086%',
-          en: "is FPT's average return per session over those same 55 sessions: 0.067086%",
+          vi: 'là lợi suất bình quân mỗi phiên của STB trong cùng 90 phiên ấy: 0,053279%',
+          en: "is STB's average return per session over those same 90 sessions: 0.053279%",
         },
       },
     ],
     thaySo: {
-      vi: '1,92504 ÷ 0,067086',
-      en: '1.92504 ÷ 0.067086',
+      vi: '1,79443 ÷ 0,053279',
+      en: '1.79443 ÷ 0.053279',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:STB~date:gte:2026-05-08~date:lte:2026-09-15&size=100',
         nhan: {
-          vi: 'Giá đóng cửa FPT từ 26/06 đến 23/07/2026',
-          en: 'FPT closes, 2026-06-26 to 2026-07-23',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá đóng cửa FPT từ 24/07 đến 20/08/2026',
-          en: 'FPT closes, 2026-07-24 to 2026-08-20',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá đóng cửa FPT từ 21/08 đến 15/09/2026',
-          en: 'FPT closes, 2026-08-21 to 2026-09-15',
+          vi: 'Giá đóng cửa STB 90 phiên từ 08/05 đến 15/09/2026',
+          en: 'STB closes, 90 sessions from 2026-05-08 to 2026-09-15',
         },
       },
     ],
@@ -3260,64 +3246,71 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   beta: {
     tinh: {
-      vi: 'beta của VN-Index hồi quy theo chính nó, 71 phiên tới 15/09/2026',
-      en: 'the beta of the VN-Index regressed on itself, 71 sessions through 2026-09-15',
+      vi: 'beta của FPT theo VN-Index, 60 phiên tới 15/09/2026',
+      en: "FPT's beta against the VN-Index, 60 sessions through 2026-09-15",
     },
     gan: [
       {
         kyHieu: 'R_i',
         moTa: {
-          vi: 'là lợi suất từng phiên của VN-Index, tính trên giá đóng cửa 71 phiên từ 04/06 đến 15/09/2026; ví dụ này đặt chính chỉ số vào chỗ của cổ phiếu',
-          en: "is the VN-Index's return in each session, from the closes of the 71 sessions from 2026-06-04 to 2026-09-15; this example puts the index itself where the stock would go",
+          vi: 'là lợi suất từng phiên của FPT, tính trên giá đóng cửa 60 phiên từ 19/06 đến 15/09/2026',
+          en: "is FPT's return in each session, from the closes of the 60 sessions from 2026-06-19 to 2026-09-15",
         },
       },
       {
         kyHieu: 'R_m',
         moTa: {
-          vi: 'cũng là lợi suất từng phiên của VN-Index trên cùng 71 phiên ấy',
-          en: "is again the VN-Index's return in each session, over the same 71 sessions",
+          vi: 'là lợi suất từng phiên của VN-Index trên cùng 60 phiên ấy',
+          en: "is the VN-Index's return in each session, over the same 60 sessions",
         },
       },
       {
         kyHieu: '\\text{Cov}',
         moTa: {
-          vi: 'là hiệp phương sai của hai chuỗi lợi suất; hai chuỗi trùng nhau nên nó bằng đúng phương sai: 1,2791 (%²)',
-          en: 'is the covariance of the two return series; the two series are the same, so it equals the variance exactly: 1.2791 (%²)',
+          vi: 'là hiệp phương sai của hai chuỗi lợi suất: 1,0963 (%²)',
+          en: 'is the covariance of the two return series: 1.0963 (%²)',
         },
       },
       {
         kyHieu: '\\text{Var}',
         moTa: {
-          vi: 'là phương sai lợi suất phiên của VN-Index trên cùng chuỗi: 1,2791 (%²)',
-          en: "is the variance of the VN-Index's session returns over the same series: 1.2791 (%²)",
+          vi: 'là phương sai lợi suất phiên của VN-Index trên cùng chuỗi: 1,3491 (%²)',
+          en: "is the variance of the VN-Index's session returns over the same series: 1.3491 (%²)",
         },
       },
     ],
     thaySo: {
-      vi: '1,2791 ÷ 1,2791',
-      en: '1.2791 ÷ 1.2791',
+      vi: '1,0963 ÷ 1,3491',
+      en: '1.0963 ÷ 1.3491',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-06-19~date:lte:2026-09-15&size=100',
         nhan: {
-          vi: 'Giá đóng cửa VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index closes, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Giá đóng cửa FPT 60 phiên từ 19/06 đến 15/09/2026',
+          en: 'FPT closes, 60 sessions from 2026-06-19 to 2026-09-15',
+        },
+      },
+      {
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-19~date:lte:2026-09-15&size=100',
+        nhan: {
+          vi: 'Giá đóng cửa VN-Index 60 phiên từ 19/06 đến 15/09/2026',
+          en: 'VN-Index closes, 60 sessions from 2026-06-19 to 2026-09-15',
         },
       },
     ],
   },
   'ty-so-sharpe': {
     tinh: {
-      vi: 'tỷ số Sharpe quy năm của VN-Index, 71 phiên tới 15/09/2026',
-      en: "the VN-Index's annualized Sharpe ratio over the 71 sessions through 2026-09-15",
+      vi: 'tỷ số Sharpe quy năm của VN-Index, 250 phiên tới 15/09/2026',
+      en: "the VN-Index's annualized Sharpe ratio over the 250 sessions through 2026-09-15",
     },
     gan: [
       {
         kyHieu: '\\bar{r}_p',
         moTa: {
-          vi: 'là lợi suất bình quân một phiên của VN-Index, tính trên giá đóng cửa 71 phiên từ 04/06 đến 15/09/2026: −0,009668%',
-          en: "is the VN-Index's average return per session, from the closes of the 71 sessions from 2026-06-04 to 2026-09-15: −0.009668%",
+          vi: 'là lợi suất bình quân một phiên của VN-Index, tính trên giá đóng cửa 250 phiên từ 12/09/2025 đến 15/09/2026: 0,041803%',
+          en: "is the VN-Index's average return per session, from the closes of the 250 sessions from 2025-09-12 to 2026-09-15: 0.041803%",
         },
       },
       {
@@ -3330,8 +3323,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\sigma_p',
         moTa: {
-          vi: 'là độ lệch chuẩn lợi suất phiên của VN-Index trên cùng chuỗi: 1,131%',
-          en: "is the standard deviation of the VN-Index's session returns over the same series: 1.131%",
+          vi: 'là độ lệch chuẩn lợi suất phiên của VN-Index trên cùng chuỗi: 1,3062%',
+          en: "is the standard deviation of the VN-Index's session returns over the same series: 1.3062%",
         },
       },
       {
@@ -3343,15 +3336,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(−0,009668 − 0,017876) ÷ 1,131 × √250',
-      en: '(−0.009668 − 0.017876) ÷ 1.131 × √250',
+      vi: '(0,041803 − 0,017876) ÷ 1,3062 × √250',
+      en: '(0.041803 − 0.017876) ÷ 1.3062 × √250',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá đóng cửa VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index closes, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Giá đóng cửa VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'VN-Index closes, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
       {
@@ -3365,15 +3358,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   'ty-so-sortino': {
     tinh: {
-      vi: 'tỷ số Sortino quy năm của VN-Index, 71 phiên tới 15/09/2026',
-      en: "the VN-Index's annualized Sortino ratio over the 71 sessions through 2026-09-15",
+      vi: 'tỷ số Sortino quy năm của VN-Index, 250 phiên tới 15/09/2026',
+      en: "the VN-Index's annualized Sortino ratio over the 250 sessions through 2026-09-15",
     },
     gan: [
       {
         kyHieu: '\\bar{r}_p',
         moTa: {
-          vi: 'là lợi suất bình quân một phiên của VN-Index, tính trên giá đóng cửa 71 phiên từ 04/06 đến 15/09/2026: −0,009668%',
-          en: "is the VN-Index's average return per session, from the closes of the 71 sessions from 2026-06-04 to 2026-09-15: −0.009668%",
+          vi: 'là lợi suất bình quân một phiên của VN-Index, tính trên giá đóng cửa 250 phiên từ 12/09/2025 đến 15/09/2026: 0,041803%',
+          en: "is the VN-Index's average return per session, from the closes of the 250 sessions from 2025-09-12 to 2026-09-15: 0.041803%",
         },
       },
       {
@@ -3386,15 +3379,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\min(0, r_t - r_f)',
         moTa: {
-          vi: 'là phần lợi suất từng phiên hụt dưới ngưỡng 0,017876%; bình phương rồi cộng cho cả chuỗi được 51,96 (%²)',
-          en: "is how far each session's return falls short of the 0.017876% threshold; squared and added up over the whole series it gives 51.96 (%²)",
+          vi: 'là phần lợi suất từng phiên hụt dưới ngưỡng 0,017876%; bình phương rồi cộng cho cả chuỗi được 234,77 (%²)',
+          en: "is how far each session's return falls short of the 0.017876% threshold; squared and added up over the whole series it gives 234.77 (%²)",
         },
       },
       {
         kyHieu: 'n',
         giaTri: {
-          vi: '70',
-          en: '70',
+          vi: '249',
+          en: '249',
         },
       },
       {
@@ -3406,15 +3399,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(−0,009668 − 0,017876) ÷ √(1 ÷ 70 × 51,96) × √250',
-      en: '(−0.009668 − 0.017876) ÷ √(1 ÷ 70 × 51.96) × √250',
+      vi: '(0,041803 − 0,017876) ÷ √(1 ÷ 249 × 234,77) × √250',
+      en: '(0.041803 − 0.017876) ÷ √(1 ÷ 249 × 234.77) × √250',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá đóng cửa VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index closes, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Giá đóng cửa VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'VN-Index closes, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
       {
@@ -3428,15 +3421,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   'ty-so-treynor': {
     tinh: {
-      vi: 'tỷ số Treynor của VN-Index, 71 phiên tới 15/09/2026, với beta của FPT',
-      en: "the VN-Index's Treynor ratio over the 71 sessions through 2026-09-15, using FPT's beta",
+      vi: 'tỷ số Treynor của VN-Index, 250 phiên tới 15/09/2026, với beta của FPT',
+      en: "the VN-Index's Treynor ratio over the 250 sessions through 2026-09-15, using FPT's beta",
     },
     gan: [
       {
         kyHieu: '\\bar{r}_p',
         moTa: {
-          vi: 'là lợi suất bình quân một phiên của VN-Index, tính trên giá đóng cửa 71 phiên từ 04/06 đến 15/09/2026: −0,009668%',
-          en: "is the VN-Index's average return per session, from the closes of the 71 sessions from 2026-06-04 to 2026-09-15: −0.009668%",
+          vi: 'là lợi suất bình quân một phiên của VN-Index, tính trên giá đóng cửa 250 phiên từ 12/09/2025 đến 15/09/2026: 0,041803%',
+          en: "is the VN-Index's average return per session, from the closes of the 250 sessions from 2025-09-12 to 2026-09-15: 0.041803%",
         },
       },
       {
@@ -3462,15 +3455,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(−0,009668 − 0,017876) × 250 ÷ 0,9043',
-      en: '(−0.009668 − 0.017876) × 250 ÷ 0.9043',
+      vi: '(0,041803 − 0,017876) × 250 ÷ 0,9043',
+      en: '(0.041803 − 0.017876) × 250 ÷ 0.9043',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá đóng cửa VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index closes, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Giá đóng cửa VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'VN-Index closes, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
       {
@@ -3491,15 +3484,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   'ty-so-thong-tin': {
     tinh: {
-      vi: 'tỷ số thông tin của VN-Index 71 phiên tới 15/09/2026, so với chuẩn gửi tiết kiệm 6,8%/năm',
-      en: 'the VN-Index information ratio over 71 sessions to 2026-09-15, against a 6.8%/year savings benchmark',
+      vi: 'tỷ số thông tin của VN-Index 250 phiên tới 15/09/2026, so với chuẩn gửi tiết kiệm 6,8%/năm',
+      en: 'the VN-Index information ratio over 250 sessions to 2026-09-15, against a 6.8%/year savings benchmark',
     },
     gan: [
       {
         kyHieu: '\\bar{r}_p',
         moTa: {
-          vi: 'là lợi suất bình quân một phiên của VN-Index trên chuỗi 71 phiên từ 04/06 đến 15/09/2026: −0,009668%',
-          en: "is the VN-Index's average return per session over the 71-session series from 2026-06-04 to 2026-09-15: −0.009668%",
+          vi: 'là lợi suất bình quân một phiên của VN-Index trên chuỗi 250 phiên từ 12/09/2025 đến 15/09/2026: 0,041803%',
+          en: "is the VN-Index's average return per session over the 250-session series from 2025-09-12 to 2026-09-15: 0.041803%",
         },
       },
       {
@@ -3512,8 +3505,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\sigma_{p-b}',
         moTa: {
-          vi: 'là độ lệch chuẩn lợi suất từng phiên của VN-Index trên cùng chuỗi 71 phiên: 1,131%',
-          en: "is the standard deviation of the VN-Index's per-session returns over the same 71-session series: 1.131%",
+          vi: 'là độ lệch chuẩn lợi suất từng phiên của VN-Index trên cùng chuỗi 250 phiên: 1,3062%',
+          en: "is the standard deviation of the VN-Index's per-session returns over the same 250-session series: 1.3062%",
         },
       },
       {
@@ -3525,15 +3518,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(−0,009668 − 0,02632) ÷ 1,131 × √250',
-      en: '(−0.009668 − 0.02632) ÷ 1.131 × √250',
+      vi: '(0,041803 − 0,02632) ÷ 1,3062 × √250',
+      en: '(0.041803 − 0.02632) ÷ 1.3062 × √250',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Chuỗi VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index series, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Chuỗi VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'VN-Index series, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
       {
@@ -3547,70 +3540,70 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   'ty-so-calmar': {
     tinh: {
-      vi: 'tỷ số Calmar của VN-Index 71 phiên tới 15/09/2026',
-      en: 'the VN-Index Calmar ratio over 71 sessions to 2026-09-15',
+      vi: 'tỷ số Calmar của VN-Index 250 phiên tới 15/09/2026',
+      en: 'the VN-Index Calmar ratio over 250 sessions to 2026-09-15',
     },
     gan: [
       {
         kyHieu: 'r_{nam}',
         moTa: {
-          vi: 'là lợi suất năm hoá của VN-Index khi đi từ 1.831,55 điểm phiên 04/06 xuống 1.811,15 điểm phiên 15/09/2026, quy theo 250 phiên một năm: −0,039213',
-          en: "is the VN-Index's annualized return going from 1831.55 points on 2026-06-04 down to 1811.15 points on 2026-09-15, scaled to 250 sessions a year: −0.039213",
+          vi: 'là lợi suất năm hoá của VN-Index khi đi từ 1.667,26 điểm phiên 12/09/2025 lên 1.811,15 điểm phiên 15/09/2026, quy theo 250 phiên một năm: 0,086664',
+          en: "is the VN-Index's annualized return going from 1667.26 points on 2025-09-12 up to 1811.15 points on 2026-09-15, scaled to 250 sessions a year: 0.086664",
         },
       },
       {
         kyHieu: 'MDD',
         moTa: {
-          vi: 'là mức sụt sâu nhất của VN-Index trong chuỗi, từ đỉnh 1.878,02 điểm phiên 24/06 xuống đáy 1.668,53 điểm phiên 22/07/2026: 0,11155',
-          en: "is the VN-Index's deepest drop in the series, from the 1878.02-point peak on 2026-06-24 to the 1668.53-point trough on 2026-07-22: 0.11155",
+          vi: 'là mức sụt sâu nhất của VN-Index trong chuỗi, từ đỉnh 1.902,93 điểm phiên 13/01/2026 xuống đáy 1.591,17 điểm phiên 23/03/2026: 0,16383',
+          en: "is the VN-Index's deepest drop in the series, from the 1902.93-point peak on 2026-01-13 to the 1591.17-point trough on 2026-03-23: 0.16383",
         },
       },
     ],
     thaySo: {
-      vi: '−0,039213 ÷ 0,11155',
-      en: '−0.039213 ÷ 0.11155',
+      vi: '0,086664 ÷ 0,16383',
+      en: '0.086664 ÷ 0.16383',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Chuỗi VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index series, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Chuỗi VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'VN-Index series, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
   },
   'ty-so-thang-thua': {
     tinh: {
-      vi: 'tỷ số thắng/thua của VN-Index 71 phiên tới 15/09/2026',
-      en: 'the VN-Index win/loss ratio over 71 sessions to 2026-09-15',
+      vi: 'tỷ số thắng/thua của VN-Index 250 phiên tới 15/09/2026',
+      en: 'the VN-Index win/loss ratio over 250 sessions to 2026-09-15',
     },
     gan: [
       {
         kyHieu: '\\overline{r^{+}}_h',
         moTa: {
-          vi: 'là mức tăng bình quân của mọi phiên tăng của VN-Index trong chuỗi 71 phiên từ 04/06 đến 15/09/2026: 0,79871% mỗi phiên',
-          en: 'is the average gain of every rising VN-Index session in the 71-session series from 2026-06-04 to 2026-09-15: 0.79871% per session',
+          vi: 'là mức tăng bình quân của mọi phiên tăng của VN-Index trong chuỗi 250 phiên từ 12/09/2025 đến 15/09/2026: 0,95606% mỗi phiên',
+          en: 'is the average gain of every rising VN-Index session in the 250-session series from 2025-09-12 to 2026-09-15: 0.95606% per session',
         },
       },
       {
         kyHieu: '\\overline{r^{-}}_h',
         moTa: {
-          vi: 'là mức giảm bình quân của mọi phiên giảm trong cùng chuỗi: −0,91603% mỗi phiên',
-          en: 'is the average loss of every falling session in the same series: −0.91603% per session',
+          vi: 'là mức giảm bình quân của mọi phiên giảm trong cùng chuỗi: −0,95696% mỗi phiên',
+          en: 'is the average loss of every falling session in the same series: −0.95696% per session',
         },
       },
     ],
     thaySo: {
-      vi: '0,79871 ÷ |−0,91603|',
-      en: '0.79871 ÷ |−0.91603|',
+      vi: '0,95606 ÷ |−0,95696|',
+      en: '0.95606 ÷ |−0.95696|',
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
+        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Chuỗi VN-Index 71 phiên từ 04/06 đến 15/09/2026',
-          en: 'VN-Index series, 71 sessions from 2026-06-04 to 2026-09-15',
+          vi: 'Chuỗi VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'VN-Index series, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
@@ -3673,8 +3666,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'EMA_{t-1}',
         moTa: {
-          vi: 'là EMA 12 phiên của FPT tại phiên 14/09/2026, tính nối tiếp từ đầu chuỗi 24/06/2026: 72.332,26 ₫',
-          en: "is FPT's 12-session EMA at the 2026-09-14 session, carried forward from the start of the series on 2026-06-24: 72332.26 ₫",
+          vi: 'là EMA 12 phiên của FPT tại phiên 14/09/2026, tính nối tiếp từ đầu chuỗi 12/09/2025: 72.332,51 ₫',
+          en: "is FPT's 12-session EMA at the 2026-09-14 session, carried forward from the start of the series on 2025-09-12: 72332.51 ₫",
         },
       },
       {
@@ -3686,29 +3679,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '72.700 × 2 ÷ (12 + 1) + 72.332,26 × (1 − 2 ÷ (12 + 1))',
-      en: '72700 × 2 ÷ (12 + 1) + 72332.26 × (1 − 2 ÷ (12 + 1))',
+      vi: '72.700 × 2 ÷ (12 + 1) + 72.332,51 × (1 − 2 ÷ (12 + 1))',
+      en: '72700 × 2 ÷ (12 + 1) + 72332.51 × (1 − 2 ÷ (12 + 1))',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá FPT từ 24/06 đến 21/07/2026',
-          en: 'FPT prices, 2026-06-24 to 2026-07-21',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 22/07 đến 18/08/2026',
-          en: 'FPT prices, 2026-07-22 to 2026-08-18',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 19/08 đến 15/09/2026',
-          en: 'FPT prices, 2026-08-19 to 2026-09-15',
+          vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
@@ -3722,42 +3701,28 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'EMA_{nhanh}',
         moTa: {
-          vi: 'là EMA 12 phiên của giá đóng cửa FPT tại phiên 15/09/2026, tính trên chuỗi từ 24/06/2026: 72.388,84 ₫',
-          en: "is the 12-session EMA of FPT's close at the 2026-09-15 session, computed over the series from 2026-06-24: 72388.84 ₫",
+          vi: 'là EMA 12 phiên của giá đóng cửa FPT tại phiên 15/09/2026, tính trên chuỗi từ 12/09/2025: 72.389,04 ₫',
+          en: "is the 12-session EMA of FPT's close at the 2026-09-15 session, computed over the series from 2025-09-12: 72389.04 ₫",
         },
       },
       {
         kyHieu: 'EMA_{cham}',
         moTa: {
-          vi: 'là EMA 26 phiên của giá đóng cửa FPT tại cùng phiên, trên cùng chuỗi: 71.580,63 ₫',
-          en: "is the 26-session EMA of FPT's close at the same session, over the same series: 71580.63 ₫",
+          vi: 'là EMA 26 phiên của giá đóng cửa FPT tại cùng phiên, trên cùng chuỗi: 71.495,63 ₫',
+          en: "is the 26-session EMA of FPT's close at the same session, over the same series: 71495.63 ₫",
         },
       },
     ],
     thaySo: {
-      vi: '72.388,84 − 71.580,63',
-      en: '72388.84 − 71580.63',
+      vi: '72.389,04 − 71.495,63',
+      en: '72389.04 − 71495.63',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá FPT từ 24/06 đến 21/07/2026',
-          en: 'FPT prices, 2026-06-24 to 2026-07-21',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 22/07 đến 18/08/2026',
-          en: 'FPT prices, 2026-07-22 to 2026-08-18',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 19/08 đến 15/09/2026',
-          en: 'FPT prices, 2026-08-19 to 2026-09-15',
+          vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
@@ -3771,42 +3736,28 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'MACD',
         moTa: {
-          vi: 'là đường MACD 12/26 của FPT phiên 15/09/2026, tính trên chuỗi từ 24/06/2026: 808,21 ₫',
-          en: "is FPT's 12/26 MACD line on the 2026-09-15 session, computed over the series from 2026-06-24: 808.21 ₫",
+          vi: 'là đường MACD 12/26 của FPT phiên 15/09/2026, tính trên chuỗi từ 12/09/2025: 893,41 ₫',
+          en: "is FPT's 12/26 MACD line on the 2026-09-15 session, computed over the series from 2025-09-12: 893.41 ₫",
         },
       },
       {
         kyHieu: 'EMA_{tin hieu}',
         moTa: {
-          vi: 'là EMA 9 phiên tính trên chuỗi MACD từng phiên: MACD phiên 15/09/2026 nhận tỷ trọng 2 ÷ (9 + 1), phần tỷ trọng còn lại dành cho đường tín hiệu phiên 14/09/2026 là 737,93 ₫',
-          en: 'is the 9-session EMA taken over the per-session MACD series: the 2026-09-15 MACD gets a weight of 2 ÷ (9 + 1), and the remaining weight goes to the 2026-09-14 signal value of 737.93 ₫',
+          vi: 'là EMA 9 phiên tính trên chuỗi MACD từng phiên: MACD phiên 15/09/2026 nhận tỷ trọng 2 ÷ (9 + 1), phần tỷ trọng còn lại dành cho đường tín hiệu phiên 14/09/2026 là 875,44 ₫',
+          en: 'is the 9-session EMA taken over the per-session MACD series: the 2026-09-15 MACD gets a weight of 2 ÷ (9 + 1), and the remaining weight goes to the 2026-09-14 signal value of 875.44 ₫',
         },
       },
     ],
     thaySo: {
-      vi: '808,21 × 2 ÷ (9 + 1) + 737,93 × (1 − 2 ÷ (9 + 1))',
-      en: '808.21 × 2 ÷ (9 + 1) + 737.93 × (1 − 2 ÷ (9 + 1))',
+      vi: '893,41 × 2 ÷ (9 + 1) + 875,44 × (1 − 2 ÷ (9 + 1))',
+      en: '893.41 × 2 ÷ (9 + 1) + 875.44 × (1 − 2 ÷ (9 + 1))',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá FPT từ 24/06 đến 21/07/2026',
-          en: 'FPT prices, 2026-06-24 to 2026-07-21',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 22/07 đến 18/08/2026',
-          en: 'FPT prices, 2026-07-22 to 2026-08-18',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 19/08 đến 15/09/2026',
-          en: 'FPT prices, 2026-08-19 to 2026-09-15',
+          vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
@@ -3820,42 +3771,28 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\overline{Gain}_n',
         moTa: {
-          vi: 'là trung bình mức tăng mỗi phiên của FPT, làm mượt Wilder 14 phiên trên chuỗi từ 24/06 đến 15/09/2026: 478,00 ₫',
-          en: "is FPT's average gain per session, Wilder-smoothed over 14 sessions on the series from 2026-06-24 to 2026-09-15: 478.00 ₫",
+          vi: 'là trung bình mức tăng mỗi phiên của FPT, làm mượt Wilder 14 phiên trên chuỗi từ 12/09/2025 đến 15/09/2026: 477,64 ₫',
+          en: "is FPT's average gain per session, Wilder-smoothed over 14 sessions on the series from 2025-09-12 to 2026-09-15: 477.64 ₫",
         },
       },
       {
         kyHieu: '\\overline{Loss}_n',
         moTa: {
-          vi: 'là trung bình mức giảm mỗi phiên của FPT, làm mượt cùng cách trên cùng chuỗi: 377,51 ₫',
-          en: "is FPT's average loss per session, smoothed the same way over the same series: 377.51 ₫",
+          vi: 'là trung bình mức giảm mỗi phiên của FPT, làm mượt cùng cách trên cùng chuỗi: 381,60 ₫',
+          en: "is FPT's average loss per session, smoothed the same way over the same series: 381.60 ₫",
         },
       },
     ],
     thaySo: {
-      vi: '100 − 100 ÷ (1 + 478,00 ÷ 377,51)',
-      en: '100 − 100 ÷ (1 + 478.00 ÷ 377.51)',
+      vi: '100 − 100 ÷ (1 + 477,64 ÷ 381,60)',
+      en: '100 − 100 ÷ (1 + 477.64 ÷ 381.60)',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá FPT từ 24/06 đến 21/07/2026',
-          en: 'FPT prices, 2026-06-24 to 2026-07-21',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 22/07 đến 18/08/2026',
-          en: 'FPT prices, 2026-07-22 to 2026-08-18',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ 19/08 đến 15/09/2026',
-          en: 'FPT prices, 2026-08-19 to 2026-09-15',
+          vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
@@ -4205,8 +4142,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'ATR_{t-1}',
         moTa: {
-          vi: 'là ATR của FPT phiên 14/09/2026, làm mượt Wilder 14 phiên trên chuỗi từ 24/06 đến 14/09/2026: 1.536,27 ₫',
-          en: 'is FPT’s ATR on the 2026-09-14 session, Wilder-smoothed over 14 sessions across the series from 2026-06-24 to 2026-09-14: 1536.27 ₫',
+          vi: 'là ATR của FPT phiên 14/09/2026, làm mượt Wilder 14 phiên trên chuỗi từ 12/09/2025 đến 14/09/2026: 1.541,55 ₫',
+          en: 'is FPT’s ATR on the 2026-09-14 session, Wilder-smoothed over 14 sessions across the series from 2025-09-12 to 2026-09-14: 1541.55 ₫',
         },
       },
       {
@@ -4218,29 +4155,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '((14 − 1) × 1.536,27 + |73.400 − 72.400|) ÷ 14',
-      en: '((14 − 1) × 1536.27 + |73400 − 72400|) ÷ 14',
+      vi: '((14 − 1) × 1.541,55 + |73.400 − 72.400|) ÷ 14',
+      en: '((14 − 1) × 1541.55 + |73400 − 72400|) ÷ 14',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
         nhan: {
-          vi: 'Giá FPT từ phiên 24/06 đến phiên 21/07/2026',
-          en: 'FPT prices from the 2026-06-24 session to the 2026-07-21 session',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ phiên 22/07 đến phiên 18/08/2026',
-          en: 'FPT prices from the 2026-07-22 session to the 2026-08-18 session',
-        },
-      },
-      {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
-        nhan: {
-          vi: 'Giá FPT từ phiên 19/08 đến phiên 15/09/2026',
-          en: 'FPT prices from the 2026-08-19 session to the 2026-09-15 session',
+          vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
+          en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
         },
       },
     ],
@@ -4352,23 +4275,31 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'C_i',
         moTa: {
-          vi: 'là giá đóng cửa FPT từng phiên; nhân mỗi giá với khối lượng cùng phiên rồi cộng cả 20 phiên được 10.059.768.944.600 ₫',
-          en: 'is FPT’s close in each session; each close times that session’s volume, summed over all 20 sessions, gives 10059768944600 ₫',
+          vi: 'là giá đóng cửa FPT từng phiên; nhân mỗi giá với khối lượng khớp lệnh cùng phiên rồi cộng cả 20 phiên được 7.926.111.550.000 ₫',
+          en: 'is FPT’s close in each session; each close times that session’s matched volume, summed over all 20 sessions, gives 7926111550000 ₫',
         },
       },
       {
         kyHieu: 'V_i',
         moTa: {
-          vi: 'là khối lượng của từng phiên ấy; cộng cả 20 phiên được 140.253.086 cổ phiếu',
-          en: 'is the volume of each of those sessions; summed over all 20 sessions it comes to 140253086 shares',
+          vi: 'là khối lượng khớp lệnh của từng phiên ấy; cộng cả 20 phiên được 110.190.700 cổ phiếu',
+          en: 'is the matched volume of each of those sessions; summed over all 20 sessions it comes to 110190700 shares',
         },
       },
     ],
     thaySo: {
-      vi: '10.059.768.944.600 ÷ 140.253.086',
-      en: '10059768944600 ÷ 140253086',
+      vi: '7.926.111.550.000 ÷ 110.190.700',
+      en: '7926111550000 ÷ 110190700',
     },
-    nguon: [],
+    nguon: [
+      {
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-08-14~date:lte:2026-09-15&size=100',
+        nhan: {
+          vi: 'Giá đóng cửa và khối lượng khớp lệnh FPT 20 phiên từ 14/08 đến 15/09/2026',
+          en: 'FPT closes and matched volume, 20 sessions from 2026-08-14 to 2026-09-15',
+        },
+      },
+    ],
   },
   'do-bien-dong-lich-su': {
     tinh: {
@@ -4449,21 +4380,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\frac{1}{n}\\sum_{i=1}^{n} V_{t-i}',
         moTa: {
-          vi: 'là khối lượng bình quân của FPT trong 20 phiên liền trước, từ 13/08 đến 14/09/2026: 7.231.307,65 cổ phiếu',
-          en: "is FPT's average volume over the 20 sessions before it, from 2026-08-13 to 2026-09-14: 7231307.65 shares",
+          vi: 'là khối lượng bình quân của FPT trong 20 phiên liền trước, từ 13/08 đến 14/09/2026: 5.683.560 cổ phiếu',
+          en: "is FPT's average volume over the 20 sessions before it, from 2026-08-13 to 2026-09-14: 5683560 shares",
         },
       },
     ],
     thaySo: {
-      vi: '3.977.500 ÷ 7.231.307,65',
-      en: '3977500 ÷ 7231307.65',
+      vi: '3.977.500 ÷ 5.683.560',
+      en: '3977500 ÷ 5683560',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/15/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-08-13~date:lte:2026-09-15&size=100',
         nhan: {
-          vi: 'Khối lượng khớp FPT phiên 15/09/2026 (CafeF)',
-          en: 'FPT matched volume, 2026-09-15 session (CafeF)',
+          vi: 'Khối lượng khớp lệnh FPT 21 phiên từ 13/08 đến 15/09/2026',
+          en: 'FPT matched volume, 21 sessions from 2026-08-13 to 2026-09-15',
         },
       },
     ],

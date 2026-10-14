@@ -16,6 +16,7 @@ import type { FormulaSpec } from '../registry/types';
 import type { WarningCode } from '../types';
 import { BIEU_DO_RIENG, keHoachBieuDo, mucBieuDo } from './bieu-do';
 import { BAI_RIENG, songNgu } from './noi-dung';
+import { choTrongCua, type ThongSoO } from './noi-dung/cho-trong';
 import type { BaiHuongDan, BaiRiengDaChuan, MucId, ONhapHuongDan } from './types';
 import { THU_TU_MUC } from './types';
 
@@ -170,6 +171,37 @@ function baiRiengCua(spec: FormulaSpec): BaiRiengDaChuan | undefined {
   };
 }
 
+/**
+ * Thông số của những ô mà chữ riêng có chỗ trống trỏ tới — xem `./noi-dung/cho-trong.ts`.
+ *
+ * Chỉ ô ĐƯỢC NHẮC, không cả `spec.variables`: bài đi vào gói của màn tính qua prop, và 105/111
+ * công thức không có chỗ trống nào. Chỗ trống trỏ vào một khoá không có trong `spec.variables` thì
+ * bị bỏ qua ở đây — câu giữ nguyên dấu ngoặc và `noi-dung.test.ts` đỏ trước khi nó lên màn.
+ */
+function thongSoCua(
+  spec: FormulaSpec,
+  rieng: BaiRiengDaChuan | undefined,
+): Record<string, ThongSoO> {
+  const ra: Record<string, ThongSoO> = {};
+  if (rieng === undefined) return ra;
+
+  for (const o of rieng.oNhap) {
+    for (const cau of [o.layODau.vi, o.layODau.en, o.luuY?.vi ?? '', o.luuY?.en ?? '']) {
+      for (const { khoa } of choTrongCua(cau)) {
+        const bien = spec.variables.find((item) => item.key === khoa);
+        if (bien === undefined || ra[khoa] !== undefined) continue;
+        ra[khoa] = {
+          macDinh: bien.defaultValue,
+          ...(bien.min === undefined ? {} : { min: bien.min }),
+          ...(bien.max === undefined ? {} : { max: bien.max }),
+        };
+      }
+    }
+  }
+
+  return ra;
+}
+
 /** Dựng bài hướng dẫn của một công thức. */
 export function baiHuongDan(formula: FormulaModule, ctx: CalcContext): BaiHuongDan {
   const { spec } = formula;
@@ -206,6 +238,7 @@ export function baiHuongDan(formula: FormulaModule, ctx: CalcContext): BaiHuongD
     ...(bieuDo === undefined ? {} : { bieuDo }),
     ketQuaTrong,
     ...(rieng === undefined ? {} : { rieng }),
+    thongSo: thongSoCua(spec, rieng),
     mucCo,
     lienQuan: congThucLienQuan(formula),
   };

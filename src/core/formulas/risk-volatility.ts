@@ -22,7 +22,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless } from '../warnings';
-import { FPT_2026, FPT_57_PHIEN } from './market-series-2026';
+import { FPT_2026, FPT_PHIEN, STB_2026, STB_PHIEN } from './market-series-2026';
 import { mean, requireCloses, sampleStdDev, simpleReturns } from './series-utils';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
@@ -218,7 +218,7 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         en: 'FPT’s per-session swing over the 55 most recent sessions through 2026-09-15',
       },
       inputs: { sessions: 55 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 1.925,
       note: {
@@ -226,8 +226,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         en: 'As a rule of thumb, about 68% of sessions have a return within ±1 standard deviation of the average. It is also the base figure that annualized volatility and the performance ratios are all built on.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -362,7 +362,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         en: 'FPT’s swing annualized, from the 55 most recent sessions through 2026-09-15',
       },
       inputs: { sessions: 55, tradingDays: 250 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 30.4376,
       note: {
@@ -370,8 +370,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         en: 'Annualizing multiplies the per-session standard deviation by the square root of the number of sessions in a year rather than by that number itself, because it is variance that accumulates over time. Only on a yearly scale can it sit beside a savings rate or a bond yield.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -545,7 +545,7 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         en: 'FPT’s downside-only swing, threshold 0% per session, 55 sessions through 2026-09-15',
       },
       inputs: { sessions: 55, threshold: 0 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 1.1989,
       note: {
@@ -553,8 +553,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         en: 'Only sessions with a return below the threshold are counted, so the result is always smaller than the full standard deviation; the closer the two figures sit, the more the risk leans to the downside. It is also the denominator of the Sortino ratio.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -679,20 +679,20 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Rủi ro trên mỗi đơn vị lợi nhuận của FPT, 55 phiên gần nhất tính tới 15/09/2026',
-        en: 'FPT’s risk per unit of return over the 55 most recent sessions through 2026-09-15',
+        vi: 'Rủi ro trên mỗi đơn vị lợi nhuận của STB, 90 phiên gần nhất tính tới 15/09/2026',
+        en: 'STB’s risk per unit of return over the 90 most recent sessions through 2026-09-15',
       },
-      inputs: { sessions: 55 },
-      series: FPT_57_PHIEN,
-      dataset: FPT_2026,
-      expected: 28.6953,
+      inputs: { sessions: 90 },
+      series: STB_PHIEN,
+      dataset: STB_2026,
+      expected: 33.6799,
       note: {
-        vi: 'Kết quả không mang đơn vị nên so được giữa những cổ phiếu có mức giá và biên độ khác hẳn nhau — càng thấp thì mỗi phần lợi suất càng phải chịu ít dao động. Lợi suất bình quân của kỳ càng sát 0 thì mẫu số càng mỏng và con số càng nhảy.',
-        en: 'The result carries no unit, so it compares stocks whose prices and ranges are nothing alike — the lower it is, the less volatility each unit of return has to carry. The closer the period’s average return sits to 0, the thinner the denominator and the jumpier the figure.',
+        vi: 'Kết quả không mang đơn vị nên so được giữa những cổ phiếu có mức giá và biên độ khác hẳn nhau — càng thấp thì mỗi phần lợi suất càng phải chịu ít dao động. Lợi suất bình quân của kỳ càng sát 0 thì mẫu số càng mỏng và con số càng nhảy. Ví dụ dùng STB vì cả năm mã này đi lên, nên cửa sổ 90 phiên nào trong năm cũng có lợi suất bình quân dương và đều tính được.',
+        en: 'The result carries no unit, so it compares stocks whose prices and ranges are nothing alike — the lower it is, the less volatility each unit of return has to carry. The closer the period’s average return sits to 0, the thinner the denominator and the jumpier the figure. The example uses STB because the stock rose over the year, so every 90-session window in it has a positive average return and can be computed.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa Ngân hàng TMCP Sài Gòn Thương Tín (mã STB), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, closing prices of Sacombank (ticker STB), a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -849,7 +849,7 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         en: 'FPT’s trough-to-peak distance across the 55 sessions through 2026-09-15',
       },
       inputs: { sessions: 55 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 19.7749,
       note: {
@@ -857,8 +857,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         en: 'A trough-to-peak range is easier to picture than a standard deviation, which makes it good for setting expectations about the swings one has to sit through. In exchange it reads only two extreme points, so a single unusual session is enough to move it.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [
@@ -994,7 +994,7 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
         en: 'FPT’s longest run of consecutive down sessions in the 55 sessions through 2026-09-15',
       },
       inputs: { sessions: 55 },
-      series: FPT_57_PHIEN,
+      series: FPT_PHIEN,
       dataset: FPT_2026,
       expected: 4,
       note: {
@@ -1002,8 +1002,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
         en: 'This one measures endurance rather than money: knowing in advance that a few red sessions in a row is an ordinary occurrence makes it less alarming when it happens. The period holds two runs of equal length, one in mid-July and one in mid-August 2026.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT), chuỗi 57 phiên 24/06–15/09/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) closing prices, a 57-session series from 2026-06-24 to 2026-09-15.',
+        vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
+        en: 'VNDirect, FPT Corp’s (ticker FPT) closing prices, a 250-session series from 2025-09-12 to 2026-09-15.',
       },
     },
     tests: [

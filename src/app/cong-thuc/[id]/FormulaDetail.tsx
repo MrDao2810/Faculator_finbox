@@ -3249,16 +3249,17 @@ export function FormulaDetail({
 
           `detail.exampleSeriesNote` — "Đây là chuỗi số dựng sẵn để minh hoạ…, không phải giá cổ
           phiếu thật của công ty nào". Câu ấy nói SAI về chính dữ liệu nó đứng cạnh: từ đợt
-          16/09/2026 chuỗi ví dụ là số liệu THẬT (`market-series-2026.ts` — FPT 57 phiên và
-          VN-Index 71 phiên, nguồn investing.com). Ngày 22/09/2026 đã đối chiếu độc lập với
-          CafeF: 6/6 phiên FPT và 20/20 phiên VN-Index khớp từng chữ số. Một câu dán nhãn "số
+          16/09/2026 chuỗi ví dụ là số liệu THẬT (`market-series-2026.ts` — lúc ấy FPT 57 phiên
+          và VN-Index 71 phiên, nguồn investing.com; từ 14/10/2026 là 250 phiên của FPT,
+          VN-Index và STB tải từ VNDirect). Ngày 22/09/2026 đã đối chiếu độc lập với CafeF: 6/6
+          phiên FPT và 20/20 phiên VN-Index khớp từng chữ số. Một câu dán nhãn "số
           bịa" lên số thật còn tệ hơn không có câu nào — nó dạy người dùng bỏ qua đúng những
           con số đáng tin nhất trên màn.
 
           `detail.draftMarketSeries` — câu cảnh báo chuỗi VN-Index là số dựng. Nó vẫn ĐÚNG cho
           chuỗi mặc định trong `samples.ts` (vẫn PRNG), nhưng ở đây nó bật cả khi công thức
           đang chạy trên `marketSeriesOverride` — tức chuỗi VN-Index THẬT mà chính ví dụ minh
-          hoạ vừa nạp vào (`risk-ratios.ts` truyền `VNINDEX_71_PHIEN`). Đó là ca chủ dự án
+          hoạ vừa nạp vào (`risk-ratios.ts` truyền `VNINDEX_PHIEN`). Đó là ca chủ dự án
           chụp màn lại. Điều kiện bật nay xét thêm override, và câu chữ nói đúng nửa còn lại:
           chuỗi giá của bộ mẫu mới là phần chưa thật.
         */}
@@ -3556,6 +3557,9 @@ export function FormulaDetail({
           state={goiY}
           onClose={dongGoiY}
           hinh={hinhBieuDo}
+          // Số ĐANG HIỆN trong các ô, gồm cả số nạp từ mã và số chảy từ công thức khác — đúng thứ
+          // người dùng so với câu "… phiên là khoảng …" trong khung (14/10/2026).
+          giaTri={effectiveInputs}
         />
       )}
 

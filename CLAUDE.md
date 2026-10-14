@@ -751,10 +751,11 @@ back a "drop this column" choice under another word.
 **Four causes of "empty columns after loading" were found, all reproduced**: the role set to "Không dùng"; the
 clipped Volume column; the overlaid file; and the **VN-Index example dataset, which carried closes only**, so
 loading the example on the nine formulas that use it (`beta`, the six ratios in `risk-ratios.ts`, `var-lich-su`,
-`cvar-lich-su`) filled two of six columns. `VNINDEX_71_BARS` in `market-series-2026.ts` now has open, high, low
-and volume for all 71 sessions, from VNDirect's `dchart` API, taken only after its 71 closes matched
-`VNINDEX_71_PHIEN` exactly. Closes are not copied: each bar takes its close from that array by position. A case
-in `formulas.test.ts` scans every `example.dataset` for a blank column. Not fixable here: a ticker loaded from
+`cvar-lich-su`) filled two of six columns. The VN-Index dataset got open, high, low and volume from VNDirect's
+`dchart` API that day, taken only after its 71 closes matched the owner's table exactly; since 14/10/2026 every
+example dataset is a full 250-session OHLCV table (see "The example datasets" below), and each `*_PHIEN` array is
+the close column of its own `*_BARS`, so the two cannot drift. A case in `formulas.test.ts` scans every
+`example.dataset` for a blank column. Not fixable here: a ticker loaded from
 Finbox (`?ma=`) still shows four blank columns, because `tendays` returns a close and nothing else.
 
 ## A formula visit — re-entering a formula resets it to defaults
@@ -1126,11 +1127,11 @@ rate" was a promise of a rescue that does not exist. It was deleted, the seed be
 `xirr` is now the only formula declaring `variables: []` — which needed a named exception in
 `validate.ts` (`NHAP_NGOAI_BANG_BIEN`) and a guard in `FormulaDetail` so an empty "SỐ LIỆU" box never
 renders; its real input is the cash-flow table in `XirrBody`. The other,
-`sut-giam-hien-tai`'s `lookback`, is **alive** and pinned with its evidence: it is inert only on that
-example's 57-bar series, whose peak happens to sit inside the 30-bar floor, while the sibling
-`sut-giam-sau-nhat` gives six different answers from the same slider on the same series. The gate
-lives in `formulas.test.ts` ("không ô nhập nào là một điều khiển chết") and checks both directions,
-so a pinned name that comes back to life must be removed from the list.
+`sut-giam-hien-tai`'s `lookback`, was **alive** and pinned with its evidence: it was inert only on that
+example's 57-bar series, whose peak happened to sit inside the 30-bar floor. The gate lives in
+`formulas.test.ts` ("không ô nhập nào là một điều khiển chết") and checks both directions, so a pinned name
+that comes back to life must be removed from the list — which is exactly what happened on 14/10/2026, when the
+example series grew to 250 sessions: the gate reported the slider alive and the pinned list is now empty.
 
 **That first sweep was wrong, and the way it was wrong is the lesson.** It counted a change in ANY
 `extras` key as a visible change, so it cleared `rut-truoc-han`'s "Lãi suất hợp đồng / năm" — which
@@ -1884,7 +1885,7 @@ the quiz" would otherwise be a promise that drifts. Seven things are load-bearin
   dashes; requires `en` everywhere (no thousands separators in the `en` line); requires https links and
   a `nhan` on each when there are two or more. What it cannot see is two same-unit figures swapped
   (price into EPS) — every row was read by meaning in the adversarial pass, and new ones must be too.
-- **Series formulas do not spell out 20–57 closes.** Their Thay số row describes the session window in
+- **Series formulas do not spell out 20–250 closes.** Their Thay số row describes the session window in
   words and the arithmetic line uses the aggregates `calc` itself computes (`extras`: RSI's average gain
   and loss, SMA's sum…), rounded to ≥4 significant figures so the 0.5% gate still holds.
 - **Links point at pages that hold the exact figure, and session prices are date-pinned.** Prices go to
@@ -1938,12 +1939,78 @@ in `kiem.ts` rather than a looser rule:
 
 **What the drafting run found wrong in the EXAMPLES themselves** (not fixed — the figures are
 `spec.example`, checked against `calc` and quoted in prose; changing them is the owner's call, listed in
-TASK.md 29/09/2026): the FPT 57-session dataset's VOLUME column matches no source (`vwap`, the one
-example pinned with no link, and `ty-le-khoi-luong` cannot be reproduced from any page); several
+TASK.md 29/09/2026): the FPT 57-session dataset's VOLUME column matched no source (`vwap` and
+`ty-le-khoi-luong` could not be reproduced from any page — fixed 14/10/2026, when the whole column was replaced
+by VNDirect's matched volume and `vwap` got its link back, emptying the "no link" pin); several
 inputs of `fcff`/`fcfe` don't match the named source; ~37 source names say Investing.com, which blocks
 every automated read, so their links go to CafeF/VNDirect pages that carry the same closes; CafeF's
 VN-Index history mangles 11 sessions (links use VNDirect's API) and its Q1–Q2/2026 statement tables
 are shifted one row (links avoid the misaligned lines or use stockanalysis).
+
+## The example datasets — 250 real sessions, so "Xem ví dụ minh hoạ" draws a full chart (14/10/2026)
+
+The 35 series formulas' "Xem ví dụ minh hoạ" button loads `example.dataset` onto the time chart. Until this
+date that was FPT 57 sessions and VN-Index 71 — enough for the example's number, not for the picture: with
+the examples' own 55–71-session windows, seven formulas drew 3/57 sessions, Beta 1/71, the eight risk ratios
+12/71, and the rest of the frame was hatching. The owner photographed `chuoi-phien-giam-dai-nhat` (a hatched
+frame and a sliver at the right edge): _"số liệu lấy thực tế trên mạng về và có thể vẽ biểu đồ luôn, ví dụ
+minh hoạ phải nhiều để không bị lỗi chút ít ở góc phải … áp dụng cho toàn bộ công thức có biểu đồ"_. When
+offered to keep the Coefficient of variation's hatching because it is true: _"đúng sự thật nhưng người dùng
+đâu có hiểu? … cái gạch gạch ấy có thao tác được đâu"_. **The measure is the part of the chart a user can
+hover, not the final number.**
+
+- **`market-series-2026.ts` holds three 250-session OHLCV tables, 12/09/2025 → 15/09/2026**: FPT, VN-Index and
+  STB, downloaded from VNDirect (`api-finfo` unadjusted prices for the two stocks, `dchart` for the index)
+  and checked by machine first: the last 57 FPT sessions equal the old table on open/high/low/close, the last
+  71 VN-Index sessions on all five columns (`market-series-2026.test.ts` keeps the owner's old closes as a
+  fixture and compares the tail); the three share the same 250 dates (Beta regresses by position); no split
+  or bonus issue inside the year. Volume is the source's **matched** volume (`nmVolume`), replacing the old
+  FPT column that matched no source. Each `*_PHIEN` is the close column of its `*_BARS`, never a copy.
+- **The last session stayed 15/09/2026**, so every example that reads only its last N ≤ 71 sessions kept its
+  number to the digit (20 of 35). Fifteen were rewritten — `expected`, title, note, source and the
+  `src/core/vi-du/` solution: the six whole-series ratios (Sharpe, Sortino, Treynor, information ratio, Calmar,
+  win/loss — all flipped from negative to positive over the year), the five smoothed from the first session
+  (EMA's quoted value, MACD, signal line, RSI, ATR), the two that use volume (VWAP, volume ratio), Beta and
+  the Coefficient of variation (below).
+- **Beta is a real beta now**: FPT against the VN-Index, 60 sessions, 0,8126. It used to regress the index on
+  itself (always 1) with a note blaming the 57-session FPT series, which stopped being true.
+- **`he-so-bien-thien` uses STB with a 90-session window.** CV = s / r̄ is `MEANINGLESS` whenever the mean
+  return ≤ 0, so on FPT (−28% over the year) only 44/250 sessions drew, and on the VN-Index the last session
+  failed. Measured across 47 large HOSE tickers, adjusted and unadjusted: only STB (+37%, no corporate action,
+  adjusted = unadjusted) with a 90-session window draws a gap-free line; smaller windows hit a mean near 0 and
+  the line jumps to the thousands. A new example must be checked on the CHART, not just on its last number.
+- **`src/core/chart/example-history.test.ts` is the gate**: it rebuilds exactly what `applyExample()` puts on
+  screen and requires, for all 35, one continuous line (no hatching after the first computable session; the
+  warm-up at the left is allowed) covering ≥ 60% of the axis. Measured: CV 64%, Beta 76%, the 55-window group
+  78%, every technical indicator ≥ 87%. It also pins the count of 35.
+- **Cost, measured with esbuild**: the data module went from 2,95 kB to 12,8 kB gzip, and it ships in every
+  detail page because `FormulaDetail` imports the whole Registry. The size gate was already red. The cure, not
+  done: load `example.dataset` with a dynamic `import()` on the button click.
+- `kiem.ts` builds its `Intl.NumberFormat` once: per call it pushed `vi-du.test.ts` past Vitest's 5 s timeout
+  under the full suite (2.664 ms alone → 160 ms).
+
+## Numbers in the usage guide's field notes follow the field (14/10/2026)
+
+The owner photographed the "?" popover of the Số liệu block on `bien-do-dao-dong-lon-nhat`: the slider
+read 55 sessions (set by "Xem ví dụ minh hoạ") under the note "60 phiên là khoảng ba tháng." — a sentence
+written around the field's DEFAULT. Then: _"khi người dùng sửa đổi thông số hoặc nạp mẫu gì đó từ ticker
+vào thì 60 phiên đổi thành 55 phiên … thì trong phần hướng dẫn sử dụng cũng cần thay đổi tương ứng theo"_.
+
+So a field note (`oNhap.layODau` / `luuY` in `src/core/huong-dan/noi-dung/items.ts`) may carry
+placeholders, filled by `dienCau()` (`noi-dung/cho-trong.ts`): `{key}` (the number in the field),
+`{key|thoiGian}` (sessions → calendar time at 250 sessions a year, rounded to half a unit: 55 → "2,5
+tháng"), `{key|coPhieu}` (shares in millions → "1,47 tỷ"), `{key|min}` / `{key|max}` (the field's
+`VariableSpec` bounds, so they follow the CODE, not the user). The popover passes `effectiveInputs` (typed
+numbers, ticker fills and chain values); the full guide page has no fields and fills with defaults, as
+does a field that is empty, 0 or non-finite. `dienCau` reaches the client through the leaf
+`@/core/huong-dan/types`, the one path `build-only-imports.test.ts` allows.
+
+**Not every number may follow.** "12 là mặc định phổ biến" under MACD's fast period is a convention the
+default was chosen BY; letting it follow the field would print "10 là mặc định phổ biến", a false
+sentence. `noi-dung.test.ts` pins the 17 templated notes and makes every OTHER number that equals its own
+field's default sit in one of three named lists (convention · fact · how-to-enter, 43 entries); a 44th
+turns the case red, and whoever adds it must choose. Only the `#nhap-so` and `#doc-bieu-do` sections open
+in a popover; `docKetQua` / `deSai` live on the full page only, where there is no field to follow.
 
 ## The usage guide's "Đọc biểu đồ" section — one text per REAL chart
 

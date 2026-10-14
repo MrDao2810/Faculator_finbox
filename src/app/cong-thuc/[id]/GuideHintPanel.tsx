@@ -68,9 +68,17 @@ export interface GuideHintPanelProps {
    * gọi thì khỏi phải biết mục nào cần gì.
    */
   hinh: HinhDangXem | null;
+  /**
+   * Bộ số đang có trong các ô của màn tính — kể cả số nạp từ mã và số chảy từ công thức khác.
+   *
+   * Chỉ mục "Lấy số liệu ở đâu" đọc nó, để câu minh hoạ nói đúng số người dùng đang nhìn chứ không
+   * nói số mặc định (14/10/2026 — chủ dự án chụp thanh trượt ở 55 phiên bên dưới câu "60 phiên là
+   * khoảng ba tháng"). Cùng nếp với `hinh`: luôn truyền, mục nào không cần thì bỏ qua.
+   */
+  giaTri: Readonly<Record<string, number>>;
 }
 
-export function GuideHintPanel({ bai, state, onClose, id, hinh }: GuideHintPanelProps) {
+export function GuideHintPanel({ bai, state, onClose, id, hinh, giaTri }: GuideHintPanelProps) {
   const t = useT();
   const panelRef = useRef<HTMLDivElement>(null);
   const [cho, setCho] = useState<{ top: number; left: number; maxHeight: number | null } | null>(
@@ -107,9 +115,9 @@ export function GuideHintPanel({ bai, state, onClose, id, hinh }: GuideHintPanel
      * `hinh` nằm trong danh sách phụ thuộc dù thân effect không đọc nó: đổi hình là đổi CHỮ trong
      * khung, tức đổi chiều cao khung, nên phải đo và đặt lại. Bấm chuột vào ô chọn hay nút Đường/Cột
      * thì khung đã đóng trước (bấm ra ngoài), nhưng đi bằng bàn phím thì khung vẫn mở trong lúc hình
-     * bên dưới đổi.
+     * bên dưới đổi. `giaTri` cùng lẽ: đổi số trong ô là đổi độ dài câu "… phiên là khoảng …".
      */
-  }, [state, onClose, hinh]);
+  }, [state, onClose, hinh, giaTri]);
 
   /* Esc đóng, và bấm ra ngoài đóng — hai lối thoát quen thuộc của mọi khung nổi trong sản phẩm. */
   useEffect(() => {
@@ -160,7 +168,7 @@ export function GuideHintPanel({ bai, state, onClose, id, hinh }: GuideHintPanel
         TRƯỚC khi viết dòng JSX đầu tiên: đó là chỗ từng làm trang hướng dẫn trả HTTP 500 suốt ba
         đợt mà không ca kiểm nào thấy.
       */}
-      <GuideMuc bai={bai} muc={state.muc} idPrefix="goi-y-" hinh={hinh} />
+      <GuideMuc bai={bai} muc={state.muc} idPrefix="goi-y-" hinh={hinh} giaTri={giaTri} />
 
       {/*
         ── Nút "Mở toàn trang ↗" ĐANG ẨN TẠM (03/10/2026, theo yêu cầu chủ dự án) ──────────────

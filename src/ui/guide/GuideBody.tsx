@@ -1,12 +1,14 @@
-import { fillRepeat, repeatIndexIn } from '@/application';
+import { dienCau, fillRepeat, repeatIndexIn } from '@/application';
 import type {
   BaiHuongDan,
+  Bilingual,
   HinhDangXem,
   KhoiBieuDoBai,
   KhoiLapBai,
   MessageKey,
   MucId,
   ONhapHuongDan,
+  ThongSoO,
 } from '@/application';
 import { Pick } from '@/ui/i18n/Pick';
 import { T } from '@/ui/i18n/T';
@@ -145,17 +147,23 @@ export function GuideToc({ mucCo }: { mucCo: ReadonlyArray<MucId> }) {
  * `hinh` chỉ mục "Đọc biểu đồ" đọc, và nó là chỗ khung với trang KHÁC nhau có chủ ý — xem
  * `KhoiBieuDo`. Khung truyền hình đang hiện trên màn tính (hoặc `null` khi khối Biểu đồ chưa kịp
  * báo); trang đầy đủ không truyền gì, vì ở đó không có biểu đồ nào đang hiện.
+ *
+ * `giaTri` cùng một nếp, cho mục "Lấy số liệu ở đâu": khung truyền bộ số đang có trong các ô để
+ * câu "{sessions} phiên là khoảng …" in đúng số người dùng đang nhìn (14/10/2026); trang đầy đủ
+ * không truyền, và câu điền bằng mặc định. Xem `@/core/huong-dan/noi-dung/cho-trong.ts`.
  */
 export function GuideMuc({
   bai,
   muc,
   idPrefix = '',
   hinh,
+  giaTri,
 }: {
   bai: BaiHuongDan;
   muc: MucId;
   idPrefix?: string;
   hinh?: HinhDangXem | null;
+  giaTri?: Readonly<Record<string, number>>;
 }) {
   const neo = `${idPrefix}${muc}`;
 
@@ -165,7 +173,7 @@ export function GuideMuc({
         <T k={TIEU_DE[muc]} />
       </h2>
 
-      {muc === 'nhap-so' && <KhoiNhapSo bai={bai} />}
+      {muc === 'nhap-so' && <KhoiNhapSo bai={bai} giaTri={giaTri} />}
       {muc === 'doc-ket-qua' && <KhoiDocKetQua bai={bai} />}
       {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} hinh={hinh} />}
       {muc === 'ket-qua-trong' && <KhoiKetQuaTrong bai={bai} />}
@@ -211,20 +219,45 @@ export function GuideBody({ bai, idPrefix = '' }: { bai: BaiHuongDan; idPrefix?:
  *
  * `<dl>` chứ `<ul>`: mỗi hàng là một CẶP tên ô → nơi lấy số liệu, và đó đúng là thứ `<dl>` dựng.
  */
-function KhoiNhapSo({ bai }: { bai: BaiHuongDan }) {
+function KhoiNhapSo({
+  bai,
+  giaTri,
+}: {
+  bai: BaiHuongDan;
+  giaTri: Readonly<Record<string, number>> | undefined;
+}) {
   if (bai.rieng === undefined || bai.rieng.oNhap.length === 0) return null;
 
   return (
     <dl className={styles.fieldSources}>
       {bai.rieng.oNhap.map((o) => (
-        <HangONhap key={o.key} o={o} />
+        <HangONhap key={o.key} o={o} thongSo={bai.thongSo} giaTri={giaTri} />
       ))}
     </dl>
   );
 }
 
-/** Một ô: tên ô ở trên, nơi lấy số ở dưới, lưu ý (nếu có) đóng hàng. */
-function HangONhap({ o }: { o: ONhapHuongDan }) {
+/**
+ * Một ô: tên ô ở trên, nơi lấy số ở dưới, lưu ý (nếu có) đóng hàng.
+ *
+ * Hai câu đi qua `dienCau` trước khi in: câu không có chỗ trống thì ra y nguyên, câu có thì nhận
+ * số đang có trong ô (khung "?") hoặc số mặc định (trang đầy đủ). Điền CẢ HAI ngôn ngữ, vì `<Pick>`
+ * chọn sau.
+ */
+function HangONhap({
+  o,
+  thongSo,
+  giaTri,
+}: {
+  o: ONhapHuongDan;
+  thongSo: Readonly<Record<string, ThongSoO>>;
+  giaTri: Readonly<Record<string, number>> | undefined;
+}) {
+  const dien = (cau: Bilingual): Bilingual => ({
+    vi: dienCau(cau.vi, thongSo, giaTri),
+    en: dienCau(cau.en, thongSo, giaTri),
+  });
+
   return (
     <div className={styles.fieldRow}>
       <dt className={styles.fieldLabel}>
@@ -245,10 +278,10 @@ function HangONhap({ o }: { o: ONhapHuongDan }) {
         )}
       </dt>
       <dd className={styles.fieldWhere}>
-        <Pick value={o.layODau} />
+        <Pick value={dien(o.layODau)} />
         {o.luuY !== undefined && (
           <span className={styles.fieldNote}>
-            <Pick value={o.luuY} />
+            <Pick value={dien(o.luuY)} />
           </span>
         )}
       </dd>

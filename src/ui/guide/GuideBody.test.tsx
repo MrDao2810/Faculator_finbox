@@ -139,6 +139,75 @@ describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () 
   });
 });
 
+/*
+ * ── Câu minh hoạ của mục "Lấy số liệu ở đâu" đi theo số trong ô (14/10/2026) ─────────────────
+ *
+ * Chủ dự án chụp thanh trượt ở 55 phiên ngay dưới khung "?" ghi "60 phiên là khoảng ba tháng": câu
+ * viết quanh số MẶC ĐỊNH, ô thì đã đổi. Khung nay điền số đang có trong ô; trang đầy đủ không có ô
+ * nào nên điền bằng mặc định. Phép điền gác riêng ở `cho-trong.test.ts`; ở đây gác đường đi: số
+ * vào được tới câu, và câu không có chỗ trống thì ra y nguyên.
+ */
+describe('mục "Lấy số liệu ở đâu": câu minh hoạ đi theo số đang có trong ô', () => {
+  const bai = {
+    id: 'thu',
+    ten: doan('Thử'),
+    moTaNgan: doan('Thử'),
+    nhomId: 'risk',
+    muc: 'basic',
+    ketQuaTrong: [],
+    rieng: {
+      deLamGi: doan('Thử.'),
+      docKetQua: doan('Thử.'),
+      deSai: doan('Thử.'),
+      oNhap: [
+        {
+          key: 'sessions',
+          nhan: doan('Số phiên trong kỳ'),
+          layODau: doan('Độ dài kỳ quan sát tính bằng phiên.'),
+          luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.', en: '' },
+          nangCao: false,
+        },
+      ],
+    },
+    thongSo: { sessions: { macDinh: 60, min: 12, max: 500 } },
+    mucCo: ['nhap-so'],
+    lienQuan: [],
+  } satisfies BaiHuongDan;
+
+  function dung(giaTri?: Record<string, number>) {
+    return render(
+      <PreferencesProvider>
+        {giaTri === undefined ? (
+          <GuideMuc bai={bai} muc="nhap-so" />
+        ) : (
+          <GuideMuc bai={bai} muc="nhap-so" idPrefix="goi-y-" giaTri={giaTri} />
+        )}
+      </PreferencesProvider>,
+    );
+  }
+
+  it('trang đầy đủ, không có ô nào để đọc: điền bằng số mặc định', () => {
+    dung();
+    expect(screen.getByText('60 phiên là khoảng 3 tháng.')).toBeTruthy();
+  });
+
+  it('khung "?" điền đúng số đang có trong ô, không phải số mặc định', () => {
+    dung({ sessions: 55 });
+    expect(screen.getByText('55 phiên là khoảng 2,5 tháng.')).toBeTruthy();
+    expect(screen.queryByText(/60 phiên/)).toBeNull();
+  });
+
+  it('câu không có chỗ trống thì in y nguyên', () => {
+    dung({ sessions: 55 });
+    expect(screen.getByText('Độ dài kỳ quan sát tính bằng phiên.')).toBeTruthy();
+  });
+
+  it('không có chỗ trống nào còn sót dấu ngoặc lên màn', () => {
+    const { container } = dung({ sessions: 55 });
+    expect(container.textContent).not.toMatch(/[{}]/);
+  });
+});
+
 describe('mục "Đọc biểu đồ" trong khung chỉ in đúng một hình, đúng một dạng', () => {
   function dung(khoi: ReadonlyArray<KhoiBieuDoBai>, dangXem: HinhDangXem | null | undefined) {
     const bai = {
@@ -149,6 +218,7 @@ describe('mục "Đọc biểu đồ" trong khung chỉ in đúng một hình, �
       muc: 'basic',
       bieuDo: { khoi },
       ketQuaTrong: [],
+      thongSo: {},
       mucCo: ['doc-bieu-do'],
       lienQuan: [],
     } satisfies BaiHuongDan;

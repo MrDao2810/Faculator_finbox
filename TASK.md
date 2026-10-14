@@ -4,6 +4,136 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## "Xem ví dụ minh hoạ" phải vẽ ra hình đầy dữ liệu — chuỗi ví dụ 250 phiên thật (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, dữ liệu và ca kiểm xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án báo gì
+
+Ảnh `chuoi-phien-giam-dai-nhat` sau khi bấm "Xem ví dụ minh hoạ": cả khung gạch chéo, một mẩu đường ở mép phải.
+_"số liệu lấy thực tế trên mạng về và có thể vẽ biểu đồ luôn, ví dụ minh hoạ phải nhiều … áp dụng cho toàn bộ công
+thức có biểu đồ"_. Khi được đề xuất giữ phần gạch chéo của Hệ số biến thiên vì đúng sự thật: _"người dùng đâu có
+hiểu? … cái gạch gạch ấy có thao tác được đâu"_.
+
+### Nguyên nhân, đo trên 35 công thức có nút này
+
+Ví dụ nạp FPT 57 phiên / VN-Index 71 phiên, cửa sổ của chính ví dụ 55–71 phiên. Phần hình có số: 7 công thức cửa
+sổ 55 phiên 3/57 · Beta 1/71 · 8 tỷ số rủi ro 12/71 · 2 công thức sụt giảm 49% · 17 chỉ báo kỹ thuật 42–82%.
+
+### Đã làm
+
+| File                                                                         | Đổi gì                                                                                                                                                                                                                            |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/formulas/market-series-2026.ts`                                    | Viết lại: ba bảng nến 250 phiên 12/09/2025 → 15/09/2026 (FPT, VN-Index, STB) tải từ VNDirect, sinh bằng script; `*_PHIEN` là cột đóng cửa của `*_BARS`. Tên bỏ con số: `FPT_PHIEN`, `FPT_BARS`, `VNINDEX_*`, `STB_*`, `STB_2026`. |
+| `market-series-2026.test.ts`                                                 | Viết lại: 250 phiên, ngày, OHLCV hợp lệ, ba chuỗi cùng ngày, và đuôi chuỗi bằng đúng bảng cũ của chủ dự án (giữ làm mốc).                                                                                                         |
+| `risk-ratios.ts`, `risk-volatility.ts`, `risk-drawdown.ts`, `technical-*.ts` | Đổi tên hằng; 15 ví dụ ra số mới (expected, tiêu đề, câu đọc kết quả, nguồn); mọi tiêu đề/nguồn ghi "57/71 phiên" sửa theo chuỗi mới; bỏ câu "chuỗi FPT chỉ có 57 phiên" ở VaR, CVaR, Beta, Treynor.                              |
+| `src/core/vi-du/items.ts`                                                    | Lời giải của 15 ví dụ: số trong Thay số, dòng Áp vào công thức, link nguồn (một link VNDirect cả năm thay ba trang CafeF 20 dòng; VWAP có link trở lại).                                                                          |
+| `src/core/chart/example-history.test.ts` (mới)                               | Cổng: hình theo thời gian ngay sau cú bấm phải là đường liền, phủ ≥ 60% trục, cho cả 35 công thức.                                                                                                                                |
+| `formulas.test.ts`, `vi-du.test.ts`                                          | Danh sách ghim "điều khiển chết" và "ví dụ không có link" đều về rỗng — hai ca tự báo ô `sut-giam-hien-tai.lookback` sống lại và VWAP có nguồn.                                                                                   |
+| `src/core/vi-du/kiem.ts`                                                     | Dựng `Intl.NumberFormat` một lần (2.664 ms → 160 ms); gọi mỗi lần thì ca kiểm vượt mốc 5 s khi chạy cả bộ.                                                                                                                        |
+| `FormulaDetail.test.tsx`, `FormulaDetail.tsx`, `quiz/items/risk.ts` (Q212)   | Hai ca Beta so với `example.expected` thay vì 1; một comment; câu hỏi Sortino nói "250 phiên, khoảng một năm" thay "71 phiên".                                                                                                    |
+| `CLAUDE.md`                                                                  | Mục mới "The example datasets…", sửa bốn đoạn còn nói 57/71 phiên.                                                                                                                                                                |
+
+Kết quả sau sửa: 34/35 hình có số ở 72–96% trục; Hệ số biến thiên 64%, liền mạch. Số mới của 15 ví dụ: Sharpe
+0,29 · Sortino 0,39 · Treynor 6,61 · IR 0,19 · Calmar 0,53 · thắng/thua 1,00 · MACD 893,41 · tín hiệu 879,03 · RSI
+55,59 · ATR 1.502,87 · VWAP 71.930,86 · tỷ lệ khối lượng 0,70 · Beta FPT 0,81 · CV STB 33,68 · EMA giữ 72.389.
+
+Kiểm: `npm run typecheck`, eslint các thư mục đã sửa, prettier, toàn bộ vitest (3.813 ca) xanh; `gen:summaries`
+không đổi file sinh.
+
+### Còn lại / rủi ro
+
+- **Dung lượng**: module dữ liệu 2,95 → 12,8 kB gzip (đo bằng esbuild), nằm trong JS của mọi trang chi tiết vì
+  Registry đi kèm `FormulaDetail`. Cổng size vốn đã đỏ. Chưa chạy `npm run build`/`size` (dev đang giữ :3000).
+  Hướng giảm: nạp `example.dataset` bằng `import()` khi bấm nút.
+- Phần gạch chéo ở ĐẦU trục (các phiên chưa đủ cửa sổ, 4–36% trục) vẫn còn trên mọi hình theo thời gian, kể cả
+  bộ mẫu và chuỗi người dùng dán. Bỏ nó là đổi cách vẽ của mọi biểu đồ thời gian — chưa làm, cần chủ dự án quyết.
+- Ví dụ Treynor vẫn lấy beta 0,9043 (55 phiên tới 11/09) trong khi ví dụ Beta nay ra 0,81 (60 phiên tới 15/09) —
+  hai trang hai beta của FPT; giữ nguyên vì beta 0,9043 có nguồn riêng, chủ dự án quyết có đồng bộ không.
+- 15 câu "Đọc kết quả" viết mới cần chủ dự án đọc như mọi nội dung chưa duyệt.
+
+---
+
+## Hướng dẫn sử dụng: số minh hoạ trong khung "?" đi theo số trong ô (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code và ca kiểm xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Ảnh khung "?" của khối Số liệu (`bien-do-dao-dong-lon-nhat`): thanh trượt 55 phiên, khung ghi "60 phiên là khoảng
+ba tháng." — _"đồng bộ lại toàn bộ các công thức để khi có thông số nào thay đổi liên quan đến hướng dẫn sử dụng
+thì số liệu trong phần hướng dẫn sử dụng cũng cần thay đổi theo"_, rồi nói rõ: số dùng để ví dụ (60 phiên, 10
+triệu…) phải đổi theo khi người dùng sửa thông số hay nạp mã.
+
+### Vì sao lệch
+
+Câu viết sẵn quanh giá trị MẶC ĐỊNH của ô (60) và là chữ cố định. Thanh trượt ra 55 vì "Xem ví dụ minh hoạ" nạp
+bộ số của ví dụ (6 công thức dùng 55 phiên).
+
+### Đo được
+
+765 câu hướng dẫn, 152 câu có số, ở 89 công thức. Chỉ khung "?" của khối Số liệu là nơi chữ hướng dẫn đứng cạnh ô
+(khung "?" của biểu đồ vốn không có số trừ các vạch quy ước; "Đọc kết quả" chỉ ở trang đầy đủ, nơi không có ô).
+
+| Nhóm                                      | Số câu                     | Làm gì                                                                  |
+| ----------------------------------------- | -------------------------- | ----------------------------------------------------------------------- |
+| Số minh hoạ cho chính giá trị của ô       | 15                         | Thành chỗ trống, điền số đang có trong ô                                |
+| Cận của ô ("Tối thiểu 60", "Từ 2 tới 12") | 2                          | Thành chỗ trống, đọc `min`/`max` của ô (đi theo mã, không theo số nhập) |
+| Quy ước, sự thật, cách điền               | 43 trùng số mặc định của ô | Giữ nguyên, ghim thành ba nhóm có tên; đổi theo ô là thành câu sai      |
+
+17 câu đổi: 6 câu "60 phiên là khoảng ba tháng" · `do-bien-dong-lich-su.sample` · 4 câu "250 phiên là khoảng một
+năm" · `vwap.period` · 3 câu "Nếu có 1,47 tỷ cổ phiếu thì nhập 1470" · `beta.sessions` (cận dưới) ·
+`loi-suat-trung-binh-hinh-hoc.periods` (cận dưới, cận trên).
+
+### Đã làm
+
+| File                                                             | Đổi gì                                                                                                                                                              |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/huong-dan/noi-dung/cho-trong.ts` (mới)                 | `dienCau()`, `thoiGianPhien()` (250 phiên/năm, làm tròn nửa đơn vị), `soCoPhieuTrieu()`, `choTrongCua()`                                                            |
+| `src/core/huong-dan/noi-dung/items.ts`                           | 17 câu thành mẫu có chỗ trống                                                                                                                                       |
+| `src/core/huong-dan/bai.ts`, `types.ts`                          | `BaiHuongDan.thongSo` (mặc định, cận của những ô được nhắc); xuất `dienCau` qua module lá                                                                           |
+| `src/application/index.ts`                                       | Xuất `dienCau`, kiểu `ThongSoO`                                                                                                                                     |
+| `src/ui/guide/GuideBody.tsx`                                     | `GuideMuc` nhận `giaTri`; mỗi câu của ô đi qua `dienCau` trước khi in                                                                                               |
+| `src/app/cong-thuc/[id]/GuideHintPanel.tsx`, `FormulaDetail.tsx` | Khung "?" nhận `effectiveInputs` (số gõ, số nạp từ mã, số chảy từ công thức khác)                                                                                   |
+| Test                                                             | `cho-trong.test.ts` (29 ca) · `noi-dung.test.ts` +4 ca, trần độ dài đo câu đã điền · `GuideBody.test.tsx` +4 · `FormulaDetail.test.tsx` +1 ca đi đúng luồng đã chụp |
+| `CLAUDE.md`                                                      | Mục mới "Numbers in the usage guide's field notes follow the field"                                                                                                 |
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Thời gian in bằng số, không bằng chữ**: "55 phiên là khoảng 2,5 tháng", "60 phiên là khoảng 3 tháng" (câu gốc
+   viết "ba tháng").
+2. **`do-bien-dong-lich-su`** từ "60 phiên là khoảng ba tháng, đủ ổn định mà vẫn bám tình hình hiện tại" thành
+   "{số} phiên là khoảng {thời gian}, cửa sổ ba tháng đủ ổn định mà vẫn bám tình hình hiện tại": lời khen "đủ ổn
+   định" là nói về cửa sổ ba tháng, gắn vào số người dùng nhập (ví dụ 20) sẽ thành sai.
+3. **Câu số cổ phiếu ở số mặc định (118 triệu) ra "Nếu có 118 triệu cổ phiếu thì nhập 118"**: đúng nhưng không còn dạy
+   phép đổi tỷ → triệu như câu gốc; nạp mã có trên 1 tỷ cổ phiếu thì nó dạy lại.
+4. **43 câu giữ số cứng có chủ ý** (vd "12 là mặc định phổ biến", "Việt Nam khoảng 250 phiên", "20% cho phần lớn
+   doanh nghiệp", "Nếu trả góp 5 năm theo tháng thì nhập 60"). Danh sách đủ ở `noi-dung.test.ts`.
+5. **Trang hướng dẫn đầy đủ điền bằng số mặc định**: trang ấy không có ô, và nút mở nó từ khung "?" đang ẩn.
+
+### Kiểm chứng
+
+- Lint, typecheck, format qua. `npm test`: mọi ca của lượt này qua.
+- 2 ca đỏ KHÔNG do lượt này: `FormulaDetail.test.tsx` › hai ca Beta "ra đúng 1 lần của ví dụ". Cây làm việc đang
+  có thay đổi dở của việc khác ở `risk-ratios.ts`, `market-series-2026.ts`, `vi-du/items.ts`… (chuỗi ví dụ của
+  Beta). Lượt này không đụng file nào trong số đó.
+
+---
+
+## Nút "Chú thích" trên điện thoại: chữ 11px (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code xong, chờ chủ dự án xem màn.**
+
+Chủ dự án chụp nút "Chú thích" ở góc dưới thẻ công thức (chỉ hiện dưới 1024px): _"text button chú thích này đang
+quá lớn khi cho vào màn mobile. giảm size text xuống 1.5"_. Lượt đầu tôi hạ 14px → 12,5px; chủ dự án chỉnh tiếp
+_"giảm xuống còn 10px"_, rồi _"tăng lại lên 11px"_.
+
+- `src/app/cong-thuc/[id]/FormulaNotationCard.module.css` — chữ nút 14px → 11px. Mũi tên cạnh chữ 16 → 13px theo
+  cùng tỉ lệ. Khổ PC không đổi: nút vốn ẩn từ 1024px. Vùng bấm không đổi (nút vẫn cao 36px, vùng chạm 44px).
+- Đã chạy: format, `FormulaNotationCard.test.tsx`, `typography.test.ts`, `tokens.test.ts`. Chưa đo trên Chrome.
+
+---
+
 ## Biểu đồ: bỏ câu mô tả dưới tên hình khỏi màn (14/10/2026)
 
 **Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**

@@ -66,6 +66,7 @@
 import type { Bilingual, Level, WarningCode } from '../types';
 // Chỉ KIỂU, và từ một file chỉ khai kiểu: `./bieu-do/types` không nhập kho chữ nào.
 import type { MucBieuDoBai } from './bieu-do/types';
+import type { ThongSoO } from './noi-dung/cho-trong';
 
 /*
  * Xuất lại ba kiểu của mục "Đọc biểu đồ" từ CHÍNH module lá này.
@@ -78,6 +79,15 @@ import type { MucBieuDoBai } from './bieu-do/types';
  * tính báo lên để khung "?" chỉ in đúng hình đang hiện, tức chìa nối hai bên của cùng một mục.
  */
 export type { HinhDangXem, KhoiBieuDoBai, KhoiLapBai, MucBieuDoBai } from './bieu-do/types';
+
+/*
+ * Phép điền chỗ trống của câu hướng dẫn (14/10/2026) — HÀM chạy được, đi cùng lối module lá này
+ * vì khung "?" ở màn tính phải điền số đang có trong ô vào câu, tức chạy ở máy khách. Cùng tiền lệ
+ * `hasChoices()` đi qua `@/core/quiz/types`. `./noi-dung/cho-trong` chỉ nhập `../../format`, không
+ * chạm kho chữ, nên lối vào thư mục vẫn không mở ra thêm dữ liệu nào.
+ */
+export { dienCau } from './noi-dung/cho-trong';
+export type { ThongSoO } from './noi-dung/cho-trong';
 
 /**
  * Chữ riêng ĐÃ CHUẨN HOÁ về `Bilingual` — `en` rỗng thì `pick()` tự rơi về tiếng Việt.
@@ -111,7 +121,8 @@ export interface BaiRiengDaChuan {
  *    không lặp lại.
  *
  * Đơn vị thì KHÔNG mang sang: ô nhập trên màn đã in đơn vị bên phải nó, và chỗ nào cái bẫy nằm ở
- * đơn vị thì `luuY` nói thẳng ("1,47 tỷ cổ phiếu thì nhập 1470").
+ * đơn vị thì `luuY` nói thẳng ("Nếu có {shares|coPhieu} cổ phiếu thì nhập {shares}" — từ 14/10/2026
+ * câu này điền số đang có trong ô, xem `./noi-dung/cho-trong.ts`).
  */
 export interface ONhapHuongDan {
   /** `VariableSpec.key` — khoá React của hàng, và thứ duy nhất phân biệt hai ô trùng nhãn. */
@@ -237,6 +248,15 @@ export interface BaiHuongDan {
    * Bảng độ trùng đo được: `./noi-dung/types.ts`.
    */
   rieng?: BaiRiengDaChuan;
+
+  /**
+   * Thông số của những ô mà chữ riêng có chỗ trống trỏ tới (`{sessions}`, `{shares|coPhieu}`…) —
+   * mặc định, cận dưới, cận trên. Chỉ mang những ô được nhắc, không mang cả `spec.variables`.
+   *
+   * Trang đầy đủ điền chỗ trống bằng mặc định ở đây; khung "?" điền bằng số đang có trong ô và
+   * chỉ rơi về đây khi ô trống. Xem `./noi-dung/cho-trong.ts`.
+   */
+  thongSo: Readonly<Record<string, ThongSoO>>;
 
   /** Mục nào có thật trong bài này, đúng thứ tự `THU_TU_MUC`. */
   mucCo: ReadonlyArray<MucId>;

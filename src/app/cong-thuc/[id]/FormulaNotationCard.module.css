@@ -98,13 +98,23 @@
   min-width: 0;
 }
 
+/*
+ * Chữ 11px, không phải 14px của `size="sm"` (14/10/2026). Chủ dự án chụp nút trên điện thoại:
+ * _"text button chú thích này đang quá lớn khi cho vào màn mobile"_, rồi chỉnh qua ba lượt cùng
+ * ngày: 12,5px → _"giảm xuống còn 10px"_ → _"tăng lại lên 11px"_. Thấp hơn `--text-xs` (12px) là
+ * chủ ý, không phải một bậc thang bị sót — đừng "sửa" về token.
+ * Mũi tên nhỏ theo cùng tỉ lệ (16 → 13px), để nó không to hơn chữ đứng cạnh.
+ */
 .legend > .legendToggle {
   align-self: flex-end;
   gap: var(--space-1);
+  font-size: 11px;
 }
 
 .legendToggleIcon {
   flex-shrink: 0;
+  width: 13px;
+  height: 13px;
   /* 120ms như Switch — globals.css đã tắt mọi transition khi người dùng xin giảm chuyển động. */
   transition: transform 120ms ease;
 }

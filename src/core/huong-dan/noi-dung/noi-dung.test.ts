@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { ALL_FORMULAS, findFormulaModule } from '../../formulas';
+import { isLaterRepeatSlot } from '../../registry/repeat';
 import type { FormulaSpec } from '../../registry/types';
 import { choTrongCua, dienCau, laKieuChoTrong, type ThongSoO } from './cho-trong';
 import { BAI_RIENG } from './items';
@@ -29,7 +30,7 @@ function thongSoTu(spec: FormulaSpec): Record<string, ThongSoO> {
  * Đợt `guide-111.json` đổi trọng tâm của file này. Trước đó phần nặng nhất là gác phép tách chuỗi
  * " · " — hai ca kiểm chỉ tồn tại để đỡ cho một phép tách ở tầng hiện hình. Giờ chữ ô nhập đã có
  * KHOÁ, nên hai ca ấy biến mất và chỗ của chúng là một ca mạnh hơn hẳn: khoá trong kho phải là
- * `VariableSpec.key` thật, và phải phủ đủ cả 269 ô. Đó là cửa gác duy nhất bắt được một ô mới thêm
+ * `VariableSpec.key` thật, và phải phủ đủ mọi ô bài kể (263 trên 269 ô của Registry). Đó là cửa gác duy nhất bắt được một ô mới thêm
  * vào `spec.variables` mà chưa có câu, hoặc một ô bị đổi tên khoá.
  */
 
@@ -38,15 +39,22 @@ const MUC = Object.entries(BAI_RIENG);
 /** Ba dòng viết cho CẢ BÀI. Chữ của từng ô nhập nằm ở `oNhap`, gác riêng bên dưới. */
 const BA_DONG = ['deLamGi', 'docKetQua', 'deSai'] as const;
 
-/** Mọi ô nhập của mọi công thức, đã ghép với mục tương ứng trong kho. */
-const MOI_O = ALL_FORMULAS.flatMap((spec) =>
+/** Mọi ô nhập khai trong `spec.variables` của mọi công thức — phía REGISTRY, đã ghép với kho. */
+const MOI_O_REGISTRY = ALL_FORMULAS.flatMap((spec) =>
   spec.variables.map((bien) => ({
     id: spec.id,
     key: bien.key,
     bien,
     o: BAI_RIENG[spec.id]?.oNhap[bien.key],
+    sauNhom1: isLaterRepeatSlot(spec, bien.key),
   })),
 );
+
+/**
+ * Ô mà bài hướng dẫn KỂ, tức mọi ô trừ ô của nhóm lặp thứ hai trở đi (`isLaterRepeatSlot`, 14/10/2026:
+ * chủ dự án bỏ câu của đợt 2, 3 và kỳ 2, 3). Mọi ca kiểm về chữ trong kho đếm trên danh sách này.
+ */
+const MOI_O = MOI_O_REGISTRY.filter(({ sauNhom1 }) => !sauNhom1);
 
 describe('kho phủ đúng thư viện, không thiếu không thừa', () => {
   it('đủ 111 mục, mỗi id một mục', () => {
@@ -90,6 +98,8 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
       const oThat = spec.variables.map((bien) => bien.key);
       for (const khoa of Object.keys(bai.oNhap)) {
         expect(oThat, `${id}: khoá lạ "${khoa}", không có ô nào tên thế`).toContain(khoa);
+        // Ô nhóm lặp thứ hai trở đi không vào bài, nên câu của nó không bao giờ hiện ra.
+        expect(isLaterRepeatSlot(spec, khoa), `${id}.${khoa}: câu không bao giờ hiện`).toBe(false);
       }
     }
     for (const { id, key, o } of MOI_O) {
@@ -107,11 +117,26 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
    * Lên lại 269 ngày 13/10/2026: `gia-von-trung-binh-dca` thêm biến đếm `lots` ("Số đợt mua") khi
    * số đợt thành thứ người dùng thêm bớt được. Ô của đợt thứ tư trở đi KHÔNG nằm trong con số này:
    * chúng sinh từ mẫu `spec.repeat`, không khai trong `spec.variables`.
+   *
+   * Kho xuống 263 ngày 14/10/2026: bỏ câu của sáu ô nhóm lặp thứ hai, thứ ba (đợt 2, 3 của
+   * `gia-von-trung-binh-dca`, kỳ 2, 3 của `loi-suat-trung-binh-hinh-hoc`). Registry vẫn 269 ô.
    */
-  it('phủ đúng 269 ô nhập của cả thư viện', () => {
-    expect(MOI_O).toHaveLength(269);
+  it('Registry có 269 ô nhập; bài kể 263 ô, và kho có đúng 263 câu', () => {
+    expect(MOI_O_REGISTRY).toHaveLength(269);
+    const sauNhom1 = MOI_O_REGISTRY.filter((o) => o.sauNhom1).map(({ id, key }) => `${id}.${key}`);
+    expect(sauNhom1.sort()).toEqual(
+      [
+        'gia-von-trung-binh-dca.amount2',
+        'gia-von-trung-binh-dca.amount3',
+        'gia-von-trung-binh-dca.price2',
+        'gia-von-trung-binh-dca.price3',
+        'loi-suat-trung-binh-hinh-hoc.r2',
+        'loi-suat-trung-binh-hinh-hoc.r3',
+      ].sort(),
+    );
+    expect(MOI_O).toHaveLength(263);
     const soMucTrongKho = MUC.reduce((n, [, bai]) => n + Object.keys(bai.oNhap).length, 0);
-    expect(soMucTrongKho).toBe(269);
+    expect(soMucTrongKho).toBe(263);
   });
 
   it('mọi ô đều có câu "lấy số ở đâu", không câu nào rỗng', () => {
@@ -121,12 +146,15 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
   });
 
   /*
-   * 163/269 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
+   * 159/263 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
    * lưu ý cho một ô là việc tốt. Ghim để thấy nó đi lên, và để không ai xoá bớt mà không ai biết.
+   *
+   * Từ 163 xuống 159 ngày 14/10/2026: bốn trong sáu ô nhóm lặp bị bỏ câu có lưu ý (giá đợt 2, 3 và
+   * kỳ 2, 3).
    */
-  it('163 ô có thêm câu lưu ý', () => {
+  it('159 ô có thêm câu lưu ý', () => {
     const coLuuY = MOI_O.filter(({ o }) => (o?.luuY?.vi ?? '').trim() !== '');
-    expect(coLuuY).toHaveLength(163);
+    expect(coLuuY).toHaveLength(159);
   });
 
   /*
@@ -194,7 +222,7 @@ describe('giữ đúng khuôn của tài liệu', () => {
    * KHÔNG gạch ngang dài, cùng luật đã chốt cho bảng ký hiệu và dòng biểu thức: chủ dự án đọc "—"
    * cạnh con số thành dấu trừ, và đã nhắc hai lần. Bài hướng dẫn đầy số nên luật ấy áp ở đây nữa.
    *
-   * Ba dòng cả bài và cả 269 câu `layODau` đều sạch — đo được, 0 chỗ. Riêng `luuY` còn 20 chỗ, và
+   * Ba dòng cả bài và cả 263 câu `layODau` đều sạch — đo được, 0 chỗ. Riêng `luuY` còn 20 chỗ, và
    * chúng được GHIM chứ không cấm: xem ca kiểm cuối file.
    */
   it('không dòng nào mang gạch ngang dài', () => {
@@ -244,9 +272,9 @@ describe('nợ bản tiếng Anh, đếm thành tiếng', () => {
     expect(chuaDich).toHaveLength(111);
   });
 
-  it('269 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
+  it('263 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
     const chuaDich = MOI_O.filter(({ o }) => (o?.layODau.en ?? '').trim() === '');
-    expect(chuaDich).toHaveLength(269);
+    expect(chuaDich).toHaveLength(263);
   });
 });
 
@@ -371,7 +399,10 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
    * vẫn trống như cũ. Ghim con số để đừng ai tưởng đợt này đã đóng nó.
    */
   it('20 ô vẫn chưa có mô tả trong Registry — việc còn lại, kho này không lấp', () => {
-    const thieuMoTa = MOI_O.filter(({ bien }) => (bien.description?.vi ?? '').trim() === '');
+    // Nợ của REGISTRY (bảng biến in mọi ô, cả đợt 2, 3), nên đếm trên mọi ô chứ không trên ô của bài.
+    const thieuMoTa = MOI_O_REGISTRY.filter(
+      ({ bien }) => (bien.description?.vi ?? '').trim() === '',
+    );
     expect(thieuMoTa).toHaveLength(20);
   });
 });

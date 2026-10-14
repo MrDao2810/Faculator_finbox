@@ -9,6 +9,7 @@ import {
   addRepeatGroup,
   clampRepeatCount,
   fillRepeat,
+  isLaterRepeatSlot,
   removeRepeatGroup,
   repeatControls,
   repeatCount,
@@ -195,6 +196,20 @@ describe('số nhóm đọc từ bộ số liệu', () => {
     expect(repeatSlotOf(repeat, 'amount')).toBeNull();
     expect(repeatSlotOf(repeat, 'amount04')).toBeNull();
     expect(repeatSlotOf(repeat, 'amount0')).toBeNull();
+  });
+
+  /* Bài hướng dẫn chỉ kể nhóm 1 (14/10/2026) — ô của nhóm sau nó là ô hàm này nhận ra. */
+  it('nhận ra ô của nhóm thứ hai trở đi — kể cả trên spec đã dựng lại', () => {
+    expect(isLaterRepeatSlot(DCA.spec, 'amount2')).toBe(true);
+    expect(isLaterRepeatSlot(DCA.spec, 'price3')).toBe(true);
+    expect(isLaterRepeatSlot(GEO.spec, 'r2')).toBe(true);
+    for (const khoa of ['amount1', 'price1', 'lots']) {
+      expect(isLaterRepeatSlot(DCA.spec, khoa), khoa).toBe(false);
+    }
+    expect(isLaterRepeatSlot(GEO.spec, 'r1')).toBe(false);
+    expect(isLaterRepeatSlot(GEO.spec, 'periods')).toBe(false);
+    expect(isLaterRepeatSlot(module('pe').spec, 'price')).toBe(false);
+    expect(isLaterRepeatSlot(resolveRepeatSpec(DCA.spec, { lots: 5 }), 'amount5')).toBe(true);
   });
 
   it('điền số thứ tự vào cả hai tiếng', () => {

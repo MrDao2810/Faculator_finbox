@@ -266,13 +266,19 @@
     justify-content: center;
   }
 
+  /*
+   * 34px và đơn vị 12px — hạ hai lượt cùng ngày 14/10/2026, mỗi lượt cùng với số trong ô nhập bên phải.
+   * Chủ dự án khoanh thẻ gộp: _"size text đang quá to và chiếm không gian, giảm xuống thêm 2px"_
+   * (40 → 38px, đơn vị 18 → 16px), rồi _"giảm tiếp 4px nữa"_ (38 → 34px, đơn vị 16 → 12px). Không có bậc
+   * 34px trong thang nên viết bằng `calc`; đơn vị rơi đúng vào `--text-xs`.
+   */
   .block.flat .value {
-    font-size: var(--text-3xl);
+    font-size: calc(var(--text-3xl) - 6px);
     color: var(--color-ink);
   }
 
   .block.flat .unit {
-    font-size: var(--text-md);
+    font-size: var(--text-xs);
     color: var(--color-muted);
   }
 

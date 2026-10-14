@@ -5296,6 +5296,7 @@ window.__themeLog = [];
       hang,
       lechGiua: c && l ? Math.round((c.top + c.height / 2 - (l.top + l.height / 2)) * 10) / 10 : null,
       nut: n ? { top: Math.round(n.top), left: Math.round(n.left), right: Math.round(n.right) } : null,
+      luoiPhai: l ? Math.round(l.right) : null,
       rongMan: window.innerWidth,
       tranNgang: document.documentElement.scrollWidth > window.innerWidth + 1,
       ketQua: document.querySelector('[data-testid="result-text"]')?.textContent ?? null,
@@ -5329,15 +5330,21 @@ window.__themeLog = [];
     const xuongDan = hang.every((h, i) => i === 0 || h.top > (hang[i - 1]?.day ?? 0) - 1);
     const trongMan = hang.every((h) => h.phai <= nhom.rongMan);
     const cuoi = hang[hang.length - 1];
+    /*
+     * Hàng nút căn PHẢI, mọi khổ (chủ dự án, 14/10/2026: "chuyển chỗ khoanh đỏ sang bên phải … màn
+     * web lẫn mobile"), và "+ Thêm" đứng ở mép phải — thẳng mép phải lưới ô.
+     */
     const nutDuoiOCuoi =
       nhom.nut !== null &&
       cuoi !== undefined &&
       nhom.nut.top >= cuoi.day - 1 &&
       nhom.nut.left >= 0 &&
-      nhom.nut.right <= nhom.rongMan;
+      nhom.nut.right <= nhom.rongMan &&
+      nhom.luoiPhai !== null &&
+      Math.abs(nhom.nut.right - nhom.luoiPhai) <= 1;
 
     check(
-      `${String(kho.width)} · giá vốn DCA thêm hai đợt: mỗi đợt một hàng (tiền trái, giá phải), nút Thêm ngay dưới đợt cuối, trang không tràn ngang, kết quả chưa đổi`,
+      `${String(kho.width)} · giá vốn DCA thêm hai đợt: mỗi đợt một hàng (tiền trái, giá phải), nút Thêm ngay dưới đợt cuối và thẳng mép phải lưới ô, trang không tràn ngang, kết quả chưa đổi`,
       nhom.loi === undefined &&
         hang.length === 5 &&
         cungHang &&
@@ -5347,7 +5354,7 @@ window.__themeLog = [];
         nhom.tranNgang === false &&
         nhom.ketQua === ketQuaTruoc,
       nhom.loi ??
-        `lệch trong hàng ${hang.map((h) => String(h.lech)).join('/')}px · đỉnh các hàng ${hang.map((h) => String(h.top)).join('/')} · ô rộng ${String(cuoi?.rongTien)}/${String(cuoi?.rongGia)}px · nút ở ${String(nhom.nut?.top)} (đợt cuối kết ở ${String(cuoi?.day)}) · tràn ngang: ${String(nhom.tranNgang)} · kết quả ${String(ketQuaTruoc)} → ${String(nhom.ketQua)}`,
+        `lệch trong hàng ${hang.map((h) => String(h.lech)).join('/')}px · đỉnh các hàng ${hang.map((h) => String(h.top)).join('/')} · ô rộng ${String(cuoi?.rongTien)}/${String(cuoi?.rongGia)}px · nút ở ${String(nhom.nut?.top)} (đợt cuối kết ở ${String(cuoi?.day)}), mép phải ${String(nhom.nut?.right)} / lưới ${String(nhom.luoiPhai)} · tràn ngang: ${String(nhom.tranNgang)} · kết quả ${String(ketQuaTruoc)} → ${String(nhom.ketQua)}`,
     );
 
     /*

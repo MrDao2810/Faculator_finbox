@@ -1083,7 +1083,14 @@ The declaration is `FormulaSpec.repeat` (`RepeatGroup` in `registry/types.ts`); 
   It therefore travels inside `inputs` through every store that already exists (draft, saved
   calculation, `?so=` link) with none of them knowing about repeat groups, and `calc` reads it with
   `v()`. The screen builds **no field** for it: the two buttons at the end of the Số liệu block
-  ("+ Thêm đợt mua", "Bỏ đợt 4") are its control. It still has a row in the Bảng biến and in exports.
+  ("Bỏ đợt 4", "+ Thêm đợt mua") are its control. It still has a row in the Bảng biến and in exports.
+  **The button row is right-aligned at every width, Bỏ first and Thêm at the right edge** (owner,
+  14/10/2026: _"chuyển chỗ khoanh đỏ sang bên phải để gọn hơn … màn web lẫn mobile"_). The order was
+  Thêm then Bỏ until then, and keeping it while right-aligning would make Thêm drift: from the minimum
+  count, clicking Thêm makes Bỏ appear at the right edge, pushing Thêm left and putting Bỏ under the
+  pointer, so a second click deletes the round just added ("Bỏ đợt 9" → "Bỏ đợt 10" nudges it too).
+  With Thêm at the edge it never moves (measured at 360, 1024, 1440); DOM order still equals screen
+  order.
   `sweepCandidates()` excludes it from the chart axes: sweeping it would demand fields of groups that
   do not exist. `periods` kept its key and meaning on purpose, so links and saved calculations
   written by the old button group (`periods` 2 or 3) still open on the same number.
@@ -1117,7 +1124,7 @@ The declaration is `FormulaSpec.repeat` (`RepeatGroup` in `registry/types.ts`); 
   `FormulaDetail.module.css`: it has to beat `.fields.tileGrid`, same specificity, so only file
   order decides (the `.panelCenter` trap again). A one-field group (periods) does not take the
   class. Three `check:chrome` assertions (360, 1024, 1440) measure row alignment, the button under
-  the last round, no sideways overflow, and an unchanged result.
+  the last round and flush with the grid's right edge, no sideways overflow, and an unchanged result.
 - **The draft store's key cap went from 24 to 40.** Twelve rounds are 24 fields plus the counter, 25
   keys; at 24 the last price was dropped on write and a reload inside the visit reported a field
   the user had typed as missing.
@@ -1132,10 +1139,22 @@ The declaration is `FormulaSpec.repeat` (`RepeatGroup` in `registry/types.ts`); 
   a direction. A paragraph that promises one direction is tried on a fourth group with real numbers.
   The full guide page does not list these blocks; it describes the screen as it opens.
 
-Three texts here were written with the code and are NOT from the owner's `guide-111.json`: the
-"lấy số ở đâu" sentence of `lots`, and the reworded `periods` / `r3` sentences (the old ones described
-the removed button group). Each carries a comment at the site; they need the owner's read like any
-unreviewed content. Cost, measured against the same tree without this package: detail pages 433,1 →
+**The usage guide describes group 1 only** (14/10/2026). The owner photographed the "?" popover of the
+Số liệu block on the DCA formula, with "Tiền mua đợt 2 · Giá mua đợt 2 · Tiền mua đợt 3" and their notes,
+and said _"xóa mấy kiểu giải thích tôi đưa như này đi"_; asked which ones, they chose rounds 2–3 and
+periods 2–3 of both repeat formulas. Those six texts repeated round 1's, and "để 0 nếu chưa có đợt này"
+had been stale since the Bỏ đợt button. `isLaterRepeatSlot()` in `repeat.ts` is the rule: `bai.ts` skips
+such fields, so the popover and the full guide page list the counter plus group 1, and
+`noi-dung.test.ts` fails if the store carries text for one (it would never show). The guide is built from
+`spec.variables`, i.e. the three declared groups, so it could never list the groups actually on screen
+anyway. Not touched: the fields' `description` ("Nhập 0 nếu không có đợt này.") that the Bảng biến
+prints, and the "Đọc biểu đồ" paragraphs of the round-2 axes.
+
+One text here was written with the code and is NOT from the owner's `guide-111.json`: the reworded
+`periods` sentence (the old one described the removed button group; `r3`'s reworded sentence went with
+the cut above). It carries a comment at the site and needs the owner's read like any unreviewed
+content. The "lấy số ở đâu" sentence of `lots` was in the same state until the owner rewrote it on
+14/10/2026: "Đếm số đợt bạn đã mua; có thể thêm tiền mua và giá mua của đợt mới." Cost, measured against the same tree without this package: detail pages 433,1 →
 435,5 kB First Load JS, `/danh-muc/` 189,1 → 189,2 kB. The size gate was already red before it.
 
 ## Chart kinds
@@ -1466,6 +1485,14 @@ section's box, which spans the whole grid row in both states. Two assertions mea
 declarations. Swept over all 64 merged formulas at 1440 and 1280: 0px off on both axes. When the
 left side is taller than the tiles (the WF-15 error card), it grows the row and its top lines up with
 the top of the tiles.
+
+**The merged card's figures were shrunk twice on 14/10/2026** (owner, circling the DCA card: _"size text
+đang quá to và chiếm không gian, giảm xuống thêm 2px"_, then _"giảm tiếp 4px nữa"_): tile values 26 → 20px
+(`--text-lg`, in both `Input.module.css` `.compact .input` and `SliderInput.module.css` `.compact .valueBox`,
+which sit side by side), the result figure 40 → 34px (`calc(var(--text-3xl) - 6px)`, `.block.flat .value`;
+the scale has no 34 step) and its unit 18 → 12px (`--text-xs`). Labels (12px) and the compact `Select`
+(18px words, not figures) did not change, nor did anything below 1280px. Measured: a tile 79 → 71px, the
+DCA card 375 → 351px.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`

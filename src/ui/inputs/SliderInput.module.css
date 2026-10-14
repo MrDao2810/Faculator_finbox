@@ -200,7 +200,8 @@
    */
   .compact .valueBox {
     align-self: stretch;
-    font-size: var(--text-xl);
+    /* Bằng số của ô nhập thường cạnh nó — 20px từ 14/10/2026, xem `.compact .input` ở `Input.module.css`. */
+    font-size: var(--text-lg);
     color: var(--color-ink);
   }
 

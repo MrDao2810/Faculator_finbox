@@ -12,6 +12,7 @@
 import { runFormula } from '../calc/run';
 import type { CalcContext, FormulaModule } from '../calc/types';
 import { FORMULA_SUMMARIES } from '../formulas/summaries.generated';
+import { isLaterRepeatSlot } from '../registry/repeat';
 import type { FormulaSpec } from '../registry/types';
 import type { WarningCode } from '../types';
 import { BIEU_DO_RIENG, keHoachBieuDo, mucBieuDo } from './bieu-do';
@@ -145,6 +146,8 @@ function congThucLienQuan(formula: FormulaModule): ReadonlyArray<string> {
  *   · một ô mới thêm vào `spec.variables` mà kho chưa có câu thì nó chỉ VẮNG khỏi bài, không làm
  *     bài hỏng — còn `noi-dung.test.ts` đỏ lên để nhắc viết. Chiều ngược lại (kho có khoá mà
  *     `spec` không có ô) thì ở đây im lặng bỏ qua, nên cửa gác ấy là chỗ duy nhất bắt được.
+ *
+ * Một ngoại lệ có chủ ý: ô của nhóm lặp thứ hai trở đi không vào bài (`isLaterRepeatSlot`, 14/10/2026).
  */
 function baiRiengCua(spec: FormulaSpec): BaiRiengDaChuan | undefined {
   const muc = BAI_RIENG[spec.id];
@@ -152,6 +155,8 @@ function baiRiengCua(spec: FormulaSpec): BaiRiengDaChuan | undefined {
 
   const oNhap: ONhapHuongDan[] = [];
   for (const bien of spec.variables) {
+    // Nhóm lặp chỉ kể nhóm 1 — xem `isLaterRepeatSlot`.
+    if (isLaterRepeatSlot(spec, bien.key)) continue;
     const o = muc.oNhap[bien.key];
     if (o === undefined) continue;
     oNhap.push({

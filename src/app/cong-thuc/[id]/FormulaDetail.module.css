@@ -1515,16 +1515,20 @@ button.iconButton::after {
 }
 
 /*
- * Hàng hai nút "+ Thêm đợt mua" / "Bỏ đợt 4", ngay dưới ô cuối cùng.
+ * Hàng hai nút "Bỏ đợt 4" / "+ Thêm đợt mua", ngay dưới ô cuối cùng, căn PHẢI ở mọi khổ (chủ dự án,
+ * 14/10/2026: "chuyển chỗ khoanh đỏ sang bên phải để gọn hơn … màn web lẫn mobile"). Vì sao Thêm
+ * đứng ở mép phải: xem chú thích tại chỗ trong `FormulaDetail.tsx`.
  *
  * `margin-top` âm bù lại `padding-bottom` của hàng ô cuối (chỗ thở giữa hai hàng ô): không bù thì
  * hai nút đứng cách ô cuối xa hơn khoảng cách giữa hai hàng ô, và đọc ra như thuộc về khối bên
- * dưới. `flex-wrap` cho khổ 360px, nơi nhãn tiếng Anh ("Add a purchase round") dài hơn nửa hàng.
+ * dưới. `flex-wrap` cho khổ 360px, nơi nhãn tiếng Anh ("Add a purchase round") dài hơn nửa hàng;
+ * hàng xuống dòng cũng căn phải.
  */
 .repeatActions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-2);
   margin-top: calc(-1 * var(--space-1));
 }

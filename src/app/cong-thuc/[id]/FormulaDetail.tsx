@@ -3121,20 +3121,16 @@ export function FormulaDetail({
             có và khoá lại khi chạm trần, vì một nút biến mất đúng lúc người dùng định bấm nó thì
             trông như hỏng. Cả hai khoá khi đang nạp mã mà ô không thuộc phần mã cấp số, cùng luật
             với mọi ô nhập (`lockedNoteFor`).
+
+            Hàng nút căn PHẢI, mọi khổ (chủ dự án, 14/10/2026: "chuyển chỗ khoanh đỏ sang bên phải để
+            gọn hơn … màn web lẫn mobile"), và vì thế Bỏ đứng TRƯỚC, Thêm ở mép phải. Giữ thứ tự cũ
+            (Thêm rồi Bỏ) mà căn phải thì nút Thêm trôi: từ mức tối thiểu bấm Thêm là nút Bỏ hiện ra ở
+            mép phải, đẩy Thêm sang trái, và Bỏ nằm đúng dưới con trỏ — bấm lần nữa là xoá mất đợt
+            vừa thêm. "Bỏ đợt 9" thành "Bỏ đợt 10" cũng xô Thêm đi một chữ số. Thêm ở mép phải thì
+            đứng yên; thứ tự DOM vẫn bằng thứ tự trên màn.
           */}
               {repeat !== null && repeatCountKey !== undefined && (
                 <div className={styles.repeatActions}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={!repeat.canAdd || lockedNoteFor(repeatCountKey) !== undefined}
-                    onClick={() => {
-                      changeRepeat('them');
-                    }}
-                  >
-                    <span aria-hidden="true">+ </span>
-                    {pick(repeat.addLabel)}
-                  </Button>
                   {repeat.canRemove && (
                     <Button
                       variant="ghost"
@@ -3147,6 +3143,17 @@ export function FormulaDetail({
                       {pick(repeat.removeLabel)}
                     </Button>
                   )}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={!repeat.canAdd || lockedNoteFor(repeatCountKey) !== undefined}
+                    onClick={() => {
+                      changeRepeat('them');
+                    }}
+                  >
+                    <span aria-hidden="true">+ </span>
+                    {pick(repeat.addLabel)}
+                  </Button>
                 </div>
               )}
 

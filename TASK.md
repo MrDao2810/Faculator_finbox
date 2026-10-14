@@ -4,6 +4,104 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Hướng dẫn ô nhập: sửa câu của ô "Số đợt mua" (14/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án đưa câu mới cho `gia-von-trung-binh-dca.lots.layODau`: "Đếm số đợt bạn đã mua; bấm Thêm đợt mua ở cuối khối
+Số liệu để có thêm ô." → "Đếm số đợt bạn đã mua; có thể thêm tiền mua và giá mua mới.", rồi sửa lần nữa cùng ngày
+→ "Đếm số đợt bạn đã mua; có thể thêm tiền mua và giá mua của đợt mới."
+
+- `src/core/huong-dan/noi-dung/items.ts`: thay câu, chú thích ghi câu này là chữ chủ dự án đưa.
+- `CLAUDE.md`: đoạn nhóm lặp không còn kể câu của `lots` là chữ chưa qua chủ dự án đọc.
+- Không ca kiểm nào ghim câu cũ; ca kho chữ (trần 90 ký tự, không gạch dài) xanh.
+
+---
+
+## Hướng dẫn ô nhập: bỏ câu của đợt 2, 3 và kỳ 2, 3 (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm, phép đo Chrome qua dev xong. Chờ chủ dự án xem.**
+
+### Chủ dự án giao gì
+
+Ảnh khung "?" của khối Số liệu ở `gia-von-trung-binh-dca` (Tiền mua đợt 2 · Giá mua đợt 2 · Tiền mua đợt 3 và câu
+dưới mỗi ô): _"xóa mấy kiểu giải thích tôi đưa như này đi"_. Hỏi lại phạm vi, chủ dự án chọn: đợt 2, 3 và kỳ 2, 3 ở
+hai công thức có nút Thêm/Bỏ; giữ đợt 1 và ô số đợt.
+
+### Đã làm
+
+| File                                   | Vì sao                                                                                                                                                                                                                           |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/registry/repeat.ts`          | Hàm mới `isLaterRepeatSlot(spec, key)`: ô thuộc nhóm lặp thứ hai trở đi. Một luật dùng chung cho chỗ dựng bài và các ca kiểm.                                                                                                    |
+| `src/core/huong-dan/bai.ts`            | Bài bỏ qua ô nhóm 2 trở đi, nên khung "?" và trang hướng dẫn đầy đủ chỉ kể ô đếm + nhóm 1. Bài dựng lúc build theo ba nhóm khai sẵn, vốn không kể được số nhóm đang có trên màn.                                                 |
+| `src/core/huong-dan/noi-dung/items.ts` | Xoá câu của `amount2`, `price2`, `amount3`, `price3` (DCA) và `r2`, `r3` (lợi suất hình học), ghi lý do tại chỗ.                                                                                                                 |
+| `noi-dung.test.ts`                     | Tách "mọi ô Registry" (269) khỏi "ô bài kể" (263); ghim đúng sáu ô bị bỏ; kho có câu cho ô nhóm 2 trở đi thì đỏ (câu ấy không bao giờ hiện); lưu ý 163 → 159; nợ tiếng Anh 269 → 263. Nợ mô tả Registry (20) vẫn đếm trên mọi ô. |
+| `huong-dan.test.ts`, `repeat.test.ts`  | Thứ tự ô trong bài so với `spec.variables` trừ nhóm sau; DCA ra `lots, amount1, price1`, lợi suất hình học ra `periods, r1`; ca riêng cho hàm mới (cả trên spec đã dựng 5 đợt).                                                  |
+| `CLAUDE.md`                            | Đoạn nhóm lặp: bài hướng dẫn chỉ kể nhóm 1.                                                                                                                                                                                      |
+
+### Kiểm chứng
+
+- Chrome thật qua dev, 1440, chuột thật bấm "?" của khối Số liệu: DCA còn "Số đợt mua · Tiền mua đợt 1 · Giá mua đợt
+  1"; lợi suất hình học còn "Số kỳ nhập liệu · Lợi suất kỳ 1". Ảnh đã xem.
+- Test hướng dẫn, Registry, GuideBody, GuideScreen: 468/468.
+
+### Còn để ngỏ
+
+- Không đụng: `description` "Nhập 0 nếu không có đợt này." của các ô đợt (Bảng biến cuối trang in câu này cho mọi
+  đợt), và hai đoạn "Đọc biểu đồ" của trục Tiền mua / Giá mua đợt 2. Cùng lời dặn cũ, cần chủ dự án quyết có bỏ không.
+
+---
+
+## Thẻ gộp màn chi tiết: chữ số hạ 2px (14/10/2026)
+
+**Trạng thái: CHƯA XONG — CSS và phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**
+
+Chủ dự án khoanh thẻ gộp của `gia-von-trung-binh-dca`: _"phần này trong công thức đang quá lớn, size text đang quá to và
+chiến không gian, giảm xuống thêm 2px"_.
+
+- Đo trước (1440, 1280 — thẻ gộp chỉ có từ 1280px): số trong ô 26px đậm, con số kết quả 40px đậm, đơn vị 18px, nhãn
+  12px.
+- `src/ui/primitives/Input.module.css` (`.compact .input`) và `src/ui/inputs/SliderInput.module.css`
+  (`.compact .valueBox`): `calc(var(--text-xl) - 2px)` = 24px. `src/ui/result/ResultBlock.module.css`
+  (`.block.flat .value`): `calc(var(--text-3xl) - 2px)` = 38px; đơn vị `--text-base` 16px. Thang chữ không có bậc 24 /
+  38px nên dùng `calc`, không thêm token.
+- Không đổi: nhãn ô 12px, ô chọn trong thẻ (18px, chở chữ không chở số), mọi thứ dưới 1280px.
+- `CLAUDE.md`: một đoạn sau mục căn giữa của thẻ gộp.
+- Kiểm chứng: Chrome qua dev — `gia-von-trung-binh-dca` và `pe` ở 1440 / 1280: ô 24px, kết quả 38px, đơn vị 16px; ô cao
+  79 → 76px, thẻ DCA 375 → 366px; 1024 và 390 không đổi. Ảnh 1440 đã xem. `src/ui` + `src/app/cong-thuc/[id]`: 1515 đạt.
+
+### Lượt hai: hạ tiếp 4px (14/10/2026)
+
+_"giảm tiếp 4px nữa"_ — cùng ba thứ của lượt một.
+
+- Số trong ô 24 → 20px (`--text-lg`, cả `Input` lẫn `SliderInput`); con số kết quả 38 → 34px
+  (`calc(var(--text-3xl) - 6px)`); đơn vị cạnh kết quả 16 → 12px (`--text-xs`).
+- Kiểm chứng: Chrome qua dev — DCA và `pe` ở 1440 / 1280 đúng các cỡ trên; ô cao 76 → 71px, thẻ DCA 366 → 351px; 1024 và
+  390 không đổi. Ảnh 1440 đã xem. `src/ui` + `src/app/cong-thuc/[id]`: 1515 đạt.
+- Để ý: đơn vị "₫" cạnh kết quả nay 12px, nhỏ hơn "₫" trong ô nhập (14px) — làm đúng con số chủ dự án nói; nếu thấy lệch
+  thì nâng riêng nó về 14px.
+
+---
+
+## Nhóm ô lặp: hàng nút "Thêm đợt mua / Bỏ đợt" căn phải (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code và phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**
+
+Chủ dự án khoanh hai nút dưới ô "Tiền mua đợt 3 / Giá mua đợt 3" và vẽ mũi tên sang phải: _"chuyển chỗ khoanh đỏ sang
+bên phải để gọn hơn"_, rồi _"màn web lẫn mobile"_.
+
+- `FormulaDetail.module.css`: `.repeatActions` thêm `justify-content: flex-end` (mọi khổ).
+- `FormulaDetail.tsx`: đổi thứ tự hai nút thành Bỏ rồi Thêm, để "+ Thêm" đứng ở mép phải và KHÔNG trôi. Giữ thứ tự cũ mà
+  căn phải thì từ mức tối thiểu bấm Thêm làm nút Bỏ hiện ra ở mép phải, đẩy Thêm sang trái — bấm lần nữa trúng Bỏ, xoá
+  mất đợt vừa thêm; "Bỏ đợt 9" → "Bỏ đợt 10" cũng xô Thêm đi. Thứ tự DOM vẫn bằng thứ tự trên màn.
+- `scripts/chrome-check.mjs`: phép đo nhóm ô lặp (360 / 1024 / 1440) thêm điều kiện nút Thêm thẳng mép phải lưới ô.
+- `CLAUDE.md`: mục "Repeat groups".
+- Kiểm chứng: Chrome qua dev ở 360 / 1024 / 1440 trên `gia-von-trung-binh-dca` — nút Thêm thẳng mép phải lưới (344 /
+  961 / 1340), đứng yên khi bỏ về một đợt rồi thêm lại; ảnh 360 và 1440 đã xem. Biểu thức đo của `check:chrome` chạy thử
+  nguyên văn: đạt. Prettier, eslint, typecheck sạch; `src/app/cong-thuc/[id]` + `repeat.test.ts`: 306 đạt.
+
+---
+
 ## Dán dữ liệu: bảng chọn cột thành một hàng ngang ở khổ PC (14/10/2026)
 
 **Trạng thái: CHƯA XONG — CSS và phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**

@@ -1052,7 +1052,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       vi: 'Tính mức lãi trung bình đúng cho nhiều kỳ liên tiếp, thay vì trung bình cộng sai lệch.',
     },
     oNhap: {
-      // Hai câu của ô này và câu của `r3` sửa 13/10/2026: nhóm nút "2 kỳ / 3 kỳ" đã thành hai nút
+      // Hai câu của ô này sửa 13/10/2026 (câu của `r3` cũng sửa hôm ấy, rồi bỏ 14/10): nhóm nút "2 kỳ / 3 kỳ" đã thành hai nút
       // Thêm / Bỏ, nên bản trong `guide-111.json` ("2 hoặc 3 kỳ…") nói về một điều khiển không còn.
       periods: {
         layODau: { vi: 'Đếm số kỳ bạn có số liệu.' },
@@ -1064,14 +1064,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: { vi: 'Lãi của kỳ đầu tiên, tính bằng phần trăm.' },
         luuY: { vi: 'Kỳ lỗ nhập số âm.' },
       },
-      r2: {
-        layODau: { vi: 'Lãi của kỳ thứ hai.' },
-        luuY: { vi: 'Kỳ lỗ nhập số âm.' },
-      },
-      r3: {
-        layODau: { vi: 'Lãi của kỳ thứ ba. Ẩn khi chỉ còn 2 kỳ.' },
-        luuY: { vi: 'Kỳ lỗ nhập số âm.' },
-      },
+      // Kỳ 2 và kỳ 3 không còn câu riêng (14/10/2026), cùng lượt với đợt 2, 3 của
+      // `gia-von-trung-binh-dca`: lặp lại câu của kỳ 1. Bài chỉ kể nhóm 1 — xem `isLaterRepeatSlot`.
     },
     docKetQua: {
       vi: 'Luôn thấp hơn trung bình cộng khi lợi suất có biến động; biến động càng mạnh khoảng cách càng lớn.',
@@ -2515,10 +2509,11 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       vi: 'Biết giá vốn thực sau khi mua rải nhiều đợt với giá khác nhau.',
     },
     oNhap: {
-      // Viết thêm 13/10/2026 cùng nhóm ô lặp; không có trong `guide-111.json` của chủ dự án.
+      // Viết thêm 13/10/2026 cùng nhóm ô lặp; không có trong `guide-111.json` của chủ dự án. Câu hiện
+      // nay là chữ chủ dự án đưa ngày 14/10/2026.
       lots: {
         layODau: {
-          vi: 'Đếm số đợt bạn đã mua; bấm Thêm đợt mua ở cuối khối Số liệu để có thêm ô.',
+          vi: 'Đếm số đợt bạn đã mua; có thể thêm tiền mua và giá mua của đợt mới.',
         },
       },
       amount1: {
@@ -2527,20 +2522,9 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       price1: {
         layODau: { vi: 'Giá khớp của đợt mua đầu tiên.' },
       },
-      amount2: {
-        layODau: { vi: 'Số tiền chi ở đợt thứ hai. Để 0 nếu chưa có đợt này.' },
-      },
-      price2: {
-        layODau: { vi: 'Giá khớp của đợt mua thứ hai.' },
-        luuY: { vi: 'Nếu không có đợt này thì để tiền mua bằng 0.' },
-      },
-      amount3: {
-        layODau: { vi: 'Số tiền chi ở đợt thứ ba. Để 0 nếu chưa có đợt này.' },
-      },
-      price3: {
-        layODau: { vi: 'Giá khớp của đợt mua thứ ba.' },
-        luuY: { vi: 'Nếu không có đợt này thì để tiền mua bằng 0.' },
-      },
+      // Đợt 2 và đợt 3 không còn câu riêng (14/10/2026). Chủ dự án chụp chúng trong khung "?": _"xóa
+      // mấy kiểu giải thích tôi đưa như này đi"_. Chúng lặp lại câu của đợt 1, và "để 0 nếu chưa có
+      // đợt này" đã cũ từ khi có nút Bỏ đợt. Bài chỉ kể nhóm 1 — xem `isLaterRepeatSlot`.
     },
     docKetQua: {
       vi: 'So giá vốn trung bình với thị giá: thấp hơn là đang lãi, cao hơn là đang lỗ.',

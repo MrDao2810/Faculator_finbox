@@ -4,6 +4,7 @@ import type { CalcContext } from '../calc/types';
 import { FORMULA_MODULES, findFormulaModule } from '../formulas';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
+import { isLaterRepeatSlot } from '../registry/repeat';
 import { baiHuongDan } from './bai';
 import { THU_TU_MUC } from './types';
 
@@ -234,14 +235,28 @@ describe('chữ riêng của công thức đi vào bài, đủ và đúng ô', (
    * `bai.ts` duyệt `spec.variables` rồi mới tra kho, chính là để thứ tự này không cần ai nhớ giữ;
    * ca này gác điều ấy không bị đảo ngược.
    */
-  it('ô nhập trong bài đúng thứ tự và đủ số ô của `spec.variables`', () => {
+  /*
+   * Trừ ô của nhóm lặp thứ hai trở đi (`isLaterRepeatSlot`, 14/10/2026): chủ dự án bỏ câu của đợt 2, 3
+   * và kỳ 2, 3, nên bài chỉ kể nhóm 1. Biến đếm (`lots`, `periods`) vẫn vào bài.
+   */
+  it('ô nhập trong bài đúng thứ tự và đủ số ô của `spec.variables`, trừ nhóm lặp sau nhóm 1', () => {
     for (const formula of FORMULA_MODULES) {
       const bai = baiHuongDan(formula, CTX);
       expect(
         bai.rieng?.oNhap.map((o) => o.key),
         formula.spec.id,
-      ).toEqual(formula.spec.variables.map((bien) => bien.key));
+      ).toEqual(
+        formula.spec.variables
+          .filter((bien) => !isLaterRepeatSlot(formula.spec, bien.key))
+          .map((bien) => bien.key),
+      );
     }
+    const oTrongBai = (id: string) => {
+      const formula = findFormulaModule(id);
+      return formula === undefined ? [] : baiHuongDan(formula, CTX).rieng?.oNhap.map((o) => o.key);
+    };
+    expect(oTrongBai('gia-von-trung-binh-dca')).toEqual(['lots', 'amount1', 'price1']);
+    expect(oTrongBai('loi-suat-trung-binh-hinh-hoc')).toEqual(['periods', 'r1']);
   });
 
   /*
@@ -251,8 +266,9 @@ describe('chữ riêng của công thức đi vào bài, đủ và đúng ô', (
   it('nhãn ô và cờ Nâng cao là bản thật của Registry, không phải bản sao', () => {
     for (const formula of FORMULA_MODULES) {
       const bai = baiHuongDan(formula, CTX);
-      for (const [i, bien] of formula.spec.variables.entries()) {
-        const o = bai.rieng?.oNhap[i];
+      for (const bien of formula.spec.variables) {
+        if (isLaterRepeatSlot(formula.spec, bien.key)) continue;
+        const o = bai.rieng?.oNhap.find((item) => item.key === bien.key);
         expect(o?.nhan, `${formula.spec.id}.${bien.key}`).toEqual(bien.label);
         expect(o?.nangCao, `${formula.spec.id}.${bien.key}`).toBe(bien.level === 'advanced');
       }

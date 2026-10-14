@@ -78,6 +78,22 @@ function gocCua(spec: FormulaSpec): FormulaSpec {
   return GOC.get(spec) ?? spec;
 }
 
+/**
+ * Ô thuộc nhóm lặp thứ HAI trở đi (`amount2`, `price3`, `r2`…). `false` cho ô của nhóm 1, cho biến
+ * đếm, và cho mọi ô của công thức không khai nhóm lặp.
+ *
+ * Bài hướng dẫn chỉ kể nhóm 1 (14/10/2026). Chủ dự án chụp các mục "Tiền mua đợt 2 · Giá mua đợt 2 ·
+ * Tiền mua đợt 3" trong khung "?" và bảo xoá: chúng lặp lại câu của đợt 1, và lời dặn "để 0 nếu chưa có
+ * đợt này" đã cũ từ khi có nút Bỏ đợt. Bài lại dựng lúc build theo `spec.variables`, tức ba nhóm khai
+ * sẵn, nên nó đằng nào cũng không kể đúng được số nhóm đang có trên màn.
+ */
+export function isLaterRepeatSlot(spec: FormulaSpec, key: string): boolean {
+  const { repeat } = gocCua(spec);
+  if (repeat === undefined) return false;
+  const o = repeatSlotOf(repeat, key);
+  return o !== null && o.n > 1;
+}
+
 /** Số nhóm khai sẵn trong `variables` của spec gốc — số nhóm màn mở ra. */
 function soNhomKhaiSan(goc: FormulaSpec, repeat: RepeatGroup): number {
   let lon = 0;

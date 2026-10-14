@@ -298,10 +298,16 @@
     gap: 0;
   }
 
+  /*
+   * 20px (`--text-lg`), hạ hai lượt cùng ngày 14/10/2026. Chủ dự án khoanh thẻ gộp của DCA: _"size
+   * text đang quá to và chiếm không gian, giảm xuống thêm 2px"_ (26 → 24px), xem lại rồi _"giảm tiếp
+   * 4px nữa"_ (24 → 20px), tức trùng đúng một bậc có sẵn của thang. Ô thanh trượt
+   * (`SliderInput.module.css`, `.compact .valueBox`) đứng cạnh trong cùng thẻ và hạ đúng bằng chừng ấy.
+   */
   .compact .input {
     padding-right: var(--space-2);
 
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
     font-weight: var(--weight-bold);
   }
 

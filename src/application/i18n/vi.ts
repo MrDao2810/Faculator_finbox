@@ -1438,15 +1438,26 @@ export const vi = {
    * giờ là lưới ô, và những gì hai dòng kia phải nói bằng lời thì lưới tự nói bằng hình: tên
    * cột nằm ở đầu cột, hình dạng cần gõ nằm làm chữ mờ ngay trong ô sẽ gõ.
    */
-  'paste.title': 'Dán dữ liệu',
-  'paste.subtitle': 'Gõ vào lưới, hoặc dán từ Excel bằng Ctrl + V',
+  /*
+   * Tên sheet là "Bảng dữ liệu", không còn "Dán dữ liệu" (chủ dự án, 14/10/2026: _"đổi lại tên bảng này là
+   * Bảng dữ liệu chứ không phải là Dán dữ liệu"_). Trùng tên màn `/du-lieu/` (WF-05) là có chủ ý của chủ
+   * dự án: sheet là cùng một bảng giá, nhập ngay tại chỗ. Khoá vẫn tên `paste.*` để khỏi đổi cả họ khoá.
+   */
+  'paste.title': 'Bảng dữ liệu',
+  /*
+   * Mộ chí: `paste.subtitle` ("Gõ vào lưới, hoặc dán từ Excel bằng Ctrl + V"), phụ đề dưới tên sheet.
+   * Chủ dự án bảo xoá ngày 14/10/2026: _"xóa cả đoạn text thừa hướng dẫn này đi"_, cùng lượt thu gọn
+   * lưới. Lưới trống đã có chữ mờ ví dụ ở dòng đầu; sheet không còn câu hướng dẫn nào.
+   */
   'paste.sample': 'Dữ liệu mẫu',
   'paste.loadCsv': 'Tải file CSV',
   'paste.columnsBtn': 'Cột',
   'paste.clear': 'Xoá hết',
-  /* Thanh trạng thái dưới lưới: 'Đang xem dòng 1 – 10 trong 251'. */
-  'paste.viewing': 'Đang xem dòng',
-  'paste.inTotal': 'trong',
+  /*
+   * Mộ chí: `paste.viewing` ("Đang xem dòng") và `paste.inTotal` ("trong") — câu "Đang xem dòng 1 – 8
+   * trong 249" mở đầu thanh trạng thái dưới lưới. Chủ dự án bảo xoá ngày 14/10/2026: _"xóa text thừa
+   * này đi"_. Thanh cuộn của lưới đã nói đang ở đâu, câu xác nhận đã nói đọc được bao nhiêu phiên.
+   */
   'paste.badRows': 'dòng lỗi',
   'paste.seeBad': 'Xem',
   'paste.skipBad': 'Bỏ qua',

@@ -4,6 +4,82 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Dán dữ liệu: bảng chọn cột thành một hàng ngang ở khổ PC (14/10/2026)
+
+**Trạng thái: CHƯA XONG — CSS và phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**
+
+Chủ dự án chụp bảng "Cột 1 · Ngày … Cột 6 · Khối lượng" (hai hàng, bốn ô rồi hai ô): _"điều chỉnh phần này sao thu gọn
+lại dễ sử dụng hơn để tối ưu thành 1 dòng ngang màn web để tiết kiệm không gian"_.
+
+- `src/ui/sheets/PasteImportSheet.module.css`: khối `@media (min-width: 1024px)` cuối phần bảng chọn — nhãn "Cột N"
+  lên TRÊN ô chọn (đứng bên trái nó ăn ~40px mỗi ô), ô cao 36px, chữ `--text-sm`, lưới `auto-fit, minmax(7.5rem, 1fr)`
+  để cột thừa thứ bảy xuống hàng thay vì bóp cả sáu. Dưới 1024px không đổi (44px, chữ 16px cho chạm và iOS).
+- `CLAUDE.md`: một gạch đầu dòng trong mục "The paste sheet".
+- Kiểm chứng: Chrome qua dev, màn Bảng dữ liệu → "Dán Excel/CSV" → "Cột 6/6". Ở 1024 / 1280 / 1440: sáu ô một hàng,
+  khung cao 74px (trước 122px, hai hàng); chữ dài nhất "Giá thấp nhất" cần 89px, ô có 104px ở 1024. Ở 800 và 390 vẫn
+  như cũ. Ảnh 1024 và 1440 đã xem. Nhãn và `htmlFor` giữ nguyên nên ca kiểm tìm ô theo "Cột N" vẫn chạy:
+  `src/ui/sheets` + các ca kiểm CSS 581/581 đạt. Prettier sạch.
+- Còn để ngỏ: chưa có phép đo `check:chrome` cho bảng này (chưa có khối nào mở sheet Dán dữ liệu); cột thừa có tên dài
+  (lấy từ hàng tiêu đề file dán) có thể bị cắt chữ trong ô 120px.
+
+### Lượt hai: bỏ câu "Đang xem dòng 1 – 8 trong 249" (14/10/2026)
+
+_"xóa text thừa này đi"_ — câu mở đầu thanh trạng thái dưới lưới.
+
+- `src/ui/sheets/PasteImportSheet.tsx`: bỏ câu, cùng `seenFrom` / `seenTo` chỉ dùng cho nó; chú thích tại chỗ.
+  `PasteImportSheet.module.css`: bỏ `.statusRange`. Thanh trạng thái còn dòng lỗi (khi có) và câu xác nhận số phiên.
+- `vi.ts` / `en.ts`: bỏ `paste.viewing`, `paste.inTotal` (mộ chí ở `vi.ts`) — ca "khoá mồ côi" đòi thế.
+- `ExportSheet.test.tsx`: ca "thanh trạng thái nói đang xem dòng nào" ĐẢO thành "không còn câu Đang xem dòng", và vẫn
+  đòi câu xác nhận số phiên.
+- Kiểm chứng: Chrome qua dev ở 1440 và 390, nạp Dữ liệu mẫu — thanh chỉ còn "64 phiên đọc được, từ 22/06/2026 tới
+  22/09/2026"; ảnh 1440 đã xem. Prettier, eslint, typecheck sạch; `src/ui/sheets` + i18n + `tokens`: 453/453 đạt.
+
+### Lượt ba: bỏ phụ đề, thu gọn cả lưới ở khổ PC (14/10/2026)
+
+Chủ dự án khoanh ô chọn, hàng tiêu đề, dòng đầu và cột số thứ tự: _"xóa cả đoạn text thừa hướng dẫn này đi 'Gõ vào lưới,
+hoặc dán từ Excel bằng Ctrl + V' … không gian thừa quá nhiều, text chữ thì quá to chiếm không gian hiển thị số liệu,
+padding căn chỉnh lại cho đều và đẹp"_.
+
+- Đo trước (1440): dòng 44px chữ mono 16px; tiêu đề 45px chữ 14px đậm; ô chọn 36px chữ 14px đậm; khung hiện 9 dòng;
+  cột số thứ tự 48px với số dính mép phải — `.grid tbody th` (khai sau, ưu tiên cao hơn) đặt `padding: 0` đè lên đệm của
+  `.lineNo`, để lại dải trống ~30px bên trái. Thân sheet cũng có thanh cuộn thứ hai.
+- `PasteImportSheet.tsx`: bỏ phụ đề; chiều cao dòng thành state `rowH` theo `matchMedia('(min-width: 1024px)')` —
+  `ROW_H` 44 hoặc `ROW_H_PC` 32 — dùng cho phần vẽ theo cửa sổ và đặt lên `<table>` thành `--paste-row-h`, để CSS và JS
+  chỉ có MỘT con số. Sửa câu docblock còn nói về dòng "Đang xem".
+- `PasteImportSheet.module.css`: dòng và ô đọc `--paste-row-h`; số thứ tự căn giữa cột 2,5rem (mọi khổ). Từ 1024px: chữ
+  ô 14px, tiêu đề 32px chữ 13px, ô chọn 32px chữ 13px, ba nút thanh công cụ 32px, cột ngày 8rem, sàn cột số 7,5rem,
+  khung 419px (tiêu đề + 12 dòng). Dưới 1024px giữ 44px và chữ 16px (chạm, iOS).
+- `vi.ts` / `en.ts`: bỏ `paste.subtitle` (mộ chí ở `vi.ts`). `tokens.test.ts`: `--paste-row-h` vào `LOCAL_VARIABLES`
+  kèm lý do. `CLAUDE.md`: gạch đầu dòng mới trong "The paste sheet", sửa số đo của hai gạch đầu dòng cũ.
+- Kiểm chứng: Chrome qua dev ở 1440 / 1024 / 390, dữ liệu mẫu, bảng chọn mở. 1440: dòng 32, tiêu đề 33 (gồm kẻ dưới),
+  13 dòng hiện, không cuộn ngang, thân sheet hết cuộn. 1024: như thế, khung chạm trần 52vh của cửa sổ cao 768px. 390:
+  44px, chữ 16px như cũ. Cuộn đúng 20 dòng thì mép trên là dòng 21 ở cả 32px lẫn 44px; cuộn tới đáy thấy dòng 65. Ảnh
+  ba khổ đã xem. Eslint, typecheck, prettier sạch; `src/ui/sheets` + i18n + các ca CSS + `src/app/du-lieu`: 501/501.
+- Còn để ngỏ: chưa có phép đo `check:chrome` cho sheet này; cửa sổ thấp (≤ 800px chiều cao) thì khung lưới vẫn theo trần
+  52vh cũ nên dòng cuối có thể bị cắt nửa. (Lượt bốn bỏ trần ấy.)
+
+### Lượt bốn: một thanh cuộn, phần đầu gọn; đổi tên thành "Bảng dữ liệu" (14/10/2026)
+
+Chủ dự án khoanh dải tiêu đề trên một cửa sổ thấp: _"tối ưu lại chiều cao ở phần tôi khoanh đỏ, đang thừa quá nhiều khiến
+cho bên cạnh hiển thị 2 thanh scroll gây rối và khó sử dụng. sửa lỗi"_; rồi giữa chừng: _"đổi lại tên bảng này là Bảng dữ
+liệu chứ không phải là Dán dữ liệu"_.
+
+- Nguyên nhân hai thanh cuộn: khung lưới cao CỐ ĐỊNH, nên khi tổng chiều cao vượt `max-height` của tấm thì thân sheet cuộn
+  thêm một lớp cạnh thanh cuộn của lưới.
+- `PasteImportSheet.module.css`: từ 768px thân sheet là cột flex, khung lưới là phần co duy nhất (`flex: 0 1 440px`,
+  419px từ 1024px, sàn 12rem), bỏ trần 52vh. Từ 1024px phần đầu đệm 8px, nút X 32px (~65px → 49px), thân bớt đệm trên
+  20 → 16px. Nhắm bằng bộ chọn cấu trúc trong chính file này; `BottomSheet` không đổi.
+- `PasteImportSheet.tsx`: hiệu ứng đo lúc mở nay theo dõi khung bằng `ResizeObserver` (không có thì đo một lần như cũ),
+  vì khung đổi cao mà không có cú cuộn nào báo.
+- `vi.ts` / `en.ts`: `paste.title` "Dán dữ liệu" → "Bảng dữ liệu", "Paste data" → "Data table" — trùng tên màn
+  `/du-lieu/`, theo lời chủ dự án. `CLAUDE.md`: tiêu đề mục và hai gạch đầu dòng mới.
+- Kiểm chứng: Chrome qua dev — thân sheet cuộn 0px ở 1440×900, 1440×650, 1280×600, 1024×768, 1024×560, 800×700, cả lúc
+  bảng chọn cột mở lẫn đóng; dòng vẽ luôn phủ tới đáy khung; phần đầu 49px từ 1024px. 390×844 (dán đáy) như cũ: mở bảng
+  chọn thì cả thân cuộn. Ảnh 1440×650 đã xem. Prettier, eslint, typecheck sạch; sheets + i18n + `tokens` + primitives +
+  `src/app/du-lieu`: 513/513.
+
+---
+
 ## Danh mục khổ điện thoại: ô tìm mở thì ẩn icon Làm mới (14/10/2026)
 
 **Trạng thái: CHƯA XONG — code, ca kiểm, phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**

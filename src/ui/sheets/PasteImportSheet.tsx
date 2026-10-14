@@ -63,7 +63,8 @@ export interface PasteImportSheetProps {
   /**
    * Chuỗi màn gọi ĐANG dùng. Mở sheet ra là lưới đã có sẵn nó, không phải một tấm trắng.
    *
-   * Thiếu chỗ này thì màn ngoài đang chạy trên 64 phiên mà mở "Dán dữ liệu" lại thấy lưới rỗng:
+   * Thiếu chỗ này thì màn ngoài đang chạy trên 64 phiên mà mở sheet (tên "Bảng dữ liệu" từ
+   * 14/10/2026, trước là "Dán dữ liệu") lại thấy lưới rỗng:
    * người dùng không có cách nào soi lại chuỗi mình đang tính, không sửa được một ô sai, và dễ
    * đọc thành "chuỗi bay mất rồi". Sheet cũng là bảng dữ liệu của màn, không riêng cửa nhập.
    */
@@ -105,13 +106,24 @@ const DEFAULT_COLUMNS: ReadonlyArray<ColumnKind> = SERIES_COLUMNS;
 const BLANK_ROWS = 4;
 
 /**
- * Chiều cao một dòng lưới, tính bằng px — PHẢI khớp `--paste-row-h` trong file CSS kèm theo.
+ * Chiều cao một dòng lưới, tính bằng px, dưới 1024px — 44px để chạm.
  *
  * Con số này là thứ duy nhất cho phép chỉ vẽ phần dòng đang nhìn thấy: biết chiều cao một dòng
- * thì biết dòng thứ mấy đang ở mép trên, và hai ô đệm trên dưới lo phần còn lại. Đổi bên nào
- * thì phải đổi bên kia, nếu không thanh cuộn sẽ trượt khỏi dữ liệu.
+ * thì biết dòng thứ mấy đang ở mép trên, và hai ô đệm trên dưới lo phần còn lại. CSS không tự khai
+ * chiều cao dòng: nó đọc `--paste-row-h`, biến mà component đặt lên `<table>` từ chính hằng này
+ * (hoặc `ROW_H_PC`), nên hai bên không thể lệch nhau — lệch là thanh cuộn trượt khỏi dữ liệu.
  */
 const ROW_H = 44;
+
+/**
+ * Chiều cao một dòng từ 1024px (14/10/2026). Chủ dự án khoanh lưới ở khổ PC: _"không gian thừa quá
+ * nhiều, text chữ thì quá to chiếm không gian hiển thị số liệu"_. Chuột không cần 44px; 32px vừa chữ
+ * 14px với đệm trên dưới đều nhau, và khung 440px hiện được 13 dòng thay vì 9.
+ */
+const ROW_H_PC = 32;
+
+/** Cùng mốc với khối `@media (min-width: 1024px)` của file CSS kèm theo. */
+const KHO_PC = '(min-width: 1024px)';
 
 /** Vẽ dư vài dòng ngoài tầm nhìn, để cuộn nhanh không thấy khoảng trắng. */
 const OVERSCAN = 4;
@@ -211,6 +223,7 @@ function BadMark() {
 const GridRow = memo(function GridRow({
   base,
   line,
+  rowH,
   cells,
   labels,
   numeric,
@@ -223,6 +236,8 @@ const GridRow = memo(function GridRow({
 }: {
   base: string;
   line: number;
+  /** Chiều cao dòng đang dùng — `ROW_H` hoặc `ROW_H_PC`. */
+  rowH: number;
   cells: ReadonlyArray<string>;
   labels: ReadonlyArray<string>;
   /** Cột nào là số — bật bàn phím số trên điện thoại. Cột ngày thì không, vì còn gõ dấu gạch. */
@@ -241,7 +256,7 @@ const GridRow = memo(function GridRow({
   const bad = badColumn >= 0;
 
   return (
-    <tr className={bad ? styles.rowBad : undefined} style={{ height: `${ROW_H}px` }}>
+    <tr className={bad ? styles.rowBad : undefined} style={{ height: `${rowH}px` }}>
       <th scope="row" className={bad ? `${styles.lineNo} ${styles.lineNoBad}` : styles.lineNo}>
         {line + 1}
       </th>
@@ -298,7 +313,7 @@ const GridRow = memo(function GridRow({
  *   1. **Popup nổi giữa màn ở khổ PC** thay vì tấm dán đáy. Lưới sáu cột cần bề ngang, mà tấm
  *      dán đáy thì càng rộng càng xa tầm mắt đang nhìn giữa màn.
  *   2. **Chỉ vẽ phần dòng đang nhìn thấy.** Dán 251 phiên sáu cột là 1.506 ô `<input>` — vẽ hết
- *      thì máy yếu đứng hình. Thanh trạng thái nói thẳng đang xem dòng nào trong bao nhiêu.
+ *      thì máy yếu đứng hình. Thanh cuộn vẫn dài đúng bằng cả chuỗi, nhờ hai dòng đệm.
  *   3. **Lỗi chỉ đúng Ô, không chỉ đúng dòng.** Ô hỏng tô đỏ kèm dấu báo, dòng hỏng đổi nền, và
  *      nút "Xem" nhảy thẳng tới dòng hỏng đầu tiên. Nói "dòng 7 hỏng" thì còn phải dò sáu ô.
  *   4. **Bỏ dòng lỗi là một quyết định có ý thức**: ô đánh dấu ở chân sheet, chưa tích thì chưa
@@ -334,6 +349,24 @@ export function PasteImportSheet({
   const [skipBad, setSkipBad] = useState(false);
   /** Cửa sổ dòng đang nhìn thấy, đo bằng px trên khung cuộn. */
   const [view, setView] = useState({ top: 0, height: ROW_H * 10 });
+  /**
+   * Chiều cao dòng theo khổ, THEO DÕI bằng `matchMedia` (xoay máy tính bảng là đổi). Khởi tạo bằng
+   * `ROW_H` — đúng HTML tĩnh và jsdom (không có `matchMedia`) — rồi effect chỉnh ngay lượt đầu.
+   */
+  const [rowH, setRowH] = useState(ROW_H);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined;
+    const media = window.matchMedia(KHO_PC);
+    const dongBo = (): void => {
+      setRowH(media.matches ? ROW_H_PC : ROW_H);
+    };
+    dongBo();
+    media.addEventListener('change', dongBo);
+    return () => {
+      media.removeEventListener('change', dongBo);
+    };
+  }, []);
 
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -443,12 +476,9 @@ export function PasteImportSheet({
   /* ── Cửa sổ dòng đang vẽ ─────────────────────────────────────────────── */
 
   const total = grid.length;
-  const rendered = Math.max(MIN_RENDERED, Math.ceil(view.height / ROW_H) + OVERSCAN * 2);
-  const from = Math.max(0, Math.floor(view.top / ROW_H) - OVERSCAN);
+  const rendered = Math.max(MIN_RENDERED, Math.ceil(view.height / rowH) + OVERSCAN * 2);
+  const from = Math.max(0, Math.floor(view.top / rowH) - OVERSCAN);
   const to = Math.min(total, from + rendered);
-  /** Khoảng dòng người dùng THẬT SỰ nhìn thấy, đếm từ 1 — khác khoảng đang vẽ vì có dòng dư. */
-  const seenFrom = Math.min(total, Math.floor(view.top / ROW_H) + 1);
-  const seenTo = Math.min(total, Math.max(seenFrom, Math.ceil((view.top + view.height) / ROW_H)));
 
   const measure = useCallback((node: HTMLDivElement | null) => {
     scroller.current = node;
@@ -484,19 +514,33 @@ export function PasteImportSheet({
   }, [open, primed, initialRows, maxRows]);
 
   /*
-   * Đo lại ngay sau khi tấm mở ra.
+   * Đo lại ngay sau khi tấm mở ra, và mỗi lần khung lưới đổi chiều cao trong lúc mở.
    *
    * Lúc ref gắn vào thì `<dialog>` còn đóng, chiều cao đọc ra bằng 0 — nên không có lần đo này
-   * thì cửa sổ dòng chạy bằng con số ước lượng, và ở màn thấp (`max-height: 52vh`) thanh trạng
-   * thái sẽ khai nhiều dòng hơn số dòng thật sự nhìn thấy.
+   * thì cửa sổ dòng chạy bằng con số ước lượng.
+   *
+   * Từ 14/10/2026 khung lưới CO theo chỗ còn lại của tấm (xem "Một thanh cuộn, không hai" trong file
+   * CSS): đổi cỡ cửa sổ, hay mở/đóng bảng chọn cột, là khung cao thấp khác đi mà không có cú cuộn nào
+   * báo. Thiếu lần đo ấy thì khung cao lên mà số dòng vẽ vẫn theo chiều cao cũ, để lộ một dải trống
+   * dưới đáy cho tới lần cuộn sau. Không có `ResizeObserver` (jsdom) thì chỉ đo một lần như trước.
    */
   useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     const node = scroller.current;
-    if (node === null || node.clientHeight === 0) return;
-    setView((current) =>
-      current.height === node.clientHeight ? current : { ...current, height: node.clientHeight },
-    );
+    if (node === null) return undefined;
+    const doLai = (): void => {
+      if (node.clientHeight === 0) return;
+      setView((current) =>
+        current.height === node.clientHeight ? current : { ...current, height: node.clientHeight },
+      );
+    };
+    doLai();
+    if (typeof ResizeObserver !== 'function') return undefined;
+    const observer = new ResizeObserver(doLai);
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+    };
   }, [open]);
 
   /* ── Sửa lưới ────────────────────────────────────────────────────────── */
@@ -658,7 +702,7 @@ export function PasteImportSheet({
   /** Nhảy tới dòng hỏng đầu tiên và đặt nó ngay dưới hàng tiêu đề. */
   function jumpToBad() {
     if (firstBad < 0 || scroller.current === null) return;
-    const top = firstBad * ROW_H;
+    const top = firstBad * rowH;
     scroller.current.scrollTop = top;
     setView((current) => ({ ...current, top }));
   }
@@ -690,8 +734,8 @@ export function PasteImportSheet({
       }}
       placement="center"
       className={styles.wide}
+      // Không phụ đề: "Gõ vào lưới, hoặc dán từ Excel bằng Ctrl + V" đã bỏ — mộ chí `paste.subtitle` ở vi.ts.
       title={t('paste.title')}
-      subtitle={t('paste.subtitle')}
       footer={
         <>
           {/*
@@ -829,9 +873,13 @@ export function PasteImportSheet({
       >
         {/*
           `--paste-cols`: số cột của lưới, để CSS tính mức sàn bề ngang — sáu cột thì vừa khung, có
-          cột thừa thì bảng rộng ra đúng một cột. Xem `.grid` trong file CSS kèm theo.
+          cột thừa thì bảng rộng ra đúng một cột. `--paste-row-h`: chiều cao dòng, nguồn DUY NHẤT
+          cho cả CSS lẫn phần vẽ theo cửa sổ (xem `ROW_H`). Xem `.grid` trong file CSS kèm theo.
         */}
-        <table className={styles.grid} style={{ '--paste-cols': columns.length } as CSSProperties}>
+        <table
+          className={styles.grid}
+          style={{ '--paste-cols': columns.length, '--paste-row-h': `${rowH}px` } as CSSProperties}
+        >
           <caption className="visually-hidden">{t('paste.gridCaption')}</caption>
           <colgroup>
             <col className={styles.colLine} />
@@ -867,7 +915,7 @@ export function PasteImportSheet({
               chuỗi dù chỉ có vài chục dòng thật sự nằm trong DOM.
             */}
             {from > 0 && (
-              <tr aria-hidden="true" style={{ height: `${from * ROW_H}px` }}>
+              <tr aria-hidden="true" style={{ height: `${from * rowH}px` }}>
                 <td colSpan={columns.length + 1} />
               </tr>
             )}
@@ -877,6 +925,7 @@ export function PasteImportSheet({
                 key={from + offset}
                 base={base}
                 line={from + offset}
+                rowH={rowH}
                 cells={row}
                 labels={labels}
                 numeric={numeric}
@@ -890,7 +939,7 @@ export function PasteImportSheet({
             ))}
 
             {to < total && (
-              <tr aria-hidden="true" style={{ height: `${(total - to) * ROW_H}px` }}>
+              <tr aria-hidden="true" style={{ height: `${(total - to) * rowH}px` }}>
                 <td colSpan={columns.length + 1} />
               </tr>
             )}
@@ -898,12 +947,12 @@ export function PasteImportSheet({
         </table>
       </div>
 
+      {/*
+        Câu "Đang xem dòng 1 – 8 trong 249" từng mở đầu thanh này; chủ dự án bảo xoá (14/10/2026:
+        _"xóa text thừa này đi"_). Thanh cuộn của lưới đã nói đang ở đâu, và câu xác nhận bên phải
+        đã nói đọc được bao nhiêu phiên. Mộ chí của hai khoá ở `vi.ts` (`paste.viewing`).
+      */}
       <div className={styles.status} aria-live="polite">
-        <span className={styles.statusRange}>
-          {t('paste.viewing')} {formatNumber(seenFrom)} – {formatNumber(seenTo)}{' '}
-          {t('paste.inTotal')} {formatNumber(total)}
-        </span>
-
         {badCount > 0 && (
           <>
             <span className={styles.statusBad}>

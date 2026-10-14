@@ -489,14 +489,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'date.openCalendar': 'Pick a date on the calendar',
 
-  'paste.title': 'Paste data',
-  'paste.subtitle': 'Type into the grid, or paste from Excel with Ctrl + V',
+  'paste.title': 'Data table',
   'paste.sample': 'Sample data',
   'paste.loadCsv': 'Load a CSV file',
   'paste.columnsBtn': 'Columns',
   'paste.clear': 'Clear all',
-  'paste.viewing': 'Showing row',
-  'paste.inTotal': 'of',
   'paste.badRows': 'bad row(s)',
   'paste.seeBad': 'Show',
   'paste.skipBad': 'Skip',

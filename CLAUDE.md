@@ -916,7 +916,12 @@ now exports `DD/MM/YYYY` where it used to export ISO (the file matches the scree
 preview cells still show pasted text as pasted — only its "từ … đến …" line and the grid pre-filled from a
 series in use are normalised.
 
-## The paste sheet ("Dán dữ liệu") — six fixed columns, no "Không dùng"
+## The paste sheet ("Bảng dữ liệu", was "Dán dữ liệu") — six fixed columns, no "Không dùng"
+
+**Its title is "Bảng dữ liệu" / "Data table" since 14/10/2026** (owner: _"đổi lại tên bảng này là Bảng dữ liệu
+chứ không phải là Dán dữ liệu"_), the same name as the `/du-lieu/` screen it also opens from — the owner's call:
+it is the same price table, edited in place. Only `paste.title` changed; the `paste.*` keys and the
+`PasteImportSheet` name stay.
 
 **The grid of `PasteImportSheet` always holds the six columns of a price series, and its column picker offers
 exactly those six** (13/10/2026). The owner circled a select reading "Cột 6 · Không dùng": _"tạo ô không dùng là
@@ -951,9 +956,48 @@ back a "drop this column" choice under another word.
 - **Column widths are computed, not fixed.** The old `3rem + 11rem + 5 × 9.5rem` = 984px never fit the widest
   popup's 966px scroller, so every screen had a horizontal scrollbar and at a 1025px window the Volume column
   was mostly hidden, with the scrollbar itself below the popup's edge. Number columns now share the frame
-  (`table-layout: fixed`, no width), with a floor from `--paste-cols` (set inline; 8.25rem a column, measured on
-  a nine-digit volume). Six columns fit from a ~985px window; an extra column widens the floor instead of
-  squeezing the six.
+  (`table-layout: fixed`, no width), with a floor from `--paste-cols` (set inline; 8.25rem a column below
+  1024px, measured on a nine-digit volume at 16px; 7.5rem from 1024px, at 14px). Six columns fit from a ~985px
+  window below 1024px and need 768px above it; an extra column widens the floor instead of squeezing the six.
+- **From 1024px the column picker ("Cột 6/6" panel) is ONE row** (14/10/2026, owner: _"thu gọn lại dễ sử
+  dụng hơn để tối ưu thành 1 dòng ngang màn web để tiết kiệm không gian"_). It was a `minmax(200px, 1fr)`
+  grid with "Cột N" to the LEFT of each select: four per row, six in two rows, 122px tall. Now, in a
+  `min-width: 1024px` block in `PasteImportSheet.module.css`, the label sits ABOVE its select (beside it,
+  it cost ~40px a cell — exactly what six cells lacked at a 1024px window), and the grid is
+  `auto-fit, minmax(7.5rem, 1fr)`, so a seventh (extra) column wraps instead of squeezing "Giá thấp nhất".
+  The labels and `htmlFor` are untouched, so tests still find each select by "Cột N". No `check:chrome`
+  assertion holds it.
+- **From 1024px the whole sheet is compact, and the row height has ONE source** (14/10/2026, owner, circling
+  the selects, the header row, the first row and the row-number column: _"không gian thừa quá nhiều, text chữ
+  thì quá to chiếm không gian hiển thị số liệu, padding căn chỉnh lại cho đều và đẹp"_). Measured before at
+  1440: rows 44px with 16px mono text, a 45px header at 14px bold, selects 36px at 14px bold, 9 rows visible.
+  Now rows are 32px (`ROW_H_PC`), cell text 14px, header 32px at 13px, selects 32px at 13px, the three toolbar
+  buttons 32px, and the frame holds the header plus 12 rows (419px), so 13 rows show and the sheet body no
+  longer scrolls at 1440×900. The subtitle "Gõ vào lưới, hoặc dán từ Excel bằng Ctrl + V" is gone at every
+  width (tombstone `paste.subtitle`). **The row height is no longer a CSS number**: the virtual window needs
+  it to know which row is at the top, so `PasteImportSheet.tsx` picks `ROW_H` (44) or `ROW_H_PC` (32) with a
+  `matchMedia('(min-width: 1024px)')` listener and sets `--paste-row-h` on the `<table>`; the CSS only reads
+  that variable (an entry in `tokens.test.ts`'s `LOCAL_VARIABLES`). The one hand-written copy is the frame's
+  419px, because the frame is the table's parent and cannot read it. Measured in Chrome: scrolled by exactly
+  20 rows, the top row is row 21 at both heights, and the bottom row is the last one. **The row-number column
+  had a real CSS bug**: `.grid tbody th` (later, more specific) reset `.lineNo`'s padding to 0, so the number
+  sat against the date column's rule with a ~30px empty strip on its left — the strip the owner circled. The
+  number is now centred in a 2.5rem column at every width. Below 1024px nothing else changed (44px, 16px
+  text, for touch and iOS zoom).
+- **The body never scrolls on top of the grid** (14/10/2026, owner, on a short window: _"đang thừa quá nhiều
+  khiến cho bên cạnh hiển thị 2 thanh scroll gây rối và khó sử dụng"_). The grid frame had a FIXED height, so
+  whenever header + toolbar + picker + grid + footer exceeded the panel's `max-height`, the sheet body grew a
+  second scrollbar beside the grid's. From 768px (where the sheet floats) the body is a flex column and the
+  grid frame is the one item that shrinks (`flex: 0 1 440px`, 419px from 1024, floor 12rem); the old `52vh`
+  cap is gone because the shrink does its job against the real space left. Because the frame now changes
+  height with no scroll event, the open-sheet effect watches it with a `ResizeObserver` (measure once when
+  there is none, as in jsdom) — without it the virtual window keeps the old height and a taller frame shows
+  a blank band. The header is compacted from 1024px too (8px padding, a 32px X: ~65px → 49px). Both are
+  scoped to this sheet through structural selectors in its own module (`dialog.wide > div > header:first-child`,
+  `> div:nth-child(2)`), whose pseudo-classes are what outrank the primitive's `.panelCenter .header/.body`;
+  `BottomSheet` itself is untouched. Measured: body scroll 0 at 1440×900, 1440×650, 1280×600, 1024×768,
+  1024×560 and 800×700, picker open and closed; the drawn rows always reach the frame's bottom. Below 768px it
+  is a docked bottom sheet whose whole body scrolls, as before.
 
 **Four causes of "empty columns after loading" were found, all reproduced**: the role set to "Không dùng"; the
 clipped Volume column; the overlaid file; and the **VN-Index example dataset, which carried closes only**, so

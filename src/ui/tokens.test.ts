@@ -222,6 +222,9 @@ function usedNames(css: string): Set<string> {
  * `--paste-cols` là số cột của lưới "Dán dữ liệu" (13/10/2026), do `PasteImportSheet.tsx` đặt trên
  * thẻ `<table>`: sáu, cộng số cột thừa của bộ dữ liệu vừa dán. CSS dùng nó tính mức sàn bề ngang
  * của bảng, để sáu cột vừa khung mà cột thừa thì đẩy bảng tràn ra chứ không bóp sáu cột kia.
+ * `--paste-row-h` (14/10/2026) đi cùng nó: chiều cao một dòng của lưới ấy, 44px dưới 1024px và 32px
+ * từ 1024px, theo `matchMedia`. JS đặt nó vì phần vẽ theo cửa sổ dùng ĐÚNG con số ấy để tính dòng nào
+ * đang ở mép trên — khai ở CSS là có hai con số để lệch nhau.
  *
  * `--o-moi-nhom` là số ô của MỘT nhóm ô lặp (13/10/2026), do `FormulaDetail.tsx` đặt trên lưới ô
  * nhập của công thức cho thêm bớt nhóm: hai với `gia-von-trung-binh-dca` (tiền và giá của một đợt
@@ -235,6 +238,7 @@ const LOCAL_VARIABLES = new Set([
   '--ky-tu',
   '--ct-co-chu',
   '--paste-cols',
+  '--paste-row-h',
   '--o-moi-nhom',
 ]);
 

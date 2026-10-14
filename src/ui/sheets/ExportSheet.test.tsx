@@ -862,13 +862,18 @@ describe('PasteImportSheet — WF-11', () => {
     expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25.7');
   });
 
-  it('thanh trạng thái nói đang xem dòng nào trong tổng bao nhiêu', async () => {
+  /*
+   * Câu "Đang xem dòng 1 – 8 trong 249" ĐÃ BỎ (chủ dự án, 14/10/2026: "xóa text thừa này đi"). Ca này
+   * từng ghim nó có mặt; nay ghim nó vắng mặt, để câu ấy quay lại là một quyết định chứ không là sơ suất.
+   * Câu xác nhận số phiên đọc được thì vẫn còn.
+   */
+  it('thanh trạng thái không còn câu "Đang xem dòng … trong …"', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
     await loadSample();
 
-    // 64 phiên cộng một dòng trống chừa sẵn để gõ tiếp.
-    expect(screen.getByText(/Đang xem dòng 1 – \d+ trong 65/)).not.toBeNull();
+    expect(screen.queryByText(/Đang xem dòng/)).toBeNull();
+    expect(screen.getByText(/phiên đọc được/)).not.toBeNull();
   });
 
   /* ── Phân luồng cột ──────────────────────────────────────────────────── */

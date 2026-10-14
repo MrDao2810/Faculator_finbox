@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -644,6 +647,66 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
     expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
     expect(figure.textContent).toContain('Quét Giá thị trường');
     expect(figure.textContent).toContain('giá trị hiện tại');
+  });
+
+  /*
+   * ── Câu mô tả không còn HIỆN trên màn — 14/10/2026 ────────────────────────────────────
+   *
+   * Chủ dự án chép nguyên câu của `ev-ebitda` — "Quét Giá trị doanh nghiệp (EV) từ 5.750 tỷ ₫ tới
+   * 17.250 tỷ ₫ qua 41 mức. EV/EBITDA chạy trong khoảng 3,97 lần tới 11,9 lần. …" — và bảo xoá
+   * những chú thích kiểu ấy trên biểu đồ *"để tối ưu không gian"*.
+   *
+   * Hai vế phải cùng đúng, nên ca trên (câu còn trong `<figure>`) và các ca dưới đây đi thành cặp:
+   * câu KHÔNG hiện với mắt, nhưng CÒN cho trình đọc màn hình, vì `<svg>` mang `aria-hidden` và câu
+   * này cùng bảng số là toàn bộ biểu đồ với người không nhìn được hình. jsdom không dàn trang, nên
+   * "không hiện" được ghim bằng lớp `visually-hidden` — lớp toàn cục thu phần tử về 1×1px.
+   */
+  it.each([
+    ['đường theo một ô nhập', 'ev-ebitda', 'Quét Giá trị doanh nghiệp (EV)'],
+    ['cột bóc tách', 'ev', 'EV bóc thành'],
+  ])('câu mô tả của hình %s chỉ còn cho trình đọc màn hình', (_ten, id, mauCau) => {
+    const { container } = draw(id);
+
+    const caption = container.querySelector('figcaption');
+    if (caption === null) throw new Error('Thiếu figcaption.');
+
+    // Con nhìn thấy được của tên hình chỉ còn đúng một: chính tên hình.
+    const hien = [...caption.children].filter((con) => !con.classList.contains('visually-hidden'));
+    expect(hien.map((con) => con.tagName)).toEqual(['STRONG']);
+
+    const an = caption.querySelector('.visually-hidden');
+    expect(an?.textContent).toContain(mauCau);
+    // Vẫn là một phần tên của `<figure>`: `aria-labelledby` trỏ vào cả `<figcaption>`.
+    expect(screen.getByRole('figure').getAttribute('aria-labelledby')).toBe(caption.id);
+  });
+
+  it('trục thời gian cũng vậy: câu "qua N phiên" không hiện, nhưng còn trong figcaption', () => {
+    const { container } = drawLoaded('pe');
+
+    const an = container.querySelector('figcaption .visually-hidden');
+    expect(an?.textContent).toContain('P/E của FPT qua 248 phiên');
+    expect(container.querySelector('[class*="captionText"]')).toBeNull();
+  });
+
+  /*
+   * Quét mã nguồn, vì màn phóng to đang tắt (`PHONG_TO_BAT`) nên không ca dựng hình nào chạm tới
+   * được nó: bật lại nút ấy mà câu mô tả hiện ra dưới hình là đúng thứ vừa bỏ quay về bằng cửa sau.
+   * Luật: chỗ nào in `model.summary` thì chỗ ấy phải mang lớp `visually-hidden`, và hai lớp CSS của
+   * bản hiện trên màn không được khai lại.
+   */
+  it('không file nào của biểu đồ còn in câu mô tả ra cho mắt', () => {
+    const thuMuc = join(process.cwd(), 'src', 'ui', 'charts');
+    for (const ten of ['ChartFrame.tsx', 'ChartFullscreen.tsx']) {
+      const dong = readFileSync(join(thuMuc, ten), 'utf8')
+        .split(/\r?\n/)
+        .filter((mot) => mot.includes('pick(model.summary)'));
+      expect(dong.length, ten).toBe(1);
+      expect(dong[0], ten).toContain('className="visually-hidden"');
+    }
+
+    const css = readFileSync(join(thuMuc, 'chart.module.css'), 'utf8');
+    expect(css).not.toMatch(/^\.captionText\b/m);
+    expect(css).not.toMatch(/^\s*\.fullSummary\b/m);
   });
 
   /*

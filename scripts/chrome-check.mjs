@@ -2164,6 +2164,27 @@ window.__themeLog = [];
         if (el === null) return null;
         return { hien: getComputedStyle(el).display, ...r(el) };
       })(),
+      /*
+       * Thẻ gộp: cụm 'tên công thức + con số' lệch bao nhiêu so với GIỮA lưới ô nhập (chiều dọc) và
+       * so với giữa cột trái của thẻ (chiều ngang, đo riêng từng dòng của cụm).
+       *
+       * Cụm là con duy nhất của khối Kết quả không phải tiêu đề ẩn. Đo bằng số lẻ, không qua hàm r
+       * ở trên: hàm ấy làm tròn từng cạnh, mà hai lần làm tròn cộng lại đã ăn hết ngưỡng 1px.
+       * Không dùng dấu backtick trong chú thích này: cả khối đang nằm trong một template literal.
+       */
+      canGiua: (() => {
+        const khoi = document.querySelector('section[aria-labelledby="khoi-ket-qua"]');
+        const cum = khoi === null ? null : ([...khoi.children].find((e) => e.tagName !== 'H2') ?? null);
+        if (khoi === null || cum === null || luoi === null) return null;
+        const giuaDoc = (b) => b.top + b.height / 2;
+        const giuaNgang = (b) => b.left + b.width / 2;
+        const k = khoi.getBoundingClientRect();
+        const dong = [...cum.children].filter((e) => getComputedStyle(e).display !== 'none');
+        return {
+          doc: Math.round((giuaDoc(cum.getBoundingClientRect()) - giuaDoc(luoi.getBoundingClientRect())) * 10) / 10,
+          ngang: dong.map((e) => Math.round((giuaNgang(e.getBoundingClientRect()) - giuaNgang(k)) * 10) / 10),
+        };
+      })(),
       /* Nhóm Đường/Cột: bo góc đã tính ra của khung và của nút đầu — phải cùng một số. */
       boDuongCot: (() => {
         const khung = document.querySelector('figure [class*="kindGroup"]');
@@ -2412,6 +2433,29 @@ window.__themeLog = [];
       Math.abs(pcGop.soLieu.top - pcGop.ketQua.top) <= 1 &&
       pcGop.soLieu.left >= pcGop.ketQua.right,
     `Kết quả ${String(pcGop.ketQua?.left)}–${String(pcGop.ketQua?.right)} · Số liệu ${String(pcGop.soLieu?.left)}–${String(pcGop.soLieu?.right)}`,
+  );
+
+  /*
+   * Cụm "tên công thức + con số" đứng GIỮA, so với đúng hàng ô nhập bên phải (13/10/2026).
+   *
+   * Chủ dự án khoanh hàng ấy trên `ev-ebitda`: _"đang bị lệch. cần căn giữa. điều chỉnh tương tự với
+   * toàn bộ công thức khác"_. Trước khi sửa, đo được con số ở 427–477px cạnh hàng ô 434–513px: cụm
+   * bám mép trên thẻ, tên công thức đứng ngang nút "?" và để trống 36px dưới con số.
+   *
+   * Phép "cùng mép trên" ngay trên KHÔNG thấy lỗi ấy và cũng không thấy lần sửa: nó đo hộp của khối
+   * Kết quả, mà hộp ấy cao trọn hàng lưới ở cả hai trạng thái. Thứ lệch là cụm chữ BÊN TRONG hộp.
+   *
+   * Hai chiều, hai luật ở hai file (`.merged .result` lo chiều dọc, `.block.flat` lo chiều ngang),
+   * nên đo cả hai. Chiều ngang đo từng dòng của cụm: tên và con số rộng khác nhau, căn trái thì
+   * chỉ một trong hai còn có thể tình cờ nằm giữa.
+   */
+  check(
+    'PC 1440 · thẻ gộp: tên công thức và con số đứng giữa hàng ô nhập, cả chiều dọc lẫn chiều ngang',
+    pcGop.canGiua !== null &&
+      Math.abs(pcGop.canGiua.doc) <= 1 &&
+      pcGop.canGiua.ngang.length === 2 &&
+      pcGop.canGiua.ngang.every((lech) => Math.abs(lech) <= 1),
+    `lệch dọc ${String(pcGop.canGiua?.doc)}px · lệch ngang từng dòng ${String(pcGop.canGiua?.ngang.join(' / '))}px`,
   );
 
   /*
@@ -4608,8 +4652,15 @@ window.__themeLog = [];
       });
     }
     const n = nut ? nut.getBoundingClientRect() : null;
+    /* Cụm 'tên + con số' của thẻ gộp so với giữa LƯỚI Ô, không tính hàng nút thêm bớt bên dưới. */
+    const khoi = document.querySelector('section[aria-labelledby="khoi-ket-qua"]');
+    const cum = khoi ? [...khoi.children].find((e) => e.tagName !== 'H2') : null;
+    const luoi = document.querySelector('section[aria-labelledby="khoi-so-lieu"] [class*="fields"]');
+    const c = cum ? cum.getBoundingClientRect() : null;
+    const l = luoi ? luoi.getBoundingClientRect() : null;
     return {
       hang,
+      lechGiua: c && l ? Math.round((c.top + c.height / 2 - (l.top + l.height / 2)) * 10) / 10 : null,
       nut: n ? { top: Math.round(n.top), left: Math.round(n.left), right: Math.round(n.right) } : null,
       rongMan: window.innerWidth,
       tranNgang: document.documentElement.scrollWidth > window.innerWidth + 1,
@@ -4664,6 +4715,22 @@ window.__themeLog = [];
       nhom.loi ??
         `lệch trong hàng ${hang.map((h) => String(h.lech)).join('/')}px · đỉnh các hàng ${hang.map((h) => String(h.top)).join('/')} · ô rộng ${String(cuoi?.rongTien)}/${String(cuoi?.rongGia)}px · nút ở ${String(nhom.nut?.top)} (đợt cuối kết ở ${String(cuoi?.day)}) · tràn ngang: ${String(nhom.tranNgang)} · kết quả ${String(ketQuaTruoc)} → ${String(nhom.ketQua)}`,
     );
+
+    /*
+     * Thẻ gộp có HÀNG NÚT dưới lưới ô: con số bên trái vẫn phải đứng giữa lưới ô, không phải giữa
+     * "lưới ô + hàng nút" (13/10/2026). Phép căn giữa của thẻ gộp chừa hàng nút "?" ở trên bằng
+     * token; còn hàng nút này thì chừa bằng con số 36px chép từ cỡ nút `size="sm"`, vì không có
+     * token nào cho nó. Phép đo này là thứ giữ hai chỗ ấy không trôi khỏi nhau: quên phần chừa thì
+     * cụm tụt xuống 20px, đúng nửa chiều cao hàng nút cộng khe. Năm đợt là số lẻ, nên giữa lưới
+     * trùng giữa hàng thứ ba và mắt dò được ngay. Chỉ đo ở 1440: dưới 1280 không có thẻ gộp.
+     */
+    if (kho.width === 1440) {
+      check(
+        '1440 · giá vốn DCA năm đợt: con số kết quả đứng giữa lưới ô, không bị hàng nút Thêm kéo lệch',
+        nhom.lechGiua !== null && Math.abs(nhom.lechGiua) <= 1,
+        `lệch dọc ${String(nhom.lechGiua)}px so với giữa lưới ô`,
+      );
+    }
   }
   // Trả kho về trống: bản nháp năm đợt không được chảy sang cụm service worker ngay dưới.
   await evaluate(`localStorage.removeItem('ffb.draft.v1'), sessionStorage.clear(), true`);

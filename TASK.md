@@ -4,6 +4,121 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Biểu đồ: bỏ câu mô tả dưới tên hình khỏi màn (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"xóa các chú thích kiểu như 'Quét Giá trị doanh nghiệp (EV) từ 5.750 tỷ ₫ tới 17.250 tỷ ₫ qua 41 mức. EV/EBITDA
+chạy trong khoảng 3,97 lần tới 11,9 lần. Ở giá trị hiện tại 11.500 tỷ ₫, kết quả là 7,93 lần. Mọi mức đều tính
+được.' trên biểu đồ đi để tối ưu không gian"_
+
+### Đã làm
+
+Câu ấy là `model.summary`, hai tới ba dòng chữ nhỏ dưới tên hình, có ở cả ba kiểu hình (đường theo một ô nhập,
+đường theo thời gian, cột bóc tách). Nay không kiểu nào còn hiện nó trên màn; dưới tên hình là hình luôn.
+
+| File                                           | Đổi gì                                                                                                                                   |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/charts/ChartFrame.tsx`                 | Câu mô tả chuyển sang lớp `visually-hidden`; docblock ghi lý do và con số đo                                                             |
+| `src/ui/charts/ChartFullscreen.tsx`            | Cùng việc ở màn phóng to (đang tắt bằng cờ `PHONG_TO_BAT`), để bật lại không đưa câu ấy về                                               |
+| `src/ui/charts/chart.module.css`               | Bỏ `.captionText`, `.fullSummary` và khối `@media` chỉ dùng để ẩn `.fullSummary`; kèm mộ chí                                             |
+| `src/ui/charts/charts.test.tsx`                | +4 ca: câu không hiện ở ba kiểu hình nhưng còn trong `<figcaption>`; quét mã nguồn, chỗ nào in `model.summary` phải mang lớp ẩn khỏi mắt |
+| `src/core/chart/types.ts`, `FormulaDetail.tsx` | Sửa hai chú thích còn nói câu ấy hiện trên màn                                                                                           |
+| `CLAUDE.md`                                    | Một đoạn mới ở mục "Chart kinds"; sửa một câu ở mục bài hướng dẫn                                                                        |
+
+### Điều tôi tự quyết, chủ dự án nên biết
+
+1. **Câu ấy ẩn khỏi mắt chứ không bị gỡ khỏi trang.** Hình vẽ vốn ẩn với trình đọc màn hình, nên câu này cùng
+   bảng số là toàn bộ biểu đồ với người không nhìn được hình. Ẩn như vậy không tốn một pixel nào. Muốn gỡ hẳn
+   thì sửa hai dòng, nhưng khi đó người dùng trình đọc màn hình chỉ còn bảng số.
+2. **Dòng ghi chú dưới hình (`model.note`) và dòng "Xem số liệu (N)" giữ nguyên**: yêu cầu nêu câu mô tả, không
+   nêu hai dòng này.
+3. **Cái giá:** với mắt, không còn chữ nào nói vì sao đường theo thời gian bắt đầu trễ ("19 phiên đầu chưa đủ dữ
+   liệu"); phần ấy vẫn được vẽ gạch chéo. Nút "?" cạnh chữ BIỂU ĐỒ nay là chỗ duy nhất trên màn giải thích hình.
+
+### Kiểm chứng
+
+- `lint` sạch, `typecheck` sạch, vitest **150 file · 3740 đạt · 48 bỏ qua · 0 hỏng**.
+- **Đo trên màn thật** (Chrome riêng trỏ vào dev server), trước và sau:
+
+| Trang, khổ                   | Thẻ biểu đồ trước | Sau   | Bớt  |
+| ---------------------------- | ----------------- | ----- | ---- |
+| `ev-ebitda`, 1440            | 666px             | 624px | 42px |
+| `ev-ebitda`, 390             | 508px             | 432px | 76px |
+| `ev` (cột bóc tách), 1440    | 451px             | 427px | 24px |
+| `gia-tri-noi-tai-fcff`, 1440 | 690px             | 632px | 58px |
+
+Trong `<figcaption>` chỉ còn tên hình là thấy được; câu mô tả còn đủ chữ trong một hộp 1×1px; trang không tràn
+ngang; console sạch. Đã xem ảnh ở 1440 và 390.
+
+- **Không chạy `build`, `size`, `check:chrome`.** Phép "điều khiển cùng hàng với tiêu đề hình" của `check:chrome`
+  so mép trên của `<figcaption>` với mép trên hàng điều khiển; hai mép ấy vẫn trùng nhau (đo được cùng 123px).
+
+### Chưa làm
+
+- Ở khổ PC tên hình một dòng (cao 24px) đang căn theo MÉP TRÊN của hàng điều khiển (cao 40px), nên chữ đứng cao
+  hơn tâm ô chọn 8px. Trước đây cũng vậy nhưng khối chữ cao nên không lộ. Căn giữa là một dòng CSS, kèm sửa ngưỡng
+  của một phép `check:chrome`; chờ chủ dự án xem rồi quyết.
+
+---
+
+## Thẻ gộp: căn giữa tên công thức và con số so với hàng ô nhập (13/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Khoanh hàng ô nhập của `ev-ebitda` ở khổ PC, rồi khoanh riêng con số "7,93 lần": _"điều chỉnh lại hiển thị nội
+dung như khoanh đỏ ở trên. đang bị lệch. cần căn giữa. điều chỉnh tương tự với toàn bộ công thức khác"_.
+
+### Đo trước khi sửa (`ev-ebitda`, 1440px)
+
+Cụm "tên công thức + con số" bám mép trên thẻ gộp: tên đứng ngang nút "?", con số ở 427–477px cạnh hàng ô ở
+434–513px, để trống 36px dưới con số. Tâm cụm cao hơn tâm hàng ô 34px. Chiều ngang thì cụm đã đứng giữa cột
+trái, nhưng chỉ nhờ một luật viết cho việc khác (xem dưới).
+
+### Đã làm
+
+| Việc                             | Làm thế nào                                                                                                                                                                                       |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Căn giữa theo chiều dọc          | `.merged .result`: ô cao trọn hàng lưới, chừa lại đúng hàng nút "?" ở trên (`--space-6` + `--space-2`), rồi căn giữa. Tên công thức nay ngang nhãn ô nhập, con số ngang số trong ô                |
+| Hai công thức có nút Thêm / Bỏ   | Chừa thêm hàng nút dưới lưới ô (`.merged:has(.repeatActions) .result`), nếu không con số thấp hơn giữa lưới ô 20px                                                                                |
+| Căn giữa theo chiều ngang        | Khai tường minh ở `.block.flat`. Trước đó cụm đứng giữa chỉ nhờ `align-items: center` của thẻ thường rơi xuống, trong khi `.figure` ghi `flex-start`                                              |
+| Áp cho toàn bộ công thức thẻ gộp | Một luật CSS cho cả 64 công thức. 47 công thức còn lại dùng khuôn hai cột (nhãn trái, số phải trong một thẻ), ở đó nhãn và con số vốn đã căn giữa theo chiều dọc nên không có gì để sửa cùng kiểu |
+
+### File đã đổi
+
+| File                                              | Đổi gì                                                                                                 |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `src/app/cong-thuc/[id]/FormulaDetail.module.css` | `.merged .result` căn giữa dọc; `.merged .blockHead` ghim chiều cao; luật chừa hàng nút của nhóm ô lặp |
+| `src/ui/result/ResultBlock.module.css`            | Biến thể `flat`: `align-items` + `text-align` giữa; `.figure` từ `flex-start` sang `center`            |
+| `src/app/cong-thuc/[id]/merged-card-css.test.ts`  | 3 ca gác ý định của ba luật trên (7 ca cả file)                                                        |
+| `scripts/chrome-check.mjs`                        | 2 phép đo: `pe` (dọc + ngang) và `gia-von-trung-binh-dca` năm đợt (dọc, có hàng nút). 171 → 173        |
+| `CLAUDE.md`                                       | Đoạn "name + number group is centred" sau đoạn cân thẻ gộp; số phép `check:chrome`                     |
+
+### Kiểm chứng
+
+- Quét bằng Chrome thật trên dev: cả 64 công thức thẻ gộp, ở 1440 và 1280, chế độ Nâng cao (nhiều ô nhất): lệch
+  dọc so với giữa lưới ô **0px**, lệch ngang **0px**, không tên nào xuống dòng, không con số nào tràn cột, không
+  trang nào tràn ngang. 56 công thức một hàng ô, 7 công thức hai hàng, 1 công thức ba hàng.
+- Ca không tính được (`ev-ebitda` với EBITDA bằng 0): thẻ báo lỗi cao hơn hàng ô nên tự kéo hàng lưới cao lên,
+  mép trên của nó ngang mép trên hàng ô.
+- `npm run check` sạch. Build trên bản sao (dev giữ :3000): `check:chrome` 166/173, hai phép mới đạt (lệch 0px),
+  7 phép hỏng đúng là 7 phép đã hỏng từ trước.
+
+### Còn lại
+
+- Chờ chủ dự án xem màn. Cách hiểu "căn giữa" đã chọn: cả cụm tên + con số đứng giữa VÙNG Ô NHẬP. Nếu ý là giữ
+  tên công thức ở trên cùng (ngang nút "?") và chỉ hạ con số xuống giữa hàng ô thì đổi được, nhưng ở công thức
+  nhiều hàng ô tên sẽ đứng xa con số.
+- Thẻ có rất nhiều hàng ô (giá vốn DCA từ khoảng mười đợt): con số đứng giữa một cột cao hơn màn hình, nên lúc
+  đang gõ ở đợt đầu thì con số nằm dưới mép màn. Trước khi sửa thì ngược lại (gõ ở đợt cuối là con số trôi lên
+  khỏi màn). Chưa làm gì cho ca này; lối xử lý là cho cụm dính theo màn (`position: sticky`).
+
+---
+
 ## Nhóm ô lặp: thêm bớt đợt mua và kỳ ngay trên màn công thức (13/10/2026)
 
 **Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**

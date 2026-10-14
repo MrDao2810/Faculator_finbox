@@ -167,7 +167,11 @@ export interface LineChart {
   kind: 'line';
   /** Tiêu đề dạng "P/E theo EPS" — vào `<figcaption>`. */
   title: Bilingual;
-  /** Một câu mô tả nội dung, cho `<figcaption>`, bản in và PNG. */
+  /**
+   * Câu mô tả nội dung hình bằng chữ, cho TRÌNH ĐỌC MÀN HÌNH: `<svg>` mang `aria-hidden` nên đây
+   * (cùng bảng số) là toàn bộ biểu đồ với người không nhìn được hình. Từ 14/10/2026 nó không còn
+   * hiện trên màn — `ChartFrame` đặt nó trong `<figcaption>` dưới lớp `visually-hidden`.
+   */
   summary: Bilingual;
   x: ChartAxis;
   y: ChartAxis;
@@ -290,6 +294,7 @@ export interface BreakdownBar {
 export interface WaterfallChart {
   kind: 'waterfall';
   title: Bilingual;
+  /** Như `LineChart.summary`: chỉ cho trình đọc màn hình, không hiện trên màn. */
   summary: Bilingual;
   /** Trục giá trị. Bất biến riêng của loại này: miền LUÔN chứa số 0 — chân cột phải có chỗ đứng. */
   y: ChartAxis;

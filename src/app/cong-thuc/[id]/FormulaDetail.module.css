@@ -1192,6 +1192,58 @@ button.iconButton::after {
   .merged .result {
     grid-column: 1;
     grid-row: 1;
+
+    /*
+     * Cụm "tên · con số" đứng GIỮA theo chiều dọc, so với đúng vùng ô nhập bên phải (13/10/2026).
+     *
+     * Trước đó ô này bám mép trên (`align-items: start` của thẻ), nên tên công thức đứng ngang nút
+     * "?" còn con số đứng ngang MÉP TRÊN hàng ô, để trống 36px bên dưới — đo trên `ev-ebitda` ở
+     * 1440: con số 427–477px cạnh hàng ô 434–513px. Chủ dự án khoanh đúng hàng ấy: _"đang bị lệch.
+     * cần căn giữa. điều chỉnh tương tự với toàn bộ công thức khác"_.
+     *
+     * Ba khai báo, cần đủ cả ba:
+     *
+     *   · `align-self: stretch` — ô cao bằng cả hàng lưới. Không dùng `align-self: center`: cột
+     *     phải mở đầu bằng hàng nút "?" (24px + khe 8px), nên giữa của CẢ cột phải nằm cao hơn giữa
+     *     hàng ô 16px, và cụm vẫn lệch đúng chừng ấy. Giữ ô cao trọn hàng cũng giữ nguyên phép đo
+     *     "Kết quả và Số liệu cùng mép trên" của `check:chrome`.
+     *   · `padding-top` — chừa lại đúng phần hàng nút "?" chiếm bên kia: chiều cao nút
+     *     (`--space-6`, khai ở `GuideHint.module.css`) cộng khe của `.block` (`--space-2`). Vùng
+     *     còn lại của ô vì thế trùng khít vùng ô nhập. Luật `.merged .blockHead` ngay dưới ghim
+     *     chiều cao hàng ấy bằng cùng token, để hai vế không trôi khỏi nhau.
+     *   · `justify-content: center` — `.result` là flex cột, nên đây là trục DỌC.
+     *
+     * Công thức nhiều hàng ô (năm, sáu ô; ba đợt mua) thì cụm đứng giữa cả vùng ô, không bám hàng
+     * đầu. Khi vế trái cao hơn vùng ô (thẻ báo lỗi của WF-15 dài ba, bốn dòng) thì chính nó kéo
+     * hàng lưới cao lên, mép trên của nó ngang mép trên hàng ô.
+     *
+     * Căn giữa theo chiều NGANG nằm ở `ResultBlock.module.css` (`.block.flat`), vì đó là hình
+     * dạng bên trong của thẻ đáp án; ở đây chỉ là chỗ đứng của thẻ trong ô lưới.
+     */
+    align-self: stretch;
+    justify-content: center;
+    padding-top: calc(var(--space-6) + var(--space-2));
+  }
+
+  /* Vế còn lại của phép căn giữa ngay trên: hàng nút "?" cao đúng `--space-6`, không ít hơn. */
+  .merged .blockHead {
+    min-height: var(--space-6);
+  }
+
+  /*
+   * Hai công thức có nhóm ô lặp còn một hàng nữa DƯỚI lưới ô: hai nút "+ Thêm đợt mua" / "Bỏ đợt 4".
+   * Không chừa lại thì cụm bên trái đứng giữa cả vùng "ô + hàng nút", tức thấp hơn giữa lưới ô
+   * 20px — và ở `loi-suat-trung-binh-hinh-hoc` (ba ô một hàng) hay `gia-von-trung-binh-dca` lúc mới
+   * mở (ba hàng, hàng giữa là mốc mắt dò) thì đó đúng là cái lệch vừa sửa, chỉ đổi chiều.
+   *
+   * Phần chừa bằng đúng chỗ hàng nút chiếm: nút `size="sm"` cao 36px (`.sm` ở `Button.module.css`,
+   * nơi con số ấy được khai), cộng khe `--space-2` của `.block`, trừ `margin-top` âm `--space-1`
+   * của `.repeatActions`. 36px chép lại ở đây vì không có token nào cho nó; `check:chrome` đo cụm
+   * này so với hàng ô giữa của `gia-von-trung-binh-dca`, nên đổi cỡ nút mà quên chỗ này là phép đo
+   * ấy đỏ.
+   */
+  .merged:has(.repeatActions) .result {
+    padding-bottom: calc(36px + var(--space-2) - var(--space-1));
   }
 
   /*

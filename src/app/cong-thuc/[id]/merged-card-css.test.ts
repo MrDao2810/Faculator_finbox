@@ -178,4 +178,64 @@ describe('Thẻ gộp — luật CSS mà mất đi thì màn sai mà test không
     ).not.toBeNull();
     expect(luat?.than).toMatch(/max-width:/);
   });
+
+  /*
+   * Căn giữa cụm "tên công thức + con số" (13/10/2026). Chủ dự án khoanh hàng ô nhập của
+   * `ev-ebitda`: _"đang bị lệch. cần căn giữa. điều chỉnh tương tự với toàn bộ công thức khác"_ —
+   * cụm bám mép trên thẻ, con số đứng ngang MÉP TRÊN hàng ô chứ không ngang giữa hàng.
+   *
+   * `check:chrome` đo vị trí thật ở 1440; ba ca dưới đây gác Ý ĐỊNH, vì mỗi vế mất đi là một kiểu
+   * lệch khác nhau mà React không thấy: bỏ `stretch` thì cụm lại bám mép trên, bỏ phần chừa hàng
+   * nút "?" thì cụm cao hơn giữa hàng ô 16px, và phần chừa ấy chỉ đúng khi hàng nút cao bằng
+   * chính token đem ra chừa.
+   */
+  it('cụm kết quả đứng giữa vùng ô nhập theo chiều dọc — ô cao trọn hàng, chừa lại hàng nút "?"', () => {
+    const luat = luatTrongMedia(1280, '.merged .result');
+
+    expect(luat, 'khối 1280 phải có luật `.merged .result`').not.toBeNull();
+    expect(luat?.than).toMatch(/align-self:\s*stretch/);
+    expect(luat?.than).toMatch(/justify-content:\s*center/);
+    expect(
+      luat?.than,
+      'phần chừa phía trên phải bằng chiều cao nút "?" (`--space-6`) cộng khe của `.block` (`--space-2`)',
+    ).toMatch(/padding-top:\s*calc\(var\(--space-6\)\s*\+\s*var\(--space-2\)\)/);
+
+    const hangNut = luatTrongMedia(1280, '.merged .blockHead');
+    expect(
+      hangNut?.than,
+      'hàng nút "?" phải cao đúng token đã đem ra chừa ở vế trái, nếu không hai vế trôi khỏi nhau',
+    ).toMatch(/min-height:\s*var\(--space-6\)/);
+  });
+
+  it('hàng nút thêm bớt của nhóm ô lặp cũng được chừa lại — con số đứng giữa LƯỚI Ô', () => {
+    const luat = luatTrongMedia(1280, '.merged:has(.repeatActions) .result');
+
+    expect(
+      luat,
+      'thiếu luật này thì `gia-von-trung-binh-dca` và `loi-suat-trung-binh-hinh-hoc` có con số ' +
+        'thấp hơn giữa lưới ô 20px',
+    ).not.toBeNull();
+    expect(luat?.than).toMatch(/padding-bottom:\s*calc\(/);
+  });
+
+  /*
+   * Chiều NGANG nằm ở file khác (`ResultBlock.module.css`, biến thể `flat`), và phải khai tường
+   * minh. Từ 01/10 tới 13/10/2026 cụm đứng giữa cột trái chỉ nhờ `align-items: center` của luật
+   * `.block` — khai cho LƯỚI nhãn trái số phải của thẻ thường rồi rơi xuống biến thể này — trong
+   * khi `.figure` lại ghi `flex-start`. Đổi khuôn thẻ thường là cụm dạt trái mà không ca nào đỏ.
+   */
+  it('cụm kết quả đứng giữa cột trái theo chiều ngang, khai ngay ở biến thể `flat`', () => {
+    const khoiKetQua = readFileSync(
+      fileURLToPath(new URL('../../../ui/result/ResultBlock.module.css', import.meta.url)),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '');
+
+    const flat = /^\s*\.block\.flat\s*\{([^}]*)\}/m.exec(khoiKetQua);
+    expect(flat, 'phải có luật `.block.flat`').not.toBeNull();
+    expect(flat?.[1]).toMatch(/align-items:\s*center/);
+    expect(flat?.[1]).toMatch(/text-align:\s*center/);
+
+    const conSo = /^\s*\.block\.flat \.figure\s*\{([^}]*)\}/m.exec(khoiKetQua);
+    expect(conSo?.[1]).toMatch(/justify-content:\s*center/);
+  });
 });

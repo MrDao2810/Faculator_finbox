@@ -66,7 +66,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 51 assertions against a built out/ — run after build
-npm run check:chrome   # 171 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 173 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -892,6 +892,21 @@ unreviewed content. Cost, measured against the same tree without this package: d
 (breakdown), and `unavailable`. `ChartFrame` and `ChartFullscreen` take `DrawableChart` — the
 union minus `unavailable` — so a fourth kind only needs a branch in `ChartBody`.
 
+**The chart's description sentence (`model.summary`) is not shown on screen** (14/10/2026). It sat under the
+chart's name, two or three small lines; the owner quoted the one on `ev-ebitda` — _"Quét Giá trị doanh nghiệp
+(EV) từ 5.750 tỷ ₫ tới 17.250 tỷ ₫ qua 41 mức. EV/EBITDA chạy trong khoảng 3,97 lần tới 11,9 lần. Ở giá trị
+hiện tại 11.500 tỷ ₫, kết quả là 7,93 lần. Mọi mức đều tính được."_ — and had captions of that kind removed
+_"để tối ưu không gian"_. Measured on that page: the chart card is 42px shorter at 1440 and 76px at 390. The
+sentence is **still in the `<figcaption>`, under the global `visually-hidden` class**, and that half must stay:
+the `<svg>` is `aria-hidden`, so for a screen reader this sentence and the data table are the whole chart
+(RSI's 30 and 70 marks, an overlay series, "the first 19 sessions have no data yet" are only _said_ there).
+`ChartFullscreen` keeps a hidden copy for the same reason, since a modal dialog makes the page behind it inert.
+The costs, known: nothing a sighted user reads now says why a time line starts late (the hatching does), and
+the "?" popover is the only on-screen text about the chart. A source scan in `charts.test.tsx` requires every
+`pick(model.summary)` to sit on a `visually-hidden` element and forbids the two old CSS classes, because the
+fullscreen overlay is switched off (`PHONG_TO_BAT`) and no rendering test can reach it. `model.note` (the
+`role="note"` line under the plot) is a different thing and was not touched.
+
 A formula gets a waterfall by declaring `spec.breakdown` (ordered stages, each with a `sign` and
 an optional `shortLabel`, keyed to an input variable **or** to a key in the result's `extras`).
 **All eleven** formulas tagged `waterfall`/`stackedBar` declare stages — nothing is left waiting.
@@ -1173,6 +1188,32 @@ a config block**, so `.actions`, `.seriesFoot` and `DetailConfig` can never appe
 column holds only its heading and the input tiles, and nothing else can stretch it. `rut-truoc-han`
 left `hasMergedCard()` in the same round (65 → 64) because that list excludes every `waterfall`
 formula, and the gate recomputes the list from its four criteria rather than trusting it.
+
+**In the merged card the "name + number" group is centred on the input tiles, both ways**
+(13/10/2026). The owner circled the tile row of `ev-ebitda`: _"đang bị lệch. cần căn giữa. điều chỉnh
+tương tự với toàn bộ công thức khác"_. Measured before the fix: the group hugged the top of the card,
+so the name sat level with the "?" button and the number level with the TOP edge of the tiles
+(427–477px beside tiles at 434–513px). Three things are easy to break:
+
+- **Vertical is `.merged .result` in `FormulaDetail.module.css`: `align-self: stretch` +
+  `justify-content: center` + a `padding-top` of `--space-6` + `--space-2`.** Not
+  `align-self: center`: the right column opens with the "?" row (24px + an 8px gap), so the middle of
+  the whole column is 16px above the middle of the tiles. The padding reserves exactly that row, and
+  `.merged .blockHead` pins it with the same token (`min-height: var(--space-6)`, the size
+  `GuideHint.module.css` declares).
+- **The two repeat-group formulas have a button row UNDER the tiles**, reserved by
+  `.merged:has(.repeatActions) .result` with a literal `36px` copied from `Button.module.css`'s
+  `.sm`. There is no token for it; forget it and the number drops 20px.
+- **Horizontal is `.block.flat` in `ResultBlock.module.css`, and it was an accident until that day**:
+  the group was centred only because `align-items: center` leaked down from the plain card's grid
+  rule, while `.figure` said `flex-start`. It is now declared on the variant.
+
+The older `check:chrome` assertion "cùng mép trên" cannot see any of this: it measures the result
+section's box, which spans the whole grid row in both states. Two assertions measure the group itself
+(`pe`, and `gia-von-trung-binh-dca` with five rounds), and `merged-card-css.test.ts` pins the
+declarations. Swept over all 64 merged formulas at 1440 and 1280: 0px off on both axes. When the
+left side is taller than the tiles (the WF-15 error card), it grows the row and its top lines up with
+the top of the tiles.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
@@ -2080,8 +2121,8 @@ its text.
 Five things this surfaced and did not fix, all outside the guide text: `eps-co-ban` in Advanced mode opens on
 "EPS cơ bản theo Cổ tức ưu đãi" swept across the field's whole 0 – 100.000 tỷ ₫ range (the default is 0, so
 there is no ±50% around it) and ends tens of thousands of dong below zero — a legal but odd default chart;
-the detail screen's own `<figcaption>` still opens "Quét … từ … tới … qua 41 mức", the same jargon the owner
-rejected in the guide; **a line chart whose computable points are isolated draws no stroke at all** —
+the detail screen's own `<figcaption>` opened "Quét … từ … tới … qua 41 mức", the same jargon the owner
+rejected in the guide (off screen since 14/10/2026, see "Chart kinds"); **a line chart whose computable points are isolated draws no stroke at all** —
 `gui-quay-vong` against "Tổng thời gian" is computable only at multiples of the short term, `linePath()`
 emits five `M` and no `L`, and the line form shows hatching edge to edge plus the marker dot (its paragraph
 now says so and sends the reader to Cột; the cure is a dot per lone point in `LineChart`);

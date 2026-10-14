@@ -3447,8 +3447,10 @@ export function FormulaDetail({
               chủ dự án, và chú thích tại chỗ ở `vi.ts` ghi cái giá phải trả — *"Không còn câu nào
               nói ra điều ấy, nên cú bấm đầu tiên trên những màn đó trông như tính năng không hoạt
               động."* Thêm một điều chưa từng được nói ở đâu: dải quét là ±50% quanh con số đang
-              nhập, nên hình có đường cong dù người dùng chỉ nhập một bộ số. Câu mô tả dưới hình chỉ
-              kể SỐ ĐO ("Quét … từ … tới … qua 41 mức"), không nói nghĩa.
+              nhập, nên hình có đường cong dù người dùng chỉ nhập một bộ số. Câu mô tả của hình chỉ
+              kể SỐ ĐO ("Quét … từ … tới … qua 41 mức"), không nói nghĩa — và từ 14/10/2026 nó
+              không còn hiện trên màn (chỉ còn cho trình đọc màn hình, xem `ChartFrame`), nên nút
+              này là chỗ duy nhất trên màn giải thích hình.
 
               Lớp `styles.blockChart` cũ đã gỡ ở đợt 5: nó KHÔNG được khai ở đâu trong CSS, nên thẻ
               này suốt thời gian qua mang `class="block deferred undefined"`. Cùng lượt với

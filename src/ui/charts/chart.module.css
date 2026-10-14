@@ -36,8 +36,14 @@
   gap: var(--space-2);
 }
 
-/* ── Câu mô tả: lối đọc chính, không phải chú thích cho vui ─────────────── */
+/* ── Tên hình ───────────────────────────────────────────────────────────── */
 
+/*
+ * `.captionText` — câu mô tả hai, ba dòng dưới tên hình ("Quét … từ … tới … qua 41 mức. …") — đã BỎ
+ * ngày 14/10/2026 theo yêu cầu chủ dự án, để nhường chỗ cho hình. Câu ấy vẫn nằm trong
+ * `<figcaption>` dưới lớp toàn cục `visually-hidden` cho trình đọc màn hình; lý do và con số đo ở
+ * docblock `ChartFrame.tsx`. `.fullSummary` của màn phóng to đi cùng lượt.
+ */
 .caption {
   display: flex;
   flex-direction: column;
@@ -51,12 +57,6 @@
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
   color: var(--color-ink);
-}
-
-.captionText {
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-ink-soft);
 }
 
 /* ── Khung vẽ ───────────────────────────────────────────────────────────── */
@@ -928,13 +928,6 @@
   flex: none;
 }
 
-.fullSummary {
-  margin: 0;
-  font-size: var(--text-xs);
-  line-height: var(--leading-normal);
-  color: var(--color-ink-soft);
-}
-
 .fullRotate {
   margin: 0;
   padding: var(--space-2);
@@ -943,16 +936,6 @@
   color: var(--color-ink);
   background: var(--color-accent-soft);
   border-radius: var(--radius-md);
-}
-
-/*
- * Điện thoại nằm ngang chỉ còn khoảng 360px chiều cao. Câu mô tả đã có ở trang phía sau nên bỏ nó ở
- * đây để nhường hết chỗ cho hình — thứ người dùng vừa bấm phóng to để xem.
- */
-@media (orientation: landscape) and (max-height: 480px) {
-  .fullSummary {
-    display: none;
-  }
 }
 
 /* Hình choán hết chỗ được cấp thay vì giữ tỉ lệ 16/10 — chỉ dùng ở màn phóng to. */

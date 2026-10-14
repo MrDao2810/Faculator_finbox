@@ -282,7 +282,12 @@ export function ChartFullscreen({
 
           <div className={styles.fullFoot}>
             {controls}
-            <p className={styles.fullSummary}>{pick(model.summary)}</p>
+            {/*
+              Câu mô tả ẩn khỏi mắt từ 14/10/2026, cùng lượt và cùng lý do với bản trên trang — xem
+              docblock `ChartFrame`. Giữ trong DOM vì lớp phủ là `<dialog>` modal: trang phía sau
+              trơ với trình đọc màn hình, nên bản ẩn của `<figcaption>` ở đó không với tới được.
+            */}
+            <p className="visually-hidden">{pick(model.summary)}</p>
             {model.note !== undefined && (
               <p className={styles.note} role="note">
                 {pick(model.note)}

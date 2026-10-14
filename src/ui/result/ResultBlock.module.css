@@ -214,11 +214,22 @@
    * tiên thì chỉ còn thứ tự khai quyết định — cùng cái bẫy đã ghi ở `.panelCenter` trong
    * `BottomSheet.module.css`. Dưới 1280 không có luật nào ở đây, nên biến thể này vẽ y hệt thẻ
    * thường: khối gộp là thiết kế riêng cho màn web.
+   *
+   * CĂN GIỮA theo chiều ngang, và phải khai tường minh (13/10/2026). Từ lúc dựng tới hôm đó cụm
+   * tên và con số đứng giữa cột trái chỉ nhờ `align-items: center` của luật `.block` phía trên —
+   * khai cho LƯỚI nhãn trái số phải, rồi rơi xuống biến thể này vì không ai khai lại, trong khi
+   * `.figure` ở dưới lại ghi `flex-start`. Tức hình trên màn đúng nhờ một luật viết cho việc
+   * khác: đổi khuôn thẻ thường là cụm này dạt trái mà không ca kiểm nào đỏ. `text-align` lo nốt
+   * trường hợp tên công thức dài phải xuống dòng. Căn giữa theo chiều DỌC so với hàng ô nhập thì
+   * là việc của ô lưới chứa thẻ, xem `.merged .result` ở `FormulaDetail.module.css`.
    */
   .block.flat {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--space-1);
+
+    text-align: center;
 
     padding: 0;
     background: none;
@@ -250,8 +261,9 @@
     color: var(--color-muted);
   }
 
+  /* Con số dài đẩy đơn vị xuống dòng thì dòng đơn vị cũng đứng giữa, không dạt về một mép. */
   .block.flat .figure {
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .block.flat .value {

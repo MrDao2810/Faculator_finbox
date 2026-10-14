@@ -8,10 +8,23 @@ import { useT, usePick } from '@/application/preferences-context';
 import styles from './chart.module.css';
 
 /**
- * Khung ngoài của biểu đồ: câu mô tả, hình vẽ, ghi chú, bảng số.
+ * Khung ngoài của biểu đồ: tên hình, hình vẽ, ghi chú, bảng số.
  *
  * Đây là chỗ khả năng tiếp cận được lo trọn (NFR-USA-06), và cách lo hơi khác thói thường nên
  * đáng ghi lại:
+ *
+ * **Câu mô tả (`model.summary`) KHÔNG còn hiện trên màn từ 14/10/2026.** Nó từng đứng ngay dưới tên
+ * hình, hai tới ba dòng chữ nhỏ: "Quét Giá trị doanh nghiệp (EV) từ 5.750 tỷ ₫ tới 17.250 tỷ ₫ qua
+ * 41 mức. EV/EBITDA chạy trong khoảng 3,97 lần tới 11,9 lần. Ở giá trị hiện tại 11.500 tỷ ₫, kết
+ * quả là 7,93 lần. Mọi mức đều tính được." Chủ dự án chép đúng câu ấy và bảo xoá *"để tối ưu không
+ * gian"*: mọi con số trong câu đã nằm trên hình (hai đầu trục, dấu giá trị hiện tại) và trong bảng
+ * số bên dưới. Đo trên `ev-ebitda`: thẻ biểu đồ thấp đi 42px ở 1440 và 76px ở 390.
+ *
+ * Câu ấy vẫn ở trong `<figcaption>` dưới lớp `visually-hidden`, và đó là phần KHÔNG được gỡ theo:
+ * `<svg>` mang `aria-hidden` (xem docblock `LineChart`), nên với trình đọc màn hình thì câu này và
+ * bảng số là toàn bộ biểu đồ — hai đường mốc 30 và 70 của RSI, chuỗi vẽ kèm, "19 phiên đầu chưa đủ
+ * dữ liệu" đều chỉ được NÓI ra ở đây. Ẩn khỏi mắt thì không tốn một pixel nào; gỡ khỏi DOM là lấy
+ * biểu đồ khỏi tay người không nhìn được hình. Đừng dựng lại bản hiện trên màn mà không hỏi.
  *
  * **Bảng số HIỆN, không `.visually-hidden`.** Cách phổ biến là giấu một bảng chỉ cho trình đọc màn
  * hình. Ở đây không giấu, vì người sáng mắt cũng cần con số chính xác — mắt đọc một biểu đồ chỉ ra
@@ -61,7 +74,12 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
       <div className={styles.captionRow}>
         <figcaption className={styles.caption} id={captionId}>
           <strong className={styles.captionTitle}>{pick(model.title)}</strong>
-          <span className={styles.captionText}>{pick(model.summary)}</span>
+          {/*
+            Ẩn khỏi mắt, còn cho trình đọc màn hình — lý do ở docblock đầu file. Dấu cách đứng
+            trước là để tên của `<figure>` (ghép từ chữ của cả `<figcaption>`) không dính liền tên
+            hình với câu mô tả: "…(EV)Quét Giá trị…".
+          */}{' '}
+          <span className="visually-hidden">{pick(model.summary)}</span>
         </figcaption>
         {action}
       </div>
